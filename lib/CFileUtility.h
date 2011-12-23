@@ -1,5 +1,6 @@
 #pragma once
-#include "../global.h"
+
+
 
 /*
  * CFileUtility.cpp, part of VCMI engine
@@ -19,7 +20,7 @@ struct FileInfo
 	bool inLod; //tells if this file is located in Lod
 };
 
-class DLL_EXPORT CFileUtility
+class DLL_LINKAGE CFileUtility
 {
 public:
 	CFileUtility(void);

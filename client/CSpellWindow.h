@@ -1,10 +1,6 @@
-#ifndef __CSPELLWINDOW_H__
-#define __CSPELLWINDOW_H__
+#pragma once
 
-
-#include "../global.h"
-#include "GUIBase.h"
-#include "boost/function.hpp"
+#include "UIFramework/CIntObject.h"
 
 /*
  * CSpellWindow.h, part of VCMI engine
@@ -21,6 +17,7 @@ class CDefHandler;
 struct SDL_Rect;
 class CGHeroInstance;
 class CStatusBar;
+class CPlayerInterface;
 
 /// Spellbook button is used by the spell window class
 class SpellbookInteractiveArea : public CIntObject
@@ -60,7 +57,7 @@ private:
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 		void hover(bool on);
-		void showAll(SDL_Surface *to);
+		void showAll(SDL_Surface * to);
 	};
 
 	SDL_Surface * background, * leftCorner, * rightCorner;
@@ -114,5 +111,3 @@ public:
 
 	void teleportTo(int town, const CGHeroInstance * hero);
 };
-
-#endif // __CSPELLWINDOW_H__

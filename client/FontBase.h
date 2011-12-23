@@ -1,5 +1,4 @@
-#ifndef __FONTBASE_H__
-#define __FONTBASE_H__
+#pragma once
 
 /*
  * FontBase.h, part of VCMI engine
@@ -22,19 +21,17 @@ struct Font
 	struct Char
 	{
 		si32 unknown1, width, unknown2, offset;
-		unsigned char *pixels;
+		ui8 *pixels;
 	};
 
 	Char chars[256];
 	ui8 height;
 
-	unsigned char *data;
+	ui8 *data;
 
 
-	Font(unsigned char *Data);
+	Font(ui8 *Data);
 	~Font();
 	int getWidth(const char *text) const;
 	int getCharWidth(char c) const;
 };
-
-#endif

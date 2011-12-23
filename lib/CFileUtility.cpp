@@ -1,7 +1,5 @@
-#define VCMI_DLL
+#include "StdInc.h"
 #include "CFileUtility.h"
-#include <boost/filesystem.hpp>   // includes all needed Boost.Filesystem declarations
-#include <boost/algorithm/string/predicate.hpp>
 
 /*
  * CFileUtility.cpp, part of VCMI engine

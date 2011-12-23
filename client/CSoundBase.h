@@ -1,5 +1,4 @@
-#ifndef __CSOUNDBASE_H__
-#define __CSOUNDBASE_H__
+#pragma once
 
 // Use some magic to keep the list of files and their code name in sync.
 
@@ -1034,5 +1033,3 @@ public:
 #undef VCMI_SOUND_NAME
 #undef VCMI_SOUND_FILE
 };
-
-#endif // __CSOUNDBASE_H__

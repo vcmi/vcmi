@@ -1,5 +1,5 @@
-#include "../stdafx.h"
-#include "AdventureMapButton.h"
+#include "StdInc.h"
+
 #include "CAdvmapInterface.h"
 #include "../CCallback.h"
 #include "CGameInfo.h"
@@ -7,27 +7,22 @@
 #include "CMessage.h"
 #include "CKingdomInterface.h"
 #include "SDL.h"
-#include "SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "CBitmapHandler.h"
 #include "Graphics.h"
 #include "CSpellWindow.h"
 #include "CConfigHandler.h"
 #include "CPlayerInterface.h"
-#include "../global.h"
+
 #include "../lib/CArtHandler.h"
 #include "CDefHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CLodHandler.h"
 #include "../lib/CObjectHandler.h"
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/assign/list_of.hpp>
-#include <boost/assign/std/vector.hpp>
-#include <cstdlib>
-#include <sstream>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-#include <boost/foreach.hpp>
+
+#include "UIFramework/CGuiHandler.h"
+#include "UIFramework/CIntObjectClasses.h"
 
 #undef min
 
@@ -110,10 +105,10 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 	//artifs = new CArtifactsOfHero(pos.topLeft(), true);
 	ourBar = new CGStatusBar(7, 559, "ADROLLVR.bmp", 660); // new CStatusBar(pos.x+72, pos.y+567, "ADROLLVR.bmp", 660);
 
-	quitButton = new AdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(),boost::bind(&CHeroWindow::quit,this), 609, 516, "hsbtns.def", SDLK_RETURN);
+	quitButton = new CAdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(),boost::bind(&CHeroWindow::quit,this), 609, 516, "hsbtns.def", SDLK_RETURN);
 	quitButton->assignedKeys.insert(SDLK_ESCAPE);
-	dismissButton = new AdventureMapButton(std::string(), CGI->generaltexth->heroscrn[28], boost::bind(&CHeroWindow::dismissCurrent,this), 454, 429, "hsbtns2.def", SDLK_d);
-	questlogButton = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), 314, 429, "hsbtns4.def", SDLK_q);
+	dismissButton = new CAdventureMapButton(std::string(), CGI->generaltexth->heroscrn[28], boost::bind(&CHeroWindow::dismissCurrent,this), 454, 429, "hsbtns2.def", SDLK_d);
+	questlogButton = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), 314, 429, "hsbtns4.def", SDLK_q);
 
 	formations = new CHighlightableButtonsGroup(0);
 	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[23]),CGI->generaltexth->heroscrn[29], "hsbtns6.def", 481, 483, 0, 0, SDLK_t);
@@ -131,9 +126,9 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 	//areas
 	portraitArea = new LRClickableAreaWText(Rect(18, 18, 58, 64));
 
-	for(int v=0; v<PRIMARY_SKILLS; ++v)
+	for(int v=0; v<GameConstants::PRIMARY_SKILLS; ++v)
 	{
-		LRClickableAreaWTextComp *area = new LRClickableAreaWTextComp(Rect(30 + 70*v, 109, 42, 64), SComponent::primskill);
+		LRClickableAreaWTextComp *area = new LRClickableAreaWTextComp(Rect(30 + 70*v, 109, 42, 64), CComponent::primskill);
 		area->text = CGI->generaltexth->arraytxt[2+v];
 		area->type = v;
 		area->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % CGI->generaltexth->primarySkillNames[v]);
@@ -149,7 +144,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 	for(int i = 0; i < std::min<size_t>(hero->secSkills.size(), 8u); ++i)
 	{
 		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);
-		secSkillAreas.push_back(new LRClickableAreaWTextComp(r, SComponent::secskill));
+		secSkillAreas.push_back(new LRClickableAreaWTextComp(r, CComponent::secskill));
 	}
 
 	//////////////////////////////////////////////////////////////////////////???????????????
@@ -198,14 +193,14 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	portraitArea->text = curHero->getBiography();
 
 	{
-		AdventureMapButton * split = NULL;
+		CAdventureMapButton * split = NULL;
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
 		if(!garr)
 		{
 			garr = new CGarrisonInt(15, 485, 8, Point(), background->bg, Point(15,485), curHero);
 			{
 				BLOCK_CAPTURING;
-				split = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::bind(&CGarrisonInt::splitClick,garr), pos.x + 539, pos.y + 519, "hsbtns9.def", false, NULL, false); //deleted by garrison destructor
+				split = new CAdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::bind(&CGarrisonInt::splitClick,garr), pos.x + 539, pos.y + 519, "hsbtns9.def", false, NULL, false); //deleted by garrison destructor
 				boost::algorithm::replace_first(split->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
 			}
 			garr->addSplitBtn(split);
@@ -250,7 +245,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 
 	//if we have exchange window with this curHero open
 	bool noDismiss=false;
-	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
 		if(CExchangeWindow * cew = dynamic_cast<CExchangeWindow*>(isa))
 			for(int g=0; g < ARRAY_COUNT(cew->heroInst); ++g)
@@ -292,7 +287,7 @@ void CHeroWindow::dismissCurrent()
 {
 	CFunctionList<void()> ony = boost::bind(&CHeroWindow::quit,this);
 	ony += boost::bind(&CCallback::dismissHero,LOCPLINT->cb,curHero);
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22],std::vector<SComponent*>(), ony, 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22],std::vector<CComponent*>(), ony, 0, false);
 }
 
 void CHeroWindow::questlog()
@@ -306,41 +301,41 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	blitAtLoc(graphics->portraitLarge[curHero->portrait], 19, 19, to);
 	 
 	//printing hero's name
-	printAtMiddleLoc(curHero->name, 190, 38, FONT_BIG, tytulowy, to);
+	printAtMiddleLoc(curHero->name, 190, 38, FONT_BIG, Colors::Jasmine, to);
 	 
 	//printing hero's level
 	std::string secondLine= CGI->generaltexth->allTexts[342];
 	boost::algorithm::replace_first(secondLine,"%d",boost::lexical_cast<std::string>(curHero->level));
 	boost::algorithm::replace_first(secondLine,"%s",curHero->type->heroClass->name);
-	printAtMiddleLoc(secondLine, 190, 65, FONT_MEDIUM, zwykly, to);
+	printAtMiddleLoc(secondLine, 190, 65, FONT_MEDIUM, Colors::Cornsilk, to);
 	 	
 	//primary skills names
-	printAtMiddleLoc(CGI->generaltexth->jktexts[1], 52, 99, FONT_SMALL, tytulowy, to);
-	printAtMiddleLoc(CGI->generaltexth->jktexts[2], 123, 99, FONT_SMALL, tytulowy, to);
-	printAtMiddleLoc(CGI->generaltexth->jktexts[3], 193, 99, FONT_SMALL, tytulowy, to);
-	printAtMiddleLoc(CGI->generaltexth->jktexts[4], 262, 99, FONT_SMALL, tytulowy, to);
+	printAtMiddleLoc(CGI->generaltexth->jktexts[1], 52, 99, FONT_SMALL, Colors::Jasmine, to);
+	printAtMiddleLoc(CGI->generaltexth->jktexts[2], 123, 99, FONT_SMALL, Colors::Jasmine, to);
+	printAtMiddleLoc(CGI->generaltexth->jktexts[3], 193, 99, FONT_SMALL, Colors::Jasmine, to);
+	printAtMiddleLoc(CGI->generaltexth->jktexts[4], 262, 99, FONT_SMALL, Colors::Jasmine, to);
 	 
 	//dismiss / quest log
 	std::vector<std::string> toPrin = CMessage::breakText(CGI->generaltexth->jktexts[8]);
 	if(toPrin.size()==1)
 	{
-	 	printAtLoc(toPrin[0], 372, 439, FONT_SMALL, zwykly, to);
+	 	printAtLoc(toPrin[0], 372, 439, FONT_SMALL, Colors::Cornsilk, to);
 	}
 	else
 	{
-	 	printAtLoc(toPrin[0], 372, 430, FONT_SMALL, zwykly, to);
-	 	printAtLoc(toPrin[1], 372, 446, FONT_SMALL, zwykly, to);
+	 	printAtLoc(toPrin[0], 372, 430, FONT_SMALL, Colors::Cornsilk, to);
+	 	printAtLoc(toPrin[1], 372, 446, FONT_SMALL, Colors::Cornsilk, to);
 	}
 	 
 	toPrin = CMessage::breakText(CGI->generaltexth->jktexts[9]);
 	if(toPrin.size()==1)
 	{
-	 	printAtLoc(toPrin[0], 512, 439, FONT_SMALL, zwykly, to);
+	 	printAtLoc(toPrin[0], 512, 439, FONT_SMALL, Colors::Cornsilk, to);
 	}
 	else
 	{
-	 	printAtLoc(toPrin[0], 512, 430, FONT_SMALL, zwykly, to);
-	 	printAtLoc(toPrin[1], 512, 446, FONT_SMALL, zwykly, to);
+	 	printAtLoc(toPrin[0], 512, 430, FONT_SMALL, Colors::Cornsilk, to);
+	 	printAtLoc(toPrin[1], 512, 446, FONT_SMALL, Colors::Cornsilk, to);
 	}
 	 
 	//printing primary skills' amounts
@@ -348,7 +343,7 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	{
 	 	std::ostringstream primarySkill;
 	 	primarySkill << primSkillAreas[m]->bonusValue;
-	 	printAtMiddleLoc(primarySkill.str(), 53 + 70 * m, 166, FONT_SMALL, zwykly, to);
+	 	printAtMiddleLoc(primarySkill.str(), 53 + 70 * m, 166, FONT_SMALL, Colors::Cornsilk, to);
 	}
 	 
 	blitAtLoc(flags->ourImages[player].bitmap, 606, 8, to);
@@ -381,22 +376,22 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	for(size_t v=0; v<std::min(secSkillAreas.size(), curHero->secSkills.size()); ++v)
 	{
 	 	blitAtLoc(graphics->abils44->ourImages[curHero->secSkills[v].first*3+3+curHero->secSkills[v].second-1].bitmap, v%2 ? 161 : 18, 276 + 48 * (v/2), to);
-	 	printAtLoc(CGI->generaltexth->levels[curHero->secSkills[v].second-1], v%2 ? 212 : 68, 280 + 48 * (v/2), FONT_SMALL, zwykly, to);
-	 	printAtLoc(CGI->generaltexth->skillName[curHero->secSkills[v].first], v%2 ? 212 : 68, 300 + 48 * (v/2), FONT_SMALL, zwykly, to);
+	 	printAtLoc(CGI->generaltexth->levels[curHero->secSkills[v].second-1], v%2 ? 212 : 68, 280 + 48 * (v/2), FONT_SMALL, Colors::Cornsilk, to);
+	 	printAtLoc(CGI->generaltexth->skillName[curHero->secSkills[v].first], v%2 ? 212 : 68, 300 + 48 * (v/2), FONT_SMALL, Colors::Cornsilk, to);
 	}
 	 
 	//printing special ability
 	blitAtLoc(graphics->un44->ourImages[curHero->subID].bitmap, 18, 180, to);
-	printAtLoc(CGI->generaltexth->jktexts[5].substr(1, CGI->generaltexth->jktexts[5].size()-2), 69, 183, FONT_SMALL, tytulowy, to);
-	printAtLoc(CGI->generaltexth->hTxts[curHero->subID].bonusName, 69, 205, FONT_SMALL, zwykly, to);
+	printAtLoc(CGI->generaltexth->jktexts[5].substr(1, CGI->generaltexth->jktexts[5].size()-2), 69, 183, FONT_SMALL, Colors::Jasmine, to);
+	printAtLoc(CGI->generaltexth->hTxts[curHero->subID].bonusName, 69, 205, FONT_SMALL, Colors::Cornsilk, to);
 	 
 	//printing necessery texts
-	printAtLoc(CGI->generaltexth->jktexts[6].substr(1, CGI->generaltexth->jktexts[6].size()-2), 69, 232, FONT_SMALL, tytulowy, to);
+	printAtLoc(CGI->generaltexth->jktexts[6].substr(1, CGI->generaltexth->jktexts[6].size()-2), 69, 232, FONT_SMALL, Colors::Jasmine, to);
 	std::ostringstream expstr;
 	expstr << curHero->exp;
-	printAtLoc(expstr.str(), 68, 252, FONT_SMALL, zwykly, to);
-	printAtLoc(CGI->generaltexth->jktexts[7].substr(1, CGI->generaltexth->jktexts[7].size()-2), 213, 232, FONT_SMALL, tytulowy, to);
+	printAtLoc(expstr.str(), 68, 252, FONT_SMALL, Colors::Cornsilk, to);
+	printAtLoc(CGI->generaltexth->jktexts[7].substr(1, CGI->generaltexth->jktexts[7].size()-2), 213, 232, FONT_SMALL, Colors::Jasmine, to);
 	std::ostringstream manastr;
 	manastr << curHero->mana << '/' << heroWArt.manaLimit();
-	printAtLoc(manastr.str(), 211, 252, FONT_SMALL, zwykly, to);
+	printAtLoc(manastr.str(), 211, 252, FONT_SMALL, Colors::Cornsilk, to);
 }

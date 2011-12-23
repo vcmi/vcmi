@@ -1,5 +1,6 @@
-#include "stdafx.h"
+#include "StdInc.h"
 #include "../lib/NetPacks.h"
+
 #include "CGameHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/IGameCallback.h"
@@ -158,10 +159,10 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 
 	ui8 player = market->tempOwner;
 
-	if(player >= PLAYER_LIMIT)
+	if(player >= GameConstants::PLAYER_LIMIT)
 		player = gh->getTile(market->visitablePos())->visitableObjects.back()->tempOwner;
 
-	if(player >= PLAYER_LIMIT)
+	if(player >= GameConstants::PLAYER_LIMIT)
 		COMPLAIN_AND_RETURN("No player can use this market!");
 
 	if(hero && (player != hero->tempOwner || hero->visitablePos() != market->visitablePos()))
@@ -171,29 +172,29 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 
 	switch(mode)
 	{
-	case RESOURCE_RESOURCE:
+	case EMarketMode::RESOURCE_RESOURCE:
 		return gh->tradeResources(m, val, player, r1, r2);
-	case RESOURCE_PLAYER:
+	case EMarketMode::RESOURCE_PLAYER:
 		return gh->sendResources(val, player, r1, r2);
-	case CREATURE_RESOURCE:
+	case EMarketMode::CREATURE_RESOURCE:
 		if(!hero)
 			COMPLAIN_AND_RETURN("Only hero can sell creatures!");
 		return gh->sellCreatures(val, m, hero, r1, r2);
-	case RESOURCE_ARTIFACT:
+	case EMarketMode::RESOURCE_ARTIFACT:
 		if(!hero)
 			COMPLAIN_AND_RETURN("Only hero can buy artifacts!");
 		return gh->buyArtifact(m, hero, r1, r2);
-	case ARTIFACT_RESOURCE:
+	case EMarketMode::ARTIFACT_RESOURCE:
 		if(!hero)
 			COMPLAIN_AND_RETURN("Only hero can sell artifacts!");
 		return gh->sellArtifact(m, hero, r1, r2);
-	case CREATURE_UNDEAD:
+	case EMarketMode::CREATURE_UNDEAD:
 		return gh->transformInUndead(m, hero, r1);
-	case RESOURCE_SKILL:
+	case EMarketMode::RESOURCE_SKILL:
 		return gh->buySecSkill(m, hero, r2);
-	case CREATURE_EXP:
+	case EMarketMode::CREATURE_EXP:
 		return gh->sacrificeCreatures(m, hero, r1, val);
-	case ARTIFACT_EXP:
+	case EMarketMode::ARTIFACT_EXP:
 		return gh->sacrificeArtifact(m, hero, r1);
 	default:
 		COMPLAIN_AND_RETURN("Unknown exchange mode!");
@@ -210,7 +211,7 @@ bool HireHero::applyGh( CGameHandler *gh )
 {
 	const CGObjectInstance *obj = gh->getObj(tid);
 
-	if(obj->ID == TOWNI_TYPE)
+	if(obj->ID == GameConstants::TOWNI_TYPE)
 		ERROR_IF_NOT_OWNS(tid);
 	//TODO check for visiting hero
 

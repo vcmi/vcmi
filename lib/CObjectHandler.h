@@ -1,11 +1,6 @@
-#ifndef __COBJECTHANDLER_H__
-#define __COBJECTHANDLER_H__
-#include "../global.h"
-#include <string>
-#include <vector>
-#include <set>
-#include <map>
-#include <list>
+#pragma once
+
+
 #ifndef _MSC_VER
 #include "CHeroHandler.h"
 #include "CTownHandler.h"
@@ -14,7 +9,8 @@
 #include "../lib/CCreatureSet.h"
 #include "CArtHandler.h"
 #include "../lib/ConstTransitivePtr.h"
-#include <boost/unordered_set.hpp>
+#include "int3.h"
+#include "GameConstants.h"
 
 /*
  * CObjectHandler.h, part of VCMI engine
@@ -56,7 +52,7 @@ struct NewArtifact;
 class CGBoat;
 class CArtifactSet;
 
-class DLL_EXPORT CQuest
+class DLL_LINKAGE CQuest
 {
 public:
 	enum Emission {MISSION_NONE = 0, MISSION_LEVEL = 1, MISSION_PRIMARY_STAT = 2, MISSION_KILL_HERO = 3, MISSION_KILL_CREATURE = 4,
@@ -84,7 +80,7 @@ public:
 	}
 };
 
-class DLL_EXPORT IObjectInterface
+class DLL_LINKAGE IObjectInterface
 {
 public:
 	static IGameCallback *cb;
@@ -102,7 +98,7 @@ public:
 	static void postInit();//caleed after objs receive their initObj
 };
 
-class DLL_EXPORT IBoatGenerator
+class DLL_LINKAGE IBoatGenerator
 {
 public:
 	const CGObjectInstance *o;
@@ -115,7 +111,7 @@ public:
 	void getProblemText(MetaString &out, const CGHeroInstance *visitor = NULL) const; 
 };
 
-class DLL_EXPORT IShipyard : public IBoatGenerator
+class DLL_LINKAGE IShipyard : public IBoatGenerator
 {
 public:
 	IShipyard(const CGObjectInstance *O);
@@ -125,24 +121,24 @@ public:
 	static IShipyard *castFrom(CGObjectInstance *obj);
 };
 
-class DLL_EXPORT IMarket
+class DLL_LINKAGE IMarket
 {
 	virtual int getMarketEfficiency() const =0;
 public:
 	const CGObjectInstance *o;
 
 	IMarket(const CGObjectInstance *O);
-	virtual bool allowsTrade(EMarketMode mode) const;
-	virtual int availableUnits(EMarketMode mode, int marketItemSerial) const; //-1 if unlimited
-	virtual std::vector<int> availableItemsIds(EMarketMode mode) const;
+	virtual bool allowsTrade(EMarketMode::EMarketMode mode) const;
+	virtual int availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const; //-1 if unlimited
+	virtual std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
 
-	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units 
-	std::vector<EMarketMode> availableModes() const;
+	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units 
+	std::vector<EMarketMode::EMarketMode> availableModes() const;
 
 	static const IMarket *castFrom(const CGObjectInstance *obj);
 };
 
-class DLL_EXPORT CGObjectInstance : public IObjectInterface
+class DLL_LINKAGE CGObjectInstance : public IObjectInterface
 {
 protected:
 	void getNameVis(std::string &hname) const;
@@ -209,7 +205,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CPlayersVisited: public CGObjectInstance
+class DLL_LINKAGE CPlayersVisited: public CGObjectInstance
 {
 public:
 	std::set<ui8> players; //players that visited this object
@@ -224,7 +220,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet
+class DLL_LINKAGE CArmedInstance: public CGObjectInstance, public CBonusSystemNode, public CCreatureSet
 {
 public:
 	BattleInfo *battle; //set to the current battle, if engaged
@@ -250,7 +246,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet
+class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet
 {
 public:
 	enum SecondarySkill
@@ -289,7 +285,7 @@ public:
 	std::set<ui32> spells; //known spells (spell IDs)
 
 
-	struct DLL_EXPORT Patrol
+	struct DLL_LINKAGE Patrol
 	{
 		Patrol(){patrolling=false;patrolRadious=-1;};
 		ui8 patrolling;
@@ -300,7 +296,7 @@ public:
 		}
 	} patrol;
 
-	struct DLL_EXPORT HeroSpecial : CBonusSystemNode
+	struct DLL_LINKAGE HeroSpecial : CBonusSystemNode
 	{
 		bool growthsWithLevel;
 		template <typename Handler> void serialize(Handler &h, const int version)
@@ -339,11 +335,11 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	
 	bool hasSpellbook() const;
-	EAlignment getAlignment() const;
+	EAlignment::EAlignment getAlignment() const;
 	const std::string &getBiography() const;
 	bool needsLastStack()const;
-	unsigned int getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
-	unsigned int getLowestCreatureSpeed() const;
+	ui32 getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
+	ui32 getLowestCreatureSpeed() const;
 	int3 getPosition(bool h3m = false) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
 	bool canWalkOnSea() const;
@@ -399,37 +395,37 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 };
 
-class DLL_EXPORT CSpecObjInfo
+class DLL_LINKAGE CSpecObjInfo
 {
 public:
 	virtual ~CSpecObjInfo(){};
 };
 
-class DLL_EXPORT CCreGenObjInfo : public CSpecObjInfo
+class DLL_LINKAGE CCreGenObjInfo : public CSpecObjInfo
 {
 public:
-	unsigned char player; //owner
+	ui8 player; //owner
 	bool asCastle;
 	ui32 identifier;
-	unsigned char castles[2]; //allowed castles
+	ui8 castles[2]; //allowed castles
 };
-class DLL_EXPORT CCreGen2ObjInfo : public CSpecObjInfo
+class DLL_LINKAGE CCreGen2ObjInfo : public CSpecObjInfo
 {
 public:
-	unsigned char player; //owner
+	ui8 player; //owner
 	bool asCastle;
 	ui32 identifier;
-	unsigned char castles[2]; //allowed castles
-	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
+	ui8 castles[2]; //allowed castles
+	ui8 minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
 };
-class DLL_EXPORT CCreGen3ObjInfo : public CSpecObjInfo
+class DLL_LINKAGE CCreGen3ObjInfo : public CSpecObjInfo
 {
 public:
-	unsigned char player; //owner
-	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
+	ui8 player; //owner
+	ui8 minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
 };
 
-class DLL_EXPORT CGDwelling : public CArmedInstance
+class DLL_LINKAGE CGDwelling : public CArmedInstance
 {
 public:
 	CSpecObjInfo * info; //h3m info about dewlling
@@ -450,7 +446,7 @@ public:
 };
 
 
-class DLL_EXPORT CGVisitableOPH : public CGObjectInstance //objects visitable only once per hero
+class DLL_LINKAGE CGVisitableOPH : public CGObjectInstance //objects visitable only once per hero
 {
 public:
 	std::set<si32> visitors; //ids of heroes who have visited this obj
@@ -471,7 +467,7 @@ public:
 		h & visitors & ttype;
 	}
 };
-class DLL_EXPORT CGTownBuilding : public IObjectInterface
+class DLL_LINKAGE CGTownBuilding : public IObjectInterface
 {
 ///basic class for town structures handled as map objects
 public:
@@ -484,7 +480,7 @@ public:
 		h & ID & id;
 	}
 };
-class DLL_EXPORT COPWBonus : public CGTownBuilding
+class DLL_LINKAGE COPWBonus : public CGTownBuilding
 {///used for OPW bonusing structures
 public:
 	std::set<si32> visitors;
@@ -500,7 +496,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CTownBonus : public CGTownBuilding
+class DLL_LINKAGE CTownBonus : public CGTownBuilding
 {
 ///used for one-time bonusing structures
 ///feel free to merge inheritance tree
@@ -518,27 +514,27 @@ public:
 	}
 };
 
-class DLL_EXPORT CTownAndVisitingHero : public CBonusSystemNode
+class DLL_LINKAGE CTownAndVisitingHero : public CBonusSystemNode
 {
 public:
 	CTownAndVisitingHero();
 };
 
-struct DLL_EXPORT GrowthInfo
+struct DLL_LINKAGE GrowthInfo
 {
 	struct Entry
 	{
 		int count;
 		std::string description;
 		Entry(const std::string &format, int _count);
-		Entry(int subID, Buildings::EBuilding building, int _count);
+		Entry(int subID, EBuilding::EBuilding building, int _count);
 	};
 
 	std::vector<Entry> entries;
 	int totalGrowth() const;
 };
 
-class DLL_EXPORT CGTownInstance : public CGDwelling, public IShipyard, public IMarket
+class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket
 {
 public:
 	CTownAndVisitingHero townAndVis;
@@ -594,8 +590,8 @@ public:
 	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
 	int getMarketEfficiency() const; //=market count
-	bool allowsTrade(EMarketMode mode) const;
-	std::vector<int> availableItemsIds(EMarketMode mode) const;
+	bool allowsTrade(EMarketMode::EMarketMode mode) const;
+	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
 	void setPropertyDer(ui8 what, ui32 val);
 	void newTurn() const;
 
@@ -627,7 +623,7 @@ public:
 	void onHeroLeave(const CGHeroInstance * h) const;
 	void initObj();
 };
-class DLL_EXPORT CGPandoraBox : public CArmedInstance
+class DLL_LINKAGE CGPandoraBox : public CArmedInstance
 {
 public:
 	std::string message;
@@ -661,7 +657,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGEvent : public CGPandoraBox  //event objects
+class DLL_LINKAGE CGEvent : public CGPandoraBox  //event objects
 {
 public:
 	ui8 removeAfterVisit; //true if event is removed after occurring
@@ -680,7 +676,7 @@ public:
 
 };
 
-class DLL_EXPORT CGCreature : public CArmedInstance //creatures on map
+class DLL_LINKAGE CGCreature : public CArmedInstance //creatures on map
 {
 public:
 	ui32 identifier; //unique code for this monster (used in missions)
@@ -705,7 +701,7 @@ public:
 	void setPropertyDer(ui8 what, ui32 val);
 	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
 
-	struct DLL_EXPORT RestoredCreature // info about merging stacks after battle back into one
+	struct DLL_LINKAGE RestoredCreature // info about merging stacks after battle back into one
 	{
 		si32 basicType;
 		template <typename Handler> void serialize(Handler &h, const int version)
@@ -722,7 +718,7 @@ public:
 }; 
 
 
-class DLL_EXPORT CGSignBottle : public CGObjectInstance //signs and ocean bottles
+class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles
 {
 public:
 	std::string message;
@@ -737,7 +733,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGSeerHut : public CArmedInstance, public CQuest //army is used when giving reward
+class DLL_LINKAGE CGSeerHut : public CArmedInstance, public CQuest //army is used when giving reward
 {
 public:
 	ui8 rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature
@@ -776,7 +772,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGQuestGuard : public CGSeerHut
+class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
 	void initObj();
@@ -788,7 +784,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGWitchHut : public CPlayersVisited
+class DLL_LINKAGE CGWitchHut : public CPlayersVisited
 {
 public:
 	std::vector<si32> allowedAbilities;
@@ -805,7 +801,7 @@ public:
 };
 
 
-class DLL_EXPORT CGScholar : public CGObjectInstance
+class DLL_LINKAGE CGScholar : public CGObjectInstance
 {
 public:
 	ui8 bonusType; //255 - random, 0 - primary skill, 1 - secondary skill, 2 - spell
@@ -821,7 +817,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGGarrison : public CArmedInstance
+class DLL_LINKAGE CGGarrison : public CArmedInstance
 {
 public:
 	ui8 removableUnits;
@@ -837,7 +833,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGArtifact : public CArmedInstance
+class DLL_LINKAGE CGArtifact : public CArmedInstance
 {
 public:
 	CArtifactInstance *storedArtifact;
@@ -856,7 +852,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGResource : public CArmedInstance
+class DLL_LINKAGE CGResource : public CArmedInstance
 {
 public:
 	ui32 amount; //0 if random
@@ -875,7 +871,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGPickable : public CGObjectInstance //campfire, treasure chest, Flotsam, Shipwreck Survivor, Sea Chest
+class DLL_LINKAGE CGPickable : public CGObjectInstance //campfire, treasure chest, Flotsam, Shipwreck Survivor, Sea Chest
 {
 public:
 	ui32 type, val1, val2;
@@ -891,7 +887,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGShrine : public CPlayersVisited
+class DLL_LINKAGE CGShrine : public CPlayersVisited
 {
 public:
 	ui8 spell; //number of spell or 255 if random
@@ -906,7 +902,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGMine : public CArmedInstance
+class DLL_LINKAGE CGMine : public CArmedInstance
 {
 public: 
 	ui8 producedResource;
@@ -929,7 +925,7 @@ public:
 	ui32 defaultResProduction();
 };
 
-class DLL_EXPORT CGVisitableOPW : public CGObjectInstance //objects visitable OPW
+class DLL_LINKAGE CGVisitableOPW : public CGObjectInstance //objects visitable OPW
 {
 public:
 	ui8 visited; //true if object has been visited this week
@@ -945,7 +941,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGTeleport : public CGObjectInstance //teleports and subterranean gates
+class DLL_LINKAGE CGTeleport : public CGObjectInstance //teleports and subterranean gates
 {
 public:
 	static std::map<int,std::map<int, std::vector<int> > > objs; //teleports: map[ID][subID] => vector of ids
@@ -961,7 +957,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGBonusingObject : public CGObjectInstance //objects giving bonuses to luck/morale/movement
+class DLL_LINKAGE CGBonusingObject : public CGObjectInstance //objects giving bonuses to luck/morale/movement
 {
 public:
 	void onHeroVisit(const CGHeroInstance * h) const;
@@ -974,7 +970,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGMagicSpring : public CGVisitableOPW 
+class DLL_LINKAGE CGMagicSpring : public CGVisitableOPW 
 {///unfortunatelly, this one is quite different than others 
 public: 
 	void onHeroVisit(const CGHeroInstance * h) const; 
@@ -987,7 +983,7 @@ public:
 	} 
 }; 
 
-class DLL_EXPORT CGMagicWell : public CGObjectInstance //objects giving bonuses to luck/morale/movement
+class DLL_LINKAGE CGMagicWell : public CGObjectInstance //objects giving bonuses to luck/morale/movement
 {
 public:
 	void onHeroVisit(const CGHeroInstance * h) const;
@@ -999,7 +995,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGSirens : public CGObjectInstance
+class DLL_LINKAGE CGSirens : public CGObjectInstance
 {
 public:
 	void onHeroVisit(const CGHeroInstance * h) const;
@@ -1012,7 +1008,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGObservatory : public CGObjectInstance //Redwood observatory
+class DLL_LINKAGE CGObservatory : public CGObjectInstance //Redwood observatory
 {
 public:
 	void onHeroVisit(const CGHeroInstance * h) const;
@@ -1024,7 +1020,7 @@ public:
 };
 
 
-class DLL_EXPORT CGKeys : public CGObjectInstance //Base class for Keymaster and guards
+class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
 {	
 public:
 	static std::map <ui8, std::set <ui8> > playerKeyMap; //[players][keysowned]
@@ -1038,7 +1034,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGKeymasterTent : public CGKeys
+class DLL_LINKAGE CGKeymasterTent : public CGKeys
 {
 public:
 	void onHeroVisit(const CGHeroInstance * h) const;
@@ -1050,7 +1046,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGBorderGuard : public CGKeys
+class DLL_LINKAGE CGBorderGuard : public CGKeys
 {
 public:
 	void initObj();
@@ -1065,14 +1061,14 @@ public:
 	}
 };
 
-class DLL_EXPORT CGBorderGate : public CGBorderGuard //not fully imlemented, waiting for garrison
+class DLL_LINKAGE CGBorderGate : public CGBorderGuard //not fully imlemented, waiting for garrison
 {
 public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 	ui8 getPassableness() const;
 };
 
-class DLL_EXPORT CGBoat : public CGObjectInstance 
+class DLL_LINKAGE CGBoat : public CGObjectInstance 
 {
 public:
 	ui8 direction;
@@ -1091,7 +1087,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGOnceVisitable : public CPlayersVisited
+class DLL_LINKAGE CGOnceVisitable : public CPlayersVisited
 ///wagon, corpse, lean to, warriors tomb
 {
 public:
@@ -1111,12 +1107,12 @@ public:
 	}
 };
 
-class DLL_EXPORT CBank : public CArmedInstance
+class DLL_LINKAGE CBank : public CArmedInstance
 {
 	public:
 	int index; //banks have unusal numbering - see ZCRBANK.txt and initObj()
 	BankConfig *bc;
-	float multiplier; //for improved banks script
+	double multiplier; //for improved banks script
 	std::vector<ui32> artifacts; //fixed and deterministic
 	ui32 daycounter;
 
@@ -1136,7 +1132,7 @@ class DLL_EXPORT CBank : public CArmedInstance
 		h & index & multiplier & artifacts & daycounter & bc;
 	}
 };
-class DLL_EXPORT CGPyramid : public CBank
+class DLL_LINKAGE CGPyramid : public CBank
 {
 public:
 	ui16 spell;
@@ -1162,7 +1158,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 };
 
-class DLL_EXPORT CGMagi : public CGObjectInstance
+class DLL_LINKAGE CGMagi : public CGObjectInstance
 {
 public:
 	static std::map <si32, std::vector<si32> > eyelist; //[subID][id], supports multiple sets as in H5
@@ -1178,7 +1174,7 @@ public:
 
 
 
-class DLL_EXPORT CCartographer : public CPlayersVisited
+class DLL_LINKAGE CCartographer : public CPlayersVisited
 {
 ///behaviour varies depending on surface and  floor 
 public:
@@ -1191,12 +1187,12 @@ public:
 	}
 };
 
-class DLL_EXPORT CGDenOfthieves : public CGObjectInstance
+class DLL_LINKAGE CGDenOfthieves : public CGObjectInstance
 {
 	void onHeroVisit (const CGHeroInstance * h) const;
 };
 
-class DLL_EXPORT CGObelisk : public CPlayersVisited
+class DLL_LINKAGE CGObelisk : public CPlayersVisited
 {
 public:
 	static ui8 obeliskCount; //how many obelisks are on map
@@ -1213,7 +1209,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGLighthouse : public CGObjectInstance
+class DLL_LINKAGE CGLighthouse : public CGObjectInstance
 {
 public:
 	void onHeroVisit(const CGHeroInstance * h) const;
@@ -1227,16 +1223,16 @@ public:
 	void giveBonusTo( ui8 player ) const;
 };
 
-class DLL_EXPORT CGMarket : public CGObjectInstance, public IMarket
+class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
 {
 public:
 	CGMarket();
 	void onHeroVisit(const CGHeroInstance * h) const; //open trading window
 	
 	int getMarketEfficiency() const;
-	bool allowsTrade(EMarketMode mode) const;
-	int availableUnits(EMarketMode mode, int marketItemSerial) const; //-1 if unlimited
-	std::vector<int> availableItemsIds(EMarketMode mode) const;
+	bool allowsTrade(EMarketMode::EMarketMode mode) const;
+	int availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const; //-1 if unlimited
+	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1244,13 +1240,13 @@ public:
 	}
 };
 
-class DLL_EXPORT CGBlackMarket : public CGMarket
+class DLL_LINKAGE CGBlackMarket : public CGMarket
 {
 public:
 	std::vector<const CArtifact *> artifacts; //available artifacts
 
 	void newTurn() const; //reset artifacts for black market every month
-	std::vector<int> availableItemsIds(EMarketMode mode) const;
+	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1259,12 +1255,12 @@ public:
 	}
 };
 
-class DLL_EXPORT CGUniversity : public CGMarket
+class DLL_LINKAGE CGUniversity : public CGMarket
 {
 public:
 	std::vector<int> skills; //available skills
 	
-	std::vector<int> availableItemsIds(EMarketMode mode) const;
+	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
 	void initObj();//set skills for trade
 	void onHeroVisit(const CGHeroInstance * h) const; //open window
 	
@@ -1296,7 +1292,7 @@ struct BankConfig
 	}
 };
 
-class DLL_EXPORT CObjectHandler
+class DLL_LINKAGE CObjectHandler
 {
 public:
 	std::vector<si32> cregens; //type 17. dwelling subid -> creature ID
@@ -1311,6 +1307,3 @@ public:
 		h & cregens & banksInfo & creBanksNames & resVals;
 	}
 };
-
-
-#endif // __COBJECTHANDLER_H__

@@ -1,11 +1,10 @@
+#include "StdInc.h"
 #include "BattleLogic.h"
+
 #include "../../lib/BattleState.h"
-#include <math.h>
-#include <boost/lexical_cast.hpp>
 #include <boost/lambda/lambda.hpp>
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/if.hpp>
-#include <boost/foreach.hpp>
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
@@ -152,27 +151,27 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 			//CGHeroInstance *defendingHero = (m_side)? m_hero2 : m_hero1;
 
 			int attackDefenseBonus = currentStack->Attack() - st->Defense();
-			float damageFactor = 1.0f;
+			double damageFactor = 1.0;
 			if(attackDefenseBonus < 0) //decreasing dmg
 			{
-				if(0.02f * (-attackDefenseBonus) > 0.3f)
+				if(0.02 * (-attackDefenseBonus) > 0.3)
 				{
-					damageFactor += -0.3f;
+					damageFactor += -0.3;
 				}
 				else
 				{
-					damageFactor += 0.02f * attackDefenseBonus;
+					damageFactor += 0.02 * attackDefenseBonus;
 				}
 			}
 			else //increasing dmg
 			{
-				if(0.05f * attackDefenseBonus > 4.0f)
+				if(0.05 * attackDefenseBonus > 4.0)
 				{
-					damageFactor += 4.0f;
+					damageFactor += 4.0;
 				}
 				else
 				{
-					damageFactor += 0.05f * attackDefenseBonus;
+					damageFactor += 0.05 * attackDefenseBonus;
 				}
 			}
 
@@ -222,8 +221,8 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 			totalHitPoints += hitPoints;
 		}
 	}
-	if ((float)totalDamage / (float)totalEnemyDamage < 0.5f &&
-		(float)totalHitPoints / (float)totalEnemyHitPoints < 0.5f)
+	if (totalDamage / static_cast<double>(totalEnemyDamage) < 0.5 &&
+		totalHitPoints / static_cast<double>(totalEnemyHitPoints) < 0.5)
 	{
 		m_bEnemyDominates = true;
 		DbgBox("** EnemyDominates!");
@@ -240,29 +239,29 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 	
 	// sort max damage
 	std::sort(m_statMaxDamage.begin(), m_statMaxDamage.end(),
-		bind((IntPtr)&creature_stat::value_type::second, _1) > bind((IntPtr)&creature_stat::value_type::second, _2));
+		bind((IntPtr)&creature_stat::value_type::second, boost::lambda::_1) > bind((IntPtr)&creature_stat::value_type::second, boost::lambda::_2));
 	// sort min damage
 	std::sort(m_statMinDamage.begin(), m_statMinDamage.end(),
-		bind((IntPtr)&creature_stat::value_type::second, _1) > bind((IntPtr)&creature_stat::value_type::second, _2));
+		bind((IntPtr)&creature_stat::value_type::second, boost::lambda::_1) > bind((IntPtr)&creature_stat::value_type::second, boost::lambda::_2));
 	// sort max speed
 	std::sort(m_statMaxSpeed.begin(), m_statMaxSpeed.end(),
-		bind((IntPtr)&creature_stat::value_type::second, _1) > bind((IntPtr)&creature_stat::value_type::second, _2));
+		bind((IntPtr)&creature_stat::value_type::second, boost::lambda::_1) > bind((IntPtr)&creature_stat::value_type::second, boost::lambda::_2));
 	// sort distance
 	std::sort(m_statDistance.begin(), m_statDistance.end(),
-		bind((IntPtr)&creature_stat::value_type::second, _1) < bind((IntPtr)&creature_stat::value_type::second, _2));
+		bind((IntPtr)&creature_stat::value_type::second, boost::lambda::_1) < bind((IntPtr)&creature_stat::value_type::second, boost::lambda::_2));
 	// sort distance from shooters
 	std::sort(m_statDistanceFromShooters.begin(), m_statDistanceFromShooters.end(),
-		bind((IntPtr)&creature_stat::value_type::second, _1) < bind((IntPtr)&creature_stat::value_type::second, _2));
+		bind((IntPtr)&creature_stat::value_type::second, boost::lambda::_1) < bind((IntPtr)&creature_stat::value_type::second, boost::lambda::_2));
 	// sort hit points
 	std::sort(m_statHitPoints.begin(), m_statHitPoints.end(),
-		bind((IntPtr)&creature_stat::value_type::second, _1) > bind((IntPtr)&creature_stat::value_type::second, _2));
+		bind((IntPtr)&creature_stat::value_type::second, boost::lambda::_1) > bind((IntPtr)&creature_stat::value_type::second, boost::lambda::_2));
 	// sort casualties
 	std::sort(m_statCasualties.begin(), m_statCasualties.end(),
 		bind((CreaPtr)&creature_stat_casualties::value_type::second_type::damage_max, 
-			bind((CreaPairPtr)&creature_stat_casualties::value_type::second, _1))
+			bind((CreaPairPtr)&creature_stat_casualties::value_type::second, boost::lambda::_1))
 		>
 		bind((CreaPtr)&creature_stat_casualties::value_type::second_type::damage_max,
-			bind((CreaPairPtr)&creature_stat_casualties::value_type::second, _2)));
+			bind((CreaPairPtr)&creature_stat_casualties::value_type::second, boost::lambda::_2)));
 }
 
 BattleAction CBattleLogic::MakeDecision(int stackID)
@@ -527,7 +526,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 			}
 		}
 
-		std::vector<THex> fields = m_cb->battleGetAvailableHexes(m_cb->battleGetStackByID(attackerID), false);
+		std::vector<BattleHex> fields = m_cb->battleGetAvailableHexes(m_cb->battleGetStackByID(attackerID), false);
 
 		if(fields.size() == 0)
 		{
@@ -541,11 +540,11 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		ba.destinationTile = static_cast<ui16>(dest_tile);
 		//simplified checking for possibility of attack (previous was too simplified)
 		int destStackPos = m_cb->battleGetPos(destinationID);
-		if(THex::mutualPosition(dest_tile, destStackPos) != -1)
+		if(BattleHex::mutualPosition(dest_tile, destStackPos) != -1)
 			ba.additionalInfo = destStackPos;
-		else if(THex::mutualPosition(dest_tile, destStackPos+1) != -1)
+		else if(BattleHex::mutualPosition(dest_tile, destStackPos+1) != -1)
 			ba.additionalInfo = destStackPos+1;
-		else if(THex::mutualPosition(dest_tile, destStackPos-1) != -1)
+		else if(BattleHex::mutualPosition(dest_tile, destStackPos-1) != -1)
 			ba.additionalInfo = destStackPos-1;
 		else
 			return BattleAction::makeDefend(attackerStack);
@@ -582,7 +581,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 			}
 		}
 
-		for (std::vector<THex>::const_iterator it = fields.begin(); it != fields.end(); ++it)
+		for (std::vector<BattleHex>::const_iterator it = fields.begin(); it != fields.end(); ++it)
 		{
 			if (*it == dest_tile)
 			{

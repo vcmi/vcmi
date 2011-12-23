@@ -1,24 +1,16 @@
 // CMT.cpp : Defines the entry point for the console application.
 //
-#include "../stdafx.h"
-#include <cmath>
-#include <string>
-#include <vector>
-#include <queue>
-#include <cmath>
-#include <boost/algorithm/string.hpp>
+#include "StdInc.h"
 #include <boost/filesystem/operations.hpp>
-#include <boost/thread.hpp>
 #include <SDL_mixer.h>
-#include "SDL_Extensions.h"
-#include "SDL_framerate.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "mapHandler.h"
-#include "../global.h"
+
 #include "CPreGame.h"
 #include "CCastleInterface.h"
-#include "../CConsoleHandler.h"
-#include "CCursorHandler.h"
+#include "../lib/CConsoleHandler.h"
+#include "UIFramework/CCursorHandler.h"
 #include "../lib/CGameState.h"
 #include "../CCallback.h"
 #include "CPlayerInterface.h"
@@ -39,18 +31,17 @@
 #include "../lib/Connection.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
-#include <cstdlib>
 #include "../lib/NetPacks.h"
 #include "CMessage.h"
 #include "../lib/CObjectHandler.h"
-#include <boost/program_options.hpp>
 #include "../lib/CArtHandler.h"
 #include "../lib/CScriptingModule.h"
+#include "../lib/GameConstants.h"
+#include "UIFramework/CGuiHandler.h"
 
 #ifdef _WIN32
 #include "SDL_syswm.h"
 #endif
-#include <boost/foreach.hpp>
 #include "../lib/CDefObjInfoHandler.h"
 
 #if __MINGW32__
@@ -70,7 +61,7 @@ namespace po = boost::program_options;
  */
 
 std::string NAME_AFFIX = "client";
-std::string NAME = NAME_VER + std::string(" (") + NAME_AFFIX + ')'; //application name
+std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 CGuiHandler GH;
 static CClient *client;
 SDL_Surface *screen = NULL, //main screen surface 
@@ -104,14 +95,14 @@ void startGame(StartInfo * options, CConnection *serv = NULL);
 
 void init()
 {
-	timeHandler tmh, pomtime;
+	CStopWatch tmh, pomtime;
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 	int rmask = 0xff000000;int gmask = 0x00ff0000;int bmask = 0x0000ff00;int amask = 0x000000ff;
 #else
 	int rmask = 0x000000ff;	int gmask = 0x0000ff00;	int bmask = 0x00ff0000;	int amask = 0xff000000;
 #endif
 	CSDL_Ext::std32bppSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, rmask, gmask, bmask, amask);
-	tlog0 << "\tInitializing minors: " << pomtime.getDif() << std::endl;
+	tlog0 << "\tInitializing minors: " << pomtime.getDiff() << std::endl;
 	{
 		//read system options
 		CLoadFile settings(GVCMIDirs.UserPath + "/config/sysopts.bin", 727);
@@ -128,7 +119,7 @@ void init()
 			GDefaultOptions.settingsChanged();
 		}
 	}
-	THC tlog0<<"\tLoading default system settings: "<<pomtime.getDif()<<std::endl;
+	tlog0 << "\tLoading default system settings: " << pomtime.getDiff() << std::endl;
 
 	//initializing audio
 	// Note: because of interface button range, volume can only be a
@@ -139,43 +130,43 @@ void init()
 	CCS->musich = new CMusicHandler;
 	CCS->musich->init();
 	CCS->musich->setVolume(GDefaultOptions.musicVolume);
-	tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
-	tlog0<<"Initializing screen and sound handling: "<<tmh.getDif()<<std::endl;
+	tlog0<<"\tInitializing sound: "<<pomtime.getDiff()<<std::endl;
+	tlog0<<"Initializing screen and sound handling: "<<tmh.getDiff()<<std::endl;
 
 	initDLL(::console,logfile);
 	const_cast<CGameInfo*>(CGI)->setFromLib();
 	CCS->soundh->initCreaturesSounds(CGI->creh->creatures);
 	CCS->soundh->initSpellsSounds(CGI->spellh->spells);
-	tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
+	tlog0<<"Initializing VCMI_Lib: "<<tmh.getDiff()<<std::endl;
 
-	pomtime.getDif();
+	pomtime.getDiff();
 	CCS->curh = new CCursorHandler;
 	CCS->curh->initCursor();
 	CCS->curh->show();
-	tlog0<<"Screen handler: "<<pomtime.getDif()<<std::endl;
-	pomtime.getDif();
+	tlog0<<"Screen handler: "<<pomtime.getDiff()<<std::endl;
+	pomtime.getDiff();
 	graphics = new Graphics();
 	graphics->loadHeroAnims();
-	tlog0<<"\tMain graphics: "<<tmh.getDif()<<std::endl;
-	tlog0<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
+	tlog0<<"\tMain graphics: "<<tmh.getDiff()<<std::endl;
+	tlog0<<"Initializing game graphics: "<<tmh.getDiff()<<std::endl;
 
 	CMessage::init();
-	tlog0<<"Message handler: "<<tmh.getDif()<<std::endl;
+	tlog0<<"Message handler: "<<tmh.getDiff()<<std::endl;
 	//CPG = new CPreGame(); //main menu and submenus
 	//tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 }
 
 static void prog_version(void)
 {
-	printf("%s\n", NAME_VER);
-	printf("  data directory:    %s\n", DATA_DIR);
-	printf("  library directory: %s\n", LIB_DIR);
-	printf("  binary directory:  %s\n", BIN_DIR);
+	printf("%s\n", GameConstants::VCMI_VERSION.c_str());
+	printf("  data directory:    %s\n", GameConstants::DATA_DIR.c_str());
+	printf("  library directory: %s\n", GameConstants::LIB_DIR.c_str());
+	printf("  binary directory:  %s\n", GameConstants::BIN_DIR.c_str());
 }
 
 static void prog_help(const char *progname)
 {
-	printf("%s - A Heroes of Might and Magic 3 clone\n", NAME_VER);
+	printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
     printf("Copyright (C) 2007-2010 VCMI dev team - see AUTHORS file\n");
     printf("This is free software; see the source for copying conditions. There is NO\n");
     printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
@@ -229,17 +220,17 @@ int main(int argc, char** argv)
 	putenv((char*)"SDL_VIDEO_WINDOW_POS");
 	putenv((char*)"SDL_VIDEO_CENTERED=1");
 
-	timeHandler total, pomtime;
+	CStopWatch total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
 	logfile = new std::ofstream((GVCMIDirs.UserPath + "/VCMI_Client_log.txt").c_str());
 	console = new CConsoleHandler;
 	*console->cb = boost::bind(&processCommand, _1);
 	console->start();
 	atexit(dispose);
-	tlog0 <<"Creating console and logfile: "<<pomtime.getDif() << std::endl;
+	tlog0 <<"Creating console and logfile: "<<pomtime.getDiff() << std::endl;
 
 	conf.init();
-	tlog0 <<"Loading settings: "<<pomtime.getDif() << std::endl;
+	tlog0 <<"Loading settings: "<<pomtime.getDiff() << std::endl;
 	tlog0 << NAME << std::endl;
 
 	srand ( time(NULL) );
@@ -255,7 +246,7 @@ int main(int argc, char** argv)
 	atexit(SDL_Quit);
 
 	setScreenRes(conf.cc.pregameResx, conf.cc.pregameResy, conf.cc.bpp, conf.cc.fullscreen);
-	tlog0 <<"\tInitializing screen: "<<pomtime.getDif() << std::endl;
+	tlog0 <<"\tInitializing screen: "<<pomtime.getDiff() << std::endl;
 
 	// Initialize video
 #if defined _M_X64 && defined _WIN32 //Win64 -> cannot load 32-bit DLLs for video handling
@@ -263,7 +254,7 @@ int main(int argc, char** argv)
 #else
 	CCS->videoh = new CVideoPlayer;
 #endif
-	tlog0<<"\tInitializing video: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tInitializing video: "<<pomtime.getDiff()<<std::endl;
 
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
 	boost::thread loading(init);
@@ -274,7 +265,7 @@ int main(int argc, char** argv)
 	SDL_FillRect(screen,NULL,0);
 	CSDL_Ext::update(screen);
 	loading.join();
-	tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
+	tlog0<<"Initialization of VCMI (together): "<<total.getDiff()<<std::endl;
 
 	if(!vm.count("battle"))
 	{
@@ -441,7 +432,7 @@ void processCommand(const std::string &message)
 		boost::filesystem::create_directory("Extracted_txts");
 		tlog0<<"Command accepted. Opening .lod file...\t";
 		CLodHandler * txth = new CLodHandler;
-		txth->init(std::string(DATA_DIR "/Data/H3bitmap.lod"),"");
+		txth->init(GameConstants::DATA_DIR + "/Data/H3bitmap.lod","");
 		tlog0<<"done.\nScanning .lod file\n";
 		
 		BOOST_FOREACH(Entry e, txth->entries)
@@ -488,7 +479,7 @@ void processCommand(const std::string &message)
 	}
 	else if(cn == "gui")
 	{
-		BOOST_FOREACH(const IShowActivable *child, GH.listInt)
+		BOOST_FOREACH(const IShowActivatable *child, GH.listInt)
 		{
 			if(const CIntObject *obj = dynamic_cast<const CIntObject *>(child))
 				printInfoAboutIntObject(obj, 0);
@@ -543,8 +534,8 @@ void dispose()
 static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 {	
 	// VCMI will only work with 2, 3 or 4 bytes per pixel
-	amax(bpp, 16);
-	amin(bpp, 32);
+	vstd::amax(bpp, 16);
+	vstd::amin(bpp, 32);
 
 	// Try to use the best screen depth for the display
 	int suggestedBpp = SDL_VideoModeOK(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));

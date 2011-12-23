@@ -1,6 +1,8 @@
-#define VCMI_DLL
+#include "StdInc.h"
 #include "CGameInterface.h"
+
 #include "BattleState.h"
+#include "GameConstants.h"
 
 #ifdef _WIN32
 	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
@@ -63,12 +65,12 @@ rett * createAny(std::string dllname, std::string methodName)
 #ifdef _WIN32
 std::string getAIFileName(std::string input)
 {
-	return input + '.' + LIB_EXT;
+	return input + '.' + GameConstants::LIB_EXT;
 }
 #else
 std::string getAIFileName(std::string input)
 {
-	return "lib" + input + '.' + LIB_EXT;
+	return "lib" + input + '.' + GameConstants::LIB_EXT;
 }
 #endif
 
@@ -77,7 +79,7 @@ rett * createAnyAI(std::string dllname, std::string methodName)
 {
 	tlog1<<"Opening "<<dllname<<"\n";
 	std::string filename = getAIFileName(dllname);
-	rett* ret = createAny<rett>(LIB_DIR "/AI/" + filename, methodName);
+	rett* ret = createAny<rett>(GameConstants::LIB_DIR + "/AI/" + filename, methodName);
 	ret->dllName = dllname;
 	return ret;
 }
@@ -168,7 +170,7 @@ void CAdventureAI::battleNewStackAppeared(const CStack * stack)
 	battleAI->battleNewStackAppeared(stack);
 }
 
-void CAdventureAI::battleStackMoved(const CStack * stack, std::vector<THex> dest, int distance)
+void CAdventureAI::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
 {
 	battleAI->battleStackMoved(stack, dest, distance);
 }
@@ -186,7 +188,7 @@ void CAdventureAI::battleSpellCast(const BattleSpellCast *sc)
 void CAdventureAI::battleEnd(const BattleResult *br)
 {
 	battleAI->battleEnd(br);
-	delNull(battleAI);
+	vstd::clear_pointer(battleAI);
 }
 
 void CAdventureAI::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom)

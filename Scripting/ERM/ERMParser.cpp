@@ -1,24 +1,10 @@
+#include "StdInc.h"
 #include "ERMParser.h"
-#include <boost/version.hpp>
+
+
 //To make compilation with older boost versions possible
 //Don't know exact version - 1.46 works while 1.42 not
 #if BOOST_VERSION >= 104600
-
-#include <boost/spirit/include/qi.hpp>
-#include <boost/bind.hpp>
-#include <boost/spirit/include/phoenix_core.hpp>
-#include <boost/spirit/include/phoenix_operator.hpp>
-#include <boost/spirit/include/phoenix_fusion.hpp>
-#include <boost/spirit/include/phoenix_stl.hpp>
-#include <boost/spirit/include/phoenix_object.hpp>
-#include <boost/fusion/include/adapt_struct.hpp>
-#include <fstream>
-#include <boost/algorithm/string/trim.hpp>
-
-namespace spirit = boost::spirit;
-namespace qi = boost::spirit::qi;
-namespace ascii = spirit::ascii;
-namespace phoenix = boost::phoenix;
 
 /*
  * ERMParser.cpp, part of VCMI engine

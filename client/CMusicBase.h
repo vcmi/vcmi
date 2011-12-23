@@ -1,5 +1,4 @@
-#ifndef __CMUSICBASE_H__
-#define __CMUSICBASE_H__
+#pragma once
 
 /*
  * CMusicBase.h, part of VCMI engine
@@ -86,7 +85,5 @@ public:
 #undef VCMI_MUSIC_ID
 #undef VCMI_MUSIC_FILE
 };
-
-#endif // __CMUSICBASE_H__
 
 

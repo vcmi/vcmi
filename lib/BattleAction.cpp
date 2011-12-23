@@ -1,5 +1,6 @@
-#define VCMI_DLL
+#include "StdInc.h"
 #include "BattleAction.h"
+
 #include "BattleState.h"
 
 /*
@@ -31,7 +32,7 @@ BattleAction BattleAction::makeDefend(const CStack *stack)
 }
 
 
-BattleAction BattleAction::makeMeleeAttack(const CStack *stack, const CStack * attacked, THex attackFrom /*= THex::INVALID*/)
+BattleAction BattleAction::makeMeleeAttack(const CStack *stack, const CStack * attacked, BattleHex attackFrom /*= BattleHex::INVALID*/)
 {
 	BattleAction ba;
 	ba.side = !stack->attackerOwned;
@@ -61,7 +62,7 @@ BattleAction BattleAction::makeShotAttack(const CStack *shooter, const CStack *t
 	return ba;
 }
 
-BattleAction BattleAction::makeMove(const CStack *stack, THex dest)
+BattleAction BattleAction::makeMove(const CStack *stack, BattleHex dest)
 {
 	BattleAction ba;
 	ba.side = !stack->attackerOwned;

@@ -1,11 +1,9 @@
-#ifndef __CHEROHANDLER_H__
-#define __CHEROHANDLER_H__
-#include "../global.h"
-#include <string>
-#include <vector>
-#include <set>
+#pragma once
 
+
+#include "BattleHex.h"
 #include "../lib/ConstTransitivePtr.h"
+#include "GameConstants.h"
 
 /*
  * CHeroHandler.h, part of VCMI engine
@@ -32,7 +30,7 @@ struct SSpecialtyInfo
 	}
 };
 
-class DLL_EXPORT CHero
+class DLL_LINKAGE CHero
 {
 public:
 	enum EHeroClasses {KNIGHT, CLERIC, RANGER, DRUID, ALCHEMIST, WIZARD,
@@ -60,13 +58,13 @@ public:
 	}
 };
 
-class DLL_EXPORT CHeroClass
+class DLL_LINKAGE CHeroClass
 {
 public:
 	ui8 alignment; 
 	ui32 skillLimit; //how many secondary skills can hero learn
 	std::string name;
-	float aggression;
+	double aggression;
 	int initialAttack, initialDefence, initialPower, initialKnowledge; //initial values of primary skills
 	std::vector<std::pair<int,int> > primChance;//primChance[PRIMARY_SKILL_ID] - first is for levels 2 - 9, second for 10+;;; probability (%) of getting point of primary skill when getting new level
 	std::vector<int> proSec; //probabilities of gaining secondary skills (out of 112), in id order
@@ -82,10 +80,10 @@ public:
 		h & skillLimit & name & aggression & initialAttack & initialDefence & initialPower & initialKnowledge & primChance
 			& proSec & selectionProbability & terrCosts & alignment;
 	}
-EAlignment getAlignment();
+	EAlignment::EAlignment getAlignment();
 };
 
-struct DLL_EXPORT CObstacleInfo
+struct DLL_LINKAGE CObstacleInfo
 {
 	int ID;
 	std::string defName, 
@@ -98,15 +96,15 @@ struct DLL_EXPORT CObstacleInfo
 	std::pair<si16, si16> posShift; //shift of obstacle's position in the battlefield <x shift, y shift>, eg. if it's <-1, 2> obstacle will be printed one pixel to the left and two to the bottom
 	int getWidth() const; //returns width of obstacle in hexes
 	int getHeight() const; //returns height of obstacle in hexes
-	std::vector<THex> getBlocked(THex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
-	THex getMaxBlocked(THex hex) const; //returns maximal hex (max number) covered by this obstacle
+	std::vector<BattleHex> getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
+	BattleHex getMaxBlocked(BattleHex hex) const; //returns maximal hex (max number) covered by this obstacle
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ID & defName & blockmap & allowedTerrains & posShift;
 	}
 };
 
-struct DLL_EXPORT SPuzzleInfo
+struct DLL_LINKAGE SPuzzleInfo
 {
 	ui16 number; //type of puzzle
 	si16 x, y; //position
@@ -121,7 +119,7 @@ struct DLL_EXPORT SPuzzleInfo
 
 const int PUZZLES_PER_FACTION = 48;
 
-class DLL_EXPORT CHeroHandler
+class DLL_LINKAGE CHeroHandler
 {
 public:
 	std::vector< ConstTransitivePtr<CHero> > heroes; //changed from nodrze
@@ -146,11 +144,11 @@ public:
 
 	void loadObstacles(); //loads info about obstacles
 
-	std::vector<SPuzzleInfo> puzzleInfo[F_NUMBER]; //descriptions of puzzles
+	std::vector<SPuzzleInfo> puzzleInfo[GameConstants::F_NUMBER]; //descriptions of puzzles
 	void loadPuzzleInfo();
 
-	unsigned int level(ui64 experience) const; //calculates level corresponding to given experience amount
-	ui64 reqExp(unsigned int level) const; //calculates experience required for given level
+	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
+	ui64 reqExp(ui32 level) const; //calculates experience required for given level
 
 	void loadHeroes();
 	void loadHeroClasses();
@@ -172,5 +170,3 @@ public:
 		}
 	}
 };
-
-#endif // __CHEROHANDLER_H__

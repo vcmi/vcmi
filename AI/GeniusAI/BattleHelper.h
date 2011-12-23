@@ -1,5 +1,4 @@
-#ifndef __BATTLE_HELPER__
-#define __BATTLE_HELPER__
+#pragma once
 
 #include "Common.h"
 
@@ -48,5 +47,3 @@ private:
 };
 
 }}
-
-#endif/*__BATTLE_HELPER__*/

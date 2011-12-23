@@ -1,4 +1,6 @@
+#include "StdInc.h"
 #include "../lib/NetPacks.h"
+
 #include "../CCallback.h"
 #include "Client.h"
 #include "CPlayerInterface.h"
@@ -15,17 +17,14 @@
 #include "CSoundBase.h"
 #include "mapHandler.h"
 #include "GUIClasses.h"
-#include <boost/bind.hpp>
-#include <boost/foreach.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/shared_mutex.hpp>
 #include "CConfigHandler.h"
-#include "SDL_Extensions.h"
-#include "CBattleInterface.h"
+#include "UIFramework/SDL_Extensions.h"
+#include "BattleInterface/CBattleInterface.h"
 #include "../lib/CCampaignHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/BattleState.h"
-
+#include "../lib/GameConstants.h"
+#include "UIFramework/CGuiHandler.h"
 
 //macros to avoid code duplication - calls given method with given arguments if interface for specific player is present
 //awaiting variadic templates...
@@ -337,7 +336,7 @@ void TryMoveHero::applyFirstCl( CClient *cl )
 	//check if playerint will have the knowledge about movement - if not, directly update maphandler
 	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
 	{
-		if(i->first >= PLAYER_LIMIT)
+		if(i->first >= GameConstants::PLAYER_LIMIT)
 			continue;
 		TeamState *t = GS(cl)->getPlayerTeam(i->first);
 		if((t->fogOfWarMap[start.x-1][start.y][start.z] || t->fogOfWarMap[end.x-1][end.y][end.z])
@@ -376,7 +375,7 @@ void TryMoveHero::applyCl( CClient *cl )
 	//notify interfaces about move
 	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
 	{
-		if(i->first >= PLAYER_LIMIT) continue;
+		if(i->first >= GameConstants::PLAYER_LIMIT) continue;
 		TeamState *t = GS(cl)->getPlayerTeam(i->first);
 		if(t->fogOfWarMap[start.x-1][start.y][start.z] || t->fogOfWarMap[end.x-1][end.y][end.z])
 		{
@@ -767,7 +766,7 @@ void SetSelection::applyCl(CClient *cl)
 
 void ShowInInfobox::applyCl(CClient *cl)
 {
-	SComponent sc(c);
+	CComponent sc(c);
 	text.toString(sc.description);
 	if(vstd::contains(cl->playerint, player) && cl->playerint[player]->human)
 	{

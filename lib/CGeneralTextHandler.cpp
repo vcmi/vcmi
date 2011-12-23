@@ -1,12 +1,9 @@
-#define VCMI_DLL
-#include "../stdafx.h"
-#include "../lib/VCMI_Lib.h"
+#include "StdInc.h"
 #include "CGeneralTextHandler.h"
+
+#include "../lib/VCMI_Lib.h"
 #include "CLodHandler.h"
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/replace.hpp>
-#include <fstream>
-#include <sstream>
+#include "GameConstants.h"
 
 /*
  * CGeneralTextHandler.cpp, part of VCMI engine
@@ -87,7 +84,7 @@ void CGeneralTextHandler::load()
 		i+=2;
 	}
 
-	hTxts.resize(HEROES_QUANTITY);
+	hTxts.resize(GameConstants::HEROES_QUANTITY);
 
 	buf = bitmaph->getTextFile("HEROSPEC.TXT");
 	i=0;
@@ -120,7 +117,7 @@ void CGeneralTextHandler::load()
 	{
 		std::string name = readTo(buf,it,'\t'),
 			description = readTo(buf,it,'\n');
-		for(int fi=0;fi<F_NUMBER;fi++)
+		for(int fi=0;fi<GameConstants::F_NUMBER;fi++)
 		{
 			buildings[fi][b].first = name;
 			buildings[fi][b].second = description;
@@ -130,13 +127,13 @@ void CGeneralTextHandler::load()
 	//shipyard with the ship
 	std::string name = readTo(buf,it,'\t'),
 		description = readTo(buf,it,'\n');
-	for(int fi=0;fi<F_NUMBER;fi++)
+	for(int fi=0;fi<GameConstants::F_NUMBER;fi++)
 	{
 		buildings[fi][20].first = name;
 		buildings[fi][20].second = description;
 	}
 
-	for(int fi=0;fi<F_NUMBER;fi++)
+	for(int fi=0;fi<GameConstants::F_NUMBER;fi++)
 	{
 		buildings[fi][16].first = readTo(buf,it,'\t'),
 			buildings[fi][16].second = readTo(buf,it,'\n');
@@ -145,7 +142,7 @@ void CGeneralTextHandler::load()
 
 	buf = bitmaph->getTextFile("BLDGSPEC.TXT");
 	andame = buf.size(), it=0;
-	for(int f=0;f<F_NUMBER;f++)
+	for(int f=0;f<GameConstants::F_NUMBER;f++)
 	{
 		for(int b=0;b<9;b++)
 		{
@@ -161,7 +158,7 @@ void CGeneralTextHandler::load()
 
 	buf = bitmaph->getTextFile("DWELLING.TXT");
 	andame = buf.size(), it=0;
-	for(int f=0;f<F_NUMBER;f++)
+	for(int f=0;f<GameConstants::F_NUMBER;f++)
 	{
 		for(int b=0;b<14;b++)
 		{
@@ -219,7 +216,7 @@ void CGeneralTextHandler::load()
 		townTypes.push_back(std::string(bufname).substr(0,strlen(bufname)-1));
 		townNames.resize(si+1);
 
-		for (int i=0; i<NAMES_PER_TOWN; i++)
+		for (int i=0; i<GameConstants::NAMES_PER_TOWN; i++)
 		{
 			namess.getline(bufname,50);
 			townNames[si].push_back(std::string(bufname).substr(0,strlen(bufname)-1));
@@ -440,9 +437,9 @@ void CGeneralTextHandler::load()
 	for(int i=0; i<2; ++i)
 		loadToIt(dump,buf,it,3);
 
-	skillName.resize(SKILL_QUANTITY);
-	skillInfoTexts.resize(SKILL_QUANTITY);
-	for (int i=0; i<SKILL_QUANTITY; i++)
+	skillName.resize(GameConstants::SKILL_QUANTITY);
+	skillInfoTexts.resize(GameConstants::SKILL_QUANTITY);
+	for (int i=0; i<GameConstants::SKILL_QUANTITY; i++)
 	{
 		skillInfoTexts[i].resize(3);
 		loadToIt(skillName[i],buf,it,4);
@@ -546,7 +543,8 @@ void CGeneralTextHandler::load()
 		zcrexp.push_back(nameBuf);
 	}
 
-	std::ifstream ifs(DATA_DIR "/config/threatlevel.txt", std::ios::in | std::ios::binary);
+	std::string threatLevelDir = GameConstants::DATA_DIR + "/config/threatlevel.txt";
+	std::ifstream ifs(threatLevelDir.c_str(), std::ios::in | std::ios::binary);
 	getline(ifs, buf); //skip 1st line
 	for (int i = 0; i < 13; ++i)
 	{

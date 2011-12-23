@@ -1,5 +1,4 @@
-#include <stdlib.h>
-#include <string.h>
+#include "StdInc.h"
 
 #include "neuralNetwork.h"
 //using namespace std;
@@ -8,18 +7,18 @@
 #define M_PI       3.14159265358979323846
 #endif
 
-static float norm(void)//add desired mean, multiply to get desired SD
+static double norm(void)//add desired mean, multiply to get desired SD
 {
-	static float kept = 0;
+	static double kept = 0;
 	static bool in = 0;
 	if(!in)
 	{
-		float x = (rand()+1)/float(RAND_MAX+1); 
-		float f = sqrtf( - 2.0f * log(x) );
-			  x = (rand()+1)/float(RAND_MAX+1);
-		kept = f * cosf( 2.0f * M_PI * x );
+		double x = (rand() + 1) / static_cast<double>(RAND_MAX + 1); 
+		double f = sqrtf( - 2.0 * log(x) );
+			  x = (rand() + 1) / static_cast<double>(RAND_MAX + 1);
+		kept = f * cosf( 2.0 * M_PI * x );
 		in = true;
-		return f * sinf( 2.0f * M_PI * x );
+		return f * sinf( 2.0 * M_PI * x );
 	}
 	else
 	{

@@ -1,8 +1,8 @@
 #pragma once
-#ifndef __BATTLEACTION_H__
-#define __BATTLEACTION_H__
 
-#include "../global.h"
+
+#include "BattleHex.h"
+
 /*
  * BattleAction.h, part of VCMI engine
  *
@@ -16,7 +16,7 @@
 /// A struct which handles battle actions like defending, walking,... - represents a creature stack in a battle
 class CStack;
 
-struct DLL_EXPORT BattleAction
+struct DLL_LINKAGE BattleAction
 {
 	ui8 side; //who made this action: false - left, true - right player
 	ui32 stackNumber;//stack ID, -1 left hero, -2 right hero,
@@ -26,7 +26,7 @@ struct DLL_EXPORT BattleAction
 		STACK_HEAL, DAEMON_SUMMONING
 	};
 	si8 actionType; //use ActionType enum for values
-	THex destinationTile;
+	BattleHex destinationTile;
 	si32 additionalInfo; // e.g. spell number if type is 1 || 10; tile to attack if type is 6
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -37,9 +37,8 @@ struct DLL_EXPORT BattleAction
 
 	static BattleAction makeDefend(const CStack *stack);
 	static BattleAction makeWait(const CStack *stack);
-	static BattleAction makeMeleeAttack(const CStack *stack, const CStack * attacked, THex attackFrom = THex::INVALID);
+	static BattleAction makeMeleeAttack(const CStack *stack, const CStack * attacked, BattleHex attackFrom = BattleHex::INVALID);
 	static BattleAction makeShotAttack(const CStack *shooter, const CStack *target);
-	static BattleAction makeMove(const CStack *stack, THex dest);
+	static BattleAction makeMove(const CStack *stack, BattleHex dest);
 	static BattleAction makeEndOFTacticPhase(ui8 side);
 };
-#endif // __BATTLEACTION_H__

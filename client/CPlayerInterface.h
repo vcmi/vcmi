@@ -1,13 +1,10 @@
-#ifndef __CPLAYERINTERFACE_H__
-#define __CPLAYERINTERFACE_H__
-#include "../global.h"
-#include "../lib/CGameInterface.h"
+#pragma once
+
+
 #include "../lib/CondSh.h"
-#include <map>
-#include <list>
-#include <algorithm>
-#include "GUIBase.h"
 #include "FunctionList.h"
+#include "../lib/CGameInterface.h"
+#include "UIFramework/CIntObject.h"
 
 #ifdef __GNUC__
 #define sprintf_s snprintf 
@@ -31,7 +28,7 @@
  */
 
 class CDefEssential;
-class AdventureMapButton;
+class CAdventureMapButton;
 class CHighlightableButtonsGroup;
 class CDefHandler;
 struct TryMoveHero;
@@ -41,7 +38,7 @@ class CAdvMapInt;
 class CCastleInterface;
 class CBattleInterface;
 class CStack;
-class SComponent;
+class CComponent;
 class CCreature;
 struct SDL_Surface;
 struct CGPath;
@@ -58,7 +55,7 @@ class CInGameConsole;
 union SDL_Event;
 class IStatusBar;
 class CInfoWindow;
-class IShowActivable;
+class IShowActivatable;
 class ClickableL;
 class ClickableR;
 class Hoverable;
@@ -221,7 +218,7 @@ public:
 	void battleEnd(const BattleResult *br) OVERRIDE; //end of battle
 	void battleNewRoundFirst(int round) OVERRIDE; //called at the beginning of each turn before changes are applied; used for HP regen handling
 	void battleNewRound(int round) OVERRIDE; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	void battleStackMoved(const CStack * stack, std::vector<THex> dest, int distance) OVERRIDE;
+	void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance) OVERRIDE;
 	void battleSpellCast(const BattleSpellCast *sc) OVERRIDE;
 	void battleStacksEffectsSet(const SetStackEffect & sse) OVERRIDE; //called when a specific effect is set to stacks
 	void battleTriggerEffect(const BattleTriggerEffect & bte) OVERRIDE; //various one-shot effect
@@ -243,15 +240,15 @@ public:
 	bool ctrlPressed() const; //determines if ctrl key is pressed (left or right or both)
 	bool altPressed() const; //determines if alt key is pressed (left or right or both)
 	void redrawHeroWin(const CGHeroInstance * hero);
-	void showComp(SComponent comp); //TODO: comment me
+	void showComp(CComponent comp); //TODO: comment me
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	SDL_Surface * infoWin(const CGObjectInstance * specific); //specific=0 => draws info about selected town/hero
 	void updateInfo(const CGObjectInstance * specific);
 	void init(CCallback * CB);
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
-	void showInfoDialog(const std::string &text, const std::vector<SComponent*> & components = std::vector<SComponent*>(), int soundID = 0, bool delComps = false);
-	void showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
+	void showInfoDialog(const std::string &text, const std::vector<CComponent*> & components = std::vector<CComponent*>(), int soundID = 0, bool delComps = false);
+	void showYesNoDialog(const std::string &text, const std::vector<CComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
 	void stopMovement();
 	bool moveHero(const CGHeroInstance *h, CGPath path);
 	void initMovement(const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp );//initializing objects and performing first step of move
@@ -278,6 +275,3 @@ public:
 };
 
 extern CPlayerInterface * LOCPLINT;
-
-
-#endif // __CPLAYERINTERFACE_H__

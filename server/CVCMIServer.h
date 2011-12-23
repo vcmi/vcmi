@@ -1,8 +1,6 @@
-#ifndef __CVCMISERVER_H__
-#define __CVCMISERVER_H__
-#include "../global.h"
-#include <set>
-#include <boost/thread/recursive_mutex.hpp>
+#pragma once
+
+
 
 /*
  * CVCMIServer.h, part of VCMI engine
@@ -98,6 +96,3 @@ public:
 	void sendPack(CConnection * pc, const CPackForSelectionScreen & pack);
 	void startListeningThread(CConnection * pc);
 };
-
-
-#endif // __CVCMISERVER_H__

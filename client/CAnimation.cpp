@@ -1,7 +1,4 @@
-#include <boost/bind.hpp>
-#include <boost/algorithm/string/trim.hpp>
-#include <boost/foreach.hpp>
-
+#include "StdInc.h"
 #include <SDL_image.h>
 
 #include "../lib/CLodHandler.h"
@@ -11,7 +8,7 @@
 #include "CBitmapHandler.h"
 #include "Graphics.h"
 #include "CAnimation.h"
-#include "SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 
 /*
  * CAnimation.cpp, part of VCMI engine
@@ -23,8 +20,8 @@
  *
  */
 
-extern DLL_EXPORT CLodHandler *spriteh;
-extern DLL_EXPORT CLodHandler *bitmaph;
+extern DLL_LINKAGE CLodHandler *spriteh;
+extern DLL_LINKAGE CLodHandler *bitmaph;
 
 typedef std::map <size_t, std::vector <JsonNode> > source_map;
 typedef std::map<size_t, IImage* > image_map;
@@ -53,7 +50,7 @@ class CompImageLoader
 	CompImage * image;
 	ui8 *position;
 	ui8 *entry;
-	unsigned int currentLine;
+	ui32 currentLine;
 	
 	inline ui8 typeOf(ui8 color);
 	inline void NewEntry(ui8 color, size_t size);
@@ -97,15 +94,15 @@ CDefFile::CDefFile(std::string Name):
 	palette = new SDL_Color[256];
 	int it = 0;
 
-	unsigned int type = read_le_u32(data + it);
+	ui32 type = read_le_u32(data + it);
 	it+=4;
 	//int width  = read_le_u32(data + it); it+=4;//not used
 	//int height = read_le_u32(data + it); it+=4;
 	it+=8;
-	unsigned int totalBlocks = read_le_u32(data + it);
+	ui32 totalBlocks = read_le_u32(data + it);
 	it+=4;
 
-	for (unsigned int i= 0; i<256; i++)
+	for (ui32 i= 0; i<256; i++)
 	{
 		palette[i].r = data[it++];
 		palette[i].g = data[it++];
@@ -117,7 +114,7 @@ CDefFile::CDefFile(std::string Name):
 	else
 		memcpy(palette, H3Palette, sizeof(SDL_Color)*8);//initialize shadow\selection colors
 
-	for (unsigned int i=0; i<totalBlocks; i++)
+	for (ui32 i=0; i<totalBlocks; i++)
 	{
 		size_t blockID = read_le_u32(data + it);
 		it+=4;
@@ -128,7 +125,7 @@ CDefFile::CDefFile(std::string Name):
 		//13 bytes for name of every frame in this block - not used, skipping
 		it+= 13 * totalEntries;
 
-		for (unsigned int j=0; j<totalEntries; j++)
+		for (ui32 j=0; j<totalEntries; j++)
 		{
 			size_t currOffset = read_le_u32(data + it);
 			offset[blockID].push_back(currOffset);
@@ -158,8 +155,8 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 	sprite.leftMargin = SDL_SwapLE32(sd.leftMargin);
 	sprite.topMargin = SDL_SwapLE32(sd.topMargin);
 
-	unsigned int currentOffset = sizeof(SSpriteDef);
-	unsigned int BaseOffset =    sizeof(SSpriteDef);
+	ui32 currentOffset = sizeof(SSpriteDef);
+	ui32 BaseOffset =    sizeof(SSpriteDef);
 
 	loader.init(Point(sprite.width, sprite.height),
 	            Point(sprite.leftMargin, sprite.topMargin),
@@ -170,7 +167,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 	case 0:
 		{
 			//pixel data is not compressed, copy data to surface
-			for (unsigned int i=0; i<sprite.height; i++)
+			for (ui32 i=0; i<sprite.height; i++)
 			{
 				loader.Load(sprite.width, FDef[currentOffset]);
 				currentOffset += sprite.width;
@@ -184,16 +181,16 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 			const ui32 * RWEntriesLoc = reinterpret_cast<const ui32 *>(FDef+currentOffset);
 			currentOffset += sizeof(ui32) * sprite.height;
 
-			for (unsigned int i=0; i<sprite.height; i++)
+			for (ui32 i=0; i<sprite.height; i++)
 			{
 				//get position of the line
 				currentOffset=BaseOffset + read_le_u32(RWEntriesLoc + i);
-				unsigned int TotalRowLength = 0;
+				ui32 TotalRowLength = 0;
 
 				while (TotalRowLength<sprite.width)
 				{
-					unsigned char type=FDef[currentOffset++];
-					unsigned int length=FDef[currentOffset++] + 1;
+					ui8 type=FDef[currentOffset++];
+					ui32 length=FDef[currentOffset++] + 1;
 
 					if (type==0xFF)//Raw data
 					{
@@ -215,15 +212,15 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 		{
 			currentOffset = BaseOffset + read_le_u16(FDef + BaseOffset);
 
-			for (unsigned int i=0; i<sprite.height; i++)
+			for (ui32 i=0; i<sprite.height; i++)
 			{
-				unsigned int TotalRowLength=0;
+				ui32 TotalRowLength=0;
 
 				while (TotalRowLength<sprite.width)
 				{
-					unsigned char SegmentType=FDef[currentOffset++];
-					unsigned char code = SegmentType / 32;
-					unsigned char length = (SegmentType & 31) + 1;
+					ui8 SegmentType=FDef[currentOffset++];
+					ui8 code = SegmentType / 32;
+					ui8 length = (SegmentType & 31) + 1;
 
 					if (code==7)//Raw data
 					{
@@ -242,16 +239,16 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 		}
 	case 3:
 		{
-			for (unsigned int i=0; i<sprite.height; i++)
+			for (ui32 i=0; i<sprite.height; i++)
 			{
 				currentOffset = BaseOffset + read_le_u16(FDef + BaseOffset+i*2*(sprite.width/32));
-				unsigned int TotalRowLength=0;
+				ui32 TotalRowLength=0;
 
 				while (TotalRowLength<sprite.width)
 				{
-					unsigned char segment = FDef[currentOffset++];
-					unsigned char code = segment / 32;
-					unsigned char length = (segment & 31) + 1;
+					ui8 segment = FDef[currentOffset++];
+					ui8 code = segment / 32;
+					ui8 length = (segment & 31) + 1;
 
 					if (code==7)//Raw data
 					{
@@ -366,7 +363,7 @@ void CompImageLoader::init(Point SpriteSize, Point Margins, Point FullSize, SDL_
 		memcpy((void*)image->palette, (void*)pal, 256*sizeof(SDL_Color));
 		//Allocate enought space for worst possible case,  c-style malloc used due to resizing after load
 		image->surf = (ui8*)malloc(SpriteSize.x*SpriteSize.y*3);
-		image->line = new unsigned int[SpriteSize.y+1];
+		image->line = new ui32[SpriteSize.y+1];
 		image->line[0] = 0;
 		position = image->surf;
 	}
@@ -591,7 +588,7 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 	}
 }
 
-void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, unsigned char rotation) const
+void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 rotation) const
 {
 	if (!surf)
 		return;
@@ -751,7 +748,7 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 			for (size_t i=0; i<size; i++)
 			{
 				SDL_Color col = palette[*(data++)];
-				col.unused = (unsigned int)col.unused*(255-alpha)/255;
+				col.unused = (ui32)col.unused*(255-alpha)/255;
 				ColorPutter<bpp, 1>::PutColorAlpha(dest, col);
 			}
 			return;
@@ -811,7 +808,7 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 void CompImage::playerColored(int player)
 {
 	SDL_Color *pal = NULL;
-	if(player < PLAYER_LIMIT && player >= 0)
+	if(player < GameConstants::PLAYER_LIMIT && player >= 0)
 	{
 		pal = graphics->playerColorPalette + 32*player;
 	}
@@ -941,7 +938,7 @@ void CAnimation::init(CDefFile * file)
 	if (spriteh->haveFile(name, FILE_TEXT))
 	{
 		int size = 0;
-		unsigned char * configFile = spriteh->giveFile(name, FILE_TEXT, &size);
+		ui8 * configFile = spriteh->giveFile(name, FILE_TEXT, &size);
 
 		const JsonNode config((char*)configFile, size);
 		delete configFile;
@@ -1118,7 +1115,7 @@ void CAnimation::getAnimInfo()
 	}
 }
 
-CAnimImage::CAnimImage(std::string name, size_t Frame, size_t Group, int x, int y, unsigned char Flags):
+CAnimImage::CAnimImage(std::string name, size_t Frame, size_t Group, int x, int y, ui8 Flags):
 	frame(Frame),
 	group(Group),
 	player(-1),
@@ -1130,7 +1127,7 @@ CAnimImage::CAnimImage(std::string name, size_t Frame, size_t Group, int x, int 
 	init();
 }
 
-CAnimImage::CAnimImage(CAnimation *Anim, size_t Frame, size_t Group, int x, int y, unsigned char Flags):
+CAnimImage::CAnimImage(CAnimation *Anim, size_t Frame, size_t Group, int x, int y, ui8 Flags):
 	anim(Anim),
 	frame(Frame),
 	group(Group),
@@ -1169,7 +1166,7 @@ CAnimImage::~CAnimImage()
 	delete anim;
 }
 
-void CAnimImage::showAll(SDL_Surface *to)
+void CAnimImage::showAll(SDL_Surface * to)
 {
 	IImage *img = anim->getImage(frame, group);
 	if (img)
@@ -1206,7 +1203,7 @@ void CAnimImage::playerColored(int currPlayer)
 			anim->getImage(0, group)->playerColored(player);
 }
 
-CShowableAnim::CShowableAnim(int x, int y, std::string name, unsigned char Flags, unsigned int Delay, size_t Group):
+CShowableAnim::CShowableAnim(int x, int y, std::string name, ui8 Flags, ui32 Delay, size_t Group):
 	anim(name, Flags & USE_RLE),
 	group(Group),
 	frame(0),
@@ -1232,9 +1229,9 @@ CShowableAnim::~CShowableAnim()
 	anim.unloadGroup(group);
 }
 
-void CShowableAnim::setAlpha(unsigned int alphaValue)
+void CShowableAnim::setAlpha(ui32 alphaValue)
 {
-	alpha = std::min<unsigned int>(alphaValue, 255);
+	alpha = std::min<ui32>(alphaValue, 255);
 }
 
 bool CShowableAnim::set(size_t Group, size_t from, size_t to)
@@ -1288,7 +1285,7 @@ void CShowableAnim::clipRect(int posX, int posY, int width, int height)
 	pos.h = height;
 }
 
-void CShowableAnim::show(SDL_Surface *to)
+void CShowableAnim::show(SDL_Surface * to)
 {
 	if ( flags & BASE && frame != first)
 		blitImage(first, group, to);
@@ -1302,7 +1299,7 @@ void CShowableAnim::show(SDL_Surface *to)
 	}
 }
 
-void CShowableAnim::showAll(SDL_Surface *to)
+void CShowableAnim::showAll(SDL_Surface * to)
 {
 	if ( flags & BASE && frame != first)
 		blitImage(first, group, to);
@@ -1320,14 +1317,14 @@ void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)
 
 void CShowableAnim::rotate(bool on, bool vertical)
 {
-	unsigned char flag = vertical? VERTICAL_FLIP:HORIZONTAL_FLIP;
+	ui8 flag = vertical? VERTICAL_FLIP:HORIZONTAL_FLIP;
 	if (on)
 		flags |= flag;
 	else
 		flags &= ~flag;
 }
 
-CCreatureAnim::CCreatureAnim(int x, int y, std::string name, Rect picPos, unsigned char flags, EAnimType type):
+CCreatureAnim::CCreatureAnim(int x, int y, std::string name, Rect picPos, ui8 flags, EAnimType type):
 	CShowableAnim(x,y,name,flags,3,type)
 {
 	xOffset = picPos.x;

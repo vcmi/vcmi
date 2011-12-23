@@ -1,7 +1,5 @@
+#include "StdInc.h"
 #include "CGeniusAI.h"
-
-#include <iostream>
-#include <boost/lexical_cast.hpp>
 
 #include "../../lib/BattleState.h"
 #include "../../lib/CBuildingHandler.h"
@@ -10,6 +8,7 @@
 #include "../../lib/NetPacks.h"
 #include "AIPriorities.h"
 #include "../../lib/CGameState.h"
+#include "../../lib/GameConstants.h"
 
 using std::endl;
 using geniusai::CGeniusAI;
@@ -150,7 +149,7 @@ CGeniusAI::HeroObjective::HeroObjective(const HypotheticalGameState &hgs,
 }
 
 
-float CGeniusAI::HeroObjective::getValue() const
+double CGeniusAI::HeroObjective::getValue() const
 {
 	if (_value >= 0)
     return _value - _cost;
@@ -165,7 +164,7 @@ float CGeniusAI::HeroObjective::getValue() const
 		resourceCosts[6] += 1000;
 
   // TODO: Add some meaningful (and not exploitable) number here.
-	float bestCost = 9e9f;
+	double bestCost = 9e9f;
 	HypotheticalGameState::HeroModel* bestHero = NULL;
 	if (type != AIObjective::finishTurn)
 	{
@@ -195,7 +194,7 @@ float CGeniusAI::HeroObjective::getValue() const
 					distOutOfTheWay-=path3.nodes[0].dist;
 			}
 			
-			float cost = AI->m_priorities->getCost(resourceCosts,
+			double cost = AI->m_priorities->getCost(resourceCosts,
                                              whoCanAchieve[i]->h,
                                              distOutOfTheWay);
 			if (cost < bestCost)
@@ -269,7 +268,7 @@ CGeniusAI::TownObjective::TownObjective(
 	_value = -1;
 }
 
-float CGeniusAI::TownObjective::getValue() const
+double CGeniusAI::TownObjective::getValue() const
 {
 	if (_value >= 0)
 		return _value - _cost;
@@ -278,7 +277,7 @@ float CGeniusAI::TownObjective::getValue() const
 	vector<int> resourceCosts(8,0);
 	CBuilding* b        = NULL;
 	CCreature* creature = NULL;
-	float cost          = 0; // TODO: Needed?
+	double cost          = 0; // TODO: Needed?
 	int ID              = 0;
 	int newID           = 0;
 	int howMany         = 0;
@@ -310,7 +309,7 @@ float CGeniusAI::TownObjective::getValue() const
 				else
 					creatures_max = INT_MAX; // TODO: Will have to rewrite it.
 				// TODO: Buy the best units (the least I can buy)?
-					 amin(howMany, creatures_max);
+					 vstd::amin(howMany, creatures_max);
 			}
 		  // The cost of recruiting the stack of creatures.
 			for (int i = 0; creature && (i < creature->cost.size() ); ++i)
@@ -401,7 +400,7 @@ void CGeniusAI::TownObjective::print() const
 				creatures_max = hgs.resourceAmounts[i]/creature->cost[i];
 			else
 				creatures_max = INT_MAX;
-			amin(howMany, creatures_max);
+			vstd::amin(howMany, creatures_max);
 		}
 		  tlog6 << "recruit " << howMany  << " " << creature->namePl
 				<< " (Total AI Strength " << creature->AIValue*howMany
@@ -503,7 +502,7 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel& h
 		// maybe the hero wants to visit a seemingly unguarded enemy town,
     // but there is a hero on top of it.
 		// if(i->o->)
-    if (i->o->ID != HEROI_TYPE)
+		if (i->o->ID != GameConstants::HEROI_TYPE)
 	{// Unless you are trying to visit a hero.
 		bool heroThere = false;
 		for(int j = 0; j < hgs.heroModels.size(); j++)
@@ -514,7 +513,7 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel& h
 			if (heroThere) // It won't work if there is already someone visiting that spot.
 				continue;
 	}
-	if (i->o->ID == HEROI_TYPE && // Visiting friendly heroes not yet supported.
+	if (i->o->ID == GameConstants::HEROI_TYPE && // Visiting friendly heroes not yet supported.
 		i->o->getOwner() == m_cb->getMyColor())
 			continue;
 	if (i->o->id == h.h->id)	// Don't visit yourself (should be caught by above).
@@ -541,7 +540,7 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel& h
       // TODO: Make constants of those 1.2 & 2.5.
 			if (dynamic_cast<const CGTownInstance*> (i->o))
 				enemyStrength = static_cast<int>((dynamic_cast<const CGTownInstance*> (i->o))->getArmyStrength() * 1.2);
-			float heroStrength = h.h->getTotalStrength();
+			double heroStrength = h.h->getTotalStrength();
       // TODO: ballence these numbers using objective cost formula.
       // TODO: it would be nice to do a battle simulation.
 			if (enemyStrength * 2.5 > heroStrength)  
@@ -945,7 +944,7 @@ void CGeniusAI::TownObjective::fulfill(CGeniusAI& cg,
 			creature = VLC->creh->creatures[ID];
 			howMany = whichTown->creaturesToRecruit[which].first;
 			for (int i = 0; i < creature->cost.size(); i++)
-				amin(howMany, creature->cost[i] ? hgs.resourceAmounts[i]/creature->cost[i] : INT_MAX);
+				vstd::amin(howMany, creature->cost[i] ? hgs.resourceAmounts[i]/creature->cost[i] : INT_MAX);
 			if (howMany == 0)
 			{
 				tlog6 << "tried to recruit without enough money.";
@@ -1262,7 +1261,7 @@ void CGeniusAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2
   // TODO: Battle logic what...
 	assert(!m_battleLogic);
   // We have been informed that battle will start (or we are neutral AI)
-	assert( (playerID > PLAYER_LIMIT) || (m_state.get() == UPCOMING_BATTLE) );
+	assert( (playerID > GameConstants::PLAYER_LIMIT) || (m_state.get() == UPCOMING_BATTLE) );
 
 	m_state.setn(ONGOING_BATTLE);
 	m_battleLogic = new BattleAI::CBattleLogic(m_cb, army1, army2, tile, hero1,
@@ -1312,7 +1311,7 @@ void CGeniusAI::battleNewRound(int round)
 /**
  *
  */
-void CGeniusAI::battleStackMoved(int ID, std::vector<THex> dest, int distance)
+void CGeniusAI::battleStackMoved(int ID, std::vector<BattleHex> dest, int distance)
 {
 	std::string message("\t\t\tCGeniusAI::battleStackMoved ID(");
 	message += boost::lexical_cast<std::string>(ID);
@@ -1346,7 +1345,7 @@ void CGeniusAI::battleSpellCast(const BattleSpellCast *sc)
  *
  */
 // void CGeniusAI::battleStackMoved(int ID,
-//                                  THex dest,
+//                                  BattleHex dest,
 //                                  bool startMoving,
 //                                  bool endMoving)
 // {

@@ -1,13 +1,5 @@
-#define VCMI_DLL
+#include "StdInc.h"
 #include "JsonNode.h"
-
-#include <boost/assign.hpp>
-#include <boost/foreach.hpp>
-
-#include <assert.h>
-#include <fstream>
-#include <sstream>
-#include <iostream>
 
 const JsonNode JsonNode::nullNode;
 
@@ -123,7 +115,7 @@ bool & JsonNode::Bool()
 	return data.Bool;
 }
 
-float & JsonNode::Float()
+double & JsonNode::Float()
 {
 	setType(DATA_FLOAT);
 	return data.Float;
@@ -156,8 +148,8 @@ const bool & JsonNode::Bool() const
 	return data.Bool;
 }
 
-const float floatDefault = 0;
-const float & JsonNode::Float() const
+const double floatDefault = 0;
+const double & JsonNode::Float() const
 {
 	if (type == DATA_NULL)
 		return floatDefault;
@@ -362,7 +354,7 @@ bool JsonParser::extractWhitespace(bool verbose)
 {
 	while (true)
 	{
-		while (pos < input.size() && (unsigned char)input[pos] <= ' ')
+		while (pos < input.size() && (ui8)input[pos] <= ' ')
 		{
 			if (input[pos] == '\n')
 			{
@@ -602,7 +594,7 @@ bool JsonParser::extractFloat(JsonNode &node)
 {
 	assert(input[pos] == '-' || (input[pos] >= '0' && input[pos] <= '9'));
 	bool negative=false;
-	float result=0;
+	double result=0;
 
 	if (input[pos] == '-')
 	{
@@ -624,7 +616,7 @@ bool JsonParser::extractFloat(JsonNode &node)
 	{
 		//extract fractional part
 		pos++;
-		float fractMult = 0.1;
+		double fractMult = 0.1;
 		if (input[pos] < '0' || input[pos] > '9')
 			return error("Decimal part expected!");
 

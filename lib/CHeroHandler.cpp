@@ -1,19 +1,16 @@
-#define VCMI_DLL
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "CHeroHandler.h"
+
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/JsonNode.h"
-#include <iomanip>
-#include <sstream>
-#include <fstream>
+#include "GameConstants.h"
 #include <boost/version.hpp>
 #if BOOST_VERSION >= 103800
 #include <boost/spirit/include/classic.hpp>
 #else
 #include <boost/spirit.hpp>
 #endif
-#include <boost/foreach.hpp>
 
 using namespace boost::spirit;
 
@@ -55,9 +52,9 @@ int CHeroClass::chooseSecSkill(const std::set<int> & possibles) const //picks se
 	throw std::string("Cannot pick secondary skill!");
 }
 
-EAlignment CHeroClass::getAlignment()
+EAlignment::EAlignment CHeroClass::getAlignment()
 {
-	return (EAlignment)alignment;
+	return (EAlignment::EAlignment)alignment;
 }
 
 int CObstacleInfo::getWidth() const
@@ -95,9 +92,9 @@ int CObstacleInfo::getHeight() const
 	return ret;
 }
 
-std::vector<THex> CObstacleInfo::getBlocked(THex hex) const
+std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 {
-	std::vector<THex> ret;
+	std::vector<BattleHex> ret;
 	int cur = hex; //currently browsed hex
 	int curBeg = hex; //beginning of current line
 	for(int h=0; h<blockmap.size(); ++h)
@@ -109,8 +106,8 @@ std::vector<THex> CObstacleInfo::getBlocked(THex hex) const
 			++cur;
 			break;
 		case 'L':
-			cur = curBeg + BFIELD_WIDTH;
-			if((cur/BFIELD_WIDTH)%2 == 1)
+			cur = curBeg + GameConstants::BFIELD_WIDTH;
+			if((cur/GameConstants::BFIELD_WIDTH)%2 == 1)
 			{
 				cur--;
 			}
@@ -124,9 +121,9 @@ std::vector<THex> CObstacleInfo::getBlocked(THex hex) const
 	return ret;
 }
 
-THex CObstacleInfo::getMaxBlocked(THex hex) const
+BattleHex CObstacleInfo::getMaxBlocked(BattleHex hex) const
 {
-	std::vector<THex> blocked = getBlocked(hex);
+	std::vector<BattleHex> blocked = getBlocked(hex);
 	return *std::max_element(blocked.begin(), blocked.end());
 }
 
@@ -144,7 +141,7 @@ CHeroHandler::CHeroHandler()
 
 void CHeroHandler::loadObstacles()
 {
-	const JsonNode config(DATA_DIR "/config/obstacles.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/obstacles.json");
 
 	BOOST_FOREACH(const JsonNode &obs, config["obstacles"].Vector()) {
 		CObstacleInfo obi;
@@ -163,7 +160,7 @@ void CHeroHandler::loadObstacles()
 
 void CHeroHandler::loadPuzzleInfo()
 {
-	const JsonNode config(DATA_DIR "/config/puzzle_map.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/puzzle_map.json");
 
 	int faction = 0;
 
@@ -185,7 +182,7 @@ void CHeroHandler::loadPuzzleInfo()
 			suffix << std::setfill('0') << std::setw(2);
 			suffix << idx << ".BMP";
 
-			static const std::string factionToInfix[F_NUMBER] = {"CAS", "RAM", "TOW", "INF", "NEC", "DUN", "STR", "FOR", "ELE"};
+			static const std::string factionToInfix[GameConstants::F_NUMBER] = {"CAS", "RAM", "TOW", "INF", "NEC", "DUN", "STR", "FOR", "ELE"};
 			spi.filename = "PUZ" + factionToInfix[faction] + suffix.str();
 
 			puzzleInfo[faction].push_back(spi);
@@ -198,7 +195,7 @@ void CHeroHandler::loadPuzzleInfo()
 		faction ++;
 	}
 
-	assert(faction == F_NUMBER);
+	assert(faction == GameConstants::F_NUMBER);
 }
 
 void CHeroHandler::loadHeroes()
@@ -230,7 +227,7 @@ void CHeroHandler::loadHeroes()
 	addTab[11] = CHero::DEMONIAC;
 
 	
-	for (int i=0; i<HEROES_QUANTITY; i++)
+	for (int i=0; i<GameConstants::HEROES_QUANTITY; i++)
 	{
 		CHero * nher = new CHero;
 		if(currentClass<18)
@@ -268,7 +265,7 @@ void CHeroHandler::loadHeroes()
 	}
 
 	// Load heroes information
-	const JsonNode config(DATA_DIR "/config/heroes.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/heroes.json");
 	BOOST_FOREACH(const JsonNode &hero, config["heroes"].Vector()) {
 		int hid = hero["id"].Float();
 		const JsonNode *value;
@@ -383,25 +380,25 @@ void CHeroHandler::loadHeroClasses()
 		str >> intPart;
 		str.ignore();//ignore decimal separator
 		str >> fracPart;
-		hc->aggression = intPart + fracPart/100.0f;
+		hc->aggression = intPart + fracPart/100.0;
 		
 		str >> hc->initialAttack;
 		str >> hc->initialDefence;
 		str >> hc->initialPower;
 		str >> hc->initialKnowledge;
 
-		hc->primChance.resize(PRIMARY_SKILLS);
-		for(int x=0; x<PRIMARY_SKILLS; ++x)
+		hc->primChance.resize(GameConstants::PRIMARY_SKILLS);
+		for(int x=0; x<GameConstants::PRIMARY_SKILLS; ++x)
 		{
 			str >> hc->primChance[x].first;
 		}
-		for(int x=0; x<PRIMARY_SKILLS; ++x)
+		for(int x=0; x<GameConstants::PRIMARY_SKILLS; ++x)
 		{
 			str >> hc->primChance[x].second;
 		}
 
-		hc->proSec.resize(SKILL_QUANTITY);
-		for(int dd=0; dd<SKILL_QUANTITY; ++dd)
+		hc->proSec.resize(GameConstants::SKILL_QUANTITY);
+		for(int dd=0; dd<GameConstants::SKILL_QUANTITY; ++dd)
 		{
 			str >> hc->proSec[dd];
 		}
@@ -426,7 +423,7 @@ void CHeroHandler::initHeroClasses()
 	loadTerrains();
 }
 
-unsigned int CHeroHandler::level (ui64 experience) const
+ui32 CHeroHandler::level (ui64 experience) const
 {
 	int i;
 	if (experience <= expPerLevel.back())
@@ -443,7 +440,7 @@ unsigned int CHeroHandler::level (ui64 experience) const
 	}
 }
 
-ui64 CHeroHandler::reqExp (unsigned int level) const
+ui64 CHeroHandler::reqExp (ui32 level) const
 {
 	if(!level)
 		return 0;
@@ -462,9 +459,9 @@ ui64 CHeroHandler::reqExp (unsigned int level) const
 void CHeroHandler::loadTerrains()
 {
 	int faction = 0;
-	const JsonNode config(DATA_DIR "/config/terrains.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/terrains.json");
 
-	nativeTerrains.resize(F_NUMBER);
+	nativeTerrains.resize(GameConstants::F_NUMBER);
 
 	BOOST_FOREACH(const JsonNode &terrain, config["terrains"].Vector()) {
 
@@ -480,7 +477,7 @@ void CHeroHandler::loadTerrains()
 		faction ++;
 	}
 
-	assert(faction == F_NUMBER);
+	assert(faction == GameConstants::F_NUMBER);
 }
 
 CHero::CHero()

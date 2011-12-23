@@ -1,6 +1,6 @@
-#define VCMI_DLL
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "CObjectHandler.h"
+
 #include "CDefObjInfoHandler.h"
 #include "CLodHandler.h"
 #include "CGeneralTextHandler.h"
@@ -8,10 +8,6 @@
 #include "CHeroHandler.h"
 #include "CSpellHandler.h"
 #include "../client/CSoundBase.h"
-#include <boost/bind.hpp>
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/assign/std/vector.hpp> 
-#include <boost/lexical_cast.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include "CTownHandler.h"
 #include "CCreatureHandler.h"
@@ -19,15 +15,12 @@
 #include "IGameCallback.h"
 #include "CGameState.h"
 #include "NetPacks.h"
-#include "../StartInfo.h"
+#include "StartInfo.h"
 #include "map.h"
-#include <sstream>
 #include <SDL_stdinc.h>
-#include <boost/foreach.hpp>
-#include <boost/format.hpp>
-#include <boost/algorithm/string/trim.hpp>
 #include "CBuildingHandler.h"
 #include "../lib/JsonNode.h"
+#include "GameConstants.h"
 
 using namespace boost::assign;
 
@@ -44,7 +37,7 @@ using namespace boost::assign;
 std::map<int,std::map<int, std::vector<int> > > CGTeleport::objs;
 std::vector<std::pair<int, int> > CGTeleport::gates;
 IGameCallback * IObjectInterface::cb = NULL;
-DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
+DLL_LINKAGE void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
 extern CLodHandler * bitmaph;
 extern boost::rand48 ran;
 std::map <ui8, std::set <ui8> > CGKeys::playerKeyMap;
@@ -143,7 +136,7 @@ static void readBankLevel(const JsonNode &level, BankConfig &bc)
 	bc.upgradeChance = level["upgrade_chance"].Float();
 	bc.combatValue = level["combat_value"].Float();
 
-	bc.resources.resize(RESOURCE_QUANTITY);
+	bc.resources.resize(GameConstants::RESOURCE_QUANTITY);
 	idx = 0;
 	BOOST_FOREACH(const JsonNode &ressource, level["reward_ressources"].Vector())
 	{
@@ -178,7 +171,7 @@ void CObjectHandler::loadObjects()
 		cregens[i]=-1;
 	}
 
-	const JsonNode config(DATA_DIR "/config/dwellings.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/dwellings.json");
 	BOOST_FOREACH(const JsonNode &dwelling, config["dwellings"].Vector())
 	{
 		cregens[dwelling["dwelling"].Float()] = dwelling["creature"].Float();
@@ -186,7 +179,7 @@ void CObjectHandler::loadObjects()
 	tlog5 << "\t\tDone loading cregens!\n";
 
 	tlog5 << "\t\tReading ressources prices \n";
-	const JsonNode config2(DATA_DIR "/config/ressources.json");
+	const JsonNode config2(GameConstants::DATA_DIR + "/config/ressources.json");
 	BOOST_FOREACH(const JsonNode &price, config2["ressources_prices"].Vector())
 	{
 		resVals.push_back(price.Float());
@@ -194,7 +187,7 @@ void CObjectHandler::loadObjects()
 	tlog5 << "\t\tDone loading resource prices!\n";
 
 	tlog5 << "\t\tReading banks configs \n";
-	const JsonNode config3(DATA_DIR "/config/bankconfig.json");
+	const JsonNode config3(GameConstants::DATA_DIR + "/config/bankconfig.json");
 	int bank_num = 0;
 	BOOST_FOREACH(const JsonNode &bank, config3["banks"].Vector())
 	{
@@ -317,9 +310,9 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 		return true;
 	if(this->pos.y>cmp.pos.y)
 		return false;
-	if(cmp.ID==HEROI_TYPE && ID!=HEROI_TYPE)
+	if(cmp.ID==GameConstants::HEROI_TYPE && ID!=GameConstants::HEROI_TYPE)
 		return true;
-	if(cmp.ID!=HEROI_TYPE && ID==HEROI_TYPE)
+	if(cmp.ID!=GameConstants::HEROI_TYPE && ID==GameConstants::HEROI_TYPE)
 		return false;
 	if(!defInfo->isVisitable() && cmp.defInfo->isVisitable())
 		return true;
@@ -515,7 +508,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 	return ret;
 }
 
-unsigned int CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from) const
+ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from) const
 {
 	//TODO: check if all creatures are on its native terrain and change cost appropriately
 
@@ -554,9 +547,9 @@ unsigned int CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainT
 //  - for loop is wrong. will not find all creatures. must use iterator instead.
 //  - -> is the slot number. use second->first for creature index
 // Is lowestSpeed() the correct equivalent ?
-unsigned int CGHeroInstance::getLowestCreatureSpeed() const
+ui32 CGHeroInstance::getLowestCreatureSpeed() const
 {
-	unsigned int sl = 100;
+	ui32 sl = 100;
 	for(size_t h=0; h < stacksCount(); ++h)
 	{
 		if(VLC->creh->creatures[Slots().find(h)->first]->speed<sl)
@@ -639,8 +632,8 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	{
 		static const int moveForSpeed[] = { 1500, 1560, 1630, 1700, 1760, 1830, 1900, 1960, 2000 }; //first element for 3 and lower; last for 11 and more
 		int index = lowestSpeed(this) - 3;
-		amin(index, ARRAY_COUNT(moveForSpeed)-1);
-		amax(index, 0);
+		vstd::amin(index, ARRAY_COUNT(moveForSpeed)-1);
+		vstd::amax(index, 0);
 		base = moveForSpeed[index];
 	}
 	else
@@ -653,11 +646,11 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	double modifier = 0;
 	if(onLand)
 	{
-		modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, LOGISTICS) / 100.0f;
+		modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, LOGISTICS) / 100.0;
 	}
 	else
 	{
-		modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, NAVIGATION) / 100.0f;
+		modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, NAVIGATION) / 100.0;
 	}
 	return int(base + base*modifier) + bonus;
 }
@@ -692,7 +685,7 @@ CGHeroInstance::CGHeroInstance()
  : IBoatGenerator(this)
 {
 	setNodeType(HERO);
-	ID = HEROI_TYPE;
+	ID = GameConstants::HEROI_TYPE;
 	tacticFormationEnabled = inTownGarrison = false;
 	mana = movement = portrait = level = -1;
 	isStanding = true;
@@ -716,7 +709,7 @@ void CGHeroInstance::initHero(int SUBID)
 void CGHeroInstance::initHero()
 {
 	assert(validTypes(true));
-	if(ID == HEROI_TYPE)
+	if(ID == GameConstants::HEROI_TYPE)
 		initHeroDefInfo();
 	if(!type)
 		type = VLC->heroh->heroes[subID];
@@ -725,11 +718,11 @@ void CGHeroInstance::initHero()
 	else //remove placeholder
 		spells -= 0xffffffff;
 
-	if(!getArt(Arts::MACH4) && !getArt(Arts::SPELLBOOK) && type->startingSpell >= 0) //no catapult means we haven't read pre-existent set -> use default rules for spellbook
-		putArtifact(Arts::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
+	if(!getArt(ArtifactPosition::MACH4) && !getArt(ArtifactPosition::SPELLBOOK) && type->startingSpell >= 0) //no catapult means we haven't read pre-existent set -> use default rules for spellbook
+		putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
 
-	if(!getArt(Arts::MACH4))
-		putArtifact(Arts::MACH4, CArtifactInstance::createNewArtifactInstance(3)); //everyone has a catapult
+	if(!getArt(ArtifactPosition::MACH4))
+		putArtifact(ArtifactPosition::MACH4, CArtifactInstance::createNewArtifactInstance(3)); //everyone has a catapult
 	
 	if(portrait < 0 || portrait == 255)
 		portrait = subID;
@@ -803,7 +796,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 			switch (creID)
 			{
 			case 145: //catapult
-				slot = Arts::MACH4;
+				slot = ArtifactPosition::MACH4;
 				aid = 3;
 				break;
 			default:
@@ -823,10 +816,10 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 }
 void CGHeroInstance::initHeroDefInfo()
 {
-	if(!defInfo  ||  defInfo->id != HEROI_TYPE)
+	if(!defInfo  ||  defInfo->id != GameConstants::HEROI_TYPE)
 	{
 		defInfo = new CGDefInfo();
-		defInfo->id = HEROI_TYPE;
+		defInfo->id = GameConstants::HEROI_TYPE;
 		defInfo->subid = subID;
 		defInfo->printPriority = 0;
 		defInfo->visitDir = 0xff;
@@ -854,7 +847,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 {
 	if(h == this) return; //exclude potential self-visiting
 
-	if (ID == HEROI_TYPE) //hero
+	if (ID == GameConstants::HEROI_TYPE) //hero
 	{
 		if( cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner)) //our or ally hero
 		{
@@ -878,7 +871,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 		if(cb->getHeroCount(h->tempOwner,false) < 8) //free hero slot
 		{
 			cb->changeObjPos(id,pos+int3(1,0,0),0);
-			cb->setObjProperty(id, ObjProperty::ID, HEROI_TYPE); //set ID to 34
+			cb->setObjProperty(id, ObjProperty::ID, GameConstants::HEROI_TYPE); //set ID to 34
 			cb->giveHero(id,h->tempOwner); //recreates def and adds hero to player
 
 			iw.text << std::pair<ui8,ui32>(11,102);
@@ -1046,7 +1039,7 @@ void CGHeroInstance::initObj()
 					speciality.addNewBonus(bonus);
 					bonus = new Bonus(*bonus);
 				}
-				delNull(bonus);
+				vstd::clear_pointer(bonus);
 				break;
 			}
 			case 10://resource generation
@@ -1232,7 +1225,7 @@ ui64 CGHeroInstance::getTotalStrength() const
 
 expType CGHeroInstance::calculateXp(expType exp) const
 {
-	return exp * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::LEARNING))/100.0f;
+	return exp * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::LEARNING))/100.0;
 }
 
 ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool) const
@@ -1260,8 +1253,8 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 
 
 
-	amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
-	amax(skill, valOfBonuses(Bonus::SPELL, spell->id)); //given by artifact or other effect
+	vstd::amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
+	vstd::amax(skill, valOfBonuses(Bonus::SPELL, spell->id)); //given by artifact or other effect
 	if (hasBonusOfType(Bonus::MAXED_SPELL, spell->id))//hero speciality (Daremyth, Melodia)
 		skill = 3;
 	assert(skill >= 0 && skill <= 3);
@@ -1301,7 +1294,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	if (necromancyLevel > 0) 
 	{
 		double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, NECROMANCY)/100.0;
-		amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
+		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
 		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		ui32 raisedUnits = 0;
 
@@ -1431,7 +1424,7 @@ void CGHeroInstance::pushPrimSkill(int which, int val)
 	addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id, which));
 }
 
-EAlignment CGHeroInstance::getAlignment() const
+EAlignment::EAlignment CGHeroInstance::getAlignment() const
 {
 	return type->heroClass->getAlignment();
 }
@@ -1460,7 +1453,7 @@ void CGHeroInstance::putInBackpack(CArtifactInstance *art)
 
 bool CGHeroInstance::hasSpellbook() const
 {
-	return getArt(Arts::SPELLBOOK);
+	return getArt(ArtifactPosition::SPELLBOOK);
 }
 
 void CGHeroInstance::deserializationFix()
@@ -1488,7 +1481,7 @@ CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)
 int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark /*= false*/) const
 {
 	if(hasBonusOfType(Bonus::FREE_SHIP_BOARDING))
-		return (MPsBefore - basicCost) * ((float)(maxMovePoints(disembark)) / maxMovePoints(!disembark));
+		return (MPsBefore - basicCost) * static_cast<double>(maxMovePoints(disembark)) / maxMovePoints(!disembark);
 
 	return 0; //take all MPs otherwise
 }
@@ -1564,12 +1557,12 @@ void CGDwelling::setProperty(ui8 what, ui32 val)
 		case ObjProperty::OWNER: //change owner
 			if (ID == 17) //single generators
 			{
-				if (tempOwner != NEUTRAL_PLAYER)
+				if (tempOwner != GameConstants::NEUTRAL_PLAYER)
 				{
 					std::vector<ConstTransitivePtr<CGDwelling> >* dwellings = &cb->gameState()->players[tempOwner].dwellings;
 					dwellings->erase (std::find(dwellings->begin(), dwellings->end(), this));
 				}
-				if (val != NEUTRAL_PLAYER) //can new owner be neutral?
+				if (val != GameConstants::NEUTRAL_PLAYER) //can new owner be neutral?
 					cb->gameState()->players[val].dwellings.push_back (this);
 			}
 			break;
@@ -1647,7 +1640,7 @@ void CGDwelling::newTurn() const
 		return;
 
 	//town growths and War Machines Factories are handled separately
-	if(ID == TOWNI_TYPE  ||  ID == 106)
+	if(ID == GameConstants::TOWNI_TYPE  ||  ID == 106)
 		return;
 
 	if(ID == 78) //if it's a refugee camp, we need to pick an available creature
@@ -1666,7 +1659,7 @@ void CGDwelling::newTurn() const
 		{
 			CCreature *cre = VLC->creh->creatures[creatures[i].second[0]];
 			TQuantity amount = cre->growth * (1 + cre->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(Bonus::CREATURE_GROWTH);
-			if (DWELLINGS_ACCUMULATE_CREATURES)
+			if (GameConstants::DWELLINGS_ACCUMULATE_CREATURES)
 				sac.creatures[i].first += amount;
 			else
 				sac.creatures[i].first = amount;
@@ -1839,9 +1832,9 @@ int CGTownInstance::mageGuildLevel() const
 }
 bool CGTownInstance::creatureDwelling(const int & level, bool upgraded) const
 {
-	if ( level<0 || level >= CREATURES_PER_TOWN )
+	if ( level<0 || level >= GameConstants::CREATURES_PER_TOWN )
 		return false;
-	return vstd::contains(builtBuildings, 30+level+upgraded*CREATURES_PER_TOWN);
+	return vstd::contains(builtBuildings, 30+level+upgraded*GameConstants::CREATURES_PER_TOWN);
 }
 int CGTownInstance::getHordeLevel(const int & HID)  const//HID - 0 or 1; returns creature level or -1 if that horde structure is not present
 {
@@ -1856,9 +1849,9 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 {
 	GrowthInfo ret;
 
-	if (level<0 || level >=CREATURES_PER_TOWN)
+	if (level<0 || level >=GameConstants::CREATURES_PER_TOWN)
 		return ret;
-	if (!vstd::contains(builtBuildings, Buildings::DWELL_FIRST+level))
+	if (!vstd::contains(builtBuildings, EBuilding::DWELL_FIRST+level))
 		return ret; //no dwelling
 
 	const CCreature *creature = VLC->creh->creatures[town->basicCreatures[level]];
@@ -1867,18 +1860,18 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 
 	ret.entries.push_back(GrowthInfo::Entry(VLC->generaltexth->allTexts[590], base));// \n\nBasic growth %d"
 
-	if ( vstd::contains(builtBuildings, Buildings::CASTLE))
-		ret.entries.push_back(GrowthInfo::Entry(subID, Buildings::CASTLE, castleBonus = base));
-	else if ( vstd::contains(builtBuildings, Buildings::CITADEL))
-		ret.entries.push_back(GrowthInfo::Entry(subID, Buildings::CITADEL, castleBonus = base / 2));
+	if ( vstd::contains(builtBuildings, EBuilding::CASTLE))
+		ret.entries.push_back(GrowthInfo::Entry(subID, EBuilding::CASTLE, castleBonus = base));
+	else if ( vstd::contains(builtBuildings, EBuilding::CITADEL))
+		ret.entries.push_back(GrowthInfo::Entry(subID, EBuilding::CITADEL, castleBonus = base / 2));
 
 	if(town->hordeLvl[0] == level)//horde 1
-		if( vstd::contains(builtBuildings, Buildings::HORDE_1) || vstd::contains(builtBuildings, Buildings::HORDE_1_UPGR))
-			ret.entries.push_back(GrowthInfo::Entry(subID, Buildings::HORDE_1, creature->hordeGrowth));
+		if( vstd::contains(builtBuildings, EBuilding::HORDE_1) || vstd::contains(builtBuildings, EBuilding::HORDE_1_UPGR))
+			ret.entries.push_back(GrowthInfo::Entry(subID, EBuilding::HORDE_1, creature->hordeGrowth));
 
 	if(town->hordeLvl[1] == level)//horde 2
-		if(vstd::contains(builtBuildings, Buildings::HORDE_2) || vstd::contains(builtBuildings, Buildings::HORDE_2_UPGR))
-			ret.entries.push_back(GrowthInfo::Entry(subID, Buildings::HORDE_2, creature->hordeGrowth));
+		if(vstd::contains(builtBuildings, EBuilding::HORDE_2) || vstd::contains(builtBuildings, EBuilding::HORDE_2_UPGR))
+			ret.entries.push_back(GrowthInfo::Entry(subID, EBuilding::HORDE_2, creature->hordeGrowth));
 
 	int dwellingBonus = 0;
 	if(const PlayerState *p = cb->getPlayer(tempOwner, false))
@@ -1901,8 +1894,8 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	BOOST_FOREACH(const Bonus *b, *bonuses2)
 		ret.entries.push_back(GrowthInfo::Entry(b->Description() + " %+d", b->val * (base + castleBonus) / 100));
 
-	if(vstd::contains(builtBuildings, Buildings::GRAIL)) //grail - +50% to ALL (so far added) growth
-		ret.entries.push_back(GrowthInfo::Entry(subID, Buildings::GRAIL, ret.totalGrowth() / 2));
+	if(vstd::contains(builtBuildings, EBuilding::GRAIL)) //grail - +50% to ALL (so far added) growth
+		ret.entries.push_back(GrowthInfo::Entry(subID, EBuilding::GRAIL, ret.totalGrowth() / 2));
 
 	return ret;
 }
@@ -2008,10 +2001,10 @@ void CGTownInstance::initObj()
 	hoverName = name + ", " + town->Name();
 
 	if (subID == 5)
-		creatures.resize(CREATURES_PER_TOWN+1);//extra dwelling for Dungeon
+		creatures.resize(GameConstants::CREATURES_PER_TOWN+1);//extra dwelling for Dungeon
 	else
-		creatures.resize(CREATURES_PER_TOWN);
-	for (int i = 0; i < CREATURES_PER_TOWN; i++)
+		creatures.resize(GameConstants::CREATURES_PER_TOWN);
+	for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; i++)
 	{
 		if(creatureDwelling(i,false))
 			creatures[i].second.push_back(town->basicCreatures[i]);
@@ -2042,7 +2035,7 @@ void CGTownInstance::newTurn() const
 {
 	if (cb->getDate(1) == 1) //reset on new week
 	{
-		if (vstd::contains(builtBuildings,17) && subID == 1 && cb->getDate(0) != 1 && (tempOwner < PLAYER_LIMIT) )//give resources for Rampart, Mystic Pond
+		if (vstd::contains(builtBuildings,17) && subID == 1 && cb->getDate(0) != 1 && (tempOwner < GameConstants::PLAYER_LIMIT) )//give resources for Rampart, Mystic Pond
 		{
 			int resID = rand()%4+2;//bonus to random rare resource
 			resID = (resID==2)?1:resID;
@@ -2059,7 +2052,7 @@ void CGTownInstance::newTurn() const
 				cb->setObjProperty (id, 12, (*i)->id); //reset visitors for Mana Vortex
 		}
 
-		if (tempOwner == NEUTRAL_PLAYER) //garrison growth for neutral towns
+		if (tempOwner == GameConstants::NEUTRAL_PLAYER) //garrison growth for neutral towns
 			{
 				std::vector<ui8> nativeCrits; //slots
 				for (TSlots::const_iterator it = Slots().begin(); it != Slots().end(); it++)
@@ -2084,9 +2077,9 @@ void CGTownInstance::newTurn() const
 						cb->changeStackType(sl, VLC->creh->creatures[*c->upgrades.begin()]);
 					}
 				}
-				if ((stacksCount() < ARMY_SIZE && rand()%100 < 25) || Slots().empty()) //add new stack
+				if ((stacksCount() < GameConstants::ARMY_SIZE && rand()%100 < 25) || Slots().empty()) //add new stack
 				{
-					int i = rand() % std::min (ARMY_SIZE, cb->getDate(3)<<1);
+					int i = rand() % std::min (GameConstants::ARMY_SIZE, cb->getDate(3)<<1);
 					TCreature c = town->basicCreatures[i];
 					TSlot n = -1;
 					
@@ -2118,7 +2111,7 @@ int3 CGTownInstance::getSightCenter() const
 ui8 CGTownInstance::getPassableness() const
 {
 	if (!armedGarrison())//empty castle - anyone can visit
-		return ALL_PLAYERS;
+		return GameConstants::ALL_PLAYERS;
 	if ( tempOwner == 255 )//neutral guarded - no one can visit
 		return 0;
 		
@@ -2196,21 +2189,21 @@ int CGTownInstance::getMarketEfficiency() const
 	return marketCount;
 }
 
-bool CGTownInstance::allowsTrade(EMarketMode mode) const
+bool CGTownInstance::allowsTrade(EMarketMode::EMarketMode mode) const
 {
 	switch(mode)
 	{
-	case RESOURCE_RESOURCE:
-	case RESOURCE_PLAYER:
+	case EMarketMode::RESOURCE_RESOURCE:
+	case EMarketMode::RESOURCE_PLAYER:
 		return vstd::contains(builtBuildings, 14); // 	marketplace
-	case ARTIFACT_RESOURCE:
-	case RESOURCE_ARTIFACT:
+	case EMarketMode::ARTIFACT_RESOURCE:
+	case EMarketMode::RESOURCE_ARTIFACT:
 		return (subID == 2 || subID == 5 || subID == 8) && vstd::contains(builtBuildings, 17);//artifact merchants
-	case CREATURE_RESOURCE:
+	case EMarketMode::CREATURE_RESOURCE:
 		return subID == 6 && vstd::contains(builtBuildings, 21); //Freelancer's guild
-	case CREATURE_UNDEAD:
+	case EMarketMode::CREATURE_UNDEAD:
 		return subID == 4 && vstd::contains(builtBuildings, 22);//Skeleton transformer
-	case RESOURCE_SKILL:
+	case EMarketMode::RESOURCE_SKILL:
 		return subID == 8 && vstd::contains(builtBuildings, 21);//Magic University
 	default:
 		assert(0);
@@ -2218,9 +2211,9 @@ bool CGTownInstance::allowsTrade(EMarketMode mode) const
 	}
 }
 
-std::vector<int> CGTownInstance::availableItemsIds(EMarketMode mode) const
+std::vector<int> CGTownInstance::availableItemsIds(EMarketMode::EMarketMode mode) const
 {
-	if(mode == RESOURCE_ARTIFACT)
+	if(mode == EMarketMode::RESOURCE_ARTIFACT)
 	{
 		std::vector<int> ret;
 		BOOST_FOREACH(const CArtifact *a, merchantArtifacts)
@@ -2230,7 +2223,7 @@ std::vector<int> CGTownInstance::availableItemsIds(EMarketMode mode) const
 				ret.push_back(-1);
 		return ret;
 	}
-	else if ( mode == RESOURCE_SKILL )
+	else if ( mode == EMarketMode::RESOURCE_SKILL )
 	{
 		return universitySkills;
 	}
@@ -2823,7 +2816,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 						break;
 					case 5://academy of battle scholars
 						what = 4;
-						val = 1000*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
+						val = 1000*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0;
 						mid = 583;
 						iw.components.push_back (Component(Component::EXPERIENCE, 0, val, 0));
 						break;
@@ -3012,13 +3005,13 @@ void CGCreature::initObj()
 }
 void CGCreature::newTurn() const
 {//Works only for stacks of single type of size up to 2 millions
-	if (stacks.begin()->second->count < CREEP_SIZE && cb->getDate(1) == 1 && cb->getDate(0) > 1)
+	if (stacks.begin()->second->count < GameConstants::CREEP_SIZE && cb->getDate(1) == 1 && cb->getDate(0) > 1)
 	{
-		ui32 power = temppower * (100 + WEEKLY_GROWTH)/100;
-		cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min (power/1000 , (ui32)CREEP_SIZE)); //set new amount
+		ui32 power = temppower * (100 + GameConstants::WEEKLY_GROWTH)/100;
+		cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min (power/1000 , (ui32)GameConstants::CREEP_SIZE)); //set new amount
 		cb->setObjProperty(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 	}
-	if (STACK_EXP)
+	if (GameConstants::STACK_EXP)
 		cb->setObjProperty(id, ObjProperty::MONSTER_EXP, 10000); //for testing purpose
 }
 void CGCreature::setPropertyDer(ui8 what, ui32 val)
@@ -3168,7 +3161,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 	int basicType = stacks.begin()->second->type->idNumber;
 	cb->setObjProperty(id, ObjProperty::MONSTER_RESTORE_TYPE, basicType); //store info about creature stack
 
-	float relativePower = ((float)h->getTotalStrength() / getArmyStrength());
+	double relativePower = static_cast<double>(h->getTotalStrength()) / getArmyStrength();
 	int stacksCount;
 	//TODO: number depends on tile type
 	if (relativePower < 0.5)
@@ -3270,7 +3263,7 @@ void CGMine::newTurn() const
 	if(cb->getDate() == 1)
 		return;
 
-	if (tempOwner == NEUTRAL_PLAYER)
+	if (tempOwner == GameConstants::NEUTRAL_PLAYER)
 		return;
 
 	cb->giveResource(tempOwner, producedResource, producedQuantity);
@@ -3293,7 +3286,7 @@ void CGMine::initObj()
 
 		assert(possibleResources.size());
 		producedResource = possibleResources[ran()%possibleResources.size()];
-		tempOwner = NEUTRAL_PLAYER;
+		tempOwner = GameConstants::NEUTRAL_PLAYER;
 		hoverName = VLC->generaltexth->mines[7].first + "\n" + VLC->generaltexth->allTexts[202] + " " + troglodytes->getQuantityTXT(false) + " " + troglodytes->type->namePl;
 	}
 	else
@@ -3302,8 +3295,8 @@ void CGMine::initObj()
 
 		MetaString ms;
 		ms << std::pair<ui8,ui32>(9,producedResource);
-		if(tempOwner >= PLAYER_LIMIT)
-			tempOwner = NEUTRAL_PLAYER;	
+		if(tempOwner >= GameConstants::PLAYER_LIMIT)
+			tempOwner = GameConstants::NEUTRAL_PLAYER;	
 		else
 			ms << " (" << std::pair<ui8,ui32>(6,23+tempOwner) << ")";
 		ms.toString(hoverName);
@@ -3569,7 +3562,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 						}
 
 						TQuantity countToTake = h->getStackCount(targetstack) * 0.5;
-						amax(countToTake, 1);
+						vstd::amax(countToTake, 1);
 
 
 						InfoWindow iw;
@@ -4402,7 +4395,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 			
 			switch (rewardType)
 			{
-				case 1: bd.components.push_back(Component (Component::EXPERIENCE, 0, rVal*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f, 0));
+				case 1: bd.components.push_back(Component (Component::EXPERIENCE, 0, rVal*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0, 0));
 					break;
 				case 2: bd.components.push_back(Component (Component::PRIM_SKILL, 5, rVal, 0));
 					break;
@@ -4556,7 +4549,7 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 	const CGObjectInstance *o = cb->getObjByQuestIdentifier(m13489val);
 	if(allowNull && !o)
 		return NULL;
-	assert(o && o->ID == HEROI_TYPE);
+	assert(o && o->ID == GameConstants::HEROI_TYPE);
 	return static_cast<const CGHeroInstance*>(o);
 }
 
@@ -4625,7 +4618,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 		iw.text << std::pair<ui8,ui32>(11,172);
 		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
 	}
-	else if(h->secSkills.size() >= SKILL_PER_HERO) //already all skills slots used
+	else if(h->secSkills.size() >= GameConstants::SKILL_PER_HERO) //already all skills slots used
 	{
 		iw.text << std::pair<ui8,ui32>(11,173);
 		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
@@ -5025,7 +5018,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 			int curLev = h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(abilities[i]));
 
 			if( (curLev  &&  curLev < abilityLevels[i])
-				|| (h->secSkills.size() < SKILL_PER_HERO) )
+				|| (h->secSkills.size() < GameConstants::SKILL_PER_HERO) )
 			{
 				cb->changeSecSkill(h->id,abilities[i],abilityLevels[i],true);
 			}
@@ -5380,13 +5373,13 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	//check if the bonus if applicable, if not - give primary skill (always possible)
 	int ssl = h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(bid)); //current sec skill level, used if bonusType == 1
 	if((type == 1
-			&& ((ssl == 3)  ||  (!ssl  &&  h->secSkills.size() == SKILL_PER_HERO))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
+			&& ((ssl == 3)  ||  (!ssl  &&  h->secSkills.size() == GameConstants::SKILL_PER_HERO))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
 		|| (type == 2  &&  (!h->getArt(17) || vstd::contains(h->spells, (ui32) bid)
 		|| (VLC->spellh->spells[bid]->level > h->getSecSkillLevel(CGHeroInstance::WISDOM) + 2)
 		))) //hero doesn't have a spellbook or already knows the spell or doesn't have Wisdom
 	{
 		type = 0;
-		bid = ran() % PRIMARY_SKILLS;
+		bid = ran() % GameConstants::PRIMARY_SKILLS;
 	}
 
 
@@ -5431,10 +5424,10 @@ void CGScholar::initObj()
 		switch(bonusType)
 		{
 		case 0:
-			bonusID = ran() % PRIMARY_SKILLS;
+			bonusID = ran() % GameConstants::PRIMARY_SKILLS;
 			break;
 		case 1:
-			bonusID = ran() % SKILL_QUANTITY;
+			bonusID = ran() % GameConstants::SKILL_QUANTITY;
 			break;
 		case 2:
 			std::vector<ui16> possibilities;
@@ -5471,7 +5464,7 @@ void CGGarrison::fightOver (const CGHeroInstance *h, BattleResult *result) const
 ui8 CGGarrison::getPassableness() const
 {
 	if ( !stacksCount() )//empty - anyone can visit
-		return ALL_PLAYERS;
+		return GameConstants::ALL_PLAYERS;
 	if ( tempOwner == 255 )//neutral guarded - no one can visit
 		return 0;
 		
@@ -5748,7 +5741,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 				daycounter++;
 			break;
 		case 12: //multiplier, in percent
-			multiplier = ((float)val)/100;
+			multiplier = val / 100.0;
 			break;
 		case 13: //bank preset
 			bc = VLC->objh->banksInfo[index][val];
@@ -6127,7 +6120,7 @@ void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) 
 }
 void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8
 {
-	if (what >= 101 && what <= (100 + PLAYER_LIMIT))
+	if (what >= 101 && what <= (100 + GameConstants::PLAYER_LIMIT))
 		playerKeyMap.find(what-101)->second.insert((ui8)val);
 }
 
@@ -6219,7 +6212,7 @@ void CGBorderGate::onHeroVisit( const CGHeroInstance * h ) const //TODO: passabi
 ui8 CGBorderGate::getPassableness() const
 {
 	ui8 ret = 0;
-	for (int i = 0; i < PLAYER_LIMIT; i++)
+	for (int i = 0; i < GameConstants::PLAYER_LIMIT; i++)
 		ret |= wasMyColorVisited(i)<<i;
 	return ret;
 }
@@ -6404,7 +6397,7 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 
 void IShipyard::getBoatCost( std::vector<si32> &cost ) const
 {
-	cost.resize(RESOURCE_QUANTITY);
+	cost.resize(GameConstants::RESOURCE_QUANTITY);
 	cost[0] = 10;
 	cost[6] = 1000;
 }
@@ -6419,7 +6412,7 @@ IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
 	if(!obj)
 		return NULL;
 
-	if(obj->ID == TOWNI_TYPE)
+	if(obj->ID == GameConstants::TOWNI_TYPE)
 	{
 		return static_cast<CGTownInstance*>(obj);
 	}
@@ -6597,7 +6590,7 @@ void CGObelisk::setPropertyDer( ui8 what, ui32 val )
 	switch(what)
 	{
 	case 20:
-		assert(val < PLAYER_LIMIT);
+		assert(val < GameConstants::PLAYER_LIMIT);
 		visited[val]++;
 
 		if(visited[val] > obeliskCount)
@@ -6626,7 +6619,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 
 		giveBonusTo(h->tempOwner);
 
-		if(oldOwner < PLAYER_LIMIT) //remove bonus from old owner
+		if(oldOwner < GameConstants::PLAYER_LIMIT) //remove bonus from old owner
 		{
 			RemoveBonus rb(RemoveBonus::PLAYER);
 			rb.whoID = oldOwner;
@@ -6639,7 +6632,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGLighthouse::initObj()
 {
-	if(tempOwner < PLAYER_LIMIT)
+	if(tempOwner < GameConstants::PLAYER_LIMIT)
 	{
 		giveBonusTo(tempOwner);
 	}
@@ -6758,7 +6751,7 @@ void CArmedInstance::armyChanged()
 
 CBonusSystemNode * CArmedInstance::whereShouldBeAttached(CGameState *gs)
 {
-	if(tempOwner < PLAYER_LIMIT)
+	if(tempOwner < GameConstants::PLAYER_LIMIT)
 		return gs->getPlayer(tempOwner);
 	else
 		return &gs->globalEffects;
@@ -6769,15 +6762,15 @@ CBonusSystemNode * CArmedInstance::whatShouldBeAttached()
 	return this;
 }
 
-bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode) const
+bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMarketMode mode) const
 {
 	switch(mode)
 	{
-	case RESOURCE_RESOURCE:
+	case EMarketMode::RESOURCE_RESOURCE:
 		{
-			float effectiveness = std::min(((float)getMarketEfficiency()+1.0f) / 20.0f, 0.5f);
+			double effectiveness = std::min((getMarketEfficiency() + 1.0) / 20.0, 0.5);
 
-			float r = VLC->objh->resVals[id1], //value of given resource
+			double r = VLC->objh->resVals[id1], //value of given resource
 				g = VLC->objh->resVals[id2] / effectiveness; //value of wanted resource
 
 			if(r>g) //if given resource is more expensive than wanted
@@ -6787,17 +6780,17 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 			}
 			else //if wanted resource is more expensive
 			{
-				val1 = (g / r) + 0.5f;
+				val1 = (g / r) + 0.5;
 				val2 = 1;
 			}
 		}
 		break;
-	case CREATURE_RESOURCE:
+	case EMarketMode::CREATURE_RESOURCE:
 		{
-			const float effectivenessArray[] = {0, 0.3, 0.45, 0.50, 0.65, 0.7, 0.85, 0.9, 1};
-			float effectiveness = effectivenessArray[std::min(getMarketEfficiency(), 8)];
+			const double effectivenessArray[] = {0.0, 0.3, 0.45, 0.50, 0.65, 0.7, 0.85, 0.9, 1.0};
+			double effectiveness = effectivenessArray[std::min(getMarketEfficiency(), 8)];
 
-			float r = VLC->creh->creatures[id1]->cost[6], //value of given creature in gold
+			double r = VLC->creh->creatures[id1]->cost[6], //value of given creature in gold
 				g = VLC->objh->resVals[id2] / effectiveness; //value of wanted resource
 
 			if(r>g) //if given resource is more expensive than wanted
@@ -6807,49 +6800,49 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 			}
 			else //if wanted resource is more expensive
 			{
-				val1 = (g / r) + 0.5f;
+				val1 = (g / r) + 0.5;
 				val2 = 1;
 			}
 		}
 		break;
-	case RESOURCE_PLAYER:
+	case EMarketMode::RESOURCE_PLAYER:
 		val1 = 1;
 		val2 = 1;
 		break;
-	case RESOURCE_ARTIFACT:
+	case EMarketMode::RESOURCE_ARTIFACT:
 		{
-			float effectiveness = std::min(((float)getMarketEfficiency()+3.0f) / 20.0f, 0.6f);
-			float r = VLC->objh->resVals[id1], //value of offered resource
+			double effectiveness = std::min((getMarketEfficiency() + 3.0) / 20.0, 0.6);
+			double r = VLC->objh->resVals[id1], //value of offered resource
 				g = VLC->arth->artifacts[id2]->price / effectiveness; //value of bought artifact in gold
 			
 			if(id1 != 6) //non-gold prices are doubled
 				r /= 2; 
 
 			assert(g >= r); //should we allow artifacts cheaper than unit of resource?
-			val1 = (g / r) + 0.5f;
+			val1 = (g / r) + 0.5;
 			val2 = 1;
 		}
 		break;
-	case ARTIFACT_RESOURCE:
+	case EMarketMode::ARTIFACT_RESOURCE:
 		{
-			float effectiveness = std::min(((float)getMarketEfficiency()+3.0f) / 20.0f, 0.6f);
-			float r = VLC->arth->artifacts[id1]->price * effectiveness,
+			double effectiveness = std::min((getMarketEfficiency() + 3.0) / 20.0, 0.6);
+			double r = VLC->arth->artifacts[id1]->price * effectiveness,
 				g = VLC->objh->resVals[id2]; 
 
 // 			if(id2 != 6) //non-gold prices are doubled
 // 				r /= 2; 
 
 			val1 = 1;
-			val2 = (r / g) + 0.5f;
+			val2 = (r / g) + 0.5;
 		}
 		break;
-	case CREATURE_EXP:
+	case EMarketMode::CREATURE_EXP:
 		{
 			val1 = 1;
 			val2 = (VLC->creh->creatures[id1]->AIValue / 40) * 5;
 		}
 		break;
-	case ARTIFACT_EXP:
+	case EMarketMode::ARTIFACT_EXP:
 		{
 			val1 = 1;
 
@@ -6872,32 +6865,32 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode mode)
 	return true;
 }
 
-bool IMarket::allowsTrade(EMarketMode mode) const
+bool IMarket::allowsTrade(EMarketMode::EMarketMode mode) const
 {
 	return false;
 }
 
-int IMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
+int IMarket::availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const
 {
 	switch(mode)
 	{
-	case RESOURCE_RESOURCE:
-	case ARTIFACT_RESOURCE:
-	case CREATURE_RESOURCE:
+	case EMarketMode::RESOURCE_RESOURCE:
+	case EMarketMode::ARTIFACT_RESOURCE:
+	case EMarketMode::CREATURE_RESOURCE:
 			return -1;
 	default:
 			return 1;
 	}
 }
 
-std::vector<int> IMarket::availableItemsIds(EMarketMode mode) const
+std::vector<int> IMarket::availableItemsIds(EMarketMode::EMarketMode mode) const
 {
 	std::vector<int> ret;
 	switch(mode)
 	{
-	case RESOURCE_RESOURCE:
-	case ARTIFACT_RESOURCE:
-	case CREATURE_RESOURCE:
+	case EMarketMode::RESOURCE_RESOURCE:
+	case EMarketMode::ARTIFACT_RESOURCE:
+	case EMarketMode::CREATURE_RESOURCE:
 		for (int i = 0; i < 7; i++)
 			ret.push_back(i);
 	default:
@@ -6910,7 +6903,7 @@ const IMarket * IMarket::castFrom(const CGObjectInstance *obj)
 {
 	switch(obj->ID)
 	{
-	case TOWNI_TYPE:
+	case GameConstants::TOWNI_TYPE:
 		return static_cast<const CGTownInstance*>(obj);
 	case 2: //Altar of Sacrifice
 	case 7: //Black Market
@@ -6932,12 +6925,12 @@ IMarket::IMarket(const CGObjectInstance *O)
 
 }
 
-std::vector<EMarketMode> IMarket::availableModes() const
+std::vector<EMarketMode::EMarketMode> IMarket::availableModes() const
 {
-	std::vector<EMarketMode> ret;
-	for (int i = 0; i < MARTKET_AFTER_LAST_PLACEHOLDER; i++)
-		if(allowsTrade((EMarketMode)i))
-			ret.push_back((EMarketMode)i);
+	std::vector<EMarketMode::EMarketMode> ret;
+	for (int i = 0; i < EMarketMode::MARTKET_AFTER_LAST_PLACEHOLDER; i++)
+		if(allowsTrade((EMarketMode::EMarketMode)i))
+			ret.push_back((EMarketMode::EMarketMode)i);
 
 	return ret;
 }
@@ -6956,12 +6949,12 @@ int CGMarket::getMarketEfficiency() const
 	return 5;
 }
 
-bool CGMarket::allowsTrade(EMarketMode mode) const
+bool CGMarket::allowsTrade(EMarketMode::EMarketMode mode) const
 {
 	switch(mode)
 	{
-	case RESOURCE_RESOURCE:
-	case RESOURCE_PLAYER:
+	case EMarketMode::RESOURCE_RESOURCE:
+	case EMarketMode::RESOURCE_PLAYER:
 		switch(ID)
 		{
 		case 99: //Trading Post
@@ -6970,32 +6963,32 @@ bool CGMarket::allowsTrade(EMarketMode mode) const
 		default:
 			return false;
 		}
-	case CREATURE_RESOURCE:
+	case EMarketMode::CREATURE_RESOURCE:
 		return ID == 213; //Freelancer's Guild
 	//case ARTIFACT_RESOURCE:
-	case RESOURCE_ARTIFACT:
+	case EMarketMode::RESOURCE_ARTIFACT:
 		return ID == 7; //Black Market
-	case ARTIFACT_EXP:
-	case CREATURE_EXP:
+	case EMarketMode::ARTIFACT_EXP:
+	case EMarketMode::CREATURE_EXP:
 		return ID == 2; //TODO? check here for alignment of visiting hero? - would not be coherent with other checks here
-	case RESOURCE_SKILL:
+	case EMarketMode::RESOURCE_SKILL:
 		return ID == 104;//University
 	default:
 		return false;
 	}
 }
 
-int CGMarket::availableUnits(EMarketMode mode, int marketItemSerial) const
+int CGMarket::availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const
 {
 	return -1;
 }
 
-std::vector<int> CGMarket::availableItemsIds(EMarketMode mode) const
+std::vector<int> CGMarket::availableItemsIds(EMarketMode::EMarketMode mode) const
 {
 	switch(mode)
 	{
-	case RESOURCE_RESOURCE:
-	case RESOURCE_PLAYER:
+	case EMarketMode::RESOURCE_RESOURCE:
+	case EMarketMode::RESOURCE_PLAYER:
 		return IMarket::availableItemsIds(mode);
 	default:
 		return std::vector<int>();
@@ -7007,13 +7000,13 @@ CGMarket::CGMarket()
 {
 }
 
-std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode mode) const
+std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode::EMarketMode mode) const
 {
 	switch(mode)
 	{
-	case ARTIFACT_RESOURCE:
+	case EMarketMode::ARTIFACT_RESOURCE:
 		return IMarket::availableItemsIds(mode);
-	case RESOURCE_ARTIFACT:
+	case EMarketMode::RESOURCE_ARTIFACT:
 		{
 			std::vector<int> ret;
 			BOOST_FOREACH(const CArtifact *a, artifacts)
@@ -7042,7 +7035,7 @@ void CGBlackMarket::newTurn() const
 void CGUniversity::initObj()
 {
 	std::vector <int> toChoose;
-	for (int i=0; i<SKILL_QUANTITY; i++)
+	for (int i=0; i<GameConstants::SKILL_QUANTITY; i++)
 		if (cb->isAllowed(2,i))
 			toChoose.push_back(i);
 	if (toChoose.size() < 4)
@@ -7059,11 +7052,11 @@ void CGUniversity::initObj()
 	}
 }
 
-std::vector<int> CGUniversity::availableItemsIds(EMarketMode mode) const
+std::vector<int> CGUniversity::availableItemsIds(EMarketMode::EMarketMode mode) const
 {
 	switch (mode)
 	{
-		case RESOURCE_SKILL:
+		case EMarketMode::RESOURCE_SKILL:
 			return skills;
 			
 		default:
@@ -7086,7 +7079,7 @@ GrowthInfo::Entry::Entry(const std::string &format, int _count)
 	description = boost::str(boost::format(format) % count);
 }
 
-GrowthInfo::Entry::Entry(int subID, Buildings::EBuilding building, int _count)
+GrowthInfo::Entry::Entry(int subID, EBuilding::EBuilding building, int _count)
 	: count(_count)
 {
 	description = boost::str(boost::format("%s %+d") % VLC->buildh->buildings[subID][building]->Name() % count);

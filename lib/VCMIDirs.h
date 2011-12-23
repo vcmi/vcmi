@@ -1,8 +1,9 @@
-#ifndef __VCMIDIRS_H__
-#define __VCMIDIRS_H__
+#pragma once
+
+#include "GameConstants.h"
 
 /*
- * UserHome.h, part of VCMI engine
+ * VCMIDirs.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -25,7 +26,7 @@ public:
 	VCMIDirs()
 	{
 #ifdef _WIN32
-		UserPath = DATA_DIR;
+		UserPath = GameConstants::DATA_DIR;
 #else
 		try {
 #ifdef ANDROID
@@ -52,5 +53,3 @@ public:
 	}
 };
 extern VCMIDirs GVCMIDirs;
-
-#endif	// __VCMIDIRS_H__

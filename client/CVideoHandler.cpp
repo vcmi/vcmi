@@ -1,11 +1,10 @@
-#include "../stdafx.h"
-#include <iostream>
+#include "StdInc.h"
+#include <SDL.h>
 #include "CSndHandler.h"
 #include "CVideoHandler.h"
-#include <SDL.h>
-#include "SDL_Extensions.h"
+
+#include "UIFramework/SDL_Extensions.h"
 #include "CPlayerInterface.h"
-#include <boost/filesystem.hpp>
 
 extern SystemOptions GDefaultOptions; 
 //reads events and returns true on key down
@@ -393,8 +392,8 @@ void CSmackPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 
 CVideoPlayer::CVideoPlayer()
 {
-	vidh.add_file(std::string(DATA_DIR "/Data/VIDEO.VID"));
-	vidh.add_file(std::string(DATA_DIR "/Data/H3ab_ahd.vid"));
+	vidh.add_file(std::string(GameConstants::DATA_DIR + "/Data/VIDEO.VID"));
+	vidh.add_file(std::string(GameConstants::DATA_DIR + "/Data/H3ab_ahd.vid"));
 
 	current = NULL;
 }
@@ -569,7 +568,6 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 #endif
 #include <stdint.h>
 
-#include "SDL_framerate.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -600,11 +598,11 @@ static int lod_close(URLContext* h)
 }
 
 // Define a set of functions to read data
-static int lod_read(URLContext *context, unsigned char *buf, int size)
+static int lod_read(URLContext *context, ui8 *buf, int size)
 {
 	CVideoPlayer *video = (CVideoPlayer *)context->priv_data;
 
-	amin(size, video->length - video->offset);
+	vstd::amin(size, video->length - video->offset);
 
 	if (size < 0)
 		return -1;
@@ -617,14 +615,14 @@ static int lod_read(URLContext *context, unsigned char *buf, int size)
 	return size;
 }
 
-static int64_t lod_seek(URLContext *context, int64_t pos, int whence)
+static si64 lod_seek(URLContext *context, si64 pos, int whence)
 {
 	CVideoPlayer *video = (CVideoPlayer *)context->priv_data;
 
 	// Not sure what the parameter whence is. Assuming it always
 	// indicates an absolute value;
 	video->offset = pos;
-	amin(video->offset, video->length);
+	vstd::amin(video->offset, video->length);
 
 	return -1;//video->offset;
 }
@@ -659,8 +657,8 @@ CVideoPlayer::CVideoPlayer()
 	av_register_protocol(&lod_protocol);
 #endif
 
-	vidh.add_file(std::string(DATA_DIR "/Data/VIDEO.VID"));
-	vidh.add_file(std::string(DATA_DIR "/Data/H3ab_ahd.vid"));
+	vidh.add_file(GameConstants::DATA_DIR + "/Data/VIDEO.VID");
+	vidh.add_file(GameConstants::DATA_DIR + "/Data/H3ab_ahd.vid");
 }
 
 bool CVideoPlayer::open(std::string fname)
@@ -699,12 +697,12 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	} else {
 		// File is not in a container
 #if LIBAVFORMAT_VERSION_MAJOR < 54
-		int avfopen = av_open_input_file(&format, (DATA_DIR "/Data/video/" + fname).c_str(), NULL, 0, NULL);
+		int avfopen = av_open_input_file(&format, (GameConstants::DATA_DIR + "/Data/video/" + fname).c_str(), NULL, 0, NULL);
 #else
-		int avfopen = avformat_open_input(&format, (DATA_DIR "/Data/video/" + fname).c_str(), NULL, NULL);
+		int avfopen = avformat_open_input(&format, (GameConstants::DATA_DIR + "/Data/video/" + fname).c_str(), NULL, NULL);
 #endif
 		if (avfopen != 0) {
-			// tlog1 << "Video file not found: " DATA_DIR "/Data/video/" + fname << std::endl;
+			// tlog1 << "Video file not found: " GameConstants::DATA_DIR + "/Data/video/" + fname << std::endl;
 			return false;
 		}
 	}
@@ -715,7 +713,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 
 	// Find the first video stream
 	stream = -1;
-	for(unsigned int i=0; i<format->nb_streams; i++) {
+	for(ui32 i=0; i<format->nb_streams; i++) {
 #if LIBAVCODEC_VERSION_MAJOR < 53
 		if (format->streams[i]->codec->codec_type==CODEC_TYPE_VIDEO)
 #else
@@ -850,7 +848,7 @@ bool CVideoPlayer::nextFrame()
 
 						SDL_UnlockYUVOverlay(overlay);
 					} else {
-						pict.data[0] = (uint8_t *)dest->pixels;
+						pict.data[0] = (ui8 *)dest->pixels;
 						pict.linesize[0] = dest->pitch;
 
 						sws_scale(sws, frame->data, frame->linesize,

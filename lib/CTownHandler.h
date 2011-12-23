@@ -1,7 +1,7 @@
-#ifndef __CTOWNHANDLER_H__
-#define __CTOWNHANDLER_H__
-#include "../global.h"
-#include <set>
+#pragma once
+
+
+#include "int3.h"
 
 /*
  * CTownHandler.h, part of VCMI engine
@@ -17,7 +17,7 @@ class CBuilding;
 class CSpell;
 class CHero;
 class CGTownInstance;
-class DLL_EXPORT CTown
+class DLL_LINKAGE CTown
 {
 	std::string name; //name of type
 public:
@@ -44,7 +44,7 @@ public:
 	}
 };
 
-struct DLL_EXPORT Structure
+struct DLL_LINKAGE Structure
 {
 	int ID;
 	int3 pos;
@@ -60,7 +60,7 @@ struct DLL_EXPORT Structure
 	}
 };
 
-class DLL_EXPORT CTownHandler
+class DLL_LINKAGE CTownHandler
 {
 public:
 	std::vector<CTown> towns;
@@ -78,6 +78,3 @@ public:
 			loadStructures();
 	}
 };
-
-
-#endif // __CTOWNHANDLER_H__

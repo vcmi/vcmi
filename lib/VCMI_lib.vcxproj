@@ -101,12 +101,16 @@
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <WarningLevel>Level1</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <DisableSpecificWarnings>4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <ExpandAttributedSource>false</ExpandAttributedSource>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <PreprocessToFile>false</PreprocessToFile>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>$(IntDir)StdInc.h.pch</PrecompiledHeaderOutputFile>
+      <PreprocessorDefinitions>VCMI_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -209,13 +213,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\CConsoleHandler.cpp" />
-    <ClCompile Include="..\CThreadHelper.cpp" />
     <ClCompile Include="BattleAction.cpp" />
+    <ClCompile Include="BattleHex.cpp" />
     <ClCompile Include="BattleState.cpp" />
     <ClCompile Include="CArtHandler.cpp" />
     <ClCompile Include="CBuildingHandler.cpp" />
     <ClCompile Include="CCampaignHandler.cpp" />
+    <ClCompile Include="CConsoleHandler.cpp" />
     <ClCompile Include="CCreatureHandler.cpp" />
     <ClCompile Include="CCreatureSet.cpp" />
     <ClCompile Include="CDefObjInfoHandler.cpp" />
@@ -225,30 +229,37 @@
     <ClCompile Include="CGeneralTextHandler.cpp" />
     <ClCompile Include="CHeroHandler.cpp" />
     <ClCompile Include="CLodHandler.cpp" />
+    <ClCompile Include="CLogger.cpp" />
     <ClCompile Include="CMapInfo.cpp" />
     <ClCompile Include="CObjectHandler.cpp" />
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="CSpellHandler.cpp" />
+    <ClCompile Include="CThreadHelper.cpp" />
     <ClCompile Include="CTownHandler.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
     <ClCompile Include="JsonNode.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="NetPacksLib.cpp" />
-    <ClCompile Include="RegisterTypes.cpp" />
-    <ClCompile Include="..\stdafx.cpp" />
     <ClCompile Include="ResourceSet.cpp" />
+    <ClCompile Include="StdInc.cpp">
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">VCMI_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">StdInc.h</PrecompiledHeaderFile>
+    </ClCompile>
     <ClCompile Include="VCMI_Lib.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\CThreadHelper.h" />
+    <ClInclude Include="..\Global.h" />
     <ClInclude Include="..\StartInfo.h" />
+    <ClInclude Include="AI_Base.h" />
     <ClInclude Include="BattleAction.h" />
-    <ClInclude Include="..\CConsoleHandler.h" />
+    <ClInclude Include="BattleHex.h" />
     <ClInclude Include="BattleState.h" />
     <ClInclude Include="CArtHandler.h" />
     <ClInclude Include="CBuildingHandler.h" />
     <ClInclude Include="CCampaignHandler.h" />
+    <ClInclude Include="CConsoleHandler.h" />
     <ClInclude Include="CCreatureHandler.h" />
     <ClInclude Include="CCreatureSet.h" />
     <ClInclude Include="CDefObjInfoHandler.h" />
@@ -258,6 +269,7 @@
     <ClInclude Include="CGeneralTextHandler.h" />
     <ClInclude Include="CHeroHandler.h" />
     <ClInclude Include="CLodHandler.h" />
+    <ClInclude Include="CLogger.h" />
     <ClInclude Include="CMapInfo.h" />
     <ClInclude Include="CObjectHandler.h" />
     <ClInclude Include="CObstacleInstance.h" />
@@ -266,16 +278,22 @@
     <ClInclude Include="ConstTransitivePtr.h" />
     <ClInclude Include="CScriptingModule.h" />
     <ClInclude Include="CSpellHandler.h" />
+    <ClInclude Include="CStopWatch.h" />
+    <ClInclude Include="CThreadHelper.h" />
     <ClInclude Include="CTownHandler.h" />
+    <ClInclude Include="GameConstants.h" />
     <ClInclude Include="HeroBonus.h" />
     <ClInclude Include="IGameCallback.h" />
     <ClInclude Include="IGameEventsReceiver.h" />
+    <ClInclude Include="int3.h" />
     <ClInclude Include="Interprocess.h" />
     <ClInclude Include="JsonNode.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="NetPacks.h" />
     <ClInclude Include="RegisterTypes.h" />
     <ClInclude Include="ResourceSet.h" />
+    <ClInclude Include="StartInfo.h" />
+    <ClInclude Include="StdInc.h" />
     <ClInclude Include="VCMI_Lib.h" />
     <ClInclude Include="VCMIDirs.h" />
   </ItemGroup>

@@ -1,5 +1,6 @@
-#define VCMI_DLL
+#include "StdInc.h"
 #include "NetPacks.h"
+
 #include "CGeneralTextHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CArtHandler.h"
@@ -9,12 +10,6 @@
 #include "map.h"
 #include "CSpellHandler.h"
 #include "CCreatureHandler.h"
-#include <boost/bind.hpp>
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/shared_mutex.hpp>
 #include "CGameState.h"
 #include "BattleState.h"
 
@@ -38,20 +33,20 @@
 #undef max
 #endif
 
-DLL_EXPORT void SetResource::applyGs( CGameState *gs )
+DLL_LINKAGE void SetResource::applyGs( CGameState *gs )
 {
-	assert(player < PLAYER_LIMIT);
-	amax(val, 0); //new value must be >= 0
+	assert(player < GameConstants::PLAYER_LIMIT);
+	vstd::amax(val, 0); //new value must be >= 0
 	gs->getPlayer(player)->resources[resid] = val;
 }
 
-DLL_EXPORT void SetResources::applyGs( CGameState *gs )
+DLL_LINKAGE void SetResources::applyGs( CGameState *gs )
 {
-	assert(player < PLAYER_LIMIT);
+	assert(player < GameConstants::PLAYER_LIMIT);
 	gs->getPlayer(player)->resources = res;
 }
 
-DLL_EXPORT void SetPrimSkill::applyGs( CGameState *gs )
+DLL_LINKAGE void SetPrimSkill::applyGs( CGameState *gs )
 {
 	CGHeroInstance *hero = gs->getHero(id);
 	assert(hero);
@@ -75,13 +70,13 @@ DLL_EXPORT void SetPrimSkill::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void SetSecSkill::applyGs( CGameState *gs )
+DLL_LINKAGE void SetSecSkill::applyGs( CGameState *gs )
 {
 	CGHeroInstance *hero = gs->getHero(id);
 	hero->setSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(which), val, abs);
 }
 
-DLL_EXPORT void HeroVisitCastle::applyGs( CGameState *gs )
+DLL_LINKAGE void HeroVisitCastle::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(hid);
 	CGTownInstance *t = gs->getTown(tid);
@@ -92,7 +87,7 @@ DLL_EXPORT void HeroVisitCastle::applyGs( CGameState *gs )
 		t->setVisitingHero(NULL);
 }
 
-DLL_EXPORT void ChangeSpells::applyGs( CGameState *gs )
+DLL_LINKAGE void ChangeSpells::applyGs( CGameState *gs )
 {
 	CGHeroInstance *hero = gs->getHero(hid);
 
@@ -104,20 +99,20 @@ DLL_EXPORT void ChangeSpells::applyGs( CGameState *gs )
 			hero->spells.erase(sid);
 }
 
-DLL_EXPORT void SetMana::applyGs( CGameState *gs )
+DLL_LINKAGE void SetMana::applyGs( CGameState *gs )
 {
 	CGHeroInstance *hero = gs->getHero(hid);
-	amax(val, 0); //not less than 0
+	vstd::amax(val, 0); //not less than 0
 	hero->mana = val;
 }
 
-DLL_EXPORT void SetMovePoints::applyGs( CGameState *gs )
+DLL_LINKAGE void SetMovePoints::applyGs( CGameState *gs )
 {
 	CGHeroInstance *hero = gs->getHero(hid);
 	hero->movement = val;
 }
 
-DLL_EXPORT void FoWChange::applyGs( CGameState *gs )
+DLL_LINKAGE void FoWChange::applyGs( CGameState *gs )
 {
 	TeamState * team = gs->getPlayerTeam(player);
 	BOOST_FOREACH(int3 t, tiles)
@@ -145,12 +140,12 @@ DLL_EXPORT void FoWChange::applyGs( CGameState *gs )
 			team->fogOfWarMap[t.x][t.y][t.z] = 1;
 	}
 }
-DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
+DLL_LINKAGE void SetAvailableHeroes::applyGs( CGameState *gs )
 {
 	PlayerState *p = gs->getPlayer(player);
 	p->availableHeroes.clear();
 
-	for (int i = 0; i < AVAILABLE_HEROES_PER_PLAYER; i++)
+	for (int i = 0; i < GameConstants::AVAILABLE_HEROES_PER_PLAYER; i++)
 	{
 		CGHeroInstance *h = (hid[i]>=0 ?  (CGHeroInstance*)gs->hpool.heroesPool[hid[i]] : NULL);
 		if(h && army[i])
@@ -159,7 +154,7 @@ DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void GiveBonus::applyGs( CGameState *gs )
+DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 {
 	CBonusSystemNode *cbsn = NULL;
 	switch(who)
@@ -185,7 +180,7 @@ DLL_EXPORT void GiveBonus::applyGs( CGameState *gs )
 	if(!bdescr.message.size() 
 		&& bonus.source == Bonus::OBJECT 
 		&& (bonus.type == Bonus::LUCK || bonus.type == Bonus::MORALE)
-		&& gs->map->objects[bonus.sid]->ID == EVENTI_TYPE) //it's morale/luck bonus from an event without description
+		&& gs->map->objects[bonus.sid]->ID == GameConstants::EVENTI_TYPE) //it's morale/luck bonus from an event without description
 	{
 		descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
 		boost::replace_first(descr,"%d",boost::lexical_cast<std::string>(std::abs(bonus.val)));
@@ -196,7 +191,7 @@ DLL_EXPORT void GiveBonus::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void ChangeObjPos::applyGs( CGameState *gs )
+DLL_LINKAGE void ChangeObjPos::applyGs( CGameState *gs )
 {
 	CGObjectInstance *obj = gs->map->objects[objid];
 	if(!obj)
@@ -209,13 +204,13 @@ DLL_EXPORT void ChangeObjPos::applyGs( CGameState *gs )
 	gs->map->addBlockVisTiles(obj);
 }
 
-DLL_EXPORT void PlayerEndsGame::applyGs( CGameState *gs )
+DLL_LINKAGE void PlayerEndsGame::applyGs( CGameState *gs )
 {
 	PlayerState *p = gs->getPlayer(player);
 	p->status = victory ? 2 : 1;
 }
 
-DLL_EXPORT void RemoveBonus::applyGs( CGameState *gs )
+DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 {
 	CBonusSystemNode *node;
 	if (who == HERO)
@@ -237,7 +232,7 @@ DLL_EXPORT void RemoveBonus::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
+DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 {
 	CGObjectInstance *obj = gs->map->objects[id];
 	//unblock tiles
@@ -246,7 +241,7 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 		gs->map->removeBlockVisTiles(obj);
 	}
 
-	if(obj->ID==HEROI_TYPE)
+	if(obj->ID==GameConstants::HEROI_TYPE)
 	{
 		CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
 		PlayerState *p = gs->getPlayer(h->tempOwner);
@@ -362,7 +357,7 @@ void TryMoveHero::applyGs( CGameState *gs )
 		gs->getPlayerTeam(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
 }
 
-DLL_EXPORT void NewStructures::applyGs( CGameState *gs )
+DLL_LINKAGE void NewStructures::applyGs( CGameState *gs )
 {
 	CGTownInstance *t = gs->getTown(tid);
 	BOOST_FOREACH(si32 id,bid)
@@ -372,7 +367,7 @@ DLL_EXPORT void NewStructures::applyGs( CGameState *gs )
 	t->builded = builded;
 	t->recreateBuildingsBonuses();
 }
-DLL_EXPORT void RazeStructures::applyGs( CGameState *gs )
+DLL_LINKAGE void RazeStructures::applyGs( CGameState *gs )
 {
 	CGTownInstance *t = gs->getTown(tid);
 	BOOST_FOREACH(si32 id,bid)
@@ -383,14 +378,14 @@ DLL_EXPORT void RazeStructures::applyGs( CGameState *gs )
 	t->recreateBuildingsBonuses();
 }
 
-DLL_EXPORT void SetAvailableCreatures::applyGs( CGameState *gs )
+DLL_LINKAGE void SetAvailableCreatures::applyGs( CGameState *gs )
 {
 	CGDwelling *dw = dynamic_cast<CGDwelling*>(gs->map->objects[tid].get());
 	assert(dw);
 	dw->creatures = creatures;
 }
 
-DLL_EXPORT void SetHeroesInTown::applyGs( CGameState *gs )
+DLL_LINKAGE void SetHeroesInTown::applyGs( CGameState *gs )
 {
 	CGTownInstance *t = gs->getTown(tid);
 
@@ -419,7 +414,7 @@ DLL_EXPORT void SetHeroesInTown::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void HeroRecruited::applyGs( CGameState *gs )
+DLL_LINKAGE void HeroRecruited::applyGs( CGameState *gs )
 {
 	assert(vstd::contains(gs->hpool.heroesPool, hid));
 	CGHeroInstance *h = gs->hpool.heroesPool[hid];
@@ -451,7 +446,7 @@ DLL_EXPORT void HeroRecruited::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void GiveHero::applyGs( CGameState *gs )
+DLL_LINKAGE void GiveHero::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(id);
 	gs->map->removeBlockVisTiles(h,true);
@@ -464,7 +459,7 @@ DLL_EXPORT void GiveHero::applyGs( CGameState *gs )
 	h->inTownGarrison = false;
 }
 
-DLL_EXPORT void NewObject::applyGs( CGameState *gs )
+DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 {
 	
 	CGObjectInstance *o = NULL;
@@ -515,7 +510,7 @@ DLL_EXPORT void NewObject::applyGs( CGameState *gs )
 	o->initObj();
 	assert(o->defInfo);
 }
-DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
+DLL_LINKAGE void NewArtifact::applyGs( CGameState *gs )
 {
 	assert(!vstd::contains(gs->map->artInstances, art));
 	gs->map->addNewArtifactInstance(art);
@@ -526,7 +521,7 @@ DLL_EXPORT void NewArtifact::applyGs( CGameState *gs )
 		cart->createConstituents();
 }
 
-DLL_EXPORT const CStackInstance * StackLocation::getStack()
+DLL_LINKAGE const CStackInstance * StackLocation::getStack()
 {
 	if(!army->hasStackAtSlot(slot))
 	{
@@ -536,7 +531,7 @@ DLL_EXPORT const CStackInstance * StackLocation::getStack()
 	return &army->getStack(slot);
 }
 
-DLL_EXPORT const CArtifactInstance *ArtifactLocation::getArt() const
+DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 {
 	const ArtSlotInfo *s = getSlot();
 	if(s && s->artifact)
@@ -553,18 +548,18 @@ DLL_EXPORT const CArtifactInstance *ArtifactLocation::getArt() const
 	return NULL;
 }
 
-DLL_EXPORT CArtifactInstance *ArtifactLocation::getArt()
+DLL_LINKAGE CArtifactInstance *ArtifactLocation::getArt()
 {
 	const ArtifactLocation *t = this;
 	return const_cast<CArtifactInstance*>(t->getArt());
 }
 
-DLL_EXPORT const ArtSlotInfo *ArtifactLocation::getSlot() const
+DLL_LINKAGE const ArtSlotInfo *ArtifactLocation::getSlot() const
 {
 	return hero->getSlot(slot);
 }
 
-DLL_EXPORT void ChangeStackCount::applyGs( CGameState *gs )
+DLL_LINKAGE void ChangeStackCount::applyGs( CGameState *gs )
 {
 	if(absoluteValue)
 		sl.army->setStackCount(sl.slot, count);
@@ -572,17 +567,17 @@ DLL_EXPORT void ChangeStackCount::applyGs( CGameState *gs )
 		sl.army->changeStackCount(sl.slot, count);
 }
 
-DLL_EXPORT void SetStackType::applyGs( CGameState *gs )
+DLL_LINKAGE void SetStackType::applyGs( CGameState *gs )
 {
 	sl.army->setStackType(sl.slot, type);
 }
 
-DLL_EXPORT void EraseStack::applyGs( CGameState *gs )
+DLL_LINKAGE void EraseStack::applyGs( CGameState *gs )
 {
 	sl.army->eraseStack(sl.slot);
 }
 
-DLL_EXPORT void SwapStacks::applyGs( CGameState *gs )
+DLL_LINKAGE void SwapStacks::applyGs( CGameState *gs )
 {
 	CStackInstance *s1 = sl1.army->detachStack(sl1.slot),
 		*s2 = sl2.army->detachStack(sl2.slot);
@@ -591,13 +586,13 @@ DLL_EXPORT void SwapStacks::applyGs( CGameState *gs )
 	sl1.army->putStack(sl1.slot, s2);
 }
 
-DLL_EXPORT void InsertNewStack::applyGs( CGameState *gs )
+DLL_LINKAGE void InsertNewStack::applyGs( CGameState *gs )
 {
 	CStackInstance *s = new CStackInstance(stack.type, stack.count);
 	sl.army->putStack(sl.slot, s);
 }
 
-DLL_EXPORT void RebalanceStacks::applyGs( CGameState *gs )
+DLL_LINKAGE void RebalanceStacks::applyGs( CGameState *gs )
 {
 	const CCreature *srcType = src.army->getCreature(src.slot);
 	TQuantity srcCount = src.army->getStackCount(src.slot);
@@ -607,7 +602,7 @@ DLL_EXPORT void RebalanceStacks::applyGs( CGameState *gs )
 		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> merge
 		{
 			assert(c == srcType);
-			if (STACK_EXP)
+			if (GameConstants::STACK_EXP)
 			{
 				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
 				src.army->eraseStack(src.slot);
@@ -631,7 +626,7 @@ DLL_EXPORT void RebalanceStacks::applyGs( CGameState *gs )
 		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> rebalance
 		{
 			assert(c == srcType);
-			if (STACK_EXP)
+			if (GameConstants::STACK_EXP)
 			{
 				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
 				src.army->changeStackCount(src.slot, -count);
@@ -648,35 +643,35 @@ DLL_EXPORT void RebalanceStacks::applyGs( CGameState *gs )
 		{
 			src.army->changeStackCount(src.slot, -count);
 			dst.army->addToSlot(dst.slot, srcType->idNumber, count, false);
-			if (STACK_EXP)
+			if (GameConstants::STACK_EXP)
 				dst.army->setStackExp(dst.slot, src.army->getStackExperience(src.slot));
 		}
 	}
 }
 
-DLL_EXPORT void PutArtifact::applyGs( CGameState *gs )
+DLL_LINKAGE void PutArtifact::applyGs( CGameState *gs )
 {
 	assert(art->canBePutAt(al));
 	al.hero->putArtifact(al.slot, art);
 }
 
-DLL_EXPORT void EraseArtifact::applyGs( CGameState *gs )
+DLL_LINKAGE void EraseArtifact::applyGs( CGameState *gs )
 {
 	CArtifactInstance *a = al.getArt();
 	assert(a);
 	a->removeFrom(al.hero, al.slot);
 }
 
-DLL_EXPORT void MoveArtifact::applyGs( CGameState *gs )
+DLL_LINKAGE void MoveArtifact::applyGs( CGameState *gs )
 {
 	CArtifactInstance *a = src.getArt();
-	if(dst.slot < Arts::BACKPACK_START)
+	if(dst.slot < GameConstants::BACKPACK_START)
 		assert(!dst.getArt());
 
 	a->move(src, dst);
 }
 
-DLL_EXPORT void AssembledArtifact::applyGs( CGameState *gs )
+DLL_LINKAGE void AssembledArtifact::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = al.hero;
 	const CArtifactInstance *transformedArt = al.getArt();
@@ -703,7 +698,7 @@ DLL_EXPORT void AssembledArtifact::applyGs( CGameState *gs )
 	combinedArt->putAt(h, al.slot);
 }
 
-DLL_EXPORT void DisassembledArtifact::applyGs( CGameState *gs )
+DLL_LINKAGE void DisassembledArtifact::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = al.hero;
 	CCombinedArtifactInstance *disassembled = dynamic_cast<CCombinedArtifactInstance*>(al.getArt());
@@ -720,7 +715,7 @@ DLL_EXPORT void DisassembledArtifact::applyGs( CGameState *gs )
 	gs->map->eraseArtifactInstance(disassembled);
 }
 
-DLL_EXPORT void HeroVisit::applyGs( CGameState *gs )
+DLL_LINKAGE void HeroVisit::applyGs( CGameState *gs )
 {
 	if(starting)
 		gs->ongoingVisits[hero] = obj;
@@ -728,7 +723,7 @@ DLL_EXPORT void HeroVisit::applyGs( CGameState *gs )
 		gs->ongoingVisits.erase(hero);
 }
 
-DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )
+DLL_LINKAGE void SetAvailableArtifacts::applyGs( CGameState *gs )
 {
 	if(id >= 0)
 	{
@@ -747,7 +742,7 @@ DLL_EXPORT void SetAvailableArtifacts::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
+DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 {
 	gs->day = day;
 	BOOST_FOREACH(NewTurn::Hero h, heroes) //give mana/movement point
@@ -759,7 +754,7 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 
 	for(std::map<ui8, TResources>::iterator i = res.begin(); i != res.end(); i++)
 	{
-		assert(i->first < PLAYER_LIMIT);
+		assert(i->first < GameConstants::PLAYER_LIMIT);
 		gs->getPlayer(i->first)->resources = i->second;
 	}
 
@@ -785,7 +780,7 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 		t->builded = 0;
 }
 
-DLL_EXPORT void SetObjectProperty::applyGs( CGameState *gs )
+DLL_LINKAGE void SetObjectProperty::applyGs( CGameState *gs )
 {
 	CGObjectInstance *obj = gs->map->objects[id];
 	if(!obj)
@@ -797,12 +792,12 @@ DLL_EXPORT void SetObjectProperty::applyGs( CGameState *gs )
 	CArmedInstance *cai = dynamic_cast<CArmedInstance *>(obj);
 	if(what == ObjProperty::OWNER && cai)
 	{
-		if(obj->ID == TOWNI_TYPE)
+		if(obj->ID == GameConstants::TOWNI_TYPE)
 		{
 			CGTownInstance *t = static_cast<CGTownInstance*>(obj);
-			if(t->tempOwner < PLAYER_LIMIT)
+			if(t->tempOwner < GameConstants::PLAYER_LIMIT)
 				gs->getPlayer(t->tempOwner)->towns -= t;
-			if(val < PLAYER_LIMIT)
+			if(val < GameConstants::PLAYER_LIMIT)
 				gs->getPlayer(val)->towns.push_back(t);
 		}
 
@@ -817,12 +812,12 @@ DLL_EXPORT void SetObjectProperty::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void SetHoverName::applyGs( CGameState *gs )
+DLL_LINKAGE void SetHoverName::applyGs( CGameState *gs )
 {
 	name.toString(gs->map->objects[id]->hoverName);
 }
 
-DLL_EXPORT void HeroLevelUp::applyGs( CGameState *gs )
+DLL_LINKAGE void HeroLevelUp::applyGs( CGameState *gs )
 {
 	CGHeroInstance* h = gs->getHero(heroid);
 	h->level = level;
@@ -830,36 +825,36 @@ DLL_EXPORT void HeroLevelUp::applyGs( CGameState *gs )
 	h->UpdateSpeciality();
 }
 
-DLL_EXPORT void BattleStart::applyGs( CGameState *gs )
+DLL_LINKAGE void BattleStart::applyGs( CGameState *gs )
 {
 	gs->curB = info;
 	gs->curB->localInit();
 }
 
-DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
+DLL_LINKAGE void BattleNextRound::applyGs( CGameState *gs )
 {
 	gs->curB->castSpells[0] = gs->curB->castSpells[1] = 0;
 	for (int i = 0; i < 2; ++i)
 	{
-		amax(--gs->curB->enchanterCounter[i], 0);
+		vstd::amax(--gs->curB->enchanterCounter[i], 0);
 	}
 
 	gs->curB->round = round;
 
 	BOOST_FOREACH(CStack *s, gs->curB->stacks)
 	{
-		s->state -= DEFENDING;
-		s->state -= WAITING;
-		s->state -= MOVED;
-		s->state -= HAD_MORALE;
-		s->state -= FEAR;
+		s->state -= EBattleStackState::DEFENDING;
+		s->state -= EBattleStackState::WAITING;
+		s->state -= EBattleStackState::MOVED;
+		s->state -= EBattleStackState::HAD_MORALE;
+		s->state -= EBattleStackState::FEAR;
 		s->counterAttacks = 1 + s->valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
 		// new turn effects
 		s->battleTurnPassed();
 	}
 }
 
-DLL_EXPORT void BattleSetActiveStack::applyGs( CGameState *gs )
+DLL_LINKAGE void BattleSetActiveStack::applyGs( CGameState *gs )
 {
 	gs->curB->activeStack = stack;
 	CStack *st = gs->curB->getStack(stack);
@@ -867,24 +862,24 @@ DLL_EXPORT void BattleSetActiveStack::applyGs( CGameState *gs )
 	//remove bonuses that last until when stack gets new turn
 	st->getBonusList().remove_if(Bonus::UntilGetsTurn);
 
-	if(vstd::contains(st->state,MOVED)) //if stack is moving second time this turn it must had a high morale bonus
-		st->state.insert(HAD_MORALE);
+	if(vstd::contains(st->state,EBattleStackState::MOVED)) //if stack is moving second time this turn it must had a high morale bonus
+		st->state.insert(EBattleStackState::HAD_MORALE);
 }
 
-DLL_EXPORT void BattleTriggerEffect::applyGs( CGameState *gs )
+DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 {
 	CStack *st = gs->curB->getStack(stackID);
 	switch (effect)
 	{
 		case Bonus::HP_REGENERATION:
 			st->firstHPleft += val;
-			amin (st->firstHPleft, (ui32)st->MaxHealth());
+			vstd::amin (st->firstHPleft, (ui32)st->MaxHealth());
 			break;
 		case Bonus::MANA_DRAIN:
 		{
 			CGHeroInstance * h = gs->getHero(additionalInfo);
 			h->mana -= val;
-			amax(h->mana, 0);
+			vstd::amax(h->mana, 0);
 			break;
 		}
 		case Bonus::POISON:
@@ -897,7 +892,7 @@ DLL_EXPORT void BattleTriggerEffect::applyGs( CGameState *gs )
 		case Bonus::ENCHANTER:
 			break;
 		case Bonus::FEAR:
-			st->state.insert(FEAR);
+			st->state.insert(EBattleStackState::FEAR);
 			break;
 		default:
 			tlog2 << "Unrecognized trigger effect type "<< type <<"\n"; 
@@ -909,7 +904,7 @@ void BattleResult::applyGs( CGameState *gs )
 	//stack with SUMMONED flag but coming from garrison -> most likely resurrected, needs to be removed
 	BOOST_FOREACH(CStack *s, gs->curB->stacks)
 	{
-		if(s->base && s->base->armyObj && vstd::contains(s->state, SUMMONED))
+		if(s->base && s->base->armyObj && vstd::contains(s->state, EBattleStackState::SUMMONED))
 		{
 			assert(&s->base->armyObj->getStack(s->slot) == s->base);
 			const_cast<CArmedInstance*>(s->base->armyObj)->eraseStack(s->slot);
@@ -928,7 +923,7 @@ void BattleResult::applyGs( CGameState *gs )
 	if(h) 
 		h->getBonusList().remove_if(Bonus::OneBattle);
 
-	if (STACK_EXP)
+	if (GameConstants::STACK_EXP)
 	{
 		if (exp[0]) //checking local array is easier than dereferencing this crap twice
 			gs->curB->belligerents[0]->giveStackExp(exp[0]);
@@ -945,7 +940,7 @@ void BattleStackMoved::applyGs( CGameState *gs )
 	gs->curB->getStack(stack)->position = tilesToMove.back();
 }
 
-DLL_EXPORT void BattleStackAttacked::applyGs( CGameState *gs )
+DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 {
 	CStack * at = gs->curB->getStack(stackAttacked);
 	at->count = newAmount;
@@ -953,7 +948,7 @@ DLL_EXPORT void BattleStackAttacked::applyGs( CGameState *gs )
 
 	if(killed())
 	{
-		at->state -= ALIVE;
+		at->state -= EBattleStackState::ALIVE;
 	}
 	//life drain handling
 	for (int g=0; g<healedStacks.size(); ++g)
@@ -963,11 +958,11 @@ DLL_EXPORT void BattleStackAttacked::applyGs( CGameState *gs )
 	if (willRebirth())
 	{
 		at->casts--;
-		at->state.insert(ALIVE); //hmm?
+		at->state.insert(EBattleStackState::ALIVE); //hmm?
 	}
 }
 
-DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
+DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
 {
 	CStack *attacker = gs->curB->getStack(stackAttacking);
 	if(counter())
@@ -1003,7 +998,7 @@ DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void StartAction::applyGs( CGameState *gs )
+DLL_LINKAGE void StartAction::applyGs( CGameState *gs )
 {
 	CStack *st = gs->curB->getStack(ba.stackNumber);
 
@@ -1025,23 +1020,23 @@ DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 	switch(ba.actionType)
 	{
 	case BattleAction::DEFEND:
-		st->state.insert(DEFENDING);
+		st->state.insert(EBattleStackState::DEFENDING);
 		break;
 	case BattleAction::WAIT:
-		st->state.insert(WAITING);
+		st->state.insert(EBattleStackState::WAITING);
 		return;
 	case BattleAction::HERO_SPELL: //no change in current stack state
 		return;
 	default: //any active stack action - attack, catapult, heal, spell...
-		st->state.insert(MOVED);
+		st->state.insert(EBattleStackState::MOVED);
 		break;
 	}
 
 	if(st)
-		st->state -= WAITING; //if stack was waiting it has made move, so it won't be "waiting" anymore (if the action was WAIT, then we have returned)
+		st->state -= EBattleStackState::WAITING; //if stack was waiting it has made move, so it won't be "waiting" anymore (if the action was WAIT, then we have returned)
 }
 
-DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
+DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 {
 	assert(gs->curB);
 	if (castedByHero)
@@ -1050,7 +1045,7 @@ DLL_EXPORT void BattleSpellCast::applyGs( CGameState *gs )
 		CGHeroInstance * enemy = gs->curB->heroes[1-side];
 
 		h->mana -= spellCost;
-			amax(h->mana, 0);
+			vstd::amax(h->mana, 0);
 		if (enemy && manaGained)
 			enemy->mana += manaGained;
 		if (side >= 0 && side < 2)
@@ -1102,7 +1097,7 @@ void actualizeEffect(CStack * s, const Bonus & ef)
 	}
 }
 
-DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
+DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 {
 	int spellid = effect.begin()->sid; //effects' source ID
 
@@ -1142,22 +1137,22 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void StacksInjured::applyGs( CGameState *gs )
+DLL_LINKAGE void StacksInjured::applyGs( CGameState *gs )
 {
 	BOOST_FOREACH(BattleStackAttacked stackAttacked, stacks)
 		stackAttacked.applyGs(gs);
 }
 
-DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
+DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 {
 	for(int g=0; g<healedStacks.size(); ++g)
 	{
 		CStack * changedStack = gs->curB->getStack(healedStacks[g].stackID, false);
 
 		//checking if we resurrect a stack that is under a living stack
-		std::vector<THex> access = gs->curB->getAccessibility(changedStack, true);
-		bool acc[BFIELD_SIZE];
-		for(int h=0; h<BFIELD_SIZE; ++h)
+		std::vector<BattleHex> access = gs->curB->getAccessibility(changedStack, true);
+		bool acc[GameConstants::BFIELD_SIZE];
+		for(int h=0; h<GameConstants::BFIELD_SIZE; ++h)
 			acc[h] = false;
 		for(int h=0; h<access.size(); ++h)
 			acc[access[h]] = true;
@@ -1170,9 +1165,9 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		bool resurrected = !changedStack->alive(); //indicates if stack is resurrected or just healed
 		if(resurrected)
 		{
-			changedStack->state.insert(ALIVE);
+			changedStack->state.insert(EBattleStackState::ALIVE);
 			if(healedStacks[g].lowLevelResurrection)
-				changedStack->state.insert(SUMMONED); //TODO: different counter for rised units
+				changedStack->state.insert(EBattleStackState::SUMMONED); //TODO: different counter for rised units
 		}
 		//int missingHPfirst = changedStack->MaxHealth() - changedStack->firstHPleft;
 		int res = std::min( healedStacks[g].healedHP / changedStack->MaxHealth() , changedStack->baseAmount - changedStack->count );
@@ -1186,7 +1181,7 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 				changedStack->count += 1;
 			}
 		}
-		amin(changedStack->firstHPleft, changedStack->MaxHealth());
+		vstd::amin(changedStack->firstHPleft, changedStack->MaxHealth());
 		//removal of negative effects
 		if(resurrected)
 		{
@@ -1215,7 +1210,7 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void ObstaclesRemoved::applyGs( CGameState *gs )
+DLL_LINKAGE void ObstaclesRemoved::applyGs( CGameState *gs )
 {
 	if(gs->curB) //if there is a battle
 	{
@@ -1233,7 +1228,7 @@ DLL_EXPORT void ObstaclesRemoved::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void CatapultAttack::applyGs( CGameState *gs )
+DLL_LINKAGE void CatapultAttack::applyGs( CGameState *gs )
 {
 	if(gs->curB && gs->curB->siege != 0) //if there is a battle and it's a siege
 	{
@@ -1245,7 +1240,7 @@ DLL_EXPORT void CatapultAttack::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void BattleStacksRemoved::applyGs( CGameState *gs )
+DLL_LINKAGE void BattleStacksRemoved::applyGs( CGameState *gs )
 {
 	if(!gs->curB)
 		return;
@@ -1263,9 +1258,9 @@ DLL_EXPORT void BattleStacksRemoved::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void BattleStackAdded::applyGs(CGameState *gs)
+DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 {
-	if (!THex(pos).isValid())
+	if (!BattleHex(pos).isValid())
 	{
 		tlog2 << "No place found for new stack!\n";
 		return;
@@ -1274,13 +1269,13 @@ DLL_EXPORT void BattleStackAdded::applyGs(CGameState *gs)
 	csi->setArmyObj(gs->curB->belligerents[attacker ? 0 : 1]);
 	CStack * summonedStack = gs->curB->generateNewStack(*csi, gs->curB->stacks.size(), attacker, 255, pos); //TODO: netpacks?
 	if (summoned)
-		summonedStack->state.insert(SUMMONED);
+		summonedStack->state.insert(EBattleStackState::SUMMONED);
 	summonedStack->attachTo(csi);
 	summonedStack->postInit();
 	gs->curB->stacks.push_back(summonedStack); //the stack is not "SUMMONED", it is permanent
 }
 
-DLL_EXPORT void BattleSetStackProperty::applyGs(CGameState *gs)
+DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState *gs)
 {
 	CStack * stack = gs->curB->getStack(stackID);
 	switch (which)
@@ -1291,7 +1286,7 @@ DLL_EXPORT void BattleSetStackProperty::applyGs(CGameState *gs)
 				stack->casts = val;
 			else
 				stack->casts += val;
-			amax(stack->casts, 0);
+			vstd::amax(stack->casts, 0);
 			break;
 		}
 		case ENCHANTER_COUNTER:
@@ -1301,7 +1296,7 @@ DLL_EXPORT void BattleSetStackProperty::applyGs(CGameState *gs)
 				gs->curB->enchanterCounter[side] = val;
 			else
 				gs->curB->enchanterCounter[side] += val;
-			amax(gs->curB->enchanterCounter[side], 0);
+			vstd::amax(gs->curB->enchanterCounter[side], 0);
 			break;
 		}
 		case UNBIND:
@@ -1312,17 +1307,17 @@ DLL_EXPORT void BattleSetStackProperty::applyGs(CGameState *gs)
 	}
 }
 
-DLL_EXPORT void YourTurn::applyGs( CGameState *gs )
+DLL_LINKAGE void YourTurn::applyGs( CGameState *gs )
 {
 	gs->currentPlayer = player;
 }
 
-DLL_EXPORT void SetSelection::applyGs( CGameState *gs )
+DLL_LINKAGE void SetSelection::applyGs( CGameState *gs )
 {
 	gs->getPlayer(player)->currentSelection = id;
 }
 
-DLL_EXPORT Component::Component(const CStackBasicDescriptor &stack)
+DLL_LINKAGE Component::Component(const CStackBasicDescriptor &stack)
 	:id(CREATURE), subtype(stack.type->idNumber), val(stack.count), when(0)
 {
 

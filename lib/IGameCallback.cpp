@@ -1,20 +1,20 @@
-#define VCMI_DLL
+#include "StdInc.h"
 #include "IGameCallback.h"
+
 #include "../lib/CGameState.h"
 #include "../lib/map.h"
 #include "CObjectHandler.h"
 #include "CHeroHandler.h"
-#include "../StartInfo.h"
+#include "StartInfo.h"
 #include "CArtHandler.h"
 #include "CSpellHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include <boost/random/linear_congruential.hpp>
 #include "CTownHandler.h"
 #include "BattleState.h"
-#include <boost/foreach.hpp>
 #include "NetPacks.h"
-#include <boost/bind.hpp>
 #include "CBuildingHandler.h"
+#include "GameConstants.h"
 
 /*
  * IGameCallback.cpp, part of VCMI engine
@@ -39,35 +39,35 @@ boost::shared_mutex& CCallbackBase::getGsMutex()
 	return *gs->mx;
 }
 
-si8 CBattleInfoCallback::battleHasDistancePenalty( const CStack * stack, THex destHex )
+si8 CBattleInfoCallback::battleHasDistancePenalty( const CStack * stack, BattleHex destHex )
 {
 	return gs->curB->hasDistancePenalty(stack, destHex);
 }
 
-si8 CBattleInfoCallback::battleHasWallPenalty( const CStack * stack, THex destHex )
+si8 CBattleInfoCallback::battleHasWallPenalty( const CStack * stack, BattleHex destHex )
 {
 	return gs->curB->hasWallPenalty(stack, destHex);
 }
 
-si8 CBattleInfoCallback::battleCanTeleportTo(const CStack * stack, THex destHex, int telportLevel)
+si8 CBattleInfoCallback::battleCanTeleportTo(const CStack * stack, BattleHex destHex, int telportLevel)
 {
 	return gs->curB->canTeleportTo(stack, destHex, telportLevel);
 }
 
-std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, THex hex /*= THex::INVALID*/, THex * predecessors /*= NULL*/)
+std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, BattleHex hex /*= BattleHex::INVALID*/, BattleHex * predecessors /*= NULL*/)
 {
 	if(!hex.isValid())
 		hex = stack->position;
 
 	std::vector<int> ret;
-	bool ac[BFIELD_SIZE] = {0};
-	std::set<THex> occupyable;
+	bool ac[GameConstants::BFIELD_SIZE] = {0};
+	std::set<BattleHex> occupyable;
 	gs->curB->getAccessibilityMap(ac, stack->doubleWide(), stack->attackerOwned, false, occupyable, stack->hasBonusOfType(Bonus::FLYING), stack);
-	THex pr[BFIELD_SIZE];
-	int dist[BFIELD_SIZE];
+	BattleHex pr[GameConstants::BFIELD_SIZE];
+	int dist[GameConstants::BFIELD_SIZE];
 	gs->curB->makeBFS(stack->position, ac, pr, dist, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), false);
 
-	for(int i=0; i<BFIELD_SIZE; ++i)
+	for(int i=0; i<GameConstants::BFIELD_SIZE; ++i)
 	{
 		if(pr[i] == -1)
 			ret.push_back(-1);
@@ -77,46 +77,46 @@ std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, T
 
 	if(predecessors)
 	{
-		memcpy(predecessors, pr, BFIELD_SIZE * sizeof(THex));
+		memcpy(predecessors, pr, GameConstants::BFIELD_SIZE * sizeof(BattleHex));
 	}
 
 	return ret;
 }
-std::set<THex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* attacker, THex destinationTile, THex attackerPos  /*= THex::INVALID*/)
+std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos  /*= BattleHex::INVALID*/)
 {
 	if(!gs->curB)
 	{
 
 		tlog1 << "battleGetAttackedHexes called when there is no battle!\n";
-		std::set<THex> set;
+		std::set<BattleHex> set;
 		return set;
 	}
 
 	return gs->curB->getAttackedHexes(attacker, destinationTile, attackerPos);
 }
 
-SpellCasting::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell( const CSpell * spell )
+ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell( const CSpell * spell )
 {
 	if(!gs->curB)
 	{
 
 		tlog1 << "battleCanCastThisSpell called when there is no battle!\n";
-		return SpellCasting::NO_HERO_TO_CAST_SPELL;
+		return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
 	}
 
-	return gs->curB->battleCanCastThisSpell(player, spell, SpellCasting::HERO_CASTING);
+	return gs->curB->battleCanCastThisSpell(player, spell, ECastingMode::HERO_CASTING);
 }
 
-SpellCasting::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell(const CSpell * spell, THex destination)
+ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell(const CSpell * spell, BattleHex destination)
 {
 	if(!gs->curB)
 	{
 
 		tlog1 << "battleCanCastThisSpell called when there is no battle!\n";
-		return SpellCasting::NO_HERO_TO_CAST_SPELL;
+		return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
 	}
 
-	return gs->curB->battleCanCastThisSpellHere(player, spell, SpellCasting::CREATURE_ACTIVE_CASTING, destination);
+	return gs->curB->battleCanCastThisSpellHere(player, spell, ECastingMode::CREATURE_ACTIVE_CASTING, destination);
 }
 
 TSpell CBattleInfoCallback::battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode)
@@ -185,7 +185,7 @@ int CBattleInfoCallback::battleGetBattlefieldType()
 	return gs->curB->battlefieldType;
 }
 
-int CBattleInfoCallback::battleGetObstaclesAtTile(THex tile) //returns bitfield 
+int CBattleInfoCallback::battleGetObstaclesAtTile(BattleHex tile) //returns bitfield 
 {
 	//TODO - write
 	return -1;
@@ -207,26 +207,26 @@ const CStack* CBattleInfoCallback::battleGetStackByID(int ID, bool onlyAlive)
 	return gs->curB->getStack(ID, onlyAlive);
 }
 
-const CStack* CBattleInfoCallback::battleGetStackByPos(THex pos, bool onlyAlive)
+const CStack* CBattleInfoCallback::battleGetStackByPos(BattleHex pos, bool onlyAlive)
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->curB->battleGetStack(pos, onlyAlive);
 }
 
-THex CBattleInfoCallback::battleGetPos(int stack)
+BattleHex CBattleInfoCallback::battleGetPos(int stack)
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!gs->curB)
 	{
 		tlog2<<"battleGetPos called when there is no battle!"<<std::endl;
-		return THex::INVALID;
+		return BattleHex::INVALID;
 	}
 	for(size_t g=0; g<gs->curB->stacks.size(); ++g)
 	{
 		if(gs->curB->stacks[g]->ID == stack)
 			return gs->curB->stacks[g]->position;
 	}
-	return THex::INVALID;
+	return BattleHex::INVALID;
 }
 
 TStacks CBattleInfoCallback::battleGetStacks(EStackOwnership whose /*= MINE_AND_ENEMY*/, bool onlyAlive /*= true*/)
@@ -265,27 +265,27 @@ void CBattleInfoCallback::battleGetStackCountOutsideHexes(bool *ac)
 	if(!gs->curB)
 	{
 		tlog2<<"battleGetAvailableHexes called when there is no battle!"<<std::endl;
-        for (int i = 0; i < BFIELD_SIZE; ++i) ac[i] = false;
+        for (int i = 0; i < GameConstants::BFIELD_SIZE; ++i) ac[i] = false;
 	}
     else {
-        std::set<THex> ignored;
+        std::set<BattleHex> ignored;
         gs->curB->getAccessibilityMap(ac, false /*ignored*/, false, false, ignored, false /*ignored*/, NULL);
     }
 }
 
-std::vector<THex> CBattleInfoCallback::battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<THex> * attackable)
+std::vector<BattleHex> CBattleInfoCallback::battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable)
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!gs->curB)
 	{
 		tlog2<<"battleGetAvailableHexes called when there is no battle!"<<std::endl;
-		return std::vector<THex>();
+		return std::vector<BattleHex>();
 	}
 	return gs->curB->getAccessibility(stack, addOccupiable, attackable);
 	//return gs->battleGetRange(ID);
 }
 
-bool CBattleInfoCallback::battleCanShoot(const CStack * stack, THex dest)
+bool CBattleInfoCallback::battleCanShoot(const CStack * stack, BattleHex dest)
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 
@@ -299,7 +299,7 @@ bool CBattleInfoCallback::battleCanCastSpell()
 	if(!gs->curB) //there is no battle
 		return false;
 
-	return gs->curB->battleCanCastSpell(player, SpellCasting::HERO_CASTING) == SpellCasting::OK;
+	return gs->curB->battleCanCastSpell(player, ECastingMode::HERO_CASTING) == ESpellCastProblem::OK;
 }
 
 bool CBattleInfoCallback::battleCanFlee()
@@ -324,7 +324,7 @@ ui8 CBattleInfoCallback::battleGetWallState(int partOfWall)
 	return gs->curB->si.wallState[partOfWall];
 }
 
-int CBattleInfoCallback::battleGetWallUnderHex(THex hex)
+int CBattleInfoCallback::battleGetWallUnderHex(BattleHex hex)
 {
 	if(!gs->curB || gs->curB->siege == 0)
 	{
@@ -432,7 +432,7 @@ const PlayerSettings * CGameInfoCallback::getPlayerSettings(int color) const
 
 void CPrivilagedInfoCallback::getTilesInRange( boost::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int player/*=-1*/, int mode/*=0*/ ) const
 {
-	if(player >= PLAYER_LIMIT)
+	if(player >= GameConstants::PLAYER_LIMIT)
 	{
 		tlog1 << "Illegal call to getTilesInRange!\n";
 		return;
@@ -462,7 +462,7 @@ void CPrivilagedInfoCallback::getTilesInRange( boost::unordered_set<int3, ShashI
 
 void CPrivilagedInfoCallback::getAllTiles (boost::unordered_set<int3, ShashInt3> &tiles, int Player/*=-1*/, int level, int surface ) const
 {
-	if(Player >= PLAYER_LIMIT)
+	if(Player >= GameConstants::PLAYER_LIMIT)
 	{
 		tlog1 << "Illegal call to getAllTiles !\n";
 		return;
@@ -568,7 +568,7 @@ void CPrivilagedInfoCallback::getAllowedSpells(std::vector<ui16> &out, ui16 leve
 {
 
 	CSpell *spell;
-	for (unsigned int i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
+	for (ui32 i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
 	{
 		spell = VLC->spellh->spells[i];
 		if (isAllowed (0, spell->id) && spell->level == level)
@@ -702,10 +702,10 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	ERROR_RET_IF(!obj, "No guild object!");
-	ERROR_RET_IF(obj->ID == TOWNI_TYPE && !canGetFullInfo(obj), "Cannot get info about town guild object!");
+	ERROR_RET_IF(obj->ID == GameConstants::TOWNI_TYPE && !canGetFullInfo(obj), "Cannot get info about town guild object!");
 	//TODO: advmap object -> check if they're visited by our hero
 
-	if(obj->ID == TOWNI_TYPE  ||  obj->ID == 95) //it is a town or adv map tavern
+	if(obj->ID == GameConstants::TOWNI_TYPE  ||  obj->ID == 95) //it is a town or adv map tavern
 	{
 		gs->obtainPlayersStats(thi, gs->players[obj->tempOwner].towns.size());
 	}
@@ -727,7 +727,7 @@ bool CGameInfoCallback::getTownInfo( const CGObjectInstance *town, InfoAboutTown
 	bool detailed = hasAccess(town->tempOwner);
 
 	//TODO vision support
-	if(town->ID == TOWNI_TYPE)
+	if(town->ID == GameConstants::TOWNI_TYPE)
 		dest.initFromTown(static_cast<const CGTownInstance *>(town), detailed);
 	else if(town->ID == 33 || town->ID == 219)
 		dest.initFromGarrison(static_cast<const CGGarrison *>(town), detailed);
@@ -896,18 +896,18 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", -1);
 
-	int ret = Buildings::ALLOWED;
-	if(t->builded >= MAX_BUILDING_PER_TURN)
-		ret = Buildings::CANT_BUILD_TODAY; //building limit
+	int ret = EBuildingState::ALLOWED;
+	if(t->builded >= GameConstants::MAX_BUILDING_PER_TURN)
+		ret = EBuildingState::CANT_BUILD_TODAY; //building limit
 
 	CBuilding * pom = VLC->buildh->buildings[t->subID][ID];
 
 	if(!pom)
-		return Buildings::ERROR;
+		return EBuildingState::BUILDING_ERROR;
 
 	//checking resources
 	if(!pom->resources.canBeAfforded(getPlayer(t->tempOwner)->resources))
-		ret = Buildings::NO_RESOURCES; //lack of res
+		ret = EBuildingState::NO_RESOURCES; //lack of res
 
 	//checking for requirements
 	std::set<int> reqs = getBuildingRequiments(t, ID);//getting all requirements
@@ -915,12 +915,12 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 	for( std::set<int>::iterator ri  =  reqs.begin(); ri != reqs.end(); ri++ )
 	{
 		if(t->builtBuildings.find(*ri)==t->builtBuildings.end())
-			ret = Buildings::PREREQUIRES; //lack of requirements - cannot build
+			ret = EBuildingState::PREREQUIRES; //lack of requirements - cannot build
 	}
 
 	//can we build it?
 	if(t->forbiddenBuildings.find(ID)!=t->forbiddenBuildings.end())
-		ret = Buildings::FORBIDDEN; //forbidden
+		ret = EBuildingState::FORBIDDEN; //forbidden
 
 	if(ID == 13) //capitol
 	{
@@ -931,7 +931,7 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 			{
 				if(vstd::contains(t->builtBuildings, 13))
 				{
-					ret = Buildings::HAVE_CAPITAL; //no more than one capitol
+					ret = EBuildingState::HAVE_CAPITAL; //no more than one capitol
 					break;
 				}
 			}
@@ -942,11 +942,11 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 		const TerrainTile *tile = getTile(t->bestLocation());
 		
 		if(!tile || tile->tertype != TerrainTile::water )
-			ret = Buildings::NO_WATER; //lack of water
+			ret = EBuildingState::NO_WATER; //lack of water
 	}
 
 	if(t->builtBuildings.find(ID)!=t->builtBuildings.end())	//already built
-		ret = Buildings::ALREADY_PRESENT;
+		ret = EBuildingState::ALREADY_PRESENT;
 	return ret;
 }
 
@@ -1027,7 +1027,7 @@ int CGameInfoCallback::getHeroCount( int player, bool includeGarrisoned ) const
 	if(includeGarrisoned)
 		return p->heroes.size();
 	else
-		for(unsigned int i = 0; i < p->heroes.size(); i++)
+		for(ui32 i = 0; i < p->heroes.size(); i++)
 			if(!p->heroes[i]->inTownGarrison)
 				ret++;
 	return ret;
@@ -1040,7 +1040,7 @@ bool CGameInfoCallback::isOwnedOrVisited(const CGObjectInstance *obj) const
 
 	const TerrainTile *t = getTile(obj->visitablePos()); //get entrance tile
 	const CGObjectInstance *visitor = t->visitableObjects.back(); //visitong hero if present or the obejct itself at last
-	return visitor->ID == HEROI_TYPE && canGetFullInfo(visitor); //owned or allied hero is a visitor
+	return visitor->ID == GameConstants::HEROI_TYPE && canGetFullInfo(visitor); //owned or allied hero is a visitor
 }
 
 int CGameInfoCallback::getCurrentPlayer() const
@@ -1058,7 +1058,7 @@ CGameInfoCallback::CGameInfoCallback(CGameState *GS, int Player)
 	player = Player;
 }
 
-const std::vector< std::vector< std::vector<unsigned char> > > & CPlayerSpecificInfoCallback::getVisibilityMap() const
+const std::vector< std::vector< std::vector<ui8> > > & CPlayerSpecificInfoCallback::getVisibilityMap() const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getPlayerTeam(player)->fogOfWarMap;
@@ -1119,15 +1119,15 @@ int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero) cons
 	return -1;
 }
 
-int3 CPlayerSpecificInfoCallback::getGrailPos( float &outKnownRatio )
+int3 CPlayerSpecificInfoCallback::getGrailPos( double &outKnownRatio )
 {
 	if (CGObelisk::obeliskCount == 0)
 	{
-		outKnownRatio = 0.0f;
+		outKnownRatio = 0.0;
 	}
 	else
 	{
-		outKnownRatio = (float)CGObelisk::visited[gs->getPlayerTeam(player)->id] / CGObelisk::obeliskCount;
+		outKnownRatio = static_cast<double>(CGObelisk::visited[gs->getPlayerTeam(player)->id]) / CGObelisk::obeliskCount;
 	}
 	return gs->map->grailPos;
 }
@@ -1167,7 +1167,7 @@ const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId,
 
 	if (!includeGarrisoned)
 	{
-		for(unsigned int i = 0; i < p->heroes.size() && i<=serialId; i++)
+		for(ui32 i = 0; i < p->heroes.size() && i<=serialId; i++)
 			if(p->heroes[i]->inTownGarrison)
 				serialId++;
 	}

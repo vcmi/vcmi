@@ -1,12 +1,11 @@
-#define VCMI_DLL
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "CTownHandler.h"
+
 #include "CLodHandler.h"
-#include <sstream>
 #include "../lib/VCMI_Lib.h"
 #include "CGeneralTextHandler.h"
 #include "../lib/JsonNode.h"
-#include <boost/foreach.hpp>
+#include "GameConstants.h"
 
 /*
  * CTownHandler.cpp, part of VCMI engine
@@ -32,7 +31,7 @@ void CTownHandler::loadStructures()
 {
 	int townID;
 
-	for (townID=0; townID<F_NUMBER; townID++)
+	for (townID=0; townID<GameConstants::F_NUMBER; townID++)
 	{
 		CTown town;
 		town.typeID=townID;
@@ -48,10 +47,10 @@ void CTownHandler::loadStructures()
 		towns[x].upgradedCreatures.resize(7);
 	}
 
-	structures.resize(F_NUMBER);
+	structures.resize(GameConstants::F_NUMBER);
 
 	// read city properties
-	const JsonNode config(DATA_DIR "/config/buildings.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/buildings.json");
 
 	// Iterate for each city type
 	townID = 0;
@@ -121,7 +120,7 @@ void CTownHandler::loadStructures()
 		}
 
 		// Buildings dependencies. Which building depend on which other building.
-		requirements.resize(F_NUMBER);
+		requirements.resize(GameConstants::F_NUMBER);
 		BOOST_FOREACH(const JsonNode &node, town_node["building_requirements"].Vector()) {
 			std::set<int> &requires = requirements[townID][node["id"].Float()];
 

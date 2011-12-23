@@ -1,11 +1,10 @@
-#ifndef __CCASTLEINTERFACE_H__
-#define __CCASTLEINTERFACE_H__
+#pragma once
 
-#include "../global.h"
+
 #include "CAnimation.h"
-#include "GUIBase.h"
+#include "GUIClasses.h"
 
-class AdventureMapButton;
+class CAdventureMapButton;
 class CBuilding;
 class CCastleBuildings;
 class CCreaturePic;
@@ -20,6 +19,9 @@ class CStatusBar;
 class CTextBox;
 class CTownList;
 struct Structure;
+class CGHeroInstance;
+class CGarrisonInt;
+class CCreature;
 
 /*
  * CCastleInterface.h, part of VCMI engine
@@ -31,6 +33,7 @@ struct Structure;
  *
  */
 
+
 /// Building "button"
 class CBuildingRect : public CShowableAnim
 {
@@ -41,7 +44,7 @@ public:
 	SDL_Surface* border;
 	SDL_Surface* area;
 	
-	unsigned int stateCounter;//For building construction - current stage in animation
+	ui32 stateCounter;//For building construction - current stage in animation
 	
 	CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const Structure *Str); //c-tor
 	~CBuildingRect(); //d-tor
@@ -50,8 +53,8 @@ public:
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void show(SDL_Surface *to);
-	void showAll(SDL_Surface *to);
+	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 };
 
 /// Dwelling info box - right-click screen for dwellings
@@ -143,8 +146,8 @@ public:
 	void addBuilding(int building);
 	void removeBuilding(int building);//FIXME: not tested!!!
 	
-	void show(SDL_Surface *to);
-	void showAll(SDL_Surface *to);
+	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 };
 
 /// Creature info window
@@ -198,8 +201,8 @@ class CCastleInterface : public CWindowWithGarrison
 	CTownInfo *hall, *fort;
 	CTownList * townlist;
 
-	AdventureMapButton *exit;
-	AdventureMapButton *split;
+	CAdventureMapButton *exit;
+	CAdventureMapButton *split;
 
 	std::vector<CCreaInfo*> creainfo;//small icons of creatures (bottom-left corner);
 
@@ -218,7 +221,7 @@ public:
 	void castleTeleport(int where);
 	void townChange();
 	void keyPressed(const SDL_KeyboardEvent & key);
-	void showAll(SDL_Surface *to);
+	void showAll(SDL_Surface * to);
 	void close();
 	void addBuilding(int bid);
 	void removeBuilding(int bid);
@@ -234,7 +237,7 @@ class CHallInterface : public CIntObject
 		const CGTownInstance * town;
 		const CBuilding * building;
 
-		unsigned int state;//Buildings::EBuildStructure enum
+		ui32 state;//Buildings::EBuildStructure enum
 
 		CAnimImage * picture;
 		CAnimImage * panel;
@@ -254,7 +257,7 @@ class CHallInterface : public CIntObject
 	CLabel *title;
 	CGStatusBar *statusBar;
 	CMinorResDataBar * resdatabar;
-	AdventureMapButton *exit;
+	CAdventureMapButton *exit;
 
 public:
 	CHallInterface(const CGTownInstance * Town); //c-tor
@@ -271,8 +274,8 @@ class CBuildWindow: public CIntObject
 
 	CPicture *background;
 	CAnimImage *buildingPic;
-	AdventureMapButton *buy;
-	AdventureMapButton *cancel;
+	CAdventureMapButton *buy;
+	CAdventureMapButton *cancel;
 
 	CLabel * title;
 	CTextBox * buildingDescr;
@@ -338,7 +341,7 @@ class CFortScreen : public CIntObject
 	std::vector<RecruitArea*> recAreas;
 	CMinorResDataBar * resdatabar;
 	CGStatusBar *statusBar;
-	AdventureMapButton *exit;
+	CAdventureMapButton *exit;
 
 public:
 	CFortScreen(const CGTownInstance * town); //c-tor
@@ -363,7 +366,7 @@ class CMageGuildScreen : public CIntObject
 	};
 	CPicture *background;
 	CPicture *window;
-	AdventureMapButton *exit;
+	CAdventureMapButton *exit;
 	std::vector<Scroll *> spells;
 	CMinorResDataBar * resdatabar;
 	CGStatusBar *statusBar;
@@ -377,7 +380,7 @@ public:
 /// The blacksmith window where you can buy available in town war machine
 class CBlacksmithDialog : public CIntObject
 {
-	AdventureMapButton *buy, *cancel;
+	CAdventureMapButton *buy, *cancel;
 	CPicture *background;
 	CPicture *animBG;
 	CCreatureAnim * anim;
@@ -392,5 +395,3 @@ class CBlacksmithDialog : public CIntObject
 public:
 	CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid);
 };
-
-#endif // __CCASTLEINTERFACE_H__

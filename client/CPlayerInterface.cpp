@@ -1,19 +1,20 @@
-#include "../stdafx.h"
+#include "StdInc.h"
+
 #include "CAdvmapInterface.h"
-#include "CBattleInterface.h"
+#include "BattleInterface/CBattleInterface.h"
+#include "BattleInterface/CBattleInterfaceClasses.h"
 #include "../CCallback.h"
 #include "CCastleInterface.h"
-#include "CCursorHandler.h"
+#include "UIFramework/CCursorHandler.h"
 #include "CKingdomInterface.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CMessage.h"
 #include "CPlayerInterface.h"
-//#include "SDL_Extensions.h"
-#include "SDL_Extensions.h"
-#include "SDL_framerate.h"
+//#include "UIFramework/SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "CConfigHandler.h"
-#include "CCreatureAnimation.h"
+#include "BattleInterface/CCreatureAnimation.h"
 #include "Graphics.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -30,22 +31,11 @@
 #include "../lib/map.h"
 #include "../lib/VCMIDirs.h"
 #include "mapHandler.h"
-#include "../timeHandler.h"
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/assign/std/vector.hpp>
-#include <boost/assign/list_of.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
-#include <cmath>
-#include <queue>
-#include <sstream>
-#include <boost/filesystem.hpp>
-#include "../StartInfo.h"
-#include <boost/foreach.hpp>
+#include "../lib/CStopWatch.h"
+#include "../lib/StartInfo.h"
 #include "../lib/CGameState.h"
+#include "../lib/GameConstants.h"
+#include "UIFramework/CGuiHandler.h"
 
 #ifdef min
 #undef min
@@ -116,7 +106,7 @@ CPlayerInterface::~CPlayerInterface()
 {
 	howManyPeople--;
 	//delete pim;
-	//delNull(pim);
+	//vstd::clear_pointer(pim);
 	delete showingDialog;
 	if(adventureInt)
 	{
@@ -196,8 +186,8 @@ void CPlayerInterface::yourTurn()
 			makingTurn = true;
 			std::string msg = CGI->generaltexth->allTexts[13];
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
-			std::vector<SComponent*> cmp;
-			cmp.push_back(new SComponent(SComponent::flag, playerID, 0));
+			std::vector<CComponent*> cmp;
+			cmp.push_back(new CComponent(CComponent::flag, playerID, 0));
 			showInfoDialog(msg, cmp);
 		}
 		else
@@ -383,14 +373,14 @@ SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //spe
 
 	switch(specific->ID)
 	{
-	case HEROI_TYPE: 				
+	case GameConstants::HEROI_TYPE: 				
 		{
 			InfoAboutHero iah;
 			bool gotInfo = LOCPLINT->cb->getHeroInfo(specific, iah);
 			assert(gotInfo);
 			return graphics->drawHeroInfoWin(iah);
 		}
-	case TOWNI_TYPE:
+	case GameConstants::TOWNI_TYPE:
 	case 33: // Garrison
 	case 219:
 		{
@@ -424,7 +414,7 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 		if(CAltarWindow *ctw = dynamic_cast<CAltarWindow *>(GH.topInt()))
 			ctw->setExpToLevel();
 	}
-	else if(which < PRIMARY_SKILLS) //no need to redraw infowin if this is experience (exp is treated as prim skill with id==4)
+	else if(which < GameConstants::PRIMARY_SKILLS) //no need to redraw infowin if this is experience (exp is treated as prim skill with id==4)
 		updateInfo(hero);
 }
 
@@ -492,7 +482,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		c->garr->recreateSlots();
 		c->heroes->update();
 	}
-	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
 		CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa);
 		if (ki)
@@ -518,9 +508,9 @@ void CPlayerInterface::garrisonChanged( const CGObjectInstance * obj, bool updat
 	if(updateInfobox)
 		updateInfo(obj);
 
-	for(std::list<IShowActivable*>::iterator i = GH.listInt.begin(); i != GH.listInt.end(); i++)
+	for(std::list<IShowActivatable*>::iterator i = GH.listInt.begin(); i != GH.listInt.end(); i++)
 	{
-		if((*i)->type & IShowActivable::WITH_GARRISON)
+		if((*i)->type & IShowActivatable::WITH_GARRISON)
 		{
 			CGarrisonHolder *cgh = dynamic_cast<CGarrisonHolder*>(*i);
 			cgh->updateGarrisons();
@@ -729,7 +719,7 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-		if(vstd::contains(stack->state,MOVED)) //this stack has moved and makes second action -> high morale
+		if(vstd::contains(stack->state,EBattleStackState::MOVED)) //this stack has moved and makes second action -> high morale
 		{
 			std::string hlp = CGI->generaltexth->allTexts[33];
 			boost::algorithm::replace_first(hlp,"%s",(stack->count != 1) ? stack->getCreature()->namePl : stack->getCreature()->nameSing);
@@ -765,7 +755,7 @@ void CPlayerInterface::battleEnd(const BattleResult *br)
 	battleInt->battleFinished(*br);
 }
 
-void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<THex> dest, int distance)
+void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
 {
 	if(LOCPLINT != this)
 	{ //another local interface should do this
@@ -811,7 +801,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 	tlog5 << "done!\n";
 
 
-	std::vector<SStackAttackedInfo> arg;
+	std::vector<StackAttackedInfo> arg;
 	for(std::vector<BattleStackAttacked>::const_iterator i = bsa.begin(); i != bsa.end(); i++)
 	{
 		const CStack *defender = cb->battleGetStackByID(i->stackAttacked, false);
@@ -821,7 +811,7 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 			if (defender && !i->isSecondary())
 				battleInt->displayEffect(i->effect, defender->position);
 		}
-		SStackAttackedInfo to_put = {defender, i->damageAmount, i->killedAmount, attacker, LOCPLINT->curAction->actionType==7, i->killed(), i->willRebirth()};
+		StackAttackedInfo to_put = {defender, i->damageAmount, i->killedAmount, attacker, LOCPLINT->curAction->actionType==7, i->killed(), i->willRebirth()};
 		arg.push_back(to_put);
 
 	}
@@ -883,10 +873,10 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 	else
 	{
 		int shift = 0;
-		if(ba->counter() && THex::mutualPosition(curAction->destinationTile, attacker->position) < 0)
+		if(ba->counter() && BattleHex::mutualPosition(curAction->destinationTile, attacker->position) < 0)
 		{
-			int distp = THex::getDistance(curAction->destinationTile + 1, attacker->position);
-			int distm = THex::getDistance(curAction->destinationTile - 1, attacker->position);
+			int distp = BattleHex::getDistance(curAction->destinationTile + 1, attacker->position);
+			int distm = BattleHex::getDistance(curAction->destinationTile - 1, attacker->position);
 
 			if( distp < distm )
 				shift = 1;
@@ -904,7 +894,7 @@ void CPlayerInterface::yourTacticPhase(int distance)
 		boost::this_thread::sleep(boost::posix_time::millisec(1));
 }
 
-void CPlayerInterface::showComp(SComponent comp)
+void CPlayerInterface::showComp(CComponent comp)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
@@ -915,13 +905,13 @@ void CPlayerInterface::showComp(SComponent comp)
 
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID)
 {
-	std::vector<SComponent*> intComps;
+	std::vector<CComponent*> intComps;
 	for(int i=0;i<components.size();i++)
-		intComps.push_back(new SComponent(*components[i]));
+		intComps.push_back(new CComponent(*components[i]));
 	showInfoDialog(text,intComps,soundID);
 }
 
-void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, int soundID, bool delComps)
+void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<CComponent*> & components, int soundID, bool delComps)
 {
 	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -941,7 +931,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	}
 }
 
-void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps)
+void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vector<CComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
@@ -960,9 +950,9 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 
 	if(!selection && cancel) //simple yes/no dialog
 	{
-		std::vector<SComponent*> intComps;
+		std::vector<CComponent*> intComps;
 		for(int i=0;i<components.size();i++)
-			intComps.push_back(new SComponent(components[i])); //will be deleted by close in window
+			intComps.push_back(new CComponent(components[i])); //will be deleted by close in window
 
 		showYesNoDialog(text,intComps,boost::bind(&CCallback::selectionMade,cb,1,askID),boost::bind(&CCallback::selectionMade,cb,0,askID),true);
 	}
@@ -1062,7 +1052,7 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 		if(fs)
 			fs->creaturesChanged();
 
-		BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+		BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 		{
 			CKingdomInterface *ki = dynamic_cast<CKingdomInterface*>(isa);
 			if (ki && townObj)
@@ -1290,7 +1280,7 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 	const CArtifact &artifact = *CGI->arth->artifacts[artifactID];
 	std::string text = artifact.Description();
 	text += "\n\n";
-	std::vector<SComponent*> scs;
+	std::vector<CComponent*> scs;
 
 	if (assemble) {
 		const CArtifact &assembledArtifact = *CGI->arth->artifacts[assembleTo];
@@ -1299,8 +1289,8 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact.Name());
 
 		// Picture of assembled artifact at bottom.
-		SComponent* sc = new SComponent;
-		sc->type = SComponent::artifact;
+		CComponent* sc = new CComponent;
+		sc->type = CComponent::artifact;
 		sc->subtype = assembledArtifact.id;
 		sc->description = assembledArtifact.Description();
 		sc->subtitle = assembledArtifact.Name();
@@ -1339,7 +1329,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 				adventureInt->minimap.showTile(*it);
 		}
 
-		if(obj->ID == TOWNI_TYPE)
+		if(obj->ID == GameConstants::TOWNI_TYPE)
 		{
 			if(obj->tempOwner == playerID)
 				towns.push_back(static_cast<const CGTownInstance *>(obj));
@@ -1360,7 +1350,7 @@ void CPlayerInterface::recreateHeroTownList()
 	//applying current heroes order to new heroes info
 	int j;
 	for (int i = 0; i < wanderingHeroes.size(); i++)
-		if ((j = vstd::findPos(allHeroes, wanderingHeroes[i])) >= 0)
+		if ((j = vstd::find_pos(allHeroes, wanderingHeroes[i])) >= 0)
 			if (!allHeroes[j]->inTownGarrison)
 			{
 				newWanderingHeroes += allHeroes[j];
@@ -1377,7 +1367,7 @@ void CPlayerInterface::recreateHeroTownList()
 	std::vector<const CGTownInstance*> newTowns;
 	std::vector<const CGTownInstance*> allTowns = cb->getTownsInfo();
 	for (int i = 0; i < towns.size(); i++)
-		if ((j = vstd::findPos(allTowns, towns[i])) >= 0)
+		if ((j = vstd::find_pos(allTowns, towns[i])) >= 0)
 		{
 			newTowns += allTowns[j];
 			allTowns -= allTowns[j];
@@ -1456,7 +1446,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 
 void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 {
-	if(obj->ID == HEROI_TYPE  &&  obj->tempOwner == playerID)
+	if(obj->ID == GameConstants::HEROI_TYPE  &&  obj->tempOwner == playerID)
 	{
 		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(obj);
 		heroKilled(h);
@@ -2003,7 +1993,7 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 		{
 			std::string txt = CGI->generaltexth->allTexts[5]; //%s has been vanquished!
 			boost::algorithm::replace_first(txt, "%s", CGI->generaltexth->capColors[player]);
-			showInfoDialog(txt,std::vector<SComponent*>(1, new SComponent(SComponent::flag, player, 0)));
+			showInfoDialog(txt,std::vector<CComponent*>(1, new CComponent(CComponent::flag, player, 0)));
 		}
 	}
 }
@@ -2019,7 +2009,7 @@ void CPlayerInterface::showPuzzleMap()
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
 	//TODO: interface should not know the real position of Grail...
-	float ratio = 0;
+	double ratio = 0;
 	int3 grailPos = cb->getGrailPos(ratio);
 
 	GH.pushInt(new CPuzzleWindow(grailPos, ratio));
@@ -2230,11 +2220,11 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(market->o->ID == 2) //Altar
 	{
-		//EMarketMode mode = market->availableModes().front();
-		if(market->allowsTrade(ARTIFACT_EXP) && visitor->getAlignment() != EVIL)
-			GH.pushInt(new CAltarWindow(market, visitor, ARTIFACT_EXP));
-		else if(market->allowsTrade(CREATURE_EXP) && visitor->getAlignment() != GOOD)
-			GH.pushInt(new CAltarWindow(market, visitor, CREATURE_EXP));
+		//EEMarketMode mode = market->availableModes().front();
+		if(market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
+			GH.pushInt(new CAltarWindow(market, visitor, EMarketMode::ARTIFACT_EXP));
+		else if(market->allowsTrade(EMarketMode::CREATURE_EXP) && visitor->getAlignment() != EAlignment::GOOD)
+			GH.pushInt(new CAltarWindow(market, visitor, EMarketMode::CREATURE_EXP));
 	}
 	else
 		GH.pushInt(new CMarketplaceWindow(market, visitor, market->availableModes().front()));
@@ -2349,9 +2339,9 @@ void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
-		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
 		{
 			(dynamic_cast<CArtifactHolder*>(isa))->artifactRemoved(al);
 		}
@@ -2361,9 +2351,9 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
-		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
 		{
 			(dynamic_cast<CArtifactHolder*>(isa))->artifactMoved(src, dst);
 		}
@@ -2373,9 +2363,9 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
-		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
 		{
 			(dynamic_cast<CArtifactHolder*>(isa))->artifactAssembled(al);
 		}
@@ -2385,9 +2375,9 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	BOOST_FOREACH(IShowActivable *isa, GH.listInt)
+	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
-		if(isa->type & IShowActivable::WITH_ARTIFACTS)
+		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
 		{
 			(dynamic_cast<CArtifactHolder*>(isa))->artifactDisassembled(al);
 		}

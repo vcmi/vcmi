@@ -1,11 +1,10 @@
-#ifndef __BATTLE_LOGIC_H__
-#define __BATTLE_LOGIC_H__
+#pragma once
 
 #include "Common.h"
 #include "BattleHelper.h"
 
 #pragma warning (disable: 4100 4251 4245 4018 4081)
-#include "../../global.h"
+
 #include "../../CCallback.h"
 #include "../../lib/CCreatureHandler.h"
 #include "../../lib/CObjectHandler.h"
@@ -130,5 +129,3 @@ private:
 };
 
 }}
-
-#endif/*__BATTLE_LOGIC_H__*/

@@ -1,14 +1,15 @@
-#define VCMI_DLL
-
+#include "StdInc.h"
 #include "CMapInfo.h"
-#include "../StartInfo.h"
+
+#include "StartInfo.h"
 #include "map.h"
 #include "CCampaignHandler.h"
+#include "GameConstants.h"
 
 void CMapInfo::countPlayers()
 {
 	actualHumanPlayers = playerAmnt = humenPlayers = 0;
-	for(int i=0;i<PLAYER_LIMIT;i++)
+	for(int i=0;i<GameConstants::PLAYER_LIMIT;i++)
 	{
 		if(mapHeader->players[i].canHumanPlay)
 		{
@@ -32,7 +33,7 @@ CMapInfo::CMapInfo(bool map)
 {
 }
 
-void CMapInfo::mapInit(const std::string &fname, const unsigned char *map )
+void CMapInfo::mapInit(const std::string &fname, const ui8 *map )
 {
 	filename = fname;
 	int i = 0;

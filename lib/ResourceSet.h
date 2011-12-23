@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../global.h"
+
 #include <climits>
 
 typedef si32 TResource;
@@ -19,11 +19,11 @@ namespace Res
 	class ResourceSet : public std::vector<int>
 	{
 	public:
-		DLL_EXPORT ResourceSet();
+		DLL_LINKAGE ResourceSet();
 
 
 #define scalarOperator(OPSIGN)									\
-		DLL_EXPORT ResourceSet operator OPSIGN(const TResource &rhs) const	\
+		DLL_LINKAGE ResourceSet operator OPSIGN(const TResource &rhs) const	\
 		{														\
 			ResourceSet ret = *this;							\
 			for(int i = 0; i < size(); i++)						\
@@ -35,7 +35,7 @@ namespace Res
 
 
 #define vectorOperator(OPSIGN)										\
-		DLL_EXPORT ResourceSet operator OPSIGN(const ResourceSet &rhs) const	\
+		DLL_LINKAGE ResourceSet operator OPSIGN(const ResourceSet &rhs) const	\
 		{															\
 			ResourceSet ret = *this;								\
 			for(int i = 0; i < size(); i++)							\
@@ -46,7 +46,7 @@ namespace Res
 
 
 #define opEqOperator(OPSIGN, RHS_TYPE)							\
-		DLL_EXPORT ResourceSet& operator OPSIGN ## =(const RHS_TYPE &rhs)	\
+		DLL_LINKAGE ResourceSet& operator OPSIGN ## =(const RHS_TYPE &rhs)	\
 		{														\
 			return *this = *this OPSIGN rhs;					\
 		}
@@ -68,12 +68,12 @@ namespace Res
 #undef opEqOperator
 
 		//to be used for calculations of type "how many units of sth can I afford?"
-		DLL_EXPORT int operator/(const ResourceSet &rhs)
+		DLL_LINKAGE int operator/(const ResourceSet &rhs)
 		{
 			int ret = INT_MAX;
 			for(int i = 0; i < size(); i++)
 				if(rhs[i])
-					amin(ret, at(i) / rhs[i]);
+					vstd::amin(ret, at(i) / rhs[i]);
 
 			return ret;
 		}
@@ -94,13 +94,13 @@ namespace Res
 			h & static_cast<std::vector<int>&>(*this);
 		}
 
-		DLL_EXPORT void amax(const TResource &val); //performs amax on each element
-		DLL_EXPORT bool nonZero() const; //returns true if at least one value is non-zero;
-		DLL_EXPORT bool canAfford(const ResourceSet &price) const;
-		DLL_EXPORT bool canBeAfforded(const ResourceSet &res) const;
+		DLL_LINKAGE void amax(const TResource &val); //performs vstd::amax on each element
+		DLL_LINKAGE bool nonZero() const; //returns true if at least one value is non-zero;
+		DLL_LINKAGE bool canAfford(const ResourceSet &price) const;
+		DLL_LINKAGE bool canBeAfforded(const ResourceSet &res) const;
 
 		//special iterator of iterating over non-zero resources in set
-		class DLL_EXPORT nziterator
+		class DLL_LINKAGE nziterator
 		{
 			struct ResEntry
 			{

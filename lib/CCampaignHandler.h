@@ -1,9 +1,6 @@
-#ifndef __CCAMPAIGNHANDLER_H__
-#define __CCAMPAIGNHANDLER_H__
+#pragma once
 
-#include "../global.h"
-#include <string>
-#include <vector>
+
 
 /*
  * CCampaignHandler.h, part of VCMI engine
@@ -29,7 +26,7 @@ namespace CampaignVersion
 	};
 }
 
-class DLL_EXPORT CCampaignHeader
+class DLL_LINKAGE CCampaignHeader
 {
 public:
 	si32 version; //4 - RoE, 5 - AB, 6 - SoD and WoG
@@ -47,7 +44,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CScenarioTravel
+class DLL_LINKAGE CScenarioTravel
 {
 public:
 	ui8 whatHeroKeeps; //bitfield [0] - experience, [1] - prim skills, [2] - sec skills, [3] - spells, [4] - artifacts
@@ -58,7 +55,7 @@ public:
 
 	ui8 playerColor; //only for startOptions == 1
 
-	struct DLL_EXPORT STravelBonus
+	struct DLL_LINKAGE STravelBonus
 	{
 		ui8 type;	//0 - spell, 1 - monster, 2 - building, 3 - artifact, 4 - spell scroll, 5 - prim skill, 6 - sec skill, 7 - resource,
 					//8 - player from previous scenario, 9 - hero [???]
@@ -81,7 +78,7 @@ public:
 
 };
 
-class DLL_EXPORT CCampaignScenario
+class DLL_LINKAGE CCampaignScenario
 {
 public:
 	std::string mapName;
@@ -93,7 +90,7 @@ public:
 
 	std::string regionText;
 
-	struct DLL_EXPORT SScenarioPrologEpilog
+	struct DLL_LINKAGE SScenarioPrologEpilog
 	{
 		ui8 hasPrologEpilog;
 		ui8 prologVideo; // from CmpMovie.txt
@@ -123,7 +120,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CCampaign
+class DLL_LINKAGE CCampaign
 {
 public:
 	CCampaignHeader header;
@@ -140,7 +137,7 @@ public:
 	CCampaign();
 };
 
-class DLL_EXPORT CCampaignState
+class DLL_LINKAGE CCampaignState
 {
 public:
 	CCampaign *camp;
@@ -157,14 +154,14 @@ public:
 	}
 };
 
-class DLL_EXPORT CCampaignHandler
+class DLL_LINKAGE CCampaignHandler
 {
-	static CCampaignHeader readHeaderFromMemory( const unsigned char *buffer, int & outIt );
-	static CCampaignScenario readScenarioFromMemory( const unsigned char *buffer, int & outIt, int version, int mapVersion );
-	static CScenarioTravel readScenarioTravelFromMemory( const unsigned char * buffer, int & outIt , int version);
-	static std::vector<ui32> locateH3mStarts(const unsigned char * buffer, int start, int size);
-	static bool startsAt( const unsigned char * buffer, int size, int pos ); //a simple heuristic that checks if a h3m starts at given pos
-	static unsigned char * getFile(const std::string & name, bool fromLod, int & outSize);
+	static CCampaignHeader readHeaderFromMemory( const ui8 *buffer, int & outIt );
+	static CCampaignScenario readScenarioFromMemory( const ui8 *buffer, int & outIt, int version, int mapVersion );
+	static CScenarioTravel readScenarioTravelFromMemory( const ui8 * buffer, int & outIt , int version);
+	static std::vector<ui32> locateH3mStarts(const ui8 * buffer, int start, int size);
+	static bool startsAt( const ui8 * buffer, int size, int pos ); //a simple heuristic that checks if a h3m starts at given pos
+	static ui8 * getFile(const std::string & name, bool fromLod, int & outSize);
 public:
 	enum GetMode {RoE, AB, SoD, WoG, Custom, ALL};
 	static std::vector<CCampaignHeader> getCampaignHeaders(GetMode mode);
@@ -172,6 +169,3 @@ public:
 
 	static CCampaign * getCampaign(const std::string & name, bool fromLod); //name - name of appropriate file
 };
-
-
-#endif /* __CCAMPAIGNHANDLER_H__ */

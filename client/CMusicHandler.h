@@ -1,10 +1,4 @@
-#ifndef __CMUSICHANDLER_H__
-#define __CMUSICHANDLER_H__
-
-#include <boost/thread/mutex.hpp>
-#include <boost/function.hpp>
-
-#include <memory>
+#pragma once
 
 #include "CSoundBase.h"
 #include "CMusicBase.h"
@@ -62,8 +56,8 @@ public:
 	virtual void init() = 0;
 	virtual void release() = 0;
 
-	virtual void setVolume(unsigned int percent);
-	unsigned int getVolume() { return volume; };
+	virtual void setVolume(ui32 percent);
+	ui32 getVolume() { return volume; };
 };
 
 class CSoundHandler: public CAudioBase
@@ -88,7 +82,7 @@ public:
 
 	void initCreaturesSounds(const std::vector<ConstTransitivePtr<CCreature> > &creatures);
 	void initSpellsSounds(const std::vector< ConstTransitivePtr<CSpell> > &spells);
-	void setVolume(unsigned int percent);
+	void setVolume(ui32 percent);
 
 	// Sounds
 	int playSound(soundBase::soundID soundID, int repeats=0);
@@ -153,7 +147,7 @@ public:
 
 	void init();
 	void release();
-	void setVolume(unsigned int percent);
+	void setVolume(ui32 percent);
 
 	// Musics
 	std::map<musicBase::musicID, std::string> musics;
@@ -167,5 +161,3 @@ public:
 	void stopMusic(int fade_ms=1000);
 	void musicFinishedCallback(void);
 };
-
-#endif // __CMUSICHANDLER_H__

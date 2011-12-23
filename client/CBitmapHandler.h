@@ -1,8 +1,7 @@
-#ifndef __CBITMAPHANDLER_H__
-#define __CBITMAPHANDLER_H__
+#pragma once
 
 
-#include "../global.h"
+
 struct SDL_Surface;
 class CLodHandler;
 
@@ -21,14 +20,14 @@ enum Epcxformat {PCX8B, PCX24B};
 /// Struct which stands for a simple rgba palette
 struct BMPPalette
 {
-	unsigned char R,G,B,F;
+	ui8 R,G,B,F;
 };
 
 /// Class which converts pcx to bmp images
 class CPCXConv
 {	
 public:
-	unsigned char * pcx, *bmp;
+	ui8 * pcx, *bmp;
 	int pcxs, bmps;
 	void fromFile(std::string path);
 	void saveBMP(std::string path) const;
@@ -52,5 +51,3 @@ namespace BitmapHandler
 	//Load file from any LODs
 	SDL_Surface * loadBitmap(std::string fname, bool setKey=true);
 };
-
-#endif // __CBITMAPHANDLER_H__

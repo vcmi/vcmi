@@ -1,9 +1,9 @@
-#ifndef __GRAPHICS_H__
-#define __GRAPHICS_H__
+#pragma once
 
-#include "../global.h"
+
 #include "FontBase.h"
-#include "GUIBase.h"
+#include "../lib/GameConstants.h"
+#include "UIFramework/Geometries.h"
 
 /*
  * Graphics.h, part of VCMI engine
@@ -80,13 +80,13 @@ public:
 	std::vector< std::string > buildingPics;//filenames of def with building images (used rarely, too big to keep them loaded)
 	std::vector< std::string > townBgs;//backgrounds of town
 	std::vector< std::string > guildBgs;// name of bitmaps with imgs for mage guild screen
-	std::map<int, std::string> ERMUtoPicture[F_NUMBER]; //maps building ID to it's picture's name for each town type
+	std::map<int, std::string> ERMUtoPicture[GameConstants::F_NUMBER]; //maps building ID to it's picture's name for each town type
 	//for battles
 	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
 	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
 	CDefEssential * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
-	std::vector< Point > wallPositions[F_NUMBER]; //positions of different pieces of wall <x, y>
+	std::vector< Point > wallPositions[GameConstants::F_NUMBER]; //positions of different pieces of wall <x, y>
 	//abilities
 	CDefEssential * abils32, * abils44, * abils82;
 	//spells
@@ -114,5 +114,3 @@ public:
 };
 
 extern Graphics * graphics;
-
-#endif // __GRAPHICS_H__

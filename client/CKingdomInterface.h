@@ -1,13 +1,9 @@
 #pragma once
 
-#include "../global.h"
 
-#include <list>
-
-#include "GUIBase.h"
 #include "GUIClasses.h"
 
-class AdventureMapButton;
+class CAdventureMapButton;
 class CAnimImage;
 class CHighlightableButtonsGroup;
 class CResDataBar;
@@ -65,7 +61,7 @@ private:
 	CLabel * value;
 	CLabel * name;
 	CAnimImage * image;
-	HoverableArea *hover;
+	CHoverableArea *hover;
 
 public:
 	InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data);
@@ -104,7 +100,7 @@ public:
 	virtual size_t getImageIndex()=0;
 
 	//TODO: replace with something better
-	virtual bool prepareMessage(std::string &text, SComponent **comp)=0;
+	virtual bool prepareMessage(std::string &text, CComponent **comp)=0;
 };
 
 class InfoBoxAbstractHeroData : public IInfoBoxData
@@ -122,7 +118,7 @@ public:
 	std::string getHoverText();
 	size_t getImageIndex();
 
-	bool prepareMessage(std::string &text, SComponent **comp);
+	bool prepareMessage(std::string &text, CComponent **comp);
 };
 
 class InfoBoxHeroData : public InfoBoxAbstractHeroData
@@ -140,7 +136,7 @@ public:
 	std::string getHoverText();
 	std::string getValueText();
 
-	bool prepareMessage(std::string &text, SComponent **comp);
+	bool prepareMessage(std::string &text, CComponent **comp);
 };
 
 class InfoBoxCustomHeroData : public InfoBoxAbstractHeroData
@@ -172,7 +168,7 @@ public:
 	std::string getHoverText();
 	size_t getImageIndex();
 
-	bool prepareMessage(std::string &text, SComponent **comp);
+	bool prepareMessage(std::string &text, CComponent **comp);
 };
 
 //TODO!!!
@@ -202,7 +198,7 @@ private:
 	struct OwnedObjectInfo
 	{
 		int imageID;
-		unsigned int count;
+		ui32 count;
 		std::string hoverText;
 	};
 	std::vector<OwnedObjectInfo> objects;
@@ -212,17 +208,17 @@ private:
 	CPicture * background;
 
 	//Main buttons
-	AdventureMapButton *btnTowns;
-	AdventureMapButton *btnHeroes;
-	AdventureMapButton *btnExit;
+	CAdventureMapButton *btnTowns;
+	CAdventureMapButton *btnHeroes;
+	CAdventureMapButton *btnExit;
 
 	//Buttons for scrolling dwellings list
-	AdventureMapButton *dwellUp, *dwellDown;
-	AdventureMapButton *dwellTop, *dwellBottom;
+	CAdventureMapButton *dwellUp, *dwellDown;
+	CAdventureMapButton *dwellTop, *dwellBottom;
 
 	InfoBox * minesBox[7];
 
-	HoverableArea * incomeArea;
+	CHoverableArea * incomeArea;
 	CLabel * incomeAmount;
 
 	CGStatusBar * statusbar;

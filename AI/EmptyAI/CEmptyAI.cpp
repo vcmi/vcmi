@@ -1,5 +1,6 @@
+#include "StdInc.h"
 #include "CEmptyAI.h"
-#include <iostream>
+
 void CEmptyAI::init(CCallback * CB)
 {
 	cb = CB;

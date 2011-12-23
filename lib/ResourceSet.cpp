@@ -1,9 +1,10 @@
-#define VCMI_DLL
+#include "StdInc.h"
 #include "ResourceSet.h"
+#include "GameConstants.h"
 
 Res::ResourceSet::ResourceSet()
 {
-	resize(RESOURCE_QUANTITY, 0);
+	resize(GameConstants::RESOURCE_QUANTITY, 0);
 }
 
 bool Res::ResourceSet::nonZero() const
@@ -18,7 +19,7 @@ bool Res::ResourceSet::nonZero() const
 void Res::ResourceSet::amax(const TResource &val)
 {
 	for(int i = 0; i < size(); i++)
-		::amax(at(i), val);
+		::vstd::amax(at(i), val);
 }
 
 bool Res::ResourceSet::canBeAfforded(const ResourceSet &res) const
@@ -33,8 +34,8 @@ bool Res::ResourceSet::canAfford(const ResourceSet &price) const
 
 bool Res::canAfford(const ResourceSet &res, const ResourceSet &price)
 {
-	assert(res.size() == price.size() && price.size() == RESOURCE_QUANTITY);
-	for(int i = 0; i < RESOURCE_QUANTITY; i++)
+	assert(res.size() == price.size() && price.size() == GameConstants::RESOURCE_QUANTITY);
+	for(int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
 		if(price[i] > res[i])
 			return false;
 
@@ -43,7 +44,7 @@ bool Res::canAfford(const ResourceSet &res, const ResourceSet &price)
 
 bool Res::ResourceSet::nziterator::valid()
 {
-	return cur.resType < RESOURCE_QUANTITY && cur.resVal;
+	return cur.resType < GameConstants::RESOURCE_QUANTITY && cur.resVal;
 }
 
 Res::ResourceSet::nziterator Res::ResourceSet::nziterator::operator++()
@@ -74,9 +75,9 @@ void Res::ResourceSet::nziterator::advance()
 	do
 	{
 		cur.resType++;
-	} while(cur.resType < RESOURCE_QUANTITY && !(cur.resVal=rs[cur.resType]));
+	} while(cur.resType < GameConstants::RESOURCE_QUANTITY && !(cur.resVal=rs[cur.resType]));
 
-	if(cur.resType >= RESOURCE_QUANTITY)
+	if(cur.resType >= GameConstants::RESOURCE_QUANTITY)
 		cur.resVal = -1;
 }
 

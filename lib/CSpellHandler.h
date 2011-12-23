@@ -1,11 +1,8 @@
-#ifndef __CSPELLHANDLER_H__
-#define __CSPELLHANDLER_H__
-
-#include <string>
-#include <vector>
-#include <set>
+#pragma once
 
 #include "../lib/ConstTransitivePtr.h"
+#include "int3.h"
+#include "GameConstants.h"
 
 /*
  * CSpellHandler.h, part of VCMI engine
@@ -17,7 +14,7 @@
  *
  */
 
-class DLL_EXPORT CSpell
+class DLL_LINKAGE CSpell
 {
 public:
 	enum ETargetType {NO_TARGET, CREATURE, CREATURE_EXPERT_MASSIVE, OBSTACLE};
@@ -77,9 +74,9 @@ namespace Spells
 	};
 }
 
-bool DLL_EXPORT isInScreenRange(const int3 &center, const int3 &pos); //for spells like Dimension Door
+bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spells like Dimension Door
 
-class DLL_EXPORT CSpellHandler
+class DLL_LINKAGE CSpellHandler
 {
 public:
 	CSpellHandler();
@@ -93,6 +90,3 @@ public:
 		h & spells & damageSpells & risingSpells;
 	}
 };
-
-
-#endif // __CSPELLHANDLER_H__

@@ -79,17 +79,18 @@ am__base_list = \
 am__installdirs = "$(DESTDIR)$(vcmiaidir)"
 LTLIBRARIES = $(vcmiai_LTLIBRARIES)
 libGeniusAI_la_DEPENDENCIES = $(top_builddir)/lib/libvcmi.la
-am_libGeniusAI_la_OBJECTS = AIPriorities.lo BattleHelper.lo \
-	BattleLogic.lo CGeniusAI.lo DLLMain.lo GeneralAI.lo \
-	neuralNetwork.lo
+am_libGeniusAI_la_OBJECTS = libGeniusAI_la-AIPriorities.lo \
+	libGeniusAI_la-BattleHelper.lo libGeniusAI_la-BattleLogic.lo \
+	libGeniusAI_la-CGeniusAI.lo libGeniusAI_la-DLLMain.lo \
+	libGeniusAI_la-GeneralAI.lo libGeniusAI_la-neuralNetwork.lo
 libGeniusAI_la_OBJECTS = $(am_libGeniusAI_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
 am__v_lt_0 = --silent
 libGeniusAI_la_LINK = $(LIBTOOL) $(AM_V_lt) --tag=CXX \
 	$(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=link $(CXXLD) \
-	$(AM_CXXFLAGS) $(CXXFLAGS) $(libGeniusAI_la_LDFLAGS) \
-	$(LDFLAGS) -o $@
+	$(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) \
+	$(libGeniusAI_la_LDFLAGS) $(LDFLAGS) -o $@
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
 am__depfiles_maybe = depfiles
@@ -272,8 +273,10 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 vcmiaidir = $(VCMI_AI_LIBS_DIR)
+BUILT_SOURCES = StdInc.h.gch
 vcmiai_LTLIBRARIES = libGeniusAI.la
 libGeniusAI_la_LIBADD = $(top_builddir)/lib/libvcmi.la
+libGeniusAI_la_CXXFLAGS = -DVCMI_DLL
 libGeniusAI_la_LDFLAGS = -L$(top_builddir)/lib -module -avoid-version
 libGeniusAI_la_SOURCES = \
 	AIPriorities.cpp \
@@ -291,7 +294,8 @@ libGeniusAI_la_SOURCES = \
 	neuralNetwork.cpp \
 	neuralNetwork.h
 
-all: all-am
+all: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) all-am
 
 .SUFFIXES:
 .SUFFIXES: .cpp .lo .o .obj
@@ -365,13 +369,13 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AIPriorities.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BattleHelper.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BattleLogic.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CGeniusAI.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DLLMain.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GeneralAI.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/neuralNetwork.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libGeniusAI_la-AIPriorities.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libGeniusAI_la-BattleHelper.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libGeniusAI_la-BattleLogic.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libGeniusAI_la-CGeniusAI.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libGeniusAI_la-DLLMain.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libGeniusAI_la-GeneralAI.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libGeniusAI_la-neuralNetwork.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -396,6 +400,62 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='$<' object='$@' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LTCXXCOMPILE) -c -o $@ $<
+
+libGeniusAI_la-AIPriorities.lo: AIPriorities.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -MT libGeniusAI_la-AIPriorities.lo -MD -MP -MF $(DEPDIR)/libGeniusAI_la-AIPriorities.Tpo -c -o libGeniusAI_la-AIPriorities.lo `test -f 'AIPriorities.cpp' || echo '$(srcdir)/'`AIPriorities.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libGeniusAI_la-AIPriorities.Tpo $(DEPDIR)/libGeniusAI_la-AIPriorities.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='AIPriorities.cpp' object='libGeniusAI_la-AIPriorities.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -c -o libGeniusAI_la-AIPriorities.lo `test -f 'AIPriorities.cpp' || echo '$(srcdir)/'`AIPriorities.cpp
+
+libGeniusAI_la-BattleHelper.lo: BattleHelper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -MT libGeniusAI_la-BattleHelper.lo -MD -MP -MF $(DEPDIR)/libGeniusAI_la-BattleHelper.Tpo -c -o libGeniusAI_la-BattleHelper.lo `test -f 'BattleHelper.cpp' || echo '$(srcdir)/'`BattleHelper.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libGeniusAI_la-BattleHelper.Tpo $(DEPDIR)/libGeniusAI_la-BattleHelper.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='BattleHelper.cpp' object='libGeniusAI_la-BattleHelper.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -c -o libGeniusAI_la-BattleHelper.lo `test -f 'BattleHelper.cpp' || echo '$(srcdir)/'`BattleHelper.cpp
+
+libGeniusAI_la-BattleLogic.lo: BattleLogic.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -MT libGeniusAI_la-BattleLogic.lo -MD -MP -MF $(DEPDIR)/libGeniusAI_la-BattleLogic.Tpo -c -o libGeniusAI_la-BattleLogic.lo `test -f 'BattleLogic.cpp' || echo '$(srcdir)/'`BattleLogic.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libGeniusAI_la-BattleLogic.Tpo $(DEPDIR)/libGeniusAI_la-BattleLogic.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='BattleLogic.cpp' object='libGeniusAI_la-BattleLogic.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -c -o libGeniusAI_la-BattleLogic.lo `test -f 'BattleLogic.cpp' || echo '$(srcdir)/'`BattleLogic.cpp
+
+libGeniusAI_la-CGeniusAI.lo: CGeniusAI.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -MT libGeniusAI_la-CGeniusAI.lo -MD -MP -MF $(DEPDIR)/libGeniusAI_la-CGeniusAI.Tpo -c -o libGeniusAI_la-CGeniusAI.lo `test -f 'CGeniusAI.cpp' || echo '$(srcdir)/'`CGeniusAI.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libGeniusAI_la-CGeniusAI.Tpo $(DEPDIR)/libGeniusAI_la-CGeniusAI.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CGeniusAI.cpp' object='libGeniusAI_la-CGeniusAI.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -c -o libGeniusAI_la-CGeniusAI.lo `test -f 'CGeniusAI.cpp' || echo '$(srcdir)/'`CGeniusAI.cpp
+
+libGeniusAI_la-DLLMain.lo: DLLMain.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -MT libGeniusAI_la-DLLMain.lo -MD -MP -MF $(DEPDIR)/libGeniusAI_la-DLLMain.Tpo -c -o libGeniusAI_la-DLLMain.lo `test -f 'DLLMain.cpp' || echo '$(srcdir)/'`DLLMain.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libGeniusAI_la-DLLMain.Tpo $(DEPDIR)/libGeniusAI_la-DLLMain.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='DLLMain.cpp' object='libGeniusAI_la-DLLMain.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -c -o libGeniusAI_la-DLLMain.lo `test -f 'DLLMain.cpp' || echo '$(srcdir)/'`DLLMain.cpp
+
+libGeniusAI_la-GeneralAI.lo: GeneralAI.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -MT libGeniusAI_la-GeneralAI.lo -MD -MP -MF $(DEPDIR)/libGeniusAI_la-GeneralAI.Tpo -c -o libGeniusAI_la-GeneralAI.lo `test -f 'GeneralAI.cpp' || echo '$(srcdir)/'`GeneralAI.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libGeniusAI_la-GeneralAI.Tpo $(DEPDIR)/libGeniusAI_la-GeneralAI.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='GeneralAI.cpp' object='libGeniusAI_la-GeneralAI.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -c -o libGeniusAI_la-GeneralAI.lo `test -f 'GeneralAI.cpp' || echo '$(srcdir)/'`GeneralAI.cpp
+
+libGeniusAI_la-neuralNetwork.lo: neuralNetwork.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -MT libGeniusAI_la-neuralNetwork.lo -MD -MP -MF $(DEPDIR)/libGeniusAI_la-neuralNetwork.Tpo -c -o libGeniusAI_la-neuralNetwork.lo `test -f 'neuralNetwork.cpp' || echo '$(srcdir)/'`neuralNetwork.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libGeniusAI_la-neuralNetwork.Tpo $(DEPDIR)/libGeniusAI_la-neuralNetwork.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='neuralNetwork.cpp' object='libGeniusAI_la-neuralNetwork.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libGeniusAI_la_CXXFLAGS) $(CXXFLAGS) -c -o libGeniusAI_la-neuralNetwork.lo `test -f 'neuralNetwork.cpp' || echo '$(srcdir)/'`neuralNetwork.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo
@@ -486,13 +546,15 @@ distdir: $(DISTFILES)
 	  fi; \
 	done
 check-am: all-am
-check: check-am
+check: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(LTLIBRARIES)
 installdirs:
 	for dir in "$(DESTDIR)$(vcmiaidir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
-install: install-am
+install: $(BUILT_SOURCES)
+	$(MAKE) $(AM_MAKEFLAGS) install-am
 install-exec: install-exec-am
 install-data: install-data-am
 uninstall: uninstall-am
@@ -517,6 +579,7 @@ distclean-generic:
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
 	@echo "it deletes files that may require special tools to rebuild."
+	-test -z "$(BUILT_SOURCES)" || rm -f $(BUILT_SOURCES)
 clean: clean-am
 
 clean-am: clean-generic clean-libtool clean-vcmiaiLTLIBRARIES \
@@ -588,7 +651,7 @@ ps-am:
 
 uninstall-am: uninstall-vcmiaiLTLIBRARIES
 
-.MAKE: install-am install-strip
+.MAKE: all check install install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-generic \
 	clean-libtool clean-vcmiaiLTLIBRARIES ctags distclean \
@@ -604,6 +667,8 @@ uninstall-am: uninstall-vcmiaiLTLIBRARIES
 	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
 	tags uninstall uninstall-am uninstall-vcmiaiLTLIBRARIES
 
+StdInc.h.gch: StdInc.h
+	$(CXXCOMPILE) -DVCMI_DLL -fPIC -c $<
 
 # Tell versions [3.59,3.63) of GNU make to not export all variables.
 # Otherwise a system limit (for SysV at least) may be exceeded.

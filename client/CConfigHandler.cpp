@@ -1,11 +1,9 @@
-//#define BOOST_SPIRIT_DEBUG
-#include "CConfigHandler.h"
-#include <boost/bind.hpp>
-#include <boost/function.hpp>
+#include "StdInc.h"
 #include <boost/version.hpp>
-#include <boost/foreach.hpp>
-#include <fstream>
+#include "CConfigHandler.h"
+
 #include "../lib/JsonNode.h"
+#include "../lib/GameConstants.h"
 
 using namespace config;
 
@@ -148,10 +146,11 @@ CConfigHandler::~CConfigHandler(void)
 void config::CConfigHandler::init()
 {
 	std::vector<char> settings;
-	std::ifstream ifs(DATA_DIR "/config/settings.txt");
+	std::string settingsDir = GameConstants::DATA_DIR + "/config/settings.txt";
+	std::ifstream ifs(settingsDir.c_str());
 	if(!ifs)
 	{
-		tlog1 << "Cannot open " DATA_DIR "/config/settings.txt !" << std::endl;
+		tlog1 << "Cannot open " << GameConstants::DATA_DIR << "/config/settings.txt !" << std::endl;
 		return;
 	}
 	ifs.unsetf(std::ios::skipws); //  Turn of white space skipping on the stream
@@ -170,7 +169,7 @@ void config::CConfigHandler::init()
 		tlog2 << "Not entire config/settings.txt parsed!\n";
 
 	/* Read resolutions. */
-	const JsonNode config(DATA_DIR "/config/resolutions.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/resolutions.json");
 	const JsonVector &guisettings_vec = config["GUISettings"].Vector();
 
 	BOOST_FOREACH(const JsonNode &g, guisettings_vec) {

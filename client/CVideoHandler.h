@@ -1,7 +1,6 @@
-#ifndef __CVIDEOHANDLER_H__
-#define __CVIDEOHANDLER_H__
+#pragma once
 
-#include "../global.h"
+
 #include "CSndHandler.h"
 
 struct SDL_Surface;
@@ -289,7 +288,7 @@ public:
 	
 	const char *data;			// video buffer
 	int length;					// video size
-	unsigned int offset;		// current data offset
+	ui32 offset;		// current data offset
 };
 
 #define VIDEO_TAVERN "tavern.mjpg"
@@ -301,5 +300,3 @@ public:
 #define VIDEO_SURRENDER "surrender.mjpg"
 
 #endif
-
-#endif // __CVIDEOHANDLER_H__

@@ -1,6 +1,8 @@
 #pragma once
-#include "../global.h"
-#include <set>
+
+
+#include "BattleHex.h"
+#include "int3.h"
 
 class CGTownInstance;
 class CCreature;
@@ -33,7 +35,7 @@ struct SetStackEffect;
 struct BattleTriggerEffect;
 
 
-class DLL_EXPORT IBattleEventsReceiver
+class DLL_LINKAGE IBattleEventsReceiver
 {
 public:
 	virtual void actionFinished(const BattleAction *action){};//occurs AFTER every action taken by any stack or by the hero
@@ -43,7 +45,7 @@ public:
 	virtual void battleEnd(const BattleResult *br){};
 	virtual void battleNewRoundFirst(int round){}; //called at the beginning of each turn before changes are applied;
 	virtual void battleNewRound(int round){}; //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	virtual void battleStackMoved(const CStack * stack, std::vector<THex> dest, int distance){};
+	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance){};
 	virtual void battleSpellCast(const BattleSpellCast *sc){};
 	virtual void battleStacksEffectsSet(const SetStackEffect & sse){};//called when a specific effect is set to stacks
 	virtual void battleTriggerEffect(const BattleTriggerEffect & bte){}; //called for various one-shot effects
@@ -55,7 +57,7 @@ public:
 	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr){}; //called when certain stack is completely removed from battlefield
 };
 
-class DLL_EXPORT IGameEventsReceiver
+class DLL_LINKAGE IGameEventsReceiver
 {
 public:
 	virtual void buildChanged(const CGTownInstance *town, int buildingID, int what){}; //what: 1 - built, 2 - demolished

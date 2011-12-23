@@ -1,4 +1,6 @@
+#include "StdInc.h"
 #include "CSpellWindow.h"
+
 #include "Graphics.h"
 #include "CDefHandler.h"
 #include "../lib/CObjectHandler.h"
@@ -6,21 +8,17 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "CVideoHandler.h"
 #include "CAdvmapInterface.h"
-#include "CBattleInterface.h"
+#include "BattleInterface/CBattleInterface.h"
 #include "CGameInfo.h"
-#include "SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "CMessage.h"
 #include "CPlayerInterface.h"
 #include "../CCallback.h"
-#include <boost/bind.hpp>
-#include <sstream>
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/foreach.hpp>
-#include <boost/format.hpp>
 #include "CBitmapHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/BattleState.h"
+#include "../lib/GameConstants.h"
+#include "UIFramework/CGuiHandler.h"
 
 /*
  * CSpellWindow.cpp, part of VCMI engine
@@ -33,7 +31,6 @@
  */
 
 extern SDL_Surface * screen;
-extern SDL_Color tytulowy, zwykly, darkTitle;
 
 SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL,
 	const std::string & textR, boost::function<void()> funcHon, boost::function<void()> funcHoff, CPlayerInterface * _myInt)
@@ -217,7 +214,7 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHe
 
 	selectedTab = battleSpellsOnly ? LOCPLINT->spellbookSettings.spellbookLastTabBattle : LOCPLINT->spellbookSettings.spellbookLastTabAdvmap;
 	currentPage = battleSpellsOnly ? LOCPLINT->spellbookSettings.spellbookLastPageBattle : LOCPLINT->spellbookSettings.spellbokLastPageAdvmap;
-	abetw(currentPage, 0, pagesWithinCurrentTab());
+	vstd::abetween(currentPage, 0, pagesWithinCurrentTab());
 	computeSpellsPerArea();
 }
 
@@ -320,14 +317,14 @@ void CSpellWindow::fRcornerb()
 	GH.breakEventHandling();
 }
 
-void CSpellWindow::showAll(SDL_Surface *to)
+void CSpellWindow::showAll(SDL_Surface * to)
 {
 	CSDL_Ext::blitSurface(background, NULL, to, &pos);
 	blitAt(spellTab->ourImages[selectedTab].bitmap, 524 + pos.x, 88 + pos.y, to);
 
 	std::ostringstream mana;
 	mana<<myHero->mana;
-	CSDL_Ext::printAtMiddle(mana.str(), pos.x+435, pos.y +426, FONT_SMALL, tytulowy, to);
+	CSDL_Ext::printAtMiddle(mana.str(), pos.x+435, pos.y +426, FONT_SMALL, Colors::Jasmine, to);
 	
 	statusBar->showAll(to);
 
@@ -536,11 +533,11 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 		case SDLK_DOWN:
 		{
 			bool down = key.keysym.sym == SDLK_DOWN;
-			static const int schoolsOrder[] = {0, 3, 1, 2, 4};
+			static const int schoolsOrder[] = { 0, 3, 1, 2, 4 };
 			int index = -1;
 			while(schoolsOrder[++index] != selectedTab);
 			index += (down ? 1 : -1);
-			abetw(index, 0, ARRAY_COUNT(schoolsOrder) - 1);
+			vstd::abetween(index, 0, ARRAY_COUNT(schoolsOrder) - 1);
 			if(selectedTab != schoolsOrder[index])
 				selectSchool(schoolsOrder[index]);
 			break;
@@ -553,12 +550,12 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 		if(LOCPLINT->altPressed())
 		{
 			SDLKey hlpKey = key.keysym.sym;
-			if(isNumKey(hlpKey, false))
+			if(CGuiHandler::isNumKey(hlpKey, false))
 			{
 				if(hlpKey == SDLK_KP_PLUS)
 					hlpKey = SDLK_EQUALS;
 				else
-					hlpKey = numToDigit(hlpKey);
+					hlpKey = CGuiHandler::numToDigit(hlpKey);
 			}
 
 			static const SDLKey spellSelectors[] = {SDLK_1, SDLK_2, SDLK_3, SDLK_4, SDLK_5, SDLK_6, SDLK_7, SDLK_8, SDLK_9, SDLK_0, SDLK_MINUS, SDLK_EQUALS};
@@ -613,7 +610,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		if((sp->combatSpell && !owner->myInt->battleInt)
 			|| (!sp->combatSpell && owner->myInt->battleInt))
 		{
-			std::vector<SComponent*> hlp(1, new SComponent(SComponent::spell, mySpell, 0));
+			std::vector<CComponent*> hlp(1, new CComponent(CComponent::spell, mySpell, 0));
 			LOCPLINT->showInfoDialog(sp->descriptions[schoolLevel], hlp);
 			return;
 		}
@@ -621,23 +618,23 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		//we will cast a spell
 		if(sp->combatSpell && owner->myInt->battleInt && owner->myInt->cb->battleCanCastSpell()) //if battle window is open
 		{
-			SpellCasting::ESpellCastProblem problem = owner->myInt->cb->battleCanCastThisSpell(sp);
+			ESpellCastProblem::ESpellCastProblem problem = owner->myInt->cb->battleCanCastThisSpell(sp);
 			switch (problem)
 			{
-			case SpellCasting::OK:
+			case ESpellCastProblem::OK:
 				{
 					int spell = mySpell;
 					owner->fexitb();
 					owner->myInt->battleInt->castThisSpell(spell);
 				}
 				break;
-			case SpellCasting::ANOTHER_ELEMENTAL_SUMMONED:
+			case ESpellCastProblem::ANOTHER_ELEMENTAL_SUMMONED:
 				{
 					std::string text = CGI->generaltexth->allTexts[538], summoner, elemental, caster;
 					std::vector<const CStack *> stacks = owner->myInt->cb->battleGetStacks();
 					BOOST_FOREACH(const CStack * s, stacks)
 					{
-						if(vstd::contains(s->state, SUMMONED))
+						if(vstd::contains(s->state, EBattleStackState::SUMMONED))
 						{
 							elemental = s->getCreature()->namePl;
 							summoner = owner->myInt->cb->battleGetFightingHero(!s->attackerOwned)->name;
@@ -658,14 +655,14 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					owner->myInt->showInfoDialog(text);
 				}
 				break;
-			case SpellCasting::SPELL_LEVEL_LIMIT_EXCEEDED:
+			case ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED:
 				{
 					std::string text = CGI->generaltexth->allTexts[541], caster = owner->myHero->name;
 					text = boost::str(boost::format(text) % caster);
 					owner->myInt->showInfoDialog(text);
 				}
 				break;
-			case SpellCasting::NO_APPROPRIATE_TARGET:
+			case ESpellCastProblem::NO_APPROPRIATE_TARGET:
 				{
 					owner->myInt->showInfoDialog(CGI->generaltexth->allTexts[185]);
 				}
@@ -807,7 +804,7 @@ void CSpellWindow::SpellArea::hover(bool on)
 	}
 }
 
-void CSpellWindow::SpellArea::showAll(SDL_Surface *to)
+void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 {
 	if(mySpell < 0)
 		return;
@@ -821,13 +818,13 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface *to)
 	if(spellCost > owner->myHero->mana) //hero cannot cast this spell
 	{
 		static const SDL_Color unavailableSpell = {239, 189, 33, 0};
-		firstLineColor = zwykly;
+		firstLineColor = Colors::Cornsilk;
 		secondLineColor = unavailableSpell;
 	}
 	else
 	{
-		firstLineColor = tytulowy;
-		secondLineColor = zwykly;
+		firstLineColor = Colors::Jasmine;
+		secondLineColor = Colors::Cornsilk;
 	}
 	//printing spell's name
 	CSDL_Ext::printAtMiddle(spell->name, pos.x + 39, pos.y + 70, FONT_TINY, firstLineColor, to);

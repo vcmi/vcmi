@@ -1,16 +1,10 @@
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "Graphics.h"
+
 #include "CDefHandler.h"
-#include "SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 #include <SDL_ttf.h>
-#include <boost/assign/std/vector.hpp> 
-#include <sstream>
-#include <iomanip>
-#include <boost/thread.hpp>
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
-#include <boost/foreach.hpp>
-#include "../CThreadHelper.h"
+#include "../lib/CThreadHelper.h"
 #include "CGameInfo.h"
 #include "../lib/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
@@ -25,6 +19,8 @@
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
+#include "../lib/GameConstants.h"
+#include "../lib/CStopWatch.h"
 
 using namespace boost::assign;
 using namespace CSDL_Ext;
@@ -54,7 +50,7 @@ SDL_Surface * Graphics::drawHeroInfoWin(const InfoAboutHero &curh)
 	SDL_Surface * ret = SDL_DisplayFormat(hInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
 
-	printAt(curh.name,75,13,FONT_SMALL,zwykly,ret); //name
+	printAt(curh.name,75,13,FONT_SMALL,Colors::Cornsilk,ret); //name
 	blitAt(graphics->portraitLarge[curh.portrait],11,12,ret); //portrait
 
 	//army
@@ -64,25 +60,25 @@ SDL_Surface * Graphics::drawHeroInfoWin(const InfoAboutHero &curh)
 		if(curh.details)
 		{
 			SDL_itoa((*i).second.count,buf,10);
-			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
+			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,Colors::Cornsilk,ret);
 		}
 		else
 		{
-			printAtMiddle(VLC->generaltexth->arraytxt[174 + 3*(i->second.count)],slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
+			printAtMiddle(VLC->generaltexth->arraytxt[174 + 3*(i->second.count)],slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,Colors::Cornsilk,ret);
 		}
 	}
 
 	if(curh.details)
 	{
-		for (int i = 0; i < PRIMARY_SKILLS; i++)
+		for (int i = 0; i < GameConstants::PRIMARY_SKILLS; i++)
 		{
 			SDL_itoa(curh.details->primskills[i], buf, 10);
-			printAtMiddle(buf,84+28*i,70,FONT_SMALL,zwykly,ret);
+			printAtMiddle(buf,84+28*i,70,FONT_SMALL,Colors::Cornsilk,ret);
 		}
 
 		//mana points
 		SDL_itoa(curh.details->mana,buf,10);
-		printAtMiddle(buf,167,108,FONT_TINY,zwykly,ret); 
+		printAtMiddle(buf,167,108,FONT_TINY,Colors::Cornsilk,ret); 
 
 		blitAt(morale22->ourImages[curh.details->morale+3].bitmap,14,84,ret);	//luck
 		blitAt(luck22->ourImages[curh.details->morale+3].bitmap,14,101,ret);	//morale
@@ -111,7 +107,7 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 	SDL_Surface * ret = SDL_DisplayFormat(tInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
 
-	printAt(curh.name,75,12,FONT_SMALL,zwykly,ret); //name
+	printAt(curh.name,75,12,FONT_SMALL,Colors::Cornsilk,ret); //name
 	int pom = curh.fortLevel - 1; if(pom<0) pom = 3; //fort pic id
 	blitAt(forts->ourImages[pom].bitmap,115,42,ret); //fort
 
@@ -124,14 +120,14 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 		{
 			// Show exact creature amount.
 			SDL_itoa((*i).second.count,buf,10);
-			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
+			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,Colors::Cornsilk,ret);
 		}
 		else
 		{
 			// Show only a rough amount for creature stacks.
 			// TODO: Deal with case when no information at all about size shold be presented.
 			std::string roughAmount = curh.obj->getRoughAmount(i->first);
-			printAtMiddle(roughAmount,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,zwykly,ret);
+			printAtMiddle(roughAmount,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,Colors::Cornsilk,ret);
 		}
 	}
 
@@ -139,7 +135,7 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 	if (curh.tType) {
 		pom = curh.tType->typeID*2;
 		if (!curh.fortLevel)
-			pom += F_NUMBER*2;
+			pom += GameConstants::F_NUMBER*2;
 		if(curh.built)
 			pom++;
 		blitAt(bigTownPic->ourImages[pom].bitmap,13,13,ret);
@@ -153,7 +149,7 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 
 		if (curh.details->goldIncome >= 0) {
 			SDL_itoa(curh.details->goldIncome, buf, 10); //gold income
-			printAtMiddle(buf, 167, 70, FONT_TINY, zwykly, ret);
+			printAtMiddle(buf, 167, 70, FONT_TINY, Colors::Cornsilk, ret);
 		}
 		if(curh.details->garrisonedHero) //garrisoned hero icon
 			blitAt(graphics->heroInGarrison,158,87,ret);
@@ -167,7 +163,7 @@ void Graphics::loadPaletteAndColors()
 	std::string pals = bitmaph->getTextFile("PLAYERS.PAL", FILE_OTHER);
 	playerColorPalette = new SDL_Color[256];
 	neutralColor = new SDL_Color;
-	playerColors = new SDL_Color[PLAYER_LIMIT];
+	playerColors = new SDL_Color[GameConstants::PLAYER_LIMIT];
 	int startPoint = 24; //beginning byte; used to read
 	for(int i=0; i<256; ++i)
 	{
@@ -181,7 +177,8 @@ void Graphics::loadPaletteAndColors()
 
 	neutralColorPalette = new SDL_Color[32];
 	std::ifstream ncp;
-	ncp.open(DATA_DIR "/config/NEUTRAL.PAL", std::ios::binary);
+	std::string neutralFile = GameConstants::DATA_DIR + "/config/NEUTRAL.PAL";
+	ncp.open(neutralFile.c_str(), std::ios::binary);
 	for(int i=0; i<32; ++i)
 	{
 		ncp.read((char*)&neutralColorPalette[i].r,1);
@@ -202,7 +199,7 @@ void Graphics::loadPaletteAndColors()
 		playerColors[i].unused = 0;
 	}
 	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; neutralColor->unused = 0x0;//gray
-	const JsonNode config(DATA_DIR "/config/town_pictures.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/town_pictures.json");
 	BOOST_FOREACH(const JsonNode &p, config["town_pictures"].Vector()) {
 
 		townBgs.push_back(p["town_background"].String());
@@ -213,7 +210,7 @@ void Graphics::loadPaletteAndColors()
 
 void Graphics::initializeBattleGraphics()
 {
-	const JsonNode config(DATA_DIR "/config/battles_graphics.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/battles_graphics.json");
 	
 	// Reserve enough space for the terrains
 	int idx = config["backgrounds"].Vector().size();
@@ -302,14 +299,14 @@ Graphics::Graphics()
 	tasks += GET_DEF_ESS(spellscr,"SPELLSCR.DEF");
 	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
 
-	const JsonNode config(DATA_DIR "/config/creature_backgrounds.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/creature_backgrounds.json");
 	BOOST_FOREACH(const JsonNode &b, config["backgrounds"].Vector()) {
 		const int id = b["id"].Float();
 		tasks += GET_SURFACE(backgrounds[id], b["bg130"].String());
 		tasks += GET_SURFACE(backgroundsm[id], b["bg120"].String());
 	}
 
-	CThreadHelper th(&tasks,std::max((unsigned int)1,boost::thread::hardware_concurrency()));
+	CThreadHelper th(&tasks,std::max((ui32)1,boost::thread::hardware_concurrency()));
 	th.run();
 
 	for(size_t y=0; y < heroMoveArrows->ourImages.size(); ++y)
@@ -336,7 +333,7 @@ Graphics::Graphics()
 }
 void Graphics::loadHeroPortraits()
 {	
-	const JsonNode config(DATA_DIR "/config/portraits.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/portraits.json");
 
 	BOOST_FOREACH(const JsonNode &portrait_node, config["hero_portrait"].Vector()) {
 		std::string filename = portrait_node["filename"].String();
@@ -362,7 +359,7 @@ void Graphics::loadHeroPortraits()
 
 void Graphics::loadWallPositions()
 {
-	const JsonNode config(DATA_DIR "/config/wall_pos.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/wall_pos.json");
 
 	BOOST_FOREACH(const JsonNode &town, config["towns"].Vector()) {
 		int townID = town["id"].Float();
@@ -381,7 +378,7 @@ void Graphics::loadHeroAnims()
 	std::vector<std::pair<int,int> > rotations; //first - group number to be rotated1, second - group number after rotation1
 	rotations += std::make_pair(6,10), std::make_pair(7,11), std::make_pair(8,12), std::make_pair(1,13),
 		std::make_pair(2,14), std::make_pair(3,15);
-	for(size_t i=0; i<F_NUMBER * 2; ++i)
+	for(size_t i=0; i<GameConstants::F_NUMBER * 2; ++i)
 	{
 		std::ostringstream nm;
 		nm << "AH" << std::setw(2) << std::setfill('0') << i << "_.DEF";
@@ -488,7 +485,7 @@ void Graphics::loadHeroFlags(std::pair<std::vector<CDefEssential *> Graphics::*,
 void Graphics::loadHeroFlags()
 {
 	using namespace boost::assign;
-	timeHandler th;
+	CStopWatch th;
 	std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > pr[4];
 	pr[0].first = &Graphics::flags1;
 	pr[0].second+=("ABF01L.DEF"),("ABF01G.DEF"),("ABF01R.DEF"),("ABF01D.DEF"),("ABF01B.DEF"),
@@ -508,7 +505,7 @@ void Graphics::loadHeroFlags()
 		grupa.create_thread(boost::bind(&Graphics::loadHeroFlags,this,boost::ref(pr[g]),true));
 	}
 	grupa.join_all();
-	tlog0 << "Loading and transforming heroes' flags: "<<th.getDif()<<std::endl;
+	tlog0 << "Loading and transforming heroes' flags: "<<th.getDiff()<<std::endl;
 }
 SDL_Surface * Graphics::getPic(int ID, bool fort, bool builded)
 {
@@ -517,8 +514,8 @@ SDL_Surface * Graphics::getPic(int ID, bool fort, bool builded)
 	else if (ID==-2)
 		return smallIcons->ourImages[1].bitmap;
 	else if (ID==-3)
-		return smallIcons->ourImages[2+F_NUMBER*4].bitmap;
-	else if (ID>F_NUMBER || ID<-3)
+		return smallIcons->ourImages[2+GameConstants::F_NUMBER*4].bitmap;
+	else if (ID>GameConstants::F_NUMBER || ID<-3)
 #ifndef __GNUC__
 		throw new std::exception("Invalid ID");
 #else
@@ -528,7 +525,7 @@ SDL_Surface * Graphics::getPic(int ID, bool fort, bool builded)
 	{
 		int pom = 3;
 		if(!fort)
-			pom+=F_NUMBER*2;
+			pom+=GameConstants::F_NUMBER*2;
 		pom += ID*2;
 		if (!builded)
 			pom--;
@@ -543,7 +540,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
 	if(sur->format->BitsPerPixel == 8)
 	{
 		SDL_Color *palette = NULL;
-		if(player < PLAYER_LIMIT && player >= 0)
+		if(player < GameConstants::PLAYER_LIMIT && player >= 0)
 		{
 			palette = playerColorPalette + 32*player;
 		}
@@ -633,7 +630,8 @@ void Graphics::loadTrueType()
 	bool ttfPresent = false;//was TTF initialised or not
 	for(int i = 0; i < FONTS_NUMBER; i++)
 		fontsTrueType[i] = NULL;
-	std::ifstream ff(DATA_DIR "/config/fonts.txt");
+	std::string fontsFile = GameConstants::DATA_DIR + "/config/fonts.txt";
+	std::ifstream ff(fontsFile.c_str());
 	while(!ff.eof())
 	{
 		int enabl, fntID, fntSize;
@@ -653,7 +651,7 @@ void Graphics::loadTrueType()
 				TTF_Init();
 				atexit(TTF_Quit);
 			};
-			fntName = DATA_DIR + ( "/Fonts/" + fntName);
+			fntName = GameConstants::DATA_DIR + ( "/Fonts/" + fntName);
 			fontsTrueType[fntID] = TTF_OpenFont(fntName.c_str(),fntSize);
 		}
 	}
@@ -664,7 +662,7 @@ void Graphics::loadTrueType()
 Font * Graphics::loadFont( const char * name )
 {
 	int len = 0;
-	unsigned char * hlp = bitmaph->giveFile(name, FILE_FONT, &len);
+	ui8 * hlp = bitmaph->giveFile(name, FILE_FONT, &len);
 	if(!hlp || !len)
 	{
 		tlog1 << "Error: cannot load font: " << name << std::endl;
@@ -707,7 +705,7 @@ CDefEssential * Graphics::getDef( const CGDefInfo * info )
 void Graphics::loadErmuToPicture()
 {
 	//loading ERMU to picture
-	const JsonNode config(DATA_DIR "/config/ERMU_to_picture.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/ERMU_to_picture.json");
 	int etp_idx = 0;
 	BOOST_FOREACH(const JsonNode &etp, config["ERMU_to_picture"].Vector()) {
 		int idx = 0;
@@ -722,7 +720,7 @@ void Graphics::loadErmuToPicture()
 	assert (etp_idx == 44);
 }
 
-Font::Font(unsigned char *Data)
+Font::Font(ui8 *Data)
 {
 	data = Data;
 	int i = 0;
@@ -758,7 +756,7 @@ int Font::getWidth(const char *text ) const
 
 	for(int i = 0; i < length; i++)
 	{
-		unsigned char c = text[i];
+		ui8 c = text[i];
 		ret += chars[c].width + chars[c].unknown1 + chars[c].unknown2;
 	}
 
@@ -767,7 +765,7 @@ int Font::getWidth(const char *text ) const
 
 int Font::getCharWidth( char c ) const
 {
-	const Char &C = chars[(unsigned char)c];
+	const Char &C = chars[(ui8)c];
 	return C.width + C.unknown1 + C.unknown2;;
 }
 

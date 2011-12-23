@@ -1,17 +1,7 @@
-#define VCMI_DLL
-#include "../stdafx.h"
-#include "zlib.h"
+#include "StdInc.h"
 #include "CLodHandler.h"
-#include <sstream>
-#include <algorithm>
-#include <cctype>
-#include <cstring>
-#include <iostream>
-#include "boost/filesystem.hpp"
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/thread.hpp>
-#include <boost/foreach.hpp>
+
+#include "zlib.h"
 #include "vcmi_endian.h"
 #include "VCMIDirs.h"
 #ifdef max
@@ -30,7 +20,7 @@ VCMIDirs GVCMIDirs;
  *
  */
 
-std::string readString(const unsigned char * bufor, int &i)
+std::string readString(const ui8 * bufor, int &i)
 {					
 	int len = read_le_u32(bufor + i); i+=4;
 	assert(len >= 0 && len <= 500000); //not too long
@@ -56,7 +46,7 @@ void CLodHandler::convertName(std::string &filename, std::string *extension)
 	}
 }
 
-unsigned char * CLodHandler::giveFile(std::string fname, LodFileType type, int * length)
+ui8 * CLodHandler::giveFile(std::string fname, LodFileType type, int * length)
 {
 	convertName(fname);
 	boost::unordered_set<Entry>::const_iterator en_it = entries.find(Entry(fname, type));
@@ -71,11 +61,11 @@ unsigned char * CLodHandler::giveFile(std::string fname, LodFileType type, int *
 	if(length) *length = ourEntry.realSize;
 	mutex->lock();
 
-	unsigned char * outp;
+	ui8 * outp;
 	if (ourEntry.offset<0) //file is in the sprites/ folder; no compression
 	{
 		int result;
-		outp = new unsigned char[ourEntry.realSize];
+		outp = new ui8[ourEntry.realSize];
 		FILE * f = fopen((myDir + "/" + ourEntry.realName).c_str(), "rb");
 		if (f)
 		{
@@ -96,7 +86,7 @@ unsigned char * CLodHandler::giveFile(std::string fname, LodFileType type, int *
 	}
 	else if (ourEntry.size==0) //file is not compressed
 	{
-		outp = new unsigned char[ourEntry.realSize];
+		outp = new ui8[ourEntry.realSize];
 
 		LOD.seekg(ourEntry.offset, std::ios::beg);
 		LOD.read((char*)outp, ourEntry.realSize);
@@ -105,11 +95,11 @@ unsigned char * CLodHandler::giveFile(std::string fname, LodFileType type, int *
 	}
 	else //we will decompress file
 	{
-		outp = new unsigned char[ourEntry.size];
+		outp = new ui8[ourEntry.size];
 
 		LOD.seekg(ourEntry.offset, std::ios::beg);
 		LOD.read((char*)outp, ourEntry.size);
-		unsigned char * decomp = NULL;
+		ui8 * decomp = NULL;
 		infs2(outp, ourEntry.size, ourEntry.realSize, decomp);
 		mutex->unlock();
 		delete[] outp;
@@ -134,12 +124,12 @@ bool CLodHandler::haveFile(std::string name, LodFileType type)
 	return vstd::contains(entries, Entry(name, type));
 }
 
-DLL_EXPORT int CLodHandler::infs2(unsigned char * in, int size, int realSize, unsigned char *& out, int wBits)
+DLL_LINKAGE int CLodHandler::infs2(ui8 * in, int size, int realSize, ui8 *& out, int wBits)
 {
 	int ret;
 	unsigned have;
 	z_stream strm;
-	out = new unsigned char [realSize];
+	out = new ui8 [realSize];
 	int latPosOut = 0;
 
 	/* allocate inflate state */
@@ -201,7 +191,7 @@ DLL_EXPORT int CLodHandler::infs2(unsigned char * in, int size, int realSize, un
 void CLodHandler::extractFile(const std::string FName, const std::string name, LodFileType type)
 {
 	int len; //length of file to write
-	unsigned char * outp = giveFile(name, type, &len);
+	ui8 * outp = giveFile(name, type, &len);
 	std::ofstream out;
 	out.open(FName.c_str(), std::ios::binary);
 	if(!out.is_open())
@@ -271,7 +261,7 @@ void CLodHandler::init(const std::string lodFile, const std::string dirName)
 	struct LodEntry *lodEntries = new struct LodEntry[totalFiles];
 	LOD.read((char *)lodEntries, sizeof(struct LodEntry) * totalFiles);
 
-	for (unsigned int i=0; i<totalFiles; i++)
+	for (ui32 i=0; i<totalFiles; i++)
 	{
 		Entry entry;
 		initEntry(entry, lodEntries[i].filename);
@@ -327,7 +317,7 @@ void CLodHandler::init(const std::string lodFile, const std::string dirName)
 std::string CLodHandler::getTextFile(std::string name, LodFileType type)
 {
 	int length=-1;
-	unsigned char* data = giveFile(name, type, &length);
+	ui8* data = giveFile(name, type, &length);
 
 	if (!data) {
 		tlog1<<"Fatal error. Missing game file: " << name << ". Aborting!"<<std::endl;
@@ -351,7 +341,7 @@ CLodHandler::~CLodHandler()
 }
 
 //It is possible to use uncompress function from zlib but we  need to know decompressed size (not present in compressed data)
-unsigned char * CLodHandler::getUnpackedData(unsigned char *data, size_t inputSize, int * outputSize)
+ui8 * CLodHandler::getUnpackedData(ui8 *data, size_t inputSize, int * outputSize)
 {
 	std::string filename = GVCMIDirs.UserPath + "/tmp_gzip";
 
@@ -359,26 +349,26 @@ unsigned char * CLodHandler::getUnpackedData(unsigned char *data, size_t inputSi
 	fwrite(data, 1, inputSize, file);
 	fclose(file);
 
-	unsigned char * ret = getUnpackedFile(filename, outputSize);
+	ui8 * ret = getUnpackedFile(filename, outputSize);
 	remove(filename.c_str());
 	delete [] data;
 	return ret;
 }
 
-unsigned char * CLodHandler::getUnpackedFile( const std::string & path, int * sizeOut )
+ui8 * CLodHandler::getUnpackedFile( const std::string & path, int * sizeOut )
 {
 	const int bufsize = 65536;
 	int mapsize = 0;
 
 	gzFile map = gzopen(path.c_str(), "rb");
 	assert(map);
-	std::vector<unsigned char *> mapstr;
+	std::vector<ui8 *> mapstr;
 
 	// Read a map by chunks
 	// We could try to read the map size directly (cf RFC 1952) and then read
 	// directly the whole map, but that would create more problems.
 	do {
-		unsigned char *buf = new unsigned char[bufsize];
+		ui8 *buf = new ui8[bufsize];
 
 		int ret = gzread(map, buf, bufsize);
 		if (ret == 0 || ret == -1) {
@@ -393,9 +383,9 @@ unsigned char * CLodHandler::getUnpackedFile( const std::string & path, int * si
 	gzclose(map);
 
 	// Now that we know the uncompressed size, reassemble the chunks
-	unsigned char *initTable = new unsigned char[mapsize];
+	ui8 *initTable = new ui8[mapsize];
 
-	std::vector<unsigned char *>::iterator it;
+	std::vector<ui8 *>::iterator it;
 	int offset;
 	int tocopy = mapsize;
 	for (it = mapstr.begin(), offset = 0; 

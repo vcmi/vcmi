@@ -1,12 +1,7 @@
-#ifndef __CONNECTION_H__
-#define __CONNECTION_H__
-#include "../global.h"
-#include <string>
-#include <vector>
-#include <set>
-#include <list>
+#pragma once
+
+
 #include <typeinfo> //XXX this is in namespace std if you want w/o use typeinfo.h?
-#include <assert.h>
 
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/type_traits/is_enum.hpp>
@@ -16,7 +11,6 @@
 #include <boost/type_traits/is_array.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
 #include <boost/type_traits/remove_const.hpp>
-#include <boost/unordered_set.hpp>
 
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/equal_to.hpp>
@@ -34,7 +28,7 @@ class CCreature;
 class LibClasses;
 class CHero;
 struct CPack;
-extern DLL_EXPORT LibClasses * VLC;
+extern DLL_LINKAGE LibClasses * VLC;
 namespace mpl = boost::mpl;
 
 /*
@@ -86,7 +80,7 @@ struct TypeComparer
 	}
 };
 
-class DLL_EXPORT CTypeList
+class DLL_LINKAGE CTypeList
 {
 	typedef std::multimap<const std::type_info *,ui16,TypeComparer> TTypeMap;
 	TTypeMap types;
@@ -114,7 +108,7 @@ public:
 	}
 };
 
-extern DLL_EXPORT CTypeList typeList;
+extern DLL_LINKAGE CTypeList typeList;
 
 template<typename Ser,typename T>
 struct SavePrimitive
@@ -245,7 +239,7 @@ struct VectorisedObjectInfo
 };
 
 /// Class which is responsible for storing and loading data.
-class DLL_EXPORT CSerializer
+class DLL_LINKAGE CSerializer
 {
 public:
 	typedef std::map<const std::type_info *, boost::any, TypeComparer> TTypeVecMap;
@@ -314,7 +308,7 @@ public:
 	void addStdVecItems(CGameState *gs, LibClasses *lib = VLC);
 };
 
-class DLL_EXPORT CSaverBase : public virtual CSerializer
+class DLL_LINKAGE CSaverBase : public virtual CSerializer
 {
 };
 
@@ -351,7 +345,7 @@ struct VectorisedTypeFor
 };
 
 /// The class which manages saving objects.
-template <typename Serializer> class DLL_EXPORT COSer : public CSaverBase
+template <typename Serializer> class DLL_LINKAGE COSer : public CSaverBase
 {
 public:
 	bool saving;
@@ -509,7 +503,7 @@ public:
 	template <typename T>
 	void saveSerializable(const std::vector<T> &data)
 	{
-		boost::uint32_t length = data.size();
+		ui32 length = data.size();
 		*this << length;
 		for(ui32 i=0;i<length;i++)
 			*this << data[i];
@@ -518,7 +512,7 @@ public:
 	void saveSerializable(const std::set<T> &data)
 	{
 		std::set<T> &d = const_cast<std::set<T> &>(data);
-		boost::uint32_t length = d.size();
+		ui32 length = d.size();
 		*this << length;
 		for(typename std::set<T>::iterator i=d.begin();i!=d.end();i++)
 			*this << *i;
@@ -527,7 +521,7 @@ public:
 	void saveSerializable(const boost::unordered_set<T, U> &data)
 	{
 		boost::unordered_set<T, U> &d = const_cast<boost::unordered_set<T, U> &>(data);
-		boost::uint32_t length = d.size();
+		ui32 length = d.size();
 		*this << length;
 		for(typename boost::unordered_set<T, U>::iterator i=d.begin();i!=d.end();i++)
 			*this << *i;
@@ -536,7 +530,7 @@ public:
 	void saveSerializable(const std::list<T> &data)
 	{
 		std::list<T> &d = const_cast<std::list<T> &>(data);
-		boost::uint32_t length = d.size();
+		ui32 length = d.size();
 		*this << length;
 		for(typename std::list<T>::iterator i=d.begin();i!=d.end();i++)
 			*this << *i;
@@ -562,7 +556,7 @@ public:
 
 
 
-class DLL_EXPORT CLoaderBase : public virtual CSerializer
+class DLL_LINKAGE CLoaderBase : public virtual CSerializer
 {};
 
 class CBasicPointerLoader
@@ -590,7 +584,7 @@ public:
 };
 
 /// The class which manages loading of objects.
-template <typename Serializer> class DLL_EXPORT CISer : public CLoaderBase
+template <typename Serializer> class DLL_LINKAGE CISer : public CLoaderBase
 {
 public:
 	bool saving;
@@ -682,7 +676,7 @@ public:
 	void loadArray(T &data)
 	{
 		ui32 size = ARRAY_COUNT(data);
-		for(ui32 i=0; i < size; i++)
+		for(ui32 i = 0; i < size; i++)
 			*this >> data[i];
 	}
 	template <typename T>
@@ -758,7 +752,7 @@ public:
 	}
 
 #define READ_CHECK_U32(x)			\
-	boost::uint32_t length;			\
+	ui32 length;			\
 	*this >> length;				\
 	if(length > 50000)				\
 	{								\
@@ -842,7 +836,7 @@ public:
 };
 
 
-class DLL_EXPORT CSaveFile
+class DLL_LINKAGE CSaveFile
 	: public COSer<CSaveFile>
 {
 	void dummyMagicFunction()
@@ -862,7 +856,7 @@ public:
 	void reportState(CLogger &out);
 };
 
-class DLL_EXPORT CLoadFile
+class DLL_LINKAGE CLoadFile
 	: public CISer<CLoadFile>
 {
 	void dummyMagicFunction()
@@ -886,7 +880,7 @@ public:
 typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > TSocket;
 typedef boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > TAcceptor;
 
-class DLL_EXPORT CConnection
+class DLL_LINKAGE CConnection
 	:public CISer<CConnection>, public COSer<CConnection>
 {
 	//CGameState *gs;
@@ -925,7 +919,7 @@ public:
 	void sendPack(const CPack &pack);
 };
 
-DLL_EXPORT std::ostream &operator<<(std::ostream &str, const CConnection &cpc);
+DLL_LINKAGE std::ostream &operator<<(std::ostream &str, const CConnection &cpc);
 
 template<typename T>
 class CApplier
@@ -947,6 +941,3 @@ public:
 	}
 
 };
-
-
-#endif // __CONNECTION_H__

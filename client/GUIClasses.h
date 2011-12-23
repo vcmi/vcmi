@@ -1,13 +1,11 @@
-#ifndef __GUICLASSES_H__
-#define __GUICLASSES_H__
+#pragma once
 
-#include "../global.h"
-#include "GUIBase.h"
+
 #include "FunctionList.h"
-#include <set>
-#include <list>
-#include <boost/thread/mutex.hpp>
 #include "../lib/ResourceSet.h"
+#include "../lib/GameConstants.h"
+#include "UIFramework/CIntObject.h"
+#include "UIFramework/CIntObjectClasses.h"
 
 #ifdef max
 #undef max
@@ -31,7 +29,7 @@ class CStackBasicDescriptor;
 class CBonusSystemNode;
 class CArtifact;
 class CDefEssential;
-class AdventureMapButton;
+class CAdventureMapButton;
 class CHighlightableButtonsGroup;
 class CDefHandler;
 struct HeroMoveDetails;
@@ -41,7 +39,7 @@ class CAdvMapInt;
 class CCastleInterface;
 class CBattleInterface;
 class CStack;
-class SComponent;
+class CComponent;
 class CCreature;
 struct SDL_Surface;
 struct CPath;
@@ -75,8 +73,6 @@ class IBonusBearer;
 class CArtPlace;
 class CAnimImage;
 
-extern SDL_Color tytulowy, tlo, zwykly ;
-
 /// text + comp. + ok button
 class CInfoWindow : public CSimpleWindow 
 { //window able to delete its components when closed
@@ -84,11 +80,11 @@ class CInfoWindow : public CSimpleWindow
 
 public:
 	typedef std::vector<std::pair<std::string,CFunctionList<void()> > > TButtonsInfo;
-	typedef std::vector<SComponent*> TCompsInfo;
+	typedef std::vector<CComponent*> TCompsInfo;
 	int ID; //for identification
 	CTextBox *text;
-	std::vector<AdventureMapButton *> buttons;
-	std::vector<SComponent*> components;
+	std::vector<CAdventureMapButton *> buttons;
+	std::vector<CComponent*> components;
 	CSlider *slider;
 
 	void setDelComps(bool DelComps);
@@ -102,8 +98,8 @@ public:
 	CInfoWindow(); //c-tor
 	~CInfoWindow(); //d-tor
 
-	static void showYesNoDialog( const std::string & text, const std::vector<SComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps = true, int player = 1); //use only before the game starts! (showYesNoDialog in LOCPLINT must be used then)
-	static CInfoWindow *create(const std::string &text, int playerID = 1, const std::vector<SComponent*> *components = NULL, bool DelComps = false);
+	static void showYesNoDialog( const std::string & text, const std::vector<CComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps = true, int player = 1); //use only before the game starts! (showYesNoDialog in LOCPLINT must be used then)
+	static CInfoWindow *create(const std::string &text, int playerID = 1, const std::vector<CComponent*> *components = NULL, bool DelComps = false);
 };
 
 /// component selection window
@@ -137,12 +133,12 @@ public:
 class CRClickPopupInt : public CRClickPopup 
 {
 public:
-	IShowActivable *inner;
+	IShowActivatable *inner;
 	bool delInner;
 
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
-	CRClickPopupInt(IShowActivable *our, bool deleteInt); //c-tor
+	CRClickPopupInt(IShowActivatable *our, bool deleteInt); //c-tor
 	virtual ~CRClickPopupInt(); //d-tor
 };
 
@@ -162,7 +158,7 @@ public:
 };
 
 /// common popup window component
-class SComponent : public virtual CIntObject
+class CComponent : public virtual CIntObject
 {
 public:
 	enum Etype
@@ -181,10 +177,10 @@ public:
 	SDL_Surface * setSurface(std::string defName, int imgPos);
 
 	void init(Etype Type, int Subtype, int Val);
-	SComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur=NULL, bool freeSur=false); //c-tor
-	SComponent(const Component &c); //c-tor
-	SComponent();; //c-tor
-	virtual ~SComponent(); //d-tor
+	CComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur=NULL, bool freeSur=false); //c-tor
+	CComponent(const Component &c); //c-tor
+	CComponent();; //c-tor
+	virtual ~CComponent(); //d-tor
 
 	void clickRight(tribool down, bool previousState); //call-in
 	SDL_Surface * getImg();
@@ -193,7 +189,7 @@ public:
 	virtual void deactivate();
 };
 
-class CSelectableComponent : public SComponent, public KeyShortcut
+class CSelectableComponent : public CComponent, public CKeyShortcut
 {
 public:
 	bool selected; //if true, this component is selected
@@ -208,83 +204,6 @@ public:
 	void activate();
 	void deactivate();
 	void select(bool on);
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-/// Used as base for Tabs and List classes
-class CObjectList : public CIntObject
-{
-public:
-	typedef boost::function<CIntObject* (size_t)> CreateFunc;
-	typedef boost::function<void(CIntObject *)> DestroyFunc;
-
-private:
-	CreateFunc createObject;
-	DestroyFunc destroyObject;
-
-protected:
-	//Internal methods for safe creation of items (Children capturing and activation/deactivation if needed)
-	void deleteItem(CIntObject* item);
-	CIntObject* createItem(size_t index);
-	
-	CObjectList(CreateFunc create, DestroyFunc destroy = DestroyFunc());//Protected constructor
-};
-
-/// Window element with multiple tabs
-class CTabbedInt : public CObjectList
-{
-private:
-	CIntObject * activeTab;
-	size_t activeID;
-
-public:
-	//CreateFunc, DestroyFunc - see CObjectList
-	//Pos - position of object, all tabs will be moved to this position
-	//ActiveID - ID of initially active tab
-	CTabbedInt(CreateFunc create, DestroyFunc destroy = DestroyFunc(), Point position=Point(), size_t ActiveID=0);
-
-	void setActive(size_t which);
-	//recreate active tab
-	void reset();
-
-	//return currently active item
-	CIntObject * getItem();
-};
-
-/// List of IntObjects with optional slider
-class CListBox : public CObjectList
-{
-private:
-	std::list< CIntObject* > items;
-	size_t first;
-	size_t totalSize;
-
-	Point itemOffset;
-	CSlider * slider;
-
-	void updatePositions();
-public:
-	//CreateFunc, DestroyFunc - see CObjectList
-	//Pos - position of first item
-	//ItemOffset - distance between items in the list
-	//VisibleSize - maximal number of displayable at once items
-	//TotalSize 
-	//Slider - slider style, bit field: 1 = present(disabled), 2=horisontal(vertical), 4=blue(brown)
-	//SliderPos - position of slider, if present
-	CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point ItemOffset, size_t VisibleSize,
-	         size_t TotalSize, size_t InitialPos=0, int Slider=0, Rect SliderPos=Rect() );
-
-	//recreate all visible items
-	void reset();
-
-	//return currently active items
-	std::list< CIntObject * > getItems();
-
-	//scroll list
-	void moveToPos(size_t which);
-	void moveToNext();
-	void moveToPrev();
 };
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -323,7 +242,7 @@ public:
 	int interx; //space between slots
 	Point garOffset; //offset between garrisons (not used if only one hero)
 	CGarrisonSlot *highlighted; //chosen slot
-	std::vector<AdventureMapButton *> splitButtons; //may be empty if no buttons
+	std::vector<CAdventureMapButton *> splitButtons; //may be empty if no buttons
 
 	int p2, //TODO: comment me
 	    shiftPos;//1st slot of the second row, set shiftPoint for effect
@@ -341,7 +260,7 @@ public:
 	//const CArmedInstance *oup, *odown; //upper and lower garrisons (heroes or towns)
 
 	void setArmy(const CArmedInstance *army, bool bottomGarrison);
-	void addSplitBtn(AdventureMapButton * button);
+	void addSplitBtn(CAdventureMapButton * button);
 	void createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int distance, int posY, int Upg );
 	
 	void activate();
@@ -360,148 +279,6 @@ public:
 	//twoRows - display slots in 2 row (1st row = 4, 2nd = 3)
 	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool _removableUnits = true, bool smallImgs = false, bool _twoRows=false); //c-tor
 	~CGarrisonInt(); //d-tor
-};
-
-/// Status bar which is shown at the bottom of the in-game screens
-class CStatusBar
-	: public CIntObject, public IStatusBar
-{
-public:
-	SDL_Surface * bg; //background
-	int middlex, middley; //middle of statusbar
-	std::string current; //text currently printed
-
-	CStatusBar(int x, int y, std::string name="ADROLLVR.bmp", int maxw=-1); //c-tor
-	~CStatusBar(); //d-tor
-	void print(const std::string & text); //prints text and refreshes statusbar
-	void clear();//clears statusbar and refreshes
-	void show(SDL_Surface * to); //shows statusbar (with current text)
-	std::string getCurrent(); //getter for current
-};
-
-/// Label which shows text
-class CLabel
-	: public virtual CIntObject
-{
-public:
-	EAlignment alignment;
-	EFonts font;
-	SDL_Color color;
-	std::string text;
-	CPicture *bg;
-	bool autoRedraw;  //whether control will redraw itself on setTxt
-	Point textOffset; //text will be blitted at pos + textOffset with appropriate alignment
-	bool ignoreLeadingWhitespace; 
-
-	virtual void setTxt(const std::string &Txt);
-	void showAll(SDL_Surface * to); //shows statusbar (with current text)
-	CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly, const std::string &Text =  "");
-};
-
-/// a multi-line label that tries to fit text with given available width and height; if not possible, it creates a slider for scrolling text
-class CTextBox
-	: public CLabel
-{
-public:
-	int maxW; //longest line of text in px
-	int maxH; //total height needed to print all lines
-
-	int sliderStyle;
-	bool redrawParentOnScrolling;
-
-	std::vector<std::string> lines;
-	std::vector<CAnimImage* > effects;
-	CSlider *slider;
-
-	//CTextBox( std::string Text, const Point &Pos, int w, int h, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly);
-	CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = zwykly);
-	void showAll(SDL_Surface * to); //shows statusbar (with current text)
-	void setTxt(const std::string &Txt);
-	void setBounds(int limitW, int limitH);
-	void recalculateLines(const std::string &Txt);
-
-	void sliderMoved(int to);
-};
-
-/// Status bar which is shown at the bottom of the in-game screens
-class CGStatusBar
-	: public CLabel, public IStatusBar
-{
-	void init();
-public:
-	IStatusBar *oldStatusBar;
-
-	//statusbar interface overloads
-	void print(const std::string & Text); //prints text and refreshes statusbar
-	void clear();//clears statusbar and refreshes
-	std::string getCurrent(); //returns currently displayed text
-	void show(SDL_Surface * to); //shows statusbar (with current text)
-
-	CGStatusBar(int x, int y, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = zwykly, const std::string &Text =  "");
-	CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = zwykly); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
-	CGStatusBar(int x, int y, std::string name, int maxw=-1); 
-
-	~CGStatusBar();
-	void calcOffset();
-};
-
-/// UIElement which can get input focus
-class CFocusable 
-	: public virtual CIntObject
-{
-public:
-	bool focus; //only one focusable control can have focus at one moment
-
-	void giveFocus(); //captures focus
-	void moveFocus(); //moves focus to next active control (may be used for tab switching)
-
-	static std::list<CFocusable*> focusables; //all existing objs
-	static CFocusable *inputWithFocus; //who has focus now
-	CFocusable();
-	~CFocusable();
-};
-
-/// Text input box where players can enter text
-class CTextInput
-	: public CLabel, public CFocusable
-{
-public:
-	CFunctionList<void(const std::string &)> cb;
-
-	void setText(const std::string &nText, bool callCb = false);
-
-	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
-	CTextInput(const Rect &Pos, SDL_Surface *srf = NULL);
-	~CTextInput();
-	void showAll(SDL_Surface * to);
-	void clickLeft(tribool down, bool previousState);
-	void keyPressed(const SDL_KeyboardEvent & key);
-};
-
-/// Listbox UI Element
-class CList : public CIntObject
-{
-public:
-	SDL_Surface * bg; //background bitmap
-	CDefHandler *arrup, *arrdo; //button arrows for scrolling list
-	SDL_Surface *empty, *selection;
-	SDL_Rect arrupp, arrdop; //positions of arrows
-	int posw, posh; //position width/height
-	int selected, //id of selected position, <0 if none
-		from;
-	const int SIZE; //size of list
-	tribool pressed; //true=up; false=down; indeterminate=none
-
-	CList(int Size = 5); //c-tor
-	void clickLeft(tribool down, bool previousState);
-	void activate();
-	void deactivate();
-	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent)=0; //call-in
-	virtual void genList()=0;
-	virtual void select(int which)=0;
-	virtual void draw(SDL_Surface * to)=0;
-	virtual int size() = 0; //how many elements do we have
-	void fixPos(); //scrolls list, so the selection will be visible
 };
 
 /// List of heroes which is shown at the right of the adventure map screen
@@ -584,7 +361,7 @@ public:
 	std::vector<creinfo> creatures; //recruitable creatures
 	boost::function<void(int,int)> recruit; //void (int ID, int amount) <-- call to recruit creatures
 	CSlider *slider; //for selecting amount
-	AdventureMapButton *max, *buy, *cancel;
+	CAdventureMapButton *max, *buy, *cancel;
 	CPicture *bitmap; //background
 	CGStatusBar *bar;
 	int which; //which creature is active
@@ -613,7 +390,7 @@ public:
 	CGarrisonInt *gar;
 	CSlider *slider;
 	CCreaturePic *animLeft, *animRight; //creature's animation
-	AdventureMapButton *ok, *cancel;
+	CAdventureMapButton *ok, *cancel;
 	SDL_Surface *bitmap; //background
 	int a1, a2, c; //TODO: comment me
 	bool which; //which creature is selected
@@ -638,7 +415,7 @@ public:
 	int heroPortrait;
 	SDL_Surface *bitmap; //background
 	std::vector<CSelectableComponent *> comps; //skills to select
-	AdventureMapButton *ok;
+	CAdventureMapButton *ok;
 	boost::function<void(ui32)> cb;
 
 	void close();
@@ -672,7 +449,7 @@ public:
 	CPicture *bg; //background
 	CSlider *slider;
 	CPicture *titleImage;//title image (castle gate\town portal picture)
-	AdventureMapButton *ok, *exit;
+	CAdventureMapButton *ok, *exit;
 
 	std::vector<Rect> areas;//areas for each visible item
 	std::vector<int> items;//id of all items present in list
@@ -761,12 +538,12 @@ public:
 	CTradeableItem *hLeft, *hRight; //highlighted items (NULL if no highlight)
 	EType itemsType[2];
 
-	EMarketMode mode;//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
-	AdventureMapButton *ok, *max, *deal;
+	EMarketMode::EMarketMode mode;//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
+	CAdventureMapButton *ok, *max, *deal;
 	CSlider *slider; //for choosing amount to be exchanged
 	bool readyToTrade;
 
-	CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode); //c
+	CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode); //c
 
 	void showAll(SDL_Surface * to);
 
@@ -778,7 +555,7 @@ public:
 	void removeItems(const std::set<CTradeableItem *> &toRemove);
 	void removeItem(CTradeableItem * t);
 	void getEmptySlots(std::set<CTradeableItem *> &toRemove);
-	void setMode(EMarketMode Mode); //mode setter
+	void setMode(EMarketMode::EMarketMode Mode); //mode setter
 
 	void artifactSelected(CArtPlace *slot); //used when selling artifacts -> called when user clicked on artifact slot
 
@@ -792,7 +569,7 @@ public:
 
 class CMarketplaceWindow : public CTradeWindow
 {
-	bool printButtonFor(EMarketMode M) const;
+	bool printButtonFor(EMarketMode::EMarketMode M) const;
 public:
 	int r1, r2; //suggested amounts of traded resources
 	bool madeTransaction; //if player made at least one transaction
@@ -802,7 +579,7 @@ public:
 	void sliderMoved(int to);
 	void makeDeal();
 	void selectionChanged(bool side); //true == left
-	CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero = NULL, EMarketMode Mode = RESOURCE_RESOURCE); //c-tor
+	CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero = NULL, EMarketMode::EMarketMode Mode = EMarketMode::RESOURCE_RESOURCE); //c-tor
 	~CMarketplaceWindow(); //d-tor
 
 	Point selectionOffset(bool Left) const;
@@ -820,7 +597,7 @@ public:
 class CAltarWindow : public CTradeWindow
 {
 public:
-	CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode); //c-tor
+	CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode); //c-tor
 
 	void getExpValues();
 	~CAltarWindow(); //d-tor
@@ -828,7 +605,7 @@ public:
 	std::vector<int> sacrificedUnits, //[slot_nr] -> how many creatures from that slot will be sacrificed
 		expPerUnit;
 
-	AdventureMapButton *sacrificeAll, *sacrificeBackpack;
+	CAdventureMapButton *sacrificeAll, *sacrificeBackpack;
 	CLabel *expToLevel, *expOnAltar;
 
 
@@ -863,7 +640,7 @@ class CSystemOptionsWindow : public CIntObject
 {
 private:
 	SDL_Surface * background; //background of window
-	AdventureMapButton *load, *save, *restart, *mainMenu, *quitGame, *backToMap; //load and restart are not used yet
+	CAdventureMapButton *load, *save, *restart, *mainMenu, *quitGame, *backToMap; //load and restart are not used yet
 	CHighlightableButtonsGroup * heroMoveSpeed;
 	CHighlightableButtonsGroup * mapScrollSpeed;
 	CHighlightableButtonsGroup * musicVolume, * effectsVolume;
@@ -889,7 +666,6 @@ public:
 	{
 	public:
 		std::string hoverName;
-		vstd::assigner<int,int> as;
 		const CGHeroInstance *h;
 		char descr[100];		// "XXX is a level Y ZZZ with N artifacts"
 
@@ -899,6 +675,10 @@ public:
 		HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H);
 		void show(SDL_Surface * to);
 
+	private:
+		int *_sel;
+		const int _id;
+
 	} *h1, *h2; //recruitable heroes
 
 	CPicture *bg; //background
@@ -906,7 +686,7 @@ public:
 	int selected;//0 (left) or 1 (right)
 	int oldSelected;//0 (left) or 1 (right)
 
-	AdventureMapButton *thiefGuild, *cancel, *recruit;
+	CAdventureMapButton *thiefGuild, *cancel, *recruit;
 	const CGObjectInstance *tavernObj;
 
 	CTavernWindow(const CGObjectInstance *TavernObj); //c-tor
@@ -942,33 +722,6 @@ public:
 	CInGameConsole(); //c-tor
 };
 
-/// Shows a text by moving the mouse cursor over the object
-class HoverableArea: public virtual CIntObject
-{
-public:
-	std::string hoverText;
-
-	virtual void hover (bool on);
-
-	HoverableArea();
-	virtual ~HoverableArea();
-};
-
-/// Can interact on left and right mouse clicks, plus it shows a text when by hovering over it
-class LRClickableAreaWText: public HoverableArea
-{
-public:
-	std::string text;
-
-	LRClickableAreaWText();
-	LRClickableAreaWText(const Rect &Pos, const std::string &HoverText = "", const std::string &ClickText = "");
-	virtual ~LRClickableAreaWText();
-	void init();
-
-	virtual void clickLeft(tribool down, bool previousState);
-	virtual void clickRight(tribool down, bool previousState);
-};
-
 /// Can interact on left and right mouse clicks
 class LRClickableAreaWTextComp: public LRClickableAreaWText
 {
@@ -979,7 +732,7 @@ public:
 	virtual void clickRight(tribool down, bool previousState);
 
 	LRClickableAreaWTextComp(const Rect &Pos = Rect(0,0,0,0), int BaseType = -1);
-	SComponent * createComponent() const;
+	CComponent * createComponent() const;
 };
 
 class MoraleLuckBox : public LRClickableAreaWTextComp
@@ -1017,37 +770,6 @@ public:
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	LRClickableAreaOpenTown();
-};
-
-/// Creature info window
-class CCreInfoWindow : public CIntObject
-{
-public:
-	CPicture *background;
-	CLabel *creatureCount;
-	CLabel *creatureName;
-	CLabel *abilityText;
-
-	CCreaturePic *animation;
-	std::vector<SComponent*> upgResCost; //cost of upgrade (if not possible then empty)
-	std::vector<CAnimImage * > effects;
-	std::map<size_t, std::pair<CLabel*, CLabel* > > infoTexts;
-
-	MoraleLuckBox *luck, *morale;
-
-	AdventureMapButton *dismiss, *upgrade, *ok;
-
-	CCreInfoWindow(const CStackInstance &st, bool LClicked, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL);
-	CCreInfoWindow(const CStack &st, bool LClicked = 0);
-	CCreInfoWindow(int Cid, bool LClicked, int creatureCount);
-	~CCreInfoWindow();
-
-	void init(const CCreature *cre, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner, int creatureCount, bool LClicked);
-	void printLine(int nr, const std::string &text, int baseVal, int val=-1, bool range=false);
-
-	void clickRight(tribool down, bool previousState);
-	void close();
-	void show(SDL_Surface * to);
 };
 
 /// Artifacts can be placed there. Gets shown at the hero window
@@ -1111,7 +833,7 @@ public:
 
 	bool updateState; // Whether the commonInfo should be updated on setHero or not.
 
-	AdventureMapButton * leftArtRoll, * rightArtRoll;
+	CAdventureMapButton * leftArtRoll, * rightArtRoll;
 	bool allowedAssembling;
 	std::multiset<const CArtifactInstance*> artifactsOnAltar; //artifacts id that are technically present in backpack but in GUI are moved to the altar - they'll be omitted in backpack slots
 	boost::function<void(CArtPlace*)> highlightModeCallback; //if set, clicking on art place doesn't pick artifact but highlights the slot and calls this function
@@ -1141,10 +863,24 @@ public:
 	CArtifactsOfHero(const Point& position, bool createCommonPart = false);
 	//Alternative constructor, used if custom artifacts positioning required (Kingdom interface)
 	CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector<CArtPlace *> Backpack,
-		AdventureMapButton *leftScroll, AdventureMapButton *rightScroll, bool createCommonPart = false);
+		CAdventureMapButton *leftScroll, CAdventureMapButton *rightScroll, bool createCommonPart = false);
 	~CArtifactsOfHero(); //d-tor
 	void updateParentWindow();
 	friend class CArtPlace;
+};
+
+class CGarrisonHolder : public virtual CIntObject
+{
+public:
+	CGarrisonHolder();
+	virtual void updateGarrisons(){};
+};
+
+class CWindowWithGarrison : public CGarrisonHolder
+{
+public:
+	CGarrisonInt *garr;
+	virtual void updateGarrisons();
 };
 
 /// Garrison window where you can take creatures out of the hero to place it on the garrison
@@ -1153,7 +889,7 @@ class CGarrisonWindow : public CWindowWithGarrison
 public:
 	CPicture *bg; //background surface
 	CLabel *title; 
-	AdventureMapButton *quit;
+	CAdventureMapButton *quit;
 
 	void close();
 	void showAll(SDL_Surface * to);
@@ -1166,7 +902,7 @@ class CExchangeWindow : public CWindowWithGarrison, public CWindowWithArtifacts
 	CGStatusBar * ourBar; //internal statusbar
 
 	SDL_Surface *bg; //background
-	AdventureMapButton * quit, * questlogButton[2];
+	CAdventureMapButton * quit, * questlogButton[2];
 
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas[2], primSkillAreas;
 
@@ -1179,7 +915,7 @@ class CExchangeWindow : public CWindowWithGarrison, public CWindowWithArtifacts
 
 public:
 
-	const CGHeroInstance * heroInst[2];
+	const CGHeroInstance* heroInst[2];
 	CArtifactsOfHero * artifs[2];
 
 	void close();
@@ -1208,7 +944,7 @@ public:
 	CLabel *woodCost, *goldCost;
 
 	CAnimImage *bgShip;
-	AdventureMapButton *build, *quit;
+	CAdventureMapButton *build, *quit;
 
 	CGStatusBar * statusBar;
 
@@ -1220,7 +956,7 @@ class CPuzzleWindow : public CIntObject
 {
 private:
 	SDL_Surface * background;
-	AdventureMapButton * quitb;
+	CAdventureMapButton * quitb;
 	CResDataBar * resdatabar;
 
 	std::vector<std::pair<SDL_Surface *, const SPuzzleInfo *> > puzzlesToPullBack;
@@ -1231,7 +967,7 @@ public:
 	void deactivate();
 	void show(SDL_Surface * to);
 
-	CPuzzleWindow(const int3 &grailPos, float discoveredRatio);
+	CPuzzleWindow(const int3 &grailPos, double discoveredRatio);
 	~CPuzzleWindow();
 };
 
@@ -1260,7 +996,7 @@ public:
 	CPicture *bg; //background
 	std::vector<CItem*> items;
 
-	AdventureMapButton *all, *convert, *cancel;
+	CAdventureMapButton *all, *convert, *cancel;
 	CGStatusBar *bar;
 	void showAll(SDL_Surface * to);
 	void makeDeal();
@@ -1293,7 +1029,7 @@ public:
 	CPicture *bg; //background
 	std::vector<CItem*> items;
 
-	AdventureMapButton *cancel;
+	CAdventureMapButton *cancel;
 	CGStatusBar *bar;
 
 	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market); //c-tor
@@ -1307,7 +1043,7 @@ public:
 	CUniversityWindow * parent;
 	CPicture * bg;
 	CGStatusBar *bar;
-	AdventureMapButton *confirm, *cancel;
+	CAdventureMapButton *confirm, *cancel;
 
 	CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available); //c-tor
 	void makeDeal(int skill);
@@ -1323,7 +1059,7 @@ public:
 	CDefEssential *resources;
 	CPicture *bg; //background surface
 	CHeroArea *heroPic;//clickable hero image
-	AdventureMapButton *quit,//closes window
+	CAdventureMapButton *quit,//closes window
 	                   *upgradeAll,//upgrade all creatures
 	                   *upgrade[7];//upgrade single creature
 
@@ -1350,7 +1086,7 @@ class CThievesGuildWindow : public CIntObject
 	const CGObjectInstance * owner;
 
 	CGStatusBar * statusBar;
-	AdventureMapButton * exitb;
+	CAdventureMapButton * exitb;
 	SDL_Surface * background;
 	CMinorResDataBar * resdatabar;
 
@@ -1363,9 +1099,3 @@ public:
 	CThievesGuildWindow(const CGObjectInstance * _owner);
 	~CThievesGuildWindow();
 };
-
-CIntObject *createCreWindow(const CStack *s);
-CIntObject *createCreWindow(int Cid, int Type, int creatureCount);
-CIntObject *createCreWindow(const CStackInstance *s, int type, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL);
-
-#endif //__GUICLASSES_H__

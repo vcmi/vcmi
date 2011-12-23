@@ -1,16 +1,15 @@
-#ifndef __CCREATURESET_H__
-#define __CCREATURESET_H__
+#pragma once
 
-#include "../global.h"
-#include <map>
+
 #include "HeroBonus.h"
+#include "GameConstants.h"
 
 class CCreature;
 class CGHeroInstance;
 class CArmedInstance;
 
 
-class DLL_EXPORT CStackBasicDescriptor
+class DLL_LINKAGE CStackBasicDescriptor
 {
 public:
 	const CCreature *type;
@@ -26,7 +25,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor
 {
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
 public:
@@ -70,7 +69,7 @@ public:
 	void deserializationFix();
 };
 
-DLL_EXPORT std::ostream & operator<<(std::ostream & str, const CStackInstance & sth);
+DLL_LINKAGE std::ostream & operator<<(std::ostream & str, const CStackInstance & sth);
 
 typedef std::map<TSlot, CStackInstance*> TSlots;
 typedef std::map<TSlot, CStackBasicDescriptor> TSimpleSlots;
@@ -83,7 +82,7 @@ public:
 };
 
 //simplified version of CCreatureSet
-class DLL_EXPORT CSimpleArmy : public IArmyDescriptor
+class DLL_LINKAGE CSimpleArmy : public IArmyDescriptor
 {
 public:
 	TSimpleSlots army;
@@ -97,7 +96,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CCreatureSet : public IArmyDescriptor //seven combined creatures
+class DLL_LINKAGE CCreatureSet : public IArmyDescriptor //seven combined creatures
 {
 	CCreatureSet(const CCreatureSet&);;
 	CCreatureSet &operator=(const CCreatureSet&);
@@ -140,9 +139,9 @@ public:
 	int getStackCount (TSlot slot) const;
 	expType getStackExperience(TSlot slot) const;
 	TSlot findStack(const CStackInstance *stack) const; //-1 if none
-	TSlot getSlotFor(TCreature creature, ui32 slotsAmount=ARMY_SIZE) const; //returns -1 if no slot available
-	TSlot getSlotFor(const CCreature *c, ui32 slotsAmount=ARMY_SIZE) const; //returns -1 if no slot available
-	TSlot getFreeSlot(ui32 slotsAmount=ARMY_SIZE) const;
+	TSlot getSlotFor(TCreature creature, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
+	TSlot getSlotFor(const CCreature *c, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
+	TSlot getFreeSlot(ui32 slotsAmount = GameConstants::ARMY_SIZE) const;
 	bool mergableStacks(std::pair<TSlot, TSlot> &out, TSlot preferable = -1) const; //looks for two same stacks, returns slot positions;
 	bool validTypes(bool allowUnrandomized = false) const; //checks if all types of creatures are set properly
 	bool slotEmpty(TSlot slot) const;
@@ -166,5 +165,3 @@ public:
 	}
 	void sweep();
 };
-
-#endif // __CCREATURESET_H__

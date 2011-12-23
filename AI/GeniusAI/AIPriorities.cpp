@@ -1,13 +1,12 @@
-#ifndef AI_PRIORITIES
-#define AI_PRIORITIES
+#include "StdInc.h"
 #include "AIPriorities.h"
-#include <sstream>
+
 // TODO: No using namespace!!
 using namespace geniusai;
 
 Network::Network()
 {}
-Network::Network(vector<unsigned int> whichFeatures)// random network
+Network::Network(vector<ui32> whichFeatures)// random network
     : whichFeatures(whichFeatures),
       net(whichFeatures.size(),
           whichFeatures.size() * 0.601 + 2,
@@ -34,15 +33,15 @@ Network::Network(istream & input)
 }
 
 
-float Network::feedForward(const vector<float> & stateFeatures)
+double Network::feedForward(const vector<double> & stateFeatures)
 {
   // TODO: Should comment/rewrite it...
-	return (rand() % 1000) / 800.0f;
+	return (rand() % 1000) / 800.0;
 	double * input = new double[whichFeatures.size()];
 	for (int i = 0; i < whichFeatures.size(); i++)
 		input[i] = stateFeatures[whichFeatures[i]];
 	
-	float ans = net.feedForwardPattern(input)[0];
+	double ans = net.feedForwardPattern(input)[0];
 	
 	delete input;
 	return ans;
@@ -98,18 +97,18 @@ void Priorities::fillFeatures(const CGeniusAI::HypotheticalGameState & hgs)
 	
 }
 
-float Priorities::getCost(vector<int> &resourceCosts,const CGHeroInstance * moved,int distOutOfTheWay)
+double Priorities::getCost(vector<int> &resourceCosts,const CGHeroInstance * moved,int distOutOfTheWay)
 {
 	if(!resourceCosts.size())return -1;
 	//TODO: replace with ann
-	float cost = resourceCosts[0]/4.0+resourceCosts[1]/2.0+resourceCosts[2]/4.0+resourceCosts[3]/2.0+resourceCosts[4]/2.0+resourceCosts[5]/2.0+resourceCosts[6]/3000.0;
+	double cost = resourceCosts[0]/4.0+resourceCosts[1]/2.0+resourceCosts[2]/4.0+resourceCosts[3]/2.0+resourceCosts[4]/2.0+resourceCosts[5]/2.0+resourceCosts[6]/3000.0;
 	
 	if(moved)						//TODO: multiply by importance of hero
 		cost+=distOutOfTheWay/10000.0;
 	return cost;
 }
 
-float Priorities::getValue(const CGeniusAI::AIObjective & obj)
+double Priorities::getValue(const CGeniusAI::AIObjective & obj)
 {	//resource
 	
 	vector<int> resourceAmounts(8,0);
@@ -117,7 +116,7 @@ float Priorities::getValue(const CGeniusAI::AIObjective & obj)
 
 	if(obj.type==CGeniusAI::AIObjective::finishTurn)	//TODO: replace with value of visiting that object divided by days till completed
 		return .0001;			//small nonzero
-	float a;
+	double a;
 	if(obj.type==CGeniusAI::AIObjective::attack)
 		return 100;
 	if(dynamic_cast<const CGeniusAI::HeroObjective* >(&obj))
@@ -250,4 +249,3 @@ float Priorities::getValue(const CGeniusAI::AIObjective & obj)
 
 	return 0;
 }
-#endif

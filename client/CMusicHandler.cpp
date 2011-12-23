@@ -1,11 +1,5 @@
-#include "../stdafx.h"
-
-#include <sstream>
-#include <boost/assign/std/vector.hpp> 
-#include <boost/assign/list_of.hpp>
+#include "StdInc.h"
 #include <boost/bimap.hpp>
-#include <boost/foreach.hpp>
-
 #include <SDL_mixer.h>
 
 #include "CSndHandler.h"
@@ -14,6 +8,7 @@
 #include "../lib/CSpellHandler.h"
 #include "../client/CGameInfo.h"
 #include "../lib/JsonNode.h"
+#include "../lib/GameConstants.h"
 
 /*
  * CMusicHandler.cpp, part of VCMI engine
@@ -63,7 +58,7 @@ void CAudioBase::release()
 	}
 }
 
-void CAudioBase::setVolume(unsigned int percent)
+void CAudioBase::setVolume(ui32 percent)
 {
 	if (percent > 100)
 		percent = 100;
@@ -103,9 +98,9 @@ void CSoundHandler::init()
 	if (initialized)
 	{
 		// Load sounds
-		sndh.add_file(std::string(DATA_DIR "/Data/Heroes3.snd"));
-		sndh.add_file(std::string(DATA_DIR "/Data/Heroes3-cd2.snd"), false);
-		sndh.add_file(std::string(DATA_DIR "/Data/H3ab_ahd.snd"));
+		sndh.add_file(std::string(GameConstants::DATA_DIR + "/Data/Heroes3.snd"));
+		sndh.add_file(std::string(GameConstants::DATA_DIR + "/Data/Heroes3-cd2.snd"), false);
+		sndh.add_file(std::string(GameConstants::DATA_DIR + "/Data/H3ab_ahd.snd"));
 		Mix_ChannelFinished(soundFinishedCallbackC);
 	}
 }
@@ -172,7 +167,7 @@ soundBase::soundID CSoundHandler::getSoundID(const std::string &fileName)
 void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CCreature> > &creatures)
 {
 	tlog5 << "\t\tReading config/cr_sounds.json" << std::endl;
-	const JsonNode config(DATA_DIR "/config/cr_sounds.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/cr_sounds.json");
 
 	CBattleSounds.resize(creatures.size());
 
@@ -215,7 +210,7 @@ void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CC
 	//commented to avoid spurious warnings
 	/*
 	// Find creatures without sounds
-	for(unsigned int i=0;i<creatures.size();i++)
+	for(ui32 i=0;i<creatures.size();i++)
 	{
 		// Note: this will exclude war machines, but it's better
 		// than nothing.
@@ -230,7 +225,7 @@ void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CC
 
 void CSoundHandler::initSpellsSounds(const std::vector< ConstTransitivePtr<CSpell> > &spells)
 {
-	const JsonNode config(DATA_DIR "/config/sp_sounds.json");
+	const JsonNode config(GameConstants::DATA_DIR + "/config/sp_sounds.json");
 
 	if (!config["spell_sounds"].isNull()) {
 		BOOST_FOREACH(const JsonNode &node, config["spell_sounds"].Vector()) {
@@ -283,7 +278,7 @@ void CSoundHandler::stopSound( int handler )
 }
 
 // Sets the sound volume, from 0 (mute) to 100
-void CSoundHandler::setVolume(unsigned int percent)
+void CSoundHandler::setVolume(ui32 percent)
 {
 	CAudioBase::setVolume(percent);
 
@@ -420,7 +415,7 @@ void CMusicHandler::stopMusic(int fade_ms)
 }
 
 // Sets the music volume, from 0 (mute) to 100
-void CMusicHandler::setVolume(unsigned int percent)
+void CMusicHandler::setVolume(ui32 percent)
 {
 	CAudioBase::setVolume(percent);
 
@@ -477,7 +472,7 @@ MusicEntry::~MusicEntry()
 void MusicEntry::load(musicBase::musicID ID)
 {
 	currentID = ID;
-	filename = DATA_DIR "/Mp3/";
+	filename = GameConstants::DATA_DIR + "/Mp3/";
 	filename += owner->musics[ID];
 
 	tlog5<<"Loading music file "<<filename<<"\n";

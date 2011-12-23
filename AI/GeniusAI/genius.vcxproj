@@ -107,11 +107,11 @@
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
+      <PrecompiledHeader>Use</PrecompiledHeader>
       <WarningLevel>Level4</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <DisableSpecificWarnings>4512;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -216,6 +216,11 @@
     <ClCompile Include="CGeniusAI.cpp" />
     <ClCompile Include="DLLMain.cpp" />
     <ClCompile Include="neuralNetwork.cpp" />
+    <ClCompile Include="StdInc.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">StdInc.h</PrecompiledHeaderFile>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BattleHelper.h" />
@@ -225,6 +230,8 @@
     <ClInclude Include="CGeniusAI.h" />
     <ClInclude Include="Common.h" />
     <ClInclude Include="neuralNetwork.h" />
+    <ClInclude Include="StdInc.h" />
+	<ClInclude Include="..\..\Global.h" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\lib\VCMI_lib.vcxproj">

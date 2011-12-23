@@ -1,7 +1,7 @@
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "SDL.h"
 #include "CDefHandler.h"
-#include <sstream>
+
 #include "../lib/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/vcmi_endian.h"
@@ -51,19 +51,19 @@ CDefEssential::~CDefEssential()
 		SDL_FreeSurface(ourImages[i].bitmap);
 }
 
-void CDefHandler::openFromMemory(unsigned char *table, const std::string & name)
+void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 {
 	BMPPalette palette[256];
 	SDefEntry &de = * reinterpret_cast<SDefEntry *>(table);
-	unsigned char *p;
+	ui8 *p;
 
 	defName = name;
 	DEFType = SDL_SwapLE32(de.DEFType);
 	width = SDL_SwapLE32(de.width);
 	height = SDL_SwapLE32(de.height);
-	unsigned int totalBlocks = SDL_SwapLE32(de.totalBlocks);
+	ui32 totalBlocks = SDL_SwapLE32(de.totalBlocks);
 
-	for (unsigned int it=0;it<256;it++)
+	for (ui32 it=0;it<256;it++)
 	{
 		palette[it].R = de.palette[it].R;
 		palette[it].G = de.palette[it].G;
@@ -72,22 +72,22 @@ void CDefHandler::openFromMemory(unsigned char *table, const std::string & name)
 	}
 
 	// The SDefEntryBlock starts just after the SDefEntry
-	p = reinterpret_cast<unsigned char *>(&de);
+	p = reinterpret_cast<ui8 *>(&de);
 	p += sizeof(de);
 
 	int totalEntries=0;
-	for (unsigned int z=0; z<totalBlocks; z++)
+	for (ui32 z=0; z<totalBlocks; z++)
 	{
 		SDefEntryBlock &block = * reinterpret_cast<SDefEntryBlock *>(p);
-		unsigned int totalInBlock;
+		ui32 totalInBlock;
 
 		totalInBlock = read_le_u32(&block.totalInBlock);
 
-		for (unsigned int j=SEntries.size(); j<totalEntries+totalInBlock; j++)
+		for (ui32 j=SEntries.size(); j<totalEntries+totalInBlock; j++)
 			SEntries.push_back(SEntry());
 
 		p = block.data;
-		for (unsigned int j=0; j<totalInBlock; j++)
+		for (ui32 j=0; j<totalInBlock; j++)
 		{
 			char Buffer[13];
 			memcpy(Buffer, p, 12);
@@ -95,25 +95,25 @@ void CDefHandler::openFromMemory(unsigned char *table, const std::string & name)
 			SEntries[totalEntries+j].name=Buffer;
 			p += 13;
 		}
-		for (unsigned int j=0; j<totalInBlock; j++)
+		for (ui32 j=0; j<totalInBlock; j++)
 		{ 
 			SEntries[totalEntries+j].offset = read_le_u32(p);
 			p += 4;
 		}
 		//totalEntries+=totalInBlock;
-		for(unsigned int hh=0; hh<totalInBlock; ++hh)
+		for(ui32 hh=0; hh<totalInBlock; ++hh)
 		{
 			SEntries[totalEntries].group = z;
 			++totalEntries;
 		}
 	}
 
-	for(unsigned int j=0; j<SEntries.size(); ++j)
+	for(ui32 j=0; j<SEntries.size(); ++j)
 	{
 		SEntries[j].name = SEntries[j].name.substr(0, SEntries[j].name.find('.')+4);
 	}
-	//RWEntries = new unsigned int[height];
-	for(unsigned int i=0; i < SEntries.size(); ++i)
+	//RWEntries = new ui32[height];
+	for(ui32 i=0; i < SEntries.size(); ++i)
 	{
 		Cimage nimg;
 		nimg.bitmap = getSprite(i, table, palette);
@@ -123,17 +123,17 @@ void CDefHandler::openFromMemory(unsigned char *table, const std::string & name)
 	}
 }
 
-void CDefHandler::expand(unsigned char N,unsigned char & BL, unsigned char & BR)
+void CDefHandler::expand(ui8 N,ui8 & BL, ui8 & BR)
 {
 	BL = (N & 0xE0) >> 5;
 	BR = N & 0x1F;
 }
 
-SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, const BMPPalette * palette) const
+SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPalette * palette) const
 {
 	SDL_Surface * ret=NULL;
 
-	unsigned int BaseOffset, 
+	ui32 BaseOffset, 
 		SpriteWidth, SpriteHeight, //format of sprite
 		TotalRowLength,			// length of read segment
 		add, FullHeight,FullWidth,
@@ -143,7 +143,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 	int LeftMargin, RightMargin, TopMargin, BottomMargin;
 
 
-	unsigned char SegmentType;//, BL, BR; //TODO use me
+	ui8 SegmentType;//, BL, BR; //TODO use me
 
 	BaseOffset = SEntries[SIndex].offset;
 	SSpriteDef sd = * reinterpret_cast<const SSpriteDef *>(FDef + BaseOffset);
@@ -201,7 +201,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 	{
 	case 0:
 	{
-		for (unsigned int i=0;i<SpriteHeight;i++)
+		for (ui32 i=0;i<SpriteHeight;i++)
 		{
 			if (LeftMargin>0)
 				ftcp += LeftMargin;
@@ -218,9 +218,9 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 
 	case 1:
 	{
-		const unsigned int * RWEntriesLoc = reinterpret_cast<const unsigned int *>(FDef+BaseOffset);
+		const ui32 * RWEntriesLoc = reinterpret_cast<const ui32 *>(FDef+BaseOffset);
 		BaseOffset += sizeof(int) * SpriteHeight;
-		for (unsigned int i=0;i<SpriteHeight;i++)
+		for (ui32 i=0;i<SpriteHeight;i++)
 		{
 			BaseOffset=BaseOffsetor + read_le_u32(RWEntriesLoc + i);
 			if (LeftMargin>0)
@@ -229,7 +229,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 			TotalRowLength=0;
 			do
 			{
-				unsigned int SegmentLength;
+				ui32 SegmentLength;
 
 				SegmentType=FDef[BaseOffset++];
 				SegmentLength=FDef[BaseOffset++] + 1;
@@ -262,7 +262,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 	{
 		BaseOffset = BaseOffsetor + read_le_u16(FDef + BaseOffsetor);
 
-		for (unsigned int i=0;i<SpriteHeight;i++)
+		for (ui32 i=0;i<SpriteHeight;i++)
 		{
 			//BaseOffset = BaseOffsetor+RWEntries[i];
 			if (LeftMargin>0)
@@ -273,8 +273,8 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 			do
 			{
 				SegmentType=FDef[BaseOffset++];
-				unsigned char code = SegmentType / 32;
-				unsigned char value = (SegmentType & 31) + 1;
+				ui8 code = SegmentType / 32;
+				ui8 value = (SegmentType & 31) + 1;
 				if(code==7)
 				{
 					memcpy(reinterpret_cast<char*>(ret->pixels)+ftcp, &FDef[BaseOffset], value);
@@ -302,7 +302,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 
 	case 3:
 	{
-		for (unsigned int i=0;i<SpriteHeight;i++)
+		for (ui32 i=0;i<SpriteHeight;i++)
 		{
 			BaseOffset = BaseOffsetor + read_le_u16(FDef + BaseOffsetor+i*2*(SpriteWidth/32));
 			if (LeftMargin>0)
@@ -313,11 +313,11 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const unsigned char * FDef, co
 			do
 			{
 				SegmentType=FDef[BaseOffset++];
-				unsigned char code = SegmentType / 32;
-				unsigned char value = (SegmentType & 31) + 1;
+				ui8 code = SegmentType / 32;
+				ui8 value = (SegmentType & 31) + 1;
 
-				int len = std::min<unsigned int>(value, SpriteWidth - TotalRowLength) - std::max(0, -LeftMargin);
-				amax(len, 0);
+				int len = std::min<ui32>(value, SpriteWidth - TotalRowLength) - std::max(0, -LeftMargin);
+				vstd::amax(len, 0);
 
 				if(code==7)
 				{
@@ -365,7 +365,7 @@ CDefEssential * CDefHandler::essentialize()
 
 CDefHandler * CDefHandler::giveDef(const std::string & defName)
 {
-	unsigned char * data = spriteh->giveFile(defName, FILE_ANIMATION);
+	ui8 * data = spriteh->giveFile(defName, FILE_ANIMATION);
 	if(!data)
 		throw "bad def name!";
 	CDefHandler * nh = new CDefHandler();

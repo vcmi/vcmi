@@ -1,11 +1,13 @@
+#include "StdInc.h"
+
 #include "CMusicHandler.h"
 #include "../lib/CCampaignHandler.h"
 #include "../CCallback.h"
-#include "../CConsoleHandler.h"
+#include "../lib/CConsoleHandler.h"
 #include "CGameInfo.h"
 #include "../lib/CGameState.h"
 #include "CPlayerInterface.h"
-#include "../StartInfo.h"
+#include "../lib/StartInfo.h"
 #include "../lib/BattleState.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CDefObjInfoHandler.h"
@@ -25,21 +27,13 @@
 #include "mapHandler.h"
 #include "CConfigHandler.h"
 #include "Client.h"
-#include "GUIBase.h"
-#include <boost/bind.hpp>
-#include <boost/foreach.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/lexical_cast.hpp>
-#include <sstream>
 #include "CPreGame.h"
-#include "CBattleInterface.h"
-#include "../CThreadHelper.h"
+#include "BattleInterface/CBattleInterface.h"
+#include "../lib/CThreadHelper.h"
 #include "../lib/CScriptingModule.h"
 #include "../lib/CFileUtility.h"
-
-#define NOT_LIB
-#include "../lib/RegisterTypes.cpp"
+#include "../lib/RegisterTypes.h"
+#include "UIFramework/CGuiHandler.h"
 
 extern std::string NAME;
 namespace intpr = boost::interprocess;
@@ -228,7 +222,7 @@ void CClient::loadGame( const std::string & fname )
 	CServerHandler sh;
 	sh.startServer();
 
-	timeHandler tmh;
+	CStopWatch tmh;
 	{
 		char sig[8];
 		CMapHeader dum;
@@ -237,21 +231,21 @@ void CClient::loadGame( const std::string & fname )
 
 		CLoadFile lf(fname + ".vlgm1");
 		lf >> sig >> dum >> si;
-		tlog0 <<"Reading save signature: "<<tmh.getDif()<<std::endl;
+		tlog0 <<"Reading save signature: "<<tmh.getDiff()<<std::endl;
 		
 		lf >> *VLC;
 		const_cast<CGameInfo*>(CGI)->setFromLib();
-		tlog0 <<"Reading handlers: "<<tmh.getDif()<<std::endl;
+		tlog0 <<"Reading handlers: "<<tmh.getDiff()<<std::endl;
 
 		lf >> gs;
-		tlog0 <<"Reading gamestate: "<<tmh.getDif()<<std::endl;
+		tlog0 <<"Reading gamestate: "<<tmh.getDiff()<<std::endl;
 
 		const_cast<CGameInfo*>(CGI)->state = gs;
 		const_cast<CGameInfo*>(CGI)->mh->map = gs->map;
 		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
 		CGI->mh->init();
 
-		tlog0 <<"Initing maphandler: "<<tmh.getDif()<<std::endl;
+		tlog0 <<"Initing maphandler: "<<tmh.getDiff()<<std::endl;
 	}
 	serv = sh.connectToServer();
 	serv->addStdVecItems(gs);
@@ -273,7 +267,7 @@ void CClient::loadGame( const std::string & fname )
 		*serv << ui8(it->first); //players
 	}
 	*serv << ui8(255); // neutrals
-	tlog0 <<"Sent info to server: "<<tmh.getDif()<<std::endl;
+	tlog0 <<"Sent info to server: "<<tmh.getDiff()<<std::endl;
 	
 	{
 		CLoadFile lf(fname + ".vcgm1");
@@ -312,9 +306,9 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 
 
-	timeHandler tmh;
+	CStopWatch tmh;
 	const_cast<CGameInfo*>(CGI)->state = new CGameState();
-	tlog0 <<"\tGamestate: "<<tmh.getDif()<<std::endl;
+	tlog0 <<"\tGamestate: "<<tmh.getDiff()<<std::endl;
 	CConnection &c(*serv);
 	////////////////////////////////////////////////////
 
@@ -335,22 +329,22 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 	ui32 seed, sum;
 	c >> si	>> sum >> seed;
-	tlog0 <<"\tSending/Getting info to/from the server: "<<tmh.getDif()<<std::endl;
+	tlog0 <<"\tSending/Getting info to/from the server: "<<tmh.getDiff()<<std::endl;
 	tlog0 << "\tUsing random seed: "<<seed << std::endl;
 
 	gs = const_cast<CGameInfo*>(CGI)->state;
 	gs->scenarioOps = si;
 	gs->init(si, sum, seed);
-	tlog0 <<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
+	tlog0 <<"Initializing GameState (together): "<<tmh.getDiff()<<std::endl;
 
 	if(gs->map)
 	{
 		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 		CGI->mh->map = gs->map;
-		tlog0 <<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
+		tlog0 <<"Creating mapHandler: "<<tmh.getDiff()<<std::endl;
 		CGI->mh->init();
 		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
-		tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
+		tlog0 <<"Initializing mapHandler (together): "<<tmh.getDiff()<<std::endl;
 	}
 
 	int humanPlayers = 0;
@@ -470,7 +464,7 @@ void CClient::serialize( Handler &h, const int version )
 			nInt->serialize(h, version);
 		}
 
-		if(!vstd::contains(battleints, NEUTRAL_PLAYER))
+		if(!vstd::contains(battleints, GameConstants::NEUTRAL_PLAYER))
 			loadNeutralBattleAI();
 	}
 }
@@ -631,7 +625,7 @@ void CServerHandler::startServer()
 	
 	serverThread = new boost::thread(&CServerHandler::callServer, this); //runs server executable;
 	if(verbose)
-		tlog0 << "Setting up thread calling server: " << th.getDif() << std::endl;
+		tlog0 << "Setting up thread calling server: " << th.getDiff() << std::endl;
 }
 
 void CServerHandler::waitForServer()
@@ -646,7 +640,7 @@ void CServerHandler::waitForServer()
 		shared->sr->cond.wait(slock);
 	}
 	if(verbose)
-		tlog0 << "Waiting for server: " << th.getDif() << std::endl;
+		tlog0 << "Waiting for server: " << th.getDiff() << std::endl;
 }
 
 CConnection * CServerHandler::connectToServer()
@@ -658,7 +652,7 @@ CConnection * CServerHandler::connectToServer()
 	CConnection *ret = justConnectToServer(conf.cc.server, port);
 
 	if(verbose)
-		tlog0<<"\tConnecting to the server: "<<th.getDif()<<std::endl;
+		tlog0<<"\tConnecting to the server: "<<th.getDiff()<<std::endl;
 
 	return ret;
 }
@@ -687,7 +681,7 @@ void CServerHandler::callServer()
 {
 	setThreadName(-1, "CServerHandler::callServer");
 	std::string logName = GVCMIDirs.UserPath + "/server_log.txt";
-	std::string comm = std::string(BIN_DIR PATH_SEPARATOR SERVER_NAME " ") + port + " > " + logName;
+	std::string comm = GameConstants::BIN_DIR + GameConstants::PATH_SEPARATOR + GameConstants::SERVER_NAME + " " + port + " > " + logName;
 	std::system(comm.c_str());
 	tlog0 << "Server finished\n";
 }

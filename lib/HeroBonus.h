@@ -1,11 +1,8 @@
 #pragma once
-#include "../global.h"
-#include <string>
-#include <set>
-#include <boost/function.hpp>
-#include <boost/shared_ptr.hpp>
+
+
 #include <boost/range.hpp>
-#include <boost/thread/mutex.hpp>
+#include "GameConstants.h"
 
 /*
  * HeroBonus.h, part of VCMI engine
@@ -36,6 +33,8 @@ namespace PrimarySkill
 {
 	enum { ATTACK, DEFENSE, SPELL_POWER, KNOWLEDGE};
 }
+
+#define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.smartPointerSerialization) deserializationFix();
 
 #define BONUS_LIST										\
 	BONUS_NAME(NONE) 									\
@@ -175,7 +174,7 @@ namespace PrimarySkill
 	BONUS_NAME(REBIRTH) /* val - percent of life restored, subtype = 0 - regular, 1 - at least one unit (sacred Phoenix) */
 
 /// Struct for handling bonuses of several types. Can be transferred to any hero
-struct DLL_EXPORT Bonus
+struct DLL_LINKAGE Bonus
 {
 	enum BonusType
 	{
@@ -327,10 +326,10 @@ struct DLL_EXPORT Bonus
 	Bonus *addPropagator(boost::shared_ptr<IPropagator> Propagator); //returns this for convenient chain-calls
 };
 
-DLL_EXPORT std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
+DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
 
 
-class DLL_EXPORT BonusList
+class DLL_LINKAGE BonusList
 {
 private:
 	std::vector<Bonus*> bonuses;
@@ -380,7 +379,7 @@ public:
 	void remove_if(Predicate pred)
 	{
 		BonusList newList;
-		for (unsigned int i = 0; i < bonuses.size(); i++)
+		for (ui32 i = 0; i < bonuses.size(); i++)
 		{
 			Bonus *b = bonuses[i];
 			if (!pred(b))
@@ -426,9 +425,9 @@ inline std::vector<Bonus*>::const_iterator range_end(BonusList const &x)
 	return x.end();
 }
 
-DLL_EXPORT std::ostream & operator<<(std::ostream &out, const BonusList &bonusList);
+DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const BonusList &bonusList);
 
-class DLL_EXPORT IPropagator
+class DLL_LINKAGE IPropagator
 {
 public:
 	virtual ~IPropagator();
@@ -439,7 +438,7 @@ public:
 	{}
 };
 
-class DLL_EXPORT CPropagatorNodeType : public IPropagator
+class DLL_LINKAGE CPropagatorNodeType : public IPropagator
 {
 	ui8 nodeType;
 public:
@@ -454,7 +453,7 @@ public:
 	}
 };
 	
-class DLL_EXPORT ILimiter
+class DLL_LINKAGE ILimiter
 {
 public:
 	virtual ~ILimiter();
@@ -465,7 +464,7 @@ public:
 	{}
 };
 
-class DLL_EXPORT IBonusBearer
+class DLL_LINKAGE IBonusBearer
 {
 public:
 	//new bonusing node interface
@@ -504,7 +503,7 @@ public:
 	const TBonusListPtr getSpellBonuses() const;
 };
 
-class DLL_EXPORT CBonusSystemNode : public IBonusBearer
+class DLL_LINKAGE CBonusSystemNode : public IBonusBearer
 {
 private:
 	BonusList bonuses; //wielded bonuses (local or up-propagated here)
@@ -600,11 +599,11 @@ public:
 namespace NBonus
 {
 	//set of methods that may be safely called with NULL objs
-	DLL_EXPORT int valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1); //subtype -> subtype of bonus, if -1 then any
-	DLL_EXPORT bool hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1);//determines if hero has a bonus of given type (and optionally subtype)
-	//DLL_EXPORT const HeroBonus * get(const CBonusSystemNode *obj, int from, int id );
-	DLL_EXPORT void getModifiersWDescr(const CBonusSystemNode *obj, TModDescr &out, Bonus::BonusType type, int subtype = -1 );  //out: pairs<modifier value, modifier description>
-	DLL_EXPORT int getCount(const CBonusSystemNode *obj, int from, int id);
+	DLL_LINKAGE int valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1); //subtype -> subtype of bonus, if -1 then any
+	DLL_LINKAGE bool hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1);//determines if hero has a bonus of given type (and optionally subtype)
+	//DLL_LINKAGE const HeroBonus * get(const CBonusSystemNode *obj, int from, int id );
+	DLL_LINKAGE void getModifiersWDescr(const CBonusSystemNode *obj, TModDescr &out, Bonus::BonusType type, int subtype = -1 );  //out: pairs<modifier value, modifier description>
+	DLL_LINKAGE int getCount(const CBonusSystemNode *obj, int from, int id);
 };
 
 /// generates HeroBonus from given data
@@ -629,7 +628,7 @@ inline Bonus * makeFeature(Bonus::BonusType type, ui8 duration, si16 subtype, si
 }
 
 
-class DLL_EXPORT CSelectorsConjunction
+class DLL_LINKAGE CSelectorsConjunction
 {
 	const CSelector first, second;
 public:
@@ -642,9 +641,9 @@ public:
 		return first(bonus) && second(bonus);
 	}
 };
-CSelector DLL_EXPORT operator&&(const CSelector &first, const CSelector &second);
+CSelector DLL_LINKAGE operator&&(const CSelector &first, const CSelector &second);
 
-class DLL_EXPORT CSelectorsAlternative
+class DLL_LINKAGE CSelectorsAlternative
 {
 	const CSelector first, second;
 public:
@@ -657,7 +656,7 @@ public:
 		return first(bonus) || second(bonus);
 	}
 };
-CSelector DLL_EXPORT operator||(const CSelector &first, const CSelector &second);
+CSelector DLL_LINKAGE operator||(const CSelector &first, const CSelector &second);
 
 template<typename T>
 class CSelectFieldEqual
@@ -680,7 +679,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CWillLastTurns
+class DLL_LINKAGE CWillLastTurns
 {
 public:
 	int turnsRequested;
@@ -698,7 +697,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
+class DLL_LINKAGE CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)
 {
 public:
 	const CCreature *creature;
@@ -715,7 +714,7 @@ public:
 	}
 };
 
-class DLL_EXPORT HasAnotherBonusLimiter : public ILimiter //applies only to nodes that have another bonus working
+class DLL_LINKAGE HasAnotherBonusLimiter : public ILimiter //applies only to nodes that have another bonus working
 {
 public:
 	TBonusType type;
@@ -733,7 +732,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CreatureNativeTerrainLimiter : public ILimiter //applies only to creatures that are on their native terrain 
+class DLL_LINKAGE CreatureNativeTerrainLimiter : public ILimiter //applies only to creatures that are on their native terrain 
 {
 public:
 	si8 terrainType;
@@ -748,7 +747,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CreatureFactionLimiter : public ILimiter //applies only to creatures of given faction
+class DLL_LINKAGE CreatureFactionLimiter : public ILimiter //applies only to creatures of given faction
 {
 public:
 	si8 faction;
@@ -763,7 +762,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CreatureAlignmentLimiter : public ILimiter //applies only to creatures of given alignment
+class DLL_LINKAGE CreatureAlignmentLimiter : public ILimiter //applies only to creatures of given alignment
 {
 public:
 	si8 alignment;
@@ -778,7 +777,7 @@ public:
 	}
 };
 
-class DLL_EXPORT StackOwnerLimiter : public ILimiter //applies only to creatures of given alignment
+class DLL_LINKAGE StackOwnerLimiter : public ILimiter //applies only to creatures of given alignment
 {
 public:
 	ui8 owner;
@@ -793,7 +792,7 @@ public:
 	}
 };
 
-class DLL_EXPORT RankRangeLimiter : public ILimiter //applies to creatures with min <= Rank <= max
+class DLL_LINKAGE RankRangeLimiter : public ILimiter //applies to creatures with min <= Rank <= max
 {
 public:
 	ui8 minRank, maxRank;
@@ -812,26 +811,26 @@ const CCreature *retrieveCreature(const CBonusSystemNode *node);
 
 namespace Selector
 {
-	extern DLL_EXPORT CSelectFieldEqual<TBonusType> type;
-	extern DLL_EXPORT CSelectFieldEqual<TBonusSubtype> subtype;
-	extern DLL_EXPORT CSelectFieldEqual<si32> info;
-	extern DLL_EXPORT CSelectFieldEqual<ui16> duration;
-	extern DLL_EXPORT CSelectFieldEqual<ui8> sourceType;
-	extern DLL_EXPORT CSelectFieldEqual<ui8> effectRange;
-	extern DLL_EXPORT CWillLastTurns turns;
+	extern DLL_LINKAGE CSelectFieldEqual<TBonusType> type;
+	extern DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype;
+	extern DLL_LINKAGE CSelectFieldEqual<si32> info;
+	extern DLL_LINKAGE CSelectFieldEqual<ui16> duration;
+	extern DLL_LINKAGE CSelectFieldEqual<ui8> sourceType;
+	extern DLL_LINKAGE CSelectFieldEqual<ui8> effectRange;
+	extern DLL_LINKAGE CWillLastTurns turns;
 
-	CSelector DLL_EXPORT typeSubtype(TBonusType Type, TBonusSubtype Subtype);
-	CSelector DLL_EXPORT typeSubtypeInfo(TBonusType type, TBonusSubtype subtype, si32 info);
-	CSelector DLL_EXPORT source(ui8 source, ui32 sourceID);
-	CSelector DLL_EXPORT durationType(ui16 duration);
-	CSelector DLL_EXPORT sourceTypeSel(ui8 source);
+	CSelector DLL_LINKAGE typeSubtype(TBonusType Type, TBonusSubtype Subtype);
+	CSelector DLL_LINKAGE typeSubtypeInfo(TBonusType type, TBonusSubtype subtype, si32 info);
+	CSelector DLL_LINKAGE source(ui8 source, ui32 sourceID);
+	CSelector DLL_LINKAGE durationType(ui16 duration);
+	CSelector DLL_LINKAGE sourceTypeSel(ui8 source);
 
-	bool DLL_EXPORT matchesType(const CSelector &sel, TBonusType type);
-	bool DLL_EXPORT matchesTypeSubtype(const CSelector &sel, TBonusType type, TBonusSubtype subtype);
-	bool DLL_EXPORT positiveSpellEffects(const Bonus *b);
+	bool DLL_LINKAGE matchesType(const CSelector &sel, TBonusType type);
+	bool DLL_LINKAGE matchesTypeSubtype(const CSelector &sel, TBonusType type, TBonusSubtype subtype);
+	bool DLL_LINKAGE positiveSpellEffects(const Bonus *b);
 }
 
-extern DLL_EXPORT const std::map<std::string, int> bonusNameMap;
+extern DLL_LINKAGE const std::map<std::string, int> bonusNameMap;
 
 // BonusList template that requires full interface of CBonusSystemNode
 template <class InputIterator>

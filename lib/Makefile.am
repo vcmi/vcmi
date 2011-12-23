@@ -1,6 +1,10 @@
+BUILT_SOURCES = StdInc.h.gch
+StdInc.h.gch: StdInc.h
+	$(CXXCOMPILE) -DVCMI_DLL -fPIC -c $<
+
 pkglib_LTLIBRARIES = libvcmi.la
 libvcmi_la_LIBADD = @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lz -lpthread -ldl
-libvcmi_la_CXXFLAGS = @SDL_CFLAGS@
+libvcmi_la_CXXFLAGS = @SDL_CFLAGS@ -DVCMI_DLL
 libvcmi_la_SOURCES = \
 	BattleAction.cpp \
 	BattleAction.h \
@@ -12,6 +16,8 @@ libvcmi_la_SOURCES = \
 	CBuildingHandler.h \
 	CCampaignHandler.cpp \
 	CCampaignHandler.h \
+	CConsoleHandler.cpp \
+	CConsoleHandler.h \
 	CCreatureHandler.cpp \
 	CCreatureHandler.h \
 	CCreatureSet.cpp \
@@ -30,6 +36,8 @@ libvcmi_la_SOURCES = \
 	CHeroHandler.h \
 	CLodHandler.cpp \
 	CLodHandler.h \
+	CLogger.cpp \
+	CLogger.h \
 	CMapInfo.cpp \
 	CMapInfo.h \
 	CObjectHandler.cpp \
@@ -40,6 +48,8 @@ libvcmi_la_SOURCES = \
 	CScriptingModule.h \
 	CTownHandler.cpp \
 	CTownHandler.h \
+	CThreadHelper.cpp \
+	CThreadHelper.h \
 	CondSh.h \
 	Connection.cpp \
 	Connection.h \
@@ -56,8 +66,9 @@ libvcmi_la_SOURCES = \
 	NetPacksLib.cpp \
 	ResourceSet.cpp \
 	ResourceSet.h \
-	RegisterTypes.cpp \
 	RegisterTypes.h \
+	BattleHex.cpp \
+	BattleHex.h \
 	VCMIDirs.h \
 	VCMI_Lib.cpp \
 	VCMI_Lib.h \

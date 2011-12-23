@@ -1,3 +1,5 @@
+#pragma once
+
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/sync/interprocess_condition.hpp>
 #include <boost/interprocess/mapped_region.hpp>

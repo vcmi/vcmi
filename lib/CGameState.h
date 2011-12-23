@@ -1,7 +1,6 @@
-#ifndef __CGAMESTATE_H__
-#define __CGAMESTATE_H__
-#include "../global.h"
-#include <cassert>
+#pragma once
+
+
 
 #ifndef _MSC_VER
 #include "CCreatureHandler.h"
@@ -9,21 +8,12 @@
 #include "map.h"
 #endif
 
-#include <set>
-#include <vector>
-#include <list>
 #include "HeroBonus.h"
 #include "CCreatureSet.h"
-
-#ifdef _WIN32
-#include <tchar.h>
-#else
-#include "../tchar_amigaos4.h"
-#endif
-
 #include "ConstTransitivePtr.h"
 #include "IGameCallback.h"
 #include "ResourceSet.h"
+#include "int3.h"
 
 
 /*
@@ -67,6 +57,7 @@ class CCampaign;
 class CCampaignState;
 class IModableArt;
 class CGGarrison;
+class CGameInfo;
 
 namespace boost
 {
@@ -77,18 +68,18 @@ namespace boost
 struct ArmyDescriptor : public std::map<TSlot, CStackBasicDescriptor>
 {
 	bool isDetailed; 
-	DLL_EXPORT ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count
-	DLL_EXPORT ArmyDescriptor();
+	DLL_LINKAGE ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count
+	DLL_LINKAGE ArmyDescriptor();
 
-	DLL_EXPORT int getStrength() const;
+	DLL_LINKAGE int getStrength() const;
 };
 
-struct DLL_EXPORT InfoAboutHero
+struct DLL_LINKAGE InfoAboutHero
 {
 private:
 	void assign(const InfoAboutHero & iah);
 public:
-	struct DLL_EXPORT Details
+	struct DLL_LINKAGE Details
 	{
 		std::vector<int> primskills;
 		int mana, luck, morale;
@@ -108,8 +99,8 @@ public:
 	void initFromHero(const CGHeroInstance *h, bool detailed);
 };
 
-/// Struct which holds a short information about a town
-struct DLL_EXPORT InfoAboutTown
+/// Struct which holds a int information about a town
+struct DLL_LINKAGE InfoAboutTown
 {
 	struct Details
 	{
@@ -138,7 +129,7 @@ struct DLL_EXPORT InfoAboutTown
 // typedef std::vector<si32> TResourceVector;
 // typedef std::set<si32> TResourceSet;
 
-struct DLL_EXPORT SThievesGuildInfo
+struct DLL_LINKAGE SThievesGuildInfo
 {
 	std::vector<ui8> playerColors; //colors of players that are in-game
 
@@ -157,7 +148,7 @@ struct DLL_EXPORT SThievesGuildInfo
 
 };
 
-struct DLL_EXPORT PlayerState : public CBonusSystemNode
+struct DLL_LINKAGE PlayerState : public CBonusSystemNode
 {
 public:
 	enum EStatus {INGAME, LOSER, WINNER};
@@ -192,7 +183,7 @@ public:
 	}
 };
 
-struct DLL_EXPORT TeamState : public CBonusSystemNode
+struct DLL_LINKAGE TeamState : public CBonusSystemNode
 {
 public:
 	ui8 id; //position in gameState::teams
@@ -246,7 +237,7 @@ struct CGPathNode
 };
 
 
-struct DLL_EXPORT CPath
+struct DLL_LINKAGE CPath
 {
 	std::vector<CPathNode> nodes; //just get node by node
 
@@ -255,7 +246,7 @@ struct DLL_EXPORT CPath
 	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
 };
 
-struct DLL_EXPORT CGPath
+struct DLL_LINKAGE CGPath
 {
 	std::vector<CGPathNode> nodes; //just get node by node
 
@@ -264,7 +255,7 @@ struct DLL_EXPORT CGPath
 	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
 };
 
-struct DLL_EXPORT CPathsInfo
+struct DLL_LINKAGE CPathsInfo
 {
 	bool isValid;
 	const CGHeroInstance *hero;
@@ -277,7 +268,7 @@ struct DLL_EXPORT CPathsInfo
 	~CPathsInfo();
 };
 
-struct DLL_EXPORT DuelParameters
+struct DLL_LINKAGE DuelParameters
 {
 	si32 terType, bfieldType;
 	struct SideSettings
@@ -293,7 +284,8 @@ struct DLL_EXPORT DuelParameters
 
 			StackSettings();
 			StackSettings(si32 Type, si32 Count);
-		} stacks[ARMY_SIZE];
+		};
+		StackSettings stacks[GameConstants::ARMY_SIZE];
 
 		si32 heroId; //-1 if none
 		std::set<si32> spells;
@@ -349,7 +341,7 @@ public:
 
 struct BattleInfo;
 
-class DLL_EXPORT CGameState : public CNonConstInfoCallback
+class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 {
 public:
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
@@ -365,7 +357,7 @@ public:
 	CBonusSystemNode globalEffects;
 	bmap<const CGHeroInstance*, const CGObjectInstance*> ongoingVisits;
 
-	struct DLL_EXPORT HeroesPool
+	struct DLL_LINKAGE HeroesPool
 	{
 		bmap<ui32, ConstTransitivePtr<CGHeroInstance> > heroesPool; //[subID] - heroes available to buy; NULL if not available
 		bmap<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
@@ -389,7 +381,6 @@ public:
 	int battleGetBattlefieldType(int3 tile = int3());//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
 	int getPlayerRelations(ui8 color1, ui8 color2);// 0 = enemy, 1 = ally, 2 = same player
-	//float getMarketEfficiency(int player, int mode=0);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	bool checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst) const; //check if src tile is visitable from dst tile
 	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists
@@ -435,7 +426,4 @@ public:
 	friend class CMapHandler;
 	friend class CGameHandler;
 };
-
-
-#endif // __CGAMESTATE_H__
  

@@ -1,20 +1,20 @@
+#include "StdInc.h"
 #include "GUIClasses.h"
-#include "SDL_Extensions.h"
+#include "UIFramework/SDL_Extensions.h"
 
-#include "../stdafx.h"
 #include "CAdvmapInterface.h"
-#include "CBattleInterface.h"
+#include "BattleInterface/CBattleInterface.h"
+#include "BattleInterface/CBattleInterfaceClasses.h"
 #include "../CCallback.h"
 #include "CCastleInterface.h"
 #include "CCreatureWindow.h"
-#include "CCursorHandler.h"
+#include "UIFramework/CCursorHandler.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CMessage.h"
 #include "CConfigHandler.h"
-#include "SDL_framerate.h"
 #include "CConfigHandler.h"
-#include "CCreatureAnimation.h"
+#include "BattleInterface/CCreatureAnimation.h"
 #include "CPlayerInterface.h"
 #include "Graphics.h"
 #include "CAnimation.h"
@@ -29,30 +29,20 @@
 #include "../lib/CondSh.h"
 #include "../lib/map.h"
 #include "mapHandler.h"
-#include "../timeHandler.h"
-#include <boost/foreach.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/format.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/replace.hpp>
-#include <boost/assign/std/vector.hpp> 
-#include <boost/assign/list_of.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-//#include <boost/thread.hpp>
-#include <cmath>
-#include <queue>
-#include <sstream>
+#include "../lib/CStopWatch.h"
 #include "../lib/NetPacks.h"
 #include "CSpellWindow.h"
 #include "CHeroWindow.h"
 #include "CVideoHandler.h"
-#include "../StartInfo.h"
+#include "../lib/StartInfo.h"
 #include "CPreGame.h"
 #include "../lib/HeroBonus.h"
 #include "../lib/CCreatureHandler.h"
 #include "CMusicHandler.h"
 #include "../lib/BattleState.h"
 #include "../lib/CGameState.h"
+#include "../lib/GameConstants.h"
+#include "UIFramework/CGuiHandler.h"
 
 /*
  * GUIClasses.cpp, part of VCMI engine
@@ -116,7 +106,7 @@ void CGarrisonSlot::hover (bool on)
 				{
 					temp = CGI->generaltexth->tcommands[32]; //Select %s (visiting)
 				}
-				else if(owner->armedObjs[0] && owner->armedObjs[0]->ID == TOWNI_TYPE)
+				else if(owner->armedObjs[0] && owner->armedObjs[0]->ID == GameConstants::TOWNI_TYPE)
 				{
 					temp = CGI->generaltexth->tcommands[12]; //Select %s (in garrison)
 				}
@@ -339,7 +329,7 @@ void CGarrisonSlot::showAll(SDL_Surface * to)
 		char buf[15];
 		SDL_itoa(count,buf,10);
 		blitAt(imgs[creature->idNumber],pos,to);
-		printTo(buf, pos.x+pos.w, pos.y+pos.h+1, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, zwykly, to);
+		printTo(buf, pos.x+pos.w, pos.y+pos.h+1, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, Colors::Cornsilk, to);
 
 		if((owner->highlighted==this)
 			|| (owner->splitting && owner->highlighted->creature == creature))
@@ -360,7 +350,7 @@ CGarrisonInt::~CGarrisonInt()
 		delete splitButtons[i];*/
 }
 
-void CGarrisonInt::addSplitBtn(AdventureMapButton * button)
+void CGarrisonInt::addSplitBtn(CAdventureMapButton * button)
 {
 	addChild(button);
 	button->recActions = defActions;
@@ -484,14 +474,14 @@ CInfoWindow::CInfoWindow(std::string Text, int player, const TCompsInfo &comps, 
 	ID = -1;
 	for(int i=0;i<Buttons.size();i++)
 	{
-		AdventureMapButton *button = new AdventureMapButton("","",boost::bind(&CInfoWindow::close,this),0,0,Buttons[i].first);
+		CAdventureMapButton *button = new CAdventureMapButton("","",boost::bind(&CInfoWindow::close,this),0,0,Buttons[i].first);
 		button->borderColor = Colors::MetallicGold;
 		button->borderEnabled = true;
 		button->callback.add(Buttons[i].second); //each button will close the window apart from call-defined actions
 		buttons.push_back(button);
 	}
 
-	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, zwykly);
+	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::Cornsilk);
 	if(!text->slider)
 	{
 		text->pos.w = text->maxW;
@@ -544,19 +534,19 @@ CInfoWindow::~CInfoWindow()
 	}
 }
 
-void CInfoWindow::showAll( SDL_Surface * to )
+void CInfoWindow::showAll(SDL_Surface * to)
 {
 	CSimpleWindow::show(to);
 	CIntObject::showAll(to);
 }
 
-void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<SComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps, int player)
+void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<CComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps, int player)
 {
 	assert(!LOCPLINT || LOCPLINT->showingDialog->get());
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
-	CInfoWindow * temp = new CInfoWindow(text, player, components ? *components : std::vector<SComponent*>(), pom, DelComps);
+	CInfoWindow * temp = new CInfoWindow(text, player, components ? *components : std::vector<CComponent*>(), pom, DelComps);
 	for(int i=0;i<onYes.funcs.size();i++)
 		temp->buttons[0]->callback += onYes.funcs[i];
 	for(int i=0;i<onNo.funcs.size();i++)
@@ -565,74 +555,24 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<SC
 	GH.pushInt(temp);
 }
 
-CInfoWindow * CInfoWindow::create(const std::string &text, int playerID /*= 1*/, const std::vector<SComponent*> *components /*= NULL*/, bool DelComps)
+CInfoWindow * CInfoWindow::create(const std::string &text, int playerID /*= 1*/, const std::vector<CComponent*> *components /*= NULL*/, bool DelComps)
 {
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
-	CInfoWindow * ret = new CInfoWindow(text, playerID, components ? *components : std::vector<SComponent*>(), pom, DelComps);
+	CInfoWindow * ret = new CInfoWindow(text, playerID, components ? *components : std::vector<CComponent*>(), pom, DelComps);
 	return ret;
 }
 
 void CInfoWindow::setDelComps(bool DelComps)
 {
 	delComps = DelComps;
-	BOOST_FOREACH(SComponent *comp, components)
+	BOOST_FOREACH(CComponent *comp, components)
 	{
 		if(delComps)
 			comp->recActions |= DISPOSE;
 		else
 			comp->recActions &= ~DISPOSE;
 	}
-}
-
-void CRClickPopup::clickRight(tribool down, bool previousState)
-{
-	if(down)
-		return;
-	close();
-}
-
-void CRClickPopup::activate()
-{
-	activateRClick();
-}
-
-void CRClickPopup::deactivate()
-{
-	deactivateRClick();
-}
-
-void CRClickPopup::close()
-{
-	GH.popIntTotally(this);
-}
-
-void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCompsInfo &comps)
-{
-	int player = LOCPLINT ? LOCPLINT->playerID : 1; //if no player, then use blue
-
-	CSimpleWindow * temp = new CInfoWindow(txt, player, comps);
-	temp->center(Point(GH.current->motion)); //center on mouse
-	temp->fitToScreen(10);
-	CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
-	GH.pushInt(rcpi);
-}
-
-void CRClickPopup::createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment /*= BOTTOMRIGHT*/)
-{
-	SDL_Surface *iWin = LOCPLINT->infoWin(obj); //try get custom infowindow for this obj
-	if(iWin)
-		GH.pushInt(new CInfoPopup(iWin, p, alignment, true));
-	else
-		CRClickPopup::createAndPush(obj->getHoverText());
-}
-
-CRClickPopup::CRClickPopup()
-{
-}
-
-CRClickPopup::~CRClickPopup()
-{
 }
 
 CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
@@ -702,13 +642,13 @@ void CInfoPopup::init(int x, int y)
 	pos.w = bitmap->w;
 
 	// Put the window back on screen if necessary
-	amax(pos.x, 0);
-	amax(pos.y, 0);
-	amin(pos.x, conf.cc.resx - bitmap->w);
-	amin(pos.y, conf.cc.resy - bitmap->h);
+	vstd::amax(pos.x, 0);
+	vstd::amax(pos.y, 0);
+	vstd::amin(pos.x, conf.cc.resx - bitmap->w);
+	vstd::amin(pos.y, conf.cc.resy - bitmap->h);
 }
 
-void SComponent::init(Etype Type, int Subtype, int Val)
+void CComponent::init(Etype Type, int Subtype, int Val)
 {
 	std::ostringstream oss;
 	switch (Type)
@@ -794,12 +734,12 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 	pos.w = temp->w;
 	pos.h = temp->h;
 }
-SComponent::SComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur, bool freeSur):img(sur),free(freeSur)
+CComponent::CComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur, bool freeSur):img(sur),free(freeSur)
 {
 	init(Type,Subtype,Val);
 }
 
-SComponent::SComponent(const Component &c)
+CComponent::CComponent(const Component &c)
 {
 	if(c.id==5)
 		init(experience,c.subtype,c.val);
@@ -812,21 +752,21 @@ SComponent::SComponent(const Component &c)
 		subtitle += CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
 }
 
-SComponent::SComponent()
+CComponent::CComponent()
 {
 	img = NULL;
 }
 
-SComponent::~SComponent()
+CComponent::~CComponent()
 {
 	if (free && img)
 		SDL_FreeSurface(img);
 }
 
-SDL_Surface * SComponent::setSurface(std:: string defname, int imagepos)
+SDL_Surface * CComponent::setSurface(std:: string defname, int imagepos)
 {
 	if (img)
-		tlog1<<"SComponent::setSurface: Warning - surface is already set!\n";
+		tlog1<<"CComponent::setSurface: Warning - surface is already set!\n";
 	CDefEssential * def = CDefHandler::giveDefEss(defname);
 	
 	free = true;
@@ -836,12 +776,12 @@ SDL_Surface * SComponent::setSurface(std:: string defname, int imagepos)
 	return img;
 }
 
-void SComponent::show(SDL_Surface * to)
+void CComponent::show(SDL_Surface * to)
 {
 	blitAt(getImg(),pos.x,pos.y,to);
 }
 
-SDL_Surface * SComponent::getImg()
+SDL_Surface * CComponent::getImg()
 {
 	if (img)
 		return img;
@@ -876,16 +816,16 @@ SDL_Surface * SComponent::getImg()
 	}
 	return NULL;
 }
-void SComponent::clickRight(tribool down, bool previousState)
+void CComponent::clickRight(tribool down, bool previousState)
 {
 	if(description.size())
 		adventureInt->handleRightClick(description,down);
 }
-void SComponent::activate()
+void CComponent::activate()
 {
 	activateRClick();
 }
-void SComponent::deactivate()
+void CComponent::deactivate()
 {
 	deactivateRClick();
 }
@@ -903,12 +843,12 @@ void CSelectableComponent::init()
 	selected = false;
 }
 CSelectableComponent::CSelectableComponent(const Component &c, boost::function<void()> OnSelect)
-:SComponent(c),onSelect(OnSelect)
+:CComponent(c),onSelect(OnSelect)
 {
 	init();
 }
 CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect)
-:SComponent(Type,Sub,Val),onSelect(OnSelect)
+:CComponent(Type,Sub,Val),onSelect(OnSelect)
 {
 	init();
 }
@@ -918,13 +858,13 @@ CSelectableComponent::~CSelectableComponent()
 void CSelectableComponent::activate()
 {
 	activateKeys();
-	SComponent::activate();
+	CComponent::activate();
 	activateLClick();
 }
 void CSelectableComponent::deactivate()
 {
 	deactivateKeys();
-	SComponent::deactivate();
+	CComponent::deactivate();
 	deactivateLClick();
 }
 void CSelectableComponent::select(bool on)
@@ -947,201 +887,7 @@ void CSelectableComponent::show(SDL_Surface * to)
 		CSDL_Ext::drawBorder(to, Rect::around(Rect(pos.x, pos.y, getImg()->w, getImg()->h)), int3(239,215,123));
 	}
 	
-	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+25,FONT_SMALL,12,zwykly,to);
-}
-
-static void intDeleter(CIntObject* object)
-{
-	delete object;
-}
-
-CObjectList::CObjectList(CreateFunc create, DestroyFunc destroy):
-	createObject(create),
-	destroyObject(destroy)
-{
-	if (!destroyObject)
-		destroyObject = intDeleter;
-}
-
-void CObjectList::deleteItem(CIntObject* item)
-{
-	if (!item)
-		return;
-	if (active)
-		item->deactivate();
-	removeChild(item);
-	destroyObject(item);
-}
-
-CIntObject* CObjectList::createItem(size_t index)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	CIntObject * item = createObject(index);
-	if (item == NULL)
-		item = new CIntObject();
-
-	item->recActions = defActions;
-
-	//May happen if object was created before call to getObject()
-	if(item->parent != this)
-	{
-		if (item->parent)
-			moveChild(item, item->parent, this);
-		else
-			addChild(item);
-	}
-
-	if (item && active)
-		item->activate();
-	return item;
-}
-
-CTabbedInt::CTabbedInt(CreateFunc create, DestroyFunc destroy, Point position, size_t ActiveID):
-	CObjectList(create, destroy),
-	activeTab(NULL),
-	activeID(ActiveID)
-{
-	pos += position;
-	reset();
-}
-
-void CTabbedInt::setActive(size_t which)
-{
-	if (which != activeID)
-	{
-		activeID = which;
-		reset();
-	}
-}
-
-void CTabbedInt::reset()
-{
-	deleteItem(activeTab);
-	activeTab = createItem(activeID);
-	activeTab->moveTo(pos.topLeft());
-
-	if (active)
-		redraw();
-}
-
-CIntObject * CTabbedInt::getItem()
-{
-	return activeTab;
-}
-
-CListBox::CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point ItemOffset, size_t VisibleSize,
-                   size_t TotalSize, size_t InitialPos, int Slider, Rect SliderPos):
-	CObjectList(create, destroy),
-	first(InitialPos),
-	totalSize(TotalSize),
-	itemOffset(ItemOffset)
-{
-	pos += Pos;
-	items.resize(VisibleSize, NULL);
-
-	if (Slider & 1)
-	{
-		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		slider = new CSlider(SliderPos.x, SliderPos.y, SliderPos.w, boost::bind(&CListBox::moveToPos, this, _1),
-		                     VisibleSize, TotalSize, InitialPos, Slider & 2, Slider & 4);
-	}
-	reset();
-}
-
-// Used to move active items after changing list position
-void CListBox::updatePositions()
-{
-	Point itemPos = pos.topLeft();
-	for (std::list<CIntObject*>::iterator it = items.begin(); it!=items.end(); it++)
-	{
-		(*it)->moveTo(itemPos);
-		itemPos += itemOffset;
-	}
-	if (active)
-	{
-		redraw();
-		if (slider)
-			slider->moveTo(first);
-	}
-}
-
-void CListBox::reset()
-{
-	size_t current = first;
-	for (std::list<CIntObject*>::iterator it = items.begin(); it!=items.end(); it++)
-	{
-		deleteItem(*it);
-		*it = createItem(current++);
-	}
-	updatePositions();
-}
-
-void CListBox::moveToPos(size_t which)
-{
-	//Calculate new position
-	size_t maxPossible;
-	if (totalSize > items.size())
-		maxPossible = totalSize - items.size();
-	else
-		maxPossible = 0;
-
-	size_t newPos = std::min(which, maxPossible);
-
-	//If move distance is 1 (most of calls from Slider) - use faster shifts instead of resetting all items
-	if (first - newPos == 1)
-		moveToPrev();
-	else if (newPos - first == 1)
-		moveToNext();
-	else if (newPos != first)
-	{
-		first = newPos;
-		reset();
-	}
-}
-
-void CListBox::moveToNext()
-{
-	//Remove front item and insert new one to end
-	if (first + items.size() < totalSize)
-	{
-		first++;
-		deleteItem(items.front());
-		items.pop_front();
-		items.push_back(createItem(first+items.size()));
-		updatePositions();
-	}
-}
-
-void CListBox::moveToPrev()
-{
-	//Remove last item and insert new one at start
-	if (first)
-	{
-		first--;
-		deleteItem(items.back());
-		items.pop_back();
-		items.push_front(createItem(first));
-		updatePositions();
-	}
-}
-
-std::list<CIntObject*> CListBox::getItems()
-{
-	return items;
-}
-
-void CSimpleWindow::show(SDL_Surface * to)
-{
-	if(bitmap)
-		blitAt(bitmap,pos.x,pos.y,to);
-}
-CSimpleWindow::~CSimpleWindow()
-{
-	if (bitmap)
-	{
-		SDL_FreeSurface(bitmap);
-		bitmap=NULL;
-	}
+	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+25,FONT_SMALL,12,Colors::Cornsilk,to);
 }
 
 void CSelWindow::selectionChange(unsigned to)
@@ -1161,13 +907,13 @@ CSelWindow::CSelWindow(const std::string &Text, int player, int charperline, con
 	ID = askID;
 	for(int i=0;i<Buttons.size();i++)
 	{
-		buttons.push_back(new AdventureMapButton("","",Buttons[i].second,0,0,Buttons[i].first));
+		buttons.push_back(new CAdventureMapButton("","",Buttons[i].second,0,0,Buttons[i].first));
 		if(!i  &&  askID >= 0)
 			buttons.back()->callback += boost::bind(&CSelWindow::madeChoice,this);
 		buttons[i]->callback += boost::bind(&CInfoWindow::close,this); //each button will close the window apart from call-defined actions
 	}
 
-	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, zwykly);
+	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::Cornsilk);
 	text->redrawParentOnScrolling = true;
 
 	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
@@ -1187,7 +933,7 @@ CSelWindow::CSelWindow(const std::string &Text, int player, int charperline, con
 	}
 	CMessage::drawIWindow(this, Text, player);
 
-	BOOST_FOREACH(SComponent *c, components)
+	BOOST_FOREACH(CComponent *c, components)
 		c->subtitle = "";//workaround - erase subtitles since they were hard-blitted by function drawing window
 }
 
@@ -1204,100 +950,6 @@ void CSelWindow::madeChoice()
 		}
 	}
 	LOCPLINT->cb->selectionMade(ret+1,ID);
-}
-
-
-
-CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
-{
-	bg=BitmapHandler::loadBitmap(name);
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	pos.x += x;
-	pos.y += y;
-	if(maxw >= 0)
-		pos.w = std::min(bg->w,maxw);
-	else
-		pos.w=bg->w;
-	pos.h=bg->h;
-	middlex=(pos.w/2)+pos.x;
-	middley=(bg->h/2)+pos.y;
-}
-
-CStatusBar::~CStatusBar()
-{
-	SDL_FreeSurface(bg);
-}
-
-void CStatusBar::clear()
-{
-	if(LOCPLINT->cingconsole->enteredText == "") //for appropriate support for in-game console
-	{
-		current="";
-		redraw();
-	}
-}
-
-void CStatusBar::print(const std::string & text)
-{
-	if(LOCPLINT->cingconsole->enteredText == "" || text == LOCPLINT->cingconsole->enteredText) //for appropriate support for in-game console
-	{
-		current=text;
-		redraw();
-	}
-}
-
-void CStatusBar::show(SDL_Surface * to)
-{
-	SDL_Rect srcRect = genRect(pos.h,pos.w,0,0);
-	SDL_Rect dstRect = genRect(pos.h,pos.w,pos.x,pos.y);
-	CSDL_Ext::blitSurface(bg,&srcRect,to,&dstRect);
-	printAtMiddle(current,middlex,middley,FONT_SMALL,zwykly,to);
-}
-
-std::string CStatusBar::getCurrent()
-{
-	return current;
-}
-
-void CList::activate()
-{
-	activateLClick();
-	activateRClick();
-	activateHover();
-	activateKeys();
-	activateMouseMove();
-};
-
-void CList::deactivate()
-{
-	deactivateLClick();
-	deactivateRClick();
-	deactivateHover();
-	deactivateKeys();
-	deactivateMouseMove();
-};
-
-void CList::clickLeft(tribool down, bool previousState)
-{
-};
-
-CList::CList(int Size)
-:SIZE(Size)
-{
-}
-
-void CList::fixPos()
-{
-	if(selected < 0) //no selection, do nothing
-		return;
-	if(selected < from) //scroll up
-		from = selected;
-	else if(from + SIZE <= selected)
-		from = selected - SIZE + 1; 
-
-	amin(from, size() - SIZE);
-	amax(from, 0);
-	draw(screen);
 }
 
 CHeroList::CHeroList(int Size)
@@ -1397,7 +1049,7 @@ void CHeroList::clickLeft(tribool down, bool previousState)
 		int ny = hy/32;
 		if (ny>=SIZE || ny<0)
 			return;
-		if ( (ny+from)==selected && (adventureInt->selection->ID == HEROI_TYPE))
+		if ( (ny+from)==selected && (adventureInt->selection->ID == GameConstants::HEROI_TYPE))
 			LOCPLINT->openHeroWindow(LOCPLINT->wanderingHeroes[selected]);//print hero screen
 		select(ny+from);
 	}
@@ -1566,7 +1218,7 @@ void CHeroList::draw(SDL_Surface * to)
 		blitAt(mana->ourImages[pom].bitmap,posmanx,posmany+i*32,to); //mana
 		SDL_Surface * temp = graphics->portraitSmall[cur->portrait];
 		blitAt(temp,posporx,pospory+i*32,to);
-		if (adventureInt->selection && (selected == iT) && (adventureInt->selection->ID == HEROI_TYPE))
+		if (adventureInt->selection && (selected == iT) && (adventureInt->selection->ID == GameConstants::HEROI_TYPE))
 		{
 			blitAt(selection,posporx,pospory+i*32,to);
 		}
@@ -1585,15 +1237,15 @@ void CHeroList::draw(SDL_Surface * to)
 
 int CHeroList::getPosOfHero(const CGHeroInstance* h)
 {
-	return vstd::findPos(LOCPLINT->wanderingHeroes, h, std::equal_to<const CGHeroInstance*>());
+	return vstd::find_pos(LOCPLINT->wanderingHeroes, h, std::equal_to<const CGHeroInstance*>());
 }
 
-void CHeroList::show( SDL_Surface * to )
+void CHeroList::show(SDL_Surface * to)
 {
 
 }
 
-void CHeroList::showAll( SDL_Surface * to )
+void CHeroList::showAll(SDL_Surface * to)
 {
 	draw(to);
 }
@@ -1722,7 +1374,7 @@ void CTownList::clickLeft(tribool down, bool previousState)
 			return;
 		if(GH.topInt() == adventureInt
 		  && (ny+from)==selected 
-		  && adventureInt->selection->ID == TOWNI_TYPE
+		  && adventureInt->selection->ID == GameConstants::TOWNI_TYPE
 		  )
 			LOCPLINT->openTownWindow(LOCPLINT->towns[selected]);//print town screen
 		else
@@ -1813,7 +1465,7 @@ void CTownList::draw(SDL_Surface * to)
 
 		blitAt(graphics->getPic(LOCPLINT->towns[iT]->subID,LOCPLINT->towns[iT]->hasFort(),LOCPLINT->towns[iT]->builded),posporx,pospory+i*32,to);
 
-		if (adventureInt->selection && (selected == iT) && (adventureInt->selection->ID == TOWNI_TYPE))
+		if (adventureInt->selection && (selected == iT) && (adventureInt->selection->ID == GameConstants::TOWNI_TYPE))
 		{
 			blitAt(graphics->getPic(-2),posporx,pospory+i*32,to);
 		}
@@ -1829,12 +1481,12 @@ void CTownList::draw(SDL_Surface * to)
 		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y,to);
 }
 
-void CTownList::show( SDL_Surface * to )
+void CTownList::show(SDL_Surface * to)
 {
 
 }
 
-void CTownList::showAll( SDL_Surface * to )
+void CTownList::showAll(SDL_Surface * to)
 {
 	draw(to);
 }
@@ -1881,7 +1533,7 @@ void CRecruitmentWindow::Buy()
 	if(dstslot < 0 && !vstd::contains(CGI->arth->bigArtifacts,CGI->arth->convertMachineID(crid, true))) //no available slot
 	{
 		std::string txt;
-		if(dst->ID == HEROI_TYPE)
+		if(dst->ID == GameConstants::HEROI_TYPE)
 		{
 			txt = CGI->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
 			boost::algorithm::replace_first(txt, "%s", slider->value > 1 ? CGI->creh->creatures[crid]->namePl : CGI->creh->creatures[crid]->nameSing);
@@ -1952,16 +1604,16 @@ void CRecruitmentWindow::clickRight(tribool down, bool previousState)
 	}
 }
 
-void CRecruitmentWindow::showAll( SDL_Surface * to )
+void CRecruitmentWindow::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 	
 	char pom[15];
 	SDL_itoa(creatures[which].amount-slider->value,pom,10); //available
-	printAtMiddleLoc(pom,205,253,FONT_SMALL,zwykly,to);
+	printAtMiddleLoc(pom,205,253,FONT_SMALL,Colors::Cornsilk,to);
 	SDL_itoa(slider->value,pom,10); //recruit
-	printAtMiddleLoc(pom,279,253,FONT_SMALL,zwykly,to);
-	printAtMiddleLoc(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID]->namePl,243,32,FONT_BIG,tytulowy,to); //eg "Recruit Dragon flies"
+	printAtMiddleLoc(pom,279,253,FONT_SMALL,Colors::Cornsilk,to);
+	printAtMiddleLoc(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID]->namePl,243,32,FONT_BIG,Colors::Jasmine,to); //eg "Recruit Dragon flies"
 
 	int curx = 122-creatures[which].res.size()*24;
 	for(int i=creatures[which].res.size()-1; i>=0; i--)// decrement used to make gold displayed as first res
@@ -1969,9 +1621,9 @@ void CRecruitmentWindow::showAll( SDL_Surface * to )
 		blitAtLoc(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx,243,to);
 		blitAtLoc(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx+258,243,to);
 		SDL_itoa(creatures[which].res[i].second,pom,10);
-		printAtMiddleLoc(pom,curx+15,287,FONT_SMALL,zwykly,to);
+		printAtMiddleLoc(pom,curx+15,287,FONT_SMALL,Colors::Cornsilk,to);
 		SDL_itoa(creatures[which].res[i].second * slider->value,pom,10);
-		printAtMiddleLoc(pom,curx+15+258,287,FONT_SMALL,zwykly,to);
+		printAtMiddleLoc(pom,curx+15+258,287,FONT_SMALL,Colors::Cornsilk,to);
 		curx+=32+16;//size of bitmap + distance between them
 	}
 
@@ -1998,18 +1650,18 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 	pos = (bitmap->pos += Point(0, y_offset));
 
 	bar = new CGStatusBar(8, 370, "APHLFTRT.bmp", 471);
-	max = new AdventureMapButton(CGI->generaltexth->zelp[553],boost::bind(&CRecruitmentWindow::Max,this),134,313,"IRCBTNS.DEF",SDLK_m);
-	buy = new AdventureMapButton(CGI->generaltexth->zelp[554],boost::bind(&CRecruitmentWindow::Buy,this),212,313,"IBY6432.DEF",SDLK_RETURN);
-	cancel = new AdventureMapButton(CGI->generaltexth->zelp[555],boost::bind(&CRecruitmentWindow::Cancel,this),290,313,"ICN6432.DEF",SDLK_ESCAPE);
+	max = new CAdventureMapButton(CGI->generaltexth->zelp[553],boost::bind(&CRecruitmentWindow::Max,this),134,313,"IRCBTNS.DEF",SDLK_m);
+	buy = new CAdventureMapButton(CGI->generaltexth->zelp[554],boost::bind(&CRecruitmentWindow::Buy,this),212,313,"IBY6432.DEF",SDLK_RETURN);
+	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[555],boost::bind(&CRecruitmentWindow::Cancel,this),290,313,"ICN6432.DEF",SDLK_ESCAPE);
 	slider = new CSlider(176,279,135,0,0,0,0,true);
 	slider->moved = boost::bind(&CRecruitmentWindow::sliderMoved,this, _1);
 
 	initCres();
 
-	printAtMiddle(CGI->generaltexth->allTexts[346],113,232,FONT_SMALL,zwykly,*bitmap); //cost per troop t
-	printAtMiddle(CGI->generaltexth->allTexts[465],205,233,FONT_SMALL,zwykly,*bitmap); //available t
-	printAtMiddle(CGI->generaltexth->allTexts[16],279,233,FONT_SMALL,zwykly,*bitmap); //recruit t
-	printAtMiddle(CGI->generaltexth->allTexts[466],371,232,FONT_SMALL,zwykly,*bitmap); //total cost t
+	printAtMiddle(CGI->generaltexth->allTexts[346],113,232,FONT_SMALL,Colors::Cornsilk,*bitmap); //cost per troop t
+	printAtMiddle(CGI->generaltexth->allTexts[465],205,233,FONT_SMALL,Colors::Cornsilk,*bitmap); //available t
+	printAtMiddle(CGI->generaltexth->allTexts[16],279,233,FONT_SMALL,Colors::Cornsilk,*bitmap); //recruit t
+	printAtMiddle(CGI->generaltexth->allTexts[466],371,232,FONT_SMALL,Colors::Cornsilk,*bitmap); //total cost t
 	drawBorder(*bitmap,172,222,67,42,int3(239,215,123));
 	drawBorder(*bitmap,246,222,67,42,int3(239,215,123));
 	drawBorder(*bitmap,64,222,99,76,int3(239,215,123));
@@ -2092,8 +1744,8 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last, int 
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
-	ok = new AdventureMapButton("","",boost::bind(&CSplitWindow::split,this),pos.x+20,pos.y+263,"IOK6432.DEF",SDLK_RETURN);
-	cancel = new AdventureMapButton("","",boost::bind(&CSplitWindow::close,this),pos.x+214,pos.y+263,"ICN6432.DEF",SDLK_ESCAPE);
+	ok = new CAdventureMapButton("","",boost::bind(&CSplitWindow::split,this),pos.x+20,pos.y+263,"IOK6432.DEF",SDLK_RETURN);
+	cancel = new CAdventureMapButton("","",boost::bind(&CSplitWindow::close,this),pos.x+214,pos.y+263,"ICN6432.DEF",SDLK_ESCAPE);
 	int sliderPositions = max - (last>=0) - (last==2);
 	slider = new CSlider(pos.x+21,pos.y+194,257,boost::bind(&CSplitWindow::sliderMoved,this,_1),0,sliderPositions,val,true);
 	a1 = max-val;
@@ -2103,7 +1755,7 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last, int 
 
 	std::string title = CGI->generaltexth->allTexts[256];
 	boost::algorithm::replace_first(title,"%s",CGI->creh->creatures[cid]->namePl);
-	printAtMiddle(title,150,34,FONT_BIG,tytulowy,bitmap);
+	printAtMiddle(title,150,34,FONT_BIG,Colors::Jasmine,bitmap);
 }
 
 CSplitWindow::~CSplitWindow() //d-tor
@@ -2159,8 +1811,8 @@ void CSplitWindow::show(SDL_Surface * to)
 	ok->showAll(to);
 	cancel->showAll(to);
 	slider->showAll(to);
-	printAtMiddle(boost::lexical_cast<std::string>(a1) + (!which ? "_" : ""),pos.x+70,pos.y+237,FONT_BIG,zwykly,to);
-	printAtMiddle(boost::lexical_cast<std::string>(a2) + (which ? "_" : ""),pos.x+233,pos.y+237,FONT_BIG,zwykly,to);
+	printAtMiddle(boost::lexical_cast<std::string>(a1) + (!which ? "_" : ""),pos.x+70,pos.y+237,FONT_BIG,Colors::Cornsilk,to);
+	printAtMiddle(boost::lexical_cast<std::string>(a2) + (which ? "_" : ""),pos.x+233,pos.y+237,FONT_BIG,Colors::Cornsilk,to);
 	animLeft->show(to);
 	animRight->show(to);
 }
@@ -2168,8 +1820,8 @@ void CSplitWindow::show(SDL_Surface * to)
 void CSplitWindow::keyPressed (const SDL_KeyboardEvent & key)
 {
 	SDLKey k = key.keysym.sym;
-	if (isNumKey(k)) //convert numpad number to normal digit
-		k = numToDigit(k); 
+	if (CGuiHandler::isNumKey(k)) //convert numpad number to normal digit
+		k = CGuiHandler::numToDigit(k); 
 
 	if(key.state != SDL_PRESSED)
 		return;
@@ -2224,171 +1876,6 @@ void CSplitWindow::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CCreInfoWindow::show(SDL_Surface *to)
-{
-	CIntObject::show(to);
-	creatureCount->showAll(to);
-}
-
-CCreInfoWindow::CCreInfoWindow(const CStackInstance &stack, bool LClicked, boost::function<void()> upgradeFunc, boost::function<void()> dismissFunc, UpgradeInfo *upgradeInfo)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	init(stack.type, &stack, dynamic_cast<const CGHeroInstance*>(stack.armyObj), stack.count, LClicked);
-
-	//additional buttons if opened with left click
-	if(LClicked)
-	{
-		boost::function<void()> closeFunc = boost::bind(&CCreInfoWindow::close,this);
-
-		if(upgradeFunc && upgradeInfo)
-		{
-			TResources upgradeCost = upgradeInfo->cost[0] * stack.count;
-			for(TResources::nziterator i(upgradeCost); i.valid(); i++)
-			{
-				BLOCK_CAPTURING;
-				upgResCost.push_back(new SComponent(SComponent::resource, i->resType, i->resVal)); 
-			}
-
-			CFunctionList<void()> onUpgrade;
-			onUpgrade += upgradeFunc;
-			onUpgrade += closeFunc;
-
-			boost::function<void()> dialog = boost::bind(&CPlayerInterface::showYesNoDialog,
-			                                              LOCPLINT,
-			                                              CGI->generaltexth->allTexts[207],
-			                                              boost::ref(upgResCost),
-			                                              onUpgrade, 0, false);
-
-			upgrade = new AdventureMapButton("", CGI->generaltexth->zelp[446].second, dialog, 76, 237, "IVIEWCR", SDLK_u);
-			upgrade->block(!LOCPLINT->cb->getResourceAmount().canAfford(upgradeCost));
-		}
-
-		if(dismissFunc)
-		{
-			CFunctionList<void()> onDismiss;
-			onDismiss += dismissFunc;
-			onDismiss += closeFunc;
-
-			boost::function<void()> dialog = boost::bind(&CPlayerInterface::showYesNoDialog,
-			                                              LOCPLINT,
-			                                              CGI->generaltexth->allTexts[12], 
-			                                              std::vector<SComponent*>(),
-			                                              onDismiss, 0, true);
-
-			dismiss = new AdventureMapButton("", CGI->generaltexth->zelp[445].second, dialog, 21, 237, "IVIEWCR2",SDLK_d);
-		}
-
-		ok = new AdventureMapButton("", CGI->generaltexth->zelp[445].second, 
-		                            boost::bind(&CCreInfoWindow::close,this), 216, 237, "IOKAY.DEF", SDLK_RETURN);
-	}
-}
-
-CCreInfoWindow::CCreInfoWindow(int creatureID, bool LClicked, int creatureCount)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	const CCreature *creature = CGI->creh->creatures[creatureID];
-	init(creature, NULL, NULL, creatureCount, LClicked);
-}
-
-CCreInfoWindow::CCreInfoWindow(const CStack &stack, bool LClicked)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	init(stack.getCreature(), &stack, stack.getMyHero(), stack.count, LClicked);
-}
-
-CCreInfoWindow::~CCreInfoWindow()
-{
-	BOOST_FOREACH(SComponent* object, upgResCost)
-		delete object;
-}
-
-void CCreInfoWindow::printLine(int position, const std::string &text, int baseVal, int val/*=-1*/, bool range/*=false*/)
-{
-	infoTexts[position].first = new CLabel(155, 48 + position*19, FONT_SMALL, TOPLEFT, zwykly, text);
-	std::string valueStr;
-
-	if(range && baseVal != val)
-		valueStr = boost::str(boost::format("%d - %d") % baseVal % val);
-
-	else if(baseVal != val && val>=0)
-		valueStr = boost::str(boost::format("%d (%d)") % baseVal % val);
-
-	else
-		valueStr = boost::lexical_cast<std::string>(baseVal);
-
-	infoTexts[position].second = new CLabel(276, 63 + position*19, FONT_SMALL, BOTTOMRIGHT, zwykly, valueStr);
-}
-
-void CCreInfoWindow::init(const CCreature *creature, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner, int count, bool LClicked)
-{
-	used = 0;
-	if (!LClicked)
-		used |= RCLICK;
-
-	if(!stackNode)
-		stackNode = creature;
-
-	background = new CPicture("CRSTKPU");
-	background->colorize(LOCPLINT->playerID);
-	pos = background->center();
-
-	animation = new CCreaturePic(21, 48, creature);
-
-	std::string countStr = boost::lexical_cast<std::string>(count);
-	creatureCount = new CLabel(114, 174, FONT_TIMES, BOTTOMRIGHT, zwykly, countStr);
-
-	creatureName = new CLabel(149, 30, FONT_SMALL, CENTER, tytulowy, creature->namePl);
-	
-	printLine(0, CGI->generaltexth->primarySkillNames[0], creature->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
-	printLine(1, CGI->generaltexth->primarySkillNames[1], creature->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
-
-	if(stackNode->valOfBonuses(Bonus::SHOTS))
-		printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS));
-
-	//TODO
-	int dmgMultiply = 1;
-	if(heroOwner && stackNode->hasBonusOfType(Bonus::SIEGE_WEAPON))
-		dmgMultiply += heroOwner->Attack(); 
-
-	printLine(3, CGI->generaltexth->allTexts[199],   stackNode->getMinDamage() * dmgMultiply, stackNode->getMaxDamage() * dmgMultiply, true);
-	printLine(4, CGI->generaltexth->allTexts[388],   creature->valOfBonuses(Bonus::STACK_HEALTH), stackNode->valOfBonuses(Bonus::STACK_HEALTH));
-	printLine(6, CGI->generaltexth->zelp[441].first, creature->valOfBonuses(Bonus::STACKS_SPEED), stackNode->valOfBonuses(Bonus::STACKS_SPEED));
-
-	//setting morale
-	morale = new MoraleLuckBox(true, genRect(42, 42, 22, 186));
-	morale->set(stackNode);
-	//setting luck
-	luck = new MoraleLuckBox(false, genRect(42, 42, 75, 186));
-	luck->set(stackNode);
-
-	if(!LClicked)
-		abilityText = new CLabel(17, 231, FONT_SMALL, TOPLEFT, zwykly, creature->abilityText);
-	else
-		abilityText = NULL;
-
-	//if we are displying window fo r stack in battle, there are several more things that we need to display
-	if(const CStack *battleStack = dynamic_cast<const CStack*>(stackNode))
-	{
-		//print at most 3 spell effects
-		std::vector<si32> spells = battleStack->activeSpells();
-		for (size_t i=0; i< std::min(spells.size(), size_t(3)); i++)
-			effects.push_back(new CAnimImage("SpellInt", spells[i]+1, 0, 127 + 52*i, 186));
-
-		//print current health
-		printLine(5, CGI->generaltexth->allTexts[200], battleStack->firstHPleft);
-	}
-}
-
-void CCreInfoWindow::close()
-{
-	GH.popIntTotally(this);
-}
-
-void CCreInfoWindow::clickRight(tribool down, bool previousState)
-{
-	close();
-}
-
 void CLevelWindow::close()
 {
 	for(int i=0;i<comps.size();i++)
@@ -2410,7 +1897,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 	cb = callback;
 	for(int i=0;i<skills.size();i++)
 	{
-		comps.push_back(new CSelectableComponent(SComponent::secskill44, skills[i],
+		comps.push_back(new CSelectableComponent(CComponent::secskill44, skills[i],
 			hero->getSecSkillLevel( static_cast<CGHeroInstance::SecondarySkill>(skills[i]) )+1,
 			boost::bind(&CLevelWindow::selectionChanged,this,i)));
 		comps.back()->assignedKeys.insert(SDLK_1 + i);
@@ -2425,20 +1912,20 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
-	ok = new AdventureMapButton("","",boost::bind(&CLevelWindow::close,this),pos.x+297,pos.y+413,"IOKAY.DEF",SDLK_RETURN);
+	ok = new CAdventureMapButton("","",boost::bind(&CLevelWindow::close,this),pos.x+297,pos.y+413,"IOKAY.DEF",SDLK_RETURN);
 	//draw window
 	char buf[100], buf2[100];
 	strcpy(buf2,CGI->generaltexth->allTexts[444].c_str()); //%s has gained a level.
 	sprintf(buf,buf2,hero->name.c_str());
-	printAtMiddle(buf,192,33,FONT_MEDIUM,zwykly,bitmap);
+	printAtMiddle(buf,192,33,FONT_MEDIUM,Colors::Cornsilk,bitmap);
 
 	strcpy(buf2,CGI->generaltexth->allTexts[445].c_str()); //%s is now a level %d %s.
 	sprintf(buf,buf2,hero->name.c_str(),hero->level,hero->type->heroClass->name.c_str());
-	printAtMiddle(buf,192,162,FONT_MEDIUM,zwykly,bitmap);
+	printAtMiddle(buf,192,162,FONT_MEDIUM,Colors::Cornsilk,bitmap);
 
 	blitAt(graphics->pskillsm->ourImages[pskill].bitmap,174,190,bitmap);
 
-	printAtMiddle((CGI->generaltexth->primarySkillNames[pskill] + " +1"),192,253,FONT_MEDIUM,zwykly,bitmap);
+	printAtMiddle((CGI->generaltexth->primarySkillNames[pskill] + " +1"),192,253,FONT_MEDIUM,Colors::Cornsilk,bitmap);
 
 	const Font *f = graphics->fonts[FONT_MEDIUM];
 	std::string text = CGI->generaltexth->allTexts[4];
@@ -2452,7 +1939,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 		if( i < (comps.size()-1) )
 		{
 			curx += 44+21; //skill width + margin to "or"
-			printAtMiddle(text ,curx,346,FONT_MEDIUM,zwykly,bitmap);
+			printAtMiddle(text ,curx,346,FONT_MEDIUM,Colors::Cornsilk,bitmap);
 			curx += fontWidth+15;
 		}
 	}
@@ -2507,7 +1994,7 @@ void CMinorResDataBar::show(SDL_Surface * to)
 	for (int i=0;i<7;i++)
 	{
 		SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
-		CSDL_Ext::printAtMiddle(buf,pos.x + 50 + 76*i,pos.y+pos.h/2,FONT_SMALL,zwykly,to);
+		CSDL_Ext::printAtMiddle(buf,pos.x + 50 + 76*i,pos.y+pos.h/2,FONT_SMALL,Colors::Cornsilk,to);
 	}
 	std::vector<std::string> temp;
 	SDL_itoa(LOCPLINT->cb->getDate(3),buf,10); temp.push_back(std::string(buf));
@@ -2520,7 +2007,7 @@ void CMinorResDataBar::show(SDL_Surface * to)
 	+ ": %s, "
 		+	CGI->generaltexth->allTexts[64]
 	+ ": %s",temp)
-		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,FONT_SMALL,zwykly,to);
+		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,FONT_SMALL,Colors::Cornsilk,to);
 }
 
 void CMinorResDataBar::showAll(SDL_Surface * to)
@@ -2561,8 +2048,8 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CPicture * 
 	bg->colorizeAndConvert(LOCPLINT->playerID);
 	
 	slider = new CSlider(277, 120, 256, boost::bind(&CObjectListWindow::moveList,this, _1), length, items.size(), 0, false, 0);
-	ok = new AdventureMapButton("","",boost::bind(&CObjectListWindow::elementSelected, this),15,402,"IOKAY.DEF", SDLK_RETURN);
-	exit = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally,&GH, this),228,402,"ICANCEL.DEF",SDLK_ESCAPE);
+	ok = new CAdventureMapButton("","",boost::bind(&CObjectListWindow::elementSelected, this),15,402,"IOKAY.DEF", SDLK_RETURN);
+	exit = new CAdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally,&GH, this),228,402,"ICANCEL.DEF",SDLK_ESCAPE);
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;
 	titleImage = titlePic;
@@ -2662,8 +2149,8 @@ void CObjectListWindow::showAll(SDL_Surface * to)
 {
 	ok->block((selected<0)?2:0);
 	CIntObject::showAll(to);
-	CSDL_Ext::printAtMiddle(title,pos.x+152,pos.y+27,FONT_BIG,tytulowy,to);//"castle gate"
-	CSDL_Ext::printAtMiddle(descr,pos.x+145,pos.y+133,FONT_SMALL,zwykly,to);//"select destination"
+	CSDL_Ext::printAtMiddle(title,pos.x+152,pos.y+27,FONT_BIG,Colors::Jasmine,to);//"castle gate"
+	CSDL_Ext::printAtMiddle(descr,pos.x+145,pos.y+133,FONT_SMALL,Colors::Cornsilk,to);//"select destination"
 	titleImage->showAll(to);
 	if ( selected >= slider->value && selected < slider->value+length )//if selected item is visible 
 	{
@@ -2674,7 +2161,7 @@ void CObjectListWindow::showAll(SDL_Surface * to)
 	int position = slider->value;
 	for ( int i = 0; i<9 && i<items.size()-position; i++)
 		CSDL_Ext::printAtMiddle(CGI->mh->map->objects[items[i+position]]->hoverName,pos.x+145,pos.y+163+25*i,
-			FONT_SMALL, zwykly, to);//print item names in list
+			FONT_SMALL, Colors::Cornsilk, to);//print item names in list
 }
 
 CTradeWindow::CTradeableItem::CTradeableItem( EType Type, int ID, bool Left, int Serial)
@@ -2722,7 +2209,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 	if(SDL_Surface *hlp = getSurface())
 		blitAt(hlp, pos + posToBitmap, to);
 
-	printAtMiddleLoc(subtitle, posToSubCenter, FONT_SMALL, zwykly, to);
+	printAtMiddleLoc(subtitle, posToSubCenter, FONT_SMALL, Colors::Cornsilk, to);
 }
 
 void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
@@ -2895,7 +2382,7 @@ void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art)
 		id = -1;
 }
 
-CTradeWindow::CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode)
+CTradeWindow::CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode)
 	: market(Market), hero(Hero),  arts(NULL), hLeft(NULL), hRight(NULL), readyToTrade(false)
 {
 	type |= BLOCK_ADV_HOTKEYS;
@@ -2907,31 +2394,31 @@ void CTradeWindow::initTypes()
 {
 	switch(mode)
 	{
-	case RESOURCE_RESOURCE:
+	case EMarketMode::RESOURCE_RESOURCE:
 		itemsType[1] = RESOURCE;
 		itemsType[0] = RESOURCE;
 		break;
-	case RESOURCE_PLAYER:
+	case EMarketMode::RESOURCE_PLAYER:
 		itemsType[1] = RESOURCE;
 		itemsType[0] = PLAYER;
 		break;
-	case CREATURE_RESOURCE:
+	case EMarketMode::CREATURE_RESOURCE:
 		itemsType[1] = CREATURE;
 		itemsType[0] = RESOURCE;
 		break;
-	case RESOURCE_ARTIFACT:
+	case EMarketMode::RESOURCE_ARTIFACT:
 		itemsType[1] = RESOURCE;
 		itemsType[0] = ARTIFACT_TYPE;
 		break;
-	case ARTIFACT_RESOURCE:
+	case EMarketMode::ARTIFACT_RESOURCE:
 		itemsType[1] = ARTIFACT_INSTANCE;
 		itemsType[0] = RESOURCE;
 		break;
-	case CREATURE_EXP:
+	case EMarketMode::CREATURE_EXP:
 		itemsType[1] = CREATURE;
 		itemsType[0] = CREATURE_PLACEHOLDER;
 		break;
-	case ARTIFACT_EXP:
+	case EMarketMode::ARTIFACT_EXP:
 		itemsType[1] = ARTIFACT_TYPE;
 		itemsType[0] = ARTIFACT_PLACEHOLDER;
 		break;
@@ -2943,7 +2430,7 @@ void CTradeWindow::initItems(bool Left)
 	if(Left && (itemsType[1] == ARTIFACT_TYPE || itemsType[1] == ARTIFACT_INSTANCE))
 	{
 		int xOffset = 0, yOffset = 0;
-		if(mode == ARTIFACT_RESOURCE)
+		if(mode == EMarketMode::ARTIFACT_RESOURCE)
 		{
 			xOffset = -361;
 			yOffset = +46;
@@ -2969,7 +2456,7 @@ void CTradeWindow::initItems(bool Left)
 		addChild(arts);
 		artSets.push_back(arts);
 
-		if(mode == ARTIFACT_RESOURCE)
+		if(mode == EMarketMode::ARTIFACT_RESOURCE)
 			arts->highlightModeCallback = boost::bind(&CTradeWindow::artifactSelected, this, _1);
 		return;
 	}
@@ -2986,12 +2473,12 @@ void CTradeWindow::initItems(bool Left)
 		amount = ids->size();
 
 	if(ids)
-		amin(amount, ids->size());
+		vstd::amin(amount, ids->size());
 
 	for(int j=0; j<amount; j++)
 	{
 		int id = (ids && ids->size()>j) ? (*ids)[j] : j;
-		if(id < 0 && mode != ARTIFACT_EXP)  //when sacrificing artifacts we need to prepare empty slots
+		if(id < 0 && mode != EMarketMode::ARTIFACT_EXP)  //when sacrificing artifacts we need to prepare empty slots
 			continue;
 
 		CTradeableItem *hlp = new CTradeableItem(itemsType[Left], id, Left, j);
@@ -3006,7 +2493,7 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 {
 	std::vector<int> *ids = NULL;
 
-	if(mode == ARTIFACT_EXP)
+	if(mode == EMarketMode::ARTIFACT_EXP)
 		return new std::vector<int>(22, -1);
 
 	if(Left)
@@ -3031,7 +2518,7 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 		{
 		case PLAYER:
 			ids = new std::vector<int>;
-			for(int i = 0; i < PLAYER_LIMIT; i++)
+			for(int i = 0; i < GameConstants::PLAYER_LIMIT; i++)
 				if(i != LOCPLINT->playerID && LOCPLINT->cb->getPlayerStatus(i) == PlayerState::INGAME)
 					ids->push_back(i);
 			break;
@@ -3047,7 +2534,7 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 
 void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType type) const
 {
-	if(mode == ARTIFACT_EXP && !Left)
+	if(mode == EMarketMode::ARTIFACT_EXP && !Left)
 	{
 		//22 boxes, 5 in row, last row: two boxes centered
 		int h, w, x, y, dx, dy;
@@ -3111,7 +2598,7 @@ void CTradeWindow::initSubs(bool Left)
 			{
 				int h1, h2; //hlp variables for getting offer
 				market->getOffer(hLeft->id, t->id, h1, h2, mode);
-				if(t->id != hLeft->id || mode != RESOURCE_RESOURCE) //don't allow exchanging same resources
+				if(t->id != hLeft->id || mode != EMarketMode::RESOURCE_RESOURCE) //don't allow exchanging same resources
 				{
 					std::ostringstream oss;
 					oss << h2;
@@ -3171,7 +2658,7 @@ void CTradeWindow::getEmptySlots(std::set<CTradeableItem *> &toRemove)
 			toRemove.insert(t);
 }
 
-void CTradeWindow::setMode(EMarketMode Mode)
+void CTradeWindow::setMode(EMarketMode::EMarketMode Mode)
 {
 	const IMarket *m = market;
 	const CGHeroInstance *h = hero;
@@ -3181,8 +2668,8 @@ void CTradeWindow::setMode(EMarketMode Mode)
 	
 	switch(Mode)
 	{
-	case CREATURE_EXP:
-	case ARTIFACT_EXP:
+	case EMarketMode::CREATURE_EXP:
+	case EMarketMode::ARTIFACT_EXP:
 		nwindow = new CAltarWindow(m, h, Mode);
 		break;
 	default:
@@ -3195,7 +2682,7 @@ void CTradeWindow::setMode(EMarketMode Mode)
 
 void CTradeWindow::artifactSelected(CArtPlace *slot)
 {
-	assert(mode == ARTIFACT_RESOURCE);
+	assert(mode == EMarketMode::ARTIFACT_RESOURCE);
 	items[1][0]->setArtInstance(slot->ourArt);
 	if(slot->ourArt)
 		hLeft = items[1][0];
@@ -3205,7 +2692,7 @@ void CTradeWindow::artifactSelected(CArtPlace *slot)
 	selectionChanged(true);
 }
 
-CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode Mode)
+CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode)
 	: CTradeWindow(Market, Hero, Mode)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -3215,24 +2702,24 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 
 	switch(Mode)
 	{
-	case RESOURCE_RESOURCE:
+	case EMarketMode::RESOURCE_RESOURCE:
 		bgName = "TPMRKRES.bmp";
 		break;
 
-	case RESOURCE_PLAYER:
+	case EMarketMode::RESOURCE_PLAYER:
 		bgName = "TPMRKPTS.bmp";
 		break;
 
-	case CREATURE_RESOURCE:
+	case EMarketMode::CREATURE_RESOURCE:
 		bgName = "TPMRKCRS.bmp";
 		break;
 
-	case RESOURCE_ARTIFACT:
+	case EMarketMode::RESOURCE_ARTIFACT:
 		bgName = "TPMRKABS.bmp";
 		sliderNeeded = false;
 		break;
 
-	case ARTIFACT_RESOURCE:
+	case EMarketMode::ARTIFACT_RESOURCE:
 		bgName = "TPMRKASS.bmp";
 		sliderNeeded = false;
 		break;
@@ -3246,38 +2733,38 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 
 	if(market->o->ID == 7) //black market
 	{
-		printAtMiddle(CGI->generaltexth->allTexts[349],300,27,FONT_BIG,tytulowy,*bg); //title
+		printAtMiddle(CGI->generaltexth->allTexts[349],300,27,FONT_BIG,Colors::Jasmine,*bg); //title
 	}
 	else if(market->o->ID == 99 || market->o->ID == 221) //trading post
 	{
-		printAtMiddle(CGI->generaltexth->allTexts[159],300,27,FONT_BIG,tytulowy,*bg); //title
+		printAtMiddle(CGI->generaltexth->allTexts[159],300,27,FONT_BIG,Colors::Jasmine,*bg); //title
 	}
-	else if(mode == CREATURE_RESOURCE)
+	else if(mode == EMarketMode::CREATURE_RESOURCE)
 	{
-		if(market->o->ID == TOWNI_TYPE)
-			printAtMiddle(CGI->buildh->buildings[6][21]->Name(), 300, 27, FONT_BIG, tytulowy, *bg); //title
+		if(market->o->ID == GameConstants::TOWNI_TYPE)
+			printAtMiddle(CGI->buildh->buildings[6][21]->Name(), 300, 27, FONT_BIG, Colors::Jasmine, *bg); //title
 		else
-			printAtMiddle(market->o->getHoverText(), 300, 27, FONT_BIG, tytulowy, *bg); //title
+			printAtMiddle(market->o->getHoverText(), 300, 27, FONT_BIG, Colors::Jasmine, *bg); //title
 	}
-	else if(mode == RESOURCE_ARTIFACT || mode == ARTIFACT_RESOURCE)
+	else if(mode == EMarketMode::RESOURCE_ARTIFACT || mode == EMarketMode::ARTIFACT_RESOURCE)
 	{
-		const std::string &title = market->o->ID == TOWNI_TYPE 
+		const std::string &title = market->o->ID == GameConstants::TOWNI_TYPE 
 									? CGI->buildh->buildings[market->o->subID][17]->Name()
 									: market->o->getHoverText();
 		
-		printAtMiddle(title, 300, 27, FONT_BIG, tytulowy, *bg); //title
+		printAtMiddle(title, 300, 27, FONT_BIG, Colors::Jasmine, *bg); //title
 	}
 	else
 	{
-		printAtMiddle(CGI->generaltexth->allTexts[158],300,27,FONT_BIG,tytulowy,*bg); //marketplace
+		printAtMiddle(CGI->generaltexth->allTexts[158],300,27,FONT_BIG,Colors::Jasmine,*bg); //marketplace
 	}
 
 	initItems(false);
 	initItems(true);
 	
-	ok = new AdventureMapButton(CGI->generaltexth->zelp[600],boost::bind(&CGuiHandler::popIntTotally,&GH,this),516,520,"IOK6432.DEF",SDLK_RETURN);
+	ok = new CAdventureMapButton(CGI->generaltexth->zelp[600],boost::bind(&CGuiHandler::popIntTotally,&GH,this),516,520,"IOK6432.DEF",SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
-	deal = new AdventureMapButton(CGI->generaltexth->zelp[595],boost::bind(&CMarketplaceWindow::makeDeal,this),307,520,"TPMRKB.DEF");
+	deal = new CAdventureMapButton(CGI->generaltexth->zelp[595],boost::bind(&CMarketplaceWindow::makeDeal,this),307,520,"TPMRKB.DEF");
 	deal->block(true);
 
 
@@ -3286,7 +2773,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	{
 		slider = new CSlider(231,490,137,0,0,0);
 		slider->moved = boost::bind(&CMarketplaceWindow::sliderMoved,this,_1);
-		max = new AdventureMapButton(CGI->generaltexth->zelp[596],boost::bind(&CMarketplaceWindow::setMax,this),229,520,"IRCBTNS.DEF");
+		max = new CAdventureMapButton(CGI->generaltexth->zelp[596],boost::bind(&CMarketplaceWindow::setMax,this),229,520,"IRCBTNS.DEF");
 		max->block(true);
 	}
 	else
@@ -3301,48 +2788,48 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	//left side
 	switch(Mode)
 	{
-	case RESOURCE_RESOURCE:
-	case RESOURCE_PLAYER:
-	case RESOURCE_ARTIFACT:
-		printAtMiddle(CGI->generaltexth->allTexts[270],154,148,FONT_SMALL,zwykly,*bg); //kingdom res.
+	case EMarketMode::RESOURCE_RESOURCE:
+	case EMarketMode::RESOURCE_PLAYER:
+	case EMarketMode::RESOURCE_ARTIFACT:
+		printAtMiddle(CGI->generaltexth->allTexts[270],154,148,FONT_SMALL,Colors::Cornsilk,*bg); //kingdom res.
 		break;
-	case CREATURE_RESOURCE: 
-		printAtMiddle(boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name), 152, 102, FONT_SMALL, zwykly, *bg); //%s's Creatures
+	case EMarketMode::CREATURE_RESOURCE: 
+		printAtMiddle(boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name), 152, 102, FONT_SMALL, Colors::Cornsilk, *bg); //%s's Creatures
 		break;
-	case ARTIFACT_RESOURCE: 
-		printAtMiddle(boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->name), 152, 57, FONT_SMALL, zwykly, *bg); //%s's Artifacts
+	case EMarketMode::ARTIFACT_RESOURCE: 
+		printAtMiddle(boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->name), 152, 57, FONT_SMALL, Colors::Cornsilk, *bg); //%s's Artifacts
 		break;
 	}
 
 	//right side
 	switch(Mode)
 	{
-	case RESOURCE_RESOURCE:
-	case CREATURE_RESOURCE:
-	case RESOURCE_ARTIFACT:
-	case ARTIFACT_RESOURCE:
-		printAtMiddle(CGI->generaltexth->allTexts[168],445,148,FONT_SMALL,zwykly,*bg); //available for trade
+	case EMarketMode::RESOURCE_RESOURCE:
+	case EMarketMode::CREATURE_RESOURCE:
+	case EMarketMode::RESOURCE_ARTIFACT:
+	case EMarketMode::ARTIFACT_RESOURCE:
+		printAtMiddle(CGI->generaltexth->allTexts[168],445,148,FONT_SMALL,Colors::Cornsilk,*bg); //available for trade
 		traderTextRect = Rect(316, 48, 260, 75);
 		break;
-	case RESOURCE_PLAYER:
-		printAtMiddle(CGI->generaltexth->allTexts[169],445,55,FONT_SMALL,zwykly,*bg); //players
+	case EMarketMode::RESOURCE_PLAYER:
+		printAtMiddle(CGI->generaltexth->allTexts[169],445,55,FONT_SMALL,Colors::Cornsilk,*bg); //players
 		traderTextRect = Rect(28, 48, 260, 75);
 		break;
 	}
 
 	traderText = new CTextBox("", traderTextRect, 0, FONT_SMALL, CENTER);
-	int specialOffset = mode == ARTIFACT_RESOURCE ? 35 : 0; //in selling artifacts mode we need to move res-res and art-res buttons down
+	int specialOffset = mode == EMarketMode::ARTIFACT_RESOURCE ? 35 : 0; //in selling artifacts mode we need to move res-res and art-res buttons down
 
-	if(printButtonFor(RESOURCE_PLAYER))
-		new AdventureMapButton(CGI->generaltexth->zelp[612],boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_PLAYER), 18, 520,"TPMRKBU1.DEF");
-	if(printButtonFor(RESOURCE_RESOURCE))
-		new AdventureMapButton(CGI->generaltexth->zelp[605],boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_RESOURCE), 516, 450 + specialOffset,"TPMRKBU5.DEF");
-	if(printButtonFor(CREATURE_RESOURCE))
-		new AdventureMapButton(CGI->generaltexth->zelp[599],boost::bind(&CMarketplaceWindow::setMode,this, CREATURE_RESOURCE), 516, 485,"TPMRKBU4.DEF"); //was y=450, changed to not overlap res-res in some conditions
-	if(printButtonFor(RESOURCE_ARTIFACT))
-		new AdventureMapButton(CGI->generaltexth->zelp[598],boost::bind(&CMarketplaceWindow::setMode,this, RESOURCE_ARTIFACT), 18, 450 + specialOffset,"TPMRKBU2.DEF");
-	if(printButtonFor(ARTIFACT_RESOURCE))																				
-		new AdventureMapButton(CGI->generaltexth->zelp[613],boost::bind(&CMarketplaceWindow::setMode,this, ARTIFACT_RESOURCE), 18, 485,"TPMRKBU3.DEF"); //was y=450, changed to not overlap res-art in some conditions
+	if(printButtonFor(EMarketMode::RESOURCE_PLAYER))
+		new CAdventureMapButton(CGI->generaltexth->zelp[612],boost::bind(&CMarketplaceWindow::setMode,this, EMarketMode::RESOURCE_PLAYER), 18, 520,"TPMRKBU1.DEF");
+	if(printButtonFor(EMarketMode::RESOURCE_RESOURCE))
+		new CAdventureMapButton(CGI->generaltexth->zelp[605],boost::bind(&CMarketplaceWindow::setMode,this, EMarketMode::RESOURCE_RESOURCE), 516, 450 + specialOffset,"TPMRKBU5.DEF");
+	if(printButtonFor(EMarketMode::CREATURE_RESOURCE))
+		new CAdventureMapButton(CGI->generaltexth->zelp[599],boost::bind(&CMarketplaceWindow::setMode,this, EMarketMode::CREATURE_RESOURCE), 516, 485,"TPMRKBU4.DEF"); //was y=450, changed to not overlap res-res in some conditions
+	if(printButtonFor(EMarketMode::RESOURCE_ARTIFACT))
+		new CAdventureMapButton(CGI->generaltexth->zelp[598],boost::bind(&CMarketplaceWindow::setMode,this, EMarketMode::RESOURCE_ARTIFACT), 18, 450 + specialOffset,"TPMRKBU2.DEF");
+	if(printButtonFor(EMarketMode::ARTIFACT_RESOURCE))																				
+		new CAdventureMapButton(CGI->generaltexth->zelp[613],boost::bind(&CMarketplaceWindow::setMode,this, EMarketMode::ARTIFACT_RESOURCE), 18, 485,"TPMRKBU3.DEF"); //was y=450, changed to not overlap res-art in some conditions
 
 	updateTraderText();
 }
@@ -3380,9 +2867,9 @@ void CMarketplaceWindow::makeDeal()
 		return;
 
 	int leftIdToSend = -1;
-	if(mode == CREATURE_RESOURCE)
+	if(mode == EMarketMode::CREATURE_RESOURCE)
 		leftIdToSend = hLeft->serial;
-	else if(mode == ARTIFACT_RESOURCE)
+	else if(mode == EMarketMode::ARTIFACT_RESOURCE)
 		leftIdToSend = hLeft->getArtInstance()->id;
 	else
 		leftIdToSend = hLeft->id;
@@ -3411,10 +2898,10 @@ void CMarketplaceWindow::sliderMoved( int to )
 void CMarketplaceWindow::selectionChanged(bool side)
 {
 	readyToTrade = hLeft && hRight;
-	if(mode == RESOURCE_RESOURCE)
+	if(mode == EMarketMode::RESOURCE_RESOURCE)
 		readyToTrade = readyToTrade && (hLeft->id != hRight->id); //for resource trade, two DIFFERENT resources must be selected 
 
- 	if(mode == ARTIFACT_RESOURCE && !hLeft) 
+ 	if(mode == EMarketMode::ARTIFACT_RESOURCE && !hLeft) 
 		arts->unmarkSlots(false);
  
 	if(readyToTrade)
@@ -3462,14 +2949,14 @@ void CMarketplaceWindow::selectionChanged(bool side)
 	redraw();
 }
 
-bool CMarketplaceWindow::printButtonFor(EMarketMode M) const
+bool CMarketplaceWindow::printButtonFor(EMarketMode::EMarketMode M) const
 {
-	return market->allowsTrade(M) && M != mode && (hero || ( M != CREATURE_RESOURCE && M != RESOURCE_ARTIFACT && M != ARTIFACT_RESOURCE ));
+	return market->allowsTrade(M) && M != mode && (hero || ( M != EMarketMode::CREATURE_RESOURCE && M != EMarketMode::RESOURCE_ARTIFACT && M != EMarketMode::ARTIFACT_RESOURCE ));
 }
 
 void CMarketplaceWindow::garrisonChanged()
 {
-	if(mode != CREATURE_RESOURCE)
+	if(mode != EMarketMode::CREATURE_RESOURCE)
 		return;
 
 	std::set<CTradeableItem *> toRemove;
@@ -3483,7 +2970,7 @@ void CMarketplaceWindow::garrisonChanged()
 void CMarketplaceWindow::artifactsChanged(bool Left)
 {
 	assert(!Left);
-	if(mode != RESOURCE_ARTIFACT)
+	if(mode != EMarketMode::RESOURCE_ARTIFACT)
 		return;
 
 	std::vector<int> available = market->availableItemsIds(mode);
@@ -3553,7 +3040,7 @@ Point CMarketplaceWindow::selectionOffset(bool Left) const
 		switch(itemsType[0])
 		{
 		case RESOURCE:
-			if(mode == ARTIFACT_RESOURCE)
+			if(mode == EMarketMode::ARTIFACT_RESOURCE)
 				return Point(410, 469);
 			else
 				return Point(410, 446);
@@ -3620,27 +3107,27 @@ void CMarketplaceWindow::updateTraderText()
 {
 	if(readyToTrade)
 	{
-		if(mode == RESOURCE_PLAYER)
+		if(mode == EMarketMode::RESOURCE_PLAYER)
 		{
 			//I can give %s to the %s player.
 			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[165]) % hLeft->getName() % hRight->getName()));
 		}
-		else if(mode == RESOURCE_ARTIFACT)
+		else if(mode == EMarketMode::RESOURCE_ARTIFACT)
 		{
 			//I can offer you the %s for %d %s of %s.
 			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[267]) % hRight->getName() % r1 % CGI->generaltexth->allTexts[160 + (r1==1)] % hLeft->getName()));
 		}
-		else if(mode == RESOURCE_RESOURCE)
+		else if(mode == EMarketMode::RESOURCE_RESOURCE)
 		{
 			//I can offer you %d %s of %s for %d %s of %s.
 			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[157]) % r2 % CGI->generaltexth->allTexts[160 + (r2==1)] % hRight->getName() % r1 % CGI->generaltexth->allTexts[160 + (r1==1)] % hLeft->getName()));
 		}
-		else if(mode == CREATURE_RESOURCE)
+		else if(mode == EMarketMode::CREATURE_RESOURCE)
 		{
 			//I can offer you %d %s of %s for %d %s.
 			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[269]) % r2 % CGI->generaltexth->allTexts[160 + (r2==1)] % hRight->getName() % r1 % hLeft->getName(r1)));
 		}
-		else if(mode == ARTIFACT_RESOURCE)
+		else if(mode == EMarketMode::ARTIFACT_RESOURCE)
 		{
 			//I can offer you %d %s of %s for your %s.
 			traderText->setTxt(boost::str(boost::format(CGI->generaltexth->allTexts[268]) % r2 % CGI->generaltexth->allTexts[160 + (r2==1)] % hRight->getName() % hLeft->getName(r1)));
@@ -3651,14 +3138,14 @@ void CMarketplaceWindow::updateTraderText()
 	int gnrtxtnr = -1;
 	if(madeTransaction)
 	{
-		if(mode == RESOURCE_PLAYER)
+		if(mode == EMarketMode::RESOURCE_PLAYER)
 			gnrtxtnr = 166; //Are there any other resources you'd like to give away?
 		else
 			gnrtxtnr = 162; //You have received quite a bargain.  I expect to make no profit on the deal.  Can I interest you in any of my other wares?
 	}
 	else
 	{
-		if(mode == RESOURCE_PLAYER)
+		if(mode == EMarketMode::RESOURCE_PLAYER)
 			gnrtxtnr = 167; //If you'd like to give any of your resources to another player, click on the item you wish to give and to whom.
 		else
 			gnrtxtnr = 163; //Please inspect our fine wares.  If you feel like offering a trade, click on the items you wish to trade with and for.
@@ -3666,29 +3153,29 @@ void CMarketplaceWindow::updateTraderText()
 	traderText->setTxt(CGI->generaltexth->allTexts[gnrtxtnr]);
 }
 
-CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*= NULL*/, EMarketMode Mode)
+CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*= NULL*/, EMarketMode::EMarketMode Mode)
 	:CTradeWindow(Market, Hero, Mode)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	bg = new CPicture(Mode == CREATURE_EXP ? "ALTARMON.bmp" : "ALTRART2.bmp");
+	bg = new CPicture(Mode == EMarketMode::CREATURE_EXP ? "ALTARMON.bmp" : "ALTRART2.bmp");
 	bg->colorizeAndConvert(LOCPLINT->playerID);
 	pos = bg->center();
 
 
 
 
-	if(Mode == CREATURE_EXP)
+	if(Mode == EMarketMode::CREATURE_EXP)
 	{
-		printAtMiddle(boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name), 155, 30, FONT_SMALL, tytulowy, *bg); //%s's Creatures
-		printAtMiddle(CGI->generaltexth->allTexts[479], 450, 30, FONT_SMALL, tytulowy, *bg); //Altar of Sacrifice
-		printAtMiddleWB(CGI->generaltexth->allTexts[480], 450, 70, FONT_SMALL, 45, tytulowy, *bg); //To sacrifice creatures, move them from your army on to the Altar and click Sacrifice
+		printAtMiddle(boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name), 155, 30, FONT_SMALL, Colors::Jasmine, *bg); //%s's Creatures
+		printAtMiddle(CGI->generaltexth->allTexts[479], 450, 30, FONT_SMALL, Colors::Jasmine, *bg); //Altar of Sacrifice
+		printAtMiddleWB(CGI->generaltexth->allTexts[480], 450, 70, FONT_SMALL, 45, Colors::Jasmine, *bg); //To sacrifice creatures, move them from your army on to the Altar and click Sacrifice
 
 		slider = new CSlider(231,481,137,0,0,0);
 		slider->moved = boost::bind(&CAltarWindow::sliderMoved,this,_1);
-		max = new AdventureMapButton(CGI->generaltexth->zelp[578],boost::bind(&CSlider::moveToMax, slider),147,520,"IRCBTNS.DEF");
+		max = new CAdventureMapButton(CGI->generaltexth->zelp[578],boost::bind(&CSlider::moveToMax, slider),147,520,"IRCBTNS.DEF");
 
-		sacrificedUnits.resize(ARMY_SIZE, 0);
-		sacrificeAll = new AdventureMapButton(CGI->generaltexth->zelp[579],boost::bind(&CAltarWindow::SacrificeAll,this),393,520,"ALTARMY.DEF");
+		sacrificedUnits.resize(GameConstants::ARMY_SIZE, 0);
+		sacrificeAll = new CAdventureMapButton(CGI->generaltexth->zelp[579],boost::bind(&CAltarWindow::SacrificeAll,this),393,520,"ALTARMY.DEF");
 		sacrificeBackpack = NULL;
 
 		initItems(true);
@@ -3696,12 +3183,12 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 	}
 	else
 	{
-		printAtMiddle(CGI->generaltexth->allTexts[477], 450, 34, FONT_SMALL, tytulowy, *bg); //Sacrifice artifacts for experience
-		printAtMiddle(CGI->generaltexth->allTexts[478], 302, 423, FONT_SMALL, tytulowy, *bg); //%s's Creatures
+		printAtMiddle(CGI->generaltexth->allTexts[477], 450, 34, FONT_SMALL, Colors::Jasmine, *bg); //Sacrifice artifacts for experience
+		printAtMiddle(CGI->generaltexth->allTexts[478], 302, 423, FONT_SMALL, Colors::Jasmine, *bg); //%s's Creatures
 
-		sacrificeAll = new AdventureMapButton(CGI->generaltexth->zelp[571],boost::bind(&CAltarWindow::SacrificeAll,this),393,520,"ALTFILL.DEF");
+		sacrificeAll = new CAdventureMapButton(CGI->generaltexth->zelp[571],boost::bind(&CAltarWindow::SacrificeAll,this),393,520,"ALTFILL.DEF");
 		sacrificeAll->block(!hero->artifactsInBackpack.size() && !hero->artifactsWorn.size());
-		sacrificeBackpack = new AdventureMapButton(CGI->generaltexth->zelp[570],boost::bind(&CAltarWindow::SacrificeBackpack,this),147,520,"ALTEMBK.DEF");
+		sacrificeBackpack = new CAdventureMapButton(CGI->generaltexth->zelp[570],boost::bind(&CAltarWindow::SacrificeBackpack,this),147,520,"ALTEMBK.DEF");
 		sacrificeBackpack->block(!hero->artifactsInBackpack.size());
 
 		slider = NULL;
@@ -3711,21 +3198,21 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 		initItems(false);
 	}
 
-	printAtMiddleWB(CGI->generaltexth->allTexts[475], 72, 437, FONT_SMALL, 17, tytulowy, *bg); //Experience needed to reach next level
-	printAtMiddleWB(CGI->generaltexth->allTexts[476], 72, 505, FONT_SMALL, 17, tytulowy, *bg); //Total experience on the Altar
+	printAtMiddleWB(CGI->generaltexth->allTexts[475], 72, 437, FONT_SMALL, 17, Colors::Jasmine, *bg); //Experience needed to reach next level
+	printAtMiddleWB(CGI->generaltexth->allTexts[476], 72, 505, FONT_SMALL, 17, Colors::Jasmine, *bg); //Total experience on the Altar
 
 	new CGStatusBar(302, 576);
-	ok = new AdventureMapButton(CGI->generaltexth->zelp[568],boost::bind(&CGuiHandler::popIntTotally,&GH,this),516,520,"IOK6432.DEF",SDLK_RETURN);
+	ok = new CAdventureMapButton(CGI->generaltexth->zelp[568],boost::bind(&CGuiHandler::popIntTotally,&GH,this),516,520,"IOK6432.DEF",SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
 
-	deal = new AdventureMapButton(CGI->generaltexth->zelp[585],boost::bind(&CAltarWindow::makeDeal,this),269,520,"ALTSACR.DEF");
+	deal = new CAdventureMapButton(CGI->generaltexth->zelp[585],boost::bind(&CAltarWindow::makeDeal,this),269,520,"ALTSACR.DEF");
 
-	if(Hero->getAlignment() != EVIL && Mode == CREATURE_EXP)
-		new AdventureMapButton(CGI->generaltexth->zelp[580], boost::bind(&CTradeWindow::setMode,this, ARTIFACT_EXP), 516, 421, "ALTART.DEF");
-	if(Hero->getAlignment() != GOOD && Mode == ARTIFACT_EXP)
-		new AdventureMapButton(CGI->generaltexth->zelp[572], boost::bind(&CTradeWindow::setMode,this, CREATURE_EXP), 516, 421, "ALTSACC.DEF");
+	if(Hero->getAlignment() != ::EAlignment::EVIL && Mode == EMarketMode::CREATURE_EXP)
+		new CAdventureMapButton(CGI->generaltexth->zelp[580], boost::bind(&CTradeWindow::setMode,this, EMarketMode::ARTIFACT_EXP), 516, 421, "ALTART.DEF");
+	if(Hero->getAlignment() != ::EAlignment::GOOD && Mode == EMarketMode::ARTIFACT_EXP)
+		new CAdventureMapButton(CGI->generaltexth->zelp[572], boost::bind(&CTradeWindow::setMode,this, EMarketMode::CREATURE_EXP), 516, 421, "ALTSACC.DEF");
 
-	expPerUnit.resize(ARMY_SIZE, 0);
+	expPerUnit.resize(GameConstants::ARMY_SIZE, 0);
 	getExpValues();
 
 	expToLevel = new CLabel(73, 475, FONT_SMALL, CENTER);
@@ -3763,7 +3250,7 @@ void CAltarWindow::sliderMoved(int to)
 
 void CAltarWindow::makeDeal()
 {
-	if(mode == CREATURE_EXP)
+	if(mode == EMarketMode::CREATURE_EXP)
 	{
 		blockTrade();
 		slider->value = 0;
@@ -3808,7 +3295,7 @@ void CAltarWindow::makeDeal()
 
 void CAltarWindow::SacrificeAll()
 {
-	if(mode == CREATURE_EXP)
+	if(mode == EMarketMode::CREATURE_EXP)
 	{
 		bool movedAnything = false;
 		BOOST_FOREACH(CTradeableItem *t, items[1])
@@ -3841,7 +3328,7 @@ void CAltarWindow::SacrificeAll()
 
 void CAltarWindow::selectionChanged(bool side)
 {
-	if(mode != CREATURE_EXP)
+	if(mode != EMarketMode::CREATURE_EXP)
 		return;
 
 	CTradeableItem *&selected = side ? hLeft : hRight;
@@ -3850,7 +3337,7 @@ void CAltarWindow::selectionChanged(bool side)
 	theOther = *std::find_if(items[!side].begin(), items[!side].end(), boost::bind(&CTradeableItem::serial, _1) == selected->serial);
 
 	int stackCount = 0;
-	for (int i = 0; i < ARMY_SIZE; i++)
+	for (int i = 0; i < GameConstants::ARMY_SIZE; i++)
 		if(hero->getStackCount(i) > sacrificedUnits[i])
 			stackCount++;
 
@@ -3900,7 +3387,7 @@ void CAltarWindow::artifactsChanged(bool left)
 
 void CAltarWindow::garrisonChanged()
 {
-	if(mode != CREATURE_EXP)
+	if(mode != EMarketMode::CREATURE_EXP)
 		return;
 
 	std::set<CTradeableItem *> empty;
@@ -3921,13 +3408,13 @@ void CAltarWindow::getExpValues()
 	int dump;
 	BOOST_FOREACH(CTradeableItem *t, items[1])
 		if(t->id >= 0)
-			market->getOffer(t->id, 0, dump, expPerUnit[t->serial], CREATURE_EXP);
+			market->getOffer(t->id, 0, dump, expPerUnit[t->serial], EMarketMode::CREATURE_EXP);
 }
 
 void CAltarWindow::calcTotalExp()
 {
 	int val = 0;
-	if(mode == CREATURE_EXP)
+	if(mode == EMarketMode::CREATURE_EXP)
 	{
 		for (int i = 0; i < sacrificedUnits.size(); i++)
 		{
@@ -3943,7 +3430,7 @@ void CAltarWindow::calcTotalExp()
 			val += valOfArt; //WAS val += valOfArt * arts->artifactsOnAltar.count(*i);
 		}
 	}
-	val *=(100+hero->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0f;
+	val *=(100+hero->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0;
 	expOnAltar->setTxt(boost::lexical_cast<std::string>(val));
 }
 
@@ -4006,13 +3493,13 @@ void CAltarWindow::artifactPicked()
 void CAltarWindow::showAll(SDL_Surface * to)
 {
 	CTradeWindow::showAll(to);
-	if(mode == ARTIFACT_EXP && arts && arts->commonInfo->src.art)
+	if(mode == EMarketMode::ARTIFACT_EXP && arts && arts->commonInfo->src.art)
 	{
 		blitAtLoc(graphics->artDefs->ourImages[arts->commonInfo->src.art->artType->id].bitmap, 281, 442, to);
 
 		int dmp, val;
-		market->getOffer(arts->commonInfo->src.art->artType->id, 0, dmp, val, ARTIFACT_EXP);
-		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, zwykly, to);
+		market->getOffer(arts->commonInfo->src.art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
+		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, Colors::Cornsilk, to);
 	}
 }
 
@@ -4037,7 +3524,7 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 	}
 
 	int dmp, val;
-	market->getOffer(artID, 0, dmp, val, ARTIFACT_EXP);
+	market->getOffer(artID, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
 
 	arts->artifactsOnAltar.insert(art);
 	altarSlot->setArtInstance(art);
@@ -4049,7 +3536,7 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 
 void CAltarWindow::moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, const CArtifactInstance *art)
 {
-	int freeBackpackSlot = hero->artifactsInBackpack.size() + Arts::BACKPACK_START;
+	int freeBackpackSlot = hero->artifactsInBackpack.size() + GameConstants::BACKPACK_START;
 	if(arts->commonInfo->src.art)
 	{
 		arts->commonInfo->dst.slotID = freeBackpackSlot;
@@ -4058,7 +3545,7 @@ void CAltarWindow::moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, co
 
 	if(putOnAltar(altarSlot, art))
 	{
-		if(slotID < Arts::BACKPACK_START)
+		if(slotID < GameConstants::BACKPACK_START)
 			LOCPLINT->cb->swapArtifacts(hero, slotID, hero, freeBackpackSlot);
 		else
 		{
@@ -4081,40 +3568,40 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	SDL_FreeSurface(hhlp);
 
 	//printing texts
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[568], 242, 32, FONT_BIG, tytulowy, background); //window title
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[569], 122, 64, FONT_MEDIUM, tytulowy, background); //hero speed
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[570], 122, 130, FONT_MEDIUM, tytulowy, background); //enemy speed
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[571], 122, 196, FONT_MEDIUM, tytulowy, background); //map scroll speed
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[20], 122, 262, FONT_MEDIUM, tytulowy, background); //video quality
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[394], 122, 347, FONT_MEDIUM, tytulowy, background); //music volume
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[395], 122, 412, FONT_MEDIUM, tytulowy, background); //effects volume
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[568], 242, 32, FONT_BIG, Colors::Jasmine, background); //window title
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[569], 122, 64, FONT_MEDIUM, Colors::Jasmine, background); //hero speed
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[570], 122, 130, FONT_MEDIUM, Colors::Jasmine, background); //enemy speed
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[571], 122, 196, FONT_MEDIUM, Colors::Jasmine, background); //map scroll speed
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[20], 122, 262, FONT_MEDIUM, Colors::Jasmine, background); //video quality
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[394], 122, 347, FONT_MEDIUM, Colors::Jasmine, background); //music volume
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[395], 122, 412, FONT_MEDIUM, Colors::Jasmine, background); //effects volume
 
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[572], 282, 57, FONT_MEDIUM, zwykly, background); //show move path
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[573], 282, 89, FONT_MEDIUM, zwykly, background); //show hero reminder
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[574], 282, 121, FONT_MEDIUM, zwykly, background); //quick combat
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[575], 282, 153, FONT_MEDIUM, zwykly, background); //video subtitles
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[576], 282, 185, FONT_MEDIUM, zwykly, background); //town building outlines
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 282, 217, FONT_MEDIUM, zwykly, background); //spell book animation
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[572], 282, 57, FONT_MEDIUM, Colors::Cornsilk, background); //show move path
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[573], 282, 89, FONT_MEDIUM, Colors::Cornsilk, background); //show hero reminder
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[574], 282, 121, FONT_MEDIUM, Colors::Cornsilk, background); //quick combat
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[575], 282, 153, FONT_MEDIUM, Colors::Cornsilk, background); //video subtitles
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[576], 282, 185, FONT_MEDIUM, Colors::Cornsilk, background); //town building outlines
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 282, 217, FONT_MEDIUM, Colors::Cornsilk, background); //spell book animation
 
 	//setting up buttons
-	// load = new AdventureMapButton (CGI->generaltexth->zelp[321].first, CGI->generaltexth->zelp[321].second, boost::bind(&CSystemOptionsWindow::loadf, this), pos.x+246, pos.y+298, "SOLOAD.DEF", SDLK_l);
+	// load = new CAdventureMapButton (CGI->generaltexth->zelp[321].first, CGI->generaltexth->zelp[321].second, boost::bind(&CSystemOptionsWindow::loadf, this), pos.x+246, pos.y+298, "SOLOAD.DEF", SDLK_l);
 	// std::swap(save->imgs[0][0], load->imgs[0][1]);
 
-	save = new AdventureMapButton (CGI->generaltexth->zelp[322].first, CGI->generaltexth->zelp[322].second, boost::bind(&CSystemOptionsWindow::bsavef, this), 357, 298, "SOSAVE.DEF", SDLK_s);
+	save = new CAdventureMapButton (CGI->generaltexth->zelp[322].first, CGI->generaltexth->zelp[322].second, boost::bind(&CSystemOptionsWindow::bsavef, this), 357, 298, "SOSAVE.DEF", SDLK_s);
 	save->swappedImages = true;
 	save->update();
 
-	// restart = new AdventureMapButton (CGI->generaltexth->zelp[323].first, CGI->generaltexth->zelp[323].second, boost::bind(&CSystemOptionsWindow::bmainmenuf, this), pos.x+346, pos.y+357, "SORSTRT", SDLK_r);
+	// restart = new CAdventureMapButton (CGI->generaltexth->zelp[323].first, CGI->generaltexth->zelp[323].second, boost::bind(&CSystemOptionsWindow::bmainmenuf, this), pos.x+346, pos.y+357, "SORSTRT", SDLK_r);
 	// std::swap(save->imgs[0][0], restart->imgs[0][1]);
 
-	mainMenu = new AdventureMapButton (CGI->generaltexth->zelp[320].first, CGI->generaltexth->zelp[320].second, boost::bind(&CSystemOptionsWindow::bmainmenuf, this), 357, 357, "SOMAIN.DEF", SDLK_m);
+	mainMenu = new CAdventureMapButton (CGI->generaltexth->zelp[320].first, CGI->generaltexth->zelp[320].second, boost::bind(&CSystemOptionsWindow::bmainmenuf, this), 357, 357, "SOMAIN.DEF", SDLK_m);
 	mainMenu->swappedImages = true;
 	mainMenu->update();
 
-	quitGame = new AdventureMapButton (CGI->generaltexth->zelp[324].first, CGI->generaltexth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), 246, 415, "soquit.def", SDLK_q);
+	quitGame = new CAdventureMapButton (CGI->generaltexth->zelp[324].first, CGI->generaltexth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), 246, 415, "soquit.def", SDLK_q);
 	quitGame->swappedImages = true;
 	quitGame->update();
-	backToMap = new AdventureMapButton (CGI->generaltexth->zelp[325].first, CGI->generaltexth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), 357, 415, "soretrn.def", SDLK_RETURN);
+	backToMap = new CAdventureMapButton (CGI->generaltexth->zelp[325].first, CGI->generaltexth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), 357, 415, "soretrn.def", SDLK_RETURN);
 	backToMap->swappedImages = true;
 	backToMap->update();
 	backToMap->assignedKeys.insert(SDLK_ESCAPE);
@@ -4168,7 +3655,7 @@ void CSystemOptionsWindow::pushSDLEvent(int type, int usercode)
 
 void CSystemOptionsWindow::bquitf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<SComponent*>(), boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_QUIT, 0), 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<CComponent*>(), boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_QUIT, 0), 0, false);
 }
 
 void CSystemOptionsWindow::breturnf()
@@ -4178,7 +3665,7 @@ void CSystemOptionsWindow::breturnf()
 
 void CSystemOptionsWindow::bmainmenuf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<SComponent*>(), boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_USEREVENT, 2), 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<CComponent*>(), boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_USEREVENT, 2), 0, false);
 }
 
 void CSystemOptionsWindow::bsavef()
@@ -4191,10 +3678,10 @@ void CSystemOptionsWindow::bsavef()
 	std::string fname = fnameStream.str();
 	boost::algorithm::replace_all(fname,":","");
 	boost::algorithm::replace_all(fname," ","-");
-	LOCPLINT->showYesNoDialog("Do you want to save current game as " + fname, std::vector<SComponent*>(), boost::bind(&CCallback::save, LOCPLINT->cb, fname), boost::bind(&CSystemOptionsWindow::activate, this), false);*/
+	LOCPLINT->showYesNoDialog("Do you want to save current game as " + fname, std::vector<CComponent*>(), boost::bind(&CCallback::save, LOCPLINT->cb, fname), boost::bind(&CSystemOptionsWindow::activate, this), false);*/
 }
 
-void CSystemOptionsWindow::showAll(SDL_Surface *to)
+void CSystemOptionsWindow::showAll(SDL_Surface * to)
 {
 	CSDL_Ext::blitSurface(background, NULL, to, &pos);
 
@@ -4221,16 +3708,16 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj)
 	pos = center(bg->pos);
 
 
-	printAtMiddle(CGI->generaltexth->jktexts[37],200,35,FONT_BIG,tytulowy,*bg);
-	printAtMiddle("2500",320,328,FONT_SMALL,zwykly,*bg);
-//	printAtMiddle(CGI->generaltexth->jktexts[38],146,283,FONT_BIG,tytulowy,bg); //what is this???
-	printAtMiddleWB(LOCPLINT->cb->getTavernGossip(tavernObj), 200, 220, FONT_SMALL, 50, zwykly, *bg);
+	printAtMiddle(CGI->generaltexth->jktexts[37],200,35,FONT_BIG,Colors::Jasmine,*bg);
+	printAtMiddle("2500",320,328,FONT_SMALL,Colors::Cornsilk,*bg);
+//	printAtMiddle(CGI->generaltexth->jktexts[38],146,283,FONT_BIG,Colors::Jasmine,bg); //what is this???
+	printAtMiddleWB(LOCPLINT->cb->getTavernGossip(tavernObj), 200, 220, FONT_SMALL, 50, Colors::Cornsilk, *bg);
 
 
 	bar = new CGStatusBar(8, 478, "APHLFTRT.bmp", 380);
-	cancel = new AdventureMapButton(CGI->generaltexth->tavernInfo[7],"", boost::bind(&CTavernWindow::close, this), 310, 428, "ICANCEL.DEF", SDLK_ESCAPE);
-	recruit = new AdventureMapButton("", "", boost::bind(&CTavernWindow::recruitb, this), 272, 355, "TPTAV01.DEF", SDLK_RETURN);
-	thiefGuild = new AdventureMapButton(CGI->generaltexth->tavernInfo[5],"", boost::bind(&CTavernWindow::thievesguildb, this), 22, 428, "TPTAV02.DEF", SDLK_t);
+	cancel = new CAdventureMapButton(CGI->generaltexth->tavernInfo[7],"", boost::bind(&CTavernWindow::close, this), 310, 428, "ICANCEL.DEF", SDLK_ESCAPE);
+	recruit = new CAdventureMapButton("", "", boost::bind(&CTavernWindow::recruitb, this), 272, 355, "TPTAV01.DEF", SDLK_RETURN);
+	thiefGuild = new CAdventureMapButton(CGI->generaltexth->tavernInfo[5],"", boost::bind(&CTavernWindow::thievesguildb, this), 22, 428, "TPTAV02.DEF", SDLK_t);
 
 	if(LOCPLINT->cb->getResourceAmount(6) < 2500) //not enough gold
 	{
@@ -4299,7 +3786,7 @@ void CTavernWindow::show(SDL_Surface * to)
 			boost::algorithm::replace_first(recruit->hoverTexts[0],"%s",sel->h->type->heroClass->name);
 		}
 
-		printAtMiddleWB(sel->descr,pos.x+146,pos.y+389,FONT_SMALL,40,zwykly,to);
+		printAtMiddleWB(sel->descr,pos.x+146,pos.y+389,FONT_SMALL,40,Colors::Cornsilk,to);
 		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
 	}
 }
@@ -4307,8 +3794,7 @@ void CTavernWindow::show(SDL_Surface * to)
 void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
 {
 	if(previousState && !down && h)
-		as();
-	//ClickableL::clickLeft(down);
+		*_sel = _id;
 }
 
 void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
@@ -4320,7 +3806,7 @@ void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 }
 
 CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H)
-:as(sel,id), h(H)
+: h(H), _id(id), _sel(&sel)
 {
 	used = LCLICK | RCLICK | HOVER;
 	h = H;
@@ -4591,11 +4077,11 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 
 	garr = new CGarrisonInt(92, 127, 4, Point(0,96), bg->bg, Point(93,127), up, down, removableUnits);
 	{
-		AdventureMapButton *split = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),88,314,"IDV6432.DEF");
+		CAdventureMapButton *split = new CAdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),88,314,"IDV6432.DEF");
 		removeChild(split);
 		garr->addSplitBtn(split);
 	}
-	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),399,314,"IOK6432.DEF",SDLK_RETURN);
+	quit = new CAdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),399,314,"IOK6432.DEF",SDLK_RETURN);
 
 	std::string titleText;
 	if (garr->armedObjs[1]->tempOwner == garr->armedObjs[0]->tempOwner)
@@ -4605,7 +4091,7 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 		titleText = CGI->generaltexth->allTexts[35];
 		boost::algorithm::replace_first(titleText, "%s", garr->armedObjs[0]->Slots().begin()->second->type->namePl);
 	}
-	title = new CLabel(275, 30, FONT_BIG, CENTER, tytulowy, titleText);
+	title = new CLabel(275, 30, FONT_BIG, CENTER, Colors::Jasmine, titleText);
 }
 
 CGarrisonWindow::~CGarrisonWindow()
@@ -4620,7 +4106,7 @@ void CGarrisonWindow::showAll(SDL_Surface * to)
 	blitAtLoc(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->armedObjs[1])->portrait],29,222,to);
 }
 
-IShowActivable::IShowActivable()
+IShowActivatable::IShowActivatable()
 {
 	type = 0;
 }
@@ -4633,36 +4119,6 @@ CGarrisonHolder::CGarrisonHolder()
 void CWindowWithGarrison::updateGarrisons()
 {
 	garr->recreateSlots();
-}
-
-void CRClickPopupInt::show(SDL_Surface * to)
-{
-	inner->show(to);
-}
-
-CRClickPopupInt::CRClickPopupInt( IShowActivable *our, bool deleteInt )
-{
-	CCS->curh->hide();
-	inner = our;
-	delInner = deleteInt;
-}
-
-CRClickPopupInt::~CRClickPopupInt()
-{
-// 	//workaround for hero window issue - if it's our interface, call dispose to properly reset it's state 
-// 	//TODO? it might be better to rewrite hero window so it will bee newed/deleted on opening / closing (not effort-worthy now, but on some day...?)
-// 	if(LOCPLINT && inner == adventureInt->heroWindow)
-// 		adventureInt->heroWindow->dispose();
-
-	if(delInner)
-		delete inner;
-
-	CCS->curh->show();
-}
-
-void CRClickPopupInt::showAll(SDL_Surface * to)
-{
-	inner->showAll(to);
 }
 
 CArtPlace::CArtPlace(const CArtifactInstance* Art)
@@ -4688,8 +4144,8 @@ void CArtPlace::activate()
 void CArtPlace::clickLeft(tribool down, bool previousState)
 {
 	//LRClickableAreaWTextComp::clickLeft(down);
-	bool inBackpack = slotID >= Arts::BACKPACK_START, 
-		srcInBackpack = ourOwner->commonInfo->src.slotID >= Arts::BACKPACK_START,
+	bool inBackpack = slotID >= GameConstants::BACKPACK_START, 
+		srcInBackpack = ourOwner->commonInfo->src.slotID >= GameConstants::BACKPACK_START,
 		srcInSameHero = ourOwner->commonInfo->src.AOH == ourOwner;
 	
 	if(ourOwner->highlightModeCallback && ourArt)
@@ -4732,7 +4188,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 			{
 				if(ourArt->artType->id == 3) //catapult cannot be highlighted
 				{
-					std::vector<SComponent *> catapult(1, new SComponent(SComponent::artifact, 3, 0));
+					std::vector<CComponent *> catapult(1, new CComponent(CComponent::artifact, 3, 0));
 					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[312], catapult); //The Catapult must be equipped.
 					return;
 				}
@@ -4766,10 +4222,10 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 						break;
 					default:
 						setMeAsDest();
-						amin(ourOwner->commonInfo->dst.slotID, ourOwner->curHero->artifactsInBackpack.size() + Arts::BACKPACK_START);
+						vstd::amin(ourOwner->commonInfo->dst.slotID, ourOwner->curHero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
 						if(srcInBackpack && srcInSameHero)
 						{
-							if(!ourArt								//cannot move from backpack to AFTER backpack -> combined with amin above it will guarantee that dest is at most the last artifact
+							if(!ourArt								//cannot move from backpack to AFTER backpack -> combined with vstd::amin above it will guarantee that dest is at most the last artifact
 							  || ourOwner->commonInfo->src.slotID < ourOwner->commonInfo->dst.slotID) //rearranging arts in backpack after taking src artifact, the dest id will be shifted
 								ourOwner->commonInfo->dst.slotID--;
 						}
@@ -4860,9 +4316,9 @@ void CArtPlace::select ()
 		return;
 
 	picked = true;
-	if(ourArt->canBeDisassembled() && slotID < Arts::BACKPACK_START) //worn combined artifact -> locks have to disappear
+	if(ourArt->canBeDisassembled() && slotID < GameConstants::BACKPACK_START) //worn combined artifact -> locks have to disappear
 	{
-		for(int i = 0; i < Arts::BACKPACK_START; i++)
+		for(int i = 0; i < GameConstants::BACKPACK_START; i++)
 		{
 			CArtPlace *ap = ourOwner->getArtPlace(i);
 			ap->picked = ourArt->isPart(ap->ourArt);
@@ -4875,7 +4331,7 @@ void CArtPlace::select ()
 	ourOwner->commonInfo->src.setTo(this, false);
 	ourOwner->markPossibleSlots(ourArt);
 
-	if(slotID >= Arts::BACKPACK_START)
+	if(slotID >= GameConstants::BACKPACK_START)
 		ourOwner->scrollBackpack(0); //will update slots
 
 	ourOwner->updateParentWindow();
@@ -4890,14 +4346,14 @@ void CArtPlace::deselect ()
 	picked = false;
 	if(ourArt && ourArt->canBeDisassembled()) //combined art returned to its slot -> restore locks
 	{
-		for(int i = 0; i < Arts::BACKPACK_START; i++)
+		for(int i = 0; i < GameConstants::BACKPACK_START; i++)
 			ourOwner->getArtPlace(i)->picked = false;
 	}
 
 	CCS->curh->dragAndDropCursor(NULL);
 	ourOwner->unmarkSlots();
 	ourOwner->commonInfo->src.clear();
-	if(slotID >= Arts::BACKPACK_START)
+	if(slotID >= GameConstants::BACKPACK_START)
 		ourOwner->scrollBackpack(0); //will update slots
 
 
@@ -4913,7 +4369,7 @@ void CArtPlace::deactivate()
 	}
 }
 
-void CArtPlace::showAll(SDL_Surface *to)
+void CArtPlace::showAll(SDL_Surface * to)
 {
 	if (ourArt && !picked && ourArt == ourOwner->curHero->getArt(slotID, false)) //last condition is needed for disassembling -> artifact may be gone, but we don't know yet TODO: real, nice solution
 	{
@@ -4988,7 +4444,7 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 					text = text.replace(nameStart, nameEnd - nameStart + 1, CGI->spellh->spells[spellID]->name);
 
 				//add spell component info (used to provide a pic in r-click popup)
-				baseType = SComponent::spell;
+				baseType = CComponent::spell;
 				type = spellID;
 				bonusValue = 0;
 			}
@@ -5001,62 +4457,11 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 	}
 }
 
-void HoverableArea::hover (bool on)
-{
-	if (on)
-		GH.statusbar->print(hoverText);
-	else if (GH.statusbar->getCurrent()==hoverText)
-		GH.statusbar->clear();
-}
-
-HoverableArea::HoverableArea()
-{
-	used |= HOVER;
-}
-
-HoverableArea::~HoverableArea()
-{
-}
-
-void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
-{
-	if(!down && previousState)
-	{
-		LOCPLINT->showInfoDialog(text);
-	}
-}
-void LRClickableAreaWText::clickRight(tribool down, bool previousState)
-{
-	adventureInt->handleRightClick(text, down);
-}
-
-LRClickableAreaWText::LRClickableAreaWText()
-{
-	init();
-}
-
-LRClickableAreaWText::LRClickableAreaWText(const Rect &Pos, const std::string &HoverText /*= ""*/, const std::string &ClickText /*= ""*/)
-{
-	init();
-	pos = Pos + pos;
-	hoverText = HoverText;
-	text = ClickText;
-}
-
-LRClickableAreaWText::~LRClickableAreaWText()
-{
-}
-
-void LRClickableAreaWText::init()
-{
-	used = LCLICK | RCLICK | HOVER;
-}
-
 void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 {
 	if((!down) && previousState)
 	{
-		std::vector<SComponent*> comp(1, createComponent());
+		std::vector<CComponent*> comp(1, createComponent());
 		LOCPLINT->showInfoDialog(text, comp);
 	}
 }
@@ -5066,10 +4471,10 @@ LRClickableAreaWTextComp::LRClickableAreaWTextComp(const Rect &Pos, int BaseType
 {
 }
 
-SComponent * LRClickableAreaWTextComp::createComponent() const
+CComponent * LRClickableAreaWTextComp::createComponent() const
 {
 	if(baseType >= 0)
-		return new SComponent(SComponent::Etype(baseType), type, bonusValue);
+		return new CComponent(CComponent::Etype(baseType), type, bonusValue);
 	else
 		return NULL;
 }
@@ -5078,7 +4483,7 @@ void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
-		if(SComponent *comp = createComponent())
+		if(CComponent *comp = createComponent())
 		{
 			CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
 			return;
@@ -5225,7 +4630,7 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 
 void CArtifactsOfHero::dispose()
 {
-	//delNull(curHero);
+	//vstd::clear_pointer(curHero);
 	//unmarkSlots(false);
 	CCS->curh->dragAndDropCursor(NULL);
 }
@@ -5339,7 +4744,7 @@ void CArtifactsOfHero::unmarkLocalSlots(bool withRedraw /*= true*/)
  */
 void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, int slotID)
 {
-	if(!artPlace && slotID >= Arts::BACKPACK_START) //spurious call from artifactMoved in attempt to update hidden backpack slot
+	if(!artPlace && slotID >= GameConstants::BACKPACK_START) //spurious call from artifactMoved in attempt to update hidden backpack slot
 	{
 		return;
 	}
@@ -5367,7 +4772,7 @@ void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, int slotID)
 }
 
 CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector<CArtPlace *> Backpack,
-	AdventureMapButton *leftScroll, AdventureMapButton *rightScroll, bool createCommonPart):
+	CAdventureMapButton *leftScroll, CAdventureMapButton *rightScroll, bool createCommonPart):
 
 	curHero(NULL),
 	artWorn(ArtWorn), backpack(Backpack),
@@ -5444,8 +4849,8 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 		backpack.push_back(add);
 	}
 
-	leftArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CArtifactsOfHero::scrollBackpack,this,-1), 379, 364, "hsbtns3.def", SDLK_LEFT);
-	rightArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CArtifactsOfHero::scrollBackpack,this,+1), 632, 364, "hsbtns5.def", SDLK_RIGHT);
+	leftArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind(&CArtifactsOfHero::scrollBackpack,this,-1), 379, 364, "hsbtns3.def", SDLK_LEFT);
+	rightArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind(&CArtifactsOfHero::scrollBackpack,this,+1), 632, 364, "hsbtns5.def", SDLK_RIGHT);
 }
 
 CArtifactsOfHero::~CArtifactsOfHero()
@@ -5511,9 +4916,9 @@ void CArtifactsOfHero::realizeCurrentTransaction()
 
 void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
-	if(src.hero == curHero && src.slot >= Arts::BACKPACK_START)
+	if(src.hero == curHero && src.slot >= GameConstants::BACKPACK_START)
 		updateSlot(src.slot);
-	if(dst.hero == curHero && dst.slot >= Arts::BACKPACK_START)
+	if(dst.hero == curHero && dst.slot >= GameConstants::BACKPACK_START)
 		updateSlot(dst.slot);
 	if(src.hero == curHero  ||  dst.hero == curHero) //we need to update all slots, artifact might be combined and affect more slots
 		updateWornSlots(false);
@@ -5523,13 +4928,13 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 
 	if(commonInfo->src == src) //artifact was taken from us
 	{
-		assert(commonInfo->dst == dst  ||  dst.slot == dst.hero->artifactsInBackpack.size() + Arts::BACKPACK_START);
+		assert(commonInfo->dst == dst  ||  dst.slot == dst.hero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
 		commonInfo->reset();
 		unmarkSlots();
 	}
 	else if(commonInfo->dst == src) //the dest artifact was moved -> we are picking it
 	{
-		assert(dst.slot >= Arts::BACKPACK_START);
+		assert(dst.slot >= GameConstants::BACKPACK_START);
 		commonInfo->reset();
 
 		CArtPlace *ap = NULL;
@@ -5556,7 +4961,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			markPossibleSlots(dst.getArt());
 		}
 	}
-	else if(src.slot >= Arts::BACKPACK_START && 
+	else if(src.slot >= GameConstants::BACKPACK_START && 
 	        src.slot <  commonInfo->src.slotID &&
 			src.hero == commonInfo->src.AOH->curHero) //artifact taken from before currently picked one
 	{
@@ -5577,13 +4982,13 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 // 	if(dst.slot >= Arts::BACKPACK_START && dst.slot - Arts::BACKPACK_START < backpackPos)
 // 		shift++;
 // 
- 	if(src.slot < Arts::BACKPACK_START  &&  dst.slot - Arts::BACKPACK_START < backpackPos)
+ 	if(src.slot < GameConstants::BACKPACK_START  &&  dst.slot - GameConstants::BACKPACK_START < backpackPos)
 		shift++;
-	if(dst.slot < Arts::BACKPACK_START  &&  src.slot - Arts::BACKPACK_START < backpackPos)
+	if(dst.slot < GameConstants::BACKPACK_START  &&  src.slot - GameConstants::BACKPACK_START < backpackPos)
  		shift--;
 
-	if( (src.hero == curHero && src.slot >= Arts::BACKPACK_START)
-	 || (dst.hero == curHero && dst.slot >= Arts::BACKPACK_START) )
+	if( (src.hero == curHero && src.slot >= GameConstants::BACKPACK_START)
+	 || (dst.hero == curHero && dst.slot >= GameConstants::BACKPACK_START) )
 		scrollBackpack(shift); //update backpack slots
 }
 
@@ -5591,7 +4996,7 @@ void CArtifactsOfHero::artifactRemoved(const ArtifactLocation &al)
 {
 	if(al.hero == curHero)
 	{
-		if(al.slot < Arts::BACKPACK_START)
+		if(al.slot < GameConstants::BACKPACK_START)
 			updateWornSlots(0);
 		else
 			scrollBackpack(0); //update backpack slots
@@ -5600,7 +5005,7 @@ void CArtifactsOfHero::artifactRemoved(const ArtifactLocation &al)
 
 CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 {
-	if(slot < Arts::BACKPACK_START)
+	if(slot < GameConstants::BACKPACK_START)
 	{
 		return artWorn[slot];
 	}
@@ -5681,9 +5086,9 @@ void CExchangeWindow::prepareBackground()
 	//printing heroes' names and levels
 	std::ostringstream os, os2;
 	os<<heroInst[0]->name<<", Level "<<heroInst[0]->level<<" "<<heroInst[0]->type->heroClass->name;
-	CSDL_Ext::printAtMiddle(os.str(), 147, 25, FONT_SMALL, zwykly, bg);
+	CSDL_Ext::printAtMiddle(os.str(), 147, 25, FONT_SMALL, Colors::Cornsilk, bg);
 	os2<<heroInst[1]->name<<", Level "<<heroInst[1]->level<<" "<<heroInst[1]->type->heroClass->name;
-	CSDL_Ext::printAtMiddle(os2.str(), 653, 25, FONT_SMALL, zwykly, bg);
+	CSDL_Ext::printAtMiddle(os2.str(), 653, 25, FONT_SMALL, Colors::Cornsilk, bg);
 
 	//printing primary skills
 	CDefHandler * skilldef = CDefHandler::giveDef("PSKIL32.DEF");
@@ -5703,7 +5108,7 @@ void CExchangeWindow::prepareBackground()
 		{
 			std::ostringstream primarySkill;
 			primarySkill << heroWArt.getPrimSkillLevel(m);
-			CSDL_Ext::printAtMiddle(primarySkill.str(), 352 + 93 * b, 35 + 36 * m, FONT_SMALL, zwykly, bg);
+			CSDL_Ext::printAtMiddle(primarySkill.str(), 352 + 93 * b, 35 + 36 * m, FONT_SMALL, Colors::Cornsilk, bg);
 		}
 
 		//printing secondary skills
@@ -5717,11 +5122,11 @@ void CExchangeWindow::prepareBackground()
 
 		//experience
 		blitAt(skilldef->ourImages[4].bitmap, 103 + 490*b, 45, bg);
-		printAtMiddle( makeNumberShort(heroInst[b]->exp), 119 + 490*b, 71, FONT_SMALL, zwykly, bg );
+		printAtMiddle( makeNumberShort(heroInst[b]->exp), 119 + 490*b, 71, FONT_SMALL, Colors::Cornsilk, bg );
 
 		//mana points
 		blitAt(skilldef->ourImages[5].bitmap, 139 + 490*b, 45, bg);
-		printAtMiddle( makeNumberShort(heroInst[b]->mana), 155 + 490*b, 71, FONT_SMALL, zwykly, bg );
+		printAtMiddle( makeNumberShort(heroInst[b]->mana), 155 + 490*b, 71, FONT_SMALL, Colors::Cornsilk, bg );
 
 		//setting morale
 		blitAt(graphics->morale30->ourImages[heroWArt.MoraleVal()+3].bitmap, 177 + 490*b, 45, bg);
@@ -5828,9 +5233,9 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	}
 
 	//buttons
-	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8], "", boost::bind(&CExchangeWindow::close, this), pos.x+732, pos.y+567, "IOKAY.DEF", SDLK_RETURN);
-	questlogButton[0] = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CExchangeWindow::questlog,this, 0), pos.x+10, pos.y+44, "hsbtns4.def");
-	questlogButton[1] = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CExchangeWindow::questlog,this, 1), pos.x+740, pos.y+44, "hsbtns4.def");
+	quit = new CAdventureMapButton(CGI->generaltexth->tcommands[8], "", boost::bind(&CExchangeWindow::close, this), pos.x+732, pos.y+567, "IOKAY.DEF", SDLK_RETURN);
+	questlogButton[0] = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CExchangeWindow::questlog,this, 0), pos.x+10, pos.y+44, "hsbtns4.def");
+	questlogButton[1] = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CExchangeWindow::questlog,this, 1), pos.x+740, pos.y+44, "hsbtns4.def");
 
 	//statusbar 
 	//FIXME - this image is a bit bigger than required - part of background should be used instead
@@ -5841,8 +5246,8 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 
 	{
 		BLOCK_CAPTURING;
-		garr->addSplitBtn(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+10,pos.y+132,"TSBTNS.DEF"));
-		garr->addSplitBtn(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+740,pos.y+132,"TSBTNS.DEF"));
+		garr->addSplitBtn(new CAdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+10,pos.y+132,"TSBTNS.DEF"));
+		garr->addSplitBtn(new CAdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+740,pos.y+132,"TSBTNS.DEF"));
 	}
 }
 
@@ -5874,14 +5279,14 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 	std::string goldValue = boost::lexical_cast<std::string>(cost[Res::GOLD]);
 	std::string woodValue = boost::lexical_cast<std::string>(cost[Res::WOOD]);
 
-	goldCost = new CLabel(118, 294, FONT_SMALL, CENTER, zwykly, goldValue);
-	woodCost = new CLabel(212, 294, FONT_SMALL, CENTER, zwykly, woodValue);
+	goldCost = new CLabel(118, 294, FONT_SMALL, CENTER, Colors::Cornsilk, goldValue);
+	woodCost = new CLabel(212, 294, FONT_SMALL, CENTER, Colors::Cornsilk, woodValue);
 
 	goldPic = new CAnimImage("RESOURCE", Res::GOLD, 0, 100, 244);
 	woodPic = new CAnimImage("RESOURCE", Res::WOOD, 0, 196, 244);
 
-	quit = new AdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 224, 312, "ICANCEL", SDLK_RETURN);
-	build = new AdventureMapButton(CGI->generaltexth->allTexts[598], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 42, 312, "IBUY30", SDLK_RETURN);
+	quit = new CAdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 224, 312, "ICANCEL", SDLK_RETURN);
+	build = new CAdventureMapButton(CGI->generaltexth->allTexts[598], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 42, 312, "IBUY30", SDLK_RETURN);
 	build->callback += onBuy;
 
 	for(size_t i = 0; i < cost.size(); i++)
@@ -5895,11 +5300,11 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 
 	statusBar = new CGStatusBar(bg->pos.w/2, bg->pos.h-16);
 
-	title =     new CLabel(164, 27,  FONT_BIG,    CENTER, tytulowy, CGI->generaltexth->jktexts[13]);
-	costLabel = new CLabel(164, 220, FONT_MEDIUM, CENTER, zwykly,   CGI->generaltexth->jktexts[14]);
+	title =     new CLabel(164, 27,  FONT_BIG,    CENTER, Colors::Jasmine, CGI->generaltexth->jktexts[13]);
+	costLabel = new CLabel(164, 220, FONT_MEDIUM, CENTER, Colors::Cornsilk,   CGI->generaltexth->jktexts[14]);
 }
 
-CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, float discoveredRatio)
+CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, double discoveredRatio)
 :animCount(0)
 {
 	SDL_Surface * back = BitmapHandler::loadBitmap("PUZZLE.BMP", false);
@@ -5910,7 +5315,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, float discoveredRatio)
 	background = SDL_ConvertSurface(back, screen->format, back->flags);
 	SDL_FreeSurface(back);
 	pos = genRect(background->h, background->w, (conf.cc.resx - background->w) / 2, (conf.cc.resy - background->h) / 2);
-	quitb = new AdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), pos.x+670, pos.y+538, "IOK6432.DEF", SDLK_RETURN);
+	quitb = new CAdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), pos.x+670, pos.y+538, "IOK6432.DEF", SDLK_RETURN);
 	quitb->assignedKeys.insert(SDLK_ESCAPE);
 	quitb->borderColor = Colors::MetallicGold;
 	quitb->borderEnabled = true;
@@ -6008,7 +5413,7 @@ void CTransformerWindow::CItem::showAll(SDL_Surface * to)
 {
 	SDL_Surface * backgr = graphics->bigImgs[parent->army->getCreature(id)->idNumber];
 	blitAt(backgr, pos.x, pos.y, to);
-	printAtMiddle(boost::lexical_cast<std::string>(size),pos.x+28, pos.y+76,FONT_SMALL,zwykly,to);//stack size
+	printAtMiddle(boost::lexical_cast<std::string>(size),pos.x+28, pos.y+76,FONT_SMALL,Colors::Cornsilk,to);//stack size
 }
 
 void CTransformerWindow::CItem::move()
@@ -6049,17 +5454,17 @@ CTransformerWindow::CItem::~CItem()
 void CTransformerWindow::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-	printAtMiddleLoc(  CGI->generaltexth->allTexts[485], 153,     29,FONT_SMALL,     tytulowy,to);//holding area
-	printAtMiddleLoc(  CGI->generaltexth->allTexts[486], 153+295, 29,FONT_SMALL,     tytulowy,to);//transformer
-	printAtMiddleWBLoc(CGI->generaltexth->allTexts[487], 153,     75,FONT_MEDIUM, 32,tytulowy,to);//move creatures to create skeletons
-	printAtMiddleWBLoc(CGI->generaltexth->allTexts[488], 153+295, 75,FONT_MEDIUM, 32,tytulowy,to);//creatures here will become skeletons
+	printAtMiddleLoc(  CGI->generaltexth->allTexts[485], 153,     29,FONT_SMALL,     Colors::Jasmine,to);//holding area
+	printAtMiddleLoc(  CGI->generaltexth->allTexts[486], 153+295, 29,FONT_SMALL,     Colors::Jasmine,to);//transformer
+	printAtMiddleWBLoc(CGI->generaltexth->allTexts[487], 153,     75,FONT_MEDIUM, 32,Colors::Jasmine,to);//move creatures to create skeletons
+	printAtMiddleWBLoc(CGI->generaltexth->allTexts[488], 153+295, 75,FONT_MEDIUM, 32,Colors::Jasmine,to);//creatures here will become skeletons
 }
 
 void CTransformerWindow::makeDeal()
 {
 	for (int i=0; i<items.size(); i++)
 		if (!items[i]->left)
-			LOCPLINT->cb->trade(town, CREATURE_UNDEAD, items[i]->id, 0, 0, hero);
+			LOCPLINT->cb->trade(town, EMarketMode::CREATURE_UNDEAD, items[i]->id, 0, 0, hero);
 }
 
 void CTransformerWindow::addAll()
@@ -6086,9 +5491,9 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 		if ( army->getCreature(i) )
 			items.push_back(new CItem(this, army->getStackCount(i), i));
 			
-	all    = new AdventureMapButton(CGI->generaltexth->zelp[590],boost::bind(&CTransformerWindow::addAll,this),     146,416,"ALTARMY.DEF",SDLK_a);
-	convert= new AdventureMapButton(CGI->generaltexth->zelp[591],boost::bind(&CTransformerWindow::makeDeal,this),   269,416,"ALTSACR.DEF",SDLK_RETURN);
-	cancel = new AdventureMapButton(CGI->generaltexth->zelp[592],boost::bind(&CGuiHandler::popIntTotally,&GH, this),392,416,"ICANCEL.DEF",SDLK_ESCAPE);
+	all    = new CAdventureMapButton(CGI->generaltexth->zelp[590],boost::bind(&CTransformerWindow::addAll,this),     146,416,"ALTARMY.DEF",SDLK_a);
+	convert= new CAdventureMapButton(CGI->generaltexth->zelp[591],boost::bind(&CTransformerWindow::makeDeal,this),   269,416,"ALTSACR.DEF",SDLK_RETURN);
+	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[592],boost::bind(&CGuiHandler::popIntTotally,&GH, this),392,416,"ICANCEL.DEF",SDLK_ESCAPE);
 	bar    = new CGStatusBar(304, 469);
 }
 
@@ -6137,7 +5542,7 @@ int CUniversityWindow::CItem::state()
 {
 	if (parent->hero->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(ID)))//hero know this skill
 		return 1;
-	if (parent->hero->secSkills.size() >= SKILL_PER_HERO)//can't learn more skills
+	if (parent->hero->secSkills.size() >= GameConstants::SKILL_PER_HERO)//can't learn more skills
 		return 0;
 	if (parent->hero->type->heroClass->proSec[ID]==0)//can't learn this skill (like necromancy for most of non-necros)
 		return 0;
@@ -6164,8 +5569,8 @@ void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 	
 	blitAtLoc(bar->bg, -28, -22, to);
 	blitAtLoc(bar->bg, -28,  48, to);
-	printAtMiddleLoc  (CGI->generaltexth->skillName[ID], 22, -13, FONT_SMALL, zwykly,to);//Name
-	printAtMiddleLoc  (CGI->generaltexth->levels[0], 22, 57, FONT_SMALL, zwykly,to);//Level(always basic)
+	printAtMiddleLoc  (CGI->generaltexth->skillName[ID], 22, -13, FONT_SMALL, Colors::Cornsilk,to);//Name
+	printAtMiddleLoc  (CGI->generaltexth->levels[0], 22, 57, FONT_SMALL, Colors::Cornsilk,to);//Level(always basic)
 	
 	CPicture::showAll(to);
 }
@@ -6204,17 +5609,17 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	else
 		tlog0<<"Error: Image for university was not found!\n";//This should not happen
 
-	printAtMiddleWBLoc(CGI->generaltexth->allTexts[603], 232, 153, FONT_SMALL, 70,zwykly,bg->bg);//Clerk speech
-	printAtMiddleLoc  (CGI->generaltexth->allTexts[602], 231, 26 , FONT_MEDIUM ,tytulowy,bg->bg);//University
+	printAtMiddleWBLoc(CGI->generaltexth->allTexts[603], 232, 153, FONT_SMALL, 70,Colors::Cornsilk,bg->bg);//Clerk speech
+	printAtMiddleLoc  (CGI->generaltexth->allTexts[602], 231, 26 , FONT_MEDIUM ,Colors::Jasmine,bg->bg);//University
 
-	std::vector<int> list = market->availableItemsIds(RESOURCE_SKILL);
+	std::vector<int> list = market->availableItemsIds(EMarketMode::RESOURCE_SKILL);
 	if (list.size()!=4)
 		tlog0<<"\t\tIncorrect size of available items vector!\n";
 	for (int i=0; i<list.size(); i++)//prepare clickable items
 		items.push_back(new CItem(this, list[i], pos.x+54+i*104, pos.y+234));
 		
 	pos = center(bg->pos);
-	cancel = new AdventureMapButton(CGI->generaltexth->zelp[632],
+	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[632],
 		boost::bind(&CGuiHandler::popIntTotally,&GH, this),200,313,"IOKAY.DEF",SDLK_RETURN);
 		
 	bar = new CGStatusBar(232, 371);
@@ -6236,10 +5641,10 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
 	boost::replace_first(text, "%d", "2000");
 
-	printAtMiddleWBLoc(text, 230, 163, FONT_SMALL, 65,zwykly,bg->bg);//Clerk speech
-	printAtMiddleLoc  (CGI->generaltexth-> skillName[SKILL], 230, 37,  FONT_SMALL,    zwykly,bg->bg);//Skill name
-	printAtMiddleLoc  (CGI->generaltexth->levels[1], 230, 107, FONT_SMALL,    zwykly,bg->bg);//Skill level
-	printAtMiddleLoc  ("2000", 230, 267, FONT_SMALL,    zwykly,bg->bg);//Cost
+	printAtMiddleWBLoc(text, 230, 163, FONT_SMALL, 65,Colors::Cornsilk,bg->bg);//Clerk speech
+	printAtMiddleLoc  (CGI->generaltexth-> skillName[SKILL], 230, 37,  FONT_SMALL,    Colors::Cornsilk,bg->bg);//Skill name
+	printAtMiddleLoc  (CGI->generaltexth->levels[1], 230, 107, FONT_SMALL,    Colors::Cornsilk,bg->bg);//Skill level
+	printAtMiddleLoc  ("2000", 230, 267, FONT_SMALL,    Colors::Cornsilk,bg->bg);//Cost
 	blitAtLoc(graphics->abils44->ourImages[SKILL*3+3].bitmap, 211, 51,  bg->bg);//skill
 	blitAtLoc(graphics->resources32->ourImages[6].bitmap, 210, 210, bg->bg);//gold
 
@@ -6253,18 +5658,18 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
 	boost::replace_first(text, "%d", "2000");
 
-	confirm= new AdventureMapButton(hoverText, text, boost::bind(&CUnivConfirmWindow::makeDeal, this, SKILL),
+	confirm= new CAdventureMapButton(hoverText, text, boost::bind(&CUnivConfirmWindow::makeDeal, this, SKILL),
 	         148,299,"IBY6432.DEF",SDLK_RETURN);
 	confirm->block(!available);
 	
-	cancel = new AdventureMapButton(CGI->generaltexth->zelp[631],boost::bind(&CGuiHandler::popIntTotally, &GH, this),
+	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[631],boost::bind(&CGuiHandler::popIntTotally, &GH, this),
 	         252,299,"ICANCEL.DEF",SDLK_ESCAPE);
 	bar = new CGStatusBar(232, 371);
 }
 
 void CUnivConfirmWindow::makeDeal(int skill)
 {
-	LOCPLINT->cb->trade(parent->market->o, RESOURCE_SKILL, 6, skill, 1, parent->hero);
+	LOCPLINT->cb->trade(parent->market->o, EMarketMode::RESOURCE_SKILL, 6, skill, 1, parent->hero);
 	GH.popIntTotally(this);
 }
 
@@ -6278,29 +5683,29 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	bg = new CPicture("APHLFTBK.PCX");
 	bg->colorizeAndConvert(LOCPLINT->playerID);
 	
-	printAtMiddleLoc  (fort->hoverName, 325, 32, FONT_BIG, tytulowy, bg->bg);//Hill Fort
+	printAtMiddleLoc  (fort->hoverName, 325, 32, FONT_BIG, Colors::Jasmine, bg->bg);//Hill Fort
 	pos = center(bg->pos);
 
 	heroPic = new CHeroArea(30, 60, hero);
 	
 	currState.resize(slotsCount+1);
 	costs.resize(slotsCount);
-	totalSumm.resize(RESOURCE_QUANTITY);
+	totalSumm.resize(GameConstants::RESOURCE_QUANTITY);
 	std::vector<std::string> files;
 	files += "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF";
 	for (int i=0; i<slotsCount; i++)
 	{
 		currState[i] = getState(i);
-		upgrade[i] = new AdventureMapButton(getTextForSlot(i),"",boost::bind(&CHillFortWindow::makeDeal, this, i),
+		upgrade[i] = new CAdventureMapButton(getTextForSlot(i),"",boost::bind(&CHillFortWindow::makeDeal, this, i),
 		                                    107+i*76, 171, "", SDLK_1+i, &files);
 		upgrade[i]->block(currState[i] == -1);
 	}
 	files.clear();
 	files += "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF";
 	currState[slotsCount] = getState(slotsCount);
-	upgradeAll = new AdventureMapButton(CGI->generaltexth->allTexts[432],"",boost::bind(&CHillFortWindow::makeDeal, this, slotsCount),
+	upgradeAll = new CAdventureMapButton(CGI->generaltexth->allTexts[432],"",boost::bind(&CHillFortWindow::makeDeal, this, slotsCount),
 	                                    30, 231, "", SDLK_0, &files);
-	quit = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 294, 275, "IOKAY.DEF", SDLK_RETURN);
+	quit = new CAdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 294, 275, "IOKAY.DEF", SDLK_RETURN);
 	bar = new CGStatusBar(327, 332);
 
 	garr = new CGarrisonInt(108, 60, 18, Point(),bg->bg,Point(108,60),hero,NULL);
@@ -6321,7 +5726,7 @@ void CHillFortWindow::activate()
 void CHillFortWindow::updateGarrisons()
 {
 	
-	for (int i=0; i<RESOURCE_QUANTITY; i++)
+	for (int i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
 		totalSumm[i]=0;
 	
 	for (int i=0; i<slotsCount; i++)
@@ -6358,11 +5763,11 @@ void CHillFortWindow::makeDeal(int slot)
 	{
 		case 0:
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset], 
-			          std::vector<SComponent*>(), soundBase::sound_todo);
+			          std::vector<CComponent*>(), soundBase::sound_todo);
 			break;
 		case 1:
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[313 + offset], 
-			          std::vector<SComponent*>(), soundBase::sound_todo);
+			          std::vector<CComponent*>(), soundBase::sound_todo);
 			break;
 		case 2:
 			for (int i=0; i<slotsCount; i++)
@@ -6394,23 +5799,23 @@ void CHillFortWindow::showAll (SDL_Surface *to)
 					if(!val) continue;
 
 					blitAtLoc(resources->ourImages[j].bitmap, 104+76*i, curY, to);
-					printToLoc(boost::lexical_cast<std::string>(val), 168+76*i, curY+16, FONT_SMALL, zwykly, to);
+					printToLoc(boost::lexical_cast<std::string>(val), 168+76*i, curY+16, FONT_SMALL, Colors::Cornsilk, to);
 					curY += 20;
 				}
 			}
 			else//free upgrade - print gold image and "Free" text
 			{
 				blitAtLoc(resources->ourImages[6].bitmap, 104+76*i, 128, to);
-				printToLoc(CGI->generaltexth->allTexts[344], 168+76*i, 144, FONT_SMALL, zwykly, to);
+				printToLoc(CGI->generaltexth->allTexts[344], 168+76*i, 144, FONT_SMALL, Colors::Cornsilk, to);
 			}
 		}
 	}
-	for (int i=0; i<RESOURCE_QUANTITY; i++)
+	for (int i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
 		if (totalSumm[i])//this resource is used - display it
 		{
 			blitAtLoc(resources->ourImages[i].bitmap, 104+76*i, 237, to);
-			printToLoc(boost::lexical_cast<std::string>(totalSumm[i]), 166+76*i, 253, FONT_SMALL, zwykly, to);
+			printToLoc(boost::lexical_cast<std::string>(totalSumm[i]), 166+76*i, 253, FONT_SMALL, Colors::Cornsilk, to);
 		}
 	}
 }
@@ -6505,7 +5910,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	blitAt(bg, 0, 0, background);
 	SDL_FreeSurface(bg);
 
-	exitb = new AdventureMapButton (std::string(), std::string(), boost::bind(&CThievesGuildWindow::bexitf,this), 748, 556, "TPMAGE1.def", SDLK_RETURN);
+	exitb = new CAdventureMapButton (std::string(), std::string(), boost::bind(&CThievesGuildWindow::bexitf,this), 748, 556, "TPMAGE1.def", SDLK_RETURN);
 	statusBar = new CGStatusBar(3, 555, "TStatBar.bmp", 742);
 
 	resdatabar = new CMinorResDataBar();
@@ -6539,7 +5944,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 		}
 		std::string text = CGI->generaltexth->jktexts[24+g];
 		boost::algorithm::trim_if(text,boost::algorithm::is_any_of("\""));
-		printAtMiddle(text, 135, y, FONT_MEDIUM, tytulowy, background);
+		printAtMiddle(text, 135, y, FONT_MEDIUM, Colors::Jasmine, background);
 	}
 
 	CDefHandler * strips = CDefHandler::giveDef("PRSTRIPS.DEF");
@@ -6552,7 +5957,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 		{
 			blitAt(strips->ourImages[g-1].bitmap, 250 + 66*g, 7, background);
 		}
-		printAtMiddle(CGI->generaltexth->jktexts[16+g], 283 + 66*g, 24, FONT_BIG, tytulowy, background);
+		printAtMiddle(CGI->generaltexth->jktexts[16+g], 283 + 66*g, 24, FONT_BIG, Colors::Jasmine, background);
 		SDL_Surface * box = BitmapHandler::loadBitmap(colorToBox[tgi.playerColors[g]]);
 		blitAt(box, 253 + 66*g, 334, background);
 		SDL_FreeSurface(box);
@@ -6563,7 +5968,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	CDefHandler * flagPictures = CDefHandler::giveDef("itgflags.def");
 
 	//printing flags
-	for(int g=0; g<ARRAY_COUNT(fields); ++g) //by lines
+	for(int g = 0; g < ARRAY_COUNT(fields); ++g) //by lines
 	{
 		for(int b=0; b<(tgi .* fields[g]).size(); ++b) //by places (1st, 2nd, ...)
 		{
@@ -6595,12 +6000,12 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 		//printing stats
 		if(it->second.details)
 		{
-			printAtWB(CGI->generaltexth->allTexts[184], 191 + 66*counter, 396, FONT_TINY, 10, zwykly, background);
+			printAtWB(CGI->generaltexth->allTexts[184], 191 + 66*counter, 396, FONT_TINY, 10, Colors::Cornsilk, background);
 			for (int i=0; i<it->second.details->primskills.size(); ++i)
 			{
 				std::ostringstream skill;
 				skill << it->second.details->primskills[i];
-				printTo(skill.str(), 244 + 66 * counter, 407 + 11*i, FONT_TINY, zwykly, background);
+				printTo(skill.str(), 244 + 66 * counter, 407 + 11*i, FONT_TINY, Colors::Cornsilk, background);
 			}
 		}
 
@@ -6629,7 +6034,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 			toPrint = 168 + it->second;
 		}
 
-		printAtMiddle(CGI->generaltexth->arraytxt[toPrint], 283 + 66*counter, 459, FONT_SMALL, zwykly, background);
+		printAtMiddle(CGI->generaltexth->arraytxt[toPrint], 283 + 66*counter, 459, FONT_SMALL, Colors::Cornsilk, background);
 
 		counter++;
 	}
@@ -6649,7 +6054,7 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 	const int textId[] = {62, 88}; //eg %s \n\n\n {Current Luck Modifiers:}
 	const int noneTxtId = 108; //Russian version uses same text for neutral morale\luck
 	const int neutralDescr[] = {60, 86}; //eg {Neutral Morale} \n\n Neutral morale means your armies will neither be blessed with extra attacks or freeze in combat.
-	const int componentType[] = {SComponent::luck, SComponent::morale};
+	const int componentType[] = {CComponent::luck, CComponent::morale};
 	const int hoverTextBase[] = {7, 4};
 	const Bonus::BonusType bonusType[] = {Bonus::LUCK, Bonus::MORALE};
 	int (IBonusBearer::*getValue[])() const = {&IBonusBearer::LuckVal, &IBonusBearer::MoraleVal};
@@ -6710,343 +6115,6 @@ MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small)
 MoraleLuckBox::~MoraleLuckBox()
 {
 
-}
-
-void CLabel::showAll(SDL_Surface * to)
-{
-	CIntObject::showAll(to);
-	std::string *hlpText = NULL;  //if NULL, text field will be used
-	if(ignoreLeadingWhitespace)
-	{
-		hlpText = new std::string(text);
-		boost::trim_left(*hlpText);
-	}
-
-	std::string &toPrint = hlpText ? *hlpText : text;
-	if(!toPrint.length())
-		return;
-
-	static void (*printer[3])(const std::string &, int, int, EFonts, SDL_Color, SDL_Surface *) = {&CSDL_Ext::printAt, &CSDL_Ext::printAtMiddle, &CSDL_Ext::printTo}; //array of printing functions
-	printer[alignment](toPrint, pos.x + textOffset.x, pos.y + textOffset.y, font, color, to);
-}
-
-CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= zwykly*/, const std::string &Text /*= ""*/)
-:alignment(Align), font(Font), color(Color), text(Text)
-{
-	autoRedraw = true;
-	pos.x += x;
-	pos.y += y;
-	pos.w = pos.h = 0;
-	bg = NULL;
-	ignoreLeadingWhitespace = false;
-}
-
-void CLabel::setTxt(const std::string &Txt)
-{
-	text = Txt;
-	if(autoRedraw)
-	{
-		if(bg || !parent)
-			redraw();
-		else
-			parent->redraw();
-	}
-}
-
-CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= zwykly*/)
-	:CLabel(rect.x, rect.y, Font, Align, Color, Text), sliderStyle(SliderStyle), slider(NULL)
-{
-	redrawParentOnScrolling = false;
-	autoRedraw = false;
-	pos.h = rect.h;
-	pos.w = rect.w;
-	assert(Align == TOPLEFT || Align == CENTER); //TODO: support for other alignments
-	assert(pos.w >= 80); //we need some space
-	setTxt(Text);
-}
-
-void CTextBox::showAll(SDL_Surface * to)
-{
-	CIntObject::showAll(to);
-
-	const Font &f = *graphics->fonts[font];
-	int dy = f.height; //line height
-	int base_y = pos.y;
-	if(alignment == CENTER)
-		base_y += std::max((pos.h - maxH)/2,0);
-
-	int howManyLinesToPrint = slider ? slider->capacity : lines.size();
-	int firstLineToPrint = slider ? slider->value : 0;
-
-	for (int i = 0; i < howManyLinesToPrint; i++)
-	{
-		const std::string &line = lines[i + firstLineToPrint];
-		if(!line.size()) continue;
-
-		int x = pos.x;
-		if(alignment == CENTER)
-		{
-			x += (pos.w - f.getWidth(line.c_str())) / 2;
-			if(slider)
-				x -= slider->pos.w / 2 + 5;
-		}
-
-		if(line[0] == '{' && line[line.size()-1] == '}')
-			printAt(line, x, base_y + i*dy, font, tytulowy, to);
-		else
-			printAt(line, x, base_y + i*dy, font, color, to);
-	}
-
-}
-
-void CTextBox::setTxt(const std::string &Txt)
-{
-	recalculateLines(Txt);
-	CLabel::setTxt(Txt);
-}
-
-void CTextBox::sliderMoved(int to)
-{
-	if(!slider)
-		return;
-
-	if(redrawParentOnScrolling)
-		parent->redraw();
-	redraw();
-}
-
-void CTextBox::setBounds(int limitW, int limitH)
-{
-	pos.h = limitH;
-	pos.w = limitW;
-	recalculateLines(text);
-}
-
-void CTextBox::recalculateLines(const std::string &Txt)
-{
-	delChildNUll(slider, true);
-	lines.clear();
-
-	const Font &f = *graphics->fonts[font];
-	int lineHeight =  f.height; 
-	int lineCapacity = pos.h / lineHeight;
-
-	lines = CMessage::breakText(Txt, pos.w, font);
-	if(lines.size() > lineCapacity) //we need to add a slider
-	{
-		lines = CMessage::breakText(Txt, pos.w - 32 - 10, font);
-		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		slider = new CSlider(pos.w - 32, 0, pos.h, boost::bind(&CTextBox::sliderMoved, this, _1), lineCapacity, lines.size(), 0, false, sliderStyle);
-		if(active)
-			slider->activate();
-	}
-
-	maxH = lineHeight * lines.size();
-	maxW = 0;
-	BOOST_FOREACH(const std::string &line, lines)
-		amax(maxW, f.getWidth(line.c_str()));
-}
-
-void CGStatusBar::print(const std::string & Text)
-{
-	setTxt(Text);
-}
-
-void CGStatusBar::clear()
-{
-	setTxt("");
-}
-
-std::string CGStatusBar::getCurrent()
-{
-	return text;
-}
-
-CGStatusBar::CGStatusBar(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= zwykly*/, const std::string &Text /*= ""*/)
-	: CLabel(x, y, Font, Align, Color, Text)
-{
-	init();
-}
-
-CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= CENTER*/, const SDL_Color &Color /*= zwykly*/)
-	: CLabel(BG->pos.x, BG->pos.y, Font, Align, Color, "")
-{
-	init();
-	bg = BG;
-	moveChild(bg, bg->parent, this);
-	pos = bg->pos;
-	calcOffset();
-}
-
-CGStatusBar::CGStatusBar(int x, int y, std::string name/*="ADROLLVR.bmp"*/, int maxw/*=-1*/)
-	: CLabel(x, y, FONT_SMALL, CENTER)
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	init();
-	bg = new CPicture(name);
-	pos = bg->pos;
-	if(maxw < pos.w)
-	{
-		amin(pos.w, maxw);
-		bg->srcRect = new Rect(0, 0, maxw, pos.h);
-	}
-	calcOffset();
-}
-
-CGStatusBar::~CGStatusBar()
-{
-	GH.statusbar = oldStatusBar;
-}
-
-void CGStatusBar::show(SDL_Surface * to)
-{
-
-}
-
-void CGStatusBar::init()
-{
-	oldStatusBar = GH.statusbar;
-	GH.statusbar = this;
-}
-
-void CGStatusBar::calcOffset()
-{
-	switch(alignment)
-	{
-	case CENTER:
-		textOffset = Point(pos.w/2, pos.h/2);
-		break;
-	case BOTTOMRIGHT:
-		textOffset = Point(pos.w, pos.h);
-		break;
-	}
-}
-
-CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB )
-:cb(CB)
-{
-	focus = false;
-	pos += Pos;
-	captureAllKeys = true;
-	OBJ_CONSTRUCTION;
-	bg = new CPicture(bgName, bgOffset.x, bgOffset.y);
-	used = LCLICK | KEYBOARD;
-	giveFocus();
-}
-
-CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
-{
-	focus = false;
-	pos += Pos;
-	captureAllKeys = true;
-	OBJ_CONSTRUCTION;
-	bg = new CPicture(Pos, 0, true);
-	Rect hlp = Pos;
-	if(srf)
-		CSDL_Ext::blitSurface(srf, &hlp, *bg, NULL);
-	else
-		SDL_FillRect(*bg, NULL, 0);
-	pos.w = bg->pos.w;
-	pos.h = bg->pos.h;
-	bg->pos = pos;
-	used = LCLICK | KEYBOARD;
-	giveFocus();
-}
-
-void CTextInput::showAll( SDL_Surface * to )
-{
-	CIntObject::showAll(to);
-	const std::string toPrint = focus ? text + "_" : text;
-	CSDL_Ext::printAt(toPrint, pos.x, pos.y, FONT_SMALL, zwykly, to);
-}
-
-void CTextInput::clickLeft( tribool down, bool previousState )
-{
-	if(down && !focus)
-		giveFocus();
-}
-
-void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
-{
-	if(!focus || key.state != SDL_PRESSED) 
-		return;
-
-	if(key.keysym.sym == SDLK_TAB)
-	{
-		moveFocus();
-		GH.breakEventHandling();
-		return;
-	}
-
-	switch(key.keysym.sym)
-	{
-	case SDLK_BACKSPACE:
-		if(text.size())
-			text.resize(text.size()-1);
-		break;
-	default:
-		char c = key.keysym.unicode; //TODO 16-/>8
-		static const std::string forbiddenChars = "<>:\"/\\|?*"; //if we are entering a filename, some special characters won't be allowed
-		if(!vstd::contains(forbiddenChars,c) && std::isprint(c))
-			text += c;
-		break;
-	}
-	redraw();
-	cb(text);
-}
-
-void CTextInput::setText( const std::string &nText, bool callCb )
-{
-	text = nText;
-	redraw();
-	if(callCb)
-		cb(text);
-}
-
-CTextInput::~CTextInput()
-{
-}
-
-CFocusable::CFocusable()
-{
-	focusables.push_back(this);
-}
-
-CFocusable::~CFocusable()
-{
-	if(inputWithFocus == this)
-		inputWithFocus = NULL;
-
-	focusables -= this;
-}
-void CFocusable::giveFocus()
-{
-	if(inputWithFocus)
-	{
-		inputWithFocus->focus = false;
-		inputWithFocus->redraw();
-	}
-
-	focus = true;
-	inputWithFocus = this;
-	redraw();
-}
-
-void CFocusable::moveFocus()
-{
-	std::list<CFocusable*>::iterator i = vstd::find(focusables, this),
-									ourIt = i;
-	for(i++; i != ourIt; i++)
-	{
-		if(i == focusables.end())
-			i = focusables.begin();
-
-		if((*i)->active)
-		{
-			(*i)->giveFocus();
-			break;;
-		}
-	}
 }
 
 CArtifactHolder::CArtifactHolder()
@@ -7117,26 +6185,82 @@ bool CArtifactsOfHero::SCommonPart::Artpos::valid()
 	return art == AOH->curHero->getArt(slotID);
 }
 
-CIntObject * createCreWindow(const CStack *s)
+void CRClickPopup::clickRight(tribool down, bool previousState)
 {
-	if(conf.cc.classicCreatureWindow)
-		return new CCreInfoWindow(*s);
-	else
-		return new CCreatureWindow(*s, CCreatureWindow::BATTLE);
+	if(down)
+		return;
+	close();
 }
 
-CIntObject * createCreWindow(int Cid, int Type, int creatureCount)
+void CRClickPopup::activate()
 {
-	if(conf.cc.classicCreatureWindow)
-		return new CCreInfoWindow(Cid, Type, creatureCount);
-	else
-		return new CCreatureWindow(Cid, Type, creatureCount);
+	activateRClick();
 }
 
-CIntObject * createCreWindow(const CStackInstance *s, int type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui)
+void CRClickPopup::deactivate()
 {
-	if(conf.cc.classicCreatureWindow)
-		return new CCreInfoWindow(*s, type==3, Upg, Dsm, ui);
+	deactivateRClick();
+}
+
+void CRClickPopup::close()
+{
+	GH.popIntTotally(this);
+}
+
+void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCompsInfo &comps)
+{
+	int player = LOCPLINT ? LOCPLINT->playerID : 1; //if no player, then use blue
+
+	CSimpleWindow * temp = new CInfoWindow(txt, player, comps);
+	temp->center(Point(GH.current->motion)); //center on mouse
+	temp->fitToScreen(10);
+	CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
+	GH.pushInt(rcpi);
+}
+
+void CRClickPopup::createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment /*= BOTTOMRIGHT*/)
+{
+	SDL_Surface *iWin = LOCPLINT->infoWin(obj); //try get custom infowindow for this obj
+	if(iWin)
+		GH.pushInt(new CInfoPopup(iWin, p, alignment, true));
 	else
-		return  new CCreatureWindow(*s, type, Upg, Dsm, ui);
+		CRClickPopup::createAndPush(obj->getHoverText());
+}
+
+CRClickPopup::CRClickPopup()
+{
+}
+
+CRClickPopup::~CRClickPopup()
+{
+}
+
+void CRClickPopupInt::show(SDL_Surface * to)
+{
+	inner->show(to);
+}
+
+CRClickPopupInt::CRClickPopupInt( IShowActivatable *our, bool deleteInt )
+{
+	CCS->curh->hide();
+	inner = our;
+	delInner = deleteInt;
+}
+
+CRClickPopupInt::~CRClickPopupInt()
+{
+	// 	//workaround for hero window issue - if it's our interface, call dispose to properly reset it's state 
+	// 	//TODO? it might be better to rewrite hero window so it will bee newed/deleted on opening / closing (not effort-worthy now, but on some day...?)
+	// 	if(LOCPLINT && inner == adventureInt->heroWindow)
+	// 		adventureInt->heroWindow->dispose();
+
+	if(delInner)
+		delete inner;
+
+	CCS->curh->show();
+}
+
+void CRClickPopupInt::showAll(SDL_Surface * to)
+{
+	inner->showAll(to);
 }

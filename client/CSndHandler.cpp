@@ -1,8 +1,7 @@
-#include "../stdafx.h"
-#include <fstream>
-#include "CSndHandler.h"
+#include "StdInc.h"
 #include <boost/iostreams/device/mapped_file.hpp>
 #include <SDL_endian.h>
+#include "CSndHandler.h"
 
 /*
  * CSndHandler.cpp, part of VCMI engine
@@ -153,10 +152,10 @@ void CSndHandler::add_file(std::string fname, bool important /*= true*/)
 	}
 
 	const char *data = mfile->data();
-	unsigned int numFiles = SDL_SwapLE32(*(Uint32 *)&data[0]);
+	ui32 numFiles = SDL_SwapLE32(*(Uint32 *)&data[0]);
 	struct soundEntry *se = (struct soundEntry *)&data[4];
 
-	for (unsigned int i=0; i<numFiles; i++, se++)
+	for (ui32 i=0; i<numFiles; i++, se++)
 	{
 		Entry entry;
 
@@ -187,11 +186,11 @@ void CVidHandler::add_file(std::string fname)
 		tlog1 << fname << " doesn't contain needed data!\n";
 		return;
 	}
-	const unsigned char *data = (const unsigned char *)mfile->data();
-	unsigned int numFiles = SDL_SwapLE32(*(Uint32 *)&data[0]);
+	const ui8 *data = (const ui8 *)mfile->data();
+	ui32 numFiles = SDL_SwapLE32(*(Uint32 *)&data[0]);
 	struct videoEntry *ve = (struct videoEntry *)&data[4];
 
-	for (unsigned int i=0; i<numFiles; i++, ve++)
+	for (ui32 i=0; i<numFiles; i++, ve++)
 	{
 		Entry entry;
 

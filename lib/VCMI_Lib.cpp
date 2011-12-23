@@ -1,6 +1,7 @@
-#define VCMI_DLL
-#include "../global.h"
+#include "StdInc.h"
 #include "VCMI_Lib.h"
+
+
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
 #include "CDefObjInfoHandler.h"
@@ -12,6 +13,7 @@
 #include "CSpellHandler.h"
 #include "CGeneralTextHandler.h"
 #include "IGameEventsReceiver.h"
+#include "CStopWatch.h"
 
 /*
  * VCMI_Lib.cpp, part of VCMI engine
@@ -25,23 +27,12 @@
 
 class CLodHandler;
 LibClasses * VLC = NULL;
-DLL_EXPORT CLodHandler *bitmaph = NULL, 
+DLL_LINKAGE CLodHandler *bitmaph = NULL, 
 	*spriteh = NULL,
 	*bitmaph_ab = NULL;
 
 
-DLL_EXPORT CLogger tlog0(0);
-DLL_EXPORT CLogger tlog1(1);
-DLL_EXPORT CLogger tlog2(2);
-DLL_EXPORT CLogger tlog3(3);
-DLL_EXPORT CLogger tlog4(4);
-DLL_EXPORT CLogger tlog5(5);
-DLL_EXPORT CLogger tlog6(-2);
-
-DLL_EXPORT CConsoleHandler *console = NULL;
-DLL_EXPORT std::ostream *logfile = NULL
-;
-DLL_EXPORT void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
+DLL_LINKAGE void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
 {
 	console = Console;
 	logfile = Logfile;
@@ -49,10 +40,11 @@ DLL_EXPORT void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
 	try
 	{
 		VLC->init();
-	} HANDLE_EXCEPTION;
+	}
+	HANDLE_EXCEPTION;
 }
 
-DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, int mode)
+DLL_LINKAGE void loadToIt(std::string &dest, const std::string &src, int &iter, int mode)
 {
 	switch(mode)
 	{
@@ -160,7 +152,7 @@ DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, i
 }
 
 
-DLL_EXPORT void loadToIt(si32 &dest, const std::string &src, int &iter, int mode)
+DLL_LINKAGE void loadToIt(si32 &dest, const std::string &src, int &iter, int mode)
 {
 	std::string pom;
 	loadToIt(pom,src,iter,mode);
@@ -169,45 +161,45 @@ DLL_EXPORT void loadToIt(si32 &dest, const std::string &src, int &iter, int mode
 
 void LibClasses::init()
 {
-	timeHandler pomtime;
+	CStopWatch pomtime;
 
 	generaltexth = new CGeneralTextHandler;
 	generaltexth->load();
-	tlog0<<"\tGeneral text handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tGeneral text handler: "<<pomtime.getDiff()<<std::endl;
 
 	heroh = new CHeroHandler;
 	heroh->loadHeroes();
 	heroh->loadObstacles();
 	heroh->loadPuzzleInfo();
-	tlog0 <<"\tHero handler: "<<pomtime.getDif()<<std::endl;
+	tlog0 <<"\tHero handler: "<<pomtime.getDiff()<<std::endl;
 
 	arth = new CArtHandler;
 	arth->loadArtifacts(false);
-	tlog0<<"\tArtifact handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tArtifact handler: "<<pomtime.getDiff()<<std::endl;
 
 	creh = new CCreatureHandler();
 	creh->loadCreatures();
-	tlog0<<"\tCreature handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tCreature handler: "<<pomtime.getDiff()<<std::endl;
 
 	townh = new CTownHandler;
 	townh->loadStructures();
-	tlog0<<"\tTown handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tTown handler: "<<pomtime.getDiff()<<std::endl;
 
 	objh = new CObjectHandler;
 	objh->loadObjects();
-	tlog0<<"\tObject handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tObject handler: "<<pomtime.getDiff()<<std::endl;
 
 	dobjinfo = new CDefObjInfoHandler;
 	dobjinfo->load();
-	tlog0<<"\tDef information handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tDef information handler: "<<pomtime.getDiff()<<std::endl;
 
 	buildh = new CBuildingHandler;
 	buildh->loadBuildings();
-	tlog0<<"\tBuilding handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tBuilding handler: "<<pomtime.getDiff()<<std::endl;
 
 	spellh = new CSpellHandler;
 	spellh->loadSpells();
-	tlog0<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tSpell handler: "<<pomtime.getDiff()<<std::endl;
 
 	IS_AI_ENABLED = false;
 }
@@ -242,14 +234,14 @@ void LibClasses::makeNull()
 LibClasses::LibClasses()
 {
 	//load .lod archives
-	timeHandler pomtime;
+	CStopWatch pomtime;
 	spriteh = new CLodHandler();
-	spriteh->init(DATA_DIR "/Data/H3sprite.lod", DATA_DIR "/Sprites");
+	spriteh->init(GameConstants::DATA_DIR + "/Data/H3sprite.lod", GameConstants::DATA_DIR + "/Sprites");
 	bitmaph = new CLodHandler;
-	bitmaph->init(DATA_DIR "/Data/H3bitmap.lod", DATA_DIR "/Data");
+	bitmaph->init(GameConstants::DATA_DIR + "/Data/H3bitmap.lod", GameConstants::DATA_DIR + "/Data");
 	bitmaph_ab = new CLodHandler();
-	bitmaph_ab->init(DATA_DIR "/Data/H3ab_bmp.lod", DATA_DIR "/Data");
-	tlog0<<"Loading .lod files: "<<pomtime.getDif()<<std::endl;
+	bitmaph_ab->init(GameConstants::DATA_DIR + "/Data/H3ab_bmp.lod", GameConstants::DATA_DIR + "/Data");
+	tlog0<<"Loading .lod files: "<<pomtime.getDiff()<<std::endl;
 
 	//init pointers to handlers
 	makeNull();

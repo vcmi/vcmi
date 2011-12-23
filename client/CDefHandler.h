@@ -1,7 +1,6 @@
-#ifndef __CDEFHANDLER_H__
-#define __CDEFHANDLER_H__
+#pragma once
 
-#include "../global.h"
+
 
 struct SDL_Surface;
 struct BMPPalette;
@@ -30,7 +29,7 @@ struct SDefEntryBlock {
 	ui32 totalInBlock;
 	ui32 unknown2;
 	ui32 unknown3;
-	unsigned char data[0];
+	ui8 data[0];
 };
 
 // Def entry in file. Integer fields are all little endian and will
@@ -42,9 +41,9 @@ struct SDefEntry {
 	ui32 totalBlocks;
 
 	struct {
-		unsigned char R;
-		unsigned char G;
-		unsigned char B;
+		ui8 R;
+		ui8 G;
+		ui8 B;
 	} palette[256];
 
 	// SDefEntry is followed by a series of SDefEntryBlock
@@ -75,9 +74,9 @@ public:
 class CDefHandler
 {
 private:
-	unsigned int DEFType;
+	ui32 DEFType;
 	int length;
-	//unsigned int * RWEntries;
+	//ui32 * RWEntries;
 	struct SEntry
 	{
 		std::string name;
@@ -94,15 +93,11 @@ public:
 
 	CDefHandler(); //c-tor
 	~CDefHandler(); //d-tor
-	SDL_Surface * getSprite (int SIndex, const unsigned char * FDef, const BMPPalette * palette) const; //saves picture with given number to "testtt.bmp"
-	static void expand(unsigned char N,unsigned char & BL, unsigned char & BR);
-	void openFromMemory(unsigned char * table, const std::string & name);
+	SDL_Surface * getSprite (int SIndex, const ui8 * FDef, const BMPPalette * palette) const; //saves picture with given number to "testtt.bmp"
+	static void expand(ui8 N,ui8 & BL, ui8 & BR);
+	void openFromMemory(ui8 * table, const std::string & name);
 	CDefEssential * essentialize();
 
 	static CDefHandler * giveDef(const std::string & defName);
 	static CDefEssential * giveDefEss(const std::string & defName);
 };
-
-
-
-#endif // __CDEFHANDLER_H__

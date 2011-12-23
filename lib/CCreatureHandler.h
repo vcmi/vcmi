@@ -1,14 +1,10 @@
-#ifndef __CCREATUREHANDLER_H__
-#define __CCREATUREHANDLER_H__
-#include "../global.h"
-#include <string>
-#include <vector>
-#include <map>
-#include <set>
+#pragma once
+
 
 #include "../lib/HeroBonus.h"
 #include "../lib/ConstTransitivePtr.h"
 #include "ResourceSet.h"
+#include "GameConstants.h"
 
 /*
  * CCreatureHandler.h, part of VCMI engine
@@ -25,7 +21,7 @@ class CLodHandler;
 class CCreatureHandler;
 class CCreature;
 
-class DLL_EXPORT CCreature : public CBonusSystemNode
+class DLL_LINKAGE CCreature : public CBonusSystemNode
 {
 public:
 	std::string namePl, nameSing, nameRef; //name in singular and plural form; and reference name
@@ -44,9 +40,9 @@ public:
 	ui8 doubleWide;
 
 	///animation info
-	float timeBetweenFidgets, walkAnimationTime, attackAnimationTime, flightAnimationDistance;
+	double timeBetweenFidgets, walkAnimationTime, attackAnimationTime, flightAnimationDistance;
 	int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX, upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
-	float missleFrameAngles[12];
+	double missleFrameAngles[12];
 	int troopCountLocationOffset, attackClimaxFrame;
 	///end of anim info
 
@@ -58,7 +54,7 @@ public:
 	bool isEvil () const;
 	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
 	static int getQuantityID(const int & quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
-	static int estimateCreatureCount(unsigned int countID); //reverse version of above function, returns middle of range
+	static int estimateCreatureCount(ui32 countID); //reverse version of above function, returns middle of range
 	bool isMyUpgrade(const CCreature *anotherCre) const;
 
 	bool valid() const;
@@ -98,10 +94,11 @@ public:
 	friend class CCreatureHandler;
 };
 
-class DLL_EXPORT CCreatureHandler
+class DLL_LINKAGE CCreatureHandler
 {
 private: //?
-	CBonusSystemNode allCreatures, creaturesOfLevel[CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
+	CBonusSystemNode allCreatures;
+	CBonusSystemNode creaturesOfLevel[GameConstants::CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
 public:
 	std::set<int> notUsedMonsters;
 	std::set<TCreature> doubledCreatures; //they get double week
@@ -110,7 +107,7 @@ public:
 	bmap<int,std::string> idToProjectile;
 	bmap<int,bool> idToProjectileSpin; //if true, appropriate projectile is spinning during flight
 	std::vector<si8> factionAlignments; //1 for good, 0 for neutral and -1 for evil with faction ID as index
-	int factionToTurretCreature[F_NUMBER]; //which creature's animation should be used to dispaly creature in turret while siege
+	int factionToTurretCreature[GameConstants::F_NUMBER]; //which creature's animation should be used to dispaly creature in turret while siege
 
 	std::map<TBonusType, std::pair<std::string, std::string> > stackBonuses; // bonus => name, description
 	std::vector<std::vector<ui32> > expRanks; // stack experience needed for certain rank, index 0 for other tiers (?)
@@ -147,5 +144,3 @@ public:
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
-
-#endif // __CCREATUREHANDLER_H__

@@ -1,23 +1,21 @@
-#include "../stdafx.h"
+#include "StdInc.h"
 #include "mapHandler.h"
-#include "SDL_Extensions.h"
+
+#include "UIFramework/SDL_Extensions.h"
 #include "CGameInfo.h"
-#include <cstdlib>
 #include "../lib/CLodHandler.h"
 #include "../lib/CDefObjInfoHandler.h"
-#include <algorithm>
 #include "../lib/CGameState.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
 #include "Graphics.h"
-#include <iomanip>
-#include <sstream>
 #include "../lib/CObjectHandler.h"
 #include "../lib/map.h"
 #include "CDefHandler.h"
 #include "CConfigHandler.h"
-#include <boost/assign/list_of.hpp>
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/GameConstants.h"
+#include "../lib/CStopWatch.h"
 
 /*
  * mapHandler.cpp, part of VCMI engine
@@ -28,6 +26,9 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+const bool MARK_BLOCKED_POSITIONS = false;
+const bool MARK_VISITABLE_POSITIONS = false;
 
 extern SDL_Surface * screen;
 #define ADVOPT (conf.go()->ac)
@@ -110,23 +111,23 @@ void CMapHandler::prepareFOWDefs()
 	//necessaary rotations added
 
 	//alpha - transformation
-	for(size_t i=0; i<graphics->FoWpartialHide->ourImages.size(); ++i)
+	for(size_t i = 0; i < graphics->FoWpartialHide->ourImages.size(); ++i)
 	{
 		CSDL_Ext::alphaTransform(graphics->FoWpartialHide->ourImages[i].bitmap);
 	}
 
 	//initialization of type of full-hide image
 	hideBitmap.resize(sizes.x);
-	for (size_t i=0;i<hideBitmap.size();i++)
+	for (size_t i = 0; i < hideBitmap.size();i++)
 	{
 		hideBitmap[i].resize(sizes.y);
 	}
-	for (size_t i=0; i<hideBitmap.size(); ++i)
+	for (size_t i = 0; i < hideBitmap.size(); ++i)
 	{
-		for (int j=0; j < sizes.y; ++j)
+		for (int j = 0; j < sizes.y; ++j)
 		{
 			hideBitmap[i][j].resize(sizes.z);
-			for(int k=0; k<sizes.z; ++k)
+			for(int k = 0; k < sizes.z; ++k)
 			{
 				hideBitmap[i][j][k] = rand()%graphics->FoWfullHide->ourImages.size();
 			}
@@ -247,7 +248,7 @@ void CMapHandler::initObjectRects()
 	{
 		const CGObjectInstance *obj = map->objects[f];
 		if(	!obj
-			|| (obj->ID==HEROI_TYPE && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
+			|| (obj->ID==GameConstants::HEROI_TYPE && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
 			|| (obj->ID==8 && static_cast<const CGBoat*>(obj)->hero) //boat with hero (hero graphics is used)
 			|| !obj->defInfo
 			|| !graphics->getDef(obj)) //no graphic...
@@ -296,7 +297,7 @@ void CMapHandler::initObjectRects()
 }
 static void processDef (const CGDefInfo* def)
 {
-	if(def->id == EVENTI_TYPE)
+	if(def->id == GameConstants::EVENTI_TYPE)
 	{
         graphics->advmapobjGraphics[def->id][def->subid][def->name] = NULL;
 		return;
@@ -335,8 +336,8 @@ void CMapHandler::initHeroDef(const CGHeroInstance * h)
 }
 void CMapHandler::init()
 {
-	timeHandler th;
-	th.getDif();
+	CStopWatch th;
+	th.getDiff();
 
     graphics->advmapobjGraphics[8][0]["AB01_.DEF"] = graphics->boatAnims[0];
     graphics->advmapobjGraphics[8][1]["AB02_.DEF"] = graphics->boatAnims[1];
@@ -379,7 +380,7 @@ void CMapHandler::init()
 	}
 
 	std::for_each(map->defy.begin(),map->defy.end(),processDef); //load h3m defs
-	tlog0<<"\tUnpacking and handling defs: "<<th.getDif()<<std::endl;
+	tlog0<<"\tUnpacking and handling defs: "<<th.getDiff()<<std::endl;
 
 	//it seems to be completely unnecessary and useless
 // 	for(int i=0;i<PLAYER_LIMIT;i++)
@@ -396,9 +397,9 @@ void CMapHandler::init()
 	prepareFOWDefs();
 	roadsRiverTerrainInit();	//road's and river's DefHandlers; and simple values initialization
 	borderAndTerrainBitmapInit();
-	tlog0<<"\tPreparing FoW, roads, rivers,borders: "<<th.getDif()<<std::endl;
+	tlog0<<"\tPreparing FoW, roads, rivers,borders: "<<th.getDiff()<<std::endl;
 	initObjectRects();
-	tlog0<<"\tMaking object rects: "<<th.getDif()<<std::endl;
+	tlog0<<"\tMaking object rects: "<<th.getDiff()<<std::endl;
 
 }
 
@@ -406,11 +407,11 @@ void CMapHandler::init()
 // top_tile top left tile to draw. Not necessarily visible.
 // extRect, extRect = map window on screen
 // moveX, moveY: when a hero is in movement indicates how to shift the map. Range is -31 to + 31.
-void CMapHandler::terrainRect( int3 top_tile, unsigned char anim, const std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect, int moveX, int moveY, bool puzzleMode, int3 grailPosRel ) const
+void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap, bool otherHeroAnim, ui8 heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect, int moveX, int moveY, bool puzzleMode, int3 grailPosRel ) const
 {
 	// Width and height of the portion of the map to process. Units in tiles.
-	unsigned int dx = tilesW;
-	unsigned int dy = tilesH;
+	ui32 dx = tilesW;
+	ui32 dy = tilesH;
 
 	// Basic rectangle for a tile. Should be a const but conflicts with SDL headers
 	SDL_Rect rtile = { 0, 0, 32, 32 };
@@ -518,7 +519,7 @@ void CMapHandler::terrainRect( int3 top_tile, unsigned char anim, const std::vec
 				ui8 color = obj->tempOwner;
 
 				//checking if object has non-empty graphic on this tile
-				if(obj->ID != HEROI_TYPE && !obj->coveringAt(obj->pos.x - (top_tile.x + bx), top_tile.y + by - obj->pos.y + 5))
+				if(obj->ID != GameConstants::HEROI_TYPE && !obj->coveringAt(obj->pos.x - (top_tile.x + bx), top_tile.y + by - obj->pos.y + 5))
 					continue;
 
 				static const int notBlittedInPuzzleMode[] = {124};
@@ -533,7 +534,7 @@ void CMapHandler::terrainRect( int3 top_tile, unsigned char anim, const std::vec
 				pp.h = sr.h;
 				pp.w = sr.w;
 
-				const CGHeroInstance * themp = (obj->ID != HEROI_TYPE  
+				const CGHeroInstance * themp = (obj->ID != GameConstants::HEROI_TYPE  
 					? NULL  
 					: static_cast<const CGHeroInstance*>(obj));
 
@@ -780,7 +781,7 @@ void CMapHandler::terrainRect( int3 top_tile, unsigned char anim, const std::vec
 	SDL_SetClipRect(extSurf, &prevClip); //restoring clip_rect
 }
 
-std::pair<SDL_Surface *, bool> CMapHandler::getVisBitmap( const int3 & pos, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap ) const
+std::pair<SDL_Surface *, bool> CMapHandler::getVisBitmap( const int3 & pos, const std::vector< std::vector< std::vector<ui8> > > & visibilityMap ) const
 {
 	static const int visBitmaps[256] = {-1, 34, -1, 4, 22, 22, 4, 4, 36, 36, 38, 38, 47, 47, 38, 38, 3, 25, 12, 12, 3, 25, 12, 12,
 		9, 9, 6, 6, 9, 9, 6, 6, 35, 34, 4, 4, 22, 22, 4, 4, 36, 36, 38, 38, 47, 47, 38, 38, 26, 49, 28, 28, 26, 49, 28,
@@ -894,16 +895,16 @@ bool CMapHandler::removeObject(CGObjectInstance *obj)
 	return true;
 }
 
-unsigned char CMapHandler::getHeroFrameNum(unsigned char dir, bool isMoving) const
+ui8 CMapHandler::getHeroFrameNum(ui8 dir, bool isMoving) const
 {
 	if(isMoving)
 	{
-		static const unsigned char frame [] = {0xff, 10, 5, 6, 7, 8, 9, 12, 11};
+		static const ui8 frame [] = {0xff, 10, 5, 6, 7, 8, 9, 12, 11};
 		return frame[dir];
 	}
 	else //if(isMoving)
 	{
-		static const unsigned char frame [] = {0xff, 13, 0, 1, 2, 3, 4, 15, 14};
+		static const ui8 frame [] = {0xff, 13, 0, 1, 2, 3, 4, 15, 14};
 		return frame[dir];
 	}
 }
@@ -948,7 +949,7 @@ void CMapHandler::validateRectTerr(SDL_Rect * val, const SDL_Rect * ext)
 	}
 }
 
-unsigned char CMapHandler::getDir(const int3 &a, const int3 &b)
+ui8 CMapHandler::getDir(const int3 &a, const int3 &b)
 {
 	if(a.z!=b.z)
 		return -1; //error!

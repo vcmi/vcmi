@@ -1,17 +1,12 @@
-#ifndef __CGAMEHANDLER_H__
-#define __CGAMEHANDLER_H__
+#pragma once
 
-#include "../global.h"
-#include <set>
-#include <map>
+
 #include "../client/FunctionList.h"
 #include "../lib/CGameState.h"
 #include "../lib/Connection.h"
 #include "../lib/IGameCallback.h"
 #include "../lib/BattleAction.h"
 #include "../lib/NetPacks.h"
-#include <boost/function.hpp>
-#include <boost/thread.hpp>
 
 /*
  * CGameHandler.h, part of VCMI engine
@@ -106,7 +101,7 @@ public:
 	bool isAllowedExchange(int id1, int id2);
 	bool isAllowedArrangePack(const ArrangeStacks *pack);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
-	int moveStack(int stack, THex dest); //returned value - travelled distance
+	int moveStack(int stack, BattleHex dest); //returned value - travelled distance
 	void startBattle(const CArmedInstance *armies[2], int3 tile, const CGHeroInstance *heroes[2], bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town = NULL); //use hero=NULL for no hero
 	void runBattle();
 	void checkLossVictory(ui8 player);
@@ -197,7 +192,7 @@ public:
 
 	void playerMessage( ui8 player, const std::string &message);
 	bool makeBattleAction(BattleAction &ba);
-	void handleSpellCasting(int spellID, int spellLvl, THex destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, SpellCasting::ECastingMode mode, const CStack * stack);
+	void handleSpellCasting(int spellID, int spellLvl, BattleHex destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack);
 	bool makeCustomAction(BattleAction &ba);
 	void stackTurnTrigger(const CStack * stack);
 	bool queryReply( ui32 qid, ui32 answer, ui8 player );
@@ -261,7 +256,5 @@ public:
 	friend class CVCMIServer;
 	friend class CScriptCallback;
 };
-
-#endif // __CGAMEHANDLER_H__
 
 void makeStackDoNothing();

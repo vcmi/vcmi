@@ -1,8 +1,6 @@
-#ifndef __CGAMEINTERFACE_H__
-#define __CGAMEINTERFACE_H__
-#include "../global.h"
-#include <set>
-#include <vector>
+#pragma once
+
+
 #include "BattleAction.h"
 #include "IGameEventsReceiver.h"
 
@@ -49,7 +47,6 @@ class CStack;
 class CCreature;
 class CLoadFile;
 class CSaveFile;
-typedef si32 TQuantity;
 template <typename Serializer> class CISer;
 template <typename Serializer> class COSer;
 struct ArtifactLocation;
@@ -83,7 +80,7 @@ public:
 	virtual void serialize(CISer<CLoadFile> &h, const int version){}; //loading
 };
 
-class DLL_EXPORT CDynLibHandler
+class DLL_LINKAGE CDynLibHandler
 {
 public:
 	static CGlobalAI * getNewAI(std::string dllname);
@@ -91,21 +88,21 @@ public:
 	static CScriptingModule * getNewScriptingModule(std::string dllname);
 };
 
-class DLL_EXPORT CGlobalAI : public CGameInterface // AI class (to derivate)
+class DLL_LINKAGE CGlobalAI : public CGameInterface // AI class (to derivate)
 {
 public:
 	CGlobalAI();
 	virtual void yourTurn() OVERRIDE{};
 	virtual void heroKilled(const CGHeroInstance*){};
 	virtual void heroCreated(const CGHeroInstance*) OVERRIDE{};
-	virtual void battleStackMoved(const CStack * stack, std::vector<THex> dest, int distance) OVERRIDE{};
+	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance) OVERRIDE{};
 	virtual void battleStackAttacking(int ID, int dest) {};
 	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) OVERRIDE{};
 	virtual BattleAction activeStack(const CStack * stack) OVERRIDE;
 };
 
 //class to  be inherited by adventure-only AIs, it cedes battle actions to given battle-AI
-class DLL_EXPORT CAdventureAI : public CGlobalAI
+class DLL_LINKAGE CAdventureAI : public CGlobalAI
 {
 public:
 	CAdventureAI() : battleAI(NULL), cbc(NULL) {};
@@ -130,12 +127,9 @@ public:
 	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr);
 	virtual void battleObstaclesRemoved(const std::set<si32> & removedObstacles);
 	virtual void battleNewStackAppeared(const CStack * stack);
-	virtual void battleStackMoved(const CStack * stack, std::vector<THex> dest, int distance);
+	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance);
 	virtual void battleAttack(const BattleAttack *ba);
 	virtual void battleSpellCast(const BattleSpellCast *sc);
 	virtual void battleEnd(const BattleResult *br);
 	virtual void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom);
 };
-
-
-#endif // __CGAMEINTERFACE_H__

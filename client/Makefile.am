@@ -1,35 +1,46 @@
 bin_PROGRAMS = vcmiclient
+BUILT_SOURCES = StdInc.h.gch
+StdInc.h.gch: StdInc.h
+	$(CXXCOMPILE) -c $<
 
-vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @FFMPEG_LIBS@ @BOOST_PROGRAM_OPTIONS_LIB@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lrt
+vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @FFMPEG_LIBS@ @BOOST_PROGRAM_OPTIONS_LIB@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lrt -lz
 vcmiclient_CXXFLAGS = @SDL_CFLAGS@ @FFMPEG_CXXFLAGS@
 vcmiclient_LDFLAGS = -L$(top_builddir)/lib
 vcmiclient_SOURCES =  \
 	../CCallback.cpp \
 	../CCallback.h \
-	../CConsoleHandler.cpp \
-	../CConsoleHandler.h \
-	../CThreadHelper.cpp \
-	../CThreadHelper.h \
-	AdventureMapButton.cpp \
-	AdventureMapButton.h \
+	./BattleInterface/CBattleAnimations.cpp \
+	./BattleInterface/CBattleAnimations.h \
+	./BattleInterface/CBattleInterface.cpp \
+	./BattleInterface/CBattleInterface.h \
+	./BattleInterface/CBattleInterfaceClasses.cpp \
+	./BattleInterface/CBattleInterfaceClasses.h \
+	./BattleInterface/CCreatureAnimation.h \
+	./BattleInterface/CCreatureAnimation.cpp \
+	./UIFramework/CGuiHandler.cpp \
+	./UIFramework/CGuiHandler.h \
+	./UIFramework/CIntObject.cpp \
+	./UIFramework/CIntObject.h \
+	./UIFramework/CIntObjectClasses.cpp \
+	./UIFramework/CIntObjectClasses.h \
+	./UIFramework/Geometries.cpp \
+	./UIFramework/Geometries.h \
+	./UIFramework/CCursorHandler.cpp \
+	./UIFramework/CCursorHandler.h \
+	./UIFramework/SDL_Extensions.cpp \
+	./UIFramework/SDL_Extensions.h \
 	CAdvmapInterface.cpp \
 	CAdvmapInterface.h \
 	CAnimation.cpp \
 	CAnimation.h \
-	CBattleInterface.cpp \
-	CBattleInterface.h \
 	CBitmapHandler.cpp \
 	CBitmapHandler.h \
 	CCastleInterface.cpp \
 	CCastleInterface.h \
 	CConfigHandler.cpp \
 	CConfigHandler.h \
-	CCreatureAnimation.cpp \
-	CCreatureAnimation.h \
 	CCreatureWindow.cpp \
 	CCreatureWindow.h \
-	CCursorHandler.cpp \
-	CCursorHandler.h \
 	CDefHandler.cpp \
 	CDefHandler.h \
 	CGameInfo.cpp \
@@ -61,14 +72,8 @@ vcmiclient_SOURCES =  \
 	FunctionList.h \
 	Graphics.cpp \
 	Graphics.h \
-	GUIBase.cpp \
-	GUIBase.h \
 	GUIClasses.cpp \
 	GUIClasses.h \
 	mapHandler.cpp \
 	mapHandler.h \
-	NetPacksClient.cpp \
-	SDL_Extensions.cpp \
-	SDL_Extensions.h \
-	SDL_framerate.cpp \
-	SDL_framerate.h
+	NetPacksClient.cpp

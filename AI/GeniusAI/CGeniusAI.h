@@ -1,13 +1,9 @@
-#ifndef __CGENIUSAI_H__
-#define __CGENIUSAI_H__
+#pragma once
 
 #include "Common.h"
 #include "BattleLogic.h"
 #include "GeneralAI.h"
 #include "../../lib/CondSh.h"
-#include <set>
-#include <list>
-#include <queue>
 
 class CBuilding;
 
@@ -101,7 +97,7 @@ private:
 		virtual void fulfill(CGeniusAI &,HypotheticalGameState & hgs)=0;
 		virtual HypotheticalGameState pretend(const HypotheticalGameState&) =0;
 		virtual void print() const=0;
-		virtual float getValue() const=0;	//how much is it worth to the AI to achieve
+		virtual double getValue() const=0;	//how much is it worth to the AI to achieve
 	};
 
 	class HeroObjective: public AIObjective
@@ -122,11 +118,11 @@ private:
 		bool operator< (const HeroObjective &other) const;
 		void fulfill(CGeniusAI &,HypotheticalGameState & hgs);
 		HypotheticalGameState pretend(const HypotheticalGameState &hgs){return hgs;};
-		float getValue() const;
+		double getValue() const;
 		void print() const;
 	private:
-		mutable float _value;
-		mutable float _cost;
+		mutable double _value;
+		mutable double _cost;
 	};
 
 	//town objectives
@@ -147,11 +143,11 @@ private:
 		bool operator < (const TownObjective &other)const;
 		void fulfill(CGeniusAI &,HypotheticalGameState & hgs);
 		HypotheticalGameState pretend(const HypotheticalGameState &hgs){return hgs;};
-		float getValue() const;
+		double getValue() const;
 		void print() const;
 	private:
-		mutable float _value;
-		mutable float _cost;
+		mutable double _value;
+		mutable double _cost;
 	};
 
 	class AIObjectivePtrCont
@@ -205,7 +201,7 @@ public:
 	virtual void battleStacksAttacked(const std::set<BattleStackAttacked> & bsa); //called when stack receives damage (after battleAttack())
 	virtual void battleEnd(const BattleResult *br);
 	virtual void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	virtual void battleStackMoved(int ID, std::vector<THex> dest, int distance);
+	virtual void battleStackMoved(int ID, std::vector<BattleHex> dest, int distance);
 	virtual void battleSpellCast(const BattleSpellCast *sc);
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
 	//virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
@@ -218,5 +214,3 @@ public:
 	friend class Priorities;
 };
 }
-
-#endif // __CGENIUSAI_H__

@@ -1,18 +1,14 @@
-#define VCMI_DLL
-
+#include "StdInc.h"
 #include "CCampaignHandler.h"
-#include <boost/filesystem.hpp>
-#include <stdio.h>
-#include <boost/algorithm/string/predicate.hpp>
+
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/vcmi_endian.h"
 #include "CGeneralTextHandler.h"
-#include "../StartInfo.h"
+#include "StartInfo.h"
 #include "CArtHandler.h" //for hero crossover
 #include "CObjectHandler.h" //for hero crossover
 #include "CHeroHandler.h"
-#include <boost/foreach.hpp>
 
 namespace fs = boost::filesystem;
 
@@ -31,7 +27,7 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders(GetMode mode)
 {
 	std::vector<CCampaignHeader> ret;
 
-	std::string dirname = DATA_DIR "/Maps";
+	std::string dirname = GameConstants::DATA_DIR + "/Maps";
 	std::string ext = ".H3C";
 
 	if(!boost::filesystem::exists(dirname))
@@ -70,7 +66,7 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders(GetMode mode)
 CCampaignHeader CCampaignHandler::getHeader( const std::string & name, bool fromLod )
 {
 	int realSize;
-	unsigned char * cmpgn = getFile(name, fromLod, realSize);
+	ui8 * cmpgn = getFile(name, fromLod, realSize);
 
 	int it = 0;//iterator for reading
 	CCampaignHeader ret = readHeaderFromMemory(cmpgn, it);
@@ -87,7 +83,7 @@ CCampaign * CCampaignHandler::getCampaign( const std::string & name, bool fromLo
 	CCampaign * ret = new CCampaign();
 
 	int realSize;
-	unsigned char * cmpgn = getFile(name, fromLod, realSize);
+	ui8 * cmpgn = getFile(name, fromLod, realSize);
 
 	int it = 0; //iterator for reading
 	ret->header = readHeaderFromMemory(cmpgn, it);
@@ -139,7 +135,7 @@ CCampaign * CCampaignHandler::getCampaign( const std::string & name, bool fromLo
 	return ret;
 }
 
-CCampaignHeader CCampaignHandler::readHeaderFromMemory( const unsigned char *buffer, int & outIt )
+CCampaignHeader CCampaignHandler::readHeaderFromMemory( const ui8 *buffer, int & outIt )
 {
 	CCampaignHeader ret;
 	ret.version = read_le_u32(buffer + outIt); outIt+=4;
@@ -155,12 +151,12 @@ CCampaignHeader CCampaignHandler::readHeaderFromMemory( const unsigned char *buf
 	return ret;
 }
 
-CCampaignScenario CCampaignHandler::readScenarioFromMemory( const unsigned char *buffer, int & outIt, int version, int mapVersion )
+CCampaignScenario CCampaignHandler::readScenarioFromMemory( const ui8 *buffer, int & outIt, int version, int mapVersion )
 {
 	struct HLP
 	{
 		//reads prolog/epilog info from memory
-		static CCampaignScenario::SScenarioPrologEpilog prologEpilogReader( const unsigned char *buffer, int & outIt )
+		static CCampaignScenario::SScenarioPrologEpilog prologEpilogReader( const ui8 *buffer, int & outIt )
 		{
 			CCampaignScenario::SScenarioPrologEpilog ret;
 			ret.hasPrologEpilog = buffer[outIt++];
@@ -196,7 +192,7 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( const unsigned char 
 	return ret;
 }
 
-CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned char * buffer, int & outIt , int version )
+CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const ui8 * buffer, int & outIt , int version )
 {
 	CScenarioTravel ret;
 
@@ -328,7 +324,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const unsigned c
 	return ret;
 }
 
-std::vector<ui32> CCampaignHandler::locateH3mStarts( const unsigned char * buffer, int start, int size )
+std::vector<ui32> CCampaignHandler::locateH3mStarts( const ui8 * buffer, int start, int size )
 {
 	std::vector<ui32> ret;
 	for(int g=start; g<size; ++g)
@@ -342,11 +338,11 @@ std::vector<ui32> CCampaignHandler::locateH3mStarts( const unsigned char * buffe
 	return ret;
 }
 
-bool CCampaignHandler::startsAt( const unsigned char * buffer, int size, int pos )
+bool CCampaignHandler::startsAt( const ui8 * buffer, int size, int pos )
 {
 	struct HLP
 	{
-		static unsigned char at(const unsigned char * buffer, int size, int place)
+		static ui8 at(const ui8 * buffer, int size, int place)
 		{
 			if(place < size)
 				return buffer[place];
@@ -360,7 +356,7 @@ bool CCampaignHandler::startsAt( const unsigned char * buffer, int size, int pos
 		HLP::at(buffer, size, 100);
 		//check version
 
-		unsigned char tmp = HLP::at(buffer, size, pos);
+		ui8 tmp = HLP::at(buffer, size, pos);
 		if(!(tmp == 0x0e || tmp == 0x15 || tmp == 0x1c || tmp == 0x33))
 		{
 			return false;
@@ -413,9 +409,9 @@ bool CCampaignHandler::startsAt( const unsigned char * buffer, int size, int pos
 	return true;
 }
 
-unsigned char * CCampaignHandler::getFile( const std::string & name, bool fromLod, int & outSize )
+ui8 * CCampaignHandler::getFile( const std::string & name, bool fromLod, int & outSize )
 {
-	unsigned char * cmpgn = 0;
+	ui8 * cmpgn = 0;
 	if(fromLod)
 	{
 		if (bitmaph->haveFile(name, FILE_CAMPAIGN))

@@ -1,12 +1,14 @@
 #pragma once
 
-#include "../global.h"
+
+#include "BattleHex.h"
 #include "HeroBonus.h"
 #include "CCreatureSet.h"
 #include "CObjectHandler.h"
 #include "CCreatureHandler.h"
 #include "CObstacleInstance.h"
 #include "ConstTransitivePtr.h"
+#include "GameConstants.h"
 
 /*
  * BattleState.h, part of VCMI engine
@@ -25,35 +27,36 @@ class CGTownInstance;
 class CStackInstance;
 struct BattleStackAttacked;
 
+
 //only for use in BattleInfo
-struct DLL_EXPORT SiegeInfo
+struct DLL_LINKAGE SiegeInfo
 {
 	ui8 wallState[8]; //[0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; 1 - intact, 2 - damaged, 3 - destroyed
-
+	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & wallState;
 	}
 };
 
-struct DLL_EXPORT AttackableTiles
+struct DLL_LINKAGE AttackableTiles
 {
-	std::set<THex> hostileCreaturePositions;
-	std::set<THex> friendlyCreaturePositions; //for Dragon Breath
+	std::set<BattleHex> hostileCreaturePositions;
+	std::set<BattleHex> friendlyCreaturePositions; //for Dragon Breath
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & hostileCreaturePositions & friendlyCreaturePositions;
 	}
 };
 
-struct DLL_EXPORT BattleInfo : public CBonusSystemNode
+struct DLL_LINKAGE BattleInfo : public CBonusSystemNode
 {
 	ui8 sides[2]; //sides[0] - attacker, sides[1] - defender
 	si32 round, activeStack;
 	ui8 siege; //    = 0 ordinary battle    = 1 a siege with a Fort    = 2 a siege with a Citadel    = 3 a siege with a Castle
 	const CGTownInstance * town; //used during town siege - id of attacked town; -1 if not town defence
 	int3 tile; //for background and bonuses
-	CGHeroInstance *heroes[2];
+	CGHeroInstance* heroes[2];
 	CArmedInstance *belligerents[2]; //may be same as heroes
 	std::vector<CStack*> stacks;
 	std::vector<CObstacleInstance> obstacles;
@@ -84,14 +87,14 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	void getStackQueue(std::vector<const CStack *> &out, int howMany, int turn = 0, int lastMoved = -1) const; //returns stack in order of their movement action
 	CStack * getStack(int stackID, bool onlyAlive = true);
 	const CStack * getStack(int stackID, bool onlyAlive = true) const;
-	CStack * getStackT(THex tileID, bool onlyAlive = true);
-	const CStack * getStackT(THex tileID, bool onlyAlive = true) const;
-	void getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<THex> & occupyable, bool flying, const CStack* stackToOmmit = NULL) const; //send pointer to at least 187 allocated bytes
-	static bool isAccessible(THex hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos); //helper for makeBFS
+	CStack * getStackT(BattleHex tileID, bool onlyAlive = true);
+	const CStack * getStackT(BattleHex tileID, bool onlyAlive = true) const;
+	void getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<BattleHex> & occupyable, bool flying, const CStack* stackToOmmit = NULL) const; //send pointer to at least 187 allocated bytes
+	static bool isAccessible(BattleHex hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos); //helper for makeBFS
 	int getAvaliableHex(TCreature creID, bool attackerOwned, int initialPos = -1) const; //find place for summon / clone effects
-	void makeBFS(THex start, bool*accessibility, THex *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const; //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
-	std::pair< std::vector<THex>, int > getPath(THex start, THex dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
-	std::vector<THex> getAccessibility(const CStack * stack, bool addOccupiable, std::vector<THex> * attackable = NULL) const; //returns vector of accessible tiles (taking into account the creature range)
+	void makeBFS(BattleHex start, bool*accessibility, BattleHex *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const; //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
+	std::pair< std::vector<BattleHex>, int > getPath(BattleHex start, BattleHex dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
+	std::vector<BattleHex> getAccessibility(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL) const; //returns vector of accessible tiles (taking into account the creature range)
 
 	bool isStackBlocked(const CStack * stack) const; //returns true if there is neighboring enemy stack
 
@@ -99,56 +102,56 @@ struct DLL_EXPORT BattleInfo : public CBonusSystemNode
 	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, TQuantity attackerCount, TQuantity defenderCount, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 	void calculateCasualties(std::map<ui32,si32> *casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
-	std::set<CStack*> getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, THex destinationTile); //calculates stack affected by given spell
-	void getPotentiallyAttackableHexes(AttackableTiles &at, const CStack* attacker, THex destinationTile, THex attackerPos); //hexes around target that could be attacked in melee
-	std::set<CStack*> getAttackedCreatures(const CStack* attacker, THex destinationTile, THex attackerPos = THex::INVALID); //calculates range of multi-hex attacks
-	std::set<THex> getAttackedHexes(const CStack* attacker, THex destinationTile, THex attackerPos = THex::INVALID); //calculates range of multi-hex attacks
+	std::set<CStack*> getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, BattleHex destinationTile); //calculates stack affected by given spell
+	void getPotentiallyAttackableHexes(AttackableTiles &at, const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos); //hexes around target that could be attacked in melee
+	std::set<CStack*> getAttackedCreatures(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID); //calculates range of multi-hex attacks
+	std::set<BattleHex> getAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID); //calculates range of multi-hex attacks
 	std::set<CStack*> getAdjacentCreatures (const CStack * stack) const;
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower);
-	CStack * generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, THex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
-	CStack * generateNewStack(const CStackBasicDescriptor &base, int stackID, bool attackerOwned, int slot, THex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
+	CStack * generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
+	CStack * generateNewStack(const CStackBasicDescriptor &base, int stackID, bool attackerOwned, int slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	ui32 getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
-	int hexToWallPart(THex hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
+	int hexToWallPart(BattleHex hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	int lineToWallHex(int line) const; //returns hex with wall in given line
-	std::pair<const CStack *, THex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
+	std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
 	ui32 calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const;
 	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
 	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack) const;
 	ui32 calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const; //for Archangel
 	ui32 calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //unused
 	bool resurrects(TSpell spellid) const; //TODO: move it to spellHandler?
-	si8 hasDistancePenalty(const CStack * stackID, THex destHex) const; //determines if given stack has distance penalty shooting given pos
+	si8 hasDistancePenalty(const CStack * stackID, BattleHex destHex) const; //determines if given stack has distance penalty shooting given pos
 	si8 sameSideOfWall(int pos1, int pos2) const; //determines if given positions are on the same side of wall
-	si8 hasWallPenalty(const CStack * stack, THex destHex) const; //determines if given stack has wall penalty shooting given pos
-	si8 canTeleportTo(const CStack * stack, THex destHex, int telportLevel) const; //determines if given stack can teleport to given place
-	bool battleCanShoot(const CStack * stack, THex dest) const; //determines if stack with given ID shoot at the selected destination
+	si8 hasWallPenalty(const CStack * stack, BattleHex destHex) const; //determines if given stack has wall penalty shooting given pos
+	si8 canTeleportTo(const CStack * stack, BattleHex destHex, int telportLevel) const; //determines if given stack can teleport to given place
+	bool battleCanShoot(const CStack * stack, BattleHex dest) const; //determines if stack with given ID shoot at the selected destination
 	const CGHeroInstance * getHero(int player) const; //returns fighting hero that belongs to given player
 
-	SpellCasting::ESpellCastProblem battleCanCastSpell(int player, SpellCasting::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
-	SpellCasting::ESpellCastProblem battleCanCastThisSpell(int player, const CSpell * spell, SpellCasting::ECastingMode mode) const; //checks if given player can cast given spell
-	SpellCasting::ESpellCastProblem battleIsImmune(const CGHeroInstance * caster, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest) const; //checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
-	SpellCasting::ESpellCastProblem battleCanCastThisSpellHere(int player, const CSpell * spell, SpellCasting::ECastingMode mode, THex dest) const; //checks if given player can cast given spell at given tile in given mode
+	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(int player, ECastingMode::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(int player, const CSpell * spell, ECastingMode::ECastingMode mode) const; //checks if given player can cast given spell
+	ESpellCastProblem::ESpellCastProblem battleIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks for creature immunity / anything that prevent casting *at given hex* - doesn't take into acount general problems such as not having spellbook or mana points etc.
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(int player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
 	bool battleTestElementalImmunity(const CStack * subject, const CSpell * spell, Bonus::BonusType element, bool damageSpell) const;
 	TSpell getRandomBeneficialSpell(const CStack * subject) const;
 	TSpell getRandomCastedSpell(const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
-	std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures, int casterSideOwner, SpellCasting::ECastingMode mode) const;
+	std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures, int casterSideOwner, ECastingMode::ECastingMode mode) const;
 
 
 	bool battleCanFlee(int player) const; //returns true if player can flee from the battle
-	const CStack * battleGetStack(THex pos, bool onlyAlive); //returns stack at given tile
+	const CStack * battleGetStack(BattleHex pos, bool onlyAlive); //returns stack at given tile
 	const CGHeroInstance * battleGetOwner(const CStack * stack) const; //returns hero that owns given stack; NULL if none
 	si8 battleMinSpellLevel() const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	void localInit();
 	static BattleInfo * setupBattle( int3 tile, int terrain, int terType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town );
-	bool isInTacticRange( THex dest ) const;
+	bool isInTacticRange( BattleHex dest ) const;
 	int getSurrenderingCost(int player) const;
 
 	int theOtherPlayer(int player) const;
 	ui8 whatSide(int player) const;
 };
 
-class DLL_EXPORT CStack : public CBonusSystemNode, public CStackBasicDescriptor
+class DLL_LINKAGE CStack : public CBonusSystemNode, public CStackBasicDescriptor
 { 
 public:
 	const CStackInstance *base;
@@ -158,12 +161,12 @@ public:
 	ui32 firstHPleft; //HP of first creature in stack
 	ui8 owner, slot;  //owner - player colour (255 for neutrals), slot - position in garrison (may be 255 for neutrals/called creatures)
 	ui8 attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
-	THex position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
+	BattleHex position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
 	si16 shots; //how many shots left
 	ui8 casts; //how many casts left
 
-	std::set<ECombatInfo> state;
+	std::set<EBattleStackState::EBattleStackState> state;
 	//overrides
 	const CCreature* getCreature() const {return type;}
 
@@ -204,13 +207,13 @@ public:
 		return ret;
 	}
 
-	static bool isMeleeAttackPossible(const CStack * attacker, const CStack * defender, THex attackerPos = THex::INVALID, THex defenderPos = THex::INVALID);
+	static bool isMeleeAttackPossible(const CStack * attacker, const CStack * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
 
 	bool doubleWide() const;
-	THex occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
-	std::vector<THex> getHexes() const; //up to two occupied hexes, starting from front
-	bool coversPos(THex position) const; //checks also if unit is double-wide
-	std::vector<THex> getSurroundingHexes(THex attackerPos = THex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
+	BattleHex occupiedHex() const; //returns number of occupied hex (not the position) if stack is double wide; otherwise -1
+	std::vector<BattleHex> getHexes() const; //up to two occupied hexes, starting from front
+	bool coversPos(BattleHex position) const; //checks also if unit is double-wide
+	std::vector<BattleHex> getSurroundingHexes(BattleHex attackerPos = BattleHex::INVALID) const; // get six or 8 surrounding hexes depending on creature size
 
 	void prepareAttacked(BattleStackAttacked &bsa) const; //requires bsa.damageAmout filled
 
@@ -245,11 +248,11 @@ public:
 	}
 	bool alive() const //determines if stack is alive
 	{
-		return vstd::contains(state,ALIVE);
+		return vstd::contains(state,EBattleStackState::ALIVE);
 	}
 };
 
-class DLL_EXPORT CMP_stack
+class DLL_LINKAGE CMP_stack
 {
 	int phase; //rules of which phase will be used
 	int turn;

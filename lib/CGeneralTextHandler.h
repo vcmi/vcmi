@@ -1,8 +1,6 @@
-#ifndef __CGENERALTEXTHANDLER_H__
-#define __CGENERALTEXTHANDLER_H__
-#include "../global.h"
-#include <string>
-#include <vector>
+#pragma once
+
+
 
 /*
  * CGeneralTextHandler.h, part of VCMI engine
@@ -14,9 +12,9 @@
  *
  */
 
-DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
+DLL_LINKAGE void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
 std::string readTo(const std::string &in, int &it, char end);
-class DLL_EXPORT CGeneralTextHandler //Handles general texts
+class DLL_LINKAGE CGeneralTextHandler //Handles general texts
 {
 public:
 	class HeroTexts
@@ -86,7 +84,3 @@ public:
 	void load();
 	CGeneralTextHandler();
 };
-
-
-
-#endif // __CGENERALTEXTHANDLER_H__

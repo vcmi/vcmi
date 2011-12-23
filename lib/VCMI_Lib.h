@@ -1,6 +1,4 @@
-#ifndef __VCMI_LIB_H__
-#define __VCMI_LIB_H__
-#include "../global.h"
+#pragma once
 
 /*
  * VCMI_Lib.h, part of VCMI engine
@@ -24,7 +22,7 @@ class CTownHandler;
 class CGeneralTextHandler;
 
 /// Loads and constructs several handlers
-class DLL_EXPORT LibClasses
+class DLL_LINKAGE LibClasses
 {
 public:
 	bool IS_AI_ENABLED; //VLC is the only object visible from both CMT and GeniusAI
@@ -55,12 +53,9 @@ public:
 	}
 };
 
-extern DLL_EXPORT LibClasses * VLC;
-extern DLL_EXPORT CLodHandler * bitmaph, *spriteh, *bitmaph_ab;
+extern DLL_LINKAGE LibClasses * VLC;
+extern DLL_LINKAGE CLodHandler * bitmaph, *spriteh, *bitmaph_ab;
 
-DLL_EXPORT void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
-DLL_EXPORT void loadToIt(si32 &dest, const std::string &src, int &iter, int mode);
-DLL_EXPORT void initDLL(CConsoleHandler *Console, std::ostream *Logfile);
-
-
-#endif // __VCMI_LIB_H__
+DLL_LINKAGE void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
+DLL_LINKAGE void loadToIt(si32 &dest, const std::string &src, int &iter, int mode);
+DLL_LINKAGE void initDLL(CConsoleHandler *Console, std::ostream *Logfile);
