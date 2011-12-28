@@ -16,6 +16,16 @@ CBattleCallback::CBattleCallback(CGameState *GS, int Player, IConnectionHandler 
 bool CBattleCallback::battleMakeTacticAction( BattleAction * action )
 {
 	assert(gs->curB->tacticDistance);
+	if(action->actionType == BattleAction::WALK)
+	{
+		if(!gs->curB->isInTacticRange(action->destinationTile))
+		{
+			tlog0 << "Requesting movement to tile that is not in tactics range? Illegal!\n";
+			if(!action->destinationTile.isValid())
+				tlog0 << "Moreover the hex is invalid!!!\n";
+			return false;
+		}
+	}
 	MakeAction ma;
 	ma.ba = *action;
 	sendRequest(&ma);

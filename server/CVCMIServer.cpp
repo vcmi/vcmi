@@ -643,7 +643,7 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 	testMem.set(true);
 	boost::thread* memMon = new boost::thread(boost::bind(memoryMonitor, PIDs[0], PIDs[1], PIDs[2]));
 
-	std::string logFName = LOGS_DIR + "/duel_log.vdat";
+	std::string logFName = LOGS_DIR + "/" + leftAI + "_vs_"+rightAI+"_on_" + battle + ".vdat";
 	tlog0 << "Logging battle activities (for replay possibility) in " << logFName << std::endl;
 	gh->gameLog = new CSaveFile(logFName);
 	gh->gameLog->smartPointerSerialization = false;
