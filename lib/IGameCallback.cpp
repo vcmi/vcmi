@@ -166,12 +166,20 @@ int CBattleInfoCallback::battleGetBattlefieldType()
 int CBattleInfoCallback::battleGetObstaclesAtTile(THex tile)
 {
 	std::vector<CObstacleInstance> obstacles = battleGetAllObstacles();
-	std::set<THex> coveredHexes;
-	for(int b = 0; b < obstacles.size(); ++b)
+	std::vector<THex> coveredHexes;
+	BOOST_FOREACH(const CObstacleInstance &coi, obstacles)
 	{
-		std::vector<THex> blocked = VLC->heroh->obstacles.find(obstacles[b].ID)->second.getBlocked(obstacles[b].pos);
-		for(int w = 0; w < blocked.size(); ++w)
-			coveredHexes.insert(blocked[w]);
+		std::map<int, CObstacleInfo>::iterator i = VLC->heroh->obstacles.find(coi.ID);
+		if(i == VLC->heroh->obstacles.end())
+		{
+			tlog1 << "Obstacle with a strange id " << coi.ID << std::endl;
+			continue;
+		}
+
+		std::vector<THex> blocked = i->second.getBlocked(coi.pos);
+		BOOST_FOREACH(THex hex, blocked)
+			if(hex.isValid())
+				coveredHexes.push_back(hex);
 	}
 	return vstd::contains(coveredHexes, tile);
 }

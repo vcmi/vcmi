@@ -755,7 +755,7 @@ int CGameHandler::moveStack(int stack, THex dest)
 		*stackAtEnd = gs->curB->getStackT(dest);
 
 	assert(curStack);
-	assert(dest < BFIELD_SIZE);
+	assert(dest.isValid());
 
 	if (gs->curB->tacticDistance)
 	{
@@ -5070,7 +5070,7 @@ void CGameHandler::runBattle()
 
 			const CGHeroInstance * curOwner = gs->curB->battleGetOwner(next);
 
-			if( (next->position < 0 || next->getCreature()->idNumber == 146)	//arrow turret or ballista
+			if( (!next->position.isValid() || next->getCreature()->idNumber == 146)	//arrow turret or ballista
 				&& (!curOwner || curOwner->getSecSkillLevel(CGHeroInstance::ARTILLERY) == 0)) //hero has no artillery
 			{
 				BattleAction attack;

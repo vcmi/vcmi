@@ -220,6 +220,12 @@ struct THex
 		return std::make_pair(getX(), getY());
 	}
 
+	bool operator<(const THex &rhs) const
+	{
+		return hex < rhs.hex;
+	}
+
+
 	//moving to direction
 	void operator+=(EDir dir)
 	{

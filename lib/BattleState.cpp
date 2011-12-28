@@ -145,7 +145,7 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 
 	for(unsigned int g=0; g<stacks.size(); ++g)
 	{
-		if(!stacks[g]->alive() || (stackToOmmit && stacks[g]->ID==stackToOmmit->ID) || stacks[g]->position < 0) //we don't want to lock position of this stack (eg. if it's a turret)
+		if(!stacks[g]->alive() || (stackToOmmit && stacks[g]->ID==stackToOmmit->ID) || stacks[g]->position.isValid()) //we don't want to lock position of this stack (eg. if it's a turret)
 			continue;
 
 		accessibility[stacks[g]->position] = false;
@@ -163,7 +163,7 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 		std::vector<THex> blocked = VLC->heroh->obstacles[obstacles[b].ID].getBlocked(obstacles[b].pos);
 		for(unsigned int c=0; c<blocked.size(); ++c)
 		{
-			if(blocked[c] >=0 && blocked[c] < BFIELD_SIZE)
+			if(blocked[c].isValid())
 				accessibility[blocked[c]] = false;
 		}
 	}
@@ -277,7 +277,7 @@ std::vector<THex> BattleInfo::getAccessibility( const CStack * stack, bool addOc
 	std::vector<THex> ret;
 	bool ac[BFIELD_SIZE];
 
-	if(stack->position < 0) //turrets
+	if(!stack->position.isValid()) //turrets
 		return std::vector<THex>();
 
 	std::set<THex> occupyable;
@@ -1637,7 +1637,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 				bool badObstacle = false;
 				for(int b=0; b<block.size(); ++b)
 				{
-					if(block[b] < 0 || block[b] >= BFIELD_SIZE || !obAv[block[b]])
+					if(!block[b].isValid()|| !obAv[block[b]])
 					{
 						badObstacle = true;
 						break;
@@ -1648,7 +1648,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 				curB->obstacles.push_back(coi);
 				for(int b=0; b<block.size(); ++b)
 				{
-					if(block[b] >= 0 && block[b] < BFIELD_SIZE)
+					if(block[b].isValid())
 						obAv[block[b]] = false;
 				}
 				toBlock -= block.size();

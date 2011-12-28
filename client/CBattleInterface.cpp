@@ -360,7 +360,7 @@ bool CBattleStackAnimation::isToReverseHlp(THex hexFrom, THex hexTo, bool curDir
 
 bool CBattleStackAnimation::isToReverse(THex hexFrom, THex hexTo, bool curDir, bool toDoubleWide, bool toDir)
 {
-	if(hexTo < 0) //turret
+	if(!hexTo.isValid()) //turret
 		return false;
 
 	if(toDoubleWide)
@@ -2533,7 +2533,7 @@ void CBattleInterface::newStack(const CStack * stack)
 {
 	Point coords = CBattleHex::getXYUnitAnim(stack->position, stack->owner == attackingHeroInstance->tempOwner, stack, this);;
 
-	if(stack->position < 0) //turret
+	if(!stack->position.isValid()) //turret
 	{
 		const CCreature & turretCreature = *CGI->creh->creatures[ CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] ];
 		creAnims[stack->ID] = new CCreatureAnimation(turretCreature.animDefName);	
@@ -2714,7 +2714,7 @@ void CBattleInterface::giveCommand(ui8 action, THex tile, ui32 stack, si32 addit
 	case 6:
 		assert(curInt->cb->battleGetStackByPos(additional)); //stack to attack must exist
 	case 2: case 7: case 9:
-		assert(tile < BFIELD_SIZE);
+		assert(tile.isValid());
 		break;
 	}
 
@@ -4173,7 +4173,7 @@ CBattleHero::~CBattleHero()
 Point CBattleHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const CStack * stack, const CBattleInterface * cbi)
 {
 	Point ret(-500, -500); //returned value
-	if(stack && stack->position < 0) //creatures in turrets
+	if(stack && !stack->position.isValid()) //creatures in turrets
 	{
 		switch(stack->position)
 		{

@@ -554,6 +554,9 @@ std::string clearBaseName(const std::string &fname)
 {
 	std::string ret = fname;
 	int hlp = ret.find_last_of('/');
+	if(hlp == std::string::npos)
+		hlp = ret.find_first_of('\\');
+
 	if(hlp != std::string::npos)
 	{
 		ret =  ret.substr(hlp+1);
