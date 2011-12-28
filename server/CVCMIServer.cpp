@@ -550,6 +550,22 @@ void memoryMonitor(int lAIpid, int rAIpid, int refPid)
 }
 ////
 
+std::string clearBaseName(const std::string &fname)
+{
+	std::string ret = fname;
+	int hlp = ret.find_last_of('/');
+	if(hlp != std::string::npos)
+	{
+		ret =  ret.substr(hlp+1);
+	}
+	hlp = ret.find_last_of('.');
+	if(hlp != std::string::npos)
+	{
+		ret =  ret.substr(0,hlp);
+	}
+	return ret;
+};
+
 void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI, const std::string &rightAI, int howManyClients)
 {
 	std::map<CConnection *, si32> pidsFromConns;
@@ -642,8 +658,7 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 	//TODO monitor memory of PIDs
 	testMem.set(true);
 	boost::thread* memMon = new boost::thread(boost::bind(memoryMonitor, PIDs[0], PIDs[1], PIDs[2]));
-
-	std::string logFName = LOGS_DIR + "/" + leftAI + "_vs_"+rightAI+"_on_" + battle + ".vdat";
+	std::string logFName = LOGS_DIR + "/" + clearBaseName(leftAI) + "_vs_"+clearBaseName(rightAI)+"_on_" + clearBaseName(battle) + ".vdat";
 	tlog0 << "Logging battle activities (for replay possibility) in " << logFName << std::endl;
 	gh->gameLog = new CSaveFile(logFName);
 	gh->gameLog->smartPointerSerialization = false;
