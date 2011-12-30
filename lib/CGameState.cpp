@@ -2505,6 +2505,8 @@ void CGameState::attachArmedObjects()
 
 bool CGameState::isValidAction(const MakeAction &ma, bool verbose) const
 {
+	boost::shared_lock<boost::shared_mutex> shl(*mx);
+
 #define PROBLEM(txt) do{if(verbose) tlog1 << "Action invalid: " << txt << std::endl; return false;} while(0);
 
 	const CStack *stack = curB->getStack(ma.ba.stackNumber);

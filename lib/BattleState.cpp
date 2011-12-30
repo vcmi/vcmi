@@ -145,7 +145,7 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 
 	for(unsigned int g=0; g<stacks.size(); ++g)
 	{
-		if(!stacks[g]->alive() || (stackToOmmit && stacks[g]->ID==stackToOmmit->ID) || stacks[g]->position.isValid()) //we don't want to lock position of this stack (eg. if it's a turret)
+		if(!stacks[g]->alive() || (stackToOmmit && stacks[g]->ID==stackToOmmit->ID) || !stacks[g]->position.isValid()) //we don't want to lock position of this stack (eg. if it's a turret)
 			continue;
 
 		accessibility[stacks[g]->position] = false;
