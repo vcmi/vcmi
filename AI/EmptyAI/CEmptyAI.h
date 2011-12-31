@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../AI_Base.h"
+#include "../../lib/AI_Base.h"
 #include "../../CCallback.h"
 
 struct HeroMoveDetails;

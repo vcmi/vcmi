@@ -3,6 +3,7 @@
 #include "CSndHandler.h"
 #include "CVideoHandler.h"
 
+#include "UIFramework/CGuiHandler.h"
 #include "UIFramework/SDL_Extensions.h"
 #include "CPlayerInterface.h"
 

@@ -92,8 +92,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	: queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), 
 	  activeStack(NULL), stackToActivate(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1), 
 	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  stackCanCastSpell(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(NULL),
-	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), givenCommand(NULL),
-	  myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL), bfield(GameConstants::BFIELD_SIZE)
+	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), bfield(GameConstants::BFIELD_SIZE),
+	  givenCommand(NULL), myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
       
 {
 	OBJ_CONSTRUCTION;
@@ -2590,12 +2590,12 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	}
 
 	// As long as the projectile of the shooter-stack is flying incrementFrame should be false
-	bool shootingFinished = true;
+	//bool shootingFinished = true;
 	for (std::list<ProjectileInfo>::iterator it = projectiles.begin(); it != projectiles.end(); ++it)
 	{
 		if (it->stackID == ID)
 		{
-			shootingFinished = false;
+			//shootingFinished = false;
 			if (it->animStartDelay == 0)
 				incrementFrame = false;
 		}

@@ -3806,7 +3806,7 @@ void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 }
 
 CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H)
-: h(H), _id(id), _sel(&sel)
+: h(H), _sel(&sel), _id(id)
 {
 	used = LCLICK | RCLICK | HOVER;
 	h = H;

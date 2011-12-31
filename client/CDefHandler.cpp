@@ -148,7 +148,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPal
 	BaseOffset = SEntries[SIndex].offset;
 	SSpriteDef sd = * reinterpret_cast<const SSpriteDef *>(FDef + BaseOffset);
 
-	prSize = SDL_SwapLE32(sd.prSize); //TODO use me
+	//prSize = SDL_SwapLE32(sd.prSize); //TODO use me
 	defType2 = SDL_SwapLE32(sd.defType2);
 	FullWidth = SDL_SwapLE32(sd.FullWidth);
 	FullHeight = SDL_SwapLE32(sd.FullHeight);

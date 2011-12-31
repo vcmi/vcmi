@@ -59,34 +59,22 @@ CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
-	vcmiclient-CAttackAnimation.$(OBJEXT) \
-	vcmiclient-CBattleAnimation.$(OBJEXT) \
-	vcmiclient-CBattleConsole.$(OBJEXT) \
-	vcmiclient-CBattleHero.$(OBJEXT) \
+	vcmiclient-CBattleAnimations.$(OBJEXT) \
 	vcmiclient-CBattleInterface.$(OBJEXT) \
-	vcmiclient-CBattleOptionsWindow.$(OBJEXT) \
-	vcmiclient-CBattleResultWindow.$(OBJEXT) \
-	vcmiclient-CBattleStackAnimation.$(OBJEXT) \
-	vcmiclient-CDefenceAnimation.$(OBJEXT) \
-	vcmiclient-CDummyAnimation.$(OBJEXT) \
-	vcmiclient-CHexFieldControl.$(OBJEXT) \
-	vcmiclient-CMeleeAttackAnimation.$(OBJEXT) \
-	vcmiclient-CMovementAnimation.$(OBJEXT) \
-	vcmiclient-CMovementEndAnimation.$(OBJEXT) \
-	vcmiclient-CMovementStartAnimation.$(OBJEXT) \
-	vcmiclient-CReverseAnimation.$(OBJEXT) \
-	vcmiclient-CShootingAnimation.$(OBJEXT) \
-	vcmiclient-CSpellEffectAnimation.$(OBJEXT) \
-	vcmiclient-CStackQueue.$(OBJEXT) \
-	vcmiclient-AdventureMapButton.$(OBJEXT) \
+	vcmiclient-CBattleInterfaceClasses.$(OBJEXT) \
+	vcmiclient-CCreatureAnimation.$(OBJEXT) \
+	vcmiclient-CGuiHandler.$(OBJEXT) \
+	vcmiclient-CIntObject.$(OBJEXT) \
+	vcmiclient-CIntObjectClasses.$(OBJEXT) \
+	vcmiclient-Geometries.$(OBJEXT) \
+	vcmiclient-CCursorHandler.$(OBJEXT) \
+	vcmiclient-SDL_Extensions.$(OBJEXT) \
 	vcmiclient-CAdvmapInterface.$(OBJEXT) \
 	vcmiclient-CAnimation.$(OBJEXT) \
 	vcmiclient-CBitmapHandler.$(OBJEXT) \
 	vcmiclient-CCastleInterface.$(OBJEXT) \
 	vcmiclient-CConfigHandler.$(OBJEXT) \
-	vcmiclient-CCreatureAnimation.$(OBJEXT) \
 	vcmiclient-CCreatureWindow.$(OBJEXT) \
-	vcmiclient-CCursorHandler.$(OBJEXT) \
 	vcmiclient-CDefHandler.$(OBJEXT) \
 	vcmiclient-CGameInfo.$(OBJEXT) \
 	vcmiclient-CHeroWindow.$(OBJEXT) \
@@ -97,12 +85,9 @@ am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-CPreGame.$(OBJEXT) vcmiclient-CSndHandler.$(OBJEXT) \
 	vcmiclient-CSpellWindow.$(OBJEXT) \
 	vcmiclient-CVideoHandler.$(OBJEXT) \
-	vcmiclient-Graphics.$(OBJEXT) vcmiclient-GUIBase.$(OBJEXT) \
-	vcmiclient-GUIClasses.$(OBJEXT) \
+	vcmiclient-Graphics.$(OBJEXT) vcmiclient-GUIClasses.$(OBJEXT) \
 	vcmiclient-mapHandler.$(OBJEXT) \
-	vcmiclient-NetPacksClient.$(OBJEXT) \
-	vcmiclient-SDL_Extensions.$(OBJEXT) \
-	vcmiclient-SDL_framerate.$(OBJEXT)
+	vcmiclient-NetPacksClient.$(OBJEXT)
 vcmiclient_OBJECTS = $(am_vcmiclient_OBJECTS)
 vcmiclient_DEPENDENCIES = $(top_builddir)/lib/libvcmi.la
 AM_V_lt = $(am__v_lt_$(V))
@@ -293,53 +278,32 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 BUILT_SOURCES = StdInc.h.gch
-vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @FFMPEG_LIBS@ @BOOST_PROGRAM_OPTIONS_LIB@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lrt -lz
+vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @FFMPEG_LIBS@ @BOOST_PROGRAM_OPTIONS_LIB@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lz
 vcmiclient_CXXFLAGS = @SDL_CFLAGS@ @FFMPEG_CXXFLAGS@
 vcmiclient_LDFLAGS = -L$(top_builddir)/lib
 vcmiclient_SOURCES = \
 	../CCallback.cpp \
 	../CCallback.h \
-	./BattleInterface/CAttackAnimation.cpp \
-	./BattleInterface/CAttackAnimation.h \
-	./BattleInterface/CBattleAnimation.cpp \
-	./BattleInterface/CBattleAnimation.h \
-	./BattleInterface/CBattleConsole.cpp \
-	./BattleInterface/CBattleConsole.h \
-	./BattleInterface/CBattleHero.cpp \
-	./BattleInterface/CBattleHero.h \
+	./BattleInterface/CBattleAnimations.cpp \
+	./BattleInterface/CBattleAnimations.h \
 	./BattleInterface/CBattleInterface.cpp \
 	./BattleInterface/CBattleInterface.h \
-	./BattleInterface/CBattleOptionsWindow.cpp \
-	./BattleInterface/CBattleOptionsWindow.h \
-	./BattleInterface/CBattleResultWindow.cpp \
-	./BattleInterface/CBattleResultWindow.h \
-	./BattleInterface/CBattleStackAnimation.cpp \
-	./BattleInterface/CBattleStackAnimation.h \
-	./BattleInterface/CDefenceAnimation.cpp \
-	./BattleInterface/CDefenceAnimation.h \
-	./BattleInterface/CDummyAnimation.cpp \
-	./BattleInterface/CDummyAnimation.h \
-	./BattleInterface/CHexFieldControl.cpp \
-	./BattleInterface/CHexFieldControl.h \
-	./BattleInterface/CMeleeAttackAnimation.cpp \
-	./BattleInterface/CMeleeAttackAnimation.h \
-	./BattleInterface/CMovementAnimation.cpp \
-	./BattleInterface/CMovementAnimation.h \
-	./BattleInterface/CMovementEndAnimation.cpp \
-	./BattleInterface/CMovementEndAnimation.h \
-	./BattleInterface/CMovementStartAnimation.cpp \
-	./BattleInterface/CMovementStartAnimation.h \
-	./BattleInterface/CReverseAnimation.cpp \
-	./BattleInterface/CReverseAnimation.h \
-	./BattleInterface/CShootingAnimation.cpp \
-	./BattleInterface/CShootingAnimation.h \
-	./BattleInterface/CSpellEffectAnimation.cpp \
-	./BattleInterface/CSpellEffectAnimation.h \
-	./BattleInterface/CStackQueue.cpp \
-	./BattleInterface/CStackQueue.h \
-	./BattleInterface/SStackAttackedInfo.h \
-	AdventureMapButton.cpp \
-	AdventureMapButton.h \
+	./BattleInterface/CBattleInterfaceClasses.cpp \
+	./BattleInterface/CBattleInterfaceClasses.h \
+	./BattleInterface/CCreatureAnimation.h \
+	./BattleInterface/CCreatureAnimation.cpp \
+	./UIFramework/CGuiHandler.cpp \
+	./UIFramework/CGuiHandler.h \
+	./UIFramework/CIntObject.cpp \
+	./UIFramework/CIntObject.h \
+	./UIFramework/CIntObjectClasses.cpp \
+	./UIFramework/CIntObjectClasses.h \
+	./UIFramework/Geometries.cpp \
+	./UIFramework/Geometries.h \
+	./UIFramework/CCursorHandler.cpp \
+	./UIFramework/CCursorHandler.h \
+	./UIFramework/SDL_Extensions.cpp \
+	./UIFramework/SDL_Extensions.h \
 	CAdvmapInterface.cpp \
 	CAdvmapInterface.h \
 	CAnimation.cpp \
@@ -350,12 +314,8 @@ vcmiclient_SOURCES = \
 	CCastleInterface.h \
 	CConfigHandler.cpp \
 	CConfigHandler.h \
-	CCreatureAnimation.cpp \
-	CCreatureAnimation.h \
 	CCreatureWindow.cpp \
 	CCreatureWindow.h \
-	CCursorHandler.cpp \
-	CCursorHandler.h \
 	CDefHandler.cpp \
 	CDefHandler.h \
 	CGameInfo.cpp \
@@ -387,17 +347,11 @@ vcmiclient_SOURCES = \
 	FunctionList.h \
 	Graphics.cpp \
 	Graphics.h \
-	GUIBase.cpp \
-	GUIBase.h \
 	GUIClasses.cpp \
 	GUIClasses.h \
 	mapHandler.cpp \
 	mapHandler.h \
-	NetPacksClient.cpp \
-	SDL_Extensions.cpp \
-	SDL_Extensions.h \
-	SDL_framerate.cpp \
-	SDL_framerate.h
+	NetPacksClient.cpp
 
 all: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) all-am
@@ -487,17 +441,11 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-AdventureMapButton.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CAdvmapInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CAnimation.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CAttackAnimation.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBattleAnimation.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBattleConsole.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBattleHero.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBattleAnimations.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBattleInterface.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBattleOptionsWindow.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBattleResultWindow.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBattleStackAnimation.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBattleInterfaceClasses.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBitmapHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCallback.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCastleInterface.Po@am__quote@
@@ -506,35 +454,26 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCreatureWindow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCursorHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CDefHandler.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CDefenceAnimation.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CDummyAnimation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CGameInfo.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CGuiHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CHeroWindow.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CHexFieldControl.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CIntObject.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CIntObjectClasses.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CKingdomInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMT.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMeleeAttackAnimation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMessage.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMovementAnimation.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMovementEndAnimation.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMovementStartAnimation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMusicHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CPlayerInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CPreGame.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CReverseAnimation.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CShootingAnimation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CSndHandler.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CSpellEffectAnimation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CSpellWindow.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CStackQueue.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CVideoHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-Client.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-GUIBase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-GUIClasses.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-Geometries.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-Graphics.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-NetPacksClient.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-SDL_Extensions.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-SDL_framerate.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-mapHandler.Po@am__quote@
 
 .cpp.o:
@@ -577,69 +516,21 @@ vcmiclient-CCallback.obj: ../CCallback.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCallback.obj `if test -f '../CCallback.cpp'; then $(CYGPATH_W) '../CCallback.cpp'; else $(CYGPATH_W) '$(srcdir)/../CCallback.cpp'; fi`
 
-vcmiclient-CAttackAnimation.o: ./BattleInterface/CAttackAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CAttackAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CAttackAnimation.Tpo -c -o vcmiclient-CAttackAnimation.o `test -f './BattleInterface/CAttackAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CAttackAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CAttackAnimation.Tpo $(DEPDIR)/vcmiclient-CAttackAnimation.Po
+vcmiclient-CBattleAnimations.o: ./BattleInterface/CBattleAnimations.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleAnimations.o -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleAnimations.Tpo -c -o vcmiclient-CBattleAnimations.o `test -f './BattleInterface/CBattleAnimations.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleAnimations.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleAnimations.Tpo $(DEPDIR)/vcmiclient-CBattleAnimations.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CAttackAnimation.cpp' object='vcmiclient-CAttackAnimation.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleAnimations.cpp' object='vcmiclient-CBattleAnimations.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CAttackAnimation.o `test -f './BattleInterface/CAttackAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CAttackAnimation.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleAnimations.o `test -f './BattleInterface/CBattleAnimations.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleAnimations.cpp
 
-vcmiclient-CAttackAnimation.obj: ./BattleInterface/CAttackAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CAttackAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CAttackAnimation.Tpo -c -o vcmiclient-CAttackAnimation.obj `if test -f './BattleInterface/CAttackAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CAttackAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CAttackAnimation.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CAttackAnimation.Tpo $(DEPDIR)/vcmiclient-CAttackAnimation.Po
+vcmiclient-CBattleAnimations.obj: ./BattleInterface/CBattleAnimations.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleAnimations.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleAnimations.Tpo -c -o vcmiclient-CBattleAnimations.obj `if test -f './BattleInterface/CBattleAnimations.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleAnimations.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleAnimations.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleAnimations.Tpo $(DEPDIR)/vcmiclient-CBattleAnimations.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CAttackAnimation.cpp' object='vcmiclient-CAttackAnimation.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleAnimations.cpp' object='vcmiclient-CBattleAnimations.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CAttackAnimation.obj `if test -f './BattleInterface/CAttackAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CAttackAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CAttackAnimation.cpp'; fi`
-
-vcmiclient-CBattleAnimation.o: ./BattleInterface/CBattleAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleAnimation.Tpo -c -o vcmiclient-CBattleAnimation.o `test -f './BattleInterface/CBattleAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleAnimation.Tpo $(DEPDIR)/vcmiclient-CBattleAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleAnimation.cpp' object='vcmiclient-CBattleAnimation.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleAnimation.o `test -f './BattleInterface/CBattleAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleAnimation.cpp
-
-vcmiclient-CBattleAnimation.obj: ./BattleInterface/CBattleAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleAnimation.Tpo -c -o vcmiclient-CBattleAnimation.obj `if test -f './BattleInterface/CBattleAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleAnimation.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleAnimation.Tpo $(DEPDIR)/vcmiclient-CBattleAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleAnimation.cpp' object='vcmiclient-CBattleAnimation.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleAnimation.obj `if test -f './BattleInterface/CBattleAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleAnimation.cpp'; fi`
-
-vcmiclient-CBattleConsole.o: ./BattleInterface/CBattleConsole.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleConsole.o -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleConsole.Tpo -c -o vcmiclient-CBattleConsole.o `test -f './BattleInterface/CBattleConsole.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleConsole.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleConsole.Tpo $(DEPDIR)/vcmiclient-CBattleConsole.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleConsole.cpp' object='vcmiclient-CBattleConsole.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleConsole.o `test -f './BattleInterface/CBattleConsole.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleConsole.cpp
-
-vcmiclient-CBattleConsole.obj: ./BattleInterface/CBattleConsole.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleConsole.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleConsole.Tpo -c -o vcmiclient-CBattleConsole.obj `if test -f './BattleInterface/CBattleConsole.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleConsole.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleConsole.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleConsole.Tpo $(DEPDIR)/vcmiclient-CBattleConsole.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleConsole.cpp' object='vcmiclient-CBattleConsole.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleConsole.obj `if test -f './BattleInterface/CBattleConsole.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleConsole.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleConsole.cpp'; fi`
-
-vcmiclient-CBattleHero.o: ./BattleInterface/CBattleHero.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleHero.o -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleHero.Tpo -c -o vcmiclient-CBattleHero.o `test -f './BattleInterface/CBattleHero.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleHero.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleHero.Tpo $(DEPDIR)/vcmiclient-CBattleHero.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleHero.cpp' object='vcmiclient-CBattleHero.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleHero.o `test -f './BattleInterface/CBattleHero.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleHero.cpp
-
-vcmiclient-CBattleHero.obj: ./BattleInterface/CBattleHero.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleHero.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleHero.Tpo -c -o vcmiclient-CBattleHero.obj `if test -f './BattleInterface/CBattleHero.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleHero.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleHero.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleHero.Tpo $(DEPDIR)/vcmiclient-CBattleHero.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleHero.cpp' object='vcmiclient-CBattleHero.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleHero.obj `if test -f './BattleInterface/CBattleHero.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleHero.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleHero.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleAnimations.obj `if test -f './BattleInterface/CBattleAnimations.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleAnimations.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleAnimations.cpp'; fi`
 
 vcmiclient-CBattleInterface.o: ./BattleInterface/CBattleInterface.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleInterface.o -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleInterface.Tpo -c -o vcmiclient-CBattleInterface.o `test -f './BattleInterface/CBattleInterface.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleInterface.cpp
@@ -657,245 +548,133 @@ vcmiclient-CBattleInterface.obj: ./BattleInterface/CBattleInterface.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleInterface.obj `if test -f './BattleInterface/CBattleInterface.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleInterface.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleInterface.cpp'; fi`
 
-vcmiclient-CBattleOptionsWindow.o: ./BattleInterface/CBattleOptionsWindow.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleOptionsWindow.o -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleOptionsWindow.Tpo -c -o vcmiclient-CBattleOptionsWindow.o `test -f './BattleInterface/CBattleOptionsWindow.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleOptionsWindow.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleOptionsWindow.Tpo $(DEPDIR)/vcmiclient-CBattleOptionsWindow.Po
+vcmiclient-CBattleInterfaceClasses.o: ./BattleInterface/CBattleInterfaceClasses.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleInterfaceClasses.o -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleInterfaceClasses.Tpo -c -o vcmiclient-CBattleInterfaceClasses.o `test -f './BattleInterface/CBattleInterfaceClasses.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleInterfaceClasses.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleInterfaceClasses.Tpo $(DEPDIR)/vcmiclient-CBattleInterfaceClasses.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleOptionsWindow.cpp' object='vcmiclient-CBattleOptionsWindow.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleInterfaceClasses.cpp' object='vcmiclient-CBattleInterfaceClasses.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleOptionsWindow.o `test -f './BattleInterface/CBattleOptionsWindow.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleOptionsWindow.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleInterfaceClasses.o `test -f './BattleInterface/CBattleInterfaceClasses.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleInterfaceClasses.cpp
 
-vcmiclient-CBattleOptionsWindow.obj: ./BattleInterface/CBattleOptionsWindow.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleOptionsWindow.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleOptionsWindow.Tpo -c -o vcmiclient-CBattleOptionsWindow.obj `if test -f './BattleInterface/CBattleOptionsWindow.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleOptionsWindow.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleOptionsWindow.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleOptionsWindow.Tpo $(DEPDIR)/vcmiclient-CBattleOptionsWindow.Po
+vcmiclient-CBattleInterfaceClasses.obj: ./BattleInterface/CBattleInterfaceClasses.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleInterfaceClasses.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleInterfaceClasses.Tpo -c -o vcmiclient-CBattleInterfaceClasses.obj `if test -f './BattleInterface/CBattleInterfaceClasses.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleInterfaceClasses.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleInterfaceClasses.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleInterfaceClasses.Tpo $(DEPDIR)/vcmiclient-CBattleInterfaceClasses.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleOptionsWindow.cpp' object='vcmiclient-CBattleOptionsWindow.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleInterfaceClasses.cpp' object='vcmiclient-CBattleInterfaceClasses.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleOptionsWindow.obj `if test -f './BattleInterface/CBattleOptionsWindow.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleOptionsWindow.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleOptionsWindow.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleInterfaceClasses.obj `if test -f './BattleInterface/CBattleInterfaceClasses.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleInterfaceClasses.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleInterfaceClasses.cpp'; fi`
 
-vcmiclient-CBattleResultWindow.o: ./BattleInterface/CBattleResultWindow.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleResultWindow.o -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleResultWindow.Tpo -c -o vcmiclient-CBattleResultWindow.o `test -f './BattleInterface/CBattleResultWindow.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleResultWindow.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleResultWindow.Tpo $(DEPDIR)/vcmiclient-CBattleResultWindow.Po
+vcmiclient-CCreatureAnimation.o: ./BattleInterface/CCreatureAnimation.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCreatureAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CCreatureAnimation.Tpo -c -o vcmiclient-CCreatureAnimation.o `test -f './BattleInterface/CCreatureAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CCreatureAnimation.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CCreatureAnimation.Tpo $(DEPDIR)/vcmiclient-CCreatureAnimation.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleResultWindow.cpp' object='vcmiclient-CBattleResultWindow.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CCreatureAnimation.cpp' object='vcmiclient-CCreatureAnimation.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleResultWindow.o `test -f './BattleInterface/CBattleResultWindow.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleResultWindow.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCreatureAnimation.o `test -f './BattleInterface/CCreatureAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CCreatureAnimation.cpp
 
-vcmiclient-CBattleResultWindow.obj: ./BattleInterface/CBattleResultWindow.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleResultWindow.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleResultWindow.Tpo -c -o vcmiclient-CBattleResultWindow.obj `if test -f './BattleInterface/CBattleResultWindow.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleResultWindow.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleResultWindow.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleResultWindow.Tpo $(DEPDIR)/vcmiclient-CBattleResultWindow.Po
+vcmiclient-CCreatureAnimation.obj: ./BattleInterface/CCreatureAnimation.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCreatureAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CCreatureAnimation.Tpo -c -o vcmiclient-CCreatureAnimation.obj `if test -f './BattleInterface/CCreatureAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CCreatureAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CCreatureAnimation.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CCreatureAnimation.Tpo $(DEPDIR)/vcmiclient-CCreatureAnimation.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleResultWindow.cpp' object='vcmiclient-CBattleResultWindow.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CCreatureAnimation.cpp' object='vcmiclient-CCreatureAnimation.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleResultWindow.obj `if test -f './BattleInterface/CBattleResultWindow.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleResultWindow.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleResultWindow.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCreatureAnimation.obj `if test -f './BattleInterface/CCreatureAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CCreatureAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CCreatureAnimation.cpp'; fi`
 
-vcmiclient-CBattleStackAnimation.o: ./BattleInterface/CBattleStackAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleStackAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleStackAnimation.Tpo -c -o vcmiclient-CBattleStackAnimation.o `test -f './BattleInterface/CBattleStackAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleStackAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleStackAnimation.Tpo $(DEPDIR)/vcmiclient-CBattleStackAnimation.Po
+vcmiclient-CGuiHandler.o: ./UIFramework/CGuiHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CGuiHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CGuiHandler.Tpo -c -o vcmiclient-CGuiHandler.o `test -f './UIFramework/CGuiHandler.cpp' || echo '$(srcdir)/'`./UIFramework/CGuiHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CGuiHandler.Tpo $(DEPDIR)/vcmiclient-CGuiHandler.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleStackAnimation.cpp' object='vcmiclient-CBattleStackAnimation.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./UIFramework/CGuiHandler.cpp' object='vcmiclient-CGuiHandler.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleStackAnimation.o `test -f './BattleInterface/CBattleStackAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CBattleStackAnimation.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CGuiHandler.o `test -f './UIFramework/CGuiHandler.cpp' || echo '$(srcdir)/'`./UIFramework/CGuiHandler.cpp
 
-vcmiclient-CBattleStackAnimation.obj: ./BattleInterface/CBattleStackAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CBattleStackAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CBattleStackAnimation.Tpo -c -o vcmiclient-CBattleStackAnimation.obj `if test -f './BattleInterface/CBattleStackAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleStackAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleStackAnimation.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CBattleStackAnimation.Tpo $(DEPDIR)/vcmiclient-CBattleStackAnimation.Po
+vcmiclient-CGuiHandler.obj: ./UIFramework/CGuiHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CGuiHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CGuiHandler.Tpo -c -o vcmiclient-CGuiHandler.obj `if test -f './UIFramework/CGuiHandler.cpp'; then $(CYGPATH_W) './UIFramework/CGuiHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/./UIFramework/CGuiHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CGuiHandler.Tpo $(DEPDIR)/vcmiclient-CGuiHandler.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CBattleStackAnimation.cpp' object='vcmiclient-CBattleStackAnimation.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./UIFramework/CGuiHandler.cpp' object='vcmiclient-CGuiHandler.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CBattleStackAnimation.obj `if test -f './BattleInterface/CBattleStackAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CBattleStackAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CBattleStackAnimation.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CGuiHandler.obj `if test -f './UIFramework/CGuiHandler.cpp'; then $(CYGPATH_W) './UIFramework/CGuiHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/./UIFramework/CGuiHandler.cpp'; fi`
 
-vcmiclient-CDefenceAnimation.o: ./BattleInterface/CDefenceAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CDefenceAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CDefenceAnimation.Tpo -c -o vcmiclient-CDefenceAnimation.o `test -f './BattleInterface/CDefenceAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CDefenceAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CDefenceAnimation.Tpo $(DEPDIR)/vcmiclient-CDefenceAnimation.Po
+vcmiclient-CIntObject.o: ./UIFramework/CIntObject.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CIntObject.o -MD -MP -MF $(DEPDIR)/vcmiclient-CIntObject.Tpo -c -o vcmiclient-CIntObject.o `test -f './UIFramework/CIntObject.cpp' || echo '$(srcdir)/'`./UIFramework/CIntObject.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CIntObject.Tpo $(DEPDIR)/vcmiclient-CIntObject.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CDefenceAnimation.cpp' object='vcmiclient-CDefenceAnimation.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./UIFramework/CIntObject.cpp' object='vcmiclient-CIntObject.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CDefenceAnimation.o `test -f './BattleInterface/CDefenceAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CDefenceAnimation.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CIntObject.o `test -f './UIFramework/CIntObject.cpp' || echo '$(srcdir)/'`./UIFramework/CIntObject.cpp
 
-vcmiclient-CDefenceAnimation.obj: ./BattleInterface/CDefenceAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CDefenceAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CDefenceAnimation.Tpo -c -o vcmiclient-CDefenceAnimation.obj `if test -f './BattleInterface/CDefenceAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CDefenceAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CDefenceAnimation.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CDefenceAnimation.Tpo $(DEPDIR)/vcmiclient-CDefenceAnimation.Po
+vcmiclient-CIntObject.obj: ./UIFramework/CIntObject.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CIntObject.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CIntObject.Tpo -c -o vcmiclient-CIntObject.obj `if test -f './UIFramework/CIntObject.cpp'; then $(CYGPATH_W) './UIFramework/CIntObject.cpp'; else $(CYGPATH_W) '$(srcdir)/./UIFramework/CIntObject.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CIntObject.Tpo $(DEPDIR)/vcmiclient-CIntObject.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CDefenceAnimation.cpp' object='vcmiclient-CDefenceAnimation.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./UIFramework/CIntObject.cpp' object='vcmiclient-CIntObject.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CDefenceAnimation.obj `if test -f './BattleInterface/CDefenceAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CDefenceAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CDefenceAnimation.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CIntObject.obj `if test -f './UIFramework/CIntObject.cpp'; then $(CYGPATH_W) './UIFramework/CIntObject.cpp'; else $(CYGPATH_W) '$(srcdir)/./UIFramework/CIntObject.cpp'; fi`
 
-vcmiclient-CDummyAnimation.o: ./BattleInterface/CDummyAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CDummyAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CDummyAnimation.Tpo -c -o vcmiclient-CDummyAnimation.o `test -f './BattleInterface/CDummyAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CDummyAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CDummyAnimation.Tpo $(DEPDIR)/vcmiclient-CDummyAnimation.Po
+vcmiclient-CIntObjectClasses.o: ./UIFramework/CIntObjectClasses.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CIntObjectClasses.o -MD -MP -MF $(DEPDIR)/vcmiclient-CIntObjectClasses.Tpo -c -o vcmiclient-CIntObjectClasses.o `test -f './UIFramework/CIntObjectClasses.cpp' || echo '$(srcdir)/'`./UIFramework/CIntObjectClasses.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CIntObjectClasses.Tpo $(DEPDIR)/vcmiclient-CIntObjectClasses.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CDummyAnimation.cpp' object='vcmiclient-CDummyAnimation.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./UIFramework/CIntObjectClasses.cpp' object='vcmiclient-CIntObjectClasses.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CDummyAnimation.o `test -f './BattleInterface/CDummyAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CDummyAnimation.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CIntObjectClasses.o `test -f './UIFramework/CIntObjectClasses.cpp' || echo '$(srcdir)/'`./UIFramework/CIntObjectClasses.cpp
 
-vcmiclient-CDummyAnimation.obj: ./BattleInterface/CDummyAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CDummyAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CDummyAnimation.Tpo -c -o vcmiclient-CDummyAnimation.obj `if test -f './BattleInterface/CDummyAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CDummyAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CDummyAnimation.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CDummyAnimation.Tpo $(DEPDIR)/vcmiclient-CDummyAnimation.Po
+vcmiclient-CIntObjectClasses.obj: ./UIFramework/CIntObjectClasses.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CIntObjectClasses.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CIntObjectClasses.Tpo -c -o vcmiclient-CIntObjectClasses.obj `if test -f './UIFramework/CIntObjectClasses.cpp'; then $(CYGPATH_W) './UIFramework/CIntObjectClasses.cpp'; else $(CYGPATH_W) '$(srcdir)/./UIFramework/CIntObjectClasses.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CIntObjectClasses.Tpo $(DEPDIR)/vcmiclient-CIntObjectClasses.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CDummyAnimation.cpp' object='vcmiclient-CDummyAnimation.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./UIFramework/CIntObjectClasses.cpp' object='vcmiclient-CIntObjectClasses.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CDummyAnimation.obj `if test -f './BattleInterface/CDummyAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CDummyAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CDummyAnimation.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CIntObjectClasses.obj `if test -f './UIFramework/CIntObjectClasses.cpp'; then $(CYGPATH_W) './UIFramework/CIntObjectClasses.cpp'; else $(CYGPATH_W) '$(srcdir)/./UIFramework/CIntObjectClasses.cpp'; fi`
 
-vcmiclient-CHexFieldControl.o: ./BattleInterface/CHexFieldControl.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CHexFieldControl.o -MD -MP -MF $(DEPDIR)/vcmiclient-CHexFieldControl.Tpo -c -o vcmiclient-CHexFieldControl.o `test -f './BattleInterface/CHexFieldControl.cpp' || echo '$(srcdir)/'`./BattleInterface/CHexFieldControl.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CHexFieldControl.Tpo $(DEPDIR)/vcmiclient-CHexFieldControl.Po
+vcmiclient-Geometries.o: ./UIFramework/Geometries.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-Geometries.o -MD -MP -MF $(DEPDIR)/vcmiclient-Geometries.Tpo -c -o vcmiclient-Geometries.o `test -f './UIFramework/Geometries.cpp' || echo '$(srcdir)/'`./UIFramework/Geometries.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-Geometries.Tpo $(DEPDIR)/vcmiclient-Geometries.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CHexFieldControl.cpp' object='vcmiclient-CHexFieldControl.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./UIFramework/Geometries.cpp' object='vcmiclient-Geometries.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CHexFieldControl.o `test -f './BattleInterface/CHexFieldControl.cpp' || echo '$(srcdir)/'`./BattleInterface/CHexFieldControl.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-Geometries.o `test -f './UIFramework/Geometries.cpp' || echo '$(srcdir)/'`./UIFramework/Geometries.cpp
 
-vcmiclient-CHexFieldControl.obj: ./BattleInterface/CHexFieldControl.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CHexFieldControl.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CHexFieldControl.Tpo -c -o vcmiclient-CHexFieldControl.obj `if test -f './BattleInterface/CHexFieldControl.cpp'; then $(CYGPATH_W) './BattleInterface/CHexFieldControl.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CHexFieldControl.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CHexFieldControl.Tpo $(DEPDIR)/vcmiclient-CHexFieldControl.Po
+vcmiclient-Geometries.obj: ./UIFramework/Geometries.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-Geometries.obj -MD -MP -MF $(DEPDIR)/vcmiclient-Geometries.Tpo -c -o vcmiclient-Geometries.obj `if test -f './UIFramework/Geometries.cpp'; then $(CYGPATH_W) './UIFramework/Geometries.cpp'; else $(CYGPATH_W) '$(srcdir)/./UIFramework/Geometries.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-Geometries.Tpo $(DEPDIR)/vcmiclient-Geometries.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CHexFieldControl.cpp' object='vcmiclient-CHexFieldControl.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./UIFramework/Geometries.cpp' object='vcmiclient-Geometries.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CHexFieldControl.obj `if test -f './BattleInterface/CHexFieldControl.cpp'; then $(CYGPATH_W) './BattleInterface/CHexFieldControl.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CHexFieldControl.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-Geometries.obj `if test -f './UIFramework/Geometries.cpp'; then $(CYGPATH_W) './UIFramework/Geometries.cpp'; else $(CYGPATH_W) '$(srcdir)/./UIFramework/Geometries.cpp'; fi`
 
-vcmiclient-CMeleeAttackAnimation.o: ./BattleInterface/CMeleeAttackAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMeleeAttackAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CMeleeAttackAnimation.Tpo -c -o vcmiclient-CMeleeAttackAnimation.o `test -f './BattleInterface/CMeleeAttackAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CMeleeAttackAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMeleeAttackAnimation.Tpo $(DEPDIR)/vcmiclient-CMeleeAttackAnimation.Po
+vcmiclient-CCursorHandler.o: ./UIFramework/CCursorHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCursorHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CCursorHandler.Tpo -c -o vcmiclient-CCursorHandler.o `test -f './UIFramework/CCursorHandler.cpp' || echo '$(srcdir)/'`./UIFramework/CCursorHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CCursorHandler.Tpo $(DEPDIR)/vcmiclient-CCursorHandler.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CMeleeAttackAnimation.cpp' object='vcmiclient-CMeleeAttackAnimation.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./UIFramework/CCursorHandler.cpp' object='vcmiclient-CCursorHandler.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMeleeAttackAnimation.o `test -f './BattleInterface/CMeleeAttackAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CMeleeAttackAnimation.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCursorHandler.o `test -f './UIFramework/CCursorHandler.cpp' || echo '$(srcdir)/'`./UIFramework/CCursorHandler.cpp
 
-vcmiclient-CMeleeAttackAnimation.obj: ./BattleInterface/CMeleeAttackAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMeleeAttackAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CMeleeAttackAnimation.Tpo -c -o vcmiclient-CMeleeAttackAnimation.obj `if test -f './BattleInterface/CMeleeAttackAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CMeleeAttackAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CMeleeAttackAnimation.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMeleeAttackAnimation.Tpo $(DEPDIR)/vcmiclient-CMeleeAttackAnimation.Po
+vcmiclient-CCursorHandler.obj: ./UIFramework/CCursorHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCursorHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CCursorHandler.Tpo -c -o vcmiclient-CCursorHandler.obj `if test -f './UIFramework/CCursorHandler.cpp'; then $(CYGPATH_W) './UIFramework/CCursorHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/./UIFramework/CCursorHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CCursorHandler.Tpo $(DEPDIR)/vcmiclient-CCursorHandler.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CMeleeAttackAnimation.cpp' object='vcmiclient-CMeleeAttackAnimation.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./UIFramework/CCursorHandler.cpp' object='vcmiclient-CCursorHandler.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMeleeAttackAnimation.obj `if test -f './BattleInterface/CMeleeAttackAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CMeleeAttackAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CMeleeAttackAnimation.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCursorHandler.obj `if test -f './UIFramework/CCursorHandler.cpp'; then $(CYGPATH_W) './UIFramework/CCursorHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/./UIFramework/CCursorHandler.cpp'; fi`
 
-vcmiclient-CMovementAnimation.o: ./BattleInterface/CMovementAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMovementAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CMovementAnimation.Tpo -c -o vcmiclient-CMovementAnimation.o `test -f './BattleInterface/CMovementAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CMovementAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMovementAnimation.Tpo $(DEPDIR)/vcmiclient-CMovementAnimation.Po
+vcmiclient-SDL_Extensions.o: ./UIFramework/SDL_Extensions.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-SDL_Extensions.o -MD -MP -MF $(DEPDIR)/vcmiclient-SDL_Extensions.Tpo -c -o vcmiclient-SDL_Extensions.o `test -f './UIFramework/SDL_Extensions.cpp' || echo '$(srcdir)/'`./UIFramework/SDL_Extensions.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-SDL_Extensions.Tpo $(DEPDIR)/vcmiclient-SDL_Extensions.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CMovementAnimation.cpp' object='vcmiclient-CMovementAnimation.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./UIFramework/SDL_Extensions.cpp' object='vcmiclient-SDL_Extensions.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMovementAnimation.o `test -f './BattleInterface/CMovementAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CMovementAnimation.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-SDL_Extensions.o `test -f './UIFramework/SDL_Extensions.cpp' || echo '$(srcdir)/'`./UIFramework/SDL_Extensions.cpp
 
-vcmiclient-CMovementAnimation.obj: ./BattleInterface/CMovementAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMovementAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CMovementAnimation.Tpo -c -o vcmiclient-CMovementAnimation.obj `if test -f './BattleInterface/CMovementAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CMovementAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CMovementAnimation.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMovementAnimation.Tpo $(DEPDIR)/vcmiclient-CMovementAnimation.Po
+vcmiclient-SDL_Extensions.obj: ./UIFramework/SDL_Extensions.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-SDL_Extensions.obj -MD -MP -MF $(DEPDIR)/vcmiclient-SDL_Extensions.Tpo -c -o vcmiclient-SDL_Extensions.obj `if test -f './UIFramework/SDL_Extensions.cpp'; then $(CYGPATH_W) './UIFramework/SDL_Extensions.cpp'; else $(CYGPATH_W) '$(srcdir)/./UIFramework/SDL_Extensions.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-SDL_Extensions.Tpo $(DEPDIR)/vcmiclient-SDL_Extensions.Po
 @am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CMovementAnimation.cpp' object='vcmiclient-CMovementAnimation.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./UIFramework/SDL_Extensions.cpp' object='vcmiclient-SDL_Extensions.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMovementAnimation.obj `if test -f './BattleInterface/CMovementAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CMovementAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CMovementAnimation.cpp'; fi`
-
-vcmiclient-CMovementEndAnimation.o: ./BattleInterface/CMovementEndAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMovementEndAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CMovementEndAnimation.Tpo -c -o vcmiclient-CMovementEndAnimation.o `test -f './BattleInterface/CMovementEndAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CMovementEndAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMovementEndAnimation.Tpo $(DEPDIR)/vcmiclient-CMovementEndAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CMovementEndAnimation.cpp' object='vcmiclient-CMovementEndAnimation.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMovementEndAnimation.o `test -f './BattleInterface/CMovementEndAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CMovementEndAnimation.cpp
-
-vcmiclient-CMovementEndAnimation.obj: ./BattleInterface/CMovementEndAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMovementEndAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CMovementEndAnimation.Tpo -c -o vcmiclient-CMovementEndAnimation.obj `if test -f './BattleInterface/CMovementEndAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CMovementEndAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CMovementEndAnimation.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMovementEndAnimation.Tpo $(DEPDIR)/vcmiclient-CMovementEndAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CMovementEndAnimation.cpp' object='vcmiclient-CMovementEndAnimation.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMovementEndAnimation.obj `if test -f './BattleInterface/CMovementEndAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CMovementEndAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CMovementEndAnimation.cpp'; fi`
-
-vcmiclient-CMovementStartAnimation.o: ./BattleInterface/CMovementStartAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMovementStartAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CMovementStartAnimation.Tpo -c -o vcmiclient-CMovementStartAnimation.o `test -f './BattleInterface/CMovementStartAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CMovementStartAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMovementStartAnimation.Tpo $(DEPDIR)/vcmiclient-CMovementStartAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CMovementStartAnimation.cpp' object='vcmiclient-CMovementStartAnimation.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMovementStartAnimation.o `test -f './BattleInterface/CMovementStartAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CMovementStartAnimation.cpp
-
-vcmiclient-CMovementStartAnimation.obj: ./BattleInterface/CMovementStartAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CMovementStartAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CMovementStartAnimation.Tpo -c -o vcmiclient-CMovementStartAnimation.obj `if test -f './BattleInterface/CMovementStartAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CMovementStartAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CMovementStartAnimation.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CMovementStartAnimation.Tpo $(DEPDIR)/vcmiclient-CMovementStartAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CMovementStartAnimation.cpp' object='vcmiclient-CMovementStartAnimation.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CMovementStartAnimation.obj `if test -f './BattleInterface/CMovementStartAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CMovementStartAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CMovementStartAnimation.cpp'; fi`
-
-vcmiclient-CReverseAnimation.o: ./BattleInterface/CReverseAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CReverseAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CReverseAnimation.Tpo -c -o vcmiclient-CReverseAnimation.o `test -f './BattleInterface/CReverseAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CReverseAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CReverseAnimation.Tpo $(DEPDIR)/vcmiclient-CReverseAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CReverseAnimation.cpp' object='vcmiclient-CReverseAnimation.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CReverseAnimation.o `test -f './BattleInterface/CReverseAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CReverseAnimation.cpp
-
-vcmiclient-CReverseAnimation.obj: ./BattleInterface/CReverseAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CReverseAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CReverseAnimation.Tpo -c -o vcmiclient-CReverseAnimation.obj `if test -f './BattleInterface/CReverseAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CReverseAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CReverseAnimation.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CReverseAnimation.Tpo $(DEPDIR)/vcmiclient-CReverseAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CReverseAnimation.cpp' object='vcmiclient-CReverseAnimation.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CReverseAnimation.obj `if test -f './BattleInterface/CReverseAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CReverseAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CReverseAnimation.cpp'; fi`
-
-vcmiclient-CShootingAnimation.o: ./BattleInterface/CShootingAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CShootingAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CShootingAnimation.Tpo -c -o vcmiclient-CShootingAnimation.o `test -f './BattleInterface/CShootingAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CShootingAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CShootingAnimation.Tpo $(DEPDIR)/vcmiclient-CShootingAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CShootingAnimation.cpp' object='vcmiclient-CShootingAnimation.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CShootingAnimation.o `test -f './BattleInterface/CShootingAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CShootingAnimation.cpp
-
-vcmiclient-CShootingAnimation.obj: ./BattleInterface/CShootingAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CShootingAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CShootingAnimation.Tpo -c -o vcmiclient-CShootingAnimation.obj `if test -f './BattleInterface/CShootingAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CShootingAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CShootingAnimation.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CShootingAnimation.Tpo $(DEPDIR)/vcmiclient-CShootingAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CShootingAnimation.cpp' object='vcmiclient-CShootingAnimation.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CShootingAnimation.obj `if test -f './BattleInterface/CShootingAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CShootingAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CShootingAnimation.cpp'; fi`
-
-vcmiclient-CSpellEffectAnimation.o: ./BattleInterface/CSpellEffectAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CSpellEffectAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CSpellEffectAnimation.Tpo -c -o vcmiclient-CSpellEffectAnimation.o `test -f './BattleInterface/CSpellEffectAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CSpellEffectAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CSpellEffectAnimation.Tpo $(DEPDIR)/vcmiclient-CSpellEffectAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CSpellEffectAnimation.cpp' object='vcmiclient-CSpellEffectAnimation.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CSpellEffectAnimation.o `test -f './BattleInterface/CSpellEffectAnimation.cpp' || echo '$(srcdir)/'`./BattleInterface/CSpellEffectAnimation.cpp
-
-vcmiclient-CSpellEffectAnimation.obj: ./BattleInterface/CSpellEffectAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CSpellEffectAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CSpellEffectAnimation.Tpo -c -o vcmiclient-CSpellEffectAnimation.obj `if test -f './BattleInterface/CSpellEffectAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CSpellEffectAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CSpellEffectAnimation.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CSpellEffectAnimation.Tpo $(DEPDIR)/vcmiclient-CSpellEffectAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CSpellEffectAnimation.cpp' object='vcmiclient-CSpellEffectAnimation.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CSpellEffectAnimation.obj `if test -f './BattleInterface/CSpellEffectAnimation.cpp'; then $(CYGPATH_W) './BattleInterface/CSpellEffectAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CSpellEffectAnimation.cpp'; fi`
-
-vcmiclient-CStackQueue.o: ./BattleInterface/CStackQueue.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CStackQueue.o -MD -MP -MF $(DEPDIR)/vcmiclient-CStackQueue.Tpo -c -o vcmiclient-CStackQueue.o `test -f './BattleInterface/CStackQueue.cpp' || echo '$(srcdir)/'`./BattleInterface/CStackQueue.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CStackQueue.Tpo $(DEPDIR)/vcmiclient-CStackQueue.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CStackQueue.cpp' object='vcmiclient-CStackQueue.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CStackQueue.o `test -f './BattleInterface/CStackQueue.cpp' || echo '$(srcdir)/'`./BattleInterface/CStackQueue.cpp
-
-vcmiclient-CStackQueue.obj: ./BattleInterface/CStackQueue.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CStackQueue.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CStackQueue.Tpo -c -o vcmiclient-CStackQueue.obj `if test -f './BattleInterface/CStackQueue.cpp'; then $(CYGPATH_W) './BattleInterface/CStackQueue.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CStackQueue.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CStackQueue.Tpo $(DEPDIR)/vcmiclient-CStackQueue.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./BattleInterface/CStackQueue.cpp' object='vcmiclient-CStackQueue.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CStackQueue.obj `if test -f './BattleInterface/CStackQueue.cpp'; then $(CYGPATH_W) './BattleInterface/CStackQueue.cpp'; else $(CYGPATH_W) '$(srcdir)/./BattleInterface/CStackQueue.cpp'; fi`
-
-vcmiclient-AdventureMapButton.o: AdventureMapButton.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-AdventureMapButton.o -MD -MP -MF $(DEPDIR)/vcmiclient-AdventureMapButton.Tpo -c -o vcmiclient-AdventureMapButton.o `test -f 'AdventureMapButton.cpp' || echo '$(srcdir)/'`AdventureMapButton.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-AdventureMapButton.Tpo $(DEPDIR)/vcmiclient-AdventureMapButton.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='AdventureMapButton.cpp' object='vcmiclient-AdventureMapButton.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-AdventureMapButton.o `test -f 'AdventureMapButton.cpp' || echo '$(srcdir)/'`AdventureMapButton.cpp
-
-vcmiclient-AdventureMapButton.obj: AdventureMapButton.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-AdventureMapButton.obj -MD -MP -MF $(DEPDIR)/vcmiclient-AdventureMapButton.Tpo -c -o vcmiclient-AdventureMapButton.obj `if test -f 'AdventureMapButton.cpp'; then $(CYGPATH_W) 'AdventureMapButton.cpp'; else $(CYGPATH_W) '$(srcdir)/AdventureMapButton.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-AdventureMapButton.Tpo $(DEPDIR)/vcmiclient-AdventureMapButton.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='AdventureMapButton.cpp' object='vcmiclient-AdventureMapButton.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-AdventureMapButton.obj `if test -f 'AdventureMapButton.cpp'; then $(CYGPATH_W) 'AdventureMapButton.cpp'; else $(CYGPATH_W) '$(srcdir)/AdventureMapButton.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-SDL_Extensions.obj `if test -f './UIFramework/SDL_Extensions.cpp'; then $(CYGPATH_W) './UIFramework/SDL_Extensions.cpp'; else $(CYGPATH_W) '$(srcdir)/./UIFramework/SDL_Extensions.cpp'; fi`
 
 vcmiclient-CAdvmapInterface.o: CAdvmapInterface.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CAdvmapInterface.o -MD -MP -MF $(DEPDIR)/vcmiclient-CAdvmapInterface.Tpo -c -o vcmiclient-CAdvmapInterface.o `test -f 'CAdvmapInterface.cpp' || echo '$(srcdir)/'`CAdvmapInterface.cpp
@@ -977,22 +756,6 @@ vcmiclient-CConfigHandler.obj: CConfigHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CConfigHandler.obj `if test -f 'CConfigHandler.cpp'; then $(CYGPATH_W) 'CConfigHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CConfigHandler.cpp'; fi`
 
-vcmiclient-CCreatureAnimation.o: CCreatureAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCreatureAnimation.o -MD -MP -MF $(DEPDIR)/vcmiclient-CCreatureAnimation.Tpo -c -o vcmiclient-CCreatureAnimation.o `test -f 'CCreatureAnimation.cpp' || echo '$(srcdir)/'`CCreatureAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CCreatureAnimation.Tpo $(DEPDIR)/vcmiclient-CCreatureAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CCreatureAnimation.cpp' object='vcmiclient-CCreatureAnimation.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCreatureAnimation.o `test -f 'CCreatureAnimation.cpp' || echo '$(srcdir)/'`CCreatureAnimation.cpp
-
-vcmiclient-CCreatureAnimation.obj: CCreatureAnimation.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCreatureAnimation.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CCreatureAnimation.Tpo -c -o vcmiclient-CCreatureAnimation.obj `if test -f 'CCreatureAnimation.cpp'; then $(CYGPATH_W) 'CCreatureAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/CCreatureAnimation.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CCreatureAnimation.Tpo $(DEPDIR)/vcmiclient-CCreatureAnimation.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CCreatureAnimation.cpp' object='vcmiclient-CCreatureAnimation.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCreatureAnimation.obj `if test -f 'CCreatureAnimation.cpp'; then $(CYGPATH_W) 'CCreatureAnimation.cpp'; else $(CYGPATH_W) '$(srcdir)/CCreatureAnimation.cpp'; fi`
-
 vcmiclient-CCreatureWindow.o: CCreatureWindow.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCreatureWindow.o -MD -MP -MF $(DEPDIR)/vcmiclient-CCreatureWindow.Tpo -c -o vcmiclient-CCreatureWindow.o `test -f 'CCreatureWindow.cpp' || echo '$(srcdir)/'`CCreatureWindow.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CCreatureWindow.Tpo $(DEPDIR)/vcmiclient-CCreatureWindow.Po
@@ -1008,22 +771,6 @@ vcmiclient-CCreatureWindow.obj: CCreatureWindow.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CCreatureWindow.cpp' object='vcmiclient-CCreatureWindow.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCreatureWindow.obj `if test -f 'CCreatureWindow.cpp'; then $(CYGPATH_W) 'CCreatureWindow.cpp'; else $(CYGPATH_W) '$(srcdir)/CCreatureWindow.cpp'; fi`
-
-vcmiclient-CCursorHandler.o: CCursorHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCursorHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CCursorHandler.Tpo -c -o vcmiclient-CCursorHandler.o `test -f 'CCursorHandler.cpp' || echo '$(srcdir)/'`CCursorHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CCursorHandler.Tpo $(DEPDIR)/vcmiclient-CCursorHandler.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CCursorHandler.cpp' object='vcmiclient-CCursorHandler.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCursorHandler.o `test -f 'CCursorHandler.cpp' || echo '$(srcdir)/'`CCursorHandler.cpp
-
-vcmiclient-CCursorHandler.obj: CCursorHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCursorHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CCursorHandler.Tpo -c -o vcmiclient-CCursorHandler.obj `if test -f 'CCursorHandler.cpp'; then $(CYGPATH_W) 'CCursorHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CCursorHandler.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CCursorHandler.Tpo $(DEPDIR)/vcmiclient-CCursorHandler.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CCursorHandler.cpp' object='vcmiclient-CCursorHandler.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCursorHandler.obj `if test -f 'CCursorHandler.cpp'; then $(CYGPATH_W) 'CCursorHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CCursorHandler.cpp'; fi`
 
 vcmiclient-CDefHandler.o: CDefHandler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CDefHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CDefHandler.Tpo -c -o vcmiclient-CDefHandler.o `test -f 'CDefHandler.cpp' || echo '$(srcdir)/'`CDefHandler.cpp
@@ -1249,22 +996,6 @@ vcmiclient-Graphics.obj: Graphics.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-Graphics.obj `if test -f 'Graphics.cpp'; then $(CYGPATH_W) 'Graphics.cpp'; else $(CYGPATH_W) '$(srcdir)/Graphics.cpp'; fi`
 
-vcmiclient-GUIBase.o: GUIBase.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-GUIBase.o -MD -MP -MF $(DEPDIR)/vcmiclient-GUIBase.Tpo -c -o vcmiclient-GUIBase.o `test -f 'GUIBase.cpp' || echo '$(srcdir)/'`GUIBase.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-GUIBase.Tpo $(DEPDIR)/vcmiclient-GUIBase.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='GUIBase.cpp' object='vcmiclient-GUIBase.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-GUIBase.o `test -f 'GUIBase.cpp' || echo '$(srcdir)/'`GUIBase.cpp
-
-vcmiclient-GUIBase.obj: GUIBase.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-GUIBase.obj -MD -MP -MF $(DEPDIR)/vcmiclient-GUIBase.Tpo -c -o vcmiclient-GUIBase.obj `if test -f 'GUIBase.cpp'; then $(CYGPATH_W) 'GUIBase.cpp'; else $(CYGPATH_W) '$(srcdir)/GUIBase.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-GUIBase.Tpo $(DEPDIR)/vcmiclient-GUIBase.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='GUIBase.cpp' object='vcmiclient-GUIBase.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-GUIBase.obj `if test -f 'GUIBase.cpp'; then $(CYGPATH_W) 'GUIBase.cpp'; else $(CYGPATH_W) '$(srcdir)/GUIBase.cpp'; fi`
-
 vcmiclient-GUIClasses.o: GUIClasses.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-GUIClasses.o -MD -MP -MF $(DEPDIR)/vcmiclient-GUIClasses.Tpo -c -o vcmiclient-GUIClasses.o `test -f 'GUIClasses.cpp' || echo '$(srcdir)/'`GUIClasses.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-GUIClasses.Tpo $(DEPDIR)/vcmiclient-GUIClasses.Po
@@ -1312,38 +1043,6 @@ vcmiclient-NetPacksClient.obj: NetPacksClient.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='NetPacksClient.cpp' object='vcmiclient-NetPacksClient.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-NetPacksClient.obj `if test -f 'NetPacksClient.cpp'; then $(CYGPATH_W) 'NetPacksClient.cpp'; else $(CYGPATH_W) '$(srcdir)/NetPacksClient.cpp'; fi`
-
-vcmiclient-SDL_Extensions.o: SDL_Extensions.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-SDL_Extensions.o -MD -MP -MF $(DEPDIR)/vcmiclient-SDL_Extensions.Tpo -c -o vcmiclient-SDL_Extensions.o `test -f 'SDL_Extensions.cpp' || echo '$(srcdir)/'`SDL_Extensions.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-SDL_Extensions.Tpo $(DEPDIR)/vcmiclient-SDL_Extensions.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SDL_Extensions.cpp' object='vcmiclient-SDL_Extensions.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-SDL_Extensions.o `test -f 'SDL_Extensions.cpp' || echo '$(srcdir)/'`SDL_Extensions.cpp
-
-vcmiclient-SDL_Extensions.obj: SDL_Extensions.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-SDL_Extensions.obj -MD -MP -MF $(DEPDIR)/vcmiclient-SDL_Extensions.Tpo -c -o vcmiclient-SDL_Extensions.obj `if test -f 'SDL_Extensions.cpp'; then $(CYGPATH_W) 'SDL_Extensions.cpp'; else $(CYGPATH_W) '$(srcdir)/SDL_Extensions.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-SDL_Extensions.Tpo $(DEPDIR)/vcmiclient-SDL_Extensions.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SDL_Extensions.cpp' object='vcmiclient-SDL_Extensions.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-SDL_Extensions.obj `if test -f 'SDL_Extensions.cpp'; then $(CYGPATH_W) 'SDL_Extensions.cpp'; else $(CYGPATH_W) '$(srcdir)/SDL_Extensions.cpp'; fi`
-
-vcmiclient-SDL_framerate.o: SDL_framerate.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-SDL_framerate.o -MD -MP -MF $(DEPDIR)/vcmiclient-SDL_framerate.Tpo -c -o vcmiclient-SDL_framerate.o `test -f 'SDL_framerate.cpp' || echo '$(srcdir)/'`SDL_framerate.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-SDL_framerate.Tpo $(DEPDIR)/vcmiclient-SDL_framerate.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SDL_framerate.cpp' object='vcmiclient-SDL_framerate.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-SDL_framerate.o `test -f 'SDL_framerate.cpp' || echo '$(srcdir)/'`SDL_framerate.cpp
-
-vcmiclient-SDL_framerate.obj: SDL_framerate.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-SDL_framerate.obj -MD -MP -MF $(DEPDIR)/vcmiclient-SDL_framerate.Tpo -c -o vcmiclient-SDL_framerate.obj `if test -f 'SDL_framerate.cpp'; then $(CYGPATH_W) 'SDL_framerate.cpp'; else $(CYGPATH_W) '$(srcdir)/SDL_framerate.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-SDL_framerate.Tpo $(DEPDIR)/vcmiclient-SDL_framerate.Po
-@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='SDL_framerate.cpp' object='vcmiclient-SDL_framerate.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-SDL_framerate.obj `if test -f 'SDL_framerate.cpp'; then $(CYGPATH_W) 'SDL_framerate.cpp'; else $(CYGPATH_W) '$(srcdir)/SDL_framerate.cpp'; fi`
 
 mostlyclean-libtool:
 	-rm -f *.lo

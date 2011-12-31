@@ -1,6 +1,5 @@
 #include "StdInc.h"
 
-#include "../../AI_Base.h"
 #include "CEmptyAI.h"
 
 std::set<CGlobalAI*> ais;
