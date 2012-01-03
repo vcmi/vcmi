@@ -2140,6 +2140,11 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 
 void CPlayerInterface::acceptTurn()
 {
+	if(conf.cc.autoSkip)
+	{
+		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt()))
+			iw->close();
+	}
 	waitWhileDialog();
 
 	if(howManyPeople > 1)
@@ -2171,24 +2176,47 @@ void CPlayerInterface::acceptTurn()
 		adventureInt->select(towns.front());
 
 	adventureInt->showAll(screen);
+
+	if(conf.cc.autoSkip && !LOCPLINT->shiftPressed())
+	{
+		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt()))
+			iw->close();
+
+		adventureInt->endTurn.callback();
+	}
 }
 
 void CPlayerInterface::tryDiggging(const CGHeroInstance *h)
 {
 	std::string hlp;
-	if(h->movement < h->maxMovePoints(true))
-		showInfoDialog(CGI->generaltexth->allTexts[56]); //"Digging for artifacts requires a whole day, try again tomorrow."
-	else if(cb->getTile(h->getPosition(false))->tertype == TerrainTile::water)
-		showInfoDialog(CGI->generaltexth->allTexts[60]); //Try looking on land!
-	else
+	CGI->mh->getTerrainDescr(h->getPosition(false), hlp, false);
+
+	int msgToShow = -1;
+	CGHeroInstance::ECanDig isDiggingPossible = h->diggingStatus();
+	if(hlp.length())
+		isDiggingPossible = CGHeroInstance::TILE_OCCUPIED; //TODO integrate with canDig
+
+	switch(isDiggingPossible)
 	{
-		const TerrainTile *t = cb->getTile(h->getPosition());
-		CGI->mh->getTerrainDescr(h->getPosition(false), hlp, false);
-		if(hlp.length() || t->blockingObjects.size() > 1)
-			showInfoDialog(CGI->generaltexth->allTexts[97]); //Try searching on clear ground.
-		else
-			cb->dig(h);
+	case CGHeroInstance::CAN_DIG:
+		break;
+	case CGHeroInstance::LACK_OF_MOVEMENT:
+		msgToShow = 56; //"Digging for artifacts requires a whole day, try again tomorrow."
+		break;
+	case CGHeroInstance::TILE_OCCUPIED:
+		msgToShow = 97; //Try searching on clear ground.
+		break;
+	case CGHeroInstance::WRONG_TERRAIN:
+		msgToShow = 60; ////Try looking on land!
+		break;
+	default:
+		assert(0);
 	}
+
+	if(msgToShow < 0)
+		cb->dig(h);
+	else
+		showInfoDialog(CGI->generaltexth->allTexts[msgToShow]);
 }
 
 void CPlayerInterface::updateInfo(const CGObjectInstance * specific)

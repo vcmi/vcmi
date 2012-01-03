@@ -916,7 +916,7 @@ public:
 	~CConnection(void);
 
 	CPack *retreivePack(); //gets from server next pack (allocates it with new)
-	void sendPack(const CPack &pack);
+	void sendPackToServer(const CPack &pack, ui8 player);
 };
 
 DLL_LINKAGE std::ostream &operator<<(std::ostream &str, const CConnection &cpc);

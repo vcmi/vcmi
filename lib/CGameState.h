@@ -217,7 +217,7 @@ struct CPathNode
 	bool visited;
 };
 
-struct CGPathNode
+struct DLL_LINKAGE CGPathNode
 {
 	enum EAccessibility
 	{
@@ -233,7 +233,9 @@ struct CGPathNode
 	ui32 moveRemains;
 	CGPathNode * theNodeBefore;
 	int3 coord; //coordinates
+
 	CGPathNode();
+	bool reachable() const;
 };
 
 
@@ -306,7 +308,7 @@ struct DLL_LINKAGE DuelParameters
 
 class CPathfinder : private CGameInfoCallback
 {
-public:
+private:
 	bool useSubterraneanGates;
 	bool allowEmbarkAndDisembark;
 	CPathsInfo &out;
@@ -323,19 +325,18 @@ public:
 	ui8 useEmbarkCost; //0 - usual movement; 1 - embark; 2 - disembark
 	int destTopVisObjID;
 
-	CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero);;
 
 	CGPathNode *getNode(const int3 &coord);
-
 	void initializeGraph();
-	CGPathNode::EAccessibility evaluateAccessibility(const TerrainTile *tinfo) const;
-
-	void calculatePaths(int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or NULL if path does not exists
-
-	bool canMoveBetween(const int3 &a, const int3 &b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
-	bool canStepOntoDst() const;
 	bool goodForLandSeaTransition(); //checks if current move will be between sea<->land. If so, checks it legality (returns false if movement is not possible) and sets useEmbarkCost
 
+	CGPathNode::EAccessibility evaluateAccessibility(const TerrainTile *tinfo) const;
+	bool canMoveBetween(const int3 &a, const int3 &b) const; //checks only for visitable objects that may make moving between tiles impossible, not other conditions (like tiles itself accessibility)
+	bool canStepOntoDst() const;
+
+public:
+	CPathfinder(CPathsInfo &_out, CGameState *_gs, const CGHeroInstance *_hero);
+	void calculatePaths(int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or NULL if path does not exists
 };
 
 

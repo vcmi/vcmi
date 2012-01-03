@@ -207,7 +207,6 @@ public:
 	//virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
 	//
 	//virtual void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving);
-	virtual void battleStackAttacking(int ID, int dest);
 	virtual void battleStackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting);
 	virtual BattleAction activeStack(const CStack * stack);
 	void battleResultsApplied();

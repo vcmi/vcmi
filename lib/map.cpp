@@ -2222,3 +2222,8 @@ bool TerrainTile::hasFavourableWinds() const
 {
 	return siodmyTajemniczyBajt & 128;
 }
+
+bool TerrainTile::isWater() const
+{
+	return tertype == water;
+}

@@ -1353,14 +1353,6 @@ void CGeniusAI::battleSpellCast(const BattleSpellCast *sc)
 // }
 
 
-/**
- *
- */
-void CGeniusAI::battleStackAttacking(int ID, int dest)
-{
-	DbgBox("\t\t\tCGeniusAI::battleStackAttacking");
-}
-
 
 /**
  *
@@ -1386,9 +1378,11 @@ BattleAction CGeniusAI::activeStack(const CStack * stack)
 	message += ")";
 	DbgBox(message.c_str());
 
-	BattleAction bact = m_battleLogic->MakeDecision(stack->ID);
-	assert(m_cb->battleGetStackByID(bact.stackNumber));
-	return bact;
+ 	return BattleAction::makeDefend(stack);
+// 
+// 	BattleAction bact = m_battleLogic->MakeDecision(stack->ID);
+// 	assert(m_cb->battleGetStackByID(bact.stackNumber));
+// 	return bact;
 }
 
 

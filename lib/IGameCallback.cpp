@@ -1253,6 +1253,11 @@ int CGameInfoCallback::getLocalPlayer() const
 	return getCurrentPlayer();
 }
 
+bool CGameInfoCallback::isInTheMap(const int3 &pos) const
+{
+	return gs->map->isInTheMap(pos);
+}
+
 void IGameEventRealizer::showInfoDialog( InfoWindow *iw )
 {
 	commitPackage(iw);

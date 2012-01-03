@@ -123,11 +123,11 @@ public:
 
 class DLL_LINKAGE IMarket
 {
-	virtual int getMarketEfficiency() const =0;
 public:
 	const CGObjectInstance *o;
 
 	IMarket(const CGObjectInstance *O);
+	virtual int getMarketEfficiency() const =0;
 	virtual bool allowsTrade(EMarketMode::EMarketMode mode) const;
 	virtual int availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const; //-1 if unlimited
 	virtual std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
@@ -256,6 +256,10 @@ public:
 		SCHOLAR, TACTICS, ARTILLERY, LEARNING, OFFENCE, ARMORER, INTELLIGENCE, SORCERY, RESISTANCE,
 		FIRST_AID
 	};
+	enum ECanDig
+	{
+		CAN_DIG, LACK_OF_MOVEMENT, WRONG_TERRAIN, TILE_OCCUPIED
+	};
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 moveDir; //format:	123
@@ -366,6 +370,7 @@ public:
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
 	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
+	ECanDig diggingStatus() const; //0 - can dig; 1 - lack of movement; 2 - 
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -607,6 +612,7 @@ public:
 	GrowthInfo getGrowthInfo(int level) const;
 	bool hasFort() const;
 	bool hasCapitol() const;
+	bool hasBuilt(int buildingID) const;
 	int dailyIncome() const; //calculates daily income of this town
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 	void removeCapitols (ui8 owner) const;

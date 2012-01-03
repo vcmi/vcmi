@@ -710,7 +710,6 @@ void EndAction::applyCl( CClient *cl )
 
 void PackageApplied::applyCl( CClient *cl )
 {
-	ui8 player = GS(cl)->currentPlayer;
 	INTERFACE_CALL_IF_PRESENT(player, requestRealized, this);
 	if(cl->waitingRequest.get() == packType)
 		cl->waitingRequest.setn(false);
@@ -811,6 +810,8 @@ void OpenWindow::applyCl(CClient *cl)
 	case THIEVES_GUILD:
 		{
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
+			if(!LOCPLINT)
+				return;
 			const CGObjectInstance *obj = cl->getObj(id1);
 			GH.pushInt( new CThievesGuildWindow(obj) );
 		}

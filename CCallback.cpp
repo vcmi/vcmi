@@ -58,9 +58,7 @@ void CCallback::selectionMade(int selection, int asker)
 {
 	QueryReply pack(asker,selection);
 	pack.player = player;
-
-	boost::unique_lock<boost::mutex> lock(*cl->serv->wmx);
-	*cl->serv << &pack;
+	cl->serv->sendPackToServer(pack, player);
 }
 void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount, si32 level/*=-1*/)
 {
@@ -192,7 +190,7 @@ void CBattleCallback::sendRequest(const CPack* request)
 	if(waitTillRealize)
 		cl->waitingRequest.set(typeList.getTypeID(request));
 
-	cl->serv->sendPack(*request);
+	cl->serv->sendPackToServer(*request, player);
 
 	if(waitTillRealize)
 	{

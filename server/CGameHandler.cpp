@@ -53,6 +53,7 @@ extern bool end2;
 
 #define COMPLAIN_RET_IF(cond, txt) do {if(cond){complain(txt); return;}} while(0)
 #define COMPLAIN_RET(txt) {complain(txt); return false;}
+#define COMPLAIN_RETF(txt, FORMAT) {complain(boost::str(boost::format(txt) % FORMAT)); return false;}
 #define NEW_ROUND 		BattleNextRound bnr;\
 		bnr.round = gs->curB->round + 1;\
 		sendAndApply(&bnr);
@@ -67,7 +68,7 @@ template <typename T> class CApplyOnGH;
 class CBaseForGHApply
 {
 public:
-	virtual bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack) const =0; 
+	virtual bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack, ui8 player) const =0; 
 	virtual ~CBaseForGHApply(){}
 	template<typename U> static CBaseForGHApply *getApplier(const U * t=NULL)
 	{
@@ -78,10 +79,11 @@ public:
 template <typename T> class CApplyOnGH : public CBaseForGHApply
 {
 public:
-	bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack) const
+	bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack, ui8 player) const
 	{
 		T *ptr = static_cast<T*>(pack);
 		ptr->c = c;
+		ptr->player = player;
 		return ptr->applyGh(gh);
 	}
 };
@@ -121,7 +123,8 @@ void PlayerStatuses::addPlayer(ui8 player)
 	boost::unique_lock<boost::mutex> l(mx);
 	players[player];
 }
-bool PlayerStatuses::hasQueries(ui8 player)
+
+int PlayerStatuses::getQueriesCount(ui8 player)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
@@ -130,9 +133,10 @@ bool PlayerStatuses::hasQueries(ui8 player)
 	}
 	else
 	{
-		throw std::string("No such player!");
+		return 0;
 	}
 }
+
 bool PlayerStatuses::checkFlag(ui8 player, bool PlayerStatus::*flag)
 {
 	boost::unique_lock<boost::mutex> l(mx);
@@ -624,24 +628,26 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 	setThreadName(-1, "CGameHandler::handleConnection");
 	srand(time(NULL));
 	CPack *pack = NULL;
+	ui8 player = 255;
 	try
 	{
 		while(1)//server should never shut connection first //was: while(!end2)
 		{
 			{
 				boost::unique_lock<boost::mutex> lock(*c.rmx);
-				c >> pack; //get the package
+				c >> player >> pack; //get the package
 				tlog5 << "Received client message of type " << typeid(*pack).name() << std::endl;
 			}
 
 			int packType = typeList.getTypeID(pack); //get the id of type
 			CBaseForGHApply *apply = applier->apps[packType]; //and appropriae applier object
-			if(packType != typeList.getTypeID<QueryReply>() &&
-			   (packType != typeList.getTypeID<ArrangeStacks>() || !isAllowedArrangePack((ArrangeStacks*)pack)) && // for dialogs like garrison
-			   states[getCurrentPlayer()].queries.size())
+			if(packType != typeList.getTypeID<QueryReply>() 
+				&&   (packType != typeList.getTypeID<ArrangeStacks>() || !isAllowedArrangePack((ArrangeStacks*)pack)) // for dialogs like garrison
+				&&   states.getQueriesCount(player))
 			{
-				complain("Answer the query before attempting any further actions!");
+				complain(boost::str(boost::format("Player %d has to answer queries  before attempting any further actions (count=%d)!") % (int)player % states.getQueriesCount(player)));
 				PackageApplied applied;
+				applied.player = player;
 				applied.result = false;
 				applied.packType = packType;
 				{
@@ -651,11 +657,12 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			}
 			else if(apply)
 			{
-				bool result = apply->applyOnGH(this,&c,pack);
+				bool result = apply->applyOnGH(this,&c,pack, player);
 				tlog5 << "Message successfully applied (result=" << result << ")!\n";
 
 				//send confirmation that we've applied the package
 				PackageApplied applied;
+				applied.player = player;
 				applied.result = result;
 				applied.packType = packType;
 				{
@@ -669,6 +676,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			}
 			delete pack;
 			pack = NULL;
+			player = 255;
 		}
 	}
 	catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
@@ -3544,7 +3552,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	}
 
 	//checking if creatures resist
-	sc.resisted = gs->curB->calculateResistedStacks(spell, caster, secHero, attackedCres, casterColor, mode);
+	sc.resisted = gs->curB->calculateResistedStacks(spell, caster, secHero, attackedCres, casterColor, mode, usedSpellPower, spellLvl);
 
 	//calculating dmg to display
 	for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
@@ -3775,7 +3783,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 						hi.healedHP = gs->curB->calculateHealedHP(hpGained, spell, *it);
 					}
 					else
-						hi.healedHP = gs->curB->calculateHealedHP(spell, usedSpellPower, stack->getBonus(Selector::typeSubtype(Bonus::SPELLCASTER, spell->id))->additionalInfo, *it);
+						hi.healedHP = gs->curB->calculateHealedHP(spell, usedSpellPower, spellLvl, *it);
 				}
 				else
 					hi.healedHP = gs->curB->calculateHealedHP(caster, spell, *it);
@@ -3809,16 +3817,20 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			}
 
 			BattleStackAdded bsa;
-
-			bsa.pos = gs->curB->getAvaliableHex(creID, !(bool)casterSide); //TODO: unify it
-
-			bsa.amount = caster->getPrimSkillLevel(2) * VLC->spellh->spells[spellID]->powers[spellLvl] *
-				(100 + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spellID)) / 100.0; //new feature - percentage bonus
-
 			bsa.creID = creID;
 			bsa.attacker = !(bool)casterSide;
 			bsa.summoned = true;
-			sendAndApply(&bsa);
+			bsa.pos = gs->curB->getAvaliableHex(creID, !(bool)casterSide); //TODO: unify it
+
+			//TODO stack casting -> probably power will be zero; set the proper number of creatures manually
+			int percentBonus = caster ? caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spellID) : 0;
+
+			bsa.amount = usedSpellPower * VLC->spellh->spells[spellID]->powers[spellLvl] *
+				(100 + percentBonus) / 100.0; //new feature - percentage bonus
+			if(bsa.amount)
+				sendAndApply(&bsa);
+			else
+				complain("Summoning elementals didn't summon any!");
 		}
 		break;
 	case Spells::REMOVE_OBSTACLE:
@@ -4605,18 +4617,17 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 		}
 	}
 
+	if(h->diggingStatus() != CGHeroInstance::CAN_DIG) //checks for terrain and movement
+		COMPLAIN_RETF("Hero cannot dig (error code %d)!", h->diggingStatus());
+
+	//create a hole
 	NewObject no;
 	no.ID = 124;
 	no.pos = h->getPosition();
 	no.subID = getTile(no.pos)->tertype;
-
-	if(no.subID >= 8) //no digging on water / rock
-	{
-		complain("Cannot dig - wrong terrain type!");
-		return false;
-	}
 	sendAndApply(&no);
-
+	
+	//take MPs
 	SetMovePoints smp;
 	smp.hid = h->id;
 	smp.val = 0;

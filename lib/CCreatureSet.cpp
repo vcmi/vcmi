@@ -210,13 +210,13 @@ ui64 CCreatureSet::getArmyStrength() const
 {
 	ui64 ret = 0;
 	for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); i++)
-		ret += i->second->type->AIValue * i->second->count;
+		ret += i->second->getPower();
 	return ret;
 }
 
 ui64 CCreatureSet::getPower (TSlot slot) const
 {
-	return getCreature(slot)->AIValue * getStackCount(slot);
+	return getStack(slot).getPower();
 }
 std::string CCreatureSet::getRoughAmount (TSlot slot) const
 {
@@ -940,6 +940,12 @@ int CStackInstance::getCreatureID() const
 std::string CStackInstance::getName() const
 {
 	return (count > 1) ? type->namePl : type->nameSing;
+}
+
+ui64 CStackInstance::getPower() const
+{
+	assert(type);
+	return type->AIValue * count;
 }
 
 CStackBasicDescriptor::CStackBasicDescriptor()

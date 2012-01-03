@@ -2203,7 +2203,7 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInst
 	return ESpellCastProblem::OK;
 }
 
-std::vector<ui32> BattleInfo::calculateResistedStacks( const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures, int casterSideOwner, ECastingMode::ECastingMode mode ) const
+std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures, int casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const
 {
 	std::vector<ui32> ret;
 	for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
@@ -2241,7 +2241,7 @@ std::vector<ui32> BattleInfo::calculateResistedStacks( const CSpell * sp, const 
 			if( (*it)->hasBonusOfType(Bonus::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
 				|| ( (*it)->count - 1 ) * (*it)->MaxHealth() + (*it)->firstHPleft 
 		> 
-		caster->getPrimSkillLevel(2) * 25 + sp->powers[caster->getSpellSchoolLevel(sp)]
+		usedSpellPower * 25 + sp->powers[spellLevel]
 			)
 			{
 				ret.push_back((*it)->ID);

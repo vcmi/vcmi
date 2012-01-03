@@ -92,12 +92,6 @@ class DLL_LINKAGE CGlobalAI : public CGameInterface // AI class (to derivate)
 {
 public:
 	CGlobalAI();
-	virtual void yourTurn() OVERRIDE{};
-	virtual void heroKilled(const CGHeroInstance*){};
-	virtual void heroCreated(const CGHeroInstance*) OVERRIDE{};
-	virtual void battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance) OVERRIDE{};
-	virtual void battleStackAttacking(int ID, int dest) {};
-	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa) OVERRIDE{};
 	virtual BattleAction activeStack(const CStack * stack) OVERRIDE;
 };
 

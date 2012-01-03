@@ -60,12 +60,14 @@ struct CPackForClient : public CPack
 
 struct CPackForServer : public CPack
 {
+	ui8 player;
 	CConnection *c;
 	CGameState* GS(CGameHandler *gh);
 	CPackForServer()
 	{
 		type = 2; 
 		c = NULL;
+		player = 255;
 	};
 
 	bool applyGh(CGameHandler *gh);//called after applying to gs
@@ -170,10 +172,11 @@ struct PackageApplied : public CPackForClient //94
 
 	ui8 result; //0 - something went wrong, request hasn't been realized; 1 - OK
 	ui32 packType; //type id of applied package
+	ui8 player;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & result & packType;
+		h & result & packType & player;
 	}
 };
 

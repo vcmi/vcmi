@@ -27,6 +27,7 @@ namespace config
 			defaultPlayerAI, defaultBattleAI; //dll names
 		bool showFPS; //show/hide FPS counter
 		bool classicCreatureWindow;
+		bool autoSkip, oneGoodAI; //for AI testing purposes
 	};
 	
 	struct ButtonInfo

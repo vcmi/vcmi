@@ -1486,6 +1486,25 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 	return 0; //take all MPs otherwise
 }
 
+CGHeroInstance::ECanDig CGHeroInstance::diggingStatus() const
+{
+	std::string hlp;
+	if(movement < maxMovePoints(true))
+		return LACK_OF_MOVEMENT;
+	else if(cb->getTile(getPosition(false))->tertype == TerrainTile::water)
+		return WRONG_TERRAIN;
+	else
+	{
+		const TerrainTile *t = cb->getTile(getPosition());
+		//TODO look for hole
+		//CGI->mh->getTerrainDescr(h->getPosition(false), hlp, false);
+		if(/*hlp.length() || */t->blockingObjects.size() > 1)
+			return TILE_OCCUPIED;
+		else
+			return CAN_DIG;
+	}
+}
+
 void CGDwelling::initObj()
 {
 	switch(ID)
@@ -2390,6 +2409,11 @@ const CArmedInstance * CGTownInstance::getUpperArmy() const
 	if(garrisonHero)
 		return garrisonHero;
 	return this;
+}
+
+bool CGTownInstance::hasBuilt(int buildingID) const
+{
+	return vstd::contains(builtBuildings, buildingID);
 }
 
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const

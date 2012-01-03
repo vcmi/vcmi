@@ -67,6 +67,8 @@ struct DLL_LINKAGE TerrainTile
 	bool isClear(const TerrainTile *from = NULL) const; //checks for blocking objs and terraint type (water / land)
 	int topVisitableID() const; //returns ID of the top visitable ovject or -1 if there is none
 
+	bool isWater() const;
+
 	bool isCoastal() const;
 	bool hasFavourableWinds() const;
 };

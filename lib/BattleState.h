@@ -135,7 +135,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode
 	TSpell getRandomBeneficialSpell(const CStack * subject) const;
 	TSpell getRandomCastedSpell(const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 
-	std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures, int casterSideOwner, ECastingMode::ECastingMode mode) const;
+	std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures, int casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const;
 
 
 	bool battleCanFlee(int player) const; //returns true if player can flee from the battle

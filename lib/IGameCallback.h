@@ -189,7 +189,8 @@ public:
 	int3 guardingCreaturePosition (int3 pos) const;
 	const CMapHeader * getMapHeader()const;
 	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
-	const TerrainTile * getTile(int3 tile, bool verbose = true) const;	
+	const TerrainTile * getTile(int3 tile, bool verbose = true) const;
+	bool isInTheMap(const int3 &pos) const;
 
 	//town
 	const CGTownInstance* getTown(int objid) const;

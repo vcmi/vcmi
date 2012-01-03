@@ -59,7 +59,7 @@ public:
 
 	void addPlayer(ui8 player);
 	PlayerStatus operator[](ui8 player);
-	bool hasQueries(ui8 player);
+	int getQueriesCount(ui8 player); //returns 0 if there is no such player
 	bool checkFlag(ui8 player, bool PlayerStatus::*flag);
 	void setFlag(ui8 player, bool PlayerStatus::*flag, bool val);
 	void addQuery(ui8 player, ui32 id);

@@ -48,6 +48,7 @@ public:
 	std::string bonusToString(Bonus *bonus, bool description) const; // how would bonus description look for this particular type of node
 	std::string bonusToGraphics(Bonus *bonus) const; //file name of graphics from StackSkills , in future possibly others
 
+	ui64 getPower() const;
 	int getQuantityID() const;
 	std::string getQuantityTXT(bool capitalized = true) const;
 	int getExpRank() const;

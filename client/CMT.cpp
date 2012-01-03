@@ -93,6 +93,20 @@ void startGame(StartInfo * options, CConnection *serv = NULL);
 #include <getopt.h>
 #endif
 
+void startGameFromFile(const std::string &fname)
+{
+	if(fname.size() && boost::filesystem::exists(fname))
+	{
+		StartInfo si;
+		CLoadFile out(fname);
+		out >> si;
+		while(GH.topInt())
+			GH.popIntTotally(GH.topInt());
+
+		startGame(&si);
+	}
+}
+
 void init()
 {
 	CStopWatch tmh, pomtime;
@@ -164,16 +178,17 @@ static void prog_version(void)
 	printf("  binary directory:  %s\n", GameConstants::BIN_DIR.c_str());
 }
 
-static void prog_help(const char *progname)
+static void prog_help(const po::options_description &opts)
 {
 	printf("%s - A Heroes of Might and Magic 3 clone\n", GameConstants::VCMI_VERSION.c_str());
-    printf("Copyright (C) 2007-2010 VCMI dev team - see AUTHORS file\n");
+    printf("Copyright (C) 2007-2012 VCMI dev team - see AUTHORS file\n");
     printf("This is free software; see the source for copying conditions. There is NO\n");
     printf("warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n");
 	printf("\n");
 	printf("Usage:\n");
-	printf("  -h, --help        display this help and exit\n");
-	printf("  -v, --version     display version information and exit\n");
+	std::cout << opts;
+// 	printf("  -h, --help        display this help and exit\n");
+// 	printf("  -v, --version     display version information and exit\n");
 }
 
 
@@ -189,6 +204,10 @@ int main(int argc, char** argv)
 		("help,h", "display help and exit")
 		("version,v", "display version information and exit")
 		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only")
+		("start", po::value<std::string>(), "starts game from saved StartInfo file")
+		("onlyAI", "runs without GUI, all players will be default AI")
+		("oneGoodAI", "puts one default AI and the rest will be GeniusAI")
+		("autoSkip", "automatically skip turns in GUI")
 		("nointro,i", "skips intro movies");
 
 	po::variables_map vm;
@@ -207,7 +226,7 @@ int main(int argc, char** argv)
 	po::notify(vm);
 	if(vm.count("help"))
 	{
-		prog_help(0);
+		prog_help(opts);
 		return 0;
 	}
 	if(vm.count("version"))
@@ -269,8 +288,15 @@ int main(int argc, char** argv)
 
 	if(!vm.count("battle"))
 	{
-		//CCS->musich->playMusic(musicBase::mainMenu, -1);
-		GH.curInt = new CGPreGame; //will set CGP pointer to itself
+		gOnlyAI = vm.count("onlyAI");
+		conf.cc.autoSkip = vm.count("autoSkip");
+		conf.cc.oneGoodAI = vm.count("oneGoodAI");
+
+
+		if(!vm.count("start"))
+			GH.curInt = new CGPreGame; //will set CGP pointer to itself
+		else
+			startGameFromFile(vm["start"].as<std::string>());
 	}
 	else
 	{
@@ -507,6 +533,22 @@ void processCommand(const std::string &message)
 	else if (cn == "switchCreWin" )
 	{
 		conf.cc.classicCreatureWindow = !conf.cc.classicCreatureWindow;
+	}
+	else if(cn == "sinfo")
+	{
+		std::string fname;
+		readed >> fname;
+		if(fname.size() && SEL)
+		{
+			CSaveFile out(fname);
+			out << SEL->sInfo;
+		}
+	}
+	else if(cn == "start")
+	{
+		std::string fname;
+		readed >> fname;
+		startGameFromFile(fname);
 	}
 	else if(client && client->serv && client->serv->connected) //send to server
 	{

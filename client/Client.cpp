@@ -121,7 +121,7 @@ void CClient::waitForMoveAndSend(int color)
 		assert(vstd::contains(battleints, color));
 		BattleAction ba = battleints[color]->activeStack(gs->curB->getStack(gs->curB->activeStack, false));
 		MakeAction temp_action(ba);
-		*serv << &temp_action;
+		serv->sendPackToServer(temp_action, color);
 		return;
 	}HANDLE_EXCEPTION
 	tlog1 << "We should not be here!" << std::endl;
@@ -169,7 +169,7 @@ void CClient::save(const std::string & fname)
 	}
 
 	SaveGame save_game(fname);
-	*serv << &save_game;
+	serv->sendPackToServer((CPackForClient&)save_game, getCurrentPlayer());
 }
 
 void CClient::endGame( bool closeConnection /*= true*/ )
@@ -348,6 +348,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	}
 
 	int humanPlayers = 0;
+	int sensibleAILimit = conf.cc.oneGoodAI ? 1 : GameConstants::PLAYER_LIMIT;
 	for(std::map<int, PlayerSettings>::iterator it = gs->scenarioOps->playerInfos.begin(); 
 		it != gs->scenarioOps->playerInfos.end(); ++it)//initializing interfaces for players
 	{ 
@@ -361,7 +362,13 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			CCallback *cb = new CCallback(gs,color,this);
 			if(!it->second.human) 
 			{
-				playerint[color] = static_cast<CGameInterface*>(CDynLibHandler::getNewAI(conf.cc.defaultPlayerAI));
+				std::string AItoGive = conf.cc.defaultPlayerAI;
+				if(!sensibleAILimit)
+					AItoGive = "GeniusAI";
+				else
+					sensibleAILimit--;
+				playerint[color] = static_cast<CGameInterface*>(CDynLibHandler::getNewAI(AItoGive));
+				tlog1 << "Player " << (int)color << " will be lead by " << AItoGive << std::endl;
 			}
 			else 
 			{
@@ -515,7 +522,7 @@ void CClient::stopConnection()
 		tlog0 << "Connection has been requested to be closed.\n";
 		boost::unique_lock<boost::mutex>(*serv->wmx);
 		CloseServer close_server;
-		*serv << &close_server;
+		serv->sendPackToServer(close_server, 255);
 		tlog0 << "Sent closing signal to the server\n";
 	}
 
@@ -579,7 +586,7 @@ void CClient::commitPackage( CPackForClient *pack )
 	CommitPackage cp;
 	cp.freePack = false;
 	cp.packToCommit = pack;
-	*serv << &cp;
+	serv->sendPackToServer(cp, 255);
 }
 
 int CClient::getLocalPlayer() const
@@ -605,7 +612,7 @@ void CClient::commenceTacticPhaseForInt(CBattleGameInterface *battleInt)
 		if(gs && !!gs->curB && gs->curB->tacticDistance) //while awaiting for end of tactics phase, many things can happen (end of battle... or game)
 		{
 			MakeAction ma(BattleAction::makeEndOFTacticPhase(battleInt->playerID));
-			serv->sendPack(ma);
+			serv->sendPackToServer(ma, battleInt->playerID);
 		}
 	} HANDLE_EXCEPTION
 }

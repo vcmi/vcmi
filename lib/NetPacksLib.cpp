@@ -449,6 +449,11 @@ DLL_LINKAGE void HeroRecruited::applyGs( CGameState *gs )
 DLL_LINKAGE void GiveHero::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(id);
+
+	//bonus system
+	h->detachFrom(&gs->globalEffects);
+	h->attachTo(gs->getPlayer(player));
+
 	gs->map->removeBlockVisTiles(h,true);
 	h->setOwner(player);
 	h->movement =  h->maxMovePoints(true);

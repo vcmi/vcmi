@@ -503,4 +503,5 @@ public:
 	void openCampaignScreen(std::string name);
 };
 
+extern ISelectionScreenInfo *SEL;
 extern CGPreGame *CGP;

@@ -172,7 +172,8 @@ void config::CConfigHandler::init()
 	const JsonNode config(GameConstants::DATA_DIR + "/config/resolutions.json");
 	const JsonVector &guisettings_vec = config["GUISettings"].Vector();
 
-	BOOST_FOREACH(const JsonNode &g, guisettings_vec) {
+	BOOST_FOREACH(const JsonNode &g, guisettings_vec) 
+	{
 		std::pair<int,int> curRes(g["resolution"]["x"].Float(), g["resolution"]["y"].Float());
 		GUIOptions *current = &conf.guiOptions[curRes];
 		
@@ -249,6 +250,7 @@ void config::CConfigHandler::init()
 		cc.screenx = cc.resx;
 		cc.screeny = cc.resy;
 	}
-
+	cc.autoSkip = false;
+	cc.oneGoodAI = false;
 	SetResolution(cc.resx, cc.resy);
 }

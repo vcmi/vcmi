@@ -1720,6 +1720,9 @@ int CGameState::getPlayerRelations( ui8 color1, ui8 color2 )
 {
 	if ( color1 == color2 )
 		return 2;
+	if(color1 == 255 || color2 == 255) //neutral player has no friends
+		return  0; 
+
 	const TeamState * ts = getPlayerTeam(color1);
 	if (ts && vstd::contains(ts->players, color2))
 		return 1;
@@ -2007,9 +2010,12 @@ bool CGameState::checkForVisitableDir( const int3 & src, const TerrainTile *pom,
 int CGameState::victoryCheck( ui8 player ) const
 {
 	const PlayerState *p = CGameInfoCallback::getPlayer(player);
-	if(map->victoryCondition.condition == EVictoryConditionType::WINSTANDARD  ||  map->victoryCondition.allowNormalVictory)
+	if(map->victoryCondition.condition == EVictoryConditionType::WINSTANDARD  ||  map->victoryCondition.allowNormalVictory
+		|| (!p->human && !map->victoryCondition.appliesToAI)) //if the special victory condition applies only to human, AI has the standard)
+	{
 		if(player == checkForStandardWin())
 			return -1;
+	}
 
 	if (p->enteredWinningCheatCode)
 	{ //cheater or tester, but has entered the code...
@@ -2477,6 +2483,11 @@ CGPathNode::CGPathNode()
 	theNodeBefore = NULL;
 }
 
+bool CGPathNode::reachable() const
+{
+	return turns < 255;
+}
+
 bool CPathsInfo::getPath( const int3 &dst, CGPath &out )
 {
 	assert(isValid);
@@ -2940,7 +2951,8 @@ bool CPathfinder::goodForLandSeaTransition()
 				return false;
 
 			//tile must be accessible -> exception: unblocked blockvis tiles -> clear but guarded by nearby monster coast
-			if(dp->accessible != CGPathNode::ACCESSIBLE && (dp->accessible != CGPathNode::BLOCKVIS || dt->blocked)) 
+			if(dp->accessible != CGPathNode::ACCESSIBLE && (dp->accessible != CGPathNode::BLOCKVIS || dt->blocked)
+				|| dt->visitable)  //TODO: passableness problem -> town says it's passable (thus accessible) but we obviously can't disembark onto town gate
 				return false;;
 
 			useEmbarkCost = 2;

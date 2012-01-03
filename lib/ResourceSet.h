@@ -78,6 +78,14 @@ namespace Res
 			return ret;
 		}
 
+		DLL_LINKAGE ResourceSet & operator=(const TResource &rhs)
+		{
+			for(int i = 0; i < size(); i++)
+				at(i) = rhs;
+
+			return *this;
+		}
+
 	// WARNING: comparison operators are used for "can afford" relation: a <= b means that foreach i a[i] <= b[i] 
 	// that doesn't work the other way: a > b doesn't mean that a cannot be afforded with b, it's still b can afford a
 // 		bool operator<(const ResourceSet &rhs)

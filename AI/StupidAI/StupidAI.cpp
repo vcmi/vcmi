@@ -102,6 +102,19 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	std::vector<int> dists = cb->battleGetDistances(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
+	if(stack->type->idNumber == 145) //catapult
+	{
+		BattleAction attack;
+		static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};
+		attack.destinationTile = wallHexes[ rand()%ARRAY_COUNT(wallHexes) ];
+		attack.actionType = BattleAction::CATAPULT;
+		attack.additionalInfo = 0;
+		attack.side = side;
+		attack.stackNumber = stack->ID;
+
+		return attack;
+	}
+
 	BOOST_FOREACH(const CStack *s, cb->battleGetStacks(CBattleCallback::ONLY_ENEMY))
 	{
 		if(cb->battleCanShoot(stack, s->position))
@@ -125,7 +138,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 				}
 			}
 
-			if(!vstd::contains(enemiesReachable, s))
+			if(!vstd::contains(enemiesReachable, s) && s->position.isValid())
 				enemiesUnreachable.push_back(s);
 		}
 	}
