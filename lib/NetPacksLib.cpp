@@ -550,7 +550,6 @@ DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 		}
 	}
 	return NULL;
-	return NULL;
 }
 
 DLL_LINKAGE CArtifactInstance *ArtifactLocation::getArt()

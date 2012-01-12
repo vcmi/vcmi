@@ -11,7 +11,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
 class Settings;
 class SettingsListener;
 

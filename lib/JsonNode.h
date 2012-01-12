@@ -98,7 +98,7 @@ public:
 	JsonWriter(std::ostream &output, const JsonNode &node);
 };
 
-std::ostream & operator<<(std::ostream &out, const JsonNode &node);
+DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const JsonNode &node);
 
 //Tiny string class that uses const char* as data for speed, members are private
 //for ease of debugging and some compatibility with std::string
@@ -184,3 +184,5 @@ public:
 	// validate with external schema
 	JsonValidator(JsonNode &root, const JsonNode &schema, bool minimize=false);
 };
+
+
