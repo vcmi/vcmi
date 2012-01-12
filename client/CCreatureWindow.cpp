@@ -177,7 +177,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		bonusItems.push_back (new CBonusItem(genRect(0, 0, 251, 57), text, description, stack->bonusToGraphics(&b)));
 	}
 
-	bonusRows = std::min ((int)((bonusItems.size() + 1) / 2), (conf.cc.resy - 230) / 60);
+	bonusRows = std::min ((int)((bonusItems.size() + 1) / 2), (screen->h - 230) / 60);
 	vstd::amin(bonusRows, 4);
 	vstd::amax(bonusRows, 1);
 
@@ -627,7 +627,7 @@ void CCreInfoWindow::clickRight(tribool down, bool previousState)
 
 CIntObject * createCreWindow(const CStack *s)
 {
-	if(conf.cc.classicCreatureWindow)
+	if(settings["general"]["classicCreatureWindow"].Bool())
 		return new CCreInfoWindow(*s);
 	else
 		return new CCreatureWindow(*s, CCreatureWindow::BATTLE);
@@ -635,7 +635,7 @@ CIntObject * createCreWindow(const CStack *s)
 
 CIntObject * createCreWindow(int Cid, int Type, int creatureCount)
 {
-	if(conf.cc.classicCreatureWindow)
+	if(settings["general"]["classicCreatureWindow"].Bool())
 		return new CCreInfoWindow(Cid, Type, creatureCount);
 	else
 		return new CCreatureWindow(Cid, Type, creatureCount);
@@ -643,7 +643,7 @@ CIntObject * createCreWindow(int Cid, int Type, int creatureCount)
 
 CIntObject * createCreWindow(const CStackInstance *s, int type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui)
 {
-	if(conf.cc.classicCreatureWindow)
+	if(settings["general"]["classicCreatureWindow"].Bool())
 		return new CCreInfoWindow(*s, type==3, Upg, Dsm, ui);
 	else
 		return  new CCreatureWindow(*s, type, Upg, Dsm, ui);

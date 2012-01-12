@@ -1,8 +1,6 @@
 #pragma once
 
-
-
-class CAdvMapInt;
+#include "../lib/JsonNode.h"
 
 /*
  * CConfighandler.h, part of VCMI engine
@@ -14,22 +12,103 @@ class CAdvMapInt;
  *
  */
 
+class Settings;
+class SettingsListener;
+
+/// Main storage of game settings
+class SettingsStorage
+{
+	//Helper struct to access specific node either via chain of operator[] or with one operator() (vector)
+	template<typename Accessor>
+	struct NodeAccessor
+	{
+		SettingsStorage & parent;
+		std::vector<std::string> path;
+
+		NodeAccessor(SettingsStorage & _parent, std::vector<std::string> _path);
+		NodeAccessor<Accessor> operator [] (std::string nextNode) const;
+		NodeAccessor<Accessor> operator () (std::vector<std::string> _path);
+		operator Accessor() const;
+	};
+
+	std::set<SettingsListener*> listeners;
+	JsonNode config;
+	JsonNode & getNode(std::vector<std::string> path);
+
+	// Calls all required listeners
+	void invalidateNode(const std::vector<std::string> &changedPath);
+
+	Settings get(std::vector<std::string> path);
+public:
+	// Initialize config structure
+	SettingsStorage();
+	void init();
+	
+	// Get write access to config node at path
+	const NodeAccessor<Settings> write;
+
+	// Get access to listener at path
+	const NodeAccessor<SettingsListener> listen;
+
+	//Read access, see JsonNode::operator[]
+	const JsonNode& operator [](std::string value);
+
+	friend class SettingsListener;
+	friend class Settings;
+};
+
+/// Class for listening changes in specific part of configuration (e.g. change of music volume)
+class SettingsListener
+{
+	SettingsStorage &parent;
+	// Path to this node
+	std::vector<std::string> path;
+	// Callback
+	boost::function<void(const JsonNode&)> callback;
+
+	SettingsListener(SettingsStorage &_parent, const std::vector<std::string> &_path);
+
+	// Executes callback if changedpath begins with path
+	void nodeInvalidated(const std::vector<std::string> changedPath);
+
+public:
+	~SettingsListener();
+
+	// assign callback function
+	void operator()(boost::function<void(const JsonNode&)> _callback);
+
+	friend class SettingsStorage;
+};
+
+/// System options, provides write access to config tree with auto-saving on change
+class Settings
+{
+	SettingsStorage &parent;
+	//path to this node
+	std::vector<std::string> path;
+	JsonNode &node;
+	JsonNode copy;
+	
+	//Get access to node pointed by path
+	Settings(SettingsStorage &_parent, const std::vector<std::string> &_path);
+
+public:
+	//Saves config if it was modified
+	~Settings();
+
+	//Returns node selected during construction
+	JsonNode* operator ->();
+	const JsonNode* operator ->() const;
+
+	//Helper, replaces JsonNode::operator[]
+	JsonNode& operator [](std::string value);
+	const JsonNode& operator [](std::string value) const;
+
+	friend class SettingsStorage;
+};
+
 namespace config
 {
-	/// Struct holds data about client resolution, colors, fullscreen mode
-	struct ClientConfig
-	{
-		int resx, resy, bpp, fullscreen; //client resolution/colours
-		int screenx, screeny; //real screen resolution
-		int pregameResx, pregameResy; //real screen resolution of preGame
-		int port, localInformation;
-		std::string server, //server address (e.g. 127.0.0.1)
-			defaultPlayerAI, defaultBattleAI; //dll names
-		bool showFPS; //show/hide FPS counter
-		bool classicCreatureWindow;
-		bool autoSkip, oneGoodAI; //for AI testing purposes
-	};
-	
 	struct ButtonInfo
 	{
 		std::string defName;
@@ -84,8 +163,8 @@ namespace config
 		GUIOptions *current; // pointer to current gui options
 
 	public:
-		ClientConfig cc;
-		std::map<std::pair<int,int>, GUIOptions > guiOptions;
+		typedef std::map<std::pair<int,int>, GUIOptions > GuiOptionsMap;
+		GuiOptionsMap guiOptions;
 		void init();
 		CConfigHandler(void); //c-tor
 		~CConfigHandler(void); //d-tor
@@ -96,4 +175,6 @@ namespace config
 		}
 	};
 }
+
+extern SettingsStorage settings;
 extern config::CConfigHandler conf;

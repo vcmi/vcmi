@@ -348,7 +348,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	}
 
 	int humanPlayers = 0;
-	int sensibleAILimit = conf.cc.oneGoodAI ? 1 : GameConstants::PLAYER_LIMIT;
+	int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : GameConstants::PLAYER_LIMIT;
 	for(std::map<int, PlayerSettings>::iterator it = gs->scenarioOps->playerInfos.begin(); 
 		it != gs->scenarioOps->playerInfos.end(); ++it)//initializing interfaces for players
 	{ 
@@ -362,7 +362,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			CCallback *cb = new CCallback(gs,color,this);
 			if(!it->second.human) 
 			{
-				std::string AItoGive = conf.cc.defaultPlayerAI;
+				std::string AItoGive = settings["server"]["playerAI"].String();
 				if(!sensibleAILimit)
 					AItoGive = "GeniusAI";
 				else
@@ -560,7 +560,9 @@ void CClient::battleStarted(const BattleInfo * info)
 		def = NULL;
 
 	if(att || def || gs->scenarioOps->mode == StartInfo::DUEL)
-		new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1], Rect((conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2, 800, 600), att, def);
+		new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1],
+			Rect((settings["video"]["gameRes"]["width"].Float()  - 800)/2, 
+			     (settings["video"]["gameRes"]["height"].Float() - 600)/2, 800, 600), att, def);
 
 	if(vstd::contains(battleints,info->sides[0]))
 		battleints[info->sides[0]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);
@@ -577,7 +579,7 @@ void CClient::battleStarted(const BattleInfo * info)
 
 void CClient::loadNeutralBattleAI()
 {
-	battleints[255] = CDynLibHandler::getNewBattleAI(conf.cc.defaultBattleAI);
+	battleints[255] = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
 	battleints[255]->init(new CBattleCallback(gs, 255, this));
 }
 
@@ -656,7 +658,7 @@ CConnection * CServerHandler::connectToServer()
 		waitForServer();
 
 	th.update();
-	CConnection *ret = justConnectToServer(conf.cc.server, port);
+	CConnection *ret = justConnectToServer(settings["server"]["server"].String(), port);
 
 	if(verbose)
 		tlog0<<"\tConnecting to the server: "<<th.getDiff()<<std::endl;
@@ -668,7 +670,7 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 {
 	serverThread = NULL;
 	shared = NULL;
-	port = boost::lexical_cast<std::string>(conf.cc.port);
+	port = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
 	verbose = false;
 
 	boost::interprocess::shared_memory_object::remove("vcmi_memory"); //if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
@@ -701,8 +703,8 @@ CConnection * CServerHandler::justConnectToServer(const std::string &host, const
 		try
 		{
 			tlog0 << "Establishing connection...\n";
-			ret = new CConnection(	host.size() ? host : conf.cc.server, 
-									port.size() ? port : boost::lexical_cast<std::string>(conf.cc.port), 
+			ret = new CConnection(	host.size() ? host : settings["server"]["server"].String(), 
+									port.size() ? port : boost::lexical_cast<std::string>(settings["server"]["port"].Float()), 
 									NAME);
 		}
 		catch(...)

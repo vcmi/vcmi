@@ -1,21 +1,10 @@
 #include "StdInc.h"
-#include <boost/version.hpp>
 #include "CConfigHandler.h"
 
-#include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
+#include "../lib/VCMIDirs.h"
 
 using namespace config;
-
-#if BOOST_VERSION >= 103800
-#include <boost/spirit/include/classic.hpp>
-using namespace boost::spirit::classic;
-#else
-#include <boost/spirit.hpp>
-using namespace boost::spirit;
-#endif
-
-using namespace phoenix;
 
 /*
  * CConfigHandler.cpp, part of VCMI engine
@@ -27,90 +16,149 @@ using namespace phoenix;
  *
  */
 
+SettingsStorage settings;
 CConfigHandler conf;
 
-struct lerror
+template<typename Accessor>
+SettingsStorage::NodeAccessor<Accessor>::NodeAccessor(SettingsStorage & _parent, std::vector<std::string> _path):
+	parent(_parent),
+	path(_path)
 {
-	std::string txt;
-	lerror(const std::string & TXT):txt(TXT){};
-	void operator()() const
-	{
-		tlog1 << txt << std::endl;
-	}
-	template<typename IteratorT>
-	void operator()(IteratorT t1, IteratorT t2) const
-	{
-		tlog1 << txt << std::endl;
-	}
-};
+}
 
-struct lerror2
+template<typename Accessor>
+SettingsStorage::NodeAccessor<Accessor> SettingsStorage::NodeAccessor<Accessor>::operator [](std::string nextNode) const
 {
-	std::string txt;
-	lerror2(const std::string & TXT):txt(TXT){};
-	template<typename IteratorT>
-	void operator()(IteratorT t1, IteratorT t2) const
-	{
-		std::string txt2(t1,t2);
-		tlog1 << txt << txt2 << std::endl;
-	}
-};
+	std::vector<std::string> newPath = path;
+	newPath.push_back(nextNode);
+	return NodeAccessor(parent, newPath);
+}
 
-struct SettingsGrammar : public grammar<SettingsGrammar>
+template<typename Accessor>
+SettingsStorage::NodeAccessor<Accessor>::operator Accessor() const
 {
-	template <typename ScannerT>
-	struct definition
-	{
-		rule<ScannerT>  r, clientOption, clientOptionsSequence, ClientSettings;
+	return Accessor(parent, path);
+}
 
-		definition(SettingsGrammar const& self)  
-		{ 
-			clientOption 
-				= str_p("resolution=") >> (uint_p[assign_a(conf.cc.resx)] >> 'x' >> uint_p[assign_a(conf.cc.resy)] | eps_p[lerror("Wrong resolution!")])
-				| str_p("pregameRes=") >> (uint_p[assign_a(conf.cc.pregameResx)] >> 'x' >> uint_p[assign_a(conf.cc.pregameResy)] | eps_p[lerror("Wrong pregame size!")])
-				| str_p("screenSize=") >> (uint_p[assign_a(conf.cc.screenx)] >> 'x' >> uint_p[assign_a(conf.cc.screeny)] | eps_p[lerror("Wrong screen size!")])
-				| str_p("port=") >> (uint_p[assign_a(conf.cc.port)] | eps_p[lerror("Wrong port!")])
-				| str_p("bpp=") >> (uint_p[assign_a(conf.cc.bpp)] | eps_p[lerror("Wrong bpp!")])
-				| str_p("localInformation=") >> (uint_p[assign_a(conf.cc.localInformation)] | eps_p[lerror("Wrong localInformation!")])
-				| str_p("fullscreen=") >> (uint_p[assign_a(conf.cc.fullscreen)] | eps_p[lerror("Wrong fullscreen!")])
-				| str_p("server=") >> ( ( +digit_p >> *('.' >> +digit_p) )[assign_a(conf.cc.server)]   | eps_p[lerror("Wrong server!")])
-				| str_p("defaultPlayerAI=") >> ((+(anychar_p - ';'))[assign_a(conf.cc.defaultPlayerAI)] | eps_p[lerror("Wrong defaultAI!")])
-				| str_p("neutralBattleAI=") >> ((+(anychar_p - ';'))[assign_a(conf.cc.defaultBattleAI)] | eps_p[lerror("Wrong defaultAI!")])
-				| str_p("showFPS=") >> (uint_p[assign_a(conf.cc.showFPS)] | eps_p[lerror("Wrong showFPS!")])
-				| str_p("classicCreatureWindow=") >> (uint_p[assign_a(conf.cc.classicCreatureWindow)] | eps_p[lerror("Wrong classicCreatureWindow!")])
-				| (+(anychar_p - '}'))[lerror2("Unrecognized client option: ")]
-				;
-			clientOptionsSequence = *(clientOption >> (';' | eps_p[lerror("Semicolon lacking after client option!")]));
-			ClientSettings = '{' >>  clientOptionsSequence >> '}';
-
-			r =	str_p("clientSettings") >> (ClientSettings | eps_p[lerror("Wrong clientSettings!")]);
-
-#ifdef BOOST_SPIRIT_DEBUG
-			BOOST_SPIRIT_DEBUG_RULE(clientOption);
-			BOOST_SPIRIT_DEBUG_RULE(clientOptionsSequence);
-			BOOST_SPIRIT_DEBUG_RULE(ClientSettings);
-			BOOST_SPIRIT_DEBUG_RULE(r);
-#endif
-		}    
-
-		rule<ScannerT> const& start() const { return r; }
-	};
-};
-
-struct CommentsGrammar : public grammar<CommentsGrammar>
+template<typename Accessor>
+SettingsStorage::NodeAccessor<Accessor> SettingsStorage::NodeAccessor<Accessor>::operator () (std::vector<std::string> _path)
 {
-	template <typename ScannerT>
-	struct definition
-	{
-		rule<ScannerT>  comment;
-		definition(CommentsGrammar const& self)  
-		{ 
-			comment = comment_p("//") | comment_p("/*","*/") | space_p;
-			BOOST_SPIRIT_DEBUG_RULE(comment);
-		}
-		rule<ScannerT> const& start() const { return comment; }
-	};
-};
+	std::vector<std::string> newPath = path;
+	newPath.insert( newPath.end(), _path.begin(), _path.end());
+	return NodeAccessor(parent, newPath);
+}
+
+SettingsStorage::SettingsStorage():
+	write(NodeAccessor<Settings>(*this, std::vector<std::string>() )),
+	listen(NodeAccessor<SettingsListener>(*this, std::vector<std::string>() ))
+{
+}
+
+void SettingsStorage::init()
+{
+	JsonNode(GVCMIDirs.UserPath + "/config/settings.json").swap(config);
+	JsonNode schema(GameConstants::DATA_DIR + "/config/defaultSettings.json");
+	config.validate(schema);
+}
+
+void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath)
+{
+	BOOST_FOREACH(SettingsListener * listener, listeners)
+		listener->nodeInvalidated(changedPath);
+
+	JsonNode savedConf = config;
+	JsonNode schema(GameConstants::DATA_DIR + "/config/defaultSettings.json");
+
+	savedConf.Struct().erase("session");
+	savedConf.minimize(schema);
+	std::ofstream file((GVCMIDirs.UserPath + "/config/settings.json").c_str(), std::ofstream::trunc | std::ofstream::out);
+	file << savedConf;
+}
+
+JsonNode & SettingsStorage::getNode(std::vector<std::string> path)
+{
+	JsonNode *node = &config;
+	BOOST_FOREACH(std::string& value, path)
+		node = &(*node)[value];
+
+	return *node;
+}
+
+Settings SettingsStorage::get(std::vector<std::string> path)
+{
+	return Settings(*this, path);
+}
+
+const JsonNode& SettingsStorage::operator [](std::string value)
+{
+	return config[value];
+}
+
+SettingsListener::SettingsListener(SettingsStorage &_parent, const std::vector<std::string> &_path):
+	parent(_parent),
+	path(_path)
+{
+	parent.listeners.insert(this);
+}
+
+SettingsListener::~SettingsListener()
+{
+	parent.listeners.erase(this);
+}
+
+void SettingsListener::nodeInvalidated(const std::vector<std::string> changedPath)
+{
+	if (!callback)
+		return;
+
+	size_t min = std::min(path.size(), changedPath.size());
+	size_t mismatch = std::mismatch(path.begin(), path.begin()+min, changedPath.begin()).first - path.begin();
+
+	if (min == mismatch)
+		callback(parent.getNode(path));
+}
+
+void SettingsListener::operator() (boost::function<void(const JsonNode&)> _callback)
+{
+	callback = _callback;
+}
+
+Settings::Settings(SettingsStorage &_parent, const std::vector<std::string> &_path):
+	parent(_parent),
+	path(_path),
+	node(_parent.getNode(_path)),
+	copy(_parent.getNode(_path))
+{
+}
+
+Settings::~Settings()
+{
+	if (node != copy)
+		parent.invalidateNode(path);
+}
+
+JsonNode* Settings::operator -> ()
+{
+	return &node;
+}
+
+const JsonNode* Settings::operator ->() const
+{
+	return &node;
+}
+
+const JsonNode& Settings::operator [](std::string value) const
+{
+	return node[value];
+}
+
+JsonNode& Settings::operator [](std::string value)
+{
+	return node[value];
+}
+
+template struct SettingsStorage::NodeAccessor<SettingsListener>;
+template struct SettingsStorage::NodeAccessor<Settings>;
 
 static void setButton(ButtonInfo &button, const JsonNode &g)
 {
@@ -145,29 +193,6 @@ CConfigHandler::~CConfigHandler(void)
 
 void config::CConfigHandler::init()
 {
-	std::vector<char> settings;
-	std::string settingsDir = GameConstants::DATA_DIR + "/config/settings.txt";
-	std::ifstream ifs(settingsDir.c_str());
-	if(!ifs)
-	{
-		tlog1 << "Cannot open " << GameConstants::DATA_DIR << "/config/settings.txt !" << std::endl;
-		return;
-	}
-	ifs.unsetf(std::ios::skipws); //  Turn of white space skipping on the stream
-	std::copy(std::istream_iterator<char>(ifs),std::istream_iterator<char>(),std::back_inserter(settings));
-	std::vector<char>::const_iterator first = settings.begin(), last = settings.end();
-	SettingsGrammar sg;
-	BOOST_SPIRIT_DEBUG_NODE(sg);
-	CommentsGrammar cg;    
-	BOOST_SPIRIT_DEBUG_NODE(cg);
-
-
-	parse_info<std::vector<char>::const_iterator> info = parse(first,last,sg,cg);
-	if(!info.hit)
-		tlog1 << "Cannot parse config/settings.txt file!\n";
-	else if(!info.full)
-		tlog2 << "Not entire config/settings.txt parsed!\n";
-
 	/* Read resolutions. */
 	const JsonNode config(GameConstants::DATA_DIR + "/config/resolutions.json");
 	const JsonVector &guisettings_vec = config["GUISettings"].Vector();
@@ -244,13 +269,16 @@ void config::CConfigHandler::init()
 		setButton(current->ac.endTurn, g["ButtonEndTurn"]);
 	}
 
-	//fixing screenx / screeny if set to 0x0
-	if (cc.screenx == 0 && cc.screeny == 0)
+	const JsonNode& screenRes = settings["video"]["screenRes"];
+	const JsonNode& gameRes = settings["video"]["gameRes"];
+
+	//fixing screenx / screeny
+	if (screenRes["width"].Float()  != gameRes["width"].Float()
+	 || screenRes["height"].Float() != gameRes["height"].Float())
 	{
-		cc.screenx = cc.resx;
-		cc.screeny = cc.resy;
+		Settings screen = settings.write["video"]["screenRes"];
+		screen["width"].Float()  = gameRes["width"].Float();
+		screen["height"].Float() = gameRes["height"].Float();
 	}
-	cc.autoSkip = false;
-	cc.oneGoodAI = false;
-	SetResolution(cc.resx, cc.resy);
+	SetResolution(gameRes["width"].Float(), gameRes["height"].Float());
 }

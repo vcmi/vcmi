@@ -1,0 +1,142 @@
+// This is schema for checking game settings from settings.json
+// Any new settings should be added in this file for correct serialization and initialization
+{
+	"general" : {
+		"type" : "object",
+		"properties" : {
+			"classicCreatureWindow" : {
+				"type" : "bool",
+				"default" : false
+			},
+			"playerName" : {
+				"type":"string",
+				"default" : "player"
+			},
+			"showfps" : {
+				"type" : "bool",
+				"default" : false
+			},
+			"music" : {
+				"type" : "number",
+				"default" : 88
+			},
+			"sound" : {
+				"type" : "number",
+				"default" : 88
+			}
+		},
+		"default" : {}
+	},
+	"video" : {
+		"type" : "object",
+		"properties" : {
+			"gameRes" : {
+				"type" : "object",
+				"properties" : {
+					"width"  : { "type" : "number" },
+					"height" : { "type" : "number" }
+				},
+				"default": {"width" : 800, "height": 600 }
+			},
+			"menuRes" : {
+				"type" : "object",
+				"properties" : {
+					"width"  : { "type" : "number" },
+					"height" : { "type" : "number" }
+				},
+				"default": {"width" : 800, "height": 600 }
+			},
+			"screenRes" : {
+				"type" : "object",
+				"properties" : {
+					"width"  : { "type" : "number" },
+					"height" : { "type" : "number" }
+				},
+				"default": {"width" : 0, "height": 0 }
+			},
+			"bitsPerPixel" : {
+				"type" : "number",
+				"default" : 24
+			},
+			"fullscreen" : {
+				"type" : "bool",
+				"default" : false
+			}
+		},
+		"default" : {}
+	},
+	"adventure" : {
+		"type" : "object",
+		"properties" : {
+			"heroSpeed" : {
+				"type" : "number",
+				"default" : 2
+			},
+			"enemySpeed" : {
+				"type" : "number",
+				"default" : 2
+			},
+			"scrollSpeed" : {
+				"type" : "number",
+				"default" : 1
+			},
+			"heroReminder" : {
+				"type" : "bool",
+				"default" : true
+			}
+		},
+		"default" : {}
+	},
+	"battle" : {
+		"type" : "object",
+		"properties" : {
+			"animationSpeed" : {
+				"type" : "number",
+				"default" : 2
+			},
+			"mouseShadow" : {
+				"type":"bool",
+				"default" : true
+			},
+			"cellBorders" : {
+				"type" : "bool",
+				"default" : false
+			},
+			"stackRange" : {
+				"type" : "bool",
+				"default" : true
+			},
+			"showQueue" : {
+				"type" : "bool",
+				"default" : true
+			}
+		},
+		"default" : {}
+	},
+	"server" : {
+		"type" : "object",
+		"properties" : {
+			"server" : {
+				"type":"string",
+				"default" : "127.0.0.1"
+			},
+			"port" : {
+				"type" : "number",
+				"default" : 3030
+			},
+			"localInformation" : {
+				"type" : "number",
+				"default" : 2
+			},
+			"playerAI" : {
+				"type" : "string",
+				"default" : "GeniusAI"
+			},
+			"neutralAI" : {
+				"type" : "string",
+				"default" : "StupidAI"
+			}
+		},
+		"default" : {}
+	}
+}

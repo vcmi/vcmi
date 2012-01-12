@@ -71,42 +71,6 @@ namespace boost
 	class recursive_mutex;
 };
 
-/// Stores information about system options like hero move speed, map scrolling speed, creature animation speed,...
-struct SystemOptions
-{
-	std::string playerName;
-
-	ui8 heroMoveSpeed;/*, enemyMoveSpeed*/ //speed of player's hero movement
-	ui8 mapScrollingSpeed; //map scrolling speed
-	ui8 musicVolume, soundVolume;
-	//TODO: rest of system options
-
-	//battle settings
-	ui8 printCellBorders; //if true, cell borders will be printed
-	ui8 printStackRange; //if true,range of active stack will be printed
-	ui8 animSpeed; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
-	ui8 printMouseShadow; //if true, hex under mouse will be shaded
-	ui8 showQueue;
-
-	SystemOptions();
-	void setHeroMoveSpeed(int newSpeed); //set for the member above
-	void setMapScrollingSpeed(int newSpeed); //set the member above
-	void setMusicVolume(int newVolume);
-	void setSoundVolume(int newVolume);
-	void setPlayerName(const std::string &newPlayerName);
-	void settingsChanged(); //updates file with "default" settings for next running of application
-	void apply();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & playerName;
-		h & heroMoveSpeed & mapScrollingSpeed & musicVolume & soundVolume;
-		h & printCellBorders & printStackRange & animSpeed & printMouseShadow & showQueue;
-	}
-};
-
-extern SystemOptions GDefaultOptions; //defined and inited in CMT.cpp, stores default settings loaded with application
-
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
 {
@@ -122,8 +86,6 @@ public:
 	int autosaveCount;
 	static const int SAVES_COUNT = 5;
 	static int howManyPeople;
-
-	SystemOptions sysOpts;
 
 	CCastleInterface * castleInt; //NULL if castle window isn't opened
 	static CBattleInterface * battleInt; //NULL if no battle

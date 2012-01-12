@@ -340,7 +340,7 @@ void CGuiHandler::run()
 	setThreadName(-1, "CGuiHandler::run");
 	try
 	{
-		if (conf.cc.fullscreen)
+		if (settings["video"]["fullscreen"].Bool())
 			CCS->curh->centerCursor();
 
 		mainFPSmng->init(); // resets internal clock, needed for FPS manager

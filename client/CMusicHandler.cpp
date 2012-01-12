@@ -66,8 +66,15 @@ void CAudioBase::setVolume(ui32 percent)
 	volume = percent;
 }
 
-CSoundHandler::CSoundHandler()
+void CSoundHandler::onVolumeChange(const JsonNode &volumeNode)
 {
+	setVolume(volumeNode.Float());
+}
+
+CSoundHandler::CSoundHandler():
+	listener(settings.listen["general"]["sound"])
+{
+	listener(boost::bind(&CSoundHandler::onVolumeChange, this, _1));
 	// Map sound names
 #define VCMI_SOUND_NAME(x) ( soundBase::x,
 #define VCMI_SOUND_FILE(y) #y )
@@ -311,8 +318,15 @@ void CSoundHandler::soundFinishedCallback(int channel)
 	callbacks.erase(iter);
 }
 
-CMusicHandler::CMusicHandler()
+void CMusicHandler::onVolumeChange(const JsonNode &volumeNode)
 {
+	setVolume(volumeNode.Float());
+}
+
+CMusicHandler::CMusicHandler():
+	listener(settings.listen["general"]["music"])
+{
+	listener(boost::bind(&CMusicHandler::onVolumeChange, this, _1));
 	// Map music IDs
 #define VCMI_MUSIC_ID(x) ( musicBase::x ,
 #define VCMI_MUSIC_FILE(y) y )

@@ -60,7 +60,6 @@ using boost::ref;
 #endif
 
 void startGame(StartInfo * options, CConnection *serv = NULL);
-extern SystemOptions GDefaultOptions;
 
 CGPreGame * CGP;
 ISelectionScreenInfo *SEL;
@@ -454,7 +453,7 @@ void CGPreGame::update()
 
 	GH.topInt()->show(screen);
 
-	if (conf.cc.showFPS)
+	if (settings["general"]["showfps"].Bool())
 		GH.drawFPSCounter();
 
 	// draw the mouse cursor and update the screen
@@ -2618,7 +2617,7 @@ CMultiMode::CMultiMode()
 
 	bar = new CGStatusBar(new CPicture(Rect(7, 465, 440, 18), 0));//226, 472
 	txt = new CTextInput(Rect(19, 436, 334, 16), *bg);
-	txt->setText(GDefaultOptions.playerName); //Player
+	txt->setText(settings["general"]["playerName"].String()); //Player
 
 	btns[0] = new CAdventureMapButton(CGI->generaltexth->zelp[266], bind(&CMultiMode::openHotseat, this), 373, 78, "MUBHOT.DEF");
 	btns[1] = new CAdventureMapButton("Host TCP/IP game", "", bind(&CMultiMode::hostTCP, this), 373, 78 + 57*1, "MUBHOST.DEF");
@@ -2633,14 +2632,16 @@ void CMultiMode::openHotseat()
 
 void CMultiMode::hostTCP()
 {
-	GDefaultOptions.setPlayerName(txt->text);
+	Settings name = settings.write["general"]["playerName"];
+	name->String() = txt->text;
 	GH.popIntTotally(this);
 	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, CMenuScreen::MULTI_NETWORK_HOST));
 }
 
 void CMultiMode::joinTCP()
 {
-	GDefaultOptions.setPlayerName(txt->text);
+	Settings name = settings.write["general"]["playerName"];
+	name->String() = txt->text;
 	GH.popIntTotally(this);
 	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, CMenuScreen::MULTI_NETWORK_GUEST));
 }
@@ -2688,7 +2689,8 @@ void CHotSeatPlayers::enterSelectionScreen()
 		if(txt[i]->text.length())
 			names[j++] = txt[i]->text;
 
-	GDefaultOptions.setPlayerName(names.begin()->second); //remember selected name
+	Settings name = settings.write["general"]["playerName"];
+	name->String() = names.begin()->second;
 
 	GH.popInts(2); //pop MP mode window and this
 	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, CMenuScreen::MULTI_HOT_SEAT, &names));
@@ -2866,7 +2868,7 @@ void CBonusSelection::selectMap( int whichOne )
 	ourHeader->initFromMemory((const unsigned char*)ourCampaign->camp->mapPieces.find(whichOne)->second.c_str(), i);
 
 	std::map<ui32, std::string> names;
-	names[1] = GDefaultOptions.playerName;
+	names[1] = settings["general"]["playerName"].String();
 	updateStartInfo(ourCampaign->camp->header.filename, sInfo, ourHeader, names);
 	sInfo.turnTime = 0;
 	sInfo.whichMapInCampaign = whichOne;
@@ -3283,7 +3285,7 @@ ISelectionScreenInfo::ISelectionScreenInfo(const std::map<ui32, std::string> *Na
 	if(Names && Names->size()) //if have custom set of player names - use it
 		playerNames = *Names;
 	else
-		playerNames[1] = GDefaultOptions.playerName; //by default we have only one player and his name is "Player" (or whatever the last used name was)
+		playerNames[1] = settings["general"]["playerName"].String(); //by default we have only one player and his name is "Player" (or whatever the last used name was)
 }
 
 ISelectionScreenInfo::~ISelectionScreenInfo()

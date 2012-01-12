@@ -64,12 +64,11 @@ std::string NAME_AFFIX = "client";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 CGuiHandler GH;
 static CClient *client;
-SDL_Surface *screen = NULL, //main screen surface 
-	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer) 
+SDL_Surface *screen = NULL, //main screen surface
+	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer)
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 static boost::thread *mainGUIThread;
 
-SystemOptions GDefaultOptions; 
 VCMIDirs GVCMIDirs;
 std::queue<SDL_Event*> events;
 boost::mutex eventsM;
@@ -117,33 +116,16 @@ void init()
 #endif
 	CSDL_Ext::std32bppSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, rmask, gmask, bmask, amask);
 	tlog0 << "\tInitializing minors: " << pomtime.getDiff() << std::endl;
-	{
-		//read system options
-		CLoadFile settings(GVCMIDirs.UserPath + "/config/sysopts.bin", 727);
-		if(settings.sfile)
-		{
-			settings >> GDefaultOptions;
-		}
-		else //file not found (probably, may be also some kind of access problem
-		{
-			tlog2 << "Warning: Cannot read system options, default settings will be used.\n";
-			
-			//Try to create file
-			tlog2 << "VCMI will try to save default system options...\n";
-			GDefaultOptions.settingsChanged();
-		}
-	}
-	tlog0 << "\tLoading default system settings: " << pomtime.getDiff() << std::endl;
 
 	//initializing audio
 	// Note: because of interface button range, volume can only be a
 	// multiple of 11, from 0 to 99.
 	CCS->soundh = new CSoundHandler;
 	CCS->soundh->init();
-	CCS->soundh->setVolume(GDefaultOptions.soundVolume);
+	CCS->soundh->setVolume(settings["general"]["sound"].Float());
 	CCS->musich = new CMusicHandler;
 	CCS->musich->init();
-	CCS->musich->setVolume(GDefaultOptions.musicVolume);
+	CCS->musich->setVolume(settings["general"]["music"].Float());
 	tlog0<<"\tInitializing sound: "<<pomtime.getDiff()<<std::endl;
 	tlog0<<"Initializing screen and sound handling: "<<tmh.getDiff()<<std::endl;
 
@@ -248,12 +230,13 @@ int main(int argc, char** argv)
 	atexit(dispose);
 	tlog0 <<"Creating console and logfile: "<<pomtime.getDiff() << std::endl;
 
+	settings.init();
 	conf.init();
 	tlog0 <<"Loading settings: "<<pomtime.getDiff() << std::endl;
 	tlog0 << NAME << std::endl;
 
 	srand ( time(NULL) );
-	
+
 	CCS = new CClientState;
 	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler etc.)
 
@@ -264,7 +247,11 @@ int main(int argc, char** argv)
 	}
 	atexit(SDL_Quit);
 
-	setScreenRes(conf.cc.pregameResx, conf.cc.pregameResy, conf.cc.bpp, conf.cc.fullscreen);
+	const JsonNode& video = settings["video"];
+	const JsonNode& res = video["menuRes"];
+
+	setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
+
 	tlog0 <<"\tInitializing screen: "<<pomtime.getDiff() << std::endl;
 
 	// Initialize video
@@ -289,8 +276,9 @@ int main(int argc, char** argv)
 	if(!vm.count("battle"))
 	{
 		gOnlyAI = vm.count("onlyAI");
-		conf.cc.autoSkip = vm.count("autoSkip");
-		conf.cc.oneGoodAI = vm.count("oneGoodAI");
+		Settings session = settings.write["session"];
+		session["autoSkip"].Bool()  = vm.count("autoSkip");
+		session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
 
 
 		if(!vm.count("start"))
@@ -318,7 +306,8 @@ void printInfoAboutIntObject(const CIntObject *obj, int level)
 	int tabs = level;
 	while(tabs--) tlog4 << '\t';
 
-	tlog4 << typeid(*obj).name() << " *** " << (obj->active ? "" : "not ") << "active\n";
+	tlog4 << typeid(*obj).name() << " *** " << (obj->active ? "" : "not ") << "active";
+	tlog4 << " at " << obj->pos.x <<"x"<< obj->pos.y << "\n";
 
 	BOOST_FOREACH(const CIntObject *child, obj->children)
 		printInfoAboutIntObject(child, level+1);
@@ -447,10 +436,13 @@ void processCommand(const std::string &message)
 		else
 		{
 			for(j=conf.guiOptions.begin(); j!=conf.guiOptions.end() && hlp++<i; j++); //move j to the i-th resolution info
-			conf.cc.resx = conf.cc.screenx = j->first.first;
-			conf.cc.resy = conf.cc.screeny = j->first.second;
-			conf.SetResolution(conf.cc.screenx, conf.cc.screeny);
-			tlog0 << "Screen resolution set to " << conf.cc.screenx << " x " << conf.cc.screeny <<". It will be applied when the game starts.\n";
+			Settings res = settings.write["video"]["gameRes"];
+			Settings screen = settings.write["video"]["screenRes"];
+			res["width"].Float()  = res["width"].Float()  = j->first.first;
+			screen["height"].Float() = screen["height"].Float() = j->first.second;
+			conf.SetResolution(screen["width"].Float(), screen["height"].Float());
+			tlog0 << "Screen resolution set to " << (int)screen["width"].Float() << " x "
+			                                     << (int)screen["height"].Float() <<". It will be applied when the game starts.\n";
 		}
 	}
 	else if(message=="get txt")
@@ -460,7 +452,7 @@ void processCommand(const std::string &message)
 		CLodHandler * txth = new CLodHandler;
 		txth->init(GameConstants::DATA_DIR + "/Data/H3bitmap.lod","");
 		tlog0<<"done.\nScanning .lod file\n";
-		
+
 		BOOST_FOREACH(Entry e, txth->entries)
 			if( e.type == FILE_TEXT )
 				txth->extractFile(std::string(GVCMIDirs.UserPath + "/Extracted_txts/")+e.name, e.name, FILE_TEXT);
@@ -532,7 +524,8 @@ void processCommand(const std::string &message)
 	}
 	else if (cn == "switchCreWin" )
 	{
-		conf.cc.classicCreatureWindow = !conf.cc.classicCreatureWindow;
+		Settings window = settings.write["general"]["classicCreatureWindow"];
+		window->Bool() = !window->Bool();
 	}
 	else if(cn == "sinfo")
 	{
@@ -574,7 +567,7 @@ void dispose()
 }
 
 static void setScreenRes(int w, int h, int bpp, bool fullscreen)
-{	
+{
 	// VCMI will only work with 2, 3 or 4 bytes per pixel
 	vstd::amax(bpp, 16);
 	vstd::amin(bpp, 32);
@@ -674,7 +667,9 @@ static void listenForEvents()
 		{
 			boost::unique_lock<boost::recursive_mutex> lock(*LOCPLINT->pim);
 			bool full = !(screen->flags&SDL_FULLSCREEN);
-			setScreenRes(conf.cc.screenx, conf.cc.screeny, conf.cc.bpp, full);
+			const JsonNode& video = settings["video"];
+			const JsonNode& res = video["screenRes"];
+			setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), full);
 			GH.totalRedraw();
 			delete ev;
 			continue;
@@ -684,10 +679,13 @@ static void listenForEvents()
 			switch(ev->user.code)
 			{
 			case 1:
+			{
 				tlog0 << "Changing resolution has been requested\n";
-				setScreenRes(conf.cc.screenx, conf.cc.screeny, conf.cc.bpp, conf.cc.fullscreen);
+				const JsonNode& video = settings["video"];
+				const JsonNode& res = video["gameRes"];
+				setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
 				break;
-
+			}
 			case 2:
 				client->endGame();
 				delete client;
@@ -718,20 +716,21 @@ static void listenForEvents()
 	}
 }
 
-void startGame(StartInfo * options, CConnection *serv/* = NULL*/) 
+void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 {
 	GH.curInt =NULL;
 	SDL_FillRect(screen, 0, 0);
 	if(gOnlyAI)
 	{
-		for(std::map<int, PlayerSettings>::iterator it = options->playerInfos.begin(); 
+		for(std::map<int, PlayerSettings>::iterator it = options->playerInfos.begin();
 			it != options->playerInfos.end(); ++it)
 		{
 			it->second.human = false;
 		}
 	}
+	const JsonNode& res = settings["video"]["screenRes"];
 
-	if(screen->w != conf.cc.screenx   ||   screen->h != conf.cc.screeny)
+	if(screen->w != res["width"].Float()   ||   screen->h != res["height"].Float())
 	{
 		requestChangingResolution();
 

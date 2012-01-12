@@ -69,6 +69,38 @@ JsonNode & JsonNode::operator =(JsonNode node)
 	return *this;
 }
 
+bool JsonNode::operator == (const JsonNode &other) const
+{
+	if (getType() == other.getType())
+	{
+		switch(type)
+		{
+			break; case DATA_NULL:   return true;
+			break; case DATA_BOOL:   return Bool() == other.Bool();
+			break; case DATA_FLOAT:  return Float() == other.Float();
+			break; case DATA_STRING: return String() == other.String();
+			break; case DATA_VECTOR: return Vector() == other.Vector();
+			break; case DATA_STRUCT: return Struct() == other.Struct();
+		}
+	}
+	return false;
+}
+
+bool JsonNode::operator != (const JsonNode &other) const
+{
+	return !(*this == other);
+}
+
+void JsonNode::minimize(const JsonNode& schema)
+{
+	JsonValidator validator(*this, schema, true);
+}
+
+void JsonNode::validate(const JsonNode& schema)
+{
+	JsonValidator validator(*this, schema, false);
+}
+
 JsonNode::JsonType JsonNode::getType() const
 {
 	return type;
@@ -687,6 +719,11 @@ bool JsonValidator::validateType(JsonNode &node, const JsonNode &schema, JsonNod
 		else
 			node = defaultValue;
 	}
+	if (minimize && node == schema["default"])
+	{
+		node.setType(JsonNode::DATA_NULL);
+		return false;
+	}
 
 	if (type != node.getType())
 	{
@@ -709,18 +746,13 @@ bool JsonValidator::validateNode(JsonNode &node, const JsonNode &schema, const s
 	currentPath.push_back(name);
 
 	JsonNode::JsonType type = JsonNode::DATA_NULL;
-	if (!validateSchema(type, schema))
+	if (!validateSchema(type, schema)
+	 || !validateType(node, schema, type))
 	{
+		node.setType(JsonNode::DATA_NULL);
 		currentPath.pop_back();
 		return false;
 	}
-
-	if (!validateType(node, schema, type))
-	{
-		currentPath.pop_back();
-		return false;
-	}
-
 	currentPath.pop_back();
 	return true;
 }
@@ -732,12 +764,16 @@ bool JsonValidator::validateItems(JsonNode &node, const JsonNode &schema)
 	if (!validateSchema(type, schema))
 		return false;
 
+	bool result = true;
 	BOOST_FOREACH(JsonNode &entry, node.Vector())
 	{
 		if (!validateType(entry, schema, type))
-			return false;
+		{
+			result = false;
+			entry.setType(JsonNode::DATA_NULL);
+		}
 	}
-	return true;
+	return result;
 }
 
 //Checks "propertries" entry from schema (type-specific check for Struct)
@@ -752,29 +788,40 @@ bool JsonValidator::validateProperties(JsonNode &node, const JsonNode &schema)
 
 	while (nodeIter != node.Struct().end() && schemaIter != schema.Struct().end())
 	{
-		std::string current = std::min(nodeIter->first, schemaIter->first);
-		validateNode(node[current], schema[current], current);
-
-		if (nodeIter->first < schemaIter->first)
-			nodeIter++;
-		else
-		if (schemaIter->first < nodeIter->first)
-			schemaIter++;
-		else
+		if (nodeIter->first < schemaIter->first) //No schema for entry
 		{
-			nodeIter++;
+			validateNode(nodeIter->second, JsonNode::nullNode, nodeIter->first);
+
+			JsonMap::iterator toRemove = nodeIter++;
+			node.Struct().erase(toRemove);
+		}
+		else
+		if (schemaIter->first < nodeIter->first) //No entry
+		{
+			if (!validateNode(node[schemaIter->first], schemaIter->second, schemaIter->first))
+				node.Struct().erase(schemaIter->first);
+			schemaIter++;
+		}
+		else //both entry and schema are present
+		{
+			JsonMap::iterator current = nodeIter++;
+			if (!validateNode(current->second, schemaIter->second, current->first))
+				node.Struct().erase(current);
+
 			schemaIter++;
 		}
 	}
 	while (nodeIter != node.Struct().end())
 	{
-		validateNode(nodeIter->second, JsonNode(), nodeIter->first);
-		nodeIter++;
+		validateNode(nodeIter->second, JsonNode::nullNode, nodeIter->first);
+		JsonMap::iterator toRemove = nodeIter++;
+		node.Struct().erase(toRemove);
 	}
 
 	while (schemaIter != schema.Struct().end())
 	{
-		validateNode(node[schemaIter->first], schemaIter->second, schemaIter->first);
+		if (!validateNode(node[schemaIter->first], schemaIter->second, schemaIter->first))
+			node.Struct().erase(schemaIter->first);
 		schemaIter++;
 	}
 	return true;
@@ -792,14 +839,15 @@ bool JsonValidator::addMessage(const std::string &message)
 	return false;
 }
 
-JsonValidator::JsonValidator(JsonNode &root)
+JsonValidator::JsonValidator(JsonNode &root, bool Minimize):
+	minimize(Minimize)
 {
 	JsonNode schema;
 	schema.swap(root["schema"]);
+	root.Struct().erase("schema");
 
 	if (!schema.isNull())
 	{
-		root.Struct().erase("schema");
 		validateProperties(root, schema);
 	}
 	//This message is quite annoying now - most files do not have schemas. May be re-enabled later
@@ -807,5 +855,14 @@ JsonValidator::JsonValidator(JsonNode &root)
 	//	addMessage("Schema not found!", true);
 
 	//TODO: better way to show errors (like printing file name as well)
+	tlog3<<errors;
+}
+
+JsonValidator::JsonValidator(JsonNode &root, const JsonNode &schema, bool Minimize):
+	minimize(Minimize)
+{
+	validateProperties(root, schema);
+	if (schema.isNull())
+		addMessage("Schema not found!");
 	tlog3<<errors;
 }

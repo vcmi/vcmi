@@ -117,7 +117,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	queue = new CStackQueue(embedQueue, this);
 	if(!embedQueue)
 	{
-		if(curInt->sysOpts.showQueue)
+		if(settings["battle"]["showQueue"].Bool())
 			pos.y += queue->pos.h / 2; //center whole window
 
 		queue->moveTo(Point(pos.x, pos.y - queue->pos.h));
@@ -423,24 +423,26 @@ CBattleInterface::~CBattleInterface()
 
 void CBattleInterface::setPrintCellBorders(bool set)
 {
-	curInt->sysOpts.printCellBorders = set;
-	curInt->sysOpts.settingsChanged();
+	Settings cellBorders = settings.write["battle"]["cellBorders"];
+	cellBorders->Bool() = set;
+
 	redrawBackgroundWithHexes(activeStack);
 	GH.totalRedraw();
 }
 
 void CBattleInterface::setPrintStackRange(bool set)
 {
-	curInt->sysOpts.printStackRange = set;
-	curInt->sysOpts.settingsChanged();
+	Settings stackRange = settings.write["battle"]["stackRange"];
+	stackRange->Bool() = set;
+
 	redrawBackgroundWithHexes(activeStack);
 	GH.totalRedraw();
 }
 
 void CBattleInterface::setPrintMouseShadow(bool set)
 {
-	curInt->sysOpts.printMouseShadow = set;
-	curInt->sysOpts.settingsChanged();
+	Settings shadow = settings.write["battle"]["mouseShadow"];
+	shadow->Bool() = set;
 }
 
 void CBattleInterface::activate()
@@ -463,7 +465,7 @@ void CBattleInterface::activate()
 		attackingHero->activate();
 	if(defendingHero)
 		defendingHero->activate();
-	if(curInt->sysOpts.showQueue)
+	if(settings["battle"]["showQueue"].Bool())
 		queue->activate();
 
 	if(tacticsMode)
@@ -500,7 +502,7 @@ void CBattleInterface::deactivate()
 		attackingHero->deactivate();
 	if(defendingHero)
 		defendingHero->deactivate();
-	if(curInt->sysOpts.showQueue)
+	if(settings["battle"]["showQueue"].Bool())
 		queue->deactivate();
 
 	if(tacticsMode)
@@ -537,7 +539,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		//showing background
 		blitAt(background, pos.x, pos.y, to);
-		if(curInt->sysOpts.printCellBorders)
+		if(settings["battle"]["cellBorders"].Bool())
 		{
 			CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, to, &pos);
 		}
@@ -574,7 +576,7 @@ void CBattleInterface::show(SDL_Surface * to)
 				std::set<ui16> shaded = spToCast.rangeInHexes(b, schoolLevel);
 				for(std::set<ui16>::iterator it = shaded.begin(); it != shaded.end(); ++it) //for spells with range greater then one hex
 				{
-					if(curInt->sysOpts.printMouseShadow && (*it % GameConstants::BFIELD_WIDTH != 0) && (*it % GameConstants::BFIELD_WIDTH != 16))
+					if(settings["battle"]["mouseShadow"].Bool() && (*it % GameConstants::BFIELD_WIDTH != 0) && (*it % GameConstants::BFIELD_WIDTH != 16))
 					{
 						int x = 14 + ((*it/GameConstants::BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(*it%GameConstants::BFIELD_WIDTH) + pos.x;
 						int y = 86 + 42 * (*it/GameConstants::BFIELD_WIDTH) + pos.y;
@@ -583,7 +585,7 @@ void CBattleInterface::show(SDL_Surface * to)
 					}
 				}
 			}
-			else if(curInt->sysOpts.printMouseShadow) //when not casting spell
+			else if(settings["battle"]["mouseShadow"].Bool()) //when not casting spell
 			{//TODO: do not check it every frame
 				if (activeStack) //highlight all attackable hexes
 				{ 
@@ -830,7 +832,7 @@ void CBattleInterface::show(SDL_Surface * to)
 
 	Rect posWithQueue = Rect(pos.x, pos.y, 800, 600);
 
-	if(curInt->sysOpts.showQueue)
+	if(settings["battle"]["showQueue"].Bool())
 	{
 		if(!queue->embedded)
 		{
@@ -886,7 +888,7 @@ void CBattleInterface::showObstacles(std::multimap<BattleHex, int> *hexToObstacl
 		int x = ((curOb.pos/GameConstants::BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(curOb.pos%GameConstants::BFIELD_WIDTH) + pos.x + shift.first;
 		int y = 86 + 42 * (curOb.pos/GameConstants::BFIELD_WIDTH) + pos.y + shift.second;
 		std::vector<Cimage> &images = idToObstacle[curOb.ID]->ourImages; //reference to animation of obstacle
-		blitAt(images[((animCount+1)/(4/curInt->sysOpts.animSpeed))%images.size()].bitmap, x, y, to);
+		blitAt(images[((animCount+1)/(4/getAnimSpeed()))%images.size()].bitmap, x, y, to);
 	}
 }
 
@@ -894,12 +896,11 @@ void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(key.keysym.sym == SDLK_q && key.state == SDL_PRESSED)
 	{
-		if(curInt->sysOpts.showQueue) //hide queue
+		if(settings["battle"]["showQueue"].Bool()) //hide queue
 			hideQueue();
 		else
 			showQueue();
 
-		curInt->sysOpts.settingsChanged();
 	}
 	else if(key.keysym.sym == SDLK_ESCAPE && spellDestSelectMode)
 	{
@@ -1459,7 +1460,7 @@ void CBattleInterface::bSpellf()
 		chi = attackingHeroInstance;
 	else
 		chi = defendingHeroInstance;
-	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), chi, curInt);
+	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), chi, curInt);
 	GH.pushInt(spellWindow);
 }
 
@@ -2470,13 +2471,13 @@ void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
 
 void CBattleInterface::setAnimSpeed(int set)
 {
-	curInt->sysOpts.animSpeed = set;
-	curInt->sysOpts.settingsChanged();
+	Settings speed = settings.write["battle"]["animationSpeed"];
+	speed->Float() = set;
 }
 
 int CBattleInterface::getAnimSpeed() const
 {
-	return curInt->sysOpts.animSpeed;
+	return settings["battle"]["animationSpeed"].Float();
 }
 
 void CBattleInterface::activateStack()
@@ -2519,7 +2520,7 @@ void CBattleInterface::activateStack()
 
 double CBattleInterface::getAnimSpeedMultiplier() const
 {
-	switch(curInt->sysOpts.animSpeed)
+	switch(getAnimSpeed())
 	{
 	case 1:
 		return 3.5;
@@ -2552,7 +2553,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	
 	int animType = creAnims[ID]->getType();
 
-	int affectingSpeed = curInt->sysOpts.animSpeed;
+	int affectingSpeed = getAnimSpeed();
 	if(animType == 1 || animType == 2) //standing stacks should not stand faster :)
 		affectingSpeed = 2;
 	bool incrementFrame = (animCount%(4/affectingSpeed)==0) && animType!=5 && animType!=20 && animType!=2;
@@ -2744,13 +2745,13 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack * activeStack)
 	attackableHexes.clear();
 	if (activeStack)
 		occupyableHexes = curInt->cb->battleGetAvailableHexes(activeStack, true, &attackableHexes);
-    curInt->cb->battleGetStackCountOutsideHexes(stackCountOutsideHexes);
+	curInt->cb->battleGetStackCountOutsideHexes(stackCountOutsideHexes);
 	//preparating background graphic with hexes and shaded hexes
 	blitAt(background, 0, 0, backgroundWithHexes);
-	if(curInt->sysOpts.printCellBorders)
+	if(settings["battle"]["cellBorders"].Bool())
 		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, backgroundWithHexes, NULL);
 
-	if(curInt->sysOpts.printStackRange)
+	if(settings["battle"]["stackRange"].Bool())
 	{
 		std::vector<BattleHex> hexesToShade = occupyableHexes;
 		hexesToShade.insert(hexesToShade.end(), attackableHexes.begin(), attackableHexes.end());
@@ -2914,7 +2915,8 @@ void CBattleInterface::endAction(const BattleAction* action)
 
 void CBattleInterface::hideQueue()
 {
-	curInt->sysOpts.showQueue = false;
+	Settings showQueue = settings.write["battle"]["showQueue"];
+	showQueue->Bool() = false;
 
 	queue->deactivate();
 
@@ -2927,7 +2929,8 @@ void CBattleInterface::hideQueue()
 
 void CBattleInterface::showQueue()
 {
-	curInt->sysOpts.showQueue = true;
+	Settings showQueue = settings.write["battle"]["showQueue"];
+	showQueue->Bool() = true;
 
 	queue->activate();
 

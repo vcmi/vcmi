@@ -390,8 +390,8 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 
 	for(int i = 0; 
 		i < ARRAY_COUNT(sizes) 
-			&& sizes[i][0] < conf.cc.resx - 150  
-			&& sizes[i][1] < conf.cc.resy - 150
+			&& sizes[i][0] < screen->w - 150  
+			&& sizes[i][1] < screen->h - 150
 			&& ret->text->slider;
 		i++)
 	{
@@ -424,7 +424,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 	vstd::amax(winSize.first, comps.w);
 	vstd::amax(winSize.first, bw);
 
-	vstd::amin(winSize.first, conf.cc.resx - 150);
+	vstd::amin(winSize.first, screen->w - 150);
 
 	ret->bitmap = drawBox1 (winSize.first + 2*SIDE_MARGIN, winSize.second + 2*SIDE_MARGIN, player);
 	ret->pos.h=ret->bitmap->h;

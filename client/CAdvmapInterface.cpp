@@ -350,11 +350,11 @@ void CMinimapSurfacesRef::free()
 		for (int g = 0; g < map_.size(); ++g)
 			SDL_FreeSurface(map_[g]);
 		map_.clear();
-	
+
 		for (int g = 0; g < FoW_.size(); ++g)
 			SDL_FreeSurface(FoW_[g]);
 		FoW_.clear();
-	
+
 		for (int g = 0; g < flObjs_.size(); ++g)
 			SDL_FreeSurface(flObjs_[g]);
 		flObjs_.clear();
@@ -396,7 +396,7 @@ void CMinimap::showTile(const int3 &pos)
 		{
 			int3 maplgp ( (pos.x*mw)/mapSizes.x, (pos.y*mh)/mapSizes.y, pos.z );
 			if(((int)wo) * mapSizes.x != mw   &&   pos.x+1 < mapSizes.x)//minimap size in X is not multiple of map size in X
-				 
+
 			{
 				std::vector < const CGObjectInstance * > op1x = LOCPLINT->cb->getFlaggableObjects(int3(pos.x+1, pos.y, pos.z));
 				if(op1x.size()!=0)
@@ -588,7 +588,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 
 			/* Vector directions
 			 *  0   1   2
-			 *    \ | / 
+			 *    \ | /
 			 *  3 - 4 - 5
 			 *    / | \
 			 *  6   7  8
@@ -597,7 +597,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			 *  |__\
 			 *     /
 			 * is id1=7, id2=5 (pns[7][5])
-			*/ 
+			*/
 			bool pathContinuous = curPos.areNeighbours(nextPos) && curPos.areNeighbours(prevPos);
 			if(pathContinuous && cv[i].land == cv[i+1].land)
 			{
@@ -695,7 +695,7 @@ void CTerrainRect::show(SDL_Surface * to)
 			(adventureInt->position, adventureInt->anim,
 			 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
 			 to, &pos, 0, 0, false, int3());
-	
+
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
 	if (currentPath/* && adventureInt->position.z==currentPath->startPos().z*/) //drawing path
@@ -742,7 +742,7 @@ CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int
 		txtpos[i].second = pos.y + offy;
 	}
 	txtpos[7].first = txtpos[6].first + datedist;
-	datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63] 
+	datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63]
 	+ ": %s, " + CGI->generaltexth->allTexts[64] + ": %s";
 }
 CResDataBar::CResDataBar()
@@ -759,7 +759,7 @@ CResDataBar::CResDataBar()
 		txtpos[i].second = pos.y + ADVOPT.resOffsetY;
 	}
 	txtpos[7].first = txtpos[6].first + ADVOPT.resDateDist;
-	datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63] 
+	datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63]
 				+ ": %s, " + CGI->generaltexth->allTexts[64] + ": %s";
 }
 
@@ -1098,14 +1098,14 @@ void CAdvMapInt::fsleepWake()
 	{
 		fnextHero();
 
-		//moveHero.block(true); 
+		//moveHero.block(true);
 		//uncomment to enable original HoMM3 behaviour:
 		//move button is disabled for hero going to sleep, even though it's enabled when you reselect him
 	}
 }
 
 void CAdvMapInt::fmoveHero()
-{	
+{
 	const CGHeroInstance *h = curHero();
 	if (!h || !terrain.currentPath)
 		return;
@@ -1119,7 +1119,8 @@ void CAdvMapInt::fshowSpellbok()
 		return;
 
 	centerOn(selection);
-	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), curHero(), LOCPLINT, false);
+
+	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), curHero(), LOCPLINT, false);
 	GH.pushInt(spellWindow);
 }
 
@@ -1147,12 +1148,15 @@ void CAdvMapInt::fendTurn()
 	if(!LOCPLINT->makingTurn)
 		return;
 
-	for (int i = 0; i < LOCPLINT->wanderingHeroes.size(); i++)
-		if (!isHeroSleeping(LOCPLINT->wanderingHeroes[i]) && (LOCPLINT->wanderingHeroes[i]->movement > 0)) 
-		{
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::vector<CComponent*>(), boost::bind(&CAdvMapInt::endingTurn, this), 0, false);
-			return;
-		}
+	if ( settings["adventure"]["heroReminder"].Bool())
+	{
+		for (int i = 0; i < LOCPLINT->wanderingHeroes.size(); i++)
+			if (!isHeroSleeping(LOCPLINT->wanderingHeroes[i]) && (LOCPLINT->wanderingHeroes[i]->movement > 0))
+			{
+				LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::vector<CComponent*>(), boost::bind(&CAdvMapInt::endingTurn, this), 0, false);
+				return;
+			}
+	}
 	endingTurn();
 }
 
@@ -1160,7 +1164,7 @@ void CAdvMapInt::updateSleepWake(const CGHeroInstance *h)
 {
 	sleepWake.block(!h);
 	if (!h)
-		return;	
+		return;
 	bool state = isHeroSleeping(h);
 	sleepWake.setIndex(state ? 1 : 0, true);
 	sleepWake.assignedKeys.clear();
@@ -1171,11 +1175,11 @@ void CAdvMapInt::updateSleepWake(const CGHeroInstance *h)
 void CAdvMapInt::updateMoveHero(const CGHeroInstance *h, tribool hasPath)
 {
 	//default value is for everywhere but CPlayerInterface::moveHero, because paths are not updated from there immediately
-	if (hasPath == tribool::indeterminate_value) 
+	if (hasPath == tribool::indeterminate_value)
 		 hasPath = LOCPLINT->paths[h].nodes.size() ? true : false;
 	if (!h)
 	{
-		moveHero.block(true);	
+		moveHero.block(true);
 		return;
 	}
 	moveHero.block(!hasPath || (h->movement == 0));
@@ -1188,12 +1192,12 @@ int CAdvMapInt::getNextHeroIndex(int startIndex)
 	if (startIndex < 0)
 		startIndex = 0;
 	int i = startIndex;
-	do 
+	do
 	{
 		i++;
 		if (i >= LOCPLINT->wanderingHeroes.size())
 			i = 0;
-	} 
+	}
 	while (((LOCPLINT->wanderingHeroes[i]->movement == 0) || isHeroSleeping(LOCPLINT->wanderingHeroes[i])) && (i != startIndex));
 
 	if ((LOCPLINT->wanderingHeroes[i]->movement != 0) && !isHeroSleeping(LOCPLINT->wanderingHeroes[i]))
@@ -1204,7 +1208,7 @@ int CAdvMapInt::getNextHeroIndex(int startIndex)
 
 void CAdvMapInt::updateNextHero(const CGHeroInstance *h)
 {
-	int start = heroList.getPosOfHero(h); 
+	int start = heroList.getPosOfHero(h);
 	int next = getNextHeroIndex(start);
 	if (next < 0)
 	{
@@ -1338,11 +1342,12 @@ void CAdvMapInt::show(SDL_Surface * to)
 	}
 	++heroAnim;
 
+	int scrollSpeed = settings["adventure"]["scrollSpeed"].Float();
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
-	if((animValHitCount % (4/LOCPLINT->sysOpts.mapScrollingSpeed)) == 0 
+	if((animValHitCount % (4/scrollSpeed)) == 0
 		&&  (
 			(GH.topInt() == this)
-			|| SDL_GetKeyState(NULL)[SDLK_LCTRL] 
+			|| SDL_GetKeyState(NULL)[SDLK_LCTRL]
 			|| SDL_GetKeyState(NULL)[SDLK_RCTRL]
 )
 	)
@@ -1370,7 +1375,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 		terrain.show(to);
 		for(int i=0;i<4;i++)
 			blitAt(gems[i]->ourImages[LOCPLINT->playerID].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i],to);
-		updateScreen=false;	
+		updateScreen=false;
 		LOCPLINT->cingconsole->show(to);
 	}
 	if (updateMinimap)
@@ -1389,13 +1394,13 @@ void CAdvMapInt::centerOn(int3 on)
 {
 	on.x -= CGI->mh->frameW;
 	on.y -= CGI->mh->frameH;
-	
+
 	on = LOCPLINT->repairScreenPos(on);
 
 	adventureInt->position = on;
 	adventureInt->updateScreen=true;
 	updateMinimap=true;
-	underground.setIndex(on.z,true); //change underground switch button image 
+	underground.setIndex(on.z,true); //change underground switch button image
 	if(GH.topInt() == this)
 		underground.redraw();
 }
@@ -1415,27 +1420,27 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 
 	switch(k)
 	{
-	case SDLK_i: 
+	case SDLK_i:
 		if(isActive())
 			CAdventureOptions::showScenarioInfo();
 		return;
-	case SDLK_s: 
+	case SDLK_s:
 		if(isActive())
 			GH.pushInt(new CSavingScreen(CPlayerInterface::howManyPeople > 1));
 		return;
-	case SDLK_d: 
+	case SDLK_d:
 		{
 			if(h && isActive() && key.state == SDL_PRESSED)
 				LOCPLINT->tryDiggging(h);
 			return;
 		}
-	case SDLK_p: 
+	case SDLK_p:
 		if(isActive())
 			LOCPLINT->showPuzzleMap();
 		return;
 	case SDLK_SPACE: //space - try to revisit current object with selected hero
 		{
-			if(!isActive()) 
+			if(!isActive())
 				return;
 			if(h && key.state == SDL_PRESSED)
 			{
@@ -1447,7 +1452,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	case SDLK_RETURN:
 		{
-			if(!isActive() || !selection || key.state != SDL_PRESSED) 
+			if(!isActive() || !selection || key.state != SDL_PRESSED)
 				return;
 			if(h)
 				LOCPLINT->openHeroWindow(h);
@@ -1457,7 +1462,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		}
 	case SDLK_ESCAPE:
 		{
-			if(isActive() || GH.topInt() != this || !spellBeingCasted || key.state != SDL_PRESSED) 
+			if(isActive() || GH.topInt() != this || !spellBeingCasted || key.state != SDL_PRESSED)
 				return;
 
 			leaveCastingMode();
@@ -1480,12 +1485,12 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			}
 
 			if(townWithMarket) //if any town has marketplace, open window
-				GH.pushInt(new CMarketplaceWindow(townWithMarket)); 
+				GH.pushInt(new CMarketplaceWindow(townWithMarket));
 			else //if not - complain
 				LOCPLINT->showInfoDialog("No available marketplace!", std::vector<CComponent*>(), soundBase::sound_todo);
 			return;
 		}
-	default: 
+	default:
 		{
 			static const int3 directions[] = {  int3(-1, +1, 0), int3(0, +1, 0), int3(+1, +1, 0),
 												int3(-1, 0, 0),  int3(0, 0, 0),  int3(+1, 0, 0),
@@ -1496,16 +1501,16 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			{
 				switch(k)
 				{
-				case SDLK_UP: 
+				case SDLK_UP:
 					Dir = UP;
 					break;
-				case SDLK_LEFT: 
+				case SDLK_LEFT:
 					Dir = LEFT;
 					break;
-				case SDLK_RIGHT: 
+				case SDLK_RIGHT:
 					Dir = RIGHT;
 					break;
-				case SDLK_DOWN: 
+				case SDLK_DOWN:
 					Dir = DOWN;
 					break;
 				}
@@ -1520,7 +1525,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			if(k < 0 || k > 8 || key.state != SDL_PRESSED)
 				return;
 
-			if(!h) 
+			if(!h)
 				break;
 
 			if(k == 4)
@@ -1720,7 +1725,7 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 
 		switch(spellBeingCasted->id)
 		{
-		case Spells::SCUTTLE_BOAT: //Scuttle Boat 
+		case Spells::SCUTTLE_BOAT: //Scuttle Boat
 			if(topBlocking && topBlocking->ID == 8)
 				leaveCastingMode(true, mp);
 			break;
@@ -1769,7 +1774,7 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 				CGPath &path = LOCPLINT->paths[currentHero];
 				terrain.currentPath = &path;
 				bool gotPath = LOCPLINT->cb->getPath2(mp, path); //try getting path, erase if failed
-				updateMoveHero(currentHero); 	
+				updateMoveHero(currentHero);
 				if (!gotPath)
 					LOCPLINT->eraseCurrentPathOf(currentHero);
 				else
@@ -1811,7 +1816,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 	}
 
 	const CGPathNode *pnode = LOCPLINT->cb->getPathInfo(tile);
-	std::vector<const CGObjectInstance *> objs = LOCPLINT->cb->getBlockingObjs(tile); 
+	std::vector<const CGObjectInstance *> objs = LOCPLINT->cb->getBlockingObjs(tile);
 	const CGObjectInstance *objAtTile = objs.size() ? objs.back() : NULL;
 	bool accessible  =  pnode->turns < 255;
 
@@ -1885,7 +1890,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 			{
 				if(!LOCPLINT->cb->getPlayerRelations( LOCPLINT->playerID, objAtTile->tempOwner)) //enemy town
 				{
-					if(accessible) 
+					if(accessible)
 					{
 						const CGTownInstance* townObj = dynamic_cast<const CGTownInstance*>(objAtTile);
 
@@ -1895,8 +1900,8 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 						else
 							CCS->curh->changeGraphic(0, 5 + turns*6);
 
-					} 
-					else 
+					}
+					else
 					{
 						CCS->curh->changeGraphic(0, 0);
 					}
@@ -1918,18 +1923,18 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 			}
 			else if (objAtTile->ID == 33 || objAtTile->ID == 219) // Garrison
 			{
-				if (accessible) 
+				if (accessible)
 				{
 					const CGGarrison* garrObj = dynamic_cast<const CGGarrison*>(objAtTile); //TODO evil evil cast!
 
 					// Show battle cursor for guarded enemy garrisons, otherwise movement cursor.
-					if (garrObj  &&  garrObj->stacksCount() 
+					if (garrObj  &&  garrObj->stacksCount()
 						&& !LOCPLINT->cb->getPlayerRelations( LOCPLINT->playerID, garrObj->tempOwner) )
 						CCS->curh->changeGraphic(0, 5 + turns*6);
 					else
 						CCS->curh->changeGraphic(0, 9 + turns*6);
-				} 
-				else 
+				}
+				else
 					CCS->curh->changeGraphic(0, 0);
 			}
 			else if (guardingCreature && accessible) //(objAtTile->ID == 54) //monster
@@ -1948,15 +1953,15 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 				else
 					CCS->curh->changeGraphic(0, 0);
 			}
-		} 
-		else //no objs 
+		}
+		else //no objs
 		{
 			if(accessible/* && pnode->accessible != CGPathNode::FLYABLE*/)
 			{
-				if (guardingCreature) 
+				if (guardingCreature)
 				{
 					CCS->curh->changeGraphic(0, 5 + turns*6);
-				} else 
+				} else
 				{
 					if(pnode->land)
 					{
@@ -1994,11 +1999,11 @@ void CAdvMapInt::tileRClicked(const int3 &mp)
 	}
 
 	std::vector < const CGObjectInstance * > objs = LOCPLINT->cb->getBlockingObjs(mp);
-	if(!objs.size()) 
+	if(!objs.size())
 	{
 		// Bare or undiscovered terrain
 		const TerrainTile * tile = LOCPLINT->cb->getTile(mp);
-		if (tile) 
+		if (tile)
 		{
 			std::string hlp;
 			CGI->mh->getTerrainDescr(mp, hlp, true);
@@ -2032,7 +2037,7 @@ void CAdvMapInt::leaveCastingMode(bool cast /*= false*/, int3 dest /*= int3(-1, 
 
 	if(cast)
 		LOCPLINT->cb->castSpell(curHero(), id, dest);
-	else 
+	else
 		LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[731]); //Spell cancelled
 }
 

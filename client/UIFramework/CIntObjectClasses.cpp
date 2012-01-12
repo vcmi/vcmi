@@ -941,6 +941,16 @@ void CListBox::reset()
 	updatePositions();
 }
 
+void CListBox::scrollTo(size_t which)
+{
+	//scroll up
+	if (first > which)
+		moveToPos(which);
+	//scroll down
+	else if (first + items.size() <= which)
+		moveToPos(which - items.size());
+}
+
 void CListBox::moveToPos(size_t which)
 {
 	//Calculate new position
@@ -1192,6 +1202,16 @@ void CLabel::setTxt(const std::string &Txt)
 			parent->redraw();
 	}
 }
+
+CLabelGroup::CLabelGroup(EFonts Font, EAlignment Align, const SDL_Color &Color):
+	font(Font), align(Align), color(Color)
+{};
+
+void CLabelGroup::add(int x, int y, const std::string &text)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	new CLabel(x, y, font, align, color, text);
+};
 
 CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= Colors::Cornsilk*/)
 :CLabel(rect.x, rect.y, Font, Align, Color, Text), sliderStyle(SliderStyle), slider(NULL)

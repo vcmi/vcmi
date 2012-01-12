@@ -47,6 +47,14 @@ public:
 	void swap(JsonNode &b);
 	JsonNode& operator =(JsonNode node);
 
+	bool operator == (const JsonNode &other) const;
+	bool operator != (const JsonNode &other) const;
+
+	//removes all nodes that are identical to default entry in schema
+	void minimize(const JsonNode& schema);
+	//check schema
+	void validate(const JsonNode& schema);
+
 	//Convert node to another type. Converting to NULL will clear all data
 	void setType(JsonType Type);
 	JsonType getType() const;
@@ -161,6 +169,7 @@ class JsonValidator
 {
 	std::string errors;     // Contains description of all encountered errors
 	std::list<std::string> currentPath; // path from root node to current one
+	bool minimize;
 
 	bool validateType(JsonNode &node, const JsonNode &schema, JsonNode::JsonType type);
 	bool validateSchema(JsonNode::JsonType &type, const JsonNode &schema);
@@ -170,5 +179,8 @@ class JsonValidator
 
 	bool addMessage(const std::string &message);
 public:
-	JsonValidator(JsonNode &root);
+	// validate node with "schema" entry
+	JsonValidator(JsonNode &root, bool minimize=false);
+	// validate with external schema
+	JsonValidator(JsonNode &root, const JsonNode &schema, bool minimize=false);
 };

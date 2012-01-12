@@ -244,7 +244,7 @@ void CDefenceAnimation::nextFrame()
 
 	if(!myAnim()->onLastFrameInGroup())
 	{
-		if( myAnim()->getType() == CCreatureAnim::DEATH && (owner->animCount+1)%(4/owner->curInt->sysOpts.animSpeed)==0
+		if( myAnim()->getType() == CCreatureAnim::DEATH && (owner->animCount+1)%(4/owner->getAnimSpeed())==0
 			&& !myAnim()->onLastFrameInGroup() )
 		{
 			myAnim()->incrementFrame();
@@ -625,7 +625,7 @@ void CMovementStartAnimation::nextFrame()
 	}
 	else
 	{
-		if((owner->animCount+1)%(4/owner->curInt->sysOpts.animSpeed)==0)
+		if((owner->animCount+1)%(4/owner->getAnimSpeed())==0)
 			myAnim()->incrementFrame();
 	}
 }

@@ -74,7 +74,7 @@ class CArtPlace;
 class CAnimImage;
 
 /// text + comp. + ok button
-class CInfoWindow : public CSimpleWindow 
+class CInfoWindow : public CSimpleWindow
 { //window able to delete its components when closed
 	bool delComps; //whether comps will be deleted
 
@@ -103,7 +103,7 @@ public:
 };
 
 /// component selection window
-class CSelWindow : public CInfoWindow 
+class CSelWindow : public CInfoWindow
 { //warning - this window deletes its components by closing!
 public:
 	void selectionChange(unsigned to);
@@ -114,7 +114,7 @@ public:
 };
 
 /// popup displayed on R-click
-class CRClickPopup : public CIntObject 
+class CRClickPopup : public CIntObject
 {
 public:
 	virtual void activate();
@@ -130,7 +130,7 @@ public:
 };
 
 /// popup displayed on R-click
-class CRClickPopupInt : public CRClickPopup 
+class CRClickPopupInt : public CRClickPopup
 {
 public:
 	IShowActivatable *inner;
@@ -173,7 +173,7 @@ public:
 
 	SDL_Surface *img; //our image
 	bool free; //should surface be freed on delete
-	
+
 	SDL_Surface * setSurface(std::string defName, int imgPos);
 
 	void init(Etype Type, int Subtype, int Val);
@@ -246,7 +246,7 @@ public:
 
 	int p2, //TODO: comment me
 	    shiftPos;//1st slot of the second row, set shiftPoint for effect
-	bool splitting, pb, 
+	bool splitting, pb,
 	     smallIcons, //true - 32x32 imgs, false - 58x64
 	     removableUnits,//player can remove units from up
 	     twoRows,//slots will be placed in 2 rows
@@ -262,7 +262,7 @@ public:
 	void setArmy(const CArmedInstance *army, bool bottomGarrison);
 	void addSplitBtn(CAdventureMapButton * button);
 	void createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int distance, int posY, int Upg );
-	
+
 	void activate();
 	void createSlots();
 	void deleteSlots();
@@ -331,12 +331,12 @@ public:
 };
 
 /// draws picture with creature on background, use Animated=true to get animation
-class CCreaturePic : public CIntObject 
+class CCreaturePic : public CIntObject
 {
 private:
 	CPicture *bg; //background
 	CCreatureAnim *anim; //displayed animation
-	
+
 public:
 	CCreaturePic(int x, int y, const CCreature *cre, bool Big=true, bool Animated=true); //c-tor
 	~CCreaturePic(); //d-tor
@@ -441,33 +441,45 @@ public:
 /// Town portal, castle gate window
 class CObjectListWindow : public CIntObject
 {
-public:
+	class CItem : public CIntObject
+	{
+		CObjectListWindow *parent;
+		CLabel *text;
+		CPicture *border;
+	public:
+		const size_t index;
+		CItem(CObjectListWindow *parent, size_t id, std::string text);
+
+		void select(bool on);
+		void clickLeft(tribool down, bool previousState);
+	};
 
 	boost::function<void(int)> onSelect;//called when OK button is pressed, returns id of selected item.
-	std::string title,descr;//text for title and description
+	CLabel * title;
+	CLabel * descr;
 
+	CListBox *list;
 	CPicture *bg; //background
-	CSlider *slider;
 	CPicture *titleImage;//title image (castle gate\town portal picture)
 	CAdventureMapButton *ok, *exit;
 
-	std::vector<Rect> areas;//areas for each visible item
-	std::vector<int> items;//id of all items present in list
-	int selected;//currently selected item
-	int length;//size of list (=9)
-	bool init;//true = initialization completed
+	std::vector< std::pair<int, std::string> > items;//all items present in list
 
+	void init(CPicture * titlePic, std::string _title, std::string _descr);
+public:
+	size_t selected;//index of currently selected item
 	/// Callback will be called when OK button is pressed, returns id of selected item. initState = initially selected item
+	/// Image can be NULL
+	///item names will be taken from map objects
 	CObjectListWindow(const std::vector<int> &_items, CPicture * titlePic, std::string _title, std::string _descr,
-                      boost::function<void(int)> Callback, int initState=-1); //c-tor
-	~CObjectListWindow(); //d-tor
+                      boost::function<void(int)> Callback);
+	CObjectListWindow(const std::vector<std::string> &_items, CPicture * titlePic, std::string _title, std::string _descr,
+                      boost::function<void(int)> Callback);
 
-	void elementSelected();//call callback and exit
-	void moveList(int which);//called when slider moves
-	void clickLeft(tribool down, bool previousState);  //call-in
-	void keyPressed (const SDL_KeyboardEvent & key);  //call-in
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	CIntObject *genItem(size_t index);
+	void elementSelected();//call callback and close this window
+	void changeSelection(size_t which);
+	void keyPressed (const SDL_KeyboardEvent & key);
 };
 
 class CArtifactHolder : public virtual CIntObject
@@ -501,10 +513,10 @@ public:
 	};
 	class CTradeableItem : public CIntObject
 	{
-		const CArtifactInstance *hlp; //holds ptr to artifact instance id type artifact 
+		const CArtifactInstance *hlp; //holds ptr to artifact instance id type artifact
 	public:
 		EType type;
-		int id; 
+		int id;
 		int serial;
 		bool left;
 		std::string subtitle; //empty if default
@@ -563,7 +575,7 @@ public:
 	virtual void selectionChanged(bool side) = 0; //true == left
 	virtual Point selectionOffset(bool Left) const = 0;
 	virtual std::string selectionSubtitle(bool Left) const = 0;
-	virtual void garrisonChanged() = 0; 
+	virtual void garrisonChanged() = 0;
 	virtual void artifactsChanged(bool left) = 0;
 };
 
@@ -625,7 +637,7 @@ public:
 
 	Point selectionOffset(bool Left) const;
 	std::string selectionSubtitle(bool Left) const;
-	void garrisonChanged(); 
+	void garrisonChanged();
 	void artifactsChanged(bool left);
 	void calcTotalExp();
 	void setExpToLevel();
@@ -639,14 +651,28 @@ public:
 class CSystemOptionsWindow : public CIntObject
 {
 private:
-	SDL_Surface * background; //background of window
+	CLabel *title;
+	CLabelGroup *leftGroup;
+	CLabelGroup *rightGroup;
+	CPicture * bg; //background of window
 	CAdventureMapButton *load, *save, *restart, *mainMenu, *quitGame, *backToMap; //load and restart are not used yet
 	CHighlightableButtonsGroup * heroMoveSpeed;
 	CHighlightableButtonsGroup * mapScrollSpeed;
 	CHighlightableButtonsGroup * musicVolume, * effectsVolume;
-public:
-	CSystemOptionsWindow(const SDL_Rect & pos, CPlayerInterface * owner); //c-tor
-	~CSystemOptionsWindow(); //d-tor
+
+	//CHighlightableButton * showPath;
+	CHighlightableButton * showReminder;
+	//CHighlightableButton * quickCombat;
+	//CHighlightableButton * videoSubs;
+	CHighlightableButton * newCreatureWin;
+	CHighlightableButton * fullscreen;
+
+	CAdventureMapButton *gameResButton;
+
+	void setMusicVolume( int newVolume );
+	void setSoundVolume( int newVolume );
+	void setHeroMoveSpeed( int newSpeed );
+	void setMapScrollingSpeed( int newSpeed );
 
 	//functions bound to buttons
 	void bsavef(); //save game
@@ -654,9 +680,18 @@ public:
 	void breturnf(); //return to game
 	void bmainmenuf(); //return to main menu
 
+	//functions for checkboxes
+	void toggleReminder(bool on);
+	void toggleCreatureWin(bool on);
+	void toggleFullscreen(bool on);
+
+	void selectGameRes(bool pregame);
+	void setGameRes(bool pregame, int index);
+
 	void pushSDLEvent(int type, int usercode);
 
-	void showAll(SDL_Surface * to);
+public:
+	CSystemOptionsWindow(const SDL_Rect & pos, CPlayerInterface * owner); //c-tor
 };
 
 class CTavernWindow : public CIntObject
@@ -740,7 +775,7 @@ class MoraleLuckBox : public LRClickableAreaWTextComp
 public:
 	bool morale; //true if morale, false if luck
 	bool small;
-	
+
 	void set(const IBonusBearer *node);
 	void showAll(SDL_Surface * to);
 
@@ -753,9 +788,9 @@ class CHeroArea: public CIntObject
 {
 public:
 	const CGHeroInstance * hero;
-	
+
 	CHeroArea(int x, int y, const CGHeroInstance * _hero);
-	
+
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	void hover(bool on);
@@ -888,7 +923,7 @@ class CGarrisonWindow : public CWindowWithGarrison
 {
 public:
 	CPicture *bg; //background surface
-	CLabel *title; 
+	CLabel *title;
 	CAdventureMapButton *quit;
 
 	void close();

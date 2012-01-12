@@ -274,7 +274,10 @@ public:
 	//return currently active items
 	std::list< CIntObject * > getItems();
 
-	//scroll list
+	//scroll list to make item which visible
+	void scrollTo(size_t which);
+
+	//scroll list to specified position
 	void moveToPos(size_t which);
 	void moveToNext();
 	void moveToPrev();
@@ -314,6 +317,18 @@ public:
 	virtual void setTxt(const std::string &Txt);
 	void showAll(SDL_Surface * to); //shows statusbar (with current text)
 	CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::Cornsilk, const std::string &Text =  "");
+};
+
+//Small helper class to manage group of similar labels 
+class CLabelGroup : public CIntObject
+{
+	std::list<CLabel*> labels;
+	EFonts font;
+	EAlignment align;
+	const SDL_Color &color;
+public:
+	CLabelGroup(EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::Cornsilk);
+	void add(int x=0, int y=0, const std::string &text =  "");
 };
 
 /// a multi-line label that tries to fit text with given available width and height; if not possible, it creates a slider for scrolling text

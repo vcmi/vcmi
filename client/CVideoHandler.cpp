@@ -7,7 +7,8 @@
 #include "UIFramework/SDL_Extensions.h"
 #include "CPlayerInterface.h"
 
-extern SystemOptions GDefaultOptions; 
+extern CGuiHandler GH; //global gui handler
+
 //reads events and returns true on key down
 static bool keyDown()
 {

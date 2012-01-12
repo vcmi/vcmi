@@ -1,5 +1,6 @@
 #pragma once
 
+#include "CConfigHandler.h"
 #include "CSoundBase.h"
 #include "CMusicBase.h"
 #include "../lib/CCreatureHandler.h"
@@ -65,6 +66,9 @@ class CSoundHandler: public CAudioBase
 private:
 	CSndHandler sndh;
 	soundBase::soundID getSoundID(const std::string &fileName);
+	//update volume on configuration change
+	SettingsListener listener;
+	void onVolumeChange(const JsonNode &volumeNode);
 
 	std::map<soundBase::soundID, Mix_Chunk *> soundChunks;
 
@@ -137,6 +141,9 @@ private:
 	// Because we use the SDL music callback, our music variables must
 	// be protected
 	boost::mutex musicMutex;
+	//update volume on configuration change
+	SettingsListener listener;
+	void onVolumeChange(const JsonNode &volumeNode);
 
 	std::auto_ptr<MusicEntry> current;
 	std::auto_ptr<MusicEntry> next;

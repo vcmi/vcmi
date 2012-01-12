@@ -25,6 +25,7 @@
 #include "../lib/CSpellHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/BattleState.h"
+#include "../lib/JsonNode.h"
 #include "CMusicHandler.h"
 #include "../lib/CondSh.h"
 #include "../lib/NetPacks.h"
@@ -96,7 +97,6 @@ CPlayerInterface::CPlayerInterface(int Player)
 	//pim = new boost::recursive_mutex;
 	makingTurn = false;
 	showingDialog = new CondSh<bool>(false);
-	sysOpts = GDefaultOptions;
 	cingconsole = new CInGameConsole;
 	terminate_cond.set(false);
 	firstCall = 1; //if loading will be overwritten in serialize
@@ -285,8 +285,9 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	//first initializing done
 	GH.mainFPSmng->framerateDelay(); // after first move
 
+	ui32 speed = settings["adventure"]["heroSpeed"].Float();
 	//main moving
-	for(int i=1; i<32; i+=2*sysOpts.heroMoveSpeed)
+	for(int i=1; i<32; i+=2*speed)
 	{
 		movementPxStep(details, i, hp, ho);
 		adventureInt->updateScreen = true;
@@ -1082,7 +1083,6 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, const int version )
 {
 	h & playerID;
-	h & sysOpts;
 	h & spellbookSettings;
 
 	//sleeping heroes
@@ -1099,7 +1099,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 		if (!h.saving)
 		{
 			const CGHeroInstance *hero = cb->getHero(hid);
-			sleepingHeroes += hero;	
+			sleepingHeroes += hero;
 		}
 	}
 
@@ -1119,7 +1119,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 		if (!h.saving)
 		{
 			const CGHeroInstance *hero = cb->getHero(hid);
-			wanderingHeroes += hero;			
+			wanderingHeroes += hero;
 		}
 	}
 }
@@ -1132,7 +1132,6 @@ void CPlayerInterface::serialize( COSer<CSaveFile> &h, const int version )
 void CPlayerInterface::serialize( CISer<CLoadFile> &h, const int version )
 {
 	serializeTempl(h,version);
-	sysOpts.apply();
 	firstCall = -1;
 }
 
@@ -1493,7 +1492,7 @@ void CPlayerInterface::update()
 	else
 		GH.simpleRedraw();
 
-	if (conf.cc.showFPS)
+	if (settings["general"]["showfps"].Bool())
 		GH.drawFPSCounter();
 
 	// draw the mouse cursor and update the screen
@@ -2023,74 +2022,6 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 	}
 }
 
-void SystemOptions::setMusicVolume( int newVolume )
-{
-	musicVolume = newVolume;
-	CCS->musich->setVolume(newVolume);
-	settingsChanged();
-}
-
-void SystemOptions::setSoundVolume( int newVolume )
-{
-	soundVolume = newVolume;
-	CCS->soundh->setVolume(newVolume);
-	settingsChanged();
-}
-
-void SystemOptions::setHeroMoveSpeed( int newSpeed )
-{
-	heroMoveSpeed = newSpeed;
-	settingsChanged();
-}
-
-void SystemOptions::setMapScrollingSpeed( int newSpeed )
-{
-	mapScrollingSpeed = newSpeed;
-	settingsChanged();
-}
-
-void SystemOptions::settingsChanged()
-{
-	CSaveFile settings(GVCMIDirs.UserPath + "/config/sysopts.bin");
-
-	if(settings.sfile)
-		settings << *this;
-	else
-		tlog1 << "Cannot save settings to config/sysopts.bin!\n";
-}
-
-void SystemOptions::apply()
-{
-	if(CCS->musich->getVolume() != musicVolume)
-		CCS->musich->setVolume(musicVolume);
-	if(CCS->soundh->getVolume() != soundVolume)
-		CCS->soundh->setVolume(soundVolume);
-
-	settingsChanged();
-}
-
-SystemOptions::SystemOptions()
-{
-	heroMoveSpeed = 2;
-	mapScrollingSpeed = 2;
-	musicVolume = 88;
-	soundVolume = 88;
-
-	printCellBorders = true;
-	printStackRange = true;
-	animSpeed = 2;
-	printMouseShadow = true;
-	showQueue = true;
-
-	playerName = "Player";
-}
-
-void SystemOptions::setPlayerName(const std::string &newPlayerName)
-{
-	playerName = newPlayerName;
-	settingsChanged();
-}
-
 void CPlayerInterface::eraseCurrentPathOf( const CGHeroInstance * ho, bool checkForExistanceOfPath /*= true */ )
 {
 	if(checkForExistanceOfPath)
@@ -2140,7 +2071,7 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 
 void CPlayerInterface::acceptTurn()
 {
-	if(conf.cc.autoSkip)
+	if(settings["session"]["autoSkip"].Bool())
 	{
 		while(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt()))
 			iw->close();
@@ -2177,7 +2108,7 @@ void CPlayerInterface::acceptTurn()
 
 	adventureInt->showAll(screen);
 
-	if(conf.cc.autoSkip && !LOCPLINT->shiftPressed())
+	if(settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
 	{
 		if(CInfoWindow *iw = dynamic_cast<CInfoWindow *>(GH.topInt()))
 			iw->close();

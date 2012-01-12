@@ -121,7 +121,7 @@ void CGarrisonSlot::hover (bool on)
 		{
 			if(owner->highlighted)
 			{
-				const CArmedInstance *highl = owner->highlighted->getObj(); 
+				const CArmedInstance *highl = owner->highlighted->getObj();
 				if(  highl->needsLastStack()		//we are moving stack from hero's
 				  && highl->stacksCount() == 1	//it's only stack
 				  && owner->highlighted->upg != upg	//we're moving it to the other garrison
@@ -195,7 +195,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				CIntObject *creWindow = createCreWindow(myStack, 3, upgr, dism, &pom);
 				GH.pushInt(creWindow);
 			}
-			else 
+			else
 			{
 				// Only allow certain moves if troops aren't removable or not ours.
 				if (  ( owner->highlighted->our()//our creature is selected
@@ -214,7 +214,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 						owner->splitting = false;
 
 						int totalAmount = owner->highlighted->count;
-						if(creature) 
+						if(creature)
 							totalAmount += count;
 
 						int last = -1;
@@ -254,7 +254,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 					}
 				}
 				else // Highlight
-				{ 
+				{
 					if(creature)
 						owner->highlighted = this;
 					redraw();
@@ -360,7 +360,7 @@ void CGarrisonInt::addSplitBtn(CAdventureMapButton * button)
 void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int posY, int distance, int Upg )
 {
 	ret.resize(7);
-	
+
 	for(TSlots::const_iterator i=set->Slots().begin(); i!=set->Slots().end(); i++)
 	{
 		ret[i->first] = new CGarrisonSlot(this, posX + (i->first*distance), posY, i->first, Upg, i->second);
@@ -395,7 +395,7 @@ void CGarrisonInt::deleteSlots()
 {
 	for (int i=0; i<slotsUp.size(); i++)
 		delChildNUll(slotsUp[i]);
-		
+
 	for (int i=0; i<slotsDown.size(); i++)
 		delChildNUll(slotsDown[i]);
 }
@@ -414,10 +414,10 @@ void CGarrisonInt::recreateSlots()
 	{
 		deactivate();
 	}
-	
+
 	deleteSlots();
 	createSlots();
-	
+
 	if(wasActive)
 	{
 		activate();
@@ -437,9 +437,9 @@ void CGarrisonInt::splitStacks(int am2)
 	LOCPLINT->cb->splitStack(armedObjs[highlighted->upg], armedObjs[pb], highlighted->ID, p2, am2);
 }
 
-CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset, 
-                            SDL_Surface *pomsur, const Point& SurOffset, 
-                            const CArmedInstance *s1, const CArmedInstance *s2, 
+CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset,
+                            SDL_Surface *pomsur, const Point& SurOffset,
+                            const CArmedInstance *s1, const CArmedInstance *s2,
                             bool _removableUnits, bool smallImgs, bool _twoRows )
 	: interx(inx), garOffset(garsOffset), highlighted(NULL), splitting(false),
 	smallIcons(smallImgs), removableUnits (_removableUnits), twoRows(_twoRows)
@@ -506,7 +506,7 @@ CInfoWindow::CInfoWindow(std::string Text, int player, const TCompsInfo &comps, 
 	CMessage::drawIWindow(this,Text,player);
 }
 
-CInfoWindow::CInfoWindow() 
+CInfoWindow::CInfoWindow()
 {
 	ID = -1;
 	setDelComps(false);
@@ -644,8 +644,8 @@ void CInfoPopup::init(int x, int y)
 	// Put the window back on screen if necessary
 	vstd::amax(pos.x, 0);
 	vstd::amax(pos.y, 0);
-	vstd::amin(pos.x, conf.cc.resx - bitmap->w);
-	vstd::amin(pos.y, conf.cc.resy - bitmap->h);
+	vstd::amin(pos.x, screen->w - bitmap->w);
+	vstd::amin(pos.y, screen->h - bitmap->h);
 }
 
 void CComponent::init(Etype Type, int Subtype, int Val)
@@ -768,7 +768,7 @@ SDL_Surface * CComponent::setSurface(std:: string defname, int imagepos)
 	if (img)
 		tlog1<<"CComponent::setSurface: Warning - surface is already set!\n";
 	CDefEssential * def = CDefHandler::giveDefEss(defname);
-	
+
 	free = true;
 	img = def->ourImages[imagepos].bitmap;
 	img->refcount++;//to preserve surface whed def is deleted
@@ -886,7 +886,7 @@ void CSelectableComponent::show(SDL_Surface * to)
 	{
 		CSDL_Ext::drawBorder(to, Rect::around(Rect(pos.x, pos.y, getImg()->w, getImg()->h)), int3(239,215,123));
 	}
-	
+
 	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+25,FONT_SMALL,12,Colors::Cornsilk,to);
 }
 
@@ -1373,7 +1373,7 @@ void CTownList::clickLeft(tribool down, bool previousState)
 		if (ny>=SIZE || ny<0)
 			return;
 		if(GH.topInt() == adventureInt
-		  && (ny+from)==selected 
+		  && (ny+from)==selected
 		  && adventureInt->selection->ID == GameConstants::TOWNI_TYPE
 		  )
 			LOCPLINT->openTownWindow(LOCPLINT->towns[selected]);//print town screen
@@ -1501,7 +1501,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool An
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos.x+=x;
 	pos.y+=y;
-	
+
 	if(Big)
 		bg = new CPicture(graphics->backgrounds[cre->faction],0,0,false);
 	else
@@ -1514,7 +1514,7 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool An
 
 CCreaturePic::~CCreaturePic()
 {
-	
+
 }
 
 void CRecruitmentWindow::close()
@@ -1607,7 +1607,7 @@ void CRecruitmentWindow::clickRight(tribool down, bool previousState)
 void CRecruitmentWindow::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-	
+
 	char pom[15];
 	SDL_itoa(creatures[which].amount-slider->value,pom,10); //available
 	printAtMiddleLoc(pom,205,253,FONT_SMALL,Colors::Cornsilk,to);
@@ -1705,7 +1705,7 @@ void CRecruitmentWindow::initCres()
 
 	for(int i=0; i<dwelling->creatures.size(); i++)
 	{
-		if(level >= 0 && i != level) 
+		if(level >= 0 && i != level)
 			continue;
 
 		for(int j = dwelling->creatures[i].second.size() - 1; j >= 0 ; j--)
@@ -1821,13 +1821,13 @@ void CSplitWindow::keyPressed (const SDL_KeyboardEvent & key)
 {
 	SDLKey k = key.keysym.sym;
 	if (CGuiHandler::isNumKey(k)) //convert numpad number to normal digit
-		k = CGuiHandler::numToDigit(k); 
+		k = CGuiHandler::numToDigit(k);
 
 	if(key.state != SDL_PRESSED)
 		return;
 
-	int &cur = (which ? a2 : a1), 
-		&sec = (which ? a1 : a2), 
+	int &cur = (which ? a2 : a1),
+		&sec = (which ? a1 : a2),
 		ncur = cur;
 	if (k == SDLK_BACKSPACE)
 	{
@@ -2030,138 +2030,156 @@ CMinorResDataBar::~CMinorResDataBar()
 	SDL_FreeSurface(bg);
 }
 
-CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CPicture * titlePic, std::string _title, std::string _descr,
-				boost::function<void(int)> Callback, int initState)
-				:title(_title), descr(_descr),items(_items),selected(initState)
+CObjectListWindow::CItem::CItem(CObjectListWindow *_parent, size_t _id, std::string _text):
+	parent(_parent),
+	index(_id)
 {
-	init = false;
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	defActions = ACTIVATE | DEACTIVATE | UPDATE | SHOWALL | DISPOSE | SHARE_POS;
-	used = LCLICK | KEYBOARD;
-	
-	onSelect = Callback;
-	length = 9;
-	pos.x = (screen->w-306)/2;
-	pos.y = (screen->h-468)/2;
-	
-	bg = new CPicture("TPGATE.pcx");//x=0, y=0
-	bg->colorizeAndConvert(LOCPLINT->playerID);
-	
-	slider = new CSlider(277, 120, 256, boost::bind(&CObjectListWindow::moveList,this, _1), length, items.size(), 0, false, 0);
-	ok = new CAdventureMapButton("","",boost::bind(&CObjectListWindow::elementSelected, this),15,402,"IOKAY.DEF", SDLK_RETURN);
-	exit = new CAdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally,&GH, this),228,402,"ICANCEL.DEF",SDLK_ESCAPE);
-	pos.w = bg->pos.w;
-	pos.h = bg->pos.h;
-	titleImage = titlePic;
-	titleImage->pos.x =153+pos.x-titleImage->pos.w/2;
-	titleImage->pos.y =75 +pos.y-titleImage->pos.h/2;
-	
-	for (int i=0; i<length; i++)
-		areas.push_back(genRect(22, 260, pos.x+15, pos.y+152+i*25 ));//rects for selecting\printing items
-	init = true;
+	border = new CPicture("TPGATES");
+	pos = border->pos;
+	used |= LCLICK;
+	type |= REDRAW_PARENT;
+
+	text = new CLabel(pos.w/2, pos.h/2, FONT_SMALL, CENTER, Colors::Cornsilk, _text);
+	select(index == parent->selected);
 }
 
-CObjectListWindow::~CObjectListWindow()
+void CObjectListWindow::CItem::select(bool on)
 {
-	delete titleImage;
+	if (on)
+		border->recActions = 255;
+	else
+		border->recActions = ~(UPDATE | SHOWALL);
+	redraw();
+}
+
+void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
+{
+	if( previousState && !down)
+		parent->changeSelection(index);
+}
+
+CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CPicture * titlePic, std::string _title, std::string _descr,
+				boost::function<void(int)> Callback):
+	onSelect(Callback)
+{
+	items.reserve(_items.size());
+	BOOST_FOREACH(int id, _items)
+	{
+		items.push_back(std::make_pair(id, CGI->mh->map->objects[id]->hoverName));
+	}
+
+	init(titlePic, _title, _descr);
+}
+
+CObjectListWindow::CObjectListWindow(const std::vector<std::string> &_items, CPicture * titlePic, std::string _title, std::string _descr,
+				boost::function<void(int)> Callback):
+	onSelect(Callback)
+{
+	items.reserve(_items.size());
+
+	for (size_t i=0; i<_items.size(); i++)
+		items.push_back(std::make_pair(int(i), _items[i]));
+
+	init(titlePic, _title, _descr);
+}
+
+void CObjectListWindow::init(CPicture * titlePic, std::string _title, std::string _descr)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	bg = new CPicture("TPGATE.pcx");//x=0, y=0
+	bg->colorizeAndConvert(LOCPLINT->playerID);
+	pos = bg->center();
+
+	title = new CLabel(152, 27, FONT_BIG, CENTER, Colors::Jasmine, _title);
+	descr = new CLabel(145, 133, FONT_SMALL, CENTER, Colors::Cornsilk, _descr);
+
+	ok = new CAdventureMapButton("","",boost::bind(&CObjectListWindow::elementSelected, this),15,402,"IOKAY.DEF", SDLK_RETURN);
+	ok->block(true);
+	exit = new CAdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally,&GH, this),228,402,"ICANCEL.DEF",SDLK_ESCAPE);
+
+	if (titlePic)
+	{
+		titleImage = titlePic;
+		addChild(titleImage);
+		titleImage->recActions = defActions;
+		titleImage->pos.x =bg->pos.w/2 + pos.x - titleImage->pos.w/2;
+		titleImage->pos.y =75 + pos.y - titleImage->pos.h/2;
+	}
+	list = new CListBox(boost::bind(&CObjectListWindow::genItem, this, _1), CListBox::DestroyFunc(),
+		Point(15, 152), Point(0, 25), 9, items.size(), 0, 1, Rect(262, -32, 256, 256) );
+	list->type |= REDRAW_PARENT;
+}
+
+CIntObject * CObjectListWindow::genItem(size_t index)
+{
+	if (index < items.size())
+		return new CItem(this, index, items[index].second);
+	return NULL;
 }
 
 void CObjectListWindow::elementSelected()
 {
 	boost::function<void(int)> toCall = onSelect;//save
-	int where = items[selected];      //required variables
+	int where = items[selected].first;      //required variables
 	GH.popIntTotally(this);//then destroy window
 	toCall(where);//and send selected object
 }
 
-void CObjectListWindow::moveList(int which)
+void CObjectListWindow::changeSelection(size_t which)
 {
-	if (init)//TODO: is there a way to disable running this when CSlider is created?
-		showAll(screen2);
-}
+	ok->block(false);
+	if (selected == which)
+		return;
 
-void CObjectListWindow::clickLeft(tribool down, bool previousState)
-{
-	if (previousState && (!down))
+	std::list< CIntObject * > elements = list->getItems();
+	BOOST_FOREACH(CIntObject * element, elements)
 	{
-		for (int i=0; i<areas.size(); i++)
-			if(slider->value+i < items.size() && isItIn(&areas[i],GH.current->motion.x,GH.current->motion.y))
-			{//check all areas to find element which was clicked
-				selected = i+slider->value;
-				showAll(screen2);
-				return;
-			}
+		CItem *item;
+		if ( (item = dynamic_cast<CItem*>(element)) )
+			if (item->index == selected)
+				item->select(false);
+			if (item->index == which)
+				item->select(true);
 	}
+	selected = which;
 }
 
 void CObjectListWindow::keyPressed (const SDL_KeyboardEvent & key)
 {
-	if(key.state != SDL_PRESSED) return;
+	if(key.state != SDL_PRESSED)
+		return;
 
 	int sel = selected;
 
 	switch(key.keysym.sym)
 	{
-	case SDLK_UP:	
-					sel -=1;
-					break;
-	case SDLK_DOWN:
-					sel +=1;
-					break;
-	case SDLK_PAGEUP:
-					sel -=length;
-					break;
-	case SDLK_PAGEDOWN:
-					sel +=length;
-					break;
-	case SDLK_HOME:
-					sel = 0;
-					break;
-	case SDLK_END:
-					sel = slider->amount;
-					break;
-	default:
-		return;
-	}
-	if (sel<-1)//nothing was selected & list was moved up
-		return;
-	if (sel<0)//start of list reached
+	break; case SDLK_UP:
+		sel -=1;
+
+	break; case SDLK_DOWN:
+		sel +=1;
+
+	break; case SDLK_PAGEUP:
+		sel -=9;
+
+	break; case SDLK_PAGEDOWN:
+		sel +=9;
+
+	break; case SDLK_HOME:
 		sel = 0;
-	if ( sel >= slider->amount )//end of list reached
-		sel = slider->amount-1;
-	if ( sel >= items.size() )
-		sel = items.size()-1;
-	if ( sel < slider->value )//need to move list up
-		slider->moveTo(sel);
-	else 
-	if ( sel >= slider->value+length )//move to bottom
-		slider->moveTo(sel-length+1);
-	selected = sel;
-	showAll(screen2);
-}
 
-void CObjectListWindow::show(SDL_Surface * to)
-{
-	
-}
+	break; case SDLK_END:
+		sel = items.size();
 
-void CObjectListWindow::showAll(SDL_Surface * to)
-{
-	ok->block((selected<0)?2:0);
-	CIntObject::showAll(to);
-	CSDL_Ext::printAtMiddle(title,pos.x+152,pos.y+27,FONT_BIG,Colors::Jasmine,to);//"castle gate"
-	CSDL_Ext::printAtMiddle(descr,pos.x+145,pos.y+133,FONT_SMALL,Colors::Cornsilk,to);//"select destination"
-	titleImage->showAll(to);
-	if ( selected >= slider->value && selected < slider->value+length )//if selected item is visible 
-	{
-		SDL_Rect a = areas[selected-slider->value];
-		CSDL_Ext::drawBorder(to, a.x,   a.y,   a.w,   a.h,   int3(255, 231, 148));
-		CSDL_Ext::drawBorder(to, a.x-1, a.y-1, a.w+2, a.h+2, int3(255, 231, 148));//border shoul be 2 pixels width
+	break; default:
+		return;
 	}
-	int position = slider->value;
-	for ( int i = 0; i<9 && i<items.size()-position; i++)
-		CSDL_Ext::printAtMiddle(CGI->mh->map->objects[items[i+position]]->hoverName,pos.x+145,pos.y+163+25*i,
-			FONT_SMALL, Colors::Cornsilk, to);//print item names in list
+
+	vstd::abetween(sel, 0, items.size()-1);
+	list->scrollTo(sel);
+	changeSelection(sel);
 }
 
 CTradeWindow::CTradeableItem::CTradeableItem( EType Type, int ID, bool Left, int Serial)
@@ -2254,7 +2272,7 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 		}
 		else
 		{
-			if(mw->hRight != this) 
+			if(mw->hRight != this)
 				mw->hRight = this;
 			else
 				return;
@@ -2469,7 +2487,7 @@ void CTradeWindow::initItems(bool Left)
 
 	if(Left || !ids)
 		amount = 7;
-	else 
+	else
 		amount = ids->size();
 
 	if(ids)
@@ -2555,7 +2573,7 @@ void CTradeWindow::getPositionsFor(std::vector<Rect> &poss, bool Left, EType typ
 		//seven boxes:
 		//  X  X  X
 		//  X  X  X
-		//     X   
+		//     X
 		int h, w, x, y, dx, dy;
 		int leftToRightOffset;
 		getBaseForPositions(type, dx, dy, x, y, h, w, !Left, leftToRightOffset);
@@ -2665,7 +2683,7 @@ void CTradeWindow::setMode(EMarketMode::EMarketMode Mode)
 	CTradeWindow *nwindow = NULL;
 
 	GH.popIntTotally(this);
-	
+
 	switch(Mode)
 	{
 	case EMarketMode::CREATURE_EXP:
@@ -2748,10 +2766,10 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	}
 	else if(mode == EMarketMode::RESOURCE_ARTIFACT || mode == EMarketMode::ARTIFACT_RESOURCE)
 	{
-		const std::string &title = market->o->ID == GameConstants::TOWNI_TYPE 
+		const std::string &title = market->o->ID == GameConstants::TOWNI_TYPE
 									? CGI->buildh->buildings[market->o->subID][17]->Name()
 									: market->o->getHoverText();
-		
+
 		printAtMiddle(title, 300, 27, FONT_BIG, Colors::Jasmine, *bg); //title
 	}
 	else
@@ -2761,7 +2779,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 
 	initItems(false);
 	initItems(true);
-	
+
 	ok = new CAdventureMapButton(CGI->generaltexth->zelp[600],boost::bind(&CGuiHandler::popIntTotally,&GH,this),516,520,"IOK6432.DEF",SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
 	deal = new CAdventureMapButton(CGI->generaltexth->zelp[595],boost::bind(&CMarketplaceWindow::makeDeal,this),307,520,"TPMRKB.DEF");
@@ -2793,10 +2811,10 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	case EMarketMode::RESOURCE_ARTIFACT:
 		printAtMiddle(CGI->generaltexth->allTexts[270],154,148,FONT_SMALL,Colors::Cornsilk,*bg); //kingdom res.
 		break;
-	case EMarketMode::CREATURE_RESOURCE: 
+	case EMarketMode::CREATURE_RESOURCE:
 		printAtMiddle(boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name), 152, 102, FONT_SMALL, Colors::Cornsilk, *bg); //%s's Creatures
 		break;
-	case EMarketMode::ARTIFACT_RESOURCE: 
+	case EMarketMode::ARTIFACT_RESOURCE:
 		printAtMiddle(boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->name), 152, 57, FONT_SMALL, Colors::Cornsilk, *bg); //%s's Artifacts
 		break;
 	}
@@ -2828,7 +2846,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 		new CAdventureMapButton(CGI->generaltexth->zelp[599],boost::bind(&CMarketplaceWindow::setMode,this, EMarketMode::CREATURE_RESOURCE), 516, 485,"TPMRKBU4.DEF"); //was y=450, changed to not overlap res-res in some conditions
 	if(printButtonFor(EMarketMode::RESOURCE_ARTIFACT))
 		new CAdventureMapButton(CGI->generaltexth->zelp[598],boost::bind(&CMarketplaceWindow::setMode,this, EMarketMode::RESOURCE_ARTIFACT), 18, 450 + specialOffset,"TPMRKBU2.DEF");
-	if(printButtonFor(EMarketMode::ARTIFACT_RESOURCE))																				
+	if(printButtonFor(EMarketMode::ARTIFACT_RESOURCE))
 		new CAdventureMapButton(CGI->generaltexth->zelp[613],boost::bind(&CMarketplaceWindow::setMode,this, EMarketMode::ARTIFACT_RESOURCE), 18, 485,"TPMRKBU3.DEF"); //was y=450, changed to not overlap res-art in some conditions
 
 	updateTraderText();
@@ -2860,7 +2878,7 @@ void CMarketplaceWindow::makeDeal()
 	int sliderValue = 0;
 	if(slider)
 		sliderValue = slider->value;
-	else	
+	else
 		sliderValue = !deal->isBlocked(); //should always be 1
 
 	if(!sliderValue)
@@ -2899,11 +2917,11 @@ void CMarketplaceWindow::selectionChanged(bool side)
 {
 	readyToTrade = hLeft && hRight;
 	if(mode == EMarketMode::RESOURCE_RESOURCE)
-		readyToTrade = readyToTrade && (hLeft->id != hRight->id); //for resource trade, two DIFFERENT resources must be selected 
+		readyToTrade = readyToTrade && (hLeft->id != hRight->id); //for resource trade, two DIFFERENT resources must be selected
 
- 	if(mode == EMarketMode::ARTIFACT_RESOURCE && !hLeft) 
+ 	if(mode == EMarketMode::ARTIFACT_RESOURCE && !hLeft)
 		arts->unmarkSlots(false);
- 
+
 	if(readyToTrade)
 	{
 		int soldItemId = hLeft->id;
@@ -2992,8 +3010,8 @@ std::string CMarketplaceWindow::selectionSubtitle(bool Left) const
 		case RESOURCE:
 		case CREATURE:
 			{
-				int val = slider 
-					? slider->value * r1 
+				int val = slider
+					? slider->value * r1
 					: (((deal->isBlocked())) ? 0 : r1);
 
 				return boost::lexical_cast<std::string>(val);
@@ -3193,7 +3211,7 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 
 		slider = NULL;
 		max = NULL;
-		
+
 		initItems(true);
 		initItems(false);
 	}
@@ -3309,7 +3327,7 @@ void CAltarWindow::SacrificeAll()
 			if(t->type == CREATURE)
 				movedAnything = true;
 		}
-		
+
 		deal->block(!movedAnything);
 		calcTotalExp();
 	}
@@ -3557,51 +3575,86 @@ void CAltarWindow::moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, co
 	}
 }
 
-CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface * owner)
+void CSystemOptionsWindow::setMusicVolume( int newVolume )
 {
+	Settings volume = settings.write["general"]["music"];
+	volume->Float() = newVolume;
+}
+
+void CSystemOptionsWindow::setSoundVolume( int newVolume )
+{
+	Settings volume = settings.write["general"]["sound"];
+	volume->Float() = newVolume;
+}
+
+void CSystemOptionsWindow::setHeroMoveSpeed( int newSpeed )
+{
+	Settings speed = settings.write["adventure"]["heroSpeed"];
+	speed->Float() = newSpeed;
+}
+
+void CSystemOptionsWindow::setMapScrollingSpeed( int newSpeed )
+{
+	Settings speed = settings.write["adventure"]["mapScrollingSpeed"];
+	speed->Float() = newSpeed;
+}
+
+CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &Pos, CPlayerInterface * owner)
+{
+	//TODO: translation and\or config file
+	static const std::string fsLabel = "Fullscreen";
+	static const std::string fsHelp  = "{Fullscreen}\n\n If selected, VCMI will run in fullscreen mode, othervice VCMI will run in window";
+	static const std::string cwLabel = "Classic creature window";
+	static const std::string cwHelp  = "{Classic creature window}\n\n Enable original Heroes 3 creature window instead of new window from VCMI";
+	static const std::string rsLabel = "Select resolution";
+	static const std::string rsHelp = "{Select resolution}\n\n Change in-game screen resolution. Will only affect adventure map. Game restart required to apply new resolution.";
+
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	this->pos = pos;
-	SDL_Surface *hhlp = BitmapHandler::loadBitmap("SysOpbck.bmp", true);
-	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
-	background = SDL_ConvertSurface(hhlp,screen->format,0);
-	SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
-	SDL_FreeSurface(hhlp);
+	pos = Pos;
+	bg = new CPicture("SysOpBck");
+	bg->colorize(LOCPLINT->playerID);
+	//window title
+	title = new CLabel(242, 32, FONT_BIG, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[568]);
 
-	//printing texts
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[568], 242, 32, FONT_BIG, Colors::Jasmine, background); //window title
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[569], 122, 64, FONT_MEDIUM, Colors::Jasmine, background); //hero speed
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[570], 122, 130, FONT_MEDIUM, Colors::Jasmine, background); //enemy speed
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[571], 122, 196, FONT_MEDIUM, Colors::Jasmine, background); //map scroll speed
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[20], 122, 262, FONT_MEDIUM, Colors::Jasmine, background); //video quality
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[394], 122, 347, FONT_MEDIUM, Colors::Jasmine, background); //music volume
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[395], 122, 412, FONT_MEDIUM, Colors::Jasmine, background); //effects volume
+	//left window section
+	leftGroup =  new CLabelGroup(FONT_MEDIUM, CENTER, Colors::Jasmine);
+	leftGroup->add(122,  64, CGI->generaltexth->allTexts[569]);
+	leftGroup->add(122, 130, CGI->generaltexth->allTexts[570]);
+	leftGroup->add(122, 196, CGI->generaltexth->allTexts[571]);
+	leftGroup->add(122, 262, rsLabel); //CGI->generaltexth->allTexts[20]
+	leftGroup->add(122, 347, CGI->generaltexth->allTexts[394]);
+	leftGroup->add(122, 412, CGI->generaltexth->allTexts[395]);
 
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[572], 282, 57, FONT_MEDIUM, Colors::Cornsilk, background); //show move path
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[573], 282, 89, FONT_MEDIUM, Colors::Cornsilk, background); //show hero reminder
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[574], 282, 121, FONT_MEDIUM, Colors::Cornsilk, background); //quick combat
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[575], 282, 153, FONT_MEDIUM, Colors::Cornsilk, background); //video subtitles
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[576], 282, 185, FONT_MEDIUM, Colors::Cornsilk, background); //town building outlines
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 282, 217, FONT_MEDIUM, Colors::Cornsilk, background); //spell book animation
+	//right section
+	rightGroup = new CLabelGroup(FONT_MEDIUM, TOPLEFT, Colors::Cornsilk);
+	rightGroup->add(282, 57,  CGI->generaltexth->allTexts[572]);
+	rightGroup->add(282, 89,  CGI->generaltexth->allTexts[573]);
+	rightGroup->add(282, 121, CGI->generaltexth->allTexts[574]);
+	rightGroup->add(282, 153, CGI->generaltexth->allTexts[575]);
+	rightGroup->add(282, 185, cwLabel); //CGI->generaltexth->allTexts[576]
+	rightGroup->add(282, 217, fsLabel); //CGI->generaltexth->allTexts[577]
 
 	//setting up buttons
 	// load = new CAdventureMapButton (CGI->generaltexth->zelp[321].first, CGI->generaltexth->zelp[321].second, boost::bind(&CSystemOptionsWindow::loadf, this), pos.x+246, pos.y+298, "SOLOAD.DEF", SDLK_l);
-	// std::swap(save->imgs[0][0], load->imgs[0][1]);
 
-	save = new CAdventureMapButton (CGI->generaltexth->zelp[322].first, CGI->generaltexth->zelp[322].second, boost::bind(&CSystemOptionsWindow::bsavef, this), 357, 298, "SOSAVE.DEF", SDLK_s);
+	save = new CAdventureMapButton (CGI->generaltexth->zelp[322].first, CGI->generaltexth->zelp[322].second,
+	                                boost::bind(&CSystemOptionsWindow::bsavef, this), 357, 298, "SOSAVE.DEF", SDLK_s);
 	save->swappedImages = true;
 	save->update();
 
 	// restart = new CAdventureMapButton (CGI->generaltexth->zelp[323].first, CGI->generaltexth->zelp[323].second, boost::bind(&CSystemOptionsWindow::bmainmenuf, this), pos.x+346, pos.y+357, "SORSTRT", SDLK_r);
-	// std::swap(save->imgs[0][0], restart->imgs[0][1]);
 
-	mainMenu = new CAdventureMapButton (CGI->generaltexth->zelp[320].first, CGI->generaltexth->zelp[320].second, boost::bind(&CSystemOptionsWindow::bmainmenuf, this), 357, 357, "SOMAIN.DEF", SDLK_m);
+	mainMenu = new CAdventureMapButton (CGI->generaltexth->zelp[320].first, CGI->generaltexth->zelp[320].second,
+	                                    boost::bind(&CSystemOptionsWindow::bmainmenuf, this), 357, 357, "SOMAIN.DEF", SDLK_m);
 	mainMenu->swappedImages = true;
 	mainMenu->update();
 
-	quitGame = new CAdventureMapButton (CGI->generaltexth->zelp[324].first, CGI->generaltexth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), 246, 415, "soquit.def", SDLK_q);
+	quitGame = new CAdventureMapButton (CGI->generaltexth->zelp[324].first, CGI->generaltexth->zelp[324].second,
+	                                    boost::bind(&CSystemOptionsWindow::bquitf, this), 246, 415, "soquit.def", SDLK_q);
 	quitGame->swappedImages = true;
 	quitGame->update();
-	backToMap = new CAdventureMapButton (CGI->generaltexth->zelp[325].first, CGI->generaltexth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), 357, 415, "soretrn.def", SDLK_RETURN);
+	backToMap = new CAdventureMapButton (CGI->generaltexth->zelp[325].first, CGI->generaltexth->zelp[325].second,
+	                                     boost::bind(&CSystemOptionsWindow::breturnf, this), 357, 415, "soretrn.def", SDLK_RETURN);
 	backToMap->swappedImages = true;
 	backToMap->update();
 	backToMap->assignedKeys.insert(SDLK_ESCAPE);
@@ -3611,36 +3664,79 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[350].second),CGI->generaltexth->zelp[350].second, "sysopb2.def", 76, 77, 2);
 	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[351].second),CGI->generaltexth->zelp[351].second, "sysopb3.def", 124, 77, 4);
 	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[352].second),CGI->generaltexth->zelp[352].second, "sysopb4.def", 172, 77, 8);
-	heroMoveSpeed->select(owner->sysOpts.heroMoveSpeed, 1);
-	heroMoveSpeed->onChange = boost::bind(&SystemOptions::setHeroMoveSpeed, &owner->sysOpts, _1);
+	heroMoveSpeed->select(settings["adventure"]["heroSpeed"].Float(), 1);
+	heroMoveSpeed->onChange = boost::bind(&CSystemOptionsWindow::setHeroMoveSpeed, this, _1);
 
 	mapScrollSpeed = new CHighlightableButtonsGroup(0);
 	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[357].second),CGI->generaltexth->zelp[357].second, "sysopb9.def", 28, 210, 1);
 	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[358].second),CGI->generaltexth->zelp[358].second, "sysob10.def", 92, 210, 2);
 	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[359].second),CGI->generaltexth->zelp[359].second, "sysob11.def", 156, 210, 4);
-	mapScrollSpeed->select(owner->sysOpts.mapScrollingSpeed, 1);
-	mapScrollSpeed->onChange = boost::bind(&SystemOptions::setMapScrollingSpeed, &owner->sysOpts, _1);
+	mapScrollSpeed->select(settings["adventure"]["scrollSpeed"].Float(), 1);
+	mapScrollSpeed->onChange = boost::bind(&CSystemOptionsWindow::setMapScrollingSpeed, this, _1);
 
 	musicVolume = new CHighlightableButtonsGroup(0, true);
 	for(int i=0; i<10; ++i)
-	{
 		musicVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[326+i].second),CGI->generaltexth->zelp[326+i].second, "syslb.def", 29 + 19*i, 359, i*11);
-	}
+
 	musicVolume->select(CCS->musich->getVolume(), 1);
-	musicVolume->onChange = boost::bind(&SystemOptions::setMusicVolume, &owner->sysOpts, _1);
+	musicVolume->onChange = boost::bind(&CSystemOptionsWindow::setMusicVolume, this, _1);
 
 	effectsVolume = new CHighlightableButtonsGroup(0, true);
 	for(int i=0; i<10; ++i)
-	{
 		effectsVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[336+i].second),CGI->generaltexth->zelp[336+i].second, "syslb.def", 29 + 19*i, 425, i*11);
-	}
+
 	effectsVolume->select(CCS->soundh->getVolume(), 1);
-	effectsVolume->onChange = boost::bind(&SystemOptions::setSoundVolume, &owner->sysOpts, _1);
+	effectsVolume->onChange = boost::bind(&CSystemOptionsWindow::setSoundVolume, this, _1);
+
+	showReminder = new CHighlightableButton(
+		boost::bind(&CSystemOptionsWindow::toggleReminder, this, true), boost::bind(&CSystemOptionsWindow::toggleReminder, this, false),
+		std::map<int,std::string>(), CGI->generaltexth->zelp[361].second, false, "sysopchk.def", NULL, 246, 87, false);
+
+	newCreatureWin = new CHighlightableButton(
+		boost::bind(&CSystemOptionsWindow::toggleCreatureWin, this, true), boost::bind(&CSystemOptionsWindow::toggleCreatureWin, this, false),
+		std::map<int,std::string>(), cwHelp, false, "sysopchk.def", NULL, 246, 183, false);
+
+	fullscreen = new CHighlightableButton(
+		boost::bind(&CSystemOptionsWindow::toggleFullscreen, this, true), boost::bind(&CSystemOptionsWindow::toggleFullscreen, this, false),
+		std::map<int,std::string>(), fsHelp, false, "sysopchk.def", NULL, 246, 215, false);
+
+	showReminder->select(settings["adventure"]["heroReminder"].Bool());
+	newCreatureWin->select(settings["general"]["classicCreatureWindow"].Bool());
+	fullscreen->select(settings["video"]["fullscreen"].Bool());
+
+	gameResButton = new CAdventureMapButton("", rsHelp, boost::bind(&CSystemOptionsWindow::selectGameRes, this, false), 28, 275,"SYSOB12", SDLK_g);
 }
 
-CSystemOptionsWindow::~CSystemOptionsWindow()
+void CSystemOptionsWindow::selectGameRes(bool pregame)
 {
-	SDL_FreeSurface(background);
+	assert(pregame == false);//TODO
+
+	//TODO: translation and\or config file
+	static const std::string rsLabel = "Select resolution";
+	static const std::string rsHelp = "Change in-game screen resolution.";
+
+	std::vector<std::string> items;
+
+	BOOST_FOREACH( config::CConfigHandler::GuiOptionsMap::value_type& value, conf.guiOptions)
+	{
+		std::string resX = boost::lexical_cast<std::string>(value.first.first);
+		std::string resY = boost::lexical_cast<std::string>(value.first.second);
+		items.push_back(resX + 'x' + resY);
+	}
+
+	GH.pushInt(new CObjectListWindow(items, NULL, rsLabel, rsHelp,
+	           boost::bind(&CSystemOptionsWindow::setGameRes, this, pregame, _1)));
+}
+
+void CSystemOptionsWindow::setGameRes(bool pregame, int index)
+{
+	config::CConfigHandler::GuiOptionsMap::const_iterator iter = conf.guiOptions.begin();
+	while (index--)
+		iter++;
+
+	Settings gameRes = settings.write["video"]["gameRes"];
+	gameRes["width"].Float() = iter->first.first;
+	gameRes["height"].Float() = iter->first.second;
 }
 
 void CSystemOptionsWindow::pushSDLEvent(int type, int usercode)
@@ -3651,6 +3747,24 @@ void CSystemOptionsWindow::pushSDLEvent(int type, int usercode)
 	event.type = type;
 	event.user.code = usercode;	// not necessarily used
 	SDL_PushEvent(&event);
+}
+
+void CSystemOptionsWindow::toggleReminder(bool on)
+{
+	Settings heroReminder = settings.write["adventure"]["heroReminder"];
+	heroReminder->Bool() = on;
+}
+
+void CSystemOptionsWindow::toggleCreatureWin(bool on)
+{
+	Settings classicCreatureWindow = settings.write["general"]["classicCreatureWindow"];
+	classicCreatureWindow->Bool() = on;
+}
+
+void CSystemOptionsWindow::toggleFullscreen(bool on)
+{
+	Settings fullscreen = settings.write["video"]["fullscreen"];
+	fullscreen->Bool() = on;
 }
 
 void CSystemOptionsWindow::bquitf()
@@ -3672,20 +3786,6 @@ void CSystemOptionsWindow::bsavef()
 {
 	GH.popIntTotally(this);
 	GH.pushInt(new CSavingScreen(CPlayerInterface::howManyPeople > 1));
-	/*using namespace boost::posix_time;
-	std::ostringstream fnameStream;
-	fnameStream << second_clock::local_time();
-	std::string fname = fnameStream.str();
-	boost::algorithm::replace_all(fname,":","");
-	boost::algorithm::replace_all(fname," ","-");
-	LOCPLINT->showYesNoDialog("Do you want to save current game as " + fname, std::vector<CComponent*>(), boost::bind(&CCallback::save, LOCPLINT->cb, fname), boost::bind(&CSystemOptionsWindow::activate, this), false);*/
-}
-
-void CSystemOptionsWindow::showAll(SDL_Surface * to)
-{
-	CSDL_Ext::blitSurface(background, NULL, to, &pos);
-
-	CIntObject::showAll(to);
 }
 
 CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj)
@@ -3776,7 +3876,7 @@ void CTavernWindow::show(SDL_Surface * to)
 	{
 		HeroPortrait *sel = selected ? h2 : h1;
 
-		if (selected != oldSelected  &&  !recruit->isBlocked()) 
+		if (selected != oldSelected  &&  !recruit->isBlocked())
 		{
 			// Selected hero just changed. Update RECRUIT button hover text if recruitment is allowed.
 			oldSelected = selected;
@@ -3822,7 +3922,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 
 		int artifs = h->artifactsWorn.size() + h->artifactsInBackpack.size();
 		for(int i=13; i<=17; i++) //war machines and spellbook don't count
-			if(vstd::contains(h->artifactsWorn,i)) 
+			if(vstd::contains(h->artifactsWorn,i))
 				artifs--;
 		sprintf_s(descr, sizeof(descr),CGI->generaltexth->allTexts[215].c_str(),
 				  h->name.c_str(), h->level, h->type->heroClass->name.c_str(), artifs);
@@ -3830,7 +3930,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 	}
 
 }
-	
+
 void CTavernWindow::HeroPortrait::show(SDL_Surface * to)
 {
 	blitAt(graphics->portraitLarge[h->subID],pos,to);
@@ -4144,10 +4244,10 @@ void CArtPlace::activate()
 void CArtPlace::clickLeft(tribool down, bool previousState)
 {
 	//LRClickableAreaWTextComp::clickLeft(down);
-	bool inBackpack = slotID >= GameConstants::BACKPACK_START, 
+	bool inBackpack = slotID >= GameConstants::BACKPACK_START,
 		srcInBackpack = ourOwner->commonInfo->src.slotID >= GameConstants::BACKPACK_START,
 		srcInSameHero = ourOwner->commonInfo->src.AOH == ourOwner;
-	
+
 	if(ourOwner->highlightModeCallback && ourArt)
 	{
 		if(down)
@@ -4171,7 +4271,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 	{
 		if(ourArt->artType->id == 0)
 		{
-			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt);
+			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), ourOwner->curHero, LOCPLINT, LOCPLINT->battleInt);
 			GH.pushInt(spellWindow);
 		}
 	}
@@ -4242,12 +4342,12 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 				(!ourArt || ourOwner->curHero->tempOwner == LOCPLINT->playerID))
 			{
 				setMeAsDest();
-// 
+//
 // 				// Special case when the dest artifact can't be fit into the src slot.
 // 				//CGI->arth->unequipArtifact(ourOwner->curHero->artifWorn, slotID);
 // 				const CArtifactsOfHero* srcAOH = ourOwner->commonInfo->src.AOH;
 // 				ui16 srcSlotID = ourOwner->commonInfo->src.slotID;
-// 				if (ourArt && srcSlotID < 19 && !ourArt->canBePutAt(ArtifactLocation(srcAOH->curHero, srcSlotID))) 
+// 				if (ourArt && srcSlotID < 19 && !ourArt->canBePutAt(ArtifactLocation(srcAOH->curHero, srcSlotID)))
 // 				{
 // 					// Put dest artifact into owner's backpack.
 // 					ourOwner->commonInfo->src.AOH = ourOwner;
@@ -4264,14 +4364,14 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 {
 	if(down && ourArt && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
 	{
-		if (slotID < 19) 
+		if (slotID < 19)
 		{
 			if(ourOwner->allowedAssembling)
 			{
 				std::vector<const CArtifact *> assemblyPossibilities = ourArt->assemblyPossibilities(ourOwner->curHero);
 
 				// If the artifact can be assembled, display dialog.
-				BOOST_FOREACH(const CArtifact *combination, assemblyPossibilities) 
+				BOOST_FOREACH(const CArtifact *combination, assemblyPossibilities)
 				{
 					LOCPLINT->showArtifactAssemblyDialog(
 						ourArt->artType->id,
@@ -4380,14 +4480,14 @@ void CArtPlace::showAll(SDL_Surface * to)
 	if(marked && active)
 	{
 		// Draw vertical bars.
-		for (int i = 0; i < pos.h; ++i) 
+		for (int i = 0; i < pos.h; ++i)
 		{
 			CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x,             pos.y + i, 240, 220, 120);
 			CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x + pos.w - 1, pos.y + i, 240, 220, 120);
 		}
 
 		// Draw horizontal bars.
-		for (int i = 0; i < pos.w; ++i) 
+		for (int i = 0; i < pos.w; ++i)
 		{
 			CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x + i, pos.y,             240, 220, 120);
 			CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x + i, pos.y + pos.h - 1, 240, 220, 120);
@@ -4559,56 +4659,56 @@ void CArtifactsOfHero::SCommonPart::reset()
 void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 {
 // 	// An update is made, rather than initialization.
-// 	if (curHero && curHero->id == hero->id) 
+// 	if (curHero && curHero->id == hero->id)
 // 	{
 // 		if(curHero != hero)
 // 		{
 // 			//delete	curHero;
 // 			curHero = hero; //was: creating a copy
 // 		}
-// 
+//
 // 		// Compensate backpack pos if an artifact was insertad before it.
 // 		if (commonInfo->dst.slotID >= 19 && commonInfo->destAOH == this
 // 			&& commonInfo->dst.slotID - 19 < backpackPos)
 // 		{
 // 			backpackPos++;
 // 		}
-// 
-// 		if (updateState && commonInfo->srcAOH == this) 
+//
+// 		if (updateState && commonInfo->srcAOH == this)
 // 		{
 // 			// A swap was made, make the replaced artifact the current selected.
-// 			if (commonInfo->dst.slotID < 19 && commonInfo->destArtifact) 
+// 			if (commonInfo->dst.slotID < 19 && commonInfo->destArtifact)
 // 			{
 // // 				// Temporarily remove artifact from hero.
 // // 				if (commonInfo->srcSlotID < 19)
 // // 					CGI->arth->unequipArtifact(curHero->artifWorn, commonInfo->srcSlotID);
 // // 				else
 // // 					curHero->artifacts.erase(curHero->artifacts.begin() + (commonInfo->srcSlotID - 19));
-// 
+//
 // 				updateParentWindow(); //TODO: evil! but does the thing
-// 
+//
 // 				// Source <- Dest
 // 				commonInfo->srcArtifact = commonInfo->destArtifact;
-// 
+//
 // 				// Reset destination parameters.
 // 				commonInfo->dst.clear();
-// 
+//
 // 				CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[commonInfo->srcArtifact->id].bitmap);
 // 				markPossibleSlots(commonInfo->srcArtifact);
-// 			} 
-// 			else if (commonInfo->destAOH != NULL) 
+// 			}
+// 			else if (commonInfo->destAOH != NULL)
 // 			{
 // 				// Reset all parameters.
 // 				commonInfo->reset();
 // 				unmarkSlots();
 // 			}
 // 		}
-// 	} 
-// 	else 
+// 	}
+// 	else
 // 	{
 // 		commonInfo->reset();
 // 	}
-// 
+//
 // 	if(hero != curHero)
 // 	{
 // // 		delete curHero;
@@ -4648,12 +4748,12 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 	std::multiset<const CArtifactInstance *> toOmit = artifactsOnAltar;
 	if(commonInfo->src.art) //if we picked an art from backapck, its slot has to be omitted
 		toOmit.insert(commonInfo->src.art);
-	
+
 	int omitedSoFar = 0;
 
 	//set new data
 	size_t s = 0;
-	for( ; s < artsInBackpack; ++s) 
+	for( ; s < artsInBackpack; ++s)
 	{
 
 		if (s < artsInBackpack)
@@ -4662,7 +4762,7 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 			const CArtifactInstance *art = curHero->getArt(slotID);
 			assert(art);
 			if(!vstd::contains(toOmit, art))
-			{ 
+			{
 				if(s - omitedSoFar < backpack.size())
 					setSlotData(backpack[s-omitedSoFar], slotID);
 			}
@@ -4709,7 +4809,7 @@ void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art)
 	BOOST_FOREACH(CArtifactsOfHero *aoh, commonInfo->participants)
 		BOOST_FOREACH(CArtPlace *place, aoh->artWorn)
 			place->marked = art->canBePutAt(ArtifactLocation(aoh->curHero, place->slotID), true);
-	
+
 	safeRedraw();
 }
 
@@ -4751,7 +4851,7 @@ void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, int slotID)
 
 	artPlace->picked = false;
 	artPlace->slotID = slotID;
-	
+
 	if(const ArtSlotInfo *asi = curHero->getSlot(slotID))
 	{
 		artPlace->setArtifact(asi->artifact);
@@ -4759,7 +4859,7 @@ void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, int slotID)
 	}
 	else
 		artPlace->setArtifact(NULL);
-} 
+}
 
 /**
  * Makes given artifact slot appear as empty with a certain slot ID.
@@ -4785,7 +4885,7 @@ CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector
 		commonInfo = new CArtifactsOfHero::SCommonPart;
 		commonInfo->participants.insert(this);
 	}
-	
+
 	// Init slots for worn artifacts.
 	for (size_t g = 0; g < artWorn.size() ; g++)
 	{
@@ -4816,14 +4916,14 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos += position;
 	artWorn.resize(19);
-	
+
 	std::vector<Rect> slotPos;
-	slotPos += genRect(44,44,509,30), genRect(44,44,567,240), genRect(44,44,509,80), 
-		genRect(44,44,383,68), genRect(44,44,564,183), genRect(44,44,509,130), 
-		genRect(44,44,431,68), genRect(44,44,610,183), genRect(44,44,515,295), 
+	slotPos += genRect(44,44,509,30), genRect(44,44,567,240), genRect(44,44,509,80),
+		genRect(44,44,383,68), genRect(44,44,564,183), genRect(44,44,509,130),
+		genRect(44,44,431,68), genRect(44,44,610,183), genRect(44,44,515,295),
 		genRect(44,44,383,143), genRect(44,44,399,194), genRect(44,44,415,245),
-		genRect(44,44,431,296), genRect(44,44,564,30), genRect(44,44,610,30), 
-		genRect(44,44,610,76), genRect(44,44,610,122), genRect(44,44,610,310),	
+		genRect(44,44,431,296), genRect(44,44,564,30), genRect(44,44,610,30),
+		genRect(44,44,610,76), genRect(44,44,610,122), genRect(44,44,610,310),
 		genRect(44,44,381,296);
 
 	// Create slots for worn artifacts.
@@ -4860,13 +4960,13 @@ CArtifactsOfHero::~CArtifactsOfHero()
 
 void CArtifactsOfHero::updateParentWindow()
 {
-	if (CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt())) 
+	if (CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt()))
 	{
 		if(updateState)
 			chw->curHero = curHero;
 		else
 			chw->update(curHero, true);
-	} 
+	}
 	else if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt()))
 	{
 
@@ -4901,7 +5001,7 @@ void CArtifactsOfHero::safeRedraw()
 	{
 		if(parent)
 			parent->redraw();
-		else 
+		else
 			redraw();
 	}
 }
@@ -4910,7 +5010,7 @@ void CArtifactsOfHero::realizeCurrentTransaction()
 {
 	assert(commonInfo->src.AOH);
 	assert(commonInfo->dst.AOH);
-	LOCPLINT->cb->swapArtifacts(commonInfo->src.AOH->curHero, commonInfo->src.slotID, 
+	LOCPLINT->cb->swapArtifacts(commonInfo->src.AOH->curHero, commonInfo->src.slotID,
 								commonInfo->dst.AOH->curHero, commonInfo->dst.slotID);
 }
 
@@ -4922,7 +5022,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 		updateSlot(dst.slot);
 	if(src.hero == curHero  ||  dst.hero == curHero) //we need to update all slots, artifact might be combined and affect more slots
 		updateWornSlots(false);
-	
+
 	if (src.hero != curHero && dst.hero != curHero)
 		return;
 
@@ -4961,7 +5061,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			markPossibleSlots(dst.getArt());
 		}
 	}
-	else if(src.slot >= GameConstants::BACKPACK_START && 
+	else if(src.slot >= GameConstants::BACKPACK_START &&
 	        src.slot <  commonInfo->src.slotID &&
 			src.hero == commonInfo->src.AOH->curHero) //artifact taken from before currently picked one
 	{
@@ -4981,7 +5081,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
  	int shift = 0;
 // 	if(dst.slot >= Arts::BACKPACK_START && dst.slot - Arts::BACKPACK_START < backpackPos)
 // 		shift++;
-// 
+//
  	if(src.slot < GameConstants::BACKPACK_START  &&  dst.slot - GameConstants::BACKPACK_START < backpackPos)
 		shift++;
 	if(dst.slot < GameConstants::BACKPACK_START  &&  src.slot - GameConstants::BACKPACK_START < backpackPos)
@@ -5156,7 +5256,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	pos.w = screen->w;
 	pos.h = screen->h;
 
-	
+
 	artifs[0] = new CArtifactsOfHero(Point(pos.x + -334, pos.y + 150));
 	artifs[0]->commonInfo = new CArtifactsOfHero::SCommonPart;
 	artifs[0]->commonInfo->participants.insert(artifs[0]);
@@ -5237,7 +5337,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	questlogButton[0] = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CExchangeWindow::questlog,this, 0), pos.x+10, pos.y+44, "hsbtns4.def");
 	questlogButton[1] = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CExchangeWindow::questlog,this, 1), pos.x+740, pos.y+44, "hsbtns4.def");
 
-	//statusbar 
+	//statusbar
 	//FIXME - this image is a bit bigger than required - part of background should be used instead
 	ourBar = new CGStatusBar(pos.x + 3, pos.y + 577, "KSTATBAR");
 
@@ -5314,7 +5414,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, double discoveredRatio)
 	//the rest
 	background = SDL_ConvertSurface(back, screen->format, back->flags);
 	SDL_FreeSurface(back);
-	pos = genRect(background->h, background->w, (conf.cc.resx - background->w) / 2, (conf.cc.resy - background->h) / 2);
+	pos = genRect(background->h, background->w, (screen->w - background->w) / 2, (screen->h - background->h) / 2);
 	quitb = new CAdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), pos.x+670, pos.y+538, "IOK6432.DEF", SDLK_RETURN);
 	quitb->assignedKeys.insert(SDLK_ESCAPE);
 	quitb->borderColor = Colors::MetallicGold;
@@ -5441,14 +5541,14 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * _parent, int _size, int _i
 	left = true;
 	pos.w = 58;
 	pos.h = 64;
-	
+
 	pos.x += 45  + (id%3)*83 + id/6*83;
 	pos.y += 109 + (id/3)*98;
 }
 
 CTransformerWindow::CItem::~CItem()
 {
-	
+
 }
 
 void CTransformerWindow::showAll(SDL_Surface * to)
@@ -5481,16 +5581,16 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 	bg = new CPicture ("SKTRNBK.PCX");
 	bg->colorizeAndConvert(LOCPLINT->playerID);
 	pos = center(bg->pos);
-	
+
 	if (hero)
 		army = hero;
 	else
 		army = town;
-	
+
 	for (int i=0; i<7; i++ )
 		if ( army->getCreature(i) )
 			items.push_back(new CItem(this, army->getStackCount(i), i));
-			
+
 	all    = new CAdventureMapButton(CGI->generaltexth->zelp[590],boost::bind(&CTransformerWindow::addAll,this),     146,416,"ALTARMY.DEF",SDLK_a);
 	convert= new CAdventureMapButton(CGI->generaltexth->zelp[591],boost::bind(&CTransformerWindow::makeDeal,this),   269,416,"ALTSACR.DEF",SDLK_RETURN);
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[592],boost::bind(&CGuiHandler::popIntTotally,&GH, this),392,416,"ICANCEL.DEF",SDLK_ESCAPE);
@@ -5499,7 +5599,7 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 
 CTransformerWindow::~CTransformerWindow()
 {
-	
+
 }
 
 void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
@@ -5566,12 +5666,12 @@ void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 		        break;
 	}
 	assert(bar);
-	
+
 	blitAtLoc(bar->bg, -28, -22, to);
 	blitAtLoc(bar->bg, -28,  48, to);
 	printAtMiddleLoc  (CGI->generaltexth->skillName[ID], 22, -13, FONT_SMALL, Colors::Cornsilk,to);//Name
 	printAtMiddleLoc  (CGI->generaltexth->levels[0], 22, 57, FONT_SMALL, Colors::Cornsilk,to);//Level(always basic)
-	
+
 	CPicture::showAll(to);
 }
 
@@ -5586,7 +5686,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	bg = new CPicture("UNIVERS1.PCX");
 	bg->colorizeAndConvert(LOCPLINT->playerID);
-	
+
 	green  = new CPicture("UNIVGREN.PCX");
 	yellow = new CPicture("UNIVGOLD.PCX");//bars
 	red    = new CPicture("UNIVRED.PCX");
@@ -5617,17 +5717,17 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 		tlog0<<"\t\tIncorrect size of available items vector!\n";
 	for (int i=0; i<list.size(); i++)//prepare clickable items
 		items.push_back(new CItem(this, list[i], pos.x+54+i*104, pos.y+234));
-		
+
 	pos = center(bg->pos);
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[632],
 		boost::bind(&CGuiHandler::popIntTotally,&GH, this),200,313,"IOKAY.DEF",SDLK_RETURN);
-		
+
 	bar = new CGStatusBar(232, 371);
 }
 
 CUniversityWindow::~CUniversityWindow()
 {
-	
+
 }
 
 CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available ):parent(PARENT)
@@ -5652,7 +5752,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 
 	std::string hoverText = CGI->generaltexth->allTexts[609];
 	boost::replace_first(hoverText, "%s", CGI->generaltexth->levels[0]+ " " + CGI->generaltexth->skillName[SKILL]);
-	
+
 	text = CGI->generaltexth->zelp[633].second;
 	boost::replace_first(text, "%s", CGI->generaltexth->levels[0]);
 	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
@@ -5661,7 +5761,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 	confirm= new CAdventureMapButton(hoverText, text, boost::bind(&CUnivConfirmWindow::makeDeal, this, SKILL),
 	         148,299,"IBY6432.DEF",SDLK_RETURN);
 	confirm->block(!available);
-	
+
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[631],boost::bind(&CGuiHandler::popIntTotally, &GH, this),
 	         252,299,"ICANCEL.DEF",SDLK_ESCAPE);
 	bar = new CGStatusBar(232, 371);
@@ -5677,17 +5777,17 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	fort(object),hero(visitor)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	
+
 	slotsCount=7;
 	resources =  CDefHandler::giveDefEss("SMALRES.DEF");
 	bg = new CPicture("APHLFTBK.PCX");
 	bg->colorizeAndConvert(LOCPLINT->playerID);
-	
+
 	printAtMiddleLoc  (fort->hoverName, 325, 32, FONT_BIG, Colors::Jasmine, bg->bg);//Hill Fort
 	pos = center(bg->pos);
 
 	heroPic = new CHeroArea(30, 60, hero);
-	
+
 	currState.resize(slotsCount+1);
 	costs.resize(slotsCount);
 	totalSumm.resize(GameConstants::RESOURCE_QUANTITY);
@@ -5714,7 +5814,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 
 CHillFortWindow::~CHillFortWindow()
 {
-	
+
 }
 
 void CHillFortWindow::activate()
@@ -5725,10 +5825,10 @@ void CHillFortWindow::activate()
 
 void CHillFortWindow::updateGarrisons()
 {
-	
+
 	for (int i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
 		totalSumm[i]=0;
-	
+
 	for (int i=0; i<slotsCount; i++)
 	{
 		costs[i].clear();
@@ -5743,13 +5843,13 @@ void CHillFortWindow::updateGarrisons()
 				totalSumm += costs[i];
 			}
 		}
-		
+
 		currState[i] = newState;
 		upgrade[i]->setIndex(newState);
 		upgrade[i]->block(currState[i] == -1);
 		upgrade[i]->hoverTexts[0] = getTextForSlot(i);
 	}
-	
+
 	int newState = getState(slotsCount);
 	currState[slotsCount] = newState;
 	upgradeAll->setIndex(newState);
@@ -5762,11 +5862,11 @@ void CHillFortWindow::makeDeal(int slot)
 	switch (currState[slot])
 	{
 		case 0:
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset], 
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset],
 			          std::vector<CComponent*>(), soundBase::sound_todo);
 			break;
 		case 1:
-			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[313 + offset], 
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[313 + offset],
 			          std::vector<CComponent*>(), soundBase::sound_todo);
 			break;
 		case 2:
@@ -5778,14 +5878,14 @@ void CHillFortWindow::makeDeal(int slot)
 					LOCPLINT->cb->upgradeCreature(hero, i, info.newID[0]);
 				}
 			break;
-		
+
 	}
 }
 
 void CHillFortWindow::showAll (SDL_Surface *to)
 {
 	CIntObject::showAll(to);
-	
+
 	for ( int i=0; i<slotsCount; i++)
 	{
 		if ( currState[i] == 0 || currState[i] == 2 )
@@ -5831,7 +5931,7 @@ std::string CHillFortWindow::getTextForSlot(int slot)
 		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->nameSing);
 	else
 		boost::algorithm::replace_first(str,"%s",hero->getCreature(slot)->namePl);
-	
+
 	return str;
 }
 
@@ -5843,7 +5943,7 @@ int CHillFortWindow::getState(int slot)
 		bool allUpgraded = true;//All creatures are upgraded?
 		for (int i=0; i<slotsCount; i++)
 			allUpgraded &=  currState[i] == 1 || currState[i] == -1;
-			
+
 		if (allUpgraded)
 			return 1;
 
@@ -5855,7 +5955,7 @@ int CHillFortWindow::getState(int slot)
 
 	if (hero->slotEmpty(slot))//no creature here
 		return -1;
-		
+
 	UpgradeInfo info;
 	LOCPLINT->cb->getUpgradeInfo(hero, slot, info);
 	if (!info.newID.size())//already upgraded
@@ -6062,7 +6162,7 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 	int mrlt = -9;
 	TModDescr mrl;
 
-	
+
 	if (node)
 	{
 		node->getModifiersWDescr(mrl, bonusType[morale]);
@@ -6100,7 +6200,7 @@ void MoraleLuckBox::showAll(SDL_Surface * to)
 	else
 		def = morale ? graphics->morale42 : graphics->luck42;
 	SDL_Surface *img = def->ourImages[bonusValue + 3].bitmap;
-	
+
 	blitAt(img, Rect(img).centerIn(pos), to); //put img in the center of our pos
 }
 
@@ -6249,7 +6349,7 @@ CRClickPopupInt::CRClickPopupInt( IShowActivatable *our, bool deleteInt )
 
 CRClickPopupInt::~CRClickPopupInt()
 {
-	// 	//workaround for hero window issue - if it's our interface, call dispose to properly reset it's state 
+	// 	//workaround for hero window issue - if it's our interface, call dispose to properly reset it's state
 	// 	//TODO? it might be better to rewrite hero window so it will bee newed/deleted on opening / closing (not effort-worthy now, but on some day...?)
 	// 	if(LOCPLINT && inner == adventureInt->heroWindow)
 	// 		adventureInt->heroWindow->dispose();
