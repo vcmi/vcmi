@@ -1020,7 +1020,7 @@ void CGameHandler::newTurn()
 				if(t->creatureDwelling(k))//there is dwelling (k-level)
 				{
 					ui32 &availableCount = sac.creatures[k].first;
-					const CCreature *cre = VLC->creh->creatures[t->creatureDwelling(k, true) ? t->town->upgradedCreatures[k] : t->town->basicCreatures[k]];
+					const CCreature *cre = VLC->creh->creatures[t->creatures[k].second.back()];
 
 					if (n.specialWeek == NewTurn::PLAGUE)
 						availableCount = t->creatures[k].first / 2; //halve their number, no growth
@@ -1031,7 +1031,7 @@ void CGameHandler::newTurn()
 						else
 							availableCount += t->creatureGrowth(k);
 
-						if(n.creatureid == cre->idNumber 
+						if( vstd::contains(t->creatures[k].second, n.creatureid)
 							|| (n.specialWeek == NewTurn::DEITYOFFIRE && (cre->idNumber == 42 || cre->idNumber == 43)))
 						{
 							if(n.specialWeek == NewTurn::DOUBLE_GROWTH)
@@ -2182,6 +2182,9 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 		ssi.tid = tid;
 		ssi.creatures = t->creatures;
 		ssi.creatures[bid-37].second.push_back(t->town->upgradedCreatures[bid-37]);
+		//Test for 2nd upgrade - add sharpshooters if grand elves dwelling was constructed
+		//if (t->subID == 1 && bid == 39)
+		//	ssi.creatures[bid-37].second.push_back(137);
 		sendAndApply(&ssi);
 	}
 	else if(bid >= 30) //bas. dwelling

@@ -1873,7 +1873,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	if (!vstd::contains(builtBuildings, EBuilding::DWELL_FIRST+level))
 		return ret; //no dwelling
 
-	const CCreature *creature = VLC->creh->creatures[town->basicCreatures[level]];
+	const CCreature *creature = VLC->creh->creatures[creatures[level].second.back()];
 	const int base = creature->growth;
 	int castleBonus = 0;
 
@@ -1896,7 +1896,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	if(const PlayerState *p = cb->getPlayer(tempOwner, false))
 	{
 		BOOST_FOREACH(const CGDwelling *dwelling, p->dwellings)
-			if(creature->idNumber == dwelling->creatures[0].second[0])
+			if(vstd::contains(creatures[level].second, dwelling->creatures[0].second[0]))
 				dwellingBonus++;
 	}
 

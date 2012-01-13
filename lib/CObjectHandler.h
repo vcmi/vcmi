@@ -433,8 +433,10 @@ public:
 class DLL_LINKAGE CGDwelling : public CArmedInstance
 {
 public:
+	typedef std::vector<std::pair<ui32, std::vector<ui32> > > TCreaturesSet;
+
 	CSpecObjInfo * info; //h3m info about dewlling
-	std::vector<std::pair<ui32, std::vector<ui32> > > creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
+	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

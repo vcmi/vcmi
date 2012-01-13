@@ -1683,15 +1683,17 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 	}
 	if(t)
 	{
-		BOOST_FOREACH(si32 bid, t->builtBuildings)
+		BOOST_FOREACH(const CGTownInstance::TCreaturesSet::value_type & dwelling, t->creatures)
 		{
-			if( bid >= 37   &&   bid < 44 ) //upgraded creature dwelling
+			if (vstd::contains(dwelling.second, base->idNumber)) //Dwelling with our creature
 			{
-				int nid = t->town->upgradedCreatures[bid-37]; //upgrade offered by that building
-				if(vstd::contains(base->upgrades, nid)) //possible upgrade
+				BOOST_FOREACH(ui32 upgrID, dwelling.second)
 				{
-					ret.newID.push_back(nid);
-					ret.cost.push_back(VLC->creh->creatures[nid]->cost - base->cost);
+					if(vstd::contains(base->upgrades, upgrID)) //possible upgrade
+					{
+						ret.newID.push_back(upgrID);
+						ret.cost.push_back(VLC->creh->creatures[upgrID]->cost - base->cost);
+					}
 				}
 			}
 		}
