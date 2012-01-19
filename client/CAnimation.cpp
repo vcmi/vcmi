@@ -1168,8 +1168,13 @@ CAnimImage::~CAnimImage()
 
 void CAnimImage::showAll(SDL_Surface * to)
 {
-	IImage *img = anim->getImage(frame, group);
-	if (img)
+	IImage *img;
+
+	if ( flags & CShowableAnim::BASE && frame != 0)
+		if ((img = anim->getImage(0, group)))
+			img->draw(to, pos.x, pos.y);
+
+	if ((img = anim->getImage(frame, group)))
 		img->draw(to, pos.x, pos.y);
 }
 

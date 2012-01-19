@@ -487,7 +487,6 @@ CInfoWindow::CInfoWindow(std::string Text, int player, const TCompsInfo &comps, 
 		text->pos.w = text->maxW;
 		text->pos.h = text->maxH;
 	}
-	text->redrawParentOnScrolling = true;
 
 	if(buttons.size())
 	{
@@ -914,7 +913,6 @@ CSelWindow::CSelWindow(const std::string &Text, int player, int charperline, con
 	}
 
 	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::Cornsilk);
-	text->redrawParentOnScrolling = true;
 
 	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
 	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
@@ -3595,7 +3593,7 @@ void CSystemOptionsWindow::setHeroMoveSpeed( int newSpeed )
 
 void CSystemOptionsWindow::setMapScrollingSpeed( int newSpeed )
 {
-	Settings speed = settings.write["adventure"]["mapScrollingSpeed"];
+	Settings speed = settings.write["adventure"]["scrollSpeed"];
 	speed->Float() = newSpeed;
 }
 

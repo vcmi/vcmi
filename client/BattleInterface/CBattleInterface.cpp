@@ -1455,13 +1455,16 @@ void CBattleInterface::bSpellf()
 
 	CCS->curh->changeGraphic(0,0);
 
-	const CGHeroInstance * chi = NULL;
-	if(attackingHeroInstance->tempOwner == curInt->playerID)
-		chi = attackingHeroInstance;
-	else
-		chi = defendingHeroInstance;
-	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), chi, curInt);
-	GH.pushInt(spellWindow);
+	if ( myTurn && curInt->cb->battleCanCastSpell())
+	{
+		const CGHeroInstance * chi = NULL;
+		if(attackingHeroInstance->tempOwner == curInt->playerID)
+			chi = attackingHeroInstance;
+		else
+			chi = defendingHeroInstance;
+		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), chi, curInt);
+		GH.pushInt(spellWindow);
+	}
 }
 
 void CBattleInterface::bWaitf()

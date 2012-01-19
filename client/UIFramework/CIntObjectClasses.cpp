@@ -361,14 +361,14 @@ void CAdventureMapButton::setIndex(size_t index, bool playerColoredButton)
 	setImage(new CAnimation(imageNames[index]), playerColoredButton);
 }
 
-void CAdventureMapButton::setImage(CAnimation* anim, bool playerColoredButton)
+void CAdventureMapButton::setImage(CAnimation* anim, bool playerColoredButton, int animFlags)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	if (image && active)
 		image->deactivate();
 	delChild(image);
-	image = new CAnimImage(anim, getState());
+	image = new CAnimImage(anim, getState(), 0, 0, 0, animFlags);
 	if (active)
 		image->activate();
 	if (playerColoredButton)
@@ -1189,6 +1189,9 @@ CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, con
 	pos.w = pos.h = 0;
 	bg = NULL;
 	ignoreLeadingWhitespace = false;
+
+	pos.w = graphics->fonts[font]->getWidth(text.c_str());
+	pos.h = graphics->fonts[font]->height;
 }
 
 void CLabel::setTxt(const std::string &Txt)
@@ -1216,7 +1219,7 @@ void CLabelGroup::add(int x, int y, const std::string &text)
 CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= Colors::Cornsilk*/)
 :CLabel(rect.x, rect.y, Font, Align, Color, Text), sliderStyle(SliderStyle), slider(NULL)
 {
-	redrawParentOnScrolling = false;
+	type |= REDRAW_PARENT;
 	autoRedraw = false;
 	pos.h = rect.h;
 	pos.w = rect.w;
@@ -1270,8 +1273,6 @@ void CTextBox::sliderMoved(int to)
 	if(!slider)
 		return;
 
-	if(redrawParentOnScrolling)
-		parent->redraw();
 	redraw();
 }
 

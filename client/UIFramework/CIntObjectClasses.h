@@ -129,7 +129,7 @@ public:
 	void init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key );
 
 	void setIndex(size_t index, bool playerColoredButton=false);
-	void setImage(CAnimation* anim, bool playerColoredButton=false);
+	void setImage(CAnimation* anim, bool playerColoredButton=false, int animFlags=0);
 	void setPlayerColor(int player);
 	void showAll(SDL_Surface * to);
 };
@@ -340,7 +340,6 @@ public:
 	int maxH; //total height needed to print all lines
 
 	int sliderStyle;
-	bool redrawParentOnScrolling;
 
 	std::vector<std::string> lines;
 	std::vector<CAnimImage* > effects;

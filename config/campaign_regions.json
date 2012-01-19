@@ -1,16 +1,12 @@
 {
 	"campaign_regions": [
 		{
-			"prefix": "E1",
+			"prefix": "G1",
 			"color_suffix_length": 1,
 			"desc": [
-				{ "infix": "A", "x": 270, "y": 332 },
-				{ "infix": "B", "x": 138, "y": 113 },
-				{ "infix": "C", "x": 26, "y": 70 },
-				{ "infix": "P1", "x": 256, "y": 127 },
-				{ "infix": "P2", "x": 57, "y": 314 },
-				{ "infix": "P3", "x": 137, "y": 310 },
-				{ "infix": "P4", "x": 44, "y": 163 }
+				{ "infix": "A", "x": 57, "y": 314 },
+				{ "infix": "B", "x": 137, "y": 309 },
+				{ "infix": "C", "x": 44, "y": 163 }
 			]
 		},
 
@@ -26,6 +22,30 @@
 		},
 
 		{
+			"prefix": "G3",
+			"color_suffix_length": 1,
+			"desc": [
+				{ "infix": "A", "x": 289, "y": 376 },
+				{ "infix": "B", "x": 60, "y": 147 },
+				{ "infix": "C", "x": 131, "y": 202 }
+			]
+		},
+
+		{
+			"prefix": "E1",
+			"color_suffix_length": 1,
+			"desc": [
+				{ "infix": "A", "x": 270, "y": 332 },
+				{ "infix": "B", "x": 138, "y": 113 },
+				{ "infix": "C", "x": 26, "y": 70 },
+				{ "infix": "P1", "x": 256, "y": 127 },
+				{ "infix": "P2", "x": 57, "y": 314 },
+				{ "infix": "P3", "x": 137, "y": 310 },
+				{ "infix": "P4", "x": 44, "y": 163 }
+			]
+		},
+
+		{
 			"prefix": "E2",
 			"color_suffix_length": 1,
 			"desc": [
@@ -33,26 +53,6 @@
 				{ "infix": "B", "x": 60, "y": 145 },
 				{ "infix": "C", "x": 92, "y": 261 },
 				{ "infix": "D", "x": 218, "y": 307 }
-			]
-		},
-
-		{
-			"prefix": "G1",
-			"color_suffix_length": 1,
-			"desc": [
-				{ "infix": "A", "x": 57, "y": 314 },
-				{ "infix": "B", "x": 137, "y": 309 },
-				{ "infix": "C", "x": 44, "y": 163 }
-			]
-		},
-
-		{
-			"prefix": "G3",
-			"color_suffix_length": 1,
-			"desc": [
-				{ "infix": "A", "x": 289, "y": 376 },
-				{ "infix": "B", "x": 60, "y": 147 },
-				{ "infix": "C", "x": 131, "y": 202 }
 			]
 		},
 
@@ -149,7 +149,7 @@
 			"prefix": "HS",
 			"color_suffix_length": 2,
 			"desc": [
-				{ "infix": "A", "x": 140, "y": 326 },
+				{ "infix": "A", "x": 141, "y": 326 },
 				{ "infix": "B", "x": 238, "y": 275 },
 				{ "infix": "C", "x": 22, "y": 161 },
 				{ "infix": "D", "x": 5, "y": 9 }

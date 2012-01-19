@@ -754,7 +754,7 @@ public:
 #define READ_CHECK_U32(x)			\
 	ui32 length;			\
 	*this >> length;				\
-	if(length > 50000)				\
+	if(length > 500000)				\
 	{								\
 		tlog2 << "Warning: very big length: " << length << "\n" ;\
 		reportState(tlog2);			\

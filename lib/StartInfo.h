@@ -21,6 +21,7 @@ struct PlayerSettings
 	si8 bonus; //usees enum type Ebonus
 	ui8 color; //from 0 - 
 	ui8 handicap;//0-no, 1-mild, 2-severe
+	ui8 team;
 
 	std::string name;
 	ui8 human; //0 - AI, non-0 serves as player id
@@ -35,6 +36,7 @@ struct PlayerSettings
 		h & handicap;
 		h & name;
 		h & human;
+		h & team;
 	}
 
 	PlayerSettings()
@@ -52,7 +54,10 @@ struct StartInfo
 
 	ui8 mode; //uses EMode enum
 	ui8 difficulty; //0=easy; 4=impossible
-	bmap<int, PlayerSettings> playerInfos; //color indexed
+
+	typedef bmap<int, PlayerSettings> TPlayerInfos;
+	TPlayerInfos playerInfos; //color indexed
+
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname;
 	ui8 whichMapInCampaign; //used only for mode CAMPAIGN

@@ -795,7 +795,7 @@ CGameState::CGameState()
 }
 CGameState::~CGameState()
 {
-	delete mx;
+	//delete mx;//TODO: crash on Linux (mutex must be unlocked before destruction)
 	map.dellNull();
 	curB.dellNull();
 	//delete scenarioOps; //TODO: fix for loading ind delete

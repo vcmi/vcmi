@@ -38,7 +38,7 @@ CCreatureHandler::CCreatureHandler()
 	// Good: Castle, Rampart, Tower	// Evil: Inferno, Necropolis, Dungeon
 	// Neutral: Stronghold, Fortess, Conflux
 	factionAlignments += 1, 1, 1, -1, -1, -1, 0, 0, 0;
-	doubledCreatures +=  4, 14, 20, 28, 42, 44, 60, 70, 72, 85, 86, 100, 104; //according to Strategija
+	doubledCreatures +=  4, 14, 20, 28, 44, 60, 70, 72, 85, 86, 100, 104; //according to Strategija
 
 	allCreatures.setDescription("All creatures");
 	creaturesOfLevel[0].setDescription("Creatures of unnormalized tier");

@@ -139,24 +139,35 @@ public:
 
 	void disable(); //deactivates if needed, blocks all automatic activity, allows only disposal
 	void enable(bool activation = true); //activates if needed, all activity enabled (Warning: may not be symetric with disable if recActions was limited!)
-	void defActivate();
-	void defDeactivate();
+
+	// activate or deactivate object. Inactive object won't receive any input events (keyboard\mouse)
+	// usually used automatically by parent
 	void activate();
 	void deactivate();
+
+	//activate or deactivate specific action (LCLICK, RCLICK...)
 	void activate(ui16 what);
 	void deactivate(ui16 what);
+
+	//called each frame to update screen
 	void show(SDL_Surface * to);
+	//called on complete redraw only
 	void showAll(SDL_Surface * to);
+	//request complete redraw
 	void redraw();
 
 	void drawBorderLoc(SDL_Surface * sur, const Rect &r, const int3 &color);
-	void printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst);
-	void printToLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst);
-	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst);
-	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst);
-	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst);
+	//functions for printing text. Use CLabel where possible instead
+	void printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
+	void printToLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
+	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
+	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color color, SDL_Surface * dst);
+	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charsPerLine, SDL_Color color, SDL_Surface * dst);
+
+	//image blitting. If possible use CPicture or CAnimImage instead
 	void blitAtLoc(SDL_Surface * src, int x, int y, SDL_Surface * dst);
 	void blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst);
+
 	bool isItInLoc(const SDL_Rect &rect, int x, int y);
 	bool isItInLoc(const SDL_Rect &rect, const Point &p);
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
@@ -164,10 +175,12 @@ public:
 	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position
 	void fitToScreen(int borderWidth, bool propagate = true); //moves window to fit into screen
 	void moveBy(const Point &p, bool propagate = true);
-	void moveTo(const Point &p, bool propagate = true);
+	void moveTo(const Point &p, bool propagate = true);//move this to new position, coordinates are absolute (0,0 is topleft screen corner)
 	void changeUsedEvents(ui16 what, bool enable, bool adjust = true);
 
+	//add child without parent to this. Use CGuiHandler::moveChild() if child already have parent
 	void addChild(CIntObject *child, bool adjustPosition = false);
+	//remove child from this without deleting
 	void removeChild(CIntObject *child, bool adjustPosition = false);
 	void delChild(CIntObject *child); //removes from children list, deletes
 	template <typename T> void delChildNUll(T *&child, bool deactivateIfNeeded = false) //removes from children list, deletes and sets pointer to NULL

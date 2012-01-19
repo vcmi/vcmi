@@ -1031,15 +1031,16 @@ void CGameHandler::newTurn()
 						else
 							availableCount += t->creatureGrowth(k);
 
-						if( vstd::contains(t->creatures[k].second, n.creatureid)
-							|| (n.specialWeek == NewTurn::DEITYOFFIRE && (cre->idNumber == 42 || cre->idNumber == 43)))
+						//Deity of fire week - upgrade both imps and upgrades
+						if (n.specialWeek == NewTurn::DEITYOFFIRE && vstd::contains(t->creatures[k].second, n.creatureid))
+							availableCount += 15;
+
+						if( cre->idNumber == n.creatureid ) //bonus week, effect applies only to identical creatures
 						{
 							if(n.specialWeek == NewTurn::DOUBLE_GROWTH)
 								availableCount *= 2;
 							else if(n.specialWeek == NewTurn::BONUS_GROWTH)
 								availableCount += 5;
-							else if(n.specialWeek == NewTurn::DEITYOFFIRE)
-								availableCount += 15;
 						}
 					}
 				}
@@ -1130,8 +1131,16 @@ void CGameHandler::newTurn()
 					iw.text.addReplacement2(15);							//%+d 15
 					break;
 				default:
-					iw.text.addTxt(MetaString::ARRAY_TXT, (newMonth ? 130 : 133));
-					iw.text.addReplacement(MetaString::ARRAY_TXT, 43 + rand()%15);
+					if (newMonth)
+					{
+						iw.text.addTxt(MetaString::ARRAY_TXT, (130));
+						iw.text.addReplacement(MetaString::ARRAY_TXT, 32 + rand()%10);
+					}
+					else
+					{
+						iw.text.addTxt(MetaString::ARRAY_TXT, (133));
+						iw.text.addReplacement(MetaString::ARRAY_TXT, 43 + rand()%15);
+					}
 			}
 			for (std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end(); i++)
 			{
@@ -4486,7 +4495,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 			std::vector<CGHeroInstance *> hes;
 			BOOST_FOREACH(CGHeroInstance * ghi, gs->map->heroes)
 			{
-				if (ghi->tempOwner == 0 /*TODO: insert human player's color*/)
+				if (ghi->tempOwner == vic)
 				{
 					hes.push_back(ghi);
 				}
@@ -5530,7 +5539,7 @@ void CGameHandler::spawnWanderingMonsters(int creatureID)
 	std::vector<int3>::iterator tile;
 	std::vector<int3> tiles;
 	getFreeTiles(tiles);
-	ui32 amount = (tiles.size()) >> 6;
+	ui32 amount = tiles.size() / 200; //Chance is 0.5% for each tile
 	std::random_shuffle(tiles.begin(), tiles.end(), p_myrandom);
 	tlog5 << "Spawning wandering monsters. Found " << tiles.size() << " free tiles. Creature type: " << creatureID << std::endl;
 	const CCreature *cre = VLC->creh->creatures[creatureID];

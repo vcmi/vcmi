@@ -1119,6 +1119,9 @@ std::string CSDL_Ext::processStr(std::string str, std::vector<std::string> & tor
 
 bool CSDL_Ext::isTransparent( SDL_Surface * srf, int x, int y )
 {
+	if (x < 0 || y < 0 || x >= srf->w || y >= srf->h)
+		return true;
+
 	if(srf->format->BytesPerPixel == 1)
 	{
 		return ((ui8*)srf->pixels)[x + srf->pitch * y]  == 0;

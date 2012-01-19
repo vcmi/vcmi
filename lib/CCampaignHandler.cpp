@@ -175,11 +175,11 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( const ui8 *buffer, i
 	ret.packedMapSize = read_le_u32(buffer + outIt); outIt += 4;
 	if(mapVersion == 18)//unholy alliance
 	{
-		ret.preconditionRegion = read_le_u16(buffer + outIt); outIt += 2;
+		ret.loadPreconditionRegions(read_le_u16(buffer + outIt)); outIt += 2;
 	}
 	else
 	{
-		ret.preconditionRegion = buffer[outIt++];
+		ret.loadPreconditionRegions(buffer[outIt++]);
 	}
 	ret.regionColor = buffer[outIt++];
 	ret.difficulty = buffer[outIt++];
@@ -190,6 +190,15 @@ CCampaignScenario CCampaignHandler::readScenarioFromMemory( const ui8 *buffer, i
 	ret.travelOptions = readScenarioTravelFromMemory(buffer, outIt, version);
 
 	return ret;
+}
+
+void CCampaignScenario::loadPreconditionRegions(ui32 regions)
+{
+	for (int i=0; i<32; i++) //for each bit in region. h3c however can only hold up to 16
+	{
+		if ( (1 << i) & regions)
+			preconditionRegions.insert(i);
+	}
 }
 
 CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const ui8 * buffer, int & outIt , int version )
@@ -444,7 +453,7 @@ bool CCampaign::conquerable( int whichScenario ) const
 	//check preconditioned regions
 	for (int g=0; g<scenarios.size(); ++g)
 	{
-		if(( (1 << g) & scenarios[whichScenario].preconditionRegion ) && !scenarios[g].conquered)
+		if( vstd::contains(scenarios[whichScenario].preconditionRegions, g) && !scenarios[g].conquered)
 			return false; //prerequisite does not met
 			
 	}
@@ -510,17 +519,25 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 	if (!(travelOptions.whatHeroKeeps & 16))
 	{
 		//trimming artifacts
-		for (int g=0; g<VLC->arth->artifacts.size(); ++g)
+		BOOST_FOREACH(CGHeroInstance * hero, crossoverHeroes)
 		{
-			bool takeable = travelOptions.artifsKeptByHero[g / 8] & ( 1 << (g%8) ) ;
-			if (!takeable)
+			size_t totalArts = GameConstants::BACKPACK_START + hero->artifactsInBackpack.size();
+			for (size_t i=0; i<totalArts; i++ )
 			{
-				//BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
-				{
-					tlog1 << "TODO TODO TODO - take artifacts from hero\n";
-					//TODO how was that supposed to work with worn artifacts?
-					//cgh->artifactsInBackpack -= VLC->arth->artifacts[g];
-				}
+				const ArtSlotInfo *info = hero->getSlot(i);
+				if (!info)
+					continue;
+				
+				const CArtifactInstance *art = info->artifact;
+				if (!art)//FIXME: check spellbook and catapult behaviour
+					continue;
+
+				int id  = art->artType->id;
+				assert( 8*18 > id );//number of arts that fits into h3m format
+				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
+
+				if (takeable)
+					hero->eraseArtSlot(i);
 			}
 		}
 	}

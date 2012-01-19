@@ -93,32 +93,8 @@ static void readCreatures(const JsonNode &creature, std::vector< std::pair <ui16
 	std::pair<si16, si32> creInfo = std::make_pair(-1, 0);
 	std::string creName = creature["name"].String();
 
-	// Look for the best creature that is described by given name
-	if (vstd::contains(VLC->creh->nameToID, creName))
-	{
-		creInfo.first = VLC->creh->nameToID[creName];
-	}
-	else
-	{
-		BOOST_FOREACH(const CCreature *cre, VLC->creh->creatures)
-		{
-			if (cre->namePl == creName || 
-				cre->nameRef == creName ||
-				cre->nameSing == creName)
-				creInfo.first = cre->idNumber;
-		}
-	}
-	if (creInfo.first != -1)
-	{
-		creInfo.second = creature["number"].Float();
-
-		storage.push_back(creInfo);
-	}
-	else
-	{
-		//FIXME: localization issues. switch to numeric ID's in bank config?
-		tlog0<<"Unknown creature in bank config: "<<creName<<"\n";
-	}
+	creInfo.second = creature["number"].Float();
+	creInfo.first = creature["id"].Float();
 }
 
 // Bank helper. Process a bank level.
@@ -2998,7 +2974,7 @@ void CGCreature::initObj()
 	switch(character)
 	{
 	case 0:
-		character = 0;
+		character = -4;
 		break;
 	case 1:
 		character = 1 + ran()%7;
@@ -3059,72 +3035,70 @@ void CGCreature::setPropertyDer(ui8 what, ui32 val)
 
 int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 {
-	double hlp = h->getTotalStrength() / getArmyStrength();
+	//calculate relative strength of hero and creatures armies
+	double relStrength = double(h->getTotalStrength()) / getArmyStrength();
 
-	if(!character) //compliant creatures will always join
-		return 0;
-	else if(allowJoin)//test for joining
+	int powerFactor;
+	if(relStrength >= 7)
+		powerFactor = 11;
+
+	else if(relStrength >= 1)
+		powerFactor = (int)(2*(relStrength-1));
+
+	else if(relStrength >= 0.5)
+		powerFactor = -1;
+
+	else if(relStrength >= 0.333)
+		powerFactor = -2;
+	else
+		powerFactor = -3;
+
+	std::set<ui32> myKindCres; //what creatures are the same kind as we
+	myKindCres.insert(subID); //we
+	myKindCres.insert(VLC->creh->creatures[subID]->upgrades.begin(),VLC->creh->creatures[subID]->upgrades.end()); //our upgrades
+	
+	BOOST_FOREACH(ConstTransitivePtr<CCreature> &crea, VLC->creh->creatures)
 	{
-		int factor;
-		if(hlp >= 7)
-			factor = 11;
-		else if(hlp >= 1)
-			factor = (int)(2*(hlp-1));
-		else if(hlp >= 0.5)
-			factor = -1;
-		else if(hlp >= 0.333)
-			factor = -2;
-		else
-			factor = -3;
-
-		int sympathy = 0;
-
-		std::set<ui32> myKindCres; //what creatures are the same kind as we
-		myKindCres.insert(subID); //we
-		myKindCres.insert(VLC->creh->creatures[subID]->upgrades.begin(),VLC->creh->creatures[subID]->upgrades.end()); //our upgrades
-		for(std::vector<ConstTransitivePtr<CCreature> >::iterator i=VLC->creh->creatures.begin(); i!=VLC->creh->creatures.end(); i++)
-			if(vstd::contains((*i)->upgrades, (ui32) id)) //it's our base creatures
-				myKindCres.insert((*i)->idNumber);
-
-		int count = 0, //how many creatures of our kind has hero
-			totalCount = 0;
-
-		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); i++)
-		{
-			if(vstd::contains(myKindCres,i->second->type->idNumber))
-				count += i->second->count;
-			totalCount += i->second->count;
-		}
-
-		if(count*2 > totalCount)
-			sympathy++;
-		if(count)
-			sympathy++;
-		
-
-		int charisma = factor + h->getSecSkillLevel(CGHeroInstance::DIPLOMACY) + sympathy;
-		if(charisma >= character) //creatures might join...
-		{
-			if(h->getSecSkillLevel(CGHeroInstance::DIPLOMACY) + sympathy + 1 >= character)
-				return 0; //join for free
-			else if(h->getSecSkillLevel(CGHeroInstance::DIPLOMACY) * 2  +  sympathy  +  1 >= character)
-				return VLC->creh->creatures[subID]->cost[6] * getStackCount(0); //join for gold
-		}
+		if(vstd::contains(crea->upgrades, (ui32) id)) //it's our base creatures
+			myKindCres.insert(crea->idNumber);
 	}
 
-	//we are still here - creatures not joined heroes, test for fleeing
+	int count = 0, //how many creatures of similar kind has hero
+		totalCount = 0;
 
-	//TODO: it's provisional formula, should be replaced with original one (or something closer to it)
-	//TODO: should be deterministic (will be needed for Vision spell)
-	int hlp2 = (int) (hlp - 2)*1000;
-	if(!neverFlees   
-		&& hlp2 >= 0 
-		&& rand()%2000 < hlp2
-	)
+	for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); i++)
+	{
+		if(vstd::contains(myKindCres,i->second->type->idNumber))
+			count += i->second->count;
+		totalCount += i->second->count;
+	}
+
+	int sympathy = 0; // 0 if hero have no similar creatures
+	if(count)
+		sympathy++; // 1 - if hero have at least 1 similar creature
+	if(count*2 > totalCount)
+		sympathy++; // 2 - hero have similar creatures more that 50%
+
+	int charisma = powerFactor + h->getSecSkillLevel(CGHeroInstance::DIPLOMACY) + sympathy;
+
+	if(charisma < character) //creatures will fight
+		return -2;
+
+	if (allowJoin)
+	{
+		if(h->getSecSkillLevel(CGHeroInstance::DIPLOMACY) + sympathy + 1 >= character)
+			return 0; //join for free
+
+		else if(h->getSecSkillLevel(CGHeroInstance::DIPLOMACY) * 2  +  sympathy  +  1 >= character)
+			return VLC->creh->creatures[subID]->cost[6] * getStackCount(0); //join for gold
+	}
+
+	//we are still here - creatures have not joined hero, flee or fight
+
+	if (charisma > character)
 		return -1; //flee
 	else
 		return -2; //fight
-
 }
 
 void CGCreature::fleeDecision(const CGHeroInstance *h, ui32 pursue) const

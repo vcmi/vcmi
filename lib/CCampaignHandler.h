@@ -83,7 +83,7 @@ class DLL_LINKAGE CCampaignScenario
 public:
 	std::string mapName;
 	ui32 packedMapSize; //generally not used
-	ui16 preconditionRegion; //what we need to conquer to conquer this one (bitfield!)
+	std::set<ui8> preconditionRegions; //what we need to conquer to conquer this one (stored as bitfield in h3c)
 	ui8 regionColor;
 	ui8 difficulty;
 	ui8 conquered;
@@ -109,13 +109,14 @@ public:
 
 	std::vector<CGHeroInstance*> crossoverHeroes;
 
+	void loadPreconditionRegions(ui32 regions);
 	void prepareCrossoverHeroes(std::vector<CGHeroInstance *> heroes);
 
 	bool isNotVoid() const;
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
-		h & mapName & packedMapSize & preconditionRegion & regionColor & difficulty & conquered & regionText & 
+		h & mapName & packedMapSize & preconditionRegions & regionColor & difficulty & conquered & regionText & 
 			prolog & epilog & travelOptions & crossoverHeroes;
 	}
 };
