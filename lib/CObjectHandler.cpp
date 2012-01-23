@@ -91,10 +91,10 @@ bool CPlayersVisited::hasVisited( ui8 player ) const
 static void readCreatures(const JsonNode &creature, std::vector< std::pair <ui16, ui32> > &storage)
 {
 	std::pair<si16, si32> creInfo = std::make_pair(-1, 0);
-	std::string creName = creature["name"].String();
 
 	creInfo.second = creature["number"].Float();
 	creInfo.first = creature["id"].Float();
+	storage.push_back(creInfo);
 }
 
 // Bank helper. Process a bank level.
