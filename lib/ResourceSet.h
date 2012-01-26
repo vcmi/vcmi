@@ -4,6 +4,7 @@
 #include <climits>
 
 typedef si32 TResource;
+typedef ui64 TResourceCap; //to avoid overflow when adding integers
 
 namespace Res
 {
@@ -102,7 +103,7 @@ namespace Res
 			h & static_cast<std::vector<int>&>(*this);
 		}
 
-		DLL_LINKAGE void amax(const TResource &val); //performs vstd::amax on each element
+		DLL_LINKAGE void amax(const TResourceCap &val); //performs vstd::amax on each element
 		DLL_LINKAGE bool nonZero() const; //returns true if at least one value is non-zero;
 		DLL_LINKAGE bool canAfford(const ResourceSet &price) const;
 		DLL_LINKAGE bool canBeAfforded(const ResourceSet &res) const;
@@ -112,7 +113,7 @@ namespace Res
 		{
 			struct ResEntry
 			{
-				TResource resType, resVal;
+				TResourceCap resType, resVal;
 			} cur;
 			const ResourceSet &rs;
 			void advance();

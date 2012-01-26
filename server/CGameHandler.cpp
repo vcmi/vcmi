@@ -981,7 +981,7 @@ void CGameHandler::newTurn()
 			if(h->visitedTown && vstd::contains(h->visitedTown->builtBuildings,0)) //if hero starts turn in town with mage guild
 				hth.mana = std::max(h->mana, h->manaLimit()); //restore all mana
 			else
-				hth.mana = std::max(si32(0), std::max(h->mana, std::min(h->mana + h->manaRegain(), h->manaLimit())) ); 
+				hth.mana = std::max((ui32)(0), std::max(h->mana, std::min((ui32)(h->mana + h->manaRegain()), h->manaLimit()))); 
 
 			n.heroes.insert(hth);
 			
@@ -1471,7 +1471,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 
 		//check if there is blocking visitable object
 		blockvis = false;
-		tmh.movePoints = std::max(si32(0),h->movement-cost); //take move points
+		tmh.movePoints = std::max((ui32)(0),h->movement-cost); //take move points
 		BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
 		{
 			if(obj != h  &&  obj->blockVisit  &&  !(obj->getPassableness() & 1<<h->tempOwner))
@@ -1627,7 +1627,7 @@ ui32 CGameHandler::showBlockingDialog( BlockingDialog *iw )
 	return 0;
 }
 
-void CGameHandler::giveResource(int player, int which, int val)
+void CGameHandler::giveResource(int player, int which, int val) //TODO: cap according to Bersy's suggestion
 {
 	if(!val) return; //don't waste time on empty call
 	SetResource sr;
@@ -5437,7 +5437,17 @@ void CGameHandler::runBattle()
 					)
 				{
 					if(rand()%24 < nextStackMorale) //this stack hasn't got morale this turn
-						++numberOfAsks; //move this stack once more
+
+						{
+							BattleTriggerEffect bte;
+							bte.stackID = next->ID;
+							bte.effect = Bonus::MORALE;
+							bte.val = 1;
+							bte.additionalInfo = 0;
+							sendAndApply(&bte); //play animation
+
+							++numberOfAsks; //move this stack once more
+						}
 				}
 
 				--numberOfAsks;

@@ -2466,6 +2466,14 @@ void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
 			displayEffect(15, stack->position);
 			CCS->soundh->playSound(soundBase::FEAR);
 			break;
+		case Bonus::MORALE:
+		{
+			std::string hlp = CGI->generaltexth->allTexts[33];
+			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
+			displayEffect(20,stack->position);
+			console->addText(hlp);
+			break;
+		}
 		default:
 			return;
 	}

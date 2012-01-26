@@ -231,7 +231,7 @@ struct SetResource : public CPackForClient //102
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ui8 player, resid;
-	si32 val;
+	TResourceCap val;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

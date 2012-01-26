@@ -271,13 +271,13 @@ public:
 
 	ConstTransitivePtr<CHero> type;
 	ui64 exp; //experience points
-	si32 level; //current level of hero
+	ui32 level; //current level of hero
 	std::string name; //may be custom
 	std::string biography; //if custom
 	si32 portrait; //may be custom
-	si32 mana; // remaining spell points
+	ui32 mana; // remaining spell points
 	std::vector<std::pair<ui8,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
-	si32 movement; //remaining movement points
+	ui32 movement; //remaining movement points
 	ui8 sex;
 	ui8 inTownGarrison; // if hero is in town garrison 
 	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
@@ -293,7 +293,7 @@ public:
 	{
 		Patrol(){patrolling=false;patrolRadious=-1;};
 		ui8 patrolling;
-		si32 patrolRadious;
+		ui32 patrolRadious;
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & patrolling & patrolRadious;

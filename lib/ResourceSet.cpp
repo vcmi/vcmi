@@ -16,7 +16,7 @@ bool Res::ResourceSet::nonZero() const
 	return false;
 }
 
-void Res::ResourceSet::amax(const TResource &val)
+void Res::ResourceSet::amax(const TResourceCap &val)
 {
 	for(int i = 0; i < size(); i++)
 		::vstd::amax(at(i), val);

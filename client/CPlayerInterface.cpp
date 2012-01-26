@@ -719,15 +719,6 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	CBattleInterface *b = battleInt;
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
-
-		if(vstd::contains(stack->state,EBattleStackState::MOVED)) //this stack has moved and makes second action -> high morale
-		{
-			std::string hlp = CGI->generaltexth->allTexts[33];
-			boost::algorithm::replace_first(hlp,"%s",(stack->count != 1) ? stack->getCreature()->namePl : stack->getCreature()->nameSing);
-			battleInt->displayEffect(20,stack->position);
-			battleInt->console->addText(hlp);
-		}
-
 		b->stackActivated(stack);
 		//Regeneration & mana drain go there
 	}

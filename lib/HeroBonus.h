@@ -494,11 +494,11 @@ public:
 	int LuckVal() const; //range [-3, +3]
 	si32 Attack() const; //get attack of stack with all modificators
 	si32 Defense(bool withFrenzy = true) const; //get defense of stack with all modificators
-	ui16 MaxHealth() const; //get max HP of stack with all modifiers
+	ui32 MaxHealth() const; //get max HP of stack with all modifiers
 	bool isLiving() const; //non-undead, non-non living or alive
 	virtual si32 magicResistance() const;
 
-	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
+	ui32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	int getPrimSkillLevel(int id) const; //0-attack, 1-defence, 2-spell power, 3-knowledge
 	const TBonusListPtr getSpellBonuses() const;
 };

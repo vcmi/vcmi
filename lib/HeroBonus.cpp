@@ -369,9 +369,9 @@ si32 IBonusBearer::Defense(bool withFrenzy /*= true*/) const
 	return ret;
 }
 
-ui16 IBonusBearer::MaxHealth() const
+ui32 IBonusBearer::MaxHealth() const
 {
-	return std::max(1, valOfBonuses(Bonus::STACK_HEALTH)); //never 0 or negative
+	return std::max(1, valOfBonuses(Bonus::STACK_HEALTH)); //never 0
 }
 
 ui32 IBonusBearer::getMinDamage() const
@@ -387,7 +387,7 @@ ui32 IBonusBearer::getMaxDamage() const
 	return valOfBonuses(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2), cachingStr.str());
 }
 
-si32 IBonusBearer::manaLimit() const
+ui32 IBonusBearer::manaLimit() const
 {
 	return si32(getPrimSkillLevel(3) * (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 24)) / 10.0);
 }
