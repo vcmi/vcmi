@@ -112,6 +112,7 @@ namespace PrimarySkill
 	BONUS_NAME(WATER_IMMUNITY)							\
 	BONUS_NAME(EARTH_IMMUNITY)							\
 	BONUS_NAME(AIR_IMMUNITY)							\
+	BONUS_NAME(MIND_IMMUNITY)							\
 	BONUS_NAME(FIRE_SHIELD)								\
 	BONUS_NAME(UNDEAD)									\
 	BONUS_NAME(HP_REGENERATION) /*creature regenerates val HP every new round*/					\

@@ -19,17 +19,6 @@ extern CLodHandler * bitmaph;
  *
  */
 
-static std::vector<int> getMindSpells()
-{
-	std::vector<int> ret;
-	ret.push_back(50); //sorrow
-	ret.push_back(59); //berserk
-	ret.push_back(60); //hypnotize
-	ret.push_back(61); //forgetfulness
-	ret.push_back(62); //blind
-	return ret;
-}
-
 CCreatureHandler::CCreatureHandler()
 {
 	VLC->creh = this;
@@ -395,11 +384,7 @@ void CCreatureHandler::loadCreatures()
 				ncre.addBonus(0, Bonus::ATTACKS_ALL_ADJACENT);
 
 			if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_MIND_SPELLS"))
-			{
-				std::vector<int> mindSpells = getMindSpells();
-				for(int g=0; g<mindSpells.size(); ++g)
-					ncre.addBonus(0, Bonus::SPELL_IMMUNITY, mindSpells[g]); //giants are immune to mind spells
-			}
+				ncre.addBonus(0, Bonus::MIND_IMMUNITY); //giants are immune to mind spells
 			if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_FIRE_SPELLS"))
 				ncre.addBonus(0, Bonus::FIRE_IMMUNITY);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "HAS_EXTENDED_ATTACK"))
@@ -751,11 +736,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 				b.type = Bonus::NO_MORALE; break;
 			case 'p': //Mind spells
 			case 'P':
-				{
-					loadMindImmunity(b, bl, src, it);
-					return;
-				}
-				return;
+				b.type = Bonus::MIND_IMMUNITY; break;
 			case 'r':
 				b.type = Bonus::REBIRTH; //on/off? makes sense?
 				b.subtype = 0;
@@ -951,34 +932,6 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 				b.limiter.reset (new RankRangeLimiter(lastLev, i));
 			}
 		}
-	}
-}
-
-void CCreatureHandler::loadMindImmunity(Bonus & b, BonusList & bl, std::string & src, int & it)
-{
-	CCreature * cre = creatures[b.sid]; //odd workaround
-
-	b.type = Bonus::SPELL_IMMUNITY;
-	b.val = Bonus::BASE_NUMBER;
-	si32 curVal;
-
-	b.val = 0; //on-off ability, no value specified
-	loadToIt (curVal, src, it, 4); // 0 level is never active
-	for (int i = 1; i < 11; ++i)
-	{
-		loadToIt (curVal, src, it, 4);
-		if (curVal == 1)
-		{
-			b.limiter.reset (new RankRangeLimiter(i));
-			break; //only one limiter here
-		}
-	}
-
-	std::vector<int> mindSpells = getMindSpells(); //multiplicate spells
-	for (int g=0; g < mindSpells.size(); ++g)
-	{
-		b.subtype = mindSpells[g];
-		cre->getBonusList().push_back(new Bonus(b));
 	}
 }
 

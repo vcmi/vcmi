@@ -643,6 +643,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
 					break;
 				case Bonus::HATE:
+				case Bonus::DAEMON_SUMMONING:
 					boost::algorithm::replace_first(text, "%s", VLC->creh->creatures[bonus->subtype]->namePl);
 					break;
 				case Bonus::LEVEL_SPELL_IMMUNITY:
@@ -650,9 +651,9 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 					break;
 				case Bonus::SPELL_AFTER_ATTACK:
 				case Bonus::SPELL_BEFORE_ATTACK:
-					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
-					break;
 				case Bonus::SPELL_IMMUNITY:
+				case Bonus::SPELLCASTER:
+				case Bonus::ENCHANTER:
 					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
 					break;
 				case Bonus::MAGIC_RESISTANCE:
@@ -685,10 +686,13 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "E_BREATH.bmp"; break;
 		case Bonus::SPELL_AFTER_ATTACK:
 			fileName = "E_CAST.bmp"; break;
-			//"E_CAST1.bmp"
+		case Bonus::ENCHANTER:
+		case Bonus::RANDOM_SPELLCASTER:
+			fileName = "E_CAST1.bmp"; break;
 		case Bonus::SPELL_BEFORE_ATTACK:
 			fileName ="E_CAST2.bmp"; break;
-			//"E_CASTER.bmp"
+		case Bonus::SPELLCASTER:
+			fileName = "E_CASTER.bmp"; break;
 		case Bonus::JOUSTING:
 			fileName = "E_CHAMP.bmp"; break;
 		case Bonus::DOUBLE_DAMAGE_CHANCE:
@@ -733,7 +737,8 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "E_MANA.bmp"; break;
 		case Bonus::NO_MELEE_PENALTY:
 			fileName = "E_MELEE.bmp"; break;
-			//"E_MIND.bmp"
+		case Bonus::MIND_IMMUNITY:
+			fileName = "E_MIND.bmp"; break;
 		case Bonus::SELF_MORALE:
 			fileName = "E_MINOT.bmp"; break;
 		case Bonus::NO_MORALE:
@@ -843,8 +848,6 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			}
 			break;
 		}
-			//"E_SPWATER.bmp"
-			//"E_SPWATER1.bmp"
 			//"E_SUMMON.bmp"
 			//"E_SUMMON1.bmp"
 			//"E_SUMMON2.bmp"

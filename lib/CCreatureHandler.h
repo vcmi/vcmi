@@ -121,7 +121,6 @@ public:
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
 	void loadStackExp(Bonus & b, BonusList & bl, std::string & src, int & it);
-	void loadMindImmunity(Bonus & b, BonusList & bl, std::string & src, int & it); //multiple bonuses at once
 	int stringToNumber(std::string & s);//help function for parsing CREXPBON.txt
 
 	bool isGood (si8 faction) const;

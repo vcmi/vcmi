@@ -586,12 +586,8 @@ void CArtHandler::addBonuses()
 	ART_LUCK(46,+1); //Clover of Fortune
 	ART_LUCK(47,+1); //Cards of Prophecy
 	ART_LUCK(48,+1); //Ladybird of Luck
-	ART_MORALE(49,+1); //Badge of Courage -> +1 morale and immunity to hostile mind spells:
-	giveArtBonus(49,Bonus::SPELL_IMMUNITY,0,50);//sorrow
-	giveArtBonus(49,Bonus::SPELL_IMMUNITY,0,59);//berserk
-	giveArtBonus(49,Bonus::SPELL_IMMUNITY,0,60);//hypnotize
-	giveArtBonus(49,Bonus::SPELL_IMMUNITY,0,61);//forgetfulness
-	giveArtBonus(49,Bonus::SPELL_IMMUNITY,0,62);//blind
+	ART_MORALE(49,+1); //Badge of Courage -> +1 morale 
+	giveArtBonus(49,Bonus::MIND_IMMUNITY,0); //immunity to hostile mind spells:
 	ART_MORALE(50,+1); //Crest of Valor
 	ART_MORALE(51,+1); //Glyph of Gallantry
 

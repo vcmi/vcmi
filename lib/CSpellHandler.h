@@ -83,10 +83,11 @@ public:
 	std::vector< ConstTransitivePtr<CSpell> > spells;
 	std::set<TSpell> damageSpells; //they inflict damage and require particular threatment
 	std::set<TSpell> risingSpells; //they affect dead stacks and need special target selection
+	std::set<TSpell> mindSpells;
 	void loadSpells();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & spells & damageSpells & risingSpells;
+		h & spells & damageSpells & risingSpells & mindSpells;
 	}
 };

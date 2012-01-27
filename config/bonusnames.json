@@ -49,8 +49,13 @@
 			{ "id": "WATER_IMMUNITY", "name": "Immune to Water", "description": "" },
 			{ "id": "AIR_IMMUNITY", "name": "Immune to Air", "description": "" },
 			{ "id": "EARTH_IMMUNITY", "name": "Immune to Earth", "description": "" },
+			{ "id": "MIND_IMMUNITY", "name": "Immune to mind spells", "description": "" },
 			{ "id": "DIRECT_DAMAGE_IMMUNITY", "name": "Direct Damage Immunity", "description": "Immune to direct damage spells" },
 			{ "id": "RECEPTIVE", "name": "Receptive", "description": "No Immunity to Friendly Spells" },
-			{ "id": "REBIRTH", "name": "Rebirth (%d%)", "description": "Stack will rise after death" }
+			{ "id": "REBIRTH", "name": "Rebirth (%d%)", "description": "Stack will rise after death" },
+			{ "id": "SPELLCASTER", "name": "Spellcaster (%s)", "description": "Can cast spells" },
+			{ "id": "ENCHANTER", "name": "Enchanter (%s)", "description": "Casts mass spell every turn" },
+			{ "id": "RANDOM_SPELLCASTER", "name": "Random spellcaster", "description": "Can cast random spell" },
+			{ "id": "DAEMON_SUMMONING", "name": "Summoner (%s)", "description": "Can rise creatures from corpses" }
 		]
 }

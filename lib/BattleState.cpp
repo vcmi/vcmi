@@ -2171,6 +2171,11 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInst
 			if (battleTestElementalImmunity(subject, spell, Bonus::AIR_IMMUNITY, damageSpell))
 				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 		}
+		if (vstd::contains(VLC->spellh->mindSpells, spell->id))
+		{
+			if (subject->hasBonusOfType(Bonus::MIND_IMMUNITY))
+				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+		}
 
 		if (vstd::contains(VLC->spellh->risingSpells, spell->id))
 		{

@@ -318,4 +318,5 @@ void CSpellHandler::loadSpells()
 
 	damageSpells += 11, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 57, 77;
 	risingSpells += 38, 39, 40;
+	mindSpells += 50, 59, 60, 61, 62;
 }
