@@ -2883,12 +2883,18 @@ void CMarketplaceWindow::makeDeal()
 		return;
 
 	int leftIdToSend = -1;
-	if(mode == EMarketMode::CREATURE_RESOURCE)
-		leftIdToSend = hLeft->serial;
-	else if(mode == EMarketMode::ARTIFACT_RESOURCE)
-		leftIdToSend = hLeft->getArtInstance()->id;
-	else
-		leftIdToSend = hLeft->id;
+	switch (mode)
+	{
+		case EMarketMode::CREATURE_RESOURCE:
+			leftIdToSend = hLeft->serial;
+			break;
+		case EMarketMode::ARTIFACT_RESOURCE:
+			leftIdToSend = hLeft->getArtInstance()->id;
+			break;
+		default:
+			leftIdToSend = hLeft->id;
+			break;
+	}
 
 	if(slider)
 	{

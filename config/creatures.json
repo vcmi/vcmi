@@ -428,11 +428,7 @@
 				"level": 7,
 				"name": [ "LesserTitan" ],
 				"faction": 2,
-				"ability_add": [ [ "SPELL_IMMUNITY", 0, 62, 0 ],			//giants are immune to mind spells (blind)
-							   	 [ "SPELL_IMMUNITY", 0, 61, 0 ],			//giants are immune to mind spells (forgetfulness)
-								 [ "SPELL_IMMUNITY", 0, 60, 0 ],			//giants are immune to mind spells (hypnotize)
-								 [ "SPELL_IMMUNITY", 0, 59, 0 ],			//giants are immune to mind spells (berserk)
-								 [ "SPELL_IMMUNITY", 0, 50, 0 ] ],			//giants are immune to mind spells (sorrow)
+				"ability_add": [ ["MIND_IMMUNITY", 0, 0, 0] ],			//giants are immune to mind spells
 				"upgrade": 41,
 				"defname": "CLTITA.DEF"
 			},
@@ -442,11 +438,7 @@
 				"level": 7,
 				"name": [ "GreaterTitan" ],
 				"faction": 2,
-				"ability_add": [ [ "SPELL_IMMUNITY", 0, 62, 0 ],			//titans are immune to mind spells (blind)
-							   	 [ "SPELL_IMMUNITY", 0, 61, 0 ],			//titans are immune to mind spells (forgetfulness)
-								 [ "SPELL_IMMUNITY", 0, 60, 0 ],			//titans are immune to mind spells (hypnotize)
-								 [ "SPELL_IMMUNITY", 0, 59, 0 ],			//titans are immune to mind spells (berserk)
-								 [ "SPELL_IMMUNITY", 0, 50, 0 ],			//titans are immune to mind spells (sorrow)
+				"ability_add": [ ["MIND_IMMUNITY", 0, 0, 0],			//Titans are immune to mind spells
 								 [ "HATE", 50, 83, 0 ] ],					//titans hate black dragons
 				"defname": "CGTITA.DEF",
 				"projectile_defname": "CPRGTIX.DEF",

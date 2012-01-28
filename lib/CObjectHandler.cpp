@@ -6816,8 +6816,7 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMar
 			if(id1 != 6) //non-gold prices are doubled
 				r /= 2; 
 
-			assert(g >= r); //should we allow artifacts cheaper than unit of resource?
-			val1 = (g / r) + 0.5;
+			val1 = std::max(1, (int)((g / r) + 0.5)); //don't sell arts for less than 1 resource
 			val2 = 1;
 		}
 		break;
@@ -6831,7 +6830,7 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMar
 // 				r /= 2; 
 
 			val1 = 1;
-			val2 = (r / g) + 0.5;
+			val2 = std::max(1, (int)((r / g) + 0.5)); //at least one resource is given in return
 		}
 		break;
 	case EMarketMode::CREATURE_EXP:
