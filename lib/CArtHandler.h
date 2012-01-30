@@ -16,6 +16,8 @@
 class CDefHandler;
 class CArtifact;
 class CGHeroInstance;
+class CStackInstance;
+//class CCreatureArtifactSet;
 struct ArtifactLocation;
 
 namespace ArtifactPosition
@@ -75,7 +77,7 @@ public:
 
 	//CArtifactInstance(int aid);
 
-	std::string nodeName() const OVERRIDE;
+	virtual std::string nodeName() const OVERRIDE;
 	void deserializationFix();
 	void setType(CArtifact *Art);
 
@@ -87,6 +89,8 @@ public:
 	virtual bool canBeDisassembled() const;
 	virtual void putAt(CGHeroInstance *h, ui16 slot);
 	virtual void removeFrom(CGHeroInstance *h, ui16 slot);
+	virtual void putAt(CStackInstance *s, ui16 slot);
+	virtual void removeFrom(CStackInstance *s, ui16 slot);
 	virtual bool isPart(const CArtifactInstance *supposedPart) const; //checks if this a part of this artifact: artifact instance is a part of itself, additionally truth is returned for consituents of combined arts
 
 	std::vector<const CArtifact *> assemblyPossibilities(const CGHeroInstance *h) const;
@@ -143,6 +147,30 @@ public:
 	{
 		h & static_cast<CArtifactInstance&>(*this);
 		h & constituentsInfo;
+		BONUS_TREE_DESERIALIZATION_FIX
+	}
+};
+
+class DLL_LINKAGE CCreatureArtifactInstance : public CArtifactInstance
+{
+	CCreatureArtifactInstance(CArtifact *Art);
+public:
+
+	bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const OVERRIDE;
+	void putAt(CStackInstance *s, ui16 slot) OVERRIDE;
+	void removeFrom(CStackInstance *s, ui16 slot) OVERRIDE;
+	bool isPart(const CArtifactInstance *supposedPart) const OVERRIDE;
+
+	std::string nodeName() const OVERRIDE;
+
+	CCreatureArtifactInstance();
+
+	//void deserializationFix(); ..inherit from CArtifactInstance
+
+	friend class CArtifactInstance;
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArtifactInstance&>(*this);
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
@@ -212,7 +240,7 @@ public:
 	std::vector< ConstTransitivePtr<CArtifact> > artifacts;
 	std::vector<CArtifact *> allowedArtifacts;
 	std::set<ui32> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
-	//std::map<ui32, ui8> modableArtifacts; //1-scroll, 2-banner, 3-commander art with progressive bonus
+	std::set<ui32> creatureArtifacts; // can be held by Stacks
 
 	void loadArtifacts(bool onlyTxt);
 	void sortArts();
@@ -235,6 +263,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & artifacts & allowedArtifacts & treasures & minors & majors & relics;
+		h & creatureArtifacts;
 		//if(!h.saving) sortArts();
 	}
 };
@@ -299,7 +328,7 @@ public:
 class DLL_LINKAGE CCreatureArtifactSet : public IArtifactSetBase
 { ///creature artifacts
 public:
-	std::vector<ArtSlotInfo> artifactsInBackpack; //artifacts carried by creature - 4 max
+	std::vector<ArtSlotInfo> artifactsInBackpack; //artifacts carried by creature - 4 max (according to WoG)
 	ArtSlotInfo activeArtifact; //position 0 - Arts::CREATURE_ART
 
 	ArtSlotInfo &retreiveNewArtSlot(ui16 slot);

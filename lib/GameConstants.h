@@ -83,13 +83,17 @@ namespace GameConstants
 	const int WEEKLY_GROWTH = 10; //percent
 	const int AVAILABLE_HEROES_PER_PLAYER = 2;
 	const bool DWELLINGS_ACCUMULATE_CREATURES = false;
-	const bool STACK_EXP = true;
-	const bool STACK_ARTIFACT = true;
 	const int SPELLBOOK_GOLD_COST = 500;
 
 	const ui16 BACKPACK_START = 19;
 	const int ID_CATAPULT = 3, ID_LOCK = 145;
 	const ui16 CREATURE_ART = 0;
+
+	//game modules
+	const bool STACK_EXP = true;
+	const bool STACK_ARTIFACT = true; //now toggle for testing
+	const bool COMMANDERS = false;
+	const bool MITHRIL = false;
 }
 
 // Enum declarations

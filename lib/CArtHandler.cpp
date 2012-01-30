@@ -7,6 +7,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "CSpellHandler.h"
 #include "CObjectHandler.h"
+//#include "CCreatureSet.h"
 #include "NetPacks.h"
 
 extern CLodHandler *bitmaph;
@@ -195,7 +196,8 @@ CArtHandler::CArtHandler()
 	// War machines are the default big artifacts.
 	for (ui32 i = 3; i <= 6; i++)
 		bigArtifacts.insert(i);
-	//modableArtifacts = boost::assign::map_list_of(1, 1)(146,3)(147,3)(148,3)(150,3)(151,3)(152,3)(154,3)(156,2);
+	if (GameConstants::STACK_ARTIFACT)
+		creatureArtifacts += 141, 142, 143, 156; //basic Wog arts and Warlord's banner
 }
 
 CArtHandler::~CArtHandler()
@@ -225,23 +227,6 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	for (int i=0; i<GameConstants::ARTIFACTS_QUANTITY; i++)
 	{
 		CArtifact *art = new CArtifact();
-// 		if ((itr = modableArtifacts.find(i)) != modableArtifacts.end())
-// 		{
-// 			switch (itr->second)
-// 			{
-// 			case 1:
-// 				art = new CScroll;
-// 				break;
-// 			case 2:
-// 				art = new CCustomizableArt;
-// 				break;
-// 			case 3:
-// 				art = new CCommanderArt;
-// 				break;
-// 			};
-// 		}
-// 		else
-//			art = new CArtifact;
 
 		CArtifact &nart = *art;
 		nart.id=i;
@@ -941,19 +926,24 @@ int CArtifactInstance::firstBackpackSlot(const CGHeroInstance *h) const
 
 bool CArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved /*= false*/) const
 {
-	if(al.slot >= GameConstants::BACKPACK_START)
+	if (al.hero)
 	{
-		if(artType->isBig())
-			return false;
+		if(al.slot >= GameConstants::BACKPACK_START)
+		{
+			if(artType->isBig())
+				return false;
 		
-		//TODO backpack limit
-		return true;
+			//TODO backpack limit
+			return true;
+		}
+
+		if(!vstd::contains(artType->possibleSlots, al.slot))
+			return false;
+
+		return al.hero->isPositionFree(al.slot, assumeDestRemoved);
 	}
-
-	if(!vstd::contains(artType->possibleSlots, al.slot))
+	else
 		return false;
-
-	return al.hero->isPositionFree(al.slot, assumeDestRemoved);
 }
 
 void CArtifactInstance::putAt(CGHeroInstance *h, ui16 slot)
@@ -973,6 +963,15 @@ void CArtifactInstance::removeFrom(CGHeroInstance *h, ui16 slot)
 		h->detachFrom(this);
 
 	//TODO delete me?
+}
+
+void CArtifactInstance::putAt(CStackInstance *s, ui16 slot)
+{
+	tlog2 <<"Hero artifacts shouldn't be put on creatures!\n";
+}
+void CArtifactInstance::removeFrom(CStackInstance *s, ui16 slot)
+{
+	tlog2 <<"Strange, we try to remove hero artifact from CStackInstance\n";
 }
 
 bool CArtifactInstance::canBeDisassembled() const
@@ -1011,16 +1010,36 @@ std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CG
 
 void CArtifactInstance::move(ArtifactLocation &src, ArtifactLocation &dst)
 {
-	removeFrom(src.hero, src.slot);
-	putAt(dst.hero, dst.slot);
-	if (artType->id == 135 && dst.slot == ArtifactPosition::RIGHT_HAND && !dst.hero->hasSpellbook()) //Titan's Thunder creates new spellbook on equip
-		dst.hero->giveArtifact(0);
+	if (src.hero)
+		removeFrom(src.hero, src.slot);
+	else if (src.stack)
+		removeFrom(src.stack, src.slot);
+	else
+		tlog1 << "No source for moved artifact found!\n";
+
+	if (dst.hero)
+	{
+		putAt(dst.hero, dst.slot);
+		if (artType->id == 135 && dst.slot == ArtifactPosition::RIGHT_HAND && !dst.hero->hasSpellbook()) //Titan's Thunder creates new spellbook on equip
+			dst.hero->giveArtifact(0);
+	}
+	else if (dst.stack)
+		putAt(dst.stack, dst.slot);
+	else
+		tlog1 << "No destination for moved artifact found!\n";
+
+
 }
 
 CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)
 {
 	if(!Art->constituents)
-		return new CArtifactInstance(Art);
+	{
+		 if (vstd::contains(VLC->arth->creatureArtifacts, Art->id))
+			 return new CCreatureArtifactInstance(Art);
+		 else
+			 return new CArtifactInstance(Art);
+	}
 	else
 	{
 		CCombinedArtifactInstance * ret = new CCombinedArtifactInstance(Art);
@@ -1232,6 +1251,56 @@ CCombinedArtifactInstance::ConstituentInfo::ConstituentInfo(CArtifactInstance *A
 bool CCombinedArtifactInstance::ConstituentInfo::operator==(const ConstituentInfo &rhs) const
 {
 	return art == rhs.art && slot == rhs.slot;
+}
+CCreatureArtifactInstance::CCreatureArtifactInstance()
+{
+	init();
+}
+
+CCreatureArtifactInstance::CCreatureArtifactInstance(CArtifact *Art)
+{
+	init();
+	setType(Art);
+}
+
+bool CCreatureArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
+{
+	return false; //TODO: any other proposals?
+}
+
+std::string CCreatureArtifactInstance::nodeName() const
+{
+	return "Creature artifact instance of " + (artType ? artType->Name() : std::string("uninitialized")) + " type";
+}
+
+bool CCreatureArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved /*= false*/) const
+{
+	if (al.stack)
+	{
+		return true; //all artifacts should fit on creature
+	}
+	else if(al.slot >= GameConstants::BACKPACK_START)
+	{	//TODO backpack limit?
+		return true;
+	}
+	return false; //hero can't wear creature art
+}
+
+void CCreatureArtifactInstance::putAt(CStackInstance *s, ui16 slot)
+{
+	assert(canBePutAt(ArtifactLocation(s, slot)));
+
+	s->setNewArtSlot(slot, this, false);
+	if(slot == GameConstants::CREATURE_ART)
+		s->attachTo(this);
+}
+
+void CCreatureArtifactInstance::removeFrom(CStackInstance *s, ui16 slot)
+{
+	assert(s->CCreatureArtifactSet::getArt(slot) == this);
+	s->eraseArtSlot(slot);
+	if(slot == GameConstants::CREATURE_ART) //we remove worn artifact
+		s->detachFrom(this);
 }
 
 const CArtifactInstance* IArtifactSetBase::getArt(ui16 pos, bool excludeLocked) const

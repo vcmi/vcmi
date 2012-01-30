@@ -210,6 +210,9 @@ public:
 	bool sellArtifact( const IMarket *m, const CGHeroInstance *h, int aid, int rid); //for artifact merchant selling
 	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, int skill);
 	bool moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot);
+	bool moveArtifact(StackLocation s1, StackLocation s2, ui16 srcSlot, ui16 destSlot); //called when stacks merge
+	bool moveArtifact(si32 srcHeroID, StackLocation s2, ui16 srcSlot, ui16 destSlot); //equip artifact
+	bool moveArtifact(StackLocation s1, si32 destHeroID, ui16 srcSlot, ui16 destSlot); //return artifact to backpack
 	bool garrisonSwap(si32 tid);
 	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
 	bool recruitCreatures(si32 objid, ui32 crid, ui32 cram, si32 level);

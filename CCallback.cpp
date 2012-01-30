@@ -127,14 +127,50 @@ bool CCallback::dismissHero(const CGHeroInstance *hero)
 // 	return gs->players[player].serial;
 // }
 
-bool CCallback::swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)
+bool CCallback::swapArtifacts(const IArtifactSetBase * src, ui16 pos1, const IArtifactSetBase * dest, ui16 pos2)
 {
-	if(player!=hero1->tempOwner && player!=hero2->tempOwner)
-		return false;
+	const CStackInstance * stack1 = dynamic_cast<const CStackInstance*>(src);
+	const CStackInstance * stack2 = dynamic_cast<const CStackInstance*>(dest);
+	const CGHeroInstance * hero1 = dynamic_cast<const CGHeroInstance*>(src);
+	const CGHeroInstance * hero2 = dynamic_cast<const CGHeroInstance*>(dest);
 
-	ExchangeArtifacts ea(hero1->id, hero2->id, pos1, pos2);
-	sendRequest(&ea);
-	return true;
+	ExchangeArtifacts ea;
+
+	if (hero1 && hero2)
+	{
+		if(player!=hero1->tempOwner && player!=hero2->tempOwner) //player can exchange artifacts only between his own heroes
+			return false;
+		else
+		{
+			ExchangeArtifacts ea(hero1->id, hero2->id, pos1, pos2);
+			sendRequest(&ea);
+			return true;
+		}
+	}
+	else if (hero1 && stack2) //move artifact from hero to stack
+	{
+		ea.hid1 = hero1->id;
+		ea.s2 = StackLocation(stack2->armyObj, stack2->armyObj->findStack(stack2));
+		ea.slot1 = pos1;
+		ea.slot2 = pos2;
+		sendRequest(&ea);
+		return true;
+	}
+	else if (stack1 && hero2) //move artifacts from stakc to hero
+	{
+		ea.s1 = StackLocation(stack1->armyObj, stack1->armyObj->findStack(stack1));
+		ea.hid2 = hero2->id;
+		ea.slot1 = pos1;
+		ea.slot2 = pos2;
+		sendRequest(&ea);
+		return true;
+	}
+	else if (stack1 && stack2)
+	{
+		//TODO: merge stacks?
+	}
+	else
+		return false;
 }
 
 /**

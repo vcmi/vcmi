@@ -1410,6 +1410,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				CGHeroInstance *hero = k->second.heroes[0];
  				hero->giveArtifact(toGive->id);
 			}
+			break;
 		}
 	}
 	/****************************TOWNS************************************************/

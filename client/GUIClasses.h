@@ -25,6 +25,7 @@
  */
 
 struct ArtifactLocation;
+class IArtifactSetBase;
 class CStackBasicDescriptor;
 class CBonusSystemNode;
 class CArtifact;
@@ -62,6 +63,7 @@ class CPlayerInterface;
 class CHeroWindow;
 class CArtifact;
 class CArtifactsOfHero;
+class CCreatureArtifactSet;
 class CResDataBar;
 struct SPuzzleInfo;
 class CGGarrison;
@@ -222,6 +224,7 @@ public:
 	int count; //number of creatures
 	int upg; //0 - up garrison, 1 - down garrison
 	bool active; //TODO: comment me
+	bool highlight;
 
 	virtual void hover (bool on); //call-in
 	const CArmedInstance * getObj();
@@ -851,12 +854,14 @@ public:
 		struct Artpos
 		{
 			int slotID;
-			const CArtifactsOfHero * AOH;
+			const CArtifactsOfHero *AOH;
+			const CCreatureArtifactSet *CAS;
 			const CArtifactInstance *art;
 
 			Artpos();
 			void clear();
 			void setTo(const CArtPlace *place, bool dontTakeBackpack);
+			IArtifactSetBase * getArtHolder(); // returns AOH or CAS
 			bool valid();
 			bool operator==(const ArtifactLocation &al) const;
 		} src, dst;

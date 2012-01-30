@@ -2572,6 +2572,40 @@ bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, u
 	return true;
 }
 
+bool CGameHandler::moveArtifact(StackLocation s1, StackLocation s2, ui16 srcSlot, ui16 destSlot)
+{
+	ArtifactLocation src(s1.getStack(), srcSlot), dst(s2.getStack(), destSlot);
+	moveArtifact(src, dst);
+	return true;
+}
+
+bool CGameHandler::moveArtifact(si32 srcHeroID, StackLocation s2, ui16 srcSlot, ui16 destSlot)
+{
+	ArtifactLocation src(getHero(srcHeroID), srcSlot);
+	ArtifactLocation dst(s2.getStack(), destSlot);
+	moveArtifact(src, dst);
+	return true;
+}
+bool CGameHandler::moveArtifact(StackLocation s1, si32 destHeroID, ui16 srcSlot, ui16 destSlot)
+{
+	ArtifactLocation src(s1.getStack(), srcSlot);
+	ArtifactLocation dst(getHero(destHeroID), destSlot);
+	//hero should not wear stack artifact
+	vstd::amin(dst.slot, GameConstants::BACKPACK_START + dst.hero->artifactsInBackpack.size()); //put on first free position
+	moveArtifact(src, dst);
+	return true;
+}
+
+void CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2)
+{
+	MoveArtifact ma;
+	ma.src = al1;
+	ma.dst = al2;
+	sendAndApply(&ma);
+}
+
+
+
 /**
  * Assembles or disassembles a combination artifact.
  * @param heroID ID of hero holding the artifact(s).
@@ -5501,21 +5535,20 @@ void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstan
 	sendAndApply(&pa);
 }
 
-void CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2)
-{
-	MoveArtifact ma;
-	ma.src = al1;
-	ma.dst = al2;
-	sendAndApply(&ma);
-}
-
 void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, int pos)
 {
 	CArtifactInstance *a = NULL;
 	if(!artType->constituents)
-		a = new CArtifactInstance();
+	{
+		if (vstd::contains(VLC->arth->creatureArtifacts, artType->id))
+			a = new CCreatureArtifactInstance();
+		else
+			a = new CArtifactInstance();
+	}
 	else
+	{
 		a = new CCombinedArtifactInstance();
+	}
 	a->artType = artType; //*NOT* via settype -> all bonus-related stuff must be done by NewArtifact apply
 	
 	NewArtifact na;

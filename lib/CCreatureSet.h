@@ -3,11 +3,12 @@
 
 #include "HeroBonus.h"
 #include "GameConstants.h"
+#include "CArtHandler.h"
 
 class CCreature;
 class CGHeroInstance;
 class CArmedInstance;
-
+class CCreatureArtifactSet;
 
 class DLL_LINKAGE CStackBasicDescriptor
 {
@@ -25,20 +26,20 @@ public:
 	}
 };
 
-class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CCreatureArtifactSet
 {
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
 public:
 	int idRand; //hlp variable used during loading game -> "id" placeholder for randomization
 
 	const CArmedInstance * const & armyObj; //stack must be part of some army, army must be part of some object
-	ui32 experience; //TODO: handle
-	//TODO: stack artifacts
+	ui32 experience;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CStackBasicDescriptor&>(*this);
+		h & static_cast<CCreatureArtifactSet&>(*this);
 		h & _armyObj & experience;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}

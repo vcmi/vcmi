@@ -13,6 +13,7 @@
  *
  */
 
+class IArtifactSetBase;
 class CGHeroInstance;
 class CGameState;
 struct CPath;
@@ -60,7 +61,8 @@ public:
 	virtual int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//swaps creatures between two possibly different garrisons // TODO: AI-unsafe code - fix it!
 	virtual int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//joins first stack to the second (creatures must be same type)
 	virtual int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
-	virtual bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
+	//virtual bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
+	virtual bool swapArtifacts(const IArtifactSetBase * src, ui16 pos1, const IArtifactSetBase * dest, ui16 pos2)=0;
 	virtual bool assembleArtifacts(const CGHeroInstance * hero, ui16 artifactSlot, bool assemble, ui32 assembleTo)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, int stackPos)=0;
 	virtual void endTurn()=0;
@@ -117,7 +119,10 @@ public:
 	int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2); //first goes to the second
 	int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val);
 	bool dismissHero(const CGHeroInstance * hero);
-	bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2);
+	//bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2);
+	bool swapArtifacts(const IArtifactSetBase * src, ui16 pos1, const IArtifactSetBase * dest, ui16 pos2);
+	//bool moveArtifact(const CGHeroInstance * hero, ui16 src, const CStackInstance * stack, ui16 dest); // TODO: unify classes
+	//bool moveArtifact(const CStackInstance * stack, ui16 src , const CGHeroInstance * hero, ui16 dest); // TODO: unify classes
 	bool assembleArtifacts(const CGHeroInstance * hero, ui16 artifactSlot, bool assemble, ui32 assembleTo);
 	bool buildBuilding(const CGTownInstance *town, si32 buildingID);
 	void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount, si32 level=-1);

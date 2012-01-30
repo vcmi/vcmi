@@ -262,14 +262,33 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				}
 			}
 		}
-		else //highlight
+		else //drop artifact or highlight
 		{
-			if(creature)
+			bool artSelected = false;
+			if (CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt())) //dirty solution
 			{
-				owner->highlighted = this;
+				BOOST_FOREACH(CArtifactsOfHero *aoh, chw->artSets) // why they are multiple?
+				{
+					if (const CArtifactInstance *art = aoh->commonInfo->src.art)
+					{
+						artSelected = true;
+						if (art->canBePutAt(ArtifactLocation(myStack, GameConstants::CREATURE_ART)))
+						{
+							//TODO : move
+							break;
+						}
+					}
+				}
+			}
+			if (!artSelected)
+			{
+				if(creature)
+				{
+					owner->highlighted = this;
 
-				for(size_t i = 0; i<owner->splitButtons.size(); i++)
-					owner->splitButtons[i]->block(false);
+					for(size_t i = 0; i<owner->splitButtons.size(); i++)
+						owner->splitButtons[i]->block(false);
+				}
 			}
 			redraw();
 			refr = true;
@@ -297,6 +316,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg
 {
 	//assert(Creature == CGI->creh->creatures[Creature->idNumber]);
 	active = false;
+	highlight = false;
 	upg = Upg;
 	ID = IID;
 	myStack = Creature;
@@ -334,7 +354,11 @@ void CGarrisonSlot::showAll(SDL_Surface * to)
 		if((owner->highlighted==this)
 			|| (owner->splitting && owner->highlighted->creature == creature))
 		{
-			blitAt(imgs[-1],pos,to);
+			highlight = true;
+		}
+		{
+			if (highlight)
+				blitAt(imgs[-1],pos,to);
 		}
 	}
 	else//empty slot
@@ -2700,7 +2724,7 @@ void CTradeWindow::artifactSelected(CArtPlace *slot)
 {
 	assert(mode == EMarketMode::ARTIFACT_RESOURCE);
 	items[1][0]->setArtInstance(slot->ourArt);
-	if(slot->ourArt)
+	if(slot->ourArt && slot->ourArt->id >= 0)
 		hLeft = items[1][0];
 	else
 		hLeft = NULL;
@@ -4813,6 +4837,21 @@ void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art)
 	BOOST_FOREACH(CArtifactsOfHero *aoh, commonInfo->participants)
 		BOOST_FOREACH(CArtPlace *place, aoh->artWorn)
 			place->marked = art->canBePutAt(ArtifactLocation(aoh->curHero, place->slotID), true);
+	
+	if (CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt()))
+	{
+		//FIXME: garrison window has two rows of cretaures :?
+		BOOST_FOREACH (CGarrisonSlot *g, chw->garr->slotsDown)
+		{
+			if (g->myStack)
+				if (art->canBePutAt(ArtifactLocation(g->myStack, GameConstants::CREATURE_ART), false));
+					g->highlight = true;
+		}
+	}
+	else if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt()))
+	{
+		//TODO
+	}
 
 	safeRedraw();
 }
@@ -5012,10 +5051,10 @@ void CArtifactsOfHero::safeRedraw()
 
 void CArtifactsOfHero::realizeCurrentTransaction()
 {
-	assert(commonInfo->src.AOH);
-	assert(commonInfo->dst.AOH);
-	LOCPLINT->cb->swapArtifacts(commonInfo->src.AOH->curHero, commonInfo->src.slotID,
-								commonInfo->dst.AOH->curHero, commonInfo->dst.slotID);
+	assert(commonInfo->src.AOH || commonInfo->src.CAS);
+	assert(commonInfo->dst.AOH || commonInfo->dst.CAS);
+	LOCPLINT->cb->swapArtifacts(commonInfo->src.AOH ? (IArtifactSetBase*)commonInfo->src.AOH->curHero : commonInfo->src.CAS, commonInfo->src.slotID,
+								commonInfo->dst.AOH ? (IArtifactSetBase*)commonInfo->dst.AOH->curHero : commonInfo->dst.CAS, commonInfo->dst.slotID);
 }
 
 void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
@@ -6271,6 +6310,16 @@ void CArtifactsOfHero::SCommonPart::Artpos::setTo(const CArtPlace *place, bool d
 		art = NULL;
 	else
 		art = place->ourArt;
+}
+
+IArtifactSetBase * CArtifactsOfHero::SCommonPart::Artpos::getArtHolder()
+{
+	if (AOH)
+		return (IArtifactSetBase*)AOH;
+	if (CAS)
+		return (IArtifactSetBase*)CAS;
+	tlog2 <<"Warning! Artpos without source\n";
+	return NULL;
 }
 
 bool CArtifactsOfHero::SCommonPart::Artpos::operator==(const ArtifactLocation &al) const
