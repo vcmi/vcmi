@@ -60,7 +60,7 @@ public:
 	CSlider * slider; //Abilities
 	CAdventureMapButton *dismiss, *upgrade, *ok;
 	CAdventureMapButton * leftArtRoll, * rightArtRoll; //artifact selection
-	//TODO: Artifact drop
+	CAdventureMapButton * passArtToHero;
 
 	boost::function<void()> dsm; //dismiss button callback
 	boost::function<void()> Upg; //upgrade button callback

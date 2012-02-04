@@ -134,7 +134,20 @@ bool GarrisonHeroSwap::applyGh( CGameHandler *gh )
 bool ExchangeArtifacts::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT_OWNS(hid1);//second hero can be ally
-	return gh->moveArtifact(hid1,hid2,slot1,slot2);
+	if (hid1)
+	{ //TODO: polymorph
+		if (hid2)
+			return gh->moveArtifact(hid1,hid2,slot1,slot2);
+		else
+			return gh->moveArtifact(hid1,s2,slot1,slot2);
+	}
+	else
+	{
+		if (hid2)
+			return gh->moveArtifact(s1,hid2,slot1,slot2);
+		else
+			return gh->moveArtifact(s1,s2,slot1,slot2);
+	}
 }
 
 bool AssembleArtifacts::applyGh( CGameHandler *gh )

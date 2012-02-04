@@ -273,19 +273,18 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 					{
 						artSelected = true;
 						if (art->canBePutAt(ArtifactLocation(myStack, GameConstants::CREATURE_ART)))
-						{
-							//TODO : move
+						{	//equip clicked stack
+							LOCPLINT->cb->swapArtifacts(aoh->getHero(), aoh->commonInfo->src.slotID, myStack, GameConstants::CREATURE_ART);
 							break;
 						}
 					}
 				}
 			}
-			if (!artSelected)
+			if (artSelected || creature)
 			{
+				owner->highlighted = this;
 				if(creature)
 				{
-					owner->highlighted = this;
-
 					for(size_t i = 0; i<owner->splitButtons.size(); i++)
 						owner->splitButtons[i]->block(false);
 				}
@@ -5071,7 +5070,8 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 
 	if(commonInfo->src == src) //artifact was taken from us
 	{
-		assert(commonInfo->dst == dst  ||  dst.slot == dst.hero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
+		//assert(commonInfo->dst == dst  ||  dst.slot == dst.hero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
+		//FIXME: assertion fails for stack artifacts
 		commonInfo->reset();
 		unmarkSlots();
 	}

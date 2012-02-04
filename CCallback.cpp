@@ -134,7 +134,7 @@ bool CCallback::swapArtifacts(const IArtifactSetBase * src, ui16 pos1, const IAr
 	const CGHeroInstance * hero1 = dynamic_cast<const CGHeroInstance*>(src);
 	const CGHeroInstance * hero2 = dynamic_cast<const CGHeroInstance*>(dest);
 
-	ExchangeArtifacts ea;
+	ExchangeArtifacts ea(0,0,0,0);
 
 	if (hero1 && hero2)
 	{

@@ -1277,7 +1277,7 @@ bool CCreatureArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assu
 {
 	if (al.stack)
 	{
-		return true; //all artifacts should fit on creature
+		return al.stack->isPositionFree(al.slot, assumeDestRemoved);
 	}
 	else if(al.slot >= GameConstants::BACKPACK_START)
 	{	//TODO backpack limit?
@@ -1438,10 +1438,9 @@ void CArtifactSet::eraseArtSlot(ui16 slot)
 
 ArtSlotInfo & CCreatureArtifactSet::retreiveNewArtSlot(ui16 slot)
 {
-	assert(slot); //ke?
-	ArtSlotInfo &ret = slot <= GameConstants::CREATURE_ART
+	ArtSlotInfo &ret = slot == GameConstants::CREATURE_ART
 		? activeArtifact
-		: *artifactsInBackpack.insert(artifactsInBackpack.begin() + (slot - 1), ArtSlotInfo());
+		: *artifactsInBackpack.insert(artifactsInBackpack.begin() + (slot - GameConstants::CREATURE_ART), ArtSlotInfo());
 
 	return ret;
 }
@@ -1479,9 +1478,6 @@ si32 CCreatureArtifactSet::getArtPos(int aid, bool onlyWorn) const
 	if (aid == activeArtifact.artifact->artType->id )
 		return GameConstants::CREATURE_ART;
 
-	if(onlyWorn)
-		return -1;
-
 	for(int i = 0; i < artifactsInBackpack.size(); i++)
 	{
 		if(artifactsInBackpack[i].artifact->artType->id == aid)
@@ -1498,7 +1494,7 @@ si32 CCreatureArtifactSet::getArtPos(const CArtifactInstance *art) const
 
 	for(int i = 0; i < artifactsInBackpack.size(); i++)
 		if(artifactsInBackpack[i].artifact == art)
-			return GameConstants::BACKPACK_START + i;
+			return i + 1;
 
 	return -1;
 }

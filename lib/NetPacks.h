@@ -1758,7 +1758,10 @@ struct ExchangeArtifacts : public CPackForServer
 {
 	ExchangeArtifacts(){};
 	ExchangeArtifacts(si32 H1, si32 H2, ui16 S1, ui16 S2)
-		:hid1(H1),hid2(H2),slot1(S1),slot2(S2){};
+		:hid1(H1),hid2(H2),slot1(S1),slot2(S2)
+	{
+		s1 = s2 = StackLocation(NULL,0);
+	};
 	si32 hid1, hid2;
 	StackLocation s1, s2; //for creature stacks
 	ui16 slot1, slot2;

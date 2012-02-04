@@ -251,14 +251,17 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 			}
 		}
 
-		if (GameConstants::STACK_ARTIFACT && type > BATTLE)
+		if (GameConstants::STACK_ARTIFACT)
 		{
-			//SDL_Rect rect = genRect(44,44,465,98);
-			//creatureArtifact = new CArtPlace(NULL);
-			//creatureArtifact->pos = rect;
-			//creatureArtifact->ourOwner = NULL; //hmm?
-			leftArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, -1), 437, 98, "hsbtns3.def", SDLK_LEFT);
-			rightArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, +1), 516, 98, "hsbtns5.def", SDLK_RIGHT);
+			if (type > BATTLE) //artifact buttons inactive in battle
+			{
+				leftArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, -1), 437, 98, "hsbtns3.def", SDLK_LEFT);
+				rightArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, +1), 516, 98, "hsbtns5.def", SDLK_RIGHT);
+				if (heroOwner)
+					passArtToHero = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, 0), 437, 148, "OVBUTN1.DEF", SDLK_HOME);
+			}
+			if (ConstTransitivePtr<CArtifactInstance> art = stack->activeArtifact.artifact)
+				blitAt(graphics->artDefs->ourImages[art->id].bitmap, 466, 161, *bitmap);
 		}
 		else
 			creatureArtifact = NULL;

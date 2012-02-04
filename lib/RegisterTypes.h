@@ -95,6 +95,8 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CArtifactInstance>();
 	s.template registerType<CCombinedArtifactInstance>();
 	s.template registerType<CCreatureArtifactInstance>();
+	//s.template registerType<ArtifactLocation>();
+	//s.template registerType<StackLocation>();
 }
 
 template<typename Serializer> 

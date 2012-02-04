@@ -2571,14 +2571,12 @@ bool CGameHandler::moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, u
 
 	return true;
 }
-
 bool CGameHandler::moveArtifact(StackLocation s1, StackLocation s2, ui16 srcSlot, ui16 destSlot)
 {
 	ArtifactLocation src(s1.getStack(), srcSlot), dst(s2.getStack(), destSlot);
 	moveArtifact(src, dst);
 	return true;
 }
-
 bool CGameHandler::moveArtifact(si32 srcHeroID, StackLocation s2, ui16 srcSlot, ui16 destSlot)
 {
 	ArtifactLocation src(getHero(srcHeroID), srcSlot);
@@ -2595,7 +2593,6 @@ bool CGameHandler::moveArtifact(StackLocation s1, si32 destHeroID, ui16 srcSlot,
 	moveArtifact(src, dst);
 	return true;
 }
-
 void CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2)
 {
 	MoveArtifact ma;
@@ -2603,8 +2600,6 @@ void CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 	ma.dst = al2;
 	sendAndApply(&ma);
 }
-
-
 
 /**
  * Assembles or disassembles a combination artifact.
@@ -4356,27 +4351,32 @@ bool CGameHandler::isAllowedExchange( int id1, int id2 )
 		return true;
 
 	const CGObjectInstance *o1 = getObj(id1), *o2 = getObj(id2);
-
-	if(o1->ID == GameConstants::TOWNI_TYPE)
+	if (o1 && o2)
 	{
-		const CGTownInstance *t = static_cast<const CGTownInstance*>(o1);
-		if(t->visitingHero == o2  ||  t->garrisonHero == o2)
+		if(o1->ID == GameConstants::TOWNI_TYPE)
+		{
+			const CGTownInstance *t = static_cast<const CGTownInstance*>(o1);
+			if(t->visitingHero == o2  ||  t->garrisonHero == o2)
+				return true;
+		}
+		if(o2->ID == GameConstants::TOWNI_TYPE)
+		{
+			const CGTownInstance *t = static_cast<const CGTownInstance*>(o2);
+			if(t->visitingHero == o1  ||  t->garrisonHero == o1)
+				return true;
+		}
+		if(o1->ID == GameConstants::HEROI_TYPE && o2->ID == GameConstants::HEROI_TYPE
+			&& distance(o1->pos, o2->pos) < 2) //hero stands on the same tile or on the neighbouring tiles
+		{
+			//TODO: it's workaround, we should check if first hero visited second and player hasn't closed exchange window
+			//(to block moving stacks for free [without visiting] between heroes)
 			return true;
+		}
 	}
-	if(o2->ID == GameConstants::TOWNI_TYPE)
+	else //not exchanging between heroes, TODO: more sophisticated logic
 	{
-		const CGTownInstance *t = static_cast<const CGTownInstance*>(o2);
-		if(t->visitingHero == o1  ||  t->garrisonHero == o1)
-			return true;
+		return true; 
 	}
-	if(o1->ID == GameConstants::HEROI_TYPE && o2->ID == GameConstants::HEROI_TYPE
-		&& distance(o1->pos, o2->pos) < 2) //hero stands on the same tile or on the neighbouring tiles
-	{
-		//TODO: it's workaround, we should check if first hero visited second and player hasn't closed exchange window
-		//(to block moving stacks for free [without visiting] between heroes)
-		return true;
-	}
-
 	return false;
 }
 
