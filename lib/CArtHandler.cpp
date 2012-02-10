@@ -738,6 +738,15 @@ void CArtHandler::addBonuses()
 	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +4, Res::SULFUR);
 	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +4, Res::CRYSTAL);
 	giveArtBonus(140, Bonus::GENERATE_RESOURCE, +4, Res::GEMS);
+
+	//Stack artifact test
+	if (GameConstants::STACK_ARTIFACT)
+	{
+		giveArtBonus(141, Bonus::STACK_HEALTH, +400, -1, Bonus::PERCENT_TO_BASE); //Magic Wans
+		giveArtBonus(142, Bonus::STACK_HEALTH, +400, -1, Bonus::PERCENT_TO_BASE); //Tower Arrow
+		giveArtBonus(143, Bonus::STACK_HEALTH, +400, -1, Bonus::PERCENT_TO_BASE); //Monster's Power
+		giveArtBonus(156, Bonus::STACK_HEALTH, +2); //Warlord's banner
+	}
 }
 
 void CArtHandler::clear()

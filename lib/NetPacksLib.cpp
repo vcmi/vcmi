@@ -564,6 +564,7 @@ DLL_LINKAGE const ArtSlotInfo *ArtifactLocation::getSlot() const
 		return hero->getSlot(slot);
 	if (stack)
 		return stack->getSlot(slot);
+	return NULL;
 }
 
 DLL_LINKAGE void ChangeStackCount::applyGs( CGameState *gs )

@@ -171,7 +171,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArtifactInstance&>(*this);
-		BONUS_TREE_DESERIALIZATION_FIX
+		//BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
 
@@ -329,7 +329,7 @@ class DLL_LINKAGE CCreatureArtifactSet : public IArtifactSetBase
 { ///creature artifacts
 public:
 	std::vector<ArtSlotInfo> artifactsInBackpack; //artifacts carried by creature - 4 max (according to WoG)
-	ArtSlotInfo activeArtifact; //position 0 - Arts::CREATURE_ART
+	ArtSlotInfo activeArtifact; //position 0 - GameConstants::CREATURE_ART
 
 	ArtSlotInfo &retreiveNewArtSlot(ui16 slot);
 	void eraseArtSlot(ui16 slot);

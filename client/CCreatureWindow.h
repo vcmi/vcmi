@@ -18,6 +18,7 @@ struct Bonus;
 class CCreature;
 class CStackInstance;
 class CStack;
+class CCreatureArtifactInstance;
 class CAdventureMapButton;
 class CBonusItem;
 class CGHeroInstance;
@@ -29,12 +30,11 @@ struct UpgradeInfo;
 class CPicture;
 class CCreaturePic;
 class LRClickableAreaWTextComp;
-class CArtPlace;
 class CSlider;
 class CLabel;
 class CAnimImage;
 
-// Classical creature window
+// New creature window
 class CCreatureWindow : public CIntObject
 {
 public:
@@ -48,6 +48,7 @@ public:
 	const CStackInstance *stack;
 	const CBonusSystemNode *stackNode;
 	const CGHeroInstance *heroOwner;
+	CArtifactInstance *creatureArtifact; //currently worn artifact
 	std::vector<CComponent*> upgResCost; //cost of upgrade (if not possible then empty)
 	std::vector<CBonusItem*> bonusItems;
 	std::vector<LRClickableAreaWText*> spellEffects;
@@ -56,7 +57,6 @@ public:
 	CCreaturePic *anim; //related creature's animation
 	MoraleLuckBox *luck, *morale;
 	LRClickableAreaWTextComp * expArea; //displays exp details
-	CArtPlace *creatureArtifact;
 	CSlider * slider; //Abilities
 	CAdventureMapButton *dismiss, *upgrade, *ok;
 	CAdventureMapButton * leftArtRoll, * rightArtRoll; //artifact selection
@@ -69,19 +69,19 @@ public:
 	CCreatureWindow (const CStackInstance &stack, int Type); //pop-up c-tor
 	CCreatureWindow(const CStackInstance &st, int Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //full garrison window
 	CCreatureWindow(int Cid, int Type, int creatureCount); //c-tor
+
 	void init(const CStackInstance *stack, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner);
 	void showAll(SDL_Surface * to);
 	void show(SDL_Surface * to);
 	void printLine(int nr, const std::string &text, int baseVal, int val=-1, bool range=false);
-	void recreateSkillList(int pos);
-	~CCreatureWindow(); //d-tor
-	//void activate();
-	//void deactivate();
 	void close();
 	void clickRight(tribool down, bool previousState); //call-in
 	void sliderMoved(int newpos);
-	//void keyPressed (const SDL_KeyboardEvent & key); //call-in
+	~CCreatureWindow(); //d-tor
+
+	void recreateSkillList(int pos);
 	void scrollArt(int dir);
+	void passArtifactToHero();
 };
 
 class CBonusItem : public LRClickableAreaWTextComp //responsible for displaying creature skill, active or not
@@ -99,7 +99,7 @@ public:
 	void showAll (SDL_Surface * to);
 };
 
-/// New Creature info window
+/// original creature info window
 class CCreInfoWindow : public CIntObject
 {
 public:

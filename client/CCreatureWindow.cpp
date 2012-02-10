@@ -19,6 +19,7 @@
 #include "../lib/CGameState.h"
 #include "../lib/BattleState.h"
 #include "../lib/CSpellHandler.h"
+#include "../lib/CArtHandler.h"
 
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
@@ -26,6 +27,7 @@
 using namespace CSDL_Ext;
 
 class CBonusItem;
+class CCreatureArtifactInstance;
 
 /*
  * CCreatureWindow.cpp, part of VCMI engine
@@ -260,7 +262,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 				if (heroOwner)
 					passArtToHero = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, 0), 437, 148, "OVBUTN1.DEF", SDLK_HOME);
 			}
-			if (ConstTransitivePtr<CArtifactInstance> art = stack->activeArtifact.artifact)
+			if (const CArtifactInstance * art = stack->getArt(GameConstants::CREATURE_ART))
 				blitAt(graphics->artDefs->ourImages[art->id].bitmap, 466, 161, *bitmap);
 		}
 		else
@@ -393,6 +395,13 @@ void CCreatureWindow::sliderMoved(int newpos)
 
 void CCreatureWindow::scrollArt(int dir)
 {
+	//TODO: get next artifact
+	creatureArtifact = const_cast<CArtifactInstance*>(stack->getArt(GameConstants::CREATURE_ART));
+}
+
+void CCreatureWindow::passArtifactToHero()
+{
+	creatureArtifact->artType;
 }
 
 void CCreatureWindow::clickRight(tribool down, bool previousState)

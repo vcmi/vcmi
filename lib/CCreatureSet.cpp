@@ -930,6 +930,9 @@ void CStackInstance::deserializationFix()
 	const CArmedInstance *armyBackup = _armyObj;
 	_armyObj = NULL;
 	setArmyObj(armyBackup);
+
+	if(activeArtifact.artifact)
+		attachTo(activeArtifact.artifact);
 }
 
 int CStackInstance::getCreatureID() const

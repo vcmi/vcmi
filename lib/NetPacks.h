@@ -851,6 +851,8 @@ struct ArtifactLocation
 	ArtifactLocation()
 	{
 		slot = -1;
+		stack = NULL;
+		hero = NULL;
 	}
 	ArtifactLocation(const CGHeroInstance *Hero, TArtPos Slot)
 	{
