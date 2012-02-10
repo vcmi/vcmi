@@ -3874,6 +3874,33 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 				complain("Summoning elementals didn't summon any!");
 		}
 		break;
+	case Spells::CLONE:
+		{
+			CStack * clonedStack = NULL;
+			if (attackedCres.size())
+				clonedStack = *attackedCres.begin();
+			if (!clonedStack)
+			{
+				complain ("No target stack to clone!");
+				return;
+			}
+
+			BattleStackAdded bsa;
+			bsa.creID = clonedStack->type->idNumber;
+			bsa.attacker = !(bool)casterSide;
+			bsa.summoned = true;
+			bsa.pos = gs->curB->getAvaliableHex(bsa.creID, !(bool)casterSide); //TODO: unify it
+			bsa.amount = clonedStack->count;
+			sendAndApply (&bsa);
+
+			BattleSetStackProperty ssp;
+			ssp.stackID = gs->curB->stacks.back()->ID; //how to get recent stack?
+			ssp.which = BattleSetStackProperty::CLONED; //using enum values
+			ssp.val = 0;
+			ssp.absolute = 1;
+			sendAndApply(&ssp);
+		}
+		break;
 	case Spells::REMOVE_OBSTACLE:
 		{
 			ObstaclesRemoved obr;
@@ -3991,7 +4018,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			}
 
 			const CSpell *s = VLC->spellh->spells[ba.additionalInfo];
-			if (s->mainEffectAnim > -1 || (s->id >= 66 || s->id <= 69)) //allow summon elementals
+			if (s->mainEffectAnim > -1 || (s->id >= 66 || s->id <= 69) || s->id == Spells::CLONE) //allow summon elementals
 				//TODO: special effects, like Clone
 			{
 				ui8 skill = h->getSpellSchoolLevel(s); //skill level

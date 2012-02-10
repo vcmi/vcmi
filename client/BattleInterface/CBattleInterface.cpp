@@ -2147,6 +2147,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	case Spells::SUMMON_EARTH_ELEMENTAL:
 	case Spells::SUMMON_WATER_ELEMENTAL:
 	case Spells::SUMMON_AIR_ELEMENTAL:
+	case Spells::CLONE: //TODO: make it smarter?
 		addNewAnim(new CDummyAnimation(this, 2));
 		break;
 	} //switch(sc->id)

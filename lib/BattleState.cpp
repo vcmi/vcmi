@@ -2729,6 +2729,13 @@ void CStack::prepareAttacked(BattleStackAttacked &bsa) const
 	bsa.killedAmount = bsa.damageAmount / MaxHealth();
 	unsigned damageFirst = bsa.damageAmount % MaxHealth();
 
+	if (bsa.damageAmount && vstd::contains(state, EBattleStackState::CLONED)) // block ability should not kill clone (0 damage)
+	{
+		bsa.killedAmount = count;
+		bsa.flags |= BattleStackAttacked::KILLED;
+		return; // no rebirth I believe
+	}
+
 	if( firstHPleft <= damageFirst )
 	{
 		bsa.killedAmount++;

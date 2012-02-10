@@ -1312,6 +1312,11 @@ DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState *gs)
 			stack->popBonuses(Selector::type(Bonus::BIND_EFFECT));
 			break;
 		}
+		case CLONED:
+		{
+			stack->state.insert(EBattleStackState::CLONED);
+			break;
+		}
 	}
 }
 
