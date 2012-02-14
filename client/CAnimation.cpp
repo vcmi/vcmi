@@ -266,7 +266,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 			break;
 		}
 	default:
-		tlog0<<"Error: unsupported format of def file:"<<sprite.format<<"\n";
+		tlog0<<"Error: unsupported format of def file: "<<sprite.format<<"\n";
 		break;
 	}
 };

@@ -6896,7 +6896,7 @@ std::vector<int> IMarket::availableItemsIds(EMarketMode::EMarketMode mode) const
 	return ret;
 }
 
-const IMarket * IMarket::castFrom(const CGObjectInstance *obj)
+const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose /*= true*/)
 {
 	switch(obj->ID)
 	{
@@ -6911,7 +6911,8 @@ const IMarket * IMarket::castFrom(const CGObjectInstance *obj)
 	case 104: //University
 		return static_cast<const CGUniversity*>(obj);
 	default:
-		tlog1 << "Cannot cast to IMarket object with ID " << obj->ID << std::endl;
+		if(verbose)
+			tlog1 << "Cannot cast to IMarket object with ID " << obj->ID << std::endl;
 		return NULL;
 	}
 }

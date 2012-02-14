@@ -134,22 +134,36 @@ public:
 /// Info box which shows next week/day information, hold the current date
 class CInfoBar : public CIntObject
 {
-	CDefHandler *day, *week1, *week2, *week3, *week4;
+	enum EMode {NOTHING = -1, NEW_DAY, NEW_WEEK1, NEW_WEEK2, NEW_WEEK3, NEW_WEEK4, ____, SHOW_COMPONENT, ENEMY_TURN};
+	CDefHandler *day, *week1, *week2, *week3, *week4, *hourglass, *hourglassSand;
 	CComponent * current;
 	int pom;
 	SDL_Surface *selInfoWin; //info box for selection
-	CDefHandler * getAnim(int mode);
+	CDefHandler * getAnim(EMode mode);
+
+	struct EnemyTurn
+	{
+		ui8 color;
+		double progress; //0-1
+
+		EnemyTurn()
+		{
+			color = 255;
+			progress = 0.;
+		}
+	} enemyTurnInfo;
 public:
-	int mode;
+	EMode mode;
 	const CGHeroInstance * curSel;
 
 	CInfoBar();
 	~CInfoBar();
 	void newDay(int Day); //start showing new day/week animation
 	void showComp(CComponent * comp, int time=5000);
+	void enemyTurn(ui8 color, double progress);
 	void tick();
 	void showAll(SDL_Surface * to); // if specific==0 function draws info about selected hero/town
-	void blitAnim(int mode);//0 - day, 1 - week
+	void blitAnim(EMode mode);//0 - day, 1 - week
 
 	void show(SDL_Surface * to);
 	void activate();

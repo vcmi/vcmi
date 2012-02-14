@@ -169,6 +169,7 @@ public:
 	void objectPropertyChanged(const SetObjectProperty * sop) OVERRIDE;
 	void objectRemoved(const CGObjectInstance *obj) OVERRIDE;
 	void gameOver(ui8 player, bool victory) OVERRIDE;
+	void playerStartsTurn(ui8 player) OVERRIDE;
 	void serialize(COSer<CSaveFile> &h, const int version) OVERRIDE; //saving
 	void serialize(CISer<CLoadFile> &h, const int version) OVERRIDE; //loading
 

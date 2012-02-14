@@ -130,7 +130,7 @@
 			},
 			"playerAI" : {
 				"type" : "string",
-				"default" : "GeniusAI"
+				"default" : "VCAI"
 			},
 			"neutralAI" : {
 				"type" : "string",

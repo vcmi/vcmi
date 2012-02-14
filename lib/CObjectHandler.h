@@ -135,7 +135,7 @@ public:
 	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units 
 	std::vector<EMarketMode::EMarketMode> availableModes() const;
 
-	static const IMarket *castFrom(const CGObjectInstance *obj);
+	static const IMarket *castFrom(const CGObjectInstance *obj, bool verbose = true);
 };
 
 class DLL_LINKAGE CGObjectInstance : public IObjectInterface

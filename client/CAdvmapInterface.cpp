@@ -799,7 +799,8 @@ void CResDataBar::showAll(SDL_Surface * to)
 
 CInfoBar::CInfoBar()
 {
-	toNextTick = mode = pom = -1;
+	toNextTick = pom = -1;
+	mode = NOTHING;
 	pos.x=ADVOPT.infoboxX;
 	pos.y=ADVOPT.infoboxY;
 	pos.w=194;
@@ -809,6 +810,8 @@ CInfoBar::CInfoBar()
 	week2 = CDefHandler::giveDef("NEWWEEK2.DEF");
 	week3 = CDefHandler::giveDef("NEWWEEK3.DEF");
 	week4 = CDefHandler::giveDef("NEWWEEK4.DEF");
+	hourglass = CDefHandler::giveDef("HOURGLAS.DEF");
+	hourglassSand = CDefHandler::giveDef("HOURSAND.DEF");
 	selInfoWin = NULL;
 }
 CInfoBar::~CInfoBar()
@@ -825,51 +828,57 @@ CInfoBar::~CInfoBar()
 
 void CInfoBar::showAll(SDL_Surface * to)
 {
-	if ((mode>=0) && mode<5)
+	if (mode >= NEW_DAY  &&  mode <= NEW_WEEK4)
 	{
 		blitAnim(mode);
-		return;
 	}
-	else if (mode==5)
+	else if(mode == ENEMY_TURN)
 	{
-		mode = -1;
+		CPicture bg("ADSTATOT.bmp");
+		bg.convertToScreenBPP();
+		blitAt(graphics->flags->ourImages[enemyTurnInfo.color].bitmap, 20, 51, bg);
+		int hourglassFrame = enemyTurnInfo.progress * hourglass->ourImages.size();
+		static int sandFrame = 0;
+		vstd::amin(hourglassFrame, hourglass->ourImages.size()-1);
+		blitAt(hourglassSand->ourImages[sandFrame++ % hourglassSand->ourImages.size()].bitmap, 99, 51, bg);
+		blitAt(hourglass->ourImages[hourglassFrame].bitmap, 99, 51, bg);
+		blitAtLoc(bg, 8, 11, to);
 	}
-
-	if(selInfoWin)
+	else if(selInfoWin)
 	{
 		blitAt(selInfoWin, pos.x, pos.y, to);
 	}
 }
 
-CDefHandler * CInfoBar::getAnim(int mode)
+CDefHandler * CInfoBar::getAnim(EMode mode)
 {
 	switch(mode)
 	{
-	case 0:
+	case NEW_DAY:
 		return day;
-	case 1:
+	case NEW_WEEK1:
 		return week1;
-	case 2:
+	case NEW_WEEK2:
 		return week2;
-	case 3:
+	case NEW_WEEK3:
 		return week3;
-	case 4:
+	case NEW_WEEK4:
 		return week4;
 	default:
 		return NULL;
 	}
 }
 
-void CInfoBar::blitAnim(int mode)//0 - day, 1 - week
+void CInfoBar::blitAnim(EMode mode)//0 - day, 1 - week
 {
 	CDefHandler * anim = NULL;
 	std::ostringstream txt;
 	anim = getAnim(mode);
-	if(mode) //new week animation
+	if(mode > NEW_DAY) //new week animation
 	{
 		txt << CGI->generaltexth->allTexts[63] << " " << LOCPLINT->cb->getDate(2);
 	}
-	else //new day
+	else if(mode == NEW_DAY) //new day
 	{
 		txt << CGI->generaltexth->allTexts[64] << " " << LOCPLINT->cb->getDate(1);
 	}
@@ -883,26 +892,26 @@ void CInfoBar::newDay(int Day)
 {
 	if(LOCPLINT->cb->getDate(1) != 1)
 	{
-		mode = 0; //showing day
+		mode = NEW_DAY; //showing day
 	}
 	else
 	{
 		switch(LOCPLINT->cb->getDate(2))
 		{
 		case 1:
-			mode = 1;
+			mode = NEW_WEEK1;
 			break;
 		case 2:
-			mode = 2;
+			mode = NEW_WEEK2;
 			break;
 		case 3:
-			mode = 3;
+			mode = NEW_WEEK3;
 			break;
 		case 4:
-			mode = 4;
+			mode = NEW_WEEK4;
 			break;
 		default:
-			mode = -1;
+			mode = NOTHING;
 			break;
 		}
 	}
@@ -929,33 +938,30 @@ void CInfoBar::showComp(CComponent * comp, int time)
 	SDL_FreeSurface(b);
 	if(!(active & TIME))
 		activateTimer();
-	mode = 6;
+	mode = SHOW_COMPONENT;
 	toNextTick = time;
 }
 
 void CInfoBar::tick()
 {
-	if(mode >= 0  &&  mode < 5)
+	if(mode >= NEW_DAY  &&  mode <= NEW_WEEK4) //animation
 	{
 		pom++;
 		if (pom >= getAnim(mode)->ourImages.size())
 		{
 			deactivateTimer();
 			toNextTick = -1;
-			mode = 5;
-			showAll(screen2);
-			return;
+			mode = NOTHING;
 		}
 		toNextTick = 150;
-		blitAnim(mode);
 	}
-	else if(mode == 6)
+	else if(mode == SHOW_COMPONENT)
 	{
 		deactivateTimer();
 		toNextTick = -1;
-		mode = 5;
-		showAll(screen2);
+		mode = NOTHING;
 	}
+	redraw();
 }
 
 void CInfoBar::show(SDL_Surface * to)
@@ -973,6 +979,9 @@ void CInfoBar::deactivate()
 	//CIntObject::deactivate();
 	if(active & TIME)
 		deactivateTimer();
+
+	toNextTick = -1;
+	mode = NOTHING;
 }
 
 void CInfoBar::updateSelection(const CGObjectInstance *obj)
@@ -984,6 +993,17 @@ void CInfoBar::updateSelection(const CGObjectInstance *obj)
 	if(selInfoWin)
 		SDL_FreeSurface(selInfoWin);
 	selInfoWin = LOCPLINT->infoWin(obj);
+}
+
+void CInfoBar::enemyTurn(ui8 color, double progress)
+{
+	mode = ENEMY_TURN;
+	enemyTurnInfo.color = color;
+	enemyTurnInfo.progress = progress;
+	redraw();
+	if(!(active & TIME))
+		activateTimer();
+	toNextTick = 250;
 }
 
 CAdvMapInt::CAdvMapInt()
@@ -1273,7 +1293,6 @@ void CAdvMapInt::deactivate()
 	townList.deactivate();
 	terrain.deactivate();
 	infoBar.deactivate();
-	infoBar.mode=-1;
 
 	if(LOCPLINT->cingconsole->active) //TODO
 		LOCPLINT->cingconsole->deactivate();

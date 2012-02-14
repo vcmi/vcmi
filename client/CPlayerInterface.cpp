@@ -62,6 +62,7 @@ void processCommand(const std::string &message, CClient *&client);
 
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
+boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
 
 CPlayerInterface * LOCPLINT;
 
@@ -232,8 +233,15 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	if(!ho)
 	{
 		//AI hero left the visible area (we can't obtain info)
-		//TODO - probably needs some handling
-		return;
+		//TODO very evil workaround -> retreive pointer to hero so we could animate it
+		// TODO -> we should not need full CGHeroInstance structure to display animation or it should not be handled by playerint (but by the client itself)
+		const TerrainTile2 &tile = CGI->mh->ttiles[hp.x-1][hp.y][hp.z];
+		for(int i = 0; i < tile.objects.size(); i++)
+			if(tile.objects[i].first->id == details.id)
+				ho = dynamic_cast<const CGHeroInstance *>(tile.objects[i].first);
+
+		if(!ho) //still nothing... 
+			return;
 	}
 
 	adventureInt->centerOn(ho); //actualizing screen pos
@@ -2334,7 +2342,17 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 	}
 }
 
-boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
+void CPlayerInterface::playerStartsTurn(ui8 player)
+{
+	if(player != playerID && this == LOCPLINT)
+	{
+		adventureInt->minimap.redraw();
+		adventureInt->infoBar.enemyTurn(player, 0.5);
+
+		//TODO AI turn music
+		//TODO block GUI
+	}
+}
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()
 {
