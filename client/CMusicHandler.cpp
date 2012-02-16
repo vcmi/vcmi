@@ -62,7 +62,7 @@ void CAudioBase::setVolume(ui32 percent)
 {
 	if (percent > 100)
 		percent = 100;
-	
+
 	volume = percent;
 }
 
@@ -179,7 +179,7 @@ void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CC
 	CBattleSounds.resize(creatures.size());
 
 	if (!config["creature_sounds"].isNull()) {
-		
+
 		BOOST_FOREACH(const JsonNode &node, config["creature_sounds"].Vector()) {
 			const JsonNode *value;
 			int id;
@@ -213,7 +213,7 @@ void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CC
 #undef GET_SOUND_VALUE
 		}
 	}
-	
+
 	//commented to avoid spurious warnings
 	/*
 	// Find creatures without sounds
@@ -328,19 +328,31 @@ CMusicHandler::CMusicHandler():
 {
 	listener(boost::bind(&CMusicHandler::onVolumeChange, this, _1));
 	// Map music IDs
-#define VCMI_MUSIC_ID(x) ( musicBase::x ,
-#define VCMI_MUSIC_FILE(y) y )
-	musics = map_list_of
-		VCMI_MUSIC_LIST;
-#undef VCMI_MUSIC_NAME
-#undef VCMI_MUSIC_FILE
 
+#ifdef CPP11_USE_INITIALIZERS_LIST
+
+	#define VCMI_MUSIC_ID(x) { musicBase::x ,
+	#define VCMI_MUSIC_FILE(y) y },
+		musics = { VCMI_MUSIC_LIST};
+	#undef VCMI_MUSIC_NAME
+	#undef VCMI_MUSIC_FILE
+
+#else
+
+	#define VCMI_MUSIC_ID(x) ( musicBase::x ,
+	#define VCMI_MUSIC_FILE(y) y )
+		musics = map_list_of
+			VCMI_MUSIC_LIST;
+	#undef VCMI_MUSIC_NAME
+	#undef VCMI_MUSIC_FILE
+
+#endif
 	// Vectors for helper
 	aiMusics += musicBase::AITheme0, musicBase::AITheme1, musicBase::AITheme2;
-	
-	battleMusics += musicBase::combat1, musicBase::combat2, 
+
+	battleMusics += musicBase::combat1, musicBase::combat2,
 		musicBase::combat3, musicBase::combat4;
-	
+
 	townMusics += musicBase::castleTown,     musicBase::rampartTown,
 	              musicBase::towerTown,      musicBase::infernoTown,
 	              musicBase::necroTown,      musicBase::dungeonTown,

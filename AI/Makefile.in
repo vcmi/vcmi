@@ -237,7 +237,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-SUBDIRS = StupidAI EmptyAI GeniusAI
+SUBDIRS = StupidAI EmptyAI VCAI
 all: all-recursive
 
 .SUFFIXES:

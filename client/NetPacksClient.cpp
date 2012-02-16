@@ -40,14 +40,14 @@
 		{													\
 		if(vstd::contains(cl->playerint,player))			\
 			cl->playerint[player]->function(__VA_ARGS__);	\
-		}while(0)											
+		}while(0)
 
 #define INTERFACE_CALL_IF_PRESENT(player,function,...) 				\
 		do															\
 		{															\
 			CALL_ONLY_THAT_INTERFACE(player, function, __VA_ARGS__);\
 			CALL_IN_PRIVILAGED_INTS(function, __VA_ARGS__);			\
-		} while(0)										
+		} while(0)
 
 #define CALL_ONLY_THT_BATTLE_INTERFACE(player,function, ...) 	\
 	do															\
@@ -295,7 +295,7 @@ void RemoveBonus::applyCl( CClient *cl )
 		break;
 	case PLAYER:
 		{
-			const PlayerState *p = GS(cl)->getPlayer(id);
+			//const PlayerState *p = GS(cl)->getPlayer(id);
 			INTERFACE_CALL_IF_PRESENT(id, playerBonusChanged, bonus, false);
 		}
 		break;
@@ -446,15 +446,15 @@ void SetHeroesInTown::applyCl( CClient *cl )
 // void SetHeroArtifacts::applyCl( CClient *cl )
 // {
 // 	tlog1 << "SetHeroArtifacts :(\n";
-// // 
+// //
 // // 	CGHeroInstance *h = GS(cl)->getHero(hid);
 // // 	CGameInterface *player = (vstd::contains(cl->playerint,h->tempOwner) ? cl->playerint[h->tempOwner] : NULL);
 // // 	if(!player)
 // // 		return;
-// 
+//
 // 	//h->recreateArtBonuses();
 // 	//player->heroArtifactSetChanged(h);
-// 
+//
 // // 	BOOST_FOREACH(Bonus bonus, gained)
 // // 	{
 // // 		player->heroBonusChanged(h,bonus,true);
@@ -475,7 +475,7 @@ void HeroRecruited::applyCl( CClient *cl )
 
 	CGI->mh->initHeroDef(h);
 	CGI->mh->printObject(h);
-		
+
 	if(vstd::contains(cl->playerint,h->tempOwner))
 	{
 		cl->playerint[h->tempOwner]->heroCreated(h);
@@ -500,7 +500,7 @@ void GiveHero::applyFirstCl( CClient *cl )
 void InfoWindow::applyCl( CClient *cl )
 {
 	std::vector<Component*> comps;
-	for(size_t i=0;i<components.size();i++) 
+	for(size_t i=0;i<components.size();i++)
 	{
 		comps.push_back(&components[i]);
 	}
@@ -778,7 +778,7 @@ void ShowInInfobox::applyCl(CClient *cl)
 void AdvmapSpellCast::applyCl(CClient *cl)
 {
 	cl->invalidatePaths();
-	//consider notifying other interfaces that see hero? 
+	//consider notifying other interfaces that see hero?
 	INTERFACE_CALL_IF_PRESENT(caster->getOwner(),advmapSpellCast, caster, spellID);
 }
 
@@ -902,7 +902,7 @@ void TradeComponents::applyCl(CClient *cl)
 			break;
 		case 221: //Trading Post
 			break;
-		default: 
+		default:
 			tlog2 << "Shop type not supported! \n";
 	}
 }

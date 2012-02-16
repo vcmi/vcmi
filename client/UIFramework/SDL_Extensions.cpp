@@ -17,7 +17,7 @@
  *
  */
 
-SDL_Color Colors::createColor(int r, int g, int b, int a /*= 0*/)
+SDL_Color Colors::createColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a /*= 0*/)
 {
 	SDL_Color temp = {r, g, b, a};
 	return temp;
@@ -47,8 +47,8 @@ STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlphaSwitch(Uint8 *&p
 		PutColor(ptr, R, G, B);
 		return;
 	case 128:  // optimized
-		PutColor(ptr,	((Uint16)R + (Uint16)ptr[2]) >> 1, 
-			((Uint16)G + (Uint16)ptr[1]) >> 1, 
+		PutColor(ptr,	((Uint16)R + (Uint16)ptr[2]) >> 1,
+			((Uint16)G + (Uint16)ptr[1]) >> 1,
 			((Uint16)B + (Uint16)ptr[0]) >> 1);
 		return;
 	default:
@@ -60,8 +60,8 @@ STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlphaSwitch(Uint8 *&p
 template<int bpp, int incrementPtr>
 STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A)
 {
-	PutColor(ptr, ((((Uint32)ptr[2]-(Uint32)R)*(Uint32)A) >> 8 ) + (Uint32)R, 
-	              ((((Uint32)ptr[1]-(Uint32)G)*(Uint32)A) >> 8 ) + (Uint32)G, 
+	PutColor(ptr, ((((Uint32)ptr[2]-(Uint32)R)*(Uint32)A) >> 8 ) + (Uint32)R,
+	              ((((Uint32)ptr[1]-(Uint32)G)*(Uint32)A) >> 8 ) + (Uint32)G,
 	              ((((Uint32)ptr[0]-(Uint32)B)*(Uint32)A) >> 8 ) + (Uint32)B);
 }
 
@@ -103,7 +103,7 @@ template<int bpp, int incrementPtr>
 STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorRow(Uint8 *&ptr, const SDL_Color & Color, size_t count)
 {
 	Uint32 pixel = ((Uint32)Color.b << 0 ) + ((Uint32)Color.g << 8) + ((Uint32)Color.r << 16);
-	
+
 	for (size_t i=0; i<count; i++)
 	{
 		memcpy(ptr, &pixel, bpp);
@@ -159,7 +159,7 @@ STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(Uint8 *&ptr, const Uin
 		g8 = (g5 << (8 - gbit)) | (g5 >> (2*gbit - 8)),
 		b8 = (b5 << (8 - bbit)) | (b5 >> (2*bbit - 8));
 
-	PutColor(ptr, 
+	PutColor(ptr,
 		(((r8-R)*A) >> 8) + R,
 		(((g8-G)*A) >> 8) + G,
 		(((b8-B)*A) >> 8) + B);
@@ -182,7 +182,7 @@ STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColorRow(Uint8 *&ptr, const 
 {
 	//drop least significant bits of 24 bpp encoded color
 	Uint16 pixel = (Color.b>>3) + ((Color.g>>2) << 5) + ((Color.r>>3) << 11);
-	
+
 	for (size_t i=0; i<count; i++)
 	{
 		memcpy(ptr, &pixel, 2);
@@ -715,7 +715,7 @@ void CSDL_Ext::blitWithRotateClipVal( SDL_Surface *src,SDL_Rect srcRect, SDL_Sur
 	blitWithRotateClip<bpp>(src, &srcRect, dst, &dstRect, rotation);
 }
 
-template<int bpp> 
+template<int bpp>
 void CSDL_Ext::blitWithRotateClipWithAlpha(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect, ui8 rotation)//srcRect is not used, works with 8bpp sources and 24bpp dests
 {
 	static void (*blitWithRotate[])(const SDL_Surface *, const SDL_Rect *, SDL_Surface *, const SDL_Rect *) = {blitWithRotate1WithAlpha<bpp>, blitWithRotate2WithAlpha<bpp>, blitWithRotate3WithAlpha<bpp>};
@@ -730,7 +730,7 @@ void CSDL_Ext::blitWithRotateClipWithAlpha(SDL_Surface *src,SDL_Rect * srcRect, 
 	}
 }
 
-template<int bpp> 
+template<int bpp>
 void CSDL_Ext::blitWithRotateClipValWithAlpha( SDL_Surface *src,SDL_Rect srcRect, SDL_Surface * dst, SDL_Rect dstRect, ui8 rotation )
 {
 	blitWithRotateClipWithAlpha<bpp>(src, &srcRect, dst, &dstRect, rotation);
@@ -777,13 +777,13 @@ void CSDL_Ext::blitWithRotate3(const SDL_Surface *src, const SDL_Rect * srcRect,
  	Uint8 *sp = (Uint8 *)src->pixels + (src->h - srcRect->h - srcRect->y)*src->pitch + (src->w - srcRect->w - srcRect->x);
  	Uint8 *dporg = (Uint8 *)dst->pixels +(dstRect->y + dstRect->h - 1)*dst->pitch + (dstRect->x+dstRect->w)*bpp;
  	const SDL_Color * const colors = src->format->palette->colors;
- 
+
  	for(int i=dstRect->h; i>0; i--, dporg -= dst->pitch)
  	{
  		Uint8 *dp = dporg;
  		for(int j=dstRect->w; j>0; j--, sp++)
 			ColorPutter<bpp, -1>::PutColor(dp, colors[*sp]);
-		
+
 		sp += src->w - dstRect->w;
  	}
 }
@@ -1056,7 +1056,7 @@ void CSDL_Ext::setPlayerColor(SDL_Surface * sur, ui8 player)
 		return;
 	if(sur->format->BitsPerPixel==8)
 	{
-		SDL_Color *color = (player == 255 
+		SDL_Color *color = (player == 255
 							? graphics->neutralColor
 							: &graphics->playerColors[player]);
 		SDL_SetColors(sur, color, 5, 1);
@@ -1212,29 +1212,29 @@ void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode 
 				{
 					ui8 * pixels = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
 
-					int b = pixels[0]; 
-					int g = pixels[1]; 
-					int r = pixels[2]; 
+					int b = pixels[0];
+					int g = pixels[1];
+					int r = pixels[2];
 					int gry = (r + g + b) / 3;
 
-					r = g = b = gry; 
-					r = r + (sepiaDepth * 2); 
-					g = g + sepiaDepth; 
+					r = g = b = gry;
+					r = r + (sepiaDepth * 2);
+					g = g + sepiaDepth;
 
-					if (r>255) r=255; 
-					if (g>255) g=255; 
-					if (b>255) b=255; 
+					if (r>255) r=255;
+					if (g>255) g=255;
+					if (b>255) b=255;
 
-					// Darken blue color to increase sepia effect 
-					b -= sepiaIntensity; 
+					// Darken blue color to increase sepia effect
+					b -= sepiaIntensity;
 
-					// normalize if out of bounds 
-					if (b<0) b=0; 
-					if (b>255) b=255; 
+					// normalize if out of bounds
+					if (b<0) b=0;
+					if (b>255) b=255;
 
-					pixels[0] = b; 
-					pixels[1] = g; 
-					pixels[2] = r; 
+					pixels[0] = b;
+					pixels[1] = g;
+					pixels[2] = r;
 
 				}
 			}
@@ -1248,9 +1248,9 @@ void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode 
 				{
 					ui8 * pixels = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
 
-					int b = pixels[0]; 
-					int g = pixels[1]; 
-					int r = pixels[2]; 
+					int b = pixels[0];
+					int g = pixels[1];
+					int r = pixels[2];
 					int gry = (r + g + b) / 3;
 
 					pixels[0] = pixels[1] = pixels[2] = gry;

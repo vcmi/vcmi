@@ -86,7 +86,7 @@ CCreatureWindow::CCreatureWindow(const CStackInstance &st, int Type, boost::func
 			for(TResources::nziterator i(upgradeCost); i.valid(); i++)
 			{
 				BLOCK_CAPTURING;
-				upgResCost.push_back(new CComponent(CComponent::resource, i->resType, i->resVal)); 
+				upgResCost.push_back(new CComponent(CComponent::resource, i->resType, i->resVal));
 			}
 
 			if(LOCPLINT->cb->getResourceAmount().canAfford(upgradeCost))
@@ -137,7 +137,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 
 	BonusList bl, blTemp;
 	blTemp = (*(stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT))));
-	
+
 
 	while (blTemp.size())
 	{
@@ -243,10 +243,10 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 				expmin = CGI->creh->expRanks[tier][9];
 				int expmax = CGI->creh->expRanks[tier][10];
 				number = expmax - expmin;
-				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Experience after Rank 10 
-				number = (stack->count * (expmax - expmin)) / expmin; 
-				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Maximum New Recruits to remain at Rank 10 if at Maximum Experience 
-			
+				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Experience after Rank 10
+				number = (stack->count * (expmax - expmin)) / expmin;
+				boost::replace_first (expText, "%i", boost::lexical_cast<std::string>(number)); //Maximum New Recruits to remain at Rank 10 if at Maximum Experience
+
 				expArea = new LRClickableAreaWTextComp(Rect(334, 49, 160, 44),CComponent::experience);
 				expArea->text = expText;
 				expArea->bonusValue = 0; //TDO: some specific value or no number at all
@@ -279,10 +279,10 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 			std::string spellText;
 			if (effect < graphics->spellEffectsPics->ourImages.size()) //not all effects have graphics (for eg. Acid Breath)
 			{
-				spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."	
+				spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
 				boost::replace_first (spellText, "%s", CGI->spellh->spells[effect]->name);
 				int duration = battleStack->getBonus(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
-				boost::replace_first (spellText, "%d", boost::lexical_cast<std::string>(duration)); 
+				boost::replace_first (spellText, "%d", boost::lexical_cast<std::string>(duration));
 				blitAt(graphics->spellEffectsPics->ourImages[effect + 1].bitmap, 20 + 52 * printed, 184, *bitmap);
 				spellEffects.push_back(new LRClickableAreaWText(Rect(20 + 52 * printed, 184, 50, 38), spellText, spellText));
 				if (++printed >= 10) //we can fit only 10 effects
@@ -370,7 +370,7 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 	//TODO
 	int dmgMultiply = 1;
 	if(heroOwner && stackNode->hasBonusOfType(Bonus::SIEGE_WEAPON))
-		dmgMultiply += heroOwner->Attack(); 
+		dmgMultiply += heroOwner->Attack();
 
 	printLine(3, CGI->generaltexth->allTexts[199], stackNode->getMinDamage() * dmgMultiply, stackNode->getMaxDamage() * dmgMultiply, true);
 	printLine(4, CGI->generaltexth->allTexts[388], c->valOfBonuses(Bonus::STACK_HEALTH), stackNode->valOfBonuses(Bonus::STACK_HEALTH));
@@ -401,7 +401,7 @@ void CCreatureWindow::scrollArt(int dir)
 
 void CCreatureWindow::passArtifactToHero()
 {
-	creatureArtifact->artType;
+	//creatureArtifact->artType; //FIXME
 }
 
 void CCreatureWindow::clickRight(tribool down, bool previousState)
@@ -494,7 +494,7 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &stack, bool LClicked, boost
 			for(TResources::nziterator i(upgradeCost); i.valid(); i++)
 			{
 				BLOCK_CAPTURING;
-				upgResCost.push_back(new CComponent(CComponent::resource, i->resType, i->resVal)); 
+				upgResCost.push_back(new CComponent(CComponent::resource, i->resType, i->resVal));
 			}
 
 			CFunctionList<void()> onUpgrade;
@@ -519,14 +519,14 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &stack, bool LClicked, boost
 
 			boost::function<void()> dialog = boost::bind(&CPlayerInterface::showYesNoDialog,
 				LOCPLINT,
-				CGI->generaltexth->allTexts[12], 
+				CGI->generaltexth->allTexts[12],
 				std::vector<CComponent*>(),
 				onDismiss, 0, true);
 
 			dismiss = new CAdventureMapButton("", CGI->generaltexth->zelp[445].second, dialog, 21, 237, "IVIEWCR2",SDLK_d);
 		}
 
-		ok = new CAdventureMapButton("", CGI->generaltexth->zelp[445].second, 
+		ok = new CAdventureMapButton("", CGI->generaltexth->zelp[445].second,
 			boost::bind(&CCreInfoWindow::close,this), 216, 237, "IOKAY.DEF", SDLK_RETURN);
 	}
 }
@@ -596,7 +596,7 @@ void CCreInfoWindow::init(const CCreature *creature, const CBonusSystemNode *sta
 	//TODO
 	int dmgMultiply = 1;
 	if(heroOwner && stackNode->hasBonusOfType(Bonus::SIEGE_WEAPON))
-		dmgMultiply += heroOwner->Attack(); 
+		dmgMultiply += heroOwner->Attack();
 
 	printLine(3, CGI->generaltexth->allTexts[199],   stackNode->getMinDamage() * dmgMultiply, stackNode->getMaxDamage() * dmgMultiply, true);
 	printLine(4, CGI->generaltexth->allTexts[388],   creature->valOfBonuses(Bonus::STACK_HEALTH), stackNode->valOfBonuses(Bonus::STACK_HEALTH));

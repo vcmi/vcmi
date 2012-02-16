@@ -1273,31 +1273,13 @@ void CGameHandler::run(bool resume)
 			{
 				static time_duration p = milliseconds(200);
 				states.cv.timed_wait(lock,p); 
+
 			}
 		}
 	}
-
 	while(conns.size() && (*conns.begin())->isOpen())
 		boost::this_thread::sleep(boost::posix_time::milliseconds(5)); //give time client to close socket
 }
-
-//namespace CGH
-//{
-//	using namespace std;
-//	static void readItTo(ifstream & input, vector< vector<int> > & dest) //reads 7 lines, i-th one containing i integers, and puts it to dest
-//	{
-//		for(int j=0; j<7; ++j)
-//		{
-//			std::vector<int> pom;
-//			for(int g=0; g<j+1; ++g)
-//			{
-//				int hlp; input>>hlp;
-//				pom.push_back(hlp);
-//			}
-//			dest.push_back(pom);
-//		}
-//	}
-//}
 
 void CGameHandler::setupBattle( int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town )
 {
@@ -3437,6 +3419,21 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		sendAndApply(&cs);
 		sendAndApply(&sm);
 	}
+	else if (message == "vcmiarmenelos") //build all buildings in selected town
+	{
+		CGTownInstance *town = gs->getTown(gs->getPlayer(player)->currentSelection);
+		if (town)
+		{
+			BOOST_FOREACH (CBuildingHandler::TBuildingsMap::value_type &build, VLC->buildh->buildings[town->subID])
+			{
+				if (!vstd::contains(town->builtBuildings, build.first)
+				 && !build.second->Name().empty())
+				{
+					buildStructure(town->id, build.first, true);
+				}
+			}
+		}
+	}
 	else if(message == "vcmiainur") //gives 5 archangels into each slot
 	{
 		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
@@ -3512,12 +3509,10 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	else if(message == "vcmisilmaril") //player wins
 	{
 		gs->getPlayer(player)->enteredWinningCheatCode = 1;
-		checkLossVictory(player);
 	}
 	else if(message == "vcmimelkor") //player looses
 	{
 		gs->getPlayer(player)->enteredLosingCheatCode = 1;
-		checkLossVictory(player);
 	}
 	else if (message == "vcmiforgeofnoldorking") //hero gets all artifacts except war machines, spell scrolls and spell book
 	{
@@ -3532,6 +3527,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	{
 		SystemMessage temp_message(VLC->generaltexth->allTexts[260]);
 		sendAndApply(&temp_message);
+		checkLossVictory(player);//Player enter win code or got required art\creature
 	}
 }
 
@@ -4484,6 +4480,7 @@ void CGameHandler::engageIntoBattle( ui8 player )
 
 void CGameHandler::winLoseHandle(ui8 players )
 {
+
 	for(size_t i = 0; i < GameConstants::PLAYER_LIMIT; i++)
 	{
 		if(players & 1<<i  &&  gs->getPlayer(i))
@@ -4505,10 +4502,10 @@ void CGameHandler::checkLossVictory( ui8 player )
 	if(!loss && !vic)
 		return;
 
+
 	InfoWindow iw;
 	getLossVicMessage(player, vic ? vic : loss , vic, iw);
 	sendAndApply(&iw);
-
 	PlayerEndsGame peg;
 	peg.player = player;
 	peg.victory = vic;
@@ -4545,28 +4542,28 @@ void CGameHandler::checkLossVictory( ui8 player )
 
 		//eliminating one player may cause victory of another:
 		winLoseHandle(GameConstants::ALL_PLAYERS & ~(1<<player));
-	}
+}
 
 	if(vic)
-	{
+{
 		end2 = true;
 
 		if(gs->campaign)
-		{
+	{
 			std::vector<CGHeroInstance *> hes;
 			BOOST_FOREACH(CGHeroInstance * ghi, gs->map->heroes)
-			{
+		{
 				if (ghi->tempOwner == vic)
-				{
+			{
 					hes.push_back(ghi);
-				}
 			}
+		}
 			gs->campaign->mapConquered(hes);
 
 			UpdateCampaignState ucs;
 			ucs.camp = gs->campaign;
 			sendAndApply(&ucs);
-		}
+	}
 	}
 }
 

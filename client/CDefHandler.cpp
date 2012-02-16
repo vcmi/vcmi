@@ -96,7 +96,7 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 			p += 13;
 		}
 		for (ui32 j=0; j<totalInBlock; j++)
-		{ 
+		{
 			SEntries[totalEntries+j].offset = read_le_u32(p);
 			p += 4;
 		}
@@ -133,22 +133,20 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPal
 {
 	SDL_Surface * ret=NULL;
 
-	ui32 BaseOffset, 
+	ui32 BaseOffset,
 		SpriteWidth, SpriteHeight, //format of sprite
 		TotalRowLength,			// length of read segment
 		add, FullHeight,FullWidth,
-		RowAdd,					//, NextSpriteOffset; //TODO use me
-		prSize,
+		RowAdd,
 		defType2;
 	int LeftMargin, RightMargin, TopMargin, BottomMargin;
 
 
-	ui8 SegmentType;//, BL, BR; //TODO use me
+	ui8 SegmentType;
 
 	BaseOffset = SEntries[SIndex].offset;
 	SSpriteDef sd = * reinterpret_cast<const SSpriteDef *>(FDef + BaseOffset);
 
-	//prSize = SDL_SwapLE32(sd.prSize); //TODO use me
 	defType2 = SDL_SwapLE32(sd.defType2);
 	FullWidth = SDL_SwapLE32(sd.FullWidth);
 	FullHeight = SDL_SwapLE32(sd.FullHeight);
@@ -165,7 +163,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPal
 		SpriteWidth+=LeftMargin;
 	if(RightMargin<0)
 		SpriteWidth+=RightMargin;
-	
+
 	// Note: this looks bogus because we allocate only FullWidth, not FullWidth+add
 	add = 4 - FullWidth%4;
 	if (add==4)
@@ -209,7 +207,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPal
 			memcpy(reinterpret_cast<char*>(ret->pixels)+ftcp, &FDef[BaseOffset], SpriteWidth);
 			ftcp += SpriteWidth;
 			BaseOffset += SpriteWidth;
-			
+
 			if (RightMargin>0)
 				ftcp += RightMargin;
 		}

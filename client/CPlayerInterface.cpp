@@ -240,7 +240,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 			if(tile.objects[i].first->id == details.id)
 				ho = dynamic_cast<const CGHeroInstance *>(tile.objects[i].first);
 
-		if(!ho) //still nothing... 
+		if(!ho) //still nothing...
 			return;
 	}
 
@@ -354,7 +354,7 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	wanderingHeroes -= hero;
-	if(vstd::contains(paths, hero)) 
+	if(vstd::contains(paths, hero))
 		paths.erase(hero);
 
 	adventureInt->heroList.updateHList(hero);
@@ -382,7 +382,7 @@ SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //spe
 
 	switch(specific->ID)
 	{
-	case GameConstants::HEROI_TYPE: 				
+	case GameConstants::HEROI_TYPE:
 		{
 			InfoAboutHero iah;
 			bool gotInfo = LOCPLINT->cb->getHeroInfo(specific, iah);
@@ -452,7 +452,7 @@ void CPlayerInterface::receivedResource(int type, int val)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(CMarketplaceWindow *mw = dynamic_cast<CMarketplaceWindow *>(GH.topInt()))
 		mw->resourceChanged(type, val);
-	
+
 	GH.totalRedraw();
 }
 
@@ -854,7 +854,7 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 			const CStack * attacked = cb->battleGetStackByID(i->stackAttacked);
 			battleInt->displayEffect(73, attacked->position);
 		}
-		
+
 	}
 
 	const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
@@ -896,6 +896,7 @@ void CPlayerInterface::yourTacticPhase(int distance)
 
 void CPlayerInterface::showComp(CComponent comp)
 {
+	waitWhileDialog();//Fix for mantis #98
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
 	CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
@@ -915,7 +916,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 {
 	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	
+
 	stopMovement();
 	CInfoWindow *temp = CInfoWindow::create(text, playerID, &components);
 	temp->setDelComps(delComps);
@@ -944,7 +945,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 {
 	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	
+
 	stopMovement();
 	CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 
@@ -1145,11 +1146,11 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	{
 		adventureInt->sleepWake.clickLeft(true, false);
 		adventureInt->sleepWake.clickLeft(false, true);
-		//could've just called 
+		//could've just called
 		//adventureInt->fsleepWake();
 		//but no authentic button click/sound ;-)
 	}
-	
+
 	int i = 1;
 	//evil...
 	eventsM.unlock();
@@ -1190,7 +1191,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 			{
 				newTerrain = cb->getTile(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->tertype;
 
-				if (newTerrain != currentTerrain) 
+				if (newTerrain != currentTerrain)
 				{
 					CCS->soundh->stopSound(sh);
 					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
@@ -1222,7 +1223,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	if (adventureInt)
 	{
 		// (i == 0) means hero went through all the path
-		adventureInt->updateMoveHero(h, (i != 0)); 
+		adventureInt->updateMoveHero(h, (i != 0));
 		adventureInt->updateNextHero(h);
 	}
 	return result;
@@ -1298,7 +1299,7 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 		text += CGI->generaltexth->allTexts[733];
 	}
 
-	showYesNoDialog(text, scs, onYes, onNo, true); 
+	showYesNoDialog(text, scs, onYes, onNo, true);
 }
 
 void CPlayerInterface::requestRealized( PackageApplied *pa )
@@ -1354,13 +1355,13 @@ void CPlayerInterface::recreateHeroTownList()
 				newWanderingHeroes += allHeroes[j];
 				allHeroes -= allHeroes[j];
 			}
-	//all the rest of new heroes go the end of the list	
+	//all the rest of new heroes go the end of the list
 	wanderingHeroes.clear();
 	wanderingHeroes = newWanderingHeroes;
 	newWanderingHeroes.clear();
 	for (int i = 0; i < allHeroes.size(); i++)
 		if (!allHeroes[i]->inTownGarrison)
-			wanderingHeroes += allHeroes[i];	
+			wanderingHeroes += allHeroes[i];
 
 	std::vector<const CGTownInstance*> newTowns;
 	std::vector<const CGTownInstance*> allTowns = cb->getTownsInfo();
@@ -1463,7 +1464,7 @@ void CPlayerInterface::update()
 
 	if(terminate_cond.get())
 		return;
-	
+
 	//make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 
@@ -1983,15 +1984,15 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 				requestStoppingClient();
 		}
 		cb->unregisterMyInterface(); //we already won/lost, nothing else matters
-
 	}
+
 	else
 	{
 		if(!victory && cb->getPlayerStatus(playerID) == PlayerState::INGAME) //enemy has lost
-		{
-			std::string txt = CGI->generaltexth->allTexts[5]; //%s has been vanquished!
-			boost::algorithm::replace_first(txt, "%s", CGI->generaltexth->capColors[player]);
-			showInfoDialog(txt,std::vector<CComponent*>(1, new CComponent(CComponent::flag, player, 0)));
+	{
+		std::string txt = CGI->generaltexth->allTexts[5]; //%s has been vanquished!
+		boost::algorithm::replace_first(txt, "%s", CGI->generaltexth->capColors[player]);
+		showInfoDialog(txt,std::vector<CComponent*>(1, new CComponent(CComponent::flag, player, 0)));
 		}
 	}
 }
@@ -2056,7 +2057,7 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 		}
 		else
 		{
-			assert(h->getPosition(false) == path.startPos()); 
+			assert(h->getPosition(false) == path.startPos());
 			//update the hero path in case of something has changed on map
 			if(LOCPLINT->cb->getPath2(path.endPos(), path))
 				return &path;

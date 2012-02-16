@@ -4836,7 +4836,7 @@ void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art)
 	BOOST_FOREACH(CArtifactsOfHero *aoh, commonInfo->participants)
 		BOOST_FOREACH(CArtPlace *place, aoh->artWorn)
 			place->marked = art->canBePutAt(ArtifactLocation(aoh->curHero, place->slotID), true);
-	
+
 	if (CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt()))
 	{
 		//FIXME: garrison window has two rows of cretaures :?
@@ -4847,10 +4847,10 @@ void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art)
 					g->highlight = true;
 		}
 	}
-	else if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt()))
+	/*else if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt()))
 	{
 		//TODO
-	}
+	}*/
 
 	safeRedraw();
 }

@@ -91,17 +91,19 @@ struct AILogger
 
 	struct Tab
 	{
-		Tab()
-		{
-			logger.lvl++;
-		}
-		~Tab()
-		{
-			logger.lvl--;
-		}
+		Tab();
+		~Tab();
 	};
 } logger;
 
+AILogger::Tab::Tab()
+{
+	logger.lvl++;
+}
+AILogger::Tab::~Tab()
+{
+	logger.lvl--;
+}
 
 struct TimeCheck
 {
@@ -134,7 +136,7 @@ void erase_if(Range &vec, Predicate pred)
 struct AtScopeExit
 {
 	boost::function<void()> foo;
-	AtScopeExit(const boost::function<void()> &FOO) : foo(FOO) 
+	AtScopeExit(const boost::function<void()> &FOO) : foo(FOO)
 	{}
 	~AtScopeExit()
 	{
@@ -195,7 +197,7 @@ std::map<const CGObjectInstance *, ObjInfo> helperObjInfo;
 template <typename Container, typename Item>
 bool remove_if_present(Container &c, const Item &item)
 {
-	Container::iterator i = std::find(c.begin(), c.end(), item);
+	auto i = std::find(c.begin(), c.end(), item);
 	if(i != c.end())
 	{
 		c.erase(i);
@@ -206,7 +208,7 @@ bool remove_if_present(Container &c, const Item &item)
 }
 
 template <typename Container, typename Pred>
-void erase(Container &c, Pred &pred)
+void erase(Container &c, Pred pred)
 {
 	c.erase(boost::remove_if(c, pred), c.end());
 }
@@ -275,7 +277,7 @@ ui64 evaluateDanger(crint3 tile)
 
 	if(t->visitable)
 		objectDanger = evaluateDanger(t->visitableObjects.front());
-	
+
 	int3 guardPos = cb->guardingCreaturePosition(tile);
 	if(guardPos.x >= 0 && guardPos != tile)
 		guardDanger = evaluateDanger(guardPos);
@@ -366,11 +368,11 @@ void VCAI::heroMoved(const TryMoveHero & details)
 	LOG_ENTRY;
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
-		const TerrainTile *t1 = cb->getTile(CGHeroInstance::convertPosition(details.start, false)), 
+		const TerrainTile *t1 = cb->getTile(CGHeroInstance::convertPosition(details.start, false)),
 			*t2 = cb->getTile(CGHeroInstance::convertPosition(details.end, false));
 		if(t1->visitable && t2->visitable)
 		{
-			const CGObjectInstance *o1 = t1->visitableObjects.front(), 
+			const CGObjectInstance *o1 = t1->visitableObjects.front(),
 				*o2 = t2->visitableObjects.front();
 
 			if(o1->ID == Obj::SUBTERRANEAN_GATE && o2->ID == Obj::SUBTERRANEAN_GATE)
@@ -379,7 +381,7 @@ void VCAI::heroMoved(const TryMoveHero & details)
 				knownSubterraneanGates[o2] = o1;
 			}
 		}
-		
+
 	}
 }
 
@@ -716,7 +718,7 @@ void VCAI::init(CCallback * CB)
 	LOG_ENTRY;
 	playerID = myCb->getMyColor();
 	myCb->waitTillRealize = true;
-	
+
 	retreiveVisitableObjs(visitableObjs);
 }
 
@@ -877,12 +879,12 @@ void VCAI::recruitCreatures(const CGTownInstance * t)
 {
 	for(int i = 0; i < t->creatures.size(); i++)
 	{
-		if(!t->creatures[i].second.size()) 
+		if(!t->creatures[i].second.size())
 			continue;
 
 		int count = t->creatures[i].first;
 		int creID = t->creatures[i].second.back();
-		const CCreature *c = VLC->creh->creatures[creID];
+//		const CCreature *c = VLC->creh->creatures[creID];
 // 		if(containsSavedRes(c->cost))
 // 			continue;
 
@@ -897,7 +899,7 @@ void VCAI::recruitCreatures(const CGTownInstance * t)
 void VCAI::buildStructure(const CGTownInstance * t)
 {
 	//TODO make *real* town development system
-	const int buildings[] = {5, 11, 14, 16, 0, 12, 7, 8, 9, 13, 30, 31, 32, 33, 34, 35, 36, 37, 38, 
+	const int buildings[] = {5, 11, 14, 16, 0, 12, 7, 8, 9, 13, 30, 31, 32, 33, 34, 35, 36, 37, 38,
 								39, 40, 41, 42, 43, 1, 2, 3, 4, 17, 18, 19, 21, 22, 23};
 	for(int i = 0; i < ARRAY_COUNT(buildings); i++)
 	{
@@ -906,7 +908,7 @@ void VCAI::buildStructure(const CGTownInstance * t)
 
 		const CBuilding *b = VLC->buildh->buildings[t->subID][buildings[i]];
 
-		int canBuild = cb->canBuildStructure(t, buildings[i]); 
+		int canBuild = cb->canBuildStructure(t, buildings[i]);
 		if(canBuild == EBuildingState::ALLOWED)
 		{
 			if(!containsSavedRes(b->resources))
@@ -946,7 +948,7 @@ bool isSafeToVisit(const CGHeroInstance *h, crint3 tile)
 		else
 			return false;
 	}
-	
+
 
 	return true; //there's no danger
 }
@@ -980,7 +982,7 @@ void VCAI::wander(const CGHeroInstance * h)
 	while(1)
 	{
 		auto dests = getPossibleDestinations(h);
-		if(!dests.size()) 
+		if(!dests.size())
 		{
 			auto compareReinforcements = [h](const CGTownInstance *lhs, const CGTownInstance *rhs) -> bool
 			{
@@ -999,7 +1001,7 @@ void VCAI::wander(const CGHeroInstance * h)
 						townsNotReachable.push_back(t);
 				}
 			}
-// 			towns.erase(boost::remove_if(towns, [=](const CGTownInstance *t) -> bool 
+// 			towns.erase(boost::remove_if(towns, [=](const CGTownInstance *t) -> bool
 // 			{
 // 				return !!t->visitingHero || !isReachable(t) || !howManyReinforcementsCanGet(h,t) || vstd::contains(townVisitsThisWeek[h], t);
 // 			}),towns.end());
@@ -1114,9 +1116,13 @@ void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, boo
 		for(int j = 0; j < cb->getMapSize().y; j++)
 			for(int k = 0; k < cb->getMapSize().z; k++)
 				if(const TerrainTile *t = cb->getTile(int3(i,j,k), false))
+				{
 					BOOST_FOREACH(const CGObjectInstance *obj, t->visitableObjects)
+					{
 						if(includeOwned || obj->tempOwner != playerID)
 							out.push_back(obj);
+					}
+				}
 }
 
 std::vector<const CGObjectInstance *> VCAI::getFlaggedObjects() const
@@ -1195,7 +1201,11 @@ public:
 	{
 	}
 
-	const char *what() const OVERRIDE
+	virtual ~cannotFulfillGoalException() throw ()
+	{
+	};
+
+	const char *what() const throw () OVERRIDE
 	{
 		return msg.c_str();
 	}
@@ -1239,7 +1249,7 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 // 			{
 // 				int3 afterEndPos = path.nodes[i-2].coord;
 // 				if(afterEndPos.z != endpos.z)
-// 
+//
 // 			}
 			//tlog0 << "Moving " << h->name << " from " << h->getPosition() << " to " << endpos << std::endl;
 			cb->moveHero(h,CGHeroInstance::convertPosition(endpos, true));
@@ -1367,7 +1377,7 @@ void VCAI::tryRealize(CGoal g)
 			}
 		}
 		break;
-		
+
 	case COLLECT_RES:
 		if(const CGObjectInstance *obj = cb->getObj(g.objid, false))
 		{
@@ -1425,7 +1435,7 @@ std::vector<const CGHeroInstance *> VCAI::getUnblockedHeroes() const
 	std::vector<const CGHeroInstance *> ret = cb->getHeroesInfo();
 	BOOST_FOREACH(const CGHeroInstance *h, blockedHeroes)
 		remove_if_present(ret, h);
-		
+
 	return ret;
 }
 
@@ -1448,7 +1458,7 @@ void VCAI::endTurn()
 		tlog1 << "Not having turn at the end of turn???\n";
 	}
 
-	do 
+	do
 	{
 		cb->endTurn();
 	} while(status.haveTurn()); //for some reasons, our request may fail -> stop requesting end of turn only after we've received a confirmation that it's over
@@ -1507,7 +1517,7 @@ void VCAI::performTypicalActions()
 		buildArmyIn(t);
 
 		if(!ai->primaryHero() ||
-			t->getArmyStrength() > ai->primaryHero()->getArmyStrength() * 2 && !isAccessibleForHero(t->visitablePos(), ai->primaryHero()))
+			(t->getArmyStrength() > ai->primaryHero()->getArmyStrength() * 2 && !isAccessibleForHero(t->visitablePos(), ai->primaryHero())))
 		{
 			recruitHero(t);
 			buildArmyIn(t);
@@ -1546,7 +1556,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, const CGHeroInstance 
 	for(auto i = dstToRevealedTiles.begin(); i != dstToRevealedTiles.end(); i++)
 	{
 		const CGPathNode *pn = cb->getPathInfo(i->first);
-		const TerrainTile *t = cb->getTile(i->first);
+		//const TerrainTile *t = cb->getTile(i->first);
 		if(best->second < i->second  && i->second && pn->reachable() && pn->accessible == CGPathNode::ACCESSIBLE)
 			best = i;
 	}
@@ -1754,7 +1764,7 @@ int3 whereToExplore(const CGHeroInstance *h)
 	}
 	catch(cannotFulfillGoalException &e)
 	{
-		std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow], metryka taksówkowa
+		std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow], metryka taksÃ³wkowa
 		try
 		{
 			return ai->explorationNewPoint(radius, h, tiles);
@@ -1788,7 +1798,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 		{
 			const CVictoryCondition &vc = cb->getMapHeader()->victoryCondition;
 			EVictoryConditionType::EVictoryConditionType cond = vc.condition;
-			
+
 			if(!vc.appliesToAI)
 			{
 				//TODO deduce victory from human loss condition
@@ -1819,11 +1829,11 @@ TSubgoal CGoal::whatToDoToAchieve()
 						else
 						{
 							auto towns = cb->getTownsInfo();
-							towns.erase(boost::remove_if(towns, 
-												[](const CGTownInstance *t) -> bool 
+							towns.erase(boost::remove_if(towns,
+												[](const CGTownInstance *t) -> bool
 												{
 													return vstd::contains(t->forbiddenBuildings, EBuilding::GRAIL);
-												}), 
+												}),
 										towns.end());
 							boost::sort(towns, isCloser);
 							if(towns.size())
@@ -1850,7 +1860,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				return CGoal(GET_OBJ).setobjid(vc.ID);
 			case EVictoryConditionType::GATHERRESOURCE:
 				return CGoal(COLLECT_RES).setresID(vc.ID).setvalue(vc.count);
-				//TODO mines? piles? marketplace? 
+				//TODO mines? piles? marketplace?
 				//save?
 				break;
 			case EVictoryConditionType::GATHERTROOP:
@@ -1919,7 +1929,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 
 			if(tileToHit == tile)
 			{
-				tlog1 << boost::format("Very strange, tile to hit is %s and tile is also %s, while hero %s is at %s\n") 
+				tlog1 << boost::format("Very strange, tile to hit is %s and tile is also %s, while hero %s is at %s\n")
 					% tileToHit % tile % h->name % h->visitablePos();
 				throw cannotFulfillGoalException("Retreiving first tile to hit failed (probably)!");
 			}
@@ -1935,7 +1945,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 		{
 			if(cb->getHeroesInfo().empty())
 				return CGoal(RECRUIT_HERO);
-			
+
 			auto hs = cb->getHeroesInfo();
 			assert(hs.size());
 			erase(hs, [](const CGHeroInstance *h)
@@ -1973,7 +1983,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 		{
 			if(!cb->isVisible(tile))
 				return CGoal(EXPLORE);
-			
+
 			if(hero && !ai->isAccessibleForHero(tile, hero))
 				hero = NULL;
 
@@ -2019,12 +2029,12 @@ TSubgoal CGoal::whatToDoToAchieve()
 
 	case BUILD_STRUCTURE:
 		//TODO check res
-		//look for town 
+		//look for town
 		//prerequisites?
 		I_AM_ELEMENTAR;
 	case COLLECT_RES:
 		{
-			
+
 			std::vector<const IMarket*> markets;
 
 			std::vector<const CGObjectInstance*> visObjs;
@@ -2035,7 +2045,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				{
 					if(obj->ID == GameConstants::TOWNI_TYPE && obj->tempOwner == ai->playerID && m->allowsTrade(EMarketMode::RESOURCE_RESOURCE))
 						markets.push_back(m);
-					else if(obj->ID == Obj::TRADING_POST) //TODO a moze po prostu test na pozwalanie handlu? 
+					else if(obj->ID == Obj::TRADING_POST) //TODO a moze po prostu test na pozwalanie handlu?
 						markets.push_back(m);
 				}
 			}
@@ -2045,7 +2055,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				return m1->getMarketEfficiency() < m2->getMarketEfficiency();
 			});
 
-			markets.erase(boost::remove_if(markets, [](const IMarket *market) -> bool 
+			markets.erase(boost::remove_if(markets, [](const IMarket *market) -> bool
 			{
 				return !(market->o->ID == GameConstants::TOWNI_TYPE && market->o->tempOwner == ai->playerID)
 					&& !ai->isAccessible(market->o->visitablePos());
@@ -2101,7 +2111,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			ai->retreiveVisitableObjs(objs);
 			erase_if(objs, [&](const CGObjectInstance *obj)
 			{
-				return obj->ID != GameConstants::TOWNI_TYPE && obj->ID != GameConstants::HEROI_TYPE //not town/hero
+				return (obj->ID != GameConstants::TOWNI_TYPE && obj->ID != GameConstants::HEROI_TYPE) //not town/hero
 					|| cb->getPlayerRelations(ai->playerID, obj->tempOwner) != 0; //not enemy
 			});
 
@@ -2158,7 +2168,7 @@ bool CGoal::invalid() const
 
 bool CGoal::isBlockedBorderGate(int3 tileToHit)
 {
-	return cb->getTile(tileToHit)->topVisitableID() == Obj::BORDER_GATE 
+	return cb->getTile(tileToHit)->topVisitableID() == Obj::BORDER_GATE
 		&& cb->getPathInfo(tileToHit)->accessible != CGPathNode::ACCESSIBLE;
 }
 
@@ -2168,7 +2178,7 @@ SectorMap::SectorMap()
 // 	sector.resize(sizes.x);
 // 	BOOST_FOREACH(auto &i, sector)
 // 		i.resize(sizes.y);
-// 
+//
 // 	BOOST_FOREACH(auto &i, sector)
 // 		BOOST_FOREACH(auto &j, i)
 // 			j.resize(sizes.z, 0);
@@ -2215,8 +2225,8 @@ void SectorMap::clear()
 bool canBeEmbarkmentPoint(const TerrainTile *t)
 {
 	//tile must be free of with unoccupied boat
-	return !t->blocked 
-		|| t->visitableObjects.size() == 1 && t->topVisitableID() == Obj::BOAT;
+	return !t->blocked
+		|| (t->visitableObjects.size() == 1 && t->topVisitableID() == Obj::BOAT);
 }
 
 void SectorMap::exploreNewSector(crint3 pos, int num)
@@ -2285,7 +2295,7 @@ void SectorMap::write(crstring fname)
 
 int3 SectorMap::firstTileToGet(const CGHeroInstance *h, crint3 dst)
 {
-	int sourceSector = retreiveTile(h->visitablePos()), 
+	int sourceSector = retreiveTile(h->visitablePos()),
 		destinationSector = retreiveTile(dst);
 
 	if(sourceSector != destinationSector)
@@ -2365,7 +2375,7 @@ int3 SectorMap::firstTileToGet(const CGHeroInstance *h, crint3 dst)
 								shipyards.push_back(shipyard);
 					}
 
-					shipyards.erase(boost::remove_if(shipyards, [=](const IShipyard *shipyard) -> bool 
+					shipyards.erase(boost::remove_if(shipyards, [=](const IShipyard *shipyard) -> bool
 					{
 						return shipyard->state() != 0 || retreiveTile(shipyard->bestLocation()) != sectorToReach->id;
 					}),shipyards.end());
@@ -2464,7 +2474,7 @@ void SectorMap::makeParentBFS(crint3 source)
 		ui8 &sec = retreiveTile(curPos);
 		assert(sec == mySector); //consider only tiles from the same sector
 
-		const TerrainTile *t = cb->getTile(curPos);
+		//const TerrainTile *t = cb->getTile(curPos);
 		foreach_neighbour(curPos, [&](crint3 neighPos)
 		{
 			if(retreiveTile(neighPos) == mySector && !vstd::contains(parent, neighPos))

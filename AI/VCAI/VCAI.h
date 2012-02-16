@@ -37,14 +37,14 @@ public:
 enum EGoals
 {
 	INVALID = -1,
-	WIN, DO_NOT_LOSE, CONQUER, BUILD, EXPLORE, 
-	RECRUIT_HERO, 
+	WIN, DO_NOT_LOSE, CONQUER, BUILD, EXPLORE,
+	RECRUIT_HERO,
 	BUILD_STRUCTURE, //if hero set, then in visited town
 	COLLECT_RES,
 
 	OBJECT_GOALS_BEGIN,
 	GET_OBJ, //visit or defeat or collect the object
-		
+
 	GET_ART_TYPE,
 
 	//BUILD_STRUCTURE,
@@ -54,7 +54,7 @@ enum EGoals
 	//VISIT_OBJ, //hero + tile
 
 	VISIT_TILE, //tile, in conjunction with hero elementar; assumes tile is reachable
-	CLEAR_WAY_TO, 
+	CLEAR_WAY_TO,
 	DIG_AT_TILE //elementar with hero on tile
 };
 
@@ -77,7 +77,7 @@ struct CGoal
 	virtual TSubgoal whatToDoToAchieve();
 
 	bool isBlockedBorderGate(int3 tileToHit);
-	CGoal(EGoals goal = INVALID) : goalType(goal) 
+	CGoal(EGoals goal = INVALID) : goalType(goal)
 	{
 		priority = 0;
 		isElementar = false;
@@ -98,8 +98,8 @@ struct CGoal
 	int objid; SETTER(int, objid)
 	int aid; SETTER(int, aid)
 	int3 tile; SETTER(int3, tile)
-	const CGHeroInstance *hero; SETTER(const CGHeroInstance *, hero)
-	const CGTownInstance *town; SETTER(const CGTownInstance *, town)
+	const CGHeroInstance *hero; SETTER(CGHeroInstance *, hero)
+	const CGTownInstance *town; SETTER(CGTownInstance *, town)
 	int bid; SETTER(int, bid)
 };
 
@@ -114,16 +114,16 @@ struct SectorMap
 		std::vector<int3> tiles;
 		std::vector<int3> embarkmentPoints; //tiles of other sectors onto which we can (dis)embark
 		bool water; //all tiles of sector are land or water
-		Sector() 
-		{ 
+		Sector()
+		{
 			id = -1;
 		}
 	};
 
 	bool valid; //some kind of lazy eval
 	std::map<int3, int3> parent;
-	std::vector<std::vector<std::vector<unsigned char>>> sector; 
-	//std::vector<std::vector<std::vector<unsigned char>>> pathfinderSector; 
+	std::vector<std::vector<std::vector<unsigned char>>> sector;
+	//std::vector<std::vector<std::vector<unsigned char>>> pathfinderSector;
 
 	std::map<int, Sector> infoOnSectors;
 
@@ -144,7 +144,7 @@ struct CIssueCommand : CGoal
 {
 	boost::function<bool()> command;
 
-	CIssueCommand(boost::function<bool()> _command) : command(_command), CGoal(ISSUE_COMMAND) {}
+	CIssueCommand(boost::function<bool()> _command): CGoal(ISSUE_COMMAND), command(_command) {}
 };
 
 class VCAI : public CAdventureAI
@@ -264,7 +264,7 @@ public:
 	const CGObjectInstance *lookForArt(int aid) const;
 	bool isAccessible(const int3 &pos);
 	const CGHeroInstance *getHeroWithGrail() const;
-	
+
 	const CGObjectInstance *getUnvisitedObj(const boost::function<bool(const CGObjectInstance *)> &predicate);
 	bool isAccessibleForHero(const int3 & pos, const CGHeroInstance * h) const;
 
@@ -277,7 +277,7 @@ public:
 };
 
 
-template<int id> 
+template<int id>
 bool objWithID(const CGObjectInstance *obj)
 {
 	return obj->ID == id;

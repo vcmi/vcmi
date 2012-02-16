@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT(vcmi, 0.84b)				# Follow VCMI_VERSION in GameConstants.h
+AC_INIT(vcmi, 0.87b)				# Follow VCMI_VERSION in GameConstants.h
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([aclocal/m4])
 
@@ -13,6 +13,7 @@ AC_ENABLE_SHARED
 AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 AX_COMPILER_VENDOR
+
 
 # Use silent rules if supported.
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
@@ -29,10 +30,13 @@ if test "x$GXX" = "xyes" -a "x$enable_debug" = "xyes" ; then
    CXXFLAGS="$CXXFLAGS -O0 -ggdb"
 fi
 
+# For c++11 compatibility. Required at least in VCAI
+CXXFLAGS="$CXXFLAGS -std=c++0x"
+
 # For gcc and compatible compilers, enable compilation warnings, but
 # selectively disable some because too many are generated.
 if test "x$GXX" = "xyes" ; then
-   CXXFLAGS="$CXXFLAGS -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith -Wno-unknown-pragmas"
+   CXXFLAGS="$CXXFLAGS -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith"
 fi
 
 # extra clang parameters
@@ -110,4 +114,4 @@ AC_SUBST(VCMI_AI_LIBS_DIR)
 VCMI_SCRIPTING_LIBS_DIR="$libdir/vcmi/Scripting"
 AC_SUBST(VCMI_SCRIPTING_LIBS_DIR)
 
-AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/StupidAI/Makefile AI/GeniusAI/Makefile AI/EmptyAI/Makefile Scripting/ERM/Makefile)
+AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/StupidAI/Makefile AI/EmptyAI/Makefile AI/VCAI/Makefile Scripting/ERM/Makefile)

@@ -36,7 +36,8 @@ public:
 class DLL_LINKAGE CBuildingHandler
 {
 public:
-	std::vector< bmap<int, ConstTransitivePtr<CBuilding> > > buildings; ///< vector by castle ID, second the building ID (in ERM-U format)
+	typedef bmap<int, ConstTransitivePtr<CBuilding> > TBuildingsMap;
+	std::vector< TBuildingsMap > buildings; ///< vector by castle ID, second the building ID (in ERM-U format)
 	bmap<int, std::pair<std::string,std::vector< std::vector< std::vector<int> > > > > hall; //map<castle ID, pair<hall bg name, std::vector< std::vector<building id> >[5]> - external vector is the vector of buildings in the row, internal is the list of buildings for the specific slot
 
 	void loadBuildings(); //main loader

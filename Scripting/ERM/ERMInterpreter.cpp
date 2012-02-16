@@ -451,7 +451,7 @@ struct ScriptScanner : boost::static_visitor<>
 				break;
 			}
 		}
-		
+
 	}
 };
 
@@ -757,7 +757,7 @@ struct HEPerformer : StandardReceiverVisitor<const CGHeroInstance *>
 						else
 							throw EScriptExecError("Setting stack count is not implemented!");
 					}
-					else 
+					else
 						throw EScriptExecError("Slot number must be an evaluable i-exp");
 				}
 				//todo else if(14 params)
@@ -819,7 +819,7 @@ struct StringFormatter
 	// startpos is the first digit
 	// digits will be converted to number and returned
 	// ADDITIVE on digitsUsed
-	int getNum() 
+	int getNum()
 	{
 		int toAdd = 0;
 		int numStart = percentPos + 2;
@@ -847,7 +847,7 @@ struct StringFormatter
 				break;
 
 			if(percentPos + 1 >= msg.size()) //at least one character after % is required
-				throw EScriptExecError("Formatting error: % at the end of string!"); 
+				throw EScriptExecError("Formatting error: % at the end of string!");
 
 			charsToReplace++; //the sign after % is consumed
 			switch(msg[percentPos+1])
@@ -961,7 +961,7 @@ struct MAPerformer : StandardReceiverVisitor<TUnusedType>
 			break;
 		}
 	}
-		
+
 };
 
 void MA_PPerformer::operator()( TIexp const& cmp ) const
@@ -1197,7 +1197,7 @@ struct VRPerformer : StandardReceiverVisitor<IexpValStr>
 			break;
 		case 'S': //setting variable
 			{
-				performOptionTakingOneParamter<VR_SPerformer>(trig.params);				
+				performOptionTakingOneParamter<VR_SPerformer>(trig.params);
 			}
 			break;
 		case 'T': //random variables
@@ -1290,7 +1290,7 @@ struct ERMExpDispatch : boost::static_visitor<>
 	}
 	void operator()(Treceiver const& trig) const
 	{
-		HLP helper;			
+		HLP helper;
 		//check condition
 		if(trig.condition.is_initialized())
 		{
@@ -1650,7 +1650,7 @@ IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> ini
 		{
 			throw EIexpProblem(std::string("Symbol ") + cr + " is not allowed in this context!");
 		}
-			
+
 	}
 
 	ret.name = toFollow;
@@ -1914,7 +1914,7 @@ struct ConditionDisemboweler : boost::static_visitor<bool>
 		default:
 			throw EScriptExecError("Wrong type of left iexp!");
 		}
-		//we should never reach this place
+		return false;//we should never reach this place
 	}
 	bool operator()(int const & flag) const
 	{
@@ -2392,9 +2392,15 @@ void ERMInterpreter::heroVisit(const CGHeroInstance *visitor, const CGObjectInst
 		return;
 	setCurrentlyVisitedObj(visitedObj->pos);
 	TIDPattern tip;
+#ifdef CPP11_USE_INITIALIZERS_LIST
+	tip[1] = {visitedObj->ID};
+	tip[2] = {visitedObj->ID, visitedObj->subID};
+	tip[3] = {visitedObj->pos.x, visitedObj->pos.y, visitedObj->pos.z};
+#else
 	tip[1] = list_of(visitedObj->ID);
 	tip[2] = list_of(visitedObj->ID)(visitedObj->subID);
 	tip[3] = list_of(visitedObj->pos.x)(visitedObj->pos.y)(visitedObj->pos.z);
+#endif
 	executeTriggerType(VERMInterpreter::TriggerType("OB"), start, tip);
 }
 
@@ -2525,7 +2531,7 @@ struct VNodeEvaluator : boost::static_visitor<VOption>
 				return boost::apply_visitor(_SbackquoteEval(), exp.children[1]);
 			else
 				throw EVermScriptExecError("backquote special form takes only one argument");
-			
+
 		}
 		else if(opt.text == "if")
 		{
@@ -2717,7 +2723,7 @@ VOption ERMInterpreter::eval( VOption line, Environment * env /*= NULL*/ )
 {
 // 	if(line.children.isNil())
 // 		return;
-// 
+//
 // 	VOption & car = line.children.car().getAsItem();
 	tlog1 << "\tevaluating ";
 	printVOption(line);
@@ -2819,7 +2825,7 @@ namespace VERMInterpreter
 			{
 				children.cdr() = VNode(children);
 			}
-			
+
 			if(modifierList[g] == "`")
 			{
 				children.car() = VSymbol("backquote");
@@ -3067,7 +3073,7 @@ namespace VERMInterpreter
 				}
 				else
 					throw EVermScriptExecError("Incompatible types in = special function");
-				
+
 			}
 			break;
 		case ADD:

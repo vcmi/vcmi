@@ -465,7 +465,7 @@ CCastleBuildings::CCastleBuildings(const CGTownInstance* Town):
 		std::map<int, Structure*>::iterator structure;
 		structure = CGI->townh->structures[town->subID].find(*building);
 
-		if(structure != CGI->townh->structures[town->subID].end())
+		if(structure != CGI->townh->structures[town->subID].end() && structure->second)
 		{
 			if(structure->second->group<0) // no group - just add it
 				buildings.push_back(new CBuildingRect(this, town, structure->second));

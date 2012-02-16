@@ -63,7 +63,7 @@ namespace po = boost::program_options;
 std::string NAME_AFFIX = "client";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
 CGuiHandler GH;
-static CClient *client;
+static CClient *client=NULL;
 SDL_Surface *screen = NULL, //main screen surface
 	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer)
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
@@ -742,9 +742,8 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 	else
 		setResolution = true;
 
+		client = new CClient;
 
-
-	client = new CClient;
 	CPlayerInterface::howManyPeople = 0;
 	switch(options->mode) //new game
 	{
@@ -760,7 +759,7 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 		break;
 	}
 
-	client->connectionHandler = new boost::thread(&CClient::run, client);
+		client->connectionHandler = new boost::thread(&CClient::run, client);
 }
 
 void requestChangingResolution()
