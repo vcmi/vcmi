@@ -246,7 +246,8 @@ public:
 	void endAction(const BattleAction* action);
 	void hideQueue();
 	void showQueue();
-	
+	SpellSelectionType selectionTypeByPositiveness(const CSpell & spell);
+
 	
 	friend class CPlayerInterface;
 	friend class CAdventureMapButton;

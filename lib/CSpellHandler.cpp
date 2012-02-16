@@ -205,6 +205,16 @@ CSpell::ETargetType CSpell::getTargetType() const
 	return NO_TARGET;
 }
 
+bool CSpell::isPositive() const
+{
+	return positiveness == POSITIVE;
+}
+
+bool CSpell::isNegative() const
+{
+	return positiveness == NEGATIVE;
+}
+
 static bool startsWithX(const std::string &s)
 {
 	return s.size() && s[0] == 'x';

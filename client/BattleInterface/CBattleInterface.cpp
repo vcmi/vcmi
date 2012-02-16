@@ -949,7 +949,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
 							if (curInt->cb->battleCanCastThisSpell(spell, BattleHex(myNumber)) == ESpellCastProblem::OK)
 							{
-								if ((spell->positiveness > -1 && ourStack) || (spell->positiveness < 1 && !ourStack))
+								if ((!spell->isNegative() && ourStack) || (!spell->isPositive() && !ourStack))
 								{
 									CCS->curh->changeGraphic(3, 0);
 									stackCastsSpell = true;
@@ -1788,7 +1788,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 						const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
 						if (curInt->cb->battleCanCastThisSpell(spell, BattleHex(whichOne)) == ESpellCastProblem::OK)
 						{
-							if ((spell->positiveness > -1 && ourStack) || (spell->positiveness < 1 && !ourStack))
+							if ((!spell->isNegative() && ourStack) || (!spell->isPositive() && !ourStack))
 							{
 								giveCommand(BattleAction::MONSTER_SPELL, whichOne, actSt->ID, creatureSpellToCast);
 								spellCast = true;
@@ -2371,40 +2371,14 @@ void CBattleInterface::castThisSpell(int spellID)
 	spellSelMode = ANY_LOCATION;
 	if(spell.getTargetType() == CSpell::CREATURE)
 	{
-		switch(spell.positiveness)
-		{
-		case -1 :
-			spellSelMode = HOSTILE_CREATURE;
-			break;
-		case 0:
-			spellSelMode = ANY_CREATURE;
-			break;
-		case 1:
-			spellSelMode = FRIENDLY_CREATURE;
-			break;
-		}
+		spellSelMode = selectionTypeByPositiveness(spell);
 	}
 	if(spell.getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
 	{
 		if(castingHero && castingHero->getSpellSchoolLevel(&spell) < 3)
-		{
-			switch(spell.positiveness)
-			{
-			case -1 :
-				spellSelMode = HOSTILE_CREATURE;
-				break;
-			case 0:
-				spellSelMode = ANY_CREATURE;
-				break;
-			case 1:
-				spellSelMode = FRIENDLY_CREATURE;
-				break;
-			}
-		}
+			spellSelMode = selectionTypeByPositiveness(spell);
 		else
-		{
 			spellSelMode = NO_LOCATION;
-		}
 	}
 	if(spell.getTargetType() == CSpell::OBSTACLE)
 	{
@@ -3086,6 +3060,19 @@ void CBattleInterface::bTacticNextStack()
 		stackActivated(*it);
 	else
 		stackActivated(stacksOfMine.front());
+}
+
+CBattleInterface::SpellSelectionType CBattleInterface::selectionTypeByPositiveness(const CSpell & spell)
+{
+	switch(spell.positiveness)
+	{
+	case CSpell::NEGATIVE :
+		return HOSTILE_CREATURE;
+	case CSpell::NEUTRAL:
+		return ANY_CREATURE;
+	case CSpell::POSITIVE:
+		return FRIENDLY_CREATURE;
+	}
 }
 
 std::string CBattleInterface::SiegeHelper::townTypeInfixes[GameConstants::F_NUMBER] = {"CS", "RM", "TW", "IN", "NC", "DN", "ST", "FR", "EL"};

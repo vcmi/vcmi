@@ -1,136 +1,247 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="CAdvmapInterface.cpp" />
-    <ClCompile Include="CAnimation.cpp" />
-    <ClCompile Include="..\CCallback.cpp" />
-    <ClCompile Include="CBitmapHandler.cpp" />
-    <ClCompile Include="CCastleInterface.cpp" />
-    <ClCompile Include="CConfigHandler.cpp" />
-    <ClCompile Include="CCreatureWindow.cpp" />
-    <ClCompile Include="CDefHandler.cpp" />
-    <ClCompile Include="CGameInfo.cpp" />
-    <ClCompile Include="CHeroWindow.cpp" />
-    <ClCompile Include="CKingdomInterface.cpp" />
-    <ClCompile Include="Client.cpp" />
-    <ClCompile Include="CMessage.cpp" />
-    <ClCompile Include="CMT.cpp" />
-    <ClCompile Include="CMusicHandler.cpp" />
-    <ClCompile Include="CPlayerInterface.cpp" />
-    <ClCompile Include="CPreGame.cpp" />
-    <ClCompile Include="CSndHandler.cpp" />
-    <ClCompile Include="CSpellWindow.cpp" />
-    <ClCompile Include="CVideoHandler.cpp" />
-    <ClCompile Include="Graphics.cpp" />
-    <ClCompile Include="GUIClasses.cpp" />
-    <ClCompile Include="mapHandler.cpp" />
-    <ClCompile Include="NetPacksClient.cpp" />
-    <ClCompile Include="StdInc.cpp" />
-    <ClCompile Include="UIFramework\CCursorHandler.cpp">
-      <Filter>UIFramework</Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CAdvmapInterface.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIFramework\CGuiHandler.cpp">
-      <Filter>UIFramework</Filter>
+    <ClCompile Include="CBitmapHandler.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIFramework\CIntObject.cpp">
-      <Filter>UIFramework</Filter>
+    <ClCompile Include="..\CCallback.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIFramework\CIntObjectClasses.cpp">
-      <Filter>UIFramework</Filter>
+    <ClCompile Include="CCastleInterface.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIFramework\Geometries.cpp">
-      <Filter>UIFramework</Filter>
+    <ClCompile Include="CConfigHandler.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="UIFramework\SDL_Extensions.cpp">
-      <Filter>UIFramework</Filter>
+    <ClCompile Include="CGameInfo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CHeroWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CKingdomInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Client.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CMessage.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CMT.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CPlayerInterface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CPreGame.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CSpellWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GUIClasses.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="NetPacksClient.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mapHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CAnimation.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CDefHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CMusicHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CSndHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CVideoHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CCreatureWindow.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BattleInterface\CBattleAnimations.cpp">
-      <Filter>BattleInterface</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BattleInterface\CBattleInterface.cpp">
-      <Filter>BattleInterface</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BattleInterface\CBattleInterfaceClasses.cpp">
-      <Filter>BattleInterface</Filter>
+      <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BattleInterface\CCreatureAnimation.cpp">
-      <Filter>BattleInterface</Filter>
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StdInc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\CCursorHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\CGuiHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\CIntObject.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\CIntObjectClasses.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\Geometries.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\SDL_Extensions.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CAdvmapInterface.h" />
-    <ClInclude Include="CAnimation.h" />
-    <ClInclude Include="CBitmapHandler.h" />
-    <ClInclude Include="..\CCallback.h" />
-    <ClInclude Include="CCastleInterface.h" />
-    <ClInclude Include="CConfigHandler.h" />
-    <ClInclude Include="CCreatureWindow.h" />
-    <ClInclude Include="CDefHandler.h" />
-    <ClInclude Include="CGameInfo.h" />
-    <ClInclude Include="CHeroWindow.h" />
-    <ClInclude Include="CKingdomInterface.h" />
-    <ClInclude Include="Client.h" />
-    <ClInclude Include="CMessage.h" />
-    <ClInclude Include="CMusicBase.h" />
-    <ClInclude Include="CMusicHandler.h" />
-    <ClInclude Include="CPlayerInterface.h" />
-    <ClInclude Include="CPreGame.h" />
-    <ClInclude Include="CSndHandler.h" />
-    <ClInclude Include="CSoundBase.h" />
-    <ClInclude Include="CSpellWindow.h" />
-    <ClInclude Include="CVideoHandler.h" />
-    <ClInclude Include="FontBase.h" />
-    <ClInclude Include="FunctionList.h" />
-    <ClInclude Include="Graphics.h" />
-    <ClInclude Include="GUIClasses.h" />
-    <ClInclude Include="mapHandler.h" />
-    <ClInclude Include="resource.h" />
-    <ClInclude Include="StdInc.h" />
-    <ClInclude Include="..\Global.h" />
-    <ClInclude Include="UIFramework\CCursorHandler.h">
-      <Filter>UIFramework</Filter>
+    <ClInclude Include="CAdvmapInterface.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIFramework\CGuiHandler.h">
-      <Filter>UIFramework</Filter>
+    <ClInclude Include="CBitmapHandler.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIFramework\CIntObject.h">
-      <Filter>UIFramework</Filter>
+    <ClInclude Include="..\CCallback.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIFramework\CIntObjectClasses.h">
-      <Filter>UIFramework</Filter>
+    <ClInclude Include="CCastleInterface.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIFramework\Geometries.h">
-      <Filter>UIFramework</Filter>
+    <ClInclude Include="CConfigHandler.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="UIFramework\SDL_Extensions.h">
-      <Filter>UIFramework</Filter>
+    <ClInclude Include="CGameInfo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CHeroWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CKingdomInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Client.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CMessage.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPlayerInterface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CPreGame.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CSpellWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FontBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FunctionList.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\global.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GUIClasses.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mapHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAnimation.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CDefHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CMusicBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CMusicHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CSndHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CSoundBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CVideoHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CCreatureWindow.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BattleInterface\CBattleAnimations.h">
-      <Filter>BattleInterface</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BattleInterface\CBattleInterface.h">
-      <Filter>BattleInterface</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BattleInterface\CBattleInterfaceClasses.h">
-      <Filter>BattleInterface</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BattleInterface\CCreatureAnimation.h">
-      <Filter>BattleInterface</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="VCMI_client.rc" />
+    <ClInclude Include="StdInc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\CCursorHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\CGuiHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\CIntObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\CIntObjectClasses.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\Geometries.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\SDL_Extensions.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\ChangeLog" />
     <None Include="vcmi.ico" />
+    <None Include="ClassDiagram21.cd" />
   </ItemGroup>
   <ItemGroup>
-    <Filter Include="BattleInterface">
-      <UniqueIdentifier>{3b4624b5-80f2-4bd8-b4c0-af29d3be4b58}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="UIFramework">
-      <UniqueIdentifier>{918a73d4-7386-4d29-9515-a3579051d4ac}</UniqueIdentifier>
-    </Filter>
+    <ResourceCompile Include="VCMI_client.rc" />
   </ItemGroup>
 </Project>

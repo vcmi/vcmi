@@ -157,12 +157,6 @@ void CPlayerInterface::yourTurn()
 
 			autosaveCount = getLastIndex("Autosave_");
 
-			if(!GH.listInt.size())
-			{
-				GH.pushInt(adventureInt);
-				adventureInt->activateKeys();
-			}
-
 			if(firstCall > 0) //new game, not loaded
 			{
 				int index = getLastIndex("Newgame_Autosave_");
@@ -224,6 +218,7 @@ STRONG_INLINE void delObjRect(const int & x, const int & y, const int & z, const
 }
 void CPlayerInterface::heroMoved(const TryMoveHero & details)
 {
+	waitWhileDialog();
 	if(LOCPLINT != this)
 		return;
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -2345,8 +2340,24 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 
 void CPlayerInterface::playerStartsTurn(ui8 player)
 {
+	{
+		boost::unique_lock<boost::recursive_mutex> un(*pim);
+		if(!GH.listInt.size())
+		{
+			GH.pushInt(adventureInt);
+			adventureInt->activateKeys();
+		}
+		if(howManyPeople == 1)
+		{
+			GH.curInt = this;
+			adventureInt->startTurn();
+		}
+	}
 	if(player != playerID && this == LOCPLINT)
 	{
+		waitWhileDialog();
+		boost::unique_lock<boost::recursive_mutex> un(*pim);
+
 		adventureInt->minimap.redraw();
 		adventureInt->infoBar.enemyTurn(player, 0.5);
 

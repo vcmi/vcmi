@@ -1030,7 +1030,7 @@ namespace Selector
 		if(b->source == Bonus::SPELL_EFFECT)
 		{
 			CSpell *sp = VLC->spellh->spells[b->sid];
-			return sp->positiveness == 1;
+			return sp->isPositive();
 		}
 		return false; //not a spell effect
 	}

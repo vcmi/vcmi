@@ -1209,7 +1209,7 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 			BOOST_FOREACH(Bonus *b, tmpFeatures)
 			{
 				const CSpell *s = b->sourceSpell();
-				if(s && s->positiveness < 0)
+				if(s && s->isNegative())
 				{
 					changedStack->removeBonus(b);
 				}

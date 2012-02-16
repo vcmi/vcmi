@@ -18,6 +18,7 @@ class DLL_LINKAGE CSpell
 {
 public:
 	enum ETargetType {NO_TARGET, CREATURE, CREATURE_EXPERT_MASSIVE, OBSTACLE};
+	enum ESpellPositiveness {NEGATIVE = -1, NEUTRAL = 0, POSITIVE = 1};
 	ui32 id;
 	std::string name;
 	std::string abbName; //abbreviated name
@@ -40,6 +41,9 @@ public:
 	std::set<ui16> rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) const; //convert range to specific hexes
 	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none)
 	ETargetType getTargetType() const;
+
+	bool isPositive() const;
+	bool isNegative() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -250,6 +250,7 @@ public:
 	{
 		return vstd::contains(state,EBattleStackState::ALIVE);
 	}
+	bool isValidTarget(bool allowDead = false) const; //alive non-turret stacks (can be attacked or be object of magic effect)
 };
 
 class DLL_LINKAGE CMP_stack

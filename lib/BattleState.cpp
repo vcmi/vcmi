@@ -728,16 +728,16 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, int skillLe
 
 	bool onlyAlive = s->id != 38 && s->id != 39; //when casting resurrection or animate dead we should be allow to select dead stack
 
-	if(s->id == 24 || s->id == 25 || s->id == 26) //death ripple, destroy undead and Armageddon
+	if(s->id == Spells::DEATH_RIPPLE || s->id == Spells::DESTROY_UNDEAD || s->id == Spells::ARMAGEDDON)
 	{
 		for(int it=0; it<stacks.size(); ++it)
 		{
-			if((s->id == 24 && !stacks[it]->getCreature()->isUndead()) //death ripple
-				|| (s->id == 25 && stacks[it]->getCreature()->isUndead()) //destroy undead
-				|| (s->id == 26) //Armageddon
+			if((s->id == Spells::DEATH_RIPPLE && !stacks[it]->getCreature()->isUndead()) //death ripple
+				|| (s->id == Spells::DESTROY_UNDEAD && stacks[it]->getCreature()->isUndead()) //destroy undead
+				|| (s->id == Spells::ARMAGEDDON) //Armageddon
 				)
 			{
-				if(stacks[it]->alive())
+				if(stacks[it]->isValidTarget())
 					attackedCres.insert(stacks[it]);
 			}
 		}
@@ -774,11 +774,11 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, int skillLe
 			for(int it=0; it<stacks.size(); ++it)
 			{
 				/*if it's non negative spell and our unit or non positive spell and hostile unit */
-				if((s->positiveness >= 0 && stacks[it]->owner == attackerOwner)
-					||(s->positiveness <= 0 && stacks[it]->owner != attackerOwner )
+				if((!s->isNegative() && stacks[it]->owner == attackerOwner)
+					||(!s->isPositive() && stacks[it]->owner != attackerOwner )
 					)
 				{
-					if(!onlyAlive || stacks[it]->alive())
+					if(stacks[it]->isValidTarget(!onlyAlive))
 						attackedCres.insert(stacks[it]);
 				}
 			}
@@ -1889,7 +1889,7 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int pla
 			{
 				switch (spell->positiveness)
 				{
-				case 1:
+				case CSpell::POSITIVE:
 					if(stack->owner == caster->getOwner())
 					{
 						if(battleIsImmune(caster, spell, mode, stack->position) == ESpellCastProblem::OK)
@@ -1899,14 +1899,14 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleCanCastThisSpell( int pla
 						}
 					}
 					break;
-				case 0:
+				case CSpell::NEUTRAL:
 					if(battleIsImmune(caster, spell, mode, stack->position) == ESpellCastProblem::OK)
 					{
 						targetExists = true;
 						break;
 					}
 					break;
-				case -1:
+				case CSpell::NEGATIVE:
 					if(stack->owner != caster->getOwner())
 					{
 						if(battleIsImmune(caster, spell, mode, stack->position) == ESpellCastProblem::OK)
@@ -1950,7 +1950,7 @@ TSpell BattleInfo::getRandomBeneficialSpell(const CStack * subject) const
 	for (int i = 0; i < GameConstants::SPELLS_QUANTITY; ++i) //should not use future spells added by mods
 	{
 		spell = VLC->spellh->spells[i];
-		if (spell->positiveness == 1) //only positive
+		if (spell->isPositive()) //only positive
 		{
 			if (subject->hasBonusFrom(Bonus::SPELL_EFFECT, i) ||
 				battleCanCastThisSpellHere(subject->owner, spell, ECastingMode::CREATURE_ACTIVE_CASTING, subject->position) != ESpellCastProblem::OK)
@@ -2080,12 +2080,12 @@ bool NegateRemover(const Bonus* b)
 
 bool BattleInfo::battleTestElementalImmunity(const CStack * subject, const CSpell * spell, Bonus::BonusType element, bool damageSpell) const //helper for battleisImmune
 {
-	if (spell->positiveness < 1) //negative or indifferent
+	if (!spell->isPositive()) //negative or indifferent
 	{
 		if ((damageSpell && subject->hasBonusOfType(element, 2)) || subject->hasBonusOfType(element, 1))
 			return true;
 	}
-	else if (spell->positiveness == 1) //positive
+	else if (spell->isPositive()) //positive
 	{
 		if (subject->hasBonusOfType(element, 0)) //must be immune to all spells
 			return true;
@@ -2098,7 +2098,7 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInst
 	const CStack * subject = getStackT(dest, false);
 	if(subject)
 	{
-		if (spell->positiveness == 1 && subject->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
+		if (spell->isPositive() && subject->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
 			return ESpellCastProblem::OK;
 
 		switch (spell->id) //TODO: more general logic for new spells?
@@ -2132,7 +2132,7 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInst
 				bool hasPositiveSpell = false;
 				BOOST_FOREACH(const Bonus * b, *spellBon)
 				{
-					if(VLC->spellh->spells[b->sid]->positiveness > 0)
+					if(VLC->spellh->spells[b->sid]->isPositive())
 					{
 						hasPositiveSpell = true;
 						break;
@@ -2220,7 +2220,7 @@ std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const C
 		}
 
 		//non-negative spells on friendly stacks should always succeed, unless immune
-		if(sp->positiveness >= 0 && (*it)->owner == casterSideOwner)
+		if(!sp->isNegative() && (*it)->owner == casterSideOwner)
 			continue;
 
 		/*
@@ -2809,6 +2809,11 @@ bool CStack::ableToRetaliate() const
 std::string CStack::getName() const
 {
 	return (count > 1) ? type->namePl : type->nameSing; //War machines can't use base
+}
+
+bool CStack::isValidTarget(bool allowDead/* = false*/) const /*alive non-turret stacks (can be attacked or be object of magic effect) */
+{
+	return (alive() || allowDead) && position.isValid();
 }
 
 bool CMP_stack::operator()( const CStack* a, const CStack* b )

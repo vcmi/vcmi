@@ -3579,10 +3579,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 		BOOST_FOREACH (CStack * stack, gs->curB->stacks)
 		{
 			/*if it's non negative spell and our unit or non positive spell and hostile unit */
-			if((spell->positiveness >= 0 && stack->owner == casterColor)
-				||(spell->positiveness <= 0 && stack->owner != casterColor ))
+			if((!spell->isNegative() && stack->owner == casterColor)
+				|| (!spell->isPositive() && stack->owner != casterColor))
 			{
-				if(stack->alive()) //TODO: allow dead targets somewhere in the future
+				if(stack->isValidTarget()) //TODO: allow dead targets somewhere in the future
 					attackedCres.insert(stack);
 			}
 		}
@@ -3967,7 +3967,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	}
 
 	//Magic Mirror effect
-	if (spell->positiveness < 0 && mode != ECastingMode::MAGIC_MIRROR && spell->level && spell->range[0] == "0") //it is actual spell and can be reflected to single target, no recurrence
+	if (spell->isNegative() && mode != ECastingMode::MAGIC_MIRROR && spell->level && spell->range[0] == "0") //it is actual spell and can be reflected to single target, no recurrence
 	{
 		for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 		{
@@ -5376,7 +5376,7 @@ void CGameHandler::runBattle()
 
 				for(int g=0; g<gs->curB->stacks.size(); ++g)
 				{
-					if(gs->curB->stacks[g]->owner != next->owner && gs->curB->stacks[g]->alive())
+					if(gs->curB->stacks[g]->owner != next->owner && gs->curB->stacks[g]->isValidTarget())
 					{
 						attack.destinationTile = gs->curB->stacks[g]->position;
 						break;
@@ -5412,7 +5412,7 @@ void CGameHandler::runBattle()
 				for (int v=0; v<gs->curB->stacks.size(); ++v)
 				{
 					const CStack * cstack = gs->curB->stacks[v];
-					if (cstack->owner == next->owner && cstack->firstHPleft < cstack->MaxHealth() && cstack->alive()) //it's friendly and not fully healthy
+					if (cstack->owner == next->owner && cstack->firstHPleft < cstack->MaxHealth() && cstack->isValidTarget()) //it's friendly and not fully healthy
 					{
 						if (cstack->hasBonusOfType(Bonus::SIEGE_WEAPON))
 							secondPriority.push_back(cstack);
