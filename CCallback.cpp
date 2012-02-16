@@ -333,6 +333,7 @@ CCallback::CCallback( CGameState * GS, int Player, CClient *C )
 	:CBattleCallback(GS, Player, C)
 {
 	waitTillRealize = false;
+	unlockGsWhenWaiting = false;
 }
 
 const CGPathNode * CCallback::getPathInfo( int3 tile )

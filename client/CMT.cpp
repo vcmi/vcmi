@@ -543,10 +543,10 @@ void processCommand(const std::string &message)
 		readed >> fname;
 		startGameFromFile(fname);
 	}
-	else if(client && client->serv && client->serv->connected) //send to server
+	else if(client && client->serv && client->serv->connected && LOCPLINT) //send to server
 	{
-		PlayerMessage pm(LOCPLINT->playerID,message);
-		*client->serv << &pm;
+		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+		LOCPLINT->cb->sendMessage(message);
 	}
 }
 

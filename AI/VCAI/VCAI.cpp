@@ -718,6 +718,7 @@ void VCAI::init(CCallback * CB)
 	LOG_ENTRY;
 	playerID = myCb->getMyColor();
 	myCb->waitTillRealize = true;
+	myCb->unlockGsWhenWaiting = true;
 
 	retreiveVisitableObjs(visitableObjs);
 }

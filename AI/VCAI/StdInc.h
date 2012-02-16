@@ -34,8 +34,8 @@ using boost::str;
 
 
 #define INDENT AILogger::Tab ___dummy_ind
-#define PNLOG(txt) {int i = logger.lvl; while(i--) printf("\t"); tlog4 << txt; printf("\n");}
-#define BNLOG(txt, formattingEls) {int i = logger.lvl; while(i--) printf("\t"); tlog4 << (boost::format(txt) % formattingEls); printf("\n");}
+#define PNLOG(txt) {int i = logger.lvl; while(i--) tlog4 << "\t"; tlog4 << txt << "\n";}
+#define BNLOG(txt, formattingEls) {int i = logger.lvl; while(i--) tlog4 << "\t"; tlog4 << (boost::format(txt) % formattingEls) << "\n";}
 //#define LOG_ENTRY PNLOG("Entered " __FUNCTION__)
 #define LOG_ENTRY
 
