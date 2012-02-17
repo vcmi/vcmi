@@ -421,7 +421,7 @@ void CMusicHandler::queueNext(MusicEntry *queued)
 	}
 	else
 	{
-		current = next;
+		current.reset(next.release());
 		current->play();
 	}
 }
@@ -465,7 +465,7 @@ void CMusicHandler::musicFinishedCallback(void)
 
 	if (current.get() == NULL && next.get() != NULL)
 	{
-		current = next;
+		current.reset(next.release());
 		current->play();
 	}
 }
