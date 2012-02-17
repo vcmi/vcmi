@@ -677,6 +677,10 @@ DLL_LINKAGE void MoveArtifact::applyGs( CGameState *gs )
 		assert(!dst.getArt());
 
 	a->move(src, dst);
+
+	//TODO what'll happen if Titan's thunder is equiped by pickin git up or the start of game?
+	if (a->artType->id == 135 && dst.hero && dst.slot == ArtifactPosition::RIGHT_HAND && !dst.hero->hasSpellbook()) //Titan's Thunder creates new spellbook on equip
+		gs->giveHeroArtifact(dst.hero, 0);
 }
 
 DLL_LINKAGE void AssembledArtifact::applyGs( CGameState *gs )

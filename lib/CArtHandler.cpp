@@ -1027,17 +1027,11 @@ void CArtifactInstance::move(ArtifactLocation &src, ArtifactLocation &dst)
 		tlog1 << "No source for moved artifact found!\n";
 
 	if (dst.hero)
-	{
 		putAt(dst.hero, dst.slot);
-		if (artType->id == 135 && dst.slot == ArtifactPosition::RIGHT_HAND && !dst.hero->hasSpellbook()) //Titan's Thunder creates new spellbook on equip
-			dst.hero->giveArtifact(0);
-	}
 	else if (dst.stack)
 		putAt(dst.stack, dst.slot);
 	else
 		tlog1 << "No destination for moved artifact found!\n";
-
-
 }
 
 CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)

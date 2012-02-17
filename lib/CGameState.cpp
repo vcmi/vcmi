@@ -820,7 +820,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 	struct HLP
 	{
 		//it's assumed that given hero should receive the bonus
-		static void giveCampaignBonusToHero(CGHeroInstance * hero, const StartInfo * si, const CScenarioTravel & st )
+		static void giveCampaignBonusToHero(CGHeroInstance * hero, const StartInfo * si, const CScenarioTravel & st, CGameState *gs )
 		{
 			const CScenarioTravel::STravelBonus & curBonus = st.bonusesToChoose[si->choosenCampaignBonus];
 			if(curBonus.isBonusForHero())
@@ -844,7 +844,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 					}
 					break;
 				case 3: //artifact
-					hero->giveArtifact(curBonus.info2);
+					gs->giveHeroArtifact(hero, curBonus.info2);
 					break;
 				case 4: //spell scroll
 					{
@@ -1325,7 +1325,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				if(maxB < 0)
 					tlog2 << "Warning - cannot give bonus to hero cause there are no heroes!\n";
 				else
-					HLP::giveCampaignBonusToHero(heroes[maxB], scenarioOps, campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions);
+					HLP::giveCampaignBonusToHero(heroes[maxB], scenarioOps, campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions, this);
 			}
 			else //specific hero
 			{
@@ -1333,7 +1333,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 				{
 					if (heroes[b]->subID == chosenBonus.info1)
 					{
-						HLP::giveCampaignBonusToHero(heroes[b], scenarioOps, campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions);
+						HLP::giveCampaignBonusToHero(heroes[b], scenarioOps, campaign->camp->scenarios[scenarioOps->whichMapInCampaign].travelOptions, this);
 						break;
 					}
 				}
@@ -1405,7 +1405,7 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
  				toGive = VLC->arth->artifacts[VLC->arth->getRandomArt (CArtifact::ART_TREASURE)];
 
 				CGHeroInstance *hero = k->second.heroes[0];
- 				hero->giveArtifact(toGive->id);
+ 				giveHeroArtifact(hero, toGive->id);
 			}
 			break;
 		}
@@ -2454,6 +2454,14 @@ void CGameState::attachArmedObjects()
 		if(CArmedInstance *armed = dynamic_cast<CArmedInstance*>(obj))
 			armed->whatShouldBeAttached()->attachTo(armed->whereShouldBeAttached(this));
 	}
+}
+
+void CGameState::giveHeroArtifact(CGHeroInstance *h, int aid)
+{
+	 CArtifact * const artifact = VLC->arth->artifacts[aid]; //pointer to constant object
+	 CArtifactInstance *ai = CArtifactInstance::createNewArtifactInstance(artifact);
+	 map->addNewArtifactInstance(ai);
+	 ai->putAt(h, ai->firstAvailableSlot(h));
 }
 
 int3 CPath::startPos() const

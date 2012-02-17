@@ -1356,16 +1356,16 @@ si32 CGHeroInstance::manaRegain() const
 	return 1 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 8) + valOfBonuses(Bonus::MANA_REGENERATION); //1 + Mysticism level 
 }
 
-/**
- * Places an artifact in hero's backpack. If it's a big artifact equips it
- * or discards it if it cannot be equipped.
- */
-void CGHeroInstance::giveArtifact (ui32 aid) //use only for fixed artifacts
-{
-	CArtifact * const artifact = VLC->arth->artifacts[aid]; //pointer to constant object
-	CArtifactInstance *ai = CArtifactInstance::createNewArtifactInstance(artifact);
-	ai->putAt(this, ai->firstAvailableSlot(this));
-}
+// /**
+//  * Places an artifact in hero's backpack. If it's a big artifact equips it
+//  * or discards it if it cannot be equipped.
+//  */
+// void CGHeroInstance::giveArtifact (ui32 aid) //use only for fixed artifacts
+// {
+// 	CArtifact * const artifact = VLC->arth->artifacts[aid]; //pointer to constant object
+// 	CArtifactInstance *ai = CArtifactInstance::createNewArtifactInstance(artifact);
+// 	ai->putAt(this, ai->firstAvailableSlot(this));
+// }
 
 int CGHeroInstance::getBoatType() const
 {
