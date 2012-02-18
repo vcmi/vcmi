@@ -1270,7 +1270,11 @@ DLL_LINKAGE void BattleStacksRemoved::applyGs( CGameState *gs )
 		{
 			if(gs->curB->stacks[b]->ID == *it) //if found
 			{
+				CStack *toRemove = gs->curB->stacks[b];
 				gs->curB->stacks.erase(gs->curB->stacks.begin() + b); //remove
+
+				toRemove->detachFromAll();
+				delete toRemove;
 				break;
 			}
 		}
@@ -1286,7 +1290,8 @@ DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 	}
 	CStackInstance *csi = new CStackInstance(creID, amount);
 	csi->setArmyObj(gs->curB->belligerents[attacker ? 0 : 1]);
-	CStack * summonedStack = gs->curB->generateNewStack(*csi, gs->curB->stacks.size(), attacker, 255, pos); //TODO: netpacks?
+	int newStackID = gs->curB->stacks.size() ? gs->curB->stacks.back()->ID+1 : 0; //stacks IDs may not be contiguous, so we need to give after-last ID
+	CStack * summonedStack = gs->curB->generateNewStack(*csi, newStackID, attacker, 255, pos); //TODO: netpacks?
 	if (summoned)
 		summonedStack->state.insert(EBattleStackState::SUMMONED);
 	summonedStack->attachTo(csi);
