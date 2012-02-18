@@ -368,8 +368,10 @@ void VCAI::heroMoved(const TryMoveHero & details)
 	LOG_ENTRY;
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
-		const TerrainTile *t1 = cb->getTile(CGHeroInstance::convertPosition(details.start, false)),
-			*t2 = cb->getTile(CGHeroInstance::convertPosition(details.end, false));
+		const TerrainTile *t1 = cb->getTile(CGHeroInstance::convertPosition(details.start, false), false),
+			*t2 = cb->getTile(CGHeroInstance::convertPosition(details.end, false), false);
+		if(!t1 || !t2) //enemy may have teleported to a tile we don't see
+			return;
 		if(t1->visitable && t2->visitable)
 		{
 			const CGObjectInstance *o1 = t1->visitableObjects.front(),

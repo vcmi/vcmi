@@ -255,10 +255,24 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
-			if(adventureInt->terrain.currentPath->nodes.size() && adventureInt->terrain.currentPath->nodes.back().coord == CGHeroInstance::convertPosition(hp, false))
-				removeLastNodeFromPath(ho);
-// 			else
-// 				eraseCurrentPathOf(ho);
+			if(adventureInt->terrain.currentPath)
+			{ 
+				assert(adventureInt->terrain.currentPath->nodes.size() >= 2);
+				std::vector<CGPathNode>::const_iterator nodesIt = adventureInt->terrain.currentPath->nodes.end() - 1;
+
+				if((nodesIt)->coord == CGHeroInstance::convertPosition(details.start, false)
+					&& (nodesIt-1)->coord == CGHeroInstance::convertPosition(details.end, false))
+				{
+					//path was between entrance and exit of teleport -> OK, erase node as usual
+					removeLastNodeFromPath(ho);
+				}
+				else
+				{
+					//teleport was not along current path, it'll now be invalid (hero is somewhere else)
+					eraseCurrentPathOf(ho);
+
+				}
+			}
 			return;	//teleport - no fancy moving animation
 					//TODO: smooth disappear / appear effect
 		}
@@ -270,7 +284,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		}
 		else if(adventureInt->terrain.currentPath  &&  ho->pos == details.end) //&& hero is moving
 		{
-			if (adventureInt->terrain.currentPath->endPos() != details.end)
+			if(details.start != details.end) //so we don't touch path when revisiting with spacebar
 				removeLastNodeFromPath(ho);
 		}
 	}
@@ -2031,12 +2045,13 @@ void CPlayerInterface::eraseCurrentPathOf( const CGHeroInstance * ho, bool check
 
 	paths.erase(ho);
 	adventureInt->terrain.currentPath = NULL;
+	adventureInt->updateMoveHero(ho, false);
 }
 
 void CPlayerInterface::removeLastNodeFromPath(const CGHeroInstance *ho)
 {
 	adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
-	if(!adventureInt->terrain.currentPath->nodes.size())  //if it was the last one, remove entire path
+	if(adventureInt->terrain.currentPath->nodes.size() < 2)  //if it was the last one, remove entire path and path with only one tile is not a real path
 		eraseCurrentPathOf(ho);
 }
 
