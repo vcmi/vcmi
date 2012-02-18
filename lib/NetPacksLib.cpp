@@ -972,6 +972,12 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 		at->casts--;
 		at->state.insert(EBattleStackState::ALIVE); //hmm?
 	}
+	if (cloneKilled())
+	{
+		BattleStacksRemoved bsr; //remove body
+		bsr.stackIDs.insert(at->ID);
+		bsr.applyGs(gs);
+	}
 }
 
 DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
@@ -1006,7 +1012,8 @@ DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
 	for(std::vector<BattleStackAttacked>::const_iterator it = bsa.begin(); it != bsa.end(); ++it)
 	{
 		CStack * stack = gs->curB->getStack(it->stackAttacked, false);
-		stack->getBonusList().remove_if(Bonus::UntilBeingAttacked);
+		if (stack) //cloned stack is already gone
+			stack->getBonusList().remove_if(Bonus::UntilBeingAttacked);
 	}
 }
 

@@ -62,6 +62,7 @@ struct StackAttackedInfo
 	bool byShooting; //if true, stack has been attacked by shooting
 	bool killed; //if true, stack has been killed
 	bool rebirth; //if true, play rebirth animation after all
+	bool cloneKilled;
 };
 
 /// Struct for battle effect animation e.g. morale, prayer, armageddon, bless,...

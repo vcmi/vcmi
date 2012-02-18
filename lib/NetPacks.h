@@ -1270,12 +1270,13 @@ struct StacksHealedOrResurrected : public CPackForClient //3013
 struct BattleStackAttacked : public CPackForClient//3005
 {
 	BattleStackAttacked(){flags = 0; type = 3005;};
-	void applyCl(CClient *cl);
+	void applyFirstCl(CClient * cl);
+	//void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ui32 stackAttacked, attackerID;
 	ui32 newAmount, newHP, killedAmount, damageAmount;
-	enum EFlags {KILLED = 1, EFFECT = 2, SECONDARY = 4, REBIRTH = 8};
+	enum EFlags {KILLED = 1, EFFECT = 2, SECONDARY = 4, REBIRTH = 8, CLONE_KILLED = 16};
 	ui8 flags; //uses EFlags (above)
 	ui32 effect; //set only if flag EFFECT is set
 	std::vector<StacksHealedOrResurrected> healedStacks; //used when life drain
@@ -1283,7 +1284,11 @@ struct BattleStackAttacked : public CPackForClient//3005
 
 	bool killed() const//if target stack was killed
 	{
-		return flags & KILLED;
+		return flags & KILLED || flags & CLONE_KILLED;
+	}
+	bool cloneKilled() const
+	{
+		return flags & CLONE_KILLED;
 	}
 	bool isEffect() const//if stack has been attacked by a spell
 	{

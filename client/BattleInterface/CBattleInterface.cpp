@@ -946,18 +946,21 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					{
 						if ((int)creatureSpellToCast > -1) //use randomized spell (Faerie Dragon), or only avaliable spell (Archangel)
 						{
-							const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
-							if (curInt->cb->battleCanCastThisSpell(spell, BattleHex(myNumber)) == ESpellCastProblem::OK)
+							if (shere != sactive) //can't cast on itself
 							{
-								if ((!spell->isNegative() && ourStack) || (!spell->isPositive() && !ourStack))
+								const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
+								if (curInt->cb->battleCanCastThisSpell(spell, BattleHex(myNumber)) == ESpellCastProblem::OK)
 								{
-									CCS->curh->changeGraphic(3, 0);
-									stackCastsSpell = true;
-									std::string buf = CGI->generaltexth->allTexts[27]; //cast %s on &s
-									boost::replace_first (buf, "%s", spell->name);
-									boost::replace_first (buf, "%s", shere->getName());
-									console->alterTxt = buf;
-									console->whoSetAlter = 0;
+									if ((!spell->isNegative() && ourStack) || (!spell->isPositive() && !ourStack))
+									{
+										CCS->curh->changeGraphic(3, 0);
+										stackCastsSpell = true;
+										std::string buf = CGI->generaltexth->allTexts[27]; //cast %s on &s
+										boost::replace_first (buf, "%s", spell->name);
+										boost::replace_first (buf, "%s", shere->getName());
+										console->alterTxt = buf;
+										console->whoSetAlter = 0;
+									}
 								}
 							}
 						}
@@ -1503,7 +1506,7 @@ void CBattleInterface::bConsoleDownf()
 
 void CBattleInterface::newStack(const CStack * stack)
 {
-	Point coords = CClickableHex::getXYUnitAnim(stack->position, stack->owner == attackingHeroInstance->tempOwner, stack, this);;
+	Point coords = CClickableHex::getXYUnitAnim(stack->position, stack->owner == attackingHeroInstance->tempOwner, stack, this);
 
 	if(stack->position < 0) //turret
 	{
@@ -1538,6 +1541,7 @@ void CBattleInterface::newStack(const CStack * stack)
 	creAnims[stack->ID]->setType(CCreatureAnim::HOLDING);
 	creAnims[stack->ID]->pos = Rect(coords.x, coords.y, creAnims[stack->ID]->fullWidth, creAnims[stack->ID]->fullHeight);
 	creDir[stack->ID] = stack->attackerOwned;
+	
 }
 
 void CBattleInterface::stackRemoved(int stackID)
@@ -1551,7 +1555,8 @@ void CBattleInterface::stackActivated(const CStack * stack) //TODO: check it all
 {
 	//givenCommand = NULL;
 	stackToActivate = stack;
-	if(pendingAnims.size() == 0)
+	waitForAnims();
+	//if(pendingAnims.size() == 0)
 		activateStack();
 }
 
@@ -1563,9 +1568,10 @@ void CBattleInterface::stackMoved(const CStack * stack, std::vector<BattleHex> d
 
 void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attackedInfos)
 {
-	for(size_t h = 0; h < attackedInfos.size(); ++h)
+	for (size_t h = 0; h < attackedInfos.size(); ++h)
 	{
-		addNewAnim(new CDefenceAnimation(attackedInfos[h], this));
+		if (!attackedInfos[h].cloneKilled) //FIXME: play dead animation for cloned creature before it vanishes
+			addNewAnim(new CDefenceAnimation(attackedInfos[h], this));
 		if (attackedInfos[h].rebirth)
 		{
 			displayEffect(50, attackedInfos[h].defender->position); //TODO: play reverse death animation
@@ -1580,6 +1586,8 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 		killed += attackedInfos[h].killed;
 		damage += attackedInfos[h].dmg;
 	}
+	if (attackedInfos.front().cloneKilled) //FIXME: cloned stack is already removed
+		return;
 	if (targets > 1)
 		printConsoleAttacked(attackedInfos.front().defender, damage, killed, attackedInfos.front().attacker, true); //creatures perish
 	else
@@ -1589,6 +1597,8 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 	{
 		if (attackedInfos[h].rebirth)
 			creAnims[attackedInfos[h].defender->ID]->setType(CCreatureAnim::HOLDING);
+		if (attackedInfos[h].cloneKilled)
+			stackRemoved(attackedInfos[h].defender->ID);
 	}
 }
 

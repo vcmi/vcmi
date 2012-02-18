@@ -640,10 +640,8 @@ void CPlayerInterface::battleNewStackAppeared(const CStack * stack)
 	{ //another local interface should do this
 		return;
 	}
-
-	//changing necessary things in battle interface
+	//boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->newStack(stack);
-	//battleInt->addNewAnim(new CDummyAnim(battleInt, 2)); //wait a moment
 }
 
 void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObstacles)
@@ -686,7 +684,7 @@ void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 		return;
 	}
 
-	//boost::unique_lock<boost::recursive_mutex> un(*pim); //fixme: this one caused deadlock
+	boost::unique_lock<boost::recursive_mutex> un(*pim); //fixme: this one caused deadlock
 	for(std::set<ui32>::const_iterator it = bsr.stackIDs.begin(); it != bsr.stackIDs.end(); ++it) //for each removed stack
 	{
 		battleInt->stackRemoved(*it);
@@ -820,9 +818,8 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 			if (defender && !i->isSecondary())
 				battleInt->displayEffect(i->effect, defender->position);
 		}
-		StackAttackedInfo to_put = {defender, i->damageAmount, i->killedAmount, attacker, LOCPLINT->curAction->actionType==7, i->killed(), i->willRebirth()};
+		StackAttackedInfo to_put = {defender, i->damageAmount, i->killedAmount, attacker, LOCPLINT->curAction->actionType==7, i->killed(), i->willRebirth(), i->cloneKilled()};
 		arg.push_back(to_put);
-
 	}
 
 	if(bsa.begin()->isEffect() && bsa.begin()->effect == 12) //for armageddon - I hope this condition is enough

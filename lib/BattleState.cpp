@@ -1299,7 +1299,7 @@ si8 BattleInfo::hasWallPenalty( const CStack* stack, BattleHex destHex ) const
 	if (stackLeft && destRight) //shooting from outside to inside
 	{
 		int row = (stack->position + destHex) / (2 * GameConstants::BFIELD_WIDTH);
-		if (stack->position > destHex && ((destHex & GameConstants::BFIELD_WIDTH - stack->position % GameConstants::BFIELD_WIDTH) < 2)) //shooting up high
+		if (stack->position > destHex && ((destHex % GameConstants::BFIELD_WIDTH - stack->position % GameConstants::BFIELD_WIDTH) < 2)) //shooting up high
 			row -= 2;
 		int wallPos = lineToWallHex(row);
 		if (hexToWallPart(wallPos) != -1) //wall still exists or is indestructible
@@ -2732,7 +2732,7 @@ void CStack::prepareAttacked(BattleStackAttacked &bsa) const
 	if (bsa.damageAmount && vstd::contains(state, EBattleStackState::CLONED)) // block ability should not kill clone (0 damage)
 	{
 		bsa.killedAmount = count;
-		bsa.flags |= BattleStackAttacked::KILLED;
+		bsa.flags |= BattleStackAttacked::CLONE_KILLED;
 		return; // no rebirth I believe
 	}
 
