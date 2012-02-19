@@ -59,7 +59,9 @@ ui8 * CLodHandler::giveFile(std::string fname, LodFileType type, int * length)
 	Entry ourEntry = *en_it;
 
 	if(length) *length = ourEntry.realSize;
-	mutex->lock();
+
+
+	boost::unique_lock<boost::mutex> lock(*mutex);
 
 	ui8 * outp;
 	if (ourEntry.offset<0) //file is in the sprites/ folder; no compression
@@ -74,7 +76,6 @@ ui8 * CLodHandler::giveFile(std::string fname, LodFileType type, int * length)
 		}
 		else
 			result = -1;
-		mutex->unlock();
 		if(result<0)
 		{
 			tlog1<<"Error in file reading: " << myDir << "/" << ourEntry.name << std::endl;
@@ -90,7 +91,6 @@ ui8 * CLodHandler::giveFile(std::string fname, LodFileType type, int * length)
 
 		LOD.seekg(ourEntry.offset, std::ios::beg);
 		LOD.read((char*)outp, ourEntry.realSize);
-		mutex->unlock();
 		return outp;
 	}
 	else //we will decompress file
@@ -101,7 +101,6 @@ ui8 * CLodHandler::giveFile(std::string fname, LodFileType type, int * length)
 		LOD.read((char*)outp, ourEntry.size);
 		ui8 * decomp = NULL;
 		infs2(outp, ourEntry.size, ourEntry.realSize, decomp);
-		mutex->unlock();
 		delete[] outp;
 		return decomp;
 	}

@@ -25,6 +25,7 @@
 #ifdef max
 #undef max
 #endif
+#include "lib/UnlockGuard.h"
 
 /*
  * CCallback.cpp, part of VCMI engine
@@ -230,11 +231,11 @@ void CBattleCallback::sendRequest(const CPack* request)
 
 	if(waitTillRealize)
 	{
+		std::unique_ptr<vstd::unlock_shared_guard> unlocker; //optional, if flag set
 		if(unlockGsWhenWaiting)
-			getGsMutex().unlock_shared();
+			unlocker = vstd::make_unique<vstd::unlock_shared_guard>(vstd::makeUnlockSharedGuard(getGsMutex()));
+
 		cl->waitingRequest.waitWhileTrue();
-		if(unlockGsWhenWaiting)
-			getGsMutex().lock_shared();
 	}
 }
 

@@ -4713,6 +4713,7 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 		giveHeroNewArtifact(h, VLC->arth->artifacts[2], -1); //give grail
 		sendAndApply(&iw);
 
+		iw.soundID = soundBase::invalid;
 		iw.text.clear();
 		iw.text.addTxt(MetaString::ART_DESCR, 2);
 		sendAndApply(&iw);

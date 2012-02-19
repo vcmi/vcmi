@@ -32,18 +32,14 @@ void CThreadHelper::processTasks()
 	int pom;
 	while(true)
 	{
-		rtinm.lock();
-		if((pom=currentTask) >= amount)
 		{
-			rtinm.unlock();
-			break;
+			boost::unique_lock<boost::mutex> lock(rtinm); 
+			if((pom = currentTask) >= amount)
+				break;
+			else
+				++currentTask;
 		}
-		else
-		{
-			++currentTask;
-			rtinm.unlock();
-			(*tasks)[pom]();
-		}
+		(*tasks)[pom]();
 	}
 }
 

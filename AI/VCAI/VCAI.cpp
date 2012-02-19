@@ -1,5 +1,6 @@
 #include "StdInc.h"
 #include "VCAI.h"
+#include "../../lib/UnlockGuard.h"
 
 #define I_AM_ELEMENTAR return CGoal(*this).setisElementar(true)
 
@@ -1093,9 +1094,8 @@ void VCAI::battleEnd(const BattleResult *br)
 
 void VCAI::waitTillFree()
 {
-	cb->getGsMutex().unlock_shared();
+	auto unlock = vstd::makeUnlockSharedGuard(cb->getGsMutex());
 	status.waitTillFree();
-	cb->getGsMutex().lock_shared();
 }
 
 void VCAI::validateVisitableObjs()

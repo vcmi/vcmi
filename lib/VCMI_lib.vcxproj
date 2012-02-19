@@ -305,6 +305,7 @@
     <ClInclude Include="ResourceSet.h" />
     <ClInclude Include="StartInfo.h" />
     <ClInclude Include="StdInc.h" />
+    <ClInclude Include="UnlockGuard.h" />
     <ClInclude Include="VCMI_Lib.h" />
     <ClInclude Include="VCMIDirs.h" />
   </ItemGroup>

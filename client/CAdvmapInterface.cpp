@@ -30,6 +30,7 @@
 #include "CMusicHandler.h"
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
+#include "../lib/UnlockGuard.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4355)
@@ -1463,9 +1464,8 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				return;
 			if(h && key.state == SDL_PRESSED)
 			{
-				LOCPLINT->pim->unlock();
+				auto unlockPim = vstd::makeUnlockGuard(*LOCPLINT->pim);
 				LOCPLINT->cb->moveHero(h,h->pos);
-				LOCPLINT->pim->lock();
 			}
 		}
 		return;

@@ -73,11 +73,9 @@ public:
 	void applyOnGS(CGameState *gs, void *pack) const
 	{
 		T *ptr = static_cast<T*>(pack);
-		gs->mx->lock();
-// 		while(!gs->mx->try_lock())
-// 			boost::this_thread::sleep(boost::posix_time::milliseconds(1)); //give other threads time to finish
+
+		boost::unique_lock<boost::shared_mutex> lock(*gs->mx); 
 		ptr->applyGs(gs);
-		gs->mx->unlock();
 	}
 };
 

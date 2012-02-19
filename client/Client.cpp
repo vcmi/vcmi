@@ -123,7 +123,13 @@ void CClient::waitForMoveAndSend(int color)
 		MakeAction temp_action(ba);
 		serv->sendPackToServer(temp_action, color);
 		return;
-	}HANDLE_EXCEPTION
+	}
+	catch(boost::thread_interrupted&)
+	{
+		tlog5 << "Wait for move thread was interrupted and no action will be send. Was a battle ended by spell?\n";
+		return;
+	}
+	HANDLE_EXCEPTION
 	tlog1 << "We should not be here!" << std::endl;
 }
 
@@ -182,26 +188,24 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 
 	GH.curInt = NULL;
 	LOCPLINT->terminate_cond.setn(true);
-	LOCPLINT->pim->lock();
+	{
+		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+		tlog0 << "\n\nEnding current game!" << std::endl;
+		if(GH.topInt())
+			GH.topInt()->deactivate();
+		GH.listInt.clear();
+		GH.objsToBlit.clear();
+		GH.statusbar = NULL;
+		tlog0 << "Removed GUI." << std::endl;
 
-	tlog0 << "\n\nEnding current game!" << std::endl;
-	if(GH.topInt())
-		GH.topInt()->deactivate();
-	GH.listInt.clear();
-	GH.objsToBlit.clear();
-	GH.statusbar = NULL;
-	tlog0 << "Removed GUI." << std::endl;
 
+		delete CGI->mh;
+		const_cast<CGameInfo*>(CGI)->mh = NULL;
 
-	delete CGI->mh;
-	const_cast<CGameInfo*>(CGI)->mh = NULL;
-
-	const_cast<CGameInfo*>(CGI)->state.dellNull();
-	tlog0 << "Deleted mapHandler and gameState." << std::endl;
-
-	CPlayerInterface * oldInt = LOCPLINT;
-	LOCPLINT = NULL;
-	oldInt->pim->unlock();
+		const_cast<CGameInfo*>(CGI)->state.dellNull();
+		tlog0 << "Deleted mapHandler and gameState." << std::endl;
+		LOCPLINT = NULL;
+	}
 	while (!playerint.empty())
 	{
 		CGameInterface *pint = playerint.begin()->second;
@@ -560,9 +564,12 @@ void CClient::battleStarted(const BattleInfo * info)
 		def = NULL;
 
 	if(att || def || gs->scenarioOps->mode == StartInfo::DUEL)
+	{
+		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 		new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1],
 			Rect((settings["video"]["gameRes"]["width"].Float()  - 800)/2, 
 			     (settings["video"]["gameRes"]["height"].Float() - 600)/2, 800, 600), att, def);
+	}
 
 	if(vstd::contains(battleints,info->sides[0]))
 		battleints[info->sides[0]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);

@@ -39,7 +39,7 @@ const double M_PI = 3.14159265358979323846;
 #define _USE_MATH_DEFINES
 #include <cmath>
 #endif
-#include <boost/format.hpp>
+#include "../../lib/UnlockGuard.h"
 
 const time_t CBattleInterface::HOVER_ANIM_DELTA = 1;
 
@@ -367,6 +367,10 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 
 CBattleInterface::~CBattleInterface()
 {
+	curInt->battleInt = NULL;
+	givenCommand->cond.notify_all(); //that two lines should make any activeStack waiting thread to finish
+
+
 	if (active) //dirty fix for #485
 	{
 		deactivate();
@@ -408,7 +412,6 @@ CBattleInterface::~CBattleInterface()
 		delete g->second;
 
 	delete siegeH;
-	curInt->battleInt = NULL;
 
 	//TODO: play AI tracks if battle was during AI turn
 	//if (!curInt->makingTurn)
@@ -1557,6 +1560,7 @@ void CBattleInterface::stackActivated(const CStack * stack) //TODO: check it all
 	stackToActivate = stack;
 	waitForAnims();
 	//if(pendingAnims.size() == 0)
+	if(stackToActivate) //during waiting stack may have gotten activated through show
 		activateStack();
 }
 
@@ -2053,10 +2057,12 @@ void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
 void CBattleInterface::battleFinished(const BattleResult& br)
 {
 	bresult = &br;
-	LOCPLINT->pim->unlock();
-	animsAreDisplayed.waitUntil(false);
-	LOCPLINT->pim->lock();
+	{
+		auto unlockPim = vstd::makeUnlockGuard(*LOCPLINT->pim);
+		animsAreDisplayed.waitUntil(false);
+	}
 	displayBattleFinished();
+	activeStack = NULL;
 }
 
 void CBattleInterface::displayBattleFinished()
@@ -3045,9 +3051,8 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 void CBattleInterface::waitForAnims()
 {
-	LOCPLINT->pim->unlock();
+	auto unlockPim = vstd::makeUnlockGuard(*LOCPLINT->pim);
 	animsAreDisplayed.waitWhileTrue();
-	LOCPLINT->pim->lock();
 }
 
 void CBattleInterface::bEndTacticPhase()

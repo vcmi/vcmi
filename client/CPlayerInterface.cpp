@@ -37,6 +37,7 @@
 #include "../lib/CGameState.h"
 #include "../lib/GameConstants.h"
 #include "UIFramework/CGuiHandler.h"
+#include "../lib/UnlockGuard.h"
 
 #ifdef min
 #undef min
@@ -740,7 +741,11 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	//wait till BattleInterface sets its command
 	boost::unique_lock<boost::mutex> lock(b->givenCommand->mx);
 	while(!b->givenCommand->data)
+	{
 		b->givenCommand->cond.wait(lock);
+		if(!battleInt) //batle ended while we were waiting for movement (eg. because of spell)
+			throw boost::thread_interrupted(); //will shut the thread peacefully
+	}
 
 	//tidy up
 	BattleAction ret = *(b->givenCommand->data);
@@ -1158,73 +1163,73 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	}
 
 	int i = 1;
-	//evil...
-	eventsM.unlock();
-	pim->unlock();
-	cb->getGsMutex().unlock_shared();
-	bool result = false;
-
+	bool result = false; //TODO why not set to true anywhere?
 	{
-		path.convert(0);
-		boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
-		stillMoveHero.data = CONTINUE_MOVE;
+		//evil...
+		auto unlockEvents = vstd::makeUnlockGuard(eventsM);
+		auto unlockPim = vstd::makeUnlockGuard(*pim);
+		auto unlockGs = vstd::makeUnlockSharedGuard(cb->getGsMutex());
 
-		enum TerrainTile::EterrainType currentTerrain = TerrainTile::border; // not init yet
-		enum TerrainTile::EterrainType newTerrain;
-		int sh = -1;
-
-		const TerrainTile * curTile = cb->getTile(CGHeroInstance::convertPosition(h->pos, false));
-
-		for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || curTile->blocked); i--)
 		{
-			//changing z coordinate means we're moving through subterranean gate -> it's done automatically upon the visit, so we don't have to request that move here
-			if(path.nodes[i-1].coord.z != path.nodes[i].coord.z)
-				continue;
+			path.convert(0);
+			boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
+			stillMoveHero.data = CONTINUE_MOVE;
 
-			//stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
-			if(path.nodes[i-1].turns)
+			enum TerrainTile::EterrainType currentTerrain = TerrainTile::border; // not init yet
+			enum TerrainTile::EterrainType newTerrain;
+			int sh = -1;
+
+			const TerrainTile * curTile = cb->getTile(CGHeroInstance::convertPosition(h->pos, false));
+
+			for(i=path.nodes.size()-1; i>0 && (stillMoveHero.data == CONTINUE_MOVE || curTile->blocked); i--)
 			{
-				stillMoveHero.data = STOP_MOVE;
-				break;
-			}
+				//changing z coordinate means we're moving through subterranean gate -> it's done automatically upon the visit, so we don't have to request that move here
+				if(path.nodes[i-1].coord.z != path.nodes[i].coord.z)
+					continue;
 
-			// Start a new sound for the hero movement or let the existing one carry on.
-#if 0
-			// TODO
-			if (hero is flying && sh == -1)
-				sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
-#endif
-			{
-				newTerrain = cb->getTile(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->tertype;
-
-				if (newTerrain != currentTerrain)
+				//stop sending move requests if the next node can't be reached at the current turn (hero exhausted his move points)
+				if(path.nodes[i-1].turns)
 				{
-					CCS->soundh->stopSound(sh);
-					sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
-					currentTerrain = newTerrain;
+					stillMoveHero.data = STOP_MOVE;
+					break;
 				}
+
+				// Start a new sound for the hero movement or let the existing one carry on.
+#if 0
+				// TODO
+				if (hero is flying && sh == -1)
+					sh = CCS->soundh->playSound(soundBase::horseFlying, -1);
+#endif
+				{
+					newTerrain = cb->getTile(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->tertype;
+
+					if (newTerrain != currentTerrain)
+					{
+						CCS->soundh->stopSound(sh);
+						sh = CCS->soundh->playSound(CCS->soundh->horseSounds[newTerrain], -1);
+						currentTerrain = newTerrain;
+					}
+				}
+
+				stillMoveHero.data = WAITING_MOVE;
+
+				int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
+				bool guarded = CGI->mh->map->isInTheMap(cb->guardingCreaturePosition(endpos - int3(1, 0, 0)));
+
+				cb->moveHero(h,endpos);
+
+				while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
+					stillMoveHero.cond.wait(un);
+
+				if (guarded) // Abort movement if a guard was fought.
+					break;
 			}
 
-			stillMoveHero.data = WAITING_MOVE;
-
-			int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
-			bool guarded = CGI->mh->map->isInTheMap(cb->guardingCreaturePosition(endpos - int3(1, 0, 0)));
-
-			cb->moveHero(h,endpos);
-
-			while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
-				stillMoveHero.cond.wait(un);
-
-			if (guarded) // Abort movement if a guard was fought.
-				break;
+			CCS->soundh->stopSound(sh);
 		}
 
-		CCS->soundh->stopSound(sh);
+		//RAII unlocks
 	}
-
-	cb->getGsMutex().lock_shared();
-	pim->lock();
-	eventsM.lock();
 
 	if (adventureInt)
 	{
@@ -1262,9 +1267,8 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	while(dialogs.size())
 	{
-		pim->unlock();
+		auto unlock = vstd::makeUnlockGuard(*pim);
 		SDL_Delay(20);
-		pim->lock();
 	}
 	CGarrisonWindow *cgw = new CGarrisonWindow(up,down,removableUnits);
 	cgw->quit->callback += onEnd;
@@ -1471,6 +1475,7 @@ void CPlayerInterface::update()
 	if(terminate_cond.get())
 		return;
 
+	boost::unique_lock<boost::recursive_mutex> un(*pim, boost::adopt_lock); //create lock from owned mutex (defer_lock)
 	//make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 
@@ -1485,7 +1490,6 @@ void CPlayerInterface::update()
 	//in some conditions we may receive calls before selection is initialized - we must ignore them
 	if(adventureInt && !adventureInt->selection && GH.topInt() == adventureInt)
 	{
-		pim->unlock();
 		return;
 	}
 
@@ -1505,8 +1509,6 @@ void CPlayerInterface::update()
 	CCS->curh->draw1();
 	CSDL_Ext::update(screen);
 	CCS->curh->draw2();
-
-	pim->unlock();
 }
 
 int CPlayerInterface::getLastIndex( std::string namePrefix)

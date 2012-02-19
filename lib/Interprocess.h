@@ -28,9 +28,10 @@ struct ServerReady
 
 	void setToTrueAndNotify()
 	{
-		mutex.lock();
-		ready = true;
-		mutex.unlock();
+		{
+			boost::unique_lock<boost::interprocess::interprocess_mutex> lock(mutex); 
+			ready = true;
+		}
 		cond.notify_all();
 	}
 };

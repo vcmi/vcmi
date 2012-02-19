@@ -27,16 +27,16 @@ template <typename T> struct CondSh
 
 	void set(T t)
 	{
-		mx.lock();
+		boost::unique_lock<boost::mutex> lock(mx); 
 		data=t;
-		mx.unlock();
 	} 
 
 	void setn(T t) //set data and notify
 	{
-		mx.lock();
-		data=t;
-		mx.unlock();
+		{
+			boost::unique_lock<boost::mutex> lock(mx); 
+			data=t;
+		}
 		cond.notify_all();
 	};
 

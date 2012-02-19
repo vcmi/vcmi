@@ -33,6 +33,7 @@
 #include "../lib/GameConstants.h"
 
 #include <boost/asio.hpp>
+#include "../lib/UnlockGuard.h"
 
 std::string NAME_AFFIX = "server";
 std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
@@ -97,9 +98,8 @@ void CPregameServer::handleConnection(CConnection *cpc)
 			if(startingGame)
 			{
 				//wait for sending thread to announce start
-				mx.unlock();
+				auto unlock = vstd::makeUnlockGuard(mx);
 				while(state == RUNNING) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
-				mx.lock();
 			}
 		}
 	} 

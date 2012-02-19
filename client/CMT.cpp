@@ -43,6 +43,7 @@
 #include "SDL_syswm.h"
 #endif
 #include "../lib/CDefObjInfoHandler.h"
+#include "../lib/UnlockGuard.h"
 
 #if __MINGW32__
 #undef main
@@ -543,6 +544,13 @@ void processCommand(const std::string &message)
 		readed >> fname;
 		startGameFromFile(fname);
 	}
+	else if(cn == "unlock")
+	{
+		std::string mxname;
+		readed >> mxname;
+		if(mxname == "pim" && LOCPLINT)
+			LOCPLINT->pim->unlock();
+	}
 	else if(client && client->serv && client->serv->connected && LOCPLINT) //send to server
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
@@ -709,9 +717,10 @@ static void listenForEvents()
 		} 
 
 		//tlog0 << " pushing ";
-		eventsM.lock();
-		events.push(ev);
-		eventsM.unlock();
+		{
+			boost::unique_lock<boost::mutex> lock(eventsM); 
+			events.push(ev);
+		}
 		//tlog0 << " done\n";
 	}
 }
@@ -735,9 +744,8 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 		requestChangingResolution();
 
 		//allow event handling thread change resolution
-		eventsM.unlock();
+		auto unlock = vstd::makeUnlockGuard(eventsM);
 		while(!setResolution) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
-		eventsM.lock();
 	}
 	else
 		setResolution = true;
