@@ -138,6 +138,7 @@ namespace PrimarySkill
 	BONUS_NAME(HEALER)									\
 	BONUS_NAME(SIEGE_WEAPON)							\
 	BONUS_NAME(HYPNOTIZED)								\
+	BONUS_NAME(NO_RETALIATION) /*temporary bonus for basilisk, unicorn and scorpicore paralyze*/\
 	BONUS_NAME(ADDITIONAL_RETALIATION) /*value - number of additional retaliations*/ \
 	BONUS_NAME(MAGIC_MIRROR) /* value - chance of redirecting in %*/ \
 	BONUS_NAME(ALWAYS_MINIMUM_DAMAGE) /*unit does its minimum damage from range; subtype: -1 - any attack, 0 - melee, 1 - ranged, value: additional damage penalty (it'll subtracted from dmg), additional info - multiplicative anti-bonus for dmg in % [eg 20 means that creature will inflict 80% of normal minimal dmg]*/ \
@@ -146,7 +147,7 @@ namespace PrimarySkill
 	BONUS_NAME(IN_FRENZY) /*value - level*/				\
 	BONUS_NAME(SLAYER) /*value - level*/				\
 	BONUS_NAME(FORGETFULL) /*forgetfulness spell effect, value - level*/ \
-	BONUS_NAME(NOT_ACTIVE)								\
+	BONUS_NAME(NOT_ACTIVE) /* subtype - spell ID (paralyze, blind, stone gaze) for graphical effect*/ 								\
 	BONUS_NAME(NO_LUCK) /*eg. when fighting on cursed ground*/	\
 	BONUS_NAME(NO_MORALE) /*eg. when fighting on cursed ground*/ \
 	BONUS_NAME(DARKNESS) /*val = radius */ \

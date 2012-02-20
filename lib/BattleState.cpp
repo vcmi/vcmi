@@ -2541,15 +2541,19 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 	 	sf.push_back(featureGenerator(Bonus::FORGETFULL, 0, sse.val, sse.turnsRemain));
 	 	sf.back().sid = sse.sid;
 	 	break;
-	case 62: //blind
-		sf.push_back(makeFeatureVal(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, 0, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
+	case Spells::BLIND: //blind
+		sf.push_back(makeFeatureVal(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, sse.sid, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
 		sf.back().sid = sse.sid;
 		sf.push_back(makeFeatureVal(Bonus::GENERAL_ATTACK_REDUCTION, Bonus::UNTIL_ATTACK | Bonus::N_TURNS, 0, power, Bonus::SPELL_EFFECT, sse.turnsRemain));
 		sf.back().sid = sse.sid;
+		sf.push_back(makeFeatureVal(Bonus::NO_RETALIATION, Bonus::UNITL_BEING_ATTACKED, 0, 0, Bonus::SPELL_EFFECT, 0)); // don't retaliate after basilisk / unicorn attack
+		sf.back().sid = sse.sid;
 	 	break;
-	case 70: //Stone Gaze
-	case 74: //Paralyze
-		sf.push_back(makeFeatureVal(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, 0, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
+	case Spells::STONE_GAZE: //Stone Gaze
+	case Spells::PARALYZE: //Paralyze
+		sf.push_back(makeFeatureVal(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, sse.sid, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
+		sf.back().sid = sse.sid;
+		sf.push_back(makeFeatureVal(Bonus::NO_RETALIATION, Bonus::UNITL_BEING_ATTACKED, 0, 0, Bonus::SPELL_EFFECT, 0)); // don't retaliate after basilisk / unicorn attack
 		sf.back().sid = sse.sid;
 		break;
 	case 71: //Poison
@@ -2812,7 +2816,8 @@ bool CStack::ableToRetaliate() const
 	return alive() 
 		&& (counterAttacks > 0 || hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS))
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON)
-		&& !hasBonusOfType(Bonus::HYPNOTIZED);
+		&& !hasBonusOfType(Bonus::HYPNOTIZED)
+		&& !hasBonusOfType(Bonus::NO_RETALIATION);
 }
 
 std::string CStack::getName() const
