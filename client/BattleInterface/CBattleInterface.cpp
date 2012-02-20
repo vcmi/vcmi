@@ -954,7 +954,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							if (shere != sactive) //can't cast on itself
 							{
 								const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
-								if (curInt->cb->battleCanCastThisSpell(spell, BattleHex(myNumber)) == ESpellCastProblem::OK)
+								if (curInt->cb->battleCanCreatureCastThisSpell(spell, BattleHex(myNumber)) == ESpellCastProblem::OK)
 								{
 									if ((!spell->isNegative() && ourStack) || (!spell->isPositive() && !ourStack))
 									{
@@ -1159,7 +1159,8 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			case SpellSelectionType::ANY_LOCATION:
 					CCS->curh->changeGraphic(3, 0);
 					//setting console text
-					consoleMsg += CGI->generaltexth->allTexts[26] += CGI->spellh->spells[spellToCast->additionalInfo]->name;
+					consoleMsg += CGI->generaltexth->allTexts[26];
+					boost::replace_first (consoleMsg, "%s", CGI->spellh->spells[spellToCast->additionalInfo]->name);
 					console->alterText (consoleMsg);
 					console->whoSetAlter = 0;
 					break;
@@ -1169,12 +1170,13 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					if( potentialTargetStack )
 					{
 						if (curInt->cb->battleCanCastThisSpell (CGI->spellh->spells[spellToCast->additionalInfo], BattleHex(myNumber)))
-							CCS->curh->changeGraphic(3, 0);
-						else
 							CCS->curh->changeGraphic(1, 0);
+						else
+							CCS->curh->changeGraphic(3, 0);
 						//setting console text
-						consoleMsg += CGI->generaltexth->allTexts[27] += CGI->spellh->spells[spellToCast->additionalInfo]->name;
-						consoleMsg += stackUnder->getName();
+						consoleMsg += CGI->generaltexth->allTexts[27];
+						boost::replace_first (consoleMsg, "%s", CGI->spellh->spells[spellToCast->additionalInfo]->name);
+						boost::replace_first (consoleMsg, "%s", stackUnder->getName());
 						console->alterText (consoleMsg);
 						console->whoSetAlter = 0;
 						break;
@@ -1759,15 +1761,9 @@ void CBattleInterface::hexLclicked(int whichOne)
 			switch(spellSelMode)
 			{
 			case FRIENDLY_CREATURE:
-				if(!curInt->cb->battleGetStackByPos(whichOne, onlyAlive) || curInt->playerID != dest->owner )
-					allowCasting = false;
-				break;
 			case HOSTILE_CREATURE:
-				if(!curInt->cb->battleGetStackByPos(whichOne, onlyAlive) || curInt->playerID == dest->owner )
-					allowCasting = false;
-				break;
 			case ANY_CREATURE:
-				if(!curInt->cb->battleGetStackByPos(whichOne, onlyAlive))
+				if (curInt->cb->battleCanCastThisSpell (CGI->spellh->spells[spellToCast->additionalInfo], BattleHex(whichOne)) != ESpellCastProblem::OK)
 					allowCasting = false;
 				break;
 			case OBSTACLE:
@@ -1801,21 +1797,22 @@ void CBattleInterface::hexLclicked(int whichOne)
 				//try to cast stack spell first
 				if (stackCanCastSpell && spellSelMode > STACK_SPELL_CANCELLED) //player did not decide to cancel this spell
 				{
-					if ((int)creatureSpellToCast > -1) //use randomized spell (Faerie Dragon), or only avaliable spell (Archangel)
+					if (dest != actSt) //can't cast on itself
 					{
-						const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
-						if (curInt->cb->battleCanCastThisSpell(spell, BattleHex(whichOne)) == ESpellCastProblem::OK)
+						if ((int)creatureSpellToCast > -1) //use randomized spell (Faerie Dragon), or only avaliable spell (Archangel)
 						{
-							if ((!spell->isNegative() && ourStack) || (!spell->isPositive() && !ourStack))
+							const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
+
+							if (curInt->cb->battleCanCastThisSpell(spell, BattleHex(whichOne)) == ESpellCastProblem::OK)
 							{
-								giveCommand(BattleAction::MONSTER_SPELL, whichOne, actSt->ID, creatureSpellToCast);
-								spellCast = true;
+								if ((!spell->isNegative() && ourStack) || (!spell->isPositive() && !ourStack))
+								{
+									giveCommand(BattleAction::MONSTER_SPELL, whichOne, actSt->ID, creatureSpellToCast);
+									spellCast = true;
+								}
 							}
 						}
-					}
-					else if (ourStack) //must have only random positive spell (genie)
-					{
-						if (dest != actSt) //can't cast on itself
+						else if (ourStack) //must have only random positive spell (genie)
 						{
 							int spellID = curInt->cb->battleGetRandomStackSpell(dest, CBattleInfoCallback::RANDOM_GENIE);
 							if (spellID > -1) //can cast any spell on target stack

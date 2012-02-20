@@ -3012,7 +3012,7 @@ void CGCreature::newTurn() const
 		cb->setObjProperty(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 	}
 	if (GameConstants::STACK_EXP)
-		cb->setObjProperty(id, ObjProperty::MONSTER_EXP, 10000); //for testing purpose
+		cb->setObjProperty(id, ObjProperty::MONSTER_EXP, 500); //for testing purpose
 }
 void CGCreature::setPropertyDer(ui8 what, ui32 val)
 {

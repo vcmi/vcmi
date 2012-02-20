@@ -108,7 +108,8 @@ public:
 	bool battleCanShoot(const CStack * stack, BattleHex dest); //returns true if unit with id ID can shoot to dest
 	bool battleCanCastSpell(); //returns true, if caller can cast a spell
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell); //determines if given spell can be casted (and returns problem description)
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell, BattleHex destination); //determines if creature can cast a spell here
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell, BattleHex destination); //if hero can cast spell here
+	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination); //determines if creature can cast a spell here
 	ui32 battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode);
 	bool battleCanFlee(); //returns true if caller can flee from the battle
 	int battleGetSurrenderCost(); //returns cost of surrendering battle, -1 if surrendering is not possible

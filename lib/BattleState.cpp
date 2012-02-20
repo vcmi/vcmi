@@ -2120,9 +2120,11 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInst
 			case Spells::TELEPORT:
 			case Spells::CLONE:
 				if (subject->hasBonusOfType(Bonus::SIEGE_WEAPON))
-					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL; //war machines are mmune to some spells than involve movement
-				if (spell->id == Spells::CLONE)
+					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL; //war machines are immune to some spells than involve movement
+				if (spell->id == Spells::CLONE && caster) //TODO: how about stacks casting Clone?
 				{
+					if (vstd::contains(subject->state, EBattleStackState::CLONED))
+						return ESpellCastProblem::STACK_IMMUNE_TO_SPELL; //can't clone already cloned creature
 					int maxLevel = (std::max(caster->getSpellSchoolLevel(spell), (ui8)1) + 4);
 					int creLevel = subject->getCreature()->level;
 					if (maxLevel < creLevel) //tier 1-5 for basic, 1-6 for advanced, 1-7 for expert

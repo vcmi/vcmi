@@ -116,6 +116,18 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
 	}
 
+	return gs->curB->battleCanCastThisSpellHere(player, spell, ECastingMode::HERO_CASTING, destination);
+}
+
+ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination)
+{
+	if(!gs->curB)
+	{
+
+		tlog1 << "battleCanCastThisSpell called when there is no battle!\n";
+		return ESpellCastProblem::NO_HERO_TO_CAST_SPELL;
+	}
+
 	return gs->curB->battleCanCastThisSpellHere(player, spell, ECastingMode::CREATURE_ACTIVE_CASTING, destination);
 }
 
