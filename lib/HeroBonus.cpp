@@ -387,7 +387,7 @@ ui32 IBonusBearer::getMaxDamage() const
 	return valOfBonuses(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 0) || Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2), cachingStr.str());
 }
 
-ui32 IBonusBearer::manaLimit() const
+si32 IBonusBearer::manaLimit() const
 {
 	return si32(getPrimSkillLevel(3) * (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 24)) / 10.0);
 }

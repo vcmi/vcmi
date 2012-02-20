@@ -275,7 +275,7 @@ public:
 	std::string name; //may be custom
 	std::string biography; //if custom
 	si32 portrait; //may be custom
-	ui32 mana; // remaining spell points
+	si32 mana; // remaining spell points
 	std::vector<std::pair<ui8,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	ui32 movement; //remaining movement points
 	ui8 sex;

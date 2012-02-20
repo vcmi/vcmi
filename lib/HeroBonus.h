@@ -500,7 +500,7 @@ public:
 	bool isLiving() const; //non-undead, non-non living or alive
 	virtual si32 magicResistance() const;
 
-	ui32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
+	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	int getPrimSkillLevel(int id) const; //0-attack, 1-defence, 2-spell power, 3-knowledge
 	const TBonusListPtr getSpellBonuses() const;
 };
