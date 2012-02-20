@@ -60,7 +60,7 @@ extern bool end2;
 
 CondSh<bool> battleMadeAction;
 CondSh<BattleResult *> battleResult(NULL);
-std::ptrdiff_t randomizer (ptrdiff_t i) {return rand();}
+std::ptrdiff_t randomizer (ptrdiff_t i) {return rand() % i;}
 std::ptrdiff_t (*p_myrandom)(std::ptrdiff_t) = randomizer;
 
 template <typename T> class CApplyOnGH;
