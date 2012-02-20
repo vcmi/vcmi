@@ -912,6 +912,8 @@ void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 }
 void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
+	std::string consoleMsg;
+
 	if(activeStack && !spellDestSelectMode)
 	{
         int lastMouseHoveredStack = mouseHoveredStack;
@@ -977,7 +979,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 									CCS->curh->changeGraphic(3, 0);
 									stackCastsSpell = true;
 									std::string buf = CGI->generaltexth->allTexts[301]; //Cast spell on %s
-									boost::replace_first (buf, "%s", shere->getName());
+									boost::replace_first (buf, "%s", shere->getName().c_str());
 									console->alterTxt = buf;
 									console->whoSetAlter = 0;
 								}
@@ -1002,9 +1004,9 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 									CCS->curh->changeGraphic(1,5);
 								}
 								//setting console text
-								char buf[500];
-								sprintf(buf, CGI->generaltexth->allTexts[297].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str());
-								console->alterTxt = buf;
+								consoleMsg += CGI->generaltexth->allTexts[297];
+								boost::replace_first (consoleMsg, "%s", shere->getName());
+								console->alterText (consoleMsg);
 								console->whoSetAlter = 0;
 								const time_t curTime = time(NULL);
 								if (shere->ID != lastMouseHoveredStack &&
@@ -1037,16 +1039,17 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							{
 								CCS->curh->changeGraphic(1,3);
 							}
-							//setting console text
-							char buf[500];
 							//calculating estimated dmg
 							std::pair<ui32, ui32> estimatedDmg = curInt->cb->battleEstimateDamage(sactive, shere);
-							std::ostringstream estDmg;
-							estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
+							std::string estDmg;
+							estDmg += boost::lexical_cast<std::string>(estimatedDmg.first) += " - ";
+							estDmg += boost::lexical_cast<std::string>(estimatedDmg.second);
 							//printing
-							sprintf(buf, CGI->generaltexth->allTexts[296].c_str(), shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str(),
-								sactive->shots, estDmg.str().c_str());
-							console->alterTxt = buf;
+							consoleMsg += CGI->generaltexth->allTexts[296];
+							boost::replace_first (consoleMsg, "%s", shere->getName());
+							boost::replace_first (consoleMsg, "%d", boost::lexical_cast<std::string>(sactive->shots));
+							boost::replace_first (consoleMsg, "%s", estDmg);
+							console->alterText (consoleMsg);
 							console->whoSetAlter = 0;
 						}
 						else if (isTileAttackable(myNumber)) //available enemy (melee attackable)
@@ -1054,21 +1057,21 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							//handle direction of cursor and attackable tile
 							setBattleCursor(myNumber);
 
-							//setting console info
-							char buf[500];
 							//calculating estimated dmg
 							std::pair<ui32, ui32> estimatedDmg = curInt->cb->battleEstimateDamage(sactive, shere);
-							std::ostringstream estDmg;
-							estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
+							std::string estDmg;
+							estDmg += boost::lexical_cast<std::string>(estimatedDmg.first) += " - ";
+							estDmg += boost::lexical_cast<std::string>(estimatedDmg.second);
 							//printing
-							sprintf(buf, CGI->generaltexth->allTexts[36].c_str(),
-								shere->count == 1 ? shere->getCreature()->nameSing.c_str() : shere->getCreature()->namePl.c_str(), estDmg.str().c_str());
-							console->alterTxt = buf;
+							consoleMsg += CGI->generaltexth->allTexts[36];
+							boost::replace_first (consoleMsg, "%s", shere->getName());
+							boost::replace_first (consoleMsg, "%s", estDmg);
+							console->alterText (consoleMsg);
 							console->whoSetAlter = 0;
 						}
 						else //unavailable enemy
 						{
-							CCS->curh->changeGraphic(1,0);
+							CCS->curh->changeGraphic (1,0);
 							console->alterTxt = "";
 							console->whoSetAlter = 0;
 						}
@@ -1091,29 +1094,27 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			else //available tile
 			{
 				//setting console text and cursor
-				if(activeStack) //there can be a moment when stack is dead ut next is not yet activated
+				if (activeStack) //there can be a moment when stack is dead ut next is not yet activated
 				{
-					char buf[500];
 					if(activeStack->hasBonusOfType(Bonus::FLYING))
 					{
 						CCS->curh->changeGraphic(1,2);
-						sprintf(buf, CGI->generaltexth->allTexts[295].c_str(),
-							activeStack->count == 1 ? activeStack->getCreature()->nameSing.c_str() : activeStack->getCreature()->namePl.c_str());
+						consoleMsg += CGI->generaltexth->allTexts[295]; //Fly %s here
 					}
 					else
 					{
 						CCS->curh->changeGraphic(1,1);
-						sprintf(buf, CGI->generaltexth->allTexts[294].c_str(),
-							activeStack->count == 1 ? activeStack->getCreature()->nameSing.c_str() : activeStack->getCreature()->namePl.c_str());
+						consoleMsg += CGI->generaltexth->allTexts[294]; //Move %s here
+						
 					}
-
-					console->alterTxt = buf;
+					boost::replace_first (consoleMsg, "%s", activeStack->getName());
+					console->alterText(consoleMsg);
 					console->whoSetAlter = 0;
 				}
 			}
 		}
 	}
-	else if(spellDestSelectMode)
+	else if (spellDestSelectMode)
 	{
 		int myNumber = -1; //number of hovered tile
 		for(int g=0; g<GameConstants::BFIELD_SIZE; ++g)
@@ -1134,65 +1135,68 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		else
 		{
 			//get dead stack if we cast resurrection or animate dead
-			const CStack * stackUnder = curInt->cb->battleGetStackByPos(myNumber, spellToCast->additionalInfo != 38 && spellToCast->additionalInfo != 39);
+			const CStack * stackUnder = curInt->cb->battleGetStackByPos(myNumber, vstd::contains(CGI->spellh->risingSpells, spellToCast->additionalInfo));
 
 			if(stackUnder && spellToCast->additionalInfo == 39 && !stackUnder->hasBonusOfType(Bonus::UNDEAD)) //animate dead can be cast only on undead creatures
 				stackUnder = NULL;
 
-			bool whichCase; //for cases 1, 2 and 3
-			switch(spellSelMode)
+			bool potentialTargetStack; //for cases 1, 2 and 3
+			switch (spellSelMode)
 			{
-			case 1:
-				whichCase = stackUnder != NULL && curInt->playerID == stackUnder->owner;
-				break;
-			case 2:
-				whichCase = stackUnder != NULL && curInt->playerID != stackUnder->owner;
-				break;
-			case 3:
-				whichCase = stackUnder != NULL;
-				break;
+					case SpellSelectionType::FRIENDLY_CREATURE:
+						potentialTargetStack = stackUnder != NULL && curInt->playerID == stackUnder->owner;
+						break;
+					case SpellSelectionType::HOSTILE_CREATURE:
+						potentialTargetStack = stackUnder != NULL && curInt->playerID != stackUnder->owner;
+						break;
+					case SpellSelectionType::ANY_CREATURE:
+						potentialTargetStack = stackUnder != NULL;
+						break;
 			}
 
 			switch(spellSelMode)
 			{
-			case 0:
-				CCS->curh->changeGraphic(3, 0);
-				//setting console text
-				char buf[500];
-				sprintf(buf, CGI->generaltexth->allTexts[26].c_str(), CGI->spellh->spells[spellToCast->additionalInfo]->name.c_str());
-				console->alterTxt = buf;
-				console->whoSetAlter = 0;
-				break;
-			case 1: case 2: case 3:
-				if( whichCase )
-				{
+			case SpellSelectionType::ANY_LOCATION:
 					CCS->curh->changeGraphic(3, 0);
 					//setting console text
-					char buf[500];
-					std::string creName = stackUnder->count > 1 ? stackUnder->getCreature()->namePl : stackUnder->getCreature()->nameSing;
-						sprintf(buf, CGI->generaltexth->allTexts[27].c_str(), CGI->spellh->spells[spellToCast->additionalInfo]->name.c_str(), creName.c_str());
-					console->alterTxt = buf;
+					consoleMsg += CGI->generaltexth->allTexts[26] += CGI->spellh->spells[spellToCast->additionalInfo]->name;
+					console->alterText (consoleMsg);
 					console->whoSetAlter = 0;
 					break;
-				}
-				else
-				{
-					CCS->curh->changeGraphic(1, 0);
-					//setting console text
-					console->alterTxt = CGI->generaltexth->allTexts[23];
-					console->whoSetAlter = 0;
-				}
-				break;
-			case 4: //TODO: implement this case
-				if( blockedByObstacle(myNumber) )
-				{
-					CCS->curh->changeGraphic(3, 0);
-				}
-				else
-				{
-					CCS->curh->changeGraphic(1, 0);
-				}
-				break;
+				case SpellSelectionType::FRIENDLY_CREATURE:
+				case SpellSelectionType::HOSTILE_CREATURE:
+				case SpellSelectionType::ANY_CREATURE:
+					if( potentialTargetStack )
+					{
+						if (curInt->cb->battleCanCastThisSpell (CGI->spellh->spells[spellToCast->additionalInfo], BattleHex(myNumber)))
+							CCS->curh->changeGraphic(3, 0);
+						else
+							CCS->curh->changeGraphic(1, 0);
+						//setting console text
+						consoleMsg += CGI->generaltexth->allTexts[27] += CGI->spellh->spells[spellToCast->additionalInfo]->name;
+						consoleMsg += stackUnder->getName();
+						console->alterText (consoleMsg);
+						console->whoSetAlter = 0;
+						break;
+					}
+					else
+					{
+						CCS->curh->changeGraphic(1, 0);
+						//setting console text
+						console->alterTxt = CGI->generaltexth->allTexts[23];
+						console->whoSetAlter = 0;
+					}
+					break;
+				case SpellSelectionType::OBSTACLE: //TODO: implement this case
+					if ( blockedByObstacle(myNumber) )
+					{
+						CCS->curh->changeGraphic(3, 0);
+					}
+					else
+					{
+						CCS->curh->changeGraphic(1, 0);
+					}
+					break;
 			}
 		}
 	}

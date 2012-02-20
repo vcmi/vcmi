@@ -72,6 +72,13 @@ bool CBattleConsole::addText(const std::string & text)
 	return true;
 }
 
+void CBattleConsole::alterText(const std::string &text)
+{
+	char buf[500];
+	sprintf(buf, text.c_str());
+	alterTxt = buf;
+}
+
 void CBattleConsole::eraseText(ui32 pos)
 {
 	if(pos < texts.size())

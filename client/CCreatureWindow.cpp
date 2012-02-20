@@ -130,7 +130,9 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	const CStack *battleStack = dynamic_cast<const CStack*>(stackNode); //only during battle
 	heroOwner = HeroOwner;
 
-	if (Stack->count)
+	if (battleStack)
+		count = boost::lexical_cast<std::string>(battleStack->count);
+	else if (Stack->count)
 		count = boost::lexical_cast<std::string>(Stack->count);
 
 	//Basic graphics - need to calculate size

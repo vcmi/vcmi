@@ -38,6 +38,7 @@ public:
 	~CBattleConsole(); //d-tor
 	void show(SDL_Surface * to = 0);
 	bool addText(const std::string &text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
+	void alterText(const std::string &text); //place string at alterTxt
 	void eraseText(ui32 pos); //erases added text at position pos
 	void changeTextAt(const std::string &text, ui32 pos); //if we have more than pos texts, pos-th is changed to given one
 	void scrollUp(ui32 by = 1); //scrolls console up by 'by' positions
