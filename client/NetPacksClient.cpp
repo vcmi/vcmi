@@ -156,10 +156,15 @@ void SetMovePoints::applyCl( CClient *cl )
 
 void FoWChange::applyCl( CClient *cl )
 {
-	if(mode)
-		INTERFACE_CALL_IF_PRESENT(player, tileRevealed, tiles);
-	else
-		INTERFACE_CALL_IF_PRESENT(player, tileHidden, tiles);
+
+	BOOST_FOREACH(auto &i, cl->playerint)
+		if(cl->getPlayerRelations(i.first, player) > 0) //ally or the same player 
+		{
+			if(mode)
+				i.second->tileRevealed(tiles);
+			else
+				i.second->tileHidden(tiles);
+		}
 
 	cl->invalidatePaths();
 }
@@ -368,10 +373,9 @@ void TryMoveHero::applyCl( CClient *cl )
 
 	int player = h->tempOwner;
 
-	if(vstd::contains(cl->playerint,player))
-	{
-		cl->playerint[player]->tileRevealed(fowRevealed);
-	}
+	BOOST_FOREACH(auto &i, cl->playerint)
+		if(cl->getPlayerRelations(i.first, player) > 0) //ally or the same player 
+			i.second->tileRevealed(fowRevealed);
 
 	//notify interfaces about move
 	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)

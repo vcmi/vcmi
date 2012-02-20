@@ -262,7 +262,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Global.h" />
-    <ClInclude Include="..\StartInfo.h" />
     <ClInclude Include="AI_Base.h" />
     <ClInclude Include="BattleAction.h" />
     <ClInclude Include="BattleHex.h" />

@@ -132,8 +132,8 @@ void CDefObjInfoHandler::load()
 		if(i)
 		{
 			gobjs[124][i] = new CGDefInfo(*gobjs[124][0]);
-			gobjs[124][i]->name = holeDefs[i];
 		}
+		gobjs[124][i]->name = holeDefs[i];
 	}
 }
  
