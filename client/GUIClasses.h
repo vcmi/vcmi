@@ -939,9 +939,9 @@ public:
 
 class CExchangeWindow : public CWindowWithGarrison, public CWindowWithArtifacts
 {
+	CPicture *background;
 	CGStatusBar * ourBar; //internal statusbar
 
-	SDL_Surface *bg; //background
 	CAdventureMapButton * quit, * questlogButton[2];
 
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas[2], primSkillAreas;

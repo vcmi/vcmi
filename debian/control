@@ -17,16 +17,3 @@ Description: A rewrite the Heroes of Might and Magic 3 engine
  .
  In its current state it already supports maps of any sizes, higher
  resolutions and extended engine limits.
-
-
-Package: vcmi-doc
-Architecture: all
-Section: doc
-Description: documentation for vcmi
- The purpose of VCMI project is to rewrite entire HOMM 3: WoG engine from
- scratch, giving it new and extended possibilities. It will help to support
- mods and new towns already made by fans but abandoned because of game code
- limitations.
- .
- In its current state it already supports maps of any sizes, higher
- resolutions and extended engine limits.

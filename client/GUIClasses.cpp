@@ -375,7 +375,10 @@ CGarrisonInt::~CGarrisonInt()
 
 void CGarrisonInt::addSplitBtn(CAdventureMapButton * button)
 {
-	addChild(button);
+	if (button->parent)
+		GH.moveChild(button, button->parent, this);
+	else
+		addChild(button);
 	button->recActions = defActions;
 	splitButtons.push_back(button);
 }
@@ -5196,8 +5199,6 @@ void CExchangeWindow::close()
 
 void CExchangeWindow::showAll(SDL_Surface * to)
 {
-	blitAt(bg, pos, to);
-
 	CIntObject::showAll(to);
 
 	//printing border around window
@@ -5212,14 +5213,9 @@ void CExchangeWindow::questlog(int whichHero)
 
 void CExchangeWindow::prepareBackground()
 {
-	if(bg)
-		SDL_FreeSurface(bg);
-
-	SDL_Surface * bgtemp; //loaded as 8bpp surface
-	bgtemp = BitmapHandler::loadBitmap("TRADE2.BMP");
-	graphics->blueToPlayersAdv(bgtemp, heroInst[0]->tempOwner);
-	bg = SDL_ConvertSurface(bgtemp, screen->format, screen->flags); //to 24 bpp
-	SDL_FreeSurface(bgtemp);
+	background = new CPicture("TRADE2");
+	background->colorizeAndConvert(LOCPLINT->playerID);
+	SDL_Surface *bg = *background;
 
 	//printing heroes' names and levels
 	std::ostringstream os, os2;
@@ -5281,7 +5277,7 @@ void CExchangeWindow::prepareBackground()
 	delete skilldef;
 }
 
-CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
+CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	char bufor[400];
@@ -5289,17 +5285,13 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	heroInst[1] = LOCPLINT->cb->getHero(hero2);
 
 	prepareBackground();
-	pos.x = screen->w/2 - bg->w/2;
-	pos.y = screen->h/2 - bg->h/2;
-	pos.w = screen->w;
-	pos.h = screen->h;
+	pos = background->center();
 
-
-	artifs[0] = new CArtifactsOfHero(Point(pos.x + -334, pos.y + 150));
+	artifs[0] = new CArtifactsOfHero(Point(-334, 150));
 	artifs[0]->commonInfo = new CArtifactsOfHero::SCommonPart;
 	artifs[0]->commonInfo->participants.insert(artifs[0]);
 	artifs[0]->setHero(heroInst[0]);
-	artifs[1] = new CArtifactsOfHero(Point(pos.x + 96, pos.y + 150));
+	artifs[1] = new CArtifactsOfHero(Point(96, 150));
 	artifs[1]->commonInfo = artifs[0]->commonInfo;
 	artifs[1]->commonInfo->participants.insert(artifs[1]);
 	artifs[1]->setHero(heroInst[1]);
@@ -5312,7 +5304,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	{
 		//primary skill's clickable areas
 		primSkillAreas.push_back(new LRClickableAreaWTextComp());
-		primSkillAreas[g]->pos = genRect(32, 140, pos.x+329, pos.y + 19 + 36 * g);
+		primSkillAreas[g]->pos = genRect(32, 140, 329, 19 + 36 * g);
 		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
 		primSkillAreas[g]->type = g;
 		primSkillAreas[g]->bonusValue = -1;
@@ -5330,7 +5322,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 			int skill = heroInst[b]->secSkills[g].first,
 				level = heroInst[b]->secSkills[g].second; // <1, 3>
 			secSkillAreas[b].push_back(new LRClickableAreaWTextComp());
-			secSkillAreas[b][g]->pos = genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + 88);
+			secSkillAreas[b][g]->pos = genRect(32, 32, 32 + g*36 + b*454 , 88);
 			secSkillAreas[b][g]->baseType = 1;
 
 			secSkillAreas[b][g]->type = skill;
@@ -5341,15 +5333,15 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 			secSkillAreas[b][g]->hoverText = std::string(bufor);
 		}
 
-		portrait[b] = new CHeroArea(pos.x + 257 + 228*b, pos.y + 13, heroInst[b]);
+		portrait[b] = new CHeroArea(257 + 228*b, 13, heroInst[b]);
 
 		speciality[b] = new LRClickableAreaWText();
-		speciality[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + 45);
+		speciality[b]->pos = genRect(32, 32, 69 + 490*b, 45);
 		speciality[b]->hoverText = CGI->generaltexth->heroscrn[27];
 		speciality[b]->text = CGI->generaltexth->hTxts[heroInst[b]->subID].longBonus;
 
 		experience[b] = new LRClickableAreaWText();
-		experience[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + 45);
+		experience[b]->pos = genRect(32, 32, 105 + 490*b, 45);
 		experience[b]->hoverText = CGI->generaltexth->heroscrn[9];
 		experience[b]->text = CGI->generaltexth->allTexts[2].c_str();
 		boost::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->level));
@@ -5357,42 +5349,35 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 		boost::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->exp));
 
 		spellPoints[b] = new LRClickableAreaWText();
-		spellPoints[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + 45);
+		spellPoints[b]->pos = genRect(32, 32, 141 + 490*b, 45);
 		spellPoints[b]->hoverText = CGI->generaltexth->heroscrn[22];
 		sprintf(bufor, CGI->generaltexth->allTexts[205].c_str(), heroInst[b]->name.c_str(), heroInst[b]->mana, heroInst[b]->manaLimit());
 		spellPoints[b]->text = std::string(bufor);
 
 		//setting morale
-		morale[b] = new MoraleLuckBox(true, genRect(32, 32, pos.x + 177 + 490*b, pos.y + 45));
+		morale[b] = new MoraleLuckBox(true, genRect(32, 32, 176 + 490*b, 39), true);
 		morale[b]->set(heroInst[b]);
 		//setting luck
-		luck[b] = new MoraleLuckBox(false, genRect(32, 32, pos.x + 213 + 490*b, pos.y + 45));
+		luck[b] = new MoraleLuckBox(false, genRect(32, 32, 212 + 490*b, 39), true);
 		luck[b]->set(heroInst[b]);
 	}
 
 	//buttons
-	quit = new CAdventureMapButton(CGI->generaltexth->tcommands[8], "", boost::bind(&CExchangeWindow::close, this), pos.x+732, pos.y+567, "IOKAY.DEF", SDLK_RETURN);
-	questlogButton[0] = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CExchangeWindow::questlog,this, 0), pos.x+10, pos.y+44, "hsbtns4.def");
-	questlogButton[1] = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CExchangeWindow::questlog,this, 1), pos.x+740, pos.y+44, "hsbtns4.def");
+	quit = new CAdventureMapButton(CGI->generaltexth->tcommands[8], "", boost::bind(&CExchangeWindow::close, this), 732, 567, "IOKAY.DEF", SDLK_RETURN);
+	questlogButton[0] = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], "", boost::bind(&CExchangeWindow::questlog,this, 0), 10,  44, "hsbtns4.def");
+	questlogButton[1] = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], "", boost::bind(&CExchangeWindow::questlog,this, 1), 740, 44, "hsbtns4.def");
 
-	//statusbar
-	//FIXME - this image is a bit bigger than required - part of background should be used instead
-	ourBar = new CGStatusBar(pos.x + 3, pos.y + 577, "KSTATBAR");
+	Rect barRect(5, 578, 725, 18);
+	ourBar = new CGStatusBar(new CPicture(*background, barRect, 5, 578, false));
 
 	//garrison interface
-	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, Point(418,0), bg, Point(69,131), heroInst[0],heroInst[1], true, true);
-
-	{
-		BLOCK_CAPTURING;
-		garr->addSplitBtn(new CAdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+10,pos.y+132,"TSBTNS.DEF"));
-		garr->addSplitBtn(new CAdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+740,pos.y+132,"TSBTNS.DEF"));
-	}
+	garr = new CGarrisonInt(69, 131, 4, Point(418,0), *background, Point(69,131), heroInst[0],heroInst[1], true, true);
+	garr->addSplitBtn(new CAdventureMapButton(CGI->generaltexth->tcommands[3], "", boost::bind(&CGarrisonInt::splitClick, garr),  10, 132, "TSBTNS.DEF"));
+	garr->addSplitBtn(new CAdventureMapButton(CGI->generaltexth->tcommands[3], "", boost::bind(&CGarrisonInt::splitClick, garr), 740, 132, "TSBTNS.DEF"));
 }
 
 CExchangeWindow::~CExchangeWindow() //d-tor
 {
-	SDL_FreeSurface(bg);
-
 	delete artifs[0]->commonInfo;
 	artifs[0]->commonInfo = NULL;
 	artifs[1]->commonInfo = NULL;

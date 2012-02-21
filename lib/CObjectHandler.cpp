@@ -34,6 +34,11 @@ using namespace boost::assign;
  *
  */
 
+// It looks that we can't rely on shadowCoverage correctness (Mantis #866). This may result
+// in notable performance decrease (SDL blit with custom alpha blit) not notable on my system (Ivan)
+#define USE_COVERAGE_MAP 0
+
+
 std::map<int,std::map<int, std::vector<int> > > CGTeleport::objs;
 std::vector<std::pair<int, int> > CGTeleport::gates;
 IGameCallback * IObjectInterface::cb = NULL;
@@ -256,10 +261,14 @@ bool CGObjectInstance::blockingAt(int x, int y) const
 
 bool CGObjectInstance::coveringAt(int x, int y) const
 {
+#if USE_COVERAGE_MAP
+	return x < 8 && y < 6;// ignore unreliable msk\msg
+#else
 	if((defInfo->coverageMap[y] >> (7-(x) )) & 1 
 		||  (defInfo->shadowCoverage[y] >> (7-(x) )) & 1)
 		return true;
 	return false;
+#endif
 }
 
 std::set<int3> CGObjectInstance::getBlockedPos() const
@@ -445,9 +454,13 @@ ui8 CGObjectInstance::getPassableness() const
 
 bool CGObjectInstance::hasShadowAt( int x, int y ) const
 {
+#if USE_COVERAGE_MAP
+	return coveringAt(x,y);// ignore unreliable shadowCoverage map
+#else
 	if( (defInfo->shadowCoverage[y] >> (7-(x) )) & 1 )
 		return true;
 	return false;
+#endif
 }
 
 int3 CGObjectInstance::visitablePos() const

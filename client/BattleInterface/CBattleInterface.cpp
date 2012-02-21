@@ -1756,7 +1756,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 		{
 			//checking destination
 			bool allowCasting = true;
-			bool onlyAlive = vstd::contains(CGI->spellh->risingSpells, spellToCast->additionalInfo); //when casting resurrection or animate dead we should be allow to select dead stack
+			//bool onlyAlive = vstd::contains(CGI->spellh->risingSpells, spellToCast->additionalInfo); //when casting resurrection or animate dead we should be allow to select dead stack
 			//TODO: more general handling of dead targets
 			switch(spellSelMode)
 			{
@@ -3089,6 +3089,8 @@ CBattleInterface::SpellSelectionType CBattleInterface::selectionTypeByPositivene
 	case CSpell::POSITIVE:
 		return FRIENDLY_CREATURE;
 	}
+	assert(0);
+	return NO_LOCATION; //should never happen
 }
 
 std::string CBattleInterface::SiegeHelper::townTypeInfixes[GameConstants::F_NUMBER] = {"CS", "RM", "TW", "IN", "NC", "DN", "ST", "FR", "EL"};

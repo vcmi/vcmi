@@ -940,7 +940,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos):
 
 	split = new CAdventureMapButton(CGI->generaltexth->tcommands[3], "", boost::bind(&CGarrisonInt::splitClick,garr), 744, 382, "TSBTNS.DEF");
 	split->callback += boost::bind(&HeroSlots::splitClicked, heroes);
-	removeChild(split);
 	garr->addSplitBtn(split);
 
 	Rect barRect(9, 182, 732, 18);
@@ -1411,7 +1410,7 @@ void CBuildWindow::close()
 
 void CBuildWindow::clickRight(tribool down, bool previousState)
 {
-	if((!down || indeterminate(down)) && mode)
+	if((!down || indeterminate(down)))
 		close();
 }
 
@@ -1448,7 +1447,6 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 :town(Town), building(Building), state(State), mode(Mode)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	used |= RCLICK;
 	background = new CPicture("TPUBUILD");
 	pos = background->center();
 	background->colorize(LOCPLINT->playerID);
@@ -1501,8 +1499,12 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		posY +=75;
 	}
 
-	if(!mode)
-	{
+	if(mode)
+	{	//popup
+		used |= RCLICK;
+	}
+	else
+	{	//normal window
 		buy = new CAdventureMapButton(boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->Name()),
 		          "", boost::bind(&CBuildWindow::buyFunc,this), 45, 446,"IBUY30", SDLK_RETURN);
 		buy->borderColor = Colors::MetallicGold;
@@ -1512,7 +1514,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		             "", boost::bind(&CBuildWindow::close,this), 290, 445, "ICANCEL", SDLK_ESCAPE);
 		cancel->borderColor = Colors::MetallicGold;
 		cancel->borderEnabled = true;
-		buy->block(state!=7);
+		buy->block(state!=7 || LOCPLINT->playerID != town->tempOwner);
 	}
 }
 

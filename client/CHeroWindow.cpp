@@ -198,11 +198,10 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		if(!garr)
 		{
 			garr = new CGarrisonInt(15, 485, 8, Point(), background->bg, Point(15,485), curHero);
-			{
-				BLOCK_CAPTURING;
-				split = new CAdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::bind(&CGarrisonInt::splitClick,garr), pos.x + 539, pos.y + 519, "hsbtns9.def", false, NULL, false); //deleted by garrison destructor
-				boost::algorithm::replace_first(split->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
-			}
+			split = new CAdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32],
+					boost::bind(&CGarrisonInt::splitClick,garr), 539, 519, "hsbtns9.def", false, NULL, false); //deleted by garrison destructor
+			boost::algorithm::replace_first(split->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
+
 			garr->addSplitBtn(split);
 		}
 		if(!artSets.size())
