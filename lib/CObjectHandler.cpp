@@ -262,12 +262,12 @@ bool CGObjectInstance::blockingAt(int x, int y) const
 bool CGObjectInstance::coveringAt(int x, int y) const
 {
 #if USE_COVERAGE_MAP
-	return x < 8 && y < 6;// ignore unreliable msk\msg
-#else
 	if((defInfo->coverageMap[y] >> (7-(x) )) & 1 
 		||  (defInfo->shadowCoverage[y] >> (7-(x) )) & 1)
 		return true;
 	return false;
+#else
+	return x < 8 && y < 6;// ignore unreliable msk\msg
 #endif
 }
 
@@ -455,11 +455,11 @@ ui8 CGObjectInstance::getPassableness() const
 bool CGObjectInstance::hasShadowAt( int x, int y ) const
 {
 #if USE_COVERAGE_MAP
-	return coveringAt(x,y);// ignore unreliable shadowCoverage map
-#else
 	if( (defInfo->shadowCoverage[y] >> (7-(x) )) & 1 )
 		return true;
 	return false;
+#else
+	return coveringAt(x,y);// ignore unreliable shadowCoverage map
 #endif
 }
 
