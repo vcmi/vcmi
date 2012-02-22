@@ -243,7 +243,7 @@ void CStupidAI::battleStacksRemoved(const BattleStacksRemoved & bsr)
 
 void CStupidAI::print(const std::string &text) const
 {
-	tlog0 << "CStupidAI [" << this <<"]: " << text << std::endl;
+	tlog6 << "CStupidAI [" << this <<"]: " << text << std::endl;
 }
 
 BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex hex)

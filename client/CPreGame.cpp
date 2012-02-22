@@ -1529,7 +1529,8 @@ InfoCard::InfoCard( bool Network )
 	{
 		bg = new CPicture(BitmapHandler::loadBitmap("GSELPOP1.bmp"), 0, 0, true);
 		CGuiHandler::moveChild(bg, this, parent);
-		parent->children.insert(parent->children.begin()+1, bg);
+		auto it = vstd::find(parent->children, this); //our position among parent children
+		parent->children.insert(it, bg); //put BG before us
 		parent->children.pop_back();
 		pos.w = bg->pos.w;
 		pos.h = bg->pos.h;
@@ -1728,8 +1729,6 @@ void InfoCard::showAll(SDL_Surface * to)
 			printAtLoc(name, 26, 39, FONT_BIG, Colors::Jasmine, to);
 		else
 			printAtLoc("Unnamed", 26, 39, FONT_BIG, Colors::Jasmine, to);
-
-
 	}
 }
 
@@ -2536,6 +2535,7 @@ CScenarioInfo::CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *start
 	card = new InfoCard();
 	opt = new OptionsTab();
 	opt->recreate();
+	card->changeSelection(current);
 
 	card->difficulty->select(startInfo->difficulty, 0);
 	back = new CAdventureMapButton("", CGI->generaltexth->zelp[105].second, bind(&CGuiHandler::popIntTotally, &GH, this), 584, 535, "SCNRBACK.DEF", SDLK_ESCAPE);

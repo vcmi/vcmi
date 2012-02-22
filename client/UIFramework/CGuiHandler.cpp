@@ -107,6 +107,12 @@ void CGuiHandler::totalRedraw()
 	for(int i=0;i<objsToBlit.size();i++)
 		objsToBlit[i]->showAll(screen2);
 
+// 	static int a = 0;
+// 	if(a)
+// 	{
+// 		SDL_SaveBMP(screen, "s1.bmp");
+// 		SDL_SaveBMP(screen2, "s2.bmp");
+// 	}
 	blitAt(screen2,0,0,screen);
 }
 

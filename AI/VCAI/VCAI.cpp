@@ -4,6 +4,9 @@
 
 #define I_AM_ELEMENTAR return CGoal(*this).setisElementar(true)
 
+
+CLogger &aiLogger = tlog6;
+
 const int ACTUAL_RESOURCE_COUNT = 7;
 
 const double SAFE_ATTACK_CONSTANT = 2.5;
