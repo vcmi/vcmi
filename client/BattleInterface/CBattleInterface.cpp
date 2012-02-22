@@ -1558,6 +1558,8 @@ void CBattleInterface::stackRemoved(int stackID)
 	delete creAnims[stackID];
 	creAnims.erase(stackID);
 	creDir.erase(stackID);
+
+	queue->update();
 }
 
 void CBattleInterface::stackActivated(const CStack * stack) //TODO: check it all before game state is changed due to abilities

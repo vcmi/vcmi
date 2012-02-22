@@ -59,7 +59,11 @@ std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, B
 	if(!hex.isValid())
 		hex = stack->position;
 
-	std::vector<int> ret;
+	std::vector<int> ret(GameConstants::BFIELD_SIZE, -1); //fill initial ret with -1's
+
+	if(!hex.isValid()) //stack has bad position? probably castle turret, return initial values (they can't move)
+		return ret;
+
 	bool ac[GameConstants::BFIELD_SIZE] = {0};
 	std::set<BattleHex> occupyable;
 	gs->curB->getAccessibilityMap(ac, stack->doubleWide(), stack->attackerOwned, false, occupyable, stack->hasBonusOfType(Bonus::FLYING), stack);
@@ -69,10 +73,8 @@ std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, B
 
 	for(int i=0; i<GameConstants::BFIELD_SIZE; ++i)
 	{
-		if(pr[i] == -1)
-			ret.push_back(-1);
-		else
-			ret.push_back(dist[i]);
+		if(pr[i] != -1)
+			ret[i] = dist[i];
 	}
 
 	if(predecessors)
