@@ -2919,7 +2919,8 @@ void CBattleInterface::endAction(const BattleAction* action)
 
 	queue->update();
 
-	if(tacticsMode) //we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
+	if(tacticsMode  //we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
+		|| action->actionType == BattleAction::HERO_SPELL)
 		redrawBackgroundWithHexes(activeStack);
 }
 

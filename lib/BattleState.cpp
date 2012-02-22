@@ -344,7 +344,7 @@ std::vector<BattleHex> BattleInfo::getAccessibility( const CStack * stack, bool 
 		};
 		BOOST_FOREACH(const CStack * otherSt, stacks)
 		{
-			if(otherSt->owner == stack->owner)
+			if(otherSt->owner == stack->owner || !otherSt->isValidTarget(false))
 				continue;
 
 			std::vector<BattleHex> occupiedBySecond;
