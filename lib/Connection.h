@@ -20,7 +20,7 @@
 
 #include "ConstTransitivePtr.h"
 
-const ui32 version = 730;
+const ui32 version = 731;
 class CConnection;
 class CGObjectInstance;
 class CGameState;
