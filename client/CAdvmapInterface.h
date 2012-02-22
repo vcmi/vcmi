@@ -183,6 +183,7 @@ public:
 	int3 position; //top left corner of visible map part
 	int player;
 
+	bool duringAITurn;
 
 	enum{LEFT=1, RIGHT=2, UP=4, DOWN=8};
 	ui8 scrollingDir; //uses enum: LEFT RIGHT, UP, DOWN
@@ -255,6 +256,9 @@ public:
 	void startHotSeatWait(int Player);
 	void startTurn();
 	void endingTurn();
+	void aiTurnStarted();
+
+	void adjustActiveness(bool aiTurnStart); //should be called everytime at AI/human turn transition; blocks GUI during AI turn
 	void tileLClicked(const int3 &mp);
 	void tileHovered(const int3 &tile);
 	void tileRClicked(const int3 &mp);

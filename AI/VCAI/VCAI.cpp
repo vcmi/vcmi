@@ -469,8 +469,7 @@ void VCAI::gameOver(ui8 player, bool victory)
 			*(int*)NULL = 666;
 		}
 
-		if(makingTurn)
-			makingTurn->interrupt();
+		finish();
 	}
 }
 
@@ -1257,10 +1256,10 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 			//tlog0 << "Moving " << h->name << " from " << h->getPosition() << " to " << endpos << std::endl;
 			cb->moveHero(h,CGHeroInstance::convertPosition(endpos, true));
 			waitTillFree(); //movement may cause battle or blocking dialog
+			boost::this_thread::interruption_point();
 			if(h->tempOwner != playerID) //we lost hero
 				break;
 
-			boost::this_thread::interruption_point();
 		}
 		ret = !i;
 	}
@@ -1660,6 +1659,12 @@ void VCAI::recruitHero(const CGTownInstance * t)
 {
 	BNLOG("Trying to recruit a hero in %s at %s", t->name % t->visitablePos())
 	cb->recruitHero(t, cb->getAvailableHeroes(t).front());
+}
+
+void VCAI::finish()
+{
+	if(makingTurn)
+		makingTurn->interrupt();
 }
 
 AIStatus::AIStatus()

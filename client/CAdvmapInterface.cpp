@@ -962,7 +962,9 @@ void CInfoBar::tick()
 		toNextTick = -1;
 		mode = NOTHING;
 	}
-	redraw();
+
+	if(adventureInt == GH.topInt())
+		redraw();
 }
 
 void CInfoBar::show(SDL_Surface * to)
@@ -1042,6 +1044,7 @@ endTurn(CGI->generaltexth->zelp[302].first,CGI->generaltexth->zelp[302].second,
 heroList(ADVOPT.hlistSize),
 townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD)//(5,&genRect(192,48,747,196),747,196,747,372),
 {
+	duringAITurn = false;
 	state = NA;
 	spellBeingCasted = NULL;
 	pos.x = pos.y = 0;
@@ -1248,55 +1251,65 @@ void CAdvMapInt::activate()
 		tlog1 << "Error: advmapint already active...\n";
 		return;
 	}
+	active |= GENERAL;
+
 	screenBuf = screen;
 	GH.statusbar = &statusbar;
-	activateMouseMove();
+	if(!duringAITurn)
+	{
+		//assert(selection);
+		activateMouseMove();
 
-	kingOverview.activate();
-	underground.activate();
-	questlog.activate();
-	sleepWake.activate();
-	moveHero.activate();
-	spellbook.activate();
-	sysOptions.activate();
-	advOptions.activate();
-	nextHero.activate();
-	endTurn.activate();
+		kingOverview.activate();
+		underground.activate();
+		questlog.activate();
+		sleepWake.activate();
+		moveHero.activate();
+		spellbook.activate();
+		sysOptions.activate();
+		advOptions.activate();
+		nextHero.activate();
+		endTurn.activate();
 
-	minimap.activate();
-	heroList.activate();
-	townList.activate();
-	terrain.activate();
-	infoBar.activate();
+		minimap.activate();
+		heroList.activate();
+		townList.activate();
+		terrain.activate();
+		infoBar.activate();
 
-	if(!LOCPLINT->cingconsole->active)
-		LOCPLINT->cingconsole->activate();
-	GH.fakeMouseMove(); //to restore the cursor
+		if(!LOCPLINT->cingconsole->active)
+			LOCPLINT->cingconsole->activate();
+		GH.fakeMouseMove(); //to restore the cursor
+	}
 }
 void CAdvMapInt::deactivate()
 {
-	deactivateMouseMove();
-	scrollingDir = 0;
+	active &= ~GENERAL;
+	if(!duringAITurn)
+	{
+		deactivateMouseMove();
+		scrollingDir = 0;
 
-	CCS->curh->changeGraphic(0,0);
-	kingOverview.deactivate();
-	underground.deactivate();
-	questlog.deactivate();
-	sleepWake.deactivate();
-	moveHero.deactivate();
-	spellbook.deactivate();
-	advOptions.deactivate();
-	sysOptions.deactivate();
-	nextHero.deactivate();
-	endTurn.deactivate();
-	minimap.deactivate();
-	heroList.deactivate();
-	townList.deactivate();
-	terrain.deactivate();
-	infoBar.deactivate();
+		CCS->curh->changeGraphic(0,0);
+		kingOverview.deactivate();
+		underground.deactivate();
+		questlog.deactivate();
+		sleepWake.deactivate();
+		moveHero.deactivate();
+		spellbook.deactivate();
+		advOptions.deactivate();
+		sysOptions.deactivate();
+		nextHero.deactivate();
+		endTurn.deactivate();
+		minimap.deactivate();
+		heroList.deactivate();
+		townList.deactivate();
+		terrain.deactivate();
+		infoBar.deactivate();
 
-	if(LOCPLINT->cingconsole->active) //TODO
-		LOCPLINT->cingconsole->deactivate();
+		if(LOCPLINT->cingconsole->active) //TODO
+			LOCPLINT->cingconsole->deactivate();
+	}
 }
 void CAdvMapInt::showAll(SDL_Surface * to)
 {
@@ -1715,6 +1728,10 @@ void CAdvMapInt::setPlayer(int Player)
 void CAdvMapInt::startTurn()
 {
 	state = INGAME;
+	if(LOCPLINT->cb->getCurrentPlayer() == LOCPLINT->playerID)
+	{
+		adjustActiveness(false);
+	}
 }
 
 void CAdvMapInt::endingTurn()
@@ -2086,6 +2103,24 @@ const IShipyard * CAdvMapInt::ourInaccessibleShipyard(const CGObjectInstance *ob
 	return ret;
 }
 
+void CAdvMapInt::aiTurnStarted()
+{
+	adjustActiveness(true);
+	CCS->musich->playMusicFromSet(CCS->musich->aiMusics);
+	adventureInt->minimap.redraw();
+	adventureInt->infoBar.enemyTurn(LOCPLINT->cb->getCurrentPlayer(), 0.5);
+}
+
+void CAdvMapInt::adjustActiveness(bool aiTurnStart)
+{
+	bool wasActive = isActive();
+
+	if(wasActive) 
+		deactivate();
+	adventureInt->duringAITurn = aiTurnStart;
+	if(wasActive) 
+		activate();
+}
 CAdventureOptions::CAdventureOptions()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;

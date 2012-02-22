@@ -199,6 +199,7 @@ public:
 	void garrisonChanged(const CGObjectInstance * obj, bool updateInfobox = true);
 	void heroKilled(const CGHeroInstance* hero);
 	void waitWhileDialog();
+	void waitForAllDialogs();
 	bool shiftPressed() const; //determines if shift key is pressed (left or right or both)
 	bool ctrlPressed() const; //determines if ctrl key is pressed (left or right or both)
 	bool altPressed() const; //determines if alt key is pressed (left or right or both)

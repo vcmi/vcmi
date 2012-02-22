@@ -78,6 +78,7 @@ public:
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd) = 0; //all stacks operations between these objects become allowed, interface has to call onEnd when done
 	virtual void serialize(COSer<CSaveFile> &h, const int version){}; //saving
 	virtual void serialize(CISer<CLoadFile> &h, const int version){}; //loading
+	virtual void finish(){}; //if for some reason we want to end
 };
 
 class DLL_LINKAGE CDynLibHandler

@@ -577,11 +577,9 @@ void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet
 		return;
 	}
 
-	while(showingDialog->get())
-		SDL_Delay(20);
+	waitForAllDialogs();
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-
 	GH.pushInt(battleInt);
 }
 
@@ -1258,12 +1256,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 		return;
 	}
 
-	{
-		boost::unique_lock<boost::mutex> un(showingDialog->mx);
-		while(showingDialog->data)
-			showingDialog->cond.wait(un);
-	}
-
+	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	while(dialogs.size())
 	{
@@ -1475,7 +1468,7 @@ void CPlayerInterface::update()
 	if(terminate_cond.get())
 		return;
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim, boost::adopt_lock); //create lock from owned mutex (defer_lock)
+	boost::unique_lock<boost::recursive_mutex> un(*pim, boost::adopt_lock); //create lock from already owned mutex
 	//make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 
@@ -2371,13 +2364,21 @@ void CPlayerInterface::playerStartsTurn(ui8 player)
 	{
 		waitWhileDialog();
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
-
-		adventureInt->minimap.redraw();
-		adventureInt->infoBar.enemyTurn(player, 0.5);
-
-		//TODO AI turn music
-		//TODO block GUI
+		adventureInt->aiTurnStarted();
 	}
+}
+
+void CPlayerInterface::waitForAllDialogs()
+{
+	{
+		boost::unique_lock<boost::recursive_mutex> un(*pim);
+		while(dialogs.size())
+		{
+			auto unlock = vstd::makeUnlockGuard(*pim);
+			SDL_Delay(5);
+		}
+	}
+	waitWhileDialog();
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()

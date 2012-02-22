@@ -185,6 +185,7 @@ public:
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd) OVERRIDE; //all stacks operations between these objects become allowed, interface has to call onEnd when done
 	virtual void serialize(COSer<CSaveFile> &h, const int version) OVERRIDE; //saving
 	virtual void serialize(CISer<CLoadFile> &h, const int version) OVERRIDE; //loading
+	virtual void finish() OVERRIDE;
 
 	virtual void availableCreaturesChanged(const CGDwelling *town) OVERRIDE;
 	virtual void heroMoved(const TryMoveHero & details) OVERRIDE;

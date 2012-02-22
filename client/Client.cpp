@@ -180,6 +180,10 @@ void CClient::save(const std::string & fname)
 
 void CClient::endGame( bool closeConnection /*= true*/ )
 {
+	//suggest interfaces to finish their stuff (AI should interrupt any bg working threads)
+	BOOST_FOREACH(auto i, playerint)
+		i.second->finish();
+
 	// Game is ending
 	// Tell the network thread to reach a stable state
 	if(closeConnection)
