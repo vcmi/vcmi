@@ -14,7 +14,7 @@
 
 	"obstacles": [
 		{ "id": 5, "defname": "OBBDT01.DEF", "blockmap": "LNXXX", "terrains": "1111110000000000000000100", "shift_x": -8, "shift_y": 0 },
-		{ "id": 56, "defname": "OBBHS02.DEF", "blockmap": "XXLNX", "terrains": "1100000000000000000000100", "shift_x": -8, "shift_y": 0 },
+		{ "id": 56, "defname": "OBBHS02.DEF", "blockmap": "XXLNX", "terrains": "1100000000000000000000000", "shift_x": -8, "shift_y": 0 },
 		{ "id": 57, "defname": "OBBHS03.DEF", "blockmap": "LXXX", "terrains": "1111100000000000000000100", "shift_x": -8, "shift_y": 0 },
 		{ "id": 91, "defname": "OBBHS04.DEF", "blockmap": "XXLNXX", "terrains": "1100000000000000000000000", "shift_x": -40, "shift_y": -20 },
 		{ "id": 58, "defname": "OBBHS11A.DEF", "blockmap": "XXXLNXXX", "terrains": "1100000000000000000000000", "shift_x": -8, "shift_y": 0 },

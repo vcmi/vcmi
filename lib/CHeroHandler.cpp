@@ -107,7 +107,7 @@ std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 			break;
 		case 'L':
 			cur = curBeg + GameConstants::BFIELD_WIDTH;
-			if((cur/GameConstants::BFIELD_WIDTH)%2 == 1)
+			if((cur/GameConstants::BFIELD_WIDTH)%2 != 1)
 			{
 				cur--;
 			}
