@@ -1,4 +1,10 @@
-0.87 -> 0.88 (? 2012)
+0.87 -> 0.88 (Mar? 2012)
+* added an initial version of new adventure AI: VCAI
+* system settings window allows to change default resolution
+* introduced unified JSON-based settings system
+* fixed all known localization issues
+* Creature Window can handle descriptions of spellcasting abilities
+* Support for the clone spell
 
 0.86 -> 0.87 (Dec 01 2011)
 GENERAL:
