@@ -1052,7 +1052,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 							console->alterText (consoleMsg);
 							console->whoSetAlter = 0;
 						}
-						else if (isTileAttackable(myNumber)) //available enemy (melee attackable)
+						else if (shere->alive() && isTileAttackable(myNumber)) //available enemy (melee attackable)
 						{
 							//handle direction of cursor and attackable tile
 							setBattleCursor(myNumber);
