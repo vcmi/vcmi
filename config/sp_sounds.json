@@ -75,9 +75,17 @@
 			"name": "protection from earth"
 		},
 		{
+			"id": 34,
+			"soundfile": "ANIMDEAD.wav",
+		},
+		{
 			"id": 35,
 			"soundfile": "DISPELL.wav",
 			"name": "dispell"
+		},
+		{
+			"id": 39,
+			"soundfile": "ANIMDEAD.wav",
 		},
 		{
 			"id": 41,
@@ -160,9 +168,18 @@
 			"name": "frenzy"
 		},
 		{
+			"id": 60,
+			"soundfile": "HYPNOTIZ.wav",
+			"name": "forgetfulness"
+		},
+		{
 			"id": 61,
 			"soundfile": "FORGET.wav",
 			"name": "forgetfulness"
+		},
+		{
+			"id": 62,
+			"soundfile": "BLIND.wav",
 		},
 		{
 			"id": 70,

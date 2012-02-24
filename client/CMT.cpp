@@ -79,7 +79,7 @@ static bool setResolution = false; //set by event handling thread after resoluti
 
 static bool ermInteractiveMode = false; //structurize when time is right
 void processCommand(const std::string &message);
-static void setScreenRes(int w, int h, int bpp, bool fullscreen);
+static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo=true);
 void dispose();
 void playIntro();
 static void listenForEvents();
@@ -574,7 +574,7 @@ void dispose()
 	delete logfile;
 }
 
-static void setScreenRes(int w, int h, int bpp, bool fullscreen)
+static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo)
 {
 	// VCMI will only work with 2, 3 or 4 bytes per pixel
 	vstd::amax(bpp, 16);
@@ -595,10 +595,13 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 		tlog2 << "Warning: SDL says that "  << bpp << "bpp is wrong and suggests " << suggestedBpp << std::endl;
 	}
 
-	if(screen) //screen has been already initialized
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-
-	SDL_InitSubSystem(SDL_INIT_VIDEO);
+	//For some reason changing fullscreen via config window checkbox result in SDL_Quit event
+	if (resetVideo)
+	{
+		if(screen) //screen has been already initialized
+			SDL_QuitSubSystem(SDL_INIT_VIDEO);
+		SDL_InitSubSystem(SDL_INIT_VIDEO);
+	}
 	
 	if((screen = SDL_SetVideoMode(w, h, suggestedBpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == NULL)
 	{
@@ -643,8 +646,20 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 	setResolution = true;
 }
 
+static void fullScreenChanged(const JsonNode &newState)
+{
+	boost::unique_lock<boost::recursive_mutex> lock(*LOCPLINT->pim);
+	const JsonNode& video = settings["video"];
+	const JsonNode& res = video["screenRes"];
+	setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), newState.Bool(), false);
+	GH.totalRedraw();
+}
+
 static void listenForEvents()
 {
+	SettingsListener resChanged = settings.listen["video"]["fullscreen"];
+	resChanged(fullScreenChanged);
+
 	while(1) //main SDL events loop
 	{
 		SDL_Event *ev = new SDL_Event();
@@ -673,12 +688,8 @@ static void listenForEvents()
 		}
 		else if(LOCPLINT && ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4)
 		{
-			boost::unique_lock<boost::recursive_mutex> lock(*LOCPLINT->pim);
-			bool full = !(screen->flags&SDL_FULLSCREEN);
-			const JsonNode& video = settings["video"];
-			const JsonNode& res = video["screenRes"];
-			setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), full);
-			GH.totalRedraw();
+			Settings full = settings.write["video"]["fullscreen"];
+			full->Bool() = !full->Bool();
 			delete ev;
 			continue;
 		}

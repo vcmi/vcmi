@@ -426,10 +426,12 @@ void CHighlightableButton::clickLeft(tribool down, bool previousState)
 		setState(PRESSED);
 	}
 
-	if(previousState  &&  down == false && getState() == PRESSED)
+	if(previousState)//mouse up
 	{
-		//if(!onlyOn || !isHighlighted())
-		select(!selected);
+		if(down == false && getState() == PRESSED)
+			select(!selected);
+		else
+			setState(selected?HIGHLIGHTED:NORMAL);
 	}
 }
 
