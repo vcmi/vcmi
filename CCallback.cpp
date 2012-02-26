@@ -339,6 +339,10 @@ CCallback::CCallback( CGameState * GS, int Player, CClient *C )
 
 const CGPathNode * CCallback::getPathInfo( int3 tile )
 {
+	if (!gs->map->isInTheMap(tile))
+		return nullptr;
+
+	validatePaths();
 	return &cl->pathInfo->nodes[tile.x][tile.y][tile.z];
 }
 
@@ -347,12 +351,8 @@ bool CCallback::getPath2( int3 dest, CGPath &ret )
 	if (!gs->map->isInTheMap(dest))
 		return false;
 
-	const CGHeroInstance *h = cl->IGameCallback::getSelectedHero(player);
-	assert(cl->pathInfo->hero == h);
-	if(cl->pathInfo->hpos != h->getPosition(false) || !cl->pathInfo->isValid) //hero position changed, must update paths
-	{ 
-		recalculatePaths();
-	}
+	validatePaths();
+
 	boost::unique_lock<boost::mutex> pathLock(cl->pathMx);
 	return cl->pathInfo->getPath(dest, ret);
 }
@@ -389,6 +389,17 @@ void CCallback::unregisterMyInterface()
 	cl->playerint.erase(player);
 	cl->battleints.erase(player);
 	//TODO? should callback be disabled as well?
+}
+
+void CCallback::validatePaths()
+{
+	const CGHeroInstance *h = cl->IGameCallback::getSelectedHero(player);
+	if(cl->pathInfo->hero != h							//wrong hero
+		|| cl->pathInfo->hpos != h->getPosition(false)  //wrong hero positoin
+		|| !cl->pathInfo->isValid) //paths invalidated by game event
+	{ 
+		recalculatePaths();
+	}
 }
 
 CBattleCallback::CBattleCallback(CGameState *GS, int Player, CClient *C )

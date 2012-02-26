@@ -101,11 +101,15 @@ class CCallback : public CPlayerSpecificInfoCallback, public IGameActionCallback
 {
 private:
 	CCallback(CGameState * GS, int Player, CClient *C);
+
+	void validatePaths(); //recalcualte paths if necessary
+
 public:
 	//client-specific functionalities (pathfinding)
 	virtual bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret); //DEPRACATED!!!
 	virtual const CGPathNode *getPathInfo(int3 tile); //uses main, client pathfinder info
 	virtual bool getPath2(int3 dest, CGPath &ret); //uses main, client pathfinder info
+
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1);
 	virtual void recalculatePaths(); //updates main, client pathfinder info (should be called when moving hero is over)
 

@@ -280,7 +280,7 @@ ui64 evaluateDanger(crint3 tile)
 	ui64 objectDanger = 0, guardDanger = 0;
 
 	if(t->visitable)
-		objectDanger = evaluateDanger(t->visitableObjects.front());
+		objectDanger = evaluateDanger(t->visitableObjects.back());
 
 	int3 guardPos = cb->guardingCreaturePosition(tile);
 	if(guardPos.x >= 0 && guardPos != tile)
