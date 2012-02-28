@@ -169,6 +169,7 @@ bool CCallback::swapArtifacts(const IArtifactSetBase * src, ui16 pos1, const IAr
 	else if (stack1 && stack2)
 	{
 		//TODO: merge stacks?
+		return false;
 	}
 	else
 		return false;
@@ -394,9 +395,9 @@ void CCallback::unregisterMyInterface()
 void CCallback::validatePaths()
 {
 	const CGHeroInstance *h = cl->IGameCallback::getSelectedHero(player);
-	if(cl->pathInfo->hero != h							//wrong hero
-		|| cl->pathInfo->hpos != h->getPosition(false)  //wrong hero positoin
-		|| !cl->pathInfo->isValid) //paths invalidated by game event
+	if(h  && ( cl->pathInfo->hero != h							//wrong hero
+		       || cl->pathInfo->hpos != h->getPosition(false)  //wrong hero positoin
+		       || !cl->pathInfo->isValid)) //paths invalidated by game event
 	{ 
 		recalculatePaths();
 	}

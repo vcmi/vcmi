@@ -1895,6 +1895,8 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 				CCS->curh->changeGraphic(0, 3);
 			else if(objAtTile->ID == GameConstants::HEROI_TYPE && objAtTile->tempOwner == LOCPLINT->playerID)
 				CCS->curh->changeGraphic(0, 2);
+			else
+				CCS->curh->changeGraphic(0, 0);
 		}
 		else
 			CCS->curh->changeGraphic(0, 0);

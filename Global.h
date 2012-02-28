@@ -82,11 +82,15 @@ typedef boost::int32_t si32; //signed int 32 bits (4 bytes)
 typedef boost::int16_t si16; //signed int 16 bits (2 bytes)
 typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 
+#ifdef __GNUC__
+#define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__ )
+#endif
+
 // Import + Export macro declarations
 #ifdef _WIN32
 #define DLL_EXPORT __declspec(dllexport)
 #else
-#if defined(__GNUC__) && __GNUC__ >= 4
+#if defined(__GNUC__) && GCC_VERSION >= 400
 #define DLL_EXPORT	__attribute__ ((visibility("default")))
 #else
 #define DLL_EXPORT
@@ -96,7 +100,7 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 #ifdef _WIN32
 #define DLL_IMPORT __declspec(dllimport)
 #else
-#if defined(__GNUC__) && __GNUC__ >= 4
+#if defined(__GNUC__) && GCC_VERSION >= 400
 #define DLL_IMPORT	__attribute__ ((visibility("default")))
 #else
 #define DLL_IMPORT
@@ -112,9 +116,22 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 //defining available c++11 features
 
 //initialization lists - only gcc-4.4 or later
-#if defined(__GNUC__) && ( __GNUC__ > 4 || ( __GNUC__ == 4 && __GNUC_MINOR__ >= 4 ))
+#if defined(__GNUC__) && (GCC_VERSION >= 404)
 #define CPP11_USE_INITIALIZERS_LIST
 #endif
+
+//nullptr -  only msvc and gcc-4.6 or later, othervice define it  as NULL
+#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 406))
+#define nullptr NULL
+#endif
+
+//override keyword - only msvc and gcc-4.7 or later.
+#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 407))
+#define override
+#endif
+
+//workaround to support existing code
+#define OVERRIDE override
 
 //a normal std::map with a const operator[] for sanity
 template<typename KeyT, typename ValT>
@@ -306,13 +323,6 @@ using vstd::operator-=;
 // can be used for counting arrays
 template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 #define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
-
-//for explicit overrides
-#ifdef _MSC_VER
-#define OVERRIDE override
-#else
-#define OVERRIDE 	//is there any working counterpart?
-#endif
 
 //XXX pls dont - 'debug macros' are usually more trouble than it's worth
 #define HANDLE_EXCEPTION  \
