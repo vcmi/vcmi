@@ -189,7 +189,7 @@ int main(int argc, char** argv)
 		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only")
 		("start", po::value<std::string>(), "starts game from saved StartInfo file")
 		("onlyAI", "runs without GUI, all players will be default AI")
-		("oneGoodAI", "puts one default AI and the rest will be GeniusAI")
+		("oneGoodAI", "puts one default AI and the rest will be EmptyAI")
 		("autoSkip", "automatically skip turns in GUI")
 		("nointro,i", "skips intro movies");
 

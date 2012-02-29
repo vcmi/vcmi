@@ -933,15 +933,16 @@ int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstan
 	}
 	switch(spell->id)
 	{
-	case 56: //frenzy
+	case Spells::FRENZY:
 		return 1;
 	default: //other spells
-		return caster->getPrimSkillLevel(2) + caster->valOfBonuses(Bonus::SPELL_DURATION);
+		return caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + caster->valOfBonuses(Bonus::SPELL_DURATION);
 	}
 }
 
-CStack * BattleInfo::generateNewStack(const CStackInstance &base, int stackID, bool attackerOwned, int slot, BattleHex position) const
+CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerOwned, int slot, BattleHex position) const
 {
+	int stackID = getIdForNewStack();
 	int owner = attackerOwned ? sides[0] : sides[1];
 	assert((owner >= GameConstants::PLAYER_LIMIT)  ||
 		   (base.armyObj && base.armyObj->tempOwner == owner));
@@ -950,8 +951,9 @@ CStack * BattleInfo::generateNewStack(const CStackInstance &base, int stackID, b
 	ret->position = position;
 	return ret;
 }
-CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, int stackID, bool attackerOwned, int slot, BattleHex position) const
+CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, int slot, BattleHex position) const
 {
+	int stackID = getIdForNewStack();
 	int owner = attackerOwned ? sides[0] : sides[1];
 	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
 	ret->position = position;
@@ -1425,23 +1427,26 @@ void BattleInfo::localInit()
 		b->attachTo(this);
 
 	BOOST_FOREACH(CStack *s, stacks)
-	{
-		s->exportBonuses();
-		if(s->base) //stack originating from "real" stack in garrison -> attach to it
-		{
-			s->attachTo(const_cast<CStackInstance*>(s->base));
-		}
-		else //attach directly to obj to which stack belongs and creature type
-		{
-			CArmedInstance *army = belligerents[!s->attackerOwned];
-			s->attachTo(army);
-			assert(s->type);
-			s->attachTo(const_cast<CCreature*>(s->type));
-		}
-		s->postInit();
-	}
+		localInitStack(s);
 
 	exportBonuses();
+}
+
+void BattleInfo::localInitStack(CStack * s)
+{
+	s->exportBonuses();
+	if(s->base) //stack originating from "real" stack in garrison -> attach to it
+	{
+		s->attachTo(const_cast<CStackInstance*>(s->base));
+	}
+	else //attach directly to obj to which stack belongs and creature type
+	{
+		CArmedInstance *army = belligerents[!s->attackerOwned];
+		s->attachTo(army);
+		assert(s->type);
+		s->attachTo(const_cast<CCreature*>(s->type));
+	}
+	s->postInit();
 }
 
 namespace CGH
@@ -1519,7 +1524,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		else
 			pos = attackerLoose[armies[0]->stacksCount()-1][k];
 
-		CStack * stack = curB->generateNewStack(*i->second, stacks.size(), true, i->first, pos);
+		CStack * stack = curB->generateNewStack(*i->second, true, i->first, pos);
 		stacks.push_back(stack);
 	}
 
@@ -1534,7 +1539,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		else
 			pos = defenderLoose[armies[1]->stacksCount()-1][k];
 
-		CStack * stack = curB->generateNewStack(*i->second, stacks.size(), false, i->first, pos);
+		CStack * stack = curB->generateNewStack(*i->second, false, i->first, pos);
 		stacks.push_back(stack);
 	}
 
@@ -1559,17 +1564,17 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		{
 			if(heroes[0]->getArt(13)) //ballista
 			{
-				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1), stacks.size(), true, 255, 52);
+				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1), true, 255, 52);
 				stacks.push_back(stack);
 			}
 			if(heroes[0]->getArt(14)) //ammo cart
 			{
-				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), stacks.size(), true, 255, 18);
+				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), true, 255, 18);
 				stacks.push_back(stack);
 			}
 			if(heroes[0]->getArt(15)) //first aid tent
 			{
-				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), stacks.size(), true, 255, 154);
+				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), true, 255, 154);
 				stacks.push_back(stack);
 			}
 		}
@@ -1578,23 +1583,23 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 			//defending hero shouldn't receive ballista (bug #551)
 			if(heroes[1]->getArt(13) && !town) //ballista
 			{
-				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1),  stacks.size(), false, 255, 66);
+				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1),  false, 255, 66);
 				stacks.push_back(stack);
 			}
 			if(heroes[1]->getArt(14)) //ammo cart
 			{
-				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), stacks.size(), false, 255, 32);
+				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), false, 255, 32);
 				stacks.push_back(stack);
 			}
 			if(heroes[1]->getArt(15)) //first aid tent
 			{
-				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), stacks.size(), false, 255, 168);
+				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), false, 255, 168);
 				stacks.push_back(stack);
 			}
 		}
 		if(town && heroes[0] && town->hasFort()) //catapult
 		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(145, 1), stacks.size(), true, 255, 120);
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(145, 1), true, 255, 120);
 			stacks.push_back(stack);
 		}
 	}
@@ -1603,15 +1608,15 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	if (curB->siege == 2 || curB->siege == 3)
 	{
 		// keep tower
-		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), stacks.size(), false, 255, -2);
+		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), false, 255, -2);
 		stacks.push_back(stack);
 
 		if (curB->siege == 3)
 		{
 			// lower tower + upper tower
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), stacks.size(), false, 255, -4);
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), false, 255, -4);
 			stacks.push_back(stack);
-			stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), stacks.size(), false, 255, -3);
+			stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), false, 255, -3);
 			stacks.push_back(stack);
 		}
 	}
@@ -2300,6 +2305,20 @@ ui8 BattleInfo::whatSide(int player) const
 
 	tlog1 << "BattleInfo::whatSide: Player " << player << " is not in battle!\n";
 	return -1;
+}
+
+int BattleInfo::getIdForNewStack() const
+{
+	if(stacks.size())
+	{
+		//stacks vector may be sorted not by ID and they may be not contiguous -> find stack with max ID
+		auto highestIDStack = *std::max_element(stacks.begin(), stacks.end(), 
+								[](const CStack *a, const CStack *b) { return a->ID < b->ID; });
+
+		return highestIDStack->ID + 1;
+	}
+
+	return 0;
 }
 
 CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)

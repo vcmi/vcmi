@@ -2582,11 +2582,9 @@ bool mapSorter::operator()(const CMapInfo *aaa, const CMapInfo *bbb)
 			return (a->victoryCondition.condition < b->victoryCondition.condition);
 			break;
 		case _name: //by name
-			return (a->name<b->name);
-			break;
+			return boost::ilexicographical_compare(a->name, b->name);
 		default:
-			return (a->name<b->name);
-			break;
+			return boost::ilexicographical_compare(a->name, b->name);
 		}
 	}
 	else //if we are sorting campaigns
@@ -2598,11 +2596,9 @@ bool mapSorter::operator()(const CMapInfo *aaa, const CMapInfo *bbb)
 					CGI->generaltexth->campaignRegionNames[ bbb->campaignHeader->mapVersion ].size();
 				break;
 			case _name: //by name
-				return aaa->campaignHeader->name < bbb->campaignHeader->name;
-				break;
+				return boost::ilexicographical_compare(aaa->campaignHeader->name, bbb->campaignHeader->name);
 			default:
-				return aaa->campaignHeader->name < bbb->campaignHeader->name;
-				break;
+				return boost::ilexicographical_compare(aaa->campaignHeader->name, bbb->campaignHeader->name);
 		}
 	}
 }

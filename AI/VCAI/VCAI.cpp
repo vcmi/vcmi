@@ -464,13 +464,15 @@ void VCAI::gameOver(ui8 player, bool victory)
 			tlog0 << "VCAI: Player " << (int)player << " lost. It's me. What a disappointment! :(\n";
 		}
 
-		//let's make Impossible difficulty finally standing to its name :>
-		if(myCb->getStartInfo()->difficulty == 4 && !victory)
-		{
-			//play dirty: crash the whole engine to avoid lose
-			//that way AI is unbeatable!
-			*(int*)NULL = 666;
-		}
+// 		//let's make Impossible difficulty finally standing to its name :>
+// 		if(myCb->getStartInfo()->difficulty == 4 && !victory)
+// 		{
+// 			//play dirty: crash the whole engine to avoid lose
+// 			//that way AI is unbeatable!
+// 			*(int*)NULL = 666;
+// 		}
+
+// 		TODO - at least write some insults on stdout
 
 		finish();
 	}

@@ -1288,15 +1288,14 @@ DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 		tlog2 << "No place found for new stack!\n";
 		return;
 	}
-	CStackInstance *csi = new CStackInstance(creID, amount);
-	csi->setArmyObj(gs->curB->belligerents[attacker ? 0 : 1]);
-	int newStackID = gs->curB->stacks.size() ? gs->curB->stacks.back()->ID+1 : 0; //stacks IDs may not be contiguous, so we need to give after-last ID
-	CStack * summonedStack = gs->curB->generateNewStack(*csi, newStackID, attacker, 255, pos); //TODO: netpacks?
+
+	CStackBasicDescriptor csbd(creID, amount);
+	CStack * addedStack = gs->curB->generateNewStack(csbd, attacker, 255, pos); //TODO: netpacks?
 	if (summoned)
-		summonedStack->state.insert(EBattleStackState::SUMMONED);
-	summonedStack->attachTo(csi);
-	summonedStack->postInit();
-	gs->curB->stacks.push_back(summonedStack); //the stack is not "SUMMONED", it is permanent
+		addedStack->state.insert(EBattleStackState::SUMMONED);
+
+	gs->curB->localInitStack(addedStack);
+	gs->curB->stacks.push_back(addedStack); //the stack is not "SUMMONED", it is permanent
 }
 
 DLL_LINKAGE void BattleSetStackProperty::applyGs(CGameState *gs)

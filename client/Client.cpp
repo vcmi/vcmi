@@ -372,7 +372,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			{
 				std::string AItoGive = settings["server"]["playerAI"].String();
 				if(!sensibleAILimit)
-					AItoGive = "GeniusAI";
+					AItoGive = "EmptyAI";
 				else
 					sensibleAILimit--;
 				playerint[color] = static_cast<CGameInterface*>(CDynLibHandler::getNewAI(AItoGive));
