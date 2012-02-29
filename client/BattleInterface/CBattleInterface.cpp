@@ -1754,7 +1754,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 	{
 		if(!myTurn)
 			return; //we are not permit to do anything
-		if(spellDestSelectMode) //TODO: choose target for area creature spell
+		if(spellDestSelectMode) //select spell target //TODO: choose target for area creature spell
 		{
 			//checking destination
 			bool allowCasting = true;
@@ -1788,7 +1788,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 				endCastingSpell();
 			}
 		}
-		else //we don't aim for spell target area
+		else //creature casting
 		{
 			bool walkableTile = false;
 			bool spellCast = false;
@@ -1805,7 +1805,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 						{
 							const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
 
-							if (curInt->cb->battleCanCastThisSpell(spell, BattleHex(whichOne)) == ESpellCastProblem::OK)
+							if (curInt->cb->battleCanCreatureCastThisSpell(spell, BattleHex(whichOne)) == ESpellCastProblem::OK)
 							{
 								if ((!spell->isNegative() && ourStack) || (!spell->isPositive() && !ourStack))
 								{

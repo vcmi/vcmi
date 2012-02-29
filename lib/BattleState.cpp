@@ -2100,7 +2100,13 @@ bool BattleInfo::battleTestElementalImmunity(const CStack * subject, const CSpel
 
 ESpellCastProblem::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInstance * caster, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const
 {
-	const CStack * subject = getStackT(dest, false);
+	const CStack * subject;
+	bool risingSpell = vstd::contains(VLC->spellh->risingSpells, spell->id);
+	if (risingSpell)
+		subject = getStackT(dest, false); //including dead stacks
+	else
+		subject = getStackT(dest, true); //only alive
+
 	if(subject)
 	{
 		if (spell->isPositive() && subject->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
@@ -2191,7 +2197,7 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInst
 				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 		}
 
-		if (vstd::contains(VLC->spellh->risingSpells, spell->id))
+		if (risingSpell)
 		{
 			if (subject->count >= subject->baseAmount) //TODO: calculate potential hp raised
 				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
@@ -2210,7 +2216,7 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleIsImmune(const CGHeroInst
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 		}
 	}
-	else
+	else //no target stack on this tile
 	{
 		if(spell->getTargetType() == CSpell::CREATURE ||
 			(spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE && mode == ECastingMode::HERO_CASTING && caster && caster->getSpellSchoolLevel(spell) < 3))
