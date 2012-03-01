@@ -1,4 +1,4 @@
-0.87 -> 0.88 (Mar? 2012)
+0.87 -> 0.88 (Mar 01 2012)
 * added an initial version of new adventure AI: VCAI
 * system settings window allows to change default resolution
 * introduced unified JSON-based settings system

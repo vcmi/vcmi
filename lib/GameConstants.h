@@ -12,7 +12,7 @@
 
 namespace GameConstants
 {
-	const std::string VCMI_VERSION = "VCMI 0.87b";
+	const std::string VCMI_VERSION = "VCMI 0.88";
 
 	/* 
 	 * DATA_DIR contains the game data (Data/, MP3/, ...).
