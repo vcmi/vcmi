@@ -419,7 +419,7 @@ void processCommand(const std::string &message)
 			return;
 		}
 		std::map<std::pair<int,int>, config::GUIOptions >::iterator j;
-		int i=1, hlp=1;
+		int i=1;
 		tlog4 << "Available screen resolutions:\n";
 		for(j=conf.guiOptions.begin(); j!=conf.guiOptions.end(); j++)
 			tlog4 << i++ <<". " << j->first.first << " x " << j->first.second << std::endl;
@@ -436,11 +436,13 @@ void processCommand(const std::string &message)
 		}
 		else
 		{
-			for(j=conf.guiOptions.begin(); j!=conf.guiOptions.end() && hlp++<i; j++); //move j to the i-th resolution info
+			auto j = conf.guiOptions.begin();
+			std::advance(j, i - 1); //move j to the i-th resolution info
+			const int w = j->first.first, h = j->first.second;
 			Settings res = settings.write["video"]["gameRes"];
 			Settings screen = settings.write["video"]["screenRes"];
-			res["width"].Float()  = res["width"].Float()  = j->first.first;
-			screen["height"].Float() = screen["height"].Float() = j->first.second;
+			res["width"].Float()  = screen["width"].Float()  = w;
+			res["height"].Float() = screen["height"].Float() = h;
 			conf.SetResolution(screen["width"].Float(), screen["height"].Float());
 			tlog0 << "Screen resolution set to " << (int)screen["width"].Float() << " x "
 			                                     << (int)screen["height"].Float() <<". It will be applied when the game starts.\n";
