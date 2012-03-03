@@ -53,11 +53,11 @@ struct DLL_LINKAGE TerrainTile
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tertype & terview & nuine & rivDir & malle &roadDir & siodmyTajemniczyBajt;
+		h & tertype & terview & nuine & rivDir & malle &roadDir & siodmyTajemniczyBajt & blocked;
 
 		if(!h.saving)
 		{
-			visitable = blocked = false;
+			visitable = false;
 			//these flags (and obj vectors) will be restored in map serialization
 		}
 	}

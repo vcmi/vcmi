@@ -96,7 +96,8 @@ ui64 FuzzyHelper::estimateBankDanger (int ID)
 					bankDanger->term("Bank" + boost::lexical_cast<std::string>(i))->setMinimum(bankVal * 0.5f);
 					bankDanger->term("Bank" + boost::lexical_cast<std::string>(i))->setMaximum(bankVal * 1.5f);
 				}
-				int averageValue = (evaluateBankConfig (VLC->objh->banksInfo[ID][0]) + evaluateBankConfig (VLC->objh->banksInfo[ID][3])) * 0.5;
+				//comparison purposes
+				//int averageValue = (evaluateBankConfig (VLC->objh->banksInfo[ID][0]) + evaluateBankConfig (VLC->objh->banksInfo[ID][3])) * 0.5;
 				dynamic_cast<fl::SingletonTerm*>(bankInput->term("SET"))->setValue(0.5);
 				bankInput->setInput (0.5);
 				engine.process();
