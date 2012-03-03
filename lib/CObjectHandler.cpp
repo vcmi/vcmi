@@ -190,6 +190,25 @@ void CObjectHandler::loadObjects()
 	tlog5 << "\t\tDone loading banks configs \n";
 }
 
+int CObjectHandler::bankObjToIndex (const CGObjectInstance * obj)
+{
+	switch (obj->ID) //find apriopriate key
+	{
+		case 16: //bank
+			return obj->subID;
+		case 24: //derelict ship
+			return 8;
+		case 25: //utopia
+			return 10;
+		case 84: //crypt
+			return 9;
+		case 85: //shipwreck
+			return 7;
+		default:
+			tlog2 << "Unrecognixed Bank indetifier!\n";
+			return 0;
+	}
+}
 int CGObjectInstance::getOwner() const
 {
 	//if (state)
@@ -5688,19 +5707,7 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 
 void CBank::initObj()
 {
-	switch (ID) //find apriopriate key
-	{
-		case 16: //bank
-			index = subID; break;
-		case 24: //derelict ship
-			index = 8; break;
-		case 25: //utopia
-			index = 10; break;
-		case 84: //crypt
-			index = 9; break;
-		case 85: //shipwreck
-			index = 7; break;
-	}
+	index = VLC->objh->bankObjToIndex(this);
 	bc = NULL;
 	daycounter = 0;
 	multiplier = 1;

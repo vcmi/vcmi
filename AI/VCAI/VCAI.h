@@ -150,6 +150,8 @@ struct CIssueCommand : CGoal
 class VCAI : public CAdventureAI
 {
 public:
+	friend class FuzzyHelper;
+
 	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
 	std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<const CGHeroInstance *, std::vector<const CGTownInstance *> > townVisitsThisWeek;

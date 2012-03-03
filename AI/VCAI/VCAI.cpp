@@ -1,11 +1,13 @@
 #include "StdInc.h"
 #include "VCAI.h"
 #include "../../lib/UnlockGuard.h"
+#include "Fuzzy.h"
+#include "../../lib/CObjectHandler.h"
 
 #define I_AM_ELEMENTAR return CGoal(*this).setisElementar(true)
-
-
 CLogger &aiLogger = tlog6;
+
+extern FuzzyHelper fh;
 
 const int ACTUAL_RESOURCE_COUNT = 7;
 
@@ -15,6 +17,7 @@ using namespace vstd;
 //one thread may be turn of AI and another will be handling a side effect for AI2
 boost::thread_specific_ptr<CCallback> cb;
 boost::thread_specific_ptr<VCAI> ai;
+
 // CCallback *cb;
 // VCAI *ai;
 
@@ -72,6 +75,7 @@ namespace Obj
 		MINE = 53,
 		MONSTER = 54,
 		OBELISK = 57,
+		PYRAMID = 63,
 		CRYPT = 84,
 		SHIPWRECK = 85,
 		TRADING_POST = 99,
@@ -319,22 +323,16 @@ ui64 evaluateDanger(const CGObjectInstance *obj)
 			return cre->getArmyStrength();
 		}
 	case Obj::CRYPT: //crypt
-		{
-			return VLC->creh->creatures[56]->AIValue * 25
-				+ VLC->creh->creatures[58]->AIValue * 20
-				+ VLC->creh->creatures[60]->AIValue * 9
-				+ VLC->creh->creatures[62]->AIValue * 5;
-		}
 	case Obj::CREATURE_BANK: //crebank
 	case Obj::SHIPWRECK: //shipwreck
 	case Obj::DERELICT_SHIP: //derelict ship
-		//TODO estimate danger
-		return 1000000000;
+	case Obj::PYRAMID:
+		return fh.estimateBankDanger (VLC->objh->bankObjToIndex(obj));
 	case Obj::WHIRLPOOL: //whirlpool
 	case Obj::MONOLITH1:
 	case Obj::MONOLITH2:
 	case Obj::MONOLITH3:
-		//TODO mechinism for handling monoliths
+		//TODO mechanism for handling monoliths
 		return 1000000000;
 	default:
 		return 0;

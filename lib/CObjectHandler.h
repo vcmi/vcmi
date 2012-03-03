@@ -1309,6 +1309,7 @@ public:
 	std::vector<ui32> resVals; //default values of resources in gold
 
 	void loadObjects();
+	int bankObjToIndex (const CGObjectInstance * obj);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
