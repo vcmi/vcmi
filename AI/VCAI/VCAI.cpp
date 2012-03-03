@@ -68,6 +68,7 @@ namespace Obj
 		CREATURE_BANK = 16,
 		CREATURE_GENERATOR1 = 17,
 		DERELICT_SHIP = 24,
+		DRAGON_UTOPIA = 25,
 		GARRISON = 33,
 		MONOLITH1 = 43,
 		MONOLITH2 = 44,
@@ -324,6 +325,7 @@ ui64 evaluateDanger(const CGObjectInstance *obj)
 		}
 	case Obj::CRYPT: //crypt
 	case Obj::CREATURE_BANK: //crebank
+	case Obj::DRAGON_UTOPIA:
 	case Obj::SHIPWRECK: //shipwreck
 	case Obj::DERELICT_SHIP: //derelict ship
 	case Obj::PYRAMID:

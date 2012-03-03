@@ -59,18 +59,25 @@ ui64 evaluateBankConfig (BankConfig * bc)
 
 FuzzyHelper::FuzzyHelper()
 {
-	bankInput = new fl::InputLVar("BankInput");
-	bankDanger = new fl::OutputLVar("BankDanger");
-	bankInput->addTerm(new fl::SingletonTerm ("SET"));
-
-	engine.addRuleBlock (&ruleBlock); //have to be added before the rules are parsed
-	engine.addInputLVar (bankInput);
-	for (int i = 0; i < 4; ++i)
+	try
 	{
-		bankDanger->addTerm(new fl::TriangularTerm ("Bank" + boost::lexical_cast<std::string>(i), 0, 1));
-		ruleBlock.addRule(new fl::MamdaniRule("if BankInput is SET then BankDanger is Bank" + boost::lexical_cast<std::string>(i), engine));
+		bankInput = new fl::InputLVar("BankInput");
+		bankDanger = new fl::OutputLVar("BankDanger");
+		bankInput->addTerm(new fl::SingletonTerm ("SET"));
+
+		engine.addRuleBlock (&ruleBlock); //have to be added before the rules are parsed
+		engine.addInputLVar (bankInput);
+		engine.addOutputLVar (bankDanger);
+		for (int i = 0; i < 4; ++i)
+		{
+			bankDanger->addTerm(new fl::TriangularTerm ("Bank" + boost::lexical_cast<std::string>(i), 0, 1));
+			ruleBlock.addRule(new fl::MamdaniRule("if BankInput is SET then BankDanger is Bank" + boost::lexical_cast<std::string>(i), engine));
+		}
 	}
-	engine.addOutputLVar (bankDanger);
+	catch (fl::FuzzyException fe)
+	{
+		tlog1 << fe.name() << ": " << fe.message() << '\n';
+	}
 }
 
 ui64 FuzzyHelper::estimateBankDanger (int ID)
@@ -90,8 +97,8 @@ ui64 FuzzyHelper::estimateBankDanger (int ID)
 					bankDanger->term("Bank" + boost::lexical_cast<std::string>(i))->setMaximum(bankVal * 1.5f);
 				}
 				int averageValue = (evaluateBankConfig (VLC->objh->banksInfo[ID][0]) + evaluateBankConfig (VLC->objh->banksInfo[ID][3])) * 0.5;
-				dynamic_cast<fl::SingletonTerm*>(bankInput->term("SET"))->setValue(1);
-				bankInput->setInput (0);
+				dynamic_cast<fl::SingletonTerm*>(bankInput->term("SET"))->setValue(0.5);
+				bankInput->setInput (0.5);
 				engine.process();
 				val = bankDanger->output().defuzzify(); //some expected value of this bank
 			}
@@ -99,6 +106,7 @@ ui64 FuzzyHelper::estimateBankDanger (int ID)
 			{
 				tlog1 << fe.name() << ": " << fe.message() << '\n';
 			}
+			break;
 		case 1: //rare case - Pyramid
 			val = evaluateBankConfig (VLC->objh->banksInfo[ID][0]);
 			break;
