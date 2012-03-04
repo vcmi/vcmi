@@ -1820,15 +1820,15 @@ void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
 			break;			
 	}
 }
-int CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - castle
+CGTownInstance::EFortLevel CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - castle
 {
 	if((builtBuildings.find(9))!=builtBuildings.end())
-		return 3;
+		return CASTLE;
 	if((builtBuildings.find(8))!=builtBuildings.end())
-		return 2;
+		return CITADEL;
 	if((builtBuildings.find(7))!=builtBuildings.end())
-		return 1;
-	return 0;
+		return FORT;
+	return NONE;
 }
 
 int CGTownInstance::hallLevel() const // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol

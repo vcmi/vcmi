@@ -11,7 +11,7 @@ extern FuzzyHelper fh;
 
 const int ACTUAL_RESOURCE_COUNT = 7;
 
-const double SAFE_ATTACK_CONSTANT = 2.5;
+const double SAFE_ATTACK_CONSTANT = 1.5;
 using namespace vstd;
 
 //one thread may be turn of AI and another will be handling a side effect for AI2
@@ -290,6 +290,39 @@ ui64 evaluateDanger(crint3 tile)
 	int3 guardPos = cb->guardingCreaturePosition(tile);
 	if(guardPos.x >= 0 && guardPos != tile)
 		guardDanger = evaluateDanger(guardPos);
+
+	//TODO mozna odwiedzic blockvis nie ruszajac straznika
+	return std::max(objectDanger, guardDanger);
+
+	return 0;
+}
+
+ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
+{
+	const TerrainTile *t = cb->getTile(tile, false);
+	if(!t) //we can know about guard but can't check its tile (the edge of fow)
+		return 190000000; //MUCH
+
+	ui64 objectDanger = 0, guardDanger = 0;
+	CArmedInstance * dangerousObject;
+
+	if(t->visitable)
+	{
+		dangerousObject = dynamic_cast<CArmedInstance*>(t->visitableObjects.back());
+		if (dangerousObject)
+		{
+			objectDanger = evaluateDanger(dangerousObject);
+			objectDanger *= fh.getTacticalAdvantage (visitor, dangerousObject);
+		}
+		else
+		{
+			objectDanger = 0;
+		}
+	}
+
+	int3 guardPos = cb->guardingCreaturePosition(tile);
+	if(guardPos.x >= 0 && guardPos != tile)
+		guardDanger = evaluateDanger(guardPos, visitor);
 
 	//TODO mozna odwiedzic blockvis nie ruszajac straznika
 	return std::max(objectDanger, guardDanger);
@@ -945,7 +978,7 @@ void VCAI::buildStructure(const CGTownInstance * t)
 bool isSafeToVisit(const CGHeroInstance *h, crint3 tile)
 {
 	const ui64 heroStrength = h->getTotalStrength(),
-		dangerStrength = evaluateDanger(tile);
+		dangerStrength = evaluateDanger(tile, h);
 	if(dangerStrength)
 	{
 		if(heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength)

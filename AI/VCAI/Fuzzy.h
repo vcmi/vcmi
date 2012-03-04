@@ -13,6 +13,7 @@
 */
 
 class VCAI;
+class CArmedInstance;
 
 template <typename T> bool isinf (T val)
 {
@@ -24,11 +25,25 @@ class FuzzyHelper
 	friend class VCAI;
 
 	fl::FuzzyEngine engine;
+
 	fl::InputLVar* bankInput;
 	fl::OutputLVar* bankDanger;
-	fl::RuleBlock ruleBlock;
+	fl::RuleBlock bankBlock;
+
+	fl::InputLVar * ourWalkers, * ourShooters, * ourFlyers, * enemyWalkers, * enemyShooters, * enemyFlyers;
+	fl::InputLVar * ourSpeed, * enemySpeed;
+	fl::InputLVar * bankPresent;
+	fl::InputLVar * castleWalls;
+	fl::OutputLVar * threat;
+	fl::RuleBlock tacticalAdvantage;
 
 public:
+	enum RuleBlocks {BANK_DANGER, TACTICAL_ADVANTAGE};
+
 	FuzzyHelper();
+	void initBank();
+	void initTacticalAdvantage();
+
 	ui64 estimateBankDanger (int ID);
+	float getTacticalAdvantage (const CArmedInstance *we, const CArmedInstance *enemy); //returns factor how many times enemy is stronger than us
 };

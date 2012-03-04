@@ -544,6 +544,8 @@ struct DLL_LINKAGE GrowthInfo
 class DLL_LINKAGE CGTownInstance : public CGDwelling, public IShipyard, public IMarket
 {
 public:
+	enum EFortLevel {NONE = 0, FORT = 1, CITADEL = 2, CASTLE = 3};
+
 	CTownAndVisitingHero townAndVis;
 	CTown * town;
 	std::string name; // name of town
@@ -605,7 +607,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	bool needsLastStack() const;
-	int fortLevel() const; //0 - none, 1 - fort, 2 - citadel, 3 - castle
+	CGTownInstance::EFortLevel fortLevel() const;
 	int hallLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 	int mageGuildLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 	bool creatureDwelling(const int & level, bool upgraded=false) const;
