@@ -163,15 +163,15 @@ void FuzzyHelper::initTacticalAdvantage()
 
 		BOOST_FOREACH (auto val, helper)
 		{
-			val->addTerm (new fl::ShoulderTerm("LOW", 3, 9, true));
-			val->addTerm (new fl::TriangularTerm("MEDIUM", 7, 13));
-			val->addTerm (new fl::ShoulderTerm("HIGH", 11, 16, false));
+			val->addTerm (new fl::ShoulderTerm("LOW", 3, 8.1, true));
+			val->addTerm (new fl::TriangularTerm("MEDIUM", 6.9, 13.1));
+			val->addTerm (new fl::ShoulderTerm("HIGH", 10.5, 16, false));
 			engine.addInputLVar(val);
 		}
 		castleWalls = new fl::InputLVar("CastleWalls");
 		castleWalls->addTerm(new fl::SingletonTerm("NONE", CGTownInstance::NONE));
 		castleWalls->addTerm(new fl::TrapezoidalTerm("MEDIUM", CGTownInstance::FORT, 2.5));
-		castleWalls->addTerm(new fl::ShoulderTerm("HIGH", CGTownInstance::CITADEL, CGTownInstance::CASTLE));
+		castleWalls->addTerm(new fl::ShoulderTerm("HIGH", CGTownInstance::CITADEL - 0.1, CGTownInstance::CASTLE));
 		engine.addInputLVar(castleWalls);
 
 		bankPresent = new fl::InputLVar("Bank");
