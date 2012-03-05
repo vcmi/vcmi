@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT(vcmi, 0.87b)				# Follow VCMI_VERSION in GameConstants.h
+AC_INIT(vcmi, 0.88b)				# Follow VCMI_VERSION in GameConstants.h
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([aclocal/m4])
 

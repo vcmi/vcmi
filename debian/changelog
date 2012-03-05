@@ -1,10 +1,15 @@
+vcmi (0.88) unstable; urgency=low
+
+  * New upstream release
+
+ -- Ivan Savenko <saven.ivan@gmail.com>  Thu, 1 Mar 2012 17:50:09 +0200
+
 vcmi (0.87-1) unstable; urgency=low
 
   * New upstream release
   * Removed vcmi-doc package
 
  -- Ivan Savenko <saven.ivan@gmail.com>  Sun, 19 Feb 2012 16:20:50 +0200
-
 
 vcmi (0.80-1) unstable; urgency=low
 

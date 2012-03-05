@@ -15,7 +15,7 @@
 	#endif
 #endif
 
-#include "..\FuzzyLite\FuzzyLite.h"
+#include "../FuzzyLite/FuzzyLite.h"
 
 /*
  * Fuzzy.h, part of VCMI engine
