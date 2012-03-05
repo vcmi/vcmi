@@ -190,7 +190,7 @@ void FuzzyHelper::initTacticalAdvantage()
 
 		tacticalAdvantage.addRule(new fl::MamdaniRule("if OurShooters is MANY and EnemySpeed is LOW then Threat is very LOW", engine));
 		tacticalAdvantage.addRule(new fl::MamdaniRule("if OurSpeed is LOW and OurShooters is FEW and EnemyShooters is MANY then Threat is very HIGH", engine));
-		tacticalAdvantage.addRule(new fl::MamdaniRule("if (OurShooters is MANY or OurFlyers is MANY) and EnemyShooters is MANY then Threat is LOW", engine));
+		tacticalAdvantage.addRule(new fl::MamdaniRule("if (OurShooters is MANY and OurFlyers is MANY) and EnemyShooters is MANY then Threat is LOW", engine));
 		tacticalAdvantage.addRule(new fl::MamdaniRule("if OurShooters is MANY and EnemySpeed is HIGH then Threat is somewhat HIGH", engine));
 		//tacticalAdvantage.addRule(new fl::MamdaniRule("if OurShooters is MANY and EnemyShooters is MANY then Threat is MEDIUM", engine));
 

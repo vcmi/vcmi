@@ -169,6 +169,33 @@ namespace EBattleStackState
 	enum EBattleStackState{ALIVE = 180, SUMMONED, CLONED, HAD_MORALE, WAITING, MOVED, DEFENDING, FEAR};
 }
 
+namespace Obj
+{
+	enum
+	{
+		BOAT = 8,
+		CREATURE_BANK = 16,
+		CREATURE_GENERATOR1 = 17,
+		DERELICT_SHIP = 24,
+		DRAGON_UTOPIA = 25,
+		GARRISON = 33,
+		MONOLITH1 = 43,
+		MONOLITH2 = 44,
+		MONOLITH3 = 45,
+		MINE = 53,
+		MONSTER = 54,
+		OBELISK = 57,
+		PYRAMID = 63,
+		CRYPT = 84,
+		SHIPWRECK = 85,
+		TRADING_POST = 99,
+		SUBTERRANEAN_GATE = 103,
+		WHIRLPOOL = 111,
+		BORDER_GATE = 212,
+		GARRISON2 = 219,
+	};
+}
+
 // Typedef declarations
 typedef si64 expType;
 typedef ui32 TSpell;

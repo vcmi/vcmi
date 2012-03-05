@@ -37,7 +37,7 @@ public:
 enum EGoals
 {
 	INVALID = -1,
-	WIN, DO_NOT_LOSE, CONQUER, BUILD, EXPLORE,
+	WIN, DO_NOT_LOSE, CONQUER, BUILD, EXPLORE, //GATHER_ARMY,// BOOST_HERO,
 	RECRUIT_HERO,
 	BUILD_STRUCTURE, //if hero set, then in visited town
 	COLLECT_RES,
@@ -172,6 +172,8 @@ public:
 
 	CGoal currentGoal;
 
+	CGObjectInstance * visitedObject; //remember currently viisted object
+
 	boost::thread *makingTurn;
 
 	void tryRealize(CGoal g);
@@ -251,9 +253,11 @@ public:
 	void recruitHero(const CGTownInstance * t);
 	std::vector<const CGObjectInstance *> getPossibleDestinations(const CGHeroInstance *h);
 	void buildStructure(const CGTownInstance * t);
-	void recruitCreatures(const CGTownInstance * t);
+	//void recruitCreatures(const CGTownInstance * t);
+	void recruitCreatures(const CGDwelling * d);
 	void moveCreaturesToHero(const CGTownInstance * t);
 	bool goVisitObj(const CGObjectInstance * obj, const CGHeroInstance * h);
+	void performObjectInteraction(const CGObjectInstance * obj, const CGHeroInstance * h);
 
 	bool moveHeroToTile(int3 dst, const CGHeroInstance * h);
 	void waitTillFree();
@@ -285,3 +289,5 @@ bool objWithID(const CGObjectInstance *obj)
 {
 	return obj->ID == id;
 }
+
+bool isWeeklyRevisitable (const CGObjectInstance * obj);

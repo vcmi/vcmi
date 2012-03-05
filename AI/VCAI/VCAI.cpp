@@ -9,6 +9,8 @@ CLogger &aiLogger = tlog6;
 
 extern FuzzyHelper fh;
 
+class CGVisitableOPW;
+
 const int ACTUAL_RESOURCE_COUNT = 7;
 
 const double SAFE_ATTACK_CONSTANT = 1.5;
@@ -59,33 +61,6 @@ bool compareArmyStrength(const CArmedInstance *a1, const CArmedInstance *a2)
 	return a1->getArmyStrength() < a2->getArmyStrength();
 }
 
-//TODO integrate with that constants file
-namespace Obj
-{
-	enum
-	{
-		BOAT = 8,
-		CREATURE_BANK = 16,
-		CREATURE_GENERATOR1 = 17,
-		DERELICT_SHIP = 24,
-		DRAGON_UTOPIA = 25,
-		GARRISON = 33,
-		MONOLITH1 = 43,
-		MONOLITH2 = 44,
-		MONOLITH3 = 45,
-		MINE = 53,
-		MONSTER = 54,
-		OBELISK = 57,
-		PYRAMID = 63,
-		CRYPT = 84,
-		SHIPWRECK = 85,
-		TRADING_POST = 99,
-		SUBTERRANEAN_GATE = 103,
-		WHIRLPOOL = 111,
-		BORDER_GATE = 212,
-		GARRISON2 = 219,
-	};
-}
 static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 	int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
 
@@ -540,8 +515,12 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 {
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
-	if(start && visitedObj->ID != Obj::MONSTER)
-		alreadyVisited.push_back(visitedObj);
+	if (start)
+	{
+		visitedObject = const_cast<CGObjectInstance *>(visitedObj); // remember teh object and wait for return
+		if(visitedObj->ID != Obj::MONSTER) //TODO: poll bank if it was cleared
+			alreadyVisited.push_back(visitedObj);
+	}
 }
 
 void VCAI::availableArtifactsChanged(const CGBlackMarket *bm /*= NULL*/)
@@ -850,8 +829,14 @@ void VCAI::makeTurn()
 		retreiveVisitableObjs(objs, true);
 		BOOST_FOREACH(const CGObjectInstance *obj, objs)
 		{
-			if(obj->ID == Obj::CREATURE_GENERATOR1 && !vstd::contains(visitableObjs, obj))
-				visitableObjs.push_back(obj);
+			if (isWeeklyRevisitable(obj))
+			{ 
+				if (!vstd::contains(visitableObjs, obj))
+					visitableObjs.push_back(obj);
+				auto o = std::find (alreadyVisited.begin(), alreadyVisited.end(), obj);
+				if (o != alreadyVisited.end())
+					alreadyVisited.erase(o);
+			}
 		}
 	}
 	if(cb->getSelectedHero())
@@ -894,6 +879,16 @@ bool VCAI::goVisitObj(const CGObjectInstance * obj, const CGHeroInstance * h)
 	return moveHeroToTile(dst, h);
 }
 
+void VCAI::performObjectInteraction(const CGObjectInstance * obj, const CGHeroInstance * h)
+{
+	switch (obj->ID)
+	{
+		case Obj::CREATURE_GENERATOR1:
+			recruitCreatures(dynamic_cast<const CGDwelling *>(obj));
+		break;
+	}
+}
+
 void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 {
 	if(t->visitingHero)
@@ -916,15 +911,15 @@ void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 	}
 }
 
-void VCAI::recruitCreatures(const CGTownInstance * t)
+void VCAI::recruitCreatures(const CGDwelling * d)
 {
-	for(int i = 0; i < t->creatures.size(); i++)
+	for(int i = 0; i < d->creatures.size(); i++)
 	{
-		if(!t->creatures[i].second.size())
+		if(!d->creatures[i].second.size())
 			continue;
 
-		int count = t->creatures[i].first;
-		int creID = t->creatures[i].second.back();
+		int count = d->creatures[i].first;
+		int creID = d->creatures[i].second.back();
 //		const CCreature *c = VLC->creh->creatures[creID];
 // 		if(containsSavedRes(c->cost))
 // 			continue;
@@ -933,7 +928,7 @@ void VCAI::recruitCreatures(const CGTownInstance * t)
 		myRes[Res::GOLD] -= GOLD_RESERVE;
 		amin(count, myRes / VLC->creh->creatures[creID]->cost);
 		if(count > 0)
-			cb->recruitCreatures(t, creID, count, i);
+			cb->recruitCreatures(d, creID, count, i);
 	}
 }
 
@@ -999,8 +994,11 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(const CGHero
 	validateVisitableObjs();
 	std::vector<const CGObjectInstance *> possibleDestinations;
 	BOOST_FOREACH(const CGObjectInstance *obj, visitableObjs)
-		if(cb->getPathInfo(obj->visitablePos())->reachable()  &&  obj->tempOwner != playerID)
+	{
+		if(cb->getPathInfo(obj->visitablePos())->reachable()  &&
+			(obj->tempOwner != playerID || isWeeklyRevisitable(obj))) //flag or get weekly resources / creatures
 			possibleDestinations.push_back(obj);
+	}
 
 	boost::sort(possibleDestinations, isCloser);
 
@@ -1253,6 +1251,7 @@ public:
 
 bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 {
+	visitedObject = NULL;
 	int3 startHpos = h->visitablePos();
 	bool ret = false;
 	if(startHpos == dst)
@@ -1301,6 +1300,8 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 		}
 		ret = !i;
 	}
+	if (visitedObject) //we step into something interesting
+		performObjectInteraction (visitedObject, h);
 
 	if(h->tempOwner == playerID) //lost hero after last move
 		cb->recalculatePaths();
@@ -1371,7 +1372,9 @@ void VCAI::tryRealize(CGoal g)
 			if(!g.hero->movement)
 				throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
 			if(!g.isBlockedBorderGate(g.tile))
+			{
 				ai->moveHeroToTile(g.tile, g.hero);
+			}
 			else
 				throw cannotFulfillGoalException("There's a blocked gate!");
 		}
@@ -2335,6 +2338,13 @@ void SectorMap::write(crstring fname)
 		}
 		out << std::endl;
 	}
+}
+
+bool isWeeklyRevisitable (const CGObjectInstance * obj)
+{ //TODO: allow polling of remaining creatures in dwelling
+	if (dynamic_cast<const CGVisitableOPW *>(obj) || dynamic_cast<const CGDwelling *>(obj)) //ensures future compatibility, unlike IDs
+		return true;
+	return false;
 }
 
 
