@@ -12,6 +12,7 @@
 #include "GameConstants.h"
 
 #define FOREACH_PARENT(pname) 	TNodes lparents; getParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
+#define FOREACH_CPARENT(pname) 	TCNodes lparents; getParents(lparents); BOOST_FOREACH(const CBonusSystemNode *pname, lparents)
 #define FOREACH_RED_CHILD(pname) 	TNodes lchildren; getRedChildren(lchildren); BOOST_FOREACH(CBonusSystemNode *pname, lchildren)
 #define FOREACH_RED_PARENT(pname) 	TNodes lparents; getRedParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
 
@@ -143,7 +144,7 @@ void BonusList::getModifiersWDescr(TModDescr &out) const
 	}
 }
 
-void BonusList::getBonuses(TBonusListPtr out, const CSelector &selector) const
+void BonusList::getBonuses(BonusList & out, const CSelector &selector) const
 {
 // 	BOOST_FOREACH(Bonus *i, *this)
 // 		if(selector(i) && i->effectRange == Bonus::NO_LIMIT)
@@ -152,31 +153,37 @@ void BonusList::getBonuses(TBonusListPtr out, const CSelector &selector) const
 	getBonuses(out, selector, 0);
 }
 
-void BonusList::getBonuses(TBonusListPtr out, const CSelector &selector, const CSelector &limit, const bool caching /*= false*/) const
+void BonusList::getBonuses(BonusList & out, const CSelector &selector, const CSelector &limit) const
 {
 	for (ui32 i = 0; i < bonuses.size(); i++)
 	{
 		Bonus *b = bonuses[i];
 
 		//add matching bonuses that matches limit predicate or have NO_LIMIT if no given predicate
-		if(caching || (selector(b) && ((!limit && b->effectRange == Bonus::NO_LIMIT) || (limit && limit(b)))))
-			out->push_back(b);
+		if(selector(b) && ((!limit && b->effectRange == Bonus::NO_LIMIT) || (limit && limit(b))))
+			out.push_back(b);
 	}
+}
+
+void BonusList::getAllBonuses(BonusList &out) const
+{
+	BOOST_FOREACH(Bonus *b, bonuses)
+		out.push_back(b);
 }
 
 int BonusList::valOfBonuses(const CSelector &select) const
 {
-	TBonusListPtr ret(new BonusList());
+	BonusList ret;
 	CSelector limit = 0;
-	getBonuses(ret, select, limit, false);
-	ret->eliminateDuplicates();
-	return ret->totalValue();
+	getBonuses(ret, select, limit);
+	ret.eliminateDuplicates();
+	return ret.totalValue();
 }
 
-void BonusList::limit(const CBonusSystemNode &node)
-{
-	remove_if(boost::bind(&CBonusSystemNode::isLimitedOnUs, boost::ref(node), _1));
-}
+// void BonusList::limit(const CBonusSystemNode &node)
+// {
+// 	remove_if(boost::bind(&CBonusSystemNode::isLimitedOnUs, boost::ref(node), _1));
+// }
 
 
 void BonusList::eliminateDuplicates()
@@ -464,20 +471,30 @@ void CBonusSystemNode::getParents(TNodes &out)
 	}	
 }
 
-void CBonusSystemNode::getAllBonusesRec(TBonusListPtr out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const bool caching /*= false*/) const
+void CBonusSystemNode::getBonusesRec(BonusList &out, const CSelector &selector, const CSelector &limit) const
 {
-	TCNodes lparents; 
-	getParents(lparents); 
-	BOOST_FOREACH(const CBonusSystemNode *p, lparents)
-		p->getAllBonusesRec(out, selector, limit, root ? root : this, caching);
-	
-	bonuses.getBonuses(out, selector, limit, caching);
+	FOREACH_CPARENT(p)
+	{
+		p->getBonusesRec(out, selector, limit);
+	}
+
+	bonuses.getBonuses(out, selector, limit);
+}
+
+void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
+{
+	FOREACH_CPARENT(p)
+	{
+		p->getAllBonusesRec(out);
+	}
+
+	bonuses.getAllBonuses(out);
 }
 
 const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const std::string &cachingStr /*= ""*/) const
 {
-	TBonusListPtr ret(new BonusList());
-	if (CBonusSystemNode::cachingEnabled)
+	bool limitOnUs = (!root || root == this); //caching won't work when we want to limit bonuses against an external node
+	if (CBonusSystemNode::cachingEnabled && limitOnUs) 
 	{
 		// Exclusive access for one thread
 		static boost::mutex m;
@@ -487,11 +504,14 @@ const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, c
 		// cache all bonus objects. Selector objects doesn't matter.
 		if (cachedLast != treeChanged)
 		{
-			getAllBonusesRec(ret, selector, limit, this, true);
-			ret->eliminateDuplicates();
-			cachedBonuses = *ret;
-			ret->clear();
+			cachedBonuses.clear();
 			cachedRequests.clear();
+
+			BonusList allBonuses;
+			getAllBonusesRec(allBonuses);
+			allBonuses.eliminateDuplicates();
+			limitBonuses(allBonuses, cachedBonuses);
+
 			cachedLast = treeChanged;
 		}
 		
@@ -499,41 +519,68 @@ const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, c
 		// pre-calculated bonus results. Limiters can't be cached so they have to be calculated.
 		if (cachingStr != "")
 		{
-			std::map<std::string, TBonusListPtr >::iterator it(cachedRequests.find(cachingStr));
-			if (cachedRequests.size() > 0 && it != cachedRequests.end())
+			auto it = cachedRequests.find(cachingStr);
+			if(it != cachedRequests.end())
 			{
-				ret = it->second;
-				if (!root)
-					ret->limit(*this);
-
-				return ret;
+				//Cached list contains bonuses for our query with applied limiters
+				return it->second;
 			}
 		}
 
-		// Get the bonus results
-		cachedBonuses.getBonuses(ret, selector, limit, false);
-		
-		// Sets the results with the given caching string into the map
-		if (cachingStr != "")
+		//We still don't have the bonuses (didn't returned them from cache)
+		//Perform bonus selection
+		auto ret = make_shared<BonusList>();
+		cachedBonuses.getBonuses(*ret, selector, limit); 
+
+		// Save the results in the cache
+		if(cachingStr != "")
 			cachedRequests[cachingStr] = ret;
-		
-		// Calculate limiters
-		if (!root)
-			ret->limit(*this);
 
 		return ret;
 	}
 	else
 	{
-		// Get bonus results without caching enabled.
-		getAllBonusesRec(ret, selector, limit, root, false);
-		ret->eliminateDuplicates();
-
-		if(!root)
-			ret->limit(*this);
-
-		return ret;
+		return getAllBonusesWithoutCaching(selector, limit, root);
 	}
+}
+
+const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/) const
+{
+	auto ret = make_shared<BonusList>();
+
+	// Get bonus results without caching enabled.
+	BonusList beforeLimiting, afterLimiting;
+	getAllBonusesRec(beforeLimiting);
+	beforeLimiting.eliminateDuplicates();
+
+	if(!root || root == this)
+	{
+		limitBonuses(beforeLimiting, afterLimiting);
+		afterLimiting.getBonuses(*ret, selector, limit);
+	}
+	else if(root)
+	{
+		//We want to limit our query against an external node. We get all its bonuses, 
+		// add the ones we're considering and see if they're cut out by limiters
+		BonusList rootBonuses, limitedRootBonuses;
+		getAllBonusesRec(rootBonuses);
+
+		BOOST_FOREACH(Bonus *b, beforeLimiting) 
+			rootBonuses.push_back(b);
+
+		rootBonuses.eliminateDuplicates();
+		root->limitBonuses(rootBonuses, limitedRootBonuses);
+
+		BOOST_FOREACH(Bonus *b, beforeLimiting)
+			if(vstd::contains(limitedRootBonuses, b))
+				afterLimiting.push_back(b);
+
+		afterLimiting.getBonuses(*ret, selector, limit);
+	}
+	else
+		beforeLimiting.getBonuses(*ret, selector, limit);
+
+	return ret;
 }
 
 CBonusSystemNode::CBonusSystemNode() : bonuses(true), exportedBonuses(true), nodeType(UNKNOWN), cachedLast(0)
@@ -585,9 +632,9 @@ void CBonusSystemNode::detachFrom(CBonusSystemNode *parent)
 
 void CBonusSystemNode::popBonuses(const CSelector &s)
 {
-	TBonusListPtr bl(new BonusList);
+	BonusList bl;
 	exportedBonuses.getBonuses(bl, s);
-	BOOST_FOREACH(Bonus *b, *bl)
+	BOOST_FOREACH(Bonus *b, bl)
 		removeBonus(b);
 
 	BOOST_FOREACH(CBonusSystemNode *child, children)
@@ -616,11 +663,6 @@ void CBonusSystemNode::removeBonus(Bonus *b)
 		bonuses -= b;
 	vstd::clear_pointer(b);
 	CBonusSystemNode::treeChanged++;
-}
-
-bool CBonusSystemNode::isLimitedOnUs(Bonus *b) const
-{
-	return b->limiter && b->limiter->limit(b, *this);
 }
 
 bool CBonusSystemNode::actsAsBonusSourceOnly() const
@@ -852,6 +894,53 @@ void CBonusSystemNode::incrementTreeChangedNum()
 	treeChanged++;
 }
 
+void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out) const
+{
+	assert(&allBonuses != &out); //todo should it work in-place?
+
+	BonusList undecided = allBonuses, 
+		&accepted = out;
+
+	while(true)
+	{
+		int undecidedCount = undecided.size();
+		for(int i = 0; i < undecided.size(); i++)
+		{
+			Bonus *b = undecided[i];
+			BonusLimitationContext context = {b, *this, out};
+			int decision = b->limiter ? b->limiter->limit(context) : ILimiter::ACCEPT; //bonuses without limiters will be accepted by default
+			if(decision == ILimiter::DISCARD)
+			{
+				undecided.erase(i);
+				i--; continue; 
+			}
+			else if(decision == ILimiter::ACCEPT)
+			{
+				accepted.push_back(b);
+				undecided.erase(i);
+				i--; continue; 
+			}
+			else
+				assert(decision == ILimiter::NOT_SURE);
+		}
+
+		if(undecided.size() == undecidedCount) //we haven't moved a single bonus -> limiters reached a stable state
+			return;
+	}
+}
+
+TBonusListPtr CBonusSystemNode::limitBonuses(const BonusList &allBonuses) const
+{
+	auto ret = make_shared<BonusList>();
+	limitBonuses(allBonuses, *ret);
+	return ret;
+}
+
+void CBonusSystemNode::treeHasChanged()
+{
+	treeChanged++;
+}
+
 int NBonus::valOf(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype /*= -1*/)
 {
 	if(obj)
@@ -944,23 +1033,13 @@ Bonus::~Bonus()
 {
 }
 
-Bonus * Bonus::addLimiter(ILimiter *Limiter)
-{
-	return addLimiter(boost::shared_ptr<ILimiter>(Limiter));
-}
-
-Bonus * Bonus::addLimiter(boost::shared_ptr<ILimiter> Limiter)
+Bonus * Bonus::addLimiter(TLimiterPtr Limiter)
 {
 	limiter = Limiter;
 	return this;
 }
 
-Bonus * Bonus::addPropagator(IPropagator *Propagator)
-{
-	return addPropagator(boost::shared_ptr<IPropagator>(Propagator));
-}
-
-Bonus * Bonus::addPropagator(boost::shared_ptr<IPropagator> Propagator)
+Bonus * Bonus::addPropagator(TPropagatorPtr Propagator)
 {
 	propagator = Propagator;
 	return this;
@@ -1109,14 +1188,14 @@ ILimiter::~ILimiter()
 {
 }
 
-bool ILimiter::limit(const Bonus *b, const CBonusSystemNode &node) const /*return true to drop the bonus */
+int ILimiter::limit(const BonusLimitationContext &context) const /*return true to drop the bonus */
 {
 	return false;
 }
 
-bool CCreatureTypeLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const
+int CCreatureTypeLimiter::limit(const BonusLimitationContext &context) const
 {
-	const CCreature *c = retrieveCreature(&node);
+	const CCreature *c = retrieveCreature(&context.node);
 	if(!c)
 		return true;
 	return c != creature   &&   (!includeUpgrades || !creature->isMyUpgrade(c));
@@ -1144,16 +1223,18 @@ HasAnotherBonusLimiter::HasAnotherBonusLimiter( TBonusType bonus, TBonusSubtype 
 {
 }
 
-bool HasAnotherBonusLimiter::limit( const Bonus *b, const CBonusSystemNode &node ) const
+int HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
 {
-	if(isSubtypeRelevant)
-	{
-		return !node.hasBonusOfType(static_cast<Bonus::BonusType>(type), subtype);
-	}
-	else
-	{
-		return !node.hasBonusOfType(static_cast<Bonus::BonusType>(type));
-	}
+	CSelector mySelector = isSubtypeRelevant 
+							? Selector::typeSubtype(type, subtype) 
+							: Selector::type(type);
+
+	//if we have a bonus of required type accepted, limiter should accept also this bonus
+	if(context.alreadyAccepted.getFirst(mySelector))
+		return ACCEPT;
+
+	//do not accept for now but it may change if more bonuses gets included
+	return NOT_SURE;
 }
 
 IPropagator::~IPropagator()
@@ -1201,9 +1282,10 @@ CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter()
 {
 
 }
-bool CreatureNativeTerrainLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const
+
+int CreatureNativeTerrainLimiter::limit(const BonusLimitationContext &context) const
 {
-	const CCreature *c = retrieveCreature(&node);
+	const CCreature *c = retrieveCreature(&context.node);
 	return !c || !vstd::iswithin(c->faction, 0, 9) || VLC->heroh->nativeTerrains[c->faction] != terrainType; //drop bonus for non-creatures or non-native residents
 	//TODO neutral creatues
 }
@@ -1216,9 +1298,10 @@ CreatureFactionLimiter::CreatureFactionLimiter(int Faction)
 CreatureFactionLimiter::CreatureFactionLimiter()
 {
 }
-bool CreatureFactionLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const
+
+int CreatureFactionLimiter::limit(const BonusLimitationContext &context) const
 {
-	const CCreature *c = retrieveCreature(&node);
+	const CCreature *c = retrieveCreature(&context.node);
 	return !c || c->faction != faction; //drop bonus for non-creatures or non-native residents
 }
 
@@ -1231,9 +1314,9 @@ CreatureAlignmentLimiter::CreatureAlignmentLimiter(si8 Alignment)
 {
 }
 
-bool CreatureAlignmentLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const
+int CreatureAlignmentLimiter::limit(const BonusLimitationContext &context) const
 {
-	const CCreature *c = retrieveCreature(&node);
+	const CCreature *c = retrieveCreature(&context.node);
 	if(!c) 
 		return true;
 	switch(alignment)
@@ -1260,21 +1343,21 @@ RankRangeLimiter::RankRangeLimiter()
 	minRank = maxRank = -1;
 }
 
-bool RankRangeLimiter::limit( const Bonus *b, const CBonusSystemNode &node ) const
+int RankRangeLimiter::limit(const BonusLimitationContext &context) const
 {
-	const CStackInstance *csi = retreiveStackInstance(&node);
+	const CStackInstance *csi = retreiveStackInstance(&context.node);
 	if(csi)
 		return csi->getExpRank() < minRank || csi->getExpRank() > maxRank;
 	return true;
 }
 
-bool StackOwnerLimiter::limit(const Bonus *b, const CBonusSystemNode &node) const 
+int StackOwnerLimiter::limit(const BonusLimitationContext &context) const 
 {
-	const CStack *s = retreiveStackBattle(&node);
+	const CStack *s = retreiveStackBattle(&context.node);
 	if(s)
 		return s->owner != owner;
 
- 	const CStackInstance *csi = retreiveStackInstance(&node);
+ 	const CStackInstance *csi = retreiveStackInstance(&context.node);
  	if(csi && csi->armyObj)
  		return csi->armyObj->tempOwner != owner;
  	return true;

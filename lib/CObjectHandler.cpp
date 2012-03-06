@@ -2274,9 +2274,9 @@ void CGTownInstance::deserializationFix()
 
 void CGTownInstance::recreateBuildingsBonuses()
 {
-	TBonusListPtr bl(new BonusList);
+	BonusList bl;
 	getExportedBonusList().getBonuses(bl, Selector::sourceType(Bonus::TOWN_STRUCTURE));
-	BOOST_FOREACH(Bonus *b, *bl)
+	BOOST_FOREACH(Bonus *b, bl)
 		removeBonus(b);
 
 
@@ -2285,13 +2285,13 @@ void CGTownInstance::recreateBuildingsBonuses()
 	
 	if(subID == 0) //castle
 	{
-		addBonusIfBuilt(17, Bonus::SEA_MOVEMENT, +500, new CPropagatorNodeType(PLAYER)); //lighthouses
-		addBonusIfBuilt(26, Bonus::MORALE, +2, new CPropagatorNodeType(PLAYER)); //colossus
+		addBonusIfBuilt(17, Bonus::SEA_MOVEMENT, +500, make_shared<CPropagatorNodeType>(PLAYER)); //lighthouses
+		addBonusIfBuilt(26, Bonus::MORALE, +2, make_shared<CPropagatorNodeType>(PLAYER)); //colossus
 	}
 	else if(subID == 1) //rampart
 	{
 		addBonusIfBuilt(21, Bonus::LUCK, +2); //fountain of fortune
-		addBonusIfBuilt(21, Bonus::LUCK, +2, new CPropagatorNodeType(PLAYER)); //guardian spirit
+		addBonusIfBuilt(21, Bonus::LUCK, +2, make_shared<CPropagatorNodeType>(PLAYER)); //guardian spirit
 	}
 	else if(subID == 2) //tower
 	{
@@ -2304,8 +2304,8 @@ void CGTownInstance::recreateBuildingsBonuses()
 	else if(subID == 4) //necropolis
 	{
 		addBonusIfBuilt(17, Bonus::DARKNESS, +20);
-		addBonusIfBuilt(21, Bonus::SECONDARY_SKILL_PREMY, +10, new CPropagatorNodeType(PLAYER), CGHeroInstance::NECROMANCY); //necromancy amplifier
-		addBonusIfBuilt(26, Bonus::SECONDARY_SKILL_PREMY, +20, new CPropagatorNodeType(PLAYER), CGHeroInstance::NECROMANCY); //Soul prison
+		addBonusIfBuilt(21, Bonus::SECONDARY_SKILL_PREMY, +10, make_shared<CPropagatorNodeType>(PLAYER), CGHeroInstance::NECROMANCY); //necromancy amplifier
+		addBonusIfBuilt(26, Bonus::SECONDARY_SKILL_PREMY, +20, make_shared<CPropagatorNodeType>(PLAYER), CGHeroInstance::NECROMANCY); //Soul prison
 	}
 	else if(subID == 5) //Dungeon
 	{
@@ -2333,7 +2333,7 @@ bool CGTownInstance::addBonusIfBuilt(int building, int type, int val, int subtyp
 	return addBonusIfBuilt(building, type, val, NULL, subtype);
 }
 
-bool CGTownInstance::addBonusIfBuilt(int building, int type, int val, IPropagator *prop, int subtype /*= -1*/)
+bool CGTownInstance::addBonusIfBuilt(int building, int type, int val, TPropagatorPtr prop, int subtype /*= -1*/)
 {
 	if(vstd::contains(builtBuildings, building))
 	{

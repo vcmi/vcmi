@@ -232,9 +232,9 @@ void CBattleCallback::sendRequest(const CPack* request)
 
 	if(waitTillRealize)
 	{
-		std::unique_ptr<vstd::unlock_shared_guard> unlocker; //optional, if flag set
+		unique_ptr<vstd::unlock_shared_guard> unlocker; //optional, if flag set
 		if(unlockGsWhenWaiting)
-			unlocker = vstd::make_unique<vstd::unlock_shared_guard>(vstd::makeUnlockSharedGuard(getGsMutex()));
+			unlocker = make_unique<vstd::unlock_shared_guard>(vstd::makeUnlockSharedGuard(getGsMutex()));
 
 		cl->waitingRequest.waitWhileTrue();
 	}

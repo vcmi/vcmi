@@ -100,11 +100,12 @@ public:
 class CCallback : public CPlayerSpecificInfoCallback, public IGameActionCallback, public CBattleCallback
 {
 private:
-	CCallback(CGameState * GS, int Player, CClient *C);
 
 	void validatePaths(); //recalcualte paths if necessary
 
 public:
+	CCallback(CGameState * GS, int Player, CClient *C);
+
 	//client-specific functionalities (pathfinding)
 	virtual bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret); //DEPRACATED!!!
 	virtual const CGPathNode *getPathInfo(int3 tile); //uses main, client pathfinder info

@@ -318,6 +318,12 @@ namespace vstd
 		return std::unique_ptr<T>(new T(std::forward<Arg1>(arg1)));
 	}
 }
+
+using std::shared_ptr;
+using std::unique_ptr;
+using std::make_shared;
+using vstd::make_unique;
+
 using vstd::operator-=;
 
 // can be used for counting arrays

@@ -655,6 +655,8 @@ DLL_LINKAGE void RebalanceStacks::applyGs( CGameState *gs )
 				dst.army->setStackExp(dst.slot, src.army->getStackExperience(src.slot));
 		}
 	}
+
+	CBonusSystemNode::treeHasChanged();
 }
 
 DLL_LINKAGE void PutArtifact::applyGs( CGameState *gs )
@@ -941,6 +943,8 @@ void BattleResult::applyGs( CGameState *gs )
 			gs->curB->belligerents[0]->giveStackExp(exp[0]);
 		if (exp[1])
 			gs->curB->belligerents[1]->giveStackExp(exp[1]);
+
+		CBonusSystemNode::treeHasChanged();
 	}
 
 	gs->curB->belligerents[0]->battle = gs->curB->belligerents[1]->battle = NULL;

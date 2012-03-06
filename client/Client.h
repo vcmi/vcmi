@@ -61,7 +61,7 @@ class CClient : public IGameCallback
 {
 public:
 	CCallback *cb;
-	std::map<ui8,boost::shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
+	std::map<ui8,shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
 	std::vector<IGameEventsReceiver*> privilagedGameEventReceivers; //scripting modules, spectator interfaces
 	std::vector<IBattleEventsReceiver*> privilagedBattleEventReceivers; //scripting modules, spectator interfaces
 	std::map<ui8,CGameInterface *> playerint;

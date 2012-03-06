@@ -22,7 +22,9 @@ class ILimiter;
 class IPropagator;
 class BonusList;
 
-typedef boost::shared_ptr<BonusList> TBonusListPtr;
+typedef shared_ptr<BonusList> TBonusListPtr;
+typedef shared_ptr<ILimiter> TLimiterPtr;
+typedef shared_ptr<IPropagator> TPropagatorPtr;
 typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
@@ -247,8 +249,8 @@ struct DLL_LINKAGE Bonus
 	si32 additionalInfo;
 	ui8 effectRange; //if not NO_LIMIT, bonus will be omitted by default
 
-	boost::shared_ptr<ILimiter> limiter;
-	boost::shared_ptr<IPropagator> propagator;
+	TLimiterPtr limiter;
+	TPropagatorPtr propagator;
 
 	std::string description; 
 
@@ -322,10 +324,8 @@ struct DLL_LINKAGE Bonus
 
 	std::string Description() const;
 
-	Bonus *addLimiter(ILimiter *Limiter); //returns this for convenient chain-calls
-	Bonus *addPropagator(IPropagator *Propagator); //returns this for convenient chain-calls
-	Bonus *addLimiter(boost::shared_ptr<ILimiter> Limiter); //returns this for convenient chain-calls
-	Bonus *addPropagator(boost::shared_ptr<IPropagator> Propagator); //returns this for convenient chain-calls
+	Bonus *addLimiter(TLimiterPtr Limiter); //returns this for convenient chain-calls
+	Bonus *addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
@@ -363,17 +363,18 @@ public:
 
 	// BonusList functions
 	int totalValue() const; //subtype -> subtype of bonus, if -1 then any
-	void getBonuses(TBonusListPtr out, const CSelector &selector, const CSelector &limit, const bool caching = false) const;
+	void getBonuses(BonusList &out, const CSelector &selector, const CSelector &limit) const;
+	void getAllBonuses(BonusList &out) const;
 	void getModifiersWDescr(TModDescr &out) const;
 
-	void getBonuses(TBonusListPtr out, const CSelector &selector) const;
+	void getBonuses(BonusList & out, const CSelector &selector) const;
 
 	//special find functions
 	Bonus *getFirst(const CSelector &select);
 	const Bonus *getFirst(const CSelector &select) const;
 	int valOfBonuses(const CSelector &select) const;
 
-	void limit(const CBonusSystemNode &node); //erases bonuses using limitor
+	//void limit(const CBonusSystemNode &node); //erases bonuses using limitor
 	void eliminateDuplicates();
 	
 	// remove_if implementation for STL vector types
@@ -454,13 +455,22 @@ public:
 		h & nodeType;
 	}
 };
+
+struct BonusLimitationContext
+{
+	const Bonus *b;
+	const CBonusSystemNode &node;
+	const BonusList &alreadyAccepted;
+};
 	
 class DLL_LINKAGE ILimiter
 {
 public:
+	enum EDecision {ACCEPT, DISCARD, NOT_SURE};
+
 	virtual ~ILimiter();
 
-	virtual bool limit(const Bonus *b, const CBonusSystemNode &node) const; //return true to drop the bonus
+	virtual int limit(const BonusLimitationContext &context) const; //0 - accept bonus; 1 - drop bonus; 2 - delay (drops eventually)
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{}
@@ -527,13 +537,17 @@ private:
 	// [property key]_[value] => only for selector
 	mutable std::map<std::string, TBonusListPtr > cachedRequests;
 
-	void getAllBonusesRec(TBonusListPtr out, const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const bool caching = false) const;
+	void getBonusesRec(BonusList &out, const CSelector &selector, const CSelector &limit) const;
+	void getAllBonusesRec(BonusList &out) const;
+	const TBonusListPtr getAllBonusesWithoutCaching(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL) const;
 
 public:
 
 	explicit CBonusSystemNode();
 	virtual ~CBonusSystemNode();
 	
+	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
+	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
 	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
 	const Bonus *getBonus(const CSelector &selector) const;
@@ -563,7 +577,7 @@ public:
 
 	bool isIndependentNode() const; //node is independent when it has no parents nor children
 	bool actsAsBonusSourceOnly() const;
-	bool isLimitedOnUs(Bonus *b) const; //if bonus should be removed from list acquired from this node
+	//bool isLimitedOnUs(Bonus *b) const; //if bonus should be removed from list acquired from this node
 
 	void popBonuses(const CSelector &s);
 	virtual std::string bonusToString(Bonus *bonus, bool description) const {return "";}; //description or bonus name
@@ -583,6 +597,8 @@ public:
 	const TNodesVector &getChildrenNodes() const;
 	const std::string &getDescription() const;
 	void setDescription(const std::string &description);
+
+	static void treeHasChanged();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -708,7 +724,7 @@ public:
 	CCreatureTypeLimiter();
 	CCreatureTypeLimiter(const CCreature &Creature, ui8 IncludeUpgrades = true);
 
-	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -726,7 +742,7 @@ public:
 	HasAnotherBonusLimiter(TBonusType bonus = Bonus::NONE);
 	HasAnotherBonusLimiter(TBonusType bonus, TBonusSubtype _subtype);
 
-	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -741,7 +757,7 @@ public:
 	CreatureNativeTerrainLimiter();
 	CreatureNativeTerrainLimiter(int TerrainType);
 
-	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -756,7 +772,7 @@ public:
 	CreatureFactionLimiter();
 	CreatureFactionLimiter(int TerrainType);
 
-	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -771,7 +787,7 @@ public:
 	CreatureAlignmentLimiter();
 	CreatureAlignmentLimiter(si8 Alignment);
 
-	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -786,7 +802,7 @@ public:
 	StackOwnerLimiter();
 	StackOwnerLimiter(ui8 Owner);
 
-	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -801,7 +817,7 @@ public:
 
 	RankRangeLimiter();
 	RankRangeLimiter(ui8 Min, ui8 Max = 255);
-	bool limit(const Bonus *b, const CBonusSystemNode &node) const OVERRIDE;
+	int limit(const BonusLimitationContext &context) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

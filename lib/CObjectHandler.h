@@ -584,7 +584,7 @@ public:
 	std::string nodeName() const OVERRIDE;
 	void deserializationFix();
 	void recreateBuildingsBonuses();
-	bool addBonusIfBuilt(int building, int type, int val, IPropagator *prop, int subtype = -1); //returns true if building is built and bonus has been added
+	bool addBonusIfBuilt(int building, int type, int val, TPropagatorPtr prop, int subtype = -1); //returns true if building is built and bonus has been added
 	bool addBonusIfBuilt(int building, int type, int val, int subtype = -1); //convienence version of above
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);

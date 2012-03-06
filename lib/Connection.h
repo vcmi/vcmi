@@ -495,7 +495,7 @@ public:
 		const_cast<T&>(data).serialize(*this,version);
 	}
 	template <typename T>
-	void saveSerializable(const boost::shared_ptr<T> &data)
+	void saveSerializable(const shared_ptr<T> &data)
 	{
 		T *internalPtr = data.get();
 		*this << internalPtr;
@@ -762,7 +762,7 @@ public:
 
 
 	template <typename T>
-	void loadSerializable(boost::shared_ptr<T> &data)
+	void loadSerializable(shared_ptr<T> &data)
 	{
 		T *internalPtr;
 		*this >> internalPtr;

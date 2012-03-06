@@ -145,8 +145,8 @@ private:
 	SettingsListener listener;
 	void onVolumeChange(const JsonNode &volumeNode);
 
-	std::unique_ptr<MusicEntry> current;
-	std::unique_ptr<MusicEntry> next;
+	unique_ptr<MusicEntry> current;
+	unique_ptr<MusicEntry> next;
 
 	void queueNext(MusicEntry *queued);
 public:

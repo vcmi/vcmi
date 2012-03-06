@@ -367,7 +367,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 		if(si->mode != StartInfo::DUEL)
 		{
-			CCallback *cb = new CCallback(gs,color,this);
+			auto cb = make_shared<CCallback>(gs,color,this);
 			if(!it->second.human) 
 			{
 				std::string AItoGive = settings["server"]["playerAI"].String();
@@ -385,8 +385,8 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			}
 			battleints[color] = playerint[color];
 
-			playerint[color]->init(cb);
-			callbacks[color] = boost::shared_ptr<CCallback>(cb);
+			playerint[color]->init(cb.get());
+			callbacks[color] = cb;
 		}
 		else
 		{
@@ -473,7 +473,7 @@ void CClient::serialize( Handler &h, const int version )
 			else
 				nInt = new CPlayerInterface(pid);
 
-			callbacks[pid] = boost::shared_ptr<CCallback>(new CCallback(gs,pid,this));
+			callbacks[pid] = make_shared<CCallback>(gs,pid,this);
 			battleints[pid] = playerint[pid] = nInt;
 			nInt->init(callbacks[pid].get());
 			nInt->serialize(h, version);

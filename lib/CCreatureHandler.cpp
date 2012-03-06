@@ -363,7 +363,7 @@ void CCreatureHandler::loadCreatures()
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_raises_morale"))
 			{
 				ncre.addBonus(+1, Bonus::MORALE);;
-				ncre.getBonusList().back()->addPropagator(new CPropagatorNodeType(CBonusSystemNode::HERO));
+				ncre.getBonusList().back()->addPropagator(make_shared<CPropagatorNodeType>(CBonusSystemNode::HERO));
 			}
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_lowers_morale"))
 			{
