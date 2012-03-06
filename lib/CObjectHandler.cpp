@@ -2997,6 +2997,8 @@ void CGCreature::endBattle( BattleResult *result ) const
 			else
 				cb->moveStack (StackLocation(this, i->first), StackLocation(this, slot), i->second->count);
 		}
+
+		cb->setObjProperty(id, ObjProperty::MONSTER_POWER, stacks.begin()->second->count * 1000); //remember casualties
 	}
 }
 
