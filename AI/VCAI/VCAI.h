@@ -255,6 +255,7 @@ public:
 	void buildStructure(const CGTownInstance * t);
 	//void recruitCreatures(const CGTownInstance * t);
 	void recruitCreatures(const CGDwelling * d);
+	void pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source); //called when we can't find a slot for new stack
 	void moveCreaturesToHero(const CGTownInstance * t);
 	bool goVisitObj(const CGObjectInstance * obj, const CGHeroInstance * h);
 	void performObjectInteraction(const CGObjectInstance * obj, const CGHeroInstance * h);

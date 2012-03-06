@@ -779,6 +779,7 @@ void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *do
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
 	status.addQuery();
+	pickBestCreatures (down, up);
 	onEnd();
 }
 
@@ -893,19 +894,59 @@ void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 {
 	if(t->visitingHero)
 	{
-		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
+		pickBestCreatures (t->visitingHero, t);
+	}
+}
+
+void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source)
+{
+	if (army->stacksCount() == GameConstants::ARMY_SIZE) //try merging our army first
+	{
+		for (int i = 0; i < GameConstants::ARMY_SIZE; ++i)
 		{
-			if(const CStackInstance *s = t->getStackPtr(i))
+			if (const CStackInstance *s = army->getStackPtr(i))
 			{
-				//find d
-				int dstSlot = t->visitingHero->getSlotFor(s->type);
-				if(dstSlot >= 0)
+				for (int j = 0; j < GameConstants::ARMY_SIZE; ++j)
 				{
-					if(t->visitingHero->hasStackAtSlot(dstSlot))
-						cb->mergeStacks(t, t->visitingHero, i, dstSlot);
-					else
-						cb->swapCreatures(t, t->visitingHero, i, dstSlot);
+					if (i != j && army->mergableStacks(std::pair<TSlot, TSlot>(i, j)))
+					{
+						cb->mergeStacks (army, army, j, i);
+						break;
+					}
 				}
+			}
+		}
+	}
+
+	for (int i = 0; i < GameConstants::ARMY_SIZE; ++i)
+	{
+		if(const CStackInstance *s = source->getStackPtr(i))
+		{
+			//find d
+			int dstSlot = army->getSlotFor(s->type);
+			if(dstSlot >= 0)
+			{
+				if (army->hasStackAtSlot(dstSlot))
+					cb->mergeStacks(source, army, i, dstSlot);
+				else 
+					cb->swapCreatures(source, army, i, dstSlot);
+			}
+			else //exchange poorest stack with stronger one
+			{
+				TSlot weakestStack = 0;
+				for (int j = 1; j < GameConstants::ARMY_SIZE; ++j)
+				{
+					const CStackInstance *p = army->getStackPtr(j);
+					const CStackInstance *w = army->getStackPtr(weakestStack);
+					if (p && w)
+					{
+						if (p->getPower() < w->getPower())
+							weakestStack = j;
+					}
+				}
+				if (const CStackInstance *w = army->getStackPtr(weakestStack))
+					if (w->getPower() < s->getPower())
+						cb->swapCreatures(source, army, i, weakestStack);
 			}
 		}
 	}
@@ -1098,7 +1139,6 @@ void VCAI::wander(const CGHeroInstance * h)
 			break;
 		}
 
-		//TODO real solution for moving army
 		if(h->visitedTown)
 		{
 			townVisitsThisWeek[h].push_back(h->visitedTown);
@@ -1331,7 +1371,6 @@ int howManyTilesWillBeDiscovered(int radious, int3 pos, crint3 dir)
 {
 	return howManyTilesWillBeDiscovered(pos + dir, radious);
 }
-
 
 void getVisibleNeighbours(const std::vector<int3> &tiles, std::vector<int3> &out)
 {
@@ -1609,7 +1648,6 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, const CGHeroInstance 
 
 	throw cannotFulfillGoalException("No neighbour will bring new discoveries!");
 }
-
 
 int3 VCAI::explorationNewPoint(int radius, const CGHeroInstance * h, std::vector<std::vector<int3> > &tiles)
 {
@@ -2344,10 +2382,13 @@ bool isWeeklyRevisitable (const CGObjectInstance * obj)
 { //TODO: allow polling of remaining creatures in dwelling
 	if (dynamic_cast<const CGVisitableOPW *>(obj) || dynamic_cast<const CGDwelling *>(obj)) //ensures future compatibility, unlike IDs
 		return true;
+	switch (obj->ID)
+	{
+		case Obj::STABLES: //any other potential visitable objects?
+			return true;
+	}
 	return false;
 }
-
-
 
 int3 SectorMap::firstTileToGet(const CGHeroInstance *h, crint3 dst)
 {
