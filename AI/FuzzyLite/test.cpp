@@ -232,24 +232,36 @@ namespace fl {
     }
 
     void Test::main(int args, char** argv) {
-    	FL_LOG("Starting in 2 second");
-    	FL_LOG("Example: Simple Mamdani");
-    	FL_LOG("=======================");
-    	sleep(2);
-    	SimpleMamdani();
-    	FL_LOG("=======================\n");
+        FL_LOG("Starting in 2 second");
+        FL_LOG("Example: Simple Mamdani");
+        FL_LOG("=======================");
+#ifdef _MSC_VER
+        //Sleep(2);
+#else
+        sleep(2);
+#endif
+        SimpleMamdani();
+        FL_LOG("=======================\n");
 
-    	FL_LOG("Starting in 2 second");
-    	FL_LOG("Example: Complex Mamdani");
-    	FL_LOG("========================");
-    	sleep(2);
+        FL_LOG("Starting in 2 second");
+        FL_LOG("Example: Complex Mamdani");
+        FL_LOG("========================");
+#ifdef _MSC_VER
+        //Sleep(2);
+#else
+        sleep(2);
+#endif
         ComplexMamdani();
         FL_LOG("=======================\n");
 
         FL_LOG("Starting in 2 second");
         FL_LOG("Example: Simple Pendulum");
         FL_LOG("========================");
+#ifdef _MSC_VER
+        //Sleep(2);
+#else
         sleep(2);
+#endif
 
         SimplePendulum();
         FL_LOG("=======================\n");
@@ -257,7 +269,11 @@ namespace fl {
         FL_LOG("Starting in 2 second");
         FL_LOG("Example: Simple Takagi-Sugeno");
         FL_LOG("========================");
+#ifdef _MSC_VER
+        //Sleep(2);
+#else
         sleep(2);
+#endif
 
         SimpleTakagiSugeno();
         FL_LOG("=======================\n");

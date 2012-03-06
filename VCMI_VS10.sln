@@ -19,6 +19,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ERM", "Scripting\ERM\ERM.vc
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCAI", "AI\VCAI\VCAI.vcxproj", "{276C3DB0-7A6B-4417-8E5C-322B08633AAC}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FuzzyLite", "AI\FuzzyLite\FuzzyLite.vcxproj", "{D15B34EC-A32C-4968-9B0B-66998B579364}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -73,6 +75,12 @@ Global
 		{276C3DB0-7A6B-4417-8E5C-322B08633AAC}.RD|Win32.ActiveCfg = RD|Win32
 		{276C3DB0-7A6B-4417-8E5C-322B08633AAC}.RD|Win32.Build.0 = RD|Win32
 		{276C3DB0-7A6B-4417-8E5C-322B08633AAC}.RD|x64.ActiveCfg = RD|Win32
+		{D15B34EC-A32C-4968-9B0B-66998B579364}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D15B34EC-A32C-4968-9B0B-66998B579364}.Debug|Win32.Build.0 = Debug|Win32
+		{D15B34EC-A32C-4968-9B0B-66998B579364}.Debug|x64.ActiveCfg = Debug|Win32
+		{D15B34EC-A32C-4968-9B0B-66998B579364}.RD|Win32.ActiveCfg = RD|Win32
+		{D15B34EC-A32C-4968-9B0B-66998B579364}.RD|Win32.Build.0 = RD|Win32
+		{D15B34EC-A32C-4968-9B0B-66998B579364}.RD|x64.ActiveCfg = RD|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
