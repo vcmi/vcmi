@@ -816,10 +816,8 @@ void OpenWindow::applyCl(CClient *cl)
 	case THIEVES_GUILD:
 		{
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
-			if(!LOCPLINT)
-				return;
-			const CGObjectInstance *obj = cl->getObj(id1);
-			GH.pushInt( new CThievesGuildWindow(obj) );
+			const CGObjectInstance *obj = cl->getObj(id2);
+			INTERFACE_CALL_IF_PRESENT(id1, showThievesGuildWindow, obj);
 		}
 		break;
 	case UNIVERSITY_WINDOW:

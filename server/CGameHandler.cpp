@@ -4342,11 +4342,12 @@ void CGameHandler::showGarrisonDialog( int upobj, int hid, bool removableUnits, 
 	}
 }
 
-void CGameHandler::showThievesGuildWindow(int requestingObjId)
+void CGameHandler::showThievesGuildWindow(int player, int requestingObjId)
 {
 	OpenWindow ow;
 	ow.window = OpenWindow::THIEVES_GUILD;
-	ow.id1 = requestingObjId;
+	ow.id1 = player;
+	ow.id2 = requestingObjId;
 	sendAndApply(&ow);
 }
 

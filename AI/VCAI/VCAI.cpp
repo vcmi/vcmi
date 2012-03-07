@@ -435,6 +435,12 @@ void VCAI::showTavernWindow(const CGObjectInstance *townOrTavern)
 	LOG_ENTRY;
 }
 
+void VCAI::showThievesGuildWindow (const CGObjectInstance * obj)
+{
+	NET_EVENT_HANDLER;
+	LOG_ENTRY;
+}
+
 void VCAI::playerBlocked(int reason)
 {
 	NET_EVENT_HANDLER;

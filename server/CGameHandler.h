@@ -137,7 +137,7 @@ public:
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE;
 	ui32 showBlockingDialog(BlockingDialog *iw) OVERRIDE; //synchronous version of above
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) OVERRIDE;
-	void showThievesGuildWindow(int requestingObjId) OVERRIDE; //TODO: make something more general?
+	void showThievesGuildWindow(int player, int requestingObjId) OVERRIDE;
 	void giveResource(int player, int which, int val) OVERRIDE;
 
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE;

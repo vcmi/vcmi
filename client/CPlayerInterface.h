@@ -154,6 +154,7 @@ public:
 	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor) OVERRIDE;
 	void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor) OVERRIDE;
 	void showTavernWindow(const CGObjectInstance *townOrTavern) OVERRIDE;
+	void showThievesGuildWindow (const CGObjectInstance * obj) OVERRIDE;
 	void advmapSpellCast(const CGHeroInstance * caster, int spellID) OVERRIDE; //called when a hero casts a spell
 	void tileHidden(const boost::unordered_set<int3, ShashInt3> &pos) OVERRIDE; //called when given tiles become hidden under fog of war
 	void tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos) OVERRIDE; //called when fog of war disappears from given tiles

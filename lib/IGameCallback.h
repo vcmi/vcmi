@@ -284,7 +284,7 @@ public:
 	virtual void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback)=0;
 	virtual ui32 showBlockingDialog(BlockingDialog *iw) =0; //synchronous version of above //TODO:
 	virtual void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) =0; //cb will be called when player closes garrison window
-	virtual void showThievesGuildWindow(int requestingObjId) =0;
+	virtual void showThievesGuildWindow(int player, int requestingObjId) =0;
 	virtual void giveResource(int player, int which, int val)=0;
 
 	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;

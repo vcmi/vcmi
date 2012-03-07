@@ -2219,6 +2219,13 @@ void CPlayerInterface::showTavernWindow(const CGObjectInstance *townOrTavern)
 	GH.pushInt(tv);
 }
 
+void CPlayerInterface::showThievesGuildWindow (const CGObjectInstance * obj)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	CThievesGuildWindow *tgw = new CThievesGuildWindow(obj);
+	GH.pushInt(tgw);
+}
+
 void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 {
 	if(obj->state())

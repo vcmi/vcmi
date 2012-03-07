@@ -200,6 +200,7 @@ public:
 	virtual void artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst) OVERRIDE;
 	virtual void artifactAssembled(const ArtifactLocation &al) OVERRIDE;
 	virtual void showTavernWindow(const CGObjectInstance *townOrTavern) OVERRIDE;
+	virtual void showThievesGuildWindow (const CGObjectInstance * obj) OVERRIDE;
 	virtual void playerBlocked(int reason) OVERRIDE;
 	virtual void showPuzzleMap() OVERRIDE;
 	virtual void showShipyardDialog(const IShipyard *obj) OVERRIDE;

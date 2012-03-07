@@ -6556,7 +6556,7 @@ void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
 
 void CGDenOfthieves::onHeroVisit (const CGHeroInstance * h) const
 {
-	cb->showThievesGuildWindow(id);
+	cb->showThievesGuildWindow(h->tempOwner, id);
 }
 
 void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
