@@ -18,6 +18,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ERM", "Scripting\ERM\ERM.vc
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCAI", "AI\VCAI\VCAI.vcxproj", "{276C3DB0-7A6B-4417-8E5C-322B08633AAC}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D15B34EC-A32C-4968-9B0B-66998B579364} = {D15B34EC-A32C-4968-9B0B-66998B579364}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FuzzyLite", "AI\FuzzyLite\FuzzyLite.vcxproj", "{D15B34EC-A32C-4968-9B0B-66998B579364}"
 EndProject
