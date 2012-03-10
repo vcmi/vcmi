@@ -22,7 +22,7 @@ class CGTownInstance;
 using namespace boost::assign;
 using namespace vstd;
 
-FuzzyHelper fh;
+FuzzyHelper *fh;
 
 struct armyStructure
 {

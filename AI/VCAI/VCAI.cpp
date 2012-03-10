@@ -7,7 +7,7 @@
 #define I_AM_ELEMENTAR return CGoal(*this).setisElementar(true)
 CLogger &aiLogger = tlog6;
 
-extern FuzzyHelper fh;
+extern FuzzyHelper *fh;
 
 class CGVisitableOPW;
 
@@ -287,7 +287,7 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 		if (dangerousObject)
 		{
 			objectDanger = evaluateDanger(dangerousObject);
-			objectDanger *= fh.getTacticalAdvantage (visitor, dangerousObject);
+			objectDanger *= fh->getTacticalAdvantage (visitor, dangerousObject);
 		}
 		else
 		{
@@ -337,7 +337,7 @@ ui64 evaluateDanger(const CGObjectInstance *obj)
 	case Obj::SHIPWRECK: //shipwreck
 	case Obj::DERELICT_SHIP: //derelict ship
 	case Obj::PYRAMID:
-		return fh.estimateBankDanger (VLC->objh->bankObjToIndex(obj));
+		return fh->estimateBankDanger (VLC->objh->bankObjToIndex(obj));
 	case Obj::WHIRLPOOL: //whirlpool
 	case Obj::MONOLITH1:
 	case Obj::MONOLITH2:
@@ -744,6 +744,9 @@ void VCAI::init(CCallback * CB)
 	playerID = myCb->getMyColor();
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
+
+	if(!fh)
+		fh = new FuzzyHelper();
 
 	retreiveVisitableObjs(visitableObjs);
 }
