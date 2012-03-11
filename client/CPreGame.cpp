@@ -401,10 +401,12 @@ CGPreGame::CGPreGame():
 	GH.defActionsDef = 63;
 	CGP = this;
 	menu = new CMenuScreen((*pregameConfig)["window"]);
+	loadGraphics();
 }
 
 CGPreGame::~CGPreGame()
 {
+	disposeGraphics();
 }
 
 void CGPreGame::openSel(CMenuScreen::EState screenType, CMenuScreen::EMultiMode multi /*= CMenuScreen::SINGLE_PLAYER*/)
@@ -475,10 +477,17 @@ void CGPreGame::openCampaignScreen(std::string name)
 	tlog1<<"Unknown campaign set: "<<name<<"\n";
 }
 
+void CGPreGame::createIfNotPresent()
+{
+	if(!CGP)
+		CGP = new CGPreGame();
+}
+
 CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui32, std::string> *Names /*= NULL*/)
 	: ISelectionScreenInfo(Names), serverHandlingThread(NULL), mx(new boost::recursive_mutex),
 	  serv(NULL), ongoingClosing(false), myNameID(255)
 {
+	CGPreGame::createIfNotPresent(); //we depend on its graphics
 	screenType = Type;
 	multiPlayer = MultiPlayer;
 
@@ -514,7 +523,6 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		bg = new CPicture(BitmapHandler::loadBitmap(rand()%2 ? "ZPIC1000.bmp" : "ZPIC1001.bmp"), -3, -6, true);
 	}
 
-	CGP->loadGraphics();
 	sInfo.difficulty = 1;
 	current = NULL;
 

@@ -442,6 +442,11 @@ const Rect & CIntObject::center(const Point &p, bool propagate /*= true*/)
 	return pos;
 }
 
+bool CIntObject::captureThisEvent(const SDL_KeyboardEvent & key)
+{
+	return captureAllKeys;
+}
+
 void CKeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(vstd::contains(assignedKeys,key.keysym.sym))

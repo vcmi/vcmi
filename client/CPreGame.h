@@ -501,6 +501,8 @@ public:
 	void disposeGraphics();
 
 	void openCampaignScreen(std::string name);
+
+	static void createIfNotPresent();
 };
 
 extern ISelectionScreenInfo *SEL;

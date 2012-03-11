@@ -788,7 +788,9 @@ void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *do
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
 	status.addQuery();
-	pickBestCreatures (down, up);
+
+	//you can't request action from action-response thread
+	//pickBestCreatures (down, up);
 	onEnd();
 }
 

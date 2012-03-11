@@ -104,6 +104,7 @@ public:
 	void activateKeys();
 	void deactivateKeys();
 	virtual void keyPressed(const SDL_KeyboardEvent & key);
+	virtual bool captureThisEvent(const SDL_KeyboardEvent & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
 
 	//mouse movement handling
 	bool strongInterest; //if true - report all mouse movements, if not - only when hovered

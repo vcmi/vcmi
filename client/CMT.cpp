@@ -716,6 +716,7 @@ static void listenForEvents()
 				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler;
 				const_cast<CGameInfo*>(CGI)->dobjinfo->load();
 
+				CGPreGame::createIfNotPresent();
 				GH.curInt = CGP;
 				GH.defActionsDef = 63;
 				break;

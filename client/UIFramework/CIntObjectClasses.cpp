@@ -1470,6 +1470,14 @@ CTextInput::~CTextInput()
 {
 }
 
+bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
+{
+	if(key.keysym.sym == SDLK_RETURN || key.keysym.sym == SDLK_KP_ENTER)
+		return false;
+
+	return true;
+}
+
 CFocusable::CFocusable()
 {
 	focusables.push_back(this);
