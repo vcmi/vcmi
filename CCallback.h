@@ -60,6 +60,7 @@ public:
 	virtual void selectionMade(int selection, int asker) =0;
 	virtual int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//swaps creatures between two possibly different garrisons // TODO: AI-unsafe code - fix it!
 	virtual int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//joins first stack to the second (creatures must be same type)
+	virtual int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2) =0; //first goes to the second
 	virtual int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
 	//virtual bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
 	virtual bool swapArtifacts(const IArtifactSetBase * src, ui16 pos1, const IArtifactSetBase * dest, ui16 pos2)=0;
@@ -121,6 +122,7 @@ public:
 	bool teleportHero(const CGHeroInstance *who, const CGTownInstance *where);
 	void selectionMade(int selection, int asker);
 	int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2);
+	int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2); //first goes to the second
 	int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2); //first goes to the second
 	int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val);
 	bool dismissHero(const CGHeroInstance * hero);

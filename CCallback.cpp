@@ -403,6 +403,14 @@ void CCallback::validatePaths()
 	}
 }
 
+int CCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)
+{
+	if(s1->getCreature(p1) == s2->getCreature(p2))
+		return mergeStacks(s1, s2, p1, p2);
+	else
+		return swapCreatures(s1, s2, p1, p2);
+}
+
 CBattleCallback::CBattleCallback(CGameState *GS, int Player, CClient *C )
 {
 	gs = GS;
