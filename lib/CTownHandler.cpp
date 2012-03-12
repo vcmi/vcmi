@@ -131,7 +131,7 @@ void CTownHandler::loadStructures()
 
 		// Misc.
 		towns[townID].mageLevel = town_node["mage_guild"].Float();
-		towns[townID].primaryRes  = town_node["primary_ressource"].Float();
+		towns[townID].primaryRes  = town_node["primary_resource"].Float();
 		towns[townID].warMachine = town_node["war_machine"].Float();
 
 		townID ++;

@@ -43,6 +43,8 @@ rett * createAny(std::string dllname, std::string methodName)
 		getName = (void(*)(char*))dlsym(dll,"GetAiName");
 		getAI = (rett*(*)())dlsym(dll,methodName.c_str());
 	}
+	else
+		tlog0 << "Error: " << dlerror() <<"\n";
 #endif
 	if (!dll)
 	{

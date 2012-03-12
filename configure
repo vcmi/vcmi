@@ -17540,7 +17540,7 @@ VCMI_AI_LIBS_DIR="$libdir/vcmi/AI"
 VCMI_SCRIPTING_LIBS_DIR="$libdir/vcmi/Scripting"
 
 
-ac_config_files="$ac_config_files Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/StupidAI/Makefile AI/EmptyAI/Makefile AI/VCAI/Makefile Scripting/ERM/Makefile"
+ac_config_files="$ac_config_files Makefile lib/Makefile client/Makefile server/Makefile AI/FuzzyLite/Makefile AI/Makefile AI/StupidAI/Makefile AI/EmptyAI/Makefile AI/VCAI/Makefile Scripting/ERM/Makefile"
 
 cat >confcache <<\_ACEOF
 # This file is a shell script that caches the results of configure
@@ -18674,6 +18674,7 @@ do
     "lib/Makefile") CONFIG_FILES="$CONFIG_FILES lib/Makefile" ;;
     "client/Makefile") CONFIG_FILES="$CONFIG_FILES client/Makefile" ;;
     "server/Makefile") CONFIG_FILES="$CONFIG_FILES server/Makefile" ;;
+    "AI/FuzzyLite/Makefile") CONFIG_FILES="$CONFIG_FILES AI/FuzzyLite/Makefile" ;;
     "AI/Makefile") CONFIG_FILES="$CONFIG_FILES AI/Makefile" ;;
     "AI/StupidAI/Makefile") CONFIG_FILES="$CONFIG_FILES AI/StupidAI/Makefile" ;;
     "AI/EmptyAI/Makefile") CONFIG_FILES="$CONFIG_FILES AI/EmptyAI/Makefile" ;;

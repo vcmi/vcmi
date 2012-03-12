@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "Fuzzy.h"
-#include "../../lib/CObjectHandler.h"
+#include <limits>
+//#include "../../lib/CObjectHandler.h"
 
 /*
  * Fuzzy.cpp, part of VCMI engine
@@ -187,7 +188,7 @@ void FuzzyHelper::initTacticalAdvantage()
 ui64 FuzzyHelper::estimateBankDanger (int ID)
 {
 	std::vector <ConstTransitivePtr<BankConfig>> & configs = VLC->objh->banksInfo[ID];
-	ui64 val = INFINITY;
+	ui64 val = std::numeric_limits<ui64>::max();
 	try
 	{
 		switch (configs.size())

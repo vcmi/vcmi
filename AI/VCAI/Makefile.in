@@ -78,8 +78,10 @@ am__base_list = \
   sed '$$!N;$$!N;$$!N;$$!N;s/\n/ /g'
 am__installdirs = "$(DESTDIR)$(vcmiaidir)"
 LTLIBRARIES = $(vcmiai_LTLIBRARIES)
-libVCAI_la_DEPENDENCIES = $(top_builddir)/lib/libvcmi.la
-am_libVCAI_la_OBJECTS = libVCAI_la-main.lo libVCAI_la-VCAI.lo
+libVCAI_la_DEPENDENCIES = $(top_builddir)/lib/libvcmi.la \
+	$(top_builddir)/AI/FuzzyLite/libfuzzylite.la
+am_libVCAI_la_OBJECTS = libVCAI_la-main.lo libVCAI_la-Fuzzy.lo \
+	libVCAI_la-VCAI.lo
 libVCAI_la_OBJECTS = $(am_libVCAI_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -271,11 +273,12 @@ top_srcdir = @top_srcdir@
 vcmiaidir = $(VCMI_AI_LIBS_DIR)
 BUILT_SOURCES = StdInc.h.gch
 vcmiai_LTLIBRARIES = libVCAI.la
-libVCAI_la_LIBADD = $(top_builddir)/lib/libvcmi.la
+libVCAI_la_LIBADD = $(top_builddir)/lib/libvcmi.la $(top_builddir)/AI/FuzzyLite/libfuzzylite.la
 libVCAI_la_CXXFLAGS = -DVCMI_DLL
 libVCAI_la_LDFLAGS = -L$(top_builddir)/lib -module -avoid-version
 libVCAI_la_SOURCES = \
 	main.cpp \
+	Fuzzy.cpp \
 	VCAI.cpp \
 	VCAI.h
 
@@ -354,6 +357,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libVCAI_la-Fuzzy.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libVCAI_la-VCAI.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libVCAI_la-main.Plo@am__quote@
 
@@ -388,6 +392,14 @@ libVCAI_la-main.lo: main.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='main.cpp' object='libVCAI_la-main.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libVCAI_la_CXXFLAGS) $(CXXFLAGS) -c -o libVCAI_la-main.lo `test -f 'main.cpp' || echo '$(srcdir)/'`main.cpp
+
+libVCAI_la-Fuzzy.lo: Fuzzy.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libVCAI_la_CXXFLAGS) $(CXXFLAGS) -MT libVCAI_la-Fuzzy.lo -MD -MP -MF $(DEPDIR)/libVCAI_la-Fuzzy.Tpo -c -o libVCAI_la-Fuzzy.lo `test -f 'Fuzzy.cpp' || echo '$(srcdir)/'`Fuzzy.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libVCAI_la-Fuzzy.Tpo $(DEPDIR)/libVCAI_la-Fuzzy.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='Fuzzy.cpp' object='libVCAI_la-Fuzzy.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libVCAI_la_CXXFLAGS) $(CXXFLAGS) -c -o libVCAI_la-Fuzzy.lo `test -f 'Fuzzy.cpp' || echo '$(srcdir)/'`Fuzzy.cpp
 
 libVCAI_la-VCAI.lo: VCAI.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libVCAI_la_CXXFLAGS) $(CXXFLAGS) -MT libVCAI_la-VCAI.lo -MD -MP -MF $(DEPDIR)/libVCAI_la-VCAI.Tpo -c -o libVCAI_la-VCAI.lo `test -f 'VCAI.cpp' || echo '$(srcdir)/'`VCAI.cpp
