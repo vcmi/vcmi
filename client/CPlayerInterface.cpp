@@ -1250,8 +1250,8 @@ bool CPlayerInterface::altPressed() const
 
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd )
 {
-	if(stillMoveHero.get() == DURING_MOVE  &&  adventureInt->terrain.currentPath->nodes.size() > 1) //to ignore calls on passing through garrisons
-	{
+	if(stillMoveHero.get() == DURING_MOVE  && adventureInt->terrain.currentPath && adventureInt->terrain.currentPath->nodes.size() > 1) //to ignore calls on passing through garrisons
+	{ //FIXME: why there is no currentPath at game start?
 		onEnd();
 		return;
 	}
