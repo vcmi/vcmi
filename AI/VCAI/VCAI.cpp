@@ -52,6 +52,29 @@ const int ALLOWED_ROAMING_HEROES = 8;
 
 const int GOLD_MINE_PRODUCTION = 1000, WOOD_ORE_MINE_PRODUCTION = 2, RESOURCE_MINE_PRODUCTION = 1;
 
+std::string goalName(EGoals goalType)
+{
+	switch (goalType)
+	{
+		case INVALID:
+			return "INVALID";
+		case WIN:
+			return "WIN";
+		case CONQUER:
+			return "CONQUER";
+		case EXPLORE:
+			return "EXPLORE";
+		case GATHER_ARMY:
+			return "GATHER ARMY";
+		case VISIT_TILE:
+			return "VISIT TILE";
+		case CLEAR_WAY_TO:
+			return "CLEAR WAY TO";
+		default:
+			return boost::lexical_cast<std::string>(goalType);
+	}
+}
+
 bool compareHeroStrength(const CGHeroInstance *h1, const CGHeroInstance *h2)
 {
 	return h1->getTotalStrength() < h2->getTotalStrength();
@@ -866,6 +889,7 @@ void VCAI::makeTurn()
 				}
 			}
 		}
+			break;
 		case 7: //reconsider strategy
 		{
 			const CGHeroInstance * h = primaryHero();
@@ -889,6 +913,7 @@ void VCAI::makeTurn()
 				}
 			}
 		}
+			break;
 	}
 	if(cb->getSelectedHero())
 		cb->recalculatePaths();
@@ -912,8 +937,7 @@ void VCAI::makeTurnInternal()
 		striveToGoal(CGoal(WIN));
 		for (auto hg = lockedHeroes.begin(); hg != lockedHeroes.end(); hg++) //continue our goals
 		{
-			if (!hg->second.invalid())
-				striveToGoal (hg->second);
+			striveToGoal (hg->second);
 		}
 		striveToGoal(CGoal(BUILD)); //TODO: smarter building management
 	}
@@ -1100,16 +1124,18 @@ void VCAI::wander(const CGHeroInstance * h)
 	while(1)
 	{
 		auto dests = getPossibleDestinations(h);
-		if(!dests.size()) //TODO: merge with GATHER_ARMY goal
+		if(!dests.size())
 		{
 			PNLOG("Nowhere more to go...\n");
 			setGoal (h, INVALID);
 			break;
 		}
-
-		if(!goVisitObj(dests.front(), h))
+		const CGObjectInstance * obj = dests.front();
+		if(!goVisitObj(obj, h))
 		{
 			BNLOG("Hero %s apparently used all MPs (%d left)\n", h->name % h->movement);
+			alreadyVisited.push_back(obj); //reserve that object - we predict it will be reached soon
+			setGoal(h, CGoal(VISIT_TILE).sethero(h).settile(obj->visitablePos()));
 			break;
 		}
 
@@ -1545,6 +1571,8 @@ void VCAI::endTurn()
 
 void VCAI::striveToGoal(const CGoal &ultimateGoal)
 {
+	if (ultimateGoal.invalid())
+		return;
 	while(1)
 	{
 		CGoal goal = ultimateGoal;
@@ -1553,7 +1581,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 		while(!goal.isElementar && maxGoals)
 		{
 			INDENT;
-			BNLOG("Considering goal %d.", goal.goalType);
+			BNLOG("Considering goal %s", goalName(goal.goalType));
 			try
 			{
 				boost::this_thread::interruption_point();
@@ -1562,7 +1590,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			}
 			catch(std::exception &e)
 			{
-				BNLOG("Goal %d decomposition failed: %s", goal.goalType % e.what());
+				BNLOG("Goal %s decomposition failed: %s", goalName(goal.goalType) % e.what());
 				return;
 			}
 		}
