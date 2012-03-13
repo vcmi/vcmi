@@ -64,6 +64,7 @@ namespace GameConstants
 	const int CRE_LEVELS = 10;
 	const int F_NUMBER = 9; //factions (town types) quantity
 	const int PLAYER_LIMIT = 8; //player limit per map
+	const int MAX_HEROES_PER_PLAYER = 8;
 	const int ALL_PLAYERS = 255; //bitfield
 	const int HEROES_PER_TYPE=8; //amount of heroes of each type
 	const int SKILL_QUANTITY=28;

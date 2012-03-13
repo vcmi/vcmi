@@ -2889,7 +2889,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 
 	//common preconditions
 	if( (p->resources[Res::GOLD]<2500  && complain("Not enough gold for buying hero!"))
-		|| (getHeroCount(player, false) >= 8 && complain("Cannot hire hero, only 8 wandering heroes are allowed!")))
+		|| (getHeroCount(player, false) >= GameConstants::MAX_HEROES_PER_PLAYER && complain("Cannot hire hero, only 8 wandering heroes are allowed!")))
 		return false;
 
 	if(t) //tavern in town

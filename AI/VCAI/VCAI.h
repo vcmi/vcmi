@@ -37,7 +37,7 @@ public:
 enum EGoals
 {
 	INVALID = -1,
-	WIN, DO_NOT_LOSE, CONQUER, BUILD, EXPLORE, //GATHER_ARMY,// BOOST_HERO,
+	WIN, DO_NOT_LOSE, CONQUER, BUILD, EXPLORE, GATHER_ARMY, BOOST_HERO,
 	RECRUIT_HERO,
 	BUILD_STRUCTURE, //if hero set, then in visited town
 	COLLECT_RES,
@@ -156,7 +156,7 @@ public:
 	std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<const CGHeroInstance *, std::vector<const CGTownInstance *> > townVisitsThisWeek;
 
-	std::set<const CGHeroInstance *> blockedHeroes; //they won't get any new action
+	std::map<const CGHeroInstance *, CGoal> lockedHeroes; //TODO: allow non-elementar objectives
 
 	std::vector<const CGObjectInstance *> visitableObjs;
 	std::vector<const CGObjectInstance *> alreadyVisited;
@@ -169,8 +169,6 @@ public:
 	CCallback *myCb;
 	VCAI(void);
 	~VCAI(void);
-
-	CGoal currentGoal;
 
 	CGObjectInstance * visitedObject; //remember currently viisted object
 
@@ -250,6 +248,8 @@ public:
 	void striveToGoal(const CGoal &ultimateGoal);
 	void endTurn();
 	void wander(const CGHeroInstance * h);
+	void setGoal (const CGHeroInstance *h, const CGoal goal);
+	void setGoal (const CGHeroInstance *h, EGoals goalType = INVALID);
 
 	void recruitHero(const CGTownInstance * t);
 	std::vector<const CGObjectInstance *> getPossibleDestinations(const CGHeroInstance *h);
