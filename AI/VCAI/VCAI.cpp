@@ -374,12 +374,6 @@ ui64 evaluateDanger(const CGObjectInstance *obj)
 	case Obj::DERELICT_SHIP: //derelict ship
 	case Obj::PYRAMID:
 		return fh->estimateBankDanger (VLC->objh->bankObjToIndex(obj));
-	case Obj::WHIRLPOOL: //whirlpool
-	case Obj::MONOLITH1:
-	case Obj::MONOLITH2:
-	case Obj::MONOLITH3:
-		//TODO mechanism for handling monoliths
-		return 1000000000;
 	default:
 		return 0;
 	}
@@ -559,9 +553,8 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 	LOG_ENTRY;
 	if (start)
 	{
-		visitedObject = const_cast<CGObjectInstance *>(visitedObj); // remember teh object and wait for return
-		if(visitedObj->ID != Obj::MONSTER) //TODO: poll bank if it was cleared
-			alreadyVisited.push_back(visitedObj);
+		visitedObject = const_cast<CGObjectInstance *>(visitedObj); // remember the object and wait for return
+		markObjectVisited (visitedObj);
 	}
 }
 
@@ -1098,7 +1091,7 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(const CGHero
 	std::vector<const CGObjectInstance *> possibleDestinations;
 	BOOST_FOREACH(const CGObjectInstance *obj, visitableObjs)
 	{
-		if(cb->getPathInfo(obj->visitablePos())->reachable()  &&
+		if(cb->getPathInfo(obj->visitablePos())->reachable() && !obj->wasVisited(playerID) &&
 			(obj->tempOwner != playerID || isWeeklyRevisitable(obj))) //flag or get weekly resources / creatures
 			possibleDestinations.push_back(obj);
 	}
@@ -1111,6 +1104,9 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(const CGHero
 				return true;
 
 			if(!isSafeToVisit(h, obj->visitablePos()))
+				return true;
+
+			if (!shouldVisit(h, obj))
 				return true;
 
 			return false;
@@ -1134,7 +1130,7 @@ void VCAI::wander(const CGHeroInstance * h)
 		if(!goVisitObj(obj, h))
 		{
 			BNLOG("Hero %s apparently used all MPs (%d left)\n", h->name % h->movement);
-			alreadyVisited.push_back(obj); //reserve that object - we predict it will be reached soon
+			markObjectVisited(obj); //reserve that object - we predict it will be reached soon
 			setGoal(h, CGoal(VISIT_TILE).sethero(h).settile(obj->visitablePos()));
 			break;
 		}
@@ -1181,6 +1177,15 @@ void VCAI::waitTillFree()
 {
 	auto unlock = vstd::makeUnlockSharedGuard(cb->getGsMutex());
 	status.waitTillFree();
+}
+
+void VCAI::markObjectVisited (const CGObjectInstance *obj)
+{
+	if(dynamic_cast<const CGVisitableOPH *>(obj) || //we may want to wisit it with another hero
+		dynamic_cast<const CGBonusingObject *>(obj) || //or another time
+		(obj->ID == Obj::MONSTER))
+		return;
+	alreadyVisited.push_back(obj);
 }
 
 void VCAI::validateVisitableObjs()
@@ -2476,7 +2481,9 @@ void SectorMap::write(crstring fname)
 
 bool isWeeklyRevisitable (const CGObjectInstance * obj)
 { //TODO: allow polling of remaining creatures in dwelling
-	if (dynamic_cast<const CGVisitableOPW *>(obj) || dynamic_cast<const CGDwelling *>(obj)) //ensures future compatibility, unlike IDs
+	if (dynamic_cast<const CGVisitableOPW *>(obj) || //ensures future compatibility, unlike IDs
+		dynamic_cast<const CGDwelling *>(obj) ||
+		dynamic_cast<const CBank *>(obj)) //banks tend to respawn often in mods
 		return true;
 	switch (obj->ID)
 	{
@@ -2484,6 +2491,36 @@ bool isWeeklyRevisitable (const CGObjectInstance * obj)
 			return true;
 	}
 	return false;
+}
+
+bool shouldVisit (const CGHeroInstance * h, const CGObjectInstance * obj)
+{
+	if (obj->wasVisited(h))
+		return false;
+	switch (obj->ID)
+	{
+		case Obj::CREATURE_GENERATOR1:
+		{
+			bool canRecruitCreatures = false;
+			const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
+			BOOST_FOREACH(auto level, d->creatures)
+			{
+				BOOST_FOREACH(auto c, level.second)
+				{
+					if (h->getSlotFor(c) != -1)
+						canRecruitCreatures = true;
+				}
+			}
+			return canRecruitCreatures;
+		}
+		case Obj::MONOLITH1:
+		case Obj::MONOLITH2:
+		case Obj::MONOLITH3:
+		case Obj::WHIRLPOOL:
+			//TODO: mehcanism for handling monoliths
+			return false;
+	}
+	return true;
 }
 
 int3 SectorMap::firstTileToGet(const CGHeroInstance *h, crint3 dst)

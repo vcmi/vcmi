@@ -265,6 +265,7 @@ public:
 	void waitTillFree();
 
 	void addVisitableObj(const CGObjectInstance *obj);
+	void markObjectVisited (const CGObjectInstance *obj);
 	//void removeVisitableObj(const CGObjectInstance *obj);
 	void validateVisitableObjs();
 	void retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned = false) const;
@@ -293,3 +294,4 @@ bool objWithID(const CGObjectInstance *obj)
 }
 
 bool isWeeklyRevisitable (const CGObjectInstance * obj);
+bool shouldVisit (const CGHeroInstance * h, const CGObjectInstance * obj);

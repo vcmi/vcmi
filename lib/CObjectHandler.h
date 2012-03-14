@@ -93,6 +93,9 @@ public:
 	virtual void newTurn() const;
 	virtual void initObj(); //synchr
 	virtual void setProperty(ui8 what, ui32 val);//synchr
+//unified interface, AI helpers
+	virtual bool wasVisited (ui8 player) const;
+	virtual bool wasVisited (const CGHeroInstance * h) const;
 
 	static void preInit(); //called before objs receive their initObj
 	static void postInit();//caleed after objs receive their initObj
@@ -177,6 +180,7 @@ public:
 	//CGObjectInstance(const CGObjectInstance & right);
 	//CGObjectInstance& operator=(const CGObjectInstance & right);
 	virtual const std::string & getHoverText() const;
+
 	//////////////////////////////////////////////////////////////////////////
 	void initObj();
 	void onHeroVisit(const CGHeroInstance * h) const;
@@ -210,7 +214,7 @@ class DLL_LINKAGE CPlayersVisited: public CGObjectInstance
 public:
 	std::set<ui8> players; //players that visited this object
 
-	bool hasVisited(ui8 player) const;
+	bool wasVisited(ui8 player) const;
 	virtual void setPropertyDer( ui8 what, ui32 val );
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -464,6 +468,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void onNAHeroVisit(int heroID, bool alreadyVisited) const;
 	void initObj();
+	bool wasVisited (const CGHeroInstance * h) const;
 	void treeSelected(int heroID, int resType, int resVal, expType expVal, ui32 result) const; //handle player's anwer to the Tree of Knowledge dialog
 	void schoolSelected(int heroID, ui32 which) const;
 	void arenaSelected(int heroID, int primSkill) const;
@@ -921,7 +926,7 @@ public:
 	void offerLeavingGuards(const CGHeroInstance *h) const;
 	void endBattle(BattleResult *result, ui8 attackingPlayer) const;
 	void fight(ui32 agreed, const CGHeroInstance *h) const;
-
+	
 	void onHeroVisit(const CGHeroInstance * h) const;
 
 	void flagMine(ui8 player) const;
@@ -941,6 +946,7 @@ public:
 	ui8 visited; //true if object has been visited this week
 
 	void setPropertyDer(ui8 what, ui32 val);//synchr
+	bool wasVisited(ui8 player) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void newTurn() const;
 
@@ -970,6 +976,7 @@ public:
 class DLL_LINKAGE CGBonusingObject : public CGObjectInstance //objects giving bonuses to luck/morale/movement
 {
 public:
+	bool wasVisited (const CGHeroInstance * h) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
 	const std::string & getHoverText() const;
 	void initObj();	
@@ -1047,6 +1054,7 @@ public:
 class DLL_LINKAGE CGKeymasterTent : public CGKeys
 {
 public:
+	bool wasVisited (ui8 player) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
 	const std::string & getHoverText() const;
 
@@ -1132,6 +1140,7 @@ class DLL_LINKAGE CBank : public CArmedInstance
 	void initialize() const;
 	void reset(ui16 var1);
 	void newTurn() const;
+	bool wasVisited (ui8 player) const;
 	virtual void onHeroVisit (const CGHeroInstance * h) const;
 	virtual void fightGuards (const CGHeroInstance *h, ui32 accept) const;
 	virtual void endBattle (const CGHeroInstance *h, const BattleResult *result) const;

@@ -74,6 +74,15 @@ void IObjectInterface::initObj()
 void IObjectInterface::setProperty( ui8 what, ui32 val )
 {}
 
+bool IObjectInterface::wasVisited (ui8 player) const
+{
+	return false;
+}
+bool IObjectInterface::wasVisited (const CGHeroInstance * h) const
+{
+	return false;
+}
+
 void IObjectInterface::postInit()
 {}
 
@@ -86,7 +95,7 @@ void CPlayersVisited::setPropertyDer( ui8 what, ui32 val )
 		players.insert((ui8)val);
 }
 
-bool CPlayersVisited::hasVisited( ui8 player ) const
+bool CPlayersVisited::wasVisited( ui8 player ) const
 {
 	return vstd::contains(players,player);
 }
@@ -2424,6 +2433,11 @@ bool CGTownInstance::hasBuilt(int buildingID) const
 	return vstd::contains(builtBuildings, buildingID);
 }
 
+bool CGVisitableOPH::wasVisited (const CGHeroInstance * h) const
+{
+	return vstd::contains(visitors, h->id);
+}
+
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(visitors.find(h->id)==visitors.end())
@@ -3478,6 +3492,10 @@ void CGVisitableOPW::newTurn() const
 		ms << std::pair<ui8,ui32>(3,ID) << " " << std::pair<ui8,ui32>(1,353);
 		cb->setHoverName(id,&ms);
 	}
+}
+bool CGVisitableOPW::wasVisited(ui8 player) const
+{
+	return !visited; //TODO: other players should see object as unvisited
 }
 
 void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
@@ -4642,7 +4660,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	InfoWindow iw;
 	iw.soundID = soundBase::gazebo;
 	iw.player = h->getOwner();
-	if(!hasVisited(h->tempOwner))
+	if(!wasVisited(h->tempOwner))
 		cb->setObjProperty(id,10,h->tempOwner);
 
 	if(h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(ability))) //you alredy know this skill
@@ -4669,7 +4687,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 const std::string & CGWitchHut::getHoverText() const
 {
 	hoverName = VLC->generaltexth->names[ID];
-	if(hasVisited(cb->getCurrentPlayer())) //TODO: use local player, not current
+	if(wasVisited(cb->getCurrentPlayer())) //TODO: use local player, not current
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
 		boost::algorithm::replace_first(hoverName,"%s",VLC->generaltexth->skillName[ability]);
@@ -4678,6 +4696,11 @@ const std::string & CGWitchHut::getHoverText() const
 			hoverName += "\n\n" + VLC->generaltexth->allTexts[357]; // (Already learned)
 	}
 	return hoverName;
+}
+
+bool CGBonusingObject::wasVisited (const CGHeroInstance * h) const
+{
+	return h->hasBonusFrom(Bonus::OBJECT, ID);
 }
 
 void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
@@ -5302,7 +5325,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 		return;
 	}
 
-	if(!hasVisited(h->tempOwner))
+	if(!wasVisited(h->tempOwner))
 		cb->setObjProperty(id,10,h->tempOwner);
 
 	InfoWindow iw;
@@ -5357,7 +5380,7 @@ void CGShrine::initObj()
 const std::string & CGShrine::getHoverText() const
 {
 	hoverName = VLC->generaltexth->names[ID];
-	if(hasVisited(cb->getCurrentPlayer())) //TODO: use local player, not current
+	if(wasVisited(cb->getCurrentPlayer())) //TODO: use local player, not current
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[355]; // + (learn %s)
 		boost::algorithm::replace_first(hoverName,"%s",VLC->spellh->spells[spell]->name);
@@ -5597,7 +5620,7 @@ const std::string & CGOnceVisitable::getHoverText() const
 {
 	hoverName = VLC->generaltexth->names[ID] + " ";
 
-	hoverName += (hasVisited(cb->getCurrentPlayer())
+	hoverName += (wasVisited(cb->getCurrentPlayer())
 		? (VLC->generaltexth->allTexts[352])  //visited
 		: ( VLC->generaltexth->allTexts[353])); //not visited
 
@@ -5872,6 +5895,11 @@ void CBank::newTurn() const
 			cb->setObjProperty (id, 11, 1); //daycounter++
 	}
 }
+bool CBank::wasVisited (ui8 player) const
+{
+	return !bc;
+}
+
 void CBank::onHeroVisit (const CGHeroInstance * h) const
 {
 	if (bc)
@@ -6160,6 +6188,11 @@ const std::string & CGKeymasterTent::getHoverText() const
 	else
 		hoverName += "\n" + VLC->generaltexth->allTexts[353];
 	return hoverName;
+}
+
+bool CGKeymasterTent::wasVisited (ui8 player) const
+{
+	return wasMyColorVisited (player);
 }
 
 void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
@@ -6492,7 +6525,7 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 
 void CCartographer::onHeroVisit( const CGHeroInstance * h ) const 
 {
-	if (!hasVisited (h->getOwner()) ) //if hero has not visited yet this cartographer
+	if (!wasVisited (h->getOwner()) ) //if hero has not visited yet this cartographer
 	{
 		if (cb->getResource(h->tempOwner, 6) >= 1000) //if he can afford a map
 		{
@@ -6567,7 +6600,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 	assert(ts);
 	int team = ts->id;
 	
-	if(!hasVisited(team))
+	if(!wasVisited(team))
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT, 96);
 		cb->sendAndApply(&iw);
@@ -6597,7 +6630,7 @@ void CGObelisk::initObj()
 const std::string & CGObelisk::getHoverText() const
 {
 	hoverName = VLC->generaltexth->names[ID];
-	if(hasVisited(cb->getCurrentPlayer()))
+	if(wasVisited(cb->getCurrentPlayer()))
 		hoverName += " " + VLC->generaltexth->allTexts[352]; //not visited
 	else
 		hoverName += " " + VLC->generaltexth->allTexts[353]; //visited
