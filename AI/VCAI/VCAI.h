@@ -284,6 +284,9 @@ public:
 	const CGHeroInstance *primaryHero() const;
 	TResources estimateIncome() const;
 	bool containsSavedRes(const TResources &cost) const;
+
+	//special function that can be called ONLY from game events handling thread and will send request ASAP
+	void requestActionASAP(boost::function<void()> whatToDo); 
 };
 
 

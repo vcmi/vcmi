@@ -172,11 +172,12 @@ struct PackageApplied : public CPackForClient //94
 
 	ui8 result; //0 - something went wrong, request hasn't been realized; 1 - OK
 	ui32 packType; //type id of applied package
+	ui32 requestID; //an ID given by client to the request that was applied
 	ui8 player;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & result & packType & player;
+		h & result & packType & requestID & player;
 	}
 };
 

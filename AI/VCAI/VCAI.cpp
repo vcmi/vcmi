@@ -793,7 +793,7 @@ void VCAI::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
 	status.addQuery();
-	callback(0);
+	requestActionASAP(boost::bind(callback, 0));
 }
 
 void VCAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel)
@@ -809,7 +809,10 @@ void VCAI::showBlockingDialog(const std::string &text, const std::vector<Compone
 	if(!selection && cancel) //yes&no -> always answer yes, we are a brave AI :)
 		sel = 1;
 
-	cb->selectionMade(sel, askID);
+	requestActionASAP([&]()
+	{
+		cb->selectionMade(sel, askID);
+	});
 }
 
 void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd)
@@ -819,8 +822,11 @@ void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *do
 	status.addQuery();
 
 	//you can't request action from action-response thread
-	//pickBestCreatures (down, up);
-	onEnd();
+	requestActionASAP([=,this]()
+	{
+		pickBestCreatures (down, up);
+		onEnd();
+	});
 }
 
 void VCAI::serialize(COSer<CSaveFile> &h, const int version)
@@ -1352,6 +1358,7 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 			if(h->tempOwner != playerID) //we lost hero
 			{
 				remove_if_present(lockedHeroes, h);
+				throw std::runtime_error("Hero was lost!"); //we need to throw, otherwise hero will be assigned to sth again
 				break;
 			}
 
@@ -1653,7 +1660,15 @@ void VCAI::performTypicalActions()
 		INDENT;
 		makePossibleUpgrades(h);
 		cb->setSelection(h);
-		wander(h);
+		try
+		{
+			wander(h);
+		}
+		catch(std::exception &e)
+		{
+			BNLOG("Cannot use this hero anymore, received exception: %s", e.what());
+			continue;
+		}
 	}
 }
 
@@ -1785,6 +1800,20 @@ void VCAI::finish()
 {
 	if(makingTurn)
 		makingTurn->interrupt();
+}
+
+void VCAI::requestActionASAP(boost::function<void()> whatToDo)
+{
+	boost::barrier b(2);
+	boost::thread newThread([&b,this,whatToDo]()
+	{
+		setThreadName(-1, "VCAI::requestActionASAP::helper");
+		SET_GLOBAL_STATE(this);
+		boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
+		b.wait();
+		whatToDo();
+	});
+	b.wait();
 }
 
 AIStatus::AIStatus()

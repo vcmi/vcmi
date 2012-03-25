@@ -56,6 +56,58 @@ public:
 	~CServerHandler();
 };
 
+template<typename T>
+class ThreadSafeVector
+{
+	typedef std::vector<T> TVector;
+	typedef boost::unique_lock<boost::mutex> TLock;
+	TVector items;
+	boost::mutex mx;
+	boost::condition_variable cond;
+
+public:
+
+	void pushBack(const T &item)
+	{
+		TLock lock(mx);
+		items.push_back(item);
+		cond.notify_all();
+	}
+
+// 	//to access list, caller must present a lock used to lock mx
+// 	TVector &getList(TLock &lockedLock)
+// 	{
+// 		assert(lockedLock.owns_lock() && lockedLock.mutex() == &mx);
+// 		return items;
+// 	}
+
+	TLock getLock()
+	{
+		return TLock(mx);
+	}
+
+	void waitWhileContains(const T &item)
+	{
+		auto lock = getLock();
+		while(vstd::contains(items, item))
+			cond.wait(lock);
+	}
+
+	bool tryRemovingElement(const T&item) //returns false if element was not present
+	{
+		auto lock = getLock();
+		auto itr = vstd::find(items, item);
+		if(itr == items.end()) //not in container
+		{
+			return false;
+		}
+
+		items.erase(itr);
+		cond.notify_all();
+		return true;
+	}
+};
+
 /// Class which handles client - server logic
 class CClient : public IGameCallback
 {
@@ -75,7 +127,7 @@ public:
 
 	CScriptingModule *erm;
 
-	CondSh<int> waitingRequest;
+	ThreadSafeVector<int> waitingRequest;
 
 	std::queue<CPack *> packs;
 	boost::mutex packsM;
@@ -162,6 +214,8 @@ public:
 	friend class CBattleCallback; //handling players actions
 	friend void processCommand(const std::string &message, CClient *&client); //handling console
 	
+	int sendRequest(const CPack *request, int player); //returns ID given to that request
+
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
 	void battleStarted(const BattleInfo * info);
 	void commenceTacticPhaseForInt(CBattleGameInterface *battleInt); //will be called as separate thread

@@ -627,29 +627,36 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
 	setThreadName(-1, "CGameHandler::handleConnection");
 	srand(time(NULL));
-	CPack *pack = NULL;
-	ui8 player = 255;
+
 	try
 	{
 		while(1)//server should never shut connection first //was: while(!end2)
 		{
+			CPack *pack = NULL;
+			ui8 player = 255;
+			si32 requestID = -999;
+			int packType = 0;
+
 			{
 				boost::unique_lock<boost::mutex> lock(*c.rmx);
-				c >> player >> pack; //get the package
-				tlog5 << "Received client message of type " << typeid(*pack).name() << std::endl;
+				c >> player >> requestID >> pack; //get the package
+				packType = typeList.getTypeID(pack); //get the id of type
+				
+				tlog5 << boost::format("Received client message (request %d by player %d) of type with ID=%d (%s).\n")
+					% requestID % player % packType % typeid(*pack).name();
 			}
 
-			int packType = typeList.getTypeID(pack); //get the id of type
+			//prepare struct informing that action was applied
+			PackageApplied applied;
+			applied.player = player;
+			applied.result = false;
+			applied.packType = packType;
+			applied.requestID = requestID;
+
 			CBaseForGHApply *apply = applier->apps[packType]; //and appropriae applier object
-			if(packType != typeList.getTypeID<QueryReply>() 
-				&&   (packType != typeList.getTypeID<ArrangeStacks>() || !isAllowedArrangePack((ArrangeStacks*)pack)) // for dialogs like garrison
-				&&   states.getQueriesCount(player))
+			if(isBlockedByQueries(pack, packType, player))
 			{
 				complain(boost::str(boost::format("Player %d has to answer queries  before attempting any further actions (count=%d)!") % (int)player % states.getQueriesCount(player)));
-				PackageApplied applied;
-				applied.player = player;
-				applied.result = false;
-				applied.packType = packType;
 				{
 					boost::unique_lock<boost::mutex> lock(*c.wmx);
 					c << &applied;
@@ -661,10 +668,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 				tlog5 << "Message successfully applied (result=" << result << ")!\n";
 
 				//send confirmation that we've applied the package
-				PackageApplied applied;
-				applied.player = player;
 				applied.result = result;
-				applied.packType = packType;
 				{
 					boost::unique_lock<boost::mutex> lock(*c.wmx);
 					c << &applied;
@@ -674,9 +678,8 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			{
 				tlog1 << "Message cannot be applied, cannot find applier (unregistered type)!\n";
 			}
-			delete pack;
-			pack = NULL;
-			player = 255;
+
+			vstd::clear_pointer(pack);
 		}
 	}
 	catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
@@ -4793,6 +4796,12 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	const CStack * attacker = gs->curB->getStack(bat.stackAttacking);
 	attackCasting(bat, Bonus::SPELL_AFTER_ATTACK, attacker);
 
+	if(bat.bsa[0].newAmount <= 0)
+	{
+		//don't try death stare or acid breath on dead stack (crash!)
+		return;
+	}
+
 	if (attacker->hasBonusOfType(Bonus::DEATH_STARE)) // spell id 79
 	{
 		int staredCreatures = 0;
@@ -4815,6 +4824,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 				!attacker->attackerOwned, attacker->owner, NULL, NULL, staredCreatures, ECastingMode::AFTER_ATTACK_CASTING, attacker);
 		}
 	}
+
 	int acidDamage = 0;
 	TBonusListPtr acidBreath = attacker->getBonuses(Selector::type(Bonus::ACID_BREATH));
 	BOOST_FOREACH(const Bonus *b, *acidBreath)
@@ -5619,6 +5629,22 @@ void CGameHandler::spawnWanderingMonsters(int creatureID)
 		putNewMonster(creatureID, cre->getRandomAmount(std::rand), *tile);
 		tiles.erase(tile); //not use it again
 	}
+}
+
+bool CGameHandler::isBlockedByQueries(const CPack *pack, int packType, ui8 player)
+{
+	//it's always legal to send query reply (we'll check later if it makes sense)
+	if(packType == typeList.getTypeID<QueryReply>())
+		return false;
+
+	if(packType == typeList.getTypeID<ArrangeStacks>() && isAllowedArrangePack((const ArrangeStacks*)pack))
+		return false;
+
+	//if there are no queries, nothing is blocking
+	if(states.getQueriesCount(player) == 0)
+		return false;
+
+	return true; //block package
 }
 
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)

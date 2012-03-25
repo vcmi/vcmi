@@ -96,13 +96,11 @@ void CClient::init()
 }
 
 CClient::CClient(void)
-:waitingRequest(0)
 {
 	init();
 }
 
 CClient::CClient(CConnection *con, StartInfo *si)
-:waitingRequest(0)
 {
 	init();
 	newGame(con,si);
@@ -121,7 +119,7 @@ void CClient::waitForMoveAndSend(int color)
 		assert(vstd::contains(battleints, color));
 		BattleAction ba = battleints[color]->activeStack(gs->curB->getStack(gs->curB->activeStack, false));
 		MakeAction temp_action(ba);
-		serv->sendPackToServer(temp_action, color);
+		sendRequest(&temp_action, color);
 		return;
 	}
 	catch(boost::thread_interrupted&)
@@ -175,7 +173,7 @@ void CClient::save(const std::string & fname)
 	}
 
 	SaveGame save_game(fname);
-	serv->sendPackToServer((CPackForClient&)save_game, getCurrentPlayer());
+	sendRequest((CPackForClient*)&save_game, 255);
 }
 
 void CClient::endGame( bool closeConnection /*= true*/ )
@@ -530,7 +528,7 @@ void CClient::stopConnection()
 		tlog0 << "Connection has been requested to be closed.\n";
 		boost::unique_lock<boost::mutex>(*serv->wmx);
 		CloseServer close_server;
-		serv->sendPackToServer(close_server, 255);
+		sendRequest(&close_server, 255);
 		tlog0 << "Sent closing signal to the server\n";
 	}
 
@@ -599,7 +597,7 @@ void CClient::commitPackage( CPackForClient *pack )
 	CommitPackage cp;
 	cp.freePack = false;
 	cp.packToCommit = pack;
-	serv->sendPackToServer(cp, 255);
+	sendRequest(&cp, 255);
 }
 
 int CClient::getLocalPlayer() const
@@ -625,7 +623,7 @@ void CClient::commenceTacticPhaseForInt(CBattleGameInterface *battleInt)
 		if(gs && !!gs->curB && gs->curB->tacticDistance) //while awaiting for end of tactics phase, many things can happen (end of battle... or game)
 		{
 			MakeAction ma(BattleAction::makeEndOFTacticPhase(battleInt->playerID));
-			serv->sendPackToServer(ma, battleInt->playerID);
+			sendRequest(&ma, battleInt->playerID);
 		}
 	} HANDLE_EXCEPTION
 }
@@ -634,6 +632,19 @@ void CClient::invalidatePaths(const CGHeroInstance *h /*= NULL*/)
 {
 	if(!h || pathInfo->hero == h)
 		pathInfo->isValid = false;
+}
+
+int CClient::sendRequest(const CPack *request, int player)
+{
+	static ui32 requestCounter = 0;
+
+	ui32 requestID = requestCounter++;
+	tlog5 << boost::format("Sending a request \"%s\". It'll have an ID=%d.\n") 
+				% typeid(*request).name() % requestID;
+
+	waitingRequest.pushBack(requestID);
+	serv->sendPackToServer(*request, player, requestID);
+	return requestID;
 }
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );

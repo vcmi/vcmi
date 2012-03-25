@@ -98,6 +98,7 @@ public:
 	std::map<ui32, boost::function<void()> > garrisonCallbacks; //query id => callback - for garrison dialogs
 	std::map<ui32, std::pair<si32,si32> > allowedExchanges;
 
+	bool isBlockedByQueries(const CPack *pack, int packType, ui8 player); 
 	bool isAllowedExchange(int id1, int id2);
 	bool isAllowedArrangePack(const ArrangeStacks *pack);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);

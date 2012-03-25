@@ -59,7 +59,7 @@ void CCallback::selectionMade(int selection, int asker)
 {
 	QueryReply pack(asker,selection);
 	pack.player = player;
-	cl->serv->sendPackToServer(pack, player);
+	sendRequest(&pack);
 }
 void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount, si32 level/*=-1*/)
 {
@@ -222,21 +222,15 @@ int CBattleCallback::battleMakeAction(BattleAction* action)
 
 void CBattleCallback::sendRequest(const CPack* request)
 {
-
-	//TODO should be part of CClient (client owns connection, not CB)
-	//but it would have to be very tricky cause template/serialization issues
-	if(waitTillRealize)
-		cl->waitingRequest.set(typeList.getTypeID(request));
-
-	cl->serv->sendPackToServer(*request, player);
-
+	int requestID = cl->sendRequest(request, player);
 	if(waitTillRealize)
 	{
+		tlog5 << boost::format("We'll wait till request %d is answered.\n") % requestID;
 		unique_ptr<vstd::unlock_shared_guard> unlocker; //optional, if flag set
 		if(unlockGsWhenWaiting)
-			unlocker = make_unique<vstd::unlock_shared_guard>(vstd::makeUnlockSharedGuard(getGsMutex()));
+			unlocker = make_unique<vstd::unlock_shared_guard>(getGsMutex());
 
-		cl->waitingRequest.waitWhileTrue();
+		cl->waitingRequest.waitWhileContains(requestID);
 	}
 }
 

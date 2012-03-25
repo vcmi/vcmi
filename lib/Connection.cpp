@@ -240,11 +240,11 @@ CPack * CConnection::retreivePack()
 	return ret;
 }
 
-void CConnection::sendPackToServer(const CPack &pack, ui8 player)
+void CConnection::sendPackToServer(const CPack &pack, ui8 player, ui32 requestID)
 {
 	boost::unique_lock<boost::mutex> lock(*wmx);
 	tlog5 << "Sending to server a pack of type " << typeid(pack).name() << std::endl;
-	*this << player << &pack; //packs has to be sent as polymorphic pointers!
+	*this << player << requestID << &pack; //packs has to be sent as polymorphic pointers!
 }
 
 CSaveFile::CSaveFile( const std::string &fname )
