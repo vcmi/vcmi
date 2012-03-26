@@ -809,7 +809,7 @@ void VCAI::showBlockingDialog(const std::string &text, const std::vector<Compone
 	if(!selection && cancel) //yes&no -> always answer yes, we are a brave AI :)
 		sel = 1;
 
-	requestActionASAP([&]()
+	requestActionASAP([=]()
 	{
 		cb->selectionMade(sel, askID);
 	});

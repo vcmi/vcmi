@@ -2114,6 +2114,9 @@ void OptionsTab::flagPressed( int color )
 	if(old)
 	{
 		entries[old->color]->selectButtons();
+		if(old->hero >= 0)
+			usedHeroes.erase(old->hero);
+
 		old->hero = entries[old->color]->pi.defaultHero();
 	}
 
