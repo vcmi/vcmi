@@ -373,7 +373,7 @@ public:
 
 	boost::shared_mutex *mx;
 
-	void init(StartInfo * si, ui32 checksum, int Seed);
+	void init(StartInfo * si, ui32 checksum, int Seed, int expectedPostInitSeed = -1);
 	void loadTownDInfos();
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>

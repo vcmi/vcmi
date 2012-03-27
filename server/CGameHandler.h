@@ -91,6 +91,8 @@ public:
 	PlayerStatuses states; //player color -> player state
 	std::set<CConnection*> conns;
 
+	si32 seedInitial, seedPostInit;
+
 	//queries stuff
 	boost::recursive_mutex gsm;
 	ui32 QID;
@@ -187,7 +189,7 @@ public:
 
 	void commitPackage(CPackForClient *pack) OVERRIDE;
 
-	void init(StartInfo *si, int Seed);
+	void init(StartInfo *si);
 	void handleConnection(std::set<int> players, CConnection &c);
 	int getPlayerAt(CConnection *c) const;
 

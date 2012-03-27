@@ -1031,6 +1031,13 @@ DLL_LINKAGE void StartAction::applyGs( CGameState *gs )
 		return;
 	}
 
+	if(gs->curB->tacticDistance)
+	{
+		// moves in tactics phase do not affect creature status
+		// (tactics stack queue is managed by client)
+		return;
+	}
+
 	if(ba.actionType != BattleAction::HERO_SPELL) //don't check for stack if it's custom action by hero
 	{
 		assert(st);

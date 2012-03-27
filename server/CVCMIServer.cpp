@@ -1,14 +1,5 @@
 #include "StdInc.h"
 
-#include <boost/date_time/posix_time/posix_time_types.hpp> //no i/o just types
-#include <boost/random/linear_congruential.hpp>
-#include <boost/system/system_error.hpp>
-#include <boost/crc.hpp>
-#include <boost/interprocess/mapped_region.hpp>
-#include <boost/interprocess/shared_memory_object.hpp>
-
-
-
 #include "../lib/CCampaignHandler.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/Connection.h"
@@ -32,7 +23,6 @@
 #include "../lib/CObjectHandler.h"
 #include "../lib/GameConstants.h"
 
-#include <boost/asio.hpp>
 #include "../lib/UnlockGuard.h"
 
 std::string NAME_AFFIX = "server";
@@ -345,7 +335,7 @@ CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
 		c << ui8(0); //OK!
 	}
 
-	gh->init(&si,std::time(NULL));
+	gh->init(&si);
 	c.addStdVecItems(gh->gs);
 	gh->conns.insert(&c);
 
@@ -378,7 +368,7 @@ void CVCMIServer::newPregame()
 	{
 		CGameHandler gh;
 		gh.conns = cps->connections;
-		gh.init(cps->curStartInfo,std::clock());
+		gh.init(cps->curStartInfo);
 
 		BOOST_FOREACH(CConnection *c, gh.conns)
 			c->addStdVecItems(gh.gs);

@@ -21,9 +21,6 @@
 #include "../lib/VCMIDirs.h"
 #include "../client/CSoundBase.h"
 #include "CGameHandler.h"
-#include <boost/random/mersenne_twister.hpp>
-#include <boost/random/variate_generator.hpp>
-#include <boost/random/poisson_distribution.hpp>
 #include "../lib/CCreatureSet.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/GameConstants.h"
@@ -43,6 +40,7 @@
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
 #endif
+#include <boost/random/linear_congruential.hpp>
 extern bool end2;
 #ifdef min
 #undef min
@@ -60,9 +58,6 @@ extern bool end2;
 
 CondSh<bool> battleMadeAction;
 CondSh<BattleResult *> battleResult(NULL);
-std::ptrdiff_t randomizer (ptrdiff_t i) {return rand() % i;}
-std::ptrdiff_t (*p_myrandom)(std::ptrdiff_t) = randomizer;
-
 template <typename T> class CApplyOnGH;
 
 class CBaseForGHApply
@@ -799,6 +794,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 CGameHandler::CGameHandler(void)
 {
+	seedInitial = seedPostInit = -1;
 	QID = 1;
 	//gs = NULL;
 	IObjectInterface::cb = this;
@@ -815,11 +811,16 @@ CGameHandler::~CGameHandler(void)
 	delete gs;
 }
 
-void CGameHandler::init(StartInfo *si, int Seed)
+void CGameHandler::init(StartInfo *si)
 {
+	extern DLL_LINKAGE boost::rand48 ran;
+	if(seedInitial < 0)
+		seedInitial = std::time(NULL);
+
 	gs = new CGameState();
 	tlog0 << "Gamestate created!" << std::endl;
-	gs->init(si, 0, Seed);
+	gs->init(si, 0, seedInitial);
+	seedPostInit = ran();
 	tlog0 << "Gamestate initialized!" << std::endl;
 
 	for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
@@ -1207,7 +1208,7 @@ void CGameHandler::run(bool resume)
 		if(!resume)
 		{
 			ui32 sum = gs->map ? gs->map->checksum : 612;
-			(*cc) << gs->initialOpts << sum << gs->seed; // gs->scenarioOps
+			(*cc) << gs->initialOpts << sum << gs->seed << seedPostInit; // gs->scenarioOps
 		}
 
 		(*cc) >> quantity; //how many players will be handled at that client
@@ -5619,7 +5620,7 @@ void CGameHandler::spawnWanderingMonsters(int creatureID)
 	std::vector<int3> tiles;
 	getFreeTiles(tiles);
 	ui32 amount = tiles.size() / 200; //Chance is 0.5% for each tile
-	std::random_shuffle(tiles.begin(), tiles.end(), p_myrandom);
+	std::random_shuffle(tiles.begin(), tiles.end());
 	tlog5 << "Spawning wandering monsters. Found " << tiles.size() << " free tiles. Creature type: " << creatureID << std::endl;
 	const CCreature *cre = VLC->creh->creatures[creatureID];
 	for (int i = 0; i < amount; ++i)

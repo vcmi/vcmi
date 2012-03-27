@@ -23,7 +23,7 @@
 #include "../lib/JsonNode.h"
 #include "GameConstants.h"
 
-boost::rand48 ran;
+DLL_LINKAGE boost::rand48 ran;
 class CGObjectInstance;
 
 #ifdef min
@@ -813,7 +813,7 @@ BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2],
 	return BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
 }
 
-void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
+void CGameState::init(StartInfo * si, ui32 checksum, int Seed, int expectedPostInitSeed /*= -1*/)
 {
 	struct HLP
 	{
@@ -1570,6 +1570,12 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 
 
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
+
+	if(expectedPostInitSeed >= 0)
+	{
+		int actualSeed = ran();
+		assert(expectedPostInitSeed == actualSeed); //RNG must be in the same state on all machines when initialization is done (otherwise we have desync)
+	}
 }
 
 int CGameState::battleGetBattlefieldType(int3 tile)
