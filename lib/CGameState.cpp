@@ -2081,7 +2081,7 @@ int CGameState::victoryCheck( ui8 player ) const
 			BOOST_FOREACH(const CGTownInstance *t, map->towns)
 				if((t == map->victoryCondition.obj || !map->victoryCondition.obj)
 					&& t->tempOwner == player
-					&& vstd::contains(t->builtBuildings, 26))
+					&& vstd::contains(t->builtBuildings, EBuilding::GRAIL))
 					return 1;
 			break;
 

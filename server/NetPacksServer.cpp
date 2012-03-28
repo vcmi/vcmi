@@ -265,8 +265,12 @@ bool MakeAction::applyGh( CGameHandler *gh )
 
 bool MakeCustomAction::applyGh( CGameHandler *gh )
 {
-	if(!GS(gh)->curB) ERROR_AND_RETURN;
-	if(gh->connections[GS(gh)->curB->getStack(GS(gh)->curB->activeStack)->owner] != c) ERROR_AND_RETURN;
+	const BattleInfo *b = GS(gh)->curB;
+	if(!b) ERROR_AND_RETURN;
+	if(b->tacticDistance) ERROR_AND_RETURN;
+	const CStack *active = GS(gh)->curB->getStack(GS(gh)->curB->activeStack);
+	if(!active) ERROR_AND_RETURN;
+	if(gh->connections[active->owner] != c) ERROR_AND_RETURN;
 	return gh->makeCustomAction(ba);
 }
 

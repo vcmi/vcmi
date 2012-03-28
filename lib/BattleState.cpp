@@ -1472,6 +1472,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 {
 	CMP_stack cmpst;
 	BattleInfo *curB = new BattleInfo;
+	curB->castSpells[0] = curB->castSpells[1] = 0;
 	curB->sides[0] = armies[0]->tempOwner;
 	curB->sides[1] = armies[1]->tempOwner;
 	if(curB->sides[1] == 254) 
@@ -1765,17 +1766,20 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	//////////////////////////////////////////////////////////////////////////
 
 	//tactics
+	bool isTacticsAllowed = !creatureBank; //no tactics in crebanks
+
 	int tacticLvls[2] = {0};
 	for(int i = 0; i < ARRAY_COUNT(tacticLvls); i++)
 	{
 		if(heroes[i])
 			tacticLvls[i] += heroes[i]->getSecSkillLevel(CGHeroInstance::TACTICS);
 	}
+	int tacticsSkillDiff = tacticLvls[0] - tacticLvls[1];
 
-	if(int diff = tacticLvls[0] - tacticLvls[1])
+	if(tacticsSkillDiff && isTacticsAllowed)
 	{
-		curB->tacticsSide = diff < 0;
-		curB->tacticDistance = std::abs(diff)*2 + 1;
+		curB->tacticsSide = tacticsSkillDiff < 0;
+		curB->tacticDistance = std::abs(tacticsSkillDiff)*2 + 1;
 	}
 	else
 		curB->tacticDistance = 0;
@@ -1820,6 +1824,8 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleCanCastSpell(int player, 
 	{
 		case ECastingMode::HERO_CASTING:
 		{
+			if(tacticDistance)
+				return ESpellCastProblem::ONGOING_TACTIC_PHASE;
 			if(castSpells[side] > 0)
 				return ESpellCastProblem::ALREADY_CASTED_THIS_TURN;
 			if(!heroes[side])
