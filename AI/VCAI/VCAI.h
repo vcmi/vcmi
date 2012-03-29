@@ -157,9 +157,11 @@ public:
 	std::map<const CGHeroInstance *, std::vector<const CGTownInstance *> > townVisitsThisWeek;
 
 	std::map<const CGHeroInstance *, CGoal> lockedHeroes; //TODO: allow non-elementar objectives
+	std::map<const CGHeroInstance *, std::set<const CGObjectInstance *> > reservedHeroesMap; //objects reserved by specific heroes
 
 	std::vector<const CGObjectInstance *> visitableObjs;
 	std::vector<const CGObjectInstance *> alreadyVisited;
+	std::vector<const CGObjectInstance *> reservedObjs; //to be visited by specific hero
 
 	TResources saving;
 
@@ -266,6 +268,7 @@ public:
 
 	void addVisitableObj(const CGObjectInstance *obj);
 	void markObjectVisited (const CGObjectInstance *obj);
+	void reserveObject (const CGHeroInstance * h, const CGObjectInstance *obj);
 	//void removeVisitableObj(const CGObjectInstance *obj);
 	void validateVisitableObjs();
 	void retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned = false) const;

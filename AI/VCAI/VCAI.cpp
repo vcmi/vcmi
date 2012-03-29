@@ -555,6 +555,8 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 	{
 		visitedObject = const_cast<CGObjectInstance *>(visitedObj); // remember the object and wait for return
 		markObjectVisited (visitedObj);
+		remove_if_present(reservedObjs, visitedObj); //unreserve objects
+		remove_if_present(reservedHeroesMap[visitor], visitedObj);
 	}
 }
 
@@ -1114,6 +1116,9 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(const CGHero
 
 			if (!shouldVisit(h, obj))
 				return true;
+			
+			if (vstd::contains(reservedObjs, obj)) //does checking for our own reserved objects make sense? here?
+				return true;
 
 			return false;
 		}),possibleDestinations.end());
@@ -1125,18 +1130,74 @@ void VCAI::wander(const CGHeroInstance * h)
 {
 	while(1)
 	{
-		auto dests = getPossibleDestinations(h);
+		std::vector <const CGObjectInstance *> dests (reservedHeroesMap[h].begin(), reservedHeroesMap[h].end()); //copy constructor
+		if (!dests.size())
+			dests = getPossibleDestinations(h);
 		if(!dests.size())
 		{
-			PNLOG("Nowhere more to go...\n");
-			setGoal (h, INVALID);
-			break;
+			auto compareReinforcements = [h](const CGTownInstance *lhs, const CGTownInstance *rhs) -> bool
+	        {
+				return howManyReinforcementsCanGet(h, lhs) < howManyReinforcementsCanGet(h, rhs);
+	        };
+	
+	        std::vector<const CGTownInstance *> townsReachable;
+	        std::vector<const CGTownInstance *> townsNotReachable;
+	        BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
+	        {
+	            if(!t->visitingHero && howManyReinforcementsCanGet(h,t) && !vstd::contains(townVisitsThisWeek[h], t))
+	            {
+	                if(isReachable(t))
+						townsReachable.push_back(t);
+	                else
+						townsNotReachable.push_back(t);
+	            }
+			}
+            if(townsReachable.size())
+            {
+				boost::sort(townsReachable, compareReinforcements);
+				dests.push_back(townsReachable.back());
+			}
+			else if(townsNotReachable.size())
+			{
+				boost::sort(townsNotReachable, compareReinforcements);
+	            //TODO pick the truly best
+	            const CGTownInstance *t = townsNotReachable.back();
+	            BNLOG("%s can't reach any town, we'll try to make our way to %s at %s", h->name % t->name % t->visitablePos());
+				int3 pos1 = h->pos;
+				striveToGoal(CGoal(CLEAR_WAY_TO).settile(t->visitablePos()).sethero(h));
+				if (pos1 == h->pos && h == primaryHero()) //hero can't move
+				{
+					if(cb->getResourceAmount(Res::GOLD) >= HERO_GOLD_COST && cb->getHeroesInfo().size() < ALLOWED_ROAMING_HEROES && cb->getAvailableHeroes(t).size())
+					recruitHero(t);
+				}
+	            break;
+			}
+			else if(cb->getResourceAmount(Res::GOLD) >= HERO_GOLD_COST)
+	        {
+				std::vector<const CGTownInstance *> towns = cb->getTownsInfo();
+				erase_if(towns, [](const CGTownInstance *t) -> bool
+				{
+					BOOST_FOREACH(const CGHeroInstance *h, cb->getHeroesInfo())
+					if(!t->getArmyStrength() || howManyReinforcementsCanGet(h, t))
+						return true;
+					return false;
+				});
+				boost::sort(towns, compareArmyStrength);
+	            if(towns.size())
+	                    recruitHero(towns.back());
+	            break;
+	        }
+            else
+            {
+				PNLOG("Nowhere more to go...\n");
+				break;
+			}
 		}
 		const CGObjectInstance * obj = dests.front();
 		if(!goVisitObj(obj, h))
 		{
 			BNLOG("Hero %s apparently used all MPs (%d left)\n", h->name % h->movement);
-			markObjectVisited(obj); //reserve that object - we predict it will be reached soon
+			reserveObject(h, obj); //reserve that object - we predict it will be reached soon
 			setGoal(h, CGoal(VISIT_TILE).sethero(h).settile(obj->visitablePos()));
 			break;
 		}
@@ -1192,6 +1253,12 @@ void VCAI::markObjectVisited (const CGObjectInstance *obj)
 		(obj->ID == Obj::MONSTER))
 		return;
 	alreadyVisited.push_back(obj);
+}
+
+void VCAI::reserveObject (const CGHeroInstance * h, const CGObjectInstance *obj)
+{
+	reservedObjs.push_back(obj);
+	reservedHeroesMap[h].insert(obj);
 }
 
 void VCAI::validateVisitableObjs()
@@ -1355,9 +1422,15 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 			cb->moveHero(h,CGHeroInstance::convertPosition(endpos, true));
 			waitTillFree(); //movement may cause battle or blocking dialog
 			boost::this_thread::interruption_point();
-			if(h->tempOwner != playerID) //we lost hero
+			if(h->tempOwner != playerID) //we lost hero - remove all tasks assigned to him/her
 			{
 				remove_if_present(lockedHeroes, h);
+				BOOST_FOREACH (auto obj, reservedHeroesMap[h])
+				{
+					remove_if_present(reservedObjs, obj); //unreserve all objects for that hero
+				}
+				remove_if_present(reservedHeroesMap, h);
+
 				throw std::runtime_error("Hero was lost!"); //we need to throw, otherwise hero will be assigned to sth again
 				break;
 			}
@@ -1366,7 +1439,9 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 		ret = !i;
 	}
 	if (visitedObject) //we step into something interesting
+	{
 		performObjectInteraction (visitedObject, h);
+	}
 
 	if(h->tempOwner == playerID) //lost hero after last move
 		cb->recalculatePaths();
@@ -2524,8 +2599,6 @@ bool isWeeklyRevisitable (const CGObjectInstance * obj)
 
 bool shouldVisit (const CGHeroInstance * h, const CGObjectInstance * obj)
 {
-	if (obj->wasVisited(h))
-		return false;
 	switch (obj->ID)
 	{
 		case Obj::CREATURE_GENERATOR1:
@@ -2548,7 +2621,20 @@ bool shouldVisit (const CGHeroInstance * h, const CGObjectInstance * obj)
 		case Obj::WHIRLPOOL:
 			//TODO: mehcanism for handling monoliths
 			return false;
+		case Obj::SCHOOL_OF_MAGIC:
+		case Obj::SCHOOL_OF_WAR:
+			{
+				TResources myRes = ai->myCb->getResourceAmount();
+				if (myRes[Res::GOLD] - GOLD_RESERVE < 1000)
+					return false;
+			}
+		case Obj::LIBRARY_OF_ENLIGHTENMENT:
+			return h->level >= 12;
 	}
+
+	if (obj->wasVisited(h))
+		return false;
+
 	return true;
 }
 
