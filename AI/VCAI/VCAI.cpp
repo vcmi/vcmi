@@ -2629,7 +2629,8 @@ bool shouldVisit (const CGHeroInstance * h, const CGObjectInstance * obj)
 					return false;
 			}
 		case Obj::LIBRARY_OF_ENLIGHTENMENT:
-			return h->level >= 12;
+			if (h->level < 12)
+				return false;
 	}
 
 	if (obj->wasVisited(h))
