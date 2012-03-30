@@ -130,7 +130,7 @@ private:
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
 	SpellSelectionType spellSelMode;
 	BattleAction * spellToCast; //spell for which player is choosing destination
-	ui32 creatureSpellToCast;
+	si32 creatureSpellToCast;
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
 
 	void showAliveStack(const CStack *stack, SDL_Surface * to); //helper function for function show
@@ -144,7 +144,6 @@ private:
 	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
 	void giveCommand(ui8 action, BattleHex tile, ui32 stack, si32 additional=-1);
 	bool isTileAttackable(const BattleHex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
-	bool blockedByObstacle(BattleHex hex) const;
 	bool isCatapultAttackable(BattleHex hex) const; //returns true if given tile can be attacked by catapult
 
 	std::list<BattleEffect> battleEffects; //different animations to display on the screen like spell effects
@@ -243,12 +242,15 @@ public:
 	void castThisSpell(int spellID); //called when player has chosen a spell from spellbook
 	void displayEffect(ui32 effect, int destTile); //displays effect of a spell on the battlefield; affected: true - attacker. false - defender
 	void battleTriggerEffect(const BattleTriggerEffect & bte);
-	void setBattleCursor(const int myNumber); //really complex and messy
+	void setBattleCursor(const int myNumber); //really complex and messy, sets attackingHex
 	void endAction(const BattleAction* action);
 	void hideQueue();
 	void showQueue();
 	SpellSelectionType selectionTypeByPositiveness(const CSpell & spell);
 
+	void handleHex(BattleHex myNumber, int eventType);
+
+	BattleHex fromWhichHexAttack(BattleHex myNumber);
 	
 	friend class CPlayerInterface;
 	friend class CAdventureMapButton;

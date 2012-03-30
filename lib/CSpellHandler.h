@@ -44,6 +44,7 @@ public:
 
 	bool isPositive() const;
 	bool isNegative() const;
+	bool isRisingSpell() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

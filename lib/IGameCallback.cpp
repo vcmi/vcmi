@@ -133,7 +133,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCreatureCastT
 	return gs->curB->battleCanCastThisSpellHere(player, spell, ECastingMode::CREATURE_ACTIVE_CASTING, destination);
 }
 
-TSpell CBattleInfoCallback::battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode)
+si32 CBattleInfoCallback::battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode)
 {
 	switch (mode)
 	{
@@ -199,11 +199,11 @@ int CBattleInfoCallback::battleGetBattlefieldType()
 	return gs->curB->battlefieldType;
 }
 
-int CBattleInfoCallback::battleGetObstaclesAtTile(BattleHex tile) //returns bitfield 
-{
-	//TODO - write
-	return -1;
-}
+// int CBattleInfoCallback::battleGetObstaclesAtTile(BattleHex tile) //returns bitfield 
+// {
+// 	//TODO - write
+// 	return -1;
+// }
 
 std::vector<CObstacleInstance> CBattleInfoCallback::battleGetAllObstacles()
 {
@@ -405,6 +405,13 @@ const CGHeroInstance * CBattleInfoCallback::battleGetFightingHero(ui8 side) cons
 	return gs->curB->heroes[side];
 }
 
+bool CBattleInfoCallback::battleIsBlockedByObstacle(BattleHex tile)
+{
+	if(!gs->curB)
+		return 0;
+
+	return gs->curB->isObstacleOnTile(tile);
+}
 
 
 CGameState *const CPrivilagedInfoCallback::gameState ()

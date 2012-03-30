@@ -83,3 +83,8 @@ void BattleHex::checkAndPush(int tile, std::vector<BattleHex> & ret)
 		&& (tile%GameConstants::BFIELD_WIDTH != 0) )
 		ret.push_back(BattleHex(tile));
 }
+
+bool BattleHex::isAvailable() const
+{
+	return isValid() && getX() > 0 && getX() < GameConstants::BFIELD_WIDTH-1;
+}

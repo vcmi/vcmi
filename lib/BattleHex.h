@@ -106,4 +106,5 @@ struct DLL_LINKAGE BattleHex
 	}
 	static void checkAndPush(int tile, std::vector<BattleHex> & ret);
 
+	bool isAvailable() const; //valid position not in first or last column
 };

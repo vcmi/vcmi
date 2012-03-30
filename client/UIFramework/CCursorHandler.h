@@ -16,6 +16,17 @@ struct SDL_Surface;
  *
  */
 
+namespace ECursor
+{
+	enum ECursorTypes { ADVENTURE, COMBAT, DEFAULT, SPELLBOOK };
+
+	enum EBattleCursors { COMBAT_BLOCKED, COMBAT_MOVE, COMBAT_FLY, COMBAT_SHOOT,
+						COMBAT_HERO, COMBAT_QUERY, COMBAT_POINTER, 
+						//various attack frames
+						COMBAT_SHOOT_PENALTY = 15, COMBAT_SHOOT_CATAPULT, COMBAT_HEAL,
+						COMBAT_SACRIFICE, COMBAT_TELEPORT};
+}
+
 /// handles mouse cursor
 class CCursorHandler 
 {

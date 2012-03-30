@@ -94,7 +94,8 @@ public:
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
-	int battleGetObstaclesAtTile(BattleHex tile); //returns bitfield
+	//int battleGetObstaclesAtTile(BattleHex tile); //returns bitfield
+	bool battleIsBlockedByObstacle(BattleHex tile);
 	std::vector<CObstacleInstance> battleGetAllObstacles(); //returns all obstacles on the battlefield
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true); //returns stack info by given ID
 	const CStack * battleGetStackByPos(BattleHex pos, bool onlyAlive = true); //returns stack info by given pos
@@ -110,7 +111,7 @@ public:
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell); //determines if given spell can be casted (and returns problem description)
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell, BattleHex destination); //if hero can cast spell here
 	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination); //determines if creature can cast a spell here
-	ui32 battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode);
+	si32 battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode);
 	bool battleCanFlee(); //returns true if caller can flee from the battle
 	int battleGetSurrenderCost(); //returns cost of surrendering battle, -1 if surrendering is not possible
 	const CGTownInstance * battleGetDefendedTown(); //returns defended town if current battle is a siege, NULL instead
@@ -121,6 +122,10 @@ public:
 	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //returns hero corresponding to given side (0 - attacker, 1 - defender)
 	si8 battleHasDistancePenalty(const CStack * stack, BattleHex destHex); //checks if given stack has distance penalty
 	si8 battleHasWallPenalty(const CStack * stack, BattleHex destHex); //checks if given stack has wall penalty
+	si8 battleHasShootingPenalty(const CStack * stack, BattleHex destHex)
+	{
+		return battleHasDistancePenalty(stack, destHex) || battleHasWallPenalty(stack, destHex);
+	}
 	si8 battleCanTeleportTo(const CStack * stack, BattleHex destHex, int telportLevel); //checks if teleportation of given stack to given position can take place
 	si8 battleGetTacticDist(); //returns tactic distance for calling player or 0 if player is not in tactic phase
 	ui8 battleGetMySide(); //return side of player in battle (attacker/defender)

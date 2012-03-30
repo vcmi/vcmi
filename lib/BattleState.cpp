@@ -1948,6 +1948,31 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int
 	if(moreGeneralProblem != ESpellCastProblem::OK)
 		return moreGeneralProblem;
 
+	if(spell->getTargetType() == CSpell::OBSTACLE  &&  !isObstacleOnTile(dest))
+		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+
+
+	//get dead stack if we cast resurrection or animate dead
+	const CStack * stackUnder = getStackT(dest, false);
+
+	if(spell->isRisingSpell())
+	{
+		if(!stackUnder || stackUnder->alive())
+			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+		if(spell->id == Spells::ANIMATE_DEAD  &&  !stackUnder->hasBonusOfType(Bonus::UNDEAD))
+			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+	}
+	if(spell->getTargetType() == CSpell::CREATURE)
+	{
+		if(!stackUnder)
+			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+		if(spell->isNegative() && stackUnder->owner == player)
+			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+		if(spell->isPositive() && stackUnder->owner != player)
+			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+	}
+
+
 	if (mode != ECastingMode::CREATURE_ACTIVE_CASTING && mode != ECastingMode::ENCHANTER_CASTING)
 		return battleIsImmune(getHero(player), spell, mode, dest);
 	else
@@ -2331,6 +2356,18 @@ int BattleInfo::getIdForNewStack() const
 	}
 
 	return 0;
+}
+
+bool BattleInfo::isObstacleOnTile(BattleHex tile) const
+{
+	std::set<BattleHex> coveredHexes;
+	BOOST_FOREACH(const CObstacleInstance &obs, obstacles)
+	{
+		std::vector<BattleHex> blocked = VLC->heroh->obstacles.find(obs.ID)->second.getBlocked(obs.pos);
+		for(size_t w = 0; w < blocked.size(); ++w)
+			coveredHexes.insert(blocked[w]);
+	}
+	return vstd::contains(coveredHexes, tile);
 }
 
 CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)
@@ -2859,6 +2896,13 @@ std::string CStack::getName() const
 bool CStack::isValidTarget(bool allowDead/* = false*/) const /*alive non-turret stacks (can be attacked or be object of magic effect) */
 {
 	return (alive() || allowDead) && position.isValid();
+}
+
+bool CStack::canBeHealed() const
+{
+	return firstHPleft != MaxHealth()
+		&& alive()
+		&& !hasBonusOfType(Bonus::SIEGE_WEAPON);
 }
 
 bool CMP_stack::operator()( const CStack* a, const CStack* b )

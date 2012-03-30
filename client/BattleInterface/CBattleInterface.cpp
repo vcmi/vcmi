@@ -912,296 +912,12 @@ void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 }
 void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
-	std::string consoleMsg;
-
-	if(activeStack && !spellDestSelectMode)
+	auto hexItr = std::find_if(bfield.begin(), bfield.end(), [](const CClickableHex &hex)
 	{
-        int lastMouseHoveredStack = mouseHoveredStack;
-		bool stackCastsSpell;
-		mouseHoveredStack = -1;
-		int myNumber = -1; //number of hovered tile
-		for(int g = 0; g < GameConstants::BFIELD_SIZE; ++g)
-		{
-			if(bfield[g].hovered && bfield[g].strictHovered)
-			{
-				myNumber = g;
-				break;
-			}
-		}
-		if(myNumber == -1)
-		{
-			CCS->curh->changeGraphic(1, 6);
-			if(console->whoSetAlter == 0)
-			{
-				console->alterTxt = "";
-			}
-		}
-		else //battlefield hex
-		{
-            if(!vstd::contains(occupyableHexes, myNumber) || activeStack->coversPos(myNumber))
-			{
-				const CStack *shere = curInt->cb->battleGetStackByPos(myNumber, false);
-				const CStack *sactive = activeStack;
-				if(shere)
-				{
-					bool ourStack = shere->owner == curInt->playerID;
-					//determine if creature spell is going to be cast
-					stackCastsSpell = false;
-					if (stackCanCastSpell && spellSelMode > STACK_SPELL_CANCELLED) //player did not decide to cancel this spell
-					{
-						if ((int)creatureSpellToCast > -1) //use randomized spell (Faerie Dragon), or only avaliable spell (Archangel)
-						{
-							if (shere != sactive) //can't cast on itself
-							{
-								const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
-								if (curInt->cb->battleCanCreatureCastThisSpell(spell, BattleHex(myNumber)) == ESpellCastProblem::OK)
-								{
-									if ((!spell->isNegative() && ourStack) || (!spell->isPositive() && !ourStack))
-									{
-										CCS->curh->changeGraphic(3, 0);
-										stackCastsSpell = true;
-										std::string buf = CGI->generaltexth->allTexts[27]; //cast %s on &s
-										boost::replace_first (buf, "%s", spell->name);
-										boost::replace_first (buf, "%s", shere->getName());
-										console->alterTxt = buf;
-										console->whoSetAlter = 0;
-									}
-								}
-							}
-						}
-						else if (ourStack) //must have only random positive spell (genie)
-						{
-							if (shere != sactive) //can't cast on itself
-							{
-								int spellID = curInt->cb->battleGetRandomStackSpell(shere, CBattleInfoCallback::RANDOM_GENIE);
-								if (spellID > -1) //can cast any spell on target stack
-								{
-									CCS->curh->changeGraphic(3, 0);
-									stackCastsSpell = true;
-									std::string buf = CGI->generaltexth->allTexts[301]; //Cast spell on %s
-									boost::replace_first (buf, "%s", shere->getName().c_str());
-									console->alterTxt = buf;
-									console->whoSetAlter = 0;
-								}
-							}
-						}
-					}
+		return hex.hovered && hex.strictHovered;
+	});
 
-					if(ourStack) //our stack
-					{
-						if (shere->alive())
-						{
-							if (!stackCastsSpell) //use other abilities or display info
-							{
-								if(sactive->hasBonusOfType(Bonus::HEALER))
-								{
-									//display the possibility to heal this creature
-									CCS->curh->changeGraphic(1, 17);
-								}
-								else
-								{
-									//info about creature
-									CCS->curh->changeGraphic(1,5);
-								}
-								//setting console text
-								consoleMsg += CGI->generaltexth->allTexts[297];
-								boost::replace_first (consoleMsg, "%s", shere->getName());
-								console->alterText (consoleMsg);
-								console->whoSetAlter = 0;
-								const time_t curTime = time(NULL);
-								if (shere->ID != lastMouseHoveredStack &&
-								   curTime > lastMouseHoveredStackAnimationTime + HOVER_ANIM_DELTA &&
-								   creAnims[shere->ID]->getType() == CCreatureAnim::HOLDING &&
-								   creAnims[shere->ID]->framesInGroup(CCreatureAnim::MOUSEON) > 0)
-								{
-									creAnims[shere->ID]->playOnce(CCreatureAnim::MOUSEON);
-									lastMouseHoveredStackAnimationTime = curTime;
-								}
-							}
-						} //end of alive
-						else if (sactive->hasBonusOfType(Bonus::DAEMON_SUMMONING) && sactive->casts)
-						{
-							CCS->curh->changeGraphic(3, 0);
-						}
-						mouseHoveredStack = shere->ID; //for dead also?
-					}
-					//end of our stack
-					else if (!stackCastsSpell) //if not, then try attack
-					{
-						if (curInt->cb->battleCanShoot(activeStack,myNumber)) //we can shoot enemy
-						{
-							if(curInt->cb->battleHasDistancePenalty(activeStack, myNumber) ||
-								curInt->cb->battleHasWallPenalty(activeStack, myNumber))
-							{
-								CCS->curh->changeGraphic(1,15);
-							}
-							else
-							{
-								CCS->curh->changeGraphic(1,3);
-							}
-							//calculating estimated dmg
-							std::pair<ui32, ui32> estimatedDmg = curInt->cb->battleEstimateDamage(sactive, shere);
-							std::string estDmg;
-							estDmg += boost::lexical_cast<std::string>(estimatedDmg.first) += " - ";
-							estDmg += boost::lexical_cast<std::string>(estimatedDmg.second);
-							//printing
-							consoleMsg += CGI->generaltexth->allTexts[296];
-							boost::replace_first (consoleMsg, "%s", shere->getName());
-							boost::replace_first (consoleMsg, "%d", boost::lexical_cast<std::string>(sactive->shots));
-							boost::replace_first (consoleMsg, "%s", estDmg);
-							console->alterText (consoleMsg);
-							console->whoSetAlter = 0;
-						}
-						else if (shere->alive() && isTileAttackable(myNumber)) //available enemy (melee attackable)
-						{
-							//handle direction of cursor and attackable tile
-							setBattleCursor(myNumber);
-
-							//calculating estimated dmg
-							std::pair<ui32, ui32> estimatedDmg = curInt->cb->battleEstimateDamage(sactive, shere);
-							std::string estDmg;
-							estDmg += boost::lexical_cast<std::string>(estimatedDmg.first) += " - ";
-							estDmg += boost::lexical_cast<std::string>(estimatedDmg.second);
-							//printing
-							consoleMsg += CGI->generaltexth->allTexts[36];
-							boost::replace_first (consoleMsg, "%s", shere->getName());
-							boost::replace_first (consoleMsg, "%s", estDmg);
-							console->alterText (consoleMsg);
-							console->whoSetAlter = 0;
-						}
-						else //unavailable enemy
-						{
-							CCS->curh->changeGraphic (1,0);
-							console->alterTxt = "";
-							console->whoSetAlter = 0;
-						}
-					}
-				} //end of stack
-				//TODO: allow aiming for creature spells
-				else if (sactive && sactive->hasBonusOfType(Bonus::CATAPULT) && isCatapultAttackable(myNumber)) //catapulting
-				{
-					CCS->curh->changeGraphic(1,16);
-					console->alterTxt = "";
-					console->whoSetAlter = 0;
-				}
-				else //empty unavailable tile
-				{
-					CCS->curh->changeGraphic(1,0);
-					console->alterTxt = "";
-					console->whoSetAlter = 0;
-				}
-			}
-			else //available tile
-			{
-				//setting console text and cursor
-				if (activeStack) //there can be a moment when stack is dead ut next is not yet activated
-				{
-					if(activeStack->hasBonusOfType(Bonus::FLYING))
-					{
-						CCS->curh->changeGraphic(1,2);
-						consoleMsg += CGI->generaltexth->allTexts[295]; //Fly %s here
-					}
-					else
-					{
-						CCS->curh->changeGraphic(1,1);
-						consoleMsg += CGI->generaltexth->allTexts[294]; //Move %s here
-						
-					}
-					boost::replace_first (consoleMsg, "%s", activeStack->getName());
-					console->alterText(consoleMsg);
-					console->whoSetAlter = 0;
-				}
-			}
-		}
-	}
-	else if (spellDestSelectMode)
-	{
-		int myNumber = -1; //number of hovered tile
-		for(int g=0; g<GameConstants::BFIELD_SIZE; ++g)
-		{
-			if(bfield[g].hovered && bfield[g].strictHovered)
-			{
-				myNumber = g;
-				break;
-			}
-		}
-		if(myNumber == -1)
-		{
-			CCS->curh->changeGraphic(1, 0);
-			//setting console text
-			console->alterTxt = CGI->generaltexth->allTexts[23];
-			console->whoSetAlter = 0;
-		}
-		else
-		{
-			//get dead stack if we cast resurrection or animate dead
-			const CStack * stackUnder = curInt->cb->battleGetStackByPos(myNumber, vstd::contains(CGI->spellh->risingSpells, spellToCast->additionalInfo));
-
-			if(stackUnder && spellToCast->additionalInfo == 39 && !stackUnder->hasBonusOfType(Bonus::UNDEAD)) //animate dead can be cast only on undead creatures
-				stackUnder = NULL;
-
-			bool potentialTargetStack; //for cases 1, 2 and 3
-			switch (spellSelMode)
-			{
-					case SpellSelectionType::FRIENDLY_CREATURE:
-						potentialTargetStack = stackUnder != NULL && curInt->playerID == stackUnder->owner;
-						break;
-					case SpellSelectionType::HOSTILE_CREATURE:
-						potentialTargetStack = stackUnder != NULL && curInt->playerID != stackUnder->owner;
-						break;
-					case SpellSelectionType::ANY_CREATURE:
-						potentialTargetStack = stackUnder != NULL;
-						break;
-			}
-
-			switch(spellSelMode)
-			{
-			case SpellSelectionType::ANY_LOCATION:
-					CCS->curh->changeGraphic(3, 0);
-					//setting console text
-					consoleMsg += CGI->generaltexth->allTexts[26];
-					boost::replace_first (consoleMsg, "%s", CGI->spellh->spells[spellToCast->additionalInfo]->name);
-					console->alterText (consoleMsg);
-					console->whoSetAlter = 0;
-					break;
-				case SpellSelectionType::FRIENDLY_CREATURE:
-				case SpellSelectionType::HOSTILE_CREATURE:
-				case SpellSelectionType::ANY_CREATURE:
-					if( potentialTargetStack )
-					{
-						if (curInt->cb->battleCanCastThisSpell (CGI->spellh->spells[spellToCast->additionalInfo], BattleHex(myNumber)))
-							CCS->curh->changeGraphic(1, 0);
-						else
-							CCS->curh->changeGraphic(3, 0);
-						//setting console text
-						consoleMsg += CGI->generaltexth->allTexts[27];
-						boost::replace_first (consoleMsg, "%s", CGI->spellh->spells[spellToCast->additionalInfo]->name);
-						boost::replace_first (consoleMsg, "%s", stackUnder->getName());
-						console->alterText (consoleMsg);
-						console->whoSetAlter = 0;
-						break;
-					}
-					else
-					{
-						CCS->curh->changeGraphic(1, 0);
-						//setting console text
-						console->alterTxt = CGI->generaltexth->allTexts[23];
-						console->whoSetAlter = 0;
-					}
-					break;
-				case SpellSelectionType::OBSTACLE: //TODO: implement this case
-					if ( blockedByObstacle(myNumber) )
-					{
-						CCS->curh->changeGraphic(3, 0);
-					}
-					else
-					{
-						CCS->curh->changeGraphic(1, 0);
-					}
-					break;
-			}
-		}
-	}
+	handleHex(hexItr == bfield.end() ? -1 : hexItr->myNumber, MOVE);
 }
 
 void CBattleInterface::setBattleCursor(const int myNumber)
@@ -1697,19 +1413,6 @@ bool CBattleInterface::isTileAttackable(const BattleHex & number) const
 	return false;
 }
 
-bool CBattleInterface::blockedByObstacle(BattleHex hex) const
-{
-	std::vector<CObstacleInstance> obstacles = curInt->cb->battleGetAllObstacles();
-	std::set<BattleHex> coveredHexes;
-	for(size_t b = 0; b < obstacles.size(); ++b)
-	{
-		std::vector<BattleHex> blocked = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getBlocked(obstacles[b].pos);
-		for(size_t w = 0; w < blocked.size(); ++w)
-			coveredHexes.insert(blocked[w]);
-	}
-	return vstd::contains(coveredHexes, hex);
-}
-
 bool CBattleInterface::isCatapultAttackable(BattleHex hex) const
 {
 	if(!siegeH)
@@ -1740,307 +1443,7 @@ const CGHeroInstance * CBattleInterface::getActiveHero()
 
 void CBattleInterface::hexLclicked(int whichOne)
 {
-	const CStack * actSt = activeStack;
-	const CStack* dest = curInt->cb->battleGetStackByPos(whichOne, false); //creature at destination tile; -1 if there is no one
-	if(!actSt)
-	{
-		tlog3 << "Hex l-clicked when no active stack!\n";
-		return;
-	}
-
-	if( ((whichOne%GameConstants::BFIELD_WIDTH)!=0 && (whichOne%GameConstants::BFIELD_WIDTH)!=(GameConstants::BFIELD_WIDTH-1)) //if player is trying to attack enemey unit or move creature stack
-		|| ((actSt->hasBonusOfType(Bonus::CATAPULT) && !spellDestSelectMode) || dest ) //enemy's first aid tent can stand there and we want to shoot it
-		)
-	{
-		if(!myTurn)
-			return; //we are not permit to do anything
-		if(spellDestSelectMode) //select spell target //TODO: choose target for area creature spell
-		{
-			//checking destination
-			bool allowCasting = true;
-			//bool onlyAlive = vstd::contains(CGI->spellh->risingSpells, spellToCast->additionalInfo); //when casting resurrection or animate dead we should be allow to select dead stack
-			//TODO: more general handling of dead targets
-			switch(spellSelMode)
-			{
-			case FRIENDLY_CREATURE:
-			case HOSTILE_CREATURE:
-			case ANY_CREATURE:
-				if (curInt->cb->battleCanCastThisSpell (CGI->spellh->spells[spellToCast->additionalInfo], BattleHex(whichOne)) != ESpellCastProblem::OK)
-					allowCasting = false;
-				break;
-			case OBSTACLE:
-				if(!blockedByObstacle(whichOne))
-					allowCasting = false;
-			case TELEPORT: //teleport
-				const CSpell *s = CGI->spellh->spells[spellToCast->additionalInfo];
-				ui8 skill = getActiveHero()->getSpellSchoolLevel(s); //skill level
-				if (!curInt->cb->battleCanTeleportTo(activeStack, whichOne, skill))
-				{
-					allowCasting = false;
-				}
-				break;
-			}
-			//destination checked
-			if(allowCasting)
-			{
-				spellToCast->destinationTile = whichOne;
-				curInt->cb->battleMakeAction(spellToCast);
-				endCastingSpell();
-			}
-		}
-		else //creature casting
-		{
-			bool walkableTile = false;
-			bool spellCast = false;
-			if (dest)
-			{
-				bool ourStack = actSt->owner == dest->owner;
-
-				//try to cast stack spell first
-				if (stackCanCastSpell && spellSelMode > STACK_SPELL_CANCELLED) //player did not decide to cancel this spell
-				{
-					if (dest != actSt) //can't cast on itself
-					{
-						if ((int)creatureSpellToCast > -1) //use randomized spell (Faerie Dragon), or only avaliable spell (Archangel)
-						{
-							const CSpell * spell =  CGI->spellh->spells[creatureSpellToCast];
-
-							if (curInt->cb->battleCanCreatureCastThisSpell(spell, BattleHex(whichOne)) == ESpellCastProblem::OK)
-							{
-								if ((!spell->isNegative() && ourStack) || (!spell->isPositive() && !ourStack))
-								{
-									giveCommand(BattleAction::MONSTER_SPELL, whichOne, actSt->ID, creatureSpellToCast);
-									spellCast = true;
-								}
-							}
-						}
-						else if (ourStack) //must have only random positive spell (genie)
-						{
-							int spellID = curInt->cb->battleGetRandomStackSpell(dest, CBattleInfoCallback::RANDOM_GENIE);
-							if (spellID > -1) //can cast any spell on target stack
-							{
-								giveCommand(BattleAction::MONSTER_SPELL, whichOne, actSt->ID, spellID); //use randomized spell
-								spellCast = true;
-							}
-						}
-					}
-					if (spellCast)
-					{
-						creatureSpellToCast = -1;
-						return; //no further action after cast
-					}
-				}
-
-				if (dest->alive())
-				{
-					if(dest->owner != actSt->owner && curInt->cb->battleCanShoot(activeStack, whichOne)) //shooting
-					{
-						CCS->curh->changeGraphic(1, 6); //cursor should be changed
-						giveCommand (BattleAction::SHOOT, whichOne, activeStack->ID);
-					}
-					else if(!ourStack) //attacking
-					{
-						const CStack * actStack = activeStack;
-						int attackFromHex = -1; //hex from which we will attack chosen stack
-						switch(CCS->curh->number)
-						{
-						case 12: //from bottom right
-							{
-								bool doubleWide = actStack->doubleWide();
-								int destHex = whichOne + ( (whichOne/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH+1 ) +
-									(actStack->attackerOwned && doubleWide ? 1 : 0);
-								if(vstd::contains(occupyableHexes, destHex))
-									attackFromHex = destHex;
-								else if(actStack->attackerOwned) //if we are attacker
-								{
-									if(vstd::contains(occupyableHexes, destHex+1))
-										attackFromHex = destHex+1;
-								}
-								else //if we are defender
-								{
-									if(vstd::contains(occupyableHexes, destHex-1))
-										attackFromHex = destHex-1;
-								}
-								break;
-							}
-						case 7: //from bottom left
-							{
-								int destHex = whichOne + ( (whichOne/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH-1 : GameConstants::BFIELD_WIDTH );
-								if(vstd::contains(occupyableHexes, destHex))
-									attackFromHex = destHex;
-								else if(actStack->attackerOwned) //if we are attacker
-								{
-									if(vstd::contains(occupyableHexes, destHex+1))
-										attackFromHex = destHex+1;
-								}
-								else //if we are defender
-								{
-									if(vstd::contains(occupyableHexes, destHex-1))
-										attackFromHex = destHex-1;
-								}
-								break;
-							}
-						case 8: //from left
-							{
-								if(actStack->doubleWide() && !actStack->attackerOwned)
-								{
-									std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
-									if(vstd::contains(acc, whichOne))
-										attackFromHex = whichOne - 1;
-									else
-										attackFromHex = whichOne - 2;
-								}
-								else
-								{
-									attackFromHex = whichOne - 1;
-								}
-								break;
-							}
-						case 9: //from top left
-							{
-								int destHex = whichOne - ( (whichOne/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH+1 : GameConstants::BFIELD_WIDTH );
-								if(vstd::contains(occupyableHexes, destHex))
-									attackFromHex = destHex;
-								else if(actStack->attackerOwned) //if we are attacker
-								{
-									if(vstd::contains(occupyableHexes, destHex+1))
-										attackFromHex = destHex+1;
-								}
-								else //if we are defender
-								{
-									if(vstd::contains(occupyableHexes, destHex-1))
-										attackFromHex = destHex-1;
-								}
-								break;
-							}
-						case 10: //from top right
-							{
-								bool doubleWide = actStack->doubleWide();
-								int destHex = whichOne - ( (whichOne/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH-1 ) +
-									(actStack->attackerOwned && doubleWide ? 1 : 0);
-								if(vstd::contains(occupyableHexes, destHex))
-									attackFromHex = destHex;
-								else if(actStack->attackerOwned) //if we are attacker
-								{
-									if(vstd::contains(occupyableHexes, destHex+1))
-										attackFromHex = destHex+1;
-								}
-								else //if we are defender
-								{
-									if(vstd::contains(occupyableHexes, destHex-1))
-										attackFromHex = destHex-1;
-								}
-								break;
-							}
-						case 11: //from right
-							{
-								if(actStack->doubleWide() && actStack->attackerOwned)
-								{
-									std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
-									if(vstd::contains(acc, whichOne))
-										attackFromHex = whichOne + 1;
-									else
-										attackFromHex = whichOne + 2;
-								}
-								else
-								{
-									attackFromHex = whichOne + 1;
-								}
-								break;
-							}
-						case 13: //from bottom
-							{
-								int destHex = whichOne + ( (whichOne/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH+1 );
-								if(vstd::contains(occupyableHexes, destHex))
-									attackFromHex = destHex;
-								else if(attackingHeroInstance->tempOwner == curInt->cb->getMyColor()) //if we are attacker
-								{
-									if(vstd::contains(occupyableHexes, destHex+1))
-										attackFromHex = destHex+1;
-								}
-								else //if we are defender
-								{
-									if(vstd::contains(occupyableHexes, destHex-1))
-										attackFromHex = destHex-1;
-								}
-								break;
-							}
-						case 14: //from top
-							{
-								int destHex = whichOne - ( (whichOne/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH-1 );
-								if(vstd::contains(occupyableHexes, destHex))
-									attackFromHex = destHex;
-								else if(attackingHeroInstance->tempOwner == curInt->cb->getMyColor()) //if we are attacker
-								{
-									if(vstd::contains(occupyableHexes, destHex+1))
-										attackFromHex = destHex+1;
-								}
-								else //if we are defender
-								{
-									if(vstd::contains(occupyableHexes, destHex-1))
-										attackFromHex = destHex-1;
-								}
-								break;
-							}
-						}
-
-						if(attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
-						{
-							giveCommand(BattleAction::WALK_AND_ATTACK, attackFromHex, activeStack->ID, whichOne);
-
-							CCS->curh->changeGraphic(1, 6); //cursor should be changed
-						}
-
-					}
-					else if (actSt->hasBonusOfType(Bonus::HEALER) && actSt->owner == dest->owner) //friendly creature we can heal
-					{ //TODO: spellDestSelectMode > -2 if we don't want to heal but perform some other (?) action
-						giveCommand(BattleAction::STACK_HEAL, whichOne, activeStack->ID); //command healing
-
-						CCS->curh->changeGraphic(1, 6); //cursor should be changed
-					}
-
-				} //stack is not alive
-				else if (actSt->hasBonusOfType(Bonus::DAEMON_SUMMONING) && actSt->casts &&
-						actSt->owner == dest->owner && spellSelMode > -2)//friendly body we can (and want) rise
-				{
-					giveCommand(BattleAction::DAEMON_SUMMONING, whichOne, activeStack->ID);
-
-					CCS->curh->changeGraphic(1, 6); //cursor should be changed
-				}
-				else //not a subject of resurrection
-					walkableTile = true;
-			}
-			else
-			{
-				walkableTile = true;
-			}
-
-			if (walkableTile) // we can try to move to this tile
-			{
-				if(std::find(occupyableHexes.begin(), occupyableHexes.end(), whichOne) != occupyableHexes.end())// and it's in our range
-				{
-					CCS->curh->changeGraphic(1, 6); //cursor should be changed
-					if(activeStack->doubleWide())
-					{
-						std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
-						int shiftedDest = whichOne + (activeStack->attackerOwned ? 1 : -1);
-						if(vstd::contains(acc, whichOne))
-							giveCommand (BattleAction::WALK ,whichOne, activeStack->ID);
-						else if(vstd::contains(acc, shiftedDest))
-							giveCommand (BattleAction::WALK, shiftedDest, activeStack->ID);
-					}
-					else
-					{
-						giveCommand(BattleAction::WALK, whichOne, activeStack->ID);
-					}
-				}
-				else if(actSt->hasBonusOfType(Bonus::CATAPULT) && isCatapultAttackable(whichOne)) //attacking (catapult)
-				{
-					giveCommand(BattleAction::CATAPULT, whichOne, activeStack->ID);
-				}
-			}
-		}
-	}
+	handleHex(whichOne, LCLICK);
 }
 
 void CBattleInterface::stackIsCatapulting(const CatapultAttack & ca)
@@ -2505,11 +1908,22 @@ void CBattleInterface::activateStack()
 	bFlee->block(!curInt->cb->battleCanFlee());
 	bSurrender->block(curInt->cb->battleGetSurrenderCost() < 0);
 
+
 	//set casting flag to true if creature can use it to not check it every time
-	if (s->casts && s->hasBonus(Selector::type(Bonus::SPELLCASTER) || Selector::type(Bonus::RANDOM_SPELLCASTER)))
+	const Bonus *spellcaster = s->getBonus(Selector::type(Bonus::SPELLCASTER)),
+		*randomSpellcaster = s->getBonus(Selector::type(Bonus::RANDOM_SPELLCASTER));
+	if (s->casts &&  (spellcaster || randomSpellcaster))
 	{
 		stackCanCastSpell = true;
-		creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
+		if(randomSpellcaster)
+			creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
+		else
+			creatureSpellToCast = spellcaster->subtype;
+
+		if(creatureSpellToCast < 0) //TODO proper way of detecting casters of positive spells
+			spellSelMode = FRIENDLY_CREATURE;
+		else
+			spellSelMode = selectionTypeByPositiveness(*CGI->spellh->spells[creatureSpellToCast]);
 	}
 	else
 	{
@@ -3100,6 +2514,448 @@ CBattleInterface::SpellSelectionType CBattleInterface::selectionTypeByPositivene
 	return NO_LOCATION; //should never happen
 }
 
+std::string formatDmgRange(std::pair<ui32, ui32> dmgRange)
+{
+	if(dmgRange.first != dmgRange.second)
+		return (boost::format("%d - %d") % dmgRange.first % dmgRange.second).str();
+	else
+		return (boost::format("%d") % dmgRange.first).str();
+}
+
+void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
+{
+	if(!myTurn) //we are not permit to do anything
+		return; 
+
+	// This function handles mouse move over hexes and l-clicking on them. 
+	// First we decide what happens if player clicks on this hex and set appropriately
+	// consoleMsg, cursorFrame/Type and prepare lambda realizeAction.
+	// 
+	// Then, depending whether it was hover/click we either call the action or set tooltip/cursor.
+
+	//used when hovering -> tooltip message and cursor to be set
+	std::string consoleMsg;
+	bool setCursor = true; //if we want to suppress setting cursor
+	int cursorType = ECursor::COMBAT, cursorFrame = ECursor::COMBAT_POINTER;
+	
+	//used when l-clicking -> action to be called upon the click
+	std::function<void()> realizeAction;
+
+	//helper lambda that appropriately realizes action / sets cursor and tooltip
+	auto realizeThingsToDo = [&]()
+	{
+		if(eventType == MOVE)
+		{
+			if(setCursor)
+				CCS->curh->changeGraphic(cursorType, cursorFrame);
+			this->console->alterText(consoleMsg);
+			this->console->whoSetAlter = 0;
+		}
+		if(eventType == LCLICK && realizeAction)
+		{
+			realizeAction();
+			CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
+			this->console->alterText("");
+		}
+	};
+
+	const CStack * const shere = curInt->cb->battleGetStackByPos(myNumber, false);
+	const CStack * const sactive = activeStack;
+
+	if(!sactive)
+		return;
+
+	bool creatureCasting = !spellDestSelectMode && stackCanCastSpell && spellSelMode > STACK_SPELL_CANCELLED
+							&& shere != sactive;
+
+	bool noStackIsHovered = true; //will cause removing a blue glow
+
+	//handle spellcasting (by hero or creature)
+	if(!tacticsMode && (spellDestSelectMode || creatureCasting))
+	{
+		bool isCastingPossible = true;
+
+		int spellID = -1;
+		if(creatureCasting)
+		{
+			if(creatureSpellToCast > -1)
+				spellID = creatureSpellToCast;
+			else
+			{
+				if(!shere || curInt->cb->battleGetRandomStackSpell(shere, CBattleInfoCallback::RANDOM_GENIE)< 0) //no possible spell for this dest
+					goto pastCastingSpells; //behave as if stack were not a caster
+			}
+		}
+		else if(spellDestSelectMode) //hero casting
+			spellID  = spellToCast->additionalInfo;
+
+		const CSpell *sp = NULL;
+		if(spellID >= 0) 
+			sp = CGI->spellh->spells[spellID];
+		if(!myNumber.isAvailable() && !shere) //empty tile outside battlefield (or in the unavailable border column)
+			isCastingPossible = false;
+
+
+		const ui8 skill = sp ? getActiveHero()->getSpellSchoolLevel(sp) : 0; //skill level 
+		//TODO master genies cast on adv level, that was somewhere in bonuses
+		if(sp)
+		{
+			if(creatureCasting)
+				isCastingPossible = (curInt->cb->battleCanCreatureCastThisSpell(sp, myNumber) == ESpellCastProblem::OK);
+			else
+				isCastingPossible = (curInt->cb->battleCanCastThisSpell(sp, myNumber) == ESpellCastProblem::OK);
+		}
+		else if(shere)
+		{
+			//needed for genie, otherwise covered by battleCan*CastThisSpell
+			if(spellSelMode == HOSTILE_CREATURE && shere->owner == sactive->owner
+				|| spellSelMode == FRIENDLY_CREATURE && shere->owner != sactive->owner)
+			{
+				isCastingPossible = false;
+			}
+		}
+
+		switch(spellSelMode)
+		{
+		case FRIENDLY_CREATURE:
+		case HOSTILE_CREATURE:
+		case ANY_CREATURE:
+			if(isCastingPossible && shere)
+			{
+				if(sp)
+					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % sp->name % shere->getName()); //Cast %s on %s
+				else
+					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[301]) % shere->getName()); //Cast a spell on %s
+			}
+			if(!shere) //there must be a creature as target
+				isCastingPossible = false;
+			break;
+		case OBSTACLE:
+			if(isCastingPossible)
+				consoleMsg = CGI->generaltexth->allTexts[550]; //Remove this obstacle
+			break;
+		case TELEPORT: //teleport
+			if (!curInt->cb->battleCanTeleportTo(activeStack, myNumber, skill))
+				isCastingPossible = false;
+
+			if(!isCastingPossible)
+				consoleMsg = CGI->generaltexth->allTexts[24]; //Invalid Teleport Destination
+			else
+				consoleMsg = CGI->generaltexth->allTexts[25]; //Teleport Here
+
+			break;
+		}
+		//destination checked
+		if(isCastingPossible)
+		{
+			cursorType = ECursor::SPELLBOOK;
+			cursorFrame = 0;
+			if(consoleMsg.empty() && sp)
+				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
+
+			realizeAction = [=]
+			{
+				if(creatureCasting)
+				{
+					giveCommand(BattleAction::MONSTER_SPELL, myNumber, sactive->ID, creatureSpellToCast);
+				}
+				else
+				{
+					spellToCast->destinationTile = myNumber;
+					curInt->cb->battleMakeAction(spellToCast);
+					endCastingSpell();
+				}
+			};
+		}
+		else if(creatureCasting) //if creature can't cast on dest tile, we act as if it were not a caster
+		{
+			goto pastCastingSpells;
+		}
+		else
+		{
+			cursorFrame = ECursor::COMBAT_BLOCKED;
+			consoleMsg = CGI->generaltexth->allTexts[23];
+		}
+
+		//consume our settings and do not look further
+		realizeThingsToDo();
+		return;
+	}
+
+pastCastingSpells:
+
+	if(!vstd::contains(occupyableHexes, myNumber) || activeStack->coversPos(myNumber))
+	{
+		if(shere)
+		{
+			bool ourStack = shere->owner == curInt->playerID;
+
+			if(ourStack) //our stack
+			{
+				if (shere->alive())
+				{
+					if(sactive->hasBonusOfType(Bonus::HEALER) && shere->canBeHealed()) //heal
+					{
+						cursorFrame = ECursor::COMBAT_HEAL;
+						consoleMsg = (boost::format(CGI->generaltexth->allTexts[419]) % shere->getName()).str(); //Apply first aid to the %s
+						realizeAction = [=]{ giveCommand(BattleAction::STACK_HEAL, myNumber, activeStack->ID); }; //command healing
+					}
+					else //info about creature
+					{
+						cursorFrame = ECursor::COMBAT_QUERY;
+						consoleMsg = (boost::format(CGI->generaltexth->allTexts[297]) % shere->getName()).str();
+						realizeAction = [=]{ GH.pushInt(createCreWindow(shere, true)); };
+					}
+					//setting console text
+					const time_t curTime = time(NULL);
+					CCreatureAnimation *hoveredStackAnim = creAnims[shere->ID];
+
+					if (shere->ID != mouseHoveredStack
+						&& curTime > lastMouseHoveredStackAnimationTime + HOVER_ANIM_DELTA
+						&& hoveredStackAnim->getType() == CCreatureAnim::HOLDING 
+						&& hoveredStackAnim->framesInGroup(CCreatureAnim::MOUSEON) > 0)
+					{
+						hoveredStackAnim->playOnce(CCreatureAnim::MOUSEON);
+						lastMouseHoveredStackAnimationTime = curTime;
+						mouseHoveredStack = shere->ID;
+						noStackIsHovered = false;
+					}
+				} //end of alive
+				else if (sactive->hasBonusOfType(Bonus::DAEMON_SUMMONING) && sactive->casts)
+				{
+					cursorType = ECursor::SPELLBOOK;
+					realizeAction = [=]{ giveCommand(BattleAction::DAEMON_SUMMONING, myNumber, activeStack->ID); };
+				}
+			}
+			//end of our stack hovered
+			else if(curInt->cb->battleCanShoot(activeStack,myNumber)) //we can shoot enemy
+			{
+				if(curInt->cb->battleHasShootingPenalty(activeStack, myNumber))
+					cursorFrame = ECursor::COMBAT_SHOOT_PENALTY;
+				else
+					cursorFrame = ECursor::COMBAT_SHOOT;
+
+				realizeAction = [=] {giveCommand(BattleAction::SHOOT, myNumber, activeStack->ID);};
+				std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(sactive, shere)); //calculating estimated dmg
+				//printing - Shoot %s (%d shots left, %s damage)
+				consoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % sactive->shots % estDmgText).str();
+			}
+			else if (shere->alive() && isTileAttackable(myNumber)) //available enemy (melee attackable)
+			{
+				setBattleCursor(myNumber); //handle direction of cursor and attackable tile
+				setCursor = false; //don't overwrite settings from the call above
+				realizeAction = [=]
+				{
+					BattleHex attackFromHex = fromWhichHexAttack(myNumber);
+					if(attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
+					{
+						giveCommand(BattleAction::WALK_AND_ATTACK, attackFromHex, activeStack->ID, myNumber);
+					}
+				};
+
+				std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(sactive, shere)); //calculating estimated dmg
+				consoleMsg = (boost::format(CGI->generaltexth->allTexts[36]) % shere->getName() % estDmgText).str(); //Attack %s (%s damage)
+			}
+			else //unavailable enemy
+			{
+				cursorFrame = ECursor::COMBAT_BLOCKED;
+			}
+		} //end of stack on dest
+		else if (sactive && sactive->hasBonusOfType(Bonus::CATAPULT) && isCatapultAttackable(myNumber)) //"catapulting"
+		{
+			cursorFrame = ECursor::COMBAT_SHOOT_CATAPULT;
+			realizeAction = [=]{ giveCommand(BattleAction::CATAPULT, myNumber, activeStack->ID); };
+		}
+		else //empty unavailable tile
+		{
+			cursorFrame = ECursor::COMBAT_BLOCKED;
+		}
+	}
+	else //occuppiable tile
+	{
+		if (activeStack) //there can be a moment when stack is dead ut next is not yet activated
+		{
+			if(activeStack->hasBonusOfType(Bonus::FLYING))
+			{
+				cursorFrame = ECursor::COMBAT_FLY;
+				consoleMsg = (boost::format(CGI->generaltexth->allTexts[295]) % activeStack->getName()).str(); //Fly %s here
+			}
+			else
+			{
+				cursorFrame = ECursor::COMBAT_MOVE;
+				consoleMsg = (boost::format(CGI->generaltexth->allTexts[294]) % activeStack->getName()).str(); //Move %s here
+			}
+
+			realizeAction = [=]
+			{
+				if(activeStack->doubleWide())
+				{
+					std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
+					int shiftedDest = myNumber + (activeStack->attackerOwned ? 1 : -1);
+					if(vstd::contains(acc, myNumber))
+						giveCommand (BattleAction::WALK ,myNumber, activeStack->ID);
+					else if(vstd::contains(acc, shiftedDest))
+						giveCommand (BattleAction::WALK, shiftedDest, activeStack->ID);
+				}
+				else
+				{
+					giveCommand(BattleAction::WALK, myNumber, activeStack->ID);
+				}
+			};
+		}
+	}
+
+	realizeThingsToDo();
+	if(noStackIsHovered)
+		mouseHoveredStack = -1;
+}
+
+BattleHex CBattleInterface::fromWhichHexAttack(BattleHex myNumber)
+{
+	//TODO far too much repeating code
+	BattleHex destHex = -1;
+	switch(CCS->curh->number)
+	{
+	case 12: //from bottom right
+		{
+			bool doubleWide = activeStack->doubleWide();
+			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH+1 ) +
+				(activeStack->attackerOwned && doubleWide ? 1 : 0);
+			if(vstd::contains(occupyableHexes, destHex))
+				return destHex;
+			else if(activeStack->attackerOwned) //if we are attacker
+			{
+				if(vstd::contains(occupyableHexes, destHex+1))
+					return destHex+1;
+			}
+			else //if we are defender
+			{
+				if(vstd::contains(occupyableHexes, destHex-1))
+					return destHex-1;
+			}
+			break;
+		}
+	case 7: //from bottom left
+		{
+			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH-1 : GameConstants::BFIELD_WIDTH );
+			if(vstd::contains(occupyableHexes, destHex))
+				return destHex;
+			else if(activeStack->attackerOwned) //if we are attacker
+			{
+				if(vstd::contains(occupyableHexes, destHex+1))
+					return destHex+1;
+			}
+			else //if we are defender
+			{
+				if(vstd::contains(occupyableHexes, destHex-1))
+					return destHex-1;
+			}
+			break;
+		}
+	case 8: //from left
+		{
+			if(activeStack->doubleWide() && !activeStack->attackerOwned)
+			{
+				std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
+				if(vstd::contains(acc, myNumber))
+					return myNumber - 1;
+				else
+					return myNumber - 2;
+			}
+			else
+			{
+				return myNumber - 1;
+			}
+			break;
+		}
+	case 9: //from top left
+		{
+			destHex = myNumber - ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH+1 : GameConstants::BFIELD_WIDTH );
+			if(vstd::contains(occupyableHexes, destHex))
+				return destHex;
+			else if(activeStack->attackerOwned) //if we are attacker
+			{
+				if(vstd::contains(occupyableHexes, destHex+1))
+					return destHex+1;
+			}
+			else //if we are defender
+			{
+				if(vstd::contains(occupyableHexes, destHex-1))
+					return destHex-1;
+			}
+			break;
+		}
+	case 10: //from top right
+		{
+			bool doubleWide = activeStack->doubleWide();
+			destHex = myNumber - ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH-1 ) +
+				(activeStack->attackerOwned && doubleWide ? 1 : 0);
+			if(vstd::contains(occupyableHexes, destHex))
+				return destHex;
+			else if(activeStack->attackerOwned) //if we are attacker
+			{
+				if(vstd::contains(occupyableHexes, destHex+1))
+					return destHex+1;
+			}
+			else //if we are defender
+			{
+				if(vstd::contains(occupyableHexes, destHex-1))
+					return destHex-1;
+			}
+			break;
+		}
+	case 11: //from right
+		{
+			if(activeStack->doubleWide() && activeStack->attackerOwned)
+			{
+				std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
+				if(vstd::contains(acc, myNumber))
+					return myNumber + 1;
+				else
+					return myNumber + 2;
+			}
+			else
+			{
+				return myNumber + 1;
+			}
+			break;
+		}
+	case 13: //from bottom
+		{
+			destHex = myNumber + ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH+1 );
+			if(vstd::contains(occupyableHexes, destHex))
+				return destHex;
+			else if(attackingHeroInstance->tempOwner == curInt->cb->getMyColor()) //if we are attacker
+			{
+				if(vstd::contains(occupyableHexes, destHex+1))
+					return destHex+1;
+			}
+			else //if we are defender
+			{
+				if(vstd::contains(occupyableHexes, destHex-1))
+					return destHex-1;
+			}
+			break;
+		}
+	case 14: //from top
+		{
+			destHex = myNumber - ( (myNumber/GameConstants::BFIELD_WIDTH)%2 ? GameConstants::BFIELD_WIDTH : GameConstants::BFIELD_WIDTH-1 );
+			if(vstd::contains(occupyableHexes, destHex))
+				return destHex;
+			else if(attackingHeroInstance->tempOwner == curInt->cb->getMyColor()) //if we are attacker
+			{
+				if(vstd::contains(occupyableHexes, destHex+1))
+					return destHex+1;
+			}
+			else //if we are defender
+			{
+				if(vstd::contains(occupyableHexes, destHex-1))
+					return destHex-1;
+			}
+			break;
+		}
+	}
+}
 std::string CBattleInterface::SiegeHelper::townTypeInfixes[GameConstants::F_NUMBER] = {"CS", "RM", "TW", "IN", "NC", "DN", "ST", "FR", "EL"};
 
 CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface * _owner)

@@ -215,6 +215,11 @@ bool CSpell::isNegative() const
 	return positiveness == NEGATIVE;
 }
 
+bool CSpell::isRisingSpell() const
+{
+	return vstd::contains(VLC->spellh->risingSpells, id);
+}
+
 static bool startsWithX(const std::string &s)
 {
 	return s.size() && s[0] == 'x';

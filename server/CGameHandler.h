@@ -80,7 +80,7 @@ struct CasualtiesAfterBattle
 	void takeFromArmy(CGameHandler *gh);
 };
 
-class CGameHandler : public IGameCallback
+class CGameHandler : public IGameCallback, CBattleInfoCallback
 {
 private:
 	void makeStackDoNothing(const CStack * next);

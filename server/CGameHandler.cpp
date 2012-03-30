@@ -3367,19 +3367,29 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			int spellID = ba.additionalInfo;
 			BattleHex destination(ba.destinationTile);
 
-			int spellLvl = 0;
-			Bonus * bonus = stack->getBonus(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
-			if (bonus)
-				vstd::amax(spellLvl, bonus->val);
-			bonus = stack->getBonus(Selector::type(Bonus::RANDOM_SPELLCASTER));
-			if (bonus)
-				vstd::amax(spellLvl, bonus->val);
-			vstd::amin (spellLvl, 3);
+			const Bonus *randSpellcaster = stack->getBonus(Selector::type(Bonus::RANDOM_SPELLCASTER));
+			const Bonus * spellcaster = stack->getBonus(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
 
-			int casterSide = gs->curB->whatSide(stack->owner);
-			const CGHeroInstance * secHero = gs->curB->getHero(gs->curB->theOtherPlayer(stack->owner));
+			//TODO special bonus for genies ability
+			if(randSpellcaster && battleGetRandomStackSpell(stack, CBattleInfoCallback::RANDOM_AIMED) < 0)
+				spellID = battleGetRandomStackSpell(stack, CBattleInfoCallback::RANDOM_GENIE);
 
-			handleSpellCasting(spellID, spellLvl, destination, casterSide, stack->owner, NULL, secHero, 0, ECastingMode::CREATURE_ACTIVE_CASTING, stack);
+			if(spellID < 0)
+				complain("That stack can't cast spells!");
+			else
+			{
+				int spellLvl = 0;
+				if (spellcaster)
+					vstd::amax(spellLvl, spellcaster->val);
+				if (randSpellcaster)
+					vstd::amax(spellLvl, randSpellcaster->val);
+				vstd::amin (spellLvl, 3);
+
+				int casterSide = gs->curB->whatSide(stack->owner);
+				const CGHeroInstance * secHero = gs->curB->getHero(gs->curB->theOtherPlayer(stack->owner));
+
+				handleSpellCasting(spellID, spellLvl, destination, casterSide, stack->owner, NULL, secHero, 0, ECastingMode::CREATURE_ACTIVE_CASTING, stack);
+			}
 
 			sendAndApply(&end_action);
 			break;

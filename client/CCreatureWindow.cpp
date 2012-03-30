@@ -527,9 +527,6 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &stack, bool LClicked, boost
 
 			dismiss = new CAdventureMapButton("", CGI->generaltexth->zelp[445].second, dialog, 21, 237, "IVIEWCR2",SDLK_d);
 		}
-
-		ok = new CAdventureMapButton("", CGI->generaltexth->zelp[445].second,
-			boost::bind(&CCreInfoWindow::close,this), 216, 237, "IOKAY.DEF", SDLK_RETURN);
 	}
 }
 
@@ -612,9 +609,15 @@ void CCreInfoWindow::init(const CCreature *creature, const CBonusSystemNode *sta
 	luck->set(stackNode);
 
 	if(!LClicked)
+	{
 		abilityText = new CLabel(17, 231, FONT_SMALL, TOPLEFT, Colors::Cornsilk, creature->abilityText);
+	}
 	else
+	{
 		abilityText = NULL;
+		ok = new CAdventureMapButton("", CGI->generaltexth->zelp[445].second,
+			boost::bind(&CCreInfoWindow::close,this), 216, 237, "IOKAY.DEF", SDLK_RETURN);
+	}
 
 	//if we are displying window fo r stack in battle, there are several more things that we need to display
 	if(const CStack *battleStack = dynamic_cast<const CStack*>(stackNode))
@@ -639,10 +642,10 @@ void CCreInfoWindow::clickRight(tribool down, bool previousState)
 	close();
 }
 
-CIntObject * createCreWindow(const CStack *s)
+CIntObject * createCreWindow(const CStack *s, bool lclick/* = false*/)
 {
 	if(settings["general"]["classicCreatureWindow"].Bool())
-		return new CCreInfoWindow(*s);
+		return new CCreInfoWindow(*s, lclick);
 	else
 		return new CCreatureWindow(*s, CCreatureWindow::BATTLE);
 }
