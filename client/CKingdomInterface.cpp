@@ -596,6 +596,8 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 		std::string value = boost::lexical_cast<std::string>(minesCount[i]);
 		minesBox[i] = new InfoBox(Point(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
 		              new InfoBoxCustom(value, "", "OVMINES", i, CGI->generaltexth->mines[i].first));
+
+		minesBox[i]->used &= ~(LCLICK|RCLICK); //fixes #890 - mines boxes ignore clicks
 	}
 	incomeArea = new CHoverableArea;
 	incomeArea->pos = Rect(pos.x+580, pos.y+31+footerPos, 136, 68);
