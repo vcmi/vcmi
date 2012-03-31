@@ -638,7 +638,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 				packType = typeList.getTypeID(pack); //get the id of type
 				
 				tlog5 << boost::format("Received client message (request %d by player %d) of type with ID=%d (%s).\n")
-					% requestID % player % packType % typeid(*pack).name();
+					% requestID % (int)player % packType % typeid(*pack).name();
 			}
 
 			//prepare struct informing that action was applied

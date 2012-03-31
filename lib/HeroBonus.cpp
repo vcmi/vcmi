@@ -695,6 +695,11 @@ void CBonusSystemNode::unpropagateBonus(Bonus * b)
 	if(b->propagator->shouldBeAttached(this))
 	{
 		bonuses -= b;
+		while(vstd::contains(bonuses, b))
+		{
+			tlog1 << "Bonus was duplicated (" << b->Description() << ") at " << nodeName() << std::endl;
+			bonuses -= b;
+		}
 		BONUS_LOG_LINE("#$#" << b->Description() << " #is no longer propagated to# " << nodeName());
 	}
 

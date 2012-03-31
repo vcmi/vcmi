@@ -176,7 +176,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color & human & currentSelection & team & resources & status;
-		h & heroes & towns & availableHeroes & dwellings & getBonusList();
+		h & heroes & towns & availableHeroes & dwellings;
+		h & getBonusList(); //FIXME FIXME FIXME 
 		h & status & daysWithoutCastle;
 		h & enteredLosingCheatCode & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
