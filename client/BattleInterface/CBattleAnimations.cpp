@@ -140,7 +140,7 @@ CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attac
 {
 
 	assert(attackingStack && "attackingStack is NULL in CBattleAttack::CBattleAttack !\n");
-	if(attackingStack->getCreature()->idNumber != 145) //catapult is allowed to attack not-creature
+	if(!attackingStack->hasBonusOfType(Bonus::CATAPULT)) //catapult is allowed to attack not-creature
 	{
 		assert(attackedStack && "attackedStack is NULL in CBattleAttack::CBattleAttack !\n");
 	}
