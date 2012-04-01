@@ -1331,6 +1331,9 @@ si8 BattleInfo::canTeleportTo(const CStack * stack, BattleHex destHex, int telpo
 
 bool BattleInfo::battleCanShoot(const CStack * stack, BattleHex dest) const
 {
+	if(tacticDistance) //no shooting during tactics
+		return false; 
+
 	const CStack *dst = getStackT(dest);
 
 	if(!stack || !dst) return false;
@@ -1962,7 +1965,7 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int
 		if(spell->id == Spells::ANIMATE_DEAD  &&  !stackUnder->hasBonusOfType(Bonus::UNDEAD))
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
-	if(spell->getTargetType() == CSpell::CREATURE)
+	if(spell->getTargetType() == CSpell::CREATURE  ||  spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
 	{
 		if(!stackUnder)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
