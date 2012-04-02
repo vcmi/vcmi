@@ -140,14 +140,10 @@ CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attac
 {
 
 	assert(attackingStack && "attackingStack is NULL in CBattleAttack::CBattleAttack !\n");
-	if(!attackingStack->hasBonusOfType(Bonus::CATAPULT)) //catapult is allowed to attack not-creature
-	{
-		assert(attackedStack && "attackedStack is NULL in CBattleAttack::CBattleAttack !\n");
-	}
-	else //catapult can attack walls only
-	{
-		assert(owner->curInt->cb->battleGetWallUnderHex(_dest) >= 0);
-	}
+	bool isCatapultAttack = attackingStack->hasBonusOfType(Bonus::CATAPULT) 
+							&& owner->curInt->cb->battleGetWallUnderHex(_dest);
+
+	assert(attackedStack || isCatapultAttack);
 	attackingStackPosBeforeReturn = attackingStack->position;
 }
 
