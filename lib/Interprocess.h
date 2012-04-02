@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/interprocess/sync/scoped_lock.hpp>
 #include <boost/interprocess/sync/interprocess_mutex.hpp>
 #include <boost/interprocess/sync/interprocess_condition.hpp>
 #include <boost/interprocess/mapped_region.hpp>
@@ -54,4 +55,4 @@ struct SharedMem
 		delete mr;
 		boost::interprocess::shared_memory_object::remove("vcmi_memory");
 	}
-};
+};
