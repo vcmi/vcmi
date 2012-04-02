@@ -221,7 +221,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	console->pos.h = 38;
 	if(tacticsMode)
 	{
-		btactNext = new CAdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bTacticNextStack,this), 213 + pos.x, 560 + pos.y, "icm011.def", SDLK_SPACE);
+		btactNext = new CAdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bTacticNextStack,this, (CStack*)NULL), 213 + pos.x, 560 + pos.y, "icm011.def", SDLK_SPACE);
 		btactEnd = new CAdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bEndTacticPhase,this), 419 + pos.x, 560 + pos.y, "icm012.def", SDLK_RETURN);
 		bDefence->block(true);
 		bWait->block(true);
@@ -1364,17 +1364,22 @@ void CBattleInterface::newRound(int number)
 
 }
 
-void CBattleInterface::giveCommand(ui8 action, BattleHex tile, ui32 stack, si32 additional)
+void CBattleInterface::giveCommand(ui8 action, BattleHex tile, ui32 stackID, si32 additional)
 {
-	if(!curInt->cb->battleGetStackByID(stack) && action != 1 && action != 4 && action != 5)
+	const CStack *stack = curInt->cb->battleGetStackByID(stackID);
+	if(!stack && action != BattleAction::HERO_SPELL && action != BattleAction::RETREAT && action != BattleAction::SURRENDER)
 	{
 		return;
 	}
+
+	if(stack && stack != activeStack)
+		tlog3 << "Warning: giving an order to a non-active stack?\n";
+
 	BattleAction * ba = new BattleAction(); //is deleted in CPlayerInterface::activeStack()
 	ba->side = defendingHeroInstance ? (curInt->playerID == defendingHeroInstance->tempOwner) : false;
 	ba->actionType = action;
 	ba->destinationTile = tile;
-	ba->stackNumber = stack;
+	ba->stackNumber = stackID;
 	ba->additionalInfo = additional;
 
 	//some basic validations
@@ -1391,6 +1396,7 @@ void CBattleInterface::giveCommand(ui8 action, BattleHex tile, ui32 stack, si32 
 
 	if(!tacticsMode)
 	{
+		tlog5 << "Setting command for " << (stack ? stack->nodeName() : "hero") << std::endl;
 		myTurn = false;
 		activeStack = NULL;
 		givenCommand->setn(ba);
@@ -1399,7 +1405,8 @@ void CBattleInterface::giveCommand(ui8 action, BattleHex tile, ui32 stack, si32 
 	{
 		curInt->cb->battleMakeTacticAction(ba);
 		vstd::clear_pointer(ba);
-		bTacticNextStack();
+		activeStack = NULL;
+		//next stack will be activated when action ends
 	}
 }
 
@@ -1415,7 +1422,7 @@ bool CBattleInterface::isTileAttackable(const BattleHex & number) const
 
 bool CBattleInterface::isCatapultAttackable(BattleHex hex) const
 {
-	if(!siegeH)
+	if(!siegeH  ||  tacticsMode)
 		return false;
 
 	int wallUnder = curInt->cb->battleGetWallUnderHex(hex);
@@ -2298,6 +2305,7 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 
 void CBattleInterface::endAction(const BattleAction* action)
 {
+	const CStack * stack = curInt->cb->battleGetStackByID(action->stackNumber);
 	//if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //activating interface when move is finished
 // 	{
 // 		activate();
@@ -2311,7 +2319,6 @@ void CBattleInterface::endAction(const BattleAction* action)
 	}
 	if(action->actionType == BattleAction::WALK && creAnims[action->stackNumber]->getType() != 2) //walk or walk & attack
 	{
-		const CStack * stack = curInt->cb->battleGetStackByID(action->stackNumber);
 		pendingAnims.push_back(std::make_pair(new CMovementEndAnimation(this, stack, action->destinationTile), false));
 	}
 	if(action->actionType == BattleAction::CATAPULT) //catapult
@@ -2335,8 +2342,10 @@ void CBattleInterface::endAction(const BattleAction* action)
 
 	queue->update();
 
-	if(tacticsMode  //we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
-		|| action->actionType == BattleAction::HERO_SPELL)
+	if(tacticsMode) //stack ended movement in tactics phase -> select the next one
+		bTacticNextStack(stack); 
+
+	if( action->actionType == BattleAction::HERO_SPELL) //we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
 		redrawBackgroundWithHexes(activeStack);
 }
 
@@ -2475,6 +2484,7 @@ void CBattleInterface::waitForAnims()
 
 void CBattleInterface::bEndTacticPhase()
 {
+	activeStack = NULL;
 	btactEnd->block(true);
 	tacticsMode = false;
 }
@@ -2484,15 +2494,17 @@ static bool immobile(const CStack *s)
 	return !s->Speed(0, true); //should bound stacks be immobile?
 }
 
-void CBattleInterface::bTacticNextStack()
+void CBattleInterface::bTacticNextStack(const CStack *current /*= NULL*/)
 {
+	if(!current)
+		current = activeStack;
+
 	//no switching stacks when the current one is moving
-	if(animsAreDisplayed.get())
-		return;
+	waitForAnims();
 
 	TStacks stacksOfMine = tacticianInterface->cb->battleGetStacks(CBattleCallback::ONLY_MINE);
 	stacksOfMine.erase(std::remove_if(stacksOfMine.begin(), stacksOfMine.end(), &immobile), stacksOfMine.end());
-	TStacks::iterator it = vstd::find(stacksOfMine, activeStack);
+	TStacks::iterator it = vstd::find(stacksOfMine, current);
 	if(it != stacksOfMine.end() && ++it != stacksOfMine.end())
 		stackActivated(*it);
 	else
@@ -2605,7 +2617,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			else
 				isCastingPossible = (curInt->cb->battleCanCastThisSpell(sp, myNumber) == ESpellCastProblem::OK);
 		}
-		else if(shere)
+		else if(shere && shere->alive())
 		{
 			//needed for genie, otherwise covered by battleCan*CastThisSpell
 			if(spellSelMode == HOSTILE_CREATURE && shere->owner == sactive->owner
@@ -2694,7 +2706,12 @@ pastCastingSpells:
 			{
 				if (shere->alive())
 				{
-					if(sactive->hasBonusOfType(Bonus::HEALER) && shere->canBeHealed()) //heal
+					if(tacticsMode) //select stack in tactics mdoe
+					{
+						consoleMsg = (boost::format(CGI->generaltexth->allTexts[481]) % shere->getName()).str(); //Select %s
+						realizeAction = [=]{ stackActivated(shere); };
+					}
+					else if(sactive->hasBonusOfType(Bonus::HEALER) && shere->canBeHealed()) //heal
 					{
 						cursorFrame = ECursor::COMBAT_HEAL;
 						consoleMsg = (boost::format(CGI->generaltexth->allTexts[419]) % shere->getName()).str(); //Apply first aid to the %s
@@ -2717,9 +2734,9 @@ pastCastingSpells:
 					{
 						hoveredStackAnim->playOnce(CCreatureAnim::MOUSEON);
 						lastMouseHoveredStackAnimationTime = curTime;
-						mouseHoveredStack = shere->ID;
-						noStackIsHovered = false;
 					}
+					noStackIsHovered = false;
+					mouseHoveredStack = shere->ID;
 				} //end of alive
 				else if (sactive->hasBonusOfType(Bonus::DAEMON_SUMMONING) && sactive->casts)
 				{

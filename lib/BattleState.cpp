@@ -265,7 +265,7 @@ void BattleInfo::makeBFS(BattleHex start, bool *accessibility, BattleHex *predec
 	}
 };
 
-std::vector<BattleHex> BattleInfo::getAccessibility( const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable ) const
+std::vector<BattleHex> BattleInfo::getAccessibility( const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable /*= NULL*/, bool forPassingBy /*= false*/ ) const
 {
 	std::vector<BattleHex> ret;
 	bool ac[GameConstants::BFIELD_SIZE];
@@ -314,7 +314,11 @@ std::vector<BattleHex> BattleInfo::getAccessibility( const CStack * stack, bool 
 	{
 		bool rangeFits;
 		if (tacticDistance)
-			rangeFits = isInTacticRange(i);
+		{
+			rangeFits = pr[i] >= 0; //reachable in terms of obstacles
+			if(!forPassingBy) //only if we're passing through, we may step out of the tactic range -> otherwise check range
+				rangeFits = rangeFits && isInTacticRange(i);
+		}
 		else
 			rangeFits = dist[i] <= stack->Speed(0, true); //we can reach the stack
 
@@ -1965,9 +1969,9 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int
 		if(spell->id == Spells::ANIMATE_DEAD  &&  !stackUnder->hasBonusOfType(Bonus::UNDEAD))
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
-	if(spell->getTargetType() == CSpell::CREATURE  ||  spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
+	else if(spell->getTargetType() == CSpell::CREATURE  ||  spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
 	{
-		if(!stackUnder)
+		if(!stackUnder || !stackUnder->alive())
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 		if(spell->isNegative() && stackUnder->owner == player)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;

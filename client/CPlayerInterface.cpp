@@ -729,8 +729,10 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 
 BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when it's turn of that stack
 {
-
+	tlog5 << "Awaiting command for " << stack->nodeName() << std::endl;
 	CBattleInterface *b = battleInt;
+
+	assert(!b->givenCommand->get()); //command buffer must be clean (we don't want to use old command)
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
 		b->stackActivated(stack);
@@ -751,6 +753,7 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	b->givenCommand->data = NULL;
 
 	//return command
+	tlog5 << "Giving command for " << stack->nodeName() << std::endl;
 	return ret;
 }
 

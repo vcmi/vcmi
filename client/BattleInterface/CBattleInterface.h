@@ -142,7 +142,7 @@ private:
 
 	std::list<ProjectileInfo> projectiles; //projectiles flying on battlefield
 	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
-	void giveCommand(ui8 action, BattleHex tile, ui32 stack, si32 additional=-1);
+	void giveCommand(ui8 action, BattleHex tile, ui32 stackID, si32 additional=-1);
 	bool isTileAttackable(const BattleHex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
 	bool isCatapultAttackable(BattleHex hex) const; //returns true if given tile can be attacked by catapult
 
@@ -210,7 +210,7 @@ public:
 	void bDefencef();
 	void bConsoleUpf();
 	void bConsoleDownf();
-	void bTacticNextStack();
+	void bTacticNextStack(const CStack *current = NULL);
 	void bEndTacticPhase();
 	//end of button handle funcs
 	//napisz tu klase odpowiadajaca za wyswietlanie bitwy i obsluge uzytkownika, polecenia ma przekazywac callbackiem

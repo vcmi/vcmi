@@ -705,7 +705,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 
 	//initing necessary tables
 	bool accessibility[GameConstants::BFIELD_SIZE];
-	std::vector<BattleHex> accessible = gs->curB->getAccessibility(curStack, false);
+	std::vector<BattleHex> accessible = gs->curB->getAccessibility(curStack, false, NULL, true);
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 	{
 		accessibility[b] = false;
@@ -734,7 +734,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 		return 0;
 
 	bool accessibilityWithOccupyable[GameConstants::BFIELD_SIZE];
-	std::vector<BattleHex> accOc = gs->curB->getAccessibility(curStack, true);
+	std::vector<BattleHex> accOc = gs->curB->getAccessibility(curStack, true, NULL, true);
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 	{
 		accessibilityWithOccupyable[b] = false;
@@ -5486,6 +5486,7 @@ void CGameHandler::runBattle()
 					}
 					else
 					{
+						tlog5 << "Activating " << next->nodeName() << std::endl;
 						BattleSetActiveStack sas;
 						sas.stack = next->ID;
 						sendAndApply(&sas);

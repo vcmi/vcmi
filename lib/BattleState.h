@@ -94,7 +94,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode
 	int getAvaliableHex(TCreature creID, bool attackerOwned, int initialPos = -1) const; //find place for summon / clone effects
 	void makeBFS(BattleHex start, bool*accessibility, BattleHex *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const; //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
 	std::pair< std::vector<BattleHex>, int > getPath(BattleHex start, BattleHex dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
-	std::vector<BattleHex> getAccessibility(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL) const; //returns vector of accessible tiles (taking into account the creature range)
+	std::vector<BattleHex> getAccessibility(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL, bool forPassingBy = false) const; //returns vector of accessible tiles (taking into account the creature range)
 
 	bool isObstacleOnTile(BattleHex tile) const;
 	bool isStackBlocked(const CStack * stack) const; //returns true if there is neighboring enemy stack
