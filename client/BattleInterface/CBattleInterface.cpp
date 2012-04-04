@@ -41,6 +41,8 @@ const double M_PI = 3.14159265358979323846;
 #endif
 #include "../../lib/UnlockGuard.h"
 
+using namespace boost::assign;
+
 const time_t CBattleInterface::HOVER_ANIM_DELTA = 1;
 
 /*
@@ -363,6 +365,9 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	int channel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
 	CCS->soundh->setCallback(channel, boost::bind(&CMusicHandler::playMusicFromSet, CCS->musich, CCS->musich->battleMusics, -1));
     memset(stackCountOutsideHexes, 1, GameConstants::BFIELD_SIZE * sizeof(bool)); //initialize array with trues
+
+	currentAction = INVALID;
+	selectedAction = INVALID;
 }
 
 CBattleInterface::~CBattleInterface()
@@ -1967,6 +1972,44 @@ void CBattleInterface::endCastingSpell()
 	spellToCast = NULL;
 	spellDestSelectMode = false;
 	CCS->curh->changeGraphic(1, 6);
+
+	//restore actions for current stack
+	possibleActions.clear();
+	getPossibleActionsForStack (activeStack);
+}
+
+void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
+{
+	//first action will be prioritized over later ones
+	if (stack->casts) //TODO: check for battlefield effects that prevent casting?
+	{
+		if (stack->hasBonusOfType (Bonus::SPELLCASTER))
+		{
+			 //TODO: poll possible spells
+			possibleActions.push_back (OFFENSIVE_SPELL);
+			possibleActions.push_back (FRIENDLY_SPELL);
+			possibleActions.push_back (RISING_SPELL);
+			//TODO: stacks casting remove obstacle?
+			//possibleActions.push_back (OTHER_SPELL);
+		}
+		if (stack->hasBonusOfType (Bonus::RANDOM_SPELLCASTER))
+			possibleActions.push_back (RANDOM_GENIE_SPELL);
+		if (stack->hasBonusOfType (Bonus::DAEMON_SUMMONING))
+			possibleActions.push_back (RISE_DEMONS);
+	}
+	if (stack->shots && stack->hasBonusOfType (Bonus::SHOOTER))
+		possibleActions.push_back (SHOOT);
+	if (stack->hasBonusOfType (Bonus::RETURN_AFTER_STRIKE));
+		possibleActions.push_back (ATTACK_AND_RETURN);
+
+	possibleActions.push_back(ATTACK); //all active stacks can attack
+	possibleActions.push_back(WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
+
+	if (siegeH && stack->hasBonusOfType (Bonus::CATAPULT)) //TODO: check shots
+		possibleActions.push_back (CATAPULT);
+	if (stack->hasBonusOfType (Bonus::HEALER))
+		possibleActions.push_back (HEAL);
+
 }
 
 void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
@@ -2509,6 +2552,9 @@ void CBattleInterface::bTacticNextStack(const CStack *current /*= NULL*/)
 		stackActivated(*it);
 	else
 		stackActivated(stacksOfMine.front());
+
+	possibleActions.clear();
+	possibleActions += MOVE_TACTICS, CHOOSE_TACTICS_STACK;
 }
 
 CBattleInterface::SpellSelectionType CBattleInterface::selectionTypeByPositiveness(const CSpell & spell)
@@ -2537,7 +2583,7 @@ std::string formatDmgRange(std::pair<ui32, ui32> dmgRange)
 void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 {
 	if(!myTurn) //we are not permit to do anything
-		return; 
+		return;
 
 	// This function handles mouse move over hexes and l-clicking on them. 
 	// First we decide what happens if player clicks on this hex and set appropriately
@@ -2581,6 +2627,12 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 							&& shere != sactive;
 
 	bool noStackIsHovered = true; //will cause removing a blue glow
+	
+	localActions.clear();
+	BOOST_FOREACH (int action, localActions)
+	{
+		//TODO: copy actions avaliable to perform at this hex to localActions. set currentAction
+	}
 
 	//handle spellcasting (by hero or creature)
 	if(!tacticsMode && (spellDestSelectMode || creatureCasting))
@@ -2821,6 +2873,13 @@ pastCastingSpells:
 			};
 		}
 	}
+
+	if (vstd::contains(localActions, selectedAction))
+		currentAction = selectedAction;
+	else if (localActions.size())
+		currentAction = localActions.front();
+	else
+		currentAction = INVALID;
 
 	realizeThingsToDo();
 	if(noStackIsHovered)

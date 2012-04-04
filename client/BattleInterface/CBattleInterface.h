@@ -95,6 +95,14 @@ class CBattleInterface : public CIntObject
 	{
 		ANY_LOCATION = 0, FRIENDLY_CREATURE, HOSTILE_CREATURE, ANY_CREATURE, OBSTACLE, TELEPORT, NO_LOCATION = -1, STACK_SPELL_CANCELLED = -2
 	};
+	enum PossibleActions // actions performed at l-click
+	{
+		INVALID = -1,
+		MOVE_TACTICS, CHOOSE_TACTICS_STACK,
+		MOVE_STACK, ATTACK, WALK_AND_ATTACK, ATTACK_AND_RETURN, SHOOT, //OPEN_GATE, //we can open castle gate during siege
+		OFFENSIVE_SPELL, FRIENDLY_SPELL, RISING_SPELL, RANDOM_GENIE_SPELL, OTHER_SPELL, //use SpellSelectionType for non-standard spells - should we merge it?
+		CATAPULT, HEAL, RISE_DEMONS
+	};
 private:
 	SDL_Surface * background, * menu, * amountNormal, * amountNegative, * amountPositive, * amountEffNeutral, * cellBorders, * backgroundWithHexes;
 	CAdventureMapButton * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
@@ -131,6 +139,12 @@ private:
 	SpellSelectionType spellSelMode;
 	BattleAction * spellToCast; //spell for which player is choosing destination
 	si32 creatureSpellToCast;
+	std::vector<int> possibleActions; //all actions possible to call at the moment by player
+	std::vector<int> localActions; //actions possible to take on hovered hex
+	int currentAction; //action that will be performed on l-click
+	int selectedAction; //last action chosen (and saved) by player
+
+	void getPossibleActionsForStack (const CStack * stack); //called when stack gets its turn
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
 
 	void showAliveStack(const CStack *stack, SDL_Surface * to); //helper function for function show

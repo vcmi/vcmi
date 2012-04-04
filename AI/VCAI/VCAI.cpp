@@ -2628,9 +2628,11 @@ bool shouldVisit (const CGHeroInstance * h, const CGObjectInstance * obj)
 				if (myRes[Res::GOLD] - GOLD_RESERVE < 1000)
 					return false;
 			}
+			break;
 		case Obj::LIBRARY_OF_ENLIGHTENMENT:
 			if (h->level < 12)
 				return false;
+			break;
 	}
 
 	if (obj->wasVisited(h))
