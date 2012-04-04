@@ -49,10 +49,10 @@ public:
 	std::string bonusToString(Bonus *bonus, bool description) const; // how would bonus description look for this particular type of node
 	std::string bonusToGraphics(Bonus *bonus) const; //file name of graphics from StackSkills , in future possibly others
 
-	ui64 getPower() const;
+	virtual ui64 getPower() const;
 	int getQuantityID() const;
 	std::string getQuantityTXT(bool capitalized = true) const;
-	int getExpRank() const;
+	virtual int getExpRank() const;
 	si32 magicResistance() const;
 	int getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
@@ -69,6 +69,26 @@ public:
 	bool valid(bool allowUnrandomized) const;
 	virtual std::string nodeName() const OVERRIDE;
 	void deserializationFix();
+};
+
+class DLL_LINKAGE CCommanderInstance : public CStackInstance
+{
+	//TODO: what if Commander is not a part of creature set?
+
+	//commander class is determined by its base creature
+	ui8 alive;
+	std::string name; // each Commander has different name
+	std::vector <std::pair <ui8, ui8> > secondarySkills; //ID, level
+	//std::vector <CArtifactInstance *> arts;
+
+	ui64 getPower() const {return 0;};
+	int getExpRank() const {return 0;};
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CStackInstance&>(*this);
+		h & alive & name & secondarySkills;
+	}
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & str, const CStackInstance & sth);

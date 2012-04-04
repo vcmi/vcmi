@@ -109,11 +109,17 @@ public:
 	std::vector<si8> factionAlignments; //1 for good, 0 for neutral and -1 for evil with faction ID as index
 	int factionToTurretCreature[GameConstants::F_NUMBER]; //which creature's animation should be used to dispaly creature in turret while siege
 
+	//stack exp
 	std::map<TBonusType, std::pair<std::string, std::string> > stackBonuses; // bonus => name, description
 	std::vector<std::vector<ui32> > expRanks; // stack experience needed for certain rank, index 0 for other tiers (?)
 	std::vector<ui32> maxExpPerBattle; //%, tiers same as above
 	si8 expAfterUpgrade;//multiplier in %
 
+	//Commanders
+	std::map <ui8, ui32> factionCommanders;
+	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. We assume that number of casts equals skill level
+	std::vector <std::pair <Bonus, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
+	BonusList commanderLevelPremy; //bonus values added with each level-up
 
 	void deserializationFix();
 	void loadCreatures();
@@ -138,6 +144,7 @@ public:
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
 		h & notUsedMonsters & creatures & nameToID & idToProjectile & idToProjectileSpin & factionToTurretCreature;
 		h & stackBonuses & expRanks & maxExpPerBattle & expAfterUpgrade;
+		h & factionCommanders & skillLevels & skillRequirements & commanderLevelPremy;
 		h & allCreatures;
 		h & creaturesOfLevel;
 		BONUS_TREE_DESERIALIZATION_FIX

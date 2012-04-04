@@ -170,6 +170,11 @@ namespace EBattleStackState
 	enum EBattleStackState{ALIVE = 180, SUMMONED, CLONED, HAD_MORALE, WAITING, MOVED, DEFENDING, FEAR};
 }
 
+namespace ECommander
+{
+	enum SecondarySkills {ATTACK, DEFENSE, HEALTH, DAMAGE, SPEED, SPELL_POWER};
+}
+
 namespace Obj
 {
 	enum

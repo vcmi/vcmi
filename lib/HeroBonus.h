@@ -175,7 +175,9 @@ namespace PrimarySkill
 	BONUS_NAME(SPECIFIC_SPELL_POWER) /* value used for Thunderbolt and Resurrection casted by units, subtype - spell id */\
 	BONUS_NAME(CREATURE_SPELL_POWER) /* value per unit, divided by 100 (so faerie Dragons have 800)*/ \
 	BONUS_NAME(CREATURE_ENCHANT_POWER) /* total duration of spells casted by creature */ \
-	BONUS_NAME(REBIRTH) /* val - percent of life restored, subtype = 0 - regular, 1 - at least one unit (sacred Phoenix) */
+	BONUS_NAME(REBIRTH) /* val - percent of life restored, subtype = 0 - regular, 1 - at least one unit (sacred Phoenix) */\
+	BONUS_NAME(ADDITIONAL_UNITS) /*val of units with id = subtype will be added to hero's army at the beginning of battle */\
+	BONUS_NAME(SPOILS_OF_WAR) /*val * 10^-6 * gained exp resources of subtype will be given to hero after battle*/
 
 /// Struct for handling bonuses of several types. Can be transferred to any hero
 struct DLL_LINKAGE Bonus
@@ -564,6 +566,7 @@ public:
 	void detachFrom(CBonusSystemNode *parent);
 	void detachFromAll();
 	void addNewBonus(Bonus *b); //b will be deleted with destruction of node
+	void accumulateBonus(Bonus *b); //add value of bonus with same type/subtype or create new
 
 	void newChildAttached(CBonusSystemNode *child);
 	void childDetached(CBonusSystemNode *child);

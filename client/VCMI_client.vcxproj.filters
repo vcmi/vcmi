@@ -175,9 +175,6 @@
     <ClInclude Include="resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="mapHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CAnimation.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -235,11 +232,25 @@
     <ClInclude Include="UIFramework\SDL_Extensions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\hch\CArtHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\hch\CBuildingHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\hch\CHeroHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\hch\CObjectHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\hch\CVideoHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\ChangeLog" />
     <None Include="vcmi.ico" />
-    <None Include="ClassDiagram21.cd" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VCMI_client.rc" />

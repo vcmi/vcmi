@@ -51,6 +51,7 @@ struct UpdateHeroSpeciality;
 struct NewArtifact;
 class CGBoat;
 class CArtifactSet;
+class CCommanderInstance;
 
 class DLL_LINKAGE CQuest
 {
@@ -285,6 +286,7 @@ public:
 	ui8 sex;
 	ui8 inTownGarrison; // if hero is in town garrison 
 	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
+	ConstTransitivePtr<CCommanderInstance> commander;
 	const CGBoat *boat; //set to CGBoat when sailing
 	
 
