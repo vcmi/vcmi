@@ -159,7 +159,7 @@ public:
 	CInfoBar();
 	~CInfoBar();
 	void newDay(int Day); //start showing new day/week animation
-	void showComp(CComponent * comp, int time=5000);
+	void showComp(const CComponent * comp, int time=5000);
 	void enemyTurn(ui8 color, double progress);
 	void tick();
 	void showAll(SDL_Surface * to); // if specific==0 function draws info about selected hero/town

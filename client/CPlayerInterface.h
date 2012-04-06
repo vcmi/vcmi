@@ -170,7 +170,8 @@ public:
 	void objectPropertyChanged(const SetObjectProperty * sop) OVERRIDE;
 	void objectRemoved(const CGObjectInstance *obj) OVERRIDE;
 	void gameOver(ui8 player, bool victory) OVERRIDE;
-	void playerStartsTurn(ui8 player) OVERRIDE;
+	void playerStartsTurn(ui8 player) OVERRIDE; //called before yourTurn on active itnerface
+	void showComp(const CComponent &comp) OVERRIDE; //display component in the advmapint infobox
 	void serialize(COSer<CSaveFile> &h, const int version) OVERRIDE; //saving
 	void serialize(CISer<CLoadFile> &h, const int version) OVERRIDE; //loading
 
@@ -199,13 +200,12 @@ public:
 	void showArtifactAssemblyDialog(ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<void()> onYes, CFunctionList<void()> onNo);
 	void garrisonChanged(const CGObjectInstance * obj, bool updateInfobox = true);
 	void heroKilled(const CGHeroInstance* hero);
-	void waitWhileDialog();
-	void waitForAllDialogs();
+	void waitWhileDialog(bool unlockPim = true);
+	void waitForAllDialogs(bool unlockPim = true);
 	bool shiftPressed() const; //determines if shift key is pressed (left or right or both)
 	bool ctrlPressed() const; //determines if ctrl key is pressed (left or right or both)
 	bool altPressed() const; //determines if alt key is pressed (left or right or both)
 	void redrawHeroWin(const CGHeroInstance * hero);
-	void showComp(CComponent comp); //TODO: comment me
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	SDL_Surface * infoWin(const CGObjectInstance * specific); //specific=0 => draws info about selected town/hero

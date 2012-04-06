@@ -771,10 +771,7 @@ void ShowInInfobox::applyCl(CClient *cl)
 {
 	CComponent sc(c);
 	text.toString(sc.description);
-	if(vstd::contains(cl->playerint, player) && cl->playerint[player]->human)
-	{
-		static_cast<CPlayerInterface*>(cl->playerint[player])->showComp(sc);
-	}
+	INTERFACE_CALL_IF_PRESENT(player,showComp, sc);
 }
 
 

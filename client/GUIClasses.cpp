@@ -745,11 +745,15 @@ void CComponent::init(Etype Type, int Subtype, int Val)
 		subtitle = CGI->generaltexth->capColors[Subtype];
 		break;
 	}
-	img = NULL;
-	free = false;
 	type = Type;
 	subtype = Subtype;
 	val = Val;
+	if(!img)
+	{
+		free = false;
+		if(type == Component::BUILDING)
+			setSurface(graphics->buildingPics[subtype],val);
+	}
 	SDL_Surface * temp = this->getImg();
 	if(!temp)
 	{
@@ -759,21 +763,24 @@ void CComponent::init(Etype Type, int Subtype, int Val)
 	pos.w = temp->w;
 	pos.h = temp->h;
 }
-CComponent::CComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur, bool freeSur):img(sur),free(freeSur)
+CComponent::CComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur, bool freeSur)
 {
+	img = sur;
+	free = freeSur;
 	init(Type,Subtype,Val);
 }
 
 CComponent::CComponent(const Component &c)
 {
-	if(c.id==5)
+	img = NULL;
+	if(c.id == Component::EXPERIENCE)
 		init(experience,c.subtype,c.val);
 	else if(c.id == Component::SPELL)
 		init(spell,c.subtype,c.val);
 	else
 		init((Etype)c.id,c.subtype,c.val);
 
-	if(c.id==2 && c.when==-1)
+	if(c.id == Component::RESOURCE && c.when==-1)
 		subtitle += CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
 }
 
@@ -806,7 +813,7 @@ void CComponent::show(SDL_Surface * to)
 	blitAt(getImg(),pos.x,pos.y,to);
 }
 
-SDL_Surface * CComponent::getImg()
+SDL_Surface * CComponent::getImg() const
 {
 	if (img)
 		return img;
@@ -831,7 +838,8 @@ SDL_Surface * CComponent::getImg()
 	case spell:
 		return graphics->spellscr->ourImages[subtype].bitmap;
 	case building:
-		return setSurface(graphics->buildingPics[subtype],val);
+		assert(0); //img should have been set
+		//return setSurface(graphics->buildingPics[subtype],val);
 	case creature:
 		return graphics->bigImgs[subtype];
 	case hero:

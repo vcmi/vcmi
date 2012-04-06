@@ -924,7 +924,7 @@ void CInfoBar::newDay(int Day)
 	blitAnim(mode);
 }
 
-void CInfoBar::showComp(CComponent * comp, int time)
+void CInfoBar::showComp(const CComponent * comp, int time/*=5000*/)
 {
 	if(comp->type != CComponent::hero)
 	{

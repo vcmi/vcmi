@@ -185,7 +185,7 @@ public:
 	virtual ~CComponent(); //d-tor
 
 	void clickRight(tribool down, bool previousState); //call-in
-	SDL_Surface * getImg();
+	SDL_Surface * getImg() const;
 	virtual void show(SDL_Surface * to);
 	virtual void activate();
 	virtual void deactivate();

@@ -226,10 +226,7 @@ void CBattleCallback::sendRequest(const CPack* request)
 	if(waitTillRealize)
 	{
 		tlog5 << boost::format("We'll wait till request %d is answered.\n") % requestID;
-		unique_ptr<vstd::unlock_shared_guard> unlocker; //optional, if flag set
-		if(unlockGsWhenWaiting)
-			unlocker = make_unique<vstd::unlock_shared_guard>(getGsMutex());
-
+		auto gsUnlocker = vstd::makeUnlockSharedGuardIf(getGsMutex(), unlockGsWhenWaiting);
 		cl->waitingRequest.waitWhileContains(requestID);
 	}
 }

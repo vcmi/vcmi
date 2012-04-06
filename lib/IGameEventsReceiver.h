@@ -33,6 +33,7 @@ class CCreatureSet;
 struct BattleAttack;
 struct SetStackEffect;
 struct BattleTriggerEffect;
+class CComponent;
 
 
 class DLL_LINKAGE IBattleEventsReceiver
@@ -116,4 +117,5 @@ public:
 	virtual void playerBlocked(int reason){}; //reason: 0 - upcoming battle
 	virtual void gameOver(ui8 player, bool victory){}; //player lost or won the game
 	virtual void playerStartsTurn(ui8 player){};
+	virtual void showComp(const CComponent &comp) {}; //display component in the advmapint infobox
 };

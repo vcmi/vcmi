@@ -488,6 +488,7 @@ void CClient::handlePack( CPack * pack )
 	CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)]; //find the applier
 	if(apply)
 	{
+		boost::unique_lock<boost::recursive_mutex> guiLock(*LOCPLINT->pim);
 		apply->applyOnClBefore(this,pack);
 		tlog5 << "\tMade first apply on cl\n";
 		gs->apply(pack);

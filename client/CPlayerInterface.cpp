@@ -56,6 +56,15 @@
  *
  */
 
+
+// The macro below is used to mark functions that are called by client when game state changes.
+// They all assume that CPlayerInterface::pim mutex is locked.
+#define EVENT_HANDLER_CALLED_BY_CLIENT
+
+// The macro marks functions that are run on a new thread by client.
+// They do not own any mutexes intiially.
+#define THREAD_CREATED_BY_CLIENT
+
 using namespace boost::assign;
 using namespace CSDL_Ext;
 
@@ -143,8 +152,8 @@ void CPlayerInterface::init(CCallback * CB)
 }
 void CPlayerInterface::yourTurn()
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*pim);
 		boost::unique_lock<boost::mutex> lock(eventsM); //block handling events until interface is ready
 
 		LOCPLINT = this;
@@ -219,10 +228,11 @@ STRONG_INLINE void delObjRect(const int & x, const int & y, const int & z, const
 }
 void CPlayerInterface::heroMoved(const TryMoveHero & details)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	if(LOCPLINT != this)
 		return;
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+
 	const CGHeroInstance * ho = cb->getHero(details.id); //object representing this hero
 	int3 hp = details.start;
 
@@ -362,7 +372,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 }
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	wanderingHeroes -= hero;
 	if(vstd::contains(paths, hero))
 		paths.erase(hero);
@@ -371,7 +381,7 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 }
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	wanderingHeroes.push_back(hero);
 	adventureInt->heroList.updateHList();
 }
@@ -427,7 +437,7 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 }
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(which == 4)
 	{
 		if(CAltarWindow *ctw = dynamic_cast<CAltarWindow *>(GH.topInt()))
@@ -439,6 +449,7 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 
 void CPlayerInterface::heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	CUniversityWindow* cuw = dynamic_cast<CUniversityWindow*>(GH.topInt());
 	if(cuw) //university window is open
 	{
@@ -448,18 +459,18 @@ void CPlayerInterface::heroSecondarySkillChanged(const CGHeroInstance * hero, in
 
 void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	updateInfo(hero);
 }
 void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(makingTurn && hero->tempOwner == playerID)
 		adventureInt->heroList.redraw();
 }
 void CPlayerInterface::receivedResource(int type, int val)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(CMarketplaceWindow *mw = dynamic_cast<CMarketplaceWindow *>(GH.topInt()))
 		mw->resourceChanged(type, val);
 
@@ -468,16 +479,16 @@ void CPlayerInterface::receivedResource(int type, int val)
 
 void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16>& skills, boost::function<void(ui32)> &callback)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	CCS->soundh->playSound(soundBase::heroNewLevel);
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
 	GH.pushInt(lw);
 }
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	updateInfo(town);
 
 	if(town->garrisonHero && vstd::contains(wanderingHeroes,town->garrisonHero)) //wandering hero moved to the garrison
@@ -514,11 +525,11 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 }
 void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(hero->tempOwner != playerID )
 		return;
 
 	waitWhileDialog();
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	openTownWindow(town);
 }
 void CPlayerInterface::garrisonChanged( const CGObjectInstance * obj, bool updateInfobox /*= true*/ )
@@ -546,7 +557,7 @@ void CPlayerInterface::garrisonChanged( const CGObjectInstance * obj, bool updat
 
 void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, int what) //what: 1 - built, 2 - demolished
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	switch (buildingID)
 	{
 	case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 15:
@@ -572,20 +583,20 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 
 void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
 
 	waitForAllDialogs();
-
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	GH.pushInt(battleInt);
 }
 
 
 void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
@@ -635,16 +646,18 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 
 void CPlayerInterface::battleNewStackAppeared(const CStack * stack)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
-	//boost::unique_lock<boost::recursive_mutex> un(*pim);
+
 	battleInt->newStack(stack);
 }
 
 void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObstacles)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
@@ -667,23 +680,23 @@ void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObst
 
 void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->stackIsCatapulting(ca);
 }
 
 void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim); //fixme: this one caused deadlock
 	for(std::set<ui32>::const_iterator it = bsr.stackIDs.begin(); it != bsr.stackIDs.end(); ++it) //for each removed stack
 	{
 		battleInt->stackRemoved(*it);
@@ -693,35 +706,35 @@ void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
 
 void CPlayerInterface::battleNewRound(int round) //called at the beginning of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->newRound(round);
 }
 
 void CPlayerInterface::actionStarted(const BattleAction* action)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	curAction = new BattleAction(*action);
 	battleInt->startAction(action);
 }
 
 void CPlayerInterface::actionFinished(const BattleAction* action)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	delete curAction;
 	curAction = NULL;
 	battleInt->endAction(action);
@@ -729,6 +742,7 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 
 BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when it's turn of that stack
 {
+	THREAD_CREATED_BY_CLIENT;
 	tlog5 << "Awaiting command for " << stack->nodeName() << std::endl;
 	CBattleInterface *b = battleInt;
 
@@ -759,61 +773,58 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 
 void CPlayerInterface::battleEnd(const BattleResult *br)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->battleFinished(*br);
 }
 
 void CPlayerInterface::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->stackMoved(stack, dest, distance);
 }
 void CPlayerInterface::battleSpellCast( const BattleSpellCast *sc )
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->spellCast(sc);
 }
 void CPlayerInterface::battleStacksEffectsSet( const SetStackEffect & sse )
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->battleStacksEffectsSet(sse);
 }
 void CPlayerInterface::battleTriggerEffect (const BattleTriggerEffect & bte)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	battleInt->battleTriggerEffect(bte);
 }
 void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
-
-	tlog5 << "CPlayerInterface::battleStackAttacked - locking...";
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	tlog5 << "done!\n";
-
-
+	
 	std::vector<StackAttackedInfo> arg;
 	for(std::vector<BattleStackAttacked>::const_iterator i = bsa.begin(); i != bsa.end(); i++)
 	{
@@ -837,14 +848,12 @@ void CPlayerInterface::battleStacksAttacked(const std::vector<BattleStackAttacke
 }
 void CPlayerInterface::battleAttack(const BattleAttack *ba)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
 
-	tlog5 << "CPlayerInterface::battleAttack - locking...";
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	tlog5 << "done!\n";
 	assert(curAction);
 	if(ba->lucky()) //lucky hit
 	{
@@ -902,22 +911,23 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 
 void CPlayerInterface::yourTacticPhase(int distance)
 {
+	THREAD_CREATED_BY_CLIENT;
 	while(battleInt && battleInt->tacticsMode)
 		boost::this_thread::sleep(boost::posix_time::millisec(1));
 }
 
-void CPlayerInterface::showComp(CComponent comp)
+void CPlayerInterface::showComp(const CComponent &comp)
 {
-	waitWhileDialog();//Fix for mantis #98
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	waitWhileDialog(); //Fix for mantis #98
 
 	CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
-
 	adventureInt->infoBar.showComp(&comp,4000);
 }
 
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	std::vector<CComponent*> intComps;
 	for(int i=0;i<components.size();i++)
 		intComps.push_back(new CComponent(*components[i]));
@@ -927,7 +937,6 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<CComponent*> & components, int soundID, bool delComps)
 {
 	waitWhileDialog();
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
 	stopMovement();
 	CInfoWindow *temp = CInfoWindow::create(text, playerID, &components);
@@ -955,8 +964,8 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vecto
 
 void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel )
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
 	stopMovement();
 	CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
@@ -994,7 +1003,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 
 void CPlayerInterface::tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	for(boost::unordered_set<int3, ShashInt3>::const_iterator i=pos.begin(); i!=pos.end();i++)
 		adventureInt->minimap.showTile(*i);
 	if(pos.size())
@@ -1003,7 +1012,7 @@ void CPlayerInterface::tileRevealed(const boost::unordered_set<int3, ShashInt3> 
 
 void CPlayerInterface::tileHidden(const boost::unordered_set<int3, ShashInt3> &pos)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	for(boost::unordered_set<int3, ShashInt3>::const_iterator i=pos.begin(); i!=pos.end();i++)
 		adventureInt->minimap.hideTile(*i);
 	if(pos.size())
@@ -1058,7 +1067,7 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 
 void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(const CGTownInstance * townObj = dynamic_cast<const CGTownInstance*>(town))
 	{
 		CFortScreen *fs = dynamic_cast<CFortScreen*>(GH.topInt());
@@ -1082,8 +1091,10 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 
 void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus &bonus, bool gain )
 {
-	if(bonus.type == Bonus::NONE)	return;
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	if(bonus.type == Bonus::NONE)	
+		return;
+
 	updateInfo(hero);
 	if ((bonus.type == Bonus::FLYING_MOVEMENT || bonus.type == Bonus::WATER_WALKING) && !gain)
 	{
@@ -1138,11 +1149,13 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 
 void CPlayerInterface::serialize( COSer<CSaveFile> &h, const int version )
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	serializeTempl(h,version);
 }
 
 void CPlayerInterface::serialize( CISer<CLoadFile> &h, const int version )
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	serializeTempl(h,version);
 	firstCall = -1;
 }
@@ -1253,19 +1266,16 @@ bool CPlayerInterface::altPressed() const
 
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd )
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+
 	if(stillMoveHero.get() == DURING_MOVE  && adventureInt->terrain.currentPath && adventureInt->terrain.currentPath->nodes.size() > 1) //to ignore calls on passing through garrisons
-	{ //FIXME: why there is no currentPath at game start?
+	{
 		onEnd();
 		return;
 	}
 
-	waitWhileDialog();
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	while(dialogs.size())
-	{
-		auto unlock = vstd::makeUnlockGuard(*pim);
-		SDL_Delay(20);
-	}
+	waitForAllDialogs();
+
 	CGarrisonWindow *cgw = new CGarrisonWindow(up,down,removableUnits);
 	cgw->quit->callback += onEnd;
 	GH.pushInt(cgw);
@@ -1310,20 +1320,21 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 
 void CPlayerInterface::requestRealized( PackageApplied *pa )
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(stillMoveHero.get() == DURING_MOVE)
 		stillMoveHero.setn(CONTINUE_MOVE);
 }
 
 void CPlayerInterface::heroExchangeStarted(si32 hero1, si32 hero2)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	GH.pushInt(new CExchangeWindow(hero1, hero2));
 }
 
 void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	//redraw minimap if owner changed
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(sop->what == ObjProperty::OWNER)
 	{
 		const CGObjectInstance * obj = cb->getObj(sop->id);
@@ -1396,14 +1407,15 @@ const CGHeroInstance * CPlayerInterface::getWHero( int pos )
 
 void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CRecruitmentWindow *cr = new CRecruitmentWindow(dwelling, level, dst, boost::bind(&CCallback::recruitCreatures, cb, dwelling, _1, _2, -1));
 	GH.pushInt(cr);
 }
 
-void CPlayerInterface::waitWhileDialog()
+void CPlayerInterface::waitWhileDialog(bool unlockPim /*= true*/)
 {
+	auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
 	boost::unique_lock<boost::mutex> un(showingDialog->mx);
 	while(showingDialog->data)
 		showingDialog->cond.wait(un);
@@ -1411,7 +1423,7 @@ void CPlayerInterface::waitWhileDialog()
 
 void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	int state = obj->state();
 	std::vector<si32> cost;
 	obj->getBoatCost(cost);
@@ -1421,7 +1433,7 @@ void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 
 void CPlayerInterface::newObject( const CGObjectInstance * obj )
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	//we might have built a boat in shipyard in opened town screen
 	if(obj->ID == 8
 		&& LOCPLINT->castleInt
@@ -1434,6 +1446,7 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 
 void CPlayerInterface::centerView (int3 pos, int focusTime)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	adventureInt->centerOn (pos);
 	if(focusTime)
@@ -1451,6 +1464,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 
 void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(obj->ID == GameConstants::HEROI_TYPE  &&  obj->tempOwner == playerID)
 	{
 		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(obj);
@@ -1965,6 +1979,7 @@ void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &h
 
 void CPlayerInterface::gameOver(ui8 player, bool victory )
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 		return;
 
@@ -1993,23 +2008,23 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 	else
 	{
 		if(!victory && cb->getPlayerStatus(playerID) == PlayerState::INGAME) //enemy has lost
-	{
-		std::string txt = CGI->generaltexth->allTexts[5]; //%s has been vanquished!
-		boost::algorithm::replace_first(txt, "%s", CGI->generaltexth->capColors[player]);
-		showInfoDialog(txt,std::vector<CComponent*>(1, new CComponent(CComponent::flag, player, 0)));
+		{
+			std::string txt = CGI->generaltexth->allTexts[5]; //%s has been vanquished!
+			boost::algorithm::replace_first(txt, "%s", CGI->generaltexth->capColors[player]);
+			showInfoDialog(txt,std::vector<CComponent*>(1, new CComponent(CComponent::flag, player, 0)));
 		}
 	}
 }
 
 void CPlayerInterface::playerBonusChanged( const Bonus &bonus, bool gain )
 {
-
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 }
 
 void CPlayerInterface::showPuzzleMap()
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
 	//TODO: interface should not know the real position of Grail...
 	double ratio = 0;
@@ -2020,6 +2035,7 @@ void CPlayerInterface::showPuzzleMap()
 
 void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellID)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if (spellID == Spells::FLY || spellID == Spells::WATER_WALK)
 	{
 		eraseCurrentPathOf(caster, false);
@@ -2086,7 +2102,7 @@ void CPlayerInterface::acceptTurn()
 	if(howManyPeople > 1)
 		adventureInt->startTurn();
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	//boost::unique_lock<boost::recursive_mutex> un(*pim);
 
 	//Select sound for day start
 	int totalDays = cb->getDate();
@@ -2164,12 +2180,12 @@ void CPlayerInterface::updateInfo(const CGObjectInstance * specific)
 
 void CPlayerInterface::battleNewRoundFirst( int round )
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
 	{ //another local interface should do this
 		return;
 	}
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->newRoundFirst(round);
 }
 
@@ -2181,7 +2197,7 @@ void CPlayerInterface::stopMovement()
 
 void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(market->o->ID == 2) //Altar
 	{
 		//EEMarketMode mode = market->availableModes().front();
@@ -2196,35 +2212,35 @@ void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInsta
 
 void CPlayerInterface::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	CUniversityWindow *cuw = new CUniversityWindow(visitor, market);
 	GH.pushInt(cuw);
 }
 
 void CPlayerInterface::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	CHillFortWindow *chfw = new CHillFortWindow(visitor, object);
 	GH.pushInt(chfw);
 }
 
 void CPlayerInterface::availableArtifactsChanged(const CGBlackMarket *bm /*= NULL*/)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(CMarketplaceWindow *cmw = dynamic_cast<CMarketplaceWindow*>(GH.topInt()))
 		cmw->artifactsChanged(false);
 }
 
 void CPlayerInterface::showTavernWindow(const CGObjectInstance *townOrTavern)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	CTavernWindow *tv = new CTavernWindow(townOrTavern);
 	GH.pushInt(tv);
 }
 
 void CPlayerInterface::showThievesGuildWindow (const CGObjectInstance * obj)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	CThievesGuildWindow *tgw = new CThievesGuildWindow(obj);
 	GH.pushInt(tgw);
 }
@@ -2261,26 +2277,26 @@ void CPlayerInterface::sendCustomEvent( int code )
 
 void CPlayerInterface::stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	garrisonChanged(location.army);
 }
 
 void CPlayerInterface::stackChangedType(const StackLocation &location, const CCreature &newType)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	garrisonChanged(location.army);
 }
 
 void CPlayerInterface::stacksErased(const StackLocation &location)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	garrisonChanged(location.army);
 }
 
 #define UPDATE_IF(LOC) static_cast<const CArmedInstance*>(adventureInt->infoBar.curSel) == LOC.army.get()
 void CPlayerInterface::stacksSwapped(const StackLocation &loc1, const StackLocation &loc2)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	garrisonChanged(loc1.army, UPDATE_IF(loc1));
 	if(loc2.army != loc1.army)
 		garrisonChanged(loc2.army, UPDATE_IF(loc2));
@@ -2288,14 +2304,14 @@ void CPlayerInterface::stacksSwapped(const StackLocation &loc1, const StackLocat
 
 void CPlayerInterface::newStackInserted(const StackLocation &location, const CStackInstance &stack)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	garrisonChanged(location.army);
 }
 
 void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	//bool updateInfobox = true;
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+
 	garrisonChanged(src.army, UPDATE_IF(src));
 	if(dst.army != src.army)
 		garrisonChanged(dst.army, UPDATE_IF(dst));
@@ -2304,12 +2320,12 @@ void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLoc
 
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 }
 
 void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
 		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
@@ -2321,7 +2337,7 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 
 void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
 		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
@@ -2333,7 +2349,7 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 
 void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
 		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
@@ -2345,7 +2361,7 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 
 void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
 		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
@@ -2357,38 +2373,32 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 
 void CPlayerInterface::playerStartsTurn(ui8 player)
 {
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	if(!GH.listInt.size())
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*pim);
-		if(!GH.listInt.size())
-		{
-			GH.pushInt(adventureInt);
-			adventureInt->activateKeys();
-		}
-		if(howManyPeople == 1)
-		{
-			GH.curInt = this;
-			adventureInt->startTurn();
-		}
+		GH.pushInt(adventureInt);
+		adventureInt->activateKeys();
+	}
+	if(howManyPeople == 1)
+	{
+		GH.curInt = this;
+		adventureInt->startTurn();
 	}
 	if(player != playerID && this == LOCPLINT)
 	{
 		waitWhileDialog();
-		boost::unique_lock<boost::recursive_mutex> un(*pim);
 		adventureInt->aiTurnStarted();
 	}
 }
 
-void CPlayerInterface::waitForAllDialogs()
+void CPlayerInterface::waitForAllDialogs(bool unlockPim /*= true*/)
 {
+	while(dialogs.size())
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*pim);
-		while(dialogs.size())
-		{
-			auto unlock = vstd::makeUnlockGuard(*pim);
-			SDL_Delay(5);
-		}
+		auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
+		SDL_Delay(5);
 	}
-	waitWhileDialog();
+	waitWhileDialog(unlockPim);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()
