@@ -1,6 +1,12 @@
 I. Getting the sources
-VCMI is still in development. You can get the sources with subversion:
-  svn co https://vcmi.svn.sourceforge.net/svnroot/vcmi/trunk vcmi
+VCMI is still in development. We recommend the following initial directory structure:
+trunk
+trunk/src -> contains sources and is under SVN control
+trunk/build -> contains build output, makefiles, object files,...
+
+You can get the sources with subversion:
+  cd trunk
+  svn co https://vcmi.svn.sourceforge.net/svnroot/vcmi/trunk src
 
 II. Compiling
 
@@ -29,13 +35,26 @@ To compile, at least the following packages (and their development counterparts)
 On Ubuntu 9.04 or later, run:
   sudo apt-get install g++ libsdl1.2debian-all libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev
 
-Create a directory /YOUR_INSTALL_PATH/vcmi (default is usually /usr/local/share/vcmi)
+On Fedora run(this may not be complete):
+  sudo yum install gcc-c++ sdl-devel sdl_image-devel sdl_ttf-devel boost boost-devel boost-filesystem boost-iostreams boost-system boost-thread boost-program-options zlib-devel ffmpeg-devel ffmpeg-libs
+
+On linux distributions like Fedora where Mp3 support isn't given natively you have to compile sdl_mixer with Mp3 support.
+1. sudo yum install smpeg-devel
+2. Download sdl_mixer sources, unpack to ~/src/sdl_mixer for example
+3. Build sdl_mixer as follows: ./configure --prefix=/usr; make; make install
+
+
+Create a directory /DATA_PATH/vcmi (default is usually /usr/local/share/games/vcmi)
 that will contain the game data files. The /vcmi at the end is necessary.
+
+Create a directory that will contain the shared libraries. (default is usually /usr/local/lib64/games/vcmi)
 
 Then run configure:
   ./configure
 Or if you're installing to custom path:
-  ./configure --datadir=/YOUR_INSTALL_PATH/ --bindir=/YOUR_INSTALL_PATH/vcmi --libdir=/YOUR_INSTALL_PATH/
+  ./configure --datadir=/DATA_PATH/ --bindir=/BIN_PATH/vcmi --libdir=/LIB_PATH/
+An example would be:
+  ./configure --datadir=/usr/local/share/games --bindir=/usr/local/games --libdir=/usr/local/lib64/games
 
 Then build vcmi:
   make
@@ -54,8 +73,8 @@ Wog can be downloaded from: http://www.maps4heroes.com/heroes3/files/allinone_35
 Wine can be used to install both.
 
 Install Heroes 3 and Wog. Then move all the installed files into
-/YOUR_INSTALL_PATH/vcmi. For instance that will create
-/YOUR_INSTALL_PATH/vcmi/Data.
+/DATA_PATH/vcmi. For instance that will create
+/DATA_PATH/vcmi/Data.
 
 Once both programs are installed, you can install VCMI.
 
@@ -63,12 +82,12 @@ Download the windows VCMI release (at time of writing:
 http://forum.vcmi.eu/dload.php?action=download&id=23)
 and extract it in a private directory. Populate /YOUR_INSTALL_PATH/vcmi:
 
-  mv sprites /YOUR_INSTALL_PATH/vcmi/Sprites
-  mv Data/* /YOUR_INSTALL_PATH/vcmi/Data
-  mv Fonts Games /YOUR_INSTALL_PATH/vcmi/
+  mv sprites /DATA_PATH/vcmi/Sprites
+  mv Data/* /DATA_PATH/vcmi/Data
+  mv Fonts Games /DATA_PATH/vcmi/
 
 If you also have the original linux version of Heroes, you can also install the videos:
-  cp -a /PATH_TO_CDROM/data/video /YOUR_INSTALL_PATH/vcmi/Data
+  cp -a /PATH_TO_CDROM/data/video /DATA_PATH/vcmi/Data
 
 
 III. Installing VCMI
@@ -76,19 +95,25 @@ III. Installing VCMI
 Since VCMI is still in development, there's no install procedure, although something like this will work:
   make install
 You also need to update configuration files:
- cp /PATH_TO_SOURCE/config /YOUR_INSTALL_PATH/vcmi
+ cp /PATH_TO_SOURCE/config /DATA_PATH/vcmi
 
 
 For development puposes, it's better to use links. Go
-to /YOUR_INSTALL_PATH/vcmi, and type:
+to /BIN_PATH/, and type:
 
   ln -s /PATH_TO_SOURCE/client/vcmiclient
   ln -s /PATH_TO_SOURCE/server/vcmiserver
-  ln -s /PATH_TO_SOURCE/config
-  ln -s /PATH_TO_SOURCE/lib/.libs/libvcmi.so
+  
+Go to /LIB_PATH/vcmi, and type:
+
+  ln -s /PATH_TO_SOURCE/lib/.libs/libvcmi.so libvcmi.so.0
+  
+Go to /LIB_PATH/vcmi/AI, and type: 
   ln -s /PATH_TO_SOURCE/AI/VCAI/.libs/VCAI.so
   ln -s /PATH_TO_SOURCE/AI/StupidAI/.libs/StupidAI.so
 
-
+Go to /DATA_PATH/vcmi, and type:
+  ln -s /PATH_TO_SOURCE/config
+  
 And start ./vcmiclient
 
