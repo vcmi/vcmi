@@ -1484,6 +1484,14 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		if(isActive())
 			LOCPLINT->showPuzzleMap();
 		return;
+	case SDLK_r:
+		if(isActive() && LOCPLINT->ctrlPressed())
+		{
+			LOCPLINT->showYesNoDialog("Are you sure you want to restart game?", std::vector<CComponent*>(), 
+				[]{ LOCPLINT->sendCustomEvent(RESTART_GAME); },
+				[]{}, true);
+		}
+		return;
 	case SDLK_SPACE: //space - try to revisit current object with selected hero
 		{
 			if(!isActive())

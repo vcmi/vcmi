@@ -709,8 +709,7 @@ static void listenForEvents()
 			}
 			case RETURN_TO_MAIN_MENU:
 				client->endGame();
-				delete client;
-				client = NULL;
+				vstd::clear_pointer(client);
 
 				delete CGI->dobjinfo.get();
 				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler;
@@ -722,6 +721,19 @@ static void listenForEvents()
 				break;
 			case STOP_CLIENT:
 				client->endGame(false);
+				break;
+			case RESTART_GAME:
+				{
+					StartInfo si = *client->getStartInfo();
+					client->endGame();
+					vstd::clear_pointer(client);
+
+					delete CGI->dobjinfo.get();
+					const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler;
+					const_cast<CGameInfo*>(CGI)->dobjinfo->load();
+
+					startGame(&si);
+				}
 				break;
 			default:
 				tlog1 << "Error: unknown user event. Code " << ev->user.code << std::endl;

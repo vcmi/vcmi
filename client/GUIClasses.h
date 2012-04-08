@@ -682,6 +682,7 @@ private:
 	void bsavef(); //save game
 	void bquitf(); //quit game
 	void breturnf(); //return to game
+	void brestartf(); //return to game
 	void bmainmenuf(); //return to main menu
 
 	//functions for checkboxes

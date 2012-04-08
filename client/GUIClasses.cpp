@@ -3684,7 +3684,10 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &Pos, CPlayerInterface
 	save->swappedImages = true;
 	save->update();
 
-	// restart = new CAdventureMapButton (CGI->generaltexth->zelp[323].first, CGI->generaltexth->zelp[323].second, boost::bind(&CSystemOptionsWindow::bmainmenuf, this), pos.x+346, pos.y+357, "SORSTRT", SDLK_r);
+	restart = new CAdventureMapButton (CGI->generaltexth->zelp[323].first, CGI->generaltexth->zelp[323].second, 
+									   boost::bind(&CSystemOptionsWindow::brestartf, this), 246, 357, "SORSTRT", SDLK_r);
+	restart->swappedImages = true;
+	restart->update();
 
 	mainMenu = new CAdventureMapButton (CGI->generaltexth->zelp[320].first, CGI->generaltexth->zelp[320].second,
 	                                    boost::bind(&CSystemOptionsWindow::bmainmenuf, this), 357, 357, "SOMAIN.DEF", SDLK_m);
@@ -3821,13 +3824,18 @@ void CSystemOptionsWindow::breturnf()
 
 void CSystemOptionsWindow::bmainmenuf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<CComponent*>(), boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_USEREVENT, 2), 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<CComponent*>(), boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_USEREVENT, RETURN_TO_MAIN_MENU), 0, false);
 }
 
 void CSystemOptionsWindow::bsavef()
 {
 	GH.popIntTotally(this);
 	GH.pushInt(new CSavingScreen(CPlayerInterface::howManyPeople > 1));
+}
+
+void CSystemOptionsWindow::brestartf()
+{
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<CComponent*>(), boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_USEREVENT, RESTART_GAME), 0, false);
 }
 
 CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj)
