@@ -141,7 +141,7 @@ CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attac
 
 	assert(attackingStack && "attackingStack is NULL in CBattleAttack::CBattleAttack !\n");
 	bool isCatapultAttack = attackingStack->hasBonusOfType(Bonus::CATAPULT) 
-							&& owner->curInt->cb->battleGetWallUnderHex(_dest);
+							&& owner->curInt->cb->battleGetWallUnderHex(_dest) >= 0;
 
 	assert(attackedStack || isCatapultAttack);
 	attackingStackPosBeforeReturn = attackingStack->position;
