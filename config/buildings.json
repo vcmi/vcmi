@@ -7,7 +7,7 @@
 //  creatures_upgraded: ids of the upgraded creatures in each dwelling, ordered by level
 //  horde: horde building creature levels (-1 if not present)
 //  mage_guild: maximum level of the mage guild
-//  primary_ressource: (1,3,4,5 for rares and 127 for wood+ore)
+//  primary_resource: (1,3,4,5 for rares and 127 for wood+ore)
 //  war_machine: type of war machine that this city can build
 
 {

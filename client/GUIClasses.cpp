@@ -4170,7 +4170,7 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 		std::string txt = enteredText.substr(0, enteredText.size()-1);
 		LOCPLINT->cb->sendMessage(txt);
 		previouslyEntered.push_back(txt);
-		print(txt);
+		//print(txt);
 	}
 	enteredText = "";
 	if(GH.topInt() == adventureInt)

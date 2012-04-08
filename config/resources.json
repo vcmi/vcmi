@@ -1,0 +1,4 @@
+{
+	// Price of each resource in gold, in usual resource order
+	"resources_prices": [ 250, 500, 250, 500, 500, 500, 1, 0 ]
+}

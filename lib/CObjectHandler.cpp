@@ -128,9 +128,9 @@ static void readBankLevel(const JsonNode &level, BankConfig &bc)
 
 	bc.resources.resize(GameConstants::RESOURCE_QUANTITY);
 	idx = 0;
-	BOOST_FOREACH(const JsonNode &ressource, level["reward_ressources"].Vector())
+	BOOST_FOREACH(const JsonNode &resource, level["reward_resources"].Vector())
 	{
-		bc.resources[idx] = ressource.Float();
+		bc.resources[idx] = resource.Float();
 		idx ++;
 	}
 
@@ -168,9 +168,9 @@ void CObjectHandler::loadObjects()
 	}
 	tlog5 << "\t\tDone loading cregens!\n";
 
-	tlog5 << "\t\tReading ressources prices \n";
-	const JsonNode config2(GameConstants::DATA_DIR + "/config/ressources.json");
-	BOOST_FOREACH(const JsonNode &price, config2["ressources_prices"].Vector())
+	tlog5 << "\t\tReading resources prices \n";
+	const JsonNode config2(GameConstants::DATA_DIR + "/config/resources.json");
+	BOOST_FOREACH(const JsonNode &price, config2["resources_prices"].Vector())
 	{
 		resVals.push_back(price.Float());
 	}
