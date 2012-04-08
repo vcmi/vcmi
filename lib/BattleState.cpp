@@ -1966,7 +1966,9 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int
 	{
 		if(!stackUnder || stackUnder->alive())
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(spell->id == Spells::ANIMATE_DEAD  &&  !stackUnder->hasBonusOfType(Bonus::UNDEAD))
+		if(spell->id == Spells::ANIMATE_DEAD  &&  !stackUnder->hasBonusOfType(Bonus::UNDEAD)) 
+			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+		if(stackUnder->owner != player) //you can resurrect only your own stacks
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 	else if(spell->getTargetType() == CSpell::CREATURE  ||  spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
