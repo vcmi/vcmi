@@ -1960,24 +1960,26 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int
 
 
 	//get dead stack if we cast resurrection or animate dead
-	const CStack * stackUnder = getStackT(dest, false);
+	const CStack *deadStack = getStackIf([dest](const CStack *s) { return !s->alive() && s->position == dest; });
+	const CStack *aliveStack = getStackIf([dest](const CStack *s) { return s->alive() && s->position == dest; });
+
 
 	if(spell->isRisingSpell())
 	{
-		if(!stackUnder || stackUnder->alive())
+		if(!deadStack || aliveStack)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(spell->id == Spells::ANIMATE_DEAD  &&  !stackUnder->hasBonusOfType(Bonus::UNDEAD)) 
+		if(spell->id == Spells::ANIMATE_DEAD  &&  !deadStack->hasBonusOfType(Bonus::UNDEAD)) 
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(stackUnder->owner != player) //you can resurrect only your own stacks
+		if(deadStack->owner != player) //you can resurrect only your own stacks
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 	else if(spell->getTargetType() == CSpell::CREATURE  ||  spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
 	{
-		if(!stackUnder || !stackUnder->alive())
+		if(!aliveStack)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(spell->isNegative() && stackUnder->owner == player)
+		if(spell->isNegative() && aliveStack->owner == player)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(spell->isPositive() && stackUnder->owner != player)
+		if(spell->isPositive() && aliveStack->owner != player)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 
@@ -2377,6 +2379,14 @@ bool BattleInfo::isObstacleOnTile(BattleHex tile) const
 			coveredHexes.insert(blocked[w]);
 	}
 	return vstd::contains(coveredHexes, tile);
+}
+
+const CStack * BattleInfo::getStackIf(boost::function<bool(const CStack*)> pred) const
+{
+	auto stackItr = range::find_if(stacks, pred);
+	return stackItr == stacks.end() 
+		? NULL
+		: *stackItr;
 }
 
 CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)

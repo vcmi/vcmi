@@ -697,6 +697,7 @@ static void listenForEvents()
 		}
 		else if(ev->type == SDL_USEREVENT)
 		{
+			enum {CHANGE_SCREEN_RESOLUTION, RETURN_TO_MAIN_MENU, END_GAME_AND_DIE};
 			switch(ev->user.code)
 			{
 			case 1:
@@ -720,10 +721,12 @@ static void listenForEvents()
 				GH.curInt = CGP;
 				GH.defActionsDef = 63;
 				break;
-
-			case 3:
-				client->endGame(false);
-				break;
+			default:
+				tlog1 << "Error: unknown user event. Code " << ev->user.code << std::endl;
+				assert(0);
+// 			case 3:
+// 				client->endGame(false);
+// 				break;
 			}
 
 			delete ev;

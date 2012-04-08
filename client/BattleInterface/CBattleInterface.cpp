@@ -2669,10 +2669,12 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			else
 				isCastingPossible = (curInt->cb->battleCanCastThisSpell(sp, myNumber) == ESpellCastProblem::OK);
 		}
-		else if(shere && shere->alive())
+		else
 		{
 			//needed for genie, otherwise covered by battleCan*CastThisSpell
-			if(spellSelMode == HOSTILE_CREATURE && shere->owner == sactive->owner
+			if(!shere
+				|| !shere->alive()
+				|| spellSelMode == HOSTILE_CREATURE && shere->owner == sactive->owner
 				|| spellSelMode == FRIENDLY_CREATURE && shere->owner != sactive->owner)
 			{
 				isCastingPossible = false;

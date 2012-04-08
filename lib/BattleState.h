@@ -83,6 +83,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode
 	//void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 	//////////////////////////////////////////////////////////////////////////
 
+	const CStack *getStackIf(boost::function<bool(const CStack*)> pred) const;
 	const CStack * getNextStack() const; //which stack will have turn after current one
 	void getStackQueue(std::vector<const CStack *> &out, int howMany, int turn = 0, int lastMoved = -1) const; //returns stack in order of their movement action
 	CStack * getStack(int stackID, bool onlyAlive = true);
