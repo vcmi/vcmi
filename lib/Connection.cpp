@@ -248,7 +248,6 @@ void CConnection::sendPackToServer(const CPack &pack, ui8 player, ui32 requestID
 }
 
 CSaveFile::CSaveFile( const std::string &fname )
-	:sfile(NULL)
 {
 	registerTypes(*this);
 	openNextFile(fname);
@@ -256,7 +255,6 @@ CSaveFile::CSaveFile( const std::string &fname )
 
 CSaveFile::~CSaveFile()
 {
-	delete sfile;
 }
 
 int CSaveFile::write( const void * data, unsigned size )
@@ -265,17 +263,10 @@ int CSaveFile::write( const void * data, unsigned size )
 	return size;
 }
 
-void CSaveFile::close()
-{
-	delete sfile;
-	sfile = NULL;
-}
-
 void CSaveFile::openNextFile(const std::string &fname)
 {
 	fName = fname;
-	close();
-	sfile = new std::ofstream(fname.c_str(),std::ios::binary);
+	sfile = make_unique<std::ofstream>(fname.c_str(), std::ios::binary);
 	if(!(*sfile))
 	{
 		tlog1 << "Error: cannot open to write " << fname << std::endl;
@@ -291,14 +282,13 @@ void CSaveFile::openNextFile(const std::string &fname)
 void CSaveFile::reportState(CLogger &out)
 {
 	out << "CSaveFile" << std::endl;
-	if(sfile && *sfile)
+	if(sfile.get() && *sfile)
 	{
 		out << "\tOpened " << fName << "\n\tPosition: " << sfile->tellp() << std::endl;
 	}
 }
 
 CLoadFile::CLoadFile(const std::string &fname, int minimalVersion /*= version*/)
-:sfile(NULL)
 {
 	registerTypes(*this);
 	openNextFile(fname, minimalVersion);
@@ -306,7 +296,6 @@ CLoadFile::CLoadFile(const std::string &fname, int minimalVersion /*= version*/)
 
 CLoadFile::~CLoadFile()
 {
-	delete sfile;
 }
 
 int CLoadFile::read( const void * data, unsigned size )
@@ -315,20 +304,14 @@ int CLoadFile::read( const void * data, unsigned size )
 	return size;
 }
 
-void CLoadFile::close()
-{
-	delete sfile;
-	sfile = NULL;
-}
-
 void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
 {
 	fName = fname;
-	sfile = new std::ifstream(fname.c_str(),std::ios::binary);
+	sfile = make_unique<std::ifstream>(fname.c_str(),std::ios::binary);
 	if(!(*sfile))
 	{
 		tlog1 << "Error: cannot open to read " << fname << std::endl;
-		sfile = NULL;
+		sfile.release();
 	}
 	else
 	{
@@ -338,8 +321,7 @@ void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
 		if(std::memcmp(buffer,"VCMI",4))
 		{
 			tlog1 << "Error: not a VCMI file! ( " << fname << " )\n";
-			delete sfile;
-			sfile = NULL;
+			sfile.release();
 			return;
 		}
 
@@ -347,8 +329,7 @@ void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
 		if(myVersion < minimalVersion)
 		{
 			tlog1 << "Error: Old file format! (file " << fname << " )\n";
-			delete sfile;
-			sfile = NULL;
+			sfile.release();
 		}
 	}
 }
@@ -356,7 +337,7 @@ void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
 void CLoadFile::reportState(CLogger &out)
 {
 	out << "CLoadFile" << std::endl;
-	if(sfile && *sfile)
+	if(!!sfile && *sfile)
 	{
 		out << "\tOpened " << fName << "\n\tPosition: " << sfile->tellg() << std::endl;
 	}

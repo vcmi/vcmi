@@ -1257,6 +1257,10 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 			LOCPLINT->cb->swapGarrisonHero(town);
 		}
 		break;
+	case SDLK_t:
+		if(town->hasBuilt(EBuilding::TAVERN))
+			LOCPLINT->showTavernWindow(town);
+		break;
 	default:
 		break;
 	}

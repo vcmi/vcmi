@@ -12,6 +12,8 @@ extern SDL_Surface * screenBuf, * screen2, * screen;
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
 
+boost::thread_specific_ptr<bool> inGuiThread;
+
 SObjectConstruction::SObjectConstruction( CIntObject *obj )
 :myObj(obj)
 {
@@ -344,6 +346,8 @@ void CGuiHandler::fakeMouseMove()
 void CGuiHandler::run()
 {
 	setThreadName(-1, "CGuiHandler::run");
+	bool iAmGui = true;
+	inGuiThread.reset(&iAmGui);
 	try
 	{
 		if (settings["video"]["fullscreen"].Bool())
@@ -457,6 +461,10 @@ bool CGuiHandler::isArrowKey( SDLKey key )
 	return key >= SDLK_UP && key <= SDLK_LEFT;
 }
 
+bool CGuiHandler::amIGuiThread()
+{
+	return inGuiThread.get() && *inGuiThread;
+}
 
 CFramerateManager::CFramerateManager(int rate)
 {

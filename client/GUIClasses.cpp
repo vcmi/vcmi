@@ -1332,8 +1332,7 @@ void CTownList::genList()
 
 void CTownList::select(int which)
 {
-	if (which>=LOCPLINT->towns.size())
-		return;
+	which %= LOCPLINT->towns.size();
 	selected = which;
 	fixPos();
 	if(!fun.empty())
@@ -1526,6 +1525,11 @@ void CTownList::showAll(SDL_Surface * to)
 int CTownList::size()
 {
 	return LOCPLINT->towns.size();
+}
+
+void CTownList::selectNext()
+{
+	select(selected+1);
 }
 
 CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool Animated)
@@ -5726,7 +5730,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	yellow->recActions =
 	red->recActions    = DISPOSE;
 
-	if ( market->o->ID == 104 ) // this is adventure map university
+	if ( market->o->ID == Obj::UNIVERSITY ) // this is adventure map university
 	{
 		SDL_Surface * titleImage = BitmapHandler::loadBitmap("UNIVBLDG.PCX");
 		blitAtLoc(titleImage, 232-titleImage->w/2, 76-titleImage->h/2, bg->bg);
@@ -6028,6 +6032,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	:owner(_owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	type |= BLOCK_ADV_HOTKEYS;
 
 	SThievesGuildInfo tgi; //info to be displayed
 	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);
@@ -6048,9 +6053,10 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
 
-	static std::vector< std::list< ui8 > > SThievesGuildInfo::* fields[] = { &SThievesGuildInfo::numOfTowns, &SThievesGuildInfo::numOfHeroes, &SThievesGuildInfo::gold,
-		&SThievesGuildInfo::woodOre, &SThievesGuildInfo::mercSulfCrystGems, &SThievesGuildInfo::obelisks, &SThievesGuildInfo::artifacts, &SThievesGuildInfo::army,
-		&SThievesGuildInfo::income};
+	static std::vector< std::list< ui8 > > SThievesGuildInfo::* fields[] = 
+		{ &SThievesGuildInfo::numOfTowns, &SThievesGuildInfo::numOfHeroes, &SThievesGuildInfo::gold,
+		  &SThievesGuildInfo::woodOre, &SThievesGuildInfo::mercSulfCrystGems, &SThievesGuildInfo::obelisks, 
+		  &SThievesGuildInfo::artifacts, &SThievesGuildInfo::army, &SThievesGuildInfo::income };
 
 	//printing texts & descriptions to background
 

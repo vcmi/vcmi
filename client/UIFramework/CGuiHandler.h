@@ -96,6 +96,7 @@ public:
 	static SDLKey numToDigit(SDLKey key);//converts numpad digit key to normal digit key
 	static bool isNumKey(SDLKey key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
 	static bool isArrowKey(SDLKey key); 
+	static bool amIGuiThread();
 };
 
 extern CGuiHandler GH; //global gui handler

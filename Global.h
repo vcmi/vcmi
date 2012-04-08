@@ -65,6 +65,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/program_options.hpp>
+#include <boost/range/algorithm.hpp>
 #include <boost/thread.hpp>
 #include <boost/unordered_set.hpp>
 
@@ -313,9 +314,14 @@ namespace vstd
 		return std::unique_ptr<T>(new T());
 	}
 	template<typename T, typename Arg1>
-	std::unique_ptr<T> make_unique(Arg1&& arg1)
+	std::unique_ptr<T> make_unique(Arg1 &&arg1)
 	{
 		return std::unique_ptr<T>(new T(std::forward<Arg1>(arg1)));
+	}
+	template<typename T, typename Arg1, typename Arg2>
+	std::unique_ptr<T> make_unique(Arg1 &&arg1, Arg2 &&arg2)
+	{
+		return std::unique_ptr<T>(new T(std::forward<Arg1>(arg1), std::forward<Arg2>(arg2)));
 	}
 }
 
@@ -325,6 +331,8 @@ using std::make_shared;
 using vstd::make_unique;
 
 using vstd::operator-=;
+
+namespace range = boost::range;
 
 // can be used for counting arrays
 template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];

@@ -845,13 +845,12 @@ class DLL_LINKAGE CSaveFile
 	}
 public:
 	std::string fName;
-	std::ofstream *sfile;
+	unique_ptr<std::ofstream> sfile;
 
 	CSaveFile(const std::string &fname);
 	~CSaveFile();
 	int write(const void * data, unsigned size);
 
-	void close();
 	void openNextFile(const std::string &fname);
 	void reportState(CLogger &out);
 };
@@ -866,13 +865,12 @@ class DLL_LINKAGE CLoadFile
 	}
 public:
 	std::string fName;
-	std::ifstream *sfile;
+	unique_ptr<std::ifstream> sfile;
 
 	CLoadFile(const std::string &fname, int minimalVersion = version);
 	~CLoadFile();
 	int read(const void * data, unsigned size);
 
-	void close();
 	void openNextFile(const std::string &fname, int minimalVersion);
 	void reportState(CLogger &out);
 };
@@ -898,7 +896,6 @@ public:
 	std::string name; //who uses this connection
 
 	int connectionID;
-	CConnection *c;
 	boost::thread *handler;
 
 	bool receivedStop, sendStop;

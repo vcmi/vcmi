@@ -234,14 +234,18 @@ void LibClasses::makeNull()
 LibClasses::LibClasses()
 {
 	//load .lod archives
-	CStopWatch pomtime;
-	spriteh = new CLodHandler();
-	spriteh->init(GameConstants::DATA_DIR + "/Data/H3sprite.lod", GameConstants::DATA_DIR + "/Sprites");
-	bitmaph = new CLodHandler;
-	bitmaph->init(GameConstants::DATA_DIR + "/Data/H3bitmap.lod", GameConstants::DATA_DIR + "/Data");
-	bitmaph_ab = new CLodHandler();
-	bitmaph_ab->init(GameConstants::DATA_DIR + "/Data/H3ab_bmp.lod", GameConstants::DATA_DIR + "/Data");
-	tlog0<<"Loading .lod files: "<<pomtime.getDiff()<<std::endl;
+
+	if(!spriteh) //don't reload lods if we are starting a secoond game
+	{
+		CStopWatch pomtime;
+		spriteh = new CLodHandler();
+		spriteh->init(GameConstants::DATA_DIR + "/Data/H3sprite.lod", GameConstants::DATA_DIR + "/Sprites");
+		bitmaph = new CLodHandler;
+		bitmaph->init(GameConstants::DATA_DIR + "/Data/H3bitmap.lod", GameConstants::DATA_DIR + "/Data");
+		bitmaph_ab = new CLodHandler();
+		bitmaph_ab->init(GameConstants::DATA_DIR + "/Data/H3ab_bmp.lod", GameConstants::DATA_DIR + "/Data");
+		tlog0<<"Loading .lod files: "<<pomtime.getDiff()<<std::endl;
+	}
 
 	//init pointers to handlers
 	makeNull();
@@ -252,4 +256,9 @@ void LibClasses::callWhenDeserializing()
 	generaltexth = new CGeneralTextHandler;
 	generaltexth->load();
 	arth->loadArtifacts(true);
+}
+
+LibClasses::~LibClasses()
+{
+	clear();
 }

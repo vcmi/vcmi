@@ -37,6 +37,7 @@ public:
 	CGeneralTextHandler * generaltexth;
 
 	LibClasses(); //c-tor, loads .lods and NULLs handlers
+	~LibClasses();
 	void init(); //uses standard config file
 	void clear(); //deletes all handlers and its data
 	void makeNull(); //sets all handler (except of lodhs) pointers to null

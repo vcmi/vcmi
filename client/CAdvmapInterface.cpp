@@ -1453,6 +1453,19 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 
 	switch(k)
 	{
+	case SDLK_g:
+		if(key.state != SDL_PRESSED || GH.topInt()->type & BLOCK_ADV_HOTKEYS)
+			return;
+
+		{
+			//find first town with tavern
+			auto itr = range::find_if(LOCPLINT->towns, boost::bind(&CGTownInstance::hasBuilt, _1, EBuilding::TAVERN));
+			if(itr != LOCPLINT->towns.end())
+				LOCPLINT->showThievesGuildWindow(*itr);
+			else
+				LOCPLINT->showInfoDialog("No available town with tavern!");
+		}
+		return;
 	case SDLK_i:
 		if(isActive())
 			CAdventureOptions::showScenarioInfo();
@@ -1503,23 +1516,31 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	case SDLK_t:
 		{
 			//act on key down if marketplace windows is not already opened
-			if(key.state != SDL_PRESSED  || GH.topInt()->type & BLOCK_ADV_HOTKEYS) return;
+			if(key.state != SDL_PRESSED || GH.topInt()->type & BLOCK_ADV_HOTKEYS)
+				return;
 
-			//check if we have any marketplace
-			const CGTownInstance *townWithMarket = NULL;
-			BOOST_FOREACH(const CGTownInstance *t, LOCPLINT->cb->getTownsInfo())
+			if(LOCPLINT->ctrlPressed()) //CTRL + T => open marketplace
 			{
-				if(vstd::contains(t->builtBuildings, 14))
+				//check if we have any marketplace
+				const CGTownInstance *townWithMarket = NULL;
+				BOOST_FOREACH(const CGTownInstance *t, LOCPLINT->cb->getTownsInfo())
 				{
-					townWithMarket = t;
-					break;
+					if(vstd::contains(t->builtBuildings, 14))
+					{
+						townWithMarket = t;
+						break;
+					}
 				}
-			}
 
-			if(townWithMarket) //if any town has marketplace, open window
-				GH.pushInt(new CMarketplaceWindow(townWithMarket));
-			else //if not - complain
-				LOCPLINT->showInfoDialog("No available marketplace!", std::vector<CComponent*>(), soundBase::sound_todo);
+				if(townWithMarket) //if any town has marketplace, open window
+					GH.pushInt(new CMarketplaceWindow(townWithMarket));
+				else //if not - complain
+					LOCPLINT->showInfoDialog("No available marketplace!");
+			}
+			else if(isActive()) //no ctrl, advmapint is on the top => switch to town
+			{
+				townList.selectNext();
+			}
 			return;
 		}
 	default:
@@ -2123,6 +2144,7 @@ void CAdvMapInt::adjustActiveness(bool aiTurnStart)
 	if(wasActive) 
 		activate();
 }
+
 CAdventureOptions::CAdventureOptions()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;

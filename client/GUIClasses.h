@@ -322,6 +322,7 @@ public:
 	~CTownList(); //d-tor
 	void genList();
 	void select(int which); //call-in
+	void selectNext(); //switches to the next town or the first one if none is selected
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);  //call-in
 	void clickLeft(tribool down, bool previousState);  //call-in
 	void clickRight(tribool down, bool previousState); //call-in

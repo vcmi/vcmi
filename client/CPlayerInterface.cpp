@@ -1415,6 +1415,12 @@ void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const C
 
 void CPlayerInterface::waitWhileDialog(bool unlockPim /*= true*/)
 {
+	if(GH.amIGuiThread())
+	{
+		tlog3 << "Cannot wait for dialogs in gui thread (deadlock risk)!\n";
+		return;
+	}
+
 	auto unlock = vstd::makeUnlockGuardIf(*pim, unlockPim);
 	boost::unique_lock<boost::mutex> un(showingDialog->mx);
 	while(showingDialog->data)
