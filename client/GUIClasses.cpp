@@ -751,7 +751,7 @@ void CComponent::init(Etype Type, int Subtype, int Val)
 	if(!img)
 	{
 		free = false;
-		if(type == Component::BUILDING)
+		if(type == CComponent::building)
 			setSurface(graphics->buildingPics[subtype],val);
 	}
 	SDL_Surface * temp = this->getImg();

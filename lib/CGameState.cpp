@@ -84,6 +84,7 @@ static CApplier<CBaseForGSApply> *applierGs = NULL;
 class IObjectCaller
 {
 public:
+	virtual ~IObjectCaller(){};
 	virtual void preInit()=0;
 	virtual void postInit()=0;
 };

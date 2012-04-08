@@ -407,7 +407,7 @@ public:
 	bool isVisible(const CGObjectInstance *obj, int player);
 
 	CGameState(); //c-tor
-	~CGameState(); //d-tor
+	virtual ~CGameState(); //d-tor
 	void getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing);
 	int getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, int remainingMovePoints=-1, bool checkLast=true);
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month

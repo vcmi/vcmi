@@ -56,8 +56,8 @@ class CBattleObstacle
 struct StackAttackedInfo
 {
 	const CStack * defender; //attacked stack
-	int dmg; //damage dealt
-	int amountKilled; //how many creatures in stack has been killed
+	unsigned int dmg; //damage dealt
+	unsigned int amountKilled; //how many creatures in stack has been killed
 	const CStack * attacker; //attacking stack
 	bool byShooting; //if true, stack has been attacked by shooting
 	bool killed; //if true, stack has been killed

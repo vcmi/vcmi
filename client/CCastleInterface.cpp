@@ -513,8 +513,8 @@ void CCastleBuildings::checkRules()
 	
 	static const AnimRule animRule[2] = 
 	{
-		{5, 21, 4, 10, -1, 0,  10}, //Mana Vortex, Dungeon
-		{0,  6, 8,  1, -1, 0,  1}   //Shipyard, Castle
+		{5, 21, 4, 10, size_t(-1), 0,  10}, //Mana Vortex, Dungeon
+		{0,  6, 8,  1, size_t(-1), 0,  1}   //Shipyard, Castle
 	};
 	
 	for (size_t i=0; i<2; i++)

@@ -2018,7 +2018,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	if(creAnims.find(ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
 		return;
 	const CCreature *creature = stack->getCreature();
-	SDL_Rect unitRect = {creAnims[ID]->pos.x, creAnims[ID]->pos.y, int16_t(creAnims[ID]->fullWidth), int16_t(creAnims[ID]->fullHeight)};
+	SDL_Rect unitRect = {creAnims[ID]->pos.x, creAnims[ID]->pos.y, uint16_t(creAnims[ID]->fullWidth), uint16_t(creAnims[ID]->fullHeight)};
 
 	int animType = creAnims[ID]->getType();
 
@@ -2672,10 +2672,10 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 		else
 		{
 			//needed for genie, otherwise covered by battleCan*CastThisSpell
-			if(!shere
-				|| !shere->alive()
-				|| spellSelMode == HOSTILE_CREATURE && shere->owner == sactive->owner
-				|| spellSelMode == FRIENDLY_CREATURE && shere->owner != sactive->owner)
+			if( !shere
+			 || !shere->alive()
+			 || (spellSelMode == HOSTILE_CREATURE && shere->owner == sactive->owner)
+			 || (spellSelMode == FRIENDLY_CREATURE && shere->owner != sactive->owner))
 			{
 				isCastingPossible = false;
 			}
@@ -3033,6 +3033,7 @@ BattleHex CBattleInterface::fromWhichHexAttack(BattleHex myNumber)
 			break;
 		}
 	}
+	return -1;
 }
 std::string CBattleInterface::SiegeHelper::townTypeInfixes[GameConstants::F_NUMBER] = {"CS", "RM", "TW", "IN", "NC", "DN", "ST", "FR", "EL"};
 

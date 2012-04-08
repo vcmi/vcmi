@@ -101,6 +101,8 @@ public:
 
 	//TODO: replace with something better
 	virtual bool prepareMessage(std::string &text, CComponent **comp)=0;
+
+	virtual ~IInfoBoxData(){};
 };
 
 class InfoBoxAbstractHeroData : public IInfoBoxData

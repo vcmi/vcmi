@@ -47,7 +47,7 @@ namespace vstd
 		explicit unlock_guard(Mutex& m_):
 		m(&m_)
 		{
-			unlock(*m);
+			this->unlock(*m);
 		}
 
 		unlock_guard()
@@ -69,7 +69,7 @@ namespace vstd
 		~unlock_guard()
 		{
 			if(m)
-				lock(*m);
+				this->lock(*m);
 		}
 	};
 

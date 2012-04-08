@@ -316,7 +316,7 @@ class CBasicPointerSaver
 {
 public:
 	virtual void savePtr(CSaverBase &ar, const void *data) const =0;
-	~CBasicPointerSaver(){}
+	virtual ~CBasicPointerSaver(){}
 };
 
 template <typename Serializer, typename T> class CPointerSaver : public CBasicPointerSaver
@@ -910,7 +910,7 @@ public:
 	bool isOpen() const;
     template<class T>
     CConnection &operator&(const T&);
-	~CConnection(void);
+	virtual ~CConnection(void);
 
 	CPack *retreivePack(); //gets from server next pack (allocates it with new)
 	void sendPackToServer(const CPack &pack, ui8 player, ui32 requestID);

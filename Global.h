@@ -141,7 +141,7 @@ class bmap : public std::map<KeyT, ValT>
 public:
 	const ValT & operator[](KeyT key) const
 	{
-		return find(key)->second;
+		return this->find(key)->second;
 	}
 	ValT & operator[](KeyT key)
 	{

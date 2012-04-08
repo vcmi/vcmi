@@ -28,6 +28,7 @@ public:
 	virtual bool init()=0; //to be called - if returned false, call again until returns true
 	virtual void nextFrame()=0; //call every new frame
 	virtual void endAnim(); //to be called mostly internally; in this class it removes animation from pendingAnims list
+	virtual ~CBattleAnimation(){};
 
 	bool isEarliest(bool perStackConcurrency); //determines if this animation is earliest of all
 
@@ -83,6 +84,7 @@ public:
 	void endAnim();
 
 	CDefenceAnimation(StackAttackedInfo _attackedInfo, CBattleInterface * _owner);
+	virtual ~CDefenceAnimation(){};
 };
 
 class CDummyAnimation : public CBattleAnimation
@@ -96,6 +98,7 @@ public:
 	void endAnim();
 
 	CDummyAnimation(CBattleInterface * _owner, int howManyFrames);
+	virtual ~CDummyAnimation(){}
 };
 
 /// Hand-to-hand attack
@@ -107,6 +110,7 @@ public:
 	void endAnim();
 
 	CMeleeAttackAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked);
+	virtual ~CMeleeAttackAnimation(){};
 };
 
 /// Move animation of a creature
@@ -127,6 +131,7 @@ public:
 	void endAnim();
 
 	CMovementAnimation(CBattleInterface *_owner, const CStack *_stack, std::vector<BattleHex> _destTiles, int _distance);
+	virtual ~CMovementAnimation(){};
 };
 
 /// Move end animation of a creature
@@ -140,6 +145,7 @@ public:
 	void endAnim();
 
 	CMovementEndAnimation(CBattleInterface * _owner, const CStack * _stack, BattleHex destTile);
+	virtual ~CMovementEndAnimation(){};
 };
 
 /// Move start animation of a creature
@@ -151,6 +157,7 @@ public:
 	void endAnim();
 
 	CMovementStartAnimation(CBattleInterface * _owner, const CStack * _stack);
+	virtual ~CMovementStartAnimation(){};
 };
 
 /// Class responsible for animation of stack chaning direction (left <-> right)
@@ -169,6 +176,7 @@ public:
 	void endAnim();
 
 	CReverseAnimation(CBattleInterface * _owner, const CStack * stack, BattleHex dest, bool _priority);
+	virtual ~CReverseAnimation(){};
 };
 
 /// Small struct which contains information about the position and the velocity of a projectile
@@ -200,6 +208,7 @@ public:
 	//last two params only for catapult attacks
 	CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, 
 		const CStack * _attacked, bool _catapult = false, int _catapultDmg = 0); 
+	virtual ~CShootingAnimation(){};
 };
 
 /// This class manages a spell effect animation
@@ -218,4 +227,5 @@ public:
 
 	CSpellEffectAnimation(CBattleInterface * _owner, ui32 _effect, BattleHex _destTile, int _dx = 0, int _dy = 0, bool _Vflip = false);
 	CSpellEffectAnimation(CBattleInterface * _owner, std::string _customAnim, int _x, int _y, int _dx = 0, int _dy = 0, bool _Vflip = false);
+	virtual ~CSpellEffectAnimation(){};
 };

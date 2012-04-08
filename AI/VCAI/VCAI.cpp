@@ -824,7 +824,7 @@ void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *do
 	status.addQuery();
 
 	//you can't request action from action-response thread
-	requestActionASAP([=,this]()
+	requestActionASAP([=]()
 	{
 		pickBestCreatures (down, up);
 		onEnd();
@@ -2837,4 +2837,4 @@ void SectorMap::makeParentBFS(crint3 source)
 unsigned char & SectorMap::retreiveTile(crint3 pos)
 {
 	return retreiveTileN(sector, pos);
-}
+}

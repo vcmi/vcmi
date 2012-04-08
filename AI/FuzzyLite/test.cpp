@@ -16,6 +16,10 @@
 #include "FuzzyLite.h"
 #include <limits>
 
+#ifndef _MSC_VER
+#include <unistd.h>
+#endif
+
 #include "FunctionTerm.h"
 namespace fl {
 
