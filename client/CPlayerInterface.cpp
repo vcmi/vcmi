@@ -2265,12 +2265,12 @@ void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 
 void CPlayerInterface::requestReturningToMainMenu()
 {
-	sendCustomEvent(2);
+	sendCustomEvent(RETURN_TO_MAIN_MENU);
 }
 
 void CPlayerInterface::requestStoppingClient()
 {
-	sendCustomEvent(3);
+	sendCustomEvent(STOP_CLIENT);
 }
 
 void CPlayerInterface::sendCustomEvent( int code )

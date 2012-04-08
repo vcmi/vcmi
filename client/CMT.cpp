@@ -697,10 +697,9 @@ static void listenForEvents()
 		}
 		else if(ev->type == SDL_USEREVENT)
 		{
-			enum {CHANGE_SCREEN_RESOLUTION, RETURN_TO_MAIN_MENU, END_GAME_AND_DIE};
 			switch(ev->user.code)
 			{
-			case 1:
+			case CHANGE_SCREEN_RESOLUTION:
 			{
 				tlog0 << "Changing resolution has been requested\n";
 				const JsonNode& video = settings["video"];
@@ -708,7 +707,7 @@ static void listenForEvents()
 				setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
 				break;
 			}
-			case 2:
+			case RETURN_TO_MAIN_MENU:
 				client->endGame();
 				delete client;
 				client = NULL;
@@ -721,12 +720,12 @@ static void listenForEvents()
 				GH.curInt = CGP;
 				GH.defActionsDef = 63;
 				break;
+			case STOP_CLIENT:
+				client->endGame(false);
+				break;
 			default:
 				tlog1 << "Error: unknown user event. Code " << ev->user.code << std::endl;
 				assert(0);
-// 			case 3:
-// 				client->endGame(false);
-// 				break;
 			}
 
 			delete ev;
@@ -795,6 +794,6 @@ void requestChangingResolution()
 	//push special event to order event reading thread to change resolution
 	SDL_Event ev;
 	ev.type = SDL_USEREVENT;
-	ev.user.code = 1;
+	ev.user.code = CHANGE_SCREEN_RESOLUTION;
 	SDL_PushEvent(&ev);
 }

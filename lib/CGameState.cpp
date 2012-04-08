@@ -808,7 +808,11 @@ CGameState::~CGameState()
 
 BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town)
 {
-	int terrain = map->getTile(tile).tertype;
+	const TerrainTile &t = map->getTile(tile);
+	int terrain = t.tertype;
+	if(t.isCoastal() && !t.isWater()) 
+		terrain = TerrainTile::sand;
+
 	int terType = battleGetBattlefieldType(tile);
 	return BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
 }
@@ -1622,6 +1626,9 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 			return 15;
 		}
 	}
+
+	if(!t.isWater() && t.isCoastal())
+		return 1; //sand/beach
 
 	switch(t.tertype)
 	{
