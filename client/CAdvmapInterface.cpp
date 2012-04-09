@@ -1177,7 +1177,7 @@ void CAdvMapInt::fendTurn()
 		for (int i = 0; i < LOCPLINT->wanderingHeroes.size(); i++)
 			if (!isHeroSleeping(LOCPLINT->wanderingHeroes[i]) && (LOCPLINT->wanderingHeroes[i]->movement > 0))
 			{
-				LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], std::vector<CComponent*>(), boost::bind(&CAdvMapInt::endingTurn, this), 0, false);
+				LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], boost::bind(&CAdvMapInt::endingTurn, this), 0, false);
 				return;
 			}
 	}
@@ -1470,6 +1470,10 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		if(isActive())
 			CAdventureOptions::showScenarioInfo();
 		return;
+	case SDLK_l:
+		if(isActive())
+			LOCPLINT->proposeLoadingGame();
+		return;
 	case SDLK_s:
 		if(isActive())
 			GH.pushInt(new CSavingScreen(CPlayerInterface::howManyPeople > 1));
@@ -1487,7 +1491,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	case SDLK_r:
 		if(isActive() && LOCPLINT->ctrlPressed())
 		{
-			LOCPLINT->showYesNoDialog("Are you sure you want to restart game?", std::vector<CComponent*>(), 
+			LOCPLINT->showYesNoDialog("Are you sure you want to restart game?",
 				[]{ LOCPLINT->sendCustomEvent(RESTART_GAME); },
 				[]{}, true);
 		}

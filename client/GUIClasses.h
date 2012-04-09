@@ -679,10 +679,11 @@ private:
 	void setMapScrollingSpeed( int newSpeed );
 
 	//functions bound to buttons
+	void bloadf(); //load game
 	void bsavef(); //save game
 	void bquitf(); //quit game
 	void breturnf(); //return to game
-	void brestartf(); //return to game
+	void brestartf(); //restart game
 	void bmainmenuf(); //return to main menu
 
 	//functions for checkboxes

@@ -799,7 +799,7 @@ void CSelectionScreen::startGame()
 		{
 			std::string hlp = CGI->generaltexth->allTexts[493]; //%s exists. Overwrite?
 			boost::algorithm::replace_first(hlp, "%s", sel->txt->text);
-			LOCPLINT->showYesNoDialog(hlp, std::vector<CComponent*>(), overWrite, 0, false);
+			LOCPLINT->showYesNoDialog(hlp, overWrite, 0, false);
 		}
 		else
 			overWrite();
@@ -1368,7 +1368,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 		}
 
 		//print name
-		CSDL_Ext::printAtMiddle(name, POS(213, 128), FONT_SMALL, itemColor, to);
+		CSDL_Ext::printAtMiddle(CSDL_Ext::trimToFit(name, 185, FONT_SMALL), POS(213, 128), FONT_SMALL, itemColor, to);
 
 	}
 #undef POS
@@ -1734,7 +1734,7 @@ void InfoCard::showAll(SDL_Surface * to)
 
 		//name
 		if (name.length())
-			printAtLoc(name, 26, 39, FONT_BIG, Colors::Jasmine, to);
+			printAtLoc(CSDL_Ext::trimToFit(name, 300, FONT_BIG), 26, 39, FONT_BIG, Colors::Jasmine, to);
 		else
 			printAtLoc("Unnamed", 26, 39, FONT_BIG, Colors::Jasmine, to);
 	}

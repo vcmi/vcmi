@@ -1299,6 +1299,23 @@ void CSDL_Ext::fillRect( SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color )
 	SDL_FillRect(dst, &newRect, color);
 }
 
+std::string CSDL_Ext::trimToFit(std::string text, int widthLimit, EFonts font)
+{
+	int widthSoFar = 0;
+	for(auto i = text.begin(); i != text.end(); i++)
+	{
+		widthSoFar += graphics->fonts[font]->getCharWidth(*i);
+		if(widthSoFar > widthLimit)
+		{
+			//remove all characteres past limit
+			text.erase(i, text.end());
+			break;
+		}
+	}
+
+	return text;
+}
+
 SDL_Surface * CSDL_Ext::std32bppSurface = NULL;
 
 //instantiation of templates used in CAnimation and CCreatureAnimation, required for correct linking

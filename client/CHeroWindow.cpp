@@ -286,7 +286,7 @@ void CHeroWindow::dismissCurrent()
 {
 	CFunctionList<void()> ony = boost::bind(&CHeroWindow::quit,this);
 	ony += boost::bind(&CCallback::dismissHero,LOCPLINT->cb,curHero);
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22],std::vector<CComponent*>(), ony, 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, 0, false);
 }
 
 void CHeroWindow::questlog()

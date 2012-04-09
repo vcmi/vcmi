@@ -870,7 +870,7 @@ void CCastleBuildings::enterMagesGuild()
 			functionList += boost::bind(&CCastleBuildings::openMagesGuild,this);
 			std::vector<CComponent*> components(1, new CComponent(CComponent::artifact,0,0));
 
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], components, functionList, 0, true);
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], functionList, 0, true, components);
 		}
 	}
 	else
@@ -887,7 +887,6 @@ void CCastleBuildings::enterTownHall()
 		if(!vstd::contains(town->forbiddenBuildings, EBuilding::GRAIL))
 		{
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
-			                            std::vector<CComponent*>(),
 			                            boost::bind(&CCallback::buildBuilding, LOCPLINT->cb, town, EBuilding::GRAIL),
 			                            boost::bind(&CCastleBuildings::openTownHall, this), true);
 		}

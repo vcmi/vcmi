@@ -186,4 +186,6 @@ namespace CSDL_Ext
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 	void VflipSurf(SDL_Surface * surf); //fluipis given surface by vertical axis
 	void applyEffect(SDL_Surface * surf, const SDL_Rect * rect, int mode); //mode: 0 - sepia, 1 - grayscale
+
+	std::string trimToFit(std::string text, int widthLimit, EFonts font);
 };

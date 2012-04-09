@@ -3677,7 +3677,10 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &Pos, CPlayerInterface
 	rightGroup->add(282, 217, fsLabel); //CGI->generaltexth->allTexts[577]
 
 	//setting up buttons
-	// load = new CAdventureMapButton (CGI->generaltexth->zelp[321].first, CGI->generaltexth->zelp[321].second, boost::bind(&CSystemOptionsWindow::loadf, this), pos.x+246, pos.y+298, "SOLOAD.DEF", SDLK_l);
+	load = new CAdventureMapButton (CGI->generaltexth->zelp[321].first, CGI->generaltexth->zelp[321].second,
+									boost::bind(&CSystemOptionsWindow::bloadf, this), 246,  298, "SOLOAD.DEF", SDLK_l);
+	load->swappedImages = true;
+	load->update();
 
 	save = new CAdventureMapButton (CGI->generaltexth->zelp[322].first, CGI->generaltexth->zelp[322].second,
 	                                boost::bind(&CSystemOptionsWindow::bsavef, this), 357, 298, "SOSAVE.DEF", SDLK_s);
@@ -3814,7 +3817,7 @@ void CSystemOptionsWindow::toggleFullscreen(bool on)
 
 void CSystemOptionsWindow::bquitf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<CComponent*>(), boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_QUIT, 0), 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_QUIT, 0), 0, false);
 }
 
 void CSystemOptionsWindow::breturnf()
@@ -3824,7 +3827,13 @@ void CSystemOptionsWindow::breturnf()
 
 void CSystemOptionsWindow::bmainmenuf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<CComponent*>(), boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_USEREVENT, RETURN_TO_MAIN_MENU), 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_USEREVENT, RETURN_TO_MAIN_MENU), 0, false);
+}
+
+void CSystemOptionsWindow::bloadf()
+{
+	GH.popIntTotally(this);
+	LOCPLINT->proposeLoadingGame();
 }
 
 void CSystemOptionsWindow::bsavef()
@@ -3835,7 +3844,7 @@ void CSystemOptionsWindow::bsavef()
 
 void CSystemOptionsWindow::brestartf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<CComponent*>(), boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_USEREVENT, RESTART_GAME), 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_USEREVENT, RESTART_GAME), 0, false);
 }
 
 CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj)

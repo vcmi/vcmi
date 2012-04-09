@@ -71,7 +71,8 @@ namespace boost
 	class recursive_mutex;
 };
 
-enum {CHANGE_SCREEN_RESOLUTION = 1, RETURN_TO_MAIN_MENU = 2, STOP_CLIENT = 3, RESTART_GAME};
+enum {CHANGE_SCREEN_RESOLUTION = 1, RETURN_TO_MAIN_MENU = 2, STOP_CLIENT = 3, RESTART_GAME,
+	RETURN_TO_MENU_LOAD};
 
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable
@@ -215,7 +216,7 @@ public:
 	void init(CCallback * CB);
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 	void showInfoDialog(const std::string &text, const std::vector<CComponent*> & components = std::vector<CComponent*>(), int soundID = 0, bool delComps = false);
-	void showYesNoDialog(const std::string &text, const std::vector<CComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
+	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps = false, const std::vector<CComponent*> & components = std::vector<CComponent*>()); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
 	void stopMovement();
 	bool moveHero(const CGHeroInstance *h, CGPath path);
 	void initMovement(const TryMoveHero &details, const CGHeroInstance * ho, const int3 &hp );//initializing objects and performing first step of move
@@ -230,6 +231,7 @@ public:
 	void requestReturningToMainMenu();
 	void requestStoppingClient();
 	void sendCustomEvent(int code);
+	void proposeLoadingGame();
 
 	CPlayerInterface(int Player);//c-tor
 	~CPlayerInterface();//d-tor

@@ -1122,7 +1122,7 @@ void CBattleInterface::bSurrenderf()
 		const CGHeroInstance *opponent = curInt->cb->battleGetFightingHero(1);
 		std::string enemyHeroName = opponent ? opponent->name : "#ENEMY#"; //TODO: should surrendering without enemy hero be enabled?
 		std::string surrenderMessage = boost::str(boost::format(CGI->generaltexth->allTexts[32]) % enemyHeroName % cost); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
-		curInt->showYesNoDialog(surrenderMessage, std::vector<CComponent*>(), boost::bind(&CBattleInterface::reallySurrender,this), 0, false);
+		curInt->showYesNoDialog(surrenderMessage, boost::bind(&CBattleInterface::reallySurrender,this), 0, false);
 	}
 }
 
@@ -1134,7 +1134,7 @@ void CBattleInterface::bFleef()
 	if( curInt->cb->battleCanFlee() )
 	{
 		CFunctionList<void()> ony = boost::bind(&CBattleInterface::reallyFlee,this);
-		curInt->showYesNoDialog(CGI->generaltexth->allTexts[28],std::vector<CComponent*>(), ony, 0, false); //Are you sure you want to retreat?
+		curInt->showYesNoDialog(CGI->generaltexth->allTexts[28], ony, 0, false); //Are you sure you want to retreat?
 	}
 	else
 	{

@@ -95,7 +95,7 @@ CCreatureWindow::CCreatureWindow(const CStackInstance &st, int Type, boost::func
 				fs += Upg;
 				fs += boost::bind(&CCreatureWindow::close,this);
 				CFunctionList<void()> cfl;
-				cfl = boost::bind(&CPlayerInterface::showYesNoDialog, LOCPLINT, CGI->generaltexth->allTexts[207], boost::ref(upgResCost), fs, 0, false);
+				cfl = boost::bind(&CPlayerInterface::showYesNoDialog, LOCPLINT, CGI->generaltexth->allTexts[207], fs, 0, false, boost::ref(upgResCost));
 				upgrade = new CAdventureMapButton("",CGI->generaltexth->zelp[446].second,cfl,385, 148,"IVIEWCR.DEF",SDLK_u);
 			}
 			else
@@ -113,7 +113,7 @@ CCreatureWindow::CCreatureWindow(const CStackInstance &st, int Type, boost::func
 			fs[0] += Dsm; //dismiss
 			fs[0] += boost::bind(&CCreatureWindow::close,this);//close this window
 			CFunctionList<void()> cfl;
-			cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],std::vector<CComponent*>(),fs[0],fs[1],false);
+			cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
 			dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second,cfl,333, 148,"IVIEWCR2.DEF",SDLK_d);
 		}
 	}
@@ -506,8 +506,8 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &stack, bool LClicked, boost
 			boost::function<void()> dialog = boost::bind(&CPlayerInterface::showYesNoDialog,
 				LOCPLINT,
 				CGI->generaltexth->allTexts[207],
-				boost::ref(upgResCost),
-				onUpgrade, 0, false);
+				onUpgrade, 0, false,
+				boost::ref(upgResCost));
 
 			upgrade = new CAdventureMapButton("", CGI->generaltexth->zelp[446].second, dialog, 76, 237, "IVIEWCR", SDLK_u);
 			upgrade->block(!LOCPLINT->cb->getResourceAmount().canAfford(upgradeCost));
@@ -522,8 +522,7 @@ CCreInfoWindow::CCreInfoWindow(const CStackInstance &stack, bool LClicked, boost
 			boost::function<void()> dialog = boost::bind(&CPlayerInterface::showYesNoDialog,
 				LOCPLINT,
 				CGI->generaltexth->allTexts[12],
-				std::vector<CComponent*>(),
-				onDismiss, 0, true);
+				onDismiss, 0, true, std::vector<CComponent*>());
 
 			dismiss = new CAdventureMapButton("", CGI->generaltexth->zelp[445].second, dialog, 21, 237, "IVIEWCR2",SDLK_d);
 		}

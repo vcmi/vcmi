@@ -697,6 +697,16 @@ static void listenForEvents()
 		}
 		else if(ev->type == SDL_USEREVENT)
 		{
+			auto endGame = []
+			{
+				client->endGame();
+				vstd::clear_pointer(client);
+
+				delete CGI->dobjinfo.get();
+				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler;
+				const_cast<CGameInfo*>(CGI)->dobjinfo->load();
+			};
+
 			switch(ev->user.code)
 			{
 			case CHANGE_SCREEN_RESOLUTION:
@@ -708,13 +718,7 @@ static void listenForEvents()
 				break;
 			}
 			case RETURN_TO_MAIN_MENU:
-				client->endGame();
-				vstd::clear_pointer(client);
-
-				delete CGI->dobjinfo.get();
-				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler;
-				const_cast<CGameInfo*>(CGI)->dobjinfo->load();
-
+				endGame();
 				CGPreGame::createIfNotPresent();
 				GH.curInt = CGP;
 				GH.defActionsDef = 63;
@@ -725,15 +729,17 @@ static void listenForEvents()
 			case RESTART_GAME:
 				{
 					StartInfo si = *client->getStartInfo();
-					client->endGame();
-					vstd::clear_pointer(client);
-
-					delete CGI->dobjinfo.get();
-					const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler;
-					const_cast<CGameInfo*>(CGI)->dobjinfo->load();
-
+					endGame();
 					startGame(&si);
 				}
+				break;
+			case RETURN_TO_MENU_LOAD:
+				endGame();
+				CGPreGame::createIfNotPresent();
+				GH.defActionsDef = 63;
+				CGP->update();
+				CGP->menu->switchToTab(vstd::find_pos(CGP->menu->menuNameToEntry, "load"));
+				GH.curInt = CGP;
 				break;
 			default:
 				tlog1 << "Error: unknown user event. Code " << ev->user.code << std::endl;

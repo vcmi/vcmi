@@ -953,7 +953,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	}
 }
 
-void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vector<CComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps)
+void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps, const std::vector<CComponent*> & components)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
@@ -976,7 +976,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 		for(int i=0;i<components.size();i++)
 			intComps.push_back(new CComponent(components[i])); //will be deleted by close in window
 
-		showYesNoDialog(text,intComps,boost::bind(&CCallback::selectionMade,cb,1,askID),boost::bind(&CCallback::selectionMade,cb,0,askID),true);
+		showYesNoDialog(text, boost::bind(&CCallback::selectionMade,cb,1,askID),boost::bind(&CCallback::selectionMade,cb,0,askID),true, intComps);
 	}
 	else if(selection)
 	{
@@ -1315,7 +1315,7 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 		text += CGI->generaltexth->allTexts[733];
 	}
 
-	showYesNoDialog(text, scs, onYes, onNo, true);
+	showYesNoDialog(text, onYes, onNo, true, scs);
 }
 
 void CPlayerInterface::requestRealized( PackageApplied *pa )
@@ -2405,6 +2405,11 @@ void CPlayerInterface::waitForAllDialogs(bool unlockPim /*= true*/)
 		SDL_Delay(5);
 	}
 	waitWhileDialog(unlockPim);
+}
+
+void CPlayerInterface::proposeLoadingGame()
+{
+	showYesNoDialog(CGI->generaltexth->allTexts[68], [this] { sendCustomEvent(RETURN_TO_MENU_LOAD); }, 0, false);
 }
 
 CPlayerInterface::SpellbookLastSetting::SpellbookLastSetting()

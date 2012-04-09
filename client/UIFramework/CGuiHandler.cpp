@@ -346,8 +346,7 @@ void CGuiHandler::fakeMouseMove()
 void CGuiHandler::run()
 {
 	setThreadName(-1, "CGuiHandler::run");
-	bool iAmGui = true;
-	inGuiThread.reset(&iAmGui);
+	inGuiThread.reset(new bool(true));
 	try
 	{
 		if (settings["video"]["fullscreen"].Bool())
