@@ -799,7 +799,20 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 
 	for(int stackNo=0; stackNo < howManyStacks; stackNo++)
 	{
-		int creID = (VLC->creh->nameToID[type->refTypeStack[stackNo]]);
+		int creID = 0;
+		auto creItr = VLC->creh->nameToID.find(type->refTypeStack[stackNo]);
+		if(creItr == VLC->creh->nameToID.end())
+		{
+			tlog1 << "Cannot find a creature named " << type->refTypeStack[stackNo] << std::endl;
+			tlog1 << "Available creatures: \n";
+			BOOST_FOREACH(auto i, VLC->creh->nameToID)
+			{
+				tlog1 << boost::format("\t%s => %d\n") % i.first % i.second;
+			}
+		}
+		else
+			creID = creItr->second;
+
 		int range = type->highStack[stackNo] - type->lowStack[stackNo];
 		int count = ran()%(range+1) + type->lowStack[stackNo];
 
