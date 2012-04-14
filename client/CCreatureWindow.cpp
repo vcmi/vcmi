@@ -265,7 +265,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 				if (heroOwner)
 					passArtToHero = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, 0), 437, 148, "OVBUTN1.DEF", SDLK_HOME);
 			}
-			if (creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT))
+			if ((creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT)))
 				blitAt(graphics->artDefs->ourImages[creatureArtifact->artType->id].bitmap, 466, 100, *bitmap);
 		}
 	}

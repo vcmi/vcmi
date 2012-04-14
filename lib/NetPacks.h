@@ -1,5 +1,6 @@
 #pragma once
 
+#include <boost/variant.hpp>
 
 #include "BattleAction.h"
 #include "HeroBonus.h"

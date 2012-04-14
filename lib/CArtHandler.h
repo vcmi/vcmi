@@ -95,14 +95,14 @@ public:
 	int getGivenSpellID() const; //to be used with scrolls (and similar arts), -1 if none
 
 	virtual bool canBePutAt(const CArtifactSet *artSet, int slot, bool assumeDestRemoved = false) const;
-	bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const;  //forwards to the above one
+	bool canBePutAt(const ArtifactLocation al, bool assumeDestRemoved = false) const;  //forwards to the above one
 	virtual bool canBeDisassembled() const;
-	virtual void putAt(ArtifactLocation &al);
-	virtual void removeFrom(ArtifactLocation &al);
+	virtual void putAt(ArtifactLocation al);
+	virtual void removeFrom(ArtifactLocation al);
 	virtual bool isPart(const CArtifactInstance *supposedPart) const; //checks if this a part of this artifact: artifact instance is a part of itself, additionally truth is returned for consituents of combined arts
 
 	std::vector<const CArtifact *> assemblyPossibilities(const CArtifactSet *h) const;
-	void move(ArtifactLocation &src, ArtifactLocation &dst);
+	void move(ArtifactLocation src, ArtifactLocation dst);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -137,13 +137,13 @@ public:
 
 	bool canBePutAt(const CArtifactSet *artSet, int slot, bool assumeDestRemoved = false) const OVERRIDE;
 	bool canBeDisassembled() const OVERRIDE;
-	void putAt(ArtifactLocation &al) OVERRIDE;
-	void removeFrom(ArtifactLocation &al) OVERRIDE;
+	void putAt(ArtifactLocation al) OVERRIDE;
+	void removeFrom(ArtifactLocation al) OVERRIDE;
 	bool isPart(const CArtifactInstance *supposedPart) const OVERRIDE;
 
 	void createConstituents();
 	void addAsConstituent(CArtifactInstance *art, int slot);
-	CArtifactInstance *figureMainConstituent(const ArtifactLocation &al); //main constituent is replcaed with us (combined art), not lock
+	CArtifactInstance *figureMainConstituent(const ArtifactLocation al); //main constituent is replcaed with us (combined art), not lock
 
 	CCombinedArtifactInstance();
 

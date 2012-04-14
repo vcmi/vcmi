@@ -943,7 +943,7 @@ int CArtifactInstance::firstBackpackSlot(const CArtifactSet *h) const
 	return -1;
 }
 
-bool CArtifactInstance::canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved /*= false*/) const
+bool CArtifactInstance::canBePutAt(const ArtifactLocation al, bool assumeDestRemoved /*= false*/) const
 {
 	return canBePutAt(al.getHolderArtSet(), al.slot, assumeDestRemoved);
 }
@@ -965,7 +965,7 @@ bool CArtifactInstance::canBePutAt(const CArtifactSet *artSet, int slot, bool as
 	return artSet->isPositionFree(slot, assumeDestRemoved);
 }
 
-void CArtifactInstance::putAt(ArtifactLocation &al)
+void CArtifactInstance::putAt(ArtifactLocation al)
 {
 	assert(canBePutAt(al));
 
@@ -974,7 +974,7 @@ void CArtifactInstance::putAt(ArtifactLocation &al)
 		al.getHolderNode()->attachTo(this);
 }
 
-void CArtifactInstance::removeFrom(ArtifactLocation &al)
+void CArtifactInstance::removeFrom(ArtifactLocation al)
 {
 	assert(al.getHolderArtSet()->getArt(al.slot) == this);
 	al.getHolderArtSet()->eraseArtSlot(al.slot);
@@ -1018,7 +1018,7 @@ std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CA
 	return ret;
 }
 
-void CArtifactInstance::move(ArtifactLocation &src, ArtifactLocation &dst)
+void CArtifactInstance::move(ArtifactLocation src, ArtifactLocation dst)
 {
 	removeFrom(src);
 	putAt(dst);
@@ -1131,7 +1131,7 @@ void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance *art, int slo
 	attachTo(art);
 }
 
-void CCombinedArtifactInstance::putAt(ArtifactLocation &al)
+void CCombinedArtifactInstance::putAt(ArtifactLocation al)
 {
 	if(al.slot >= GameConstants::BACKPACK_START)
 	{
@@ -1169,7 +1169,7 @@ void CCombinedArtifactInstance::putAt(ArtifactLocation &al)
 	}
 }
 
-void CCombinedArtifactInstance::removeFrom(ArtifactLocation &al)
+void CCombinedArtifactInstance::removeFrom(ArtifactLocation al)
 {
 	if(al.slot >= GameConstants::BACKPACK_START)
 	{
@@ -1193,7 +1193,7 @@ void CCombinedArtifactInstance::removeFrom(ArtifactLocation &al)
 	}
 }
 
-CArtifactInstance * CCombinedArtifactInstance::figureMainConstituent(const ArtifactLocation &al)
+CArtifactInstance * CCombinedArtifactInstance::figureMainConstituent(const ArtifactLocation al)
 {
 	CArtifactInstance *mainConstituent = NULL; //it'll be replaced with combined artifact, not a lock
 	BOOST_FOREACH(ConstituentInfo &ci, constituentsInfo)

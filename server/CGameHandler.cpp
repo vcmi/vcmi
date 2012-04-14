@@ -812,7 +812,7 @@ CGameHandler::~CGameHandler(void)
 
 void CGameHandler::init(StartInfo *si)
 {
-	extern DLL_LINKAGE boost::rand48 ran;
+	//extern DLL_LINKAGE boost::rand48 ran;
 	if(!si->seedToBeUsed)
 		si->seedToBeUsed = std::time(NULL);
 

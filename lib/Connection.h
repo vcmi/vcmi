@@ -12,6 +12,7 @@
 #include <boost/type_traits/remove_pointer.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
+#include <boost/variant.hpp>
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/int.hpp>
@@ -19,6 +20,8 @@
 #include <boost/any.hpp>
 
 #include "ConstTransitivePtr.h"
+#include "CCreatureSet.h" //for CStackInstance
+#include "CObjectHandler.h" //fo CArmedInstance
 
 const ui32 version = 732;
 class CConnection;
