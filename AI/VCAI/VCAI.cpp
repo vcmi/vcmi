@@ -41,6 +41,24 @@ struct SetGlobalState
 	}
 };
 
+template <typename Container>
+typename Container::value_type backOrNull(const Container &c) //returns last element of container or NULL if it is empty (to be used with containers of pointers)
+{
+	if(c.size())
+		return c.back();
+	else
+		return NULL;
+}
+
+template <typename Container>
+typename Container::value_type frontOrNull(const Container &c) //returns first element of container or NULL if it is empty (to be used with containers of pointers)
+{
+	if(c.size())
+		return c.front();
+	else
+		return NULL;
+}
+
 #define SET_GLOBAL_STATE(ai) SetGlobalState _hlpSetState(ai);
 
 #define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
@@ -294,8 +312,9 @@ ui64 evaluateDanger(crint3 tile)
 
 	ui64 objectDanger = 0, guardDanger = 0;
 
-	if(t->visitable)
-		objectDanger = evaluateDanger(t->visitableObjects.back());
+	auto visObjs = cb->getVisitableObjs(tile);
+	if(visObjs.size())
+		objectDanger = evaluateDanger(visObjs.back());
 
 	int3 guardPos = cb->guardingCreaturePosition(tile);
 	if(guardPos.x >= 0 && guardPos != tile)
@@ -314,15 +333,14 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 		return 190000000; //MUCH
 
 	ui64 objectDanger = 0, guardDanger = 0;
-	CArmedInstance * dangerousObject;
 
-	if(t->visitable)
+	if(const CGObjectInstance * dangerousObject = backOrNull(cb->getVisitableObjs(tile)))
 	{
-		dangerousObject = dynamic_cast<CArmedInstance*>(t->visitableObjects.back());
-		objectDanger = evaluateDanger(t->visitableObjects.back()); //unguarded objects can also be dangerous or unhandled
+		objectDanger = evaluateDanger(dangerousObject); //unguarded objects can also be dangerous or unhandled
 		if (dangerousObject)
 		{
-			objectDanger *= fh->getTacticalAdvantage (visitor, dangerousObject);
+			//TODO: don't downcast objects AI shouldnt know about!
+			objectDanger *= fh->getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance*>(dangerousObject));
 		}
 	}
 
@@ -410,22 +428,17 @@ void VCAI::heroMoved(const TryMoveHero & details)
 	LOG_ENTRY;
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
-		const TerrainTile *t1 = cb->getTile(CGHeroInstance::convertPosition(details.start, false), false),
-			*t2 = cb->getTile(CGHeroInstance::convertPosition(details.end, false), false);
-		if(!t1 || !t2) //enemy may have teleported to a tile we don't see
-			return;
-		if(t1->visitable && t2->visitable)
+		const int3 from = CGHeroInstance::convertPosition(details.start, false), 
+			to = CGHeroInstance::convertPosition(details.end, false);
+		const CGObjectInstance *o1 = frontOrNull(cb->getVisitableObjs(from)),
+			*o2 = frontOrNull(cb->getVisitableObjs(to));
+
+		if(o1 && o2 && o1->ID == Obj::SUBTERRANEAN_GATE && o2->ID == Obj::SUBTERRANEAN_GATE)
 		{
-			const CGObjectInstance *o1 = t1->visitableObjects.front(),
-				*o2 = t2->visitableObjects.front();
-
-			if(o1->ID == Obj::SUBTERRANEAN_GATE && o2->ID == Obj::SUBTERRANEAN_GATE)
-			{
-				knownSubterraneanGates[o1] = o2;
-				knownSubterraneanGates[o2] = o1;
-			}
+			knownSubterraneanGates[o1] = o2;
+			knownSubterraneanGates[o2] = o1;
+			BNLOG("Found a pair of subterranean gates between %s and %s!", from % to);
 		}
-
 	}
 }
 
@@ -1225,8 +1238,8 @@ void VCAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int
 {
 	assert(playerID > GameConstants::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
-	const TerrainTile *t = myCb->getTile(tile); //may be NULL in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
-	battlename = boost::str(boost::format("battle of %s attacking %s at %s") % (hero1 ? hero1->name : "a army") % (t ? t->visitableObjects.back()->hoverName : "unknown enemy") % tile);
+	const CGObjectInstance *presumedEnemy = backOrNull(cb->getVisitableObjs(tile)); //may be NULL in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
+	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->name : "a army") % (presumedEnemy ? presumedEnemy->hoverName : "unknown enemy") % tile);
 	CAdventureAI::battleStart(army1, army2, tile, hero1, hero2, side);
 }
 
@@ -1278,17 +1291,14 @@ void VCAI::validateVisitableObjs()
 
 void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned /*= false*/) const
 {
-	for(int i = 0; i < cb->getMapSize().x; i++)
-		for(int j = 0; j < cb->getMapSize().y; j++)
-			for(int k = 0; k < cb->getMapSize().z; k++)
-				if(const TerrainTile *t = cb->getTile(int3(i,j,k), false))
-				{
-					BOOST_FOREACH(const CGObjectInstance *obj, t->visitableObjects)
-					{
-						if(includeOwned || obj->tempOwner != playerID)
-							out.push_back(obj);
-					}
-				}
+	foreach_tile_pos([&](const int3 &pos)
+	{
+		BOOST_FOREACH(const CGObjectInstance *obj, cb->getVisitableObjs(pos, false))
+		{
+			if(includeOwned || obj->tempOwner != playerID)
+				out.push_back(obj);
+		}
+	});
 }
 
 std::vector<const CGObjectInstance *> VCAI::getFlaggedObjects() const
@@ -1384,7 +1394,7 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 	bool ret = false;
 	if(startHpos == dst)
 	{
-		assert(cb->getTile(dst)->visitableObjects.size() > 1); //there's no point in revisiting tile where there is no visitable object
+		assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
 		cb->moveHero(h,CGHeroInstance::convertPosition(dst, true));
 		waitTillFree(); //movement may cause battle or blocking dialog
 		ret = true;
@@ -2263,10 +2273,10 @@ TSubgoal CGoal::whatToDoToAchieve()
 
 	case DIG_AT_TILE:
 		{
-			auto objs = cb->getTile(tile)->visitableObjects;
-			if(objs.size() && objs.front()->ID == GameConstants::HEROI_TYPE && objs.front()->tempOwner == ai->playerID) //we have hero at dest
+			const CGObjectInstance *firstObj = frontOrNull(cb->getVisitableObjs(tile));
+			if(firstObj && firstObj->ID == GameConstants::HEROI_TYPE && firstObj->tempOwner == ai->playerID) //we have hero at dest
 			{
-				const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(objs.front());
+				const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(firstObj);
 				return CGoal(*this).sethero(h).setisElementar(true);
 			}
 
@@ -2332,7 +2342,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 
 				if(howManyCanWeBuy + cb->getResourceAmount(resID) >= value)
 				{
-					if(cb->getTile(m->o->visitablePos())->visitableObjects.back()->tempOwner != ai->playerID)
+					auto backObj = backOrNull(cb->getVisitableObjs(m->o->visitablePos())); //it'll be a hero if we have one there; otherwise marketplace
+					assert(backObj);
+					if(backObj->tempOwner != ai->playerID)
 						return CGoal(GET_OBJ).setobjid(m->o->id);
 					return setobjid(m->o->id).setisElementar(true);
 				}

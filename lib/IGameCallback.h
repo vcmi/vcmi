@@ -185,7 +185,7 @@ public:
 	//objects
 	const CGObjectInstance* getObj(int objid, bool verbose = true) const;
 	std::vector <const CGObjectInstance * > getBlockingObjs(int3 pos)const;
-	std::vector <const CGObjectInstance * > getVisitableObjs(int3 pos)const;
+	std::vector <const CGObjectInstance * > getVisitableObjs(int3 pos, bool verbose = true)const;
 	std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	std::vector <std::string > getObjDescriptions(int3 pos)const; //returns descriptions of objects at pos in order from the lowest to the highest
 	int getOwner(int heroID) const;

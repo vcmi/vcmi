@@ -861,15 +861,18 @@ std::vector < const CGObjectInstance * > CGameInfoCallback::getBlockingObjs( int
 	return ret;
 }
 
-std::vector < const CGObjectInstance * > CGameInfoCallback::getVisitableObjs( int3 pos ) const
+std::vector <const CGObjectInstance * > CGameInfoCallback::getVisitableObjs(int3 pos, bool verbose /*= true*/) const
 {
 	std::vector<const CGObjectInstance *> ret;
-	const TerrainTile *t = getTile(pos);
-	ERROR_RET_VAL_IF(!t, "Not a valid tile requested!", ret);
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	const TerrainTile *t = getTile(pos, verbose);
+	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!t, verbose, pos << " is not visible!", ret);
 
 	BOOST_FOREACH(const CGObjectInstance * obj, t->visitableObjects)
-		ret.push_back(obj);
+	{
+		if(player < 0 || obj->ID != GameConstants::EVENTI_TYPE) //hide events from players
+			ret.push_back(obj);
+	}
+
 	return ret;
 }
 
