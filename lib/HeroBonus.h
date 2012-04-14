@@ -1,7 +1,5 @@
 #pragma once
 
-
-#include <boost/range.hpp>
 #include "GameConstants.h"
 
 /*
@@ -31,10 +29,7 @@ typedef std::set<const CBonusSystemNode*> TCNodes;
 typedef std::vector<CBonusSystemNode *> TNodesVector;
 typedef boost::function<bool(const Bonus*)> CSelector;
 
-namespace PrimarySkill
-{
-	enum { ATTACK, DEFENSE, SPELL_POWER, KNOWLEDGE};
-}
+
 
 #define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.smartPointerSerialization) deserializationFix();
 

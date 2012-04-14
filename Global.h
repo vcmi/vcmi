@@ -68,6 +68,7 @@
 #include <boost/range/algorithm.hpp>
 #include <boost/thread.hpp>
 #include <boost/unordered_set.hpp>
+#include <boost/variant.hpp>
 
 #ifdef ANDROID
 #include <android/log.h>

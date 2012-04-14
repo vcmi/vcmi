@@ -20,9 +20,10 @@
 
 #include "ConstTransitivePtr.h"
 
-const ui32 version = 731;
+const ui32 version = 732;
 class CConnection;
 class CGObjectInstance;
+class CStackInstance;
 class CGameState;
 class CCreature;
 class LibClasses;
@@ -246,6 +247,7 @@ public:
 	TTypeVecMap vectors; //entry must be a pointer to vector containing pointers to the objects of key type
 
 	bool smartVectorMembersSerialization;
+	bool sendStackInstanceByIds; 
 
 	CSerializer();
 	~CSerializer();
@@ -344,6 +346,63 @@ struct VectorisedTypeFor
 		>::type type;
 };
 
+template <typename Handler>
+struct VariantVisitorSaver : boost::static_visitor<>
+{
+	Handler &h;
+	VariantVisitorSaver(Handler &H):h(H)
+	{
+	}
+
+	template <typename T>
+	void operator()(const T &t)
+	{
+		h << t;
+	}
+};
+
+template<typename Ser,typename T>
+struct SaveIfStackInstance
+{
+	static bool invoke(Ser &s, const T &data)
+	{
+		return false;
+	}
+};
+template<typename Ser>
+struct SaveIfStackInstance<Ser, CStackInstance *>
+{
+	static bool invoke(Ser &s, const CStackInstance* const &data)
+	{
+		assert(data->armyObj);
+		TSlot slot = data->armyObj->findStack(data);
+		s << data->armyObj << slot;
+		return true;
+	}
+};
+template<typename Ser,typename T>
+struct LoadIfStackInstance
+{
+	static bool invoke(Ser &s, T &data)
+	{
+		return false;
+	}
+};
+template<typename Ser>
+struct LoadIfStackInstance<Ser, CStackInstance *>
+{
+	static bool invoke(Ser &s, CStackInstance* &data)
+	{
+		CArmedInstance *armedObj;
+		TSlot slot;
+		s >> armedObj >> slot;
+		assert(armedObj->hasStackAtSlot(slot));
+		data = armedObj->stacks[slot];
+		return true;
+	}
+};
+
+
 /// The class which manages saving objects.
 template <typename Serializer> class DLL_LINKAGE COSer : public CSaverBase
 {
@@ -424,6 +483,12 @@ public:
  			}
  		}
 
+		if(sendStackInstanceByIds)
+		{
+			const bool gotSaved = SaveIfStackInstance<Serializer,T>::invoke(*This(), data);
+			if(gotSaved)
+				return;
+		}
 
 		if(smartPointerSerialization)
 		{
@@ -552,6 +617,15 @@ public:
 		for(typename std::map<T1,T2>::const_iterator i=data.begin();i!=data.end();i++)
 			*this << i->first << i->second;
 	}
+	template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+	void saveSerializable(const boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> &data)
+	{
+		si32 which = data.which();
+		*this << which;
+
+		VariantVisitorSaver<Serializer> visitor(*this->This());
+		boost::apply_visitor(visitor, data);
+	}
 };
 
 
@@ -663,8 +737,9 @@ public:
 	{
 		this->This()->read(&data,sizeof(data));
 	}
+
 	template <typename T>
-	void loadSerializable(T &data)
+	void loadSerializableBySerializeCall(T &data)
 	{
 		////that const cast is evil because it allows to implicitly overwrite const objects when deserializing
 		typedef typename boost::remove_const<T>::type nonConstT;
@@ -672,6 +747,12 @@ public:
 		hlp.serialize(*this,myVersion);
 		//data.serialize(*this,myVersion);
 	}	
+
+	template <typename T>
+	void loadSerializable(T &data)
+	{
+		loadSerializableBySerializeCall(data);
+	}
 	template <typename T>
 	void loadArray(T &data)
 	{
@@ -704,6 +785,13 @@ public:
 					return;
 				}
 			}
+		}
+
+		if(sendStackInstanceByIds)
+		{
+			bool gotLoaded = LoadIfStackInstance<Serializer,T>::invoke(*This(), data);
+			if(gotLoaded)
+				return;
 		}
 
 		ui32 pid = 0xffffffff; //pointer id (or maybe rather pointee id) 
@@ -832,9 +920,42 @@ public:
 		data.resize(length);
 		this->This()->read((void*)data.c_str(),length);
 	}
+	template <BOOST_VARIANT_ENUM_PARAMS(typename T)>
+	void loadSerializable(boost::variant<BOOST_VARIANT_ENUM_PARAMS(T)> &data)
+	{
+		si32 which;
+		*this >> which;
+		if(which == 0)
+		{
+			T0 obj;
+			*this >> obj;
+			data = obj;
+		}
+		else if(which == 1)
+		{
+			T1 obj;
+			*this >> obj;
+			data = obj;
+		}
+		else
+			assert(0);
+		//TODO write more if needed, general solution would be much longer
+	}
+	void loadSerializable(CStackInstance *&s)
+	{
+		if(sendStackInstanceByIds)
+		{
+			CArmedInstance *armed;
+			TSlot slot;
+			*this >> armed >> slot;
+			assert(armed->hasStackAtSlot(slot));
+			s = armed->stacks[slot];
+		}
+		else
+			loadSerializableBySerializeCall(s);
+	}
 
 };
-
 
 class DLL_LINKAGE CSaveFile
 	: public COSer<CSaveFile>

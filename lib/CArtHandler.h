@@ -16,9 +16,8 @@
 class CDefHandler;
 class CArtifact;
 class CGHeroInstance;
-class CStackInstance;
-//class CCreatureArtifactSet;
 struct ArtifactLocation;
+class CArtifactSet;
 
 namespace ArtifactPosition
 {
@@ -27,7 +26,17 @@ namespace ArtifactPosition
 		PRE_FIRST = -1, 
 		HEAD, SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, RIGHT_RING, LEFT_RING, FEET, MISC1, MISC2, MISC3, MISC4,
 		MACH1, MACH2, MACH3, MACH4, SPELLBOOK, MISC5, 
-		AFTER_LAST
+		AFTER_LAST,
+		//cres
+		CREATURE_SLOT = 0
+	};
+}
+
+namespace ArtBearer
+{
+	enum
+	{
+		HERO, CREATURE
 	};
 }
 
@@ -45,7 +54,7 @@ public:
 	std::string nodeName() const OVERRIDE;
 
 	ui32 price;
-	std::vector<ui16> possibleSlots; //ids of slots where artifact can be placed
+	bmap<ui8, std::vector<ui16> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
 	std::vector<ui32> * constituents; // Artifacts IDs a combined artifact consists of, or NULL.
 	std::vector<ui32> * constituentOf; // Reverse map of constituents.
 	EartClass aClass;
@@ -77,23 +86,22 @@ public:
 
 	//CArtifactInstance(int aid);
 
-	virtual std::string nodeName() const OVERRIDE;
+	std::string nodeName() const OVERRIDE;
 	void deserializationFix();
 	void setType(CArtifact *Art);
 
-	int firstAvailableSlot(const CGHeroInstance *h) const;
-	int firstBackpackSlot(const CGHeroInstance *h) const;
+	int firstAvailableSlot(const CArtifactSet *h) const;
+	int firstBackpackSlot(const CArtifactSet *h) const;
 	int getGivenSpellID() const; //to be used with scrolls (and similar arts), -1 if none
 
-	virtual bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const;
+	virtual bool canBePutAt(const CArtifactSet *artSet, int slot, bool assumeDestRemoved = false) const;
+	bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const;  //forwards to the above one
 	virtual bool canBeDisassembled() const;
-	virtual void putAt(CGHeroInstance *h, ui16 slot);
-	virtual void removeFrom(CGHeroInstance *h, ui16 slot);
-	virtual void putAt(CStackInstance *s, ui16 slot);
-	virtual void removeFrom(CStackInstance *s, ui16 slot);
+	virtual void putAt(ArtifactLocation &al);
+	virtual void removeFrom(ArtifactLocation &al);
 	virtual bool isPart(const CArtifactInstance *supposedPart) const; //checks if this a part of this artifact: artifact instance is a part of itself, additionally truth is returned for consituents of combined arts
 
-	std::vector<const CArtifact *> assemblyPossibilities(const CGHeroInstance *h) const;
+	std::vector<const CArtifact *> assemblyPossibilities(const CArtifactSet *h) const;
 	void move(ArtifactLocation &src, ArtifactLocation &dst);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -127,15 +135,15 @@ public:
 
 	std::vector<ConstituentInfo> constituentsInfo;
 
-	bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const OVERRIDE;
+	bool canBePutAt(const CArtifactSet *artSet, int slot, bool assumeDestRemoved = false) const OVERRIDE;
 	bool canBeDisassembled() const OVERRIDE;
-	void putAt(CGHeroInstance *h, ui16 slot) OVERRIDE;
-	void removeFrom(CGHeroInstance *h, ui16 slot) OVERRIDE;
+	void putAt(ArtifactLocation &al) OVERRIDE;
+	void removeFrom(ArtifactLocation &al) OVERRIDE;
 	bool isPart(const CArtifactInstance *supposedPart) const OVERRIDE;
 
 	void createConstituents();
 	void addAsConstituent(CArtifactInstance *art, int slot);
-	CArtifactInstance *figureMainConstituent(ui16 slot); //main constituent is replcaed with us (combined art), not lock
+	CArtifactInstance *figureMainConstituent(const ArtifactLocation &al); //main constituent is replcaed with us (combined art), not lock
 
 	CCombinedArtifactInstance();
 
@@ -148,30 +156,6 @@ public:
 		h & static_cast<CArtifactInstance&>(*this);
 		h & constituentsInfo;
 		BONUS_TREE_DESERIALIZATION_FIX
-	}
-};
-
-class DLL_LINKAGE CCreatureArtifactInstance : public CArtifactInstance
-{
-	CCreatureArtifactInstance(CArtifact *Art);
-public:
-
-	bool canBePutAt(const ArtifactLocation &al, bool assumeDestRemoved = false) const OVERRIDE;
-	void putAt(CStackInstance *s, ui16 slot) OVERRIDE;
-	void removeFrom(CStackInstance *s, ui16 slot) OVERRIDE;
-	bool isPart(const CArtifactInstance *supposedPart) const OVERRIDE;
-
-	std::string nodeName() const OVERRIDE;
-
-	CCreatureArtifactInstance();
-
-	//void deserializationFix(); ..inherit from CArtifactInstance
-
-	friend class CArtifactInstance;
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CArtifactInstance&>(*this);
-		//BONUS_TREE_DESERIALIZATION_FIX
 	}
 };
 
@@ -240,7 +224,7 @@ public:
 	std::vector< ConstTransitivePtr<CArtifact> > artifacts;
 	std::vector<CArtifact *> allowedArtifacts;
 	std::set<ui32> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
-	std::set<ui32> creatureArtifacts; // can be held by Stacks
+	//std::map<ui32, ui8> modableArtifacts; //1-scroll, 2-banner, 3-commander art with progressive bonus
 
 	void loadArtifacts(bool onlyTxt);
 	void sortArts();
@@ -263,7 +247,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & artifacts & allowedArtifacts & treasures & minors & majors & relics;
-		h & creatureArtifacts;
 		//if(!h.saving) sortArts();
 	}
 };
@@ -283,67 +266,33 @@ struct DLL_LINKAGE ArtSlotInfo
 	}
 };
 
-class DLL_LINKAGE IArtifactSetBase 
-{ ///artifacts container
-public:
-	virtual void setNewArtSlot(ui16 slot, CArtifactInstance *art, bool locked);
-	virtual const CArtifactInstance* getArt(ui16 pos, bool excludeLocked = true) const;
-	virtual CArtifactInstance* getArt(ui16 pos, bool excludeLocked = true); //NULL - no artifact
-	virtual bool hasArt(ui32 aid, bool onlyWorn = false) const;
-	virtual bool isPositionFree(ui16 pos, bool onlyLockCheck = false) const;
-
-	virtual ArtSlotInfo &retreiveNewArtSlot(ui16 slot)=0;
-	virtual void eraseArtSlot(ui16 slot)=0;
-
-	virtual const ArtSlotInfo *getSlot(ui16 pos) const=0;
-	virtual si32 getArtPos(int aid, bool onlyWorn = true) const=0; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
-	virtual si32 getArtPos(const CArtifactInstance *art) const=0;
-	virtual const CArtifactInstance *getArtByInstanceId(int artInstId) const=0;
-	virtual si32 getArtTypeId(ui16 pos) const=0;
-};
-
-class DLL_LINKAGE CArtifactSet : public IArtifactSetBase
-{ ///hero artifacts
+class DLL_LINKAGE CArtifactSet
+{
 public:
 	std::vector<ArtSlotInfo> artifactsInBackpack; //hero's artifacts from bag
 	bmap<ui16, ArtSlotInfo> artifactsWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 
 	ArtSlotInfo &retreiveNewArtSlot(ui16 slot);
+	void setNewArtSlot(ui16 slot, CArtifactInstance *art, bool locked);
 	void eraseArtSlot(ui16 slot);
 
 	const ArtSlotInfo *getSlot(ui16 pos) const;
-	si32 getArtPos(int aid, bool onlyWorn = true) const;
+	const CArtifactInstance* getArt(ui16 pos, bool excludeLocked = true) const; //NULL - no artifact
+	CArtifactInstance* getArt(ui16 pos, bool excludeLocked = true); //NULL - no artifact
+	si32 getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
 	si32 getArtPos(const CArtifactInstance *art) const;
 	const CArtifactInstance *getArtByInstanceId(int artInstId) const;
+	bool hasArt(ui32 aid, bool onlyWorn = false) const; //checks if hero possess artifact of given id (either in backack or worn)
+	bool isPositionFree(ui16 pos, bool onlyLockCheck = false) const;
 	si32 getArtTypeId(ui16 pos) const;
 
+	virtual ui8 bearerType() const = 0;
 	virtual ~CArtifactSet();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & artifactsInBackpack & artifactsWorn;
 	}
-};
-
-class DLL_LINKAGE CCreatureArtifactSet : public IArtifactSetBase
-{ ///creature artifacts
-public:
-	std::vector<ArtSlotInfo> artifactsInBackpack; //artifacts carried by creature - 4 max (according to WoG)
-	ArtSlotInfo activeArtifact; //position 0 - GameConstants::CREATURE_ART
-
-	ArtSlotInfo &retreiveNewArtSlot(ui16 slot);
-	void eraseArtSlot(ui16 slot);
-
-	const ArtSlotInfo *getSlot(ui16 pos)const;
-	si32 getArtPos(int aid, bool onlyWorn = true) const;
-	si32 getArtPos(const CArtifactInstance *art) const;
-	const CArtifactInstance *getArtByInstanceId(int artInstId) const;
-	si32 getArtTypeId(ui16 pos) const;
-
-	virtual ~CCreatureArtifactSet(){};
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & artifactsInBackpack & activeArtifact;
-	}
+	
+	void artDeserializationFix(CBonusSystemNode *node);
 };

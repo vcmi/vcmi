@@ -262,25 +262,31 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				}
 			}
 		}
-		else //drop artifact or highlight
+		else //highlight or drop artifact
 		{
 			bool artSelected = false;
-			if (CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt())) //dirty solution
+			if (CWindowWithArtifacts* chw = dynamic_cast<CWindowWithArtifacts*>(GH.topInt())) //dirty solution
 			{
-				BOOST_FOREACH(CArtifactsOfHero *aoh, chw->artSets) // why they are multiple?
+				const CArtifactsOfHero::SCommonPart *commonInfo = chw->artSets.front()->commonInfo;
+				if (const CArtifactInstance *art = commonInfo->src.art)
 				{
-					if (const CArtifactInstance *art = aoh->commonInfo->src.art)
-					{
-						artSelected = true;
-						if (art->canBePutAt(ArtifactLocation(myStack, GameConstants::CREATURE_ART)))
-						{	//equip clicked stack
-							LOCPLINT->cb->swapArtifacts(aoh->getHero(), aoh->commonInfo->src.slotID, myStack, GameConstants::CREATURE_ART);
-							break;
+					const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
+					artSelected = true;
+					ArtifactLocation src(srcHero, commonInfo->src.slotID);
+					ArtifactLocation dst(myStack, ArtifactPosition::CREATURE_SLOT);
+					if (art->canBePutAt(dst, true))
+					{	//equip clicked stack
+						if(dst.getArt())
+						{
+							//creature can wear only one active artifact
+							//if we are placing a new one, the old one will be returned to the hero's backpack
+							LOCPLINT->cb->swapArtifacts(dst, ArtifactLocation(srcHero, dst.getArt()->firstBackpackSlot(srcHero)));
 						}
+						LOCPLINT->cb->swapArtifacts(src, dst);
 					}
 				}
 			}
-			if (artSelected || creature)
+			if (!artSelected && creature)
 			{
 				owner->highlighted = this;
 				if(creature)
@@ -315,7 +321,6 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg
 {
 	//assert(Creature == CGI->creh->creatures[Creature->idNumber]);
 	active = false;
-	highlight = false;
 	upg = Upg;
 	ID = IID;
 	myStack = Creature;
@@ -353,11 +358,7 @@ void CGarrisonSlot::showAll(SDL_Surface * to)
 		if((owner->highlighted==this)
 			|| (owner->splitting && owner->highlighted->creature == creature))
 		{
-			highlight = true;
-		}
-		{
-			if (highlight)
-				blitAt(imgs[-1],pos,to);
+			blitAt(imgs[-1],pos,to);
 		}
 	}
 	else//empty slot
@@ -2738,7 +2739,7 @@ void CTradeWindow::artifactSelected(CArtPlace *slot)
 {
 	assert(mode == EMarketMode::ARTIFACT_RESOURCE);
 	items[1][0]->setArtInstance(slot->ourArt);
-	if(slot->ourArt && slot->ourArt->id >= 0)
+	if(slot->ourArt)
 		hLeft = items[1][0];
 	else
 		hLeft = NULL;
@@ -3606,7 +3607,7 @@ void CAltarWindow::moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, co
 	if(putOnAltar(altarSlot, art))
 	{
 		if(slotID < GameConstants::BACKPACK_START)
-			LOCPLINT->cb->swapArtifacts(hero, slotID, hero, freeBackpackSlot);
+			LOCPLINT->cb->swapArtifacts(ArtifactLocation(hero, slotID), ArtifactLocation(hero, freeBackpackSlot));
 		else
 		{
 			arts->commonInfo->src.clear();
@@ -4418,7 +4419,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 {
 	if(down && ourArt && !locked && text.size() && !picked)  //if there is no description or it's a lock, do nothing ;]
 	{
-		if (slotID < 19)
+		if (slotID < GameConstants::BACKPACK_START)
 		{
 			if(ourOwner->allowedAssembling)
 			{
@@ -4556,7 +4557,7 @@ bool CArtPlace::fitsHere(const CArtifactInstance * art) const
 		return true;
 
 	// Anything can but War Machines can be placed in backpack.
-	if (slotID >= 19)
+	if (slotID >= GameConstants::BACKPACK_START)
 		return !CGI->arth->isBigArtifact(art->id);
 
 	return art->canBePutAt(ArtifactLocation(ourOwner->curHero, slotID), true);
@@ -4812,7 +4813,7 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 
 		if (s < artsInBackpack)
 		{
-			int slotID = 19 + (s + backpackPos)%artsInBackpack;
+			int slotID = GameConstants::BACKPACK_START + (s + backpackPos)%artsInBackpack;
 			const CArtifactInstance *art = curHero->getArt(slotID);
 			assert(art);
 			if(!vstd::contains(toOmit, art))
@@ -4829,7 +4830,7 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 		}
 	}
 	for( ; s - omitedSoFar < backpack.size(); s++)
-		eraseSlotData(backpack[s-omitedSoFar], 19 + s);
+		eraseSlotData(backpack[s-omitedSoFar], GameConstants::BACKPACK_START + s);
 
 	//in artifact merchant selling artifacts we may have highlight on one of backpack artifacts -> market needs update, cause artifact under highlight changed
 	if(highlightModeCallback)
@@ -4863,21 +4864,6 @@ void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art)
 	BOOST_FOREACH(CArtifactsOfHero *aoh, commonInfo->participants)
 		BOOST_FOREACH(CArtPlace *place, aoh->artWorn)
 			place->marked = art->canBePutAt(ArtifactLocation(aoh->curHero, place->slotID), true);
-
-	if (CHeroWindow* chw = dynamic_cast<CHeroWindow*>(GH.topInt()))
-	{
-		//FIXME: garrison window has two rows of cretaures :?
-		BOOST_FOREACH (CGarrisonSlot *g, chw->garr->slotsDown)
-		{
-			if (g->myStack)
-				if (art->canBePutAt(ArtifactLocation(g->myStack, GameConstants::CREATURE_ART), false));
-					g->highlight = true;
-		}
-	}
-	/*else if(CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt()))
-	{
-		//TODO
-	}*/
 
 	safeRedraw();
 }
@@ -4966,7 +4952,7 @@ CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector
 	for(size_t s=0; s<backpack.size(); ++s)
 	{
 		backpack[s]->ourOwner = this;
-		eraseSlotData(backpack[s], 19 + s);
+		eraseSlotData(backpack[s], GameConstants::BACKPACK_START + s);
 	}
 
 	leftArtRoll->callback  += boost::bind(&CArtifactsOfHero::scrollBackpack,this,-1);
@@ -5077,28 +5063,31 @@ void CArtifactsOfHero::safeRedraw()
 
 void CArtifactsOfHero::realizeCurrentTransaction()
 {
-	assert(commonInfo->src.AOH || commonInfo->src.CAS);
-	assert(commonInfo->dst.AOH || commonInfo->dst.CAS);
-	LOCPLINT->cb->swapArtifacts(commonInfo->src.AOH ? (IArtifactSetBase*)commonInfo->src.AOH->curHero : commonInfo->src.CAS, commonInfo->src.slotID,
-								commonInfo->dst.AOH ? (IArtifactSetBase*)commonInfo->dst.AOH->curHero : commonInfo->dst.CAS, commonInfo->dst.slotID);
+	assert(commonInfo->src.AOH);
+	assert(commonInfo->dst.AOH);
+	LOCPLINT->cb->swapArtifacts(ArtifactLocation(commonInfo->src.AOH->curHero, commonInfo->src.slotID),
+								ArtifactLocation(commonInfo->dst.AOH->curHero, commonInfo->dst.slotID));
 }
 
 void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
-	if(src.hero == curHero && src.slot >= GameConstants::BACKPACK_START)
+	bool isCurHeroSrc = src.isHolder(curHero),
+		isCurHeroDst = dst.isHolder(curHero);
+	if(isCurHeroSrc && src.slot >= GameConstants::BACKPACK_START)
 		updateSlot(src.slot);
-	if(dst.hero == curHero && dst.slot >= GameConstants::BACKPACK_START)
+	if(isCurHeroDst && dst.slot >= GameConstants::BACKPACK_START)
 		updateSlot(dst.slot);
-	if(src.hero == curHero  ||  dst.hero == curHero) //we need to update all slots, artifact might be combined and affect more slots
+	if(isCurHeroSrc  ||  isCurHeroDst) //we need to update all slots, artifact might be combined and affect more slots
 		updateWornSlots(false);
 
-	if (src.hero != curHero && dst.hero != curHero)
+	if (!src.isHolder(curHero) && !isCurHeroDst)
 		return;
 
 	if(commonInfo->src == src) //artifact was taken from us
 	{
-		//assert(commonInfo->dst == dst  ||  dst.slot == dst.hero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
-		//FIXME: assertion fails for stack artifacts
+		assert(commonInfo->dst == dst  //expected movement from slot ot slot
+			||  dst.slot == dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START //artifact moved back to backpack (eg. to make place for art we are moving)
+			|| dst.getHolderArtSet()->bearerType() == ArtBearer::CREATURE);
 		commonInfo->reset();
 		unmarkSlots();
 	}
@@ -5110,7 +5099,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 		CArtPlace *ap = NULL;
 		BOOST_FOREACH(CArtifactsOfHero *aoh, commonInfo->participants)
 		{
-			if(aoh->curHero == dst.hero)
+			if(dst.isHolder(aoh->curHero))
 			{
 				commonInfo->src.AOH = aoh;
 				if((ap = aoh->getArtPlace(dst.slot)))
@@ -5133,7 +5122,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 	}
 	else if(src.slot >= GameConstants::BACKPACK_START &&
 	        src.slot <  commonInfo->src.slotID &&
-			src.hero == commonInfo->src.AOH->curHero) //artifact taken from before currently picked one
+			src.isHolder(commonInfo->src.AOH->curHero)) //artifact taken from before currently picked one
 	{
 		//int fixedSlot = src.hero->getArtPos(commonInfo->src.art);
 		commonInfo->src.slotID--;
@@ -5157,14 +5146,14 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 	if(dst.slot < GameConstants::BACKPACK_START  &&  src.slot - GameConstants::BACKPACK_START < backpackPos)
  		shift--;
 
-	if( (src.hero == curHero && src.slot >= GameConstants::BACKPACK_START)
-	 || (dst.hero == curHero && dst.slot >= GameConstants::BACKPACK_START) )
+	if( (isCurHeroSrc && src.slot >= GameConstants::BACKPACK_START)
+	 || (isCurHeroDst && dst.slot >= GameConstants::BACKPACK_START) )
 		scrollBackpack(shift); //update backpack slots
 }
 
 void CArtifactsOfHero::artifactRemoved(const ArtifactLocation &al)
 {
-	if(al.hero == curHero)
+	if(al.isHolder(curHero))
 	{
 		if(al.slot < GameConstants::BACKPACK_START)
 			updateWornSlots(0);
@@ -5191,13 +5180,13 @@ CArtPlace * CArtifactsOfHero::getArtPlace(int slot)
 
 void CArtifactsOfHero::artifactAssembled(const ArtifactLocation &al)
 {
-	if(al.hero == curHero)
+	if(al.isHolder(curHero))
 		updateWornSlots();
 }
 
 void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation &al)
 {
-	if(al.hero == curHero)
+	if(al.isHolder(curHero))
 		updateWornSlots();
 }
 
@@ -6323,21 +6312,11 @@ void CArtifactsOfHero::SCommonPart::Artpos::setTo(const CArtPlace *place, bool d
 		art = place->ourArt;
 }
 
-IArtifactSetBase * CArtifactsOfHero::SCommonPart::Artpos::getArtHolder()
-{
-	if (AOH)
-		return (IArtifactSetBase*)AOH;
-	if (CAS)
-		return (IArtifactSetBase*)CAS;
-	tlog2 <<"Warning! Artpos without source\n";
-	return NULL;
-}
-
 bool CArtifactsOfHero::SCommonPart::Artpos::operator==(const ArtifactLocation &al) const
 {
 	if(!AOH)
 		return false;
-	bool ret = al.hero == AOH->curHero  &&  al.slot == slotID;
+	bool ret = al.isHolder(AOH->curHero)  &&  al.slot == slotID;
 
 	//assert(al.getArt() == art);
 	return ret;

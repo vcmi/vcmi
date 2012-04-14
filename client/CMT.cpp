@@ -99,6 +99,12 @@ void startGameFromFile(const std::string &fname)
 	{
 		StartInfo si;
 		CLoadFile out(fname);
+		if(!out.sfile || !*out.sfile)
+		{
+			tlog1 << "Failed to open startfile, falling back to the main menu!\n";
+			GH.curInt = new CGPreGame;
+			return;
+		}
 		out >> si;
 		while(GH.topInt())
 			GH.popIntTotally(GH.topInt());

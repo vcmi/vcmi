@@ -25,7 +25,6 @@
  */
 
 struct ArtifactLocation;
-class IArtifactSetBase;
 class CStackBasicDescriptor;
 class CBonusSystemNode;
 class CArtifact;
@@ -858,13 +857,11 @@ public:
 		{
 			int slotID;
 			const CArtifactsOfHero *AOH;
-			const CCreatureArtifactSet *CAS;
 			const CArtifactInstance *art;
 
 			Artpos();
 			void clear();
 			void setTo(const CArtPlace *place, bool dontTakeBackpack);
-			IArtifactSetBase * getArtHolder(); // returns AOH or CAS
 			bool valid();
 			bool operator==(const ArtifactLocation &al) const;
 		} src, dst;

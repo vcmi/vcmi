@@ -91,8 +91,6 @@ public:
 	PlayerStatuses states; //player color -> player state
 	std::set<CConnection*> conns;
 
-	si32 seedInitial, seedPostInit;
-
 	//queries stuff
 	boost::recursive_mutex gsm;
 	ui32 QID;
@@ -158,7 +156,7 @@ public:
 	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, int pos) OVERRIDE;
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) OVERRIDE; 
 	void removeArtifact(const ArtifactLocation &al) OVERRIDE;
-	void moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE;
+	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE;
 
 	void showCompInfo(ShowInInfobox * comp) OVERRIDE;
 	void heroVisitCastle(int obj, int heroID) OVERRIDE;
@@ -212,10 +210,6 @@ public:
 	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, int rid, int aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
 	bool sellArtifact( const IMarket *m, const CGHeroInstance *h, int aid, int rid); //for artifact merchant selling
 	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, int skill);
-	bool moveArtifact(si32 srcHeroID, si32 destHeroID, ui16 srcSlot, ui16 destSlot);
-	bool moveArtifact(StackLocation s1, StackLocation s2, ui16 srcSlot, ui16 destSlot); //called when stacks merge
-	bool moveArtifact(si32 srcHeroID, StackLocation s2, ui16 srcSlot, ui16 destSlot); //equip artifact
-	bool moveArtifact(StackLocation s1, si32 destHeroID, ui16 srcSlot, ui16 destSlot); //return artifact to backpack
 	bool garrisonSwap(si32 tid);
 	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
 	bool recruitCreatures(si32 objid, ui32 crid, ui32 cram, si32 level);

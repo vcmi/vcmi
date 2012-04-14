@@ -26,7 +26,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CCreatureArtifactSet
+class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet
 {
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
 public:
@@ -39,7 +39,7 @@ public:
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & static_cast<CStackBasicDescriptor&>(*this);
-		h & static_cast<CCreatureArtifactSet&>(*this);
+		h & static_cast<CArtifactSet&>(*this);
 		h & _armyObj & experience;
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
@@ -67,7 +67,8 @@ public:
 	void setArmyObj(const CArmedInstance *ArmyObj);
 	void giveStackExp(expType exp);
 	bool valid(bool allowUnrandomized) const;
-	virtual std::string nodeName() const OVERRIDE;
+	ui8 bearerType() const OVERRIDE; //from CArtifactSet
+	virtual std::string nodeName() const OVERRIDE; //from CBonusSystemnode
 	void deserializationFix();
 };
 

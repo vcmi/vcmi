@@ -333,15 +333,12 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	c << myPlayers;
 
 
-	ui32 seed, sum;
-	si32 seedPostInit;
-	c >> si	>> sum >> seed >> seedPostInit;
+	c >> si;
 	tlog0 <<"\tSending/Getting info to/from the server: "<<tmh.getDiff()<<std::endl;
-	tlog0 << "\tUsing random seed: "<<seed << std::endl;
 
 	gs = const_cast<CGameInfo*>(CGI)->state;
 	gs->scenarioOps = si;
-	gs->init(si, sum, seed, seedPostInit);
+	gs->init(si);
 	tlog0 <<"Initializing GameState (together): "<<tmh.getDiff()<<std::endl;
 
 	if(gs->map)

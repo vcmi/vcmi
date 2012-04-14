@@ -874,18 +874,6 @@ void CStackInstance::setArmyObj(const CArmedInstance *ArmyObj)
 		attachTo(const_cast<CArmedInstance*>(_armyObj));
 	}
 }
-// void CStackInstance::getParents(TCNodes &out, const CBonusSystemNode *source /*= NULL*/) const
-// {
-// 	out.insert(type);
-// 
-// 	if(source && source != this) //we should be root, if not - do not inherit anything
-// 		return;
-// 
-// 	if(armyObj)
-// 		out.insert(armyObj);
-// 	else
-// 		out.insert(&IObjectInterface::cb->gameState()->globalEffects);
-// }
 
 std::string CStackInstance::getQuantityTXT(bool capitalized /*= true*/) const
 {
@@ -930,9 +918,7 @@ void CStackInstance::deserializationFix()
 	const CArmedInstance *armyBackup = _armyObj;
 	_armyObj = NULL;
 	setArmyObj(armyBackup);
-
-	if(activeArtifact.artifact)
-		attachTo(activeArtifact.artifact);
+	artDeserializationFix(this);
 }
 
 int CStackInstance::getCreatureID() const
@@ -952,6 +938,11 @@ ui64 CStackInstance::getPower() const
 {
 	assert(type);
 	return type->AIValue * count;
+}
+
+ui8 CStackInstance::bearerType() const
+{
+	return ArtBearer::CREATURE;
 }
 
 CStackBasicDescriptor::CStackBasicDescriptor()

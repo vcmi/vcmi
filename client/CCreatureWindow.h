@@ -48,7 +48,7 @@ public:
 	const CStackInstance *stack;
 	const CBonusSystemNode *stackNode;
 	const CGHeroInstance *heroOwner;
-	CArtifactInstance *creatureArtifact; //currently worn artifact
+	const CArtifactInstance *creatureArtifact; //currently worn artifact
 	std::vector<CComponent*> upgResCost; //cost of upgrade (if not possible then empty)
 	std::vector<CBonusItem*> bonusItems;
 	std::vector<LRClickableAreaWText*> spellEffects;

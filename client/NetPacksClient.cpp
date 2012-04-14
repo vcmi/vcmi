@@ -210,30 +210,29 @@ void RebalanceStacks::applyCl( CClient *cl )
 
 void PutArtifact::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(al.hero->tempOwner, artifactPut, al);
+	INTERFACE_CALL_IF_PRESENT(al.owningPlayer(), artifactPut, al);
 }
 
 void EraseArtifact::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(al.hero->tempOwner, artifactRemoved, al);
+	INTERFACE_CALL_IF_PRESENT(al.owningPlayer(), artifactRemoved, al);
 }
 
 void MoveArtifact::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(src.hero->tempOwner, artifactMoved, src, dst);
-	if (src.hero.get() && dst.hero.get())
-		if(src.hero->tempOwner != dst.hero->tempOwner)
-			INTERFACE_CALL_IF_PRESENT(src.hero->tempOwner, artifactMoved, src, dst);
+	INTERFACE_CALL_IF_PRESENT(src.owningPlayer(), artifactMoved, src, dst);
+	if(src.owningPlayer() != dst.owningPlayer())
+		INTERFACE_CALL_IF_PRESENT(src.owningPlayer(), artifactMoved, src, dst);
 }
 
 void AssembledArtifact::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(al.hero->tempOwner, artifactAssembled, al);
+	INTERFACE_CALL_IF_PRESENT(al.owningPlayer(), artifactAssembled, al);
 }
 
 void DisassembledArtifact::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(al.hero->tempOwner, artifactDisassembled, al);
+	INTERFACE_CALL_IF_PRESENT(al.owningPlayer(), artifactDisassembled, al);
 }
 
 void HeroVisit::applyCl( CClient *cl )

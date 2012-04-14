@@ -1473,7 +1473,7 @@ std::string CGHeroInstance::nodeName() const
 void CGHeroInstance::putArtifact(ui16 pos, CArtifactInstance *art)
 {
 	assert(!getArt(pos));
-	art->putAt(this, pos);
+	art->putAt(ArtifactLocation(this, pos));
 }
 
 void CGHeroInstance::putInBackpack(CArtifactInstance *art)
@@ -1488,11 +1488,7 @@ bool CGHeroInstance::hasSpellbook() const
 
 void CGHeroInstance::deserializationFix()
 {
-	for(bmap<ui16, ArtSlotInfo>::iterator i = artifactsWorn.begin(); i != artifactsWorn.end(); i++)
-		if(i->second.artifact && !i->second.locked)
-			attachTo(i->second.artifact);
-
-	//attachTo(&speciality);
+	artDeserializationFix(this);
 }
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)
@@ -1533,6 +1529,11 @@ CGHeroInstance::ECanDig CGHeroInstance::diggingStatus() const
 		else
 			return CAN_DIG;
 	}
+}
+
+ui8 CGHeroInstance::bearerType() const
+{
+	return ArtBearer::HERO;
 }
 
 void CGDwelling::initObj()

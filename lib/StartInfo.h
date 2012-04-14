@@ -58,6 +58,9 @@ struct StartInfo
 	typedef bmap<int, PlayerSettings> TPlayerInfos;
 	TPlayerInfos playerInfos; //color indexed
 
+	ui32 seedToBeUsed; //0 if not sure (client requests server to decide, will be send in reply pack)
+	ui32 seedPostInit; //so we know that game is correctly synced at the start; 0 if not known yet
+	ui32 mapfileChecksum; //0 if not relevant
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname;
 	ui8 whichMapInCampaign; //used only for mode CAMPAIGN
@@ -84,6 +87,8 @@ struct StartInfo
 		h & mode;
 		h & difficulty;
 		h & playerInfos;
+		h & seedToBeUsed & seedPostInit;
+		h & mapfileChecksum;
 		h & turnTime;
 		h & mapname;
 		h & whichMapInCampaign;
@@ -92,6 +97,7 @@ struct StartInfo
 
 	StartInfo()
 	{
+		mapfileChecksum = seedPostInit = seedToBeUsed = 0;
 		mode = INVALID;
 		choosenCampaignBonus = -1;
 	}

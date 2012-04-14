@@ -13,7 +13,6 @@
  *
  */
 
-class IArtifactSetBase;
 class CGHeroInstance;
 class CGameState;
 struct CPath;
@@ -63,7 +62,7 @@ public:
 	virtual int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2) =0; //first goes to the second
 	virtual int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
 	//virtual bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
-	virtual bool swapArtifacts(const IArtifactSetBase * src, ui16 pos1, const IArtifactSetBase * dest, ui16 pos2)=0;
+	virtual bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2)=0;
 	virtual bool assembleArtifacts(const CGHeroInstance * hero, ui16 artifactSlot, bool assemble, ui32 assembleTo)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, int stackPos)=0;
 	virtual void endTurn()=0;
@@ -127,7 +126,7 @@ public:
 	int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val);
 	bool dismissHero(const CGHeroInstance * hero);
 	//bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2);
-	bool swapArtifacts(const IArtifactSetBase * src, ui16 pos1, const IArtifactSetBase * dest, ui16 pos2);
+	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2);
 	//bool moveArtifact(const CGHeroInstance * hero, ui16 src, const CStackInstance * stack, ui16 dest); // TODO: unify classes
 	//bool moveArtifact(const CStackInstance * stack, ui16 src , const CGHeroInstance * hero, ui16 dest); // TODO: unify classes
 	bool assembleArtifacts(const CGHeroInstance * hero, ui16 artifactSlot, bool assemble, ui32 assembleTo);

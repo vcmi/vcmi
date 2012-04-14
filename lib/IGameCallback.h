@@ -307,7 +307,7 @@ public:
 	virtual void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, int pos) = 0; //pos==-1 - first free slot in backpack=0; pos==-2 - default if available or backpack
 	virtual void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) = 0;
 	virtual void removeArtifact(const ArtifactLocation &al) = 0;
-	virtual void moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) = 0;
+	virtual bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) = 0;
 
 	virtual void showCompInfo(ShowInInfobox * comp)=0;
 	virtual void heroVisitCastle(int obj, int heroID)=0;

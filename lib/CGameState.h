@@ -348,7 +348,6 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 public:
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
 	ConstTransitivePtr<CCampaignState> campaign;
-	ui32 seed;
 	ui8 currentPlayer; //ID of player currently having turn
 	ConstTransitivePtr<BattleInfo> curB; //current battle
 	ui32 day; //total number of days in game
@@ -374,7 +373,7 @@ public:
 
 	boost::shared_mutex *mx;
 
-	void init(StartInfo * si, ui32 checksum, int Seed, int expectedPostInitSeed = -1);
+	void init(StartInfo * si);
 	void loadTownDInfos();
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
@@ -413,7 +412,7 @@ public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & scenarioOps & initialOpts & seed & currentPlayer & day & map & players & teams & hpool & globalEffects & campaign;
+		h & scenarioOps & initialOpts & currentPlayer & day & map & players & teams & hpool & globalEffects & campaign;
 		h & villages & forts & capitols;
 		if(!h.saving)
 		{

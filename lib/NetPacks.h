@@ -845,34 +845,52 @@ typedef si32 TArtPos;
 
 struct ArtifactLocation
 {
-	ConstTransitivePtr<CGHeroInstance> hero;
-	ConstTransitivePtr<CStackInstance> stack;
+	typedef boost::variant<ConstTransitivePtr<CGHeroInstance>, ConstTransitivePtr<CStackInstance> > TArtHolder;
+
+	TArtHolder artHolder;
 	TArtPos slot;
 
 	ArtifactLocation()
 	{
+		artHolder = ConstTransitivePtr<CGHeroInstance>();
 		slot = -1;
-		stack = NULL;
-		hero = NULL;
 	}
-	ArtifactLocation(const CGHeroInstance *Hero, TArtPos Slot)
+	template <typename T>
+	ArtifactLocation(const T *ArtHolder, TArtPos Slot)
 	{
-		hero = const_cast<CGHeroInstance*>(Hero); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
-		stack = NULL;
+
+		artHolder = const_cast<T*>(ArtHolder); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
 		slot = Slot;
 	}
-	ArtifactLocation(const CStackInstance *Stack, TArtPos Slot)
+	ArtifactLocation(TArtHolder ArtHolder, TArtPos Slot)
 	{
-		stack = const_cast<CStackInstance*>(Stack); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
-		hero = NULL;
+		artHolder = ArtHolder;
 		slot = Slot;
 	}
+
+	template <typename T>
+	bool isHolder(const T *t) const
+	{
+		if(auto ptrToT = boost::get<ConstTransitivePtr<T> >(&artHolder))
+		{
+			return ptrToT->get() == t;
+		}
+		return false;
+	}
+
+	DLL_LINKAGE const CArmedInstance *relatedObj() const; //hero or the stack owner
+	DLL_LINKAGE int owningPlayer() const;
+	DLL_LINKAGE CArtifactSet *getHolderArtSet();
+	DLL_LINKAGE CBonusSystemNode *getHolderNode();
+	DLL_LINKAGE const CArtifactSet *getHolderArtSet() const;
+	DLL_LINKAGE const CBonusSystemNode *getHolderNode() const;
+
 	DLL_LINKAGE const CArtifactInstance *getArt() const;
 	DLL_LINKAGE CArtifactInstance *getArt();
 	DLL_LINKAGE const ArtSlotInfo *getSlot() const;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hero & stack & slot;
+		h & artHolder & slot;
 	}
 };
 
@@ -1764,20 +1782,13 @@ struct GarrisonHeroSwap : public CPackForServer
 struct ExchangeArtifacts : public CPackForServer
 //TODO: allow exchange between heroes, stacks and commanders
 {
+	ArtifactLocation src, dst;
 	ExchangeArtifacts(){};
-	ExchangeArtifacts(si32 H1, si32 H2, ui16 S1, ui16 S2)
-		:hid1(H1),hid2(H2),slot1(S1),slot2(S2)
-	{
-		s1 = s2 = StackLocation(NULL,0);
-	};
-	si32 hid1, hid2;
-	StackLocation s1, s2; //for creature stacks
-	ui16 slot1, slot2;
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hid1 & hid2 & s1 & s2 & slot1 & slot2;
+		h & src & dst;
 	}
 };
 

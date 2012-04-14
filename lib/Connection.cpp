@@ -56,6 +56,8 @@ void CConnection::init()
 {
 	CISer<CConnection>::smartPointerSerialization = false;
 	COSer<CConnection>::smartPointerSerialization = false;
+	CISer<CConnection>::sendStackInstanceByIds = true;
+	COSer<CConnection>::sendStackInstanceByIds = true;
 	registerTypes(static_cast<CISer<CConnection>&>(*this));
 	registerTypes(static_cast<COSer<CConnection>&>(*this));
 #ifdef LIL_ENDIAN
@@ -382,6 +384,7 @@ CSerializer::~CSerializer()
 CSerializer::CSerializer()
 {
 	smartVectorMembersSerialization = false;
+	sendStackInstanceByIds = false;
 }
 
 

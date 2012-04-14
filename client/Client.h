@@ -189,7 +189,7 @@ public:
 	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, int pos) OVERRIDE {};
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) OVERRIDE {}; 
 	void removeArtifact(const ArtifactLocation &al) OVERRIDE {};
-	void moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE {};
+	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE {return false;};
 
 	void showCompInfo(ShowInInfobox * comp) OVERRIDE {};
 	void heroVisitCastle(int obj, int heroID) OVERRIDE {};

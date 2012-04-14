@@ -818,7 +818,7 @@ BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2],
 	return BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
 }
 
-void CGameState::init(StartInfo * si, ui32 checksum, int Seed, int expectedPostInitSeed /*= -1*/)
+void CGameState::init(StartInfo * si)
 {
 	struct HLP
 	{
@@ -852,7 +852,7 @@ void CGameState::init(StartInfo * si, ui32 checksum, int Seed, int expectedPostI
 				case 4: //spell scroll
 					{
 						CArtifactInstance * scroll = CArtifactInstance::createScroll(VLC->spellh->spells[curBonus.info2]);
-						scroll->putAt(hero, scroll->firstAvailableSlot(hero));
+						scroll->putAt(ArtifactLocation(hero, scroll->firstAvailableSlot(hero)));
 					}
 					break;
 				case 5: //prim skill
@@ -904,8 +904,8 @@ void CGameState::init(StartInfo * si, ui32 checksum, int Seed, int expectedPostI
 		}
 	};
 
-	seed = Seed;
-	ran.seed((boost::int32_t)seed);
+	tlog0 << "\tUsing random seed: "<< si->seedToBeUsed << std::endl;
+	ran.seed((boost::int32_t)si->seedToBeUsed);
 	scenarioOps = new StartInfo(*si);
 	initialOpts = new StartInfo(*si);
 	si = NULL;
@@ -986,16 +986,18 @@ void CGameState::init(StartInfo * si, ui32 checksum, int Seed, int expectedPostI
 
 
 	//tlog0 <<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
-	if(checksum)
+	tlog0 << "\tOur checksum for the map: "<< map->checksum << std::endl;
+	if(scenarioOps->mapfileChecksum)
 	{
-		tlog0 << "\tServer checksum for " << scenarioOps->mapname <<": "<< checksum << std::endl;
-		tlog0 << "\tOur checksum for the map: "<< map->checksum << std::endl;
-		if(map->checksum != checksum)
+		tlog0 << "\tServer checksum for " << scenarioOps->mapname <<": "<< scenarioOps->mapfileChecksum << std::endl;
+		if(map->checksum != scenarioOps->mapfileChecksum)
 		{
 			tlog1 << "Wrong map checksum!!!" << std::endl;
 			throw std::string("Wrong checksum");
 		}
 	}
+	else
+		scenarioOps->mapfileChecksum = map->checksum;
 
 	day = 0;
 	loadTownDInfos();
@@ -1576,10 +1578,14 @@ void CGameState::init(StartInfo * si, ui32 checksum, int Seed, int expectedPostI
 
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
 
-	if(expectedPostInitSeed >= 0)
+	if(scenarioOps->seedPostInit > 0)
 	{
 		int actualSeed = ran();
-		assert(expectedPostInitSeed == actualSeed); //RNG must be in the same state on all machines when initialization is done (otherwise we have desync)
+		assert(scenarioOps->seedPostInit == actualSeed); //RNG must be in the same state on all machines when initialization is done (otherwise we have desync)
+	}
+	else
+	{
+		scenarioOps->seedPostInit = ran(); //store the post init "seed"
 	}
 }
 
@@ -2473,7 +2479,7 @@ void CGameState::giveHeroArtifact(CGHeroInstance *h, int aid)
 	 CArtifact * const artifact = VLC->arth->artifacts[aid]; //pointer to constant object
 	 CArtifactInstance *ai = CArtifactInstance::createNewArtifactInstance(artifact);
 	 map->addNewArtifactInstance(ai);
-	 ai->putAt(h, ai->firstAvailableSlot(h));
+	 ai->putAt(ArtifactLocation(h, ai->firstAvailableSlot(h)));
 }
 
 int3 CPath::startPos() const

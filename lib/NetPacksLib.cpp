@@ -536,6 +536,48 @@ DLL_LINKAGE const CStackInstance * StackLocation::getStack()
 	return &army->getStack(slot);
 }
 
+struct ObjectRetriever : boost::static_visitor<const CArmedInstance *>
+{
+	const CArmedInstance * operator()(const ConstTransitivePtr<CGHeroInstance> &h) const
+	{
+		return h;
+	}
+	const CArmedInstance * operator()(const ConstTransitivePtr<CStackInstance> &s) const
+	{
+		return s->armyObj;
+	}
+};
+template <typename T>
+struct GetBase : boost::static_visitor<T*>
+{
+	template <typename TArg>
+	T * operator()(TArg &arg) const
+	{
+		return arg;
+	}
+};
+
+DLL_LINKAGE const CArmedInstance * ArtifactLocation::relatedObj() const
+{
+	return boost::apply_visitor(ObjectRetriever(), artHolder);
+}
+
+DLL_LINKAGE int ArtifactLocation::owningPlayer() const
+{
+	auto obj = relatedObj();
+	return obj ? obj->tempOwner : GameConstants::NEUTRAL_PLAYER;
+}
+
+DLL_LINKAGE CArtifactSet *ArtifactLocation::getHolderArtSet()
+{
+	return boost::apply_visitor(GetBase<CArtifactSet>(), artHolder);
+}
+
+DLL_LINKAGE CBonusSystemNode *ArtifactLocation::getHolderNode()
+{
+	return boost::apply_visitor(GetBase<CBonusSystemNode>(), artHolder);
+}
+
 DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 {
 	const ArtSlotInfo *s = getSlot();
@@ -552,6 +594,18 @@ DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 	return NULL;
 }
 
+DLL_LINKAGE const CArtifactSet * ArtifactLocation::getHolderArtSet() const
+{
+	ArtifactLocation *t = const_cast<ArtifactLocation*>(this);
+	return t->getHolderArtSet();
+}
+
+DLL_LINKAGE const CBonusSystemNode * ArtifactLocation::getHolderNode() const
+{
+	ArtifactLocation *t = const_cast<ArtifactLocation*>(this);
+	return t->getHolderNode();
+}
+
 DLL_LINKAGE CArtifactInstance *ArtifactLocation::getArt()
 {
 	const ArtifactLocation *t = this;
@@ -560,11 +614,7 @@ DLL_LINKAGE CArtifactInstance *ArtifactLocation::getArt()
 
 DLL_LINKAGE const ArtSlotInfo *ArtifactLocation::getSlot() const
 {
-	if (hero)
-		return hero->getSlot(slot);
-	if (stack)
-		return stack->getSlot(slot);
-	return NULL;
+	return getHolderArtSet()->getSlot(slot);
 }
 
 DLL_LINKAGE void ChangeStackCount::applyGs( CGameState *gs )
@@ -662,14 +712,15 @@ DLL_LINKAGE void RebalanceStacks::applyGs( CGameState *gs )
 DLL_LINKAGE void PutArtifact::applyGs( CGameState *gs )
 {
 	assert(art->canBePutAt(al));
-	al.hero->putArtifact(al.slot, art);
+	art->putAt(al);
+	//al.hero->putArtifact(al.slot, art);
 }
 
 DLL_LINKAGE void EraseArtifact::applyGs( CGameState *gs )
 {
 	CArtifactInstance *a = al.getArt();
 	assert(a);
-	a->removeFrom(al.hero, al.slot);
+	a->removeFrom(al);
 }
 
 DLL_LINKAGE void MoveArtifact::applyGs( CGameState *gs )
@@ -681,49 +732,58 @@ DLL_LINKAGE void MoveArtifact::applyGs( CGameState *gs )
 	a->move(src, dst);
 
 	//TODO what'll happen if Titan's thunder is equiped by pickin git up or the start of game?
-	if (a->artType->id == 135 && dst.hero && dst.slot == ArtifactPosition::RIGHT_HAND && !dst.hero->hasSpellbook()) //Titan's Thunder creates new spellbook on equip
-		gs->giveHeroArtifact(dst.hero, 0);
+	if (a->artType->id == 135 && dst.slot == ArtifactPosition::RIGHT_HAND) //Titan's Thunder creates new spellbook on equip
+	{
+		auto hPtr = boost::get<ConstTransitivePtr<CGHeroInstance> >(&dst.artHolder);
+		if(hPtr)
+		{
+			CGHeroInstance *h = *hPtr;
+			if(h && !h->hasSpellbook())
+				gs->giveHeroArtifact(h, 0);
+		}
+	}
 }
 
 DLL_LINKAGE void AssembledArtifact::applyGs( CGameState *gs )
 {
-	CGHeroInstance *h = al.hero;
+	CArtifactSet *artSet = al.getHolderArtSet();
 	const CArtifactInstance *transformedArt = al.getArt();
 	assert(transformedArt);
-	assert(vstd::contains(transformedArt->assemblyPossibilities(al.hero), builtArt));
+	assert(vstd::contains(transformedArt->assemblyPossibilities(artSet), builtArt));
 
 	CCombinedArtifactInstance *combinedArt = new CCombinedArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 	//retrieve all constituents
 	BOOST_FOREACH(si32 constituentID, *builtArt->constituents)
 	{
-		int pos = h->getArtPos(constituentID);
+		int pos = artSet->getArtPos(constituentID);
 		assert(pos >= 0);
-		CArtifactInstance *constituentInstance = h->getArt(pos);
+		CArtifactInstance *constituentInstance = artSet->getArt(pos);
 
 		//move constituent from hero to be part of new, combined artifact
-		constituentInstance->removeFrom(h, pos);
+		constituentInstance->removeFrom(al);
 		combinedArt->addAsConstituent(constituentInstance, pos);
-		if(!vstd::contains(combinedArt->artType->possibleSlots, al.slot) && vstd::contains(combinedArt->artType->possibleSlots, pos))
+		if(!vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], al.slot) && vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], pos))
 			al.slot = pos;
 	}
 
 	//put new combined artifacts
-	combinedArt->putAt(h, al.slot);
+	combinedArt->putAt(al);
 }
 
 DLL_LINKAGE void DisassembledArtifact::applyGs( CGameState *gs )
 {
-	CGHeroInstance *h = al.hero;
 	CCombinedArtifactInstance *disassembled = dynamic_cast<CCombinedArtifactInstance*>(al.getArt());
 	assert(disassembled);
 
 	std::vector<CCombinedArtifactInstance::ConstituentInfo> constituents = disassembled->constituentsInfo;
-	disassembled->removeFrom(h, al.slot);
+	disassembled->removeFrom(al);
 	BOOST_FOREACH(CCombinedArtifactInstance::ConstituentInfo &ci, constituents)
 	{
+		ArtifactLocation constituentLoc = al;
+		constituentLoc.slot = (ci.slot >= 0 ? ci.slot : al.slot); //-1 is slot of main constituent -> it'll replace combined artifact in its pos
 		disassembled->detachFrom(ci.art);
-		ci.art->putAt(h, ci.slot >= 0 ? ci.slot : al.slot); //-1 is slot of main constituent -> it'll replace combined artifact in its pos
+		ci.art->putAt(constituentLoc);
 	}
 
 	gs->map->eraseArtifactInstance(disassembled);

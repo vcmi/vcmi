@@ -94,7 +94,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<BattleInfo>();
 	s.template registerType<CArtifactInstance>();
 	s.template registerType<CCombinedArtifactInstance>();
-	s.template registerType<CCreatureArtifactInstance>();
+	//s.template registerType<CCreatureArtifactInstance>();
 	//s.template registerType<ArtSlotInfo>();
 	//s.template registerType<ArtifactLocation>();
 	//s.template registerType<StackLocation>();

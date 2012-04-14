@@ -121,6 +121,7 @@ CCreatureWindow::CCreatureWindow(const CStackInstance &st, int Type, boost::func
 
 void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *StackNode, const CGHeroInstance *HeroOwner)
 {
+	creatureArtifact = NULL; //may be set later
 	stack = Stack;
 	c = stack->type;
 	if(!StackNode)
@@ -264,11 +265,9 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 				if (heroOwner)
 					passArtToHero = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, 0), 437, 148, "OVBUTN1.DEF", SDLK_HOME);
 			}
-			if (const CArtifactInstance * art = stack->getArt(GameConstants::CREATURE_ART))
-				blitAt(graphics->artDefs->ourImages[art->id].bitmap, 466, 161, *bitmap);
+			if (creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT))
+				blitAt(graphics->artDefs->ourImages[creatureArtifact->artType->id].bitmap, 466, 100, *bitmap);
 		}
-		else
-			creatureArtifact = NULL;
 	}
 
 	if (battleStack) //only during battle
@@ -398,7 +397,7 @@ void CCreatureWindow::sliderMoved(int newpos)
 void CCreatureWindow::scrollArt(int dir)
 {
 	//TODO: get next artifact
-	creatureArtifact = const_cast<CArtifactInstance*>(stack->getArt(GameConstants::CREATURE_ART));
+	creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT);
 }
 
 void CCreatureWindow::passArtifactToHero()
