@@ -4489,7 +4489,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 	peg.victory = vic;
 	sendAndApply(&peg);
 
-	if(vic > 0) //one player won -> all enemies lost
+	if(vic) //one player won -> all enemies lost
 	{
 		iw.text.localStrings.front().second++; //message about losing because enemy won first is just after victory message
 
@@ -4520,28 +4520,28 @@ void CGameHandler::checkLossVictory( ui8 player )
 
 		//eliminating one player may cause victory of another:
 		winLoseHandle(GameConstants::ALL_PLAYERS & ~(1<<player));
-}
+	}
 
 	if(vic)
-{
+	{
 		end2 = true;
 
 		if(gs->campaign)
-	{
+		{
 			std::vector<CGHeroInstance *> hes;
 			BOOST_FOREACH(CGHeroInstance * ghi, gs->map->heroes)
-		{
-				if (ghi->tempOwner == vic)
 			{
+				if (ghi->tempOwner == vic)
+				{
 					hes.push_back(ghi);
+				}
 			}
-		}
 			gs->campaign->mapConquered(hes);
 
 			UpdateCampaignState ucs;
 			ucs.camp = gs->campaign;
 			sendAndApply(&ucs);
-	}
+		}
 	}
 }
 

@@ -1997,7 +1997,7 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 // 			showInfoDialog("Placeholder message: you won!");
 
 		makingTurn = true;
-		while(showingDialog->get() || dialogs.size()); //wait till all dialogs are displayed and closed
+		waitForAllDialogs(); //wait till all dialogs are displayed and closed
 		makingTurn = false;
 
 		howManyPeople--;
