@@ -37,7 +37,8 @@ public:
 enum EGoals
 {
 	INVALID = -1,
-	WIN, DO_NOT_LOSE, CONQUER, BUILD, EXPLORE, GATHER_ARMY, BOOST_HERO,
+	WIN, DO_NOT_LOSE, CONQUER, BUILD, //build needs to get a real reasoning
+	EXPLORE, GATHER_ARMY, BOOST_HERO,
 	RECRUIT_HERO,
 	BUILD_STRUCTURE, //if hero set, then in visited town
 	COLLECT_RES,

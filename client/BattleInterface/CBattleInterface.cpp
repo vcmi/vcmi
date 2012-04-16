@@ -93,7 +93,7 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen)
 	: queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
 	  activeStack(NULL), stackToActivate(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1),
-	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  stackCanCastSpell(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(NULL),
+	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(NULL), sp(NULL),
 	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), bfield(GameConstants::BFIELD_SIZE),
 	  givenCommand(NULL), myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
 
@@ -1833,7 +1833,7 @@ void CBattleInterface::castThisSpell(int spellID)
 		spellSelMode = ANY_LOCATION;
 	}
 
-	if(spellSelMode == NO_LOCATION) //user does not have to select location
+	if (spellSelMode == NO_LOCATION) //user does not have to select location
 	{
 		spellToCast->destinationTile = -1;
 		curInt->cb->battleMakeAction(spellToCast);
@@ -1841,6 +1841,8 @@ void CBattleInterface::castThisSpell(int spellID)
 	}
 	else
 	{
+		possibleActions.clear();
+		possibleActions.push_back (spellSelMode); //only this one actions can be performed at the moment
 		GH.fakeMouseMove();//update cursor
 	}
 }
@@ -1986,10 +1988,16 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 		if (stack->hasBonusOfType (Bonus::SPELLCASTER))
 		{
 			 //TODO: poll possible spells
-			possibleActions.push_back (OFFENSIVE_SPELL);
-			possibleActions.push_back (FRIENDLY_SPELL);
-			possibleActions.push_back (RISING_SPELL);
-			//TODO: stacks casting remove obstacle?
+			BOOST_FOREACH (Bonus * spellBonus, *stack->getBonuses (Selector::type(Bonus::SPELLCASTER)))
+			{
+				possibleActions.push_back (selectionTypeByPositiveness (*CGI->spellh->spells[spellBonus->subtype]));
+			}
+			//TODO: determine whether spell is rising
+			//possibleActions.push_back (RISING_SPELL);
+			//possibleActions.push_back (OBSTACLE);
+			//possibleActions.push_back (SACRIFICE);
+			//possibleActions.push_back (NO_LOCATION);
+			//possibleActions.push_back (ANY_LOCATION);
 			//possibleActions.push_back (OTHER_SPELL);
 		}
 		if (stack->hasBonusOfType (Bonus::RANDOM_SPELLCASTER))
@@ -2557,7 +2565,7 @@ void CBattleInterface::bTacticNextStack(const CStack *current /*= NULL*/)
 	possibleActions += MOVE_TACTICS, CHOOSE_TACTICS_STACK;
 }
 
-CBattleInterface::SpellSelectionType CBattleInterface::selectionTypeByPositiveness(const CSpell & spell)
+CBattleInterface::PossibleActions CBattleInterface::selectionTypeByPositiveness(const CSpell & spell)
 {
 	switch(spell.positiveness)
 	{
@@ -2600,6 +2608,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	std::function<void()> realizeAction;
 
 	//helper lambda that appropriately realizes action / sets cursor and tooltip
+	//TODO: separate action at mouse move and clicking
 	auto realizeThingsToDo = [&]()
 	{
 		if(eventType == MOVE)
@@ -2620,198 +2629,167 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	const CStack * const shere = curInt->cb->battleGetStackByPos(myNumber, false);
 	const CStack * const sactive = activeStack;
 
-	if(!sactive)
+	if (!sactive)
 		return;
 
-	bool creatureCasting = !spellDestSelectMode && stackCanCastSpell && spellSelMode > STACK_SPELL_CANCELLED
-							&& shere != sactive;
+	bool ourStack = false;
+	if (shere)
+		ourStack = shere->owner == curInt->playerID;
 
 	bool noStackIsHovered = true; //will cause removing a blue glow
 	
 	localActions.clear();
-	BOOST_FOREACH (int action, localActions)
+	BOOST_FOREACH (PossibleActions action, possibleActions)
 	{
+		bool legalAction = false;
+		bool illegalAction = false;
 		//TODO: copy actions avaliable to perform at this hex to localActions. set currentAction
+		switch (action)
+		{ 
+			case MOVE_TACTICS:
+				break;
+			case CHOOSE_TACTICS_STACK:
+				if (shere && ourStack)
+					legalAction = true;
+				break;
+			case MOVE_STACK:
+				if (vstd::contains(occupyableHexes, myNumber) || activeStack->coversPos(myNumber))
+					//TODO
+					legalAction = true;
+				break;
+			case ATTACK:
+			case WALK_AND_ATTACK:
+			case ATTACK_AND_RETURN:
+			{
+				std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes (activeStack, false);
+
+				BattleHex attackFromHex = fromWhichHexAttack(myNumber);
+				if(shere->alive() && isTileAttackable(myNumber) && attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
+					legalAction = true;
+			}
+				break;
+			case SHOOT:
+				if(curInt->cb->battleCanShoot (activeStack, myNumber))
+					legalAction = true;
+				break;
+			case HOSTILE_CREATURE: //TODO: check spell immunity
+				if (shere && !ourStack && isCastingPossibleHere (sactive, shere, myNumber))
+					legalAction = true;
+				break;
+			case FRIENDLY_CREATURE:
+				if (shere && ourStack && isCastingPossibleHere (sactive, shere, myNumber))
+					legalAction = true;
+				break;
+			case RISING_SPELL:
+				if (shere && shere->canBeHealed() && isCastingPossibleHere (sactive, shere, myNumber)) //TODO: at least one stack has to be raised by resurrection / animate dead
+					legalAction = true;
+				break;
+			case RANDOM_GENIE_SPELL:
+			{
+				if (shere)
+				{
+					int spellID = curInt->cb->battleGetRandomStackSpell(shere, CBattleInfoCallback::RANDOM_GENIE);
+					if (spellID > -1)
+					{
+						sp = CGI->spellh->spells[spellID];
+						legalAction = true;
+					}
+				}
+			}
+				break;
+			case OBSTACLE:
+					legalAction = false; //TODO
+				break;
+			case TELEPORT:
+			{
+				const ui8 skill = spellToCast ? getActiveHero()->getSpellSchoolLevel(CGI->spellh->spells[spellToCast->additionalInfo]) : 0; //skill level 
+				//TODO: creature can cast a spell with some skill / spellpower as well
+				//TODO: explicitely save spell_to_cast * CSpell, power, skill
+				if (curInt->cb->battleCanTeleportTo(activeStack, myNumber, skill))
+					legalAction = true;
+				else
+					illegalAction = true;
+			}
+				break;
+			case OTHER_SPELL: //TODO
+				break;
+			case CATAPULT:
+				if (isCatapultAttackable(myNumber))
+					legalAction = true;
+				break;
+			case HEAL:
+				if (shere && ourStack && shere->canBeHealed())
+					legalAction = true;
+				break;
+			case RISE_DEMONS:
+				if (shere && ourStack && !shere->alive())
+					legalAction = true;
+				break;
+		}
+		if (legalAction)
+			localActions.push_back (action);
+		else if (illegalAction)
+			illegalActions.push_back (action);
 	}
 
-	//handle spellcasting (by hero or creature)
-	if(!tacticsMode && (spellDestSelectMode || creatureCasting))
+	if (vstd::contains(localActions, selectedAction)) //try to use last selected action by default
+		currentAction = selectedAction;
+	else if (localActions.size()) //if not possible, select first avaliable action 9they are sorted by suggested priority)
+		currentAction = localActions.front();
+	else //no legal action possible
 	{
-		bool isCastingPossible = true;
+		currentAction = INVALID; //don't allow to do anything
 
-		int spellID = -1;
-		if(creatureCasting)
-		{
-			if(creatureSpellToCast > -1)
-				spellID = creatureSpellToCast;
-			else
-			{
-				if(!shere || curInt->cb->battleGetRandomStackSpell(shere, CBattleInfoCallback::RANDOM_GENIE)< 0) //no possible spell for this dest
-					goto pastCastingSpells; //behave as if stack were not a caster
-			}
-		}
-		else if(spellDestSelectMode) //hero casting
-			spellID  = spellToCast->additionalInfo;
-
-		const CSpell *sp = NULL;
-		if(spellID >= 0) 
-			sp = CGI->spellh->spells[spellID];
-		if(!myNumber.isAvailable() && !shere) //empty tile outside battlefield (or in the unavailable border column)
-			isCastingPossible = false;
-
-
-		const ui8 skill = sp ? getActiveHero()->getSpellSchoolLevel(sp) : 0; //skill level 
-		//TODO master genies cast on adv level, that was somewhere in bonuses
-		if(sp)
-		{
-			if(creatureCasting)
-				isCastingPossible = (curInt->cb->battleCanCreatureCastThisSpell(sp, myNumber) == ESpellCastProblem::OK);
-			else
-				isCastingPossible = (curInt->cb->battleCanCastThisSpell(sp, myNumber) == ESpellCastProblem::OK);
-		}
+		if (vstd::contains(illegalActions, selectedAction))
+			illegalAction = selectedAction;
+		else if (illegalActions.size())
+			illegalAction = illegalActions.front();
 		else
-		{
-			//needed for genie, otherwise covered by battleCan*CastThisSpell
-			if( !shere
-			 || !shere->alive()
-			 || (spellSelMode == HOSTILE_CREATURE && shere->owner == sactive->owner)
-			 || (spellSelMode == FRIENDLY_CREATURE && shere->owner != sactive->owner))
-			{
-				isCastingPossible = false;
-			}
-		}
-
-		switch(spellSelMode)
-		{
-		case FRIENDLY_CREATURE:
-		case HOSTILE_CREATURE:
-		case ANY_CREATURE:
-			if(isCastingPossible && shere)
-			{
-				if(sp)
-					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % sp->name % shere->getName()); //Cast %s on %s
-				else
-					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[301]) % shere->getName()); //Cast a spell on %s
-			}
-			if(!shere) //there must be a creature as target
-				isCastingPossible = false;
-			break;
-		case OBSTACLE:
-			if(isCastingPossible)
-				consoleMsg = CGI->generaltexth->allTexts[550]; //Remove this obstacle
-			break;
-		case TELEPORT: //teleport
-			if (!curInt->cb->battleCanTeleportTo(activeStack, myNumber, skill))
-				isCastingPossible = false;
-
-			if(!isCastingPossible)
-				consoleMsg = CGI->generaltexth->allTexts[24]; //Invalid Teleport Destination
-			else
-				consoleMsg = CGI->generaltexth->allTexts[25]; //Teleport Here
-
-			break;
-		}
-		//destination checked
-		if(isCastingPossible)
-		{
-			cursorType = ECursor::SPELLBOOK;
-			cursorFrame = 0;
-			if(consoleMsg.empty() && sp)
-				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
-
-			realizeAction = [=]
-			{
-				if(creatureCasting)
-				{
-					giveCommand(BattleAction::MONSTER_SPELL, myNumber, sactive->ID, creatureSpellToCast);
-				}
-				else
-				{
-					spellToCast->destinationTile = myNumber;
-					curInt->cb->battleMakeAction(spellToCast);
-					endCastingSpell();
-				}
-			};
-		}
-		else if(creatureCasting) //if creature can't cast on dest tile, we act as if it were not a caster
-		{
-			goto pastCastingSpells;
-		}
-		else
-		{
-			cursorFrame = ECursor::COMBAT_BLOCKED;
-			consoleMsg = CGI->generaltexth->allTexts[23];
-		}
-
-		//consume our settings and do not look further
-		realizeThingsToDo();
-		return;
+			illegalAction = INVALID; //we should never be here
 	}
 
-pastCastingSpells:
+	bool isCastingPossible = false;
 
-	if(!vstd::contains(occupyableHexes, myNumber) || activeStack->coversPos(myNumber))
+	if (currentAction > INVALID)
 	{
-		if(shere)
+		switch (currentAction) //display console message, realize selected action
 		{
-			bool ourStack = shere->owner == curInt->playerID;
-
-			if(ourStack) //our stack
-			{
-				if (shere->alive())
+			case CHOOSE_TACTICS_STACK:
+				consoleMsg = (boost::format(CGI->generaltexth->allTexts[481]) % shere->getName()).str(); //Select %s
+				realizeAction = [=]{ stackActivated(shere); };
+				break;
+			case MOVE:
+				if(activeStack->hasBonusOfType(Bonus::FLYING))
 				{
-					if(tacticsMode) //select stack in tactics mdoe
-					{
-						consoleMsg = (boost::format(CGI->generaltexth->allTexts[481]) % shere->getName()).str(); //Select %s
-						realizeAction = [=]{ stackActivated(shere); };
-					}
-					else if(sactive->hasBonusOfType(Bonus::HEALER) && shere->canBeHealed()) //heal
-					{
-						cursorFrame = ECursor::COMBAT_HEAL;
-						consoleMsg = (boost::format(CGI->generaltexth->allTexts[419]) % shere->getName()).str(); //Apply first aid to the %s
-						realizeAction = [=]{ giveCommand(BattleAction::STACK_HEAL, myNumber, activeStack->ID); }; //command healing
-					}
-					else //info about creature
-					{
-						cursorFrame = ECursor::COMBAT_QUERY;
-						consoleMsg = (boost::format(CGI->generaltexth->allTexts[297]) % shere->getName()).str();
-						realizeAction = [=]{ GH.pushInt(createCreWindow(shere, true)); };
-					}
-					//setting console text
-					const time_t curTime = time(NULL);
-					CCreatureAnimation *hoveredStackAnim = creAnims[shere->ID];
-
-					if (shere->ID != mouseHoveredStack
-						&& curTime > lastMouseHoveredStackAnimationTime + HOVER_ANIM_DELTA
-						&& hoveredStackAnim->getType() == CCreatureAnim::HOLDING 
-						&& hoveredStackAnim->framesInGroup(CCreatureAnim::MOUSEON) > 0)
-					{
-						hoveredStackAnim->playOnce(CCreatureAnim::MOUSEON);
-						lastMouseHoveredStackAnimationTime = curTime;
-					}
-					noStackIsHovered = false;
-					mouseHoveredStack = shere->ID;
-				} //end of alive
-				else if (sactive->hasBonusOfType(Bonus::DAEMON_SUMMONING) && sactive->casts)
-				{
-					cursorType = ECursor::SPELLBOOK;
-					realizeAction = [=]{ giveCommand(BattleAction::DAEMON_SUMMONING, myNumber, activeStack->ID); };
+					cursorFrame = ECursor::COMBAT_FLY;
+					consoleMsg = (boost::format(CGI->generaltexth->allTexts[295]) % activeStack->getName()).str(); //Fly %s here
 				}
-			}
-			//end of our stack hovered
-			else if(curInt->cb->battleCanShoot(activeStack,myNumber)) //we can shoot enemy
-			{
-				if(curInt->cb->battleHasShootingPenalty(activeStack, myNumber))
-					cursorFrame = ECursor::COMBAT_SHOOT_PENALTY;
 				else
-					cursorFrame = ECursor::COMBAT_SHOOT;
+				{
+					cursorFrame = ECursor::COMBAT_MOVE;
+					consoleMsg = (boost::format(CGI->generaltexth->allTexts[294]) % activeStack->getName()).str(); //Move %s here
+				}
 
-				realizeAction = [=] {giveCommand(BattleAction::SHOOT, myNumber, activeStack->ID);};
-				std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(sactive, shere)); //calculating estimated dmg
-				//printing - Shoot %s (%d shots left, %s damage)
-				consoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % sactive->shots % estDmgText).str();
-			}
-			else if (shere->alive() && isTileAttackable(myNumber)) //available enemy (melee attackable)
+				realizeAction = [=]
+				{
+					if(activeStack->doubleWide())
+					{
+						std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
+						int shiftedDest = myNumber + (activeStack->attackerOwned ? 1 : -1);
+						if(vstd::contains(acc, myNumber))
+							giveCommand (BattleAction::WALK ,myNumber, activeStack->ID);
+						else if(vstd::contains(acc, shiftedDest))
+							giveCommand (BattleAction::WALK, shiftedDest, activeStack->ID);
+					}
+					else
+					{
+						giveCommand(BattleAction::WALK, myNumber, activeStack->ID);
+					}
+				};
+				break;
+			case ATTACK:
+			case WALK_AND_ATTACK:
+			case ATTACK_AND_RETURN: //TODO: allow to disable return
 			{
 				setBattleCursor(myNumber); //handle direction of cursor and attackable tile
 				setCursor = false; //don't overwrite settings from the call above
@@ -2827,65 +2805,159 @@ pastCastingSpells:
 				std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(sactive, shere)); //calculating estimated dmg
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[36]) % shere->getName() % estDmgText).str(); //Attack %s (%s damage)
 			}
-			else //unavailable enemy
+				break;
+			case SHOOT:
 			{
-				cursorFrame = ECursor::COMBAT_BLOCKED;
+				if(curInt->cb->battleHasShootingPenalty(activeStack, myNumber))
+					cursorFrame = ECursor::COMBAT_SHOOT_PENALTY;
+				else
+					cursorFrame = ECursor::COMBAT_SHOOT;
+
+				realizeAction = [=] {giveCommand(BattleAction::SHOOT, myNumber, activeStack->ID);};
+				std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(sactive, shere)); //calculating estimated dmg
+				//printing - Shoot %s (%d shots left, %s damage)
+				consoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % sactive->shots % estDmgText).str();
 			}
-		} //end of stack on dest
-		else if (sactive && sactive->hasBonusOfType(Bonus::CATAPULT) && isCatapultAttackable(myNumber)) //"catapulting"
-		{
-			cursorFrame = ECursor::COMBAT_SHOOT_CATAPULT;
-			realizeAction = [=]{ giveCommand(BattleAction::CATAPULT, myNumber, activeStack->ID); };
-		}
-		else //empty unavailable tile
-		{
-			cursorFrame = ECursor::COMBAT_BLOCKED;
+				break;
+			case HOSTILE_CREATURE:
+			case FRIENDLY_CREATURE:
+			case RISING_SPELL:
+			case RANDOM_GENIE_SPELL:
+				if (spellToCast) //TODO: merge hero spell and creature spell into it
+					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % sp->name % shere->getName()); //Cast %s on %s
+				else
+					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[301]) % shere->getName()); //Cast a spell on %s
+
+				isCastingPossible = true;
+
+				//TODO: refactor -> include Teleport and Remove Obstacle
+				break;
+			case TELEPORT:
+				consoleMsg = CGI->generaltexth->allTexts[25]; //Teleport Here
+				isCastingPossible = true;
+				break;
+			case OBSTACLE:
+				consoleMsg = CGI->generaltexth->allTexts[550];
+				isCastingPossible = true;
+				break;
+			case OTHER_SPELL:
+				break;
+			case HEAL:
+				cursorFrame = ECursor::COMBAT_HEAL;
+				consoleMsg = (boost::format(CGI->generaltexth->allTexts[419]) % shere->getName()).str(); //Apply first aid to the %s
+				realizeAction = [=]{ giveCommand(BattleAction::STACK_HEAL, myNumber, activeStack->ID); }; //command healing
+				break;
+			case RISE_DEMONS:
+				cursorType = ECursor::SPELLBOOK;
+				realizeAction = [=]{ giveCommand(BattleAction::DAEMON_SUMMONING, myNumber, activeStack->ID); };
+				break;
+			case CATAPULT:
+				cursorFrame = ECursor::COMBAT_SHOOT_CATAPULT;
+				realizeAction = [=]{ giveCommand(BattleAction::CATAPULT, myNumber, activeStack->ID); };
+				break;
 		}
 	}
-	else //occuppiable tile
+	else
 	{
-		if (activeStack) //there can be a moment when stack is dead ut next is not yet activated
+		switch (illegalAction)
 		{
-			if(activeStack->hasBonusOfType(Bonus::FLYING))
+			case HOSTILE_CREATURE:
+			case FRIENDLY_CREATURE:
+			case RISING_SPELL:
+			case RANDOM_GENIE_SPELL:
+				cursorFrame = ECursor::COMBAT_BLOCKED;
+				consoleMsg = CGI->generaltexth->allTexts[23];
+				break;
+			case TELEPORT:
+				consoleMsg = CGI->generaltexth->allTexts[24]; //Invalid Teleport Destination
+				break;
+			default:
+				cursorFrame = ECursor::COMBAT_BLOCKED;
+				break;
+		}
+	}
+
+	if (isCastingPossible) //common part
+	{
+		cursorType = ECursor::SPELLBOOK;
+		cursorFrame = 0;
+		if(consoleMsg.empty() && sp)
+			consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
+
+		realizeAction = [=]
+		{
+			if(creatureCasting)
 			{
-				cursorFrame = ECursor::COMBAT_FLY;
-				consoleMsg = (boost::format(CGI->generaltexth->allTexts[295]) % activeStack->getName()).str(); //Fly %s here
+				giveCommand(BattleAction::MONSTER_SPELL, myNumber, sactive->ID, creatureSpellToCast);
 			}
 			else
 			{
-				cursorFrame = ECursor::COMBAT_MOVE;
-				consoleMsg = (boost::format(CGI->generaltexth->allTexts[294]) % activeStack->getName()).str(); //Move %s here
+				spellToCast->destinationTile = myNumber;
+				curInt->cb->battleMakeAction(spellToCast);
+				endCastingSpell();
 			}
-
-			realizeAction = [=]
-			{
-				if(activeStack->doubleWide())
-				{
-					std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
-					int shiftedDest = myNumber + (activeStack->attackerOwned ? 1 : -1);
-					if(vstd::contains(acc, myNumber))
-						giveCommand (BattleAction::WALK ,myNumber, activeStack->ID);
-					else if(vstd::contains(acc, shiftedDest))
-						giveCommand (BattleAction::WALK, shiftedDest, activeStack->ID);
-				}
-				else
-				{
-					giveCommand(BattleAction::WALK, myNumber, activeStack->ID);
-				}
-			};
-		}
+		};
 	}
-
-	if (vstd::contains(localActions, selectedAction))
-		currentAction = selectedAction;
-	else if (localActions.size())
-		currentAction = localActions.front();
-	else
-		currentAction = INVALID;
 
 	realizeThingsToDo();
 	if(noStackIsHovered)
 		mouseHoveredStack = -1;
+
+	if (shere && ourStack && shere->alive()) //TODO: handle hover properly
+	{
+		cursorFrame = ECursor::COMBAT_QUERY;
+		consoleMsg = (boost::format(CGI->generaltexth->allTexts[297]) % shere->getName()).str();
+		realizeAction = [=]{ GH.pushInt(createCreWindow(shere, true)); };
+	
+		//setting console text
+		const time_t curTime = time(NULL);
+		CCreatureAnimation *hoveredStackAnim = creAnims[shere->ID];
+
+		if (shere->ID != mouseHoveredStack
+			&& curTime > lastMouseHoveredStackAnimationTime + HOVER_ANIM_DELTA
+			&& hoveredStackAnim->getType() == CCreatureAnim::HOLDING 
+			&& hoveredStackAnim->framesInGroup(CCreatureAnim::MOUSEON) > 0)
+		{
+			hoveredStackAnim->playOnce(CCreatureAnim::MOUSEON);
+			lastMouseHoveredStackAnimationTime = curTime;
+		}
+		noStackIsHovered = false;
+		mouseHoveredStack = shere->ID;
+	}
+}
+
+bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CStack * shere, BattleHex myNumber)
+{
+	creatureCasting = (spellDestSelectMode >= NO_LOCATION && spellDestSelectMode <= OTHER_SPELL) && //what does it really check?
+							stackCanCastSpell && shere != sactive;
+							//TODO: use currentAction
+							
+	bool isCastingPossible = true;
+
+	int spellID = -1;
+	if (creatureCasting)
+	{
+		if (creatureSpellToCast > -1)
+			spellID = creatureSpellToCast;
+	}
+	else if(spellDestSelectMode) //hero casting
+		spellID  = spellToCast->additionalInfo;
+
+	sp = NULL;
+	if (spellID >= 0) 
+		sp = CGI->spellh->spells[spellID];
+
+	if (sp) //TODO: refactor?
+	{
+		if (creatureCasting)
+			isCastingPossible = (curInt->cb->battleCanCreatureCastThisSpell (sp, myNumber) == ESpellCastProblem::OK);
+		else
+			isCastingPossible = (curInt->cb->battleCanCastThisSpell (sp, myNumber) == ESpellCastProblem::OK);
+	}
+	if(!myNumber.isAvailable() && !shere) //empty tile outside battlefield (or in the unavailable border column)
+			isCastingPossible = false;
+
+	return isCastingPossible;
 }
 
 BattleHex CBattleInterface::fromWhichHexAttack(BattleHex myNumber)

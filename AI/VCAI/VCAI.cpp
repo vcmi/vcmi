@@ -80,6 +80,8 @@ std::string goalName(EGoals goalType)
 			return "WIN";
 		case CONQUER:
 			return "CONQUER";
+		case BUILD:
+			return "BUILD";
 		case EXPLORE:
 			return "EXPLORE";
 		case GATHER_ARMY:
@@ -1496,7 +1498,7 @@ void getVisibleNeighbours(const std::vector<int3> &tiles, std::vector<int3> &out
 
 void VCAI::tryRealize(CGoal g)
 {
-	BNLOG("Attempting realizing goal with code %d", g.goalType);
+	BNLOG("Attempting realizing goal with code %s", goalName(g.goalType));
 	switch(g.goalType)
 	{
 	case EXPLORE:
@@ -2849,4 +2851,4 @@ void SectorMap::makeParentBFS(crint3 source)
 unsigned char & SectorMap::retreiveTile(crint3 pos)
 {
 	return retreiveTileN(sector, pos);
-}
+}

@@ -91,16 +91,12 @@ struct CatapultProjectileInfo
 /// drawing everything correctly.
 class CBattleInterface : public CIntObject
 {
-	enum SpellSelectionType
-	{
-		ANY_LOCATION = 0, FRIENDLY_CREATURE, HOSTILE_CREATURE, ANY_CREATURE, OBSTACLE, TELEPORT, NO_LOCATION = -1, STACK_SPELL_CANCELLED = -2
-	};
 	enum PossibleActions // actions performed at l-click
 	{
 		INVALID = -1,
 		MOVE_TACTICS, CHOOSE_TACTICS_STACK,
 		MOVE_STACK, ATTACK, WALK_AND_ATTACK, ATTACK_AND_RETURN, SHOOT, //OPEN_GATE, //we can open castle gate during siege
-		OFFENSIVE_SPELL, FRIENDLY_SPELL, RISING_SPELL, RANDOM_GENIE_SPELL, OTHER_SPELL, //use SpellSelectionType for non-standard spells - should we merge it?
+		NO_LOCATION, ANY_LOCATION, FRIENDLY_CREATURE, HOSTILE_CREATURE, RISING_SPELL, ANY_CREATURE, OBSTACLE, TELEPORT, SACRIFICE, RANDOM_GENIE_SPELL, OTHER_SPELL,
 		CATAPULT, HEAL, RISE_DEMONS
 	};
 private:
@@ -135,14 +131,18 @@ private:
 	CPlayerInterface * tacticianInterface; //used during tactics mode, points to the interface of player with higher tactics (can be either attacker or defender in hot-seat), valid onloy for human players
 	bool tacticsMode;
 	bool stackCanCastSpell; //if true, active stack could possibly cats some target spell
+	bool creatureCasting; //if true, stack currently aims to cats a spell
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
-	SpellSelectionType spellSelMode;
+	PossibleActions spellSelMode;
 	BattleAction * spellToCast; //spell for which player is choosing destination
+	const CSpell * sp; //spell pointer for convenience
 	si32 creatureSpellToCast;
-	std::vector<int> possibleActions; //all actions possible to call at the moment by player
-	std::vector<int> localActions; //actions possible to take on hovered hex
-	int currentAction; //action that will be performed on l-click
-	int selectedAction; //last action chosen (and saved) by player
+	std::vector<PossibleActions> possibleActions; //all actions possible to call at the moment by player
+	std::vector<PossibleActions> localActions; //actions possible to take on hovered hex
+	std::vector<PossibleActions> illegalActions; //these actions display message in case of illegal target
+	PossibleActions currentAction; //action that will be performed on l-click
+	PossibleActions selectedAction; //last action chosen (and saved) by player
+	PossibleActions illegalAction; //most likely action that can't be performed here
 
 	void getPossibleActionsForStack (const CStack * stack); //called when stack gets its turn
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or canceled)
@@ -260,9 +260,10 @@ public:
 	void endAction(const BattleAction* action);
 	void hideQueue();
 	void showQueue();
-	SpellSelectionType selectionTypeByPositiveness(const CSpell & spell);
+	PossibleActions selectionTypeByPositiveness(const CSpell & spell);
 
 	void handleHex(BattleHex myNumber, int eventType);
+	bool isCastingPossibleHere (const CStack * sactive, const CStack * shere, BattleHex myNumber);
 
 	BattleHex fromWhichHexAttack(BattleHex myNumber);
 	
