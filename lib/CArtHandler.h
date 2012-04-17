@@ -49,6 +49,7 @@ public:
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter
 	bool isBig () const;
+	void setDescription (std::string desc);
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const OVERRIDE;
@@ -217,8 +218,8 @@ public:
 
 class DLL_LINKAGE CArtHandler //handles artifacts
 {
-	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER, ILimiter * limiter = NULL);
-	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype, IPropagator* propagator);
+	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER, ILimiter * limiter = NULL, int additionalinfo = 0);
+	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype, IPropagator* propagator, int additionalinfo = 0);
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector< ConstTransitivePtr<CArtifact> > artifacts;

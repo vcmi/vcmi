@@ -188,6 +188,11 @@ std::string CArtifact::nodeName() const
 // // 	//boost::algorithm::replace_first(description, "[spell name]", VLC->spellh->spells[spellid].name);
 // }
 
+void CArtifact::setDescription (std::string desc)
+{
+	description = desc;
+}
+
 CArtHandler::CArtHandler()
 {
 	VLC->arth = this;
@@ -475,9 +480,10 @@ void CArtHandler::getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &ou
 		out.push_back(art);
 	}
 }
-void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int subtype, int valType, ILimiter * limiter )
+void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int subtype, int valType, ILimiter * limiter, int additionalInfo)
 {
 	Bonus *added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);
+	added->additionalInfo = additionalInfo;
 	added->valType = valType;
 	added->limiter.reset(limiter);
 	if(type == Bonus::MORALE || type == Bonus::LUCK)
@@ -487,9 +493,10 @@ void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int sub
 	artifacts[aid]->addNewBonus(added);
 }
 
-void CArtHandler::giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype, IPropagator* propagator /*= NULL*/)
+void CArtHandler::giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype, IPropagator* propagator /*= NULL*/, int additionalInfo)
 {
 	Bonus *added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);
+	added->additionalInfo = additionalInfo;
 	added->valType = Bonus::BASE_NUMBER;
 	added->propagator.reset(propagator);
 	if(type == Bonus::MORALE || type == Bonus::LUCK)
@@ -752,10 +759,43 @@ void CArtHandler::addBonuses()
 		makeItCreatureArt(142);
 		makeItCreatureArt(143);
 		makeItCreatureArt(156);
-		giveArtBonus(141, Bonus::STACK_HEALTH, +400, -1, Bonus::PERCENT_TO_BASE); //Magic Wans
-		giveArtBonus(142, Bonus::STACK_HEALTH, +400, -1, Bonus::PERCENT_TO_BASE); //Tower Arrow
-		giveArtBonus(143, Bonus::STACK_HEALTH, +400, -1, Bonus::PERCENT_TO_BASE); //Monster's Power
-		giveArtBonus(156, Bonus::STACK_HEALTH, +2); //Warlord's banner
+		//Magic Wand
+		giveArtBonus(141, Bonus::CASTS, 10);
+		giveArtBonus(141, Bonus::SPELLCASTER, 0, Spells::IMPLOSION);
+		giveArtBonus(141, Bonus::SPELLCASTER, 0, Spells::FIREBALL);
+		giveArtBonus(141, Bonus::RANDOM_SPELLCASTER, 0);
+		giveArtBonus(141, Bonus::DAEMON_SUMMONING, 10, 63); //rise vampire lords
+		giveArtBonus(141, Bonus::ENCHANTER, 0, Spells::LIGHTNING_BOLT, NULL, 2);
+		giveArtBonus(141, Bonus::REBIRTH, 1, 1);
+		giveArtBonus(141, Bonus::MANA_DRAIN, 10);
+		giveArtBonus(141, Bonus::HEALER, 25);
+		artifacts[141].get()->setDescription ("Casts Implosion / Fireball, random Genie spell, summons Vampire Lords from corpses, casts Lighthning Bolt every 2 turns, rebirths at least one creature, drains enemy mana and heals");
+		//Tower Arrow
+		giveArtBonus(142, Bonus::NO_DISTANCE_PENALTY, 0);
+		giveArtBonus(142, Bonus::ADDITIONAL_ATTACK, 2);
+		giveArtBonus(142, Bonus::SPELL_LIKE_ATTACK, 1, Spells::INFERNO);
+		giveArtBonus(142, Bonus::CATAPULT, 0);
+		giveArtBonus(142, Bonus::ACID_BREATH, 20);
+		giveArtBonus(142, Bonus::SHOTS, 200, 0, Bonus::PERCENT_TO_BASE);
+		giveArtBonus(142, Bonus::SPELL_BEFORE_ATTACK, 1, Spells::AGE, NULL, 50);
+		giveArtBonus(142, Bonus::SPELL_AFTER_ATTACK, 1, Spells::BERSERK, NULL, 50);
+		giveArtBonus(142, Bonus::SPELL_AFTER_ATTACK, 1, Spells::POISON, NULL, 50);
+		giveArtBonus(142, Bonus::SPELL_AFTER_ATTACK, 1, Spells::DISRUPTING_RAY, NULL, 50);
+		artifacts[142].get()->setDescription ("Tripple shots, tripple attack, casts various spells during attack, attacks have range of Inferno, no distance penalty, catapult");
+		//Monster's Power
+		giveArtBonus(143, Bonus::STACK_HEALTH, +100, -1, Bonus::PERCENT_TO_BASE);
+		giveArtBonus(143, Bonus::CREATURE_DAMAGE, +100, 2, Bonus::PERCENT_TO_ALL);
+		giveArtBonus(143, Bonus::HP_REGENERATION, 50);
+		giveArtBonus(143, Bonus::NO_RETALIATION, 0);
+		giveArtBonus(143, Bonus::RETURN_AFTER_STRIKE, 0);
+		giveArtBonus(143, Bonus::ATTACKS_ALL_ADJACENT, 0);
+		giveArtBonus(143, Bonus::SPELL_RESISTANCE_AURA, 100);
+		giveArtBonus(143, Bonus::DIRECT_DAMAGE_IMMUNITY, 0);
+		artifacts[143].get()->setDescription ("Double health, double max damage, hp regeneration, can't retaliate, return after strike, attack all around, 100% spell reisstance aura, immune to direct damage spells");
+		//Warlord's banner
+		giveArtBonus(156, Bonus::STACK_HEALTH, +2);
+		artifacts[156].get()->setDescription ("+2 stack HP");
+
 	}
 }
 
