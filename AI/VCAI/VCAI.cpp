@@ -343,7 +343,9 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 		if (dangerousObject)
 		{
 			//TODO: don't downcast objects AI shouldnt know about!
-			objectDanger *= fh->getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance*>(dangerousObject));
+			auto armedObj = dynamic_cast<const CArmedInstance*>(dangerousObject);
+			if(armedObj)
+				objectDanger *= fh->getTacticalAdvantage(visitor, armedObj);
 		}
 	}
 
