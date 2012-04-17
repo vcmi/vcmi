@@ -4096,7 +4096,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 				}
 			}
 		}
-		if(st->hasBonusOfType(Bonus::MANA_DRAIN))
+		if (st->hasBonusOfType(Bonus::MANA_DRAIN) && !vstd::contains(st->state, EBattleStackState::DRAINED_MANA))
 		{
 			const CGHeroInstance * enemy = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
 			if (enemy)

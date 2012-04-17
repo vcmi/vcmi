@@ -18,6 +18,7 @@ struct Bonus;
 class CCreature;
 class CStackInstance;
 class CStack;
+class ArtifactLocation;
 class CCreatureArtifactInstance;
 class CAdventureMapButton;
 class CBonusItem;
@@ -35,7 +36,7 @@ class CLabel;
 class CAnimImage;
 
 // New creature window
-class CCreatureWindow : public CIntObject
+class CCreatureWindow : public CArtifactHolder
 {
 public:
 	enum CreWinType {OTHER = 0, BATTLE = 1, ARMY = 2, HERO = 3}; //only last one should open permanently
@@ -61,6 +62,11 @@ public:
 	CAdventureMapButton *dismiss, *upgrade, *ok;
 	CAdventureMapButton * leftArtRoll, * rightArtRoll; //artifact selection
 	CAdventureMapButton * passArtToHero;
+
+	void artifactRemoved (const ArtifactLocation &artLoc);
+	void artifactMoved (const ArtifactLocation &artLoc, const ArtifactLocation &destLoc);
+	void artifactDisassembled (const ArtifactLocation &artLoc) {return;};
+	void artifactAssembled (const ArtifactLocation &artLoc) {return;};
 
 	boost::function<void()> dsm; //dismiss button callback
 	boost::function<void()> Upg; //upgrade button callback

@@ -922,6 +922,7 @@ DLL_LINKAGE void BattleNextRound::applyGs( CGameState *gs )
 		s->state -= EBattleStackState::MOVED;
 		s->state -= EBattleStackState::HAD_MORALE;
 		s->state -= EBattleStackState::FEAR;
+		s->state -= EBattleStackState::DRAINED_MANA;
 		s->counterAttacks = 1 + s->valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
 		// new turn effects
 		s->battleTurnPassed();
@@ -952,6 +953,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 		case Bonus::MANA_DRAIN:
 		{
 			CGHeroInstance * h = gs->getHero(additionalInfo);
+			st->state.insert (EBattleStackState::DRAINED_MANA);
 			h->mana -= val;
 			vstd::amax(h->mana, 0);
 			break;

@@ -1946,6 +1946,8 @@ void CBattleInterface::activateStack()
 
 	if(!pendingAnims.size() && !active)
 		activate();
+
+	getPossibleActionsForStack (activeStack);
 }
 
 double CBattleInterface::getAnimSpeedMultiplier() const
@@ -1986,7 +1988,8 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 		{
 			 //TODO: poll possible spells
 			const CSpell * spell;
-			BOOST_FOREACH (Bonus * spellBonus, *stack->getBonuses (Selector::type(Bonus::SPELLCASTER)))
+			BonusList spellBonuses = *stack->getBonuses (Selector::type(Bonus::SPELLCASTER));
+			BOOST_FOREACH (Bonus * spellBonus, spellBonuses)
 			{
 				spell = CGI->spellh->spells[spellBonus->subtype];
 				if (spell->isRisingSpell())
@@ -2018,11 +2021,14 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 	}
 	if (stack->shots && stack->hasBonusOfType (Bonus::SHOOTER))
 		possibleActions.push_back (SHOOT);
-	if (stack->hasBonusOfType (Bonus::RETURN_AFTER_STRIKE));
+	if (stack->hasBonusOfType (Bonus::RETURN_AFTER_STRIKE))
 		possibleActions.push_back (ATTACK_AND_RETURN);
 
 	possibleActions.push_back(ATTACK); //all active stacks can attack
 	possibleActions.push_back(WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
+
+	if (stack->canMove() && stack->Speed()); //probably no reason to try move war machines or bound stacks
+		possibleActions.push_back (MOVE_STACK); //all active stacks can attack
 
 	if (siegeH && stack->hasBonusOfType (Bonus::CATAPULT)) //TODO: check shots
 		possibleActions.push_back (CATAPULT);
@@ -2664,19 +2670,28 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					legalAction = true;
 				break;
 			case MOVE_STACK:
-				if (vstd::contains(occupyableHexes, myNumber) || activeStack->coversPos(myNumber))
-					//TODO
+			{
+				std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes (activeStack, false);
+				int shiftedDest = myNumber + (activeStack->attackerOwned ? 1 : -1);
+
+				if (vstd::contains(acc, myNumber))
 					legalAction = true;
+				else if (sactive->doubleWide() && vstd::contains(acc, shiftedDest))
+					legalAction = true;
+			}
 				break;
 			case ATTACK:
 			case WALK_AND_ATTACK:
 			case ATTACK_AND_RETURN:
 			{
-				std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes (activeStack, false);
+				if (shere && shere->alive())
+				{
+					setBattleCursor(myNumber); // temporary - needed for following function :(
+					BattleHex attackFromHex = fromWhichHexAttack(myNumber);
 
-				BattleHex attackFromHex = fromWhichHexAttack(myNumber);
-				if(shere->alive() && isTileAttackable(myNumber) && attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
-					legalAction = true;
+					if (isTileAttackable(myNumber) && attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
+						legalAction = true;
+				}
 			}
 				break;
 			case SHOOT:
@@ -2773,7 +2788,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[481]) % shere->getName()).str(); //Select %s
 				realizeAction = [=]{ stackActivated(shere); };
 				break;
-			case MOVE:
+			case MOVE_STACK:
 				if(activeStack->hasBonusOfType(Bonus::FLYING))
 				{
 					cursorFrame = ECursor::COMBAT_FLY;
@@ -2807,7 +2822,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case ATTACK_AND_RETURN: //TODO: allow to disable return
 			{
 				setBattleCursor(myNumber); //handle direction of cursor and attackable tile
-				setCursor = false; //don't overwrite settings from the call above
+				setCursor = false; //don't overwrite settings from the call above //TODO: what does it mean?
 				realizeAction = [=]
 				{
 					BattleHex attackFromHex = fromWhichHexAttack(myNumber);

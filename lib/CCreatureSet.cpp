@@ -583,7 +583,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::DRAGON_NATURE:
 				case Bonus::NON_LIVING:
 				case Bonus::UNDEAD:
-				case Bonus::FIRE_IMMUNITY: //TODO: what about direct, hostile and total immunity?
+				case Bonus::FIRE_IMMUNITY:
 				case Bonus::WATER_IMMUNITY:
 				case Bonus::AIR_IMMUNITY:
 				case Bonus::EARTH_IMMUNITY:

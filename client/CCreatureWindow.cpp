@@ -20,6 +20,7 @@
 #include "../lib/BattleState.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CArtHandler.h"
+#include "../lib/NetPacks.h" //ArtifactLocation
 
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
@@ -258,15 +259,15 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 
 		if (GameConstants::STACK_ARTIFACT)
 		{
+			creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT);
 			if (type > BATTLE) //artifact buttons inactive in battle
 			{
+				//TODO: disable buttons if no artifact is equipped
 				leftArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, -1), 437, 98, "hsbtns3.def", SDLK_LEFT);
 				rightArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, +1), 516, 98, "hsbtns5.def", SDLK_RIGHT);
 				if (heroOwner)
-					passArtToHero = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, 0), 437, 148, "OVBUTN1.DEF", SDLK_HOME);
+					passArtToHero = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::passArtifactToHero, this), 437, 148, "OVBUTN1.DEF", SDLK_HOME);
 			}
-			if ((creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT)))
-				blitAt(graphics->artDefs->ourImages[creatureArtifact->artType->id].bitmap, 466, 100, *bitmap);
 		}
 	}
 
@@ -379,6 +380,12 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 
 	BOOST_FOREACH(CBonusItem* b, bonusItems)
 		b->showAll (to);
+
+	if (GameConstants::STACK_ARTIFACT)
+	{
+		if (creatureArtifact)
+			blitAt(graphics->artDefs->ourImages[creatureArtifact->artType->id].bitmap, 466 + pos.x, 100 + pos.y, to);
+	}
 }
 
 void CCreatureWindow::show(SDL_Surface * to)
@@ -402,7 +409,26 @@ void CCreatureWindow::scrollArt(int dir)
 
 void CCreatureWindow::passArtifactToHero()
 {
-	//creatureArtifact->artType; //FIXME
+	const CGHeroInstance * h = dynamic_cast<const CGHeroInstance *>(stack->armyObj);
+	if (h && creatureArtifact)
+	{
+		LOCPLINT->cb->swapArtifacts (ArtifactLocation (stack, ArtifactPosition::CREATURE_SLOT), ArtifactLocation(h, creatureArtifact->firstBackpackSlot(h)));
+	}
+	else
+		tlog2 << "Pass artifact to hero should be disabled, no hero or no artifact!\n";
+
+	//redraw is handled via CArtifactHolder interface
+}
+
+void CCreatureWindow::artifactRemoved (const ArtifactLocation &artLoc)
+{
+	creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT); //TODO: select next from the list (for Commanders)
+	redraw();
+}
+void CCreatureWindow::artifactMoved (const ArtifactLocation &artLoc, const ArtifactLocation &destLoc)
+{
+	creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT); //TODO: select next from the list (for Commanders)
+	redraw();
 }
 
 void CCreatureWindow::clickRight(tribool down, bool previousState)
@@ -412,18 +438,6 @@ void CCreatureWindow::clickRight(tribool down, bool previousState)
 	if (type < 3)
 		close();
 }
-
-//void CCreatureWindow::activate()
-//{
-//	CIntObject::activate();
-//	if(type < 3)
-//		activateRClick();
-//}
-
-//void CCreatureWindow::deactivate()
-//{
-//
-//}
 
 void CCreatureWindow::close()
 {
