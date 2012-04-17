@@ -148,6 +148,27 @@ struct CIssueCommand : CGoal
 	CIssueCommand(boost::function<bool()> _command): CGoal(ISSUE_COMMAND), command(_command) {}
 };
 
+
+// AI lives in a dangerous world. CGObjectInstances under pointer may got deleted/hidden.
+// This class stores object id, so we can detect when we lose access to the underlying object.
+struct ObjectIdRef
+{
+	int id;
+
+	const CGObjectInstance *operator->() const;
+	operator const CGObjectInstance *() const;
+
+	ObjectIdRef(int _id);
+	ObjectIdRef(const CGObjectInstance *obj);
+
+	bool operator<(const ObjectIdRef &rhs) const;
+};
+
+class ObjsVector : public std::vector<ObjectIdRef>
+{
+private:
+};
+
 class VCAI : public CAdventureAI
 {
 public:

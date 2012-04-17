@@ -59,6 +59,7 @@ typename Container::value_type frontOrNull(const Container &c) //returns first e
 		return NULL;
 }
 
+
 #define SET_GLOBAL_STATE(ai) SetGlobalState _hlpSetState(ai);
 
 #define NET_EVENT_HANDLER SET_GLOBAL_STATE(this)
@@ -658,6 +659,12 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 	LOG_ENTRY;
 	if(remove_if_present(visitableObjs, obj))
 		assert(obj->isVisitable());
+
+	BOOST_FOREACH(auto &p, reservedHeroesMap)
+		remove_if_present(p.second, obj);
+
+	//TODO
+	//there are other places where CGObjectinstance ptrs are stored...
 }
 
 void VCAI::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor)
@@ -1145,9 +1152,11 @@ void VCAI::wander(const CGHeroInstance * h)
 {
 	while(1)
 	{
-		std::vector <const CGObjectInstance *> dests (reservedHeroesMap[h].begin(), reservedHeroesMap[h].end()); //copy constructor
+		std::vector <ObjectIdRef> dests;
+		range::copy(reservedHeroesMap[h], std::back_inserter(dests));
 		if (!dests.size())
-			dests = getPossibleDestinations(h);
+			range::copy(getPossibleDestinations(h), std::back_inserter(dests));
+
 		if(!dests.size())
 		{
 			auto compareReinforcements = [h](const CGTownInstance *lhs, const CGTownInstance *rhs) -> bool
@@ -1170,7 +1179,7 @@ void VCAI::wander(const CGHeroInstance * h)
             if(townsReachable.size())
             {
 				boost::sort(townsReachable, compareReinforcements);
-				dests.push_back(townsReachable.back());
+				dests.emplace_back(townsReachable.back());
 			}
 			else if(townsNotReachable.size())
 			{
@@ -1208,12 +1217,19 @@ void VCAI::wander(const CGHeroInstance * h)
 				break;
 			}
 		}
-		const CGObjectInstance * obj = dests.front();
-		if(!goVisitObj(obj, h))
+		const ObjectIdRef&dest = dests.front();
+		if(!goVisitObj(dest, h))
 		{
-			BNLOG("Hero %s apparently used all MPs (%d left)\n", h->name % h->movement);
-			reserveObject(h, obj); //reserve that object - we predict it will be reached soon
-			setGoal(h, CGoal(VISIT_TILE).sethero(h).settile(obj->visitablePos()));
+			if(!dest)
+			{
+				BNLOG("Visit attempt made the object (id=%d) gone...", dest.id);
+			}
+			else
+			{
+				BNLOG("Hero %s apparently used all MPs (%d left)\n", h->name % h->movement);
+				reserveObject(h, dest); //reserve that object - we predict it will be reached soon
+				setGoal(h, CGoal(VISIT_TILE).sethero(h).settile(dest->visitablePos()));
+			}
 			break;
 		}
 
@@ -1238,6 +1254,7 @@ void VCAI::setGoal (const CGHeroInstance *h, EGoals goalType)
 
 void VCAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
 {
+	NET_EVENT_HANDLER;
 	assert(playerID > GameConstants::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance *presumedEnemy = backOrNull(cb->getVisitableObjs(tile)); //may be NULL in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
@@ -1247,6 +1264,7 @@ void VCAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int
 
 void VCAI::battleEnd(const BattleResult *br)
 {
+	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
 	bool won = br->winner == myCb->battleGetMySide();
@@ -2851,4 +2869,29 @@ void SectorMap::makeParentBFS(crint3 source)
 unsigned char & SectorMap::retreiveTile(crint3 pos)
 {
 	return retreiveTileN(sector, pos);
+}
+
+const CGObjectInstance * ObjectIdRef::operator->() const
+{
+	return cb->getObj(id, false);
+}
+
+ObjectIdRef::operator const CGObjectInstance*() const
+{
+	return cb->getObj(id, false);
+}
+
+ObjectIdRef::ObjectIdRef(int _id) : id(_id)
+{
+
+}
+
+ObjectIdRef::ObjectIdRef(const CGObjectInstance *obj) : id(obj->id)
+{
+
+}
+
+bool ObjectIdRef::operator<(const ObjectIdRef &rhs) const
+{
+	return id < rhs.id;
 }

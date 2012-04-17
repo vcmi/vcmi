@@ -330,7 +330,12 @@ void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
 		*this >> myVersion;	
 		if(myVersion < minimalVersion)
 		{
-			tlog1 << "Error: Old file format! (file " << fname << " )\n";
+			tlog1 << "Error: Too old file format! (file " << fname << " )\n";
+			sfile.release();
+		}
+		if(myVersion > version)
+		{
+			tlog1 << "Error: Too new file format! (file " << fname << " )\n";
 			sfile.release();
 		}
 	}
