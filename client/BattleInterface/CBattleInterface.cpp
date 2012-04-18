@@ -570,14 +570,14 @@ void CBattleInterface::show(SDL_Surface * to)
 				//calculating spell school level
 				const CSpell & spToCast =  *CGI->spellh->spells[spellToCast->additionalInfo];
 				ui8 schoolLevel = 0;
-				if( activeStack->attackerOwned )
+				if (activeStack->attackerOwned)
 				{
 					if(attackingHeroInstance)
 						schoolLevel = attackingHeroInstance->getSpellSchoolLevel(&spToCast);
 				}
 				else
 				{
-					if(defendingHeroInstance)
+					if (defendingHeroInstance)
 						schoolLevel = defendingHeroInstance->getSpellSchoolLevel(&spToCast);
 				}
 				//obtaining range and printing it
@@ -1801,34 +1801,34 @@ void CBattleInterface::castThisSpell(int spellID)
 
 	//choosing possible tragets
 	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == curInt->playerID) ? attackingHeroInstance : defendingHeroInstance;
-	const CSpell & spell = *CGI->spellh->spells[spellID];
+	sp = CGI->spellh->spells[spellID];
 	spellSelMode = ANY_LOCATION;
-	if(spell.getTargetType() == CSpell::CREATURE)
+	if(sp->getTargetType() == CSpell::CREATURE)
 	{
-		spellSelMode = selectionTypeByPositiveness(spell);
+		spellSelMode = selectionTypeByPositiveness(*sp);
 	}
-	if(spell.getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
+	if(sp->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
 	{
-		if(castingHero && castingHero->getSpellSchoolLevel(&spell) < 3)
-			spellSelMode = selectionTypeByPositiveness(spell);
+		if(castingHero && castingHero->getSpellSchoolLevel(sp) < 3)
+			spellSelMode = selectionTypeByPositiveness(*sp);
 		else
 			spellSelMode = NO_LOCATION;
 	}
-	if(spell.getTargetType() == CSpell::OBSTACLE)
+	if(sp->getTargetType() == CSpell::OBSTACLE)
 	{
 		spellSelMode = OBSTACLE;
 	}
-	if(spell.range[ castingHero->getSpellSchoolLevel(&spell) ] == "X") //spell has no range
+	if(sp->range[ castingHero->getSpellSchoolLevel(sp) ] == "X") //spell has no range
 	{
 		spellSelMode = NO_LOCATION;
 	}
 
-	if(spell.id == 63) //teleport
+	if(sp->id == Spells::TELEPORT) //teleport
 	{
-		spellSelMode = TELEPORT;
+		spellSelMode = TELEPORT; //FIXME: duplicating?
 	}
 
-	if(spell.range[ castingHero->getSpellSchoolLevel(&spell) ].size() > 1) //spell has many-hex range
+	if(sp->range[ castingHero->getSpellSchoolLevel(sp) ].size() > 1) //spell has many-hex range
 	{
 		spellSelMode = ANY_LOCATION;
 	}
@@ -1971,16 +1971,17 @@ void CBattleInterface::endCastingSpell()
 
 	delete spellToCast;
 	spellToCast = NULL;
+	sp = NULL;
 	spellDestSelectMode = false;
 	CCS->curh->changeGraphic(1, 6);
 
 	//restore actions for current stack
-	possibleActions.clear();
 	getPossibleActionsForStack (activeStack);
 }
 
 void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 {
+	possibleActions.clear();
 	//first action will be prioritized over later ones
 	if (stack->casts) //TODO: check for battlefield effects that prevent casting?
 	{
@@ -2013,6 +2014,9 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 				}
 
 			}
+			std::sort(possibleActions.begin(), possibleActions.end());
+			auto it = std::unique (possibleActions.begin(), possibleActions.end());
+			possibleActions.erase (it, possibleActions.end());
 		}
 		if (stack->hasBonusOfType (Bonus::RANDOM_SPELLCASTER))
 			possibleActions.push_back (RANDOM_GENIE_SPELL);
@@ -2605,6 +2609,19 @@ std::string formatDmgRange(std::pair<ui32, ui32> dmgRange)
 		return (boost::format("%d") % dmgRange.first).str();
 }
 
+bool CBattleInterface::canStackMoveHere (const CStack * activeStack, BattleHex myNumber)
+{
+	std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes (activeStack, false);
+	int shiftedDest = myNumber + (activeStack->attackerOwned ? 1 : -1);
+
+	if (vstd::contains(acc, myNumber))
+		return true;
+	else if (activeStack->doubleWide() && vstd::contains(acc, shiftedDest))
+		return true;
+	else
+		return false;
+}
+
 void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 {
 	if(!myTurn) //we are not permit to do anything
@@ -2671,12 +2688,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case MOVE_STACK:
 			{
-				std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes (activeStack, false);
-				int shiftedDest = myNumber + (activeStack->attackerOwned ? 1 : -1);
-
-				if (vstd::contains(acc, myNumber))
-					legalAction = true;
-				else if (sactive->doubleWide() && vstd::contains(acc, shiftedDest))
+				if (canStackMoveHere (sactive, myNumber))
 					legalAction = true;
 			}
 				break;
@@ -2684,13 +2696,16 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case WALK_AND_ATTACK:
 			case ATTACK_AND_RETURN:
 			{
-				if (shere && shere->alive())
+				if (shere && !ourStack && shere->alive())
 				{
-					setBattleCursor(myNumber); // temporary - needed for following function :(
-					BattleHex attackFromHex = fromWhichHexAttack(myNumber);
+					if (isTileAttackable(myNumber))
+					{
+						setBattleCursor(myNumber); // temporary - needed for following function :(
+						BattleHex attackFromHex = fromWhichHexAttack(myNumber);
 
-					if (isTileAttackable(myNumber) && attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
-						legalAction = true;
+						if (attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
+							legalAction = true;
+					}
 				}
 			}
 				break;
@@ -2728,8 +2743,11 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case TELEPORT:
 			{
-				const ui8 skill = spellToCast ? getActiveHero()->getSpellSchoolLevel(CGI->spellh->spells[spellToCast->additionalInfo]) : 0; //skill level 
-				//TODO: creature can cast a spell with some skill / spellpower as well
+				ui8 skill = 0;
+				if (creatureCasting)
+					skill = sactive->valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, Spells::TELEPORT));
+				else
+					skill = getActiveHero()->getSpellSchoolLevel (CGI->spellh->spells[spellToCast->additionalInfo]); 
 				//TODO: explicitely save power, skill
 				if (curInt->cb->battleCanTeleportTo(activeStack, myNumber, skill))
 					legalAction = true;
@@ -2853,14 +2871,26 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case FRIENDLY_CREATURE_SPELL:
 			case RISING_SPELL:
 			case RANDOM_GENIE_SPELL:
-				if (spellToCast) //TODO: merge hero spell and creature spell into it
+				if (sp)
+				{
 					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % sp->name % shere->getName()); //Cast %s on %s
-				else
-					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[301]) % shere->getName()); //Cast a spell on %s
-
-				isCastingPossible = true;
-
-				//TODO: refactor -> include Teleport and Remove Obstacle
+					switch (sp->id)
+					{
+						case Spells::TELEPORT: //don't cast spell yet, only select target
+							possibleActions.clear();
+							possibleActions.push_back (TELEPORT);
+							break;
+						case Spells::SACRIFICE:
+							possibleActions.clear();
+							possibleActions.push_back (SACRIFICE);
+							break;
+						default:
+							isCastingPossible = true;
+							break;
+					}
+				}
+				else //spell is random
+					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[301]) % shere->getName()); //Cast a spell on %
 				break;
 			case TELEPORT:
 				consoleMsg = CGI->generaltexth->allTexts[25]; //Teleport Here
@@ -2935,30 +2965,16 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 		
 		realizeAction = [=]
 		{
-			switch (sp->id)
+			if(creatureCasting)
 			{
-				case TELEPORT: //TODO: choose second target for Teleport or Sacrifice
-					possibleActions.clear();
-					possibleActions.push_back (TELEPORT);
-					break;
-				case SACRIFICE:
-					possibleActions.clear();
-					possibleActions.push_back (SACRIFICE);
-					break;
-				default:
-					if(creatureCasting)
-					{
-						giveCommand(BattleAction::MONSTER_SPELL, myNumber, sactive->ID, creatureSpellToCast);
-					}
-					else
-					{
-						spellToCast->destinationTile = myNumber;
-						curInt->cb->battleMakeAction(spellToCast);
-						endCastingSpell();
-					}
-					break;
+				giveCommand(BattleAction::MONSTER_SPELL, myNumber, sactive->ID, creatureSpellToCast);
 			}
-
+			else
+			{
+				spellToCast->destinationTile = myNumber;
+				curInt->cb->battleMakeAction(spellToCast);
+				endCastingSpell();
+			}
 		};
 	}
 
@@ -2970,9 +2986,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 
 bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CStack * shere, BattleHex myNumber)
 {
-	creatureCasting = (spellDestSelectMode >= NO_LOCATION && spellDestSelectMode <= RANDOM_GENIE_SPELL) && //what does it really check?
-							stackCanCastSpell && shere != sactive;
-							//TODO: use currentAction
+	creatureCasting = (stackCanCastSpell) && (shere != sactive); //is it really useful?
 							
 	bool isCastingPossible = true;
 
@@ -2980,7 +2994,7 @@ bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CSta
 	if (creatureCasting)
 	{
 		if (creatureSpellToCast > -1)
-			spellID = creatureSpellToCast;
+			spellID = creatureSpellToCast; //TODO: merge with SpellTocast?
 	}
 	else if(spellDestSelectMode) //hero casting
 		spellID  = spellToCast->additionalInfo;

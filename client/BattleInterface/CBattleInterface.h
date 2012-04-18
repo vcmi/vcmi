@@ -132,7 +132,7 @@ private:
 	bool tacticsMode;
 	bool stackCanCastSpell; //if true, active stack could possibly cats some target spell
 	bool creatureCasting; //if true, stack currently aims to cats a spell
-	bool spellDestSelectMode; //if true, player is choosing destination for his spell
+	bool spellDestSelectMode; //if true, player is choosing destination for his spell - only for GUI / console
 	PossibleActions spellSelMode;
 	BattleAction * spellToCast; //spell for which player is choosing destination
 	const CSpell * sp; //spell pointer for convenience
@@ -264,6 +264,7 @@ public:
 
 	void handleHex(BattleHex myNumber, int eventType);
 	bool isCastingPossibleHere (const CStack * sactive, const CStack * shere, BattleHex myNumber);
+	bool canStackMoveHere (const CStack * sactive, BattleHex MyNumber); //TODO: move to BattleState / callback
 
 	BattleHex fromWhichHexAttack(BattleHex myNumber);
 	
