@@ -1823,11 +1823,6 @@ void CBattleInterface::castThisSpell(int spellID)
 		spellSelMode = NO_LOCATION;
 	}
 
-	if(sp->id == Spells::TELEPORT) //teleport
-	{
-		spellSelMode = TELEPORT; //FIXME: duplicating?
-	}
-
 	if(sp->range[ castingHero->getSpellSchoolLevel(sp) ].size() > 1) //spell has many-hex range
 	{
 		spellSelMode = ANY_LOCATION;
@@ -2676,7 +2671,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	BOOST_FOREACH (PossibleActions action, possibleActions)
 	{
 		bool legalAction = false; //this action is legal and can't be performed
-		bool illegalAction = false; //this action is not legal and should display message
+		bool notLegal = false; //this action is not legal and should display message
 		
 		switch (action)
 		{ 
@@ -2752,7 +2747,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				if (curInt->cb->battleCanTeleportTo(activeStack, myNumber, skill))
 					legalAction = true;
 				else
-					illegalAction = true;
+					notLegal = true;
 			}
 				break;
 			case SACRIFICE: //TODO
@@ -2772,9 +2767,10 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 		}
 		if (legalAction)
 			localActions.push_back (action);
-		else if (illegalAction)
+		else if (notLegal)
 			illegalActions.push_back (action);
 	}
+	illegalAction = INVALID; //clear it in first place
 
 	if (vstd::contains(localActions, selectedAction)) //try to use last selected action by default
 		currentAction = selectedAction;
@@ -2797,6 +2793,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	}
 
 	bool isCastingPossible = false;
+	bool secondaryTarget = false;
 
 	if (currentAction > INVALID)
 	{
@@ -2876,21 +2873,16 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % sp->name % shere->getName()); //Cast %s on %s
 					switch (sp->id)
 					{
-						case Spells::TELEPORT: //don't cast spell yet, only select target
-							possibleActions.clear();
-							possibleActions.push_back (TELEPORT);
-							break;
+						case Spells::TELEPORT:
 						case Spells::SACRIFICE:
-							possibleActions.clear();
-							possibleActions.push_back (SACRIFICE);
-							break;
-						default:
-							isCastingPossible = true;
+							secondaryTarget = true;
 							break;
 					}
+					isCastingPossible = true;
 				}
 				else //spell is random
 					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[301]) % shere->getName()); //Cast a spell on %
+				//we assume that teleport / sacrifice will never be avaliable as random spell
 				break;
 			case TELEPORT:
 				consoleMsg = CGI->generaltexth->allTexts[25]; //Teleport Here
@@ -2912,6 +2904,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case CATAPULT:
 				cursorFrame = ECursor::COMBAT_SHOOT_CATAPULT;
 				realizeAction = [=]{ giveCommand(BattleAction::CATAPULT, myNumber, activeStack->ID); };
+				break;
 			case CREATURE_INFO:
 			{
 				cursorFrame = ECursor::COMBAT_QUERY;
@@ -2965,15 +2958,31 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 		
 		realizeAction = [=]
 		{
-			if(creatureCasting)
+			if (secondaryTarget) //select that target now
 			{
-				giveCommand(BattleAction::MONSTER_SPELL, myNumber, sactive->ID, creatureSpellToCast);
+				possibleActions.clear();
+				switch (sp->id)
+				{
+					case Spells::TELEPORT: //don't cast spell yet, only select target		
+						possibleActions.push_back (TELEPORT);
+						break;
+					case Spells::SACRIFICE:
+						possibleActions.push_back (SACRIFICE);
+						break;
+				}
 			}
 			else
 			{
-				spellToCast->destinationTile = myNumber;
-				curInt->cb->battleMakeAction(spellToCast);
-				endCastingSpell();
+				if(creatureCasting)
+				{
+					giveCommand(BattleAction::MONSTER_SPELL, myNumber, sactive->ID, creatureSpellToCast);
+				}
+				else
+				{
+					spellToCast->destinationTile = myNumber;
+					curInt->cb->battleMakeAction(spellToCast);
+					endCastingSpell();
+				}
 			}
 		};
 	}

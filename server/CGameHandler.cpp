@@ -3075,7 +3075,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			}
 
 			//second attack
-			if(curStack->valOfBonuses(Bonus::ADDITIONAL_ATTACK) > 0
+			if(curStack //FIXME: clones tend to dissapear during actions
+				&& curStack->valOfBonuses(Bonus::ADDITIONAL_ATTACK) > 0
 				&& !curStack->hasBonusOfType(Bonus::SHOOTER)
 				&& curStack->alive()
 				&& stackAtEnd->alive()  )

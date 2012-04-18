@@ -505,6 +505,15 @@ void CArtHandler::giveArtBonus(int aid, Bonus::BonusType type, int val, int subt
 		added->description = artifacts[aid]->Name();
 	artifacts[aid]->addNewBonus(added);
 }
+void CArtHandler::makeItCreatureArt (int aid, bool onlyCreature /*=true*/)
+{
+	CArtifact *a = artifacts[aid];
+	if (onlyCreature)
+	{
+		a->possibleSlots[ArtBearer::HERO].clear();
+	}
+	a->possibleSlots[ArtBearer::CREATURE].push_back(ArtifactPosition::CREATURE_SLOT);
+};
 
 void CArtHandler::addBonuses()
 {
@@ -750,11 +759,6 @@ void CArtHandler::addBonuses()
 	//Stack artifact test
 	if (GameConstants::STACK_ARTIFACT)
 	{
-		auto makeItCreatureArt = [this](int aid)
-		{
-			CArtifact *a = artifacts[aid];
-			a->possibleSlots[ArtBearer::CREATURE].push_back(ArtifactPosition::CREATURE_SLOT);
-		};
 		makeItCreatureArt(141);
 		makeItCreatureArt(142);
 		makeItCreatureArt(143);
