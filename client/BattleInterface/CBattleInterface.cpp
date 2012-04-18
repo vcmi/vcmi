@@ -1564,8 +1564,11 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	case Spells::LIGHTNING_BOLT:
 	case Spells::TITANS_LIGHTNING_BOLT:
 	case Spells::THUNDERBOLT:
-		displayEffect(1, sc->tile);
-		displayEffect(spell.mainEffectAnim, sc->tile);
+		for (auto it = sc->affectedCres.begin(); it != sc->affectedCres.end(); ++it) //in case we have multiple targets
+		{
+			displayEffect(1, curInt->cb->battleGetStackByID(*it, false)->position);
+			displayEffect(spell.mainEffectAnim, curInt->cb->battleGetStackByID(*it, false)->position);
+		}
 		break;
 	case Spells::DISPEL:
 	case Spells::CURE:
@@ -2668,6 +2671,8 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	bool noStackIsHovered = true; //will cause removing a blue glow
 	
 	localActions.clear();
+	illegalActions.clear();
+
 	BOOST_FOREACH (PossibleActions action, possibleActions)
 	{
 		bool legalAction = false; //this action is legal and can't be performed
@@ -2709,11 +2714,11 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					legalAction = true;
 				break;
 			case HOSTILE_CREATURE_SPELL: //TODO: check spell immunity
-				if (shere && !ourStack && isCastingPossibleHere (sactive, shere, myNumber))
+				if (shere && shere->alive() && !ourStack && isCastingPossibleHere (sactive, shere, myNumber))
 					legalAction = true;
 				break;
 			case FRIENDLY_CREATURE_SPELL:
-				if (shere && ourStack && isCastingPossibleHere (sactive, shere, myNumber))
+				if (shere && shere->alive() && ourStack && isCastingPossibleHere (sactive, shere, myNumber))
 					legalAction = true;
 				break;
 			case RISING_SPELL:
@@ -2727,7 +2732,6 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					int spellID = curInt->cb->battleGetRandomStackSpell(shere, CBattleInfoCallback::RANDOM_GENIE);
 					if (spellID > -1)
 					{
-						sp = CGI->spellh->spells[spellID];
 						legalAction = true;
 					}
 				}
@@ -2867,22 +2871,21 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case HOSTILE_CREATURE_SPELL:
 			case FRIENDLY_CREATURE_SPELL:
 			case RISING_SPELL:
-			case RANDOM_GENIE_SPELL:
-				if (sp)
+				sp = CGI->spellh->spells[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo]; //necessary if creature has random Genie spell at same time
+				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % sp->name % shere->getName()); //Cast %s on %s
+				switch (sp->id)
 				{
-					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % sp->name % shere->getName()); //Cast %s on %s
-					switch (sp->id)
-					{
-						case Spells::TELEPORT:
-						case Spells::SACRIFICE:
-							secondaryTarget = true;
-							break;
-					}
-					isCastingPossible = true;
+					case Spells::TELEPORT:
+					case Spells::SACRIFICE:
+						secondaryTarget = true;
+						break;
 				}
-				else //spell is random
-					consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[301]) % shere->getName()); //Cast a spell on %
-				//we assume that teleport / sacrifice will never be avaliable as random spell
+				isCastingPossible = true;
+				break;
+			case RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be avaliable as random spell
+				sp = NULL;
+				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[301]) % shere->getName()); //Cast a spell on %
+				isCastingPossible = true;
 				break;
 			case TELEPORT:
 				consoleMsg = CGI->generaltexth->allTexts[25]; //Teleport Here
@@ -2975,7 +2978,14 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			{
 				if(creatureCasting)
 				{
-					giveCommand(BattleAction::MONSTER_SPELL, myNumber, sactive->ID, creatureSpellToCast);
+					if (sp)
+					{
+						giveCommand(BattleAction::MONSTER_SPELL, myNumber, sactive->ID, creatureSpellToCast);
+					}
+					else //unknown random spell
+					{
+						giveCommand(BattleAction::MONSTER_SPELL, myNumber, sactive->ID, curInt->cb->battleGetRandomStackSpell(shere, CBattleInfoCallback::RANDOM_GENIE));
+					}
 				}
 				else
 				{
@@ -2995,17 +3005,17 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 
 bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CStack * shere, BattleHex myNumber)
 {
-	creatureCasting = (stackCanCastSpell) && (shere != sactive); //is it really useful?
+	creatureCasting = stackCanCastSpell; //is it really useful?
 							
 	bool isCastingPossible = true;
 
 	int spellID = -1;
 	if (creatureCasting)
 	{
-		if (creatureSpellToCast > -1)
+		if (creatureSpellToCast > -1 && (shere != sactive)) //can't cast on itself
 			spellID = creatureSpellToCast; //TODO: merge with SpellTocast?
 	}
-	else if(spellDestSelectMode) //hero casting
+	else //hero casting
 		spellID  = spellToCast->additionalInfo;
 
 	sp = NULL;

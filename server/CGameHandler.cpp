@@ -3561,7 +3561,9 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 				|| (!spell->isPositive() && stack->owner != casterColor))
 			{
 				if(stack->isValidTarget()) //TODO: allow dead targets somewhere in the future
+				{
 					attackedCres.insert(stack);
+				}
 			}
 		}
 	}
@@ -3619,7 +3621,8 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 					continue;
 
 				BattleStackAttacked bsa;
-				if ((destination > -1 && (*it)->coversPos(destination)) || spell->range[spellLvl] == "X") //display effect only upon primary target of area spell
+				if ((destination > -1 && (*it)->coversPos(destination)) || (spell->range[spellLvl] == "X" || mode == ECastingMode::ENCHANTER_CASTING))
+					//display effect only upon primary target of area spell
 				{
 					bsa.flags |= BattleStackAttacked::EFFECT;
 					bsa.effect = spell->mainEffectAnim;
@@ -3632,7 +3635,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 					sc.dmgToDisplay += bsa.damageAmount;
 				}
 				bsa.stackAttacked = (*it)->ID;
-				bsa.attackerID = -1;
+				if (mode == ECastingMode::ENCHANTER_CASTING) //multiple damage spells cast
+					bsa.attackerID = stack->ID;
+				else
+					bsa.attackerID = -1;
 				(*it)->prepareAttacked(bsa);
 				si.stacks.push_back(bsa);
 			}
@@ -4769,6 +4775,8 @@ void CGameHandler::handleAttackBeforeCasting (const BattleAttack & bat)
 void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 {
 	const CStack * attacker = gs->curB->getStack(bat.stackAttacking);
+	if (!attacker) //could be already dead
+		return;
 	attackCasting(bat, Bonus::SPELL_AFTER_ATTACK, attacker);
 
 	if(bat.bsa[0].newAmount <= 0)
