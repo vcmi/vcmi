@@ -568,8 +568,8 @@ void CClient::battleStarted(const BattleInfo * info)
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 		new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1],
-			Rect((settings["video"]["gameRes"]["width"].Float()  - 800)/2, 
-			     (settings["video"]["gameRes"]["height"].Float() - 600)/2, 800, 600), att, def);
+			Rect((screen->w - 800)/2, 
+			     (screen->h - 600)/2, 800, 600), att, def);
 	}
 
 	if(vstd::contains(battleints,info->sides[0]))
