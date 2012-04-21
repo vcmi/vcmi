@@ -36,12 +36,10 @@ On Ubuntu 9.04 or later, run:
   sudo apt-get install g++ libsdl1.2debian-all libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev
 
 On Fedora run(this may not be complete):
-  sudo yum install gcc-c++ sdl-devel sdl_image-devel sdl_ttf-devel boost boost-devel boost-filesystem boost-iostreams boost-system boost-thread boost-program-options zlib-devel ffmpeg-devel ffmpeg-libs
+  sudo yum install gcc-c++ SDL-devel SDL_image-devel SDL_ttf-devel boost boost-devel boost-filesystem boost-iostreams boost-system boost-thread boost-program-options zlib-devel ffmpeg-devel ffmpeg-libs
 
-On linux distributions like Fedora where Mp3 support isn't given natively you have to compile sdl_mixer with Mp3 support.
-1. sudo yum install smpeg-devel
-2. Download sdl_mixer sources, unpack to ~/src/sdl_mixer for example
-3. Build sdl_mixer as follows: ./configure --prefix=/usr; make; make install
+On linux distributions like Fedora Mp3 support isn't given for the time being. 
+There is a mantis call here: http://bugs.vcmi.eu/view.php?id=933. 
 
 
 Create a directory /DATA_PATH/vcmi (default is usually /usr/local/share/games/vcmi)
@@ -50,11 +48,16 @@ that will contain the game data files. The /vcmi at the end is necessary.
 Create a directory that will contain the shared libraries. (default is usually /usr/local/lib64/games/vcmi)
 
 Then run configure:
-  ./configure
+  cd trunk/build
+  ../src/configure
 Or if you're installing to custom path:
-  ./configure --datadir=/DATA_PATH/ --bindir=/BIN_PATH/vcmi --libdir=/LIB_PATH/
+  ../src/configure --datadir=/DATA_PATH/ --bindir=/BIN_PATH/vcmi --libdir=/LIB_PATH/
 An example would be:
-  ./configure --datadir=/usr/local/share/games --bindir=/usr/local/games --libdir=/usr/local/lib64/games
+  ../src/configure --datadir=/usr/local/share/games --bindir=/usr/local/games --libdir=/usr/local/lib64/games
+
+Notice:
+The ../src/ is not a typo, it will place makefile scripts into the build dir 
+as the build dir is your working dir when calling the configure script.
 
 Then build vcmi:
   make
