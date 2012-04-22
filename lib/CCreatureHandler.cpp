@@ -191,6 +191,24 @@ bool CCreatureHandler::isEvil (si8 faction) const
 {
 	return faction != -1 && factionAlignments[faction] == -1;
 }
+static Bonus ParseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
+{
+	Bonus b;
+	std::string type = ability_vec[0].String();
+	auto it = bonusNameMap.find(type);
+	if (it == bonusNameMap.end())
+	{
+		tlog1 << "Error: invalid ability type " << type << " in creatures.txt" << std::endl;
+		return b;
+	}
+	b.type = it->second;
+	b.val = ability_vec[1].Float();
+	b.subtype = ability_vec[2].Float();
+	b.additionalInfo = ability_vec[3].Float();
+	b.duration = Bonus::PERMANENT;
+	b.turnsRemain = 0;
+	return b;
+}
 
 static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 {
@@ -402,12 +420,14 @@ void CCreatureHandler::loadCreatures()
 	tlog5 << "\t\tReading config/creatures.json" << std::endl;
 	const JsonNode config(GameConstants::DATA_DIR + "/config/creatures.json");
 
-	BOOST_FOREACH(const JsonNode &creature, config["creatures"].Vector()) {
+	BOOST_FOREACH(const JsonNode &creature, config["creatures"].Vector())
+	{
 		int creatureID = creature["id"].Float();
 		const JsonNode *value;
 
 		/* A creature can have several names. */
-		BOOST_FOREACH(const JsonNode &name, creature["name"].Vector()) {
+		BOOST_FOREACH(const JsonNode &name, creature["name"].Vector())
+		{
 			boost::assign::insert(nameToID)(name.String(), creatureID);
 		}
 
@@ -422,7 +442,8 @@ void CCreatureHandler::loadCreatures()
 			c->upgrades.insert(value->Float());
 
 		value = &creature["projectile_defname"];
-		if (!value->isNull()) {
+		if (!value->isNull())
+		{
 			idToProjectile[creatureID] = value->String();
 
 			value = &creature["projectile_spin"];
@@ -435,14 +456,17 @@ void CCreatureHandler::loadCreatures()
 
 		value = &creature["ability_add"];
 		if (!value->isNull()) {
-			BOOST_FOREACH(const JsonNode &ability, value->Vector()) {
+			BOOST_FOREACH(const JsonNode &ability, value->Vector())
+			{
 				AddAbility(c, ability.Vector());
 			}
 		}
 
 		value = &creature["ability_remove"];
-		if (!value->isNull()) {
-			BOOST_FOREACH(const JsonNode &ability, value->Vector()) {
+		if (!value->isNull())
+		{
+			BOOST_FOREACH(const JsonNode &ability, value->Vector())
+			{
 				RemoveAbility(c, ability);
 			}
 		}
@@ -458,14 +482,15 @@ void CCreatureHandler::loadCreatures()
 	//reading creature ability names
 	const JsonNode config2(GameConstants::DATA_DIR + "/config/bonusnames.json");
 
-	BOOST_FOREACH(const JsonNode &bonus, config2["bonuses"].Vector()) {
+	BOOST_FOREACH(const JsonNode &bonus, config2["bonuses"].Vector())
+	{
 		std::map<std::string,int>::const_iterator it_map;
 		std::string bonusID = bonus["id"].String();
 
 		it_map = bonusNameMap.find(bonusID);
-		if (it_map != bonusNameMap.end()) {
+		if (it_map != bonusNameMap.end())
 			stackBonuses[it_map->second] = std::pair<std::string, std::string>(bonus["name"].String(), bonus["description"].String());
-		} else
+		else
 			tlog2 << "Bonus " << bonusID << " not recognized, ignoring\n";
 	}
 
@@ -581,6 +606,37 @@ void CCreatureHandler::loadCreatures()
 	//experiment - add 100 to attack for creatures of tier 1
 // 	Bonus *b = new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::OTHER, +100, 0, 0);
 // 	addBonusForTier(1, b);
+
+	tlog5 << "\t\tReading config/commanders.json" << std::endl;
+	const JsonNode config3(GameConstants::DATA_DIR + "/config/commanders.json");
+
+	BOOST_FOREACH (auto creature, config3["factionCreatures"].Vector())
+	{
+		factionCommanders[creature["faction"].Float()] =  creature["id"].Float();
+	}
+	BOOST_FOREACH (auto bonus, config3["bonusPerLevel"].Vector())
+	{
+		commanderLevelPremy.push_back(&ParseBonus (bonus.Vector()));
+	}
+
+	i = 0;
+	BOOST_FOREACH (auto skill, config3["skillLevels"].Vector())
+	{
+		BOOST_FOREACH (auto skillLevel, skill.Vector())
+		{
+			skillLevels[i].push_back (skillLevel.Float());
+		}
+		++i;
+	}
+
+	BOOST_FOREACH (auto ability, config3["abilityRequirements"].Vector())
+	{
+		std::pair <Bonus, std::pair <ui8, ui8> > a;
+		a.first = ParseBonus (ability["ability"].Vector());
+		a.second.first = ability["skills"].Vector()[0].Float();
+		a.second.second = ability["skills"].Vector()[1].Float();
+		skillRequirements.push_back (a);
+	}
 }
 
 void CCreatureHandler::loadAnimationInfo()

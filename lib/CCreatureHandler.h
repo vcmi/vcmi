@@ -117,9 +117,9 @@ public:
 
 	//Commanders
 	std::map <ui8, ui32> factionCommanders;
-	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. We assume that number of casts equals skill level
-	std::vector <std::pair <Bonus, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
 	BonusList commanderLevelPremy; //bonus values added with each level-up
+	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
+	std::vector <std::pair <Bonus, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
 
 	void deserializationFix();
 	void loadCreatures();

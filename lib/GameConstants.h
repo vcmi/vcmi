@@ -177,7 +177,7 @@ namespace EBattleStackState
 
 namespace ECommander
 {
-	enum SecondarySkills {ATTACK, DEFENSE, HEALTH, DAMAGE, SPEED, SPELL_POWER};
+	enum SecondarySkills {ATTACK, DEFENSE, HEALTH, DAMAGE, SPEED, SPELL_POWER, CASTS, RESISTANCE};
 }
 
 namespace Obj

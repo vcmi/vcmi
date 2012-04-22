@@ -3005,7 +3005,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 
 bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CStack * shere, BattleHex myNumber)
 {
-	creatureCasting = stackCanCastSpell; //is it really useful?
+	creatureCasting = stackCanCastSpell && !spellDestSelectMode; //TODO: allow creatures to cast aimed spells
 							
 	bool isCastingPossible = true;
 
@@ -3022,7 +3022,7 @@ bool CBattleInterface::isCastingPossibleHere (const CStack * sactive, const CSta
 	if (spellID >= 0) 
 		sp = CGI->spellh->spells[spellID];
 
-	if (sp) //TODO: refactor?
+	if (sp)
 	{
 		if (creatureCasting)
 			isCastingPossible = (curInt->cb->battleCanCreatureCastThisSpell (sp, myNumber) == ESpellCastProblem::OK);

@@ -852,6 +852,7 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			//"E_SUMMON1.bmp"
 			//"E_SUMMON2.bmp"
 		case Bonus::FULL_HP_REGENERATION:
+		case Bonus::HP_REGENERATION:
 			fileName = "E_TROLL.bmp"; break;
 		case Bonus::UNDEAD:
 			fileName = "E_UNDEAD.bmp"; break;
