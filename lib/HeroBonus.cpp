@@ -654,13 +654,13 @@ void CBonusSystemNode::addNewBonus(Bonus *b)
 	CBonusSystemNode::treeChanged++;
 }
 
-void CBonusSystemNode::accumulateBonus(Bonus *b)
+void CBonusSystemNode::accumulateBonus(Bonus &b)
 {
-	Bonus *bonus = bonuses.getFirst(Selector::typeSubtype(b->type, b->subtype)); //only local bonuses are interesting //TODO: what about value type?
+	Bonus *bonus = bonuses.getFirst(Selector::typeSubtype(b.type, b.subtype)); //only local bonuses are interesting //TODO: what about value type?
 	if(bonus)
-		bonus += b->val;
+		bonus += b.val;
 	else
-		addNewBonus(b);
+		addNewBonus(new Bonus(b)); //duplicate needed, original may get destroyed
 }
 
 void CBonusSystemNode::removeBonus(Bonus *b)

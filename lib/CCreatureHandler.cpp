@@ -191,9 +191,9 @@ bool CCreatureHandler::isEvil (si8 faction) const
 {
 	return faction != -1 && factionAlignments[faction] == -1;
 }
-static Bonus ParseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
+static Bonus * ParseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
 {
-	Bonus b;
+	Bonus * b = new Bonus();
 	std::string type = ability_vec[0].String();
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
@@ -201,12 +201,12 @@ static Bonus ParseBonus (const JsonVector &ability_vec) //TODO: merge with AddAb
 		tlog1 << "Error: invalid ability type " << type << " in creatures.txt" << std::endl;
 		return b;
 	}
-	b.type = it->second;
-	b.val = ability_vec[1].Float();
-	b.subtype = ability_vec[2].Float();
-	b.additionalInfo = ability_vec[3].Float();
-	b.duration = Bonus::PERMANENT;
-	b.turnsRemain = 0;
+	b->type = it->second;
+	b->val = ability_vec[1].Float();
+	b->subtype = ability_vec[2].Float();
+	b->additionalInfo = ability_vec[3].Float();
+	b->duration = Bonus::PERMANENT;
+	b->turnsRemain = 0;
 	return b;
 }
 
@@ -616,7 +616,7 @@ void CCreatureHandler::loadCreatures()
 	}
 	BOOST_FOREACH (auto bonus, config3["bonusPerLevel"].Vector())
 	{
-		commanderLevelPremy.push_back(&ParseBonus (bonus.Vector()));
+		commanderLevelPremy.push_back(ParseBonus (bonus.Vector()));
 	}
 
 	i = 0;
@@ -632,7 +632,7 @@ void CCreatureHandler::loadCreatures()
 	BOOST_FOREACH (auto ability, config3["abilityRequirements"].Vector())
 	{
 		std::pair <Bonus, std::pair <ui8, ui8> > a;
-		a.first = ParseBonus (ability["ability"].Vector());
+		a.first = *ParseBonus (ability["ability"].Vector());
 		a.second.first = ability["skills"].Vector()[0].Float();
 		a.second.second = ability["skills"].Vector()[1].Float();
 		skillRequirements.push_back (a);

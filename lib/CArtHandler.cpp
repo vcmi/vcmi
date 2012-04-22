@@ -781,10 +781,10 @@ void CArtHandler::addBonuses()
 		giveArtBonus(142, Bonus::CATAPULT, 0);
 		giveArtBonus(142, Bonus::ACID_BREATH, 20);
 		giveArtBonus(142, Bonus::SHOTS, 200, 0, Bonus::PERCENT_TO_BASE);
-		giveArtBonus(142, Bonus::SPELL_BEFORE_ATTACK, 1, Spells::AGE, NULL, 50);
-		giveArtBonus(142, Bonus::SPELL_AFTER_ATTACK, 1, Spells::BERSERK, NULL, 50);
-		giveArtBonus(142, Bonus::SPELL_AFTER_ATTACK, 1, Spells::POISON, NULL, 50);
-		giveArtBonus(142, Bonus::SPELL_AFTER_ATTACK, 1, Spells::DISRUPTING_RAY, NULL, 50);
+		giveArtBonus(142, Bonus::SPELL_BEFORE_ATTACK, 50, Spells::AGE, NULL, 1);
+		giveArtBonus(142, Bonus::SPELL_AFTER_ATTACK, 50, Spells::BERSERK, NULL, 1);
+		giveArtBonus(142, Bonus::SPELL_AFTER_ATTACK, 50, Spells::POISON, NULL, 1);
+		giveArtBonus(142, Bonus::SPELL_AFTER_ATTACK, 50, Spells::DISRUPTING_RAY, NULL, 1);
 		artifacts[142].get()->setDescription ("Tripple shots, tripple attack, casts various spells during attack, attacks have range of Inferno, no distance penalty, catapult");
 		//Monster's Power
 		giveArtBonus(143, Bonus::STACK_HEALTH, +100, -1, Bonus::PERCENT_TO_BASE);
