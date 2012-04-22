@@ -49,7 +49,7 @@ int CHeroClass::chooseSecSkill(const std::set<int> & possibles) const //picks se
 		if(ran<0)
 			return *i;
 	}
-	throw std::string("Cannot pick secondary skill!");
+	throw std::runtime_error("Cannot pick secondary skill!");
 }
 
 EAlignment::EAlignment CHeroClass::getAlignment()

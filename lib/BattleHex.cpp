@@ -27,7 +27,7 @@ void BattleHex::operator+=(EDir dir)
 		setXY(x-1, y);
 		break;
 	default:
-		throw std::string("Disaster: wrong direction in BattleHex::operator+=!\n");
+		throw std::runtime_error("Disaster: wrong direction in BattleHex::operator+=!\n");
 		break;
 	}
 }

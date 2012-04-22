@@ -15,7 +15,7 @@ const CStackInstance &CCreatureSet::operator[](TSlot slot) const
 	if (i != stacks.end())
 		return *i->second;
 	else
-		throw std::string("That slot is empty!");
+		throw std::runtime_error("That slot is empty!");
 }
 
 const CCreature* CCreatureSet::getCreature(TSlot slot) const

@@ -70,7 +70,7 @@ struct StartInfo
 		if(playerInfos.find(no) != playerInfos.end())
 			return playerInfos[no];
 		tlog1 << "Cannot find info about player " << no <<". Throwing...\n";
-		throw std::string("Cannot find info about player");
+		throw std::runtime_error("Cannot find info about player");
 	}
 
 	PlayerSettings *getPlayersSettings(const ui8 nameID)

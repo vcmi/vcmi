@@ -1433,7 +1433,7 @@ int CGHeroInstance::getBoatType() const
 	case 2:
 		return 2;
 	default:
-		throw std::string("Wrong alignment!");
+		throw std::runtime_error("Wrong alignment!");
 	}
 }
 
@@ -1679,7 +1679,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	else if(ID == 106)
 		bd.text.addTxt(MetaString::ADVOB_TXT, 157); //{War Machine Factory} Would you like to purchase War Machines?
 	else
-		throw std::string("Illegal dwelling!");
+		throw std::runtime_error("Illegal dwelling!");
 
 	cb->showBlockingDialog(&bd, boost::bind(&CGDwelling::heroAcceptsCreatures, this, h, _1));
 }
@@ -2743,7 +2743,7 @@ const std::string & CGVisitableOPH::getHoverText() const
 		pom = 10;
 		break;
 	default:
-		throw std::string("Wrong CGVisitableOPH object ID!\n");
+		throw std::runtime_error("Wrong CGVisitableOPH object ID!\n");
 	}
 	hoverName = VLC->generaltexth->names[ID];
 	if(pom >= 0)
@@ -4037,7 +4037,7 @@ void CGPickable::chosen( int which, int heroID ) const
 		cb->changePrimSkill(heroID, 4, h->calculateXp(val2));
 		break;
 	default:
-		throw std::string("Unhandled treasure choice");
+		throw std::runtime_error("Unhandled treasure choice");
 	}
 	cb->removeObject(id);
 }

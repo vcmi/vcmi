@@ -110,7 +110,7 @@ PlayerStatus PlayerStatuses::operator[](ui8 player)
 	}
 	else
 	{
-		throw std::string("No such player!");
+		throw std::runtime_error("No such player!");
 	}
 }
 void PlayerStatuses::addPlayer(ui8 player)
@@ -141,7 +141,7 @@ bool PlayerStatuses::checkFlag(ui8 player, bool PlayerStatus::*flag)
 	}
 	else
 	{
-		throw std::string("No such player!");
+		throw std::runtime_error("No such player!");
 	}
 }
 void PlayerStatuses::setFlag(ui8 player, bool PlayerStatus::*flag, bool val)
@@ -153,7 +153,7 @@ void PlayerStatuses::setFlag(ui8 player, bool PlayerStatus::*flag, bool val)
 	}
 	else
 	{
-		throw std::string("No such player!");
+		throw std::runtime_error("No such player!");
 	}
 	cv.notify_all();
 }
@@ -166,7 +166,7 @@ void PlayerStatuses::addQuery(ui8 player, ui32 id)
 	}
 	else
 	{
-		throw std::string("No such player!");
+		throw std::runtime_error("No such player!");
 	}
 	cv.notify_all();
 }
@@ -179,7 +179,7 @@ void PlayerStatuses::removeQuery(ui8 player, ui32 id)
 	}
 	else
 	{
-		throw std::string("No such player!");
+		throw std::runtime_error("No such player!");
 	}
 	cv.notify_all();
 }

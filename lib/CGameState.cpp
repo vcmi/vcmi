@@ -993,7 +993,7 @@ void CGameState::init(StartInfo * si)
 		if(map->checksum != scenarioOps->mapfileChecksum)
 		{
 			tlog1 << "Wrong map checksum!!!" << std::endl;
-			throw std::string("Wrong checksum");
+			throw std::runtime_error("Wrong checksum");
 		}
 	}
 	else

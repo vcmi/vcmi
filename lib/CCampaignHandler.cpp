@@ -356,7 +356,7 @@ bool CCampaignHandler::startsAt( const ui8 * buffer, int size, int pos )
 			if(place < size)
 				return buffer[place];
 
-			throw std::string("Out of bounds!");
+			throw std::runtime_error("Out of bounds!");
 		}
 	};
 	try

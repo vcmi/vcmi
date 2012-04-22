@@ -83,7 +83,7 @@ std::string makeNumberShort(IntType number) //the output is a string containing 
 		}
 	}
 
-	throw std::string("We shouldn't be here - makeNumberShort");
+	throw std::runtime_error("We shouldn't be here - makeNumberShort");
 }
 
 typedef void (*TColorPutter)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);

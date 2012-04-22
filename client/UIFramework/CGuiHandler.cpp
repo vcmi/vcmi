@@ -418,7 +418,7 @@ SDLKey CGuiHandler::arrowToNum( SDLKey key )
 	default:
 		assert(0);
 	}
-	throw std::string("Wrong key!");
+	throw std::runtime_error("Wrong key!");
 }
 
 SDLKey CGuiHandler::numToDigit( SDLKey key )

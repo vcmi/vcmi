@@ -343,7 +343,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPal
 	break;
 
 	default:
-		throw std::string("Unknown sprite format.");
+		throw std::runtime_error("Unknown sprite format.");
 		break;
 	}
 
@@ -365,7 +365,7 @@ CDefHandler * CDefHandler::giveDef(const std::string & defName)
 {
 	ui8 * data = spriteh->giveFile(defName, FILE_ANIMATION);
 	if(!data)
-		throw "bad def name!";
+		throw std::runtime_error("bad def name!");
 	CDefHandler * nh = new CDefHandler();
 	nh->openFromMemory(data, defName);
 	delete [] data;

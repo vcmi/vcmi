@@ -68,7 +68,7 @@ namespace SRSLPraserHelpers
 		case 5: //left
 			return std::make_pair(x-1, y);
 		default:
-			throw std::string("Disaster: wrong direction in SRSLPraserHelpers::gotoDir!\n");
+			throw std::runtime_error("Disaster: wrong direction in SRSLPraserHelpers::gotoDir!\n");
 		}
 	}
 

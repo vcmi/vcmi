@@ -614,7 +614,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 	if((screen = SDL_SetVideoMode(w, h, suggestedBpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == NULL)
 	{
 		tlog1 << "Requested screen resolution is not available (" << w << "x" << h << "x" << suggestedBpp << "bpp)\n";
-		throw "Requested screen resolution is not available\n";
+		throw std::runtime_error("Requested screen resolution is not available\n");
 	}
 
 	tlog0 << "New screen flags: " << screen->flags << std::endl;

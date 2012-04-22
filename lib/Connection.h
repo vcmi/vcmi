@@ -184,7 +184,7 @@ struct SaveWrong
 {
 	static void invoke(Ser &s, const T &data)
 	{
-		throw std::string("Wrong save serialization call!");
+		throw std::runtime_error("Wrong save serialization call!");
 	}
 };
 template<typename Ser,typename T>
@@ -192,7 +192,7 @@ struct LoadWrong
 {
 	static void invoke(Ser &s, const T &data)
 	{
-		throw std::string("Wrong load serialization call!");
+		throw std::runtime_error("Wrong load serialization call!");
 	}
 };
 

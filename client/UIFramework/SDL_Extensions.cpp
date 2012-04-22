@@ -1259,7 +1259,7 @@ void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode 
 		}
 		break;
 	default:
-		throw std::string("Unsuppoerted efftct!");
+		throw std::runtime_error("Unsuppoerted efftct!");
 	}
 }
 

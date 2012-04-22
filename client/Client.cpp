@@ -262,7 +262,7 @@ void CClient::loadGame( const std::string & fname )
 	*serv << fname;
 	*serv >> pom8;
 	if(pom8) 
-		throw "Server cannot open the savegame!";
+		throw std::runtime_error("Server cannot open the savegame!");
 	else
 		tlog0 << "Server opened savegame properly.\n";
 
@@ -325,7 +325,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		c << *si;
 		c >> pom8;
 		if(pom8) 
-			throw "Server cannot open the map!";
+			throw std::runtime_error("Server cannot open the map!");
 		else
 			tlog0 << "Server opened map properly.\n";
 	}

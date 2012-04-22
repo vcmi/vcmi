@@ -26,7 +26,7 @@ static ui32 readNr(std::string &in, int &it)
 		if(in[last]=='\t' || in[last]=='\n' || in[last]==' ' || in[last]=='\r' || in[last]=='\n')
 			break;
 	if(last==in.size())
-		throw std::string("Cannot read number...");
+		throw std::runtime_error("Cannot read number...");
 
 	std::istringstream ss(in.substr(it,last-it));
 	it+=(1+last-it);

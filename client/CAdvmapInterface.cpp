@@ -1853,7 +1853,7 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 	} //end of hero is selected "case"
 	else
 	{
-		throw std::string("Nothing is selected...");
+		throw std::runtime_error("Nothing is selected...");
 	}
 
 	if(const IShipyard *shipyard = ourInaccessibleShipyard(topBlocking))

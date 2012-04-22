@@ -133,7 +133,7 @@ connerror1:
 		tlog1 << "No error info. " << std::endl;
 	delete io_service;
 	//delete socket;	
-	throw std::string("Can't establish connection :(");
+	throw std::runtime_error("Can't establish connection :(");
 }
 CConnection::CConnection(TSocket * Socket, std::string Name )
 	:socket(Socket),io_service(&Socket->get_io_service()), name(Name)//, send(this), rec(this)
@@ -150,7 +150,7 @@ CConnection::CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_servi
 	{ 
 		tlog1 << "Error on accepting: " << std::endl << error << std::endl;
 		delete socket;	
-		throw "Can't establish connection :("; 
+		throw std::runtime_error("Can't establish connection :("); 
 	}
 	init();
 }
