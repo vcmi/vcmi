@@ -213,6 +213,7 @@ struct DLL_LINKAGE Bonus
 		CAMPAIGN_BONUS,
 		SPECIAL_WEEK,
 		STACK_EXPERIENCE,
+		COMMANDER, //TODO: consider using simply STACK_INSTANCE
 		OTHER /*used for defensive stance and default value of spell level limit*/
 	};
 

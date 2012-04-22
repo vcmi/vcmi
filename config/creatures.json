@@ -1753,6 +1753,10 @@
 				"level": 0,
 				"name": [ "Paladin1" ],
 				"faction": -1,
+				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+								[ "CASTS", 1, 0, 0 ] ,
+								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+								[ "SPELLCASTER", 3, 37, 0 ] ], //expert cure
 				"defname": "ZM174NPC.DEF"
 			},
 
@@ -1761,6 +1765,10 @@
 				"level": 0,
 				"name": [ "Hierophant1" ],
 				"faction": -1,
+				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+								[ "CASTS", 1, 0, 0 ] ,
+								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+								[ "SPELLCASTER", 3, 27, 0 ] ], //expert shield
 				"defname": "ZM175NPC.DEF"
 			},
 
@@ -1769,6 +1777,10 @@
 				"level": 0,
 				"name": [ "TempleGuardian1" ],
 				"faction": -1,
+				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+								[ "CASTS", 1, 0, 0 ] ,
+								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+								[ "SPELLCASTER", 3, 44, 0 ] ], //expert precision
 				"defname": "ZM176NPC.DEF"
 			},
 
@@ -1777,6 +1789,10 @@
 				"level": 0,
 				"name": [ "Succubus1" ],
 				"faction": -1,
+				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+								[ "CASTS", 1, 0, 0 ] ,
+								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+								[ "SPELLCASTER", 3, 29, 0 ] ], //expert fire shield
 				"defname": "ZM177NPC.DEF"
 			},
 
@@ -1785,6 +1801,10 @@
 				"level": 0,
 				"name": [ "SoulEater1" ],
 				"faction": -1,
+				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+								[ "CASTS", 1, 0, 0 ] ,
+								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+								[ "SPELLCASTER", 3, 39, 0 ] ], //expert animate dead
 				"defname": "ZM178NPC.DEF"
 			},
 
@@ -1793,6 +1813,10 @@
 				"level": 0,
 				"name": [ "Brute1" ],
 				"faction": -1,
+				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+								[ "CASTS", 1, 0, 0 ] ,
+								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+								[ "SPELLCASTER", 3, 46, 0 ] ], //expert stone skin
 				"defname": "ZM179NPC.DEF"
 			},
 
@@ -1801,6 +1825,10 @@
 				"level": 0,
 				"name": [ "OgreLeader1" ],
 				"faction": -1,
+				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+								[ "CASTS", 1, 0, 0 ] ,
+								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+								[ "SPELLCASTER", 3, 37, 0 ] ], //expert cure
 				"defname": "ZM180NPC.DEF"
 			},
 
@@ -1809,6 +1837,10 @@
 				"level": 0,
 				"name": [ "Shaman1" ],
 				"faction": -1,
+				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+								[ "CASTS", 1, 0, 0 ] ,
+								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+								[ "SPELLCASTER", 3, 53, 0 ] ], //expert haste
 				"defname": "ZM181NPC.DEF"
 			},
 
@@ -1817,6 +1849,10 @@
 				"level": 0,
 				"name": [ "AstralSpirit1" ],
 				"faction": -1,
+				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+								[ "CASTS", 1, 0, 0 ] ,
+								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+								[ "SPELLCASTER", 3, 58, 0 ] ], //expert counterstrike
 				"defname": "ZM182NPC.DEF"
 			},
 

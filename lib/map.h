@@ -25,6 +25,7 @@ class CArtifactInstance;
 class CGDefInfo;
 class CGObjectInstance;
 class CGHeroInstance;
+class CCommanderInstance;
 class CGCreature;
 class CQuest;
 class CGTownInstance;
@@ -305,6 +306,7 @@ struct DLL_LINKAGE Mapa : public CMapHeader
 	std::vector< ConstTransitivePtr<CGHeroInstance> > heroes;
 	std::vector< ConstTransitivePtr<CGTownInstance> > towns;
 	std::vector< ConstTransitivePtr<CArtifactInstance> > artInstances; //stores all artifacts
+	//std::vector< ConstTransitivePtr<CCommanderInstance> > commanders;
 	//bmap<ui16, ConstTransitivePtr<CGCreature> > monsters;
 	//bmap<ui16, ConstTransitivePtr<CGHeroInstance> > heroesToBeat;
 

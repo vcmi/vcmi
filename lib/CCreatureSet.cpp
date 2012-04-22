@@ -946,6 +946,34 @@ ui8 CStackInstance::bearerType() const
 	return ArtBearer::CREATURE;
 }
 
+CCommanderInstance::CCommanderInstance()
+{
+	init();
+}
+
+CCommanderInstance::CCommanderInstance (TCreature id)
+{
+	init();
+	CStackInstance (id, 1); //init with single unit
+	name = "Commando"; //TODO - parse them
+}
+
+void CCommanderInstance::init()
+{
+	alive = true;
+	experience = 0;
+	count = 0;
+	type = NULL;
+	idRand = -1;
+	_armyObj = NULL;
+	setNodeType (Bonus::COMMANDER);	
+}
+
+CCommanderInstance::~CCommanderInstance()
+{
+
+}
+
 CStackBasicDescriptor::CStackBasicDescriptor()
 {
 	type = NULL;

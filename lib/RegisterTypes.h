@@ -85,6 +85,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CArtifact>();
 	s.template registerType<CCreature>();
 	s.template registerType<CStackInstance>();
+	s.template registerType<CCommanderInstance>();
 	s.template registerType<PlayerState>();
 	s.template registerType<TeamState>();
 	s.template registerType<CGameState>();

@@ -28,6 +28,7 @@ public:
 
 class DLL_LINKAGE CStackInstance : public CBonusSystemNode, public CStackBasicDescriptor, public CArtifactSet
 {
+protected:
 	const CArmedInstance *_armyObj; //stack must be part of some army, army must be part of some object
 public:
 	int idRand; //hlp variable used during loading game -> "id" placeholder for randomization
@@ -56,7 +57,7 @@ public:
 	si32 magicResistance() const;
 	int getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
-	void init();
+	virtual void init();
 	CStackInstance();
 	CStackInstance(TCreature id, TQuantity count);
 	CStackInstance(const CCreature *cre, TQuantity count);
@@ -65,7 +66,7 @@ public:
 	void setType(int creID);
 	void setType(const CCreature *c);
 	void setArmyObj(const CArmedInstance *ArmyObj);
-	void giveStackExp(expType exp);
+	virtual void giveStackExp(expType exp);
 	bool valid(bool allowUnrandomized) const;
 	ui8 bearerType() const OVERRIDE; //from CArtifactSet
 	virtual std::string nodeName() const OVERRIDE; //from CBonusSystemnode
@@ -74,6 +75,7 @@ public:
 
 class DLL_LINKAGE CCommanderInstance : public CStackInstance
 {
+public:
 	//TODO: what if Commander is not a part of creature set?
 
 	//commander class is determined by its base creature
@@ -81,6 +83,10 @@ class DLL_LINKAGE CCommanderInstance : public CStackInstance
 	std::string name; // each Commander has different name
 	std::vector <std::pair <ui8, ui8> > secondarySkills; //ID, level
 	//std::vector <CArtifactInstance *> arts;
+	void init();
+	CCommanderInstance();
+	CCommanderInstance (TCreature id);
+	~CCommanderInstance();
 
 	ui64 getPower() const {return 0;};
 	int getExpRank() const {return 0;};

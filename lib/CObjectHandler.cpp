@@ -711,6 +711,7 @@ CGHeroInstance::CGHeroInstance()
 	visitedTown = NULL;
 	type = NULL;
 	boat = NULL;
+	commander = NULL;
 	sex = 0xff;
 	secSkills.push_back(std::make_pair(-1, -1));
 	speciality.setNodeType(CBonusSystemNode::SPECIALITY);
@@ -772,6 +773,11 @@ void CGHeroInstance::initHero()
 		initArmy();
 	}
 	assert(validTypes());
+
+	if (GameConstants::COMMANDERS)
+	{
+		commander = new CCommanderInstance (VLC->creh->factionCommanders[type->heroType / 2]); //hopefully it returns town type
+	}
 
 	hoverName = VLC->generaltexth->allTexts[15];
 	boost::algorithm::replace_first(hoverName,"%s",name);

@@ -327,7 +327,7 @@ public:
 		h & exp & level & name & biography & portrait & mana & secSkills & movement
 			& sex & inTownGarrison & /*artifacts & artifWorn & */spells & patrol & moveDir;
 
-		h & type & speciality;
+		h & type & speciality & commander;
 		BONUS_TREE_DESERIALIZATION_FIX
 		//visitied town pointer will be restored by map serialization method
 	}

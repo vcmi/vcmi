@@ -376,6 +376,40 @@ std::vector<BattleHex> BattleInfo::getAccessibility( const CStack * stack, bool 
 	return ret;
 }
 
+BattleHex BattleInfo::getClosestTile (bool attackerOwned, int initialPos, std::set<BattleHex> & possibilities) const
+{
+	std::vector<BattleHex> sortedTiles (possibilities.begin(), possibilities.end()); //set can't be sorted properly :(
+
+	BattleHex initialHex = BattleHex(initialPos);
+	auto compareDistance = [initialPos, initialHex](const BattleHex left, const BattleHex right) -> bool
+	{
+		return initialHex.getDistance (initialHex, left) < initialHex.getDistance (initialHex, right);
+	};
+
+	boost::sort (sortedTiles, compareDistance); //closest tiles at front
+
+	int closestDistance = initialHex.getDistance(initialPos, sortedTiles.front()); //sometimes closest tiles can be many hexes away
+
+	auto notClosest = [closestDistance, initialPos](const BattleHex here) -> bool
+	{
+		return closestDistance < here.getDistance (initialPos, here);
+	};
+
+	boost::remove_if (sortedTiles, notClosest); //only closest tiles are interesting
+
+	auto compareHorizontal = [attackerOwned](const BattleHex left, const BattleHex right) -> bool
+	{
+		if (attackerOwned)
+			return left.getX() > right.getX(); //find furthest right
+		else
+			return left.getX() < right.getX(); //find furthest left
+	};
+
+	boost::sort (sortedTiles, compareHorizontal);
+
+	return sortedTiles.front();
+}
+
 int BattleInfo::getAvaliableHex(TCreature creID, bool attackerOwned, int initialPos) const
 {
 	int pos;
@@ -391,23 +425,15 @@ int BattleInfo::getAvaliableHex(TCreature creID, bool attackerOwned, int initial
 
 	bool ac[GameConstants::BFIELD_SIZE];
 	std::set<BattleHex> occupyable;
+
 	bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
 	bool flying = VLC->creh->creatures[creID]->isFlying();// vstd::contains(VLC->creh->creatures[creID]->bonuses, Bonus::FLYING);
-	getAccessibilityMap(ac, twoHex, attackerOwned, true, occupyable, flying);
-	for (int g = pos; (-1 < g) && (g < GameConstants::BFIELD_SIZE); )
-	{
-		if ((g % GameConstants::BFIELD_WIDTH != 0) && (g % GameConstants::BFIELD_WIDTH != GameConstants::BFIELD_WIDTH-1) && BattleInfo::isAccessible (g, ac, twoHex, attackerOwned, flying, true))
-		{
-			pos = g;
-			break;
-		}
-		if (attackerOwned)
-			++g; //probably some more sophisticated range-based iteration is needed
-		else
-			--g;
-	}
+	getAccessibilityMap (ac, twoHex, attackerOwned, true, occupyable, flying);
 
-	return pos;
+	if (!occupyable.size())
+		return -1; //all tiles are covered
+
+	return getClosestTile (attackerOwned, initialPos, occupyable);
 }
 
 bool BattleInfo::isStackBlocked(const CStack * stack) const
