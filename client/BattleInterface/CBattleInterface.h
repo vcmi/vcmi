@@ -111,6 +111,7 @@ private:
 	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 	std::map< int, CDefHandler * > idToProjectile; //projectiles of creatures (creatureID, defhandler)
 	std::map< int, CDefHandler * > idToObstacle; //obstacles located on the battlefield
+	std::map< int, SDL_Surface * > idToAbsoluteObstacle; //obstacles located on the battlefield
 	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation>
 	ui8 animCount;
 	const CStack * activeStack; //number of active stack; NULL - no one
@@ -261,6 +262,7 @@ public:
 	void hideQueue();
 	void showQueue();
 	PossibleActions selectionTypeByPositiveness(const CSpell & spell);
+	Rect hexPosition(BattleHex hex) const;
 
 	void handleHex(BattleHex myNumber, int eventType);
 	bool isCastingPossibleHere (const CStack * sactive, const CStack * shere, BattleHex myNumber);

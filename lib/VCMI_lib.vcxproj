@@ -239,6 +239,7 @@
     <ClCompile Include="CLogger.cpp" />
     <ClCompile Include="CMapInfo.cpp" />
     <ClCompile Include="CObjectHandler.cpp" />
+    <ClCompile Include="CObstacleInstance.cpp" />
     <ClCompile Include="Connection.cpp" />
     <ClCompile Include="CSpellHandler.cpp" />
     <ClCompile Include="CThreadHelper.cpp" />

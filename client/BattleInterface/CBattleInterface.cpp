@@ -270,10 +270,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	for(int h = 0; h < bfield.size(); ++h)
 	{
 		bfield[h].myNumber = h;
-
-		int x = 14 + ((h/GameConstants::BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(h%GameConstants::BFIELD_WIDTH);
-		int y = 86 + 42 * (h/GameConstants::BFIELD_WIDTH);
-		bfield[h].pos = genRect(cellShade->h, cellShade->w, x + pos.x, y + pos.y);
+		bfield[h].pos = hexPosition(h);
 		bfield[h].accessible = true;
 		bfield[h].myInterface = this;
 	}
@@ -341,10 +338,20 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	std::vector<CObstacleInstance> obst = curInt->cb->battleGetAllObstacles();
 	for(size_t t = 0; t < obst.size(); ++t)
 	{
-		idToObstacle[obst[t].ID] = CDefHandler::giveDef(CGI->heroh->obstacles.find(obst[t].ID)->second.defName);
-		for(size_t n = 0; n < idToObstacle[obst[t].ID]->ourImages.size(); ++n)
+		int ID = obst[t].ID;
+		std::string gfxName = obst[t].getInfo().defName;
+
+		if(!obst[t].isAbsoluteObstacle)
 		{
-			SDL_SetColorKey(idToObstacle[obst[t].ID]->ourImages[n].bitmap, SDL_SRCCOLORKEY, SDL_MapRGB(idToObstacle[obst[t].ID]->ourImages[n].bitmap->format,0,255,255));
+			idToObstacle[ID] = CDefHandler::giveDef(gfxName);
+			for(size_t n = 0; n < idToObstacle[ID]->ourImages.size(); ++n)
+			{
+				SDL_SetColorKey(idToObstacle[ID]->ourImages[n].bitmap, SDL_SRCCOLORKEY, SDL_MapRGB(idToObstacle[ID]->ourImages[n].bitmap->format,0,255,255));
+			}
+		}
+		else
+		{
+			idToAbsoluteObstacle[ID] = BitmapHandler::loadBitmap(gfxName);
 		}
 	}
 
@@ -625,10 +632,15 @@ void CBattleInterface::show(SDL_Surface * to)
 	//preparing obstacles to be shown
 	std::vector<CObstacleInstance> obstacles = curInt->cb->battleGetAllObstacles();
 	std::multimap<BattleHex, int> hexToObstacle;
+
 	for(size_t b = 0; b < obstacles.size(); ++b)
 	{
-		BattleHex position = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getMaxBlocked(obstacles[b].pos);
-		hexToObstacle.insert(std::make_pair(position, b));
+		const CObstacleInstance &oi = obstacles[b];
+		if(!oi.isAbsoluteObstacle)
+		{
+			//BattleHex position = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getMaxBlocked(obstacles[b].pos);
+			hexToObstacle.insert(std::make_pair(oi.pos, b));
+		}
 	}
 
 	////showing units //a lot of work...
@@ -892,11 +904,15 @@ void CBattleInterface::showObstacles(std::multimap<BattleHex, int> *hexToObstacl
 	for(std::multimap<BattleHex, int>::const_iterator it = obstRange.first; it != obstRange.second; ++it)
 	{
 		CObstacleInstance & curOb = obstacles[it->second];
-		std::pair<si16, si16> shift = CGI->heroh->obstacles.find(curOb.ID)->second.posShift;
-		int x = ((curOb.pos/GameConstants::BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(curOb.pos%GameConstants::BFIELD_WIDTH) + pos.x + shift.first;
-		int y = 86 + 42 * (curOb.pos/GameConstants::BFIELD_WIDTH) + pos.y + shift.second;
 		std::vector<Cimage> &images = idToObstacle[curOb.ID]->ourImages; //reference to animation of obstacle
-		blitAt(images[((animCount+1)/(4/getAnimSpeed()))%images.size()].bitmap, x, y, to);
+		Rect r = hexPosition(hex);
+		int offset = images.front().bitmap->h % 42;
+		if(offset > 15) //experimental value, may need tweaking if some obstacles are shown too low/high
+			offset -= 42;
+
+		r.y += 42 - images.front().bitmap->h + offset;
+		//r.y -= cellShade->h*CGI->heroh->obstacles.find(curOb.ID)->second.height - images.front().bitmap->h;
+		blitAt(images[((animCount+1)/(4/getAnimSpeed()))%images.size()].bitmap, r.x, r.y, to);
 	}
 }
 
@@ -2251,6 +2267,12 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack * activeStack)
 	curInt->cb->battleGetStackCountOutsideHexes(stackCountOutsideHexes);
 	//preparating background graphic with hexes and shaded hexes
 	blitAt(background, 0, 0, backgroundWithHexes);
+
+	//draw absolute obstacles (cliffs and so on)
+	BOOST_FOREACH(const CObstacleInstance &oi, curInt->cb->battleGetAllObstacles())
+		if(oi.isAbsoluteObstacle)
+			blitAt(idToAbsoluteObstacle[oi.ID], oi.getInfo().width, oi.getInfo().height, backgroundWithHexes);
+
 	if(settings["battle"]["cellBorders"].Bool())
 		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, backgroundWithHexes, NULL);
 
@@ -3182,6 +3204,16 @@ BattleHex CBattleInterface::fromWhichHexAttack(BattleHex myNumber)
 	}
 	return -1;
 }
+
+Rect CBattleInterface::hexPosition(BattleHex hex) const
+{
+	int x = 14 + ((hex.getY())%2==0 ? 22 : 0) + 44*hex.getX() + pos.x;
+	int y = 86 + 42 * hex.getY() + pos.y;
+	int w = cellShade->w;
+	int h = cellShade->h;
+	return Rect(x, y, w, h);
+}
+
 std::string CBattleInterface::SiegeHelper::townTypeInfixes[GameConstants::F_NUMBER] = {"CS", "RM", "TW", "IN", "NC", "DN", "ST", "FR", "EL"};
 
 CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface * _owner)

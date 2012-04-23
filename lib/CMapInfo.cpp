@@ -45,9 +45,9 @@ void CMapInfo::mapInit(const std::string &fname, const ui8 *map )
 		mapHeader->initFromMemory(map, i);
 		countPlayers();
 	}
-	catch (const std::string &e)
+	catch (const std::exception &e)
 	{
-		tlog1 << "\t\tWarning: evil map file: " << fname << ": " << e << std::endl; 
+		tlog1 << "\t\tWarning: evil map file: " << fname << ": " << e.what() << std::endl; 
 		delete mapHeader;
 		mapHeader = NULL;
 	}

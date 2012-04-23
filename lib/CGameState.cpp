@@ -1589,7 +1589,7 @@ void CGameState::init(StartInfo * si)
 	}
 }
 
-int CGameState::battleGetBattlefieldType(int3 tile)
+int CGameState::battleGetBattlefieldType(int3 tile) const
 {
 	if(tile==int3() && curB)
 		tile = curB->tile;
@@ -1609,27 +1609,28 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 			|| !objs[g]->coveringAt(objs[g]->pos.x - tile.x, tile.y - objs[g]->pos.y + 5)
 			) //look only for objects covering given tile
 			continue;
+
 		switch(objs[g]->ID)
 		{
-		case 222: //clover field
+		case Obj::CLOVER_FIELD:
 			return 19;
-		case 21: case 223: //cursed ground
+		case Obj::CURSED_GROUND1: case Obj::CURSED_GROUND2:
 			return 22;
-		case 224: //evil fog
+		case Obj::EVIL_FOG:
 			return 20;
-		case 225: //favourable winds
+		case Obj::FAVORABLE_WINDS:
 			return 21;
-		case 226: //fiery fields
+		case Obj::FIERY_FIELDS:
 			return 14;
-		case 227: //holy ground
+		case Obj::HOLY_GROUNDS:
 			return 18;
-		case 228: //lucid pools
+		case Obj::LUCID_POOLS:
 			return 17;
-		case 229: //magic clouds
+		case Obj::MAGIC_CLOUDS:
 			return 16;
-		case 46: case 230: //magic plains
+		case Obj::MAGIC_PLAINS1: case Obj::MAGIC_PLAINS2:
 			return 9;
-		case 231: //rocklands
+		case Obj::ROCKLANDS:
 			return 15;
 		}
 	}
@@ -1663,6 +1664,7 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 		return -1;
 	}
 }
+
 
 std::set<std::pair<int, int> > costDiff(const std::vector<ui32> &a, const std::vector<ui32> &b, const int modifier = 100) //modifer %
 {

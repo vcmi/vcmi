@@ -915,7 +915,7 @@ void CStackInstance::deserializationFix()
 {
 	const CCreature *backup = type;
 	type = NULL;
-	setType(backup);
+		setType(backup);
 	const CArmedInstance *armyBackup = _armyObj;
 	_armyObj = NULL;
 	setArmyObj(armyBackup);

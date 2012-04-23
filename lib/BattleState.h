@@ -155,6 +155,9 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode
 
 	int theOtherPlayer(int player) const;
 	ui8 whatSide(int player) const;
+
+	static int battlefieldTypeToBI(int bfieldType); //converts above to ERM BI format
+	static int battlefieldTypeToTerrain(int bfieldType); //converts above to ERM BI format
 };
 
 class DLL_LINKAGE CStack : public CBonusSystemNode, public CStackBasicDescriptor

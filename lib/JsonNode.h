@@ -75,6 +75,19 @@ public:
 	const JsonVector & Vector() const;
 	const JsonMap & Struct() const;
 
+	template<typename T>
+	std::vector<T> StdVector() const
+	{
+		
+		static_assert(typename std::is_arithmetic<T>::value, "This works with numbers only.");
+		std::vector<T> ret;
+		BOOST_FOREACH(const JsonNode &node, Vector())
+		{
+			ret.push_back(node.Float());
+		}
+		return ret;
+	}
+
 	//operator [], for structs only - get child node by name
 	JsonNode & operator[](std::string child);
 	const JsonNode & operator[](std::string child) const;

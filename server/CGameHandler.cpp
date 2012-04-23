@@ -3884,17 +3884,16 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	case Spells::REMOVE_OBSTACLE:
 		{
 			ObstaclesRemoved obr;
-			for(int g=0; g<gs->curB->obstacles.size(); ++g)
+			BOOST_FOREACH(const CObstacleInstance &obstacle, battleGetAllObstacles())
 			{
-				std::vector<BattleHex> blockedHexes = VLC->heroh->obstacles[gs->curB->obstacles[g].ID].getBlocked(gs->curB->obstacles[g].pos);
-
-				if(vstd::contains(blockedHexes, destination)) //this obstacle covers given hex
-				{
-					obr.obstacles.insert(gs->curB->obstacles[g].uniqueID);
-				}
+				if(vstd::contains(obstacle.getBlocked(), destination))
+					obr.obstacles.insert(obstacle.uniqueID);
 			}
+
 			if(!obr.obstacles.empty())
 				sendAndApply(&obr);
+			else
+				complain("There's no obstacle to remove!");
 			break;
 		}
 		break;

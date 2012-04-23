@@ -6,13 +6,7 @@
 #include "../lib/JsonNode.h"
 #include "GameConstants.h"
 #include <boost/version.hpp>
-#if BOOST_VERSION >= 103800
-#include <boost/spirit/include/classic.hpp>
-#else
-#include <boost/spirit.hpp>
-#endif
-
-using namespace boost::spirit;
+#include "BattleHex.h"
 
 extern CLodHandler * bitmaph;
 void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
@@ -57,74 +51,37 @@ EAlignment::EAlignment CHeroClass::getAlignment()
 	return (EAlignment::EAlignment)alignment;
 }
 
-int CObstacleInfo::getWidth() const
-{
-	int ret = 1;
-	int line = 1;
-	for(int h=0; h<blockmap.size(); ++h)
-	{
-		int cur = - line/2;
-		switch(blockmap[h])
-		{
-		case 'X' : case 'N':
-			++cur;
-			break;
-		case 'L':
-			if(cur > ret)
-				ret = cur;
-			++line;
-			break;
-		}
-	}
-	return ret;
-}
-
-int CObstacleInfo::getHeight() const
-{
-	int ret = 1;
-	for(int h=0; h<blockmap.size(); ++h)
-	{
-		if(blockmap[h] == 'L')
-		{
-			++ret;
-		}
-	}
-	return ret;
-}
-
 std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 {
 	std::vector<BattleHex> ret;
-	int cur = hex; //currently browsed hex
-	int curBeg = hex; //beginning of current line
-	for(int h=0; h<blockmap.size(); ++h)
+	if(isAbsoluteObstacle)
 	{
-		switch(blockmap[h])
-		{
-		case 'X':
-			ret.push_back(cur);
-			++cur;
-			break;
-		case 'L':
-			cur = curBeg + GameConstants::BFIELD_WIDTH;
-			if((cur/GameConstants::BFIELD_WIDTH)%2 != 1)
-			{
-				cur--;
-			}
-			curBeg = cur;
-			break;
-		case 'N':
-			++cur;
-			break;
-		}
+		assert(!hex.isValid());
+		range::copy(blockedTiles, std::back_inserter(ret));
+		return ret;
 	}
+
+	BOOST_FOREACH(int offset, blockedTiles)
+	{
+		BattleHex toBlock = hex + offset;
+		if((hex.getY() & 1) && !(toBlock.getY() & 1))
+			toBlock += BattleHex::LEFT;
+
+		if(!toBlock.isValid())
+			tlog1 << "Misplaced obstacle!\n";
+		else
+			ret.push_back(toBlock);
+	}
+
 	return ret;
 }
 
-BattleHex CObstacleInfo::getMaxBlocked(BattleHex hex) const
+bool CObstacleInfo::isAppropriate(int terrainType, int specialBattlefield /*= -1*/) const
 {
-	std::vector<BattleHex> blocked = getBlocked(hex);
-	return *std::max_element(blocked.begin(), blocked.end());
+	if(specialBattlefield != -1)
+		return vstd::contains(allowedSpecialBfields, specialBattlefield);
+
+	return vstd::contains(allowedTerrains, terrainType);
 }
 
 CHeroHandler::~CHeroHandler()
@@ -141,21 +98,27 @@ CHeroHandler::CHeroHandler()
 
 void CHeroHandler::loadObstacles()
 {
+	auto loadObstacles = [](const JsonNode &node, bool absolute, std::map<int, CObstacleInfo> &out)
+	{
+		BOOST_FOREACH(const JsonNode &obs, node.Vector()) 
+		{
+			int ID = obs["id"].Float();
+			CObstacleInfo & obi = out[ID];
+			obi.ID = ID;
+			obi.defName = obs["defname"].String();
+			obi.width = obs["width"].Float();
+			obi.height = obs["height"].Float();
+			obi.allowedTerrains = obs["allowedTerrain"].StdVector<ui8>();
+			obi.allowedSpecialBfields = obs["specialBattlefields"].StdVector<ui8>();
+			obi.blockedTiles = obs["blockedTiles"].StdVector<si16>();
+			obi.isAbsoluteObstacle = absolute;
+		}
+	};
+
+
 	const JsonNode config(GameConstants::DATA_DIR + "/config/obstacles.json");
-
-	BOOST_FOREACH(const JsonNode &obs, config["obstacles"].Vector()) {
-		CObstacleInfo obi;
-
-		obi.ID = obs["id"].Float();
-		obi.defName = obs["defname"].String();
-		obi.blockmap = obs["blockmap"].String();
-		obi.allowedTerrains = obs["terrains"].String();
-		assert(obi.allowedTerrains.size() >= 25);
-		obi.posShift.first = obs["shift_x"].Float();
-		obi.posShift.second = obs["shift_y"].Float();
-
-		obstacles[obi.ID] = obi;
-	}
+	loadObstacles(config["obstacles"], false, obstacles);
+	loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
 }
 
 void CHeroHandler::loadPuzzleInfo()
@@ -164,12 +127,12 @@ void CHeroHandler::loadPuzzleInfo()
 
 	int faction = 0;
 
-	BOOST_FOREACH(const JsonNode &puzzle, config["puzzles"].Vector()) {
-
+	BOOST_FOREACH(const JsonNode &puzzle, config["puzzles"].Vector()) 
+	{
 		int idx = 0;
 
-		BOOST_FOREACH(const JsonNode &piece, puzzle.Vector()) {
-
+		BOOST_FOREACH(const JsonNode &piece, puzzle.Vector()) 
+		{
 			SPuzzleInfo spi;
 
 			spi.x = piece["x"].Float();

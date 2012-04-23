@@ -153,7 +153,7 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 	//obstacles
 	for(ui32 b=0; b<obstacles.size(); ++b)
 	{
-		std::vector<BattleHex> blocked = VLC->heroh->obstacles[obstacles[b].ID].getBlocked(obstacles[b].pos);
+		std::vector<BattleHex> blocked = obstacles[b].getBlocked();
 		for(ui32 c=0; c<blocked.size(); ++c)
 		{
 			if(blocked[c] >=0 && blocked[c] < GameConstants::BFIELD_SIZE)
@@ -1501,6 +1501,81 @@ namespace CGH
 	}
 }
 
+//RNG that works like H3 one
+struct RandGen
+{
+	int seed;
+
+	void srand(int s)
+	{
+		seed = s;
+	}
+	void srand(int3 pos)
+	{
+		srand(110291 * pos.x + 167801 * pos.y + 81569);
+	}
+	int rand()
+	{
+		seed = 214013 * seed + 2531011;
+		return (seed >> 16) & 0x7FFF;
+	}
+	int rand(int min, int max)
+	{
+		if(min == max)
+			return min;
+		if(min > max)
+			return min;
+		return min + rand() % (max - min + 1);
+	}
+};
+
+struct RangeGenerator
+{
+	class ExhaustedPossibilities : public std::exception
+	{
+	};
+
+	RangeGenerator(int _min, int _max, boost::function<int()> _myRand)
+	{
+		myRand = _myRand;
+		min = _min;
+		remainingCount = _max - _min + 1;
+		remaining.resize(remainingCount, true);
+	}
+
+	//get number fulfilling predicate. Never gives the same number twice.
+	int getSuchNumber(boost::function<bool(int)> goodNumberPred = 0)
+	{
+		int ret = -1;
+		do
+		{
+			if(!remainingCount)
+				throw ExhaustedPossibilities();
+
+			int n = myRand() % remainingCount;
+			int i = 0;
+			for(;;i++)
+			{
+				assert(i < (int)remaining.size());
+				if(!remaining[i])
+					continue;
+				if(!n)
+					break;
+				n--;
+			}
+
+			remainingCount--;
+			remaining[i] = false;
+			ret = i + min;
+		} while(goodNumberPred && !goodNumberPred(ret));
+		return ret;
+	}
+
+	int min, remainingCount;
+	std::vector<bool> remaining;
+	boost::function<int()> myRand;
+};
+
 BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town )
 {
 	CMP_stack cmpst;
@@ -1577,7 +1652,8 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		stacks.push_back(stack);
 	}
 
-	for(unsigned g=0; g<stacks.size(); ++g) //shifting positions of two-hex creatures
+	//shifting positions of two-hex creatures
+	for(unsigned g=0; g<stacks.size(); ++g) 
 	{
 		//we should do that for creature bank too
 		if(stacks[g]->doubleWide() && stacks[g]->attackerOwned)
@@ -1667,61 +1743,96 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	}
 
 	//randomize obstacles
-	if(town == NULL && !creatureBank) //do it only when it's not siege and not creature bank
-	{
-		bool obAv[GameConstants::BFIELD_SIZE]; //availability of hexes for obstacles;
-		std::vector<int> possibleObstacles;
+ 	if(town == NULL && !creatureBank) //do it only when it's not siege and not creature bank
+ 	{
+		const int ABSOLUTE_OBSTACLES_COUNT = 34, USUAL_OBSTACLES_COUNT = 91; //shouldn't be changes if we want H3-like obstacle placement
 
-		for(int i=0; i<GameConstants::BFIELD_SIZE; ++i)
-		{
-			if(i%17 < 4 || i%17 > 12)
-			{
-				obAv[i] = false;
-			}
-			else
-			{
-				obAv[i] = true;
-			}
-		}
+		RandGen r;
+		auto ourRand = [&]{ return r.rand(); };
+		r.srand(tile);
+		const int sound = r.rand(1,8); //battle sound ID to play... can't do anything with it here
+		int tilesToBlock = r.rand(5,12);
+		const int specialBattlefield = battlefieldTypeToBI(terType);
 
-		for(std::map<int, CObstacleInfo>::const_iterator g=VLC->heroh->obstacles.begin(); g!=VLC->heroh->obstacles.end(); ++g)
-		{
-			if(g->second.allowedTerrains[terType-1] == '1') //we need to take terType with -1 because terrain ids start from 1 and allowedTerrains array is indexed from 0
-			{
-				possibleObstacles.push_back(g->first);
-			}
-		}
+		std::vector<BattleHex> blockedTiles;
 
-		srand(time(NULL));
-		if(possibleObstacles.size() > 0) //we cannot place any obstacles when we don't have them
+		auto appropriateAbsoluteObstacle = [&](int id)
 		{
-			int toBlock = rand()%6 + 6; //how many hexes should be blocked by obstacles
-			while(toBlock>0)
+			return VLC->heroh->absoluteObstacles[id].isAppropriate(terrain, specialBattlefield);
+		};
+		auto appropriateUsualObstacle = [&](int id) -> bool
+		{
+			return VLC->heroh->obstacles[id].isAppropriate(terrain, specialBattlefield);
+		};
+
+		if(r.rand(1,100) <= 40) //put cliff-like obstacle
+		{
+			RangeGenerator obidgen(0, ABSOLUTE_OBSTACLES_COUNT-1, ourRand);
+			
+			try
 			{
 				CObstacleInstance coi;
+				coi.isAbsoluteObstacle = true;
+				coi.ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
 				coi.uniqueID = curB->obstacles.size();
-				coi.ID = possibleObstacles[rand()%possibleObstacles.size()];
-				coi.pos = rand()%GameConstants::BFIELD_SIZE;
-				std::vector<BattleHex> block = VLC->heroh->obstacles[coi.ID].getBlocked(coi.pos);
-				bool badObstacle = false;
-				for(int b=0; b<block.size(); ++b)
-				{
-					if(block[b] < 0 || block[b] >= GameConstants::BFIELD_SIZE || !obAv[block[b]])
-					{
-						badObstacle = true;
-						break;
-					}
-				}
-				if(badObstacle) continue;
-				//obstacle can be placed
 				curB->obstacles.push_back(coi);
-				for(int b=0; b<block.size(); ++b)
-				{
-					if(block[b] >= 0 && block[b] < GameConstants::BFIELD_SIZE)
-						obAv[block[b]] = false;
-				}
-				toBlock -= block.size();
+
+				BOOST_FOREACH(BattleHex blocked, coi.getBlocked())
+					blockedTiles.push_back(blocked);
+				tilesToBlock -= VLC->heroh->absoluteObstacles[coi.ID].blockedTiles.size() / 2;
 			}
+			catch(RangeGenerator::ExhaustedPossibilities &)
+			{
+				//silently ignore, if we can't place absolute obstacle, we'll go wityh the usual ones
+			}
+		}
+
+		RangeGenerator obidgen(0, USUAL_OBSTACLES_COUNT-1, ourRand);
+		try
+		{
+			while(tilesToBlock > 0)
+			{
+				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
+				const CObstacleInfo &obi = VLC->heroh->obstacles[obid];
+
+				auto validPosition = [&](BattleHex pos) -> bool
+				{
+					if(obi.height >= pos.getY())
+						return false;
+					if(pos.getX() == 0)
+						return false;
+					if(pos.getX() + obi.width > 15)
+						return false;
+					if(vstd::contains(blockedTiles, pos))
+						return false;
+
+					BOOST_FOREACH(BattleHex blocked, obi.getBlocked(pos))
+					{
+						if(vstd::contains(blockedTiles, blocked))
+							return false;
+						int x = blocked.getX();
+						if(x <= 2 || x >= 14)
+							return false;
+					}
+
+					return true;
+				};
+
+				RangeGenerator posgenerator(18, 168, ourRand);
+
+				CObstacleInstance oi;
+				oi.ID = obid;
+				oi.pos = posgenerator.getSuchNumber(validPosition);
+				oi.uniqueID = curB->obstacles.size();
+				curB->obstacles.push_back(oi);
+
+				BOOST_FOREACH(BattleHex blocked, oi.getBlocked())
+					blockedTiles.push_back(blocked);
+				tilesToBlock -= obi.blockedTiles.size();
+			}
+		}
+		catch(RangeGenerator::ExhaustedPossibilities &)
+		{
 		}
 	}
 
@@ -2400,7 +2511,7 @@ bool BattleInfo::isObstacleOnTile(BattleHex tile) const
 	std::set<BattleHex> coveredHexes;
 	BOOST_FOREACH(const CObstacleInstance &obs, obstacles)
 	{
-		std::vector<BattleHex> blocked = VLC->heroh->obstacles.find(obs.ID)->second.getBlocked(obs.pos);
+		std::vector<BattleHex> blocked = obs.getBlocked();
 		for(size_t w = 0; w < blocked.size(); ++w)
 			coveredHexes.insert(blocked[w]);
 	}
@@ -2413,6 +2524,21 @@ const CStack * BattleInfo::getStackIf(boost::function<bool(const CStack*)> pred)
 	return stackItr == stacks.end() 
 		? NULL
 		: *stackItr;
+}
+
+int BattleInfo::battlefieldTypeToBI(int bfieldType)
+{
+	static const std::map<int, int> theMap = boost::assign::map_list_of(19, BattlefieldBI::CLOVER_FIELD)
+		(22, BattlefieldBI::CURSED_GROUND)(20, BattlefieldBI::EVIL_FOG)(21, BattlefieldBI::NONE)
+		(14, BattlefieldBI::FIERY_FIELDS)(18, BattlefieldBI::HOLY_GROUND)(17, BattlefieldBI::LUCID_POOLS)
+		(16, BattlefieldBI::MAGIC_CLOUDS)(9, BattlefieldBI::MAGIC_PLAINS)(15, BattlefieldBI::ROCKLANDS)
+		(1, BattlefieldBI::COASTAL);
+
+	auto itr = theMap.find(bfieldType);
+	if(itr != theMap.end())
+		return itr->second;
+
+	return BattlefieldBI::NONE;
 }
 
 CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)

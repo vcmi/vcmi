@@ -1,7 +1,6 @@
 #pragma once
 
 
-#include "BattleHex.h"
 #include "../lib/ConstTransitivePtr.h"
 #include "GameConstants.h"
 
@@ -18,6 +17,7 @@ class CHeroClass;
 class CDefHandler;
 class CGameInfo;
 class CGHeroInstance;
+struct BattleHex;
 
 struct SSpecialtyInfo
 {	si32 type;
@@ -85,22 +85,22 @@ public:
 
 struct DLL_LINKAGE CObstacleInfo
 {
-	int ID;
-	std::string defName, 
-		blockmap, //blockmap: X - blocked, N - not blocked, L - description goes to the next line, staring with the left bottom hex
-		allowedTerrains; /*terrains[i]: 1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   
-			7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees  
-			14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field  
-			20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough 
-			24. ship to ship   25. ship*/
-	std::pair<si16, si16> posShift; //shift of obstacle's position in the battlefield <x shift, y shift>, eg. if it's <-1, 2> obstacle will be printed one pixel to the left and two to the bottom
-	int getWidth() const; //returns width of obstacle in hexes
-	int getHeight() const; //returns height of obstacle in hexes
+	si32 ID;
+	std::string defName;
+	std::vector<ui8> allowedTerrains;
+	std::vector<ui8> allowedSpecialBfields;
+
+	ui8 isAbsoluteObstacle; //there may only one such obstacle in battle and its position is always the same
+	si32 width, height; //how much space to the right and up is needed to place obstacle (affects only placement algorithm)
+	std::vector<si16> blockedTiles; //offsets relative to obstacle position (that is its left bottom corner)
+
 	std::vector<BattleHex> getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
-	BattleHex getMaxBlocked(BattleHex hex) const; //returns maximal hex (max number) covered by this obstacle
+
+	bool isAppropriate(int terrainType, int specialBattlefield = -1) const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & ID & defName & blockmap & allowedTerrains & posShift;
+		h & ID & defName & allowedTerrains & allowedSpecialBfields & isAbsoluteObstacle & width & height & blockedTiles;
 	}
 };
 
@@ -140,6 +140,7 @@ public:
 	std::vector<SBallisticsLevelInfo> ballistics; //info about ballistics ability per level; [0] - none; [1] - basic; [2] - adv; [3] - expert
 
 	std::map<int, CObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
+	std::map<int, CObstacleInfo> absoluteObstacles; //info about obstacles that may be placed on battlefield
 	std::vector<int> nativeTerrains; //info about native terrains of different factions
 
 	void loadObstacles(); //loads info about obstacles
@@ -159,7 +160,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroClasses & heroes & expPerLevel & ballistics & obstacles & nativeTerrains & puzzleInfo;
+		h & heroClasses & heroes & expPerLevel & ballistics & obstacles & absoluteObstacles & nativeTerrains & puzzleInfo;
 		if(!h.saving)
 		{
 			//restore class pointers
