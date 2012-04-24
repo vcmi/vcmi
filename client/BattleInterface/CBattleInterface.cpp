@@ -907,7 +907,7 @@ void CBattleInterface::showObstacles(std::multimap<BattleHex, int> *hexToObstacl
 		std::vector<Cimage> &images = idToObstacle[curOb.ID]->ourImages; //reference to animation of obstacle
 		Rect r = hexPosition(hex);
 		int offset = images.front().bitmap->h % 42;
-		if(offset > 7) //experimental value, may need tweaking if some obstacles are shown too low/high
+		if(curOb.getInfo().blockedTiles.front() < 0)
 			offset -= 42;
 
 		r.y += 42 - images.front().bitmap->h + offset;
