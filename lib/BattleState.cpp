@@ -1543,16 +1543,22 @@ struct RangeGenerator
 		remaining.resize(remainingCount, true);
 	}
 
+	int generateNumber()
+	{
+		if(!remainingCount)
+			throw ExhaustedPossibilities();
+		if(remainingCount == 1)
+			return 0;
+		return myRand() % remainingCount;
+	}
+
 	//get number fulfilling predicate. Never gives the same number twice.
 	int getSuchNumber(boost::function<bool(int)> goodNumberPred = 0)
 	{
 		int ret = -1;
 		do
 		{
-			if(!remainingCount)
-				throw ExhaustedPossibilities();
-
-			int n = myRand() % remainingCount;
+			int n = generateNumber();
 			int i = 0;
 			for(;;i++)
 			{
