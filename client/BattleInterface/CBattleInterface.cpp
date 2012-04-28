@@ -92,7 +92,7 @@ void CBattleInterface::addNewAnim(CBattleAnimation * anim)
 
 CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen)
 	: queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
-	  activeStack(NULL), stackToActivate(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1),
+	  activeStack(NULL), stackToActivate(NULL), selectedStack(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1),
 	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(NULL), sp(NULL),
 	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), bfield(GameConstants::BFIELD_SIZE),
 	  givenCommand(NULL), myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
@@ -1385,7 +1385,7 @@ void CBattleInterface::newRound(int number)
 
 }
 
-void CBattleInterface::giveCommand(ui8 action, BattleHex tile, ui32 stackID, si32 additional)
+void CBattleInterface::giveCommand(ui8 action, BattleHex tile, ui32 stackID, si32 additional, si32 selected)
 {
 	const CStack *stack = curInt->cb->battleGetStackByID(stackID);
 	if(!stack && action != BattleAction::HERO_SPELL && action != BattleAction::RETREAT && action != BattleAction::SURRENDER)
@@ -1402,6 +1402,7 @@ void CBattleInterface::giveCommand(ui8 action, BattleHex tile, ui32 stackID, si3
 	ba->destinationTile = tile;
 	ba->stackNumber = stackID;
 	ba->additionalInfo = additional;
+	ba->selectedStack = selected;
 
 	//some basic validations
 	switch(action)
@@ -1591,6 +1592,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	case Spells::RESURRECTION:
 	case Spells::ANIMATE_DEAD:
 	case Spells::DISPEL_HELPFUL_SPELLS:
+	case Spells::SACRIFICE: //TODO: animation upon killed stack
 		for(std::set<ui32>::const_iterator it = sc->affectedCres.begin(); it != sc->affectedCres.end(); ++it)
 		{
 			displayEffect(spell.mainEffectAnim, curInt->cb->battleGetStackByID(*it, false)->position);
@@ -1600,10 +1602,10 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	case Spells::SUMMON_EARTH_ELEMENTAL:
 	case Spells::SUMMON_WATER_ELEMENTAL:
 	case Spells::SUMMON_AIR_ELEMENTAL:
-	case Spells::CLONE: //TODO: make it smarter?
+	case Spells::CLONE:
 	case Spells::REMOVE_OBSTACLE:
 	case Spells::CHAIN_LIGHTNING:
-		addNewAnim(new CDummyAnimation(this, 2));
+		addNewAnim(new CDummyAnimation(this, 2)); //interface won't return until animation is played. TODO: make it smarter?
 		break;
 	} //switch(sc->id)
 
@@ -2744,7 +2746,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					legalAction = true;
 				break;
 			case RISING_SPELL:
-				if (shere && shere->canBeHealed() && isCastingPossibleHere (sactive, shere, myNumber)) //TODO: at least one stack has to be raised by resurrection / animate dead
+				if (shere && shere->canBeHealed() && ourStack && isCastingPossibleHere (sactive, shere, myNumber)) //TODO: at least one stack has to be raised by resurrection / animate dead
 					legalAction = true;
 				break;
 			case RANDOM_GENIE_SPELL:
@@ -2771,13 +2773,17 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				else
 					skill = getActiveHero()->getSpellSchoolLevel (CGI->spellh->spells[spellToCast->additionalInfo]); 
 				//TODO: explicitely save power, skill
-				if (curInt->cb->battleCanTeleportTo(activeStack, myNumber, skill))
+				if (curInt->cb->battleCanTeleportTo(selectedStack, myNumber, skill))
 					legalAction = true;
 				else
 					notLegal = true;
 			}
 				break;
-			case SACRIFICE: //TODO
+			case SACRIFICE: //choose our living stack to sacrifice
+				if (shere && shere != selectedStack && ourStack && shere->alive())
+					legalAction = true;
+				else
+					notLegal = true;
 				break;
 			case CATAPULT:
 				if (isCatapultAttackable(myNumber))
@@ -2899,8 +2905,9 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % sp->name % shere->getName()); //Cast %s on %s
 				switch (sp->id)
 				{
-					case Spells::TELEPORT:
 					case Spells::SACRIFICE:
+					case Spells::TELEPORT:
+						selectedStack = shere; //remember firts target
 						secondaryTarget = true;
 						break;
 				}
@@ -2917,6 +2924,12 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case OBSTACLE:
 				consoleMsg = CGI->generaltexth->allTexts[550];
+				isCastingPossible = true;
+				break;
+			case SACRIFICE:
+				cursorFrame = ECursor::COMBAT_SACRIFICE;
+				consoleMsg = (boost::format(CGI->generaltexth->allTexts[549]) % shere->getName()).str(); //sacrifice the %s
+				spellToCast->selectedStack = shere->ID; //sacrificed creature is selected
 				isCastingPossible = true;
 				break;
 			case HEAL:
@@ -2970,6 +2983,9 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case TELEPORT:
 				consoleMsg = CGI->generaltexth->allTexts[24]; //Invalid Teleport Destination
 				break;
+			case SACRIFICE:
+				consoleMsg = CGI->generaltexth->allTexts[543]; //choose army to sacrifice
+				break;
 			default:
 				cursorFrame = ECursor::COMBAT_BLOCKED;
 				break;
@@ -2992,6 +3008,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				{
 					case Spells::TELEPORT: //don't cast spell yet, only select target		
 						possibleActions.push_back (TELEPORT);
+						spellToCast->selectedStack = selectedStack->ID;
 						break;
 					case Spells::SACRIFICE:
 						possibleActions.push_back (SACRIFICE);
@@ -3013,10 +3030,19 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				}
 				else
 				{
-					spellToCast->destinationTile = myNumber;
+					switch (sp->id)
+					{
+						case Spells::SACRIFICE:
+							spellToCast->destinationTile = selectedStack->position; //cast on first creature that will be resurrected
+							break;
+						default:
+							spellToCast->destinationTile = myNumber;
+							break;
+					}
 					curInt->cb->battleMakeAction(spellToCast);
 					endCastingSpell();
 				}
+				selectedStack = NULL;
 			}
 		};
 	}

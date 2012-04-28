@@ -116,6 +116,7 @@ private:
 	ui8 animCount;
 	const CStack * activeStack; //number of active stack; NULL - no one
 	const CStack * stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; NULL of none
+	const CStack * selectedStack; //for Teleport / Sacrifice
 	void activateStack(); //sets activeStack to stackToActivate etc.
 	int mouseHoveredStack; //stack hovered by mouse; if -1 -> none
     time_t lastMouseHoveredStackAnimationTime; // time when last mouse hovered animation occurred
@@ -157,7 +158,7 @@ private:
 
 	std::list<ProjectileInfo> projectiles; //projectiles flying on battlefield
 	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
-	void giveCommand(ui8 action, BattleHex tile, ui32 stackID, si32 additional=-1);
+	void giveCommand(ui8 action, BattleHex tile, ui32 stackID, si32 additional=-1, si32 selectedStack = -1);
 	bool isTileAttackable(const BattleHex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
 	bool isCatapultAttackable(BattleHex hex) const; //returns true if given tile can be attacked by catapult
 

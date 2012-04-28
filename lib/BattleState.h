@@ -52,7 +52,7 @@ struct DLL_LINKAGE AttackableTiles
 struct DLL_LINKAGE BattleInfo : public CBonusSystemNode
 {
 	ui8 sides[2]; //sides[0] - attacker, sides[1] - defender
-	si32 round, activeStack;
+	si32 round, activeStack, selectedStack;
 	ui8 siege; //    = 0 ordinary battle    = 1 a siege with a Fort    = 2 a siege with a Citadel    = 3 a siege with a Castle
 	const CGTownInstance * town; //used during town siege - id of attacked town; -1 if not town defence
 	int3 tile; //for background and bonuses
@@ -71,7 +71,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & sides & round & activeStack & siege & town & tile & stacks & belligerents & obstacles
+		h & sides & round & activeStack & selectedStack & siege & town & tile & stacks & belligerents & obstacles
 			& castSpells & si & battlefieldType;
 		h & heroes;
 		h & usedSpellsHistory & enchanterCounter;
@@ -120,7 +120,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode
 	std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
 	ui32 calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const;
 	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
-	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack) const;
+	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack, const CStack * sacrificedStack = NULL) const;
 	ui32 calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const; //for Archangel
 	ui32 calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //unused
 	bool resurrects(TSpell spellid) const; //TODO: move it to spellHandler?

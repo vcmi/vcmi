@@ -48,7 +48,7 @@
 		{ "id": 37, "effect": 1, "anim": 39, "ranges": [ "0", "0", "0", "0" ] },
 		{ "id": 38, "effect": 1, "anim": 79, "ranges": [ "0", "0", "0", "0" ] },
 		{ "id": 39, "effect": 1, "anim": 79, "ranges": [ "0", "0", "0", "0" ] },
-		{ "id": 40, "effect": 1, "anim": -1, "ranges": [ "0", "0", "0", "0" ] },
+		{ "id": 40, "effect": 1, "anim": 79, "ranges": [ "0", "0", "0", "0" ] },
 		{ "id": 41, "effect": 1, "anim": 36, "ranges": [ "0", "0", "0", "X" ] },
 		{ "id": 42, "effect": -1, "anim": 40, "ranges": [ "0", "0", "0", "X" ] },
 		{ "id": 43, "effect": 1, "anim": 4, "ranges": [ "0", "0", "0", "X" ] },

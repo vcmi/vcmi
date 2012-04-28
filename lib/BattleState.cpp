@@ -1168,10 +1168,14 @@ ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * ca
 	return ret;
 }
 
-ui32 BattleInfo::calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack) const
+ui32 BattleInfo::calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack, const CStack * sacrificedStack) const
 {
 	bool resurrect = resurrects(spell->id);
-	int healedHealth = caster->getPrimSkillLevel(2) * spell->power + spell->powers[caster->getSpellSchoolLevel(spell)];
+	int healedHealth;
+	if (spell->id == Spells::SACRIFICE && sacrificedStack)
+		healedHealth = (caster->getPrimSkillLevel(2) + sacrificedStack->MaxHealth() + spell->powers[caster->getSpellSchoolLevel(spell)]) * sacrificedStack->count;
+	else 
+		healedHealth = caster->getPrimSkillLevel(2) * spell->power + spell->powers[caster->getSpellSchoolLevel(spell)];
 	healedHealth = calculateSpellBonus(healedHealth, spell, caster, stack);
 	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
 }
@@ -2127,16 +2131,16 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int
 
 	//get dead stack if we cast resurrection or animate dead
 	const CStack *deadStack = getStackIf([dest](const CStack *s) { return !s->alive() && s->position == dest; });
-	const CStack *aliveStack = getStackIf([dest](const CStack *s) { return s->alive() && s->position == dest; });
+	const CStack *aliveStack = getStackIf([dest](const CStack *s) { return s->alive() && s->position == dest;});
 
 
 	if(spell->isRisingSpell())
 	{
-		if(!deadStack || aliveStack)
+		if(!deadStack && !aliveStack)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 		if(spell->id == Spells::ANIMATE_DEAD  &&  !deadStack->hasBonusOfType(Bonus::UNDEAD)) 
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(deadStack->owner != player) //you can resurrect only your own stacks
+		if(deadStack && deadStack->owner != player) //you can resurrect only your own stacks //FIXME: it includes alive stacks as well
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 	}
 	else if(spell->getTargetType() == CSpell::CREATURE  ||  spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)

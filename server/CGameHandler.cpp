@@ -3509,7 +3509,8 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	}
 }
 
-void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero, int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack)
+void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
+	int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack, si32 selectedStack)
 {
 	const CSpell *spell = VLC->spellh->spells[spellID];
 
@@ -3765,7 +3766,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 		{
 			BattleStackMoved bsm;
 			bsm.distance = -1;
-			bsm.stack = gs->curB->activeStack;
+			bsm.stack = selectedStack;
 			std::vector<BattleHex> tiles;
 			tiles.push_back(destination);
 			bsm.tilesToMove = tiles;
@@ -3776,6 +3777,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	case Spells::CURE:
 	case Spells::RESURRECTION:
 	case Spells::ANIMATE_DEAD:
+	case Spells::SACRIFICE:
 		{
 			int hpGained = 0;
 			if (stack)
@@ -3807,12 +3809,18 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 						hi.healedHP = gs->curB->calculateHealedHP(spell, usedSpellPower, spellLvl, *it);
 				}
 				else
-					hi.healedHP = gs->curB->calculateHealedHP(caster, spell, *it);
+					hi.healedHP = gs->curB->calculateHealedHP(caster, spell, *it, gs->curB->getStack(selectedStack));
 				hi.lowLevelResurrection = spellLvl <= 1;
 				shr.healedStacks.push_back(hi);
 			}
 			if(!shr.healedStacks.empty())
 				sendAndApply(&shr);
+			if (spellID == Spells::SACRIFICE) //remove victim
+			{
+				BattleStacksRemoved bsr;
+				bsr.stackIDs.insert (selectedStack); //somehow it works for teleport?
+				sendAndApply(&bsr);
+			}
 			break;
 		}
 	case Spells::SUMMON_FIRE_ELEMENTAL:
@@ -4013,7 +4021,8 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				StartAction start_action(ba);
 				sendAndApply(&start_action); //start spell casting
 
-				handleSpellCasting (ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero, h->getPrimSkillLevel(2), ECastingMode::HERO_CASTING, NULL);
+				handleSpellCasting (ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero, h->getPrimSkillLevel(2),
+									ECastingMode::HERO_CASTING, NULL, ba.selectedStack);
 
 				sendAndApply(&end_action);
 				if( !gs->curB->getStack(gs->curB->activeStack, false)->alive() )
