@@ -1757,7 +1757,8 @@
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 								[ "SPELLCASTER", 3, 37, 0 ] ], //expert cure
-				"defname": "ZM174NPC.DEF"
+				"defname": "ZM174NPC.DEF",
+				"projectile_defname": "PLCBOWX.DEF"
 			},
 
 			{
@@ -1769,7 +1770,8 @@
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 								[ "SPELLCASTER", 3, 27, 0 ] ], //expert shield
-				"defname": "ZM175NPC.DEF"
+				"defname": "ZM175NPC.DEF",
+				"projectile_defname": "PLCBOWX.DEF"
 			},
 
 			{
@@ -1781,7 +1783,8 @@
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 								[ "SPELLCASTER", 3, 44, 0 ] ], //expert precision
-				"defname": "ZM176NPC.DEF"
+				"defname": "ZM176NPC.DEF",
+				"projectile_defname": "PLCBOWX.DEF"
 			},
 
 			{
@@ -1793,7 +1796,8 @@
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 								[ "SPELLCASTER", 3, 29, 0 ] ], //expert fire shield
-				"defname": "ZM177NPC.DEF"
+				"defname": "ZM177NPC.DEF",
+				"projectile_defname": "PLCBOWX.DEF"
 			},
 
 			{
@@ -1805,7 +1809,8 @@
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 								[ "SPELLCASTER", 3, 39, 0 ] ], //expert animate dead
-				"defname": "ZM178NPC.DEF"
+				"defname": "ZM178NPC.DEF",
+				"projectile_defname": "PLCBOWX.DEF"
 			},
 
 			{
@@ -1817,7 +1822,8 @@
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 								[ "SPELLCASTER", 3, 46, 0 ] ], //expert stone skin
-				"defname": "ZM179NPC.DEF"
+				"defname": "ZM179NPC.DEF",
+				"projectile_defname": "PLCBOWX.DEF"
 			},
 
 			{
@@ -1829,7 +1835,8 @@
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 								[ "SPELLCASTER", 3, 37, 0 ] ], //expert cure
-				"defname": "ZM180NPC.DEF"
+				"defname": "ZM180NPC.DEF",
+				"projectile_defname": "PLCBOWX.DEF"
 			},
 
 			{
@@ -1841,7 +1848,8 @@
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 								[ "SPELLCASTER", 3, 53, 0 ] ], //expert haste
-				"defname": "ZM181NPC.DEF"
+				"defname": "ZM181NPC.DEF",
+				"projectile_defname": "PLCBOWX.DEF"
 			},
 
 			{
@@ -1853,7 +1861,8 @@
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 								[ "SPELLCASTER", 3, 58, 0 ] ], //expert counterstrike
-				"defname": "ZM182NPC.DEF"
+				"defname": "ZM182NPC.DEF",
+				"projectile_defname": "PLCBOWX.DEF"
 			},
 
 			{

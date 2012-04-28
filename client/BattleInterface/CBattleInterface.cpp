@@ -697,7 +697,7 @@ void CBattleInterface::show(SDL_Surface * to)
 			activate();
 
 		//activation of next stack
-		if(pendingAnims.size() == 0 && stackToActivate != NULL) //FIXME: Faerie Dragon's Chain Lightning doesn't have animation ATM
+		if(pendingAnims.size() == 0 && stackToActivate != NULL)
 		{
 			activateStack();
 		}
@@ -2474,6 +2474,8 @@ void CBattleInterface::showQueue()
 
 void CBattleInterface::startAction(const BattleAction* action)
 {
+	possibleActions.clear(); //no random interface calls for inactive stack
+
 	if(action->actionType == BattleAction::END_TACTIC_PHASE)
 	{
 		SDL_FreeSurface(menu);
@@ -2733,7 +2735,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				if(curInt->cb->battleCanShoot (activeStack, myNumber))
 					legalAction = true;
 				break;
-			case HOSTILE_CREATURE_SPELL: //TODO: check spell immunity
+			case HOSTILE_CREATURE_SPELL:
 				if (shere && shere->alive() && !ourStack && isCastingPossibleHere (sactive, shere, myNumber))
 					legalAction = true;
 				break;
@@ -2759,7 +2761,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case OBSTACLE:
 				if (isCastingPossibleHere (sactive, shere, myNumber))
-					legalAction = true; //TODO
+					legalAction = true;
 				break;
 			case TELEPORT:
 			{
