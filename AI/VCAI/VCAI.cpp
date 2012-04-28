@@ -2666,6 +2666,12 @@ bool shouldVisit (const CGHeroInstance * h, const CGObjectInstance * obj)
 		case Obj::LIBRARY_OF_ENLIGHTENMENT:
 			if (h->level < 12)
 				return false;
+		case Obj::TREE_OF_KNOWLEDGE:
+			{
+				TResources myRes = ai->myCb->getResourceAmount();
+				if (myRes[Res::GOLD] - GOLD_RESERVE < 2000 || myRes[Res::GEMS] < 10)
+					return false;
+			}
 			break;
 	}
 

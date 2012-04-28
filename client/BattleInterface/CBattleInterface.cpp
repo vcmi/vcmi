@@ -1941,14 +1941,9 @@ void CBattleInterface::activateStack()
 	{
 		stackCanCastSpell = true;
 		if(randomSpellcaster)
+			creatureSpellToCast = -1;
+		else
 			creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
-		else
-			creatureSpellToCast = spellcaster->subtype;
-
-		if(creatureSpellToCast < 0) //TODO proper way of detecting casters of positive spells
-			spellSelMode = FRIENDLY_CREATURE_SPELL;
-		else
-			spellSelMode = selectionTypeByPositiveness(*CGI->spellh->spells[creatureSpellToCast]);
 	}
 	else
 	{
@@ -1996,63 +1991,69 @@ void CBattleInterface::endCastingSpell()
 void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 {
 	possibleActions.clear();
-	//first action will be prioritized over later ones
-	if (stack->casts) //TODO: check for battlefield effects that prevent casting?
+	if (tacticsMode)
 	{
-		if (stack->hasBonusOfType (Bonus::SPELLCASTER))
-		{
-			 //TODO: poll possible spells
-			const CSpell * spell;
-			BonusList spellBonuses = *stack->getBonuses (Selector::type(Bonus::SPELLCASTER));
-			BOOST_FOREACH (Bonus * spellBonus, spellBonuses)
-			{
-				spell = CGI->spellh->spells[spellBonus->subtype];
-				if (spell->isRisingSpell())
-				{
-					possibleActions.push_back (RISING_SPELL);
-				}
-				//possibleActions.push_back (NO_LOCATION);
-				//possibleActions.push_back (ANY_LOCATION);
-				//possibleActions.push_back (OTHER_SPELL);
-				else
-				{
-					switch (spellBonus->subtype)
-					{
-						case Spells::REMOVE_OBSTACLE:
-							possibleActions.push_back (OBSTACLE);
-							break;
-						default:
-							possibleActions.push_back (selectionTypeByPositiveness (*spell));
-							break;
-					}
-				}
-
-			}
-			std::sort(possibleActions.begin(), possibleActions.end());
-			auto it = std::unique (possibleActions.begin(), possibleActions.end());
-			possibleActions.erase (it, possibleActions.end());
-		}
-		if (stack->hasBonusOfType (Bonus::RANDOM_SPELLCASTER))
-			possibleActions.push_back (RANDOM_GENIE_SPELL);
-		if (stack->hasBonusOfType (Bonus::DAEMON_SUMMONING))
-			possibleActions.push_back (RISE_DEMONS);
+		possibleActions += MOVE_TACTICS, CHOOSE_TACTICS_STACK;
 	}
-	if (stack->shots && stack->hasBonusOfType (Bonus::SHOOTER))
-		possibleActions.push_back (SHOOT);
-	if (stack->hasBonusOfType (Bonus::RETURN_AFTER_STRIKE))
-		possibleActions.push_back (ATTACK_AND_RETURN);
+	else
+	{
+		//first action will be prioritized over later ones
+		if (stack->casts) //TODO: check for battlefield effects that prevent casting?
+		{
+			if (stack->hasBonusOfType (Bonus::SPELLCASTER))
+			{
+				 //TODO: poll possible spells
+				const CSpell * spell;
+				BonusList spellBonuses = *stack->getBonuses (Selector::type(Bonus::SPELLCASTER));
+				BOOST_FOREACH (Bonus * spellBonus, spellBonuses)
+				{
+					spell = CGI->spellh->spells[spellBonus->subtype];
+					if (spell->isRisingSpell())
+					{
+						possibleActions.push_back (RISING_SPELL);
+					}
+					//possibleActions.push_back (NO_LOCATION);
+					//possibleActions.push_back (ANY_LOCATION);
+					//possibleActions.push_back (OTHER_SPELL);
+					else
+					{
+						switch (spellBonus->subtype)
+						{
+							case Spells::REMOVE_OBSTACLE:
+								possibleActions.push_back (OBSTACLE);
+								break;
+							default:
+								possibleActions.push_back (selectionTypeByPositiveness (*spell));
+								break;
+						}
+					}
 
-	possibleActions.push_back(ATTACK); //all active stacks can attack
-	possibleActions.push_back(WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
+				}
+				std::sort(possibleActions.begin(), possibleActions.end());
+				auto it = std::unique (possibleActions.begin(), possibleActions.end());
+				possibleActions.erase (it, possibleActions.end());
+			}
+			if (stack->hasBonusOfType (Bonus::RANDOM_SPELLCASTER))
+				possibleActions.push_back (RANDOM_GENIE_SPELL);
+			if (stack->hasBonusOfType (Bonus::DAEMON_SUMMONING))
+				possibleActions.push_back (RISE_DEMONS);
+		}
+		if (stack->shots && stack->hasBonusOfType (Bonus::SHOOTER))
+			possibleActions.push_back (SHOOT);
+		if (stack->hasBonusOfType (Bonus::RETURN_AFTER_STRIKE))
+			possibleActions.push_back (ATTACK_AND_RETURN);
 
-	if (stack->canMove() && stack->Speed()); //probably no reason to try move war machines or bound stacks
-		possibleActions.push_back (MOVE_STACK); //all active stacks can attack
+		possibleActions.push_back(ATTACK); //all active stacks can attack
+		possibleActions.push_back(WALK_AND_ATTACK); //not all stacks can always walk, but we will check this elsewhere
 
-	if (siegeH && stack->hasBonusOfType (Bonus::CATAPULT)) //TODO: check shots
-		possibleActions.push_back (CATAPULT);
-	if (stack->hasBonusOfType (Bonus::HEALER))
-		possibleActions.push_back (HEAL);
+		if (stack->canMove() && stack->Speed()); //probably no reason to try move war machines or bound stacks
+			possibleActions.push_back (MOVE_STACK); //all active stacks can attack
 
+		if (siegeH && stack->hasBonusOfType (Bonus::CATAPULT)) //TODO: check shots
+			possibleActions.push_back (CATAPULT);
+		if (stack->hasBonusOfType (Bonus::HEALER))
+			possibleActions.push_back (HEAL);
+	}
 }
 
 void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
@@ -2602,8 +2603,6 @@ void CBattleInterface::bTacticNextStack(const CStack *current /*= NULL*/)
 	else
 		stackActivated(stacksOfMine.front());
 
-	possibleActions.clear();
-	possibleActions += MOVE_TACTICS, CHOOSE_TACTICS_STACK;
 }
 
 CBattleInterface::PossibleActions CBattleInterface::selectionTypeByPositiveness(const CSpell & spell)
@@ -2702,17 +2701,14 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 		
 		switch (action)
 		{ 
-			case MOVE_TACTICS:
-				break;
 			case CHOOSE_TACTICS_STACK:
 				if (shere && ourStack)
 					legalAction = true;
 				break;
+			case MOVE_TACTICS:
 			case MOVE_STACK:
-			{
-				if (canStackMoveHere (sactive, myNumber))
+				if (canStackMoveHere (sactive, myNumber) && !shere)
 					legalAction = true;
-			}
 				break;
 			case ATTACK:
 			case WALK_AND_ATTACK:
@@ -2749,7 +2745,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case RANDOM_GENIE_SPELL:
 			{
-				if (shere)
+				if (shere && ourStack && shere != sactive) //only positive spells for other allied creatures
 				{
 					int spellID = curInt->cb->battleGetRandomStackSpell(shere, CBattleInfoCallback::RANDOM_GENIE);
 					if (spellID > -1)
@@ -2829,8 +2825,9 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[481]) % shere->getName()).str(); //Select %s
 				realizeAction = [=]{ stackActivated(shere); };
 				break;
+			case MOVE_TACTICS:
 			case MOVE_STACK:
-				if(activeStack->hasBonusOfType(Bonus::FLYING))
+				if (activeStack->hasBonusOfType(Bonus::FLYING))
 				{
 					cursorFrame = ECursor::COMBAT_FLY;
 					consoleMsg = (boost::format(CGI->generaltexth->allTexts[295]) % activeStack->getName()).str(); //Fly %s here
@@ -2843,7 +2840,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 
 				realizeAction = [=]
 				{
-					if(activeStack->doubleWide())
+					if (activeStack->doubleWide())
 					{
 						std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
 						int shiftedDest = myNumber + (activeStack->attackerOwned ? 1 : -1);
@@ -2854,7 +2851,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					}
 					else
 					{
-						giveCommand(BattleAction::WALK, myNumber, activeStack->ID);
+						giveCommand (BattleAction::WALK, myNumber, activeStack->ID);
 					}
 				};
 				break;
@@ -2867,7 +2864,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				realizeAction = [=]
 				{
 					BattleHex attackFromHex = fromWhichHexAttack(myNumber);
-					if(attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
+					if (attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
 					{
 						giveCommand(BattleAction::WALK_AND_ATTACK, attackFromHex, activeStack->ID, myNumber);
 					}

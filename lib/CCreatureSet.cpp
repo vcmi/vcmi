@@ -959,7 +959,7 @@ CCommanderInstance::CCommanderInstance (TCreature id)
 	name = "Commando"; //TODO - parse them
 }
 
-void CCommanderInstance::init() //called only after CStackInstance::init was executed
+void CCommanderInstance::init()
 {
 	alive = true;
 	experience = 0;
