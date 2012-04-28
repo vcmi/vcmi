@@ -153,7 +153,7 @@
 				"HeroList": { "size": 10, "x": 1175, "y": 201, "movePoints": "IMOBIL.DEF", "manaPoints": "IMANA.DEF", "arrowUp": "IAM012.DEF", "arrowDown": "IAM013.DEF" },
 				"TownList": { "size": 10, "x": 1313, "y": 201, "arrowUp": "IAM014.DEF", "arrowDown": "IAM015.DEF" },
 				"Minimap": { "width": 144, "height": 144, "x": 1196, "y": 26 },
-				"Overview": { "pics": 4, "size": 7, "graphic": "OvCast7.pcx" },
+				"Overview": { "pics": 4, "size": 5, "graphic": "OvCast5.pcx" },
 				"Statusbar": { "x": 8, "y": 723, "graphic": "AdRollvr1366.pcx" },
 				"ResDataBar": { "x": 0, "y": 743, "graphic": "ZResBar1366.pcx", "offsetX": 90, "offsetY": 2, "resSpace": 153, "resDateSpace": 185 },
 				"ButtonKingdomOv": { "x": 1245, "y": 197, "graphic": "IAM002L.DEF", "playerColoured": 1 },
