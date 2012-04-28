@@ -83,13 +83,14 @@ public:
 	std::string name; // each Commander has different name
 	std::vector <std::pair <ui8, ui8> > secondarySkills; //ID, level
 	//std::vector <CArtifactInstance *> arts;
-	void init();
+	void init() OVERRIDE;
 	CCommanderInstance();
 	CCommanderInstance (TCreature id);
 	~CCommanderInstance();
 
 	ui64 getPower() const {return 0;};
 	int getExpRank() const {return 0;};
+	ui8 bearerType() const OVERRIDE {return ArtBearer::COMMANDER;}; //from CArtifactSet
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

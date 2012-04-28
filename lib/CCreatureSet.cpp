@@ -949,20 +949,21 @@ ui8 CStackInstance::bearerType() const
 CCommanderInstance::CCommanderInstance()
 {
 	init();
+	name = "Unnamed";
 }
 
 CCommanderInstance::CCommanderInstance (TCreature id)
 {
 	init();
-	CStackInstance (id, 1); //init with single unit
+	setType(id);
 	name = "Commando"; //TODO - parse them
 }
 
-void CCommanderInstance::init()
+void CCommanderInstance::init() //called only after CStackInstance::init was executed
 {
 	alive = true;
 	experience = 0;
-	count = 0;
+	count = 1;
 	type = NULL;
 	idRand = -1;
 	_armyObj = NULL;

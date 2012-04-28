@@ -1,5 +1,6 @@
 {
-	"battle_positions": [
+	"battle_positions":
+	[
 		{
 			"name" : "attackerLoose", // loose formation, attacker
 			"levels": [
@@ -77,5 +78,10 @@
 				[ 15, 185, 171, 1, 100, 86, 8 ]
 				]
 		}
-	]
+	],
+	"commanderPositions":
+	{
+		"field" : [88, 98], //attacker/defender
+		"creBank" : [95, 8] //not expecting defendig hero at bank, but hell knows
+	}
 }

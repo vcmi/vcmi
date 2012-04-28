@@ -36,7 +36,7 @@ namespace ArtBearer
 {
 	enum
 	{
-		HERO, CREATURE//, COMMANDER
+		HERO, CREATURE, COMMANDER
 	};
 }
 

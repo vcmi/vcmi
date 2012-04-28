@@ -92,7 +92,7 @@ namespace GameConstants
 	//game modules
 	const bool STACK_EXP = true;
 	const bool STACK_ARTIFACT = true; //now toggle for testing
-	const bool COMMANDERS = false;
+	const bool COMMANDERS = true;
 	const bool MITHRIL = false;
 }
 

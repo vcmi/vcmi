@@ -777,6 +777,7 @@ void CGHeroInstance::initHero()
 	if (GameConstants::COMMANDERS)
 	{
 		commander = new CCommanderInstance (VLC->creh->factionCommanders[type->heroType / 2]); //hopefully it returns town type
+		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
 	}
 
 	hoverName = VLC->generaltexth->allTexts[15];

@@ -1616,7 +1616,9 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	}
 
 	//reading battleStartpos
+	//TODO: parse once to some structure
 	std::vector< std::vector<int> > attackerLoose, defenderLoose, attackerTight, defenderTight, attackerCreBank, defenderCreBank;
+	std::vector <int> commanderField, commanderBank;
 	const JsonNode config(GameConstants::DATA_DIR + "/config/battleStartpos.json");
 	const JsonVector &positions = config["battle_positions"].Vector();
 
@@ -1626,6 +1628,15 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	CGH::readBattlePositions(positions[3]["levels"], defenderTight);
 	CGH::readBattlePositions(positions[4]["levels"], attackerCreBank);
 	CGH::readBattlePositions(positions[5]["levels"], defenderCreBank);
+	
+	BOOST_FOREACH (auto position, config["commanderPositions"]["field"].Vector())
+	{
+		commanderField.push_back (position.Float());
+	}
+	BOOST_FOREACH (auto position, config["commanderPositions"]["creBank"].Vector())
+	{
+		commanderBank.push_back (position.Float());
+	}
 
 	//battleStartpos read
 	int k = 0; //stack serial 
@@ -1720,6 +1731,18 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		}
 	}
 	//war machines added
+
+	//adding commanders
+	for (int i = 0; i < 2; ++i)
+	{
+		if (heroes[i] && heroes[i]->commander)
+		{
+			CStack * stack = curB->generateNewStack (*heroes[i]->commander, !i, 255,
+				creatureBank ? commanderBank[i] : commanderField[i]);
+			stacks.push_back(stack);
+		}
+
+	}
 
 	if (curB->siege == 2 || curB->siege == 3)
 	{
