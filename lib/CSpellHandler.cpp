@@ -190,7 +190,7 @@ std::set<ui16> CSpell::rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) con
 	return ret;
 }
 
-CSpell::ETargetType CSpell::getTargetType() const
+CSpell::ETargetType CSpell::getTargetType() const //TODO: parse these at game launch
 {
 	if(attributes.find("CREATURE_TARGET_1") != std::string::npos
 		|| attributes.find("CREATURE_TARGET_2") != std::string::npos)

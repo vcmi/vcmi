@@ -697,7 +697,7 @@ void CBattleInterface::show(SDL_Surface * to)
 			activate();
 
 		//activation of next stack
-		if(pendingAnims.size() == 0 && stackToActivate != NULL)
+		if(pendingAnims.size() == 0 && stackToActivate != NULL) //FIXME: Faerie Dragon's Chain Lightning doesn't have animation ATM
 		{
 			activateStack();
 		}
@@ -1601,6 +1601,8 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	case Spells::SUMMON_WATER_ELEMENTAL:
 	case Spells::SUMMON_AIR_ELEMENTAL:
 	case Spells::CLONE: //TODO: make it smarter?
+	case Spells::REMOVE_OBSTACLE:
+	case Spells::CHAIN_LIGHTNING:
 		addNewAnim(new CDummyAnimation(this, 2));
 		break;
 	} //switch(sc->id)
@@ -1836,8 +1838,8 @@ void CBattleInterface::castThisSpell(int spellID)
 	if(sp->getTargetType() == CSpell::OBSTACLE)
 	{
 		spellSelMode = OBSTACLE;
-	}
-	if(sp->range[ castingHero->getSpellSchoolLevel(sp) ] == "X") //spell has no range
+	} //FIXME: Remove Obstacle has range X, unfortunatelly :(
+	else if(sp->range[ castingHero->getSpellSchoolLevel(sp) ] == "X") //spell has no range
 	{
 		spellSelMode = NO_LOCATION;
 	}
@@ -2756,7 +2758,8 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			}
 				break;
 			case OBSTACLE:
-					legalAction = false; //TODO
+				if (isCastingPossibleHere (sactive, shere, myNumber))
+					legalAction = true; //TODO
 				break;
 			case TELEPORT:
 			{
@@ -2913,7 +2916,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case OBSTACLE:
 				consoleMsg = CGI->generaltexth->allTexts[550];
 				isCastingPossible = true;
-				break;;
+				break;
 			case HEAL:
 				cursorFrame = ECursor::COMBAT_HEAL;
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[419]) % shere->getName()).str(); //Apply first aid to the %s
