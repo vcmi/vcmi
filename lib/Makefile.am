@@ -42,6 +42,7 @@ libvcmi_la_SOURCES = \
 	CMapInfo.h \
 	CObjectHandler.cpp \
 	CObjectHandler.h \
+	CObstacleInstance.cpp \
 	CObstacleInstance.h \
 	CSpellHandler.cpp \
 	CSpellHandler.h \

@@ -88,13 +88,13 @@ am_libvcmi_la_OBJECTS = libvcmi_la-BattleAction.lo \
 	libvcmi_la-CGameState.lo libvcmi_la-CGeneralTextHandler.lo \
 	libvcmi_la-CHeroHandler.lo libvcmi_la-CLodHandler.lo \
 	libvcmi_la-CLogger.lo libvcmi_la-CMapInfo.lo \
-	libvcmi_la-CObjectHandler.lo libvcmi_la-CSpellHandler.lo \
-	libvcmi_la-CTownHandler.lo libvcmi_la-CThreadHelper.lo \
-	libvcmi_la-Connection.lo libvcmi_la-HeroBonus.lo \
-	libvcmi_la-IGameCallback.lo libvcmi_la-JsonNode.lo \
-	libvcmi_la-NetPacksLib.lo libvcmi_la-ResourceSet.lo \
-	libvcmi_la-BattleHex.lo libvcmi_la-VCMI_Lib.lo \
-	libvcmi_la-map.lo
+	libvcmi_la-CObjectHandler.lo libvcmi_la-CObstacleInstance.lo \
+	libvcmi_la-CSpellHandler.lo libvcmi_la-CTownHandler.lo \
+	libvcmi_la-CThreadHelper.lo libvcmi_la-Connection.lo \
+	libvcmi_la-HeroBonus.lo libvcmi_la-IGameCallback.lo \
+	libvcmi_la-JsonNode.lo libvcmi_la-NetPacksLib.lo \
+	libvcmi_la-ResourceSet.lo libvcmi_la-BattleHex.lo \
+	libvcmi_la-VCMI_Lib.lo libvcmi_la-map.lo
 libvcmi_la_OBJECTS = $(am_libvcmi_la_OBJECTS)
 AM_V_lt = $(am__v_lt_$(V))
 am__v_lt_ = $(am__v_lt_$(AM_DEFAULT_VERBOSITY))
@@ -324,6 +324,7 @@ libvcmi_la_SOURCES = \
 	CMapInfo.h \
 	CObjectHandler.cpp \
 	CObjectHandler.h \
+	CObstacleInstance.cpp \
 	CObstacleInstance.h \
 	CSpellHandler.cpp \
 	CSpellHandler.h \
@@ -451,6 +452,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CLogger.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CMapInfo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CObjectHandler.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CObstacleInstance.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CSpellHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CThreadHelper.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CTownHandler.Plo@am__quote@
@@ -630,6 +632,14 @@ libvcmi_la-CObjectHandler.lo: CObjectHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CObjectHandler.cpp' object='libvcmi_la-CObjectHandler.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CObjectHandler.lo `test -f 'CObjectHandler.cpp' || echo '$(srcdir)/'`CObjectHandler.cpp
+
+libvcmi_la-CObstacleInstance.lo: CObstacleInstance.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CObstacleInstance.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CObstacleInstance.Tpo -c -o libvcmi_la-CObstacleInstance.lo `test -f 'CObstacleInstance.cpp' || echo '$(srcdir)/'`CObstacleInstance.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CObstacleInstance.Tpo $(DEPDIR)/libvcmi_la-CObstacleInstance.Plo
+@am__fastdepCXX_FALSE@	$(AM_V_CXX) @AM_BACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='CObstacleInstance.cpp' object='libvcmi_la-CObstacleInstance.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CObstacleInstance.lo `test -f 'CObstacleInstance.cpp' || echo '$(srcdir)/'`CObstacleInstance.cpp
 
 libvcmi_la-CSpellHandler.lo: CSpellHandler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CSpellHandler.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CSpellHandler.Tpo -c -o libvcmi_la-CSpellHandler.lo `test -f 'CSpellHandler.cpp' || echo '$(srcdir)/'`CSpellHandler.cpp

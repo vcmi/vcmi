@@ -17,7 +17,7 @@
 #define FOREACH_RED_PARENT(pname) 	TNodes lparents; getRedParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
 
 #define BONUS_NAME(x) ( #x, Bonus::x )
-	DLL_LINKAGE const std::map<std::string, int> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
+	const std::map<std::string, int> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
 #undef BONUS_NAME
 
 #define BONUS_LOG_LINE(x) tlog5 << x << std::endl

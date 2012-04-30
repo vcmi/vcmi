@@ -2548,6 +2548,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 	ma.src = src;
 	ma.dst = dst;
 	sendAndApply(&ma);
+	return true;
 }
 
 /**

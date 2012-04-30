@@ -412,6 +412,8 @@ BattleHex BattleInfo::getClosestTile (bool attackerOwned, int initialPos, std::s
 
 int BattleInfo::getAvaliableHex(TCreature creID, bool attackerOwned, int initialPos) const
 {
+	/*
+	//FIXME: unused?
 	int pos;
 	if (initialPos > -1)
 		pos = initialPos;
@@ -422,6 +424,7 @@ int BattleInfo::getAvaliableHex(TCreature creID, bool attackerOwned, int initial
 		else
 			pos = GameConstants::BFIELD_WIDTH; //top right
 	}
+	*/
 
 	bool ac[GameConstants::BFIELD_SIZE];
 	std::set<BattleHex> occupyable;
@@ -1783,7 +1786,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		RandGen r;
 		auto ourRand = [&]{ return r.rand(); };
 		r.srand(tile);
-		const int sound = r.rand(1,8); //battle sound ID to play... can't do anything with it here
+		r.rand(1,8); //battle sound ID to play... can't do anything with it here
 		int tilesToBlock = r.rand(5,12);
 		const int specialBattlefield = battlefieldTypeToBI(terType);
 
