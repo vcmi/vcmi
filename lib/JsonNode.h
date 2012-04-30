@@ -78,8 +78,7 @@ public:
 	template<typename T>
 	std::vector<T> StdVector() const
 	{
-		
-		static_assert(typename std::is_arithmetic<T>::value, "This works with numbers only.");
+		static_assert(std::is_arithmetic<T>::value, "This works with numbers only.");
 		std::vector<T> ret;
 		BOOST_FOREACH(const JsonNode &node, Vector())
 		{
