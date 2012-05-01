@@ -1387,6 +1387,8 @@ void CBattleInterface::newRound(int number)
 
 void CBattleInterface::giveCommand(ui8 action, BattleHex tile, ui32 stackID, si32 additional, si32 selected)
 {
+	possibleActions.clear(); //no checks allowed before action is resolved
+
 	const CStack *stack = curInt->cb->battleGetStackByID(stackID);
 	if(!stack && action != BattleAction::HERO_SPELL && action != BattleAction::RETREAT && action != BattleAction::SURRENDER)
 	{
