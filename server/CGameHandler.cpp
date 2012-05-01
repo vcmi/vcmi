@@ -382,7 +382,61 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		}
 	}
 
-	sendAndApply(battleResult.data);
+	ConstTransitivePtr <CGHeroInstance> winnerHero = battleResult.data->winner != 0 ? hero2 : hero1;
+	ConstTransitivePtr <CGHeroInstance> loserHero = battleResult.data->winner != 0 ? hero1 : hero2;
+
+	//TODO: check if hero surrended / fled
+	//TODO: display loot in window
+	if (result < BattleResult::SURRENDER && winnerHero)
+	{
+		if (loserHero)
+		{
+			auto artifactsWorn = loserHero->artifactsWorn;
+			BOOST_FOREACH (auto artSlot, artifactsWorn)
+			{
+				MoveArtifact ma; //TODO: put into a function?
+				ma.src = ArtifactLocation (loserHero, artSlot.first);
+				const CArtifactInstance * art =  ma.src.getArt();
+				if (art && !art->artType->isBig()) // don't move war machines or locked arts (spellbook)
+				{
+					ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
+					sendAndApply(&ma);
+				}
+			}
+			while (!loserHero->artifactsInBackpack.empty())
+			{
+				//we assume that no big artifatcs cna be found
+				MoveArtifact ma;
+				ma.src = ArtifactLocation (loserHero, GameConstants::BACKPACK_START); //backpack automatically shifts arts to beginning
+				const CArtifactInstance * art =  ma.src.getArt();
+				ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
+				sendAndApply(&ma);
+			}
+
+			//if (loserHero->commander) //TODO: what if commanders belong to no hero?
+			//{
+			//	BOOST_FOREACH (auto art, loserHero->commander->artifactsWorn)
+			//	{
+			//		MoveArtifact ma; //FIXME: boost::variant vs pointer casting is bad solution
+			//		ma.src = ArtifactLocation (loserHero->commander.get(), art.first);
+			//		ma.dst = ArtifactLocation (winnerHero, art.second.artifact->firstAvailableSlot(winnerHero));
+			//		sendAndApply(&ma);
+			//	}
+			//}
+		}
+		//BOOST_FOREACH (auto armySlot, gs->curB->belligerents[loser]->stacks)
+		//{
+		//	MoveArtifact ma;
+		//	ma.src = ArtifactLocation (armySlot.second, (ArtifactPosition::CREATURE_SLOT));
+		//	{
+		//		if (CArtifactInstance * art = ma.src.getArt())
+		//			ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
+		//		sendAndApply(&ma);
+		//	}
+		//}
+	}
+
+	sendAndApply(battleResult.data); //after this point casualties objects are destroyed
 
 	//Eagle Eye secondary skill handling
 	if(cs.spells.size())
@@ -420,10 +474,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		sendAndApply(&iw);
 		sendAndApply(&cs);
 	}
-	// Necromancy if applicable.
-	ConstTransitivePtr <CGHeroInstance> winnerHero = battleResult.data->winner != 0 ? hero2 : hero1;
-	ConstTransitivePtr <CGHeroInstance> loserHero = battleResult.data->winner != 0 ? hero1 : hero2;
 
+	// Necromancy if applicable.
 	const CStackBasicDescriptor raisedStack = winnerHero ? winnerHero->calculateNecromancy(*battleResult.data) : CStackBasicDescriptor();
 	// Give raised units to winner and show dialog, if any were raised,
 	// units will be given after casualities are taken
@@ -452,55 +504,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			changePrimSkill(hero2->id,4,battleResult.data->exp[1]);
 		else
 			afterBattleCallback();
-	}
-	//TODO: check if hero surrended / fled
-	//TODO: display loot in window
-	if (result < BattleResult::SURRENDER && winnerHero)
-	{
-		if (loserHero)
-		{
-			auto artifactsWorn = loserHero->artifactsWorn;
-			BOOST_FOREACH (auto artSlot, artifactsWorn)
-			{
-				MoveArtifact ma; //TODO: put into a function?
-				ma.src = ArtifactLocation (loserHero, artSlot.first);
-				const CArtifactInstance * art =  ma.src.getArt();
-				if (art && !art->artType->isBig()) // don't move war machines or locked arts (spellbook)
-				{
-					ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
-					sendAndApply(&ma);
-				}
-			}
-			while (!loserHero->artifactsInBackpack.empty())
-			{
-				//we assume that no big artifatcs cna be found
-				MoveArtifact ma;
-				ma.src = ArtifactLocation (loserHero, GameConstants::BACKPACK_START); //backpack automatically shifts arts to beginning
-				const CArtifactInstance * art =  ma.src.getArt();
-				ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
-				sendAndApply(&ma);
-			}
-			//if (loserHero->commander) //TODO: what if commanders belong to no hero?
-			//{
-			//	BOOST_FOREACH (auto art, loserHero->commander->artifactsWorn)
-			//	{
-			//		MoveArtifact ma; //FIXME: boost::variant vs pointer casting is bad solution
-			//		ma.src = ArtifactLocation (loserHero->commander.get(), art.first);
-			//		ma.dst = ArtifactLocation (winnerHero, art.second.artifact->firstAvailableSlot(winnerHero));
-			//		sendAndApply(&ma);
-			//	}
-			//}
-		}
-		//BOOST_FOREACH (auto armySlot, gs->curB->belligerents[loser]->stacks)
-		//{
-		//	MoveArtifact ma;
-		//	ma.src = ArtifactLocation (armySlot.second, (ArtifactPosition::CREATURE_SLOT));
-		//	{
-		//		if (CArtifactInstance * art = ma.src.getArt())
-		//			ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
-		//		sendAndApply(&ma);
-		//	}
-		//}
 	}
 
 	if (necroSlot != -1) 
