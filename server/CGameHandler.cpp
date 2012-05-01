@@ -527,7 +527,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	winLoseHandle(1<<sides[0] | 1<<sides[1]); //handle victory/loss of engaged players
 
-	if(result < BattleResult::SURRENDER) //loser has escaped or surrendered
+	if(result == BattleResult::SURRENDER || result == BattleResult::ESCAPE) //loser has escaped or surrendered
 	{
 		SetAvailableHeroes sah;
 		sah.player = loser;
