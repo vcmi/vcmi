@@ -3,7 +3,7 @@ StdInc.h.gch: StdInc.h
 	$(CXXCOMPILE) -DVCMI_DLL -fPIC -c $<
 
 pkglib_LTLIBRARIES = libvcmi.la
-libvcmi_la_LIBADD = @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lz -lpthread -ldl
+libvcmi_la_LIBADD = @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ -lz -lpthread
 libvcmi_la_CXXFLAGS = @SDL_CFLAGS@ -DVCMI_DLL
 libvcmi_la_SOURCES = \
 	BattleAction.cpp \

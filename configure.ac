@@ -57,8 +57,9 @@ AX_BOOST_THREAD
 AX_BOOST_IOSTREAMS
 AX_BOOST_PROGRAM_OPTIONS
 
-# Check whether librt is necessary
+# Check which libs are necessary
 AC_CHECK_LIB(rt, shm_open)
+AC_CHECK_LIB(dl, dlopen)
 
 # Check for SDL - Will accept 1.2 and 1.3
 AM_PATH_SDL("1.2.0", :, AC_MSG_ERROR([*** SDL version $SDL_VERSION not found!]))
