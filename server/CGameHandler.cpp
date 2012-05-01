@@ -342,6 +342,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	resultsApplied.player2 = bEndArmy2->tempOwner;
 	const CGHeroInstance *victoriousHero = gs->curB->heroes[battleResult.data->winner];
 
+	int result = battleResult.get()->result;
+
 	if(!duel)
 	{
 		//unblock engaged players
@@ -419,8 +421,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		sendAndApply(&cs);
 	}
 	// Necromancy if applicable.
-	const CGHeroInstance *winnerHero = battleResult.data->winner != 0 ? hero2 : hero1;
-	const CGHeroInstance *loserHero = battleResult.data->winner != 0 ? hero1 : hero2;
+	ConstTransitivePtr <CGHeroInstance> winnerHero = battleResult.data->winner != 0 ? hero2 : hero1;
+	ConstTransitivePtr <CGHeroInstance> loserHero = battleResult.data->winner != 0 ? hero1 : hero2;
 
 	const CStackBasicDescriptor raisedStack = winnerHero ? winnerHero->calculateNecromancy(*battleResult.data) : CStackBasicDescriptor();
 	// Give raised units to winner and show dialog, if any were raised,
@@ -451,6 +453,57 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		else
 			afterBattleCallback();
 	}
+	//TODO: check if hero surrended / fled
+	//TODO: display loot in window
+	//if (result < BattleResult::SURRENDER && winnerHero)
+	//{
+	//	if (loserHero)
+	//	{
+	//		BOOST_FOREACH (auto art, loserHero->artifactsWorn)
+	//		{
+	//			if (art.second.artifact)
+	//			{
+	//				MoveArtifact ma; //TODO: put into a function?
+	//				ma.src = ArtifactLocation (loserHero, art.first);
+	//				ma.dst = ArtifactLocation (winnerHero, art.second.artifact->firstAvailableSlot(winnerHero));
+	//				sendAndApply(&ma);
+	//			}
+	//		}
+	//		BOOST_FOREACH (auto art, loserHero->artifactsInBackpack)
+	//		{
+	//			if (art.artifact)
+	//			{
+	//				MoveArtifact ma;
+	//				ma.src = ArtifactLocation (loserHero, loserHero->getArtPos (art.artifact->artType->id, false)); //I smell trouble?
+	//				ma.dst = ArtifactLocation (winnerHero, art.artifact->firstAvailableSlot(winnerHero));
+	//				sendAndApply(&ma);
+	//			}
+	//		}
+	//		if (loserHero->commander) //TODO: what if commanders belong to no hero?
+	//		{
+	//			BOOST_FOREACH (auto art, loserHero->commander->artifactsWorn)
+	//			{
+	//				if (art.second.artifact)
+	//				{
+	//					MoveArtifact ma; //FIXME: boost::variant vs pointer casting is bad solution
+	//					ma.src = ArtifactLocation (ConstTransitivePtr <CStackInstance> (loserHero->commander), art.first);
+	//					ma.dst = ArtifactLocation (winnerHero, art.second.artifact->firstAvailableSlot(winnerHero));
+	//					sendAndApply(&ma);
+	//				}
+	//			}
+	//		}
+	//	}
+	//	BOOST_FOREACH (auto armySlot, gs->curB->belligerents[loser]->stacks)
+	//	{
+	//		MoveArtifact ma;
+	//		ma.src = ArtifactLocation (armySlot.second, (ArtifactPosition::CREATURE_SLOT));
+	//		{
+	//			if (CArtifactInstance * art = ma.src.getArt())
+	//				ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
+	//			sendAndApply(&ma);
+	//		}
+	//	}
+	//}
 
 	if (necroSlot != -1) 
 	{
@@ -474,8 +527,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	winLoseHandle(1<<sides[0] | 1<<sides[1]); //handle victory/loss of engaged players
 
-	int result = battleResult.get()->result;
-	if(result == 1 || result == 2) //loser has escaped or surrendered
+	if(result < BattleResult::SURRENDER) //loser has escaped or surrendered
 	{
 		SetAvailableHeroes sah;
 		sah.player = loser;

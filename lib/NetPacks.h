@@ -847,6 +847,7 @@ typedef si32 TArtPos;
 struct ArtifactLocation
 {
 	typedef boost::variant<ConstTransitivePtr<CGHeroInstance>, ConstTransitivePtr<CStackInstance> > TArtHolder;
+	//, ConstTransitivePtr<CCommanderInstance> ?
 
 	TArtHolder artHolder;
 	TArtPos slot;
@@ -1228,11 +1229,13 @@ struct BattleSetActiveStack : public CPackForClient//3002
 };
 struct BattleResult : public CPackForClient//3003
 {
+	enum EResult {NORMAL = 0, ESCAPE = 1, SURRENDER = 2};
+
 	BattleResult(){type = 3003;};
 	void applyFirstCl(CClient *cl);
 	void applyGs(CGameState *gs);
 
-	ui8 result; //0 - normal victory; 1 - escape; 2 - surrender
+	ui8 result; //EResult values
 	ui8 winner; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
 	std::map<ui32,si32> casualties[2]; //first => casualties of attackers - map crid => number
 	expType exp[2]; //exp for attacker and defender

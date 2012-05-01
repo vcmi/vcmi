@@ -975,6 +975,11 @@ CCommanderInstance::~CCommanderInstance()
 
 }
 
+void CCommanderInstance::setAlive (bool Alive)
+{
+	alive = Alive;
+}
+
 CStackBasicDescriptor::CStackBasicDescriptor()
 {
 	type = NULL;

@@ -87,6 +87,7 @@ public:
 	CCommanderInstance();
 	CCommanderInstance (TCreature id);
 	~CCommanderInstance();
+	void setAlive (bool alive);
 
 	ui64 getPower() const {return 0;};
 	int getExpRank() const {return 0;};

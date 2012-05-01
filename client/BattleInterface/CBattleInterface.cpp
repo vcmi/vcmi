@@ -1989,6 +1989,8 @@ void CBattleInterface::endCastingSpell()
 	CCS->curh->changeGraphic(1, 6);
 
 	//restore actions for current stack
+	if (!activeStack)
+		activateStack();
 	getPossibleActionsForStack (activeStack);
 }
 
@@ -2476,8 +2478,6 @@ void CBattleInterface::showQueue()
 
 void CBattleInterface::startAction(const BattleAction* action)
 {
-	possibleActions.clear(); //no random interface calls for inactive stack
-
 	if(action->actionType == BattleAction::END_TACTIC_PHASE)
 	{
 		SDL_FreeSurface(menu);
@@ -2528,7 +2528,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 	char txt[400];
 
-	if(action->actionType == BattleAction::HERO_SPELL) //when hero casts spell
+	if (action->actionType == BattleAction::HERO_SPELL) //when hero casts spell
 	{
 		if(action->side)
 			defendingHero->setPhase(4);
@@ -3039,6 +3039,8 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 							spellToCast->destinationTile = myNumber;
 							break;
 					}
+					activeStack = NULL; //disable interface checks for active stack
+
 					curInt->cb->battleMakeAction(spellToCast);
 					endCastingSpell();
 				}
