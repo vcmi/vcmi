@@ -843,11 +843,21 @@ struct RebalanceStacks : CGarrisonOperationPack  //526
 };
 
 typedef si32 TArtPos;
+typedef boost::variant<ConstTransitivePtr<CGHeroInstance>, ConstTransitivePtr<CStackInstance> > TArtHolder;
 
+//struct GetArtifactSet : boost::static_visitor<>
+//{
+//  void operator()(const ConstTransitivePtr<CGHeroInstance> &h) const {}
+//  void operator()(const ConstTransitivePtr<CStackInstance> &s) const {}
+//};
+//struct GetArtifactSetPtr : boost::static_visitor<>
+//{
+//  ConstTransitivePtr<CGHeroInstance> operator()(const ConstTransitivePtr<CGHeroInstance> &h) const { return h;}
+//  ConstTransitivePtr<CStackInstance> operator()(const ConstTransitivePtr<CStackInstance> &s) const { return s;}
+//};
 struct ArtifactLocation
 {
-	typedef boost::variant<ConstTransitivePtr<CGHeroInstance>, ConstTransitivePtr<CStackInstance> > TArtHolder;
-	//, ConstTransitivePtr<CCommanderInstance> ?
+
 
 	TArtHolder artHolder;
 	TArtPos slot;
@@ -860,7 +870,6 @@ struct ArtifactLocation
 	template <typename T>
 	ArtifactLocation(const T *ArtHolder, TArtPos Slot)
 	{
-
 		artHolder = const_cast<T*>(ArtHolder); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
 		slot = Slot;
 	}

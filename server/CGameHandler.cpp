@@ -384,60 +384,95 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	ConstTransitivePtr <CGHeroInstance> winnerHero = battleResult.data->winner != 0 ? hero2 : hero1;
 	ConstTransitivePtr <CGHeroInstance> loserHero = battleResult.data->winner != 0 ? hero1 : hero2;
+	std::vector<ui32> arts; //display them in window
 
-	//TODO: check if hero surrended / fled
 	//TODO: display loot in window
 	if (result < BattleResult::SURRENDER && winnerHero)
 	{
 		if (loserHero)
 		{
-			auto artifactsWorn = loserHero->artifactsWorn;
+			auto artifactsWorn = loserHero->artifactsWorn; //TODO: wrap it into a function, somehow (boost::variant -_-)
 			BOOST_FOREACH (auto artSlot, artifactsWorn)
 			{
-				MoveArtifact ma; //TODO: put into a function?
+				MoveArtifact ma;
 				ma.src = ArtifactLocation (loserHero, artSlot.first);
 				const CArtifactInstance * art =  ma.src.getArt();
 				if (art && !art->artType->isBig()) // don't move war machines or locked arts (spellbook)
 				{
+					arts.push_back (art->artType->id);
 					ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
 					sendAndApply(&ma);
 				}
 			}
 			while (!loserHero->artifactsInBackpack.empty())
 			{
-				//we assume that no big artifatcs cna be found
+				//we assume that no big artifacts can be found
 				MoveArtifact ma;
 				ma.src = ArtifactLocation (loserHero, GameConstants::BACKPACK_START); //backpack automatically shifts arts to beginning
 				const CArtifactInstance * art =  ma.src.getArt();
+				arts.push_back (art->artType->id);
 				ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
 				sendAndApply(&ma);
 			}
-
-			//if (loserHero->commander) //TODO: what if commanders belong to no hero?
-			//{
-			//	BOOST_FOREACH (auto art, loserHero->commander->artifactsWorn)
-			//	{
-			//		MoveArtifact ma; //FIXME: boost::variant vs pointer casting is bad solution
-			//		ma.src = ArtifactLocation (loserHero->commander.get(), art.first);
-			//		ma.dst = ArtifactLocation (winnerHero, art.second.artifact->firstAvailableSlot(winnerHero));
-			//		sendAndApply(&ma);
-			//	}
-			//}
+			if (loserHero->commander) //TODO: what if commanders belong to no hero?
+			{
+				artifactsWorn = loserHero->commander->artifactsWorn;
+				BOOST_FOREACH (auto artSlot, artifactsWorn)
+				{
+					MoveArtifact ma;
+					ma.src = ArtifactLocation (loserHero->commander.get(), artSlot.first);
+					const CArtifactInstance * art =  ma.src.getArt();
+					if (art && !art->artType->isBig())
+					{
+						arts.push_back (art->artType->id);
+						ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
+						sendAndApply(&ma);
+					}
+				}
+			}
 		}
-		//BOOST_FOREACH (auto armySlot, gs->curB->belligerents[loser]->stacks)
-		//{
-		//	MoveArtifact ma;
-		//	ma.src = ArtifactLocation (armySlot.second, (ArtifactPosition::CREATURE_SLOT));
-		//	{
-		//		if (CArtifactInstance * art = ma.src.getArt())
-		//			ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
-		//		sendAndApply(&ma);
-		//	}
-		//}
+		BOOST_FOREACH (auto armySlot, gs->curB->belligerents[!battleResult.data->winner]->stacks)
+		{
+			auto artifactsWorn = armySlot.second->artifactsWorn;
+			BOOST_FOREACH (auto artSlot, artifactsWorn)
+			{
+				MoveArtifact ma;
+				ma.src = ArtifactLocation (armySlot.second, artSlot.first);
+				const CArtifactInstance * art =  ma.src.getArt();
+				if (art && !art->artType->isBig())
+				{
+					arts.push_back (art->artType->id);
+					ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
+					sendAndApply(&ma);
+				}
+			}
+		}
 	}
 
 	sendAndApply(battleResult.data); //after this point casualties objects are destroyed
 
+	if (arts.size()) //display loot
+	{
+		InfoWindow iw;
+		iw.player = winnerHero->tempOwner;
+
+		iw.text.addTxt (MetaString::GENERAL_TXT, 30); //You have captured enemy artifact
+
+		BOOST_FOREACH (auto id, arts) //TODO; separate function to display loot for various ojects?
+		{
+			iw.components.push_back (Component (Component::ARTIFACT, id, 0, 0));
+			if(iw.components.size() >= 14)
+			{
+				sendAndApply(&iw);
+				iw.components.clear();
+				iw.text.addTxt (MetaString::GENERAL_TXT, 30); //repeat
+			}
+		}
+		if (iw.components.size())
+		{
+			sendAndApply(&iw);
+		}
+	}
 	//Eagle Eye secondary skill handling
 	if(cs.spells.size())
 	{
@@ -547,7 +582,6 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		sendAndApply(&sah);
 	}
 }
-
 void CGameHandler::afterBattleCallback() //object interaction after leveling up is done
 {
 	if(battleEndCallback && *battleEndCallback)
@@ -2751,6 +2785,14 @@ bool CGameHandler::sellArtifact(const IMarket *m, const CGHeroInstance *h, int a
 	giveResource(h->tempOwner, rid, resVal);
 	return true;
 }
+
+//void CGameHandler::lootArtifacts (TArtHolder source, TArtHolder dest, std::vector<ui32> &arts)
+//{
+//	//const CGHeroInstance * h1 = dynamic_cast<CGHeroInstance *> source;
+//	//auto s = boost::apply_visitor(GetArtifactSetPtr(), source);
+//	{
+//	}
+//}
 
 bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, int skill)
 {
