@@ -1,21 +1,10 @@
-I. Getting the sources
-VCMI is still in development. We recommend the following initial directory structure:
-trunk
-trunk/src -> contains sources and is under SVN control
-trunk/build -> contains build output, makefiles, object files,...
+This readme covers VCMI compilation on Unix-like systems.
 
-You can get the sources with subversion:
-  cd trunk
-  svn co https://vcmi.svn.sourceforge.net/svnroot/vcmi/trunk src
+For complete installation instructions see VCMI wiki:
+http://wiki.vcmi.eu/index.php?title=Installation_on_Linux
 
-II. Compiling
 
-Optionaly, if you want to regenerate the build system, you will need the following tools:
- * libtool
- * automake
- * autoconf
-And then regenerate the build system with
-  autoreconf -i
+I. Prerequisites
 
 To compile, at least the following packages (and their development counterparts) are needed to build:
     * libstdc++ devel
@@ -25,32 +14,52 @@ To compile, at least the following packages (and their development counterparts)
 	* SDL_ttf and SDL_ttf-devel
 	* zlib and zlib-devel
 	* the ffmpeg libraries (libavformat and libswscale). Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names.
-	* boost c++ libraries v1.36+ (1.35 will not work) (www.boost.org):
+	* boost c++ libraries v1.44+ (www.boost.org):
 		- program-options
 		- filesystem
 		- iostreams
 		- system
 		- thread
 
-On Ubuntu 9.04 or later, run:
+On Debian-based systems (e.g. Ubuntu) run:
   sudo apt-get install g++ libsdl1.2debian-all libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev
 
 On Fedora run(this may not be complete):
   sudo yum install gcc-c++ SDL-devel SDL_image-devel SDL_ttf-devel boost boost-devel boost-filesystem boost-iostreams boost-system boost-thread boost-program-options zlib-devel ffmpeg-devel ffmpeg-libs
 
+Optionaly, if you want to regenerate the build system, you will need the following tools:
+ * libtool
+ * automake
+ * autoconf
+And then regenerate the build system with
+  autoreconf -i
+
+II. Getting the sources
+
+VCMI is still in development. We recommend the following initial directory structure:
+trunk
+trunk/src -> contains sources and is under SVN control
+trunk/build -> contains build output, makefiles, object files,...
+
+You can get latest sources with subversion:
+  cd trunk
+  svn co https://vcmi.svn.sourceforge.net/svnroot/vcmi/trunk src
+
+
+III. Compilation
+
 On linux distributions like Fedora Mp3 support isn't given for the time being. 
 There is a mantis call here: http://bugs.vcmi.eu/view.php?id=933. 
 
+(Fedora-only?)
+  Create a directory that will contain the shared libraries. (default is usually /usr/local/lib64/games/vcmi)
 
-Create a directory /DATA_PATH/vcmi (default is usually /usr/local/share/games/vcmi)
-that will contain the game data files. The /vcmi at the end is necessary.
-
-Create a directory that will contain the shared libraries. (default is usually /usr/local/lib64/games/vcmi)
-
-Then run configure:
+Run configure:
   cd trunk/build
   ../src/configure
-Or if you're installing to custom path:
+
+Alternatively it is possible to install VCMI to non-default directory (e.g. /opt/games or /home/user/vcmi).
+To do this run:
   ../src/configure --datadir=/DATA_PATH/ --bindir=/BIN_PATH/vcmi --libdir=/LIB_PATH/
 An example would be:
   ../src/configure --datadir=/usr/local/share/games --bindir=/usr/local/games --libdir=/usr/local/lib64/games
@@ -65,41 +74,12 @@ Then build vcmi:
 That will generate vcmiclient, vcmiserver as well as 3 .so libraries.
 
 
-II. Installing Heroes of Might and Magic 3
+III. Installing binaries
 
-VCMI needs an installed version of Heroes III as well as WoG on top of
-it.  The version of Heroes needed is either Shadow of Death
-or Complete.
-
-Wog can be downloaded from: http://www.maps4heroes.com/heroes3/files/allinone_358f.zip
-
-Wine can be used to install both.
-
-Install Heroes 3 and Wog. Then move all the installed files into
-/DATA_PATH/vcmi. For instance that will create
-/DATA_PATH/vcmi/Data.
-
-Once both programs are installed, you can install VCMI.
-
-Download the windows VCMI release (at time of writing: 
-http://forum.vcmi.eu/dload.php?action=download&id=23)
-and extract it in a private directory. Populate /YOUR_INSTALL_PATH/vcmi:
-
-  mv sprites /DATA_PATH/vcmi/Sprites
-  mv Data/* /DATA_PATH/vcmi/Data
-  mv Fonts Games /DATA_PATH/vcmi/
-
-If you also have the original linux version of Heroes, you can also install the videos:
-  cp -a /PATH_TO_CDROM/data/video /DATA_PATH/vcmi/Data
-
-
-III. Installing VCMI
-
-Since VCMI is still in development, there's no install procedure, although something like this will work:
+Since VCMI is still in development, there's no install procedure, although this will work:
   make install
 You also need to update configuration files:
  cp /PATH_TO_SOURCE/config /DATA_PATH/vcmi
-
 
 For development puposes, it's better to use links. Go
 to /BIN_PATH/, and type:
@@ -117,6 +97,4 @@ Go to /LIB_PATH/vcmi/AI, and type:
 
 Go to /DATA_PATH/vcmi, and type:
   ln -s /PATH_TO_SOURCE/config
-  
-And start ./vcmiclient
 
