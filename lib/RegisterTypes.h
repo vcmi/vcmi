@@ -152,6 +152,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<BattleSpellCast>();
 	s.template registerType<SetStackEffect>();
 	s.template registerType<BattleTriggerEffect>();
+	s.template registerType<BattleObstaclePlaced>();
 	s.template registerType<BattleSetStackProperty>();
 	s.template registerType<StacksInjured>();
 	s.template registerType<BattleResultsApplied>();

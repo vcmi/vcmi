@@ -98,8 +98,10 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode
 	std::pair< std::vector<BattleHex>, int > getPath(BattleHex start, BattleHex dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
 	std::vector<BattleHex> getAccessibility(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL, bool forPassingBy = false) const; //returns vector of accessible tiles (taking into account the creature range)
 
+	bool isObstacleVisibleForSide(const CObstacleInstance &obstacle, ui8 side) const;
 	bool isObstacleOnTile(BattleHex tile) const;
 	bool isStackBlocked(const CStack * stack) const; //returns true if there is neighboring enemy stack
+	std::set<BattleHex> getQuicksands(bool whichSidePerspective) const;
 
 	ui32 calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg); //charge - number of hexes travelled before attack (for champion's jousting)
 	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, TQuantity attackerCount, TQuantity defenderCount, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>

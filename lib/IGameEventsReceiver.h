@@ -34,7 +34,7 @@ struct BattleAttack;
 struct SetStackEffect;
 struct BattleTriggerEffect;
 class CComponent;
-
+struct CObstacleInstance;
 
 class DLL_LINKAGE IBattleEventsReceiver
 {
@@ -56,6 +56,7 @@ public:
 	virtual void battleObstaclesRemoved(const std::set<si32> & removedObstacles){}; //called when a certain set  of obstacles is removed from batlefield; IDs of them are given
 	virtual void battleCatapultAttacked(const CatapultAttack & ca){}; //called when catapult makes an attack
 	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr){}; //called when certain stack is completely removed from battlefield
+	virtual void battleObstaclePlaced(const CObstacleInstance &obstacle){};
 };
 
 class DLL_LINKAGE IGameEventsReceiver

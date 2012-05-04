@@ -229,6 +229,8 @@ bool BattleInfo::isAccessible(BattleHex hex, bool * accessibility, bool twoHex, 
 
 void BattleInfo::makeBFS(BattleHex start, bool *accessibility, BattleHex *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const //both pointers must point to the at least 187-elements int arrays
 {
+	std::set<BattleHex> quicksands = getQuicksands(!attackerOwned);
+
 	//inits
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 		predecessor[b] = -1;
@@ -244,6 +246,9 @@ void BattleInfo::makeBFS(BattleHex start, bool *accessibility, BattleHex *predec
 		std::pair<BattleHex, bool> curHex = hexq.front();
 		std::vector<BattleHex> neighbours = curHex.first.neighbouringTiles();
 		hexq.pop();
+		if(curHex.first != start && !flying && vstd::contains(quicksands, curHex.first)) //walking stack can't step past the quicksands
+			continue;
+
 		for(ui32 nr=0; nr<neighbours.size(); nr++)
 		{
 			curNext = neighbours[nr]; //if(!accessibility[curNext] || (dists[curHex]+1)>=dists[curNext])
@@ -1808,7 +1813,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 			try
 			{
 				CObstacleInstance coi;
-				coi.isAbsoluteObstacle = true;
+				coi.obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
 				coi.ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
 				coi.uniqueID = curB->obstacles.size();
 				curB->obstacles.push_back(coi);
@@ -1819,7 +1824,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 			}
 			catch(RangeGenerator::ExhaustedPossibilities &)
 			{
-				//silently ignore, if we can't place absolute obstacle, we'll go wityh the usual ones
+				//silently ignore, if we can't place absolute obstacle, we'll go with the usual ones
 			}
 		}
 
@@ -2141,7 +2146,7 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int
 	{
 		if(!deadStack && !aliveStack)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(spell->id == Spells::ANIMATE_DEAD  &&  !deadStack->hasBonusOfType(Bonus::UNDEAD)) 
+		if(spell->id == Spells::ANIMATE_DEAD  &&  deadStack  &&  !deadStack->hasBonusOfType(Bonus::UNDEAD)) 
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 		if(deadStack && deadStack->owner != player) //you can resurrect only your own stacks //FIXME: it includes alive stacks as well
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
@@ -2575,6 +2580,20 @@ int BattleInfo::battlefieldTypeToBI(int bfieldType)
 		return itr->second;
 
 	return BattlefieldBI::NONE;
+}
+
+std::set<BattleHex> BattleInfo::getQuicksands(bool whichSidePerspective) const
+{
+	std::set<BattleHex> ret;
+	BOOST_FOREACH(const CObstacleInstance &oi, obstacles)
+	{
+		if(oi.obstacleType == CObstacleInstance::QUICKSAND 
+			&& oi.visibleForSide(whichSidePerspective)) //quicksands are visible to the caster or if owned unit stepped into that partcular patch
+		{
+			range::copy(oi.getAffectedTiles(), std::inserter(ret, ret.begin()));
+		}
+	}
+	return ret;
 }
 
 CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)

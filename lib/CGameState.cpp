@@ -1578,14 +1578,16 @@ void CGameState::init(StartInfo * si)
 
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
 
+	int seedAfterInit = ran();
+	tlog0 << "Seed after init is " << seedAfterInit << " (before was " << scenarioOps->seedToBeUsed << ")" << std::endl;
 	if(scenarioOps->seedPostInit > 0)
 	{
-		int actualSeed = ran();
-		assert(scenarioOps->seedPostInit == actualSeed); //RNG must be in the same state on all machines when initialization is done (otherwise we have desync)
+		//RNG must be in the same state on all machines when initialization is done (otherwise we have desync)
+		assert(scenarioOps->seedPostInit == seedAfterInit); 
 	}
 	else
 	{
-		scenarioOps->seedPostInit = ran(); //store the post init "seed"
+		scenarioOps->seedPostInit = seedAfterInit; //store the post init "seed"
 	}
 }
 

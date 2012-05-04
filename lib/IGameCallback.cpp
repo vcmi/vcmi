@@ -208,10 +208,17 @@ int CBattleInfoCallback::battleGetBattlefieldType()
 std::vector<CObstacleInstance> CBattleInfoCallback::battleGetAllObstacles()
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	std::vector<CObstacleInstance> ret;
 	if(gs->curB)
-		return gs->curB->obstacles;
-	else
-		return std::vector<CObstacleInstance>();
+	{
+		BOOST_FOREACH(const CObstacleInstance &oi, gs->curB->obstacles)
+		{
+			if(player < 0 || oi.visibleForSide(battleGetMySide()))
+				ret.push_back(oi);
+		}
+	}
+
+	return ret;
 }
 
 const CStack* CBattleInfoCallback::battleGetStackByID(int ID, bool onlyAlive)
@@ -405,14 +412,23 @@ const CGHeroInstance * CBattleInfoCallback::battleGetFightingHero(ui8 side) cons
 	return gs->curB->heroes[side];
 }
 
-bool CBattleInfoCallback::battleIsBlockedByObstacle(BattleHex tile)
+unique_ptr<CObstacleInstance> CBattleInfoCallback::battleGetObstacleOnPos(BattleHex tile, bool onlyBlocking /*= true*/)
 {
 	if(!gs->curB)
-		return 0;
+		return NULL;
 
-	return gs->curB->isObstacleOnTile(tile);
+
+	BOOST_FOREACH(const CObstacleInstance &obs, battleGetAllObstacles())
+	{
+		if(vstd::contains(obs.getBlocked(), tile)
+			|| (!onlyBlocking  &&  vstd::contains(obs.getAffectedTiles(), tile)))
+		{
+			return make_unique<CObstacleInstance>(obs);
+		}
+	}
+
+	return NULL;
 }
-
 
 CGameState *const CPrivilagedInfoCallback::gameState ()
 { 

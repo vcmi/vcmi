@@ -858,11 +858,26 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	else //for non-flying creatures
 	{
 		// send one package with the creature path information
+
+		unique_ptr<CObstacleInstance> obstacle = NULL; //obstacle that interrupted movement
 		std::vector<BattleHex> tiles;
 		int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
-		for(int v=path.first.size()-1; v>=tilesToMove; --v)
+		int v = path.first.size()-1;
+
+startWalking:
+		for(; v >= tilesToMove; --v)
 		{
-			tiles.push_back(path.first[v]);	
+			BattleHex hex = path.first[v];
+			tiles.push_back(hex);	
+
+			//if there are quicksands, we stop
+			if(obstacle = battleGetObstacleOnPos(hex, false))
+			{
+				if(!obstacle->obstacleType == CObstacleInstance::LAND_MINE || obstacle->casterSide != !curStack->attackerOwned) //if it's mine, make boom only if enemy planted it
+					break;
+				else
+					obstacle = NULL;
+			}
 		}
 	
 		if (tiles.size() > 0)
@@ -873,6 +888,34 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 			sm.teleporting = false;
 			sm.tilesToMove = tiles;
 			sendAndApply(&sm);
+		}
+
+		if(obstacle && obstacle->obstacleType == CObstacleInstance::LAND_MINE)
+		{
+			//TODO make POOF and deal dmg
+
+			BattleStackAttacked bsa;
+			bsa.flags |= BattleStackAttacked::EFFECT;
+			bsa.effect = 82;
+			bsa.damageAmount = 50; //TODO TODO TODO
+			bsa.stackAttacked = curStack->ID;
+			bsa.attackerID = -1;
+			curStack->prepareAttacked(bsa);
+			//sendAndApply(&bsa);
+			StacksInjured si;
+			si.stacks.push_back(bsa);
+			sendAndApply(&si);
+
+			ObstaclesRemoved or;
+			or.obstacles.insert(obstacle->uniqueID);
+			sendAndApply(&or);
+
+			//if stack didn't die in explosion, continue movement
+			if(curStack->alive())
+			{
+				tiles.clear();
+				goto startWalking; //TODO it's so evil
+			}
 		}
 	}
 
@@ -3685,7 +3728,52 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 
 	//applying effects
 	switch (spellID)
-	{	//damage spells
+	{	
+	case Spells::QUICKSAND:
+	case Spells::LAND_MINE:
+		{
+
+			const int baseUniqueID = gs->curB->obstacles.size() 
+				? (gs->curB->obstacles.back().uniqueID+1) 
+				: 0;
+
+
+			std::vector<BattleHex> availableTiles;
+			for(int i = 0; i < GameConstants::BFIELD_SIZE; i += 1)
+			{
+				BattleHex hex = i;
+				if(hex.getX() > 2 && hex.getX() < 14 && !battleGetStackByPos(hex, false) & !battleGetObstacleOnPos(hex, false))
+					availableTiles.push_back(hex);
+			}
+			range::random_shuffle(availableTiles);
+
+			const int patchesForSkill[] = {4, 4, 6, 8};
+			int patchesToPut = patchesForSkill[spellLvl];
+			vstd::amin(patchesToPut, availableTiles.size());
+			for (int i = 0; i < patchesToPut; i++)
+			{
+				CObstacleInstance coi;
+				coi.pos = availableTiles[i];
+				coi.casterSide = casterSide;
+				coi.obstacleType = (spellID == Spells::QUICKSAND) 
+					? CObstacleInstance::QUICKSAND 
+					: CObstacleInstance::LAND_MINE;
+				coi.ID = spellID;
+				coi.spellLevel = spellLvl;
+				coi.turnsRemaining = -1;
+				coi.uniqueID = baseUniqueID + i;
+				coi.visibleForAnotherSide = false;
+
+				BattleObstaclePlaced bop;
+				bop.obstacle = coi;
+				sendAndApply(&bop);
+			}
+
+		}
+
+		break;
+		
+	//damage spells
 	case Spells::MAGIC_ARROW:
 	case Spells::ICE_BOLT:
 	case Spells::LIGHTNING_BOLT:

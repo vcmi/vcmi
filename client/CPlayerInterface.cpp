@@ -910,6 +910,17 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 	}
 }
 
+void CPlayerInterface::battleObstaclesPlaced(const CObstacleInstance &obstacle)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	if(LOCPLINT != this)
+	{ //another local interface should do this
+		return;
+	}
+
+	battleInt->obstaclePlaced(obstacle);
+}
+
 void CPlayerInterface::yourTacticPhase(int distance)
 {
 	THREAD_CREATED_BY_CLIENT;

@@ -324,6 +324,16 @@ namespace vstd
 	{
 		return std::unique_ptr<T>(new T(std::forward<Arg1>(arg1), std::forward<Arg2>(arg2)));
 	}
+
+	template <typename Container>
+	typename Container::const_reference circularAt(const Container &r, size_t index)
+	{
+		assert(r.size());
+		index %= r.size();
+		auto itr = std::begin(r);
+		std::advance(itr, index);
+		return *itr;
+	}
 }
 
 using std::shared_ptr;

@@ -341,7 +341,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 		int ID = obst[t].ID;
 		std::string gfxName = obst[t].getInfo().defName;
 
-		if(!obst[t].isAbsoluteObstacle)
+		if(obst[t].obstacleType == CObstacleInstance::USUAL)
 		{
 			idToObstacle[ID] = CDefHandler::giveDef(gfxName);
 			for(size_t n = 0; n < idToObstacle[ID]->ourImages.size(); ++n)
@@ -354,6 +354,9 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 			idToAbsoluteObstacle[ID] = BitmapHandler::loadBitmap(gfxName);
 		}
 	}
+
+	quicksand = CDefHandler::giveDef("C17SPE1.DEF");
+	landMine = CDefHandler::giveDef("C09SPF1.DEF");
 
 	for (int i = 0; i < bfield.size(); i++)
 	{
@@ -422,6 +425,9 @@ CBattleInterface::~CBattleInterface()
 
 	for(std::map< int, CDefHandler * >::iterator g=idToObstacle.begin(); g!=idToObstacle.end(); ++g)
 		delete g->second;
+
+	delete quicksand;
+	delete landMine;
 
 	delete siegeH;
 
@@ -636,7 +642,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	for(size_t b = 0; b < obstacles.size(); ++b)
 	{
 		const CObstacleInstance &oi = obstacles[b];
-		if(!oi.isAbsoluteObstacle)
+		if(oi.obstacleType != CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
 			//BattleHex position = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getMaxBlocked(obstacles[b].pos);
 			hexToObstacle.insert(std::make_pair(oi.pos, b));
@@ -717,8 +723,8 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(int b = 0; b < GameConstants::BFIELD_SIZE; ++b) //showing alive stacks
 		{
-			showAliveStacks(stackAliveByHex, b, &flyingStacks, to);
 			showObstacles(&hexToObstacle, obstacles, b, to);
+			showAliveStacks(stackAliveByHex, b, &flyingStacks, to);
 		}
 	}
 	// Siege drawing
@@ -786,8 +792,8 @@ void CBattleInterface::show(SDL_Surface * to)
 				for (int k = xMin; k <= xMax; k++)
 				{
 					int hex = j * 17 + k;
-					showAliveStacks(stackAliveByHex, hex, &flyingStacks, to);
 					showObstacles(&hexToObstacle, obstacles, hex, to);
+					showAliveStacks(stackAliveByHex, hex, &flyingStacks, to);
 					showPieceOfWall(to, hex, stacks);
 				}
 
@@ -904,15 +910,9 @@ void CBattleInterface::showObstacles(std::multimap<BattleHex, int> *hexToObstacl
 	for(std::multimap<BattleHex, int>::const_iterator it = obstRange.first; it != obstRange.second; ++it)
 	{
 		CObstacleInstance & curOb = obstacles[it->second];
-		std::vector<Cimage> &images = idToObstacle[curOb.ID]->ourImages; //reference to animation of obstacle
-		Rect r = hexPosition(hex);
-		int offset = images.front().bitmap->h % 42;
-		if(curOb.getInfo().blockedTiles.front() < 0)
-			offset -= 42;
-
-		r.y += 42 - images.front().bitmap->h + offset;
-		//r.y -= cellShade->h*CGI->heroh->obstacles.find(curOb.ID)->second.height - images.front().bitmap->h;
-		blitAt(images[((animCount+1)/(4/getAnimSpeed()))%images.size()].bitmap, r.x, r.y, to);
+		SDL_Surface *toBlit = imageOfObstacle(curOb);
+		Point p = whereToBlitObstacleImage(toBlit, curOb);
+		blitAt(toBlit, p.x, p.y, to);
 	}
 }
 
@@ -1957,12 +1957,12 @@ void CBattleInterface::activateStack()
 		creatureSpellToCast = -1;
 	}
 
-	GH.fakeMouseMove();
 
 	if(!pendingAnims.size() && !active)
 		activate();
 
 	getPossibleActionsForStack (activeStack);
+	GH.fakeMouseMove();
 }
 
 double CBattleInterface::getAnimSpeedMultiplier() const
@@ -2279,8 +2279,8 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack * activeStack)
 
 	//draw absolute obstacles (cliffs and so on)
 	BOOST_FOREACH(const CObstacleInstance &oi, curInt->cb->battleGetAllObstacles())
-		if(oi.isAbsoluteObstacle)
-			blitAt(idToAbsoluteObstacle[oi.ID], oi.getInfo().width, oi.getInfo().height, backgroundWithHexes);
+		if(oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
+			blitAt(imageOfObstacle(oi), oi.getInfo().width, oi.getInfo().height, backgroundWithHexes);
 
 	if(settings["battle"]["cellBorders"].Bool())
 		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, backgroundWithHexes, NULL);
@@ -2418,7 +2418,8 @@ void CBattleInterface::endAction(const BattleAction* action)
 		else
 			attackingHero->setPhase(0);
 	}
-	if(action->actionType == BattleAction::WALK && creAnims[action->stackNumber]->getType() != 2) //walk or walk & attack
+
+	if(stack && action->actionType == BattleAction::WALK && creAnims[action->stackNumber]->getType() != 2) //walk or walk & attack
 	{
 		pendingAnims.push_back(std::make_pair(new CMovementEndAnimation(this, stack, action->destinationTile), false));
 	}
@@ -3244,6 +3245,77 @@ Rect CBattleInterface::hexPosition(BattleHex hex) const
 	int w = cellShade->w;
 	int h = cellShade->h;
 	return Rect(x, y, w, h);
+}
+
+SDL_Surface * CBattleInterface::imageOfObstacle(const CObstacleInstance &oi) const
+{
+	int frameIndex = (animCount+1) / (40/getAnimSpeed());
+	switch(oi.obstacleType)
+	{
+	case CObstacleInstance::USUAL:
+		return vstd::circularAt(idToObstacle.find(oi.ID)->second->ourImages, frameIndex).bitmap;
+	case CObstacleInstance::ABSOLUTE_OBSTACLE:
+		return idToAbsoluteObstacle.find(oi.ID)->second;
+	case CObstacleInstance::QUICKSAND:
+		return vstd::circularAt(quicksand->ourImages, frameIndex).bitmap;
+	case CObstacleInstance::LAND_MINE:
+		return vstd::circularAt(landMine->ourImages, frameIndex).bitmap;
+	default:
+		assert(0);
+	}
+}
+
+void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
+{
+	//so when multiple obstacles are added, they show up one after another
+	waitForAnims();
+
+	int effectID = -1;
+
+	switch(oi.obstacleType)
+	{
+	case CObstacleInstance::QUICKSAND:
+		effectID = 55;
+		break;
+	case CObstacleInstance::LAND_MINE:
+		effectID = 47;
+		break;
+		//TODO firewall, force field
+	default:
+		tlog1 << "I don't know how to animate appearing obstacle of type " << (int)oi.obstacleType << std::endl;
+		return;
+	}
+
+	if(graphics->battleACToDef[effectID].empty())
+	{
+		tlog1 << "Cannot find def for effect type " << effectID << std::endl;
+		return;
+	}
+
+	std::string defname = graphics->battleACToDef[effectID].front();
+
+	//we assume here that effect graphics have the same size as the usual obstacle image
+	// -> if we know how to blit obstacle, let's blit the effect in the same place
+	Point whereTo = whereToBlitObstacleImage(imageOfObstacle(oi), oi); 
+	addNewAnim(new CSpellEffectAnimation(this, defname, whereTo.x, whereTo.y));
+}
+
+Point CBattleInterface::whereToBlitObstacleImage(SDL_Surface *image, const CObstacleInstance &obstacle) const
+{
+	int offset = image->h % 42;
+	if(obstacle.obstacleType == CObstacleInstance::USUAL)
+	{
+		if(obstacle.getInfo().blockedTiles.front() < 0)
+			offset -= 42;
+	}
+	else if(obstacle.obstacleType == CObstacleInstance::QUICKSAND)
+	{
+		offset -= 42;
+	}
+
+	Rect r = hexPosition(obstacle.pos);
+	r.y += 42 - image->h + offset;
+	return r.topLeft();
 }
 
 std::string CBattleInterface::SiegeHelper::townTypeInfixes[GameConstants::F_NUMBER] = {"CS", "RM", "TW", "IN", "NC", "DN", "ST", "FR", "EL"};

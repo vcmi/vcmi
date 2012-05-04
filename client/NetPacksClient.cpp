@@ -595,6 +595,11 @@ void BattleTriggerEffect::applyCl(CClient * cl)
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleTriggerEffect, *this);
 }
 
+void BattleObstaclePlaced::applyCl(CClient * cl)
+{
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleObstaclesPlaced, obstacle);
+}
+
 void BattleResult::applyFirstCl( CClient *cl )
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleEnd,this);

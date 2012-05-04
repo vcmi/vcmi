@@ -10,6 +10,7 @@
 #include "ConstTransitivePtr.h"
 #include "int3.h"
 #include "ResourceSet.h"
+#include "CObstacleInstance.h"
 
 /*
  * NetPacks.h, part of VCMI engine
@@ -1591,6 +1592,22 @@ struct BattleTriggerEffect : public CPackForClient //3019
 		h & stackID & effect & val & additionalInfo;
 	}
 };
+
+struct BattleObstaclePlaced : public CPackForClient //3020
+{ //activated at the beginning of turn
+	BattleObstaclePlaced(){type = 3020;};
+
+	DLL_LINKAGE void applyGs(CGameState *gs); //effect
+	void applyCl(CClient *cl); //play animations & stuff
+
+	CObstacleInstance obstacle;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & obstacle;
+	}
+};
+
 
 struct ShowInInfobox : public CPackForClient //107
 {

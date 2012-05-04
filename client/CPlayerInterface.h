@@ -197,6 +197,7 @@ public:
 	void battleObstaclesRemoved(const std::set<si32> & removedObstacles) OVERRIDE; //called when a certain set  of obstacles is removed from batlefield; IDs of them are given
 	void battleCatapultAttacked(const CatapultAttack & ca) OVERRIDE; //called when catapult makes an attack
 	void battleStacksRemoved(const BattleStacksRemoved & bsr) OVERRIDE; //called when certain stack is completely removed from battlefield
+	void battleObstaclePlaced(const CObstacleInstance &obstacle) OVERRIDE;
 	void yourTacticPhase(int distance) OVERRIDE;
 
 	//-------------//

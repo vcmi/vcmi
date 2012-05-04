@@ -975,6 +975,11 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 	}
 }
 
+DLL_LINKAGE void BattleObstaclePlaced::applyGs( CGameState *gs )
+{
+	gs->curB->obstacles.push_back(obstacle);
+}
+
 void BattleResult::applyGs( CGameState *gs )
 {
 	//stack with SUMMONED flag but coming from garrison -> most likely resurrected, needs to be removed
@@ -1015,7 +1020,20 @@ void BattleResult::applyGs( CGameState *gs )
 
 void BattleStackMoved::applyGs( CGameState *gs )
 {
-	gs->curB->getStack(stack)->position = tilesToMove.back();
+	CStack *s = gs->curB->getStack(stack);
+	BattleHex dest = tilesToMove.back();
+
+	//if unit ended movement on quicksands that were created by enemy, that quicksand patch becomes visible for owner
+	BOOST_FOREACH(CObstacleInstance &oi, gs->curB->obstacles)
+	{
+		if(oi.obstacleType == CObstacleInstance::QUICKSAND
+		&& vstd::contains(oi.getAffectedTiles(), tilesToMove.back())
+		&& oi.casterSide != !s->attackerOwned)
+		{
+			oi.visibleForAnotherSide = true;
+		}
+	}
+	s->position = dest;
 }
 
 DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )

@@ -112,6 +112,9 @@ private:
 	std::map< int, CDefHandler * > idToProjectile; //projectiles of creatures (creatureID, defhandler)
 	std::map< int, CDefHandler * > idToObstacle; //obstacles located on the battlefield
 	std::map< int, SDL_Surface * > idToAbsoluteObstacle; //obstacles located on the battlefield
+	CDefHandler *landMine;
+	CDefHandler *quicksand;
+
 	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation>
 	ui8 animCount;
 	const CStack * activeStack; //number of active stack; NULL - no one
@@ -153,6 +156,8 @@ private:
 	void showAliveStacks(std::vector<const CStack *> *aliveStacks, int hex, std::vector<const CStack *> *flyingStacks, SDL_Surface *to); // loops through all stacks at a given hex position
 	void showPieceOfWall(SDL_Surface * to, int hex, const std::vector<const CStack*> & stacks); //helper function for show
 	void showObstacles(std::multimap<BattleHex, int> *hexToObstacle, std::vector<CObstacleInstance> &obstacles, int hex, SDL_Surface *to); // show all obstacles at a given hex position
+	SDL_Surface *imageOfObstacle(const CObstacleInstance &oi) const;
+	Point whereToBlitObstacleImage(SDL_Surface *image, const CObstacleInstance &obstacle) const;
 	void redrawBackgroundWithHexes(const CStack * activeStack);
 	void printConsoleAttacked(const CStack * defender, int dmg, int killed, const CStack * attacker, bool Multiple);
 
@@ -270,7 +275,8 @@ public:
 	bool canStackMoveHere (const CStack * sactive, BattleHex MyNumber); //TODO: move to BattleState / callback
 
 	BattleHex fromWhichHexAttack(BattleHex myNumber);
-	
+	void obstaclePlaced(const CObstacleInstance & oi);
+
 	friend class CPlayerInterface;
 	friend class CAdventureMapButton;
 	friend class CInGameConsole;
