@@ -906,9 +906,9 @@ startWalking:
 			si.stacks.push_back(bsa);
 			sendAndApply(&si);
 
-			ObstaclesRemoved or;
-			or.obstacles.insert(obstacle->uniqueID);
-			sendAndApply(&or);
+			ObstaclesRemoved obsRem;
+			obsRem.obstacles.insert(obstacle->uniqueID);
+			sendAndApply(&obsRem);
 
 			//if stack didn't die in explosion, continue movement
 			if(curStack->alive())
@@ -918,7 +918,6 @@ startWalking:
 			}
 		}
 	}
-
 	return ret;
 }
 

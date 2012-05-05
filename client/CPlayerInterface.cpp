@@ -909,8 +909,7 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 		battleInt->stackAttacking( attacker, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo, attacked, false);
 	}
 }
-
-void CPlayerInterface::battleObstaclesPlaced(const CObstacleInstance &obstacle)
+void CPlayerInterface::battleObstaclePlaced(const CObstacleInstance &obstacle)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)

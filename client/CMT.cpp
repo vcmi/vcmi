@@ -197,6 +197,7 @@ int main(int argc, char** argv)
 		("onlyAI", "runs without GUI, all players will be default AI")
 		("oneGoodAI", "puts one default AI and the rest will be EmptyAI")
 		("autoSkip", "automatically skip turns in GUI")
+		("disable-video", "disable video player")
 		("nointro,i", "skips intro movies");
 
 	po::variables_map vm;
@@ -265,7 +266,11 @@ int main(int argc, char** argv)
 #if defined _M_X64 && defined _WIN32 //Win64 -> cannot load 32-bit DLLs for video handling
 	CCS->videoh = new CEmptyVideoPlayer;
 #else
-	CCS->videoh = new CVideoPlayer;
+	if (!vm.count("disable-video"))
+		CCS->videoh = new CVideoPlayer;
+	else
+		CCS->videoh = new CEmptyVideoPlayer;
+
 #endif
 	tlog0<<"\tInitializing video: "<<pomtime.getDiff()<<std::endl;
 
