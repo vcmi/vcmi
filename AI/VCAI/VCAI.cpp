@@ -305,6 +305,11 @@ bool isCloser(const CGObjectInstance *lhs, const CGObjectInstance *rhs)
 	return (ln->moveRemains > rn->moveRemains);
 };
 
+//bool isCloser (int3 pos1, int3 pos, const CGHeroInstance * h)
+//{ //TODO
+//	return false;
+//};
+
 ui64 evaluateDanger(const CGObjectInstance *obj);
 
 ui64 evaluateDanger(crint3 tile)
@@ -2286,7 +2291,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 						else
 							throw cannotFulfillGoalException("No heroes with remaining MPs for exploring!\n");
 					}
-					boost::sort(hs, compareHeroStrength);
+					boost::sort(hs, isCloser); //closer to what?
 				}
 			}
 
