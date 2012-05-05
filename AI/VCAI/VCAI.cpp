@@ -918,7 +918,7 @@ void VCAI::makeTurn()
 		case 7: //reconsider strategy
 		{
 			const CGHeroInstance * h = primaryHero();
-			if (h) //check if our primary hero can ahndle danger
+			if (h) //check if our primary hero can handle danger
 			{
 				ui64 totalDanger = 0;
 				int dangerousObjects = 0;
@@ -960,10 +960,16 @@ void VCAI::makeTurnInternal()
 	try
 	{
 		striveToGoal(CGoal(WIN));
-		for (auto hg = lockedHeroes.begin(); hg != lockedHeroes.end(); hg++) //continue our goals
+
+		auto safeCopy = lockedHeroes; //heroes tend to die in the process and loose their goals, unsafe to iterate it
+		while (safeCopy.size()) //continue our goals
 		{
-			striveToGoal (hg->second);
+			auto it = safeCopy.begin();
+			if (it->first && it->first->tempOwner == playerID && vstd::contains(lockedHeroes, it->first)) //make sure hero still has his goal
+				striveToGoal (it->second);
+			safeCopy.erase(it);
 		}
+
 		striveToGoal(CGoal(BUILD)); //TODO: smarter building management
 	}
 	catch(boost::thread_interrupted &e)
@@ -1246,12 +1252,18 @@ void VCAI::wander(const CGHeroInstance * h)
 
 void VCAI::setGoal (const CGHeroInstance *h, const CGoal goal)
 { //TODO: check for presence?
-	lockedHeroes[h] = goal;
+	if (goal.goalType == EGoals::INVALID)
+		remove_if_present(lockedHeroes, h);
+	else
+		lockedHeroes[h] = goal;
 }
 
 void VCAI::setGoal (const CGHeroInstance *h, EGoals goalType)
 {
-	lockedHeroes[h] = CGoal(goalType);
+	if (goalType == EGoals::INVALID)
+		remove_if_present(lockedHeroes, h);
+	else
+		lockedHeroes[h] = CGoal(goalType);
 }
 
 void VCAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
@@ -1408,6 +1420,23 @@ public:
 		return msg.c_str();
 	}
 };
+class goalFulfilledException : public std::exception
+{
+	std::string msg;
+public:
+	explicit goalFulfilledException(crstring _Message) : msg(_Message)
+	{
+	}
+
+	virtual ~goalFulfilledException() throw ()
+	{
+	};
+
+	const char *what() const throw () OVERRIDE
+	{
+		return msg.c_str();
+	}
+};
 
 bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 {
@@ -1428,6 +1457,7 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 		if(path.nodes.empty())
 		{
 			tlog1 << "Hero " << h->name << " cannot reach " << dst << std::endl;
+			setGoal(h, INVALID);
 			throw std::runtime_error("Wrong move order!");
 		}
 
@@ -1443,6 +1473,7 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 
 			int3 endpos = path.nodes[i-1].coord;
 			if(endpos == h->visitablePos())
+			//if (endpos == h->pos)
 				continue;
 // 			if(i > 1)
 // 			{
@@ -1477,6 +1508,8 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 
 	if(h->tempOwner == playerID) //lost hero after last move
 		cb->recalculatePaths();
+	if (startHpos == h->visitablePos())
+		throw cannotFulfillGoalException("Invalid path found!"); //FIXME
 	BNLOG("Hero %s moved from %s to %s", h->name % startHpos % h->visitablePos());
 	return ret;
 }
@@ -1544,8 +1577,13 @@ void VCAI::tryRealize(CGoal g)
 				throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
 			if(!g.isBlockedBorderGate(g.tile))
 			{
-				if (ai->moveHeroToTile(g.tile, g.hero));
-					setGoal (g.hero, INVALID); //this hero reached target and no goal
+				if (ai->moveHeroToTile(g.tile, g.hero))// || g.tile == g.hero->visitablePos())
+				{
+					//g.goalType = INVALID; //disable goal now... dirty workaround
+					setGoal (g.hero, INVALID); //tile reached, we can unlock hero
+					throw goalFulfilledException("");
+					//throw cannotFulfillGoalException("Tile visited, goal complete");
+				}
 			}
 			else
 				throw cannotFulfillGoalException("There's a blocked gate!");
@@ -1695,7 +1733,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 	while(1)
 	{
 		CGoal goal = ultimateGoal;
-		BNLOG("Striving to goal of type %d", ultimateGoal.goalType);
+		BNLOG("Striving to goal of type %s", goalName(ultimateGoal.goalType));
 		int maxGoals = 100; //preventing deadlock for mutually dependent goals
 		while(!goal.isElementar && maxGoals)
 		{
@@ -1721,6 +1759,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			{
 				if (maxGoals)
 				{
+					//we shouldn't abandon high-level goal
 					setGoal (goal.hero, goal);
 				}
 				else
@@ -1736,9 +1775,15 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			BNLOG("Player %d: Making turn thread received an interruption!", playerID);
 			throw; //rethrow, we want to truly end this thread
 		}
+		catch(goalFulfilledException &e)
+		{
+			if (maxGoals > 98) //completed goal was main goal
+				//TODO: find better condition
+				return;
+		}
 		catch(std::exception &e)
 		{
-			BNLOG("Failed to realize subgoal of type %d (greater goal type was %d), I will stop.", goal.goalType % ultimateGoal.goalType);
+			BNLOG("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.", goalName(goal.goalType) % goalName(ultimateGoal.goalType));
 			BNLOG("The error message was: %s", e.what());
 			break;
 		}
@@ -2240,6 +2285,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 
 			CGoal ret(VISIT_TILE);
 			ret.sethero(h);
+			//throw goalFulfilledException("Found hero for exploration"); // FIXME: prevent all teh heroes to try explore same place
 			return ret.settile(whereToExplore(h));
 		}
 
@@ -2269,7 +2315,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 			if(!hero)
 			{
 				if(cb->getHeroesInfo().empty())
+				{
 					return CGoal(RECRUIT_HERO);
+				}
 
 				BOOST_FOREACH(const CGHeroInstance *h, cb->getHeroesInfo())
 				{
@@ -2286,10 +2334,14 @@ TSubgoal CGoal::whatToDoToAchieve()
 				if(isSafeToVisit(hero, tile))
 					return CGoal(*this).setisElementar(true);
 				else
+				{
 					return CGoal(GATHER_ARMY).sethero(hero);
+				}
 			}
 			else	//inaccessible for all heroes
+			{
 				return CGoal(CLEAR_WAY_TO).settile(tile);
+			}
 		}
 		break;
 
@@ -2373,20 +2425,38 @@ TSubgoal CGoal::whatToDoToAchieve()
 			}
 		}
 		return CGoal(INVALID);
-	case CONQUER:
+	case CONQUER: //TODO: put it into a function?
 		{
-			//TODO make use from many heroes
-			std::vector<const CGHeroInstance *> heroes = cb->getHeroesInfo();
-			erase_if(heroes, [](const CGHeroInstance *h)
+			auto hs = cb->getHeroesInfo();
+			int howManyHeroes = hs.size();
+
+			erase(hs, [](const CGHeroInstance *h)
 			{
-				return vstd::contains(ai->lockedHeroes, h) || !h->movement;
+				return contains(ai->lockedHeroes, h); 
 			});
-			boost::sort(heroes, compareHeroStrength);
+			if(hs.empty()) //all heroes are busy. buy new one 
+			{
+				if (howManyHeroes < 3  && ai->findTownWithTavern()) //we may want to recruit second hero. TODO: make it smart finally
+					return CGoal(RECRUIT_HERO);
+				else //find mobile hero with weakest army
+				{
+					hs = cb->getHeroesInfo();
+					erase_if(hs, [](const CGHeroInstance *h)
+					{
+						return !h->movement; //only hero with movement are of interest for us
+					});
+					if (hs.empty())
+					{
+						if (howManyHeroes < GameConstants::MAX_HEROES_PER_PLAYER)
+							return CGoal(RECRUIT_HERO);
+						else
+							throw cannotFulfillGoalException("No heroes with remaining MPs for exploring!\n");
+					}
+					boost::sort(hs, compareHeroStrength);
+				}
+			}
 
-			if(heroes.empty())
-				I_AM_ELEMENTAR;
-
-			const CGHeroInstance *h = heroes.back();
+			const CGHeroInstance *h = hs.back();
 			cb->setSelection(h);
 			std::vector<const CGObjectInstance *> objs; //here we'll gather enemy towns and heroes
 			ai->retreiveVisitableObjs(objs);
@@ -2637,6 +2707,8 @@ bool shouldVisit (const CGHeroInstance * h, const CGObjectInstance * obj)
 	{
 		case Obj::CREATURE_GENERATOR1:
 		{
+			if (obj->tempOwner != h->tempOwner)
+				return true; //flag just in case
 			bool canRecruitCreatures = false;
 			const CGDwelling * d = dynamic_cast<const CGDwelling *>(obj);
 			BOOST_FOREACH(auto level, d->creatures)
