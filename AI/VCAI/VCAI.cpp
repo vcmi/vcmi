@@ -966,7 +966,10 @@ void VCAI::makeTurnInternal()
 		{
 			auto it = safeCopy.begin();
 			if (it->first && it->first->tempOwner == playerID && vstd::contains(lockedHeroes, it->first)) //make sure hero still has his goal
+			{
+				cb->recalculatePaths(); //every time we change a hero
 				striveToGoal (it->second);
+			}
 			safeCopy.erase(it);
 		}
 
@@ -1255,7 +1258,7 @@ void VCAI::setGoal (const CGHeroInstance *h, const CGoal goal)
 	if (goal.goalType == EGoals::INVALID)
 		remove_if_present(lockedHeroes, h);
 	else
-		lockedHeroes[h] = goal;
+		lockedHeroes[h] = CGoal(goal).setisElementar(false); //always evaluate goals before realizing
 }
 
 void VCAI::setGoal (const CGHeroInstance *h, EGoals goalType)
@@ -1263,7 +1266,7 @@ void VCAI::setGoal (const CGHeroInstance *h, EGoals goalType)
 	if (goalType == EGoals::INVALID)
 		remove_if_present(lockedHeroes, h);
 	else
-		lockedHeroes[h] = CGoal(goalType);
+		lockedHeroes[h] = CGoal(goalType).setisElementar(false); //always evaluate goals before realizing;
 }
 
 void VCAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
@@ -1458,6 +1461,7 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 		{
 			tlog1 << "Hero " << h->name << " cannot reach " << dst << std::endl;
 			setGoal(h, INVALID);
+			cb->recalculatePaths();
 			throw std::runtime_error("Wrong move order!");
 		}
 
@@ -1509,7 +1513,10 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 	if(h->tempOwner == playerID) //lost hero after last move
 		cb->recalculatePaths();
 	if (startHpos == h->visitablePos())
+	{
 		throw cannotFulfillGoalException("Invalid path found!"); //FIXME
+		cb->recalculatePaths();
+	}
 	BNLOG("Hero %s moved from %s to %s", h->name % startHpos % h->visitablePos());
 	return ret;
 }
@@ -1573,16 +1580,15 @@ void VCAI::tryRealize(CGoal g)
 		break;
 	case VISIT_TILE:
 		{
+			//cb->recalculatePaths();
 			if(!g.hero->movement)
 				throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
 			if(!g.isBlockedBorderGate(g.tile))
 			{
-				if (ai->moveHeroToTile(g.tile, g.hero))// || g.tile == g.hero->visitablePos())
+				if (ai->moveHeroToTile(g.tile, g.hero))
 				{
-					//g.goalType = INVALID; //disable goal now... dirty workaround
 					setGoal (g.hero, INVALID); //tile reached, we can unlock hero
 					throw goalFulfilledException("");
-					//throw cannotFulfillGoalException("Tile visited, goal complete");
 				}
 			}
 			else
@@ -2252,6 +2258,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 		//return CGoal(EXPLORE); // TODO improve
 	case EXPLORE:
 		{
+			if (hero)
+				return CGoal(VISIT_TILE).settile(whereToExplore(hero));
+
 			auto hs = cb->getHeroesInfo();
 			int howManyHeroes = hs.size();
 
