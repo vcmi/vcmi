@@ -8,6 +8,7 @@
 #include "CGameState.h"
 #include "CGeneralTextHandler.h"
 #include "CSpellHandler.h"
+#include "CHeroHandler.h"
 
 const CStackInstance &CCreatureSet::operator[](TSlot slot) const
 {
@@ -687,8 +688,9 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 		case Bonus::SPELL_AFTER_ATTACK:
 			fileName = "E_CAST.bmp"; break;
 		case Bonus::ENCHANTER:
-		case Bonus::RANDOM_SPELLCASTER:
 			fileName = "E_CAST1.bmp"; break;
+		case Bonus::RANDOM_SPELLCASTER:
+			fileName = "RandomBoost.bmp"; break;
 		case Bonus::SPELL_BEFORE_ATTACK:
 			fileName ="E_CAST2.bmp"; break;
 		case Bonus::SPELLCASTER:
@@ -735,6 +737,8 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "E_KING3.bmp"; break;
 		case Bonus::CHANGES_SPELL_COST_FOR_ALLY:
 			fileName = "E_MANA.bmp"; break;
+		case Bonus::CHANGES_SPELL_COST_FOR_ENEMY:
+			fileName = "MagicDamper.bpm"; break;
 		case Bonus::NO_MELEE_PENALTY:
 			fileName = "E_MELEE.bmp"; break;
 		case Bonus::MIND_IMMUNITY:
@@ -858,6 +862,20 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "E_UNDEAD.bmp"; break;
 		case Bonus::SPELL_RESISTANCE_AURA:
 			fileName = "E_UNIC.bmp"; break;
+		case Bonus::THREE_HEADED_ATTACK:
+			fileName = "ThreeHeaded.bmp"; break;
+		case Bonus::DAEMON_SUMMONING:
+			fileName = "RiseDemons.bmp"; break;
+		case Bonus::CHARGE_IMMUNITY:
+			fileName = "ChargeImmune.bmp"; break;
+		case Bonus::HEALER:
+			fileName = "Healer.bmp"; break;
+		case Bonus::CATAPULT:
+			fileName = "Catapult.bmp"; break;
+		case Bonus::MANA_CHANNELING:
+			fileName = "ManaChannel.bmp"; break;
+		case Bonus::MANA_DRAIN:
+			fileName = "ManaDrain.bmp"; break;
 	}
 	if(!fileName.empty())
 		fileName = "zvs/Lib1.res/" + fileName;
@@ -977,7 +995,31 @@ CCommanderInstance::~CCommanderInstance()
 
 void CCommanderInstance::setAlive (bool Alive)
 {
+	//TODO: helm of immortality
 	alive = Alive;
+	if (!alive)
+	{
+		//remove all bonuses from artifacts
+	}
+}
+
+void CCommanderInstance::giveStackExp (expType exp)
+{
+	if (alive)
+		experience += exp;
+}
+
+int CCommanderInstance::getExpRank() const
+{
+	return VLC->heroh->level (experience);
+}
+
+void CCommanderInstance::levelUp ()
+{
+	BOOST_FOREACH (auto bonus, VLC->creh->commanderLevelPremy)
+	{ //grant all regular level-up bonuses
+		accumulateBonus (*bonus);
+	}
 }
 
 CStackBasicDescriptor::CStackBasicDescriptor()

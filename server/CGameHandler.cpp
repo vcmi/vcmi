@@ -285,6 +285,50 @@ void CGameHandler::levelUpHero(int ID)
 	}
 }
 
+void CGameHandler::levelUpCommander (const CCommanderInstance * c, int secondarySkill, int specialSKill)
+{
+	if (secondarySkill >=0 )
+	{
+		//c->secondarySkills[secondarySkill]++; //TODO: make sure to resize vector in first place
+	}
+	if (specialSKill >= 0)
+	{
+		auto it = VLC->creh->skillRequirements.begin();
+		std::advance(it, specialSKill); //suboptimal, use bmap?
+		//c->accumulateBonus(it->first);
+	}
+	levelUpCommander (c);
+	//c->levelUp(); //change standard parameters
+}
+
+void CGameHandler::levelUpCommander(const CCommanderInstance * c)
+{
+	return;
+	CommanderLevelUp clu;
+
+	//picking sec. skills for choice
+
+	int secondarySkill = -1, specialSkill = -1;
+
+	int skills = clu.secondarySkills.size() + clu.specialSkills.size();
+
+	if (skills > 1) //apply and ask for secondary skill
+	{
+		//auto callback = boost::bind (callWith<ui16>, clu.specialSkills, boost::bind(&CGameHandler::levelUpCommander, this, c, _1), _1);
+		//applyAndAsk (&clu, c->armyObj->tempOwner, callback); //call levelUpCommander when client responds
+	}
+	else if (skills == 1) //apply, give only possible skill  and send info
+	{
+		sendAndApply(&clu);
+		levelUpCommander(c, secondarySkill, specialSkill);
+	}
+	else //apply and send info
+	{
+		sendAndApply(&clu);
+		levelUpCommander(c);
+	}
+}
+
 void CGameHandler::changePrimSkill(int ID, int which, si64 val, bool abs)
 {
 	SetPrimSkill sps;
@@ -298,9 +342,9 @@ void CGameHandler::changePrimSkill(int ID, int which, si64 val, bool abs)
 	if(which==4)
 	{
 		levelUpHero(ID);
-
-		//TODO: Commander
-		//TODO: Stack Experience only after battle
+		CGHeroInstance *h = static_cast<CGHeroInstance *>(gs->map->objects[ID].get());
+		if (h->commander)
+			levelUpCommander (h->commander);
 	}
 }
 

@@ -207,14 +207,14 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	luck = new MoraleLuckBox(false, genRect(42, 42, 387, 100));
 	luck->set(stack);
 
-	new CPicture(graphics->pskillsm->ourImages[4].bitmap, 335, 50, false); //exp icon - Print it always?
+	new CPicture(graphics->pskillsm->ourImages[4].bitmap, 387, 51, false); //exp icon - Print it always?
 	if (type) //not in fort window
 	{
 		if (GameConstants::STACK_EXP)
 		{
 			int rank = std::min(stack->getExpRank(), 10); //hopefully nobody adds more
-			printAtMiddle(CGI->generaltexth->zcrexp[rank] + " [" + boost::lexical_cast<std::string>(rank) + "]", 436, 62, FONT_MEDIUM, Colors::Jasmine,*bitmap);
-			printAtMiddle(boost::lexical_cast<std::string>(stack->experience), 436, 82, FONT_SMALL, Colors::Cornsilk,*bitmap);
+			printAtMiddle(CGI->generaltexth->zcrexp[rank] + " [" + boost::lexical_cast<std::string>(rank) + "]", 488, 62, FONT_MEDIUM, Colors::Jasmine,*bitmap);
+			printAtMiddle(boost::lexical_cast<std::string>(stack->experience), 488, 82, FONT_SMALL, Colors::Cornsilk,*bitmap);
 			if (type > BATTLE) //we need it only on adv. map
 			{
 				int tier = stack->type->level;
@@ -361,12 +361,22 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 	printLine(0, CGI->generaltexth->primarySkillNames[0], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->Attack());
 	printLine(1, CGI->generaltexth->primarySkillNames[1], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->Defense());
 
-	if(stackNode->valOfBonuses(Bonus::SHOTS) && stackNode->hasBonusOfType(Bonus::SHOOTER))
+	if (stackNode->valOfBonuses(Bonus::SHOTS) && stackNode->hasBonusOfType(Bonus::SHOOTER))
 	{//only for shooting units - important with wog exp shooters
 		if (type == BATTLE)
 			printLine(2, CGI->generaltexth->allTexts[198], dynamic_cast<const CStack*>(stackNode)->shots);
 		else
 			printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS));
+	}
+	if (stackNode->valOfBonuses(Bonus::CASTS))
+	{
+		printAtMiddle(CGI->generaltexth->allTexts[399], 356, 61, FONT_SMALL, Colors::Cornsilk,*bitmap);
+		std::string casts;
+		if (type == BATTLE)
+			casts = boost::lexical_cast<std::string>((ui16)dynamic_cast<const CStack*>(stackNode)->casts); //ui8 is converted to char :(
+		else
+			casts = boost::lexical_cast<std::string>(stackNode->valOfBonuses(Bonus::CASTS));
+		printAtMiddle(casts, 356, 82, FONT_SMALL, Colors::Cornsilk,*bitmap);
 	}
 
 	//TODO

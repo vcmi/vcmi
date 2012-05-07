@@ -93,6 +93,7 @@ struct CGoal
 
 	static TSubgoal goVisitOrLookFor(const CGObjectInstance *obj); //if obj is NULL, then we'll explore
 	static TSubgoal lookForArtSmart(int aid); //checks non-standard ways of obtaining art (merchants, quests, etc.)
+	static TSubgoal tryRecruitHero();
 
 	int value; SETTER(int, value)
 	int resID; SETTER(int, resID)

@@ -286,7 +286,7 @@ struct SetSecSkill : public CPackForClient //106
 	{
 		h & abs & id & which & val;
 	}
-}; 
+};
 struct HeroVisitCastle : public CPackForClient //108
 {
 	HeroVisitCastle(){flags=0;type = 108;};
@@ -498,6 +498,23 @@ struct UpdateCampaignState : public CPackForClient //119
 		h & camp;
 	}
 };
+struct SetCommanderproperty : public CPackForClient //120
+{
+	enum ECommanderProperty {ALIVE, BONUS};
+
+	SetCommanderproperty(){type = 120;};
+	void applyCl(CClient *cl){};
+	DLL_LINKAGE void applyGs(CGameState *gs){};
+
+	ui8 which;
+	ui8 alive;
+	Bonus accumulatedBonus;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & which & alive & accumulatedBonus;
+	}
+}; 
 
 struct RemoveObject : public CPackForClient //500
 {
@@ -1119,6 +1136,23 @@ struct HeroLevelUp : public Query//2000
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & id & heroid & primskill & level & skills;
+	}
+};
+
+struct CommanderLevelUp : public Query
+{
+	void applyCl(CClient *cl){};
+	DLL_LINKAGE void applyGs(CGameState *gs){};
+
+	CCommanderInstance * commander;
+	std::vector<std::pair<ui8, ui8> > secondarySkills;
+	std::vector<Bonus *> specialSkills;
+
+	CommanderLevelUp(){type = 2005;};
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id & commander & secondarySkills & specialSkills;
 	}
 };
 

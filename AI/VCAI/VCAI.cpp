@@ -305,10 +305,10 @@ bool isCloser(const CGObjectInstance *lhs, const CGObjectInstance *rhs)
 	return (ln->moveRemains > rn->moveRemains);
 };
 
-//bool isCloser (int3 pos1, int3 pos, const CGHeroInstance * h)
-//{ //TODO
-//	return false;
-//};
+bool compareMovement(const CGHeroInstance *lhs, const CGHeroInstance *rhs)
+{
+	return lhs->movement > rhs->movement;
+};
 
 ui64 evaluateDanger(const CGObjectInstance *obj);
 
@@ -966,13 +966,29 @@ void VCAI::makeTurnInternal()
 	{
 		striveToGoal(CGoal(WIN));
 
-		auto safeCopy = lockedHeroes; //heroes tend to die in the process and loose their goals, unsafe to iterate it
+		std::vector<std::pair<const CGHeroInstance *, CGoal> > safeCopy; //heroes tend to die in the process and loose their goals, unsafe to iterate it
+		BOOST_FOREACH (auto h, lockedHeroes)
+		{
+			safeCopy.push_back(h);
+		}
+
+		//auto compareReinforcements = [h](const CGTownInstance *lhs, const CGTownInstance *rhs) -> bool
+		//   {
+		//		return howManyReinforcementsCanGet(h, lhs) < howManyReinforcementsCanGet(h, rhs);
+		//   };
+
+		auto lockedHeroesSorter = [](std::pair<const CGHeroInstance *, CGoal> h1, std::pair<const CGHeroInstance *, CGoal> h2) -> bool
+		{
+			return compareMovement (h1.first, h2.first);
+		};
+		boost::sort(safeCopy, lockedHeroesSorter);
+
 		while (safeCopy.size()) //continue our goals
 		{
 			auto it = safeCopy.begin();
 			if (it->first && it->first->tempOwner == playerID && vstd::contains(lockedHeroes, it->first)) //make sure hero still has his goal
 			{
-				cb->recalculatePaths(); //every time we change a hero
+				cb->setSelection(it->first);
 				striveToGoal (it->second);
 			}
 			safeCopy.erase(it);
@@ -2291,7 +2307,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 						else
 							throw cannotFulfillGoalException("No heroes with remaining MPs for exploring!\n");
 					}
-					boost::sort(hs, isCloser); //closer to what?
+					boost::sort(hs, compareMovement); //closer to what?
 				}
 			}
 
@@ -2507,7 +2523,10 @@ TSubgoal CGoal::whatToDoToAchieve()
 		I_AM_ELEMENTAR;
 	case GATHER_ARMY:
 		{
+			//TODO: find hero if none set
+
 			const CGHeroInstance *h = hero;
+			cb->setSelection(h);
 			auto compareReinforcements = [h](const CGTownInstance *lhs, const CGTownInstance *rhs) -> bool
 			{
 				return howManyReinforcementsCanGet(h, lhs) < howManyReinforcementsCanGet(h, rhs);

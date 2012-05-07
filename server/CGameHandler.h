@@ -182,6 +182,8 @@ public:
 	void vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h);
 	void levelUpHero(int ID, int skill);//handle client respond and send one more request if needed
 	void levelUpHero(int ID);//initial call - check if hero have remaining levelups & handle them
+	void levelUpCommander (const CCommanderInstance * c, int secondarySkill, int specialSKill);
+	void levelUpCommander (const CCommanderInstance * c);
 	void afterBattleCallback(); // called after level-ups are finished
 	//////////////////////////////////////////////////////////////////////////
 

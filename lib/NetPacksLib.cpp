@@ -991,18 +991,24 @@ void BattleResult::applyGs( CGameState *gs )
 			const_cast<CArmedInstance*>(s->base->armyObj)->eraseStack(s->slot);
 		}
 	}
-	for(unsigned i=0;i<gs->curB->stacks.size();i++)
+	for (unsigned i = 0; i < gs->curB->stacks.size(); i++)
 		delete gs->curB->stacks[i];
 
 	//remove any "until next battle" bonuses
 	CGHeroInstance *h;
-	h = gs->curB->heroes[0];
-	if(h)
-		h->getBonusList().remove_if(Bonus::OneBattle);
-
-	h = gs->curB->heroes[1];
-	if(h) 
-		h->getBonusList().remove_if(Bonus::OneBattle);
+	for (int i = 0; i < 2; ++i)
+	{
+		h = gs->curB->heroes[i];
+		if (h)
+		{
+			h->getBonusList().remove_if(Bonus::OneBattle);
+			if (h->commander)
+			{
+				h->commander->giveStackExp(exp[i]);
+				CBonusSystemNode::treeHasChanged();
+			}
+		}
+	}
 
 	if (GameConstants::STACK_EXP)
 	{

@@ -2640,7 +2640,7 @@ void CStack::postInit()
 	firstHPleft = MaxHealth();
 	shots = getCreature()->valOfBonuses(Bonus::SHOTS);
 	counterAttacks = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
-	casts = valOfBonuses(Bonus::CASTS); //TODO: set them in cr_abils.txt
+	casts = valOfBonuses(Bonus::CASTS);
 	state.insert(EBattleStackState::ALIVE);  //alive state indication
 }
 

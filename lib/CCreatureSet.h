@@ -88,9 +88,11 @@ public:
 	CCommanderInstance (TCreature id);
 	~CCommanderInstance();
 	void setAlive (bool alive);
+	void giveStackExp (expType exp);
+	void levelUp ();
 
 	ui64 getPower() const {return 0;};
-	int getExpRank() const {return 0;};
+	int getExpRank() const;
 	ui8 bearerType() const OVERRIDE {return ArtBearer::COMMANDER;}; //from CArtifactSet
 
 	template <typename Handler> void serialize(Handler &h, const int version)
