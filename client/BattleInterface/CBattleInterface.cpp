@@ -1387,8 +1387,6 @@ void CBattleInterface::newRound(int number)
 
 void CBattleInterface::giveCommand(ui8 action, BattleHex tile, ui32 stackID, si32 additional, si32 selected)
 {
-	possibleActions.clear(); //no checks allowed before action is resolved
-
 	const CStack *stack = curInt->cb->battleGetStackByID(stackID);
 	if(!stack && action != BattleAction::HERO_SPELL && action != BattleAction::RETREAT && action != BattleAction::SURRENDER)
 	{
@@ -1862,7 +1860,7 @@ void CBattleInterface::castThisSpell(int spellID)
 	else
 	{
 		possibleActions.clear();
-		possibleActions.push_back (spellSelMode); //only this one actions can be performed at the moment
+		possibleActions.push_back (spellSelMode); //only this one action can be performed at the moment
 		GH.fakeMouseMove();//update cursor
 	}
 }
@@ -1957,11 +1955,11 @@ void CBattleInterface::activateStack()
 		creatureSpellToCast = -1;
 	}
 
+	getPossibleActionsForStack (s);
 
 	if(!pendingAnims.size() && !active)
 		activate();
 
-	getPossibleActionsForStack (activeStack);
 	GH.fakeMouseMove();
 }
 
@@ -1990,10 +1988,11 @@ void CBattleInterface::endCastingSpell()
 	spellDestSelectMode = false;
 	CCS->curh->changeGraphic(1, 6);
 
-	//restore actions for current stack
-	if (!activeStack)
-		activateStack();
-	getPossibleActionsForStack (activeStack);
+	if (activeStack)
+	{
+		getPossibleActionsForStack (activeStack); //restore actions after they were cleared
+		myTurn = true;
+	}
 }
 
 void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
@@ -2022,6 +2021,7 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 					}
 					//possibleActions.push_back (NO_LOCATION);
 					//possibleActions.push_back (ANY_LOCATION);
+					//TODO: allow stacks cast aimed spells
 					//possibleActions.push_back (OTHER_SPELL);
 					else
 					{
@@ -2681,6 +2681,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 		}
 		if(eventType == LCLICK && realizeAction)
 		{
+			myTurn = false; //tends to crash with empty calls
 			realizeAction();
 			CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
 			this->console->alterText("");
@@ -2739,6 +2740,13 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case SHOOT:
 				if(curInt->cb->battleCanShoot (activeStack, myNumber))
 					legalAction = true;
+				break;
+			case ANY_LOCATION:
+				if (myNumber > -1) //TODO: this should be checked for all actions
+				{
+					creatureCasting = stackCanCastSpell && !spellDestSelectMode; //as isCastingPossibleHere is not called
+					legalAction = true;
+				}
 				break;
 			case HOSTILE_CREATURE_SPELL:
 				if (shere && shere->alive() && !ourStack && isCastingPossibleHere (sactive, shere, myNumber))
@@ -2916,6 +2924,11 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				}
 				isCastingPossible = true;
 				break;
+			case ANY_LOCATION:
+				sp = CGI->spellh->spells[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo]; //necessary if creature has random Genie spell at same time
+				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s on %s
+				isCastingPossible = true;
+				break;
 			case RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be avaliable as random spell
 				sp = NULL;
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[301]) % shere->getName()); //Cast a spell on %
@@ -3042,8 +3055,6 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 							spellToCast->destinationTile = myNumber;
 							break;
 					}
-					activeStack = NULL; //disable interface checks for active stack
-
 					curInt->cb->battleMakeAction(spellToCast);
 					endCastingSpell();
 				}

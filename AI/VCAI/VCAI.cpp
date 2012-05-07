@@ -972,11 +972,6 @@ void VCAI::makeTurnInternal()
 			safeCopy.push_back(h);
 		}
 
-		//auto compareReinforcements = [h](const CGTownInstance *lhs, const CGTownInstance *rhs) -> bool
-		//   {
-		//		return howManyReinforcementsCanGet(h, lhs) < howManyReinforcementsCanGet(h, rhs);
-		//   };
-
 		auto lockedHeroesSorter = [](std::pair<const CGHeroInstance *, CGoal> h1, std::pair<const CGHeroInstance *, CGoal> h2) -> bool
 		{
 			return compareMovement (h1.first, h2.first);
