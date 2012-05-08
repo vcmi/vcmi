@@ -1554,12 +1554,12 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 		performObjectInteraction (visitedObject, h);
 	}
 
-	if(h->tempOwner == playerID) //lost hero after last move
+	if(h->tempOwner == playerID) //we could have lost hero after last move
 	{
 		cb->recalculatePaths();
-		if (startHpos == h->visitablePos())
+		if (startHpos == h->visitablePos() && !ret) //we didn't move and didn't reach the target
 		{
-			throw cannotFulfillGoalException("Invalid path found!"); //FIXME
+			throw cannotFulfillGoalException("Invalid path found!");
 		}
 	}
 	BNLOG("Hero %s moved from %s to %s", h->name % startHpos % h->visitablePos());
@@ -2364,7 +2364,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 	case EXPLORE:
 		{
 			if (hero)
+			{
 				return CGoal(VISIT_TILE).settile(whereToExplore(hero)).sethero(hero);
+			}
 
 			auto hs = cb->getHeroesInfo();
 			int howManyHeroes = hs.size();
@@ -2902,7 +2904,7 @@ int3 SectorMap::firstTileToGet(const CGHeroInstance *h, crint3 dst)
 		if(!preds[dst])
 		{
 			write("test.txt");
-			throw cannotFulfillGoalException(str(format("Cannot found connection between sectors %d and %d") % src->id % dst->id));
+			throw cannotFulfillGoalException(str(format("Cannot find connection between sectors %d and %d") % src->id % dst->id));
 		}
 
 		std::vector<const Sector*> toTraverse;
