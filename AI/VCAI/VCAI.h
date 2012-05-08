@@ -73,6 +73,7 @@ struct CGoal
 {
 	EGoals goalType;
 	bool isElementar; SETTER(bool, isElementar)
+	bool isAbstract; SETTER(bool, isAbstract) //allows to remember abstract goals
 	int priority; SETTER(bool, priority)
 
 	virtual TSubgoal whatToDoToAchieve();
@@ -82,6 +83,7 @@ struct CGoal
 	{
 		priority = 0;
 		isElementar = false;
+		isAbstract = false;
 		objid = -1;
 		aid = -1;
 		tile = int3(-1, -1, -1);
@@ -180,7 +182,7 @@ public:
 	std::map<const CGHeroInstance *, std::vector<const CGTownInstance *> > townVisitsThisWeek;
 
 	std::map<const CGHeroInstance *, CGoal> lockedHeroes; //TODO: allow non-elementar objectives
-	std::map<const CGHeroInstance *, std::set<const CGObjectInstance *> > reservedHeroesMap; //objects reserved by specific heroes
+	std::map<const CGHeroInstance *, std::vector<const CGObjectInstance *> > reservedHeroesMap; //objects reserved by specific heroes
 
 	std::vector<const CGObjectInstance *> visitableObjs;
 	std::vector<const CGObjectInstance *> alreadyVisited;
@@ -275,6 +277,7 @@ public:
 	void wander(const CGHeroInstance * h);
 	void setGoal (const CGHeroInstance *h, const CGoal goal);
 	void setGoal (const CGHeroInstance *h, EGoals goalType = INVALID);
+	void completeGoal (const CGoal goal); //safely removes goal from reserved hero
 
 	void recruitHero(const CGTownInstance * t);
 	std::vector<const CGObjectInstance *> getPossibleDestinations(const CGHeroInstance *h);

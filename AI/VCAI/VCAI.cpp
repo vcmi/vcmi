@@ -964,8 +964,22 @@ void VCAI::makeTurnInternal()
 
 	try
 	{
+		//Pick objects reserved in previous turn - we expect only nerby objects there
+		BOOST_FOREACH (auto hero, reservedHeroesMap)
+		{
+			cb->setSelection(hero.first);
+			boost::sort (hero.second, isCloser);
+			BOOST_FOREACH (auto obj, hero.second)
+			{
+				const CGHeroInstance * h = hero.first;
+				striveToGoal (CGoal(VISIT_TILE).sethero(h).settile(obj->visitablePos()));
+			}
+		}
+
+		//now try to win
 		striveToGoal(CGoal(WIN));
 
+		//finally, continue our abstract long-temr goals
 		std::vector<std::pair<const CGHeroInstance *, CGoal> > safeCopy; //heroes tend to die in the process and loose their goals, unsafe to iterate it
 		BOOST_FOREACH (auto h, lockedHeroes)
 		{
@@ -1255,7 +1269,9 @@ void VCAI::wander(const CGHeroInstance * h)
 			{
 				BNLOG("Hero %s apparently used all MPs (%d left)\n", h->name % h->movement);
 				reserveObject(h, dest); //reserve that object - we predict it will be reached soon
-				setGoal(h, CGoal(VISIT_TILE).sethero(h).settile(dest->visitablePos()));
+
+				//removed - do not forget abstract goal so easily
+				//setGoal(h, CGoal(VISIT_TILE).sethero(h).settile(dest->visitablePos()));
 			}
 			break;
 		}
@@ -1283,6 +1299,17 @@ void VCAI::setGoal (const CGHeroInstance *h, EGoals goalType)
 		remove_if_present(lockedHeroes, h);
 	else
 		lockedHeroes[h] = CGoal(goalType).setisElementar(false); //always evaluate goals before realizing;
+}
+
+void VCAI::completeGoal (const CGoal goal)
+{
+	if (const CGHeroInstance * h = goal.hero)
+	{
+		auto it = lockedHeroes.find(h);
+		if (it != lockedHeroes.end())
+			if (it->second.goalType == goal.goalType)
+				lockedHeroes.erase(it); //goal fulfilled, free hero
+	}
 }
 
 void VCAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
@@ -1324,7 +1351,7 @@ void VCAI::markObjectVisited (const CGObjectInstance *obj)
 void VCAI::reserveObject (const CGHeroInstance * h, const CGObjectInstance *obj)
 {
 	reservedObjs.push_back(obj);
-	reservedHeroesMap[h].insert(obj);
+	reservedHeroesMap[h].push_back(obj);
 }
 
 void VCAI::validateVisitableObjs()
@@ -1476,7 +1503,8 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 		if(path.nodes.empty())
 		{
 			tlog1 << "Hero " << h->name << " cannot reach " << dst << std::endl;
-			setGoal(h, INVALID);
+			//setGoal(h, INVALID);
+			completeGoal (CGoal(VISIT_TILE).sethero(h));
 			cb->recalculatePaths();
 			throw std::runtime_error("Wrong move order!");
 		}
@@ -1527,11 +1555,12 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 	}
 
 	if(h->tempOwner == playerID) //lost hero after last move
-		cb->recalculatePaths();
-	if (startHpos == h->visitablePos())
 	{
-		throw cannotFulfillGoalException("Invalid path found!"); //FIXME
 		cb->recalculatePaths();
+		if (startHpos == h->visitablePos())
+		{
+			throw cannotFulfillGoalException("Invalid path found!"); //FIXME
+		}
 	}
 	BNLOG("Hero %s moved from %s to %s", h->name % startHpos % h->visitablePos());
 	return ret;
@@ -1603,7 +1632,6 @@ void VCAI::tryRealize(CGoal g)
 			{
 				if (ai->moveHeroToTile(g.tile, g.hero))
 				{
-					setGoal (g.hero, INVALID); //tile reached, we can unlock hero
 					throw goalFulfilledException("");
 				}
 			}
@@ -1752,12 +1780,15 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 {
 	if (ultimateGoal.invalid())
 		return;
+
+	CGoal abstractGoal;
+
 	while(1)
 	{
 		CGoal goal = ultimateGoal;
 		BNLOG("Striving to goal of type %s", goalName(ultimateGoal.goalType));
 		int maxGoals = 100; //preventing deadlock for mutually dependent goals
-		while(!goal.isElementar && maxGoals)
+		while(!goal.isElementar && !goal.isAbstract && maxGoals)
 		{
 			INDENT;
 			BNLOG("Considering goal %s", goalName(goal.goalType));
@@ -1777,11 +1808,11 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 		try
 		{
 			boost::this_thread::interruption_point();
+
 			if (goal.hero) //lock this hero to fulfill ultimate goal
 			{
 				if (maxGoals)
 				{
-					//we shouldn't abandon high-level goal
 					setGoal (goal.hero, goal);
 				}
 				else
@@ -1789,7 +1820,16 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 					setGoal (goal.hero, INVALID); // we seemingly don't know what to do with hero
 				}
 			}
-			tryRealize(goal);
+
+			if (goal.isAbstract) 
+			{
+				abstractGoal = goal; //allow only one abstract goal per call
+				BNLOG("Choosing abstract goal %s", goalName(goal.goalType));
+				break;
+			}
+			else
+				tryRealize(goal);
+
 			boost::this_thread::interruption_point();
 		}
 		catch(boost::thread_interrupted &e)
@@ -1799,15 +1839,64 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 		}
 		catch(goalFulfilledException &e)
 		{
+			completeGoal (goal);
 			if (maxGoals > 98) //completed goal was main goal
 				//TODO: find better condition
-				return;
+			return;
 		}
 		catch(std::exception &e)
 		{
 			BNLOG("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.", goalName(goal.goalType) % goalName(ultimateGoal.goalType));
 			BNLOG("The error message was: %s", e.what());
 			break;
+		}
+	}
+
+	//TODO: save abstract goals not related to hero
+	if (!abstractGoal.invalid()) //try to realize our one goal
+	{
+		while (1)
+		{
+			CGoal goal = CGoal(abstractGoal).setisAbstract(false);
+			int maxGoals = 50;
+			while (!goal.isElementar && maxGoals) //find elementar goal and fulfill it
+			{
+				try
+				{
+					boost::this_thread::interruption_point();
+					goal = goal.whatToDoToAchieve();
+					--maxGoals;
+				}
+				catch(std::exception &e)
+				{
+					BNLOG("Goal %s decomposition failed: %s", goalName(goal.goalType) % e.what());
+					return;
+				}
+			}
+			try
+			{
+				boost::this_thread::interruption_point();
+				tryRealize(goal);
+				boost::this_thread::interruption_point();
+			}
+			catch(boost::thread_interrupted &e)
+			{
+				BNLOG("Player %d: Making turn thread received an interruption!", playerID);
+				throw; //rethrow, we want to truly end this thread
+			}
+			catch(goalFulfilledException &e)
+			{
+				completeGoal (goal);
+				if (maxGoals > 98) //completed goal was main goal
+					//TODO: find better condition
+					return;
+			}
+			catch(std::exception &e)
+			{
+				BNLOG("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.", goalName(goal.goalType) % goalName(ultimateGoal.goalType));
+				BNLOG("The error message was: %s", e.what());
+				break;
+			}
 		}
 	}
 }
@@ -2275,7 +2364,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 	case EXPLORE:
 		{
 			if (hero)
-				return CGoal(VISIT_TILE).settile(whereToExplore(hero));
+				return CGoal(VISIT_TILE).settile(whereToExplore(hero)).sethero(hero);
 
 			auto hs = cb->getHeroesInfo();
 			int howManyHeroes = hs.size();
@@ -2308,10 +2397,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 
 			const CGHeroInstance *h = hs.front();
 
-			CGoal ret(VISIT_TILE);
-			ret.sethero(h);
-			//throw goalFulfilledException("Found hero for exploration"); // FIXME: prevent all teh heroes to try explore same place
-			return ret.settile(whereToExplore(h));
+			return (*this).sethero(h).setisAbstract(true);
 		}
 
 		I_AM_ELEMENTAR;
