@@ -156,7 +156,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	else
 	{
 		const EnemyInfo &ei= *std::min_element(enemiesUnreachable.begin(), enemiesUnreachable.end(), boost::bind(isCloser, _1, _2, boost::ref(dists)));
-		if(distToNearestNeighbour(ei.s->position, dists) < GameConstants::BFIELD_SIZE)
+		if(distToNearestNeighbour(ei.s->position, dists) < GameConstants::BFIELD_SIZE) //FIXME: rare crash when AI attacks banks
 		{
 			return goTowards(stack, ei.s->position);
 		}

@@ -305,7 +305,7 @@ public:
 	const CGHeroInstance *getHeroWithGrail() const;
 
 	const CGObjectInstance *getUnvisitedObj(const boost::function<bool(const CGObjectInstance *)> &predicate);
-	bool isAccessibleForHero(const int3 & pos, const CGHeroInstance * h) const;
+	bool isAccessibleForHero(const int3 & pos, const CGHeroInstance * h, bool includeAllies = false) const;
 
 	const CGTownInstance *findTownWithTavern() const;
 

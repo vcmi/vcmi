@@ -235,6 +235,7 @@ bool remove_if_present(Container &c, const Item &item)
 	return false;
 }
 
+
 template <typename V, typename Item, typename Item2>
 bool remove_if_present(std::map<Item,V> & c, const Item2 &item)
 {
@@ -1443,9 +1444,17 @@ const CGObjectInstance * VCAI::getUnvisitedObj(const boost::function<bool(const 
 	return NULL;
 }
 
-bool VCAI::isAccessibleForHero(const int3 & pos, const CGHeroInstance * h) const
+bool VCAI::isAccessibleForHero(const int3 & pos, const CGHeroInstance * h, bool includeAllies) const
 {
 	cb->setSelection(h);
+	if (!includeAllies)
+	{ //don't visit tile occupied by allied hero
+		BOOST_FOREACH (auto obj, cb->getVisitableObjs(pos))
+		{
+			if (obj->ID == GameConstants::HEROI_TYPE && obj->tempOwner == h->tempOwner && obj != h)
+				return false;
+		}
+	}
 	return cb->getPathInfo(pos)->reachable();
 }
 
@@ -2904,6 +2913,8 @@ int3 SectorMap::firstTileToGet(const CGHeroInstance *h, crint3 dst)
 		if(!preds[dst])
 		{
 			write("test.txt");
+			ai->completeGoal (CGoal(EXPLORE).sethero(h)); //if we can't find the way, seemingly all tiles were explored
+			//TODO: more organized way?
 			throw cannotFulfillGoalException(str(format("Cannot find connection between sectors %d and %d") % src->id % dst->id));
 		}
 
