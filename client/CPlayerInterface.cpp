@@ -2144,6 +2144,7 @@ void CPlayerInterface::acceptTurn()
 	else
 		adventureInt->select(towns.front());
 
+	adventureInt->updateNextHero(NULL);
 	adventureInt->showAll(screen);
 
 	if(settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())

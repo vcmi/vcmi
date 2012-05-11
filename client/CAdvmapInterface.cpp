@@ -1074,6 +1074,7 @@ townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlis
 
 
 	setPlayer(LOCPLINT->playerID);
+	underground.block(!CGI->mh->map->twoLevel);
 }
 
 CAdvMapInt::~CAdvMapInt()

@@ -412,30 +412,25 @@ class DLL_LINKAGE CSpecObjInfo
 {
 public:
 	virtual ~CSpecObjInfo(){};
+	ui8 player; //owner
 };
 
-class DLL_LINKAGE CCreGenObjInfo : public CSpecObjInfo
+class DLL_LINKAGE CCreGenAsCastleInfo : public virtual CSpecObjInfo
 {
 public:
-	ui8 player; //owner
 	bool asCastle;
 	ui32 identifier;
 	ui8 castles[2]; //allowed castles
 };
-class DLL_LINKAGE CCreGen2ObjInfo : public CSpecObjInfo
+
+class DLL_LINKAGE CCreGenLeveledInfo : public virtual CSpecObjInfo
 {
 public:
-	ui8 player; //owner
-	bool asCastle;
-	ui32 identifier;
-	ui8 castles[2]; //allowed castles
 	ui8 minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
 };
-class DLL_LINKAGE CCreGen3ObjInfo : public CSpecObjInfo
+
+class DLL_LINKAGE CCreGenLeveledCastleInfo : public CCreGenAsCastleInfo, public CCreGenLeveledInfo
 {
-public:
-	ui8 player; //owner
-	ui8 minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
 };
 
 class DLL_LINKAGE CGDwelling : public CArmedInstance
@@ -1318,7 +1313,7 @@ struct BankConfig
 class DLL_LINKAGE CObjectHandler
 {
 public:
-	std::vector<si32> cregens; //type 17. dwelling subid -> creature ID
+	std::map<si32, si32> cregens; //type 17. dwelling subid -> creature ID
 	std::map <ui32, std::vector < ConstTransitivePtr<BankConfig> > > banksInfo; //[index][preset]
 	std::map <ui32, std::string> creBanksNames; //[crebank index] -> name of this creature bank
 	std::vector<ui32> resVals; //default values of resources in gold

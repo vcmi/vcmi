@@ -507,7 +507,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 			OwnedObjectInfo &info = visibleObjects[object->subID];
 			if (info.count++ == 0)
 			{
-				info.hoverText = CGI->creh->creatures[CGI->objh->cregens[object->subID]]->namePl;
+				info.hoverText = CGI->creh->creatures[CGI->objh->cregens.find(object->subID)->second]->namePl;
 				info.imageID = object->subID;
 			}
 		}

@@ -591,100 +591,69 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 		return std::pair<int,int>(54, VLC->creh->pickRandomMonster(boost::ref(ran), 6));
 	case 164: //random monster lvl7
 		return std::pair<int,int>(54, VLC->creh->pickRandomMonster(boost::ref(ran), 7));
-	case 216: //random dwelling
-		{
-			int faction = ran()%GameConstants::F_NUMBER;
-			CGDwelling * dwl = static_cast<CGDwelling*>(obj);
-			CCreGen2ObjInfo* info = static_cast<CCreGen2ObjInfo*>(dwl->info);
-			if (info->asCastle)
-			{
-				for(ui32 i=0;i<map->objects.size();i++)
-				{
-					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
-					{
-						randomizeObject(map->objects[i]); //we have to randomize the castle first
-						faction = map->objects[i]->subID;
-						break;
-					}
-					else if(map->objects[i]->ID==GameConstants::TOWNI_TYPE && dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
-					{
-						faction = map->objects[i]->subID;
-						break;
-					}
-				}
-			}
-			else
-			{
-				while((!(info->castles[0]&(1<<faction))))
-				{
-					if((faction>7) && (info->castles[1]&(1<<(faction-8))))
-						break;
-					faction = ran()%GameConstants::F_NUMBER;
-				}
-			}
-			int level = ((info->maxLevel-info->minLevel) ? (ran()%(info->maxLevel-info->minLevel)+info->minLevel) : (info->minLevel));
-			int cid = VLC->townh->towns[faction].basicCreatures[level];
-			for(ui32 i=0;i<VLC->objh->cregens.size();i++)
-				if(VLC->objh->cregens[i]==cid)
-					return std::pair<int,int>(17,i);
-			tlog3 << "Cannot find a dwelling for creature "<< cid << std::endl;
-			return std::pair<int,int>(17,0);
-			delete dwl->info;
-			dwl->info = NULL;
-		}
+	case 216: //random dwellings
 	case 217:
-		{
-			int faction = ran()%GameConstants::F_NUMBER;
-			CGDwelling * dwl = static_cast<CGDwelling*>(obj);
-			CCreGenObjInfo* info = static_cast<CCreGenObjInfo*>(dwl->info);
-			if (info->asCastle)
-			{
-				for(ui32 i=0;i<map->objects.size();i++)
-				{
-					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
-					{
-						randomizeObject(map->objects[i]); //we have to randomize the castle first
-						faction = map->objects[i]->subID;
-						break;
-					}
-					else if(map->objects[i]->ID==GameConstants::TOWNI_TYPE && dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
-					{
-						faction = map->objects[i]->subID;
-						break;
-					}
-				}
-			}
-			else
-			{
-				while((!(info->castles[0]&(1<<faction))))
-				{
-					if((faction>7) && (info->castles[1]&(1<<(faction-8))))
-						break;
-					faction = ran()%GameConstants::F_NUMBER;
-				}
-			}
-			int cid = VLC->townh->towns[faction].basicCreatures[obj->subID];
-			for(ui32 i=0;i<VLC->objh->cregens.size();i++)
-				if(VLC->objh->cregens[i]==cid)
-					return std::pair<int,int>(17,i);
-			tlog3 << "Cannot find a dwelling for creature "<<cid <<std::endl;
-			return std::pair<int,int>(17,0);
-			delete dwl->info;
-			dwl->info = NULL;
-		}
 	case 218:
 		{
 			CGDwelling * dwl = static_cast<CGDwelling*>(obj);
-			CCreGen3ObjInfo* info = static_cast<CCreGen3ObjInfo*>(dwl->info);
-			int level = ((info->maxLevel-info->minLevel) ? (ran()%(info->maxLevel-info->minLevel)+info->minLevel) : (info->minLevel));
-			int cid = VLC->townh->towns[obj->subID].basicCreatures[level];
-			for(ui32 i=0;i<VLC->objh->cregens.size();i++)
-				if(VLC->objh->cregens[i]==cid)
-					return std::pair<int,int>(17,i);
-			tlog3 << "Cannot find a dwelling for creature "<<cid <<std::endl;
-			return std::pair<int,int>(17,0);
+			int faction;
+
+			//if castle alignment available
+			if (auto info = dynamic_cast<CCreGenAsCastleInfo*>(dwl->info))
+			{
+				faction = ran()%GameConstants::F_NUMBER;
+				if (info->asCastle)
+				{
+					for(ui32 i=0;i<map->objects.size();i++)
+					{
+						if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
+						{
+							randomizeObject(map->objects[i]); //we have to randomize the castle first
+							faction = map->objects[i]->subID;
+							break;
+						}
+						else if(map->objects[i]->ID==GameConstants::TOWNI_TYPE && dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
+						{
+							faction = map->objects[i]->subID;
+							break;
+						}
+					}
+				}
+				else
+				{
+					while((!(info->castles[0]&(1<<faction))))
+					{
+						if((faction>7) && (info->castles[1]&(1<<(faction-8))))
+							break;
+						faction = ran()%GameConstants::F_NUMBER;
+					}
+				}
+			}
+			else // castle alignment fixed
+				faction = obj->subID;
+
+			int level;
+
+			//if level set to range
+			if (auto info = dynamic_cast<CCreGenLeveledInfo*>(dwl->info))
+				level = ((info->maxLevel-info->minLevel) ? (ran()%(info->maxLevel-info->minLevel)+info->minLevel) : (info->minLevel));
+			else // fixed level
+				level = obj->subID;
+
 			delete dwl->info;
-			dwl->info = NULL;
+			dwl->info = nullptr;
+
+			std::pair<int,int> result(-1, -1);
+			int cid = VLC->townh->towns[faction].basicCreatures[level];
+
+			//NOTE: this will pick last dwelling with this creature (Mantis #900)
+			//check for block map equality is better but more complex solution
+			BOOST_FOREACH(auto &iter, VLC->objh->cregens)
+				if (iter.second == cid)
+					result = std::pair<int,int>(17, iter.first);
+
+			tlog3 << "Cannot find a dwelling for creature "<< cid << std::endl;
+			return result;
 		}
 	}
 	return std::pair<int,int>(-1,-1);

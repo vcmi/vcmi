@@ -498,23 +498,43 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 			sr.h=sr.w=32;
 
 			//blit terrain with river/road
-			if(tile.terbitmap) { //if custom terrain graphic - use it
+			if(tile.terbitmap)
+			{ //if custom terrain graphic - use it
 				SDL_Rect temp_rect = genRect(sr.h, sr.w, 0, 0);
 				CSDL_Ext::blitSurface(tile.terbitmap, &temp_rect, extSurf, &sr);
-			} else //use default terrain graphic
+			}
+			else //use default terrain graphic
+			{
 				blitterWithRotation(terrainGraphics[tinfo.tertype][tinfo.terview],rtile, extSurf, sr, tinfo.siodmyTajemniczyBajt%4);
+			}
 			if(tinfo.nuine) //print river if present
+			{
 				blitterWithRotationAndAlpha(staticRiverDefs[tinfo.nuine-1]->ourImages[tinfo.rivDir].bitmap,rtile, extSurf, sr, (tinfo.siodmyTajemniczyBajt>>2)%4);
-			if(tinfo.malle) //print road if present
-				blitterWithRotationAndAlpha(roadDefs[tinfo.malle-1]->ourImages[tinfo.roadDir].bitmap,rtile, extSurf, sr, (tinfo.siodmyTajemniczyBajt>>4)%4);
+			}
+
+			//Roads are shifted by 16 pixels to bottom. We have to draw both parts separately
+			if (pos.y > 0 && map->terrain[pos.x][pos.y-1][pos.z].malle)
+			{ //part from top tile
+				const TerrainTile &topTile = map->terrain[pos.x][pos.y-1][pos.z];
+				Rect source(0, 16, 32, 16);
+				Rect dest(sr.x, sr.y, sr.w, sr.h/2);
+				blitterWithRotationAndAlpha(roadDefs[topTile.malle-1]->ourImages[topTile.roadDir].bitmap, source, extSurf, dest, (topTile.siodmyTajemniczyBajt>>4)%4);
+			}
+
+			if(tinfo.malle) //print road from this tile
+			{
+				Rect source(0, 0, 32, 32);
+				Rect dest(sr.x, sr.y+16, sr.w, sr.h/2);
+				blitterWithRotationAndAlpha(roadDefs[tinfo.malle-1]->ourImages[tinfo.roadDir].bitmap, source, extSurf, dest, (tinfo.siodmyTajemniczyBajt>>4)%4);
+			}
 
 			//blit objects
 			const std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > &objects = tile.objects;
 			for(int h=0; h < objects.size(); ++h)
 			{
 				const CGObjectInstance *obj = objects[h].first;
-                if (!graphics->getDef(obj))
-                    processDef(obj->defInfo);
+				if (!graphics->getDef(obj))
+					processDef(obj->defInfo);
 
 				ui8 color = obj->tempOwner;
 

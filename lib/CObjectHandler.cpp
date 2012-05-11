@@ -155,11 +155,6 @@ static void readBankLevel(const JsonNode &level, BankConfig &bc)
 void CObjectHandler::loadObjects()
 {
 	tlog5 << "\t\tReading cregens \n";
-	cregens.resize(110); //TODO: hardcoded value - change
-	for(size_t i=0; i < cregens.size(); ++i)
-	{
-		cregens[i]=-1;
-	}
 
 	const JsonNode config(GameConstants::DATA_DIR + "/config/dwellings.json");
 	BOOST_FOREACH(const JsonNode &dwelling, config["dwellings"].Vector())

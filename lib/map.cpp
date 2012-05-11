@@ -1675,60 +1675,45 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 				grailRadious = read_le_u32(bufor + i); i+=4;
 				continue;
 			}
-		case 217:
+		//dwellings
+		case 216: //same as castle + level range
+		case 217: //same as castle
+		case 218: //level range
 			{
 				nobj = new CGDwelling();
-				CCreGenObjInfo * spec = new CCreGenObjInfo;
-				spec->player = read_le_u32(bufor + i); i+=4;
-				spec->identifier =  read_le_u32(bufor + i); i+=4;
-				if(!spec->identifier)
+				CSpecObjInfo * spec = nullptr;
+				switch(defInfo->id)
 				{
-					spec->asCastle = false;
-					spec->castles[0] = bufor[i]; ++i;
-					spec->castles[1] = bufor[i]; ++i;
+					break; case 216: spec = new CCreGenLeveledCastleInfo;
+					break; case 217: spec = new CCreGenAsCastleInfo;
+					break; case 218: spec = new CCreGenLeveledInfo;
+				}
+
+				spec->player = read_le_u32(bufor + i); i+=4;
+				//216 and 217
+				if (auto castleSpec = dynamic_cast<CCreGenAsCastleInfo*>(spec))
+				{
+					castleSpec->identifier =  read_le_u32(bufor + i); i+=4;
+					if(!castleSpec->identifier)
+					{
+						castleSpec->asCastle = false;
+						castleSpec->castles[0] = bufor[i]; ++i;
+						castleSpec->castles[1] = bufor[i]; ++i;
+					}
+					else
+					{
+						castleSpec->asCastle = true;
+					}
 				}
 				else
+					i+=3; //only for 218
+
+				//216 and 218
+				if (auto lvlSpec = dynamic_cast<CCreGenLeveledInfo*>(spec))
 				{
-					spec->asCastle = true;
+					lvlSpec->minLevel = std::max(bufor[i], ui8(1)); ++i;
+					lvlSpec->maxLevel = std::min(bufor[i], ui8(7)); ++i;
 				}
-				nobj->setOwner(spec->player);
-				static_cast<CGDwelling*>(nobj)->info = spec;
-				break;
-			}
-		case 216:
-			{
-				nobj = new CGDwelling();
-				CCreGen2ObjInfo * spec = new CCreGen2ObjInfo;
-				spec->player = read_le_u32(bufor + i); i+=4;
-				spec->identifier =  read_le_u32(bufor + i); i+=4;
-				if(!spec->identifier)
-				{
-					spec->asCastle = false;
-					spec->castles[0] = bufor[i]; ++i;
-					spec->castles[1] = bufor[i]; ++i;
-				}
-				else
-				{
-					spec->asCastle = true;
-				}
-				spec->minLevel = bufor[i]; ++i;
-				spec->maxLevel = bufor[i]; ++i;
-				nobj->setOwner(spec->player);
-				static_cast<CGDwelling*>(nobj)->info = spec;
-				break;
-			}
-		case 218:
-			{
-				nobj = new CGDwelling();
-				CCreGen3ObjInfo * spec = new CCreGen3ObjInfo;
-				spec->player = bufor[i]; ++i;
-				i+=3;
-				spec->minLevel = bufor[i]; ++i;
-				spec->maxLevel = bufor[i]; ++i;
-				if(spec->maxLevel>7)
-					spec->maxLevel = 7;
-				if(spec->minLevel<1)
-					spec->minLevel = 1;
 				nobj->setOwner(spec->player);
 				static_cast<CGDwelling*>(nobj)->info = spec;
 				break;
