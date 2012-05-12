@@ -23,9 +23,8 @@ struct ArtifactLocation;
 
 class DLL_EXPORT CArtifact : public CBonusSystemNode //container for artifacts
 {
-protected:
-	std::string name, description; //set if custom
 public:
+	std::string name, description; //set if custom
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter
@@ -56,10 +55,9 @@ public:
 
 class DLL_EXPORT CArtifactInstance : public CBonusSystemNode
 {
-protected:
+public:
 	void init();
 	CArtifactInstance(CArtifact *Art);
-public:
 	CArtifactInstance();
 
 	ConstTransitivePtr<CArtifact> artType; 

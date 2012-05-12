@@ -28,6 +28,17 @@
 int CBonusSystemNode::treeChanged = 1;
 const bool CBonusSystemNode::cachingEnabled = false;
 
+DLL_EXPORT std::string bonusTypeToString(int type)
+{
+	BOOST_FOREACH(auto &p, bonusNameMap)
+	{
+		if(p.second == type)
+			return p.first;
+	}
+
+	return "UNKNOWN BONUS";
+}
+
 BonusList::BonusList(bool BelongsToTree /* =false */) : belongsToTree(BelongsToTree)
 {
 

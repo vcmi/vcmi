@@ -243,8 +243,8 @@ bool MakeAction::applyGh( CGameHandler *gh )
 		if(gh->connections[b->sides[b->tacticsSide]] != c) 
 			ERROR_AND_RETURN;
 	}
-	else if(gh->connections[b->getStack(b->activeStack)->owner] != c) 
-		ERROR_AND_RETURN;
+// 	else if(gh->connections[b->getStack(b->activeStack)->owner] != c) 
+// 		ERROR_AND_RETURN;
 
 	return gh->makeBattleAction(ba);
 }

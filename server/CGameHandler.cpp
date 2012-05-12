@@ -332,7 +332,7 @@ void CGameHandler::startBattle( const CArmedInstance *armies[2], int3 tile, cons
 	runBattle();
 }
 
-void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2)
+int CGameHandler::endBattle( int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2 )
 {
 	bool duel = gs->initialOpts->mode == StartInfo::DUEL;
 	BattleResultsApplied resultsApplied;
@@ -381,7 +381,19 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		}
 	}
 
+	const CArmedInstance *armed = gs->curB->belligerents[battleResult.data->winner];
+
+	int winnerArmyAfterBattle = 0;
+	int winnerArmyBeforeBattle = 0;
+	BOOST_FOREACH(auto &slot, armed->Slots())
+	{
+		winnerArmyBeforeBattle += slot.second->type->AIValue * slot.second->count;
+		assert(winnerArmyBeforeBattle >= 0);
+	}
+
 	sendAndApply(battleResult.data);
+
+
 
 	//Eagle Eye secondary skill handling
 	if(cs.spells.size())
@@ -459,12 +471,12 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		addToSlot(StackLocation(winnerHero, necroSlot), raisedStack.type, raisedStack.count);
 	}
 
+	int casualtiesPoints = 0;
 	if(duel)
 	{
 		CSaveFile resultFile(LOGS_DIR + "/result.vdrst");
 		resultFile << *battleResult.data;
 
-		int casualtiesPoints = 0;
 		tlog0 << boost::format("Winner side %d\nWinner casualties:\n") % (int)battleResult.data->winner;
 		for(std::map<ui32,si32>::const_iterator i = battleResult.data->casualties[battleResult.data->winner].begin(); i != battleResult.data->casualties[battleResult.data->winner].end(); i++)
 		{
@@ -487,8 +499,18 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	sendAndApply(&resultsApplied);
 
+	winnerArmyAfterBattle = winnerArmyBeforeBattle - casualtiesPoints;
+
 	if(duel)
-		return;
+	{
+		double ratioKept = (double)winnerArmyAfterBattle / (double)winnerArmyBeforeBattle;
+
+		int ret = ratioKept * 1000000;
+		if(battleResult.data->winner)
+			ret *= -1;
+
+		return ret;
+	}
 
 	if(visitObjectAfterVictory && winnerHero == hero1)
 	{
@@ -517,6 +539,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 		sendAndApply(&sah);
 	}
+
+	return 0;
 }
 
 void CGameHandler::afterBattleCallback() //object interaction after leveling up is done
@@ -4984,7 +5008,7 @@ bool CGameHandler::swapStacks(const StackLocation &sl1, const StackLocation &sl2
 	}
 }
 
-void CGameHandler::runBattle()
+int CGameHandler::runBattle()
 {
 	assert(gs->curB);
 	//TODO: pre-tactic stuff, call scripts etc.
@@ -5203,7 +5227,7 @@ void CGameHandler::runBattle()
 		}
 	}
 
-	endBattle(gs->curB->tile, gs->curB->heroes[0], gs->curB->heroes[1]);
+	return endBattle(gs->curB->tile, gs->curB->heroes[0], gs->curB->heroes[1]);
 }
 
 void CGameHandler::giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, int pos)

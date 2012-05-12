@@ -281,9 +281,9 @@ struct DLL_EXPORT CPathsInfo
 struct DLL_EXPORT DuelParameters
 {
 	si32 terType, bfieldType;
-	struct SideSettings
+	struct DLL_EXPORT SideSettings
 	{
-		struct StackSettings
+		struct DLL_EXPORT StackSettings
 		{
 			si32 type;
 			si32 count;
@@ -298,13 +298,14 @@ struct DLL_EXPORT DuelParameters
 
 		si32 heroId; //-1 if none
 		std::vector<si32> heroPrimSkills; //may be empty
+		std::map<int, CArtifactInstance*> artifacts;
 		std::vector<std::pair<si32, si8> > heroSecSkills; //may be empty; pairs <id, level>, level [0-3]
 		std::set<si32> spells;
 
 		SideSettings();
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & stacks & heroId & heroPrimSkills & spells;
+			h & stacks & heroId & heroPrimSkills & artifacts & heroSecSkills & spells;
 		}
 	} sides[2];
 

@@ -833,6 +833,7 @@ namespace Selector
 }
 
 extern DLL_EXPORT const std::map<std::string, int> bonusNameMap;
+DLL_EXPORT std::string bonusTypeToString(int type);
 
 // BonusList template that requires full interface of CBonusSystemNode
 template <class InputIterator>
@@ -859,3 +860,5 @@ namespace boost
 		typedef std::vector<Bonus*>::const_iterator type;
 	};
 }
+
+

@@ -113,7 +113,7 @@ public:
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	int moveStack(int stack, THex dest); //returned value - travelled distance
 	void startBattle(const CArmedInstance *armies[2], int3 tile, const CGHeroInstance *heroes[2], bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town = NULL); //use hero=NULL for no hero
-	void runBattle();
+	int runBattle();
 	void checkLossVictory(ui8 player);
 	void winLoseHandle(ui8 players=255); //players: bit field - colours of players to be checked; default: all
 	void getLossVicMessage(ui8 player, ui8 standard, bool victory, InfoWindow &out) const;
@@ -125,7 +125,7 @@ public:
 	//
 
 	void disqualifyPlayer(int side);
-	void endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2); //ends battle
+	int endBattle(int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2); //ends battle
 	void prepareAttack(BattleAttack &bat, const CStack *att, const CStack *def, int distance, int targetHex); //distance - number of hexes travelled before attacking
 	void applyBattleEffects(BattleAttack &bat, const CStack *att, const CStack *def, int distance, bool secondary); //damage, drain life & fire shield
 	void checkForBattleEnd( std::vector<CStack*> &stacks );

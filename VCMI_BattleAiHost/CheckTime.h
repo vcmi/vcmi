@@ -59,7 +59,7 @@ struct CheckTime
 //all ms
 const int PROCESS_INFO_TIME = 5; 
 const int MAKE_DECIDION_TIME = 150; 
-const int MEASURE_MARGIN = 3;
+const int MEASURE_MARGIN = 3000000;
 const int HANGUP_TIME = 250;
 const int CONSTRUCT_TIME = 50;
 const int STARTUP_TIME = 100;

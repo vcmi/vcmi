@@ -983,6 +983,11 @@ void CGameState::init( StartInfo * si, ui32 checksum, int Seed )
 							h->spells.insert(spell);
 					}
 
+					BOOST_FOREACH(auto &parka, ss.artifacts)
+					{
+						h->putArtifact(parka.first, parka.second);
+					}
+
 					typedef const std::pair<si32, si8> &TSecSKill;
 					BOOST_FOREACH(TSecSKill secSkill, ss.heroSecSkills)
 						h->setSecSkillLevel((CGHeroInstance::SecondarySkill)secSkill.first, secSkill.second, 1);

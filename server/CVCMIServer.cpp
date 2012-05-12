@@ -668,7 +668,7 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 	*gh->gameLog << battle << leftAI << rightAI << ui8('$');
 	
 	tlog0 << "Starting battle!\n";
-	gh->runBattle();
+	auto battleOut = gh->runBattle();
 	tlog0 << "Battle over!\n";
 	tlog0 << "Waiting for connections to close\n";
 	
@@ -687,7 +687,8 @@ void CVCMIServer::startDuel(const std::string &battle, const std::string &leftAI
 	tlog0 << "Removed gh!\n";
 
 	tlog0 << "Dying...\n";
-	exit(0);
+
+	exit(battleOut);
 }
 
 #ifndef __GNUC__
@@ -711,15 +712,18 @@ int main(int argc, char** argv)
 	{
 		io_service io_service;
 		CVCMIServer server;
-		if(argc == 6 || argc == 7)
+		if(argc != 2)
 		{
-			RESULTS_PATH = argv[4];
-			tlog1 << "Results path: " << RESULTS_PATH << std::endl;
-			tlog1 << "Logs path: " << RESULTS_PATH << std::endl;
-			server.startDuel(argv[1], argv[2], argv[3], argc-3);
+			if(argc == 6 || argc == 7)
+			{
+				RESULTS_PATH = argv[4];
+				tlog1 << "Results path: " << RESULTS_PATH << std::endl;
+				tlog1 << "Logs path: " << RESULTS_PATH << std::endl;
+				server.startDuel(argv[1], argv[2], argv[3], argc-3);
+			}
+			else
+				server.startDuel("b1.json", "StupidAI", "StupidAI", 2);
 		}
-		else
-			server.startDuel("b1.json", "StupidAI", "StupidAI", 2);
 
 		while(!end2)
 		{
