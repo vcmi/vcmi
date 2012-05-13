@@ -66,7 +66,7 @@ class CDwellingInfoBox : public CIntObject
 	CLabel *available;
 	CLabel *costPerTroop;
 	
-	std::vector<CPicture *> resPicture;
+	std::vector<CAnimImage *> resPicture;
 	std::vector<CLabel *> resAmount;
 public:
 	CDwellingInfoBox(int centerX, int centerY, const CGTownInstance *Town, int level);
@@ -81,14 +81,16 @@ public:
 	HeroSlots *owner;
 	const CGHeroInstance *hero;
 	int upg; //0 - up garrison, 1 - down garrison
-	bool highlight; //indicates id the slot is highlighted
 
+	CAnimImage *image;
+	CAnimImage *selection; //selection border. NULL if not selected
+	
 	void setHighlight(bool on);
+	void set(const CGHeroInstance *newHero);
 
 	void hover (bool on);
 	void clickLeft(tribool down, bool previousState);
 	void deactivate();
-	void showAll(SDL_Surface * to);
 	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSlots * Owner); //c-tor
 	~CHeroGSlot(); //d-tor
 };
@@ -282,7 +284,7 @@ class CBuildWindow: public CIntObject
 	CTextBox * buildingState;
 	CGStatusBar *statusBar;
 
-	std::vector<CPicture *> resPicture;
+	std::vector<CAnimImage *> resPicture;
 	std::vector<CLabel *> resAmount;
 
 	std::string getTextForState(int state);
@@ -384,7 +386,6 @@ class CBlacksmithDialog : public CIntObject
 	CPicture *background;
 	CPicture *animBG;
 	CCreatureAnim * anim;
-	CPicture * gold;
 	CLabel * title;
 	CLabel * costText;
 	CLabel * costValue;

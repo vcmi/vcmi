@@ -24,11 +24,9 @@
  *
  */
 
-extern SDL_Surface * screen;
+//extern SDL_Surface * screen;
 
-using namespace NMessage;
-
-const int COMPONENT_TO_SUBTITLE = 5;
+const int COMPONENT_TO_SUBTITLE = 17;
 const int BETWEEN_COMPS_ROWS = 10;
 const int BEFORE_COMPONENTS = 30;
 const int SIDE_MARGIN = 30;
@@ -41,13 +39,37 @@ template <typename T, typename U> std::pair<T,U> max(const std::pair<T,U> &x, co
 	return ret;
 }
 
-namespace NMessage
+//One image component + subtitles below it
+class ComponentResolved : public CIntObject
+{
+	std::vector<std::vector<SDL_Surface*> > * txt;
+public:
+	CComponent *comp;
+
+	//blit component with image centered at this position
+	void showAll(SDL_Surface * to);
+
+	//ComponentResolved(); //c-tor
+	ComponentResolved(CComponent *Comp); //c-tor
+	~ComponentResolved(); //d-tor
+};
+// Full set of components for blitting on dialog box
+struct ComponentsToBlit
+{
+	std::vector< std::vector<ComponentResolved*> > comps;
+	int w, h;
+
+	void blitCompsOnSur(SDL_Surface * _or, int inter, int &curh, SDL_Surface *ret);
+	ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, SDL_Surface* _or); //c-tor
+	~ComponentsToBlit(); //d-tor
+};
+
+namespace
 {
 	CDefHandler * ok, *cancel;
 	std::vector<std::vector<SDL_Surface*> > piecesOfBox; //in colors of all players
 	SDL_Surface * background = NULL;
 }
-
 
 void CMessage::init()
 {
@@ -72,13 +94,12 @@ void CMessage::init()
 			}
 			delete bluePieces;
 		}
-		NMessage::background = BitmapHandler::loadBitmap("DIBOXBCK.BMP");
+		background = BitmapHandler::loadBitmap("DIBOXBCK.BMP");
 		SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
 	}
 	ok = CDefHandler::giveDef("IOKAY.DEF");
 	cancel = CDefHandler::giveDef("ICANCEL.DEF");
 }
-
 
 void CMessage::dispose()
 {
@@ -93,7 +114,8 @@ void CMessage::dispose()
 	delete ok;
 	delete cancel;
 }
-SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor) //draws box for window
+
+SDL_Surface * CMessage::drawDialogBox(int w, int h, int playerColor)
 {
 	//prepare surface
 	SDL_Surface * ret = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
@@ -319,37 +341,7 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 	} //ends for(int i=0; i<brtext->size();i++)
 	return txtg;
 }
-//CSimpleWindow * CMessage::genWindow(std::string text, int player, bool centerOnMouse, int Lmar, int Rmar, int Tmar, int Bmar)
-//{
-// 	CSimpleWindow * ret = new CSimpleWindow();
-// 	int fontHeight;
-// 	std::vector<std::string> brtext = breakText(text,32);
-// 	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(&brtext, fontHeight);
-// 	std::pair<int,int> txts = getMaxSizes(txtg, fontHeight);
-// 	ret->bitmap = drawBox1(txts.first+Lmar+Rmar,txts.second+Tmar+Bmar,player);
-// 	ret->pos.h = ret->bitmap->h;
-// 	ret->pos.w = ret->bitmap->w;
-// 	if (centerOnMouse) 
-// 	{
-// 		ret->pos.x = GH.current->motion.x - ret->pos.w/2;
-// 		ret->pos.y = GH.current->motion.y - ret->pos.h/2;
-// 		// Put the window back on screen if necessary
-// 		vstd::amax(ret->pos.x, 0);
-// 		vstd::amax(ret->pos.y, 0);
-// 		vstd::amin(ret->pos.x, conf.cc.resx - ret->pos.w);
-// 		vstd::amin(ret->pos.y, conf.cc.resy - ret->pos.h);
-// 	} 
-// 	else 
-// 	{
-// 		// Center on screen
-// 		ret->pos.x = screen->w/2 - (ret->pos.w/2);
-// 		ret->pos.y = screen->h/2 - (ret->pos.h/2);
-// 	}
-// 	int curh = ret->bitmap->h/2 - (fontHeight*txtg->size())/2;
-// 	blitTextOnSur(txtg,fontHeight,curh,ret->bitmap);
-// 	delete txtg;
-// 	return ret;
-//}
+
 SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_Surface* bitmap, std::string sub, int charperline/*=30*/, int imgToBmp/*=55*/ )
 {
 	int curh;
@@ -367,7 +359,7 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_
 		+ 5 // to sibtitle
 		+ (*txtg)[0][0]->h
 		+ 30;
-	SDL_Surface *ret = drawBox1(boxs.first,boxs.second,player);
+	SDL_Surface *ret = drawDialogBox(boxs.first,boxs.second,player);
 	blitTextOnSur(txtg,fontHeight,curh,ret);
 	curh += imgToBmp;
 	blitAt(bitmap,(ret->w/2)-(bitmap->w/2),curh,ret);
@@ -380,8 +372,6 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_
 void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 {
 	SDL_Surface * _or = NULL;
-	//const Font &f = *graphics->fonts[FONT_MEDIUM];
-	//int fontHeight = f.height;
 
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
 		_or = FNT_RenderText(FONT_MEDIUM,CGI->generaltexth->allTexts[4],Colors::Cornsilk);
@@ -405,7 +395,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 
 	ComponentsToBlit comps(ret->components,500,_or);
 	if (ret->components.size())
-		winSize.second += 30 + comps.h; //space to first component
+		winSize.second += 10 + comps.h; //space to first component
 
 	int bw = 0;
 	if (ret->buttons.size())
@@ -426,11 +416,10 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 
 	vstd::amin(winSize.first, screen->w - 150);
 
-	ret->bitmap = drawBox1 (winSize.first + 2*SIDE_MARGIN, winSize.second + 2*SIDE_MARGIN, player);
+	ret->bitmap = drawDialogBox (winSize.first + 2*SIDE_MARGIN, winSize.second + 2*SIDE_MARGIN, player);
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
 	ret->center();
-
 
 	int curh = SIDE_MARGIN;
 	int xOffset = (ret->pos.w - ret->text->pos.w)/2;
@@ -463,10 +452,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 		}
 	}
 	for(size_t i=0; i<ret->components.size(); i++)
-	{
-		ret->components[i]->pos.x += ret->pos.x;
-		ret->components[i]->pos.y += ret->pos.y;
-	}
+		ret->components[i]->moveBy(Point(ret->pos.x, ret->pos.y));
 
 	if(_or)
 		SDL_FreeSurface(_or);
@@ -534,34 +520,64 @@ void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int 
 	CSDL_Ext::blitSurface(box[3], NULL, ret, &dstR);
 }
 
-ComponentResolved::ComponentResolved()
+ComponentResolved::ComponentResolved( CComponent *Comp ):
+	comp(Comp)
 {
-	comp = NULL;
-	img = NULL;
-	txt = NULL;
-	txtFontHeight = 0;
-}
+	//Temporary assign ownership on comp
+	if (parent)
+		parent->removeChild(this);
+	if (comp->parent)
+	{
+		comp->parent->addChild(this);
+		comp->parent->removeChild(comp);
+	}
 
-ComponentResolved::ComponentResolved( CComponent *Comp )
-{
-	comp = Comp;
-	img = comp->getImg();
-	std::vector<std::string> brtext = CMessage::breakText(comp->subtitle,14); //text 
-	txt = CMessage::drawText(&brtext,txtFontHeight,FONT_SMALL);
+	addChild(comp);
+	defActions = 255 - DISPOSE;
+	pos.x = pos.y = 0;
+
+	int textHeight = 0;
+	std::vector<std::string> textLines = CMessage::breakText(comp->subtitle, 14); //text
+	txt = CMessage::drawText(&textLines, textHeight, FONT_SMALL);
 
 	//calculate dimensions
-	std::pair<int,int> textSize = CMessage::getMaxSizes(txt, txtFontHeight);
-	comp->pos.w = std::max(textSize.first, img->w); //bigger of: subtitle width and image width
-	comp->pos.h = img->h + COMPONENT_TO_SUBTITLE + textSize.second;
+	std::pair<int,int> textSize = CMessage::getMaxSizes(txt, textHeight);
+	pos.w = std::max<int>(textSize.first, comp->pos.w); //bigger of: subtitle width and image width
+
+	pos.h = comp->pos.h + COMPONENT_TO_SUBTITLE + textSize.second;
+
+	comp->moveTo(Point((pos.w - comp->pos.w)/2, 0));
 }
 
 ComponentResolved::~ComponentResolved()
 {
+	if (parent)
+	{
+		removeChild(comp);
+		parent->addChild(comp);
+	}
+
 	for(size_t i = 0; i < txt->size(); i++)
 		for(size_t j = 0; j < (*txt)[i].size(); j++)
 			if((*txt)[i][j])
 				SDL_FreeSurface((*txt)[i][j]);
 	delete txt;
+}
+
+void ComponentResolved::showAll(SDL_Surface *to)
+{
+	tlog0 << "Blitting at "<< pos.x << " " << pos.y << "\n";
+	int fontHeight;
+	if (graphics->fontsTrueType[FONT_SMALL])
+		fontHeight = TTF_FontHeight(graphics->fontsTrueType[FONT_SMALL]);
+	else
+		fontHeight = graphics->fonts[FONT_SMALL]->height;
+
+	CIntObject::showAll(to);
+	comp->showAll(to);
+
+	int textY = pos.y + comp->pos.h + COMPONENT_TO_SUBTITLE;
+	CMessage::blitTextOnSur(txt, fontHeight, textY, to, pos.x + pos.w/2 );
 }
 
 ComponentsToBlit::~ComponentsToBlit()
@@ -586,12 +602,12 @@ ComponentsToBlit::ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, 
 	{
 		ComponentResolved *cur = new ComponentResolved(SComps[i]);
 
-		int toadd = (cur->comp->pos.w + 12 + (_or ? _or->w : 0));
+		int toadd = (cur->pos.w + 12 + (_or ? _or->w : 0));
 		if (curw + toadd > maxw)
 		{
 			curr++;
 			vstd::amax(w,curw);
-			curw = cur->comp->pos.w;
+			curw = cur->pos.w;
 			comps.resize(curr+1);
 		}
 		else
@@ -605,10 +621,11 @@ ComponentsToBlit::ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, 
 
 	for(size_t i=0;i<comps.size();i++)
 	{
-		int maxh = 0;
+		int maxHeight = 0;
 		for(size_t j=0;j<comps[i].size();j++)
-			vstd::amax(maxh,comps[i][j]->comp->pos.h);
-		h += maxh + BETWEEN_COMPS_ROWS;
+			vstd::amax(maxHeight, comps[i][j]->pos.h);
+
+		h += maxHeight + BETWEEN_COMPS_ROWS;
 	}
 }
 
@@ -616,44 +633,33 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 {
 	for (size_t i=0;i<comps.size();i++)//for each row
 	{
-		int totalw=0, maxh=0;
+		int totalw=0, maxHeight=0;
 		for(size_t j=0;j<(comps)[i].size();j++)//find max height & total width in this row
 		{
 			ComponentResolved *cur = (comps)[i][j];
-			totalw += cur->comp->pos.w;
-			vstd::amax(maxh,cur->comp->getImg()->h);//subtitles height will added later
-		}
-		if(_or)
-		{
-			totalw += (inter*2+_or->w) * ((comps)[i].size() - 1);
-		}
-		else//add space between comps in this row
-		{
-			totalw += (inter) * ((comps)[i].size() - 1);
+			totalw += cur->pos.w;
+			vstd::amax(maxHeight, cur->pos.h);
 		}
 
-		int startHeight = curh;
-		int middleh = curh + maxh/2;//axis for image aligment
-		int curw = (ret->w/2)-(totalw/2);
+		//add space between comps in this row
+		if(_or)
+			totalw += (inter*2+_or->w) * ((comps)[i].size() - 1);
+		else
+			totalw += (inter) * ((comps)[i].size() - 1);
+
+		int middleh = curh + maxHeight/2;//axis for image aligment
+		int curw = ret->w/2 - totalw/2;
 
 		for(size_t j=0;j<(comps)[i].size();j++)
 		{
 			ComponentResolved *cur = (comps)[i][j];
+			cur->moveTo(Point(curw, curh));
 
-			//blit img
-			int imgX = curw + ( cur->comp->pos.w - cur->comp->getImg()->w ) / 2;
-			int imgY = startHeight;
-			blitAt(cur->img, imgX, imgY, ret);
-			cur->comp->pos.x = imgX;
-			cur->comp->pos.y = imgY;
-
-			//blit subtitle
-			int textX = imgX + cur->comp->getImg()->w/2;
-			int textY = startHeight + cur->comp->getImg()->h + COMPONENT_TO_SUBTITLE;
-			CMessage::blitTextOnSur(cur->txt, cur->txtFontHeight, textY, ret, textX );
+			//blit component
+			cur->showAll(ret);
+			curw += cur->pos.w;
 
 			//if there is subsequent component blit "or"
-			curw += cur->comp->pos.w;
 			if(j<((comps)[i].size()-1))
 			{
 				if(_or)
@@ -664,8 +670,7 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 				}
 				curw+=inter;
 			}
-			vstd::amax(curh, textY);
 		}
-		curh += BETWEEN_COMPS_ROWS;
+		curh += maxHeight + BETWEEN_COMPS_ROWS;
 	}
 }

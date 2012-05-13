@@ -1148,13 +1148,21 @@ int CPlayerSpecificInfoCallback::getMyColor() const
 	return player;
 }
 
-int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero) const
+int CPlayerSpecificInfoCallback::getHeroSerial(const CGHeroInstance * hero, bool includeGarrisoned) const
 {
-	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	for (size_t i=0; i<gs->players[player].heroes.size();i++)
+	if (hero->inTownGarrison && !includeGarrisoned)
+		return -1;
+
+	size_t index = 0;
+	auto & heroes = gs->players[player].heroes;
+
+	for (auto curHero= heroes.begin(); curHero!=heroes.end(); curHero++)
 	{
-		if (gs->players[player].heroes[i]==hero)
-			return i;
+		if (includeGarrisoned || !(*curHero)->inTownGarrison)
+			index++;
+
+		if (*curHero == hero)
+			return index;
 	}
 	return -1;
 }

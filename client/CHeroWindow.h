@@ -29,13 +29,12 @@ class CArtifactsOfHero;
 /// Button which switches hero selection
 class CHeroSwitcher : public CIntObject
 {
+	const CGHeroInstance * hero;
+	CAnimImage *image;
 public:
-	int id;
-
-	CHeroWindow * getOwner();
 	virtual void clickLeft(tribool down, bool previousState);
 
-	CHeroSwitcher(int serial);
+	CHeroSwitcher(Point pos, const CGHeroInstance * hero);
 };
 
 //helper class for calculating values of hero bonuses without bonuses from picked up artifact
@@ -51,45 +50,45 @@ public:
 
 class CHeroWindow: public CWindowWithGarrison, public CWindowWithArtifacts
 {
-	enum ELabel {};
-	std::map<ELabel, CLabel*> labels;
 	CPicture *background;
 	CGStatusBar * ourBar; //heroWindow's statusBar
 
-	//general graphics
-	CDefEssential *flags;
-
 	//buttons
 	//CAdventureMapButton * gar4button; //splitting
-	std::vector<CHeroSwitcher *> heroListMi; //new better list of heroes
+	std::vector<CHeroSwitcher *> heroList; //list of heroes
+	CPicture * listSelection; //selection border
 
 	//clickable areas
 	LRClickableAreaWText * portraitArea;
+	CAnimImage * portraitImage;
+
 	std::vector<LRClickableAreaWTextComp *> primSkillAreas;
 	LRClickableAreaWText * expArea;
 	LRClickableAreaWText * spellPointsArea;
 	LRClickableAreaWText * specArea;//speciality
+	CAnimImage *specImage;
 	MoraleLuckBox * morale, * luck;
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas;
+	std::vector<CAnimImage *> secSkillImages;
 	CHeroWithMaybePickedArtifact heroWArt;
 
-public:
-	const CGHeroInstance * curHero;
 	CAdventureMapButton * quitButton, * dismissButton, * questlogButton; //general
 		
 	CHighlightableButton *tacticsButton; //garrison / formation handling;
 	CHighlightableButtonsGroup *formations;
-	int player;
+
+public:
+	const CGHeroInstance * curHero;
+
 	CHeroWindow(const CGHeroInstance *hero); //c-tor
-	~CHeroWindow(); //d-tor
 
 	void update(const CGHeroInstance * hero, bool redrawNeeded = false); //sets main displayed hero
-	void showAll(SDL_Surface * to); //shows and activates adv. map interface
-//		void redrawCurBack(); //redraws curBAck from scratch
-		void quit(); //stops displaying hero window and disposes
+	void showAll(SDL_Surface * to);
+
+	void quit(); //stops displaying hero window and disposes
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
 	void questlog(); //show quest log in hero window
-		void switchHero(); //changes displayed hero
+	void switchHero(); //changes displayed hero
 
 	//friends
 	friend void CArtPlace::clickLeft(tribool down, bool previousState);

@@ -437,9 +437,10 @@ void CCreatureHandler::loadCreatures()
 		c->faction = creature["faction"].Float();
 		c->animDefName = creature["defname"].String();
 
-		value = &creature["upgrade"];
-		if (!value->isNull())
-			c->upgrades.insert(value->Float());
+		BOOST_FOREACH(const JsonNode &value, creature["upgrades"].Vector())
+		{
+			c->upgrades.insert(value.Float());
+		}
 
 		value = &creature["projectile_defname"];
 		if (!value->isNull())
@@ -472,7 +473,8 @@ void CCreatureHandler::loadCreatures()
 		}
 	}
 
-	BOOST_FOREACH(const JsonNode &creature, config["unused_creatures"].Vector()) {
+	BOOST_FOREACH(const JsonNode &creature, config["unused_creatures"].Vector())
+	{
 		notUsedMonsters += creature.Float();
 	}
 

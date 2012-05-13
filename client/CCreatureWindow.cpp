@@ -123,6 +123,7 @@ CCreatureWindow::CCreatureWindow(const CStackInstance &st, int Type, boost::func
 void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *StackNode, const CGHeroInstance *HeroOwner)
 {
 	creatureArtifact = NULL; //may be set later
+	artifactImage = NULL;
 	stack = Stack;
 	c = stack->type;
 	if(!StackNode)
@@ -207,7 +208,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	luck = new MoraleLuckBox(false, genRect(42, 42, 387, 100));
 	luck->set(stack);
 
-	new CPicture(graphics->pskillsm->ourImages[4].bitmap, 387, 51, false); //exp icon - Print it always?
+	new CAnimImage("PSKIL42", 4, 0, 387, 51); //exp icon - Print it always?
 	if (type) //not in fort window
 	{
 		if (GameConstants::STACK_EXP)
@@ -259,7 +260,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 
 		if (GameConstants::STACK_ARTIFACT)
 		{
-			creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT);
+			setArt(stack->getArt(ArtifactPosition::CREATURE_SLOT));
 			if (type > BATTLE) //artifact buttons inactive in battle
 			{
 				//TODO: disable buttons if no artifact is equipped
@@ -390,12 +391,6 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 
 	BOOST_FOREACH(CBonusItem* b, bonusItems)
 		b->showAll (to);
-
-	if (GameConstants::STACK_ARTIFACT)
-	{
-		if (creatureArtifact)
-			blitAt(graphics->artDefs->ourImages[creatureArtifact->artType->id].bitmap, 466 + pos.x, 100 + pos.y, to);
-	}
 }
 
 void CCreatureWindow::show(SDL_Surface * to)
@@ -411,10 +406,24 @@ void CCreatureWindow::sliderMoved(int newpos)
 	redraw();
 }
 
+void CCreatureWindow::setArt(const CArtifactInstance *creatureArtifact)
+{
+	creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT);
+	if (creatureArtifact)
+	{
+		if (artifactImage == NULL)
+			addChild(artifactImage = new CAnimImage("ARTIFACT", creatureArtifact->artType->id, 0, 466, 100), true);
+		else
+			artifactImage->setFrame(creatureArtifact->artType->id);
+	}
+	else
+		delChildNUll(artifactImage);
+}
+
 void CCreatureWindow::scrollArt(int dir)
 {
 	//TODO: get next artifact
-	creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT);
+	setArt(stack->getArt(ArtifactPosition::CREATURE_SLOT));
 }
 
 void CCreatureWindow::passArtifactToHero()
@@ -432,13 +441,11 @@ void CCreatureWindow::passArtifactToHero()
 
 void CCreatureWindow::artifactRemoved (const ArtifactLocation &artLoc)
 {
-	creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT); //TODO: select next from the list (for Commanders)
-	redraw();
+	setArt(stack->getArt(ArtifactPosition::CREATURE_SLOT)); //TODO: select next from the list (for Commanders)
 }
 void CCreatureWindow::artifactMoved (const ArtifactLocation &artLoc, const ArtifactLocation &destLoc)
 {
-	creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT); //TODO: select next from the list (for Commanders)
-	redraw();
+	setArt(stack->getArt(ArtifactPosition::CREATURE_SLOT)); //TODO: select next from the list (for Commanders)
 }
 
 void CCreatureWindow::clickRight(tribool down, bool previousState)

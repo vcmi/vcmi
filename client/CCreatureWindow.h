@@ -62,6 +62,9 @@ public:
 	CAdventureMapButton *dismiss, *upgrade, *ok;
 	CAdventureMapButton * leftArtRoll, * rightArtRoll; //artifact selection
 	CAdventureMapButton * passArtToHero;
+	CAnimImage *artifactImage;
+
+	void setArt(const CArtifactInstance *creatureArtifact);
 
 	void artifactRemoved (const ArtifactLocation &artLoc);
 	void artifactMoved (const ArtifactLocation &artLoc, const ArtifactLocation &destLoc);

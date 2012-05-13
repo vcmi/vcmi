@@ -837,7 +837,9 @@ void CInfoBar::showAll(SDL_Surface * to)
 	{
 		CPicture bg("ADSTATOT.bmp");
 		bg.convertToScreenBPP();
-		blitAt(graphics->flags->ourImages[enemyTurnInfo.color].bitmap, 20, 51, bg);
+		CAnimImage ai("CREST58", enemyTurnInfo.color, 0, 20, 51);
+		ai.showAll(&*bg);
+
 		int hourglassFrame = enemyTurnInfo.progress * hourglass->ourImages.size();
 		static int sandFrame = 0;
 		vstd::amin(hourglassFrame, hourglass->ourImages.size()-1);
@@ -933,7 +935,10 @@ void CInfoBar::showComp(const CComponent * comp, int time/*=5000*/)
 
 	SDL_Surface * b = BitmapHandler::loadBitmap("ADSTATOT.bmp");
 	blitAt(b,pos.x+8,pos.y+11);
-	blitAt(comp->getImg(),pos.x+52,pos.y+54);
+
+	CComponent* tempComp = (CComponent*)comp; //evil. TODO: remove need to move component
+	tempComp->moveTo(Point(pos.x+52, pos.y+54));
+	tempComp->showAll(screen);
 	printAtMiddle(comp->subtitle,pos.x+91,pos.y+158,FONT_SMALL,Colors::Cornsilk);
 	printAtMiddleWB(comp->description,pos.x+94,pos.y+31,FONT_SMALL,26,Colors::Cornsilk);
 	SDL_FreeSurface(b);

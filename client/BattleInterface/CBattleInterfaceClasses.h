@@ -88,7 +88,6 @@ public:
 class CBattleResultWindow : public CIntObject
 {
 private:
-	SDL_Surface *background;
 	CAdventureMapButton *exit;
 	CBattleInterface *owner;
 public:

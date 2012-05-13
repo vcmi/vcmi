@@ -674,106 +674,18 @@ void CInfoPopup::init(int x, int y)
 	vstd::amin(pos.y, screen->h - bitmap->h);
 }
 
-void CComponent::init(Etype Type, int Subtype, int Val)
+CComponent::CComponent(Etype Type, int Subtype, int Val):
+	image(nullptr)
 {
-	std::ostringstream oss;
-	switch (Type)
-	{
-	case artifact:
-		description = CGI->arth->artifacts[Subtype]->Description();
-		subtitle = CGI->arth->artifacts[Subtype]->Name();
-		break;
-	case primskill:
-		oss << std::showpos << Val << " ";
-		if(Subtype < 4)
-		{
-			description = CGI->generaltexth->arraytxt[2+Subtype];
-			oss << CGI->generaltexth->primarySkillNames[Subtype];
-		}
-		else if(Subtype == 5) //spell points
-		{
-			description = CGI->generaltexth->allTexts[149];
-			oss <<  CGI->generaltexth->allTexts[387];
-		}
-		else
-		{
-			tlog1 << "Wrong subtype=" << Subtype << std::endl;
-		}
-		subtitle = oss.str();
-		break;
-	case building:
-		description = CGI->buildh->buildings[Subtype][Val]->Description();
-		subtitle = CGI->buildh->buildings[Subtype][Val]->Name();
-		break;
-	case secskill44: case secskill:
-		subtitle += CGI->generaltexth->levels[Val-1] + " " + CGI->generaltexth->skillName[Subtype];
-		description = CGI->generaltexth->skillInfoTexts[Subtype][Val-1];
-		break;
-	case morale:
-		description = CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
-		break;
-	case luck:
-		description = CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
-		break;
-	case resource:
-		description = CGI->generaltexth->allTexts[242];
-		oss << Val;
-		subtitle = oss.str();
-		break;
-	case spell:
-		description = CGI->spellh->spells[Subtype]->descriptions[Val];
-		subtitle = CGI->spellh->spells[Subtype]->name;
-		break;
-	case creature:
-		subtitle = (Val? boost::lexical_cast<std::string>(Val) + " " : "") + CGI->creh->creatures[Subtype]->*(Val != 1 ? &CCreature::namePl : &CCreature::nameSing);
-		break;
-	case experience:
-		description = CGI->generaltexth->allTexts[241];
-		oss << Val ;
-		if(Subtype && Val==1)
-		{
-			subtitle = CGI->generaltexth->allTexts[442];
-		}
-		else
-		{
-			subtitle = oss.str();
-		}
-		break;
-	case hero:
-		subtitle = description = CGI->heroh->heroes[Subtype]->name;
-		break;
-	case flag:
-		subtitle = CGI->generaltexth->capColors[Subtype];
-		break;
-	}
-	type = Type;
-	subtype = Subtype;
-	val = Val;
-	if(!img)
-	{
-		free = false;
-		if(type == CComponent::building)
-			setSurface(graphics->buildingPics[subtype],val);
-	}
-	SDL_Surface * temp = this->getImg();
-	if(!temp)
-	{
-		tlog1 << "Error: cannot find graphic for component with id=" << type << " subid=" << subtype << " val=" << val << std::endl;
-		return;
-	}
-	pos.w = temp->w;
-	pos.h = temp->h;
-}
-CComponent::CComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur, bool freeSur)
-{
-	img = sur;
-	free = freeSur;
+	used |= RCLICK;
 	init(Type,Subtype,Val);
 }
 
-CComponent::CComponent(const Component &c)
+CComponent::CComponent(const Component &c):
+	image(nullptr)
 {
-	img = NULL;
+	used |= RCLICK;
+
 	if(c.id == Component::EXPERIENCE)
 		init(experience,c.subtype,c.val);
 	else if(c.id == Component::SPELL)
@@ -785,83 +697,142 @@ CComponent::CComponent(const Component &c)
 		subtitle += CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
 }
 
-CComponent::CComponent()
+CComponent::CComponent():
+	image(nullptr)
 {
-	img = NULL;
+	used |= RCLICK;
 }
 
-CComponent::~CComponent()
+void CComponent::init(Etype Type, int Subtype, int Val)
 {
-	if (free && img)
-		SDL_FreeSurface(img);
+	type = Type;
+	subtype = Subtype;
+	val = Val;
+
+	subtitle = getSubtitle();
+	description = getDescription();
+	setSurface(getFileName(), getIndex());
+
+	pos.w = image->pos.w;
+	pos.h = image->pos.h;
 }
 
-SDL_Surface * CComponent::setSurface(std:: string defname, int imagepos)
-{
-	if (img)
-		tlog1<<"CComponent::setSurface: Warning - surface is already set!\n";
-	CDefEssential * def = CDefHandler::giveDefEss(defname);
-
-	free = true;
-	img = def->ourImages[imagepos].bitmap;
-	img->refcount++;//to preserve surface whed def is deleted
-	delete def;
-	return img;
-}
-
+//NOTE: whole method can be removed after 0.89+1 release
 void CComponent::show(SDL_Surface * to)
 {
-	blitAt(getImg(),pos.x,pos.y,to);
+	//In some places components position set manually instead of moveBy - it should be fixed
+	if (pos.x != image->pos.x
+	 || pos.y != image->pos.y)
+	{
+		tlog0 << "Error: Component position may be broken. Please report\n";
+		image->moveTo(pos.topLeft());
+		CIntObject::showAll(to);
+	}
+	else
+		CIntObject::show(to);
 }
 
-SDL_Surface * CComponent::getImg() const
+std::string CComponent::getFileName()
 {
-	if (img)
-		return img;
+	switch(type)
+	{
+	case primskill:  return "PSKILL";
+	case secskill:   return "SECSK82";
+	case resource:   return "RESOUR82";
+	case creature:   return "TWCRPORT";
+	case artifact:   return "ARTIFACT";
+	case experience: return "PSKILL";
+	case secskill44: return "SECSKILL";
+	case spell:      return "SPELLSCR";
+	case morale:     return "IMRL82";
+	case luck:       return "ILCK82";
+	case building:   return graphics->buildingPics[subtype];
+	case hero:       return "PortraitsLarge";
+	case flag:       return "TWCRPORT";
+	}
+	assert(0);
+	return 0;
+}
+
+size_t CComponent::getIndex()
+{
+	switch(type)
+	{
+	case primskill:  return subtype;
+	case secskill:   return subtype*3 + 3 + val - 1;
+	case resource:   return subtype;
+	case creature:   return subtype+2;
+	case artifact:   return subtype;
+	case experience: return 4;
+	case secskill44: return subtype*3 + 3 + val - 1;
+	case spell:      return subtype;
+	case morale:     return val+3;
+	case luck:       return val+3;
+	case building:   return val;
+	case hero:       return subtype;
+	case flag:       return subtype;
+	}
+	assert(0);
+	return 0;
+}
+
+std::string CComponent::getDescription()
+{
 	switch (type)
 	{
-	case artifact:
-		return graphics->artDefs->ourImages[subtype].bitmap;
-	case primskill:
-		return graphics->pskillsb->ourImages[subtype].bitmap;
-	case secskill44:
-		return graphics->abils44->ourImages[subtype*3 + 3 + val - 1].bitmap;
-	case secskill:
-		return graphics->abils82->ourImages[subtype*3 + 3 + val - 1].bitmap;
-	case resource:
-		return graphics->resources->ourImages[subtype].bitmap;
-	case experience:
-		return graphics->pskillsb->ourImages[4].bitmap;
-	case morale:
-		return graphics->morale82->ourImages[val+3].bitmap;
-	case luck:
-		return graphics->luck82->ourImages[val+3].bitmap;
-	case spell:
-		return graphics->spellscr->ourImages[subtype].bitmap;
-	case building:
-		assert(0); //img should have been set
-		//return setSurface(graphics->buildingPics[subtype],val);
-	case creature:
-		return graphics->bigImgs[subtype];
-	case hero:
-		return graphics->portraitLarge[subtype];
-	case flag:
-		return graphics->flags->ourImages[subtype].bitmap;
+	case primskill:  return (subtype < 4)? CGI->generaltexth->arraytxt[2+subtype] //Primary skill
+	                                     : CGI->generaltexth->allTexts[149]; //mana
+	case secskill:   return CGI->generaltexth->skillInfoTexts[subtype][val-1];
+	case resource:   return CGI->generaltexth->allTexts[242];
+	case creature:   return "";
+	case artifact:   return  CGI->arth->artifacts[subtype]->Description();
+	case experience: return CGI->generaltexth->allTexts[241];
+	case secskill44: return CGI->generaltexth->skillInfoTexts[subtype][val-1];
+	case spell:      return CGI->spellh->spells[subtype]->descriptions[val];
+	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
+	case luck:       return CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
+	case building:   return CGI->buildh->buildings[subtype][val]->Description();
+	case hero:       return CGI->heroh->heroes[subtype]->name;
+	case flag:       return "";
 	}
-	return NULL;
+	assert(0);
+	return 0;
 }
+
+std::string CComponent::getSubtitle()
+{
+	//FIXME: some of these are horrible (e.g creature)
+	switch(type)
+	{
+	case primskill:  return boost::str(boost::format("%+d %s") % val % (subtype < 4 ? CGI->generaltexth->primarySkillNames[subtype] : CGI->generaltexth->allTexts[387]));
+	case secskill:   return CGI->generaltexth->levels[val-1] + " " + CGI->generaltexth->skillName[subtype];
+	case resource:   return boost::lexical_cast<std::string>(val);
+	case creature:   return (val? boost::lexical_cast<std::string>(val) + " " : "") + CGI->creh->creatures[subtype]->*(val != 1 ? &CCreature::namePl : &CCreature::nameSing);
+	case artifact:   return CGI->arth->artifacts[subtype]->Name();
+	case experience: return (subtype && val==1) ? CGI->generaltexth->allTexts[442] : boost::lexical_cast<std::string>(val);
+	case secskill44: return CGI->generaltexth->levels[val-1] + " " + CGI->generaltexth->skillName[subtype];
+	case spell:      return CGI->spellh->spells[subtype]->name;
+	case morale:     return "";
+	case luck:       return "";
+	case building:   return CGI->buildh->buildings[subtype][val]->Name();
+	case hero:       return CGI->heroh->heroes[subtype]->name;
+	case flag:       return CGI->generaltexth->capColors[subtype];
+	}
+	assert(0);
+	return "";
+}
+
+void CComponent::setSurface(std::string defName, int imgPos)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	delChildNUll(image);
+	image = new CAnimImage(defName, imgPos);
+}
+
 void CComponent::clickRight(tribool down, bool previousState)
 {
 	if(description.size())
 		adventureInt->handleRightClick(description,down);
-}
-void CComponent::activate()
-{
-	activateRClick();
-}
-void CComponent::deactivate()
-{
-	deactivateRClick();
 }
 
 void CSelectableComponent::clickLeft(tribool down, bool previousState)
@@ -872,35 +843,30 @@ void CSelectableComponent::clickLeft(tribool down, bool previousState)
 			onSelect();
 	}
 }
+
 void CSelectableComponent::init()
 {
 	selected = false;
 }
-CSelectableComponent::CSelectableComponent(const Component &c, boost::function<void()> OnSelect)
-:CComponent(c),onSelect(OnSelect)
+
+CSelectableComponent::CSelectableComponent(const Component &c, boost::function<void()> OnSelect):
+	CComponent(c),onSelect(OnSelect)
 {
+	used |= LCLICK | KEYBOARD;
 	init();
 }
-CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect)
-:CComponent(Type,Sub,Val),onSelect(OnSelect)
+
+CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect):
+	CComponent(Type,Sub,Val),onSelect(OnSelect)
 {
+	used |= LCLICK | KEYBOARD;
 	init();
 }
+
 CSelectableComponent::~CSelectableComponent()
 {
 }
-void CSelectableComponent::activate()
-{
-	activateKeys();
-	CComponent::activate();
-	activateLClick();
-}
-void CSelectableComponent::deactivate()
-{
-	deactivateKeys();
-	CComponent::deactivate();
-	deactivateLClick();
-}
+
 void CSelectableComponent::select(bool on)
 {
 	if(on != selected)
@@ -913,12 +879,13 @@ void CSelectableComponent::select(bool on)
 		return;
 	}
 }
+
 void CSelectableComponent::show(SDL_Surface * to)
 {
-	blitAt(getImg(),pos.x,pos.y,to);
+	CComponent::show(to);
 	if(selected)
 	{
-		CSDL_Ext::drawBorder(to, Rect::around(Rect(pos.x, pos.y, getImg()->w, getImg()->h)), int3(239,215,123));
+		CSDL_Ext::drawBorder(to, Rect::around(Rect(pos.x, pos.y, image->pos.w, image->pos.h)), int3(239,215,123));
 	}
 
 	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+25,FONT_SMALL,12,Colors::Cornsilk,to);
@@ -932,9 +899,10 @@ void CSelWindow::selectionChange(unsigned to)
 		if (!pom)
 			continue;
 		pom->select(i==to);
-		blitAt(pom->getImg(),pom->pos.x-pos.x,pom->pos.y-pos.y,bitmap);
 	}
+	redraw();
 }
+
 CSelWindow::CSelWindow(const std::string &Text, int player, int charperline, const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, int askID)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -965,9 +933,6 @@ CSelWindow::CSelWindow(const std::string &Text, int player, int charperline, con
 			comps[i]->assignedKeys.insert(SDLK_1+i);
 	}
 	CMessage::drawIWindow(this, Text, player);
-
-	BOOST_FOREACH(CComponent *c, components)
-		c->subtitle = "";//workaround - erase subtitles since they were hard-blitted by function drawing window
 }
 
 void CSelWindow::madeChoice()
@@ -1971,8 +1936,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 
 	for(int i=0;i<comps.size();i++)
 	{
-		comps[i]->pos.x = curx+pos.x;
-		comps[i]->pos.y = 326+pos.y;
+		comps[i]->moveTo(Point(pos.x + curx, pos.y + 326));
 		if( i < (comps.size()-1) )
 		{
 			curx += 44+21; //skill width + margin to "or"
@@ -2021,7 +1985,10 @@ void CLevelWindow::show(SDL_Surface * to)
 	blitAt(graphics->portraitLarge[heroPortrait],170+pos.x,66+pos.y,to);
 	ok->showAll(to);
 	for(int i=0;i<comps.size();i++)
+	{
+		comps[i]->showAll(to);
 		comps[i]->show(to);
+	}
 }
 
 void CMinorResDataBar::show(SDL_Surface * to)
@@ -5552,17 +5519,16 @@ void CPuzzleWindow::show(SDL_Surface * to)
 
 void CTransformerWindow::CItem::showAll(SDL_Surface * to)
 {
-	SDL_Surface * backgr = graphics->bigImgs[parent->army->getCreature(id)->idNumber];
-	blitAt(backgr, pos.x, pos.y, to);
+	CIntObject::showAll(to);
 	printAtMiddle(boost::lexical_cast<std::string>(size),pos.x+28, pos.y+76,FONT_SMALL,Colors::Cornsilk,to);//stack size
 }
 
 void CTransformerWindow::CItem::move()
 {
 	if (left)
-		pos.x += 289;
+		moveBy(Point(289, 0));
 	else
-		pos.x -= 289;
+		moveBy(Point(-289, 0));
 	left = !left;
 }
 
@@ -5578,6 +5544,7 @@ void CTransformerWindow::CItem::clickLeft(tribool down, bool previousState)
 CTransformerWindow::CItem::CItem(CTransformerWindow * _parent, int _size, int _id):
 	id(_id), size(_size), parent(_parent)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	used = LCLICK;
 	left = true;
 	pos.w = 58;
@@ -5585,6 +5552,7 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * _parent, int _size, int _i
 
 	pos.x += 45  + (id%3)*83 + id/6*83;
 	pos.y += 109 + (id/3)*98;
+	icon = new CAnimImage("TWCRPORT", parent->army->getCreature(id)->idNumber);
 }
 
 CTransformerWindow::CItem::~CItem()
@@ -5713,11 +5681,13 @@ void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 	printAtMiddleLoc  (CGI->generaltexth->skillName[ID], 22, -13, FONT_SMALL, Colors::Cornsilk,to);//Name
 	printAtMiddleLoc  (CGI->generaltexth->levels[0], 22, 57, FONT_SMALL, Colors::Cornsilk,to);//Level(always basic)
 
-	CPicture::showAll(to);
+	CIntObject::showAll(to);
 }
 
 CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int Y):
-	CPicture (graphics->abils44->ourImages[_ID*3+3].bitmap,X,Y,false),ID(_ID), parent(_parent)
+	CAnimImage ("SECSKILL", ID*3+3, 0, X, Y),
+	ID(_ID),
+	parent(_parent)
 {
 	used = LCLICK | RCLICK | HOVER;
 }
@@ -6194,6 +6164,7 @@ CThievesGuildWindow::~CThievesGuildWindow()
 
 void MoraleLuckBox::set(const IBonusBearer *node)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	const int textId[] = {62, 88}; //eg %s \n\n\n {Current Luck Modifiers:}
 	const int noneTxtId = 108; //Russian version uses same text for neutral morale\luck
 	const int neutralDescr[] = {60, 86}; //eg {Neutral Morale} \n\n Neutral morale means your armies will neither be blessed with extra attacks or freeze in combat.
@@ -6204,7 +6175,6 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 
 	int mrlt = -9;
 	TModDescr mrl;
-
 
 	if (node)
 	{
@@ -6233,23 +6203,21 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 				text += "\n" + mrl[it].second;
 		}
 	}
-}
-
-void MoraleLuckBox::showAll(SDL_Surface * to)
-{
-	CDefEssential *def;
+	
+	std::string imageName;
 	if (small)
-		def = morale ? graphics->morale30 : graphics->luck30;
+		imageName = morale ? "IMRL30": "ILCK30";
 	else
-		def = morale ? graphics->morale42 : graphics->luck42;
-	SDL_Surface *img = def->ourImages[bonusValue + 3].bitmap;
-
-	blitAt(img, Rect(img).centerIn(pos), to); //put img in the center of our pos
+		imageName = morale ? "IMRL42" : "ILCK42";
+	delChildNUll(image);
+	image = new CAnimImage(imageName, bonusValue + 3);
+	image->moveBy(Point(pos.w/2 - image->pos.w/2, pos.h/2 - image->pos.h/2));//center icon
 }
 
-MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small)
-	:morale(Morale),
-	 small(Small)
+MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small):
+	image(NULL),
+	morale(Morale),
+	small(Small)
 {
 	bonusValue = 0;
 	pos = r + pos;

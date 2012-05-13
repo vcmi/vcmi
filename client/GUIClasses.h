@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include "CAnimation.h"
 #include "FunctionList.h"
 #include "../lib/ResourceSet.h"
 #include "../lib/GameConstants.h"
@@ -161,6 +161,15 @@ public:
 /// common popup window component
 class CComponent : public virtual CIntObject
 {
+	size_t getIndex();
+	std::string getFileName();
+	std::string getDescription();
+	std::string getSubtitle();
+
+protected:
+	CAnimImage *image; //our image
+	void setSurface(std::string defName, int imgPos);
+
 public:
 	enum Etype
 	{
@@ -172,22 +181,14 @@ public:
 	std::string description; //r-click
 	std::string subtitle; //TODO: comment me
 
-	SDL_Surface *img; //our image
-	bool free; //should surface be freed on delete
-
-	SDL_Surface * setSurface(std::string defName, int imgPos);
-
-	void init(Etype Type, int Subtype, int Val);
-	CComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur=NULL, bool freeSur=false); //c-tor
+	virtual void init(Etype Type, int Subtype, int Val);
+	CComponent(Etype Type, int Subtype, int Val); //c-tor
 	CComponent(const Component &c); //c-tor
-	CComponent();; //c-tor
-	virtual ~CComponent(); //d-tor
+	CComponent(); //c-tor
 
 	void clickRight(tribool down, bool previousState); //call-in
-	SDL_Surface * getImg() const;
-	virtual void show(SDL_Surface * to);
-	virtual void activate();
-	virtual void deactivate();
+
+	void show(SDL_Surface * to);
 };
 
 class CSelectableComponent : public CComponent, public CKeyShortcut
@@ -202,8 +203,6 @@ public:
 	CSelectableComponent(const Component &c, boost::function<void()> OnSelect = 0); //c-tor
 	~CSelectableComponent(); //d-tor
 	virtual void show(SDL_Surface * to);
-	void activate();
-	void deactivate();
 	void select(bool on);
 };
 
@@ -777,12 +776,12 @@ public:
 
 class MoraleLuckBox : public LRClickableAreaWTextComp
 {
+	CAnimImage *image;
 public:
 	bool morale; //true if morale, false if luck
 	bool small;
 
 	void set(const IBonusBearer *node);
-	void showAll(SDL_Surface * to);
 
 	MoraleLuckBox(bool Morale, const Rect &r, bool Small=false);
 	~MoraleLuckBox();
@@ -1022,6 +1021,7 @@ public:
 		bool left;//position of the item
 		int size; //size of creature stack
 		CTransformerWindow * parent;
+		CAnimImage *icon;
 
 		void move();
 		void showAll(SDL_Surface * to);
@@ -1047,7 +1047,7 @@ public:
 
 class CUniversityWindow : public CIntObject
 {
-	class CItem : public CPicture
+	class CItem : public CAnimImage
 	{
 	public:
 		int ID;//id of selected skill

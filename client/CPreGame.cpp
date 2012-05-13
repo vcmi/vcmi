@@ -1766,7 +1766,7 @@ void InfoCard::clickRight( tribool down, bool previousState )
 
 void InfoCard::showTeamsPopup()
 {
-	SDL_Surface *bmp = CMessage::drawBox1(256, 90 + 50 * SEL->current->mapHeader->howManyTeams);
+	SDL_Surface *bmp = CMessage::drawDialogBox(256, 90 + 50 * SEL->current->mapHeader->howManyTeams);
 	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[657], 128, 30, FONT_MEDIUM, Colors::Jasmine, bmp); //{Team Alignments}
 
 	for(int i = 0; i < SEL->current->mapHeader->howManyTeams; i++)
@@ -2390,7 +2390,7 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 
 	if(val == -1  ||  which == BONUS) //random or bonus box
 	{
-		bmp = CMessage::drawBox1(256, 190);
+		bmp = CMessage::drawDialogBox(256, 190);
 		std::string *description = NULL;
 
 		switch(which)
@@ -2462,7 +2462,7 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 	}
 	else if(which == TOWN)
 	{
-		bmp = CMessage::drawBox1(256, 319);
+		bmp = CMessage::drawDialogBox(256, 319);
 		title = &CGI->generaltexth->allTexts[80];
 
 		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[79], 135, 137, FONT_MEDIUM, Colors::Jasmine, bmp);
@@ -2491,7 +2491,7 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 	else if(val >= 0)
 	{
 		const CHero *h = CGI->heroh->heroes[val];
-		bmp = CMessage::drawBox1(320, 255);
+		bmp = CMessage::drawDialogBox(320, 255);
 		title = &CGI->generaltexth->allTexts[77];
 
 		CSDL_Ext::printAtMiddle(*title, 167, 36, FONT_MEDIUM, Colors::Jasmine, bmp);

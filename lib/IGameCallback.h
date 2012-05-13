@@ -226,7 +226,7 @@ public:
 	int getMyColor() const;
 
 	std::vector <const CGTownInstance *> getTownsInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
-	int getHeroSerial(const CGHeroInstance * hero)const;
+	int getHeroSerial(const CGHeroInstance * hero, bool includeGarrisoned=true) const;
 	const CGTownInstance* getTownBySerial(int serialId) const; // serial id is [0, number of towns)
 	const CGHeroInstance* getHeroBySerial(int serialId, bool includeGarrisoned=true) const; // serial id is [0, number of heroes)
 	std::vector <const CGHeroInstance *> getHeroesInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible

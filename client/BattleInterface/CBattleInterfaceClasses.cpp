@@ -316,38 +316,35 @@ void CBattleOptionsWindow::bExitf()
 CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect & pos, CBattleInterface * _owner)
 : owner(_owner)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	this->pos = pos;
-	background = BitmapHandler::loadBitmap("CPRESULT.BMP", true);
-	graphics->blueToPlayersAdv(background, owner->curInt->playerID);
-	SDL_Surface * pom = SDL_ConvertSurface(background, screen->format, screen->flags);
-	SDL_FreeSurface(background);
-	background = pom;
-	exit = new CAdventureMapButton (std::string(), std::string(), boost::bind(&CBattleResultWindow::bExitf,this), 384 + pos.x, 505 + pos.y, "iok6432.def", SDLK_RETURN);
+	CPicture * bg = new CPicture("CPRESULT");
+	bg->colorize(owner->curInt->playerID);
+
+	exit = new CAdventureMapButton ("", "", boost::bind(&CBattleResultWindow::bExitf,this), 384, 505, "iok6432.def", SDLK_RETURN);
 	exit->borderColor = Colors::MetallicGold;
 	exit->borderEnabled = true;
 
 	if(br.winner==0) //attacker won
 	{
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[410], 59, 124, FONT_SMALL, Colors::Cornsilk, background);
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[411], 408, 124, FONT_SMALL, Colors::Cornsilk, background);
+		new CLabel( 59, 124, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[410]);
+		new CLabel(408, 124, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[411]);
 	}
 	else //if(br.winner==1)
 	{
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[411], 59, 124, FONT_SMALL, Colors::Cornsilk, background);
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[410], 412, 124, FONT_SMALL, Colors::Cornsilk, background);
+		new CLabel( 59, 124, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[411]);
+		new CLabel(412, 124, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[410]);
 	}
 
-
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[407], 232, 302, FONT_BIG, Colors::Jasmine, background);
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[408], 232, 332, FONT_BIG, Colors::Cornsilk, background);
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[409], 237, 428, FONT_BIG, Colors::Cornsilk, background);
+	new CLabel(232, 302, FONT_BIG, CENTER, Colors::Jasmine,  CGI->generaltexth->allTexts[407]);
+	new CLabel(232, 332, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[408]);
+	new CLabel(232, 428, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[409]);
 
 	std::string attackerName, defenderName;
 
 	if(owner->attackingHeroInstance) //a hero attacked
 	{
-		SDL_Rect temp_rect = genRect(64, 58, 21, 38);
-		SDL_BlitSurface(graphics->portraitLarge[owner->attackingHeroInstance->portrait], NULL, background, &temp_rect);
+		new CAnimImage("PortraitsLarge", owner->attackingHeroInstance->portrait, 0, 21, 38);
 		//setting attackerName
 		attackerName = owner->attackingHeroInstance->name;
 	}
@@ -363,15 +360,13 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 				bestMonsterID = it->second->type->idNumber;
 			}
 		}
-		SDL_Rect temp_rect = genRect(64, 58, 21, 38);
-		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &temp_rect);
+		new CAnimImage("TWCRPORT", bestMonsterID, 0, 21, 38);
 		//setting attackerName
 		attackerName =  CGI->creh->creatures[bestMonsterID]->namePl;
 	}
 	if(owner->defendingHeroInstance) //a hero defended
 	{
-		SDL_Rect temp_rect = genRect(64, 58, 392, 38);
-		SDL_BlitSurface(graphics->portraitLarge[owner->defendingHeroInstance->portrait], NULL, background, &temp_rect);
+		new CAnimImage("PortraitsLarge", owner->defendingHeroInstance->portrait, 0, 392, 38);
 		//setting defenderName
 		defenderName = owner->defendingHeroInstance->name;
 	}
@@ -387,21 +382,22 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 				bestMonsterID = it->second->type->idNumber;
 			}
 		}
-		SDL_Rect temp_rect = genRect(64, 58, 392, 38);
-		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &temp_rect);
+		new CAnimImage("TWCRPORT", bestMonsterID, 0, 392, 38);
 		//setting defenderName
 		defenderName =  CGI->creh->creatures[bestMonsterID]->namePl;
 	}
 
 	//printing attacker and defender's names
-	CSDL_Ext::printAt(attackerName, 89, 37, FONT_SMALL, Colors::Cornsilk, background);
-	CSDL_Ext::printTo(defenderName, 381, 53, FONT_SMALL, Colors::Cornsilk, background);
+	new CLabel( 89, 37, FONT_SMALL, TOPLEFT, Colors::Cornsilk, attackerName);
+
+	new CLabel( 381, 53, FONT_SMALL, BOTTOMRIGHT, Colors::Cornsilk, defenderName);
+
 	//printing casualities
 	for(int step = 0; step < 2; ++step)
 	{
 		if(br.casualties[step].size()==0)
 		{
-			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[523], 235, 360 + 97*step, FONT_SMALL, Colors::Cornsilk, background);
+			new CLabel( 235, 360 + 97*step, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[523]);
 		}
 		else
 		{
@@ -409,10 +405,10 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 			int yPos = 344 + step*97;
 			for(std::map<ui32,si32>::const_iterator it=br.casualties[step].begin(); it!=br.casualties[step].end(); ++it)
 			{
-				blitAt(graphics->smallImgs[it->first], xPos, yPos, background);
+				new CAnimImage("CPRSMALL", it->first+2, 0, xPos, yPos);
 				std::ostringstream amount;
 				amount<<it->second;
-				CSDL_Ext::printAtMiddle(amount.str(), xPos+16, yPos + 42, FONT_SMALL, Colors::Cornsilk, background);
+				new CLabel( xPos+16, yPos + 42, FONT_SMALL, CENTER, Colors::Cornsilk, amount.str());
 				xPos += 42;
 			}
 		}
@@ -440,7 +436,8 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 			boost::algorithm::replace_first(str,"%s",ourHero->name);
 			boost::algorithm::replace_first(str,"%d",boost::lexical_cast<std::string>(br.exp[weAreAttacker?0:1]));
 		}
-		CSDL_Ext::printAtMiddleWB(str, 235, 235, FONT_SMALL, 55, Colors::Cornsilk, background);
+		
+		new CTextBox(str, Rect(69, 203, 330, 68), 0, FONT_SMALL, CENTER, Colors::Cornsilk);
 	}
 	else // we lose
 	{
@@ -450,21 +447,21 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 			{
 				CCS->musich->playMusic(musicBase::loseCombat);
 				CCS->videoh->open(VIDEO_LOSE_BATTLE_START);
-				CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[311], 235, 235, FONT_SMALL, Colors::Cornsilk, background);
+				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[311]);
 				break;
 			}
 		case 1: //flee
 			{
 				CCS->musich->playMusic(musicBase::retreatBattle);
 				CCS->videoh->open(VIDEO_RETREAT_START);
-				CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[310], 235, 235, FONT_SMALL, Colors::Cornsilk, background);
+				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[310]);
 				break;
 			}
 		case 2: //surrender
 			{
 				CCS->musich->playMusic(musicBase::surrenderBattle);
 				CCS->videoh->open(VIDEO_SURRENDER);
-				CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[309], 235, 220, FONT_SMALL, Colors::Cornsilk, background);
+				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[309]);
 				break;
 			}
 		}
@@ -473,7 +470,6 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 
 CBattleResultWindow::~CBattleResultWindow()
 {
-	SDL_FreeSurface(background);
 }
 
 void CBattleResultWindow::activate()
@@ -489,13 +485,13 @@ void CBattleResultWindow::deactivate()
 
 void CBattleResultWindow::show(SDL_Surface * to)
 {
+	CIntObject::show(to);
 	//evaluating to
 	if(!to)
 		to = screen;
 
-	CCS->videoh->update(107, 70, background, false, true);
+	CCS->videoh->update(pos.x + 107, pos.y + 70, screen, false, true);
 
-	SDL_BlitSurface(background, NULL, to, &pos);
 	exit->showAll(to);
 }
 

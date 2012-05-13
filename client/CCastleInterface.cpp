@@ -123,9 +123,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 		const CBuilding *bld = CGI->buildh->buildings[str->townID].find(bid)->second;
 		if (bid < EBuilding::DWELL_FIRST)
 		{
-			std::vector<CComponent*> comps(1,
-			new CComponent(CComponent::building, bld->tid, bld->bid,
-			               LOCPLINT->castleInt->bicons->ourImages[bld->bid].bitmap, false));
+			std::vector<CComponent*> comps(1, new CComponent(CComponent::building, bld->tid, bld->bid));
 
 			CRClickPopup::createAndPush(bld->Description(), comps);
 		}
@@ -271,7 +269,7 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 	{
 		if(creature->cost[i])
 		{
-			resPicture.push_back(new CPicture(graphics->resources32->ourImages[i].bitmap, 0, 0, false));
+			resPicture.push_back(new CAnimImage("RESOURCE", i, 0, 0, 0));
 			resAmount.push_back(new CLabel(0,0, FONT_SMALL, CENTER, Colors::Cornsilk, boost::lexical_cast<std::string>(creature->cost[i])));
 		}
 	}
@@ -303,12 +301,12 @@ void CHeroGSlot::hover (bool on)
 	std::string temp;
 	if(hero)
 	{
-		if(highlight)//view NNN
+		if(selection)//view NNN
 		{
 			temp = CGI->generaltexth->tcommands[4];
 			boost::algorithm::replace_first(temp,"%s",hero->name);
 		}
-		else if(other->hero && other->highlight)//exchange
+		else if(other->hero && other->selection)//exchange
 		{
 			temp = CGI->generaltexth->tcommands[7];
 			boost::algorithm::replace_first(temp,"%s",hero->name);
@@ -330,7 +328,7 @@ void CHeroGSlot::hover (bool on)
 	}
 	else //we are empty slot
 	{
-		if(other->highlight && other->hero) //move NNNN
+		if(other->selection && other->hero) //move NNNN
 		{
 			temp = CGI->generaltexth->tcommands[6];
 			boost::algorithm::replace_first(temp,"%s",other->hero->name);
@@ -352,12 +350,12 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 		owner->garr->splitting = false;
 		owner->garr->highlighted = NULL;
 
-		if(hero && highlight)
+		if(hero && selection)
 		{
 			setHighlight(false);
 			LOCPLINT->openHeroWindow(hero);
 		}
-		else if(other->hero && other->highlight)
+		else if(other->hero && other->selection)
 		{
 			bool allow = true;
 			if(upg) //moving hero out of town - check if it is allowed
@@ -394,18 +392,8 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 
 void CHeroGSlot::deactivate()
 {
-	highlight = false;
+	delChildNUll(selection, true);
 	CIntObject::deactivate();
-}
-
-void CHeroGSlot::showAll(SDL_Surface * to)
-{
-	if(hero) //there is hero
-		blitAt(graphics->portraitLarge[hero->portrait],pos,to);
-	else if(!upg && owner->showEmpty) //up garrison
-		blitAt(graphics->flags->ourImages[LOCPLINT->castleInt->town->getOwner()].bitmap,pos,to);
-	if(highlight)
-		blitAt(graphics->bigImgs[-1],pos,to);
 }
 
 CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSlots * Owner)
@@ -416,9 +404,10 @@ CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSl
 	pos.y += y;
 	pos.w = 58;
 	pos.h = 64;
-	hero = h;
 	upg = updown;
-	highlight = false;
+	selection = nullptr;
+	image = nullptr;
+	set(h);
 }
 
 CHeroGSlot::~CHeroGSlot()
@@ -427,12 +416,42 @@ CHeroGSlot::~CHeroGSlot()
 
 void CHeroGSlot::setHighlight( bool on )
 {
-	highlight = on;
+	if (active && selection)
+		selection->deactivate();
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	delChildNUll(selection, true);
+	if (on)
+		selection = new CAnimImage("TWCRPORT", 1, 0);
+
+	if (active && selection)
+		selection->activate();
+
 	if(owner->garrisonedHero->hero && owner->visitingHero->hero) //two heroes in town
 	{
 		for(size_t i = 0; i<owner->garr->splitButtons.size(); i++) //splitting enabled when slot higlighted
 			owner->garr->splitButtons[i]->block(!on);
 	}
+}
+
+void CHeroGSlot::set(const CGHeroInstance *newHero)
+{
+	if (active && image)
+		image->deactivate();
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	if (image)
+		delChild(image);
+	hero = newHero;
+	if (newHero)
+		image = new CAnimImage("PortraitsLarge", newHero->portrait, 0, 0, 0);
+	else if(!upg && owner->showEmpty) //up garrison
+		image = new CAnimImage("CREST58", LOCPLINT->castleInt->town->getOwner(), 0, 0, 0);
+	else 
+		image = NULL;
+
+	if (active && image)
+		image->activate();
 }
 
 template <class ptr>
@@ -797,9 +816,7 @@ void CCastleBuildings::enterBlacksmith(int ArtifactID)
 
 void CCastleBuildings::enterBuilding(int building)
 {
-	std::vector<CComponent*> comps(1,
-		new CComponent(CComponent::building, town->subID,building, 
-		               LOCPLINT->castleInt->bicons->ourImages[building].bitmap, false));
+	std::vector<CComponent*> comps(1, new CComponent(CComponent::building, town->subID, building));
 
 	LOCPLINT->showInfoDialog(
 		CGI->buildh->buildings[town->subID].find(building)->second->Description(),comps);
@@ -836,9 +853,7 @@ void CCastleBuildings::enterDwelling(int level)
 
 void CCastleBuildings::enterFountain(int building)
 {
-	std::vector<CComponent*> comps(1,
-		new CComponent(CComponent::building,town->subID,building,
-		               LOCPLINT->castleInt->bicons->ourImages[building].bitmap,false));
+	std::vector<CComponent*> comps(1, new CComponent(CComponent::building,town->subID,building));
 
 	std::string descr = CGI->buildh->buildings[town->subID].find(building)->second->Description();
 	if ( building == 21)//we need description for mystic pond as well
@@ -918,6 +933,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos):
 	town(Town)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	LOCPLINT->castleInt = this;
 	used |= KEYBOARD;
 
 	builds = new CCastleBuildings(town);
@@ -953,7 +969,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos):
 	vstd::amax(townlist->from, 0);
 	vstd::amin(townlist->from, LOCPLINT->towns.size() - townlist->SIZE);
 
-	LOCPLINT->castleInt = this;
 	recreateIcons();
 	CCS->musich->playMusic(CCS->musich->townMusics[town->subID], -1);
 	
@@ -1277,13 +1292,13 @@ HeroSlots::HeroSlots(const CGTownInstance * Town, Point garrPos, Point visitPos,
 
 void HeroSlots::update()
 {
-	garrisonedHero->hero = town->garrisonHero;
-	visitingHero->hero = town->visitingHero;
+	garrisonedHero->set(town->garrisonHero);
+	visitingHero->set(town->visitingHero);
 }
 
 void HeroSlots::splitClicked()
 {
-	if(!!town->visitingHero && town->garrisonHero && (visitingHero->highlight || garrisonedHero->highlight))
+	if(!!town->visitingHero && town->garrisonHero && (visitingHero->selection || garrisonedHero->selection))
 	{
 		LOCPLINT->heroExchangeStarted(town->visitingHero->id, town->garrisonHero->id);
 	}
@@ -1468,7 +1483,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	{
 		if(building->resources[i])
 		{
-			resPicture.push_back(new CPicture(graphics->resources32->ourImages[i].bitmap, 0, 0, false));
+			resPicture.push_back(new CAnimImage("RESOURCE", i));
 			resAmount.push_back(new CLabel(0,0, FONT_SMALL, CENTER, Colors::Cornsilk, 
 			                        boost::lexical_cast<std::string>(building->resources[i])));
 		}
@@ -1836,7 +1851,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	else
 		buy->block(true);
 
-	gold = new CPicture(graphics->resources32->ourImages[6].bitmap,148,244, false);
+	new CAnimImage("RESOURCE", 6, 0, 148, 244);
 }
 
 void CBlacksmithDialog::close()

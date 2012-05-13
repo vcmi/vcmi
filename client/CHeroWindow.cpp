@@ -1,5 +1,6 @@
 #include "StdInc.h"
 
+#include "CAnimation.h"
 #include "CAdvmapInterface.h"
 #include "../CCallback.h"
 #include "CGameInfo.h"
@@ -69,38 +70,37 @@ void CHeroSwitcher::clickLeft(tribool down, bool previousState)
 {
 	if(!down)
 	{
-		const CGHeroInstance * buf = LOCPLINT->getWHero(id);
-		if(!buf)
-			return;
-		GH.popIntTotally(getOwner());
+		const CGHeroInstance * buf = hero;
+		GH.popIntTotally(parent);
 		GH.pushInt(new CHeroWindow(buf));
 	}
 }
 
-CHeroWindow * CHeroSwitcher::getOwner()
+CHeroSwitcher::CHeroSwitcher(Point _pos, const CGHeroInstance * _hero):
+	hero(_hero)
 {
-	return dynamic_cast<CHeroWindow*>(parent);
-}
-
-CHeroSwitcher::CHeroSwitcher(int serial)
-{
-	pos = Rect(612, 87 + serial * 54, 48, 32)  +  pos;
-	id = serial;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	pos += _pos;
 	used = LCLICK;
+
+	image = new CAnimImage("PortraitsSmall", hero->portrait);
+	pos.w = image->pos.w;
+	pos.h = image->pos.h;
 }
 
 CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 	:  heroWArt(this, hero)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	garr = NULL;
+	garr = nullptr;
 	curHero = hero;
-	player = LOCPLINT->playerID;//hero->tempOwner;
+	listSelection = nullptr;
 
 	background = new CPicture("HeroScr4.BMP");
-	background->colorizeAndConvert(player);
+	background->colorize(LOCPLINT->playerID);
 	pos = background->center();
 
+	new CAnimImage("CREST58", LOCPLINT->playerID, 0, 606, 8);
 
 	//artifs = new CArtifactsOfHero(pos.topLeft(), true);
 	ourBar = new CGStatusBar(7, 559, "ADROLLVR.bmp", 660); // new CStatusBar(pos.x+72, pos.y+567, "ADROLLVR.bmp", 660);
@@ -116,15 +116,13 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 
 	tacticsButton = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", NULL, 539, 483, SDLK_b);
 
-
 	//right list of heroes
-	for(int g=0; g<8; ++g)
-		heroListMi.push_back(new CHeroSwitcher(g));
-	
-	flags = CDefHandler::giveDefEss("CREST58.DEF");
+	for(int i=0; i < std::min(LOCPLINT->cb->howManyHeroes(false), 8); i++)
+		heroList.push_back(new CHeroSwitcher(Point(612, 87 + i * 54), LOCPLINT->cb->getHeroBySerial(i, false)));
 
 	//areas
 	portraitArea = new LRClickableAreaWText(Rect(18, 18, 58, 64));
+	portraitImage = new CAnimImage("PortraitsLarge", 0, 0, 19, 19);
 
 	for(int v=0; v<GameConstants::PRIMARY_SKILLS; ++v)
 	{
@@ -134,6 +132,8 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 		area->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[1]) % CGI->generaltexth->primarySkillNames[v]);
 		primSkillAreas.push_back(area);
 	}
+
+	specImage = new CAnimImage("UN44", 0, 0, 18, 180);
 
 	specArea = new LRClickableAreaWText(Rect(18, 180, 136, 42), CGI->generaltexth->heroscrn[27]);
 	expArea = new LRClickableAreaWText(Rect(18, 228, 136, 42), CGI->generaltexth->heroscrn[9]);
@@ -145,31 +145,20 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 	{
 		Rect r = Rect(i%2 == 0  ?  18  :  162,  276 + 48 * (i/2),  136,  42);
 		secSkillAreas.push_back(new LRClickableAreaWTextComp(r, CComponent::secskill));
+		secSkillImages.push_back(new CAnimImage("SECSKILL", 0, 0, r.x, r.y));
 	}
 
 	//////////////////////////////////////////////////////////////////////////???????????????
-// 	pos.x += 65;
-// 	pos.y += 8;
-// 	
+
 	//primary skills & exp and mana
-	new CPicture(graphics->pskillsm->ourImages[0].bitmap, 32, 111, false);
-	new CPicture(graphics->pskillsm->ourImages[1].bitmap, 102, 111, false);
-	new CPicture(graphics->pskillsm->ourImages[2].bitmap, 172, 111, false);
-	new CPicture(graphics->pskillsm->ourImages[5].bitmap, 242, 111, false);
-	new CPicture(graphics->pskillsm->ourImages[4].bitmap, 20, 230, false);
-	new CPicture(graphics->pskillsm->ourImages[3].bitmap, 162, 230, false);
+	new CAnimImage("PSKIL42", 0, 0, 32, 111, false);
+	new CAnimImage("PSKIL42", 1, 0, 102, 111, false);
+	new CAnimImage("PSKIL42", 2, 0, 172, 111, false);
+	new CAnimImage("PSKIL42", 3, 0, 162, 230, false);
+	new CAnimImage("PSKIL42", 4, 0, 20, 230, false);
+	new CAnimImage("PSKIL42", 5, 0, 242, 111, false);
 
 	update(hero);
-}
-
-CHeroWindow::~CHeroWindow()
-{
-	delete flags;	
-	//SDL_FreeSurface(curBack);
-	//curBack = NULL;
-	curHero = NULL;
-
-	//artifs->dispose();
 }
 
 void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= false*/)
@@ -181,9 +170,9 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	}
 
 	assert(hero == curHero);
-	//assert(hero->tempOwner == LOCPLINT->playerID || hero->tempOwner == NEUTRAL_PLAYER); //for now we won't show hero windows for non-our heroes
-	
+
 	specArea->text = CGI->generaltexth->hTxts[curHero->subID].longBonus;
+	specImage->setFrame(curHero->subID);
 
 	tacticsButton->callback.clear();
 	tacticsButton->callback2.clear();
@@ -191,6 +180,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	dismissButton->hoverTexts[0] = boost::str(boost::format(CGI->generaltexth->heroscrn[16]) % curHero->name % curHero->type->heroClass->name);
 	portraitArea->hoverText = boost::str(boost::format(CGI->generaltexth->allTexts[15]) % curHero->name % curHero->type->heroClass->name);
 	portraitArea->text = curHero->getBiography();
+	portraitImage->setFrame(curHero->portrait);
 
 	{
 		CAdventureMapButton * split = NULL;
@@ -210,8 +200,12 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 			arts->setHero(curHero);
 			artSets.push_back(arts);
 		}
-	}
 
+		int serial = LOCPLINT->cb->getHeroSerial(curHero, false);
+		delChildNUll(listSelection);
+		if (serial >= 0)
+			listSelection = new CPicture("HPSYYY", 612, 33 + serial * 54);
+	}
 
 	//primary skills support
 	for(size_t g=0; g<primSkillAreas.size(); ++g)
@@ -228,6 +222,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		secSkillAreas[g]->bonusValue = level;
 		secSkillAreas[g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
 		secSkillAreas[g]->hoverText = boost::str(boost::format(CGI->generaltexth->heroscrn[21]) % CGI->generaltexth->levels[level-1] % CGI->generaltexth->skillName[skill]);
+		secSkillImages[g]->setFrame(skill*3 + level + 2);
 	}
 
 	//printing experience - original format does not support ui64
@@ -296,8 +291,6 @@ void CHeroWindow::questlog()
 void CHeroWindow::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-	//blitting portrait
-	blitAtLoc(graphics->portraitLarge[curHero->portrait], 19, 19, to);
 	 
 	//printing hero's name
 	printAtMiddleLoc(curHero->name, 190, 38, FONT_BIG, Colors::Jasmine, to);
@@ -345,42 +338,14 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	 	printAtMiddleLoc(primarySkill.str(), 53 + 70 * m, 166, FONT_SMALL, Colors::Cornsilk, to);
 	}
 	 
-	blitAtLoc(flags->ourImages[player].bitmap, 606, 8, to);
-	 
-	//hero list blitting
-	 
-	for(int slotPos=0, g=0; g<LOCPLINT->wanderingHeroes.size(); ++g)
-	{
-	 	const CGHeroInstance * cur = LOCPLINT->wanderingHeroes[g];
-	 	if (cur->inTownGarrison)
-	 		// Only display heroes that are not in garrison
-	 		continue;
-	 
-	 	blitAtLoc(graphics->portraitSmall[cur->portrait], 611, 87+slotPos*54, to);
-	 	//printing yellow border
-	 	if(cur->name == curHero->name)
-	 	{
-	 		for(int f=0; f<graphics->portraitSmall[cur->portrait]->w; ++f)
-	 		{
-	 			for(int h=0; h<graphics->portraitSmall[cur->portrait]->h; ++h)
-	 				if(f==0 || h==0 || f==graphics->portraitSmall[cur->portrait]->w-1 || h==graphics->portraitSmall[cur->portrait]->h-1)
-	 					CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x + 611+f, pos.y + 87+slotPos*54+h, 240, 220, 120);
-	 		}
-	 	}
-	 
-	 	slotPos ++;
-	}
-	 
 	//secondary skills
 	for(size_t v=0; v<std::min(secSkillAreas.size(), curHero->secSkills.size()); ++v)
 	{
-	 	blitAtLoc(graphics->abils44->ourImages[curHero->secSkills[v].first*3+3+curHero->secSkills[v].second-1].bitmap, v%2 ? 161 : 18, 276 + 48 * (v/2), to);
 	 	printAtLoc(CGI->generaltexth->levels[curHero->secSkills[v].second-1], v%2 ? 212 : 68, 280 + 48 * (v/2), FONT_SMALL, Colors::Cornsilk, to);
 	 	printAtLoc(CGI->generaltexth->skillName[curHero->secSkills[v].first], v%2 ? 212 : 68, 300 + 48 * (v/2), FONT_SMALL, Colors::Cornsilk, to);
 	}
 	 
 	//printing special ability
-	blitAtLoc(graphics->un44->ourImages[curHero->subID].bitmap, 18, 180, to);
 	printAtLoc(CGI->generaltexth->jktexts[5].substr(1, CGI->generaltexth->jktexts[5].size()-2), 69, 183, FONT_SMALL, Colors::Jasmine, to);
 	printAtLoc(CGI->generaltexth->hTxts[curHero->subID].bonusName, 69, 205, FONT_SMALL, Colors::Cornsilk, to);
 	 
