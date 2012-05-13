@@ -3,6 +3,11 @@
 #include "../lib/VCMI_Lib.h"
 namespace po = boost::program_options;
 
+
+//FANN
+#include <floatfann.h>
+#include <fann_cpp.h>
+
 std::string leftAI, rightAI, battle, results, logsDir;
 bool withVisualization = false;
 std::string servername;
@@ -70,8 +75,37 @@ double playBattle(const DuelParameters &dp)
 	return code / 1000000.0;
 }
 
-void SSNRun()
+typedef std::map<int, CArtifactInstance*> TArtSet;
+
+double cmpArtSets(TArtSet setL, TArtSet setR)
 {
+	DuelParameters dp;
+	dp.bfieldType = 1;
+	dp.terType = 1;
+
+	for(int i = 0; i < 2 ; i++)
+	{
+		auto &side = dp.sides[i];
+		side.heroId = i;
+		side.heroPrimSkills.resize(4,0);
+		side.stacks[0] = DuelParameters::SideSettings::StackSettings(10+i, 40+i);
+	}
+
+	//lewa strona z art 0.9
+	//bez artefaktow -0.41
+	//prawa strona z art. -0.926
+
+	dp.sides[0].artifacts = setL;
+	dp.sides[1].artifacts = setR;
+
+	auto battleOutcome = playBattle(dp);
+	return battleOutcome;
+}
+
+std::vector<CArtifactInstance*> genArts()
+{
+	std::vector<CArtifactInstance*> ret;
+
 	CArtifact *nowy = new CArtifact();
 	nowy->description = "Cudowny miecz Towa gwarantuje zwyciestwo";
 	nowy->name = "Cudowny miecz";
@@ -85,35 +119,81 @@ void SSNRun()
 	artinst->addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::ARTIFACT_INSTANCE, +25, nowy->id, PrimarySkill::ATTACK));
 	artinst->addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::ARTIFACT_INSTANCE, +25, nowy->id, PrimarySkill::DEFENSE));
 
-	DuelParameters dp;
-	dp.bfieldType = 1;
-	dp.terType = 1;
-
-	for(int i = 0; i < 2 ; i++)
-	{
-		auto &side = dp.sides[i];
-		side.heroId = i;
-		side.heroPrimSkills.resize(4,0);
-		side.stacks[0] = DuelParameters::SideSettings::StackSettings(10+i, 40+i);
-	}
-
 	auto bonuses = artinst->getBonuses([](const Bonus *){ return true; });
 	BOOST_FOREACH(Bonus *b, *bonuses) 
 	{
 		std::cout << format("%s (%d) value:%d, description: %s\n") % bonusTypeToString(b->type) % b->subtype % b->val % b->Description();
 	}
 
-	
+	return ret;
+}
 
 
-	//lewa strona z art 0.9
-	//bez artefaktow -0.41
-	//prawa strona z art. -0.926
+//returns how good the artifact is for the neural network
+double runSSN(FANN::neural_net & net, CArtifactInstance * inst)
+{
 
-	dp.sides[0].artifacts[Arts::LEFT_HAND] = artinst;
+	return 0.0;
+}
 
-	auto battleOutcome = playBattle(dp);
-	int g = 4;
+void initNet(FANN::neural_net & ret)
+{
+	const float learning_rate = 0.7f;
+	const unsigned int num_layers = 3;
+	const unsigned int num_input = 2;
+	const unsigned int num_hidden = 3;
+	const unsigned int num_output = 1;
+	const float desired_error = 0.001f;
+	const unsigned int max_iterations = 300000;
+	const unsigned int iterations_between_reports = 1000;
+
+	ret.create_standard(num_layers, num_input, num_hidden, num_output);
+
+	ret.set_learning_rate(learning_rate);
+
+	ret.set_activation_steepness_hidden(1.0);
+	ret.set_activation_steepness_output(1.0);
+
+	ret.set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC_STEPWISE);
+	ret.set_activation_function_output(FANN::SIGMOID_SYMMETRIC_STEPWISE);
+
+	ret.randomize_weights(0.0, 1.0);
+}
+
+void SSNRun()
+{
+	auto availableArts = genArts();
+	std::vector<std::pair<CArtifactInstance *, double> > artNotes;
+
+	TArtSet setL, setR;
+
+	FANN::neural_net network;
+	initNet(network);
+
+	for(int i=0; i<availableArts.size(); ++i)
+	{
+		artNotes.push_back(std::make_pair(availableArts[i], runSSN(network, availableArts[i])));
+	}
+	boost::range::sort(artNotes,
+		[](const std::pair<CArtifactInstance *, double> & a1, const std::pair<CArtifactInstance *, double> & a2)
+		{return a1.second > a2.second;});
+
+	//pick best arts into setL
+	BOOST_FOREACH(auto & ap, artNotes)
+	{
+		auto art = ap.first;
+		BOOST_FOREACH(auto slot, art->artType->possibleSlots)
+		{
+			if(setL.find(slot) != setL.end())
+			{
+				setL[slot] = art;
+				break;
+			}
+		}
+	}
+
+	//evaluate
+	double result = cmpArtSets(setL, setR);
 }
 
 int main(int argc, char **argv)
