@@ -176,6 +176,9 @@ public:
 /// can get to the towns and heroes. 
 class CAdvMapInt : public CIntObject
 {
+	//get top selectable object at tile
+	const CGObjectInstance *getBlockingObject(const int3 &tile);
+
 public:
 	CAdvMapInt();
 	~CAdvMapInt();
@@ -259,9 +262,9 @@ public:
 	void aiTurnStarted();
 
 	void adjustActiveness(bool aiTurnStart); //should be called everytime at AI/human turn transition; blocks GUI during AI turn
-	void tileLClicked(const int3 &mp);
-	void tileHovered(const int3 &tile);
-	void tileRClicked(const int3 &mp);
+	void tileLClicked(const int3 &mapPos);
+	void tileHovered(const int3 &mapPos);
+	void tileRClicked(const int3 &mapPos);
 	void enterCastingMode(const CSpell * sp);
 	void leaveCastingMode(bool cast = false, int3 dest = int3(-1, -1, -1));
 	const CGHeroInstance * curHero() const;

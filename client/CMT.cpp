@@ -402,12 +402,6 @@ void processCommand(const std::string &message)
 		readed >> fname;
 		client->save(fname);
 	}
-	//else if(cn=="list")
-	//{
-	//	if(CPG)
-	//		for(int i = 0; i < CPG->ourScenSel->mapsel.ourGames.size(); i++)
-	//			tlog0 << i << ".\t" << CPG->ourScenSel->mapsel.ourGames[i]->filename << std::endl;
-	//}
 	else if(cn=="load")
 	{
 		// TODO: this code should end the running game and manage to call startGame instead
@@ -415,13 +409,6 @@ void processCommand(const std::string &message)
 		readed >> fname;
 		client->loadGame(fname);
 	}
-	//else if(cn=="ln")
-	//{
-	//	int num;
-	//	readed >> num;
-	//	std::string &name = CPG->ourScenSel->mapsel.ourGames[num]->filename;
-	//	client->load(name.substr(0, name.size()-6));
-	//}
 	else if(cn=="resolution" || cn == "r")
 	{
 		if(LOCPLINT)
@@ -531,15 +518,19 @@ void processCommand(const std::string &message)
 					if(const CArtifactInstance *a = h->getArt(id2))
 						tlog4 << a->nodeName();
 		}
-		else if (what == "anim" )
-		{
-			CAnimation::getAnimInfo();
-		}
 	}
-	else if (cn == "switchCreWin" )
+	else if (cn == "set")
 	{
-		Settings window = settings.write["general"]["classicCreatureWindow"];
-		window->Bool() = !window->Bool();
+		std::string what, value;
+		readed >> what;
+
+		Settings conf = settings.write["session"][what];
+
+		readed >> value;
+		if (value == "on")
+			conf->Bool() = true;
+		else if (value == "off")
+			conf->Bool() = false;
 	}
 	else if(cn == "sinfo")
 	{

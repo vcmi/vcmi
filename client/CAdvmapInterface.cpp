@@ -1781,20 +1781,31 @@ void CAdvMapInt::endingTurn()
 	LOCPLINT->cb->endTurn();
 }
 
-void CAdvMapInt::tileLClicked(const int3 &mp)
+const CGObjectInstance* CAdvMapInt::getBlockingObject(const int3 &mapPos)
 {
-	if(!LOCPLINT->cb->isVisible(mp) || !LOCPLINT->makingTurn)
+	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mapPos);  //blocking objects at tile
+
+	if (bobjs.empty())
+		return nullptr;
+
+	if (bobjs.back()->ID == GameConstants::HEROI_TYPE)
+		return bobjs.back();
+	else
+		return bobjs.front();
+}
+
+void CAdvMapInt::tileLClicked(const int3 &mapPos)
+{
+	if(!LOCPLINT->cb->isVisible(mapPos) || !LOCPLINT->makingTurn)
 		return;
 
+	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mapPos);//blocking objects at tile
+	const TerrainTile *tile = LOCPLINT->cb->getTile(mapPos);
 
-	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mp),  //blocking objects at tile
-		vobjs = LOCPLINT->cb->getVisitableObjs(mp); //visitable objects
-	const TerrainTile *tile = LOCPLINT->cb->getTile(mp);
-	const CGObjectInstance *topBlocking = bobjs.size() ? bobjs.back() : NULL;
-
+	const CGObjectInstance *topBlocking = getBlockingObject(mapPos);
 
 	int3 selPos = selection->getSightCenter();
-	if(spellBeingCasted && isInScreenRange(selPos, mp))
+	if(spellBeingCasted && isInScreenRange(selPos, mapPos))
 	{
 		const TerrainTile *heroTile = LOCPLINT->cb->getTile(selPos);
 
@@ -1802,11 +1813,11 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 		{
 		case Spells::SCUTTLE_BOAT: //Scuttle Boat
 			if(topBlocking && topBlocking->ID == 8)
-				leaveCastingMode(true, mp);
+				leaveCastingMode(true, mapPos);
 			break;
 		case Spells::DIMENSION_DOOR:
 			if(!tile || tile->isClear(heroTile))
-				leaveCastingMode(true, mp);
+				leaveCastingMode(true, mapPos);
 			break;
 		}
 		return;
@@ -1826,7 +1837,7 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 	}
 	else if(const CGHeroInstance * currentHero = curHero()) //hero is selected
 	{
-		const CGPathNode *pn = LOCPLINT->cb->getPathInfo(mp);
+		const CGPathNode *pn = LOCPLINT->cb->getPathInfo(mapPos);
 		if(currentHero == topBlocking) //clicked selected hero
 		{
 			LOCPLINT->openHeroWindow(currentHero);
@@ -1839,7 +1850,7 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 		}
 		else //still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
 		{
-			if (terrain.currentPath  &&  terrain.currentPath->endPos() == mp)//we'll be moving
+			if (terrain.currentPath  &&  terrain.currentPath->endPos() == mapPos)//we'll be moving
 			{
 				LOCPLINT->moveHero(currentHero,*terrain.currentPath);
 				return;
@@ -1848,7 +1859,7 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 			{
 				CGPath &path = LOCPLINT->paths[currentHero];
 				terrain.currentPath = &path;
-				bool gotPath = LOCPLINT->cb->getPath2(mp, path); //try getting path, erase if failed
+				bool gotPath = LOCPLINT->cb->getPath2(mapPos, path); //try getting path, erase if failed
 				updateMoveHero(currentHero);
 				if (!gotPath)
 					LOCPLINT->eraseCurrentPathOf(currentHero);
@@ -1868,31 +1879,31 @@ void CAdvMapInt::tileLClicked(const int3 &mp)
 	}
 }
 
-void CAdvMapInt::tileHovered(const int3 &tile)
+void CAdvMapInt::tileHovered(const int3 &mapPos)
 {
-	if(!LOCPLINT->cb->isVisible(tile))
+	if(!LOCPLINT->cb->isVisible(mapPos))
 	{
 		CCS->curh->changeGraphic(0, 0);
 		statusbar.clear();
 		return;
 	}
+	const CGObjectInstance *objAtTile = getBlockingObject(mapPos);
 
-	std::vector<std::string> temp = LOCPLINT->cb->getObjDescriptions(tile);
-	if (temp.size())
+	//std::vector<std::string> temp = LOCPLINT->cb->getObjDescriptions(mapPos);
+	if (objAtTile)
 	{
-		boost::replace_all(temp.back(),"\n"," ");
-		statusbar.print(temp.back());
+		std::string text = objAtTile->getHoverText();
+		boost::replace_all(text,"\n"," ");
+		statusbar.print(text);
 	}
 	else
 	{
 		std::string hlp;
-		CGI->mh->getTerrainDescr(tile, hlp, false);
+		CGI->mh->getTerrainDescr(mapPos, hlp, false);
 		statusbar.print(hlp);
 	}
 
-	const CGPathNode *pnode = LOCPLINT->cb->getPathInfo(tile);
-	std::vector<const CGObjectInstance *> objs = LOCPLINT->cb->getBlockingObjs(tile);
-	const CGObjectInstance *objAtTile = objs.size() ? objs.back() : NULL;
+	const CGPathNode *pnode = LOCPLINT->cb->getPathInfo(mapPos);
 	bool accessible  =  pnode->turns < 255;
 
 	int turns = pnode->turns;
@@ -1913,9 +1924,9 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 			return;
 		case Spells::DIMENSION_DOOR:
 			{
-				const TerrainTile *t = LOCPLINT->cb->getTile(tile, false);
+				const TerrainTile *t = LOCPLINT->cb->getTile(mapPos, false);
 				int3 hpos = selection->getSightCenter();
-				if((!t  ||  t->isClear(LOCPLINT->cb->getTile(hpos)))   &&   isInScreenRange(hpos, tile))
+				if((!t  ||  t->isClear(LOCPLINT->cb->getTile(hpos)))   &&   isInScreenRange(hpos, mapPos))
 					CCS->curh->changeGraphic(0, 41);
 				else
 					CCS->curh->changeGraphic(0, 0);
@@ -1924,7 +1935,7 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 		}
 	}
 
-	const bool guardingCreature = CGI->mh->map->isInTheMap(LOCPLINT->cb->guardingCreaturePosition(tile));
+	const bool guardingCreature = CGI->mh->map->isInTheMap(LOCPLINT->cb->guardingCreaturePosition(mapPos));
 
 	if(selection->ID == GameConstants::TOWNI_TYPE)
 	{
@@ -2062,34 +2073,33 @@ void CAdvMapInt::tileHovered(const int3 &tile)
 	}
 }
 
-void CAdvMapInt::tileRClicked(const int3 &mp)
+void CAdvMapInt::tileRClicked(const int3 &mapPos)
 {
 	if(spellBeingCasted)
 	{
 		leaveCastingMode();
 		return;
 	}
-	if(!LOCPLINT->cb->isVisible(mp))
+	if(!LOCPLINT->cb->isVisible(mapPos))
 	{
 		CRClickPopup::createAndPush(VLC->generaltexth->allTexts[61]); //Uncharted Territory
 		return;
 	}
 
-	std::vector < const CGObjectInstance * > objs = LOCPLINT->cb->getBlockingObjs(mp);
-	if(!objs.size())
+	const CGObjectInstance * obj = getBlockingObject(mapPos);
+	if(!obj)
 	{
 		// Bare or undiscovered terrain
-		const TerrainTile * tile = LOCPLINT->cb->getTile(mp);
+		const TerrainTile * tile = LOCPLINT->cb->getTile(mapPos);
 		if (tile)
 		{
 			std::string hlp;
-			CGI->mh->getTerrainDescr(mp, hlp, true);
+			CGI->mh->getTerrainDescr(mapPos, hlp, true);
 			CRClickPopup::createAndPush(hlp);
 		}
 		return;
 	}
 
-	const CGObjectInstance * obj = objs.back();
 	CRClickPopup::createAndPush(obj, GH.current->motion, CENTER);
 }
 

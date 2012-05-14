@@ -566,7 +566,6 @@ ComponentResolved::~ComponentResolved()
 
 void ComponentResolved::showAll(SDL_Surface *to)
 {
-	tlog0 << "Blitting at "<< pos.x << " " << pos.y << "\n";
 	int fontHeight;
 	if (graphics->fontsTrueType[FONT_SMALL])
 		fontHeight = TTF_FontHeight(graphics->fontsTrueType[FONT_SMALL]);
