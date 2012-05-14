@@ -5,7 +5,7 @@ namespace po = boost::program_options;
 
 
 //FANN
-#include <floatfann.h>
+#include <doublefann.h>
 #include <fann_cpp.h>
 
 std::string leftAI, rightAI, battle, results, logsDir;
@@ -77,20 +77,9 @@ double playBattle(const DuelParameters &dp)
 
 typedef std::map<int, CArtifactInstance*> TArtSet;
 
-double cmpArtSets(TArtSet setL, TArtSet setR)
+
+double cmpArtSets(DuelParameters dp, TArtSet setL, TArtSet setR)
 {
-	DuelParameters dp;
-	dp.bfieldType = 1;
-	dp.terType = 1;
-
-	for(int i = 0; i < 2 ; i++)
-	{
-		auto &side = dp.sides[i];
-		side.heroId = i;
-		side.heroPrimSkills.resize(4,0);
-		side.stacks[0] = DuelParameters::SideSettings::StackSettings(10+i, 40+i);
-	}
-
 	//lewa strona z art 0.9
 	//bez artefaktow -0.41
 	//prawa strona z art. -0.926
@@ -128,7 +117,6 @@ std::vector<CArtifactInstance*> genArts()
 	return ret;
 }
 
-
 //returns how good the artifact is for the neural network
 double runSSN(FANN::neural_net & net, CArtifactInstance * inst)
 {
@@ -136,11 +124,50 @@ double runSSN(FANN::neural_net & net, CArtifactInstance * inst)
 	return 0.0;
 }
 
+
+const unsigned int num_input = 2;
+
+double * genSSNinput(const DuelParameters & dp, CArtifactInstance * art)
+{
+	double * ret = new double[num_input];
+	double * cur = ret;
+
+	//general description
+
+	*(cur++) = dp.bfieldType;
+	*(cur++) = dp.terType;
+
+	//creature & hero description
+
+	for(int i=0; i<2; ++i)
+	{
+		auto & side = dp.sides[0];
+		*(cur++) = side.heroId;
+		for(int k=0; k<4; ++k)
+			*(cur++) = side.heroPrimSkills[k];
+		for(int i=0; i<7; ++i)
+		{
+			*(cur++) = side.stacks[i].type;
+			*(cur++) = side.stacks[i].count;
+		}
+	}
+
+	//bonus description
+
+	return ret;
+}
+
+void learnSSN(FANN::neural_net & net, const DuelParameters & dp, CArtifactInstance * art, double desiredVal)
+{
+	double * input = genSSNinput(dp, art);
+	net.train(input, &desiredVal);
+	delete input;
+}
+
 void initNet(FANN::neural_net & ret)
 {
 	const float learning_rate = 0.7f;
 	const unsigned int num_layers = 3;
-	const unsigned int num_input = 2;
 	const unsigned int num_hidden = 3;
 	const unsigned int num_output = 1;
 	const float desired_error = 0.001f;
@@ -192,8 +219,34 @@ void SSNRun()
 		}
 	}
 
+
+	//duels to test on
+	std::vector<DuelParameters> dps;
+	for(int k = 0; k<10; ++k)
+	{
+		DuelParameters dp;
+		dp.bfieldType = 1;
+		dp.terType = 1;
+
+		auto &side = dp.sides[0];
+		side.heroId = 0;
+		side.heroPrimSkills.resize(4,0);
+		side.stacks[0] = DuelParameters::SideSettings::StackSettings(10+k*3, rand()%30);
+		dp.sides[1] = side;
+		dp.sides[1].heroId = 1;
+	}
+
 	//evaluate
-	double result = cmpArtSets(setL, setR);
+	for(int i=0; i<dps.size(); ++i)
+	{
+		auto & dp = dps[i];
+		double resultLR = cmpArtSets(dp, setL, setR),
+			resultRL = cmpArtSets(dp, setR, setL),
+			resultsBase = cmpArtSets(dp, TArtSet(), TArtSet());
+
+		double LRgain = resultLR - resultsBase,
+			RLgain = resultRL - resultsBase;
+	}
 }
 
 int main(int argc, char **argv)
