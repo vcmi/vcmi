@@ -618,7 +618,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 			CDefEssential * arrows = graphics->heroMoveArrows;
 			int x = 32*(curPos.x-adventureInt->position.x)+CGI->mh->offsetX + pos.x,
 				y = 32*(curPos.y-adventureInt->position.y)+CGI->mh->offsetY + pos.y;
-			if (x<0 || y<0 || x>pos.w || y>pos.h)
+			if (x< -32 || y< -32 || x>pos.w || y>pos.h)
 				continue;
 			int hvx = (x+arrows->ourImages[pn].bitmap->w)-(pos.x+pos.w),
 				hvy = (y+arrows->ourImages[pn].bitmap->h)-(pos.y+pos.h);
@@ -1456,7 +1456,6 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	const CGHeroInstance *h = curHero(); //selected hero
 	const CGTownInstance *t = curTown(); //selected town
 
-
 	switch(k)
 	{
 	case SDLK_g:
@@ -1569,34 +1568,24 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 
 			//numpad arrow
 			if(CGuiHandler::isArrowKey(SDLKey(k)))
-			{
-				switch(k)
-				{
-				case SDLK_UP:
-					Dir = UP;
-					break;
-				case SDLK_LEFT:
-					Dir = LEFT;
-					break;
-				case SDLK_RIGHT:
-					Dir = RIGHT;
-					break;
-				case SDLK_DOWN:
-					Dir = DOWN;
-					break;
-				}
-
 				k = CGuiHandler::arrowToNum(SDLKey(k));
-			}
-
-			if(!isActive() || LOCPLINT->ctrlPressed())//ctrl makes arrow move screen, not hero
-				break;
 
 			k -= SDLK_KP0 + 1;
-			if(k < 0 || k > 8 || key.state != SDL_PRESSED)
+			if(k < 0 || k > 8)
 				return;
 
-			if(!h)
+			int3 dir = directions[k];
+
+			if(!isActive() || LOCPLINT->ctrlPressed())//ctrl makes arrow move screen, not hero
+			{
+				Dir = (dir.x<0 ? LEFT  : 0) |
+					  (dir.x>0 ? RIGHT : 0) |
+					  (dir.y<0 ? UP    : 0) |
+					  (dir.y>0 ? DOWN  : 0) ;
+				break;
+			}
+
+			if(!h || key.state != SDL_PRESSED)
 				break;
 
 			if(k == 4)
@@ -1604,8 +1593,6 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				centerOn(h);
 				return;
 			}
-
-			int3 dir = directions[k];
 
 			CGPath &path = LOCPLINT->paths[h];
 			terrain.currentPath = &path;
@@ -1615,10 +1602,11 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				return;
 			}
 
+			if (path.nodes.size() > 2)
+				updateMoveHero(h);
+			else
 			if(!path.nodes[0].turns)
-			{
 				LOCPLINT->moveHero(h, path);
-			}
 		}
 
 		return;

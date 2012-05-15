@@ -5089,7 +5089,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 				iw.text.addTxt(MetaString::GENERAL_TXT, 336); //%s tried to summon a boat, but failed.
 				iw.text.addReplacement(h->name);
 				sendAndApply(&iw);
-				return true; //TODO? or should it be false? request was correct and realized, but spell failed...
+				break;
 			}
 
 			//try to find unoccupied boat to summon
@@ -5151,7 +5151,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 				iw.text.addTxt(MetaString::GENERAL_TXT, 337); //%s tried to scuttle the boat, but failed
 				iw.text.addReplacement(h->name);
 				sendAndApply(&iw);
-				return true; //TODO? or should it be false? request was correct and realized, but spell failed...
+				break;
 			}
 			if(!gs->map->isInTheMap(pos))
 				COMPLAIN_RET("Invalid dst tile for scuttle!");
