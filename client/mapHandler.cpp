@@ -823,12 +823,12 @@ std::pair<SDL_Surface *, bool> CMapHandler::getVisBitmap( const int3 & pos, cons
 		13,  27,  44,  44,  13,  27,  44,  44,   8,   8,  10,  10,   8,   8,  10,  10  //256
 	};
 
-	auto getTile = [&](int dx, int dy)
+	auto getTile = [&](int dx, int dy)->bool
 	{
 		if ( dx + pos.x < 0 || dx + pos.x >= sizes.x
 		  || dy + pos.y < 0 || dy + pos.y >= sizes.y)
 			return false;
-		return bool(visibilityMap[dx+pos.x][dy+pos.y][pos.z]);
+		return visibilityMap[dx+pos.x][dy+pos.y][pos.z];
 	};
 
 	//is tile visible. arrangement: (like num keyboard)
