@@ -1465,6 +1465,7 @@
 				"level": 3,
 				"name": [ "Mummy" ],
 				"faction": -1,
+				"ability_add": [ [ "UNDEAD", 0, 0, 0 ] ], 
 				"defname": "CMUMMY.DEF"
 			},
 
@@ -1771,7 +1772,7 @@
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 								[ "SPELLCASTER", 3, 27, 0 ] ], //expert shield
 				"defname": "ZM175NPC.DEF",
-				"projectile_defname": "PLCBOWX.DEF"
+				"projectile_defname": "CPRZEAX.DEF"
 			},
 
 			{

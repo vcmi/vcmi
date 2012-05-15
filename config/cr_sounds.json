@@ -993,6 +993,15 @@
 			"wince": "SHDMWNCE.wav"
 		},
 		{
+			"name": "Sharpshooter",
+			"attack": "HCRSATTK.wav",
+			"defend": "HCRSDFND.wav",
+			"killed": "HCRSKILL.wav",
+			"move": "HCRSMOVE.wav",
+			"shoot": "HCRSSHOT.wav",
+			"wince": "HCRSWNCE.wav"
+		},
+		{
 			"name": "Skeleton",
 			"attack": "SKELATTK.wav",
 			"defend": "SKELDFND.wav",
@@ -1197,57 +1206,125 @@
 			"killed": "ZMBLKILL.wav",
 			"move": "ZMBLMOVE.wav",
 			"wince": "ZMBLWNCE.wav"
+		},
+		// Commanders
+		{
+			"name": "AstralSpirit1",
+			"attack": "GENIATTK.wav",
+			"defend": "GENIDFND.wav",
+			"killed": "GENIKILL.wav",
+			"move": "GENIMOVE.wav",
+			"wince": "GENIWNCE.wav"
+		},
+		{
+			"name": "Shaman1",
+			"attack": "AMAGATTK.wav",
+			"defend": "AMAGDFND.wav",
+			"killed": "AMAGKILL.wav",
+			"move": "AMAGMOVE.wav",
+			"shoot": "AMAGSHOT.wav",
+			"wince": "AMAGWNCE.wav"
+		},
+		{
+			"name": "OgreLeader1",
+			"attack": "TRLLATTK.wav",
+			"defend": "TRLLDFND.wav",
+			"killed": "TRLLKILL.wav",
+			"move": "TRLLMOVE.wav",
+			"wince": "TRLLWNCE.wav"
+		},
+		{
+			"name": "Brute1",
+			"attack": "PFOEATTK.wav",
+			"defend": "PFOEDFND.wav",
+			"killed": "PFOEKILL.wav",
+			"move": "PFOEMOVE.wav",
+			"wince": "PFOEWNCE.wav"
+		},
+		{
+			"name": "SoulEater1",
+			"attack": "GNOLATTK.wav",
+			"defend": "GNOLDFND.wav",
+			"killed": "GNOLKILL.wav",
+			"move": "GNOLMOVE.wav",
+			"wince": "GNOLWNCE.wav"
+		},
+		{
+			"name": "Succubus1",
+			"attack": "SGRGATTK.wav",
+			"defend": "SGRGDFND.wav",
+			"killed": "SGRGKILL.wav",
+			"move": "SGRGMOVE.wav",
+			"wince": "SGRGWNCE.wav"
+		},
+		{
+			"name": "TempleGuardian1",
+			"attack": "LICHATTK.wav",
+			"defend": "LICHDFND.wav",
+			"killed": "LICHKILL.wav",
+			"move": "LICHMOVE.wav",
+			"shoot": "LICHSHOT.wav",
+			"wince": "LICHWNCE.wav",
+			"ext1": "LICHATK2.wav"
+		},
+		{
+			"name": "Hierophant1",
+			"attack": "MONKATTK.wav",
+			"defend": "MONKDFND.wav",
+			"killed": "MONKKILL.wav",
+			"move": "MONKMOVE.wav",
+			"shoot": "MONKSHOT.wav",
+			"wince": "MONKWNCE.wav"
+		},
+		{
+			"name": "Paladin1",
+			"attack": "CRUSATTK.wav",
+			"defend": "CRUSDFND.wav",
+			"killed": "CRUSKILL.wav",
+			"move": "CRUSMOVE.wav",
+			"wince": "CRUSWNCE.wav"
 		}
 	]
 }
 
-// For future reference. Creatures from WoG.
-// 137 Sharpshooter
-// 149 ArrowTower
-// 150 SupremeArchangel
-// 151 DiamondDragon
-// 152 LordofThunder
-// 153 HellBaron
-// 154 BloodDragon
-// 155 DarknessDragon
-// 156 GhostBehemoth
-// 157 HellHydra
-// 158 SacredPhoenix
-// 159 Ghost
-// 160 God1War
-// 161 God2Peace
-// 162 God3Mana
-// 163 God4Lore
-// 164 MinotaurKing
-// 165 MineralElemental
-// 166 ElectricityElemental
-// 167 AncientBasilisk
-// 168 Gorynych
-// 169 WarZealot
-// 170 Myriad
-// 171 MedusaMatriarch
-// 172 Nightmare
-// 173 SantaGremlin
-// 174 Paladin1
-// 175 Hierophant1
-// 176 TempleGuardian1
-// 177 Succubus1
-// 178 SoulEater1
-// 179 Brute1
-// 180 OgreLeader1
-// 181 Shaman1
-// 182 AstralSpirit1
-// 183 Paladin2
-// 184 Hierophant2
-// 185 TempleGuardian2
-// 186 Succubus2
-// 187 SoulEater2
-// 188 Brute2
-// 189 OgreLeader2
-// 190 Shaman2
-// 191 AstralSpirit2
-// 192 SylvanCentaur
-// 193 Sorceress
-// 194 Werewolf
-// 195 HellSteed
-// 196 Dracolich
+// For future reference. Creatures from WoG and their sound prefixes.
+//aagl ZM150Z.def SupremeArchangel
+//godr ZM151Z.def DiamondDragon
+//gtit ZM152Z.def LordofThunder
+//advl ZM153Z.def HellBaron
+//ghdr ZM154Z.def BloodDragon
+//bkdr ZM155Z.def DarknessDragon
+//bmth ZM156Z.def GhostBehemoth
+//chyd ZM157Z.def HellHydra
+//phoe ZM158Z.def SacredPhoenix
+//wrth ZM159G.def Ghost
+//aagl ZM160G.def God1War
+//aagl ZM161G.def God2Peace
+//aagl ZM162G.def God3Mana
+//aagl ZM163G.def God4Lore
+//sglm ZM164GD.def MinotaurKing
+//sglm ZM165GD.def MineralElemental
+//sglm ZM166GD.def ElectricityElemental
+//sglm ZM167GD.def AncientBasilisk
+//bkdr ZM168DG.def Gorynych
+//zelt ZM169ZL.def WarZealot
+//hcrs ZM170SW.def Myriad
+//hcrs ZM171SR.def MedusaMatriarch
+//bgor ZM172N.def Nightmare
+//aagl ZM173M.def SantaGremlin
+
+//crus ZM174NPC.def Paladin2
+//monk ZM175NPC.def Hierophant2
+//lich ZM176NPC.def TempleGuardian2
+//sgrg ZM177NPC.def Succubus2
+//gnol ZM178NPC.def SoulEater2
+///pfoe ZM179NPC.def Brute2
+//trll ZM180NPC.def OgreLeader2
+//amag ZM181NPC.def Shaman2
+//geni ZM182NPC.def AstralSpirit2
+
+//ecnt ZM192Z.def SylvanCentaur
+//monk ZM193Z.def Sorceress
+//monk ZM194Z.def Werewolf
+//bgor ZM195Z.def HellSteed
+//ghdr ZM196Z.def Dracolich

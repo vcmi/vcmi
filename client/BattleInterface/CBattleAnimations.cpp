@@ -385,7 +385,7 @@ void CMeleeAttackAnimation::endAnim()
 
 bool CMovementAnimation::init()
 {
-	if( !isEarliest(false) )
+if( !isEarliest(false) )
 		return false;
 
 	//a few useful variables
@@ -428,8 +428,13 @@ bool CMovementAnimation::init()
 	}
 	//unit reversed
 
-	//	if(owner->moveSh <= 0)
-	//		owner->moveSh = CCS->soundh->playSound(battle_sound(movedStack->getCreature(), move), -1);
+	if(owner->moveSh >= 0)
+	{
+		CCS->soundh->stopSound(owner->moveSh);
+		owner->moveSh = -1;
+	}
+	owner->moveSh = CCS->soundh->playSound(battle_sound(movedStack->getCreature(), move), -1);
+	tlog1<< "Playing sound " << owner->moveSh << "\n";
 
 	//step shift calculation
 	posX = myAnim()->pos.x, posY = myAnim()->pos.y; // for precise calculations ;]
@@ -530,7 +535,6 @@ void CMovementAnimation::endAnim()
 
 	if(movedStack)
 		owner->addNewAnim(new CMovementEndAnimation(owner, stack, nextHex));
-
 
 	if(owner->moveSh >= 0)
 	{

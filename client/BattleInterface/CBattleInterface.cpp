@@ -564,6 +564,10 @@ void CBattleInterface::show(SDL_Surface * to)
 		{
 			CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, to, &pos);
 		}
+		//Blit absolute obstacles
+		BOOST_FOREACH(const CObstacleInstance &oi, curInt->cb->battleGetAllObstacles())
+			if(oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
+				blitAt(imageOfObstacle(oi), pos.x + oi.getInfo().width, pos.y + oi.getInfo().height, to);
 	}
 	//printing hovered cell
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
