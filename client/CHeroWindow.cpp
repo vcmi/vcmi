@@ -7,6 +7,7 @@
 #include "CHeroWindow.h"
 #include "CMessage.h"
 #include "CKingdomInterface.h"
+#include "CCreatureWindow.h"
 #include "SDL.h"
 #include "UIFramework/SDL_Extensions.h"
 #include "CBitmapHandler.h"
@@ -115,6 +116,12 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
 	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[24]),CGI->generaltexth->heroscrn[30], "hsbtns7.def", 481, 519, 1, 0, SDLK_l);
 
 	tacticsButton = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", NULL, 539, 483, SDLK_b);
+
+	if (hero->commander)
+	{
+		commanderButton = new CAdventureMapButton ("Commander", "Commander info", boost::bind(&CHeroWindow::commanderWindow, this), 317, 18, "chftke.def", SDLK_c, NULL, false);
+	}
+
 
 	//right list of heroes
 	for(int i=0; i < std::min(LOCPLINT->cb->howManyHeroes(false), 8); i++)
@@ -286,6 +293,11 @@ void CHeroWindow::dismissCurrent()
 
 void CHeroWindow::questlog()
 {
+}
+
+void CHeroWindow::commanderWindow()
+{
+	GH.pushInt(new CCreatureWindow (curHero->commander));
 }
 
 void CHeroWindow::showAll(SDL_Surface * to)

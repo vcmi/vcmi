@@ -56,6 +56,7 @@ class CCreatureSet;
 class CCreature;
 class CStackBasicDescriptor;
 struct TeamState;
+struct QuestInfo;
 class CGCreature;
 
 typedef std::vector<const CStack*> TStacks;
@@ -232,6 +233,7 @@ public:
 	std::vector <const CGHeroInstance *> getHeroesInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
 	std::vector <const CGDwelling *> getMyDwellings() const; //returns all dwellings that belong to player
 	std::vector <const CGObjectInstance * > getMyObjects() const; //returns all objects flagged by belonging player
+	std::vector <const QuestInfo> getMyQuests() const;
 
 	int getResourceAmount(int type)const;
 	TResources getResourceAmount() const;
@@ -324,6 +326,7 @@ public:
 	virtual void changeObjPos(int objid, int3 newPos, ui8 flags)=0;
 	virtual void sendAndApply(CPackForClient * info)=0;
 	virtual void heroExchange(si32 hero1, si32 hero2)=0; //when two heroes meet on adventure map
+	virtual void addQuest(int player, QuestInfo & quest){};
 };
 
 /// Interface class for handling general game logic and actions

@@ -120,6 +120,22 @@ CCreatureWindow::CCreatureWindow(const CStackInstance &st, int Type, boost::func
 	}
 }
 
+CCreatureWindow::CCreatureWindow (const CCommanderInstance * Commander)
+	:type (COMMANDER), commander (Commander)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	init(commander, commander, dynamic_cast<const CGHeroInstance*>(commander->armyObj));
+
+	boost::function<void()> Dsm;
+	CFunctionList<void()> fs[2];
+	//on dismiss confirmed
+	fs[0] += Dsm; //dismiss
+	fs[0] += boost::bind(&CCreatureWindow::close,this);//close this window
+	CFunctionList<void()> cfl;
+	cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
+	dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, cfl, 333, 148,"IVIEWCR2.DEF", SDLK_d);
+}
+
 void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *StackNode, const CGHeroInstance *HeroOwner)
 {
 	creatureArtifact = NULL; //may be set later
@@ -137,6 +153,9 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		count = boost::lexical_cast<std::string>(battleStack->count);
 	else if (Stack->count)
 		count = boost::lexical_cast<std::string>(Stack->count);
+
+	if (type < COMMANDER)
+		commander = NULL;
 
 	//Basic graphics - need to calculate size
 
@@ -185,15 +204,22 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	}
 
 	bonusRows = std::min ((int)((bonusItems.size() + 1) / 2), (screen->h - 230) / 60);
-	vstd::amin(bonusRows, 4);
+	if (type >= COMMANDER)
+		vstd::amin(bonusRows, 3);
+	else
+		vstd::amin(bonusRows, 4);
 	vstd::amax(bonusRows, 1);
 
-	bitmap = new CPicture("CreWin" + boost::lexical_cast<std::string>(bonusRows) + ".pcx"); //1 to 4 rows for now
+	if (type >= COMMANDER)
+		bitmap = new CPicture("CommWin" + boost::lexical_cast<std::string>(bonusRows) + ".pcx");
+	else
+		bitmap = new CPicture("CreWin" + boost::lexical_cast<std::string>(bonusRows) + ".pcx"); //1 to 4 rows for now
 	bitmap->colorizeAndConvert(LOCPLINT->playerID);
 	pos = bitmap->center();
 
 	//Buttons
 	ok = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, boost::bind(&CCreatureWindow::close,this), 489, 148, "hsbtns.def", SDLK_RETURN);
+	ok->assignedKeys.insert(SDLK_ESCAPE);
 
 	if (type <= BATTLE) //in battle or info window
 	{
@@ -271,6 +297,42 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 			}
 		}
 	}
+	if (commander) //secondary skills
+	{
+		for (int i = ECommander::ATTACK; i <= ECommander::SPELL_POWER; ++i)
+		{
+			auto it = commander->secondarySkills.find(i);
+			if (it != commander->secondarySkills.end())
+			{
+				std::string file = "zvs/Lib1.res/_";
+				switch (i)
+				{
+					case ECommander::ATTACK:
+						file += "AT";
+						break;
+					case ECommander::DEFENSE:
+						file += "DF";
+						break;
+					case ECommander::HEALTH:
+						file += "HP";
+						break;
+					case ECommander::DAMAGE:
+						file += "DM";
+						break;
+					case ECommander::SPEED:
+						file += "SP";
+						break;
+					case ECommander::SPELL_POWER:
+						file += "MP";
+						break;
+				}
+				file += boost::lexical_cast<std::string>(it->second);
+
+				auto skillGraphics = new CPicture(file, 40 + i * 82, 121);
+				blitAtLoc(skillGraphics->bg, 0, 0, bitmap->bg);
+			}
+		}
+	}
 
 	if (battleStack) //only during battle
 	{
@@ -326,6 +388,10 @@ void CCreatureWindow::printLine(int nr, const std::string &text, int baseVal, in
 
 void CCreatureWindow::recreateSkillList(int Pos)
 {
+	int commanderOffset = 0;
+	if (type >= COMMANDER)
+		commanderOffset = 74;
+
 	int n = 0, i = 0, j = 0;
 	int numSkills = std::min ((bonusRows + Pos) << 1, (int)bonusItems.size());
 	std::string gfxName;
@@ -336,7 +402,7 @@ void CCreatureWindow::recreateSkillList(int Pos)
 	for (n = Pos << 1; n < numSkills; ++n)
 	{
 		int offsetx = 257*j - (bonusRows == 4 ? 1 : 0);
-		int offsety = 60*i + (bonusRows > 1 ? 1 : 0); //lack of precision :/
+		int offsety = 60*i + (bonusRows > 1 ? 1 : 0) + commanderOffset; //lack of precision :/
 
 		bonusItems[n]->moveTo (Point(pos.x + offsetx + 10, pos.y + offsety + 230), true);
 		bonusItems[n]->visible = true;
@@ -357,7 +423,7 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
-	printAtMiddle(c->namePl, 180, 30, FONT_SMALL, Colors::Jasmine,*bitmap); //creature name
+	printAtMiddle ((type >= COMMANDER? c->nameSing : c->namePl), 180, 30, FONT_SMALL, Colors::Jasmine, *bitmap); //creature name
 
 	printLine(0, CGI->generaltexth->primarySkillNames[0], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->Attack());
 	printLine(1, CGI->generaltexth->primarySkillNames[1], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->Defense());
@@ -371,7 +437,7 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 	}
 	if (stackNode->valOfBonuses(Bonus::CASTS))
 	{
-		printAtMiddle(CGI->generaltexth->allTexts[399], 356, 61, FONT_SMALL, Colors::Cornsilk,*bitmap);
+		printAtMiddle(CGI->generaltexth->allTexts[399], 356, 62, FONT_SMALL, Colors::Cornsilk,*bitmap);
 		std::string casts;
 		if (type == BATTLE)
 			casts = boost::lexical_cast<std::string>((ui16)dynamic_cast<const CStack*>(stackNode)->casts); //ui8 is converted to char :(
@@ -646,6 +712,7 @@ void CCreInfoWindow::init(const CCreature *creature, const CBonusSystemNode *sta
 		abilityText = NULL;
 		ok = new CAdventureMapButton("", CGI->generaltexth->zelp[445].second,
 			boost::bind(&CCreInfoWindow::close,this), 216, 237, "IOKAY.DEF", SDLK_RETURN);
+		ok->assignedKeys.insert(SDLK_ESCAPE);
 	}
 
 	//if we are displying window fo r stack in battle, there are several more things that we need to display
@@ -671,7 +738,8 @@ void CCreInfoWindow::clickRight(tribool down, bool previousState)
 	close();
 }
 
-CIntObject * createCreWindow(const CStack *s, bool lclick/* = false*/)
+CIntObject * createCreWindow(
+	const CStack *s, bool lclick/* = false*/)
 {
 	if(settings["general"]["classicCreatureWindow"].Bool())
 		return new CCreInfoWindow(*s, lclick);

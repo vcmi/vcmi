@@ -9,6 +9,7 @@
 #include "CKingdomInterface.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
+#include "CCreatureWindow.h"
 #include "CMessage.h"
 #include "CPlayerInterface.h"
 //#include "UIFramework/SDL_Extensions.h"
@@ -485,6 +486,16 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std:
 
 	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
 	GH.pushInt(lw);
+}
+void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, std::vector<std::pair<ui8, ui8> > secondarySkills,
+										std::vector<Bonus *> specialSkills, boost::function<void(ui32)> &callback)
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	waitWhileDialog();
+	CCS->soundh->playSound(soundBase::heroNewLevel);
+
+	CCreatureWindow * cw = new CCreatureWindow(commander);
+	GH.pushInt(cw);
 }
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 {

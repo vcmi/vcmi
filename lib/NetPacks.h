@@ -11,6 +11,7 @@
 #include "int3.h"
 #include "ResourceSet.h"
 #include "CObstacleInstance.h"
+#include "CGameState.h"
 
 /*
  * NetPacks.h, part of VCMI engine
@@ -33,6 +34,7 @@ class CGObjectInstance;
 class CArtifactInstance;
 //class CMapInfo;
 struct ArtSlotInfo;
+struct QuestInfo;
 
 struct CPack
 {
@@ -514,7 +516,20 @@ struct SetCommanderproperty : public CPackForClient //120
 	{
 		h & which & alive & accumulatedBonus;
 	}
-}; 
+};
+struct AddQuest : public CPackForClient //121
+{
+	AddQuest(){type = 121;};
+	void applyCl(CClient *cl){};
+
+	ui8 player;
+	QuestInfo quest;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & player & quest;
+	}
+};
 
 struct RemoveObject : public CPackForClient //500
 {
@@ -1141,8 +1156,8 @@ struct HeroLevelUp : public Query//2000
 
 struct CommanderLevelUp : public Query
 {
-	void applyCl(CClient *cl){};
-	DLL_LINKAGE void applyGs(CGameState *gs){};
+	void applyCl(CClient *cl);
+	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	CCommanderInstance * commander;
 	std::vector<std::pair<ui8, ui8> > secondarySkills;

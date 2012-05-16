@@ -34,6 +34,7 @@ class CLuaCallback;
 class CCPPObjectScript;
 class CCreatureSet;
 class CStack;
+class CQuest;
 class CGHeroInstance;
 class CGTownInstance;
 class CArmedInstance;
@@ -58,6 +59,7 @@ class CCampaignState;
 class IModableArt;
 class CGGarrison;
 class CGameInfo;
+struct QuestInfo;
 
 namespace boost
 {
@@ -161,6 +163,7 @@ public:
 	std::vector<ConstTransitivePtr<CGTownInstance> > towns;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > availableHeroes; //heroes available in taverns
 	std::vector<ConstTransitivePtr<CGDwelling> > dwellings; //used for town growth
+	std::vector<QuestInfo> quests; //store info about all received quests
 
 	ui8 enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
 	ui8 status; //0 - in game, 1 - loser, 2 - winner <- uses EStatus enum
@@ -430,3 +433,16 @@ public:
 	friend class CGameHandler;
 };
  
+struct DLL_LINKAGE QuestInfo //universal interface for human and AI
+{
+	CQuest * quest;
+	CGObjectInstance * obj; //related object, most likely Seer Hut
+	int3 tile;
+
+	//std::vector<std::string> > texts //allow additional info for quest log?
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & quest & obj & tile;
+	}
+};

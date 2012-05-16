@@ -72,7 +72,7 @@ class CHeroWindow: public CWindowWithGarrison, public CWindowWithArtifacts
 	std::vector<CAnimImage *> secSkillImages;
 	CHeroWithMaybePickedArtifact heroWArt;
 
-	CAdventureMapButton * quitButton, * dismissButton, * questlogButton; //general
+	CAdventureMapButton * quitButton, * dismissButton, * questlogButton, * commanderButton; //general
 		
 	CHighlightableButton *tacticsButton; //garrison / formation handling;
 	CHighlightableButtonsGroup *formations;
@@ -88,6 +88,7 @@ public:
 	void quit(); //stops displaying hero window and disposes
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
 	void questlog(); //show quest log in hero window
+	void commanderWindow();
 	void switchHero(); //changes displayed hero
 
 	//friends

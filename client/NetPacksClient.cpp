@@ -535,6 +535,12 @@ void HeroLevelUp::applyCl( CClient *cl )
 		cl->playerint[h->tempOwner]->heroGotLevel(const_cast<const CGHeroInstance*>(h),static_cast<int>(primskill),skills, callback);
 	}
 }
+void CommanderLevelUp::applyCl( CClient *cl )
+{
+	if (commander->armyObj && vstd::contains(cl->playerint, commander->armyObj->tempOwner)) //is it possible for Commander to exist beyond armed instance?
+	{
+	}
+}
 
 void BlockingDialog::applyCl( CClient *cl )
 {

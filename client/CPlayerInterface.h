@@ -139,6 +139,8 @@ public:
 
 	void heroCreated(const CGHeroInstance* hero) OVERRIDE;
 	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback) OVERRIDE;
+	void commanderGotLevel (const CCommanderInstance * commander, std::vector<std::pair<ui8, ui8> > secondarySkills,
+							std::vector<Bonus *> specialSkills, boost::function<void(ui32)> &callback) OVERRIDE;
 	void heroInGarrisonChange(const CGTownInstance *town) OVERRIDE;
 	void heroMoved(const TryMoveHero & details) OVERRIDE;
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) OVERRIDE;

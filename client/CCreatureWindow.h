@@ -17,6 +17,7 @@
 struct Bonus;
 class CCreature;
 class CStackInstance;
+class CCommanderInstance;
 class CStack;
 class ArtifactLocation;
 class CCreatureArtifactInstance;
@@ -39,7 +40,7 @@ class CAnimImage;
 class CCreatureWindow : public CArtifactHolder
 {
 public:
-	enum CreWinType {OTHER = 0, BATTLE = 1, ARMY = 2, HERO = 3}; //only last one should open permanently
+	enum CreWinType {OTHER = 0, BATTLE = 1, ARMY = 2, HERO = 3, COMMANDER = 4}; // > 3 are opened permanently
 	//bool active; //TODO: comment me
 	int type;//0 - rclick popup; 1 - normal window
 	int bonusRows; //height of skill window
@@ -48,6 +49,7 @@ public:
 	const CCreature *c; //related creature
 	const CStackInstance *stack;
 	const CBonusSystemNode *stackNode;
+	const CCommanderInstance * commander;
 	const CGHeroInstance *heroOwner;
 	const CArtifactInstance *creatureArtifact; //currently worn artifact
 	std::vector<CComponent*> upgResCost; //cost of upgrade (if not possible then empty)
@@ -77,6 +79,7 @@ public:
 	CCreatureWindow(const CStack & stack, int type); //battle c-tor
 	CCreatureWindow (const CStackInstance &stack, int Type); //pop-up c-tor
 	CCreatureWindow(const CStackInstance &st, int Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //full garrison window
+	CCreatureWindow(const CCommanderInstance * commander); //commander window
 	CCreatureWindow(int Cid, int Type, int creatureCount); //c-tor
 
 	void init(const CStackInstance *stack, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner);

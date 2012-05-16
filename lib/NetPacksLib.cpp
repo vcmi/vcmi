@@ -899,6 +899,11 @@ DLL_LINKAGE void HeroLevelUp::applyGs( CGameState *gs )
 	h->UpdateSpeciality();
 }
 
+DLL_LINKAGE void CommanderLevelUp::applyGs (CGameState *gs)
+{
+	commander->levelUp();
+}
+
 DLL_LINKAGE void BattleStart::applyGs( CGameState *gs )
 {
 	gs->curB = info;

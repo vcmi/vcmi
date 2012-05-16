@@ -81,7 +81,7 @@ public:
 	//commander class is determined by its base creature
 	ui8 alive;
 	std::string name; // each Commander has different name
-	std::vector <std::pair <ui8, ui8> > secondarySkills; //ID, level
+	std::map <ui8, ui8> secondarySkills; //ID, level
 	//std::vector <CArtifactInstance *> arts;
 	void init() OVERRIDE;
 	CCommanderInstance();

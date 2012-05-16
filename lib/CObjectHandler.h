@@ -26,6 +26,7 @@ class CGameState;
 class CArtifactInstance;
 struct MetaString;
 struct BattleInfo;
+struct QuestInfo;
 class IGameCallback;
 struct BattleResult;
 class CCPPObjectScript;
