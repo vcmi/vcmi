@@ -145,11 +145,28 @@ double * genSSNinput(const DuelParameters & dp, CArtifactInstance * art)
 		*(cur++) = side.heroId;
 		for(int k=0; k<4; ++k)
 			*(cur++) = side.heroPrimSkills[k];
-		for(int i=0; i<7; ++i)
+
+		//weighted average of statistics
+		auto avg = [&](std::function<int(CCreature *)> getter) -> double
 		{
-			*(cur++) = side.stacks[i].type;
-			*(cur++) = side.stacks[i].count;
-		}
+			double ret;
+			int div = 0;
+			for(int i=0; i<7; ++i)
+			{
+				auto & cstack = side.stacks[i];
+				if(cstack.count > 0)
+				{
+					ret += getter(VLC->creh->creatures[cstack.type]) * cstack.count;
+					div+=cstack.count;
+				}
+			}
+			return ret/div;
+		};
+
+		*(cur++) = avg([](CCreature * c){return c->attack;});
+		*(cur++) = avg([](CCreature * c){return c->defence;});
+		*(cur++) = avg([](CCreature * c){return c->speed;});
+		*(cur++) = avg([](CCreature * c){return c->hitPoints;});
 	}
 
 	//bonus description
@@ -234,6 +251,27 @@ void SSNRun()
 		side.stacks[0] = DuelParameters::SideSettings::StackSettings(10+k*3, rand()%30);
 		dp.sides[1] = side;
 		dp.sides[1].heroId = 1;
+	}
+
+	std::vector<Bonus> btt; //bonuses to test on
+	for(int i=0; i<5; ++i)
+	{
+		Bonus b;
+		b.type = Bonus::PRIMARY_SKILL;
+		b.subtype = PrimarySkill::ATTACK;
+		b.val = 5 * i + 1;
+		btt.push_back(b);
+
+		b.subtype = PrimarySkill::DEFENSE;
+		btt.push_back(b);
+
+		b.type = Bonus::STACKS_SPEED;
+		b.subtype = 0;
+		btt.push_back(b);
+
+		b.type = Bonus::STACK_HEALTH;
+		btt.push_back(b);
+
 	}
 
 	//evaluate
