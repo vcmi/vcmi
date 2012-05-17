@@ -169,8 +169,8 @@ template<int bpp, int incrementPtr>
 STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A)
 {
 	PutColor(ptr, ((((Uint32)Channels::px<bpp>::r.get(ptr)-(Uint32)R)*(Uint32)A) >> 8 ) + (Uint32)R,
-				  ((((Uint32)Channels::px<bpp>::r.get(ptr)-(Uint32)G)*(Uint32)A) >> 8 ) + (Uint32)G,
-				  ((((Uint32)Channels::px<bpp>::r.get(ptr)-(Uint32)B)*(Uint32)A) >> 8 ) + (Uint32)B);
+				  ((((Uint32)Channels::px<bpp>::g.get(ptr)-(Uint32)G)*(Uint32)A) >> 8 ) + (Uint32)G,
+				  ((((Uint32)Channels::px<bpp>::b.get(ptr)-(Uint32)B)*(Uint32)A) >> 8 ) + (Uint32)B);
 }
 
 
