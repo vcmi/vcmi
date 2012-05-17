@@ -1,5 +1,6 @@
 #include "StdInc.h"
 #include "SDL_Extensions.h"
+#include "SDL_Pixels.h"
 
 #include <SDL_ttf.h>
 #include "../CGameInfo.h"
@@ -411,13 +412,7 @@ SDL_Surface * CSDL_Ext::rotate02(SDL_Surface * toRot)
 		{
 			{
 				Uint8 *p = (Uint8 *)toRot->pixels + i * toRot->pitch + j * toRot->format->BytesPerPixel;
-/*
-#if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-					SDL_PutPixelWithoutRefresh(ret, i, j, p[0], p[1], p[2]);
-#else
-*/
-					SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0]);
-//#endif
+				SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0]);
 			}
 		}
 	}
@@ -430,7 +425,6 @@ SDL_Surface * CSDL_Ext::rotate02(SDL_Surface * toRot)
 SDL_Surface * CSDL_Ext::rotate03(SDL_Surface * toRot)
 {
 	SDL_Surface * ret = SDL_ConvertSurface(toRot, toRot->format, toRot->flags);
-	//SDL_SetColorKey(ret, SDL_SRCCOLORKEY, toRot->format->colorkey);
 	if(ret->format->BytesPerPixel!=1)
 	{
 		for(int i=0; i<ret->w; ++i)
@@ -439,13 +433,7 @@ SDL_Surface * CSDL_Ext::rotate03(SDL_Surface * toRot)
 			{
 				{
 					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j - 1) * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel+2;
-/*
-#if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-						SDL_PutPixelWithoutRefresh(ret, i, j, p[0], p[1], p[2], 0);
-#else
-*/
-						SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0], 0);
-//#endif
+					SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0], 0);
 				}
 			}
 		}
@@ -465,13 +453,13 @@ SDL_Surface * CSDL_Ext::rotate03(SDL_Surface * toRot)
 }
 Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte)
 {
-    int bpp = surface->format->BytesPerPixel;
-    /* Here p is the address to the pixel we want to retrieve */
-    Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
+	int bpp = surface->format->BytesPerPixel;
+	/* Here p is the address to the pixel we want to retrieve */
+	Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
 
-    switch(bpp)
+	switch(bpp)
 	{
-    case 1:
+	case 1:
 		if(colorByte)
 		{
 			return colorToUint32(surface->format->palette->colors+(*p));
@@ -479,24 +467,18 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y
 		else
 			return *p;
 
-    case 2:
-        return *(Uint16 *)p;
+	case 2:
+		return *(Uint16 *)p;
 
-    case 3:
-/*
-#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-            return p[0] << 16 | p[1] << 8 | p[2];
-#else
-*/
-            return p[0] | p[1] << 8 | p[2] << 16;
-//#endif
+	case 3:
+			return p[0] | p[1] << 8 | p[2] << 16;
 
-    case 4:
-        return *(Uint32 *)p;
+	case 4:
+		return *(Uint32 *)p;
 
-    default:
-        return 0;       // shouldn't happen, but avoids warnings
-    }
+	default:
+		return 0;       // shouldn't happen, but avoids warnings
+	}
 }
 
 void CSDL_Ext::alphaTransform(SDL_Surface *src)
@@ -508,7 +490,6 @@ void CSDL_Ext::alphaTransform(SDL_Surface *src)
 	SDL_SetColors(src, colors, 0, ARRAY_COUNT(colors));
 	SDL_SetColorKey(src, SDL_SRCCOLORKEY, SDL_MapRGBA(src->format, 0, 0, 0, 255));
 }
-//	<=>
 
 static void prepareOutRect(SDL_Rect *src, SDL_Rect *dst, const SDL_Rect & clip_rect)
 {
@@ -983,10 +964,6 @@ void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, con
 {
 	Uint8 *p = getPxPtr(ekran, x, y);
 	getPutterFor(ekran, false)(p, R, G, B);
-
-	//needed?
-	if(ekran->format->BytesPerPixel==4)
-		p[3] = A;
 }
 
 void CSDL_Ext::SDL_PutPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A /*= 255*/)
@@ -1027,7 +1004,8 @@ BlitterWithRotationVal CSDL_Ext::getBlitterWithRotationAndAlpha(SDL_Surface *des
 	return NULL;
 }
 
-void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode )
+template<int bpp>
+void CSDL_Ext::applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mode )
 {
 	switch(mode)
 	{
@@ -1040,14 +1018,13 @@ void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode 
 			{
 				for(int yp = rect->y; yp < rect->y + rect->h; ++yp)
 				{
-					ui8 * pixels = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
+					Uint8 * pixel = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
+					int r = Channels::px<bpp>::r.get(pixel);
+					int g = Channels::px<bpp>::g.get(pixel);
+					int b = Channels::px<bpp>::b.get(pixel);
+					int gray = 0.299 * r + 0.587 * g + 0.114 *b;
 
-					int b = pixels[0];
-					int g = pixels[1];
-					int r = pixels[2];
-					int gry = (r + g + b) / 3;
-
-					r = g = b = gry;
+					r = g = b = gray;
 					r = r + (sepiaDepth * 2);
 					g = g + sepiaDepth;
 
@@ -1060,12 +1037,10 @@ void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode 
 
 					// normalize if out of bounds
 					if (b<0) b=0;
-					if (b>255) b=255;
 
-					pixels[0] = b;
-					pixels[1] = g;
-					pixels[2] = r;
-
+					Channels::px<bpp>::r.set(pixel, r);
+					Channels::px<bpp>::g.set(pixel, g);
+					Channels::px<bpp>::b.set(pixel, b);
 				}
 			}
 		}
@@ -1076,20 +1051,34 @@ void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode 
 			{
 				for(int yp = rect->y; yp < rect->y + rect->h; ++yp)
 				{
-					ui8 * pixels = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
+					Uint8 * pixel = (ui8*)surf->pixels + yp * surf->pitch + xp * surf->format->BytesPerPixel;
 
-					int b = pixels[0];
-					int g = pixels[1];
-					int r = pixels[2];
-					int gry = (r + g + b) / 3;
+					int r = Channels::px<bpp>::r.get(pixel);
+					int g = Channels::px<bpp>::g.get(pixel);
+					int b = Channels::px<bpp>::b.get(pixel);
 
-					pixels[0] = pixels[1] = pixels[2] = gry;
+					int gray = 0.299 * r + 0.587 * g + 0.114 *b;
+					vstd::amax(gray, 255);
+
+					Channels::px<bpp>::r.set(pixel, gray);
+					Channels::px<bpp>::g.set(pixel, gray);
+					Channels::px<bpp>::b.set(pixel, gray);
 				}
 			}
 		}
 		break;
 	default:
 		throw std::runtime_error("Unsuppoerted efftct!");
+	}
+}
+
+void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode )
+{
+	switch(surf->format->BytesPerPixel)
+	{
+		case 2: applyEffectBpp<2>(surf, rect, mode); break;
+		case 3: applyEffectBpp<3>(surf, rect, mode); break;
+		case 4: applyEffectBpp<4>(surf, rect, mode); break;
 	}
 }
 

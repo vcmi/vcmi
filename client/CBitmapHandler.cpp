@@ -81,15 +81,9 @@ SDL_Surface * CPCXConv::getSurface() const
 		for (int i=0;i<256;i++)
 		{
 			SDL_Color tp;
-#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-			tp.b = pcx[it++];
-			tp.g = pcx[it++];
-			tp.r = pcx[it++];
-#else
 			tp.r = pcx[it++];
 			tp.g = pcx[it++];
 			tp.b = pcx[it++];
-#endif
 			tp.unused = 0;
 			ret->format->palette->colors[i] = tp;
 		}

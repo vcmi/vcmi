@@ -29,6 +29,7 @@ vcmiclient_SOURCES =  \
 	./UIFramework/CCursorHandler.h \
 	./UIFramework/SDL_Extensions.cpp \
 	./UIFramework/SDL_Extensions.h \
+	./UIFramework/SDL_Pixels.h \
 	CAdvmapInterface.cpp \
 	CAdvmapInterface.h \
 	CAnimation.cpp \

@@ -434,7 +434,6 @@ if( !isEarliest(false) )
 		owner->moveSh = -1;
 	}
 	owner->moveSh = CCS->soundh->playSound(battle_sound(movedStack->getCreature(), move), -1);
-	tlog1<< "Playing sound " << owner->moveSh << "\n";
 
 	//step shift calculation
 	posX = myAnim()->pos.x, posY = myAnim()->pos.y; // for precise calculations ;]

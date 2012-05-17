@@ -5,6 +5,7 @@
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/vcmi_endian.h"
 #include "../UIFramework/SDL_Extensions.h"
+#include "../UIFramework/SDL_Pixels.h"
 
 /*
  * CCreatureAnimation.cpp, part of VCMI engine

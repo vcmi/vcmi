@@ -4872,7 +4872,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	if(visited)
 	{
-		if(ID==64 || ID==96  ||  ID==56 || ID==52 || ID==94)
+		if(ID==64 || ID==56 || ID==52 || ID==94)
 			messageID--;
 		else
 			messageID++;

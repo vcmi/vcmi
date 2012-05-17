@@ -3,6 +3,8 @@
 
 #ifdef _WIN32
 	#include <windows.h>
+#else
+	#include <sys/prctl.h>
 #endif
 /*
  * CThreadHelper.cpp, part of VCMI engine
@@ -71,6 +73,6 @@ void setThreadName(long threadID, const std::string &name)
 	{
 	}
 #else
-	//*nix counterpart?
+	 prctl(PR_SET_NAME, name.c_str(), 0, 0, 0);
 #endif
 }
