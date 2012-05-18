@@ -119,6 +119,7 @@ void CHeroHandler::loadObstacles()
 	const JsonNode config(GameConstants::DATA_DIR + "/config/obstacles.json");
 	loadObstacles(config["obstacles"], false, obstacles);
 	loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
+	//loadObstacles(config["moats"], true, moats);
 }
 
 void CHeroHandler::loadPuzzleInfo()

@@ -335,28 +335,31 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	backgroundWithHexes = CSDL_Ext::newSurface(background->w, background->h, screen);
 
 	//preparing obstacle defs
-	std::vector<CObstacleInstance> obst = curInt->cb->battleGetAllObstacles();
+	auto obst = curInt->cb->battleGetAllObstacles();
 	for(size_t t = 0; t < obst.size(); ++t)
 	{
-		int ID = obst[t].ID;
-		std::string gfxName = obst[t].getInfo().defName;
-
-		if(obst[t].obstacleType == CObstacleInstance::USUAL)
+		const int ID = obst[t]->ID;
+		if(obst[t]->obstacleType == CObstacleInstance::USUAL)
 		{
-			idToObstacle[ID] = CDefHandler::giveDef(gfxName);
+			idToObstacle[ID] = CDefHandler::giveDef(obst[t]->getInfo().defName);
 			for(size_t n = 0; n < idToObstacle[ID]->ourImages.size(); ++n)
 			{
 				SDL_SetColorKey(idToObstacle[ID]->ourImages[n].bitmap, SDL_SRCCOLORKEY, SDL_MapRGB(idToObstacle[ID]->ourImages[n].bitmap->format,0,255,255));
 			}
 		}
-		else
+		else if(obst[t]->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
 		{
-			idToAbsoluteObstacle[ID] = BitmapHandler::loadBitmap(gfxName);
+			idToAbsoluteObstacle[ID] = BitmapHandler::loadBitmap(obst[t]->getInfo().defName);
 		}
 	}
 
 	quicksand = CDefHandler::giveDef("C17SPE1.DEF");
 	landMine = CDefHandler::giveDef("C09SPF1.DEF");
+	fireWall = CDefHandler::giveDef("C07SPF61");
+	bigForceField[0] = CDefHandler::giveDef("C15SPE10.DEF");
+	bigForceField[1] = CDefHandler::giveDef("C15SPE7.DEF");
+	smallForceField[0] = CDefHandler::giveDef("C15SPE1.DEF");
+	smallForceField[1] = CDefHandler::giveDef("C15SPE4.DEF");
 
 	for (int i = 0; i < bfield.size(); i++)
 	{
@@ -428,6 +431,11 @@ CBattleInterface::~CBattleInterface()
 
 	delete quicksand;
 	delete landMine;
+	delete fireWall;
+	delete smallForceField[0];
+	delete smallForceField[1];
+	delete bigForceField[0];
+	delete bigForceField[1];
 
 	delete siegeH;
 
@@ -565,9 +573,9 @@ void CBattleInterface::show(SDL_Surface * to)
 			CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, to, &pos);
 		}
 		//Blit absolute obstacles
-		BOOST_FOREACH(const CObstacleInstance &oi, curInt->cb->battleGetAllObstacles())
-			if(oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
-				blitAt(imageOfObstacle(oi), pos.x + oi.getInfo().width, pos.y + oi.getInfo().height, to);
+		BOOST_FOREACH(auto &oi, curInt->cb->battleGetAllObstacles())
+			if(oi->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
+				blitAt(imageOfObstacle(*oi), pos.x + oi->getInfo().width, pos.y + oi->getInfo().height, to);
 	}
 	//printing hovered cell
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
@@ -597,14 +605,15 @@ void CBattleInterface::show(SDL_Surface * to)
 					if (defendingHeroInstance)
 						schoolLevel = defendingHeroInstance->getSpellSchoolLevel(&spToCast);
 				}
+
 				//obtaining range and printing it
-				std::set<ui16> shaded = spToCast.rangeInHexes(b, schoolLevel);
-				for(std::set<ui16>::iterator it = shaded.begin(); it != shaded.end(); ++it) //for spells with range greater then one hex
+				auto shaded = spToCast.rangeInHexes(b, schoolLevel, curInt->cb->battleGetMySide());
+				BOOST_FOREACH(auto shadedHex, shaded) //for spells with range greater then one hex
 				{
-					if(settings["battle"]["mouseShadow"].Bool() && (*it % GameConstants::BFIELD_WIDTH != 0) && (*it % GameConstants::BFIELD_WIDTH != 16))
+					if(settings["battle"]["mouseShadow"].Bool() && (shadedHex % GameConstants::BFIELD_WIDTH != 0) && (shadedHex % GameConstants::BFIELD_WIDTH != 16))
 					{
-						int x = 14 + ((*it/GameConstants::BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(*it%GameConstants::BFIELD_WIDTH) + pos.x;
-						int y = 86 + 42 * (*it/GameConstants::BFIELD_WIDTH) + pos.y;
+						int x = 14 + ((shadedHex/GameConstants::BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(shadedHex%GameConstants::BFIELD_WIDTH) + pos.x;
+						int y = 86 + 42 * (shadedHex/GameConstants::BFIELD_WIDTH) + pos.y;
 						SDL_Rect temp_rect = genRect(cellShade->h, cellShade->w, x, y);
 						CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &temp_rect);
 					}
@@ -640,16 +649,16 @@ void CBattleInterface::show(SDL_Surface * to)
 	SDL_SetClipRect(to, &pos);
 
 	//preparing obstacles to be shown
-	std::vector<CObstacleInstance> obstacles = curInt->cb->battleGetAllObstacles();
+	auto obstacles = curInt->cb->battleGetAllObstacles();
 	std::multimap<BattleHex, int> hexToObstacle;
 
 	for(size_t b = 0; b < obstacles.size(); ++b)
 	{
-		const CObstacleInstance &oi = obstacles[b];
-		if(oi.obstacleType != CObstacleInstance::ABSOLUTE_OBSTACLE)
+		const auto &oi = obstacles[b];
+		if(oi->obstacleType != CObstacleInstance::ABSOLUTE_OBSTACLE  && oi->obstacleType != CObstacleInstance::MOAT)
 		{
 			//BattleHex position = CGI->heroh->obstacles.find(obstacles[b].ID)->second.getMaxBlocked(obstacles[b].pos);
-			hexToObstacle.insert(std::make_pair(oi.pos, b));
+			hexToObstacle.insert(std::make_pair(oi->pos, b));
 		}
 	}
 
@@ -706,13 +715,26 @@ void CBattleInterface::show(SDL_Surface * to)
 		if(!active)
 			activate();
 
+		bool changedStack = false;
+
 		//activation of next stack
 		if(pendingAnims.size() == 0 && stackToActivate != NULL)
 		{
 			activateStack();
+			changedStack = true;
+
 		}
 		//anims ended
 		animsAreDisplayed.setn(false);
+
+		if(changedStack)
+		{
+			//we may have changed active interface (another side in hot-seat), 
+			// so we can't continue drawing with old setting. So we call ourselves again and end.
+			SDL_SetClipRect(to, &buf); //restoring previous clip_rect
+			show(to);
+			return;
+		}
 	}
 
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b) //showing dead stacks
@@ -906,14 +928,14 @@ void CBattleInterface::showAliveStacks(std::vector<const CStack *> *aliveStacks,
 	}
 }
 
-void CBattleInterface::showObstacles(std::multimap<BattleHex, int> *hexToObstacle, std::vector<CObstacleInstance> &obstacles, int hex, SDL_Surface *to)
+void CBattleInterface::showObstacles(std::multimap<BattleHex, int> *hexToObstacle, std::vector<shared_ptr<const CObstacleInstance> > &obstacles, int hex, SDL_Surface *to)
 {
 	std::pair<std::multimap<BattleHex, int>::const_iterator, std::multimap<BattleHex, int>::const_iterator> obstRange =
 		hexToObstacle->equal_range(hex);
 
 	for(std::multimap<BattleHex, int>::const_iterator it = obstRange.first; it != obstRange.second; ++it)
 	{
-		CObstacleInstance & curOb = obstacles[it->second];
+		const CObstacleInstance & curOb = *obstacles[it->second];
 		SDL_Surface *toBlit = imageOfObstacle(curOb);
 		Point p = whereToBlitObstacleImage(toBlit, curOb);
 		blitAt(toBlit, p.x, p.y, to);
@@ -1336,7 +1358,7 @@ void CBattleInterface::stacksAreAttacked(std::vector<StackAttackedInfo> attacked
 	for(size_t h = 0; h < attackedInfos.size(); ++h)
 	{
 		++targets;
-		killed += attackedInfos[h].killed;
+		killed += attackedInfos[h].amountKilled;
 		damage += attackedInfos[h].dmg;
 	}
 	if (attackedInfos.front().cloneKilled) //FIXME: cloned stack is already removed
@@ -1855,6 +1877,11 @@ void CBattleInterface::castThisSpell(int spellID)
 		spellSelMode = ANY_LOCATION;
 	}
 
+	if(spellID == Spells::FIRE_WALL  ||  spellID == Spells::FORCE_FIELD)
+	{
+		spellSelMode = FREE_LOCATION;
+	}
+
 	if (spellSelMode == NO_LOCATION) //user does not have to select location
 	{
 		spellToCast->destinationTile = -1;
@@ -2282,9 +2309,11 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack * activeStack)
 	blitAt(background, 0, 0, backgroundWithHexes);
 
 	//draw absolute obstacles (cliffs and so on)
-	BOOST_FOREACH(const CObstacleInstance &oi, curInt->cb->battleGetAllObstacles())
-		if(oi.obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE)
-			blitAt(imageOfObstacle(oi), oi.getInfo().width, oi.getInfo().height, backgroundWithHexes);
+	BOOST_FOREACH(auto &oi, curInt->cb->battleGetAllObstacles())
+	{
+		if(oi->obstacleType == CObstacleInstance::ABSOLUTE_OBSTACLE/*  ||  oi.obstacleType == CObstacleInstance::MOAT*/)
+			blitAt(imageOfObstacle(*oi), oi->getInfo().width, oi->getInfo().height, backgroundWithHexes);
+	}
 
 	if(settings["battle"]["cellBorders"].Bool())
 		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, backgroundWithHexes, NULL);
@@ -2307,7 +2336,7 @@ void CBattleInterface::redrawBackgroundWithHexes(const CStack * activeStack)
 
 void CBattleInterface::printConsoleAttacked( const CStack * defender, int dmg, int killed, const CStack * attacker, bool multiple )
 {
-	char tabh[200];
+	char tabh[200] = {0};
 	int end = 0;
 	if (attacker) //ignore if stacks were killed by spell
 	{
@@ -2800,6 +2829,33 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				else
 					notLegal = true;
 				break;
+			case FREE_LOCATION:
+				{
+					ui8 side = curInt->cb->battleGetMySide();
+					auto hero = curInt->cb->battleGetFightingHero(side);
+					assert(!creatureCasting); //we assume hero casts this spell
+					assert(hero);
+
+					legalAction = true;
+					bool hexesOutsideBattlefield = false;
+					auto tilesThatMustBeClear = sp->rangeInHexes(myNumber, hero->getSpellSchoolLevel(sp), side, &hexesOutsideBattlefield);
+					BOOST_FOREACH(BattleHex hex, tilesThatMustBeClear)
+					{
+						if(curInt->cb->battleGetStackByPos(hex)  ||  !!curInt->cb->battleGetObstacleOnPos(hex, false) 
+						 || !hex.isAvailable())
+						{
+							legalAction = false;
+							notLegal = true;
+						}
+					}
+
+					if(hexesOutsideBattlefield)
+					{
+						legalAction = false;
+						notLegal = true;
+					}
+				}
+				break;
 			case CATAPULT:
 				if (isCatapultAttackable(myNumber))
 					legalAction = true;
@@ -2930,7 +2986,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case ANY_LOCATION:
 				sp = CGI->spellh->spells[creatureCasting ? creatureSpellToCast : spellToCast->additionalInfo]; //necessary if creature has random Genie spell at same time
-				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s on %s
+				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
 				isCastingPossible = true;
 				break;
 			case RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be avaliable as random spell
@@ -2950,6 +3006,11 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				cursorFrame = ECursor::COMBAT_SACRIFICE;
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[549]) % shere->getName()).str(); //sacrifice the %s
 				spellToCast->selectedStack = shere->ID; //sacrificed creature is selected
+				isCastingPossible = true;
+				break;
+			case FREE_LOCATION:
+				//cursorFrame = ECursor::SPELLBOOK;
+				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[26]) % sp->name); //Cast %s
 				isCastingPossible = true;
 				break;
 			case HEAL:
@@ -3005,6 +3066,10 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case SACRIFICE:
 				consoleMsg = CGI->generaltexth->allTexts[543]; //choose army to sacrifice
+				break;
+			case FREE_LOCATION:
+				cursorFrame = ECursor::COMBAT_BLOCKED;
+				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[181]) % sp->name); //No room to place %s here
 				break;
 			default:
 				cursorFrame = ECursor::COMBAT_BLOCKED;
@@ -3275,6 +3340,20 @@ SDL_Surface * CBattleInterface::imageOfObstacle(const CObstacleInstance &oi) con
 		return vstd::circularAt(quicksand->ourImages, frameIndex).bitmap;
 	case CObstacleInstance::LAND_MINE:
 		return vstd::circularAt(landMine->ourImages, frameIndex).bitmap;
+	case CObstacleInstance::FIRE_WALL:
+		return vstd::circularAt(fireWall->ourImages, frameIndex).bitmap;
+	case CObstacleInstance::FORCE_FIELD:
+		{
+			auto &forceField = dynamic_cast<const SpellCreatedObstacle &>(oi);
+			if(forceField.getAffectedTiles().size() > 2)
+				return vstd::circularAt(bigForceField[forceField.casterSide]->ourImages, frameIndex).bitmap;
+			else
+				return vstd::circularAt(smallForceField[forceField.casterSide]->ourImages, frameIndex).bitmap;
+		}
+
+	case CObstacleInstance::MOAT:
+		//moat is blitted by SiegeHelper, this shouldn't be called
+		assert(0);
 	default:
 		assert(0);
 	}
@@ -3286,16 +3365,47 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 	waitForAnims();
 
 	int effectID = -1;
+	soundBase::soundID sound = soundBase::invalid;
+
+	std::string defname;
 
 	switch(oi.obstacleType)
 	{
 	case CObstacleInstance::QUICKSAND:
 		effectID = 55;
+		sound = soundBase::QUIKSAND;
 		break;
 	case CObstacleInstance::LAND_MINE:
 		effectID = 47;
+		sound = soundBase::LANDMINE;
 		break;
-		//TODO firewall, force field
+	case CObstacleInstance::FORCE_FIELD:
+		{
+			auto &spellObstacle = dynamic_cast<const SpellCreatedObstacle&>(oi);
+			if(spellObstacle.casterSide)
+			{
+				if(oi.getAffectedTiles().size() < 3)
+					defname = "C15SPE0.DEF"; //TODO cannot find def for 2-hex force field \ appearing
+				else
+					defname = "C15SPE6.DEF";
+			}
+			else
+			{
+				if(oi.getAffectedTiles().size() < 3)
+					defname = "C15SPE0.DEF";
+				else
+					defname = "C15SPE9.DEF";
+			}
+		}
+		sound = soundBase::FORCEFLD;
+		break;
+	case CObstacleInstance::FIRE_WALL:
+		if(oi.getAffectedTiles().size() < 3)
+			effectID = 43; //small fire wall appearing
+		else
+			effectID = 44; //and the big one
+		sound = soundBase::fireWall;
+		break;
 	default:
 		tlog1 << "I don't know how to animate appearing obstacle of type " << (int)oi.obstacleType << std::endl;
 		return;
@@ -3307,12 +3417,17 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 		return;
 	}
 
-	std::string defname = graphics->battleACToDef[effectID].front();
+	if(defname.empty() && effectID >= 0)
+		defname = graphics->battleACToDef[effectID].front();
 
+	assert(!defname.empty());
 	//we assume here that effect graphics have the same size as the usual obstacle image
 	// -> if we know how to blit obstacle, let's blit the effect in the same place
 	Point whereTo = whereToBlitObstacleImage(imageOfObstacle(oi), oi); 
 	addNewAnim(new CSpellEffectAnimation(this, defname, whereTo.x, whereTo.y));
+
+	//TODO we need to wait after playing sound till it's finished, otherwise it overlaps and sounds really bad
+	//CCS->soundh->playSound(sound);
 }
 
 Point CBattleInterface::whereToBlitObstacleImage(SDL_Surface *image, const CObstacleInstance &obstacle) const

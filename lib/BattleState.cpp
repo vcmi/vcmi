@@ -151,13 +151,12 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 		}
 	}
 	//obstacles
-	for(ui32 b=0; b<obstacles.size(); ++b)
+	BOOST_FOREACH(const auto &obstacle, obstacles)
 	{
-		std::vector<BattleHex> blocked = obstacles[b].getBlocked();
-		for(ui32 c=0; c<blocked.size(); ++c)
+		BOOST_FOREACH(BattleHex hex, obstacle->getBlockedTiles())
 		{
-			if(blocked[c] >=0 && blocked[c] < GameConstants::BFIELD_SIZE)
-				accessibility[blocked[c]] = false;
+			assert(hex.isValid());
+			accessibility[hex] = false;
 		}
 	}
 
@@ -229,7 +228,7 @@ bool BattleInfo::isAccessible(BattleHex hex, bool * accessibility, bool twoHex, 
 
 void BattleInfo::makeBFS(BattleHex start, bool *accessibility, BattleHex *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const //both pointers must point to the at least 187-elements int arrays
 {
-	std::set<BattleHex> quicksands = getQuicksands(!attackerOwned);
+	std::set<BattleHex> quicksands = getStoppers(!attackerOwned);
 
 	//inits
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
@@ -761,10 +760,11 @@ void BattleInfo::calculateCasualties( std::map<ui32,si32> *casualties ) const
 
 std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, BattleHex destinationTile )
 {
-	std::set<ui16> attackedHexes = s->rangeInHexes(destinationTile, skillLevel);
 	std::set<CStack*> attackedCres; /*std::set to exclude multiple occurrences of two hex creatures*/
 
-	bool onlyAlive = s->id != 38 && s->id != 39; //when casting resurrection or animate dead we should be allow to select dead stack
+	const ui8 attackerSide = sides[1] == attackerOwner;
+	const auto attackedHexes = s->rangeInHexes(destinationTile, skillLevel, attackerSide);
+	const bool onlyAlive = s->id != 38 && s->id != 39; //when casting resurrection or animate dead we should be allow to select dead stack
 
 	if(s->id == Spells::DEATH_RIPPLE || s->id == Spells::DESTROY_UNDEAD || s->id == Spells::ARMAGEDDON)
 	{
@@ -782,9 +782,9 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, int skillLe
 	}
 	else if (s->range[skillLevel].size() > 1) //custom many-hex range
 	{
-		for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it)
+		BOOST_FOREACH(BattleHex hex, attackedHexes)
 		{
-			CStack * st = getStackT(*it, onlyAlive);
+			CStack * st = getStackT(hex, onlyAlive);
 			if(st)
 			{
 				if (s->id == 76) //Death Cloud //TODO: fireball and fire immunity
@@ -830,9 +830,9 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, int skillLe
 	}
 	else //custom range from attackedHexes
 	{
-		for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it)
+		BOOST_FOREACH(BattleHex hex, attackedHexes)
 		{
-			CStack * st = getStackT(*it, onlyAlive);
+			CStack * st = getStackT(hex, onlyAlive);
 			if(st)
 				attackedCres.insert(st);
 		}
@@ -1594,7 +1594,7 @@ struct RangeGenerator
 	boost::function<int()> myRand;
 };
 
-BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town )
+BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town )
 {
 	CMP_stack cmpst;
 	BattleInfo *curB = new BattleInfo;
@@ -1607,7 +1607,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	std::vector<CStack*> & stacks = (curB->stacks);
 
 	curB->tile = tile;
-	curB->battlefieldType = terType;
+	curB->battlefieldType = battlefieldType;
 	curB->belligerents[0] = const_cast<CArmedInstance*>(armies[0]);
 	curB->belligerents[1] = const_cast<CArmedInstance*>(armies[1]);
 	curB->heroes[0] = const_cast<CGHeroInstance*>(heroes[0]);
@@ -1620,11 +1620,13 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	{
 		curB->town = town;
 		curB->siege = town->fortLevel();
+		curB->terrainType = VLC->heroh->nativeTerrains[town->town->typeID];
 	}
 	else
 	{
 		curB->town = NULL;
 		curB->siege = 0;
+		curB->terrainType = terrain;
 	}
 
 	//reading battleStartpos
@@ -1770,6 +1772,13 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 			stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), false, 255, -3);
 			stacks.push_back(stack);
 		}
+
+		//moat
+		auto moat = make_shared<MoatObstacle>();
+		moat->ID = curB->town->subID;
+		moat->obstacleType = CObstacleInstance::MOAT;
+		moat->uniqueID = curB->obstacles.size();
+		curB->obstacles.push_back(moat);
 	}
 
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
@@ -1793,17 +1802,17 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 		r.srand(tile);
 		r.rand(1,8); //battle sound ID to play... can't do anything with it here
 		int tilesToBlock = r.rand(5,12);
-		const int specialBattlefield = battlefieldTypeToBI(terType);
+		const int specialBattlefield = battlefieldTypeToBI(battlefieldType);
 
 		std::vector<BattleHex> blockedTiles;
 
 		auto appropriateAbsoluteObstacle = [&](int id)
 		{
-			return VLC->heroh->absoluteObstacles[id].isAppropriate(terrain, specialBattlefield);
+			return VLC->heroh->absoluteObstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
 		};
 		auto appropriateUsualObstacle = [&](int id) -> bool
 		{
-			return VLC->heroh->obstacles[id].isAppropriate(terrain, specialBattlefield);
+			return VLC->heroh->obstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
 		};
 
 		if(r.rand(1,100) <= 40) //put cliff-like obstacle
@@ -1812,15 +1821,15 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 			
 			try
 			{
-				CObstacleInstance coi;
-				coi.obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
-				coi.ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
-				coi.uniqueID = curB->obstacles.size();
-				curB->obstacles.push_back(coi);
+				auto obstPtr = make_shared<CObstacleInstance>();
+				obstPtr->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
+				obstPtr->ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
+				obstPtr->uniqueID = curB->obstacles.size();
+				curB->obstacles.push_back(obstPtr);
 
-				BOOST_FOREACH(BattleHex blocked, coi.getBlocked())
+				BOOST_FOREACH(BattleHex blocked, obstPtr->getBlockedTiles())
 					blockedTiles.push_back(blocked);
-				tilesToBlock -= VLC->heroh->absoluteObstacles[coi.ID].blockedTiles.size() / 2;
+				tilesToBlock -= VLC->heroh->absoluteObstacles[obstPtr->ID].blockedTiles.size() / 2;
 			}
 			catch(RangeGenerator::ExhaustedPossibilities &)
 			{
@@ -1861,13 +1870,13 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 
 				RangeGenerator posgenerator(18, 168, ourRand);
 
-				CObstacleInstance oi;
-				oi.ID = obid;
-				oi.pos = posgenerator.getSuchNumber(validPosition);
-				oi.uniqueID = curB->obstacles.size();
-				curB->obstacles.push_back(oi);
+				auto obstPtr = make_shared<CObstacleInstance>();
+				obstPtr->ID = obid;
+				obstPtr->pos = posgenerator.getSuchNumber(validPosition);
+				obstPtr->uniqueID = curB->obstacles.size();
+				curB->obstacles.push_back(obstPtr);
 
-				BOOST_FOREACH(BattleHex blocked, oi.getBlocked())
+				BOOST_FOREACH(BattleHex blocked, obstPtr->getBlockedTiles())
 					blockedTiles.push_back(blocked);
 				tilesToBlock -= obi.blockedTiles.size();
 			}
@@ -1883,7 +1892,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 
 	//giving terrain overalay premies
 	int bonusSubtype = -1;
-	switch(terType)
+	switch(battlefieldType)
 	{
 	case 9: //magic plains
 		{
@@ -1941,10 +1950,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int terType, const
 	//overlay premies given
 
 	//native terrain bonuses
-	if(town) //during siege always take premies for native terrain of faction
-		terrain = VLC->heroh->nativeTerrains[town->town->typeID];
-
-	auto nativeTerrain = make_shared<CreatureNativeTerrainLimiter>(terrain);
+	auto nativeTerrain = make_shared<CreatureNativeTerrainLimiter>(curB->terrainType);
 	curB->addNewBonus(makeFeature(Bonus::STACKS_SPEED, Bonus::ONE_BATTLE, 0, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
 	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::ATTACK, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
 	curB->addNewBonus(makeFeature(Bonus::PRIMARY_SKILL, Bonus::ONE_BATTLE, PrimarySkill::DEFENSE, 1, Bonus::TERRAIN_NATIVE)->addLimiter(nativeTerrain));
@@ -2133,8 +2139,16 @@ ESpellCastProblem::ESpellCastProblem BattleInfo::battleCanCastThisSpellHere( int
 	if(moreGeneralProblem != ESpellCastProblem::OK)
 		return moreGeneralProblem;
 
-	if(spell->getTargetType() == CSpell::OBSTACLE  &&  !isObstacleOnTile(dest))
+	if(spell->getTargetType() == CSpell::OBSTACLE)
+	{
+		//isObstacleOnTile(dest)
+		// 
+		// 
+		//TODO
+		//assert that it's remove obstacle
+		//rules whether we can remove spell-created obstacle
 		return ESpellCastProblem::NO_APPROPRIATE_TARGET;
+	}
 
 
 	//get dead stack if we cast resurrection or animate dead
@@ -2547,16 +2561,13 @@ int BattleInfo::getIdForNewStack() const
 	return 0;
 }
 
-bool BattleInfo::isObstacleOnTile(BattleHex tile) const
+shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile) const
 {
-	std::set<BattleHex> coveredHexes;
-	BOOST_FOREACH(const CObstacleInstance &obs, obstacles)
-	{
-		std::vector<BattleHex> blocked = obs.getBlocked();
-		for(size_t w = 0; w < blocked.size(); ++w)
-			coveredHexes.insert(blocked[w]);
-	}
-	return vstd::contains(coveredHexes, tile);
+	BOOST_FOREACH(auto &obs, obstacles)
+		if(vstd::contains(obs->getAffectedTiles(), tile))
+			return obs;
+
+	return NULL;
 }
 
 const CStack * BattleInfo::getStackIf(boost::function<bool(const CStack*)> pred) const
@@ -2582,18 +2593,33 @@ int BattleInfo::battlefieldTypeToBI(int bfieldType)
 	return BattlefieldBI::NONE;
 }
 
-std::set<BattleHex> BattleInfo::getQuicksands(bool whichSidePerspective) const
+std::set<BattleHex> BattleInfo::getStoppers(bool whichSidePerspective) const
 {
 	std::set<BattleHex> ret;
-	BOOST_FOREACH(const CObstacleInstance &oi, obstacles)
+	BOOST_FOREACH(auto &oi, obstacles)
 	{
-		if(oi.obstacleType == CObstacleInstance::QUICKSAND 
-			&& oi.visibleForSide(whichSidePerspective)) //quicksands are visible to the caster or if owned unit stepped into that partcular patch
+		if(isObstacleVisibleForSide(*oi, whichSidePerspective))
 		{
-			range::copy(oi.getAffectedTiles(), std::inserter(ret, ret.begin()));
+			range::copy(oi->getStoppingTile(), std::inserter(ret, ret.begin()));
 		}
 	}
 	return ret;
+}
+
+bool BattleInfo::hasNativeStack(ui8 side) const
+{
+	BOOST_FOREACH(const CStack *s, stacks)
+	{
+		if(s->attackerOwned == !side  &&  s->getCreature()->isItNativeTerrain(terrainType))
+			return true;
+	}
+
+	return false;
+}
+
+bool BattleInfo::isObstacleVisibleForSide(const CObstacleInstance & coi, ui8 side) const
+{
+	return coi.visibleForSide(side, hasNativeStack(side));
 }
 
 CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)

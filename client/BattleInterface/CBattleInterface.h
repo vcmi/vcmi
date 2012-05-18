@@ -97,6 +97,7 @@ class CBattleInterface : public CIntObject
 		MOVE_TACTICS, CHOOSE_TACTICS_STACK,
 		MOVE_STACK, ATTACK, WALK_AND_ATTACK, ATTACK_AND_RETURN, SHOOT, //OPEN_GATE, //we can open castle gate during siege
 		NO_LOCATION, ANY_LOCATION, FRIENDLY_CREATURE_SPELL, HOSTILE_CREATURE_SPELL, RISING_SPELL, ANY_CREATURE, OBSTACLE, TELEPORT, SACRIFICE, RANDOM_GENIE_SPELL,
+		FREE_LOCATION, //used with Force Field and Fire Wall - all tiles affected by spell must be free
 		CATAPULT, HEAL, RISE_DEMONS
 	};
 private:
@@ -112,8 +113,13 @@ private:
 	std::map< int, CDefHandler * > idToProjectile; //projectiles of creatures (creatureID, defhandler)
 	std::map< int, CDefHandler * > idToObstacle; //obstacles located on the battlefield
 	std::map< int, SDL_Surface * > idToAbsoluteObstacle; //obstacles located on the battlefield
+
+	//TODO these should be loaded only when needed (and freed then) but I believe it's rather work for resource manager,
+	//so I didn't implement that (having ongoing RM development)
 	CDefHandler *landMine;
 	CDefHandler *quicksand;
+	CDefHandler *fireWall;
+	CDefHandler *smallForceField[2], *bigForceField[2]; // [side]
 
 	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation>
 	ui8 animCount;
@@ -155,7 +161,7 @@ private:
 	void showAliveStack(const CStack *stack, SDL_Surface * to); //helper function for function show
 	void showAliveStacks(std::vector<const CStack *> *aliveStacks, int hex, std::vector<const CStack *> *flyingStacks, SDL_Surface *to); // loops through all stacks at a given hex position
 	void showPieceOfWall(SDL_Surface * to, int hex, const std::vector<const CStack*> & stacks); //helper function for show
-	void showObstacles(std::multimap<BattleHex, int> *hexToObstacle, std::vector<CObstacleInstance> &obstacles, int hex, SDL_Surface *to); // show all obstacles at a given hex position
+	void showObstacles(std::multimap<BattleHex, int> *hexToObstacle, std::vector<shared_ptr<const CObstacleInstance> > &obstacles, int hex, SDL_Surface *to); // show all obstacles at a given hex position
 	SDL_Surface *imageOfObstacle(const CObstacleInstance &oi) const;
 	Point whereToBlitObstacleImage(SDL_Surface *image, const CObstacleInstance &obstacle) const;
 	void redrawBackgroundWithHexes(const CStack * activeStack);

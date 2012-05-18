@@ -1300,7 +1300,7 @@ CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter()
 int CreatureNativeTerrainLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CCreature *c = retrieveCreature(&context.node);
-	return !c || !vstd::iswithin(c->faction, 0, 9) || VLC->heroh->nativeTerrains[c->faction] != terrainType; //drop bonus for non-creatures or non-native residents
+	return !c || !c->isItNativeTerrain(terrainType); //drop bonus for non-creatures or non-native residents
 	//TODO neutral creatues
 }
 

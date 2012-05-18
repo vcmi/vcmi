@@ -59,12 +59,14 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode
 	CGHeroInstance* heroes[2];
 	CArmedInstance *belligerents[2]; //may be same as heroes
 	std::vector<CStack*> stacks;
-	std::vector<CObstacleInstance> obstacles;
+	std::vector<shared_ptr<CObstacleInstance> > obstacles;
 	ui8 castSpells[2]; //how many spells each side has cast this turn [0] - attacker, [1] - defender
 	std::vector<const CSpell *> usedSpellsHistory[2]; //each time hero casts spell, it's inserted here -> eagle eye skill
 	si16 enchanterCounter[2]; //tends to pass through 0, so sign is needed
 	SiegeInfo si;
-	si32 battlefieldType;
+
+	si32 battlefieldType; //like !!BA:B
+	ui8 terrainType; //used for some stack nativity checks (not the bonus limiters though that have their own copy)
 
 	ui8 tacticsSide; //which side is requested to play tactics phase
 	ui8 tacticDistance; //how many hexes we can go forward (1 = only hexes adjacent to margin line)
@@ -72,7 +74,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & sides & round & activeStack & selectedStack & siege & town & tile & stacks & belligerents & obstacles
-			& castSpells & si & battlefieldType;
+			& castSpells & si & battlefieldType & terrainType;
 		h & heroes;
 		h & usedSpellsHistory & enchanterCounter;
 		h & tacticsSide & tacticDistance;
@@ -99,9 +101,9 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode
 	std::vector<BattleHex> getAccessibility(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL, bool forPassingBy = false) const; //returns vector of accessible tiles (taking into account the creature range)
 
 	bool isObstacleVisibleForSide(const CObstacleInstance &obstacle, ui8 side) const;
-	bool isObstacleOnTile(BattleHex tile) const;
+	shared_ptr<CObstacleInstance> getObstacleOnTile(BattleHex tile) const;
 	bool isStackBlocked(const CStack * stack) const; //returns true if there is neighboring enemy stack
-	std::set<BattleHex> getQuicksands(bool whichSidePerspective) const;
+	std::set<BattleHex> getStoppers(bool whichSidePerspective) const;
 
 	ui32 calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg); //charge - number of hexes travelled before attack (for champion's jousting)
 	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, TQuantity attackerCount, TQuantity defenderCount, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
@@ -151,9 +153,10 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode
 	void localInit();
 
 	void localInitStack(CStack * s);
-	static BattleInfo * setupBattle( int3 tile, int terrain, int terType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town );
+	static BattleInfo * setupBattle( int3 tile, int terrain, int battlefieldType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town );
 	bool isInTacticRange( BattleHex dest ) const;
 	int getSurrenderingCost(int player) const;
+	bool hasNativeStack(ui8 side) const;
 
 	int theOtherPlayer(int player) const;
 	ui8 whatSide(int player) const;

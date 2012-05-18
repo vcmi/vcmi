@@ -307,6 +307,7 @@
     <ClInclude Include="UIFramework\CIntObjectClasses.h" />
     <ClInclude Include="UIFramework\Geometries.h" />
     <ClInclude Include="UIFramework\SDL_Extensions.h" />
+    <ClInclude Include="UIFramework\SDL_Pixels.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\ChangeLog" />

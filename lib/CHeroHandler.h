@@ -141,6 +141,7 @@ public:
 
 	std::map<int, CObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
 	std::map<int, CObstacleInfo> absoluteObstacles; //info about obstacles that may be placed on battlefield
+
 	std::vector<int> nativeTerrains; //info about native terrains of different factions
 
 	void loadObstacles(); //loads info about obstacles
@@ -160,7 +161,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroClasses & heroes & expPerLevel & ballistics & obstacles & absoluteObstacles & nativeTerrains & puzzleInfo;
+		h & heroClasses & heroes & expPerLevel & ballistics & nativeTerrains & puzzleInfo;
+		h & obstacles & absoluteObstacles;
 		if(!h.saving)
 		{
 			//restore class pointers

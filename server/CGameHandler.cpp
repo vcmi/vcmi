@@ -997,7 +997,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	{
 		// send one package with the creature path information
 
-		unique_ptr<CObstacleInstance> obstacle = NULL; //obstacle that interrupted movement
+		shared_ptr<const CObstacleInstance> obstacle = NULL; //obstacle that interrupted movement
 		std::vector<BattleHex> tiles;
 		int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
 		int v = path.first.size()-1;
@@ -1008,18 +1008,16 @@ startWalking:
 			BattleHex hex = path.first[v];
 			tiles.push_back(hex);	
 
-			//if there are quicksands, we stop
 			if(obstacle = battleGetObstacleOnPos(hex, false))
 			{
-				if(!obstacle->obstacleType == CObstacleInstance::LAND_MINE || obstacle->casterSide != !curStack->attackerOwned) //if it's mine, make boom only if enemy planted it
-					break;
-				else
-					obstacle = NULL;
+				//we walked onto something, so we finalize this portion of stack movement check into obstacle
+				break; 
 			}
 		}
 	
 		if (tiles.size() > 0)
 		{
+			//commit movement
 			BattleStackMoved sm;
 			sm.stack = curStack->ID;
 			sm.distance = path.second;
@@ -1028,32 +1026,28 @@ startWalking:
 			sendAndApply(&sm);
 		}
 
-		if(obstacle && obstacle->obstacleType == CObstacleInstance::LAND_MINE)
+		//we don't handle obstacle at the destination tile -> it's handled separately in the if at the end
+		if(obstacle && curStack->position != dest)
 		{
-			//TODO make POOF and deal dmg
-
-			BattleStackAttacked bsa;
-			bsa.flags |= BattleStackAttacked::EFFECT;
-			bsa.effect = 82;
-			bsa.damageAmount = 50; //TODO TODO TODO
-			bsa.stackAttacked = curStack->ID;
-			bsa.attackerID = -1;
-			curStack->prepareAttacked(bsa);
-			//sendAndApply(&bsa);
-			StacksInjured si;
-			si.stacks.push_back(bsa);
-			sendAndApply(&si);
-
-			ObstaclesRemoved obsRem;
-			obsRem.obstacles.insert(obstacle->uniqueID);
-			sendAndApply(&obsRem);
+			handleDamageFromObstacle(*obstacle, curStack);
 
 			//if stack didn't die in explosion, continue movement
-			if(curStack->alive())
+			if(!obstacle->stopsMovement() && curStack->alive())
 			{
+				obstacle = NULL;
 				tiles.clear();
+				v--;
 				goto startWalking; //TODO it's so evil
 			}
+		}
+	}
+
+	//handling obstacle on the final field (separate, because it affects both flying and walking stacks)
+	if(curStack->alive())
+	{
+		if(auto theLastObstacle = battleGetObstacleOnPos(curStack->position, false))
+		{
+			handleDamageFromObstacle(*theLastObstacle, curStack);
 		}
 	}
 	return ret;
@@ -3295,6 +3289,12 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			CStack *curStack = gs->curB->getStack(ba.stackNumber),
 				*stackAtEnd = gs->curB->getStackT(ba.additionalInfo);
 
+			if(!curStack || !stackAtEnd)
+			{
+				sendAndApply(&end_action);
+				break;
+			}
+
 			if(curStack->position != ba.destinationTile //we wasn't able to reach destination tile
 				&& !(curStack->doubleWide()
 					&&  ( curStack->position == ba.destinationTile + (curStack->attackerOwned ?  +1 : -1 ) )
@@ -3790,6 +3790,55 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 {
 	const CSpell *spell = VLC->spellh->spells[spellID];
 
+
+	//Helper local function that creates obstacle on given position. Obstacle type is inferred from spell type.
+	//It creates, sends and applies needed package.
+	auto placeObstacle = [&](BattleHex pos)
+	{
+		static int obstacleIdToGive = gs->curB->obstacles.size() 
+									? (gs->curB->obstacles.back()->uniqueID+1) 
+									: 0;
+
+		auto obstacle = make_shared<SpellCreatedObstacle>();
+		switch(spellID) // :/
+		{
+		case Spells::QUICKSAND:
+			obstacle->obstacleType = CObstacleInstance::QUICKSAND;
+			obstacle->turnsRemaining = -1;
+			obstacle->visibleForAnotherSide = false;
+			break;
+		case Spells::LAND_MINE:
+			obstacle->obstacleType = CObstacleInstance::LAND_MINE;
+			obstacle->turnsRemaining = -1;
+			obstacle->visibleForAnotherSide = false;
+			break;
+		case Spells::FIRE_WALL:
+			obstacle->obstacleType = CObstacleInstance::FIRE_WALL;
+			obstacle->turnsRemaining = 2;
+			obstacle->visibleForAnotherSide = true;
+			break;
+		case Spells::FORCE_FIELD:
+			obstacle->obstacleType = CObstacleInstance::FORCE_FIELD;
+			obstacle->turnsRemaining = 2;
+			obstacle->visibleForAnotherSide = true;
+			break;
+		default:
+			//this function cannot be used with spells that do not create obstacles
+			assert(0);
+		}
+
+		obstacle->pos = pos;
+		obstacle->casterSide = casterSide;
+		obstacle->ID = spellID;
+		obstacle->spellLevel = spellLvl;
+		obstacle->casterSpellPower = usedSpellPower;
+		obstacle->uniqueID = obstacleIdToGive++;
+
+		BattleObstaclePlaced bop;
+		bop.obstacle = obstacle;
+		sendAndApply(&bop);
+	};
+
 	BattleSpellCast sc;
 	sc.side = casterSide;
 	sc.id = spellID;
@@ -3869,12 +3918,6 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	case Spells::QUICKSAND:
 	case Spells::LAND_MINE:
 		{
-
-			const int baseUniqueID = gs->curB->obstacles.size() 
-				? (gs->curB->obstacles.back().uniqueID+1) 
-				: 0;
-
-
 			std::vector<BattleHex> availableTiles;
 			for(int i = 0; i < GameConstants::BFIELD_SIZE; i += 1)
 			{
@@ -3885,31 +3928,25 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			range::random_shuffle(availableTiles);
 
 			const int patchesForSkill[] = {4, 4, 6, 8};
-			int patchesToPut = patchesForSkill[spellLvl];
-			vstd::amin(patchesToPut, availableTiles.size());
+			const int patchesToPut = std::min<int>(patchesForSkill[spellLvl], availableTiles.size());
+
+			//land mines or quicksand patches are handled as spell created obstacles
 			for (int i = 0; i < patchesToPut; i++)
-			{
-				CObstacleInstance coi;
-				coi.pos = availableTiles[i];
-				coi.casterSide = casterSide;
-				coi.obstacleType = (spellID == Spells::QUICKSAND) 
-					? CObstacleInstance::QUICKSAND 
-					: CObstacleInstance::LAND_MINE;
-				coi.ID = spellID;
-				coi.spellLevel = spellLvl;
-				coi.turnsRemaining = -1;
-				coi.uniqueID = baseUniqueID + i;
-				coi.visibleForAnotherSide = false;
-
-				BattleObstaclePlaced bop;
-				bop.obstacle = coi;
-				sendAndApply(&bop);
-			}
-
+				placeObstacle(availableTiles[i]);
 		}
 
 		break;
-		
+	case Spells::FORCE_FIELD:
+		placeObstacle(destination);
+		break;
+	case Spells::FIRE_WALL:
+		{
+			//fire wall is build from multiple obstacles - one fire piece for each affected hex
+			auto affectedHexes = spell->rangeInHexes(destination, spellLvl, casterSide);
+			BOOST_FOREACH(BattleHex hex, affectedHexes)
+				placeObstacle(hex);
+		}
+		break;
 	//damage spells
 	case Spells::MAGIC_ARROW:
 	case Spells::ICE_BOLT:
@@ -4213,10 +4250,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	case Spells::REMOVE_OBSTACLE:
 		{
 			ObstaclesRemoved obr;
-			BOOST_FOREACH(const CObstacleInstance &obstacle, battleGetAllObstacles())
+			BOOST_FOREACH(auto &obstacle, battleGetAllObstacles())
 			{
-				if(vstd::contains(obstacle.getBlocked(), destination))
-					obr.obstacles.insert(obstacle.uniqueID);
+				if(vstd::contains(obstacle->getBlockedTiles(), destination))
+					obr.obstacles.insert(obstacle->uniqueID);
 			}
 
 			if(!obr.obstacles.empty())
@@ -4489,6 +4526,65 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 			}
 		}
 	}
+}
+
+void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, CStack * curStack)
+{
+	//we want to determine following vars depending on obstacle type
+	int damage = -1;
+	int effect = -1;
+	bool oneTimeObstacle = false;
+
+	//helper info
+	const SpellCreatedObstacle *spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(&obstacle); //not nice but we may need spell params
+	const ui8 side = !curStack->attackerOwned;
+	const CGHeroInstance *hero = gs->curB->heroes[side];
+
+	if(obstacle.obstacleType == CObstacleInstance::MOAT)
+	{
+		damage = battleGetMoatDmg();
+	}
+	else if(obstacle.obstacleType == CObstacleInstance::LAND_MINE)
+	{
+		//You don't get hit by a Mine you can see.
+		if(gs->curB->isObstacleVisibleForSide(obstacle, side))
+			return;
+
+		oneTimeObstacle = true;
+		effect = 82; //makes 
+		damage = gs->curB->calculateSpellDmg(VLC->spellh->spells[Spells::LAND_MINE], hero, curStack, 
+											 spellObstacle->spellLevel, spellObstacle->casterSpellPower);
+		//TODO even if obstacle wasn't created by hero (Tower "moat") it should deal dmg as if casted by hero,
+		//if it is bigger than default dmg. Or is it just irrelevant H3 implementation quirk
+	}
+	else if(obstacle.obstacleType == CObstacleInstance::FIRE_WALL)
+	{
+		damage = gs->curB->calculateSpellDmg(VLC->spellh->spells[Spells::FIRE_WALL], hero, curStack, 
+											 spellObstacle->spellLevel, spellObstacle->casterSpellPower);
+	}
+	else
+	{
+		//no other obstacle does damage to stack
+		return;
+	}
+
+	BattleStackAttacked bsa;
+	if(effect >= 0)
+	{
+		bsa.flags |= BattleStackAttacked::EFFECT;
+		bsa.effect = effect; //makes POOF
+	}
+	bsa.damageAmount = damage;
+	bsa.stackAttacked = curStack->ID;
+	bsa.attackerID = -1;
+	curStack->prepareAttacked(bsa);
+
+	StacksInjured si;
+	si.stacks.push_back(bsa);
+	sendAndApply(&si);
+
+	if(oneTimeObstacle)
+		removeObstacle(obstacle);
 }
 
 void CGameHandler::handleTimeEvents()
@@ -5633,6 +5729,14 @@ void CGameHandler::runBattle()
 	while(!battleResult.get()) //till the end of the battle ;]
 	{
 		NEW_ROUND;
+		auto obstacles = gs->curB->obstacles; //we copy container, because we're going to modify it
+		BOOST_FOREACH(auto &obstPtr, obstacles)
+		{
+			if(const SpellCreatedObstacle *sco = dynamic_cast<const SpellCreatedObstacle *>(obstPtr.get()))
+				if(sco->turnsRemaining == 0)
+					removeObstacle(*obstPtr);
+		} 
+
 		std::vector<CStack*> & stacks = (gs->curB->stacks);
 		const BattleInfo & curB = *gs->curB;
 
@@ -5955,6 +6059,13 @@ bool CGameHandler::isBlockedByQueries(const CPack *pack, int packType, ui8 playe
 		return false;
 
 	return true; //block package
+}
+
+void CGameHandler::removeObstacle(const CObstacleInstance &obstacle)
+{
+	ObstaclesRemoved obsRem;
+	obsRem.obstacles.insert(obstacle.uniqueID);
+	sendAndApply(&obsRem);
 }
 
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)

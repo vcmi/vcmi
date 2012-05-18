@@ -2,14 +2,16 @@
 #include "CObstacleInstance.h"
 #include "CHeroHandler.h"
 #include "VCMI_Lib.h"
+#include "CSpellHandler.h"
 
 CObstacleInstance::CObstacleInstance()
 {
 	obstacleType = USUAL;
-	casterSide = -1;
-	spellLevel = -1;
-	turnsRemaining = -1;
-	visibleForAnotherSide = -1;
+}
+
+CObstacleInstance::~CObstacleInstance()
+{
+
 }
 
 const CObstacleInfo & CObstacleInstance::getInfo() const
@@ -20,22 +22,25 @@ const CObstacleInfo & CObstacleInstance::getInfo() const
 		return VLC->heroh->absoluteObstacles[ID];
 	case USUAL:
 		return VLC->heroh->obstacles[ID];
+	case MOAT:
+		assert(0);
 	default:
 		assert(0);
 	}
 
 }
 
-std::vector<BattleHex> CObstacleInstance::getBlocked() const
+std::vector<BattleHex> CObstacleInstance::getBlockedTiles() const
 {
-	switch(obstacleType)
-	{
-	case ABSOLUTE_OBSTACLE:
-	case USUAL:
-		return getInfo().getBlocked(pos);
-		//TODO Force Field
-	}
+	if(blocksTiles())
+		return getAffectedTiles();
+	return std::vector<BattleHex>();
+}
 
+std::vector<BattleHex> CObstacleInstance::getStoppingTile() const
+{
+	if(stopsMovement())
+		return getAffectedTiles();
 	return std::vector<BattleHex>();
 }
 
@@ -43,31 +48,91 @@ std::vector<BattleHex> CObstacleInstance::getAffectedTiles() const
 {
 	switch(obstacleType)
 	{
-	case QUICKSAND:
-	case LAND_MINE:
-		return std::vector<BattleHex>(1, pos);
-		//TODO Fire Wall
+	case ABSOLUTE_OBSTACLE:
+	case USUAL:
+		return getInfo().getBlocked(pos);
+	default:
+		assert(0);
 	}
-	return std::vector<BattleHex>();
 }
 
-bool CObstacleInstance::spellGenerated() const
-{
-	if(obstacleType == USUAL  ||  obstacleType == ABSOLUTE_OBSTACLE)
-		return false;
+// bool CObstacleInstance::spellGenerated() const
+// {
+// 	if(obstacleType == USUAL  ||  obstacleType == ABSOLUTE_OBSTACLE)
+// 		return false;
+// 
+// 	return true;
+// }
 
+bool CObstacleInstance::visibleForSide(ui8 side, bool hasNativeStack) const
+{
+	//by default obstacle is visible for everyone
 	return true;
 }
 
-bool CObstacleInstance::visibleForSide(ui8 side) const
+bool CObstacleInstance::stopsMovement() const
+{
+	return obstacleType == QUICKSAND  ||  obstacleType == MOAT;
+}
+
+bool CObstacleInstance::blocksTiles() const
+{
+	return obstacleType == USUAL  ||  obstacleType == ABSOLUTE_OBSTACLE  ||  obstacleType == FORCE_FIELD;
+}
+
+SpellCreatedObstacle::SpellCreatedObstacle()
+{
+	casterSide = -1;
+	spellLevel = -1;
+	casterSpellPower = -1;
+	turnsRemaining = -1;
+	visibleForAnotherSide = -1;
+}
+
+bool SpellCreatedObstacle::visibleForSide(ui8 side, bool hasNativeStack) const
 {
 	switch(obstacleType)
 	{
-	case ABSOLUTE_OBSTACLE:
-	case USUAL:
+	case FIRE_WALL:
+	case FORCE_FIELD:
+		//these are always visible
 		return true;
-	default:
+	case QUICKSAND:
+	case LAND_MINE:
 		//we hide mines and not discovered quicksands
-		return casterSide == side  ||  visibleForAnotherSide;
+		//quicksands are visible to the caster or if owned unit stepped into that particular patch
+		//additionally if side has a native unit, mines/quicksands will be visible
+		return casterSide == side  ||  visibleForAnotherSide  ||  hasNativeStack;
+	default:
+		assert(0);
 	}
+}
+
+std::vector<BattleHex> SpellCreatedObstacle::getAffectedTiles() const
+{
+	switch(obstacleType)
+	{
+	case QUICKSAND:
+	case LAND_MINE:
+	case FIRE_WALL:
+		return std::vector<BattleHex>(1, pos);
+	case FORCE_FIELD:
+		return VLC->spellh->spells[Spells::FORCE_FIELD]->rangeInHexes(pos, spellLevel, casterSide);
+		//TODO Fire Wall
+	default:
+		assert(0);
+	}
+}
+
+void SpellCreatedObstacle::battleTurnPassed()
+{
+	if(turnsRemaining > 0)
+		turnsRemaining--;
+}
+
+std::vector<BattleHex> MoatObstacle::getAffectedTiles() const
+{
+	//rrr... need initializer lists
+	static const BattleHex moatHexes[] = {11, 28, 44, 61, 77, 111, 129, 146, 164, 181};
+	return std::vector<BattleHex>(std::begin(moatHexes), std::end(moatHexes));
 }

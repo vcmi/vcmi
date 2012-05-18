@@ -1655,7 +1655,7 @@ struct BattleObstaclePlaced : public CPackForClient //3020
 	DLL_LINKAGE void applyGs(CGameState *gs); //effect
 	void applyCl(CClient *cl); //play animations & stuff
 
-	CObstacleInstance obstacle;
+	shared_ptr<CObstacleInstance> obstacle;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

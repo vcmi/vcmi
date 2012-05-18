@@ -232,19 +232,10 @@
     <ClInclude Include="UIFramework\SDL_Extensions.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\hch\CArtHandler.h">
+    <ClInclude Include="mapHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\hch\CBuildingHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\hch\CHeroHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\hch\CObjectHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\hch\CVideoHandler.h">
+    <ClInclude Include="UIFramework\SDL_Pixels.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

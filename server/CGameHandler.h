@@ -199,6 +199,8 @@ public:
 		int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack, si32 selectedStack = -1);
 	bool makeCustomAction(BattleAction &ba);
 	void stackTurnTrigger(const CStack * stack);
+	void handleDamageFromObstacle(const CObstacleInstance &obstacle, CStack * curStack); //checks if obstacle is land mine and handles possible consequences
+	void removeObstacle(const CObstacleInstance &obstacle);
 	bool queryReply( ui32 qid, ui32 answer, ui8 player );
 	bool hireHero( const CGObjectInstance *obj, ui8 hid, ui8 player );
 	bool buildBoat( ui32 objid );

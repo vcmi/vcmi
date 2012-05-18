@@ -46,6 +46,7 @@ public:
 	int troopCountLocationOffset, attackClimaxFrame;
 	///end of anim info
 
+	bool isItNativeTerrain(int terrain) const;
 	bool isDoubleWide() const; //returns true if unit is double wide on battlefield
 	bool isFlying() const; //returns true if it is a flying unit
 	bool isShooting() const; //returns true if unit can shoot

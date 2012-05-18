@@ -963,6 +963,9 @@ DLL_LINKAGE void BattleNextRound::applyGs( CGameState *gs )
 		// new turn effects
 		s->battleTurnPassed();
 	}
+
+	BOOST_FOREACH(auto &obst, gs->curB->obstacles)
+		obst->battleTurnPassed();
 }
 
 DLL_LINKAGE void BattleSetActiveStack::applyGs( CGameState *gs )
@@ -1061,13 +1064,15 @@ void BattleStackMoved::applyGs( CGameState *gs )
 	BattleHex dest = tilesToMove.back();
 
 	//if unit ended movement on quicksands that were created by enemy, that quicksand patch becomes visible for owner
-	BOOST_FOREACH(CObstacleInstance &oi, gs->curB->obstacles)
+	BOOST_FOREACH(auto &oi, gs->curB->obstacles)
 	{
-		if(oi.obstacleType == CObstacleInstance::QUICKSAND
-		&& vstd::contains(oi.getAffectedTiles(), tilesToMove.back())
-		&& oi.casterSide != !s->attackerOwned)
+		if(oi->obstacleType == CObstacleInstance::QUICKSAND
+		&& vstd::contains(oi->getAffectedTiles(), tilesToMove.back()))
 		{
-			oi.visibleForAnotherSide = true;
+			SpellCreatedObstacle *sands = dynamic_cast<SpellCreatedObstacle*>(oi.get());
+			assert(sands);
+			if(sands->casterSide != !s->attackerOwned)
+				sands->visibleForAnotherSide = true;
 		}
 	}
 	s->position = dest;
@@ -1365,7 +1370,7 @@ DLL_LINKAGE void ObstaclesRemoved::applyGs( CGameState *gs )
 		{
 			for(int i=0; i<gs->curB->obstacles.size(); ++i)
 			{
-				if(gs->curB->obstacles[i].uniqueID == *it) //remove this obstacle
+				if(gs->curB->obstacles[i]->uniqueID == *it) //remove this obstacle
 				{
 					gs->curB->obstacles.erase(gs->curB->obstacles.begin() + i);
 					break;

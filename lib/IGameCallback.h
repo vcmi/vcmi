@@ -96,8 +96,8 @@ public:
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	//int battleGetObstaclesAtTile(BattleHex tile); //returns bitfield
-	unique_ptr<CObstacleInstance> battleGetObstacleOnPos(BattleHex tile, bool onlyBlocking = true);
-	std::vector<CObstacleInstance> battleGetAllObstacles(); //returns all obstacles on the battlefield
+	shared_ptr<const CObstacleInstance> battleGetObstacleOnPos(BattleHex tile, bool onlyBlocking = true);
+	std::vector<shared_ptr<const CObstacleInstance> > battleGetAllObstacles(); //returns all obstacles on the battlefield
 	const CStack * battleGetStackByID(int ID, bool onlyAlive = true); //returns stack info by given ID
 	const CStack * battleGetStackByPos(BattleHex pos, bool onlyAlive = true); //returns stack info by given pos
 	BattleHex battleGetPos(int stack); //returns position (tile ID) of stack
@@ -130,6 +130,7 @@ public:
 	si8 battleCanTeleportTo(const CStack * stack, BattleHex destHex, int telportLevel); //checks if teleportation of given stack to given position can take place
 	si8 battleGetTacticDist(); //returns tactic distance for calling player or 0 if player is not in tactic phase
 	ui8 battleGetMySide(); //return side of player in battle (attacker/defender)
+	int battleGetMoatDmg(); //what dmg unit will suffer if ending turn in the moat
 
 	//convenience methods using the ones above
 	TStacks battleGetAllStacks() //returns all stacks, alive or dead or undead or mechanical :)

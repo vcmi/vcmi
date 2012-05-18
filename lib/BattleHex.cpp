@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "BattleHex.h"
 
-void BattleHex::operator+=(EDir dir)
+BattleHex& BattleHex::moveInDir(EDir dir, bool hasToBeValid)
 {
 	si16 x = getX(),
 		y = getY();
@@ -9,27 +9,34 @@ void BattleHex::operator+=(EDir dir)
 	switch(dir)
 	{
 	case TOP_LEFT:
-		setXY(y%2 ? x-1 : x, y-1);
+		setXY(y%2 ? x-1 : x, y-1, hasToBeValid);
 		break;
 	case TOP_RIGHT:
-		setXY(y%2 ? x : x+1, y-1);
+		setXY(y%2 ? x : x+1, y-1, hasToBeValid);
 		break;
 	case RIGHT:
-		setXY(x+1, y);
+		setXY(x+1, y, hasToBeValid);
 		break;
 	case BOTTOM_RIGHT:
-		setXY(y%2 ? x : x+1, y+1);
+		setXY(y%2 ? x : x+1, y+1, hasToBeValid);
 		break;
 	case BOTTOM_LEFT:
-		setXY(y%2 ? x-1 : x, y+1);
+		setXY(y%2 ? x-1 : x, y+1, hasToBeValid);
 		break;
 	case LEFT:
-		setXY(x-1, y);
+		setXY(x-1, y, hasToBeValid);
 		break;
 	default:
 		throw std::runtime_error("Disaster: wrong direction in BattleHex::operator+=!\n");
 		break;
 	}
+
+	return *this;
+}
+
+void BattleHex::operator+=(EDir dir)
+{
+	moveInDir(dir);
 }
 
 BattleHex BattleHex::operator+(EDir dir) const

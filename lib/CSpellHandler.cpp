@@ -7,6 +7,7 @@
 #include "../lib/JsonNode.h"
 #include <cctype>
 #include "GameConstants.h"
+#include "BattleHex.h"
 
 extern CLodHandler *bitmaph;
 
@@ -127,9 +128,44 @@ CSpellHandler::CSpellHandler()
 {
 	VLC->spellh = this;
 }
-std::set<ui16> CSpell::rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) const
+std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
 {
-	std::set<ui16> ret;
+	std::vector<BattleHex> ret;
+
+	if(id == Spells::FIRE_WALL  ||  id == Spells::FORCE_FIELD)
+	{
+		//Special case - shape of obstacle depends on caster's side
+		//TODO make it possible through spell_info config
+
+		BattleHex::EDir firstStep, secondStep;
+		if(side)
+		{
+			firstStep = BattleHex::TOP_LEFT;
+			secondStep = BattleHex::TOP_RIGHT;
+		}
+		else
+		{
+			firstStep = BattleHex::TOP_RIGHT;
+			secondStep = BattleHex::TOP_LEFT;
+		}
+
+		//Adds hex to the ret if it's valid. Otherwise sets output arg flag if given.
+		auto addIfValid = [&](BattleHex hex)
+		{
+			if(hex.isValid())
+				ret.push_back(hex);
+			else if(outDroppedHexes)
+				*outDroppedHexes = true;
+		};
+
+		ret.push_back(centralHex);
+		addIfValid(centralHex.moveInDir(firstStep, false));
+		if(schoolLvl >= 2) //advanced versions of fire wall / force field cotnains of 3 hexes
+			addIfValid(centralHex.moveInDir(firstStep, false).moveInDir(secondStep, false));
+
+		return ret;
+	}
+
 
 	std::string rng = range[schoolLvl] + ','; //copy + artificial comma for easier handling
 
@@ -174,7 +210,7 @@ std::set<ui16> CSpell::rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) con
 				//adding abtained hexes
 				for(std::set<ui16>::iterator it = curLayer.begin(); it != curLayer.end(); ++it)
 				{
-					ret.insert(*it);
+					ret.push_back(*it);
 				}
 
 			}
@@ -187,6 +223,8 @@ std::set<ui16> CSpell::rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) con
 		}
 	}
 
+	//remove duplicates (TODO check if actually needed)
+	range::unique(ret);
 	return ret;
 }
 

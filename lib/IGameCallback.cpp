@@ -205,15 +205,15 @@ int CBattleInfoCallback::battleGetBattlefieldType()
 // 	return -1;
 // }
 
-std::vector<CObstacleInstance> CBattleInfoCallback::battleGetAllObstacles()
+std::vector<shared_ptr<const CObstacleInstance> > CBattleInfoCallback::battleGetAllObstacles()
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	std::vector<CObstacleInstance> ret;
+	std::vector<shared_ptr<const CObstacleInstance> > ret;
 	if(gs->curB)
 	{
-		BOOST_FOREACH(const CObstacleInstance &oi, gs->curB->obstacles)
+		BOOST_FOREACH(auto oi, gs->curB->obstacles)
 		{
-			if(player < 0 || oi.visibleForSide(battleGetMySide()))
+			if(player < 0 || gs->curB->isObstacleVisibleForSide(*oi, battleGetMySide()))
 				ret.push_back(oi);
 		}
 	}
@@ -409,25 +409,46 @@ const CGHeroInstance * CBattleInfoCallback::battleGetFightingHero(ui8 side) cons
 	if(!gs->curB)
 		return 0;
 
+	//TODO: this method should not exist... you shouldn't be able to get info about enemy hero
 	return gs->curB->heroes[side];
 }
 
-unique_ptr<CObstacleInstance> CBattleInfoCallback::battleGetObstacleOnPos(BattleHex tile, bool onlyBlocking /*= true*/)
+shared_ptr<const CObstacleInstance> CBattleInfoCallback::battleGetObstacleOnPos(BattleHex tile, bool onlyBlocking /*= true*/)
 {
 	if(!gs->curB)
 		return NULL;
 
 
-	BOOST_FOREACH(const CObstacleInstance &obs, battleGetAllObstacles())
+	auto ptr = gs->curB->obstacles.front();
+	shared_ptr<const CObstacleInstance> nastala = ptr;
+
+
+	BOOST_FOREACH(auto &obs, battleGetAllObstacles())
 	{
-		if(vstd::contains(obs.getBlocked(), tile)
-			|| (!onlyBlocking  &&  vstd::contains(obs.getAffectedTiles(), tile)))
+		if(vstd::contains(obs->getBlockedTiles(), tile)
+			|| (!onlyBlocking  &&  vstd::contains(obs->getAffectedTiles(), tile)))
 		{
-			return make_unique<CObstacleInstance>(obs);
+			return obs;
 		}
 	}
 
+
+
 	return NULL;
+}
+
+int CBattleInfoCallback::battleGetMoatDmg()
+{
+	if(!gs->curB  ||  !gs->curB->town)
+		return 0;
+
+	//TODO move to config file
+	static const int dmgs[] = {70, 70, -1, 
+								90, 70, 90,
+								70, 90, 70};
+	if(gs->curB->town->subID < ARRAY_COUNT(dmgs))
+		return dmgs[gs->curB->town->subID];
+	return 0;
 }
 
 CGameState *const CPrivilagedInfoCallback::gameState ()

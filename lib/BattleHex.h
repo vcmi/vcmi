@@ -58,9 +58,12 @@ struct DLL_LINKAGE BattleHex
 		setXY(getX(), y);
 	}
 
-	void setXY(si16 x, si16 y)
+	void setXY(si16 x, si16 y, bool hasToBeValid = true)
 	{
-		assert(x >= 0 && x < GameConstants::BFIELD_WIDTH && y >= 0  && y < GameConstants::BFIELD_HEIGHT);
+		if(hasToBeValid)
+		{
+			assert(x >= 0 && x < GameConstants::BFIELD_WIDTH && y >= 0  && y < GameConstants::BFIELD_HEIGHT);
+		}
 		hex = x + y * GameConstants::BFIELD_WIDTH;
 	}
 
@@ -87,7 +90,8 @@ struct DLL_LINKAGE BattleHex
 	}
 
 	//moving to direction
-	void operator+=(EDir dir);
+	BattleHex& moveInDir(EDir dir, bool hasToBeValid = true); 
+	void operator+=(EDir dir); //sugar for above
 
 	//generates new BattleHex moved by given dir
 	BattleHex operator+(EDir dir) const;

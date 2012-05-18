@@ -5,6 +5,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
+#include "CHeroHandler.h"
 
 using namespace boost::assign;
 extern CLodHandler * bitmaph;
@@ -142,6 +143,15 @@ bool CCreature::valid() const
 std::string CCreature::nodeName() const
 {
 	return "\"" + namePl + "\"";
+}
+
+bool CCreature::isItNativeTerrain(int terrain) const
+{
+	if(!vstd::iswithin(faction, 0, 9))
+		return false;
+
+	//not good handler dependency
+	return VLC->heroh->nativeTerrains[faction] == terrain;
 }
 
 int readNumber(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadCreatures() and loadUnitAnimInfo()
