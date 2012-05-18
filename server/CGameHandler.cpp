@@ -298,7 +298,6 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 		return;
 	}
 
-	scp.which = SetCommanderProperty::BONUS;
 	scp.accumulatedBonus.additionalInfo = 0;
 	scp.accumulatedBonus.duration = Bonus::PERMANENT;
 	scp.accumulatedBonus.turnsRemain = 0;
@@ -306,10 +305,13 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 	scp.accumulatedBonus.valType = Bonus::BASE_NUMBER;
 	if (skill <= ECommander::SPELL_POWER)
 	{
+		scp.which = SetCommanderProperty::BONUS;
+
 		auto difference = [](std::vector< std::vector <ui8> > skillLevels, std::vector <ui8> secondarySkills, int skill)->int
 		{
 			return skillLevels[skill][secondarySkills[skill]] - (secondarySkills[skill] ? skillLevels[skill][secondarySkills[skill]-1] : 0);
 		};
+
 		switch (skill)
 		{
 			case ECommander::ATTACK:
@@ -353,7 +355,9 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 	}
 	else if (skill >= 100)
 	{
+		scp.which = SetCommanderProperty::SPECIAL_SKILL;
 		scp.accumulatedBonus = VLC->creh->skillRequirements[skill-100].first;
+		scp.additionalInfo = skill; //unnormalized
 		sendAndApply (&scp);
 	}
 	levelUpCommander (c);
@@ -387,7 +391,8 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	BOOST_FOREACH (auto specialSkill, VLC->creh->skillRequirements)
 	{
 		if (c->secondarySkills[specialSkill.second.first] == ECommander::MAX_SKILL_LEVEL &&
-			c->secondarySkills[specialSkill.second.second] == ECommander::MAX_SKILL_LEVEL)
+			c->secondarySkills[specialSkill.second.second] == ECommander::MAX_SKILL_LEVEL &&
+			!vstd::contains (c->specialSKills, i))
 			clu.skills.push_back (i);
 		++i;
 	}
@@ -420,12 +425,20 @@ void CGameHandler::changePrimSkill(int ID, int which, si64 val, bool abs)
 	sendAndApply(&sps);
 	
 	//only for exp - hero may level up
-	if(which==4)
+	if (which == 4)
 	{
 		levelUpHero(ID);
 		CGHeroInstance *h = static_cast<CGHeroInstance *>(gs->map->objects[ID].get());
-		if (h->commander)
+		if (h->commander && h->commander->alive)
+		{
+			SetCommanderProperty scp;
+			scp.heroid = h->id;
+			scp.which = SetCommanderProperty::EXPERIENCE;
+			scp.amount = val;
+			sendAndApply (&scp);
 			levelUpCommander (h->commander);
+			CBonusSystemNode::treeHasChanged();
+		}
 	}
 }
 

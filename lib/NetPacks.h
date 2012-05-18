@@ -524,7 +524,7 @@ struct UpdateCampaignState : public CPackForClient //119
 };
 struct SetCommanderProperty : public CPackForClient //120
 {
-	enum ECommanderProperty {ALIVE, BONUS, SECONDARY_SKILL};
+	enum ECommanderProperty {ALIVE, BONUS, SECONDARY_SKILL, EXPERIENCE, SPECIAL_SKILL};
 
 	SetCommanderProperty(){type = 120;};
 	void applyCl(CClient *cl){};
@@ -534,7 +534,7 @@ struct SetCommanderProperty : public CPackForClient //120
 	StackLocation sl; //for commander not on the hero?
 
 	ui8 which; // use ECommanderProperty
-	ui8 amount; //0 for dead, >0 for alive
+	expType amount; //0 for dead, >0 for alive
 	si32 additionalInfo; //for secondary skills choice
 	Bonus accumulatedBonus;
 

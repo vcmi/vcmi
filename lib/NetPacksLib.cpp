@@ -86,6 +86,10 @@ DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
 		case BONUS:
 			commander->accumulateBonus (accumulatedBonus);
 			break;
+		case SPECIAL_SKILL:
+			commander->accumulateBonus (accumulatedBonus);
+			commander->specialSKills.insert (additionalInfo);
+			break;
 		case SECONDARY_SKILL:
 			commander->secondarySkills[additionalInfo] = amount;
 			break;
@@ -94,6 +98,9 @@ DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
 				commander->setAlive(true);
 			else
 				commander->setAlive(false);
+			break;
+		case EXPERIENCE:
+			commander->giveStackExp (amount); //TODO: allow setting exp for stacks via netpacks
 			break;
 	}
 }
@@ -1031,11 +1038,6 @@ void BattleResult::applyGs( CGameState *gs )
 		if (h)
 		{
 			h->getBonusList().remove_if(Bonus::OneBattle);
-			if (h->commander && h->commander->alive)
-			{
-				h->commander->giveStackExp(exp[i]);
-				CBonusSystemNode::treeHasChanged();
-			}
 		}
 	}
 

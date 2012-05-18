@@ -34,7 +34,7 @@ public:
 	int idRand; //hlp variable used during loading game -> "id" placeholder for randomization
 
 	const CArmedInstance * const & armyObj; //stack must be part of some army, army must be part of some object
-	ui32 experience;
+	expType experience;//commander needs same amount of exp as hero
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -83,6 +83,7 @@ public:
 	ui8 level; //required only to count callbacks
 	std::string name; // each Commander has different name
 	std::vector <ui8> secondarySkills; //ID -> level
+	std::set <ui8> specialSKills;
 	//std::vector <CArtifactInstance *> arts;
 	void init() OVERRIDE;
 	CCommanderInstance();
@@ -99,7 +100,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CStackInstance&>(*this);
-		h & alive & level & name & secondarySkills;
+		h & alive & level & name & secondarySkills & specialSKills;
 	}
 };
 

@@ -159,6 +159,10 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 
 	//Basic graphics - need to calculate size
 
+	int commanderOffset = 0;
+	if (type >= COMMANDER)
+		commanderOffset = 74;
+
 	BonusList bl, blTemp;
 	blTemp = (*(stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT))));
 
@@ -237,11 +241,12 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	new CAnimImage("PSKIL42", 4, 0, 387, 51); //exp icon - Print it always?
 	if (type) //not in fort window
 	{
-		if (GameConstants::STACK_EXP)
+		if (GameConstants::STACK_EXP && type < COMMANDER)
 		{
 			int rank = std::min(stack->getExpRank(), 10); //hopefully nobody adds more
-			printAtMiddle(CGI->generaltexth->zcrexp[rank] + " [" + boost::lexical_cast<std::string>(rank) + "]", 488, 62, FONT_MEDIUM, Colors::Jasmine,*bitmap);
 			printAtMiddle(boost::lexical_cast<std::string>(stack->experience), 488, 82, FONT_SMALL, Colors::Cornsilk,*bitmap);
+			printAtMiddle(CGI->generaltexth->zcrexp[rank] + " [" + boost::lexical_cast<std::string>(rank) + "]", 488, 62, FONT_MEDIUM, Colors::Jasmine,*bitmap);
+
 			if (type > BATTLE) //we need it only on adv. map
 			{
 				int tier = stack->type->level;
@@ -335,14 +340,12 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 				}
 				file += sufix += ".bmp";
 
-				//bonusGraphics = new CPicture(graphicsName, 26, 232);
-				//blitAtLoc(bonusGraphics->bg, 12, 2, bitmap->bg);
-
-				auto skillGraphics = new CPicture(file, 39 + i * 82, 223);
-				//if (skillGraphics->bg)
-				//	blitAtLoc(skillGraphics->bg, 0, 0, bitmap->bg);
+				auto skillGraphics = new CPicture(file, 38 + i * 84, 223);
 			}
 		}
+		//print commander level
+		printAtMiddle(boost::lexical_cast<std::string>((ui16)(commander->level)), 488, 62, FONT_MEDIUM, Colors::Jasmine,*bitmap);
+		printAtMiddle(boost::lexical_cast<std::string>(stack->experience), 488, 82, FONT_SMALL, Colors::Cornsilk,*bitmap);
 	}
 
 	if (battleStack) //only during battle
@@ -371,7 +374,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 
 	if (bonusItems.size() > (bonusRows << 1)) //only after graphics are created
 	{
-		slider = new CSlider(528, 231, bonusRows*60, boost::bind (&CCreatureWindow::sliderMoved, this, _1),
+		slider = new CSlider(528, 231 + commanderOffset, bonusRows*60, boost::bind (&CCreatureWindow::sliderMoved, this, _1),
 		bonusRows, (bonusItems.size() + 1) >> 1, 0, false, 0);
 	}
 	else //slider automatically places bonus Items
