@@ -63,11 +63,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_ProjectFileVersion>10.0.30128.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">..\..\RD</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(SolutionDir)$(Configuration)\bin\</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|x64'">$(SolutionDir)$(Configuration)\bin\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RD|x64'">$(Configuration)\</IntDir>

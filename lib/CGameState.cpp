@@ -1572,16 +1572,16 @@ int CGameState::battleGetBattlefieldType(int3 tile) const
 	if(dynamic_cast<const CGMine *>(t.visitableObjects.front()))
 		return 12;
 
-	const std::vector <ConstTransitivePtr<CGObjectInstance> > & objs = map->objects;
-	for(int g=0; g<objs.size(); ++g)
+	BOOST_FOREACH(auto &obj, map->objects)
 	{
-		if( !objs[g] || objs[g]->pos.x - tile.x < 0  ||  objs[g]->pos.x - tile.x >= 8
-			||  tile.y - objs[g]->pos.y + 5 < 0  ||  tile.y - objs[g]->pos.y + 5 >=6
-			|| !objs[g]->coveringAt(objs[g]->pos.x - tile.x, tile.y - objs[g]->pos.y + 5)
+		if( !obj || obj->pos.z != tile.z 
+			|| obj->pos.x - tile.x < 0  ||  obj->pos.x - tile.x >= 8
+			||  tile.y - obj->pos.y + 5 < 0  ||  tile.y - obj->pos.y + 5 >=6
+			|| !obj->coveringAt(obj->pos.x - tile.x, tile.y - obj->pos.y + 5)
 			) //look only for objects covering given tile
 			continue;
 
-		switch(objs[g]->ID)
+		switch(obj->ID)
 		{
 		case Obj::CLOVER_FIELD:
 			return 19;
