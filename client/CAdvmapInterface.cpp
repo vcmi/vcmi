@@ -216,12 +216,6 @@ void CMinimapSurfacesRef::initMap(int level)
 
 void CMinimapSurfacesRef::initFoW(int level)
 {
-	/*for(int g=0; g<FoW.size(); ++g)
-	{
-		SDL_FreeSurface(FoW[g]);
-	}
-	FoW.clear();*/
-
 	const Rect &minimap_pos = adventureInt->minimap.pos;
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	int mw = map_[0]->w, mh = map_[0]->h;//,
@@ -230,7 +224,7 @@ void CMinimapSurfacesRef::initFoW(int level)
 	{
 		if(level>=0 && d!=level)
 			continue;
-		SDL_Surface * pt = CSDL_Ext::newSurface(minimap_pos.w, minimap_pos.h, CSDL_Ext::std32bppSurface);
+		SDL_Surface * pt = CSDL_Ext::createSurfaceWithBpp<4>(minimap_pos.w, minimap_pos.h);
 		for (int i=0; i<mw; i++)
 		{
 			for (int j=0; j<mh; j++)
@@ -261,7 +255,7 @@ void CMinimapSurfacesRef::initFlaggableObjs(int level)
 	{
 		if(level>=0 && d!=level)
 			continue;
-		SDL_Surface * pt = CSDL_Ext::newSurface(minimap_pos.w, minimap_pos.h, CSDL_Ext::std32bppSurface);
+		SDL_Surface * pt = CSDL_Ext::createSurfaceWithBpp<4>(minimap_pos.w, minimap_pos.h);
 		for (int i=0; i<mw; i++)
 		{
 			for (int j=0; j<mh; j++)
@@ -1648,7 +1642,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 	LOCPLINT->cb->setSelection(sel);
 	selection = sel;
 	if (LOCPLINT->battleInt == NULL)
-		CCS->musich->playMusic(CCS->musich->terrainMusics[LOCPLINT->cb->getTile(sel->visitablePos())->tertype]);
+		CCS->musich->playMusic(CCS->musich->terrainMusics[LOCPLINT->cb->getTile(sel->visitablePos())->tertype], -1);
 	if(centerView)
 		centerOn(sel);
 

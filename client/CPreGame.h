@@ -66,6 +66,7 @@ public:
 	};
 	CMenuScreen(const JsonNode& configNode);
 
+	void showAll(SDL_Surface * to);
 	void show(SDL_Surface * to);
 	void activate();
 	void deactivate();
@@ -90,6 +91,7 @@ public:
 	CreditsScreen();
 
 	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
@@ -274,6 +276,7 @@ public:
 /// The actual map selection screen which consists of the options and selection tab
 class CSelectionScreen : public CIntObject, public ISelectionScreenInfo
 {
+	bool bordered;
 public:
 	CPicture *bg; //general bg image
 	InfoCard *card;
@@ -308,6 +311,7 @@ public:
 	void postRequest(ui8 what, ui8 dir) OVERRIDE;
 	void postChatMessage(const std::string &txt) OVERRIDE;
 	void propagateNames();
+	void showAll(SDL_Surface *to);
 };
 
 /// Save game screen
@@ -479,30 +483,35 @@ public:
 	enum CampaignSet {ROE, AB, SOD, WOG};
 
 	CCampaignScreen(const JsonNode &config);
+	void showAll(SDL_Surface *to);
 };
 
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
 class CGPreGame : public CIntObject, public IUpdateable
 {
 	const JsonNode * const pregameConfig;
-public:
-	CMenuScreen* menu;
-
-	SDL_Surface *nHero, *rHero, *nTown, *rTown; // none/random hero/town imgs
-	CDefHandler *bonuses;
-	CDefHandler *victory, *loss;
-
-	CGPreGame();
-	~CGPreGame();
-	void update();
-	void openSel(CMenuScreen::EState type, CMenuScreen::EMultiMode multi = CMenuScreen::SINGLE_PLAYER);
 
 	void loadGraphics();
 	void disposeGraphics();
 
+	CGPreGame(); //Use createIfNotPresent
+
+public:
+	CMenuScreen* menu;
+
+	SDL_Surface *background;
+	SDL_Surface *nHero, *rHero, *nTown, *rTown; // none/random hero/town imgs
+	CDefHandler *bonuses;
+	CDefHandler *victory, *loss;
+
+	~CGPreGame();
+	void update();
+	void openSel(CMenuScreen::EState type, CMenuScreen::EMultiMode multi = CMenuScreen::SINGLE_PLAYER);
+
+	void showAll(SDL_Surface *to);
 	void openCampaignScreen(std::string name);
 
-	static void createIfNotPresent();
+	static CGPreGame * create();
 };
 
 extern ISelectionScreenInfo *SEL;

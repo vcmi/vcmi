@@ -4844,7 +4844,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		bonusMove = 400;
 		break;
 	case 94: //Stables
-		sound = soundBase::horse20;
+		sound = soundBase::STORE;
 		bool someUpgradeDone = false;
 
 		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); ++i)

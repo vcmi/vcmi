@@ -195,18 +195,16 @@ STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const U
 template<int bpp, int incrementPtr>
 STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorRow(Uint8 *&ptr, const SDL_Color & Color, size_t count)
 {
-	static_assert(incrementPtr >= -1 && incrementPtr <= +1, "Invalid incrementPtr value!");
-
-	Uint8 pixel[bpp];
-	Channels::px<bpp>::r.set(pixel, Color.r);
-	Channels::px<bpp>::g.set(pixel, Color.g);
-	Channels::px<bpp>::b.set(pixel, Color.b);
-	Channels::px<bpp>::a.set(pixel, 0);
-
-	for (size_t i=0; i<count; i++)
+	if (count)
 	{
-		memcpy(ptr, pixel, bpp);
-		ptr += bpp * incrementPtr;
+		Uint8 *pixel = ptr;
+		PutColor(ptr, Color.r, Color.g, Color.b);
+
+		for (size_t i=0; i<count-1; i++)
+		{
+			memcpy(ptr, pixel, bpp);
+			ptr += bpp * incrementPtr;
+		}
 	}
 }
 

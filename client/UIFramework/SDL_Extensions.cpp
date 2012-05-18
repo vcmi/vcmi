@@ -35,6 +35,19 @@ SDL_Surface * CSDL_Ext::copySurface(SDL_Surface * mod) //returns copy of given s
 	return SDL_ConvertSurface(mod, mod->format, mod->flags);
 }
 
+template<int bpp>
+SDL_Surface * CSDL_Ext::createSurfaceWithBpp(int width, int height)
+{
+	int rMask = 0, gMask = 0, bMask = 0, aMask = 0;
+
+	Channels::px<bpp>::r.set((Uint8*)&rMask, 255);
+	Channels::px<bpp>::g.set((Uint8*)&gMask, 255);
+	Channels::px<bpp>::b.set((Uint8*)&bMask, 255);
+	Channels::px<bpp>::a.set((Uint8*)&aMask, 255);
+
+	return SDL_CreateRGBSurface( SDL_SWSURFACE | SDL_SRCALPHA, width, height, bpp * 8, rMask, gMask, bMask, aMask);
+}
+
 bool isItIn(const SDL_Rect * rect, int x, int y)
 {
 	return (x>rect->x && x<rect->x+rect->w) && (y>rect->y && y<rect->y+rect->h);
@@ -230,68 +243,74 @@ void printAt(const std::string & text, int x, int y, TTF_Font * font, SDL_Color 
 	SDL_FreeSurface(temp);
 }
 
-
-
-void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::Cornsilk*/, SDL_Surface * dst/*=screen*/ )
+void CSDL_Ext::printAt( const std::string & text, int dstX, int dstY, EFonts font, SDL_Color color, SDL_Surface * dst)
 {
 	if(!text.size())
 		return;
 
 	if (graphics->fontsTrueType[font])
 	{
-		printAt(text,x, y, graphics->fontsTrueType[font], kolor, dst);
+		printAt(text,dstX, dstY, graphics->fontsTrueType[font], color, dst);
 		return;
 	}
 
 	assert(dst);
 	assert(font < Graphics::FONTS_NUMBER);
 
-	//assume BGR dst surface, TODO - make it general in a tidy way
-	assert(dst->format->Rshift > dst->format->Gshift);
-	assert(dst->format->Gshift > dst->format->Bshift);
+	Rect clipRect;
+	SDL_GetClipRect(dst, &clipRect);
 
 	const Font *f = graphics->fonts[font];
 	const Uint8 bpp = dst->format->BytesPerPixel;
-	Uint8 *px = NULL;
-	Uint8 *src = NULL;
-	TColorPutter colorPutter = getPutterFor(dst, false);
 
+	TColorPutter colorPutter = getPutterFor(dst, 0);
 
 	//if text is in {} braces, we'll ommit them
-	const int first = (text[0] == '{' ? 1 : 0);
-	const int beyondEnd = (text[text.size()-1] == '}' ? text.size()-1 : text.size());
+	const int textBegin = (text[0] == '{' ? 1 : 0);
+	const int textEnd = (text[text.size()-1] == '}' ? text.size()-1 : text.size());
 
-	for(int txti = first; txti < beyondEnd; txti++)
+	SDL_LockSurface(dst);
+	// for each symbol
+	for(int index = textBegin; index < textEnd; index++)
 	{
-		const ui8 c = text[txti];
-		x += f->chars[c].unknown1;
+		const ui8 symbol = text[index];
+		dstX += f->chars[symbol].leftOffset;
 
-		for(int i = std::max(0, -y); i < f->height  &&  (y + i) < (dst->h - 1); i++)
+		int lineBegin = std::max<int>(0, clipRect.y - dstY);
+		int lineEnd   = std::min<int>(f->height, clipRect.y + clipRect.h - dstY - 1);
+
+		//for each line in symbol
+		for(int dy = lineBegin; dy <lineEnd; dy++)
 		{
-			px = (Uint8*)dst->pixels;
-			px +=  (y+i) * dst->pitch  +  x * bpp;
-	 		src = f->chars[c].pixels;
-			src += i * f->chars[c].width;//if we have reached end of surface in previous line
+			Uint8 *dstLine = (Uint8*)dst->pixels;
+			Uint8 *srcLine = f->chars[symbol].pixels;
 
-			for(int j = std::max(0, -x); j < f->chars[c].width  &&  (j + x) < (dst->w - 1); j++)
+			dstLine += (dstY+dy) * dst->pitch + dstX * bpp;
+			srcLine += dy * f->chars[symbol].width;
+
+			int rowBegin = std::max(0, clipRect.x - dstX);
+			int rowEnd   = std::min(f->chars[symbol].width, clipRect.x + clipRect.w - dstX - 1);
+
+			//for each column in line
+			for(int dx = rowBegin; dx < rowEnd; dx++)
 			{
-				switch(*src)
+				Uint8* dstPixel = dstLine + dx*bpp;
+				switch(*(srcLine + dx))
 				{
 				case 1: //black "shadow"
-					memset(px, 0, bpp);
+					memset(dstPixel, 0, bpp);
 					break;
 				case 255: //text colour
-					colorPutter(px, kolor.r, kolor.g, kolor.b);
+					colorPutter(dstPixel, color.r, color.g, color.b);
 					break;
 				}
-				src++;
-				px += bpp;
 			}
 		}
 
-		x += f->chars[c].width;
-		x += f->chars[c].unknown2;
+		dstX += f->chars[symbol].width;
+		dstX += f->chars[symbol].rightOffset;
 	}
+	SDL_UnlockSurface(dst);
 }
 
 void printTo(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, ui8 quality=2)
@@ -483,9 +502,10 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y
 
 void CSDL_Ext::alphaTransform(SDL_Surface *src)
 {
+	//NOTE: colors #7 & #8 used in some of WoG objects. Don't know how they're handled by H3
 	assert(src->format->BitsPerPixel == 8);
 	SDL_Color colors[] = {{0,0,0,255}, {0,0,0,214}, {0,0,0,164}, {0,0,0,82}, {0,0,0,128},
-						{255,0,0,0}, {255,0,0,0}, {255,0,0,0}, {0,0,0,192}, {0,0,0,192}};
+						{255,255,255,0}, {255,255,255,0}, {255,255,255,0}, {0,0,0,192}, {0,0,0,192}};
 
 	SDL_SetColors(src, colors, 0, ARRAY_COUNT(colors));
 	SDL_SetColorKey(src, SDL_SRCCOLORKEY, SDL_MapRGBA(src->format, 0, 0, 0, 255));
@@ -1135,4 +1155,6 @@ std::string CSDL_Ext::trimToFit(std::string text, int widthLimit, EFonts font)
 	return text;
 }
 
-SDL_Surface * CSDL_Ext::std32bppSurface = NULL;
+template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<2>(int, int);
+template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<3>(int, int);
+template SDL_Surface * CSDL_Ext::createSurfaceWithBpp<4>(int, int);

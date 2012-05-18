@@ -730,17 +730,17 @@ Font::Font(ui8 *Data)
 	i = 32;
 	for(int ci = 0; ci < 256; ci++)
 	{
-		chars[ci].unknown1 = read_le_u32(data + i); i+=4;
+		chars[ci].leftOffset = read_le_u32(data + i); i+=4;
 		chars[ci].width = read_le_u32(data + i); i+=4;
-		chars[ci].unknown2 = read_le_u32(data + i); i+=4;
+		chars[ci].rightOffset = read_le_u32(data + i); i+=4;
 
 		//if(ci>=30)
 		//	tlog0 << ci << ". (" << (char)ci << "). Width: " << chars[ci].width << " U1/U2:" << chars[ci].unknown1 << "/" << chars[ci].unknown2 << std::endl;
 	}
 	for(int ci = 0; ci < 256; ci++)
 	{
-		chars[ci].offset =  read_le_u32(data + i); i+=4;
-		chars[ci].pixels = data + 4128 + chars[ci].offset;
+		int offset =  read_le_u32(data + i); i+=4;
+		chars[ci].pixels = data + 4128 + offset;
 	}
 }
 
@@ -757,7 +757,7 @@ int Font::getWidth(const char *text ) const
 	for(int i = 0; i < length; i++)
 	{
 		ui8 c = text[i];
-		ret += chars[c].width + chars[c].unknown1 + chars[c].unknown2;
+		ret += chars[c].width + chars[c].leftOffset + chars[c].rightOffset;
 	}
 
 	return ret;
@@ -766,7 +766,7 @@ int Font::getWidth(const char *text ) const
 int Font::getCharWidth( char c ) const
 {
 	const Char &C = chars[(ui8)c];
-	return C.width + C.unknown1 + C.unknown2;;
+	return C.width + C.leftOffset + C.rightOffset;;
 }
 
 /*

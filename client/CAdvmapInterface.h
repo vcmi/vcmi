@@ -40,13 +40,16 @@ public:
 	static void showScenarioInfo();
 };
 
-class CMinimapSurfacesRef {
+//Player-specific minimaps
+class CMinimapSurfacesRef
+{
 public:
-    CMinimapSurfacesRef();
-    std::vector< SDL_Surface* > &map();
-    std::vector< SDL_Surface* > &FoW();
-    std::vector< SDL_Surface* > &flObjs();
-    void free();
+	CMinimapSurfacesRef();
+	// see private members descriptions
+	std::vector< SDL_Surface* > &map();
+	std::vector< SDL_Surface* > &FoW();
+	std::vector< SDL_Surface* > &flObjs();
+	void free();
 private:
 	void redraw(int level=-1);// (level==-1) => redraw all levels
 	void initMap(int level=-1);// (level==-1) => redraw all levels
@@ -54,8 +57,8 @@ private:
 	void initFlaggableObjs(int level=-1);// (level==-1) => redraw all levels
 	void showVisibleTiles(int level=-1);// (level==-1) => redraw all levels
 private:    
-    std::vector< SDL_Surface* > map_, FoW_, flObjs_; //one bitmap for each level (terrain, Fog of War, flaggable objects) (one for underworld, one for surface)
-    bool ready;
+	std::vector< SDL_Surface* > map_, FoW_, flObjs_; //one bitmap for each level (terrain, Fog of War, flaggable objects) (one for underworld, one for surface)
+	bool ready;
 };
 
 /// Minimap which is displayed at the right upper corner of adventure map

@@ -689,8 +689,8 @@ private:
 	void toggleCreatureWin(bool on);
 	void toggleFullscreen(bool on);
 
-	void selectGameRes(bool pregame);
-	void setGameRes(bool pregame, int index);
+	void selectGameRes();
+	void setGameRes(int index);
 
 	void pushSDLEvent(int type, int usercode);
 

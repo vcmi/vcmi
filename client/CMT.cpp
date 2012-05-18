@@ -75,7 +75,7 @@ std::queue<SDL_Event*> events;
 boost::mutex eventsM;
 
 static bool gOnlyAI = false;
-static bool setResolution = false; //set by event handling thread after resolution is adjusted
+//static bool setResolution = false; //set by event handling thread after resolution is adjusted
 
 static bool ermInteractiveMode = false; //structurize when time is right
 void processCommand(const std::string &message);
@@ -83,7 +83,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 void dispose();
 void playIntro();
 static void listenForEvents();
-void requestChangingResolution();
+//void requestChangingResolution();
 void startGame(StartInfo * options, CConnection *serv = NULL);
 
 #ifndef _WIN32
@@ -102,7 +102,7 @@ void startGameFromFile(const std::string &fname)
 		if(!out.sfile || !*out.sfile)
 		{
 			tlog1 << "Failed to open startfile, falling back to the main menu!\n";
-			GH.curInt = new CGPreGame;
+			GH.curInt = CGPreGame::create();
 			return;
 		}
 		out >> si;
@@ -116,12 +116,6 @@ void startGameFromFile(const std::string &fname)
 void init()
 {
 	CStopWatch tmh, pomtime;
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-	int rmask = 0xff000000;int gmask = 0x00ff0000;int bmask = 0x0000ff00;int amask = 0x000000ff;
-#else
-	int rmask = 0x000000ff;	int gmask = 0x0000ff00;	int bmask = 0x00ff0000;	int amask = 0xff000000;
-#endif
-	CSDL_Ext::std32bppSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, rmask, gmask, bmask, amask);
 	tlog0 << "\tInitializing minors: " << pomtime.getDiff() << std::endl;
 
 	//initializing audio
@@ -256,7 +250,7 @@ int main(int argc, char** argv)
 	atexit(SDL_Quit);
 
 	const JsonNode& video = settings["video"];
-	const JsonNode& res = video["menuRes"];
+	const JsonNode& res = video["screenRes"];
 
 	setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
 
@@ -294,7 +288,7 @@ int main(int argc, char** argv)
 
 
 		if(!vm.count("start"))
-			GH.curInt = new CGPreGame; //will set CGP pointer to itself
+			GH.curInt = CGPreGame::create(); //will set CGP pointer to itself
 		else
 			startGameFromFile(vm["start"].as<std::string>());
 	}
@@ -331,7 +325,6 @@ void processCommand(const std::string &message)
 	readed.str(message);
 	std::string cn; //command name
 	readed >> cn;
-
 
 	if(LOCPLINT && LOCPLINT->cingconsole)
 		LOCPLINT->cingconsole->print(message);
@@ -408,7 +401,7 @@ void processCommand(const std::string &message)
 		std::string fname;
 		readed >> fname;
 		client->loadGame(fname);
-	}
+	}/*
 	else if(cn=="resolution" || cn == "r")
 	{
 		if(LOCPLINT)
@@ -437,15 +430,14 @@ void processCommand(const std::string &message)
 			auto j = conf.guiOptions.begin();
 			std::advance(j, i - 1); //move j to the i-th resolution info
 			const int w = j->first.first, h = j->first.second;
-			Settings res = settings.write["video"]["gameRes"];
 			Settings screen = settings.write["video"]["screenRes"];
-			res["width"].Float()  = screen["width"].Float()  = w;
-			res["height"].Float() = screen["height"].Float() = h;
+			screen["width"].Float()  = w;
+			screen["height"].Float() = h;
 			conf.SetResolution(screen["width"].Float(), screen["height"].Float());
 			tlog0 << "Screen resolution set to " << (int)screen["width"].Float() << " x "
-			                                     << (int)screen["height"].Float() <<". It will be applied when the game starts.\n";
+												 << (int)screen["height"].Float() <<". It will be applied afters game restart.\n";
 		}
-	}
+	}*/
 	else if(message=="get txt")
 	{
 		boost::filesystem::create_directory("Extracted_txts");
@@ -578,6 +570,7 @@ void dispose()
 	delete logfile;
 }
 
+//used only once during initialization
 static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo)
 {
 	// VCMI will only work with 2, 3 or 4 bytes per pixel
@@ -596,7 +589,7 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 	
 	if(suggestedBpp != bpp)
 	{
-		tlog2 << "Warning: SDL says that "  << bpp << "bpp is wrong and suggests " << suggestedBpp << std::endl;
+		tlog2 << "Note: SDL suggests to use " << suggestedBpp << " bpp instead of"  << bpp << " bpp "  << std::endl;
 	}
 
 	//For some reason changing fullscreen via config window checkbox result in SDL_Quit event
@@ -647,15 +640,24 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 	//TODO: centering game window on other platforms (or does the environment do their job correctly there?)
 
 	screenBuf = bufOnScreen ? screen : screen2;
-	setResolution = true;
+	//setResolution = true;
 }
 
 static void fullScreenChanged(const JsonNode &newState)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(*LOCPLINT->pim);
-	const JsonNode& video = settings["video"];
-	const JsonNode& res = video["screenRes"];
-	setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), newState.Bool(), false);
+
+	bool fullscreen = newState.Bool();
+	int bitsPerPixel = screen->format->BitsPerPixel;
+
+	bitsPerPixel = SDL_VideoModeOK(screen->w, screen->h, bitsPerPixel, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));
+	if(bitsPerPixel == 0)
+	{
+		tlog1 << "Error: SDL says that " << screen->w << "x" << screen->h << " resolution is not available!\n";
+		return;
+	}
+
+	screen = SDL_SetVideoMode(screen->w, screen->h, bitsPerPixel, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));
 	GH.totalRedraw();
 }
 
@@ -711,17 +713,17 @@ static void listenForEvents()
 
 			switch(ev->user.code)
 			{
-			case CHANGE_SCREEN_RESOLUTION:
+		/*	case CHANGE_SCREEN_RESOLUTION:
 			{
 				tlog0 << "Changing resolution has been requested\n";
 				const JsonNode& video = settings["video"];
 				const JsonNode& res = video["gameRes"];
 				setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
 				break;
-			}
+			}*/
 			case RETURN_TO_MAIN_MENU:
 				endGame();
-				CGPreGame::createIfNotPresent();
+				CGPreGame::create();
 				GH.curInt = CGP;
 				GH.defActionsDef = 63;
 				break;
@@ -737,7 +739,7 @@ static void listenForEvents()
 				break;
 			case RETURN_TO_MENU_LOAD:
 				endGame();
-				CGPreGame::createIfNotPresent();
+				CGPreGame::create();
 				GH.defActionsDef = 63;
 				CGP->update();
 				CGP->menu->switchToTab(vstd::find_pos(CGP->menu->menuNameToEntry, "load"));
@@ -773,7 +775,7 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 			it->second.human = false;
 		}
 	}
-	const JsonNode& res = settings["video"]["screenRes"];
+/*	const JsonNode& res = settings["video"]["screenRes"];
 
 	if(screen->w != res["width"].Float()   ||   screen->h != res["height"].Float())
 	{
@@ -784,7 +786,7 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 		while(!setResolution) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 	}
 	else
-		setResolution = true;
+		setResolution = true;*/
 
 		client = new CClient;
 
@@ -805,7 +807,7 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 
 		client->connectionHandler = new boost::thread(&CClient::run, client);
 }
-
+/*
 void requestChangingResolution()
 {
 	//mark that we are going to change resolution
@@ -817,3 +819,4 @@ void requestChangingResolution()
 	ev.user.code = CHANGE_SCREEN_RESOLUTION;
 	SDL_PushEvent(&ev);
 }
+*/

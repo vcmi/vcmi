@@ -15,12 +15,11 @@ enum EFonts
 	FONT_BIG, FONT_CALLI, FONT_CREDITS, FONT_HIGH_SCORE, FONT_MEDIUM, FONT_SMALL, FONT_TIMES, FONT_TINY, FONT_VERD
 };
 
-
 struct Font
 {
 	struct Char
 	{
-		si32 unknown1, width, unknown2, offset;
+		si32 leftOffset, width, rightOffset;
 		ui8 *pixels;
 	};
 
@@ -28,7 +27,6 @@ struct Font
 	ui8 height;
 
 	ui8 *data;
-
 
 	Font(ui8 *Data);
 	~Font();

@@ -270,15 +270,6 @@ void config::CConfigHandler::init()
 	}
 
 	const JsonNode& screenRes = settings["video"]["screenRes"];
-	const JsonNode& gameRes = settings["video"]["gameRes"];
 
-	//fixing screenx / screeny
-	if (screenRes["width"].Float()  != gameRes["width"].Float()
-	 || screenRes["height"].Float() != gameRes["height"].Float())
-	{
-		Settings screen = settings.write["video"]["screenRes"];
-		screen["width"].Float()  = gameRes["width"].Float();
-		screen["height"].Float() = gameRes["height"].Float();
-	}
-	SetResolution(gameRes["width"].Float(), gameRes["height"].Float());
+	SetResolution(screenRes["width"].Float(), screenRes["height"].Float());
 }

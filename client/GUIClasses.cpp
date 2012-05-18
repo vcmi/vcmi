@@ -3720,13 +3720,11 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &Pos, CPlayerInterface
 	newCreatureWin->select(settings["general"]["classicCreatureWindow"].Bool());
 	fullscreen->select(settings["video"]["fullscreen"].Bool());
 
-	gameResButton = new CAdventureMapButton("", rsHelp, boost::bind(&CSystemOptionsWindow::selectGameRes, this, false), 28, 275,"SYSOB12", SDLK_g);
+	gameResButton = new CAdventureMapButton("", rsHelp, boost::bind(&CSystemOptionsWindow::selectGameRes, this), 28, 275,"SYSOB12", SDLK_g);
 }
 
-void CSystemOptionsWindow::selectGameRes(bool pregame)
+void CSystemOptionsWindow::selectGameRes()
 {
-	assert(pregame == false);//TODO
-
 	//TODO: translation and\or config file
 	static const std::string rsLabel = "Select resolution";
 	static const std::string rsHelp = "Change in-game screen resolution.";
@@ -3741,16 +3739,16 @@ void CSystemOptionsWindow::selectGameRes(bool pregame)
 	}
 
 	GH.pushInt(new CObjectListWindow(items, NULL, rsLabel, rsHelp,
-	           boost::bind(&CSystemOptionsWindow::setGameRes, this, pregame, _1)));
+			   boost::bind(&CSystemOptionsWindow::setGameRes, this, _1)));
 }
 
-void CSystemOptionsWindow::setGameRes(bool pregame, int index)
+void CSystemOptionsWindow::setGameRes(int index)
 {
 	config::CConfigHandler::GuiOptionsMap::const_iterator iter = conf.guiOptions.begin();
 	while (index--)
 		iter++;
 
-	Settings gameRes = settings.write["video"]["gameRes"];
+	Settings gameRes = settings.write["video"]["screenRes"];
 	gameRes["width"].Float() = iter->first.first;
 	gameRes["height"].Float() = iter->first.second;
 }

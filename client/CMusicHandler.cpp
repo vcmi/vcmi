@@ -242,7 +242,10 @@ void CSoundHandler::initSpellsSounds(const std::vector< ConstTransitivePtr<CSpel
 			if (vstd::contains(spellSounds, s))
 				tlog1 << "Spell << " << spellid << " already has a sound" << std::endl;
 
-			spellSounds[s] = getSoundID(node["soundfile"].String());
+			soundBase::soundID sound = getSoundID(node["soundfile"].String());
+			if (sound == soundBase::invalid)
+				tlog0 << "Error: invalid sound for id "<< spellid << "\n";
+			spellSounds[s] = sound;
 		}
 	}
 }

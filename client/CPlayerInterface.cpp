@@ -263,7 +263,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	if(makingTurn  &&  ho->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
 		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusic(CCS->musich->terrainMusics[LOCPLINT->cb->getTile(ho->visitablePos())->tertype]);
+		CCS->musich->playMusic(CCS->musich->terrainMusics[LOCPLINT->cb->getTile(ho->visitablePos())->tertype], -1);
 
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
@@ -2073,6 +2073,9 @@ void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellI
 	{
 		eraseCurrentPathOf(caster, false);
 	}
+	const CSpell * spell = CGI->spellh->spells[spellID];
+	if (vstd::contains(CCS->soundh->spellSounds, spell))
+		CCS->soundh->playSound(CCS->soundh->spellSounds[spell]);
 }
 
 void CPlayerInterface::eraseCurrentPathOf( const CGHeroInstance * ho, bool checkForExistanceOfPath /*= true */ )

@@ -117,7 +117,6 @@ namespace CSDL_Ext
 {
 	void blitSurface(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect);
 	void fillRect(SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color);
-	extern SDL_Surface * std32bppSurface;
 
 	void SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255);
 	void SDL_PutPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255);
@@ -171,6 +170,8 @@ namespace CSDL_Ext
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
 	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=screen); //creates new surface, with flags/format same as in surface given
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
+	template<int bpp>
+	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value
 	void VflipSurf(SDL_Surface * surf); //fluipis given surface by vertical axis
 
 	template<int bpp>

@@ -30,29 +30,13 @@
 	"video" : {
 		"type" : "object",
 		"properties" : {
-			"gameRes" : {
-				"type" : "object",
-				"properties" : {
-					"width"  : { "type" : "number" },
-					"height" : { "type" : "number" }
-				},
-				"default": {"width" : 800, "height": 600 }
-			},
-			"menuRes" : {
-				"type" : "object",
-				"properties" : {
-					"width"  : { "type" : "number" },
-					"height" : { "type" : "number" }
-				},
-				"default": {"width" : 800, "height": 600 }
-			},
 			"screenRes" : {
 				"type" : "object",
 				"properties" : {
 					"width"  : { "type" : "number" },
 					"height" : { "type" : "number" }
 				},
-				"default": {"width" : 0, "height": 0 }
+				"default": {"width" : 800, "height": 600 }
 			},
 			"bitsPerPixel" : {
 				"type" : "number",

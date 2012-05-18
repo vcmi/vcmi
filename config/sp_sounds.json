@@ -5,6 +5,76 @@
 	"spell_sounds": 
 	[
 		{
+			"id": 0 ,
+			"name":"Summon boat",
+			"soundfile":"SUMMBOAT.wav"
+		},
+		{
+			"id": 1 ,
+			"name":"Scuttle boat",
+			"soundfile":"SCUTBOAT.wav"
+		},
+		{
+			"id": 2 ,
+			"name":"Visions",
+			"soundfile":"VISIONS.wav"
+		},
+		{
+			"id": 3 ,
+			"name":"View Earth",
+			"soundfile":"VIEW.wav"
+		},
+		{
+			"id": 4 ,
+			"name":"Disguise",
+			"soundfile":"DISGUISE.wav"
+		},
+		{
+			"id": 5 ,
+			"name":"View Air",
+			"soundfile":"VIEW.wav"
+		},
+		{
+			"id": 6 ,
+			"name":"Fly",
+			"soundfile":"FLYSPELL.wav"
+		},
+		{
+			"id": 7 ,
+			"name":"Water walking",
+			"soundfile":"WATRWALK.wav"
+		},
+		{
+			"id": 8 ,
+			"name":"Dimension doors",
+			"soundfile":"TELPTOUT.wav"
+		},
+		{
+			"id": 9 ,
+			"name":"Town Portal",
+			"soundfile":"TELPTOUT.wav"
+		},
+		{
+			"id": 10 ,
+			"name":"Quick sands",
+			"soundfile":"QUIKSAND.wav"
+		},
+		{
+			"id": 12 ,
+			"name":"Force field",
+			"soundfile":"FORCEFLD.wav"
+		},
+		{
+			"id": 13 ,
+			"name":"Fire wall",
+			"soundfile":"FIREWALL.wav"
+		},
+		{
+			"id": 14 ,
+			"name":"Earthquake",
+			"soundfile":"ERTHQUAK.wav"
+		},
+		{
 			"id": 15,
 			"soundfile": "MAGICBLT.wav",
 			"name": "magic arrow"
@@ -20,6 +90,16 @@
 			"name": "lightning bolt"
 		},
 		{
+			"id": 18 ,
+			"name":"Implosion",
+			"soundfile":"DECAY.wav"
+		},
+		{
+			"id": 19 ,
+			"name":"Chaon lighting",
+			"soundfile":"CHAINLTE.wav"
+		},
+		{
 			"id": 20,
 			"soundfile": "FROSTING.wav",
 			"name": "frost ring"
@@ -30,6 +110,11 @@
 			"name": "fireball"
 		},
 		{
+			"id": 22 ,
+			"name":"Inferno",
+			"soundfile":"FIREBLST.wav"
+		},
+		{
 			"id": 23,
 			"soundfile": "METEOR.wav",
 			"name": "meteor shower"
@@ -38,6 +123,11 @@
 			"id": 24,
 			"soundfile": "DEATHRIP.wav",
 			"name": "death ripple"
+		},
+		{
+			"id": 25 ,
+			"name":"Destroy undead",
+			"soundfile":"COLDRING.wav"
 		},
 		{
 			"id": 26,
@@ -54,6 +144,17 @@
 			"soundfile": "AIRSHELD.wav",
 			"name": "air shield"
 		},
+		{
+			"id": 29 ,
+			"name":"fireshield cast",
+			"soundfile":"FIRESHIE.wav"
+		},
+// It looks that fireshield has two separate souds. Disabling one of them for now
+//		{
+//			"id": 29 ,
+//			"name":"fireshield effect",
+//			"soundfile":"FIRESHLD.wav"
+//		},
 		{
 			"id": 30,
 			"soundfile": "PROTECTA.wav",
@@ -84,8 +185,28 @@
 			"name": "dispell"
 		},
 		{
+			"id": 36 ,
+			"name":"Magic mirror",
+			"soundfile":"BACKLASH.wav"
+		},
+		{
+			"id": 37 ,
+			"name":"Cure",
+			"soundfile":"CURE.wav"
+		},
+		{
+			"id": 38 ,
+			"name":"Resurrect",
+			"soundfile":"RESURECT.wav"
+		},
+		{
 			"id": 39,
 			"soundfile": "ANIMDEAD.wav",
+		},
+		{
+			"id": 40 ,
+			"name":"Sacrifice",
+			"soundfile":"SACRIF1.wav"
 		},
 		{
 			"id": 41,
@@ -168,6 +289,21 @@
 			"name": "frenzy"
 		},
 		{
+			"id": 57 ,
+			"name":"Titan Bolt",
+			"soundfile":"LIGHTBLT.wav"
+		},
+		{
+			"id": 58 ,
+			"name":"Counterstrike",
+			"soundfile":"CNTRSTRK.wav"
+		},
+		{
+			"id": 59 ,
+			"name":"Berserk",
+			"soundfile":"BERSERK.wav"
+		},
+		{
 			"id": 60,
 			"soundfile": "HYPNOTIZ.wav",
 			"name": "forgetfulness"
@@ -182,9 +318,44 @@
 			"soundfile": "BLIND.wav",
 		},
 		{
+			"id": 63 ,
+			"name":"Teleport",
+			"soundfile":"TELPTOUT.wav"
+		},
+		{
+			"id": 64 ,
+			"name":"Remove obstacle",
+			"soundfile":"REMOVEOB.wav"
+		},
+		{
+			"id": 65 ,
+			"name":"Clone",
+			"soundfile":"CLONE.wav"
+		},
+		{
+			"id": 66 ,
+			"name":"Summon elementals",
+			"soundfile":"SUMNELM.wav"
+		},
+		{
+			"id": 67 ,
+			"name":"Summon elementals",
+			"soundfile":"SUMNELM.wav"
+		},
+		{
+			"id": 68 ,
+			"name":"Summon elementals",
+			"soundfile":"SUMNELM.wav"
+		},
+		{
+			"id": 69 ,
+			"name":"Summon elementals",
+			"soundfile":"SUMNELM.wav"
+		},
+		{
 			"id": 70,
 			"soundfile": "PARALYZE.wav",
-			"name": "stone gaze - not sure"
+			"name": "stone gaze and paralyze"
 		},
 		{
 			"id": 71,
@@ -209,11 +380,11 @@
 		{
 			"id": 75,
 			"soundfile": "AGE.wav",
-			"name": "aging - already used (?)"
+			"name": "aging"
 		},
 
 		{
-			"id": 6,
+			"id": 76,
 			"soundfile": "DEATHCLD.wav",
 			"name": "death cloud"
 		},
@@ -240,20 +411,15 @@
 	]
 }
 
-// Missing:
-// 18 	# implosion
-// 22 	# inferno
-// 25	# destroy undead
-// BLIND.wav
-// CURE.wav
-// HYPNOTIZ.wav
-// DEATHBLO.wav
-// DRAINLIF.wav
-// DRGNSLAY.wav
-// DISGUISE.wav
-// QUIKSAND.wav
-// FIRESHIE.wav fireshield when cast
-// FIRESHLD.wav fireshield effect
-// ANIMDEAD.wav
-// ANTIMAGK.wav
-
+// Several probably missing sounds of creature abilities
+// ACID.WAV        Acid breath    Rust Dragons
+// DEATHBLO.WAV    Deathblow      Death knigts
+// DRAINLIF.WAV    Drain life     Vampires
+// FEAR.WAV        Fear           Azure dragons
+// MAGCHDRN.WAV    Steal mana     Imps
+// MAGCHFIL.WAV    Steal mana     Either for upgrades or for receiving mana by hero
+// MAGICRES.WAV    Magic resist   Dwarves
+// MANADRAI.WAV    Mana drain     Ghosts
+// REGENER.WAV     Regeneration   Ghosts, Trolls
+// RESURECT.WAV    Resurrection   Both archangels and Demons
+// SPONTCOMB.WAV   Fireball       Magogs
