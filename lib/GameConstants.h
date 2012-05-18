@@ -178,6 +178,7 @@ namespace EBattleStackState
 namespace ECommander
 {
 	enum SecondarySkills {ATTACK, DEFENSE, HEALTH, DAMAGE, SPEED, SPELL_POWER, CASTS, RESISTANCE};
+	const int MAX_SKILL_LEVEL = 5;
 }
 
 namespace Obj

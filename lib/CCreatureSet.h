@@ -80,8 +80,9 @@ public:
 
 	//commander class is determined by its base creature
 	ui8 alive;
+	ui8 level; //required only to count callbacks
 	std::string name; // each Commander has different name
-	std::map <ui8, ui8> secondarySkills; //ID, level
+	std::vector <ui8> secondarySkills; //ID -> level
 	//std::vector <CArtifactInstance *> arts;
 	void init() OVERRIDE;
 	CCommanderInstance();
@@ -98,7 +99,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CStackInstance&>(*this);
-		h & alive & name & secondarySkills;
+		h & alive & level & name & secondarySkills;
 	}
 };
 

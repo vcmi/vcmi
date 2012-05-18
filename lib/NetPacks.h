@@ -33,6 +33,7 @@ class CSelectionScreen;
 class CGObjectInstance;
 class CArtifactInstance;
 //class CMapInfo;
+struct StackLocation;
 struct ArtSlotInfo;
 struct QuestInfo;
 
@@ -164,6 +165,27 @@ public:
 		type = 2001;
 	}
 }; 
+
+struct StackLocation
+{
+	ConstTransitivePtr<CArmedInstance> army;
+	TSlot slot;
+
+	StackLocation()
+	{
+		slot = -1;
+	}
+	StackLocation(const CArmedInstance *Army, TSlot Slot)
+	{
+		army = const_cast<CArmedInstance*>(Army); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
+		slot = Slot;
+	}
+	DLL_LINKAGE const CStackInstance *getStack();
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & army & slot;
+	}
+};
 
 /***********************************************************************************************************/
 
@@ -500,21 +522,25 @@ struct UpdateCampaignState : public CPackForClient //119
 		h & camp;
 	}
 };
-struct SetCommanderproperty : public CPackForClient //120
+struct SetCommanderProperty : public CPackForClient //120
 {
-	enum ECommanderProperty {ALIVE, BONUS};
+	enum ECommanderProperty {ALIVE, BONUS, SECONDARY_SKILL};
 
-	SetCommanderproperty(){type = 120;};
+	SetCommanderProperty(){type = 120;};
 	void applyCl(CClient *cl){};
-	DLL_LINKAGE void applyGs(CGameState *gs){};
+	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	ui8 which;
-	ui8 alive;
+	si32 heroid; //for commander attached to hero
+	StackLocation sl; //for commander not on the hero?
+
+	ui8 which; // use ECommanderProperty
+	ui8 amount; //0 for dead, >0 for alive
+	si32 additionalInfo; //for secondary skills choice
 	Bonus accumulatedBonus;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & which & alive & accumulatedBonus;
+		h & heroid & sl & which & amount & additionalInfo & accumulatedBonus;
 	}
 };
 struct AddQuest : public CPackForClient //121
@@ -759,27 +785,6 @@ struct NewArtifact : public CPackForClient //520
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & art;
-	}
-};
-
-struct StackLocation
-{
-	ConstTransitivePtr<CArmedInstance> army;
-	TSlot slot;
-
-	StackLocation()
-	{
-		slot = -1;
-	}
-	StackLocation(const CArmedInstance *Army, TSlot Slot)
-	{
-		army = const_cast<CArmedInstance*>(Army); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
-		slot = Slot;
-	}
-	DLL_LINKAGE const CStackInstance *getStack();
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & army & slot;
 	}
 };
 
@@ -1159,15 +1164,16 @@ struct CommanderLevelUp : public Query
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	CCommanderInstance * commander;
-	std::vector<std::pair<ui8, ui8> > secondarySkills;
-	std::vector<Bonus *> specialSkills;
+	si32 heroid; //for commander attached to hero
+	StackLocation sl; //for commander not on the hero?
+
+	std::vector<ui32> skills; //1-6 - secondary skills, val - 100 - special skill
 
 	CommanderLevelUp(){type = 2005;};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & commander & secondarySkills & specialSkills;
+		h & id & heroid & sl & skills;
 	}
 };
 

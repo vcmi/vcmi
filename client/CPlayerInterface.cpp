@@ -487,15 +487,20 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std:
 	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
 	GH.pushInt(lw);
 }
-void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, std::vector<std::pair<ui8, ui8> > secondarySkills,
-										std::vector<Bonus *> specialSkills, boost::function<void(ui32)> &callback)
+void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, boost::function<void(ui32)> &callback)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	CCS->soundh->playSound(soundBase::heroNewLevel);
 
-	CCreatureWindow * cw = new CCreatureWindow(commander);
-	GH.pushInt(cw);
+	//boost::function<void(ui32)>(boost::bind(&CCallback::selectionMade,cl->callbacks[h->tempOwner].get(),_1,id))
+	auto callback2 = boost::bind (&CCallback::selectionMade, cb, 0, playerID);
+	showYesNoDialog ("Commander got level", callback2, callback2, true, std::vector<CComponent*>());
+	//showYesNoDialog ("Commander got level", callback, callback, true, std::vector<CComponent*>());
+
+	//TODO: display full window
+	//CCreatureWindow * cw = new CCreatureWindow(commander);
+	//GH.pushInt(cw);
 }
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 {

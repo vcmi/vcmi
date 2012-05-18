@@ -624,7 +624,8 @@ void CCreatureHandler::loadCreatures()
 	i = 0;
 	BOOST_FOREACH (auto skill, config3["skillLevels"].Vector())
 	{
-		BOOST_FOREACH (auto skillLevel, skill.Vector())
+		skillLevels.push_back (std::vector<ui8>());
+		BOOST_FOREACH (auto skillLevel, skill["levels"].Vector())
 		{
 			skillLevels[i].push_back (skillLevel.Float());
 		}

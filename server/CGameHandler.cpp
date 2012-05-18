@@ -285,42 +285,123 @@ void CGameHandler::levelUpHero(int ID)
 	}
 }
 
-void CGameHandler::levelUpCommander (const CCommanderInstance * c, int secondarySkill, int specialSKill)
+void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 {
-	if (secondarySkill >=0 )
+	SetCommanderProperty scp;
+
+	auto hero = dynamic_cast<const CGHeroInstance *>(c->armyObj);
+	if (hero)
+		scp.heroid = hero->id;
+	else
 	{
-		//c->secondarySkills[secondarySkill]++; //TODO: make sure to resize vector in first place
+		complain ("Commander is not led by hero!");
+		return;
 	}
-	if (specialSKill >= 0)
+
+	scp.which = SetCommanderProperty::BONUS;
+	scp.accumulatedBonus.additionalInfo = 0;
+	scp.accumulatedBonus.duration = Bonus::PERMANENT;
+	scp.accumulatedBonus.turnsRemain = 0;
+	scp.accumulatedBonus.source = Bonus::COMMANDER;
+	scp.accumulatedBonus.valType = Bonus::BASE_NUMBER;
+	if (skill <= ECommander::SPELL_POWER)
 	{
-		auto it = VLC->creh->skillRequirements.begin();
-		std::advance(it, specialSKill); //suboptimal, use bmap?
-		//c->accumulateBonus(it->first);
+		auto difference = [](std::vector< std::vector <ui8> > skillLevels, std::vector <ui8> secondarySkills, int skill)->int
+		{
+			return skillLevels[skill][secondarySkills[skill]] - (secondarySkills[skill] ? skillLevels[skill][secondarySkills[skill]-1] : 0);
+		};
+		switch (skill)
+		{
+			case ECommander::ATTACK:
+				scp.accumulatedBonus.type = Bonus::PRIMARY_SKILL;
+				scp.accumulatedBonus.subtype = PrimarySkill::ATTACK;
+				break;
+			case ECommander::DEFENSE:
+				scp.accumulatedBonus.type = Bonus::PRIMARY_SKILL;
+				scp.accumulatedBonus.subtype = PrimarySkill::DEFENSE;
+				break;
+			case ECommander::HEALTH:
+				scp.accumulatedBonus.type = Bonus::STACK_HEALTH;
+				scp.accumulatedBonus.valType = Bonus::PERCENT_TO_BASE;
+				break;
+			case ECommander::DAMAGE:
+				scp.accumulatedBonus.type = Bonus::CREATURE_DAMAGE;
+				scp.accumulatedBonus.subtype = 0;
+				scp.accumulatedBonus.valType = Bonus::PERCENT_TO_BASE;
+				break;
+			case ECommander::SPEED:
+				scp.accumulatedBonus.type = Bonus::STACKS_SPEED;
+				break;
+			case ECommander::SPELL_POWER:
+				scp.accumulatedBonus.type = Bonus::MAGIC_RESISTANCE;
+				scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, ECommander::RESISTANCE);
+				sendAndApply (&scp); //additional pack
+				scp.accumulatedBonus.type = Bonus::CASTS;
+				scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, ECommander::CASTS);
+				sendAndApply (&scp); //additional pack
+				scp.accumulatedBonus.type = Bonus::CREATURE_ENCHANT_POWER; //send normally
+				break;
+		}
+
+		scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, skill);
+		sendAndApply (&scp);
+
+		scp.which = SetCommanderProperty::SECONDARY_SKILL;
+		scp.additionalInfo = skill;
+		scp.amount = c->secondarySkills[skill] + 1;
+		sendAndApply (&scp);
+	}
+	else if (skill >= 100)
+	{
+		scp.accumulatedBonus = VLC->creh->skillRequirements[skill-100].first;
+		sendAndApply (&scp);
 	}
 	levelUpCommander (c);
-	//c->levelUp(); //change standard parameters
 }
 
 void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 {
-	return;
+	if (c->experience < VLC->heroh->reqExp (c->level + 1))
+	{
+		return;
+	}
 	CommanderLevelUp clu;
+
+	auto hero = dynamic_cast<const CGHeroInstance *>(c->armyObj);
+	if (hero)
+		clu.heroid = hero->id;
+	else
+	{
+		complain ("Commander is not led by hero!");
+		return;
+	}
 
 	//picking sec. skills for choice
 
-	int secondarySkill = -1, specialSkill = -1;
-
-	int skills = clu.secondarySkills.size() + clu.specialSkills.size();
-
-	if (skills > 1) //apply and ask for secondary skill
+	for (int i = 0; i <= ECommander::SPELL_POWER; ++i)
 	{
-		//auto callback = boost::bind (callWith<ui16>, clu.specialSkills, boost::bind(&CGameHandler::levelUpCommander, this, c, _1), _1);
-		//applyAndAsk (&clu, c->armyObj->tempOwner, callback); //call levelUpCommander when client responds
+		if (c->secondarySkills[i] < ECommander::MAX_SKILL_LEVEL)
+			clu.skills.push_back(i);
 	}
-	else if (skills == 1) //apply, give only possible skill  and send info
+	int i = 100;
+	BOOST_FOREACH (auto specialSkill, VLC->creh->skillRequirements)
+	{
+		if (c->secondarySkills[specialSkill.second.first] == ECommander::MAX_SKILL_LEVEL &&
+			c->secondarySkills[specialSkill.second.second] == ECommander::MAX_SKILL_LEVEL)
+			clu.skills.push_back (i);
+		++i;
+	}
+	int skillAmount = clu.skills.size();
+
+	if (skillAmount > 1) //apply and ask for secondary skill
+	{
+		auto callback = boost::function<void(ui32)>(boost::bind(callWith<ui32>, clu.skills, boost::function<void(ui32)>(boost::bind(&CGameHandler::levelUpCommander, this, c, _1)), _1));
+		applyAndAsk (&clu, c->armyObj->tempOwner, callback); //call levelUpCommander when client responds
+	}
+	else if (skillAmount == 1) //apply, give only possible skill and send info
 	{
 		sendAndApply(&clu);
-		levelUpCommander(c, secondarySkill, specialSkill);
+		levelUpCommander(c, clu.skills.back());
 	}
 	else //apply and send info
 	{

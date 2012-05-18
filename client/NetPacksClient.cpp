@@ -537,8 +537,15 @@ void HeroLevelUp::applyCl( CClient *cl )
 }
 void CommanderLevelUp::applyCl( CClient *cl )
 {
-	if (commander->armyObj && vstd::contains(cl->playerint, commander->armyObj->tempOwner)) //is it possible for Commander to exist beyond armed instance?
+	CCommanderInstance * commander = GS(cl)->getHero(heroid)->commander;
+	assert (commander);
+	ui8 player = commander->armyObj->tempOwner;
+	if (commander->armyObj && vstd::contains(cl->playerint, player)) //is it possible for Commander to exist beyond armed instance?
 	{
+		auto callback = boost::function<void(ui32)>(boost::bind(&CCallback::selectionMade,cl->callbacks[player].get(),_1,id));
+		
+		cl->playerint[player]->showBlockingDialog("Commander got level", std::vector<Component>(), id, -1, false, true);
+		//cl->playerint[player]->commanderGotLevel(commander, skills, callback);
 	}
 }
 

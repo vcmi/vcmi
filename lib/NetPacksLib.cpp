@@ -76,6 +76,28 @@ DLL_LINKAGE void SetSecSkill::applyGs( CGameState *gs )
 	hero->setSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(which), val, abs);
 }
 
+DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
+{
+	CCommanderInstance * commander = gs->getHero(heroid)->commander;
+	assert (commander);
+
+	switch (which)
+	{
+		case BONUS:
+			commander->accumulateBonus (accumulatedBonus);
+			break;
+		case SECONDARY_SKILL:
+			commander->secondarySkills[additionalInfo] = amount;
+			break;
+		case ALIVE:
+			if (amount)
+				commander->setAlive(true);
+			else
+				commander->setAlive(false);
+			break;
+	}
+}
+
 DLL_LINKAGE void HeroVisitCastle::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(hid);
@@ -901,6 +923,8 @@ DLL_LINKAGE void HeroLevelUp::applyGs( CGameState *gs )
 
 DLL_LINKAGE void CommanderLevelUp::applyGs (CGameState *gs)
 {
+	CCommanderInstance * commander = gs->getHero(heroid)->commander;
+	assert (commander);
 	commander->levelUp();
 }
 
@@ -1007,7 +1031,7 @@ void BattleResult::applyGs( CGameState *gs )
 		if (h)
 		{
 			h->getBonusList().remove_if(Bonus::OneBattle);
-			if (h->commander)
+			if (h->commander && h->commander->alive)
 			{
 				h->commander->giveStackExp(exp[i]);
 				CBonusSystemNode::treeHasChanged();

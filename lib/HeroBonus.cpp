@@ -658,7 +658,7 @@ void CBonusSystemNode::accumulateBonus(Bonus &b)
 {
 	Bonus *bonus = exportedBonuses.getFirst(Selector::typeSubtype(b.type, b.subtype)); //only local bonuses are interesting //TODO: what about value type?
 	if(bonus)
-		bonus += b.val;
+		bonus->val += b.val;
 	else
 		addNewBonus(new Bonus(b)); //duplicate needed, original may get destroyed
 }

@@ -24,16 +24,16 @@
 	//Value of bonuses given by each skill level
 	"skillLevels":
 	[
-		{"ATTACK": [2, 5, 9, 15, 25]}, //0
-		{"DEFENSE": [4, 10, 18, 30, 50]}, //1
-		{"HEALTH": [10, 25, 45, 70, 100]}, //2
-		{"DAMAGE": [10, 25, 45, 70, 100]}, //3
-		{"SPEED": [1, 2, 3, 4, 6]}, //4
-		{"SPELL_POWER":[1, 3, 6, 14, 29]}, //5
-		{"CASTS": [1, 2, 3, 4, 5]},
-		{"RESISTANCE": [5, 15, 35, 60, 90]}
+		{"name": "ATTACK", "levels": [2, 5, 9, 15, 25]}, //0
+		{"name": "DEFENSE", "levels": [4, 10, 18, 30, 50]}, //1
+		{"name": "HEALTH", "levels": [10, 25, 45, 70, 100]}, //2
+		{"name": "DAMAGE", "levels": [10, 25, 45, 70, 100]}, //3
+		{"name": "SPEED", "levels": [1, 2, 3, 4, 6]}, //4
+		{"name": "SPELL_POWER", "levels": [1, 3, 6, 14, 29]}, //5
+		{"name": "CASTS", "levels": [1, 2, 3, 4, 5]},
+		{"name": "RESISTANCE", "levels": [5, 15, 35, 60, 90]}
 	],
-	"abilityRequiremenets":
+	"abilityRequirements":
 	//Two secondary skills needed for each special ability
 	[
 		{"ability": ["ENEMY_DEFENCE_REDUCTION", 50, 0, 0 ], "skills": [0, 1]},

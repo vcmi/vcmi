@@ -981,11 +981,13 @@ void CCommanderInstance::init()
 {
 	alive = true;
 	experience = 0;
+	level = 1;
 	count = 1;
 	type = NULL;
 	idRand = -1;
 	_armyObj = NULL;
-	setNodeType (Bonus::COMMANDER);	
+	setNodeType (Bonus::COMMANDER);
+	secondarySkills.resize (ECommander::SPELL_POWER + 1);
 }
 
 CCommanderInstance::~CCommanderInstance()
@@ -1016,6 +1018,7 @@ int CCommanderInstance::getExpRank() const
 
 void CCommanderInstance::levelUp ()
 {
+	level++;
 	BOOST_FOREACH (auto bonus, VLC->creh->commanderLevelPremy)
 	{ //grant all regular level-up bonuses
 		accumulateBonus (*bonus);

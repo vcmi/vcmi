@@ -40,7 +40,7 @@ class CAnimImage;
 class CCreatureWindow : public CArtifactHolder
 {
 public:
-	enum CreWinType {OTHER = 0, BATTLE = 1, ARMY = 2, HERO = 3, COMMANDER = 4}; // > 3 are opened permanently
+	enum CreWinType {OTHER = 0, BATTLE = 1, ARMY = 2, HERO = 3, COMMANDER = 4, COMMANDER_LEVEL_UP = 5}; // > 3 are opened permanently
 	//bool active; //TODO: comment me
 	int type;//0 - rclick popup; 1 - normal window
 	int bonusRows; //height of skill window

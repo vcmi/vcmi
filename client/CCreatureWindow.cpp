@@ -301,8 +301,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	{
 		for (int i = ECommander::ATTACK; i <= ECommander::SPELL_POWER; ++i)
 		{
-			auto it = commander->secondarySkills.find(i);
-			if (it != commander->secondarySkills.end())
+			if (commander->secondarySkills[i])
 			{
 				std::string file = "zvs/Lib1.res/_";
 				switch (i)
@@ -326,10 +325,22 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 						file += "MP";
 						break;
 				}
-				file += boost::lexical_cast<std::string>(it->second);
+				std::string sufix = boost::lexical_cast<std::string>((int)(commander->secondarySkills[i] - 1)); //casting ui8 causes ascii char conversion
+				if (type == COMMANDER_LEVEL_UP)
+				{
+					if (commander->secondarySkills[i] < ECommander::MAX_SKILL_LEVEL)
+						sufix += "="; //level-up highlight
+					else
+						sufix = "no"; //not avaliable - no number
+				}
+				file += sufix += ".bmp";
 
-				auto skillGraphics = new CPicture(file, 40 + i * 82, 121);
-				blitAtLoc(skillGraphics->bg, 0, 0, bitmap->bg);
+				//bonusGraphics = new CPicture(graphicsName, 26, 232);
+				//blitAtLoc(bonusGraphics->bg, 12, 2, bitmap->bg);
+
+				auto skillGraphics = new CPicture(file, 39 + i * 82, 223);
+				//if (skillGraphics->bg)
+				//	blitAtLoc(skillGraphics->bg, 0, 0, bitmap->bg);
 			}
 		}
 	}
