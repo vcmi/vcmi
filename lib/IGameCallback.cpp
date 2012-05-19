@@ -418,10 +418,9 @@ shared_ptr<const CObstacleInstance> CBattleInfoCallback::battleGetObstacleOnPos(
 	if(!gs->curB)
 		return NULL;
 
-
-	auto ptr = gs->curB->obstacles.front();
-	shared_ptr<const CObstacleInstance> nastala = ptr;
-
+	//unused? causes crash in forts without moat
+	//auto ptr = gs->curB->obstacles.front();
+	//shared_ptr<const CObstacleInstance> nastala = ptr;
 
 	BOOST_FOREACH(auto &obs, battleGetAllObstacles())
 	{
@@ -431,9 +430,6 @@ shared_ptr<const CObstacleInstance> CBattleInfoCallback::battleGetObstacleOnPos(
 			return obs;
 		}
 	}
-
-
-
 	return NULL;
 }
 

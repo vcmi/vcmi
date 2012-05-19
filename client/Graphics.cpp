@@ -171,7 +171,7 @@ void Graphics::loadPaletteAndColors()
 		col.r = pals[startPoint++];
 		col.g = pals[startPoint++];
 		col.b = pals[startPoint++];
-		col.unused = pals[startPoint++];
+		col.unused = !pals[startPoint++];
 		playerColorPalette[i] = col;
 	}
 
@@ -185,6 +185,7 @@ void Graphics::loadPaletteAndColors()
 		ncp.read((char*)&neutralColorPalette[i].g,1);
 		ncp.read((char*)&neutralColorPalette[i].b,1);
 		ncp.read((char*)&neutralColorPalette[i].unused,1);
+		neutralColorPalette[i].unused = !neutralColorPalette[i].unused;
 	}
 
 
@@ -196,9 +197,9 @@ void Graphics::loadPaletteAndColors()
 		playerColors[i].r = kolory[i].x;
 		playerColors[i].g = kolory[i].y;
 		playerColors[i].b = kolory[i].z;
-		playerColors[i].unused = 0;
+		playerColors[i].unused = 255;
 	}
-	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; neutralColor->unused = 0x0;//gray
+	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; neutralColor->unused = 255;//gray
 	const JsonNode config(GameConstants::DATA_DIR + "/config/town_pictures.json");
 	BOOST_FOREACH(const JsonNode &p, config["town_pictures"].Vector()) {
 

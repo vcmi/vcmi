@@ -132,7 +132,7 @@ namespace CSDL_Ext
 	bool isTransparent(SDL_Surface * srf, int x, int y); //checks if surface is transparent at given position
 
 
-	Uint8 *getPxPtr(const SDL_Surface * const &srf, const int & x, const int & y);
+	Uint8 *getPxPtr(const SDL_Surface * const &srf, const int x, const int y);
 	const TColorPutter getPutterFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
 	const TColorPutterAlpha getPutterAlphaFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
 	BlitterWithRotationVal getBlitterWithRotation(SDL_Surface *dest);

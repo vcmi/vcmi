@@ -147,10 +147,10 @@ STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlphaSwitch(Uint8 *&p
 {
 	switch (A)
 	{
-	case 255:
+	case 0:
 		ptr += bpp * incrementPtr;
 		return;
-	case 0:
+	case 255:
 		PutColor(ptr, R, G, B);
 		return;
 	case 128:  // optimized
@@ -168,9 +168,9 @@ STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColorAlphaSwitch(Uint8 *&p
 template<int bpp, int incrementPtr>
 STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A)
 {
-	PutColor(ptr, ((((Uint32)Channels::px<bpp>::r.get(ptr)-(Uint32)R)*(Uint32)A) >> 8 ) + (Uint32)R,
-				  ((((Uint32)Channels::px<bpp>::g.get(ptr)-(Uint32)G)*(Uint32)A) >> 8 ) + (Uint32)G,
-				  ((((Uint32)Channels::px<bpp>::b.get(ptr)-(Uint32)B)*(Uint32)A) >> 8 ) + (Uint32)B);
+	PutColor(ptr, ((((Uint32)R - (Uint32)Channels::px<bpp>::r.get(ptr))*(Uint32)A) >> 8 ) + (Uint32)Channels::px<bpp>::r.get(ptr),
+				  ((((Uint32)G - (Uint32)Channels::px<bpp>::g.get(ptr))*(Uint32)A) >> 8 ) + (Uint32)Channels::px<bpp>::g.get(ptr),
+				  ((((Uint32)B - (Uint32)Channels::px<bpp>::b.get(ptr))*(Uint32)A) >> 8 ) + (Uint32)Channels::px<bpp>::b.get(ptr));
 }
 
 
@@ -185,7 +185,7 @@ STRONG_INLINE void ColorPutter<bpp, incrementPtr>::PutColor(Uint8 *&ptr, const U
 	Channels::px<bpp>::r.set(ptr, R);
 	Channels::px<bpp>::g.set(ptr, G);
 	Channels::px<bpp>::b.set(ptr, B);
-	Channels::px<bpp>::a.set(ptr, 0);
+	Channels::px<bpp>::a.set(ptr, 255);
 
 	if (incrementPtr > 0)
 		ptr += bpp;
@@ -226,10 +226,10 @@ STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColorAlphaSwitch(Uint8 *&ptr
 {
 	switch (A)
 	{
-	case 255:
+	case 0:
 		ptr += 2 * incrementPtr;
 		return;
-	case 0:
+	case 255:
 		PutColor(ptr, R, G, B);
 		return;
 	default:
@@ -254,9 +254,9 @@ STRONG_INLINE void ColorPutter<2, incrementPtr>::PutColor(Uint8 *&ptr, const Uin
 		b8 = (b5 << (8 - bbit)) | (b5 >> (2*bbit - 8));
 
 	PutColor(ptr,
-		(((r8-R)*A) >> 8) + R,
-		(((g8-G)*A) >> 8) + G,
-		(((b8-B)*A) >> 8) + B);
+		(((R-r8)*A) >> 8) + r8,
+		(((G-g8)*A) >> 8) + g8,
+		(((B-b8)*A) >> 8) + b8);
 }
 
 template <int incrementPtr>

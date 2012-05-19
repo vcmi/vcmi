@@ -68,7 +68,7 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 		palette[it].R = de.palette[it].R;
 		palette[it].G = de.palette[it].G;
 		palette[it].B = de.palette[it].B;
-		palette[it].F = 0;
+		palette[it].F = 255;
 	}
 
 	// The SDefEntryBlock starts just after the SDefEntry

@@ -1100,42 +1100,129 @@ void VCAI::recruitCreatures(const CGDwelling * d)
 	}
 }
 
-void VCAI::buildStructure(const CGTownInstance * t)
+bool VCAI::tryBuildStructure(const CGTownInstance * t, int building, unsigned int maxDays)
 {
-	//TODO make *real* town development system
-	const int buildings[] = {5, 11, 14, 16, 0, 12, 7, 8, 9, 13, 30, 31, 32, 33, 34, 35, 36, 37, 38,
-								39, 40, 41, 42, 43, 1, 2, 3, 4, 17, 18, 19, 21, 22, 23};
-	for(int i = 0; i < ARRAY_COUNT(buildings); i++)
+	if (t->hasBuilt(building)) //Already built? Shouldn't happen in general
+		return true;
+
+	std::set<int> toBuild = cb->getBuildingRequiments(t, building);
+	toBuild.insert(building);
+
+	if (maxDays && toBuild.size() > maxDays)
+		return false;
+
+	TResources currentRes = cb->getResourceAmount();
+	TResources income = estimateIncome();
+	//TODO: calculate if we have enough resources to build it in maxDays
+
+	BOOST_FOREACH(int buildID, toBuild)
 	{
-		if(t->hasBuilt(buildings[i]))
-			continue;
+		const CBuilding *b = VLC->buildh->buildings[t->subID][buildID];
 
-		const CBuilding *b = VLC->buildh->buildings[t->subID][buildings[i]];
-
-		int canBuild = cb->canBuildStructure(t, buildings[i]);
+		int canBuild = cb->canBuildStructure(t, buildID);
 		if(canBuild == EBuildingState::ALLOWED)
 		{
 			if(!containsSavedRes(b->resources))
 			{
 				BNLOG("Player %d will build %s in town of %s at %s", playerID % b->Name() % t->name % t->pos);
-				cb->buildBuilding(t, buildings[i]);
+				cb->buildBuilding(t, buildID);
+				return true;
 			}
-			break;
+			continue;
 		}
 		else if(canBuild == EBuildingState::NO_RESOURCES)
 		{
-			TResources mine = cb->getResourceAmount(), cost = VLC->buildh->buildings[t->subID][buildings[i]]->resources,
-				income = estimateIncome();
+			TResources cost = VLC->buildh->buildings[t->subID][buildID]->resources;
 			for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; i++)
 			{
-				int diff = mine[i] - cost[i] + income[i];
+				int diff = currentRes[i] - cost[i] + income[i];
 				if(diff < 0)
 					saving[i] = 1;
 			}
-
 			continue;
 		}
 	}
+	return false;
+}
+
+bool VCAI::tryBuildAnyStructure(const CGTownInstance * t, std::vector<int> buildList, unsigned int maxDays)
+{
+	BOOST_FOREACH(int building, buildList)
+	{
+		if(t->hasBuilt(building))
+			continue;
+		if (tryBuildStructure(t, building, maxDays))
+			return true;
+	}
+	return false; //Can't build anything
+}
+
+bool VCAI::tryBuildNextStructure(const CGTownInstance * t, std::vector<int> buildList, unsigned int maxDays)
+{
+	BOOST_FOREACH(int building, buildList)
+	{
+		if(t->hasBuilt(building))
+			continue;
+		return tryBuildStructure(t, building, maxDays);
+	}
+	return false;//Nothing to build
+}
+
+void VCAI::buildStructure(const CGTownInstance * t)
+{
+	using namespace EBuilding;
+	//TODO make *real* town development system
+	//TODO: faction-specific development
+	//TODO: build resource silo, defences when needed
+
+	//Set of buildings for different goals. Does not include any prerequisites.
+	const int essential[] = {TAVERN, TOWN_HALL};
+	const int goldSource[] = {TOWN_HALL, CITY_HALL, CAPITOL};
+	const int unitsSource[] = { 30, 31, 32, 33, 34, 35, 36};
+	const int unitsUpgrade[] = { 37, 38, 39, 40, 41, 42, 43};
+	const int unitGrowth[] = { FORT, CITADEL, CASTLE, HORDE_1, HORDE_1_UPGR, HORDE_2, HORDE_2_UPGR};
+	const int spells[] = {MAGES_GUILD_1, MAGES_GUILD_2, MAGES_GUILD_3, MAGES_GUILD_4, MAGES_GUILD_5};
+	const int extra[] = {RESOURCE_SILO, SPECIAL_1, SPECIAL_2, SPECIAL_3, SPECIAL_4, SHIPYARD}; // all remaining buildings
+
+	TResources currentRes = cb->getResourceAmount();
+	TResources income = estimateIncome();
+
+	if (tryBuildAnyStructure(t, std::vector<int>(essential, essential + ARRAY_COUNT(essential))))
+		return;
+
+	//we're running out of gold - try to build something gold-producing. Minimal amount can be tweaked
+	if (currentRes[Res::GOLD] + income[Res::GOLD] < 5000)
+		if (tryBuildNextStructure(t, std::vector<int>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
+			return;
+
+	if (cb->getDate(1) > 6)// last 2 days of week - try to focus on growth
+	{
+		if (tryBuildNextStructure(t, std::vector<int>(unitGrowth, unitGrowth + ARRAY_COUNT(unitGrowth)), 2))
+			return;
+	}
+
+	// first in-game week or second half of any week: try build dwellings
+	if (cb->getDate(0) < 7 || cb->getDate(1) > 3)
+		if (tryBuildAnyStructure(t, std::vector<int>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(1)))
+			return;
+
+	//try to upgrade dwelling
+	for(int i = 0; i < ARRAY_COUNT(unitsUpgrade); i++)
+	{
+		if (t->hasBuilt(unitsSource[i]))
+		{
+			if (tryBuildStructure(t, unitsUpgrade[i]))
+				return;
+		}
+	}
+
+	//remaining tasks
+	if (tryBuildNextStructure(t, std::vector<int>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
+		return;
+	if (tryBuildNextStructure(t, std::vector<int>(spells, spells + ARRAY_COUNT(spells))))
+		return;
+	if (tryBuildNextStructure(t, std::vector<int>(extra, extra + ARRAY_COUNT(extra))))
+		return;
 }
 
 bool isSafeToVisit(const CGHeroInstance *h, crint3 tile)

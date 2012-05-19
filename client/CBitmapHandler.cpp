@@ -84,7 +84,7 @@ SDL_Surface * CPCXConv::getSurface() const
 			tp.r = pcx[it++];
 			tp.g = pcx[it++];
 			tp.b = pcx[it++];
-			tp.unused = 0;
+			tp.unused = 255;
 			ret->format->palette->colors[i] = tp;
 		}
 	}

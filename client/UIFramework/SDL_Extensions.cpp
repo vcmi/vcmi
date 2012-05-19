@@ -45,7 +45,7 @@ SDL_Surface * CSDL_Ext::createSurfaceWithBpp(int width, int height)
 	Channels::px<bpp>::b.set((Uint8*)&bMask, 255);
 	Channels::px<bpp>::a.set((Uint8*)&aMask, 255);
 
-	return SDL_CreateRGBSurface( SDL_SWSURFACE | SDL_SRCALPHA, width, height, bpp * 8, rMask, gMask, bMask, aMask);
+	return SDL_CreateRGBSurface( SDL_SWSURFACE, width, height, bpp * 8, rMask, gMask, bMask, aMask);
 }
 
 bool isItIn(const SDL_Rect * rect, int x, int y)
@@ -504,7 +504,7 @@ void CSDL_Ext::alphaTransform(SDL_Surface *src)
 {
 	//NOTE: colors #7 & #8 used in some of WoG objects. Don't know how they're handled by H3
 	assert(src->format->BitsPerPixel == 8);
-	SDL_Color colors[] = {{0,0,0,255}, {0,0,0,214}, {0,0,0,164}, {0,0,0,82}, {0,0,0,128},
+	SDL_Color colors[] = {{0,0,0,0}, {0,0,0,32}, {0,0,0,64}, {0,0,0,128}, {0,0,0,128},
 						{255,255,255,0}, {255,255,255,0}, {255,255,255,0}, {0,0,0,192}, {0,0,0,192}};
 
 	SDL_SetColors(src, colors, 0, ARRAY_COUNT(colors));
@@ -934,7 +934,7 @@ const TColorPutterAlpha CSDL_Ext::getPutterAlphaFor(SDL_Surface * const &dest, i
 #undef CASE_BPP
 }
 
-Uint8 * CSDL_Ext::getPxPtr(const SDL_Surface * const &srf, const int & x, const int & y)
+Uint8 * CSDL_Ext::getPxPtr(const SDL_Surface * const &srf, const int x, const int y)
 {
 	return (Uint8 *)srf->pixels + y * srf->pitch + x * srf->format->BytesPerPixel;
 }
@@ -984,6 +984,13 @@ void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, con
 {
 	Uint8 *p = getPxPtr(ekran, x, y);
 	getPutterFor(ekran, false)(p, R, G, B);
+
+	switch(ekran->format->BytesPerPixel)
+	{
+	case 2: Channels::px<2>::a.set(p, A); break;
+	case 3: Channels::px<3>::a.set(p, A); break;
+	case 4: Channels::px<4>::a.set(p, A); break;
+	}
 }
 
 void CSDL_Ext::SDL_PutPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A /*= 255*/)

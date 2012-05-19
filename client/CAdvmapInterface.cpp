@@ -65,7 +65,7 @@ CMinimap::CMinimap()
 	pos.h=ADVOPT.minimapW;
 	pos.w=ADVOPT.minimapH;
 
-	temps = newSurface(pos.w,pos.h);
+	temps = CSDL_Ext::createSurfaceWithBpp<3>(pos.w,pos.h);
 	aiShield = new CPicture("AISHIELD.bmp");
 
 	const JsonNode config(GameConstants::DATA_DIR + "/config/minimap.json");
@@ -177,11 +177,6 @@ void CMinimapSurfacesRef::redraw(int level)
 
 void CMinimapSurfacesRef::initMap(int level)
 {
-	/*for(int g=0; g<map.size(); ++g)
-	{
-		SDL_FreeSurface(map[g]);
-	}
-	map.clear();*/
 	const Rect &minimap_pos = adventureInt->minimap.pos;
 	std::map<int,SDL_Color> &colors = adventureInt->minimap.colors;
 	std::map<int,SDL_Color> &colorsBlocked = adventureInt->minimap.colorsBlocked;
@@ -205,7 +200,8 @@ void CMinimapSurfacesRef::initMap(int level)
 				{
 					if (tile->blocked && (!tile->visitable))
 						SDL_PutPixelWithoutRefresh(pom, x, y, colorsBlocked[tile->tertype].r, colorsBlocked[tile->tertype].g, colorsBlocked[tile->tertype].b);
-					else SDL_PutPixelWithoutRefresh(pom, x, y, colors[tile->tertype].r, colors[tile->tertype].g, colors[tile->tertype].b);
+					else
+						SDL_PutPixelWithoutRefresh(pom, x, y, colors[tile->tertype].r, colors[tile->tertype].g, colors[tile->tertype].b);
 				}
 			}
 		}
@@ -232,7 +228,7 @@ void CMinimapSurfacesRef::initFoW(int level)
 				int3 pp( ((i*mapSizes.x)/mw), ((j*mapSizes.y)/mh), d );
 				if ( !LOCPLINT->cb->isVisible(pp) )
 				{
-					CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0);
+					CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0,0);
 				}
 			}
 		}
@@ -242,14 +238,7 @@ void CMinimapSurfacesRef::initFoW(int level)
 
 void CMinimapSurfacesRef::initFlaggableObjs(int level)
 {
-	/*for(int g=0; g<flObjs.size(); ++g)
-	{
-		SDL_FreeSurface(flObjs[g]);
-	}
-	flObjs.clear();*/
-
 	const Rect &minimap_pos = adventureInt->minimap.pos;
-	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	int mw = map_[0]->w, mh = map_[0]->h;
 	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
 	{
@@ -378,7 +367,8 @@ void CMinimap::showTile(const int3 &pos)
 			{
 				if (tile->blocked && (!tile->visitable))
 					SDL_PutPixelWithoutRefresh(surfs[player].map()[pos.z], pos.x*wo+ii, pos.y*ho+jj, colorsBlocked[tile->tertype].r, colorsBlocked[tile->tertype].g, colorsBlocked[tile->tertype].b);
-				else SDL_PutPixelWithoutRefresh(surfs[player].map()[pos.z], pos.x*wo+ii, pos.y*ho+jj, colors[tile->tertype].r, colors[tile->tertype].g, colors[tile->tertype].b);
+				else
+					SDL_PutPixelWithoutRefresh(surfs[player].map()[pos.z], pos.x*wo+ii, pos.y*ho+jj, colors[tile->tertype].r, colors[tile->tertype].g, colors[tile->tertype].b);
 			}
 		}
 	}
@@ -421,11 +411,11 @@ void CMinimap::showTile(const int3 &pos)
 				for (int jj=0; jj<hoShifted; jj++)
 				{
 					if(oo[v]->tempOwner == 255)
-						SDL_PutPixelWithoutRefresh(flObjs[pos.z],maplgp.x+ii,maplgp.y+jj,graphics->neutralColor->b,
-							graphics->neutralColor->g,graphics->neutralColor->r);
+						SDL_PutPixelWithoutRefresh(flObjs[pos.z],maplgp.x+ii,maplgp.y+jj,graphics->neutralColor->r,
+							graphics->neutralColor->g,graphics->neutralColor->b);
 					else
-						SDL_PutPixelWithoutRefresh(flObjs[pos.z],maplgp.x+ii,maplgp.y+jj,graphics->playerColors[oo[v]->getOwner()].b,
-							graphics->playerColors[oo[v]->getOwner()].g,graphics->playerColors[oo[v]->getOwner()].r);
+						SDL_PutPixelWithoutRefresh(flObjs[pos.z],maplgp.x+ii,maplgp.y+jj,graphics->playerColors[oo[v]->getOwner()].r,
+							graphics->playerColors[oo[v]->getOwner()].g,graphics->playerColors[oo[v]->getOwner()].b);
 				}
 			}
 		}
@@ -467,7 +457,7 @@ void CMinimap::hideTile(const int3 &pos)
 		for (int jj=0; jj<ho; jj++)
 		{
 			if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
-				CSDL_Ext::SDL_PutPixelWithoutRefresh(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0);
+				CSDL_Ext::SDL_PutPixelWithoutRefresh(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,255);
 		}
 	}
 }

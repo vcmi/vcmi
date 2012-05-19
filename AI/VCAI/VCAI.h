@@ -174,6 +174,15 @@ private:
 
 class VCAI : public CAdventureAI
 {
+	//internal methods for town development
+
+	//try build an unbuilt structure in maxDays at most (0 = indefinite)
+	bool tryBuildStructure(const CGTownInstance * t, int building, unsigned int maxDays=0);
+	//try build ANY unbuilt structure
+	bool tryBuildAnyStructure(const CGTownInstance * t, std::vector<int> buildList, unsigned int maxDays=0);
+	//try build first unbuilt structure
+	bool tryBuildNextStructure(const CGTownInstance * t, std::vector<int> buildList, unsigned int maxDays=0);
+
 public:
 	friend class FuzzyHelper;
 
