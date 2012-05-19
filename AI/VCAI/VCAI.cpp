@@ -1172,16 +1172,23 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(const CGHero
 
 	possibleDestinations.erase(boost::remove_if(possibleDestinations, [&](const CGObjectInstance *obj) -> bool
 		{
+			const int3 pos = obj->visitablePos();
 			if(vstd::contains(alreadyVisited, obj))
 				return true;
 
-			if(!isSafeToVisit(h, obj->visitablePos()))
+			if(!isSafeToVisit(h, pos))
 				return true;
 
 			if (!shouldVisit(h, obj))
 				return true;
 			
 			if (vstd::contains(reservedObjs, obj)) //does checking for our own reserved objects make sense? here?
+				return true;
+
+			const CGObjectInstance *topObj = cb->getVisitableObjs(pos).back(); //it may be hero visiting this obj
+			//we don't try visiting object on which allied or owned hero stands
+			// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
+			if(topObj->ID == GameConstants::HEROI_TYPE  &&  cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != 0)
 				return true;
 
 			return false;
