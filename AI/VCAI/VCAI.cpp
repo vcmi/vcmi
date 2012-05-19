@@ -2367,7 +2367,14 @@ TSubgoal CGoal::whatToDoToAchieve()
 			{
 				tlog1 << boost::format("Very strange, tile to hit is %s and tile is also %s, while hero %s is at %s\n")
 					% tileToHit % tile % h->name % h->visitablePos();
-				throw cannotFulfillGoalException("Retreiving first tile to hit failed (probably)!");
+				throw cannotFulfillGoalException("Retrieving first tile to hit failed (probably)!");
+			}
+
+			auto topObj = backOrNull(cb->getVisitableObjs(tileToHit));
+			if(topObj && topObj->ID == GameConstants::HEROI_TYPE && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != 0)
+			{
+				std::string problem = boost::str(boost::format("%s stands in the way of %s.\n") % topObj->getHoverText()  % h->getHoverText());
+				throw cannotFulfillGoalException(problem);
 			}
 
 			return CGoal(VISIT_TILE).settile(tileToHit).sethero(h);
