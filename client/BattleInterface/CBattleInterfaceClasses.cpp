@@ -360,7 +360,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 				bestMonsterID = it->second->type->idNumber;
 			}
 		}
-		new CAnimImage("TWCRPORT", bestMonsterID, 0, 21, 38);
+		new CAnimImage("TWCRPORT", bestMonsterID+2, 0, 21, 38);
 		//setting attackerName
 		attackerName =  CGI->creh->creatures[bestMonsterID]->namePl;
 	}
@@ -382,7 +382,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 				bestMonsterID = it->second->type->idNumber;
 			}
 		}
-		new CAnimImage("TWCRPORT", bestMonsterID, 0, 392, 38);
+		new CAnimImage("TWCRPORT", bestMonsterID+2, 0, 392, 38);
 		//setting defenderName
 		defenderName =  CGI->creh->creatures[bestMonsterID]->namePl;
 	}

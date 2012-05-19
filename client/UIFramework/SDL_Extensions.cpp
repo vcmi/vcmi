@@ -279,6 +279,9 @@ void CSDL_Ext::printAt( const std::string & text, int dstX, int dstY, EFonts fon
 		int lineBegin = std::max<int>(0, clipRect.y - dstY);
 		int lineEnd   = std::min<int>(f->height, clipRect.y + clipRect.h - dstY - 1);
 
+		int rowBegin = std::max(0, clipRect.x - dstX);
+		int rowEnd   = std::min(f->chars[symbol].width, clipRect.x + clipRect.w - dstX - 1);
+
 		//for each line in symbol
 		for(int dy = lineBegin; dy <lineEnd; dy++)
 		{
@@ -287,9 +290,6 @@ void CSDL_Ext::printAt( const std::string & text, int dstX, int dstY, EFonts fon
 
 			dstLine += (dstY+dy) * dst->pitch + dstX * bpp;
 			srcLine += dy * f->chars[symbol].width;
-
-			int rowBegin = std::max(0, clipRect.x - dstX);
-			int rowEnd   = std::min(f->chars[symbol].width, clipRect.x + clipRect.w - dstX - 1);
 
 			//for each column in line
 			for(int dx = rowBegin; dx < rowEnd; dx++)

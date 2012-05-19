@@ -284,13 +284,29 @@ bool CGObjectInstance::blockingAt(int x, int y) const
 
 bool CGObjectInstance::coveringAt(int x, int y) const
 {
+	//input coordinates are always negative
+	x = -x;
+	y = -y;
 #if USE_COVERAGE_MAP
+	//NOTE: this code may be broken
 	if((defInfo->coverageMap[y] >> (7-(x) )) & 1 
 		||  (defInfo->shadowCoverage[y] >> (7-(x) )) & 1)
 		return true;
 	return false;
 #else
-	return x < 8 && y < 6;// ignore unreliable msk\msg
+	return x >= 0 && y >= 0 && x < getWidth() && y < getHeight();
+#endif
+}
+
+bool CGObjectInstance::hasShadowAt( int x, int y ) const
+{
+#if USE_COVERAGE_MAP
+	//NOTE: this code may be broken
+	if( (defInfo->shadowCoverage[y] >> (7-(x) )) & 1 )
+		return true;
+	return false;
+#else
+	return coveringAt(x,y);// ignore unreliable shadowCoverage map
 #endif
 }
 
@@ -473,17 +489,6 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 ui8 CGObjectInstance::getPassableness() const
 {
 	return 0;
-}
-
-bool CGObjectInstance::hasShadowAt( int x, int y ) const
-{
-#if USE_COVERAGE_MAP
-	if( (defInfo->shadowCoverage[y] >> (7-(x) )) & 1 )
-		return true;
-	return false;
-#else
-	return coveringAt(x,y);// ignore unreliable shadowCoverage map
-#endif
 }
 
 int3 CGObjectInstance::visitablePos() const

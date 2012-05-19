@@ -3365,7 +3365,7 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 	waitForAnims();
 
 	int effectID = -1;
-	soundBase::soundID sound = soundBase::invalid;
+	soundBase::soundID sound = soundBase::invalid;//FIXME: variable set but unused. Missing soundh->playSound()?
 
 	std::string defname;
 

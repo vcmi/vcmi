@@ -539,7 +539,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				ui8 color = obj->tempOwner;
 
 				//checking if object has non-empty graphic on this tile
-				if(obj->ID != GameConstants::HEROI_TYPE && !obj->coveringAt(obj->pos.x - (top_tile.x + bx), top_tile.y + by - obj->pos.y + 5))
+				if(obj->ID != GameConstants::HEROI_TYPE && !obj->coveringAt(top_tile.x + bx - obj->pos.x, top_tile.y + by - obj->pos.y))
 					continue;
 
 				static const int notBlittedInPuzzleMode[] = {124};
@@ -655,7 +655,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 					if(color < 8 || color==255)
 						CSDL_Ext::setPlayerColor(bitmap, color);
 
-					if( obj->hasShadowAt(obj->pos.x - (top_tile.x + bx), top_tile.y + by - obj->pos.y + 5) )
+					if( obj->hasShadowAt(top_tile.x + bx - obj->pos.x, top_tile.y + by - obj->pos.y) )
 						CSDL_Ext::blit8bppAlphaTo24bpp(bitmap,&pp,extSurf,&sr2);
 					else
 						CSDL_Ext::blitSurface(bitmap,&pp,extSurf,&sr2);
@@ -803,7 +803,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 std::pair<SDL_Surface *, bool> CMapHandler::getVisBitmap( const int3 & pos, const std::vector< std::vector< std::vector<ui8> > > & visibilityMap ) const
 {
 	//NOTE: some images have unused in VCMI pair (same blockmap but a bit different look)
-	// 0-1, 2-3, 4-5, 11-13, 13-14
+	// 0-1, 2-3, 4-5, 11-13, 12-14
 	static const int visBitmaps[256] = {
 		-1,  34,   4,   4,  22,  23,   4,   4,  36,  36,  38,  38,  47,  47,  38,  38, //16
 		 3,  25,  12,  12,   3,  25,  12,  12,   9,   9,   6,   6,   9,   9,   6,   6, //32

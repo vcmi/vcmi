@@ -1574,11 +1574,9 @@ int CGameState::battleGetBattlefieldType(int3 tile) const
 
 	BOOST_FOREACH(auto &obj, map->objects)
 	{
-		if( !obj || obj->pos.z != tile.z 
-			|| obj->pos.x - tile.x < 0  ||  obj->pos.x - tile.x >= 8
-			||  tile.y - obj->pos.y + 5 < 0  ||  tile.y - obj->pos.y + 5 >=6
-			|| !obj->coveringAt(obj->pos.x - tile.x, tile.y - obj->pos.y + 5)
-			) //look only for objects covering given tile
+		//look only for objects covering given tile
+		if( !obj || obj->pos.z != tile.z
+		  || !obj->coveringAt(tile.x - obj->pos.x, tile.y - obj->pos.y))
 			continue;
 
 		switch(obj->ID)
