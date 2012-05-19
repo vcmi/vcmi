@@ -22,6 +22,7 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/CLodHandler.h"
 #include "../lib/CObjectHandler.h"
+#include "../lib/NetPacks.h"
 
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
@@ -297,7 +298,28 @@ void CHeroWindow::questlog()
 
 void CHeroWindow::commanderWindow()
 {
-	GH.pushInt(new CCreatureWindow (curHero->commander));
+	//TODO: allow equipping commander artifacts by drag / drop
+	//bool artSelected = false;
+	//const CArtifactsOfHero::SCommonPart *commonInfo = artSets.front()->commonInfo;
+
+	//if (const CArtifactInstance *art = commonInfo->src.art)
+	//{
+	//	const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
+	//	artSelected = true;
+	//	ArtifactLocation src (srcHero, commonInfo->src.slotID);
+	//	ArtifactLocation dst (curHero->commander.get(), commonInfo->src.slotID);
+	//	if (art->canBePutAt(dst, true))
+	//	{	//equip clicked stack
+	//		if(dst.getArt())
+	//		{
+	//			LOCPLINT->cb->swapArtifacts (dst, ArtifactLocation(srcHero, dst.getArt()->firstBackpackSlot(srcHero)));
+	//		}
+	//		LOCPLINT->cb->swapArtifacts(src, dst);
+	//	}
+	//}
+	//else
+		GH.pushInt(new CCreatureWindow (curHero->commander));
+
 }
 
 void CHeroWindow::showAll(SDL_Surface * to)

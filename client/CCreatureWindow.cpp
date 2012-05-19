@@ -340,7 +340,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 				}
 				file += sufix += ".bmp";
 
-				auto skillGraphics = new CPicture(file, 38 + i * 84, 223);
+				auto skillGraphics = new CPicture(file, 37 + i * 84, 224);
 			}
 		}
 		//print commander level

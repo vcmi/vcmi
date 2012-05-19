@@ -5052,7 +5052,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 	{
 		assert(commonInfo->dst == dst  //expected movement from slot ot slot
 			||  dst.slot == dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START //artifact moved back to backpack (eg. to make place for art we are moving)
-			|| dst.getHolderArtSet()->bearerType() == ArtBearer::CREATURE);
+			|| dst.getHolderArtSet()->bearerType() != ArtBearer::HERO);
 		commonInfo->reset();
 		unmarkSlots();
 	}

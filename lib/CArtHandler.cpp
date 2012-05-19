@@ -238,6 +238,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		nart.price=atoi(pom.c_str());
 		nart.possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
 		nart.possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
+		//nart.possibleSlots[ArtBearer::COMMANDER];
 		for(int j=0;j<slots.size();j++)
 		{
 			loadToIt(pom,buf,it,4);
@@ -511,8 +512,21 @@ void CArtHandler::makeItCreatureArt (int aid, bool onlyCreature /*=true*/)
 	if (onlyCreature)
 	{
 		a->possibleSlots[ArtBearer::HERO].clear();
+		//a->possibleSlots[ArtBearer::COMMANDER].clear();
 	}
 	a->possibleSlots[ArtBearer::CREATURE].push_back(ArtifactPosition::CREATURE_SLOT);
+};
+
+void CArtHandler::makeItCommanderArt (int aid, bool onlyCommander /*=true*/)
+{
+	//CArtifact *a = artifacts[aid];
+	//if (onlyCommander)
+	//{
+	//	a->possibleSlots[ArtBearer::HERO].clear();
+	//	a->possibleSlots[ArtBearer::CREATURE].clear();
+	//}
+	//for (int i = ArtifactPosition::COMMANDER1; i <= ArtifactPosition::COMMANDER6; ++i)
+	//	a->possibleSlots[ArtBearer::COMMANDER].push_back(i);
 };
 
 void CArtHandler::addBonuses()
@@ -801,6 +815,13 @@ void CArtHandler::addBonuses()
 		artifacts[156].get()->setDescription ("+2 stack HP");
 
 	}
+	if (GameConstants::COMMANDERS)
+	{
+		for (int i = 146; i <= 155; ++i)
+		{
+			makeItCommanderArt (i);
+		}
+	}
 }
 
 void CArtHandler::clear()
@@ -920,6 +941,13 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<ui8> &allowed)
 		if (allowed[i])
 			allowedArtifacts.push_back(artifacts[i]);
 	}
+	//if (GameConstants::COMMANDERS) //allow all commander artifacts for testing
+	//{
+	//	for (int i = 146; i <= 155; ++i)
+	//	{
+	//		allowedArtifacts.push_back(artifacts[i]);
+	//	}
+	//}
 }
 
 CArtifactInstance::CArtifactInstance()

@@ -28,7 +28,8 @@ namespace ArtifactPosition
 		MACH1, MACH2, MACH3, MACH4, SPELLBOOK, MISC5, 
 		AFTER_LAST,
 		//cres
-		CREATURE_SLOT = 0
+		CREATURE_SLOT = 0/*,
+		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6*/
 	};
 }
 
@@ -243,6 +244,7 @@ public:
 	void initAllowedArtifactsList(const std::vector<ui8> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	static int convertMachineID(int id, bool creToArt);
 	void makeItCreatureArt (int aid, bool onlyCreature = true);
+	void makeItCommanderArt (int aid, bool onlyCommander = true);
 	CArtHandler();
 	~CArtHandler();
 

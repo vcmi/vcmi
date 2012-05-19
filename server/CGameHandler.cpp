@@ -298,6 +298,7 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 		return;
 	}
 
+	scp.accumulatedBonus.subtype = 0;
 	scp.accumulatedBonus.additionalInfo = 0;
 	scp.accumulatedBonus.duration = Bonus::PERMANENT;
 	scp.accumulatedBonus.turnsRemain = 0;

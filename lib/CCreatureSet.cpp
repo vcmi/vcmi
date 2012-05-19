@@ -757,6 +757,7 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "E_REBIRTH.bmp"; break;
 		case Bonus::BLOCKS_RETALIATION:
 			fileName = "E_RETAIL.bmp"; break;
+		case Bonus::UNLIMITED_RETALIATIONS:
 		case Bonus::ADDITIONAL_RETALIATION:
 			fileName = "E_RETAIL1.bmp"; break;
 		case Bonus::ATTACKS_ALL_ADJACENT:
@@ -1023,6 +1024,11 @@ void CCommanderInstance::levelUp ()
 	{ //grant all regular level-up bonuses
 		accumulateBonus (*bonus);
 	}
+}
+
+ui8 CCommanderInstance::bearerType() const
+{
+	return ArtBearer::COMMANDER;
 }
 
 CStackBasicDescriptor::CStackBasicDescriptor()
