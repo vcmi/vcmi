@@ -1,3 +1,56 @@
+0.88 -> 0.next
+GENERAL
+* Save game screen and returning to main menu will work if game was started with --start option
+* Simple mechanism for detecting game desynchronization after init
+* CTRL+T will open marketplace window
+* G will open thieves guild window if player owns at least one town with tavern
+* Implemented restart functionality. CTRL+R will trigger a quick restart
+* Support for stack artifacts
+* New creature window
+* Config file may have multiple upgrades for creatures
+
+ADVENTURE MAP
+* Fixed monsters regenerating casualties from battle at the start of new week.
+* T in adventure map will switch to next town
+
+BATTLES
+* It's possible to switch active creature during tacts phase by clicking on stack
+* After battle artifacts of the defeated hero (and his army) will be taken by winner
+* Rewritten handling of battle obstacles. They will be now placed following H3 algorithm.
+* Fixed crash when death stare or acid breath activated on stack that was just killed
+* First aid tent can heal only creatures that suffered damage
+* War machines can't be healed by tent
+* Creatures casting spells won't try to cast them during tactic phase
+* Console tooltips for first aid tent
+* Console tooltips for teleport spell
+* Cursor is reset to pointer when action is requested
+* Fixed a few other missing or wrong tooltips/cursors
+* Implemented opening creature window by l-clicking on stack
+* Fixed crash on attacking walls with Cyclop Kings
+* Fixed and simplified Teleport casting
+* Fixed Remove Obstacle spell
+* New spells supported:
+- Fire Wall
+- Force Field
+- Land Mine
+- Quicksands
+- Sacrifice
+
+TOWNS:
+* T in castle window will open a tavern window (if available)
+
+PREGAME
+* Pregame will use same resolution as main game
+
+ADVENTURE AI
+* basic rule system for threat evaluation
+* AI can now use external dwellings
+* AI will weekly revisit dwellings & mills
+* AI will now always pick best stacks from towns
+* AI will recruit multiple heroes for exploration
+* AI won't try attacking its own heroes
+
+
 0.87 -> 0.88 (Mar 01 2012)
 * added an initial version of new adventure AI: VCAI
 * system settings window allows to change default resolution

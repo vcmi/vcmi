@@ -1207,9 +1207,10 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	bool result = false; //TODO why not set to true anywhere?
 	{
 		//evil...
+
 		auto unlockEvents = vstd::makeUnlockGuard(eventsM);
+		auto unlockGs = vstd::makeUnlockSharedGuard(cb->getGsMutex()); //GS mutex is above PIM because CClient::run thread first locks PIM and then GS -> so this way we avoid deadlocks
 		auto unlockPim = vstd::makeUnlockGuard(*pim);
-		auto unlockGs = vstd::makeUnlockSharedGuard(cb->getGsMutex());
 
 		{
 			path.convert(0);
