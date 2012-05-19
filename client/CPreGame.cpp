@@ -218,6 +218,21 @@ CMenuScreen::CMenuScreen(const JsonNode& configNode):
 	if (!images.empty())
 		pos = images[0]->center();
 
+	//Work in progress, move along
+	/*
+	clock_t startTime = clock();
+	if (!images.empty())
+	{
+		SDL_Surface * scaled = images[0]->bg;
+		scaled = CSDL_Ext::scaleSurface(scaled, screen->w, screen->h);
+		SDL_FreeSurface(images[0]->bg);
+		images[0]->bg = scaled;
+		images[0]->pos.w = scaled->w;
+		images[0]->pos.h = scaled->h;
+	}
+	clock_t finishTime = clock();
+	tlog1<< "Image scaled in " << finishTime - startTime <<"\n";
+*/
 	//Hardcoded entry
 	menuNameToEntry.push_back("credits");
 

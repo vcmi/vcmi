@@ -1095,7 +1095,7 @@ void CSDL_Ext::applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mo
 		}
 		break;
 	default:
-		throw std::runtime_error("Unsuppoerted efftct!");
+		throw std::runtime_error("Unsupported effect!");
 	}
 }
 
@@ -1107,6 +1107,78 @@ void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode 
 		case 3: applyEffectBpp<3>(surf, rect, mode); break;
 		case 4: applyEffectBpp<4>(surf, rect, mode); break;
 	}
+}
+
+template<int bpp>
+void scaleSurfaceInternal(SDL_Surface *surf, SDL_Surface *ret)
+{
+	const float factorX = float(surf->w - 1) / float(ret->w),
+	            factorY = float(surf->h - 1) / float(ret->h);
+
+	for(int y = 0; y < ret->h; y++)
+	{
+		for(int x = 0; x < ret->w; x++)
+		{
+			//coordinates we want to interpolate
+			float origX = x * factorX,
+			      origY = y * factorY;
+
+			float x1 = floor(origX), x2 = floor(origX+1),
+			      y1 = floor(origY), y2 = floor(origY+1);
+			assert( x1 >= 0 && y1 >= 0 && x2 < surf->w && y2 < surf->h);//All pixels are in range
+
+			// Calculate weights of each source pixel
+			float w11 = ((origX - x1) * (origY - y1));
+			float w12 = ((origX - x1) * (y2 - origY));
+			float w21 = ((x2 - origX) * (origY - y1));
+			float w22 = ((x2 - origX) * (y2 - origY));
+			assert( w11 + w12 + w21 + w22 > 0.99 && w11 + w12 + w21 + w22 < 1.01);//total weight is ~1.0
+
+			// Get pointers to source pixels
+			Uint8 *p11 = (Uint8*)surf->pixels + int(y1) * surf->pitch + int(x1) * bpp;
+			Uint8 *p12 = p11 + bpp;
+			Uint8 *p21 = p11 + surf->pitch;
+			Uint8 *p22 = p21 + bpp;
+			// Calculate resulting channels
+#define PX(X, PTR) Channels::px<bpp>::X.get(PTR)
+			int resR = PX(r, p11) * w11 + PX(r, p12) * w12 + PX(r, p21) * w21 + PX(r, p22) * w22;
+			int resG = PX(g, p11) * w11 + PX(g, p12) * w12 + PX(g, p21) * w21 + PX(g, p22) * w22;
+			int resB = PX(b, p11) * w11 + PX(b, p12) * w12 + PX(b, p21) * w21 + PX(b, p22) * w22;
+			int resA = PX(a, p11) * w11 + PX(a, p12) * w12 + PX(a, p21) * w21 + PX(a, p22) * w22;
+			assert(resR < 256 && resG < 256 && resB < 256 && resA < 256);
+#undef PX
+			Uint8 *dest = (Uint8*)ret->pixels + y * ret->pitch + x * bpp;
+			Channels::px<bpp>::r.set(dest, resR);
+			Channels::px<bpp>::g.set(dest, resG);
+			Channels::px<bpp>::b.set(dest, resB);
+			Channels::px<bpp>::a.set(dest, resA);
+		}
+	}
+}
+
+/// scaling via bilinear interpolation algorithm.
+/// NOTE: best results are for scaling in range 50%...200%
+SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface *surf, int width, int height)
+{
+	if (!surf || !width || !height)
+		return nullptr;
+	if (surf->format->palette)
+	{
+		//it is possible implement but only to power of 2 sizes. May be needed for view world spells
+		tlog0 << "scale surface error: Can't scale indexed surface!\n";
+		return nullptr;
+	}
+
+	SDL_Surface *ret = newSurface(width, height, surf);
+
+	switch(surf->format->BytesPerPixel)
+	{
+	case 2: scaleSurfaceInternal<2>(surf, ret); break;
+	case 3: scaleSurfaceInternal<3>(surf, ret); break;
+	case 4: scaleSurfaceInternal<4>(surf, ret); break;
+	}
+
+	return ret;
 }
 
 void CSDL_Ext::blitSurface( SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect )

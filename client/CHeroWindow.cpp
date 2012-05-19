@@ -210,9 +210,15 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		}
 
 		int serial = LOCPLINT->cb->getHeroSerial(curHero, false);
+		if (listSelection && active)
+			listSelection->deactivate();
 		delChildNUll(listSelection);
 		if (serial >= 0)
+		{
 			listSelection = new CPicture("HPSYYY", 612, 33 + serial * 54);
+			if (active)
+				listSelection->activate();
+		}
 	}
 
 	//primary skills support

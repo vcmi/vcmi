@@ -6207,8 +6207,12 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 		imageName = morale ? "IMRL30": "ILCK30";
 	else
 		imageName = morale ? "IMRL42" : "ILCK42";
+	if (image && active)
+		image->deactivate();
 	delChildNUll(image);
 	image = new CAnimImage(imageName, bonusValue + 3);
+	if (active)
+		image->activate();
 	image->moveBy(Point(pos.w/2 - image->pos.w/2, pos.h/2 - image->pos.h/2));//center icon
 }
 

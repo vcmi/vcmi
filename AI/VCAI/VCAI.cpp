@@ -1172,8 +1172,9 @@ void VCAI::buildStructure(const CGTownInstance * t)
 {
 	using namespace EBuilding;
 	//TODO make *real* town development system
-	//TODO: faction-specific development
+	//TODO: faction-specific development: use special buildings, build dwellings in better order, etc
 	//TODO: build resource silo, defences when needed
+	//Possible - allow "locking" on specific building (build prerequisites and then building itself)
 
 	//Set of buildings for different goals. Does not include any prerequisites.
 	const int essential[] = {TAVERN, TOWN_HALL};
@@ -1190,8 +1191,8 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	if (tryBuildAnyStructure(t, std::vector<int>(essential, essential + ARRAY_COUNT(essential))))
 		return;
 
-	//we're running out of gold - try to build something gold-producing. Minimal amount can be tweaked
-	if (currentRes[Res::GOLD] + income[Res::GOLD] < 5000)
+	//we're running out of gold - try to build something gold-producing. Multiplier can be tweaked
+	if (currentRes[Res::GOLD] < income[Res::GOLD] * 4)
 		if (tryBuildNextStructure(t, std::vector<int>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
 			return;
 
@@ -1221,7 +1222,7 @@ void VCAI::buildStructure(const CGTownInstance * t)
 		return;
 	if (tryBuildNextStructure(t, std::vector<int>(spells, spells + ARRAY_COUNT(spells))))
 		return;
-	if (tryBuildNextStructure(t, std::vector<int>(extra, extra + ARRAY_COUNT(extra))))
+	if (tryBuildAnyStructure(t, std::vector<int>(extra, extra + ARRAY_COUNT(extra))))
 		return;
 }
 

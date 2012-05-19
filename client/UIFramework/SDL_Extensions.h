@@ -174,6 +174,8 @@ namespace CSDL_Ext
 	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value
 	void VflipSurf(SDL_Surface * surf); //fluipis given surface by vertical axis
 
+	SDL_Surface * scaleSurface(SDL_Surface *surf, int width, int height);
+
 	template<int bpp>
 	void applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mode );
 	void applyEffect(SDL_Surface * surf, const SDL_Rect * rect, int mode); //mode: 0 - sepia, 1 - grayscale
