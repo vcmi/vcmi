@@ -305,25 +305,25 @@ void CHeroWindow::questlog()
 void CHeroWindow::commanderWindow()
 {
 	//TODO: allow equipping commander artifacts by drag / drop
-	//bool artSelected = false;
-	//const CArtifactsOfHero::SCommonPart *commonInfo = artSets.front()->commonInfo;
+	bool artSelected = false;
+	const CArtifactsOfHero::SCommonPart *commonInfo = artSets.front()->commonInfo;
 
-	//if (const CArtifactInstance *art = commonInfo->src.art)
-	//{
-	//	const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
-	//	artSelected = true;
-	//	ArtifactLocation src (srcHero, commonInfo->src.slotID);
-	//	ArtifactLocation dst (curHero->commander.get(), commonInfo->src.slotID);
-	//	if (art->canBePutAt(dst, true))
-	//	{	//equip clicked stack
-	//		if(dst.getArt())
-	//		{
-	//			LOCPLINT->cb->swapArtifacts (dst, ArtifactLocation(srcHero, dst.getArt()->firstBackpackSlot(srcHero)));
-	//		}
-	//		LOCPLINT->cb->swapArtifacts(src, dst);
-	//	}
-	//}
-	//else
+	if (const CArtifactInstance *art = commonInfo->src.art)
+	{
+		const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
+		artSelected = true;
+		ArtifactLocation src (srcHero, commonInfo->src.slotID);
+		ArtifactLocation dst (curHero->commander.get(), art->firstAvailableSlot (curHero->commander));
+		if (art->canBePutAt(dst, true))
+		{	//equip clicked stack
+			if(dst.getArt())
+			{
+				LOCPLINT->cb->swapArtifacts (dst, ArtifactLocation(srcHero, dst.getArt()->firstBackpackSlot(srcHero)));
+			}
+			LOCPLINT->cb->swapArtifacts(src, dst);
+		}
+	}
+	else
 		GH.pushInt(new CCreatureWindow (curHero->commander));
 
 }
