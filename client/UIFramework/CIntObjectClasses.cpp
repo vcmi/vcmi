@@ -70,6 +70,21 @@ CPicture::CPicture(SDL_Surface *BG, const Rect &SrcRect, int x /*= 0*/, int y /*
 	freeSurf = free;
 }
 
+void CPicture::setSurface(SDL_Surface *to)
+{
+	bg = to;
+	if (srcRect)
+	{
+		pos.w = srcRect->w;
+		pos.h = srcRect->h;
+	}
+	else
+	{
+		pos.w = bg->w;
+		pos.h = bg->h;
+	}
+}
+
 CPicture::~CPicture()
 {
 	if(freeSurf)
@@ -113,6 +128,17 @@ void CPicture::convertToScreenBPP()
 	bg = SDL_ConvertSurface(hlp,screen->format,0);
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
 	SDL_FreeSurface(hlp);
+}
+
+void CPicture::scaleTo(Point size)
+{
+	SDL_Surface * scaled = CSDL_Ext::scaleSurface(bg, size.x, size.y);
+
+	if(freeSurf)
+		SDL_FreeSurface(bg);
+
+	setSurface(scaled);
+	freeSurf = false;
 }
 
 void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)

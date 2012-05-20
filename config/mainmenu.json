@@ -2,8 +2,10 @@
 	//Main menu window, consists of several sub-menus aka items
 	"window":
 	{
+		"background" : "ZPIC1005",
+		//"scalable" : true, //background will be scaled to screen size
 		"video" :    {"x": 8, "y": 105, "name":"ACREDIT.SMK" },//Floating WoG logo
-		"images" : [ {"x": 0, "y": 0, "name":"ZPIC1005"} ],//Background image
+		//"images" : [],//Optioal, contains any additional images in the same format as video
 		"items" : 
 		[
 			{
@@ -27,7 +29,7 @@
 					{"x": 545, "y": 358, "name":"ZTTUTOR", "hotkey" : 116, "help": 13, "command": "start tutorial"},
 					{"x": 582, "y": 464, "name":"ZTBACK",  "hotkey" : 27,  "help": 14, "command": "to main"}
 				],
-				"images": [ {"x": 114, "y": 312, "name":"ZNEWGAM"}	]
+				"images": [ {"x": 114, "y": 312, "name":"ZNEWGAM"} ]
 			},
 			{
 				"name" : "load",
@@ -39,7 +41,7 @@
 					{"x": 545, "y": 358, "name":"ZTTUTOR", "hotkey" : 116, "help": 13, "command": "load tutorial"},
 					{"x": 582, "y": 464, "name":"ZTBACK",  "hotkey" : 27,  "help": 14, "command": "to main"}
 				],
-				"images": [ {"x": 114, "y": 312, "name":"ZLOADGAM"}	]
+				"images": [ {"x": 114, "y": 312, "name":"ZLOADGAM"} ]
 			},
 			{
 				"name" : "campaign",

@@ -34,6 +34,7 @@ public:
 // Image class
 class CPicture : public CIntObject
 {
+	void setSurface(SDL_Surface *to);
 public: 
 	SDL_Surface * bg;
 	Rect * srcRect; //if NULL then whole surface will be used
@@ -53,6 +54,7 @@ public:
 	~CPicture();
 	void init();
 
+	void scaleTo(Point size);
 	void createSimpleRect(const Rect &r, bool screenFormat, ui32 color);
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);

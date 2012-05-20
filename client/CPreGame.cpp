@@ -209,30 +209,22 @@ CMenuScreen::CMenuScreen(const JsonNode& configNode):
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
+	background = new CPicture(config["background"].String());
+	if (config["scalable"].Bool())
+	{
+		if (background->bg->format->palette)
+			background->convertToScreenBPP();
+		background->scaleTo(Point(screen->w, screen->h));
+	}
+
+	pos = background->center();
+
 	BOOST_FOREACH(const JsonNode& node, config["items"].Vector())
 		menuNameToEntry.push_back(node["name"].String());
 
 	BOOST_FOREACH(const JsonNode& node, config["images"].Vector())
 		images.push_back(createPicture(node));
 
-	if (!images.empty())
-		pos = images[0]->center();
-
-	//Work in progress, move along
-	/*
-	clock_t startTime = clock();
-	if (!images.empty())
-	{
-		SDL_Surface * scaled = images[0]->bg;
-		scaled = CSDL_Ext::scaleSurface(scaled, screen->w, screen->h);
-		SDL_FreeSurface(images[0]->bg);
-		images[0]->bg = scaled;
-		images[0]->pos.w = scaled->w;
-		images[0]->pos.h = scaled->h;
-	}
-	clock_t finishTime = clock();
-	tlog1<< "Image scaled in " << finishTime - startTime <<"\n";
-*/
 	//Hardcoded entry
 	menuNameToEntry.push_back("credits");
 
@@ -358,13 +350,22 @@ CAdventureMapButton* CMenuEntry::createButton(CMenuScreen* parent, const JsonNod
 	if (!button["help"].isNull() && button["help"].Float() > 0)
 		help = CGI->generaltexth->zelp[button["help"].Float()];
 
-	return new CAdventureMapButton(help, command, button["x"].Float(), button["y"].Float(), button["name"].String(), button["hotkey"].Float());
+	int posx = button["x"].Float();
+	if (posx < 0)
+		posx = pos.w + posx;
+
+	int posy = button["y"].Float();
+	if (posy < 0)
+		posy = pos.h + posy;
+
+	return new CAdventureMapButton(help, command, posx, posy, button["name"].String(), button["hotkey"].Float());
 }
 
 CMenuEntry::CMenuEntry(CMenuScreen* parent, const JsonNode &config)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	type |= REDRAW_PARENT;
+	pos = parent->pos;
 
 	BOOST_FOREACH(const JsonNode& node, config["images"].Vector())
 		images.push_back(createPicture(node));

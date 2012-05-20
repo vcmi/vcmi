@@ -174,6 +174,7 @@ namespace CSDL_Ext
 	SDL_Surface * createSurfaceWithBpp(int width, int height); //create surface with give bits per pixels value
 	void VflipSurf(SDL_Surface * surf); //fluipis given surface by vertical axis
 
+	//scale surface to required size. Won't work with indexed surfaces
 	SDL_Surface * scaleSurface(SDL_Surface *surf, int width, int height);
 
 	template<int bpp>

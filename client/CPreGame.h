@@ -51,6 +51,7 @@ class CMenuScreen : public CIntObject
 
 	CTabbedInt *tabs;
 
+	CPicture * background;
 	std::vector<CPicture*> images;
 
 	CIntObject *createTab(size_t index);

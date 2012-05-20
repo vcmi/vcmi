@@ -129,7 +129,8 @@ SDL_Surface * BitmapHandler::loadBitmapFromLod(CLodHandler *lod, std::string fna
 	}
 	if (!lod->haveFile(fname, FILE_GRAPHICS))
 	{
-		tlog2<<"Entry for file "<<fname<<" was not found"<<std::endl;
+		//it is possible that this image will be found in another lod archive. Disabling this warning
+		//tlog2<<"Entry for file "<<fname<<" was not found"<<std::endl;
 		return NULL;
 	}
 

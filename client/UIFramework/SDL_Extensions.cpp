@@ -1125,14 +1125,14 @@ void scaleSurfaceInternal(SDL_Surface *surf, SDL_Surface *ret)
 
 			float x1 = floor(origX), x2 = floor(origX+1),
 			      y1 = floor(origY), y2 = floor(origY+1);
-			assert( x1 >= 0 && y1 >= 0 && x2 < surf->w && y2 < surf->h);//All pixels are in range
+			//assert( x1 >= 0 && y1 >= 0 && x2 < surf->w && y2 < surf->h);//All pixels are in range
 
 			// Calculate weights of each source pixel
 			float w11 = ((origX - x1) * (origY - y1));
 			float w12 = ((origX - x1) * (y2 - origY));
 			float w21 = ((x2 - origX) * (origY - y1));
 			float w22 = ((x2 - origX) * (y2 - origY));
-			assert( w11 + w12 + w21 + w22 > 0.99 && w11 + w12 + w21 + w22 < 1.01);//total weight is ~1.0
+			//assert( w11 + w12 + w21 + w22 > 0.99 && w11 + w12 + w21 + w22 < 1.01);//total weight is ~1.0
 
 			// Get pointers to source pixels
 			Uint8 *p11 = (Uint8*)surf->pixels + int(y1) * surf->pitch + int(x1) * bpp;
@@ -1145,7 +1145,7 @@ void scaleSurfaceInternal(SDL_Surface *surf, SDL_Surface *ret)
 			int resG = PX(g, p11) * w11 + PX(g, p12) * w12 + PX(g, p21) * w21 + PX(g, p22) * w22;
 			int resB = PX(b, p11) * w11 + PX(b, p12) * w12 + PX(b, p21) * w21 + PX(b, p22) * w22;
 			int resA = PX(a, p11) * w11 + PX(a, p12) * w12 + PX(a, p21) * w21 + PX(a, p22) * w22;
-			assert(resR < 256 && resG < 256 && resB < 256 && resA < 256);
+			//assert(resR < 256 && resG < 256 && resB < 256 && resA < 256);
 #undef PX
 			Uint8 *dest = (Uint8*)ret->pixels + y * ret->pitch + x * bpp;
 			Channels::px<bpp>::r.set(dest, resR);
@@ -1156,18 +1156,24 @@ void scaleSurfaceInternal(SDL_Surface *surf, SDL_Surface *ret)
 	}
 }
 
-/// scaling via bilinear interpolation algorithm.
-/// NOTE: best results are for scaling in range 50%...200%
+// scaling via bilinear interpolation algorithm.
+// NOTE: best results are for scaling in range 50%...200%.
+// And upscaling looks awful right now - should be fixed somehow
 SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface *surf, int width, int height)
 {
 	if (!surf || !width || !height)
 		return nullptr;
+
 	if (surf->format->palette)
 	{
 		//it is possible implement but only to power of 2 sizes. May be needed for view world spells
 		tlog0 << "scale surface error: Can't scale indexed surface!\n";
 		return nullptr;
 	}
+
+	//Same size? return copy - this should more be faster
+	if (width == surf->w && height == surf->h)
+		return copySurface(surf);
 
 	SDL_Surface *ret = newSurface(width, height, surf);
 
