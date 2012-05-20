@@ -385,7 +385,7 @@ BattleHex BattleInfo::getClosestTile (bool attackerOwned, int initialPos, std::s
 	std::vector<BattleHex> sortedTiles (possibilities.begin(), possibilities.end()); //set can't be sorted properly :(
 
 	BattleHex initialHex = BattleHex(initialPos);
-	auto compareDistance = [initialPos, initialHex](const BattleHex left, const BattleHex right) -> bool
+	auto compareDistance = [initialHex](const BattleHex left, const BattleHex right) -> bool
 	{
 		return initialHex.getDistance (initialHex, left) < initialHex.getDistance (initialHex, right);
 	};
@@ -396,10 +396,12 @@ BattleHex BattleInfo::getClosestTile (bool attackerOwned, int initialPos, std::s
 
 	auto notClosest = [closestDistance, initialPos](const BattleHex here) -> bool
 	{
-		return closestDistance < here.getDistance (initialPos, here);
+		int debug = here.getDistance (initialPos, here);
+		bool debug2 = closestDistance < debug;
+		return debug2;
 	};
 
-	boost::remove_if (sortedTiles, notClosest); //only closest tiles are interesting
+	sortedTiles.erase (boost::remove_if (sortedTiles, notClosest), sortedTiles.end()); //only closest tiles are interesting
 
 	auto compareHorizontal = [attackerOwned](const BattleHex left, const BattleHex right) -> bool
 	{
@@ -764,8 +766,8 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, int skillLe
 
 	const ui8 attackerSide = sides[1] == attackerOwner;
 	const auto attackedHexes = s->rangeInHexes(destinationTile, skillLevel, attackerSide);
-	const bool onlyAlive = s->id != 38 && s->id != 39; //when casting resurrection or animate dead we should be allow to select dead stack
-
+	const bool onlyAlive = s->id != Spells::RESURRECTION && s->id != Spells::ANIMATE_DEAD; //when casting resurrection or animate dead we should be allow to select dead stack
+	//fixme: what about other rising spells (Sacrifice) ?
 	if(s->id == Spells::DEATH_RIPPLE || s->id == Spells::DESTROY_UNDEAD || s->id == Spells::ARMAGEDDON)
 	{
 		for(int it=0; it<stacks.size(); ++it)
@@ -778,6 +780,31 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, int skillLe
 				if(stacks[it]->isValidTarget())
 					attackedCres.insert(stacks[it]);
 			}
+		}
+	}
+	else if (s->id == Spells::CHAIN_LIGHTNING)
+	{
+		std::set<BattleHex> possibleHexes;
+		BOOST_FOREACH (auto stack, stacks)
+		{
+			if (stack->isValidTarget())
+			BOOST_FOREACH (auto hex, stack->getHexes())
+			{
+				possibleHexes.insert (hex);
+			}
+		}
+		BattleHex lightningHex =  destinationTile;
+		for (int i = 0; i < 5; ++i) //TODO: depends on spell school level
+		{
+			auto stack = getStackT (lightningHex, true);
+			if (!stack)
+				break;
+			attackedCres.insert (stack);
+			BOOST_FOREACH (auto hex, stack->getHexes())
+			{
+				possibleHexes.erase (hex); //can't hit same place twice
+			}
+			lightningHex = getClosestTile (attackerOwner, destinationTile, possibleHexes);
 		}
 	}
 	else if (s->range[skillLevel].size() > 1) //custom many-hex range

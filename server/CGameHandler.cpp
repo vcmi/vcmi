@@ -3953,6 +3953,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	case Spells::ICE_BOLT:
 	case Spells::LIGHTNING_BOLT:
 	case Spells::IMPLOSION:
+	case Spells::CHAIN_LIGHTNING:
 	case Spells::FROST_RING:
 	case Spells::FIREBALL:
 	case Spells::INFERNO:
@@ -3975,6 +3976,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 					sc.dmgToDisplay = 0;
 				}
 			}
+			int chainLightningModifier = 0;
 			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
 				if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
@@ -3988,10 +3990,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 					bsa.effect = spell->mainEffectAnim;
 				}
 				if (spellDamage)
-					bsa.damageAmount = spellDamage;
+					bsa.damageAmount = spellDamage >> chainLightningModifier;
 				else
 				{
-					bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
+					bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower) >> chainLightningModifier;
 					sc.dmgToDisplay += bsa.damageAmount;
 				}
 				bsa.stackAttacked = (*it)->ID;
@@ -4001,6 +4003,9 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 					bsa.attackerID = -1;
 				(*it)->prepareAttacked(bsa);
 				si.stacks.push_back(bsa);
+
+				if (spellID == Spells::CHAIN_LIGHTNING)
+					++chainLightningModifier;
 			}
 			break;
 		}

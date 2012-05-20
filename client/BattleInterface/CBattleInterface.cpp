@@ -1607,6 +1607,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	case Spells::LIGHTNING_BOLT:
 	case Spells::TITANS_LIGHTNING_BOLT:
 	case Spells::THUNDERBOLT:
+	case Spells::CHAIN_LIGHTNING: //TODO: zigzag effect
 		for (auto it = sc->affectedCres.begin(); it != sc->affectedCres.end(); ++it) //in case we have multiple targets
 		{
 			displayEffect(1, curInt->cb->battleGetStackByID(*it, false)->position);
@@ -1630,7 +1631,6 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 	case Spells::SUMMON_AIR_ELEMENTAL:
 	case Spells::CLONE:
 	case Spells::REMOVE_OBSTACLE:
-	case Spells::CHAIN_LIGHTNING:
 		addNewAnim(new CDummyAnimation(this, 2)); //interface won't return until animation is played. TODO: make it smarter?
 		break;
 	} //switch(sc->id)
