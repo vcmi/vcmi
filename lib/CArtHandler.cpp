@@ -1030,7 +1030,15 @@ bool CArtifactInstance::canBePutAt(const CArtifactSet *artSet, int slot, bool as
 		return true;
 	}
 
-	if(!vstd::contains(artType->possibleSlots[artSet->bearerType()], slot))
+ 	auto possibleSlots = artType->possibleSlots.find(artSet->bearerType());
+ 	if(possibleSlots == artType->possibleSlots.end())
+ 	{
+		tlog3 << "Warning: arrtifact " << artType->Name() << " doesn't have defined allowed slots for bearer of type "
+			<< artSet->bearerType() << std::endl;
+		return false;
+	}
+
+	if(!vstd::contains(possibleSlots->second, slot))
 		return false;
 
 	return artSet->isPositionFree(slot, assumeDestRemoved);

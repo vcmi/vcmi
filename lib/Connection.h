@@ -24,6 +24,8 @@
 #include "CObjectHandler.h" //fo CArmedInstance
 
 const ui32 version = 732;
+const TSlot COMMANDER_SLOT_PLACEHOLDER = -2;
+
 class CConnection;
 class CGObjectInstance;
 class CStackInstance;
@@ -378,7 +380,14 @@ struct SaveIfStackInstance<Ser, CStackInstance *>
 	static bool invoke(Ser &s, const CStackInstance* const &data)
 	{
 		assert(data->armyObj);
-		TSlot slot = data->armyObj->findStack(data);
+		TSlot slot = -1;
+
+		if(data->getNodeType() == Bonus::COMMANDER)
+			slot = COMMANDER_SLOT_PLACEHOLDER;
+		else
+			slot = data->armyObj->findStack(data);
+
+		assert(slot != -1);
 		s << data->armyObj << slot;
 		return true;
 	}
@@ -391,6 +400,7 @@ struct LoadIfStackInstance
 		return false;
 	}
 };
+
 template<typename Ser>
 struct LoadIfStackInstance<Ser, CStackInstance *>
 {
@@ -399,8 +409,18 @@ struct LoadIfStackInstance<Ser, CStackInstance *>
 		CArmedInstance *armedObj;
 		TSlot slot;
 		s >> armedObj >> slot;
-		assert(armedObj->hasStackAtSlot(slot));
-		data = armedObj->stacks[slot];
+		if(slot != COMMANDER_SLOT_PLACEHOLDER)
+		{
+			assert(armedObj->hasStackAtSlot(slot));
+			data = armedObj->stacks[slot];
+		}
+		else
+		{
+			auto hero = dynamic_cast<CGHeroInstance *>(armedObj);
+			assert(hero);
+			assert(hero->commander);
+			data = hero->commander;
+		}
 		return true;
 	}
 };
