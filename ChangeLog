@@ -1,13 +1,14 @@
 0.88 -> 0.next
 GENERAL
-* Save game screen and returning to main menu will work if game was started with --start option
-* Simple mechanism for detecting game desynchronization after init
+* Mostly implemented Commanders feature
+* Support for stack artifacts
+* New creature window graphics contributed by fishkebab
+* Config file may have multiple upgrades for creatures
 * CTRL+T will open marketplace window
 * G will open thieves guild window if player owns at least one town with tavern
 * Implemented restart functionality. CTRL+R will trigger a quick restart
-* Support for stack artifacts
-* New creature window
-* Config file may have multiple upgrades for creatures
+* Save game screen and returning to main menu will work if game was started with --start option
+* Simple mechanism for detecting game desynchronization after init
 
 ADVENTURE MAP
 * Fixed monsters regenerating casualties from battle at the start of new week.
@@ -30,6 +31,7 @@ BATTLES
 * Fixed and simplified Teleport casting
 * Fixed Remove Obstacle spell
 * New spells supported:
+- Chain Lightning
 - Fire Wall
 - Force Field
 - Land Mine
