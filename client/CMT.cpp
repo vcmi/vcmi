@@ -732,7 +732,7 @@ static void listenForEvents()
 				break;
 			case RESTART_GAME:
 				{
-					StartInfo si = *client->getStartInfo();
+					StartInfo si = *client->getStartInfo(true);
 					endGame();
 					startGame(&si);
 				}

@@ -712,10 +712,13 @@ void CGameInfoCallback::getUpgradeInfo(const CArmedInstance *obj, int stackPos, 
 	//return gs->getUpgradeInfo(obj->getStack(stackPos));
 }
 
-const StartInfo * CGameInfoCallback::getStartInfo() const
+const StartInfo * CGameInfoCallback::getStartInfo(bool beforeRandomization /*= false*/) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->scenarioOps;
+	if(beforeRandomization)
+		return gs->initialOpts;
+	else
+		return gs->scenarioOps;
 }
 
 int CGameInfoCallback::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const
