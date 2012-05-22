@@ -157,6 +157,9 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	if (type < COMMANDER)
 		commander = NULL;
 
+	bool creArt = false;
+	displayedArtifact = ArtifactPosition::CREATURE_SLOT; // 0
+
 	//Basic graphics - need to calculate size
 
 	int commanderOffset = 0;
@@ -291,19 +294,12 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 
 		if (GameConstants::STACK_ARTIFACT)
 		{
-			setArt(stack->getArt(ArtifactPosition::CREATURE_SLOT));
-			if (type > BATTLE) //artifact buttons inactive in battle
-			{
-				//TODO: disable buttons if no artifact is equipped
-				leftArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, -1), 437, 98, "hsbtns3.def", SDLK_LEFT);
-				rightArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, +1), 516, 98, "hsbtns5.def", SDLK_RIGHT);
-				if (heroOwner)
-					passArtToHero = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::passArtifactToHero, this), 437, 148, "OVBUTN1.DEF", SDLK_HOME);
-			}
+			creArt = true;
 		}
 	}
 	if (commander) //secondary skills
 	{
+		creArt = true;
 		for (int i = ECommander::ATTACK; i <= ECommander::SPELL_POWER; ++i)
 		{
 			if (commander->secondarySkills[i])
@@ -346,6 +342,18 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		//print commander level
 		printAtMiddle(boost::lexical_cast<std::string>((ui16)(commander->level)), 488, 62, FONT_MEDIUM, Colors::Jasmine,*bitmap);
 		printAtMiddle(boost::lexical_cast<std::string>(stack->experience), 488, 82, FONT_SMALL, Colors::Cornsilk,*bitmap);
+	}
+	if (creArt) //stack or commander artifacts
+	{
+		setArt (stack->getArt(ArtifactPosition::CREATURE_SLOT));
+		if (type > BATTLE) //artifact buttons inactive in battle
+		{
+			//TODO: disable buttons if no artifact is equipped
+			leftArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, -1), 437, 98, "hsbtns3.def", SDLK_LEFT);
+			rightArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, +1), 516, 98, "hsbtns5.def", SDLK_RIGHT);
+			if (heroOwner)
+				passArtToHero = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::passArtifactToHero, this), 437, 148, "OVBUTN1.DEF", SDLK_HOME);
+		}
 	}
 
 	if (battleStack) //only during battle
@@ -486,24 +494,28 @@ void CCreatureWindow::sliderMoved(int newpos)
 	redraw();
 }
 
-void CCreatureWindow::setArt(const CArtifactInstance *creatureArtifact)
+void CCreatureWindow::setArt(const CArtifactInstance *art)
 {
-	creatureArtifact = stack->getArt(ArtifactPosition::CREATURE_SLOT);
+	creatureArtifact = art;
 	if (creatureArtifact)
 	{
 		if (artifactImage == NULL)
-			addChild(artifactImage = new CAnimImage("ARTIFACT", creatureArtifact->artType->id, 0, 466, 100), true);
+			artifactImage = new CAnimImage("ARTIFACT", creatureArtifact->artType->id, 0, 466, 100);
 		else
 			artifactImage->setFrame(creatureArtifact->artType->id);
 	}
 	else
-		delChildNUll(artifactImage);
+		artifactImage = NULL;
+	
+	redraw();
 }
 
 void CCreatureWindow::scrollArt(int dir)
 {
 	//TODO: get next artifact
-	setArt(stack->getArt(ArtifactPosition::CREATURE_SLOT));
+	int size = stack->artifactsWorn.size();
+	displayedArtifact  =  size ? (displayedArtifact + dir) % size : ArtifactPosition::CREATURE_SLOT;
+	setArt (stack->getArt(displayedArtifact));
 }
 
 void CCreatureWindow::passArtifactToHero()
@@ -511,7 +523,7 @@ void CCreatureWindow::passArtifactToHero()
 	const CGHeroInstance * h = dynamic_cast<const CGHeroInstance *>(stack->armyObj);
 	if (h && creatureArtifact)
 	{
-		LOCPLINT->cb->swapArtifacts (ArtifactLocation (stack, ArtifactPosition::CREATURE_SLOT), ArtifactLocation(h, creatureArtifact->firstBackpackSlot(h)));
+		LOCPLINT->cb->swapArtifacts (ArtifactLocation (stack, displayedArtifact), ArtifactLocation(h, creatureArtifact->firstBackpackSlot(h)));
 	}
 	else
 		tlog2 << "Pass artifact to hero should be disabled, no hero or no artifact!\n";
@@ -521,11 +533,14 @@ void CCreatureWindow::passArtifactToHero()
 
 void CCreatureWindow::artifactRemoved (const ArtifactLocation &artLoc)
 {
-	setArt(stack->getArt(ArtifactPosition::CREATURE_SLOT)); //TODO: select next from the list (for Commanders)
+	//TODO: align artifacts to remove holes
+	int size = stack->artifactsWorn.size();
+	displayedArtifact  =  size ? (displayedArtifact % size) : ArtifactPosition::CREATURE_SLOT; //0
+	setArt (stack->getArt(displayedArtifact));
 }
 void CCreatureWindow::artifactMoved (const ArtifactLocation &artLoc, const ArtifactLocation &destLoc)
 {
-	setArt(stack->getArt(ArtifactPosition::CREATURE_SLOT)); //TODO: select next from the list (for Commanders)
+	artifactRemoved (artLoc); //same code
 }
 
 void CCreatureWindow::clickRight(tribool down, bool previousState)

@@ -44,6 +44,7 @@ public:
 	//bool active; //TODO: comment me
 	int type;//0 - rclick popup; 1 - normal window
 	int bonusRows; //height of skill window
+	int displayedArtifact;
 
 	std::string count; //creature count in text format
 	const CCreature *c; //related creature
