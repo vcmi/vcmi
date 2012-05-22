@@ -396,9 +396,7 @@ BattleHex BattleInfo::getClosestTile (bool attackerOwned, int initialPos, std::s
 
 	auto notClosest = [closestDistance, initialPos](const BattleHex here) -> bool
 	{
-		int debug = here.getDistance (initialPos, here);
-		bool debug2 = closestDistance < debug;
-		return debug2;
+		return closestDistance < here.getDistance (initialPos, here);
 	};
 
 	sortedTiles.erase (boost::remove_if (sortedTiles, notClosest), sortedTiles.end()); //only closest tiles are interesting

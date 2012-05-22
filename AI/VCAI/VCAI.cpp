@@ -1031,7 +1031,11 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, const CGHeroIn
 	switch (obj->ID)
 	{
 		case Obj::CREATURE_GENERATOR1:
-			recruitCreatures(dynamic_cast<const CGDwelling *>(obj));
+			recruitCreatures (dynamic_cast<const CGDwelling *>(obj));
+			break;
+		case GameConstants::TOWNI_TYPE:
+			moveCreaturesToHero (dynamic_cast<const CGTownInstance *>(obj));
+			break;
 		break;
 	}
 }
