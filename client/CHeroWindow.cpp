@@ -312,15 +312,20 @@ void CHeroWindow::commanderWindow()
 	{
 		const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
 		artSelected = true;
-		ArtifactLocation src (srcHero, commonInfo->src.slotID);
-		ArtifactLocation dst (curHero->commander.get(), art->firstAvailableSlot (curHero->commander));
-		if (art->canBePutAt(dst, true))
-		{	//equip clicked stack
-			if(dst.getArt())
-			{
-				LOCPLINT->cb->swapArtifacts (dst, ArtifactLocation(srcHero, dst.getArt()->firstBackpackSlot(srcHero)));
+		int freeSlot = art->firstAvailableSlot (curHero->commander);
+		if (freeSlot < ArtifactPosition::COMMANDER_AFTER_LAST) //we don't want to put it in commander's backpack!
+		{
+			ArtifactLocation src (srcHero, commonInfo->src.slotID);
+			ArtifactLocation dst (curHero->commander.get(), freeSlot);
+
+			if (art->canBePutAt(dst, true))
+			{	//equip clicked stack
+				if(dst.getArt())
+				{
+					LOCPLINT->cb->swapArtifacts (dst, ArtifactLocation(srcHero, dst.getArt()->firstBackpackSlot(srcHero)));
+				}
+				LOCPLINT->cb->swapArtifacts(src, dst);
 			}
-			LOCPLINT->cb->swapArtifacts(src, dst);
 		}
 	}
 	else

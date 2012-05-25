@@ -533,7 +533,13 @@ void CCreatureWindow::passArtifactToHero()
 
 void CCreatureWindow::artifactRemoved (const ArtifactLocation &artLoc)
 {
-	//TODO: align artifacts to remove holes
+	//align artifacts to remove holes
+	BOOST_FOREACH (auto al, stack->artifactsWorn)
+	{
+		int freeSlot = al.second.artifact->firstAvailableSlot(stack); 
+		if (freeSlot < al.first)
+			LOCPLINT->cb->swapArtifacts (ArtifactLocation(stack, al.first), ArtifactLocation(stack, freeSlot));
+	}
 	int size = stack->artifactsWorn.size();
 	displayedArtifact  =  size ? (displayedArtifact % size) : ArtifactPosition::CREATURE_SLOT; //0
 	setArt (stack->getArt(displayedArtifact));
