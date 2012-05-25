@@ -32,7 +32,7 @@ DLL_LINKAGE CLodHandler *bitmaph = NULL,
 	*spriteh = NULL,
 	*bitmaph_ab = NULL;
 
-VCMIDirs GVCMIDirs;
+DLL_LINKAGE VCMIDirs GVCMIDirs;
 
 
 DLL_LINKAGE void initDLL(CConsoleHandler *Console, std::ostream *Logfile)

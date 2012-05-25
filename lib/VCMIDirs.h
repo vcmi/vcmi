@@ -52,4 +52,5 @@ public:
 #endif
 	}
 };
-extern VCMIDirs GVCMIDirs;
+
+extern DLL_LINKAGE VCMIDirs GVCMIDirs;
