@@ -8,7 +8,7 @@
 #undef max
 #endif
 
-VCMIDirs GVCMIDirs;
+extern VCMIDirs GVCMIDirs;
 
 /*
  * CLodHandler.cpp, part of VCMI engine

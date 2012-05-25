@@ -14,6 +14,7 @@
 #include "CGeneralTextHandler.h"
 #include "IGameEventsReceiver.h"
 #include "CStopWatch.h"
+#include "VCMIDirs.h"
 
 /*
  * VCMI_Lib.cpp, part of VCMI engine
@@ -30,6 +31,8 @@ LibClasses * VLC = NULL;
 DLL_LINKAGE CLodHandler *bitmaph = NULL, 
 	*spriteh = NULL,
 	*bitmaph_ab = NULL;
+
+VCMIDirs GVCMIDirs;
 
 
 DLL_LINKAGE void initDLL(CConsoleHandler *Console, std::ostream *Logfile)

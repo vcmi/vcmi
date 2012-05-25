@@ -33,7 +33,6 @@ using namespace boost::asio::ip;
 namespace intpr = boost::interprocess;
 bool end2 = false;
 int port = 3030;
-VCMIDirs GVCMIDirs;
 
 /*
  * CVCMIServer.cpp, part of VCMI engine

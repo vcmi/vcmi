@@ -65,7 +65,7 @@ CMinimap::CMinimap()
 	pos.h=ADVOPT.minimapW;
 	pos.w=ADVOPT.minimapH;
 
-	temps = CSDL_Ext::createSurfaceWithBpp<3>(pos.w,pos.h);
+	temps = CSDL_Ext::createSurfaceWithBpp<4>(pos.w,pos.h);
 	aiShield = new CPicture("AISHIELD.bmp");
 
 	const JsonNode config(GameConstants::DATA_DIR + "/config/minimap.json");
@@ -228,7 +228,7 @@ void CMinimapSurfacesRef::initFoW(int level)
 				int3 pp( ((i*mapSizes.x)/mw), ((j*mapSizes.y)/mh), d );
 				if ( !LOCPLINT->cb->isVisible(pp) )
 				{
-					CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0,0);
+					CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0);
 				}
 			}
 		}
@@ -457,7 +457,7 @@ void CMinimap::hideTile(const int3 &pos)
 		for (int jj=0; jj<ho; jj++)
 		{
 			if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
-				CSDL_Ext::SDL_PutPixelWithoutRefresh(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,255);
+				CSDL_Ext::SDL_PutPixelWithoutRefresh(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0);
 		}
 	}
 }

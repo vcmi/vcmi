@@ -633,13 +633,13 @@ void CBattleInterface::show(SDL_Surface * to)
 					}
 				}
 				//patch by ench0
-				const CStack * const shere = curInt->cb->battleGetStackByPos(b, false);
 
-				// display the movement shadow of the stack at b (i.e. stack under mouse)
-				if(shere && shere->alive())
+				// activeStack == NULL means it is opponent's turn...
+				if(activeStack)
 				{
-					// activeStack == NULL means it is opponent's turn...
-					if (activeStack && shere != activeStack)
+					// display the movement shadow of the stack at b (i.e. stack under mouse)
+					const CStack * const shere = curInt->cb->battleGetStackByPos(b, false);
+					if (shere && shere != activeStack && shere->alive())
 					{
 						std::vector<BattleHex> v = curInt->cb->battleGetAvailableHexes(shere, true );
 						BOOST_FOREACH (BattleHex hex, v)
@@ -891,12 +891,6 @@ void CBattleInterface::show(SDL_Surface * to)
 	bSpell->showAll(to);
 	bWait->showAll(to);
 	bDefence->showAll(to);
-
-	//showing window with result of battle
-	if(resWindow)
-	{
-		resWindow->show(to);
-	}
 
 	//showing in-game console
 	LOCPLINT->cingconsole->show(to);

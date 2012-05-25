@@ -70,7 +70,6 @@ SDL_Surface *screen = NULL, //main screen surface
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 static boost::thread *mainGUIThread;
 
-VCMIDirs GVCMIDirs;
 std::queue<SDL_Event*> events;
 boost::mutex eventsM;
 

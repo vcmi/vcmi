@@ -697,7 +697,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	else
 		filePath = GameConstants::DATA_DIR + "/Data/video/" + fname;
 
-#if LIBAVFORMAT_VERSION_MAJOR < 53
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 0, 0)
 	int avfopen = av_open_input_file(&format, filePath.c_str(), NULL, 0, NULL);
 #else
 	int avfopen = avformat_open_input(&format, filePath.c_str(), NULL, NULL);
@@ -708,7 +708,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 		return false;
 	}
 	// Retrieve stream information
-#if LIBAVCODEC_VERSION_MAJOR < 53
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 17, 0)
 	if (av_find_stream_info(format) < 0)
 #else
 	if (avformat_find_stream_info(format, NULL) < 0)
@@ -719,7 +719,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	stream = -1;
 	for(ui32 i=0; i<format->nb_streams; i++)
 	{
-#if LIBAVCODEC_VERSION_MAJOR < 53
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 0, 0)
 		if (format->streams[i]->codec->codec_type==CODEC_TYPE_VIDEO)
 #else
 		if (format->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO)
@@ -747,7 +747,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	}
   
 	// Open codec
-#if LIBAVCODEC_VERSION_MAJOR < 53
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 17, 0)
 	if ( avcodec_open(codecContext, codec) < 0 )
 #else
 	if ( avcodec_open2(codecContext, codec, NULL) < 0 )
@@ -846,12 +846,7 @@ bool CVideoPlayer::nextFrame()
 			if (packet.stream_index == stream)
 			{
 				// Decode video frame
-#ifdef WITH_AVCODEC_DECODE_VIDEO2
 				avcodec_decode_video2(codecContext, frame, &frameFinished, &packet);
-#else
-				avcodec_decode_video(codecContext, frame, &frameFinished, 
-									 packet.data, packet.size);
-#endif
 
 				// Did we get a video frame?
 				if (frameFinished)
@@ -975,7 +970,7 @@ void CVideoPlayer::close()
 
 	if (format)
 	{
-#if LIBAVCODEC_VERSION_MAJOR < 53
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 17, 0)
 		av_close_input_file(format);
 		format = NULL;
 #else

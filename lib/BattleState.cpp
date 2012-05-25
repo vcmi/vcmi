@@ -786,9 +786,11 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, int skillLe
 		BOOST_FOREACH (auto stack, stacks)
 		{
 			if (stack->isValidTarget())
-			BOOST_FOREACH (auto hex, stack->getHexes())
 			{
-				possibleHexes.insert (hex);
+				BOOST_FOREACH (auto hex, stack->getHexes())
+				{
+					possibleHexes.insert (hex);
+				}
 			}
 		}
 		BattleHex lightningHex =  destinationTile;
