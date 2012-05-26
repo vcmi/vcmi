@@ -233,8 +233,10 @@ namespace BattlefieldBI
 	{
 		NONE = -1,
 		COASTAL,
-		CURSED_GROUND,
+		//Discrepency from ERM BI description - we have magic plains and cursed gronds swapped
 		MAGIC_PLAINS,
+		CURSED_GROUND,
+		//
 		HOLY_GROUND,
 		EVIL_FOG,
 		CLOVER_FIELD,

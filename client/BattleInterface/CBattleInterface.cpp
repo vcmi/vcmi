@@ -2727,7 +2727,11 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 		}
 		if(eventType == LCLICK && realizeAction)
 		{
-			myTurn = false; //tends to crash with empty calls
+			//opening creature window shouldn't affect myTurn... 
+			if(currentAction != CREATURE_INFO)
+			{
+				myTurn = false; //tends to crash with empty calls
+			}
 			realizeAction();
 			CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
 			this->console->alterText("");
@@ -3448,7 +3452,7 @@ Point CBattleInterface::whereToBlitObstacleImage(SDL_Surface *image, const CObst
 	int offset = image->h % 42;
 	if(obstacle.obstacleType == CObstacleInstance::USUAL)
 	{
-		if(obstacle.getInfo().blockedTiles.front() < 0)
+		if(obstacle.getInfo().blockedTiles.front() < 0  || offset > 37) //second or part is for holy ground ID=62,65,63
 			offset -= 42;
 	}
 	else if(obstacle.obstacleType == CObstacleInstance::QUICKSAND)
