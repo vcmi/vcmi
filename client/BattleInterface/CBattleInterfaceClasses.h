@@ -97,7 +97,6 @@ public:
 	void bExitf(); //exit button callback
 
 	void activate();
-	void deactivate();
 	void show(SDL_Surface * to = 0);
 };
 

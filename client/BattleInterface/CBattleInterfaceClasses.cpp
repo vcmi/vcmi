@@ -475,24 +475,13 @@ CBattleResultWindow::~CBattleResultWindow()
 void CBattleResultWindow::activate()
 {
 	owner->curInt->showingDialog->set(true);
-	exit->activate();
-}
-
-void CBattleResultWindow::deactivate()
-{
-	exit->deactivate();
+	CIntObject::activate();
 }
 
 void CBattleResultWindow::show(SDL_Surface * to)
 {
 	CIntObject::show(to);
-	//evaluating to
-	if(!to)
-		to = screen;
-
-	CCS->videoh->update(pos.x + 107, pos.y + 70, screen, false, true);
-
-	exit->showAll(to);
+	CCS->videoh->update(pos.x + 107, pos.y + 70, screen, true, false);
 }
 
 void CBattleResultWindow::bExitf()
