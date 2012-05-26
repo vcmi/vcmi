@@ -41,6 +41,7 @@
 #include <boost/thread/xtime.hpp>
 #endif
 #include <boost/random/linear_congruential.hpp>
+#include <boost/range/algorithm/random_shuffle.hpp>
 extern bool end2;
 #ifdef min
 #undef min
@@ -3926,7 +3927,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 				if(hex.getX() > 2 && hex.getX() < 14 && !battleGetStackByPos(hex, false) & !battleGetObstacleOnPos(hex, false))
 					availableTiles.push_back(hex);
 			}
-			range::random_shuffle(availableTiles);
+			boost::range::random_shuffle(availableTiles);
 
 			const int patchesForSkill[] = {4, 4, 6, 8};
 			const int patchesToPut = std::min<int>(patchesForSkill[spellLvl], availableTiles.size());
