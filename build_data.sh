@@ -19,7 +19,7 @@
 #   data1.cab and data1.hdr from the original 1st CDROM
 #   Heroes3.snd from the original 2nd CDROM
 #   the WoG release v3.58f: allinone_358f.zip
-#   the VCMI distribution: vcmi_086.rar
+#   the VCMI distribution: vcmi_088b.7z
 
 # Usage: put this script and the 4 data files into the same directory
 # and run the script.
@@ -112,7 +112,7 @@ rm -rf temp
 mkdir temp
 cd temp
 
-unzip ../vcmi_086.zip
+7zr x ../vcmi_088b.7z
 
 find . -name "*.dll" | xargs rm -f
 find . -name "*.DLL" | xargs rm -f
@@ -121,8 +121,6 @@ rm -rf AI
 rm -f AUTHORS ChangeLog license.txt Microsoft.VC90.CRT.manifest
 rm -rf MP3
 rm -rf Games
-
-mv sprites Sprites
 
 # Tree is clean. Move extracted files to their final destination
 
