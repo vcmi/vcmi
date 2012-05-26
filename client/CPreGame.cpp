@@ -536,6 +536,14 @@ CGPreGame *CGPreGame::create()
 	return CGP;
 }
 
+void CGPreGame::removeFromGui()
+{
+	//remove everything but main menu and background
+	GH.popInts(GH.listInt.size() - 2);
+	GH.popInt(GH.topInt()); //remove main menu
+	GH.popInt(GH.topInt()); //remove background
+}
+
 CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui32, std::string> *Names /*= NULL*/)
 	: ISelectionScreenInfo(Names), serverHandlingThread(NULL), mx(new boost::recursive_mutex),
 	  serv(NULL), ongoingClosing(false), myNameID(255)
@@ -830,10 +838,7 @@ void CSelectionScreen::startGame()
 
 		selectedName = sInfo.mapname;
 		StartInfo *si = new StartInfo(sInfo);
-		GH.popIntTotally(this); //delete me
-		GH.popInt(GH.topInt()); //only deactivate main menu screen
-		GH.totalRedraw();
-		GH.popInt(GH.topInt()); //and pregame background
+		CGP->removeFromGui();
 		//SEL->current = NULL;
 		//curOpts = NULL;
 		::startGame(si);
@@ -3205,11 +3210,7 @@ void CBonusSelection::startMap()
 	}
 	else
 	{
-		// Deletes either the Custom campaign selection screen + Bonus selection screen or
-		// one of the main campaign selection screens + Bonus selection screen and
-		// deactivates the main menu
-		GH.popInts(2);
-		GH.popInt(GH.topInt());
+		CGP->removeFromGui();
 	}
 	::startGame(si);
 }
@@ -3527,10 +3528,8 @@ void StartWithCurrentSettings::apply(CSelectionScreen *selScreen)
 	vstd::clear_pointer(selScreen->serverHandlingThread); //detach us
 	selectedName = selScreen->sInfo.mapname;
 
-	GH.curInt = NULL;
-	GH.popIntTotally(selScreen);
+	CGP->removeFromGui();
 
-	GH.popInt(GH.topInt()); //only deactivate main menu screen
 	::startGame(startingInfo.sInfo, startingInfo.serv);
 	throw 666; //EVIL, EVIL, EVIL workaround to kill thread (does "goto catch" outside listening loop)
 }

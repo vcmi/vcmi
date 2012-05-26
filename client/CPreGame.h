@@ -513,6 +513,7 @@ public:
 	void openCampaignScreen(std::string name);
 
 	static CGPreGame * create();
+	void removeFromGui();
 };
 
 extern ISelectionScreenInfo *SEL;

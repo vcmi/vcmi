@@ -748,7 +748,7 @@ std::string CComponent::getFileName()
 	case luck:       return "ILCK82";
 	case building:   return graphics->buildingPics[subtype];
 	case hero:       return "PortraitsLarge";
-	case flag:       return "TWCRPORT";
+	case flag:       return "CREST58";
 	}
 	assert(0);
 	return 0;
