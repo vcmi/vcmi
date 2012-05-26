@@ -119,8 +119,8 @@ std::vector<CArtifactInstance*> genArts(const std::vector<Bonus> & bonusesToGive
 	return ret;
 }
 
-//returns how good the artifact is for the neural network
-double runSSN(FANN::neural_net & net, const DuelParameters dp, CArtifactInstance * inst)
+//rates given artifact
+double rateArt(const DuelParameters dp, CArtifactInstance * inst)
 {
 	TArtSet setL, setR;
 	setL[inst->artType->possibleSlots[0]] = inst;
@@ -135,7 +135,7 @@ double runSSN(FANN::neural_net & net, const DuelParameters dp, CArtifactInstance
 }
 
 
-const unsigned int num_input = 24;
+const unsigned int num_input = 27;
 
 double * genSSNinput(const DuelParameters & dp, CArtifactInstance * art)
 {
@@ -144,17 +144,17 @@ double * genSSNinput(const DuelParameters & dp, CArtifactInstance * art)
 
 	//general description
 
-	*(cur++) = dp.bfieldType;
-	*(cur++) = dp.terType;
+	*(cur++) = dp.bfieldType/30.0;
+	*(cur++) = dp.terType/12.0;
 
 	//creature & hero description
 
 	for(int i=0; i<2; ++i)
 	{
 		auto & side = dp.sides[0];
-		*(cur++) = side.heroId;
+		*(cur++) = side.heroId/200.0;
 		for(int k=0; k<4; ++k)
-			*(cur++) = side.heroPrimSkills[k];
+			*(cur++) = side.heroPrimSkills[k]/20.0;
 
 		//weighted average of statistics
 		auto avg = [&](std::function<int(CCreature *)> getter) -> double
@@ -173,19 +173,33 @@ double * genSSNinput(const DuelParameters & dp, CArtifactInstance * art)
 			return ret/div;
 		};
 
-		*(cur++) = avg([](CCreature * c){return c->attack;});
-		*(cur++) = avg([](CCreature * c){return c->defence;});
-		*(cur++) = avg([](CCreature * c){return c->speed;});
-		*(cur++) = avg([](CCreature * c){return c->hitPoints;});
+		*(cur++) = avg([](CCreature * c){return c->attack;})/50.0;
+		*(cur++) = avg([](CCreature * c){return c->defence;})/50.0;
+		*(cur++) = avg([](CCreature * c){return c->speed;})/15.0;
+		*(cur++) = avg([](CCreature * c){return c->hitPoints;})/1000.0;
 	}
 
 	//bonus description
 	auto & blist = art->getBonusList();
 	
-	*(cur++) = art->Attack();
-	*(cur++) = art->Defense();
-	*(cur++) = blist.valOfBonuses(Selector::type(Bonus::STACKS_SPEED));
-	*(cur++) = blist.valOfBonuses(Selector::type(Bonus::STACK_HEALTH));
+	*(cur++) = blist[0]->type/100.0;
+	*(cur++) = blist[0]->subtype/10.0;
+	*(cur++) = blist[0]->val/100.0;;
+	*(cur++) = art->Attack()/10.0;
+	*(cur++) = art->Defense()/10.0;
+	*(cur++) = blist.valOfBonuses(Selector::type(Bonus::STACKS_SPEED))/5.0;
+	*(cur++) = blist.valOfBonuses(Selector::type(Bonus::STACK_HEALTH))/10.0;
+
+	return ret;
+}
+
+//returns how good the artifact is for the neural network
+double runSSN(FANN::neural_net & net, const DuelParameters dp, CArtifactInstance * inst)
+{
+	double * input = genSSNinput(dp, inst);
+	double * out = net.run(input);
+	double ret = *out;
+	free(out);
 
 	return ret;
 }
@@ -200,7 +214,7 @@ void learnSSN(FANN::neural_net & net, const std::vector<std::pair<DuelParameters
 	{
 		inputs[i] = genSSNinput(input[i].first, input[i].second);
 		outputs[i] = new double;
-		*(outputs[i]) = runSSN(net, input[i].first, input[i].second);
+		*(outputs[i]) = rateArt(input[i].first, input[i].second);
 	}
 	td.set_train_data(input.size(), num_input, inputs, 1, outputs);
 	
@@ -211,7 +225,7 @@ void initNet(FANN::neural_net & ret)
 {
 	const float learning_rate = 0.7f;
 	const unsigned int num_layers = 3;
-	const unsigned int num_hidden = 3;
+	const unsigned int num_hidden = 30;
 	const unsigned int num_output = 1;
 	const float desired_error = 0.001f;
 	const unsigned int max_iterations = 300000;
