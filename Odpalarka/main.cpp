@@ -135,7 +135,7 @@ double runSSN(FANN::neural_net & net, const DuelParameters dp, CArtifactInstance
 }
 
 
-const unsigned int num_input = 16;
+const unsigned int num_input = 24;
 
 double * genSSNinput(const DuelParameters & dp, CArtifactInstance * art)
 {
@@ -159,7 +159,7 @@ double * genSSNinput(const DuelParameters & dp, CArtifactInstance * art)
 		//weighted average of statistics
 		auto avg = [&](std::function<int(CCreature *)> getter) -> double
 		{
-			double ret;
+			double ret = 0.0;
 			int div = 0;
 			for(int i=0; i<7; ++i)
 			{
@@ -276,6 +276,7 @@ void SSNRun()
 		side.stacks[0] = DuelParameters::SideSettings::StackSettings(10+k*3, rand()%30);
 		dp.sides[1] = side;
 		dp.sides[1].heroId = 1;
+		dps.push_back(dp);
 	}
 
 	std::vector<Bonus> btt; //bonuses to test on
