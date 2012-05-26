@@ -77,7 +77,7 @@ mkdir temp
 cd temp
 unrar x -o+ ../main1.wog
 unrar x -o+ ../main2.wog
-#unrar x -o+ ../main3.wog
+unrar x -o+ ../main3.wog
 unrar x -o+ ../main4.wog
 #unrar x -o+ ../main5.wog
 #unrar x -o+ ../main6_optional.wog
