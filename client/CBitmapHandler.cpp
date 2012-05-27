@@ -170,6 +170,12 @@ SDL_Surface * BitmapHandler::loadBitmapFromLod(CLodHandler *lod, std::string fna
 		if (!ret)
 			tlog1<<"Failed to open "<<fname<<" via SDL_Image\n";
 		delete [] file;
+		if (ret->format->palette)
+		{
+			//set correct value for alpha\unused channel
+			for (int i=0; i< ret->format->palette->ncolors; i++)
+				ret->format->palette->colors[i].unused = 255;
+		}
 	}
 	return ret;
 }

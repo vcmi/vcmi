@@ -20,7 +20,7 @@ namespace Channels
 	struct channel_empty
 	{
 		static STRONG_INLINE void set(Uint8*, Uint8) {}
-		static STRONG_INLINE Uint8 get(const Uint8 *) { return 0;}
+		static STRONG_INLINE Uint8 get(const Uint8 *) { return 255;}
 	};
 
 	// channel which uses whole pixel

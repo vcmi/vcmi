@@ -700,9 +700,9 @@ void CStackQueue::StackBox::showAll(SDL_Surface * to)
 	{
 		graphics->blueToPlayersAdv(bg, my->owner);
 		//SDL_UpdateRect(bg, 0, 0, 0, 0);
-		SDL_Rect temp_rect = genRect(bg->h, bg->w, pos.x, pos.y);
-		CSDL_Ext::blit8bppAlphaTo24bpp(bg, NULL, to, &temp_rect);
-		//blitAt(bg, pos, to);
+		//SDL_Rect temp_rect = genRect(bg->h, bg->w, pos.x, pos.y);
+		//CSDL_Ext::blit8bppAlphaTo24bpp(bg, NULL, to, &temp_rect);
+		blitAt(bg, pos, to);
 		blitAt(graphics->bigImgs[my->getCreature()->idNumber], pos.x +9, pos.y + 1, to);
 		printAtMiddleLoc(makeNumberShort(my->count), pos.w/2, pos.h - 12, FONT_MEDIUM, Colors::Cornsilk, to);
 	}
