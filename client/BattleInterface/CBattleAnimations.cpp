@@ -993,7 +993,7 @@ bool CSpellEffectAnimation::init()
 
 			switch (effect)
 			{
-			case -1:
+			case ui32(-1):
 				be.x = x;
 				be.y = y;
 				break;

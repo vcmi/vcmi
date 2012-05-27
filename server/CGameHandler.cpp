@@ -1010,7 +1010,7 @@ startWalking:
 			BattleHex hex = path.first[v];
 			tiles.push_back(hex);	
 
-			if(obstacle = battleGetObstacleOnPos(hex, false))
+			if((obstacle = battleGetObstacleOnPos(hex, false)))
 			{
 				//we walked onto something, so we finalize this portion of stack movement check into obstacle
 				break; 
@@ -4518,7 +4518,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 		{
 			int index = rand() % bl.size();
 			int spellID = bl[index]->subtype; //spell ID
-			if (gs->curB->battleCanCastThisSpell(st->owner, VLC->spellh->spells[spellID], ECastingMode::ENCHANTER_CASTING)); //TODO: select another?
+			if (gs->curB->battleCanCastThisSpell(st->owner, VLC->spellh->spells[spellID], ECastingMode::ENCHANTER_CASTING)) //TODO: select another?
 			{
 				int spellLeveL = bl[index]->val; //spell level
 				const CGHeroInstance * enemyHero = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));

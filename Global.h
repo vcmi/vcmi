@@ -118,7 +118,7 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 //defining available c++11 features
 
 //initialization lists - only gcc-4.4 or later
-#if defined(__GNUC__) && (GCC_VERSION >= 404)
+#if defined(__clang__) || (defined(__GNUC__) && (GCC_VERSION >= 404))
 #define CPP11_USE_INITIALIZERS_LIST
 #endif
 
