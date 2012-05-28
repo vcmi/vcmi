@@ -245,7 +245,7 @@ public:
 class DLL_LINKAGE CPrivilagedInfoCallback : public CGameInfoCallback
 {
 public:
-	CGameState *const gameState ();
+	CGameState * gameState ();
 	void getFreeTiles (std::vector<int3> &tiles) const; //used for random spawns
 	void getTilesInRange(boost::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int player=-1, int mode=0) const;  //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only unrevealed
 	void getAllTiles (boost::unordered_set<int3, ShashInt3> &tiles, int player=-1, int level=-1, int surface=0) const; //returns all tiles on given level (-1 - both levels, otherwise number of level); surface: 0 - land and water, 1 - only land, 2 - only water

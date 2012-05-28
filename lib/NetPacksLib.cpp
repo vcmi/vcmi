@@ -1200,7 +1200,7 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 			vstd::amax(h->mana, 0);
 		if (enemy && manaGained)
 			enemy->mana += manaGained;
-		if (side >= 0 && side < 2)
+		if (side < 2)
 		{
 			gs->curB->castSpells[side]++;
 		}

@@ -591,7 +591,7 @@ public:
 	BonusList &getBonusList();
 	const BonusList &getBonusList() const;
 	BonusList &getExportedBonusList();
-	const ui8 getNodeType() const;
+	ui8 getNodeType() const;
 	void setNodeType(ui8 type);
 	const TNodesVector &getParentNodes() const;
 	const TNodesVector &getChildrenNodes() const;

@@ -16,7 +16,7 @@ class int3
 public:
 	si32 x,y,z;
 	inline int3():x(0),y(0),z(0){}; //c-tor, x/y/z initialized to 0
-	inline int3(const si32 & X, const si32 & Y, const si32 & Z):x(X),y(Y),z(Z){}; //c-tor
+	inline int3(const si32 X, const si32 Y, const si32 Z):x(X),y(Y),z(Z){}; //c-tor
 	inline int3(const int3 & val) : x(val.x), y(val.y), z(val.z){} //copy c-tor
 	inline int3 operator=(const int3 & val) {x = val.x; y = val.y; z = val.z; return *this;} //assignemt operator
 	~int3() {} // d-tor - does nothing

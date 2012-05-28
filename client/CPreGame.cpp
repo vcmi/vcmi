@@ -1554,7 +1554,7 @@ CChatBox::CChatBox(const Rect &rect)
 	inputBox->used &= ~KEYBOARD;
 	chatHistory = new CTextBox("", Rect(0, 0, rect.w, rect.h - height), 1);
 
-	SDL_Color green = {0,252,0};
+	SDL_Color green = {0,252,0, SDL_ALPHA_OPAQUE};
 	chatHistory->color = green;
 }
 

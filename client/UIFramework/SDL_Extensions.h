@@ -133,8 +133,8 @@ namespace CSDL_Ext
 
 
 	Uint8 *getPxPtr(const SDL_Surface * const &srf, const int x, const int y);
-	const TColorPutter getPutterFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
-	const TColorPutterAlpha getPutterAlphaFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
+	TColorPutter getPutterFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
+	TColorPutterAlpha getPutterAlphaFor(SDL_Surface  * const &dest, int incrementing); //incrementing: -1, 0, 1
 	BlitterWithRotationVal getBlitterWithRotation(SDL_Surface *dest);
 	BlitterWithRotationVal getBlitterWithRotationAndAlpha(SDL_Surface *dest);
 

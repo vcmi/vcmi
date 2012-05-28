@@ -1517,7 +1517,7 @@ void CGameHandler::run(bool resume)
 		for(; i != gs->players.end(); i++)
 		{
 			if((i->second.towns.size()==0 && i->second.heroes.size()==0)
-				|| i->second.color<0 
+				//|| i->second.color<0  //FIXME: color is unsigned. Redundant or incorrect check?
 				|| i->first>=GameConstants::PLAYER_LIMIT  
 				|| i->second.status) 
 			{
@@ -4984,7 +4984,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 	}
 }
 
-void CGameHandler::getLossVicMessage( ui8 player, ui8 standard, bool victory, InfoWindow &out ) const
+void CGameHandler::getLossVicMessage( ui8 player, si8 standard, bool victory, InfoWindow &out ) const
 {
 //	const PlayerState *p = gs->getPlayer(player);
 // 	if(!p->human)
@@ -4994,7 +4994,7 @@ void CGameHandler::getLossVicMessage( ui8 player, ui8 standard, bool victory, In
 
 	if(victory)
 	{
-		if(standard < 0) //not std loss
+		if(standard > 0) //not std loss
 		{
 			switch(gs->map->victoryCondition.condition)
 			{
@@ -5055,7 +5055,7 @@ void CGameHandler::getLossVicMessage( ui8 player, ui8 standard, bool victory, In
 	}
 	else
 	{
-		if(standard < 0) //not std loss
+		if(standard > 0) //not std loss
 		{
 			switch(gs->map->lossCondition.typeOfLossCon)
 			{

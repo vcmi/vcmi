@@ -15,7 +15,7 @@
 
 #define MIN_AI_STRENGHT (0.5f) //lower when combat AI gets smarter
 
-class BankConfig;
+struct BankConfig;
 class FuzzyEngine;
 class InputLVar;
 class CGTownInstance;

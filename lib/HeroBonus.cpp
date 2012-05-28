@@ -858,7 +858,7 @@ void CBonusSystemNode::exportBonuses()
 		exportBonus(b);
 }
 
-const ui8 CBonusSystemNode::getNodeType() const
+ui8 CBonusSystemNode::getNodeType() const
 {
 	return nodeType;
 }

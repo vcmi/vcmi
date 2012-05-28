@@ -107,7 +107,7 @@ public:
 	void runBattle();
 	void checkLossVictory(ui8 player);
 	void winLoseHandle(ui8 players=255); //players: bit field - colours of players to be checked; default: all
-	void getLossVicMessage(ui8 player, ui8 standard, bool victory, InfoWindow &out) const;
+	void getLossVicMessage(ui8 player, si8 standard, bool victory, InfoWindow &out) const;
 
 	////used only in endBattle - don't touch elsewhere
 	boost::function<void(BattleResult*)> * battleEndCallback;

@@ -1520,7 +1520,7 @@ void CGameState::init(StartInfo * si)
 
 	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
 	{
-		if(k->first==-1 || k->first==255)
+		if(k->first==255)
 			continue;
 
 		//init visiting and garrisoned heroes

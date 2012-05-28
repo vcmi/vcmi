@@ -3064,7 +3064,7 @@ const CGHeroInstance * CStack::getMyHero() const
 	else //we are attached directly?
 		BOOST_FOREACH(const CBonusSystemNode *n, getParentNodes())
 		if(n->getNodeType() == HERO)
-			dynamic_cast<const CGHeroInstance *>(n);
+			dynamic_cast<const CGHeroInstance *>(n);//FIXME: unused result. Missing return?
 
 	return NULL;
 }

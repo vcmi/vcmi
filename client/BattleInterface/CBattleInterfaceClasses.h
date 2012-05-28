@@ -11,7 +11,7 @@ class CAdventureMapButton;
 class CHighlightableButton;
 class CHighlightableButtonsGroup;
 class CLabel;
-class BattleResult;
+struct BattleResult;
 class CStack;
 
 /*

@@ -749,7 +749,7 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 			for (size_t i=0; i<size; i++)
 			{
 				SDL_Color col = palette[*(data++)];
-				col.unused = (ui32)col.unused*(255-alpha)/255;
+				col.unused = (ui32)col.unused*alpha/255;
 				ColorPutter<bpp, 1>::PutColorAlpha(dest, col);
 			}
 			return;

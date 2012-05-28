@@ -19,7 +19,7 @@ class CCreature;
 class CStackInstance;
 class CCommanderInstance;
 class CStack;
-class ArtifactLocation;
+struct ArtifactLocation;
 class CCreatureArtifactInstance;
 class CAdventureMapButton;
 class CBonusItem;

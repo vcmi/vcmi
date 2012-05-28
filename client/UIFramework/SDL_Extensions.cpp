@@ -896,7 +896,7 @@ void CSDL_Ext::setPlayerColor(SDL_Surface * sur, ui8 player)
 		tlog3 << "Warning, setPlayerColor called on not 8bpp surface!\n";
 }
 
-const TColorPutter CSDL_Ext::getPutterFor(SDL_Surface * const &dest, int incrementing)
+TColorPutter CSDL_Ext::getPutterFor(SDL_Surface * const &dest, int incrementing)
 {
 #define CASE_BPP(BytesPerPixel)							\
 case BytesPerPixel:									\
@@ -920,7 +920,7 @@ case BytesPerPixel:									\
 
 }
 
-const TColorPutterAlpha CSDL_Ext::getPutterAlphaFor(SDL_Surface * const &dest, int incrementing)
+TColorPutterAlpha CSDL_Ext::getPutterAlphaFor(SDL_Surface * const &dest, int incrementing)
 {
 	switch(dest->format->BytesPerPixel)
 	{

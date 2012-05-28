@@ -443,7 +443,7 @@ int CBattleInfoCallback::battleGetMoatDmg()
 	return 0;
 }
 
-CGameState *const CPrivilagedInfoCallback::gameState ()
+CGameState * CPrivilagedInfoCallback::gameState ()
 { 
 	return gs;
 }

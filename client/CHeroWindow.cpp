@@ -305,13 +305,13 @@ void CHeroWindow::questlog()
 void CHeroWindow::commanderWindow()
 {
 	//TODO: allow equipping commander artifacts by drag / drop
-	bool artSelected = false;
+	//bool artSelected = false;
 	const CArtifactsOfHero::SCommonPart *commonInfo = artSets.front()->commonInfo;
 
 	if (const CArtifactInstance *art = commonInfo->src.art)
 	{
 		const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
-		artSelected = true;
+		//artSelected = true;
 		int freeSlot = art->firstAvailableSlot (curHero->commander);
 		if (freeSlot < ArtifactPosition::COMMANDER_AFTER_LAST) //we don't want to put it in commander's backpack!
 		{
