@@ -3063,8 +3063,8 @@ const CGHeroInstance * CStack::getMyHero() const
 		return dynamic_cast<const CGHeroInstance *>(base->armyObj);
 	else //we are attached directly?
 		BOOST_FOREACH(const CBonusSystemNode *n, getParentNodes())
-		if(n->getNodeType() == HERO)
-			dynamic_cast<const CGHeroInstance *>(n);//FIXME: unused result. Missing return?
+			if(n->getNodeType() == HERO)
+				return dynamic_cast<const CGHeroInstance *>(n);
 
 	return NULL;
 }

@@ -1517,7 +1517,6 @@ void CGameHandler::run(bool resume)
 		for(; i != gs->players.end(); i++)
 		{
 			if((i->second.towns.size()==0 && i->second.heroes.size()==0)
-				//|| i->second.color<0  //FIXME: color is unsigned. Redundant or incorrect check?
 				|| i->first>=GameConstants::PLAYER_LIMIT  
 				|| i->second.status) 
 			{
