@@ -5,6 +5,7 @@ namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 using namespace std;
 
+#include <boost/random.hpp>
 
 //FANN
 #include <doublefann.h>
@@ -454,45 +455,59 @@ CArtifactInstance * Framework::generateArtWithBonus(const Bonus &b)
 class SSN
 {
 	FANN::neural_net net;
+	struct ParameterSet;
 
-	void init();
+	void init(const ParameterSet & params);
+	FANN::training_data * getTrainingData( const std::vector<Example> &input);
 	static int ANNCallback(FANN::neural_net &net, FANN::training_data &train, unsigned int max_epochs, unsigned int epochs_between_reports, float desired_error, unsigned int epochs, void *user_data);
 	static double * genSSNinput(const DuelParameters::SideSettings & dp, CArtifactInstance * art, si32 bfieldType, si32 terType);
 	static const unsigned int num_input = 18;
 public:
+	struct ParameterSet
+	{
+		unsigned int neuronsInHidden;
+		double actSteepHidden, actSteepnessOutput;
+		FANN::activation_function_enum hiddenActFun, outActFun;
+	};
+
 	SSN();
 	~SSN();
 
-	void learn(const std::vector<Example> & input);
+	//returns mse after learning
+	double learn(const std::vector<Example> & input, const ParameterSet & params);
+
+	double test(const std::vector<Example> & input)
+	{
+		auto td = getTrainingData(input);
+		return net.test_data(*td);
+		delete td;
+	}
 	double run(const DuelParameters &dp, CArtifactInstance * inst); 
 
 	void save(const std::string &filename);
 };
 
 SSN::SSN()
-{
-	init();
-}
+{}
 
-void SSN::init()
+void SSN::init(const ParameterSet & params)
 {
 	const float learning_rate = 0.7f;
 	const unsigned int num_layers = 3;
-	const unsigned int num_hidden = 30;
 	const unsigned int num_output = 1;
-	const float desired_error = 0.001f;
-	const unsigned int max_iterations = 300000;
+	const float desired_error = 0.01f;
+	const unsigned int max_iterations = 30000;
 	const unsigned int iterations_between_reports = 1000;
 
-	net.create_standard(num_layers, num_input, num_hidden, num_output);
+	net.create_standard(num_layers, num_input, params.neuronsInHidden, num_output);
 
 	net.set_learning_rate(learning_rate);
 
-	net.set_activation_steepness_hidden(0.9);
-	net.set_activation_steepness_output(1.0);
+	net.set_activation_steepness_hidden(params.actSteepHidden);
+	net.set_activation_steepness_output(params.actSteepnessOutput);
 
-	net.set_activation_function_hidden(FANN::SIGMOID_SYMMETRIC_STEPWISE);
-	net.set_activation_function_output(FANN::SIGMOID_SYMMETRIC_STEPWISE);
+	net.set_activation_function_hidden(params.hiddenActFun);
+	net.set_activation_function_output(params.outActFun);
 
 	net.randomize_weights(0.0, 1.0);
 }
@@ -514,24 +529,17 @@ int SSN::ANNCallback(FANN::neural_net &net, FANN::training_data &train, unsigned
 	return 0;
 }
 
-void SSN::learn(const std::vector<Example> & input)
+double SSN::learn(const std::vector<Example> & input, const ParameterSet & params)
 {
+	init(params);
 	//FIXME - sypie przy destrukcji
 	//FANN::training_data td; 
-	FANN::training_data &td = *new FANN::training_data; 
+	FANN::training_data *td = getTrainingData(input);
 
-	double ** inputs = new double *[input.size()];
-	double ** outputs = new double *[input.size()];
-	for(int i=0; i<input.size(); ++i)
-	{
-		const auto & ci = input[i];
-		inputs[i] = genSSNinput(ci.dp.sides[0], ci.art, ci.dp.bfieldType, ci.dp.terType);
-		outputs[i] = new double;
-		*(outputs[i]) = ci.value;
-	}
-	td.set_train_data(input.size(), num_input, inputs, 1, outputs);
 	net.set_callback(ANNCallback, NULL);
-	net.train_on_data(td, 1000, 1000, 0.01);
+	net.train_on_data(*td, 1000, 1000, 0.01);
+	
+	return net.test_data(*td);
 }
 
 double * SSN::genSSNinput(const DuelParameters::SideSettings & dp, CArtifactInstance * art, si32 bfieldType, si32 terType)
@@ -596,15 +604,76 @@ SSN::~SSN()
 {
 }
 
+FANN::training_data * SSN::getTrainingData( const std::vector<Example> &input )
+{
+	FANN::training_data * ret = new FANN::training_data;
+	double ** inputs = new double *[input.size()];
+	double ** outputs = new double *[input.size()];
+
+	for(int i=0; i<input.size(); ++i)
+	{
+		const auto & ci = input[i];
+		inputs[i] = genSSNinput(ci.dp.sides[0], ci.art, ci.dp.bfieldType, ci.dp.terType);
+		outputs[i] = new double;
+		*(outputs[i]) = ci.value;
+	}
+
+	ret->set_train_data(input.size(), num_input, inputs, 1, outputs);
+	return ret;
+}
+
 void SSNRun()
 {
 	//buildLearningSet();
+	double percentToTrain = 0.8;
+
+	auto trainingSet = Framework::loadExamples(false);
+
+	std::vector<Example> testSet;
 
 
-	auto examples = Framework::loadExamples(false);
+	for(int i=0, maxi = trainingSet.size()*(1-percentToTrain); i<maxi; ++i)
+	{
+		int ind = rand()%trainingSet.size();
+		testSet.push_back(trainingSet[ind]);
+		trainingSet.erase(trainingSet.begin() + ind);
+	}
 
 	SSN network;
-	network.learn(examples);
+
+
+	SSN::ParameterSet bestParams;
+	double besttMSE = 1e10;
+
+	boost::mt19937 rng;
+	boost::uniform_01<boost::mt19937> zeroone(rng);
+
+	FANN::activation_function_enum possibleFuns[] = {FANN::SIGMOID_SYMMETRIC_STEPWISE, FANN::LINEAR,
+		FANN::SIGMOID, FANN::SIGMOID_STEPWISE, FANN::SIGMOID_SYMMETRIC};
+
+	for(int i=0; i<5000; i += 1)
+	{
+		SSN::ParameterSet ps;
+		ps.actSteepHidden = zeroone() + 0.3;
+		ps.actSteepnessOutput = zeroone() + 0.3;
+		ps.neuronsInHidden = rand()%40+10;
+		ps.hiddenActFun = possibleFuns[rand()%ARRAY_COUNT(possibleFuns)];
+		ps.outActFun = possibleFuns[rand()%ARRAY_COUNT(possibleFuns)];
+
+		double lmse = network.learn(trainingSet, ps);
+
+		double tmse = network.test(testSet);
+		if(tmse < besttMSE)
+		{
+			besttMSE = tmse;
+			bestParams = ps;
+		}
+
+		cout << "hid:\t" << i << " lmse:\t" << lmse << " tmse:\t" << tmse << std::endl;
+	}
+	//saving of best network
+	network.learn(trainingSet, bestParams);
+
 	network.save("network_config_file.net");
 }
 
