@@ -651,8 +651,6 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 			BOOST_FOREACH(auto &iter, VLC->objh->cregens)
 				if (iter.second == cid)
 					result = std::pair<int,int>(17, iter.first);
-
-			tlog3 << "Cannot find a dwelling for creature "<< cid << std::endl;
 			return result;
 		}
 	}

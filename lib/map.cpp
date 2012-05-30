@@ -1260,7 +1260,7 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 		int defnum = read_le_u32(bufor + i); i+=4;
 		int idToBeGiven = objects.size();
 
-		CGDefInfo * defInfo = defy[defnum];
+		CGDefInfo * defInfo = defy.at(defnum);
 		i+=5;
 
 		switch(defInfo->id)
@@ -1705,8 +1705,6 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 						castleSpec->asCastle = true;
 					}
 				}
-				else
-					i+=3; //only for 218
 
 				//216 and 218
 				if (auto lvlSpec = dynamic_cast<CCreGenLeveledInfo*>(spec))
@@ -2211,4 +2209,4 @@ bool TerrainTile::hasFavourableWinds() const
 bool TerrainTile::isWater() const
 {
 	return tertype == water;
-}
+}
