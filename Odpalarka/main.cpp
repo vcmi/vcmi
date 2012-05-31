@@ -726,11 +726,11 @@ SSN::ParameterSet SSN::getBestParams()
 
 
 	SSN::ParameterSet params;
-	params.actSteepHidden = 1.18;
-	params.actSteepnessOutput = 1.26;
+	params.actSteepHidden = 0.784;
+	params.actSteepnessOutput = 0.713;
 	params.hiddenActFun = FANN::SIGMOID_STEPWISE;
-	params.outActFun = FANN::SIGMOID_SYMMETRIC;
-	params.neuronsInHidden = 47;
+	params.outActFun = FANN::SIGMOID_SYMMETRIC_STEPWISE;
+	params.neuronsInHidden = 14;
 	return params;
 }
 
@@ -869,6 +869,10 @@ struct SSN_Runner
 				}
 				else if(command == "ask")
 				{
+					if(ad.empty())
+					{
+						throw std::runtime_error("Army needs to be set first!");
+					}
 					int artid = boost::lexical_cast<int>(secondWord);
 					CArtifact *art = VLC->arth->artifacts.at(artid);
 
