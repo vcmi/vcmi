@@ -626,7 +626,7 @@ FANN::training_data * SSN::getTrainingData( const std::vector<Example> &input )
 		const auto & ci = input[i];
 		inputs[i] = genSSNinput(ci.dp.sides[0], ci.art, ci.dp.bfieldType, ci.dp.terType);
 		outputs[i] = new double;
-		*(outputs[i]) = ci.value;
+		*(outputs[i]) = ci.value/4;
 	}
 
 	ret->set_train_data(input.size(), num_input, inputs, 1, outputs);
@@ -635,7 +635,7 @@ FANN::training_data * SSN::getTrainingData( const std::vector<Example> &input )
 
 void SSNRun()
 {
-	//buildLearningSet();
+	//Framework::buildLearningSet();
 	double percentToTrain = 0.8;
 
 	auto trainingSet = Framework::loadExamples(false);
@@ -661,12 +661,12 @@ void SSNRun()
 
 	FANN::activation_function_enum possibleFuns[] = {FANN::SIGMOID_SYMMETRIC_STEPWISE, FANN::LINEAR,
 		FANN::SIGMOID, FANN::SIGMOID_STEPWISE, FANN::SIGMOID_SYMMETRIC};
-
-// 	bestParams.actSteepHidden = 1.18;
-// 	bestParams.actSteepnessOutput = 1.26;
-// 	bestParams.hiddenActFun = FANN::SIGMOID_STEPWISE;
+// 
+// 	bestParams.actSteepHidden = 0.346;
+// 	bestParams.actSteepnessOutput = 0.449;
+// 	bestParams.hiddenActFun = FANN::SIGMOID_SYMMETRIC;
 // 	bestParams.outActFun = FANN::SIGMOID_SYMMETRIC;
-// 	bestParams.neuronsInHidden = 47;
+// 	bestParams.neuronsInHidden = 23;
 
 	for(int i=0; i<5000; i += 1)
 	{
