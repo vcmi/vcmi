@@ -353,7 +353,7 @@ double Framework::rateArt(const DuelParameters dp, CArtifactInstance * inst)
 
 	double LRgain = resultLR - resultsBase,
 		RLgain = resultsBase - resultRL;
-	return LRgain+RLgain;
+	return (LRgain+RLgain)/4;
 }
 
 double Framework::cmpArtSets(DuelParameters dp, TArtSet setL, TArtSet setR)
@@ -538,6 +538,17 @@ double SSN::learn(const std::vector<Example> & input, const ParameterSet & param
 
 	net.set_callback(ANNCallback, NULL);
 	net.train_on_data(*td, 1000, 1000, 0.01);
+
+
+// 	int exNum = 130;
+// 
+// 	for(int exNum =0; exNum<input.size(); ++exNum)
+// 	{
+// 		double * testIn = genSSNinput(input[exNum].dp.sides[0], input[exNum].art, input[exNum].dp.bfieldType, input[exNum].dp.terType);
+// 
+// 		double ans = *net.run(testIn);
+// 		int g = 0;
+// 	}
 	
 	return net.test_data(*td);
 }
@@ -651,6 +662,12 @@ void SSNRun()
 	FANN::activation_function_enum possibleFuns[] = {FANN::SIGMOID_SYMMETRIC_STEPWISE, FANN::LINEAR,
 		FANN::SIGMOID, FANN::SIGMOID_STEPWISE, FANN::SIGMOID_SYMMETRIC};
 
+// 	bestParams.actSteepHidden = 1.18;
+// 	bestParams.actSteepnessOutput = 1.26;
+// 	bestParams.hiddenActFun = FANN::SIGMOID_STEPWISE;
+// 	bestParams.outActFun = FANN::SIGMOID_SYMMETRIC;
+// 	bestParams.neuronsInHidden = 47;
+
 	for(int i=0; i<5000; i += 1)
 	{
 		SSN::ParameterSet ps;
@@ -672,7 +689,7 @@ void SSNRun()
 		cout << "hid:\t" << i << " lmse:\t" << lmse << " tmse:\t" << tmse << std::endl;
 	}
 	//saving of best network
-	network.learn(trainingSet, bestParams);
+	double debugMSE = network.learn(trainingSet, bestParams);
 
 	network.save("network_config_file.net");
 }
