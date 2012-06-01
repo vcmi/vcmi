@@ -1,6 +1,6 @@
-0.88 -> 0.next
+0.88 -> 0.89 (Jun 01 2012)
 GENERAL
-* Mostly implemented Commanders feature
+* Mostly implemented Commanders feature (missing level-up dialog)
 * Support for stack artifacts
 * New creature window graphics contributed by fishkebab
 * Config file may have multiple upgrades for creatures
@@ -9,6 +9,7 @@ GENERAL
 * Implemented restart functionality. CTRL+R will trigger a quick restart
 * Save game screen and returning to main menu will work if game was started with --start option
 * Simple mechanism for detecting game desynchronization after init
+* 1280x800 resolution graphics, contributed by Topas
 
 ADVENTURE MAP
 * Fixed monsters regenerating casualties from battle at the start of new week.
@@ -43,9 +44,12 @@ TOWNS:
 
 PREGAME
 * Pregame will use same resolution as main game
+* Support for scaling background image
+* Customization of graphics with config file.
 
 ADVENTURE AI
 * basic rule system for threat evaluation
+* new town development logic
 * AI can now use external dwellings
 * AI will weekly revisit dwellings & mills
 * AI will now always pick best stacks from towns
