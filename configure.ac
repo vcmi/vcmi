@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 AC_PREREQ(2.60)
-AC_INIT(vcmi, 0.88b)				# Follow VCMI_VERSION in GameConstants.h
+AC_INIT(vcmi, 0.89)				# Follow VCMI_VERSION in GameConstants.h
 AM_INIT_AUTOMAKE
 AC_CONFIG_MACRO_DIR([aclocal/m4])
 
@@ -30,18 +30,15 @@ if test "x$GXX" = "xyes" -a "x$enable_debug" = "xyes" ; then
    CXXFLAGS="$CXXFLAGS -O0 -ggdb"
 fi
 
-# For c++11 compatibility. Required at least in VCAI
-CXXFLAGS="$CXXFLAGS -std=c++0x"
-
 # For gcc and compatible compilers, enable compilation warnings, but
 # selectively disable some because too many are generated.
 if test "x$GXX" = "xyes" ; then
-   CXXFLAGS="$CXXFLAGS -Wall -Wno-switch -Wno-sign-compare -Wcast-align -Wpointer-arith"
+   CXXFLAGS="$CXXFLAGSc -std=c++0x -Wall -Wextra -Wcast-align -Wpointer-arith -Wno-switch -Wno-sign-compare -Wno-unused-parameter"
 fi
 
 # extra clang parameters
 if test "x${ax_cv_cxx_compiler_vendor}"  =  "xclang" ; then
-   CXXFLAGS="$CXXFLAGS -Wno-address-of-temporary -Wno-unused-value -Wno-cast-align"
+   CXXFLAGS="$CXXFLAGS -Wno-cast-align -Woverloaded-virtual"
 fi
 
 # extra Intel icc parameters

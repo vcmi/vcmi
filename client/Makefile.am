@@ -1,4 +1,15 @@
 bin_PROGRAMS = vcmiclient
+
+desktopdir = $(datadir)/applications
+desktop_DATA = vcmiclient.desktop
+
+icondir = $(datadir)/icons
+dist_icon_DATA = vcmiclient.png
+
+EXTRA_DIST = \
+  $(pixmaps_extra_DATA) \
+  ${desktop_DATA}
+
 BUILT_SOURCES = StdInc.h.gch
 StdInc.h.gch: StdInc.h
 	$(CXXCOMPILE) -c $<

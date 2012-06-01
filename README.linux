@@ -22,7 +22,7 @@ To compile, at least the following packages (and their development counterparts)
 		- thread
 
 On Debian-based systems (e.g. Ubuntu) run:
-  sudo apt-get install g++ libsdl1.2debian-all libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev
+  sudo apt-get install g++ libsdl1.2debian libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev
 
 On Fedora run(this may not be complete):
   sudo yum install gcc-c++ SDL-devel SDL_image-devel SDL_ttf-devel boost boost-devel boost-filesystem boost-iostreams boost-system boost-thread boost-program-options zlib-devel ffmpeg-devel ffmpeg-libs
@@ -80,12 +80,14 @@ Since VCMI is still in development, there's no install procedure, although this 
   make install
 You also need to update configuration files:
  cp /PATH_TO_SOURCE/config /DATA_PATH/vcmi
+In this case you'll have to manually update after any changes.
+For more permament solution you should use links as described below.
 
 For development puposes, it's better to use links. Go
 to /BIN_PATH/, and type:
 
-  ln -s /PATH_TO_SOURCE/client/vcmiclient
-  ln -s /PATH_TO_SOURCE/server/vcmiserver
+  ln -s /PATH_TO_SOURCE/client/.libs/vcmiclient
+  ln -s /PATH_TO_SOURCE/server/.libs/vcmiserver
   
 Go to /LIB_PATH/vcmi, and type:
 
