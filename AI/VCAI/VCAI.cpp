@@ -1716,7 +1716,7 @@ void VCAI::tryRealize(CGoal g)
 	{
 	case EXPLORE:
 		{
-			assert(0); //this goal is not elementar!
+			throw cannotFulfillGoalException("EXPLORE is not a elementar goal!");
 		}
 		break;
 	case RECRUIT_HERO:
@@ -2079,7 +2079,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, const CGHeroInstance 
 int3 VCAI::explorationNewPoint(int radius, const CGHeroInstance * h, std::vector<std::vector<int3> > &tiles)
 {
 	TimeCheck tc("looking for new exploration point");
-	tlog0 << "Looking for an another place for exploration...\n";
+	PNLOG("Looking for an another place for exploration...");
 	tiles.resize(radius);
 
 	foreach_tile_pos([&](const int3 &pos)
@@ -2320,6 +2320,8 @@ int3 whereToExplore(const CGHeroInstance *h)
 
 TSubgoal CGoal::whatToDoToAchieve()
 {
+	BNLOG("Decomposing goal of type %s", goalName(goalType));
+	INDENT;
 	switch(goalType)
 	{
 	case WIN:
