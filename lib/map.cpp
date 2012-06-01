@@ -897,7 +897,7 @@ CGObjectInstance * Mapa::loadHero(const ui8 * bufor, int &i, int idToBeGiven)
 	{
 		bool areSpells = bufor[i]; ++i;
 
-		if(areSpells) //TODO: sprawdziæ //seems to be ok - tow
+		if(areSpells) //TODO: sprawdzi //seems to be ok - tow
 		{
 			nhi->spells.insert(0xffffffff); //placeholder "preset spells"
 			int ist = i;
@@ -2209,4 +2209,4 @@ bool TerrainTile::hasFavourableWinds() const
 bool TerrainTile::isWater() const
 {
 	return tertype == water;
-}
+}

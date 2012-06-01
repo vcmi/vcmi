@@ -646,11 +646,21 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 			std::pair<int,int> result(-1, -1);
 			int cid = VLC->townh->towns[faction].basicCreatures[level];
 
+			//golem factory is not in list of cregens but can be placed as random object
+			static const int factoryCreatures[] = {32, 33, 116, 117};
+			std::vector<int> factory(std::begin(factoryCreatures), std::end(factoryCreatures));
+			if (vstd::contains(factory, cid))
+				result = std::pair<int,int>(20, 1);
+
 			//NOTE: this will pick last dwelling with this creature (Mantis #900)
 			//check for block map equality is better but more complex solution
 			BOOST_FOREACH(auto &iter, VLC->objh->cregens)
 				if (iter.second == cid)
 					result = std::pair<int,int>(17, iter.first);
+
+			if (result.first == -1)
+				tlog0 << "Error: failed to find creature for dwelling of "<< int(faction) << " of level " << int(level) << "\n";
+
 			return result;
 		}
 	}
