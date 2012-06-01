@@ -632,10 +632,10 @@ void CBattleInterface::show(SDL_Surface * to)
 						CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &temp_rect);
 					}
 				}
-				//patch by ench0
 
+				//patch by ench0: show enemy stack movement shadow
 				// activeStack == NULL means it is opponent's turn...
-				if(activeStack)
+				if(activeStack && settings["battle"]["stackRange"].Bool())
 				{
 					// display the movement shadow of the stack at b (i.e. stack under mouse)
 					const CStack * const shere = curInt->cb->battleGetStackByPos(b, false);
@@ -651,6 +651,7 @@ void CBattleInterface::show(SDL_Surface * to)
 						}
 					}
 				}
+
 				//always highlight pointed hex
 				int x = 14 + ((b/GameConstants::BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%GameConstants::BFIELD_WIDTH) + pos.x;
 				int y = 86 + 42 * (b/GameConstants::BFIELD_WIDTH) + pos.y;
