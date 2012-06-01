@@ -687,6 +687,7 @@ public:
 	bool saving;
 	std::map<ui16,CBasicPointerLoader*> loaders; // typeID => CPointerSaver<serializer,type>
 	ui32 myVersion;
+	bool reverseEndianess; //if source has different endianess than us, we reverse bytes
 
 	std::map<ui32, void*> loadedPointers;
 	bool smartPointerSerialization;
@@ -696,6 +697,7 @@ public:
 		saving = false;
 		myVersion = version;
 		smartPointerSerialization = true;
+		reverseEndianess = false;
 	}
 
 	~CISer()
@@ -758,7 +760,12 @@ public:
 	template <typename T>
 	void loadPrimitive(T &data)
 	{
-		this->This()->read(&data,sizeof(data));
+		char * dataPtr = (char*)&data;
+		unsigned length = sizeof(data);
+
+		this->This()->read(dataPtr,length);
+		if(reverseEndianess)
+			std::reverse(dataPtr, dataPtr + length);
 	}
 
 	template <typename T>

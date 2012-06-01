@@ -302,7 +302,8 @@ CLoadFile::~CLoadFile()
 
 int CLoadFile::read( const void * data, unsigned size )
 {
-	sfile->read((char *)data,size);
+	char *bytePtr = (char *)data;
+	sfile->read(bytePtr, size);
 	return size;
 }
 
@@ -335,8 +336,18 @@ void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
 		}
 		if(myVersion > version)
 		{
-			tlog1 << "Error: Too new file format! (file " << fname << " )\n";
-			sfile.release();
+			auto versionptr = (char*)&myVersion;
+			std::reverse(versionptr, versionptr + 4);
+			if(myVersion == version)
+			{
+				reverseEndianess = true;
+				tlog3 << fname << " seems to have different endianess!\n";
+			}
+			else
+			{
+				tlog1 << "Error: Too new file format! (file " << fname << " )\n";
+				sfile.release();
+			}
 		}
 	}
 }
