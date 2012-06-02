@@ -19,7 +19,8 @@
 #   data1.cab and data1.hdr from the original 1st CDROM
 #   Heroes3.snd from the original 2nd CDROM
 #   the WoG release v3.58f: allinone_358f.zip
-#   the VCMI distribution: vcmi_088b.7z
+#   the VCMI distribution: vcmi_089.zip
+#   the menu graphic pack: vcmi32menu.zip
 
 # Usage: put this script and the 4 data files into the same directory
 # and run the script.
@@ -112,7 +113,8 @@ rm -rf temp
 mkdir temp
 cd temp
 
-7zr x ../vcmi_088b.7z
+#7zr x ../vcmi_088b.7z
+unzip ../vcmi_089.zip
 
 find . -name "*.dll" | xargs rm -f
 find . -name "*.DLL" | xargs rm -f
@@ -127,7 +129,21 @@ rm -rf Games
 cp -a . $DESTDIR
 
 cd ..
+
+
+# Extract graphics package
+
 rm -rf temp
+mkdir temp
+cd temp
+
+unzip ../vcmi32menu.zip
+
+# Tree is already clean. Move extracted files to their final destination
+
+cp -a . $DESTDIR
+
+cd ..
 
 
 # Done
