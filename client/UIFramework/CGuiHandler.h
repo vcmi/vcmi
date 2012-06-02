@@ -91,7 +91,6 @@ public:
 	ui8 captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
 	std::list<CIntObject *> createdObj; //stack of objs being created
 	
-	static CIntObject * moveChild(CIntObject *obj, CIntObject *from, CIntObject *to, bool adjustPos = false);
 	static SDLKey arrowToNum(SDLKey key); //converts arrow key to according numpad key
 	static SDLKey numToDigit(SDLKey key);//converts numpad digit key to normal digit key
 	static bool isNumKey(SDLKey key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)

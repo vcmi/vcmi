@@ -310,8 +310,6 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	if(networkMode != GUEST)
 		myPlayers.insert(255); //neutral
 
-
-
 	CStopWatch tmh;
 	const_cast<CGameInfo*>(CGI)->state = new CGameState();
 	tlog0 <<"\tGamestate: "<<tmh.getDiff()<<std::endl;
@@ -712,8 +710,11 @@ void CServerHandler::callServer()
 	setThreadName(-1, "CServerHandler::callServer");
 	std::string logName = GVCMIDirs.UserPath + "/server_log.txt";
 	std::string comm = GameConstants::BIN_DIR + GameConstants::PATH_SEPARATOR + GameConstants::SERVER_NAME + " " + port + " > " + logName;
-	std::system(comm.c_str());
-	tlog0 << "Server finished\n";
+	int result = std::system(comm.c_str());
+	if (result == 0)
+		tlog1 << "Server closed correctly\n";
+	else
+		tlog0 << "Error: server failed to close correctly or crashed!\n";
 }
 
 CConnection * CServerHandler::justConnectToServer(const std::string &host, const std::string &port)

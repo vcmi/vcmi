@@ -35,7 +35,7 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data)
 	name(NULL)
 {
 	assert(data);
-	used = LCLICK | RCLICK;
+	addUsedEvents(LCLICK | RCLICK);
 	EFonts font = (size < SIZE_MEDIUM)? FONT_SMALL: FONT_MEDIUM;
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -597,7 +597,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 		minesBox[i] = new InfoBox(Point(20+i*80, 31+footerPos), InfoBox::POS_INSIDE, InfoBox::SIZE_SMALL,
 		              new InfoBoxCustom(value, "", "OVMINES", i, CGI->generaltexth->mines[i].first));
 
-		minesBox[i]->used &= ~(LCLICK|RCLICK); //fixes #890 - mines boxes ignore clicks
+		minesBox[i]->removeUsedEvents(LCLICK|RCLICK); //fixes #890 - mines boxes ignore clicks
 	}
 	incomeArea = new CHoverableArea;
 	incomeArea->pos = Rect(pos.x+580, pos.y+31+footerPos, 136, 68);

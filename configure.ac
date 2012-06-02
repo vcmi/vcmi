@@ -38,7 +38,7 @@ fi
 
 # extra clang parameters
 if test "x${ax_cv_cxx_compiler_vendor}"  =  "xclang" ; then
-   CXXFLAGS="$CXXFLAGS -Wno-cast-align -Woverloaded-virtual"
+   CXXFLAGS="$CXXFLAGS -Wno-cast-align -Wno-overloaded-virtual"
 fi
 
 # extra Intel icc parameters

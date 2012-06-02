@@ -118,8 +118,6 @@ public:
 class CRClickPopup : public CIntObject
 {
 public:
-	virtual void activate();
-	virtual void deactivate();
 	virtual void close();
 	void clickRight(tribool down, bool previousState);
 
@@ -152,7 +150,7 @@ public:
 	void show(SDL_Surface * to);
 	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false); //c-tor
 	CInfoPopup(SDL_Surface * Bitmap, const Point &p, EAlignment alignment, bool Free=false); //c-tor
-	CInfoPopup(SDL_Surface *Bitmap = NULL, bool Free = false); //default c-tor
+	CInfoPopup(SDL_Surface * Bitmap = NULL, bool Free = false); //default c-tor
 
 	void init(int x, int y);
 	~CInfoPopup(); //d-tor
@@ -181,7 +179,7 @@ public:
 	std::string description; //r-click
 	std::string subtitle; //TODO: comment me
 
-	virtual void init(Etype Type, int Subtype, int Val);
+	void init(Etype Type, int Subtype, int Val);
 	CComponent(Etype Type, int Subtype, int Val); //c-tor
 	CComponent(const Component &c); //c-tor
 	CComponent(); //c-tor
@@ -221,7 +219,6 @@ public:
 	const CCreature *creature;
 	int count; //number of creatures
 	int upg; //0 - up garrison, 1 - down garrison
-	bool active; //TODO: comment me
 	bool highlight;
 
 	virtual void hover (bool on); //call-in
@@ -229,11 +226,8 @@ public:
 	bool our();
 	void clickRight(tribool down, bool previousState);
 	void clickLeft(tribool down, bool previousState);
-	void activate();
-	void deactivate();
 	void showAll(SDL_Surface * to);
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg=0, const CStackInstance * Creature=NULL);
-	~CGarrisonSlot(); //d-tor
 };
 
 /// Class which manages slots of upper and lower garrison, splitting of units
@@ -400,10 +394,8 @@ public:
 
 	CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last = -1, int val=0); //c-tor; val - initial amount of second stack
 	~CSplitWindow(); //d-tor
-	void activate();
 	void split();
 	void close();
-	void deactivate();
 	void show(SDL_Surface * to);
 	void clickLeft(tribool down, bool previousState); //call-in
 	void keyPressed (const SDL_KeyboardEvent & key); //call-in
@@ -748,8 +740,6 @@ private:
 	int maxDisplayedTexts; //hiw many texts can be displayed simultaneously
 public:
 	std::string enteredText;
-	void activate();
-	void deactivate();
 	void show(SDL_Surface * to);
 	void print(const std::string &txt);
 	void keyPressed (const SDL_KeyboardEvent & key); //call-in
@@ -829,8 +819,6 @@ public:
 	void clickRight(tribool down, bool previousState);
 	void select ();
 	void deselect ();
-	void activate();
-	void deactivate();
 	void showAll(SDL_Surface * to);
 	bool fitsHere (const CArtifactInstance * art) const; //returns true if given artifact can be placed here
 
@@ -915,7 +903,7 @@ public:
 	virtual void updateGarrisons(){};
 };
 
-class CWindowWithGarrison : public CGarrisonHolder
+class CWindowWithGarrison : public virtual CGarrisonHolder
 {
 public:
 	CGarrisonInt *garr;
@@ -923,14 +911,12 @@ public:
 };
 
 /// Garrison window where you can take creatures out of the hero to place it on the garrison
-class CGarrisonWindow : public CWindowWithGarrison
+class CGarrisonWindow : public CWindowObject, public CWindowWithGarrison
 {
 public:
-	CPicture *bg; //background surface
 	CLabel *title;
 	CAdventureMapButton *quit;
 
-	void close();
 	void showAll(SDL_Surface * to);
 	CGarrisonWindow(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits); //c-tor
 	~CGarrisonWindow(); //d-tor

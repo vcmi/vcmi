@@ -389,7 +389,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 	}
 
 	if(ret->text->slider)
-		ret->text->slider->changeUsedEvents(CIntObject::WHEEL | CIntObject::KEYBOARD, true);
+		ret->text->slider->addUsedEvents(CIntObject::WHEEL | CIntObject::KEYBOARD);
 
 	std::pair<int,int> winSize(ret->text->pos.w, ret->text->pos.h); //start with text size
 

@@ -5,6 +5,8 @@
 #include "../FontBase.h"
 
 struct SDL_Surface;
+class CPicture;
+class CGuiHandler;
 
 /*
  * CIntObject.h, part of VCMI engine
@@ -64,99 +66,152 @@ public:
 	virtual ~IStatusBar(){}; //d-tor
 	virtual void print(const std::string & text)=0; //prints text and refreshes statusbar
 	virtual void clear()=0;//clears statusbar and refreshes
-	virtual void show(SDL_Surface * to)=0; //shows statusbar (with current text)
 	virtual std::string getCurrent()=0; //returns currently displayed text
 };
 
 // Base UI element
 class CIntObject : public IShowActivatable //interface object
 {
-public:
-	CIntObject *parent; //parent object
-	std::vector<CIntObject *> children;
+	//activate or deactivate specific action (LCLICK, RCLICK...)
+	void activate(ui16 what);
+	void deactivate(ui16 what);
 
-	Rect pos, //position of object on the screen
-		posRelative; //position of object in the parent (not used if no parent)
-
-	CIntObject();
-	virtual ~CIntObject(); //d-tor
+	ui16 used;//change via addUsed() or delUsed
 
 	//l-clicks handling
-	bool pressedL; //for determining if object is L-pressed
 	void activateLClick();
 	void deactivateLClick();
-	virtual void clickLeft(tribool down, bool previousState);
 
 	//r-clicks handling
-	bool pressedR; //for determining if object is R-pressed
 	void activateRClick();
 	void deactivateRClick();
-	virtual void clickRight(tribool down, bool previousState);
 
 	//hover handling
-	bool hovered;  //for determining if object is hovered
 	void activateHover();
 	void deactivateHover();
-	virtual void hover (bool on);
-
-	//keyboard handling
-	bool captureAllKeys; //if true, only this object should get info about pressed keys
-	void activateKeys();
-	void deactivateKeys();
-	virtual void keyPressed(const SDL_KeyboardEvent & key);
-	virtual bool captureThisEvent(const SDL_KeyboardEvent & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
-
-	//mouse movement handling
-	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
-	void activateMouseMove();
-	void deactivateMouseMove();
-	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-
-	//time handling
-	int toNextTick;
-	void activateTimer();
-	void deactivateTimer();
-	virtual void tick();
-
-	//mouse wheel
-	void activateWheel();
-	void deactivateWheel();
-	virtual void wheelScrolled(bool down, bool in);
 
 	//double click
 	void activateDClick();
 	void deactivateDClick();
-	virtual void onDoubleClick();
+
+	//mouse wheel
+	void activateWheel();
+	void deactivateWheel();
+
+	//time handling
+	int toNextTick;
+	int timerDelay;
+	void activateTimer();
+	void deactivateTimer();
+	void onTimer(int timePassed);
+
+	//non-const versions of fields to allow changing them in CIntObject
+	CIntObject *parent_m; //parent object
+	ui16 active_m;
+
+public:
+/*
+ * Functions and fields that supposed to be private but are not for now.
+ * Don't use them unless you really know what they are for
+ */
+	std::vector<CIntObject *> children;
+
+	//keyboard handling
+	void activateKeys();
+	void deactivateKeys();
+
+	//mouse movement handling
+	void activateMouseMove();
+	void deactivateMouseMove();
+
+/*
+ * Public interface
+ */
+
+	/// read-only parent access. May not be a "clean" solution but allows some compatibility
+	CIntObject * const & parent;
+
+	/// position of object on the screen. Please do not modify this anywhere but in constructor - use moveBy\moveTo instead
+	/*const*/ Rect pos;
+
+	CIntObject(int used=0, Point offset=Point());
+	virtual ~CIntObject(); //d-tor
+
+	//l-clicks handling
+	/*const*/ bool pressedL; //for determining if object is L-pressed
+	virtual void clickLeft(tribool down, bool previousState){}
+
+	//r-clicks handling
+	/*const*/ bool pressedR; //for determining if object is R-pressed
+	virtual void clickRight(tribool down, bool previousState){}
+
+	//hover handling
+	/*const*/ bool hovered;  //for determining if object is hovered
+	virtual void hover (bool on){}
+
+	//keyboard handling
+	bool captureAllKeys; //if true, only this object should get info about pressed keys
+	virtual void keyPressed(const SDL_KeyboardEvent & key){}
+	virtual bool captureThisEvent(const SDL_KeyboardEvent & key); //allows refining captureAllKeys against specific events (eg. don't capture ENTER)
+
+	//mouse movement handling
+	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
+	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent){}
+
+	//time handling
+	void setTimer(int msToTrigger);//set timer delay and activate timer if needed.
+	virtual void tick(){}
+
+	//mouse wheel
+	virtual void wheelScrolled(bool down, bool in){}
+
+	//double click
+	virtual void onDoubleClick(){}
 
 	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, ALL=0xffff};
-	ui16 active;
-	ui16 used;
+	const ui16 & active;
+	void addUsedEvents(ui16 newActions);
+	void removeUsedEvents(ui16 newActions);
 
 	enum {ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, DISPOSE=16, SHARE_POS=32};
 	ui8 defActions; //which calls will be tried to be redirected to children
-	ui8 recActions; //which calls we allow te receive from parent
-
-	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
+	ui8 recActions; //which calls we allow to receive from parent
 
 	void disable(); //deactivates if needed, blocks all automatic activity, allows only disposal
-	void enable(bool activation = true); //activates if needed, all activity enabled (Warning: may not be symetric with disable if recActions was limited!)
+	void enable(); //activates if needed, all activity enabled (Warning: may not be symetric with disable if recActions was limited!)
 
 	// activate or deactivate object. Inactive object won't receive any input events (keyboard\mouse)
 	// usually used automatically by parent
 	void activate();
 	void deactivate();
 
-	//activate or deactivate specific action (LCLICK, RCLICK...)
-	void activate(ui16 what);
-	void deactivate(ui16 what);
-
 	//called each frame to update screen
 	void show(SDL_Surface * to);
 	//called on complete redraw only
 	void showAll(SDL_Surface * to);
-	//request complete redraw
+	//request complete redraw of this object
 	void redraw();
 
+	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
+
+	bool isItInLoc(const SDL_Rect &rect, int x, int y);
+	bool isItInLoc(const SDL_Rect &rect, const Point &p);
+	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
+	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
+	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position
+	void fitToScreen(int borderWidth, bool propagate = true); //moves window to fit into screen
+	void moveBy(const Point &p, bool propagate = true);
+	void moveTo(const Point &p, bool propagate = true);//move this to new position, coordinates are absolute (0,0 is topleft screen corner)
+
+	void addChild(CIntObject *child, bool adjustPosition = false);
+	void removeChild(CIntObject *child, bool adjustPosition = false);
+	//delChild - not needed, use normal "delete child" instead
+	//delChildNull - not needed, use "vstd::clear_pointer(child)" instead
+
+/*
+ * Functions that should be used only by specific GUI elements. Don't use them unless you really know why they are here
+ */
+	//wrappers for CSDL_Ext methods. This versions use coordinates relative to pos
 	void drawBorderLoc(SDL_Surface * sur, const Rect &r, const int3 &color);
 	//functions for printing text. Use CLabel where possible instead
 	void printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
@@ -169,32 +224,7 @@ public:
 	void blitAtLoc(SDL_Surface * src, int x, int y, SDL_Surface * dst);
 	void blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst);
 
-	bool isItInLoc(const SDL_Rect &rect, int x, int y);
-	bool isItInLoc(const SDL_Rect &rect, const Point &p);
-	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
-	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
-	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position
-	void fitToScreen(int borderWidth, bool propagate = true); //moves window to fit into screen
-	void moveBy(const Point &p, bool propagate = true);
-	void moveTo(const Point &p, bool propagate = true);//move this to new position, coordinates are absolute (0,0 is topleft screen corner)
-	void changeUsedEvents(ui16 what, bool enable, bool adjust = true);
-
-	//add child without parent to this. Use CGuiHandler::moveChild() if child already have parent
-	void addChild(CIntObject *child, bool adjustPosition = false);
-	//remove child from this without deleting
-	void removeChild(CIntObject *child, bool adjustPosition = false);
-	void delChild(CIntObject *child); //removes from children list, deletes
-	template <typename T> void delChildNUll(T *&child, bool deactivateIfNeeded = false) //removes from children list, deletes and sets pointer to NULL
-	{
-		if(!child)
-			return;
-
-		if(deactivateIfNeeded && child->active)
-			child->deactivate();
-
-		delChild(child);
-		child = NULL;
-	}
+	friend class CGuiHandler;
 };
 
 /// Class for binding keys to left mouse button clicks

@@ -128,8 +128,6 @@ CPlayerInterface::~CPlayerInterface()
 		adventureInt = NULL;
 	}
 
-	if(cingconsole->active) //TODO
-		cingconsole->deactivate();
 	delete cingconsole;
 
 	LOCPLINT = NULL;

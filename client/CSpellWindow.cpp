@@ -35,7 +35,7 @@ extern SDL_Surface * screen;
 SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL,
 	const std::string & textR, boost::function<void()> funcHon, boost::function<void()> funcHoff, CPlayerInterface * _myInt)
 {
-	used = LCLICK | RCLICK | HOVER;
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos = myRect;
 	onLeft = funcL;
 	textOnRclick = textR;
@@ -216,6 +216,7 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHe
 	currentPage = battleSpellsOnly ? LOCPLINT->spellbookSettings.spellbookLastPageBattle : LOCPLINT->spellbookSettings.spellbokLastPageAdvmap;
 	vstd::abetween(currentPage, 0, pagesWithinCurrentTab());
 	computeSpellsPerArea();
+	addUsedEvents(KEYBOARD);
 }
 
 CSpellWindow::~CSpellWindow()
@@ -460,7 +461,7 @@ void CSpellWindow::computeSpellsPerArea()
 
 void CSpellWindow::activate()
 {
-	activateKeys();
+	CIntObject::activate();
 	exitBtn->activate();
 	battleSpells->activate();
 	adventureSpells->activate();
@@ -483,7 +484,7 @@ void CSpellWindow::activate()
 
 void CSpellWindow::deactivate()
 {
-	deactivateKeys();
+	CIntObject::deactivate();
 	exitBtn->deactivate();
 	battleSpells->deactivate();
 	adventureSpells->deactivate();
@@ -586,7 +587,7 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 {
 	this->pos = pos;
 	this->owner = owner;
-	used = LCLICK | RCLICK | HOVER;
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 
 	spellCost = mySpell = whichSchool = schoolLevel = -1;
 }

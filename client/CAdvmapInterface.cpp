@@ -56,7 +56,7 @@ CAdvMapInt *adventureInt;
 CMinimap::CMinimap()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	used = LCLICK | RCLICK | HOVER;
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	statusbarTxt = CGI->generaltexth->zelp[291].first;
 	rcText = CGI->generaltexth->zelp[291].second;
@@ -266,10 +266,10 @@ void CMinimap::clickRight(tribool down, bool previousState)
 
 void CMinimap::clickLeft(tribool down, bool previousState)
 {
-	if (down && !(used & MOVE))
-		changeUsedEvents(MOVE, true);
-	else if (!down	&&	used & MOVE)
-		changeUsedEvents(MOVE, false);
+	if (down)
+		addUsedEvents(MOVE);
+	else
+		removeUsedEvents(MOVE);
 
 	//ClickableL::clickLeft(down);
 	if (!((bool)down))
@@ -472,25 +472,15 @@ CTerrainRect::CTerrainRect()
 	pos.w=ADVOPT.advmapW;
 	pos.h=ADVOPT.advmapH;
 	moveX = moveY = 0;
+	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
 }
-CTerrainRect::~CTerrainRect()
-{
-}
-void CTerrainRect::activate()
-{
-	activateLClick();
-	activateRClick();
-	activateHover();
-	activateMouseMove();
-}
+
 void CTerrainRect::deactivate()
 {
-	deactivateLClick();
-	deactivateRClick();
-	deactivateHover();
-	deactivateMouseMove();
+	CIntObject::deactivate();
 	curHoveredTile = int3(-1,-1,-1); //we lost info about hovered tile when disabling
 }
+
 void CTerrainRect::clickLeft(tribool down, bool previousState)
 {
 	if ((down==false) || indeterminate(down))
@@ -502,6 +492,7 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 
 	adventureInt->tileLClicked(mp);
 }
+
 void CTerrainRect::clickRight(tribool down, bool previousState)
 {
 	int3 mp = whichTileIsIt();
@@ -668,6 +659,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 		}
 	} //for (int i=0;i<currentPath->nodes.size()-1;i++)
 }
+
 void CTerrainRect::show(SDL_Surface * to)
 {
 	if(ADVOPT.smoothMove)
@@ -697,6 +689,7 @@ int3 CTerrainRect::whichTileIsIt(const int & x, const int & y)
 	ret.z = adventureInt->position.z;
 	return ret;
 }
+
 int3 CTerrainRect::whichTileIsIt()
 {
 	return whichTileIsIt(GH.current->motion.x,GH.current->motion.y);
@@ -705,14 +698,7 @@ int3 CTerrainRect::whichTileIsIt()
 void CResDataBar::clickRight(tribool down, bool previousState)
 {
 }
-void CResDataBar::activate()
-{
-	activateRClick();
-}
-void CResDataBar::deactivate()
-{
-	deactivateRClick();
-}
+
 CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist)
 {
 	bg = BitmapHandler::loadBitmap(defname);
@@ -729,7 +715,9 @@ CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int
 	txtpos[7].first = txtpos[6].first + datedist;
 	datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63]
 	+ ": %s, " + CGI->generaltexth->allTexts[64] + ": %s";
+	addUsedEvents(RCLICK);
 }
+
 CResDataBar::CResDataBar()
 {
 	bg = BitmapHandler::loadBitmap(ADVOPT.resdatabarG);
@@ -784,7 +772,7 @@ void CResDataBar::showAll(SDL_Surface * to)
 
 CInfoBar::CInfoBar()
 {
-	toNextTick = pom = -1;
+	pom = -1;
 	mode = NOTHING;
 	pos.x=ADVOPT.infoboxX;
 	pos.y=ADVOPT.infoboxY;
@@ -872,7 +860,7 @@ void CInfoBar::blitAnim(EMode mode)//0 - day, 1 - week
 	blitAt(anim->ourImages[pom].bitmap,pos.x+9,pos.y+10);
 	printAtMiddle(txt.str(),pos.x+95,pos.y+31,FONT_MEDIUM,Colors::Cornsilk);
 	if (pom == anim->ourImages.size()-1)
-		toNextTick+=750;
+		setTimer(750);
 }
 
 void CInfoBar::newDay(int Day)
@@ -903,10 +891,7 @@ void CInfoBar::newDay(int Day)
 		}
 	}
 	pom = 0;
-	if(!(active & TIME))
-		activateTimer();
-
-	toNextTick = 500;
+	setTimer(500);
 	blitAnim(mode);
 }
 
@@ -926,10 +911,8 @@ void CInfoBar::showComp(const CComponent * comp, int time/*=5000*/)
 	printAtMiddle(comp->subtitle,pos.x+91,pos.y+158,FONT_SMALL,Colors::Cornsilk);
 	printAtMiddleWB(comp->description,pos.x+94,pos.y+31,FONT_SMALL,26,Colors::Cornsilk);
 	SDL_FreeSurface(b);
-	if(!(active & TIME))
-		activateTimer();
+	setTimer(time);
 	mode = SHOW_COMPONENT;
-	toNextTick = time;
 }
 
 void CInfoBar::tick()
@@ -939,16 +922,13 @@ void CInfoBar::tick()
 		pom++;
 		if (pom >= getAnim(mode)->ourImages.size())
 		{
-			deactivateTimer();
-			toNextTick = -1;
+			removeUsedEvents(TIME);
 			mode = NOTHING;
 		}
-		toNextTick = 150;
 	}
 	else if(mode == SHOW_COMPONENT)
 	{
-		deactivateTimer();
-		toNextTick = -1;
+		removeUsedEvents(TIME);
 		mode = NOTHING;
 	}
 
@@ -961,18 +941,10 @@ void CInfoBar::show(SDL_Surface * to)
 
 }
 
-void CInfoBar::activate()
-{
-	//CIntObject::activate();
-}
-
 void CInfoBar::deactivate()
 {
-	//CIntObject::deactivate();
-	if(active & TIME)
-		deactivateTimer();
+	CIntObject::deactivate();
 
-	toNextTick = -1;
 	mode = NOTHING;
 }
 
@@ -993,9 +965,7 @@ void CInfoBar::enemyTurn(ui8 color, double progress)
 	enemyTurnInfo.color = color;
 	enemyTurnInfo.progress = progress;
 	redraw();
-	if(!(active & TIME))
-		activateTimer();
-	toNextTick = 250;
+	setTimer(250);
 }
 
 CAdvMapInt::CAdvMapInt()
@@ -1064,6 +1034,7 @@ townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlis
 
 	setPlayer(LOCPLINT->playerID);
 	underground.block(!CGI->mh->map->twoLevel);
+	addUsedEvents(MOVE);
 }
 
 CAdvMapInt::~CAdvMapInt()
@@ -1236,20 +1207,12 @@ void CAdvMapInt::updateNextHero(const CGHeroInstance *h)
 
 void CAdvMapInt::activate()
 {
-	if(isActive())
-	{
-		tlog1 << "Error: advmapint already active...\n";
-		return;
-	}
-	active |= GENERAL;
+	CIntObject::activate();
 
 	screenBuf = screen;
 	GH.statusbar = &statusbar;
 	if(!duringAITurn)
 	{
-		//assert(selection);
-		activateMouseMove();
-
 		kingOverview.activate();
 		underground.activate();
 		questlog.activate();
@@ -1266,18 +1229,17 @@ void CAdvMapInt::activate()
 		townList.activate();
 		terrain.activate();
 		infoBar.activate();
+		LOCPLINT->cingconsole->activate();
 
-		if(!LOCPLINT->cingconsole->active)
-			LOCPLINT->cingconsole->activate();
 		GH.fakeMouseMove(); //to restore the cursor
 	}
 }
 void CAdvMapInt::deactivate()
 {
-	active &= ~GENERAL;
+	CIntObject::deactivate();
+
 	if(!duringAITurn)
 	{
-		deactivateMouseMove();
 		scrollingDir = 0;
 
 		CCS->curh->changeGraphic(0,0);
@@ -1296,9 +1258,7 @@ void CAdvMapInt::deactivate()
 		townList.deactivate();
 		terrain.deactivate();
 		infoBar.deactivate();
-
-		if(LOCPLINT->cingconsole->active) //TODO
-			LOCPLINT->cingconsole->deactivate();
+		LOCPLINT->cingconsole->deactivate();
 	}
 }
 void CAdvMapInt::showAll(SDL_Surface * to)
@@ -1330,7 +1290,7 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 	statusbar.show(to);
 
 	infoBar.showAll(to);
-	LOCPLINT->cingconsole->show(to);
+	LOCPLINT->cingconsole->showAll(to);
 }
 
 bool CAdvMapInt::isHeroSleeping(const CGHeroInstance *hero)
@@ -1399,7 +1359,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 		for(int i=0;i<4;i++)
 			blitAt(gems[i]->ourImages[LOCPLINT->playerID].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i],to);
 		updateScreen=false;
-		LOCPLINT->cingconsole->show(to);
+		LOCPLINT->cingconsole->showAll(to);
 	}
 	if (updateMinimap)
 	{
@@ -1876,7 +1836,6 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	}
 
 	const CGPathNode *pnode = LOCPLINT->cb->getPathInfo(mapPos);
-	bool accessible  =  pnode->turns < 255;
 
 	int turns = pnode->turns;
 	vstd::amin(turns, 3);
@@ -1925,6 +1884,8 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	}
 	else if(const CGHeroInstance *h = curHero())
 	{
+		bool accessible  =  pnode->turns < 255;
+
 		if(objAtTile)
 		{
 			if(objAtTile->ID == GameConstants::HEROI_TYPE)

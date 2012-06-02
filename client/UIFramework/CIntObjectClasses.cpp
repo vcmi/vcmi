@@ -216,7 +216,7 @@ void CButtonBase::update()
 void CButtonBase::addTextOverlay( const std::string &Text, EFonts font, SDL_Color color)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	delChild(text);
+	delete text;
 	text = new CLabel(pos.w/2, pos.h/2, font, CENTER, color, Text);
 	update();
 }
@@ -261,7 +261,7 @@ CAdventureMapButton::CAdventureMapButton ()
 {
 	hoverable = actOnDown = borderEnabled = soundDisabled = false;
 	borderColor.unused = 1; // represents a transparent color, used for HighlightableButton
-	used = LCLICK | RCLICK | HOVER | KEYBOARD;
+	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
 }
 
 CAdventureMapButton::CAdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y,  const std::string &defName,int key, std::vector<std::string> * add, bool playerColoredButton )
@@ -360,7 +360,7 @@ void CAdventureMapButton::hover (bool on)
 void CAdventureMapButton::init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key)
 {
 	currentImage = -1;
-	used = LCLICK | RCLICK | HOVER | KEYBOARD;
+	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
 	callback = Callback;
 	hoverable = actOnDown = borderEnabled = soundDisabled = false;
 	borderColor.unused = 1; // represents a transparent color, used for HighlightableButton
@@ -391,12 +391,8 @@ void CAdventureMapButton::setImage(CAnimation* anim, bool playerColoredButton, i
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	if (image && active)
-		image->deactivate();
-	delChild(image);
+	delete image;
 	image = new CAnimImage(anim, getState(), 0, 0, 0, animFlags);
-	if (active)
-		image->activate();
 	if (playerColoredButton)
 		image->playerColored(LOCPLINT->playerID);
 
@@ -583,10 +579,7 @@ void CHighlightableButtonsGroup::block( ui8 on )
 void CSlider::sliderClicked()
 {
 	if(!(active & MOVE))
-	{
-		activateMouseMove();
-		used |= MOVE;
-	}
+		addUsedEvents(MOVE);
 }
 
 void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
@@ -695,10 +688,7 @@ void CSlider::clickLeft(tribool down, bool previousState)
 		return;
 	}
 	if(active & MOVE)
-	{
-		deactivateMouseMove();
-		used &= ~MOVE;
-	}
+		removeUsedEvents(MOVE);
 }
 
 CSlider::~CSlider()
@@ -712,7 +702,7 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	setAmount(amount);
 
-	used = LCLICK;
+	addUsedEvents(LCLICK);
 	strongInterest = true;
 
 
@@ -860,8 +850,6 @@ void CObjectList::deleteItem(CIntObject* item)
 {
 	if (!item)
 		return;
-	if (active)
-		item->deactivate();
 	removeChild(item);
 	destroyObject(item);
 }
@@ -875,17 +863,7 @@ CIntObject* CObjectList::createItem(size_t index)
 
 	item->recActions = defActions;
 
-	//May happen if object was created before call to getObject()
-	if(item->parent != this)
-	{
-		if (item->parent)
-			CGuiHandler::moveChild(item, item->parent, this);
-		else
-			addChild(item);
-	}
-
-	if (item && active)
-		item->activate();
+	addChild(item);
 	return item;
 }
 
@@ -1085,6 +1063,11 @@ void CStatusBar::print(const std::string & text)
 	}
 }
 
+void CStatusBar::showAll(SDL_Surface * to)
+{
+	show(to);
+}
+
 void CStatusBar::show(SDL_Surface * to)
 {
 	SDL_Rect srcRect = genRect(pos.h,pos.w,0,0);
@@ -1098,24 +1081,6 @@ std::string CStatusBar::getCurrent()
 	return current;
 }
 
-void CList::activate()
-{
-	activateLClick();
-	activateRClick();
-	activateHover();
-	activateKeys();
-	activateMouseMove();
-};
-
-void CList::deactivate()
-{
-	deactivateLClick();
-	deactivateRClick();
-	deactivateHover();
-	deactivateKeys();
-	deactivateMouseMove();
-};
-
 void CList::clickLeft(tribool down, bool previousState)
 {
 };
@@ -1123,6 +1088,7 @@ void CList::clickLeft(tribool down, bool previousState)
 CList::CList(int Size)
 :SIZE(Size)
 {
+	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD | MOVE);
 }
 
 void CList::fixPos()
@@ -1149,7 +1115,7 @@ void CHoverableArea::hover (bool on)
 
 CHoverableArea::CHoverableArea()
 {
-	used |= HOVER;
+	addUsedEvents(HOVER);
 }
 
 CHoverableArea::~CHoverableArea()
@@ -1187,7 +1153,7 @@ LRClickableAreaWText::~LRClickableAreaWText()
 
 void LRClickableAreaWText::init()
 {
-	used = LCLICK | RCLICK | HOVER;
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 }
 
 void CLabel::showAll(SDL_Surface * to)
@@ -1313,7 +1279,7 @@ void CTextBox::setBounds(int limitW, int limitH)
 
 void CTextBox::recalculateLines(const std::string &Txt)
 {
-	delChildNUll(slider, true);
+	vstd::clear_pointer(slider);
 	lines.clear();
 
 	const Font &f = *graphics->fonts[font];
@@ -1326,8 +1292,6 @@ void CTextBox::recalculateLines(const std::string &Txt)
 		lines = CMessage::breakText(Txt, pos.w - 32 - 10, font);
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
 		slider = new CSlider(pos.w - 32, 0, pos.h, boost::bind(&CTextBox::sliderMoved, this, _1), lineCapacity, lines.size(), 0, false, sliderStyle);
-		if(active)
-			slider->activate();
 	}
 
 	maxH = lineHeight * lines.size();
@@ -1362,7 +1326,7 @@ CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment 
 {
 	init();
 	bg = BG;
-	CGuiHandler::moveChild(bg, bg->parent, this);
+	addChild(bg);
 	pos = bg->pos;
 	calcOffset();
 }
@@ -1419,7 +1383,7 @@ CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::strin
 	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(bgName, bgOffset.x, bgOffset.y);
-	used = LCLICK | KEYBOARD;
+	addUsedEvents(LCLICK | KEYBOARD);
 	giveFocus();
 }
 
@@ -1438,7 +1402,7 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;
 	bg->pos = pos;
-	used = LCLICK | KEYBOARD;
+	addUsedEvents(LCLICK | KEYBOARD);
 	giveFocus();
 }
 
@@ -1544,4 +1508,57 @@ void CFocusable::moveFocus()
 			break;;
 		}
 	}
+}
+
+CWindowObject::CWindowObject(std::string imageName, int options_, Point centerAt):
+    CIntObject(options_ & RCLICK_POPUP ? RCLICK : 0, Point()),
+    options(options_),
+    background(createBg(imageName, options & PLAYER_COLORED))
+{
+	assert(parent == nullptr); //Safe to remove, but windows should not have parent
+
+	if (background)
+		pos = background->center(centerAt);
+}
+
+CWindowObject::CWindowObject(std::string imageName, int options_):
+    CIntObject(options & RCLICK_POPUP ? RCLICK : 0, Point()),
+    options(options_),
+    background(createBg(imageName, options & PLAYER_COLORED))
+{
+	assert(parent == nullptr); //Safe to remove, but windows should not have parent
+
+	if (background)
+		pos = background->center();
+}
+
+CPicture * CWindowObject::createBg(std::string imageName, bool playerColored)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	if (imageName.empty())
+		return nullptr;
+
+	auto image = new CPicture(imageName);
+	if (playerColored)
+		image->colorize(LOCPLINT->playerID);
+	return image;
+}
+
+void CWindowObject::showAll(SDL_Surface *to)
+{
+	CIntObject::showAll(to);
+	if ((options & BORDERED) && (pos.h != to->h || pos.w != to->w))
+		CMessage::drawBorder(LOCPLINT ? LOCPLINT->playerID : 1, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+}
+
+void CWindowObject::close()
+{
+	GH.popIntTotally(this);
+}
+
+void CWindowObject::clickRight(tribool down, bool previousState)
+{
+	if((!down || indeterminate(down)))
+		close();
 }

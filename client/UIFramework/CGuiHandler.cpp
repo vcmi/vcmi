@@ -125,10 +125,7 @@ void CGuiHandler::updateTime()
 	for (std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
 	{
 		if(!vstd::contains(timeinterested,*i)) continue;
-		if ((*i)->toNextTick>=0)
-			(*i)->toNextTick-=tv;
-		if ((*i)->toNextTick<0)
-			(*i)->tick();
+		(*i)->onTimer(tv);
 	}
 }
 
@@ -384,13 +381,6 @@ CGuiHandler::~CGuiHandler()
 void CGuiHandler::breakEventHandling()
 {
 	current = NULL;
-}
-
-CIntObject * CGuiHandler::moveChild(CIntObject *obj, CIntObject *from, CIntObject *to, bool adjustPos)
-{
-	from->removeChild(obj, adjustPos);
-	to->addChild(obj, adjustPos);
-	return obj;
 }
 
 void CGuiHandler::drawFPSCounter()

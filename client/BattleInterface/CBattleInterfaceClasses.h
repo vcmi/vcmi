@@ -58,8 +58,6 @@ public:
 	int image; //frame of animation
 	ui8 flagAnim, flagAnimCount; //for flag animation
 	void show(SDL_Surface * to); //prints next frame of animation to to
-	void activate();
-	void deactivate();
 	void setPhase(int newPhase); //sets phase of hero animation
 	void clickLeft(tribool down, bool previousState); //call-in
 	CBattleHero(const std::string &defName, int phaseG, int imageG, bool filpG, ui8 player, const CGHeroInstance *hero, const CBattleInterface *owner); //c-tor
@@ -115,8 +113,6 @@ public:
 
 	//for user interactions
 	void hover (bool on);
-	void activate();
-	void deactivate();
 	void mouseMoved (const SDL_MouseMotionEvent &sEvent);
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);

@@ -202,29 +202,29 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 // 	blitAt(menu, pos.x, 556 + pos.y);
 
 	//preparing buttons and console
-	bOptions = new CAdventureMapButton (CGI->generaltexth->zelp[381].first, CGI->generaltexth->zelp[381].second, boost::bind(&CBattleInterface::bOptionsf,this), 3 + pos.x, 561 + pos.y, "icm003.def", SDLK_o);
-	bSurrender = new CAdventureMapButton (CGI->generaltexth->zelp[379].first, CGI->generaltexth->zelp[379].second, boost::bind(&CBattleInterface::bSurrenderf,this), 54 + pos.x, 561 + pos.y, "icm001.def", SDLK_s);
-	bFlee = new CAdventureMapButton (CGI->generaltexth->zelp[380].first, CGI->generaltexth->zelp[380].second, boost::bind(&CBattleInterface::bFleef,this), 105 + pos.x, 561 + pos.y, "icm002.def", SDLK_r);
+	bOptions = new CAdventureMapButton (CGI->generaltexth->zelp[381].first, CGI->generaltexth->zelp[381].second, boost::bind(&CBattleInterface::bOptionsf,this), 3, 561, "icm003.def", SDLK_o);
+	bSurrender = new CAdventureMapButton (CGI->generaltexth->zelp[379].first, CGI->generaltexth->zelp[379].second, boost::bind(&CBattleInterface::bSurrenderf,this), 54, 561, "icm001.def", SDLK_s);
+	bFlee = new CAdventureMapButton (CGI->generaltexth->zelp[380].first, CGI->generaltexth->zelp[380].second, boost::bind(&CBattleInterface::bFleef,this), 105, 561, "icm002.def", SDLK_r);
 	bFlee->block(!curInt->cb->battleCanFlee());
 	bSurrender->block(curInt->cb->battleGetSurrenderCost() < 0);
-	bAutofight  = new CAdventureMapButton (CGI->generaltexth->zelp[382].first, CGI->generaltexth->zelp[382].second, boost::bind(&CBattleInterface::bAutofightf,this), 157 + pos.x, 561 + pos.y, "icm004.def", SDLK_a);
-	bSpell = new CAdventureMapButton (CGI->generaltexth->zelp[385].first, CGI->generaltexth->zelp[385].second, boost::bind(&CBattleInterface::bSpellf,this), 645 + pos.x, 561 + pos.y, "icm005.def", SDLK_c);
+	bAutofight  = new CAdventureMapButton (CGI->generaltexth->zelp[382].first, CGI->generaltexth->zelp[382].second, boost::bind(&CBattleInterface::bAutofightf,this), 157, 561, "icm004.def", SDLK_a);
+	bSpell = new CAdventureMapButton (CGI->generaltexth->zelp[385].first, CGI->generaltexth->zelp[385].second, boost::bind(&CBattleInterface::bSpellf,this), 645, 561, "icm005.def", SDLK_c);
 	bSpell->block(true);
-	bWait = new CAdventureMapButton (CGI->generaltexth->zelp[386].first, CGI->generaltexth->zelp[386].second, boost::bind(&CBattleInterface::bWaitf,this), 696 + pos.x, 561 + pos.y, "icm006.def", SDLK_w);
-	bDefence = new CAdventureMapButton (CGI->generaltexth->zelp[387].first, CGI->generaltexth->zelp[387].second, boost::bind(&CBattleInterface::bDefencef,this), 747 + pos.x, 561 + pos.y, "icm007.def", SDLK_d);
+	bWait = new CAdventureMapButton (CGI->generaltexth->zelp[386].first, CGI->generaltexth->zelp[386].second, boost::bind(&CBattleInterface::bWaitf,this), 696, 561, "icm006.def", SDLK_w);
+	bDefence = new CAdventureMapButton (CGI->generaltexth->zelp[387].first, CGI->generaltexth->zelp[387].second, boost::bind(&CBattleInterface::bDefencef,this), 747, 561, "icm007.def", SDLK_d);
 	bDefence->assignedKeys.insert(SDLK_SPACE);
-	bConsoleUp = new CAdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bConsoleUpf,this), 624 + pos.x, 561 + pos.y, "ComSlide.def", SDLK_UP);
-	bConsoleDown = new CAdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bConsoleDownf,this), 624 + pos.x, 580 + pos.y, "ComSlide.def", SDLK_DOWN);
+	bConsoleUp = new CAdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bConsoleUpf,this), 624, 561, "ComSlide.def", SDLK_UP);
+	bConsoleDown = new CAdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bConsoleDownf,this), 624, 580, "ComSlide.def", SDLK_DOWN);
 	bConsoleDown->setOffset(2);
 	console = new CBattleConsole();
-	console->pos.x = 211 + pos.x;
-	console->pos.y = 560 + pos.y;
+	console->pos.x += 211;
+	console->pos.y += 560;
 	console->pos.w = 406;
 	console->pos.h = 38;
 	if(tacticsMode)
 	{
-		btactNext = new CAdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bTacticNextStack,this, (CStack*)NULL), 213 + pos.x, 560 + pos.y, "icm011.def", SDLK_SPACE);
-		btactEnd = new CAdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bEndTacticPhase,this), 419 + pos.x, 560 + pos.y, "icm012.def", SDLK_RETURN);
+		btactNext = new CAdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bTacticNextStack,this, (CStack*)NULL), 213, 560, "icm011.def", SDLK_SPACE);
+		btactEnd = new CAdventureMapButton(std::string(), std::string(), boost::bind(&CBattleInterface::bEndTacticPhase,this), 419, 560, "icm012.def", SDLK_RETURN);
 		bDefence->block(true);
 		bWait->block(true);
 		menu = BitmapHandler::loadBitmap("COPLACBR.BMP");
@@ -363,15 +363,11 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 
 	for (int i = 0; i < bfield.size(); i++)
 	{
-		children.push_back(&bfield[i]);
+		addChild(&bfield[i]);
 	}
 
 	if(tacticsMode)
-	{
-		active = 1;
 		bTacticNextStack();
-		active = 0;
-	}
 
 	CCS->musich->stopMusic();
 
@@ -381,6 +377,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 
 	currentAction = INVALID;
 	selectedAction = INVALID;
+	addUsedEvents(RCLICK | MOVE | KEYBOARD);
 }
 
 CBattleInterface::~CBattleInterface()
@@ -476,9 +473,7 @@ void CBattleInterface::setPrintMouseShadow(bool set)
 
 void CBattleInterface::activate()
 {
-	activateKeys();
-	activateMouseMove();
-	activateRClick();
+	CIntObject::activate();
 	bOptions->activate();
 	bSurrender->activate();
 	bFlee->activate();
@@ -513,9 +508,8 @@ void CBattleInterface::activate()
 
 void CBattleInterface::deactivate()
 {
-	deactivateKeys();
-	deactivateMouseMove();
-	deactivateRClick();
+	CIntObject::deactivate();
+
 	bOptions->deactivate();
 	bSurrender->deactivate();
 	bFlee->deactivate();
@@ -546,6 +540,11 @@ void CBattleInterface::deactivate()
 	}
 
 	LOCPLINT->cingconsole->deactivate();
+}
+
+void CBattleInterface::showAll(SDL_Surface * to)
+{
+	show(to);
 }
 
 void CBattleInterface::show(SDL_Surface * to)
@@ -2236,7 +2235,6 @@ void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex, const std::vec
 	if(!siegeH)
 		return;
 
-	using namespace boost::assign;
 #ifdef CPP11_USE_INITIALIZERS_LIST
 	//note - std::list<int> must be specified to avoid type deduction by gcc (may not work in other compilers)
 	static const std::map<int, std::list<int> > hexToPart = {
@@ -2244,6 +2242,7 @@ void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex, const std::vec
 		{101, std::list<int>{10}},      {118, std::list<int>{2}},
 		{165, std::list<int>{11}},      {186, std::list<int>{3}}};
 #else
+	using namespace boost::assign;
 	static const std::map<int, std::list<int> > hexToPart = map_list_of<int, std::list<int> >(12, list_of<int>(8)(1)(7))(45, list_of<int>(12)(6))
 		(101, list_of<int>(10))(118, list_of<int>(2))(165, list_of<int>(11))(186, list_of<int>(3));
 #endif

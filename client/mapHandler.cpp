@@ -565,7 +565,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 					ui8 dir;
 					std::vector<Cimage> * iv = NULL;
 					std::vector<CDefEssential *> Graphics::*flg = NULL;
-					SDL_Surface * tb; //surface to blitted
+					SDL_Surface * tb = nullptr; //surface to blitted
 
 					if(themp) //hero
 					{

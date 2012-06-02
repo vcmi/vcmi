@@ -83,7 +83,7 @@ CHeroSwitcher::CHeroSwitcher(Point _pos, const CGHeroInstance * _hero):
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos += _pos;
-	used = LCLICK;
+	addUsedEvents(LCLICK);
 
 	image = new CAnimImage("PortraitsSmall", hero->portrait);
 	pos.w = image->pos.w;
@@ -210,15 +210,10 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		}
 
 		int serial = LOCPLINT->cb->getHeroSerial(curHero, false);
-		if (listSelection && active)
-			listSelection->deactivate();
-		delChildNUll(listSelection);
+
+		vstd::clear_pointer(listSelection);
 		if (serial >= 0)
-		{
 			listSelection = new CPicture("HPSYYY", 612, 33 + serial * 54);
-			if (active)
-				listSelection->activate();
-		}
 	}
 
 	//primary skills support

@@ -57,7 +57,7 @@ CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town,
 	stateCounter(80)
 {
 	recActions = ACTIVATE | DEACTIVATE | DISPOSE | SHARE_POS;
-	used |= LCLICK | RCLICK | HOVER;
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos.x += str->pos.x;
 	pos.y += str->pos.y;
 
@@ -91,12 +91,12 @@ void CBuildingRect::hover(bool on)
 	if(on)
 	{
 		if(!(active & MOVE))
-			changeUsedEvents(MOVE, true, true);
+			addUsedEvents(MOVE);
 	}
 	else
 	{
 		if(active & MOVE)
-			changeUsedEvents(MOVE, false, true);
+			removeUsedEvents(MOVE);
 
 		if(parent->selectedBuilding == this)
 		{
@@ -249,7 +249,7 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstance *Town, int level)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	used |= RCLICK;
+	addUsedEvents(RCLICK);
 	background = new CPicture("CRTOINFO");
 	background->colorize(LOCPLINT->playerID);
 	pos.w = background->pos.w;
@@ -392,13 +392,12 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 
 void CHeroGSlot::deactivate()
 {
-	delChildNUll(selection, true);
+	vstd::clear_pointer(selection);
 	CIntObject::deactivate();
 }
 
 CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSlots * Owner)
 {
-	used = LCLICK | HOVER;
 	owner = Owner;
 	pos.x += x;
 	pos.y += y;
@@ -408,6 +407,8 @@ CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, HeroSl
 	selection = nullptr;
 	image = nullptr;
 	set(h);
+
+	addUsedEvents(LCLICK | HOVER);
 }
 
 CHeroGSlot::~CHeroGSlot()
@@ -416,16 +417,10 @@ CHeroGSlot::~CHeroGSlot()
 
 void CHeroGSlot::setHighlight( bool on )
 {
-	if (active && selection)
-		selection->deactivate();
-
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	delChildNUll(selection, true);
+	vstd::clear_pointer(selection);
 	if (on)
 		selection = new CAnimImage("TWCRPORT", 1, 0);
-
-	if (active && selection)
-		selection->activate();
 
 	if(owner->garrisonedHero->hero && owner->visitingHero->hero) //two heroes in town
 	{
@@ -436,12 +431,9 @@ void CHeroGSlot::setHighlight( bool on )
 
 void CHeroGSlot::set(const CGHeroInstance *newHero)
 {
-	if (active && image)
-		image->deactivate();
-
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	if (image)
-		delChild(image);
+		delete image;
 	hero = newHero;
 	if (newHero)
 		image = new CAnimImage("PortraitsLarge", newHero->portrait, 0, 0, 0);
@@ -449,9 +441,6 @@ void CHeroGSlot::set(const CGHeroInstance *newHero)
 		image = new CAnimImage("CREST58", LOCPLINT->castleInt->town->getOwner(), 0, 0, 0);
 	else 
 		image = NULL;
-
-	if (active && image)
-		image->activate();
 }
 
 template <class ptr>
@@ -591,7 +580,7 @@ void CCastleBuildings::addBuilding(int building)
 				{
 					if ((*it)->str->ID == newBuilding)
 					{
-						delChild(*it);
+						delete *it;
 						buildings.erase(it);
 						break;
 					}
@@ -619,7 +608,7 @@ void CCastleBuildings::removeBuilding(int building)
 			{
 				if ((*it)->str->ID == building)
 				{
-					delChild(*it);
+					delete *it;
 					buildings.erase(it);
 					break;
 				}
@@ -628,7 +617,7 @@ void CCastleBuildings::removeBuilding(int building)
 		else
 		{
 			groups[structure->second->group].pop_back();
-			delChild(buildings[building]);
+			delete buildings[building];
 			if (!groups[structure->second->group].empty())
 				buildings.push_back(new CBuildingRect(this, town, structure->second));
 		}
@@ -877,15 +866,17 @@ void CCastleBuildings::enterMagesGuild()
 	{
 		if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < 500) //not enough gold to buy spellbook
 		{
+			openMagesGuild();
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[213]);
 		}
 		else
 		{
-			CFunctionList<void()> functionList = boost::bind(&CCallback::buyArtifact,LOCPLINT->cb, hero,0);
-			functionList += boost::bind(&CCastleBuildings::openMagesGuild,this);
+			CFunctionList<void()> onYes = boost::bind(&CCastleBuildings::openMagesGuild,this);
+			CFunctionList<void()> onNo = onYes;
+			onYes += boost::bind(&CCallback::buyArtifact,LOCPLINT->cb, hero,0);
 			std::vector<CComponent*> components(1, new CComponent(CComponent::artifact,0,0));
 
-			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], functionList, 0, true, components);
+			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], onYes, onNo, true, components);
 		}
 	}
 	else
@@ -928,13 +919,14 @@ void CCastleBuildings::openTownHall()
 }
 
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos):
+    CWindowObject("", PLAYER_COLORED | BORDERED),
 	hall(NULL),
 	fort(NULL),
 	town(Town)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	LOCPLINT->castleInt = this;
-	used |= KEYBOARD;
+	addUsedEvents(KEYBOARD);
 
 	builds = new CCastleBuildings(town);
 	panel = new CPicture("TOWNSCRN", 0, builds->pos.h);
@@ -993,13 +985,6 @@ void CCastleInterface::close()
 	GH.popIntTotally(this);
 }
 
-void CCastleInterface::showAll(SDL_Surface * to)
-{
-	CIntObject::showAll(to);
-	if(screen->w != 800 || screen->h !=600)
-		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
-}
-
 void CCastleInterface::castleTeleport(int where)
 {
 	const CGTownInstance * dest = LOCPLINT->cb->getTown(where);
@@ -1035,10 +1020,8 @@ void CCastleInterface::removeBuilding(int bid)
 void CCastleInterface::recreateIcons()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	if (fort)
-		delChild(fort);
-	if (hall)
-		delChild(hall);
+	delete fort;
+	delete hall;
 
 	size_t iconIndex = town->subID*2;
 	if (!town->hasFort())
@@ -1054,7 +1037,7 @@ void CCastleInterface::recreateIcons()
 	fort = new CTownInfo(122, 413, town, false);
 
 	for (size_t i=0; i<creainfo.size(); i++)
-		delChild(creainfo[i]);
+		delete creainfo[i];
 	creainfo.clear();
 
 	for (size_t i=0; i<4; i++)
@@ -1079,7 +1062,7 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance *Town, int Level, bool
 		picture = NULL;
 		return;//No creature
 	}
-	used = LCLICK | RCLICK | HOVER;
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 
 	ui32 creatureID = town->creatures[level].second.back();
 	creature = CGI->creh->creatures[creatureID];
@@ -1193,7 +1176,7 @@ CTownInfo::CTownInfo(int posX, int posY, const CGTownInstance* Town, bool townHa
 	building(NULL)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	used = RCLICK | HOVER;
+	addUsedEvents(RCLICK | HOVER);
 	pos.x += posX;
 	pos.y += posY;
 	int buildID;
@@ -1339,7 +1322,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	building(Building)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	used = LCLICK | RCLICK | HOVER;
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos.x += x;
 	pos.y += y;
 	pos.w = 154;
@@ -1358,12 +1341,10 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 }
 
 CHallInterface::CHallInterface(const CGTownInstance *Town):
+    CWindowObject(CGI->buildh->hall[Town->subID].first, PLAYER_COLORED | BORDERED),
 	town(Town)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	background = new CPicture(CGI->buildh->hall[town->subID].first);
-	background->colorize(LOCPLINT->playerID);
-	pos = background->center();
 
 	resdatabar = new CMinorResDataBar;
 	resdatabar->pos.x += pos.x;
@@ -1410,20 +1391,10 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 	}
 }
 
-void CHallInterface::close()
-{
-	GH.popIntTotally(this);
-}
-
 void CBuildWindow::buyFunc()
 {
 	LOCPLINT->cb->buildBuilding(town,building->bid);
 	GH.popInts(2); //we - build window and hall screen
-}
-
-void CBuildWindow::close()
-{
-	GH.popIntTotally(this);
 }
 
 void CBuildWindow::clickRight(tribool down, bool previousState)
@@ -1461,13 +1432,11 @@ std::string CBuildWindow::getTextForState(int state)
 	return ret;
 }
 
-CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Building, int State, bool Mode)
-:town(Town), building(Building), state(State), mode(Mode)
+CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Building, int State, bool Mode):
+	CWindowObject("TPUBUILD", PLAYER_COLORED),
+	town(Town), building(Building), state(State), mode(Mode)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	background = new CPicture("TPUBUILD");
-	pos = background->center();
-	background->colorize(LOCPLINT->playerID);
 
 	buildingPic = new CAnimImage(graphics->buildingPics[town->subID], building->bid, 0, 125, 50);
 	Rect barRect(9, 494, 380, 18);
@@ -1519,7 +1488,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 
 	if(mode)
 	{	//popup
-		used |= RCLICK;
+		addUsedEvents(RCLICK);
 	}
 	else
 	{	//normal window
@@ -1539,25 +1508,26 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 CBuildWindow::~CBuildWindow()
 {}
 
-void CFortScreen::close()
+std::string CFortScreen::getBgName(const CGTownInstance *town)
 {
-	GH.popIntTotally(this);
+	ui32 fortSize = town->creatures.size();
+	if (fortSize > GameConstants::CREATURES_PER_TOWN && town->creatures.back().second.empty())
+		fortSize--;
+
+	if (fortSize == GameConstants::CREATURES_PER_TOWN)
+		return "TPCASTL7";
+	else
+		return "TPCASTL8";
 }
 
-CFortScreen::CFortScreen(const CGTownInstance * town)
+CFortScreen::CFortScreen(const CGTownInstance * town):
+    CWindowObject(getBgName(town), PLAYER_COLORED | BORDERED)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ui32 fortSize = town->creatures.size();
 	if (fortSize > GameConstants::CREATURES_PER_TOWN && town->creatures.back().second.empty())
 		fortSize--;
 	
-	if (fortSize == GameConstants::CREATURES_PER_TOWN)
-		background = new CPicture("TPCASTL7");
-	else
-		background = new CPicture("TPCASTL8");
-	background->colorize(LOCPLINT->playerID);
-	pos = background->center();
-
 	const CBuilding *fortBuilding = CGI->buildh->buildings[town->subID][town->fortLevel()+6];
 	title = new CLabel(400, 12, FONT_BIG, CENTER, Colors::Cornsilk, fortBuilding->Name());
 	
@@ -1624,7 +1594,7 @@ LabeledValue::LabeledValue(Rect size, std::string name, std::string descr, int v
 void LabeledValue::init(std::string nameText, std::string descr, int min, int max)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	used |= HOVER;
+	addUsedEvents(HOVER);
 	hoverText = descr;
 	std::string valueText;
 	if (min && max)
@@ -1660,7 +1630,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	pos.h = 126;
 	
 	if (!town->creatures[level].second.empty())
-		used |= LCLICK | RCLICK | HOVER;//Activate only if dwelling is present
+		addUsedEvents(LCLICK | RCLICK | HOVER);//Activate only if dwelling is present
 	
 	icons = new CPicture("ZPCAINFO", 261, 3);
 	buildingPic = new CAnimImage(graphics->buildingPics[town->subID], buildingID, 0, 4, 21);
@@ -1728,12 +1698,11 @@ void CFortScreen::RecruitArea::clickRight(tribool down, bool previousState)
 	clickLeft(down, false); //r-click does same as l-click - opens recr. window
 }
 
-CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
+CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner):
+    CWindowObject("TPMAGE", BORDERED)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	
-	background = new CPicture("TPMAGE.bmp");
-	pos = background->center();
 	window = new CPicture(graphics->guildBgs[owner->town->subID], 332, 76);
 	
 	resdatabar = new CMinorResDataBar;
@@ -1767,16 +1736,11 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 	}
 }
 
-void CMageGuildScreen::close()
-{
-	GH.popIntTotally(this);
-}
-
 CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 	:spell(Spell)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	used = LCLICK | RCLICK | HOVER;
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos += position;
 	image = new CAnimImage("SPELLSCR", spell->id);
 	pos = image->pos;
@@ -1818,13 +1782,11 @@ void CMageGuildScreen::Scroll::hover(bool on)
 
 }
 
-CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid)
+CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid):
+    CWindowObject("TPSMITH", PLAYER_COLORED)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	background = new CPicture("TPSMITH");
-	pos = background->center();
-	background->colorize(LOCPLINT->playerID);
 	statusBar = new CGStatusBar(164, 370);
 	
 	animBG = new CPicture("TPSMITBK", 64, 50);
@@ -1852,9 +1814,4 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 		buy->block(true);
 
 	new CAnimImage("RESOURCE", 6, 0, 148, 244);
-}
-
-void CBlacksmithDialog::close()
-{
-	GH.popIntTotally(this);
 }

@@ -301,26 +301,11 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 		if(refr) {hover(false);	hover(true); } //to refresh statusbar
 	}
 }
-void CGarrisonSlot::activate()
-{
-	if(!active) active=true;
-	else return;
-	activateLClick();
-	activateRClick();
-	activateHover();
-}
-void CGarrisonSlot::deactivate()
-{
-	if(active) active=false;
-	else return;
-	deactivateLClick();
-	deactivateRClick();
-	deactivateHover();
-}
+
 CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg, const CStackInstance * Creature)
 {
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 	//assert(Creature == CGI->creh->creatures[Creature->idNumber]);
-	active = false;
 	upg = Upg;
 	ID = IID;
 	myStack = Creature;
@@ -340,11 +325,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg
 	}
 	owner = Owner;
 }
-CGarrisonSlot::~CGarrisonSlot()
-{
-	if(active)
-		deactivate();
-}
+
 void CGarrisonSlot::showAll(SDL_Surface * to)
 {
 	std::map<int,SDL_Surface*> &imgs = (owner->smallIcons ? graphics->smallImgs : graphics->bigImgs);
@@ -376,10 +357,7 @@ CGarrisonInt::~CGarrisonInt()
 
 void CGarrisonInt::addSplitBtn(CAdventureMapButton * button)
 {
-	if (button->parent)
-		GH.moveChild(button, button->parent, this);
-	else
-		addChild(button);
+	addChild(button);
 	button->recActions = defActions;
 	splitButtons.push_back(button);
 }
@@ -421,10 +399,10 @@ void CGarrisonInt::createSlots()
 void CGarrisonInt::deleteSlots()
 {
 	for (int i=0; i<slotsUp.size(); i++)
-		delChildNUll(slotsUp[i]);
+		vstd::clear_pointer(slotsUp[i]);
 
 	for (int i=0; i<slotsDown.size(); i++)
-		delChildNUll(slotsDown[i]);
+		vstd::clear_pointer(slotsDown[i]);
 }
 
 void CGarrisonInt::recreateSlots()
@@ -436,20 +414,8 @@ void CGarrisonInt::recreateSlots()
 	for(size_t i = 0; i<splitButtons.size(); i++)
 		splitButtons[i]->block(true);
 
-	bool wasActive = active;
-	if(active)
-	{
-		deactivate();
-	}
-
 	deleteSlots();
 	createSlots();
-
-	if(wasActive)
-	{
-		activate();
-		showAll(screen2);
-	}
 }
 
 void CGarrisonInt::splitClick()
@@ -677,14 +643,14 @@ void CInfoPopup::init(int x, int y)
 CComponent::CComponent(Etype Type, int Subtype, int Val):
 	image(nullptr)
 {
-	used |= RCLICK;
+	addUsedEvents(RCLICK);
 	init(Type,Subtype,Val);
 }
 
 CComponent::CComponent(const Component &c):
 	image(nullptr)
 {
-	used |= RCLICK;
+	addUsedEvents(RCLICK);
 
 	if(c.id == Component::EXPERIENCE)
 		init(experience,c.subtype,c.val);
@@ -700,7 +666,7 @@ CComponent::CComponent(const Component &c):
 CComponent::CComponent():
 	image(nullptr)
 {
-	used |= RCLICK;
+	addUsedEvents(RCLICK);
 }
 
 void CComponent::init(Etype Type, int Subtype, int Val)
@@ -825,7 +791,7 @@ std::string CComponent::getSubtitle()
 void CComponent::setSurface(std::string defName, int imgPos)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	delChildNUll(image);
+	vstd::clear_pointer(image);
 	image = new CAnimImage(defName, imgPos);
 }
 
@@ -852,14 +818,14 @@ void CSelectableComponent::init()
 CSelectableComponent::CSelectableComponent(const Component &c, boost::function<void()> OnSelect):
 	CComponent(c),onSelect(OnSelect)
 {
-	used |= LCLICK | KEYBOARD;
+	addUsedEvents(LCLICK | KEYBOARD);
 	init();
 }
 
 CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect):
 	CComponent(Type,Sub,Val),onSelect(OnSelect)
 {
-	used |= LCLICK | KEYBOARD;
+	addUsedEvents(LCLICK | KEYBOARD);
 	init();
 }
 
@@ -1641,7 +1607,7 @@ void CRecruitmentWindow::showAll(SDL_Surface * to)
 CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> &Recruit, int y_offset)
 :recruit(Recruit), dwelling(Dwelling), level(Level), dst(Dst)
 {
-	used = LCLICK | RCLICK;
+	addUsedEvents(LCLICK | RCLICK);
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	which = 0;
@@ -1758,6 +1724,7 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last, int 
 	std::string title = CGI->generaltexth->allTexts[256];
 	boost::algorithm::replace_first(title,"%s",CGI->creh->creatures[cid]->namePl);
 	printAtMiddle(title,150,34,FONT_BIG,Colors::Jasmine,bitmap);
+	addUsedEvents(LCLICK | KEYBOARD);
 }
 
 CSplitWindow::~CSplitWindow() //d-tor
@@ -1768,24 +1735,6 @@ CSplitWindow::~CSplitWindow() //d-tor
 	delete slider;
 	delete animLeft;
 	delete animRight;
-}
-
-void CSplitWindow::activate()
-{
-	activateLClick();
-	activateKeys();
-	ok->activate();
-	cancel->activate();
-	slider->activate();
-}
-
-void CSplitWindow::deactivate()
-{
-	deactivateLClick();
-	deactivateKeys();
-	ok->deactivate();
-	cancel->deactivate();
-	slider->deactivate();
 }
 
 void CSplitWindow::split()
@@ -1993,6 +1942,11 @@ void CLevelWindow::show(SDL_Surface * to)
 
 void CMinorResDataBar::show(SDL_Surface * to)
 {
+
+}
+
+void CMinorResDataBar::showAll(SDL_Surface * to)
+{
 	blitAt(bg,pos.x,pos.y,to);
 	char buf[30];
 	for (int i=0;i<7;i++)
@@ -2012,11 +1966,6 @@ void CMinorResDataBar::show(SDL_Surface * to)
 		+	CGI->generaltexth->allTexts[64]
 	+ ": %s",temp)
 		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,FONT_SMALL,Colors::Cornsilk,to);
-}
-
-void CMinorResDataBar::showAll(SDL_Surface * to)
-{
-	show(to);
 }
 
 CMinorResDataBar::CMinorResDataBar()
@@ -2041,7 +1990,7 @@ CObjectListWindow::CItem::CItem(CObjectListWindow *_parent, size_t _id, std::str
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	border = new CPicture("TPGATES");
 	pos = border->pos;
-	used |= LCLICK;
+	addUsedEvents(LCLICK);
 	type |= REDRAW_PARENT;
 
 	text = new CLabel(pos.w/2, pos.h/2, FONT_SMALL, CENTER, Colors::Cornsilk, _text);
@@ -2192,7 +2141,7 @@ CTradeWindow::CTradeableItem::CTradeableItem( EType Type, int ID, bool Left, int
 	left = Left;
 	type = Type;
 	id = ID;
-	used = LCLICK | HOVER | RCLICK;
+	addUsedEvents(LCLICK | HOVER | RCLICK);
 	downSelection = false;
 	hlp = NULL;
 }
@@ -2661,10 +2610,8 @@ void CTradeWindow::removeItems(const std::set<CTradeableItem *> &toRemove)
 
 void CTradeWindow::removeItem(CTradeableItem * t)
 {
-	if(active)
-		t->deactivate();
 	items[t->left] -= t;
-	delChild(t);
+	delete t;
 
 	if(hRight == t)
 	{
@@ -2860,14 +2807,13 @@ CMarketplaceWindow::~CMarketplaceWindow()
 {
 	hLeft = hRight = NULL;
 	for(int i=0;i<items[1].size();i++)
-		delChild(items[1][i]);
+		delete items[1][i];
 	for(int i=0;i<items[0].size();i++)
-		delChild(items[0][i]);
+		delete items[0][i];
 
 	items[1].clear();
 	items[0].clear();
-	delChild(bg);
-	bg = NULL;
+	vstd::clear_pointer(bg);
 }
 
 
@@ -3933,7 +3879,7 @@ void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H)
 : h(H), _sel(&sel), _id(id)
 {
-	used = LCLICK | RCLICK | HOVER;
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 	h = H;
 	pos.x = x;
 	pos.y = y;
@@ -3968,16 +3914,6 @@ void CTavernWindow::HeroPortrait::hover( bool on )
 		GH.statusbar->print(hoverName);
 	else
 		GH.statusbar->clear();
-}
-
-void CInGameConsole::activate()
-{
-	activateKeys();
-}
-
-void CInGameConsole::deactivate()
-{
-	deactivateKeys();
 }
 
 void CInGameConsole::show(SDL_Surface * to)
@@ -4181,21 +4117,15 @@ void CInGameConsole::refreshEnteredText()
 
 CInGameConsole::CInGameConsole() : prevEntDisp(-1), defaultTimeout(10000), maxDisplayedTexts(10)
 {
+	addUsedEvents(KEYBOARD);
 }
 
-void CGarrisonWindow::close()
-{
-	GH.popIntTotally(this);
-}
-
-CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits )
+CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits ):
+    CWindowObject("GARRISON", PLAYER_COLORED)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	bg = new CPicture("GARRISON.bmp");
-	bg->colorizeAndConvert(LOCPLINT->playerID);
-	pos = bg->center();
 
-	garr = new CGarrisonInt(92, 127, 4, Point(0,96), bg->bg, Point(93,127), up, down, removableUnits);
+	garr = new CGarrisonInt(92, 127, 4, Point(0,96), background->bg, Point(93,127), up, down, removableUnits);
 	{
 		CAdventureMapButton *split = new CAdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),88,314,"IDV6432.DEF");
 		removeChild(split);
@@ -4220,7 +4150,7 @@ CGarrisonWindow::~CGarrisonWindow()
 
 void CGarrisonWindow::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	CWindowObject::showAll(to);
 
 	blitAtLoc(graphics->flags->ourImages[garr->armedObjs[1]->getOwner()].bitmap,28,124,to);
 	blitAtLoc(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->armedObjs[1])->portrait],29,222,to);
@@ -4251,14 +4181,6 @@ CArtPlace::CArtPlace(Point position, const CArtifactInstance * Art):
 {
 	pos += position;
 	pos.w = pos.h = 44;
-}
-
-void CArtPlace::activate()
-{
-	if(!active)
-	{
-		LRClickableAreaWTextComp::activate();
-	}
 }
 
 void CArtPlace::clickLeft(tribool down, bool previousState)
@@ -4481,14 +4403,6 @@ void CArtPlace::deselect ()
 	ourOwner->safeRedraw();
 }
 
-void CArtPlace::deactivate()
-{
-	if(active)
-	{
-		LRClickableAreaWTextComp::deactivate();
-	}
-}
-
 void CArtPlace::showAll(SDL_Surface * to)
 {
 	if (ourArt && !picked && ourArt == ourOwner->curHero->getArt(slotID, false)) //last condition is needed for disassembling -> artifact may be gone, but we don't know yet TODO: real, nice solution
@@ -4615,7 +4529,7 @@ void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
 
 CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero):hero(_hero)
 {
-	used = LCLICK | RCLICK | HOVER;
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos.x += x;	pos.w = 58;
 	pos.y += y;	pos.h = 64;
 }
@@ -5543,7 +5457,7 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * _parent, int _size, int _i
 	id(_id), size(_size), parent(_parent)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	used = LCLICK;
+	addUsedEvents(LCLICK);
 	left = true;
 	pos.w = 58;
 	pos.h = 64;
@@ -5687,7 +5601,7 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 	ID(_ID),
 	parent(_parent)
 {
-	used = LCLICK | RCLICK | HOVER;
+	addUsedEvents(LCLICK | RCLICK | HOVER);
 }
 
 CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market):hero(_hero), market(_market)
@@ -6207,12 +6121,9 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 		imageName = morale ? "IMRL30": "ILCK30";
 	else
 		imageName = morale ? "IMRL42" : "ILCK42";
-	if (image && active)
-		image->deactivate();
-	delChildNUll(image);
+
+	delete image;
 	image = new CAnimImage(imageName, bonusValue + 3);
-	if (active)
-		image->activate();
 	image->moveBy(Point(pos.w/2 - image->pos.w/2, pos.h/2 - image->pos.h/2));//center icon
 }
 
@@ -6305,16 +6216,6 @@ void CRClickPopup::clickRight(tribool down, bool previousState)
 	close();
 }
 
-void CRClickPopup::activate()
-{
-	activateRClick();
-}
-
-void CRClickPopup::deactivate()
-{
-	deactivateRClick();
-}
-
 void CRClickPopup::close()
 {
 	GH.popIntTotally(this);
@@ -6342,6 +6243,7 @@ void CRClickPopup::createAndPush(const CGObjectInstance *obj, const Point &p, EA
 
 CRClickPopup::CRClickPopup()
 {
+	addUsedEvents(RCLICK);
 }
 
 CRClickPopup::~CRClickPopup()

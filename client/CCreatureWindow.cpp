@@ -586,7 +586,7 @@ CBonusItem::CBonusItem(const Rect &Pos, const std::string &Name, const std::stri
 	else
 		bonusGraphics = NULL;
 
-	used = 0; //no actions atm
+	removeUsedEvents(ALL); //no actions atm
 }
 
 void CBonusItem::showAll (SDL_Surface * to)
@@ -698,9 +698,9 @@ void CCreInfoWindow::printLine(int position, const std::string &text, int baseVa
 
 void CCreInfoWindow::init(const CCreature *creature, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner, int count, bool LClicked)
 {
-	used = 0;
+	removeUsedEvents(ALL);
 	if (!LClicked)
-		used |= RCLICK;
+		addUsedEvents(RCLICK);
 
 	if(!stackNode)
 		stackNode = creature;

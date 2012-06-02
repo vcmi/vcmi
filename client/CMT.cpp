@@ -308,10 +308,25 @@ int main(int argc, char** argv)
 
 void printInfoAboutIntObject(const CIntObject *obj, int level)
 {
-	int tabs = level;
-	while(tabs--) tlog4 << '\t';
+	tlog4 << std::string(level, '\t');
 
-	tlog4 << typeid(*obj).name() << " *** " << (obj->active ? "" : "not ") << "active";
+	tlog4 << typeid(*obj).name() << " *** ";
+	if (obj->active)
+	{
+#define PRINT(check, text) if (obj->active & CIntObject::check) tlog4 << text
+		PRINT(LCLICK, 'L');
+		PRINT(RCLICK, 'R');
+		PRINT(HOVER, 'H');
+		PRINT(MOVE, 'M');
+		PRINT(KEYBOARD, 'K');
+		PRINT(TIME, 'T');
+		PRINT(GENERAL, 'A');
+		PRINT(WHEEL, 'W');
+		PRINT(DOUBLECLICK, 'D');
+#undef  PRINT
+	}
+	else
+		tlog4 << "inactive";
 	tlog4 << " at " << obj->pos.x <<"x"<< obj->pos.y << "\n";
 
 	BOOST_FOREACH(const CIntObject *child, obj->children)

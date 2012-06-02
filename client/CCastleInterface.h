@@ -190,7 +190,7 @@ public:
 };
 
 /// Class which manages the castle window
-class CCastleInterface : public CWindowWithGarrison
+class CCastleInterface : public CWindowObject, public CWindowWithGarrison
 {
 	CLabel *title;
 	CLabel *income;
@@ -223,7 +223,6 @@ public:
 	void castleTeleport(int where);
 	void townChange();
 	void keyPressed(const SDL_KeyboardEvent & key);
-	void showAll(SDL_Surface * to);
 	void close();
 	void addBuilding(int bid);
 	void removeBuilding(int bid);
@@ -231,7 +230,7 @@ public:
 };
 
 /// Hall window where you can build things
-class CHallInterface : public CIntObject
+class CHallInterface : public CWindowObject
 {
 	/// Building box from town hall (building icon + subtitle)
 	class CBuildingBox : public CIntObject
@@ -255,7 +254,6 @@ class CHallInterface : public CIntObject
 	const CGTownInstance * town;
 	
 	std::vector< std::vector<CBuildingBox*> >boxes;
-	CPicture *background;
 	CLabel *title;
 	CGStatusBar *statusBar;
 	CMinorResDataBar * resdatabar;
@@ -263,18 +261,16 @@ class CHallInterface : public CIntObject
 
 public:
 	CHallInterface(const CGTownInstance * Town); //c-tor
-	void close();
 };
 
 ///  Window where you can decide to buy a building or not
-class CBuildWindow: public CIntObject
+class CBuildWindow: public CWindowObject
 {
 	const CGTownInstance *town;
 	const CBuilding *building;
 	int state; //state - same as CHallInterface::CBuildingBox::state
 	bool mode; // 0 - normal (with buttons), 1 - r-click popup
 
-	CPicture *background;
 	CAnimImage *buildingPic;
 	CAdventureMapButton *buy;
 	CAdventureMapButton *cancel;
@@ -289,7 +285,6 @@ class CBuildWindow: public CIntObject
 
 	std::string getTextForState(int state);
 	void buyFunc();
-	void close();
 
 public:
 	void clickRight(tribool down, bool previousState);
@@ -312,7 +307,7 @@ public:
 };
 
 /// The fort screen where you can afford units
-class CFortScreen : public CIntObject
+class CFortScreen : public CWindowObject
 {
 	class RecruitArea : public CIntObject
 	{
@@ -337,23 +332,22 @@ class CFortScreen : public CIntObject
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
 	};
-	
-	CPicture *background;
 	CLabel *title;
 	std::vector<RecruitArea*> recAreas;
 	CMinorResDataBar * resdatabar;
 	CGStatusBar *statusBar;
 	CAdventureMapButton *exit;
 
+	std::string getBgName(const CGTownInstance *town);
+
 public:
 	CFortScreen(const CGTownInstance * town); //c-tor
 
 	void creaturesChanged();
-	void close();
 };
 
 /// The mage guild screen where you can see which spells you have
-class CMageGuildScreen : public CIntObject
+class CMageGuildScreen : public CWindowObject
 {
 	class Scroll : public CIntObject
 	{
@@ -366,32 +360,26 @@ class CMageGuildScreen : public CIntObject
 		void clickRight(tribool down, bool previousState);
 		void hover(bool on);
 	};
-	CPicture *background;
 	CPicture *window;
 	CAdventureMapButton *exit;
 	std::vector<Scroll *> spells;
 	CMinorResDataBar * resdatabar;
 	CGStatusBar *statusBar;
 
-	void close();
-
 public:
 	CMageGuildScreen(CCastleInterface * owner);
 };
 
 /// The blacksmith window where you can buy available in town war machine
-class CBlacksmithDialog : public CIntObject
+class CBlacksmithDialog : public CWindowObject
 {
 	CAdventureMapButton *buy, *cancel;
-	CPicture *background;
 	CPicture *animBG;
 	CCreatureAnim * anim;
 	CLabel * title;
 	CLabel * costText;
 	CLabel * costValue;
 	CGStatusBar *statusBar;
-
-	void close();
 
 public:
 	CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid);

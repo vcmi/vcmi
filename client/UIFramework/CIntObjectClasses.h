@@ -298,7 +298,8 @@ public:
 	~CStatusBar(); //d-tor
 	void print(const std::string & text); //prints text and refreshes statusbar
 	void clear();//clears statusbar and refreshes
-	void show(SDL_Surface * to); //shows statusbar (with current text)
+	void showAll(SDL_Surface * to); //shows statusbar (with current text)
+	void show(SDL_Surface * to);
 	std::string getCurrent(); //getter for current
 };
 
@@ -430,8 +431,6 @@ public:
 
 	CList(int Size = 5); //c-tor
 	void clickLeft(tribool down, bool previousState);
-	void activate();
-	void deactivate();
 	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent)=0; //call-in
 	virtual void genList()=0;
 	virtual void select(int which)=0;
@@ -465,4 +464,38 @@ public:
 
 	virtual void clickLeft(tribool down, bool previousState);
 	virtual void clickRight(tribool down, bool previousState);
+};
+
+/// Basic class for windows
+// TODO: status bar?
+class CWindowObject : public virtual CIntObject
+{
+	CPicture * createBg(std::string imageName, bool playerColored);
+
+	int options;
+
+protected:
+	CPicture * background;
+
+	//Simple function with call to GH.popInt
+	void close();
+	//Used only if RCLICK_POPUP was set
+	void clickRight(tribool down, bool previousState);
+	//To display border
+	void showAll(SDL_Surface *to);
+public:
+	enum EOptions
+	{
+		PLAYER_COLORED=1, //background will be player-colored
+		RCLICK_POPUP=2, // window will behave as right-click popup
+		BORDERED=4 // window will have border if current resolution is bigger than size of window
+	};
+
+	/*
+	 * imageName - name for background image, can be empty
+	 * options - EOpions enum
+	 * centerAt - position of window center. Default - center of the screen
+	*/
+	CWindowObject(std::string imageName, int options, Point centerAt);
+	CWindowObject(std::string imageName, int options);
 };

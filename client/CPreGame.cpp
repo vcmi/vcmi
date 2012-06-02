@@ -380,7 +380,7 @@ CMenuEntry::CMenuEntry(CMenuScreen* parent, const JsonNode &config)
 
 CreditsScreen::CreditsScreen()
 {
-	used |= LCLICK | RCLICK;
+	addUsedEvents(LCLICK | RCLICK);
 	type |= REDRAW_PARENT;
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos.w = CGP->menu->pos.w;
@@ -434,7 +434,7 @@ void CreditsScreen::clickRight(tribool down, bool previousState)
 CGPreGame::CGPreGame():
 	pregameConfig(new JsonNode(GameConstants::DATA_DIR + "/config/mainmenu.json"))
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	//OBJ_CONSTRUCTION_CAPTURING_ALL;
 	GH.defActionsDef = 63;
 	CGP = this;
 	menu = new CMenuScreen((*pregameConfig)["window"]);
@@ -1104,7 +1104,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 {
 	OBJ_CONSTRUCTION;
 	selectionPos = 0;
-	used = LCLICK | WHEEL | KEYBOARD | DOUBLECLICK;
+	addUsedEvents(LCLICK | WHEEL | KEYBOARD | DOUBLECLICK);
 	slider = NULL;
 	txt = NULL;
 	tabType = Type;
@@ -1215,7 +1215,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 	}
 
 	slider = new CSlider(372, 86, tabType != CMenuScreen::saveGame ? 480 : 430, bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, 1);
-	slider->changeUsedEvents(WHEEL, true);
+	slider->addUsedEvents(WHEEL);
 	slider->slider->keepFrame = true;
 	format =  CDefHandler::giveDef("SCSELC.DEF");
 
@@ -1546,12 +1546,12 @@ CChatBox::CChatBox(const Rect &rect)
 {
 	OBJ_CONSTRUCTION;
 	pos += rect;
-	used = KEYBOARD;
+	addUsedEvents(KEYBOARD);
 	captureAllKeys = true;
 
 	const int height = graphics->fonts[FONT_SMALL]->height;
 	inputBox = new CTextInput(Rect(0, rect.h - height, rect.w, height));
-	inputBox->used &= ~KEYBOARD;
+	inputBox->removeUsedEvents(KEYBOARD);
 	chatHistory = new CTextBox("", Rect(0, 0, rect.w, rect.h - height), 1);
 
 	SDL_Color green = {0,252,0, SDL_ALPHA_OPAQUE};
@@ -1583,7 +1583,7 @@ InfoCard::InfoCard( bool Network )
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos.x += 393;
 	pos.y += 6;
-	used = RCLICK;
+	addUsedEvents(RCLICK);
 	mapDescription = NULL;
 
 	Rect descriptionRect(26, 149, 320, 115);
@@ -1592,12 +1592,12 @@ InfoCard::InfoCard( bool Network )
 	if(SEL->screenType == CMenuScreen::campaignList)
 	{
 		CSelectionScreen *ss = static_cast<CSelectionScreen*>(parent);
-		CGuiHandler::moveChild(new CPicture(*ss->bg, descriptionRect + Point(-393, 0)), this, mapDescription, true); //move subpicture bg to our description control (by default it's our (Infocard) child)
+		mapDescription->addChild(new CPicture(*ss->bg, descriptionRect + Point(-393, 0)), true); //move subpicture bg to our description control (by default it's our (Infocard) child)
 	}
 	else
 	{
 		bg = new CPicture("GSELPOP1.bmp", 0, 0);
-		CGuiHandler::moveChild(bg, this, parent);
+		parent->addChild(bg);
 		auto it = vstd::find(parent->children, this); //our position among parent children
 		parent->children.insert(it, bg); //put BG before us
 		parent->children.pop_back();
@@ -1619,13 +1619,13 @@ InfoCard::InfoCard( bool Network )
 			difficulty->block(true);
 
 		//description needs bg
-		CGuiHandler::moveChild(new CPicture(*bg, descriptionRect), this, mapDescription, true); //move subpicture bg to our description control (by default it's our (Infocard) child)
+		mapDescription->addChild(new CPicture(*bg, descriptionRect), true); //move subpicture bg to our description control (by default it's our (Infocard) child)
 
 		if(network)
 		{
 			playerListBg = new CPicture("CHATPLUG.bmp", 16, 276);
 			chat = new CChatBox(descriptionRect);
-			CGuiHandler::moveChild(new CPicture(*bg, chat->chatHistory->pos - pos), this, chat->chatHistory, true); //move subpicture bg to our description control (by default it's our (Infocard) child)
+			chat->chatHistory->addChild(new CPicture(*bg, chat->chatHistory->pos - pos), true); //move subpicture bg to our description control (by default it's our (Infocard) child)
 
 			chatOn = true;
 			mapDescription->disable();
@@ -2070,13 +2070,8 @@ void OptionsTab::nextBonus( int player, int dir )
 
 void OptionsTab::recreate()
 {
-	bool wasActive = active;
-	if(active)
-		deactivate();
-
 	for(std::map<int, PlayerOptionsEntry*>::iterator it = entries.begin(); it != entries.end(); ++it)
 	{
-		children -= it->second;
 		delete it->second;
 	}
 	entries.clear();
@@ -2092,8 +2087,6 @@ void OptionsTab::recreate()
 			usedHeroes.insert(heroes[hi].heroID);
 	}
 
-	if(wasActive)
-		activate();
 }
 
 void OptionsTab::setTurnLength( int npos )
@@ -2199,7 +2192,8 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 			serial++;
 	}
 
-	pos = parent->pos + Point(54, 122 + serial*50);
+	pos.x += 54;
+	pos.y += 122 + serial*50;
 
 	static const char *flags[] = {"AOFLGBR.DEF", "AOFLGBB.DEF", "AOFLGBY.DEF", "AOFLGBG.DEF",
 		"AOFLGBO.DEF", "AOFLGBP.DEF", "AOFLGBT.DEF", "AOFLGBS.DEF"};
@@ -2242,13 +2236,15 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 	else
 		flag = NULL;
 
-	defActions &= ~SHARE_POS;
 	town = new SelectedBox(TOWN, s.color);
-	town->pos += pos + Point(119, 2);
+	town->pos.x += 119;
+	town->pos.y += 2;
 	hero = new SelectedBox(HERO, s.color);
-	hero->pos += pos + Point(195, 2);
+	hero->pos.x += 195;
+	hero->pos.y += 2;
 	bonus = new SelectedBox(BONUS, s.color);
-	bonus->pos += pos + Point(271, 2);
+	bonus->pos.x += 271;
+	bonus->pos.y += 2;
 }
 
 void OptionsTab::PlayerOptionsEntry::showAll(SDL_Surface * to)
@@ -2271,8 +2267,8 @@ void OptionsTab::PlayerOptionsEntry::selectButtons()
 	}
 	else
 	{
-		btns[0]->enable(active);
-		btns[1]->enable(active);
+		btns[0]->enable();
+		btns[1]->enable();
 	}
 
 	if( (pi.defaultHero() != -1  ||  !s.human  ||  s.castle < 0) //fixed hero
@@ -2283,8 +2279,8 @@ void OptionsTab::PlayerOptionsEntry::selectButtons()
 	}
 	else
 	{
-		btns[2]->enable(active);
-		btns[3]->enable(active);
+		btns[2]->enable();
+		btns[3]->enable();
 	}
 
 	if(SEL->isGuest() && s.color != playerColor)//or not our player
@@ -2294,8 +2290,8 @@ void OptionsTab::PlayerOptionsEntry::selectButtons()
 	}
 	else
 	{
-		btns[4]->enable(active);
-		btns[5]->enable(active);
+		btns[4]->enable();
+		btns[5]->enable();
 	}
 }
 
@@ -2314,7 +2310,7 @@ OptionsTab::SelectedBox::SelectedBox( SelType Which, ui8 Player )
 	SDL_Surface *img = getImg();
 	pos.w = img->w;
 	pos.h = img->h;
-	used = RCLICK;
+	addUsedEvents(RCLICK);
 }
 
 SDL_Surface * OptionsTab::SelectedBox::getImg() const
@@ -3032,7 +3028,7 @@ void CBonusSelection::updateBonusSelection()
 	{
 		if (bonuses->buttons[i]->active)
 			bonuses->buttons[i]->deactivate();
-		bonuses->delChild(bonuses->buttons[i]);
+		delete bonuses->buttons[i];
 	}
 	bonuses->buttons.clear();
 
@@ -3196,9 +3192,6 @@ void CBonusSelection::updateBonusSelection()
 			bonusButton->borderColor = Colors::Maize; // yellow border
 			bonuses->addButton(bonusButton);
 		}
-	if (active)
-		for (size_t i=0; i<bonuses->buttons.size(); i++)
-			bonuses->buttons[i]->activate();
 }
 
 void CBonusSelection::startMap()
@@ -3253,7 +3246,7 @@ CBonusSelection::CRegion::CRegion( CBonusSelection * _owner, bool _accessible, b
 : owner(_owner), accessible(_accessible), selectable(_selectable), myNumber(_myNumber)
 {
 	OBJ_CONSTRUCTION;
-	used = LCLICK | RCLICK;
+	addUsedEvents(LCLICK | RCLICK);
 
 	static const std::string colors[2][8] = {
 		{"R", "B", "N", "G", "O", "V", "T", "P"},
@@ -3562,11 +3555,11 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode &config )
 
 	if (status != CCampaignScreen::DISABLED)
 	{
-		used |= LCLICK | HOVER;
+		addUsedEvents(LCLICK | HOVER);
 		image = new CPicture(config["image"].String());
 
 		hoverLabel = new CLabel(pos.w / 2, pos.h + 20, FONT_MEDIUM, CENTER, Colors::Jasmine, "");
-		CGuiHandler::moveChild(hoverLabel, this, parent);
+		parent->addChild(hoverLabel);
 	}
 
 	if (status == CCampaignScreen::COMPLETED)

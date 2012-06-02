@@ -176,15 +176,6 @@ void CBattleHero::show(SDL_Surface * to)
 	}
 }
 
-void CBattleHero::activate()
-{
-	activateLClick();
-}
-void CBattleHero::deactivate()
-{
-	deactivateLClick();
-}
-
 void CBattleHero::setPhase(int newPhase)
 {
 	if(phase != 4)
@@ -242,6 +233,7 @@ CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bo
 		CSDL_Ext::alphaTransform(flag->ourImages[i].bitmap);
 		graphics->blueToPlayersAdv(flag->ourImages[i].bitmap, player);
 	}
+	addUsedEvents(LCLICK);
 }
 
 CBattleHero::~CBattleHero()
@@ -543,21 +535,6 @@ Point CClickableHex::getXYUnitAnim(const int & hexNum, const bool & attacker, co
 	//returning
 	return ret +CPlayerInterface::battleInt->pos;
 }
-void CClickableHex::activate()
-{
-	activateHover();
-	activateMouseMove();
-	activateLClick();
-	activateRClick();
-}
-
-void CClickableHex::deactivate()
-{
-	deactivateHover();
-	deactivateMouseMove();
-	deactivateLClick();
-	deactivateRClick();
-}
 
 void CClickableHex::hover(bool on)
 {
@@ -572,6 +549,7 @@ void CClickableHex::hover(bool on)
 
 CClickableHex::CClickableHex() : setAlterText(false), myNumber(-1), accessible(true), hovered(false), strictHovered(false), myInterface(NULL)
 {
+	addUsedEvents(LCLICK | RCLICK | HOVER | MOVE);
 }
 
 void CClickableHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)

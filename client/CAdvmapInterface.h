@@ -98,9 +98,7 @@ public:
 	int moveX, moveY; //shift between actual position of screen and the one we wil blit; ranges from -31 to 31 (in pixels)
 
 	CTerrainRect();
-	~CTerrainRect();
 	CGPath * currentPath;
-	void activate();
 	void deactivate();
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
@@ -123,8 +121,6 @@ public:
 	std::string datetext;
 
 	void clickRight(tribool down, bool previousState);
-	void activate();
-	void deactivate();
 	CResDataBar();
 	CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist);
 	~CResDataBar();
@@ -169,7 +165,6 @@ public:
 	void blitAnim(EMode mode);//0 - day, 1 - week
 
 	void show(SDL_Surface * to);
-	void activate();
 	void deactivate();
 	void updateSelection(const CGObjectInstance *obj);
 };
