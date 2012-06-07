@@ -2812,7 +2812,6 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 
 			useEmbarkCost = 0; //0 - usual movement; 1 - embark; 2 - disembark
 
-			int moveAtNextTile = movement;
 			int turnAtNextTile = turn;
 
 
@@ -2846,7 +2845,7 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 			{
 				//occurs rarely, when hero with low movepoints tries to leave the road
 				turnAtNextTile++;
-				moveAtNextTile = hero->maxMovePoints(cp->land);
+				int moveAtNextTile = hero->maxMovePoints(cp->land);
 				cost = gs->getMovementCost(hero, cp->coord, dp->coord, moveAtNextTile); //cost must be updated, movement points changed :(
 				remains = moveAtNextTile - cost;
 			}

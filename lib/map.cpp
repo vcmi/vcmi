@@ -958,7 +958,7 @@ void Mapa::readRumors( const ui8 * bufor, int &i)
 void Mapa::readHeader( const ui8 * bufor, int &i)
 {
 	//reading allowed heroes (20 bytes)
-	int ist = i;				//starting i for loop
+	int ist;
 	ui8 disp = 0;
 
 	if(version>=SoD)
