@@ -5554,8 +5554,9 @@ ui8 CGGarrison::getPassableness() const
 
 void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 {
-	int sound = 0;
-	int txtid = -1;
+	int sound;
+	int txtid;
+
 	switch(ID)
 	{
 	case 22: //Corpse
@@ -5570,21 +5571,19 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 		sound = soundBase::GENIE;
 		txtid = 154;
 		break;
-	case 108:
+	case 108://Warrior's Tomb
+		{
+			//ask if player wants to search the Tomb
+			BlockingDialog bd(true, false);
+			bd.soundID = soundBase::GRAVEYARD;
+			bd.player = h->getOwner();
+			bd.text.addTxt(MetaString::ADVOB_TXT,161);
+			cb->showBlockingDialog(&bd,boost::bind(&CGOnceVisitable::searchTomb,this,h,_1));
+			return;
+		}
 		break;
 	default:
 		tlog1 << "Error: Unknown object (" << ID <<") treated as CGOnceVisitable!\n";
-		return;
-	}
-
-	if(ID == 108)//Warrior's Tomb
-	{
-		//ask if player wants to search the Tomb
-		BlockingDialog bd(true, false);
-		sound = soundBase::GRAVEYARD;
-		bd.player = h->getOwner();
-		bd.text.addTxt(MetaString::ADVOB_TXT,161);
-		cb->showBlockingDialog(&bd,boost::bind(&CGOnceVisitable::searchTomb,this,h,_1));
 		return;
 	}
 
