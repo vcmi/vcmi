@@ -349,6 +349,9 @@ namespace range = boost::range;
 template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 #define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
 
+
+#define THROW_FORMAT(message, formatting_elems)  throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
+
 //XXX pls dont - 'debug macros' are usually more trouble than it's worth
 #define HANDLE_EXCEPTION  \
 	catch (const std::exception& e) {	\

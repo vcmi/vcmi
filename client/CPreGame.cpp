@@ -1063,27 +1063,30 @@ void SelectionTab::parseGames(std::vector<FileInfo> &files, bool multi)
 {
 	for(int i=0; i<files.size(); i++)
 	{
-		CLoadFile lf(files[i].name);
-		if(!lf.sfile)
-			continue;
-
-		ui8 sign[8];
-		lf >> sign;
-		if(std::memcmp(sign,"VCMISVG",7))
+		try
 		{
-			tlog1 << files[i].name << " is not a correct savefile!" << std::endl;
-			continue;
+			CLoadFile lf(files[i].name);
+
+			ui8 sign[8];
+			lf >> sign;
+			if(std::memcmp(sign,"VCMISVG",7))
+				throw std::runtime_error("not a correct savefile!");
+
+			allItems[i].mapHeader = new CMapHeader();
+			lf >> *(allItems[i].mapHeader) >> allItems[i].scenarioOpts;
+			allItems[i].filename = files[i].name;
+			allItems[i].countPlayers();
+			allItems[i].date = std::asctime(std::localtime(&files[i].date));
+
+			if((allItems[i].actualHumanPlayers > 1) != multi) //if multi mode then only multi games, otherwise single
+			{
+				vstd::clear_pointer(allItems[i].mapHeader);
+			}
 		}
-		allItems[i].mapHeader = new CMapHeader();
-		lf >> *(allItems[i].mapHeader) >> allItems[i].scenarioOpts;
-		allItems[i].filename = files[i].name;
-		allItems[i].countPlayers();
-		allItems[i].date = std::asctime(std::localtime(&files[i].date));
-
-		if((allItems[i].actualHumanPlayers > 1) != multi) //if multi mode then only multi games, otherwise single
+		catch(std::exception &e)
 		{
-			delete allItems[i].mapHeader;
-			allItems[i].mapHeader = NULL;
+			vstd::clear_pointer(allItems[i].mapHeader);
+			tlog3 << "Failed to process " << files[i].name <<": " << e.what() << std::endl;
 		}
 	}
 }

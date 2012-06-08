@@ -686,7 +686,7 @@ template <typename Serializer> class DLL_LINKAGE CISer : public CLoaderBase
 public:
 	bool saving;
 	std::map<ui16,CBasicPointerLoader*> loaders; // typeID => CPointerSaver<serializer,type>
-	ui32 myVersion;
+	ui32 fileVersion;
 	bool reverseEndianess; //if source has different endianess than us, we reverse bytes
 
 	std::map<ui32, void*> loadedPointers;
@@ -695,7 +695,7 @@ public:
 	CISer()
 	{
 		saving = false;
-		myVersion = version;
+		fileVersion = 0;
 		smartPointerSerialization = true;
 		reverseEndianess = false;
 	}
@@ -760,12 +760,18 @@ public:
 	template <typename T>
 	void loadPrimitive(T &data)
 	{
-		char * dataPtr = (char*)&data;
-		unsigned length = sizeof(data);
-
-		this->This()->read(dataPtr,length);
-		if(reverseEndianess)
-			std::reverse(dataPtr, dataPtr + length);
+		if(0) //for testing #989
+		{
+ 			this->This()->read(&data,sizeof(data));
+		}
+		else
+		{
+			unsigned length = sizeof(data);
+			char* dataPtr = (char*)&data;
+			this->This()->read(dataPtr,length);
+			if(reverseEndianess)
+				std::reverse(dataPtr, dataPtr + length);
+		}
 	}
 
 	template <typename T>
@@ -774,7 +780,7 @@ public:
 		////that const cast is evil because it allows to implicitly overwrite const objects when deserializing
 		typedef typename boost::remove_const<T>::type nonConstT;
 		nonConstT &hlp = const_cast<nonConstT&>(data);
-		hlp.serialize(*this,myVersion);
+		hlp.serialize(*this,fileVersion);
 		//data.serialize(*this,myVersion);
 	}	
 
@@ -1018,11 +1024,13 @@ public:
 	std::string fName;
 	unique_ptr<std::ifstream> sfile;
 
-	CLoadFile(const std::string &fname, int minimalVersion = version);
+	CLoadFile(const std::string &fname, int minimalVersion = version); //throws!
 	~CLoadFile();
 	int read(const void * data, unsigned size);
 
-	void openNextFile(const std::string &fname, int minimalVersion);
+	void openNextFile(const std::string &fname, int minimalVersion); //throws!
+
+	void clear();
 	void reportState(CLogger &out);
 };
 

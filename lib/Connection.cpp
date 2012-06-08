@@ -302,53 +302,55 @@ CLoadFile::~CLoadFile()
 
 int CLoadFile::read( const void * data, unsigned size )
 {
-	char *bytePtr = (char *)data;
-	sfile->read(bytePtr, size);
+	sfile->read((char *)data,size);
 	return size;
 }
 
 void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
 {
-	fName = fname;
-	sfile = make_unique<std::ifstream>(fname.c_str(),std::ios::binary);
-	if(!(*sfile))
+	assert(!reverseEndianess);
+	assert(minimalVersion <= version);
+
+	try
 	{
-		tlog1 << "Error: cannot open to read " << fname << std::endl;
-		sfile.release();
-	}
-	else
-	{
+		fName = fname;
+		sfile = make_unique<std::ifstream>(fname, std::ios::binary);
+		sfile->exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
+
+		if(!(*sfile))
+			THROW_FORMAT("Error: cannot open to read %s!", fname);
+
+		//we can read
 		char buffer[4];
 		sfile->read(buffer, 4);
-
 		if(std::memcmp(buffer,"VCMI",4))
-		{
-			tlog1 << "Error: not a VCMI file! ( " << fname << " )\n";
-			sfile.release();
-			return;
-		}
+			THROW_FORMAT("Error: not a VCMI file(%s)!", fname);
 
-		*this >> myVersion;	
-		if(myVersion < minimalVersion)
+		*this >> fileVersion;	
+		if(fileVersion < minimalVersion)
+			THROW_FORMAT("Error: too old file format (%s)!", fname);
+
+		if(fileVersion > version)
 		{
-			tlog1 << "Error: Too old file format! (file " << fname << " )\n";
-			sfile.release();
-		}
-		if(myVersion > version)
-		{
-			auto versionptr = (char*)&myVersion;
+			tlog3 << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % fileVersion % version % fname;
+
+			auto versionptr = (char*)&fileVersion;
 			std::reverse(versionptr, versionptr + 4);
-			if(myVersion == version)
+			tlog3 << "Version number reversed is " << fileVersion << ", checking...\n";
+
+			if(fileVersion == version)
 			{
+				tlog3 << fname << " seems to have different endianess! Entering reversing mode.\n";
 				reverseEndianess = true;
-				tlog3 << fname << " seems to have different endianess!\n";
 			}
 			else
-			{
-				tlog1 << "Error: Too new file format! (file " << fname << " )\n";
-				sfile.release();
-			}
+				THROW_FORMAT("Error: too new file format (%s)!", fname);
 		}
+	}
+	catch(...)
+	{
+		clear(); //if anything went wrong, we delete file and rethrow
+		throw;
 	}
 }
 
@@ -359,6 +361,13 @@ void CLoadFile::reportState(CLogger &out)
 	{
 		out << "\tOpened " << fName << "\n\tPosition: " << sfile->tellg() << std::endl;
 	}
+}
+
+void CLoadFile::clear()
+{
+	sfile = nullptr;
+	fName.clear();
+	fileVersion = 0;
 }
 
 CTypeList::CTypeList()
