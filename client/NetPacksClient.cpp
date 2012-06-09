@@ -761,8 +761,15 @@ void YourTurn::applyCl( CClient *cl )
 
 void SaveGame::applyCl(CClient *cl)
 {
-	CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vcgm1");
-	save << *cl;
+	try
+	{
+		CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vcgm1");
+		save << *cl;
+	}
+	catch(std::exception &e)
+	{
+		tlog1 << "Failed to save game:" << e.what() << std::endl;
+	}
 }
 
 void PlayerMessage::applyCl(CClient *cl)

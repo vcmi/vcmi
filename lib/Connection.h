@@ -1004,11 +1004,12 @@ public:
 	std::string fName;
 	unique_ptr<std::ofstream> sfile;
 
-	CSaveFile(const std::string &fname);
+	CSaveFile(const std::string &fname); //throws!
 	~CSaveFile();
 	int write(const void * data, unsigned size);
 
-	void openNextFile(const std::string &fname);
+	void openNextFile(const std::string &fname); //throws!
+	void clear();
 	void reportState(CLogger &out);
 };
 
@@ -1026,10 +1027,9 @@ public:
 
 	CLoadFile(const std::string &fname, int minimalVersion = version); //throws!
 	~CLoadFile();
-	int read(const void * data, unsigned size);
+	int read(const void * data, unsigned size); //throws!
 
 	void openNextFile(const std::string &fname, int minimalVersion); //throws!
-
 	void clear();
 	void reportState(CLogger &out);
 };

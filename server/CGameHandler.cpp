@@ -2250,19 +2250,26 @@ void CGameHandler::save( const std::string &fname )
 		sendToAllClients(&sg);
 	}
 
+	try
 	{
-		tlog0 << "Serializing game info...\n";
-		CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vlgm1");
-		char hlp[8] = "VCMISVG";
-		save << hlp << static_cast<CMapHeader&>(*gs->map) << gs->scenarioOps << *VLC << gs;
-	}
+		{
+			tlog0 << "Serializing game info...\n";
+			CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vlgm1");
+			char hlp[8] = "VCMISVG";
+			save << hlp << static_cast<CMapHeader&>(*gs->map) << gs->scenarioOps << *VLC << gs;
+		}
 
-	{
-		tlog0 << "Serializing server info...\n";
-		CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vsgm1");
-		save << *this;
+		{
+			tlog0 << "Serializing server info...\n";
+			CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vsgm1");
+			save << *this;
+		}
+		tlog0 << "Game has been successfully saved!\n";
 	}
-	tlog0 << "Game has been successfully saved!\n";
+	catch(std::exception &e)
+	{
+		tlog1 << "Failed to save game: " << e.what() << std::endl;
+	}
 }
 
 void CGameHandler::close()

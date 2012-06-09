@@ -268,16 +268,22 @@ int CSaveFile::write( const void * data, unsigned size )
 void CSaveFile::openNextFile(const std::string &fname)
 {
 	fName = fname;
-	sfile = make_unique<std::ofstream>(fname.c_str(), std::ios::binary);
-	if(!(*sfile))
+	try
 	{
-		tlog1 << "Error: cannot open to write " << fname << std::endl;
-		sfile = NULL;
-	}
-	else
-	{
+		sfile = make_unique<std::ofstream>(fname.c_str(), std::ios::binary);
+		sfile->exceptions(std::ifstream::failbit | std::ifstream::badbit); //we throw a lot anyway
+
+		if(!(*sfile))
+			THROW_FORMAT("Error: cannot open to write %s!", fname);
+
 		sfile->write("VCMI",4); //write magic identifier
 		*this << version; //write format version
+	}
+	catch(...)
+	{
+		tlog1 << "Failed to save to " << fname << std::endl;
+		clear();
+		throw;
 	}
 }
 
@@ -288,6 +294,12 @@ void CSaveFile::reportState(CLogger &out)
 	{
 		out << "\tOpened " << fName << "\n\tPosition: " << sfile->tellp() << std::endl;
 	}
+}
+
+void CSaveFile::clear()
+{
+	fName.clear();
+	sfile = nullptr;
 }
 
 CLoadFile::CLoadFile(const std::string &fname, int minimalVersion /*= version*/)
