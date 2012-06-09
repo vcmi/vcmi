@@ -215,7 +215,7 @@ public:
 	void setAnimSpeed(int set); //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 	int getAnimSpeed() const; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 
-	std::vector<CClickableHex> bfield; //11 lines, 17 hexes on each
+	std::vector<CClickableHex*> bfield; //11 lines, 17 hexes on each
 	//std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	SDL_Surface * cellBorder, * cellShade;
 	CondSh<BattleAction *> *givenCommand; //data != NULL if we have i.e. moved current unit

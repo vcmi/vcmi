@@ -970,7 +970,7 @@ bool CSpellEffectAnimation::init()
 		if(effect == -1 || graphics->battleACToDef[effect].size() != 0)
 		{
 			const CStack* destStack = owner->curInt->cb->battleGetStackByPos(destTile, false);
-			Rect &tilePos = owner->bfield[destTile].pos;
+			Rect &tilePos = owner->bfield[destTile]->pos;
 			BattleEffect be;
 			be.effectID = ID;
 			if(customAnim.size())

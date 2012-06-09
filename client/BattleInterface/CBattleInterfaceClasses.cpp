@@ -198,7 +198,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 	{
 		for(int it=0; it<GameConstants::BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
 		{
-			if(myOwner->bfield[it].hovered && myOwner->bfield[it].strictHovered)
+			if(myOwner->bfield[it]->hovered && myOwner->bfield[it]->strictHovered)
 				return;
 		}
 		CCS->curh->changeGraphic(0,0);

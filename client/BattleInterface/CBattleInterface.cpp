@@ -94,7 +94,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	: queue(NULL), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0),
 	  activeStack(NULL), stackToActivate(NULL), selectedStack(NULL), mouseHoveredStack(-1), lastMouseHoveredStackAnimationTime(-1), previouslyHoveredHex(-1),
 	  currentlyHoveredHex(-1), attackingHex(-1), tacticianInterface(NULL),  stackCanCastSpell(false), creatureCasting(false), spellDestSelectMode(false), spellSelMode(NO_LOCATION), spellToCast(NULL), sp(NULL),
-	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0), bfield(GameConstants::BFIELD_SIZE),
+	  siegeH(NULL), attackerInt(att), defenderInt(defen), curInt(att), animIDhelper(0),
 	  givenCommand(NULL), myTurn(false), resWindow(NULL), moveStarted(false), moveSh(-1), bresult(NULL)
 
 {
@@ -267,17 +267,19 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	CSDL_Ext::alphaTransform(cellBorder);
 	cellShade = BitmapHandler::loadBitmap("CCELLSHD.BMP");
 	CSDL_Ext::alphaTransform(cellShade);
-	for(int h = 0; h < bfield.size(); ++h)
+	for(int h = 0; h < GameConstants::BFIELD_SIZE; ++h)
 	{
-		bfield[h].myNumber = h;
-		bfield[h].pos = hexPosition(h);
-		bfield[h].accessible = true;
-		bfield[h].myInterface = this;
+		CClickableHex *hex = new CClickableHex();
+		hex->myNumber = h;
+		hex->pos = hexPosition(h);
+		hex->accessible = true;
+		hex->myInterface = this;
+		bfield.push_back(hex);
 	}
 	//locking occupied positions on batlefield
 	BOOST_FOREACH(const CStack *s, stacks)  //stacks gained at top of this function
 		if(s->position >= 0) //turrets have position < 0
-			bfield[s->position].accessible = false;
+			bfield[s->position]->accessible = false;
 
 	//loading projectiles for units
 	BOOST_FOREACH(const CStack *s, stacks)
@@ -361,10 +363,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	smallForceField[0] = CDefHandler::giveDef("C15SPE1.DEF");
 	smallForceField[1] = CDefHandler::giveDef("C15SPE4.DEF");
 
-	for (int i = 0; i < bfield.size(); i++)
-	{
-		addChild(&bfield[i]);
-	}
+	BOOST_FOREACH(auto hex, bfield)
+		addChild(hex);
 
 	if(tacticsMode)
 		bTacticNextStack();
@@ -405,6 +405,10 @@ CBattleInterface::~CBattleInterface()
 	delete bSpell;
 	delete bWait;
 	delete bDefence;
+
+	BOOST_FOREACH(auto hex, bfield)
+		delete hex;
+
 	delete bConsoleUp;
 	delete bConsoleDown;
 	delete console;
@@ -481,10 +485,10 @@ void CBattleInterface::activate()
 	bSpell->activate();
 	bWait->activate();
 	bDefence->activate();
-	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
-	{
-		bfield[b].activate();
-	}
+
+	BOOST_FOREACH(auto hex, bfield)
+		hex->activate();
+
 	if(attackingHero)
 		attackingHero->activate();
 	if(defendingHero)
@@ -517,10 +521,10 @@ void CBattleInterface::deactivate()
 	bSpell->deactivate();
 	bWait->deactivate();
 	bDefence->deactivate();
-	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
-	{
-		bfield[b].deactivate();
-	}
+
+	BOOST_FOREACH(auto hex, bfield)
+		hex->deactivate();
+
 	if(attackingHero)
 		attackingHero->deactivate();
 	if(defendingHero)
@@ -579,7 +583,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	//printing hovered cell
 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 	{
-		if(bfield[b].strictHovered && bfield[b].hovered)
+		if(bfield[b]->strictHovered && bfield[b]->hovered)
 		{
 			if(previouslyHoveredHex == -1) previouslyHoveredHex = b; //something to start with
 			if(currentlyHoveredHex == -1) currentlyHoveredHex = b; //something to start with
@@ -972,17 +976,17 @@ void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 }
 void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
-	auto hexItr = std::find_if(bfield.begin(), bfield.end(), [](const CClickableHex &hex)
+	auto hexItr = std::find_if(bfield.begin(), bfield.end(), [](const CClickableHex *hex)
 	{
-		return hex.hovered && hex.strictHovered;
+		return hex->hovered && hex->strictHovered;
 	});
 
-	handleHex(hexItr == bfield.end() ? -1 : hexItr->myNumber, MOVE);
+	handleHex(hexItr == bfield.end() ? -1 : (*hexItr)->myNumber, MOVE);
 }
 
 void CBattleInterface::setBattleCursor(const int myNumber)
 {
-	const CClickableHex & hoveredHex = bfield[myNumber];
+	const CClickableHex & hoveredHex = *bfield[myNumber];
 	CCursorHandler *cursor = CCS->curh;
 
 	const double subdividingAngle = 2.0*M_PI/6.0; // Divide a hex into six sectors.
