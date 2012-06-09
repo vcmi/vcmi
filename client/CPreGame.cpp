@@ -1163,6 +1163,12 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 			break;
 		case CMenuScreen::campaignList:
 			getFiles(toParse, GameConstants::DATA_DIR + "/Maps", "h3c"); //get all campaigns
+			/* Load campaingns from user directory too, unless it is also the
+			 * same as the data directory (as is the case on
+			 * windows). */
+			if (GVCMIDirs.UserPath != GameConstants::DATA_DIR)
+				getFiles(toParse, GVCMIDirs.UserPath + "/Maps", "h3c"); //get all maps
+
 			for (int g=0; g<toParse.size(); ++g)
 			{
 				toParse[g].inLod = false;
