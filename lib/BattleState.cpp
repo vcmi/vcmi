@@ -416,27 +416,19 @@ BattleHex BattleInfo::getClosestTile (bool attackerOwned, int initialPos, std::s
 
 int BattleInfo::getAvaliableHex(TCreature creID, bool attackerOwned, int initialPos) const
 {
-	/*
-	//FIXME: unused?
-	int pos;
-	if (initialPos > -1)
-		pos = initialPos;
-	else
-	{
-		if (attackerOwned)
-			pos = 0; //top left
-		else
-			pos = GameConstants::BFIELD_WIDTH; //top right
-	}
-	*/
-
 	bool ac[GameConstants::BFIELD_SIZE];
-	std::set<BattleHex> occupyable;
 
 	bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
-	bool flying = VLC->creh->creatures[creID]->isFlying();// vstd::contains(VLC->creh->creatures[creID]->bonuses, Bonus::FLYING);
-	getAccessibilityMap (ac, twoHex, attackerOwned, true, occupyable, flying);
+	bool flying = VLC->creh->creatures[creID]->isFlying();
 
+	std::set<BattleHex> occupyable;
+	getAccessibilityMap (ac, twoHex, attackerOwned, false, occupyable, flying);
+
+	for (int i = 0; i < GameConstants::BFIELD_SIZE; ++i)
+	{
+		if (ac[i])
+			occupyable.insert (i);
+	}
 	if (!occupyable.size())
 		return -1; //all tiles are covered
 

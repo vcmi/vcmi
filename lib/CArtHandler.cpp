@@ -820,6 +820,12 @@ void CArtHandler::addBonuses()
 		{
 			makeItCommanderArt (i);
 		}
+		ART_PRIM_SKILL (146, 0, +6); //Axe of Smashing
+		giveArtBonus(147, Bonus::STACK_HEALTH, +12, -1, Bonus::PERCENT_TO_ALL); //Mithril Mail
+		giveArtBonus(148, Bonus::CREATURE_DAMAGE, +12, 0, Bonus::PERCENT_TO_ALL); //Sword of Sharpness
+		giveArtBonus(150, Bonus::CASTS, 1); //Pendant of Sorcery
+		giveArtBonus(151, Bonus::STACKS_SPEED, 1); //Boots of haste
+		ART_PRIM_SKILL (154, 0, +6); //Hardened Shield
 	}
 }
 
