@@ -1792,7 +1792,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		else
 		{
 			//TODO artifacts that cast spell; scripts some day
-			boost::algorithm::replace_first(text, "Something", CGI->creh->creatures[sc->attackerType]->namePl); //creature caster
+			boost::algorithm::replace_first(text, "%s", "Something");
 		}
 		boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name);
 		console->addText(text);
