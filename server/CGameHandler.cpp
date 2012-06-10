@@ -3540,7 +3540,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				complain("There is either no healer, no destination, or healer cannot heal :P");
 			}
 			int maxHealable = destStack->MaxHealth() - destStack->firstHPleft;
-			int maxiumHeal = healer->count * std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 27));
+			int maxiumHeal = healer->count * std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::FIRST_AID));
 
 			int healed = std::min(maxHealable, maxiumHeal);
 
@@ -3554,8 +3554,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				shr.lifeDrain = (ui8)false;
 				shr.tentHealing = (ui8)true;
 				shr.drainedFrom = ba.stackNumber;
-				StacksHealedOrResurrected::HealInfo hi;
 
+				StacksHealedOrResurrected::HealInfo hi;
 				hi.healedHP = healed;
 				hi.lowLevelResurrection = 0;
 				hi.stackID = destStack->ID;
@@ -5845,49 +5845,37 @@ void CGameHandler::runBattle()
 				continue;
 			}
 
-			if(next->getCreature()->idNumber == 147 && (!curOwner || curOwner->getSecSkillLevel(CGHeroInstance::FIRST_AID) == 0)) //first aid tent, hero has no first aid
+
+			if(next->getCreature()->idNumber == 147) //first aid tent
 			{
-				BattleAction heal;
+				std::vector< const CStack * > possibleStacks;
 
-				std::vector< const CStack * > possibleStacks, secondPriority;
-				for (int v=0; v<gs->curB->stacks.size(); ++v)
-				{
-					const CStack * cstack = gs->curB->stacks[v];
-					if (cstack->owner == next->owner && cstack->firstHPleft < cstack->MaxHealth() && cstack->isValidTarget()) //it's friendly and not fully healthy
-					{
-						if (cstack->hasBonusOfType(Bonus::SIEGE_WEAPON))
-							secondPriority.push_back(cstack);
-						else
-							possibleStacks.push_back(cstack);
-					}
-				}
+				//is there any clean algorithm for that? (boost.range seems to lack copy_if)
+				BOOST_FOREACH(const CStack *s, battleGetAllStacks())
+					if(s->owner == next->owner  &&  s->canBeHealed())
+						possibleStacks.push_back(s);
 
-				if(possibleStacks.size() == 0 && secondPriority.size() == 0)
+				if(!possibleStacks.size())
 				{
-					//nothing to heal
 					makeStackDoNothing(next);
-
 					continue;
 				}
-				else
+
+				if(!curOwner || curOwner->getSecSkillLevel(CGHeroInstance::FIRST_AID) == 0) //no hero or hero has no first aid
 				{
-					//heal random creature
-					const CStack * toBeHealed = NULL;
-					if (possibleStacks.size() > 0)
-						toBeHealed = possibleStacks[ rand()%possibleStacks.size() ];
-					else
-						toBeHealed = secondPriority[ rand()%secondPriority.size() ];
-					
+					range::random_shuffle(possibleStacks);
+					const CStack * toBeHealed = possibleStacks.front();
+
+					BattleAction heal;
 					heal.actionType = BattleAction::STACK_HEAL;
 					heal.additionalInfo = 0;
 					heal.destinationTile = toBeHealed->position;
 					heal.side = !next->attackerOwned;
 					heal.stackNumber = next->ID;
-
 					makeBattleAction(heal);
 
+					continue;
 				}
-				continue;
 			}
 
 			int numberOfAsks = 1;

@@ -3171,8 +3171,8 @@ bool CStack::isValidTarget(bool allowDead/* = false*/) const /*alive non-turret 
 
 bool CStack::canBeHealed() const
 {
-	return firstHPleft != MaxHealth()
-		&& alive()
+	return firstHPleft < MaxHealth()
+		&& isValidTarget()
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON);
 }
 
