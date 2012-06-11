@@ -24,8 +24,8 @@ To compile, at least the following packages (and their development counterparts)
 On Debian-based systems (e.g. Ubuntu) run:
   sudo apt-get install g++ libsdl1.2debian libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev
 
-On Fedora run(this may not be complete):
-  sudo yum install gcc-c++ SDL-devel SDL_image-devel SDL_ttf-devel boost boost-devel boost-filesystem boost-iostreams boost-system boost-thread boost-program-options zlib-devel ffmpeg-devel ffmpeg-libs
+On RPM-based distributions (e.g. Fedora) run:
+  sudo yum install gcc-c++ SDL-devel SDL_image-devel SDL_ttf-devel SDL_mixer-devel boost boost-devel boost-filesystem boost-iostreams boost-system boost-thread boost-program-options zlib-devel ffmpeg-devel ffmpeg-libs
 
 Optionaly, if you want to regenerate the build system, you will need the following tools:
  * libtool
@@ -52,7 +52,7 @@ On linux distributions like Fedora Mp3 support isn't given for the time being.
 There is a mantis call here: http://bugs.vcmi.eu/view.php?id=933. 
 
 (Fedora-only?)
-  Create a directory that will contain the shared libraries. (default is usually /usr/local/lib64/games/vcmi)
+  Create a directory that will contain the shared libraries. (default is usually /usr/local/lib64/vcmi)
 
 Run configure:
   cd trunk/build
@@ -62,7 +62,7 @@ Alternatively it is possible to install VCMI to non-default directory (e.g. /opt
 To do this run:
   ../src/configure --datadir=/DATA_PATH/ --bindir=/BIN_PATH/vcmi --libdir=/LIB_PATH/
 An example would be:
-  ../src/configure --datadir=/usr/local/share/games --bindir=/usr/local/games --libdir=/usr/local/lib64/games
+  ../src/configure --datadir=/usr/local/share --bindir=/usr/local --libdir=/usr/local/lib64
 
 Notice:
 The ../src/ is not a typo, it will place makefile scripts into the build dir 
