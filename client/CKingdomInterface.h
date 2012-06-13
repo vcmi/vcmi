@@ -248,7 +248,7 @@ public:
 };
 
 /// List item with town
-class CTownItem : public CGarrisonHolder
+class CTownItem : public CIntObject, public CGarrisonHolder
 {
 	CAnimImage *background;
 	CAnimImage *picture;
@@ -272,7 +272,7 @@ public:
 };
 
 /// List item with hero
-class CHeroItem : public CWindowWithGarrison
+class CHeroItem : public CIntObject, public CWindowWithGarrison
 {
 	const CGHeroInstance * hero;
 
@@ -322,7 +322,7 @@ public:
 };
 
 /// Tab with all town-specific data
-class CKingdTownList : public CGarrisonHolder
+class CKingdTownList : public CIntObject, public CGarrisonHolder
 {
 private:
 	std::vector<CTownItem*> townItems;

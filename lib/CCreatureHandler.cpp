@@ -25,7 +25,8 @@ CCreatureHandler::CCreatureHandler()
 	VLC->creh = this;
 
 	// Set the faction alignments to the defaults:
-	// Good: Castle, Rampart, Tower	// Evil: Inferno, Necropolis, Dungeon
+	// Good: Castle, Rampart, Tower
+	// Evil: Inferno, Necropolis, Dungeon
 	// Neutral: Stronghold, Fortess, Conflux
 	factionAlignments += 1, 1, 1, -1, -1, -1, 0, 0, 0;
 	doubledCreatures +=  4, 14, 20, 28, 44, 60, 70, 72, 85, 86, 100, 104; //according to Strategija
@@ -39,29 +40,29 @@ CCreatureHandler::CCreatureHandler()
 int CCreature::getQuantityID(const int & quantity)
 {
 	if (quantity<5)
-		return 0;
-	if (quantity<10)
 		return 1;
-	if (quantity<20)
+	if (quantity<10)
 		return 2;
-	if (quantity<50)
+	if (quantity<20)
 		return 3;
-	if (quantity<100)
+	if (quantity<50)
 		return 4;
-	if (quantity<250)
+	if (quantity<100)
 		return 5;
-	if (quantity<500)
+	if (quantity<250)
 		return 6;
-	if (quantity<1000)
+	if (quantity<500)
 		return 7;
-	return 8;
+	if (quantity<1000)
+		return 8;
+	return 9;
 }
 
 int CCreature::estimateCreatureCount(ui32 countID)
 {
-	static const int creature_count[] = { 3, 8, 15, 35, 75, 175, 375, 750, 2500 };
+	static const int creature_count[] = { 0, 3, 8, 15, 35, 75, 175, 375, 750, 2500 };
 
-	if (countID > 8)
+	if (countID > 9)
 		assert("Wrong countID!");
 
 	return creature_count[countID];

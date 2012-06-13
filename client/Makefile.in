@@ -72,6 +72,7 @@ am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-Geometries.$(OBJEXT) \
 	vcmiclient-CCursorHandler.$(OBJEXT) \
 	vcmiclient-SDL_Extensions.$(OBJEXT) \
+	vcmiclient-AdventureMapClasses.$(OBJEXT) \
 	vcmiclient-CAdvmapInterface.$(OBJEXT) \
 	vcmiclient-CAnimation.$(OBJEXT) \
 	vcmiclient-CBitmapHandler.$(OBJEXT) \
@@ -344,6 +345,8 @@ vcmiclient_SOURCES = \
 	./UIFramework/SDL_Extensions.cpp \
 	./UIFramework/SDL_Extensions.h \
 	./UIFramework/SDL_Pixels.h \
+	AdventureMapClasses.cpp \
+	AdventureMapClasses.h \
 	CAdvmapInterface.cpp \
 	CAdvmapInterface.h \
 	CAnimation.cpp \
@@ -481,6 +484,7 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-AdventureMapClasses.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CAdvmapInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CAnimation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBattleAnimations.Po@am__quote@
@@ -690,6 +694,20 @@ vcmiclient-SDL_Extensions.obj: ./UIFramework/SDL_Extensions.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='./UIFramework/SDL_Extensions.cpp' object='vcmiclient-SDL_Extensions.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-SDL_Extensions.obj `if test -f './UIFramework/SDL_Extensions.cpp'; then $(CYGPATH_W) './UIFramework/SDL_Extensions.cpp'; else $(CYGPATH_W) '$(srcdir)/./UIFramework/SDL_Extensions.cpp'; fi`
+
+vcmiclient-AdventureMapClasses.o: AdventureMapClasses.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-AdventureMapClasses.o -MD -MP -MF $(DEPDIR)/vcmiclient-AdventureMapClasses.Tpo -c -o vcmiclient-AdventureMapClasses.o `test -f 'AdventureMapClasses.cpp' || echo '$(srcdir)/'`AdventureMapClasses.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-AdventureMapClasses.Tpo $(DEPDIR)/vcmiclient-AdventureMapClasses.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='AdventureMapClasses.cpp' object='vcmiclient-AdventureMapClasses.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-AdventureMapClasses.o `test -f 'AdventureMapClasses.cpp' || echo '$(srcdir)/'`AdventureMapClasses.cpp
+
+vcmiclient-AdventureMapClasses.obj: AdventureMapClasses.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-AdventureMapClasses.obj -MD -MP -MF $(DEPDIR)/vcmiclient-AdventureMapClasses.Tpo -c -o vcmiclient-AdventureMapClasses.obj `if test -f 'AdventureMapClasses.cpp'; then $(CYGPATH_W) 'AdventureMapClasses.cpp'; else $(CYGPATH_W) '$(srcdir)/AdventureMapClasses.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-AdventureMapClasses.Tpo $(DEPDIR)/vcmiclient-AdventureMapClasses.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='AdventureMapClasses.cpp' object='vcmiclient-AdventureMapClasses.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-AdventureMapClasses.obj `if test -f 'AdventureMapClasses.cpp'; then $(CYGPATH_W) 'AdventureMapClasses.cpp'; else $(CYGPATH_W) '$(srcdir)/AdventureMapClasses.cpp'; fi`
 
 vcmiclient-CAdvmapInterface.o: CAdvmapInterface.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CAdvmapInterface.o -MD -MP -MF $(DEPDIR)/vcmiclient-CAdvmapInterface.Tpo -c -o vcmiclient-CAdvmapInterface.o `test -f 'CAdvmapInterface.cpp' || echo '$(srcdir)/'`CAdvmapInterface.cpp

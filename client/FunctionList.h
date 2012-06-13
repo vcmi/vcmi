@@ -72,6 +72,17 @@ public:
 				funcs2[i](a);
 		}
 	}
+	// Me wants variadic templates :(
+	template <typename Arg1, typename Arg2>
+	void operator()(Arg1 & a, Arg2 & b) const
+	{
+		std::vector<boost::function<Signature> > funcs2 = funcs; //backup
+		for(int i=0;i<funcs2.size(); i++)
+		{
+			if (funcs2[i])
+				funcs2[i](a, b);
+		}
+	}
 };
 
 template<typename Signature>

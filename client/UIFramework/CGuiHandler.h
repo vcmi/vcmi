@@ -34,7 +34,7 @@ public:
 	CFramerateManager(int rate); // initializes the manager with a given fps rate
 	void init(); // needs to be called directly before the main game loop to reset the internal timer
 	void framerateDelay(); // needs to be called every game update cycle
-	double getElapsedSeconds() const { return this->timeElapsed / 1000; }
+	ui32 getElapsedMilliseconds() const {return this->timeElapsed;}
 };
 
 // Handles GUI logic and drawing
@@ -42,7 +42,6 @@ class CGuiHandler
 {
 public:
 	CFramerateManager * mainFPSmng; //to keep const framerate
-	CStopWatch th;
 	std::list<IShowActivatable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
 	IStatusBar * statusbar;
 

@@ -46,7 +46,6 @@ public:
 
 	SDL_Surface * hInfo, *tInfo; //hero and town infobox bgs
 	SDL_Surface *heroInGarrison; //icon for town infobox
-	std::vector<std::pair<int, int> > slotsPos; //creature slot positions in infoboxes
 	CDefEssential *luck22, *luck30, *luck42, *luck82,
 		*morale22, *morale30, *morale42, *morale82,
 		*halls, *forts, *bigTownPic;
@@ -102,10 +101,6 @@ public:
 	void loadHeroPortraits();
 	void loadWallPositions();
 	void loadErmuToPicture();
-	SDL_Surface * drawHeroInfoWin(const InfoAboutHero &curh);
-	SDL_Surface * drawHeroInfoWin(const CGHeroInstance * curh);
-	SDL_Surface * drawTownInfoWin(const InfoAboutTown & curh);
-	SDL_Surface * drawTownInfoWin(const CGTownInstance * curh);
 	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //returns small picture of town: ID=-1 - blank; -2 - border; -3 - random
 	void blueToPlayersAdv(SDL_Surface * sur, int player); //replaces blue interface colour with a color of player
 	void loadTrueType();

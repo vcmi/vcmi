@@ -1159,7 +1159,10 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 				positions = 16;
 			}
 			if(tabType == CMenuScreen::saveGame)
+			{
 				txt = new CTextInput(Rect(32, 539, 350, 20), Point(-32, -25), "GSSTRIP.bmp", 0);
+				txt->filters.add(CTextInput::filenameFilter);
+			}
 			break;
 		case CMenuScreen::campaignList:
 			getFiles(toParse, GameConstants::DATA_DIR + "/Maps", "h3c"); //get all campaigns
@@ -1245,7 +1248,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 		if(selectedName.size())
 		{
 			if(selectedName[2] == 'M') //name starts with ./Maps instead of ./Games => there was nothing to select
-				txt->setText("NEWGAME");
+				txt->setTxt("NEWGAME");
 			else
 				selectFName(selectedName);
 		}
@@ -1302,7 +1305,7 @@ void SelectionTab::select( int position )
 		slider->moveTo(slider->value + position - positions + 1);
 
 	if(txt)
-		txt->setText(fs::basename(curItems[py]->filename));
+		txt->setTxt(fs::basename(curItems[py]->filename));
 
 	onSelect(curItems[py]);
 }
@@ -1572,7 +1575,7 @@ void CChatBox::keyPressed(const SDL_KeyboardEvent & key)
 	if(key.keysym.sym == SDLK_RETURN  &&  key.state == SDL_PRESSED  &&  inputBox->text.size())
 	{
 		SEL->postChatMessage(inputBox->text);
-		inputBox->setText("");
+		inputBox->setTxt("");
 	}
 	else
 		inputBox->keyPressed(key);
@@ -2690,7 +2693,7 @@ CMultiMode::CMultiMode()
 
 	bar = new CGStatusBar(new CPicture(Rect(7, 465, 440, 18), 0));//226, 472
 	txt = new CTextInput(Rect(19, 436, 334, 16), *bg);
-	txt->setText(settings["general"]["playerName"].String()); //Player
+	txt->setTxt(settings["general"]["playerName"].String()); //Player
 
 	btns[0] = new CAdventureMapButton(CGI->generaltexth->zelp[266], bind(&CMultiMode::openHotseat, this), 373, 78, "MUBHOT.DEF");
 	btns[1] = new CAdventureMapButton("Host TCP/IP game", "", bind(&CMultiMode::hostTCP, this), 373, 78 + 57*1, "MUBHOST.DEF");
@@ -2740,7 +2743,7 @@ CHotSeatPlayers::CHotSeatPlayers(const std::string &firstPlayer)
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[561], bind(&CGuiHandler::popIntTotally, ref(GH), this), 205, 338, "MUBCANC.DEF", SDLK_ESCAPE);
 	bar = new CGStatusBar(new CPicture(Rect(7, 381, 348, 18), 0));//226, 472
 
-	txt[0]->setText(firstPlayer, true);
+	txt[0]->setTxt(firstPlayer, true);
 	txt[0]->giveFocus();
 }
 

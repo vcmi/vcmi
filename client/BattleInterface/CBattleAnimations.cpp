@@ -428,12 +428,10 @@ if( !isEarliest(false) )
 	}
 	//unit reversed
 
-	if(owner->moveSh >= 0)
+	if (owner->moveSh == -1)
 	{
-		CCS->soundh->stopSound(owner->moveSh);
-		owner->moveSh = -1;
+		owner->moveSh = CCS->soundh->playSound(battle_sound(movedStack->getCreature(), move), -1);
 	}
-	owner->moveSh = CCS->soundh->playSound(battle_sound(movedStack->getCreature(), move), -1);
 
 	//step shift calculation
 	posX = myAnim()->pos.x, posY = myAnim()->pos.y; // for precise calculations ;]
@@ -540,7 +538,6 @@ void CMovementAnimation::endAnim()
 		CCS->soundh->stopSound(owner->moveSh);
 		owner->moveSh = -1;
 	}
-
 	delete this;
 }
 

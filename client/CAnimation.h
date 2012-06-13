@@ -260,6 +260,7 @@ public:
 		VERTICAL_FLIP=4,   //TODO: will be displayed rotated
 		USE_RLE=8,         //RLE-d version, support full alpha-channel for 8-bit images
 		PLAYER_COLORED=16, //TODO: all loaded images will be player-colored
+		PLAY_ONCE=32       //play animation only once and stop at last frame
 	};
 protected:
 	CAnimation anim;

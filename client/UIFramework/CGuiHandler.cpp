@@ -120,12 +120,12 @@ void CGuiHandler::totalRedraw()
 
 void CGuiHandler::updateTime()
 {
-	int tv = th.getDiff();
+	int ms = mainFPSmng->getElapsedMilliseconds();
 	std::list<CIntObject*> hlp = timeinterested;
 	for (std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
 	{
 		if(!vstd::contains(timeinterested,*i)) continue;
-		(*i)->onTimer(tv);
+		(*i)->onTimer(ms);
 	}
 }
 
@@ -470,14 +470,18 @@ void CFramerateManager::init()
 void CFramerateManager::framerateDelay()
 {
 	ui32 currentTicks = SDL_GetTicks();
-	this->timeElapsed = currentTicks - this->lastticks;
+	timeElapsed = currentTicks - lastticks;
 
 	// FPS is higher than it should be, then wait some time
-	if (this->timeElapsed < this->rateticks)
+	if (timeElapsed < rateticks)
 	{
-		SDL_Delay(ceil(this->rateticks) - this->timeElapsed);
+		SDL_Delay(ceil(this->rateticks) - timeElapsed);
 	}
+	currentTicks = SDL_GetTicks();
 
-	this->fps = ceil(1000.0 / this->timeElapsed);
-	this->lastticks = SDL_GetTicks();
+	fps = ceil(1000.0 / timeElapsed);
+
+	//recalculate timeElapsed for external calls via getElapsed()
+	timeElapsed = currentTicks - lastticks;
+	lastticks = SDL_GetTicks();
 }

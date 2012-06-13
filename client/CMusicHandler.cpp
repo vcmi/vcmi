@@ -500,13 +500,17 @@ MusicEntry::~MusicEntry()
 
 void MusicEntry::load(musicBase::musicID ID)
 {
+	if (music)
+	{
+		tlog5<<"Del-ing music file "<<filename<<"\n";
+		Mix_FreeMusic(music);
+	}
+
 	currentID = ID;
 	filename = GameConstants::DATA_DIR + "/Mp3/";
 	filename += owner->musics[ID];
 
 	tlog5<<"Loading music file "<<filename<<"\n";
-	if (music)
-		Mix_FreeMusic(music);
 
 	music = Mix_LoadMUS(filename.c_str());
 

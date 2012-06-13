@@ -918,7 +918,7 @@ void CCastleBuildings::openTownHall()
 	GH.pushInt(new CHallInterface(town));
 }
 
-CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos):
+CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInstance * from):
     CWindowObject("", PLAYER_COLORED | BORDERED),
 	hall(NULL),
 	fort(NULL),
@@ -953,13 +953,12 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos):
 	statusbar = new CGStatusBar(new CPicture(*panel, barRect, 9, 555, false));
 	resdatabar = new CResDataBar("ZRESBAR", 3, 575, 32, 2, 85, 85);
 
-	townlist = new CTownList(3, 744, 414, "IAM014", "IAM015");
-	townlist->fun = boost::bind(&CCastleInterface::townChange, this);
-	townlist->selected = vstd::find_pos(LOCPLINT->towns, Town);
+	townlist = new CTownList(3, Point(744, 414), "IAM014", "IAM015");
+	if (from)
+		townlist->select(from);
 
-	townlist->from = townlist->selected - listPos;
-	vstd::amax(townlist->from, 0);
-	vstd::amin(townlist->from, LOCPLINT->towns.size() - townlist->SIZE);
+	townlist->select(town); //this will scroll list to select current town
+	townlist->onSelect = boost::bind(&CCastleInterface::townChange, this);
 
 	recreateIcons();
 	CCS->musich->playMusic(CCS->musich->townMusics[town->subID], -1);
@@ -993,12 +992,12 @@ void CCastleInterface::castleTeleport(int where)
 
 void CCastleInterface::townChange()
 {
-	const CGTownInstance * nt = LOCPLINT->towns[townlist->selected];
-	int tpos = townlist->selected - townlist->from;
-	if ( nt == town )
+	const CGTownInstance * dest = LOCPLINT->towns[townlist->getSelectedIndex()];
+	const CGTownInstance * town = this->town;// "this" is going to be deleted
+	if ( dest == town )
 		return;
 	GH.popIntTotally(this);
-	GH.pushInt(new CCastleInterface(nt, tpos));
+	GH.pushInt(new CCastleInterface(dest, town));
 }
 
 void CCastleInterface::addBuilding(int bid)
@@ -1233,20 +1232,10 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 	switch(key.keysym.sym)
 	{
 	case SDLK_UP:
-		if(townlist->selected)
-		{
-			townlist->selected--;
-			townlist->from--;
-			townChange();
-		}
+		townlist->selectPrev();
 		break;
 	case SDLK_DOWN:
-		if(townlist->selected < LOCPLINT->towns.size() - 1)
-		{
-			townlist->selected++;
-			townlist->from++;
-			townChange();
-		}
+		townlist->selectNext();
 		break;
 	case SDLK_SPACE:
 		if(!!town->visitingHero && town->garrisonHero)
@@ -1397,12 +1386,6 @@ void CBuildWindow::buyFunc()
 	GH.popInts(2); //we - build window and hall screen
 }
 
-void CBuildWindow::clickRight(tribool down, bool previousState)
-{
-	if((!down || indeterminate(down)))
-		close();
-}
-
 std::string CBuildWindow::getTextForState(int state)
 {
 	std::string ret;
@@ -1432,9 +1415,11 @@ std::string CBuildWindow::getTextForState(int state)
 	return ret;
 }
 
-CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Building, int State, bool Mode):
-	CWindowObject("TPUBUILD", PLAYER_COLORED),
-	town(Town), building(Building), state(State), mode(Mode)
+CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Building, int State, bool rightClick):
+    CWindowObject("TPUBUILD", PLAYER_COLORED | (rightClick ? RCLICK_POPUP : 0)),
+	town(Town),
+    building(Building),
+    state(State)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
@@ -1486,11 +1471,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 		posY +=75;
 	}
 
-	if(mode)
-	{	//popup
-		addUsedEvents(RCLICK);
-	}
-	else
+	if(!rightClick)
 	{	//normal window
 		buy = new CAdventureMapButton(boost::str(boost::format(CGI->generaltexth->allTexts[595]) % building->Name()),
 		          "", boost::bind(&CBuildWindow::buyFunc,this), 45, 446,"IBUY30", SDLK_RETURN);
@@ -1505,8 +1486,6 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	}
 }
 
-CBuildWindow::~CBuildWindow()
-{}
 
 std::string CFortScreen::getBgName(const CGTownInstance *town)
 {

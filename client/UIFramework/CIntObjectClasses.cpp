@@ -5,6 +5,7 @@
 #include "SDL_Extensions.h"
 #include "../Graphics.h"
 #include "../CAnimation.h"
+#include "CCursorHandler.h"
 #include "../CGameInfo.h"
 #include "../../CCallback.h"
 #include "../CConfigHandler.h"
@@ -702,7 +703,7 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	setAmount(amount);
 
-	addUsedEvents(LCLICK);
+	addUsedEvents(LCLICK | KEYBOARD | WHEEL);
 	strongInterest = true;
 
 
@@ -804,9 +805,11 @@ void CSlider::keyPressed(const SDL_KeyboardEvent & key)
 	switch(key.keysym.sym)
 	{
 	case SDLK_UP:
+	case SDLK_LEFT:
 		moveDest = value - 1;
 		break;
 	case SDLK_DOWN:
+	case SDLK_RIGHT:
 		moveDest = value + 1;
 		break;
 	case SDLK_PAGEUP:
@@ -902,13 +905,14 @@ CIntObject * CTabbedInt::getItem()
 
 CListBox::CListBox(CreateFunc create, DestroyFunc destroy, Point Pos, Point ItemOffset, size_t VisibleSize,
 				   size_t TotalSize, size_t InitialPos, int Slider, Rect SliderPos):
-CObjectList(create, destroy),
-first(InitialPos),
-totalSize(TotalSize),
-itemOffset(ItemOffset)
+	CObjectList(create, destroy),
+	first(InitialPos),
+	totalSize(TotalSize),
+	itemOffset(ItemOffset),
+    slider(nullptr)
 {
 	pos += Pos;
-	items.resize(VisibleSize, NULL);
+	items.resize(VisibleSize, nullptr);
 
 	if (Slider & 1)
 	{
@@ -947,14 +951,48 @@ void CListBox::reset()
 	updatePositions();
 }
 
+void CListBox::resize(size_t newSize)
+{
+	totalSize = newSize;
+	if (slider)
+		slider->setAmount(totalSize);
+	reset();
+}
+
+size_t CListBox::size()
+{
+	return totalSize;
+}
+
+CIntObject * CListBox::getItem(size_t which)
+{
+	if (which < first || which > first + items.size() || which > totalSize)
+		return nullptr;
+
+	size_t i=first;
+	for (auto iter = items.begin(); iter != items.end(); iter++, i++)
+		if( i == which)
+			return *iter;
+	return nullptr;
+}
+
+size_t CListBox::getIndexOf(CIntObject *item)
+{
+	size_t i=first;
+	for (auto iter = items.begin(); iter != items.end(); iter++, i++)
+		if(*iter == item)
+			return i;
+	return size_t(-1);
+}
+
 void CListBox::scrollTo(size_t which)
 {
 	//scroll up
 	if (first > which)
 		moveToPos(which);
 	//scroll down
-	else if (first + items.size() <= which)
-		moveToPos(which - items.size());
+	else if (first + items.size() <= which && which < totalSize)
+		moveToPos(which - items.size() + 1);
 }
 
 void CListBox::moveToPos(size_t which)
@@ -1006,7 +1044,12 @@ void CListBox::moveToPrev()
 	}
 }
 
-std::list<CIntObject*> CListBox::getItems()
+size_t CListBox::getPos()
+{
+	return first;
+}
+
+const std::list<CIntObject *> &CListBox::getItems()
 {
 	return items;
 }
@@ -1081,30 +1124,6 @@ std::string CStatusBar::getCurrent()
 	return current;
 }
 
-void CList::clickLeft(tribool down, bool previousState)
-{
-};
-
-CList::CList(int Size)
-:SIZE(Size)
-{
-	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD | MOVE);
-}
-
-void CList::fixPos()
-{
-	if(selected < 0) //no selection, do nothing
-		return;
-	if(selected < from) //scroll up
-		from = selected;
-	else if(from + SIZE <= selected)
-		from = selected - SIZE + 1; 
-
-	vstd::amin(from, size() - SIZE);
-	vstd::amax(from, 0);
-	draw(screen);
-}
-
 void CHoverableArea::hover (bool on)
 {
 	if (on)
@@ -1159,14 +1178,8 @@ void LRClickableAreaWText::init()
 void CLabel::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
-	std::string *hlpText = NULL;  //if NULL, text field will be used
-	if(ignoreLeadingWhitespace)
-	{
-		hlpText = new std::string(text);
-		boost::trim_left(*hlpText);
-	}
 
-	std::string &toPrint = hlpText ? *hlpText : text;
+	std::string toPrint = visibleText();
 	if(!toPrint.length())
 		return;
 
@@ -1186,6 +1199,14 @@ CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, con
 
 	pos.w = graphics->fonts[font]->getWidth(text.c_str());
 	pos.h = graphics->fonts[font]->height;
+}
+
+std::string CLabel::visibleText()
+{
+	std::string ret = text;
+	if(ignoreLeadingWhitespace)
+		boost::trim_left(ret);
+	return ret;
 }
 
 void CLabel::setTxt(const std::string &Txt)
@@ -1375,6 +1396,21 @@ void CGStatusBar::calcOffset()
 	}
 }
 
+CTextInput::CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(const std::string &)> &CB):
+    CLabel(Pos.x, Pos.y, font, CENTER),
+    cb(CB)
+{
+	type |= REDRAW_PARENT;
+	focus = false;
+	pos.h = Pos.h;
+	pos.w = Pos.w;
+	textOffset = Point(pos.w/2, pos.h/2);
+	captureAllKeys = true;
+	bg = nullptr;
+	addUsedEvents(LCLICK | KEYBOARD);
+	giveFocus();
+}
+
 CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB )
 :cb(CB)
 {
@@ -1406,11 +1442,9 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 	giveFocus();
 }
 
-void CTextInput::showAll(SDL_Surface * to)
+std::string CTextInput::visibleText()
 {
-	CIntObject::showAll(to);
-	const std::string toPrint = focus ? text + "_" : text;
-	CSDL_Ext::printAt(toPrint, pos.x, pos.y, FONT_SMALL, Colors::Cornsilk, to);
+	return focus ? text + "_" : text;
 }
 
 void CTextInput::clickLeft( tribool down, bool previousState )
@@ -1431,33 +1465,31 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 		return;
 	}
 
+	std::string oldText = text;
 	switch(key.keysym.sym)
 	{
 	case SDLK_BACKSPACE:
-		if(text.size())
+		if(!text.empty())
 			text.resize(text.size()-1);
 		break;
 	default:
-		char c = key.keysym.unicode; //TODO 16-/>8
-		static const std::string forbiddenChars = "<>:\"/\\|?*"; //if we are entering a filename, some special characters won't be allowed
-		if(!vstd::contains(forbiddenChars,c) && std::isprint(c))
-			text += c;
+		text += key.keysym.unicode; //TODO 16-/>8
 		break;
 	}
-	redraw();
-	cb(text);
+
+	filters(text, oldText);
+	if (text != oldText)
+	{
+		redraw();
+		cb(text);
+	}
 }
 
-void CTextInput::setText( const std::string &nText, bool callCb )
+void CTextInput::setTxt( const std::string &nText, bool callCb )
 {
-	text = nText;
-	redraw();
+	CLabel::setTxt(nText);
 	if(callCb)
 		cb(text);
-}
-
-CTextInput::~CTextInput()
-{
 }
 
 bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
@@ -1465,7 +1497,55 @@ bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
 	if(key.keysym.sym == SDLK_RETURN || key.keysym.sym == SDLK_KP_ENTER)
 		return false;
 
+	//this should allow all non-printable keys to go through (for example arrows)
+	if (key.keysym.unicode < ' ')
+		return false;
+
 	return true;
+}
+
+void CTextInput::filenameFilter(std::string & text, const std::string &)
+{
+	static const std::string forbiddenChars = "<>:\"/\\|?*"; //if we are entering a filename, some special characters won't be allowed
+	size_t pos;
+	while ((pos = text.find_first_of(forbiddenChars)) != std::string::npos)
+		text.erase(pos, 1);
+}
+
+void CTextInput::numberFilter(std::string & text, const std::string & oldText, int minValue, int maxValue)
+{
+	assert(minValue < maxValue);
+
+	if (text.empty())
+		text = "0";
+
+	size_t pos = 0;
+	if (text[0] == '-') //allow '-' sign as first symbol only
+		pos++;
+
+	while (pos < text.size())
+	{
+		if (text[pos] < '0' || text[pos] > '9')
+		{
+			text = oldText;
+			return; //new text is not number.
+		}
+		pos++;
+	}
+	try
+	{
+		int value = boost::lexical_cast<int>(text);
+		if (value < minValue)
+			text = boost::lexical_cast<std::string>(minValue);
+		else if (value > maxValue)
+			text = boost::lexical_cast<std::string>(maxValue);
+	}
+	catch(boost::bad_lexical_cast &)
+	{
+		//Should never happen. Unless I missed some cases
+		tlog0 << "Warning: failed to convert "<< text << " to number!\n";
+		text = oldText;
+	}
 }
 
 CFocusable::CFocusable()
@@ -1511,22 +1591,28 @@ void CFocusable::moveFocus()
 }
 
 CWindowObject::CWindowObject(std::string imageName, int options_, Point centerAt):
-    CIntObject(options_ & RCLICK_POPUP ? RCLICK : 0, Point()),
+    CIntObject(getUsedEvents(options_), Point()),
     options(options_),
     background(createBg(imageName, options & PLAYER_COLORED))
 {
 	assert(parent == nullptr); //Safe to remove, but windows should not have parent
+
+	if (options & RCLICK_POPUP)
+		CCS->curh->hide();
 
 	if (background)
 		pos = background->center(centerAt);
 }
 
 CWindowObject::CWindowObject(std::string imageName, int options_):
-    CIntObject(options & RCLICK_POPUP ? RCLICK : 0, Point()),
+    CIntObject(getUsedEvents(options_), Point()),
     options(options_),
     background(createBg(imageName, options & PLAYER_COLORED))
 {
 	assert(parent == nullptr); //Safe to remove, but windows should not have parent
+
+	if (options & RCLICK_POPUP)
+		CCS->curh->hide();
 
 	if (background)
 		pos = background->center();
@@ -1545,6 +1631,13 @@ CPicture * CWindowObject::createBg(std::string imageName, bool playerColored)
 	return image;
 }
 
+int CWindowObject::getUsedEvents(int options)
+{
+	if (options & RCLICK_POPUP)
+		return RCLICK;
+	return 0;
+}
+
 void CWindowObject::showAll(SDL_Surface *to)
 {
 	CIntObject::showAll(to);
@@ -1559,6 +1652,6 @@ void CWindowObject::close()
 
 void CWindowObject::clickRight(tribool down, bool previousState)
 {
-	if((!down || indeterminate(down)))
-		close();
+	close();
+	CCS->curh->show();
 }

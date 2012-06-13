@@ -273,8 +273,18 @@ public:
 	//recreate all visible items
 	void reset();
 
+	//change or get total amount of items in the list
+	void resize(size_t newSize);
+	size_t size();
+
+	//return item with index which or null if not present
+	CIntObject * getItem(size_t which);
+
 	//return currently active items
-	std::list< CIntObject * > getItems();
+	const std::list< CIntObject * > & getItems();
+
+	//get index of this item. -1 if not found
+	size_t getIndexOf(CIntObject * item);
 
 	//scroll list to make item which visible
 	void scrollTo(size_t which);
@@ -283,11 +293,12 @@ public:
 	void moveToPos(size_t which);
 	void moveToNext();
 	void moveToPrev();
+
+	size_t getPos();
 };
 
 /// Status bar which is shown at the bottom of the in-game screens
-class CStatusBar
-	: public CIntObject, public IStatusBar
+class CStatusBar : public CIntObject, public IStatusBar
 {
 public:
 	SDL_Surface * bg; //background
@@ -304,9 +315,11 @@ public:
 };
 
 /// Label which shows text
-class CLabel
-	: public virtual CIntObject
+class CLabel : public virtual CIntObject
 {
+protected:
+	virtual std::string visibleText();
+
 public:
 	EAlignment alignment;
 	EFonts font;
@@ -397,46 +410,29 @@ public:
 };
 
 /// Text input box where players can enter text
-class CTextInput
-	: public CLabel, public CFocusable
+class CTextInput : public CLabel, public CFocusable
 {
+protected:
+	std::string visibleText();
+
 public:
 	CFunctionList<void(const std::string &)> cb;
+	CFunctionList<void(std::string &, const std::string &)> filters;
+	void setTxt(const std::string &nText, bool callCb = false);
 
-	void setText(const std::string &nText, bool callCb = false);
-
+	CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(const std::string &)> &CB);
 	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
 	CTextInput(const Rect &Pos, SDL_Surface *srf = NULL);
-	~CTextInput();
 
-	void showAll(SDL_Surface * to) OVERRIDE;
-	void clickLeft(tribool down, bool previousState) OVERRIDE;
-	void keyPressed(const SDL_KeyboardEvent & key) OVERRIDE;
-	bool captureThisEvent(const SDL_KeyboardEvent & key) OVERRIDE;
-};
+	void clickLeft(tribool down, bool previousState) override;
+	void keyPressed(const SDL_KeyboardEvent & key) override;
+	bool captureThisEvent(const SDL_KeyboardEvent & key) override;
 
-/// Listbox UI Element
-class CList : public CIntObject
-{
-public:
-	SDL_Surface * bg; //background bitmap
-	CDefHandler *arrup, *arrdo; //button arrows for scrolling list
-	SDL_Surface *empty, *selection;
-	SDL_Rect arrupp, arrdop; //positions of arrows
-	int posw, posh; //position width/height
-	int selected, //id of selected position, <0 if none
-		from;
-	const int SIZE; //size of list
-	tribool pressed; //true=up; false=down; indeterminate=none
-
-	CList(int Size = 5); //c-tor
-	void clickLeft(tribool down, bool previousState);
-	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent)=0; //call-in
-	virtual void genList()=0;
-	virtual void select(int which)=0;
-	virtual void draw(SDL_Surface * to)=0;
-	virtual int size() = 0; //how many elements do we have
-	void fixPos(); //scrolls list, so the selection will be visible
+	//Filter that will block all characters not allowed in filenames
+	static void filenameFilter(std::string &text, const std::string & oldText);
+	//Filter that will allow only input of numbers in range min-max (min-max are allowed)
+	//min-max should be set via something like boost::bind
+	static void numberFilter(std::string &text, const std::string & oldText, int minValue, int maxValue);
 };
 
 /// Shows a text by moving the mouse cursor over the object
@@ -468,9 +464,10 @@ public:
 
 /// Basic class for windows
 // TODO: status bar?
-class CWindowObject : public virtual CIntObject
+class CWindowObject : public CIntObject
 {
 	CPicture * createBg(std::string imageName, bool playerColored);
+	int getUsedEvents(int options);
 
 	int options;
 

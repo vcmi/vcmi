@@ -185,11 +185,12 @@ namespace vstd
 	}
 
 	//returns position of first element in vector c equal to s, if there is no such element, -1 is returned
-	template <typename T1, typename T2>
-	int find_pos(const std::vector<T1> & c, const T2 &s)
+	template <typename Container, typename T2>
+	int find_pos(const Container & c, const T2 &s)
 	{
-		for(size_t i=0; i < c.size(); ++i)
-			if(c[i] == s)
+		size_t i=0;
+		for (auto iter = c.begin(); iter != c.end(); iter++, i++)
+			if(*iter == s)
 				return i;
 		return -1;
 	}

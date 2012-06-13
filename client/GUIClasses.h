@@ -73,6 +73,9 @@ class CArtifactInstance;
 class IBonusBearer;
 class CArtPlace;
 class CAnimImage;
+struct InfoAboutArmy;
+struct InfoAboutHero;
+struct InfoAboutTown;
 
 /// text + comp. + ok button
 class CInfoWindow : public CSimpleWindow
@@ -124,6 +127,7 @@ public:
 	CRClickPopup();
 	virtual ~CRClickPopup(); //d-tor
 
+	static CIntObject* createInfoWin(Point position, const CGObjectInstance * specific);
 	static void createAndPush(const std::string &txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
 	static void createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment = BOTTOMRIGHT);
 };
@@ -156,6 +160,16 @@ public:
 	~CInfoPopup(); //d-tor
 };
 
+/// popup on adventure map for town\hero objects
+class CInfoBoxPopup : public CWindowObject
+{
+	Point toScreen(Point pos);
+public:
+	CInfoBoxPopup(Point position, const CGTownInstance * town);
+	CInfoBoxPopup(Point position, const CGHeroInstance * hero);
+	CInfoBoxPopup(Point position, const CGGarrison * garr);
+};
+
 /// common popup window component
 class CComponent : public virtual CIntObject
 {
@@ -185,8 +199,6 @@ public:
 	CComponent(); //c-tor
 
 	void clickRight(tribool down, bool previousState); //call-in
-
-	void show(SDL_Surface * to);
 };
 
 class CSelectableComponent : public CComponent, public CKeyShortcut
@@ -206,6 +218,38 @@ public:
 
 ////////////////////////////////////////////////////////////////////////////////
 
+/// base class for hero/town/garrison tooltips
+class CArmyTooltip : public CIntObject
+{
+	void init(const InfoAboutArmy &army);
+public:
+	CArmyTooltip(Point pos, const InfoAboutArmy &army);
+	CArmyTooltip(Point pos, const CArmedInstance * army);
+};
+
+/// Class for hero tooltip. Does not have any background!
+/// background for infoBox: ADSTATHR
+/// background for tooltip: HEROQVBK
+class CHeroTooltip : public CArmyTooltip
+{
+	void init(const InfoAboutHero &hero);
+public:
+	CHeroTooltip(Point pos, const InfoAboutHero &hero);
+	CHeroTooltip(Point pos, const CGHeroInstance * hero);
+};
+
+/// Class for town tooltip. Does not have any background!
+/// background for infoBox: ADSTATCS
+/// background for tooltip: TOWNQVBK
+class CTownTooltip : public CArmyTooltip
+{
+	void init(const InfoAboutTown &town);
+public:
+	CTownTooltip(Point pos, const InfoAboutTown &town);
+	CTownTooltip(Point pos, const CGTownInstance * town);
+};
+
+///////////////////////////////////////////////////////////////////////////////
 
 class CGarrisonInt;
 
@@ -264,66 +308,16 @@ public:
 	void recreateSlots();
 
 	void splitClick(); //handles click on split button
-	void splitStacks(int am2); //TODO: comment me
+	void splitStacks(int amountLeft, int amountRight); //TODO: comment me
 	//x, y - position;
 	//inx - distance between slots;
 	//pomsur, SurOffset - UNUSED
 	//s1, s2 - top and bottom armies;
 	//removableUnits - you can take units from top;
 	//smallImgs - units images size 64x58 or 32x32;
-	//twoRows - display slots in 2 row (1st row = 4, 2nd = 3)
+	//twoRows - display slots in 2 row (1st row = 4 slots, 2nd = 3 slots)
 	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool _removableUnits = true, bool smallImgs = false, bool _twoRows=false); //c-tor
 	~CGarrisonInt(); //d-tor
-};
-
-/// List of heroes which is shown at the right of the adventure map screen
-class CHeroList
-	: public CList
-{
-public:
-	CDefHandler *mobile, *mana; //mana and movement indicators
-	int posmobx, posporx, posmanx, posmoby, pospory, posmany;
-
-	CHeroList(int Size); //c-tor
-	int getPosOfHero(const CGHeroInstance* h); //hero's position on list
-	void genList();
-	void select(int which); //call-in
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent); //call-in
-	void clickLeft(tribool down, bool previousState); //call-in
-	void clickRight(tribool down, bool previousState); //call-in
-	void hover (bool on); //call-in
-	void keyPressed (const SDL_KeyboardEvent & key); //call-in
-	void updateHList(const CGHeroInstance *toRemove=NULL); //removes specific hero from the list or recreates it
-	void updateMove(const CGHeroInstance* which); //draws move points bar
-	void draw(SDL_Surface * to);
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
-	void init();
-	int size(); //how many elements do we have
-};
-
-/// List of towns which is shown at the right of the adventure map screen
-class CTownList
-	: public CList
-{
-public:
-	boost::function<void()> fun; //function called on selection change
-	int posporx,pospory;
-
-	CTownList(int Size, int x, int y, std::string arrupg, std::string arrdog); //c-tor
-	~CTownList(); //d-tor
-	void genList();
-	void select(int which); //call-in
-	void selectNext(); //switches to the next town or the first one if none is selected
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent);  //call-in
-	void clickLeft(tribool down, bool previousState);  //call-in
-	void clickRight(tribool down, bool previousState); //call-in
-	void hover (bool on);  //call-in
-	void keyPressed (const SDL_KeyboardEvent & key);  //call-in
-	void draw(SDL_Surface * to);
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
-	int size(); //how many elements do we have
 };
 
 /// draws picture with creature on background, use Animated=true to get animation
@@ -380,26 +374,34 @@ public:
 };
 
 /// Split window where creatures can be splitted up into two single unit stacks
-class CSplitWindow : public CIntObject
+class CSplitWindow : public CWindowObject
 {
-public:
-	CGarrisonInt *gar;
+	boost::function<void(int, int)> callback;
+	int leftAmount;
+	int rightAmount;
+
+	int leftMin;
+	int rightMin;
+
 	CSlider *slider;
 	CCreaturePic *animLeft, *animRight; //creature's animation
 	CAdventureMapButton *ok, *cancel;
-	SDL_Surface *bitmap; //background
-	int a1, a2, c; //TODO: comment me
-	bool which; //which creature is selected
-	int last; //0/1/2 - at least one creature must be in the src/dst/both stacks; -1 - no restrictions
 
-	CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last = -1, int val=0); //c-tor; val - initial amount of second stack
-	~CSplitWindow(); //d-tor
-	void split();
-	void close();
-	void show(SDL_Surface * to);
-	void clickLeft(tribool down, bool previousState); //call-in
-	void keyPressed (const SDL_KeyboardEvent & key); //call-in
-	void sliderMoved(int to);
+	CTextInput *leftInput, *rightInput;
+	void setAmountText(std::string text, bool left);
+	void setAmount(int value, bool left);
+	void sliderMoved(int value);
+	void apply();
+
+public:
+	/**
+	 * creature - displayed creature
+	 * callback(leftAmount, rightAmount) - function to call on close
+	 * leftMin, rightMin - minimal amount of creatures in each stack
+	 * leftAmount, rightAmount - amount of creatures in each stack
+	 */
+	CSplitWindow(const CCreature * creature, boost::function<void(int, int)> callback,
+	             int leftMin, int rightMin, int leftAmount, int rightAmount);
 };
 
 /// Raised up level windowe where you can select one out of two skills
@@ -896,11 +898,11 @@ public:
 	friend class CArtPlace;
 };
 
-class CGarrisonHolder : public virtual CIntObject
+class CGarrisonHolder
 {
 public:
 	CGarrisonHolder();
-	virtual void updateGarrisons(){};
+	virtual void updateGarrisons(){}
 };
 
 class CWindowWithGarrison : public virtual CGarrisonHolder
@@ -1076,7 +1078,7 @@ public:
 };
 
 /// Hill fort is the building where you can upgrade units
-class CHillFortWindow : public CWindowWithGarrison
+class CHillFortWindow : public CIntObject, public CWindowWithGarrison
 {
 public:
 

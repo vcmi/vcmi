@@ -1,4 +1,4 @@
-#include "StdInc.h"
+#include "../StdInc.h"
 #include "CIntObject.h"
 #include "CGuiHandler.h"
 #include "SDL_Extensions.h"
@@ -138,7 +138,7 @@ CIntObject::CIntObject(int used_, Point pos_):
 
 void CIntObject::setTimer(int msToTrigger)
 {
-	if (!active & TIME )
+	if (!(active & TIME))
 		activateTimer();
 	toNextTick = timerDelay = msToTrigger;
 	used |= TIME;
@@ -170,10 +170,7 @@ void CIntObject::showAll(SDL_Surface * to)
 			if(children[i]->recActions & SHOWALL)
 				children[i]->showAll(to);
 
-	}//FIXME: needed?
-	/*
-	else
-		show(to);*/
+	}
 }
 
 void CIntObject::activate()
@@ -183,7 +180,10 @@ void CIntObject::activate()
 		if ((used | GENERAL) == active_m)
 			return;
 		else
+		{
+			tlog1 << "Warning: IntObject re-activated with mismatching used and active\n";
 			deactivate(); //FIXME: better to avoid such possibility at all
+		}
 	}
 
 	active_m |= GENERAL;
@@ -307,14 +307,14 @@ void CIntObject::printToLoc( const std::string & text, int x, int y, EFonts font
 void CIntObject::addUsedEvents(ui16 newActions)
 {
 	if (active_m)
-		activate(newActions & ~used);
+		activate(~used & newActions);
 	used |= newActions;
 }
 
 void CIntObject::removeUsedEvents(ui16 newActions)
 {
 	if (active_m)
-		deactivate(newActions & used);
+		deactivate(used & newActions);
 	used &= ~newActions;
 }
 
@@ -373,12 +373,12 @@ void CIntObject::addChild(CIntObject *child, bool adjustPosition /*= false*/)
 {
 	if (vstd::contains(children, child))
 	{
-		tlog4<< "Warning: object already assigned to this parent!\n";
+//		tlog4<< "Warning: object already assigned to this parent!\n";
 		return;
 	}
 	if (child->parent_m)
 	{
-		tlog4<< "Warning: object already has parent!\n";
+//		tlog4<< "Warning: object already has parent!\n";
 		child->parent_m->removeChild(child, adjustPosition);
 	}
 	children.push_back(child);
@@ -412,15 +412,20 @@ void CIntObject::drawBorderLoc(SDL_Surface * sur, const Rect &r, const int3 &col
 
 void CIntObject::redraw()
 {
-	if (parent_m && (type & REDRAW_PARENT))
+	//currently most of calls come from active objects so this check won't affect them
+	//it should fix glitches when called by inactive elements located below active window
+	if (active)
 	{
-		parent_m->redraw();
-	}
-	else
-	{
-		showAll(screenBuf);
-		if(screenBuf != screen)
-			showAll(screen);
+		if (parent_m && (type & REDRAW_PARENT))
+		{
+			parent_m->redraw();
+		}
+		else
+		{
+			showAll(screenBuf);
+			if(screenBuf != screen)
+				showAll(screen);
+		}
 	}
 }
 

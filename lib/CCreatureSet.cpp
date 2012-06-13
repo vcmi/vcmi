@@ -221,7 +221,10 @@ ui64 CCreatureSet::getPower (TSlot slot) const
 }
 std::string CCreatureSet::getRoughAmount (TSlot slot) const
 {
-	return VLC->generaltexth->arraytxt[174 + 3*CCreature::getQuantityID(getStackCount(slot))];
+	int quantity = CCreature::getQuantityID(getStackCount(slot));
+	if (quantity)
+		return VLC->generaltexth->arraytxt[174 + 3*CCreature::getQuantityID(getStackCount(slot))];
+	return "";
 }
 
 int CCreatureSet::stacksCount() const
@@ -897,7 +900,12 @@ void CStackInstance::setArmyObj(const CArmedInstance *ArmyObj)
 
 std::string CStackInstance::getQuantityTXT(bool capitalized /*= true*/) const
 {
-	return VLC->generaltexth->arraytxt[174 + getQuantityID()*3 + 2 - capitalized];
+	int quantity = getQuantityID();
+
+	if (quantity)
+		return VLC->generaltexth->arraytxt[174 + quantity*3 - 1 - capitalized];
+	else
+		return "";
 }
 
 bool CStackInstance::valid(bool allowUnrandomized) const

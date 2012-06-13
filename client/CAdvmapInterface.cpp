@@ -53,414 +53,6 @@ using namespace CSDL_Ext;
 
 CAdvMapInt *adventureInt;
 
-CMinimap::CMinimap()
-{
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	addUsedEvents(LCLICK | RCLICK | HOVER);
-	int3 mapSizes = LOCPLINT->cb->getMapSize();
-	statusbarTxt = CGI->generaltexth->zelp[291].first;
-	rcText = CGI->generaltexth->zelp[291].second;
-	pos.x=ADVOPT.minimapX;
-	pos.y=ADVOPT.minimapY;
-	pos.h=ADVOPT.minimapW;
-	pos.w=ADVOPT.minimapH;
-
-	temps = CSDL_Ext::createSurfaceWithBpp<4>(pos.w,pos.h);
-	aiShield = new CPicture("AISHIELD.bmp");
-
-	const JsonNode config(GameConstants::DATA_DIR + "/config/minimap.json");
-	const JsonVector &minimap_vec = config["MinimapColors"].Vector();
-
-	BOOST_FOREACH(const JsonNode &m, minimap_vec) {
-		std::pair<int,SDL_Color> vinya;
-
-		vinya.first = m["terrain_id"].Float();
-
-		const JsonVector &unblocked_vec = m["unblocked"].Vector();
-		vinya.second.r = unblocked_vec[0].Float();
-		vinya.second.g = unblocked_vec[1].Float();
-		vinya.second.b = unblocked_vec[2].Float();
-		vinya.second.unused = 255;
-		colors.insert(vinya);
-
-		const JsonVector &blocked_vec = m["blocked"].Vector();
-		vinya.second.r = blocked_vec[0].Float();
-		vinya.second.g = blocked_vec[1].Float();
-		vinya.second.b = blocked_vec[2].Float();
-		vinya.second.unused = 255;
-		colorsBlocked.insert(vinya);
-	}
-}
-
-CMinimap::~CMinimap()
-{
-	SDL_FreeSurface(temps);
-	for (std::map<int, CMinimapSurfacesRef>::iterator it = surfs.begin(); it != surfs.end(); ++it)
-	{
-		it->second.free();
-	}
-}
-
-void CMinimap::draw(SDL_Surface * to)
-{
-	int player = adventureInt->player;
-	if(LOCPLINT->makingTurn)
-	{
-		int3 mapSizes = LOCPLINT->cb->getMapSize();
-		//draw terrain
-		blitAt(surfs[player].map()[adventureInt->position.z],0,0,temps);
-
-		//draw heroes
-		std::vector <const CGHeroInstance *> hh = LOCPLINT->cb->getHeroesInfo(false);
-		int mw = surfs[player].map()[0]->w, mh = surfs[player].map()[0]->h,
-			wo = mw/mapSizes.x, ho = mh/mapSizes.y;
-
-		for (size_t i=0; i < hh.size(); ++i)
-		{
-			int3 hpos = hh[i]->getPosition(false);
-			if(hpos.z!=adventureInt->position.z)
-				continue;
-
-			int3 maplgp ( (hpos.x*mw)/mapSizes.x, (hpos.y*mh)/mapSizes.y, hpos.z );
-			for (int ii=0; ii<wo; ii++)
-			{
-				for (int jj=0; jj<ho; jj++)
-				{
-					SDL_PutPixelWithoutRefresh(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[hh[i]->getOwner()].r,
-						graphics->playerColors[hh[i]->getOwner()].g,graphics->playerColors[hh[i]->getOwner()].b);
-				}
-			}
-		}
-
-		blitAt(surfs[player].flObjs()[adventureInt->position.z],0,0,temps);
-
-		blitAt(surfs[player].FoW()[adventureInt->position.z],0,0,temps);
-
-		//draw radar
-		const int tilesw=(ADVOPT.advmapW+31)/32;
-		const int tilesh=(ADVOPT.advmapH+31)/32;
-		int bx = static_cast<int>((adventureInt->position.x / static_cast<double>(mapSizes.x)) * pos.w),
-			by = static_cast<int>((adventureInt->position.y / static_cast<double>(mapSizes.y)) * pos.h),
-			rx = static_cast<int>((tilesw / static_cast<double>(mapSizes.x)) * pos.w), //width
-			ry = static_cast<int>((tilesh / static_cast<double>(mapSizes.y)) * pos.h); //height
-
-		CSDL_Ext::drawDashedBorder(temps, Rect(bx, by, rx, ry), int3(255,75,125));
-
-		//blitAt(radar,bx,by,temps);
-		blitAt(temps,pos.x,pos.y,to);
-	}
-	else
-	{
-		aiShield->showAll(to);
-	}
-}
-
-CMinimapSurfacesRef::CMinimapSurfacesRef() : ready(false)
-{
-}
-
-
-void CMinimapSurfacesRef::redraw(int level)
-{
-	ready = true;
-	initMap(level);
-
-	//FoW
-	initFoW(level);
-
-	//flaggable objects
-	initFlaggableObjs(level);
-
-	//showing tiles
-	showVisibleTiles();
-}
-
-void CMinimapSurfacesRef::initMap(int level)
-{
-	const Rect &minimap_pos = adventureInt->minimap.pos;
-	std::map<int,SDL_Color> &colors = adventureInt->minimap.colors;
-	std::map<int,SDL_Color> &colorsBlocked = adventureInt->minimap.colorsBlocked;
-	int3 mapSizes = LOCPLINT->cb->getMapSize();
-	for (size_t i=0; i<CGI->mh->sizes.z; i++)
-	{
-		SDL_Surface *pom;
-		if ((level>=0) && (i!=level))
-			continue;
-		if (map_.size()<i+1)
-			pom = CSDL_Ext::newSurface(minimap_pos.w,minimap_pos.h,screen);
-		else pom = map_[i];
-		for (int x=0;x<minimap_pos.w;x++)
-		{
-			for (int y=0;y<minimap_pos.h;y++)
-			{
-				int mx=(mapSizes.x*x)/minimap_pos.w;
-				int my=(mapSizes.y*y)/minimap_pos.h;
-				const TerrainTile * tile = LOCPLINT->cb->getTile(int3(mx, my, i), false);
-				if(tile)
-				{
-					if (tile->blocked && (!tile->visitable))
-						SDL_PutPixelWithoutRefresh(pom, x, y, colorsBlocked[tile->tertype].r, colorsBlocked[tile->tertype].g, colorsBlocked[tile->tertype].b);
-					else
-						SDL_PutPixelWithoutRefresh(pom, x, y, colors[tile->tertype].r, colors[tile->tertype].g, colors[tile->tertype].b);
-				}
-			}
-		}
-		map_.push_back(pom);
-
-	}
-}
-
-void CMinimapSurfacesRef::initFoW(int level)
-{
-	const Rect &minimap_pos = adventureInt->minimap.pos;
-	int3 mapSizes = LOCPLINT->cb->getMapSize();
-	int mw = map_[0]->w, mh = map_[0]->h;//,
-		//wo = mw/mapSizes.x, ho = mh/mapSizes.y; //TODO use me
-	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
-	{
-		if(level>=0 && d!=level)
-			continue;
-		SDL_Surface * pt = CSDL_Ext::createSurfaceWithBpp<4>(minimap_pos.w, minimap_pos.h);
-		for (int i=0; i<mw; i++)
-		{
-			for (int j=0; j<mh; j++)
-			{
-				int3 pp( ((i*mapSizes.x)/mw), ((j*mapSizes.y)/mh), d );
-				if ( !LOCPLINT->cb->isVisible(pp) )
-				{
-					CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0);
-				}
-			}
-		}
-		FoW_.push_back(pt);
-	}
-}
-
-void CMinimapSurfacesRef::initFlaggableObjs(int level)
-{
-	const Rect &minimap_pos = adventureInt->minimap.pos;
-	int mw = map_[0]->w, mh = map_[0]->h;
-	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
-	{
-		if(level>=0 && d!=level)
-			continue;
-		SDL_Surface * pt = CSDL_Ext::createSurfaceWithBpp<4>(minimap_pos.w, minimap_pos.h);
-		for (int i=0; i<mw; i++)
-		{
-			for (int j=0; j<mh; j++)
-			{
-				CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0,0);
-			}
-		}
-		flObjs_.push_back(pt);
-	}
-}
-
-void CMinimap::updateRadar()
-{}
-
-void CMinimap::clickRight(tribool down, bool previousState)
-{
-	adventureInt->handleRightClick(rcText,down);
-}
-
-void CMinimap::clickLeft(tribool down, bool previousState)
-{
-	if (down)
-		addUsedEvents(MOVE);
-	else
-		removeUsedEvents(MOVE);
-
-	//ClickableL::clickLeft(down);
-	if (!((bool)down))
-		return;
-
-	double dx = (GH.current->motion.x - pos.x) / static_cast<double>(pos.w),
-		dy = (GH.current->motion.y - pos.y) / static_cast<double>(pos.h);
-
-	int3 newCPos;
-	newCPos.x = (CGI->mh->sizes.x*dx);
-	newCPos.y = (CGI->mh->sizes.y*dy);
-	newCPos.z = adventureInt->position.z;
-	adventureInt->centerOn(newCPos);
-}
-
-void CMinimap::hover (bool on)
-{
-	//Hoverable::hover(on);
-	if (on)
-		adventureInt->statusbar.print(statusbarTxt);
-	else if (adventureInt->statusbar.current==statusbarTxt)
-		adventureInt->statusbar.clear();
-}
-
-void CMinimap::mouseMoved (const SDL_MouseMotionEvent & sEvent)
-{
-	if (pressedL)
-	{
-		clickLeft(true, true);
-	}
-}
-void CMinimap::activate()
-{
-	CIntObject::activate();
-}
-
-void CMinimap::deactivate()
-{
-	CIntObject::deactivate();
-}
-
-std::vector<SDL_Surface*> & CMinimapSurfacesRef::map()
-{
-	if (!ready) redraw();
-	return map_;
-}
-std::vector<SDL_Surface*> & CMinimapSurfacesRef::FoW()
-{
-	if (!ready) redraw();
-	return FoW_;
-}
-std::vector<SDL_Surface*> & CMinimapSurfacesRef::flObjs()
-{
-	if (!ready) redraw();
-	return flObjs_;
-}
-
-void CMinimapSurfacesRef::free()
-{
-	if (ready)
-	{
-		for (int g = 0; g < map_.size(); ++g)
-			SDL_FreeSurface(map_[g]);
-		map_.clear();
-
-		for (int g = 0; g < FoW_.size(); ++g)
-			SDL_FreeSurface(FoW_[g]);
-		FoW_.clear();
-
-		for (int g = 0; g < flObjs_.size(); ++g)
-			SDL_FreeSurface(flObjs_[g]);
-		flObjs_.clear();
-	}
-}
-
-void CMinimap::showTile(const int3 &pos)
-{
-	const int player = adventureInt->player;
-	std::vector<SDL_Surface*> &map = surfs[player].map();
-	std::vector<SDL_Surface*> &FoW = surfs[player].FoW();
-	std::vector<SDL_Surface*> &flObjs = surfs[player].flObjs();
-	int3 mapSizes = LOCPLINT->cb->getMapSize();
-	//drawing terrain
-	int mw = map[0]->w, mh = map[0]->h;
-	double wo = ((double)mw)/mapSizes.x, ho = ((double)mh)/mapSizes.y;
-	for (int ii=0; ii<wo; ii++)
-	{
-		for (int jj=0; jj<ho; jj++)
-		{
-			if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
-				CSDL_Ext::SDL_PutPixelWithoutRefresh(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0);
-
-			const TerrainTile * tile = LOCPLINT->cb->getTile(pos, false);
-			if(tile)
-			{
-				if (tile->blocked && (!tile->visitable))
-					SDL_PutPixelWithoutRefresh(surfs[player].map()[pos.z], pos.x*wo+ii, pos.y*ho+jj, colorsBlocked[tile->tertype].r, colorsBlocked[tile->tertype].g, colorsBlocked[tile->tertype].b);
-				else
-					SDL_PutPixelWithoutRefresh(surfs[player].map()[pos.z], pos.x*wo+ii, pos.y*ho+jj, colors[tile->tertype].r, colors[tile->tertype].g, colors[tile->tertype].b);
-			}
-		}
-	}
-	//drawing flaggable objects
-	int woShifted = wo, hoShifted = ho; //for better minimap rendering on L-sized maps
-	std::vector < const CGObjectInstance * > oo = LOCPLINT->cb->getFlaggableObjects(pos);
-	for(size_t v=0; v<oo.size(); ++v)
-	{
-		if(!dynamic_cast< const CGHeroInstance * >(oo[v])) //heroes have been printed
-		{
-			int3 maplgp ( (pos.x*mw)/mapSizes.x, (pos.y*mh)/mapSizes.y, pos.z );
-			if(((int)wo) * mapSizes.x != mw   &&   pos.x+1 < mapSizes.x)//minimap size in X is not multiple of map size in X
-
-			{
-				std::vector < const CGObjectInstance * > op1x = LOCPLINT->cb->getFlaggableObjects(int3(pos.x+1, pos.y, pos.z));
-				if(op1x.size()!=0)
-				{
-					woShifted = wo + 1;
-				}
-				else
-				{
-					woShifted = wo;
-				}
-			}
-			if(((int)ho) * mapSizes.y != mh   &&   pos.y+1 < mapSizes.y) //minimap size in Y is not multiple of map size in Y
-			{
-				std::vector < const CGObjectInstance * > op1y = LOCPLINT->cb->getFlaggableObjects(int3(pos.x, pos.y+1, pos.z));
-				if(op1y.size()!=0)
-				{
-					hoShifted = ho + 1;
-				}
-				else
-				{
-					hoShifted = ho;
-				}
-			}
-
-			for (int ii=0; ii<woShifted; ii++) //rendering flaggable objects
-			{
-				for (int jj=0; jj<hoShifted; jj++)
-				{
-					if(oo[v]->tempOwner == 255)
-						SDL_PutPixelWithoutRefresh(flObjs[pos.z],maplgp.x+ii,maplgp.y+jj,graphics->neutralColor->r,
-							graphics->neutralColor->g,graphics->neutralColor->b);
-					else
-						SDL_PutPixelWithoutRefresh(flObjs[pos.z],maplgp.x+ii,maplgp.y+jj,graphics->playerColors[oo[v]->getOwner()].r,
-							graphics->playerColors[oo[v]->getOwner()].g,graphics->playerColors[oo[v]->getOwner()].b);
-				}
-			}
-		}
-	}
-	//flaggable objects drawn
-}
-
-void CMinimapSurfacesRef::showVisibleTiles(int level)
-{
-	int3 mapSizes = LOCPLINT->cb->getMapSize();
-	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
-	{
-		if(level>=0 && d!=level)
-			continue;
-		for(int x=0; x<mapSizes.x; ++x)
-		{
-			for(int y=0; y<mapSizes.y; ++y)
-			{
-				if(LOCPLINT->cb->isVisible(int3(x, y, d)))
-				{
-					adventureInt->minimap.showTile(int3(x, y, d));
-				}
-			}
-		}
-	}
-}
-
-void CMinimap::hideTile(const int3 &pos)
-{
-	const int player = adventureInt->player;
-	std::vector<SDL_Surface*> &map = surfs[player].map();
-	std::vector<SDL_Surface*> &FoW = surfs[player].FoW();
-	int3 mapSizes = LOCPLINT->cb->getMapSize();
-	//drawing terrain
-	int mw = map[0]->w, mh = map[0]->h;
-	double wo = ((double)mw)/mapSizes.x, ho = ((double)mh)/mapSizes.y;
-	for (int ii=0; ii<wo; ii++)
-	{
-		for (int jj=0; jj<ho; jj++)
-		{
-			if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
-				CSDL_Ext::SDL_PutPixelWithoutRefresh(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0);
-		}
-	}
-}
 
 CTerrainRect::CTerrainRect()
 	:curHoveredTile(-1,-1,-1), currentPath(NULL)
@@ -769,207 +361,9 @@ void CResDataBar::showAll(SDL_Surface * to)
 	draw(to);
 }
 
-
-CInfoBar::CInfoBar()
-{
-	pom = -1;
-	mode = NOTHING;
-	pos.x=ADVOPT.infoboxX;
-	pos.y=ADVOPT.infoboxY;
-	pos.w=194;
-	pos.h=186;
-	day = CDefHandler::giveDef("NEWDAY.DEF");
-	week1 = CDefHandler::giveDef("NEWWEEK1.DEF");
-	week2 = CDefHandler::giveDef("NEWWEEK2.DEF");
-	week3 = CDefHandler::giveDef("NEWWEEK3.DEF");
-	week4 = CDefHandler::giveDef("NEWWEEK4.DEF");
-	hourglass = CDefHandler::giveDef("HOURGLAS.DEF");
-	hourglassSand = CDefHandler::giveDef("HOURSAND.DEF");
-	selInfoWin = NULL;
-}
-CInfoBar::~CInfoBar()
-{
-	delete day;
-	delete week1;
-	delete week2;
-	delete week3;
-	delete week4;
-
-	if(selInfoWin)
-		SDL_FreeSurface(selInfoWin);
-}
-
-void CInfoBar::showAll(SDL_Surface * to)
-{
-	if (mode >= NEW_DAY  &&  mode <= NEW_WEEK4)
-	{
-		blitAnim(mode);
-	}
-	else if(mode == ENEMY_TURN)
-	{
-		CPicture bg("ADSTATOT.bmp");
-		bg.convertToScreenBPP();
-		CAnimImage ai("CREST58", enemyTurnInfo.color, 0, 20, 51);
-		ai.showAll(&*bg);
-
-		int hourglassFrame = enemyTurnInfo.progress * hourglass->ourImages.size();
-		static int sandFrame = 0;
-		vstd::amin(hourglassFrame, hourglass->ourImages.size()-1);
-		blitAt(hourglassSand->ourImages[sandFrame++ % hourglassSand->ourImages.size()].bitmap, 99, 51, bg);
-		blitAt(hourglass->ourImages[hourglassFrame].bitmap, 99, 51, bg);
-		blitAtLoc(bg, 8, 11, to);
-	}
-	else if(selInfoWin)
-	{
-		blitAt(selInfoWin, pos.x, pos.y, to);
-	}
-}
-
-CDefHandler * CInfoBar::getAnim(EMode mode)
-{
-	switch(mode)
-	{
-	case NEW_DAY:
-		return day;
-	case NEW_WEEK1:
-		return week1;
-	case NEW_WEEK2:
-		return week2;
-	case NEW_WEEK3:
-		return week3;
-	case NEW_WEEK4:
-		return week4;
-	default:
-		return NULL;
-	}
-}
-
-void CInfoBar::blitAnim(EMode mode)//0 - day, 1 - week
-{
-	CDefHandler * anim = NULL;
-	std::ostringstream txt;
-	anim = getAnim(mode);
-	if(mode > NEW_DAY) //new week animation
-	{
-		txt << CGI->generaltexth->allTexts[63] << " " << LOCPLINT->cb->getDate(2);
-	}
-	else if(mode == NEW_DAY) //new day
-	{
-		txt << CGI->generaltexth->allTexts[64] << " " << LOCPLINT->cb->getDate(1);
-	}
-	blitAt(anim->ourImages[pom].bitmap,pos.x+9,pos.y+10);
-	printAtMiddle(txt.str(),pos.x+95,pos.y+31,FONT_MEDIUM,Colors::Cornsilk);
-	if (pom == anim->ourImages.size()-1)
-		setTimer(750);
-}
-
-void CInfoBar::newDay(int Day)
-{
-	if(LOCPLINT->cb->getDate(1) != 1)
-	{
-		mode = NEW_DAY; //showing day
-	}
-	else
-	{
-		switch(LOCPLINT->cb->getDate(2))
-		{
-		case 1:
-			mode = NEW_WEEK1;
-			break;
-		case 2:
-			mode = NEW_WEEK2;
-			break;
-		case 3:
-			mode = NEW_WEEK3;
-			break;
-		case 4:
-			mode = NEW_WEEK4;
-			break;
-		default:
-			mode = NOTHING;
-			break;
-		}
-	}
-	pom = 0;
-	setTimer(500);
-	blitAnim(mode);
-}
-
-void CInfoBar::showComp(const CComponent * comp, int time/*=5000*/)
-{
-	if(comp->type != CComponent::hero)
-	{
-		curSel = NULL;
-	}
-
-	SDL_Surface * b = BitmapHandler::loadBitmap("ADSTATOT.bmp");
-	blitAt(b,pos.x+8,pos.y+11);
-
-	CComponent* tempComp = (CComponent*)comp; //evil. TODO: remove need to move component
-	tempComp->moveTo(Point(pos.x+52, pos.y+54));
-	tempComp->showAll(screen);
-	printAtMiddle(comp->subtitle,pos.x+91,pos.y+158,FONT_SMALL,Colors::Cornsilk);
-	printAtMiddleWB(comp->description,pos.x+94,pos.y+31,FONT_SMALL,26,Colors::Cornsilk);
-	SDL_FreeSurface(b);
-	setTimer(time);
-	mode = SHOW_COMPONENT;
-}
-
-void CInfoBar::tick()
-{
-	if(mode >= NEW_DAY  &&  mode <= NEW_WEEK4) //animation
-	{
-		pom++;
-		if (pom >= getAnim(mode)->ourImages.size())
-		{
-			removeUsedEvents(TIME);
-			mode = NOTHING;
-		}
-	}
-	else if(mode == SHOW_COMPONENT)
-	{
-		removeUsedEvents(TIME);
-		mode = NOTHING;
-	}
-
-	if(adventureInt == GH.topInt())
-		redraw();
-}
-
-void CInfoBar::show(SDL_Surface * to)
-{
-
-}
-
-void CInfoBar::deactivate()
-{
-	CIntObject::deactivate();
-
-	mode = NOTHING;
-}
-
-void CInfoBar::updateSelection(const CGObjectInstance *obj)
-{
-	if(obj->ID == GameConstants::HEROI_TYPE)
-		curSel = static_cast<const CGHeroInstance*>(obj);
-	else
-		curSel = NULL;
-	if(selInfoWin)
-		SDL_FreeSurface(selInfoWin);
-	selInfoWin = LOCPLINT->infoWin(obj);
-}
-
-void CInfoBar::enemyTurn(ui8 color, double progress)
-{
-	mode = ENEMY_TURN;
-	enemyTurnInfo.color = color;
-	enemyTurnInfo.progress = progress;
-	redraw();
-	setTimer(250);
-}
-
-CAdvMapInt::CAdvMapInt()
-:statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
+CAdvMapInt::CAdvMapInt():
+    minimap(Rect(ADVOPT.minimapX, ADVOPT.minimapY, ADVOPT.minimapW, ADVOPT.minimapH)),
+statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
 kingOverview(CGI->generaltexth->zelp[293].first,CGI->generaltexth->zelp[293].second,
 			 boost::bind(&CAdvMapInt::fshowOverview,this),&ADVOPT.kingOverview, SDLK_k),
 
@@ -1000,8 +394,9 @@ nextHero(CGI->generaltexth->zelp[301].first,CGI->generaltexth->zelp[301].second,
 endTurn(CGI->generaltexth->zelp[302].first,CGI->generaltexth->zelp[302].second,
 		  boost::bind(&CAdvMapInt::fendTurn,this), &ADVOPT.endTurn, SDLK_e),
 
-heroList(ADVOPT.hlistSize),
-townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD)//(5,&genRect(192,48,747,196),747,196,747,372),
+heroList(ADVOPT.hlistSize, Point(ADVOPT.hlistX, ADVOPT.hlistY), ADVOPT.hlistAU, ADVOPT.hlistAD),
+townList(ADVOPT.tlistSize, Point(ADVOPT.tlistX, ADVOPT.tlistY), ADVOPT.tlistAU, ADVOPT.tlistAD),
+infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 {
 	duringAITurn = false;
 	state = NA;
@@ -1010,7 +405,7 @@ townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlis
 	pos.w = screen->w;
 	pos.h = screen->h;
 	selection = NULL;
-	townList.fun = boost::bind(&CAdvMapInt::selectionChanged,this);
+	townList.onSelect = boost::bind(&CAdvMapInt::selectionChanged,this);
 	adventureInt=this;
 	bg = BitmapHandler::loadBitmap(ADVOPT.mainGraphic);
 	scrollingDir = 0;
@@ -1019,12 +414,6 @@ townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlis
 	animValHitCount=0; //animation frame
 	heroAnim=0;
 	heroAnimValHitCount=0; // hero animation frame
-
-	heroList.init();
-	heroList.genList();
-	//townList.init();
-	//townList.genList();
-
 
 	for (int g=0; g<ADVOPT.gemG.size(); ++g)
 	{
@@ -1066,7 +455,7 @@ void CAdvMapInt::fswitchLevel()
 		underground.showAll(screenBuf);
 	}
 	updateScreen = true;
-	minimap.draw(screenBuf);
+	minimap.setLevel(position.z);
 }
 void CAdvMapInt::fshowQuestlog()
 {
@@ -1122,10 +511,11 @@ void CAdvMapInt::fsystemOptions()
 
 void CAdvMapInt::fnextHero()
 {
-	int next = getNextHeroIndex(heroList.selected);
+	auto hero = dynamic_cast<const CGHeroInstance*>(selection);
+	int next = getNextHeroIndex(vstd::find_pos(LOCPLINT->wanderingHeroes, hero));
 	if (next < 0)
 		return;
-	heroList.select(next);
+	select(LOCPLINT->wanderingHeroes[next], true);
 }
 
 void CAdvMapInt::fendTurn()
@@ -1193,7 +583,7 @@ int CAdvMapInt::getNextHeroIndex(int startIndex)
 
 void CAdvMapInt::updateNextHero(const CGHeroInstance *h)
 {
-	int start = heroList.getPosOfHero(h);
+	int start = vstd::find_pos(LOCPLINT->wanderingHeroes, h);
 	int next = getNextHeroIndex(start);
 	if (next < 0)
 	{
@@ -1279,9 +669,9 @@ void CAdvMapInt::showAll(SDL_Surface * to)
 	nextHero.showAll(to);
 	endTurn.showAll(to);
 
-	minimap.draw(to);
-	heroList.draw(to);
-	townList.draw(to);
+	minimap.showAll(to);
+	heroList.showAll(to);
+	townList.showAll(to);
 	updateScreen = true;
 	show(to);
 
@@ -1350,7 +740,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 		if(scrollingDir)
 		{
 			updateScreen = true;
-			updateMinimap=true;
+			minimap.redraw();
 		}
 	}
 	if(updateScreen)
@@ -1361,31 +751,30 @@ void CAdvMapInt::show(SDL_Surface * to)
 		updateScreen=false;
 		LOCPLINT->cingconsole->showAll(to);
 	}
-	if (updateMinimap)
-	{
-		minimap.draw(to);
-		updateMinimap=false;
-	}
+	infoBar.show(to);
+	statusbar.showAll(to);
 }
 
 void CAdvMapInt::selectionChanged()
 {
-	const CGTownInstance *to = LOCPLINT->towns[townList.selected];
+	const CGTownInstance *to = LOCPLINT->towns[townList.getSelectedIndex()];
 	select(to);
 }
 void CAdvMapInt::centerOn(int3 on)
 {
+	bool switchedLevels = on.z != position.z;
+
 	on.x -= CGI->mh->frameW;
 	on.y -= CGI->mh->frameH;
 
 	on = LOCPLINT->repairScreenPos(on);
 
-	adventureInt->position = on;
-	adventureInt->updateScreen=true;
-	updateMinimap=true;
+	position = on;
+	updateScreen=true;
 	underground.setIndex(on.z,true); //change underground switch button image
-	if(GH.topInt() == this)
-		underground.redraw();
+	underground.redraw();
+	if (switchedLevels)
+		minimap.setLevel(position.z);
 }
 
 void CAdvMapInt::centerOn(const CGObjectInstance *obj)
@@ -1599,30 +988,30 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 	terrain.currentPath = NULL;
 	if(sel->ID==GameConstants::TOWNI_TYPE)
 	{
-		int pos = vstd::find_pos(LOCPLINT->towns,sel);
-		townList.selected = pos;
-		townList.fixPos();
+		auto town = dynamic_cast<const CGTownInstance*>(sel);
+
+		infoBar.showTownSelection(town, false);
+		townList.select(town);
+		heroList.select(nullptr);
+
 		updateSleepWake(NULL);
 		updateMoveHero(NULL);
 	}
 	else //hero selected
 	{
-		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(sel);
-		if(LOCPLINT->getWHero(heroList.selected) != h)
-		{
-			heroList.selected = heroList.getPosOfHero(h);
-			heroList.fixPos();
-		}
+		auto hero = dynamic_cast<const CGHeroInstance*>(sel);
 
-		terrain.currentPath = LOCPLINT->getAndVerifyPath(h);
+		infoBar.showHeroSelection(hero, false);
+		heroList.select(hero);
+		townList.select(nullptr);
 
-		updateSleepWake(h);
-		updateMoveHero(h);
+		terrain.currentPath = LOCPLINT->getAndVerifyPath(hero);
+
+		updateSleepWake(hero);
+		updateMoveHero(hero);
 	}
-	townList.draw(screen);
-	heroList.draw(screen);
-	infoBar.updateSelection(sel);
-	infoBar.showAll(screen);
+	townList.redraw();
+	heroList.redraw();
 }
 
 void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
@@ -1702,6 +1091,7 @@ void CAdvMapInt::startTurn()
 	if(LOCPLINT->cb->getCurrentPlayer() == LOCPLINT->playerID)
 	{
 		adjustActiveness(false);
+		minimap.setAIRadar(false);
 	}
 }
 
@@ -2091,8 +1481,9 @@ void CAdvMapInt::aiTurnStarted()
 {
 	adjustActiveness(true);
 	CCS->musich->playMusicFromSet(CCS->musich->aiMusics);
-	adventureInt->minimap.redraw();
-	adventureInt->infoBar.enemyTurn(LOCPLINT->cb->getCurrentPlayer(), 0.5);
+	adventureInt->minimap.setAIRadar(true);
+	adventureInt->infoBar.startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
+	adventureInt->infoBar.showAll(screen);//force refresh on inactive object
 }
 
 void CAdvMapInt::adjustActiveness(bool aiTurnStart)
@@ -2106,32 +1497,26 @@ void CAdvMapInt::adjustActiveness(bool aiTurnStart)
 		activate();
 }
 
-CAdventureOptions::CAdventureOptions()
+CAdventureOptions::CAdventureOptions():
+    CWindowObject("ADVOPTS", PLAYER_COLORED)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	bg = new CPicture("ADVOPTS.bmp");
-	graphics->blueToPlayersAdv(bg->bg, LOCPLINT->playerID);
-	pos = bg->center();
-	exit = new CAdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
+
+	exit = new CAdventureMapButton("","",boost::bind(&CAdventureOptions::close, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
-	//scenInfo = new CAdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 24, "ADVINFO.DEF",SDLK_i);
-	scenInfo = new CAdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 198, "ADVINFO.DEF",SDLK_i);
+	scenInfo = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 198, "ADVINFO.DEF",SDLK_i);
 	scenInfo->callback += CAdventureOptions::showScenarioInfo;
 	//viewWorld = new CAdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
 
-	puzzle = new CAdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 81, "ADVPUZ.DEF");
+	puzzle = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 81, "ADVPUZ.DEF");
 	puzzle->callback += boost::bind(&CPlayerInterface::showPuzzleMap, LOCPLINT);
 
-	dig = new CAdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 139, "ADVDIG.DEF");
+	dig = new CAdventureMapButton("","", boost::bind(&CAdventureOptions::close, this), 24, 139, "ADVDIG.DEF");
 	if(const CGHeroInstance *h = adventureInt->curHero())
 		dig->callback += boost::bind(&CPlayerInterface::tryDiggging, LOCPLINT, h);
 	else
 		dig->block(true);
-}
-
-CAdventureOptions::~CAdventureOptions()
-{
 }
 
 void CAdventureOptions::showScenarioInfo()

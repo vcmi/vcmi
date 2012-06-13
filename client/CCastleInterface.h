@@ -217,7 +217,7 @@ public:
 	HeroSlots *heroes;
 	CCastleBuildings *builds;
 
-	CCastleInterface(const CGTownInstance * Town, int listPos = 1); //c-tor
+	CCastleInterface(const CGTownInstance * Town, const CGTownInstance * from = nullptr); //c-tor
 	~CCastleInterface();
 
 	void castleTeleport(int where);
@@ -269,7 +269,6 @@ class CBuildWindow: public CWindowObject
 	const CGTownInstance *town;
 	const CBuilding *building;
 	int state; //state - same as CHallInterface::CBuildingBox::state
-	bool mode; // 0 - normal (with buttons), 1 - r-click popup
 
 	CAnimImage *buildingPic;
 	CAdventureMapButton *buy;
@@ -287,9 +286,7 @@ class CBuildWindow: public CWindowObject
 	void buyFunc();
 
 public:
-	void clickRight(tribool down, bool previousState);
-	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, int State, bool Mode); //c-tor
-	~CBuildWindow(); //d-tor
+	CBuildWindow(const CGTownInstance *Town, const CBuilding * building, int State, bool rightClick); //c-tor
 };
 
 //Small class to display 

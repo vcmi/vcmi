@@ -43,121 +43,6 @@ using namespace CSDL_Ext;
 
 Graphics * graphics = NULL;
 
-SDL_Surface * Graphics::drawHeroInfoWin(const InfoAboutHero &curh)
-{
-	char buf[15];
-	blueToPlayersAdv(hInfo,curh.owner);
-	SDL_Surface * ret = SDL_DisplayFormat(hInfo);
-	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
-
-	printAt(curh.name,75,13,FONT_SMALL,Colors::Cornsilk,ret); //name
-	blitAt(graphics->portraitLarge[curh.portrait],11,12,ret); //portrait
-
-	//army
-	for (ArmyDescriptor::const_iterator i = curh.army.begin(); i!=curh.army.end();i++)
-	{
-		blitAt(graphics->smallImgs[i->second.type->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
-		if(curh.details)
-		{
-			SDL_itoa((*i).second.count,buf,10);
-			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,Colors::Cornsilk,ret);
-		}
-		else
-		{
-			printAtMiddle(VLC->generaltexth->arraytxt[174 + 3*(i->second.count)],slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,Colors::Cornsilk,ret);
-		}
-	}
-
-	if(curh.details)
-	{
-		for (int i = 0; i < GameConstants::PRIMARY_SKILLS; i++)
-		{
-			SDL_itoa(curh.details->primskills[i], buf, 10);
-			printAtMiddle(buf,84+28*i,70,FONT_SMALL,Colors::Cornsilk,ret);
-		}
-
-		//mana points
-		SDL_itoa(curh.details->mana,buf,10);
-		printAtMiddle(buf,167,108,FONT_TINY,Colors::Cornsilk,ret); 
-
-		blitAt(morale22->ourImages[curh.details->morale+3].bitmap,14,84,ret);	//luck
-		blitAt(luck22->ourImages[curh.details->morale+3].bitmap,14,101,ret);	//morale
-	}
-	return ret;
-}
-
-SDL_Surface * Graphics::drawHeroInfoWin(const CGHeroInstance * curh)
-{
-	InfoAboutHero iah;
-	iah.initFromHero(curh, true);
-	return drawHeroInfoWin(iah);
-}
-
-SDL_Surface * Graphics::drawTownInfoWin(const CGTownInstance * curh)
-{
-	InfoAboutTown iah;
-	iah.initFromTown(curh, true);
-	return drawTownInfoWin(iah);
-}
-
-SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
-{
-	char buf[10];
-	blueToPlayersAdv(tInfo,curh.owner);
-	SDL_Surface * ret = SDL_DisplayFormat(tInfo);
-	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
-
-	printAt(curh.name,75,12,FONT_SMALL,Colors::Cornsilk,ret); //name
-	int pom = curh.fortLevel - 1; if(pom<0) pom = 3; //fort pic id
-	blitAt(forts->ourImages[pom].bitmap,115,42,ret); //fort
-
-	for (ArmyDescriptor::const_iterator i=curh.army.begin(); i!=curh.army.end();i++)
-	{
-		//if(!i->second.second)
-		//	continue;
-		blitAt(graphics->smallImgs[(*i).second.type->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
-		if(curh.details)
-		{
-			// Show exact creature amount.
-			SDL_itoa((*i).second.count,buf,10);
-			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,Colors::Cornsilk,ret);
-		}
-		else
-		{
-			// Show only a rough amount for creature stacks.
-			// TODO: Deal with case when no information at all about size shold be presented.
-			std::string roughAmount = curh.obj->getRoughAmount(i->first);
-			printAtMiddle(roughAmount,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+41,FONT_TINY,Colors::Cornsilk,ret);
-		}
-	}
-
-	//blit town icon
-	if (curh.tType) {
-		pom = curh.tType->typeID*2;
-		if (!curh.fortLevel)
-			pom += GameConstants::F_NUMBER*2;
-		if(curh.built)
-			pom++;
-		blitAt(bigTownPic->ourImages[pom].bitmap,13,13,ret);
-	}
-
-	if(curh.details)
-	{
-		//hall level icon
-		if((pom=curh.details->hallLevel) >= 0)
-			blitAt(halls->ourImages[pom].bitmap, 77, 42, ret);
-
-		if (curh.details->goldIncome >= 0) {
-			SDL_itoa(curh.details->goldIncome, buf, 10); //gold income
-			printAtMiddle(buf, 167, 70, FONT_TINY, Colors::Cornsilk, ret);
-		}
-		if(curh.details->garrisonedHero) //garrisoned hero icon
-			blitAt(graphics->heroInGarrison,158,87,ret);
-	}
-
-	return ret;
-}
-
 void Graphics::loadPaletteAndColors()
 {
 	std::string pals = bitmaph->getTextFile("PLAYERS.PAL", FILE_OTHER);
@@ -249,14 +134,6 @@ void Graphics::initializeBattleGraphics()
 }
 Graphics::Graphics()
 {
-	slotsPos.push_back(std::pair<int,int>(44,82));
-	slotsPos.push_back(std::pair<int,int>(80,82));
-	slotsPos.push_back(std::pair<int,int>(116,82));
-	slotsPos.push_back(std::pair<int,int>(26,131));
-	slotsPos.push_back(std::pair<int,int>(62,131));
-	slotsPos.push_back(std::pair<int,int>(98,131));
-	slotsPos.push_back(std::pair<int,int>(134,131));
-
 	CDefHandler *smi, *smi2;
 
 	std::vector<Task> tasks; //preparing list of graphics to load

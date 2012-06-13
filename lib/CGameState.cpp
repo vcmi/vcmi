@@ -137,62 +137,6 @@ public:
 	}
 } *objCaller = NULL;
 
-InfoAboutTown::InfoAboutTown()
-{
-	tType = NULL;
-	details = NULL;
-	fortLevel = 0;
-	owner = -1;
-}
-
-InfoAboutTown::~InfoAboutTown()
-{
-	delete details;
-}
-
-void InfoAboutTown::initFromTown( const CGTownInstance *t, bool detailed )
-{
-	obj = t;
-	army = ArmyDescriptor(t->getUpperArmy(), detailed);
-	built = t->builded;
-	fortLevel = t->fortLevel();
-	name = t->name;
-	tType = t->town;
-	owner = t->tempOwner;
-
-	if(detailed)
-	{
-		//include details about hero
-		details = new Details;
-		details->goldIncome = t->dailyIncome();
-		details->customRes = vstd::contains(t->builtBuildings, 15);
-		details->hallLevel = t->hallLevel();
-		details->garrisonedHero = t->garrisonHero;
-	}
-	//TODO: adjust undetailed info about army to our count of thieves guilds
-}
-
-void InfoAboutTown::initFromGarrison(const CGGarrison *garr, bool detailed)
-{
-	obj = garr;
-	fortLevel = 0;
-	army = ArmyDescriptor(garr, detailed);
-	name = VLC->generaltexth->names[33]; // "Garrison"
-	owner = garr->tempOwner;
-	built = false;
-	tType = NULL;
-
-	// Show detailed info only to owning player.
-	if(detailed)
-	{
-		details = new InfoAboutTown::Details;
-		details->customRes = false;
-		details->garrisonedHero = false;
-		details->goldIncome = -1;
-		details->hallLevel = -1;
-	}
-}
-
 void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst) const
 {
 	int type = txt.first, ser = txt.second;
@@ -2590,16 +2534,46 @@ std::string PlayerState::nodeName() const
 // 	}
 // }
 
-InfoAboutHero::InfoAboutHero()
+InfoAboutArmy::InfoAboutArmy():
+    owner(GameConstants::NEUTRAL_PLAYER)
+{}
+
+InfoAboutArmy::InfoAboutArmy(const CArmedInstance *Army, bool detailed)
 {
-	details = NULL;
-	hclass = NULL;
-	portrait = -1;
+	initFromArmy(Army, detailed);
 }
 
-InfoAboutHero::InfoAboutHero( const InfoAboutHero & iah )
+void InfoAboutArmy::initFromArmy(const CArmedInstance *Army, bool detailed)
+{
+	army = ArmyDescriptor(Army, detailed);
+	owner = Army->tempOwner;
+	name = Army->getHoverText();
+}
+
+void InfoAboutHero::assign(const InfoAboutHero & iah)
+{
+	InfoAboutArmy::operator = (iah);
+
+	details = (iah.details ? new Details(*iah.details) : NULL);
+	hclass = iah.hclass;
+	portrait = iah.portrait;
+}
+
+InfoAboutHero::InfoAboutHero():
+    details(nullptr),
+    hclass(nullptr),
+    portrait(-1)
+{}
+
+InfoAboutHero::InfoAboutHero(const InfoAboutHero & iah):
+    InfoAboutArmy()
 {
 	assign(iah);
+}
+
+InfoAboutHero::InfoAboutHero(const CGHeroInstance *h, bool detailed)
+{
+	initFromHero(h, detailed);
 }
 
 InfoAboutHero::~InfoAboutHero()
@@ -2607,15 +2581,22 @@ InfoAboutHero::~InfoAboutHero()
 	delete details;
 }
 
-void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
+InfoAboutHero & InfoAboutHero::operator=(const InfoAboutHero & iah)
 {
-	if(!h) return;
+	assign(iah);
+	return *this;
+}
 
-	owner = h->tempOwner;
+void InfoAboutHero::initFromHero(const CGHeroInstance *h, bool detailed)
+{
+	if(!h)
+		return;
+
+	initFromArmy(h, detailed);
+
 	hclass = h->type->heroClass;
 	name = h->name;
 	portrait = h->portrait;
-	army = ArmyDescriptor(h, detailed);
 
 	if(detailed)
 	{
@@ -2633,25 +2614,47 @@ void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
 	}
 }
 
-void InfoAboutHero::assign( const InfoAboutHero & iah )
+InfoAboutTown::InfoAboutTown():
+    details(nullptr),
+    tType(nullptr),
+    built(0),
+    fortLevel(0)
 {
-	army = iah.army;
-	details = (iah.details ? new Details(*iah.details) : NULL);
-	hclass = iah.hclass;
-	name = iah.name;
-	owner = iah.owner;
-	portrait = iah.portrait;
+
 }
 
-InfoAboutHero & InfoAboutHero::operator=( const InfoAboutHero & iah )
+InfoAboutTown::InfoAboutTown(const CGTownInstance *t, bool detailed)
 {
-	assign(iah);
-	return *this;
+	initFromTown(t, detailed);
 }
 
+InfoAboutTown::~InfoAboutTown()
+{
+	delete details;
+}
 
+void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
+{
+	initFromArmy(t, detailed);
+	army = ArmyDescriptor(t->getUpperArmy(), detailed);
+	built = t->builded;
+	fortLevel = t->fortLevel();
+	name = t->name;
+	tType = t->town;
 
-ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed) : isDetailed(detailed)
+	if(detailed)
+	{
+		//include details about hero
+		details = new Details;
+		details->goldIncome = t->dailyIncome();
+		details->customRes = vstd::contains(t->builtBuildings, 15);
+		details->hallLevel = t->hallLevel();
+		details->garrisonedHero = t->garrisonHero;
+	}
+}
+
+ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed)
+    : isDetailed(detailed)
 {
 	for(TSlots::const_iterator i = army->Slots().begin(); i != army->Slots().end(); i++)
 	{
@@ -2662,7 +2665,8 @@ ArmyDescriptor::ArmyDescriptor(const CArmedInstance *army, bool detailed) : isDe
 	}
 }
 
-ArmyDescriptor::ArmyDescriptor() : isDetailed(true)
+ArmyDescriptor::ArmyDescriptor()
+    : isDetailed(false)
 {
 
 }

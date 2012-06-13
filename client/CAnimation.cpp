@@ -1279,6 +1279,7 @@ void CShowableAnim::reset()
 {
 	value = 0;
 	frame = first;
+
 	if (callback)
 		callback();
 }
@@ -1296,6 +1297,9 @@ void CShowableAnim::show(SDL_Surface * to)
 	if ( flags & BASE && frame != first)
 		blitImage(first, group, to);
 	blitImage(frame, group, to);
+
+	if ((flags & PLAY_ONCE) && frame + 1 == last)
+		return;
 
 	if ( ++value == frameDelay )
 	{

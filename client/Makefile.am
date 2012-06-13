@@ -41,6 +41,8 @@ vcmiclient_SOURCES =  \
 	./UIFramework/SDL_Extensions.cpp \
 	./UIFramework/SDL_Extensions.h \
 	./UIFramework/SDL_Pixels.h \
+	AdventureMapClasses.cpp \
+	AdventureMapClasses.h \
 	CAdvmapInterface.cpp \
 	CAdvmapInterface.h \
 	CAnimation.cpp \

@@ -5,6 +5,7 @@
 #include "SDL.h"
 #include "UIFramework/CIntObjectClasses.h"
 #include "GUIClasses.h"
+#include "AdventureMapClasses.h"
 
 class CDefHandler;
 class CCallback;
@@ -19,7 +20,7 @@ class IShipyard;
 /*****************************/
 
 /*
- * CAdcmapInterface.h, part of VCMI engine
+ * CAdvmapInterface.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -29,63 +30,13 @@ class IShipyard;
  */
 
 /// Adventure options dialogue where you can view the world, dig, play the replay of the last turn,...
-class CAdventureOptions : public CIntObject
+class CAdventureOptions : public CWindowObject
 {
 public:
-	CPicture *bg;
 	CAdventureMapButton *exit, *viewWorld, *puzzle, *dig, *scenInfo, *replay;
 
 	CAdventureOptions();
-	~CAdventureOptions();
 	static void showScenarioInfo();
-};
-
-//Player-specific minimaps
-class CMinimapSurfacesRef
-{
-public:
-	CMinimapSurfacesRef();
-	// see private members descriptions
-	std::vector< SDL_Surface* > &map();
-	std::vector< SDL_Surface* > &FoW();
-	std::vector< SDL_Surface* > &flObjs();
-	void free();
-private:
-	void redraw(int level=-1);// (level==-1) => redraw all levels
-	void initMap(int level=-1);// (level==-1) => redraw all levels
-	void initFoW(int level=-1);// (level==-1) => redraw all levels
-	void initFlaggableObjs(int level=-1);// (level==-1) => redraw all levels
-	void showVisibleTiles(int level=-1);// (level==-1) => redraw all levels
-private:    
-	std::vector< SDL_Surface* > map_, FoW_, flObjs_; //one bitmap for each level (terrain, Fog of War, flaggable objects) (one for underworld, one for surface)
-	bool ready;
-};
-
-/// Minimap which is displayed at the right upper corner of adventure map
-class CMinimap : public CIntObject
-{
-public:
-	CPicture *aiShield; //the graphic displayed during AI turn
-	SDL_Surface * temps;
-	std::map<int,SDL_Color> colors;
-	std::map<int,SDL_Color> colorsBlocked;
-
-    std::map<int, CMinimapSurfacesRef> surfs;
-	std::string statusbarTxt, rcText;
-
-	CMinimap();
-	~CMinimap();
-	void draw(SDL_Surface * to);
-	void updateRadar();
-
-	void clickRight(tribool down, bool previousState);
-	void clickLeft(tribool down, bool previousState);
-	void hover (bool on);
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void activate(); // makes button active
-	void deactivate(); // makes button inactive (but don't deletes)
-	void hideTile(const int3 &pos); //puts FoW
-	void showTile(const int3 &pos); //removes FoW
 };
 
 /// Holds information about which tiles of the terrain are shown/not shown at the screen
@@ -112,8 +63,7 @@ public:
 
 /// Resources bar which shows information about how many gold, crystals,... you have
 /// Current date is displayed too
-class CResDataBar
-	: public CIntObject
+class CResDataBar : public CIntObject
 {
 public:
 	SDL_Surface * bg;
@@ -128,45 +78,6 @@ public:
 	void draw(SDL_Surface * to);
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
-};
-
-/// Info box which shows next week/day information, hold the current date
-class CInfoBar : public CIntObject
-{
-	enum EMode {NOTHING = -1, NEW_DAY, NEW_WEEK1, NEW_WEEK2, NEW_WEEK3, NEW_WEEK4, ____, SHOW_COMPONENT, ENEMY_TURN};
-	CDefHandler *day, *week1, *week2, *week3, *week4, *hourglass, *hourglassSand;
-	CComponent * current;
-	int pom;
-	SDL_Surface *selInfoWin; //info box for selection
-	CDefHandler * getAnim(EMode mode);
-
-	struct EnemyTurn
-	{
-		ui8 color;
-		double progress; //0-1
-
-		EnemyTurn()
-		{
-			color = 255;
-			progress = 0.;
-		}
-	} enemyTurnInfo;
-public:
-	EMode mode;
-	const CGHeroInstance * curSel;
-
-	CInfoBar();
-	~CInfoBar();
-	void newDay(int Day); //start showing new day/week animation
-	void showComp(const CComponent * comp, int time=5000);
-	void enemyTurn(ui8 color, double progress);
-	void tick();
-	void showAll(SDL_Surface * to); // if specific==0 function draws info about selected hero/town
-	void blitAnim(EMode mode);//0 - day, 1 - week
-
-	void show(SDL_Surface * to);
-	void deactivate();
-	void updateSelection(const CGObjectInstance *obj);
 };
 
 /// That's a huge class which handles general adventure map actions and 
@@ -191,7 +102,7 @@ public:
 
 	enum{NA, INGAME, WAITING} state;
 
-	bool updateScreen, updateMinimap ;
+	bool updateScreen;
 	ui8 anim, animValHitCount; //animation frame
 	ui8 heroAnim, heroAnimValHitCount; //animation frame
 

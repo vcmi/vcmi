@@ -783,7 +783,7 @@ bool CGameInfoCallback::getTownInfo( const CGObjectInstance *town, InfoAboutTown
 	if(town->ID == GameConstants::TOWNI_TYPE)
 		dest.initFromTown(static_cast<const CGTownInstance *>(town), detailed);
 	else if(town->ID == 33 || town->ID == 219)
-		dest.initFromGarrison(static_cast<const CGGarrison *>(town), detailed);
+		dest.initFromArmy(static_cast<const CArmedInstance *>(town), detailed);
 	else
 		return false;
 	return true;

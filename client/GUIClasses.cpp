@@ -66,6 +66,138 @@ CFocusable * CFocusable::inputWithFocus;
 #undef min
 #undef max
 
+void CArmyTooltip::init(const InfoAboutArmy &army)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	new CLabel(66, 2, FONT_SMALL, TOPLEFT, Colors::Cornsilk, army.name);
+
+	std::vector<Point> slotsPos;
+	slotsPos.push_back(Point(36,73));
+	slotsPos.push_back(Point(72,73));
+	slotsPos.push_back(Point(108,73));
+	slotsPos.push_back(Point(18,122));
+	slotsPos.push_back(Point(54,122));
+	slotsPos.push_back(Point(90,122));
+	slotsPos.push_back(Point(126,122));
+
+	BOOST_FOREACH(auto & slot, army.army)
+	{
+		new CAnimImage("CPRSMALL", slot.second.type->idNumber + 2, 0, slotsPos[slot.first].x, slotsPos[slot.first].y);
+
+		std::string subtitle;
+		if(army.army.isDetailed)
+			subtitle = boost::lexical_cast<std::string>(slot.second.count);
+		else
+		{
+			//if =0 - we have no information about stack size at all
+			if (slot.second.count)
+				subtitle = VLC->generaltexth->arraytxt[171 + 3*(slot.second.count)];
+		}
+
+		new CLabel(slotsPos[slot.first].x + 17, slotsPos[slot.first].y + 41, FONT_TINY, CENTER, Colors::Cornsilk, subtitle);
+	}
+
+}
+
+CArmyTooltip::CArmyTooltip(Point pos, const InfoAboutArmy &army):
+    CIntObject(0, pos)
+{
+	init(army);
+}
+
+CArmyTooltip::CArmyTooltip(Point pos, const CArmedInstance * army):
+    CIntObject(0, pos)
+{
+	init(InfoAboutArmy(army, true));
+}
+
+void CHeroTooltip::init(const InfoAboutHero &hero)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	new CAnimImage("PortraitsLarge", hero.portrait, 0, 3, 2);
+
+	if(hero.details)
+	{
+		for (size_t i = 0; i < hero.details->primskills.size(); i++)
+			new CLabel(75 + 28 * i, 58, FONT_SMALL, CENTER, Colors::Cornsilk,
+			           boost::lexical_cast<std::string>(hero.details->primskills[i]));
+
+		new CLabel(158, 98, FONT_TINY, CENTER, Colors::Cornsilk,
+		           boost::lexical_cast<std::string>(hero.details->mana));
+
+		new CAnimImage("IMRL22", hero.details->morale + 3, 0, 5, 74);
+		new CAnimImage("ILCK22", hero.details->luck + 3, 0, 5, 91);
+	}
+}
+
+CHeroTooltip::CHeroTooltip(Point pos, const InfoAboutHero &hero):
+    CArmyTooltip(pos, hero)
+{
+	init(hero);
+}
+
+CHeroTooltip::CHeroTooltip(Point pos, const CGHeroInstance * hero):
+    CArmyTooltip(pos, InfoAboutHero(hero, true))
+{
+	init(InfoAboutHero(hero, true));
+}
+
+void CTownTooltip::init(const InfoAboutTown &town)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	//order of icons in def: fort, citadel, castle, no fort
+	size_t fortIndex = town.fortLevel ? town.fortLevel - 1 : 3;
+
+	new CAnimImage("ITMCLS", fortIndex, 0, 105, 31);
+
+	assert(town.tType);
+
+	size_t imageIndex = town.tType->typeID * 2;
+	if (town.fortLevel == 0)
+		imageIndex += GameConstants::F_NUMBER * 2;
+	if (town.built >= GameConstants::MAX_BUILDING_PER_TURN)
+		imageIndex++;
+
+	new CAnimImage("itpt", imageIndex, 0, 3, 2);
+
+	if(town.details)
+	{
+		if (town.details->hallLevel)
+			new CAnimImage("ITMTLS", town.details->hallLevel, 0, 67, 31);
+
+		if (town.details->goldIncome)
+			new CLabel(157, 58, FONT_TINY, CENTER, Colors::Cornsilk,
+		               boost::lexical_cast<std::string>(town.details->goldIncome));
+
+		if(town.details->garrisonedHero) //garrisoned hero icon
+			new CPicture("TOWNQKGH", 149, 76);
+
+		if(town.details->customRes)//silo is built
+		{
+			if (town.tType->primaryRes == 127 )// wood & ore
+			{
+				new CAnimImage("SMALRES", Res::WOOD, 0, 7, 75);
+				new CAnimImage("SMALRES", Res::ORE , 0, 7, 88);
+			}
+			else
+				new CAnimImage("SMALRES", town.tType->primaryRes, 0, 7, 81);
+		}
+	}
+}
+
+CTownTooltip::CTownTooltip(Point pos, const InfoAboutTown &town):
+    CArmyTooltip(pos, town)
+{
+	init(town);
+}
+
+CTownTooltip::CTownTooltip(Point pos, const CGTownInstance * town):
+    CArmyTooltip(pos, InfoAboutTown(town, true))
+{
+	init(InfoAboutTown(town, true));
+}
 
 void CGarrisonSlot::hover (bool on)
 {
@@ -213,29 +345,25 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 						owner->pb = upg;//store the second stack owner (up or down army)
 						owner->splitting = false;
 
-						int totalAmount = owner->highlighted->count;
-						if(creature)
-							totalAmount += count;
+						int minLeft=0, minRight=0;
 
-						int last = -1;
 						if(upg != owner->highlighted->upg) //not splitting within same army
 						{
 							if(owner->highlighted->getObj()->stacksCount() == 1 //we're splitting away the last stack
 								&& owner->highlighted->getObj()->needsLastStack() )
 							{
-								last = 0;
+								minLeft = 1;
 							}
 							if(getObj()->stacksCount() == 1 //destination army can't be emptied, unless we're rebalancing two stacks of same creature
 								&& owner->highlighted->creature == creature
 								&& getObj()->needsLastStack() )
 							{
-								last += 2;
+								minRight = 1;
 							}
 						}
 
-
-						CSplitWindow * spw = new CSplitWindow(owner->highlighted->creature->idNumber, totalAmount, owner, last, count);
-						GH.pushInt(spw);
+						GH.pushInt(new CSplitWindow(owner->highlighted->creature, boost::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
+						                            minLeft, minRight, count, owner->highlighted->count));
 						refr = true;
 					}
 					else if(creature != owner->highlighted->creature) //swap
@@ -425,9 +553,9 @@ void CGarrisonInt::splitClick()
 	splitting = !splitting;
 	redraw();
 }
-void CGarrisonInt::splitStacks(int am2)
+void CGarrisonInt::splitStacks(int, int amountRight)
 {
-	LOCPLINT->cb->splitStack(armedObjs[highlighted->upg], armedObjs[pb], highlighted->ID, p2, am2);
+	LOCPLINT->cb->splitStack(armedObjs[highlighted->upg], armedObjs[pb], highlighted->ID, p2, amountRight);
 }
 
 CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset,
@@ -683,21 +811,6 @@ void CComponent::init(Etype Type, int Subtype, int Val)
 	pos.h = image->pos.h;
 }
 
-//NOTE: whole method can be removed after 0.89+1 release
-void CComponent::show(SDL_Surface * to)
-{
-	//In some places components position set manually instead of moveBy - it should be fixed
-	if (pos.x != image->pos.x
-	 || pos.y != image->pos.y)
-	{
-		tlog0 << "Error: Component position may be broken. Please report\n";
-		image->moveTo(pos.topLeft());
-		CIntObject::showAll(to);
-	}
-	else
-		CIntObject::show(to);
-}
-
 std::string CComponent::getFileName()
 {
 	switch(type)
@@ -916,553 +1029,7 @@ void CSelWindow::madeChoice()
 	LOCPLINT->cb->selectionMade(ret+1,ID);
 }
 
-CHeroList::CHeroList(int Size)
-:CList(Size)
-{
-	arrup = CDefHandler::giveDef(conf.go()->ac.hlistAU);
-	arrdo = CDefHandler::giveDef(conf.go()->ac.hlistAD);
-	mobile = CDefHandler::giveDef(conf.go()->ac.hlistMB);
-	mana = CDefHandler::giveDef(conf.go()->ac.hlistMN);
-	empty = BitmapHandler::loadBitmap("HPSXXX.bmp");
-	selection = BitmapHandler::loadBitmap("HPSYYY.bmp");
-	SDL_SetColorKey(selection,SDL_SRCCOLORKEY,SDL_MapRGB(selection->format,0,255,255));
 
-	pos = genRect(32*SIZE+arrup->height+arrdo->height, std::max(arrup->width,arrdo->width), conf.go()->ac.hlistX, conf.go()->ac.hlistY);
-
-	arrupp = genRect(arrup->height, arrup->width, pos.x, pos.y);
-	arrdop = genRect(arrdo->height, arrdo->width, pos.x, pos.y+32*SIZE+arrup->height);
- //32px per hero
-	posmobx = pos.x+1;
-	posmoby = pos.y+arrup->height+1;
-	posporx = pos.x+mobile->width+2;
-	pospory = pos.y+arrup->height;
-	posmanx = pos.x+1+50+mobile->width;
-	posmany = pos.y+arrup->height+1;
-
-	from = 0;
-	selected = -1;
-	pressed = indeterminate;
-}
-
-void CHeroList::init()
-{
-	int w = pos.w+1, h = pos.h+4;
-	bg = CSDL_Ext::newSurface(w,h,screen);
-	Rect srcRect = genRect(w, h, pos.x, pos.y);
-	Rect dstRect = genRect(w, h, 0, 0);
-	CSDL_Ext::blitSurface(adventureInt->bg, &srcRect, bg, &dstRect);
-}
-
-void CHeroList::genList()
-{
-	//int howMany = LOCPLINT->cb->howManyHeroes();
-	//for (int i=0;i<howMany;i++)
-	//{
-	//	const CGHeroInstance * h = LOCPLINT->cb->getHeroInfo(i,0);
-	//	if(!h->inTownGarrison)
-	//		items.push_back(std::pair<const CGHeroInstance *,CPath *>(h,NULL));
-	//}
-}
-
-void CHeroList::select(int which)
-{
-	if (which<0)
-	{
-		selected = which;
-		adventureInt->selection = NULL;
-		adventureInt->terrain.currentPath = NULL;
-		draw(screen);
-		adventureInt->infoBar.showAll(screen);
-	}
-	if (which>=LOCPLINT->wanderingHeroes.size())
-		return;
-
-	selected = which;
-	adventureInt->select(LOCPLINT->wanderingHeroes[which]);
-	fixPos();
-	draw(screen);
-}
-
-void CHeroList::clickLeft(tribool down, bool previousState)
-{
-	if (down)
-	{
-		/***************************ARROWS*****************************************/
-		if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y))
-		{
-			if(from>0)
-			{
-				blitAt(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y);
-				pressed = true;
-			}
-			return;
-		}
-		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y))
-		{
-			if(LOCPLINT->wanderingHeroes.size()-from>SIZE)
-			{
-				blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
-				pressed = false;
-			}
-			return;
-		}
-		/***************************HEROES*****************************************/
-		int hx = GH.current->motion.x, hy = GH.current->motion.y;
-		hx-=pos.x;
-		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
-		int ny = hy/32;
-		if (ny>=SIZE || ny<0)
-			return;
-		if ( (ny+from)==selected && (adventureInt->selection->ID == GameConstants::HEROI_TYPE))
-			LOCPLINT->openHeroWindow(LOCPLINT->wanderingHeroes[selected]);//print hero screen
-		select(ny+from);
-	}
-	else
-	{
-		if (indeterminate(pressed))
-			return;
-		if (pressed) //up
-		{
-			blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
-			pressed = indeterminate;
-			if (!down)
-			{
-				from--;
-				if (from<0)
-					from=0;
-				draw(screen);
-			}
-		}
-		else if (!pressed) //down
-		{
-			blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
-			pressed = indeterminate;
-			if (!down)
-			{
-				from++;
-				//if (from<items.size()-5)
-				//	from=items.size()-5;
-
-				draw(screen);
-			}
-		}
-		else
-			throw 0;
-
-	}
-}
-
-void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
-{
-	if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y))
-	{
-		if (from>0)
-			adventureInt->statusbar.print(CGI->generaltexth->zelp[303].first);
-		else
-			adventureInt->statusbar.clear();
-		return;
-	}
-	else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y))
-	{
-		if ((LOCPLINT->wanderingHeroes.size()-from)  >  SIZE)
-			adventureInt->statusbar.print(CGI->generaltexth->zelp[304].first);
-		else
-			adventureInt->statusbar.clear();
-		return;
-	}
-	//if not buttons then heroes
-	int hx = GH.current->motion.x, hy = GH.current->motion.y;
-	hx-=pos.x;
-	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
-	int ny = hy/32;
-	if ((ny>SIZE || ny<0) || (from+ny>=LOCPLINT->wanderingHeroes.size()))
-	{
-		adventureInt->statusbar.clear();
-		return;
-	}
-	std::vector<std::string> temp;
-	temp.push_back(LOCPLINT->wanderingHeroes[from+ny]->name);
-	temp.push_back(LOCPLINT->wanderingHeroes[from+ny]->type->heroClass->name);
-	adventureInt->statusbar.print( processStr(CGI->generaltexth->allTexts[15],temp) );
-	//select(ny+from);
-}
-
-void CHeroList::clickRight(tribool down, bool previousState)
-{
-	if (down)
-	{
-		/***************************ARROWS*****************************************/
-		if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y) && from>0)
-		{
-			adventureInt->handleRightClick(CGI->generaltexth->zelp[303].second,down);
-		}
-		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y) && (LOCPLINT->wanderingHeroes.size()-from>5))
-		{
-			adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down);
-		}
-		else
-		{
-			//if not buttons then heroes
-			int hx = GH.current->motion.x, hy = GH.current->motion.y;
-			hx-=pos.x;
-			hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
-			int ny = hy/32;
-			if ((ny>SIZE || ny<0) || (from+ny>=LOCPLINT->wanderingHeroes.size()))
-			{
-				return;
-			}			//show popup
-
-			CRClickPopup::createAndPush(LOCPLINT->wanderingHeroes[from+ny], GH.current->motion);
-		}
-	}
-}
-
-void CHeroList::hover (bool on)
-{
-}
-
-void CHeroList::keyPressed (const SDL_KeyboardEvent & key)
-{
-}
-
-void CHeroList::updateHList(const CGHeroInstance *toRemove)
-{
-	if(toRemove) //remove specific hero
-		LOCPLINT->wanderingHeroes -= toRemove;
-	else
-		LOCPLINT->recreateHeroTownList();
-
-
-	if(selected >= LOCPLINT->wanderingHeroes.size())
-		select(LOCPLINT->wanderingHeroes.size()-1);
-
-	if(toRemove)
-	{
-		if(LOCPLINT->wanderingHeroes.size() == 0)
-			adventureInt->townList.select(0);
-		else
-			select(selected);
-	}
-
-	adventureInt->updateNextHero(NULL);
-}
-
-void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
-{
-	int ser = -1;
-	for(int i=0; i<LOCPLINT->wanderingHeroes.size() && ser<0; i++)
-		if(LOCPLINT->wanderingHeroes[i]->subID == which->subID)
-			ser = i;
-	ser -= from;
-	if(ser<0 || ser >= SIZE) return;
-	int pom = std::min((which->movement)/100,(ui32)mobile->ourImages.size()-1);
-	blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+ser*32); //move point
-}
-
-void CHeroList::draw(SDL_Surface * to)
-{
-	for (int iT=0+from;iT<SIZE+from;iT++)
-	{
-		int i = iT-from;
-		if (iT>=LOCPLINT->wanderingHeroes.size())
-		{
-			blitAt(mobile->ourImages[0].bitmap,posmobx,posmoby+i*32,to);
-			blitAt(mana->ourImages[0].bitmap,posmanx,posmany+i*32,to);
-			blitAt(empty,posporx,pospory+i*32,to);
-			continue;
-		}
-		const CGHeroInstance *cur = LOCPLINT->wanderingHeroes[iT];
-		int pom = cur->movement / 100;
-		if (pom>25) pom=25;
-		if (pom<0) pom=0;
-		blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+i*32,to); //move point
-		pom = cur->mana / 5;
-		if (pom>25) pom=25;
-		if (pom<0) pom=0;
-		blitAt(mana->ourImages[pom].bitmap,posmanx,posmany+i*32,to); //mana
-		SDL_Surface * temp = graphics->portraitSmall[cur->portrait];
-		blitAt(temp,posporx,pospory+i*32,to);
-		if (adventureInt->selection && (selected == iT) && (adventureInt->selection->ID == GameConstants::HEROI_TYPE))
-		{
-			blitAt(selection,posporx,pospory+i*32,to);
-		}
-		//TODO: support for custom portraits
-	}
-	if (from>0)
-		blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y,to);
-	else
-		blitAt(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y,to);
-
-	if (LOCPLINT->wanderingHeroes.size()-from > SIZE)
-		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y,to);
-	else
-		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y,to);
-}
-
-int CHeroList::getPosOfHero(const CGHeroInstance* h)
-{
-	return vstd::find_pos(LOCPLINT->wanderingHeroes, h, std::equal_to<const CGHeroInstance*>());
-}
-
-void CHeroList::show(SDL_Surface * to)
-{
-
-}
-
-void CHeroList::showAll(SDL_Surface * to)
-{
-	draw(to);
-}
-
-int CHeroList::size()
-{
-	return LOCPLINT->wanderingHeroes.size();
-}
-
-CTownList::~CTownList()
-{
-	delete arrup;
-	delete arrdo;
-}
-
-CTownList::CTownList(int Size, int x, int y, std::string arrupg, std::string arrdog)
-:CList(Size)
-{
-	arrup = CDefHandler::giveDef(arrupg);
-	arrdo = CDefHandler::giveDef(arrdog);
-	pos.x += x;
-	pos.y += y;
-	pos.w = std::max(arrdo->width, arrup->width);
-	pos.h = arrdo->height + arrup->height + Size*32;
-
-	arrupp.x=pos.x;
-	arrupp.y=pos.y;
-	arrupp.w=arrup->width;
-	arrupp.h=arrup->height;
-	arrdop.x=pos.x;
-	arrdop.y=pos.y+arrup->height+32*SIZE;
-	arrdop.w=arrdo->width;
-	arrdop.h=arrdo->height;
-	posporx = arrdop.x;
-	pospory = arrupp.y + arrupp.h;
-
-	pressed = indeterminate;
-
-	from = 0;
-	selected = -1;
-}
-
-void CTownList::genList()
-{
-// 	LOCPLINT->towns.clear();
-// 	int howMany = LOCPLINT->cb->howManyTowns();
-// 	for (int i=0;i<howMany;i++)
-// 	{
-// 		LOCPLINT->towns.push_back(LOCPLINT->cb->getTownInfo(i,0));
-// 	}
-}
-
-void CTownList::select(int which)
-{
-	which %= LOCPLINT->towns.size();
-	selected = which;
-	fixPos();
-	if(!fun.empty())
-		fun();
-}
-
-void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
-{
-	if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y))
-	{
-		if (from>0)
-			GH.statusbar->print(CGI->generaltexth->zelp[306].first);
-		else
-			GH.statusbar->clear();
-		return;
-	}
-	else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y))
-	{
-		if ((LOCPLINT->towns.size()-from)  >  SIZE)
-			GH.statusbar->print(CGI->generaltexth->zelp[307].first);
-		else
-			GH.statusbar->clear();
-		return;
-	}
-	//if not buttons then towns
-	int hx = GH.current->motion.x, hy = GH.current->motion.y;
-	hx-=pos.x;
-	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
-	int ny = hy/32;
-	if ((ny>=SIZE || ny<0) || (from+ny>=LOCPLINT->towns.size()))
-	{
-		GH.statusbar->clear();
-		return;
-	};
-	std::string temp = CGI->generaltexth->tcommands[4];
-	boost::algorithm::replace_first(temp,"%s",LOCPLINT->towns[from+ny]->name);
-	temp += ", "+LOCPLINT->towns[from+ny]->town->Name();
-	GH.statusbar->print(temp);
-}
-
-void CTownList::clickLeft(tribool down, bool previousState)
-{
-	if (down)
-	{
-		/***************************ARROWS*****************************************/
-		if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y))
-		{
-			if(from>0)
-			{
-				blitAt(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y,screenBuf);
-				pressed = true;
-			}
-			return;
-		}
-		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y))
-		{
-			if(LOCPLINT->towns.size()-from > SIZE)
-			{
-				blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y,screenBuf);
-				pressed = false;
-			}
-			return;
-		}
-		/***************************TOWNS*****************************************/
-		int hx = GH.current->motion.x, hy = GH.current->motion.y;
-		hx-=pos.x;
-		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
-		int ny = hy/32;
-		if (ny>=SIZE || ny<0)
-			return;
-		if(GH.topInt() == adventureInt
-		  && (ny+from)==selected
-		  && adventureInt->selection->ID == GameConstants::TOWNI_TYPE
-		  )
-			LOCPLINT->openTownWindow(LOCPLINT->towns[selected]);//print town screen
-		else
-			select(ny+from);
-	}
-	else
-	{
-		if (indeterminate(pressed))
-			return;
-		if (pressed) //up
-		{
-			blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y,screenBuf);
-			pressed = indeterminate;
-			if (!down)
-			{
-				from--;
-				if (from<0)
-					from=0;
-
-				draw(screenBuf);
-			}
-		}
-		else if (!pressed) //down
-		{
-			blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y,screenBuf);
-			pressed = indeterminate;
-			if (!down)
-			{
-				from++;
-				//if (from<LOCPLINT->towns.size()-5)
-				//	from=LOCPLINT->towns.size()-5;
-
-				draw(screenBuf);
-			}
-		}
-		else
-			throw 0;
-
-	}
-}
-
-void CTownList::clickRight(tribool down, bool previousState)
-{
-	if (down)
-	{
-		/***************************ARROWS*****************************************/
-		if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y) && from>0)
-		{
-			adventureInt->handleRightClick(CGI->generaltexth->zelp[306].second,down);
-		}
-		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y) && (LOCPLINT->towns.size()-from>5))
-		{
-			adventureInt->handleRightClick(CGI->generaltexth->zelp[307].second,down);
-		}
-		//if not buttons then towns
-		int hx = GH.current->motion.x, hy = GH.current->motion.y;
-		hx-=pos.x;
-		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
-		int ny = hy/32;
-		if ((ny>=SIZE || ny<0) || (from+ny>=LOCPLINT->towns.size()))
-		{
-			return;
-		}
-
-		//show popup
-		CRClickPopup::createAndPush(LOCPLINT->towns[from+ny], GH.current->motion);
-	}
-}
-
-void CTownList::hover (bool on)
-{
-}
-
-void CTownList::keyPressed (const SDL_KeyboardEvent & key)
-{
-}
-
-void CTownList::draw(SDL_Surface * to)
-{
-	for (int iT=0+from;iT<SIZE+from;iT++)
-	{
-		int i = iT-from;
-		if (iT>=LOCPLINT->towns.size())
-		{
-			blitAt(graphics->getPic(-1),posporx,pospory+i*32,to);
-			continue;
-		}
-
-		blitAt(graphics->getPic(LOCPLINT->towns[iT]->subID,LOCPLINT->towns[iT]->hasFort(),LOCPLINT->towns[iT]->builded),posporx,pospory+i*32,to);
-
-		if (adventureInt->selection && (selected == iT) && (adventureInt->selection->ID == GameConstants::TOWNI_TYPE))
-		{
-			blitAt(graphics->getPic(-2),posporx,pospory+i*32,to);
-		}
-	}
-	if (from>0)
-		blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y,to);
-	else
-		blitAt(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y,to);
-
-	if (LOCPLINT->towns.size()-from>SIZE)
-		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y,to);
-	else
-		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y,to);
-}
-
-void CTownList::show(SDL_Surface * to)
-{
-
-}
-
-void CTownList::showAll(SDL_Surface * to)
-{
-	draw(to);
-}
-
-int CTownList::size()
-{
-	return LOCPLINT->towns.size();
-}
-
-void CTownList::selectNext()
-{
-	select(selected+1);
-}
 
 CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool Animated)
 {
@@ -1695,136 +1262,78 @@ void CRecruitmentWindow::initCres()
 	slider->setAmount(std::min(amounts[which],creatures[which].amount));
 }
 
-CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last, int val)
+CSplitWindow::CSplitWindow(const CCreature * creature, boost::function<void(int, int)> callback_,
+                           int leftMin_, int rightMin_, int leftAmount_, int rightAmount_):
+    CWindowObject("GPUCRDIV", PLAYER_COLORED),
+    callback(callback_),
+    leftAmount(leftAmount_),
+    rightAmount(rightAmount_),
+    leftMin(leftMin_),
+    rightMin(rightMin_),
+    slider(nullptr)
 {
-	last = Last;
-	which = 1;
-	c=cid;
-	slider = NULL;
-	gar = Owner;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	SDL_Surface *hhlp = BitmapHandler::loadBitmap("GPUCRDIV.bmp");
-	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
-	bitmap = SDL_ConvertSurface(hhlp,screen->format,0);
-	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
-	SDL_FreeSurface(hhlp);
-	pos.x = screen->w/2 - bitmap->w/2;
-	pos.y = screen->h/2 - bitmap->h/2;
-	pos.w = bitmap->w;
-	pos.h = bitmap->h;
-	ok = new CAdventureMapButton("","",boost::bind(&CSplitWindow::split,this),pos.x+20,pos.y+263,"IOK6432.DEF",SDLK_RETURN);
-	cancel = new CAdventureMapButton("","",boost::bind(&CSplitWindow::close,this),pos.x+214,pos.y+263,"ICN6432.DEF",SDLK_ESCAPE);
-	int sliderPositions = max - (last>=0) - (last==2);
-	slider = new CSlider(pos.x+21,pos.y+194,257,boost::bind(&CSplitWindow::sliderMoved,this,_1),0,sliderPositions,val,true);
-	a1 = max-val;
-	a2 = val;
-	animLeft = new CCreaturePic(pos.x+20,  pos.y+54, CGI->creh->creatures[cid], true, false);
-	animRight = new CCreaturePic(pos.x+177, pos.y+54, CGI->creh->creatures[cid], true, false);
+	int total = leftAmount + rightAmount;
+	int leftMax = total - rightMin;
+	int rightMax = total - leftMin;
+
+	ok = new CAdventureMapButton("", "", boost::bind(&CSplitWindow::apply, this), 20, 263, "IOK6432", SDLK_RETURN);
+	cancel = new CAdventureMapButton("", "", boost::bind(&CSplitWindow::close, this), 214, 263, "ICN6432", SDLK_ESCAPE);
+
+	int sliderPositions = total - leftMin - rightMin;
+
+	leftInput = new CTextInput(Rect(20, 218, 100, 36), FONT_BIG, boost::bind(&CSplitWindow::setAmountText, this, _1, true));
+	rightInput = new CTextInput(Rect(176, 218, 100, 36), FONT_BIG, boost::bind(&CSplitWindow::setAmountText, this, _1, false));
+
+	//add filters to allow only number input
+	leftInput->filters.add(boost::bind(&CTextInput::numberFilter, _1, _2, leftMin, leftMax));
+	rightInput->filters.add(boost::bind(&CTextInput::numberFilter, _1, _2, rightMin, rightMax));
+
+	leftInput->setTxt(boost::lexical_cast<std::string>(leftAmount), false);
+	rightInput->setTxt(boost::lexical_cast<std::string>(rightAmount), false);
+
+	animLeft = new CCreaturePic(20, 54, creature, true, false);
+	animRight = new CCreaturePic(177, 54,creature, true, false);
+
+	slider = new CSlider(21, 194, 257, boost::bind(&CSplitWindow::sliderMoved, this, _1), 0, sliderPositions, rightAmount - rightMin, true);
 
 	std::string title = CGI->generaltexth->allTexts[256];
-	boost::algorithm::replace_first(title,"%s",CGI->creh->creatures[cid]->namePl);
-	printAtMiddle(title,150,34,FONT_BIG,Colors::Jasmine,bitmap);
-	addUsedEvents(LCLICK | KEYBOARD);
+	boost::algorithm::replace_first(title,"%s", creature->namePl);
+	new CLabel(150, 34, FONT_BIG, CENTER, Colors::Jasmine, title);
 }
 
-CSplitWindow::~CSplitWindow() //d-tor
+void CSplitWindow::setAmountText(std::string text, bool left)
 {
-	SDL_FreeSurface(bitmap);
-	delete ok;
-	delete cancel;
-	delete slider;
-	delete animLeft;
-	delete animRight;
+	try
+	{
+		setAmount(boost::lexical_cast<int>(text), left);
+		slider->moveTo(rightAmount - rightMin);
+	}
+	catch(boost::bad_lexical_cast &)
+	{
+	}
 }
 
-void CSplitWindow::split()
+void CSplitWindow::setAmount(int value, bool left)
 {
-	gar->splitStacks(a2);
+	int total = leftAmount + rightAmount;
+	leftAmount  = left ? value : total - value;
+	rightAmount = left ? total - value : value;
+
+	leftInput->setTxt(boost::lexical_cast<std::string>(leftAmount));
+	rightInput->setTxt(boost::lexical_cast<std::string>(rightAmount));
+}
+
+void CSplitWindow::apply()
+{
+	callback(leftAmount, rightAmount);
 	close();
-}
-
-void CSplitWindow::close()
-{
-	GH.popIntTotally(this);
 }
 
 void CSplitWindow::sliderMoved(int to)
 {
-	int all = a1+a2;
-	a2 = to + (last==1 || last==2);
-	if(slider)
-		a1 = all - a2;
-}
-
-void CSplitWindow::show(SDL_Surface * to)
-{
-	blitAt(bitmap,pos.x,pos.y,to);
-	ok->showAll(to);
-	cancel->showAll(to);
-	slider->showAll(to);
-	printAtMiddle(boost::lexical_cast<std::string>(a1) + (!which ? "_" : ""),pos.x+70,pos.y+237,FONT_BIG,Colors::Cornsilk,to);
-	printAtMiddle(boost::lexical_cast<std::string>(a2) + (which ? "_" : ""),pos.x+233,pos.y+237,FONT_BIG,Colors::Cornsilk,to);
-	animLeft->show(to);
-	animRight->show(to);
-}
-
-void CSplitWindow::keyPressed (const SDL_KeyboardEvent & key)
-{
-	SDLKey k = key.keysym.sym;
-	if (CGuiHandler::isNumKey(k)) //convert numpad number to normal digit
-		k = CGuiHandler::numToDigit(k);
-
-	if(key.state != SDL_PRESSED)
-		return;
-
-	int &cur = (which ? a2 : a1),
-		&sec = (which ? a1 : a2),
-		ncur = cur;
-	if (k == SDLK_BACKSPACE)
-	{
-		ncur /= 10;
-	}
-	else if(k == SDLK_TAB)
-	{
-		which = !which;
-	}
-	else if (k == SDLK_LEFT)
-	{
-		ncur--;
-	}
-	else if (k == SDLK_RIGHT)
-	{
-		ncur++;
-	}
-	else
-	{
-		int number = k - SDLK_0;
-		if (number < 0   ||   number > 9) //not a number pressed
-		{
-			return;
-		}
-		ncur = cur*10 + number;
-	}
-	int delta = ncur - cur;
-	if(delta > sec)
-	{
-		cur += sec;
-		sec = 0;
-	}
-	slider->moveTo(which ? ncur : a1+a2-ncur);
-}
-
-void CSplitWindow::clickLeft(tribool down, bool previousState)
-{
-	if(down)
-	{
-		Point click(GH.current->motion.x,GH.current->motion.y);
-		click = click - pos.topLeft();
-		if(Rect(19,216,105,40).isIn(click)) //left picture
-			which = 0;
-		else if(Rect(175,216,105,40).isIn(click)) //right picture
-			which = 1;
-	}
+	setAmount(rightMin + to, false);
 }
 
 void CLevelWindow::close()
@@ -4163,7 +3672,6 @@ IShowActivatable::IShowActivatable()
 
 CGarrisonHolder::CGarrisonHolder()
 {
-	type |= WITH_GARRISON;
 }
 
 void CWindowWithGarrison::updateGarrisons()
@@ -5593,11 +5101,11 @@ void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 	printAtMiddleLoc  (CGI->generaltexth->skillName[ID], 22, -13, FONT_SMALL, Colors::Cornsilk,to);//Name
 	printAtMiddleLoc  (CGI->generaltexth->levels[0], 22, 57, FONT_SMALL, Colors::Cornsilk,to);//Level(always basic)
 
-	CIntObject::showAll(to);
+	CAnimImage::showAll(to);
 }
 
 CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int Y):
-	CAnimImage ("SECSKILL", ID*3+3, 0, X, Y),
+	CAnimImage ("SECSKILL", _ID*3+3, 0, X, Y),
 	ID(_ID),
 	parent(_parent)
 {
@@ -6232,11 +5740,73 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 	GH.pushInt(rcpi);
 }
 
+Point CInfoBoxPopup::toScreen(Point p)
+{
+	vstd::abetween(p.x, adventureInt->terrain.pos.x + 100, adventureInt->terrain.pos.x + adventureInt->terrain.pos.w - 100);
+	vstd::abetween(p.y, adventureInt->terrain.pos.y + 100, adventureInt->terrain.pos.y + adventureInt->terrain.pos.h - 100);
+
+	return p;
+}
+
+CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town):
+    CWindowObject("TOWNQVBK", RCLICK_POPUP | PLAYER_COLORED, toScreen(position))
+{
+	InfoAboutTown iah;
+	bool gotInfo = LOCPLINT->cb->getTownInfo(town, iah);
+	assert(gotInfo);
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	new CTownTooltip(Point(9, 10), iah);
+}
+
+CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero):
+    CWindowObject("HEROQVBK", RCLICK_POPUP | PLAYER_COLORED, toScreen(position))
+{
+	InfoAboutHero iah;
+	bool gotInfo = LOCPLINT->cb->getHeroInfo(hero, iah);
+	assert(gotInfo);
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	new CHeroTooltip(Point(9, 10), iah);
+}
+
+CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr):
+    CWindowObject("TOWNQVBK", RCLICK_POPUP | PLAYER_COLORED, toScreen(position))
+{
+	InfoAboutTown iah;
+	bool gotInfo = LOCPLINT->cb->getTownInfo(garr, iah);
+	assert(gotInfo);
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	new CArmyTooltip(Point(9, 10), iah);
+}
+
+CIntObject * CRClickPopup::createInfoWin(Point position, const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
+{
+	if(!specific)
+		specific = adventureInt->selection;
+
+	assert(specific);
+
+	switch(specific->ID)
+	{
+	case GameConstants::HEROI_TYPE:
+		return new CInfoBoxPopup(position, dynamic_cast<const CGHeroInstance *>(specific));
+	case GameConstants::TOWNI_TYPE:
+		return new CInfoBoxPopup(position, dynamic_cast<const CGTownInstance *>(specific));
+	case Obj::GARRISON:
+	case Obj::GARRISON2:
+		return new CInfoBoxPopup(position, dynamic_cast<const CGGarrison *>(specific));
+	default:
+		return NULL;
+	}
+}
+
 void CRClickPopup::createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment /*= BOTTOMRIGHT*/)
 {
-	SDL_Surface *iWin = LOCPLINT->infoWin(obj); //try get custom infowindow for this obj
+	CIntObject *iWin = createInfoWin(p, obj); //try get custom infowindow for this obj
 	if(iWin)
-		GH.pushInt(new CInfoPopup(iWin, p, alignment, true));
+		GH.pushInt(iWin);
 	else
 		CRClickPopup::createAndPush(obj->getHoverText());
 }

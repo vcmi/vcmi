@@ -76,55 +76,63 @@ struct ArmyDescriptor : public std::map<TSlot, CStackBasicDescriptor>
 	DLL_LINKAGE int getStrength() const;
 };
 
-struct DLL_LINKAGE InfoAboutHero
+struct DLL_LINKAGE InfoAboutArmy
+{
+	ui8 owner;
+	std::string name;
+
+	ArmyDescriptor army;
+
+	InfoAboutArmy();
+	InfoAboutArmy(const CArmedInstance *Army, bool detailed);
+
+	void initFromArmy(const CArmedInstance *Army, bool detailed);
+};
+
+struct DLL_LINKAGE InfoAboutHero : public InfoAboutArmy
 {
 private:
 	void assign(const InfoAboutHero & iah);
 public:
 	struct DLL_LINKAGE Details
 	{
-		std::vector<int> primskills;
-		int mana, luck, morale;
+		std::vector<si32> primskills;
+		si32 mana, luck, morale;
 	} *details;
 
-	char owner;
 	const CHeroClass *hclass;
-	std::string name;
 	int portrait;
-
-	ArmyDescriptor army; 
 
 	InfoAboutHero();
 	InfoAboutHero(const InfoAboutHero & iah);
-	InfoAboutHero & operator=(const InfoAboutHero & iah);
+	InfoAboutHero(const CGHeroInstance *h, bool detailed);
 	~InfoAboutHero();
+
+	InfoAboutHero & operator=(const InfoAboutHero & iah);
+
 	void initFromHero(const CGHeroInstance *h, bool detailed);
 };
 
 /// Struct which holds a int information about a town
-struct DLL_LINKAGE InfoAboutTown
+struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
 {
-	struct Details
+	struct DLL_LINKAGE Details
 	{
-		int hallLevel, goldIncome;
+		si32 hallLevel, goldIncome;
 		bool customRes;
 		bool garrisonedHero;
 
 	} *details;
 
-	const CArmedInstance * obj;
-	char fortLevel; //0 - none
-	char owner;
-	std::string name;
 	CTown *tType;
-	bool built;
 
-	ArmyDescriptor army; //numbers of creatures are valid only if details
+	si32 built;
+	si32 fortLevel; //0 - none
 
 	InfoAboutTown();
+	InfoAboutTown(const CGTownInstance *t, bool detailed);
 	~InfoAboutTown();
 	void initFromTown(const CGTownInstance *t, bool detailed);
-	void initFromGarrison(const CGGarrison *garr, bool detailed);
 };
 
 // typedef si32 TResourceUnit;

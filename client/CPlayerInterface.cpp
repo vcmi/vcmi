@@ -136,18 +136,13 @@ void CPlayerInterface::init(CCallback * CB)
 {
 	cb = dynamic_cast<CCallback*>(CB);
 	if(observerInDuelMode)
-	{
-
 		return;
-	}
+
+	if(!towns.size() && !wanderingHeroes.size())
+		initializeHeroTownList();
 
 	if(!adventureInt)
 		adventureInt = new CAdvMapInt();
-
-	if(!towns.size() && !wanderingHeroes.size())
-	{
-		recreateHeroTownList();
-	}
 }
 void CPlayerInterface::yourTurn()
 {
@@ -250,8 +245,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	}
 
 	adventureInt->centerOn(ho); //actualizing screen pos
-	adventureInt->minimap.draw(screen2);
-	adventureInt->heroList.draw(screen2);
+	adventureInt->minimap.redraw();
+	adventureInt->heroList.redraw();
 
 	bool directlyAttackingCreature =
 		CGI->mh->map->isInTheMap(details.attackedFrom)
@@ -329,8 +324,8 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	ho->isStanding = true;
 
 	//move finished
-	adventureInt->minimap.draw(screen2);
-	adventureInt->heroList.updateMove(ho);
+	adventureInt->minimap.redraw();
+	adventureInt->heroList.update(ho);
 
 	//check if user cancelled movement
 	{
@@ -376,13 +371,13 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 	if(vstd::contains(paths, hero))
 		paths.erase(hero);
 
-	adventureInt->heroList.updateHList(hero);
+	adventureInt->heroList.update(hero);
 }
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	wanderingHeroes.push_back(hero);
-	adventureInt->heroList.updateHList();
+	adventureInt->heroList.update(hero);
 }
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
@@ -390,36 +385,6 @@ void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 		GH.popIntTotally(castleInt);
 	castleInt = new CCastleInterface(town);
 	GH.pushInt(castleInt);
-}
-
-SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
-{
-	if(!specific)
-		specific = adventureInt->selection;
-
-	assert(specific);
-
-	switch(specific->ID)
-	{
-	case GameConstants::HEROI_TYPE:
-		{
-			InfoAboutHero iah;
-			bool gotInfo = LOCPLINT->cb->getHeroInfo(specific, iah);
-			assert(gotInfo);
-			return graphics->drawHeroInfoWin(iah);
-		}
-	case GameConstants::TOWNI_TYPE:
-	case 33: // Garrison
-	case 219:
-		{
-			InfoAboutTown iah;
-			bool gotInfo = LOCPLINT->cb->getTownInfo(specific, iah);
-			assert(gotInfo);
-			return graphics->drawTownInfoWin(iah);
-		}
-	default:
-		return NULL;
-	}
 }
 
 int3 CPlayerInterface::repairScreenPos(int3 pos)
@@ -516,6 +481,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		CGI->mh->printObject(town->visitingHero);
 		wanderingHeroes.push_back(town->visitingHero);
 	}
+	adventureInt->heroList.update();
 	adventureInt->updateNextHero(NULL);
 
 	if(CCastleInterface *c = castleInt)
@@ -546,20 +512,18 @@ void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownIn
 	waitWhileDialog();
 	openTownWindow(town);
 }
-void CPlayerInterface::garrisonChanged( const CGObjectInstance * obj, bool updateInfobox /*= true*/ )
+void CPlayerInterface::garrisonChanged( const CGObjectInstance * obj)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(updateInfobox)
-		updateInfo(obj);
+	updateInfo(obj);
 
 	for(std::list<IShowActivatable*>::iterator i = GH.listInt.begin(); i != GH.listInt.end(); i++)
 	{
-		if((*i)->type & IShowActivatable::WITH_GARRISON)
-		{
-			CGarrisonHolder *cgh = dynamic_cast<CGarrisonHolder*>(*i);
+		CGarrisonHolder *cgh = dynamic_cast<CGarrisonHolder*>(*i);
+		if (cgh)
 			cgh->updateGarrisons();
-		}
-		else if(CTradeWindow *cmw = dynamic_cast<CTradeWindow*>(*i))
+
+		if(CTradeWindow *cmw = dynamic_cast<CTradeWindow*>(*i))
 		{
 			if(obj == cmw->hero)
 				cmw->garrisonChanged();
@@ -593,6 +557,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 		castleInt->removeBuilding(buildingID);
 		break;
 	}
+	adventureInt->townList.update(town);
 }
 
 void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
@@ -941,13 +906,13 @@ void CPlayerInterface::yourTacticPhase(int distance)
 		boost::this_thread::sleep(boost::posix_time::millisec(1));
 }
 
-void CPlayerInterface::showComp(const CComponent &comp)
+void CPlayerInterface::showComp(const Component &comp, std::string message)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog(); //Fix for mantis #98
 
 	CCS->soundh->playSoundFromSet(CCS->soundh->pickupSounds);
-	adventureInt->infoBar.showComp(&comp,4000);
+	adventureInt->infoBar.showComponent(comp, message);
 }
 
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID)
@@ -1377,6 +1342,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 				towns.push_back(static_cast<const CGTownInstance *>(obj));
 			else
 				towns -= obj;
+			adventureInt->townList.update();
 		}
 
 		assert(cb->getTownsInfo().size() == towns.size());
@@ -1384,10 +1350,11 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 
 }
 
-void CPlayerInterface::recreateHeroTownList()
+void CPlayerInterface::initializeHeroTownList()
 {
-	std::vector <const CGHeroInstance *> newWanderingHeroes;
 	std::vector<const CGHeroInstance*> allHeroes = cb->getHeroesInfo();
+	/*
+	std::vector <const CGHeroInstance *> newWanderingHeroes;
 
 	//applying current heroes order to new heroes info
 	int j;
@@ -1401,13 +1368,15 @@ void CPlayerInterface::recreateHeroTownList()
 	//all the rest of new heroes go the end of the list
 	wanderingHeroes.clear();
 	wanderingHeroes = newWanderingHeroes;
-	newWanderingHeroes.clear();
+	newWanderingHeroes.clear();*/
+
 	for (int i = 0; i < allHeroes.size(); i++)
 		if (!allHeroes[i]->inTownGarrison)
 			wanderingHeroes += allHeroes[i];
 
-	std::vector<const CGTownInstance*> newTowns;
 	std::vector<const CGTownInstance*> allTowns = cb->getTownsInfo();
+	/*
+	std::vector<const CGTownInstance*> newTowns;
 	for (int i = 0; i < towns.size(); i++)
 		if ((j = vstd::find_pos(allTowns, towns[i])) >= 0)
 		{
@@ -1417,18 +1386,12 @@ void CPlayerInterface::recreateHeroTownList()
 
 	towns.clear();
 	towns = newTowns;
-	newTowns.clear();
+	newTowns.clear();*/
 	for(int i = 0; i < allTowns.size(); i++)
 		towns.push_back(allTowns[i]);
 
-	adventureInt->updateNextHero(NULL);
-}
-
-const CGHeroInstance * CPlayerInterface::getWHero( int pos )
-{
-	if(pos < 0 || pos >= wanderingHeroes.size())
-		return NULL;
-	return wanderingHeroes[pos];
+	if (adventureInt)
+		adventureInt->updateNextHero(NULL);
 }
 
 void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level)
@@ -2137,24 +2100,6 @@ void CPlayerInterface::acceptTurn()
 	if(howManyPeople > 1)
 		adventureInt->startTurn();
 
-	//boost::unique_lock<boost::recursive_mutex> un(*pim);
-
-	//Select sound for day start
-	int totalDays = cb->getDate();
-	int day = cb->getDate(1);
-	int week = cb->getDate(2);
-
-	if (totalDays == 1)
-		CCS->soundh->playSound(soundBase::newDay);
-	else if (day != 1)
-		CCS->soundh->playSound(soundBase::newDay);
-	else if (week != 1)
-		CCS->soundh->playSound(soundBase::newWeek);
-	else
-		CCS->soundh->playSound(soundBase::newMonth);
-
-	adventureInt->infoBar.newDay(day);
-
 	//select first hero if available.
 	//TODO: check if hero is slept
 	if(wanderingHeroes.size())
@@ -2162,6 +2107,11 @@ void CPlayerInterface::acceptTurn()
 	else
 		adventureInt->select(towns.front());
 
+	//show new day animation and sound on infobar
+	adventureInt->infoBar.showDate();
+
+	adventureInt->heroList.update();
+	adventureInt->townList.update();
 	adventureInt->updateNextHero(NULL);
 	adventureInt->showAll(screen);
 
@@ -2209,9 +2159,10 @@ void CPlayerInterface::tryDiggging(const CGHeroInstance *h)
 
 void CPlayerInterface::updateInfo(const CGObjectInstance * specific)
 {
-	adventureInt->infoBar.updateSelection(specific);
-// 	if (adventureInt->selection == specific)
-// 		adventureInt->infoBar.showAll(screen);
+	if (specific->ID == GameConstants::TOWNI_TYPE)
+		adventureInt->infoBar.showTownSelection(dynamic_cast<const CGTownInstance *>(specific), true);
+	else
+		adventureInt->infoBar.showHeroSelection(dynamic_cast<const CGHeroInstance *>(specific), true);
 }
 
 void CPlayerInterface::battleNewRoundFirst( int round )
@@ -2329,13 +2280,12 @@ void CPlayerInterface::stacksErased(const StackLocation &location)
 	garrisonChanged(location.army);
 }
 
-#define UPDATE_IF(LOC) static_cast<const CArmedInstance*>(adventureInt->infoBar.curSel) == LOC.army.get()
 void CPlayerInterface::stacksSwapped(const StackLocation &loc1, const StackLocation &loc2)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	garrisonChanged(loc1.army, UPDATE_IF(loc1));
+	garrisonChanged(loc1.army);
 	if(loc2.army != loc1.army)
-		garrisonChanged(loc2.army, UPDATE_IF(loc2));
+		garrisonChanged(loc2.army);
 }
 
 void CPlayerInterface::newStackInserted(const StackLocation &location, const CStackInstance &stack)
@@ -2348,9 +2298,9 @@ void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLoc
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	garrisonChanged(src.army, UPDATE_IF(src));
+	garrisonChanged(src.army);
 	if(dst.army != src.army)
-		garrisonChanged(dst.army, UPDATE_IF(dst));
+		garrisonChanged(dst.army);
 }
 #undef UPDATE_IF
 

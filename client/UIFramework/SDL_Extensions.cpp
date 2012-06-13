@@ -995,7 +995,10 @@ void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, con
 
 void CSDL_Ext::SDL_PutPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A /*= 255*/)
 {
-	if(x >= 0  &&  x < ekran->w  &&  y >= 0  &&  y < ekran->h)
+	const SDL_Rect & rect = ekran->clip_rect;
+
+	if(x >= rect.x  &&  x < rect.w + rect.x
+	&& y >= rect.y  &&  y < rect.h + rect.y)
 		SDL_PutPixelWithoutRefresh(ekran, x, y, R, G, B, A);
 }
 

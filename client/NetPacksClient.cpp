@@ -793,11 +793,8 @@ void SetSelection::applyCl(CClient *cl)
 
 void ShowInInfobox::applyCl(CClient *cl)
 {
-	CComponent sc(c);
-	text.toString(sc.description);
-	INTERFACE_CALL_IF_PRESENT(player,showComp, sc);
+	INTERFACE_CALL_IF_PRESENT(player,showComp, c, text.toString());
 }
-
 
 void AdvmapSpellCast::applyCl(CClient *cl)
 {

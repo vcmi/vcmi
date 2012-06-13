@@ -103,9 +103,8 @@ public:
 
 	std::list<CInfoWindow *> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
 
-
 	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
-	std::vector<const CGTownInstance *> towns; //our heroes on the adventure map (not the garrisoned ones)
+	std::vector<const CGTownInstance *> towns; //our towns on the adventure map
 	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
 	std::vector<const CGHeroInstance *> sleepingHeroes; //if hero is in here, he's sleeping
 
@@ -122,8 +121,7 @@ public:
 	} spellbookSettings;
 
 	void update();
-	void recreateHeroTownList();
-	const CGHeroInstance *getWHero(int pos); //returns NULL if position is not valid
+	void initializeHeroTownList();
 	int getLastIndex(std::string namePrefix);
 
 	//overridden funcs from CGameInterface
@@ -179,7 +177,7 @@ public:
 	void objectRemoved(const CGObjectInstance *obj) OVERRIDE;
 	void gameOver(ui8 player, bool victory) OVERRIDE;
 	void playerStartsTurn(ui8 player) OVERRIDE; //called before yourTurn on active itnerface
-	void showComp(const CComponent &comp) OVERRIDE; //display component in the advmapint infobox
+	void showComp(const Component &comp, std::string message) OVERRIDE; //display component in the advmapint infobox
 	void serialize(COSer<CSaveFile> &h, const int version) OVERRIDE; //saving
 	void serialize(CISer<CLoadFile> &h, const int version) OVERRIDE; //loading
 
@@ -207,7 +205,7 @@ public:
 
 	//-------------//
 	void showArtifactAssemblyDialog(ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<void()> onYes, CFunctionList<void()> onNo);
-	void garrisonChanged(const CGObjectInstance * obj, bool updateInfobox = true);
+	void garrisonChanged(const CGObjectInstance * obj);
 	void heroKilled(const CGHeroInstance* hero);
 	void waitWhileDialog(bool unlockPim = true);
 	void waitForAllDialogs(bool unlockPim = true);
@@ -217,7 +215,6 @@ public:
 	void redrawHeroWin(const CGHeroInstance * hero);
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
-	SDL_Surface * infoWin(const CGObjectInstance * specific); //specific=0 => draws info about selected town/hero
 	void updateInfo(const CGObjectInstance * specific);
 	void init(CCallback * CB);
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
