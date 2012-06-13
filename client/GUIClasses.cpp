@@ -92,7 +92,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 		{
 			//if =0 - we have no information about stack size at all
 			if (slot.second.count)
-				subtitle = VLC->generaltexth->arraytxt[171 + 3*(slot.second.count)];
+				subtitle = CGI->generaltexth->arraytxt[171 + 3*(slot.second.count)];
 		}
 
 		new CLabel(slotsPos[slot.first].x + 17, slotsPos[slot.first].y + 41, FONT_TINY, CENTER, Colors::Cornsilk, subtitle);

@@ -8,6 +8,7 @@
 #include "../lib/CGameState.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/NetPacks.h"
+#include "../lib/CHeroHandler.h"
 #include "CAdvmapInterface.h"
 #include "CAnimation.h"
 #include "CGameInfo.h"
@@ -527,12 +528,7 @@ void CMinimap::moveAdvMapSelection()
 
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 
-	int3 newLocation =
-	{
-	    si32(mapSizes.x * dx),
-	    si32(mapSizes.y * dy),
-	    si32(level)
-	};
+	int3 newLocation (mapSizes.x * dx, mapSizes.y * dy, level);
 
 	adventureInt->centerOn(newLocation);
 

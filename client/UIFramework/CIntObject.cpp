@@ -1,4 +1,4 @@
-#include "../StdInc.h"
+#include "StdInc.h"
 #include "CIntObject.h"
 #include "CGuiHandler.h"
 #include "SDL_Extensions.h"
