@@ -505,8 +505,7 @@ void CAdvMapInt::fadventureOPtions()
 
 void CAdvMapInt::fsystemOptions()
 {
-	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(Rect::createCentered(487, 481), LOCPLINT);
-	GH.pushInt(sysopWindow);
+	GH.pushInt(new CSystemOptionsWindow());
 }
 
 void CAdvMapInt::fnextHero()
@@ -1498,7 +1497,7 @@ void CAdvMapInt::adjustActiveness(bool aiTurnStart)
 }
 
 CAdventureOptions::CAdventureOptions():
-    CWindowObject("ADVOPTS", PLAYER_COLORED)
+    CWindowObject(PLAYER_COLORED, "ADVOPTS")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 

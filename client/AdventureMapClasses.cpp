@@ -592,6 +592,7 @@ void CMinimap::update()
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	vstd::clear_pointer(minimap);
 	minimap = new CMinimapInstance(this, level);
+	redraw();
 }
 
 void CMinimap::setLevel(int newLevel)

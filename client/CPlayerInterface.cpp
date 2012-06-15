@@ -382,7 +382,7 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
 	if (castleInt)
-		GH.popIntTotally(castleInt);
+		castleInt->close();
 	castleInt = new CCastleInterface(town);
 	GH.pushInt(castleInt);
 }
@@ -1295,11 +1295,9 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 		text += boost::str(boost::format(CGI->generaltexth->allTexts[732]) % assembledArtifact.Name());
 
 		// Picture of assembled artifact at bottom.
-		CComponent* sc = new CComponent;
-		sc->type = CComponent::artifact;
-		sc->subtype = assembledArtifact.id;
-		sc->description = assembledArtifact.Description();
-		sc->subtitle = assembledArtifact.Name();
+		CComponent* sc = new CComponent(CComponent::artifact, assembledArtifact.id, 0);
+		//sc->description = assembledArtifact.Description();
+		//sc->subtitle = assembledArtifact.Name();
 		scs.push_back(sc);
 	} else {
 		// Do you wish to disassemble this artifact?
@@ -2314,10 +2312,9 @@ void CPlayerInterface::artifactRemoved(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
-		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
-		{
-			(dynamic_cast<CArtifactHolder*>(isa))->artifactRemoved(al);
-		}
+		auto artWin = dynamic_cast<CArtifactHolder*>(isa);
+		if(artWin)
+			artWin->artifactRemoved(al);
 	}
 }
 
@@ -2326,10 +2323,9 @@ void CPlayerInterface::artifactMoved(const ArtifactLocation &src, const Artifact
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
-		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
-		{
-			(dynamic_cast<CArtifactHolder*>(isa))->artifactMoved(src, dst);
-		}
+		auto artWin = dynamic_cast<CArtifactHolder*>(isa);
+		if(artWin)
+			artWin->artifactMoved(src, dst);
 	}
 }
 
@@ -2338,10 +2334,9 @@ void CPlayerInterface::artifactAssembled(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
-		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
-		{
-			(dynamic_cast<CArtifactHolder*>(isa))->artifactAssembled(al);
-		}
+		auto artWin = dynamic_cast<CArtifactHolder*>(isa);
+		if(artWin)
+			artWin->artifactAssembled(al);
 	}
 }
 
@@ -2350,10 +2345,9 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	BOOST_FOREACH(IShowActivatable *isa, GH.listInt)
 	{
-		if(isa->type & IShowActivatable::WITH_ARTIFACTS)
-		{
-			(dynamic_cast<CArtifactHolder*>(isa))->artifactDisassembled(al);
-		}
+		auto artWin = dynamic_cast<CArtifactHolder*>(isa);
+		if(artWin)
+			artWin->artifactDisassembled(al);
 	}
 }
 

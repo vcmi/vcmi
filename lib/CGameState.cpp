@@ -2118,13 +2118,13 @@ struct statsHLP
 {
 	typedef std::pair< ui8, si64 > TStat;
 	//converts [<player's color, value>] to vec[place] -> platers
-	static std::vector< std::list< ui8 > > getRank( std::vector<TStat> stats )
+	static std::vector< std::vector< ui8 > > getRank( std::vector<TStat> stats )
 	{
 		std::sort(stats.begin(), stats.end(), statsHLP());
 
 		//put first element
-		std::vector< std::list<ui8> > ret;
-		std::list<ui8> tmp;
+		std::vector< std::vector<ui8> > ret;
+		std::vector<ui8> tmp;
 		tmp.push_back( stats[0].first );
 		ret.push_back( tmp );
 
@@ -2138,7 +2138,7 @@ struct statsHLP
 			else
 			{
 				//create next occupied rank
-				std::list<ui8> tmp;
+				std::vector<ui8> tmp;
 				tmp.push_back(stats[g].first);
 				ret.push_back(tmp);
 			}

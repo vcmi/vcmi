@@ -70,7 +70,8 @@ void SpellbookInteractiveArea::hover(bool on)
 	}
 }
 
-CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
+CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
+    CWindowObject(PLAYER_COLORED, "SpelBack"),
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
 	currentPage(0),
@@ -145,10 +146,6 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHe
 
 	//numbers of spell pages computed
 
-	pos = myRect;
-	background = BitmapHandler::loadBitmap("SpelBack.bmp");
-	graphics->blueToPlayersAdv(background, myHero->tempOwner);
-
 	leftCorner = BitmapHandler::loadBitmap("SpelTrnL.bmp", true);
 	rightCorner = BitmapHandler::loadBitmap("SpelTrnR.bmp", true);
 	spells = CDefHandler::giveDef("Spells.def");
@@ -221,7 +218,6 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHe
 
 CSpellWindow::~CSpellWindow()
 {
-	SDL_FreeSurface(background);
 	SDL_FreeSurface(leftCorner);
 	SDL_FreeSurface(rightCorner);
 	delete spells;
@@ -320,7 +316,7 @@ void CSpellWindow::fRcornerb()
 
 void CSpellWindow::showAll(SDL_Surface * to)
 {
-	CSDL_Ext::blitSurface(background, NULL, to, &pos);
+	CWindowObject::showAll(to);
 	blitAt(spellTab->ourImages[selectedTab].bitmap, 524 + pos.x, 88 + pos.y, to);
 
 	std::ostringstream mana;

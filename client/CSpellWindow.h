@@ -1,6 +1,7 @@
 #pragma once
 
 #include "UIFramework/CIntObject.h"
+#include "UIFramework/CIntObjectClasses.h"
 
 /*
  * CSpellWindow.h, part of VCMI engine
@@ -38,7 +39,7 @@ public:
 };
 
 /// The spell window
-class CSpellWindow : public CIntObject
+class CSpellWindow : public CWindowObject
 {
 private:
 	class SpellArea : public CIntObject
@@ -60,7 +61,7 @@ private:
 		void showAll(SDL_Surface * to);
 	};
 
-	SDL_Surface * background, * leftCorner, * rightCorner;
+	SDL_Surface * leftCorner, * rightCorner;
 	CDefHandler * spells, //pictures of spells
 		* spellTab, //school select
 		* schools, //schools' pictures

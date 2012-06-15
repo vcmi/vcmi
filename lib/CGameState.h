@@ -143,7 +143,7 @@ struct DLL_LINKAGE SThievesGuildInfo
 {
 	std::vector<ui8> playerColors; //colors of players that are in-game
 
-	std::vector< std::list< ui8 > > numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
+	std::vector< std::vector< ui8 > > numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
 
 	std::map<ui8, InfoAboutHero> colorToBestHero; //maps player's color to his best heros' 
 

@@ -90,24 +90,21 @@ CHeroSwitcher::CHeroSwitcher(Point _pos, const CGHeroInstance * _hero):
 	pos.h = image->pos.h;
 }
 
-CHeroWindow::CHeroWindow(const CGHeroInstance *hero)
-	:  heroWArt(this, hero)
+CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
+    CWindowObject(PLAYER_COLORED, "HeroScr4"),
+	heroWArt(this, hero)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	garr = nullptr;
 	curHero = hero;
 	listSelection = nullptr;
 
-	background = new CPicture("HeroScr4.BMP");
-	background->colorize(LOCPLINT->playerID);
-	pos = background->center();
-
 	new CAnimImage("CREST58", LOCPLINT->playerID, 0, 606, 8);
 
 	//artifs = new CArtifactsOfHero(pos.topLeft(), true);
 	ourBar = new CGStatusBar(7, 559, "ADROLLVR.bmp", 660); // new CStatusBar(pos.x+72, pos.y+567, "ADROLLVR.bmp", 660);
 
-	quitButton = new CAdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(),boost::bind(&CHeroWindow::quit,this), 609, 516, "hsbtns.def", SDLK_RETURN);
+	quitButton = new CAdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(),boost::bind(&CHeroWindow::close,this), 609, 516, "hsbtns.def", SDLK_RETURN);
 	quitButton->assignedKeys.insert(SDLK_ESCAPE);
 	dismissButton = new CAdventureMapButton(std::string(), CGI->generaltexth->heroscrn[28], boost::bind(&CHeroWindow::dismissCurrent,this), 454, 429, "hsbtns2.def", SDLK_d);
 	questlogButton = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), 314, 429, "hsbtns4.def", SDLK_q);
@@ -281,14 +278,9 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		redraw();
 }
 
-void CHeroWindow::quit()
-{
-	GH.popIntTotally(this);
-}
-
 void CHeroWindow::dismissCurrent()
 {
-	CFunctionList<void()> ony = boost::bind(&CHeroWindow::quit,this);
+	CFunctionList<void()> ony = boost::bind(&CHeroWindow::close,this);
 	ony += boost::bind(&CCallback::dismissHero,LOCPLINT->cb,curHero);
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22], ony, 0, false);
 }

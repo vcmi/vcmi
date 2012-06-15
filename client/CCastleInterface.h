@@ -58,9 +58,8 @@ public:
 };
 
 /// Dwelling info box - right-click screen for dwellings
-class CDwellingInfoBox : public CIntObject
+class CDwellingInfoBox : public CWindowObject
 {
-	CPicture *background;
 	CLabel *title;
 	CCreaturePic *animation;
 	CLabel *available;
@@ -70,7 +69,6 @@ class CDwellingInfoBox : public CIntObject
 	std::vector<CLabel *> resAmount;
 public:
 	CDwellingInfoBox(int centerX, int centerY, const CGTownInstance *Town, int level);
-	void clickRight(tribool down, bool previousState);
 };
 
 class HeroSlots;

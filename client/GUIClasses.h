@@ -196,7 +196,6 @@ public:
 	void init(Etype Type, int Subtype, int Val);
 	CComponent(Etype Type, int Subtype, int Val); //c-tor
 	CComponent(const Component &c); //c-tor
-	CComponent(); //c-tor
 
 	void clickRight(tribool down, bool previousState); //call-in
 };
@@ -324,16 +323,15 @@ public:
 class CCreaturePic : public CIntObject
 {
 private:
-	CPicture *bg; //background
+	CPicture *bg;
 	CCreatureAnim *anim; //displayed animation
 
 public:
 	CCreaturePic(int x, int y, const CCreature *cre, bool Big=true, bool Animated=true); //c-tor
-	~CCreaturePic(); //d-tor
 };
 
 /// Recruitment window where you can recruit creatures
-class CRecruitmentWindow : public CIntObject
+class CRecruitmentWindow : public CWindowObject
 {
 public:
 	static const int SPACE_BETWEEN = 18;
@@ -352,7 +350,6 @@ public:
 	boost::function<void(int,int)> recruit; //void (int ID, int amount) <-- call to recruit creatures
 	CSlider *slider; //for selecting amount
 	CAdventureMapButton *max, *buy, *cancel;
-	CPicture *bitmap; //background
 	CGStatusBar *bar;
 	int which; //which creature is active
 
@@ -360,7 +357,6 @@ public:
 	int level;
 	const CArmedInstance *dst;
 
-	void close();
 	void Max();
 	void Buy();
 	void Cancel();
@@ -370,7 +366,6 @@ public:
 	void showAll(SDL_Surface * to);
 	void initCres();
 	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> & Recruit, int y_offset = 0); //creatures - pairs<creature_ID,amount> //c-tor
-	~CRecruitmentWindow(); //d-tor
 };
 
 /// Split window where creatures can be splitted up into two single unit stacks
@@ -405,22 +400,15 @@ public:
 };
 
 /// Raised up level windowe where you can select one out of two skills
-class CLevelWindow : public CIntObject
+class CLevelWindow : public CWindowObject
 {
 public:
-	int heroPortrait;
-	SDL_Surface *bitmap; //background
 	std::vector<CSelectableComponent *> comps; //skills to select
-	CAdventureMapButton *ok;
 	boost::function<void(ui32)> cb;
 
-	void close();
 	CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback); //c-tor
 	~CLevelWindow(); //d-tor
-	void activate();
-	void deactivate();
 	void selectionChanged(unsigned to);
-	void show(SDL_Surface * to);
 };
 
 /// Resource bar like that at the bottom of the adventure map screen
@@ -435,7 +423,7 @@ public:
 };
 
 /// Town portal, castle gate window
-class CObjectListWindow : public CIntObject
+class CObjectListWindow : public CWindowObject
 {
 	class CItem : public CIntObject
 	{
@@ -455,7 +443,6 @@ class CObjectListWindow : public CIntObject
 	CLabel * descr;
 
 	CListBox *list;
-	CPicture *bg; //background
 	CPicture *titleImage;//title image (castle gate\town portal picture)
 	CAdventureMapButton *ok, *exit;
 
@@ -478,7 +465,7 @@ public:
 	void keyPressed (const SDL_KeyboardEvent & key);
 };
 
-class CArtifactHolder : public virtual CIntObject
+class CArtifactHolder
 {
 public:
 	CArtifactHolder();
@@ -500,7 +487,7 @@ public:
 	void artifactAssembled(const ArtifactLocation &artLoc);
 };
 
-class CTradeWindow : public CWindowWithArtifacts //base for markets and altar of sacrifice
+class CTradeWindow : public CWindowObject, public CWindowWithArtifacts //base for markets and altar of sacrifice
 {
 public:
 	enum EType
@@ -538,7 +525,6 @@ public:
 
 	const IMarket *market;
 	const CGHeroInstance *hero;
-	CPicture *bg; //background
 
 	CArtifactsOfHero *arts;
 	//all indexes: 1 = left, 0 = right
@@ -551,7 +537,7 @@ public:
 	CSlider *slider; //for choosing amount to be exchanged
 	bool readyToTrade;
 
-	CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode); //c
+	CTradeWindow(std::string bgName, const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode); //c
 
 	void showAll(SDL_Surface * to);
 
@@ -578,6 +564,8 @@ public:
 class CMarketplaceWindow : public CTradeWindow
 {
 	bool printButtonFor(EMarketMode::EMarketMode M) const;
+
+	std::string getBackgroundForMode(EMarketMode::EMarketMode mode);
 public:
 	int r1, r2; //suggested amounts of traded resources
 	bool madeTransaction; //if player made at least one transaction
@@ -644,13 +632,12 @@ public:
 	void moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, const CArtifactInstance *art);
 };
 
-class CSystemOptionsWindow : public CIntObject
+class CSystemOptionsWindow : public CWindowObject
 {
 private:
 	CLabel *title;
 	CLabelGroup *leftGroup;
 	CLabelGroup *rightGroup;
-	CPicture * bg; //background of window
 	CAdventureMapButton *load, *save, *restart, *mainMenu, *quitGame, *backToMap; //load and restart are not used yet
 	CHighlightableButtonsGroup * heroMoveSpeed;
 	CHighlightableButtonsGroup * mapScrollSpeed;
@@ -689,10 +676,10 @@ private:
 	void pushSDLEvent(int type, int usercode);
 
 public:
-	CSystemOptionsWindow(const SDL_Rect & pos, CPlayerInterface * owner); //c-tor
+	CSystemOptionsWindow(); //c-tor
 };
 
-class CTavernWindow : public CIntObject
+class CTavernWindow : public CWindowObject
 {
 public:
 	class HeroPortrait : public CIntObject
@@ -714,7 +701,6 @@ public:
 
 	} *h1, *h2; //recruitable heroes
 
-	CPicture *bg; //background
 	CGStatusBar *bar; //tavern's internal status bar
 	int selected;//0 (left) or 1 (right)
 	int oldSelected;//0 (left) or 1 (right)
@@ -726,7 +712,6 @@ public:
 	~CTavernWindow(); //d-tor
 
 	void recruitb();
-	void close();
 	void thievesguildb();
 	void show(SDL_Surface * to);
 };
@@ -924,9 +909,8 @@ public:
 	~CGarrisonWindow(); //d-tor
 };
 
-class CExchangeWindow : public CWindowWithGarrison, public CWindowWithArtifacts
+class CExchangeWindow : public CWindowObject, public CWindowWithGarrison, public CWindowWithArtifacts
 {
-	CPicture *background;
 	CGStatusBar * ourBar; //internal statusbar
 
 	CAdventureMapButton * quit, * questlogButton[2];
@@ -945,7 +929,6 @@ public:
 	const CGHeroInstance* heroInst[2];
 	CArtifactsOfHero * artifs[2];
 
-	void close();
 	void showAll(SDL_Surface * to);
 
 	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
@@ -957,11 +940,10 @@ public:
 };
 
 /// Here you can buy ships
-class CShipyardWindow : public CIntObject
+class CShipyardWindow : public CWindowObject
 {
 public:
 	CGStatusBar *bar;
-	CPicture *bg; //background
 	CPicture *bgWater;
 
 	CLabel *title;
@@ -979,27 +961,25 @@ public:
 };
 
 /// Puzzle screen which gets uncovered when you visit obilisks
-class CPuzzleWindow : public CIntObject
+class CPuzzleWindow : public CWindowObject
 {
 private:
-	SDL_Surface * background;
-	CAdventureMapButton * quitb;
-	CResDataBar * resdatabar;
+	int3 grailPos;
 
-	std::vector<std::pair<SDL_Surface *, const SPuzzleInfo *> > puzzlesToPullBack;
-	ui8 animCount;
+	CAdventureMapButton * quitb;
+
+	std::vector<CPicture * > piecesToRemove;
+	ui8 currentAlpha;
 
 public:
-	void activate();
-	void deactivate();
+	void showAll(SDL_Surface * to);
 	void show(SDL_Surface * to);
 
 	CPuzzleWindow(const int3 &grailPos, double discoveredRatio);
-	~CPuzzleWindow();
 };
 
 /// Creature transformer window
-class CTransformerWindow : public CIntObject
+class CTransformerWindow : public CWindowObject
 {
 public:
 	class CItem : public CIntObject
@@ -1015,13 +995,11 @@ public:
 		void showAll(SDL_Surface * to);
 		void clickLeft(tribool down, bool previousState);
 		CItem(CTransformerWindow * _parent, int _size, int _id);
-		~CItem();
 	};
 
 	const CArmedInstance *army;//object with army for transforming (hero or town)
 	const CGHeroInstance *hero;//only if we have hero in town
 	const CGTownInstance *town;//market, town garrison is used if hero == NULL
-	CPicture *bg; //background
 	std::vector<CItem*> items;
 
 	CAdventureMapButton *all, *convert, *cancel;
@@ -1030,10 +1008,9 @@ public:
 	void makeDeal();
 	void addAll();
 	CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town); //c-tor
-	~CTransformerWindow(); //d-tor
 };
 
-class CUniversityWindow : public CIntObject
+class CUniversityWindow : public CWindowObject
 {
 	class CItem : public CAnimImage
 	{
@@ -1054,22 +1031,19 @@ public:
 	const IMarket * market;
 
 	CPicture * green, * yellow, * red;//colored bars near skills
-	CPicture *bg; //background
 	std::vector<CItem*> items;
 
 	CAdventureMapButton *cancel;
 	CGStatusBar *bar;
 
 	CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market); //c-tor
-	~CUniversityWindow(); //d-tor
 };
 
 /// Confirmation window for University
-class CUnivConfirmWindow : public CIntObject
+class CUnivConfirmWindow : public CWindowObject
 {
 public:
 	CUniversityWindow * parent;
-	CPicture * bg;
 	CGStatusBar *bar;
 	CAdventureMapButton *confirm, *cancel;
 
@@ -1078,14 +1052,13 @@ public:
 };
 
 /// Hill fort is the building where you can upgrade units
-class CHillFortWindow : public CIntObject, public CWindowWithGarrison
+class CHillFortWindow : public CWindowObject, public CWindowWithGarrison
 {
 public:
 
 	int slotsCount;//=7;
 	CGStatusBar * bar;
 	CDefEssential *resources;
-	CPicture *bg; //background surface
 	CHeroArea *heroPic;//clickable hero image
 	CAdventureMapButton *quit,//closes window
 	                   *upgradeAll,//upgrade all creatures
@@ -1098,7 +1071,6 @@ public:
 	TResources totalSumm; // totalSum[resource ID] = value
 
 	CHillFortWindow(const CGHeroInstance *visitor, const CGObjectInstance *object); //c-tor
-	~CHillFortWindow(); //d-tor
 
 	void activate();
 	void showAll (SDL_Surface *to);
@@ -1109,21 +1081,15 @@ public:
 	void updateGarrisons();//update buttons after garrison changes
 };
 
-class CThievesGuildWindow : public CIntObject
+class CThievesGuildWindow : public CWindowObject
 {
 	const CGObjectInstance * owner;
 
 	CGStatusBar * statusBar;
 	CAdventureMapButton * exitb;
-	SDL_Surface * background;
 	CMinorResDataBar * resdatabar;
 
 public:
 	void activate();
-	void show(SDL_Surface * to);
-
-	void bexitf();
-
 	CThievesGuildWindow(const CGObjectInstance * _owner);
-	~CThievesGuildWindow();
 };

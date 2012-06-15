@@ -26,7 +26,14 @@ SDL_Color Colors::createColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a /*= 0*/)
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
-	return SDL_CreateRGBSurface(mod->flags,w,h,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
+	SDL_Surface * ret = SDL_CreateRGBSurface(mod->flags,w,h,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
+	if (mod->format->palette)
+	{
+		assert(ret->format->palette);
+		assert(ret->format->palette->ncolors == mod->format->palette->ncolors);
+		memcpy(ret->format->palette->colors, mod->format->palette->colors, mod->format->palette->ncolors * sizeof(SDL_Color));
+	}
+	return ret;
 }
 
 SDL_Surface * CSDL_Ext::copySurface(SDL_Surface * mod) //returns copy of given surface
@@ -1113,6 +1120,50 @@ void CSDL_Ext::applyEffect( SDL_Surface * surf, const SDL_Rect * rect, int mode 
 }
 
 template<int bpp>
+void scaleSurfaceFastInternal(SDL_Surface *surf, SDL_Surface *ret)
+{
+	const float factorX = float(surf->w) / float(ret->w),
+	            factorY = float(surf->h) / float(ret->h);
+
+	for(int y = 0; y < ret->h; y++)
+	{
+		for(int x = 0; x < ret->w; x++)
+		{
+			//coordinates we want to calculate
+			int origX = floor(factorX * x),
+			    origY = floor(factorY * y);
+
+			// Get pointers to source pixels
+			Uint8 *srcPtr = (Uint8*)surf->pixels + origY * surf->pitch + origX * bpp;
+			Uint8 *destPtr = (Uint8*)ret->pixels + y * ret->pitch + x * bpp;
+
+			memcpy(destPtr, srcPtr, bpp);
+		}
+	}
+}
+
+SDL_Surface * CSDL_Ext::scaleSurfaceFast(SDL_Surface *surf, int width, int height)
+{
+	if (!surf || !width || !height)
+		return nullptr;
+
+	//Same size? return copy - this should more be faster
+	if (width == surf->w && height == surf->h)
+		return copySurface(surf);
+
+	SDL_Surface *ret = newSurface(width, height, surf);
+
+	switch(surf->format->BytesPerPixel)
+	{
+		case 1: scaleSurfaceFastInternal<1>(surf, ret); break;
+		case 2: scaleSurfaceFastInternal<2>(surf, ret); break;
+		case 3: scaleSurfaceFastInternal<3>(surf, ret); break;
+		case 4: scaleSurfaceFastInternal<4>(surf, ret); break;
+	}
+	return ret;
+}
+
+template<int bpp>
 void scaleSurfaceInternal(SDL_Surface *surf, SDL_Surface *ret)
 {
 	const float factorX = float(surf->w - 1) / float(ret->w),
@@ -1123,8 +1174,8 @@ void scaleSurfaceInternal(SDL_Surface *surf, SDL_Surface *ret)
 		for(int x = 0; x < ret->w; x++)
 		{
 			//coordinates we want to interpolate
-			float origX = x * factorX,
-			      origY = y * factorY;
+			float origX = factorX * x,
+			      origY = factorY * y;
 
 			float x1 = floor(origX), x2 = floor(origX+1),
 			      y1 = floor(origY), y2 = floor(origY+1);
@@ -1168,11 +1219,7 @@ SDL_Surface * CSDL_Ext::scaleSurface(SDL_Surface *surf, int width, int height)
 		return nullptr;
 
 	if (surf->format->palette)
-	{
-		//it is possible implement but only to power of 2 sizes. May be needed for view world spells
-		tlog0 << "scale surface error: Can't scale indexed surface!\n";
-		return nullptr;
-	}
+		return scaleSurfaceFast(surf, width, height);
 
 	//Same size? return copy - this should more be faster
 	if (width == surf->w && height == surf->h)

@@ -131,6 +131,11 @@ void CPicture::convertToScreenBPP()
 	SDL_FreeSurface(hlp);
 }
 
+void CPicture::setAlpha(int value)
+{
+	SDL_SetAlpha(bg, SDL_SRCALPHA, value);
+}
+
 void CPicture::scaleTo(Point size)
 {
 	SDL_Surface * scaled = CSDL_Ext::scaleSurface(bg, size.x, size.y);
@@ -1239,7 +1244,7 @@ CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts F
 	pos.h = rect.h;
 	pos.w = rect.w;
 	assert(Align == TOPLEFT || Align == CENTER); //TODO: support for other alignments
-	assert(pos.w >= 80); //we need some space
+	assert(pos.w >= 40); //we need some space
 	setTxt(Text);
 }
 
@@ -1590,7 +1595,7 @@ void CFocusable::moveFocus()
 	}
 }
 
-CWindowObject::CWindowObject(std::string imageName, int options_, Point centerAt):
+CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt):
     CIntObject(getUsedEvents(options_), Point()),
     options(options_),
     background(createBg(imageName, options & PLAYER_COLORED))
@@ -1602,9 +1607,11 @@ CWindowObject::CWindowObject(std::string imageName, int options_, Point centerAt
 
 	if (background)
 		pos = background->center(centerAt);
+	else
+		center(centerAt);
 }
 
-CWindowObject::CWindowObject(std::string imageName, int options_):
+CWindowObject::CWindowObject(int options_, std::string imageName):
     CIntObject(getUsedEvents(options_), Point()),
     options(options_),
     background(createBg(imageName, options & PLAYER_COLORED))
@@ -1616,6 +1623,8 @@ CWindowObject::CWindowObject(std::string imageName, int options_):
 
 	if (background)
 		pos = background->center();
+	else
+		center(Point(screen->w/2, screen->h/2));
 }
 
 CPicture * CWindowObject::createBg(std::string imageName, bool playerColored)
@@ -1629,6 +1638,17 @@ CPicture * CWindowObject::createBg(std::string imageName, bool playerColored)
 	if (playerColored)
 		image->colorize(LOCPLINT->playerID);
 	return image;
+}
+
+void CWindowObject::setBackground(std::string filename)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	delete background;
+	background = createBg(filename, options & PLAYER_COLORED);
+
+	if (background)
+		pos = background->center(Point(pos.w/2 + pos.x, pos.h/2 + pos.y));
 }
 
 int CWindowObject::getUsedEvents(int options)

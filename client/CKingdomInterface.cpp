@@ -462,12 +462,10 @@ bool InfoBoxCustom::prepareMessage(std::string &text, CComponent **comp)
 	return false;
 }
 
-CKingdomInterface::CKingdomInterface()
+CKingdomInterface::CKingdomInterface():
+    CWindowObject(PLAYER_COLORED | BORDERED, conf.go()->ac.overviewBg)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	background = new CPicture(conf.go()->ac.overviewBg);
-	background->colorize(LOCPLINT->playerID);
-	pos = background->center();
 	ui32 footerPos = conf.go()->ac.overviewSize * 116;
 
 	tabArea = new CTabbedInt(boost::bind(&CKingdomInterface::createMainTab, this, _1), CTabbedInt::DestroyFunc(), Point(4,4));
@@ -618,7 +616,7 @@ void CKingdomInterface::generateButtons()
 	                                   boost::bind(&CKingdomInterface::activateTab, this, 1),748,64+footerPos,"OVBUTN6.DEF", SDLK_t);
 
 	btnExit = new CAdventureMapButton (CGI->generaltexth->allTexts[600],"",
-	                                  boost::bind(&CGuiHandler::popIntTotally,&GH, this),748,99+footerPos,"OVBUTN1.DEF", SDLK_RETURN);
+	                                  boost::bind(&CKingdomInterface::close, this),748,99+footerPos,"OVBUTN1.DEF", SDLK_RETURN);
 	btnExit->assignedKeys.insert(SDLK_ESCAPE);
 	btnExit->setOffset(3);
 

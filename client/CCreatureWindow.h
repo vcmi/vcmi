@@ -37,7 +37,7 @@ class CLabel;
 class CAnimImage;
 
 // New creature window
-class CCreatureWindow : public CArtifactHolder
+class CCreatureWindow : public CWindowObject, public CArtifactHolder
 {
 public:
 	enum CreWinType {OTHER = 0, BATTLE = 1, ARMY = 2, HERO = 3, COMMANDER = 4, COMMANDER_LEVEL_UP = 5}; // > 3 are opened permanently
@@ -57,7 +57,6 @@ public:
 	std::vector<CBonusItem*> bonusItems;
 	std::vector<LRClickableAreaWText*> spellEffects;
 
-	CPicture *bitmap; //background
 	CCreaturePic *anim; //related creature's animation
 	MoraleLuckBox *luck, *morale;
 	LRClickableAreaWTextComp * expArea; //displays exp details
@@ -87,8 +86,6 @@ public:
 	void showAll(SDL_Surface * to);
 	void show(SDL_Surface * to);
 	void printLine(int nr, const std::string &text, int baseVal, int val=-1, bool range=false);
-	void close();
-	void clickRight(tribool down, bool previousState); //call-in
 	void sliderMoved(int newpos);
 	~CCreatureWindow(); //d-tor
 
@@ -113,10 +110,9 @@ public:
 };
 
 /// original creature info window
-class CCreInfoWindow : public CIntObject
+class CCreInfoWindow : public CWindowObject
 {
 public:
-	CPicture * background;
 	CLabel * creatureCount;
 	CLabel * creatureName;
 	CLabel * abilityText;
@@ -138,8 +134,6 @@ public:
 	void init(const CCreature * cre, const CBonusSystemNode * stackNode, const CGHeroInstance * heroOwner, int creatureCount, bool LClicked);
 	void printLine(int nr, const std::string & text, int baseVal, int val = -1, bool range = false);
 
-	void clickRight(tribool down, bool previousState);
-	void close();
 	void show(SDL_Surface * to);
 };
 

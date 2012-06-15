@@ -246,15 +246,10 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	}
 }
 
-CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstance *Town, int level)
+CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstance *Town, int level):
+    CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "CRTOINFO", Point(centerX, centerY))
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	addUsedEvents(RCLICK);
-	background = new CPicture("CRTOINFO");
-	background->colorize(LOCPLINT->playerID);
-	pos.w = background->pos.w;
-	pos.h = background->pos.h;
-	moveTo(Point(centerX - pos.w/2, centerY - pos.h/2));
 
 	const CCreature * creature = CGI->creh->creatures[Town->creatures[level].second.back()];
 
@@ -282,12 +277,6 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 		resAmount[i]->moveBy(Point(posX+16, posY+43));
 		posX += 50;
 	}
-}
-
-void CDwellingInfoBox::clickRight(tribool down, bool previousState)
-{
-	if((!down || indeterminate(down)))
-		GH.popIntTotally(this);
 }
 
 void CHeroGSlot::hover (bool on)
@@ -919,7 +908,7 @@ void CCastleBuildings::openTownHall()
 }
 
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInstance * from):
-    CWindowObject("", PLAYER_COLORED | BORDERED),
+    CWindowObject(PLAYER_COLORED | BORDERED),
 	hall(NULL),
 	fort(NULL),
 	town(Town)
@@ -981,7 +970,7 @@ void CCastleInterface::close()
 		else
 			adventureInt->select(town);
 	}
-	GH.popIntTotally(this);
+	CWindowObject::close();
 }
 
 void CCastleInterface::castleTeleport(int where)
@@ -996,7 +985,7 @@ void CCastleInterface::townChange()
 	const CGTownInstance * town = this->town;// "this" is going to be deleted
 	if ( dest == town )
 		return;
-	GH.popIntTotally(this);
+	close();
 	GH.pushInt(new CCastleInterface(dest, town));
 }
 
@@ -1330,7 +1319,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 }
 
 CHallInterface::CHallInterface(const CGTownInstance *Town):
-    CWindowObject(CGI->buildh->hall[Town->subID].first, PLAYER_COLORED | BORDERED),
+    CWindowObject(PLAYER_COLORED | BORDERED, CGI->buildh->hall[Town->subID].first),
 	town(Town)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -1416,7 +1405,7 @@ std::string CBuildWindow::getTextForState(int state)
 }
 
 CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Building, int State, bool rightClick):
-    CWindowObject("TPUBUILD", PLAYER_COLORED | (rightClick ? RCLICK_POPUP : 0)),
+    CWindowObject(PLAYER_COLORED | (rightClick ? RCLICK_POPUP : 0), "TPUBUILD"),
 	town(Town),
     building(Building),
     state(State)
@@ -1500,7 +1489,7 @@ std::string CFortScreen::getBgName(const CGTownInstance *town)
 }
 
 CFortScreen::CFortScreen(const CGTownInstance * town):
-    CWindowObject(getBgName(town), PLAYER_COLORED | BORDERED)
+    CWindowObject(PLAYER_COLORED | BORDERED, getBgName(town))
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ui32 fortSize = town->creatures.size();
@@ -1678,7 +1667,7 @@ void CFortScreen::RecruitArea::clickRight(tribool down, bool previousState)
 }
 
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner):
-    CWindowObject("TPMAGE", BORDERED)
+    CWindowObject(BORDERED, "TPMAGE")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	
@@ -1762,7 +1751,7 @@ void CMageGuildScreen::Scroll::hover(bool on)
 }
 
 CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid):
-    CWindowObject("TPSMITH", PLAYER_COLORED)
+    CWindowObject(PLAYER_COLORED, "TPSMITH")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 

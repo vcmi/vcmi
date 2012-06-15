@@ -54,6 +54,10 @@ public:
 	~CPicture();
 	void init();
 
+	//set alpha value for whole surface. Note: may be messed up if surface is shared
+	// 0=transparent, 255=opaque
+	void setAlpha(int value);
+
 	void scaleTo(Point size);
 	void createSimpleRect(const Rect &r, bool screenFormat, ui32 color);
 	void show(SDL_Surface * to);
@@ -463,7 +467,6 @@ public:
 };
 
 /// Basic class for windows
-// TODO: status bar?
 class CWindowObject : public CIntObject
 {
 	CPicture * createBg(std::string imageName, bool playerColored);
@@ -480,6 +483,8 @@ protected:
 	void clickRight(tribool down, bool previousState);
 	//To display border
 	void showAll(SDL_Surface *to);
+	//change or set background image
+	void setBackground(std::string filename);
 public:
 	enum EOptions
 	{
@@ -489,10 +494,10 @@ public:
 	};
 
 	/*
-	 * imageName - name for background image, can be empty
 	 * options - EOpions enum
+	 * imageName - name for background image, can be empty
 	 * centerAt - position of window center. Default - center of the screen
 	*/
-	CWindowObject(std::string imageName, int options, Point centerAt);
-	CWindowObject(std::string imageName, int options);
+	CWindowObject(int options, std::string imageName, Point centerAt);
+	CWindowObject(int options, std::string imageName = "");
 };

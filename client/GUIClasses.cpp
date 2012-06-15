@@ -791,12 +791,6 @@ CComponent::CComponent(const Component &c):
 		subtitle += CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
 }
 
-CComponent::CComponent():
-	image(nullptr)
-{
-	addUsedEvents(RCLICK);
-}
-
 void CComponent::init(Etype Type, int Subtype, int Val)
 {
 	type = Type;
@@ -1047,15 +1041,6 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool An
 	anim->startPreview();
 }
 
-CCreaturePic::~CCreaturePic()
-{
-
-}
-
-void CRecruitmentWindow::close()
-{
-	GH.popIntTotally(this);
-}
 void CRecruitmentWindow::Max()
 {
 	slider->moveToMax();
@@ -1141,7 +1126,7 @@ void CRecruitmentWindow::clickRight(tribool down, bool previousState)
 
 void CRecruitmentWindow::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	CWindowObject::showAll(to);
 
 	char pom[15];
 	SDL_itoa(creatures[which].amount-slider->value,pom,10); //available
@@ -1171,19 +1156,17 @@ void CRecruitmentWindow::showAll(SDL_Surface * to)
 	}
 }
 
-CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> &Recruit, int y_offset)
-:recruit(Recruit), dwelling(Dwelling), level(Level), dst(Dst)
+CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> &Recruit, int y_offset):
+    CWindowObject(PLAYER_COLORED, "TPRCRT"),
+	recruit(Recruit),
+    dwelling(Dwelling),
+    level(Level),
+    dst(Dst)
 {
 	addUsedEvents(LCLICK | RCLICK);
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	which = 0;
-
-	bitmap = new CPicture("TPRCRT.bmp");
-	bitmap->colorizeAndConvert(LOCPLINT->playerID);
-	bitmap->center();
-	pos = (bitmap->pos += Point(0, y_offset));
-
 	bar = new CGStatusBar(8, 370, "APHLFTRT.bmp", 471);
 	max = new CAdventureMapButton(CGI->generaltexth->zelp[553],boost::bind(&CRecruitmentWindow::Max,this),134,313,"IRCBTNS.DEF",SDLK_m);
 	buy = new CAdventureMapButton(CGI->generaltexth->zelp[554],boost::bind(&CRecruitmentWindow::Buy,this),212,313,"IBY6432.DEF",SDLK_RETURN);
@@ -1193,18 +1176,18 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 
 	initCres();
 
-	printAtMiddle(CGI->generaltexth->allTexts[346],113,232,FONT_SMALL,Colors::Cornsilk,*bitmap); //cost per troop t
-	printAtMiddle(CGI->generaltexth->allTexts[465],205,233,FONT_SMALL,Colors::Cornsilk,*bitmap); //available t
-	printAtMiddle(CGI->generaltexth->allTexts[16],279,233,FONT_SMALL,Colors::Cornsilk,*bitmap); //recruit t
-	printAtMiddle(CGI->generaltexth->allTexts[466],371,232,FONT_SMALL,Colors::Cornsilk,*bitmap); //total cost t
-	drawBorder(*bitmap,172,222,67,42,int3(239,215,123));
-	drawBorder(*bitmap,246,222,67,42,int3(239,215,123));
-	drawBorder(*bitmap,64,222,99,76,int3(239,215,123));
-	drawBorder(*bitmap,322,222,99,76,int3(239,215,123));
-	drawBorder(*bitmap,133,312,66,34,int3(173,142,66));
-	drawBorder(*bitmap,211,312,66,34,int3(173,142,66));
-	drawBorder(*bitmap,289,312,66,34,int3(173,142,66));
-
+	new CLabel(113, 232, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[346]); //cost per troop t
+	new CLabel(205, 233, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[465]); //available t
+	new CLabel(279, 233, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[16]); //recruit t
+	new CLabel(371, 232, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[466]); //total cost t
+	/*drawBorder(*background,172,222,67,42,int3(239,215,123));
+	drawBorder(*background,246,222,67,42,int3(239,215,123));
+	drawBorder(*background,64,222,99,76,int3(239,215,123));
+	drawBorder(*background,322,222,99,76,int3(239,215,123));
+	drawBorder(*background,133,312,66,34,int3(173,142,66));
+	drawBorder(*background,211,312,66,34,int3(173,142,66));
+	drawBorder(*background,289,312,66,34,int3(173,142,66));
+*/
 	//border for creatures
 	int curx = 192 + 50 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 	for(int i=0;i<creatures.size();i++)
@@ -1213,10 +1196,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 		creatures[i].pos.y = 65 - 1;
 		creatures[i].pos.w = 100 + 2;
 		creatures[i].pos.h = 130 + 2;
-// 		if(which==i)
-// 			drawBorder(*bitmap,curx-1,64,CREATURE_WIDTH,132,int3(255,0,0));
-// 		else
-// 			drawBorder(*bitmap,curx-1,64,CREATURE_WIDTH,132,int3(239,215,123));
+
 		creatures[i].pic = new CCreaturePic(curx, 65, CGI->creh->creatures[creatures[i].ID]);
 		curx += TOTAL_CREATURE_WIDTH;
 	}
@@ -1227,10 +1207,6 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 		slider->block(true);
 	}
 	buy->block(true);
-}
-
-CRecruitmentWindow::~CRecruitmentWindow()
-{
 }
 
 void CRecruitmentWindow::initCres()
@@ -1264,7 +1240,7 @@ void CRecruitmentWindow::initCres()
 
 CSplitWindow::CSplitWindow(const CCreature * creature, boost::function<void(int, int)> callback_,
                            int leftMin_, int rightMin_, int leftAmount_, int rightAmount_):
-    CWindowObject("GPUCRDIV", PLAYER_COLORED),
+    CWindowObject(PLAYER_COLORED, "GPUCRDIV"),
     callback(callback_),
     leftAmount(leftAmount_),
     rightAmount(rightAmount_),
@@ -1336,7 +1312,74 @@ void CSplitWindow::sliderMoved(int to)
 	setAmount(rightMin + to, false);
 }
 
-void CLevelWindow::close()
+CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback):
+    CWindowObject(PLAYER_COLORED, "LVLUPBKG"),
+    cb(callback)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	LOCPLINT->showingDialog->setn(true);
+
+	for(size_t i=0;i<skills.size();i++)
+	{
+		comps.push_back(new CSelectableComponent(
+		                    CComponent::secskill44,
+		                    skills[i],
+		                    hero->getSecSkillLevel( static_cast<CGHeroInstance::SecondarySkill>(skills[i]) )+1,
+		                    boost::bind(&CLevelWindow::selectionChanged,this,i)));
+
+		comps.back()->assignedKeys.insert(SDLK_1 + i);
+	}
+
+	new CAdventureMapButton("", "", boost::bind(&CLevelWindow::close, this), 297, 413, "IOKAY", SDLK_RETURN);
+
+	//%s has gained a level.
+	new CLabel(192, 33, FONT_MEDIUM, CENTER, Colors::Cornsilk,
+	           boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->name));
+
+	//%s is now a level %d %s.
+	new CLabel(192, 162, FONT_MEDIUM, CENTER, Colors::Cornsilk,
+	           boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->name % hero->type->heroClass->name));
+
+	new CAnimImage("PSKILL42", pskill, 0, 174, 190);
+
+	new CLabel(192, 253, FONT_MEDIUM, CENTER, Colors::Cornsilk,
+	           CGI->generaltexth->primarySkillNames[pskill] + " +1");
+
+	// "or"
+	std::string text = CGI->generaltexth->allTexts[4];
+
+	int fontWidth = graphics->fonts[FONT_MEDIUM]->getWidth(text.c_str())/2;
+
+	int curx = pos.w/2 - ( skills.size()*44 + (skills.size()-1)*(36+fontWidth) )/2;
+
+	for(size_t i=0; i<comps.size(); i++)
+	{
+		comps[i]->moveTo(Point(pos.x + curx, pos.y + 326));
+		if( i < (comps.size()-1) )
+		{
+			curx += 44+21; //skill width + margin to "or"
+			new CLabel(curx, 346, FONT_MEDIUM, CENTER, Colors::Cornsilk, text);
+			curx += fontWidth+15;
+		}
+	}
+
+	if(!comps.empty())
+	{
+		comps[0]->select(true);
+	}
+}
+
+void CLevelWindow::selectionChanged(unsigned to)
+{
+	for(int i=0;i<comps.size();i++)
+		if(i==to)
+			comps[i]->select(true);
+		else
+			comps[i]->select(false);
+}
+
+CLevelWindow::~CLevelWindow()
 {
 	for(int i=0;i<comps.size();i++)
 	{
@@ -1346,112 +1389,11 @@ void CLevelWindow::close()
 			break;
 		}
 	}
-	GH.popIntTotally(this);
 	LOCPLINT->showingDialog->setn(false);
-}
-
-CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)
-{
-	LOCPLINT->showingDialog->setn(true);
-	heroPortrait = hero->portrait;
-	cb = callback;
-	for(int i=0;i<skills.size();i++)
-	{
-		comps.push_back(new CSelectableComponent(CComponent::secskill44, skills[i],
-			hero->getSecSkillLevel( static_cast<CGHeroInstance::SecondarySkill>(skills[i]) )+1,
-			boost::bind(&CLevelWindow::selectionChanged,this,i)));
-		comps.back()->assignedKeys.insert(SDLK_1 + i);
-	}
-	SDL_Surface *hhlp = BitmapHandler::loadBitmap("LVLUPBKG.bmp");
-	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
-	bitmap = SDL_ConvertSurface(hhlp,screen->format,0);
-	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
-	SDL_FreeSurface(hhlp);
-
-	pos.x = screen->w/2 - bitmap->w/2;
-	pos.y = screen->h/2 - bitmap->h/2;
-	pos.w = bitmap->w;
-	pos.h = bitmap->h;
-	ok = new CAdventureMapButton("","",boost::bind(&CLevelWindow::close,this),pos.x+297,pos.y+413,"IOKAY.DEF",SDLK_RETURN);
-	//draw window
-	char buf[100], buf2[100];
-	strcpy(buf2,CGI->generaltexth->allTexts[444].c_str()); //%s has gained a level.
-	sprintf(buf,buf2,hero->name.c_str());
-	printAtMiddle(buf,192,33,FONT_MEDIUM,Colors::Cornsilk,bitmap);
-
-	strcpy(buf2,CGI->generaltexth->allTexts[445].c_str()); //%s is now a level %d %s.
-	sprintf(buf,buf2,hero->name.c_str(),hero->level,hero->type->heroClass->name.c_str());
-	printAtMiddle(buf,192,162,FONT_MEDIUM,Colors::Cornsilk,bitmap);
-
-	blitAt(graphics->pskillsm->ourImages[pskill].bitmap,174,190,bitmap);
-
-	printAtMiddle((CGI->generaltexth->primarySkillNames[pskill] + " +1"),192,253,FONT_MEDIUM,Colors::Cornsilk,bitmap);
-
-	const Font *f = graphics->fonts[FONT_MEDIUM];
-	std::string text = CGI->generaltexth->allTexts[4];
-	int fontWidth = f->getWidth(text.c_str())/2;
-	int curx = bitmap->w/2 - ( skills.size()*44 + (skills.size()-1)*(36+fontWidth) )/2;
-
-	for(int i=0;i<comps.size();i++)
-	{
-		comps[i]->moveTo(Point(pos.x + curx, pos.y + 326));
-		if( i < (comps.size()-1) )
-		{
-			curx += 44+21; //skill width + margin to "or"
-			printAtMiddle(text ,curx,346,FONT_MEDIUM,Colors::Cornsilk,bitmap);
-			curx += fontWidth+15;
-		}
-	}
-
-	if(comps.size())
-	{
-		comps[0]->select(true);
-	}
-}
-void CLevelWindow::selectionChanged(unsigned to)
-{
-	if(ok->isBlocked())
-		ok->block(false);
-	for(int i=0;i<comps.size();i++)
-		if(i==to)
-			comps[i]->select(true);
-		else
-			comps[i]->select(false);
-}
-CLevelWindow::~CLevelWindow()
-{
-	delete ok;
-	for(int i=0;i<comps.size();i++)
-		delete comps[i];
-	SDL_FreeSurface(bitmap);
-}
-void CLevelWindow::activate()
-{
-	ok->activate();
-	for(int i=0;i<comps.size();i++)
-		comps[i]->activate();
-}
-void CLevelWindow::deactivate()
-{
-	ok->deactivate();
-	for(int i=0;i<comps.size();i++)
-		comps[i]->deactivate();
-}
-void CLevelWindow::show(SDL_Surface * to)
-{
-	blitAt(bitmap,pos.x,pos.y,to);
-	blitAt(graphics->portraitLarge[heroPortrait],170+pos.x,66+pos.y,to);
-	ok->showAll(to);
-	for(int i=0;i<comps.size();i++)
-	{
-		comps[i]->showAll(to);
-		comps[i]->show(to);
-	}
 }
 
 void CMinorResDataBar::show(SDL_Surface * to)
 {
-
 }
 
 void CMinorResDataBar::showAll(SDL_Surface * to)
@@ -1523,6 +1465,7 @@ void CObjectListWindow::CItem::clickLeft(tribool down, bool previousState)
 
 CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CPicture * titlePic, std::string _title, std::string _descr,
 				boost::function<void(int)> Callback):
+    CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback)
 {
 	items.reserve(_items.size());
@@ -1536,6 +1479,7 @@ CObjectListWindow::CObjectListWindow(const std::vector<int> &_items, CPicture * 
 
 CObjectListWindow::CObjectListWindow(const std::vector<std::string> &_items, CPicture * titlePic, std::string _title, std::string _descr,
 				boost::function<void(int)> Callback):
+    CWindowObject(PLAYER_COLORED, "TPGATE"),
 	onSelect(Callback)
 {
 	items.reserve(_items.size());
@@ -1550,10 +1494,6 @@ void CObjectListWindow::init(CPicture * titlePic, std::string _title, std::strin
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	bg = new CPicture("TPGATE.pcx");//x=0, y=0
-	bg->colorizeAndConvert(LOCPLINT->playerID);
-	pos = bg->center();
-
 	title = new CLabel(152, 27, FONT_BIG, CENTER, Colors::Jasmine, _title);
 	descr = new CLabel(145, 133, FONT_SMALL, CENTER, Colors::Cornsilk, _descr);
 
@@ -1566,7 +1506,7 @@ void CObjectListWindow::init(CPicture * titlePic, std::string _title, std::strin
 		titleImage = titlePic;
 		addChild(titleImage);
 		titleImage->recActions = defActions;
-		titleImage->pos.x =bg->pos.w/2 + pos.x - titleImage->pos.w/2;
+		titleImage->pos.x = pos.w/2 + pos.x - titleImage->pos.w/2;
 		titleImage->pos.y =75 + pos.y - titleImage->pos.h/2;
 	}
 	list = new CListBox(boost::bind(&CObjectListWindow::genItem, this, _1), CListBox::DestroyFunc(),
@@ -1862,8 +1802,14 @@ void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art)
 		id = -1;
 }
 
-CTradeWindow::CTradeWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode)
-	: market(Market), hero(Hero),  arts(NULL), hLeft(NULL), hRight(NULL), readyToTrade(false)
+CTradeWindow::CTradeWindow(std::string bgName, const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode):
+    CWindowObject(PLAYER_COLORED, bgName),
+	market(Market),
+    hero(Hero),
+    arts(NULL),
+    hLeft(NULL),
+    hRight(NULL),
+    readyToTrade(false)
 {
 	type |= BLOCK_ADV_HOTKEYS;
 	mode = Mode;
@@ -2097,7 +2043,7 @@ void CTradeWindow::initSubs(bool Left)
 
 void CTradeWindow::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	CWindowObject::showAll(to);
 
 	if(hRight)
 		CSDL_Ext::drawBorder(to,hRight->pos.x-1,hRight->pos.y-1,hRight->pos.w+2,hRight->pos.h+2,int3(255,231,148));
@@ -2170,72 +2116,59 @@ void CTradeWindow::artifactSelected(CArtPlace *slot)
 	selectionChanged(true);
 }
 
-CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode)
-	: CTradeWindow(Market, Hero, Mode)
+std::string CMarketplaceWindow::getBackgroundForMode(EMarketMode::EMarketMode mode)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	madeTransaction = false;
-	std::string bgName;
-	bool sliderNeeded = true;
-
-	switch(Mode)
+	switch(mode)
 	{
 	case EMarketMode::RESOURCE_RESOURCE:
-		bgName = "TPMRKRES.bmp";
-		break;
-
+		return "TPMRKRES.bmp";
 	case EMarketMode::RESOURCE_PLAYER:
-		bgName = "TPMRKPTS.bmp";
-		break;
-
+		return "TPMRKPTS.bmp";
 	case EMarketMode::CREATURE_RESOURCE:
-		bgName = "TPMRKCRS.bmp";
-		break;
-
+		return "TPMRKCRS.bmp";
 	case EMarketMode::RESOURCE_ARTIFACT:
-		bgName = "TPMRKABS.bmp";
-		sliderNeeded = false;
-		break;
-
+		return "TPMRKABS.bmp";
 	case EMarketMode::ARTIFACT_RESOURCE:
-		bgName = "TPMRKASS.bmp";
-		sliderNeeded = false;
-		break;
+		return "TPMRKASS.bmp";
 	}
+	assert(0);
+	return "";
+}
 
-	bg = new CPicture(bgName);
-	bg->colorizeAndConvert(LOCPLINT->playerID);
-	pos = bg->center();
+CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode)
+    : CTradeWindow(getBackgroundForMode(Mode), Market, Hero, Mode)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	madeTransaction = false;
+	bool sliderNeeded = true;
 
 	new CGStatusBar(302, 576);
 
-	if(market->o->ID == 7) //black market
-	{
-		printAtMiddle(CGI->generaltexth->allTexts[349],300,27,FONT_BIG,Colors::Jasmine,*bg); //title
-	}
-	else if(market->o->ID == 99 || market->o->ID == 221) //trading post
-	{
-		printAtMiddle(CGI->generaltexth->allTexts[159],300,27,FONT_BIG,Colors::Jasmine,*bg); //title
-	}
-	else if(mode == EMarketMode::CREATURE_RESOURCE)
-	{
-		if(market->o->ID == GameConstants::TOWNI_TYPE)
-			printAtMiddle(CGI->buildh->buildings[6][21]->Name(), 300, 27, FONT_BIG, Colors::Jasmine, *bg); //title
-		else
-			printAtMiddle(market->o->getHoverText(), 300, 27, FONT_BIG, Colors::Jasmine, *bg); //title
-	}
-	else if(mode == EMarketMode::RESOURCE_ARTIFACT || mode == EMarketMode::ARTIFACT_RESOURCE)
-	{
-		const std::string &title = market->o->ID == GameConstants::TOWNI_TYPE
-									? CGI->buildh->buildings[market->o->subID][17]->Name()
-									: market->o->getHoverText();
+	std::string title;
 
-		printAtMiddle(title, 300, 27, FONT_BIG, Colors::Jasmine, *bg); //title
+	if (market->o->ID == GameConstants::TOWNI_TYPE)
+	{
+		switch (mode)
+		{
+		break; case EMarketMode::CREATURE_RESOURCE: title = CGI->buildh->buildings[6][21]->Name();
+		break; case EMarketMode::RESOURCE_ARTIFACT: title = CGI->buildh->buildings[market->o->subID][17]->Name();
+		break; case EMarketMode::ARTIFACT_RESOURCE: title = CGI->buildh->buildings[market->o->subID][17]->Name();
+		break; default: title = CGI->generaltexth->allTexts[158];
+		}
 	}
 	else
 	{
-		printAtMiddle(CGI->generaltexth->allTexts[158],300,27,FONT_BIG,Colors::Jasmine,*bg); //marketplace
+		switch (market->o->ID)
+		{
+		break; case 7:   title = CGI->generaltexth->allTexts[349];
+		break; case 99:  title = CGI->generaltexth->allTexts[159];
+		break; case 221: title = CGI->generaltexth->allTexts[159];
+		break; default:  title = market->o->getHoverText();
+		}
 	}
+
+	new CLabel(300, 27, FONT_BIG, CENTER, Colors::Jasmine, title);
 
 	initItems(false);
 	initItems(true);
@@ -2245,8 +2178,6 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	deal = new CAdventureMapButton(CGI->generaltexth->zelp[595],boost::bind(&CMarketplaceWindow::makeDeal,this),307,520,"TPMRKB.DEF");
 	deal->block(true);
 
-
-	//slider and buttons must be created after bg
 	if(sliderNeeded)
 	{
 		slider = new CSlider(231,490,137,0,0,0);
@@ -2269,13 +2200,17 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	case EMarketMode::RESOURCE_RESOURCE:
 	case EMarketMode::RESOURCE_PLAYER:
 	case EMarketMode::RESOURCE_ARTIFACT:
-		printAtMiddle(CGI->generaltexth->allTexts[270],154,148,FONT_SMALL,Colors::Cornsilk,*bg); //kingdom res.
-		break;
+		new CLabel(154, 148, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[270]);
+
 	case EMarketMode::CREATURE_RESOURCE:
-		printAtMiddle(boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name), 152, 102, FONT_SMALL, Colors::Cornsilk, *bg); //%s's Creatures
+		//%s's Creatures
+		new CLabel(152, 102, FONT_SMALL, CENTER, Colors::Cornsilk,
+		           boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name));
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
-		printAtMiddle(boost::str(boost::format(CGI->generaltexth->allTexts[271]) % hero->name), 152, 57, FONT_SMALL, Colors::Cornsilk, *bg); //%s's Artifacts
+		//%s's Artifacts
+		new CLabel(152, 102, FONT_SMALL, CENTER, Colors::Cornsilk,
+		           boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name));
 		break;
 	}
 
@@ -2286,11 +2221,11 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	case EMarketMode::CREATURE_RESOURCE:
 	case EMarketMode::RESOURCE_ARTIFACT:
 	case EMarketMode::ARTIFACT_RESOURCE:
-		printAtMiddle(CGI->generaltexth->allTexts[168],445,148,FONT_SMALL,Colors::Cornsilk,*bg); //available for trade
+		new CLabel(445, 148, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[168]);
 		traderTextRect = Rect(316, 48, 260, 75);
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
-		printAtMiddle(CGI->generaltexth->allTexts[169],445,55,FONT_SMALL,Colors::Cornsilk,*bg); //players
+		new CLabel(445, 55, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[169]);
 		traderTextRect = Rect(28, 48, 260, 75);
 		break;
 	}
@@ -2322,7 +2257,6 @@ CMarketplaceWindow::~CMarketplaceWindow()
 
 	items[1].clear();
 	items[0].clear();
-	vstd::clear_pointer(bg);
 }
 
 
@@ -2637,21 +2571,19 @@ void CMarketplaceWindow::updateTraderText()
 }
 
 CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*= NULL*/, EMarketMode::EMarketMode Mode)
-	:CTradeWindow(Market, Hero, Mode)
+	:CTradeWindow((Mode == EMarketMode::CREATURE_EXP ? "ALTARMON.bmp" : "ALTRART2.bmp"), Market, Hero, Mode)
 {
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	bg = new CPicture(Mode == EMarketMode::CREATURE_EXP ? "ALTARMON.bmp" : "ALTRART2.bmp");
-	bg->colorizeAndConvert(LOCPLINT->playerID);
-	pos = bg->center();
-
-
-
-
 	if(Mode == EMarketMode::CREATURE_EXP)
 	{
-		printAtMiddle(boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name), 155, 30, FONT_SMALL, Colors::Jasmine, *bg); //%s's Creatures
-		printAtMiddle(CGI->generaltexth->allTexts[479], 450, 30, FONT_SMALL, Colors::Jasmine, *bg); //Altar of Sacrifice
-		printAtMiddleWB(CGI->generaltexth->allTexts[480], 450, 70, FONT_SMALL, 45, Colors::Jasmine, *bg); //To sacrifice creatures, move them from your army on to the Altar and click Sacrifice
+		//%s's Creatures
+		new CLabel(155, 30, FONT_SMALL, CENTER, Colors::Jasmine,
+		           boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name));
+
+		//Altar of Sacrifice
+		new CLabel(450, 30, FONT_SMALL, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[479]);
+
+		 //To sacrifice creatures, move them from your army on to the Altar and click Sacrifice
+		new CTextBox(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, CENTER, Colors::Jasmine);
 
 		slider = new CSlider(231,481,137,0,0,0);
 		slider->moved = boost::bind(&CAltarWindow::sliderMoved,this,_1);
@@ -2666,13 +2598,15 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 	}
 	else
 	{
-		printAtMiddle(CGI->generaltexth->allTexts[477], 450, 34, FONT_SMALL, Colors::Jasmine, *bg); //Sacrifice artifacts for experience
-		printAtMiddle(CGI->generaltexth->allTexts[478], 302, 423, FONT_SMALL, Colors::Jasmine, *bg); //%s's Creatures
+		//Sacrifice artifacts for experience
+		new CLabel(450, 34, FONT_SMALL, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[477]);
+		//%s's Creatures
+		new CLabel(302, 423, FONT_SMALL, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[478]);
 
-		sacrificeAll = new CAdventureMapButton(CGI->generaltexth->zelp[571],boost::bind(&CAltarWindow::SacrificeAll,this),393,520,"ALTFILL.DEF");
-		sacrificeAll->block(!hero->artifactsInBackpack.size() && !hero->artifactsWorn.size());
+		sacrificeAll = new CAdventureMapButton(CGI->generaltexth->zelp[571], boost::bind(&CAltarWindow::SacrificeAll,this),393,520,"ALTFILL.DEF");
+		sacrificeAll->block(hero->artifactsInBackpack.empty() && hero->artifactsWorn.empty());
 		sacrificeBackpack = new CAdventureMapButton(CGI->generaltexth->zelp[570],boost::bind(&CAltarWindow::SacrificeBackpack,this),147,520,"ALTEMBK.DEF");
-		sacrificeBackpack->block(!hero->artifactsInBackpack.size());
+		sacrificeBackpack->block(hero->artifactsInBackpack.empty());
 
 		slider = NULL;
 		max = NULL;
@@ -2681,8 +2615,10 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 		initItems(false);
 	}
 
-	printAtMiddleWB(CGI->generaltexth->allTexts[475], 72, 437, FONT_SMALL, 17, Colors::Jasmine, *bg); //Experience needed to reach next level
-	printAtMiddleWB(CGI->generaltexth->allTexts[476], 72, 505, FONT_SMALL, 17, Colors::Jasmine, *bg); //Total experience on the Altar
+	//Experience needed to reach next level
+	new CTextBox(CGI->generaltexth->allTexts[475], Rect(15, 415, 125, 50), 0, FONT_SMALL, CENTER, Colors::Jasmine);
+	//Total experience on the Altar
+	new CTextBox(CGI->generaltexth->allTexts[476], Rect(15, 495, 125, 40), 0, FONT_SMALL, CENTER, Colors::Jasmine);
 
 	new CGStatusBar(302, 576);
 	ok = new CAdventureMapButton(CGI->generaltexth->zelp[568],boost::bind(&CGuiHandler::popIntTotally,&GH,this),516,520,"IOK6432.DEF",SDLK_RETURN);
@@ -3064,7 +3000,8 @@ void CSystemOptionsWindow::setMapScrollingSpeed( int newSpeed )
 	speed->Float() = newSpeed;
 }
 
-CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &Pos, CPlayerInterface * owner)
+CSystemOptionsWindow::CSystemOptionsWindow():
+    CWindowObject(PLAYER_COLORED, "SysOpBck")
 {
 	//TODO: translation and\or config file
 	static const std::string fsLabel = "Fullscreen";
@@ -3075,10 +3012,6 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &Pos, CPlayerInterface
 	static const std::string rsHelp = "{Select resolution}\n\n Change in-game screen resolution. Will only affect adventure map. Game restart required to apply new resolution.";
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	pos = Pos;
-	bg = new CPicture("SysOpBck");
-	bg->colorize(LOCPLINT->playerID);
-	//window title
 	title = new CLabel(242, 32, FONT_BIG, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[568]);
 
 	//left window section
@@ -3268,8 +3201,9 @@ void CSystemOptionsWindow::brestartf()
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_USEREVENT, RESTART_GAME), 0, false);
 }
 
-CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj)
- : tavernObj(TavernObj)
+CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
+    CWindowObject(PLAYER_COLORED, "TPTAVERN"),
+	tavernObj(TavernObj)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(TavernObj);
@@ -3283,16 +3217,9 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj)
 		selected = -1;
 	oldSelected = -1;
 
-	bg = new CPicture("TPTAVERN.bmp");
-	bg->colorizeAndConvert(LOCPLINT->playerID);
-	pos = center(bg->pos);
-
-
-	printAtMiddle(CGI->generaltexth->jktexts[37],200,35,FONT_BIG,Colors::Jasmine,*bg);
-	printAtMiddle("2500",320,328,FONT_SMALL,Colors::Cornsilk,*bg);
-//	printAtMiddle(CGI->generaltexth->jktexts[38],146,283,FONT_BIG,Colors::Jasmine,bg); //what is this???
-	printAtMiddleWB(LOCPLINT->cb->getTavernGossip(tavernObj), 200, 220, FONT_SMALL, 50, Colors::Cornsilk, *bg);
-
+	new CLabel(200, 35, FONT_BIG, CENTER, Colors::Jasmine, CGI->generaltexth->jktexts[37]);
+	new CLabel(320, 328, FONT_SMALL, CENTER, Colors::Cornsilk, "2500");
+	new CTextBox(LOCPLINT->cb->getTavernGossip(tavernObj), Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::Cornsilk);
 
 	bar = new CGStatusBar(8, 478, "APHLFTRT.bmp", 380);
 	cancel = new CAdventureMapButton(CGI->generaltexth->tavernInfo[7],"", boost::bind(&CTavernWindow::close, this), 310, 428, "ICANCEL.DEF", SDLK_ESCAPE);
@@ -3342,14 +3269,9 @@ CTavernWindow::~CTavernWindow()
 	CCS->videoh->close();
 }
 
-void CTavernWindow::close()
-{
-	GH.popIntTotally(this);
-}
-
 void CTavernWindow::show(SDL_Surface * to)
 {
-	CIntObject::show(to);
+	CWindowObject::show(to);
 
 	CCS->videoh->update(pos.x+70, pos.y+56, to, true, false);
 	if(selected >= 0)
@@ -3390,8 +3312,8 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 	h = H;
-	pos.x = x;
-	pos.y = y;
+	pos.x += x;
+	pos.y += y;
 	pos.w = 58;
 	pos.h = 64;
 
@@ -3630,7 +3552,7 @@ CInGameConsole::CInGameConsole() : prevEntDisp(-1), defaultTimeout(10000), maxDi
 }
 
 CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits ):
-    CWindowObject("GARRISON", PLAYER_COLORED)
+    CWindowObject(PLAYER_COLORED, "GARRISON")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
@@ -4597,14 +4519,9 @@ void CArtifactsOfHero::updateSlot(int slotID)
 	setSlotData(getArtPlace(slotID), slotID);
 }
 
-void CExchangeWindow::close()
-{
-	GH.popIntTotally(this);
-}
-
 void CExchangeWindow::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	CWindowObject::showAll(to);
 
 	//printing border around window
 	if(screen->w != 800 || screen->h !=600)
@@ -4618,71 +4535,62 @@ void CExchangeWindow::questlog(int whichHero)
 
 void CExchangeWindow::prepareBackground()
 {
-	background = new CPicture("TRADE2");
-	background->colorizeAndConvert(LOCPLINT->playerID);
-	SDL_Surface *bg = *background;
-
 	//printing heroes' names and levels
-	std::ostringstream os, os2;
-	os<<heroInst[0]->name<<", Level "<<heroInst[0]->level<<" "<<heroInst[0]->type->heroClass->name;
-	CSDL_Ext::printAtMiddle(os.str(), 147, 25, FONT_SMALL, Colors::Cornsilk, bg);
-	os2<<heroInst[1]->name<<", Level "<<heroInst[1]->level<<" "<<heroInst[1]->type->heroClass->name;
-	CSDL_Ext::printAtMiddle(os2.str(), 653, 25, FONT_SMALL, Colors::Cornsilk, bg);
+	auto genTitle = [](const CGHeroInstance *h)
+	{
+		return boost::str(boost::format(CGI->generaltexth->allTexts[138])
+	                      % h->name % h->level % h->type->heroClass->name);
+	};
+
+	new CLabel(147, 25, FONT_SMALL, CENTER, Colors::Cornsilk, genTitle(heroInst[0]));
+	new CLabel(653, 25, FONT_SMALL, CENTER, Colors::Cornsilk, genTitle(heroInst[1]));
 
 	//printing primary skills
-	CDefHandler * skilldef = CDefHandler::giveDef("PSKIL32.DEF");
 	for(int g=0; g<4; ++g)
-	{
-		//graphics
-		blitAt(skilldef->ourImages[g].bitmap, genRect(32, 32, 385, 19 + 36 * g), bg);
-	}
+		new CAnimImage("PSKIL32", g, 0, 385, 19 + 36*g);
 
-	CDefHandler * un32 = CDefHandler::giveDef("UN32.DEF");
 	//heroes related thing
 	for(int b=0; b<ARRAY_COUNT(heroInst); b++)
 	{
 		CHeroWithMaybePickedArtifact heroWArt = CHeroWithMaybePickedArtifact(this, heroInst[b]);
 		//printing primary skills' amounts
 		for(int m=0; m<4; ++m)
-		{
-			std::ostringstream primarySkill;
-			primarySkill << heroWArt.getPrimSkillLevel(m);
-			CSDL_Ext::printAtMiddle(primarySkill.str(), 352 + 93 * b, 35 + 36 * m, FONT_SMALL, Colors::Cornsilk, bg);
-		}
+			new CLabel(352 + 93 * b, 35 + 36 * m, FONT_SMALL, CENTER, Colors::Cornsilk,
+		               boost::lexical_cast<std::string>(heroWArt.getPrimSkillLevel(m)));
 
 		//printing secondary skills
 		for(int m=0; m<heroInst[b]->secSkills.size(); ++m)
 		{
-			blitAt(graphics->abils32->ourImages[heroInst[b]->secSkills[m].first * 3 + heroInst[b]->secSkills[m].second + 2].bitmap, genRect(32, 32, 32 + 36 * m + 454 * b, 88), bg);
+			int id = heroInst[b]->secSkills[m].first;
+			int level = heroInst[b]->secSkills[m].second;
+			new CAnimImage("SECSK32", id*3 + level + 2 , 0, 32 + 36 * m + 454 * b, 88);
 		}
 
 		//hero's specialty
-		blitAt(un32->ourImages[heroInst[b]->subID].bitmap, 67 + 490*b, 45, bg);
+		new CAnimImage("UN32", heroInst[b]->subID, 0, 67 + 490*b, 45);
 
 		//experience
-		blitAt(skilldef->ourImages[4].bitmap, 103 + 490*b, 45, bg);
-		printAtMiddle( makeNumberShort(heroInst[b]->exp), 119 + 490*b, 71, FONT_SMALL, Colors::Cornsilk, bg );
+		new CAnimImage("PSKIL32", 4, 0, 103 + 490*b, 45);
+		new CLabel(119 + 490*b, 71, FONT_SMALL, CENTER, Colors::Cornsilk, makeNumberShort(heroInst[b]->exp));
 
 		//mana points
-		blitAt(skilldef->ourImages[5].bitmap, 139 + 490*b, 45, bg);
-		printAtMiddle( makeNumberShort(heroInst[b]->mana), 155 + 490*b, 71, FONT_SMALL, Colors::Cornsilk, bg );
+		new CAnimImage("PSKIL32", 5, 0, 139 + 490*b, 45);
+		new CLabel(155 + 490*b, 71, FONT_SMALL, CENTER, Colors::Cornsilk, makeNumberShort(heroInst[b]->mana));
 
 		//setting morale
-		blitAt(graphics->morale30->ourImages[heroWArt.MoraleVal()+3].bitmap, 177 + 490*b, 45, bg);
+		//blitAt(graphics->morale30->ourImages[heroWArt.MoraleVal()+3].bitmap, 177 + 490*b, 45, bg);
 
 		//setting luck
-		blitAt(graphics->luck30->ourImages[heroWArt.LuckVal()+3].bitmap, 213 + 490*b, 45, bg);
+		//blitAt(graphics->luck30->ourImages[heroWArt.LuckVal()+3].bitmap, 213 + 490*b, 45, bg);
 	}
 
 	//printing portraits
-	blitAt(graphics->portraitLarge[heroInst[0]->portrait], 257, 13, bg);
-	blitAt(graphics->portraitLarge[heroInst[1]->portrait], 485, 13, bg);
-
-	delete un32;
-	delete skilldef;
+	new CAnimImage("PortraitsLarge", heroInst[0]->portrait, 0, 257, 13);
+	new CAnimImage("PortraitsLarge", heroInst[1]->portrait, 0, 485, 13);
 }
 
-CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2)
+CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2):
+    CWindowObject(PLAYER_COLORED, "TRADE2")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	char bufor[400];
@@ -4690,7 +4598,6 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2)
 	heroInst[1] = LOCPLINT->cb->getHero(hero2);
 
 	prepareBackground();
-	pos = background->center();
 
 	artifs[0] = new CArtifactsOfHero(Point(-334, 150));
 	artifs[0]->commonInfo = new CArtifactsOfHero::SCommonPart;
@@ -4709,7 +4616,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2)
 	{
 		//primary skill's clickable areas
 		primSkillAreas.push_back(new LRClickableAreaWTextComp());
-		primSkillAreas[g]->pos = genRect(32, 140, 329, 19 + 36 * g);
+		primSkillAreas[g]->pos = genRect(32, 140, pos.x + 329, pos.y + 19 + 36 * g);
 		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
 		primSkillAreas[g]->type = g;
 		primSkillAreas[g]->bonusValue = -1;
@@ -4727,7 +4634,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2)
 			int skill = heroInst[b]->secSkills[g].first,
 				level = heroInst[b]->secSkills[g].second; // <1, 3>
 			secSkillAreas[b].push_back(new LRClickableAreaWTextComp());
-			secSkillAreas[b][g]->pos = genRect(32, 32, 32 + g*36 + b*454 , 88);
+			secSkillAreas[b][g]->pos = genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + 88);
 			secSkillAreas[b][g]->baseType = 1;
 
 			secSkillAreas[b][g]->type = skill;
@@ -4741,12 +4648,12 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2)
 		portrait[b] = new CHeroArea(257 + 228*b, 13, heroInst[b]);
 
 		speciality[b] = new LRClickableAreaWText();
-		speciality[b]->pos = genRect(32, 32, 69 + 490*b, 45);
+		speciality[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + 45);
 		speciality[b]->hoverText = CGI->generaltexth->heroscrn[27];
 		speciality[b]->text = CGI->generaltexth->hTxts[heroInst[b]->subID].longBonus;
 
 		experience[b] = new LRClickableAreaWText();
-		experience[b]->pos = genRect(32, 32, 105 + 490*b, 45);
+		experience[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + 45);
 		experience[b]->hoverText = CGI->generaltexth->heroscrn[9];
 		experience[b]->text = CGI->generaltexth->allTexts[2].c_str();
 		boost::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->level));
@@ -4754,7 +4661,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2)
 		boost::replace_first(experience[b]->text, "%d", boost::lexical_cast<std::string>(heroInst[b]->exp));
 
 		spellPoints[b] = new LRClickableAreaWText();
-		spellPoints[b]->pos = genRect(32, 32, 141 + 490*b, 45);
+		spellPoints[b]->pos = genRect(32, 32, pos.x + 141 + 490*b, pos.y + 45);
 		spellPoints[b]->hoverText = CGI->generaltexth->heroscrn[22];
 		sprintf(bufor, CGI->generaltexth->allTexts[205].c_str(), heroInst[b]->name.c_str(), heroInst[b]->mana, heroInst[b]->manaLimit());
 		spellPoints[b]->text = std::string(bufor);
@@ -4788,12 +4695,10 @@ CExchangeWindow::~CExchangeWindow() //d-tor
 	artifs[1]->commonInfo = NULL;
 }
 
-CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int boatType, const boost::function<void()> &onBuy)
+CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int boatType, const boost::function<void()> &onBuy):
+    CWindowObject(PLAYER_COLORED, "TPSHIP")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	bg = new CPicture("TPSHIP");
-	bg->colorize(LOCPLINT->playerID);
-	pos = bg->center();
 
 	bgWater = new CPicture("TPSHIPBK", 100, 69);
 
@@ -4813,8 +4718,8 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 	goldPic = new CAnimImage("RESOURCE", Res::GOLD, 0, 100, 244);
 	woodPic = new CAnimImage("RESOURCE", Res::WOOD, 0, 196, 244);
 
-	quit = new CAdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 224, 312, "ICANCEL", SDLK_RETURN);
-	build = new CAdventureMapButton(CGI->generaltexth->allTexts[598], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 42, 312, "IBUY30", SDLK_RETURN);
+	quit = new CAdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CShipyardWindow::close, this), 224, 312, "ICANCEL", SDLK_RETURN);
+	build = new CAdventureMapButton(CGI->generaltexth->allTexts[598], "", boost::bind(&CShipyardWindow::close, this), 42, 312, "IBUY30", SDLK_RETURN);
 	build->callback += onBuy;
 
 	for(size_t i = 0; i < cost.size(); i++)
@@ -4826,115 +4731,79 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 		}
 	}
 
-	statusBar = new CGStatusBar(bg->pos.w/2, bg->pos.h-16);
+	statusBar = new CGStatusBar(pos.w/2, pos.h-16);
 
 	title =     new CLabel(164, 27,  FONT_BIG,    CENTER, Colors::Jasmine, CGI->generaltexth->jktexts[13]);
 	costLabel = new CLabel(164, 220, FONT_MEDIUM, CENTER, Colors::Cornsilk,   CGI->generaltexth->jktexts[14]);
 }
 
-CPuzzleWindow::CPuzzleWindow(const int3 &grailPos, double discoveredRatio)
-:animCount(0)
+CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
+    CWindowObject(PLAYER_COLORED | BORDERED, "PUZZLE"),
+    grailPos(GrailPos),
+    currentAlpha(SDL_ALPHA_OPAQUE)
 {
-	SDL_Surface * back = BitmapHandler::loadBitmap("PUZZLE.BMP", false);
-	graphics->blueToPlayersAdv(back, LOCPLINT->playerID);
-	//make transparency black
-	back->format->palette->colors[0].b = back->format->palette->colors[0].r = back->format->palette->colors[0].g = 0;
-	//the rest
-	background = SDL_ConvertSurface(back, screen->format, back->flags);
-	SDL_FreeSurface(back);
-	pos = genRect(background->h, background->w, (screen->w - background->w) / 2, (screen->h - background->h) / 2);
-	quitb = new CAdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), pos.x+670, pos.y+538, "IOK6432.DEF", SDLK_RETURN);
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	CCS->soundh->playSound(soundBase::OBELISK);
+
+	quitb = new CAdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CPuzzleWindow::close, this), 670, 538, "IOK6432.DEF", SDLK_RETURN);
 	quitb->assignedKeys.insert(SDLK_ESCAPE);
 	quitb->borderColor = Colors::MetallicGold;
 	quitb->borderEnabled = true;
 
-	resdatabar = new CResDataBar("ZRESBAR.bmp", pos.x+3, pos.y+575, 32, 2, 85, 85);
-	resdatabar->pos.x = pos.x+3; resdatabar->pos.y = pos.y+575;
-
-	//printing necessary things to background
-	int3 moveInt = int3(8, 9, 0);
-	Rect mapRect = genRect(544, 591, 8, 8);
-	CGI->mh->terrainRect
-		(grailPos - moveInt, adventureInt->anim,
-		 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
-		 background, &mapRect, 0, 0, true, moveInt);
+	new CPicture("PUZZLOGO", 607, 3);
+	new CLabel(700, 95, FONT_BIG, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[463]);
+	new CResDataBar("ZRESBAR.bmp", 3, 575, 32, 2, 85, 85);
 
 	int faction = LOCPLINT->cb->getStartInfo()->playerInfos.find(LOCPLINT->playerID)->second.castle;
 
-	std::vector<SPuzzleInfo> puzzlesToPrint;
-
 	for(int g=0; g<PUZZLES_PER_FACTION; ++g)
 	{
-		if(CGI->heroh->puzzleInfo[faction][g].whenUncovered > PUZZLES_PER_FACTION * discoveredRatio)
+		const SPuzzleInfo & info = CGI->heroh->puzzleInfo[faction][g];
+
+		auto piece = new CPicture(info.filename, info.x, info.y);
+
+		//piece that will slowly disappear
+		if(info.whenUncovered < PUZZLES_PER_FACTION * discoveredRatio)
 		{
-			puzzlesToPrint.push_back(CGI->heroh->puzzleInfo[faction][g]);
-		}
-		else
-		{
-			SDL_Surface *buf = BitmapHandler::loadBitmap(CGI->heroh->puzzleInfo[faction][g].filename);
-			puzzlesToPullBack.push_back( std::make_pair(buf, &CGI->heroh->puzzleInfo[faction][g]) );
+			piecesToRemove.push_back(piece);
+			piece->needRefresh = true;
+			piece->recActions = piece->recActions & ~SHOWALL;
 		}
 	}
-
-	for(int b = 0; b < puzzlesToPrint.size(); ++b)
-	{
-		SDL_Surface * puzzle = BitmapHandler::loadBitmap(puzzlesToPrint[b].filename);
-
-		blitAt(puzzle, puzzlesToPrint[b].x, puzzlesToPrint[b].y, background);
-
-		SDL_FreeSurface(puzzle);
-	}
-
-	CCS->soundh->playSound(soundBase::OBELISK);
 }
 
-CPuzzleWindow::~CPuzzleWindow()
+void CPuzzleWindow::showAll(SDL_Surface * to)
 {
-	delete quitb;
-	delete resdatabar;
-	SDL_FreeSurface(background);
-	for(int g = 0; g < puzzlesToPullBack.size(); ++g)
-		SDL_FreeSurface( puzzlesToPullBack[g].first );
-}
+	int3 moveInt = int3(8, 9, 0);
+	Rect mapRect = genRect(544, 591, pos.x + 8, pos.y + 7);
 
-void CPuzzleWindow::activate()
-{
-	quitb->activate();
-}
+	CGI->mh->terrainRect
+		(grailPos - moveInt, adventureInt->anim,
+		 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
+		 to, &mapRect, 0, 0, true, moveInt);
 
-void CPuzzleWindow::deactivate()
-{
-	quitb->deactivate();
+	CWindowObject::showAll(to);
 }
 
 void CPuzzleWindow::show(SDL_Surface * to)
 {
-	blitAt(background, pos.x, pos.y, to);
-	quitb->showAll(to);
-	resdatabar->draw(to);
+	static int animSpeed = 2;
 
-	//blitting disappearing puzzles
-	for(int g=0; g<2; ++g)
-		if(animCount != 255)
-			++animCount;
-
-	if(animCount != 255)
+	if (currentAlpha < animSpeed)
 	{
-		for(int b = 0; b < puzzlesToPullBack.size(); ++b)
-		{
-			int xPos = puzzlesToPullBack[b].second->x + pos.x,
-				yPos = puzzlesToPullBack[b].second->y + pos.y;
-			SDL_Surface *from = puzzlesToPullBack[b].first;
-
-			SDL_SetAlpha(from, SDL_SRCALPHA, 255 - animCount);
-			blitAt(from, xPos, yPos, to);
-		}
+		//animation done
+		BOOST_FOREACH(auto & piece, piecesToRemove)
+			delete piece;
+		piecesToRemove.clear();
 	}
-	//disappearing puzzles blitted
-
-	//printing border around window
-	if(screen->w != 800 || screen->h !=600)
-		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
+	else
+	{
+		//update disappearing puzzles
+		BOOST_FOREACH(auto & piece, piecesToRemove)
+			piece->setAlpha(currentAlpha);
+		currentAlpha -= animSpeed;
+	}
+	CWindowObject::show(to);
 }
 
 void CTransformerWindow::CItem::showAll(SDL_Surface * to)
@@ -4975,14 +4844,9 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * _parent, int _size, int _i
 	icon = new CAnimImage("TWCRPORT", parent->army->getCreature(id)->idNumber);
 }
 
-CTransformerWindow::CItem::~CItem()
-{
-
-}
-
 void CTransformerWindow::showAll(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	CWindowObject::showAll(to);
 	printAtMiddleLoc(  CGI->generaltexth->allTexts[485], 153,     29,FONT_SMALL,     Colors::Jasmine,to);//holding area
 	printAtMiddleLoc(  CGI->generaltexth->allTexts[486], 153+295, 29,FONT_SMALL,     Colors::Jasmine,to);//transformer
 	printAtMiddleWBLoc(CGI->generaltexth->allTexts[487], 153,     75,FONT_MEDIUM, 32,Colors::Jasmine,to);//move creatures to create skeletons
@@ -5004,13 +4868,12 @@ void CTransformerWindow::addAll()
 	showAll(screen2);
 }
 
-CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town):hero(_hero),town(_town)
+CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town):
+    CWindowObject(PLAYER_COLORED, "SKTRNBK"),
+    hero(_hero),
+    town(_town)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	bg = new CPicture ("SKTRNBK.PCX");
-	bg->colorizeAndConvert(LOCPLINT->playerID);
-	pos = center(bg->pos);
-
 	if (hero)
 		army = hero;
 	else
@@ -5022,13 +4885,8 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 
 	all    = new CAdventureMapButton(CGI->generaltexth->zelp[590],boost::bind(&CTransformerWindow::addAll,this),     146,416,"ALTARMY.DEF",SDLK_a);
 	convert= new CAdventureMapButton(CGI->generaltexth->zelp[591],boost::bind(&CTransformerWindow::makeDeal,this),   269,416,"ALTSACR.DEF",SDLK_RETURN);
-	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[592],boost::bind(&CGuiHandler::popIntTotally,&GH, this),392,416,"ICANCEL.DEF",SDLK_ESCAPE);
+	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[592],boost::bind(&CTransformerWindow::close, this),392,416,"ICANCEL.DEF",SDLK_ESCAPE);
 	bar    = new CGStatusBar(304, 469);
-}
-
-CTransformerWindow::~CTransformerWindow()
-{
-
 }
 
 void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
@@ -5112,11 +4970,12 @@ CUniversityWindow::CItem::CItem(CUniversityWindow * _parent, int _ID, int X, int
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 }
 
-CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market):hero(_hero), market(_market)
+CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket * _market):
+    CWindowObject(PLAYER_COLORED, "UNIVERS1"),
+    hero(_hero),
+    market(_market)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	bg = new CPicture("UNIVERS1.PCX");
-	bg->colorizeAndConvert(LOCPLINT->playerID);
 
 	green  = new CPicture("UNIVGREN.PCX");
 	yellow = new CPicture("UNIVGOLD.PCX");//bars
@@ -5126,60 +4985,57 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	yellow->recActions =
 	red->recActions    = DISPOSE;
 
+	CIntObject * titlePic = nullptr;
+
 	if ( market->o->ID == Obj::UNIVERSITY ) // this is adventure map university
-	{
-		SDL_Surface * titleImage = BitmapHandler::loadBitmap("UNIVBLDG.PCX");
-		blitAtLoc(titleImage, 232-titleImage->w/2, 76-titleImage->h/2, bg->bg);
-		SDL_FreeSurface(titleImage);
-	}
-	else if (LOCPLINT->castleInt && LOCPLINT->castleInt->town->subID == 8)// this is town university
-	{
-		SDL_Surface * titleImage = LOCPLINT->castleInt->bicons->ourImages[21].bitmap;
-		blitAtLoc(titleImage, 232-titleImage->w/2, 76-titleImage->h/2, bg->bg);
-	}
+		titlePic = new CPicture("UNIVBLDG");
+	else
+	if (market->o->ID == GameConstants::TOWNI_TYPE)
+		titlePic = new CAnimImage(graphics->buildingPics[market->o->subID], 21);
 	else
 		tlog0<<"Error: Image for university was not found!\n";//This should not happen
 
-	printAtMiddleWBLoc(CGI->generaltexth->allTexts[603], 232, 153, FONT_SMALL, 70,Colors::Cornsilk,bg->bg);//Clerk speech
-	printAtMiddleLoc  (CGI->generaltexth->allTexts[602], 231, 26 , FONT_MEDIUM ,Colors::Jasmine,bg->bg);//University
+	if (titlePic)
+		titlePic->center(Point(232 + pos.x, 76 + pos.y));
+
+	//Clerk speech
+	new CTextBox(CGI->generaltexth->allTexts[603], Rect(24, 129, 413, 70), 0, FONT_SMALL, CENTER, Colors::Cornsilk);
+
+	//University
+	new CLabel(231, 26, FONT_MEDIUM, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[602]);
 
 	std::vector<int> list = market->availableItemsIds(EMarketMode::RESOURCE_SKILL);
-	if (list.size()!=4)
-		tlog0<<"\t\tIncorrect size of available items vector!\n";
-	for (int i=0; i<list.size(); i++)//prepare clickable items
-		items.push_back(new CItem(this, list[i], pos.x+54+i*104, pos.y+234));
 
-	pos = center(bg->pos);
+	assert(list.size() == 4);
+
+	for (int i=0; i<list.size(); i++)//prepare clickable items
+		items.push_back(new CItem(this, list[i], 54+i*104, 234));
+
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[632],
-		boost::bind(&CGuiHandler::popIntTotally,&GH, this),200,313,"IOKAY.DEF",SDLK_RETURN);
+		boost::bind(&CUniversityWindow::close, this),200,313,"IOKAY.DEF",SDLK_RETURN);
 
 	bar = new CGStatusBar(232, 371);
 }
 
-CUniversityWindow::~CUniversityWindow()
-{
-
-}
-
-CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available ):parent(PARENT)
+CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available ):
+    CWindowObject(PLAYER_COLORED, "UNIVERS2.PCX"),
+    parent(PARENT)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	bg = new CPicture("UNIVERS2.PCX");
-	bg->colorizeAndConvert(LOCPLINT->playerID);
 
 	std::string text = CGI->generaltexth->allTexts[608];
 	boost::replace_first(text, "%s", CGI->generaltexth->levels[0]);
 	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
 	boost::replace_first(text, "%d", "2000");
 
-	printAtMiddleWBLoc(text, 230, 163, FONT_SMALL, 65,Colors::Cornsilk,bg->bg);//Clerk speech
-	printAtMiddleLoc  (CGI->generaltexth-> skillName[SKILL], 230, 37,  FONT_SMALL,    Colors::Cornsilk,bg->bg);//Skill name
-	printAtMiddleLoc  (CGI->generaltexth->levels[1], 230, 107, FONT_SMALL,    Colors::Cornsilk,bg->bg);//Skill level
-	printAtMiddleLoc  ("2000", 230, 267, FONT_SMALL,    Colors::Cornsilk,bg->bg);//Cost
-	blitAtLoc(graphics->abils44->ourImages[SKILL*3+3].bitmap, 211, 51,  bg->bg);//skill
-	blitAtLoc(graphics->resources32->ourImages[6].bitmap, 210, 210, bg->bg);//gold
+	new CTextBox(text, Rect(24, 129, 413, 70), 0, FONT_SMALL, CENTER, Colors::Cornsilk);//Clerk speech
 
-	pos = center(bg->pos);
+	new CLabel(230, 37,  FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth-> skillName[SKILL]);//Skill name
+	new CAnimImage("SECSKILL", SKILL*3+3, 0, 211, 51);//skill
+	new CLabel(230, 107, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->levels[1]);//Skill level
+
+	new CAnimImage("RESOURCE", Res::GOLD, 0, 210, 210);//gold
+	new CLabel(230, 267, FONT_SMALL, CENTER, Colors::Cornsilk, "2000");//Cost
 
 	std::string hoverText = CGI->generaltexth->allTexts[609];
 	boost::replace_first(hoverText, "%s", CGI->generaltexth->levels[0]+ " " + CGI->generaltexth->skillName[SKILL]);
@@ -5193,7 +5049,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 	         148,299,"IBY6432.DEF",SDLK_RETURN);
 	confirm->block(!available);
 
-	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[631],boost::bind(&CGuiHandler::popIntTotally, &GH, this),
+	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[631],boost::bind(&CUnivConfirmWindow::close, this),
 	         252,299,"ICANCEL.DEF",SDLK_ESCAPE);
 	bar = new CGStatusBar(232, 371);
 }
@@ -5201,21 +5057,20 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 void CUnivConfirmWindow::makeDeal(int skill)
 {
 	LOCPLINT->cb->trade(parent->market->o, EMarketMode::RESOURCE_SKILL, 6, skill, 1, parent->hero);
-	GH.popIntTotally(this);
+	close();
 }
 
 CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectInstance *object):
-	fort(object),hero(visitor)
+    CWindowObject(PLAYER_COLORED, "APHLFTBK"),
+	fort(object),
+    hero(visitor)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	slotsCount=7;
 	resources =  CDefHandler::giveDefEss("SMALRES.DEF");
-	bg = new CPicture("APHLFTBK.PCX");
-	bg->colorizeAndConvert(LOCPLINT->playerID);
 
-	printAtMiddleLoc  (fort->hoverName, 325, 32, FONT_BIG, Colors::Jasmine, bg->bg);//Hill Fort
-	pos = center(bg->pos);
+	new CLabel(325, 32, FONT_BIG, CENTER, Colors::Jasmine, fort->hoverName);//Hill Fort
 
 	heroPic = new CHeroArea(30, 60, hero);
 
@@ -5236,16 +5091,11 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	currState[slotsCount] = getState(slotsCount);
 	upgradeAll = new CAdventureMapButton(CGI->generaltexth->allTexts[432],"",boost::bind(&CHillFortWindow::makeDeal, this, slotsCount),
 	                                    30, 231, "", SDLK_0, &files);
-	quit = new CAdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 294, 275, "IOKAY.DEF", SDLK_RETURN);
+	quit = new CAdventureMapButton("","",boost::bind(&CHillFortWindow::close, this), 294, 275, "IOKAY.DEF", SDLK_RETURN);
 	bar = new CGStatusBar(327, 332);
 
-	garr = new CGarrisonInt(108, 60, 18, Point(),bg->bg,Point(108,60),hero,NULL);
+	garr = new CGarrisonInt(108, 60, 18, Point(),background->bg,Point(108,60),hero,NULL);
 	updateGarrisons();
-}
-
-CHillFortWindow::~CHillFortWindow()
-{
-
 }
 
 void CHillFortWindow::activate()
@@ -5315,7 +5165,7 @@ void CHillFortWindow::makeDeal(int slot)
 
 void CHillFortWindow::showAll (SDL_Surface *to)
 {
-	CIntObject::showAll(to);
+	CWindowObject::showAll(to);
 
 	for ( int i=0; i<slotsCount; i++)
 	{
@@ -5404,28 +5254,9 @@ void CThievesGuildWindow::activate()
 	GH.statusbar = statusBar;
 }
 
-void CThievesGuildWindow::show(SDL_Surface * to)
-{
-	blitAt(background, pos.x, pos.y, to);
-
-	statusBar->show(to);
-	exitb->showAll(to);
-	resdatabar->show(to);
-
-	//showing border around window
-	if(screen->w != 800 || screen->h !=600)
-	{
-		CMessage::drawBorder(LOCPLINT->playerID, to, pos.w + 28, pos.h + 28, pos.x-14, pos.y-15);
-	}
-}
-
-void CThievesGuildWindow::bexitf()
-{
-	GH.popIntTotally(this);
-}
-
-CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
-	:owner(_owner)
+CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
+    CWindowObject(PLAYER_COLORED | BORDERED, "TpRank"),
+	owner(_owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	type |= BLOCK_ADV_HOTKEYS;
@@ -5433,153 +5264,122 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner)
 	SThievesGuildInfo tgi; //info to be displayed
 	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);
 
-	pos = center(Rect(0,0,800,600));// Rect( (conf.cc.resx - 800) / 2, (conf.cc.resy - 600) / 2, 800, 600 );
-
-	//loading backround and converting to more bpp form
-	SDL_Surface * bg = background = BitmapHandler::loadBitmap("TpRank.bmp", false);
-	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
-	background = newSurface(bg->w, bg->h);
-	blitAt(bg, 0, 0, background);
-	SDL_FreeSurface(bg);
-
-	exitb = new CAdventureMapButton (std::string(), std::string(), boost::bind(&CThievesGuildWindow::bexitf,this), 748, 556, "TPMAGE1.def", SDLK_RETURN);
-	statusBar = new CGStatusBar(3, 555, "TStatBar.bmp", 742);
+	exitb = new CAdventureMapButton (CGI->generaltexth->allTexts[600], "", boost::bind(&CThievesGuildWindow::close,this), 748, 556, "TPMAGE1", SDLK_RETURN);
+	statusBar = new CGStatusBar(3, 555, "TStatBar", 742);
 
 	resdatabar = new CMinorResDataBar();
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
 
-	static std::vector< std::list< ui8 > > SThievesGuildInfo::* fields[] = 
-		{ &SThievesGuildInfo::numOfTowns, &SThievesGuildInfo::numOfHeroes, &SThievesGuildInfo::gold,
-		  &SThievesGuildInfo::woodOre, &SThievesGuildInfo::mercSulfCrystGems, &SThievesGuildInfo::obelisks, 
-		  &SThievesGuildInfo::artifacts, &SThievesGuildInfo::army, &SThievesGuildInfo::income };
+	//data for information table:
+	// fields[row][column] = list of id's of players for this box
+	static std::vector< std::vector< ui8 > > SThievesGuildInfo::* fields[] =
+		{ &SThievesGuildInfo::numOfTowns, &SThievesGuildInfo::numOfHeroes,       &SThievesGuildInfo::gold,
+		  &SThievesGuildInfo::woodOre,    &SThievesGuildInfo::mercSulfCrystGems, &SThievesGuildInfo::obelisks,
+		  &SThievesGuildInfo::artifacts,  &SThievesGuildInfo::army,              &SThievesGuildInfo::income };
 
 	//printing texts & descriptions to background
 
 	for(int g=0; g<12; ++g)
 	{
+		int posY[] = {400, 460, 510};
 		int y;
-		if(g == 9) //best hero
-		{
-			y = 400;
-		}
-		else if(g == 10) //personality
-		{
-			y = 460;
-		}
-		else if(g == 11) //best monster
-		{
-			y = 510;
-		}
-		else
-		{
+		if(g < 9)
 			y = 52 + 32*g;
-		}
+		else
+			y = posY[g-9];
+
 		std::string text = CGI->generaltexth->jktexts[24+g];
 		boost::algorithm::trim_if(text,boost::algorithm::is_any_of("\""));
-		printAtMiddle(text, 135, y, FONT_MEDIUM, Colors::Jasmine, background);
+		new CLabel(135, y, FONT_MEDIUM, CENTER, Colors::Jasmine, text);
 	}
 
-	CDefHandler * strips = CDefHandler::giveDef("PRSTRIPS.DEF");
-
-	static const std::string colorToBox[] = {"PRRED.BMP", "PRBLUE.BMP", "PRTAN.BMP", "PRGREEN.BMP", "PRORANGE.BMP", "PRPURPLE.BMP", "PRTEAL.BMP", "PRROSE.bmp"};
+	for(int g=1; g<tgi.playerColors.size(); ++g)
+		new CAnimImage("PRSTRIPS", g-1, 0, 250 + 66*g, 7);
 
 	for(int g=0; g<tgi.playerColors.size(); ++g)
-	{
-		if(g > 0)
-		{
-			blitAt(strips->ourImages[g-1].bitmap, 250 + 66*g, 7, background);
-		}
-		printAtMiddle(CGI->generaltexth->jktexts[16+g], 283 + 66*g, 24, FONT_BIG, Colors::Jasmine, background);
-		SDL_Surface * box = BitmapHandler::loadBitmap(colorToBox[tgi.playerColors[g]]);
-		blitAt(box, 253 + 66*g, 334, background);
-		SDL_FreeSurface(box);
-	}
-
-	delete strips;
-
-	CDefHandler * flagPictures = CDefHandler::giveDef("itgflags.def");
+		new CLabel(283 + 66*g, 24, FONT_BIG, CENTER, Colors::Jasmine, CGI->generaltexth->jktexts[16+g]);
 
 	//printing flags
 	for(int g = 0; g < ARRAY_COUNT(fields); ++g) //by lines
 	{
 		for(int b=0; b<(tgi .* fields[g]).size(); ++b) //by places (1st, 2nd, ...)
 		{
-			std::list<ui8> players = (tgi .* fields[g])[b]; //get players with this place in this line
-			//std::sort(players.begin(), players.end());
+			std::vector<ui8> players = (tgi .* fields[g])[b]; //get players with this place in this line
 
-			int counter = 0;
-			for(std::list<ui8>::const_iterator it = players.begin(); it != players.end(); ++it)
+			//position of box
+			int xpos = 259 + 66 * b;
+			int ypos = 41 +  32 * g;
+
+			size_t rowLength[2]; //size of each row
+			rowLength[0] = std::min<size_t>(players.size(), 4);
+			rowLength[1] = players.size() - rowLength[0];
+
+			for (size_t j=0; j< 2; j++)
 			{
-				int xpos = 259 + 66 * b + 12 * (counter % 4) + 6 * (counter / 4);
-				int ypos = 41 + 32 * g + 4 * (counter / 4);
-				blitAt(flagPictures->ourImages[*it].bitmap, xpos, ypos, background);
-				counter++;
+				// origin of this row | offset for 2nd row| shift right for short rows
+				int rowStartX = xpos   +   (j ? 6 : 0)   +   (rowLength[j] < 3 ? 12 : 0);
+				int rowStartY = ypos   +   (j ? 4 : 0);
+
+				for (size_t i=0; i< rowLength[j]; i++)
+				{
+					new CAnimImage("itgflags", players[i + j*4], 0, rowStartX + i*12, rowStartY);
+				}
 			}
 		}
 	}
-	delete flagPictures;
-	flagPictures = NULL;
+
+	static const std::string colorToBox[] = {"PRRED.BMP", "PRBLUE.BMP", "PRTAN.BMP", "PRGREEN.BMP", "PRORANGE.BMP", "PRPURPLE.BMP", "PRTEAL.BMP", "PRROSE.bmp"};
 
 	//printing best hero
-
 	int counter = 0;
-	for(std::map<ui8, InfoAboutHero>::const_iterator it = tgi.colorToBestHero.begin(); it !=  tgi.colorToBestHero.end(); ++it)
+	BOOST_FOREACH(auto & iter, tgi.colorToBestHero)
 	{
-		if(it->second.portrait >= 0)
-			blitAt(graphics->portraitSmall[it->second.portrait], 260 + 66 * counter, 360, background);
-		counter++;
-
-		//printing stats
-		if(it->second.details)
+		if(iter.second.portrait >= 0)
 		{
-			printAtWB(CGI->generaltexth->allTexts[184], 191 + 66*counter, 396, FONT_TINY, 10, Colors::Cornsilk, background);
-			for (int i=0; i<it->second.details->primskills.size(); ++i)
+			new CPicture(colorToBox[iter.first], 253 + 66 * counter, 334);
+			new CAnimImage("PortraitsSmall", iter.second.portrait, 0, 260 + 66 * counter, 360);
+			//TODO: r-click info:
+			// - r-click on hero
+			// - r-click on primary skill label
+			if(iter.second.details)
 			{
-				std::ostringstream skill;
-				skill << it->second.details->primskills[i];
-				printTo(skill.str(), 244 + 66 * counter, 407 + 11*i, FONT_TINY, Colors::Cornsilk, background);
+				new CTextBox(CGI->generaltexth->allTexts[184], Rect(260 + 66*counter, 396, 52, 64),
+				             0, FONT_TINY, TOPLEFT, Colors::Cornsilk);
+				for (int i=0; i<iter.second.details->primskills.size(); ++i)
+				{
+					new CLabel(310 + 66 * counter, 407 + 11*i, FONT_TINY, BOTTOMRIGHT, Colors::Cornsilk,
+					           boost::lexical_cast<std::string>(iter.second.details->primskills[i]));
+				}
 			}
 		}
-
+		counter++;
 	}
 
 	//printing best creature
 	counter = 0;
-	for(std::map<ui8, si32>::const_iterator it = tgi.bestCreature.begin(); it !=  tgi.bestCreature.end(); ++it)
+	BOOST_FOREACH(auto & it, tgi.bestCreature)
 	{
-		if(it->second >= 0)
-			blitAt(graphics->bigImgs[it->second], 255 + 66 * counter, 479, background);
+		if(it.second >= 0)
+			new CAnimImage("TWCRPORT", it.second+2, 0, 255 + 66 * counter, 479);
 		counter++;
 	}
 
 	//printing personality
 	counter = 0;
-	for(std::map<ui8, si8>::const_iterator it = tgi.personality.begin(); it !=  tgi.personality.end(); ++it)
+	BOOST_FOREACH(auto & it, tgi.personality)
 	{
-		int toPrint = 0;
-		if(it->second == -1)
-		{
-			toPrint = 172;
-		}
+		std::string text;
+		if(it.second == -1)
+			text = CGI->generaltexth->arraytxt[172];
 		else
-		{
-			toPrint = 168 + it->second;
-		}
+		if (it.second)
+			text = CGI->generaltexth->arraytxt[168 + it.second];
 
-		printAtMiddle(CGI->generaltexth->arraytxt[toPrint], 283 + 66*counter, 459, FONT_SMALL, Colors::Cornsilk, background);
+		new CLabel(283 + 66*counter, 459, FONT_SMALL, CENTER, Colors::Cornsilk, text);
 
 		counter++;
 	}
-
-}
-
-CThievesGuildWindow::~CThievesGuildWindow()
-{
-	SDL_FreeSurface(background);
-// 	delete exitb;
-// 	delete statusBar;
-// 	delete resdatabar;
 }
 
 void MoraleLuckBox::set(const IBonusBearer *node)
@@ -5651,7 +5451,6 @@ MoraleLuckBox::~MoraleLuckBox()
 
 CArtifactHolder::CArtifactHolder()
 {
-	type |= WITH_ARTIFACTS;
 }
 
 void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation &artLoc)
@@ -5749,7 +5548,7 @@ Point CInfoBoxPopup::toScreen(Point p)
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town):
-    CWindowObject("TOWNQVBK", RCLICK_POPUP | PLAYER_COLORED, toScreen(position))
+    CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "TOWNQVBK", toScreen(position))
 {
 	InfoAboutTown iah;
 	bool gotInfo = LOCPLINT->cb->getTownInfo(town, iah);
@@ -5760,7 +5559,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town):
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero):
-    CWindowObject("HEROQVBK", RCLICK_POPUP | PLAYER_COLORED, toScreen(position))
+    CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "HEROQVBK", toScreen(position))
 {
 	InfoAboutHero iah;
 	bool gotInfo = LOCPLINT->cb->getHeroInfo(hero, iah);
@@ -5771,7 +5570,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero):
 }
 
 CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr):
-    CWindowObject("TOWNQVBK", RCLICK_POPUP | PLAYER_COLORED, toScreen(position))
+    CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "TOWNQVBK", toScreen(position))
 {
 	InfoAboutTown iah;
 	bool gotInfo = LOCPLINT->cb->getTownInfo(garr, iah);

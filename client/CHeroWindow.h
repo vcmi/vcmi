@@ -1,7 +1,8 @@
 #pragma once
 
 #include "../lib/HeroBonus.h"
-
+#include "UIFramework/CIntObjectClasses.h"
+#include "GUIClasses.h"
 
 //#include "CPlayerInterface.h"
 
@@ -48,9 +49,8 @@ public:
 	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const OVERRIDE;
 };
 
-class CHeroWindow: public CWindowWithGarrison, public CWindowWithArtifacts
+class CHeroWindow: public CWindowObject, public CWindowWithGarrison, public CWindowWithArtifacts
 {
-	CPicture *background;
 	CGStatusBar * ourBar; //heroWindow's statusBar
 
 	//buttons
@@ -85,7 +85,6 @@ public:
 	void update(const CGHeroInstance * hero, bool redrawNeeded = false); //sets main displayed hero
 	void showAll(SDL_Surface * to);
 
-	void quit(); //stops displaying hero window and disposes
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
 	void questlog(); //show quest log in hero window
 	void commanderWindow();

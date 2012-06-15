@@ -53,7 +53,7 @@ class IShowActivatable : public IShowable, public IActivatable
 {
 public:
 	//redraw parent flag - this int may be semi-transparent and require redraw of parent window
-	enum {WITH_GARRISON = 1, BLOCK_ADV_HOTKEYS = 2, WITH_ARTIFACTS = 4, REDRAW_PARENT=8};
+	enum {BLOCK_ADV_HOTKEYS = 2, REDRAW_PARENT=8};
 	int type; //bin flags using etype
 	IShowActivatable();
 	virtual ~IShowActivatable(){}; //d-tor

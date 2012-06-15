@@ -194,7 +194,7 @@ public:
 ////////////////////////////////////////////////////////////////////////////////
 
 /// Class which holds all parts of kingdom overview window
-class CKingdomInterface : public CGarrisonHolder, public CArtifactHolder
+class CKingdomInterface : public CWindowObject, public CGarrisonHolder, public CArtifactHolder
 {
 private:
 	struct OwnedObjectInfo
@@ -207,7 +207,6 @@ private:
 
 	CListBox * dwellingsList;
 	CTabbedInt * tabArea;
-	CPicture * background;
 
 	//Main buttons
 	CAdventureMapButton *btnTowns;
@@ -302,7 +301,7 @@ public:
 };
 
 /// Tab with all hero-specific data
-class CKingdHeroList : public CGarrisonHolder, public CWindowWithArtifacts
+class CKingdHeroList : public CIntObject, public CGarrisonHolder, public CWindowWithArtifacts
 {
 private:
 	CArtifactsOfHero::SCommonPart artsCommonPart;
