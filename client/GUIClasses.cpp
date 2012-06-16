@@ -1127,6 +1127,13 @@ void CRecruitmentWindow::clickRight(tribool down, bool previousState)
 void CRecruitmentWindow::showAll(SDL_Surface * to)
 {
 	CWindowObject::showAll(to);
+	drawBorder(to, pos.x + 172, pos.y + 222, 67, 42, int3(239,215,123));
+	drawBorder(to, pos.x + 246, pos.y + 222, 67, 42, int3(239,215,123));
+	drawBorder(to, pos.x + 64,  pos.y + 222, 99, 76, int3(239,215,123));
+	drawBorder(to, pos.x + 322, pos.y + 222, 99, 76, int3(239,215,123));
+	drawBorder(to, pos.x + 133, pos.y + 312, 66, 34, int3(173,142,66));
+	drawBorder(to, pos.x + 211, pos.y + 312, 66, 34, int3(173,142,66));
+	drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, int3(173,142,66));
 
 	char pom[15];
 	SDL_itoa(creatures[which].amount-slider->value,pom,10); //available
@@ -1167,7 +1174,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	which = 0;
-	bar = new CGStatusBar(8, 370, "APHLFTRT.bmp", 471);
+	bar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	max = new CAdventureMapButton(CGI->generaltexth->zelp[553],boost::bind(&CRecruitmentWindow::Max,this),134,313,"IRCBTNS.DEF",SDLK_m);
 	buy = new CAdventureMapButton(CGI->generaltexth->zelp[554],boost::bind(&CRecruitmentWindow::Buy,this),212,313,"IBY6432.DEF",SDLK_RETURN);
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[555],boost::bind(&CRecruitmentWindow::Cancel,this),290,313,"ICN6432.DEF",SDLK_ESCAPE);
@@ -1180,14 +1187,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 	new CLabel(205, 233, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[465]); //available t
 	new CLabel(279, 233, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[16]); //recruit t
 	new CLabel(371, 232, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[466]); //total cost t
-	/*drawBorder(*background,172,222,67,42,int3(239,215,123));
-	drawBorder(*background,246,222,67,42,int3(239,215,123));
-	drawBorder(*background,64,222,99,76,int3(239,215,123));
-	drawBorder(*background,322,222,99,76,int3(239,215,123));
-	drawBorder(*background,133,312,66,34,int3(173,142,66));
-	drawBorder(*background,211,312,66,34,int3(173,142,66));
-	drawBorder(*background,289,312,66,34,int3(173,142,66));
-*/
+
 	//border for creatures
 	int curx = 192 + 50 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 	for(int i=0;i<creatures.size();i++)
@@ -1331,6 +1331,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 		comps.back()->assignedKeys.insert(SDLK_1 + i);
 	}
 
+	new CAnimImage("PortraitsLarge", hero->portrait, 0, 170, 66);
 	new CAdventureMapButton("", "", boost::bind(&CLevelWindow::close, this), 297, 413, "IOKAY", SDLK_RETURN);
 
 	//%s has gained a level.
@@ -1339,9 +1340,9 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 
 	//%s is now a level %d %s.
 	new CLabel(192, 162, FONT_MEDIUM, CENTER, Colors::Cornsilk,
-	           boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->name % hero->type->heroClass->name));
+	           boost::str(boost::format(CGI->generaltexth->allTexts[445]) % hero->name % hero->level % hero->type->heroClass->name));
 
-	new CAnimImage("PSKILL42", pskill, 0, 174, 190);
+	new CAnimImage("PSKIL42", pskill, 0, 174, 190);
 
 	new CLabel(192, 253, FONT_MEDIUM, CENTER, Colors::Cornsilk,
 	           CGI->generaltexth->primarySkillNames[pskill] + " +1");
@@ -2143,7 +2144,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	madeTransaction = false;
 	bool sliderNeeded = true;
 
-	new CGStatusBar(302, 576);
+	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	std::string title;
 
@@ -2620,7 +2621,8 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 	//Total experience on the Altar
 	new CTextBox(CGI->generaltexth->allTexts[476], Rect(15, 495, 125, 40), 0, FONT_SMALL, CENTER, Colors::Jasmine);
 
-	new CGStatusBar(302, 576);
+	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+
 	ok = new CAdventureMapButton(CGI->generaltexth->zelp[568],boost::bind(&CGuiHandler::popIntTotally,&GH,this),516,520,"IOK6432.DEF",SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
 
@@ -3221,7 +3223,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 	new CLabel(320, 328, FONT_SMALL, CENTER, Colors::Cornsilk, "2500");
 	new CTextBox(LOCPLINT->cb->getTavernGossip(tavernObj), Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::Cornsilk);
 
-	bar = new CGStatusBar(8, 478, "APHLFTRT.bmp", 380);
+	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	cancel = new CAdventureMapButton(CGI->generaltexth->tavernInfo[7],"", boost::bind(&CTavernWindow::close, this), 310, 428, "ICANCEL.DEF", SDLK_ESCAPE);
 	recruit = new CAdventureMapButton("", "", boost::bind(&CTavernWindow::recruitb, this), 272, 355, "TPTAV01.DEF", SDLK_RETURN);
 	thiefGuild = new CAdventureMapButton(CGI->generaltexth->tavernInfo[5],"", boost::bind(&CTavernWindow::thievesguildb, this), 22, 428, "TPTAV02.DEF", SDLK_t);
@@ -4576,12 +4578,6 @@ void CExchangeWindow::prepareBackground()
 		//mana points
 		new CAnimImage("PSKIL32", 5, 0, 139 + 490*b, 45);
 		new CLabel(155 + 490*b, 71, FONT_SMALL, CENTER, Colors::Cornsilk, makeNumberShort(heroInst[b]->mana));
-
-		//setting morale
-		//blitAt(graphics->morale30->ourImages[heroWArt.MoraleVal()+3].bitmap, 177 + 490*b, 45, bg);
-
-		//setting luck
-		//blitAt(graphics->luck30->ourImages[heroWArt.LuckVal()+3].bitmap, 213 + 490*b, 45, bg);
 	}
 
 	//printing portraits
@@ -4731,7 +4727,7 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 		}
 	}
 
-	statusBar = new CGStatusBar(pos.w/2, pos.h-16);
+	statusBar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	title =     new CLabel(164, 27,  FONT_BIG,    CENTER, Colors::Jasmine, CGI->generaltexth->jktexts[13]);
 	costLabel = new CLabel(164, 220, FONT_MEDIUM, CENTER, Colors::Cornsilk,   CGI->generaltexth->jktexts[14]);
@@ -4886,7 +4882,7 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 	all    = new CAdventureMapButton(CGI->generaltexth->zelp[590],boost::bind(&CTransformerWindow::addAll,this),     146,416,"ALTARMY.DEF",SDLK_a);
 	convert= new CAdventureMapButton(CGI->generaltexth->zelp[591],boost::bind(&CTransformerWindow::makeDeal,this),   269,416,"ALTSACR.DEF",SDLK_RETURN);
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[592],boost::bind(&CTransformerWindow::close, this),392,416,"ICANCEL.DEF",SDLK_ESCAPE);
-	bar    = new CGStatusBar(304, 469);
+	bar    = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
 void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
@@ -5014,7 +5010,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[632],
 		boost::bind(&CUniversityWindow::close, this),200,313,"IOKAY.DEF",SDLK_RETURN);
 
-	bar = new CGStatusBar(232, 371);
+	bar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
 CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bool available ):
@@ -5051,7 +5047,7 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[631],boost::bind(&CUnivConfirmWindow::close, this),
 	         252,299,"ICANCEL.DEF",SDLK_ESCAPE);
-	bar = new CGStatusBar(232, 371);
+	bar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 }
 
 void CUnivConfirmWindow::makeDeal(int skill)
@@ -5092,7 +5088,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	upgradeAll = new CAdventureMapButton(CGI->generaltexth->allTexts[432],"",boost::bind(&CHillFortWindow::makeDeal, this, slotsCount),
 	                                    30, 231, "", SDLK_0, &files);
 	quit = new CAdventureMapButton("","",boost::bind(&CHillFortWindow::close, this), 294, 275, "IOKAY.DEF", SDLK_RETURN);
-	bar = new CGStatusBar(327, 332);
+	bar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	garr = new CGarrisonInt(108, 60, 18, Point(),background->bg,Point(108,60),hero,NULL);
 	updateGarrisons();
@@ -5265,7 +5261,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);
 
 	exitb = new CAdventureMapButton (CGI->generaltexth->allTexts[600], "", boost::bind(&CThievesGuildWindow::close,this), 748, 556, "TPMAGE1", SDLK_RETURN);
-	statusBar = new CGStatusBar(3, 555, "TStatBar", 742);
+	statusBar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	resdatabar = new CMinorResDataBar();
 	resdatabar->pos.x += pos.x;

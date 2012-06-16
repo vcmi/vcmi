@@ -923,6 +923,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	pos.w = panel->pos.w;
 	pos.h = builds->pos.h + panel->pos.h;
 	center();
+	updateShadow();
 
 	garr = new CGarrisonInt(305, 387, 4, Point(0,96), panel->bg, Point(62,374), town->getUpperArmy(), town->visitingHero);
 	heroes = new HeroSlots(town, Point(241, 387), Point(241, 483), garr, true);
@@ -1755,7 +1756,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	statusBar = new CGStatusBar(164, 370);
+	statusBar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	
 	animBG = new CPicture("TPSMITBK", 64, 50);
 	animBG->needRefresh = true;

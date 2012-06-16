@@ -78,7 +78,8 @@ ui8 * CLodHandler::giveFile(std::string fname, LodFileType type, int * length)
 			result = -1;
 		if(result<0)
 		{
-			tlog1<<"Error in file reading: " << myDir << "/" << ourEntry.realName << std::endl;
+			tlog1<<"Error in file reading: " << ourEntry.realName << std::endl;
+			perror("Last error was: ");//print system error message
 			delete[] outp;
 			return NULL;
 		}

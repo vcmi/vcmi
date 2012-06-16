@@ -15,7 +15,6 @@ class CMinorResDataBar;
 class CPicture;
 class CResDataBar;
 class CSpell;
-class CStatusBar;
 class CTextBox;
 class CTownList;
 struct Structure;

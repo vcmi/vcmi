@@ -21,7 +21,11 @@ JsonNode::JsonNode(std::string filename):
 {
 	FILE * file = fopen(filename.c_str(), "rb");
 	if (!file)
+	{
+		tlog1 << "Failed to open file " << filename << "\n";
+		perror("Last system error was ");
 		return;
+	}
 
 	fseek(file, 0, SEEK_END);
 	size_t datasize = ftell(file);

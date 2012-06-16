@@ -942,7 +942,7 @@ void CAnimation::init(CDefFile * file)
 		ui8 * configFile = spriteh->giveFile(name, FILE_TEXT, &size);
 
 		const JsonNode config((char*)configFile, size);
-		delete configFile;
+		delete[] configFile;
 
 		std::string basepath;
 		basepath = config["basepath"].String();

@@ -376,8 +376,7 @@ public:
 };
 
 /// Status bar which is shown at the bottom of the in-game screens
-class CGStatusBar
-	: public CLabel, public IStatusBar
+class CGStatusBar : public CLabel, public IStatusBar
 {
 	void init();
 public:
@@ -389,7 +388,7 @@ public:
 	std::string getCurrent(); //returns currently displayed text
 	void show(SDL_Surface * to); //shows statusbar (with current text)
 
-	CGStatusBar(int x, int y, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::Cornsilk, const std::string &Text =  "");
+	//CGStatusBar(int x, int y, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::Cornsilk, const std::string &Text =  "");
 	CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::Cornsilk); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
 	CGStatusBar(int x, int y, std::string name, int maxw=-1); 
 
@@ -472,6 +471,9 @@ class CWindowObject : public CIntObject
 	CPicture * createBg(std::string imageName, bool playerColored);
 	int getUsedEvents(int options);
 
+	CIntObject *shadow;
+	void setShadow(bool on);
+
 	int options;
 
 protected:
@@ -485,12 +487,14 @@ protected:
 	void showAll(SDL_Surface *to);
 	//change or set background image
 	void setBackground(std::string filename);
+	void updateShadow();
 public:
 	enum EOptions
 	{
 		PLAYER_COLORED=1, //background will be player-colored
 		RCLICK_POPUP=2, // window will behave as right-click popup
-		BORDERED=4 // window will have border if current resolution is bigger than size of window
+		BORDERED=4, // window will have border if current resolution is bigger than size of window
+		SHADOW_DISABLED=8 //this window won't display any shadow
 	};
 
 	/*
@@ -500,4 +504,5 @@ public:
 	*/
 	CWindowObject(int options, std::string imageName, Point centerAt);
 	CWindowObject(int options, std::string imageName = "");
+	~CWindowObject();
 };
