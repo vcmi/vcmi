@@ -152,7 +152,8 @@ void CClient::run()
 			pack = NULL;
 		}
 	} 
-	catch (const std::exception& e)
+	//catch only asio exceptions
+	catch (const boost::system::system_error& e)
 	{	
 		tlog3 << "Lost connection to server, ending listening thread!\n";
 		tlog1 << e.what() << std::endl;

@@ -33,7 +33,7 @@ fi
 # For gcc and compatible compilers, enable compilation warnings, but
 # selectively disable some because too many are generated.
 if test "x$GXX" = "xyes" ; then
-   CXXFLAGS="$CXXFLAGSc -std=c++0x -Wall -Wextra -Wcast-align -Wpointer-arith -Wno-switch -Wno-sign-compare -Wno-unused-parameter"
+   CXXFLAGS="$CXXFLAGS -std=c++0x -Wall -Wextra -Wcast-align -Wpointer-arith -Wno-switch -Wno-sign-compare -Wno-unused-parameter"
 fi
 
 # extra clang parameters

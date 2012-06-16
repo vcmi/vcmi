@@ -245,20 +245,20 @@ DLL_LINKAGE void MetaString::toString(std::string &dst) const
 			dst += boost::lexical_cast<std::string>(numbers[nums++]);
 			break;
 		case TREPLACE_ESTRING:
-			dst.replace (dst.find("%s"), 2, exactStrings[exSt++]);
+			boost::replace_first(dst, "%s", exactStrings[exSt++]);
 			break;
 		case TREPLACE_LSTRING:
 			{
 				std::string hlp;
 				getLocalString(localStrings[loSt++], hlp);
-				dst.replace (dst.find("%s"), 2, hlp);
+				boost::replace_first(dst, "%s", hlp);
 			}
 			break;
 		case TREPLACE_NUMBER:
-			dst.replace (dst.find("%d"), 2, boost::lexical_cast<std::string>(numbers[nums++]));
+			boost::replace_first(dst, "%d", boost::lexical_cast<std::string>(numbers[nums++]));
 			break;
 		case TREPLACE_PLUSNUMBER:
-			dst.replace (dst.find("%+d"), 3, '+' + boost::lexical_cast<std::string>(numbers[nums++]));
+			boost::replace_first(dst, "%+d", '+' + boost::lexical_cast<std::string>(numbers[nums++]));
 			break;
 		default:
 			tlog1 << "MetaString processing error!\n";

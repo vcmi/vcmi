@@ -961,7 +961,7 @@ void CSelectableComponent::show(SDL_Surface * to)
 		CSDL_Ext::drawBorder(to, Rect::around(Rect(pos.x, pos.y, image->pos.w, image->pos.h)), int3(239,215,123));
 	}
 
-	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+25,FONT_SMALL,12,Colors::Cornsilk,to);
+	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+25,FONT_SMALL,14,Colors::Cornsilk,to);
 }
 
 void CSelWindow::selectionChange(unsigned to)
