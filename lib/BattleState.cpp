@@ -421,8 +421,19 @@ int BattleInfo::getAvaliableHex(TCreature creID, bool attackerOwned, int initial
 	bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
 	bool flying = VLC->creh->creatures[creID]->isFlying();
 
+	int pos; 
+	if (initialPos > -1)
+		pos = initialPos;
+	else //summon elementals depending on player side
+	{ 
+ 		if (attackerOwned) 
+	 		pos = 0; //top left 
+ 		else 
+ 			pos = GameConstants::BFIELD_WIDTH - 1; //top right 
+ 	} 
+
 	std::set<BattleHex> occupyable;
-	getAccessibilityMap (ac, twoHex, attackerOwned, false, occupyable, flying);
+	getAccessibilityMap (ac, twoHex, attackerOwned, true, occupyable, flying);
 
 	for (int i = 0; i < GameConstants::BFIELD_SIZE; ++i)
 	{
@@ -432,7 +443,7 @@ int BattleInfo::getAvaliableHex(TCreature creID, bool attackerOwned, int initial
 	if (!occupyable.size())
 		return -1; //all tiles are covered
 
-	return getClosestTile (attackerOwned, initialPos, occupyable);
+	return getClosestTile (attackerOwned, pos, occupyable);
 }
 
 bool BattleInfo::isStackBlocked(const CStack * stack) const
@@ -1005,7 +1016,7 @@ CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerO
 		   (base.armyObj && base.armyObj->tempOwner == owner));
 
 	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
-	ret->position = position;
+	ret->position = getAvaliableHex (base.getCreatureID(), attackerOwned, position); //TODO: what if no free tile on battlefield was found?
 	return ret;
 }
 CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, int slot, BattleHex position) const
@@ -1648,7 +1659,110 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 		curB->terrainType = terrain;
 	}
 
-	//reading battleStartpos
+	//setting up siege obstacles
+	if (town && town->hasFort())
+	{
+		for (int b = 0; b < ARRAY_COUNT (curB->si.wallState); ++b)
+		{
+			curB->si.wallState[b] = 1;
+		}
+	}
+
+	//randomize obstacles
+ 	if (town == NULL && !creatureBank) //do it only when it's not siege and not creature bank
+ 	{
+		const int ABSOLUTE_OBSTACLES_COUNT = 34, USUAL_OBSTACLES_COUNT = 91; //shouldn't be changes if we want H3-like obstacle placement
+
+		RandGen r;
+		auto ourRand = [&]{ return r.rand(); };
+		r.srand(tile);
+		r.rand(1,8); //battle sound ID to play... can't do anything with it here
+		int tilesToBlock = r.rand(5,12);
+		const int specialBattlefield = battlefieldTypeToBI(battlefieldType);
+
+		std::vector<BattleHex> blockedTiles;
+
+		auto appropriateAbsoluteObstacle = [&](int id)
+		{
+			return VLC->heroh->absoluteObstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
+		};
+		auto appropriateUsualObstacle = [&](int id) -> bool
+		{
+			return VLC->heroh->obstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
+		};
+
+		if(r.rand(1,100) <= 40) //put cliff-like obstacle
+		{
+			RangeGenerator obidgen(0, ABSOLUTE_OBSTACLES_COUNT-1, ourRand);
+			
+			try
+			{
+				auto obstPtr = make_shared<CObstacleInstance>();
+				obstPtr->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
+				obstPtr->ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
+				obstPtr->uniqueID = curB->obstacles.size();
+				curB->obstacles.push_back(obstPtr);
+
+				BOOST_FOREACH(BattleHex blocked, obstPtr->getBlockedTiles())
+					blockedTiles.push_back(blocked);
+				tilesToBlock -= VLC->heroh->absoluteObstacles[obstPtr->ID].blockedTiles.size() / 2;
+			}
+			catch(RangeGenerator::ExhaustedPossibilities &)
+			{
+				//silently ignore, if we can't place absolute obstacle, we'll go with the usual ones
+			}
+		}
+
+		RangeGenerator obidgen(0, USUAL_OBSTACLES_COUNT-1, ourRand);
+		try
+		{
+			while(tilesToBlock > 0)
+			{
+				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
+				const CObstacleInfo &obi = VLC->heroh->obstacles[obid];
+
+				auto validPosition = [&](BattleHex pos) -> bool
+				{
+					if(obi.height >= pos.getY())
+						return false;
+					if(pos.getX() == 0)
+						return false;
+					if(pos.getX() + obi.width > 15)
+						return false;
+					if(vstd::contains(blockedTiles, pos))
+						return false;
+
+					BOOST_FOREACH(BattleHex blocked, obi.getBlocked(pos))
+					{
+						if(vstd::contains(blockedTiles, blocked))
+							return false;
+						int x = blocked.getX();
+						if(x <= 2 || x >= 14)
+							return false;
+					}
+
+					return true;
+				};
+
+				RangeGenerator posgenerator(18, 168, ourRand);
+
+				auto obstPtr = make_shared<CObstacleInstance>();
+				obstPtr->ID = obid;
+				obstPtr->pos = posgenerator.getSuchNumber(validPosition);
+				obstPtr->uniqueID = curB->obstacles.size();
+				curB->obstacles.push_back(obstPtr);
+
+				BOOST_FOREACH(BattleHex blocked, obstPtr->getBlockedTiles())
+					blockedTiles.push_back(blocked);
+				tilesToBlock -= obi.blockedTiles.size();
+			}
+		}
+		catch(RangeGenerator::ExhaustedPossibilities &)
+		{
+		}
+	}
+
+	//reading battleStartpos - add creatures AFTER random obstacles are generated
 	//TODO: parse once to some structure
 	std::vector< std::vector<int> > attackerLoose, defenderLoose, attackerTight, defenderTight, attackerCreBank, defenderCreBank;
 	std::vector <int> commanderField, commanderBank;
@@ -1801,109 +1915,6 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 	}
 
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
-
-	//setting up siege
-	if(town && town->hasFort())
-	{
-		for(int b=0; b<ARRAY_COUNT(curB->si.wallState); ++b)
-		{
-			curB->si.wallState[b] = 1;
-		}
-	}
-
-	//randomize obstacles
- 	if(town == NULL && !creatureBank) //do it only when it's not siege and not creature bank
- 	{
-		const int ABSOLUTE_OBSTACLES_COUNT = 34, USUAL_OBSTACLES_COUNT = 91; //shouldn't be changes if we want H3-like obstacle placement
-
-		RandGen r;
-		auto ourRand = [&]{ return r.rand(); };
-		r.srand(tile);
-		r.rand(1,8); //battle sound ID to play... can't do anything with it here
-		int tilesToBlock = r.rand(5,12);
-		const int specialBattlefield = battlefieldTypeToBI(battlefieldType);
-
-		std::vector<BattleHex> blockedTiles;
-
-		auto appropriateAbsoluteObstacle = [&](int id)
-		{
-			return VLC->heroh->absoluteObstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
-		};
-		auto appropriateUsualObstacle = [&](int id) -> bool
-		{
-			return VLC->heroh->obstacles[id].isAppropriate(curB->terrainType, specialBattlefield);
-		};
-
-		if(r.rand(1,100) <= 40) //put cliff-like obstacle
-		{
-			RangeGenerator obidgen(0, ABSOLUTE_OBSTACLES_COUNT-1, ourRand);
-			
-			try
-			{
-				auto obstPtr = make_shared<CObstacleInstance>();
-				obstPtr->obstacleType = CObstacleInstance::ABSOLUTE_OBSTACLE;
-				obstPtr->ID = obidgen.getSuchNumber(appropriateAbsoluteObstacle);
-				obstPtr->uniqueID = curB->obstacles.size();
-				curB->obstacles.push_back(obstPtr);
-
-				BOOST_FOREACH(BattleHex blocked, obstPtr->getBlockedTiles())
-					blockedTiles.push_back(blocked);
-				tilesToBlock -= VLC->heroh->absoluteObstacles[obstPtr->ID].blockedTiles.size() / 2;
-			}
-			catch(RangeGenerator::ExhaustedPossibilities &)
-			{
-				//silently ignore, if we can't place absolute obstacle, we'll go with the usual ones
-			}
-		}
-
-		RangeGenerator obidgen(0, USUAL_OBSTACLES_COUNT-1, ourRand);
-		try
-		{
-			while(tilesToBlock > 0)
-			{
-				const int obid = obidgen.getSuchNumber(appropriateUsualObstacle);
-				const CObstacleInfo &obi = VLC->heroh->obstacles[obid];
-
-				auto validPosition = [&](BattleHex pos) -> bool
-				{
-					if(obi.height >= pos.getY())
-						return false;
-					if(pos.getX() == 0)
-						return false;
-					if(pos.getX() + obi.width > 15)
-						return false;
-					if(vstd::contains(blockedTiles, pos))
-						return false;
-
-					BOOST_FOREACH(BattleHex blocked, obi.getBlocked(pos))
-					{
-						if(vstd::contains(blockedTiles, blocked))
-							return false;
-						int x = blocked.getX();
-						if(x <= 2 || x >= 14)
-							return false;
-					}
-
-					return true;
-				};
-
-				RangeGenerator posgenerator(18, 168, ourRand);
-
-				auto obstPtr = make_shared<CObstacleInstance>();
-				obstPtr->ID = obid;
-				obstPtr->pos = posgenerator.getSuchNumber(validPosition);
-				obstPtr->uniqueID = curB->obstacles.size();
-				curB->obstacles.push_back(obstPtr);
-
-				BOOST_FOREACH(BattleHex blocked, obstPtr->getBlockedTiles())
-					blockedTiles.push_back(blocked);
-				tilesToBlock -= obi.blockedTiles.size();
-			}
-		}
-		catch(RangeGenerator::ExhaustedPossibilities &)
-		{
-		}
-	}
 
 	//spell level limiting bonus
 	curB->addNewBonus(new Bonus(Bonus::ONE_BATTLE, Bonus::LEVEL_SPELL_IMMUNITY, Bonus::OTHER,

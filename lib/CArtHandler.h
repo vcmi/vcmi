@@ -161,62 +161,6 @@ public:
 	}
 };
 
-// class DLL_LINKAGE IModableArt : public CArtifact //artifact which can have different properties, such as scroll or banner
-// { //used only for dynamic cast :P
-// public:
-// 	si32 ID; //used for smart serialization
-// 
-// 	template <typename Handler> void serialize(Handler &h, const int version)
-// 	{
-// 		h & static_cast<CArtifact&>(*this);
-// 		h & ID;
-// 	}
-// };
-// 
-// class DLL_LINKAGE CScroll : public IModableArt // Spell Scroll
-// {
-// public:
-// 	CScroll(){spellid=0;};
-// 	CScroll(spelltype sid){spellid = sid;};
-// 	spelltype spellid;
-// 	void Init();
-// 	void SetProperty (int mod){spellid = mod;};
-// 	template <typename Handler> void serialize(Handler &h, const int version)
-// 	{
-// 		h & static_cast<IModableArt&>(*this);
-// 		h & spellid;
-// 	}
-// };
-// 
-// class DLL_LINKAGE CCustomizableArt : public IModableArt // Warlord's Banner with multiple options
-// {
-// public:
-// 	ui8 mode;
-// 	CCustomizableArt(){mode=0;};
-// 	void Init(){};
-// 	void SetProperty (int mod){};
-// 	template <typename Handler> void serialize(Handler &h, const int version)
-// 	{
-// 		h & static_cast<IModableArt&>(*this);
-// 		h & mode;
-// 	}
-// };
-// 
-// class DLL_LINKAGE CCommanderArt : public IModableArt // Growing with time
-// {
-// public:
-// 	ui32 level;
-// 	CCommanderArt(){level = 0;};
-// 	void Init(){};
-// 	void SetProperty (int mod){level = mod;};
-// 	void Upgrade(){level++;};
-// 	template <typename Handler> void serialize(Handler &h, const int version)
-// 	{
-// 		h & static_cast<IModableArt&>(*this);
-// 		h & level;
-// 	}
-// };
-
 class DLL_LINKAGE CArtHandler //handles artifacts
 {
 	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER, ILimiter * limiter = NULL, int additionalinfo = 0);
