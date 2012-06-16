@@ -693,7 +693,6 @@ public:
 		void clickRight(tribool down, bool previousState);
 		void hover (bool on);
 		HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H);
-		void show(SDL_Surface * to);
 
 	private:
 		int *_sel;
@@ -761,7 +760,6 @@ public:
 	void set(const IBonusBearer *node);
 
 	MoraleLuckBox(bool Morale, const Rect &r, bool Small=false);
-	~MoraleLuckBox();
 };
 
 /// Opens hero window by left-clicking on it
@@ -811,8 +809,6 @@ public:
 
 	void setMeAsDest(bool backpackAsVoid = true);
 	void setArtifact(const CArtifactInstance *art);
-
-	~CArtPlace(); //d-tor
 };
 
 /// Contains artifacts of hero. Distincts which artifacts are worn or backpacked
@@ -887,7 +883,7 @@ class CGarrisonHolder
 {
 public:
 	CGarrisonHolder();
-	virtual void updateGarrisons(){}
+	virtual void updateGarrisons()=0;
 };
 
 class CWindowWithGarrison : public virtual CGarrisonHolder
@@ -901,12 +897,9 @@ public:
 class CGarrisonWindow : public CWindowObject, public CWindowWithGarrison
 {
 public:
-	CLabel *title;
-	CAdventureMapButton *quit;
+	CAdventureMapButton * quit;
 
-	void showAll(SDL_Surface * to);
 	CGarrisonWindow(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits); //c-tor
-	~CGarrisonWindow(); //d-tor
 };
 
 class CExchangeWindow : public CWindowObject, public CWindowWithGarrison, public CWindowWithArtifacts
@@ -928,8 +921,6 @@ public:
 
 	const CGHeroInstance* heroInst[2];
 	CArtifactsOfHero * artifs[2];
-
-	void showAll(SDL_Surface * to);
 
 	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
 
@@ -979,7 +970,7 @@ public:
 };
 
 /// Creature transformer window
-class CTransformerWindow : public CWindowObject
+class CTransformerWindow : public CWindowObject, public CGarrisonHolder
 {
 public:
 	class CItem : public CIntObject
@@ -992,8 +983,8 @@ public:
 		CAnimImage *icon;
 
 		void move();
-		void showAll(SDL_Surface * to);
 		void clickLeft(tribool down, bool previousState);
+		void update();
 		CItem(CTransformerWindow * _parent, int _size, int _id);
 	};
 
@@ -1004,9 +995,9 @@ public:
 
 	CAdventureMapButton *all, *convert, *cancel;
 	CGStatusBar *bar;
-	void showAll(SDL_Surface * to);
 	void makeDeal();
 	void addAll();
+	void updateGarrisons();
 	CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town); //c-tor
 };
 
@@ -1072,7 +1063,6 @@ public:
 
 	CHillFortWindow(const CGHeroInstance *visitor, const CGObjectInstance *object); //c-tor
 
-	void activate();
 	void showAll (SDL_Surface *to);
 	std::string getDefForSlot(int slot);//return def name for this slot
 	std::string getTextForSlot(int slot);//return hover text for this slot
@@ -1090,6 +1080,5 @@ class CThievesGuildWindow : public CWindowObject
 	CMinorResDataBar * resdatabar;
 
 public:
-	void activate();
 	CThievesGuildWindow(const CGObjectInstance * _owner);
 };

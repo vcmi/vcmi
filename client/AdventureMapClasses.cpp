@@ -193,8 +193,8 @@ CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero):
 
 void CHeroList::CHeroItem::update()
 {
-	movement->setFrame(std::min<size_t>(movement->size(), hero->movement / 100));
-	mana->setFrame(std::min<size_t>(mana->size(), hero->mana / 5));
+	movement->setFrame(std::min<size_t>(movement->size()-1, hero->movement / 100));
+	mana->setFrame(std::min<size_t>(mana->size()-1, hero->mana / 5));
 	redraw();
 }
 
@@ -243,19 +243,15 @@ void CHeroList::select(const CGHeroInstance * hero)
 
 void CHeroList::update(const CGHeroInstance * hero)
 {
-	if (vstd::contains(LOCPLINT->wanderingHeroes, hero))
+	//this hero is already present, update its status
+	for (auto iter = list->getItems().begin(); iter != list->getItems().end(); iter++)
 	{
-		//this hero is already present, update its status
-		for (auto iter = list->getItems().begin(); iter != list->getItems().end(); iter++)
+		auto item = dynamic_cast<CHeroItem*>(*iter);
+		if (item && item->hero == hero)
 		{
-			auto item = dynamic_cast<CHeroItem*>(*iter);
-			if (item && item->hero == hero)
-			{
-				item->update();
-				return;
-			}
+			item->update();
+			return;
 		}
-		return;
 	}
 	//simplest solution for now: reset list and restore selection
 
@@ -909,6 +905,9 @@ void CInfoBar::updateEnemyTurn(double progress)
 
 void CInfoBar::showHeroSelection(const CGHeroInstance * hero, bool onlyUpdate)
 {
+	if (!hero)
+		return;
+
 	reset(HERO);
 	currentObject = hero;
 	visibleInfo->loadHero(hero);
@@ -917,6 +916,9 @@ void CInfoBar::showHeroSelection(const CGHeroInstance * hero, bool onlyUpdate)
 
 void CInfoBar::showTownSelection(const CGTownInstance * town, bool onlyUpdate)
 {
+	if (!town)
+		return;
+
 	reset(TOWN);
 	currentObject = town;
 	visibleInfo->loadTown(town);

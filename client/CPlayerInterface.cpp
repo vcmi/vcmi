@@ -425,12 +425,14 @@ void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	updateInfo(hero);
+	if(makingTurn && hero->tempOwner == playerID)
+		adventureInt->heroList.update(hero);
 }
 void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(makingTurn && hero->tempOwner == playerID)
-		adventureInt->heroList.redraw();
+		adventureInt->heroList.update(hero);
 }
 void CPlayerInterface::receivedResource(int type, int val)
 {
@@ -2357,7 +2359,6 @@ void CPlayerInterface::playerStartsTurn(ui8 player)
 	if(!GH.listInt.size())
 	{
 		GH.pushInt(adventureInt);
-		adventureInt->activateKeys();
 	}
 	if(howManyPeople == 1)
 	{

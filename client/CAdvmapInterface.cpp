@@ -597,6 +597,8 @@ void CAdvMapInt::updateNextHero(const CGHeroInstance *h)
 void CAdvMapInt::activate()
 {
 	CIntObject::activate();
+	if (!(active & KEYBOARD))
+		activateKeys();
 
 	screenBuf = screen;
 	GH.statusbar = &statusbar;

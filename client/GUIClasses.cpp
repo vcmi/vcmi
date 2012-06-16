@@ -3313,6 +3313,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 : h(H), _sel(&sel), _id(id)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	h = H;
 	pos.x += x;
 	pos.y += y;
@@ -3331,13 +3332,9 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 		sprintf_s(descr, sizeof(descr),CGI->generaltexth->allTexts[215].c_str(),
 				  h->name.c_str(), h->level, h->type->heroClass->name.c_str(), artifs);
 		descr[sizeof(descr)-1] = '\0';
+
+		new CAnimImage("portraitsLarge", h->subID);
 	}
-
-}
-
-void CTavernWindow::HeroPortrait::show(SDL_Surface * to)
-{
-	blitAt(graphics->portraitLarge[h->subID],pos,to);
 }
 
 void CTavernWindow::HeroPortrait::hover( bool on )
@@ -3533,7 +3530,6 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 	{
 		LOCPLINT->battleInt->console->ingcAlter = "";
 	}
-
 }
 
 void CInGameConsole::refreshEnteredText()
@@ -3574,20 +3570,12 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 		titleText = CGI->generaltexth->allTexts[35];
 		boost::algorithm::replace_first(titleText, "%s", garr->armedObjs[0]->Slots().begin()->second->type->namePl);
 	}
-	title = new CLabel(275, 30, FONT_BIG, CENTER, Colors::Jasmine, titleText);
+	new CLabel(275, 30, FONT_BIG, CENTER, Colors::Jasmine, titleText);
+
+	new CAnimImage("CREST58", garr->armedObjs[0]->getOwner(), 0, 28, 124);
+	new CAnimImage("PortraitsLarge", dynamic_cast<const CGHeroInstance*>(garr->armedObjs[1])->portrait, 0, 29, 222);
 }
 
-CGarrisonWindow::~CGarrisonWindow()
-{
-}
-
-void CGarrisonWindow::showAll(SDL_Surface * to)
-{
-	CWindowObject::showAll(to);
-
-	blitAtLoc(graphics->flags->ourImages[garr->armedObjs[1]->getOwner()].bitmap,28,124,to);
-	blitAtLoc(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->armedObjs[1])->portrait],29,222,to);
-}
 
 IShowActivatable::IShowActivatable()
 {
@@ -3872,11 +3860,6 @@ bool CArtPlace::fitsHere(const CArtifactInstance * art) const
 		return !CGI->arth->isBigArtifact(art->id);
 
 	return art->canBePutAt(ArtifactLocation(ourOwner->curHero, slotID), true);
-}
-
-CArtPlace::~CArtPlace()
-{
-	deactivate();
 }
 
 void CArtPlace::setMeAsDest(bool backpackAsVoid /*= true*/)
@@ -4521,15 +4504,6 @@ void CArtifactsOfHero::updateSlot(int slotID)
 	setSlotData(getArtPlace(slotID), slotID);
 }
 
-void CExchangeWindow::showAll(SDL_Surface * to)
-{
-	CWindowObject::showAll(to);
-
-	//printing border around window
-	if(screen->w != 800 || screen->h !=600)
-		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
-}
-
 void CExchangeWindow::questlog(int whichHero)
 {
 	CCS->curh->dragAndDropCursor(NULL);
@@ -4586,7 +4560,7 @@ void CExchangeWindow::prepareBackground()
 }
 
 CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2):
-    CWindowObject(PLAYER_COLORED, "TRADE2")
+    CWindowObject(PLAYER_COLORED | BORDERED, "TRADE2")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	char bufor[400];
@@ -4802,12 +4776,6 @@ void CPuzzleWindow::show(SDL_Surface * to)
 	CWindowObject::show(to);
 }
 
-void CTransformerWindow::CItem::showAll(SDL_Surface * to)
-{
-	CIntObject::showAll(to);
-	printAtMiddle(boost::lexical_cast<std::string>(size),pos.x+28, pos.y+76,FONT_SMALL,Colors::Cornsilk,to);//stack size
-}
-
 void CTransformerWindow::CItem::move()
 {
 	if (left)
@@ -4826,6 +4794,11 @@ void CTransformerWindow::CItem::clickLeft(tribool down, bool previousState)
 	}
 }
 
+void CTransformerWindow::CItem::update()
+{
+	icon->setFrame(parent->army->getCreature(id)->idNumber + 2);
+}
+
 CTransformerWindow::CItem::CItem(CTransformerWindow * _parent, int _size, int _id):
 	id(_id), size(_size), parent(_parent)
 {
@@ -4837,16 +4810,8 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * _parent, int _size, int _i
 
 	pos.x += 45  + (id%3)*83 + id/6*83;
 	pos.y += 109 + (id/3)*98;
-	icon = new CAnimImage("TWCRPORT", parent->army->getCreature(id)->idNumber);
-}
-
-void CTransformerWindow::showAll(SDL_Surface * to)
-{
-	CWindowObject::showAll(to);
-	printAtMiddleLoc(  CGI->generaltexth->allTexts[485], 153,     29,FONT_SMALL,     Colors::Jasmine,to);//holding area
-	printAtMiddleLoc(  CGI->generaltexth->allTexts[486], 153+295, 29,FONT_SMALL,     Colors::Jasmine,to);//transformer
-	printAtMiddleWBLoc(CGI->generaltexth->allTexts[487], 153,     75,FONT_MEDIUM, 32,Colors::Jasmine,to);//move creatures to create skeletons
-	printAtMiddleWBLoc(CGI->generaltexth->allTexts[488], 153+295, 75,FONT_MEDIUM, 32,Colors::Jasmine,to);//creatures here will become skeletons
+	icon = new CAnimImage("TWCRPORT", parent->army->getCreature(id)->idNumber + 2);
+	new CLabel(28, 76,FONT_SMALL, CENTER, Colors::Cornsilk, boost::lexical_cast<std::string>(size));//stack size
 }
 
 void CTransformerWindow::makeDeal()
@@ -4862,6 +4827,14 @@ void CTransformerWindow::addAll()
 		if (items[i]->left)
 			items[i]->move();
 	showAll(screen2);
+}
+
+void CTransformerWindow::updateGarrisons()
+{
+	BOOST_FOREACH(auto & item, items)
+	{
+		item->update();
+	}
 }
 
 CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTownInstance * _town):
@@ -4883,6 +4856,12 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 	convert= new CAdventureMapButton(CGI->generaltexth->zelp[591],boost::bind(&CTransformerWindow::makeDeal,this),   269,416,"ALTSACR.DEF",SDLK_RETURN);
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[592],boost::bind(&CTransformerWindow::close, this),392,416,"ICANCEL.DEF",SDLK_ESCAPE);
 	bar    = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+
+	new CLabel(153, 29,FONT_SMALL, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[485]);//holding area
+	new CLabel(153+295, 29, FONT_SMALL, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[486]);//transformer
+	new CTextBox(CGI->generaltexth->allTexts[487], Rect(26,  56, 255, 40), 0, FONT_MEDIUM, CENTER, Colors::Jasmine);//move creatures to create skeletons
+	new CTextBox(CGI->generaltexth->allTexts[488], Rect(320, 56, 255, 40), 0, FONT_MEDIUM, CENTER, Colors::Jasmine);//creatures here will become skeletons
+
 }
 
 void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
@@ -4929,8 +4908,6 @@ int CUniversityWindow::CItem::state()
 		return 0;
 	if (parent->hero->type->heroClass->proSec[ID]==0)//can't learn this skill (like necromancy for most of non-necros)
 		return 0;
-/*	if (LOCPLINT->cb->getResourceAmount(6) < 2000 )//no gold - allowed in H3, confirm button is blocked instead
-		return 0;*/
 	return 2;
 }
 
@@ -5094,15 +5071,8 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	updateGarrisons();
 }
 
-void CHillFortWindow::activate()
-{
-	CIntObject::activate();
-	GH.statusbar = bar;
-}
-
 void CHillFortWindow::updateGarrisons()
 {
-
 	for (int i=0; i<GameConstants::RESOURCE_QUANTITY; i++)
 		totalSumm[i]=0;
 
@@ -5244,12 +5214,6 @@ int CHillFortWindow::getState(int slot)
 	return 2;//can upgrade
 }
 
-void CThievesGuildWindow::activate()
-{
-	CIntObject::activate();
-	GH.statusbar = statusBar;
-}
-
 CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
     CWindowObject(PLAYER_COLORED | BORDERED, "TpRank"),
 	owner(_owner)
@@ -5261,7 +5225,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);
 
 	exitb = new CAdventureMapButton (CGI->generaltexth->allTexts[600], "", boost::bind(&CThievesGuildWindow::close,this), 748, 556, "TPMAGE1", SDLK_RETURN);
-	statusBar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	statusBar = new CGStatusBar(3, 555, "TStatBar.bmp", 742);
 
 	resdatabar = new CMinorResDataBar();
 	resdatabar->pos.x += pos.x;
@@ -5301,7 +5265,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	{
 		for(int b=0; b<(tgi .* fields[g]).size(); ++b) //by places (1st, 2nd, ...)
 		{
-			std::vector<ui8> players = (tgi .* fields[g])[b]; //get players with this place in this line
+			std::vector<ui8> &players = (tgi .* fields[g])[b]; //get players with this place in this line
 
 			//position of box
 			int xpos = 259 + 66 * b;
@@ -5438,11 +5402,6 @@ MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small):
 {
 	bonusValue = 0;
 	pos = r + pos;
-}
-
-MoraleLuckBox::~MoraleLuckBox()
-{
-
 }
 
 CArtifactHolder::CArtifactHolder()
