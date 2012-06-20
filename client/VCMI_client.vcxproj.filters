@@ -116,6 +116,9 @@
     <ClCompile Include="UIFramework\SDL_Extensions.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AdventureMapClasses.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CAdvmapInterface.h">
@@ -238,10 +241,14 @@
     <ClInclude Include="UIFramework\SDL_Pixels.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AdventureMapClasses.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\ChangeLog" />
     <None Include="vcmi.ico" />
+    <None Include="ClassDiagram21.cd" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VCMI_client.rc" />

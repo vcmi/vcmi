@@ -225,6 +225,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AdventureMapClasses.cpp" />
     <ClCompile Include="BattleInterface\CBattleAnimations.cpp" />
     <ClCompile Include="BattleInterface\CBattleInterface.cpp" />
     <ClCompile Include="BattleInterface\CBattleInterfaceClasses.cpp" />
@@ -269,6 +270,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Global.h" />
+    <ClInclude Include="AdventureMapClasses.h" />
     <ClInclude Include="BattleInterface\CBattleAnimations.h" />
     <ClInclude Include="BattleInterface\CBattleInterface.h" />
     <ClInclude Include="BattleInterface\CBattleInterfaceClasses.h" />
