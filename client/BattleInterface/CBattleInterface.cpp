@@ -3013,6 +3013,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case RANDOM_GENIE_SPELL: //we assume that teleport / sacrifice will never be avaliable as random spell
 				sp = NULL;
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[301]) % shere->getName()); //Cast a spell on %
+				creatureCasting = true;
 				isCastingPossible = true;
 				break;
 			case TELEPORT:
@@ -3136,6 +3137,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				}
 				else
 				{
+					assert (sp);
 					switch (sp->id)
 					{
 						case Spells::SACRIFICE:
