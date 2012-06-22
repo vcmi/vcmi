@@ -751,17 +751,22 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 	if(style == 0)
 	{
 		std::string name = horizontal?"IGPCRDIV.DEF":"OVBUTN2.DEF";
-		CAnimation *animLeft = new CAnimation(name);
+		//NOTE: this images do not have "blocked" frames. They should be implemented somehow (e.g. palette transform or something...)
+
+		//use source def to create custom animations. Format "name.def:123" will load this frame from def file
+		CAnimation *animLeft = new CAnimation();
+		animLeft->setCustom(name + ":0", 0);
+		animLeft->setCustom(name + ":1", 1);
 		left->setImage(animLeft);
-		left->setOffset(0);
 
-		CAnimation *animRight = new CAnimation(name);
+		CAnimation *animRight = new CAnimation();
+		animRight->setCustom(name + ":2", 0);
+		animRight->setCustom(name + ":3", 1);
 		right->setImage(animRight);
-		right->setOffset(2);
 
-		CAnimation *animSlider = new CAnimation(name);
+		CAnimation *animSlider = new CAnimation();
+		animSlider->setCustom(name + ":4", 0);
 		slider->setImage(animSlider);
-		slider->setOffset(4);
 	}
 	else
 	{
@@ -1512,7 +1517,7 @@ bool CTextInput::captureThisEvent(const SDL_KeyboardEvent & key)
 
 void CTextInput::filenameFilter(std::string & text, const std::string &)
 {
-	static const std::string forbiddenChars = "<>:\"/\\|?*"; //if we are entering a filename, some special characters won't be allowed
+	static const std::string forbiddenChars = "<>:\"/\\|?*\r\n"; //if we are entering a filename, some special characters won't be allowed
 	size_t pos;
 	while ((pos = text.find_first_of(forbiddenChars)) != std::string::npos)
 		text.erase(pos, 1);

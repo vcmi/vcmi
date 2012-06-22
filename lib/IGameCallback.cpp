@@ -995,7 +995,7 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 	}
 	else if(ID == 6) //shipyard
 	{
-		const TerrainTile *tile = getTile(t->bestLocation());
+		const TerrainTile *tile = getTile(t->bestLocation(), false);
 		
 		if(!tile || tile->tertype != TerrainTile::water )
 			ret = EBuildingState::NO_WATER; //lack of water

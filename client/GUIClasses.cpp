@@ -1039,15 +1039,146 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool An
 	anim = new CCreatureAnim(0, 0, cre->animDefName, Rect());
 	anim->clipRect(cre->doubleWide?170:150, 155, bg->pos.w, bg->pos.h);
 	anim->startPreview();
+
+	pos.w = bg->pos.w;
+	pos.h = bg->pos.h;
 }
 
-void CRecruitmentWindow::Max()
+CRecruitmentWindow::CCreatureCard::CCreatureCard(CRecruitmentWindow *window, const CCreature *crea, int totalAmount):
+    CIntObject(LCLICK | RCLICK),
+    parent(window),
+    selected(false),
+    creature(crea),
+    amount(totalAmount)
 {
-	slider->moveToMax();
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	pic = new CCreaturePic(1,1, creature, true, true);
+	// 1 + 1 px for borders
+	pos.w = pic->pos.w + 2;
+	pos.h = pic->pos.h + 2;
 }
-void CRecruitmentWindow::Buy()
+
+void CRecruitmentWindow::CCreatureCard::select(bool on)
 {
-	int crid = creatures[which].ID,
+	selected = on;
+	redraw();
+}
+
+void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousState)
+{
+	if (down)
+		parent->select(this);
+}
+
+void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousState)
+{
+	if (down)
+		GH.pushInt(createCreWindow(creature->idNumber, 0, 0));
+}
+
+void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)
+{
+	CIntObject::showAll(to);
+	if (selected)
+		drawBorder(to, pos, int3(248, 0, 0));
+	else
+		drawBorder(to, pos, int3(232, 212, 120));
+}
+
+CRecruitmentWindow::CCostBox::CCostBox(Rect position, std::string title)
+{
+	type |= REDRAW_PARENT;
+	pos = position + pos;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	new CLabel(pos.w/2, 10, FONT_SMALL, CENTER, Colors::Cornsilk, title);
+}
+
+void CRecruitmentWindow::CCostBox::set(TResources res)
+{
+	//just update values
+	BOOST_FOREACH(auto & item, resources)
+	{
+		item.second.first->setTxt(boost::lexical_cast<std::string>(res[item.first]));
+	}
+}
+
+void CRecruitmentWindow::CCostBox::createItems(TResources res)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	BOOST_FOREACH(auto & curr, resources)
+	{
+		delete curr.second.first;
+		delete curr.second.second;
+	}
+	resources.clear();
+
+	TResources::nziterator iter(res);
+	while (iter.valid())
+	{
+		CAnimImage * image = new CAnimImage("RESOURCE", iter->resType);
+		CLabel * text = new CLabel(15, 43, FONT_SMALL, CENTER, Colors::Cornsilk, "0");
+
+		resources.insert(std::make_pair(iter->resType, std::make_pair(text, image)));
+		iter++;
+	}
+
+	if (!resources.empty())
+	{
+		int curx = pos.w / 2 - (16 * resources.size()) - (8 * (resources.size() - 1));
+		//reverse to display gold as first resource
+		BOOST_REVERSE_FOREACH(auto & res, resources)
+		{
+			res.second.first->moveBy(Point(curx, 22));
+			res.second.second->moveBy(Point(curx, 22));
+			curx += 48;
+		}
+	}
+	redraw();
+}
+
+void CRecruitmentWindow::select(CCreatureCard *card)
+{
+	if (card == selected)
+		return;
+
+	if (selected)
+		selected->select(false);
+
+	selected = card;
+
+	if (selected)
+		selected->select(true);
+
+	if (card)
+	{
+		si32 maxAmount = card->creature->maxAmount(LOCPLINT->cb->getResourceAmount());
+
+		vstd::amin(maxAmount, card->amount);
+
+		slider->setAmount(maxAmount);
+
+		if(slider->value)
+			slider->moveTo(0);
+		else // if slider already at 0 - emulate call to sliderMoved()
+			sliderMoved(0);
+
+		costPerTroopValue->createItems(card->creature->cost);
+		totalCostValue->createItems(card->creature->cost);
+
+		costPerTroopValue->set(card->creature->cost);
+
+		//Recruit %s
+		title->setTxt(boost::str(boost::format(CGI->generaltexth->tcommands[21]) % card->creature->namePl));
+
+		maxButton->block(maxAmount == 0);
+		slider->block(maxAmount == 0);
+	}
+}
+
+void CRecruitmentWindow::buy()
+{
+	int crid =  selected->creature->idNumber,
 		dstslot = dst-> getSlotFor(crid);
 
 	if(dstslot < 0 && !vstd::contains(CGI->arth->bigArtifacts,CGI->arth->convertMachineID(crid, true))) //no available slot
@@ -1067,175 +1198,122 @@ void CRecruitmentWindow::Buy()
 		return;
 	}
 
-	recruit(crid, slider->value);
+	onRecruit(crid, slider->value);
 	if(level >= 0)
 		close();
 	else
 		slider->moveTo(0);
 
 }
-void CRecruitmentWindow::Cancel()
-{
-	close();
-}
-void CRecruitmentWindow::sliderMoved(int to)
-{
-	buy->block(!to);
-	redraw();
-}
-void CRecruitmentWindow::clickLeft(tribool down, bool previousState)
-{
-	for(int i=0;i<creatures.size();i++)
-	{
-		Rect creaPos = Rect(creatures[i].pos) + pos;
-		if(isItIn(&creaPos, GH.current->motion.x, GH.current->motion.y))
-		{
-			which = i;
-			int newAmount = std::min(amounts[i],creatures[i].amount);
-			slider->setAmount(newAmount);
-			max->block(!newAmount);
-
-			if(slider->value > newAmount)
-				slider->moveTo(newAmount);
-			else
-				slider->moveTo(slider->value);
-			redraw();
-			break;
-		}
-	}
-}
-void CRecruitmentWindow::clickRight(tribool down, bool previousState)
-{
-	if(down)
-	{
-		int curx = 192 + 51 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
-		for(int i=0;i<creatures.size();i++)
-		{
-			const int sCREATURE_WIDTH = CREATURE_WIDTH; // gcc -O0 workaround
-			Rect creatureRect = genRect(132, sCREATURE_WIDTH, pos.x+curx, pos.y+64);
-			if(isItIn(&creatureRect, GH.current->motion.x, GH.current->motion.y))
-			{
-				CIntObject *popup = createCreWindow(creatures[i].ID, 0, 0);
-				GH.pushInt(popup);
-				break;
-			}
-			curx += TOTAL_CREATURE_WIDTH;
-		}
-	}
-}
 
 void CRecruitmentWindow::showAll(SDL_Surface * to)
 {
 	CWindowObject::showAll(to);
+
+	// recruit\total values
 	drawBorder(to, pos.x + 172, pos.y + 222, 67, 42, int3(239,215,123));
 	drawBorder(to, pos.x + 246, pos.y + 222, 67, 42, int3(239,215,123));
+
+	//cost boxes
 	drawBorder(to, pos.x + 64,  pos.y + 222, 99, 76, int3(239,215,123));
 	drawBorder(to, pos.x + 322, pos.y + 222, 99, 76, int3(239,215,123));
+
+	//buttons borders
 	drawBorder(to, pos.x + 133, pos.y + 312, 66, 34, int3(173,142,66));
 	drawBorder(to, pos.x + 211, pos.y + 312, 66, 34, int3(173,142,66));
 	drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, int3(173,142,66));
-
-	char pom[15];
-	SDL_itoa(creatures[which].amount-slider->value,pom,10); //available
-	printAtMiddleLoc(pom,205,253,FONT_SMALL,Colors::Cornsilk,to);
-	SDL_itoa(slider->value,pom,10); //recruit
-	printAtMiddleLoc(pom,279,253,FONT_SMALL,Colors::Cornsilk,to);
-	printAtMiddleLoc(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID]->namePl,243,32,FONT_BIG,Colors::Jasmine,to); //eg "Recruit Dragon flies"
-
-	int curx = 122-creatures[which].res.size()*24;
-	for(int i=creatures[which].res.size()-1; i>=0; i--)// decrement used to make gold displayed as first res
-	{
-		blitAtLoc(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx,243,to);
-		blitAtLoc(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx+258,243,to);
-		SDL_itoa(creatures[which].res[i].second,pom,10);
-		printAtMiddleLoc(pom,curx+15,287,FONT_SMALL,Colors::Cornsilk,to);
-		SDL_itoa(creatures[which].res[i].second * slider->value,pom,10);
-		printAtMiddleLoc(pom,curx+15+258,287,FONT_SMALL,Colors::Cornsilk,to);
-		curx+=32+16;//size of bitmap + distance between them
-	}
-
-	for(int j=0;j<creatures.size();j++)
-	{
-		if(which==j)
-			drawBorderLoc(to,creatures[j].pos,int3(255,0,0));
-		else
-			drawBorderLoc(to,creatures[j].pos,int3(239,215,123));
-	}
 }
 
 CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> &Recruit, int y_offset):
     CWindowObject(PLAYER_COLORED, "TPRCRT"),
-	recruit(Recruit),
-    dwelling(Dwelling),
+	onRecruit(Recruit),
     level(Level),
-    dst(Dst)
+    dst(Dst),
+    selected(nullptr),
+    dwelling(Dwelling)
 {
-	addUsedEvents(LCLICK | RCLICK);
-	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	moveBy(Point(0, y_offset));
 
-	which = 0;
-	bar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
-	max = new CAdventureMapButton(CGI->generaltexth->zelp[553],boost::bind(&CRecruitmentWindow::Max,this),134,313,"IRCBTNS.DEF",SDLK_m);
-	buy = new CAdventureMapButton(CGI->generaltexth->zelp[554],boost::bind(&CRecruitmentWindow::Buy,this),212,313,"IBY6432.DEF",SDLK_RETURN);
-	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[555],boost::bind(&CRecruitmentWindow::Cancel,this),290,313,"ICN6432.DEF",SDLK_ESCAPE);
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+
 	slider = new CSlider(176,279,135,0,0,0,0,true);
 	slider->moved = boost::bind(&CRecruitmentWindow::sliderMoved,this, _1);
 
-	initCres();
+	maxButton = new CAdventureMapButton(CGI->generaltexth->zelp[553],boost::bind(&CSlider::moveToMax,slider),134,313,"IRCBTNS.DEF",SDLK_m);
+	buyButton = new CAdventureMapButton(CGI->generaltexth->zelp[554],boost::bind(&CRecruitmentWindow::buy,this),212,313,"IBY6432.DEF",SDLK_RETURN);
+	cancelButton = new CAdventureMapButton(CGI->generaltexth->zelp[555],boost::bind(&CRecruitmentWindow::close,this),290,313,"ICN6432.DEF",SDLK_ESCAPE);
 
-	new CLabel(113, 232, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[346]); //cost per troop t
+	title = new CLabel(243, 32, FONT_BIG, CENTER, Colors::Jasmine);
+	availableValue = new CLabel(205, 253, FONT_SMALL, CENTER, Colors::Cornsilk);
+	toRecruitValue = new CLabel(279, 253, FONT_SMALL, CENTER, Colors::Cornsilk);
+
+	costPerTroopValue =  new CCostBox(Rect(65, 222, 97, 74), CGI->generaltexth->allTexts[346]);
+	totalCostValue = new CCostBox(Rect(323, 222, 97, 74), CGI->generaltexth->allTexts[466]);
+
 	new CLabel(205, 233, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[465]); //available t
 	new CLabel(279, 233, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[16]); //recruit t
-	new CLabel(371, 232, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[466]); //total cost t
 
-	//border for creatures
-	int curx = 192 + 50 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
-	for(int i=0;i<creatures.size();i++)
-	{
-		creatures[i].pos.x = curx-1;
-		creatures[i].pos.y = 65 - 1;
-		creatures[i].pos.w = 100 + 2;
-		creatures[i].pos.h = 130 + 2;
-
-		creatures[i].pic = new CCreaturePic(curx, 65, CGI->creh->creatures[creatures[i].ID]);
-		curx += TOTAL_CREATURE_WIDTH;
-	}
-
-	if(!creatures[0].amount ||  !amounts[0])
-	{
-		max->block(true);
-		slider->block(true);
-	}
-	buy->block(true);
+	availableCreaturesChanged();
 }
 
-void CRecruitmentWindow::initCres()
+void CRecruitmentWindow::availableCreaturesChanged()
 {
-	creatures.clear();
-	amounts.clear();
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	//deselect card
+	select(nullptr);
+
+	static const int SPACE_BETWEEN = 18;
+	static const int CREATURE_WIDTH = 102;
+	static const int TOTAL_CREATURE_WIDTH = SPACE_BETWEEN + CREATURE_WIDTH;
+
+	//delete old cards
+	BOOST_FOREACH(auto & card, cards)
+		delete card;
+	cards.clear();
 
 	for(int i=0; i<dwelling->creatures.size(); i++)
 	{
+		//find appropriate level
 		if(level >= 0 && i != level)
 			continue;
 
-		for(int j = dwelling->creatures[i].second.size() - 1; j >= 0 ; j--)
-		{
-			creatures.resize(creatures.size()+1);
-			creinfo &cur = creatures.back();
+		int amount = dwelling->creatures[i].first;
 
-			cur.amount = dwelling->creatures[i].first;
-			cur.ID = dwelling->creatures[i].second[j];
-			const CCreature * cre= CGI->creh->creatures[cur.ID];
-
-			for(int k=0; k<cre->cost.size(); k++)
-				if(cre->cost[k])
-					cur.res.push_back(std::make_pair(k,cre->cost[k]));
-			amounts.push_back(cre->maxAmount(LOCPLINT->cb->getResourceAmount()));
-		}
+		//create new cards
+		BOOST_REVERSE_FOREACH(auto & creature, dwelling->creatures[i].second)
+			cards.push_back(new CCreatureCard(this, CGI->creh->creatures[creature], amount));
 	}
 
-	slider->setAmount(std::min(amounts[which],creatures[which].amount));
+	assert(!cards.empty());
+
+	//now we know total amount of cards and can move them to correct position
+	int curx = 192 + 50 - (CREATURE_WIDTH*cards.size()/2) - (SPACE_BETWEEN*(cards.size()-1)/2);
+	BOOST_FOREACH(auto & card, cards)
+	{
+		card->moveBy(Point(curx, 64));
+		curx += TOTAL_CREATURE_WIDTH;
+	}
+
+	select(cards.front());
+
+	if(slider->value)
+		slider->moveTo(0);
+	else // if slider already at 0 - emulate call to sliderMoved()
+		sliderMoved(0);
+}
+
+void CRecruitmentWindow::sliderMoved(int to)
+{
+	if (!selected)
+		return;
+
+	buyButton->block(!to);
+	availableValue->setTxt(boost::lexical_cast<std::string>(selected->amount - to));
+	toRecruitValue->setTxt(boost::lexical_cast<std::string>(to));
+
+	totalCostValue->set(selected->creature->cost * to);
 }
 
 CSplitWindow::CSplitWindow(const CCreature * creature, boost::function<void(int, int)> callback_,
@@ -2202,6 +2280,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	case EMarketMode::RESOURCE_PLAYER:
 	case EMarketMode::RESOURCE_ARTIFACT:
 		new CLabel(154, 148, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[270]);
+		break;
 
 	case EMarketMode::CREATURE_RESOURCE:
 		//%s's Creatures
@@ -3137,6 +3216,9 @@ void CSystemOptionsWindow::setGameRes(int index)
 	config::CConfigHandler::GuiOptionsMap::const_iterator iter = conf.guiOptions.begin();
 	while (index--)
 		iter++;
+
+	//do not set resolution to illegal one (0x0)
+	assert(iter!=conf.guiOptions.end() && iter->first.first > 0 && iter->first.second > 0);
 
 	Settings gameRes = settings.write["video"]["screenRes"];
 	gameRes["width"].Float() = iter->first.first;

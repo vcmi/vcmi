@@ -198,7 +198,6 @@ class CCastleInterface : public CWindowObject, public CWindowWithGarrison
 	CGStatusBar * statusbar;
 
 	CTownInfo *hall, *fort;
-	CTownList * townlist;
 
 	CAdventureMapButton *exit;
 	CAdventureMapButton *split;
@@ -206,6 +205,8 @@ class CCastleInterface : public CWindowObject, public CWindowWithGarrison
 	std::vector<CCreaInfo*> creainfo;//small icons of creatures (bottom-left corner);
 
 public:
+	CTownList * townlist;
+
 	//TODO: remove - currently used only in dialog messages
 	CDefEssential* bicons; //150x70 buildings imgs
 
@@ -214,6 +215,7 @@ public:
 	HeroSlots *heroes;
 	CCastleBuildings *builds;
 
+	//from - previously selected castle (if any)
 	CCastleInterface(const CGTownInstance * Town, const CGTownInstance * from = nullptr); //c-tor
 	~CCastleInterface();
 

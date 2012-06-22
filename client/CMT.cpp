@@ -251,6 +251,17 @@ int main(int argc, char** argv)
 	const JsonNode& video = settings["video"];
 	const JsonNode& res = video["screenRes"];
 
+	//something is really wrong...
+	if (res["width"].Float() < 100 || res["height"].Float() < 100)
+	{
+		tlog0 << "Fatal error: failed to load settings!\n";
+		tlog0 << "Possible reasons:\n";
+		tlog0 << "\tCorrupted local configuration file at " << GVCMIDirs.UserPath << "/config/settings.json\n";
+		tlog0 << "\tMissing or corrupted global configuration file at " << GameConstants::DATA_DIR << "/config/defaultSettings.json\n";
+		tlog0 << "VCMI will now exit...\n";
+		exit(EXIT_FAILURE);
+	}
+
 	setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
 
 	tlog0 <<"\tInitializing screen: "<<pomtime.getDiff() << std::endl;

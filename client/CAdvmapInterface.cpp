@@ -981,7 +981,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 	assert(sel);
 	LOCPLINT->cb->setSelection(sel);
 	selection = sel;
-	if (LOCPLINT->battleInt == NULL)
+	if (LOCPLINT->battleInt == NULL && active & GENERAL)
 		CCS->musich->playMusic(CCS->musich->terrainMusics[LOCPLINT->cb->getTile(sel->visitablePos())->tertype], -1);
 	if(centerView)
 		centerOn(sel);
@@ -991,7 +991,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 	{
 		auto town = dynamic_cast<const CGTownInstance*>(sel);
 
-		infoBar.showTownSelection(town, false);
+		infoBar.showTownSelection(town);
 		townList.select(town);
 		heroList.select(nullptr);
 
@@ -1002,7 +1002,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 	{
 		auto hero = dynamic_cast<const CGHeroInstance*>(sel);
 
-		infoBar.showHeroSelection(hero, false);
+		infoBar.showHeroSelection(hero);
 		heroList.select(hero);
 		townList.select(nullptr);
 

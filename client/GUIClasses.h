@@ -333,39 +333,62 @@ public:
 /// Recruitment window where you can recruit creatures
 class CRecruitmentWindow : public CWindowObject
 {
-public:
-	static const int SPACE_BETWEEN = 18;
-	static const int CREATURE_WIDTH = 102;
-	static const int TOTAL_CREATURE_WIDTH = SPACE_BETWEEN + CREATURE_WIDTH;
-
-	struct creinfo
+	class CCreatureCard : public CIntObject
 	{
-		SDL_Rect pos;
+		CRecruitmentWindow * parent;
 		CCreaturePic *pic; //creature's animation
-		int ID, amount; //creature ID and available amount
-		std::vector<std::pair<int,int> > res; //res_id - cost_per_unit
-	};
-	std::vector<int> amounts; //how many creatures we can afford
-	std::vector<creinfo> creatures; //recruitable creatures
-	boost::function<void(int,int)> recruit; //void (int ID, int amount) <-- call to recruit creatures
-	CSlider *slider; //for selecting amount
-	CAdventureMapButton *max, *buy, *cancel;
-	CGStatusBar *bar;
-	int which; //which creature is active
+		bool selected;
 
-	const CGDwelling *dwelling;
+		void clickLeft(tribool down, bool previousState);
+		void clickRight(tribool down, bool previousState);
+		void showAll(SDL_Surface *to);
+	public:
+		const CCreature * creature;
+		si32 amount;
+
+		void select(bool on);
+
+		CCreatureCard(CRecruitmentWindow * window, const CCreature *crea, int totalAmount);
+	};
+
+	/// small class to display creature costs
+	class CCostBox : public CIntObject
+	{
+		std::map<int, std::pair<CLabel *, CAnimImage * > > resources;
+	public:
+		//res - resources to show
+		void set(TResources res);
+		//res - visible resources
+		CCostBox(Rect position, std::string title);
+		void createItems(TResources res);
+	};
+
+	boost::function<void(int,int)> onRecruit; //void (int ID, int amount) <-- call to recruit creatures
+
 	int level;
 	const CArmedInstance *dst;
 
-	void Max();
-	void Buy();
-	void Cancel();
+	CCreatureCard * selected;
+	std::vector<CCreatureCard *> cards;
+
+	CSlider *slider; //for selecting amount
+	CAdventureMapButton *maxButton, *buyButton, *cancelButton;
+	//labels for visible values
+	CLabel * title;
+	CLabel * availableValue;
+	CLabel * toRecruitValue;
+	CCostBox * costPerTroopValue;
+	CCostBox * totalCostValue;
+
+	void select(CCreatureCard * card);
+	void buy();
 	void sliderMoved(int to);
-	void clickLeft(tribool down, bool previousState);
-	void clickRight(tribool down, bool previousState);
-	void showAll(SDL_Surface * to);
-	void initCres();
+
+	void showAll(SDL_Surface *to);
+public:
+	const CGDwelling * const dwelling;
 	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> & Recruit, int y_offset = 0); //creatures - pairs<creature_ID,amount> //c-tor
+	void availableCreaturesChanged();
 };
 
 /// Split window where creatures can be splitted up into two single unit stacks

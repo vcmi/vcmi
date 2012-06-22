@@ -277,8 +277,6 @@ class CInfoBar : public CIntObject
 
 	//removes all information about current state, deactivates timer (if any)
 	void reset(EState newState);
-	//reset to default view - selected object
-	void showSelection();
 
 	void tick();
 
@@ -301,10 +299,12 @@ public:
 	/// NOTE: currently DISABLED. Check comments in CInfoBar::CVisibleInfo::loadEnemyTurn()
 	void updateEnemyTurn(double progress);
 
+	/// reset to default view - selected object
+	void showSelection();
+
 	/// show hero\town information
-	/// if onlyUpdate set to true this call won't switch to town\hero but only update current view
-	void showHeroSelection(const CGHeroInstance * hero, bool onlyUpdate);
-	void showTownSelection(const CGTownInstance * town, bool onlyUpdate);
+	void showHeroSelection(const CGHeroInstance * hero);
+	void showTownSelection(const CGTownInstance * town);
 
 	/// for 3 seconds shows amount of town halls and players status
 	void showGameStatus();

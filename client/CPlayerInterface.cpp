@@ -367,12 +367,36 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+
+	const CArmedInstance *newSelection = nullptr;
+	if (makingTurn)
+	{
+		//find new object for selection: either hero
+		int next = adventureInt->getNextHeroIndex(vstd::find_pos(wanderingHeroes, hero));
+		if (next >= 0)
+			newSelection = wanderingHeroes[next];
+
+		//or town
+		if (!newSelection || newSelection == hero)
+		{
+			if (towns.empty())
+				newSelection = nullptr;
+			else
+				newSelection = towns.front();
+		}
+	}
+
 	wanderingHeroes -= hero;
 	if(vstd::contains(paths, hero))
 		paths.erase(hero);
 
 	adventureInt->heroList.update(hero);
+	if (makingTurn)
+		adventureInt->select(newSelection, true);
+	else
+		adventureInt->selection = nullptr;
 }
+
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
@@ -560,6 +584,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 		break;
 	}
 	adventureInt->townList.update(town);
+	castleInt->townlist->update(town);
 }
 
 void CPlayerInterface::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
@@ -1076,8 +1101,8 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 	else if(GH.listInt.size() && (town->ID == 17  ||  town->ID == 20  ||  town->ID == 106)) //external dwelling
 	{
 		CRecruitmentWindow *crw = dynamic_cast<CRecruitmentWindow*>(GH.topInt());
-		if(crw)
-			crw->initCres();
+		if(crw && crw->dwelling == town)
+			crw->availableCreaturesChanged();
 	}
 }
 
@@ -2159,10 +2184,7 @@ void CPlayerInterface::tryDiggging(const CGHeroInstance *h)
 
 void CPlayerInterface::updateInfo(const CGObjectInstance * specific)
 {
-	if (specific->ID == GameConstants::TOWNI_TYPE)
-		adventureInt->infoBar.showTownSelection(dynamic_cast<const CGTownInstance *>(specific), true);
-	else
-		adventureInt->infoBar.showHeroSelection(dynamic_cast<const CGHeroInstance *>(specific), true);
+	adventureInt->infoBar.showSelection();
 }
 
 void CPlayerInterface::battleNewRoundFirst( int round )

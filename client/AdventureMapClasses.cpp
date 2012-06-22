@@ -247,7 +247,7 @@ void CHeroList::update(const CGHeroInstance * hero)
 	for (auto iter = list->getItems().begin(); iter != list->getItems().end(); iter++)
 	{
 		auto item = dynamic_cast<CHeroItem*>(*iter);
-		if (item && item->hero == hero)
+		if (item && item->hero == hero && vstd::contains(LOCPLINT->wanderingHeroes, hero))
 		{
 			item->update();
 			return;
@@ -817,13 +817,13 @@ void CInfoBar::showSelection()
 		auto hero = dynamic_cast<const CGHeroInstance *>(adventureInt->selection);
 		if (hero)
 		{
-			showHeroSelection(hero, false);
+			showHeroSelection(hero);
 			return;
 		}
 		auto town = dynamic_cast<const CGTownInstance *>(adventureInt->selection);
 		if (town)
 		{
-			showTownSelection(town, false);
+			showTownSelection(town);
 			return;
 		}
 	}
@@ -903,7 +903,7 @@ void CInfoBar::updateEnemyTurn(double progress)
 	redraw();
 }
 
-void CInfoBar::showHeroSelection(const CGHeroInstance * hero, bool onlyUpdate)
+void CInfoBar::showHeroSelection(const CGHeroInstance * hero)
 {
 	if (!hero)
 		return;
@@ -914,7 +914,7 @@ void CInfoBar::showHeroSelection(const CGHeroInstance * hero, bool onlyUpdate)
 	redraw();
 }
 
-void CInfoBar::showTownSelection(const CGTownInstance * town, bool onlyUpdate)
+void CInfoBar::showTownSelection(const CGTownInstance * town)
 {
 	if (!town)
 		return;
