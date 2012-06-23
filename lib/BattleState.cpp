@@ -2597,7 +2597,7 @@ shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile) cons
 		if(vstd::contains(obs->getAffectedTiles(), tile))
 			return obs;
 
-	return NULL;
+	return shared_ptr<CObstacleInstance>();
 }
 
 const CStack * BattleInfo::getStackIf(boost::function<bool(const CStack*)> pred) const

@@ -134,5 +134,5 @@ std::vector<BattleHex> MoatObstacle::getAffectedTiles() const
 {
 	//rrr... need initializer lists
 	static const BattleHex moatHexes[] = {11, 28, 44, 61, 77, 111, 129, 146, 164, 181};
-	return std::vector<BattleHex>(std::begin(moatHexes), std::end(moatHexes));
+	return std::vector<BattleHex>(moatHexes, moatHexes + ARRAY_COUNT(moatHexes));
 }

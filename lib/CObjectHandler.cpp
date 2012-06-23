@@ -2360,7 +2360,7 @@ void CGTownInstance::recreateBuildingsBonuses()
 
 bool CGTownInstance::addBonusIfBuilt(int building, int type, int val, int subtype /*= -1*/)
 {
-	return addBonusIfBuilt(building, type, val, NULL, subtype);
+	return addBonusIfBuilt(building, type, val, TPropagatorPtr(), subtype);
 }
 
 bool CGTownInstance::addBonusIfBuilt(int building, int type, int val, TPropagatorPtr prop, int subtype /*= -1*/)

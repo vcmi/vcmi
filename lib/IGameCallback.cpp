@@ -416,7 +416,7 @@ const CGHeroInstance * CBattleInfoCallback::battleGetFightingHero(ui8 side) cons
 shared_ptr<const CObstacleInstance> CBattleInfoCallback::battleGetObstacleOnPos(BattleHex tile, bool onlyBlocking /*= true*/)
 {
 	if(!gs->curB)
-		return NULL;
+		return shared_ptr<const CObstacleInstance>();
 
 	BOOST_FOREACH(auto &obs, battleGetAllObstacles())
 	{
@@ -426,7 +426,7 @@ shared_ptr<const CObstacleInstance> CBattleInfoCallback::battleGetObstacleOnPos(
 			return obs;
 		}
 	}
-	return NULL;
+	return shared_ptr<const CObstacleInstance>();
 }
 
 int CBattleInfoCallback::battleGetMoatDmg()

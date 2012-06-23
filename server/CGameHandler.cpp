@@ -999,7 +999,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	{
 		// send one package with the creature path information
 
-		shared_ptr<const CObstacleInstance> obstacle = NULL; //obstacle that interrupted movement
+		shared_ptr<const CObstacleInstance> obstacle; //obstacle that interrupted movement
 		std::vector<BattleHex> tiles;
 		int tilesToMove = std::max((int)(path.first.size() - creSpeed), 0);
 		int v = path.first.size()-1;
@@ -1036,7 +1036,7 @@ startWalking:
 			//if stack didn't die in explosion, continue movement
 			if(!obstacle->stopsMovement() && curStack->alive())
 			{
-				obstacle = NULL;
+				obstacle.reset();
 				tiles.clear();
 				v--;
 				goto startWalking; //TODO it's so evil

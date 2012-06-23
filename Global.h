@@ -331,7 +331,8 @@ namespace vstd
 	{
 		assert(r.size());
 		index %= r.size();
-		auto itr = std::begin(r);
+		// auto itr = std::begin(r); //not available in gcc-4.5
+		auto itr = r.begin();
 		std::advance(itr, index);
 		return *itr;
 	}

@@ -592,7 +592,7 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 
 			//golem factory is not in list of cregens but can be placed as random object
 			static const int factoryCreatures[] = {32, 33, 116, 117};
-			std::vector<int> factory(std::begin(factoryCreatures), std::end(factoryCreatures));
+			std::vector<int> factory(factoryCreatures, factoryCreatures + ARRAY_COUNT(factoryCreatures));
 			if (vstd::contains(factory, cid))
 				result = std::pair<int,int>(20, 1);
 
