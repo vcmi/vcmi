@@ -1345,12 +1345,15 @@ CCreatureAnim::CCreatureAnim(int x, int y, std::string name, Rect picPos, ui8 fl
 		pos.h = picPos.h;
 };
 
-void CCreatureAnim::loopPreview()
+void CCreatureAnim::loopPreview(bool warMachine)
 {
 	std::vector<EAnimType> available;
-	static const EAnimType previewList[] = {HOLDING, HITTED, DEFENCE, ATTACK_FRONT, CAST_FRONT};
+
+	static const EAnimType creaPreviewList[] = {HOLDING, HITTED, DEFENCE, ATTACK_FRONT, CAST_FRONT};
+	static const EAnimType machPreviewList[] = {HOLDING, MOVING, SHOOT_UP, SHOOT_FRONT, SHOOT_DOWN};
+	auto & previewList = warMachine ? machPreviewList : creaPreviewList;
 	
-	for (size_t i=0; i<5; i++)
+	for (size_t i=0; i<ARRAY_COUNT(previewList); i++)
 		if (anim.size(previewList[i]))
 			available.push_back(previewList[i]);
 
@@ -1358,10 +1361,15 @@ void CCreatureAnim::loopPreview()
 
 	if (rnd >= available.size())
 	{
+		EAnimType type;
 		if ( anim.size(MOVING) == 0 )//no moving animation present
-			addLast( HOLDING );
+			type = HOLDING;
 		else
-			addLast( MOVING ) ;
+			type = MOVING;
+
+		//display this anim for ~1 second (time is random, but it looks good)
+		for (size_t i=0; i< 12/anim.size(type) + 1; i++)
+			addLast(type);
 	}
 	else
 		addLast(available[rnd]);
@@ -1410,9 +1418,9 @@ void CCreatureAnim::reset()
 	set(HOLDING);
 }
 
-void CCreatureAnim::startPreview()
+void CCreatureAnim::startPreview(bool warMachine)
 {
-	callback = boost::bind(&CCreatureAnim::loopPreview,this);
+	callback = boost::bind(&CCreatureAnim::loopPreview, this, warMachine);
 }
 
 void CCreatureAnim::clearAndSet(EAnimType type)

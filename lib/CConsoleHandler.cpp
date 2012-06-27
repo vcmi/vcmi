@@ -180,7 +180,7 @@ void CConsoleHandler::setColor(int level)
 
 int CConsoleHandler::run()
 {
-	setThreadName(-1, "CConsoleHandler::run");
+	setThreadName("CConsoleHandler::run");
 	//disabling sync to make in_avail() work (othervice always returns 0)
 	std::ios::sync_with_stdio(false);
 	std::string buffer;

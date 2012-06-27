@@ -342,7 +342,7 @@ void CGuiHandler::fakeMouseMove()
 
 void CGuiHandler::run()
 {
-	setThreadName(-1, "CGuiHandler::run");
+	setThreadName("CGuiHandler::run");
 	inGuiThread.reset(new bool(true));
 	try
 	{

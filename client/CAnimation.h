@@ -352,8 +352,8 @@ private:
 	//queue of animations waiting to be displayed
 	std::queue<EAnimType> queue;
 
-	//this funcction is used as callback if preview flag was set during construction
-	void loopPreview();
+	//this function is used as callback if preview flag was set during construction
+	void loopPreview(bool warMachine);
 
 public:
 	//change anim to next if queue is not empty, call callback othervice
@@ -362,7 +362,7 @@ public:
 	//add sequence to the end of queue
 	void addLast(EAnimType newType);
 
-	void startPreview();
+	void startPreview(bool warMachine);
 
 	//clear queue and set animation to this sequence
 	void clearAndSet(EAnimType type);

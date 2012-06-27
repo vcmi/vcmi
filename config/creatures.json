@@ -1943,7 +1943,9 @@
 				"level": 0,
 				"name": [ "SylvanCentaur" ],
 				"faction": -1,
-				"defname": "ZM192Z.DEF"
+				"defname": "ZM192Z.DEF",
+				"projectile_defname": "PELFX.DEF",
+				"projectile_spin": false
 			},
 
 			{

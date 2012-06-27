@@ -133,7 +133,7 @@ void CClient::waitForMoveAndSend(int color)
 
 void CClient::run()
 {
-	setThreadName(-1, "CClient::run");
+	setThreadName("CClient::run");
 	try
 	{
 		CPack *pack = NULL;
@@ -614,7 +614,7 @@ void CClient::calculatePaths(const CGHeroInstance *h)
 
 void CClient::commenceTacticPhaseForInt(CBattleGameInterface *battleInt)
 {
-	setThreadName(-1, "CClient::commenceTacticPhaseForInt");
+	setThreadName("CClient::commenceTacticPhaseForInt");
 	try
 	{
 		battleInt->yourTacticPhase(gs->curB->tacticDistance);
@@ -708,7 +708,7 @@ CServerHandler::~CServerHandler()
 
 void CServerHandler::callServer()
 {
-	setThreadName(-1, "CServerHandler::callServer");
+	setThreadName("CServerHandler::callServer");
 	std::string logName = GVCMIDirs.UserPath + "/server_log.txt";
 	std::string comm = GameConstants::BIN_DIR + GameConstants::PATH_SEPARATOR + GameConstants::SERVER_NAME + " " + port + " > " + logName;
 	int result = std::system(comm.c_str());

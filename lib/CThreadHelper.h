@@ -34,7 +34,7 @@ template <typename T> inline void setData(T * data, boost::function<T()> func)
 	*data = func();
 }
 
-void DLL_LINKAGE setThreadName(long threadID, const std::string &name);
+void DLL_LINKAGE setThreadName(const std::string &name);
 
 #define GET_DATA(TYPE,DESTINATION,FUNCTION_TO_GET) \
 	(boost::bind(&setData<TYPE>,&DESTINATION,FUNCTION_TO_GET))

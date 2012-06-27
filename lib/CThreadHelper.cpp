@@ -45,7 +45,9 @@ void CThreadHelper::processTasks()
 	}
 }
 
-void setThreadName(long threadID, const std::string &name)
+// set name for this thread.
+// NOTE: on *nix string will be trimmed to 16 symbols
+void setThreadName(const std::string &name)
 {
 #ifdef _WIN32
 	//follows http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
@@ -62,7 +64,7 @@ void setThreadName(long threadID, const std::string &name)
 	THREADNAME_INFO info;
 	info.dwType = 0x1000;
 	info.szName = name.c_str();
-	info.dwThreadID = threadID;
+	info.dwThreadID = -1;
 	info.dwFlags = 0;
 
 	__try

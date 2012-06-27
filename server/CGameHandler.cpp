@@ -847,7 +847,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 }
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
-	setThreadName(-1, "CGameHandler::handleConnection");
+	setThreadName("CGameHandler::handleConnection");
 	srand(time(NULL));
 
 	try

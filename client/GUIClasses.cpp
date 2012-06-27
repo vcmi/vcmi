@@ -1037,8 +1037,8 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool An
 		bg = new CPicture(graphics->backgroundsm[cre->faction],0,0,false);
 	bg->needRefresh = true;
 	anim = new CCreatureAnim(0, 0, cre->animDefName, Rect());
-	anim->clipRect(cre->doubleWide?170:150, 155, bg->pos.w, bg->pos.h);
-	anim->startPreview();
+	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
+	anim->startPreview(cre->hasBonusOfType(Bonus::SIEGE_WEAPON));
 
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;
@@ -1201,9 +1201,6 @@ void CRecruitmentWindow::buy()
 	onRecruit(crid, slider->value);
 	if(level >= 0)
 		close();
-	else
-		slider->moveTo(0);
-
 }
 
 void CRecruitmentWindow::showAll(SDL_Surface * to)
@@ -1261,12 +1258,13 @@ void CRecruitmentWindow::availableCreaturesChanged()
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
+	size_t selectedIndex = 0;
+
+	if (!cards.empty() && selected) // find position of selected item
+		selectedIndex = std::find(cards.begin(), cards.end(), selected) - cards.begin();
+
 	//deselect card
 	select(nullptr);
-
-	static const int SPACE_BETWEEN = 18;
-	static const int CREATURE_WIDTH = 102;
-	static const int TOTAL_CREATURE_WIDTH = SPACE_BETWEEN + CREATURE_WIDTH;
 
 	//delete old cards
 	BOOST_FOREACH(auto & card, cards)
@@ -1288,15 +1286,33 @@ void CRecruitmentWindow::availableCreaturesChanged()
 
 	assert(!cards.empty());
 
+	const int creatureWidth = 102;
+
+	//normal distance between cards - 18px
+	int requiredSpace = 18;
+	//maximum distance we can use without reaching window borders
+	int availableSpace = pos.w - 50 - creatureWidth * cards.size();
+
+	if (cards.size() > 1) // avoid division by zero
+		availableSpace /= cards.size() - 1;
+	else
+		availableSpace = 0;
+
+	assert(availableSpace >= 0);
+
+	const int spaceBetween = std::min(requiredSpace, availableSpace);
+	const int totalCreatureWidth = spaceBetween + creatureWidth;
+
 	//now we know total amount of cards and can move them to correct position
-	int curx = 192 + 50 - (CREATURE_WIDTH*cards.size()/2) - (SPACE_BETWEEN*(cards.size()-1)/2);
+	int curx = pos.w / 2 - (creatureWidth*cards.size()/2) - (spaceBetween*(cards.size()-1)/2);
 	BOOST_FOREACH(auto & card, cards)
 	{
 		card->moveBy(Point(curx, 64));
-		curx += TOTAL_CREATURE_WIDTH;
+		curx += totalCreatureWidth;
 	}
 
-	select(cards.front());
+	//restore selection
+	select(cards[selectedIndex]);
 
 	if(slider->value)
 		slider->moveTo(0);

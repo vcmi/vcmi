@@ -878,7 +878,7 @@ void CSelectionScreen::difficultyChange( int to )
 
 void CSelectionScreen::handleConnection()
 {
-	setThreadName(-1, "CSelectionScreen::handleConnection");
+	setThreadName("CSelectionScreen::handleConnection");
 	try
 	{
 		assert(serv);

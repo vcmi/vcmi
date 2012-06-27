@@ -896,7 +896,7 @@ void VCAI::makeTurn()
 {
 	MAKING_TURN;
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
-	setThreadName(-1, "VCAI::makeTurn");
+	setThreadName("VCAI::makeTurn");
 
 	BNLOG("Player %d starting turn", playerID);
 	INDENT;
@@ -2178,7 +2178,7 @@ void VCAI::requestActionASAP(boost::function<void()> whatToDo)
 	boost::barrier b(2);
 	boost::thread newThread([&b,this,whatToDo]()
 	{
-		setThreadName(-1, "VCAI::requestActionASAP::helper");
+		setThreadName("VCAI::requestActionASAP::helper");
 		SET_GLOBAL_STATE(this);
 		boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 		b.wait();

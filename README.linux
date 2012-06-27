@@ -1,8 +1,12 @@
 This readme covers VCMI compilation on Unix-like systems.
 
-For complete installation instructions see VCMI wiki:
-http://wiki.vcmi.eu/index.php?title=Installation_on_Linux
+To run the game you will need:
+1) Heroes 3 data files (SoD or Complete editions);
+2) Unofficial WoG addon
+2) VCMI data pack (http://download.vcmi.eu/vcmi-data_0.89.tar.gz)
 
+For complete installation instructions see VCMI wiki:
+http://wiki.vcmi.eu/index.php?title=Installation_on_Linux#Preparing_data
 
 I. Prerequisites
 
@@ -80,7 +84,7 @@ Since VCMI is still in development, there's no install procedure, although this 
   make install
 You also need to update configuration files:
  cp /PATH_TO_SOURCE/config /DATA_PATH/vcmi
-In this case you'll have to manually update after any changes.
+In this case you'll have to manually update these files after any changes.
 For more permament solution you should use links as described below.
 
 For development puposes, it's better to use links. Go
