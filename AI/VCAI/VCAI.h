@@ -2,6 +2,34 @@
 typedef const int3& crint3;
 typedef const std::string& crstring;
 
+//provisional class for AI to store a reference to an owned hero object
+//checks if it's valid on access, should be used in place of const CGHeroInstance*
+struct HeroPtr
+{
+	const CGHeroInstance *h;
+	int hid; //hero id (object subID or type ID)
+
+public:
+	std::string name;
+
+	
+	HeroPtr();
+	HeroPtr(const CGHeroInstance *H);
+	~HeroPtr();
+
+	operator bool() const
+	{
+		return validAndSet();
+	}
+
+	bool operator<(const HeroPtr &rhs) const;
+	const CGHeroInstance *operator->() const;
+	const CGHeroInstance *operator*() const; //not that consistent with -> but all interfaces use CGHeroInstance*, so it's convenient
+
+	const CGHeroInstance *get(bool doWeExpectNull = false) const;
+	bool validAndSet() const;
+};
+
 enum BattleState
 {
 	NO_BATTLE,
@@ -87,7 +115,6 @@ struct CGoal
 		objid = -1;
 		aid = -1;
 		tile = int3(-1, -1, -1);
-		hero = NULL;
 		town = NULL;
 	}
 
@@ -102,7 +129,7 @@ struct CGoal
 	int objid; SETTER(int, objid)
 	int aid; SETTER(int, aid)
 	int3 tile; SETTER(int3, tile)
-	const CGHeroInstance *hero; SETTER(CGHeroInstance *, hero)
+	HeroPtr hero; SETTER(HeroPtr, hero)
 	const CGTownInstance *town; SETTER(CGTownInstance *, town)
 	int bid; SETTER(int, bid)
 };
@@ -141,7 +168,7 @@ struct SectorMap
 
 	void makeParentBFS(crint3 source);
 
-	int3 firstTileToGet(const CGHeroInstance *h, crint3 dst); //if h wants to reach tile dst, which tile he should visit to clear the way?
+	int3 firstTileToGet(HeroPtr h, crint3 dst); //if h wants to reach tile dst, which tile he should visit to clear the way?
 };
 
 struct CIssueCommand : CGoal
@@ -188,10 +215,10 @@ public:
 
 	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
 	std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
-	std::map<const CGHeroInstance *, std::vector<const CGTownInstance *> > townVisitsThisWeek;
+	std::map<HeroPtr, std::vector<const CGTownInstance *> > townVisitsThisWeek;
 
-	std::map<const CGHeroInstance *, CGoal> lockedHeroes; //TODO: allow non-elementar objectives
-	std::map<const CGHeroInstance *, std::vector<const CGObjectInstance *> > reservedHeroesMap; //objects reserved by specific heroes
+	std::map<HeroPtr, CGoal> lockedHeroes; //TODO: allow non-elementar objectives
+	std::map<HeroPtr, std::vector<const CGObjectInstance *> > reservedHeroesMap; //objects reserved by specific heroes
 
 	std::vector<const CGObjectInstance *> visitableObjs;
 	std::vector<const CGObjectInstance *> alreadyVisited;
@@ -212,8 +239,8 @@ public:
 
 	void tryRealize(CGoal g);
 
-	int3 explorationBestNeighbour(int3 hpos, int radius, const CGHeroInstance * h);
-	int3 explorationNewPoint(int radius, const CGHeroInstance * h, std::vector<std::vector<int3> > &tiles);
+	int3 explorationBestNeighbour(int3 hpos, int radius, HeroPtr h);
+	int3 explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<int3> > &tiles);
 	void recruitHero();
 
 	virtual void init(CCallback * CB);
@@ -284,27 +311,29 @@ public:
 	void buildArmyIn(const CGTownInstance * t);
 	void striveToGoal(const CGoal &ultimateGoal);
 	void endTurn();
-	void wander(const CGHeroInstance * h);
-	void setGoal (const CGHeroInstance *h, const CGoal goal);
-	void setGoal (const CGHeroInstance *h, EGoals goalType = INVALID);
+	void wander(HeroPtr h);
+	void setGoal(HeroPtr h, const CGoal goal);
+	void setGoal(HeroPtr h, EGoals goalType = INVALID);
 	void completeGoal (const CGoal goal); //safely removes goal from reserved hero
 
 	void recruitHero(const CGTownInstance * t);
-	std::vector<const CGObjectInstance *> getPossibleDestinations(const CGHeroInstance *h);
+	std::vector<const CGObjectInstance *> getPossibleDestinations(HeroPtr h);
 	void buildStructure(const CGTownInstance * t);
 	//void recruitCreatures(const CGTownInstance * t);
 	void recruitCreatures(const CGDwelling * d);
 	void pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source); //called when we can't find a slot for new stack
 	void moveCreaturesToHero(const CGTownInstance * t);
-	bool goVisitObj(const CGObjectInstance * obj, const CGHeroInstance * h);
-	void performObjectInteraction(const CGObjectInstance * obj, const CGHeroInstance * h);
+	bool goVisitObj(const CGObjectInstance * obj, HeroPtr h);
+	void performObjectInteraction(const CGObjectInstance * obj, HeroPtr h);
 
-	bool moveHeroToTile(int3 dst, const CGHeroInstance * h);
+	bool moveHeroToTile(int3 dst, HeroPtr h);
+
+	void lostHero(HeroPtr h); //should remove all references to hero (assigned tasks and so on)
 	void waitTillFree();
 
 	void addVisitableObj(const CGObjectInstance *obj);
 	void markObjectVisited (const CGObjectInstance *obj);
-	void reserveObject (const CGHeroInstance * h, const CGObjectInstance *obj);
+	void reserveObject (HeroPtr h, const CGObjectInstance *obj);
 	//void removeVisitableObj(const CGObjectInstance *obj);
 	void validateVisitableObjs();
 	void retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned = false) const;
@@ -312,15 +341,15 @@ public:
 
 	const CGObjectInstance *lookForArt(int aid) const;
 	bool isAccessible(const int3 &pos);
-	const CGHeroInstance *getHeroWithGrail() const;
+	HeroPtr getHeroWithGrail() const;
 
 	const CGObjectInstance *getUnvisitedObj(const boost::function<bool(const CGObjectInstance *)> &predicate);
-	bool isAccessibleForHero(const int3 & pos, const CGHeroInstance * h, bool includeAllies = false) const;
+	bool isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies = false) const;
 
 	const CGTownInstance *findTownWithTavern() const;
 
-	std::vector<const CGHeroInstance *> getUnblockedHeroes() const;
-	const CGHeroInstance *primaryHero() const;
+	std::vector<HeroPtr> getUnblockedHeroes() const;
+	HeroPtr primaryHero() const;
 	TResources estimateIncome() const;
 	bool containsSavedRes(const TResources &cost) const;
 
@@ -336,4 +365,4 @@ bool objWithID(const CGObjectInstance *obj)
 }
 
 bool isWeeklyRevisitable (const CGObjectInstance * obj);
-bool shouldVisit (const CGHeroInstance * h, const CGObjectInstance * obj);
+bool shouldVisit (HeroPtr h, const CGObjectInstance * obj);

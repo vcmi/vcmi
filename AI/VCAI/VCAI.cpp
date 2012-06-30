@@ -1,7 +1,6 @@
 #include "StdInc.h"
 #include "VCAI.h"
 #include "../../lib/UnlockGuard.h"
-#include "Fuzzy.h"
 #include "../../lib/CObjectHandler.h"
 
 #define I_AM_ELEMENTAR return CGoal(*this).setisElementar(true)
@@ -19,6 +18,8 @@ using namespace vstd;
 //one thread may be turn of AI and another will be handling a side effect for AI2
 boost::thread_specific_ptr<CCallback> cb;
 boost::thread_specific_ptr<VCAI> ai;
+
+//std::map<int, std::map<int, int> > HeroView::infosCount;
 
 // CCallback *cb;
 // VCAI *ai;
@@ -96,10 +97,11 @@ std::string goalName(EGoals goalType)
 	}
 }
 
-bool compareHeroStrength(const CGHeroInstance *h1, const CGHeroInstance *h2)
+bool compareHeroStrength(HeroPtr h1, HeroPtr h2)
 {
 	return h1->getTotalStrength() < h2->getTotalStrength();
 }
+
 bool compareArmyStrength(const CArmedInstance *a1, const CArmedInstance *a2)
 {
 	return a1->getArmyStrength() < a2->getArmyStrength();
@@ -259,7 +261,7 @@ bool isReachable(const CGObjectInstance *obj)
 	return cb->getPathInfo(obj->visitablePos())->turns < 255;
 }
 
-ui64 howManyReinforcementsCanGet(const CGHeroInstance *h, const CGTownInstance *t)
+ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance *t)
 {
 	ui64 ret = 0;
 	int freeHeroSlots = GameConstants::ARMY_SIZE - h->stacksCount();
@@ -306,7 +308,7 @@ bool isCloser(const CGObjectInstance *lhs, const CGObjectInstance *rhs)
 	return (ln->moveRemains > rn->moveRemains);
 };
 
-bool compareMovement(const CGHeroInstance *lhs, const CGHeroInstance *rhs)
+bool compareMovement(HeroPtr lhs, HeroPtr rhs)
 {
 	return lhs->movement > rhs->movement;
 };
@@ -665,6 +667,7 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 {
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
+
 	if(remove_if_present(visitableObjs, obj))
 		assert(obj->isVisitable());
 
@@ -673,6 +676,12 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 
 	//TODO
 	//there are other places where CGObjectinstance ptrs are stored...
+	// 
+
+	if(obj->ID == GameConstants::HEROI_TYPE  &&  obj->tempOwner == playerID)
+	{
+		lostHero(cb->getHero(obj->id)); //we can promote, since objectRemoved is killed just before actual deletion
+	}
 }
 
 void VCAI::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor)
@@ -923,8 +932,7 @@ void VCAI::makeTurn()
 			break;
 		case 7: //reconsider strategy
 		{
-			const CGHeroInstance * h = primaryHero();
-			if (h) //check if our primary hero can handle danger
+			if(auto h = primaryHero()) //check if our primary hero can handle danger
 			{
 				ui64 totalDanger = 0;
 				int dangerousObjects = 0;
@@ -934,7 +942,7 @@ void VCAI::makeTurn()
 				{
 					if (evaluateDanger(obj)) //potentilaly dnagerous
 					{
-						totalDanger += evaluateDanger (obj->visitablePos(), h);
+						totalDanger += evaluateDanger(obj->visitablePos(), *h);
 						++dangerousObjects;
 					}
 				}
@@ -968,26 +976,25 @@ void VCAI::makeTurnInternal()
 		//Pick objects reserved in previous turn - we expect only nerby objects there
 		BOOST_FOREACH (auto hero, reservedHeroesMap)
 		{
-			cb->setSelection(hero.first);
+			cb->setSelection(hero.first.get());
 			boost::sort (hero.second, isCloser);
 			BOOST_FOREACH (auto obj, hero.second)
 			{
-				const CGHeroInstance * h = hero.first;
-				striveToGoal (CGoal(VISIT_TILE).sethero(h).settile(obj->visitablePos()));
+				striveToGoal (CGoal(VISIT_TILE).sethero(hero.first).settile(obj->visitablePos()));
 			}
 		}
 
 		//now try to win
 		striveToGoal(CGoal(WIN));
 
-		//finally, continue our abstract long-temr goals
-		std::vector<std::pair<const CGHeroInstance *, CGoal> > safeCopy; //heroes tend to die in the process and loose their goals, unsafe to iterate it
-		BOOST_FOREACH (auto h, lockedHeroes)
-		{
-			safeCopy.push_back(h);
-		}
+		//finally, continue our abstract long-term goals
 
-		auto lockedHeroesSorter = [](std::pair<const CGHeroInstance *, CGoal> h1, std::pair<const CGHeroInstance *, CGoal> h2) -> bool
+		//heroes tend to die in the process and loose their goals, unsafe to iterate it
+		std::vector<std::pair<HeroPtr, CGoal> > safeCopy;
+		boost::copy(lockedHeroes, std::back_inserter(safeCopy));
+
+		typedef decltype(*safeCopy.begin()) TItrType;
+		auto lockedHeroesSorter = [](TItrType h1, TItrType h2) -> bool
 		{
 			return compareMovement (h1.first, h2.first);
 		};
@@ -998,7 +1005,7 @@ void VCAI::makeTurnInternal()
 			auto it = safeCopy.begin();
 			if (it->first && it->first->tempOwner == playerID && vstd::contains(lockedHeroes, it->first)) //make sure hero still has his goal
 			{
-				cb->setSelection(it->first);
+				cb->setSelection(*it->first);
 				striveToGoal (it->second);
 			}
 			safeCopy.erase(it);
@@ -1019,14 +1026,14 @@ void VCAI::makeTurnInternal()
 	endTurn();
 }
 
-bool VCAI::goVisitObj(const CGObjectInstance * obj, const CGHeroInstance * h)
+bool VCAI::goVisitObj(const CGObjectInstance * obj, HeroPtr h)
 {
 	int3 dst = obj->visitablePos();
 	BNLOG("%s will try to visit %s at (%s)", h->name % obj->hoverName % strFromInt3(dst));
 	return moveHeroToTile(dst, h);
 }
 
-void VCAI::performObjectInteraction(const CGObjectInstance * obj, const CGHeroInstance * h)
+void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 {
 	switch (obj->ID)
 	{
@@ -1230,10 +1237,10 @@ void VCAI::buildStructure(const CGTownInstance * t)
 		return;
 }
 
-bool isSafeToVisit(const CGHeroInstance *h, crint3 tile)
+bool isSafeToVisit(HeroPtr h, crint3 tile)
 {
 	const ui64 heroStrength = h->getTotalStrength(),
-		dangerStrength = evaluateDanger(tile, h);
+		dangerStrength = evaluateDanger(tile, *h);
 	if(dangerStrength)
 	{
 		if(heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength)
@@ -1249,7 +1256,7 @@ bool isSafeToVisit(const CGHeroInstance *h, crint3 tile)
 	return true; //there's no danger
 }
 
-std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(const CGHeroInstance *h)
+std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 {
 	validateVisitableObjs();
 	std::vector<const CGObjectInstance *> possibleDestinations;
@@ -1289,7 +1296,7 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(const CGHero
 	return possibleDestinations;
 }
 
-void VCAI::wander(const CGHeroInstance * h)
+void VCAI::wander(HeroPtr h)
 {
 	while(1)
 	{
@@ -1385,7 +1392,7 @@ void VCAI::wander(const CGHeroInstance * h)
 	}
 }
 
-void VCAI::setGoal (const CGHeroInstance *h, const CGoal goal)
+void VCAI::setGoal(HeroPtr h, const CGoal goal)
 { //TODO: check for presence?
 	if (goal.goalType == EGoals::INVALID)
 		remove_if_present(lockedHeroes, h);
@@ -1393,7 +1400,7 @@ void VCAI::setGoal (const CGHeroInstance *h, const CGoal goal)
 		lockedHeroes[h] = CGoal(goal).setisElementar(false); //always evaluate goals before realizing
 }
 
-void VCAI::setGoal (const CGHeroInstance *h, EGoals goalType)
+void VCAI::setGoal(HeroPtr h, EGoals goalType)
 {
 	if (goalType == EGoals::INVALID)
 		remove_if_present(lockedHeroes, h);
@@ -1403,7 +1410,7 @@ void VCAI::setGoal (const CGHeroInstance *h, EGoals goalType)
 
 void VCAI::completeGoal (const CGoal goal)
 {
-	if (const CGHeroInstance * h = goal.hero)
+	if (const CGHeroInstance * h = goal.hero.get(true))
 	{
 		auto it = lockedHeroes.find(h);
 		if (it != lockedHeroes.end())
@@ -1448,7 +1455,7 @@ void VCAI::markObjectVisited (const CGObjectInstance *obj)
 	alreadyVisited.push_back(obj);
 }
 
-void VCAI::reserveObject (const CGHeroInstance * h, const CGObjectInstance *obj)
+void VCAI::reserveObject(HeroPtr h, const CGObjectInstance *obj)
 {
 	reservedObjs.push_back(obj);
 	reservedHeroesMap[h].push_back(obj);
@@ -1524,7 +1531,7 @@ bool VCAI::isAccessible(const int3 &pos)
 	return false;
 }
 
-const CGHeroInstance * VCAI::getHeroWithGrail() const
+HeroPtr VCAI::getHeroWithGrail() const
 {
 	BOOST_FOREACH(const CGHeroInstance *h, cb->getHeroesInfo())
 		if(h->hasArt(2)) //grail
@@ -1543,9 +1550,9 @@ const CGObjectInstance * VCAI::getUnvisitedObj(const boost::function<bool(const 
 	return NULL;
 }
 
-bool VCAI::isAccessibleForHero(const int3 & pos, const CGHeroInstance * h, bool includeAllies) const
+bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /*= false*/) const
 {
-	cb->setSelection(h);
+	cb->setSelection(*h);
 	if (!includeAllies)
 	{ //don't visit tile occupied by allied hero
 		BOOST_FOREACH (auto obj, cb->getVisitableObjs(pos))
@@ -1592,7 +1599,7 @@ public:
 	}
 };
 
-bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
+bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 {
 	visitedObject = NULL;
 	int3 startHpos = h->visitablePos();
@@ -1600,7 +1607,7 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 	if(startHpos == dst)
 	{
 		assert(cb->getVisitableObjs(dst).size() > 1); //there's no point in revisiting tile where there is no visitable object
-		cb->moveHero(h,CGHeroInstance::convertPosition(dst, true));
+		cb->moveHero(*h, CGHeroInstance::convertPosition(dst, true));
 		waitTillFree(); //movement may cause battle or blocking dialog
 		ret = true;
 	}
@@ -1638,19 +1645,14 @@ bool VCAI::moveHeroToTile(int3 dst, const CGHeroInstance * h)
 //
 // 			}
 			//tlog0 << "Moving " << h->name << " from " << h->getPosition() << " to " << endpos << std::endl;
-			cb->moveHero(h,CGHeroInstance::convertPosition(endpos, true));
+			cb->moveHero(*h, CGHeroInstance::convertPosition(endpos, true));
 			waitTillFree(); //movement may cause battle or blocking dialog
 			boost::this_thread::interruption_point();
 			if(h->tempOwner != playerID) //we lost hero - remove all tasks assigned to him/her
 			{
-				remove_if_present(lockedHeroes, h);
-				BOOST_FOREACH (auto obj, reservedHeroesMap[h])
-				{
-					remove_if_present(reservedObjs, obj); //unreserve all objects for that hero
-				}
-				remove_if_present(reservedHeroesMap, h);
-
-				throw std::runtime_error("Hero was lost!"); //we need to throw, otherwise hero will be assigned to sth again
+				lostHero(h);
+				//we need to throw, otherwise hero will be assigned to sth again
+				throw std::runtime_error("Hero was lost!"); 
 				break;
 			}
 
@@ -1738,7 +1740,7 @@ void VCAI::tryRealize(CGoal g)
 				throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
 			if(!g.isBlockedBorderGate(g.tile))
 			{
-				if (ai->moveHeroToTile(g.tile, g.hero))
+				if (ai->moveHeroToTile(g.tile, g.hero.get()))
 				{
 					throw goalFulfilledException("");
 				}
@@ -1781,8 +1783,8 @@ void VCAI::tryRealize(CGoal g)
 			assert(g.hero->visitablePos() == g.tile);
 			if (g.hero->diggingStatus() == CGHeroInstance::CAN_DIG)
 			{
-				cb->dig (g.hero);
-				setGoal (g.hero, INVALID); // finished digging
+				cb->dig(g.hero.get());
+				setGoal(g.hero, INVALID); // finished digging
 			}
 			else
 			{
@@ -1846,9 +1848,11 @@ const CGTownInstance * VCAI::findTownWithTavern() const
 	return NULL;
 }
 
-std::vector<const CGHeroInstance *> VCAI::getUnblockedHeroes() const
+std::vector<HeroPtr> VCAI::getUnblockedHeroes() const
 {
-	std::vector<const CGHeroInstance *> ret = cb->getHeroesInfo();
+	std::vector<HeroPtr> ret;
+	boost::copy(cb->getHeroesInfo(), std::back_inserter(ret));
+
 	BOOST_FOREACH(auto h, lockedHeroes)
 	{
 		if (!h.second.invalid()) //we can use heroes without valid goal
@@ -1857,7 +1861,7 @@ std::vector<const CGHeroInstance *> VCAI::getUnblockedHeroes() const
 	return ret;
 }
 
-const CGHeroInstance * VCAI::primaryHero() const
+HeroPtr VCAI::primaryHero() const
 {
 	auto hs = cb->getHeroesInfo();
 	boost::sort(hs, compareHeroStrength);
@@ -1921,11 +1925,11 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			{
 				if (maxGoals)
 				{
-					setGoal (goal.hero, goal);
+					setGoal(goal.hero, goal);
 				}
 				else
 				{
-					setGoal (goal.hero, INVALID); // we seemingly don't know what to do with hero
+					setGoal(goal.hero, INVALID); // we seemingly don't know what to do with hero
 				}
 			}
 
@@ -2025,12 +2029,12 @@ void VCAI::performTypicalActions()
 		}
 	}
 
-	BOOST_FOREACH(const CGHeroInstance *h, getUnblockedHeroes())
+	BOOST_FOREACH(auto h, getUnblockedHeroes())
 	{
 		BNLOG("Looking into %s, MP=%d", h->name.c_str() % h->movement);
 		INDENT;
-		makePossibleUpgrades(h);
-		cb->setSelection(h);
+		makePossibleUpgrades(*h);
+		cb->setSelection(*h);
 		try
 		{
 			wander(h);
@@ -2051,7 +2055,7 @@ void VCAI::buildArmyIn(const CGTownInstance * t)
 	moveCreaturesToHero(t);
 }
 
-int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, const CGHeroInstance * h)
+int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 {
 	TimeCheck tc("looking for best exploration neighbour");
 	std::map<int3, int> dstToRevealedTiles;
@@ -2076,7 +2080,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, const CGHeroInstance 
 	throw cannotFulfillGoalException("No neighbour will bring new discoveries!");
 }
 
-int3 VCAI::explorationNewPoint(int radius, const CGHeroInstance * h, std::vector<std::vector<int3> > &tiles)
+int3 VCAI::explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<int3> > &tiles)
 {
 	TimeCheck tc("looking for new exploration point");
 	PNLOG("Looking for an another place for exploration...");
@@ -2187,6 +2191,18 @@ void VCAI::requestActionASAP(boost::function<void()> whatToDo)
 	b.wait();
 }
 
+void VCAI::lostHero(HeroPtr h)
+{
+	BNLOG("I lost my hero %s. It's best to forget and move on.\n", h.name);
+
+	remove_if_present(lockedHeroes, h);
+	BOOST_FOREACH(auto obj, reservedHeroesMap[h])
+	{
+		remove_if_present(reservedObjs, obj); //unreserve all objects for that hero
+	}
+	remove_if_present(reservedHeroesMap, h);
+}
+
 AIStatus::AIStatus()
 {
 	battle = NO_BATTLE;
@@ -2264,10 +2280,10 @@ bool AIStatus::haveTurn()
 	return havingTurn;
 }
 
-int3 whereToExplore(const CGHeroInstance *h)
+int3 whereToExplore(HeroPtr h)
 {
 	//TODO it's stupid and ineffective, write sth better
-	cb->setSelection(h);
+	cb->setSelection(*h);
 	int radius = h->getSightRadious();
 	int3 hpos = h->visitablePos();
 
@@ -2348,7 +2364,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				break;
 			case EVictoryConditionType::BUILDGRAIL:
 				{
-					if(const CGHeroInstance *h = ai->getHeroWithGrail())
+					if(auto h = ai->getHeroWithGrail())
 					{
 						//hero is in a town that can host Grail
 						if(h->visitedTown && !vstd::contains(h->visitedTown->forbiddenBuildings, EBuilding::GRAIL))
@@ -2441,11 +2457,11 @@ TSubgoal CGoal::whatToDoToAchieve()
 				return CGoal(EXPLORE);
 			}
 
-			const CGHeroInstance *h = hero ? hero : ai->primaryHero();
+			HeroPtr h = hero ? hero : ai->primaryHero();
 			if(!h)
 				return CGoal(RECRUIT_HERO);
 
-			cb->setSelection(h);
+			cb->setSelection(*h);
 
 			SectorMap sm;
 			bool dropToFile = false;
@@ -2724,18 +2740,18 @@ TSubgoal CGoal::whatToDoToAchieve()
 	case GATHER_ARMY:
 		{
 			//TODO: find hero if none set
+			assert(hero);
 
-			const CGHeroInstance *h = hero;
-			cb->setSelection(h);
-			auto compareReinforcements = [h](const CGTownInstance *lhs, const CGTownInstance *rhs) -> bool
+			cb->setSelection(*hero);
+			auto compareReinforcements = [this](const CGTownInstance *lhs, const CGTownInstance *rhs) -> bool
 			{
-				return howManyReinforcementsCanGet(h, lhs) < howManyReinforcementsCanGet(h, rhs);
+				return howManyReinforcementsCanGet(hero, lhs) < howManyReinforcementsCanGet(hero, rhs);
 			};
 
 			std::vector<const CGTownInstance *> townsReachable;
 			BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
 			{
-				if(!t->visitingHero && howManyReinforcementsCanGet(h,t))
+				if(!t->visitingHero && howManyReinforcementsCanGet(hero,t))
 				{
 					if(isReachable(t))
 						townsReachable.push_back(t);
@@ -2934,7 +2950,7 @@ bool isWeeklyRevisitable (const CGObjectInstance * obj)
 	return false;
 }
 
-bool shouldVisit (const CGHeroInstance * h, const CGObjectInstance * obj)
+bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 {
 	switch (obj->ID)
 	{
@@ -2986,7 +3002,7 @@ bool shouldVisit (const CGHeroInstance * h, const CGObjectInstance * obj)
 	return true;
 }
 
-int3 SectorMap::firstTileToGet(const CGHeroInstance *h, crint3 dst)
+int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 {
 	int sourceSector = retreiveTile(h->visitablePos()),
 		destinationSector = retreiveTile(dst);
@@ -3210,3 +3226,67 @@ bool ObjectIdRef::operator<(const ObjectIdRef &rhs) const
 {
 	return id < rhs.id;
 }
+
+HeroPtr::HeroPtr(const CGHeroInstance *H)
+{
+	if(!H)
+	{
+		//init from nullptr should equal to default init
+		*this = HeroPtr();
+		return;
+	}
+
+	h = H;
+	name = h->name;
+
+	hid = H->subID;
+//	infosCount[ai->playerID][hid]++;
+}
+
+HeroPtr::HeroPtr()
+{
+	h = nullptr;
+	hid = -1;
+}
+
+HeroPtr::~HeroPtr()
+{
+// 	if(hid >= 0)
+// 		infosCount[ai->playerID][hid]--;
+}
+
+bool HeroPtr::operator<(const HeroPtr &rhs) const
+{
+	return hid < rhs.hid;
+}
+
+const CGHeroInstance * HeroPtr::get(bool doWeExpectNull /*= false*/) const
+{
+	//TODO? check if these all assertions every time we get info about hero affect efficiency
+	// 
+	//behave terribly when attempting unauthorised access to hero that is not ours (or was lost)
+	assert(doWeExpectNull || h);
+	if(h)
+	{
+		assert(cb->getObj(h->id));
+		assert(h->tempOwner == ai->playerID);
+	}
+
+	return h;
+}
+
+const CGHeroInstance * HeroPtr::operator->() const
+{
+	return get();
+}
+
+bool HeroPtr::validAndSet() const
+{
+	return get(true);
+}
+
+const CGHeroInstance * HeroPtr::operator*() const
+{
+	return get();
+}
+

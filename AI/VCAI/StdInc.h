@@ -26,6 +26,8 @@
 #include "../../lib/CondSh.h"
 #include "../../lib/CStopWatch.h"
 
+#include "Fuzzy.h"
+
 #include <fstream>
 #include <queue>
 
