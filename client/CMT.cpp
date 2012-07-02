@@ -338,7 +338,8 @@ void printInfoAboutIntObject(const CIntObject *obj, int level)
 	}
 	else
 		tlog4 << "inactive";
-	tlog4 << " at " << obj->pos.x <<"x"<< obj->pos.y << "\n";
+	tlog4 << " at " << obj->pos.x <<"x"<< obj->pos.y;
+	tlog4 << " (" << obj->pos.w <<"x"<< obj->pos.h << ")\n";
 
 	BOOST_FOREACH(const CIntObject *child, obj->children)
 		printInfoAboutIntObject(child, level+1);

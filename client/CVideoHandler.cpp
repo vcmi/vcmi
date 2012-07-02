@@ -657,7 +657,7 @@ CVideoPlayer::CVideoPlayer()
 	// TODO: URL protocol marked as deprecated in favor of avioContext
 	// VCMI should to it if URL protocol will be removed from ffmpeg or
 	// when new avioContext will be available in all distros (ETA: late 2012)
-#ifdef WITH_AV_REGISTER_PROTOCOL2
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 69, 0)
 	av_register_protocol2(&lod_protocol, sizeof(lod_protocol));
 #else
 	av_register_protocol(&lod_protocol);
@@ -846,7 +846,12 @@ bool CVideoPlayer::nextFrame()
 			if (packet.stream_index == stream)
 			{
 				// Decode video frame
+
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(52, 25, 0)
+				avcodec_decode_video(codecContext, frame, &frameFinished, packet.data, packet.size);
+#else
 				avcodec_decode_video2(codecContext, frame, &frameFinished, &packet);
+#endif
 
 				// Did we get a video frame?
 				if (frameFinished)

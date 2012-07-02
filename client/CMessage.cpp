@@ -42,7 +42,6 @@ template <typename T, typename U> std::pair<T,U> max(const std::pair<T,U> &x, co
 //One image component + subtitles below it
 class ComponentResolved : public CIntObject
 {
-	std::vector<std::vector<SDL_Surface*> > * txt;
 public:
 	CComponent *comp;
 
@@ -536,17 +535,8 @@ ComponentResolved::ComponentResolved( CComponent *Comp ):
 	defActions = 255 - DISPOSE;
 	pos.x = pos.y = 0;
 
-	int textHeight = 0;
-	std::vector<std::string> textLines = CMessage::breakText(comp->subtitle, 14); //text
-	txt = CMessage::drawText(&textLines, textHeight, FONT_SMALL);
-
-	//calculate dimensions
-	std::pair<int,int> textSize = CMessage::getMaxSizes(txt, textHeight);
-	pos.w = std::max<int>(textSize.first, comp->pos.w); //bigger of: subtitle width and image width
-
-	pos.h = comp->pos.h + COMPONENT_TO_SUBTITLE + textSize.second;
-
-	comp->moveTo(Point((pos.w - comp->pos.w)/2, 0));
+	pos.w = comp->pos.w;
+	pos.h = comp->pos.h;
 }
 
 ComponentResolved::~ComponentResolved()
@@ -556,27 +546,12 @@ ComponentResolved::~ComponentResolved()
 		removeChild(comp);
 		parent->addChild(comp);
 	}
-
-	for(size_t i = 0; i < txt->size(); i++)
-		for(size_t j = 0; j < (*txt)[i].size(); j++)
-			if((*txt)[i][j])
-				SDL_FreeSurface((*txt)[i][j]);
-	delete txt;
 }
 
 void ComponentResolved::showAll(SDL_Surface *to)
 {
-	int fontHeight;
-	if (graphics->fontsTrueType[FONT_SMALL])
-		fontHeight = TTF_FontHeight(graphics->fontsTrueType[FONT_SMALL]);
-	else
-		fontHeight = graphics->fonts[FONT_SMALL]->height;
-
 	CIntObject::showAll(to);
 	comp->showAll(to);
-
-	int textY = pos.y + comp->pos.h + COMPONENT_TO_SUBTITLE;
-	CMessage::blitTextOnSur(txt, fontHeight, textY, to, pos.x + pos.w/2 );
 }
 
 ComponentsToBlit::~ComponentsToBlit()

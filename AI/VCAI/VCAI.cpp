@@ -993,7 +993,8 @@ void VCAI::makeTurnInternal()
 		std::vector<std::pair<HeroPtr, CGoal> > safeCopy;
 		boost::copy(lockedHeroes, std::back_inserter(safeCopy));
 
-		typedef decltype(*safeCopy.begin()) TItrType;
+		typedef std::pair<HeroPtr, CGoal> TItrType;
+
 		auto lockedHeroesSorter = [](TItrType h1, TItrType h2) -> bool
 		{
 			return compareMovement (h1.first, h2.first);
@@ -2308,7 +2309,7 @@ int3 whereToExplore(HeroPtr h)
 	}
 	catch(cannotFulfillGoalException &e)
 	{
-		std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow], metryka taksówkowa
+		std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow], metryka taksÃ³wkowa
 		try
 		{
 			return ai->explorationNewPoint(radius, h, tiles);

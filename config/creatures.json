@@ -1954,7 +1954,7 @@
 				"name": [ "Sorceress" ],
 				"faction": -1,
 				"defname": "ZM193Z.DEF",
-				"projectile_defname": "SMBALX.DEF",
+				"projectile_defname": "CPRZEAX.DEF",
 				"projectile_spin": false
 			},
 

@@ -791,7 +791,7 @@ void CInfoBar::CVisibleInfo::loadComponent(const Component compToDisplay, std::s
 	comp->moveTo(Point(pos.x+52, pos.y+54));
 
 	new CTextBox(message, Rect(8, 8, 164, 50), 0, FONT_SMALL, CENTER, Colors::Cornsilk);
-	new CLabel(91, 158, FONT_SMALL, CENTER, Colors::Cornsilk, comp->subtitle);
+	new CLabel(91, 158, FONT_SMALL, CENTER, Colors::Cornsilk, comp->getSubtitle());
 }
 
 void CInfoBar::CVisibleInfo::updateEnemyTurn(double progress)

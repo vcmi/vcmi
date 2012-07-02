@@ -768,46 +768,67 @@ void CInfoPopup::init(int x, int y)
 	vstd::amin(pos.y, screen->h - bitmap->h);
 }
 
-CComponent::CComponent(Etype Type, int Subtype, int Val):
-	image(nullptr)
+CComponent::CComponent(Etype Type, int Subtype, int Val, bool showSubtitles):
+	image(nullptr),
+    perDay(false)
 {
 	addUsedEvents(RCLICK);
-	init(Type,Subtype,Val);
+	init(Type, Subtype, Val, showSubtitles);
 }
 
 CComponent::CComponent(const Component &c):
-	image(nullptr)
+	image(nullptr),
+    perDay(false)
 {
 	addUsedEvents(RCLICK);
 
-	if(c.id == Component::EXPERIENCE)
-		init(experience,c.subtype,c.val);
-	else if(c.id == Component::SPELL)
-		init(spell,c.subtype,c.val);
-	else
-		init((Etype)c.id,c.subtype,c.val);
-
 	if(c.id == Component::RESOURCE && c.when==-1)
-		subtitle += CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
+		perDay = true;
+
+	if(c.id == Component::EXPERIENCE)
+		init(experience,c.subtype,c.val, true);
+	else if(c.id == Component::SPELL)
+		init(spell,c.subtype,c.val, true);
+	else
+		init((Etype)c.id,c.subtype,c.val, true);
 }
 
-void CComponent::init(Etype Type, int Subtype, int Val)
+void CComponent::init(Etype Type, int Subtype, int Val, bool showSubtitles)
 {
-	type = Type;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	compType = Type;
 	subtype = Subtype;
 	val = Val;
 
-	subtitle = getSubtitle();
-	description = getDescription();
 	setSurface(getFileName(), getIndex());
 
 	pos.w = image->pos.w;
 	pos.h = image->pos.h;
+
+	if (showSubtitles)
+	{
+		pos.h += 4; //distance between text and image
+
+		std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(64, pos.w), FONT_SMALL);
+		BOOST_FOREACH(auto & line, textLines)
+		{
+			int height = graphics->fonts[FONT_SMALL]->height;
+			CLabel * label = new CLabel(pos.w/2, pos.h + height/2, FONT_SMALL, CENTER, Colors::Cornsilk, line);
+
+			pos.h += height;
+			if (label->pos.w > pos.w)
+			{
+				pos.x -= (label->pos.w - pos.w)/2;
+				pos.w = label->pos.w;
+			}
+		}
+	}
 }
 
 std::string CComponent::getFileName()
 {
-	switch(type)
+	switch(compType)
 	{
 	case primskill:  return "PSKILL";
 	case secskill:   return "SECSK82";
@@ -824,12 +845,12 @@ std::string CComponent::getFileName()
 	case flag:       return "CREST58";
 	}
 	assert(0);
-	return 0;
+	return "";
 }
 
 size_t CComponent::getIndex()
 {
-	switch(type)
+	switch(compType)
 	{
 	case primskill:  return subtype;
 	case secskill:   return subtype*3 + 3 + val - 1;
@@ -851,7 +872,7 @@ size_t CComponent::getIndex()
 
 std::string CComponent::getDescription()
 {
-	switch (type)
+	switch (compType)
 	{
 	case primskill:  return (subtype < 4)? CGI->generaltexth->arraytxt[2+subtype] //Primary skill
 	                                     : CGI->generaltexth->allTexts[149]; //mana
@@ -869,13 +890,23 @@ std::string CComponent::getDescription()
 	case flag:       return "";
 	}
 	assert(0);
-	return 0;
+	return "";
 }
 
 std::string CComponent::getSubtitle()
 {
+	if (!perDay)
+		return getSubtitleInternal();
+
+	std::string ret = CGI->generaltexth->allTexts[3];
+	boost::replace_first(ret, "%d", getSubtitleInternal());
+	return ret;
+}
+
+std::string CComponent::getSubtitleInternal()
+{
 	//FIXME: some of these are horrible (e.g creature)
-	switch(type)
+	switch(compType)
 	{
 	case primskill:  return boost::str(boost::format("%+d %s") % val % (subtype < 4 ? CGI->generaltexth->primarySkillNames[subtype] : CGI->generaltexth->allTexts[387]));
 	case secskill:   return CGI->generaltexth->levels[val-1] + " " + CGI->generaltexth->skillName[subtype];
@@ -904,8 +935,8 @@ void CComponent::setSurface(std::string defName, int imgPos)
 
 void CComponent::clickRight(tribool down, bool previousState)
 {
-	if(description.size())
-		adventureInt->handleRightClick(description,down);
+	if(!getDescription().empty())
+		adventureInt->handleRightClick(getDescription(), down);
 }
 
 void CSelectableComponent::clickLeft(tribool down, bool previousState)
@@ -925,6 +956,7 @@ void CSelectableComponent::init()
 CSelectableComponent::CSelectableComponent(const Component &c, boost::function<void()> OnSelect):
 	CComponent(c),onSelect(OnSelect)
 {
+	type |= REDRAW_PARENT;
 	addUsedEvents(LCLICK | KEYBOARD);
 	init();
 }
@@ -932,12 +964,9 @@ CSelectableComponent::CSelectableComponent(const Component &c, boost::function<v
 CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect):
 	CComponent(Type,Sub,Val),onSelect(OnSelect)
 {
+	type |= REDRAW_PARENT;
 	addUsedEvents(LCLICK | KEYBOARD);
 	init();
-}
-
-CSelectableComponent::~CSelectableComponent()
-{
 }
 
 void CSelectableComponent::select(bool on)
@@ -945,23 +974,129 @@ void CSelectableComponent::select(bool on)
 	if(on != selected)
 	{
 		selected = on;
-		return;
-	}
-	else
-	{
-		return;
+		redraw();
 	}
 }
 
-void CSelectableComponent::show(SDL_Surface * to)
+void CSelectableComponent::showAll(SDL_Surface * to)
 {
-	CComponent::show(to);
+	CComponent::showAll(to);
 	if(selected)
 	{
-		CSDL_Ext::drawBorder(to, Rect::around(Rect(pos.x, pos.y, image->pos.w, image->pos.h)), int3(239,215,123));
+		CSDL_Ext::drawBorder(to, Rect::around(image->pos), int3(239,215,123));
+	}
+}
+
+void CComponentBox::selectionChanged(CSelectableComponent * newSelection)
+{
+	assert(newSelection != selected);
+
+	if (selected)
+		selected->select(false);
+
+	selected = newSelection;
+	onSelect(selectedIndex());
+
+	if (selected)
+		selected->select(true);
+}
+
+int CComponentBox::selectedIndex()
+{
+	if (selected)
+		return std::find(components.begin(), components.end(), selected) - components.begin();
+	return -1;
+}
+
+void CComponentBox::placeComponents(bool selectable)
+{
+	if (components.empty())
+		return;
+
+	static const int betweenComponents = 50;
+	static const int betweenRows = 22;
+
+	//prepare components
+	BOOST_FOREACH(auto & comp, components)
+	{
+		addChild(comp);
+		comp->moveTo(Point(pos.x, pos.y));
 	}
 
-	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+25,FONT_SMALL,14,Colors::Cornsilk,to);
+	struct RowData
+	{
+		size_t comps;
+		int width;
+		int height;
+	};
+	std::vector<RowData> rows;
+	rows.push_back({0, 0, 0});
+
+	//split components in rows
+	BOOST_FOREACH(auto & comp, components)
+	{
+		//make sure that components are smaller than our width
+		assert(pos.w == 0 || pos.w < comp->pos.w);
+
+		//start next row
+		if (pos.w != 0 && rows.back().width + comp->pos.w > pos.w)
+			rows.push_back({0, 0, 0});
+
+		rows.back().comps++;
+		rows.back().width += comp->pos.w;
+		vstd::amax(rows.back().height, comp->pos.h);
+	}
+
+	if (pos.w == 0)
+	{
+		BOOST_FOREACH(auto & row, rows)
+			vstd::amax(pos.w, row.width + (row.comps - 1) * betweenComponents);
+	}
+
+	int height = (rows.size() - 1) * betweenRows;
+	BOOST_FOREACH(auto & row, rows)
+		height += row.height;
+
+	assert(pos.h == 0 || pos.h < height);
+	if (pos.h == 0)
+		pos.h = height;
+
+	auto iter = components.begin();
+	int currentY = (pos.h - height) / 2;
+
+	//move components to their positions
+	for (size_t row = 0; row < rows.size(); row++)
+	{
+		int currentX = (pos.w - rows[row].width) / 2;
+		for (size_t col = 0; col < rows[row].comps; col++)
+		{
+			(*iter)->moveBy(Point(currentX, currentY));
+			currentX += (*iter)->pos.w + betweenComponents;
+			iter++;
+		}
+		currentY += rows[row].height + betweenRows;
+	}
+}
+
+CComponentBox::CComponentBox(CComponent * _components, Rect position):
+    components(1, _components),
+    selected(nullptr)
+{
+	placeComponents(false);
+}
+
+CComponentBox::CComponentBox(std::vector<CComponent *> _components, Rect position):
+    components(_components),
+    selected(nullptr)
+{
+	placeComponents(false);
+}
+
+CComponentBox::CComponentBox(std::vector<CSelectableComponent *> _components, Rect position, boost::function<void(int newID)> _onSelect):
+    components(_components.begin(), _components.end()),
+    selected(nullptr)
+{
+	placeComponents(true);
 }
 
 void CSelWindow::selectionChange(unsigned to)
@@ -1453,9 +1588,9 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 		comps[i]->moveTo(Point(pos.x + curx, pos.y + 326));
 		if( i < (comps.size()-1) )
 		{
-			curx += 44+21; //skill width + margin to "or"
+			curx += comps[i]->pos.w + 10; //skill width + margin to "or"
 			new CLabel(curx, 346, FONT_MEDIUM, CENTER, Colors::Cornsilk, text);
-			curx += fontWidth+15;
+			curx += fontWidth+10;
 		}
 	}
 

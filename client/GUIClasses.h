@@ -173,46 +173,80 @@ public:
 /// common popup window component
 class CComponent : public virtual CIntObject
 {
-	size_t getIndex();
-	std::string getFileName();
-	std::string getDescription();
-	std::string getSubtitle();
-
-protected:
-	CAnimImage *image; //our image
-	void setSurface(std::string defName, int imgPos);
-
 public:
 	enum Etype
 	{
 		primskill, secskill, resource, creature, artifact, experience, secskill44, spell, morale, luck, building, hero, flag
-	} type; //component type
-	int subtype; //TODO: comment me
-	int val; //TODO: comment me
+	};
 
-	std::string description; //r-click
-	std::string subtitle; //TODO: comment me
+private:
+	size_t getIndex();
+	std::string getFileName();
+	void setSurface(std::string defName, int imgPos);
+	std::string getSubtitleInternal();
 
-	void init(Etype Type, int Subtype, int Val);
-	CComponent(Etype Type, int Subtype, int Val); //c-tor
+	void init(Etype Type, int Subtype, int Val, bool showSubtitles);
+
+protected:
+	CAnimImage *image; //our image
+
+public:
+	Etype compType; //component type
+	int subtype; //type-dependant subtype. See getSomething methods for details
+	int val; // value \ strength \ amount of component. See getSomething methods for details
+	bool perDay; // add "per day" text to subtitle
+
+	std::string getDescription();
+	std::string getSubtitle();
+
+	CComponent(Etype Type, int Subtype, int Val, bool showSubtitles = true); //c-tor
 	CComponent(const Component &c); //c-tor
 
 	void clickRight(tribool down, bool previousState); //call-in
 };
 
+/// component that can be selected or deselected
 class CSelectableComponent : public CComponent, public CKeyShortcut
 {
+	void init();
 public:
 	bool selected; //if true, this component is selected
 	boost::function<void()> onSelect; //function called on selection change
 
+	void showAll(SDL_Surface * to);
+	void select(bool on);
+
 	void clickLeft(tribool down, bool previousState); //call-in
-	void init();
 	CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect = 0); //c-tor
 	CSelectableComponent(const Component &c, boost::function<void()> OnSelect = 0); //c-tor
-	~CSelectableComponent(); //d-tor
-	virtual void show(SDL_Surface * to);
-	void select(bool on);
+};
+
+/// box with multiple components (up to 8?)
+/// will take ownership on components and delete them afterwards
+class CComponentBox : public CIntObject
+{
+	std::vector<CComponent *> components;
+
+	CSelectableComponent * selected;
+	boost::function<void(int newID)> onSelect;
+
+	void selectionChanged(CSelectableComponent * newSelection);
+	void placeComponents(bool selectable);
+
+public:
+	/// return index of selected item
+	int selectedIndex();
+
+	/// constructor for quite common 1-components popups
+	/// if position width or height are 0 then it will be determined automatically
+	CComponentBox(CComponent * components, Rect position);
+	/// constructor for non-selectable components
+	CComponentBox(std::vector<CComponent *> components, Rect position);
+
+	/// constructor for selectable components
+	/// will also create "or" labels between components
+	/// onSelect - optional function that will be called every time on selection change
+	CComponentBox(std::vector<CSelectableComponent *> components, Rect position, boost::function<void(int newID)> onSelect = 0);
 };
 
 ////////////////////////////////////////////////////////////////////////////////
