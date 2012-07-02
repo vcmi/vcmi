@@ -49,8 +49,8 @@
 #include <memory>
 #include <cstdlib>
 
-//filesystem version 3 causes problems (and it's default as of boost 1.46)
-#define BOOST_FILESYSTEM_VERSION 2
+//The only available version is 3, as of Boost 1.50
+#define BOOST_FILESYSTEM_VERSION 3
 
 #include <boost/algorithm/string.hpp>
 #include <boost/assert.hpp>

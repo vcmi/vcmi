@@ -285,7 +285,7 @@ void CLodHandler::init(const std::string lodFile, const std::string dirName)
 			if (boost::filesystem::is_directory(dir->status()))
 			{
 				path.resize(dir.level()+1);
-				path.back() = dir->path().leaf();
+				path.back() = dir->path().leaf().string();
 			}
 			if(boost::filesystem::is_regular(dir->status()))
 			{
@@ -295,7 +295,7 @@ void CLodHandler::init(const std::string lodFile, const std::string dirName)
 				for (size_t i=0; i<dir.level() && i<path.size(); i++)
 					e.realName += path[i] + '/';
 
-				e.realName += dir->path().leaf();
+				e.realName += dir->path().leaf().string();
 
 				initEntry(e, e.realName);
 
