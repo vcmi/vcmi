@@ -376,7 +376,7 @@ void ERMInterpreter::scanForScripts()
 	{
 		if(is_regular(dir->status()))
 		{
-			std::string name = dir->path().leaf();
+			std::string name = dir->path().leaf().string();
 			if( boost::algorithm::ends_with(name, ".erm") ||
 				boost::algorithm::ends_with(name, ".verm") )
 			{
