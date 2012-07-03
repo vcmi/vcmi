@@ -1028,9 +1028,12 @@ void CComponentBox::placeComponents(bool selectable)
 		size_t comps;
 		int width;
 		int height;
+		RowData (size_t Comps, int Width, int Height):
+		comps(Comps), width (Width), height (Height){};
 	};
 	std::vector<RowData> rows;
-	rows.push_back({0, 0, 0});
+	//rows.push_back({0, 0, 0}); //there is NO such syntax!
+	rows.push_back (RowData (0,0,0));
 
 	//split components in rows
 	BOOST_FOREACH(auto & comp, components)
@@ -1040,7 +1043,7 @@ void CComponentBox::placeComponents(bool selectable)
 
 		//start next row
 		if (pos.w != 0 && rows.back().width + comp->pos.w > pos.w)
-			rows.push_back({0, 0, 0});
+			rows.push_back (RowData (0,0,0));
 
 		rows.back().comps++;
 		rows.back().width += comp->pos.w;
