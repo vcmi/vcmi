@@ -1167,7 +1167,7 @@ struct CommanderLevelUp : public Query
 	si32 heroid; //for commander attached to hero
 	StackLocation sl; //for commander not on the hero?
 
-	std::vector<ui32> skills; //1-6 - secondary skills, val - 100 - special skill
+	std::vector<ui32> skills; //0-5 - secondary skills, val-100 - special skill
 
 	CommanderLevelUp(){type = 2005;};
 

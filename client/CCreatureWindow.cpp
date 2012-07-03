@@ -29,6 +29,7 @@ using namespace CSDL_Ext;
 
 class CBonusItem;
 class CCreatureArtifactInstance;
+class CSelectableSkill;
 
 /*
  * CCreatureWindow.cpp, part of VCMI engine
@@ -134,6 +135,28 @@ CCreatureWindow::CCreatureWindow (const CCommanderInstance * Commander):
 	commander (Commander)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	init(commander, commander, dynamic_cast<const CGHeroInstance*>(commander->armyObj));
+
+	boost::function<void()> Dsm;
+	CFunctionList<void()> fs[2];
+	//on dismiss confirmed
+	fs[0] += Dsm; //dismiss
+	fs[0] += boost::bind(&CCreatureWindow::close,this);//close this window
+	CFunctionList<void()> cfl;
+	cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
+	dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, cfl, 333, 148,"IVIEWCR2.DEF", SDLK_d);
+}
+
+CCreatureWindow::CCreatureWindow (std::vector<ui32> &skills, const CCommanderInstance * Commander, boost::function<void(ui32)> &callback):
+    CWindowObject(PLAYER_COLORED),
+    type(COMMANDER_LEVEL_UP),
+	upgradeOptions(skills), //copy skills to choose from
+	commander (Commander),
+	levelUp (callback),
+	selectedOption (0) //choose something before drawing
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
 	init(commander, commander, dynamic_cast<const CGHeroInstance*>(commander->armyObj));
 
 	boost::function<void()> Dsm;
@@ -311,41 +334,11 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		creArt = true;
 		for (int i = ECommander::ATTACK; i <= ECommander::SPELL_POWER; ++i)
 		{
-			if (commander->secondarySkills[i])
+			if (commander->secondarySkills[i] || vstd::contains(upgradeOptions, i))
 			{
-				std::string file = "zvs/Lib1.res/_";
-				switch (i)
-				{
-					case ECommander::ATTACK:
-						file += "AT";
-						break;
-					case ECommander::DEFENSE:
-						file += "DF";
-						break;
-					case ECommander::HEALTH:
-						file += "HP";
-						break;
-					case ECommander::DAMAGE:
-						file += "DM";
-						break;
-					case ECommander::SPEED:
-						file += "SP";
-						break;
-					case ECommander::SPELL_POWER:
-						file += "MP";
-						break;
-				}
-				std::string sufix = boost::lexical_cast<std::string>((int)(commander->secondarySkills[i] - 1)); //casting ui8 causes ascii char conversion
-				if (type == COMMANDER_LEVEL_UP)
-				{
-					if (commander->secondarySkills[i] < ECommander::MAX_SKILL_LEVEL)
-						sufix += "="; //level-up highlight
-					else
-						sufix = "no"; //not avaliable - no number
-				}
-				file += sufix += ".bmp";
+				std::string file = skillToFile(i);
 
-				new CPicture(file, 37 + i * 84, 224);
+				skillPictures.push_back(new CPicture(file, 37 + i * 84, 224));
 			}
 		}
 		//print commander level
@@ -354,6 +347,30 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 
 		new CLabel(488, 82, FONT_SMALL, CENTER, Colors::Cornsilk,
 		           boost::lexical_cast<std::string>(stack->experience));
+
+		if (type == COMMANDER_LEVEL_UP)
+		{
+			BOOST_FOREACH (auto option, upgradeOptions)
+			{
+				ui32 index = selectableSkills.size();
+
+				CSelectableSkill * selectableSkill = new CSelectableSkill();
+				if (option < 100)
+				{
+					selectableSkill->pos = skillPictures[option]->pos; //should match picture
+				}
+				else
+				{
+					selectableSkill->pos = Rect (95, 256, 55, 55); //TODO: scroll
+					Bonus b = CGI->creh->skillRequirements[option-100].first; 
+					bonusItems.push_back (new CBonusItem (genRect(0, 0, 251, 57), stack->bonusToString(&b, false), stack->bonusToString(&b, true), stack->bonusToGraphics(&b)));
+				}
+
+				selectableSkill->callback = boost::bind(&CCreatureWindow::selectSkill, this, index);
+				selectableSkills.push_back (selectableSkill);
+				//TODO: add clickable abilities to bonusItems
+			}
+		}
 	}
 	if (creArt) //stack or commander artifacts
 	{
@@ -492,6 +509,15 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 
 	BOOST_FOREACH(CBonusItem* b, bonusItems)
 		b->showAll (to);
+
+	BOOST_FOREACH(auto s, selectableSkills)
+		s->showAll (to);
+
+	for (int i = 0; i < skillPictures.size(); i++)
+	{
+		skillPictures[i]->bg = BitmapHandler::loadBitmap (skillToFile(i));
+		skillPictures[i]->showAll (to);
+	}
 }
 
 void CCreatureWindow::show(SDL_Surface * to)
@@ -501,10 +527,55 @@ void CCreatureWindow::show(SDL_Surface * to)
 }
 
 
+void CCreatureWindow::close()
+{
+	if (upgradeOptions.size()) //a skill for commander was chosen
+		levelUp (upgradeOptions[selectedOption]); //callback
+
+	GH.popIntTotally(this);
+}
+
 void CCreatureWindow::sliderMoved(int newpos)
 {
 	recreateSkillList(newpos); //move components
 	redraw();
+}
+
+std::string CCreatureWindow::skillToFile (int skill)
+{
+		std::string file = "zvs/Lib1.res/_";
+		switch (skill)
+		{
+			case ECommander::ATTACK:
+				file += "AT";
+				break;
+			case ECommander::DEFENSE:
+				file += "DF";
+				break;
+			case ECommander::HEALTH:
+				file += "HP";
+				break;
+			case ECommander::DAMAGE:
+				file += "DM";
+				break;
+			case ECommander::SPEED:
+				file += "SP";
+				break;
+			case ECommander::SPELL_POWER:
+				file += "MP";
+				break;
+		}
+		std::string sufix = boost::lexical_cast<std::string>((int)(commander->secondarySkills[skill])); //casting ui8 causes ascii char conversion
+		if (type == COMMANDER_LEVEL_UP)
+		{
+			if (upgradeOptions.size() && upgradeOptions[selectedOption] == skill)//that one specific skill is selected
+				sufix += "="; //level-up highlight
+			else if (!vstd::contains(upgradeOptions, skill))
+				sufix = "no"; //not avaliable - no number
+		}
+		file += sufix += ".bmp";
+
+		return file;
 }
 
 void CCreatureWindow::setArt(const CArtifactInstance *art)
@@ -562,6 +633,12 @@ void CCreatureWindow::artifactMoved (const ArtifactLocation &artLoc, const Artif
 	artifactRemoved (artLoc); //same code
 }
 
+void CCreatureWindow::selectSkill (ui32 which)
+{
+	selectedOption = which;
+	redraw();
+}
+
 CCreatureWindow::~CCreatureWindow()
 {
  	for (int i=0; i<upgResCost.size(); ++i)
@@ -603,6 +680,12 @@ void CBonusItem::showAll (SDL_Surface * to)
 CBonusItem::~CBonusItem()
 {
 	//delete bonusGraphics; //automatic destruction
+}
+
+void CSelectableSkill::clickLeft(tribool down, bool previousState)
+{
+	if (down)
+		callback();
 }
 
 void CCreInfoWindow::show(SDL_Surface * to)

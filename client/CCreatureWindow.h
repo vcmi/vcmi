@@ -35,6 +35,7 @@ class LRClickableAreaWTextComp;
 class CSlider;
 class CLabel;
 class CAnimImage;
+class CSelectableSkill;
 
 // New creature window
 class CCreatureWindow : public CWindowObject, public CArtifactHolder
@@ -66,6 +67,14 @@ public:
 	CAdventureMapButton * passArtToHero;
 	CAnimImage *artifactImage;
 
+	//commander level-up
+	int selectedOption;
+	std::vector<ui32> upgradeOptions;
+	std::vector<CSelectableSkill *> selectableSkills;
+	std::vector<CPicture *> skillPictures; //secondary skills
+
+	std::string skillToFile(int skill); //return bitmap for secondary skill depending on selection / avaliability
+	void selectSkill (ui32 which);
 	void setArt(const CArtifactInstance *creatureArtifact);
 
 	void artifactRemoved (const ArtifactLocation &artLoc);
@@ -75,11 +84,13 @@ public:
 
 	boost::function<void()> dsm; //dismiss button callback
 	boost::function<void()> Upg; //upgrade button callback
+	boost::function<void(ui32)> levelUp; //choose commander skill to level up
 
 	CCreatureWindow(const CStack & stack, int type); //battle c-tor
 	CCreatureWindow (const CStackInstance &stack, int Type); //pop-up c-tor
 	CCreatureWindow(const CStackInstance &st, int Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //full garrison window
 	CCreatureWindow(const CCommanderInstance * commander); //commander window
+	CCreatureWindow(std::vector<ui32> &skills, const CCommanderInstance * commander, boost::function<void(ui32)> &callback); 
 	CCreatureWindow(int Cid, int Type, int creatureCount); //c-tor
 
 	void init(const CStackInstance *stack, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner);
@@ -87,6 +98,7 @@ public:
 	void show(SDL_Surface * to);
 	void printLine(int nr, const std::string &text, int baseVal, int val=-1, bool range=false);
 	void sliderMoved(int newpos);
+	void close();
 	~CCreatureWindow(); //d-tor
 
 	void recreateSkillList(int pos);
@@ -107,6 +119,15 @@ public:
 
 	void setBonus (const Bonus &bonus);
 	void showAll (SDL_Surface * to);
+};
+
+class CSelectableSkill : public LRClickableAreaWText
+{
+public:
+	boost::function<void()> callback; //TODO: create more generic clickable class than AdvMapButton?
+
+	virtual void clickLeft(tribool down, bool previousState);
+	virtual void clickRight(tribool down, bool previousState){};
 };
 
 /// original creature info window
