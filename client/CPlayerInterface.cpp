@@ -482,10 +482,6 @@ void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, 
 	waitWhileDialog();
 	CCS->soundh->playSound(soundBase::heroNewLevel);
 
-	//auto callback2 = boost::bind (&CCallback::selectionMade, cb, 0, playerID);
-	//showYesNoDialog ("Commander got level", callback2, callback2, true, std::vector<CComponent*>());
-
-	//TODO: display full window
 	CCreatureWindow * cw = new CCreatureWindow(skills, commander, callback);
 	GH.pushInt(cw);
 }

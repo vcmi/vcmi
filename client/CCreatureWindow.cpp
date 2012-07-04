@@ -199,9 +199,45 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	if (type >= COMMANDER)
 		commanderOffset = 74;
 
+	if (commander) //secondary skills
+	{
+		creArt = true;
+		for (int i = ECommander::ATTACK; i <= ECommander::SPELL_POWER; ++i)
+		{
+			if (commander->secondarySkills[i] || vstd::contains(upgradeOptions, i))
+			{
+				std::string file = skillToFile(i);
+
+				skillPictures.push_back(new CPicture(file, 0,0));
+			}
+		}
+
+		if (type == COMMANDER_LEVEL_UP)
+		{
+			BOOST_FOREACH (auto option, upgradeOptions)
+			{
+				ui32 index = selectableSkills.size();
+				CSelectableSkill * selectableSkill = new CSelectableSkill();
+				selectableSkill->callback = boost::bind(&CCreatureWindow::selectSkill, this, index);
+
+				if (option < 100)
+				{
+					selectableSkill->pos = skillPictures[index]->pos; //resize
+					selectableSkills.push_back (selectableSkill);
+				}
+				else
+				{
+					selectableSkill->pos = Rect (95, 256, 55, 55); //TODO: scroll
+					Bonus b = CGI->creh->skillRequirements[option-100].first; 
+					bonusItems.push_back (new CBonusItem (genRect(0, 0, 251, 57), stack->bonusToString(&b, false), stack->bonusToString(&b, true), stack->bonusToGraphics(&b)));
+					selectableBonuses.push_back (selectableSkill); //insert these before other bonuses
+				}
+			}
+		}
+	}
+
 	BonusList bl, blTemp;
 	blTemp = (*(stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT))));
-
 
 	while (blTemp.size())
 	{
@@ -251,7 +287,28 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	vstd::amax(bonusRows, 1);
 
 	if (type >= COMMANDER)
+	{
 		setBackground("CommWin" + boost::lexical_cast<std::string>(bonusRows) + ".pcx");
+		for (int i = 0; i < skillPictures.size(); ++i)
+		{
+			skillPictures[i]->moveTo (Point (pos.x + 37 + i * 84, pos.y + 224));
+		}
+		for (int i = 0; i < selectableSkills.size(); ++i)
+		{
+			if (upgradeOptions[i] < skillPictures.size()) // it's secondary skill
+			{
+				selectableSkills[i]->pos = skillPictures[upgradeOptions[i]]->pos; //dirty workaround
+			}
+			else
+				break;
+		}
+		//print commander level
+		new CLabel(488, 62, FONT_MEDIUM, CENTER, Colors::Jasmine,
+		           boost::lexical_cast<std::string>((ui16)(commander->level)));
+
+		new CLabel(488, 82, FONT_SMALL, CENTER, Colors::Cornsilk,
+		           boost::lexical_cast<std::string>(stack->experience));
+	}
 	else
 		setBackground("CreWin" + boost::lexical_cast<std::string>(bonusRows) + ".pcx"); //1 to 4 rows for now
 
@@ -327,49 +384,6 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		if (GameConstants::STACK_ARTIFACT)
 		{
 			creArt = true;
-		}
-	}
-	if (commander) //secondary skills
-	{
-		creArt = true;
-		for (int i = ECommander::ATTACK; i <= ECommander::SPELL_POWER; ++i)
-		{
-			if (commander->secondarySkills[i] || vstd::contains(upgradeOptions, i))
-			{
-				std::string file = skillToFile(i);
-
-				skillPictures.push_back(new CPicture(file, 37 + i * 84, 224));
-			}
-		}
-		//print commander level
-		new CLabel(488, 62, FONT_MEDIUM, CENTER, Colors::Jasmine,
-		           boost::lexical_cast<std::string>((ui16)(commander->level)));
-
-		new CLabel(488, 82, FONT_SMALL, CENTER, Colors::Cornsilk,
-		           boost::lexical_cast<std::string>(stack->experience));
-
-		if (type == COMMANDER_LEVEL_UP)
-		{
-			BOOST_FOREACH (auto option, upgradeOptions)
-			{
-				ui32 index = selectableSkills.size();
-
-				CSelectableSkill * selectableSkill = new CSelectableSkill();
-				if (option < 100)
-				{
-					selectableSkill->pos = skillPictures[option]->pos; //should match picture
-				}
-				else
-				{
-					selectableSkill->pos = Rect (95, 256, 55, 55); //TODO: scroll
-					Bonus b = CGI->creh->skillRequirements[option-100].first; 
-					bonusItems.push_back (new CBonusItem (genRect(0, 0, 251, 57), stack->bonusToString(&b, false), stack->bonusToString(&b, true), stack->bonusToGraphics(&b)));
-				}
-
-				selectableSkill->callback = boost::bind(&CCreatureWindow::selectSkill, this, index);
-				selectableSkills.push_back (selectableSkill);
-				//TODO: add clickable abilities to bonusItems
-			}
 		}
 	}
 	if (creArt) //stack or commander artifacts
@@ -450,6 +464,8 @@ void CCreatureWindow::recreateSkillList(int Pos)
 	for (n = 0; n < Pos << 1; ++n)
 	{
 		bonusItems[n]->visible = false;
+		if (n < selectableBonuses.size())
+			selectableBonuses[n]->deactivate(); //we assume that bonuses are at front of the list
 	}
 	for (n = Pos << 1; n < numSkills; ++n)
 	{
@@ -458,6 +474,12 @@ void CCreatureWindow::recreateSkillList(int Pos)
 
 		bonusItems[n]->moveTo (Point(pos.x + offsetx + 10, pos.y + offsety + 230), true);
 		bonusItems[n]->visible = true;
+		if (n < selectableBonuses.size())
+		{
+			selectableBonuses[n]->moveTo (Point(bonusItems[n]->pos.x + 12, bonusItems[n]->pos.y + 2)); //for some reason bonusItems have dimensions 0?
+			//selectableBonuses[n]->pos = bonusItems[n]->bonusGraphics->pos;
+			selectableBonuses[n]->activate();
+		}
 
 		if (++j > 1) //next line
 		{
@@ -468,6 +490,7 @@ void CCreatureWindow::recreateSkillList(int Pos)
 	for (n = numSkills; n < bonusItems.size(); ++n)
 	{
 		bonusItems[n]->visible = false;
+		selectableBonuses[n]->deactivate();
 	}
 }
 
@@ -518,6 +541,12 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 		skillPictures[i]->bg = BitmapHandler::loadBitmap (skillToFile(i));
 		skillPictures[i]->showAll (to);
 	}
+
+	if (upgradeOptions[selectedOption] >= 100) //add frame to selected skill
+	{
+		int index = selectedOption - selectableSkills.size(); //this is screwed
+		CSDL_Ext::drawBorder(to, Rect::around(selectableBonuses[index]->pos), int3(Colors::MetallicGold.r, Colors::MetallicGold.g, Colors::MetallicGold.b)); 
+	}
 }
 
 void CCreatureWindow::show(SDL_Surface * to)
@@ -530,7 +559,7 @@ void CCreatureWindow::show(SDL_Surface * to)
 void CCreatureWindow::close()
 {
 	if (upgradeOptions.size()) //a skill for commander was chosen
-		levelUp (upgradeOptions[selectedOption]); //callback
+		levelUp (selectedOption); //callback value is vector index
 
 	GH.popIntTotally(this);
 }

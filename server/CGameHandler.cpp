@@ -311,7 +311,8 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 
 		auto difference = [](std::vector< std::vector <ui8> > skillLevels, std::vector <ui8> secondarySkills, int skill)->int
 		{
-			return skillLevels[skill][secondarySkills[skill]] - (secondarySkills[skill] ? skillLevels[skill][secondarySkills[skill]-1] : 0);
+			int s = std::min (skill, (int)ECommander::SPELL_POWER); //spell power level controls also casts and resistance
+			return skillLevels[skill][secondarySkills[s]] - (secondarySkills[s] ? skillLevels[skill][secondarySkills[s]-1] : 0);
 		};
 
 		switch (skill)

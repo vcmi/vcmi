@@ -68,9 +68,9 @@ public:
 	CAnimImage *artifactImage;
 
 	//commander level-up
-	int selectedOption;
-	std::vector<ui32> upgradeOptions;
-	std::vector<CSelectableSkill *> selectableSkills;
+	int selectedOption; //index for upgradeOptions
+	std::vector<ui32> upgradeOptions; //value 0-5 - secondary skills, 100+ - special skills
+	std::vector<CSelectableSkill *> selectableSkills, selectableBonuses;
 	std::vector<CPicture *> skillPictures; //secondary skills
 
 	std::string skillToFile(int skill); //return bitmap for secondary skill depending on selection / avaliability
