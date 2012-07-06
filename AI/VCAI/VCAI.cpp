@@ -837,6 +837,14 @@ void VCAI::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16
 	requestActionASAP(boost::bind(callback, 0));
 }
 
+void VCAI::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, boost::function<void(ui32)> &callback)
+{
+	NET_EVENT_HANDLER;
+	LOG_ENTRY;
+	status.addQuery();
+	requestActionASAP(boost::bind(callback, 0));
+}
+
 void VCAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel)
 {
 	NET_EVENT_HANDLER;
