@@ -234,7 +234,7 @@ public:
 	std::vector <const CGHeroInstance *> getHeroesInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
 	std::vector <const CGDwelling *> getMyDwellings() const; //returns all dwellings that belong to player
 	std::vector <const CGObjectInstance * > getMyObjects() const; //returns all objects flagged by belonging player
-	std::vector <const QuestInfo> getMyQuests() const;
+	std::vector <QuestInfo> getMyQuests() const;
 
 	int getResourceAmount(int type)const;
 	TResources getResourceAmount() const;

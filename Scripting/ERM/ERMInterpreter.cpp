@@ -1477,7 +1477,7 @@ IexpValStr ERMInterpreter::getVar(std::string toFollow, boost::optional<int> ini
 	IexpValStr ret;
 	ret.type = IexpValStr::WRONGVAL;
 
-	int initV;
+	int initV=0;
 	bool hasInit = false;
 	if(initVal.is_initialized())
 	{

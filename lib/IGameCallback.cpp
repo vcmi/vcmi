@@ -1217,9 +1217,9 @@ std::vector < const CGDwelling * > CPlayerSpecificInfoCallback::getMyDwellings()
 	return ret;
 }
 
-std::vector <const QuestInfo> CPlayerSpecificInfoCallback::getMyQuests() const
+std::vector <QuestInfo> CPlayerSpecificInfoCallback::getMyQuests() const
 {
-	std::vector <const QuestInfo> ret;
+	std::vector <QuestInfo> ret;
 	BOOST_FOREACH (auto quest, gs->getPlayer(player)->quests)
 	{
 		ret.push_back (quest);

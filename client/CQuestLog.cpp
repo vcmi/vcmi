@@ -22,7 +22,7 @@
 
 struct QuestInfo;
 
-CQuestLog::CQuestLog (std::vector<const QuestInfo> & Quests) :
+CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
 	CWindowObject(PLAYER_COLORED, "QuestLog.pcx"),
 	quests (Quests), slider (NULL)
 {

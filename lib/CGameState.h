@@ -449,7 +449,7 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 
 	QuestInfo(){};
 	QuestInfo (const CQuest * Quest, const CGObjectInstance * Obj, int3 Tile) :
-		quest (Quest), obj (obj), tile (tile){}
+		quest (Quest), obj (Obj), tile (Tile){}
 
 	//std::vector<std::string> > texts //allow additional info for quest log?
 

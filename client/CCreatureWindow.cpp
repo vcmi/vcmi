@@ -150,10 +150,10 @@ CCreatureWindow::CCreatureWindow (const CCommanderInstance * Commander):
 CCreatureWindow::CCreatureWindow (std::vector<ui32> &skills, const CCommanderInstance * Commander, boost::function<void(ui32)> &callback):
     CWindowObject(PLAYER_COLORED),
     type(COMMANDER_LEVEL_UP),
-	upgradeOptions(skills), //copy skills to choose from
 	commander (Commander),
-	levelUp (callback),
-	selectedOption (0) //choose something before drawing
+	selectedOption (0), //choose something before drawing
+	upgradeOptions(skills), //copy skills to choose from
+	levelUp (callback)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 

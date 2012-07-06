@@ -39,7 +39,7 @@ static const CStack *takeStack(std::vector<const CStack *> &st, int &curside, in
 {
 	const CStack *ret = NULL;
 	unsigned i, //fastest stack
-		j; //fastest stack of the other side
+		j=0; //fastest stack of the other side
 	for(i = 0; i < st.size(); i++)
 		if(st[i])
 			break;

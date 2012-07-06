@@ -89,7 +89,8 @@ am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-CPreGame.$(OBJEXT) vcmiclient-CSndHandler.$(OBJEXT) \
 	vcmiclient-CSpellWindow.$(OBJEXT) \
 	vcmiclient-CVideoHandler.$(OBJEXT) \
-	vcmiclient-Graphics.$(OBJEXT) vcmiclient-GUIClasses.$(OBJEXT) \
+	vcmiclient-CQuestLog.$(OBJEXT) vcmiclient-Graphics.$(OBJEXT) \
+	vcmiclient-GUIClasses.$(OBJEXT) \
 	vcmiclient-mapHandler.$(OBJEXT) \
 	vcmiclient-NetPacksClient.$(OBJEXT)
 vcmiclient_OBJECTS = $(am_vcmiclient_OBJECTS)
@@ -386,6 +387,8 @@ vcmiclient_SOURCES = \
 	CSpellWindow.h \
 	CVideoHandler.cpp \
 	CVideoHandler.h \
+	CQuestLog.cpp \
+	CQuestLog.h \
 	FontBase.h \
 	FunctionList.h \
 	Graphics.cpp \
@@ -509,6 +512,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CMusicHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CPlayerInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CPreGame.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CQuestLog.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CSndHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CSpellWindow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CVideoHandler.Po@am__quote@
@@ -974,6 +978,20 @@ vcmiclient-CVideoHandler.obj: CVideoHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CVideoHandler.cpp' object='vcmiclient-CVideoHandler.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CVideoHandler.obj `if test -f 'CVideoHandler.cpp'; then $(CYGPATH_W) 'CVideoHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CVideoHandler.cpp'; fi`
+
+vcmiclient-CQuestLog.o: CQuestLog.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CQuestLog.o -MD -MP -MF $(DEPDIR)/vcmiclient-CQuestLog.Tpo -c -o vcmiclient-CQuestLog.o `test -f 'CQuestLog.cpp' || echo '$(srcdir)/'`CQuestLog.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CQuestLog.Tpo $(DEPDIR)/vcmiclient-CQuestLog.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CQuestLog.cpp' object='vcmiclient-CQuestLog.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CQuestLog.o `test -f 'CQuestLog.cpp' || echo '$(srcdir)/'`CQuestLog.cpp
+
+vcmiclient-CQuestLog.obj: CQuestLog.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CQuestLog.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CQuestLog.Tpo -c -o vcmiclient-CQuestLog.obj `if test -f 'CQuestLog.cpp'; then $(CYGPATH_W) 'CQuestLog.cpp'; else $(CYGPATH_W) '$(srcdir)/CQuestLog.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CQuestLog.Tpo $(DEPDIR)/vcmiclient-CQuestLog.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CQuestLog.cpp' object='vcmiclient-CQuestLog.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CQuestLog.obj `if test -f 'CQuestLog.cpp'; then $(CYGPATH_W) 'CQuestLog.cpp'; else $(CYGPATH_W) '$(srcdir)/CQuestLog.cpp'; fi`
 
 vcmiclient-Graphics.o: Graphics.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-Graphics.o -MD -MP -MF $(DEPDIR)/vcmiclient-Graphics.Tpo -c -o vcmiclient-Graphics.o `test -f 'Graphics.cpp' || echo '$(srcdir)/'`Graphics.cpp

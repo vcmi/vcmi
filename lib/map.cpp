@@ -293,7 +293,7 @@ void CMapHeader::loadViCLossConditions( const ui8 * bufor, int &i)
 	victoryCondition.condition = (EVictoryConditionType::EVictoryConditionType)bufor[i++];
 	if (victoryCondition.condition != EVictoryConditionType::WINSTANDARD) //specific victory conditions
 	{
-		int nr;
+		int nr=0;
 		switch (victoryCondition.condition) //read victory conditions
 		{
 		case EVictoryConditionType::ARTIFACT:
@@ -366,6 +366,8 @@ void CMapHeader::loadViCLossConditions( const ui8 * bufor, int &i)
 				nr = 4;
 				break;
 			}
+		default:
+			assert(0);
 		}
 		victoryCondition.allowNormalVictory = bufor[i++];
 		victoryCondition.appliesToAI = bufor[i++];

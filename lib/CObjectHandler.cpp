@@ -1154,6 +1154,9 @@ void CGHeroInstance::UpdateSpeciality()
 						case PrimarySkill::DEFENSE:
 							param = creatures[it->additionalInfo]->defence;
 							break;
+						default:
+							assert(0);
+							param = 0;
 					}
 					it->val = ceil(param * (1 + primSkillModifier)) - param; //yep, overcomplicated but matches original
 					break;
@@ -2857,7 +2860,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 	if ((town->builtBuildings.find(ID) != town->builtBuildings.end()) && (visitors.find(heroID) == visitors.end()))
 	{
 		InfoWindow iw;
-		int what, val, mid;
+		int what=0, val=0, mid=0;
 		switch (ID)
 		{
 			case 23:
@@ -2901,6 +2904,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 				}
 				break;
 		}
+		assert(mid);
 		iw.player = cb->getOwner(heroID);
 		iw.text << VLC->generaltexth->allTexts[mid];
 		cb->showInfoDialog(&iw);
@@ -3521,7 +3525,7 @@ bool CGVisitableOPW::wasVisited(ui8 player) const
 
 void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 {
-	int mid, sound = 0;
+	int mid=0, sound = 0;
 	switch (ID)
 	{
 	case 55: //mystical garden
@@ -3536,6 +3540,8 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 		sound = soundBase::GENIE;
 		mid = 164;
 		break;
+	default:
+		assert(0);
 	}
 	if (visited)
 	{
@@ -3552,7 +3558,7 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		int type, sub, val;
+		int type, sub=0, val=0;
 		type = 2;
 		switch (ID)
 		{
@@ -4271,7 +4277,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		bool firstVisit = !progress;
 		bool failRequirements = !checkQuest(h);
-		bool isCustom;
+		bool isCustom=false;
 		std::string text;
 		if (firstVisit) 
 		{
@@ -4732,7 +4738,7 @@ bool CGBonusingObject::wasVisited (const CGHeroInstance * h) const
 void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 {
 	bool visited = h->hasBonusFrom(Bonus::OBJECT,ID);
-	int messageID;
+	int messageID=0;
 	int bonusMove = 0, sound = -1;
 	InfoWindow iw;
 	iw.player = h->tempOwner;
@@ -4880,6 +4886,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6, 100);
 		break;
 	}
+	assert(messageID);
 	if(visited)
 	{
 		if(ID==64 || ID==56 || ID==52 || ID==94)
@@ -6557,7 +6564,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 		if (cb->getResource(h->tempOwner, 6) >= 1000) //if he can afford a map
 		{
 			//ask if he wants to buy one
-			int text;
+			int text=0;
 			switch (subID)
 			{
 				case 0:
@@ -6572,6 +6579,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 				default:	
 					tlog2 << "Unrecognized subtype of cartographer" << std::endl;
 			}
+			assert(text);
 			BlockingDialog bd (true, false);
 			bd.player = h->getOwner();
 			bd.soundID = soundBase::LIGHTHOUSE;

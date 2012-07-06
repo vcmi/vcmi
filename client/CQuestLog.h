@@ -46,7 +46,7 @@ public:
 
 class CQuestLog : public CWindowObject
 {
-	std::vector<const QuestInfo> & quests;
+	const std::vector<QuestInfo> quests;
 	CTextBox * description;
 	CQuestMinimap * minimap;
 	CSlider * slider; //scrolls quests
@@ -54,7 +54,7 @@ class CQuestLog : public CWindowObject
 
 public:
 
-	CQuestLog (std::vector<const QuestInfo> & Quests);
+	CQuestLog (const std::vector<QuestInfo> & Quests);
 
 	~CQuestLog(){};
 

@@ -82,6 +82,8 @@ vcmiclient_SOURCES =  \
 	CSpellWindow.h \
 	CVideoHandler.cpp \
 	CVideoHandler.h \
+	CQuestLog.cpp \
+	CQuestLog.h \
 	FontBase.h \
 	FunctionList.h \
 	Graphics.cpp \

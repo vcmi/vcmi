@@ -1227,7 +1227,7 @@ void CGameState::init(StartInfo * si)
 		if (chosenBonus.isBonusForHero() && chosenBonus.info1 != 0xFFFE) //exclude generated heroes
 		{
 			//find human player
-			int humanPlayer;
+			int humanPlayer=GameConstants::NEUTRAL_PLAYER;
 			for (std::map<ui8, PlayerState>::iterator it=players.begin(); it != players.end(); ++it)
 			{
 				if(it->second.human)
@@ -1236,6 +1236,8 @@ void CGameState::init(StartInfo * si)
 					break;
 				}
 			}
+			assert(humanPlayer != GameConstants::NEUTRAL_PLAYER);
+
 			std::vector<ConstTransitivePtr<CGHeroInstance> > & heroes = players[humanPlayer].heroes;
 
 			if (chosenBonus.info1 == 0xFFFD) //most powerful
