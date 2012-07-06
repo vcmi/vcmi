@@ -547,6 +547,7 @@ struct AddQuest : public CPackForClient //121
 {
 	AddQuest(){type = 121;};
 	void applyCl(CClient *cl){};
+	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ui8 player;
 	QuestInfo quest;

@@ -443,9 +443,13 @@ public:
  
 struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 {
-	CQuest * quest;
-	CGObjectInstance * obj; //related object, most likely Seer Hut
+	const CQuest * quest;
+	const CGObjectInstance * obj; //related object, most likely Seer Hut
 	int3 tile;
+
+	QuestInfo(){};
+	QuestInfo (const CQuest * Quest, const CGObjectInstance * Obj, int3 Tile) :
+		quest (Quest), obj (obj), tile (tile){}
 
 	//std::vector<std::string> > texts //allow additional info for quest log?
 

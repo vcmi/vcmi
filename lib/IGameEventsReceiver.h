@@ -102,6 +102,7 @@ public:
 	virtual void showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor){};
 	virtual void showTavernWindow(const CGObjectInstance *townOrTavern){};
 	virtual void showThievesGuildWindow (const CGObjectInstance * obj){};
+	virtual void showQuestLog(){};
 	virtual void advmapSpellCast(const CGHeroInstance * caster, int spellID){}; //called when a hero casts a spell
 	virtual void tileHidden(const boost::unordered_set<int3, ShashInt3> &pos){};
 	virtual void tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos){};

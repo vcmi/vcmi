@@ -459,6 +459,7 @@ void CAdvMapInt::fswitchLevel()
 }
 void CAdvMapInt::fshowQuestlog()
 {
+	LOCPLINT->showQuestLog();
 }
 void CAdvMapInt::fsleepWake()
 {

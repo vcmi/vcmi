@@ -4278,6 +4278,11 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 			isCustom = isCustomFirst;
 			text = firstVisitText;
 			cb->setObjProperty (id, 10, 1);
+
+			AddQuest aq;
+			aq.quest = QuestInfo (this, this, pos);
+			aq.player = h->tempOwner;
+			cb->sendAndApply (&aq); //TODO: merge with setObjProperty?
 		}
 		else if (failRequirements)
 		{
@@ -6262,6 +6267,8 @@ void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const
 		iw.soundID = soundBase::CAVEHEAD;
 		iw.text << std::pair<ui8,ui32>(11,18);
 		cb->showInfoDialog (&iw);
+
+		//TODO: implement QuestInfo
 	}
 }
 

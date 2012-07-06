@@ -10,6 +10,7 @@
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CCreatureWindow.h"
+#include "CQuestLog.h"
 #include "CMessage.h"
 #include "CPlayerInterface.h"
 //#include "UIFramework/SDL_Extensions.h"
@@ -2246,6 +2247,13 @@ void CPlayerInterface::showThievesGuildWindow (const CGObjectInstance * obj)
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	CThievesGuildWindow *tgw = new CThievesGuildWindow(obj);
 	GH.pushInt(tgw);
+}
+
+void CPlayerInterface::showQuestLog()
+{
+	EVENT_HANDLER_CALLED_BY_CLIENT;
+	CQuestLog * ql = new CQuestLog (LOCPLINT->cb->getMyQuests());
+	GH.pushInt (ql);
 }
 
 void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)

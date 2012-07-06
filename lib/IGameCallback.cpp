@@ -1217,6 +1217,16 @@ std::vector < const CGDwelling * > CPlayerSpecificInfoCallback::getMyDwellings()
 	return ret;
 }
 
+std::vector <const QuestInfo> CPlayerSpecificInfoCallback::getMyQuests() const
+{
+	std::vector <const QuestInfo> ret;
+	BOOST_FOREACH (auto quest, gs->getPlayer(player)->quests)
+	{
+		ret.push_back (quest);
+	}
+	return ret;
+}
+
 int CPlayerSpecificInfoCallback::howManyHeroes(bool includeGarrisoned) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);

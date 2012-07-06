@@ -105,6 +105,13 @@ DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
 	}
 }
 
+DLL_LINKAGE void AddQuest::applyGs(CGameState *gs)
+{
+	assert (vstd::contains(gs->players, player));
+	//TODO: check for duplicates?
+	gs->players[player].quests.push_back (quest);
+}
+
 DLL_LINKAGE void HeroVisitCastle::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(hid);
