@@ -1128,6 +1128,15 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, int building, unsigned in
 	std::set<int> toBuild = cb->getBuildingRequiments(t, building);
 	toBuild.insert(building);
 
+	BOOST_FOREACH(int buildID, toBuild)
+	{
+		int canBuild = cb->canBuildStructure(t, buildID);
+		if (canBuild == EBuildingState::HAVE_CAPITAL
+		 || canBuild == EBuildingState::FORBIDDEN
+		 || canBuild == EBuildingState::NO_WATER)
+			return false; //we won't be able to build this
+	}
+
 	if (maxDays && toBuild.size() > maxDays)
 		return false;
 
@@ -1211,8 +1220,8 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	if (tryBuildAnyStructure(t, std::vector<int>(essential, essential + ARRAY_COUNT(essential))))
 		return;
 
-	//we're running out of gold - try to build something gold-producing. Multiplier can be tweaked
-	if (currentRes[Res::GOLD] < income[Res::GOLD] * 4)
+	//we're running out of gold - try to build something gold-producing. Multiplier can be tweaked, 6 is minimum due to buildings costs
+	if (currentRes[Res::GOLD] < income[Res::GOLD] * 6)
 		if (tryBuildNextStructure(t, std::vector<int>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
 			return;
 

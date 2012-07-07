@@ -176,22 +176,31 @@ class CComponent : public virtual CIntObject
 public:
 	enum Etype
 	{
-		primskill, secskill, resource, creature, artifact, experience, secskill44, spell, morale, luck, building, hero, flag
+		primskill, secskill, resource, creature, artifact, experience, spell, morale, luck, building, hero, flag
+	};
+
+	//NOTE: not all types have exact these sizes or have less than 4 of them. In such cases closest one will be used
+	enum ESize
+	{
+		tiny,  // ~22-24px
+		small, // ~30px
+		medium,// ~42px
+		large  // ~82px
 	};
 
 private:
 	size_t getIndex();
-	std::string getFileName();
+	const std::vector<std::string> getFileName();
 	void setSurface(std::string defName, int imgPos);
 	std::string getSubtitleInternal();
 
-	void init(Etype Type, int Subtype, int Val, bool showSubtitles);
-
-protected:
-	CAnimImage *image; //our image
+	void init(Etype Type, int Subtype, int Val, ESize imageSize);
 
 public:
+	CAnimImage *image; //our image
+
 	Etype compType; //component type
+	ESize size; //component size.
 	int subtype; //type-dependant subtype. See getSomething methods for details
 	int val; // value \ strength \ amount of component. See getSomething methods for details
 	bool perDay; // add "per day" text to subtitle
@@ -199,7 +208,7 @@ public:
 	std::string getDescription();
 	std::string getSubtitle();
 
-	CComponent(Etype Type, int Subtype, int Val, bool showSubtitles = true); //c-tor
+	CComponent(Etype Type, int Subtype, int Val, ESize imageSize=large);//c-tor
 	CComponent(const Component &c); //c-tor
 
 	void clickRight(tribool down, bool previousState); //call-in
@@ -217,7 +226,7 @@ public:
 	void select(bool on);
 
 	void clickLeft(tribool down, bool previousState); //call-in
-	CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect = 0); //c-tor
+	CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize=large, boost::function<void()> OnSelect = 0); //c-tor
 	CSelectableComponent(const Component &c, boost::function<void()> OnSelect = 0); //c-tor
 };
 
@@ -231,6 +240,13 @@ class CComponentBox : public CIntObject
 	boost::function<void(int newID)> onSelect;
 
 	void selectionChanged(CSelectableComponent * newSelection);
+
+	//get position of "or" text between these comps
+	//it will place "or" equidistant to both images
+	Point getOrTextPos(CComponent *left, CComponent * right);
+
+	//get distance between these copmonents
+	int getDistance(CComponent *left, CComponent * right);
 	void placeComponents(bool selectable);
 
 public:
@@ -459,13 +475,15 @@ public:
 /// Raised up level windowe where you can select one out of two skills
 class CLevelWindow : public CWindowObject
 {
-public:
-	std::vector<CSelectableComponent *> comps; //skills to select
+	CComponentBox * box; //skills to select
 	boost::function<void(ui32)> cb;
+
+	void selectionChanged(unsigned to);
+public:
 
 	CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback); //c-tor
 	~CLevelWindow(); //d-tor
-	void selectionChanged(unsigned to);
+
 };
 
 /// Resource bar like that at the bottom of the adventure map screen

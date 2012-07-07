@@ -108,13 +108,6 @@ void CGuiHandler::totalRedraw()
 {
 	for(int i=0;i<objsToBlit.size();i++)
 		objsToBlit[i]->showAll(screen2);
-
-// 	static int a = 0;
-// 	if(a)
-// 	{
-// 		SDL_SaveBMP(screen, "s1.bmp");
-// 		SDL_SaveBMP(screen2, "s2.bmp");
-// 	}
 	blitAt(screen2,0,0,screen);
 }
 
@@ -431,7 +424,7 @@ SDLKey CGuiHandler::numToDigit( SDLKey key )
 	case SDLK_KP_ENTER:
 		return SDLK_RETURN;
 	default:
-		tlog3 << "Illegal numkey conversion!" << std::endl;
+		//tlog3 << "Illegal numkey conversion!" << std::endl;
 		return SDLK_UNKNOWN;
 	}
 #undef REMOVE_KP

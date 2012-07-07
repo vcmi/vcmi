@@ -768,12 +768,12 @@ void CInfoPopup::init(int x, int y)
 	vstd::amin(pos.y, screen->h - bitmap->h);
 }
 
-CComponent::CComponent(Etype Type, int Subtype, int Val, bool showSubtitles):
+CComponent::CComponent(Etype Type, int Subtype, int Val, ESize imageSize):
 	image(nullptr),
     perDay(false)
 {
 	addUsedEvents(RCLICK);
-	init(Type, Subtype, Val, showSubtitles);
+	init(Type, Subtype, Val, imageSize);
 }
 
 CComponent::CComponent(const Component &c):
@@ -786,66 +786,79 @@ CComponent::CComponent(const Component &c):
 		perDay = true;
 
 	if(c.id == Component::EXPERIENCE)
-		init(experience,c.subtype,c.val, true);
+		init(experience,c.subtype,c.val, large);
 	else if(c.id == Component::SPELL)
-		init(spell,c.subtype,c.val, true);
+		init(spell,c.subtype,c.val, large);
 	else
-		init((Etype)c.id,c.subtype,c.val, true);
+		init((Etype)c.id,c.subtype,c.val, large);
 }
 
-void CComponent::init(Etype Type, int Subtype, int Val, bool showSubtitles)
+void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	compType = Type;
 	subtype = Subtype;
 	val = Val;
+	size = imageSize;
 
-	setSurface(getFileName(), getIndex());
+	setSurface(getFileName()[size], getIndex());
 
 	pos.w = image->pos.w;
 	pos.h = image->pos.h;
 
-	if (showSubtitles)
+	pos.h += 4; //distance between text and image
+
+	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(80, pos.w), FONT_SMALL);
+	BOOST_FOREACH(auto & line, textLines)
 	{
-		pos.h += 4; //distance between text and image
+		int height = graphics->fonts[FONT_SMALL]->height;
+		CLabel * label = new CLabel(pos.w/2, pos.h + height/2, FONT_SMALL, CENTER, Colors::Cornsilk, line);
 
-		std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(64, pos.w), FONT_SMALL);
-		BOOST_FOREACH(auto & line, textLines)
+		pos.h += height;
+		if (label->pos.w > pos.w)
 		{
-			int height = graphics->fonts[FONT_SMALL]->height;
-			CLabel * label = new CLabel(pos.w/2, pos.h + height/2, FONT_SMALL, CENTER, Colors::Cornsilk, line);
-
-			pos.h += height;
-			if (label->pos.w > pos.w)
-			{
-				pos.x -= (label->pos.w - pos.w)/2;
-				pos.w = label->pos.w;
-			}
+			pos.x -= (label->pos.w - pos.w)/2;
+			pos.w = label->pos.w;
 		}
 	}
 }
 
-std::string CComponent::getFileName()
+const std::vector<std::string> CComponent::getFileName()
 {
+	static const std::string  primSkillsArr [] = {"PSKIL32",        "PSKIL32",        "PSKIL42",        "PSKILL"};
+	static const std::string  secSkillsArr [] =  {"SECSK32",        "SECSK32",        "SECSKILL",       "SECSK82"};
+	static const std::string  resourceArr [] =   {"SMALRES",        "RESOURCE",       "RESOUR82",       "RESOUR82"};
+	static const std::string  creatureArr [] =   {"CPRSMALL",       "CPRSMALL",       "TWCRPORT",       "TWCRPORT"};
+	static const std::string  artifactArr[]  =   {"Artifact",       "Artifact",       "Artifact",       "Artifact"};
+	static const std::string  spellsArr [] =     {"SpellInt",       "SpellInt",       "SPELLSCR",       "SPELLSCR"};
+	static const std::string  moraleArr [] =     {"IMRL22",         "IMRL30",         "IMRL42",         "imrl82"};
+	static const std::string  luckArr [] =       {"ILCK22",         "ILCK30",         "ILCK42",         "ilck82"};
+	static const std::string  heroArr [] =       {"PortraitsSmall", "PortraitsSmall", "PortraitsLarge", "PortraitsLarge"};
+	static const std::string  flagArr [] =       {"CREST58",        "CREST58",        "CREST58",        "CREST58"};
+
+	auto gen = [](const std::string * arr)
+	{
+		return std::vector<std::string>(arr, arr + 4);
+	};
+
 	switch(compType)
 	{
-	case primskill:  return "PSKILL";
-	case secskill:   return "SECSK82";
-	case resource:   return "RESOUR82";
-	case creature:   return "TWCRPORT";
-	case artifact:   return "ARTIFACT";
-	case experience: return "PSKILL";
-	case secskill44: return "SECSKILL";
-	case spell:      return "SPELLSCR";
-	case morale:     return "IMRL82";
-	case luck:       return "ILCK82";
-	case building:   return graphics->buildingPics[subtype];
-	case hero:       return "PortraitsLarge";
-	case flag:       return "CREST58";
+	case primskill:  return gen(primSkillsArr);
+	case secskill:   return gen(secSkillsArr);
+	case resource:   return gen(resourceArr);
+	case creature:   return gen(creatureArr);
+	case artifact:   return gen(artifactArr);
+	case experience: return gen(primSkillsArr);
+	case spell:      return gen(spellsArr);
+	case morale:     return gen(moraleArr);
+	case luck:       return gen(luckArr);
+	case building:   return std::vector<std::string>(4, graphics->buildingPics[subtype]);
+	case hero:       return gen(heroArr);
+	case flag:       return gen(flagArr);
 	}
 	assert(0);
-	return "";
+	return std::vector<std::string>();
 }
 
 size_t CComponent::getIndex()
@@ -858,7 +871,6 @@ size_t CComponent::getIndex()
 	case creature:   return subtype+2;
 	case artifact:   return subtype;
 	case experience: return 4;
-	case secskill44: return subtype*3 + 3 + val - 1;
 	case spell:      return subtype;
 	case morale:     return val+3;
 	case luck:       return val+3;
@@ -881,7 +893,6 @@ std::string CComponent::getDescription()
 	case creature:   return "";
 	case artifact:   return  CGI->arth->artifacts[subtype]->Description();
 	case experience: return CGI->generaltexth->allTexts[241];
-	case secskill44: return CGI->generaltexth->skillInfoTexts[subtype][val-1];
 	case spell:      return CGI->spellh->spells[subtype]->descriptions[val];
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
 	case luck:       return CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
@@ -909,12 +920,11 @@ std::string CComponent::getSubtitleInternal()
 	switch(compType)
 	{
 	case primskill:  return boost::str(boost::format("%+d %s") % val % (subtype < 4 ? CGI->generaltexth->primarySkillNames[subtype] : CGI->generaltexth->allTexts[387]));
-	case secskill:   return CGI->generaltexth->levels[val-1] + " " + CGI->generaltexth->skillName[subtype];
+	case secskill:   return CGI->generaltexth->levels[val-1] + "\n" + CGI->generaltexth->skillName[subtype];
 	case resource:   return boost::lexical_cast<std::string>(val);
 	case creature:   return (val? boost::lexical_cast<std::string>(val) + " " : "") + CGI->creh->creatures[subtype]->*(val != 1 ? &CCreature::namePl : &CCreature::nameSing);
 	case artifact:   return CGI->arth->artifacts[subtype]->Name();
 	case experience: return (subtype && val==1) ? CGI->generaltexth->allTexts[442] : boost::lexical_cast<std::string>(val);
-	case secskill44: return CGI->generaltexth->levels[val-1] + " " + CGI->generaltexth->skillName[subtype];
 	case spell:      return CGI->spellh->spells[subtype]->name;
 	case morale:     return "";
 	case luck:       return "";
@@ -961,8 +971,8 @@ CSelectableComponent::CSelectableComponent(const Component &c, boost::function<v
 	init();
 }
 
-CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect):
-	CComponent(Type,Sub,Val),onSelect(OnSelect)
+CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, ESize imageSize, boost::function<void()> OnSelect):
+	CComponent(Type,Sub,Val, imageSize),onSelect(OnSelect)
 {
 	type |= REDRAW_PARENT;
 	addUsedEvents(LCLICK | KEYBOARD);
@@ -989,13 +999,15 @@ void CSelectableComponent::showAll(SDL_Surface * to)
 
 void CComponentBox::selectionChanged(CSelectableComponent * newSelection)
 {
-	assert(newSelection != selected);
+	if (newSelection == selected)
+		return;
 
 	if (selected)
 		selected->select(false);
 
 	selected = newSelection;
-	onSelect(selectedIndex());
+	if (onSelect)
+		onSelect(selectedIndex());
 
 	if (selected)
 		selected->select(true);
@@ -1008,13 +1020,34 @@ int CComponentBox::selectedIndex()
 	return -1;
 }
 
+Point CComponentBox::getOrTextPos(CComponent *left, CComponent *right)
+{
+	int leftSubtitle  = ( left->pos.w -  left->image->pos.w) / 2;
+	int rightSubtitle = (right->pos.w - right->image->pos.w) / 2;
+	int fullDistance = getDistance(left, right) + leftSubtitle + rightSubtitle;
+
+	return Point(fullDistance/2 - leftSubtitle, (left->image->pos.h + right->image->pos.h) / 4);
+}
+
+int CComponentBox::getDistance(CComponent *left, CComponent *right)
+{
+	static const int betweenImagesMin = 50;
+	static const int betweenSubtitlesMin = 10;
+
+	int leftSubtitle  = ( left->pos.w -  left->image->pos.w) / 2;
+	int rightSubtitle = (right->pos.w - right->image->pos.w) / 2;
+	int subtitlesOffset = leftSubtitle + rightSubtitle;
+
+	return std::max(betweenSubtitlesMin, betweenImagesMin - subtitlesOffset);
+}
+
 void CComponentBox::placeComponents(bool selectable)
 {
+	static const int betweenRows = 22;
+
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	if (components.empty())
 		return;
-
-	static const int betweenComponents = 50;
-	static const int betweenRows = 22;
 
 	//prepare components
 	BOOST_FOREACH(auto & comp, components)
@@ -1032,35 +1065,46 @@ void CComponentBox::placeComponents(bool selectable)
 		comps(Comps), width (Width), height (Height){};
 	};
 	std::vector<RowData> rows;
-	//rows.push_back({0, 0, 0}); //there is NO such syntax!
 	rows.push_back (RowData (0,0,0));
 
 	//split components in rows
-	BOOST_FOREACH(auto & comp, components)
+	CComponent * prevComp = nullptr;
+
+	BOOST_FOREACH(CComponent * comp, components)
 	{
 		//make sure that components are smaller than our width
-		assert(pos.w == 0 || pos.w < comp->pos.w);
+		//assert(pos.w == 0 || pos.w < comp->pos.w);
+
+		const int distance = prevComp ? getDistance(prevComp, comp) : 0;
 
 		//start next row
-		if (pos.w != 0 && rows.back().width + comp->pos.w > pos.w)
+		if (pos.w != 0 && rows.back().width + comp->pos.w + distance > pos.w)
+		{
+			prevComp = nullptr;
 			rows.push_back (RowData (0,0,0));
+		}
+
+		if (prevComp)
+			rows.back().width += distance;
 
 		rows.back().comps++;
 		rows.back().width += comp->pos.w;
+
 		vstd::amax(rows.back().height, comp->pos.h);
+		prevComp = comp;
 	}
 
 	if (pos.w == 0)
 	{
 		BOOST_FOREACH(auto & row, rows)
-			vstd::amax(pos.w, row.width + (row.comps - 1) * betweenComponents);
+			vstd::amax(pos.w, row.width);
 	}
 
 	int height = (rows.size() - 1) * betweenRows;
 	BOOST_FOREACH(auto & row, rows)
 		height += row.height;
 
-	assert(pos.h == 0 || pos.h < height);
+	//assert(pos.h == 0 || pos.h < height);
 	if (pos.h == 0)
 		pos.h = height;
 
@@ -1070,12 +1114,26 @@ void CComponentBox::placeComponents(bool selectable)
 	//move components to their positions
 	for (size_t row = 0; row < rows.size(); row++)
 	{
+		prevComp = nullptr;
+
 		int currentX = (pos.w - rows[row].width) / 2;
 		for (size_t col = 0; col < rows[row].comps; col++)
 		{
+			if (prevComp)
+			{
+				if (selectable)
+				{
+					Point orPos = Point(currentX, currentY) + getOrTextPos(prevComp, *iter);
+
+					new CLabel(orPos.x, orPos.y, FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[4]);
+				}
+				currentX += getDistance(prevComp, *iter);
+			}
+
 			(*iter)->moveBy(Point(currentX, currentY));
-			currentX += (*iter)->pos.w + betweenComponents;
-			iter++;
+			currentX += (*iter)->pos.w;
+
+			prevComp = *(iter++);
 		}
 		currentY += rows[row].height + betweenRows;
 	}
@@ -1085,6 +1143,8 @@ CComponentBox::CComponentBox(CComponent * _components, Rect position):
     components(1, _components),
     selected(nullptr)
 {
+	type |= REDRAW_PARENT;
+	pos = position + pos;
 	placeComponents(false);
 }
 
@@ -1092,14 +1152,29 @@ CComponentBox::CComponentBox(std::vector<CComponent *> _components, Rect positio
     components(_components),
     selected(nullptr)
 {
+	type |= REDRAW_PARENT;
+	pos = position + pos;
 	placeComponents(false);
 }
 
 CComponentBox::CComponentBox(std::vector<CSelectableComponent *> _components, Rect position, boost::function<void(int newID)> _onSelect):
     components(_components.begin(), _components.end()),
-    selected(nullptr)
+    selected(nullptr),
+    onSelect(_onSelect)
 {
+	type |= REDRAW_PARENT;
+	pos = position + pos;
 	placeComponents(true);
+
+	assert(!components.empty());
+
+	int key = SDLK_1;
+	BOOST_FOREACH(auto & comp, _components)
+	{
+		comp->onSelect = boost::bind(&CComponentBox::selectionChanged, this, comp);
+		comp->assignedKeys.insert(key++);
+	}
+	selectionChanged(_components.front());
 }
 
 void CSelWindow::selectionChange(unsigned to)
@@ -1552,17 +1627,6 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 
 	LOCPLINT->showingDialog->setn(true);
 
-	for(size_t i=0;i<skills.size();i++)
-	{
-		comps.push_back(new CSelectableComponent(
-		                    CComponent::secskill44,
-		                    skills[i],
-		                    hero->getSecSkillLevel( static_cast<CGHeroInstance::SecondarySkill>(skills[i]) )+1,
-		                    boost::bind(&CLevelWindow::selectionChanged,this,i)));
-
-		comps.back()->assignedKeys.insert(SDLK_1 + i);
-	}
-
 	new CAnimImage("PortraitsLarge", hero->portrait, 0, 170, 66);
 	new CAdventureMapButton("", "", boost::bind(&CLevelWindow::close, this), 297, 413, "IOKAY", SDLK_RETURN);
 
@@ -1579,49 +1643,30 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 	new CLabel(192, 253, FONT_MEDIUM, CENTER, Colors::Cornsilk,
 	           CGI->generaltexth->primarySkillNames[pskill] + " +1");
 
-	// "or"
-	std::string text = CGI->generaltexth->allTexts[4];
-
-	int fontWidth = graphics->fonts[FONT_MEDIUM]->getWidth(text.c_str())/2;
-
-	int curx = pos.w/2 - ( skills.size()*44 + (skills.size()-1)*(36+fontWidth) )/2;
-
-	for(size_t i=0; i<comps.size(); i++)
+	if (!skills.empty())
 	{
-		comps[i]->moveTo(Point(pos.x + curx, pos.y + 326));
-		if( i < (comps.size()-1) )
+		std::vector<CSelectableComponent *> comps;
+
+		for(size_t i=0;i<skills.size();i++)
 		{
-			curx += comps[i]->pos.w + 10; //skill width + margin to "or"
-			new CLabel(curx, 346, FONT_MEDIUM, CENTER, Colors::Cornsilk, text);
-			curx += fontWidth+10;
+			comps.push_back(new CSelectableComponent(
+								CComponent::secskill,
+								skills[i],
+								hero->getSecSkillLevel( static_cast<CGHeroInstance::SecondarySkill>(skills[i]) )+1,
+								CComponent::medium));
 		}
+		box = new CComponentBox(comps, Rect(25, 300, pos.w - 50, 100));
 	}
-
-	if(!comps.empty())
-	{
-		comps[0]->select(true);
-	}
-}
-
-void CLevelWindow::selectionChanged(unsigned to)
-{
-	for(int i=0;i<comps.size();i++)
-		if(i==to)
-			comps[i]->select(true);
-		else
-			comps[i]->select(false);
+	else
+		box = nullptr;
 }
 
 CLevelWindow::~CLevelWindow()
 {
-	for(int i=0;i<comps.size();i++)
-	{
-		if(comps[i]->selected)
-		{
-			cb(i);
-			break;
-		}
-	}
+	//FIXME: call callback if there was nothing to select?
+	if (box && box->selectedIndex() != -1)
+		cb(box->selectedIndex());
+
 	LOCPLINT->showingDialog->setn(false);
 }
 

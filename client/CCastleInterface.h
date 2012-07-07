@@ -267,19 +267,9 @@ class CBuildWindow: public CWindowObject
 {
 	const CGTownInstance *town;
 	const CBuilding *building;
-	int state; //state - same as CHallInterface::CBuildingBox::state
 
-	CAnimImage *buildingPic;
 	CAdventureMapButton *buy;
 	CAdventureMapButton *cancel;
-
-	CLabel * title;
-	CTextBox * buildingDescr;
-	CTextBox * buildingState;
-	CGStatusBar *statusBar;
-
-	std::vector<CAnimImage *> resPicture;
-	std::vector<CLabel *> resAmount;
 
 	std::string getTextForState(int state);
 	void buyFunc();

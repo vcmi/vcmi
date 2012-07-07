@@ -1405,61 +1405,33 @@ std::string CBuildWindow::getTextForState(int state)
 	return ret;
 }
 
-CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Building, int State, bool rightClick):
+CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Building, int state, bool rightClick):
     CWindowObject(PLAYER_COLORED | (rightClick ? RCLICK_POPUP : 0), "TPUBUILD"),
 	town(Town),
-    building(Building),
-    state(State)
+    building(Building)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	buildingPic = new CAnimImage(graphics->buildingPics[town->subID], building->bid, 0, 125, 50);
-	Rect barRect(9, 494, 380, 18);
-	statusBar = new CGStatusBar(new CPicture(*background, barRect, 9, 494, false));
+	new CAnimImage(graphics->buildingPics[town->subID], building->bid, 0, 125, 50);
+	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	title = new CLabel(197, 30, FONT_MEDIUM, CENTER, Colors::Cornsilk, 
+	new CLabel(197, 30, FONT_MEDIUM, CENTER, Colors::Cornsilk,
 	            boost::str(boost::format(CGI->generaltexth->hcommands[7]) % building->Name()));
-	buildingDescr = new CTextBox(building->Description(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, CENTER);
-	buildingState = new CTextBox(getTextForState(state),  Rect(33, 216, 329, 67), 0, FONT_SMALL,  CENTER);
+	new CTextBox(building->Description(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, CENTER);
+	new CTextBox(getTextForState(state),  Rect(33, 216, 329, 67), 0, FONT_SMALL,  CENTER);
 
-	//Create objects for all required resources
+	//Create components for all required resources
+	std::vector<CComponent *> components;
+
 	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
 		if(building->resources[i])
 		{
-			resPicture.push_back(new CAnimImage("RESOURCE", i));
-			resAmount.push_back(new CLabel(0,0, FONT_SMALL, CENTER, Colors::Cornsilk, 
-			                        boost::lexical_cast<std::string>(building->resources[i])));
+			components.push_back(new CComponent(CComponent::resource, i, building->resources[i], CComponent::small));
 		}
 	}
 
-	ui32 rowSize[2];
-	int posY;
-	if (resAmount.size() > 4)
-	{//Resources will be placed in multiple rows
-		rowSize[0] = (resAmount.size()+1)/2;
-		posY = 303;
-	}
-	else
-	{//one row
-		rowSize[0] = resAmount.size();
-		posY = 340;
-	}
-	rowSize[1] = resAmount.size() - rowSize[0];
-
-	ui32 index=0;
-	for (size_t row=0; row<2; row++)
-	{
-		int posX = pos.w/2 - rowSize[row] * 40 + 24;
-		for (size_t i=0; i<rowSize[row]; i++)
-		{//Move current resource to correct position
-			resPicture[index]->moveBy(Point(posX, posY));
-			resAmount[index]->moveBy(Point(posX+16, posY+48));
-			posX += 80;
-			index++;
-		}
-		posY +=75;
-	}
+	new CComponentBox(components, Rect(25, 300, pos.w - 50, 130));
 
 	if(!rightClick)
 	{	//normal window
