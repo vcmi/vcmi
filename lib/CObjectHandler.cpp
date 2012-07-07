@@ -4286,7 +4286,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 			cb->setObjProperty (id, 10, 1);
 
 			AddQuest aq;
-			aq.quest = QuestInfo (this, this, pos);
+			aq.quest = QuestInfo (*this, this, pos);
 			aq.player = h->tempOwner;
 			cb->sendAndApply (&aq); //TODO: merge with setObjProperty?
 		}

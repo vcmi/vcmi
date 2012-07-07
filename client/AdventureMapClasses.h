@@ -209,12 +209,14 @@ class CMinimap : public CIntObject
 	//to initialize colors
 	std::map<int, std::pair<SDL_Color, SDL_Color> > loadColors(std::string from);
 
-	void moveAdvMapSelection();
-
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	void hover (bool on);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
+
+protected:
+
+	void moveAdvMapSelection();
 
 public:
 	// terrainID -> (normal color, blocked color)

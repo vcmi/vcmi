@@ -14,6 +14,7 @@
 #include "IGameCallback.h"
 #include "ResourceSet.h"
 #include "int3.h"
+#include "CObjectHandler.h"
 
 
 /*
@@ -60,6 +61,7 @@ class IModableArt;
 class CGGarrison;
 class CGameInfo;
 struct QuestInfo;
+class CQuest;
 
 namespace boost
 {
@@ -443,13 +445,13 @@ public:
  
 struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 {
-	const CQuest * quest;
+	CQuest quest;
 	const CGObjectInstance * obj; //related object, most likely Seer Hut
 	int3 tile;
 
 	QuestInfo(){};
-	QuestInfo (const CQuest * Quest, const CGObjectInstance * Obj, int3 Tile) :
-		quest (Quest), obj (Obj), tile (Tile){}
+	QuestInfo (const CQuest &Quest, const CGObjectInstance * Obj, int3 Tile) :
+		quest (Quest), obj (Obj), tile (Tile){};
 
 	//std::vector<std::string> > texts //allow additional info for quest log?
 

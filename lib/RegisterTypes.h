@@ -36,6 +36,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGPickable>();
 	s.template registerType<CGCreature>();
 	s.template registerType<CGSignBottle>();
+	s.template registerType<CQuest>();
 	s.template registerType<CGSeerHut>();
 	s.template registerType<CGQuestGuard>();
 	s.template registerType<CGWitchHut>();
@@ -93,6 +94,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CArmedInstance>();
 	s.template registerType<CStack>();
 	s.template registerType<BattleInfo>();
+	s.template registerType<QuestInfo>();
 	s.template registerType<CArtifactInstance>();
 	s.template registerType<CCombinedArtifactInstance>();
 
@@ -173,6 +175,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<OpenWindow>();
 	s.template registerType<NewObject>();
 	s.template registerType<NewArtifact>();
+	s.template registerType<AddQuest>();
 	s.template registerType<ChangeStackCount>();
 	s.template registerType<SetStackType>();
 	s.template registerType<EraseStack>();
