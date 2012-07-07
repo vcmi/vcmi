@@ -279,6 +279,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 
 				}
 			}
+			adventureInt->heroList.update(ho);
 			return;	//teleport - no fancy moving animation
 					//TODO: smooth disappear / appear effect
 		}
@@ -300,6 +301,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		ho->isStanding = true;
 		stillMoveHero.setn(STOP_MOVE);
 		GH.totalRedraw();
+		adventureInt->heroList.update(ho);
 		return;
 	}
 

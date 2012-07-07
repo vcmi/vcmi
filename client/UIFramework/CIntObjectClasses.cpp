@@ -371,9 +371,11 @@ void CAdventureMapButton::init(const CFunctionList<void()> &Callback, const std:
 	callback = Callback;
 	hoverable = actOnDown = borderEnabled = soundDisabled = false;
 	borderColor.unused = 1; // represents a transparent color, used for HighlightableButton
-	assignedKeys.insert(key);
 	hoverTexts = Name;
 	helpBox=HelpBox;
+
+	if (key != SDLK_UNKNOWN)
+		assignedKeys.insert(key);
 
 	pos.x += x;
 	pos.y += y;
