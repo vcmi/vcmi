@@ -1234,6 +1234,71 @@ void CLabel::setTxt(const std::string &Txt)
 	}
 }
 
+void CBoundedLabel::setBounds(int limitW, int limitH)
+{
+	pos.h = limitH;
+	pos.w = limitW;
+	recalculateLines(text);
+}
+
+void CBoundedLabel::setTxt(const std::string &Txt)
+{
+	recalculateLines(Txt);
+	CLabel::setTxt(Txt);
+}
+
+void CBoundedLabel::showAll(SDL_Surface * to)
+{
+	CIntObject::showAll(to);
+
+	const Font &f = *graphics->fonts[font];
+	int lineHeight =  f.height; 
+	int lineCapacity = pos.h / lineHeight;
+
+	int dy = f.height; //line height
+	int base_y = pos.y;
+	if(alignment == CENTER)
+		base_y += std::max((pos.h - maxH)/2,0);
+
+	for (int i = 0; i < lineCapacity; i++)
+	{
+		const std::string &line = lines[i];
+		if(!line.size()) continue;
+
+		int x = pos.x;
+		if(alignment == CENTER)
+		{
+			x += (pos.w - f.getWidth(line.c_str())) / 2;
+		}
+
+		if(line[0] == '{' && line[line.size()-1] == '}')
+			CSDL_Ext::printAt(line, x, base_y + i*dy, font, Colors::Jasmine, to);
+		else
+			CSDL_Ext::printAt(line, x, base_y + i*dy, font, color, to);
+	}
+}
+
+void CBoundedLabel::recalculateLines(const std::string &Txt)
+{
+	lines.clear();
+
+	const Font &f = *graphics->fonts[font];
+	int lineHeight =  f.height; 
+	int lineCapacity = pos.h / lineHeight;
+
+	lines = CMessage::breakText(Txt, pos.w, font);
+	if(lines.size() > lineCapacity) //we need to add a slider
+	{
+		lines = CMessage::breakText(Txt, pos.w - 32 - 10, font);
+		OBJ_CONSTRUCTION_CAPTURING_ALL;
+	}
+
+	maxH = lineHeight * lines.size();
+	maxW = 0;
+	BOOST_FOREACH(const std::string &line, lines)
+		vstd::amax(maxW, f.getWidth(line.c_str()));
+}
+
 CLabelGroup::CLabelGroup(EFonts Font, EAlignment Align, const SDL_Color &Color):
 	font(Font), align(Align), color(Color)
 {};
@@ -1245,7 +1310,7 @@ void CLabelGroup::add(int x, int y, const std::string &text)
 };
 
 CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= Colors::Cornsilk*/)
-:CLabel(rect.x, rect.y, Font, Align, Color, Text), sliderStyle(SliderStyle), slider(NULL)
+:CBoundedLabel(rect.x, rect.y, Font, Align, Color, Text), sliderStyle(SliderStyle), slider(NULL)
 {
 	type |= REDRAW_PARENT;
 	autoRedraw = false;
@@ -1254,6 +1319,19 @@ CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts F
 	assert(Align == TOPLEFT || Align == CENTER); //TODO: support for other alignments
 	assert(pos.w >= 40); //we need some space
 	setTxt(Text);
+}
+
+void CTextBox::recalculateLines(const std::string &Txt)
+{
+	CBoundedLabel::recalculateLines (Txt);
+
+	const Font &f = *graphics->fonts[font];
+	int lineHeight =  f.height; 
+	int lineCapacity = pos.h / lineHeight;
+
+	vstd::clear_pointer(slider);
+	if (lines.size() > lineCapacity) //we need to add a slider
+		slider = new CSlider(pos.w - 32, 0, pos.h, boost::bind(&CTextBox::sliderMoved, this, _1), lineCapacity, lines.size(), 0, false, sliderStyle);
 }
 
 void CTextBox::showAll(SDL_Surface * to)
@@ -1290,48 +1368,12 @@ void CTextBox::showAll(SDL_Surface * to)
 
 }
 
-void CTextBox::setTxt(const std::string &Txt)
-{
-	recalculateLines(Txt);
-	CLabel::setTxt(Txt);
-}
-
 void CTextBox::sliderMoved(int to)
 {
 	if(!slider)
 		return;
 
 	redraw();
-}
-
-void CTextBox::setBounds(int limitW, int limitH)
-{
-	pos.h = limitH;
-	pos.w = limitW;
-	recalculateLines(text);
-}
-
-void CTextBox::recalculateLines(const std::string &Txt)
-{
-	vstd::clear_pointer(slider);
-	lines.clear();
-
-	const Font &f = *graphics->fonts[font];
-	int lineHeight =  f.height; 
-	int lineCapacity = pos.h / lineHeight;
-
-	lines = CMessage::breakText(Txt, pos.w, font);
-	if(lines.size() > lineCapacity) //we need to add a slider
-	{
-		lines = CMessage::breakText(Txt, pos.w - 32 - 10, font);
-		OBJ_CONSTRUCTION_CAPTURING_ALL;
-		slider = new CSlider(pos.w - 32, 0, pos.h, boost::bind(&CTextBox::sliderMoved, this, _1), lineCapacity, lines.size(), 0, false, sliderStyle);
-	}
-
-	maxH = lineHeight * lines.size();
-	maxW = 0;
-	BOOST_FOREACH(const std::string &line, lines)
-		vstd::amax(maxW, f.getWidth(line.c_str()));
 }
 
 void CGStatusBar::print(const std::string & Text)

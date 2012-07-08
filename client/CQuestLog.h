@@ -6,7 +6,7 @@
 #include "../lib/CGameState.h"
 
 /*
- * CCreatureWindow.h, part of VCMI engine
+ * CQuestLog.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -33,14 +33,15 @@ extern CAdvMapInt *adventureInt;
 
 const int QUEST_COUNT = 9;
 
-class CQuestLabel : public LRClickableAreaWText, public CLabel
+class CQuestLabel : public LRClickableAreaWText, public CBoundedLabel
 {
 public:
 	boost::function<void()> callback;
 
 	CQuestLabel (int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::Cornsilk, const std::string &Text =  "")
-		: CLabel (x, y, FONT_SMALL, TOPLEFT, Colors::Cornsilk, Text){};
+		: CBoundedLabel (x, y, FONT_SMALL, TOPLEFT, Colors::Cornsilk, Text){};
 	void clickLeft(tribool down, bool previousState);
+	void showAll(SDL_Surface * to);
 };
 
 class CQuestMinimap : public CMinimap

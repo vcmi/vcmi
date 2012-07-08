@@ -339,6 +339,23 @@ public:
 	CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::Cornsilk, const std::string &Text =  "");
 };
 
+class CBoundedLabel : public CLabel
+{
+public:
+
+	int maxW; //longest line of text in px
+	int maxH; //total height needed to print all lines
+
+	std::vector<std::string> lines;
+
+	CBoundedLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::Cornsilk, const std::string &Text =  "")
+		: CLabel (x, y, Font, Align, Color, Text){};
+	void setTxt(const std::string &Txt);
+	void setBounds(int limitW, int limitH);
+	void recalculateLines(const std::string &Txt);
+	void showAll(SDL_Surface * to);
+};
+
 //Small helper class to manage group of similar labels 
 class CLabelGroup : public CIntObject
 {
@@ -352,24 +369,18 @@ public:
 };
 
 /// a multi-line label that tries to fit text with given available width and height; if not possible, it creates a slider for scrolling text
-class CTextBox
-	: public CLabel
+class CTextBox : public CBoundedLabel
 {
 public:
-	int maxW; //longest line of text in px
-	int maxH; //total height needed to print all lines
 
 	int sliderStyle;
 
-	std::vector<std::string> lines;
 	std::vector<CAnimImage* > effects;
 	CSlider *slider;
 
 	//CTextBox( std::string Text, const Point &Pos, int w, int h, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::Cornsilk);
 	CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::Cornsilk);
 	void showAll(SDL_Surface * to); //shows statusbar (with current text)
-	void setTxt(const std::string &Txt);
-	void setBounds(int limitW, int limitH);
 	void recalculateLines(const std::string &Txt);
 
 	void sliderMoved(int to);

@@ -58,7 +58,7 @@ class DLL_LINKAGE CQuest
 {
 public:
 	enum Emission {MISSION_NONE = 0, MISSION_LEVEL = 1, MISSION_PRIMARY_STAT = 2, MISSION_KILL_HERO = 3, MISSION_KILL_CREATURE = 4,
-		MISSION_ART = 5, MISSION_ARMY = 6, MISSION_RESOURCES = 7, MISSION_HERO = 8, MISSION_PLAYER = 9};
+		MISSION_ART = 5, MISSION_ARMY = 6, MISSION_RESOURCES = 7, MISSION_HERO = 8, MISSION_PLAYER = 9};//MISSION_KEYMASTER = 10}; //TODO?
 
 	ui8 missionType, progress;
 	si32 lastDay; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
@@ -69,15 +69,27 @@ public:
 	std::vector<CStackBasicDescriptor> m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
 	std::vector<ui32> m7resources;
 
+	//following field are used only for kill creature/hero missions, the original objects became inaccessible after their removal, so we need to store info needed for messages / hover text
+	ui8 textOption;
+	CStackBasicDescriptor stackToKill; 
+	ui8 stackDirection;
+	std::string heroName; //backup of hero name
+	si32 heroPortrait;
+
 	std::string firstVisitText, nextVisitText, completedText;
 	bool isCustomFirst, isCustomNext, isCustomComplete;
 
 	bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
+	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = NULL) const;
+	virtual void getCompletionText (MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h = NULL) const;
+	virtual void getRolloverText (MetaString &text, bool onHover) const; //hover or quest log entry
 	virtual void completeQuest (const CGHeroInstance * h) const {};
+	virtual void addReplacements(MetaString &out, const std::string &base) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & missionType & progress & lastDay & m13489val & m2stats & m5arts & m6creatures & m7resources
+			& textOption & stackToKill & stackDirection & heroName & heroPortrait
 			& firstVisitText & nextVisitText & completedText & isCustomFirst & isCustomNext & isCustomComplete;
 	}
 };
@@ -754,16 +766,7 @@ public:
 	ui8 rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature
 	si32 rID; //reward ID
 	si32 rVal; //reward value
-	ui8 textOption; //store randomized mission write-ups rather than entire string (?)
 	std::string seerName;
-
-	//following field are used only for kill creature/hero missions, the original objects became inaccessible after their removal, so we need to store info needed for messages / hover text
-	//TODO? organize
-	CStackBasicDescriptor stackToKill; 
-	ui8 stackDirection;
-	std::string heroName; //backup of hero name
-	si32 heroPortrait;
-
 
 	void initObj();
 	const std::string & getHoverText() const;
@@ -771,19 +774,17 @@ public:
 	int checkDirection() const; //calculates the region of map where monster is placed
 	void newTurn() const;
 	void onHeroVisit (const CGHeroInstance * h) const;
+	void getCompletionText(MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h = NULL) const;
 	void finishQuest (const CGHeroInstance * h, ui32 accept) const; //common for both objects
 	void completeQuest (const CGHeroInstance * h) const;
 
 	const CGHeroInstance *getHeroToKill(bool allowNull = false) const;
 	const CGCreature *getCreatureToKill(bool allowNull = false) const;
 
-	void addReplacements(MetaString &out, const std::string &base) const;
-
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this) & static_cast<CQuest&>(*this);
 		h & rewardType & rID & rVal & textOption & seerName;
-		h & stackToKill & stackDirection & heroName & heroPortrait;
 	}
 };
 
