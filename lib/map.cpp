@@ -1804,11 +1804,13 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 		case 9: //Border Guard
 			{
 				nobj = new CGBorderGuard();
+				addQuest (dynamic_cast<CQuest *>(nobj));
 				break;
 			}
 		case 212: //Border Gate
 			{
 				nobj = new CGBorderGate();
+				addQuest (dynamic_cast<CQuest *>(nobj));
 				break;
 			}
 		case 27: case 37: //Eye and Hut of Magi

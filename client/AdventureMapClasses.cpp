@@ -376,21 +376,24 @@ const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 	else
 		return parent->colors.find(tile->tertype)->second.first;
 }
-
-void CMinimapInstance::blitTileWithColor(const SDL_Color &color, const int3 &tile, SDL_Surface *to, int toX, int toY)
+void CMinimapInstance::tileToPixels (const int3 &tile, int &x, int &y, int toX, int toY)
 {
-	//method is mostly copy-pasted from drawScaled()
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 
 	double stepX = double(pos.w) / mapSizes.x;
 	double stepY = double(pos.h) / mapSizes.y;
 
+	x = toX + stepX * tile.x;
+	y = toY + stepY * tile.y;
+}
+
+void CMinimapInstance::blitTileWithColor(const SDL_Color &color, const int3 &tile, SDL_Surface *to, int toX, int toY)
+{
 	//coordinates of rectangle on minimap representing this tile
 	// begin - first to blit, end - first NOT to blit
-	int xBegin = toX + stepX * tile.x;
-	int yBegin = toY + stepY * tile.y;
-	int xEnd = toX + stepX * (tile.x + 1);
-	int yEnd = toY + stepY * (tile.y + 1);
+	int xBegin, yBegin, xEnd, yEnd;
+	tileToPixels (tile, xBegin, yBegin, toX, toY);
+	tileToPixels (int3 (tile.x + 1, tile.y + 1, tile.z), xEnd, yEnd, toX, toY);
 
 	for (int y=yBegin; y<yEnd; y++)
 	{
@@ -516,7 +519,7 @@ CMinimap::CMinimap(const Rect &position):
 	pos.h = position.h;
 }
 
-void CMinimap::moveAdvMapSelection()
+int3 CMinimap::translateMousePosition()
 {
 	// 0 = top-left corner, 1 = bottom-right corner
 	double dx = double(GH.current->motion.x - pos.x) / pos.w;
@@ -524,8 +527,13 @@ void CMinimap::moveAdvMapSelection()
 
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 
-	int3 newLocation (mapSizes.x * dx, mapSizes.y * dy, level);
+	int3 tile (mapSizes.x * dx, mapSizes.y * dy, level);
+	return tile;
+}
 
+void CMinimap::moveAdvMapSelection()
+{
+	int3 newLocation = translateMousePosition();
 	adventureInt->centerOn(newLocation);
 
 	redraw();

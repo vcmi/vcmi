@@ -453,6 +453,11 @@ struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 	QuestInfo (const CQuest * Quest, const CGObjectInstance * Obj, int3 Tile) :
 		quest (Quest), obj (Obj), tile (Tile){};
 
+	bool operator== (const QuestInfo qi) const
+	{
+		return (quest == qi.quest && obj == qi.obj);
+	}
+
 	//std::vector<std::string> > texts //allow additional info for quest log?
 
 	template <typename Handler> void serialize(Handler &h, const int version)

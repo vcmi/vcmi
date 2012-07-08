@@ -58,7 +58,7 @@ class DLL_LINKAGE CQuest
 {
 public:
 	enum Emission {MISSION_NONE = 0, MISSION_LEVEL = 1, MISSION_PRIMARY_STAT = 2, MISSION_KILL_HERO = 3, MISSION_KILL_CREATURE = 4,
-		MISSION_ART = 5, MISSION_ARMY = 6, MISSION_RESOURCES = 7, MISSION_HERO = 8, MISSION_PLAYER = 9};//MISSION_KEYMASTER = 10}; //TODO?
+		MISSION_ART = 5, MISSION_ARMY = 6, MISSION_RESOURCES = 7, MISSION_HERO = 8, MISSION_PLAYER = 9, MISSION_KEYMASTER = 10};
 
 	si32 qid; //unique quets id for serialization / identification
 
@@ -776,6 +776,7 @@ public:
 	int checkDirection() const; //calculates the region of map where monster is placed
 	void newTurn() const;
 	void onHeroVisit (const CGHeroInstance * h) const;
+	void getRolloverText (MetaString &text, bool onHover) const;
 	void getCompletionText(MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h = NULL) const;
 	void finishQuest (const CGHeroInstance * h, ui32 accept) const; //common for both objects
 	void completeQuest (const CGHeroInstance * h) const;
@@ -1047,6 +1048,7 @@ public:
 	//SubID 0 - lightblue, 1 - green, 2 - red, 3 - darkblue, 4 - brown, 5 - purple, 6 - white, 7 - black
 
 	void setPropertyDer (ui8 what, ui32 val);
+	const std::string getName() const; //depending on color
 	bool wasMyColorVisited (int player) const;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1067,16 +1069,19 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGBorderGuard : public CGKeys
+class DLL_LINKAGE CGBorderGuard : public CGKeys, public CQuest
 {
 public:
 	void initObj();
 	const std::string & getHoverText() const;
+	void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = NULL) const;
+	void getRolloverText (MetaString &text, bool onHover) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void openGate(const CGHeroInstance *h, ui32 accept) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CQuest&>(*this);
 		h & static_cast<CGObjectInstance&>(*this);
 		h & blockVisit;
 	}

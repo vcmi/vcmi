@@ -195,6 +195,7 @@ public:
 	~CMinimapInstance();
 
 	void showAll(SDL_Surface *to);
+	void tileToPixels (const int3 &tile, int &x, int &y,int toX = 0, int toY = 0);
 
 	void refreshTile(const int3 &pos);
 };
@@ -202,6 +203,8 @@ public:
 /// Minimap which is displayed at the right upper corner of adventure map
 class CMinimap : public CIntObject
 {
+protected:
+
 	CPicture *aiShield; //the graphic displayed during AI turn
 	CMinimapInstance * minimap;
 	int level;
@@ -214,8 +217,6 @@ class CMinimap : public CIntObject
 	void hover (bool on);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 
-protected:
-
 	void moveAdvMapSelection();
 
 public:
@@ -225,6 +226,7 @@ public:
 	CMinimap(const Rect & position);
 
 	//should be called to invalidate whole map - different player or level
+	int3 translateMousePosition();
 	void update();
 	void setLevel(int level);
 	void setAIRadar(bool on);

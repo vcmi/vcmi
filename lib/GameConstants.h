@@ -186,6 +186,7 @@ namespace Obj
 	enum
 	{
 		BOAT = 8,
+		KEYMASTER = 10,
 		CREATURE_BANK = 16,
 		CREATURE_GENERATOR1 = 17,
 		CURSED_GROUND1 = 21,

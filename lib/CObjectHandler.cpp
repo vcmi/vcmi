@@ -4420,6 +4420,13 @@ void CGSeerHut::initObj()
 
 }
 
+void CGSeerHut::getRolloverText (MetaString &text, bool onHover) const
+{
+	CQuest::getRolloverText (text, onHover);//TODO: simplify?
+	if (!onHover)
+		text.addReplacement(seerName);
+}
+
 const std::string & CGSeerHut::getHoverText() const
 {
 	switch (ID)
@@ -6244,9 +6251,16 @@ bool CGKeys::wasMyColorVisited (int player) const
 		return false;
 }
 
+const std::string CGKeys::getName() const
+{
+	std::string name;
+	name = VLC->generaltexth->tentColors[subID] + " " + VLC->generaltexth->names[ID];
+	return name;
+}
+
 const std::string & CGKeymasterTent::getHoverText() const
 {
-	hoverName = VLC->generaltexth->names[ID];
+	hoverName = getName();
 	if (wasMyColorVisited (cb->getCurrentPlayer()) )//TODO: use local player, not current
 		hoverName += "\n" + VLC->generaltexth->allTexts[352];
 	else
@@ -6276,17 +6290,29 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGBorderGuard::initObj()
 {
+	ui32 m13489val = subID; //store color as quest info
 	blockVisit = true;
 }
 
 const std::string & CGBorderGuard::getHoverText() const
 {
-	hoverName = VLC->generaltexth->names[ID];
+	hoverName = getName();
 	if (wasMyColorVisited (cb->getCurrentPlayer()) )//TODO: use local player, not current
 		hoverName += "\n" + VLC->generaltexth->allTexts[352];
 	else
 		hoverName += "\n" + VLC->generaltexth->allTexts[353];
 	return hoverName;
+}
+
+void CGBorderGuard::getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h) const
+{
+	text << std::pair<ui8,ui32>(11,18);
+}
+
+void CGBorderGuard::getRolloverText (MetaString &text, bool onHover) const
+{
+	if (!onHover)
+		text << VLC->generaltexth->tentColors[subID] << " " << VLC->generaltexth->names[Obj::KEYMASTER];
 }
 
 void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const 
@@ -6307,7 +6333,11 @@ void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const
 		iw.text << std::pair<ui8,ui32>(11,18);
 		cb->showInfoDialog (&iw);
 
-		//TODO: implement QuestInfo
+		AddQuest aq;
+		aq.quest = QuestInfo (this, this, pos);
+		aq.player = h->tempOwner;
+		cb->sendAndApply (&aq);
+		//TODO: add this quest only once OR check for multiple instances later
 	}
 }
 
@@ -6325,6 +6355,11 @@ void CGBorderGate::onHeroVisit( const CGHeroInstance * h ) const //TODO: passabi
 		iw.player = h->getOwner();
 		iw.text << std::pair<ui8,ui32>(11,18);
 		cb->showInfoDialog(&iw);
+
+		AddQuest aq;
+		aq.quest = QuestInfo (this, this, pos);
+		aq.player = h->tempOwner;
+		cb->sendAndApply (&aq);
 	}
 }
 

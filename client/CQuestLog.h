@@ -44,22 +44,36 @@ public:
 	void showAll(SDL_Surface * to);
 };
 
+class CQuestIcon : public CPicture
+{
+public:
+	boost::function<void()> callback; //TODO: merge with other similiar classes?
+
+	CQuestIcon (const std::string &bmpname, int x=0, int y=0);
+
+	void clickLeft(tribool down, bool previousState);
+	void showAll(SDL_Surface * to);
+};
+
 class CQuestMinimap : public CMinimap
 {
-	void clickLeft(tribool down, bool previousState);
+	std::vector <CQuestIcon *> icons;
+
+	void clickLeft(tribool down, bool previousState){}; //minimap ignores clicking on its surface
+	void iconClicked();
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent){};
 
 public:
 
 	const QuestInfo * currentQuest;
 
-	CQuestMinimap (const Rect & position) : CMinimap (position){};
+	CQuestMinimap (const Rect & position);
 	//should be called to invalidate whole map - different player or level
 	void update();
 	void setLevel(int level);
-	void addQuestMarks (const QuestInfo * q){};
+	void addQuestMarks (const QuestInfo * q);
 
-	//void showAll(SDL_Surface * to){};
+	void showAll(SDL_Surface * to);
 };
 
 class CQuestLog : public CWindowObject

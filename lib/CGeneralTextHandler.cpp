@@ -502,6 +502,15 @@ void CGeneralTextHandler::load()
 	for (i = 0; i < 48; ++i)
 		loadToIt(seerNames[i], buf, it, 3);
 
+	buf = bitmaph->getTextFile("TENTCOLR.TXT");
+	itr=0;
+	while(itr<buf.length()-1)
+	{
+		std::string tmp;
+		loadToIt(tmp, buf, itr, 3);
+		tentColors.push_back(tmp);
+	}
+
 	//campaigns
 	buf = bitmaph->getTextFile ("CAMPTEXT.TXT");
 	it = 0;

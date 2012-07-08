@@ -108,8 +108,11 @@ DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)
 DLL_LINKAGE void AddQuest::applyGs(CGameState *gs)
 {
 	assert (vstd::contains(gs->players, player));
-	//TODO: check for duplicates?
-	gs->players[player].quests.push_back (quest);
+	auto vec = &gs->players[player].quests;
+	if (!vstd::contains(*vec, quest))
+		vec->push_back (quest);
+	else
+		tlog2 << "Warning! Attempt to add duplicated quest\n";
 }
 
 DLL_LINKAGE void HeroVisitCastle::applyGs( CGameState *gs )

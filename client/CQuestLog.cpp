@@ -46,13 +46,76 @@ void CQuestLabel::showAll(SDL_Surface * to)
 		CBoundedLabel::showAll (to);
 }
 
-void CQuestMinimap::clickLeft(tribool down, bool previousState)
+CQuestIcon::CQuestIcon (const std::string &bmpname, int x, int y) :
+	CPicture (bmpname, x, y)
+{
+	addUsedEvents(LCLICK);
+}
+
+void CQuestIcon::clickLeft(tribool down, bool previousState)
 {
 	if (down)
+		callback();
+}
+
+void CQuestIcon::showAll(SDL_Surface * to)
+{
+	if(bg)
 	{
-		moveAdvMapSelection();
-		update();
+		if(srcRect)
+		{
+			SDL_Rect srcRectCpy = *srcRect;
+			SDL_Rect dstRect = srcRectCpy;
+			dstRect.x = pos.x;
+			dstRect.y = pos.y;
+
+			CSDL_Ext::blitSurface(bg, &srcRectCpy, to, &dstRect);
+		}
+		else //TODO: allow blitting with offset correction (center of picture on the center of pos)
+		{
+			SDL_Rect dstRect = pos;
+			dstRect.x -= pos.w + 2;
+			dstRect.y -= pos.h + 2;
+			blitAt(bg, dstRect, to);
+		}
 	}
+}
+
+CQuestMinimap::CQuestMinimap (const Rect & position) :
+CMinimap (position),
+	currentQuest (NULL)
+{
+}
+
+void CQuestMinimap::addQuestMarks (const QuestInfo * q)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	icons.clear();
+
+	int3 tile;
+	if (q->obj)
+	{
+		tile = q->obj->pos;
+	}
+	else
+	{
+		tile = q->tile;
+	}
+	CQuestIcon * pic = new CQuestIcon ("", 0, 0);
+	CDefHandler * def = CDefHandler::giveDef("VwSymbol.def");
+	CSDL_Ext::alphaTransform(def->ourImages[3].bitmap);
+	pic->bg = def->ourImages[3].bitmap;
+	pic->pos.w = 8;
+	pic->pos.h = 8;
+
+	int x, y;
+	minimap->tileToPixels (tile, x, y);
+	pic->moveTo (Point (minimap->pos.x, minimap->pos.y), true);
+	pic->pos.x += x - pic->pos.w / 2 - 1;
+	pic->pos.y += y - pic->pos.h / 2 - 1;
+
+	pic->callback = boost::bind (&CQuestMinimap::iconClicked, this);
+	icons.push_back(pic);
 }
 
 void CQuestMinimap::update()
@@ -60,6 +123,20 @@ void CQuestMinimap::update()
 	CMinimap::update();
 	if (currentQuest)
 		addQuestMarks (currentQuest);
+}
+
+void CQuestMinimap::iconClicked()
+{
+	if (currentQuest->obj)
+		adventureInt->centerOn (currentQuest->obj->pos);
+	moveAdvMapSelection();
+}
+
+void CQuestMinimap::showAll(SDL_Surface * to)
+{
+	CMinimap::showAll(to);
+	BOOST_FOREACH (auto pic, icons)
+		pic->showAll(to);
 }
 
 CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
@@ -116,6 +193,7 @@ void CQuestLog::showAll(SDL_Surface * to)
 	}
 	description->show(to);
 	minimap->update();
+	minimap->show(to);
 }
 
 void CQuestLog::recreateQuestList (int newpos)
@@ -139,10 +217,7 @@ void CQuestLog::selectQuest (int which)
 	questIndex = which;
 	currentQuest = &quests[which];
 	minimap->currentQuest = currentQuest;
-	if (currentQuest->obj)
-	{
-		adventureInt->centerOn (currentQuest->obj->pos);
-	}
+
 	MetaString text;
 	std::vector<Component> components; //TODO: display them
 	currentQuest->quest->getVisitText (text, components , currentQuest->quest->isCustomFirst, true);
