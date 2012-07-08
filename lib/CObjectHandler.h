@@ -60,6 +60,8 @@ public:
 	enum Emission {MISSION_NONE = 0, MISSION_LEVEL = 1, MISSION_PRIMARY_STAT = 2, MISSION_KILL_HERO = 3, MISSION_KILL_CREATURE = 4,
 		MISSION_ART = 5, MISSION_ARMY = 6, MISSION_RESOURCES = 7, MISSION_HERO = 8, MISSION_PLAYER = 9};//MISSION_KEYMASTER = 10}; //TODO?
 
+	si32 qid; //unique quets id for serialization / identification
+
 	ui8 missionType, progress;
 	si32 lastDay; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
 
@@ -88,7 +90,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & missionType & progress & lastDay & m13489val & m2stats & m5arts & m6creatures & m7resources
+		h & qid & missionType & progress & lastDay & m13489val & m2stats & m5arts & m6creatures & m7resources
 			& textOption & stackToKill & stackDirection & heroName & heroPortrait
 			& firstVisitText & nextVisitText & completedText & isCustomFirst & isCustomNext & isCustomComplete;
 	}

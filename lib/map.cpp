@@ -559,6 +559,7 @@ CGHeroInstance * Mapa::getHero(int ID, int mode)
 int Mapa::loadSeerHut( const ui8 * bufor, int i, CGObjectInstance *& nobj )
 {
 	CGSeerHut *hut = new CGSeerHut();
+	addQuest (hut);
 	nobj = hut;
 
 	if(version>RoE)
@@ -1945,6 +1946,7 @@ bool Mapa::isInTheMap(const int3 &pos) const
 
 void Mapa::loadQuest(CQuest * guard, const ui8 * bufor, int & i)
 {
+	addQuest (guard);
 	guard->missionType = bufor[i]; ++i;
 	//int len1, len2, len3;
 	switch(guard->missionType)
@@ -2066,6 +2068,12 @@ void Mapa::addNewArtifactInstance( CArtifactInstance *art )
 {
 	art->id = artInstances.size();
 	artInstances.push_back(art);
+}
+
+void Mapa::addQuest (CQuest *quest)
+{
+	quest->qid = quests.size();
+	quests.push_back(quest);
 }
 
 bool Mapa::loadArtifactToSlot(CGHeroInstance *h, int slot, const ui8 * bufor, int &i)

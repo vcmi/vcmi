@@ -306,6 +306,7 @@ struct DLL_LINKAGE Mapa : public CMapHeader
 	std::vector< ConstTransitivePtr<CGHeroInstance> > heroes;
 	std::vector< ConstTransitivePtr<CGTownInstance> > towns;
 	std::vector< ConstTransitivePtr<CArtifactInstance> > artInstances; //stores all artifacts
+	std::vector< ConstTransitivePtr<CQuest> > quests;
 	//std::vector< ConstTransitivePtr<CCommanderInstance> > commanders;
 	//bmap<ui16, ConstTransitivePtr<CGCreature> > monsters;
 	//bmap<ui16, ConstTransitivePtr<CGHeroInstance> > heroesToBeat;
@@ -330,6 +331,7 @@ struct DLL_LINKAGE Mapa : public CMapHeader
 
 	CArtifactInstance *createArt(int aid, int spellID = -1);
 	void addNewArtifactInstance(CArtifactInstance *art);
+	void addQuest (CQuest *quest);
 	void eraseArtifactInstance(CArtifactInstance *art);
 
 
