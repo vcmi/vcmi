@@ -1,4 +1,4 @@
-project(vcmi_client)
+project(vcmiclient)
 cmake_minimum_required(VERSION 2.6)
 
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
@@ -39,6 +39,7 @@ set(client_SRCS
         CSndHandler.cpp
         CSpellWindow.cpp
         CVideoHandler.cpp
+        CQuestLog.cpp
         Graphics.cpp
         GUIClasses.cpp
         mapHandler.cpp
@@ -47,9 +48,9 @@ set(client_SRCS
 )
 
 IF(UNIX)
-    add_executable(vcmi_client ${client_SRCS})
+    add_executable(vcmiclient ${client_SRCS})
 ELSEIF(WIN32)
-    add_executable(vcmi_client WIN32 ${client_SRCS})
+    add_executable(vcmiclient WIN32 ${client_SRCS})
 ENDIF()
 
-target_link_libraries(vcmi_client vcmi_lib ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES})
+target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES})

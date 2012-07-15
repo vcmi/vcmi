@@ -9,4 +9,4 @@ set(emptyAI_SRCS
 )
 
 add_library(emptyAI SHARED ${emptyAI_SRCS})
-target_link_libraries(emptyAI vcmi_lib)
+target_link_libraries(emptyAI vcmi)

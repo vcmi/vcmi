@@ -1,4 +1,4 @@
-project(vcmi_lib)
+project(libvcmi)
 cmake_minimum_required(VERSION 2.6)
 
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIRECTORY})
@@ -38,5 +38,5 @@ set(lib_SRCS
         VCMI_Lib.cpp
 )
 
-add_library(vcmi_lib SHARED ${lib_SRCS})
-target_link_libraries(vcmi_lib ${Boost_LIBRARIES} ${SDL_LIBRARY} ${ZLIB_LIBRARIES})
+add_library(vcmi SHARED ${lib_SRCS})
+target_link_libraries(vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${ZLIB_LIBRARIES})

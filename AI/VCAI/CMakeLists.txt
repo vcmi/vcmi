@@ -10,4 +10,4 @@ set(VCAI_SRCS
 )
 
 add_library(VCAI SHARED ${VCAI_SRCS})
-target_link_libraries(VCAI FuzzyLite_lib vcmi_lib)
+target_link_libraries(VCAI FuzzyLite_lib vcmi)

@@ -8,5 +8,5 @@ set(stupidAI_SRCS
         main.cpp
 )
 
-add_library(stupidAI SHARED ${stupidAI_SRCS})
-target_link_libraries(stupidAI vcmi_lib)
+add_library(StupidAI SHARED ${stupidAI_SRCS})
+target_link_libraries(StupidAI vcmi)
