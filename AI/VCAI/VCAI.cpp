@@ -733,7 +733,7 @@ void VCAI::requestRealized(PackageApplied *pa)
 
 	if(pa->packType == typeList.getTypeID<QueryReply>())
 	{
-		status.removeQuery();
+		status.receivedAnswerConfirmation(pa->requestID, pa->result);
 	}
 }
 
@@ -829,20 +829,20 @@ void VCAI::yourTurn()
 	makingTurn = new boost::thread(&VCAI::makeTurn, this);
 }
 
-void VCAI::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)
+void VCAI::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, int queryID)
 {
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
-	status.addQuery();
-	requestActionASAP(boost::bind(callback, 0));
+	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->name % hero->level));
+	requestActionASAP([=]{ answerQuery(queryID, 0); });
 }
 
-void VCAI::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, boost::function<void(ui32)> &callback)
+void VCAI::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID)
 {
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
-	status.addQuery();
-	requestActionASAP(boost::bind(callback, 0));
+	status.addQuery(queryID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->armyObj->nodeName() % (int)commander->level));
+	requestActionASAP([=]{ answerQuery(queryID, 0); });
 }
 
 void VCAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel)
@@ -850,7 +850,8 @@ void VCAI::showBlockingDialog(const std::string &text, const std::vector<Compone
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
 	int sel = 0;
-	status.addQuery();
+	status.addQuery(askID, boost::str(boost::format("Blocking dialog query with %d components - %s") 
+									  % components.size() % text));
 
 	if(selection) //select from multiple components -> take the last one (they're indexed [1-size])
 		sel = components.size();
@@ -860,21 +861,25 @@ void VCAI::showBlockingDialog(const std::string &text, const std::vector<Compone
 
 	requestActionASAP([=]()
 	{
-		cb->selectionMade(sel, askID);
+		answerQuery(askID, sel);
 	});
 }
 
-void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd)
+void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID)
 {
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
-	status.addQuery();
+
+	std::string s1 = up ? up->nodeName() : "NONE";
+	std::string s2 = down ? down->nodeName() : "NONE";
+
+	status.addQuery(queryID, boost::str(boost::format("Garrison dialog with %s and %s") % s1 % s2));
 
 	//you can't request action from action-response thread
 	requestActionASAP([=]()
 	{
 		pickBestCreatures (down, up);
-		onEnd();
+		answerQuery(queryID, 0);
 	});
 }
 
@@ -2197,6 +2202,9 @@ void VCAI::finish()
 
 void VCAI::requestActionASAP(boost::function<void()> whatToDo)
 {
+// 	static boost::mutex m;
+// 	boost::unique_lock<boost::mutex> mylock(m);
+
 	boost::barrier b(2);
 	boost::thread newThread([&b,this,whatToDo]()
 	{
@@ -2221,10 +2229,32 @@ void VCAI::lostHero(HeroPtr h)
 	remove_if_present(reservedHeroesMap, h);
 }
 
+void VCAI::answerQuery(int queryID, int selection)
+{
+	BNLOG("I'll answer the query %d giving the choice %d", queryID % selection);
+	if(queryID != -1)
+	{
+		int requestID = cb->selectionMade(selection, queryID);
+	}
+	else
+	{
+		BNLOG("Since the query ID is %d, the answer won't be sent. This is not a real query!", queryID);
+		//do nothing
+	}
+}
+
+void VCAI::requestSent(const CPackForServer *pack, int requestID)
+{
+	//BNLOG("I have sent request of type %s", typeid(*pack).name());
+	if(auto reply = dynamic_cast<const QueryReply*>(pack))
+	{
+		status.attemptedAnsweringQuery(reply->qid, requestID);
+	}
+}
+
 AIStatus::AIStatus()
 {
 	battle = NO_BATTLE;
-	remainingQueries = 0;
 	havingTurn = false;
 }
 
@@ -2246,29 +2276,38 @@ BattleState AIStatus::getBattle()
 	return battle;
 }
 
-void AIStatus::addQueries(int val)
+void AIStatus::addQuery(int ID, std::string description)
 {
 	boost::unique_lock<boost::mutex> lock(mx);
-	remainingQueries += val;
-	BNLOG("Changing count of queries by %d, to a total of %d", val % remainingQueries);
-	assert(remainingQueries >= 0);
+	if(ID == -1)
+	{
+		BNLOG("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s", ID % description);
+		return;
+	}
+
+	assert(!vstd::contains(remainingQueries, ID));
+	assert(ID >= 0);
+
+	remainingQueries[ID] = description;
 	cv.notify_all();
+	BNLOG("Adding query %d - %s. Total queries count: %d", ID % description % remainingQueries.size());
 }
 
-void AIStatus::addQuery()
+void AIStatus::removeQuery(int ID)
 {
-	addQueries(1);
-}
+	boost::unique_lock<boost::mutex> lock(mx);
+	assert(vstd::contains(remainingQueries, ID));
 
-void AIStatus::removeQuery()
-{
-	addQueries(-1);
+	std::string description = remainingQueries[ID];
+	remainingQueries.erase(ID);
+	cv.notify_all();
+	BNLOG("Removing query %d - %s. Total queries count: %d", ID % description % remainingQueries.size());
 }
 
 int AIStatus::getQueriesCount()
 {
 	boost::unique_lock<boost::mutex> lock(mx);
-	return remainingQueries;
+	return remainingQueries.size();
 }
 
 void AIStatus::startedTurn()
@@ -2288,7 +2327,7 @@ void AIStatus::madeTurn()
 void AIStatus::waitTillFree()
 {
 	boost::unique_lock<boost::mutex> lock(mx);
-	while(battle != NO_BATTLE || remainingQueries)
+	while(battle != NO_BATTLE || remainingQueries.size())
 		cv.wait(lock);
 }
 
@@ -2296,6 +2335,33 @@ bool AIStatus::haveTurn()
 {
 	boost::unique_lock<boost::mutex> lock(mx);
 	return havingTurn;
+}
+
+void AIStatus::attemptedAnsweringQuery(int queryID, int answerRequestID)
+{
+	boost::unique_lock<boost::mutex> lock(mx);
+	assert(vstd::contains(remainingQueries, queryID));
+	std::string description = remainingQueries[queryID];
+	BNLOG("Attempted answering query %d - %s. Request id=%d. Waiting for results...", queryID % description % answerRequestID);
+	requestToQueryID[answerRequestID] = queryID;
+}
+
+void AIStatus::receivedAnswerConfirmation(int answerRequestID, int result)
+{
+	assert(vstd::contains(requestToQueryID, answerRequestID));
+	int query = requestToQueryID[answerRequestID];
+	assert(vstd::contains(remainingQueries, query));
+	requestToQueryID.erase(answerRequestID);
+
+	if(result)
+	{
+		removeQuery(query);
+	}
+	else
+	{
+		tlog1 << "Something went really wrong, failed to answer query " << query << ": " << remainingQueries[query];
+		//TODO safely retry
+	}
 }
 
 int3 whereToExplore(HeroPtr h)

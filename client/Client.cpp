@@ -642,6 +642,9 @@ int CClient::sendRequest(const CPack *request, int player)
 
 	waitingRequest.pushBack(requestID);
 	serv->sendPackToServer(*request, player, requestID);
+	if(vstd::contains(playerint, player))
+		playerint[player]->requestSent(dynamic_cast<const CPackForServer*>(request), requestID);
+
 	return requestID;
 }
 

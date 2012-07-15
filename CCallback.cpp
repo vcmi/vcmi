@@ -55,12 +55,20 @@ bool CCallback::moveHero(const CGHeroInstance *h, int3 dst)
 	sendRequest(&pack);
 	return true;
 }
-void CCallback::selectionMade(int selection, int asker)
+
+int CCallback::selectionMade(int selection, int queryID)
 {
-	QueryReply pack(asker,selection);
+	if(queryID == -1)
+	{
+		tlog1 << "Cannot answer the query -1!\n";
+		return false;
+	}
+
+	QueryReply pack(queryID,selection);
 	pack.player = player;
-	sendRequest(&pack);
+	return sendRequest(&pack);
 }
+
 void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount, si32 level/*=-1*/)
 {
 	if(player!=obj->tempOwner  &&  obj->ID != 106)
@@ -182,7 +190,7 @@ int CBattleCallback::battleMakeAction(BattleAction* action)
 	return 0;
 }
 
-void CBattleCallback::sendRequest(const CPack* request)
+int CBattleCallback::sendRequest(const CPack *request)
 {
 	int requestID = cl->sendRequest(request, player);
 	if(waitTillRealize)
@@ -191,6 +199,8 @@ void CBattleCallback::sendRequest(const CPack* request)
 		auto gsUnlocker = vstd::makeUnlockSharedGuardIf(getGsMutex(), unlockGsWhenWaiting);
 		cl->waitingRequest.waitWhileContains(requestID);
 	}
+
+	return requestID;
 }
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )

@@ -147,7 +147,7 @@ CCreatureWindow::CCreatureWindow (const CCommanderInstance * Commander):
 	dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, cfl, 333, 148,"IVIEWCR2.DEF", SDLK_d);
 }
 
-CCreatureWindow::CCreatureWindow (std::vector<ui32> &skills, const CCommanderInstance * Commander, boost::function<void(ui32)> &callback):
+CCreatureWindow::CCreatureWindow (std::vector<ui32> &skills, const CCommanderInstance * Commander, boost::function<void(ui32)> callback):
     CWindowObject(PLAYER_COLORED),
     type(COMMANDER_LEVEL_UP),
 	commander (Commander),

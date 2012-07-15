@@ -44,7 +44,9 @@ class AIStatus
 	boost::condition_variable cv;
 
 	BattleState battle;
-	int remainingQueries;
+	std::map<int, std::string> remainingQueries;
+	std::map<int, int> requestToQueryID; //IDs of answer-requests sent to server => query ids (so we can match answer confirmation from server to the query)
+
 	bool havingTurn;
 
 public:
@@ -52,14 +54,15 @@ public:
 	~AIStatus();
 	void setBattle(BattleState BS);
 	BattleState getBattle();
-	void addQueries(int val);
-	void addQuery();
-	void removeQuery();
+	void addQuery(int ID, std::string description);
+	void removeQuery(int ID);
 	int getQueriesCount();
 	void startedTurn();
 	void madeTurn();
 	void waitTillFree();
 	bool haveTurn();
+	void attemptedAnsweringQuery(int queryID, int answerRequestID);
+	void receivedAnswerConfirmation(int answerRequestID, int result);
 };
 
 enum EGoals
@@ -245,10 +248,11 @@ public:
 
 	virtual void init(CCallback * CB);
 	virtual void yourTurn();
-	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback) OVERRIDE; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
-	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, boost::function<void(ui32)> &callback) OVERRIDE; //TODO
+
+	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, int queryID) OVERRIDE; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
+	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID) OVERRIDE; //TODO
 	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel) OVERRIDE; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
-	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd) OVERRIDE; //all stacks operations between these objects become allowed, interface has to call onEnd when done
+	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID) OVERRIDE; //all stacks operations between these objects become allowed, interface has to call onEnd when done
 	virtual void serialize(COSer<CSaveFile> &h, const int version) OVERRIDE; //saving
 	virtual void serialize(CISer<CLoadFile> &h, const int version) OVERRIDE; //loading
 	virtual void finish() OVERRIDE;
@@ -353,6 +357,8 @@ public:
 	TResources estimateIncome() const;
 	bool containsSavedRes(const TResources &cost) const;
 
+	void requestSent(const CPackForServer *pack, int requestID) OVERRIDE;
+	void answerQuery(int queryID, int selection);
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
 	void requestActionASAP(boost::function<void()> whatToDo); 
 };

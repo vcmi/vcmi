@@ -176,6 +176,7 @@ void PlayerStatuses::removeQuery(ui8 player, ui32 id)
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
 	{
+		assert(vstd::contains(players[player].queries, id));
 		players[player].queries.erase(id);
 	}
 	else
@@ -2164,24 +2165,28 @@ void CGameHandler::heroExchange(si32 hero1, si32 hero2)
 	}
 }
 
+void CGameHandler::prepareNewQuery(Query * queryPack, ui8 player, const boost::function<void(ui32)> &callback)
+{
+	boost::unique_lock<boost::recursive_mutex> lock(gsm);
+	tlog4 << "Creating a query for player " << (int)player << " with ID=" << QID << std::endl;
+	callbacks[QID] = callback;
+	states.addQuery(player, QID);
+	queryPack->queryID = QID;
+	QID++;
+}
+
 void CGameHandler::applyAndAsk( Query * sel, ui8 player, boost::function<void(ui32)> &callback )
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
-	sel->id = QID;
-	callbacks[QID] = callback;
-	states.addQuery(player,QID);
-	QID++; 
+	prepareNewQuery(sel, player, callback);
 	sendAndApply(sel);
 }
 
 void CGameHandler::ask( Query * sel, ui8 player, const CFunctionList<void(ui32)> &callback )
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
-	sel->id = QID;
-	callbacks[QID] = callback;
-	states.addQuery(player,QID);
+	prepareNewQuery(sel, player, callback);
 	sendToAllClients(sel);
-	QID++; 
 }
 
 void CGameHandler::sendToAllClients( CPackForClient * info )
@@ -3207,16 +3212,9 @@ bool CGameHandler::queryReply(ui32 qid, ui32 answer, ui8 player)
 		if(callb)
 			callb(answer);
 	}
-	else if(vstd::contains(garrisonCallbacks,qid))
-	{
-		if(garrisonCallbacks[qid])
-			garrisonCallbacks[qid]();
-		garrisonCallbacks.erase(qid);
-		allowedExchanges.erase(qid);
-	}
 	else
 	{
-		tlog1 << "Unknown query reply...\n";
+		complain("Unknown query reply!");
 		return false;
 	}
 	return true;
@@ -4752,15 +4750,22 @@ void CGameHandler::showGarrisonDialog( int upobj, int hid, bool removableUnits, 
 	GarrisonDialog gd;
 	gd.hid = hid;
 	gd.objid = upobj;
+	gd.removableUnits = removableUnits;
 
 	{
 		boost::unique_lock<boost::recursive_mutex> lock(gsm);
-		gd.id = QID;
-		garrisonCallbacks[QID] = cb;
-		allowedExchanges[QID] = std::pair<si32,si32>(upobj,hid);
-		states.addQuery(player,QID);
-		QID++; 
-		gd.removableUnits = removableUnits;
+		prepareNewQuery(&gd, player);
+
+		//register callback manually since we need to use query ID that's given in result of prepareNewQuery call
+		callbacks[gd.queryID] = [=](ui32 answer)
+		{ 
+			// Garrison callback calls the "original callback" and closes the exchange between objs.
+			cb();
+			boost::unique_lock<boost::recursive_mutex> lockGsm(this->gsm);
+			allowedExchanges.erase(gd.queryID);
+		};
+
+		allowedExchanges[gd.queryID] = std::pair<si32,si32>(upobj,hid);
 		sendAndApply(&gd);
 	}
 }

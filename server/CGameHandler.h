@@ -94,8 +94,9 @@ public:
 	//queries stuff
 	boost::recursive_mutex gsm;
 	ui32 QID;
+
+	//TODO get rid of cfunctionlist (or similar) and use serialziable callback structure
 	std::map<ui32, CFunctionList<void(ui32)> > callbacks; //query id => callback function - for selection and yes/no dialogs
-	std::map<ui32, boost::function<void()> > garrisonCallbacks; //query id => callback - for garrison dialogs
 	std::map<ui32, std::pair<si32,si32> > allowedExchanges;
 
 	bool isBlockedByQueries(const CPack *pack, int packType, ui8 player); 
@@ -243,6 +244,7 @@ public:
 	void sendMessageToAll(const std::string &message);
 	void sendMessageTo(CConnection &c, const std::string &message);
 	void applyAndAsk(Query * sel, ui8 player, boost::function<void(ui32)> &callback);
+	void prepareNewQuery(Query * queryPack, ui8 player, const boost::function<void(ui32)> &callback = 0); //generates unique query id and writes it to the pack; blocks the player till query is answered (then callback is called)
 	void ask(Query * sel, ui8 player, const CFunctionList<void(ui32)> &callback);
 	void sendToAllClients(CPackForClient * info);
 	void sendAndApply(CPackForClient * info);

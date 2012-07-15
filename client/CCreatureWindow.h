@@ -90,7 +90,7 @@ public:
 	CCreatureWindow (const CStackInstance &stack, int Type); //pop-up c-tor
 	CCreatureWindow(const CStackInstance &st, int Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //full garrison window
 	CCreatureWindow(const CCommanderInstance * commander); //commander window
-	CCreatureWindow(std::vector<ui32> &skills, const CCommanderInstance * commander, boost::function<void(ui32)> &callback); 
+	CCreatureWindow(std::vector<ui32> &skills, const CCommanderInstance * commander, boost::function<void(ui32)> callback); 
 	CCreatureWindow(int Cid, int Type, int creatureCount); //c-tor
 
 	void init(const CStackInstance *stack, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner);

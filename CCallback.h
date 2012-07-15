@@ -56,7 +56,7 @@ public:
 
 	virtual void trade(const CGObjectInstance *market, int mode, int id1, int id2, int val1, const CGHeroInstance *hero = NULL)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
 
-	virtual void selectionMade(int selection, int asker) =0;
+	virtual int selectionMade(int selection, int queryID) =0;
 	virtual int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//swaps creatures between two possibly different garrisons // TODO: AI-unsafe code - fix it!
 	virtual int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//joins first stack to the second (creatures must be same type)
 	virtual int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2) =0; //first goes to the second
@@ -83,16 +83,15 @@ class CBattleCallback : public IBattleCallback, public CBattleInfoCallback
 private:
 	CBattleCallback(CGameState *GS, int Player, CClient *C);
 
-
 protected:
-	void sendRequest(const CPack *request);
+	int sendRequest(const CPack *request); //returns requestID (that'll be matched to requestID in PackageApplied)
 	CClient *cl;
 	//virtual bool hasAccess(int playerId) const;
 
 public:
 	int battleMakeAction(BattleAction* action) OVERRIDE;//for casting spells by hero - DO NOT use it for moving active stack
 	bool battleMakeTacticAction(BattleAction * action) OVERRIDE; // performs tactic phase actions
-
+	
 	friend class CCallback;
 	friend class CClient;
 };
@@ -114,12 +113,13 @@ public:
 	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1);
 	virtual void recalculatePaths(); //updates main, client pathfinder info (should be called when moving hero is over)
 
+
 	void unregisterMyInterface(); //stops delivering information about game events to that player's interface -> can be called ONLY after victory/loss
 
 //commands
 	bool moveHero(const CGHeroInstance *h, int3 dst); //dst must be free, neighbouring tile (this function can move hero only by one tile)
 	bool teleportHero(const CGHeroInstance *who, const CGTownInstance *where);
-	void selectionMade(int selection, int asker);
+	int selectionMade(int selection, int queryID);
 	int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2);
 	int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2); //first goes to the second
 	int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2); //first goes to the second

@@ -528,13 +528,14 @@ void SetObjectProperty::applyCl( CClient *cl )
 
 void HeroLevelUp::applyCl( CClient *cl )
 {
-	CGHeroInstance *h = GS(cl)->getHero(heroid);
+	const CGHeroInstance *h = cl->getHero(heroid);
+	//INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroGotLevel, h, primskill, skills, id);
 	if(vstd::contains(cl->playerint,h->tempOwner))
 	{
-		boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(&CCallback::selectionMade,cl->callbacks[h->tempOwner].get(),_1,id));
-		cl->playerint[h->tempOwner]->heroGotLevel(const_cast<const CGHeroInstance*>(h),static_cast<int>(primskill),skills, callback);
+		cl->playerint[h->tempOwner]->heroGotLevel(h, static_cast<int>(primskill), skills, queryID);
 	}
 }
+
 void CommanderLevelUp::applyCl( CClient *cl )
 {
 	CCommanderInstance * commander = GS(cl)->getHero(heroid)->commander;
@@ -542,8 +543,7 @@ void CommanderLevelUp::applyCl( CClient *cl )
 	ui8 player = commander->armyObj->tempOwner;
 	if (commander->armyObj && vstd::contains(cl->playerint, player)) //is it possible for Commander to exist beyond armed instance?
 	{
-		auto callback = boost::function<void(ui32)>(boost::bind(&CCallback::selectionMade,cl->callbacks[player].get(),_1,id));
-		cl->playerint[player]->commanderGotLevel(commander, skills, callback);
+		cl->playerint[player]->commanderGotLevel(commander, skills, queryID);
 	}
 }
 
@@ -553,7 +553,7 @@ void BlockingDialog::applyCl( CClient *cl )
 	text.toString(str);
 
 	if(vstd::contains(cl->playerint,player))
-		cl->playerint[player]->showBlockingDialog(str,components,id,(soundBase::soundID)soundID,selection(),cancel());
+		cl->playerint[player]->showBlockingDialog(str,components,queryID,(soundBase::soundID)soundID,selection(),cancel());
 	else
 		tlog2 << "We received YesNoDialog for not our player...\n";
 }
@@ -566,8 +566,7 @@ void GarrisonDialog::applyCl(CClient *cl)
 	if(!vstd::contains(cl->playerint,h->getOwner()))
 		return;
 
-	boost::function<void()> callback = boost::bind(&CCallback::selectionMade,cl->callbacks[h->getOwner()].get(),0,id);
-	cl->playerint[h->getOwner()]->showGarrisonDialog(obj,h,removableUnits,callback);
+	cl->playerint[h->getOwner()]->showGarrisonDialog(obj,h,removableUnits,queryID);
 }
 
 void BattleStart::applyCl( CClient *cl )

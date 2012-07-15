@@ -12,14 +12,15 @@ void CEmptyAI::yourTurn()
 {
 	cb->endTurn();
 }
-void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)
+
+void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, int queryID)
 {
-	callback(rand()%skills.size());
+	cb->selectionMade(rand() % skills.size(), queryID);
 }
 
-void CEmptyAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, boost::function<void(ui32)> &callback)
+void CEmptyAI::commanderGotLevel(const CCommanderInstance * commander, std::vector<ui32> skills, int queryID)
 {
-	callback(0);
+	cb->selectionMade(rand() % skills.size(), queryID);
 }
 
 void CEmptyAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel)
@@ -27,7 +28,7 @@ void CEmptyAI::showBlockingDialog(const std::string &text, const std::vector<Com
 	cb->selectionMade(0, askID);
 }
 
-void CEmptyAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd)
+void CEmptyAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID)
 {
-	onEnd();
+	cb->selectionMade(0, queryID);
 }

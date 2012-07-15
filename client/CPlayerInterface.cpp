@@ -470,22 +470,24 @@ void CPlayerInterface::receivedResource(int type, int val)
 	GH.totalRedraw();
 }
 
-void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16>& skills, boost::function<void(ui32)> &callback)
+void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16>& skills, int queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	CCS->soundh->playSound(soundBase::heroNewLevel);
 
-	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
+	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,
+										[=](ui32 selection){ cb->selectionMade(selection, queryID); });
 	GH.pushInt(lw);
 }
-void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, boost::function<void(ui32)> &callback)
+void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
 	CCS->soundh->playSound(soundBase::heroNewLevel);
 
-	CCreatureWindow * cw = new CCreatureWindow(skills, commander, callback);
+	CCreatureWindow * cw = new CCreatureWindow(skills, commander, 
+												[=](ui32 selection){ cb->selectionMade(selection, queryID); });
 	GH.pushInt(cw);
 }
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
@@ -1279,9 +1281,10 @@ bool CPlayerInterface::altPressed() const
 	return SDL_GetKeyState(NULL)[SDLK_LALT]  ||  SDL_GetKeyState(NULL)[SDLK_RALT];
 }
 
-void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd )
+void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	auto onEnd = [=]{ cb->selectionMade(0, queryID); };
 
 	if(stillMoveHero.get() == DURING_MOVE  && adventureInt->terrain.currentPath && adventureInt->terrain.currentPath->nodes.size() > 1) //to ignore calls on passing through garrisons
 	{

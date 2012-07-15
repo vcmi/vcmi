@@ -35,6 +35,7 @@ struct SetStackEffect;
 struct BattleTriggerEffect;
 class CComponent;
 struct CObstacleInstance;
+struct CPackForServer;
 
 class DLL_LINKAGE IBattleEventsReceiver
 {
@@ -112,6 +113,7 @@ public:
 	virtual void availableCreaturesChanged(const CGDwelling *town){};
 	virtual void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
 	virtual void playerBonusChanged(const Bonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
+	virtual void requestSent(const CPackForServer *pack, int requestID){};
 	virtual void requestRealized(PackageApplied *pa){};
 	virtual void heroExchangeStarted(si32 hero1, si32 hero2){};
 	virtual void objectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged

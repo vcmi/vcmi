@@ -140,8 +140,8 @@ public:
 	void artifactDisassembled(const ArtifactLocation &al);
 
 	void heroCreated(const CGHeroInstance* hero) OVERRIDE;
-	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback) OVERRIDE;
-	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, boost::function<void(ui32)> &callback) OVERRIDE;
+	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, int queryID) OVERRIDE;
+	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID) OVERRIDE;
 	void heroInGarrisonChange(const CGTownInstance *town) OVERRIDE;
 	void heroMoved(const TryMoveHero & details) OVERRIDE;
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) OVERRIDE;
@@ -154,7 +154,7 @@ public:
 	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) OVERRIDE;
 	void showShipyardDialog(const IShipyard *obj) OVERRIDE; //obj may be town or shipyard; 
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel) OVERRIDE; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
-	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd) OVERRIDE;
+	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID) OVERRIDE;
 	void showPuzzleMap() OVERRIDE;
 	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor) OVERRIDE;
 	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor) OVERRIDE;

@@ -81,7 +81,12 @@ struct CPackForServer : public CPack
 
 struct Query : public CPackForClient
 {
-	ui32 id;
+	ui32 queryID; // equals to -1 if it is not an actual query (and should not be answered)
+	
+	Query()
+	{
+		queryID = -1;
+	}
 };
 
 
@@ -200,6 +205,7 @@ struct PackageApplied : public CPackForClient //94
 	ui32 packType; //type id of applied package
 	ui32 requestID; //an ID given by client to the request that was applied
 	ui8 player;
+
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1156,7 +1162,7 @@ struct HeroLevelUp : public Query//2000
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & heroid & primskill & level & skills;
+		h & queryID & heroid & primskill & level & skills;
 	}
 };
 
@@ -1174,7 +1180,7 @@ struct CommanderLevelUp : public Query
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & heroid & sl & skills;
+		h & queryID & heroid & sl & skills;
 	}
 };
 
@@ -1235,7 +1241,7 @@ struct BlockingDialog : public Query//2003
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & text & components & player & flags & soundID;
+		h & queryID & text & components & player & flags & soundID;
 	}
 };
 
@@ -1248,7 +1254,7 @@ struct GarrisonDialog : public Query//2004
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & objid & hid & removableUnits;
+		h & queryID & objid & hid & removableUnits;
 	}
 };
 
