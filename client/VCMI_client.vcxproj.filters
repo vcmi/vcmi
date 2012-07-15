@@ -119,6 +119,9 @@
     <ClCompile Include="AdventureMapClasses.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CQuestLog.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CAdvmapInterface.h">
@@ -242,6 +245,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AdventureMapClasses.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CQuestLog.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

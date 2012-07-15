@@ -247,6 +247,7 @@
     <ClCompile Include="CMusicHandler.cpp" />
     <ClCompile Include="CPlayerInterface.cpp" />
     <ClCompile Include="CPreGame.cpp" />
+    <ClCompile Include="CQuestLog.cpp" />
     <ClCompile Include="CSndHandler.cpp" />
     <ClCompile Include="CSpellWindow.cpp" />
     <ClCompile Include="CVideoHandler.cpp" />
@@ -292,6 +293,7 @@
     <ClInclude Include="CMusicHandler.h" />
     <ClInclude Include="CPlayerInterface.h" />
     <ClInclude Include="CPreGame.h" />
+    <ClInclude Include="CQuestLog.h" />
     <ClInclude Include="CSndHandler.h" />
     <ClInclude Include="CSoundBase.h" />
     <ClInclude Include="CSpellWindow.h" />
