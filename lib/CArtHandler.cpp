@@ -371,7 +371,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 			}
 			BOOST_FOREACH (auto b, artifact["thresholdBonuses"].Vector())
 			{
-				ga->bonusesPerLevel.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *ParseBonus (b["bonus"].Vector())));
+				ga->thresholdBonuses.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *ParseBonus (b["bonus"].Vector())));
 			}
 		}
 	}
