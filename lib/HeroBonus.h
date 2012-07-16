@@ -35,6 +35,7 @@ typedef boost::function<bool(const Bonus*)> CSelector;
 
 #define BONUS_LIST										\
 	BONUS_NAME(NONE) 									\
+	BONUS_NAME(LEVEL_COUNTER) /* for commander artifacts*/ \
 	BONUS_NAME(MOVEMENT) /*both water/land*/			\
 	BONUS_NAME(LAND_MOVEMENT) \
 	BONUS_NAME(SEA_MOVEMENT) \
@@ -194,7 +195,8 @@ struct DLL_LINKAGE Bonus
 		N_DAYS = 32,
 		UNITL_BEING_ATTACKED = 64,/*removed after attack and counterattacks are performed*/
 		UNTIL_ATTACK = 128, /*removed after attack and counterattacks are performed*/
-		STACK_GETS_TURN = 256 /*removed when stack gets its turn - used for defensive stance*/
+		STACK_GETS_TURN = 256, /*removed when stack gets its turn - used for defensive stance*/
+		COMMANDER_KILLED = 512
 	};
 	enum BonusSource
 	{
@@ -302,6 +304,10 @@ struct DLL_LINKAGE Bonus
 	static bool UntilBeingAttacked(const Bonus *hb)
 	{
 		return hb->duration & Bonus::UNITL_BEING_ATTACKED;
+	}
+	static bool UntilCommanderKilled(const Bonus *hb)
+	{
+		return hb->duration & Bonus::COMMANDER_KILLED;
 	}
 	static bool IsFrom(const Bonus &hb, ui8 source, ui32 id) //if id==0xffffff then id doesn't matter
 	{

@@ -1010,7 +1010,7 @@ void CCommanderInstance::setAlive (bool Alive)
 	alive = Alive;
 	if (!alive)
 	{
-		//remove all bonuses from artifacts
+		getBonusList().remove_if (Bonus::UntilCommanderKilled);
 	}
 }
 

@@ -18,6 +18,7 @@ class CArtifact;
 class CGHeroInstance;
 struct ArtifactLocation;
 class CArtifactSet;
+class CArtifactInstance;
 
 namespace ArtifactPosition
 {
@@ -55,6 +56,8 @@ public:
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const OVERRIDE;
 
+	virtual void levelUpArtifact (CArtifactInstance * art){};
+
 	ui32 price;
 	bmap<ui8, std::vector<ui16> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
 	std::vector<ui32> * constituents; // Artifacts IDs a combined artifact consists of, or NULL.
@@ -73,6 +76,21 @@ public:
 
 	//override
 	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+};
+
+class DLL_LINKAGE CGrowingArtifact : public CArtifact //for example commander artifacts getting bonuses after battle
+{
+public:
+	std::vector <std::pair <ui16, Bonus> > bonusesPerLevel; //bonus given each n levels
+	std::vector <std::pair <ui16, Bonus> > thresholdBonuses; //after certain level they will be added once
+
+	void levelUpArtifact (CArtifactInstance * art);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArtifact&>(*this);
+		h & bonusesPerLevel & thresholdBonuses;
+	}
 };
 
 class DLL_LINKAGE CArtifactInstance : public CBonusSystemNode
@@ -170,7 +188,7 @@ public:
 	std::vector< ConstTransitivePtr<CArtifact> > artifacts;
 	std::vector<CArtifact *> allowedArtifacts;
 	std::set<ui32> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
-	//std::map<ui32, ui8> modableArtifacts; //1-scroll, 2-banner, 3-commander art with progressive bonus
+	std::set<ui32> growingArtifacts;
 
 	void loadArtifacts(bool onlyTxt);
 	void sortArts();
@@ -194,7 +212,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & artifacts & allowedArtifacts & treasures & minors & majors & relics;
+		h & artifacts & allowedArtifacts & treasures & minors & majors & relics
+			& growingArtifacts;
 		//if(!h.saving) sortArts();
 	}
 };

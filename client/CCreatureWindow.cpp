@@ -542,7 +542,7 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 		skillPictures[i]->showAll (to);
 	}
 
-	if (upgradeOptions[selectedOption] >= 100) //add frame to selected skill
+	if (type == COMMANDER_LEVEL_UP && upgradeOptions[selectedOption] >= 100) //add frame to selected skill
 	{
 		int index = selectedOption - selectableSkills.size(); //this is screwed
 		CSDL_Ext::drawBorder(to, Rect::around(selectableBonuses[index]->pos), int3(Colors::MetallicGold.r, Colors::MetallicGold.g, Colors::MetallicGold.b)); 

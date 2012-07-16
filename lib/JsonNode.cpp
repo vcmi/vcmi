@@ -1,6 +1,9 @@
 #include "StdInc.h"
 #include "JsonNode.h"
 
+
+class Bonus;
+
 const JsonNode JsonNode::nullNode;
 
 JsonNode::JsonNode(JsonType Type):

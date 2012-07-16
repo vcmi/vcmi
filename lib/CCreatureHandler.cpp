@@ -202,24 +202,6 @@ bool CCreatureHandler::isEvil (si8 faction) const
 {
 	return faction != -1 && factionAlignments[faction] == -1;
 }
-static Bonus * ParseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
-{
-	Bonus * b = new Bonus();
-	std::string type = ability_vec[0].String();
-	auto it = bonusNameMap.find(type);
-	if (it == bonusNameMap.end())
-	{
-		tlog1 << "Error: invalid ability type " << type << " in creatures.txt" << std::endl;
-		return b;
-	}
-	b->type = it->second;
-	b->val = ability_vec[1].Float();
-	b->subtype = ability_vec[2].Float();
-	b->additionalInfo = ability_vec[3].Float();
-	b->duration = Bonus::PERMANENT;
-	b->turnsRemain = 0;
-	return b;
-}
 
 static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 {

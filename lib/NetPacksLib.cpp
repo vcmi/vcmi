@@ -1032,6 +1032,8 @@ DLL_LINKAGE void BattleObstaclePlaced::applyGs( CGameState *gs )
 void BattleResult::applyGs( CGameState *gs )
 {
 	//stack with SUMMONED flag but coming from garrison -> most likely resurrected, needs to be removed
+
+	//TODO: switch commander status to dead
 	BOOST_FOREACH(CStack *s, gs->curB->stacks)
 	{
 		if(s->base && s->base->armyObj && vstd::contains(s->state, EBattleStackState::SUMMONED))
@@ -1043,14 +1045,20 @@ void BattleResult::applyGs( CGameState *gs )
 	for (unsigned i = 0; i < gs->curB->stacks.size(); i++)
 		delete gs->curB->stacks[i];
 
-	//remove any "until next battle" bonuses
 	CGHeroInstance *h;
 	for (int i = 0; i < 2; ++i)
 	{
-		h = gs->curB->heroes[i];
+		h = gs->curB->heroes[i]; 
 		if (h)
 		{
-			h->getBonusList().remove_if(Bonus::OneBattle);
+			h->getBonusList().remove_if(Bonus::OneBattle); 	//remove any "until next battle" bonuses
+			if (h->commander && h->commander->alive)
+			{
+				BOOST_FOREACH (auto art, h->commander->artifactsWorn) //increment bonuses for commander artifacts
+				{
+					art.second.artifact->artType->levelUpArtifact (art.second.artifact);
+				}
+			}
 		}
 	}
 

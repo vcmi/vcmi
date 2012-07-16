@@ -8,6 +8,7 @@
 #include "CSpellHandler.h"
 #include "CObjectHandler.h"
 #include "NetPacks.h"
+#include "../lib/JsonNode.h"
 
 extern CLodHandler *bitmaph;
 using namespace boost::assign;
@@ -23,6 +24,7 @@ using namespace boost::assign;
  */
 
 extern boost::rand48 ran;
+extern Bonus * ParseBonus (const JsonVector &ability_vec);
 
 const std::string & CArtifact::Name() const
 {
@@ -44,11 +46,6 @@ bool CArtifact::isBig () const
 {
 	return VLC->arth->isBigArtifact(id);
 }
-// 
-// bool CArtifact::isModable () const
-// {
-// 	return (bool)dynamic_cast<const IModableArt *>(this);
-// }
 
 // /**
 //  * Checks whether the artifact fits at a given slot.
@@ -193,6 +190,30 @@ void CArtifact::setDescription (std::string desc)
 	description = desc;
 }
 
+void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
+{
+	Bonus b;
+	b.type = Bonus::LEVEL_COUNTER;
+	b.val = 1;
+	b.duration = Bonus::COMMANDER_KILLED;
+	art->accumulateBonus (b);
+
+	BOOST_FOREACH (auto bonus, bonusesPerLevel)
+	{
+		if (art->valOfBonuses(Bonus::LEVEL_COUNTER) % bonus.first == 0) //every n levels
+		{
+			art->accumulateBonus (bonus.second);
+		}
+	}
+	BOOST_FOREACH (auto bonus, thresholdBonuses)
+	{
+		if (art->valOfBonuses(Bonus::LEVEL_COUNTER) == bonus.first) //every n levels
+		{
+			art->addNewBonus (&bonus.second);
+		}
+	}
+}
+
 CArtHandler::CArtHandler()
 {
 	VLC->arth = this;
@@ -215,6 +236,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 {
 	std::vector<ui16> slots;
 	slots += 17, 16, 15, 14, 13, 18, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
+	growingArtifacts += 146, 147, 148, 150, 151, 152, 153;
 	static std::map<char, CArtifact::EartClass> classes = 
 	  map_list_of('S',CArtifact::ART_SPECIAL)('T',CArtifact::ART_TREASURE)('N',CArtifact::ART_MINOR)('J',CArtifact::ART_MAJOR)('R',CArtifact::ART_RELIC);
 	std::string buf = bitmaph->getTextFile("ARTRAITS.TXT"), dump, pom;
@@ -226,10 +248,18 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	VLC->generaltexth->artifNames.resize(GameConstants::ARTIFACTS_QUANTITY);
 	VLC->generaltexth->artifDescriptions.resize(GameConstants::ARTIFACTS_QUANTITY);
 	std::map<ui32,ui8>::iterator itr;
+
 	for (int i=0; i<GameConstants::ARTIFACTS_QUANTITY; i++)
 	{
-		CArtifact *art = new CArtifact();
-
+		CArtifact *art;
+		if (vstd::contains (growingArtifacts, i))
+		{
+			art = new CGrowingArtifact();
+		}
+		else
+		{
+			art = new CArtifact();
+		}
 		CArtifact &nart = *art;
 		nart.id=i;
 		loadToIt(VLC->generaltexth->artifNames[i],buf,it,4);
@@ -329,6 +359,23 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 
 		artifacts.push_back(&nart);
 	}
+	if (GameConstants::COMMANDERS)
+	{ //TODO: move all artifacts config to separate json file
+		const JsonNode config(GameConstants::DATA_DIR + "/config/commanders.json");
+		BOOST_FOREACH(const JsonNode &artifact, config["artifacts"].Vector())
+		{
+			auto ga = dynamic_cast <CGrowingArtifact *>(artifacts[artifact["id"].Float()].get()); 
+			BOOST_FOREACH (auto b, artifact["bonusesPerLevel"].Vector())
+			{
+				ga->bonusesPerLevel.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *ParseBonus (b["bonus"].Vector())));
+			}
+			BOOST_FOREACH (auto b, artifact["thresholdBonuses"].Vector())
+			{
+				ga->bonusesPerLevel.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *ParseBonus (b["bonus"].Vector())));
+			}
+		}
+	}
+
 	sortArts();
 	if(onlyTxt)
 		return;
@@ -1112,7 +1159,17 @@ void CArtifactInstance::move(ArtifactLocation src, ArtifactLocation dst)
 CArtifactInstance * CArtifactInstance::createNewArtifactInstance(CArtifact *Art)
 {
 	if(!Art->constituents)
-		return new CArtifactInstance(Art);
+	{
+		auto ret = new CArtifactInstance(Art);
+		if (dynamic_cast<CGrowingArtifact *>(Art))
+		{
+			Bonus * bonus = new Bonus;
+			bonus->type = Bonus::LEVEL_COUNTER;
+			bonus->val = 0;
+			ret->addNewBonus (bonus);
+		}
+		return ret;
+	}
 	else
 	{
 		CCombinedArtifactInstance * ret = new CCombinedArtifactInstance(Art);
