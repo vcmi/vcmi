@@ -75,6 +75,7 @@ struct CasualtiesAfterBattle
 	typedef std::pair<StackLocation, int> TStackAndItsNewCount;
 	enum {ERASE = -1};
 	std::vector<TStackAndItsNewCount> newStackCounts;
+	si32 heroWithDeadCommander; //TODO: unify stack loactions
 
 	CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat);
 	void takeFromArmy(CGameHandler *gh);

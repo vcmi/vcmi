@@ -2046,7 +2046,17 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		}
 	}
 	else
+	{
+		if (h->commander && !h->commander->alive) //rise commander. TODO: interactive script
+		{
+			SetCommanderProperty scp;
+			scp.heroid = h->id;
+			scp.which = SetCommanderProperty::ALIVE;
+			scp.amount = 1;
+			cb->sendAndApply (&scp);
+		}
 		cb->heroVisitCastle(id, h->id);
+	}
 }
 
 void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const

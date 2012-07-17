@@ -1031,13 +1031,11 @@ DLL_LINKAGE void BattleObstaclePlaced::applyGs( CGameState *gs )
 
 void BattleResult::applyGs( CGameState *gs )
 {
-	//stack with SUMMONED flag but coming from garrison -> most likely resurrected, needs to be removed
-
-	//TODO: switch commander status to dead
-	BOOST_FOREACH(CStack *s, gs->curB->stacks)
+	BOOST_FOREACH (CStack *s, gs->curB->stacks)
 	{
-		if(s->base && s->base->armyObj && vstd::contains(s->state, EBattleStackState::SUMMONED))
+		if (s->base && s->base->armyObj && vstd::contains(s->state, EBattleStackState::SUMMONED))
 		{
+			//stack with SUMMONED flag but coming from garrison -> most likely resurrected, needs to be removed
 			assert(&s->base->armyObj->getStack(s->slot) == s->base);
 			const_cast<CArmedInstance*>(s->base->armyObj)->eraseStack(s->slot);
 		}

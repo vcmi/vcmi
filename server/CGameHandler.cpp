@@ -6077,6 +6077,8 @@ void CGameHandler::removeObstacle(const CObstacleInstance &obstacle)
 
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)
 {
+	heroWithDeadCommander = -1;
+
 	int color = army->tempOwner;
 	if(color == 254)
 		color = GameConstants::NEUTRAL_PLAYER;
@@ -6094,6 +6096,16 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleI
 			else
 				newStackCounts.push_back(std::pair<StackLocation, int>(sl, 0));
 		}
+		if (st->base && !st->count)
+		{
+			auto c = dynamic_cast <const CCommanderInstance *>(st->base);
+			if (c) //switch commander status to dead
+			{ 
+				auto h = dynamic_cast <const CGHeroInstance *>(army);
+				if (h && h->commander == c)
+					heroWithDeadCommander = army->id; //TODO: unify commander handling
+			}
+		}
 	}
 }
 
@@ -6105,5 +6117,13 @@ void CasualtiesAfterBattle::takeFromArmy(CGameHandler *gh)
 			gh->changeStackCount(ncount.first, ncount.second, true);
 		else
 			gh->eraseStack(ncount.first, true);
+	}
+	if (heroWithDeadCommander > -1)
+	{
+		SetCommanderProperty scp;
+		scp.heroid = heroWithDeadCommander;
+		scp.which = SetCommanderProperty::ALIVE;
+		scp.amount = 0;
+		gh->sendAndApply (&scp);
 	}
 }
