@@ -1781,15 +1781,15 @@ void VCAI::tryRealize(CGoal g)
 			//cb->recalculatePaths();
 			if(!g.hero->movement)
 				throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
-			if(!g.isBlockedBorderGate(g.tile))
-			{
+			//if(!g.isBlockedBorderGate(g.tile))
+			//{
 				if (ai->moveHeroToTile(g.tile, g.hero.get()))
 				{
 					throw goalFulfilledException("");
 				}
-			}
-			else
-				throw cannotFulfillGoalException("There's a blocked gate!"); //TODO: get keymaster tent
+			//}
+			//else
+			//	throw cannotFulfillGoalException("There's a blocked gate!, we should never be here"); //CLEAR_WAY_TO should get keymaster tent
 		}
 		break;
 	case BUILD_STRUCTURE:
@@ -2710,7 +2710,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 			int3 tileToHit = sm.firstTileToGet(h, tile);
 			//if(isSafeToVisit(h, tileToHit))
 			if(isBlockedBorderGate(tileToHit))
-				throw cannotFulfillGoalException("There's blocked border gate!");
+			{	//FIXME: this way we'll not visit gate and activate quest :?
+				return CGoal(FIND_OBJ).setobjid(Obj::KEYMASTER).setresID(cb->getTile(tileToHit)->visitableObjects.back()->subID);
+			}
 
 			if(tileToHit == tile)
 			{
