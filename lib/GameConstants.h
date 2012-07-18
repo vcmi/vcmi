@@ -185,7 +185,9 @@ namespace Obj
 {
 	enum
 	{
+		ARTIFACT = 5,
 		BOAT = 8,
+		BORDERGUARD = 9,
 		KEYMASTER = 10,
 		CREATURE_BANK = 16,
 		CREATURE_GENERATOR1 = 17,
@@ -203,6 +205,7 @@ namespace Obj
 		MONSTER = 54,
 		OBELISK = 57,
 		PYRAMID = 63,
+		SEER_HUT = 83,
 		CRYPT = 84,
 		SHIPWRECK = 85,
 		STABLES = 94,

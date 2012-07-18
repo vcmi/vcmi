@@ -4539,10 +4539,10 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 		if (firstVisit) 
 		{
 			isCustom = isCustomFirst;
-			cb->setObjProperty (id, 10, 1);
+			cb->setObjProperty (id, 10, IN_PROGRESS);
 
 			AddQuest aq;
-			aq.quest = QuestInfo (this, this, pos);
+			aq.quest = QuestInfo (this, this, visitablePos());
 			aq.player = h->tempOwner;
 			cb->sendAndApply (&aq); //TODO: merge with setObjProperty?
 		}
@@ -4632,7 +4632,8 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 			default:
 				break;
 		}
-		cb->setObjProperty(id,11,0); //no more mission available	
+		cb->setObjProperty (id, 10, COMPLETE); //mission complete - for AI
+		cb->setObjProperty (id, 11, 0); //no more mission available - redundant?
 		completeQuest(h); //make sure to remove QuestQuard at the very end	
 	}
 }
@@ -6344,7 +6345,7 @@ void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const
 		cb->showInfoDialog (&iw);
 
 		AddQuest aq;
-		aq.quest = QuestInfo (this, this, pos);
+		aq.quest = QuestInfo (this, this, visitablePos());
 		aq.player = h->tempOwner;
 		cb->sendAndApply (&aq);
 		//TODO: add this quest only once OR check for multiple instances later
@@ -6367,7 +6368,7 @@ void CGBorderGate::onHeroVisit( const CGHeroInstance * h ) const //TODO: passabi
 		cb->showInfoDialog(&iw);
 
 		AddQuest aq;
-		aq.quest = QuestInfo (this, this, pos);
+		aq.quest = QuestInfo (this, this, visitablePos());
 		aq.player = h->tempOwner;
 		cb->sendAndApply (&aq);
 	}

@@ -84,6 +84,7 @@ void registerTypes1(Serializer &s)
 
 	s.template registerType<CBonusSystemNode>();
 	s.template registerType<CArtifact>();
+	s.template registerType<CGrowingArtifact>();
 	s.template registerType<CCreature>();
 	s.template registerType<CStackInstance>();
 	s.template registerType<CCommanderInstance>();

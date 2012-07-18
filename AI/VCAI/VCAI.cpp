@@ -398,6 +398,11 @@ ui64 evaluateDanger(const CGObjectInstance *obj)
 			const CGDwelling *d = dynamic_cast<const CGDwelling*>(obj);
 			return d->getArmyStrength();
 		}
+	case Obj::MINE:
+		{
+			const CArmedInstance * a = dynamic_cast<const CArmedInstance*>(obj);
+			return a->getArmyStrength();
+		}
 	case Obj::CRYPT: //crypt
 	case Obj::CREATURE_BANK: //crebank
 	case Obj::DRAGON_UTOPIA:
@@ -959,9 +964,10 @@ void VCAI::makeTurn()
 						++dangerousObjects;
 					}
 				}
-				if (dangerousObjects && totalDanger / dangerousObjects > h->getHeroStrength())
+				ui64 averageDanger = totalDanger / dangerousObjects;
+				if (dangerousObjects && averageDanger > h->getHeroStrength())
 				{
-					setGoal (h, CGoal(GATHER_ARMY).sethero(h));
+					setGoal (h, CGoal(GATHER_ARMY).sethero(h).setvalue(averageDanger * SAFE_ATTACK_CONSTANT).setisAbstract(true));
 				}
 			}
 		}
@@ -1025,6 +1031,12 @@ void VCAI::makeTurnInternal()
 			safeCopy.erase(it);
 		}
 
+		auto quests = myCb->getMyQuests();
+		BOOST_FOREACH (auto quest, quests)
+		{
+			striveToQuest (quest); 
+		}
+
 		striveToGoal(CGoal(BUILD)); //TODO: smarter building management
 	}
 	catch(boost::thread_interrupted &e)
@@ -1053,9 +1065,11 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 	{
 		case Obj::CREATURE_GENERATOR1:
 			recruitCreatures (dynamic_cast<const CGDwelling *>(obj));
+			checkHeroArmy (h);
 			break;
 		case GameConstants::TOWNI_TYPE:
 			moveCreaturesToHero (dynamic_cast<const CGTownInstance *>(obj));
+			townVisitsThisWeek[h].push_back(h->visitedTown);
 			break;
 		break;
 	}
@@ -1102,6 +1116,12 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 						cb->mergeOrSwapStacks(armyPtr, army, j, i);
 
 	//TODO - having now strongest possible army, we may want to think about arranging stacks
+
+	auto hero = dynamic_cast<const CGHeroInstance *>(army);
+	if (hero)
+	{
+		checkHeroArmy (hero);
+	}
 }
 
 void VCAI::recruitCreatures(const CGDwelling * d)
@@ -1769,7 +1789,7 @@ void VCAI::tryRealize(CGoal g)
 				}
 			}
 			else
-				throw cannotFulfillGoalException("There's a blocked gate!");
+				throw cannotFulfillGoalException("There's a blocked gate!"); //TODO: get keymaster tent
 		}
 		break;
 	case BUILD_STRUCTURE:
@@ -1817,7 +1837,7 @@ void VCAI::tryRealize(CGoal g)
 		}
 		break;
 
-	case COLLECT_RES:
+	case COLLECT_RES: //TODO: use piles and mines?
 		if(const CGObjectInstance *obj = cb->getObj(g.objid, false))
 		{
 			if(const IMarket *m = IMarket::castFrom(obj, false))
@@ -1851,7 +1871,7 @@ void VCAI::tryRealize(CGoal g)
 		throw cannotFulfillGoalException("I don't know how to fulfill this!");
 
 	case BUILD:
-		performTypicalActions();
+		performTypicalActions(); //TODO: separate build and wander
 		throw cannotFulfillGoalException("BUILD has been realized as much as possible.");
 
 	case INVALID:
@@ -1936,6 +1956,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			catch(std::exception &e)
 			{
 				BNLOG("Goal %s decomposition failed: %s", goalName(goal.goalType) % e.what());
+				//setGoal (goal.hero, INVALID); //test: if we don't know how to realize goal, we should abandon it for now
 				return;
 			}
 		}
@@ -2005,6 +2026,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 				catch(std::exception &e)
 				{
 					BNLOG("Goal %s decomposition failed: %s", goalName(goal.goalType) % e.what());
+					//setGoal (goal.hero, INVALID);
 					return;
 				}
 			}
@@ -2030,6 +2052,108 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			{
 				BNLOG("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.", goalName(goal.goalType) % goalName(ultimateGoal.goalType));
 				BNLOG("The error message was: %s", e.what());
+				break;
+			}
+		}
+	}
+}
+
+void VCAI::striveToQuest (const QuestInfo &q)
+{
+	if (q.quest && q.quest->progress < CQuest::COMPLETE)
+	{
+		MetaString ms;
+		q.quest->getRolloverText(ms, false);
+		BNLOG ("Trying to realize quest: %s\n", ms.toString());
+		switch (q.quest->missionType)
+		{
+			case CQuest::MISSION_ART:
+			{
+				BOOST_FOREACH (auto art, q.quest->m5arts)
+				{
+					striveToGoal (CGoal(GET_ART_TYPE).setaid(art)); //TODO: transport?
+				}
+				break;
+			}
+			case CQuest::MISSION_HERO:
+			{
+				//striveToGoal (CGoal(RECRUIT_HERO));
+				auto heroes = cb->getHeroesInfo();
+				BOOST_FOREACH (auto hero, heroes)
+				{
+					if (q.quest->checkQuest(hero))
+					{
+						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
+						break;
+					}
+				}
+				BNLOG ("Don't know how to recruit hero with id %d\n", q.quest->m13489val);
+				break;
+			}
+			case CQuest::MISSION_ARMY:
+			{
+				BOOST_FOREACH (auto creature, q.quest->m6creatures)
+				{
+					BNLOG ("Don't know how to recruit %d of %s\n", (int)(creature.count) % creature.type->namePl);
+				}
+				break;
+			}
+			case CQuest::MISSION_RESOURCES:
+			{
+				for (int i = 0; i < q.quest->m7resources.size(); ++i)
+				{
+					if (q.quest->m7resources[i])
+						striveToGoal (CGoal(COLLECT_RES).setresID(i).setvalue(q.quest->m7resources[i]));
+					//TODO: visit object
+				}
+				break;
+			}
+			case CQuest::MISSION_KILL_HERO:
+			case CQuest::MISSION_KILL_CREATURE:
+			{
+				striveToGoal (CGoal(GET_OBJ).setobjid(q.quest->m13489val));
+				break;
+			}
+			case CQuest::MISSION_PRIMARY_STAT:
+			{
+				auto heroes = cb->getHeroesInfo();
+				BOOST_FOREACH (auto hero, heroes)
+				{
+					if (q.quest->checkQuest(hero))
+					{
+						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
+						break;
+					}
+				}
+				for (int i = 0; i < q.quest->m2stats.size(); ++i)
+				{
+					BNLOG ("Don't know how to increase primary stat %d\n", i);
+				}
+				break;
+			}
+			case CQuest::MISSION_LEVEL:
+			{
+				auto heroes = cb->getHeroesInfo();
+				BOOST_FOREACH (auto hero, heroes)
+				{
+					if (q.quest->checkQuest(hero))
+					{
+						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
+						break;
+					}
+				}
+				BNLOG ("Don't know how to reach hero level %d\n", q.quest->m13489val);
+				break;
+			}
+			case CQuest::MISSION_PLAYER:
+			{
+				if (playerID != q.quest->m13489val)
+					BNLOG ("Can't be player of color %d\n", q.quest->m13489val);
+				break;
+			}
+			case CQuest::MISSION_KEYMASTER:
+			{
+				striveToGoal (CGoal(FIND_OBJ).setobjid(Obj::KEYMASTER).setresID(q.quest->m13489val));
 				break;
 			}
 		}
@@ -2186,6 +2310,16 @@ bool VCAI::containsSavedRes(const TResources &cost) const
 	}
 
 	return false;
+}
+
+void VCAI::checkHeroArmy (HeroPtr h)
+{
+	auto it = lockedHeroes.find(h);
+	if (it != lockedHeroes.end())
+	{
+		if (it->second.goalType == GATHER_ARMY && it->second.value <= h->getArmyStrength())
+			completeGoal(CGoal (GATHER_ARMY).sethero(h));
+	}
 }
 
 void VCAI::recruitHero(const CGTownInstance * t)
@@ -2477,7 +2611,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 					if(ratio > 0.99)
 					{
 						return CGoal(DIG_AT_TILE).settile(grailPos);
-					}
+					} //TODO: use FIND_OBJ
 					else if(const CGObjectInstance * obj = ai->getUnvisitedObj(objWithID<Obj::OBELISK>)) //there are unvisited Obelisks
 					{
 						return CGoal(GET_OBJ).setobjid(obj->id);
@@ -2508,6 +2642,35 @@ TSubgoal CGoal::whatToDoToAchieve()
 			}
 		}
 		break;
+	case FIND_OBJ:
+		{
+			const CGObjectInstance * o = NULL;
+			if (resID > -1) //specified
+			{
+				BOOST_FOREACH(const CGObjectInstance *obj, ai->visitableObjs)
+				{
+					if(obj->ID == objid && obj->subID == resID)
+					{
+						o = obj;
+						break; //TODO: consider multiple objects and choose best
+					}
+				}
+			}
+			else
+			BOOST_FOREACH(const CGObjectInstance *obj, ai->visitableObjs)
+			{
+				if(obj->ID == objid)
+				{
+					o = obj;
+					break; //TODO: consider multiple objects and choose best
+				}
+			}
+			if (o)
+				return CGoal(GET_OBJ).setobjid(o->id);
+			else
+				return CGoal(EXPLORE);
+		}
+		break;
 	case GET_OBJ:
 		{
 			const CGObjectInstance * obj = cb->getObj(objid);
@@ -2519,17 +2682,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 		break;
 	case GET_ART_TYPE:
 		{
-			const CGObjectInstance *artInst = ai->lookForArt(aid);
-			if(!artInst)
-			{
-				TSubgoal alternativeWay = CGoal::lookForArtSmart(aid);
-				if(alternativeWay.invalid())
-					return CGoal(EXPLORE);
-				else
-					return alternativeWay;
-			}
-			else
-				return CGoal(GET_OBJ).setobjid(artInst->id);
+			TSubgoal alternativeWay = CGoal::lookForArtSmart(aid); //TODO: use
+			if(alternativeWay.invalid())
+				return CGoal(FIND_OBJ).setobjid(Obj::ARTIFACT).setresID(aid);
 		}
 		break;
 	case CLEAR_WAY_TO:
@@ -2571,7 +2726,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				throw cannotFulfillGoalException(problem);
 			}
 
-			return CGoal(VISIT_TILE).settile(tileToHit).sethero(h);
+			return CGoal(VISIT_TILE).settile(tileToHit).sethero(h); //FIXME:: attempts to visit completely unreachable tile with hero results in stall
 
 			//TODO czy istnieje lepsza droga?
 
@@ -2665,7 +2820,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 					return CGoal(*this).setisElementar(true);
 				else
 				{
-					return CGoal(GATHER_ARMY).sethero(hero);
+					return CGoal(GATHER_ARMY).sethero(hero).setvalue(evaluateDanger(tile, *hero) * SAFE_ATTACK_CONSTANT); //TODO: should it be abstract?
 				}
 			}
 			else	//inaccessible for all heroes
@@ -2837,7 +2992,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			{
 				if(!t->visitingHero && howManyReinforcementsCanGet(hero,t))
 				{
-					if(isReachable(t))
+					if(isReachable(t) && !vstd::contains (ai->townVisitsThisWeek[hero], t))
 						townsReachable.push_back(t);
 				}
 			}
@@ -3030,6 +3185,10 @@ bool isWeeklyRevisitable (const CGObjectInstance * obj)
 	{
 		case Obj::STABLES: //any other potential visitable objects?
 			return true;
+		case Obj::BORDER_GATE:
+		case Obj::BORDERGUARD:
+			return (dynamic_cast <const CGKeys *>(obj))->wasMyColorVisited (ai->playerID); //FIXME: they could be revisited sooner than in a week 
+			break;
 	}
 	return false;
 }
@@ -3038,6 +3197,21 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 {
 	switch (obj->ID)
 	{
+		case Obj::SEER_HUT:
+		{
+			BOOST_FOREACH (auto q, ai->myCb->getMyQuests())
+			{
+				if (q.obj = obj)
+				{
+					if (q.quest->checkQuest(*h))
+						return true; //we completed the quest
+					else
+						return false; //we can't complete this quest
+				}
+				return true; //we don't have this quest yet
+
+			}
+		}
 		case Obj::CREATURE_GENERATOR1:
 		{
 			if (obj->tempOwner != h->tempOwner)

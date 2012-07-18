@@ -76,6 +76,7 @@ enum EGoals
 
 	OBJECT_GOALS_BEGIN,
 	GET_OBJ, //visit or defeat or collect the object
+	FIND_OBJ, //find and visit any obj with objid + resid //TODO: consider universal subid for various types (aid, bid)
 
 	GET_ART_TYPE,
 
@@ -115,8 +116,10 @@ struct CGoal
 		priority = 0;
 		isElementar = false;
 		isAbstract = false;
+		value = 0;
 		objid = -1;
 		aid = -1;
+		resID = -1;
 		tile = int3(-1, -1, -1);
 		town = NULL;
 	}
@@ -319,6 +322,7 @@ public:
 	void setGoal(HeroPtr h, const CGoal goal);
 	void setGoal(HeroPtr h, EGoals goalType = INVALID);
 	void completeGoal (const CGoal goal); //safely removes goal from reserved hero
+	void striveToQuest (const QuestInfo &q); 
 
 	void recruitHero(const CGTownInstance * t);
 	std::vector<const CGObjectInstance *> getPossibleDestinations(HeroPtr h);
@@ -356,6 +360,7 @@ public:
 	HeroPtr primaryHero() const;
 	TResources estimateIncome() const;
 	bool containsSavedRes(const TResources &cost) const;
+	void checkHeroArmy (HeroPtr h);
 
 	void requestSent(const CPackForServer *pack, int requestID) OVERRIDE;
 	void answerQuery(int queryID, int selection);

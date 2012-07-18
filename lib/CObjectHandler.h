@@ -59,6 +59,7 @@ class DLL_LINKAGE CQuest
 public:
 	enum Emission {MISSION_NONE = 0, MISSION_LEVEL = 1, MISSION_PRIMARY_STAT = 2, MISSION_KILL_HERO = 3, MISSION_KILL_CREATURE = 4,
 		MISSION_ART = 5, MISSION_ARMY = 6, MISSION_RESOURCES = 7, MISSION_HERO = 8, MISSION_PLAYER = 9, MISSION_KEYMASTER = 10};
+	enum Eprogress {NOT_ACTIVE, IN_PROGRESS, COMPLETE};
 
 	si32 qid; //unique quets id for serialization / identification
 
@@ -69,7 +70,7 @@ public:
 	std::vector<ui32> m2stats;
 	std::vector<ui16> m5arts; //artifacts id
 	std::vector<CStackBasicDescriptor> m6creatures; //pair[cre id, cre count], CreatureSet info irrelevant
-	std::vector<ui32> m7resources;
+	std::vector<ui32> m7resources; //TODO: use resourceset?
 
 	//following field are used only for kill creature/hero missions, the original objects became inaccessible after their removal, so we need to store info needed for messages / hover text
 	ui8 textOption;
