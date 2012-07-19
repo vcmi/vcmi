@@ -1468,6 +1468,19 @@ void CGameState::init(StartInfo * si)
 		if(obj->ID == 62) //prison also needs to initialize hero
 			static_cast<CGHeroInstance*>(obj)->initHero();
 	}
+	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
+	{
+		switch (obj->ID)
+		{
+			case Obj::QUEST_GUARD:
+			case Obj::SEER_HUT:
+			{
+				auto q = static_cast<CGSeerHut*>(obj);
+				assert (q);
+				q->setObjToKill();
+			}
+		}
+	}
 	CGTeleport::postInit(); //pairing subterranean gates
 
 	buildBonusSystemTree();

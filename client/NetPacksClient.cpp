@@ -318,6 +318,7 @@ void UpdateCampaignState::applyCl( CClient *cl )
 void RemoveObject::applyFirstCl( CClient *cl )
 {
 	const CGObjectInstance *o = cl->getObj(id);
+
 	CGI->mh->hideObject(o);
 
 	int3 pos = o->visitablePos();

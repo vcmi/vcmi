@@ -110,7 +110,6 @@ struct CGoal
 
 	virtual TSubgoal whatToDoToAchieve();
 
-	bool isBlockedBorderGate(int3 tileToHit);
 	CGoal(EGoals goal = INVALID) : goalType(goal)
 	{
 		priority = 0;
@@ -374,6 +373,7 @@ bool objWithID(const CGObjectInstance *obj)
 {
 	return obj->ID == id;
 }
+bool isBlockedBorderGate(int3 tileToHit);
 
 bool isWeeklyRevisitable (const CGObjectInstance * obj);
 bool shouldVisit (HeroPtr h, const CGObjectInstance * obj);

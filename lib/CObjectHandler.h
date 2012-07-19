@@ -82,7 +82,7 @@ public:
 	std::string firstVisitText, nextVisitText, completedText;
 	bool isCustomFirst, isCustomNext, isCustomComplete;
 
-	bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
+	virtual bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
 	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = NULL) const;
 	virtual void getCompletionText (MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h = NULL) const;
 	virtual void getRolloverText (MetaString &text, bool onHover) const; //hover or quest log entry
@@ -782,6 +782,7 @@ public:
 	void finishQuest (const CGHeroInstance * h, ui32 accept) const; //common for both objects
 	void completeQuest (const CGHeroInstance * h) const;
 
+	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
 	const CGHeroInstance *getHeroToKill(bool allowNull = false) const;
 	const CGCreature *getCreatureToKill(bool allowNull = false) const;
 
@@ -1077,6 +1078,7 @@ public:
 	const std::string & getHoverText() const;
 	void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = NULL) const;
 	void getRolloverText (MetaString &text, bool onHover) const;
+	bool checkQuest (const CGHeroInstance * h) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void openGate(const CGHeroInstance *h, ui32 accept) const;
 

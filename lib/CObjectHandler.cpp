@@ -4399,6 +4399,20 @@ void CQuest::getCompletionText (MetaString &iwText, std::vector<Component> &comp
 			break;
 	}
 }
+void CGSeerHut::setObjToKill()
+{
+	if (missionType == MISSION_KILL_CREATURE)
+	{
+		stackToKill = getCreatureToKill(false)->getStack(0); //FIXME: stacks tend to dissapear (desync?) on server :?
+		assert (stackToKill.count > 0); //seemingly creatures are uninitialized
+		stackDirection = checkDirection();
+	}
+	else if (missionType == MISSION_KILL_HERO)
+	{
+		heroName = getHeroToKill(false)->name;
+		heroPortrait = getHeroToKill(false)->portrait;
+	}
+}
 
 void CGSeerHut::initObj()
 {
@@ -4413,17 +4427,6 @@ void CGSeerHut::initObj()
 			nextVisitText = VLC->generaltexth->quests[missionType-1][1][textOption];	
 		if (!isCustomComplete)
 			completedText = VLC->generaltexth->quests[missionType-1][2][textOption];
-
-		if(missionType == MISSION_KILL_CREATURE)
-		{
-			stackToKill = getCreatureToKill(false)->getStack(0);
-			stackDirection = checkDirection();
-		}
-		else if(missionType == MISSION_KILL_HERO)
-		{
-			heroName = getHeroToKill(false)->name;
-			heroPortrait = getHeroToKill(false)->portrait;
-		}
 	}
 	else
 		firstVisitText = VLC->generaltexth->seerEmpty[textOption];
@@ -6324,6 +6327,11 @@ void CGBorderGuard::getRolloverText (MetaString &text, bool onHover) const
 {
 	if (!onHover)
 		text << VLC->generaltexth->tentColors[subID] << " " << VLC->generaltexth->names[Obj::KEYMASTER];
+}
+
+bool CGBorderGuard::checkQuest (const CGHeroInstance * h) const
+{
+	return wasMyColorVisited (h->tempOwner);
 }
 
 void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const 

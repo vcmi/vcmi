@@ -308,11 +308,24 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 
 		return;
 	}
-// 	else if (obj->ID==CREI_TYPE  &&  gs->map->version > CMapHeader::RoE) //only fixed monsters can be a part of quest
-// 	{
-// 		CGCreature *cre = static_cast<CGCreature*>(obj);
-// 		gs->map->monsters[cre->identifier]->pos = int3 (-1,-1,-1);	//use nonexistent monster for quest :>
-// 	}
+	//FIXME: for some reason this code causes crash in Bonus System ?!
+
+	auto quest = dynamic_cast<const CQuest *>(obj);
+	if (quest)
+	{
+		BOOST_FOREACH (auto player, gs->players)
+		{
+			BOOST_FOREACH (auto q, player.second.quests)
+			{
+				if (q.obj == obj)
+				{
+					q.quest = NULL; //remove entries related to quest guards?
+					q.obj = NULL;
+				}
+			}
+		}
+	}
+
 	gs->map->objects[id].dellNull();
 }
 
@@ -1495,7 +1508,7 @@ DLL_LINKAGE void SetSelection::applyGs( CGameState *gs )
 }
 
 DLL_LINKAGE Component::Component(const CStackBasicDescriptor &stack)
-	:id(CREATURE), subtype(stack.type->idNumber), val(stack.count), when(0)
+	: id(CREATURE), subtype(stack.type->idNumber), val(stack.count), when(0)
 {
-
+	type = 2002;
 }

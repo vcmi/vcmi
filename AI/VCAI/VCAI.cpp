@@ -80,6 +80,8 @@ std::string goalName(EGoals goalType)
 			return "INVALID";
 		case WIN:
 			return "WIN";
+		case DO_NOT_LOSE:
+			return "DO NOT LOOSE";
 		case CONQUER:
 			return "CONQUER";
 		case BUILD:
@@ -88,10 +90,26 @@ std::string goalName(EGoals goalType)
 			return "EXPLORE";
 		case GATHER_ARMY:
 			return "GATHER ARMY";
+		case BOOST_HERO:
+			return "BOOST_HERO (unsupported)";
+		case BUILD_STRUCTURE:
+			return "BUILD STRUCTURE";
+		case COLLECT_RES:
+			return "COLLECT RESOURCE";
+		case GET_OBJ:
+			return "GET OBJECT";
+		case FIND_OBJ:
+			return "FIND OBJECT";
+		case GET_ART_TYPE:
+			return "GET ARTIFACT OF TYPE";
+		case ISSUE_COMMAND:
+			return "ISSUE COMMAND (unsupported)";
 		case VISIT_TILE:
 			return "VISIT TILE";
 		case CLEAR_WAY_TO:
 			return "CLEAR WAY TO";
+		case DIG_AT_TILE:
+			return "DIG AT TILE";
 		default:
 			return boost::lexical_cast<std::string>(goalType);
 	}
@@ -1851,7 +1869,7 @@ void VCAI::tryRealize(CGoal g)
 					cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, i, g.resID, toGive);
 					if(cb->getResourceAmount(g.resID) >= g.value)
 						return;
-				}
+				} //TODO: stop when we've sold all the resources
 			}
 			else
 			{
@@ -2064,7 +2082,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 	{
 		MetaString ms;
 		q.quest->getRolloverText(ms, false);
-		BNLOG ("Trying to realize quest: %s\n", ms.toString());
+		BNLOG ("Trying to realize quest: %s", ms.toString());
 		switch (q.quest->missionType)
 		{
 			case CQuest::MISSION_ART:
@@ -2111,7 +2129,11 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			case CQuest::MISSION_KILL_HERO:
 			case CQuest::MISSION_KILL_CREATURE:
 			{
-				striveToGoal (CGoal(GET_OBJ).setobjid(q.quest->m13489val));
+				auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
+				if (obj)
+					striveToGoal (CGoal(GET_OBJ).setobjid(obj->id));
+				else
+					striveToGoal (CGoal(VISIT_TILE).settile(q.tile)); //visit seer hut
 				break;
 			}
 			case CQuest::MISSION_PRIMARY_STAT:
@@ -2153,7 +2175,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			}
 			case CQuest::MISSION_KEYMASTER:
 			{
-				striveToGoal (CGoal(FIND_OBJ).setobjid(Obj::KEYMASTER).setresID(q.quest->m13489val));
+				striveToGoal (CGoal(FIND_OBJ).setobjid(Obj::KEYMASTER).setresID(q.obj->subID));
 				break;
 			}
 		}
@@ -2246,7 +2268,7 @@ int3 VCAI::explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<in
 
 		BOOST_FOREACH(const int3 &tile, tiles[i])
 		{
-			if(cb->getPathInfo(tile)->reachable() && isSafeToVisit(h, tile) && howManyTilesWillBeDiscovered(tile, radius))
+			if(cb->getPathInfo(tile)->reachable() && isSafeToVisit(h, tile) && howManyTilesWillBeDiscovered(tile, radius) && !isBlockedBorderGate(tile))
 			{
 				return tile;
 			}
@@ -2657,12 +2679,14 @@ TSubgoal CGoal::whatToDoToAchieve()
 				}
 			}
 			else
-			BOOST_FOREACH(const CGObjectInstance *obj, ai->visitableObjs)
 			{
-				if(obj->ID == objid)
+				BOOST_FOREACH(const CGObjectInstance *obj, ai->visitableObjs)
 				{
-					o = obj;
-					break; //TODO: consider multiple objects and choose best
+					if(obj->ID == objid)
+					{
+						o = obj;
+						break; //TODO: consider multiple objects and choose best
+					}
 				}
 			}
 			if (o)
@@ -2714,6 +2738,8 @@ TSubgoal CGoal::whatToDoToAchieve()
 				return CGoal(FIND_OBJ).setobjid(Obj::KEYMASTER).setresID(cb->getTile(tileToHit)->visitableObjects.back()->subID);
 			}
 
+
+			//FIXME: this code shouldn't be necessary
 			if(tileToHit == tile)
 			{
 				tlog1 << boost::format("Very strange, tile to hit is %s and tile is also %s, while hero %s is at %s\n")
@@ -3052,7 +3078,7 @@ bool CGoal::invalid() const
 	return goalType == INVALID;
 }
 
-bool CGoal::isBlockedBorderGate(int3 tileToHit)
+bool isBlockedBorderGate(int3 tileToHit)
 {
 	return cb->getTile(tileToHit)->topVisitableID() == Obj::BORDER_GATE
 		&& cb->getPathInfo(tileToHit)->accessible != CGPathNode::ACCESSIBLE;
@@ -3199,20 +3225,22 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 {
 	switch (obj->ID)
 	{
+		case Obj::BORDERGUARD:
+		case Obj::BORDER_GATE:
 		case Obj::SEER_HUT:
+		case Obj::QUEST_GUARD:
 		{
 			BOOST_FOREACH (auto q, ai->myCb->getMyQuests())
 			{
-				if (q.obj = obj)
+				if (q.obj == obj)
 				{
 					if (q.quest->checkQuest(*h))
 						return true; //we completed the quest
 					else
 						return false; //we can't complete this quest
 				}
-				return true; //we don't have this quest yet
-
 			}
+			return true; //we don't have this quest yet
 		}
 		case Obj::CREATURE_GENERATOR1:
 		{
