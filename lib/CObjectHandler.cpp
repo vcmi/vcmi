@@ -53,10 +53,10 @@ std::map<ui8, ui8> CGObelisk::visited; //map: team_id => how many obelisks has b
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
 
-void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const 
+void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const
 {};
 
-void IObjectInterface::onHeroLeave(const CGHeroInstance * h) const 
+void IObjectInterface::onHeroLeave(const CGHeroInstance * h) const
 {};
 
 void IObjectInterface::newTurn () const
@@ -289,7 +289,7 @@ bool CGObjectInstance::coveringAt(int x, int y) const
 	y = -y;
 #if USE_COVERAGE_MAP
 	//NOTE: this code may be broken
-	if((defInfo->coverageMap[y] >> (7-(x) )) & 1 
+	if((defInfo->coverageMap[y] >> (7-(x) )) & 1
 		||  (defInfo->shadowCoverage[y] >> (7-(x) )) & 1)
 		return true;
 	return false;
@@ -432,7 +432,7 @@ void CGObjectInstance::getNameVis( std::string &hname ) const
 {
 	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
 	hname = VLC->generaltexth->names[ID];
-	if(h) 
+	if(h)
 	{
 		if(!h->hasBonusFrom(Bonus::OBJECT,ID))
 			hname += " " + VLC->generaltexth->allTexts[353]; //not visited
@@ -531,9 +531,9 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 
 	//base move cost
 	unsigned ret = 100;
-	
+
 	//if there is road both on dest and src tiles - use road movement cost
-	if(dest.malle && from.malle) 
+	if(dest.malle && from.malle)
 	{
 		int road = std::min(dest.malle,from.malle); //used road ID
 		switch(road)
@@ -552,7 +552,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 			break;
 		}
 	}
-	else 
+	else
 	{
 		ret = type->heroClass->terrCosts[from.tertype];
 		ret = std::max(ret - 25*unsigned(getSecSkillLevel(CGHeroInstance::PATHFINDING)), 100u); //reduce 25% of terrain penalty for each pathfinding level
@@ -560,7 +560,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 	return ret;
 }
 #if 0
-// Unused and buggy method. 
+// Unused and buggy method.
 //  - for loop is wrong. will not find all creatures. must use iterator instead.
 //  - -> is the slot number. use second->first for creature index
 // Is lowestSpeed() the correct equivalent ?
@@ -657,7 +657,7 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	{
 		base = 1500; //on water base movement is always 1500 (speed of army doesn't matter)
 	}
-	
+
 	int bonus = valOfBonuses(Bonus::MOVEMENT) + (onLand ? valOfBonuses(Bonus::LAND_MOVEMENT) : valOfBonuses(Bonus::SEA_MOVEMENT));
 
 	double modifier = 0;
@@ -741,7 +741,7 @@ void CGHeroInstance::initHero()
 
 	if(!getArt(ArtifactPosition::MACH4))
 		putArtifact(ArtifactPosition::MACH4, CArtifactInstance::createNewArtifactInstance(3)); //everyone has a catapult
-	
+
 	if(portrait < 0 || portrait == 255)
 		portrait = subID;
 	if(!hasBonus(Selector::sourceType(Bonus::HERO_BASE_SKILL)))
@@ -927,7 +927,7 @@ const std::string & CGHeroInstance::getBiography() const
 	if (biography.length())
 		return biography;
 	else
-		return VLC->generaltexth->hTxts[subID].biography;		
+		return VLC->generaltexth->hTxts[subID].biography;
 }
 void CGHeroInstance::initObj()
 {
@@ -965,7 +965,7 @@ void CGHeroInstance::initObj()
 					}
 
 					bonus->limiter.reset(new CCreatureTypeLimiter (specCreature, true)); //with upgrades
-					bonus->type = Bonus::PRIMARY_SKILL; 
+					bonus->type = Bonus::PRIMARY_SKILL;
 					bonus->additionalInfo = it->additionalinfo;
 					bonus->valType = Bonus::ADDITIVE_VALUE;
 
@@ -1182,7 +1182,7 @@ void CGHeroInstance::updateSkill(int which, int val)
 	}
 	else if(which == DIPLOMACY) //surrender discount: 20% per level
 	{
-		
+
 		if(Bonus *b = getBonus(Selector::type(Bonus::SURRENDER_DISCOUNT) && Selector::sourceType(Bonus::SECONDARY_SKILL)))
 			b->val = +val;
 		else
@@ -1230,7 +1230,7 @@ void CGHeroInstance::updateSkill(int which, int val)
 		case ESTATES:
 			skillVal = 125 << (val-1); break;
 	}
-	
+
 
 	int skillValType = skillVal ? Bonus::BASE_NUMBER : Bonus::INDEPENDENT_MIN;
 	if(Bonus * b = getBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which) && Selector::sourceType(Bonus::SECONDARY_SKILL))) //only local hero bonus
@@ -1244,7 +1244,7 @@ void CGHeroInstance::updateSkill(int which, int val)
 		bonus->source = Bonus::SECONDARY_SKILL;
 		addNewBonus(bonus);
 	}
-	
+
 }
 void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
 {
@@ -1331,7 +1331,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 	const ui8 necromancyLevel = getSecSkillLevel(CGHeroInstance::NECROMANCY);
 
 	// Hero knows necromancy.
-	if (necromancyLevel > 0) 
+	if (necromancyLevel > 0)
 	{
 		double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, NECROMANCY)/100.0;
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
@@ -1358,7 +1358,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 
 		// Make room for new units.
 		int slot = getSlotFor(raisedUnitType->idNumber);
-		if (slot == -1) 
+		if (slot == -1)
 		{
 			// If there's no room for unit, try it's upgraded version 2/3rds the size.
 			raisedUnitType = VLC->creh->creatures[*raisedUnitType->upgrades.begin()];
@@ -1388,13 +1388,13 @@ void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedSta
 	iw.components.push_back(Component(raisedStack));
 
 	if (raisedStack.count > 1) // Practicing the dark arts of necromancy, ... (plural)
-	{ 
+	{
 		iw.text.addTxt(MetaString::GENERAL_TXT, 145);
 		iw.text.addReplacement(raisedStack.count);
 		iw.text.addReplacement(MetaString::CRE_PL_NAMES, raisedStack.type->idNumber);
-	} 
+	}
 	else // Practicing the dark arts of necromancy, ... (singular)
-	{ 
+	{
 		iw.text.addTxt(MetaString::GENERAL_TXT, 146);
 		iw.text.addReplacement(MetaString::CRE_SING_NAMES, raisedStack.type->idNumber);
 	}
@@ -1417,7 +1417,7 @@ si32 CGHeroInstance::manaRegain() const
 	if (hasBonusOfType(Bonus::FULL_MANA_REGENERATION))
 		return manaLimit();
 
-	return 1 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 8) + valOfBonuses(Bonus::MANA_REGENERATION); //1 + Mysticism level 
+	return 1 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 8) + valOfBonuses(Bonus::MANA_REGENERATION); //1 + Mysticism level
 }
 
 // /**
@@ -1433,7 +1433,7 @@ si32 CGHeroInstance::manaRegain() const
 
 int CGHeroInstance::getBoatType() const
 {
-	int alignment = type->heroType / 6; 
+	int alignment = type->heroType / 6;
 	switch(alignment)
 	{
 	case 0:
@@ -1570,14 +1570,14 @@ void CGDwelling::initObj()
 		if(subID == 1) //Golem Factory
 		{
 			creatures[0].second.push_back(32);  //Stone Golem
-			creatures[1].second.push_back(33);  //Iron Golem  
+			creatures[1].second.push_back(33);  //Iron Golem
 			creatures[2].second.push_back(116); //Gold Golem
 			creatures[3].second.push_back(117); //Diamond Golem
 			//guards
 			putStack(0, new CStackInstance(116, 9));
 			putStack(1, new CStackInstance(117, 6));
 		}
-		else if(subID == 0) // Elemental Conflux 
+		else if(subID == 0) // Elemental Conflux
 		{
 			creatures[0].second.push_back(112); //Air Elemental
 			creatures[1].second.push_back(114); //Fire Elemental
@@ -1595,11 +1595,11 @@ void CGDwelling::initObj()
 
 	case 78: //Refugee Camp
 		//is handled within newturn func
-		break; 
+		break;
 
 	case 106: //War Machine Factory
 		creatures.resize(3);
-		creatures[0].second.push_back(146); //Ballista 
+		creatures[0].second.push_back(146); //Ballista
 		creatures[1].second.push_back(147); //First Aid Tent
 		creatures[2].second.push_back(148); //Ammo Cart
 		break;
@@ -1647,10 +1647,10 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	int relations = cb->gameState()->getPlayerRelations( h->tempOwner, tempOwner );
-	
+
 	if ( relations == 1 )//ally
 		return;//do not allow recruiting or capturing
-		
+
 	if( !relations  &&  stacksCount() > 0) //object is guarded, owned by enemy
 	{
 		BlockingDialog bd;
@@ -1799,7 +1799,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 		ow.id1 = id;
 		ow.id2 = h->id;
 		ow.window = (ID == 17 || ID == 78)
-			? OpenWindow::RECRUITMENT_FIRST 
+			? OpenWindow::RECRUITMENT_FIRST
 			: OpenWindow::RECRUITMENT_ALL;
 		cb->sendAndApply(&ow);
 	}
@@ -1850,7 +1850,7 @@ void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
 			break;
 		case 15:
 			bonusValue.second = val;
-			break;			
+			break;
 	}
 }
 CGTownInstance::EFortLevel CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - castle
@@ -1943,7 +1943,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 
 	if(dwellingBonus)
 		ret.entries.push_back(GrowthInfo::Entry(VLC->generaltexth->allTexts[591], dwellingBonus));// \nExternal dwellings %+d
-		
+
 	//other *-of-legion-like bonuses (%d to growth cumulative with grail)
 	TBonusListPtr bonuses = getBonuses(Selector::type(Bonus::CREATURE_GROWTH) && Selector::subtype(level));
 	BOOST_FOREACH(const Bonus *b, *bonuses)
@@ -1993,7 +1993,7 @@ CGTownInstance::CGTownInstance()
 
 CGTownInstance::~CGTownInstance()
 {
-	for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i != bonusingBuildings.end(); i++) 
+	for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i != bonusingBuildings.end(); i++)
 		delete *i;
 }
 
@@ -2003,7 +2003,7 @@ int CGTownInstance::spellsAtLevel(int level, bool checkGuild) const
 		return 0;
 	int ret = 6 - level; //how many spells are available at this level
 	if(subID == 2   &&   vstd::contains(builtBuildings,22)) //magic library in Tower
-		ret++; 
+		ret++;
 	return ret;
 }
 
@@ -2033,8 +2033,8 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 
 			bool outsideTown = (defendingHero == visitingHero && garrisonHero);
 
-			//TODO 
-			//"borrowing" army from garrison to visiting hero 
+			//TODO
+			//"borrowing" army from garrison to visiting hero
 
 			cb->startBattleI(h, defendingArmy, getSightCenter(), h, defendingHero, false, boost::bind(&CGTownInstance::fightOver, this, h, _1), (outsideTown ? NULL : this));
 		}
@@ -2152,7 +2152,7 @@ void CGTownInstance::newTurn() const
 					int i = rand() % std::min (GameConstants::ARMY_SIZE, cb->getDate(3)<<1);
 					TCreature c = town->basicCreatures[i];
 					TSlot n = -1;
-					
+
 					TQuantity count = creatureGrowth(i);
 					if (!count) // no dwelling
 						count = VLC->creh->creatures[c]->growth;
@@ -2160,7 +2160,7 @@ void CGTownInstance::newTurn() const
 					{//no lower tiers or above current month
 
 						if ((n = getSlotFor(c))>=0)
-						{ 
+						{
 							StackLocation sl(this, n);
 							if (slotEmpty(n))
 								cb->insertNewStack(sl, VLC->creh->creatures[c], count);
@@ -2168,7 +2168,7 @@ void CGTownInstance::newTurn() const
 								cb->changeStackCount(sl, count);
 						}
 					}
-				}		
+				}
 			}
 	}
 }
@@ -2184,12 +2184,12 @@ ui8 CGTownInstance::getPassableness() const
 		return GameConstants::ALL_PLAYERS;
 	if ( tempOwner == 255 )//neutral guarded - no one can visit
 		return 0;
-		
+
 	ui8 mask = 0;
 	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
 	BOOST_FOREACH(ui8 it, ts->players)
 		mask |= 1<<it;//allies - add to possible visitors
-	
+
 	return mask;
 }
 
@@ -2213,24 +2213,24 @@ void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) 
 }
 
 void CGTownInstance::removeCapitols (ui8 owner) const
-{ 
+{
 	if (hasCapitol()) // search if there's an older capitol
-	{ 
+	{
 		PlayerState* state = cb->gameState()->getPlayer (owner); //get all towns owned by player
-		for (std::vector<ConstTransitivePtr<CGTownInstance> >::const_iterator i = state->towns.begin(); i < state->towns.end(); ++i) 
-		{ 
-			if (*i != this && (*i)->hasCapitol()) 
-			{ 
-				RazeStructures rs; 
-				rs.tid = id; 
-				rs.bid.insert(13); 
-				rs.destroyed = destroyed;  
-				cb->sendAndApply(&rs); 
-				return; 
-			} 
-		} 
-	} 
-} 
+		for (std::vector<ConstTransitivePtr<CGTownInstance> >::const_iterator i = state->towns.begin(); i < state->towns.end(); ++i)
+		{
+			if (*i != this && (*i)->hasCapitol())
+			{
+				RazeStructures rs;
+				rs.tid = id;
+				rs.bid.insert(13);
+				rs.destroyed = destroyed;
+				cb->sendAndApply(&rs);
+				return;
+			}
+		}
+	}
+}
 
 int CGTownInstance::getBoatType() const
 {
@@ -2245,7 +2245,7 @@ int CGTownInstance::getBoatType() const
 
 int CGTownInstance::getMarketEfficiency() const
 {
-	if(!vstd::contains(builtBuildings, 14)) 
+	if(!vstd::contains(builtBuildings, 14))
 		return 0;
 
 	const PlayerState *p = cb->getPlayer(tempOwner);
@@ -2325,7 +2325,7 @@ void CGTownInstance::recreateBuildingsBonuses()
 
 	if(subID != 0 || !addBonusIfBuilt(22, Bonus::MORALE, +2)) //tricky! -> checks tavern only if no bratherhood of sword or not a castle
 		addBonusIfBuilt(5, Bonus::MORALE, +1);
-	
+
 	if(subID == 0) //castle
 	{
 		addBonusIfBuilt(17, Bonus::SEA_MOVEMENT, +500, make_shared<CPropagatorNodeType>(PLAYER)); //lighthouses
@@ -2737,19 +2737,19 @@ const std::string & CGVisitableOPH::getHoverText() const
 		pom = -1;
 		break;
 	case 51:
-		pom = 8; 
+		pom = 8;
 		break;
 	case 23:
 		pom = 7;
 		break;
 	case 61:
-		pom = 11; 
+		pom = 11;
 		break;
 	case 32:
-		pom = 4; 
+		pom = 4;
 		break;
 	case 100:
-		pom = 5; 
+		pom = 5;
 		break;
 	case 102:
 		pom = 18;
@@ -2772,7 +2772,7 @@ const std::string & CGVisitableOPH::getHoverText() const
 	if(h)
 	{
 		hoverName += "\n\n";
-		hoverName += (vstd::contains(visitors,h->id)) 
+		hoverName += (vstd::contains(visitors,h->id))
 							? (VLC->generaltexth->allTexts[352])  //visited
 							: ( VLC->generaltexth->allTexts[353]); //not visited
 	}
@@ -2843,7 +2843,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 			case 5: //Mana Vortex
 				if (visitors.empty() && h->mana <= h->manaLimit() * 2)
 				{
-					cb->setManaPoints (heroID, 2 * h->manaLimit()); 
+					cb->setManaPoints (heroID, 2 * h->manaLimit());
 					cb->setObjProperty (id, ObjProperty::VISITED, true);
 					iw.text << VLC->generaltexth->allTexts[579];
 					cb->showInfoDialog(&iw);
@@ -2973,7 +2973,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
-			ynd.text << std::pair<ui8,ui32>(MetaString::ADVOB_TXT, 86); 
+			ynd.text << std::pair<ui8,ui32>(MetaString::ADVOB_TXT, 86);
 			ynd.text.addReplacement(MetaString::CRE_PL_NAMES, subID);
 			cb->showBlockingDialog(&ynd,boost::bind(&CGCreature::joinDecision,this,h,0,_1));
 			break;
@@ -3009,7 +3009,7 @@ void CGCreature::endBattle( BattleResult *result ) const
 		//for(std::set<std::pair<ui32,si32> >::iterator i=result->casualties[1].begin(); i!=result->casualties[1].end(); i++)
 		//	if(i->first == subID)
 		//		killedAmount += i->second;
-		//cb->setAmount(id, slots.find(0)->second.second - killedAmount);	
+		//cb->setAmount(id, slots.find(0)->second.second - killedAmount);
 
 		/*
 		MetaString ms;
@@ -3139,7 +3139,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	std::set<ui32> myKindCres; //what creatures are the same kind as we
 	myKindCres.insert(subID); //we
 	myKindCres.insert(VLC->creh->creatures[subID]->upgrades.begin(),VLC->creh->creatures[subID]->upgrades.end()); //our upgrades
-	
+
 	BOOST_FOREACH(ConstTransitivePtr<CCreature> &crea, VLC->creh->creatures)
 	{
 		if(vstd::contains(crea->upgrades, (ui32) id)) //it's our base creatures
@@ -3309,7 +3309,7 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 {
 	BlockingDialog ynd(true,false);
 	ynd.player = h->tempOwner;
-	ynd.text << std::pair<ui8,ui32>(11,91); 
+	ynd.text << std::pair<ui8,ui32>(11,91);
 	ynd.text.addReplacement(MetaString::CRE_PL_NAMES, subID);
 	cb->showBlockingDialog(&ynd,boost::bind(&CGCreature::fleeDecision,this,h,_1));
 }
@@ -3317,11 +3317,11 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 {
 	int relations = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
-	
+
 	if(relations == 2) //we're visiting our mine
 	{
 		cb->showGarrisonDialog(id,h->id,true,0);
-		return; 
+		return;
 	}
 	else if (relations == 1)//ally
 		return;
@@ -3330,7 +3330,7 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		BlockingDialog ynd(true,false);
 		ynd.player = h->tempOwner;
-		ynd.text << std::pair<ui8,ui32>(MetaString::ADVOB_TXT, subID == 7 ? 84 : 187); 
+		ynd.text << std::pair<ui8,ui32>(MetaString::ADVOB_TXT, subID == 7 ? 84 : 187);
 		cb->showBlockingDialog(&ynd,boost::bind(&CGMine::fight, this, _1, h));
 		return;
 	}
@@ -3377,7 +3377,7 @@ void CGMine::initObj()
 		MetaString ms;
 		ms << std::pair<ui8,ui32>(9,producedResource);
 		if(tempOwner >= GameConstants::PLAYER_LIMIT)
-			tempOwner = GameConstants::NEUTRAL_PLAYER;	
+			tempOwner = GameConstants::NEUTRAL_PLAYER;
 		else
 			ms << " (" << std::pair<ui8,ui32>(6,23+tempOwner) << ")";
 		ms.toString(hoverName);
@@ -3557,7 +3557,7 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		if (ID!=112)
 			mid++;
-		else 
+		else
 			mid--;
 
 		InfoWindow iw;
@@ -4015,7 +4015,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			if (subID) //not OH3 treasure chest
 			{
 				tlog2 << "Not supported WoG treasure chest!\n";
-				return; 
+				return;
 			}
 
 			if(type) //there is an artifact
@@ -4115,7 +4115,7 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 		case MISSION_RESOURCES:
 			for (int i = 0; i < 7; ++i) //including Mithril ?
 			{	//Quest has no direct access to callback
-				if (h->cb->getResource (h->tempOwner, i) < m7resources[i]) 
+				if (h->cb->getResource (h->tempOwner, i) < m7resources[i])
 					return false;
 			}
 			return true;
@@ -4136,7 +4136,7 @@ void CQuest::getVisitText (MetaString &iwText, std::vector<Component> &component
 	std::string text;
 	bool failRequirements = (h ? !checkQuest(h) : true);
 
-	if (firstVisit) 
+	if (firstVisit)
 	{
 		isCustom = isCustomFirst;
 		iwText << firstVisitText;
@@ -4164,7 +4164,7 @@ void CQuest::getVisitText (MetaString &iwText, std::vector<Component> &component
 					loot << "%d %s";
 					loot.addReplacement(m2stats[i]);
 					loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
-				}		
+				}
 			}
 			if (!isCustom)
 				iwText.addReplacement(loot.buildList());
@@ -4259,7 +4259,7 @@ void CQuest::getRolloverText (MetaString &ms, bool onHover) const
 						loot << "%d %s";
 						loot.addReplacement(m2stats[i]);
 						loot.addReplacement(VLC->generaltexth->primarySkillNames[i]);
-					}		
+					}
 				}
 				ms.addReplacement(loot.buildList());
 			}
@@ -4422,9 +4422,9 @@ void CGSeerHut::initObj()
 	if (missionType)
 	{
 		if (!isCustomFirst)
-			firstVisitText = VLC->generaltexth->quests[missionType-1][0][textOption];	
+			firstVisitText = VLC->generaltexth->quests[missionType-1][0][textOption];
 		if (!isCustomNext)
-			nextVisitText = VLC->generaltexth->quests[missionType-1][1][textOption];	
+			nextVisitText = VLC->generaltexth->quests[missionType-1][1][textOption];
 		if (!isCustomComplete)
 			completedText = VLC->generaltexth->quests[missionType-1][2][textOption];
 	}
@@ -4457,7 +4457,7 @@ const std::string & CGSeerHut::getHoverText() const
 	if (progress & missionType) //rollover when the quest is active
 	{
 		MetaString ms;
-		getRolloverText (ms, true); 
+		getRolloverText (ms, true);
 		hoverName += ms.toString();
 	}
 	return hoverName;
@@ -4539,7 +4539,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 		bool failRequirements = !checkQuest(h);
 		bool isCustom=false;
 
-		if (firstVisit) 
+		if (firstVisit)
 		{
 			isCustom = isCustomFirst;
 			cb->setObjProperty (id, 10, IN_PROGRESS);
@@ -4565,9 +4565,9 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog bd (true, false);
 			bd.player = h->getOwner();
 			bd.soundID = soundBase::QUEST;
-			
+
 			getCompletionText (bd.text, bd.components, isCustom, h);
-			
+
 			cb->showBlockingDialog (&bd, boost::bind (&CGSeerHut::finishQuest, this, h, _1));
 			return;
 		}
@@ -4637,7 +4637,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 		}
 		cb->setObjProperty (id, 10, COMPLETE); //mission complete - for AI
 		cb->setObjProperty (id, 11, 0); //no more mission available - redundant?
-		completeQuest(h); //make sure to remove QuestQuard at the very end	
+		completeQuest(h); //make sure to remove QuestQuard at the very end
 	}
 }
 void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
@@ -4977,7 +4977,7 @@ const std::string & CGBonusingObject::getHoverText() const
 {
 	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
 	hoverName = VLC->generaltexth->names[ID];
-	if(h) 
+	if(h)
 	{
 		if(!h->hasBonusFrom(Bonus::OBJECT,ID))
 			hoverName += " " + VLC->generaltexth->allTexts[353]; //not visited
@@ -4995,38 +4995,38 @@ void CGBonusingObject::initObj()
 	}
 }
 
-void CGMagicSpring::onHeroVisit(const CGHeroInstance * h) const 
-{ 
-	int messageID; 
-	InfoWindow iw; 
-	iw.player = h->tempOwner; 
-	iw.soundID = soundBase::GENIE; 
-	if (!visited) 
-	{ 
-		if (h->mana > h->manaLimit())  
-			messageID = 76; 
-		else 
-		{ 
-			messageID = 74; 
-			cb->setManaPoints (h->id, 2 * h->manaLimit()); 
-			cb->setObjProperty (id, ObjProperty::VISITED, true); 
-		} 
-	} 
-	else 
-		messageID = 75; 
-	iw.text << std::pair<ui8,ui32>(11,messageID); 
-	cb->showInfoDialog(&iw); 
-} 
+void CGMagicSpring::onHeroVisit(const CGHeroInstance * h) const
+{
+	int messageID;
+	InfoWindow iw;
+	iw.player = h->tempOwner;
+	iw.soundID = soundBase::GENIE;
+	if (!visited)
+	{
+		if (h->mana > h->manaLimit())
+			messageID = 76;
+		else
+		{
+			messageID = 74;
+			cb->setManaPoints (h->id, 2 * h->manaLimit());
+			cb->setObjProperty (id, ObjProperty::VISITED, true);
+		}
+	}
+	else
+		messageID = 75;
+	iw.text << std::pair<ui8,ui32>(11,messageID);
+	cb->showInfoDialog(&iw);
+}
 
-const std::string & CGMagicSpring::getHoverText() const 
-{ 
+const std::string & CGMagicSpring::getHoverText() const
+{
 	hoverName = VLC->generaltexth->names[ID];
 	if(!visited)
 		hoverName += " " + VLC->generaltexth->allTexts[353]; //not visited
 	else
 		hoverName += " " + VLC->generaltexth->allTexts[352]; //visited
 	return hoverName;
-} 
+}
 
 void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
 {
@@ -5069,7 +5069,7 @@ void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
 		bd.player = h->getOwner();
 		bd.soundID = soundBase::QUEST;
 		bd.text.addTxt (MetaString::ADVOB_TXT, 14);
-		cb->showBlockingDialog (&bd, boost::bind (&CGPandoraBox::open, this, h, _1));	
+		cb->showBlockingDialog (&bd, boost::bind (&CGPandoraBox::open, this, h, _1));
 }
 
 void CGPandoraBox::open( const CGHeroInstance * h, ui32 accept ) const
@@ -5284,7 +5284,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 	if (creatures.Slots().size())
 	{ //this part is taken straight from creature bank
-		MetaString loot; 
+		MetaString loot;
 		for(TSlots::const_iterator i = creatures.Slots().begin(); i != creatures.Slots().end(); i++)
 		{ //build list of joined creatures
 			iw.components.push_back(Component(*i->second));
@@ -5344,7 +5344,7 @@ void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int val, int nega
 
 void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(!(availableFor & (1 << h->tempOwner))) 
+	if(!(availableFor & (1 << h->tempOwner)))
 		return;
 	if(cb->getPlayerSettings(h->tempOwner)->human)
 	{
@@ -5608,12 +5608,12 @@ ui8 CGGarrison::getPassableness() const
 		return GameConstants::ALL_PLAYERS;
 	if ( tempOwner == 255 )//neutral guarded - no one can visit
 		return 0;
-		
+
 	ui8 mask = 0;
 	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
 	BOOST_FOREACH(ui8 it, ts->players)
 		mask |= 1<<it;//allies - add to possible visitors
-	
+
 	return mask;
 }
 
@@ -5625,7 +5625,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 	switch(ID)
 	{
 	case 22: //Corpse
-		txtid = 37; 
+		txtid = 37;
 		sound = soundBase::MYSTERY;
 		break;
 	case 39: //Lean To
@@ -5690,7 +5690,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 			cb->giveResource(h->getOwner(), bonusType, bonusVal);
 			break;
 		}
-		if(ID == 105  &&  artOrRes == 1) 
+		if(ID == 105  &&  artOrRes == 1)
 		{
 			iw.text.localStrings.back().second++;
 			iw.text.addReplacement(MetaString::ART_NAMES, bonusType);
@@ -5799,11 +5799,11 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 			iw.text.addReplacement(MetaString::ART_NAMES, bonusType);
 
 			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[bonusType],-2);
-		}		
-		
+		}
+
 		if(!h->hasBonusFrom(Bonus::OBJECT,ID)) //we don't have modifier from this object yet
 		{
-			//ruin morale 
+			//ruin morale
 			GiveBonus gb;
 			gb.id = h->id;
 			gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::MORALE,Bonus::OBJECT,-3,id,"");
@@ -5835,7 +5835,7 @@ void CBank::reset(ui16 var1) //prevents desync
 {
 	ui8 chance = 0;
 	for (ui8 i = 0; i < VLC->objh->banksInfo[index].size(); i++)
-	{	
+	{
 		if (var1 < (chance += VLC->objh->banksInfo[index][i]->chance))
 		{
  			bc = VLC->objh->banksInfo[index][i];
@@ -5851,7 +5851,7 @@ void CBank::initialize() const
 	for (ui8 i = 0; i <= 3; i++)
 	{
 		for (ui8 n = 0; n < bc->artifacts[i]; n++) //new function using proper randomization algorithm
-		{	
+		{
 				cb->setObjProperty (id, 18 + i, ran()); //synchronic artifacts
 		}
 	}
@@ -5960,7 +5960,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 	}
 }
 
-void CBank::newTurn() const 
+void CBank::newTurn() const
 {
 	if (bc == NULL)
 	{
@@ -6043,7 +6043,7 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		cb->showInfoDialog(&iw);
 	}
 }
-void CBank::fightGuards (const CGHeroInstance * h, ui32 accept) const 
+void CBank::fightGuards (const CGHeroInstance * h, ui32 accept) const
 {
 	if (accept)
 	{
@@ -6105,7 +6105,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 				if (bc->resources.size())
 					textID = 124;
 				else
-					textID = 123;	
+					textID = 123;
 				break;
 		}
 
@@ -6113,7 +6113,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 		if (textID != 42) //empty derelict ship gives no cash
 		{
 			for (int it = 0; it < bc->resources.size(); it++)
-			{	
+			{
 				if (bc->resources[it] != 0)
 				{
 					iw.components.push_back (Component (Component::RESOURCE, it, bc->resources[it], 0));
@@ -6121,7 +6121,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 					loot.addReplacement(iw.components.back().val);
 					loot.addReplacement(MetaString::RES_NAMES, iw.components.back().subtype);
 					cb->giveResource (h->getOwner(), it, bc->resources[it]);
-				}		
+				}
 			}
 		}
 		//grant artifacts
@@ -6212,7 +6212,7 @@ void CGPyramid::onHeroVisit (const CGHeroInstance * h) const
 		bd.player = h->getOwner();
 		bd.soundID = soundBase::MYSTERY;
 		bd.text << VLC->generaltexth->advobtxt[105];
-		cb->showBlockingDialog (&bd, boost::bind (&CBank::fightGuards, this, h, _1));	
+		cb->showBlockingDialog (&bd, boost::bind (&CBank::fightGuards, this, h, _1));
 	}
 	else
 	{
@@ -6236,9 +6236,9 @@ void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) 
 		iw.player = h->getOwner();
 		iw.text.addTxt (MetaString::ADVOB_TXT, 106);
 		iw.text.addTxt (MetaString::SPELL_NAME, spell);
-		if (!h->getArt(17))						
+		if (!h->getArt(17))
 			iw.text.addTxt (MetaString::ADVOB_TXT, 109); //no spellbook
-		else if (h->getSecSkillLevel(CGHeroInstance::WISDOM) < 3)	
+		else if (h->getSecSkillLevel(CGHeroInstance::WISDOM) < 3)
 			iw.text.addTxt (MetaString::ADVOB_TXT, 108); //no expert Wisdom
 		else
 		{
@@ -6304,7 +6304,7 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGBorderGuard::initObj()
 {
-	ui32 m13489val = subID; //store color as quest info
+	//ui32 m13489val = subID; //store color as quest info
 	blockVisit = true;
 }
 
@@ -6334,7 +6334,7 @@ bool CGBorderGuard::checkQuest (const CGHeroInstance * h) const
 	return wasMyColorVisited (h->tempOwner);
 }
 
-void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const 
+void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if (wasMyColorVisited (h->getOwner()) )
 	{
@@ -6342,8 +6342,8 @@ void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const
 		bd.player = h->getOwner();
 		bd.soundID = soundBase::QUEST;
 		bd.text.addTxt (MetaString::ADVOB_TXT, 17);
-		cb->showBlockingDialog (&bd, boost::bind (&CGBorderGuard::openGate, this, h, _1));	
-	}	
+		cb->showBlockingDialog (&bd, boost::bind (&CGBorderGuard::openGate, this, h, _1));
+	}
 	else
 	{
 		InfoWindow iw;
@@ -6366,7 +6366,7 @@ void CGBorderGuard::openGate(const CGHeroInstance *h, ui32 accept) const
 		cb->removeObject(id);
 }
 
-void CGBorderGate::onHeroVisit( const CGHeroInstance * h ) const //TODO: passability 
+void CGBorderGate::onHeroVisit( const CGHeroInstance * h ) const //TODO: passability
 {
 	if (!wasMyColorVisited (h->getOwner()) )
 	{
@@ -6423,9 +6423,9 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 			cv.pos = eye->pos;
 			cv.focusTime = 2000;
 			cb->sendAndApply(&cv);
-		}	
+		}
 		cv.pos = h->getPosition(false);
-		cb->sendAndApply(&cv);	
+		cb->sendAndApply(&cv);
 	}
 	else if (ID == 27)
 	{
@@ -6541,7 +6541,7 @@ int IBoatGenerator::getBoatType() const
 }
 
 
-IBoatGenerator::IBoatGenerator(const CGObjectInstance *O) 
+IBoatGenerator::IBoatGenerator(const CGObjectInstance *O)
 : o(O)
 {
 }
@@ -6550,7 +6550,7 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 {
 	switch(state())
 	{
-	case 1: 
+	case 1:
 		out.addTxt(MetaString::GENERAL_TXT, 51);
 		break;
 	case 2:
@@ -6575,7 +6575,7 @@ void IShipyard::getBoatCost( std::vector<si32> &cost ) const
 	cost[6] = 1000;
 }
 
-IShipyard::IShipyard(const CGObjectInstance *O) 
+IShipyard::IShipyard(const CGObjectInstance *O)
 	: IBoatGenerator(O)
 {
 }
@@ -6643,7 +6643,7 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 	}
 }
 
-void CCartographer::onHeroVisit( const CGHeroInstance * h ) const 
+void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if (!wasVisited (h->getOwner()) ) //if hero has not visited yet this cartographer
 	{
@@ -6662,7 +6662,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 				case 2:
 					text = 27;
 					break;
-				default:	
+				default:
 					tlog2 << "Unrecognized subtype of cartographer" << std::endl;
 			}
 			assert(text);
@@ -6680,7 +6680,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 			iw.text << std::pair<ui8,ui32>(11,28);
 			cb->showInfoDialog (&iw);
 		}
-	}	
+	}
 	else //if he already visited carographer
 	{
 		InfoWindow iw;
@@ -6720,7 +6720,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 	TeamState *ts = cb->gameState()->getPlayerTeam(h->tempOwner);
 	assert(ts);
 	int team = ts->id;
-	
+
 	if(!wasVisited(team))
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT, 96);
@@ -6892,7 +6892,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	 		factions.insert(faction);
 	 	}
 	}
-	 
+
 	if(factions.size() == 1)
 	{
 		b->val = +1;
@@ -6904,7 +6904,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		b->description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factions.size() % b->val); //Troops of %d alignments %d
 	}
 	boost::algorithm::trim(b->description);
-	 
+
 	//-1 modifier for any Necropolis unit in army
 	const ui8 UNDEAD_MODIFIER_ID = -2;
 	Bonus *undeadModifier = getBonusList().getFirst(Selector::source(Bonus::ARMY, UNDEAD_MODIFIER_ID));
@@ -6915,7 +6915,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	}
 	else if(undeadModifier)
 		removeBonus(undeadModifier);
-	
+
 }
 
 void CArmedInstance::armyChanged()
@@ -6988,9 +6988,9 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMar
 			double effectiveness = std::min((getMarketEfficiency() + 3.0) / 20.0, 0.6);
 			double r = VLC->objh->resVals[id1], //value of offered resource
 				g = VLC->arth->artifacts[id2]->price / effectiveness; //value of bought artifact in gold
-			
+
 			if(id1 != 6) //non-gold prices are doubled
-				r /= 2; 
+				r /= 2;
 
 			val1 = std::max(1, (int)((g / r) + 0.5)); //don't sell arts for less than 1 resource
 			val2 = 1;
@@ -7000,10 +7000,10 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMar
 		{
 			double effectiveness = std::min((getMarketEfficiency() + 3.0) / 20.0, 0.6);
 			double r = VLC->arth->artifacts[id1]->price * effectiveness,
-				g = VLC->objh->resVals[id2]; 
+				g = VLC->objh->resVals[id2];
 
 // 			if(id2 != 6) //non-gold prices are doubled
-// 				r /= 2; 
+// 				r /= 2;
 
 			val1 = 1;
 			val2 = std::max(1, (int)((r / g) + 0.5)); //at least one resource is given in return
@@ -7217,7 +7217,7 @@ void CGUniversity::initObj()
 		tlog0<<"Warning: less then 4 available skills was found by University initializer!\n";
 		return;
 	}
-	
+
 	for (int i=0; i<4; i++)//get 4 skills
 	{
 		int skillPos = ran()%toChoose.size();
@@ -7232,7 +7232,7 @@ std::vector<int> CGUniversity::availableItemsIds(EMarketMode::EMarketMode mode) 
 	{
 		case EMarketMode::RESOURCE_SKILL:
 			return skills;
-			
+
 		default:
 			return std::vector <int> ();
 	}

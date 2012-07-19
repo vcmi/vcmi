@@ -1,8 +1,7 @@
 #include "StdInc.h"
 #include "JsonNode.h"
 
-
-class Bonus;
+#include "HeroBonus.h"
 
 const JsonNode JsonNode::nullNode;
 
@@ -243,7 +242,7 @@ void JsonWriter::writeContainer(Iterator begin, Iterator end)
 {
 	if (begin == end)
 		return;
-	
+
 	prefix += '\t';
 	end--;
 	while (begin != end)
@@ -251,7 +250,7 @@ void JsonWriter::writeContainer(Iterator begin, Iterator end)
 		writeEntry(begin++);
 		out<<",\n";
 	}
-	
+
 	writeEntry(begin);
 	out<<"\n";
 	prefix.resize(prefix.size()-1);
@@ -280,7 +279,7 @@ void JsonWriter::writeString(const std::string &string)
 	for (; pos<string.size(); pos++)
 	{
 		size_t escapedChar = escaped.find(string[pos]);
-		
+
 		if (escapedChar != std::string::npos)
 		{
 			out.write(string.data()+start, pos - start);
@@ -872,4 +871,23 @@ JsonValidator::JsonValidator(JsonNode &root, const JsonNode &schema, bool Minimi
 	if (schema.isNull())
 		addMessage("Schema not found!");
 	tlog3<<errors;
+}
+
+Bonus * ParseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
+{
+	Bonus * b = new Bonus();
+	std::string type = ability_vec[0].String();
+	auto it = bonusNameMap.find(type);
+	if (it == bonusNameMap.end())
+	{
+		tlog1 << "Error: invalid ability type " << type << " in creatures.txt" << std::endl;
+		return b;
+	}
+	b->type = it->second;
+	b->val = ability_vec[1].Float();
+	b->subtype = ability_vec[2].Float();
+	b->additionalInfo = ability_vec[3].Float();
+	b->duration = Bonus::PERMANENT;
+	b->turnsRemain = 0;
+	return b;
 }

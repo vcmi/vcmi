@@ -51,39 +51,20 @@ namespace Colors
 template<typename IntType>
 std::string makeNumberShort(IntType number) //the output is a string containing at most 5 characters [4 if positive] (eg. intead 10000 it gives 10k)
 {
-	int initialLength;
-	bool negative = (number < 0);
-	std::ostringstream ost, rets;
-	ost<<number;
-	initialLength = ost.str().size();
+	if (abs(number) < 1000)
+		return boost::lexical_cast<std::string>(number);
 
-	if(negative)
+	std::string symbols = "kMGTPE";
+	auto iter = symbols.begin();
+
+	while (number >= 1000)
 	{
-		if(initialLength <= 4)
-			return ost.str();
+		number /= 1000;
+		iter++;
+
+		assert(iter != symbols.end());//should be enough even for int64
 	}
-	else
-	{
-		if(initialLength <= 5)
-			return ost.str();
-	}
-
-	//make the number int
-	char symbol[] = {'G', 'M', 'k'};
-
-	if(negative) number = (-number); //absolute value
-
-	for(int divisor = 1000000000, it = 0; divisor > 1; divisor /= 1000, ++it)
-	{
-		if(number >= divisor)
-		{
-			if(negative) rets <<'-';
-			rets << (number / divisor) << symbol[it];
-			return rets.str();
-		}
-	}
-
-	throw std::runtime_error("We shouldn't be here - makeNumberShort");
+	return boost::lexical_cast<std::string>(number) + *iter;
 }
 
 typedef void (*TColorPutter)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);

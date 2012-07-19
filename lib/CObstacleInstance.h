@@ -12,7 +12,7 @@ struct DLL_LINKAGE CObstacleInstance
 
 	enum EObstacleType
 	{
-		//ABSOLUTE needs an underscore because it's a Win 
+		//ABSOLUTE needs an underscore because it's a Win
 		USUAL, ABSOLUTE_OBSTACLE, QUICKSAND, LAND_MINE, FORCE_FIELD, FIRE_WALL, MOAT
 	};
 
@@ -32,7 +32,7 @@ struct DLL_LINKAGE CObstacleInstance
 	//additional effects (like hurting stack or disappearing) are hardcoded for appropriate obstacleTypes
 	bool blocksTiles() const;
 	bool stopsMovement() const; //if unit stepping onto obstacle, can't continue movement (in general, doesn't checks for the side)
-	
+
 	virtual std::vector<BattleHex> getAffectedTiles() const;
 	virtual bool visibleForSide(ui8 side, bool hasNativeStack) const; //0 attacker
 
@@ -56,12 +56,12 @@ struct DLL_LINKAGE SpellCreatedObstacle : CObstacleInstance
 	si8 spellLevel;
 	si8 casterSide; //0 - obstacle created by attacker; 1 - by defender
 	si8 visibleForAnotherSide;
-	
+
 	SpellCreatedObstacle();
 
 	virtual std::vector<BattleHex> getAffectedTiles() const OVERRIDE; //for special effects (not blocking)
 	virtual bool visibleForSide(ui8 side, bool hasNativeStack) const OVERRIDE; //0 attacker
-	
+
 	virtual void battleTurnPassed() OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)

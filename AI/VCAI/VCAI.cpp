@@ -464,7 +464,7 @@ void VCAI::heroMoved(const TryMoveHero & details)
 	LOG_ENTRY;
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
-		const int3 from = CGHeroInstance::convertPosition(details.start, false), 
+		const int3 from = CGHeroInstance::convertPosition(details.start, false),
 			to = CGHeroInstance::convertPosition(details.end, false);
 		const CGObjectInstance *o1 = frontOrNull(cb->getVisitableObjs(from)),
 			*o2 = frontOrNull(cb->getVisitableObjs(to));
@@ -699,7 +699,7 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 
 	//TODO
 	//there are other places where CGObjectinstance ptrs are stored...
-	// 
+	//
 
 	if(obj->ID == GameConstants::HEROI_TYPE  &&  obj->tempOwner == playerID)
 	{
@@ -873,7 +873,7 @@ void VCAI::showBlockingDialog(const std::string &text, const std::vector<Compone
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
 	int sel = 0;
-	status.addQuery(askID, boost::str(boost::format("Blocking dialog query with %d components - %s") 
+	status.addQuery(askID, boost::str(boost::format("Blocking dialog query with %d components - %s")
 									  % components.size() % text));
 
 	if(selection) //select from multiple components -> take the last one (they're indexed [1-size])
@@ -956,7 +956,7 @@ void VCAI::makeTurn()
 			BOOST_FOREACH(const CGObjectInstance *obj, objs)
 			{
 				if (isWeeklyRevisitable(obj))
-				{ 
+				{
 					if (!vstd::contains(visitableObjs, obj))
 						visitableObjs.push_back(obj);
 					auto o = std::find (alreadyVisited.begin(), alreadyVisited.end(), obj);
@@ -1052,7 +1052,7 @@ void VCAI::makeTurnInternal()
 		auto quests = myCb->getMyQuests();
 		BOOST_FOREACH (auto quest, quests)
 		{
-			striveToQuest (quest); 
+			striveToQuest (quest);
 		}
 
 		striveToGoal(CGoal(BUILD)); //TODO: smarter building management
@@ -1109,7 +1109,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 	std::map<const CCreature*, int> creToPower;
 	BOOST_FOREACH(auto armyPtr, armies)
 		BOOST_FOREACH(auto &i, armyPtr->Slots())
-			creToPower[i.second->type] += i.second->getPower(); 
+			creToPower[i.second->type] += i.second->getPower();
 	//TODO - consider more than just power (ie morale penalty, hero specialty in certain stacks, etc)
 
 	std::vector<const CCreature *> bestArmy; //types that'll be in final dst army
@@ -1125,10 +1125,10 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 		if(creToPower.empty())
 			break;
 	}
-	
+
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
 	for (int i = 0; i < bestArmy.size(); i++) //i-th strongest creature type will go to i-th slot
-		BOOST_FOREACH(auto armyPtr, armies) 
+		BOOST_FOREACH(auto armyPtr, armies)
 			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
 				if(armyPtr->getCreature(j) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst slot
 						cb->mergeOrSwapStacks(armyPtr, army, j, i);
@@ -1341,7 +1341,7 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 
 			if (!shouldVisit(h, obj))
 				return true;
-			
+
 			if (vstd::contains(reservedObjs, obj)) //does checking for our own reserved objects make sense? here?
 				return true;
 
@@ -1372,7 +1372,7 @@ void VCAI::wander(HeroPtr h)
 	        {
 				return howManyReinforcementsCanGet(h, lhs) < howManyReinforcementsCanGet(h, rhs);
 	        };
-	
+
 	        std::vector<const CGTownInstance *> townsReachable;
 	        std::vector<const CGTownInstance *> townsNotReachable;
 	        BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
@@ -1713,7 +1713,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			{
 				lostHero(h);
 				//we need to throw, otherwise hero will be assigned to sth again
-				throw std::runtime_error("Hero was lost!"); 
+				throw std::runtime_error("Hero was lost!");
 				break;
 			}
 
@@ -1996,7 +1996,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 				}
 			}
 
-			if (goal.isAbstract) 
+			if (goal.isAbstract)
 			{
 				abstractGoal = goal; //allow only one abstract goal per call
 				BNLOG("Choosing abstract goal %s", goalName(goal.goalType));
@@ -2391,7 +2391,7 @@ void VCAI::answerQuery(int queryID, int selection)
 	BNLOG("I'll answer the query %d giving the choice %d", queryID % selection);
 	if(queryID != -1)
 	{
-		int requestID = cb->selectionMade(selection, queryID);
+		cb->selectionMade(selection, queryID);
 	}
 	else
 	{
@@ -2774,9 +2774,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 
 			erase(hs, [](const CGHeroInstance *h)
 			{
-				return contains(ai->lockedHeroes, h); 
+				return contains(ai->lockedHeroes, h);
 			});
-			if(hs.empty()) //all heroes are busy. buy new one 
+			if(hs.empty()) //all heroes are busy. buy new one
 			{
 				if (howManyHeroes < 3  && ai->findTownWithTavern()) //we may want to recruit second hero. TODO: make it smart finally
 					return CGoal(RECRUIT_HERO);
@@ -2946,9 +2946,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 
 			erase(hs, [](const CGHeroInstance *h)
 			{
-				return contains(ai->lockedHeroes, h); 
+				return contains(ai->lockedHeroes, h);
 			});
-			if(hs.empty()) //all heroes are busy. buy new one 
+			if(hs.empty()) //all heroes are busy. buy new one
 			{
 				if (howManyHeroes < 3  && ai->findTownWithTavern()) //we may want to recruit second hero. TODO: make it smart finally
 					return CGoal(RECRUIT_HERO);
@@ -3216,7 +3216,7 @@ bool isWeeklyRevisitable (const CGObjectInstance * obj)
 			return true;
 		case Obj::BORDER_GATE:
 		case Obj::BORDERGUARD:
-			return (dynamic_cast <const CGKeys *>(obj))->wasMyColorVisited (ai->playerID); //FIXME: they could be revisited sooner than in a week 
+			return (dynamic_cast <const CGKeys *>(obj))->wasMyColorVisited (ai->playerID); //FIXME: they could be revisited sooner than in a week
 			break;
 	}
 	return false;
@@ -3556,7 +3556,7 @@ bool HeroPtr::operator<(const HeroPtr &rhs) const
 const CGHeroInstance * HeroPtr::get(bool doWeExpectNull /*= false*/) const
 {
 	//TODO? check if these all assertions every time we get info about hero affect efficiency
-	// 
+	//
 	//behave terribly when attempting unauthorised access to hero that is not ours (or was lost)
 	assert(doWeExpectNull || h);
 	if(h)

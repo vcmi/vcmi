@@ -3323,7 +3323,7 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	save->swappedImages = true;
 	save->update();
 
-	restart = new CAdventureMapButton (CGI->generaltexth->zelp[323].first, CGI->generaltexth->zelp[323].second, 
+	restart = new CAdventureMapButton (CGI->generaltexth->zelp[323].first, CGI->generaltexth->zelp[323].second,
 									   boost::bind(&CSystemOptionsWindow::brestartf, this), 246, 357, "SORSTRT", SDLK_r);
 	restart->swappedImages = true;
 	restart->update();
@@ -3633,7 +3633,7 @@ void CInGameConsole::show(SDL_Surface * to)
 
 	std::vector<std::list< std::pair< std::string, int > >::iterator> toDel;
 
-	boost::unique_lock<boost::mutex> lock(texts_mx); 
+	boost::unique_lock<boost::mutex> lock(texts_mx);
 	for(std::list< std::pair< std::string, int > >::iterator it = texts.begin(); it != texts.end(); ++it, ++number)
 	{
 		SDL_Color green = {0,0xff,0,0};
@@ -3657,7 +3657,7 @@ void CInGameConsole::show(SDL_Surface * to)
 
 void CInGameConsole::print(const std::string &txt)
 {
-	boost::unique_lock<boost::mutex> lock(texts_mx); 
+	boost::unique_lock<boost::mutex> lock(texts_mx);
 	int lineLen = conf.go()->ac.outputLineLength;
 
 	if(txt.size() < lineLen)
@@ -5664,7 +5664,7 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 				text += "\n" + mrl[it].second;
 		}
 	}
-	
+
 	std::string imageName;
 	if (small)
 		imageName = morale ? "IMRL30": "ILCK30";
@@ -5787,8 +5787,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGTownInstance * town):
     CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "TOWNQVBK", toScreen(position))
 {
 	InfoAboutTown iah;
-	bool gotInfo = LOCPLINT->cb->getTownInfo(town, iah);
-	assert(gotInfo);
+	LOCPLINT->cb->getTownInfo(town, iah);
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CTownTooltip(Point(9, 10), iah);
@@ -5798,8 +5797,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGHeroInstance * hero):
     CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "HEROQVBK", toScreen(position))
 {
 	InfoAboutHero iah;
-	bool gotInfo = LOCPLINT->cb->getHeroInfo(hero, iah);
-	assert(gotInfo);
+	LOCPLINT->cb->getHeroInfo(hero, iah);
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CHeroTooltip(Point(9, 10), iah);
@@ -5809,8 +5807,7 @@ CInfoBoxPopup::CInfoBoxPopup(Point position, const CGGarrison * garr):
     CWindowObject(RCLICK_POPUP | PLAYER_COLORED, "TOWNQVBK", toScreen(position))
 {
 	InfoAboutTown iah;
-	bool gotInfo = LOCPLINT->cb->getTownInfo(garr, iah);
-	assert(gotInfo);
+	LOCPLINT->cb->getTownInfo(garr, iah);
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CArmyTooltip(Point(9, 10), iah);

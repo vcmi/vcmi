@@ -16,4 +16,4 @@ ELSEIF(WIN32)
     add_executable(vcmiserver WIN32 ${server_SRCS})
 ENDIF()
 
-target_link_libraries(vcmiserver vcmi ${Boost_LIBRARIES})
+target_link_libraries(vcmiserver vcmi ${Boost_LIBRARIES} ${RT_LIB} ${DL_LIB})

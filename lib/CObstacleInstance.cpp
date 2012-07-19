@@ -53,6 +53,7 @@ std::vector<BattleHex> CObstacleInstance::getAffectedTiles() const
 		return getInfo().getBlocked(pos);
 	default:
 		assert(0);
+		return std::vector<BattleHex>();
 	}
 }
 
@@ -60,7 +61,7 @@ std::vector<BattleHex> CObstacleInstance::getAffectedTiles() const
 // {
 // 	if(obstacleType == USUAL  ||  obstacleType == ABSOLUTE_OBSTACLE)
 // 		return false;
-// 
+//
 // 	return true;
 // }
 
@@ -105,6 +106,7 @@ bool SpellCreatedObstacle::visibleForSide(ui8 side, bool hasNativeStack) const
 		return casterSide == side  ||  visibleForAnotherSide  ||  hasNativeStack;
 	default:
 		assert(0);
+		return false;
 	}
 }
 
@@ -121,6 +123,7 @@ std::vector<BattleHex> SpellCreatedObstacle::getAffectedTiles() const
 		//TODO Fire Wall
 	default:
 		assert(0);
+		return std::vector<BattleHex>();
 	}
 }
 

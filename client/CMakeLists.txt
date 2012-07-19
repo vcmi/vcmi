@@ -6,7 +6,6 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/BattleInterface ${CMAKE_CURRENT_
 include_directories(${SDL_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR} ${FFMPEG_INCLUDE_DIR})
 
-
 set(client_SRCS
         ../CCallback.cpp
         BattleInterface/CBattleAnimations.cpp
@@ -44,7 +43,6 @@ set(client_SRCS
         GUIClasses.cpp
         mapHandler.cpp
         NetPacksClient.cpp
-        SDL_framerate.cpp
 )
 
 IF(UNIX)
@@ -53,4 +51,4 @@ ELSEIF(WIN32)
     add_executable(vcmiclient WIN32 ${client_SRCS})
 ENDIF()
 
-target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES})
+target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${RT_LIB} ${DL_LIB})

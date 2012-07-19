@@ -1,12 +1,10 @@
 #pragma once
 
-#include "HeroBonus.h"
-
 class JsonNode;
 typedef std::map <std::string, JsonNode> JsonMap;
 typedef std::vector <JsonNode> JsonVector;
 
-class Bonus;
+struct Bonus;
 
 class DLL_LINKAGE JsonNode
 {
@@ -199,23 +197,4 @@ public:
 	JsonValidator(JsonNode &root, const JsonNode &schema, bool minimize=false);
 };
 
-//Bonus * ParseBonus (const JsonVector &ability_vec);
-
-static Bonus * ParseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
-{
-	Bonus * b = new Bonus();
-	std::string type = ability_vec[0].String();
-	auto it = bonusNameMap.find(type);
-	if (it == bonusNameMap.end())
-	{
-		tlog1 << "Error: invalid ability type " << type << " in creatures.txt" << std::endl;
-		return b;
-	}
-	b->type = it->second;
-	b->val = ability_vec[1].Float();
-	b->subtype = ability_vec[2].Float();
-	b->additionalInfo = ability_vec[3].Float();
-	b->duration = Bonus::PERMANENT;
-	b->turnsRemain = 0;
-	return b;
-}
+DLL_LINKAGE Bonus * ParseBonus (const JsonVector &ability_vec);

@@ -8,5 +8,5 @@ set(emptyAI_SRCS
         exp_funcs.cpp
 )
 
-add_library(emptyAI SHARED ${emptyAI_SRCS})
-target_link_libraries(emptyAI vcmi)
+add_library(EmptyAI SHARED ${emptyAI_SRCS})
+target_link_libraries(EmptyAI vcmi)

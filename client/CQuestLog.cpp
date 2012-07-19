@@ -141,8 +141,10 @@ void CQuestMinimap::showAll(SDL_Surface * to)
 
 CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
 	CWindowObject(PLAYER_COLORED, "QuestLog.pcx"),
-	quests (Quests), slider (NULL),
-	questIndex(0), currentQuest(NULL)
+	questIndex(0),
+	currentQuest(NULL),
+	quests (Quests),
+	slider(NULL)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	init();
