@@ -1073,7 +1073,7 @@ void VCAI::makeTurnInternal()
 bool VCAI::goVisitObj(const CGObjectInstance * obj, HeroPtr h)
 {
 	int3 dst = obj->visitablePos();
-	BNLOG("%s will try to visit %s at (%s)", h->name % obj->hoverName % strFromInt3(dst));
+	BNLOG("%s will try to visit %s at (%s)", h->name % obj->getHoverText() % strFromInt3(dst));
 	return moveHeroToTile(dst, h);
 }
 
@@ -1541,7 +1541,7 @@ void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, boo
 {
 	foreach_tile_pos([&](const int3 &pos)
 	{
-		BOOST_FOREACH(const CGObjectInstance *obj, cb->getVisitableObjs(pos, false))
+		BOOST_FOREACH(const CGObjectInstance *obj, myCb->getVisitableObjs(pos, false))
 		{
 			if(includeOwned || obj->tempOwner != playerID)
 				out.push_back(obj);
@@ -1916,7 +1916,8 @@ std::vector<HeroPtr> VCAI::getUnblockedHeroes() const
 
 	BOOST_FOREACH(auto h, lockedHeroes)
 	{
-		if (!h.second.invalid()) //we can use heroes without valid goal
+		//if (!h.second.invalid()) //we can use heroes without valid goal
+		if (h.second.goalType == DIG_AT_TILE || !h.first->movement) //experiment: use all heroes that have movement left, TODO: unlock heroes that couldn't realize their goals 
 			remove_if_present(ret, h.first);
 	}
 	return ret;
@@ -3241,6 +3242,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 				}
 			}
 			return true; //we don't have this quest yet
+			break;
 		}
 		case Obj::CREATURE_GENERATOR1:
 		{
@@ -3257,13 +3259,15 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 				}
 			}
 			return canRecruitCreatures;
+			break;
 		}
 		case Obj::MONOLITH1:
 		case Obj::MONOLITH2:
 		case Obj::MONOLITH3:
 		case Obj::WHIRLPOOL:
-			//TODO: mehcanism for handling monoliths
+			//TODO: mechanism for handling monoliths
 			return false;
+			break;
 		case Obj::SCHOOL_OF_MAGIC:
 		case Obj::SCHOOL_OF_WAR:
 			{
@@ -3275,6 +3279,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::LIBRARY_OF_ENLIGHTENMENT:
 			if (h->level < 12)
 				return false;
+			break;
 		case Obj::TREE_OF_KNOWLEDGE:
 			{
 				TResources myRes = ai->myCb->getResourceAmount();
@@ -3284,7 +3289,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 			break;
 	}
 
-	if (obj->wasVisited(h))
+	if (obj->wasVisited(*h)) //it must pointer to hero instance, heroPtr calls function wasVisited(ui8 player);
 		return false;
 
 	return true;

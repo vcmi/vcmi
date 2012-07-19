@@ -3530,7 +3530,7 @@ void CGVisitableOPW::newTurn() const
 }
 bool CGVisitableOPW::wasVisited(ui8 player) const
 {
-	return !visited; //TODO: other players should see object as unvisited
+	return visited; //TODO: other players should see object as unvisited
 }
 
 void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
