@@ -296,11 +296,21 @@ int main(int argc, char** argv)
 		session["autoSkip"].Bool()  = vm.count("autoSkip");
 		session["oneGoodAI"].Bool() = vm.count("oneGoodAI");
 
+		std::string fileToStartFrom; //none by default
+		if(vm.count("start"))
+			fileToStartFrom = vm["start"].as<std::string>();
 
-		if(!vm.count("start"))
-			GH.curInt = CGPreGame::create(); //will set CGP pointer to itself
+		if(fileToStartFrom.size() && boost::filesystem::exists(fileToStartFrom))
+			startGameFromFile(fileToStartFrom); //ommit pregame and start the game using settings from fiel
 		else
-			startGameFromFile(vm["start"].as<std::string>());
+		{
+			if(fileToStartFrom.size())
+			{
+				tlog3 << "Warning: cannot find given file to start from (" << fileToStartFrom
+					<< "). Falling back to main menu.\n";
+			}
+			GH.curInt = CGPreGame::create(); //will set CGP pointer to itself
+		}
 	}
 	else
 	{
