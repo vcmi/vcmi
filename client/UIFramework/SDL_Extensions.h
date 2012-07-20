@@ -48,6 +48,13 @@ namespace Colors
 	const SDL_Color Maize = createColor(242, 226, 110); // http://en.wikipedia.org/wiki/Maize_%28color%29
 }
 
+//MSVC gives an error when calling abs with ui64 -> we add template that will match calls with unsigned arg and return it
+template<typename T>
+typename boost::enable_if_c<boost::is_unsigned<T>::type, T>::type abs(T arg)
+{
+	return arg;
+}
+
 template<typename IntType>
 std::string makeNumberShort(IntType number) //the output is a string containing at most 5 characters [4 if positive] (eg. intead 10000 it gives 10k)
 {

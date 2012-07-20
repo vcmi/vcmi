@@ -308,14 +308,13 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 
 		return;
 	}
-	//FIXME: for some reason this code causes crash in Bonus System ?!
 
 	auto quest = dynamic_cast<const CQuest *>(obj);
 	if (quest)
 	{
-		BOOST_FOREACH (auto player, gs->players)
+		BOOST_FOREACH (auto &player, gs->players)
 		{
-			BOOST_FOREACH (auto q, player.second.quests)
+			BOOST_FOREACH (auto &q, player.second.quests)
 			{
 				if (q.obj == obj)
 				{
