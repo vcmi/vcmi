@@ -73,6 +73,7 @@ enum EGoals
 	RECRUIT_HERO,
 	BUILD_STRUCTURE, //if hero set, then in visited town
 	COLLECT_RES,
+	GATHER_TROOPS, // val of creatures with objid
 
 	OBJECT_GOALS_BEGIN,
 	GET_OBJ, //visit or defeat or collect the object

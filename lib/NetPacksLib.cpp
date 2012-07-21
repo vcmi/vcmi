@@ -312,6 +312,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 	auto quest = dynamic_cast<const CQuest *>(obj);
 	if (quest)
 	{
+		gs->map->quests[quest->qid] = NULL;
 		BOOST_FOREACH (auto &player, gs->players)
 		{
 			BOOST_FOREACH (auto &q, player.second.quests)
@@ -323,6 +324,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 				}
 			}
 		}
+		//gs->map->quests[quest->qid].dellNull();
 	}
 
 	gs->map->objects[id].dellNull();

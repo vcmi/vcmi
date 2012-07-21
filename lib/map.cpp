@@ -559,7 +559,6 @@ CGHeroInstance * Mapa::getHero(int ID, int mode)
 int Mapa::loadSeerHut( const ui8 * bufor, int i, CGObjectInstance *& nobj )
 {
 	CGSeerHut *hut = new CGSeerHut();
-	addQuest (hut);
 	nobj = hut;
 
 	if(version>RoE)
@@ -1464,6 +1463,7 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 		case 83: //seer's hut
 			{
 				i = loadSeerHut(bufor, i, nobj);
+				addQuest (dynamic_cast<CQuest *>(nobj));
 				break;
 			}
 		case 113: //witch hut
@@ -1724,6 +1724,7 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 				CGQuestGuard *guard = new CGQuestGuard();
 				nobj = guard;
 				loadQuest(guard, bufor, i);
+				addQuest (dynamic_cast <CQuest *>(guard));
 				break;
 			}
 		case 28: //faerie ring
@@ -1948,7 +1949,6 @@ bool Mapa::isInTheMap(const int3 &pos) const
 
 void Mapa::loadQuest(CQuest * guard, const ui8 * bufor, int & i)
 {
-	addQuest (guard);
 	guard->missionType = bufor[i]; ++i;
 	//int len1, len2, len3;
 	switch(guard->missionType)

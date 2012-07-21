@@ -204,6 +204,7 @@ namespace Obj
 		MINE = 53,
 		MONSTER = 54,
 		OBELISK = 57,
+		PRISON = 62,
 		PYRAMID = 63,
 		SEER_HUT = 83,
 		CRYPT = 84,

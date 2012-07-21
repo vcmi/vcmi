@@ -606,6 +606,7 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 		markObjectVisited (visitedObj);
 		remove_if_present(reservedObjs, visitedObj); //unreserve objects
 		remove_if_present(reservedHeroesMap[visitor], visitedObj);
+		completeGoal (CGoal(GET_OBJ).sethero(visitor)); //we don't need to visit in anymore
 	}
 }
 
@@ -2084,10 +2085,20 @@ void VCAI::striveToQuest (const QuestInfo &q)
 		MetaString ms;
 		q.quest->getRolloverText(ms, false);
 		BNLOG ("Trying to realize quest: %s", ms.toString());
+		auto heroes = cb->getHeroesInfo();
+
 		switch (q.quest->missionType)
 		{
 			case CQuest::MISSION_ART:
 			{
+				BOOST_FOREACH (auto hero, heroes) //TODO: remove duplicated code?
+				{
+					if (q.quest->checkQuest(hero))
+					{
+						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
+						return;
+					}
+				}
 				BOOST_FOREACH (auto art, q.quest->m5arts)
 				{
 					striveToGoal (CGoal(GET_ART_TYPE).setaid(art)); //TODO: transport?
@@ -2097,33 +2108,49 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			case CQuest::MISSION_HERO:
 			{
 				//striveToGoal (CGoal(RECRUIT_HERO));
-				auto heroes = cb->getHeroesInfo();
 				BOOST_FOREACH (auto hero, heroes)
 				{
 					if (q.quest->checkQuest(hero))
 					{
 						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
-						break;
+						return;
 					}
 				}
-				BNLOG ("Don't know how to recruit hero with id %d\n", q.quest->m13489val);
+				striveToGoal (CGoal(FIND_OBJ).setobjid(Obj::PRISON)); //rule of a thumb - quest heroes usually are locked in prisons
+				//BNLOG ("Don't know how to recruit hero with id %d\n", q.quest->m13489val);
 				break;
 			}
 			case CQuest::MISSION_ARMY:
 			{
+				BOOST_FOREACH (auto hero, heroes)
+				{
+					if (q.quest->checkQuest(hero)) //veyr bad info - stacks can be split between multiple heroes :(
+					{
+						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
+						return;
+					}
+				}
 				BOOST_FOREACH (auto creature, q.quest->m6creatures)
 				{
-					BNLOG ("Don't know how to recruit %d of %s\n", (int)(creature.count) % creature.type->namePl);
+					striveToGoal (CGoal(GATHER_TROOPS).setobjid(creature.type->idNumber).setvalue(creature.count));
 				}
+				//TODO: exchange armies... oh my
+				//BNLOG ("Don't know how to recruit %d of %s\n", (int)(creature.count) % creature.type->namePl);
 				break;
 			}
 			case CQuest::MISSION_RESOURCES:
 			{
-				for (int i = 0; i < q.quest->m7resources.size(); ++i)
+				if (q.quest->checkQuest(NULL))
 				{
-					if (q.quest->m7resources[i])
-						striveToGoal (CGoal(COLLECT_RES).setresID(i).setvalue(q.quest->m7resources[i]));
-					//TODO: visit object
+					 striveToGoal (CGoal(VISIT_TILE).settile(q.tile));
+				}
+				else
+				{
+					for (int i = 0; i < q.quest->m7resources.size(); ++i)
+					{
+						if (q.quest->m7resources[i])
+							striveToGoal (CGoal(COLLECT_RES).setresID(i).setvalue(q.quest->m7resources[i]));
+					}
 				}
 				break;
 			}
@@ -2145,7 +2172,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 					if (q.quest->checkQuest(hero))
 					{
 						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
-						break;
+						return;
 					}
 				}
 				for (int i = 0; i < q.quest->m2stats.size(); ++i)
@@ -2161,8 +2188,8 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero))
 					{
-						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
-						break;
+						striveToGoal (CGoal(VISIT_TILE).settile(q.tile).sethero(hero)); //TODO: causes infinite loop :/
+						return;
 					}
 				}
 				BNLOG ("Don't know how to reach hero level %d\n", q.quest->m13489val);
@@ -2651,6 +2678,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				//save?
 				break;
 			case EVictoryConditionType::GATHERTROOP:
+				return CGoal(GATHER_TROOPS).setobjid(vc.ID).setvalue(vc.count);
 				break;
 			case EVictoryConditionType::TAKEDWELLINGS:
 				break;
@@ -2939,6 +2967,53 @@ TSubgoal CGoal::whatToDoToAchieve()
 			}
 		}
 		return CGoal(INVALID);
+	case GATHER_TROOPS:
+		{
+			std::vector<const CGDwelling *> dwellings;
+			BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
+			{
+				auto creature = VLC->creh->creatures[objid];
+				if (t->subID == creature->faction) //TODO: how to force AI to build unupgraded creatures? :O
+				{
+					int bid = t->creatureDwelling(creature->level);
+					if (t->hasBuilt(bid)) //this assumes only creatures with dwellings are assigned to faction
+					{
+						dwellings.push_back(t);
+					}
+					else
+					{
+						return CGoal (BUILD_STRUCTURE).settown(t).setbid(bid);
+					}
+				}
+			}
+			BOOST_FOREACH (auto obj, ai->visitableObjs)
+			{
+				if (obj->ID != Obj::CREATURE_GENERATOR1) //TODO: what with other creature generators?
+					continue;
+
+				auto d = dynamic_cast<const CGDwelling *>(obj);
+				BOOST_FOREACH (auto creature, d->creatures)
+				{
+					if (creature.first) //there are more than 0 creatures avaliabe
+					{
+						BOOST_FOREACH (auto type, creature.second)
+						{
+							if (type == objid)
+								dwellings.push_back(d);
+						}
+					}
+				}
+			}
+			if (dwellings.size())
+			{
+				boost::sort(dwellings, isCloser);
+				return CGoal(GET_OBJ).setobjid (dwellings.front()->id); //TODO: consider needed resources
+			}
+			else
+				return CGoal(EXPLORE);
+			//TODO: exchange troops between heroes
+		}
+		break;
 	case CONQUER: //TODO: put it into a function?
 		{
 			auto hs = cb->getHeroesInfo();
