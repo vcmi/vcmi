@@ -568,19 +568,20 @@ int Mapa::loadSeerHut( const ui8 * bufor, int i, CGObjectInstance *& nobj )
 	else //RoE
 	{
 		int artID = bufor[i]; ++i;
-		if(artID!=255) //not none quest
+		if (artID != 255) //not none quest
 		{
-			hut->m5arts.push_back(artID);
-			hut->missionType = 5;
+			hut->m5arts.push_back (artID);
+			hut->missionType = CQuest::MISSION_ART;
 		}
 		else
 		{
-			hut->missionType = 0; //no mission
+			hut->missionType = CQuest::MISSION_NONE; //no mission
 		}
+		hut->lastDay = -1; //no timeout
 		hut->isCustomFirst = hut->isCustomNext = hut->isCustomComplete = false;
 	}
 
-	if(hut->missionType)
+	if (hut->missionType)
 	{
 		ui8 rewardType = bufor[i]; ++i;
 		hut->rewardType = rewardType;

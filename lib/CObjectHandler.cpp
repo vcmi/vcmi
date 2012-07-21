@@ -4524,8 +4524,8 @@ void CGSeerHut::newTurn() const
 {
 	if (lastDay >= 0 && lastDay <= cb->getDate(0)) //time is up
 	{
-		cb->setObjProperty (id,11,0);
-		cb->setObjProperty (id,10,0);
+		cb->setObjProperty (id, 11, 0);
+		cb->setObjProperty (id, 10, 0);
 	}
 
 }
