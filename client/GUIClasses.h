@@ -176,7 +176,7 @@ class CComponent : public virtual CIntObject
 public:
 	enum Etype
 	{
-		primskill, secskill, resource, creature, artifact, experience, spell, morale, luck, building, hero, flag
+		primskill, secskill, resource, creature, artifact, experience, spell, morale, luck, building, hero, flag, typeInvalid
 	};
 
 	//NOTE: not all types have exact these sizes or have less than 4 of them. In such cases closest one will be used
@@ -185,7 +185,8 @@ public:
 		tiny,  // ~22-24px
 		small, // ~30px
 		medium,// ~42px
-		large  // ~82px
+		large,  // ~82px
+		sizeInvalid
 	};
 
 private:

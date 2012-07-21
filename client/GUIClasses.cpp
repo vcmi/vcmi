@@ -785,12 +785,7 @@ CComponent::CComponent(const Component &c):
 	if(c.id == Component::RESOURCE && c.when==-1)
 		perDay = true;
 
-	if(c.id == Component::EXPERIENCE)
-		init(experience,c.subtype,c.val, large);
-	else if(c.id == Component::SPELL)
-		init(spell,c.subtype,c.val, large);
-	else
-		init((Etype)c.id,c.subtype,c.val, large);
+	init((Etype)c.id,c.subtype,c.val, large);
 }
 
 void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
@@ -801,6 +796,9 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 	subtype = Subtype;
 	val = Val;
 	size = imageSize;
+
+	assert(compType < typeInvalid);
+	assert(size < sizeInvalid);
 
 	setSurface(getFileName()[size], getIndex());
 

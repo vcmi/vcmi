@@ -434,7 +434,9 @@ void CreditsScreen::clickRight(tribool down, bool previousState)
 CGPreGame::CGPreGame():
 	pregameConfig(new JsonNode(GameConstants::DATA_DIR + "/config/mainmenu.json"))
 {
-	//OBJ_CONSTRUCTION_CAPTURING_ALL;
+	pos.w = screen->w;
+	pos.h = screen->h;
+
 	GH.defActionsDef = 63;
 	CGP = this;
 	menu = new CMenuScreen((*pregameConfig)["window"]);
@@ -453,7 +455,9 @@ void CGPreGame::openSel(CMenuScreen::EState screenType, CMenuScreen::EMultiMode 
 
 void CGPreGame::loadGraphics()
 {
-	background = BitmapHandler::loadBitmap("DIBOXBCK");
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	new CFilledTexture("DIBOXBCK", pos);
+
 	victory = CDefHandler::giveDef("SCNRVICT.DEF");
 	loss = CDefHandler::giveDef("SCNRLOSS.DEF");
 	bonuses = CDefHandler::giveDef("SCNRSTAR.DEF");
@@ -467,7 +471,6 @@ void CGPreGame::disposeGraphics()
 {
 	delete victory;
 	delete loss;
-	SDL_FreeSurface(background);
 	SDL_FreeSurface(rHero);
 	SDL_FreeSurface(nHero);
 	SDL_FreeSurface(rTown);
@@ -502,18 +505,6 @@ void CGPreGame::update()
 	CCS->curh->draw1();
 	CSDL_Ext::update(screen);
 	CCS->curh->draw2();
-}
-
-void CGPreGame::showAll(SDL_Surface *to)
-{
-	//fill screen with background texture
-	for (int y=0; y<to->h; y+=background->h)
-	{
-		for (int x=0; x<to->w; x+=background->w)
-		{
-			blitAt(background, x, y, to);
-		}
-	}
 }
 
 void CGPreGame::openCampaignScreen(std::string name)

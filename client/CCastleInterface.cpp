@@ -367,7 +367,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 			other->setHighlight(false);
 
 			if(allow)
-				LOCPLINT->cb->swapGarrisonHero(owner->town);
+				owner->swapArmies();
 		}
 		else if(hero)
 		{
@@ -1228,10 +1228,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 		townlist->selectNext();
 		break;
 	case SDLK_SPACE:
-		if(!!town->visitingHero && town->garrisonHero)
-		{
-			LOCPLINT->cb->swapGarrisonHero(town);
-		}
+		heroes->swapArmies();
 		break;
 	case SDLK_t:
 		if(town->hasBuilt(EBuilding::TAVERN))
@@ -1264,6 +1261,19 @@ void HeroSlots::splitClicked()
 	{
 		LOCPLINT->heroExchangeStarted(town->visitingHero->id, town->garrisonHero->id);
 	}
+}
+
+void HeroSlots::swapArmies()
+{
+	if(!town->garrisonHero && town->visitingHero) //visiting => garrison, merge armies: town army => hero army
+	{
+		if(!town->visitingHero->canBeMergedWith(*town))
+		{
+			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[275], std::vector<CComponent*>(), soundBase::sound_todo);
+			return;
+		}
+	}
+	LOCPLINT->cb->swapGarrisonHero(town);
 }
 
 void CHallInterface::CBuildingBox::hover(bool on)

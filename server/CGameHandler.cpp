@@ -912,7 +912,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 		tlog1 << e.what() << std::endl;
 		end2 = true;
 	}
-	HANDLE_EXCEPTION(end2 = true);
+	//HANDLE_EXCEPTION(end2 = true);
 
 	tlog1 << "Ended handling connection\n";
 }
@@ -4760,7 +4760,8 @@ void CGameHandler::showGarrisonDialog( int upobj, int hid, bool removableUnits, 
 		callbacks[gd.queryID] = [=](ui32 answer)
 		{ 
 			// Garrison callback calls the "original callback" and closes the exchange between objs.
-			cb();
+			if (cb)
+				cb();
 			boost::unique_lock<boost::recursive_mutex> lockGsm(this->gsm);
 			allowedExchanges.erase(gd.queryID);
 		};

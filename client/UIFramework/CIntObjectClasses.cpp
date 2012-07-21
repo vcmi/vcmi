@@ -176,6 +176,25 @@ void CPicture::colorize(int player)
 	graphics->blueToPlayersAdv(bg, player);
 }
 
+CFilledTexture::CFilledTexture(std::string imageName, Rect position):
+    CIntObject(0, position.topLeft()),
+    texture(BitmapHandler::loadBitmap(imageName))
+{
+	pos.w = position.w;
+	pos.h = position.h;
+}
+
+CFilledTexture::~CFilledTexture()
+{
+	SDL_FreeSurface(texture);
+}
+
+void CFilledTexture::showAll(SDL_Surface *to)
+{
+	CSDL_Ext::CClipRectGuard guard(to, pos);
+	CSDL_Ext::fillTexture(to, texture);
+}
+
 CButtonBase::CButtonBase()
 {
 	swappedImages = keepFrame = false;

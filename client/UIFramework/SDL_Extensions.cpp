@@ -1273,6 +1273,24 @@ void CSDL_Ext::fillRect( SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color )
 	SDL_FillRect(dst, &newRect, color);
 }
 
+void CSDL_Ext::fillTexture(SDL_Surface *dst, SDL_Surface * src)
+{
+	SDL_Rect srcRect;
+	SDL_Rect dstRect;
+
+	SDL_GetClipRect(src, &srcRect);
+	SDL_GetClipRect(dst, &dstRect);
+
+	for (int y=dstRect.y; y<dstRect.h; y+=srcRect.h)
+	{
+		for (int x=dstRect.x; x<dstRect.w; x+=srcRect.w)
+		{
+			Rect currentDest(x, y, srcRect.w, srcRect.h);
+			SDL_BlitSurface(src, &srcRect, dst, &currentDest);
+		}
+	}
+}
+
 std::string CSDL_Ext::trimToFit(std::string text, int widthLimit, EFonts font)
 {
 	int widthSoFar = 0;

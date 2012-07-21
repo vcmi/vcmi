@@ -44,12 +44,12 @@ public:
 	void showAll(SDL_Surface * to);
 };
 
-class CQuestIcon : public CPicture
+class CQuestIcon : public CAnimImage
 {
 public:
 	boost::function<void()> callback; //TODO: merge with other similiar classes?
 
-	CQuestIcon (const std::string &bmpname, int x=0, int y=0);
+	CQuestIcon (const std::string &defname, int index, int x=0, int y=0);
 
 	void clickLeft(tribool down, bool previousState);
 	void showAll(SDL_Surface * to);
@@ -88,13 +88,13 @@ class CQuestLog : public CWindowObject
 	CSlider * slider; //scrolls quests
 	CAdventureMapButton *ok;
 
+	void init ();
 public:
 
 	CQuestLog (const std::vector<QuestInfo> & Quests);
 
 	~CQuestLog(){};
 
-	void init ();
 	void selectQuest (int which);
 	void updateMinimap (int which){};
 	void printDescription (int which){};

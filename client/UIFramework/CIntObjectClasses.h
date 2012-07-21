@@ -67,6 +67,17 @@ public:
 	void colorize(int player);
 };
 
+/// area filled with specific texture
+class CFilledTexture : CIntObject
+{
+	SDL_Surface * texture;
+
+public:
+	CFilledTexture(std::string imageName, Rect position);
+	~CFilledTexture();
+	void showAll(SDL_Surface *to);
+};
+
 namespace config{struct ButtonInfo;}
 
 /// Base class for buttons.

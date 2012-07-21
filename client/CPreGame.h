@@ -500,7 +500,6 @@ class CGPreGame : public CIntObject, public IUpdateable
 public:
 	CMenuScreen* menu;
 
-	SDL_Surface *background;
 	SDL_Surface *nHero, *rHero, *nTown, *rTown; // none/random hero/town imgs
 	CDefHandler *bonuses;
 	CDefHandler *victory, *loss;
@@ -509,7 +508,6 @@ public:
 	void update();
 	void openSel(CMenuScreen::EState type, CMenuScreen::EMultiMode multi = CMenuScreen::SINGLE_PLAYER);
 
-	void showAll(SDL_Surface *to);
 	void openCampaignScreen(std::string name);
 
 	static CGPreGame * create();

@@ -77,7 +77,6 @@ std::string makeNumberShort(IntType number) //the output is a string containing 
 typedef void (*TColorPutter)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
 typedef void (*TColorPutterAlpha)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
 
-
 inline SDL_Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy)
 {
 	SDL_Rect ret;
@@ -103,8 +102,29 @@ typedef void (*BlitterWithRotationVal)(SDL_Surface *src,SDL_Rect srcRect, SDL_Su
 
 namespace CSDL_Ext
 {
+	/// helper that will safely set and un-set ClipRect for SDL_Surface
+	class CClipRectGuard
+	{
+		SDL_Surface * surf;
+		SDL_Rect oldRect;
+	public:
+		CClipRectGuard(SDL_Surface * surface, const SDL_Rect & rect):
+		    surf(surface)
+		{
+			SDL_GetClipRect(surf, &oldRect);
+			SDL_SetClipRect(surf, &rect);
+		}
+
+		~CClipRectGuard()
+		{
+			SDL_SetClipRect(surf, &oldRect);
+		}
+	};
+
 	void blitSurface(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect);
 	void fillRect(SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color);
+	//fill dest image with source texture.
+	void fillTexture(SDL_Surface *dst, SDL_Surface * sourceTexture);
 
 	void SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255);
 	void SDL_PutPixelWithoutRefreshIfInSurf(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255);

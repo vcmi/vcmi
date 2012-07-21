@@ -44,19 +44,10 @@ public:
 	SDL_Color * playerColorPalette; //palette to make interface colors good - array of size [256]
 	SDL_Color * neutralColorPalette; 
 
-	SDL_Surface * hInfo, *tInfo; //hero and town infobox bgs
-	SDL_Surface *heroInGarrison; //icon for town infobox
-	CDefEssential *luck22, *luck30, *luck42, *luck82,
-		*morale22, *morale30, *morale42, *morale82,
-		*halls, *forts, *bigTownPic;
 	CDefEssential * artDefs; //artifacts
 	std::vector<SDL_Surface *> portraitSmall; //48x32 px portraits of heroes
 	std::vector<SDL_Surface *> portraitLarge; //58x64 px portraits of heroes
 	std::vector<CDefEssential *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,
-	CDefEssential * pskillsb, *resources; //82x93
-	CDefEssential * pskillsm; //42x42  primary skills
-	CDefEssential * pskillst; //32x32
-	CDefEssential * un32; //many small things
 	CDefEssential * un44; //many things
 	CDefEssential * smallIcons, *resources32; //resources 32x32
 	CDefEssential * flags;
@@ -87,7 +78,7 @@ public:
 	CDefEssential * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
 	std::vector< Point > wallPositions[GameConstants::F_NUMBER]; //positions of different pieces of wall <x, y>
 	//abilities
-	CDefEssential * abils32, * abils44, * abils82;
+	CDefEssential * abils82;
 	//spells
 	CDefEssential *spellscr; //spell on the scroll 83x61
 	//functions
