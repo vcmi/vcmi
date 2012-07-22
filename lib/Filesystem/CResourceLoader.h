@@ -34,7 +34,7 @@ class ISimpleResourceLoader;
  * Archive: .lod, .snd, .vid, .zip, .tar.gz
  * Savegame: .vlgm1
  */
-enum class EResType
+enum EResType
 {
 	ANY,
 	TEXT,
