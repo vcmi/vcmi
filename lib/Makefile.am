@@ -7,6 +7,14 @@ libvcmi_la_LIBADD = @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@
 libvcmi_la_CXXFLAGS = @SDL_CFLAGS@ -DVCMI_DLL
 libvcmi_la_SOURCES = \
 	../Global.h \
+	Filesystem/CBinaryReader.cpp \
+	Filesystem/CFileInfo.cpp \
+	Filesystem/CFileInputStream.cpp \
+	Filesystem/CFilesystemLoader.cpp \
+	Filesystem/CLodArchiveLoader.cpp \
+	Filesystem/CLodStream.cpp \
+	Filesystem/CMemoryStream.cpp \
+	Filesystem/CResourceLoader.cpp \
 	BattleAction.cpp \
 	BattleAction.h \
 	BattleState.cpp \

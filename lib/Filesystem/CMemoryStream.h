@@ -1,0 +1,107 @@
+
+/*
+ * CMemoryStream.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
+#pragma once
+
+#include "CInputStream.h"
+
+/**
+ * A class which provides method definitions for reading from memory.
+ */
+class DLL_LINKAGE CMemoryStream : public CInputStream
+{
+public:
+	/**
+	 * Default c-tor.
+	 */
+	CMemoryStream();
+
+	/**
+	 * C-tor. The data buffer will be freed by the stream's destructor.
+	 *
+	 * @param data A pointer to the data array.
+	 * @param size The size in bytes of the array.
+	 * @param freeData Flag which specifies if the data array should be freed in the memory stream's destructor.
+	 */
+	CMemoryStream(const ui8 * data, si64 size, bool freeData = false);
+
+	/**
+	 * D-tor. Frees the data array if the freeData flag was set to true.
+	 */
+	~CMemoryStream();
+
+	/**
+	 * Opens the stream with the given data array. If a stream is currently loaded, it will be freed
+	 * if neccessary.
+	 *
+	 * @param data A pointer to the data array.
+	 * @param size The size in bytes of the array.
+	 * @param freeData Flag which specifies if the data array should be freed in the memory stream's destructor.
+	 */
+	void open(const ui8 * data, si64 size, bool freeData = false);
+
+	/**
+	 * Reads n bytes from the stream into the data buffer.
+	 *
+	 * @param data A pointer to the destination data array.
+	 * @param size The number of bytes to read.
+	 * @return the number of bytes read actually.
+	 */
+	si64 read(ui8 * data, si64 size);
+
+	/**
+	 * Seeks the internal read pointer to the specified position.
+	 *
+	 * @param position The read position from the beginning.
+	 * @return the position actually moved to, -1 on error.
+	 */
+	si64 seek(si64 position);
+
+	/**
+	 * Gets the current read position in the stream.
+	 *
+	 * @return the read position.
+	 */
+	si64 tell();
+
+	/**
+	 * Skips delta numbers of bytes.
+	 *
+	 * @param delta The count of bytes to skip.
+	 * @return the count of bytes skipped actually.
+	 */
+	si64 skip(si64 delta);
+
+	/**
+	 * Gets the length in bytes of the stream.
+	 *
+	 * @return the length in bytes of the stream.
+	 */
+	si64 getSize();
+
+	/**
+	 * Closes the stream and releases any system resources associated with the stream explicitely.
+	 */
+	void close();
+
+private:
+	/** A pointer to the data array. */
+	const ui8 * data;
+
+	/** The size in bytes of the array. */
+	si64 size;
+
+	/** Current reading position of the stream. */
+	si64 position;
+
+	/** Flag which specifies if the data array should be freed in the memory stream's destructor. */
+	bool freeData;
+};
