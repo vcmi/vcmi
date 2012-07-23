@@ -9,23 +9,23 @@ CFilesystemLoader::CFilesystemLoader()
 
 }
 
-CFilesystemLoader::CFilesystemLoader(const std::string & baseDirectory)
+CFilesystemLoader::CFilesystemLoader(const std::string & baseDirectory, size_t depth)
 {
-	open(baseDirectory);
+	open(baseDirectory, depth);
 }
 
-CFilesystemLoader::CFilesystemLoader(const CFileInfo & baseDirectory)
+CFilesystemLoader::CFilesystemLoader(const CFileInfo & baseDirectory, size_t depth)
 {
-	open(baseDirectory);
+	open(baseDirectory, depth);
 }
 
-void CFilesystemLoader::open(const std::string & baseDirectory)
+void CFilesystemLoader::open(const std::string & baseDirectory, size_t depth)
 {
 	// Indexes all files in the directory and store them
 	this->baseDirectory = baseDirectory;
 	CFileInfo directory(baseDirectory);
-	std::unique_ptr<std::list<CFileInfo> > fileList = directory.listFiles();
-	if(fileList == nullptr)
+	std::unique_ptr<std::list<CFileInfo> > fileList = directory.listFiles(depth);
+	if(fileList)
 	{
 		throw std::runtime_error("Directory " + baseDirectory + " not available.");
 	}
@@ -33,9 +33,9 @@ void CFilesystemLoader::open(const std::string & baseDirectory)
 	this->fileList = std::move(*fileList);
 }
 
-void CFilesystemLoader::open(const CFileInfo & baseDirectory)
+void CFilesystemLoader::open(const CFileInfo & baseDirectory, size_t depth)
 {
-	open(baseDirectory.getName());
+	open(baseDirectory.getName(), depth);
 }
 
 std::unique_ptr<CInputStream> CFilesystemLoader::load(const std::string & resourceName) const

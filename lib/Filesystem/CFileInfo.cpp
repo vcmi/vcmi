@@ -80,7 +80,7 @@ std::time_t CFileInfo::getDate() const
 	return boost::filesystem::last_write_time(name);
 }
 
-std::unique_ptr<std::list<CFileInfo> > CFileInfo::listFiles(const std::string & extensionFilter /*= ""*/) const
+std::unique_ptr<std::list<CFileInfo> > CFileInfo::listFiles(size_t depth, const std::string & extensionFilter /*= ""*/) const
 {
 	std::unique_ptr<std::list<CFileInfo> > fileListPtr;
 
@@ -88,13 +88,20 @@ std::unique_ptr<std::list<CFileInfo> > CFileInfo::listFiles(const std::string & 
 	{
 		std::list<CFileInfo> * fileList = new std::list<CFileInfo>;
 
-		boost::filesystem::directory_iterator enddir;
-		for(boost::filesystem::directory_iterator it(name); it != enddir; ++it)
+		boost::filesystem::recursive_directory_iterator enddir;
+		for(boost::filesystem::recursive_directory_iterator it(name); it != enddir; ++it)
 		{
-			if(extensionFilter == "" || it->path().extension() == extensionFilter)
+			if (boost::filesystem::is_directory(it->status()))
 			{
-				CFileInfo file(it->path().string());
-				fileList->push_back(file);
+				it.no_push(depth >= it.level());
+			}
+			if(boost::filesystem::is_regular(it->status()))
+			{
+				if(extensionFilter == "" || it->path().extension() == extensionFilter)
+				{
+					CFileInfo file(it->path().string());
+					fileList->push_back(file);
+				}
 			}
 		}
 

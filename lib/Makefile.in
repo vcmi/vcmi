@@ -90,22 +90,22 @@ am_libvcmi_la_OBJECTS = libvcmi_la-CBinaryReader.lo \
 	libvcmi_la-CFilesystemLoader.lo \
 	libvcmi_la-CLodArchiveLoader.lo libvcmi_la-CLodStream.lo \
 	libvcmi_la-CMemoryStream.lo libvcmi_la-CResourceLoader.lo \
-	libvcmi_la-BattleAction.lo libvcmi_la-BattleState.lo \
-	libvcmi_la-CArtHandler.lo libvcmi_la-CBuildingHandler.lo \
-	libvcmi_la-CCampaignHandler.lo libvcmi_la-CConsoleHandler.lo \
-	libvcmi_la-CCreatureHandler.lo libvcmi_la-CCreatureSet.lo \
-	libvcmi_la-CDefObjInfoHandler.lo libvcmi_la-CFileUtility.lo \
-	libvcmi_la-CGameInterface.lo libvcmi_la-CGameState.lo \
-	libvcmi_la-CGeneralTextHandler.lo libvcmi_la-CHeroHandler.lo \
-	libvcmi_la-CLodHandler.lo libvcmi_la-CLogger.lo \
-	libvcmi_la-CMapInfo.lo libvcmi_la-CObjectHandler.lo \
-	libvcmi_la-CObstacleInstance.lo libvcmi_la-CSpellHandler.lo \
-	libvcmi_la-CTownHandler.lo libvcmi_la-CThreadHelper.lo \
-	libvcmi_la-Connection.lo libvcmi_la-HeroBonus.lo \
-	libvcmi_la-IGameCallback.lo libvcmi_la-JsonNode.lo \
-	libvcmi_la-NetPacksLib.lo libvcmi_la-ResourceSet.lo \
-	libvcmi_la-BattleHex.lo libvcmi_la-VCMI_Lib.lo \
-	libvcmi_la-map.lo
+	libvcmi_la-ISimpleResourceLoader.lo libvcmi_la-BattleAction.lo \
+	libvcmi_la-BattleState.lo libvcmi_la-CArtHandler.lo \
+	libvcmi_la-CBuildingHandler.lo libvcmi_la-CCampaignHandler.lo \
+	libvcmi_la-CConsoleHandler.lo libvcmi_la-CCreatureHandler.lo \
+	libvcmi_la-CCreatureSet.lo libvcmi_la-CDefObjInfoHandler.lo \
+	libvcmi_la-CFileUtility.lo libvcmi_la-CGameInterface.lo \
+	libvcmi_la-CGameState.lo libvcmi_la-CGeneralTextHandler.lo \
+	libvcmi_la-CHeroHandler.lo libvcmi_la-CLodHandler.lo \
+	libvcmi_la-CLogger.lo libvcmi_la-CMapInfo.lo \
+	libvcmi_la-CObjectHandler.lo libvcmi_la-CObstacleInstance.lo \
+	libvcmi_la-CSpellHandler.lo libvcmi_la-CTownHandler.lo \
+	libvcmi_la-CThreadHelper.lo libvcmi_la-Connection.lo \
+	libvcmi_la-HeroBonus.lo libvcmi_la-IGameCallback.lo \
+	libvcmi_la-JsonNode.lo libvcmi_la-NetPacksLib.lo \
+	libvcmi_la-ResourceSet.lo libvcmi_la-BattleHex.lo \
+	libvcmi_la-VCMI_Lib.lo libvcmi_la-map.lo
 libvcmi_la_OBJECTS = $(am_libvcmi_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -308,6 +308,7 @@ libvcmi_la_SOURCES = \
 	Filesystem/CLodStream.cpp \
 	Filesystem/CMemoryStream.cpp \
 	Filesystem/CResourceLoader.cpp \
+	Filesystem/ISimpleResourceLoader.cpp \
 	BattleAction.cpp \
 	BattleAction.h \
 	BattleState.cpp \
@@ -487,6 +488,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-Connection.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-HeroBonus.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-IGameCallback.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-ISimpleResourceLoader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-JsonNode.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-NetPacksLib.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-ResourceSet.Plo@am__quote@
@@ -569,6 +571,13 @@ libvcmi_la-CResourceLoader.lo: Filesystem/CResourceLoader.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Filesystem/CResourceLoader.cpp' object='libvcmi_la-CResourceLoader.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CResourceLoader.lo `test -f 'Filesystem/CResourceLoader.cpp' || echo '$(srcdir)/'`Filesystem/CResourceLoader.cpp
+
+libvcmi_la-ISimpleResourceLoader.lo: Filesystem/ISimpleResourceLoader.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-ISimpleResourceLoader.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-ISimpleResourceLoader.Tpo -c -o libvcmi_la-ISimpleResourceLoader.lo `test -f 'Filesystem/ISimpleResourceLoader.cpp' || echo '$(srcdir)/'`Filesystem/ISimpleResourceLoader.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-ISimpleResourceLoader.Tpo $(DEPDIR)/libvcmi_la-ISimpleResourceLoader.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Filesystem/ISimpleResourceLoader.cpp' object='libvcmi_la-ISimpleResourceLoader.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-ISimpleResourceLoader.lo `test -f 'Filesystem/ISimpleResourceLoader.cpp' || echo '$(srcdir)/'`Filesystem/ISimpleResourceLoader.cpp
 
 libvcmi_la-BattleAction.lo: BattleAction.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-BattleAction.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-BattleAction.Tpo -c -o libvcmi_la-BattleAction.lo `test -f 'BattleAction.cpp' || echo '$(srcdir)/'`BattleAction.cpp

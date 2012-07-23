@@ -31,10 +31,11 @@ public:
 	 * Ctor.
 	 *
 	 * @param baseDirectory Specifies the base directory and their sub-directories which should be indexed.
+	 * @param depth - recursion depth of subdirectories search. 0 = no recursion
 	 *
 	 * @throws std::runtime_error if the base directory is not a directory or if it is not available
 	 */
-	explicit CFilesystemLoader(const std::string & baseDirectory);
+	explicit CFilesystemLoader(const std::string & baseDirectory, size_t depth = 16);
 
 	/**
 	 * Ctor.
@@ -43,7 +44,7 @@ public:
 	 *
 	 * @throws std::runtime_error if the base directory is not a directory or if it is not available
 	 */
-	explicit CFilesystemLoader(const CFileInfo & baseDirectory);
+	explicit CFilesystemLoader(const CFileInfo & baseDirectory, size_t depth = 16);
 
 	/**
 	 * Opens a base directory to be read and indexed.
@@ -52,7 +53,7 @@ public:
 	 *
 	 * @throws std::runtime_error if the base directory is not a directory or if it is not available
 	 */
-	void open(const std::string & baseDirectory);
+	void open(const std::string & baseDirectory, size_t depth);
 
 	/**
 	 * Opens a base directory to be read and indexed.
@@ -61,7 +62,7 @@ public:
 	 *
 	 * @throws std::runtime_error if the base directory is not a directory or if it is not available
 	 */
-	void open(const CFileInfo & baseDirectory);
+	void open(const CFileInfo & baseDirectory, size_t depth);
 
 	/**
 	 * Loads a resource with the given resource name.

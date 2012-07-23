@@ -21,6 +21,16 @@ class CInputStream;
  */
 class DLL_LINKAGE CBinaryReader : public boost::noncopyable
 {
+	/**
+	 * Reads any integer. Advances the read pointer by its size.
+	 *
+	 * @return read integer.
+	 *
+	 * @throws std::runtime_error if the end of the stream was reached unexpectedly
+	 */
+	template <typename CData>
+	CData readInteger();
+
 public:
 	/**
 	 * Default c-tor.

@@ -111,7 +111,7 @@ public:
 	 * @return a list of pathnames denoting the files and directories in the directory denoted by this pathname as a unique ptr.
 	 * The array will be empty if the directory is empty. Ptr is null if the directory doesn't exist or if it isn't a directory.
 	 */
-	std::unique_ptr<std::list<CFileInfo> > listFiles(const std::string & extensionFilter = "") const;
+	std::unique_ptr<std::list<CFileInfo> > listFiles(size_t depth, const std::string & extensionFilter = "") const;
 
 private:
 	/** Contains the original URI(not modified) e.g. ./dir/foo.txt */

@@ -15,6 +15,7 @@ libvcmi_la_SOURCES = \
 	Filesystem/CLodStream.cpp \
 	Filesystem/CMemoryStream.cpp \
 	Filesystem/CResourceLoader.cpp \
+	Filesystem/ISimpleResourceLoader.cpp \
 	BattleAction.cpp \
 	BattleAction.h \
 	BattleState.cpp \

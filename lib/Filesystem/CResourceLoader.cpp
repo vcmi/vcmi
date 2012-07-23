@@ -5,9 +5,9 @@
 
 CResourceLoader * CResourceLoaderFactory::resourceLoader = nullptr;
 
-ResourceIdentifier::ResourceIdentifier() : type(EResType::OTHER)
+ResourceIdentifier::ResourceIdentifier()
+    :type(EResType::OTHER)
 {
-
 }
 
 ResourceIdentifier::ResourceIdentifier(const std::string & name, EResType type) : name(name), type(type)
@@ -38,28 +38,29 @@ void ResourceIdentifier::setType(EResType type)
 
 CResourceLoader::CResourceLoader()
 {
-
 }
 
 CResourceLoader::~CResourceLoader()
 {
 	// Delete all loader objects
-	for(auto it = loaders.begin(); it != loaders.end(); ++it)
+	BOOST_FOREACH ( ISimpleResourceLoader* it, loaders)
 	{
-		delete *it;
+		delete it;
 	}
 }
 
 std::unique_ptr<CInputStream> CResourceLoader::load(const ResourceIdentifier & resourceIdent) const
 {
-	if(!existsResource(resourceIdent))
+	auto resource = resources.find(resourceIdent);
+
+	if(resource == resources.end())
 	{
 		throw std::runtime_error("Resource with name " + resourceIdent.getName() + " and type "
 			+ EResTypeHelper::getEResTypeAsString(resourceIdent.getType()) + " wasn't found.");
 	}
 
 	// get the last added resource(most overriden)
-	const ResourceLocator & locator = resources.at(resourceIdent).back();
+	const ResourceLocator & locator = resource->second.back();
 
 	// load the resource and return it
 	return locator.getLoader()->load(locator.getResourceName());
@@ -68,14 +69,7 @@ std::unique_ptr<CInputStream> CResourceLoader::load(const ResourceIdentifier & r
 bool CResourceLoader::existsResource(const ResourceIdentifier & resourceIdent) const
 {
 	// Check if resource is registered
-	if(resources.find(resourceIdent) != resources.end())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return resources.find(resourceIdent) != resources.end();
 }
 
 void CResourceLoader::addLoader(ISimpleResourceLoader * loader)
@@ -85,9 +79,8 @@ void CResourceLoader::addLoader(ISimpleResourceLoader * loader)
 	// Get entries and add them to the resources list
 	const std::list<std::string> & entries = loader->getEntries();
 
-	for(auto it = entries.begin(); it != entries.end(); ++it)
+	BOOST_FOREACH (const std::string & entry, entries)
 	{
-		std::string entry = *it;
 		CFileInfo file(entry);
 
 		// Create identifier and locator and add them to the resources list
@@ -137,118 +130,68 @@ EResType EResTypeHelper::getTypeFromExtension(std::string extension)
 {
 	boost::to_upper(extension);
 
-	if(extension == ".TXT" || extension == ".JSON")
-	{
-		return EResType::TEXT;
-	}
-	else if(extension == ".DEF" || extension == ".JSON")
-	{
-		return EResType::ANIMATION;
-	}
-	else if(extension == ".MSK" || extension == ".MSG")
-	{
-		return EResType::MASK;
-	}
-	else if(extension == ".H3C")
-	{
-		return EResType::CAMPAIGN;
-	}
-	else if(extension == ".H3M")
-	{
-		return EResType::MAP;
-	}
-	else if(extension == ".FNT")
-	{
-		return EResType::FONT;
-	}
-	else if(extension == ".BMP" || extension == ".JPG" || extension == ".PCX" || extension == ".PNG" || extension == ".TGA")
-	{
-		return EResType::IMAGE;
-	}
-	else if(extension == ".WAV")
-	{
-		return EResType::SOUND;
-	}
-	else if(extension == ".SMK" || extension == ".BIK")
-	{
-		return EResType::VIDEO;
-	}
-	else if(extension == ".MP3" || extension == ".OGG")
-	{
-		return EResType::MUSIC;
-	}
-	else if(extension == ".ZIP" || extension == ".TAR.GZ" || extension == ".LOD" || extension == ".VID" || extension == ".SND")
-	{
-		return EResType::ARCHIVE;
-	}
-	else if(extension == ".VLGM1")
-	{
-		return EResType::SAVEGAME;
-	}
-	else
-	{
+	static const std::map<std::string, EResType> stringToRes =
+	        boost::assign::map_list_of
+	        (".TXT",   EResType::TEXT)
+	        (".JSON",  EResType::TEXT)
+	        (".DEF",   EResType::ANIMATION)
+	        (".MSK",   EResType::MASK)
+	        (".MSG",   EResType::MASK)
+	        (".H3C",   EResType::CAMPAIGN)
+	        (".H3M",   EResType::MAP)
+	        (".FNT",   EResType::FONT)
+	        (".BMP",   EResType::IMAGE)
+	        (".JPG",   EResType::IMAGE)
+	        (".PCX",   EResType::IMAGE)
+	        (".PNG",   EResType::IMAGE)
+	        (".TGA",   EResType::IMAGE)
+	        (".WAV",   EResType::SOUND)
+	        (".SMK",   EResType::VIDEO)
+	        (".BIK",   EResType::VIDEO)
+	        (".MJPG",  EResType::VIDEO)
+	        (".MP3",   EResType::MUSIC)
+	        (".OGG",   EResType::MUSIC)
+	        (".LOD",   EResType::ARCHIVE)
+	        (".VID",   EResType::ARCHIVE)
+	        (".SND",   EResType::ARCHIVE)
+	        (".VCGM1", EResType::CLIENT_SAVEGAME)
+	        (".VLGM1", EResType::LIB_SAVEGAME)
+	        (".VSGM1", EResType::SERVER_SAVEGAME);
+
+	auto iter = stringToRes.find(extension);
+	if (iter == stringToRes.end())
 		return EResType::OTHER;
-	}
+	return iter->second;
 }
 
 std::string EResTypeHelper::getEResTypeAsString(EResType type)
 {
-	if(type == EResType::ANIMATION)
-	{
-		return "ANIMATION";
-	}
-	else if(type == EResType::ANY)
-	{
-		return "ANY";
-	}
-	else if(type == EResType::ARCHIVE)
-	{
-		return "ARCHIVE";
-	}
-	else if(type == EResType::CAMPAIGN)
-	{
-		return "CAMPAIGN";
-	}
-	else if(type == EResType::FONT)
-	{
-		return "FONT";
-	}
-	else if(type == EResType::IMAGE)
-	{
-		return "IMAGE";
-	}
-	else if(type == EResType::MAP)
-	{
-		return "MAP";
-	}
-	else if(type == EResType::MASK)
-	{
-		return "MASK";
-	}
-	else if(type == EResType::MUSIC)
-	{
-		return "MUSIC";
-	}
-	else if(type == EResType::OTHER)
-	{
-		return "OTHER";
-	}
-	else if(type == EResType::SAVEGAME)
-	{
-		return "SAVEGAME";
-	}
-	else if(type == EResType::SOUND)
-	{
-		return "SOUND";
-	}
-	else if(type == EResType::TEXT)
-	{
-		return "TEXT";
-	}
-	else if(type == EResType::VIDEO)
-	{
-		return "VIDEO";
-	}
 
-	return "";
+#define MAP_ENUM(value) (EResType::value, "value")
+
+	static const std::map<EResType, std::string> stringToRes = boost::assign::map_list_of
+		MAP_ENUM(ANY)
+		MAP_ENUM(TEXT)
+		MAP_ENUM(ANIMATION)
+		MAP_ENUM(MASK)
+		MAP_ENUM(CAMPAIGN)
+		MAP_ENUM(MAP)
+		MAP_ENUM(FONT)
+		MAP_ENUM(IMAGE)
+		MAP_ENUM(VIDEO)
+		MAP_ENUM(SOUND)
+		MAP_ENUM(MUSIC)
+		MAP_ENUM(ARCHIVE)
+		MAP_ENUM(CLIENT_SAVEGAME)
+		MAP_ENUM(LIB_SAVEGAME)
+		MAP_ENUM(SERVER_SAVEGAME)
+		MAP_ENUM(OTHER);
+
+#undef MAP_ENUM
+
+	auto iter = stringToRes.find(type);
+	assert(iter != stringToRes.end());
+
+	return iter->second;
+
 }

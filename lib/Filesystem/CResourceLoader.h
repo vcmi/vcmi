@@ -21,7 +21,7 @@ class ISimpleResourceLoader;
  *
  * Supported file extensions:
  *
- * Text: .json
+ * Text: .txt .json
  * Animation: .def
  * Mask: .msk
  * Campaign: .h3c
@@ -29,10 +29,10 @@ class ISimpleResourceLoader;
  * Font: .fnt
  * Image: .bmp, .jpg, .pcx, .png, .tga
  * Sound: .wav
- * Video: .smk, .bik
+ * Video: .smk, .bik .mjpg
  * Music: .mp3, .ogg
- * Archive: .lod, .snd, .vid, .zip, .tar.gz
- * Savegame: .vlgm1
+ * Archive: .lod, .snd, .vid
+ * Savegame: .v*gm1
  */
 enum EResType
 {
@@ -48,7 +48,9 @@ enum EResType
 	SOUND,
 	MUSIC,
 	ARCHIVE,
-	SAVEGAME,
+	CLIENT_SAVEGAME,
+	LIB_SAVEGAME,
+	SERVER_SAVEGAME,
 	OTHER
 };
 

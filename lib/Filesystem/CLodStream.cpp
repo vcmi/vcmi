@@ -3,7 +3,6 @@
 
 #include "CLodArchiveLoader.h"
 #include "CFileInputStream.h"
-#include <zlib.h>
 
 CLodStream::CLodStream()
 {
@@ -48,85 +47,20 @@ si64 CLodStream::read(ui8 * data, si64 size)
 		assert(size >= archiveEntry->realSize);
 
 		// Read the compressed data into a buffer
-		ui8 * comp = new ui8[archiveEntry->size];
-		fileStream.read(comp, archiveEntry->size);
+		auto comp = std::unique_ptr<ui8[]>(new ui8[archiveEntry->size]);
+		fileStream.read(comp.get(), archiveEntry->size);
 
 		// Decompress the file
-		if(!decompressFile(comp, archiveEntry->size, archiveEntry->realSize, data))
+		data = CLodArchiveLoader::decompressFile(comp.get(), archiveEntry->size, archiveEntry->realSize).first;
+
+		if (!data)
 		{
 			throw std::runtime_error("File decompression wasn't successful. Resource name: " + archiveEntry->name);
 		}
-		delete[] comp;
 
 		// We're reading the total size always
 		return archiveEntry->realSize;
 	}
-}
-
-bool CLodStream::decompressFile(ui8 * in, int size, int realSize, ui8 * out)
-{
-	const int WBITS = 15;
-	const int FCHUNK = 50000;
-
-	int ret;
-	unsigned have;
-	z_stream strm;
-	int latPosOut = 0;
-
-	// Allocate inflate state
-	strm.zalloc = Z_NULL;
-	strm.zfree = Z_NULL;
-	strm.opaque = Z_NULL;
-	strm.avail_in = 0;
-	strm.next_in = Z_NULL;
-	ret = inflateInit2(&strm, WBITS);
-	if (ret != Z_OK)
-		return false;
-
-	int chunkNumber = 0;
-	do
-	{
-		if(size < chunkNumber * FCHUNK)
-			break;
-		strm.avail_in = std::min(FCHUNK, size - chunkNumber * FCHUNK);
-		if (strm.avail_in == 0)
-			break;
-		strm.next_in = in + chunkNumber * FCHUNK;
-
-		// Run inflate() on input until output buffer not full
-		do
-		{
-			strm.avail_out = realSize - latPosOut;
-			strm.next_out = out + latPosOut;
-			ret = inflate(&strm, Z_NO_FLUSH);
-
-			bool breakLoop = false;
-			switch (ret)
-			{
-			case Z_STREAM_END:
-				breakLoop = true;
-				break;
-			case Z_NEED_DICT:
-				ret = Z_DATA_ERROR;
-			case Z_DATA_ERROR:
-			case Z_MEM_ERROR:
-				(void)inflateEnd(&strm);
-				return false;
-			}
-
-			if(breakLoop)
-				break;
-
-			have = realSize - latPosOut - strm.avail_out;
-			latPosOut += have;
-		} while (strm.avail_out == 0);
-
-		++chunkNumber;
-	} while (ret != Z_STREAM_END);
-
-	// Clean up and return
-	(void)inflateEnd(&strm);
-	return ret == Z_STREAM_END ? true : false;
 }
 
 si64 CLodStream::seek(si64 position)

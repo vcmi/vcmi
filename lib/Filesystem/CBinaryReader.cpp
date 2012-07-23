@@ -3,6 +3,25 @@
 #include <SDL_endian.h>
 #include "CInputStream.h"
 
+
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+template <typename CData>
+CData readLE(CData data)
+{
+	auto dataPtr = (char*)&data;
+	std::reverse(dataPtr, dataPtr + sizeof(data));
+	return data;
+}
+
+#else
+
+template <typename CData>
+CData readLE(CData data)
+{
+	return data;
+}
+#endif
+
 CBinaryReader::CBinaryReader() : stream(nullptr)
 {
 
@@ -28,101 +47,37 @@ si64 CBinaryReader::read(ui8 * data, si64 size)
 	return stream->read(data, size);
 }
 
-ui8 CBinaryReader::readUInt8()
+template <typename CData>
+CData CBinaryReader::readInteger()
 {
-	ui8 val;
-	si64 b = stream->read(&val, 1);
-	if(b < 1)
+	CData val;
+	si64 b = stream->read(reinterpret_cast<unsigned char *>(&val), sizeof(val));
+	if(b < sizeof(val))
 	{
-		throw std::runtime_error(getEndOfStreamExceptionMsg(1));
+		throw std::runtime_error(getEndOfStreamExceptionMsg(sizeof(val)));
 	}
 
-	return val;
+	return readLE(val);
 }
 
-si8 CBinaryReader::readInt8()
-{
-	si8 val;
-	si64 b = stream->read(reinterpret_cast<ui8 *>(&val), 1);
-	if(b < 1)
-	{
-		throw std::runtime_error(getEndOfStreamExceptionMsg(1));
-	}
+//FIXME: any way to do this without macro?
+#define INSTANTIATE(datatype, methodname) \
+datatype CBinaryReader::methodname() \
+{ return readInteger<datatype>(); }
 
-	return val;
-}
+// While it is certanly possible to leave only template method
+// but typing template parameter every time can be annoying
+// and templates parameters can't be resolved by return type
+INSTANTIATE(ui8, readUInt8)
+INSTANTIATE(si8, readInt8)
+INSTANTIATE(ui16, readUInt16)
+INSTANTIATE(si16, readInt16)
+INSTANTIATE(ui32, readUInt32)
+INSTANTIATE(si32, readInt32)
+INSTANTIATE(ui64, readUInt64)
+INSTANTIATE(si64, readInt64)
 
-ui16 CBinaryReader::readUInt16()
-{
-	ui16 val;
-	si64 b = stream->read(reinterpret_cast<ui8 *>(&val), 2);
-	if(b < 2)
-	{
-		throw std::runtime_error(getEndOfStreamExceptionMsg(2));
-	}
-
-	return SDL_SwapLE16(val);
-}
-
-si16 CBinaryReader::readInt16()
-{
-	si16 val;
-	si64 b = stream->read(reinterpret_cast<ui8 *>(&val), 2);
-	if(b < 2)
-	{
-		throw std::runtime_error(getEndOfStreamExceptionMsg(2));
-	}
-
-	return SDL_SwapLE16(val);
-}
-
-ui32 CBinaryReader::readUInt32()
-{
-	ui32 val;
-	si64 b = stream->read(reinterpret_cast<ui8 *>(&val), 4);
-	if(b < 4)
-	{
-		throw std::runtime_error(getEndOfStreamExceptionMsg(4));
-	}
-
-	return SDL_SwapLE32(val);
-}
-
-si32 CBinaryReader::readInt32()
-{
-	si32 val;
-	si64 b = stream->read(reinterpret_cast<ui8 *>(&val), 4);
-	if(b < 4)
-	{
-		throw std::runtime_error(getEndOfStreamExceptionMsg(4));
-	}
-
-	return SDL_SwapLE32(val);
-}
-
-ui64 CBinaryReader::readUInt64()
-{
-	ui64 val;
-	si64 b = stream->read(reinterpret_cast<ui8 *>(&val), 8);
-	if(b < 8)
-	{
-		throw std::runtime_error(getEndOfStreamExceptionMsg(8));
-	}
-
-	return SDL_SwapLE64(val);
-}
-
-si64 CBinaryReader::readInt64()
-{
-	si64 val;
-	si64 b = stream->read(reinterpret_cast<ui8 *>(&val), 8);
-	if(b < 8)
-	{
-		throw std::runtime_error(getEndOfStreamExceptionMsg(8));
-	}
-
-	return SDL_SwapLE64(val);
-}
+#undef INSTANTIATE
 
 std::string CBinaryReader::getEndOfStreamExceptionMsg(long bytesToRead) const
 {

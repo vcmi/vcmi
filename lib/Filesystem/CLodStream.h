@@ -96,15 +96,6 @@ public:
 	void close();
 
 private:
-	/**
-	 * Decompresses an archive entry.
-	 *
-	 * @param in A pointer to the compressed data array
-	 * @param size The size of the compressed data array
-	 * @param realSize The size of the decompressed real size of the entry
-	 * @param out
-	 */
-	bool decompressFile(ui8 * in, int size, int realSize, ui8 * out);
 
 	/** The file stream for reading from the LOD archive. */
 	CFileInputStream fileStream;
