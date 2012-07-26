@@ -480,7 +480,11 @@ void CBattleResultWindow::bExitf()
 {
 	if(LOCPLINT->cb->getStartInfo()->mode == StartInfo::DUEL)
 	{
-		std::exit(0);
+		SDL_Event ev;
+		ev.type = SDL_QUIT;
+		ev.user.code = 0;
+		SDL_PushEvent(&ev);
+		return;
 	}
 
 	CPlayerInterface * intTmp = owner->curInt;

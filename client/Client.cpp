@@ -393,9 +393,11 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 	if(si->mode == StartInfo::DUEL)
 	{
+		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 		CPlayerInterface *p = new CPlayerInterface(-1);
 		p->observerInDuelMode = true;
 		battleints[254] = playerint[254] = p;
+		privilagedBattleEventReceivers.push_back(p);
 		GH.curInt = p;
 		p->init(new CCallback(gs, -1, this));
 		battleStarted(gs->curB);

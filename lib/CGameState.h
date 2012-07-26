@@ -284,12 +284,12 @@ struct DLL_LINKAGE CPathsInfo
 	~CPathsInfo();
 };
 
-struct DLL_LINKAGE DuelParameters
+struct DLL_EXPORT DuelParameters
 {
 	si32 terType, bfieldType;
-	struct SideSettings
+	struct DLL_EXPORT SideSettings
 	{
-		struct StackSettings
+		struct DLL_EXPORT StackSettings
 		{
 			si32 type;
 			si32 count;
@@ -300,23 +300,46 @@ struct DLL_LINKAGE DuelParameters
 
 			StackSettings();
 			StackSettings(si32 Type, si32 Count);
-		};
-		StackSettings stacks[GameConstants::ARMY_SIZE];
+		} stacks[GameConstants::ARMY_SIZE];
 
 		si32 heroId; //-1 if none
+		std::vector<si32> heroPrimSkills; //may be empty
+		std::map<si32, CArtifactInstance*> artifacts;
+		std::vector<std::pair<si32, si8> > heroSecSkills; //may be empty; pairs <id, level>, level [0-3]
 		std::set<si32> spells;
 
 		SideSettings();
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & stacks & heroId & spells;
+			h & stacks & heroId & heroPrimSkills & artifacts & heroSecSkills & spells;
 		}
 	} sides[2];
+
+	std::vector<shared_ptr<CObstacleInstance> > obstacles;
+
+	static DuelParameters fromJSON(const std::string &fname);
+
+	struct CusomCreature
+	{
+		int id;
+		int attack, defense, dmg, HP, speed, shoots;
+
+		CusomCreature() 
+		{
+			id = attack = defense = dmg = HP = speed = shoots = -1;
+		}
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & id & attack & defense & dmg & HP & speed & shoots;
+		}
+	};
+
+	std::vector<CusomCreature> creatures;
 
 	DuelParameters();
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & terType & bfieldType & sides;
+		h & terType & bfieldType & sides & obstacles & creatures;
 	}
 };
 
@@ -387,6 +410,8 @@ public:
 	boost::shared_mutex *mx;
 
 	void init(StartInfo * si);
+
+	void initDuel();
 	void loadTownDInfos();
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>

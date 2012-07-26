@@ -848,56 +848,8 @@ void CGameState::init(StartInfo * si)
 		}
 		break;
 	case StartInfo::DUEL:
-		{
-			DuelParameters dp;
-			try
-			{
-				CLoadFile lf(scenarioOps->mapname);
-				lf >> dp;
-			}
-			catch(...)
-			{}
-
-
-			const CArmedInstance *armies[2] = {0};
-			const CGHeroInstance *heroes[2] = {0};
-			CGTownInstance *town = NULL;
-
-			for(int i = 0; i < 2; i++)
-			{
-				CArmedInstance *obj = NULL;
-				if(dp.sides[i].heroId >= 0)
-				{
-					CGHeroInstance *h = new CGHeroInstance();
-					armies[i] = heroes[i] = h;
-					obj = h;
-					h->subID = dp.sides[i].heroId;
-					h->initHero(h->subID);
-				}
-				else
-				{
-					CGCreature *c = new CGCreature();
-					armies[i] = obj = c;
-					c->subID = 34;
-
-				}
-
-				obj->initObj();
-				obj->setOwner(i);
-
-				for(int j = 0; j < ARRAY_COUNT(dp.sides[i].stacks); j++)
-				{
-					int cre = dp.sides[i].stacks[j].type, count = dp.sides[i].stacks[j].count;
-					if(count || obj->hasStackAtSlot(j))
-						obj->setCreature(j, cre, count);
-				}
-			}
-
-			curB = BattleInfo::setupBattle(int3(), dp.bfieldType, dp.terType, armies, heroes, false, town);
-			curB->localInit();
-			return;
-		}
-		break;
+		initDuel();
+		return;
 	default:
 		tlog1 << "Wrong mode: " << (int)scenarioOps->mode << std::endl;
 		return;
@@ -1525,6 +1477,108 @@ void CGameState::init(StartInfo * si)
 	{
 		scenarioOps->seedPostInit = seedAfterInit; //store the post init "seed"
 	}
+}
+
+void CGameState::initDuel()
+{
+	DuelParameters dp;
+	try //CLoadFile likes throwing
+	{
+		if(boost::algorithm::ends_with(scenarioOps->mapname, ".json"))
+		{
+			tlog0 << "Loading duel settings from JSON file: " << scenarioOps->mapname << std::endl;
+			dp = DuelParameters::fromJSON(scenarioOps->mapname);
+			tlog0 << "JSON file has been successfully read!\n";
+		}
+		else
+		{
+			CLoadFile lf(scenarioOps->mapname);
+			lf >> dp;
+		}
+	}
+	catch(...)
+	{
+		tlog1 << "Cannot load duel settings from " << scenarioOps->mapname << std::endl;
+		throw;
+	}
+
+	const CArmedInstance *armies[2] = {0};
+	const CGHeroInstance *heroes[2] = {0};
+	CGTownInstance *town = NULL;
+
+	for(int i = 0; i < 2; i++)
+	{
+		CArmedInstance *obj = NULL;
+		if(dp.sides[i].heroId >= 0)
+		{
+			const DuelParameters::SideSettings &ss = dp.sides[i];
+			CGHeroInstance *h = new CGHeroInstance();
+			armies[i] = heroes[i] = h;
+			obj = h;
+			h->subID = ss.heroId;
+			for(int i = 0; i < ss.heroPrimSkills.size(); i++)
+				h->pushPrimSkill(i, ss.heroPrimSkills[i]);
+
+			if(ss.spells.size())
+			{
+				h->putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
+				boost::copy(ss.spells, std::inserter(h->spells, h->spells.begin()));
+			}
+
+			BOOST_FOREACH(auto &parka, ss.artifacts)
+			{
+				h->putArtifact(parka.first, parka.second);
+			}
+
+			typedef const std::pair<si32, si8> &TSecSKill;
+			BOOST_FOREACH(TSecSKill secSkill, ss.heroSecSkills)
+				h->setSecSkillLevel((CGHeroInstance::SecondarySkill)secSkill.first, secSkill.second, 1);
+
+			h->initHero(h->subID);
+			obj->initObj();
+		}
+		else
+		{
+			CGCreature *c = new CGCreature();
+			armies[i] = obj = c;
+			//c->subID = 34;
+		}
+
+		obj->setOwner(i);
+
+		for(int j = 0; j < ARRAY_COUNT(dp.sides[i].stacks); j++)
+		{
+			TCreature cre = dp.sides[i].stacks[j].type;
+			TQuantity count = dp.sides[i].stacks[j].count;
+			if(count || obj->hasStackAtSlot(j))
+				obj->setCreature(j, cre, count);
+		}
+
+		BOOST_FOREACH(const DuelParameters::CusomCreature &cc, dp.creatures)
+		{
+			CCreature *c = VLC->creh->creatures[cc.id];
+			if(cc.attack >= 0)
+				c->getBonus(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK))->val = cc.attack;
+			if(cc.defense >= 0)
+				c->getBonus(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE))->val = cc.defense;
+			if(cc.speed >= 0)
+				c->getBonus(Selector::type(Bonus::STACKS_SPEED))->val = cc.speed;
+			if(cc.HP >= 0)
+				c->getBonus(Selector::type(Bonus::STACK_HEALTH))->val = cc.HP;
+			if(cc.dmg >= 0)
+			{
+				c->getBonus(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1))->val = cc.dmg;
+				c->getBonus(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2))->val = cc.dmg;
+			}
+			if(cc.shoots >= 0)
+				c->getBonus(Selector::type(Bonus::SHOTS))->val = cc.shoots;
+		}
+	}
+
+	curB = BattleInfo::setupBattle(int3(), dp.bfieldType, dp.terType, armies, heroes, false, town);
+	curB->obstacles = dp.obstacles;
+	curB->localInit();
+	return;
 }
 
 int CGameState::battleGetBattlefieldType(int3 tile) const
@@ -2721,6 +2775,88 @@ DuelParameters::DuelParameters()
 {
 	terType = TerrainTile::dirt;
 	bfieldType = 15;
+}
+
+DuelParameters DuelParameters::fromJSON(const std::string &fname)
+{
+	DuelParameters ret;
+
+	const JsonNode duelData(fname);
+	ret.terType = duelData["terType"].Float();
+	ret.bfieldType = duelData["bfieldType"].Float();
+	BOOST_FOREACH(const JsonNode &n, duelData["sides"].Vector())
+	{
+		SideSettings &ss = ret.sides[(int)n["side"].Float()];
+		int i = 0;
+		BOOST_FOREACH(const JsonNode &stackNode, n["army"].Vector())
+		{
+			ss.stacks[i].type = stackNode.Vector()[0].Float();
+			ss.stacks[i].count = stackNode.Vector()[1].Float();
+			i++;
+		}
+
+		if(n["heroid"].getType() == JsonNode::DATA_FLOAT)
+			ss.heroId = n["heroid"].Float();
+		else
+			ss.heroId = -1;
+
+		BOOST_FOREACH(const JsonNode &n, n["heroPrimSkills"].Vector())
+			ss.heroPrimSkills.push_back(n.Float());
+
+		BOOST_FOREACH(const JsonNode &skillNode, n["heroSecSkills"].Vector())
+		{
+			std::pair<si32, si8> secSkill;
+			secSkill.first = skillNode.Vector()[0].Float();
+			secSkill.second = skillNode.Vector()[1].Float();
+			ss.heroSecSkills.push_back(secSkill);
+		}
+
+		assert(ss.heroPrimSkills.empty() || ss.heroPrimSkills.size() == GameConstants::PRIMARY_SKILLS);
+
+		if(ss.heroId != -1)
+			BOOST_FOREACH(const JsonNode &spell, n["spells"].Vector())
+				ss.spells.insert(spell.Float());
+	}
+
+	BOOST_FOREACH(const JsonNode &n, duelData["obstacles"].Vector())
+	{
+		auto oi = make_shared<CObstacleInstance>();
+		if(n.getType() == JsonNode::DATA_VECTOR)
+		{
+			oi->ID = n.Vector()[0].Float();
+			oi->pos = n.Vector()[1].Float();
+		}
+		else
+		{
+			assert(n.getType() == JsonNode::DATA_FLOAT);
+			oi->ID = 21;
+			oi->pos = n.Float();
+		}
+		oi->uniqueID = ret.obstacles.size();
+		ret.obstacles.push_back(oi);
+	}
+
+	BOOST_FOREACH(const JsonNode &n, duelData["creatures"].Vector())
+	{
+		CusomCreature cc;
+		cc.id = n["id"].Float();
+
+#define retreive(name)								\
+	if(n[ #name ].getType() == JsonNode::DATA_FLOAT)\
+	cc.name = n[ #name ].Float();			\
+	else											\
+	cc.name = -1;
+
+		retreive(attack);
+		retreive(defense);
+		retreive(HP);
+		retreive(dmg);
+		retreive(shoots);
+		retreive(speed);
+		ret.creatures.push_back(cc);
+	}
+
+	return ret;
 }
 
 TeamState::TeamState()

@@ -56,6 +56,8 @@ si8 CBattleInfoCallback::battleCanTeleportTo(const CStack * stack, BattleHex des
 
 std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, BattleHex hex /*= BattleHex::INVALID*/, BattleHex * predecessors /*= NULL*/)
 {
+	// FIXME - This method is broken, hex argument is not used. However AI depends on that wrong behaviour.
+
 	if(!hex.isValid())
 		hex = stack->position;
 
