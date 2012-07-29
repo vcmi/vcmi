@@ -1090,11 +1090,16 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGBorderGate : public CGBorderGuard //not fully imlemented, waiting for garrison
+class DLL_LINKAGE CGBorderGate : public CGBorderGuard
 {
 public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 	ui8 getPassableness() const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGBorderGuard&>(*this); //need to serialize or object will be empty
+	}
 };
 
 class DLL_LINKAGE CGBoat : public CGObjectInstance 

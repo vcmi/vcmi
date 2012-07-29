@@ -53,6 +53,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGKeys>();
 	s.template registerType<CGKeymasterTent>();
 	s.template registerType<CGBorderGuard>();
+	s.template registerType<CGBorderGate>();
 	s.template registerType<CGBoat>();
 	s.template registerType<CGMagi>();
 	s.template registerType<CGSirens>();
