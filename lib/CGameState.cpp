@@ -328,8 +328,9 @@ DLL_LINKAGE std::string MetaString::buildList () const
 
 void  MetaString::addCreReplacement(TCreature id, TQuantity count) //adds sing or plural name;
 {
-	assert(count);
-	if (count == 1)
+	if (!count)
+		addReplacement (CRE_PL_NAMES, id); //no creatures - just empty name (eg. defeat Angels)
+	else if (count == 1)
 		addReplacement (CRE_SING_NAMES, id);
 	else
 		addReplacement (CRE_PL_NAMES, id);
@@ -337,7 +338,6 @@ void  MetaString::addCreReplacement(TCreature id, TQuantity count) //adds sing o
 
 void MetaString::addReplacement(const CStackBasicDescriptor &stack)
 {
-	assert(stack.count); //valid count
 	assert(stack.type); //valid type
 	addCreReplacement(stack.type->idNumber, stack.count);
 }

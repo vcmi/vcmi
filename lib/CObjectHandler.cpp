@@ -4404,7 +4404,7 @@ void CGSeerHut::setObjToKill()
 	if (missionType == MISSION_KILL_CREATURE)
 	{
 		stackToKill = getCreatureToKill(false)->getStack(0); //FIXME: stacks tend to dissapear (desync?) on server :?
-		assert (stackToKill.count > 0); //seemingly creatures are uninitialized
+		stackToKill.count = 0; //no count in info window
 		stackDirection = checkDirection();
 	}
 	else if (missionType == MISSION_KILL_HERO)
@@ -4445,8 +4445,13 @@ const std::string & CGSeerHut::getHoverText() const
 	switch (ID)
 	{
 			case 83:
-				hoverName = VLC->generaltexth->allTexts[347];
-				boost::algorithm::replace_first(hoverName,"%s", seerName);
+				if (progress)
+				{
+					hoverName = VLC->generaltexth->allTexts[347];
+					boost::algorithm::replace_first(hoverName,"%s", seerName);
+				}
+				else //just seer hut
+					hoverName = VLC->generaltexth->names[ID];
 				break;
 			case 215:
 				hoverName = VLC->generaltexth->names[ID];
@@ -4522,7 +4527,7 @@ void CGSeerHut::setPropertyDer (ui8 what, ui32 val)
 }
 void CGSeerHut::newTurn() const
 {
-	if (lastDay >= 0 && lastDay <= cb->getDate(0)) //time is up
+	if (lastDay >= 0 && lastDay < cb->getDate(0)) //time is up
 	{
 		cb->setObjProperty (id, 11, 0);
 		cb->setObjProperty (id, 10, 0);
