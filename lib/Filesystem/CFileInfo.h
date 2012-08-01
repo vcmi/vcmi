@@ -81,18 +81,25 @@ public:
 	std::string getFilename() const;
 
 	/**
-	 * Gets the file name exclusive the extension of the file.
+	 * Gets the file name + path exclusive the extension of the file.
 	 *
-	 * @return the file name exclusive the extension of the file. E.g. foo
+	 * @return the file name exclusive the extension of the file. E.g. ./dir/foo
 	 */
 	std::string getStem() const;
+
+	/**
+	 * Gets the file name exclusive the extension of the file.
+	 *
+	 * @return the file name exclusive the extension and a path of the file. E.g. foo
+	 */
+	std::string getBaseName() const;
 
 	/**
 	 * Gets the extension type as a EResType enumeration.
 	 *
 	 * @return the extension type as a EResType enumeration.
 	 */
-	EResType getType() const;
+	EResType::Type getType() const;
 
 	/**
 	 * Gets the timestamp of the file.

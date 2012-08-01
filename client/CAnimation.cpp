@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include <SDL_image.h>
 
+#include "../lib/Filesystem/CResourceLoader.h"
 #include "../lib/CLodHandler.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
@@ -20,9 +21,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-extern DLL_LINKAGE CLodHandler *spriteh;
-extern DLL_LINKAGE CLodHandler *bitmaph;
 
 typedef std::map <size_t, std::vector <JsonNode> > source_map;
 typedef std::map<size_t, IImage* > image_map;
@@ -90,8 +88,9 @@ CDefFile::CDefFile(std::string Name):
 		{   0,   0,   0, 128},//  50% - shadow body   below selection
 		{   0,   0,   0, 192} // 75% - shadow border below selection
 	};
+	data = CResourceHandler::get()->loadData(
+	           ResourceID(std::string("SPRITES/") + Name, EResType::ANIMATION)).first.release();
 
-	data = spriteh->giveFile(Name, FILE_ANIMATION);
 	palette = new SDL_Color[256];
 	int it = 0;
 
@@ -936,13 +935,13 @@ void CAnimation::init(CDefFile * file)
 			source[mapIt->first].resize(mapIt->second);
 	}
 
-	if (spriteh->haveFile(name, FILE_TEXT))
-	{
-		int size = 0;
-		ui8 * configFile = spriteh->giveFile(name, FILE_TEXT, &size);
+	ResourceID identifier(std::string("SPRITES/") + name, EResType::TEXT);
 
-		const JsonNode config((char*)configFile, size);
-		delete[] configFile;
+	if (CResourceHandler::get()->existsResource(identifier))
+	{
+		auto configFile = CResourceHandler::get()->loadData(identifier);
+
+		const JsonNode config((char*)configFile.first.get(), configFile.second);
 
 		std::string basepath;
 		basepath = config["basepath"].String();
@@ -977,7 +976,9 @@ void CAnimation::init(CDefFile * file)
 
 CDefFile * CAnimation::getFile() const
 {
-	if (spriteh->haveFile(name, FILE_ANIMATION))
+	ResourceID identifier(std::string("SPRITES/") + name, EResType::ANIMATION);
+
+	if (CResourceHandler::get()->existsResource(identifier))
 		return new CDefFile(name);
 	return NULL;
 }

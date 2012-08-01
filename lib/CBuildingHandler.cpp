@@ -3,11 +3,10 @@
 
 #include "CGeneralTextHandler.h"
 #include "CLodHandler.h"
+#include "../lib/Filesystem/CResourceLoader.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/JsonNode.h"
 #include "GameConstants.h"
-
-extern CLodHandler * bitmaph;
 
 /*
  * CBuildingHandler.cpp, part of VCMI engine
@@ -44,7 +43,10 @@ static CBuilding * readBg(std::string &buf, int& it)
 }
 void CBuildingHandler::loadBuildings()
 {
-	std::string buf = bitmaph->getTextFile("BUILDING.TXT"), temp;
+	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/BUILDING.TXT"));
+	std::string buf((char*)textFile.first.get(), textFile.second);
+
+	std::string temp;
 	int it=0; //buf iterator
 
 	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//read 2 lines of file info

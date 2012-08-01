@@ -18,17 +18,18 @@
  */
 class DLL_LINKAGE ISimpleResourceLoader
 {
-public:
+
 	/**
 	 * Decompresses an archive entry.
 	 *
 	 * @param in A pointer to the compressed data array
 	 * @param size The size of the compressed data array
-	 * @param realSize The size of the decompressed real size of the entry or 0 if not known (slower)
+	 * @param realSize - hint decompressed size (if known)
 	 * @returns pair(decompressed data, size)
 	 */
-	static std::pair<ui8*, size_t> decompressFile(ui8 * in, size_t size, size_t realSize);
+	static std::pair<ui8*, size_t> decompress(ui8 * in, size_t size, size_t realSize = 0);
 
+public:
 	/**
 	 * Dtor.
 	 */
@@ -55,4 +56,11 @@ public:
 	 * @return Returns a list of all entries in the archive or (file) system.
 	 */
 	virtual std::list<std::string> getEntries() const =0;
+
+	/**
+	 * Gets the origin of the loader.
+	 *
+	 * @return the file path to source of this loader
+	 */
+	virtual std::string getOrigin() const =0;
 };

@@ -1,12 +1,11 @@
 #include "StdInc.h"
 #include "CDefObjInfoHandler.h"
 
+#include "Filesystem/CResourceLoader.h"
 #include "../client/CGameInfo.h"
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "GameConstants.h"
-
-extern CLodHandler * bitmaph;
 
 /*
  * CDefObjInfoHandler.cpp, part of VCMI engine
@@ -36,21 +35,24 @@ CGDefInfo::CGDefInfo()
 
 void CGDefInfo::fetchInfoFromMSK()
 {
-	std::string msk = spriteh->getTextFile(name, FILE_MASK);
 
-	width = msk[0];
-	height = msk[1];
+	auto msk = CResourceHandler::get()->loadData(ResourceID(std::string("SPRITES/") + name, EResType::MASK));
+
+	width = msk.first.get()[0];
+	height = msk.first.get()[1];
 	for(int i=0; i<6; ++i)
 	{
-		coverageMap[i] = msk[i+2];
-		shadowCoverage[i] = msk[i+8];
+		coverageMap[i] = msk.first.get()[i+2];
+		shadowCoverage[i] = msk.first.get()[i+8];
 	}
 }
 
 void CDefObjInfoHandler::load()
 {
 	VLC->dobjinfo = this;
-	std::istringstream inp(bitmaph->getTextFile("ZOBJCTS.TXT"));
+	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/ZOBJCTS.TXT"));
+
+	std::istringstream inp(std::string((char*)textFile.first.get(), textFile.second));
 	int objNumber;
 	inp>>objNumber;
 	std::string mapStr;

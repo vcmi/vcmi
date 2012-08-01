@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "CHeroHandler.h"
 
+#include "Filesystem/CResourceLoader.h"
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/JsonNode.h"
@@ -8,7 +9,6 @@
 #include <boost/version.hpp>
 #include "BattleHex.h"
 
-extern CLodHandler * bitmaph;
 void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
 /*
  * CHeroHandler.cpp, part of VCMI engine
@@ -165,7 +165,8 @@ void CHeroHandler::loadPuzzleInfo()
 void CHeroHandler::loadHeroes()
 {
 	VLC->heroh = this;
-	std::string buf = bitmaph->getTextFile("HOTRAITS.TXT");
+	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/HOTRAITS.TXT"));
+	std::string buf((char*)textFile.first.get(), textFile.second);
 	int it=0;
 	std::string dump;
 	for(int i=0; i<2; ++i)
@@ -286,7 +287,8 @@ void CHeroHandler::loadHeroes()
 	expPerLevel.pop_back();//last value is broken
 
 	//ballistics info
-	buf = bitmaph->getTextFile("BALLIST.TXT");
+	textFile = CResourceHandler::get()->loadData(ResourceID("DATA/BALLIST.TXT"));
+	buf = std::string((char*)textFile.first.get(), textFile.second);
 	it = 0;
 	for(int i=0; i<22; ++i)
 	{
@@ -324,7 +326,8 @@ void CHeroHandler::loadHeroes()
 
 void CHeroHandler::loadHeroClasses()
 {
-	std::istringstream str(bitmaph->getTextFile("HCTRAITS.TXT")); //we'll be reading from it
+	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/HCTRAITS.TXT"));
+	std::istringstream str(std::string((char*)textFile.first.get(), textFile.second)); //we'll be reading from it
 	const int BUFFER_SIZE = 5000;
 	char buffer[BUFFER_SIZE+1];
 

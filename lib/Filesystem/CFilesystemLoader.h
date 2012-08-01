@@ -56,15 +56,6 @@ public:
 	void open(const std::string & baseDirectory, size_t depth);
 
 	/**
-	 * Opens a base directory to be read and indexed.
-	 *
-	 * @param baseDirectory Specifies the base directory and their sub-directories which should be indexed.
-	 *
-	 * @throws std::runtime_error if the base directory is not a directory or if it is not available
-	 */
-	void open(const CFileInfo & baseDirectory, size_t depth);
-
-	/**
 	 * Loads a resource with the given resource name.
 	 *
 	 * @param resourceName The unqiue resource name in space of the filesystem.
@@ -85,6 +76,13 @@ public:
 	 * @return a list of all entries in the filesystem.
 	 */
 	std::list<std::string> getEntries() const;
+
+	/**
+	 * Gets the origin of the archive loader.
+	 *
+	 * @return the file path to directory with archive (e.g. path/to/h3/mp3)
+	 */
+	std::string getOrigin() const;
 
 private:
 	/** The base directory which is scanned and indexed. */

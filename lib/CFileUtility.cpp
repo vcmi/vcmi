@@ -11,7 +11,7 @@
  *
  */
 
-
+/*
 namespace fs = boost::filesystem;
 
 CFileUtility::CFileUtility(void)
@@ -52,4 +52,4 @@ void CFileUtility::getFilesWithExt(std::vector<FileInfo> &out, const std::string
 
 		}
 	}
-}
+}*/

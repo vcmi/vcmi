@@ -2,6 +2,7 @@
 #include "CLodArchiveLoader.h"
 #include "CInputStream.h"
 #include "CFileInputStream.h"
+#include "CCompressedStream.h"
 #include "CLodStream.h"
 #include "CBinaryReader.h"
 #include "CFileInfo.h"
@@ -40,7 +41,7 @@ void CLodArchiveLoader::open(const std::string & archive)
 	boost::to_upper(ext);
 
 	// Init the specific lod container format
-	if(ext == ".LOD")
+	if(ext == ".LOD" || ext == ".PAC")
 	{
 		initLODArchive(fileStream);
 	}
@@ -170,7 +171,7 @@ void CLodArchiveLoader::initSNDArchive(CFileInputStream & fileStream)
 	fileStream.read(reinterpret_cast<ui8 *>(sndEntries), sizeof(struct SoundEntryBlock) * totalFiles);
 
 	// Insert entries to list
-	for(ui8 i = 0; i < totalFiles; i++)
+	for(ui32 i = 0; i < totalFiles; i++)
 	{
 		SoundEntryBlock sndEntry = sndEntries[i];
 		ArchiveEntry entry;
@@ -188,8 +189,20 @@ void CLodArchiveLoader::initSNDArchive(CFileInputStream & fileStream)
 
 std::unique_ptr<CInputStream> CLodArchiveLoader::load(const std::string & resourceName) const
 {
-	std::unique_ptr<CInputStream> stream(new CLodStream(this, resourceName));
-	return stream;
+	assert(existsEntry(resourceName));
+
+	const ArchiveEntry & entry = entries.find(resourceName)->second;
+
+	if (entry.size != 0) //compressed data
+	{
+		std::unique_ptr<CInputStream> fileStream(new CFileInputStream(getOrigin(), entry.offset, entry.size));
+
+		return std::unique_ptr<CInputStream>(new CCompressedStream(fileStream, false, entry.realSize));
+	}
+	else
+	{
+		return std::unique_ptr<CInputStream>(new CFileInputStream(getOrigin(), entry.offset, entry.realSize));
+	}
 }
 
 std::list<std::string> CLodArchiveLoader::getEntries() const
@@ -219,15 +232,7 @@ const ArchiveEntry * CLodArchiveLoader::getArchiveEntry(const std::string & reso
 
 bool CLodArchiveLoader::existsEntry(const std::string & resourceName) const
 {
-	auto it = entries.find(resourceName);
-	if(it != entries.end())
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return entries.find(resourceName) != entries.end();
 }
 
 std::string CLodArchiveLoader::getOrigin() const

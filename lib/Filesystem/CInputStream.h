@@ -64,5 +64,5 @@ public:
 	/**
 	 * Closes the stream and releases any system resources associated with the stream explicitely.
 	 */
-	virtual void close() = 0;
+	//virtual void close() = 0;
 };

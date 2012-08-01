@@ -65,13 +65,13 @@
 			"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN", "hotkey" : 27},
 			"items":
 			[
-				{ "x":90,  "y":72,  "file":"GOOD1.H3C",    "image":"CAMPGD1S", "video":"CGOOD1",   "open": true },
-				{ "x":539, "y":72,  "file":"EVIL1.H3C",    "image":"CAMPEV1S", "video":"CEVIL1",   "open": true },
-				{ "x":43,  "y":245, "file":"GOOD2.H3C",    "image":"CAMPGD2S", "video":"CGOOD2",   "open": true },
-				{ "x":313, "y":244, "file":"NEUTRAL.H3C",  "image":"CAMPNEUS", "video":"CNEUTRAL", "open": true },
-				{ "x":586, "y":246, "file":"EVIL2.H3C",    "image":"CAMPEV2S", "video":"CEVIL2",   "open": true },
-				{ "x":34,  "y":417, "file":"GOOD3.H3C",    "image":"CAMPGD3S", "video":"CGOOD3",   "open": true },
-				{ "x":404, "y":414, "file":"SECRET.H3C",   "image":"CAMPSCTS", "video":"CSECRET",  "open": true }
+				{ "x":90,  "y":72,  "file":"DATA/GOOD1.H3C",    "image":"CAMPGD1S", "video":"CGOOD1",   "open": true },
+				{ "x":539, "y":72,  "file":"DATA/EVIL1.H3C",    "image":"CAMPEV1S", "video":"CEVIL1",   "open": true },
+				{ "x":43,  "y":245, "file":"DATA/GOOD2.H3C",    "image":"CAMPGD2S", "video":"CGOOD2",   "open": true },
+				{ "x":313, "y":244, "file":"DATA/NEUTRAL.H3C",  "image":"CAMPNEUS", "video":"CNEUTRAL", "open": true },
+				{ "x":586, "y":246, "file":"DATA/EVIL2.H3C",    "image":"CAMPEV2S", "video":"CEVIL2",   "open": true },
+				{ "x":34,  "y":417, "file":"DATA/GOOD3.H3C",    "image":"CAMPGD3S", "video":"CGOOD3",   "open": true },
+				{ "x":404, "y":414, "file":"DATA/SECRET.H3C",   "image":"CAMPSCTS", "video":"CSECRET",  "open": true }
 			]
 		},
 		{
@@ -85,12 +85,12 @@
 			"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN", "hotkey" : 27},
 			"items":
 			[
-				{ "x":90,  "y":72,  "file":"AB.H3C",       "image":"CAMP1AB7", "video":"C1ab7", "open": true },
-				{ "x":539, "y":72,  "file":"BLOOD.H3C",    "image":"CAMP1DB2", "video":"C1db2", "open": true },
-				{ "x":43,  "y":245, "file":"SLAYER.H3C",   "image":"CAMP1DS1", "video":"C1ds1", "open": true },
-				{ "x":313, "y":244, "file":"FESTIVAL.H3C", "image":"CAMP1FL3", "video":"C1fl3", "open": true },
-				{ "x":586, "y":246, "file":"FIRE.H3C",     "image":"CAMP1PF2", "video":"C1pf2", "open": true },
-				{ "x":34,  "y":417, "file":"FOOL.H3C",     "image":"CAMP1FW1", "video":"C1fw1", "open": true }
+				{ "x":90,  "y":72,  "file":"DATA/AB.H3C",       "image":"CAMP1AB7", "video":"C1ab7", "open": true },
+				{ "x":539, "y":72,  "file":"DATA/BLOOD.H3C",    "image":"CAMP1DB2", "video":"C1db2", "open": true },
+				{ "x":43,  "y":245, "file":"DATA/SLAYER.H3C",   "image":"CAMP1DS1", "video":"C1ds1", "open": true },
+				{ "x":313, "y":244, "file":"DATA/FESTIVAL.H3C", "image":"CAMP1FL3", "video":"C1fl3", "open": true },
+				{ "x":586, "y":246, "file":"DATA/FIRE.H3C",     "image":"CAMP1PF2", "video":"C1pf2", "open": true },
+				{ "x":34,  "y":417, "file":"DATA/FOOL.H3C",     "image":"CAMP1FW1", "video":"C1fw1", "open": true }
 			]
 
 		},
@@ -100,13 +100,13 @@
 			"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN", "hotkey" : 27},
 			"items":
 			[
-				{ "x":90,  "y":72,  "file":"GEM.H3C",      "image":"CAMPNB1", "video":"NEW",     "open": true },
-				{ "x":539, "y":72,  "file":"GELU.H3C",     "image":"CAMPEL1", "video":"ELIXIR",  "open": true },
-				{ "x":43,  "y":245, "file":"CRAG.H3C",     "image":"CAMPHS1", "video":"HACK",    "open": true },
-				{ "x":313, "y":244, "file":"SANDRO.H3C",   "image":"CAMPRN1", "video":"RISE",    "open": true },
-				{ "x":586, "y":246, "file":"YOG.H3C",      "image":"CAMPBB1", "video":"BIRTH",   "open": true },
-				{ "x":34,  "y":417, "file":"FINAL.H3C",    "image":"CAMPUA1", "video":"UNHOLY",  "open": true },
-				{ "x":404, "y":414, "file":"SECRET1.H3C",  "image":"CAMPSP1", "video":"SPECTRE", "open": true }
+				{ "x":90,  "y":72,  "file":"DATA/GEM.H3C",      "image":"CAMPNB1", "video":"NEW",     "open": true },
+				{ "x":539, "y":72,  "file":"DATA/GELU.H3C",     "image":"CAMPEL1", "video":"ELIXIR",  "open": true },
+				{ "x":43,  "y":245, "file":"DATA/CRAG.H3C",     "image":"CAMPHS1", "video":"HACK",    "open": true },
+				{ "x":313, "y":244, "file":"DATA/SANDRO.H3C",   "image":"CAMPRN1", "video":"RISE",    "open": true },
+				{ "x":586, "y":246, "file":"DATA/YOG.H3C",      "image":"CAMPBB1", "video":"BIRTH",   "open": true },
+				{ "x":34,  "y":417, "file":"DATA/FINAL.H3C",    "image":"CAMPUA1", "video":"UNHOLY",  "open": true },
+				{ "x":404, "y":414, "file":"DATA/SECRET1.H3C",  "image":"CAMPSP1", "video":"SPECTRE", "open": true }
 			]
 
 		},
@@ -116,10 +116,10 @@
 			"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN", "hotkey" : 27},
 			"items":
 			[
-				{ "x":90,  "y":72,  "file":"ZC1.H3C", "image":"CAMPZ01", "open": true},
-				{ "x":539, "y":72,  "file":"ZC2.H3C", "image":"CAMPZ02", "open": true},
-				{ "x":43,  "y":245, "file":"ZC3.H3C", "image":"CAMPZ03", "open": true},
-				{ "x":311, "y":242, "file":"ZC4.H3C", "image":"CAMPZ04", "open": true}
+				{ "x":90,  "y":72,  "file":"DATA/ZC1.H3C", "image":"CAMPZ01", "open": true},
+				{ "x":539, "y":72,  "file":"DATA/ZC2.H3C", "image":"CAMPZ02", "open": true},
+				{ "x":43,  "y":245, "file":"DATA/ZC3.H3C", "image":"CAMPZ03", "open": true},
+				{ "x":311, "y":242, "file":"DATA/ZC4.H3C", "image":"CAMPZ04", "open": true}
 			]
 
 		}

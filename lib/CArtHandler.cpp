@@ -1,16 +1,16 @@
 #include "StdInc.h"
 #include "CArtHandler.h"
 
+#include "Filesystem/CResourceLoader.h"
 #include "CLodHandler.h"
 #include "CGeneralTextHandler.h"
 #include <boost/random/linear_congruential.hpp>
-#include "../lib/VCMI_Lib.h"
+#include "VCMI_Lib.h"
 #include "CSpellHandler.h"
 #include "CObjectHandler.h"
 #include "NetPacks.h"
-#include "../lib/JsonNode.h"
+#include "JsonNode.h"
 
-extern CLodHandler *bitmaph;
 using namespace boost::assign;
 
 /*
@@ -239,7 +239,10 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	growingArtifacts += 146, 147, 148, 150, 151, 152, 153;
 	static std::map<char, CArtifact::EartClass> classes = 
 	  map_list_of('S',CArtifact::ART_SPECIAL)('T',CArtifact::ART_TREASURE)('N',CArtifact::ART_MINOR)('J',CArtifact::ART_MAJOR)('R',CArtifact::ART_RELIC);
-	std::string buf = bitmaph->getTextFile("ARTRAITS.TXT"), dump, pom;
+
+	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/ARTRAITS.TXT"));
+	std::string buf((char*)textFile.first.get(), textFile.second);
+	std::string dump, pom;
 	int it=0;
 	for(int i=0; i<2; ++i)
 	{

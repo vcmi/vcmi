@@ -1,9 +1,12 @@
 #include "StdInc.h"
 
+#include "../lib/Filesystem/CResourceLoader.h"
+#include "../lib/Filesystem/CFileInfo.h"
 #include "SDL.h"
 #include "SDL_image.h"
 #include "CBitmapHandler.h"
 #include "CDefHandler.h"
+#include "UIFramework/SDL_Extensions.h"
 #include "../lib/CLodHandler.h"
 #include "../lib/vcmi_endian.h"
 
@@ -17,54 +20,37 @@
  *
  */
 
-extern DLL_LINKAGE CLodHandler *bitmaph;
-extern DLL_LINKAGE CLodHandler *bitmaph_ab;
-extern DLL_LINKAGE CLodHandler *spriteh;
-
-void CPCXConv::openPCX(char * PCX, int len)
+bool isPCX(const ui8 *header)//check whether file can be PCX according to header
 {
-	pcxs=len;
-	pcx=(ui8*)PCX;
-}
-void CPCXConv::fromFile(std::string path)
-{
-	std::ifstream is;
-	is.open(path.c_str(),std::ios::binary);
-	is.seekg(0,std::ios::end); // to the end
-	pcxs = is.tellg();  // read length
-	is.seekg(0,std::ios::beg); // wracamy na poczatek
-	pcx = new ui8[pcxs]; // allocate memory 
-	is.read((char*)pcx, pcxs); // read map file to buffer
-	is.close();
+	int fSize  = read_le_u32(header + 0);
+	int width  = read_le_u32(header + 4);
+	int height = read_le_u32(header + 8);
+	return fSize == width*height || fSize == width*height*3;
 }
 
-void CPCXConv::saveBMP(std::string path) const
+enum Epcxformat
 {
-	std::ofstream os;
-	os.open(path.c_str(), std::ios::binary);
-	os.write(reinterpret_cast<const char*>(bmp), bmps);
-	os.close();
-}
+	PCX8B,
+	PCX24B
+};
 
-SDL_Surface * CPCXConv::getSurface() const
+SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 {
 	SDL_Surface * ret;
 
-	int width = -1, height = -1;
 	Epcxformat format;
-	int fSize;
 	int it=0;
 
-	fSize = read_le_u32(pcx + it); it+=4;
-	width = read_le_u32(pcx + it); it+=4;
-	height = read_le_u32(pcx + it); it+=4;
-	
+	ui32 fSize = read_le_u32(pcx + it); it+=4;
+	ui32 width = read_le_u32(pcx + it); it+=4;
+	ui32 height = read_le_u32(pcx + it); it+=4;
+
 	if (fSize==width*height*3)
 		format=PCX24B;
 	else if (fSize==width*height)
 		format=PCX8B;
-	else 
-		return NULL;
+	else
+		return nullptr;
 
 	if (format==PCX8B)
 	{
@@ -77,31 +63,23 @@ SDL_Surface * CPCXConv::getSurface() const
 			it+= width;
 		}
 
-		it = pcxs-256*3;
+		//palette - last 256*3 bytes
+		it = size-256*3;
 		for (int i=0;i<256;i++)
 		{
 			SDL_Color tp;
 			tp.r = pcx[it++];
 			tp.g = pcx[it++];
 			tp.b = pcx[it++];
-			tp.unused = 255;
+			tp.unused = SDL_ALPHA_OPAQUE;
 			ret->format->palette->colors[i] = tp;
 		}
 	}
 	else
 	{
-#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-		int bmask = 0xff0000;
-		int gmask = 0x00ff00;
-		int rmask = 0x0000ff;
-#else
-		int bmask = 0x0000ff;
-		int gmask = 0x00ff00;
-		int rmask = 0xff0000;
-#endif
-		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 24, rmask, gmask, bmask, 0);
+		ret = CSDL_Ext::createSurfaceWithBpp<3>(width, height);
 
-		it = 0xC;
+		//it == 0xC;
 		for (int i=0; i<height; i++)
 		{
 			memcpy((char*)ret->pixels + ret->pitch * i, pcx + it, width*3);
@@ -112,64 +90,51 @@ SDL_Surface * CPCXConv::getSurface() const
 	return ret;
 }
 
-bool isPCX(const ui8 *header)//check whether file can be PCX according to 1st 12 bytes
-{
-	int fSize  = read_le_u32(header + 0);
-	int width  = read_le_u32(header + 4);
-	int height = read_le_u32(header + 8);
-	return fSize == width*height || fSize == width*height*3;
-}
-
-SDL_Surface * BitmapHandler::loadBitmapFromLod(CLodHandler *lod, std::string fname, bool setKey)
+SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fname, bool setKey)
 {
 	if(!fname.size())
 	{
 		tlog2 << "Call to loadBitmap with void fname!\n";
 		return NULL;
 	}
-	if (!lod->haveFile(fname, FILE_GRAPHICS))
+	if (!CResourceHandler::get()->existsResource(ResourceID(path + fname, EResType::IMAGE)))
 	{
-		//it is possible that this image will be found in another lod archive. Disabling this warning
-		//tlog2<<"Entry for file "<<fname<<" was not found"<<std::endl;
-		return NULL;
+		return nullptr;
 	}
 
 	SDL_Surface * ret=NULL;
-	int size;
-	ui8 * file = 0;
-	file = lod->giveFile(fname, FILE_GRAPHICS, &size);
+
+	auto readFile = CResourceHandler::get()->loadData(
+	                              ResourceID(path + fname, EResType::IMAGE));
+
 	
-	if (isPCX(file))
+	if (isPCX(readFile.first.get()))
 	{//H3-style PCX
-		CPCXConv cp;
-		cp.openPCX((char*)file,size);
-		ret = cp.getSurface();
-		if (!ret)
-			tlog1<<"Failed to open "<<fname<<" as H3 PCX!\n";
-		if(ret->format->BytesPerPixel == 1  &&  setKey)
+		ret = loadH3PCX(readFile.first.get(), readFile.second);
+		if (ret)
 		{
-			const SDL_Color &c = ret->format->palette->colors[0];
-			SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format, c.r, c.g, c.b));
+			if(ret->format->BytesPerPixel == 1  &&  setKey)
+			{
+				const SDL_Color &c = ret->format->palette->colors[0];
+				SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format, c.r, c.g, c.b));
+			}
 		}
+		else
+			tlog1<<"Failed to open "<<fname<<" as H3 PCX!\n";
 	}
 	else
 	{ //loading via SDL_Image
-		std::string filename = lod->getFileName(fname, FILE_GRAPHICS);
-		std::string ext;
-		lod->convertName(filename, &ext);
+		CFileInfo info(CResourceHandler::get()->getResourceName(ResourceID(path + fname, EResType::IMAGE)));
 
-		if (ext == ".TGA")//Special case - targa can't be loaded by IMG_Load_RW (no magic constants in header)
-		{
-			SDL_RWops *rw = SDL_RWFromMem((void*)file, size);
-			ret = IMG_LoadTGA_RW( rw );
-			SDL_FreeRW(rw);
-		}
-		else
-			ret = IMG_Load_RW( SDL_RWFromMem((void*)file, size), 1);
+		ret = IMG_LoadTyped_RW(
+		          //create SDL_RW with our data (will be deleted by SDL)
+		          SDL_RWFromConstMem((void*)readFile.first.release(), readFile.second),
+		          1, // mark it for auto-deleting
+		          &info.getExtension()[0] + 1); //pass extension without dot (+1 character)
 
 		if (!ret)
 			tlog1<<"Failed to open "<<fname<<" via SDL_Image\n";
-		delete [] file;
+
 		if (ret->format->palette)
 		{
 			//set correct value for alpha\unused channel
@@ -184,9 +149,8 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 {
 	SDL_Surface *bitmap;
 
-	if (!(bitmap = loadBitmapFromLod(bitmaph, fname, setKey)) &&
-		!(bitmap = loadBitmapFromLod(bitmaph_ab, fname, setKey)) &&
-		!(bitmap = loadBitmapFromLod(spriteh, fname, setKey)))
+	if (!(bitmap = loadBitmapFromDir("DATA/", fname, setKey)) &&
+		!(bitmap = loadBitmapFromDir("SPRITES/", fname, setKey)))
 		tlog0<<"Error: Failed to find file "<<fname<<"\n";
 
 	return bitmap;

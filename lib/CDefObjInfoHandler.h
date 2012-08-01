@@ -14,7 +14,6 @@
  */
 
 class CDefEssential;
-class CLodHandler;
 class DLL_LINKAGE CGDefInfo
 {
 public:

@@ -43,7 +43,6 @@ std::map<int,std::map<int, std::vector<int> > > CGTeleport::objs;
 std::vector<std::pair<int, int> > CGTeleport::gates;
 IGameCallback * IObjectInterface::cb = NULL;
 DLL_LINKAGE void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
-extern CLodHandler * bitmaph;
 extern boost::rand48 ran;
 std::map <ui8, std::set <ui8> > CGKeys::playerKeyMap;
 std::map <si32, std::vector<si32> > CGMagi::eyelist;

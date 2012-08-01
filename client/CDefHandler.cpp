@@ -2,6 +2,7 @@
 #include "SDL.h"
 #include "CDefHandler.h"
 
+#include "../lib/Filesystem/CResourceLoader.h"
 #include "../lib/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/vcmi_endian.h"
@@ -363,7 +364,8 @@ CDefEssential * CDefHandler::essentialize()
 
 CDefHandler * CDefHandler::giveDef(const std::string & defName)
 {
-	ui8 * data = spriteh->giveFile(defName, FILE_ANIMATION);
+	ui8 * data = CResourceHandler::get()->loadData(
+	                 ResourceID(std::string("SPRITES/") + defName, EResType::ANIMATION)).first.release();
 	if(!data)
 		throw std::runtime_error("bad def name!");
 	CDefHandler * nh = new CDefHandler();

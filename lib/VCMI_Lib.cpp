@@ -15,6 +15,7 @@
 #include "IGameEventsReceiver.h"
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
+#include "Filesystem/CResourceLoader.h"
 
 /*
  * VCMI_Lib.cpp, part of VCMI engine
@@ -26,11 +27,7 @@
  *
  */
 
-class CLodHandler;
 LibClasses * VLC = NULL;
-DLL_LINKAGE CLodHandler *bitmaph = NULL, 
-	*spriteh = NULL,
-	*bitmaph_ab = NULL;
 
 DLL_LINKAGE VCMIDirs GVCMIDirs;
 
@@ -166,6 +163,12 @@ void LibClasses::init()
 {
 	CStopWatch pomtime;
 
+	CResourceHandler::initialize();
+	CResourceHandler::loadFileSystem("ALL/config/filesystem.json");
+	CResourceHandler::loadModsFilesystems();
+
+	tlog0<<"\tFile system handler: "<<pomtime.getDiff()<<std::endl;
+
 	generaltexth = new CGeneralTextHandler;
 	generaltexth->load();
 	tlog0<<"\tGeneral text handler: "<<pomtime.getDiff()<<std::endl;
@@ -236,20 +239,6 @@ void LibClasses::makeNull()
 
 LibClasses::LibClasses()
 {
-	//load .lod archives
-
-	if(!spriteh) //don't reload lods if we are starting a secoond game
-	{
-		CStopWatch pomtime;
-		spriteh = new CLodHandler();
-		spriteh->init(GameConstants::DATA_DIR + "/Data/H3sprite.lod", GameConstants::DATA_DIR + "/Sprites");
-		bitmaph = new CLodHandler;
-		bitmaph->init(GameConstants::DATA_DIR + "/Data/H3bitmap.lod", GameConstants::DATA_DIR + "/Data");
-		bitmaph_ab = new CLodHandler();
-		bitmaph_ab->init(GameConstants::DATA_DIR + "/Data/H3ab_bmp.lod", GameConstants::DATA_DIR + "/Data");
-		tlog0<<"Loading .lod files: "<<pomtime.getDiff()<<std::endl;
-	}
-
 	//init pointers to handlers
 	makeNull();
 }

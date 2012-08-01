@@ -14,11 +14,10 @@ public:
 	CMapHeader * mapHeader; //may be NULL if campaign
 	CCampaignHeader * campaignHeader; //may be NULL if scenario
 	StartInfo *scenarioOpts; //options with which scenario has been started (used only with saved games)
-	std::string filename;
-	bool lodCmpgn; //tells if this campaign is located in Lod file
+	std::string fileURI;
 	std::string date;
 	int playerAmnt, //players in map
-		humenPlayers; //players ALLOWED to be controlled by human
+		humanPlayers; //players ALLOWED to be controlled by human
 	int actualHumanPlayers; // >1 if multiplayer game
 	CMapInfo(bool map = true);
 	~CMapInfo();
@@ -30,7 +29,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int Version)
 	{
-		h & mapHeader & campaignHeader & scenarioOpts & filename & lodCmpgn & date & playerAmnt & humenPlayers;
+		h & mapHeader & campaignHeader & scenarioOpts & fileURI & date & playerAmnt & humanPlayers;
 		h & actualHumanPlayers;
 	}
 };

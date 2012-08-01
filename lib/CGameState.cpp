@@ -20,7 +20,8 @@
 #include "RegisterTypes.h"
 #include "CMapInfo.h"
 #include "BattleState.h"
-#include "../lib/JsonNode.h"
+#include "JsonNode.h"
+#include "Filesystem/CResourceLoader.h"
 #include "GameConstants.h"
 
 DLL_LINKAGE boost::rand48 ran;
@@ -2814,8 +2815,10 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 		assert(ss.heroPrimSkills.empty() || ss.heroPrimSkills.size() == GameConstants::PRIMARY_SKILLS);
 
 		if(ss.heroId != -1)
+		{
 			BOOST_FOREACH(const JsonNode &spell, n["spells"].Vector())
 				ss.spells.insert(spell.Float());
+		}
 	}
 
 	BOOST_FOREACH(const JsonNode &n, duelData["obstacles"].Vector())

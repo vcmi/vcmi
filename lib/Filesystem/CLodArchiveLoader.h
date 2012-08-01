@@ -35,7 +35,7 @@ struct ArchiveEntry
 	/** Size without compression in bytes **/
 	int realSize;
 
-	/** Size within compression in bytes **/
+	/** Size with compression in bytes or 0 if not compressed **/
 	int size;
 };
 

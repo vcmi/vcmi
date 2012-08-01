@@ -86,10 +86,10 @@ am__installdirs = "$(DESTDIR)$(pkglibdir)"
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 libvcmi_la_DEPENDENCIES =
 am_libvcmi_la_OBJECTS = libvcmi_la-CBinaryReader.lo \
-	libvcmi_la-CFileInfo.lo libvcmi_la-CFileInputStream.lo \
-	libvcmi_la-CFilesystemLoader.lo \
-	libvcmi_la-CLodArchiveLoader.lo libvcmi_la-CLodStream.lo \
-	libvcmi_la-CMemoryStream.lo libvcmi_la-CResourceLoader.lo \
+	libvcmi_la-CCompressedStream.lo libvcmi_la-CFileInfo.lo \
+	libvcmi_la-CFileInputStream.lo libvcmi_la-CFilesystemLoader.lo \
+	libvcmi_la-CLodArchiveLoader.lo libvcmi_la-CMemoryStream.lo \
+	libvcmi_la-CResourceLoader.lo \
 	libvcmi_la-ISimpleResourceLoader.lo libvcmi_la-BattleAction.lo \
 	libvcmi_la-BattleState.lo libvcmi_la-CArtHandler.lo \
 	libvcmi_la-CBuildingHandler.lo libvcmi_la-CCampaignHandler.lo \
@@ -301,12 +301,12 @@ libvcmi_la_CXXFLAGS = @SDL_CFLAGS@ -DVCMI_DLL
 libvcmi_la_SOURCES = \
 	../Global.h \
 	Filesystem/CBinaryReader.cpp \
+	Filesystem/CCompressedStream.cpp \
 	Filesystem/CFileInfo.cpp \
 	Filesystem/CFileInputStream.cpp \
 	Filesystem/CFilesystemLoader.cpp \
 	Filesystem/CLodArchiveLoader.cpp \
-	Filesystem/CLodStream.cpp \
-	Filesystem/CMemoryStream.cpp \
+		Filesystem/CMemoryStream.cpp \
 	Filesystem/CResourceLoader.cpp \
 	Filesystem/ISimpleResourceLoader.cpp \
 	BattleAction.cpp \
@@ -461,6 +461,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CBinaryReader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CBuildingHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCampaignHandler.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCompressedStream.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CConsoleHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCreatureHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCreatureSet.Plo@am__quote@
@@ -475,7 +476,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CHeroHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CLodArchiveLoader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CLodHandler.Plo@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CLodStream.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CLogger.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CMapInfo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CMemoryStream.Plo@am__quote@
@@ -523,6 +523,13 @@ libvcmi_la-CBinaryReader.lo: Filesystem/CBinaryReader.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CBinaryReader.lo `test -f 'Filesystem/CBinaryReader.cpp' || echo '$(srcdir)/'`Filesystem/CBinaryReader.cpp
 
+libvcmi_la-CCompressedStream.lo: Filesystem/CCompressedStream.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CCompressedStream.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CCompressedStream.Tpo -c -o libvcmi_la-CCompressedStream.lo `test -f 'Filesystem/CCompressedStream.cpp' || echo '$(srcdir)/'`Filesystem/CCompressedStream.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CCompressedStream.Tpo $(DEPDIR)/libvcmi_la-CCompressedStream.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Filesystem/CCompressedStream.cpp' object='libvcmi_la-CCompressedStream.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CCompressedStream.lo `test -f 'Filesystem/CCompressedStream.cpp' || echo '$(srcdir)/'`Filesystem/CCompressedStream.cpp
+
 libvcmi_la-CFileInfo.lo: Filesystem/CFileInfo.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CFileInfo.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CFileInfo.Tpo -c -o libvcmi_la-CFileInfo.lo `test -f 'Filesystem/CFileInfo.cpp' || echo '$(srcdir)/'`Filesystem/CFileInfo.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CFileInfo.Tpo $(DEPDIR)/libvcmi_la-CFileInfo.Plo
@@ -550,13 +557,6 @@ libvcmi_la-CLodArchiveLoader.lo: Filesystem/CLodArchiveLoader.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Filesystem/CLodArchiveLoader.cpp' object='libvcmi_la-CLodArchiveLoader.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CLodArchiveLoader.lo `test -f 'Filesystem/CLodArchiveLoader.cpp' || echo '$(srcdir)/'`Filesystem/CLodArchiveLoader.cpp
-
-libvcmi_la-CLodStream.lo: Filesystem/CLodStream.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CLodStream.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CLodStream.Tpo -c -o libvcmi_la-CLodStream.lo `test -f 'Filesystem/CLodStream.cpp' || echo '$(srcdir)/'`Filesystem/CLodStream.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CLodStream.Tpo $(DEPDIR)/libvcmi_la-CLodStream.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='Filesystem/CLodStream.cpp' object='libvcmi_la-CLodStream.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CLodStream.lo `test -f 'Filesystem/CLodStream.cpp' || echo '$(srcdir)/'`Filesystem/CLodStream.cpp
 
 libvcmi_la-CMemoryStream.lo: Filesystem/CMemoryStream.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CMemoryStream.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CMemoryStream.Tpo -c -o libvcmi_la-CMemoryStream.lo `test -f 'Filesystem/CMemoryStream.cpp' || echo '$(srcdir)/'`Filesystem/CMemoryStream.cpp

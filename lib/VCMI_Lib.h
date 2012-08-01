@@ -10,7 +10,6 @@
  *
  */
 
-class CLodHandler;
 class CArtHandler;
 class CHeroHandler;
 class CCreatureHandler;
@@ -55,7 +54,6 @@ public:
 };
 
 extern DLL_LINKAGE LibClasses * VLC;
-extern DLL_LINKAGE CLodHandler * bitmaph, *spriteh, *bitmaph_ab;
 
 DLL_LINKAGE void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
 DLL_LINKAGE void loadToIt(si32 &dest, const std::string &src, int &iter, int mode);

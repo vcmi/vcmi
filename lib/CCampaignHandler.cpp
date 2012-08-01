@@ -1,6 +1,8 @@
 #include "StdInc.h"
 #include "CCampaignHandler.h"
 
+#include "Filesystem/CResourceLoader.h"
+#include "Filesystem/CCompressedStream.h"
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/vcmi_endian.h"
@@ -35,7 +37,7 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders(GetMode mode)
 		tlog1 << "Cannot find " << dirname << " directory!\n";
 	}
 
-	if (mode == Custom || mode == ALL) //add custom campaigns
+	if (mode == Custom) //add custom campaigns
 	{
 		fs::path tie(dirname);
 		fs::directory_iterator end_iter;
@@ -44,51 +46,38 @@ std::vector<CCampaignHeader> CCampaignHandler::getCampaignHeaders(GetMode mode)
 			if(fs::is_regular_file(file->status())
 				&& boost::ends_with(file->path().filename().string(), ext))
 			{
-				ret.push_back( getHeader( file->path().string(), false ) );
+				ret.push_back( getHeader( file->path().string()) );
 			}
 		}
 	}
-	if (mode == ALL) //add all lod campaigns
-	{
-		BOOST_FOREACH(Entry e, bitmaph->entries)
-		{
-			if( e.type == FILE_CAMPAIGN )
-			{
-				ret.push_back( getHeader(e.name, true) );
-			}
-		}
-	}
-
 
 	return ret;
 }
 
-CCampaignHeader CCampaignHandler::getHeader( const std::string & name, bool fromLod )
+CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
 {
-	int realSize;
-	ui8 * cmpgn = getFile(name, fromLod, realSize);
+	ui8 * cmpgn = getFile(name).first;
 
 	int it = 0;//iterator for reading
 	CCampaignHeader ret = readHeaderFromMemory(cmpgn, it);
 	ret.filename = name;
-	ret.loadFromLod = fromLod;
 
 	delete [] cmpgn;
 
 	return ret;
 }
 
-CCampaign * CCampaignHandler::getCampaign( const std::string & name, bool fromLod )
+CCampaign * CCampaignHandler::getCampaign( const std::string & name)
 {
 	CCampaign * ret = new CCampaign();
 
-	int realSize;
-	ui8 * cmpgn = getFile(name, fromLod, realSize);
+	auto file = getFile(name);
+	int realSize = file.second;
+	ui8 * cmpgn = file.first;
 
 	int it = 0; //iterator for reading
 	ret->header = readHeaderFromMemory(cmpgn, it);
 	ret->header.filename = name;
-	ret->header.loadFromLod = fromLod;
 
 	int howManyScenarios = VLC->generaltexth->campaignRegionNames[ret->header.mapVersion].size();
 	for(int g=0; g<howManyScenarios; ++g)
@@ -418,24 +407,15 @@ bool CCampaignHandler::startsAt( const ui8 * buffer, int size, int pos )
 	return true;
 }
 
-ui8 * CCampaignHandler::getFile( const std::string & name, bool fromLod, int & outSize )
+std::pair<ui8 *, size_t> CCampaignHandler::getFile(const std::string & name)
 {
-	ui8 * cmpgn = 0;
-	if(fromLod)
-	{
-		if (bitmaph->haveFile(name, FILE_CAMPAIGN))
-			cmpgn = bitmaph->giveFile(name, FILE_CAMPAIGN, &outSize);
-		else if (bitmaph_ab->haveFile(name, FILE_CAMPAIGN))
-			cmpgn = bitmaph_ab->giveFile(name, FILE_CAMPAIGN, &outSize);
-		else
-			tlog1 << "Cannot find file: " << name << std::endl;
-		cmpgn = CLodHandler::getUnpackedData(cmpgn, outSize, &outSize);
-	}
-	else
-	{
-		cmpgn = CLodHandler::getUnpackedFile(name, &outSize);
-	}
-	return cmpgn;
+	std::unique_ptr<CInputStream> stream = CResourceHandler::get()->load(ResourceID(name, EResType::CAMPAIGN));
+	stream.reset(new CCompressedStream(stream, true));
+
+	ui8 * ret = new ui8[stream->getSize()];
+	stream->read(ret, stream->getSize());
+
+	return std::make_pair(ret, stream->getSize());
 }
 
 bool CCampaign::conquerable( int whichScenario ) const
@@ -567,10 +547,7 @@ void CCampaignState::initNewCampaign( const StartInfo &si )
 	campaignName = si.mapname;
 	currentMap = si.whichMapInCampaign;
 
-	//check if campaign is in lod or not
-	bool inLod = campaignName.find('/') == std::string::npos;
-
-	camp = CCampaignHandler::getCampaign(campaignName, inLod); //TODO lod???
+	camp = CCampaignHandler::getCampaign(campaignName);
 	for (ui8 i = 0; i < camp->mapPieces.size(); i++)
 		mapsRemaining.push_back(i);
 }

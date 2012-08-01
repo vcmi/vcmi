@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include "../lib/Filesystem/CResourceLoader.h"
 #include <SDL.h>
 #include "../lib/StartInfo.h"
 #include "GUIClasses.h"
@@ -143,10 +143,10 @@ class SelectionTab : public CIntObject
 private:
 	CDefHandler *format; //map size
 
-	void parseMaps(std::vector<FileInfo> &files, int start = 0, int threads = 1);
-	void parseGames(std::vector<FileInfo> &files, bool multi);
-	void parseCampaigns( std::vector<FileInfo> & files );
-	void getFiles(std::vector<FileInfo> &out, const std::string &dirname, const std::string &ext);
+	void parseMaps(const std::vector<ResourceID> &files, int start = 0, int threads = 1);
+	void parseGames(const std::vector<ResourceID> &files, bool multi);
+	void parseCampaigns(const std::vector<ResourceID> & files );
+	std::vector<ResourceID> getFiles(std::string dirURI, int resType);
 	CMenuScreen::EState tabType;
 public:
 	int positions; //how many entries (games/maps) can be shown
@@ -172,7 +172,7 @@ public:
 	void sort();
 	void printMaps(SDL_Surface *to);
 	int getLine();
-	void selectFName(const std::string &fname);
+	void selectFName(std::string fname);
 
 	void showAll(SDL_Surface * to);
 	void clickLeft(tribool down, bool previousState);

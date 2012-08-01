@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "Graphics.h"
 
+#include "../lib/Filesystem/CResourceLoader.h"
 #include "CDefHandler.h"
 #include "UIFramework/SDL_Extensions.h"
 #include <SDL_ttf.h>
@@ -45,7 +46,9 @@ Graphics * graphics = NULL;
 
 void Graphics::loadPaletteAndColors()
 {
-	std::string pals = bitmaph->getTextFile("PLAYERS.PAL", FILE_OTHER);
+	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/PLAYERS.PAL"));
+	std::string pals((char*)textFile.first.get(), textFile.second);
+
 	playerColorPalette = new SDL_Color[256];
 	neutralColor = new SDL_Color;
 	playerColors = new SDL_Color[GameConstants::PLAYER_LIMIT];
@@ -518,22 +521,17 @@ void Graphics::loadTrueType()
 
 Font * Graphics::loadFont( const char * name )
 {
-	int len = 0;
-	ui8 * hlp = bitmaph->giveFile(name, FILE_FONT, &len);
-	if(!hlp || !len)
+	ui8 * hlp = CResourceHandler::get()->loadData(
+	                ResourceID(std::string("DATA/") + name, EResType::FONT)).first.release();
+	if(!hlp)
 	{
 		tlog1 << "Error: cannot load font: " << name << std::endl;
 		return NULL;
 	}
 
 	int magic =  SDL_SwapLE32(*(const Uint32*)hlp);
-	if(len < 10000  || (magic != 589598 && magic != 589599))
-	{
-		tlog1 << "Suspicious font file (length " << len <<", fname " << name << "), logging to suspicious_" << name << ".fnt\n";
-		std::string suspFName = "suspicious_" + std::string(name) + ".fnt";
-		std::ofstream o(suspFName.c_str());
-		o.write((const char*)hlp, len);
-	}
+	if(magic != 589598 && magic != 589599)
+		tlog1 << "Suspicious font file, fname " << name << "n";
 
 	Font *ret = new Font(hlp);
 	return ret;

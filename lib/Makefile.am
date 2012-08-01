@@ -8,12 +8,12 @@ libvcmi_la_CXXFLAGS = @SDL_CFLAGS@ -DVCMI_DLL
 libvcmi_la_SOURCES = \
 	../Global.h \
 	Filesystem/CBinaryReader.cpp \
+	Filesystem/CCompressedStream.cpp \
 	Filesystem/CFileInfo.cpp \
 	Filesystem/CFileInputStream.cpp \
 	Filesystem/CFilesystemLoader.cpp \
 	Filesystem/CLodArchiveLoader.cpp \
-	Filesystem/CLodStream.cpp \
-	Filesystem/CMemoryStream.cpp \
+		Filesystem/CMemoryStream.cpp \
 	Filesystem/CResourceLoader.cpp \
 	Filesystem/ISimpleResourceLoader.cpp \
 	BattleAction.cpp \

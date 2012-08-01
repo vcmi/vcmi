@@ -8,13 +8,13 @@
 
 void CMapInfo::countPlayers()
 {
-	actualHumanPlayers = playerAmnt = humenPlayers = 0;
+	actualHumanPlayers = playerAmnt = humanPlayers = 0;
 	for(int i=0;i<GameConstants::PLAYER_LIMIT;i++)
 	{
 		if(mapHeader->players[i].canHumanPlay)
 		{
 			playerAmnt++;
-			humenPlayers++;
+			humanPlayers++;
 		}
 		else if(mapHeader->players[i].canComputerPlay)
 		{
@@ -35,7 +35,7 @@ CMapInfo::CMapInfo(bool map)
 
 void CMapInfo::mapInit(const std::string &fname, const ui8 *map )
 {
-	filename = fname;
+	fileURI = fname;
 	int i = 0;
 	mapHeader = new CMapHeader();
 	mapHeader->version = CMapHeader::invalid;
@@ -61,7 +61,7 @@ CMapInfo::~CMapInfo()
 
 void CMapInfo::campaignInit()
 {
-	campaignHeader = new CCampaignHeader( CCampaignHandler::getHeader(filename, lodCmpgn) );
+	campaignHeader = new CCampaignHeader( CCampaignHandler::getHeader(fileURI) );
 }
 
 void CMapInfo::setHeader(CMapHeader *header)

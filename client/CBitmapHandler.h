@@ -3,7 +3,6 @@
 
 
 struct SDL_Surface;
-class CLodHandler;
 
 /*
  * CBitmapHandler.h, part of VCMI engine
@@ -15,39 +14,17 @@ class CLodHandler;
  *
  */
 
-enum Epcxformat {PCX8B, PCX24B};
-
 /// Struct which stands for a simple rgba palette
 struct BMPPalette
 {
 	ui8 R,G,B,F;
 };
 
-/// Class which converts pcx to bmp images
-class CPCXConv
-{	
-public:
-	ui8 * pcx, *bmp;
-	int pcxs, bmps;
-	void fromFile(std::string path);
-	void saveBMP(std::string path) const;
-	void openPCX(char * PCX, int len);
-	SDL_Surface * getSurface() const; //for standard H3 PCX
-	//SDL_Surface * getSurfaceZ(); //for ZSoft PCX
-	CPCXConv() //c-tor
-	: pcx(NULL), bmp(NULL), pcxs(0), bmps(0)
-	{}
-	~CPCXConv() //d-tor
-	{
-		if (pcxs) delete[] pcx;
-		if (bmps) delete[] bmp;
-	}
-};
-
 namespace BitmapHandler
 {
+	SDL_Surface * loadH3PCX(ui8 * data, size_t size);
 	//Load file from specific LOD
-	SDL_Surface * loadBitmapFromLod(CLodHandler *lod, std::string fname, bool setKey=true);
+	SDL_Surface * loadBitmapFromDir(std::string path, std::string fname, bool setKey=true);
 	//Load file from any LODs
 	SDL_Surface * loadBitmap(std::string fname, bool setKey=true);
 };

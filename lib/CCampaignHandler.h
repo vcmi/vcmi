@@ -162,11 +162,11 @@ class DLL_LINKAGE CCampaignHandler
 	static CScenarioTravel readScenarioTravelFromMemory( const ui8 * buffer, int & outIt , int version);
 	static std::vector<ui32> locateH3mStarts(const ui8 * buffer, int start, int size);
 	static bool startsAt( const ui8 * buffer, int size, int pos ); //a simple heuristic that checks if a h3m starts at given pos
-	static ui8 * getFile(const std::string & name, bool fromLod, int & outSize);
+	static std::pair<ui8 *, size_t> getFile(const std::string & name);
 public:
-	enum GetMode {RoE, AB, SoD, WoG, Custom, ALL};
+	enum GetMode {RoE, AB, SoD, WoG, Custom};
 	static std::vector<CCampaignHeader> getCampaignHeaders(GetMode mode);
-	static CCampaignHeader getHeader( const std::string & name, bool fromLod ); //name - name of appropriate file
+	static CCampaignHeader getHeader( const std::string & name); //name - name of appropriate file
 
-	static CCampaign * getCampaign(const std::string & name, bool fromLod); //name - name of appropriate file
+	static CCampaign * getCampaign(const std::string & name); //name - name of appropriate file
 };

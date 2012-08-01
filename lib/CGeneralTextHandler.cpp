@@ -1,7 +1,8 @@
 #include "StdInc.h"
 #include "CGeneralTextHandler.h"
 
-#include "../lib/VCMI_Lib.h"
+#include "Filesystem/CResourceLoader.h"
+#include "VCMI_Lib.h"
 #include "CLodHandler.h"
 #include "GameConstants.h"
 
@@ -29,9 +30,17 @@ void trimQuotation(std::string &op)
 		op = op.substr(1,op.size()-2);
 }
 
+std::string getTextFile(std::string filename)
+{
+	auto file = CResourceHandler::get()->loadData(
+	               ResourceID(std::string("DATA/") + filename, EResType::TEXT));
+
+	return std::string((char*)file.first.get(), file.second);
+}
+
 void CGeneralTextHandler::load()
 {
-	std::string buf1 = bitmaph->getTextFile("ZELP.TXT");
+	std::string buf1 = getTextFile("ZELP.TXT");
 	int itr=0, eol=-1, eolnext=-1, pom;
 	eolnext = buf1.find_first_of('\r',itr);
 	while(itr<buf1.size())
@@ -55,7 +64,7 @@ void CGeneralTextHandler::load()
 		}
 		itr=eol+2;
 	}
-	std::string buf = bitmaph->getTextFile("VCDESC.TXT");
+	std::string buf = getTextFile("VCDESC.TXT");
 	int andame = buf.size();
 	int i=0; //buf iterator
 	for(int gg=0; gg<14; ++gg)
@@ -69,7 +78,7 @@ void CGeneralTextHandler::load()
 		victoryConditions[gg] = buf.substr(befi, i-befi);
 		i+=2;
 	}
-	buf = bitmaph->getTextFile("LCDESC.TXT");
+	buf = getTextFile("LCDESC.TXT");
 	andame = buf.size();
 	i=0; //buf iterator
 	for(int gg=0; gg<4; ++gg)
@@ -86,7 +95,7 @@ void CGeneralTextHandler::load()
 
 	hTxts.resize(GameConstants::HEROES_QUANTITY);
 
-	buf = bitmaph->getTextFile("HEROSPEC.TXT");
+	buf = getTextFile("HEROSPEC.TXT");
 	i=0;
 	std::string dump;
 	for(int iii=0; iii<2; ++iii)
@@ -101,7 +110,7 @@ void CGeneralTextHandler::load()
 		trimQuotation(hTxts[iii].longBonus);
 	}
 
-	buf = bitmaph->getTextFile("HEROBIOS.TXT");
+	buf = getTextFile("HEROBIOS.TXT");
 	i=0;
 	for (int iii=0;iii<hTxts.size();iii++)
 	{
@@ -110,7 +119,7 @@ void CGeneralTextHandler::load()
 	}
 
 	int it;
-	buf = bitmaph->getTextFile("BLDGNEUT.TXT");
+	buf = getTextFile("BLDGNEUT.TXT");
 	andame = buf.size(), it=0;
 
 	for(int b=0;b<15;b++)
@@ -140,7 +149,7 @@ void CGeneralTextHandler::load()
 	}
 	/////done reading "BLDGNEUT.TXT"******************************
 
-	buf = bitmaph->getTextFile("BLDGSPEC.TXT");
+	buf = getTextFile("BLDGSPEC.TXT");
 	andame = buf.size(), it=0;
 	for(int f=0;f<GameConstants::F_NUMBER;f++)
 	{
@@ -156,7 +165,7 @@ void CGeneralTextHandler::load()
 	}
 	/////done reading BLDGSPEC.TXT*********************************
 
-	buf = bitmaph->getTextFile("DWELLING.TXT");
+	buf = getTextFile("DWELLING.TXT");
 	andame = buf.size(), it=0;
 	for(int f=0;f<GameConstants::F_NUMBER;f++)
 	{
@@ -178,7 +187,7 @@ void CGeneralTextHandler::load()
 		}
 	}
 
-	buf = bitmaph->getTextFile("TCOMMAND.TXT");
+	buf = getTextFile("TCOMMAND.TXT");
 	itr=0;
 	while(itr<buf.length()-1)
 	{
@@ -187,7 +196,7 @@ void CGeneralTextHandler::load()
 		tcommands.push_back(tmp);
 	}
 
-	buf = bitmaph->getTextFile("HALLINFO.TXT");
+	buf = getTextFile("HALLINFO.TXT");
 	itr=0;
 	while(itr<buf.length()-1)
 	{
@@ -196,7 +205,7 @@ void CGeneralTextHandler::load()
 		hcommands.push_back(tmp);
 	}
 
-	buf = bitmaph->getTextFile("CASTINFO.TXT");
+	buf = getTextFile("CASTINFO.TXT");
 	itr=0;
 	while(itr<buf.length()-1)
 	{
@@ -206,8 +215,8 @@ void CGeneralTextHandler::load()
 	}
 
 	std::istringstream ins, namess;
-	ins.str(bitmaph->getTextFile("TOWNTYPE.TXT"));
-	namess.str(bitmaph->getTextFile("TOWNNAME.TXT"));
+	ins.str(getTextFile("TOWNTYPE.TXT"));
+	namess.str(getTextFile("TOWNNAME.TXT"));
 	int si=0;
 	char bufname[75];
 	while (!ins.eof())
@@ -225,7 +234,7 @@ void CGeneralTextHandler::load()
 	}
 
 	tlog5 << "\t\tReading OBJNAMES \n";
-	buf = bitmaph->getTextFile("OBJNAMES.TXT");
+	buf = getTextFile("OBJNAMES.TXT");
 	it=0; //hope that -1 will not break this
 	while (it<buf.length()-1)
 	{
@@ -239,7 +248,7 @@ void CGeneralTextHandler::load()
 	}
 
 	tlog5 << "\t\tReading ADVEVENT \n";
-	buf = bitmaph->getTextFile("ADVEVENT.TXT");
+	buf = getTextFile("ADVEVENT.TXT");
 	it=0;
 	std::string temp;
 	while (it<buf.length()-1)
@@ -254,7 +263,7 @@ void CGeneralTextHandler::load()
 	}
 
 	tlog5 << "\t\tReading XTRAINFO \n";
-	buf = bitmaph->getTextFile("XTRAINFO.TXT");
+	buf = getTextFile("XTRAINFO.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -263,7 +272,7 @@ void CGeneralTextHandler::load()
 	}
 
 	tlog5 << "\t\tReading MINENAME \n";
-	buf = bitmaph->getTextFile("MINENAME.TXT");
+	buf = getTextFile("MINENAME.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -272,7 +281,7 @@ void CGeneralTextHandler::load()
 	}
 
 	tlog5 << "\t\tReading MINEEVNT \n";
-	buf = bitmaph->getTextFile("MINEEVNT.TXT");
+	buf = getTextFile("MINEEVNT.TXT");
 	it=0;
 	i=0;
 	while (it<buf.length()-1)
@@ -286,7 +295,7 @@ void CGeneralTextHandler::load()
 	}
 
 	tlog5 << "\t\tReading RESTYPES \n";
-	buf = bitmaph->getTextFile("RESTYPES.TXT");
+	buf = getTextFile("RESTYPES.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -295,7 +304,7 @@ void CGeneralTextHandler::load()
 	}
 
 	tlog5 << "\t\tReading TERRNAME \n";
-	buf = bitmaph->getTextFile("TERRNAME.TXT");
+	buf = getTextFile("TERRNAME.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -304,7 +313,7 @@ void CGeneralTextHandler::load()
 	}
 
 	tlog5 << "\t\tReading RANDSIGN \n";
-	buf = bitmaph->getTextFile("RANDSIGN.TXT");
+	buf = getTextFile("RANDSIGN.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -313,7 +322,7 @@ void CGeneralTextHandler::load()
 	}	
 
 	tlog5 << "\t\tReading ZCRGN1 \n";
-	buf = bitmaph->getTextFile("ZCRGN1.TXT");
+	buf = getTextFile("ZCRGN1.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -322,7 +331,7 @@ void CGeneralTextHandler::load()
 	}
 
 	tlog5 << "\t\tReading CRGN4 \n";
-	buf = bitmaph->getTextFile("CRGEN4.TXT");
+	buf = getTextFile("CRGEN4.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -330,7 +339,7 @@ void CGeneralTextHandler::load()
 		creGens4.push_back(temp);
 	}
 
-	buf = bitmaph->getTextFile("GENRLTXT.TXT");
+	buf = getTextFile("GENRLTXT.TXT");
 	std::string tmp;
 	andame = buf.size();
 	i=0; //buf iterator
@@ -350,7 +359,7 @@ void CGeneralTextHandler::load()
 		allTexts.push_back(buflet);
 	}
 
-	std::string  stro = bitmaph->getTextFile("Overview.txt");
+	std::string  stro = getTextFile("Overview.txt");
 	itr=0;
 	while(itr<stro.length()-1)
 	{
@@ -359,7 +368,7 @@ void CGeneralTextHandler::load()
 		overview.push_back(tmp);
 	}
 
-	std::string  strc = bitmaph->getTextFile("PLCOLORS.TXT");
+	std::string  strc = getTextFile("PLCOLORS.TXT");
 	itr=0;
 	while(itr<strc.length()-1)
 	{
@@ -369,7 +378,7 @@ void CGeneralTextHandler::load()
 		capColors.push_back(tmp);
 	}
 
-	std::string  strs = bitmaph->getTextFile("ARRAYTXT.TXT");
+	std::string  strs = getTextFile("ARRAYTXT.TXT");
 
 	itr=0;
 	while(itr<strs.length()-1)
@@ -380,7 +389,7 @@ void CGeneralTextHandler::load()
 	}
 
 	itr = 0;
-	std::string strin = bitmaph->getTextFile("PRISKILL.TXT");
+	std::string strin = getTextFile("PRISKILL.TXT");
 	for(int hh=0; hh<4; ++hh)
 	{
 		loadToIt(tmp, strin, itr, 3);
@@ -388,7 +397,7 @@ void CGeneralTextHandler::load()
 	}
 
 	itr = 0;
-	strin = bitmaph->getTextFile("JKTEXT.TXT");
+	strin = getTextFile("JKTEXT.TXT");
 	for(int hh=0; hh<45; ++hh)
 	{
 		loadToIt(tmp, strin, itr, 3);
@@ -397,7 +406,7 @@ void CGeneralTextHandler::load()
 	}
 
 	itr = 0;
-	strin = bitmaph->getTextFile("TVRNINFO.TXT");
+	strin = getTextFile("TVRNINFO.TXT");
 	for(int hh=0; hh<8; ++hh)
 	{
 		loadToIt(tmp, strin, itr, 3);
@@ -405,7 +414,7 @@ void CGeneralTextHandler::load()
 	}
 
 	itr = 0;
-	strin = bitmaph->getTextFile("TURNDUR.TXT");
+	strin = getTextFile("TURNDUR.TXT");
 	for(int hh=0; hh<11; ++hh)
 	{
 		loadToIt(tmp, strin, itr, 3);
@@ -413,7 +422,7 @@ void CGeneralTextHandler::load()
 	}
 
 	itr = 0;
-	strin = bitmaph->getTextFile("HEROSCRN.TXT");
+	strin = getTextFile("HEROSCRN.TXT");
 	for(int hh=0; hh<33; ++hh)
 	{
 		loadToIt(tmp, strin, itr, 3);
@@ -421,7 +430,7 @@ void CGeneralTextHandler::load()
 	}
 
 	itr = 0;
-	strin = bitmaph->getTextFile("ARTEVENT.TXT");
+	strin = getTextFile("ARTEVENT.TXT");
 	for(; itr<strin.size();)
 	{
 		loadToIt(tmp, strin, itr, 2);
@@ -431,7 +440,7 @@ void CGeneralTextHandler::load()
 		artifEvents.push_back(tmp);
 	}
 
-	buf = bitmaph->getTextFile("SSTRAITS.TXT");
+	buf = getTextFile("SSTRAITS.TXT");
 	it=0;
 
 	for(int i=0; i<2; ++i)
@@ -449,7 +458,7 @@ void CGeneralTextHandler::load()
 		for(int j = 0; j < 3; j++)
 			trimQuotation(skillInfoTexts[i][j]);
 	}
-	buf = bitmaph->getTextFile("SKILLLEV.TXT");
+	buf = getTextFile("SKILLLEV.TXT");
 	it=0;
 	for(int i=0; i<6; ++i)
 	{
@@ -458,7 +467,7 @@ void CGeneralTextHandler::load()
 		levels.push_back(buffo);
 	}
 
-	buf = bitmaph->getTextFile ("SEERHUT.TXT");
+	buf = getTextFile ("SEERHUT.TXT");
 	it = 0;
 	loadToIt (dump, buf, it, 3);
 	loadToIt (dump, buf, it, 4); //dump description
@@ -502,7 +511,7 @@ void CGeneralTextHandler::load()
 	for (i = 0; i < 48; ++i)
 		loadToIt(seerNames[i], buf, it, 3);
 
-	buf = bitmaph->getTextFile("TENTCOLR.TXT");
+	buf = getTextFile("TENTCOLR.TXT");
 	itr=0;
 	while(itr<buf.length()-1)
 	{
@@ -512,7 +521,7 @@ void CGeneralTextHandler::load()
 	}
 
 	//campaigns
-	buf = bitmaph->getTextFile ("CAMPTEXT.TXT");
+	buf = getTextFile ("CAMPTEXT.TXT");
 	it = 0;
 	loadToIt (dump, buf, it, 3); //comment
 	std::string nameBuf;
@@ -542,7 +551,7 @@ void CGeneralTextHandler::load()
 		} while (nameBuf.size());
 	}
 
-	buf = bitmaph->getTextFile ("ZCREXP.TXT");
+	buf = getTextFile ("ZCREXP.TXT");
 	it = 0;
 	loadToIt (dump, buf, it, 3); //comment
 	for (int i = 0; i < 459; ++i) //some texts seem to be empty

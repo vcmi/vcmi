@@ -17,7 +17,6 @@
  */
 #define ALLCREATURESGETDOUBLEMONTHS false
 
-class CLodHandler;
 class CCreatureHandler;
 class CCreature;
 

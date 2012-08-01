@@ -236,7 +236,7 @@ void CClient::loadGame( const std::string & fname )
 		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 		StartInfo *si;
 
-		CLoadFile lf(fname + ".vlgm1");
+		CLoadFile lf(CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::LIB_SAVEGAME)));
 		lf >> sig >> dum >> si;
 		tlog0 <<"Reading save signature: "<<tmh.getDiff()<<std::endl;
 		
@@ -277,7 +277,7 @@ void CClient::loadGame( const std::string & fname )
 	tlog0 <<"Sent info to server: "<<tmh.getDiff()<<std::endl;
 	
 	{
-		CLoadFile lf(fname + ".vcgm1");
+		CLoadFile lf(CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME)));
 		lf >> *this;
 	}
 }

@@ -1,7 +1,10 @@
 #include "StdInc.h"
 #include "CPreGame.h"
 
-#include <zlib.h>
+#include "../lib/Filesystem/CResourceLoader.h"
+#include "../lib/Filesystem/CFileInfo.h"
+#include "../lib/Filesystem/CCompressedStream.h"
+
 #include "../lib/CStopWatch.h"
 #include "UIFramework/SDL_Extensions.h"
 #include "CGameInfo.h"
@@ -385,7 +388,8 @@ CreditsScreen::CreditsScreen()
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos.w = CGP->menu->pos.w;
 	pos.h = CGP->menu->pos.h;
-	std::string text = bitmaph->getTextFile("CREDITS");
+	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/CREDITS.TXT"));
+	std::string text((char*)textFile.first.get(), textFile.second);
 	size_t firstQuote = text.find('\"')+1;
 	text = text.substr(firstQuote, text.find('\"', firstQuote) - firstQuote );
 	credits = new CTextBox(text, Rect(pos.w - 350, 600, 350, 32000), 0, FONT_CREDITS, CENTER, Colors::Cornsilk);
@@ -767,7 +771,7 @@ void CSelectionScreen::changeSelection( const CMapInfo *to )
 	   SEL->sInfo.difficulty = to->scenarioOpts->difficulty;
 	if(screenType != CMenuScreen::campaignList)
 	{
-		updateStartInfo(to ? to->filename : "", sInfo, to ? to->mapHeader : NULL);
+		updateStartInfo(to ? to->fileURI : "", sInfo, to ? to->mapHeader : NULL);
 	}
 	card->changeSelection(to);
 	if(screenType != CMenuScreen::campaignList)
@@ -789,7 +793,7 @@ void CSelectionScreen::startCampaign()
 {
 	if (SEL->current)
 	{
-		CCampaign * ourCampaign = CCampaignHandler::getCampaign(SEL->current->filename, SEL->current->lodCmpgn);
+		CCampaign * ourCampaign = CCampaignHandler::getCampaign(SEL->current->fileURI);
 		CCampaignState * campState = new CCampaignState();
 		campState->camp = ourCampaign;
 		GH.pushInt( new CBonusSelection(campState) );
@@ -1021,42 +1025,56 @@ void SelectionTab::filter( int size, bool selectFirst )
 	}
 }
 
-void SelectionTab::getFiles(std::vector<FileInfo> &out, const std::string &dirname, const std::string &ext)
+std::vector<ResourceID> SelectionTab::getFiles(std::string dirURI, int resType)
 {
-	CFileUtility::getFilesWithExt(out, dirname, ext);
-	allItems.resize(out.size());
+	std::vector<ResourceID> ret;
+	boost::to_upper(dirURI);
+
+	auto iterator = CResourceHandler::get()->getIterator([&](const ResourceID & ident)
+	{
+		return ident.getType() == resType
+		    && boost::algorithm::starts_with(ident.getName(), dirURI);
+	});
+
+	while (iterator.hasNext())
+	{
+		ret.push_back(*iterator);
+		++iterator;
+	}
+
+	allItems.resize(ret.size());
+	return ret;
 }
 
-void SelectionTab::parseMaps(std::vector<FileInfo> &files, int start, int threads)
+void SelectionTab::parseMaps(const std::vector<ResourceID> &files, int start, int threads)
 {
-	int read=0;
 	ui8 mapBuffer[1500];
 
 	while(start < allItems.size())
 	{
-		gzFile tempf = gzopen(files[start].name.c_str(),"rb");
-		read = gzread(tempf, mapBuffer, 1500);
-		gzclose(tempf);
+		auto compressed = CResourceHandler::get()->load(files[start]);
+		CCompressedStream stream(compressed, true);
+		int read = stream.read(mapBuffer, 1500);
+
 		if(read < 50  ||  !mapBuffer[4])
 		{
-			tlog3 << "\t\tWarning: corrupted map file: " << files[start].name << std::endl;
+			tlog3 << "\t\tWarning: corrupted map file: " << files[start].getName() << std::endl;
 		}
 		else //valid map
 		{
-			allItems[start].mapInit(files[start].name, mapBuffer);
-			//allItems[start].date = "DATEDATE";// files[start].date;
+			allItems[start].mapInit(files[start].getName(), mapBuffer);
 		}
 		start += threads;
 	}
 }
 
-void SelectionTab::parseGames(std::vector<FileInfo> &files, bool multi)
+void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
 {
 	for(int i=0; i<files.size(); i++)
 	{
 		try
 		{
-			CLoadFile lf(files[i].name);
+			CLoadFile lf(CResourceHandler::get()->getResourceName(files[i]));
 
 			ui8 sign[8];
 			lf >> sign;
@@ -1065,9 +1083,10 @@ void SelectionTab::parseGames(std::vector<FileInfo> &files, bool multi)
 
 			allItems[i].mapHeader = new CMapHeader();
 			lf >> *(allItems[i].mapHeader) >> allItems[i].scenarioOpts;
-			allItems[i].filename = files[i].name;
+			allItems[i].fileURI = files[i].getName();
 			allItems[i].countPlayers();
-			allItems[i].date = std::asctime(std::localtime(&files[i].date));
+			std::time_t time = CFileInfo(CResourceHandler::get()->getResourceName(files[i])).getDate();
+			allItems[i].date = std::asctime(std::localtime(&time));
 
 			if((allItems[i].actualHumanPlayers > 1) != multi) //if multi mode then only multi games, otherwise single
 			{
@@ -1077,18 +1096,17 @@ void SelectionTab::parseGames(std::vector<FileInfo> &files, bool multi)
 		catch(std::exception &e)
 		{
 			vstd::clear_pointer(allItems[i].mapHeader);
-			tlog3 << "Failed to process " << files[i].name <<": " << e.what() << std::endl;
+			tlog3 << "Failed to process " << files[i].getName() <<": " << e.what() << std::endl;
 		}
 	}
 }
 
-void SelectionTab::parseCampaigns( std::vector<FileInfo> & files )
+void SelectionTab::parseCampaigns(const std::vector<ResourceID> & files )
 {
 	for(int i=0; i<files.size(); i++)
 	{
 		//allItems[i].date = std::asctime(std::localtime(&files[i].date));
-		allItems[i].filename = files[i].name;
-		allItems[i].lodCmpgn = files[i].inLod;
+		allItems[i].fileURI = files[i].getName();
 		allItems[i].campaignInit();
 	}
 }
@@ -1122,25 +1140,17 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 	}
 	else
 	{
-		std::vector<FileInfo> toParse;
 		std::vector<CCampaignHeader> cpm;
 		switch(tabType)
 		{
 		case CMenuScreen::newGame:
-			getFiles(toParse, GameConstants::DATA_DIR + "/Maps", "h3m"); //get all maps
-			/* Load maps from user directory too, unless it is also the
-			 * same as the data directory (as is the case on
-			 * windows). */
-			if (GVCMIDirs.UserPath != GameConstants::DATA_DIR)
-				getFiles(toParse, GVCMIDirs.UserPath + "/Maps", "h3m"); //get all maps
-			parseMaps(toParse);
+			parseMaps(getFiles("Maps/", EResType::MAP));
 			positions = 18;
 			break;
 
 		case CMenuScreen::loadGame:
 		case CMenuScreen::saveGame:
-			getFiles(toParse, GVCMIDirs.UserPath + "/Games", "vlgm1"); //get all saves
-			parseGames(toParse, MultiPlayer);
+			parseGames(getFiles("Saves/", EResType::LIB_SAVEGAME), MultiPlayer);
 			if(tabType == CMenuScreen::loadGame)
 			{
 				positions = 18;
@@ -1155,32 +1165,9 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 				txt->filters.add(CTextInput::filenameFilter);
 			}
 			break;
-		case CMenuScreen::campaignList:
-			getFiles(toParse, GameConstants::DATA_DIR + "/Maps", "h3c"); //get all campaigns
-			/* Load campaingns from user directory too, unless it is also the
-			 * same as the data directory (as is the case on
-			 * windows). */
-			if (GVCMIDirs.UserPath != GameConstants::DATA_DIR)
-				getFiles(toParse, GVCMIDirs.UserPath + "/Maps", "h3c"); //get all maps
 
-			for (int g=0; g<toParse.size(); ++g)
-			{
-				toParse[g].inLod = false;
-			}
-			//add lod cmpgns
-			cpm = CCampaignHandler::getCampaignHeaders(CCampaignHandler::Custom);
-			for (int g = 0; g < cpm.size(); g++)
-			{
-				FileInfo fi;
-				fi.inLod = cpm[g].loadFromLod;
-				fi.name = cpm[g].filename;
-				if (cpm[g].loadFromLod)
-				{
-					toParse.push_back(fi);
-					allItems.push_back(CMapInfo(false));
-				}
-			}
-			parseCampaigns(toParse);
+		case CMenuScreen::campaignList:
+			parseCampaigns(getFiles("Maps/", EResType::CAMPAIGN));
 			positions = 18;
 			break;
 
@@ -1229,7 +1216,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 	switch(tabType)
 	{
 	case CMenuScreen::newGame:
-		selectFName(GameConstants::DATA_DIR + "/Maps/Arrogance.h3m");
+		selectFName("Maps/Arrogance");
 		break;
 	case CMenuScreen::loadGame:
 	case CMenuScreen::campaignList:
@@ -1296,7 +1283,11 @@ void SelectionTab::select( int position )
 		slider->moveTo(slider->value + position - positions + 1);
 
 	if(txt)
-		txt->setTxt(fs::basename(curItems[py]->filename));
+	{
+		std::string filename = CResourceHandler::get()->getResourceName(
+		                           ResourceID(curItems[py]->fileURI, EResType::MAP));
+		txt->setTxt(CFileInfo(filename).getBaseName());
+	}
 
 	onSelect(curItems[py]);
 }
@@ -1348,7 +1339,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 		{
 			//amount of players
 			std::ostringstream ostr(std::ostringstream::out);
-			ostr << currentItem->playerAmnt << "/" << currentItem->humenPlayers;
+			ostr << currentItem->playerAmnt << "/" << currentItem->humanPlayers;
 			CSDL_Ext::printAt(ostr.str(), POS(29, 120), FONT_SMALL, itemColor, to);
 
 			//map size
@@ -1387,7 +1378,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 				break;
 			default:
 				// Unknown version. Be safe and ignore that map
-				tlog2 << "Warning: " << currentItem->filename << " has wrong version!\n";
+				tlog2 << "Warning: " << currentItem->fileURI << " has wrong version!\n";
 				continue;
 			}
 			blitAt(format->ourImages[temp].bitmap, POS(88, 117), to);
@@ -1427,7 +1418,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 		}
 		else
 		{
-			name = fs::basename(currentItem->filename);
+			name = fs::basename(currentItem->fileURI);
 		}
 
 		//print name
@@ -1528,11 +1519,12 @@ int SelectionTab::getLine()
 	return line;
 }
 
-void SelectionTab::selectFName( const std::string &fname )
+void SelectionTab::selectFName( std::string fname )
 {
+	boost::to_upper(fname);
 	for(int i = curItems.size() - 1; i >= 0; i--)
 	{
-		if(curItems[i]->filename == fname)
+		if(curItems[i]->fileURI == fname)
 		{
 			slider->moveTo(i);
 			selectAbs(i);
@@ -3553,7 +3545,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode &config )
 
 	status = config["open"].Bool() ? CCampaignScreen::ENABLED : CCampaignScreen::DISABLED;
 
-	CCampaignHeader header = CCampaignHandler::getHeader(campFile, true);
+	CCampaignHeader header = CCampaignHandler::getHeader(campFile);
 	hoverText = header.name;
 
 	if (status != CCampaignScreen::DISABLED)
@@ -3571,11 +3563,15 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode &config )
 
 void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousState)
 {
+	// Campaign screen is broken. Disabled for now
+	return;
+
 	if (down)
 	{
 		// Close running video and open the selected campaign
 		CCS->videoh->close();
-		CCampaign * ourCampaign = CCampaignHandler::getCampaign(campFile, true);
+
+		CCampaign * ourCampaign = CCampaignHandler::getCampaign(campFile);
 		CCampaignState * campState = new CCampaignState();
 		campState->camp = ourCampaign;
 		GH.pushInt( new CBonusSelection(campState) );

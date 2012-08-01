@@ -1,0 +1,62 @@
+{
+	// Complete filesystem available after initialization
+	// All paths and names here are case-insensitive
+	// If same filename is found twice entry from latest source will be used
+	// path can start from:
+	// "GLOBAL" - global location for data files. /usr/share/vcmi | C:\Program files\Heroes 3\
+	// "LOCAL" - local user-specific files. ~/.vcmi | same as global (TODO: move it to C:\Users\whatever)
+	// "ALL" - will check local directory first or (if was not found) in global directory
+	// NOTE: this file must be available as "ALL/config/filesystem.json"
+	"filesystem":
+	{
+		"DATA/" :
+		[
+			{"type" : "file", "path" : "ALL/Data/H3ab_bmp.lod"},
+			{"type" : "file", "path" : "ALL/Data/H3bitmap.lod"},
+			{"type" : "dir",  "path" : "GLOBAL/Data"},
+			{"type" : "dir",  "path" : "LOCAL/Data"}
+		],
+		"SPRITES/":
+		[
+			{"type" : "file", "path" : "ALL/Data/H3ab_spr.lod"},
+			{"type" : "file", "path" : "ALL/Data/H3sprite.lod"},
+			{"type" : "dir",  "path" : "GLOBAL/Sprites"},
+			{"type" : "dir",  "path" : "LOCAL/Sprites"}
+		],
+		"SOUNDS/":
+		[
+			{"type" : "file", "path" : "ALL/Data/H3ab_ahd.snd"},
+			{"type" : "file", "path" : "ALL/Data/Heroes3.snd"},
+			//WoG have overriden sounds with .82m extension in Data
+			{"type" : "dir",  "path" : "GLOBAL/Data"},
+			{"type" : "dir",  "path" : "LOCAL/Data"}
+		],
+		"MUSIC/":
+		[
+			{"type" : "dir",  "path" : "GLOBAL/Mp3"},
+			{"type" : "dir",  "path" : "LOCAL/Mp3"}
+		],
+		"VIDEO/":
+		[
+			{"type" : "file", "path" : "ALL/Data/H3ab_ahd.vid"},
+			{"type" : "file", "path" : "ALL/Data/H3ab_ahd.vid"},
+			// Location of video files in linux release
+			{"type" : "dir",  "path" : "GLOBAL/Data/Video"},
+			{"type" : "dir",  "path" : "LOCAL/Data/Video"}
+		],
+		"CONFIG/":
+		[
+			{"type" : "dir",  "path" : "GLOBAL/Config"},
+			{"type" : "dir",  "path" : "LOCAL/Config"}
+		],
+		"MAPS/":
+		[
+			{"type" : "dir",  "path" : "GLOBAL/Maps"},
+			{"type" : "dir",  "path" : "LOCAL/Maps"}
+		],
+		"SAVES/":
+		[
+			{"type" : "dir",  "path" : "LOCAL/Games"},
+		]
+	}
+}

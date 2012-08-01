@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "CCreatureHandler.h"
 
+#include "Filesystem/CResourceLoader.h"
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/CGameState.h"
@@ -8,7 +9,6 @@
 #include "CHeroHandler.h"
 
 using namespace boost::assign;
-extern CLodHandler * bitmaph;
 
 /*
  * CCreatureHandler.cpp, part of VCMI engine
@@ -268,7 +268,8 @@ void CCreatureHandler::loadCreatures()
 	tlog5 << "\t\tReading config/cr_abils.json and ZCRTRAIT.TXT" << std::endl;
 
 	////////////reading ZCRTRAIT.TXT ///////////////////
-	std::string buf = bitmaph->getTextFile("ZCRTRAIT.TXT");
+	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/ZCRTRAIT.TXT"));
+	std::string buf((char*)textFile.first.get(), textFile.second);
 	int andame = buf.size();
 	int i=0; //buf iterator
 	int hmcr=0;
@@ -495,7 +496,8 @@ void CCreatureHandler::loadCreatures()
 
 	if (GameConstants::STACK_EXP) 	//reading default stack experience bonuses
 	{
-		buf = bitmaph->getTextFile("CREXPBON.TXT");
+		auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/CREXPBON.TXT"));
+		std::string buf((char*)textFile.first.get(), textFile.second);
 		int it = 0;
 		si32 creid = -1;
 		Bonus b; //prototype with some default properties
@@ -570,7 +572,8 @@ void CCreatureHandler::loadCreatures()
 			}
 		}
 
-		buf = bitmaph->getTextFile("CREXPMOD.TXT"); //could be hardcoded though, lots of useless info
+		textFile = CResourceHandler::get()->loadData(ResourceID("DATA/CREXPMOD.TXT"));
+		buf = std::string((char*)textFile.first.get(), textFile.second);
 		it = 0;
 		loadToIt (dump2, buf, it, 3); //ignore first line
 
@@ -637,7 +640,8 @@ void CCreatureHandler::loadCreatures()
 
 void CCreatureHandler::loadAnimationInfo()
 {
-	std::string buf = bitmaph->getTextFile("CRANIM.TXT");
+	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/CRANIM.TXT"));
+	std::string buf((char*)textFile.first.get(), textFile.second);
 	int andame = buf.size();
 	int i=0; //buf iterator
 	int hmcr=0;

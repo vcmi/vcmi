@@ -12,7 +12,7 @@ set(lib_SRCS
         Filesystem/CLodArchiveLoader.cpp
         Filesystem/CResourceLoader.cpp
         Filesystem/CFileInputStream.cpp
-        Filesystem/CLodStream.cpp
+        Filesystem/CCompressedStream.cpp
         Filesystem/ISimpleResourceLoader.cpp
         BattleAction.cpp
         BattleHex.cpp

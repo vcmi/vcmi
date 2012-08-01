@@ -7,6 +7,7 @@
 #include "CGameInfo.h"
 #include "mapHandler.h"
 
+#include "../lib/Filesystem/CResourceLoader.h"
 #include "CPreGame.h"
 #include "CCastleInterface.h"
 #include "../lib/CConsoleHandler.h"
@@ -476,16 +477,25 @@ void processCommand(const std::string &message)
 	}*/
 	else if(message=="get txt")
 	{
+		tlog0<<"Command accepted.\t";
 		boost::filesystem::create_directory("Extracted_txts");
-		tlog0<<"Command accepted. Opening .lod file...\t";
-		CLodHandler * txth = new CLodHandler;
-		txth->init(GameConstants::DATA_DIR + "/Data/H3bitmap.lod","");
-		tlog0<<"done.\nScanning .lod file\n";
+		auto iterator = CResourceHandler::get()->getIterator([](const ResourceID & ident)
+		{
+			return ident.getType() == EResType::TEXT && boost::algorithm::starts_with(ident.getName(), "DATA/");
+		});
 
-		BOOST_FOREACH(Entry e, txth->entries)
-			if( e.type == FILE_TEXT )
-				txth->extractFile(std::string(GVCMIDirs.UserPath + "/Extracted_txts/")+e.name, e.name, FILE_TEXT);
-		tlog0<<"\rExtracting done :)\n";
+		std::string basePath = CResourceHandler::get()->getResourceName(std::string("DATA")) + "/Extracted_txts/";
+		while (iterator.hasNext())
+		{
+			std::ofstream file(basePath + iterator->getName() + ".TXT");
+			auto text = CResourceHandler::get()->loadData(*iterator);
+
+			file.write((char*)text.first.get(), text.second);
+			++iterator;
+		}
+
+		tlog0 << "\rExtracting done :)\n";
+		tlog0 << " Extracted files can be found in " << basePath << " directory\n";
 	}
 	else if(cn=="crash")
 	{

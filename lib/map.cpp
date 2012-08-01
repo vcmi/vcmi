@@ -1,10 +1,11 @@
 #include "StdInc.h"
 #include "map.h"
 
+#include "Filesystem/CResourceLoader.h"
+#include "Filesystem/CCompressedStream.h"
 #include "CObjectHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "VCMI_Lib.h"
-#include <zlib.h>
 #include <boost/crc.hpp>
 #include "CLodHandler.h"
 #include "CArtHandler.h"
@@ -502,18 +503,19 @@ void Mapa::addBlockVisTiles(CGObjectInstance * obj)
 Mapa::Mapa(std::string filename)
 	:grailPos(-1, -1, -1), grailRadious(0)
 {
-	int mapsize = 0;
-
 	tlog0<<"Opening map file: "<<filename<<"\t "<<std::flush;
 	
+	std::unique_ptr<CInputStream> compressed(CResourceHandler::get()->load(ResourceID(filename, EResType::MAP)));
+	std::unique_ptr<CInputStream> decompressed(new CCompressedStream(compressed, true));
+
 	//load file and decompress
-	ui8 * initTable = CLodHandler::getUnpackedFile(filename, &mapsize);
+	size_t mapSize = decompressed->getSize();
+	std::unique_ptr<ui8[]>  data(new ui8 [mapSize] );
+	decompressed->read(data.get(), mapSize);
 
 	tlog0<<"done."<<std::endl;
 
-	initFromBytes(initTable, mapsize);
-
-	delete [] initTable;
+	initFromBytes(data.get(), mapSize);
 }
 
 Mapa::Mapa()

@@ -1,5 +1,6 @@
 #include "StdInc.h"
 
+#include "../lib/Filesystem/CResourceLoader.h"
 #include "../lib/CCampaignHandler.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/Connection.h"
@@ -312,25 +313,16 @@ CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
 	CGameHandler *gh = new CGameHandler();
 	StartInfo si;
 	c >> si; //get start options
-	int problem;
 
-#ifdef _MSC_VER
-	FILE *f;
-	problem = fopen_s(&f,si.mapname.c_str(),"r");
-#else
-	FILE * f = fopen(si.mapname.c_str(),"r");
-	problem = !f;
-#endif
+	bool mapFound = CResourceHandler::get()->existsResource(ResourceID(si.mapname, EResType::MAP));
 
-	if(problem && si.mode == StartInfo::NEW_GAME) //TODO some checking for campaigns
+	if(!mapFound && si.mode == StartInfo::NEW_GAME) //TODO some checking for campaigns
 	{
-		c << ui8(problem); //WRONG!
+		c << ui8(1); //WRONG!
 		return NULL;
 	}
 	else
 	{
-		if(f)	
-			fclose(f);
 		c << ui8(0); //OK!
 	}
 
@@ -453,7 +445,7 @@ void CVCMIServer::loadGame()
 		CMapHeader dum;
 		StartInfo *si;
 
-		CLoadFile lf(fname + ".vlgm1");
+		CLoadFile lf(CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::LIB_SAVEGAME)));
 		lf >> sig >> dum >> si;
 		tlog0 <<"Reading save signature"<<std::endl;
 
@@ -466,7 +458,7 @@ void CVCMIServer::loadGame()
 	}
 
 	{
-		CLoadFile lf(fname + ".vsgm1");
+		CLoadFile lf(CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME)));
 		lf >> gh;
 	}
 

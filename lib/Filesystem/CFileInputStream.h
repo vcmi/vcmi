@@ -29,20 +29,16 @@ public:
 	/**
 	 * C-tor. Opens the specified file.
 	 *
-	 * @param file Path to the file.
-	 *
-	 * @throws std::runtime_error if file wasn't found
+	 * @see CFileInputStream::open
 	 */
-	CFileInputStream(const std::string & file);
+	CFileInputStream(const std::string & file, si64 start=0, si64 size=0);
 
 	/**
 	 * C-tor. Opens the specified file.
 	 *
-	 * @param file A file info object, pointing to a location in the file system
-	 *
-	 * @throws std::runtime_error if file wasn't found
+	 * @see CFileInputStream::open
 	 */
-	CFileInputStream(const CFileInfo & file);
+	CFileInputStream(const CFileInfo & file, si64 start=0, si64 size=0);
 
 	/**
 	 * D-tor. Calls the close method implicitely, if the file is still opened.
@@ -53,19 +49,12 @@ public:
 	 * Opens a file. If a file is currently opened, it will be closed.
 	 *
 	 * @param file Path to the file.
+	 * @param start - offset from file start where real data starts (e.g file on archive)
+	 * @param size - size of real data in file (e.g file on archive) or 0 to use whole file
 	 *
 	 * @throws std::runtime_error if file wasn't found
 	 */
-	void open(const std::string & file);
-
-	/**
-	 * Opens a file.
-	 *
-	 * @param file A file info object, pointing to a location in the file system
-	 *
-	 * @throws std::runtime_error if file wasn't found
-	 */
-	void open(const CFileInfo & file);
+	void open(const std::string & file, si64 start, si64 size);
 
 	/**
 	 * Reads n bytes from the stream into the data buffer.
@@ -112,6 +101,8 @@ public:
 	void close();
 
 private:
+	si64 dataStart;
+	si64 dataSize;
 	/** Native c++ input file stream object. */
 	std::ifstream fileStream;
 };

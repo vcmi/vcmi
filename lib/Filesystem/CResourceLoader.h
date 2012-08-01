@@ -13,6 +13,7 @@
 
 #include "CInputStream.h"
 
+class CResourceLoader;
 class ResourceLocator;
 class ISimpleResourceLoader;
 
@@ -23,47 +24,56 @@ class ISimpleResourceLoader;
  *
  * Text: .txt .json
  * Animation: .def
- * Mask: .msk
+ * Mask: .msk .msg
  * Campaign: .h3c
  * Map: .h3m
  * Font: .fnt
  * Image: .bmp, .jpg, .pcx, .png, .tga
- * Sound: .wav
+ * Sound: .wav .82m
  * Video: .smk, .bik .mjpg
  * Music: .mp3, .ogg
- * Archive: .lod, .snd, .vid
+ * Archive: .lod, .snd, .vid .pac
  * Savegame: .v*gm1
  */
-enum EResType
+namespace EResType
 {
-	ANY,
-	TEXT,
-	ANIMATION,
-	MASK,
-	CAMPAIGN,
-	MAP,
-	FONT,
-	IMAGE,
-	VIDEO,
-	SOUND,
-	MUSIC,
-	ARCHIVE,
-	CLIENT_SAVEGAME,
-	LIB_SAVEGAME,
-	SERVER_SAVEGAME,
-	OTHER
-};
+	enum Type
+	{
+		TEXT,
+		ANIMATION,
+		MASK,
+		CAMPAIGN,
+		MAP,
+		FONT,
+		IMAGE,
+		VIDEO,
+		SOUND,
+		MUSIC,
+		ARCHIVE,
+		CLIENT_SAVEGAME,
+		LIB_SAVEGAME,
+		SERVER_SAVEGAME,
+		OTHER
+	};
+}
 
 /**
  * A struct which identifies a resource clearly.
  */
-class DLL_LINKAGE ResourceIdentifier
+class DLL_LINKAGE ResourceID
 {
 public:
 	/**
 	 * Default c-tor.
 	 */
-	ResourceIdentifier();
+	ResourceID();
+
+	/**
+	 * Ctor. Can be used to implicitly create indentifier for resource loading
+	 *
+	 * @param name The resource name including extension.
+	 */
+	ResourceID(const std::string & fullName);
 
 	/**
 	 * Ctor.
@@ -71,7 +81,7 @@ public:
 	 * @param name The resource name.
 	 * @param type The resource type. A constant from the enumeration EResType.
 	 */
-	ResourceIdentifier(const std::string & name, EResType type);
+	ResourceID(const std::string & name, EResType::Type type);
 
 	/**
 	 * Compares this object with a another resource identifier.
@@ -79,7 +89,7 @@ public:
 	 * @param other The other resource identifier.
 	 * @return Returns true if both are equally, false if not.
 	 */
-	inline bool operator==(ResourceIdentifier const & other) const
+	inline bool operator==(ResourceID const & other) const
 	{
 		return name == other.name && type == other.type;
 	}
@@ -96,7 +106,7 @@ public:
 	 *
 	 * @return the type of the identifier
 	 */
-	EResType getType() const;
+	EResType::Type getType() const;
 
 	/**
 	 * Sets the name of the identifier.
@@ -110,8 +120,19 @@ public:
 	 *
 	 * @param type the type of the identifier.
 	 */
-	void setType(EResType type);
+	void setType(EResType::Type type);
 
+protected:
+	/**
+	 * Ctor for usage strictly in resourceLoader for some speedup
+	 *
+	 * @param prefix Prefix of ths filename, already in upper case
+	 * @param name The resource name.
+	 * @param type The resource type. A constant from the enumeration EResType.
+	 */
+	ResourceID(const std::string & prefix, const std::string & name, EResType::Type type);
+
+	friend class CResourceLoader;
 private:
 	/** Specifies the resource name. No extension so .pcx and .png can override each other, always in upper case. **/
 	std::string name;
@@ -120,7 +141,7 @@ private:
 	 * Specifies the resource type. EResType::OTHER if not initialized.
 	 * Required to prevent conflicts if files with different types (e.g. text and image) have the same name.
 	 */
-	EResType type;
+	EResType::Type type;
 };
 
 namespace std
@@ -128,17 +149,17 @@ namespace std
 	/**
 	 * Template specialization for std::hash.
 	 */
-    template <>
-    class hash<ResourceIdentifier>
-    {
+	template <>
+	class hash<ResourceID>
+	{
 public:
-    	/**
-    	 * Generates a hash value for the resource identifier object.
-    	 *
-    	 * @param resourceIdent The object from which a hash value should be generated.
-    	 * @return the generated hash value
-    	 */
-		size_t operator()(const ResourceIdentifier & resourceIdent) const
+		/**
+		 * Generates a hash value for the resource identifier object.
+		 *
+		 * @param resourceIdent The object from which a hash value should be generated.
+		 * @return the generated hash value
+		 */
+		size_t operator()(const ResourceID & resourceIdent) const
 		{
 			return hash<string>()(resourceIdent.getName()) ^ hash<int>()(static_cast<int>(resourceIdent.getType()));
 		}
@@ -151,7 +172,67 @@ public:
  */
 class DLL_LINKAGE CResourceLoader : public boost::noncopyable
 {
+	typedef std::unordered_map<ResourceID, std::list<ResourceLocator> > ResourcesMap;
+
 public:
+	/// class for iterating over all available files/Identifiers
+	/// can be created via CResourceLoader::getIterator
+	template <typename Comparator, typename Iter>
+	class Iterator
+	{
+	public:
+		/// find next available item.
+		Iterator& operator++()
+		{
+			assert(begin != end);
+			begin++;
+			findNext();
+			return *this;
+		}
+		bool hasNext()
+		{
+			return begin != end;
+		}
+
+		/// get identifier of current item
+		const ResourceID & operator* () const
+		{
+			assert(begin != end);
+			return begin->first;
+		}
+
+		/// get identifier of current item
+		const ResourceID * operator -> () const
+		{
+			assert(begin != end);
+			return &begin->first;
+		}
+
+	protected:
+		Iterator(Iter begin, Iter end, Comparator comparator):
+		    begin(begin),
+		    end(end),
+		    comparator(comparator)
+		{
+			//find first applicable item
+			findNext();
+		}
+
+		friend class CResourceLoader;
+
+	private:
+		Iter begin;
+		Iter end;
+		Comparator comparator;
+
+		void findNext()
+		{
+			while (begin != end && !comparator(begin->first))
+				begin++;
+		}
+
+	};
+
 	CResourceLoader();
 
 	/**
@@ -167,7 +248,35 @@ public:
 	 *
 	 * @throws std::runtime_error if the resource doesn't exists
 	 */
-	std::unique_ptr<CInputStream> load(const ResourceIdentifier & resourceIdent) const;
+	std::unique_ptr<CInputStream> load(const ResourceID & resourceIdent) const;
+	/// temporary member to ease transition to new filesystem classes
+	std::pair<std::unique_ptr<ui8[]>, ui64> loadData(const ResourceID & resourceIdent) const;
+
+	/**
+	 * Get resource locator for this identifier
+	 *
+	 * @param resourceIdent This parameter identifies the resource to load.
+	 * @return resource locator for this resource or empty one if resource was not found
+	 */
+	ResourceLocator getResource(const ResourceID & resourceIdent) const;
+	/// returns real name of file in filesystem. Not usable for archives
+	std::string getResourceName(const ResourceID & resourceIdent) const;
+	/// return size of file or 0 if not found
+
+	/**
+	 * Get iterator for looping all files matching filter
+	 * Notes:
+	 * - iterating over all files may be slow. Use with caution
+	 * - all filenames are in upper case
+	 *
+	 * @param filter functor with signature bool(ResourceIdentifier) used to check if this file is required
+	 * @return resource locator for this resource or empty one if resource was not found
+	 */
+	template<typename Comparator>
+	Iterator<Comparator, ResourcesMap::const_iterator> getIterator(Comparator filter) const
+	{
+		return Iterator<Comparator, ResourcesMap::const_iterator>(resources.begin(), resources.end(), filter);
+	}
 
 	/**
 	 * Tests whether the specified resource exists.
@@ -175,17 +284,19 @@ public:
 	 * @param resourceIdent the resource which should be checked
 	 * @return true if the resource exists, false if not
 	 */
-	bool existsResource(const ResourceIdentifier & resourceIdent) const;
+	bool existsResource(const ResourceID & resourceIdent) const;
 
 	/**
 	 * Adds a simple resource loader to the loaders list and its entries to the resources list.
 	 *
 	 * The loader object will be destructed when this resource loader is destructed.
 	 * Don't delete it manually.
+	 * Same loader can be added multiple times (with different mount point)
 	 *
+	 * @param mountPoint prefix that will be added to all files in this loader
 	 * @param loader The simple resource loader object to add
 	 */
-	void addLoader(ISimpleResourceLoader * loader);
+	void addLoader(std::string mountPoint, ISimpleResourceLoader * loader);
 
 private:
 
@@ -193,10 +304,10 @@ private:
 	 * Contains lists of same resources which can be accessed uniquely by an
 	 * resource identifier.
 	 */
-	std::unordered_map<ResourceIdentifier, std::list<ResourceLocator> > resources;
+	ResourcesMap resources;
 
 	/** A list of resource loader objects */
-	std::list<ISimpleResourceLoader *> loaders;
+	std::set<ISimpleResourceLoader *> loaders;
 };
 
 /**
@@ -209,7 +320,7 @@ private:
  *
  * This class is not thread-safe. Make sure nobody is calling getInstance while somebody else is calling setInstance.
  */
-class DLL_LINKAGE CResourceLoaderFactory
+class DLL_LINKAGE CResourceHandler
 {
 public:
 	/**
@@ -219,18 +330,30 @@ public:
 	 *
 	 * @return Returns an instance of resource loader.
 	 */
-	static CResourceLoader * getInstance();
+	static CResourceLoader * get();
 
 	/**
-	 * Sets an instance of resource loader.
+	 * Creates instance of resource loader.
+	 * Will not fill filesystem with data
 	 *
-	 * @param resourceLoader An instance of resource loader.
 	 */
-	static void setInstance(CResourceLoader * resourceLoader);
+	static void initialize();
+
+	/**
+	 * Will load all filesystem data from Json data at this path (config/filesystem.json)
+	 */
+	static void loadFileSystem(const std::string fsConfigURI);
+
+	/**
+	 * Experimental. Checks all subfolders of MODS directory for presence of ERA-style mods
+	 * If this directory has filesystem.json file it will be added to resources
+	 */
+	static void loadModsFilesystems();
 
 private:
 	/** Instance of resource loader */
 	static CResourceLoader * resourceLoader;
+	static CResourceLoader * initialLoader;
 };
 
 /**
@@ -284,7 +407,7 @@ public:
 	 * @param extension The extension string e.g. .BMP, .PNG
 	 * @return Returns a EResType enum object
 	 */
-	static EResType getTypeFromExtension(std::string extension);
+	static EResType::Type getTypeFromExtension(std::string extension);
 
 	/**
 	 * Gets the EResType as a string representation.
@@ -292,5 +415,5 @@ public:
 	 * @param type the EResType
 	 * @return the type as a string representation
 	 */
-	static std::string getEResTypeAsString(EResType type);
+	static std::string getEResTypeAsString(EResType::Type type);
 };

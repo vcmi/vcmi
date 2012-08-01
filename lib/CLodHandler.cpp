@@ -1,14 +1,10 @@
 #include "StdInc.h"
 #include "CLodHandler.h"
 
-#include "zlib.h"
 #include "vcmi_endian.h"
-#include "VCMIDirs.h"
 #ifdef max
 #undef max
 #endif
-
-extern VCMIDirs GVCMIDirs;
 
 /*
  * CLodHandler.cpp, part of VCMI engine
@@ -21,7 +17,7 @@ extern VCMIDirs GVCMIDirs;
  */
 
 std::string readString(const ui8 * bufor, int &i)
-{					
+{
 	int len = read_le_u32(bufor + i); i+=4;
 	assert(len >= 0 && len <= 500000); //not too long
 	std::string ret; ret.reserve(len);
@@ -31,7 +27,7 @@ std::string readString(const ui8 * bufor, int &i)
 	}
 	return ret;
 }
-
+/*
 void CLodHandler::convertName(std::string &filename, std::string *extension)
 {
 	std::transform(filename.begin(), filename.end(), filename.begin(), toupper);
@@ -132,7 +128,7 @@ DLL_LINKAGE int CLodHandler::infs2(ui8 * in, int size, int realSize, ui8 *& out,
 	out = new ui8 [realSize];
 	int latPosOut = 0;
 
-	/* allocate inflate state */
+	// allocate inflate state
 	strm.zalloc = Z_NULL;
 	strm.zfree = Z_NULL;
 	strm.opaque = Z_NULL;
@@ -151,13 +147,13 @@ DLL_LINKAGE int CLodHandler::infs2(ui8 * in, int size, int realSize, ui8 *& out,
 			break;
 		strm.next_in = in + chunkNumber * NLoadHandlerHelp::fCHUNK;
 
-		/* run inflate() on input until output buffer not full */
+		// run inflate() on input until output buffer not full
 		do
 		{
 			strm.avail_out = realSize - latPosOut;
 			strm.next_out = out + latPosOut;
 			ret = inflate(&strm, Z_NO_FLUSH);
-			//assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
+			//assert(ret != Z_STREAM_ERROR);  // state not clobbered
 			bool breakLoop = false;
 			switch (ret)
 			{
@@ -165,7 +161,7 @@ DLL_LINKAGE int CLodHandler::infs2(ui8 * in, int size, int realSize, ui8 *& out,
 				breakLoop = true;
 				break;
 			case Z_NEED_DICT:
-				ret = Z_DATA_ERROR;	 /* and fall through */
+				ret = Z_DATA_ERROR;	 // and fall through
 			case Z_DATA_ERROR:
 			case Z_MEM_ERROR:
 				(void)inflateEnd(&strm);
@@ -180,10 +176,10 @@ DLL_LINKAGE int CLodHandler::infs2(ui8 * in, int size, int realSize, ui8 *& out,
 		} while (strm.avail_out == 0);
 
 		++chunkNumber;
-		/* done when inflate() says it's done */
+		// done when inflate() says it's done
 	} while (ret != Z_STREAM_END);
 
-	/* clean up and return */
+	// clean up and return
 	(void)inflateEnd(&strm);
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
@@ -399,3 +395,4 @@ ui8 * CLodHandler::getUnpackedFile( const std::string & path, int * sizeOut )
 	*sizeOut = mapsize;
 	return initTable;
 }
+*/

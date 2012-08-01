@@ -1,15 +1,13 @@
 #include "StdInc.h"
 #include "CSpellHandler.h"
 
-
+#include "Filesystem/CResourceLoader.h"
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/JsonNode.h"
 #include <cctype>
 #include "GameConstants.h"
 #include "BattleHex.h"
-
-extern CLodHandler *bitmaph;
 
 /*
  * CSpellHandler.cpp, part of VCMI engine
@@ -274,7 +272,10 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
 
 void CSpellHandler::loadSpells()
 {
-	std::string buf = bitmaph->getTextFile("SPTRAITS.TXT"), pom;
+	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/SPTRAITS.TXT"));
+	std::string buf((char*)textFile.first.get(), textFile.second);
+
+	std::string pom;
 	int andame = buf.size(), i=0; //buf iterator
 	for(int z=0; z<5; ++z)
 		loadToIt(pom,buf,i,3);
