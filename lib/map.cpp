@@ -7,7 +7,6 @@
 #include "CDefObjInfoHandler.h"
 #include "VCMI_Lib.h"
 #include <boost/crc.hpp>
-#include "CLodHandler.h"
 #include "CArtHandler.h"
 #include "CCreatureHandler.h"
 #include "CSpellHandler.h"
@@ -32,7 +31,7 @@ static std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID, b
 	std::set<si32> ret;
 
 	// Note: this file is parsed many times.
-	const JsonNode config(GameConstants::DATA_DIR + "/config/buildings5.json");
+	const JsonNode config(ResourceID("config/buildings5.json"));
 
 	BOOST_FOREACH(const JsonNode &entry, config["table"].Vector())
 	{
@@ -505,8 +504,8 @@ Mapa::Mapa(std::string filename)
 {
 	tlog0<<"Opening map file: "<<filename<<"\t "<<std::flush;
 	
-	std::unique_ptr<CInputStream> compressed(CResourceHandler::get()->load(ResourceID(filename, EResType::MAP)));
-	std::unique_ptr<CInputStream> decompressed(new CCompressedStream(compressed, true));
+	std::unique_ptr<CInputStream> decompressed(new CCompressedStream(
+	                                               std::move(CResourceHandler::get()->load(ResourceID(filename, EResType::MAP))), true));
 
 	//load file and decompress
 	size_t mapSize = decompressed->getSize();

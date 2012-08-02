@@ -1,11 +1,11 @@
 #include "StdInc.h"
 #include "CTownHandler.h"
 
-#include "CLodHandler.h"
-#include "../lib/VCMI_Lib.h"
+#include "VCMI_Lib.h"
 #include "CGeneralTextHandler.h"
-#include "../lib/JsonNode.h"
+#include "JsonNode.h"
 #include "GameConstants.h"
+#include "Filesystem/CResourceLoader.h"
 
 /*
  * CTownHandler.cpp, part of VCMI engine
@@ -50,7 +50,7 @@ void CTownHandler::loadStructures()
 	structures.resize(GameConstants::F_NUMBER);
 
 	// read city properties
-	const JsonNode config(GameConstants::DATA_DIR + "/config/buildings.json");
+	const JsonNode config(ResourceID("config/buildings.json"));
 
 	// Iterate for each city type
 	townID = 0;

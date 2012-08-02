@@ -13,7 +13,6 @@
 #include "CDefHandler.h"
 #include "../lib/CDefObjInfoHandler.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/CLodHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CObjectHandler.h"
@@ -39,7 +38,6 @@
 #include "../lib/RegisterTypes.h"
 #include "../lib/CThreadHelper.h"
 #include "CConfigHandler.h"
-#include "../lib/CFileUtility.h"
 #include "../lib/GameConstants.h"
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
@@ -436,7 +434,7 @@ void CreditsScreen::clickRight(tribool down, bool previousState)
 }
 
 CGPreGame::CGPreGame():
-	pregameConfig(new JsonNode(GameConstants::DATA_DIR + "/config/mainmenu.json"))
+	pregameConfig(new JsonNode(ResourceID("config/mainmenu.json")))
 {
 	pos.w = screen->w;
 	pos.h = screen->h;
@@ -1052,8 +1050,7 @@ void SelectionTab::parseMaps(const std::vector<ResourceID> &files, int start, in
 
 	while(start < allItems.size())
 	{
-		auto compressed = CResourceHandler::get()->load(files[start]);
-		CCompressedStream stream(compressed, true);
+		CCompressedStream stream(std::move(CResourceHandler::get()->load(files[start])), true);
 		int read = stream.read(mapBuffer, 1500);
 
 		if(read < 50  ||  !mapBuffer[4])
@@ -2891,7 +2888,7 @@ void CBonusSelection::showAll(SDL_Surface * to)
 
 void CBonusSelection::loadPositionsOfGraphics()
 {
-	const JsonNode config(GameConstants::DATA_DIR + "/config/campaign_regions.json");
+	const JsonNode config(ResourceID("config/campaign_regions.json"));
 	int idx = 0;
 
 	BOOST_FOREACH(const JsonNode &campaign, config["campaign_regions"].Vector())
@@ -2929,7 +2926,7 @@ void CBonusSelection::selectMap( int whichOne )
 	int i = 0;
 	delete ourHeader;
 	ourHeader = new CMapHeader();
-	ourHeader->initFromMemory((const unsigned char*)ourCampaign->camp->mapPieces.find(whichOne)->second.c_str(), i);
+	ourHeader->initFromMemory((const unsigned char*)ourCampaign->camp->mapPieces.find(whichOne)->second.data(), i);
 
 	std::map<ui32, std::string> names;
 	names[1] = settings["general"]["playerName"].String();
@@ -3563,9 +3560,6 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode &config )
 
 void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousState)
 {
-	// Campaign screen is broken. Disabled for now
-	return;
-
 	if (down)
 	{
 		// Close running video and open the selected campaign

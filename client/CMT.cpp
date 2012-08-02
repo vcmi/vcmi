@@ -23,7 +23,6 @@
 #include "../lib/CSpellHandler.h"
 #include "CMusicHandler.h"
 #include "CVideoHandler.h"
-#include "../lib/CLodHandler.h"
 #include "CDefHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
@@ -231,6 +230,8 @@ int main(int argc, char** argv)
 	console->start();
 	atexit(dispose);
 	tlog0 <<"Creating console and logfile: "<<pomtime.getDiff() << std::endl;
+
+	LibClasses::loadFilesystem();
 
 	settings.init();
 	conf.init();
@@ -484,7 +485,7 @@ void processCommand(const std::string &message)
 			return ident.getType() == EResType::TEXT && boost::algorithm::starts_with(ident.getName(), "DATA/");
 		});
 
-		std::string basePath = CResourceHandler::get()->getResourceName(std::string("DATA")) + "/Extracted_txts/";
+		std::string basePath = CResourceHandler::get()->getResourceName(ResourceID("DATA")) + "/Extracted_txts/";
 		while (iterator.hasNext())
 		{
 			std::ofstream file(basePath + iterator->getName() + ".TXT");

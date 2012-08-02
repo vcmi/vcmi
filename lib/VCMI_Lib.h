@@ -40,7 +40,8 @@ public:
 	void init(); //uses standard config file
 	void clear(); //deletes all handlers and its data
 	void makeNull(); //sets all handler (except of lodhs) pointers to null
-	
+
+	static void loadFilesystem();
 
 	void callWhenDeserializing(); //should be called only by serialize !!!
 	template <typename Handler> void serialize(Handler &h, const int version)

@@ -5,6 +5,7 @@ typedef std::map <std::string, JsonNode> JsonMap;
 typedef std::vector <JsonNode> JsonVector;
 
 struct Bonus;
+class ResourceID;
 
 class DLL_LINKAGE JsonNode
 {
@@ -38,7 +39,7 @@ public:
 	//Create tree from Json-formatted input
 	explicit JsonNode(const char * data, size_t datasize);
 	//Create tree from JSON file
- 	explicit JsonNode(std::string filename);
+ 	explicit JsonNode(ResourceID && fileURI);
 	//Copy c-tor
 	JsonNode(const JsonNode &copy);
 

@@ -7,7 +7,6 @@
 #include "CBitmapHandler.h"
 #include "CDefHandler.h"
 #include "UIFramework/SDL_Extensions.h"
-#include "../lib/CLodHandler.h"
 #include "../lib/vcmi_endian.h"
 
 /*

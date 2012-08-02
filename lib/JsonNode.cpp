@@ -2,6 +2,7 @@
 #include "JsonNode.h"
 
 #include "HeroBonus.h"
+#include "Filesystem/CResourceLoader.h"
 
 const JsonNode JsonNode::nullNode;
 
@@ -18,9 +19,10 @@ JsonNode::JsonNode(const char *data, size_t datasize):
 	JsonValidator validator(*this);
 }
 
-JsonNode::JsonNode(std::string filename):
+JsonNode::JsonNode(ResourceID && fileURI):
 	type(DATA_NULL)
 {
+	std::string filename = CResourceHandler::get()->getResourceName(fileURI);
 	FILE * file = fopen(filename.c_str(), "rb");
 	if (!file)
 	{

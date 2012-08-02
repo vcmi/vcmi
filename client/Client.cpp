@@ -31,7 +31,6 @@
 #include "BattleInterface/CBattleInterface.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/CScriptingModule.h"
-#include "../lib/CFileUtility.h"
 #include "../lib/RegisterTypes.h"
 #include "UIFramework/CGuiHandler.h"
 

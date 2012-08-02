@@ -2,7 +2,6 @@
 #include "CBuildingHandler.h"
 
 #include "CGeneralTextHandler.h"
-#include "CLodHandler.h"
 #include "../lib/Filesystem/CResourceLoader.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/JsonNode.h"
@@ -99,7 +98,7 @@ void CBuildingHandler::loadBuildings()
 		}
 	}
 	/////done reading BUILDING.TXT*****************************
-	const JsonNode config(GameConstants::DATA_DIR + "/config/hall.json");
+	const JsonNode config(ResourceID("config/hall.json"));
 
 	BOOST_FOREACH(const JsonNode &town, config["town"].Vector())
 	{

@@ -20,7 +20,6 @@
 #include "CDefHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/CLodHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/NetPacks.h"
 

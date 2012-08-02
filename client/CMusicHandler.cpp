@@ -9,6 +9,7 @@
 #include "../client/CGameInfo.h"
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
+#include "../lib/Filesystem/CResourceLoader.h"
 
 /*
  * CMusicHandler.cpp, part of VCMI engine
@@ -174,7 +175,7 @@ soundBase::soundID CSoundHandler::getSoundID(const std::string &fileName)
 void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CCreature> > &creatures)
 {
 	tlog5 << "\t\tReading config/cr_sounds.json" << std::endl;
-	const JsonNode config(GameConstants::DATA_DIR + "/config/cr_sounds.json");
+	const JsonNode config(ResourceID("config/cr_sounds.json"));
 
 	CBattleSounds.resize(creatures.size());
 
@@ -232,7 +233,7 @@ void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CC
 
 void CSoundHandler::initSpellsSounds(const std::vector< ConstTransitivePtr<CSpell> > &spells)
 {
-	const JsonNode config(GameConstants::DATA_DIR + "/config/sp_sounds.json");
+	const JsonNode config(ResourceID("config/sp_sounds.json"));
 
 	if (!config["spell_sounds"].isNull()) {
 		BOOST_FOREACH(const JsonNode &node, config["spell_sounds"].Vector()) {

@@ -69,11 +69,11 @@ public:
 	ResourceID();
 
 	/**
-	 * Ctor. Can be used to implicitly create indentifier for resource loading
+	 * Ctor. Can be used to create indentifier for resource loading using one parameter
 	 *
 	 * @param name The resource name including extension.
 	 */
-	ResourceID(const std::string & fullName);
+	explicit ResourceID(const std::string & fullName);
 
 	/**
 	 * Ctor.

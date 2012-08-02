@@ -2,7 +2,6 @@
 #include "CCreatureAnimation.h"
 
 #include "../../lib/Filesystem/CResourceLoader.h"
-#include "../../lib/CLodHandler.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/vcmi_endian.h"
 #include "../UIFramework/SDL_Extensions.h"

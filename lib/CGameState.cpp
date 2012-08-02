@@ -843,9 +843,9 @@ void CGameState::init(StartInfo * si)
 			campaign->initNewCampaign(*scenarioOps);
 			assert(vstd::contains(campaign->camp->mapPieces, scenarioOps->whichMapInCampaign));
 
-			std::string &mapContent = campaign->camp->mapPieces[scenarioOps->whichMapInCampaign];
+			std::vector<ui8> &mapContent = campaign->camp->mapPieces[scenarioOps->whichMapInCampaign];
 			map = new Mapa();
-			map->initFromBytes((const ui8*)mapContent.c_str(), mapContent.size());
+			map->initFromBytes((const ui8*)mapContent.data(), mapContent.size());
 		}
 		break;
 	case StartInfo::DUEL:
@@ -1053,7 +1053,7 @@ void CGameState::init(StartInfo * si)
 
 	/******************RESOURCES****************************************************/
 	TResources startresAI, startresHuman;
-	const JsonNode config(GameConstants::DATA_DIR + "/config/startres.json");
+	const JsonNode config(ResourceID("config/startres.json"));
 	const JsonVector &vector = config["difficulty"].Vector();
 	const JsonNode &level = vector[scenarioOps->difficulty];
 	const JsonNode &human = level["human"];
@@ -1746,7 +1746,7 @@ int CGameState::getPlayerRelations( ui8 color1, ui8 color2 )
 void CGameState::loadTownDInfos()
 {
     int i;
-	const JsonNode config(GameConstants::DATA_DIR + "/config/towns_defs.json");
+	const JsonNode config(ResourceID("config/towns_defs.json"));
 
     assert(config["town_defnames"].Vector().size() == GameConstants::F_NUMBER);
 
@@ -2782,7 +2782,7 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 {
 	DuelParameters ret;
 
-	const JsonNode duelData(fname);
+	const JsonNode duelData(ResourceID(fname, EResType::TEXT));
 	ret.terType = duelData["terType"].Float();
 	ret.bfieldType = duelData["bfieldType"].Float();
 	BOOST_FOREACH(const JsonNode &n, duelData["sides"].Vector())

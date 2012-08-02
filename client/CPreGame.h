@@ -29,7 +29,6 @@ class CConnection;
 class JsonNode;
 struct CPackForSelectionScreen;
 struct PlayerInfo;
-struct FileInfo;
 
 namespace boost{ class thread; class recursive_mutex;}
 

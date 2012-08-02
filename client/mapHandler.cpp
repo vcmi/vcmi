@@ -3,7 +3,6 @@
 
 #include "UIFramework/SDL_Extensions.h"
 #include "CGameInfo.h"
-#include "../lib/CLodHandler.h"
 #include "../lib/CDefObjInfoHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/CHeroHandler.h"

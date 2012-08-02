@@ -2,7 +2,6 @@
 #include "CCreatureHandler.h"
 
 #include "Filesystem/CResourceLoader.h"
-#include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
@@ -412,7 +411,7 @@ void CCreatureHandler::loadCreatures()
 
 	// loading creatures properties
 	tlog5 << "\t\tReading config/creatures.json" << std::endl;
-	const JsonNode config(GameConstants::DATA_DIR + "/config/creatures.json");
+	const JsonNode config(ResourceID("config/creatures.json"));
 
 	BOOST_FOREACH(const JsonNode &creature, config["creatures"].Vector())
 	{
@@ -476,7 +475,7 @@ void CCreatureHandler::loadCreatures()
 	loadAnimationInfo();
 
 	//reading creature ability names
-	const JsonNode config2(GameConstants::DATA_DIR + "/config/bonusnames.json");
+	const JsonNode config2(ResourceID("config/bonusnames.json"));
 
 	BOOST_FOREACH(const JsonNode &bonus, config2["bonuses"].Vector())
 	{
@@ -606,7 +605,7 @@ void CCreatureHandler::loadCreatures()
 // 	addBonusForTier(1, b);
 
 	tlog5 << "\t\tReading config/commanders.json" << std::endl;
-	const JsonNode config3(GameConstants::DATA_DIR + "/config/commanders.json");
+	const JsonNode config3(ResourceID("config/commanders.json"));
 
 	BOOST_FOREACH (auto creature, config3["factionCreatures"].Vector())
 	{

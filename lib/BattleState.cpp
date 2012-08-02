@@ -10,7 +10,8 @@
 #include "CSpellHandler.h"
 #include "CTownHandler.h"
 #include "NetPacks.h"
-#include "../lib/JsonNode.h"
+#include "JsonNode.h"
+#include "Filesystem/CResourceLoader.h"
 
 
 /*
@@ -1766,7 +1767,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 	//TODO: parse once to some structure
 	std::vector< std::vector<int> > attackerLoose, defenderLoose, attackerTight, defenderTight, attackerCreBank, defenderCreBank;
 	std::vector <int> commanderField, commanderBank;
-	const JsonNode config(GameConstants::DATA_DIR + "/config/battleStartpos.json");
+	const JsonNode config(ResourceID("config/battleStartpos.json"));
 	const JsonVector &positions = config["battle_positions"].Vector();
 
 	CGH::readBattlePositions(positions[0]["levels"], attackerLoose);

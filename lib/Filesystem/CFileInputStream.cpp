@@ -2,10 +2,6 @@
 #include "CFileInputStream.h"
 #include "CFileInfo.h"
 
-CFileInputStream::CFileInputStream()
-{
-
-}
 
 CFileInputStream::CFileInputStream(const std::string & file, si64 start, si64 size)
 {
@@ -19,13 +15,11 @@ CFileInputStream::CFileInputStream(const CFileInfo & file, si64 start, si64 size
 
 CFileInputStream::~CFileInputStream()
 {
-	close();
+	fileStream.close();
 }
 
 void CFileInputStream::open(const std::string & file, si64 start, si64 size)
 {
-	close();
-
 	fileStream.open(file.c_str(), std::ios::in | std::ios::binary);
 
 	if (fileStream.fail())
@@ -78,12 +72,4 @@ si64 CFileInputStream::skip(si64 delta)
 si64 CFileInputStream::getSize()
 {
 	return dataSize;
-}
-
-void CFileInputStream::close()
-{
-	if (fileStream.is_open())
-	{
-		fileStream.close();
-	}
 }

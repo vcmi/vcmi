@@ -2,7 +2,6 @@
 #include "CSpellHandler.h"
 
 #include "Filesystem/CResourceLoader.h"
-#include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/JsonNode.h"
 #include <cctype>
@@ -350,7 +349,7 @@ void CSpellHandler::loadSpells()
 	boost::replace_first (spells[47]->attributes, "2", ""); // disrupting ray will now affect single creature
 
 	//loading of additional spell traits
-	const JsonNode config(GameConstants::DATA_DIR + "/config/spell_info.json");
+	const JsonNode config(ResourceID("config/spell_info.json"));
 
 	BOOST_FOREACH(const JsonNode &spell, config["spells"].Vector())
 	{

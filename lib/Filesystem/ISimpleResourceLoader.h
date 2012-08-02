@@ -18,17 +18,6 @@
  */
 class DLL_LINKAGE ISimpleResourceLoader
 {
-
-	/**
-	 * Decompresses an archive entry.
-	 *
-	 * @param in A pointer to the compressed data array
-	 * @param size The size of the compressed data array
-	 * @param realSize - hint decompressed size (if known)
-	 * @returns pair(decompressed data, size)
-	 */
-	static std::pair<ui8*, size_t> decompress(ui8 * in, size_t size, size_t realSize = 0);
-
 public:
 	/**
 	 * Dtor.

@@ -3,7 +3,6 @@
 #include "CInputStream.h"
 #include "CFileInputStream.h"
 #include "CCompressedStream.h"
-#include "CLodStream.h"
 #include "CBinaryReader.h"
 #include "CFileInfo.h"
 #include <SDL_endian.h>
@@ -197,7 +196,7 @@ std::unique_ptr<CInputStream> CLodArchiveLoader::load(const std::string & resour
 	{
 		std::unique_ptr<CInputStream> fileStream(new CFileInputStream(getOrigin(), entry.offset, entry.size));
 
-		return std::unique_ptr<CInputStream>(new CCompressedStream(fileStream, false, entry.realSize));
+		return std::unique_ptr<CInputStream>(new CCompressedStream(std::move(fileStream), false, entry.realSize));
 	}
 	else
 	{

@@ -2,7 +2,6 @@
 #include <SDL_image.h>
 
 #include "../lib/Filesystem/CResourceLoader.h"
-#include "../lib/CLodHandler.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
 
@@ -935,13 +934,9 @@ void CAnimation::init(CDefFile * file)
 			source[mapIt->first].resize(mapIt->second);
 	}
 
-	ResourceID identifier(std::string("SPRITES/") + name, EResType::TEXT);
-
-	if (CResourceHandler::get()->existsResource(identifier))
+	if (CResourceHandler::get()->existsResource(ResourceID(std::string("SPRITES/") + name, EResType::TEXT)))
 	{
-		auto configFile = CResourceHandler::get()->loadData(identifier);
-
-		const JsonNode config((char*)configFile.first.get(), configFile.second);
+		const JsonNode config(ResourceID(std::string("SPRITES/") + name, EResType::TEXT));
 
 		std::string basepath;
 		basepath = config["basepath"].String();

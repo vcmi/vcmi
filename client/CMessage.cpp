@@ -6,7 +6,6 @@
 #include "CAnimation.h"
 #include "CGameInfo.h"
 #include "UIFramework/SDL_Extensions.h"
-#include "../lib/CLodHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
 #include "GUIClasses.h"

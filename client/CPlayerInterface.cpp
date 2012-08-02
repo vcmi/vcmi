@@ -21,7 +21,6 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
-#include "../lib/CLodHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/Connection.h"
 #include "../lib/CSpellHandler.h"

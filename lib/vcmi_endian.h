@@ -43,3 +43,20 @@ static inline ui32 read_unaligned_u32(const void *p)
 #define read_le_u16(p) (SDL_SwapLE16(* reinterpret_cast<const ui16 *>(p)))
 #define read_le_u32(p) (SDL_SwapLE32(* reinterpret_cast<const ui32 *>(p)))
 #endif
+
+static inline char readChar(const ui8 * bufor, int &i)
+{
+	return bufor[i++];
+}
+
+static inline std::string readString(const ui8 * bufor, int &i)
+{
+	int len = read_le_u32(bufor + i); i+=4;
+	assert(len >= 0 && len <= 500000); //not too long
+	std::string ret; ret.reserve(len);
+	for(int gg=0; gg<len; ++gg)
+	{
+		ret += bufor[i++];
+	}
+	return ret;
+}

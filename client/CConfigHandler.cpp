@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "CConfigHandler.h"
 
+#include "../lib/Filesystem/CResourceLoader.h"
 #include "../lib/GameConstants.h"
 #include "../lib/VCMIDirs.h"
 
@@ -56,8 +57,8 @@ SettingsStorage::SettingsStorage():
 
 void SettingsStorage::init()
 {
-	JsonNode(GVCMIDirs.UserPath + "/config/settings.json").swap(config);
-	JsonNode schema(GameConstants::DATA_DIR + "/config/defaultSettings.json");
+	JsonNode(ResourceID("config/settings.json")).swap(config);
+	JsonNode schema(ResourceID("config/defaultSettings.json"));
 	config.validate(schema);
 }
 
@@ -67,7 +68,7 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 		listener->nodeInvalidated(changedPath);
 
 	JsonNode savedConf = config;
-	JsonNode schema(GameConstants::DATA_DIR + "/config/defaultSettings.json");
+	JsonNode schema(ResourceID("config/defaultSettings.json"));
 
 	savedConf.Struct().erase("session");
 	savedConf.minimize(schema);
@@ -194,7 +195,7 @@ CConfigHandler::~CConfigHandler(void)
 void config::CConfigHandler::init()
 {
 	/* Read resolutions. */
-	const JsonNode config(GameConstants::DATA_DIR + "/config/resolutions.json");
+	const JsonNode config(ResourceID("config/resolutions.json"));
 	const JsonVector &guisettings_vec = config["GUISettings"].Vector();
 
 	BOOST_FOREACH(const JsonNode &g, guisettings_vec) 

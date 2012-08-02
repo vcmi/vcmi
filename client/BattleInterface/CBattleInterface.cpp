@@ -2,7 +2,6 @@
 #include "CBattleInterface.h"
 
 #include "../CGameInfo.h"
-#include "../../lib/CLodHandler.h"
 #include "../UIFramework/SDL_Extensions.h"
 #include "../CAdvmapInterface.h"
 #include "../CAnimation.h"

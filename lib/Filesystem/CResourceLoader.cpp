@@ -279,18 +279,27 @@ void CResourceHandler::initialize()
 
 	//create "LOCAL" dir with current userDir (may be same as rootDir)
 	initialLoader->addLoader("LOCAL/", userDir);
+
+	//check for presence of "VCMI" mod. If found - add it to our initial FS
+	std::string filename = initialLoader->getResourceName(ResourceID("ALL/MODS/VCMI"));
+	if (!filename.empty())
+		initialLoader->addLoader("ALL/", new CFilesystemLoader(filename, 2));
 }
 
 void CResourceHandler::loadFileSystem(const std::string fsConfigURI)
 {
-	const JsonNode fsConfig(initialLoader->getResourceName(ResourceID(fsConfigURI, EResType::TEXT)));
+	//TODO: better way to detect fs config.
+	// right now it can be: global_dir/config/, local_dir/config, global/mods/vcmi/config, local/mods/vcmi/config
+	auto fsConfigData = initialLoader->loadData(ResourceID(fsConfigURI, EResType::TEXT));
+
+	const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
 
 	BOOST_FOREACH(auto & mountPoint, fsConfig["filesystem"].Struct())
 	{
 		BOOST_FOREACH(auto & entry, mountPoint.second.Vector())
 		{
 			tlog5 << "loading resource at " << entry["path"].String() << ": ";
-			std::string filename = initialLoader->getResourceName(entry["path"].String());
+			std::string filename = initialLoader->getResourceName(ResourceID(entry["path"].String()));
 
 			if (!filename.empty())
 			{
@@ -317,11 +326,14 @@ void CResourceHandler::loadModsFilesystems()
 {
 #ifdef ENABLE_ERA_FILESYSTEM
 
-	auto iterator = initialLoader->getIterator([](const ResourceID & ident)
+	auto iterator = initialLoader->getIterator([](const ResourceID & ident) ->  bool
 	{
+		std::string name = ident.getName();
+
 		return ident.getType() == EResType::TEXT
-		    && boost::algorithm::starts_with(ident.getName(), "ALL/MODS/")
-		    && boost::algorithm::ends_with(ident.getName(), "FILESYSTEM");
+		    && std::count(name.begin(), name.end(), '/') == 3
+		    && boost::algorithm::starts_with(name, "ALL/MODS/")
+		    && boost::algorithm::ends_with(name, "FILESYSTEM");
 	});
 
 	while (iterator.hasNext())

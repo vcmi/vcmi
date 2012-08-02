@@ -3,6 +3,7 @@
 
 #include "../CCallback.h"
 #include "../lib/JsonNode.h"
+#include "../lib/Filesystem/CResourceLoader.h"
 #include "../lib/map.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/CGameState.h"
@@ -479,7 +480,7 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 {
 	std::map<int, std::pair<SDL_Color, SDL_Color> > ret;
 
-	const JsonNode config(GameConstants::DATA_DIR + from);
+	const JsonNode config(ResourceID(from, EResType::TEXT));
 
 	BOOST_FOREACH(const JsonNode &m, config["MinimapColors"].Vector())
 	{
@@ -513,7 +514,7 @@ CMinimap::CMinimap(const Rect &position):
     aiShield(nullptr),
     minimap(nullptr),
     level(0),
-    colors(loadColors("/config/minimap.json"))
+    colors(loadColors("config/minimap.json"))
 {
 	pos.w = position.w;
 	pos.h = position.h;

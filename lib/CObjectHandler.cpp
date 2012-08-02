@@ -2,7 +2,6 @@
 #include "CObjectHandler.h"
 
 #include "CDefObjInfoHandler.h"
-#include "CLodHandler.h"
 #include "CGeneralTextHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CHeroHandler.h"
@@ -19,7 +18,8 @@
 #include "map.h"
 #include <SDL_stdinc.h>
 #include "CBuildingHandler.h"
-#include "../lib/JsonNode.h"
+#include "JsonNode.h"
+#include "Filesystem/CResourceLoader.h"
 #include "GameConstants.h"
 
 using namespace boost::assign;
@@ -155,7 +155,7 @@ void CObjectHandler::loadObjects()
 {
 	tlog5 << "\t\tReading cregens \n";
 
-	const JsonNode config(GameConstants::DATA_DIR + "/config/dwellings.json");
+	const JsonNode config(ResourceID("config/dwellings.json"));
 	BOOST_FOREACH(const JsonNode &dwelling, config["dwellings"].Vector())
 	{
 		cregens[dwelling["dwelling"].Float()] = dwelling["creature"].Float();
@@ -163,7 +163,7 @@ void CObjectHandler::loadObjects()
 	tlog5 << "\t\tDone loading cregens!\n";
 
 	tlog5 << "\t\tReading resources prices \n";
-	const JsonNode config2(GameConstants::DATA_DIR + "/config/resources.json");
+	const JsonNode config2(ResourceID("config/resources.json"));
 	BOOST_FOREACH(const JsonNode &price, config2["resources_prices"].Vector())
 	{
 		resVals.push_back(price.Float());
@@ -171,7 +171,7 @@ void CObjectHandler::loadObjects()
 	tlog5 << "\t\tDone loading resource prices!\n";
 
 	tlog5 << "\t\tReading banks configs \n";
-	const JsonNode config3(GameConstants::DATA_DIR + "/config/bankconfig.json");
+	const JsonNode config3(ResourceID("config/bankconfig.json"));
 	int bank_num = 0;
 	BOOST_FOREACH(const JsonNode &bank, config3["banks"].Vector())
 	{

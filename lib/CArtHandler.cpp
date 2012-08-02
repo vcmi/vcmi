@@ -2,7 +2,6 @@
 #include "CArtHandler.h"
 
 #include "Filesystem/CResourceLoader.h"
-#include "CLodHandler.h"
 #include "CGeneralTextHandler.h"
 #include <boost/random/linear_congruential.hpp>
 #include "VCMI_Lib.h"
@@ -364,7 +363,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	}
 	if (GameConstants::COMMANDERS)
 	{ //TODO: move all artifacts config to separate json file
-		const JsonNode config(GameConstants::DATA_DIR + "/config/commanders.json");
+		const JsonNode config(ResourceID("config/commanders.json"));
 		BOOST_FOREACH(const JsonNode &artifact, config["artifacts"].Vector())
 		{
 			auto ga = dynamic_cast <CGrowingArtifact *>(artifacts[artifact["id"].Float()].get()); 

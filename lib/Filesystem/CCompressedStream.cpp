@@ -5,7 +5,7 @@
 
 static const int inflateBlockSize = 10000;
 
-CCompressedStream::CCompressedStream(std::unique_ptr<CInputStream> & stream, bool gzip, size_t decompressedSize):
+CCompressedStream::CCompressedStream(std::unique_ptr<CInputStream> stream, bool gzip, size_t decompressedSize):
     gzipStream(std::move(stream)),
     buffer(decompressedSize),
     decompressedSize(0),
@@ -33,7 +33,11 @@ CCompressedStream::CCompressedStream(std::unique_ptr<CInputStream> & stream, boo
 
 CCompressedStream::~CCompressedStream()
 {
-	delete inflateState;
+	if (inflateState)
+	{
+		inflateEnd(inflateState);
+		delete inflateState;
+	}
 }
 
 si64 CCompressedStream::read(ui8 * data, si64 size)
@@ -77,20 +81,15 @@ si64 CCompressedStream::getSize()
 
 void CCompressedStream::decompressTill(si64 newSize)
 {
-	//TODO: check if inflate have any special mode for inflating (e.g Z_BLOCK) that can
-	// be used for campaigns Technically .h3c consists from multiple
-	// concatenated gz streams (campaign header + every map)
-	// inflatings them separately can be useful for campaigns loading
-
 	assert(newSize < 100 * 1024 * 1024); //just in case
 
 	if (inflateState == nullptr)
 		return; //file already decompressed
 
-	if (newSize >= 0 && newSize < inflateState->total_out)
+	if (newSize >= 0 && newSize <= inflateState->total_out)
 		return; //no need to decompress anything
 
-	bool toEnd = newSize < 0;
+	bool toEnd = newSize < 0; //if true - we've got request to read whole file
 
 	if (toEnd && buffer.empty())
 		buffer.resize(16 * 1024); //some space for initial decompression
@@ -98,7 +97,8 @@ void CCompressedStream::decompressTill(si64 newSize)
 	if (!toEnd && buffer.size() < newSize)
 		buffer.resize(newSize);
 
-	int ret;
+	bool fileEnded = false; //end of file reached
+
 	int endLoop = false;
 	do
 	{
@@ -108,7 +108,7 @@ void CCompressedStream::decompressTill(si64 newSize)
 			// get new input data and update state accordingly
 			si64 size = gzipStream->read(compressedBuffer.data(), compressedBuffer.size());
 			if (size != compressedBuffer.size())
-				toEnd = true; //end of file reached
+				fileEnded = true; //end of file reached
 
 			inflateState->avail_in = size;
 			inflateState->next_in  = compressedBuffer.data();
@@ -117,7 +117,7 @@ void CCompressedStream::decompressTill(si64 newSize)
 		inflateState->avail_out = buffer.size() - inflateState->total_out;
 		inflateState->next_out = buffer.data() + inflateState->total_out;
 
-		ret = inflate(inflateState, Z_NO_FLUSH);
+		int ret = inflate(inflateState, Z_NO_FLUSH);
 
 		switch (ret)
 		{
@@ -137,6 +137,8 @@ void CCompressedStream::decompressTill(si64 newSize)
 				}
 				else
 				{
+					//specific amount of data was requested. inflate extracted all requested data
+					// but returned "error". Ensure that enough data was extracted and return
 					assert(inflateState->total_out == newSize);
 					endLoop = true;
 				}
@@ -150,7 +152,7 @@ void CCompressedStream::decompressTill(si64 newSize)
 	while (!endLoop);
 
 	// Clean up and return
-	if (toEnd)
+	if (fileEnded)
 	{
 		inflateEnd(inflateState);
 		buffer.resize(inflateState->total_out);
@@ -159,4 +161,20 @@ void CCompressedStream::decompressTill(si64 newSize)
 	}
 	else
 		decompressedSize = inflateState->total_out;
+}
+
+bool CCompressedStream::getNextBlock()
+{
+	if (!inflateState)
+		return false;
+
+	//inflateState->total_out = 0;
+
+	if (inflateReset(inflateState) < 0)
+		return false;
+
+	decompressedSize = 0;
+	position = 0;
+	buffer.clear();
+	return true;
 }

@@ -22,11 +22,6 @@ class DLL_LINKAGE CFileInputStream : public CInputStream
 {
 public:
 	/**
-	 * Standard c-tor.
-	 */
-	CFileInputStream();
-
-	/**
 	 * C-tor. Opens the specified file.
 	 *
 	 * @see CFileInputStream::open
@@ -44,17 +39,6 @@ public:
 	 * D-tor. Calls the close method implicitely, if the file is still opened.
 	 */
 	~CFileInputStream();
-
-	/**
-	 * Opens a file. If a file is currently opened, it will be closed.
-	 *
-	 * @param file Path to the file.
-	 * @param start - offset from file start where real data starts (e.g file on archive)
-	 * @param size - size of real data in file (e.g file on archive) or 0 to use whole file
-	 *
-	 * @throws std::runtime_error if file wasn't found
-	 */
-	void open(const std::string & file, si64 start, si64 size);
 
 	/**
 	 * Reads n bytes from the stream into the data buffer.
@@ -95,12 +79,18 @@ public:
 	 */
 	si64 getSize();
 
-	/**
-	 * Closes the stream and releases any system resources associated with the stream explicitely.
-	 */
-	void close();
-
 private:
+	/**
+	 * Opens a file. If a file is currently opened, it will be closed.
+	 *
+	 * @param file Path to the file.
+	 * @param start - offset from file start where real data starts (e.g file on archive)
+	 * @param size - size of real data in file (e.g file on archive) or 0 to use whole file
+	 *
+	 * @throws std::runtime_error if file wasn't found
+	 */
+	void open(const std::string & file, si64 start, si64 size);
+
 	si64 dataStart;
 	si64 dataSize;
 	/** Native c++ input file stream object. */

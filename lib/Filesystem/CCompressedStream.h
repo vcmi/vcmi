@@ -29,7 +29,7 @@ public:
 	 * @param gzip - this is gzipp'ed file e.g. campaign or maps, false for files in lod
 	 * @param decompressedSize - optional parameter to hint size of decompressed data
 	 */
-	CCompressedStream(std::unique_ptr<CInputStream> & stream, bool gzip, size_t decompressedSize=0);
+	CCompressedStream(std::unique_ptr<CInputStream> stream, bool gzip, size_t decompressedSize=0);
 
 	~CCompressedStream();
 
@@ -76,6 +76,14 @@ public:
 	 */
 	si64 getSize();
 
+	/**
+	 * Prepare stream for decompression of next block (e.g. nect part of h3c)
+	 * Applicable only for streams that contain multiple concatenated compressed data
+	 *
+	 * @return false if next block was not found, true othervice
+	 */
+	bool getNextBlock();
+
 private:
 	/**
 	 * Decompresses data to ensure that buffer has newSize bytes or end of stream was reached
@@ -99,4 +107,14 @@ private:
 
 	/** Current read position */
 	si64 position;
+
+	enum EState
+	{
+		ERROR,
+		INITIALIZED,
+		IN_PROGRESS,
+		STREAM_END,
+		FINISHED
+	};
+
 };

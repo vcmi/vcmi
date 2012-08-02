@@ -3,7 +3,6 @@
 
 #include "Filesystem/CResourceLoader.h"
 #include "../client/CGameInfo.h"
-#include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "GameConstants.h"
 

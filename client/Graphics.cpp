@@ -7,7 +7,6 @@
 #include <SDL_ttf.h>
 #include "../lib/CThreadHelper.h"
 #include "CGameInfo.h"
-#include "../lib/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
 #include "../lib/CTownHandler.h"
@@ -88,7 +87,7 @@ void Graphics::loadPaletteAndColors()
 		playerColors[i].unused = 255;
 	}
 	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; neutralColor->unused = 255;//gray
-	const JsonNode config(GameConstants::DATA_DIR + "/config/town_pictures.json");
+	const JsonNode config(ResourceID("config/town_pictures.json"));
 	BOOST_FOREACH(const JsonNode &p, config["town_pictures"].Vector()) {
 
 		townBgs.push_back(p["town_background"].String());
@@ -99,7 +98,7 @@ void Graphics::loadPaletteAndColors()
 
 void Graphics::initializeBattleGraphics()
 {
-	const JsonNode config(GameConstants::DATA_DIR + "/config/battles_graphics.json");
+	const JsonNode config(ResourceID("config/battles_graphics.json"));
 	
 	// Reserve enough space for the terrains
 	int idx = config["backgrounds"].Vector().size();
@@ -159,7 +158,7 @@ Graphics::Graphics()
 	tasks += GET_DEF_ESS(spellscr,"SPELLSCR.DEF");
 	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
 
-	const JsonNode config(GameConstants::DATA_DIR + "/config/creature_backgrounds.json");
+	const JsonNode config(ResourceID("config/creature_backgrounds.json"));
 	BOOST_FOREACH(const JsonNode &b, config["backgrounds"].Vector()) {
 		const int id = b["id"].Float();
 		tasks += GET_SURFACE(backgrounds[id], b["bg130"].String());
@@ -193,7 +192,7 @@ Graphics::Graphics()
 }
 void Graphics::loadHeroPortraits()
 {	
-	const JsonNode config(GameConstants::DATA_DIR + "/config/portraits.json");
+	const JsonNode config(ResourceID("config/portraits.json"));
 
 	BOOST_FOREACH(const JsonNode &portrait_node, config["hero_portrait"].Vector()) {
 		std::string filename = portrait_node["filename"].String();
@@ -219,7 +218,7 @@ void Graphics::loadHeroPortraits()
 
 void Graphics::loadWallPositions()
 {
-	const JsonNode config(GameConstants::DATA_DIR + "/config/wall_pos.json");
+	const JsonNode config(ResourceID("config/wall_pos.json"));
 
 	BOOST_FOREACH(const JsonNode &town, config["towns"].Vector()) {
 		int townID = town["id"].Float();
@@ -487,36 +486,8 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
 
 void Graphics::loadTrueType()
 {
-	bool ttfPresent = false;//was TTF initialised or not
 	for(int i = 0; i < FONTS_NUMBER; i++)
 		fontsTrueType[i] = NULL;
-	std::string fontsFile = GameConstants::DATA_DIR + "/config/fonts.txt";
-	std::ifstream ff(fontsFile.c_str());
-	while(!ff.eof())
-	{
-		int enabl, fntID, fntSize;
-		std::string fntName;
-
-		ff >> enabl;//enabled font or not
-		if (enabl==-1)
-			break;//end of data
-		ff >> fntID;//what font will be replaced
-		ff >> fntName;//name of truetype font
-		ff >> fntSize;//size of font
-		if (enabl)
-		{
-			if (!ttfPresent)
-			{
-				ttfPresent = true;
-				TTF_Init();
-				atexit(TTF_Quit);
-			};
-			fntName = GameConstants::DATA_DIR + ( "/Fonts/" + fntName);
-			fontsTrueType[fntID] = TTF_OpenFont(fntName.c_str(),fntSize);
-		}
-	}
-	ff.close();
-	ff.clear();
 }
 
 Font * Graphics::loadFont( const char * name )
@@ -560,7 +531,7 @@ CDefEssential * Graphics::getDef( const CGDefInfo * info )
 void Graphics::loadErmuToPicture()
 {
 	//loading ERMU to picture
-	const JsonNode config(GameConstants::DATA_DIR + "/config/ERMU_to_picture.json");
+	const JsonNode config(ResourceID("config/ERMU_to_picture.json"));
 	int etp_idx = 0;
 	BOOST_FOREACH(const JsonNode &etp, config["ERMU_to_picture"].Vector()) {
 		int idx = 0;

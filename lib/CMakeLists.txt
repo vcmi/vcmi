@@ -13,7 +13,6 @@ set(lib_SRCS
         Filesystem/CResourceLoader.cpp
         Filesystem/CFileInputStream.cpp
         Filesystem/CCompressedStream.cpp
-        Filesystem/ISimpleResourceLoader.cpp
         BattleAction.cpp
         BattleHex.cpp
         BattleState.cpp
@@ -24,12 +23,10 @@ set(lib_SRCS
         CCreatureHandler.cpp
         CCreatureSet.cpp
         CDefObjInfoHandler.cpp
-        CFileUtility.cpp
         CGameInterface.cpp
         CGameState.cpp
         CGeneralTextHandler.cpp
         CHeroHandler.cpp
-        CLodHandler.cpp
         CLogger.cpp
         CMapInfo.cpp
         CObjectHandler.cpp

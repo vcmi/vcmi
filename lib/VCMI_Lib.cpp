@@ -6,7 +6,6 @@
 #include "CCreatureHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CHeroHandler.h"
-#include "CLodHandler.h"
 #include "CObjectHandler.h"
 #include "CTownHandler.h"
 #include "CBuildingHandler.h"
@@ -37,11 +36,11 @@ DLL_LINKAGE void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
 	console = Console;
 	logfile = Logfile;
 	VLC = new LibClasses;
-	try
+	//try
 	{
 		VLC->init();
 	}
-	HANDLE_EXCEPTION;
+	//HANDLE_EXCEPTION;
 }
 
 DLL_LINKAGE void loadToIt(std::string &dest, const std::string &src, int &iter, int mode)
@@ -159,15 +158,19 @@ DLL_LINKAGE void loadToIt(si32 &dest, const std::string &src, int &iter, int mod
 	dest = atol(pom.c_str());
 }
 
-void LibClasses::init()
+void LibClasses::loadFilesystem()
 {
 	CStopWatch pomtime;
-
 	CResourceHandler::initialize();
 	CResourceHandler::loadFileSystem("ALL/config/filesystem.json");
 	CResourceHandler::loadModsFilesystems();
 
 	tlog0<<"\tFile system handler: "<<pomtime.getDiff()<<std::endl;
+}
+
+void LibClasses::init()
+{
+	CStopWatch pomtime;
 
 	generaltexth = new CGeneralTextHandler;
 	generaltexth->load();

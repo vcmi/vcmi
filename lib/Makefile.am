@@ -13,9 +13,8 @@ libvcmi_la_SOURCES = \
 	Filesystem/CFileInputStream.cpp \
 	Filesystem/CFilesystemLoader.cpp \
 	Filesystem/CLodArchiveLoader.cpp \
-		Filesystem/CMemoryStream.cpp \
+	Filesystem/CMemoryStream.cpp \
 	Filesystem/CResourceLoader.cpp \
-	Filesystem/ISimpleResourceLoader.cpp \
 	BattleAction.cpp \
 	BattleAction.h \
 	BattleState.cpp \
@@ -34,8 +33,6 @@ libvcmi_la_SOURCES = \
 	CCreatureSet.h \
 	CDefObjInfoHandler.cpp \
 	CDefObjInfoHandler.h \
-	CFileUtility.cpp \
-	CFileUtility.h \
 	CGameInterface.cpp \
 	CGameInterface.h \
 	CGameState.cpp \
@@ -44,8 +41,6 @@ libvcmi_la_SOURCES = \
 	CGeneralTextHandler.h \
 	CHeroHandler.cpp \
 	CHeroHandler.h \
-	CLodHandler.cpp \
-	CLodHandler.h \
 	CLogger.cpp \
 	CLogger.h \
 	CMapInfo.cpp \

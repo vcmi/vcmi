@@ -20,33 +20,18 @@ class DLL_LINKAGE CMemoryStream : public CInputStream
 {
 public:
 	/**
-	 * Default c-tor.
-	 */
-	CMemoryStream();
-
-	/**
 	 * C-tor. The data buffer will be freed by the stream's destructor.
 	 *
 	 * @param data A pointer to the data array.
 	 * @param size The size in bytes of the array.
 	 * @param freeData Flag which specifies if the data array should be freed in the memory stream's destructor.
 	 */
-	CMemoryStream(const ui8 * data, si64 size, bool freeData = false);
+	CMemoryStream(const ui8 * data, si64 size, bool freeData);
 
 	/**
 	 * D-tor. Frees the data array if the freeData flag was set to true.
 	 */
 	~CMemoryStream();
-
-	/**
-	 * Opens the stream with the given data array. If a stream is currently loaded, it will be freed
-	 * if neccessary.
-	 *
-	 * @param data A pointer to the data array.
-	 * @param size The size in bytes of the array.
-	 * @param freeData Flag which specifies if the data array should be freed in the memory stream's destructor.
-	 */
-	void open(const ui8 * data, si64 size, bool freeData = false);
 
 	/**
 	 * Reads n bytes from the stream into the data buffer.
@@ -86,11 +71,6 @@ public:
 	 * @return the length in bytes of the stream.
 	 */
 	si64 getSize();
-
-	/**
-	 * Closes the stream and releases any system resources associated with the stream explicitely.
-	 */
-	void close();
 
 private:
 	/** A pointer to the data array. */

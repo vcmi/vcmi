@@ -2,7 +2,6 @@
 #include "CHeroHandler.h"
 
 #include "Filesystem/CResourceLoader.h"
-#include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/JsonNode.h"
 #include "GameConstants.h"
@@ -116,7 +115,7 @@ void CHeroHandler::loadObstacles()
 	};
 
 
-	const JsonNode config(GameConstants::DATA_DIR + "/config/obstacles.json");
+	const JsonNode config(ResourceID("config/obstacles.json"));
 	loadObstacles(config["obstacles"], false, obstacles);
 	loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
 	//loadObstacles(config["moats"], true, moats);
@@ -124,7 +123,7 @@ void CHeroHandler::loadObstacles()
 
 void CHeroHandler::loadPuzzleInfo()
 {
-	const JsonNode config(GameConstants::DATA_DIR + "/config/puzzle_map.json");
+	const JsonNode config(ResourceID("config/puzzle_map.json"));
 
 	int faction = 0;
 
@@ -230,7 +229,7 @@ void CHeroHandler::loadHeroes()
 	}
 
 	// Load heroes information
-	const JsonNode config(GameConstants::DATA_DIR + "/config/heroes.json");
+	const JsonNode config(ResourceID("config/heroes.json"));
 	BOOST_FOREACH(const JsonNode &hero, config["heroes"].Vector()) {
 		int hid = hero["id"].Float();
 		const JsonNode *value;
@@ -426,7 +425,7 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 void CHeroHandler::loadTerrains()
 {
 	int faction = 0;
-	const JsonNode config(GameConstants::DATA_DIR + "/config/terrains.json");
+	const JsonNode config(ResourceID("config/terrains.json"));
 
 	nativeTerrains.resize(GameConstants::F_NUMBER);
 
