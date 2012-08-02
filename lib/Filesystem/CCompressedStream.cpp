@@ -168,8 +168,6 @@ bool CCompressedStream::getNextBlock()
 	if (!inflateState)
 		return false;
 
-	//inflateState->total_out = 0;
-
 	if (inflateReset(inflateState) < 0)
 		return false;
 

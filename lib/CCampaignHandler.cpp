@@ -277,8 +277,6 @@ std::vector< std::vector<ui8> > CCampaignHandler::getFile(const std::string & na
 		std::vector<ui8> block(stream.getSize());
 		stream.read(block.data(), block.size());
 		ret.push_back(block);
-		std::ofstream outFile("/home/ivan/vcmi.out");
-		outFile.write((char*)block.data(), block.size());
 	}
 	while (!headerOnly && stream.getNextBlock());
 
