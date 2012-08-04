@@ -1306,11 +1306,6 @@ void CBoundedLabel::recalculateLines(const std::string &Txt)
 	int lineCapacity = pos.h / lineHeight;
 
 	lines = CMessage::breakText(Txt, pos.w, font);
-	if(lines.size() > lineCapacity) //we need to add a slider
-	{
-		lines = CMessage::breakText(Txt, pos.w - 32 - 10, font);
-		OBJ_CONSTRUCTION_CAPTURING_ALL;
-	}
 
 	maxH = lineHeight * lines.size();
 	maxW = 0;
@@ -1342,15 +1337,28 @@ CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts F
 
 void CTextBox::recalculateLines(const std::string &Txt)
 {
-	CBoundedLabel::recalculateLines (Txt);
+	//TODO: merge with CBoundedlabel::recalculateLines
 
+	vstd::clear_pointer(slider);
+	lines.clear();
 	const Font &f = *graphics->fonts[font];
 	int lineHeight =  f.height; 
 	int lineCapacity = pos.h / lineHeight;
 
-	vstd::clear_pointer(slider);
+	lines = CMessage::breakText(Txt, pos.w, font);
 	if (lines.size() > lineCapacity) //we need to add a slider
+	{
+		lines = CMessage::breakText(Txt, pos.w - 32 - 10, font);
+		OBJ_CONSTRUCTION_CAPTURING_ALL;
 		slider = new CSlider(pos.w - 32, 0, pos.h, boost::bind(&CTextBox::sliderMoved, this, _1), lineCapacity, lines.size(), 0, false, sliderStyle);
+		if(active)
+			slider->activate();
+	}
+
+	maxH = lineHeight * lines.size();
+	maxW = 0;
+	BOOST_FOREACH(const std::string &line, lines)
+		vstd::amax(maxW, f.getWidth(line.c_str()));
 }
 
 void CTextBox::showAll(SDL_Surface * to)

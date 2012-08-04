@@ -363,7 +363,7 @@ public:
 		: CLabel (x, y, Font, Align, Color, Text){};
 	void setTxt(const std::string &Txt);
 	void setBounds(int limitW, int limitH);
-	void recalculateLines(const std::string &Txt);
+	virtual void recalculateLines(const std::string &Txt);
 	void showAll(SDL_Surface * to);
 };
 
