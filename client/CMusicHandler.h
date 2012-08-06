@@ -2,7 +2,6 @@
 
 #include "CConfigHandler.h"
 #include "CSoundBase.h"
-#include "CMusicBase.h"
 #include "../lib/CCreatureHandler.h"
 #include "CSndHandler.h"
 
@@ -113,22 +112,21 @@ class CMusicHandler;
 //Class for handling one music file
 class MusicEntry
 {
-	std::string filename; //used only for debugging and console messages
-	musicBase::musicID currentID;
 	CMusicHandler *owner;
 	Mix_Music *music;
-	int loopCount;
-	//if not empty - vector from which music will be randomly selected
-	std::vector<musicBase::musicID> musicVec;
+	bool looped;
+	//if not null - set from which music will be randomly selected
+	std::string setName;
+	std::string currentName;
 
-	void load(musicBase::musicID);
+
+	void load(std::string musicURI);
 
 public:
-	bool operator == (musicBase::musicID musicID) const;
-	bool operator == (std::vector<musicBase::musicID> &_musicVec) const;
+	bool isSet(std::string setName);
+	bool isTrack(std::string trackName);
 
-	MusicEntry(CMusicHandler *owner, musicBase::musicID musicID, int _loopCount);
-	MusicEntry(CMusicHandler *owner, std::vector<musicBase::musicID> &_musicVec, int _loopCount);
+	MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped);
 	~MusicEntry();
 
 	bool play();
@@ -149,22 +147,26 @@ private:
 	unique_ptr<MusicEntry> next;
 
 	void queueNext(MusicEntry *queued);
+
+	std::map<std::string, std::map<int, std::string> > musicsSet;
 public:
 	CMusicHandler();
+
+	/// add entry with URI musicURI in set. Track will have ID musicID
+	void addEntryToSet(std::string set, int musicID, std::string musicURI);
 
 	void init();
 	void release();
 	void setVolume(ui32 percent);
 
-	// Musics
-	std::map<musicBase::musicID, std::string> musics;
-	std::vector<musicBase::musicID> aiMusics;
-	std::vector<musicBase::musicID> battleMusics;
-	std::vector<musicBase::musicID> townMusics;
-	std::vector<musicBase::musicID> terrainMusics;
-
-	void playMusic(musicBase::musicID musicID, int loop=1);
-	void playMusicFromSet(std::vector<musicBase::musicID> &music_vec, int loop=1);
+	/// play track by URI, if loop = true music will be looped
+	void playMusic(std::string musicURI, bool loop);
+	/// play random track from this set
+	void playMusicFromSet(std::string musicSet, bool loop);
+	/// play specific track from set
+	void playMusicFromSet(std::string musicSet, int entryID, bool loop);
 	void stopMusic(int fade_ms=1000);
 	void musicFinishedCallback(void);
+
+	friend class MusicEntry;
 };

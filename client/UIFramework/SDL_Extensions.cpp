@@ -45,7 +45,7 @@ SDL_Surface * CSDL_Ext::copySurface(SDL_Surface * mod) //returns copy of given s
 template<int bpp>
 SDL_Surface * CSDL_Ext::createSurfaceWithBpp(int width, int height)
 {
-	int rMask = 0, gMask = 0, bMask = 0, aMask = 0;
+	Uint32 rMask = 0, gMask = 0, bMask = 0, aMask = 0;
 
 	Channels::px<bpp>::r.set((Uint8*)&rMask, 255);
 	Channels::px<bpp>::g.set((Uint8*)&gMask, 255);

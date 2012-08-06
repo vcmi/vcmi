@@ -560,8 +560,7 @@ void CGeneralTextHandler::load()
 		zcrexp.push_back(nameBuf);
 	}
 
-	std::string threatLevelDir = GameConstants::DATA_DIR + "/config/threatlevel.txt";
-	std::ifstream ifs(threatLevelDir.c_str(), std::ios::in | std::ios::binary);
+	std::ifstream ifs(CResourceHandler::get()->getResourceName(ResourceID("config/threatlevel.txt")), std::ios::binary);
 	getline(ifs, buf); //skip 1st line
 	for (int i = 0; i < 13; ++i)
 	{

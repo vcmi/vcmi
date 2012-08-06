@@ -64,8 +64,7 @@ void Graphics::loadPaletteAndColors()
 
 	neutralColorPalette = new SDL_Color[32];
 	std::ifstream ncp;
-	std::string neutralFile = GameConstants::DATA_DIR + "/config/NEUTRAL.PAL";
-	ncp.open(neutralFile.c_str(), std::ios::binary);
+	ncp.open(CResourceHandler::get()->getResourceName(ResourceID("config/NEUTRAL.PAL")), std::ios::binary);
 	for(int i=0; i<32; ++i)
 	{
 		ncp.read((char*)&neutralColorPalette[i].r,1);

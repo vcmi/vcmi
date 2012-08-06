@@ -2,6 +2,7 @@
 #include <SDL_image.h>
 
 #include "../lib/Filesystem/CResourceLoader.h"
+#include "../lib/Filesystem/ISimpleResourceLoader.h"
 #include "../lib/JsonNode.h"
 #include "../lib/vcmi_endian.h"
 
@@ -934,9 +935,16 @@ void CAnimation::init(CDefFile * file)
 			source[mapIt->first].resize(mapIt->second);
 	}
 
-	if (CResourceHandler::get()->existsResource(ResourceID(std::string("SPRITES/") + name, EResType::TEXT)))
+	auto & configList = CResourceHandler::get()->getResourcesWithName(
+	                      ResourceID(std::string("SPRITES/") + name, EResType::TEXT));
+
+	BOOST_FOREACH(auto & entry, configList)
 	{
-		const JsonNode config(ResourceID(std::string("SPRITES/") + name, EResType::TEXT));
+		auto stream = entry.getLoader()->load(entry.getResourceName());
+		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
+		stream->read(textData.get(), stream->getSize());
+
+		const JsonNode config((char*)textData.get(), stream->getSize());
 
 		std::string basepath;
 		basepath = config["basepath"].String();

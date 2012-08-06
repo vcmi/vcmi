@@ -431,15 +431,27 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 
 CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg, const CStackInstance * Creature)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	addUsedEvents(LCLICK | RCLICK | HOVER);
+	pos.x += x;
+	pos.y += y;
+	owner = Owner;
+
 	//assert(Creature == CGI->creh->creatures[Creature->idNumber]);
 	upg = Upg;
 	ID = IID;
 	myStack = Creature;
 	creature = Creature ? Creature->type : NULL;
+	if (creature)
+	{
+		std::string imgName = owner->smallIcons ? "cprsmall" : "TWCRPORT";
+		creatureImage = new CAnimImage(imgName, creature->idNumber + 2);
+	}
+	else
+		creatureImage = nullptr;
+
 	count = Creature ? Creature->count : 0;
-	pos.x += x;
-	pos.y += y;
+
 	if(Owner->smallIcons)
 	{
 		pos.w = 32;
@@ -450,7 +462,6 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg
 		pos.w = 58;
 		pos.h = 64;
 	}
-	owner = Owner;
 }
 
 void CGarrisonSlot::showAll(SDL_Surface * to)
@@ -458,9 +469,9 @@ void CGarrisonSlot::showAll(SDL_Surface * to)
 	std::map<int,SDL_Surface*> &imgs = (owner->smallIcons ? graphics->smallImgs : graphics->bigImgs);
 	if(creature)
 	{
+		creatureImage->showAll(to);
 		char buf[15];
 		SDL_itoa(count,buf,10);
-		blitAt(imgs[creature->idNumber],pos,to);
 		printTo(buf, pos.x+pos.w, pos.y+pos.h+1, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, Colors::Cornsilk, to);
 
 		if((owner->highlighted==this)
@@ -474,12 +485,6 @@ void CGarrisonSlot::showAll(SDL_Surface * to)
 		if(owner->splitting && owner->highlighted->our())
 			blitAt(imgs[-1],pos,to);
 	}
-}
-
-CGarrisonInt::~CGarrisonInt()
-{/*
-	for(size_t i = 0; i<splitButtons.size(); i++)
-		delete splitButtons[i];*/
 }
 
 void CGarrisonInt::addSplitBtn(CAdventureMapButton * button)

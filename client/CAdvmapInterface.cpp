@@ -987,7 +987,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 		auto pos = sel->visitablePos();
 		auto tile = LOCPLINT->cb->getTile(pos);
 		if(tile)
-			CCS->musich->playMusic(CCS->musich->terrainMusics[tile->tertype], -1);
+			CCS->musich->playMusicFromSet("terrain", tile->tertype, true);
 	}
 	if(centerView)
 		centerOn(sel);
@@ -1487,7 +1487,7 @@ const IShipyard * CAdvMapInt::ourInaccessibleShipyard(const CGObjectInstance *ob
 void CAdvMapInt::aiTurnStarted()
 {
 	adjustActiveness(true);
-	CCS->musich->playMusicFromSet(CCS->musich->aiMusics);
+	CCS->musich->playMusicFromSet("enemy-turn", true);
 	adventureInt->minimap.setAIRadar(true);
 	adventureInt->infoBar.startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
 	adventureInt->infoBar.showAll(screen);//force refresh on inactive object

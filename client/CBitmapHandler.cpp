@@ -76,7 +76,16 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 	}
 	else
 	{
-		ret = CSDL_Ext::createSurfaceWithBpp<3>(width, height);
+#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+		int bmask = 0xff0000;
+		int gmask = 0x00ff00;
+		int rmask = 0x0000ff;
+#else
+		int bmask = 0x0000ff;
+		int gmask = 0x00ff00;
+		int rmask = 0xff0000;
+#endif
+		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 24, rmask, gmask, bmask, 0);
 
 		//it == 0xC;
 		for (int i=0; i<height; i++)
@@ -127,7 +136,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 
 		ret = IMG_LoadTyped_RW(
 		          //create SDL_RW with our data (will be deleted by SDL)
-		          SDL_RWFromConstMem((void*)readFile.first.release(), readFile.second),
+		          SDL_RWFromConstMem((void*)readFile.first.get(), readFile.second),
 		          1, // mark it for auto-deleting
 		          &info.getExtension()[0] + 1); //pass extension without dot (+1 character)
 

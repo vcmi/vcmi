@@ -118,6 +118,17 @@ ResourceLocator CResourceLoader::getResource(const ResourceID & resourceIdent) c
 	return resource->second.back();
 }
 
+const std::list<ResourceLocator> & CResourceLoader::getResourcesWithName(const ResourceID & resourceIdent) const
+{
+	static const std::list<ResourceLocator> emptyList;
+	auto resource = resources.find(resourceIdent);
+
+	if (resource == resources.end())
+		return emptyList;
+	return resource->second;
+}
+
+
 std::string CResourceLoader::getResourceName(const ResourceID & resourceIdent) const
 {
 	auto locator = getResource(resourceIdent);
@@ -147,6 +158,11 @@ void CResourceLoader::addLoader(std::string mountPoint, ISimpleResourceLoader * 
 
 		// Create identifier and locator and add them to the resources list
 		ResourceID ident(mountPoint, file.getStem(), file.getType());
+
+		//check if entry can be directory. Will only work for filesystem loader but H3 archives don't have dirs anyway.
+		if (boost::filesystem::is_directory(loader->getOrigin() + '/' + entry))
+			ident.setType(EResType::DIRECTORY);
+
 		ResourceLocator locator(loader, entry);
 		resources[ident].push_back(locator);
 	}
@@ -247,6 +263,7 @@ std::string EResTypeHelper::getEResTypeAsString(EResType::Type type)
 		MAP_ENUM(CLIENT_SAVEGAME)
 		MAP_ENUM(LIB_SAVEGAME)
 		MAP_ENUM(SERVER_SAVEGAME)
+		MAP_ENUM(DIRECTORY)
 		MAP_ENUM(OTHER);
 
 #undef MAP_ENUM
@@ -279,17 +296,10 @@ void CResourceHandler::initialize()
 
 	//create "LOCAL" dir with current userDir (may be same as rootDir)
 	initialLoader->addLoader("LOCAL/", userDir);
-
-	//check for presence of "VCMI" mod. If found - add it to our initial FS
-	std::string filename = initialLoader->getResourceName(ResourceID("ALL/MODS/VCMI"));
-	if (!filename.empty())
-		initialLoader->addLoader("ALL/", new CFilesystemLoader(filename, 2));
 }
 
 void CResourceHandler::loadFileSystem(const std::string fsConfigURI)
 {
-	//TODO: better way to detect fs config.
-	// right now it can be: global_dir/config/, local_dir/config, global/mods/vcmi/config, local/mods/vcmi/config
 	auto fsConfigData = initialLoader->loadData(ResourceID(fsConfigURI, EResType::TEXT));
 
 	const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
@@ -298,26 +308,26 @@ void CResourceHandler::loadFileSystem(const std::string fsConfigURI)
 	{
 		BOOST_FOREACH(auto & entry, mountPoint.second.Vector())
 		{
-			tlog5 << "loading resource at " << entry["path"].String() << ": ";
-			std::string filename = initialLoader->getResourceName(ResourceID(entry["path"].String()));
+			tlog5 << "loading resource at " << entry["path"].String() << "\n";
 
-			if (!filename.empty())
+			if (entry["type"].String() == "dir")
 			{
-				if (entry["type"].String() == "dir")
+				std::string filename = initialLoader->getResourceName(ResourceID(entry["path"].String(), EResType::DIRECTORY));
+				if (!filename.empty())
 				{
 					int depth = 16;
 					if (!entry["depth"].isNull())
 						depth = entry["depth"].Float();
 					resourceLoader->addLoader(mountPoint.first, new CFilesystemLoader(filename, depth));
 				}
-
-				if (entry["type"].String() == "file")
-					resourceLoader->addLoader(mountPoint.first, new CLodArchiveLoader(filename));
-
-				tlog5 << "OK\n";
 			}
-			else
-				tlog5 << "Not found\n";
+
+			if (entry["type"].String() == "file")
+			{
+				std::string filename = initialLoader->getResourceName(ResourceID(entry["path"].String(), EResType::ARCHIVE));
+				if (!filename.empty())
+					resourceLoader->addLoader(mountPoint.first, new CLodArchiveLoader(filename));
+			}
 		}
 	}
 }

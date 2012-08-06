@@ -2576,7 +2576,7 @@ int3 whereToExplore(HeroPtr h)
 	}
 	catch(cannotFulfillGoalException &e)
 	{
-		std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow], metryka taksÃ³wkowa
+		std::vector<std::vector<int3> > tiles; //tiles[distance_to_fow]
 		try
 		{
 			return ai->explorationNewPoint(radius, h, tiles);

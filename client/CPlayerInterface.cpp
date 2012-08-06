@@ -256,7 +256,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	if(makingTurn  &&  ho->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
 		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusic(CCS->musich->terrainMusics[LOCPLINT->cb->getTile(ho->visitablePos())->tertype], -1);
+		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(ho->visitablePos())->tertype, true);
 
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{

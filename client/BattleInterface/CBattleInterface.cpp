@@ -371,8 +371,14 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	CCS->musich->stopMusic();
 
 	int channel = CCS->soundh->playSoundFromSet(CCS->soundh->battleIntroSounds);
-	CCS->soundh->setCallback(channel, boost::bind(&CMusicHandler::playMusicFromSet, CCS->musich, CCS->musich->battleMusics, -1));
-    memset(stackCountOutsideHexes, 1, GameConstants::BFIELD_SIZE * sizeof(bool)); //initialize array with trues
+	auto onIntroPlayed = []()
+	{
+		if (LOCPLINT->battleInt)
+			CCS->musich->playMusicFromSet("battle", true);
+	};
+
+	CCS->soundh->setCallback(channel, onIntroPlayed);
+	memset(stackCountOutsideHexes, 1, GameConstants::BFIELD_SIZE * sizeof(bool)); //initialize array with trues
 
 	currentAction = INVALID;
 	selectedAction = INVALID;
@@ -446,7 +452,7 @@ CBattleInterface::~CBattleInterface()
 	if(adventureInt && adventureInt->selection)
 	{
 		int terrain = LOCPLINT->cb->getTile(adventureInt->selection->visitablePos())->tertype;
-		CCS->musich->playMusic(CCS->musich->terrainMusics[terrain], -1);
+		CCS->musich->playMusicFromSet("terrain", terrain, true);
 	}
 }
 

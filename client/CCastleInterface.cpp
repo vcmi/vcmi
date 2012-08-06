@@ -951,7 +951,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	townlist->onSelect = boost::bind(&CCastleInterface::townChange, this);
 
 	recreateIcons();
-	CCS->musich->playMusic(CCS->musich->townMusics[town->subID], -1);
+	CCS->musich->playMusicFromSet("town-theme", town->subID, true);
 	
 	bicons = CDefHandler::giveDefEss(graphics->buildingPics[town->subID]);
 }

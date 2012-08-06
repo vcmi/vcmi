@@ -417,7 +417,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		case 2: text = 302; break;
 		}
 
-		CCS->musich->playMusic(musicBase::winBattle);
+		CCS->musich->playMusic("Music/Win Battle", false);
 		CCS->videoh->open(VIDEO_WIN);
 		std::string str = CGI->generaltexth->allTexts[text];
 
@@ -437,21 +437,21 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		{
 		case 0: //normal victory
 			{
-				CCS->musich->playMusic(musicBase::loseCombat);
+				CCS->musich->playMusic("Music/LoseCombat", false);
 				CCS->videoh->open(VIDEO_LOSE_BATTLE_START);
 				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[311]);
 				break;
 			}
 		case 1: //flee
 			{
-				CCS->musich->playMusic(musicBase::retreatBattle);
+				CCS->musich->playMusic("Music/Retreat Battle", false);
 				CCS->videoh->open(VIDEO_RETREAT_START);
 				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[310]);
 				break;
 			}
 		case 2: //surrender
 			{
-				CCS->musich->playMusic(musicBase::surrenderBattle);
+				CCS->musich->playMusic("Music/Surrender Battle", false);
 				CCS->videoh->open(VIDEO_SURRENDER);
 				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[309]);
 				break;

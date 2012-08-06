@@ -53,6 +53,7 @@ namespace EResType
 		CLIENT_SAVEGAME,
 		LIB_SAVEGAME,
 		SERVER_SAVEGAME,
+		DIRECTORY,
 		OTHER
 	};
 }
@@ -259,9 +260,12 @@ public:
 	 * @return resource locator for this resource or empty one if resource was not found
 	 */
 	ResourceLocator getResource(const ResourceID & resourceIdent) const;
+
+	/// returns ALL overriden resources with same name, including last one acessible via getResource
+	const std::list<ResourceLocator> & getResourcesWithName(const ResourceID & resourceIdent) const;
+
 	/// returns real name of file in filesystem. Not usable for archives
 	std::string getResourceName(const ResourceID & resourceIdent) const;
-	/// return size of file or 0 if not found
 
 	/**
 	 * Get iterator for looping all files matching filter

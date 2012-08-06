@@ -259,7 +259,7 @@ void CMenuScreen::show(SDL_Surface * to)
 
 void CMenuScreen::activate()
 {
-	CCS->musich->playMusic(musicBase::mainMenu, -1);
+	CCS->musich->playMusic("Music/MainMenu", true);
 	if (!config["video"].isNull())
 		CCS->videoh->open(config["video"]["name"].String());
 	CIntObject::activate();
@@ -567,13 +567,15 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 	else if(Type == CMenuScreen::campaignList)
 	{
 		bordered = false;
-		bg = new CPicture(BitmapHandler::loadBitmap("CamCust.bmp"), 0, 0, true);
+		bg = new CPicture("CamCust.bmp", 0, 0);
 		pos = bg->center();
 	}
 	else
 	{
 		bordered = true;
-		bg = new CPicture(BitmapHandler::loadBitmap(rand()%2 ? "ZPIC1000.bmp" : "ZPIC1001.bmp"), 0, 0, true);
+		//load random background
+		const JsonVector & bgNames = (*CGP->pregameConfig)["game-select"].Vector();
+		bg = new CPicture(bgNames[rand() % bgNames.size()].String(), 0, 0);
 		pos = bg->center();
 	}
 

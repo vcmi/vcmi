@@ -1303,7 +1303,6 @@ void CBoundedLabel::recalculateLines(const std::string &Txt)
 
 	const Font &f = *graphics->fonts[font];
 	int lineHeight =  f.height; 
-	int lineCapacity = pos.h / lineHeight;
 
 	lines = CMessage::breakText(Txt, pos.w, font);
 

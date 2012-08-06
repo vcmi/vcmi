@@ -268,16 +268,16 @@ namespace vstd
 
 	//checks if a is between b and c
 	template <typename t1, typename t2, typename t3>
-	bool isbetween(const t1 &a, const t2 &b, const t3 &c)
+	bool isbetween(const t1 &value, const t2 &min, const t3 &max)
 	{
-		return a > b && a < c;
+		return value > min && value < max;
 	}
 
 	//checks if a is within b and c
 	template <typename t1, typename t2, typename t3>
-	bool iswithin(const t1 &a, const t2 &b, const t3 &c)
+	bool iswithin(const t1 &value, const t2 &min, const t3 &max)
 	{
-		return a >= b && a <= c;
+		return value >= min && value <= max;
 	}
 
 	template <typename t1, typename t2>

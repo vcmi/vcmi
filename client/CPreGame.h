@@ -489,14 +489,14 @@ public:
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
 class CGPreGame : public CIntObject, public IUpdateable
 {
-	const JsonNode * const pregameConfig;
-
 	void loadGraphics();
 	void disposeGraphics();
 
 	CGPreGame(); //Use createIfNotPresent
 
 public:
+	const JsonNode * const pregameConfig;
+
 	CMenuScreen* menu;
 
 	SDL_Surface *nHero, *rHero, *nTown, *rTown; // none/random hero/town imgs

@@ -53,7 +53,7 @@ void CAudioBase::init()
 void CAudioBase::release()
 {
 	if (initialized)
-		{
+	{
 		Mix_CloseAudio();
 		initialized = false;
 	}
@@ -332,40 +332,27 @@ CMusicHandler::CMusicHandler():
 {
 	listener(boost::bind(&CMusicHandler::onVolumeChange, this, _1));
 	// Map music IDs
-
-#ifdef CPP11_USE_INITIALIZERS_LIST
-
-	#define VCMI_MUSIC_ID(x) { musicBase::x ,
-	#define VCMI_MUSIC_FILE(y) y },
-		musics = { VCMI_MUSIC_LIST};
-	#undef VCMI_MUSIC_NAME
-	#undef VCMI_MUSIC_FILE
-
-#else
-
-	#define VCMI_MUSIC_ID(x) ( musicBase::x ,
-	#define VCMI_MUSIC_FILE(y) y )
-		musics = map_list_of
-			VCMI_MUSIC_LIST;
-	#undef VCMI_MUSIC_NAME
-	#undef VCMI_MUSIC_FILE
-
-#endif
 	// Vectors for helper
-	aiMusics += musicBase::AITheme0, musicBase::AITheme1, musicBase::AITheme2;
+	const std::string setEnemy[] = {"AITheme0", "AITheme1", "AITheme2"};
+	const std::string setBattle[] = {"Combat01", "Combat02", "Combat03", "Combat04"};
+	const std::string setTerrain[] = {"Dirt",	"Sand",	"Grass", "Snow", "Swamp", "Rough", "Underground", "Lava", "Water"};
+	const std::string setTowns[] =  {"CstleTown", "Rampart", "TowerTown", "InfernoTown",
+	        "NecroTown", "Dungeon", "Stronghold", "FortressTown", "ElemTown"};
 
-	battleMusics += musicBase::combat1, musicBase::combat2,
-		musicBase::combat3, musicBase::combat4;
+	auto fillSet = [=](std::string setName, const std::string list[], size_t amount)
+	{
+		for (size_t i=0; i < amount; i++)
+	        addEntryToSet(setName, i, std::string("music/") + list[i]);
+	};
+	fillSet("enemy-turn", setEnemy, ARRAY_COUNT(setEnemy));
+	fillSet("battle", setBattle, ARRAY_COUNT(setBattle));
+	fillSet("terrain", setTerrain, ARRAY_COUNT(setTerrain));
+	fillSet("town-theme", setTowns, ARRAY_COUNT(setTowns));
+}
 
-	townMusics += musicBase::castleTown,     musicBase::rampartTown,
-	              musicBase::towerTown,      musicBase::infernoTown,
-	              musicBase::necroTown,      musicBase::dungeonTown,
-	              musicBase::strongHoldTown, musicBase::fortressTown,
-	              musicBase::elemTown;
-
-	terrainMusics += musicBase::dirt, musicBase::sand, musicBase::grass,
-		musicBase::snow, musicBase::swamp, musicBase::rough,
-		musicBase::underground, musicBase::lava,musicBase::water;
+void CMusicHandler::addEntryToSet(std::string set, int musicID, std::string musicURI)
+{
+	musicsSet[set][musicID] = musicURI;
 }
 
 void CMusicHandler::init()
@@ -391,23 +378,46 @@ void CMusicHandler::release()
 	CAudioBase::release();
 }
 
-// Plays a music
-// loop: -1 always repeats, 0=do not play, 1+=number of loops
-void CMusicHandler::playMusic(musicBase::musicID musicID, int loop)
+void CMusicHandler::playMusic(std::string musicURI, bool loop)
 {
-	if (current.get() != NULL && *current == musicID)
+	if (current && current->isTrack( musicURI))
 		return;
 
-	queueNext(new MusicEntry(this, musicID, loop));
+	queueNext(new MusicEntry(this, "", musicURI, loop));
 }
 
-// Helper. Randomly plays tracks from music_vec
-void CMusicHandler::playMusicFromSet(std::vector<musicBase::musicID> &music_vec, int loop)
+void CMusicHandler::playMusicFromSet(std::string whichSet, bool loop)
 {
-	if (current.get() != NULL && *current == music_vec)
+	auto selectedSet = musicsSet.find(whichSet);
+	if (selectedSet == musicsSet.end())
+	{
+		tlog0 << "Error: playing music from non-existing set: " << whichSet << "\n";
+		return;
+	}
+
+	if (current && current->isSet(whichSet))
 		return;
 
-	queueNext(new MusicEntry(this, music_vec, loop));
+	queueNext(new MusicEntry(this, whichSet, "", loop));
+}
+
+
+void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loop)
+{
+	auto selectedSet = musicsSet.find(whichSet);
+	if (selectedSet == musicsSet.end())
+	{
+		tlog0 << "Error: playing music from non-existing set: " << whichSet << "\n";
+		return;
+	}
+
+	auto selectedEntry = selectedSet->second.find(entryID);
+	if (selectedEntry == selectedSet->second.end())
+	{
+		tlog0 << "Error: playing non-existing entry " << entryID << " from set: " << whichSet << "\n";
+		return;
+	}
+	queueNext(new MusicEntry(this, "", selectedEntry->second, loop));
 }
 
 void CMusicHandler::queueNext(MusicEntry *queued)
@@ -430,7 +440,6 @@ void CMusicHandler::queueNext(MusicEntry *queued)
 	}
 }
 
-// Stop and free the current music
 void CMusicHandler::stopMusic(int fade_ms)
 {
 	if (!initialized)
@@ -441,10 +450,8 @@ void CMusicHandler::stopMusic(int fade_ms)
 	if (current.get() != NULL)
 		current->stop(fade_ms);
 	next.reset();
-
 }
 
-// Sets the music volume, from 0 (mute) to 100
 void CMusicHandler::setVolume(ui32 percent)
 {
 	CAudioBase::setVolume(percent);
@@ -453,7 +460,6 @@ void CMusicHandler::setVolume(ui32 percent)
 		Mix_VolumeMusic((MIX_MAX_VOLUME * volume)/100);
 }
 
-// Called by SDL when a music finished.
 void CMusicHandler::musicFinishedCallback(void)
 {
 	boost::mutex::scoped_lock guard(musicMutex);
@@ -474,50 +480,39 @@ void CMusicHandler::musicFinishedCallback(void)
 	}
 }
 
-MusicEntry::MusicEntry(CMusicHandler *_owner, musicBase::musicID _musicID, int _loopCount):
-	owner(_owner),
-	music(NULL),
-	loopCount(_loopCount)
+MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped):
+	owner(owner),
+	music(nullptr),
+	looped(looped),
+    setName(setName)
 {
-	load(_musicID);
+	if (!musicURI.empty())
+		load(musicURI);
 }
-
-MusicEntry::MusicEntry(CMusicHandler *_owner, std::vector<musicBase::musicID> &_musicVec, int _loopCount):
-	currentID(musicBase::music_todo),
-	owner(_owner),
-	music(NULL),
-	loopCount(_loopCount),
-	musicVec(_musicVec)
-{
-	//In this case music will be loaded only on playing - no need to call load() here
-}
-
 MusicEntry::~MusicEntry()
 {
-	tlog5<<"Del-ing music file "<<filename<<"\n";
+	tlog5<<"Del-ing music file "<<currentName<<"\n";
 	if (music)
 		Mix_FreeMusic(music);
 }
 
-void MusicEntry::load(musicBase::musicID ID)
+void MusicEntry::load(std::string musicURI)
 {
 	if (music)
 	{
-		tlog5<<"Del-ing music file "<<filename<<"\n";
+		tlog5<<"Del-ing music file "<<currentName<<"\n";
 		Mix_FreeMusic(music);
 	}
 
-	currentID = ID;
-	filename = GameConstants::DATA_DIR + "/Mp3/";
-	filename += owner->musics[ID];
+	currentName = musicURI;
 
-	tlog5<<"Loading music file "<<filename<<"\n";
+	tlog5<<"Loading music file "<<musicURI<<"\n";
 
-	music = Mix_LoadMUS(filename.c_str());
+	music = Mix_LoadMUS(CResourceHandler::get()->getResourceName(ResourceID(musicURI, EResType::MUSIC)).c_str());
 
 	if(!music)
 	{
-		tlog3 << "Warning: Cannot open " << filename << ": " << Mix_GetError() << std::endl;
+		tlog3 << "Warning: Cannot open " << currentName << ": " << Mix_GetError() << std::endl;
 		return;
 	}
 
@@ -529,16 +524,19 @@ void MusicEntry::load(musicBase::musicID ID)
 
 bool MusicEntry::play()
 {
-	if (loopCount == 0)
+	if (!looped && music) //already played once - return
 		return false;
 
-	if (loopCount > 0)
-		loopCount--;
+	if (!setName.empty())
+	{
+		auto set = owner->musicsSet[setName];
+		size_t entryID = rand() % set.size();
+		auto iterator = set.begin();
+		std::advance(iterator, entryID);
+		load(iterator->second);
+	}
 
-	if (!musicVec.empty())
-		load(musicVec.at(rand() % musicVec.size()));
-
-	tlog5<<"Playing music file "<<filename<<"\n";
+	tlog5<<"Playing music file "<<currentName<<"\n";
 	if(Mix_PlayMusic(music, 1) == -1)
 	{
 		tlog1 << "Unable to play music (" << Mix_GetError() << ")" << std::endl;
@@ -549,17 +547,17 @@ bool MusicEntry::play()
 
 void MusicEntry::stop(int fade_ms)
 {
-	tlog5<<"Stoping music file "<<filename<<"\n";
-	loopCount = 0;
+	tlog5<<"Stoping music file "<<currentName<<"\n";
+	looped = false;
 	Mix_FadeOutMusic(fade_ms);
 }
 
-bool MusicEntry::operator == (musicBase::musicID _musicID) const
+bool MusicEntry::isSet(std::string set)
 {
-	return musicVec.empty() && currentID == _musicID;
+	return !setName.empty() && set == setName;
 }
 
-bool MusicEntry::operator == (std::vector<musicBase::musicID> &_musicVec) const
+bool MusicEntry::isTrack(std::string track)
 {
-	return musicVec == _musicVec;
+	return setName.empty() && track == currentName;
 }

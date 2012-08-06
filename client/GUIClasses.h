@@ -306,7 +306,6 @@ class CGarrisonInt;
 /// A single garrison slot which holds one creature of a specific amount
 class CGarrisonSlot : public CIntObject
 {
-public:
 	int ID; //for identification
 	CGarrisonInt *owner;
 	const CStackInstance *myStack; //NULL if slot is empty
@@ -315,6 +314,8 @@ public:
 	int upg; //0 - up garrison, 1 - down garrison
 	bool highlight;
 
+	CAnimImage * creatureImage;
+public:
 	virtual void hover (bool on); //call-in
 	const CArmedInstance * getObj();
 	bool our();
@@ -322,6 +323,8 @@ public:
 	void clickLeft(tribool down, bool previousState);
 	void showAll(SDL_Surface * to);
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg=0, const CStackInstance * Creature=NULL);
+
+	friend class CGarrisonInt;
 };
 
 /// Class which manages slots of upper and lower garrison, splitting of units
@@ -367,7 +370,6 @@ public:
 	//smallImgs - units images size 64x58 or 32x32;
 	//twoRows - display slots in 2 row (1st row = 4 slots, 2nd = 3 slots)
 	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool _removableUnits = true, bool smallImgs = false, bool _twoRows=false); //c-tor
-	~CGarrisonInt(); //d-tor
 };
 
 /// draws picture with creature on background, use Animated=true to get animation
