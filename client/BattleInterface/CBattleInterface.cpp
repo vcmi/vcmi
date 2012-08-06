@@ -2713,7 +2713,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	//used when hovering -> tooltip message and cursor to be set
 	std::string consoleMsg;
 	bool setCursor = true; //if we want to suppress setting cursor
-	int cursorType = ECursor::COMBAT, cursorFrame = ECursor::COMBAT_POINTER;
+	int cursorType = ECursor::COMBAT, cursorFrame = ECursor::COMBAT_POINTER; //TODO: is this line used?
 	
 	//used when l-clicking -> action to be called upon the click
 	std::function<void()> realizeAction;
@@ -3093,7 +3093,10 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[181]) % sp->name); //No room to place %s here
 				break;
 			default:
-				cursorFrame = ECursor::COMBAT_BLOCKED;
+				if (myNumber == -1)
+					CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER); //set neutral cursor over menu etc.
+				else
+					cursorFrame = ECursor::COMBAT_BLOCKED;
 				break;
 		}
 	}
