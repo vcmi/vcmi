@@ -160,12 +160,19 @@ DLL_LINKAGE void loadToIt(si32 &dest, const std::string &src, int &iter, int mod
 
 void LibClasses::loadFilesystem()
 {
-	CStopWatch pomtime;
-	CResourceHandler::initialize();
-	CResourceHandler::loadFileSystem("ALL/config/filesystem.json");
-	CResourceHandler::loadModsFilesystems();
+	CStopWatch totalTime;
+	CStopWatch loadTime;
 
-	tlog0<<"\tFile system handler: "<<pomtime.getDiff()<<std::endl;
+	CResourceHandler::initialize();
+	tlog0<<"\t Initialization: "<<loadTime.getDiff()<<std::endl;
+
+	CResourceHandler::loadFileSystem("ALL/config/filesystem.json");
+	tlog0<<"\t Data loading: "<<loadTime.getDiff()<<std::endl;
+
+	CResourceHandler::loadModsFilesystems();
+	tlog0<<"\t Mod filesystems: "<<loadTime.getDiff()<<std::endl;
+
+	tlog0<<"File system handler: "<<totalTime.getDiff()<<std::endl;
 }
 
 void LibClasses::init()

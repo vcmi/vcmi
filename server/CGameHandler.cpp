@@ -1,5 +1,7 @@
 #include "StdInc.h"
 
+#include "../lib/Filesystem/CResourceLoader.h"
+#include "../lib/Filesystem/CFileInfo.h"
 #include "../lib/int3.h"
 #include "../lib/CCampaignHandler.h"
 #include "../lib/StartInfo.h"
@@ -2247,12 +2249,16 @@ void CGameHandler::sendAndApply( NewStructures * info )
 		checkLossVictory(getTown(info->tid)->tempOwner);
 }
 
-void CGameHandler::save( const std::string &fname )
+void CGameHandler::save(const std::string & filename )
 {
+	tlog1 << "Saving to " << filename << "\n";
+	CFileInfo info(filename);
+	CResourceHandler::get()->createResource(info.getStem() + ".vlgm1");
+	CResourceHandler::get()->createResource(info.getStem() + ".vsgm1");
+
 	{
 		tlog0 << "Ordering clients to serialize...\n";
-		SaveGame sg(fname);
-
+		SaveGame sg(info.getStem() + ".vcgm1");
 		sendToAllClients(&sg);
 	}
 
@@ -2260,14 +2266,14 @@ void CGameHandler::save( const std::string &fname )
 	{
 		{
 			tlog0 << "Serializing game info...\n";
-			CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vlgm1");
+			CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::LIB_SAVEGAME)));
 			char hlp[8] = "VCMISVG";
 			save << hlp << static_cast<CMapHeader&>(*gs->map) << gs->scenarioOps << *VLC << gs;
 		}
 
 		{
 			tlog0 << "Serializing server info...\n";
-			CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vsgm1");
+			CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::SERVER_SAVEGAME)));
 			save << *this;
 		}
 		tlog0 << "Game has been successfully saved!\n";

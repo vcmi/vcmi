@@ -12,6 +12,7 @@
 #pragma once
 
 #include "CInputStream.h"
+#include "CResourceLoader.h" //FIXME: move ResourceID + EResType in separate file?
 
 /**
  * A class which knows the files containing in the archive or system and how to load them.
@@ -44,7 +45,7 @@ public:
 	 *
 	 * @return Returns a list of all entries in the archive or (file) system.
 	 */
-	virtual std::list<std::string> getEntries() const =0;
+	virtual std::unordered_map<ResourceID, std::string> getEntries() const =0;
 
 	/**
 	 * Gets the origin of the loader.
@@ -52,4 +53,14 @@ public:
 	 * @return the file path to source of this loader
 	 */
 	virtual std::string getOrigin() const =0;
+
+	/**
+	 * Creates new resource with specified filename.
+	 *
+	 * @returns true if new file was created, false on error or if file already exists
+	 */
+	virtual bool createEntry(std::string filename)
+	{
+		return false;
+	}
 };

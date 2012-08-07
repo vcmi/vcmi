@@ -1,6 +1,8 @@
 #include "StdInc.h"
 #include "../lib/NetPacks.h"
 
+#include "../lib/Filesystem/CResourceLoader.h"
+#include "../lib/Filesystem/CFileInfo.h"
 #include "../CCallback.h"
 #include "Client.h"
 #include "CPlayerInterface.h"
@@ -759,9 +761,13 @@ void YourTurn::applyCl( CClient *cl )
 
 void SaveGame::applyCl(CClient *cl)
 {
+	tlog1 << "Saving to " << fname << "\n";
+	CFileInfo info(fname);
+	CResourceHandler::get()->createResource(info.getStem() + ".vcgm1");
+
 	try
 	{
-		CSaveFile save(GVCMIDirs.UserPath + "/Games/" + fname + ".vcgm1");
+		CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::CLIENT_SAVEGAME)));
 		save << *cl;
 	}
 	catch(std::exception &e)

@@ -13,22 +13,7 @@ ArchiveEntry::ArchiveEntry()
 
 }
 
-CLodArchiveLoader::CLodArchiveLoader()
-{
-
-}
-
 CLodArchiveLoader::CLodArchiveLoader(const std::string & archive)
-{
-	open(archive);
-}
-
-CLodArchiveLoader::CLodArchiveLoader(const CFileInfo & archive)
-{
-	open(archive);
-}
-
-void CLodArchiveLoader::open(const std::string & archive)
 {
 	// Open archive file(.snd, .vid, .lod)
 	this->archive = archive;
@@ -56,11 +41,6 @@ void CLodArchiveLoader::open(const std::string & archive)
 	{
 		throw std::runtime_error("LOD archive format unknown. Cannot deal with " + archive);
 	}
-}
-
-void CLodArchiveLoader::open(const CFileInfo & archive)
-{
-	open(archive.getName());
 }
 
 void CLodArchiveLoader::initLODArchive(CFileInputStream & fileStream)
@@ -204,14 +184,14 @@ std::unique_ptr<CInputStream> CLodArchiveLoader::load(const std::string & resour
 	}
 }
 
-std::list<std::string> CLodArchiveLoader::getEntries() const
+std::unordered_map<ResourceID, std::string> CLodArchiveLoader::getEntries() const
 {
-	std::list<std::string> retList;
+	std::unordered_map<ResourceID, std::string> retList;
 
 	for(auto it = entries.begin(); it != entries.end(); ++it)
 	{
 		const ArchiveEntry & entry = it->second;
-		retList.push_back(entry.name);
+		retList[ResourceID(entry.name)] = entry.name;
 	}
 
 	return std::move(retList);

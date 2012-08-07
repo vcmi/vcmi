@@ -9,9 +9,6 @@
 #include "../GameConstants.h"
 #include "../VCMIDirs.h"
 
-//experimental support for ERA-style mods. Requires custom config in mod directory
-#define ENABLE_ERA_FILESYSTEM
-
 CResourceLoader * CResourceHandler::resourceLoader = nullptr;
 CResourceLoader * CResourceHandler::initialLoader = nullptr;
 
@@ -35,9 +32,14 @@ ResourceID::ResourceID(const std::string & name, EResType::Type type)
 
 ResourceID::ResourceID(const std::string & prefix, const std::string & name, EResType::Type type)
 {
-	setName(name);
-	this->name = prefix + this->name;
+	this->name = name;
 
+	size_t dotPos = this->name.find_last_of("/.");
+
+	if(dotPos != std::string::npos && this->name[dotPos] == '.')
+		this->name.erase(dotPos);
+
+	this->name = prefix + this->name;
 	setType(type);
 }
 
@@ -71,15 +73,6 @@ void ResourceID::setType(EResType::Type type)
 
 CResourceLoader::CResourceLoader()
 {
-}
-
-CResourceLoader::~CResourceLoader()
-{
-	// Delete all loader objects
-	BOOST_FOREACH ( auto & it, loaders)
-	{
-		delete it;
-	}
 }
 
 std::unique_ptr<CInputStream> CResourceLoader::load(const ResourceID & resourceIdent) const
@@ -139,31 +132,46 @@ std::string CResourceLoader::getResourceName(const ResourceID & resourceIdent) c
 
 bool CResourceLoader::existsResource(const ResourceID & resourceIdent) const
 {
-	// Check if resource is registered
 	return resources.find(resourceIdent) != resources.end();
 }
 
-void CResourceLoader::addLoader(std::string mountPoint, ISimpleResourceLoader * loader)
+bool CResourceLoader::createResource(std::string URI)
 {
-	loaders.insert(loader);
+	std::string filename = URI;
+	boost::to_upper(URI);
+	BOOST_REVERSE_FOREACH (const LoaderEntry & entry, loaders)
+	{
+		if (entry.writeable && boost::algorithm::starts_with(URI, entry.prefix))
+		{
+			// remove loader prefix from filename
+			filename = filename.substr(entry.prefix.size());
+			if (!entry.loader->createEntry(filename))
+				return false; //or continue loop?
+
+			resources[ResourceID(URI)].push_back(ResourceLocator(entry.loader.get(), filename));
+		}
+	}
+	return false;
+}
+
+void CResourceLoader::addLoader(std::string mountPoint, shared_ptr<ISimpleResourceLoader> loader, bool writeable)
+{
+	LoaderEntry loaderEntry;
+	loaderEntry.loader = loader;
+	loaderEntry.prefix = mountPoint;
+	loaderEntry.writeable = writeable;
+	loaders.push_back(loaderEntry);
 
 	// Get entries and add them to the resources list
-	const std::list<std::string> & entries = loader->getEntries();
+	const std::unordered_map<ResourceID, std::string> & entries = loader->getEntries();
 
 	boost::to_upper(mountPoint);
 
-	BOOST_FOREACH (const std::string & entry, entries)
+	BOOST_FOREACH (auto & entry, entries)
 	{
-		CFileInfo file(entry);
-
 		// Create identifier and locator and add them to the resources list
-		ResourceID ident(mountPoint, file.getStem(), file.getType());
-
-		//check if entry can be directory. Will only work for filesystem loader but H3 archives don't have dirs anyway.
-		if (boost::filesystem::is_directory(loader->getOrigin() + '/' + entry))
-			ident.setType(EResType::DIRECTORY);
-
-		ResourceLocator locator(loader, entry);
+		ResourceID ident(mountPoint, entry.first.getName(), entry.first.getType());
+		ResourceLocator locator(loader.get(), entry.second);
 		resources[ident].push_back(locator);
 	}
 }
@@ -178,7 +186,7 @@ CResourceLoader * CResourceHandler::get()
 	{
 		std::stringstream string;
 		string << "Error: Resource loader wasn't initialized. "
-			   << "Make sure that you set one via CResourceLoaderFactory::setInstance";
+			   << "Make sure that you set one via CResourceLoaderFactory::initialize";
 		throw std::runtime_error(string.str());
 	}
 }
@@ -234,6 +242,7 @@ EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 	        (".PAC",   EResType::ARCHIVE)
 	        (".VID",   EResType::ARCHIVE)
 	        (".SND",   EResType::ARCHIVE)
+	        (".PAL",   EResType::PALETTE)
 	        (".VCGM1", EResType::CLIENT_SAVEGAME)
 	        (".VLGM1", EResType::LIB_SAVEGAME)
 	        (".VSGM1", EResType::SERVER_SAVEGAME);
@@ -260,6 +269,7 @@ std::string EResTypeHelper::getEResTypeAsString(EResType::Type type)
 		MAP_ENUM(SOUND)
 		MAP_ENUM(MUSIC)
 		MAP_ENUM(ARCHIVE)
+		MAP_ENUM(PALETTE)
 		MAP_ENUM(CLIENT_SAVEGAME)
 		MAP_ENUM(LIB_SAVEGAME)
 		MAP_ENUM(SERVER_SAVEGAME)
@@ -276,26 +286,45 @@ std::string EResTypeHelper::getEResTypeAsString(EResType::Type type)
 
 void CResourceHandler::initialize()
 {
+	//recurse only into specific directories
+	auto recurseInDir = [](std::string URI, int depth)
+	{
+		auto resources = initialLoader->getResourcesWithName(ResourceID(URI, EResType::DIRECTORY));
+		BOOST_FOREACH(const ResourceLocator & entry, resources)
+		{
+			std::string filename = entry.getLoader()->getOrigin() + '/' + entry.getResourceName();
+			if (!filename.empty())
+			{
+				shared_ptr<ISimpleResourceLoader> dir(new CFilesystemLoader(filename, depth, true));
+				initialLoader->addLoader(URI + '/', dir, false);
+			}
+		}
+	};
+
 	//temporary filesystem that will be used to initialize main one.
 	//used to solve several case-sensivity issues like Mp3 vs MP3
 	initialLoader = new CResourceLoader;
 	resourceLoader = new CResourceLoader;
 
-	auto rootDir = new CFilesystemLoader(GameConstants::DATA_DIR, 3);
-	initialLoader->addLoader("GLOBAL/", rootDir);
-	initialLoader->addLoader("ALL/", rootDir);
+	shared_ptr<ISimpleResourceLoader> rootDir(new CFilesystemLoader(GameConstants::DATA_DIR, 0, true));
+	initialLoader->addLoader("GLOBAL/", rootDir, false);
+	initialLoader->addLoader("ALL/", rootDir, false);
 
 	auto userDir = rootDir;
 
 	//add local directory to "ALL" but only if it differs from root dir (true for linux)
 	if (GameConstants::DATA_DIR != GVCMIDirs.UserPath)
 	{
-		userDir = new CFilesystemLoader(GVCMIDirs.UserPath, 3);
-		initialLoader->addLoader("ALL/", userDir);
+		userDir = shared_ptr<ISimpleResourceLoader>(new CFilesystemLoader(GVCMIDirs.UserPath, 0, true));
+		initialLoader->addLoader("ALL/", userDir, false);
 	}
 
 	//create "LOCAL" dir with current userDir (may be same as rootDir)
-	initialLoader->addLoader("LOCAL/", userDir);
+	initialLoader->addLoader("LOCAL/", userDir, false);
+
+	recurseInDir("ALL/CONFIG", 0);// look for configs
+	recurseInDir("ALL/DATA", 0); // look for archives
+	recurseInDir("ALL/MODS", 2); // look for mods. Depth 2 is required for now but won't cause issues if no mods present
 }
 
 void CResourceHandler::loadFileSystem(const std::string fsConfigURI)
@@ -310,23 +339,30 @@ void CResourceHandler::loadFileSystem(const std::string fsConfigURI)
 		{
 			tlog5 << "loading resource at " << entry["path"].String() << "\n";
 
+			std::string URI = entry["path"].String();
 			if (entry["type"].String() == "dir")
 			{
-				std::string filename = initialLoader->getResourceName(ResourceID(entry["path"].String(), EResType::DIRECTORY));
-				if (!filename.empty())
+				bool writeable = entry["writeable"].Bool();
+				int depth = 16;
+				if (!entry["depth"].isNull())
+					depth = entry["depth"].Float();
+
+				auto resources = initialLoader->getResourcesWithName(ResourceID(URI, EResType::DIRECTORY));
+
+				BOOST_FOREACH(const ResourceLocator & entry, resources)
 				{
-					int depth = 16;
-					if (!entry["depth"].isNull())
-						depth = entry["depth"].Float();
-					resourceLoader->addLoader(mountPoint.first, new CFilesystemLoader(filename, depth));
+					std::string filename = entry.getLoader()->getOrigin() + '/' + entry.getResourceName();
+					resourceLoader->addLoader(mountPoint.first,
+					    shared_ptr<ISimpleResourceLoader>(new CFilesystemLoader(filename, depth)), writeable);
 				}
 			}
 
 			if (entry["type"].String() == "file")
 			{
-				std::string filename = initialLoader->getResourceName(ResourceID(entry["path"].String(), EResType::ARCHIVE));
+				std::string filename = initialLoader->getResourceName(ResourceID(URI, EResType::ARCHIVE));
 				if (!filename.empty())
-					resourceLoader->addLoader(mountPoint.first, new CLodArchiveLoader(filename));
+					resourceLoader->addLoader(mountPoint.first,
+					    shared_ptr<ISimpleResourceLoader>(new CLodArchiveLoader(filename)), false);
 			}
 		}
 	}
@@ -334,7 +370,6 @@ void CResourceHandler::loadFileSystem(const std::string fsConfigURI)
 
 void CResourceHandler::loadModsFilesystems()
 {
-#ifdef ENABLE_ERA_FILESYSTEM
 
 	auto iterator = initialLoader->getIterator([](const ResourceID & ident) ->  bool
 	{
@@ -346,11 +381,18 @@ void CResourceHandler::loadModsFilesystems()
 		    && boost::algorithm::ends_with(name, "FILESYSTEM");
 	});
 
+	//sorted storage for found mods
+	//implements basic load order (entries in hashtable are basically random)
+	std::set<std::string> foundMods;
 	while (iterator.hasNext())
 	{
-		tlog1 << "Found mod filesystem: " << iterator->getName() << "\n";
-		loadFileSystem(iterator->getName());
+		foundMods.insert(iterator->getName());
 		++iterator;
 	}
-#endif
+
+	BOOST_FOREACH(const std::string & entry, foundMods)
+	{
+		tlog1 << "\t\tFound mod filesystem: " << entry << "\n";
+		loadFileSystem(entry);
+	}
 }

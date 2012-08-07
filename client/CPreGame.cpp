@@ -843,13 +843,13 @@ void CSelectionScreen::startGame()
 		if(!(sel && sel->txt && sel->txt->text.size()))
 			return;
 
-		selectedName = GVCMIDirs.UserPath + "/Games/" + sel->txt->text + ".vlgm1";
+		selectedName = "Saves/" + sel->txt->text;
 
 		CFunctionList<void()> overWrite;
-		overWrite += boost::bind(&CCallback::save, LOCPLINT->cb, sel->txt->text);
+		overWrite += boost::bind(&CCallback::save, LOCPLINT->cb, selectedName);
 		overWrite += bind(&CGuiHandler::popIntTotally, &GH, this);
 
-		if(fs::exists(selectedName))
+		if(CResourceHandler::get()->existsResource(ResourceID(selectedName, EResType::LIB_SAVEGAME)))
 		{
 			std::string hlp = CGI->generaltexth->allTexts[493]; //%s exists. Overwrite?
 			boost::algorithm::replace_first(hlp, "%s", sel->txt->text);
@@ -857,9 +857,6 @@ void CSelectionScreen::startGame()
 		}
 		else
 			overWrite();
-
-// 		LOCPLINT->cb->save(sel->txt->text);
-// 		GH.popIntTotally(this);
 	}
 }
 
@@ -1417,7 +1414,8 @@ void SelectionTab::printMaps(SDL_Surface *to)
 		}
 		else
 		{
-			name = fs::basename(currentItem->fileURI);
+			name = CFileInfo(CResourceHandler::get()->getResourceName(
+			                     ResourceID(currentItem->fileURI, EResType::LIB_SAVEGAME))).getBaseName();
 		}
 
 		//print name

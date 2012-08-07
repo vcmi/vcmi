@@ -108,18 +108,6 @@ public:
 	 */
 	std::time_t getDate() const;
 
-	/**
-	 * Returns a list of pathnames denoting the files in the directory denoted by this pathname.
-	 *
-	 * If the pathname of this directory is absolute, then the file info pathnames are absolute as well. If the pathname of this directory is relative
-	 * then the file info pathnames are relative to the basedir as well.
-	 *
-	 * @param extensionFilter Filters files by the given extension. Optional. Empty string if all files and directories in the directory should be listed.
-	 * @return a list of pathnames denoting the files and directories in the directory denoted by this pathname as a unique ptr.
-	 * The array will be empty if the directory is empty. Ptr is null if the directory doesn't exist or if it isn't a directory.
-	 */
-	std::unique_ptr<std::list<CFileInfo> > listFiles(size_t depth, const std::string & extensionFilter = "") const;
-
 private:
 	/** Contains the original URI(not modified) e.g. ./dir/foo.txt */
 	std::string name;

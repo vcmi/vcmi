@@ -48,7 +48,7 @@ public:
 	}
 	si64 memDif()
 	{
-		return clock()-mem;
+		return (clock()-mem) / TO_MS_DIVISOR;
 	}
 
 private:

@@ -33,6 +33,7 @@ class ISimpleResourceLoader;
  * Video: .smk, .bik .mjpg
  * Music: .mp3, .ogg
  * Archive: .lod, .snd, .vid .pac
+ * Palette: .pal
  * Savegame: .v*gm1
  */
 namespace EResType
@@ -50,6 +51,7 @@ namespace EResType
 		SOUND,
 		MUSIC,
 		ARCHIVE,
+		PALETTE,
 		CLIENT_SAVEGAME,
 		LIB_SAVEGAME,
 		SERVER_SAVEGAME,
@@ -128,7 +130,7 @@ protected:
 	 * Ctor for usage strictly in resourceLoader for some speedup
 	 *
 	 * @param prefix Prefix of ths filename, already in upper case
-	 * @param name The resource name.
+	 * @param name The resource name, upper case
 	 * @param type The resource type. A constant from the enumeration EResType.
 	 */
 	ResourceID(const std::string & prefix, const std::string & name, EResType::Type type);
@@ -164,14 +166,14 @@ public:
 		{
 			return hash<string>()(resourceIdent.getName()) ^ hash<int>()(static_cast<int>(resourceIdent.getType()));
 		}
-    };
+	};
 };
 
 /**
  * This class manages the loading of resources whether standard
  * or derived from several container formats and the file system.
  */
-class DLL_LINKAGE CResourceLoader : public boost::noncopyable
+class DLL_LINKAGE CResourceLoader
 {
 	typedef std::unordered_map<ResourceID, std::list<ResourceLocator> > ResourcesMap;
 
@@ -237,11 +239,6 @@ public:
 	CResourceLoader();
 
 	/**
-	 * D-tor.
-	 */
-	virtual ~CResourceLoader();
-
-	/**
 	 * Loads the resource specified by the resource identifier.
 	 *
 	 * @param resourceIdent This parameter identifies the resource to load.
@@ -291,6 +288,16 @@ public:
 	bool existsResource(const ResourceID & resourceIdent) const;
 
 	/**
+	 * Creates new resource (if not exists) with specified URI.
+	 * Type will be determined from extension
+	 * File case will be same as in URI
+	 *
+	 * @param URI file to create
+	 * @return true on success, false if resource exists or on error
+	 */
+	bool createResource(std::string URI);
+
+	/**
 	 * Adds a simple resource loader to the loaders list and its entries to the resources list.
 	 *
 	 * The loader object will be destructed when this resource loader is destructed.
@@ -300,7 +307,7 @@ public:
 	 * @param mountPoint prefix that will be added to all files in this loader
 	 * @param loader The simple resource loader object to add
 	 */
-	void addLoader(std::string mountPoint, ISimpleResourceLoader * loader);
+	void addLoader(std::string mountPoint, shared_ptr<ISimpleResourceLoader> loader, bool writeable);
 
 private:
 
@@ -310,19 +317,21 @@ private:
 	 */
 	ResourcesMap resources;
 
+	struct LoaderEntry
+	{
+		std::string prefix;
+		shared_ptr<ISimpleResourceLoader> loader;
+		bool writeable;
+	};
+
 	/** A list of resource loader objects */
-	std::set<ISimpleResourceLoader *> loaders;
+	std::vector<LoaderEntry > loaders;
 };
 
 /**
  * This class has static methods for a global resource loader access.
  *
- * Note: Compared to the singleton pattern it has the advantage that the class CResourceLoader
- * and classes which use it can be tested separately. CResourceLoader can be sub-classes as well.
- * Compared to a global variable the factory pattern can throw an exception if the resource loader wasn't
- * initialized.
- *
- * This class is not thread-safe. Make sure nobody is calling getInstance while somebody else is calling setInstance.
+ * Class is not thread-safe. Make sure nobody is calling getInstance while somebody else is calling initialize.
  */
 class DLL_LINKAGE CResourceHandler
 {

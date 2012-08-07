@@ -46,11 +46,6 @@ class DLL_LINKAGE CLodArchiveLoader : public ISimpleResourceLoader
 {
 public:
 	/**
-	 * Default c-tor.
-	 */
-	CLodArchiveLoader();
-
-	/**
 	 * Ctor.
 	 *
 	 * The file extension of the param archive determines the type of the Lod file.
@@ -61,42 +56,6 @@ public:
 	 * @throws std::runtime_error if the archive wasn't found or if the archive isn't supported
 	 */
 	explicit CLodArchiveLoader(const std::string & archive);
-
-	/**
-	 * Ctor.
-	 *
-	 * The file extension of the param archive determines the type of the Lod file.
-	 * These are valid extensions: .LOD, .SND, .VID
-	 *
-	 * @param archive Specifies the file path to the archive which should be indexed and loaded.
-	 *
-	 * @throws std::runtime_error if the archive wasn't found or if the archive isn't supported
-	 */
-	explicit CLodArchiveLoader(const CFileInfo & archive);
-
-	/**
-	 * Opens an LOD archive.
-	 *
-	 * The file extension of the param archive determines the type of the Lod file.
-	 * These are valid extensions: .LOD, .SND, .VID
-	 *
-	 * @param archive Specifies the file path to the archive which should be indexed and loaded.
-	 *
-	 * @throws std::runtime_error if the archive wasn't found or if the archive isn't supported
-	 */
-	void open(const std::string & archive);
-
-	/**
-	 * Opens an LOD archive.
-	 *
-	 * The file extension of the param archive determines the type of the Lod file.
-	 * These are valid extensions: .LOD, .SND, .VID
-	 *
-	 * @param archive Specifies the file path to the archive which should be indexed and loaded.
-	 *
-	 * @throws std::runtime_error if the archive wasn't found or if the archive isn't supported
-	 */
-	void open(const CFileInfo & archive);
 
 	/**
 	 * Loads a resource with the given resource name.
@@ -113,7 +72,7 @@ public:
 	 *
 	 * @return a list of all entries in the archive.
 	 */
-	std::list<std::string> getEntries() const;
+	std::unordered_map<ResourceID, std::string> getEntries() const;
 
 	/**
 	 * Gets the archive entry for the requested resource

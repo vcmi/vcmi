@@ -537,7 +537,10 @@ void CMinimap::moveAdvMapSelection()
 	int3 newLocation = translateMousePosition();
 	adventureInt->centerOn(newLocation);
 
-	GH.totalRedraw(); //redraw this as well as adventure map (which may be inactive)
+	if (!(adventureInt->active & GENERAL))
+		GH.totalRedraw(); //redraw this as well as inactive adventure map
+	else
+		redraw();//redraw only this
 }
 
 void CMinimap::clickLeft(tribool down, bool previousState)

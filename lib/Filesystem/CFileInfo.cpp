@@ -70,16 +70,18 @@ std::string CFileInfo::getStem() const
 
 std::string CFileInfo::getBaseName() const
 {
-	size_t end = name.find_last_of("/.");
 	size_t begin = name.find_last_of("/");
+	size_t end = name.find_last_of("/.");
 
-	if(end != std::string::npos && name[end] == '.')
+	if(end != std::string::npos && name[end] == '/')
 		end = std::string::npos;
 
 	if(begin == std::string::npos)
 		begin = 0;
+	else
+		begin++;
 
-	return name.substr(begin, end);
+	return name.substr(begin, end - begin);
 }
 
 
@@ -91,45 +93,4 @@ EResType::Type CFileInfo::getType() const
 std::time_t CFileInfo::getDate() const
 {
 	return boost::filesystem::last_write_time(name);
-}
-
-std::unique_ptr<std::list<CFileInfo> > CFileInfo::listFiles(size_t depth, const std::string & extensionFilter /*= ""*/) const
-{
-	std::unique_ptr<std::list<CFileInfo> > fileListPtr;
-
-	if(exists() && isDirectory())
-	{
-		std::list<CFileInfo> * fileList = new std::list<CFileInfo>;
-
-		std::vector<std::string> path;
-
-		boost::filesystem::recursive_directory_iterator enddir;
-		boost::filesystem::recursive_directory_iterator it(name, boost::filesystem::symlink_option::recurse);
-
-		for(; it != enddir; ++it)
-		{
-			if (boost::filesystem::is_directory(it->status()))
-			{
-				path.resize(it.level()+1);
-				path.back() = it->path().leaf().string();
-				it.no_push(depth <= it.level());
-			}
-
-			if(extensionFilter.empty() || it->path().extension() == extensionFilter)
-			{
-				std::string filename;
-				for (size_t i=0; i<it.level() && i<path.size(); i++)
-					filename += path[i] + '/';
-				filename += it->path().leaf().string();
-
-				//tlog1 << "Found file: " << filename << "\n";
-				CFileInfo file(filename);
-				fileList->push_back(file);
-			}
-		}
-
-		fileListPtr.reset(fileList);
-	}
-
-	return fileListPtr;
 }

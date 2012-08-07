@@ -13,15 +13,13 @@
 		[
 			{"type" : "file", "path" : "ALL/Data/H3ab_bmp.lod"},
 			{"type" : "file", "path" : "ALL/Data/H3bitmap.lod"},
-			{"type" : "dir",  "path" : "GLOBAL/Data"},
-			{"type" : "dir",  "path" : "LOCAL/Data"}
+			{"type" : "dir",  "path" : "ALL/Data"}
 		],
 		"SPRITES/":
 		[
 			{"type" : "file", "path" : "ALL/Data/H3ab_spr.lod"},
 			{"type" : "file", "path" : "ALL/Data/H3sprite.lod"},
-			{"type" : "dir",  "path" : "GLOBAL/Sprites"},
-			{"type" : "dir",  "path" : "LOCAL/Sprites"}
+			{"type" : "dir",  "path" : "ALL/Sprites"}
 		],
 		"SOUNDS/":
 		[
@@ -29,35 +27,30 @@
 			{"type" : "file", "path" : "ALL/Data/Heroes3-cd2.snd"},
 			{"type" : "file", "path" : "ALL/Data/Heroes3.snd"},
 			//WoG have overriden sounds with .82m extension in Data
-			{"type" : "dir",  "path" : "GLOBAL/Data"},
-			{"type" : "dir",  "path" : "LOCAL/Data"}
+			{"type" : "dir",  "path" : "ALL/Data"}
 		],
 		"MUSIC/":
 		[
-			{"type" : "dir",  "path" : "GLOBAL/Mp3"},
-			{"type" : "dir",  "path" : "LOCAL/Mp3"}
+			{"type" : "dir",  "path" : "ALL/Mp3"}
 		],
 		"VIDEO/":
 		[
 			{"type" : "file", "path" : "ALL/Data/H3ab_ahd.vid"},
 			{"type" : "file", "path" : "ALL/Data/H3ab_ahd.vid"},
 			// Location of video files in linux release
-			{"type" : "dir",  "path" : "GLOBAL/Data/Video"},
-			{"type" : "dir",  "path" : "LOCAL/Data/Video"}
+			{"type" : "dir",  "path" : "ALL/Data/Video"}
 		],
 		"CONFIG/":
 		[
-			{"type" : "dir",  "path" : "GLOBAL/Config"},
-			{"type" : "dir",  "path" : "LOCAL/Config"}
+			{"type" : "dir",  "path" : "ALL/Config", "writeable": true}
 		],
 		"MAPS/":
 		[
-			{"type" : "dir",  "path" : "GLOBAL/Maps"},
-			{"type" : "dir",  "path" : "LOCAL/Maps"}
+			{"type" : "dir",  "path" : "ALL/Maps"}
 		],
 		"SAVES/":
 		[
-			{"type" : "dir",  "path" : "LOCAL/Games"},
+			{"type" : "dir",  "path" : "LOCAL/Games", "writeable": true},
 		]
 	}
 }
