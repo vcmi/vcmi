@@ -2521,7 +2521,7 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 		int x = 60, y = 159;
 		for(int i = 0; i < 7; i++)
 		{
-			int c = t.basicCreatures[i];
+			int c = t.creatures[i][0];
 			blitAt(graphics->smallImgs[c], x, y, bmp);
 			CSDL_Ext::printAtMiddleWB(CGI->creh->creatures[c]->nameSing, x + 16, y + 45, FONT_TINY, 10, Colors::Cornsilk, bmp);
 

@@ -84,7 +84,6 @@ std::string CFileInfo::getBaseName() const
 	return name.substr(begin, end - begin);
 }
 
-
 EResType::Type CFileInfo::getType() const
 {
 	return EResTypeHelper::getTypeFromExtension(getExtension());

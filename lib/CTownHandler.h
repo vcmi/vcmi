@@ -23,8 +23,7 @@ class DLL_LINKAGE CTown
 public:
 
 	std::vector<std::string> names; //names of the town instances
-	std::vector<int> basicCreatures; //level (from 0) -> ID
-	std::vector<int> upgradedCreatures; //level (from 0) -> ID
+	std::vector<std::vector<int> > creatures; //level (from 0) -> list of creatures on this tier
 	std::map<int,int> hordeLvl; //[0] - first horde building creature level; [1] - second horde building (-1 if not present)
 	ui32 mageLevel; //max available mage guild level
 	int bonus; //pic number
@@ -39,7 +38,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & names & basicCreatures & upgradedCreatures & hordeLvl & mageLevel & bonus 
+		h & names & creatures & hordeLvl & mageLevel & bonus
 			& primaryRes & warMachine & typeID;
 	}
 };

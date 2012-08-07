@@ -630,7 +630,7 @@ public:
 	CGTownInstance::EFortLevel fortLevel() const;
 	int hallLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 	int mageGuildLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
-	bool creatureDwelling(const int & level, bool upgraded=false) const;
+	int creatureDwellingLevel(int dwelling) const;
 	int getHordeLevel(const int & HID) const; //HID - 0 or 1; returns creature level or -1 if that horde structure is not present
 	int creatureGrowth(const int & level) const;
 	GrowthInfo getGrowthInfo(int level) const;

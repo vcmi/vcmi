@@ -40,12 +40,8 @@ void CTownHandler::loadStructures()
 		towns.push_back(town);
 	}
 
-	for(int x=0;x<towns.size();x++) {
-		/* There is actually 8 basic creatures, but we ignore the 8th
-		 * entry for now */
-		towns[x].basicCreatures.resize(7);
-		towns[x].upgradedCreatures.resize(7);
-	}
+	for(int x=0;x<towns.size();x++)
+		towns[x].creatures.resize(GameConstants::CREATURES_PER_TOWN);
 
 	structures.resize(GameConstants::F_NUMBER);
 
@@ -96,19 +92,14 @@ void CTownHandler::loadStructures()
 				tlog3 << "Warning1: No building " << buildingID << " in the castle " << townID << std::endl;
 		}
 
-		// Read basic creatures belonging to that city
+		// Read creatures belonging to that city
 		level = 0;
-		BOOST_FOREACH(const JsonNode &node, town_node["creatures_basic"].Vector()) {
-			// This if ignores the 8th field (WoG creature)
-			if (level < towns[townID].basicCreatures.size())
-				towns[townID].basicCreatures[level] = node.Float();
-			level ++;
-		}
-
-		// Read upgraded creatures belonging to that city
-		level = 0;
-		BOOST_FOREACH(const JsonNode &node, town_node["creatures_upgraded"].Vector()) {
-			towns[townID].upgradedCreatures[level] = node.Float();
+		BOOST_FOREACH(const JsonNode &list, town_node["creatures"].Vector())
+		{
+			BOOST_FOREACH(const JsonNode &node, list.Vector())
+			{
+				towns[townID].creatures[level].push_back(node.Float());
+			}
 			level ++;
 		}
 

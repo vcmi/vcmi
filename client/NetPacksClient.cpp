@@ -761,9 +761,11 @@ void YourTurn::applyCl( CClient *cl )
 
 void SaveGame::applyCl(CClient *cl)
 {
-	tlog1 << "Saving to " << fname << "\n";
 	CFileInfo info(fname);
 	CResourceHandler::get()->createResource(info.getStem() + ".vcgm1");
+
+	//FIXME: Workaround for a file that was created by server and in future should be used only by server
+	CResourceHandler::get()->createResource(info.getStem() + ".vlgm1");
 
 	try
 	{

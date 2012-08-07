@@ -589,7 +589,7 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 			dwl->info = nullptr;
 
 			std::pair<int,int> result(-1, -1);
-			int cid = VLC->townh->towns[faction].basicCreatures[level];
+			int cid = VLC->townh->towns[faction].creatures[level][0];
 
 			//golem factory is not in list of cregens but can be placed as random object
 			static const int factoryCreatures[] = {32, 33, 116, 117};

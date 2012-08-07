@@ -2975,7 +2975,10 @@ TSubgoal CGoal::whatToDoToAchieve()
 				auto creature = VLC->creh->creatures[objid];
 				if (t->subID == creature->faction) //TODO: how to force AI to build unupgraded creatures? :O
 				{
-					int bid = t->creatureDwelling(creature->level);
+					auto creatures = t->town->creatures[creature->level];
+					int upgradeNumber = std::find(creatures.begin(), creatures.end(), creature->idNumber) - creatures.begin();
+
+					int bid = EBuilding::DWELL_FIRST + creature->level + upgradeNumber * GameConstants::CREATURES_PER_TOWN;
 					if (t->hasBuilt(bid)) //this assumes only creatures with dwellings are assigned to faction
 					{
 						dwellings.push_back(t);

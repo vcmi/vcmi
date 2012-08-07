@@ -1286,7 +1286,7 @@ void CGameHandler::newTurn()
 			sac.creatures = t->creatures;
 			for (int k=0; k < GameConstants::CREATURES_PER_TOWN; k++) //creature growths
 			{
-				if(t->creatureDwelling(k))//there is dwelling (k-level)
+				if(t->creatureDwellingLevel(k) >= 0)//there is dwelling (k-level)
 				{
 					ui32 &availableCount = sac.creatures[k].first;
 					const CCreature *cre = VLC->creh->creatures[t->creatures[k].second.back()];
@@ -2420,54 +2420,52 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 	CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid].get());
 	CBuilding * b = VLC->buildh->buildings[t->subID][bid];
 
-	if( !force && gs->canBuildStructure(t,bid) != 7)
+	if(!force)
 	{
-		complain("Cannot build that building!");
-		return false;
-	}
+		if (gs->canBuildStructure(t,bid) != 7)
+			COMPLAIN_RET("Cannot build that building!");
 
-	if( !force && bid == 26) //grail
-	{
-		if(!t->visitingHero || !t->visitingHero->hasArt(2))
+		if(bid == 26) //grail
 		{
-			complain("Cannot build grail - hero doesn't have it");
-			return false;
+			if(!t->visitingHero || !t->visitingHero->hasArt(2))
+				COMPLAIN_RET("Cannot build grail - hero doesn't have it")
+			else
+				removeArtifact(ArtifactLocation(t->visitingHero, t->visitingHero->getArtPos(2, false)));
 		}
-
-		//remove grail
-		removeArtifact(ArtifactLocation(t->visitingHero, t->visitingHero->getArtPos(2, false)));
 	}
 
 	NewStructures ns;
 	ns.tid = tid;
+	//we have upgr. dwelling, upgr. horde will be builded as well
 	if ( (bid == 18) && (vstd::contains(t->builtBuildings,(t->town->hordeLvl[0]+37))) )
-		ns.bid.insert(19);//we have upgr. dwelling, upgr. horde will be builded as well
+		ns.bid.insert(19);
 	else if ( (bid == 24) && (vstd::contains(t->builtBuildings,(t->town->hordeLvl[1]+37))) )
 		ns.bid.insert(25);
-	else if(bid>36) //upg dwelling
+
+	else if(bid >= EBuilding::DWELL_FIRST) //dwelling
 	{
-		if ( (bid-37 == t->town->hordeLvl[0]) && (vstd::contains(t->builtBuildings,18)) )
-			ns.bid.insert(19);//we have horde, will be upgraded as well as dwelling
-		if ( (bid-37 == t->town->hordeLvl[1]) && (vstd::contains(t->builtBuildings,24)) )
-			ns.bid.insert(25);
+		int level = (bid - EBuilding::DWELL_FIRST) % GameConstants::CREATURES_PER_TOWN;
+		int upgradeNumber = (bid - EBuilding::DWELL_FIRST) / GameConstants::CREATURES_PER_TOWN;
+
+		if (upgradeNumber >= t->town->creatures[level].size())
+			COMPLAIN_RET("Cannot build dwelling: no creature found!");
+
+		CCreature * crea = VLC->creh->creatures[t->town->creatures[level][upgradeNumber]];
+
+		if (vstd::iswithin(bid, EBuilding::DWELL_UP_FIRST, EBuilding::DWELL_UP_LAST))
+		{
+			if ( (bid-37 == t->town->hordeLvl[0]) && (vstd::contains(t->builtBuildings,18)) )
+				ns.bid.insert(19);//we have horde, will be upgraded as well as dwelling
+			if ( (bid-37 == t->town->hordeLvl[1]) && (vstd::contains(t->builtBuildings,24)) )
+				ns.bid.insert(25);
+		}
 
 		SetAvailableCreatures ssi;
 		ssi.tid = tid;
 		ssi.creatures = t->creatures;
-		ssi.creatures[bid-37].second.push_back(t->town->upgradedCreatures[bid-37]);
-		//Test for 2nd upgrade - add sharpshooters if grand elves dwelling was constructed
-		//if (t->subID == 1 && bid == 39)
-		//	ssi.creatures[bid-37].second.push_back(137);
-		sendAndApply(&ssi);
-	}
-	else if(bid >= 30) //bas. dwelling
-	{
-		int crid = t->town->basicCreatures[bid-30];
-		SetAvailableCreatures ssi;
-		ssi.tid = tid;
-		ssi.creatures = t->creatures;
-		ssi.creatures[bid-30].first = VLC->creh->creatures[crid]->growth;
-		ssi.creatures[bid-30].second.push_back(crid);
+		if (bid <= EBuilding::DWELL_LAST)
+			ssi.creatures[level].first = crea->growth;
+		ssi.creatures[level].second.push_back(crea->idNumber);
 		sendAndApply(&ssi);
 	}
 	else if(bid == 11)
@@ -2476,18 +2474,6 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 		ns.bid.insert(28);
 	else if(bid == 13)
 		ns.bid.insert(29);
-	else if (t->subID == 4 && bid == 17) //veil of darkness
-	{
-		//handled via town->reacreateBonuses in apply
-// 		GiveBonus gb(GiveBonus::TOWN);
-// 		gb.bonus.type = Bonus::DARKNESS;
-// 		gb.bonus.val = 20;
-// 		gb.id = t->id;
-// 		gb.bonus.duration = Bonus::PERMANENT;
-// 		gb.bonus.source = Bonus::TOWN_STRUCTURE;
-// 		gb.bonus.id = 17;
-// 		sendAndApply(&gb);
-	}
 	else if ( t->subID == 5 && bid == 22 )
 	{
 		setPortalDwelling(t);
@@ -4709,7 +4695,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<
 
 			for(si32 i=0;i<ev->creatures.size();i++) //creature growths
 			{
-				if(town->creatureDwelling(i) && ev->creatures[i])//there is dwelling
+				if(town->creatureDwellingLevel(i) >= 0 && ev->creatures[i])//there is dwelling
 				{
 					newCreas[town->id][i] += ev->creatures[i];
 					iw.components.push_back(Component(Component::CREATURE,

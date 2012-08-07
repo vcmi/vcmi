@@ -1591,7 +1591,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	if (!town->creatures[level].second.empty())
 		creature = CGI->creh->creatures[town->creatures[level].second.back()];
 	else
-		creature = CGI->creh->creatures[town->town->basicCreatures[level]];
+		creature = CGI->creh->creatures[town->town->creatures[level][0]];
 
 	hoverText = boost::str(boost::format(CGI->generaltexth->tcommands[21]) % creature->namePl);
 	creatureAnim = new CCreaturePic(159, 4, creature, false);

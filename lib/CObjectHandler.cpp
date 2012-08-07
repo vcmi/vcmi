@@ -1889,11 +1889,16 @@ int CGTownInstance::mageGuildLevel() const
 		return 1;
 	return 0;
 }
-bool CGTownInstance::creatureDwelling(const int & level, bool upgraded) const
+
+int CGTownInstance::creatureDwellingLevel(int dwelling) const
 {
-	if ( level<0 || level >= GameConstants::CREATURES_PER_TOWN )
-		return false;
-	return vstd::contains(builtBuildings, 30+level+upgraded*GameConstants::CREATURES_PER_TOWN);
+	if ( dwelling<0 || dwelling >= GameConstants::CREATURES_PER_TOWN )
+		return -1;
+	for (int i=0; ; i++)
+	{
+		if (!vstd::contains(builtBuildings, 30+dwelling+i*GameConstants::CREATURES_PER_TOWN))
+			return i-1;
+	}
 }
 int CGTownInstance::getHordeLevel(const int & HID)  const//HID - 0 or 1; returns creature level or -1 if that horde structure is not present
 {
@@ -2075,10 +2080,10 @@ void CGTownInstance::initObj()
 		creatures.resize(GameConstants::CREATURES_PER_TOWN);
 	for (int i = 0; i < GameConstants::CREATURES_PER_TOWN; i++)
 	{
-		if(creatureDwelling(i,false))
-			creatures[i].second.push_back(town->basicCreatures[i]);
-		if(creatureDwelling(i,true))
-			creatures[i].second.push_back(town->upgradedCreatures[i]);
+		int dwellingLevel = creatureDwellingLevel(i);
+		int creaturesTotal = town->creatures[i].size();
+		for (int j=0; j< std::min(dwellingLevel + 1, creaturesTotal); j++)
+			creatures[i].second.push_back(town->creatures[i][j]);
 	}
 
 	switch (subID)
@@ -2149,7 +2154,7 @@ void CGTownInstance::newTurn() const
 				if ((stacksCount() < GameConstants::ARMY_SIZE && rand()%100 < 25) || Slots().empty()) //add new stack
 				{
 					int i = rand() % std::min (GameConstants::ARMY_SIZE, cb->getDate(3)<<1);
-					TCreature c = town->basicCreatures[i];
+					TCreature c = town->creatures[i][0];
 					TSlot n = -1;
 
 					TQuantity count = creatureGrowth(i);
@@ -2233,7 +2238,7 @@ void CGTownInstance::removeCapitols (ui8 owner) const
 
 int CGTownInstance::getBoatType() const
 {
-	const CCreature *c = VLC->creh->creatures[town->basicCreatures.front()];
+	const CCreature *c = VLC->creh->creatures[town->creatures.front().front()];
 	if (c->isGood())
 		return 1;
 	else if (c->isEvil())
@@ -6844,9 +6849,9 @@ void CArmedInstance::randomizeArmy(int type)
 		if(randID > max)
 		{
 			if(randID % 2)
-				j->second->setType(VLC->townh->towns[type].basicCreatures[(randID-197) / 2 -1]);
+				j->second->setType(VLC->townh->towns[type].creatures[(randID-197) / 2 -1][0]);
 			else
-				j->second->setType(VLC->townh->towns[type].upgradedCreatures[(randID-197) / 2 -1]);
+				j->second->setType(VLC->townh->towns[type].creatures[(randID-197) / 2 -1][1]);
 
 			randID = -1;
 		}

@@ -89,12 +89,14 @@ void CBuildingHandler::loadBuildings()
 	{
 		temp = readTo(buf,it,'\n');//read blank line
 		temp = readTo(buf,it,'\n');// and faction name
-		for(int bg = 0; bg<14; bg++)
+		for(int bg = 0; ; bg++)
 		{
 			CBuilding *nb = readBg(buf,it);
 			nb->tid = i;
 			nb->bid = bg+30;
 			buildings[i][bg+30] = nb;
+			if (it >= buf.size() || buf[it] == '\t') //read till empty line
+				break;
 		}
 	}
 	/////done reading BUILDING.TXT*****************************
