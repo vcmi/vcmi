@@ -81,6 +81,14 @@ public:
 	}
 
 	/**
+	 * Copy Ctor. Required by clang (or this is standard?) if move constructor is present
+	 */
+	ResourceID(const ResourceID & other)
+	    : name(other.getName()), type(other.getType())
+	{
+	}
+
+	/**
 	 * Ctor. Can be used to create indentifier for resource loading using one parameter
 	 *
 	 * @param name The resource name including extension.

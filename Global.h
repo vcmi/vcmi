@@ -75,6 +75,7 @@
 #include <boost/range/algorithm.hpp>
 #include <boost/thread.hpp>
 #include <boost/unordered_set.hpp>
+#include <boost/unordered_map.hpp>
 #include <boost/variant.hpp>
 
 #ifdef ANDROID
