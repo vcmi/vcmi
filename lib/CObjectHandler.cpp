@@ -2933,7 +2933,7 @@ const std::string & CGCreature::getHoverText() const
 {
 	MetaString ms;
 	int pom = stacks.begin()->second->getQuantityID();
-	pom = 174 + 3*pom + 1;
+	pom = 172 + 3*pom;
 	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
 	ms.toString(hoverName);
 

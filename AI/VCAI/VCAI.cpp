@@ -417,6 +417,7 @@ ui64 evaluateDanger(const CGObjectInstance *obj)
 			return d->getArmyStrength();
 		}
 	case Obj::MINE:
+	case Obj::ABANDONED_MINE:
 		{
 			const CArmedInstance * a = dynamic_cast<const CArmedInstance*>(obj);
 			return a->getArmyStrength();
@@ -2140,18 +2141,23 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			}
 			case CQuest::MISSION_RESOURCES:
 			{
-				if (q.quest->checkQuest(NULL))
+				if (heroes.size())
 				{
-					 striveToGoal (CGoal(VISIT_TILE).settile(q.tile));
-				}
-				else
-				{
-					for (int i = 0; i < q.quest->m7resources.size(); ++i)
+					if (q.quest->checkQuest(heroes.front())) //it doesn't matter which hero it is
 					{
-						if (q.quest->m7resources[i])
-							striveToGoal (CGoal(COLLECT_RES).setresID(i).setvalue(q.quest->m7resources[i]));
+						 striveToGoal (CGoal(VISIT_TILE).settile(q.tile));
+					}
+					else
+					{
+						for (int i = 0; i < q.quest->m7resources.size(); ++i)
+						{
+							if (q.quest->m7resources[i])
+								striveToGoal (CGoal(COLLECT_RES).setresID(i).setvalue(q.quest->m7resources[i]));
+						}
 					}
 				}
+				else
+					striveToGoal (CGoal(RECRUIT_HERO)); //FIXME: checkQuest requires any hero belonging to player :(
 				break;
 			}
 			case CQuest::MISSION_KILL_HERO:
