@@ -106,9 +106,6 @@ void CSoundHandler::init()
 	if (initialized)
 	{
 		// Load sounds
-		sndh.add_file(std::string(GameConstants::DATA_DIR + "/Data/Heroes3.snd"));
-		sndh.add_file(std::string(GameConstants::DATA_DIR + "/Data/Heroes3-cd2.snd"), false);
-		sndh.add_file(std::string(GameConstants::DATA_DIR + "/Data/H3ab_ahd.snd"));
 		Mix_ChannelFinished(soundFinishedCallbackC);
 	}
 }
@@ -140,12 +137,9 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(soundBase::soundID soundID)
 		return NULL;
 
 	// Load and insert
-	int size;
-	const char *data = sndh.extract(it->second, size);
-	if (!data)
-		return NULL;
+	auto data = CResourceHandler::get()->loadData(ResourceID(std::string("SOUNDS/") + it->second, EResType::SOUND));
 
-	SDL_RWops *ops = SDL_RWFromConstMem(data, size);
+	SDL_RWops *ops = SDL_RWFromMem(data.first.release(), data.second);
 	Mix_Chunk *chunk;
 	chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
 

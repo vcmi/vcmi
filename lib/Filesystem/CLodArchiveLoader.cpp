@@ -124,7 +124,8 @@ void CLodArchiveLoader::initVIDArchive(CFileInputStream & fileStream)
 		else
 		{
 			VideoEntryBlock nextVidEntry = vidEntries[i + 1];
-			entry.size = SDL_SwapLE32(nextVidEntry.offset) - entry.offset;
+			entry.realSize = SDL_SwapLE32(nextVidEntry.offset) - entry.offset;
+			entry.size = 0;
 		}
 
 		entries[entry.name] = entry;
@@ -160,10 +161,15 @@ void CLodArchiveLoader::initSNDArchive(CFileInputStream & fileStream)
 		SoundEntryBlock sndEntry = sndEntries[i];
 		ArchiveEntry entry;
 
-		entry.name = sndEntry.filename;
-		entry.offset = SDL_SwapLE32(sndEntry.offset);
-		entry.size = SDL_SwapLE32(sndEntry.size);
+		//for some reason entries in snd have format NAME\0WAV\0\0\0....
+		//we need to replace first \0 with dot and trim line
+		entry.name = std::string(sndEntry.filename, 40);
+		entry.name[entry.name.find_first_of('\0')] = '.';
+		entry.name.resize(entry.name.find_first_of('\0'));
 
+		entry.offset = SDL_SwapLE32(sndEntry.offset);
+		entry.realSize = SDL_SwapLE32(sndEntry.size);
+		entry.size = 0;
 		entries[entry.name] = entry;
 	}
 

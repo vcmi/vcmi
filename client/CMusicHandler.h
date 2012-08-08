@@ -3,7 +3,6 @@
 #include "CConfigHandler.h"
 #include "CSoundBase.h"
 #include "../lib/CCreatureHandler.h"
-#include "CSndHandler.h"
 
 /*
  * CMusicHandler.h, part of VCMI engine
@@ -63,7 +62,6 @@ public:
 class CSoundHandler: public CAudioBase
 {
 private:
-	CSndHandler sndh;
 	soundBase::soundID getSoundID(const std::string &fileName);
 	//update volume on configuration change
 	SettingsListener listener;

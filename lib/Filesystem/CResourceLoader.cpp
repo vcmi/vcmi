@@ -374,7 +374,6 @@ void CResourceHandler::loadFileSystem(const std::string fsConfigURI)
 
 void CResourceHandler::loadModsFilesystems()
 {
-
 	auto iterator = initialLoader->getIterator([](const ResourceID & ident) ->  bool
 	{
 		std::string name = ident.getName();

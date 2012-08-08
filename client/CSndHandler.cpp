@@ -89,31 +89,6 @@ void CMediaHandler::extract(std::string srcfile, std::string dstfile, bool caseS
 	}
 }
 
-#if 0
-// unused and not sure what it's supposed to do
-MemberFile CMediaHandler::getFile(std::string name)
-{
-	MemberFile ret;
-	std::transform(name.begin(),name.end(),name.begin(),tolower);
-	for (size_t i=0;i<entries.size();++i)
-	{
-		if (entries[i].name==name)
-		{
-			std::string por = entries[i].name;
-			std::transform(por.begin(),por.end(),por.begin(),tolower);
-			if (por==name)
-			{
-				ret.length=entries[i].size;
-				file.seekg(entries[i].offset,std::ios_base::beg);
-				ret.ifs=&file;
-				return ret;
-			}
-		}
-	}
-	return ret;
-}
-#endif
-
 const char * CMediaHandler::extract (int index, int & size)
 {
 	Entry &entry = entries[index];
@@ -137,36 +112,6 @@ const char * CMediaHandler::extract (std::string srcName, int &size)
 	}
 	size = 0;
 	return NULL;
-}
-
-void CSndHandler::add_file(std::string fname, bool important /*= true*/)
-{
-	boost::iostreams::mapped_file_source *mfile = NULL;
-	try
-	{
-		mfile = CMediaHandler::add_file(fname, important);
-	}
-	catch(...)
-	{
-		return;
-	}
-
-	const char *data = mfile->data();
-	ui32 numFiles = SDL_SwapLE32(*(Uint32 *)&data[0]);
-	struct soundEntry *se = (struct soundEntry *)&data[4];
-
-	for (ui32 i=0; i<numFiles; i++, se++)
-	{
-		Entry entry;
-
-		entry.name = se->filename;
-		entry.offset = SDL_SwapLE32(se->offset);
-		entry.size = SDL_SwapLE32(se->size);
-		entry.data = mfile->data() + entry.offset;
-
-		entries.push_back(entry);
-		fimap[entry.name] = i;
-	}
 }
 
 void CVidHandler::add_file(std::string fname)
