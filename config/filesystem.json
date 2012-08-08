@@ -42,7 +42,8 @@
 		],
 		"CONFIG/":
 		[
-			{"type" : "dir",  "path" : "ALL/Config", "writeable": true}
+			{"type" : "dir",  "path" : "GLOBAL/Config",} // separate to avoid overwriting global resources
+			{"type" : "dir",  "path" : "LOCAL/Config", "writeable": true}
 		],
 		"MAPS/":
 		[

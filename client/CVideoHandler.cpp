@@ -622,11 +622,11 @@ static si64 lod_seek(URLContext *context, si64 pos, int whence)
 {
 	CVideoPlayer *video = (CVideoPlayer *)context->priv_data;
 
-	// Not sure what the parameter whence is. Assuming it always
-	// indicates an absolute value;
+	if (whence & AVSEEK_SIZE)
+		return video->length;
+
 	video->offset = pos;
 	vstd::amin(video->offset, video->length);
-
 	return -1;//video->offset;
 }
 

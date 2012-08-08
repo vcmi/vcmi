@@ -72,7 +72,10 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 
 	savedConf.Struct().erase("session");
 	savedConf.minimize(schema);
-	std::ofstream file((GVCMIDirs.UserPath + "/config/settings.json").c_str(), std::ofstream::trunc | std::ofstream::out);
+
+	CResourceHandler::get()->createResource("CONFIG/settings.json");
+
+	std::ofstream file(CResourceHandler::get()->getResourceName(ResourceID("config/settings.json")), std::ofstream::trunc);
 	file << savedConf;
 }
 
