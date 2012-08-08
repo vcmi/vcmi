@@ -72,7 +72,7 @@ public:
 	 *
 	 * @return a list of all entries in the archive.
 	 */
-	std::unordered_map<ResourceID, std::string> getEntries() const;
+	boost::unordered_map<ResourceID, std::string> getEntries() const;
 
 	/**
 	 * Gets the archive entry for the requested resource
@@ -122,5 +122,5 @@ private:
 	std::string archive;
 
 	/** Holds all entries of the archive file. An entry can be accessed via the entry name. **/
-	std::unordered_map<std::string, ArchiveEntry> entries;
+	boost::unordered_map<std::string, ArchiveEntry> entries;
 };

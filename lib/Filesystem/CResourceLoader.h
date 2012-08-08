@@ -72,11 +72,20 @@ public:
 	ResourceID();
 
 	/**
+	 * Move Ctor.
+	 */
+	ResourceID(ResourceID && other)
+		: name(std::move(other.name)), type(other.getType())
+	{
+
+	}
+
+	/**
 	 * Ctor. Can be used to create indentifier for resource loading using one parameter
 	 *
 	 * @param name The resource name including extension.
 	 */
-	explicit ResourceID(const std::string & fullName);
+	explicit ResourceID(std::string fullName);
 
 	/**
 	 * Ctor.
@@ -84,7 +93,7 @@ public:
 	 * @param name The resource name.
 	 * @param type The resource type. A constant from the enumeration EResType.
 	 */
-	ResourceID(const std::string & name, EResType::Type type);
+	ResourceID(std::string name, EResType::Type type);
 
 	/**
 	 * Compares this object with a another resource identifier.
@@ -95,6 +104,16 @@ public:
 	inline bool operator==(ResourceID const & other) const
 	{
 		return name == other.name && type == other.type;
+	}
+
+	/*
+	 * Move-assignment operator.
+	 */
+	inline ResourceID& operator=(ResourceID && other)
+	{
+		name = std::move(other.name);
+		type = other.getType();
+		return *this;
 	}
 
 	/**
@@ -116,7 +135,7 @@ public:
 	 *
 	 * @param name the name of the identifier. No extension, will be converted to uppercase.
 	 */
-	void setName(const std::string & name);
+	void setName(std::string name);
 
 	/**
 	 * Sets the type of the identifier.
@@ -147,27 +166,40 @@ private:
 	EResType::Type type;
 };
 
-namespace std
+/**
+ 	* Generates a hash value for the resource identifier object.
+ 	*
+ 	* @param resourceIdent The object from which a hash value should be generated.
+ 	* @return the generated hash value
+ 	*/
+inline size_t hash_value(const ResourceID & resourceIdent)
 {
-	/**
-	 * Template specialization for std::hash.
-	 */
-	template <>
-	class hash<ResourceID>
-	{
-public:
-		/**
-		 * Generates a hash value for the resource identifier object.
-		 *
-		 * @param resourceIdent The object from which a hash value should be generated.
-		 * @return the generated hash value
-		 */
-		size_t operator()(const ResourceID & resourceIdent) const
-		{
-			return hash<string>()(resourceIdent.getName()) ^ hash<int>()(static_cast<int>(resourceIdent.getType()));
-		}
-	};
-};
+	boost::hash<int> intHasher;
+	boost::hash<std::string> stringHasher;
+	return stringHasher(resourceIdent.getName()) ^ intHasher(static_cast<int>(resourceIdent.getType()));
+}
+
+// namespace std
+// {
+// 	/**
+// 	 * Template specialization for std::hash.
+// 	 */
+// 	template <>
+// 	class hash<ResourceID>
+// 	{
+// public:
+// 		/**
+// 		 * Generates a hash value for the resource identifier object.
+// 		 *
+// 		 * @param resourceIdent The object from which a hash value should be generated.
+// 		 * @return the generated hash value
+// 		 */
+// 		size_t operator()(const ResourceID & resourceIdent) const
+// 		{
+// 			return hash<string>()(resourceIdent.getName()) ^ hash<int>()(static_cast<int>(resourceIdent.getType()));
+// 		}
+// 	};
+// };
 
 /**
  * This class manages the loading of resources whether standard
@@ -175,7 +207,7 @@ public:
  */
 class DLL_LINKAGE CResourceLoader
 {
-	typedef std::unordered_map<ResourceID, std::list<ResourceLocator> > ResourcesMap;
+	typedef boost::unordered_map<ResourceID, std::vector<ResourceLocator> > ResourcesMap;
 
 public:
 	/// class for iterating over all available files/Identifiers
@@ -259,7 +291,7 @@ public:
 	ResourceLocator getResource(const ResourceID & resourceIdent) const;
 
 	/// returns ALL overriden resources with same name, including last one acessible via getResource
-	const std::list<ResourceLocator> & getResourcesWithName(const ResourceID & resourceIdent) const;
+	const std::vector<ResourceLocator> & getResourcesWithName(const ResourceID & resourceIdent) const;
 
 	/// returns real name of file in filesystem. Not usable for archives
 	std::string getResourceName(const ResourceID & resourceIdent) const;
@@ -309,7 +341,7 @@ public:
 	 */
 	void addLoader(std::string mountPoint, shared_ptr<ISimpleResourceLoader> loader, bool writeable);
 
-private:
+	public:
 
 	/**
 	 * Contains lists of same resources which can be accessed uniquely by an

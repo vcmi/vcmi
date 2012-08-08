@@ -53,7 +53,7 @@ public:
 	 *
 	 * @return a list of all entries in the filesystem.
 	 */
-	std::unordered_map<ResourceID, std::string> getEntries() const;
+	boost::unordered_map<ResourceID, std::string> getEntries() const;
 
 	/**
 	 * Gets the origin of the archive loader.
@@ -72,7 +72,7 @@ private:
 	 * key = ResourceID for resource loader
 	 * value = name that can be used to access file
 	*/
-	std::unordered_map<ResourceID, std::string> fileList;
+	boost::unordered_map<ResourceID, std::string> fileList;
 
 	/**
 	 * Returns a list of pathnames denoting the files in the directory denoted by this pathname.
@@ -83,5 +83,5 @@ private:
 	 * @return a list of pathnames denoting the files and directories in the directory denoted by this pathname
 	 * The array will be empty if the directory is empty. Ptr is null if the directory doesn't exist or if it isn't a directory.
 	 */
-	std::unordered_map<ResourceID, std::string> listFiles(size_t depth, bool initial) const;
+	boost::unordered_map<ResourceID, std::string> listFiles(size_t depth, bool initial) const;
 };

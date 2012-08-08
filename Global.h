@@ -29,15 +29,21 @@
 #include "tchar_amigaos4.h"
 #endif
 
-#include <cmath>
+#include <algorithm>
+#include <array>
 #include <cassert>
-#include <assert.h>
-#include <vector>
-#include <string>
+#include <climits>
+#include <cmath>
+#include <cstdlib>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
 #include <map>
-#include <unordered_map>
+#include <memory>
+#include <numeric>
 #include <queue>
 #include <set>
+#include <sstream>
 #include <utility>
 #include <numeric>
 

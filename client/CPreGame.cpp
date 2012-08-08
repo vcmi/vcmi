@@ -1049,16 +1049,19 @@ void SelectionTab::parseMaps(const std::vector<ResourceID> &files, int start, in
 
 	while(start < allItems.size())
 	{
-		CCompressedStream stream(std::move(CResourceHandler::get()->load(files[start])), true);
-		int read = stream.read(mapBuffer, 1500);
+		try
+		{
+			CCompressedStream stream(std::move(CResourceHandler::get()->load(files[start])), true);
+			int read = stream.read(mapBuffer, 1500);
 
-		if(read < 50  ||  !mapBuffer[4])
-		{
-			tlog3 << "\t\tWarning: corrupted map file: " << files[start].getName() << std::endl;
-		}
-		else //valid map
-		{
+			if(read < 50  ||  !mapBuffer[4])
+				throw std::runtime_error("corrupted map file");
+
 			allItems[start].mapInit(files[start].getName(), mapBuffer);
+		}
+		catch(std::exception &e)
+		{
+			tlog3 << "\t\tWarning: failed to load map " << files[start].getName() << ": " << e.what() << std::endl;
 		}
 		start += threads;
 	}

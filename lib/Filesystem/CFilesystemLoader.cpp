@@ -29,7 +29,7 @@ bool CFilesystemLoader::existsEntry(const std::string & resourceName) const
 	return false;
 }
 
-std::unordered_map<ResourceID, std::string> CFilesystemLoader::getEntries() const
+boost::unordered_map<ResourceID, std::string> CFilesystemLoader::getEntries() const
 {
 	return fileList;
 }
@@ -54,11 +54,10 @@ bool CFilesystemLoader::createEntry(std::string filename)
 }
 
 
-std::unordered_map<ResourceID, std::string> CFilesystemLoader::listFiles(size_t depth, bool initial) const
+boost::unordered_map<ResourceID, std::string> CFilesystemLoader::listFiles(size_t depth, bool initial) const
 {
-
 	assert(boost::filesystem::is_directory(baseDirectory));
-	std::unordered_map<ResourceID, std::string> fileList;
+	boost::unordered_map<ResourceID, std::string> fileList;
 
 	std::vector<std::string> path;//vector holding relative path to our file
 

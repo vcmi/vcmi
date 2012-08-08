@@ -29,7 +29,7 @@ public:
 	 *
 	 * @param name The path and name of the file.
 	 */
-	explicit CFileInfo(const std::string & name);
+	explicit CFileInfo(std::string name);
 
 	/**
 	 * Checks if the file exists.

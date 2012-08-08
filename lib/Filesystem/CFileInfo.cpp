@@ -6,8 +6,8 @@ CFileInfo::CFileInfo() : name("")
 
 }
 
-CFileInfo::CFileInfo(const std::string & name)
-	: name(name)
+CFileInfo::CFileInfo(std::string name)
+	: name(std::move(name))
 {
 
 }

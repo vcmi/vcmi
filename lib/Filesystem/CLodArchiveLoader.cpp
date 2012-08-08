@@ -19,6 +19,10 @@ CLodArchiveLoader::CLodArchiveLoader(const std::string & archive)
 	this->archive = archive;
 	CFileInputStream fileStream(archive);
 
+	// Fake .lod file with no data has to be silently ignored.
+	if(fileStream.getSize() < 10)
+		return;
+
 	// Retrieve file extension of archive in uppercase
 	CFileInfo fileInfo(archive);
 	std::string ext = fileInfo.getExtension();
@@ -57,6 +61,7 @@ void CLodArchiveLoader::initLODArchive(CFileInputStream & fileStream)
 
 	// Read count of total files
 	CBinaryReader reader(fileStream);
+
 	fileStream.seek(8);
 	ui32 totalFiles = reader.readUInt32();
 
@@ -184,9 +189,9 @@ std::unique_ptr<CInputStream> CLodArchiveLoader::load(const std::string & resour
 	}
 }
 
-std::unordered_map<ResourceID, std::string> CLodArchiveLoader::getEntries() const
+boost::unordered_map<ResourceID, std::string> CLodArchiveLoader::getEntries() const
 {
-	std::unordered_map<ResourceID, std::string> retList;
+	boost::unordered_map<ResourceID, std::string> retList;
 
 	for(auto it = entries.begin(); it != entries.end(); ++it)
 	{
@@ -194,7 +199,7 @@ std::unordered_map<ResourceID, std::string> CLodArchiveLoader::getEntries() cons
 		retList[ResourceID(entry.name)] = entry.name;
 	}
 
-	return std::move(retList);
+	return retList;
 }
 
 const ArchiveEntry * CLodArchiveLoader::getArchiveEntry(const std::string & resourceName) const

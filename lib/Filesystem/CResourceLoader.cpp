@@ -8,6 +8,7 @@
 #include "../JsonNode.h"
 #include "../GameConstants.h"
 #include "../VCMIDirs.h"
+#include "../CStopWatch.h"
 
 CResourceLoader * CResourceHandler::resourceLoader = nullptr;
 CResourceLoader * CResourceHandler::initialLoader = nullptr;
@@ -17,16 +18,16 @@ ResourceID::ResourceID()
 {
 }
 
-ResourceID::ResourceID(const std::string & name)
+ResourceID::ResourceID(std::string name)
 {
-	CFileInfo info(name);
+	CFileInfo info(std::move(name));
 	setName(info.getStem());
 	setType(info.getType());
 }
 
-ResourceID::ResourceID(const std::string & name, EResType::Type type)
+ResourceID::ResourceID(std::string name, EResType::Type type)
 {
-	setName(name);
+	setName(std::move(name));
 	setType(type);
 }
 
@@ -53,9 +54,9 @@ EResType::Type ResourceID::getType() const
 	return type;
 }
 
-void ResourceID::setName(const std::string & name)
+void ResourceID::setName(std::string name)
 {
-	this->name = name;
+	this->name = std::move(name);
 
 	size_t dotPos = this->name.find_last_of("/.");
 
@@ -111,9 +112,9 @@ ResourceLocator CResourceLoader::getResource(const ResourceID & resourceIdent) c
 	return resource->second.back();
 }
 
-const std::list<ResourceLocator> & CResourceLoader::getResourcesWithName(const ResourceID & resourceIdent) const
+const std::vector<ResourceLocator> & CResourceLoader::getResourcesWithName(const ResourceID & resourceIdent) const
 {
-	static const std::list<ResourceLocator> emptyList;
+	static const std::vector<ResourceLocator> emptyList;
 	auto resource = resources.find(resourceIdent);
 
 	if (resource == resources.end())
@@ -163,7 +164,7 @@ void CResourceLoader::addLoader(std::string mountPoint, shared_ptr<ISimpleResour
 	loaders.push_back(loaderEntry);
 
 	// Get entries and add them to the resources list
-	const std::unordered_map<ResourceID, std::string> & entries = loader->getEntries();
+	const boost::unordered_map<ResourceID, std::string> & entries = loader->getEntries();
 
 	boost::to_upper(mountPoint);
 
@@ -337,7 +338,8 @@ void CResourceHandler::loadFileSystem(const std::string fsConfigURI)
 	{
 		BOOST_FOREACH(auto & entry, mountPoint.second.Vector())
 		{
-			tlog5 << "loading resource at " << entry["path"].String() << "\n";
+			CStopWatch timer;
+			tlog5 << "\t\tLoading resource at " << entry["path"].String();
 
 			std::string URI = entry["path"].String();
 			if (entry["type"].String() == "dir")
@@ -364,6 +366,8 @@ void CResourceHandler::loadFileSystem(const std::string fsConfigURI)
 					resourceLoader->addLoader(mountPoint.first,
 					    shared_ptr<ISimpleResourceLoader>(new CLodArchiveLoader(filename)), false);
 			}
+
+			tlog5 << " took " << timer.getDiff() << " ms.\n";
 		}
 	}
 }
