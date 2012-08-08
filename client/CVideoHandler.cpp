@@ -6,6 +6,7 @@
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/SDL_Extensions.h"
 #include "CPlayerInterface.h"
+#include "../lib/Filesystem/CResourceLoader.h"
 
 extern CGuiHandler GH; //global gui handler
 
@@ -662,9 +663,6 @@ CVideoPlayer::CVideoPlayer()
 #else
 	av_register_protocol(&lod_protocol);
 #endif
-
-	vidh.add_file(GameConstants::DATA_DIR + "/Data/VIDEO.VID");
-	vidh.add_file(GameConstants::DATA_DIR + "/Data/H3ab_ahd.vid");
 }
 
 bool CVideoPlayer::open(std::string fname)
@@ -684,18 +682,19 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	refreshCount = -1;
 	doLoop = loop;
 
-	data = vidh.extract(fname, length);
+	auto extracted = CResourceHandler::get()->loadData(ResourceID(std::string("Video/") + fname, EResType::VIDEO));
+	data = (char *)extracted.first.release();
+	length = extracted.second;
+
+	if (!data)
+		return false;
 
 	std::string filePath;
-	if (data)
-	{
-		filePath.resize(100);
-		// Create our URL name with the 'lod' protocol as a prefix and a
-		// back pointer to our object. Should be 32 and 64 bits compatible.
-		sprintf(&filePath[0], "%s:0x%016llx", protocol_name, (unsigned long long)(uintptr_t)this);
-	}
-	else
-		filePath = GameConstants::DATA_DIR + "/Data/video/" + fname;
+	filePath.resize(100);
+	// Create our URL name with the 'lod' protocol as a prefix and a
+	// back pointer to our object. Should be 32 and 64 bits compatible.
+	sprintf(&filePath[0], "%s:0x%016llx", protocol_name, (unsigned long long)(uintptr_t)this);
+
 
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 0, 0)
 	int avfopen = av_open_input_file(&format, filePath.c_str(), NULL, 0, NULL);

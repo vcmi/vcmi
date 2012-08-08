@@ -256,8 +256,6 @@ private:
 	SDL_Rect destRect;			// valid when dest is used
 	SDL_Rect pos;				// destination on screen
 
-	CVidHandler vidh;
-
 	int refreshWait; // Wait several refresh before updating the image
 	int refreshCount;
 	bool doLoop;				// loop through video
