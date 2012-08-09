@@ -187,7 +187,6 @@ class CVidHandler;
 class CVideoPlayer : public IMainVideoPlayer
 {
 private:
-	CVidHandler vidh; //.vid file handling
 
 	CSmackPlayer smkPlayer; //for .SMK
 	CBIKHandler bikPlayer; //for .BIK
