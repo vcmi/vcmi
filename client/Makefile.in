@@ -86,7 +86,7 @@ am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-Client.$(OBJEXT) vcmiclient-CMessage.$(OBJEXT) \
 	vcmiclient-CMT.$(OBJEXT) vcmiclient-CMusicHandler.$(OBJEXT) \
 	vcmiclient-CPlayerInterface.$(OBJEXT) \
-	vcmiclient-CPreGame.$(OBJEXT) vcmiclient-CSndHandler.$(OBJEXT) \
+	vcmiclient-CPreGame.$(OBJEXT) \
 	vcmiclient-CSpellWindow.$(OBJEXT) \
 	vcmiclient-CVideoHandler.$(OBJEXT) \
 	vcmiclient-CQuestLog.$(OBJEXT) vcmiclient-Graphics.$(OBJEXT) \
@@ -380,8 +380,6 @@ vcmiclient_SOURCES = \
 	CPlayerInterface.h \
 	CPreGame.cpp \
 	CPreGame.h \
-	CSndHandler.cpp \
-	CSndHandler.h \
 	CSoundBase.h \
 	CSpellWindow.cpp \
 	CSpellWindow.h \
@@ -513,7 +511,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CPlayerInterface.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CPreGame.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CQuestLog.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CSndHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CSpellWindow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CVideoHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-Client.Po@am__quote@
@@ -936,20 +933,6 @@ vcmiclient-CPreGame.obj: CPreGame.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CPreGame.cpp' object='vcmiclient-CPreGame.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CPreGame.obj `if test -f 'CPreGame.cpp'; then $(CYGPATH_W) 'CPreGame.cpp'; else $(CYGPATH_W) '$(srcdir)/CPreGame.cpp'; fi`
-
-vcmiclient-CSndHandler.o: CSndHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CSndHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CSndHandler.Tpo -c -o vcmiclient-CSndHandler.o `test -f 'CSndHandler.cpp' || echo '$(srcdir)/'`CSndHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CSndHandler.Tpo $(DEPDIR)/vcmiclient-CSndHandler.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CSndHandler.cpp' object='vcmiclient-CSndHandler.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CSndHandler.o `test -f 'CSndHandler.cpp' || echo '$(srcdir)/'`CSndHandler.cpp
-
-vcmiclient-CSndHandler.obj: CSndHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CSndHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CSndHandler.Tpo -c -o vcmiclient-CSndHandler.obj `if test -f 'CSndHandler.cpp'; then $(CYGPATH_W) 'CSndHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CSndHandler.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CSndHandler.Tpo $(DEPDIR)/vcmiclient-CSndHandler.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CSndHandler.cpp' object='vcmiclient-CSndHandler.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CSndHandler.obj `if test -f 'CSndHandler.cpp'; then $(CYGPATH_W) 'CSndHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CSndHandler.cpp'; fi`
 
 vcmiclient-CSpellWindow.o: CSpellWindow.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CSpellWindow.o -MD -MP -MF $(DEPDIR)/vcmiclient-CSpellWindow.Tpo -c -o vcmiclient-CSpellWindow.o `test -f 'CSpellWindow.cpp' || echo '$(srcdir)/'`CSpellWindow.cpp

@@ -22,13 +22,14 @@ public:
 	TResources resources;
 	std::string name;
 	std::string description;
+	std::set<int> requirements; //set of required buildings
 
 	const std::string &Name() const;
 	const std::string &Description() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tid & bid & resources & name & description;
+		h & tid & bid & resources & name & description & requirements;
 	}
 	CBuilding(int TID = -1, int BID = -1);
 };

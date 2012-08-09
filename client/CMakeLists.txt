@@ -34,7 +34,6 @@ set(client_SRCS
         CMusicHandler.cpp
         CPlayerInterface.cpp
         CPreGame.cpp
-        CSndHandler.cpp
         CSpellWindow.cpp
         CVideoHandler.cpp
         CQuestLog.cpp

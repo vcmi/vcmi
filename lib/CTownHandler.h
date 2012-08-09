@@ -64,7 +64,6 @@ class DLL_LINKAGE CTownHandler
 public:
 	std::vector<CTown> towns;
 	std::vector<std::map<int, Structure*> > structures; // <town ID, <structure ID, structure>>
-	std::vector<std::map<int,std::set<int> > > requirements; //requirements[town_id][structure_id] -> set of required buildings
 
 	CTownHandler(); //c-tor
 	~CTownHandler(); //d-tor
@@ -72,7 +71,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & towns & requirements;
+		h & towns;
 		if(!h.saving)
 			loadStructures();
 	}

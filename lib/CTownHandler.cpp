@@ -110,16 +110,6 @@ void CTownHandler::loadStructures()
 			level ++;
 		}
 
-		// Buildings dependencies. Which building depend on which other building.
-		requirements.resize(GameConstants::F_NUMBER);
-		BOOST_FOREACH(const JsonNode &node, town_node["building_requirements"].Vector()) {
-			std::set<int> &requires = requirements[townID][node["id"].Float()];
-
-			BOOST_FOREACH(const JsonNode &building, node["requires"].Vector()) {
-				requires.insert(building.Float());
-			}
-		}
-
 		// Misc.
 		towns[townID].mageLevel = town_node["mage_guild"].Float();
 		towns[townID].primaryRes  = town_node["primary_resource"].Float();

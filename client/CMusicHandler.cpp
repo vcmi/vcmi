@@ -2,7 +2,6 @@
 #include <boost/bimap.hpp>
 #include <SDL_mixer.h>
 
-#include "CSndHandler.h"
 #include "CMusicHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/CSpellHandler.h"

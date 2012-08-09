@@ -75,8 +75,6 @@ vcmiclient_SOURCES =  \
 	CPlayerInterface.h \
 	CPreGame.cpp \
 	CPreGame.h \
-	CSndHandler.cpp \
-	CSndHandler.h \
 	CSoundBase.h \
 	CSpellWindow.cpp \
 	CSpellWindow.h \

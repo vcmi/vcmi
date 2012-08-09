@@ -124,8 +124,29 @@ void CBuildingHandler::loadBuildings()
 			}
 			row_num ++;
 		}
-
 		assert (row_num == 5);
+	}
+
+	// Buildings dependencies. Which building depend on which other building.
+	const JsonNode buildingsConf(ResourceID("config/buildings.json"));
+
+	// Iterate for each city type
+	int townID = 0;
+	BOOST_FOREACH(const JsonNode &town_node, buildingsConf["town_type"].Vector())
+	{
+		BOOST_FOREACH(const JsonNode &node, town_node["building_requirements"].Vector())
+		{
+			int id = node["id"].Float();
+			CBuilding * build = buildings[townID][id];
+			if (build)
+			{
+				BOOST_FOREACH(const JsonNode &building, node["requires"].Vector())
+				{
+					build->requirements.insert(building.Float());
+				}
+			}
+		}
+		townID++;
 	}
 }
 

@@ -1,6 +1,5 @@
 #include "StdInc.h"
 #include <SDL.h>
-#include "CSndHandler.h"
 #include "CVideoHandler.h"
 
 #include "UIFramework/CGuiHandler.h"

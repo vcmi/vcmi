@@ -1014,7 +1014,7 @@ std::set<int> CGameInfoCallback::getBuildingRequiments( const CGTownInstance *t,
 
 	std::set<int> used;
 	used.insert(ID);
-	std::set<int> reqs = VLC->townh->requirements[t->subID][ID];
+	std::set<int> reqs = VLC->buildh->buildings[t->subID][ID]->requirements;
 
 	while(true)
 	{
@@ -1025,8 +1025,8 @@ std::set<int> CGameInfoCallback::getBuildingRequiments( const CGTownInstance *t,
 			{
 				used.insert(*i);
 				for(
-					std::set<int>::iterator j=VLC->townh->requirements[t->subID][*i].begin();
-					j!=VLC->townh->requirements[t->subID][*i].end();
+					std::set<int>::iterator j=VLC->buildh->buildings[t->subID][*i]->requirements.begin();
+					j!= VLC->buildh->buildings[t->subID][*i]->requirements.end();
 				j++)
 				{
 					reqs.insert(*j);//creating full list of requirements

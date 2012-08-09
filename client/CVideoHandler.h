@@ -1,8 +1,5 @@
 #pragma once
 
-
-#include "CSndHandler.h"
-
 struct SDL_Surface;
 
 
@@ -227,7 +224,6 @@ public:
 
 #else
 
-#include "CSndHandler.h"
 #include <SDL.h>
 #include <SDL_video.h>
 #if SDL_VERSION_ATLEAST(1,3,0)
