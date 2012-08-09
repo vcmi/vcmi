@@ -134,24 +134,24 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(soundBase::soundID soundID)
 	boost::bimap<soundBase::soundID, std::string>::left_iterator it;
 	it = sounds.left.find(soundID);
 	if (it == sounds.left.end())
-		return NULL;
+		return nullptr;
 
 	// Load and insert
-	auto data = CResourceHandler::get()->loadData(ResourceID(std::string("SOUNDS/") + it->second, EResType::SOUND));
-
-	SDL_RWops *ops = SDL_RWFromMem(data.first.release(), data.second);
-	Mix_Chunk *chunk;
-	chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
-
-	if (!chunk)
+	try
 	{
-		tlog1 << "Unable to mix sound" << it->second << "(" << Mix_GetError() << ")" << std::endl;
-		return NULL;
+		auto data = CResourceHandler::get()->loadData(ResourceID(std::string("SOUNDS/") + it->second, EResType::SOUND));
+
+		SDL_RWops *ops = SDL_RWFromMem(data.first.release(), data.second);
+		Mix_Chunk *chunk;
+		chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
+		soundChunks.insert(std::pair<soundBase::soundID, Mix_Chunk *>(soundID, chunk));
+		return chunk;
 	}
-
-	soundChunks.insert(std::pair<soundBase::soundID, Mix_Chunk *>(soundID, chunk));
-
-	return chunk;
+	catch(std::exception &e)
+	{
+		tlog3 << "Cannot get sound " << soundID << " chunk: " << e.what() << "\n";
+		return nullptr;
+	}
 }
 
 // Get a soundID given a filename

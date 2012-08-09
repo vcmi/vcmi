@@ -43,7 +43,7 @@ void checkForError(bool throwing = true)
 	LocalFree( pTemp );
 	pTemp = NULL;
 	if(throwing)
-		throw msg;
+		throw std::runtime_error(msg);
 }
 
 void blitBuffer(char *buffer, int x, int y, int w, int h, SDL_Surface *dst)
@@ -161,8 +161,8 @@ bool CBIKHandler::open(std::string name)
 checkErrorAndClean:
 	CloseHandle(hBinkFile);
 	hBinkFile = NULL;
-	checkForError(false);
-	return false;
+	checkForError();
+	throw std::runtime_error("BIK failed opening video!");
 }
 
 void CBIKHandler::show( int x, int y, SDL_Surface *dst, bool update )
@@ -302,8 +302,8 @@ bool CSmackPlayer::open( std::string name )
 	if (!data) 
 	{
 		tlog1 << "Smack cannot open " << name << std::endl;
-		checkForError(false);
-		return false;
+		checkForError();
+		throw std::runtime_error("SMACK failed opening video");
 	}
 
 	buffer = new char[data->width*data->height*2];
@@ -395,9 +395,6 @@ void CSmackPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 
 CVideoPlayer::CVideoPlayer()
 {
-	vidh.add_file(std::string(GameConstants::DATA_DIR + "/Data/VIDEO.VID"));
-	vidh.add_file(std::string(GameConstants::DATA_DIR + "/Data/H3ab_ahd.vid"));
-
 	current = NULL;
 }
 
@@ -415,24 +412,31 @@ bool CVideoPlayer::open(std::string name)
 	fname = name;
 	first = true;
 
-	//extract video from video.vid so we can play it
-	bool opened = false;
-	vidh.extract(name, name);
-	if (boost::filesystem::exists(name))
-		opened = current->open(name);
-	else // couldn't load video then load from ab resource file
+	try
 	{
-		vidh.extract(name, name);
-		if (boost::filesystem::exists(name))
-			opened = current->open(name);
+		// Extract video from video.vid so we can play it.
+		// We can handle only videos in form of single file, no archive support yet.
+		{
+			auto myVideo = CResourceHandler::get()->load(ResourceID("VIDEO/" + name, EResType::VIDEO));
+
+			unique_ptr<char[]> data = unique_ptr<char[]>(new char[myVideo->getSize()]);
+			myVideo->read((ui8*)data.get(), myVideo->getSize());
+
+			std::ofstream out(name, std::ofstream::binary);
+			out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
+			out.write(data.get(), myVideo->getSize());
+		}
+		
+		current->open(name);
+		return true;
 	}
-	if(!opened) // check if video could be loaded
+	catch(std::exception &e)
 	{
-		current = NULL;
-		tlog3 << "Failed to open video file " << name << std::endl;
+		current = nullptr;
+		tlog3 << "Failed to open video file " << name << ": " << e.what() << std::endl;
 	}
 
-	return opened;
+	return false;
 }
 
 void CVideoPlayer::close()
