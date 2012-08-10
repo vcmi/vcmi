@@ -9,6 +9,7 @@
 #include "CPlayerInterface.h"
 #include "../lib/StartInfo.h"
 #include "../lib/BattleState.h"
+#include "../lib/CModHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CDefObjInfoHandler.h"
 #include "../lib/CGeneralTextHandler.h"

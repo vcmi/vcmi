@@ -12,6 +12,7 @@
 #include "CHeroHandler.h"
 #include "CObjectHandler.h"
 #include "CCreatureHandler.h"
+#include "CModHandler.h"
 #include "VCMI_Lib.h"
 #include "Connection.h"
 #include "map.h"

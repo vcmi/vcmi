@@ -13,6 +13,7 @@
  *
  */
 
+class CModHandler;
 class CMapHandler;
 class CArtHandler;
 class CHeroHandler;
@@ -51,6 +52,7 @@ class CGameInfo
 {
 	ConstTransitivePtr<CGameState> state; //don't touch it in client's code
 public:
+	ConstTransitivePtr<CModHandler> modh; //public?
 	ConstTransitivePtr<CArtHandler> arth;
 	ConstTransitivePtr<CHeroHandler> heroh;
 	ConstTransitivePtr<CCreatureHandler> creh;

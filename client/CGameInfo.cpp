@@ -23,6 +23,7 @@ CGameInfo::CGameInfo()
 
 void CGameInfo::setFromLib()
 {
+	modh = VLC->modh;
 	generaltexth = VLC->generaltexth;
 	arth = VLC->arth;
 	creh = VLC->creh;

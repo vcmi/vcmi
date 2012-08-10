@@ -11,6 +11,7 @@
 #include "BattleState.h"
 #include "CGameState.h"
 #include "map.h"
+#include "CModHandler.h"
 #include "CObjectHandler.h"
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"

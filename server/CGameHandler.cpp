@@ -5,6 +5,7 @@
 #include "../lib/int3.h"
 #include "../lib/CCampaignHandler.h"
 #include "../lib/StartInfo.h"
+#include "../lib/CModHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CDefObjInfoHandler.h"

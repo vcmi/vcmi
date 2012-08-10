@@ -4,6 +4,7 @@
 #include "../lib/CCampaignHandler.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/Connection.h"
+#include "../lib/CModHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CDefObjInfoHandler.h"
 #include "../lib/CGeneralTextHandler.h"

@@ -23,7 +23,6 @@
     <ClCompile Include="CMusicHandler.cpp" />
     <ClCompile Include="CPlayerInterface.cpp" />
     <ClCompile Include="CPreGame.cpp" />
-    <ClCompile Include="CSndHandler.cpp" />
     <ClCompile Include="CSpellWindow.cpp" />
     <ClCompile Include="CVideoHandler.cpp" />
     <ClCompile Include="Graphics.cpp" />
@@ -63,11 +62,9 @@
     <ClInclude Include="Client.h" />
     <ClInclude Include="CMessage.h" />
     <ClInclude Include="..\hch\CObjectHandler.h" />
-    <ClInclude Include="CMusicBase.h" />
     <ClInclude Include="CMusicHandler.h" />
     <ClInclude Include="CPlayerInterface.h" />
     <ClInclude Include="CPreGame.h" />
-    <ClInclude Include="CSndHandler.h" />
     <ClInclude Include="CSoundBase.h" />
     <ClInclude Include="CSpellWindow.h" />
     <ClInclude Include="..\hch\CVideoHandler.h" />
@@ -97,7 +94,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\ChangeLog" />
     <None Include="vcmi.ico" />
   </ItemGroup>
 </Project>

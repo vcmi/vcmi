@@ -80,7 +80,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\AI\</OutDir>
+    <OutDir>..\..\..\AI</OutDir>
     <IncludePath>$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -90,7 +90,7 @@
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
-    <OutDir>$(SolutionDir)$(Configuration)\bin\AI\</OutDir>
+    <OutDir>..\..\..\RD\AI</OutDir>
     <IncludePath>$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -111,7 +111,7 @@
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)..;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../..;../../../libs;../../..;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)EmptyAI.dll</OutputFile>
     </Link>
   </ItemDefinitionGroup>
@@ -147,7 +147,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)..;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>G:\Programowanie\VCMI\RD;../../../libs;../../;E:\vcmi\rep - assembla\trunk;E:\C++\lua bin;E:\C++\boost_1_43_0\lib;E:\C++\SDL_mixer-1.2.7\lib;E:\C++\SDL_ttf-2.0.8\lib;E:\C++\zlib 1.2.3 binaries\lib;E:\C++\SDL-1.2.11\devlibs - visual\SDL-1.2.11\lib;F:\C++\SDL_Image 1.2.5\SDL_image-1.2.5\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)EmptyAI.dll</OutputFile>
     </Link>
   </ItemDefinitionGroup>

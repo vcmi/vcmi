@@ -11,6 +11,7 @@
 #include "CBuildingHandler.h"
 #include "CSpellHandler.h"
 #include "CGeneralTextHandler.h"
+#include "CModHandler.h"
 #include "IGameEventsReceiver.h"
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
@@ -179,6 +180,9 @@ void LibClasses::init()
 {
 	CStopWatch pomtime;
 
+	modh = new CModHandler; //TODO: all handlers should use mod handler to manage objects
+	tlog0<<"\tMod handler: "<<pomtime.getDiff()<<std::endl;
+
 	generaltexth = new CGeneralTextHandler;
 	generaltexth->load();
 	tlog0<<"\tGeneral text handler: "<<pomtime.getDiff()<<std::endl;
@@ -231,6 +235,7 @@ void LibClasses::clear()
 	delete dobjinfo;
 	delete buildh;
 	delete spellh;
+	delete modh;
 	makeNull();
 }
 
@@ -245,6 +250,7 @@ void LibClasses::makeNull()
 	dobjinfo = NULL;
 	buildh = NULL;
 	spellh = NULL;
+	modh = NULL;
 }
 
 LibClasses::LibClasses()
@@ -258,6 +264,7 @@ void LibClasses::callWhenDeserializing()
 	generaltexth = new CGeneralTextHandler;
 	generaltexth->load();
 	arth->loadArtifacts(true);
+	modh->loadConfigFromFile ("default"); //TODO: remember last saved config
 }
 
 LibClasses::~LibClasses()

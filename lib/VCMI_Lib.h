@@ -19,6 +19,7 @@ class CObjectHandler;
 class CDefObjInfoHandler;
 class CTownHandler;
 class CGeneralTextHandler;
+class CModHandler;
 
 /// Loads and constructs several handlers
 class DLL_LINKAGE LibClasses
@@ -34,6 +35,7 @@ public:
 	CDefObjInfoHandler * dobjinfo;
 	CTownHandler * townh;
 	CGeneralTextHandler * generaltexth;
+	CModHandler * modh;
 
 	LibClasses(); //c-tor, loads .lods and NULLs handlers
 	~LibClasses();
@@ -46,7 +48,7 @@ public:
 	void callWhenDeserializing(); //should be called only by serialize !!!
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroh & arth & creh & townh & objh & dobjinfo & buildh & spellh & IS_AI_ENABLED;;
+		h & heroh & arth & creh & townh & objh & dobjinfo & buildh & spellh & modh & IS_AI_ENABLED;;
 		if(!h.saving)
 		{
 			callWhenDeserializing();

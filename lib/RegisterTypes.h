@@ -8,6 +8,7 @@
 #include "CGameState.h"
 #include "CHeroHandler.h"
 #include "CTownHandler.h"
+//#include "CModHandler.h" //needed?
 
 /*
  * RegisterTypes.h, part of VCMI engine
@@ -82,6 +83,9 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CreatureAlignmentLimiter>();
 	s.template registerType<RankRangeLimiter>();
 	s.template registerType<StackOwnerLimiter>();
+
+	s.template registerType<CModInfo>();
+	s.template registerType<CModIdentifier>();
 
 	s.template registerType<CBonusSystemNode>();
 	s.template registerType<CArtifact>();
