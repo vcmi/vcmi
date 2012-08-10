@@ -29,6 +29,7 @@ set(lib_SRCS
         CHeroHandler.cpp
         CLogger.cpp
         CMapInfo.cpp
+		CModHandler.cpp
         CObjectHandler.cpp
         CObstacleInstance.cpp
         Connection.cpp

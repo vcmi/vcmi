@@ -8,7 +8,7 @@
 #include "CGameState.h"
 #include "CHeroHandler.h"
 #include "CTownHandler.h"
-//#include "CModHandler.h" //needed?
+#include "CModHandler.h" //needed?
 
 /*
  * RegisterTypes.h, part of VCMI engine
@@ -20,7 +20,7 @@
  *
  */
 
-template<typename Serializer> 
+template<typename Serializer>
 void registerTypes1(Serializer &s)
 {
 	//map objects
@@ -114,7 +114,7 @@ void registerTypes1(Serializer &s)
 	//s.template registerType<StackLocation>();
 }
 
-template<typename Serializer> 
+template<typename Serializer>
 void registerTypes2(Serializer &s)
 {
 	s.template registerType<PackageApplied>();

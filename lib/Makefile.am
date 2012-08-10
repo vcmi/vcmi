@@ -45,6 +45,8 @@ libvcmi_la_SOURCES = \
 	CLogger.h \
 	CMapInfo.cpp \
 	CMapInfo.h \
+	CModHandler.cpp \
+	CModHandler.h \
 	CObjectHandler.cpp \
 	CObjectHandler.h \
 	CObstacleInstance.cpp \

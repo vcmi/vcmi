@@ -97,13 +97,14 @@ am_libvcmi_la_OBJECTS = libvcmi_la-CBinaryReader.lo \
 	libvcmi_la-CGameInterface.lo libvcmi_la-CGameState.lo \
 	libvcmi_la-CGeneralTextHandler.lo libvcmi_la-CHeroHandler.lo \
 	libvcmi_la-CLogger.lo libvcmi_la-CMapInfo.lo \
-	libvcmi_la-CObjectHandler.lo libvcmi_la-CObstacleInstance.lo \
-	libvcmi_la-CSpellHandler.lo libvcmi_la-CTownHandler.lo \
-	libvcmi_la-CThreadHelper.lo libvcmi_la-Connection.lo \
-	libvcmi_la-HeroBonus.lo libvcmi_la-IGameCallback.lo \
-	libvcmi_la-JsonNode.lo libvcmi_la-NetPacksLib.lo \
-	libvcmi_la-ResourceSet.lo libvcmi_la-BattleHex.lo \
-	libvcmi_la-VCMI_Lib.lo libvcmi_la-map.lo
+	libvcmi_la-CModHandler.lo libvcmi_la-CObjectHandler.lo \
+	libvcmi_la-CObstacleInstance.lo libvcmi_la-CSpellHandler.lo \
+	libvcmi_la-CTownHandler.lo libvcmi_la-CThreadHelper.lo \
+	libvcmi_la-Connection.lo libvcmi_la-HeroBonus.lo \
+	libvcmi_la-IGameCallback.lo libvcmi_la-JsonNode.lo \
+	libvcmi_la-NetPacksLib.lo libvcmi_la-ResourceSet.lo \
+	libvcmi_la-BattleHex.lo libvcmi_la-VCMI_Lib.lo \
+	libvcmi_la-map.lo
 libvcmi_la_OBJECTS = $(am_libvcmi_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -336,6 +337,8 @@ libvcmi_la_SOURCES = \
 	CLogger.h \
 	CMapInfo.cpp \
 	CMapInfo.h \
+	CModHandler.cpp \
+	CModHandler.h \
 	CObjectHandler.cpp \
 	CObjectHandler.h \
 	CObstacleInstance.cpp \
@@ -470,6 +473,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CLogger.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CMapInfo.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CMemoryStream.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CModHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CObjectHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CObstacleInstance.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CResourceLoader.Plo@am__quote@
@@ -666,6 +670,13 @@ libvcmi_la-CMapInfo.lo: CMapInfo.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CMapInfo.cpp' object='libvcmi_la-CMapInfo.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CMapInfo.lo `test -f 'CMapInfo.cpp' || echo '$(srcdir)/'`CMapInfo.cpp
+
+libvcmi_la-CModHandler.lo: CModHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CModHandler.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CModHandler.Tpo -c -o libvcmi_la-CModHandler.lo `test -f 'CModHandler.cpp' || echo '$(srcdir)/'`CModHandler.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CModHandler.Tpo $(DEPDIR)/libvcmi_la-CModHandler.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CModHandler.cpp' object='libvcmi_la-CModHandler.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CModHandler.lo `test -f 'CModHandler.cpp' || echo '$(srcdir)/'`CModHandler.cpp
 
 libvcmi_la-CObjectHandler.lo: CObjectHandler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CObjectHandler.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CObjectHandler.Tpo -c -o libvcmi_la-CObjectHandler.lo `test -f 'CObjectHandler.cpp' || echo '$(srcdir)/'`CObjectHandler.cpp

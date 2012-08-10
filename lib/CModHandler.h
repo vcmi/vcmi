@@ -1,4 +1,6 @@
-#include "Filesystem\CResourceLoader.h"
+#pragma once
+
+#include "Filesystem/CResourceLoader.h"
 
 #include "VCMI_Lib.h"
 #include "CCreatureHandler.h"
