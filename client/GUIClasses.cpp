@@ -362,7 +362,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 						}
 
 						GH.pushInt(new CSplitWindow(owner->highlighted->creature, boost::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
-						                            minLeft, minRight, count, owner->highlighted->count));
+						                            minLeft, minRight, owner->highlighted->count, count));
 						refr = true;
 					}
 					else if(creature != owner->highlighted->creature) //swap

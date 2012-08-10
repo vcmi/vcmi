@@ -48,5 +48,7 @@ add_subdirectory(lib)
 add_subdirectory(client)
 add_subdirectory(server)
 add_subdirectory(AI)
-add_subdirectory(Scripting/ERM)
+if (NOT DISABLE_ERM)
+	add_subdirectory(Scripting/ERM)
+endif()
 

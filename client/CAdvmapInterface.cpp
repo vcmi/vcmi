@@ -982,7 +982,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 	assert(sel);
 	LOCPLINT->cb->setSelection(sel);
 	selection = sel;
-	if (LOCPLINT->battleInt == NULL && active & GENERAL)
+	if (LOCPLINT->battleInt == NULL && LOCPLINT->makingTurn)
 	{
 		auto pos = sel->visitablePos();
 		auto tile = LOCPLINT->cb->getTile(pos);

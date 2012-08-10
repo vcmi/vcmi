@@ -410,6 +410,10 @@ void CMusicHandler::playMusicFromSet(std::string whichSet, int entryID, bool loo
 		tlog0 << "Error: playing non-existing entry " << entryID << " from set: " << whichSet << "\n";
 		return;
 	}
+
+	if (current && current->isTrack( selectedEntry->second))
+		return;
+
 	queueNext(new MusicEntry(this, "", selectedEntry->second, loop));
 }
 

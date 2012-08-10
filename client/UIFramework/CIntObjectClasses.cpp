@@ -1554,7 +1554,10 @@ void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 			text.resize(text.size()-1);
 		break;
 	default:
-		text += key.keysym.unicode; //TODO 16-/>8
+		if (key.keysym.unicode < ' ')
+			return;
+		else
+			text += key.keysym.unicode; //TODO 16-/>8
 		break;
 	}
 

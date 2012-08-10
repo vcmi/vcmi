@@ -749,7 +749,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	}
   
 	// Open codec
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 17, 0)
+#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 6, 0)
 	if ( avcodec_open(codecContext, codec) < 0 )
 #else
 	if ( avcodec_open2(codecContext, codec, NULL) < 0 )
