@@ -789,7 +789,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this) & static_cast<CQuest&>(*this);
-		h & rewardType & rID & rVal & textOption & seerName;
+		h & rewardType & rID & rVal & seerName;
 	}
 };
 
