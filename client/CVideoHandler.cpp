@@ -685,12 +685,20 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	refreshCount = -1;
 	doLoop = loop;
 
-	auto extracted = CResourceHandler::get()->loadData(ResourceID(std::string("Video/") + fname, EResType::VIDEO));
-	data = (char *)extracted.first.release();
-	length = extracted.second;
+	ResourceID resource(std::string("Video/") + fname, EResType::VIDEO);
 
-	if (!data)
+	if (CResourceHandler::get()->existsResource(resource))
+	{
+		auto extracted = CResourceHandler::get()->loadData(resource);
+		data = (char *)extracted.first.release();
+		length = extracted.second;
+	}
+	else
+	{
+		data = nullptr;
+		length = 0;
 		return false;
+	}
 
 	std::string filePath;
 	filePath.resize(100);

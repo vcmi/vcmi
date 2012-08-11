@@ -1284,7 +1284,7 @@ void SelectionTab::select( int position )
 	if(txt)
 	{
 		std::string filename = CResourceHandler::get()->getResourceName(
-		                           ResourceID(curItems[py]->fileURI, EResType::MAP));
+		                           ResourceID(curItems[py]->fileURI, EResType::LIB_SAVEGAME));
 		txt->setTxt(CFileInfo(filename).getBaseName());
 	}
 
