@@ -6,6 +6,7 @@
 #include "CDefObjInfoHandler.h"
 #include "CHeroHandler.h"
 #include "CSpellHandler.h"
+#include "CModHandler.h"
 #include "../client/CSoundBase.h"
 #include <boost/random/linear_congruential.hpp>
 #include "CTownHandler.h"
@@ -1718,7 +1719,7 @@ void CGDwelling::newTurn() const
 		{
 			CCreature *cre = VLC->creh->creatures[creatures[i].second[0]];
 			TQuantity amount = cre->growth * (1 + cre->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(Bonus::CREATURE_GROWTH);
-			if (GameConstants::DWELLINGS_ACCUMULATE_CREATURES)
+			if (VLC->modh->settings.DWELLINGS_ACCUMULATE_CREATURES)
 				sac.creatures[i].first += amount;
 			else
 				sac.creatures[i].first = amount;
@@ -3092,14 +3093,14 @@ void CGCreature::initObj()
 }
 void CGCreature::newTurn() const
 {//Works only for stacks of single type of size up to 2 millions
-	if (stacks.begin()->second->count < GameConstants::CREEP_SIZE && cb->getDate(1) == 1 && cb->getDate(0) > 1)
+	if (stacks.begin()->second->count < VLC->modh->settings.CREEP_SIZE && cb->getDate(1) == 1 && cb->getDate(0) > 1)
 	{
-		ui32 power = temppower * (100 + GameConstants::WEEKLY_GROWTH)/100;
-		cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min (power/1000 , (ui32)GameConstants::CREEP_SIZE)); //set new amount
+		ui32 power = temppower * (100 +  VLC->modh->settings.WEEKLY_GROWTH)/100;
+		cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min (power/1000 , (ui32)VLC->modh->settings.CREEP_SIZE)); //set new amount
 		cb->setObjProperty(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 	}
 	if (GameConstants::STACK_EXP)
-		cb->setObjProperty(id, ObjProperty::MONSTER_EXP, 500); //for testing purpose
+		cb->setObjProperty(id, ObjProperty::MONSTER_EXP, VLC->modh->settings.NEUTRAL_STACK_EXP); //for testing purpose
 }
 void CGCreature::setPropertyDer(ui8 what, ui32 val)
 {

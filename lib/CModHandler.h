@@ -77,12 +77,27 @@ public:
 	void saveConfigToFile (std::string name);
 	void recreateHandlers();
 
+	struct DLL_LINKAGE hardcodedFeatures
+	{
+		int CREEP_SIZE; // neutral stacks won't grow beyond this number
+		int WEEKLY_GROWTH; //percent
+		int NEUTRAL_STACK_EXP; 
+		bool DWELLINGS_ACCUMULATE_CREATURES;
+		bool ALL_CREATURES_GET_DOUBLE_MONTHS;
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & CREEP_SIZE & WEEKLY_GROWTH & NEUTRAL_STACK_EXP;
+			h & DWELLINGS_ACCUMULATE_CREATURES & ALL_CREATURES_GET_DOUBLE_MONTHS;
+		}
+	} settings;
+
 	CModHandler();
 	~CModHandler();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & creatures & artifacts;
-		h & allMods & activeMods;
+		h & allMods & activeMods & settings;
 	}
 };

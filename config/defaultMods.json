@@ -1,0 +1,12 @@
+// default configuration for mod system loaded at launch
+
+{
+	"hardcodedFeatures" :
+	{
+		"CREEP_SIZE": 4000,
+		"WEEKLY_GROWTH_PERCENT" : 10,
+		"NEUTRAL_STACK_EXP_DAILY" : 500,
+		"DWELLINGS_ACCUMULATE_CREATURES" : false,
+		"ALL_CREATURES_GET_DOUBLE_MONTHS" : false
+	}
+}

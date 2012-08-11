@@ -1175,7 +1175,7 @@ void CGameHandler::newTurn()
 				if (monthType < 40) //double growth
 				{
 					n.specialWeek = NewTurn::DOUBLE_GROWTH;
-					if (ALLCREATURESGETDOUBLEMONTHS)
+					if (VLC->modh->settings.ALL_CREATURES_GET_DOUBLE_MONTHS)
 					{
 						std::pair<int,int> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
 						n.creatureid = newMonster.second;

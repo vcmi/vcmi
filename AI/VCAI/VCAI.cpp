@@ -984,7 +984,7 @@ void VCAI::makeTurn()
 						++dangerousObjects;
 					}
 				}
-				ui64 averageDanger = totalDanger / dangerousObjects;
+				ui64 averageDanger = totalDanger / std::max(dangerousObjects, 1);
 				if (dangerousObjects && averageDanger > h->getHeroStrength())
 				{
 					setGoal (h, CGoal(GATHER_ARMY).sethero(h).setvalue(averageDanger * SAFE_ATTACK_CONSTANT).setisAbstract(true));

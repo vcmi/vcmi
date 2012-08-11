@@ -1,5 +1,6 @@
 #include "StdInc.h"
 #include "CModHandler.h"
+#include "JsonNode.h"
 
 /*
  * CModHandler.h, part of VCMI engine
@@ -25,6 +26,7 @@ CModHandler::CModHandler()
 {
 	VLC->modh = this;
 
+	loadConfigFromFile ("defaultMods");
 	//CResourceHandler::loadModsFilesystems(); //scan for all mods
 	//TODO: mod filesystem is already initialized at LibClasses launch
 	//TODO: load default (last?) config
@@ -43,9 +45,30 @@ creID CModHandler::addNewCreature (CCreature * cre)
 }
 
 void CModHandler::loadConfigFromFile (std::string name)
-{}
+{
+
+	const JsonNode config(ResourceID("config/" + name + ".json"));
+	auto hardcodedFeatures = config["hardcodedFeatures"];
+
+	settings.CREEP_SIZE = hardcodedFeatures["CREEP_SIZE"].Float();
+	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Float();
+	settings.NEUTRAL_STACK_EXP = hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Float();
+	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
+	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
+}
 void CModHandler::saveConfigToFile (std::string name)
-{}
+{
+	//JsonNode savedConf = config;
+	//JsonNode schema(ResourceID("config/defaultSettings.json"));
+
+	//savedConf.Struct().erase("session");
+	//savedConf.minimize(schema);
+
+	CResourceHandler::get()->createResource("config/" + name +".json");
+
+	std::ofstream file(CResourceHandler::get()->getResourceName(ResourceID("config/" + name +".json")), std::ofstream::trunc);
+	//file << savedConf;
+}
 void CModHandler::recreateHandlers()
 {
 	//TODO: consider some template magic to unify all handlers?

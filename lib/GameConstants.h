@@ -80,10 +80,7 @@ namespace GameConstants
 	const int CREATURES_PER_TOWN = 7; //without upgrades
 	const int MAX_BUILDING_PER_TURN = 1;
 	const int SPELL_LEVELS = 5;
-	const int CREEP_SIZE = 4000; // neutral stacks won't grow beyond this number
-	const int WEEKLY_GROWTH = 10; //percent
 	const int AVAILABLE_HEROES_PER_PLAYER = 2;
-	const bool DWELLINGS_ACCUMULATE_CREATURES = false;
 	const int SPELLBOOK_GOLD_COST = 500;
 
 	const ui16 BACKPACK_START = 19;
