@@ -2776,9 +2776,14 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				break;
 			case MOVE_TACTICS:
 			case MOVE_STACK:
-				if (canStackMoveHere (sactive, myNumber) && !shere)
-					legalAction = true;
+			{
+				if (!(shere && shere->alive())) //we can walk on dead stacks
+				{
+					if (canStackMoveHere (sactive, myNumber))
+						legalAction = true;
+				}
 				break;
+			}
 			case ATTACK:
 			case WALK_AND_ATTACK:
 			case ATTACK_AND_RETURN:
