@@ -17264,9 +17264,9 @@ FFMPEG_LIBS=
 LIBS="$LIBS `pkg-config --libs libavcodec libavformat libavutil libswscale`"
 CFLAGS="$CFLAGS `pkg-config --cflags libavformat libswscale`"
 
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for av_open_input_file in -lavformat" >&5
-$as_echo_n "checking for av_open_input_file in -lavformat... " >&6; }
-if ${ac_cv_lib_avformat_av_open_input_file+:} false; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for av_register_all in -lavformat" >&5
+$as_echo_n "checking for av_register_all in -lavformat... " >&6; }
+if ${ac_cv_lib_avformat_av_register_all+:} false; then :
   $as_echo_n "(cached) " >&6
 else
   ac_check_lib_save_LIBS=$LIBS
@@ -17280,27 +17280,27 @@ cat confdefs.h - <<_ACEOF >conftest.$ac_ext
 #ifdef __cplusplus
 extern "C"
 #endif
-char av_open_input_file ();
+char av_register_all ();
 int
 main ()
 {
-return av_open_input_file ();
+return av_register_all ();
   ;
   return 0;
 }
 _ACEOF
 if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_avformat_av_open_input_file=yes
+  ac_cv_lib_avformat_av_register_all=yes
 else
-  ac_cv_lib_avformat_av_open_input_file=no
+  ac_cv_lib_avformat_av_register_all=no
 fi
 rm -f core conftest.err conftest.$ac_objext \
     conftest$ac_exeext conftest.$ac_ext
 LIBS=$ac_check_lib_save_LIBS
 fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avformat_av_open_input_file" >&5
-$as_echo "$ac_cv_lib_avformat_av_open_input_file" >&6; }
-if test "x$ac_cv_lib_avformat_av_open_input_file" = xyes; then :
+{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avformat_av_register_all" >&5
+$as_echo "$ac_cv_lib_avformat_av_register_all" >&6; }
+if test "x$ac_cv_lib_avformat_av_register_all" = xyes; then :
   cat >>confdefs.h <<_ACEOF
 #define HAVE_LIBAVFORMAT 1
 _ACEOF
@@ -17356,86 +17356,6 @@ _ACEOF
 
 else
   as_fn_error $? "FFMpeg swscale library not found. Please install it." "$LINENO" 5
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for avcodec_decode_video2 in -lavcodec" >&5
-$as_echo_n "checking for avcodec_decode_video2 in -lavcodec... " >&6; }
-if ${ac_cv_lib_avcodec_avcodec_decode_video2+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lavcodec  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char avcodec_decode_video2 ();
-int
-main ()
-{
-return avcodec_decode_video2 ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_avcodec_avcodec_decode_video2=yes
-else
-  ac_cv_lib_avcodec_avcodec_decode_video2=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avcodec_avcodec_decode_video2" >&5
-$as_echo "$ac_cv_lib_avcodec_avcodec_decode_video2" >&6; }
-if test "x$ac_cv_lib_avcodec_avcodec_decode_video2" = xyes; then :
-  AVCODEC_DECODE_VIDEO2="-DWITH_AVCODEC_DECODE_VIDEO2"
-fi
-
-{ $as_echo "$as_me:${as_lineno-$LINENO}: checking for av_register_protocol2 in -lavcodec" >&5
-$as_echo_n "checking for av_register_protocol2 in -lavcodec... " >&6; }
-if ${ac_cv_lib_avcodec_av_register_protocol2+:} false; then :
-  $as_echo_n "(cached) " >&6
-else
-  ac_check_lib_save_LIBS=$LIBS
-LIBS="-lavcodec  $LIBS"
-cat confdefs.h - <<_ACEOF >conftest.$ac_ext
-/* end confdefs.h.  */
-
-/* Override any GCC internal prototype to avoid an error.
-   Use char because int might match the return type of a GCC
-   builtin and then its argument prototype would still apply.  */
-#ifdef __cplusplus
-extern "C"
-#endif
-char av_register_protocol2 ();
-int
-main ()
-{
-return av_register_protocol2 ();
-  ;
-  return 0;
-}
-_ACEOF
-if ac_fn_cxx_try_link "$LINENO"; then :
-  ac_cv_lib_avcodec_av_register_protocol2=yes
-else
-  ac_cv_lib_avcodec_av_register_protocol2=no
-fi
-rm -f core conftest.err conftest.$ac_objext \
-    conftest$ac_exeext conftest.$ac_ext
-LIBS=$ac_check_lib_save_LIBS
-fi
-{ $as_echo "$as_me:${as_lineno-$LINENO}: result: $ac_cv_lib_avcodec_av_register_protocol2" >&5
-$as_echo "$ac_cv_lib_avcodec_av_register_protocol2" >&6; }
-if test "x$ac_cv_lib_avcodec_av_register_protocol2" = xyes; then :
-  AV_REGISTER_PROTOCOL2="-DWITH_AV_REGISTER_PROTOCOL2"
 fi
 
 
