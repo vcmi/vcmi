@@ -567,6 +567,8 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 
 #else
 
+#ifndef DISABLE_VIDEO
+
 //Workaround for compile error in ffmpeg (UINT_64C was not declared)
 #define __STDC_CONSTANT_MACROS
 #ifdef _STDINT_H
@@ -1033,5 +1035,7 @@ CVideoPlayer::~CVideoPlayer()
 {
 	close();
 }
+
+#endif
 
 #endif

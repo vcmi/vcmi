@@ -269,15 +269,15 @@ int main(int argc, char** argv)
 	tlog0 <<"\tInitializing screen: "<<pomtime.getDiff() << std::endl;
 
 	// Initialize video
-#if defined _M_X64 && defined _WIN32 //Win64 -> cannot load 32-bit DLLs for video handling
+#if DISABLE_VIDEO
 	CCS->videoh = new CEmptyVideoPlayer;
 #else
 	if (!vm.count("disable-video"))
 		CCS->videoh = new CVideoPlayer;
 	else
 		CCS->videoh = new CEmptyVideoPlayer;
-
 #endif
+
 	tlog0<<"\tInitializing video: "<<pomtime.getDiff()<<std::endl;
 
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread

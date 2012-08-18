@@ -223,6 +223,8 @@ public:
 
 #else
 
+#ifndef DISABLE_VIDEO
+
 #include <SDL.h>
 #include <SDL_video.h>
 #if SDL_VERSION_ATLEAST(1,3,0)
@@ -283,6 +285,8 @@ public:
 	int length;					// video size
 	ui32 offset;		// current data offset
 };
+
+#endif
 
 #define VIDEO_TAVERN "tavern.mjpg"
 #define VIDEO_WIN "win3.mjpg"
