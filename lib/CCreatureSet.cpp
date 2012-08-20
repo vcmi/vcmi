@@ -300,6 +300,10 @@ bool CCreatureSet::contains(const CStackInstance *stack) const
 
 TSlot CCreatureSet::findStack(const CStackInstance *stack) const
 {
+	auto h = dynamic_cast<const CGHeroInstance *>(this);
+	if (h && h->commander == stack)
+		return -2;
+
 	if(!stack) 
 		return -1;
 

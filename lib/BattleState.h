@@ -240,8 +240,9 @@ public:
 		h & ID & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
 			& shots & casts & count;
 
-		TSlot slot = (base ? base->armyObj->findStack(base) : -1);
 		const CArmedInstance *army = (base ? base->armyObj : NULL);
+		TSlot slot = (base ? base->armyObj->findStack(base) : -1);
+
 		if(h.saving)
 		{
 			h & army & slot;
@@ -249,7 +250,13 @@ public:
 		else
 		{
 			h & army & slot;
-			if(!army || slot == -1 || !army->hasStackAtSlot(slot))
+			if (slot == -2) //TODO
+			{
+				auto hero = dynamic_cast<const CGHeroInstance *>(army);
+				assert (hero);
+				base = hero->commander;
+			}
+			else if(!army || slot == -1 || !army->hasStackAtSlot(slot))
 			{
 				base = NULL;
 				tlog3 << type->nameSing << " doesn't have a base stack!\n";

@@ -1885,7 +1885,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 	{
 		if (heroes[i] && heroes[i]->commander)
 		{
-			CStack * stack = curB->generateNewStack (*heroes[i]->commander, !i, 255,
+			CStack * stack = curB->generateNewStack (*heroes[i]->commander, !i, -2, //TODO: use COMMANDER_SLOT_PLACEHOLDER
 				creatureBank ? commanderBank[i] : commanderField[i]);
 			stacks.push_back(stack);
 		}
@@ -2720,7 +2720,7 @@ ui32 CStack::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
 	speed = ((100 + percentBonus) * speed)/100;
 
 	//bind effect check - doesn't influence stack initiative
-	if (useBind && getEffect(72)) 
+	if (useBind && getEffect (Spells::BIND)) 
 	{
 		return 0;
 	}

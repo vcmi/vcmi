@@ -129,13 +129,21 @@ CCreatureWindow::CCreatureWindow(const CStackInstance &st, int Type, boost::func
 	}
 }
 
-CCreatureWindow::CCreatureWindow (const CCommanderInstance * Commander):
+CCreatureWindow::CCreatureWindow (const CCommanderInstance * Commander, const CStack * stack):
     CWindowObject(PLAYER_COLORED),
-    type(COMMANDER),
 	commander (Commander)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	init(commander, commander, dynamic_cast<const CGHeroInstance*>(commander->armyObj));
+	if (stack)
+	{
+		type = COMMANDER_BATTLE;
+		init(commander, stack, dynamic_cast<const CGHeroInstance*>(commander->armyObj));
+	}
+	else
+	{
+		type = COMMANDER;
+		init(commander, commander, dynamic_cast<const CGHeroInstance*>(commander->armyObj));
+	}
 
 	boost::function<void()> Dsm;
 	CFunctionList<void()> fs[2];
@@ -144,7 +152,8 @@ CCreatureWindow::CCreatureWindow (const CCommanderInstance * Commander):
 	fs[0] += boost::bind(&CCreatureWindow::close,this);//close this window
 	CFunctionList<void()> cfl;
 	cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
-	dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, cfl, 333, 148,"IVIEWCR2.DEF", SDLK_d);
+	if (type < COMMANDER_LEVEL_UP) //can dismiss only in regular window
+		dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, cfl, 333, 148,"IVIEWCR2.DEF", SDLK_d);
 }
 
 CCreatureWindow::CCreatureWindow (std::vector<ui32> &skills, const CCommanderInstance * Commander, boost::function<void(ui32)> callback):
@@ -166,7 +175,8 @@ CCreatureWindow::CCreatureWindow (std::vector<ui32> &skills, const CCommanderIns
 	fs[0] += boost::bind(&CCreatureWindow::close,this);//close this window
 	CFunctionList<void()> cfl;
 	cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],fs[0],fs[1],false,std::vector<CComponent*>());
-	dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, cfl, 333, 148,"IVIEWCR2.DEF", SDLK_d);
+	if (type < COMMANDER_LEVEL_UP) //can dismiss only in regular window
+		dismiss = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, cfl, 333, 148,"IVIEWCR2.DEF", SDLK_d);
 }
 
 void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *StackNode, const CGHeroInstance *HeroOwner)
@@ -389,7 +399,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	if (creArt) //stack or commander artifacts
 	{
 		setArt (stack->getArt(ArtifactPosition::CREATURE_SLOT));
-		if (type > BATTLE) //artifact buttons inactive in battle
+		if (type > BATTLE && type < COMMANDER_BATTLE) //artifact buttons inactive in battle
 		{
 			//TODO: disable buttons if no artifact is equipped
 			leftArtRoll = new CAdventureMapButton(std::string(), std::string(), boost::bind (&CCreatureWindow::scrollArt, this, -1), 437, 98, "hsbtns3.def", SDLK_LEFT);
@@ -877,10 +887,18 @@ void CCreInfoWindow::init(const CCreature *creature, const CBonusSystemNode *sta
 CIntObject * createCreWindow(
 	const CStack *s, bool lclick/* = false*/)
 {
-	if(settings["general"]["classicCreatureWindow"].Bool())
-		return new CCreInfoWindow(*s, lclick);
+	auto c = dynamic_cast<const CCommanderInstance *>(s->base);
+	if (c)
+	{
+		return new CCreatureWindow (c, s);
+	}
 	else
-		return new CCreatureWindow(*s, CCreatureWindow::BATTLE);
+	{
+		if(settings["general"]["classicCreatureWindow"].Bool())
+			return new CCreInfoWindow(*s, lclick);
+		else
+			return new CCreatureWindow(*s, CCreatureWindow::BATTLE);
+	}
 }
 
 CIntObject * createCreWindow(int Cid, int Type, int creatureCount)

@@ -41,7 +41,7 @@ class CSelectableSkill;
 class CCreatureWindow : public CWindowObject, public CArtifactHolder
 {
 public:
-	enum CreWinType {OTHER = 0, BATTLE = 1, ARMY = 2, HERO = 3, COMMANDER = 4, COMMANDER_LEVEL_UP = 5}; // > 3 are opened permanently
+	enum CreWinType {OTHER = 0, BATTLE = 1, ARMY = 2, HERO = 3, COMMANDER = 4, COMMANDER_LEVEL_UP = 5, COMMANDER_BATTLE = 6}; // > 3 are opened permanently
 	//bool active; //TODO: comment me
 	int type;//0 - rclick popup; 1 - normal window
 	int bonusRows; //height of skill window
@@ -89,7 +89,7 @@ public:
 	CCreatureWindow(const CStack & stack, int type); //battle c-tor
 	CCreatureWindow (const CStackInstance &stack, int Type); //pop-up c-tor
 	CCreatureWindow(const CStackInstance &st, int Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //full garrison window
-	CCreatureWindow(const CCommanderInstance * commander); //commander window
+	CCreatureWindow(const CCommanderInstance * commander, const CStack * stack = NULL); //commander window
 	CCreatureWindow(std::vector<ui32> &skills, const CCommanderInstance * commander, boost::function<void(ui32)> callback); 
 	CCreatureWindow(int Cid, int Type, int creatureCount); //c-tor
 
