@@ -82,12 +82,8 @@ CFLAGS="$CFLAGS `pkg-config --cflags libavformat libswscale`"
 AC_CHECK_LIB(avformat,av_register_all,,AC_MSG_ERROR([FFMpeg avformat library not found. Please install it.]))
 AC_CHECK_LIB(swscale,sws_getContext,,AC_MSG_ERROR([FFMpeg swscale library not found. Please install it.]))
 
-#check for one of register_protocol functions
-AC_CHECK_LIB(avformat, av_register_protocol,,
-	AC_CHECK_LIB(avformat, av_register_protocol2,, DISABLE_VIDEO="-DDISABLE_VIDEO")) 
-
 FFMPEG_LIBS="$LIBS"
-FFMPEG_CXXFLAGS="$CFLAGS $DISABLE_VIDEO"
+FFMPEG_CXXFLAGS="$CFLAGS"
 
 LIBS=$saved_LIBS
 CFLAGS=$saved_CFLAGS
