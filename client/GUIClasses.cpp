@@ -3533,7 +3533,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 			recruit->block(1);
 	}
 
-	CCS->videoh->open(VIDEO_TAVERN);
+	CCS->videoh->open("TAVERN.BIK");
 }
 
 void CTavernWindow::recruitb()

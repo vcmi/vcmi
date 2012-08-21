@@ -569,23 +569,41 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 
 #ifndef DISABLE_VIDEO
 
-//Workaround for compile error in ffmpeg (UINT_64C was not declared)
-#define __STDC_CONSTANT_MACROS
-#ifdef _STDINT_H
-#undef _STDINT_H
-#endif
-#include <stdint.h>
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 117, 0)
 
+// Define a set of functions to read data
+static int lodRead(void* opaque, uint8_t* buf, int size)
+{
+	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
 
-extern "C" {
-#include <libavformat/avformat.h>
-#include <libswscale/swscale.h>
+	vstd::amin(size, video->length - video->offset);
+
+	if (size < 0)
+		return -1;
+
+	memcpy(buf, video->data + video->offset, size);
+	video->offset += size;
+	return size;
 }
+
+static si64 lodSeek(void * opaque, si64 pos, int whence)
+{
+	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
+
+	if (whence & AVSEEK_SIZE)
+		return video->length;
+
+	video->offset = pos;
+	vstd::amin(video->offset, video->length);
+	return video->offset;
+}
+
+#else
 
 static const char *protocol_name = "lod";
 
 // Open a pseudo file. Name is something like 'lod:0x56432ab6c43df8fe'
-static int lod_open(URLContext *context, const char *filename, int flags)
+static int lodOpen(URLContext *context, const char *filename, int flags)
 {
 	CVideoPlayer *video;
 
@@ -600,13 +618,13 @@ static int lod_open(URLContext *context, const char *filename, int flags)
 	return 0;
 }
 
-static int lod_close(URLContext* h)
+static int lodClose(URLContext* h)
 {
 	return 0;
 }
 
 // Define a set of functions to read data
-static int lod_read(URLContext *context, ui8 *buf, int size)
+static int lodRead(URLContext *context, ui8 *buf, int size)
 {
 	CVideoPlayer *video = (CVideoPlayer *)context->priv_data;
 
@@ -623,7 +641,7 @@ static int lod_read(URLContext *context, ui8 *buf, int size)
 	return size;
 }
 
-static si64 lod_seek(URLContext *context, si64 pos, int whence)
+static si64 lodSeek(URLContext *context, si64 pos, int whence)
 {
 	CVideoPlayer *video = (CVideoPlayer *)context->priv_data;
 
@@ -632,18 +650,20 @@ static si64 lod_seek(URLContext *context, si64 pos, int whence)
 
 	video->offset = pos;
 	vstd::amin(video->offset, video->length);
-	return -1;//video->offset;
+	return video->offset;
 }
 
 static URLProtocol lod_protocol =
 {
 	protocol_name,
-	lod_open,
-	lod_read,
+	lodOpen,
+	lodRead,
 	NULL,						// no write
-	lod_seek,
-	lod_close
+	lodSeek,
+	lodClose
 };
+
+#endif
 
 CVideoPlayer::CVideoPlayer()
 {
@@ -653,17 +673,17 @@ CVideoPlayer::CVideoPlayer()
 	sws = NULL;
 	overlay = NULL;
 	dest = NULL;
+	context = nullptr;
+	buffer = nullptr;
 
 	// Register codecs. TODO: May be overkill. Should call a
 	// combination of av_register_input_format() /
 	// av_register_output_format() / av_register_protocol() instead.
 	av_register_all();
 
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 117, 0)
+#elif LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 69, 0)
 	// Register our protocol 'lod' so we can directly read from mmaped memory
-	// TODO: URL protocol marked as deprecated in favor of avioContext
-	// VCMI should to it if URL protocol will be removed from ffmpeg or
-	// when new avioContext will be available in all distros (ETA: late 2012)
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 69, 0)
 	av_register_protocol2(&lod_protocol, sizeof(lod_protocol));
 #else
 	av_register_protocol(&lod_protocol);
@@ -702,17 +722,30 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 		return false;
 	}
 
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 117, 0)
+
+	static const int BUFFER_SIZE = 4096;
+	buffer  = (unsigned char *)av_malloc(BUFFER_SIZE);// will be freed by ffmpeg
+	context = avio_alloc_context( buffer, BUFFER_SIZE, 0, (void *)this, lodRead, NULL, lodSeek);
+
+	format = avformat_alloc_context();
+	format->pb = context;
+	// filename is not needed - file was already open and stored in this->data;
+	int avfopen = avformat_open_input(&format, "dummyFilename", nullptr, nullptr);
+
+#else
+
 	std::string filePath;
 	filePath.resize(100);
 	// Create our URL name with the 'lod' protocol as a prefix and a
 	// back pointer to our object. Should be 32 and 64 bits compatible.
 	sprintf(&filePath[0], "%s:0x%016llx", protocol_name, (unsigned long long)(uintptr_t)this);
 
-
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 0, 0)
 	int avfopen = av_open_input_file(&format, filePath.c_str(), NULL, 0, NULL);
 #else
 	int avfopen = avformat_open_input(&format, filePath.c_str(), NULL, NULL);
+#endif
 #endif
 
 	if (avfopen != 0)
@@ -994,6 +1027,14 @@ void CVideoPlayer::close()
 		avformat_close_input(&format);
 #endif
 	}
+
+#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 117, 0)
+	if (context)
+	{
+		av_free(context);
+		context = nullptr;
+	}
+#endif
 }
 
 // Plays a video. Only works for overlays.

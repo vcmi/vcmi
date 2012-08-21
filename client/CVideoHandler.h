@@ -213,14 +213,6 @@ public:
 	bool playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey = false); //plays whole opened video; returns: true when whole video has been shown, false when it has been interrupted
 };
 
-#define VIDEO_TAVERN "TAVERN.BIK"
-#define VIDEO_WIN "WIN3.BIK"
-#define VIDEO_LOSE_BATTLE_START "LBSTART.BIK"
-#define VIDEO_LOSE_BATTLE_LOOP "LBLOOP.BIK"
-#define VIDEO_RETREAT_START "RTSTART.BIK"
-#define VIDEO_RETREAT_LOOP "RTLOOP.BIK"
-#define VIDEO_SURRENDER "SURRENDER.BIK"
-
 #else
 
 #ifndef DISABLE_VIDEO
@@ -231,11 +223,18 @@ public:
 #include <SDL_compat.h>
 #endif
 
-typedef struct AVFormatContext AVFormatContext;
-typedef struct AVCodecContext AVCodecContext;
-typedef struct AVCodec AVCodec;
-typedef struct AVFrame AVFrame;
-struct SwsContext;
+//Workaround for compile error in ffmpeg (UINT_64C was not declared)
+#define __STDC_CONSTANT_MACROS
+#ifdef _STDINT_H
+#undef _STDINT_H
+#endif
+#include <stdint.h>
+
+
+extern "C" {
+#include <libavformat/avformat.h>
+#include <libswscale/swscale.h>
+}
 
 class CVideoPlayer : public IMainVideoPlayer
 {
@@ -246,6 +245,9 @@ private:
 	AVCodec *codec;
 	AVFrame *frame; 
 	struct SwsContext *sws;
+
+	unsigned char* buffer;
+	AVIOContext * context;
 
 	// Destination. Either overlay or dest.
 	SDL_Overlay *overlay;
@@ -287,13 +289,4 @@ public:
 };
 
 #endif
-
-#define VIDEO_TAVERN "tavern.mjpg"
-#define VIDEO_WIN "win3.mjpg"
-#define VIDEO_LOSE_BATTLE_START "lbstart.mjpg"
-#define VIDEO_LOSE_BATTLE_LOOP "lbloop.mjpg"
-#define VIDEO_RETREAT_START "rtstart.mjpg"
-#define VIDEO_RETREAT_LOOP "rtloop.mjpg"
-#define VIDEO_SURRENDER "surrender.mjpg"
-
 #endif
