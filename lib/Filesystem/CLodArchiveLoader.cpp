@@ -115,17 +115,17 @@ void CLodArchiveLoader::initVIDArchive(CFileInputStream & fileStream)
 
 		entry.name = vidEntry.filename;
 		entry.offset = SDL_SwapLE32(vidEntry.offset);
+		entry.size = 0;
 
 		// There is no size, so check where the next file is
 		if (i == totalFiles - 1)
 		{
-			entry.size = fileStream.getSize() - entry.offset;
+			entry.realSize = fileStream.getSize() - entry.offset;
 		}
 		else
 		{
 			VideoEntryBlock nextVidEntry = vidEntries[i + 1];
 			entry.realSize = SDL_SwapLE32(nextVidEntry.offset) - entry.offset;
-			entry.size = 0;
 		}
 
 		entries[entry.name] = entry;
