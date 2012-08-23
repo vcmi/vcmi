@@ -20,6 +20,34 @@
 	const std::map<std::string, int> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
 #undef BONUS_NAME
 
+#define BONUS_VALUE(x) ( #x, Bonus::x )
+	const std::map<std::string, int> bonusValueMap = boost::assign::map_list_of BONUS_VALUE_LIST;
+#undef BONUS_VALUE
+
+#define BONUS_SOURCE(x) ( #x, Bonus::x )
+	const std::map<std::string, int> bonusSourceMap = boost::assign::map_list_of BONUS_SOURCE_LIST;
+#undef BONUS_SOURCE
+
+#define BONUS_ITEM(x) ( #x, Bonus::x )
+
+const std::map<std::string, int> bonusDurationMap = boost::assign::map_list_of 
+	BONUS_ITEM(PERMANENT)
+	BONUS_ITEM(ONE_BATTLE)
+	BONUS_ITEM(ONE_DAY)
+	BONUS_ITEM(ONE_WEEK)
+	BONUS_ITEM(N_TURNS)
+	BONUS_ITEM(N_DAYS)
+	BONUS_ITEM(UNITL_BEING_ATTACKED)
+	BONUS_ITEM(UNTIL_ATTACK)
+	BONUS_ITEM(STACK_GETS_TURN)
+	BONUS_ITEM(COMMANDER_KILLED);
+
+const std::map<std::string, int> bonusLimitEffect = boost::assign::map_list_of
+	BONUS_ITEM(NO_LIMIT)
+	BONUS_ITEM(ONLY_DISTANCE_FIGHT)
+	BONUS_ITEM(ONLY_MELEE_FIGHT)
+	BONUS_ITEM(ONLY_ENEMY_ARMY);
+
 #define BONUS_LOG_LINE(x) tlog5 << x << std::endl
 
 int CBonusSystemNode::treeChanged = 1;

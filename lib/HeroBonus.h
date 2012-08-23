@@ -176,6 +176,33 @@ typedef boost::function<bool(const Bonus*)> CSelector;
 	BONUS_NAME(SPOILS_OF_WAR) /*val * 10^-6 * gained exp resources of subtype will be given to hero after battle*/\
 	BONUS_NAME(BLOCK)
 
+#define BONUS_SOURCE_LIST \
+	BONUS_SOURCE(ARTIFACT)\
+	BONUS_SOURCE(ARTIFACT_INSTANCE)\
+	BONUS_SOURCE(OBJECT)\
+	BONUS_SOURCE(CREATURE_ABILITY)\
+	BONUS_SOURCE(TERRAIN_NATIVE)\
+	BONUS_SOURCE(TERRAIN_OVERLAY)\
+	BONUS_SOURCE(SPELL_EFFECT)\
+	BONUS_SOURCE(TOWN_STRUCTURE)\
+	BONUS_SOURCE(HERO_BASE_SKILL)\
+	BONUS_SOURCE(SECONDARY_SKILL)\
+	BONUS_SOURCE(HERO_SPECIAL)\
+	BONUS_SOURCE(ARMY)\
+	BONUS_SOURCE(CAMPAIGN_BONUS)\
+	BONUS_SOURCE(SPECIAL_WEEK)\
+	BONUS_SOURCE(STACK_EXPERIENCE)\
+	BONUS_SOURCE(COMMANDER) /*TODO: consider using simply STACK_INSTANCE */\
+	BONUS_SOURCE(OTHER) /*used for defensive stance and default value of spell level limit*/
+
+#define BONUS_VALUE_LIST \
+	BONUS_VALUE(ADDITIVE_VALUE)\
+	BONUS_VALUE(BASE_NUMBER)\
+	BONUS_VALUE(PERCENT_TO_ALL)\
+	BONUS_VALUE(PERCENT_TO_BASE)\
+	BONUS_VALUE(INDEPENDENT_MAX) /*used for SPELL bonus*/ \
+	BONUS_VALUE(INDEPENDENT_MIN) //used for SECONDARY_SKILL_PREMY bonus
+
 /// Struct for handling bonuses of several types. Can be transferred to any hero
 struct DLL_LINKAGE Bonus
 {
@@ -200,23 +227,9 @@ struct DLL_LINKAGE Bonus
 	};
 	enum BonusSource
 	{
-		ARTIFACT,
-		ARTIFACT_INSTANCE,
-		OBJECT,
-		CREATURE_ABILITY,
-		TERRAIN_NATIVE,
-		TERRAIN_OVERLAY,
-		SPELL_EFFECT,
-		TOWN_STRUCTURE,
-		HERO_BASE_SKILL,
-		SECONDARY_SKILL,
-		HERO_SPECIAL,
-		ARMY,
-		CAMPAIGN_BONUS,
-		SPECIAL_WEEK,
-		STACK_EXPERIENCE,
-		COMMANDER, //TODO: consider using simply STACK_INSTANCE
-		OTHER /*used for defensive stance and default value of spell level limit*/
+#define BONUS_SOURCE(x) x,
+		BONUS_SOURCE_LIST
+#undef BONUS_SOURCE
 	};
 
 	enum LimitEffect
@@ -228,12 +241,9 @@ struct DLL_LINKAGE Bonus
 
 	enum ValueType
 	{
-		ADDITIVE_VALUE,
-		BASE_NUMBER,
-		PERCENT_TO_ALL,
-		PERCENT_TO_BASE,
-		INDEPENDENT_MAX, //used for SPELL bonus
-		INDEPENDENT_MIN //used for SECONDARY_SKILL_PREMY bonus
+#define BONUS_VALUE(x) x,
+		BONUS_VALUE_LIST
+#undef BONUS_VALUE
 	};
 
 	ui16 duration; //uses BonusDuration values
@@ -854,7 +864,7 @@ namespace Selector
 	bool DLL_LINKAGE positiveSpellEffects(const Bonus *b);
 }
 
-extern DLL_LINKAGE const std::map<std::string, int> bonusNameMap;
+extern DLL_LINKAGE const std::map<std::string, int> bonusNameMap, bonusValueMap, bonusSourceMap, bonusDurationMap, bonusLimitEffect;
 
 // BonusList template that requires full interface of CBonusSystemNode
 template <class InputIterator>

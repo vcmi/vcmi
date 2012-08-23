@@ -889,7 +889,119 @@ Bonus * ParseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility
 	b->val = ability_vec[1].Float();
 	b->subtype = ability_vec[2].Float();
 	b->additionalInfo = ability_vec[3].Float();
-	b->duration = Bonus::PERMANENT;
+	b->duration = Bonus::PERMANENT; //TODO: handle flags (as integer)
 	b->turnsRemain = 0;
+	return b;
+}
+
+Bonus * ParseBonus (const JsonNode &ability)
+{
+	Bonus * b = new Bonus();
+	const JsonNode *value;
+
+	std::string type = ability["type"].String();
+	auto it = bonusNameMap.find(type);
+	if (it == bonusNameMap.end())
+	{
+		tlog1 << "Error: invalid ability type " << type << std::endl;
+		return b;
+	}
+	b->type = it->second;
+
+	value = &ability["subtype"];
+	if (!value->isNull())
+		b->subtype = value->Float();
+
+	value = &ability["val"];
+	if (!value->isNull())
+		b->val = value->Float();
+
+	value = &ability["valueType"];
+	if (!value->isNull())
+	{
+		std::string type = value->String();
+		auto it = bonusValueMap.find(type);
+		if (it == bonusValueMap.end())
+		{
+			tlog1 << "Error: invalid value type " << type << std::endl;
+		}
+		else
+		{
+			b->valType = it->second;
+		}
+	}
+
+	value = &ability["additionalInfo"];
+	if (!value->isNull())
+		b->additionalInfo = value->Float();
+
+	value = &ability["turns"];
+	if (!value->isNull())
+		b->turnsRemain = value->Float();
+
+	value = &ability["sourceID"];
+	if (!value->isNull())
+		b->sid = value->Float();
+
+	value = &ability["description"];
+	if (!value->isNull())
+		b->description = value->String();
+
+	
+	value = &ability["effectRange"];
+	if (!value->isNull())
+	{
+		std::string type = value->String();
+		auto it = bonusLimitEffect.find(type);
+		if (it == bonusLimitEffect.end())
+		{
+			tlog1 << "Error: invalid effect range " << type << std::endl;
+		}
+		else
+		{
+			b->effectRange = it->second;
+		}
+	}
+
+	
+	value = &ability["duration"];
+	if (!value->isNull())
+	{
+		std::string type = value->String();
+		auto it = bonusDurationMap.find(type);
+		if (it == bonusDurationMap.end())
+		{
+			tlog1 << "Error: invalid duration type " << type << std::endl;
+		}
+		else
+		{
+			b->duration = it->second;
+		}
+	}
+
+	value = &ability["source"];
+	if (!value->isNull())
+	{
+		std::string type = value->String();
+		auto it = bonusSourceMap.find(type);
+		if (it == bonusSourceMap.end())
+		{
+			tlog1 << "Error: invalid source type " << type << std::endl;
+		}
+		else
+		{
+			b->source = it->second;
+		}
+	}
+
+	//TODO:
+
+	//value = &ability["limiter"];
+	//if (!value->isNull())
+	//	b->limiter = value->Float();
+
+	//value = &ability["propagator"];
+	//if (!value->isNull())
+	//	b->propagator = value->Float();
 	return b;
 }
