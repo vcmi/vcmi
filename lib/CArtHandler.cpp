@@ -5,6 +5,7 @@
 #include "CGeneralTextHandler.h"
 #include <boost/random/linear_congruential.hpp>
 #include "VCMI_Lib.h"
+#include "CModHandler.h"
 #include "CSpellHandler.h"
 #include "CObjectHandler.h"
 #include "NetPacks.h"
@@ -361,7 +362,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 
 		artifacts.push_back(&nart);
 	}
-	if (GameConstants::COMMANDERS)
+	if (VLC->modh->modules.COMMANDERS)
 	{ //TODO: move all artifacts config to separate json file
 		const JsonNode config(ResourceID("config/commanders.json"));
 		BOOST_FOREACH(const JsonNode &artifact, config["artifacts"].Vector())
@@ -819,7 +820,7 @@ void CArtHandler::addBonuses()
 
 
 	//Stack artifact test
-	if (GameConstants::STACK_ARTIFACT)
+	if (VLC->modh->modules.STACK_ARTIFACT)
 	{
 		makeItCreatureArt(141);
 		makeItCreatureArt(142);
@@ -863,7 +864,7 @@ void CArtHandler::addBonuses()
 		artifacts[156].get()->setDescription ("+2 stack HP");
 
 	}
-	if (GameConstants::COMMANDERS)
+	if (VLC->modh->modules.COMMANDERS)
 	{
 		for (int i = 146; i <= 155; ++i)
 		{
@@ -995,7 +996,7 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<ui8> &allowed)
 		if (allowed[i])
 			allowedArtifacts.push_back(artifacts[i]);
 	}
-	if (GameConstants::COMMANDERS) //allow all commander artifacts for testing
+	if (VLC->modh->modules.COMMANDERS) //allow all commander artifacts for testing
 	{
 		for (int i = 146; i <= 155; ++i)
 		{

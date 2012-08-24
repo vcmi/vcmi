@@ -85,12 +85,6 @@ namespace GameConstants
 
 	const ui16 BACKPACK_START = 19;
 	const int ID_CATAPULT = 3, ID_LOCK = 145;
-
-	//game modules
-	const bool STACK_EXP = true;
-	const bool STACK_ARTIFACT = true; //now toggle for testing
-	const bool COMMANDERS = true;
-	const bool MITHRIL = false;
 }
 
 // Enum declarations

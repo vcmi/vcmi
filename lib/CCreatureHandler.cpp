@@ -6,6 +6,7 @@
 #include "../lib/CGameState.h"
 #include "../lib/JsonNode.h"
 #include "CHeroHandler.h"
+#include "CModHandler.h"
 
 using namespace boost::assign;
 
@@ -493,7 +494,7 @@ void CCreatureHandler::loadCreatures()
 	//std::map<TBonusType, std::pair<std::string, std::string> >::iterator it = stackBonuses.find(Bonus::MAGIC_RESISTANCE);
 	//stackBonuses[Bonus::SECONDARY_SKILL_PREMY] = std::pair<std::string, std::string>(it->second.first, it->second.second);
 
-	if (GameConstants::STACK_EXP) 	//reading default stack experience bonuses
+	if (VLC->modh->modules.STACK_EXP) 	//reading default stack experience bonuses
 	{
 		auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/CREXPBON.TXT"));
 		std::string buf((char*)textFile.first.get(), textFile.second);

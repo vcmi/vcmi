@@ -55,6 +55,12 @@ void CModHandler::loadConfigFromFile (std::string name)
 	settings.NEUTRAL_STACK_EXP = hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Float();
 	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
 	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
+
+	auto gameModules = config["modules"];
+	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
+	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();
+	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
+	modules.MITHRIL = gameModules["MITHRIL"].Bool();
 }
 void CModHandler::saveConfigToFile (std::string name)
 {
@@ -81,10 +87,14 @@ void CModHandler::recreateHandlers()
 		BOOST_FOREACH (auto art, allMods[mod].artifacts)
 		{
 			VLC->arth->artifacts.push_back (artifacts[art]);
+
+			//TODO: recreate types / limiters based on string id
 		}
 		BOOST_FOREACH (auto creature, allMods[mod].creatures)
 		{
 			VLC->creh->creatures.push_back (creatures[creature]);
+
+			//TODO: recreate upgrades and other properties based on string id
 		}
 	}
 }

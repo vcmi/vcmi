@@ -3,6 +3,7 @@
 
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
+#include "CModHandler.h"
 #include "CObjectHandler.h"
 #include "IGameCallback.h"
 #include "CGameState.h"
@@ -241,7 +242,7 @@ void CCreatureSet::setStackCount(TSlot slot, TQuantity count)
 {
 	assert(hasStackAtSlot(slot));
 	assert(stacks[slot]->count + count > 0);
-	if (GameConstants::STACK_EXP && count > stacks[slot]->count)
+	if (VLC->modh->modules.STACK_EXP && count > stacks[slot]->count)
 		stacks[slot]->experience *= (count / static_cast<double>(stacks[slot]->count));
 	stacks[slot]->count = count;
 	armyChanged();
@@ -544,7 +545,7 @@ void CStackInstance::setType(const CCreature *c)
 	if(type)
 	{
 		detachFrom(const_cast<CCreature*>(type));
-		if (type->isMyUpgrade(c) && GameConstants::STACK_EXP)
+		if (type->isMyUpgrade(c) && VLC->modh->modules.STACK_EXP)
 			experience *= VLC->creh->expAfterUpgrade / 100.0;
 	}
 

@@ -92,12 +92,26 @@ public:
 		}
 	} settings;
 
+	struct DLL_LINKAGE gameModules
+	{
+		bool STACK_EXP;
+		bool STACK_ARTIFACT;
+		bool COMMANDERS;
+		bool MITHRIL;
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & STACK_EXP & STACK_ARTIFACT & COMMANDERS & MITHRIL;
+		}
+	} modules;
+
 	CModHandler();
 	~CModHandler();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & currentConfig;
 		h & creatures & artifacts;
-		h & allMods & activeMods & settings;
+		h & allMods & activeMods & settings & modules;
 	}
 };

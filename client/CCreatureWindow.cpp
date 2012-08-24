@@ -21,6 +21,7 @@
 #include "../lib/CSpellHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/NetPacks.h" //ArtifactLocation
+#include "../lib/CModHandler.h"
 
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
@@ -342,7 +343,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	new CAnimImage("PSKIL42", 4, 0, 387, 51); //exp icon - Print it always?
 	if (type) //not in fort window
 	{
-		if (GameConstants::STACK_EXP && type < COMMANDER)
+		if (CGI->modh->modules.STACK_EXP && type < COMMANDER)
 		{
 			int rank = std::min(stack->getExpRank(), 10); //hopefully nobody adds more
 			new CLabel(488, 82, FONT_SMALL, CENTER, Colors::Cornsilk, boost::lexical_cast<std::string>(stack->experience));
@@ -391,7 +392,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 			}
 		}
 
-		if (GameConstants::STACK_ARTIFACT)
+		if (CGI->modh->modules.STACK_EXP)
 		{
 			creArt = true;
 		}

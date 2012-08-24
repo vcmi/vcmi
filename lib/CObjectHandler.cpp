@@ -774,7 +774,7 @@ void CGHeroInstance::initHero()
 	}
 	assert(validTypes());
 
-	if (GameConstants::COMMANDERS)
+	if (VLC->modh->modules.COMMANDERS)
 	{
 		commander = new CCommanderInstance (VLC->creh->factionCommanders[type->heroType / 2]); //hopefully it returns town type
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
@@ -3099,7 +3099,7 @@ void CGCreature::newTurn() const
 		cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min (power/1000 , (ui32)VLC->modh->settings.CREEP_SIZE)); //set new amount
 		cb->setObjProperty(id, ObjProperty::MONSTER_POWER, power); //increase temppower
 	}
-	if (GameConstants::STACK_EXP)
+	if (VLC->modh->modules.STACK_EXP)
 		cb->setObjProperty(id, ObjProperty::MONSTER_EXP, VLC->modh->settings.NEUTRAL_STACK_EXP); //for testing purpose
 }
 void CGCreature::setPropertyDer(ui8 what, ui32 val)

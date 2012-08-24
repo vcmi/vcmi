@@ -264,7 +264,7 @@ void LibClasses::callWhenDeserializing()
 	generaltexth = new CGeneralTextHandler;
 	generaltexth->load();
 	arth->loadArtifacts(true);
-	modh->loadConfigFromFile ("default"); //TODO: remember last saved config
+	//modh->loadConfigFromFile ("defaultMods"); //TODO: remember last saved config
 }
 
 LibClasses::~LibClasses()

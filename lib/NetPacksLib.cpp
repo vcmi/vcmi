@@ -6,6 +6,7 @@
 #include "CArtHandler.h"
 #include "CHeroHandler.h"
 #include "CObjectHandler.h"
+#include "CModHandler.h"
 #include "VCMI_Lib.h"
 #include "map.h"
 #include "CSpellHandler.h"
@@ -707,13 +708,14 @@ DLL_LINKAGE void RebalanceStacks::applyGs( CGameState *gs )
 {
 	const CCreature *srcType = src.army->getCreature(src.slot);
 	TQuantity srcCount = src.army->getStackCount(src.slot);
+	bool stackExp = VLC->modh->modules.STACK_EXP;
 
 	if(srcCount == count) //moving whole stack
 	{
 		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> merge
 		{
 			assert(c == srcType);
-			if (GameConstants::STACK_EXP)
+			if (stackExp)
 			{
 				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
 				src.army->eraseStack(src.slot);
@@ -737,7 +739,7 @@ DLL_LINKAGE void RebalanceStacks::applyGs( CGameState *gs )
 		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> rebalance
 		{
 			assert(c == srcType);
-			if (GameConstants::STACK_EXP)
+			if (stackExp)
 			{
 				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
 				src.army->changeStackCount(src.slot, -count);
@@ -754,7 +756,7 @@ DLL_LINKAGE void RebalanceStacks::applyGs( CGameState *gs )
 		{
 			src.army->changeStackCount(src.slot, -count);
 			dst.army->addToSlot(dst.slot, srcType->idNumber, count, false);
-			if (GameConstants::STACK_EXP)
+			if (stackExp)
 				dst.army->setStackExp(dst.slot, src.army->getStackExperience(src.slot));
 		}
 	}
@@ -1074,7 +1076,7 @@ void BattleResult::applyGs( CGameState *gs )
 		}
 	}
 
-	if (GameConstants::STACK_EXP)
+	if (VLC->modh->modules.STACK_EXP)
 	{
 		if (exp[0]) //checking local array is easier than dereferencing this crap twice
 			gs->curB->belligerents[0]->giveStackExp(exp[0]);

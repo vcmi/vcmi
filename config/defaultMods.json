@@ -6,7 +6,14 @@
 		"CREEP_SIZE": 4000,
 		"WEEKLY_GROWTH_PERCENT" : 10,
 		"NEUTRAL_STACK_EXP_DAILY" : 500,
-		"DWELLINGS_ACCUMULATE_CREATURES" : false,
+		"DWELLINGS_ACCUMULATE_CREATURES" : true,
 		"ALL_CREATURES_GET_DOUBLE_MONTHS" : false
+	},
+	"modules":
+	{
+		"STACK_EXPERIENCE": true,
+		"STACK_ARTIFACTS": true,
+		"COMMANDERS": true,
+		"MITHRIL": false //so far unused
 	}
 }
