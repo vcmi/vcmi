@@ -37,11 +37,11 @@ DLL_LINKAGE void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
 	console = Console;
 	logfile = Logfile;
 	VLC = new LibClasses;
-	//try
+	try
 	{
 		VLC->init();
 	}
-	//HANDLE_EXCEPTION;
+	HANDLE_EXCEPTION;
 }
 
 void LibClasses::loadFilesystem()

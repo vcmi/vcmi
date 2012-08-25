@@ -89,6 +89,17 @@ void CBuildingHandler::loadBuildings()
 		while (!parser.isNextEntryEmpty());
 	}
 
+	// Grail. It may not have entries in building.txt
+	for (size_t town=0; town<GameConstants::F_NUMBER; town++)
+	{
+		if (!vstd::contains(buildings[town], 26))
+		{
+			buildings[town][26] = new CBuilding();
+			buildings[town][26]->tid = town;
+			buildings[town][26]->bid = 26;
+		}
+	}
+
 	/////done reading BUILDING.TXT*****************************
 	const JsonNode config(ResourceID("config/hall.json"));
 
