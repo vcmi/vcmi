@@ -1,9 +1,10 @@
 #include "StdInc.h"
 #include "CSpellHandler.h"
 
+#include "CGeneralTextHandler.h"
 #include "Filesystem/CResourceLoader.h"
-#include "../lib/VCMI_Lib.h"
-#include "../lib/JsonNode.h"
+#include "VCMI_Lib.h"
+#include "JsonNode.h"
 #include <cctype>
 #include "GameConstants.h"
 #include "BattleHex.h"
@@ -255,11 +256,6 @@ bool CSpell::isRisingSpell() const
 	return vstd::contains(VLC->spellh->risingSpells, id);
 }
 
-static bool startsWithX(const std::string &s)
-{
-	return s.size() && s[0] == 'x';
-}
-
 bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
 {
 	int3 diff = pos - center;
@@ -269,83 +265,82 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
 		return false;
 }
 
+CSpell * CSpellHandler::loadSpell(CLegacyConfigParser & parser)
+{
+	CSpell * spell = new CSpell; //new currently being read spell
+
+	spell->name    = parser.readString();
+	spell->abbName = parser.readString();
+	spell->level   = parser.readNumber();
+	spell->earth   = parser.readString() == "x";
+	spell->water   = parser.readString() == "x";
+	spell->fire    = parser.readString() == "x";
+	spell->air     = parser.readString() == "x";
+
+	for (int i = 0; i < 4 ; i++)
+		spell->costs.push_back(parser.readNumber());
+
+	spell->power = parser.readNumber();
+	for (int i = 0; i < 4 ; i++)
+		spell->powers.push_back(parser.readNumber());
+
+	for (int i = 0; i < 9 ; i++)
+		spell->probabilities.push_back(parser.readNumber());
+
+	for (int i = 0; i < 4 ; i++)
+		spell->AIVals.push_back(parser.readNumber());
+
+	for (int i = 0; i < 4 ; i++)
+		spell->descriptions.push_back(parser.readString());
+
+	spell->attributes = parser.readString();
+	spell->mainEffectAnim = -1;
+	return spell;
+}
+
 void CSpellHandler::loadSpells()
 {
-	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/SPTRAITS.TXT"));
-	std::string buf((char*)textFile.first.get(), textFile.second);
+	CLegacyConfigParser parser("DATA/SPTRAITS.TXT");
 
-	std::string pom;
-	int andame = buf.size(), i=0; //buf iterator
-	for(int z=0; z<5; ++z)
-		loadToIt(pom,buf,i,3);
+	for(int i=0; i<5; i++) // header
+		parser.endLine();
 
-	bool combSpells=false; //true, if we are reading combat spells
-	bool creatureAbility=false; //if true, only creature can use this spell
-	int ifHit = 0;
-	while(i<andame)
+	do //read adventure map spells
 	{
-		if(spells.size()==81)
-			break;
-		CSpell * nsp = new CSpell; //new currently being read spell
-
-		loadToIt(nsp->name,buf,i,4);
-		if(nsp->name == std::string(""))
-		{
-			if(ifHit == 0)
-			{
-				combSpells = true;
-			}
-			if(ifHit == 1)
-			{
-				creatureAbility = true;
-			}
-			for(int z=0; z<3; ++z)
-				loadToIt(pom,buf,i,3);
-			loadToIt(nsp->name,buf,i,4);
-			++ifHit;
-		}
-
-		loadToIt(nsp->abbName,buf,i,4);
-		loadToIt(nsp->level,buf,i,4);
-		loadToIt(pom,buf,i,4);
-		nsp->earth = startsWithX(pom);
-		loadToIt(pom,buf,i,4);
-		nsp->water = startsWithX(pom);
-		loadToIt(pom,buf,i,4);
-		nsp->fire = startsWithX(pom);
-		loadToIt(pom,buf,i,4);
-		nsp->air = startsWithX(pom);
-
-		nsp->costs.resize(4);
-		for (int z = 0; z < 4 ; z++)
-			loadToIt(nsp->costs[z],buf,i,4);
-		loadToIt(nsp->power,buf,i,4);
-		nsp->powers.resize(4);
-		for (int z = 0; z < 4 ; z++)
-			loadToIt(nsp->powers[z],buf,i,4);
-
-		nsp->probabilities.resize(9);
-		for (int z = 0; z < 9 ; z++)
-			loadToIt(nsp->probabilities[z],buf,i,4);
-
-		nsp->AIVals.resize(4);
-		for (int z = 0; z < 4 ; z++)
-			loadToIt(nsp->AIVals[z],buf,i,4);
-
-		nsp->descriptions.resize(4);
-		for (int z = 0; z < 4 ; z++)
-		{
-			loadToIt(nsp->descriptions[z],buf,i,4);
-			boost::algorithm::replace_all(nsp->descriptions[z],"\"","");
-		}
-
-		loadToIt(nsp->attributes,buf,i,3);
-		nsp->id = spells.size();
-		nsp->combatSpell = combSpells;
-		nsp->creatureAbility = creatureAbility;
-		nsp->mainEffectAnim = -1;
-		spells.push_back(nsp);
+		CSpell * spell = loadSpell(parser);
+		spell->id = spells.size();
+		spell->combatSpell = false;
+		spell->creatureAbility = false;
+		spells.push_back(spell);
 	}
+	while (parser.endLine() && !parser.isNextEntryEmpty());
+
+	for(int i=0; i<3; i++)
+		parser.endLine();
+
+	do //read battle spells
+	{
+		CSpell * spell = loadSpell(parser);
+		spell->id = spells.size();
+		spell->combatSpell = true;
+		spell->creatureAbility = false;
+		spells.push_back(spell);
+	}
+	while (parser.endLine() && !parser.isNextEntryEmpty());
+
+	for(int i=0; i<3; i++)
+		parser.endLine();
+
+	do //read creature abilities
+	{
+		CSpell * spell = loadSpell(parser);
+		spell->id = spells.size();
+		spell->combatSpell = true;
+		spell->creatureAbility = true;
+		spells.push_back(spell);
+	}
+	while (parser.endLine() && !parser.isNextEntryEmpty());
+
 	boost::replace_first (spells[47]->attributes, "2", ""); // disrupting ray will now affect single creature
 
 	//loading of additional spell traits

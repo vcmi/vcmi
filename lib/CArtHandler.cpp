@@ -240,14 +240,11 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	static std::map<char, CArtifact::EartClass> classes = 
 	  map_list_of('S',CArtifact::ART_SPECIAL)('T',CArtifact::ART_TREASURE)('N',CArtifact::ART_MINOR)('J',CArtifact::ART_MAJOR)('R',CArtifact::ART_RELIC);
 
-	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/ARTRAITS.TXT"));
-	std::string buf((char*)textFile.first.get(), textFile.second);
-	std::string dump, pom;
-	int it=0;
-	for(int i=0; i<2; ++i)
-	{
-		loadToIt(dump,buf,it,3);
-	}
+	CLegacyConfigParser parser("DATA/ARTRAITS.TXT");
+
+	parser.endLine(); // header
+	parser.endLine();
+
 	VLC->generaltexth->artifNames.resize(GameConstants::ARTIFACTS_QUANTITY);
 	VLC->generaltexth->artifDescriptions.resize(GameConstants::ARTIFACTS_QUANTITY);
 	std::map<ui32,ui8>::iterator itr;
@@ -265,26 +262,25 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		}
 		CArtifact &nart = *art;
 		nart.id=i;
-		loadToIt(VLC->generaltexth->artifNames[i],buf,it,4);
-		loadToIt(pom,buf,it,4);
-		nart.price=atoi(pom.c_str());
+		VLC->generaltexth->artifNames[i] = parser.readString();
+
+		nart.price= parser.readNumber();
+
 		nart.possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
 		nart.possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
 		nart.possibleSlots[ArtBearer::COMMANDER];
+
 		for(int j=0;j<slots.size();j++)
 		{
-			loadToIt(pom,buf,it,4);
-			if(pom.size() && pom[0]=='x')
+			if(parser.readString() == "x")
 				nart.possibleSlots[ArtBearer::HERO].push_back(slots[j]);
 		}
-		loadToIt(pom,buf,it,4);
-		nart.aClass = classes[pom[0]];
+		nart.aClass = classes[parser.readString()[0]];
 
 		//load description and remove quotation marks
-		std::string &desc = VLC->generaltexth->artifDescriptions[i];
-		loadToIt(desc,buf,it,3);
-		if(desc[0] == '\"' && desc[desc.size()-1] == '\"')
-			desc = desc.substr(1,desc.size()-2);
+		VLC->generaltexth->artifDescriptions[i] = parser.readString();
+
+		parser.endLine();
 
 		if(onlyTxt)
 			continue;

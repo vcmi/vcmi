@@ -1,10 +1,11 @@
 #include "StdInc.h"
 #include "CCreatureHandler.h"
 
+#include "CGeneralTextHandler.h"
 #include "Filesystem/CResourceLoader.h"
-#include "../lib/VCMI_Lib.h"
-#include "../lib/CGameState.h"
-#include "../lib/JsonNode.h"
+#include "VCMI_Lib.h"
+#include "CGameState.h"
+#include "JsonNode.h"
 #include "CHeroHandler.h"
 #include "CModHandler.h"
 
@@ -496,10 +497,8 @@ void CCreatureHandler::loadCreatures()
 
 	if (VLC->modh->modules.STACK_EXP) 	//reading default stack experience bonuses
 	{
-		auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/CREXPBON.TXT"));
-		std::string buf((char*)textFile.first.get(), textFile.second);
-		int it = 0;
-		si32 creid = -1;
+		CLegacyConfigParser parser("DATA/CREXPBON.TXT");
+
 		Bonus b; //prototype with some default properties
 		b.source = Bonus::STACK_EXPERIENCE;
 		b.duration = Bonus::PERMANENT;
@@ -508,52 +507,50 @@ void CCreatureHandler::loadCreatures()
 		b.additionalInfo = 0;
 		b.turnsRemain = 0;
 		BonusList bl;
-		std::string dump2;
 
-		loadToIt (dump2, buf, it, 3); //ignore first line
-		loadToIt (dump2, buf, it, 4); //ignore index
+		parser.endLine();
 
-		loadStackExp(b, bl, buf, it);
+		parser.readString(); //ignore index
+		loadStackExp(b, bl, parser);
 		BOOST_FOREACH(Bonus * b, bl)
 			addBonusForAllCreatures(b); //health bonus is common for all
+		parser.endLine();
 
-		loadToIt (dump2, buf, it, 3); //crop comment
 		for (i = 1; i < 7; ++i)
 		{
 			for (int j = 0; j < 4; ++j) //four modifiers common for tiers
 			{
-				loadToIt (dump2, buf, it, 4); //ignore index
+				parser.readString(); //ignore index
 				bl.clear();
-				loadStackExp(b, bl, buf, it);
+				loadStackExp(b, bl, parser);
 				BOOST_FOREACH(Bonus * b, bl)
 					addBonusForTier(i, b);
-				loadToIt (dump2, buf, it, 3); //crop comment
+				parser.endLine();
 			}
 		}
 		for (int j = 0; j < 4; ++j) //tier 7
 		{
-			loadToIt (dump2, buf, it, 4); //ignore index
+			parser.readString(); //ignore index
 			bl.clear();
-			loadStackExp(b, bl, buf, it);
+			loadStackExp(b, bl, parser);
 			BOOST_FOREACH(Bonus * b, bl)
 			{
 				addBonusForTier(7, b);
 				creaturesOfLevel[0].addNewBonus(b); //bonuses from level 7 are given to high-level creatures
 			}
-			loadToIt (dump2, buf, it, 3); //crop comment
+			parser.endLine();
 		}
 		do //parse everything that's left
 		{
-			loadToIt(creid, buf, it, 4); //get index
-			b.sid = creid; //id = this particular creature ID
-			loadStackExp(b, creatures[creid]->getBonusList(), buf, it); //add directly to CCreature Node
-			loadToIt (dump2, buf, it, 3); //crop comment
-		} while (it < buf.size());
+			b.sid = parser.readNumber(); //id = this particular creature ID
+			loadStackExp(b, creatures[b.sid]->getBonusList(), parser); //add directly to CCreature Node
+		}
+		while (parser.endLine());
 
 		//Calculate rank exp values, formula appears complicated bu no parsing needed
 		expRanks.resize(8);
 		int dif = 0;
-		it = 8000; //ignore name of this variable
+		int it = 8000; //ignore name of this variable
 		expRanks[0].push_back(it);
 		for (int j = 1; j < 10; ++j) //used for tiers 8-10, and all other probably
 		{
@@ -572,25 +569,22 @@ void CCreatureHandler::loadCreatures()
 			}
 		}
 
-		textFile = CResourceHandler::get()->loadData(ResourceID("DATA/CREXPMOD.TXT"));
-		buf = std::string((char*)textFile.first.get(), textFile.second);
-		it = 0;
-		loadToIt (dump2, buf, it, 3); //ignore first line
+		CLegacyConfigParser expBonParser("DATA/CREXPMOD.TXT");
+
+		expBonParser.endLine(); //header
 
 		maxExpPerBattle.resize(8);
-		si32 val;
 		for (i = 1; i < 8; ++i)
 		{
-			loadToIt (dump2, buf, it, 4); //index
-			loadToIt (dump2, buf, it, 4); //float multiplier -> hardcoded
-			loadToIt (dump2, buf, it, 4); //ignore upgrade mod? ->hardcoded
-			loadToIt (dump2, buf, it, 4); //already calculated
-			loadToIt (val, buf, it, 4);
-			maxExpPerBattle[i] = (ui32)val;
-			loadToIt (val, buf, it, 4); //11th level
-			val += (si32)expRanks[i].back();
-			expRanks[i].push_back((ui32)val);
-			loadToIt (dump2, buf, it, 3); //crop comment
+			expBonParser.readString(); //index
+			expBonParser.readString(); //float multiplier -> hardcoded
+			expBonParser.readString(); //ignore upgrade mod? ->hardcoded
+			expBonParser.readString(); //already calculated
+
+			maxExpPerBattle[i] = expBonParser.readNumber();
+			expRanks[i].push_back(expRanks[i].back() + expBonParser.readNumber());
+
+			expBonParser.endLine();
 		}
 		//skeleton gets exp penalty
 			creatures[56].get()->addBonus(-50, Bonus::EXP_MULTIPLIER, -1);
@@ -601,9 +595,6 @@ void CCreatureHandler::loadCreatures()
 			maxExpPerBattle[0] = maxExpPerBattle[7];
 
 	}//end of Stack Experience
-	//experiment - add 100 to attack for creatures of tier 1
-// 	Bonus *b = new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::OTHER, +100, 0, 0);
-// 	addBonusForTier(1, b);
 
 	tlog5 << "\t\tReading config/commanders.json" << std::endl;
 	const JsonNode config3(ResourceID("config/commanders.json"));
@@ -709,12 +700,11 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, std::string & src, int
 	i+=2;
 }
 
-void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src, int & it) //help function for parsing CREXPBON.txt
+void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser & parser) //help function for parsing CREXPBON.txt
 {
-	std::string buf, mod;
 	bool enable = false; //some bonuses are activated with values 2 or 1
-	loadToIt(buf, src, it, 4);
-	loadToIt(mod, src, it, 4);
+	std::string buf = parser.readString();
+	std::string mod = parser.readString();
 
 	switch (buf[0])
 	{
@@ -954,10 +944,10 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 	{
 		if (b.type != Bonus::REBIRTH)
 			b.val = 0; //on-off ability, no value specified
-		loadToIt (curVal, src, it, 4); // 0 level is never active
+		curVal = parser.readNumber();// 0 level is never active
 		for (int i = 1; i < 11; ++i)
 		{
-			loadToIt (curVal, src, it, 4);
+			curVal = parser.readNumber();
 			if (curVal == 1)
 			{
 				b.limiter.reset (new RankRangeLimiter(i));
@@ -968,10 +958,10 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, std::string & src
 	}
 	else
 	{
-		loadToIt (lastVal, src, it, 4); //basic value, not particularly useful but existent
+		lastVal = parser.readNumber(); //basic value, not particularly useful but existent
 		for (int i = 1; i < 11; ++i)
 		{
-			loadToIt (curVal, src, it, 4);
+			curVal = parser.readNumber();
 			if (b.type == Bonus::HATE)
 				curVal *= 10; //odd fix
 			if (curVal > lastVal) //threshold, add new bonus

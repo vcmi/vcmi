@@ -1,14 +1,13 @@
 #include "StdInc.h"
 #include "CHeroHandler.h"
 
+#include "CGeneralTextHandler.h"
 #include "Filesystem/CResourceLoader.h"
-#include "../lib/VCMI_Lib.h"
-#include "../lib/JsonNode.h"
+#include "VCMI_Lib.h"
+#include "JsonNode.h"
 #include "GameConstants.h"
-#include <boost/version.hpp>
 #include "BattleHex.h"
 
-void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
 /*
  * CHeroHandler.cpp, part of VCMI engine
  *
@@ -114,7 +113,6 @@ void CHeroHandler::loadObstacles()
 		}
 	};
 
-
 	const JsonNode config(ResourceID("config/obstacles.json"));
 	loadObstacles(config["obstacles"], false, obstacles);
 	loadObstacles(config["absoluteObstacles"], true, absoluteObstacles);
@@ -164,68 +162,27 @@ void CHeroHandler::loadPuzzleInfo()
 void CHeroHandler::loadHeroes()
 {
 	VLC->heroh = this;
-	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/HOTRAITS.TXT"));
-	std::string buf((char*)textFile.first.get(), textFile.second);
-	int it=0;
-	std::string dump;
-	for(int i=0; i<2; ++i)
-	{
-		loadToIt(dump,buf,it,3);
-	}
+	CLegacyConfigParser parser("DATA/HOTRAITS.TXT");
 
-	int numberOfCurrentClassHeroes = 0;
-	int currentClass = 0;
-	int additHero = 0;
-	CHero::EHeroClasses addTab[12];
-	addTab[0] = CHero::KNIGHT;
-	addTab[1] = CHero::WITCH;
-	addTab[2] = CHero::KNIGHT;
-	addTab[3] = CHero::WIZARD;
-	addTab[4] = CHero::RANGER;
-	addTab[5] = CHero::BARBARIAN;
-	addTab[6] = CHero::DEATHKNIGHT;
-	addTab[7] = CHero::WARLOCK;
-	addTab[8] = CHero::KNIGHT;
-	addTab[9] = CHero::WARLOCK;
-	addTab[10] = CHero::BARBARIAN;
-	addTab[11] = CHero::DEMONIAC;
+	parser.endLine(); //ignore header
+	parser.endLine();
 
-	
 	for (int i=0; i<GameConstants::HEROES_QUANTITY; i++)
 	{
-		CHero * nher = new CHero;
-		if(currentClass<18)
-		{
-			nher->heroType = static_cast<CHero::EHeroClasses>(currentClass);
-			++numberOfCurrentClassHeroes;
-			if(numberOfCurrentClassHeroes==8)
-			{
-				numberOfCurrentClassHeroes = 0;
-				++currentClass;
-			}
-		}
-		else
-		{
-			nher->heroType = addTab[additHero++];
-		}
-
-		std::string pom ;
-		loadToIt(nher->name,buf,it,4);
+		CHero * hero = new CHero;
+		hero->name = parser.readString();
 
 		for(int x=0;x<3;x++)
 		{
-			loadToIt(pom,buf,it,4);
-			nher->lowStack[x] = atoi(pom.c_str());
-			loadToIt(pom,buf,it,4);
-			nher->highStack[x] = atoi(pom.c_str());
-			loadToIt(nher->refTypeStack[x],buf,it,(x==2) ? (3) : (4));
-			int hlp = nher->refTypeStack[x].find_first_of(' ',0);
-			if(hlp>=0)
-				nher->refTypeStack[x].replace(hlp,1,"");
+			hero->lowStack[x] = parser.readNumber();
+			hero->highStack[x] = parser.readNumber();
+			hero->refTypeStack[x] = parser.readString();
+			boost::algorithm::replace_all(hero->refTypeStack[x], " ", ""); //remove spaces
 		}
-	
-		nher->ID = heroes.size();
-		heroes.push_back(nher);
+		parser.endLine();
+
+		hero->ID = heroes.size();
+		heroes.push_back(hero);
 	}
 
 	// Load heroes information
@@ -236,6 +193,7 @@ void CHeroHandler::loadHeroes()
 
 		// sex: 0=male, 1=female
 		heroes[hid]->sex = !!hero["female"].Bool();
+		heroes[hid]->heroType = CHero::EHeroClasses(hero["class"].Float());
 
 		BOOST_FOREACH(const JsonNode &set, hero["skill_set"].Vector()) {
 			heroes[hid]->secSkillsInit.push_back(std::make_pair(set["skill"].Float(), set["level"].Float()));
@@ -246,18 +204,16 @@ void CHeroHandler::loadHeroes()
 			heroes[hid]->startingSpell = value->Float();
 		}
 
-		value = &hero["specialties"];
-		if (!value->isNull()) {
-			BOOST_FOREACH(const JsonNode &specialty, value->Vector()) {
-				SSpecialtyInfo dummy;
+		BOOST_FOREACH(const JsonNode &specialty, hero["specialties"].Vector())
+		{
+			SSpecialtyInfo dummy;
 
-				dummy.type = specialty["type"].Float();
-				dummy.val = specialty["val"].Float();
-				dummy.subtype = specialty["subtype"].Float();
-				dummy.additionalinfo = specialty["info"].Float();
+			dummy.type = specialty["type"].Float();
+			dummy.val = specialty["val"].Float();
+			dummy.subtype = specialty["subtype"].Float();
+			dummy.additionalinfo = specialty["info"].Float();
 
-				heroes[hid]->spec.push_back(dummy); //put a copy of dummy
-			}
+			heroes[hid]->spec.push_back(dummy); //put a copy of dummy
 		}
 	}
 
@@ -285,98 +241,74 @@ void CHeroHandler::loadHeroes()
 	}
 	expPerLevel.pop_back();//last value is broken
 
-	//ballistics info
-	textFile = CResourceHandler::get()->loadData(ResourceID("DATA/BALLIST.TXT"));
-	buf = std::string((char*)textFile.first.get(), textFile.second);
-	it = 0;
-	for(int i=0; i<22; ++i)
+	CLegacyConfigParser ballParser("DATA/BALLIST.TXT");
+
+	ballParser.endLine(); //header
+	ballParser.endLine();
+
+	do
 	{
-		loadToIt(dump,buf,it,4);
-	}
-	for(int lvl=0; lvl<4; ++lvl)
-	{
+		ballParser.readString();
+		ballParser.readString();
+
 		CHeroHandler::SBallisticsLevelInfo bli;
-		si32 tempNum;
-		loadToIt(tempNum,buf,it,4);
-		bli.keep = tempNum;
-		loadToIt(tempNum,buf,it,4);
-		bli.tower = tempNum;
-		loadToIt(tempNum,buf,it,4);
-		bli.gate = tempNum;
-		loadToIt(tempNum,buf,it,4);
-		bli.wall = tempNum;
-		loadToIt(tempNum,buf,it,4);
-		bli.shots = tempNum;
-		loadToIt(tempNum,buf,it,4);
-		bli.noDmg = tempNum;
-		loadToIt(tempNum,buf,it,4);
-		bli.oneDmg = tempNum;
-		loadToIt(tempNum,buf,it,4);
-		bli.twoDmg = tempNum;
-		loadToIt(tempNum,buf,it,4);
-		bli.sum = tempNum;
-		if(lvl!=3)
-		{
-			loadToIt(dump,buf,it,4);
-		}
+		bli.keep   = ballParser.readNumber();
+		bli.tower  = ballParser.readNumber();
+		bli.gate   = ballParser.readNumber();
+		bli.wall   = ballParser.readNumber();
+		bli.shots  = ballParser.readNumber();
+		bli.noDmg  = ballParser.readNumber();
+		bli.oneDmg = ballParser.readNumber();
+		bli.twoDmg = ballParser.readNumber();
+		bli.sum    = ballParser.readNumber();
 		ballistics.push_back(bli);
 	}
+	while (ballParser.endLine());
 }
 
 void CHeroHandler::loadHeroClasses()
 {
-	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/HCTRAITS.TXT"));
-	std::istringstream str(std::string((char*)textFile.first.get(), textFile.second)); //we'll be reading from it
-	const int BUFFER_SIZE = 5000;
-	char buffer[BUFFER_SIZE+1];
+	CLegacyConfigParser parser("DATA/HCTRAITS.TXT");
 
-	for(int i=0; i<3; ++i) str.getline(buffer, BUFFER_SIZE); //omitting rubbish
+	parser.endLine(); // header
+	parser.endLine();
 
-
-	for(int ss=0; ss<18; ++ss) //18 classes of hero (including conflux)
+	do
 	{
 		CHeroClass * hc = new CHeroClass;
-		hc->alignment = ss / 6;
+		hc->alignment = heroClasses.size() / 6;
 
-		char name[BUFFER_SIZE+1];
-		str.get(name, BUFFER_SIZE, '\t');
-		hc->name = name;
-		//workaround for locale issue (different localisations use different decimal separator)
-		int intPart,fracPart;
-		str >> intPart;
-		str.ignore();//ignore decimal separator
-		str >> fracPart;
-		hc->aggression = intPart + fracPart/100.0;
-		
-		str >> hc->initialAttack;
-		str >> hc->initialDefence;
-		str >> hc->initialPower;
-		str >> hc->initialKnowledge;
+		hc->name             = parser.readString();
+		hc->aggression       = parser.readNumber();
+		hc->initialAttack    = parser.readNumber();
+		hc->initialDefence   = parser.readNumber();
+		hc->initialPower     = parser.readNumber();
+		hc->initialKnowledge = parser.readNumber();
 
 		hc->primChance.resize(GameConstants::PRIMARY_SKILLS);
 		for(int x=0; x<GameConstants::PRIMARY_SKILLS; ++x)
 		{
-			str >> hc->primChance[x].first;
+			hc->primChance[x].first = parser.readNumber();
 		}
 		for(int x=0; x<GameConstants::PRIMARY_SKILLS; ++x)
 		{
-			str >> hc->primChance[x].second;
+			hc->primChance[x].second = parser.readNumber();
 		}
 
 		hc->proSec.resize(GameConstants::SKILL_QUANTITY);
 		for(int dd=0; dd<GameConstants::SKILL_QUANTITY; ++dd)
 		{
-			str >> hc->proSec[dd];
+			hc->proSec[dd] = parser.readNumber();
 		}
 
 		for(int dd=0; dd<ARRAY_COUNT(hc->selectionProbability); ++dd)
 		{
-			str >> hc->selectionProbability[dd];
+			hc->selectionProbability[dd] = parser.readNumber();
 		}
 
 		heroClasses.push_back(hc);
-		str.getline(buffer, BUFFER_SIZE); //removing end of line characters
 	}
+	while (parser.endLine() && !parser.isNextEntryEmpty());
 }
 
 void CHeroHandler::initHeroClasses()

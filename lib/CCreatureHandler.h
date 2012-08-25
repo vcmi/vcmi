@@ -16,6 +16,7 @@
  *
  */
 
+class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
 
@@ -125,7 +126,7 @@ public:
 	void buildBonusTreeForTiers();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
-	void loadStackExp(Bonus & b, BonusList & bl, std::string & src, int & it);
+	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser &parser);
 	int stringToNumber(std::string & s);//help function for parsing CREXPBON.txt
 
 	bool isGood (si8 faction) const;

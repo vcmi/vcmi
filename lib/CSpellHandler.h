@@ -14,6 +14,7 @@
  *
  */
 
+class CLegacyConfigParser;
 struct BattleHex;
 
 class DLL_LINKAGE CSpell
@@ -86,6 +87,8 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spe
 
 class DLL_LINKAGE CSpellHandler
 {
+	CSpell * loadSpell(CLegacyConfigParser & parser);
+
 public:
 	CSpellHandler();
 	std::vector< ConstTransitivePtr<CSpell> > spells;

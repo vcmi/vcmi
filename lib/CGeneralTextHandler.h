@@ -1,7 +1,5 @@
 #pragma once
 
-
-
 /*
  * CGeneralTextHandler.h, part of VCMI engine
  *
@@ -12,8 +10,41 @@
  *
  */
 
-DLL_LINKAGE void loadToIt(std::string &dest, const std::string &src, int &iter, int mode);
-std::string readTo(const std::string &in, int &it, char end);
+class CInputStream;
+
+/// Parser for any text files from H3
+class CLegacyConfigParser
+{
+	std::unique_ptr<char[]> data;
+	char * curr;
+	char * end;
+
+	void init(const std::unique_ptr<CInputStream> & input);
+
+	/// extracts part of quoted string.
+	std::string extractQuotedPart();
+
+	/// extracts quoted string. Any end of lines are ignored, double-quote is considered as "escaping"
+	std::string extractQuotedString();
+
+	/// extracts non-quoted string
+	std::string extractNormalString();
+
+public:
+	/// read one entry from current line. Return ""/0 if end of line reached
+	std::string readString();
+	float readNumber();
+
+	/// returns true if next entry is empty
+	bool isNextEntryEmpty();
+
+	/// end current line
+	bool endLine();
+
+	CLegacyConfigParser(std::string URI);
+	CLegacyConfigParser(const std::unique_ptr<CInputStream> & input);
+};
+
 class DLL_LINKAGE CGeneralTextHandler //Handles general texts
 {
 public:
@@ -49,8 +80,8 @@ public:
 	std::map<int, std::map<int, std::pair<std::string, std::string> > > buildings; //map[town id][building id] => pair<name, description>
 
 	std::vector<std::pair<std::string,std::string> > zelp;
-	std::string lossCondtions[4];
-	std::string victoryConditions[14];
+	std::vector<std::string> lossCondtions;
+	std::vector<std::string> victoryConditions;
 
 	//objects
 	std::vector<std::string> names; //vector of objects; i-th object in vector has subnumber i

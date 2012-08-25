@@ -2,9 +2,9 @@
 #include "CBuildingHandler.h"
 
 #include "CGeneralTextHandler.h"
-#include "../lib/Filesystem/CResourceLoader.h"
-#include "../lib/VCMI_Lib.h"
-#include "../lib/JsonNode.h"
+#include "VCMI_Lib.h"
+#include "Filesystem/CResourceLoader.h"
+#include "JsonNode.h"
 #include "GameConstants.h"
 
 /*
@@ -17,88 +17,78 @@
  *
  */
 
-static ui32 readNr(std::string &in, int &it)
+CBuilding * readBuilding(CLegacyConfigParser & parser, int townID, int buildID)
 {
-	int last=it;
-	for(;last<in.size();last++)
-		if(in[last]=='\t' || in[last]=='\n' || in[last]==' ' || in[last]=='\r' || in[last]=='\n')
-			break;
-	if(last==in.size())
-		throw std::runtime_error("Cannot read number...");
+	CBuilding * ret = new CBuilding;
+	ret->tid = townID;
+	ret->bid = buildID;
+	for (size_t i=0; i< ret->resources.size(); i++)
+		ret->resources[i] = parser.readNumber();
 
-	std::istringstream ss(in.substr(it,last-it));
-	it+=(1+last-it);
-	ss >> last;
-	return last;
+	parser.endLine();
+	return ret;
 }
-static CBuilding * readBg(std::string &buf, int& it)
-{
-	CBuilding * nb = new CBuilding();
-	for(int res=0;res<7;res++)
-		nb->resources[res] = readNr(buf,it);
-	/*nb->refName = */readTo(buf,it,'\n');
-	//reference name is omitted, it's seems to be useless
-	return nb;
-}
+
 void CBuildingHandler::loadBuildings()
 {
-	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/BUILDING.TXT"));
-	std::string buf((char*)textFile.first.get(), textFile.second);
-
-	std::string temp;
-	int it=0; //buf iterator
-
-	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//read 2 lines of file info
-
-	//read 9 special buildings for every faction
+	CLegacyConfigParser parser("DATA/BUILDING.TXT");
 	buildings.resize(GameConstants::F_NUMBER);
-	for(int i=0;i<GameConstants::F_NUMBER;i++)
+
+	parser.endLine(); // header
+	parser.endLine();
+
+	//Unique buildings
+	for (size_t town=0; town<GameConstants::F_NUMBER; town++)
 	{
-		temp = readTo(buf,it,'\n');//read blank line and faction name
-		temp = readTo(buf,it,'\n');
-		for(int bg = 0; bg<9; bg++)
+		parser.endLine(); //header
+		parser.endLine();
+
+		int buildID = 17;
+		do
 		{
-			CBuilding *nb = readBg(buf,it);
-			nb->tid = i;
-			nb->bid = bg+17;
-			buildings[i][bg+17] = nb;
+			buildings[town][buildID] = readBuilding(parser, town, buildID);
+			buildID++;
 		}
+		while (!parser.isNextEntryEmpty());
 	}
 
-	//reading 17 neutral (common) buildings
-	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//neutral buildings - skip 3 lines
-	for(int bg = 0; bg<17; bg++)
+	// Common buildings
+	parser.endLine(); // header
+	parser.endLine();
+	parser.endLine();
+
+	int buildID = 0;
+	do
 	{
-		CBuilding *nb = readBg(buf,it);
-		for(int f=0;f<GameConstants::F_NUMBER;f++)
+		buildings[0][buildID] = readBuilding(parser, 0, buildID);
+
+		for (size_t town=1; town<GameConstants::F_NUMBER; town++)
 		{
-			buildings[f][bg] = new CBuilding(*nb);
-			buildings[f][bg]->tid = f;
-			buildings[f][bg]->bid = bg;
+			buildings[town][buildID] = new CBuilding(*buildings[0][buildID]);
+			buildings[town][buildID]->tid = town;
 		}
-		delete nb;
+		buildID++;
+	}
+	while (!parser.isNextEntryEmpty());
+
+	parser.endLine(); //header
+	parser.endLine();
+
+	//Dwellings
+	for (size_t town=0; town<GameConstants::F_NUMBER; town++)
+	{
+		parser.endLine(); //header
+		parser.endLine();
+
+		int buildID = 30;
+		do
+		{
+			buildings[town][buildID] = readBuilding(parser, town, buildID);
+			buildID++;
+		}
+		while (!parser.isNextEntryEmpty());
 	}
 
-	//create Grail entries
-	for(int i=0; i<GameConstants::F_NUMBER; i++)
-		buildings[i][26] = new CBuilding(i,26);
-
-	//reading 14 per faction dwellings
-	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//dwellings - skip 2 lines
-	for(int i=0;i<GameConstants::F_NUMBER;i++)
-	{
-		temp = readTo(buf,it,'\n');//read blank line
-		temp = readTo(buf,it,'\n');// and faction name
-		for(int bg = 0; ; bg++)
-		{
-			CBuilding *nb = readBg(buf,it);
-			nb->tid = i;
-			nb->bid = bg+30;
-			buildings[i][bg+30] = nb;
-			if (it >= buf.size() || buf[it] == '\t') //read till empty line
-				break;
-		}
-	}
 	/////done reading BUILDING.TXT*****************************
 	const JsonNode config(ResourceID("config/hall.json"));
 

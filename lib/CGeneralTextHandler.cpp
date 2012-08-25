@@ -2,8 +2,10 @@
 #include "CGeneralTextHandler.h"
 
 #include "Filesystem/CResourceLoader.h"
-#include "VCMI_Lib.h"
+#include "Filesystem/CInputStream.h"
 #include "GameConstants.h"
+
+// #include <locale> //needed?
 
 /*
  * CGeneralTextHandler.cpp, part of VCMI engine
@@ -15,560 +17,418 @@
  *
  */
 
-std::string readTo(const std::string &in, int &it, char end)
+//Helper for string -> float conversion
+class LocaleWithComma: public std::numpunct<char>
 {
-	int pom = it;
-	int last = in.find_first_of(end,it);
-	it+=(1+last-it);
-	return in.substr(pom,last-pom);
+protected:
+	char do_decimal_point() const
+	{
+		return ',';
+	}
+};
+
+CLegacyConfigParser::CLegacyConfigParser(std::string URI)
+{
+	init(CResourceHandler::get()->load(ResourceID(URI, EResType::TEXT)));
 }
 
-void trimQuotation(std::string &op)
+CLegacyConfigParser::CLegacyConfigParser(const std::unique_ptr<CInputStream> & input)
 {
-	if(op.length() && op[0] == '\"' && op[op.size()-1] == '\"')
-		op = op.substr(1,op.size()-2);
+	init(input);
 }
 
-std::string getTextFile(std::string filename)
+void CLegacyConfigParser::init(const std::unique_ptr<CInputStream> & input)
 {
-	auto file = CResourceHandler::get()->loadData(
-	               ResourceID(std::string("DATA/") + filename, EResType::TEXT));
+	data.reset(new char[input->getSize()]);
+	input->read((ui8*)data.get(), input->getSize());
 
-	return std::string((char*)file.first.get(), file.second);
+	curr = data.get();
+	end = curr + input->getSize();
+}
+
+std::string CLegacyConfigParser::extractQuotedPart()
+{
+	assert(*curr == '\"');
+
+	curr++; // skip quote
+	char * begin = curr;
+
+	while (curr != end && *curr != '\"')
+		curr++;
+
+	return std::string(begin, curr++); //increment curr to close quote
+}
+
+std::string CLegacyConfigParser::extractQuotedString()
+{
+	assert(*curr == '\"');
+
+	std::string ret;
+	while (true)
+	{
+		ret += extractQuotedPart();
+
+		if (curr < end && *curr == '\"') //double quote - add it to string and continue
+			ret += '\"';
+		else // end of string
+			return ret;
+	}
+}
+
+std::string CLegacyConfigParser::extractNormalString()
+{
+	char * begin = curr;
+
+	while (curr < end && *curr != '\t' && *curr != '\r')//find end of string
+		curr++;
+
+	return std::string(begin, curr);
+}
+
+std::string CLegacyConfigParser::readString()
+{
+	if (curr >= end || *curr == '\n')
+		return "";
+
+	std::string ret;
+
+	if (*curr == '\"')
+		ret = extractQuotedString();// quoted text - find closing quote
+	else
+		ret = extractNormalString();//string without quotes - copy till \t or \r
+
+	curr++;
+	return ret;
+}
+
+float CLegacyConfigParser::readNumber()
+{
+	std::string input = readString();
+
+	std::istringstream stream(input);
+
+	if (input.find(',') != std::string::npos) // code to handle conversion with comma as decimal separator
+		stream.imbue(std::locale(std::locale(), new LocaleWithComma));
+
+	int result;
+	if ( !(stream >> result) )
+		return 0;
+	return result;
+}
+
+bool CLegacyConfigParser::isNextEntryEmpty()
+{
+	return curr >= end || *curr == '\n' || *curr == '\r' || *curr == '\t';
+}
+
+bool CLegacyConfigParser::endLine()
+{
+	while (curr < end && *curr !=  '\n')
+		readString();
+
+	curr++;
+
+	return curr < end;
+}
+
+void readToVector(std::string sourceName, std::vector<std::string> & dest)
+{
+	CLegacyConfigParser parser(sourceName);
+	do
+	{
+		dest.push_back(parser.readString());
+	}
+	while (parser.endLine());
 }
 
 void CGeneralTextHandler::load()
 {
-	std::string buf1 = getTextFile("ZELP.TXT");
-	int itr=0, eol=-1, eolnext=-1, pom;
-	eolnext = buf1.find_first_of('\r',itr);
-	while(itr<buf1.size())
+	readToVector("DATA/VCDESC.TXT",   victoryConditions);
+	readToVector("DATA/LCDESC.TXT",   lossCondtions);
+	readToVector("DATA/TCOMMAND.TXT", tcommands);
+	readToVector("DATA/HALLINFO.TXT", hcommands);
+	readToVector("DATA/CASTINFO.TXT", fcommands);
+	readToVector("DATA/ADVEVENT.TXT", advobtxt);
+	readToVector("DATA/XTRAINFO.TXT", xtrainfo);
+	readToVector("DATA/RESTYPES.TXT", restypes);
+	readToVector("DATA/TERRNAME.TXT", terrainNames);
+	readToVector("DATA/RANDSIGN.TXT", randsign);
+	readToVector("DATA/ZCRGN1.TXT",   creGens);
+	readToVector("DATA/CRGEN4.TXT",   creGens4);
+	readToVector("DATA/OVERVIEW.TXT", overview);
+	readToVector("DATA/ARRAYTXT.TXT", arraytxt);
+	readToVector("DATA/PRISKILL.TXT", primarySkillNames);
+	readToVector("DATA/JKTEXT.TXT",   jktexts);
+	readToVector("DATA/TVRNINFO.TXT", tavernInfo);
+	readToVector("DATA/TURNDUR.TXT",  turnDurations);
+	readToVector("DATA/HEROSCRN.TXT", heroscrn);
+	readToVector("DATA/ARTEVENT.TXT", artifEvents);
+	readToVector("DATA/TENTCOLR.TXT", tentColors);
+	readToVector("DATA/SKILLLEV.TXT", levels);
+	readToVector("DATA/OBJNAMES.TXT", names);
+
 	{
-		eol = eolnext; //end of this line
-		eolnext = buf1.find_first_of('\r',eol+1); //end of the next line
-		pom=buf1.find_first_of('\t',itr); //upcoming tab
-		if(eol<0 || pom<0)
-			break;
-		if(pom>eol) //in current line there is not tab
-			zelp.push_back(std::pair<std::string,std::string>());
-		else
+		CLegacyConfigParser parser("DATA/GENRLTXT.TXT");
+		parser.endLine();
+		do
 		{
-			zelp.push_back
-				(std::pair<std::string,std::string>
-				(buf1.substr(itr,pom-itr),
-				buf1.substr(pom+1,eol-pom-1)));
-			boost::algorithm::replace_all(zelp[zelp.size()-1].first,"\t","");
-			boost::algorithm::replace_all(zelp[zelp.size()-1].second,"\t","");
-			trimQuotation(zelp.back().second);
+			allTexts.push_back(parser.readString());
 		}
-		itr=eol+2;
+		while (parser.endLine());
 	}
-	std::string buf = getTextFile("VCDESC.TXT");
-	int andame = buf.size();
-	int i=0; //buf iterator
-	for(int gg=0; gg<14; ++gg)
 	{
-		int befi=i;
-		for(; i<andame; ++i)
+		CLegacyConfigParser parser("DATA/ZELP.TXT");
+		do
 		{
-			if(buf[i]=='\r')
-				break;
+			std::string first = parser.readString();
+			std::string second = parser.readString();
+			zelp.push_back(std::make_pair(first, second));
 		}
-		victoryConditions[gg] = buf.substr(befi, i-befi);
-		i+=2;
+		while (parser.endLine());
 	}
-	buf = getTextFile("LCDESC.TXT");
-	andame = buf.size();
-	i=0; //buf iterator
-	for(int gg=0; gg<4; ++gg)
 	{
-		int befi=i;
-		for(; i<andame; ++i)
+		CLegacyConfigParser parser("DATA/HEROSPEC.TXT");
+		CLegacyConfigParser bioParser("DATA/HEROBIOS.TXT");
+
+		//skip header
+		parser.endLine();
+		parser.endLine();
+
+		do
 		{
-			if(buf[i]=='\r')
-				break;
+			HeroTexts texts;
+			texts.bonusName  = parser.readString();
+			texts.shortBonus = parser.readString();
+			texts.longBonus  = parser.readString();
+			texts.biography  = bioParser.readString();
+			hTxts.push_back(texts);
 		}
-		lossCondtions[gg] = buf.substr(befi, i-befi);
-		i+=2;
+		while (parser.endLine() && bioParser.endLine());
 	}
-
-	hTxts.resize(GameConstants::HEROES_QUANTITY);
-
-	buf = getTextFile("HEROSPEC.TXT");
-	i=0;
-	std::string dump;
-	for(int iii=0; iii<2; ++iii)
 	{
-		loadToIt(dump,buf,i,3);
-	}
-	for (int iii=0;iii<hTxts.size();iii++)
-	{
-		loadToIt(hTxts[iii].bonusName,buf,i,4);
-		loadToIt(hTxts[iii].shortBonus,buf,i,4);
-		loadToIt(hTxts[iii].longBonus,buf,i,3);
-		trimQuotation(hTxts[iii].longBonus);
-	}
+		CLegacyConfigParser parser("DATA/BLDGNEUT.TXT");
 
-	buf = getTextFile("HEROBIOS.TXT");
-	i=0;
-	for (int iii=0;iii<hTxts.size();iii++)
-	{
-		loadToIt(hTxts[iii].biography,buf,i,3);
-		trimQuotation(hTxts[iii].biography);
-	}
-
-	int it;
-	buf = getTextFile("BLDGNEUT.TXT");
-	andame = buf.size(), it=0;
-
-	for(int b=0;b<15;b++)
-	{
-		std::string name = readTo(buf,it,'\t'),
-			description = readTo(buf,it,'\n');
-		for(int fi=0;fi<GameConstants::F_NUMBER;fi++)
+		for(int i=0; i<15; i++)
 		{
-			buildings[fi][b].first = name;
-			buildings[fi][b].second = description;
-		}
-	}
-	buf1 = readTo(buf,it,'\n');buf1 = readTo(buf,it,'\n');buf1 = readTo(buf,it,'\n');//silo,blacksmith,moat - useless???
-	//shipyard with the ship
-	std::string name = readTo(buf,it,'\t'),
-		description = readTo(buf,it,'\n');
-	for(int fi=0;fi<GameConstants::F_NUMBER;fi++)
-	{
-		buildings[fi][20].first = name;
-		buildings[fi][20].second = description;
-	}
+			std::string name  = parser.readString();
+			std::string descr = parser.readString();
+			parser.endLine();
 
-	for(int fi=0;fi<GameConstants::F_NUMBER;fi++)
-	{
-		buildings[fi][16].first = readTo(buf,it,'\t'),
-			buildings[fi][16].second = readTo(buf,it,'\n');
-	}
-	/////done reading "BLDGNEUT.TXT"******************************
-
-	buf = getTextFile("BLDGSPEC.TXT");
-	andame = buf.size(), it=0;
-	for(int f=0;f<GameConstants::F_NUMBER;f++)
-	{
-		for(int b=0;b<9;b++)
-		{
-			buildings[f][17+b].first = readTo(buf,it,'\t');
-			buildings[f][17+b].second = readTo(buf,it,'\n');
-		}
-		buildings[f][26].first = readTo(buf,it,'\t');
-		buildings[f][26].second = readTo(buf,it,'\n');
-		buildings[f][15].first = readTo(buf,it,'\t'); //resource silo
-		buildings[f][15].second = readTo(buf,it,'\n');//resource silo
-	}
-	/////done reading BLDGSPEC.TXT*********************************
-
-	buf = getTextFile("DWELLING.TXT");
-	andame = buf.size(), it=0;
-	for(int f=0;f<GameConstants::F_NUMBER;f++)
-	{
-		for(int b=0;b<14;b++)
-		{
-			buildings[f][30+b].first = readTo(buf,it,'\t');
-			buildings[f][30+b].second = readTo(buf,it,'\n');
-		}
-	}
-
-	//remove prceeding / trailing whitespaces nad quoation marks from buildings descriptions
-	for(std::map<int, std::map<int, std::pair<std::string, std::string> > >::iterator i = buildings.begin(); i != buildings.end(); i++)
-	{
-		for(std::map<int, std::pair<std::string, std::string> >::iterator j = i->second.begin(); j != i->second.end(); j++)
-		{
-			std::string &str = j->second.second;
-			boost::algorithm::trim(str);
-			trimQuotation(str);
-		}
-	}
-
-	buf = getTextFile("TCOMMAND.TXT");
-	itr=0;
-	while(itr<buf.length()-1)
-	{
-		std::string tmp;
-		loadToIt(tmp, buf, itr, 3);
-		tcommands.push_back(tmp);
-	}
-
-	buf = getTextFile("HALLINFO.TXT");
-	itr=0;
-	while(itr<buf.length()-1)
-	{
-		std::string tmp;
-		loadToIt(tmp, buf, itr, 3);
-		hcommands.push_back(tmp);
-	}
-
-	buf = getTextFile("CASTINFO.TXT");
-	itr=0;
-	while(itr<buf.length()-1)
-	{
-		std::string tmp;
-		loadToIt(tmp, buf, itr, 3);
-		fcommands.push_back(tmp);
-	}
-
-	std::istringstream ins, namess;
-	ins.str(getTextFile("TOWNTYPE.TXT"));
-	namess.str(getTextFile("TOWNNAME.TXT"));
-	int si=0;
-	char bufname[75];
-	while (!ins.eof())
-	{
-		ins.getline(bufname,50);
-		townTypes.push_back(std::string(bufname).substr(0,strlen(bufname)-1));
-		townNames.resize(si+1);
-
-		for (int i=0; i<GameConstants::NAMES_PER_TOWN; i++)
-		{
-			namess.getline(bufname,50);
-			townNames[si].push_back(std::string(bufname).substr(0,strlen(bufname)-1));
-		}
-		si++;
-	}
-
-	tlog5 << "\t\tReading OBJNAMES \n";
-	buf = getTextFile("OBJNAMES.TXT");
-	it=0; //hope that -1 will not break this
-	while (it<buf.length()-1)
-	{
-		std::string nobj;
-		loadToIt(nobj, buf, it, 3);
-		if(nobj.size() && (nobj[nobj.size()-1]==(char)10 || nobj[nobj.size()-1]==(char)13 || nobj[nobj.size()-1]==(char)9))
-		{
-			nobj = nobj.substr(0, nobj.size()-1);
-		}
-		names.push_back(nobj);
-	}
-
-	tlog5 << "\t\tReading ADVEVENT \n";
-	buf = getTextFile("ADVEVENT.TXT");
-	it=0;
-	std::string temp;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		if (temp[0]=='\"')
-		{
-			temp = temp.substr(1,temp.length()-2);
-		}
-		boost::algorithm::replace_all(temp,"\"\"","\"");
-		advobtxt.push_back(temp);
-	}
-
-	tlog5 << "\t\tReading XTRAINFO \n";
-	buf = getTextFile("XTRAINFO.TXT");
-	it=0;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		xtrainfo.push_back(temp);
-	}
-
-	tlog5 << "\t\tReading MINENAME \n";
-	buf = getTextFile("MINENAME.TXT");
-	it=0;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		mines.push_back(std::pair<std::string,std::string>(temp,""));
-	}
-
-	tlog5 << "\t\tReading MINEEVNT \n";
-	buf = getTextFile("MINEEVNT.TXT");
-	it=0;
-	i=0;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		temp = temp.substr(1,temp.length()-2);
-		if(i < mines.size())
-			mines[i++].second = temp;
-		else
-			tlog2 << "Warning - too much entries in MINEEVNT. Omitting this one: " << temp << std::endl;
-	}
-
-	tlog5 << "\t\tReading RESTYPES \n";
-	buf = getTextFile("RESTYPES.TXT");
-	it=0;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		restypes.push_back(temp);
-	}
-
-	tlog5 << "\t\tReading TERRNAME \n";
-	buf = getTextFile("TERRNAME.TXT");
-	it=0;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		terrainNames.push_back(temp);
-	}
-
-	tlog5 << "\t\tReading RANDSIGN \n";
-	buf = getTextFile("RANDSIGN.TXT");
-	it=0;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		randsign.push_back(temp);
-	}	
-
-	tlog5 << "\t\tReading ZCRGN1 \n";
-	buf = getTextFile("ZCRGN1.TXT");
-	it=0;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		creGens.push_back(temp);
-	}
-
-	tlog5 << "\t\tReading CRGN4 \n";
-	buf = getTextFile("CRGEN4.TXT");
-	it=0;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		creGens4.push_back(temp);
-	}
-
-	buf = getTextFile("GENRLTXT.TXT");
-	std::string tmp;
-	andame = buf.size();
-	i=0; //buf iterator
-	for(; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			break;
-	}
-
-	i+=2;
-	std::string buflet;
-	for(int jj=0; jj<764; ++jj)
-	{
-		loadToIt(buflet, buf, i, 2);
-		trimQuotation(buflet);
-		boost::algorithm::replace_all(buflet,"\"\"","\"");
-		allTexts.push_back(buflet);
-	}
-
-	std::string  stro = getTextFile("Overview.txt");
-	itr=0;
-	while(itr<stro.length()-1)
-	{
-		loadToIt(tmp, stro, itr, 3);
-		trimQuotation(tmp);
-		overview.push_back(tmp);
-	}
-
-	std::string  strc = getTextFile("PLCOLORS.TXT");
-	itr=0;
-	while(itr<strc.length()-1)
-	{
-		loadToIt(tmp, strc, itr, 3);
-		colors.push_back(tmp);
-		tmp[0] = toupper(tmp[0]);
-		capColors.push_back(tmp);
-	}
-
-	std::string  strs = getTextFile("ARRAYTXT.TXT");
-
-	itr=0;
-	while(itr<strs.length()-1)
-	{
-		loadToIt(tmp, strs, itr, 3);
-		trimQuotation(tmp);
-		arraytxt.push_back(tmp);
-	}
-
-	itr = 0;
-	std::string strin = getTextFile("PRISKILL.TXT");
-	for(int hh=0; hh<4; ++hh)
-	{
-		loadToIt(tmp, strin, itr, 3);
-		primarySkillNames.push_back(tmp);
-	}
-
-	itr = 0;
-	strin = getTextFile("JKTEXT.TXT");
-	for(int hh=0; hh<45; ++hh)
-	{
-		loadToIt(tmp, strin, itr, 3);
-		trimQuotation(tmp); 
-		jktexts.push_back(tmp);
-	}
-
-	itr = 0;
-	strin = getTextFile("TVRNINFO.TXT");
-	for(int hh=0; hh<8; ++hh)
-	{
-		loadToIt(tmp, strin, itr, 3);
-		tavernInfo.push_back(tmp);
-	}
-
-	itr = 0;
-	strin = getTextFile("TURNDUR.TXT");
-	for(int hh=0; hh<11; ++hh)
-	{
-		loadToIt(tmp, strin, itr, 3);
-		turnDurations.push_back(tmp);
-	}
-
-	itr = 0;
-	strin = getTextFile("HEROSCRN.TXT");
-	for(int hh=0; hh<33; ++hh)
-	{
-		loadToIt(tmp, strin, itr, 3);
-		heroscrn.push_back(tmp);
-	}
-
-	itr = 0;
-	strin = getTextFile("ARTEVENT.TXT");
-	for(; itr<strin.size();)
-	{
-		loadToIt(tmp, strin, itr, 2);
-	//	boost::algorithm::trim(tmp);
-		trimQuotation(tmp);
-		boost::algorithm::replace_all(tmp,"\"\"","\"");
-		artifEvents.push_back(tmp);
-	}
-
-	buf = getTextFile("SSTRAITS.TXT");
-	it=0;
-
-	for(int i=0; i<2; ++i)
-		loadToIt(dump,buf,it,3);
-
-	skillName.resize(GameConstants::SKILL_QUANTITY);
-	skillInfoTexts.resize(GameConstants::SKILL_QUANTITY);
-	for (int i=0; i<GameConstants::SKILL_QUANTITY; i++)
-	{
-		skillInfoTexts[i].resize(3);
-		loadToIt(skillName[i],buf,it,4);
-		loadToIt(skillInfoTexts[i][0],buf,it,4);
-		loadToIt(skillInfoTexts[i][1],buf,it,4);
-		loadToIt(skillInfoTexts[i][2],buf,it,3);
-		for(int j = 0; j < 3; j++)
-			trimQuotation(skillInfoTexts[i][j]);
-	}
-	buf = getTextFile("SKILLLEV.TXT");
-	it=0;
-	for(int i=0; i<6; ++i)
-	{
-		std::string buffo;
-		loadToIt(buffo,buf,it,3);
-		levels.push_back(buffo);
-	}
-
-	buf = getTextFile ("SEERHUT.TXT");
-	it = 0;
-	loadToIt (dump, buf, it, 3);
-	loadToIt (dump, buf, it, 4); //dump description
-	seerEmpty.resize(6);
-	for (i = 0; i < 5; ++i)
-	{
-		loadToIt(seerEmpty[i], buf, it, 4);
-		trimQuotation (seerEmpty[i]);
-	}
-	loadToIt (seerEmpty[5], buf, it, 3);
-	trimQuotation (seerEmpty[5]);
-	int j,k;
-	quests.resize(10);
-	for (i = 0; i < 9; ++i) //9 types of quests
-	{
-		quests[i].resize(5);
-		for (j = 0; j < 5; ++j)
-		{
-			loadToIt (dump, buf, it, 4); //front description
-			quests[i][j].resize(6);
-			for (k = 0; k < 5; ++k)
+			for(int j=0; j<GameConstants::F_NUMBER; j++)
 			{
-				loadToIt (quests[i][j][k], buf, it, 4);
-				trimQuotation (quests[i][j][k]);
+				buildings[j][i].first = name;
+				buildings[j][i].second = descr;
 			}
-			loadToIt (quests[i][j][5], buf, it, 3);
-			trimQuotation (quests[i][j][5]);
+		}
+		parser.endLine(); // silo
+		parser.endLine(); // blacksmith  //unused entries
+		parser.endLine(); // moat
+
+		//shipyard with the ship
+		std::string name  = parser.readString();
+		std::string descr = parser.readString();
+		parser.endLine();
+
+		for(int j=0; j<GameConstants::F_NUMBER; j++)
+		{
+			buildings[j][20].first = name;
+			buildings[j][20].second = descr;
+		}
+
+		//blacksmith
+		for(int j=0; j<GameConstants::F_NUMBER; j++)
+		{
+			buildings[j][16].first =  parser.readString();
+			buildings[j][16].second = parser.readString();
+			parser.endLine();
 		}
 	}
-	quests[9].resize(1);
-	quests[9][0].resize(6);
-
-	for (k = 0; k < 5; ++k) //Time limit
 	{
-		loadToIt (quests[9][0][k], buf, it, 4);
-	}
-	loadToIt (quests[9][0][k], buf, it, 3);
-	for (i = 0; i < 2; ++i) //gap description
-		loadToIt(dump,buf,it,3);
-	seerNames.resize(48);
-	for (i = 0; i < 48; ++i)
-		loadToIt(seerNames[i], buf, it, 3);
+		CLegacyConfigParser parser("DATA/BLDGSPEC.TXT");
 
-	buf = getTextFile("TENTCOLR.TXT");
-	itr=0;
-	while(itr<buf.length()-1)
-	{
-		std::string tmp;
-		loadToIt(tmp, buf, itr, 3);
-		tentColors.push_back(tmp);
-	}
-
-	//campaigns
-	buf = getTextFile ("CAMPTEXT.TXT");
-	it = 0;
-	loadToIt (dump, buf, it, 3); //comment
-	std::string nameBuf;
-	do //map names
-	{
-		loadToIt(nameBuf, buf, it, 3);
-		if(nameBuf.size())
+		for(int town=0; town<GameConstants::F_NUMBER; town++)
 		{
-			campaignMapNames.push_back(nameBuf);
-		}
-	} while (nameBuf.size());
-
-	campaignRegionNames.resize(campaignMapNames.size()); //allocating space
-	for(int g=0; g<campaignMapNames.size(); ++g) //region names
-	{
-		do //dump comments and empty lines
-		{
-			loadToIt(nameBuf, buf, it, 3);
-		} while (!nameBuf.size() || nameBuf[0] != '/');
-		do //actual names
-		{
-			loadToIt(nameBuf, buf, it, 3);
-			if(nameBuf.size())
+			for(int build=0; build<9; build++)
 			{
-				campaignRegionNames[g].push_back(nameBuf);
+				buildings[town][17+build].first =  parser.readString();
+				buildings[town][17+build].second = parser.readString();
+				parser.endLine();
 			}
-		} while (nameBuf.size());
-	}
+			buildings[town][26].first =  parser.readString(); // Grail
+			buildings[town][26].second = parser.readString();
+			parser.endLine();
 
-	buf = getTextFile ("ZCREXP.TXT");
-	it = 0;
-	loadToIt (dump, buf, it, 3); //comment
-	for (int i = 0; i < 459; ++i) //some texts seem to be empty
+			buildings[town][15].first =  parser.readString(); // Resource silo
+			buildings[town][15].second = parser.readString();
+			parser.endLine();
+		}
+	}
 	{
-		loadToIt(dump, buf, it, 4); //description, usually useless
-		loadToIt(nameBuf, buf, it, 3);
-		zcrexp.push_back(nameBuf);
+		CLegacyConfigParser parser("DATA/DWELLING.TXT");
+
+		for(int town=0; town<GameConstants::F_NUMBER; town++)
+		{
+			for(int build=0; build<14; build++)
+			{
+				buildings[town][30+build].first =  parser.readString();
+				buildings[town][30+build].second = parser.readString();
+				parser.endLine();
+			}
+		}
+	}
+	{
+		CLegacyConfigParser typeParser("DATA/TOWNTYPE.TXT");
+		CLegacyConfigParser nameParser("DATA/TOWNNAME.TXT");
+		do
+		{
+			townTypes.push_back(typeParser.readString());
+
+			townNames.push_back(std::vector<std::string>());
+			for (int i=0; i<GameConstants::NAMES_PER_TOWN; i++)
+			{
+				townNames.back().push_back(nameParser.readString());
+				nameParser.endLine();
+			}
+		}
+		while (typeParser.endLine());
+	}
+	{
+		CLegacyConfigParser nameParser("DATA/MINENAME.TXT");
+		CLegacyConfigParser eventParser("DATA/MINEEVNT.TXT");
+
+		do
+		{
+			std::string name  = nameParser.readString();
+			std::string event = eventParser.readString();
+			mines.push_back(std::make_pair(name, event));
+		}
+		while (nameParser.endLine() && eventParser.endLine());
+	}
+	{
+		CLegacyConfigParser parser("DATA/PLCOLORS.TXT");
+		do
+		{
+			std::string color = parser.readString();
+			colors.push_back(color);
+
+			color[0] = toupper(color[0]);
+			capColors.push_back(color);
+		}
+		while (parser.endLine());
+	}
+	{
+		CLegacyConfigParser parser("DATA/SSTRAITS.TXT");
+
+		//skip header
+		parser.endLine();
+		parser.endLine();
+
+		do
+		{
+			skillName.push_back(parser.readString());
+
+			skillInfoTexts.push_back(std::vector<std::string>());
+			for(int j = 0; j < 3; j++)
+				skillInfoTexts.back().push_back(parser.readString());
+		}
+		while (parser.endLine());
+	}
+	{
+		CLegacyConfigParser parser("DATA/SEERHUT.TXT");
+
+		//skip header
+		parser.endLine();
+
+		while (parser.endLine());
+
+		for (int i = 0; i < 6; ++i)
+			seerEmpty.push_back(parser.readString());
+
+		quests.resize(10);
+		for (int i = 0; i < 9; ++i) //9 types of quests
+		{
+			quests[i].resize(5);
+			for (int j = 0; j < 5; ++j)
+			{
+				parser.readString(); //front description
+				for (int k = 0; k < 6; ++k)
+					quests[i][j].push_back(parser.readString());
+
+				parser.endLine();
+			}
+		}
+		quests[9].resize(1);
+
+		for (int k = 0; k < 6; ++k) //Time limit
+		{
+			quests[9][0].push_back(parser.readString());
+		}
+		parser.endLine();
+
+		parser.endLine(); // empty line
+		parser.endLine(); // header
+
+		for (int i = 0; i < 48; ++i)
+		{
+			seerNames.push_back(parser.readString());
+			parser.endLine();
+		}
+	}
+	{
+		CLegacyConfigParser parser("DATA/CAMPTEXT.TXT");
+
+		//skip header
+		parser.endLine();
+
+		std::string text;
+		do
+		{
+			text = parser.readString();
+			parser.endLine();
+			if (!text.empty())
+				campaignMapNames.push_back(parser.readString());
+		}
+		while (parser.endLine() && !text.empty());
+
+		for (size_t i=0; i<campaignMapNames.size(); i++)
+		{
+			do // skip empty space and header
+			{
+				text = parser.readString();
+			}
+			while (parser.endLine() && text.empty());
+
+			campaignRegionNames.push_back(std::vector<std::string>());
+			do
+			{
+				text = parser.readString();
+				parser.endLine();
+				if (!text.empty())
+					campaignRegionNames.back().push_back(parser.readString());
+			}
+			while (parser.endLine() && !text.empty());
+		}
+	}
+	{
+		CLegacyConfigParser parser("DATA/ZCREXP.TXT");
+		parser.endLine();//header
+		do
+		{
+			parser.readString(); //ignore 1st column with description
+			zcrexp.push_back(parser.readString());
+		}
+		while (parser.endLine());
 	}
 
+	std::string buffer;
 	std::ifstream ifs(CResourceHandler::get()->getResourceName(ResourceID("config/threatlevel.txt")), std::ios::binary);
-	getline(ifs, buf); //skip 1st line
+	getline(ifs, buffer); //skip 1st line
 	for (int i = 0; i < 13; ++i)
 	{
-		getline(ifs, buf);
-		threat.push_back(buf);
+		getline(ifs, buffer);
+		threat.push_back(buffer);
 	}
 }
-
 
 std::string CGeneralTextHandler::getTitle(const std::string & text)
 {

@@ -173,6 +173,10 @@ void CResourceLoader::addLoader(std::string mountPoint, shared_ptr<ISimpleResour
 		// Create identifier and locator and add them to the resources list
 		ResourceID ident(mountPoint, entry.first.getName(), entry.first.getType());
 		ResourceLocator locator(loader.get(), entry.second);
+
+		if (ident.getType() == EResType::OTHER)
+			tlog5 << "Warning: unknown file type: " << entry.second << "\n";
+
 		resources[ident].push_back(locator);
 	}
 }
