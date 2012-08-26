@@ -892,7 +892,7 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 			if (!i->isSecondary()) //display projectile only for primary target
 			{
 				const CStack * attacked = cb->battleGetStackByID(i->stackAttacked);
-				battleInt->stackAttacking(attacker, cb->battleGetPos(i->stackAttacked), attacked, true);
+				battleInt->stackAttacking(attacker, attacked->position, attacked, true);
 			}
 		}
 	}

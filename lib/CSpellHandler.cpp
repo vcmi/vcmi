@@ -256,6 +256,10 @@ bool CSpell::isRisingSpell() const
 	return vstd::contains(VLC->spellh->risingSpells, id);
 }
 
+bool CSpell::isDamageSpell() const
+{
+	return vstd::contains(VLC->spellh->damageSpells, id);
+}
 bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
 {
 	int3 diff = pos - center;

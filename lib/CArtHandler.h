@@ -34,6 +34,14 @@ namespace ArtifactPosition
 	};
 }
 
+namespace ArtifactId
+{
+	enum ArtifactId
+	{
+		SPELLBOOK = 17
+	};
+}
+
 namespace ArtBearer
 {
 	enum
@@ -181,8 +189,9 @@ public:
 
 class DLL_LINKAGE CArtHandler //handles artifacts
 {
-	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER, ILimiter * limiter = NULL, int additionalinfo = 0);
-	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype, IPropagator* propagator, int additionalinfo = 0);
+	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = NULL, int additionalinfo = 0);
+	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
+	void giveArtBonus(int aid, Bonus *bonus);
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector< ConstTransitivePtr<CArtifact> > artifacts;

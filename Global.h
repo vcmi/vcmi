@@ -44,17 +44,10 @@
 #include <queue>
 #include <set>
 #include <sstream>
+#include <string>
+//#include <unordered_map>
 #include <utility>
-#include <numeric>
-
-#include <iostream>
-#include <fstream>
-#include <sstream>
-#include <iomanip>
-
-#include <algorithm>
-#include <memory>
-#include <cstdlib>
+#include <vector>
 
 //The only available version is 3, as of Boost 1.50
 #define BOOST_FILESYSTEM_VERSION 3
@@ -72,8 +65,10 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/logic/tribool.hpp>
 #include <boost/program_options.hpp>
+#include <boost/optional.hpp>
 #include <boost/range/algorithm.hpp>
 #include <boost/thread.hpp>
+#include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/variant.hpp>
@@ -172,7 +167,14 @@ namespace vstd
 	template <typename Container, typename Item>
 	bool contains(const Container & c, const Item &i)
 	{
-		return std::find(c.begin(),c.end(),i) != c.end();
+		return std::find(boost::begin(c), boost::end(c),i) != boost::end(c);
+	}
+
+	//returns true if container c contains item i
+	template <typename Container, typename Pred>
+	bool contains_if(const Container & c, Pred p)
+	{
+		return std::find_if(boost::begin(c), boost::end(c), p) != boost::end(c);
 	}
 
 	//returns true if map c contains item i
@@ -201,7 +203,7 @@ namespace vstd
 	int find_pos(const Container & c, const T2 &s)
 	{
 		size_t i=0;
-		for (auto iter = c.begin(); iter != c.end(); iter++, i++)
+		for (auto iter = boost::begin(c); iter != boost::end(c); iter++, i++)
 			if(*iter == s)
 				return i;
 		return -1;
@@ -343,10 +345,38 @@ namespace vstd
 	{
 		assert(r.size());
 		index %= r.size();
-		// auto itr = std::begin(r); //not available in gcc-4.5
-		auto itr = r.begin();
+		auto itr = boost::begin(r);
 		std::advance(itr, index);
 		return *itr;
+	}
+	
+	template<typename Range, typename Predicate>
+	void erase_if(Range &vec, Predicate pred)
+	{
+		vec.erase(boost::remove_if(vec, pred),vec.end());
+	}
+
+	template<typename InputRange, typename OutputIterator, typename Predicate>
+	OutputIterator copy_if(const InputRange &input, OutputIterator result, Predicate pred)
+	{
+		return std::copy_if(boost::const_begin(input), boost::end(input), result, pred);
+	}
+
+	template <typename Container>
+	std::insert_iterator<Container> set_inserter(Container &c)
+	{
+		return std::inserter(c, c.end());
+	}
+
+	//Retuns iterator to the element for which the value of ValueFunction is minimal
+	template<class ForwardRange, class ValueFunction>
+	auto minElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(boost::begin(rng))
+	{
+		typedef decltype(*boost::begin(rng)) ElemType;
+		return boost::min_element(rng, [&] (const ElemType &lhs, const ElemType &rhs) -> bool
+		{
+			return vf(lhs) < vf(rhs);
+		});
 	}
 }
 

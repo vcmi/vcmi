@@ -22,7 +22,7 @@ class DLL_LINKAGE CSpell
 public:
 	enum ETargetType {NO_TARGET, CREATURE, CREATURE_EXPERT_MASSIVE, OBSTACLE};
 	enum ESpellPositiveness {NEGATIVE = -1, NEUTRAL = 0, POSITIVE = 1};
-	ui32 id;
+	TSpell id;
 	std::string name;
 	std::string abbName; //abbreviated name
 	std::vector<std::string> descriptions; //descriptions of spell for skill levels: 0 - none, 1 - basic, etc
@@ -48,6 +48,7 @@ public:
 	bool isPositive() const;
 	bool isNegative() const;
 	bool isRisingSpell() const;
+	bool isDamageSpell() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

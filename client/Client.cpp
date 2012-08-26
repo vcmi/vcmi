@@ -117,7 +117,7 @@ void CClient::waitForMoveAndSend(int color)
 	try
 	{
 		assert(vstd::contains(battleints, color));
-		BattleAction ba = battleints[color]->activeStack(gs->curB->getStack(gs->curB->activeStack, false));
+		BattleAction ba = battleints[color]->activeStack(gs->curB->battleGetStackByID(gs->curB->activeStack, false));
 		MakeAction temp_action(ba);
 		sendRequest(&temp_action, color);
 		return;
@@ -381,13 +381,14 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			battleints[color] = playerint[color];
 
 			playerint[color]->init(cb.get());
-			callbacks[color] = cb;
+			battleCallbacks[color] = callbacks[color] = cb;
 		}
 		else
 		{
-			CBattleCallback * cbc = new CBattleCallback(gs, color, this);
+			auto cbc = make_shared<CBattleCallback>(gs, color, this);
+			battleCallbacks[color] = cbc;
 			battleints[color] = CDynLibHandler::getNewBattleAI("StupidAI");
-			battleints[color]->init(cbc);
+			battleints[color]->init(cbc.get());
 		}
 	}
 
@@ -399,7 +400,9 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		battleints[254] = playerint[254] = p;
 		privilagedBattleEventReceivers.push_back(p);
 		GH.curInt = p;
-		p->init(new CCallback(gs, -1, this));
+		auto cb = make_shared<CCallback>(gs, -1, this);
+		battleCallbacks[-1] = callbacks[-1] = cb;
+		p->init(cb.get());
 		battleStarted(gs->curB);
 	}
 	else
@@ -554,6 +557,15 @@ void CClient::stopConnection()
 
 void CClient::battleStarted(const BattleInfo * info)
 {
+	BOOST_FOREACH(auto &battleCb, battleCallbacks)
+	{
+		if(vstd::contains(info->sides, battleCb.first)  ||  battleCb.first >= GameConstants::PLAYER_LIMIT)
+			battleCb.second->setBattle(info);
+	}
+// 	BOOST_FOREACH(ui8 side, info->sides)
+// 		if(battleCallbacks.count(side))
+// 			battleCallbacks[side]->setBattle(info);
+
 	CPlayerInterface * att, * def;
 	if(vstd::contains(playerint, info->sides[0]) && playerint[info->sides[0]]->human)
 		att = static_cast<CPlayerInterface*>( playerint[info->sides[0]] );
@@ -586,10 +598,19 @@ void CClient::battleStarted(const BattleInfo * info)
 	}
 }
 
+void CClient::battleFinished()
+{
+	BOOST_FOREACH(ui8 side, gs->curB->sides)
+		if(battleCallbacks.count(side))
+			battleCallbacks[side]->setBattle(nullptr);
+}
+
 void CClient::loadNeutralBattleAI()
 {
 	battleints[255] = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
-	battleints[255]->init(new CBattleCallback(gs, 255, this));
+	auto cbc = make_shared<CBattleCallback>(gs, 255, this);
+	battleCallbacks[255] = cbc;
+	battleints[255]->init(cbc.get());
 }
 
 void CClient::commitPackage( CPackForClient *pack )

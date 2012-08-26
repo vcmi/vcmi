@@ -654,9 +654,24 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 				break;
 			case ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED:
 				{
-					std::string text = CGI->generaltexth->allTexts[541], caster = owner->myHero->name;
-					text = boost::str(boost::format(text) % caster);
-					owner->myInt->showInfoDialog(text);
+					//Recanter's Cloak or similar effect. Try to retrieve bonus
+					const Bonus *b = owner->myHero->getBonus(Selector::type(Bonus::BLOCK_MAGIC_ABOVE));
+					//TODO what about other values and non-artifact sources?
+					if(b && b->val == 2 && b->source == Bonus::ARTIFACT)
+					{
+						std::string artName = CGI->arth->artifacts[b->sid]->Name();
+						//The %s prevents %s from casting 3rd level or higher spells.
+						owner->myInt->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[536]) 
+							% artName % owner->myHero->name));
+					}
+					else
+					{
+						// General message:
+						// %s recites the incantations but they seem to have no effect.
+						std::string text = CGI->generaltexth->allTexts[541], caster = owner->myHero->name;
+						text = boost::str(boost::format(text) % caster);
+						owner->myInt->showInfoDialog(text);
+					}
 				}
 				break;
 			case ESpellCastProblem::NO_APPROPRIATE_TARGET:

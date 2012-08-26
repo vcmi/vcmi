@@ -251,7 +251,7 @@ bool MakeAction::applyGh( CGameHandler *gh )
 		if(gh->connections[b->sides[b->tacticsSide]] != c) 
 			ERROR_AND_RETURN;
 	}
-	else if(gh->connections[b->getStack(b->activeStack)->owner] != c) 
+	else if(gh->connections[b->battleGetStackByID(b->activeStack)->owner] != c) 
 		ERROR_AND_RETURN;
 
 	return gh->makeBattleAction(ba);
@@ -262,9 +262,10 @@ bool MakeCustomAction::applyGh( CGameHandler *gh )
 	const BattleInfo *b = GS(gh)->curB;
 	if(!b) ERROR_AND_RETURN;
 	if(b->tacticDistance) ERROR_AND_RETURN;
-	const CStack *active = GS(gh)->curB->getStack(GS(gh)->curB->activeStack);
+	const CStack *active = GS(gh)->curB->battleGetStackByID(GS(gh)->curB->activeStack);
 	if(!active) ERROR_AND_RETURN;
 	if(gh->connections[active->owner] != c) ERROR_AND_RETURN;
+	if(ba.actionType != BattleAction::HERO_SPELL) ERROR_AND_RETURN;
 	return gh->makeCustomAction(ba);
 }
 

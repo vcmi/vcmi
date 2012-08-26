@@ -1,8 +1,5 @@
 #pragma once
 
-
-#include <climits>
-
 typedef si32 TResource;
 typedef si64 TResourceCap; //to avoid overflow when adding integers. Signed values are easier to control.
 

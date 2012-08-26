@@ -16,7 +16,7 @@
 
 using namespace boost::logic;
 class CCallback;
-class CBattleCallback;
+class CPlayerBattleCallback;
 class ICallback;
 class CGlobalAI;
 struct Component;
@@ -61,7 +61,7 @@ public:
 	std::string dllName;
 
 	virtual ~CBattleGameInterface() {};
-	virtual void init(CBattleCallback * CB){};
+	virtual void init(CPlayerBattleCallback * CB){};
 
 	//battle call-ins
 	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
@@ -115,7 +115,7 @@ public:
 
 	std::string battleAIName;
 	CBattleGameInterface *battleAI;
-	CBattleCallback *cbc;
+	CPlayerBattleCallback *cbc;
 
 	//battle interface
 	virtual BattleAction activeStack(const CStack * stack);

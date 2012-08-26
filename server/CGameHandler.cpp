@@ -531,8 +531,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	ConstTransitivePtr <CGHeroInstance> loserHero = battleResult.data->winner != 0 ? hero1 : hero2;
 	std::vector<ui32> arts; //display them in window
 
-	//TODO: display loot in window
-	if (result < BattleResult::SURRENDER && winnerHero)
+	if (result == BattleResult::NORMAL && winnerHero)
 	{
 		if (loserHero)
 		{
@@ -542,7 +541,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 				MoveArtifact ma;
 				ma.src = ArtifactLocation (loserHero, artSlot.first);
 				const CArtifactInstance * art =  ma.src.getArt();
-				if (art && !art->artType->isBig()) // don't move war machines or locked arts (spellbook)
+				if (art && !art->artType->isBig() && art->id != ArtifactId::SPELLBOOK) // don't move war machines or locked arts (spellbook)
 				{
 					arts.push_back (art->artType->id);
 					ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
@@ -692,6 +691,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		addToSlot(StackLocation(winnerHero, necroSlot), raisedStack.type, raisedStack.count);
 	}
 	sendAndApply(&resultsApplied);
+	setBattle(nullptr);
 
 	if(duel)
 	{
@@ -775,10 +775,10 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 
 	if (!bat.shot()) //multiple-hex attack - only in meele
 	{
-		std::set<CStack*> attackedCreatures = gs->curB->getAttackedCreatures(att, targetHex);
+		std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(att, targetHex);
 		//TODO: get exact attacked hex for defender
 
-		BOOST_FOREACH(CStack * stack, attackedCreatures)
+		BOOST_FOREACH(const CStack * stack, attackedCreatures)
 		{
 			if (stack != def) //do not hit same stack twice
 			{
@@ -793,10 +793,10 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		bat.bsa.front().flags |= BattleStackAttacked::EFFECT;
 		bat.bsa.front().effect = VLC->spellh->spells[bonus->subtype]->mainEffectAnim; //hopefully it does not interfere with any other effect?
 
-		std::set<CStack*> attackedCreatures = gs->curB->getAttackedCreatures(VLC->spellh->spells[bonus->subtype], bonus->val, att->owner, targetHex);
+		std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(VLC->spellh->spells[bonus->subtype], bonus->val, att->owner, targetHex);
 		//TODO: get exact attacked hex for defender
 
-		BOOST_FOREACH(CStack * stack, attackedCreatures)
+		BOOST_FOREACH(const CStack * stack, attackedCreatures)
 		{
 			if (stack != def) //do not hit same stack twice
 			{
@@ -924,8 +924,8 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 {
 	int ret = 0;
 
-	CStack *curStack = gs->curB->getStack(stack),
-		*stackAtEnd = gs->curB->getStackT(dest);
+	const CStack *curStack = gs->curB->battleGetStackByID(stack),
+		*stackAtEnd = gs->curB->battleGetStackByPos(dest);
 
 	assert(curStack);
 	assert(dest < GameConstants::BFIELD_SIZE);
@@ -936,50 +936,30 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 	}
 
 	//initing necessary tables
-	bool accessibility[GameConstants::BFIELD_SIZE];
-	std::vector<BattleHex> accessible = gs->curB->getAccessibility(curStack, false, NULL, true);
-	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
-	{
-		accessibility[b] = false;
-	}
-	for(int g=0; g<accessible.size(); ++g)
-	{
-		accessibility[accessible[g]] = true;
-	}
+	auto accessibility = getAccesibility();
 
 	//shifting destination (if we have double wide stack and we can occupy dest but not be exactly there)
-	if(!stackAtEnd && curStack->doubleWide() && !accessibility[dest])
+	if(!stackAtEnd && curStack->doubleWide() && !accessibility.accessible(dest, curStack))
 	{
 		if(curStack->attackerOwned)
 		{
-			if(accessibility[dest+1])
+			if(accessibility.accessible(dest+1, curStack))
 				dest += BattleHex::RIGHT;
 		}
 		else
 		{
-			if(accessibility[dest-1])
+			if(accessibility.accessible(dest-1, curStack))
 				dest += BattleHex::LEFT;
 		}
 	}
 
-	if((stackAtEnd && stackAtEnd!=curStack && stackAtEnd->alive()) || !accessibility[dest])
+	if((stackAtEnd && stackAtEnd!=curStack && stackAtEnd->alive()) || !accessibility.accessible(dest, curStack))
+	{
+		complain("Given destination is not accessible!");
 		return 0;
-
-	bool accessibilityWithOccupyable[GameConstants::BFIELD_SIZE];
-	std::vector<BattleHex> accOc = gs->curB->getAccessibility(curStack, true, NULL, true);
-	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
-	{
-		accessibilityWithOccupyable[b] = false;
 	}
-	for(int g=0; g<accOc.size(); ++g)
-	{
-		accessibilityWithOccupyable[accOc[g]] = true;
-	}
-
-	//if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex
-	//	return false;
-
-	std::pair< std::vector<BattleHex>, int > path = gs->curB->getPath(curStack->position, dest, accessibilityWithOccupyable, curStack->hasBonusOfType(Bonus::FLYING), curStack->doubleWide(), curStack->attackerOwned);
+	
+	std::pair< std::vector<BattleHex>, int > path = gs->curB->getPath(curStack->position, dest, curStack);
 
 	ret = path.second;
 
@@ -3220,6 +3200,40 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	tlog1 << "\tMaking action of type " << ba.actionType << std::endl;
 	bool ok = true;
 
+
+	const CStack *stack = battleGetStackByID(ba.stackNumber); //may be nullptr if action is not about stack
+	const bool isAboutActiveStack = stack && (stack == battleActiveStack()); 
+	
+	switch(ba.actionType)
+	{
+	case BattleAction::WALK: //walk
+	case BattleAction::DEFEND: //defend
+	case BattleAction::WAIT: //wait
+	case BattleAction::WALK_AND_ATTACK: //walk or attack
+	case BattleAction::SHOOT: //shoot
+	case BattleAction::CATAPULT: //catapult
+	case BattleAction::STACK_HEAL: //healing with First Aid Tent
+	case BattleAction::DAEMON_SUMMONING:
+	case BattleAction::MONSTER_SPELL:
+
+		if(!stack)
+		{
+			complain("No such stack!");
+			return false;
+		}
+		if(!stack->alive())
+		{
+			complain("This stack is dead: " + stack->nodeName());
+			return false;
+		}
+		if(!isAboutActiveStack)
+		{
+			complain("Action has to be about active stack!");
+			return false;
+		}
+	}
+
+
 	switch(ba.actionType)
 	{
 	case BattleAction::END_TACTIC_PHASE: //wait
@@ -3267,7 +3281,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	case BattleAction::SURRENDER:
 		{
 			int player = gs->curB->sides[ba.side];
-			int cost = gs->curB->getSurrenderingCost(player);
+			int cost = gs->curB->battleGetSurrenderCost(player);
 			if(cost < 0)
 				complain("Cannot surrender!");
 			else if(getResource(player, Res::GOLD) < cost)
@@ -3284,16 +3298,18 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action); //start movement and attack
-			int startingPos = gs->curB->getStack(ba.stackNumber)->position;
+			int startingPos = gs->curB->battleGetStackByID(ba.stackNumber)->position;
 			int distance = moveStack(ba.stackNumber, ba.destinationTile);
-			CStack *curStack = gs->curB->getStack(ba.stackNumber),
-				*stackAtEnd = gs->curB->getStackT(ba.additionalInfo);
+			const CStack *curStack = gs->curB->battleGetStackByID(ba.stackNumber),
+				*stackAtEnd = gs->curB->battleGetStackByPos(ba.additionalInfo);
 
 			if(!curStack || !stackAtEnd)
 			{
 				sendAndApply(&end_action);
 				break;
 			}
+
+			tlog5 << curStack->nodeName() << " will attack " << stackAtEnd->nodeName() << std::endl;
 
 			if(curStack->position != ba.destinationTile //we wasn't able to reach destination tile
 				&& !(curStack->doubleWide()
@@ -3341,7 +3357,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			//counterattack
 			if(!curStack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
-				&& stackAtEnd->ableToRetaliate())
+				&& stackAtEnd->ableToRetaliate()
+				&& curStack->alive()) //attacker may have died (fire shield)
 			{
 				BattleAttack bat;
 				prepareAttack(bat, stackAtEnd, curStack, 0, curStack->position);
@@ -3374,8 +3391,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case BattleAction::SHOOT: //shoot
 		{
-			CStack *curStack = gs->curB->getStack(ba.stackNumber),
-				*destStack= gs->curB->getStackT(ba.destinationTile);
+			const CStack *curStack = gs->curB->battleGetStackByID(ba.stackNumber),
+				*destStack= gs->curB->battleGetStackByPos(ba.destinationTile);
 			if( !gs->curB->battleCanShoot(curStack, ba.destinationTile) )
 				break;
 
@@ -3423,7 +3440,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
 			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(CGHeroInstance::BALLISTICS)];
 
-			int attackedPart = gs->curB->hexToWallPart(ba.destinationTile);
+			int attackedPart = gs->curB->battleHexToWallPart(ba.destinationTile);
 			if(attackedPart < 0)
 			{
 				complain("catapult tried to attack non-catapultable hex!");
@@ -3524,8 +3541,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
 			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
-			CStack *healer = gs->curB->getStack(ba.stackNumber),
-				*destStack = gs->curB->getStackT(ba.destinationTile);
+			const CStack *healer = gs->curB->battleGetStackByID(ba.stackNumber),
+				*destStack = gs->curB->battleGetStackByPos(ba.destinationTile);
 
 			if(healer == NULL || destStack == NULL || !healer->hasBonusOfType(Bonus::HEALER))
 			{
@@ -3567,8 +3584,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
 
-			CStack *summoner = gs->curB->getStack(ba.stackNumber),
-				*destStack = gs->curB->getStackT(ba.destinationTile, false);
+			const CStack *summoner = gs->curB->battleGetStackByID(ba.stackNumber),
+				*destStack = gs->curB->battleGetStackByPos(ba.destinationTile, false);
 
 			BattleStackAdded bsa;
 			bsa.attacker = summoner->attackerOwned;
@@ -3603,7 +3620,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
 
-			CStack * stack = gs->curB->getStack(ba.stackNumber);
+			const CStack * stack = gs->curB->battleGetStackByID(ba.stackNumber);
 			int spellID = ba.additionalInfo;
 			BattleHex destination(ba.destinationTile);
 
@@ -3852,7 +3869,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 
 	if (caster) //calculate spell cost
 	{
-		sc.spellCost = gs->curB->getSpellCost(VLC->spellh->spells[spellID], caster);
+		sc.spellCost = gs->curB->battleGetSpellCost(VLC->spellh->spells[spellID], caster);
 
 		if (secHero && mode == ECastingMode::HERO_CASTING) //handle mana channel
 		{
@@ -3869,18 +3886,18 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	}
 
 	//calculating affected creatures for all spells
-	std::set<CStack*> attackedCres;
+	std::set<const CStack*> attackedCres;
 	if (mode != ECastingMode::ENCHANTER_CASTING)
 	{
 		attackedCres = gs->curB->getAttackedCreatures(spell, spellLvl, casterColor, destination);
-		for(std::set<CStack*>::const_iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+		for(std::set<const CStack*>::const_iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 		{
 			sc.affectedCres.insert((*it)->ID);
 		}
 	}
 	else //enchanter - hit all possible stacks
 	{
-		BOOST_FOREACH (CStack * stack, gs->curB->stacks)
+		BOOST_FOREACH (const CStack * stack, gs->curB->stacks)
 		{
 			/*if it's non negative spell and our unit or non positive spell and hostile unit */
 			if((!spell->isNegative() && stack->owner == casterColor)
@@ -3898,7 +3915,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	sc.resisted = gs->curB->calculateResistedStacks(spell, caster, secHero, attackedCres, casterColor, mode, usedSpellPower, spellLvl);
 
 	//calculating dmg to display
-	for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+	for(std::set<const CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 	{
 		if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
 			continue;
@@ -3976,7 +3993,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 				}
 			}
 			int chainLightningModifier = 0;
-			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+			for(auto it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
 				if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
 					continue;
@@ -4067,7 +4084,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 				bonus = caster->getBonus(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, spellID));
 
 			si32 power = 0;
-			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+			for(auto it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
 				if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
 					continue;
@@ -4154,7 +4171,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			StacksHealedOrResurrected shr;
 			shr.lifeDrain = (ui8)false;
 			shr.tentHealing = (ui8)false;
-			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+			for(auto it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
 				if(vstd::contains(sc.resisted, (*it)->ID) //this creature resisted the spell
 					|| (spellID == Spells::ANIMATE_DEAD && !(*it)->hasBonusOfType(Bonus::UNDEAD)) //we try to cast animate dead on living stack
@@ -4172,7 +4189,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 						hi.healedHP = gs->curB->calculateHealedHP(spell, usedSpellPower, spellLvl, *it);
 				}
 				else
-					hi.healedHP = gs->curB->calculateHealedHP(caster, spell, *it, gs->curB->getStack(selectedStack));
+					hi.healedHP = gs->curB->calculateHealedHP(caster, spell, *it, gs->curB->battleGetStackByID(selectedStack));
 				hi.lowLevelResurrection = spellLvl <= 1;
 				shr.healedStacks.push_back(hi);
 			}
@@ -4227,7 +4244,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 		break;
 	case Spells::CLONE:
 		{
-			CStack * clonedStack = NULL;
+			const CStack * clonedStack = NULL;
 			if (attackedCres.size())
 				clonedStack = *attackedCres.begin();
 			if (!clonedStack)
@@ -4270,7 +4287,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 		break;
 	case Spells::DEATH_STARE: //handled in a bit different way
 		{
-			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+			for(auto it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
 				if((*it)->hasBonusOfType(Bonus::UNDEAD) || (*it)->hasBonusOfType(Bonus::NON_LIVING)) //this creature is immune
 				{
@@ -4291,7 +4308,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 		break;
 	case Spells::ACID_BREATH_DAMAGE: //new effect, separate from acid breath defense reduction
 		{
-			for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it) //no immunities
+			for(auto it = attackedCres.begin(); it != attackedCres.end(); ++it) //no immunities
 			{
 				BattleStackAttacked bsa;
 				bsa.flags |= BattleStackAttacked::EFFECT;
@@ -4323,7 +4340,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	//Magic Mirror effect
 	if (spell->isNegative() && mode != ECastingMode::MAGIC_MIRROR && spell->level && spell->range[0] == "0") //it is actual spell and can be reflected to single target, no recurrence
 	{
-		for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+		for(auto it = attackedCres.begin(); it != attackedCres.end(); ++it)
 		{
 			int mirrorChance = (*it)->valOfBonuses(Bonus::MAGIC_MIRROR);
 			if(mirrorChance > rand()%100)
@@ -4388,7 +4405,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 									ECastingMode::HERO_CASTING, NULL, ba.selectedStack);
 
 				sendAndApply(&end_action);
-				if( !gs->curB->getStack(gs->curB->activeStack, false)->alive() )
+				if( !gs->curB->battleGetStackByID(gs->curB->activeStack, false)->alive() )
 				{
 					battleMadeAction.setn(true);
 				}
@@ -4426,11 +4443,11 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 		{
 			bool unbind = true;
 			BonusList bl = *(st->getBonuses(Selector::type(Bonus::BIND_EFFECT)));
-			std::set<CStack*> stacks = gs->curB->getAdjacentCreatures(st);
+			std::set<const CStack*> stacks = gs->curB-> batteAdjacentCreatures(st);
 
 			BOOST_FOREACH(Bonus * b, bl)
 			{
-				const CStack * stack = gs->curB->getStack(b->additionalInfo); //binding stack must be alive and adjacent
+				const CStack * stack = gs->curB->battleGetStackByID(b->additionalInfo); //binding stack must be alive and adjacent
 				if (stack)
 				{
 					if (vstd::contains(stacks, stack)) //binding stack is still present
@@ -4533,7 +4550,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 	}
 }
 
-void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, CStack * curStack)
+void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, const CStack * curStack)
 {
 	//we want to determine following vars depending on obstacle type
 	int damage = -1;
@@ -4552,7 +4569,7 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, C
 	else if(obstacle.obstacleType == CObstacleInstance::LAND_MINE)
 	{
 		//You don't get hit by a Mine you can see.
-		if(gs->curB->isObstacleVisibleForSide(obstacle, side))
+		if(gs->curB->battleIsObstacleVisibleForSide(obstacle, (BattlePerspective::BattlePerspective)side))
 			return;
 
 		oneTimeObstacle = true;
@@ -5168,7 +5185,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			{
 				if (bat.bsa[g].newAmount > 0 && !bat.bsa[g].isSecondary()) //apply effects only to first target stack if it's alive
 				{
-					oneOfAttacked = gs->curB->getStack(bat.bsa[g].stackAttacked);
+					oneOfAttacked = gs->curB->battleGetStackByID(bat.bsa[g].stackAttacked);
 					break;
 				}
 			}
@@ -5206,13 +5223,13 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 
 void CGameHandler::handleAttackBeforeCasting (const BattleAttack & bat)
 {
-	const CStack * attacker = gs->curB->getStack(bat.stackAttacking);
+	const CStack * attacker = gs->curB->battleGetStackByID(bat.stackAttacking);
 	attackCasting(bat, Bonus::SPELL_BEFORE_ATTACK, attacker); //no detah stare / acid bretah needed?
 }
 
 void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 {
-	const CStack * attacker = gs->curB->getStack(bat.stackAttacking);
+	const CStack * attacker = gs->curB->battleGetStackByID(bat.stackAttacking);
 	if (!attacker) //could be already dead
 		return;
 	attackCasting(bat, Bonus::SPELL_AFTER_ATTACK, attacker);
@@ -5241,7 +5258,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		if (staredCreatures)
 		{
 			if (bat.bsa.size() && bat.bsa[0].newAmount > 0) //TODO: death stare was not originally available for multiple-hex attacks, but...
-			handleSpellCasting(79, 0, gs->curB->getStack(bat.bsa[0].stackAttacked)->position,
+			handleSpellCasting(79, 0, gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->position,
 				!attacker->attackerOwned, attacker->owner, NULL, NULL, staredCreatures, ECastingMode::AFTER_ATTACK_CASTING, attacker);
 		}
 	}
@@ -5255,7 +5272,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	}
 	if (acidDamage)
 	{
-		handleSpellCasting(81, 0, gs->curB->getStack(bat.bsa[0].stackAttacked)->position,
+		handleSpellCasting(81, 0, gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->position,
 				!attacker->attackerOwned, attacker->owner, NULL, NULL,
 				acidDamage * attacker->count, ECastingMode::AFTER_ATTACK_CASTING, attacker);
 	}
@@ -5716,6 +5733,7 @@ bool CGameHandler::swapStacks(const StackLocation &sl1, const StackLocation &sl2
 
 void CGameHandler::runBattle()
 {
+	setBattle(gs->curB);
 	assert(gs->curB);
 	//TODO: pre-tactic stuff, call scripts etc.
 

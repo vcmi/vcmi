@@ -46,28 +46,23 @@
     <ClInclude Include="BattleInterface\CBattleInterfaceClasses.h" />
     <ClInclude Include="BattleInterface\CCreatureAnimation.h" />
     <ClInclude Include="CAdvmapInterface.h" />
-    <ClInclude Include="..\hch\CArtHandler.h" />
     <ClInclude Include="CAnimation.h" />
     <ClInclude Include="CBitmapHandler.h" />
-    <ClInclude Include="..\hch\CBuildingHandler.h" />
     <ClInclude Include="..\CCallback.h" />
     <ClInclude Include="CCastleInterface.h" />
     <ClInclude Include="CConfigHandler.h" />
     <ClInclude Include="CCreatureWindow.h" />
     <ClInclude Include="CDefHandler.h" />
     <ClInclude Include="CGameInfo.h" />
-    <ClInclude Include="..\hch\CHeroHandler.h" />
     <ClInclude Include="CHeroWindow.h" />
     <ClInclude Include="CKingdomInterface.h" />
     <ClInclude Include="Client.h" />
     <ClInclude Include="CMessage.h" />
-    <ClInclude Include="..\hch\CObjectHandler.h" />
     <ClInclude Include="CMusicHandler.h" />
     <ClInclude Include="CPlayerInterface.h" />
     <ClInclude Include="CPreGame.h" />
     <ClInclude Include="CSoundBase.h" />
     <ClInclude Include="CSpellWindow.h" />
-    <ClInclude Include="..\hch\CVideoHandler.h" />
     <ClInclude Include="CVideoHandler.h" />
     <ClInclude Include="FontBase.h" />
     <ClInclude Include="FunctionList.h" />
@@ -86,6 +81,7 @@
     <ClCompile Include="CQuestLog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClInclude Include="mapHandler.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VCMI_client.rc" />
@@ -94,6 +90,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\ChangeLog" />
     <None Include="vcmi.ico" />
   </ItemGroup>
 </Project>

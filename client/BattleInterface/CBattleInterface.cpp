@@ -1252,15 +1252,34 @@ void CBattleInterface::bSpellf()
 
 	CCS->curh->changeGraphic(0,0);
 
-	if ( myTurn && curInt->cb->battleCanCastSpell())
+	if(!myTurn)
+		return;
+
+	auto myHero = currentHero();
+	ESpellCastProblem::ESpellCastProblem spellCastProblem;
+	if (curInt->cb->battleCanCastSpell(&spellCastProblem))
 	{
-		const CGHeroInstance * chi = NULL;
-		if(attackingHeroInstance->tempOwner == curInt->playerID)
-			chi = attackingHeroInstance;
-		else
-			chi = defendingHeroInstance;
-		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), chi, curInt);
+		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), myHero, curInt);
 		GH.pushInt(spellWindow);
+	}
+	else if(spellCastProblem == ESpellCastProblem::MAGIC_IS_BLOCKED)
+	{
+		//Handle Orb of Inhibition-like effects -> we want to display dialog with info, why casting is impossible
+		auto blockingBonus = currentHero()->getBonus(Selector::type(Bonus::BLOCK_ALL_MAGIC));
+		if(!blockingBonus)
+			return;;
+		
+		if(blockingBonus->source == Bonus::ARTIFACT)
+		{
+			const int artID = blockingBonus->sid;
+			//If we have artifact, put name of our hero. Otherwise assume it's the enemy.
+			//TODO check who *really* is source of bonus
+			std::string heroName = myHero->hasArt(artID) ? myHero->name : enemyHero().name;
+
+			//%s wields the %s, an ancient artifact which creates a p dead to all magic.
+			LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[683]) 
+										% heroName % CGI->arth->artifacts[artID]->Name()));
+		}
 	}
 }
 
@@ -1495,11 +1514,11 @@ bool CBattleInterface::isCatapultAttackable(BattleHex hex) const
 	if(!siegeH  ||  tacticsMode)
 		return false;
 
-	int wallUnder = curInt->cb->battleGetWallUnderHex(hex);
+	int wallUnder = curInt->cb->battleHexToWallPart(hex);
 	if(wallUnder == -1)
 		return false;
 
-	return curInt->cb->battleGetWallState(wallUnder) < 3;
+	return curInt->cb->battleGetWallState(wallUnder) < EWallState::DESTROYED;
 }
 
 const CGHeroInstance * CBattleInterface::getActiveHero()
@@ -1985,7 +2004,9 @@ void CBattleInterface::activateStack()
 	bWait->block(vstd::contains(s->state, EBattleStackState::WAITING)); //block waiting button if stack has been already waiting
 
 	//block cast spell button if hero doesn't have a spellbook
-	bSpell->block(!curInt->cb->battleCanCastSpell());
+	ESpellCastProblem::ESpellCastProblem spellcastingProblem;
+	bool canCastSpells = curInt->cb->battleCanCastSpell(&spellcastingProblem);
+	bSpell->block(!canCastSpells && spellcastingProblem != ESpellCastProblem::MAGIC_IS_BLOCKED); //if magic is blocked, we leave button active, so the message can be displayed (cf bug #97)
 	bSurrender->block((curInt == attackerInt ? defendingHeroInstance : attackingHeroInstance) == NULL);
 	bFlee->block(!curInt->cb->battleCanFlee());
 	bSurrender->block(curInt->cb->battleGetSurrenderCost() < 0);
@@ -3482,6 +3503,25 @@ Point CBattleInterface::whereToBlitObstacleImage(SDL_Surface *image, const CObst
 	Rect r = hexPosition(obstacle.pos);
 	r.y += 42 - image->h + offset;
 	return r.topLeft();
+}
+
+const CGHeroInstance * CBattleInterface::currentHero() const
+{
+	if(attackingHeroInstance->tempOwner == curInt->playerID)
+		return attackingHeroInstance;
+	else
+		return defendingHeroInstance;
+}
+
+InfoAboutHero CBattleInterface::enemyHero() const
+{
+	InfoAboutHero ret;
+	if(attackingHeroInstance->tempOwner == curInt->playerID)
+		curInt->cb->getHeroInfo(defendingHeroInstance, ret);
+	else
+		curInt->cb->getHeroInfo(attackingHeroInstance, ret);
+
+	return ret;
 }
 
 std::string CBattleInterface::SiegeHelper::townTypeInfixes[GameConstants::F_NUMBER] = {"CS", "RM", "TW", "IN", "NC", "DN", "ST", "FR", "EL"};

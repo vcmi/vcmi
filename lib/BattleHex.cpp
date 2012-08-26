@@ -84,11 +84,10 @@ char BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
 	return std::max(xDst, yDst) + std::min(xDst, yDst) - (yDst + (yDst + xDst < 2 ? 0 : 1))/2;
 }
 
-void BattleHex::checkAndPush(int tile, std::vector<BattleHex> & ret)
+void BattleHex::checkAndPush(BattleHex tile, std::vector<BattleHex> & ret)
 {
-	if( tile>=0 && tile<GameConstants::BFIELD_SIZE && (tile%GameConstants::BFIELD_WIDTH != (GameConstants::BFIELD_WIDTH - 1)) 
-		&& (tile%GameConstants::BFIELD_WIDTH != 0) )
-		ret.push_back(BattleHex(tile));
+	if(tile.isAvailable())
+		ret.push_back(tile);
 }
 
 bool BattleHex::isAvailable() const

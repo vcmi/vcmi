@@ -45,6 +45,7 @@ class CCreatureAnimation;
 struct ProjectileInfo;
 class CClickableHex;
 struct BattleHex;
+struct InfoAboutHero;
 
 /// Class which manages the locked hex fields that are blocked e.g. by obstacles
 class CBattleObstacle
@@ -283,6 +284,9 @@ public:
 
 	BattleHex fromWhichHexAttack(BattleHex myNumber);
 	void obstaclePlaced(const CObstacleInstance & oi);
+
+	const CGHeroInstance * currentHero() const;
+	InfoAboutHero enemyHero() const;
 
 	friend class CPlayerInterface;
 	friend class CAdventureMapButton;

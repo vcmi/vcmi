@@ -95,6 +95,8 @@ typedef boost::function<bool(const Bonus*)> CSelector;
 	BONUS_NAME(SPELL_BEFORE_ATTACK) /* subtype - spell id, value - chance %, additional info % 1000 - level, (additional info)/1000 -> [0 - all attacks, 1 - shot only, 2 - melee only*/ \
 	BONUS_NAME(SPELL_RESISTANCE_AURA) /*eg. unicorns, value - resistance bonus in % for adjacent creatures*/ \
 	BONUS_NAME(LEVEL_SPELL_IMMUNITY) /*creature is immune to all spell with level below or equal to value of this bonus*/ \
+	BONUS_NAME(BLOCK_MAGIC_ABOVE) /*blocks casting spells of the level > value */ \
+	BONUS_NAME(BLOCK_ALL_MAGIC) /*blocks casting spells of the level > value */ \
 	BONUS_NAME(TWO_HEX_ATTACK_BREATH) /*eg. dragons*/	\
 	BONUS_NAME(SPELL_DAMAGE_REDUCTION) /*eg. golems; value - reduction in %, subtype - spell school; -1 - all, 0 - air, 1 - fire, 2 - water, 3 - earth*/ \
 	BONUS_NAME(NO_WALL_PENALTY)							\
@@ -626,7 +628,8 @@ public:
 	}
 	enum ENodeTypes
 	{
-		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM, TOWN_AND_VISITOR
+		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM, 
+		TOWN_AND_VISITOR, BATTLE
 	};
 };
 

@@ -161,11 +161,11 @@ void CLodArchiveLoader::initSNDArchive(CFileInputStream & fileStream)
 		SoundEntryBlock sndEntry = sndEntries[i];
 		ArchiveEntry entry;
 
-		//for some reason entries in snd have format NAME\0WAV\0\0\0....
-		//we need to replace first \0 with dot and trim line
+		//for some reason entries in snd have format NAME\0WAVRUBBISH....
+		//we need to replace first \0 with dot and take the 3 chars with extension (and drop the rest)
 		entry.name = std::string(sndEntry.filename, 40);
+		entry.name.resize(entry.name.find_first_of('\0') + 4); //+4 because we take dot and 3-char extension
 		entry.name[entry.name.find_first_of('\0')] = '.';
-		entry.name.resize(entry.name.find_first_of('\0'));
 
 		entry.offset = SDL_SwapLE32(sndEntry.offset);
 		entry.realSize = SDL_SwapLE32(sndEntry.size);

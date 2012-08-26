@@ -526,31 +526,46 @@ void CArtHandler::getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &ou
 		out.push_back(art);
 	}
 }
-void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int subtype, int valType, ILimiter * limiter, int additionalInfo)
+
+Bonus *createBonus(Bonus::BonusType type, int val, int subtype, int valType, shared_ptr<ILimiter> limiter = nullptr, int additionalInfo = 0)
 {
-	Bonus *added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);
+	Bonus *added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,-1,subtype);
 	added->additionalInfo = additionalInfo;
 	added->valType = valType;
-	added->limiter.reset(limiter);
-	if(type == Bonus::MORALE || type == Bonus::LUCK)
-		added->description = artifacts[aid]->Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
-	else
-		added->description = artifacts[aid]->Name();
-	artifacts[aid]->addNewBonus(added);
+	added->limiter = limiter;
+	return added;
 }
 
-void CArtHandler::giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype, IPropagator* propagator /*= NULL*/, int additionalInfo)
+Bonus *createBonus(Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator = nullptr, int additionalInfo = 0)
 {
-	Bonus *added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,aid,subtype);
+	Bonus *added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,-1,subtype);
 	added->additionalInfo = additionalInfo;
 	added->valType = Bonus::BASE_NUMBER;
-	added->propagator.reset(propagator);
-	if(type == Bonus::MORALE || type == Bonus::LUCK)
-		added->description = artifacts[aid]->Name()  + (val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(val);
-	else
-		added->description = artifacts[aid]->Name();
-	artifacts[aid]->addNewBonus(added);
+	added->propagator = propagator;
+	return added;
 }
+
+void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int subtype, int valType, shared_ptr<ILimiter> limiter, int additionalInfo)
+{
+	giveArtBonus(aid, createBonus(type, val, subtype, valType, limiter, additionalInfo));
+}
+
+void CArtHandler::giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator /*= NULL*/, int additionalInfo)
+{
+	giveArtBonus(aid, createBonus(type, val, subtype, propagator, additionalInfo));
+}
+
+void CArtHandler::giveArtBonus(int aid, Bonus *bonus)
+{
+	bonus->sid = aid;
+	if(bonus->subtype == Bonus::MORALE || bonus->type == Bonus::LUCK)
+		bonus->description = artifacts[aid]->Name()  + (bonus->val > 0 ? " +" : " ") + boost::lexical_cast<std::string>(bonus->val);
+	else
+		bonus->description = artifacts[aid]->Name();
+
+	artifacts[aid]->addNewBonus(bonus);
+}
+
 void CArtHandler::makeItCreatureArt (int aid, bool onlyCreature /*=true*/)
 {
 	CArtifact *a = artifacts[aid];
@@ -584,6 +599,13 @@ void CArtHandler::addBonuses()
 	#define ART_ATTACK_AND_DEFENSE(ID, val) ART_PRIM_SKILL(ID,0,val); ART_PRIM_SKILL(ID,1,val)
 	#define ART_POWER_AND_KNOWLEDGE(ID, val) ART_PRIM_SKILL(ID,2,val); ART_PRIM_SKILL(ID,3,val)
 
+	//Propagators/limiters used more than once
+	auto battleWidePropagator = make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE);
+	auto visitedTownPropagator = make_shared<CPropagatorNodeType>(CBonusSystemNode::TOWN_AND_VISITOR); 
+
+	auto shooterOnlyLimiter = make_shared<HasAnotherBonusLimiter>(Bonus::SHOOTER);
+	auto dragonNatureLimiter = make_shared<HasAnotherBonusLimiter>(Bonus::DRAGON_NATURE);
+	
 	//Attack bonus artifacts (Weapons)
 	ART_PRIM_SKILL(7,0,+2); //Centaur Axe
 	ART_PRIM_SKILL(8,0,+3); //Blackshard of the Dead Knight
@@ -697,7 +719,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(81,Bonus::FIRE_SPELL_DMG_PREMY,+50);//Orb of Tempestuous Fire
 	giveArtBonus(82,Bonus::WATER_SPELL_DMG_PREMY,+50);//Orb of Driving Rain
 
-	giveArtBonus(83,Bonus::LEVEL_SPELL_IMMUNITY,3,-1,Bonus::INDEPENDENT_MAX);//Recanter's Cloak
+	giveArtBonus(83,createBonus(Bonus::BLOCK_MAGIC_ABOVE, 2, -1, Bonus::INDEPENDENT_MIN)->addPropagator(battleWidePropagator));//Recanter's Cloak
 	giveArtBonus(84,Bonus::BLOCK_MORALE,0);//Spirit of Oppression
 	giveArtBonus(85,Bonus::BLOCK_LUCK,0);//Hourglass of the Evil Hour
 
@@ -707,8 +729,8 @@ void CArtHandler::addBonuses()
 	giveArtBonus(89,Bonus::EARTH_SPELLS,0);//Tome of Earth Magic
 
 	giveArtBonus(90,Bonus::WATER_WALKING, 0, 1);//Boots of Levitation
-	giveArtBonus(91,Bonus::NO_DISTANCE_PENALTY,0, 0, 0, new HasAnotherBonusLimiter(Bonus::SHOOTER));//Golden Bow
-	giveArtBonus(91,Bonus::NO_WALL_PENALTY, 0, 0, 0, new HasAnotherBonusLimiter(Bonus::SHOOTER));
+	giveArtBonus(91,Bonus::NO_DISTANCE_PENALTY,0, 0, 0, shooterOnlyLimiter);//Golden Bow
+	giveArtBonus(91,Bonus::NO_WALL_PENALTY, 0, 0, 0, shooterOnlyLimiter);
 	giveArtBonus(92,Bonus::SPELL_IMMUNITY,0,35);//Sphere of Permanence
 	giveArtBonus(93,Bonus::NEGATE_ALL_NATURAL_IMMUNITIES,0);//Orb of Vulnerability
 
@@ -720,14 +742,15 @@ void CArtHandler::addBonuses()
 	giveArtBonus(98,Bonus::LAND_MOVEMENT,+600);//Boots of Speed
 	giveArtBonus(99,Bonus::STACKS_SPEED,+2);//Cape of Velocity
 
-	giveArtBonus(100,Bonus::SPELL_IMMUNITY,0,59);//Pendant of Dispassion
-	giveArtBonus(101,Bonus::SPELL_IMMUNITY,0,62);//Pendant of Second Sight
-	giveArtBonus(102,Bonus::SPELL_IMMUNITY,0,42);//Pendant of Holiness
-	giveArtBonus(103,Bonus::SPELL_IMMUNITY,0,24);//Pendant of Life
-	giveArtBonus(104,Bonus::SPELL_IMMUNITY,0,25, 1, new HasAnotherBonusLimiter(Bonus::UNDEAD));//Pendant of Death does not display info for living stacks
-	giveArtBonus(105,Bonus::SPELL_IMMUNITY,0,60);//Pendant of Free Will
-	giveArtBonus(106,Bonus::SPELL_IMMUNITY,0,17);//Pendant of Negativity
-	giveArtBonus(107,Bonus::SPELL_IMMUNITY,0,61);//Pendant of Total Recall
+	giveArtBonus(100,Bonus::SPELL_IMMUNITY,0,Spells::BERSERK);//Pendant of Dispassion
+	giveArtBonus(101,Bonus::SPELL_IMMUNITY,0,Spells::BLIND);//Pendant of Second Sight
+	giveArtBonus(102,Bonus::SPELL_IMMUNITY,0,Spells::CURSE);//Pendant of Holiness
+	giveArtBonus(103,Bonus::SPELL_IMMUNITY,0,Spells::DEATH_RIPPLE);//Pendant of Life
+	giveArtBonus(104,Bonus::SPELL_IMMUNITY,0,Spells::DESTROY_UNDEAD, 1, make_shared<HasAnotherBonusLimiter>(Bonus::UNDEAD));//Pendant of Death does not display info for living stacks
+	giveArtBonus(105,Bonus::SPELL_IMMUNITY,0,Spells::HYPNOTIZE);//Pendant of Free Will
+	giveArtBonus(106,Bonus::SPELL_IMMUNITY,0,Spells::LIGHTNING_BOLT);//Pendant of Negativity
+	giveArtBonus(106,Bonus::SPELL_IMMUNITY,0,Spells::CHAIN_LIGHTNING);//Pendant of Negativity
+	giveArtBonus(107,Bonus::SPELL_IMMUNITY,0,Spells::FORGETFULNESS);//Pendant of Total Recall
 	giveArtBonus(108,Bonus::MORALE,+3);//Pendant of Courage
 	giveArtBonus(108,Bonus::LUCK,+3);//Pendant of Courage
 
@@ -741,11 +764,13 @@ void CArtHandler::addBonuses()
 	giveArtBonus(116,Bonus::GENERATE_RESOURCE,+750, Res::GOLD); //Endless Bag of Gold
 	giveArtBonus(117,Bonus::GENERATE_RESOURCE,+500, Res::GOLD); //Endless Purse of Gold
 
-	giveArtBonus(118,Bonus::CREATURE_GROWTH,+5,1, new CPropagatorNodeType(CBonusSystemNode::TOWN_AND_VISITOR)); //Legs of Legion
-	giveArtBonus(119,Bonus::CREATURE_GROWTH,+4,2, new CPropagatorNodeType(CBonusSystemNode::TOWN_AND_VISITOR)); //Loins of Legion
-	giveArtBonus(120,Bonus::CREATURE_GROWTH,+3,3, new CPropagatorNodeType(CBonusSystemNode::TOWN_AND_VISITOR)); //Torso of Legion
-	giveArtBonus(121,Bonus::CREATURE_GROWTH,+2,4, new CPropagatorNodeType(CBonusSystemNode::TOWN_AND_VISITOR)); //Arms of Legion
-	giveArtBonus(122,Bonus::CREATURE_GROWTH,+1,5, new CPropagatorNodeType(CBonusSystemNode::TOWN_AND_VISITOR)); //Head of Legion
+
+	//Town will receive bonus if hero is visiting town or stays in its garrison.
+	giveArtBonus(118,Bonus::CREATURE_GROWTH,+5,1, visitedTownPropagator); //Legs of Legion
+	giveArtBonus(119,Bonus::CREATURE_GROWTH,+4,2, visitedTownPropagator); //Loins of Legion
+	giveArtBonus(120,Bonus::CREATURE_GROWTH,+3,3, visitedTownPropagator); //Torso of Legion
+	giveArtBonus(121,Bonus::CREATURE_GROWTH,+2,4, visitedTownPropagator); //Arms of Legion
+	giveArtBonus(122,Bonus::CREATURE_GROWTH,+1,5, visitedTownPropagator); //Head of Legion
 
 	//Sea Captain's Hat 
 	giveArtBonus(123,Bonus::WHIRLPOOL_PROTECTION,0); 
@@ -753,13 +778,13 @@ void CArtHandler::addBonuses()
 	giveArtBonus(123,Bonus::SPELL,3,0, Bonus::INDEPENDENT_MAX); 
 	giveArtBonus(123,Bonus::SPELL,3,1, Bonus::INDEPENDENT_MAX); 
 
-	giveArtBonus(124,Bonus::SPELLS_OF_LEVEL,3,1); //Spellbinder's Hat
-	giveArtBonus(125,Bonus::ENEMY_CANT_ESCAPE,0); //Shackles of War
-	giveArtBonus(126,Bonus::LEVEL_SPELL_IMMUNITY,GameConstants::SPELL_LEVELS,-1,Bonus::INDEPENDENT_MAX);//Orb of Inhibition
+	giveArtBonus(124, Bonus::SPELLS_OF_LEVEL,3,1); //Spellbinder's Hat
+	giveArtBonus(125, Bonus::ENEMY_CANT_ESCAPE,0); //Shackles of War
+	giveArtBonus(126, Bonus::BLOCK_ALL_MAGIC, 0, -1, battleWidePropagator);//Orb of Inhibition
 
 	//vial of dragon blood
-	giveArtBonus(127, Bonus::PRIMARY_SKILL, +5, PrimarySkill::ATTACK, Bonus::BASE_NUMBER, new HasAnotherBonusLimiter(Bonus::DRAGON_NATURE));
-	giveArtBonus(127, Bonus::PRIMARY_SKILL, +5, PrimarySkill::DEFENSE, Bonus::BASE_NUMBER, new HasAnotherBonusLimiter(Bonus::DRAGON_NATURE));
+	giveArtBonus(127, Bonus::PRIMARY_SKILL, +5, PrimarySkill::ATTACK, Bonus::BASE_NUMBER, dragonNatureLimiter);
+	giveArtBonus(127, Bonus::PRIMARY_SKILL, +5, PrimarySkill::DEFENSE, Bonus::BASE_NUMBER, dragonNatureLimiter);
 
 	//Armageddon's Blade
 	giveArtBonus(128, Bonus::SPELL, 3, 26, Bonus::INDEPENDENT_MAX);
@@ -786,7 +811,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(132, Bonus::OPENING_BATTLE_SPELL, 50, 52); // Misfortune
 
 	// Statue of Legion - gives only 50% growth
-	giveArtBonus(133, Bonus::CREATURE_GROWTH_PERCENT, 50, -1, new CPropagatorNodeType(CBonusSystemNode::PLAYER));
+	giveArtBonus(133, Bonus::CREATURE_GROWTH_PERCENT, 50, -1, make_shared<CPropagatorNodeType>(CBonusSystemNode::PLAYER));
 
 	//Power of the Dragon Father
 	giveArtBonus(134, Bonus::LEVEL_SPELL_IMMUNITY, 4, -1, Bonus::INDEPENDENT_MAX);
@@ -798,9 +823,9 @@ void CArtHandler::addBonuses()
 	giveArtBonus(136, Bonus::FREE_SHIP_BOARDING, 0);
 
 	//Bow of the Sharpshooter
-	giveArtBonus(137, Bonus::NO_DISTANCE_PENALTY, 0, 0, 0, new HasAnotherBonusLimiter(Bonus::SHOOTER));
-	giveArtBonus(137, Bonus::NO_WALL_PENALTY, 0, 0, 0, new HasAnotherBonusLimiter(Bonus::SHOOTER));
-	giveArtBonus(137, Bonus::FREE_SHOOTING, 0, 0, 0, new HasAnotherBonusLimiter(Bonus::SHOOTER));
+	giveArtBonus(137, Bonus::NO_DISTANCE_PENALTY, 0, 0, 0, shooterOnlyLimiter);
+	giveArtBonus(137, Bonus::NO_WALL_PENALTY, 0, 0, 0, shooterOnlyLimiter);
+	giveArtBonus(137, Bonus::FREE_SHOOTING, 0, 0, 0, shooterOnlyLimiter);
 
 	//Wizard's Well
 	giveArtBonus(138, Bonus::FULL_MANA_REGENERATION, 0);
@@ -844,7 +869,7 @@ void CArtHandler::addBonuses()
 		giveArtBonus(142, Bonus::SPELL_AFTER_ATTACK, 50, Spells::BERSERK, NULL, 1);
 		giveArtBonus(142, Bonus::SPELL_AFTER_ATTACK, 50, Spells::POISON, NULL, 1);
 		giveArtBonus(142, Bonus::SPELL_AFTER_ATTACK, 50, Spells::DISRUPTING_RAY, NULL, 1);
-		artifacts[142].get()->setDescription ("Tripple shots, tripple attack, casts various spells during attack, attacks have range of Inferno, no distance penalty, catapult");
+		artifacts[142].get()->setDescription ("Triple shots, triple attack, casts various spells during attack, attacks have range of Inferno, no distance penalty, catapult");
 		//Monster's Power
 		giveArtBonus(143, Bonus::STACK_HEALTH, +100, -1, Bonus::PERCENT_TO_BASE);
 		giveArtBonus(143, Bonus::CREATURE_DAMAGE, +100, 2, Bonus::PERCENT_TO_ALL);

@@ -1113,6 +1113,7 @@ void BattleStackMoved::applyGs( CGameState *gs )
 DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 {
 	CStack * at = gs->curB->getStack(stackAttacked);
+	assert(at);
 	at->count = newAmount;
 	at->firstHPleft = newHP;
 
@@ -1334,16 +1335,13 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		CStack * changedStack = gs->curB->getStack(healedStacks[g].stackID, false);
 
 		//checking if we resurrect a stack that is under a living stack
-		std::vector<BattleHex> access = gs->curB->getAccessibility(changedStack, true);
-		bool acc[GameConstants::BFIELD_SIZE];
-		for(int h=0; h<GameConstants::BFIELD_SIZE; ++h)
-			acc[h] = false;
-		for(int h=0; h<access.size(); ++h)
-			acc[access[h]] = true;
-		if(!changedStack->alive() && !gs->curB->isAccessible(changedStack->position, acc,
-			changedStack->doubleWide(), changedStack->attackerOwned,
-			changedStack->hasBonusOfType(Bonus::FLYING), true))
+		auto accessibility = gs->curB->getAccesibility();
+		
+		if(!changedStack->alive() && !accessibility.accessible(changedStack->position, changedStack))
+		{
+			tlog1 << "Cannot resurrect " << changedStack->nodeName() << " because hex " << changedStack->position << " is occupied!\n";
 			return; //position is already occupied
+		}
 
 		//applying changes
 		bool resurrected = !changedStack->alive(); //indicates if stack is resurrected or just healed

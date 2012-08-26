@@ -3,10 +3,10 @@
 
 #include "BattleHex.h"
 #include "../client/FunctionList.h"
-#include "CObstacleInstance.h"
 #include "ResourceSet.h"
 #include "int3.h"
 #include "GameConstants.h"
+#include "CBattleCallback.h"
 
 /*
  * IGameCallback.h, part of VCMI engine
@@ -59,85 +59,6 @@ struct TeamState;
 struct QuestInfo;
 class CGCreature;
 
-typedef std::vector<const CStack*> TStacks;
-
-namespace boost
-{class shared_mutex;}
-
-class DLL_LINKAGE CCallbackBase
-{
-protected:
-	CGameState *gs;
-	int player; // -1 gives access to all information, otherwise limited to knowledge of given player
-
-	CCallbackBase(CGameState *GS, int Player)
-		: gs(GS), player(Player)
-	{}
-	CCallbackBase()
-	: gs(NULL), player(-1)
-	{}
-
-public:
-	boost::shared_mutex &getGsMutex(); //just return a reference to mutex, does not lock nor anything
-};
-
-class DLL_LINKAGE CBattleInfoCallback : public virtual CCallbackBase
-{
-public:
-	enum EStackOwnership
-	{
-		ONLY_MINE, ONLY_ENEMY, MINE_AND_ENEMY
-	};
-	enum ERandomSpell
-	{
-		RANDOM_GENIE, RANDOM_AIMED
-	};
-
-	//battle
-	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
-	//int battleGetObstaclesAtTile(BattleHex tile); //returns bitfield
-	shared_ptr<const CObstacleInstance> battleGetObstacleOnPos(BattleHex tile, bool onlyBlocking = true);
-	std::vector<shared_ptr<const CObstacleInstance> > battleGetAllObstacles(); //returns all obstacles on the battlefield
-	const CStack * battleGetStackByID(int ID, bool onlyAlive = true); //returns stack info by given ID
-	const CStack * battleGetStackByPos(BattleHex pos, bool onlyAlive = true); //returns stack info by given pos
-	BattleHex battleGetPos(int stack); //returns position (tile ID) of stack
-	TStacks battleGetStacks(EStackOwnership whose = MINE_AND_ENEMY, bool onlyAlive = true); //returns stacks on battlefield
-	void getStackQueue( std::vector<const CStack *> &out, int howMany ); //returns vector of stack in order of their move sequence
-    void battleGetStackCountOutsideHexes(bool *ac); // returns hexes which when in front of a stack cause us to move the amount box back
-	std::vector<BattleHex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL); //returns numbers of hexes reachable by creature with id ID
-	std::vector<int> battleGetDistances(const CStack * stack, BattleHex hex = BattleHex::INVALID, BattleHex * predecessors = NULL); //returns vector of distances to [dest hex number]
-	std::set<BattleHex> battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID);
-	bool battleCanShoot(const CStack * stack, BattleHex dest); //returns true if unit with id ID can shoot to dest
-	bool battleCanCastSpell(); //returns true, if caller can cast a spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell); //determines if given spell can be casted (and returns problem description)
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(const CSpell * spell, BattleHex destination); //if hero can cast spell here
-	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination); //determines if creature can cast a spell here
-	si32 battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode);
-	bool battleCanFlee(); //returns true if caller can flee from the battle
-	int battleGetSurrenderCost(); //returns cost of surrendering battle, -1 if surrendering is not possible
-	const CGTownInstance * battleGetDefendedTown(); //returns defended town if current battle is a siege, NULL instead
-	ui8 battleGetWallState(int partOfWall); //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
-	int battleGetWallUnderHex(BattleHex hex); //returns part of destructible wall / gate / keep under given hex or -1 if not found
-	std::pair<ui32, ui32> battleEstimateDamage(const CStack * attacker, const CStack * defender, std::pair<ui32, ui32> * retaliationDmg = NULL); //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
-	ui8 battleGetSiegeLevel(); //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
-	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //returns hero corresponding to given side (0 - attacker, 1 - defender)
-	si8 battleHasDistancePenalty(const CStack * stack, BattleHex destHex); //checks if given stack has distance penalty
-	si8 battleHasWallPenalty(const CStack * stack, BattleHex destHex); //checks if given stack has wall penalty
-	si8 battleHasShootingPenalty(const CStack * stack, BattleHex destHex)
-	{
-		return battleHasDistancePenalty(stack, destHex) || battleHasWallPenalty(stack, destHex);
-	}
-	si8 battleCanTeleportTo(const CStack * stack, BattleHex destHex, int telportLevel); //checks if teleportation of given stack to given position can take place
-	si8 battleGetTacticDist(); //returns tactic distance for calling player or 0 if player is not in tactic phase
-	ui8 battleGetMySide(); //return side of player in battle (attacker/defender)
-	int battleGetMoatDmg(); //what dmg unit will suffer if ending turn in the moat
-
-	//convenience methods using the ones above
-	TStacks battleGetAllStacks() //returns all stacks, alive or dead or undead or mechanical :)
-	{
-		return battleGetStacks(MINE_AND_ENEMY, false);
-	}
-};
 
 class DLL_LINKAGE CGameInfoCallback : public virtual CCallbackBase
 {

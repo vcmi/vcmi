@@ -134,10 +134,26 @@ int BonusList::totalValue() const
 
 	if(hasIndepMin && hasIndepMax)
 		assert(indepMin < indepMax);
+
+	const int notIndepBonuses = boost::count_if(bonuses, [](const Bonus *b) 
+	{ 
+		return b->valType != Bonus::INDEPENDENT_MAX && b->valType != Bonus::INDEPENDENT_MIN; 
+	});
+
 	if (hasIndepMax)
-		vstd::amax(valFirst, indepMax);
+	{
+		if(notIndepBonuses)
+			vstd::amax(valFirst, indepMax);
+		else
+			valFirst = indepMax;
+	}
 	if (hasIndepMin)
-		vstd::amin(valFirst, indepMin);
+	{
+		if(notIndepBonuses)
+			vstd::amin(valFirst, indepMin);
+		else
+			valFirst = indepMin;
+	}
 
 	return valFirst;
 }

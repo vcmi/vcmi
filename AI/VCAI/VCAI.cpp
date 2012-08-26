@@ -174,13 +174,6 @@ void removeDuplicates(std::vector<T> &vec)
 	vec.erase(std::unique(vec.begin(), vec.end()), vec.end());
 }
 
-
-template<typename Range, typename Predicate>
-void erase_if(Range &vec, Predicate pred)
-{
-	vec.erase(boost::remove_if(vec, pred),vec.end());
-}
-
 struct AtScopeExit
 {
 	boost::function<void()> foo;
@@ -1711,7 +1704,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			cb->moveHero(*h, CGHeroInstance::convertPosition(endpos, true));
 			waitTillFree(); //movement may cause battle or blocking dialog
 			boost::this_thread::interruption_point();
-			if(h->tempOwner != playerID) //we lost hero - remove all tasks assigned to him/her
+			if(!h) //we lost hero - remove all tasks assigned to him/her
 			{
 				lostHero(h);
 				//we need to throw, otherwise hero will be assigned to sth again
@@ -1727,7 +1720,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		performObjectInteraction (visitedObject, h);
 	}
 
-	if(h->tempOwner == playerID) //we could have lost hero after last move
+	if(h) //we could have lost hero after last move
 	{
 		cb->recalculatePaths();
 		if (startHpos == h->visitablePos() && !ret) //we didn't move and didn't reach the target
@@ -3616,7 +3609,7 @@ HeroPtr::HeroPtr(const CGHeroInstance *H)
 	h = H;
 	name = h->name;
 
-	hid = H->subID;
+	hid = H->id;
 //	infosCount[ai->playerID][hid]++;
 }
 
@@ -3641,12 +3634,23 @@ const CGHeroInstance * HeroPtr::get(bool doWeExpectNull /*= false*/) const
 {
 	//TODO? check if these all assertions every time we get info about hero affect efficiency
 	//
-	//behave terribly when attempting unauthorised access to hero that is not ours (or was lost)
+	//behave terribly when attempting unauthorized access to hero that is not ours (or was lost)
 	assert(doWeExpectNull || h);
+
 	if(h)
 	{
-		assert(cb->getObj(h->id));
-		assert(h->tempOwner == ai->playerID);
+		auto obj = cb->getObj(hid);
+		const bool owned = obj && obj->tempOwner == ai->playerID;
+
+		if(doWeExpectNull && !owned)
+		{
+			return nullptr;
+		}
+		else
+		{
+			assert(obj);
+			assert(owned);
+		}
 	}
 
 	return h;

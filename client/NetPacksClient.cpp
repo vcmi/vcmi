@@ -589,7 +589,7 @@ void BattleNextRound::applyCl( CClient *cl )
 
 void BattleSetActiveStack::applyCl( CClient *cl )
 {
-	CStack * activated = GS(cl)->curB->getStack(stack);
+	const CStack * activated = GS(cl)->curB->battleGetStackByID(stack);
 	int playerToCall = -1; //player that will move activated stack
 	if( activated->hasBonusOfType(Bonus::HYPNOTIZED) )
 	{
@@ -616,11 +616,12 @@ void BattleObstaclePlaced::applyCl(CClient * cl)
 void BattleResult::applyFirstCl( CClient *cl )
 {
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleEnd,this);
+	cl->battleFinished();
 }
 
 void BattleStackMoved::applyFirstCl( CClient *cl )
 {
-	const CStack * movedStack = GS(cl)->curB->getStack(stack);
+	const CStack * movedStack = GS(cl)->curB->battleGetStackByID(stack);
 	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(battleStackMoved,movedStack,tilesToMove,distance);
 }
 
