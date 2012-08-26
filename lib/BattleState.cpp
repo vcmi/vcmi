@@ -45,19 +45,19 @@ const CStack * BattleInfo::getNextStack() const
 // void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<BattleHex> & occupyable, bool flying, const CStack * stackToOmmit) const
 // {
 // 	memset(accessibility, 1, GameConstants::BFIELD_SIZE); //initialize array with trues
-// 
+//
 // 	//removing accessibility for side columns of hexes
 // 	for(int v = 0; v < GameConstants::BFIELD_SIZE; ++v)
 // 	{
 // 		if( v % GameConstants::BFIELD_WIDTH == 0 || v % GameConstants::BFIELD_WIDTH == (GameConstants::BFIELD_WIDTH - 1) )
 // 			accessibility[v] = false;
 // 	}
-// 
+//
 // 	for(ui32 g=0; g<stacks.size(); ++g)
 // 	{
 // 		if(!stacks[g]->alive() || (stackToOmmit && stacks[g]->ID==stackToOmmit->ID) || stacks[g]->position < 0) //we don't want to lock position of this stack (eg. if it's a turret)
 // 			continue;
-// 
+//
 // 		accessibility[stacks[g]->position] = false;
 // 		if(stacks[g]->doubleWide()) //if it's a double hex creature
 // 		{
@@ -76,7 +76,7 @@ const CStack * BattleInfo::getNextStack() const
 // 			accessibility[hex] = false;
 // 		}
 // 	}
-// 
+//
 // 	//walls
 // 	if(siege > 0)
 // 	{
@@ -85,7 +85,7 @@ const CStack * BattleInfo::getNextStack() const
 // 		{
 // 			accessibility[permanentlyLocked[b]] = false;
 // 		}
-// 
+//
 // 		static const std::pair<int, BattleHex> lockedIfNotDestroyed[] = //(which part of wall, which hex is blocked if this part of wall is not destroyed
 // 			{std::make_pair(2, BattleHex(182)), std::make_pair(3, BattleHex(130)),
 // 			std::make_pair(4, BattleHex(62)), std::make_pair(5, BattleHex(29))};
@@ -96,14 +96,14 @@ const CStack * BattleInfo::getNextStack() const
 // 				accessibility[lockedIfNotDestroyed[b].second] = false;
 // 			}
 // 		}
-// 
+//
 // 		//gate
 // 		if(attackerOwned && si.wallState[7] < 3) //if it attacker's unit and gate is not destroyed
 // 		{
 // 			accessibility[95] = accessibility[96] = false; //block gate's hexes
 // 		}
 // 	}
-// 
+//
 // 	//occupyability
 // 	if(addOccupiable && twoHex)
 // 	{
@@ -131,7 +131,7 @@ const CStack * BattleInfo::getNextStack() const
 // {
 // 	if(flying && !lastPos)
 // 		return true;
-// 
+//
 // 	if(twoHex)
 // 	{
 // 		//if given hex is accessible and appropriate adjacent one is free too
@@ -146,13 +146,13 @@ const CStack * BattleInfo::getNextStack() const
 // void BattleInfo::makeBFS(BattleHex start, bool *accessibility, BattleHex *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const //both pointers must point to the at least 187-elements int arrays
 // {
 // 	std::set<BattleHex> quicksands = getStoppers(!attackerOwned);
-// 
+//
 // 	//inits
 // 	for(int b=0; b<GameConstants::BFIELD_SIZE; ++b)
 // 		predecessor[b] = -1;
 // 	for(int g=0; g<GameConstants::BFIELD_SIZE; ++g)
-// 		dists[g] = 100000000;	
-// 	
+// 		dists[g] = 100000000;
+//
 // 	std::queue< std::pair<BattleHex, bool> > hexq; //bfs queue <hex, accessible> (second filed used only if fillPredecessors is true)
 // 	hexq.push(std::make_pair(start, true));
 // 	dists[hexq.front().first] = 0;
@@ -164,7 +164,7 @@ const CStack * BattleInfo::getNextStack() const
 // 		hexq.pop();
 // 		if(curHex.first != start && !flying && vstd::contains(quicksands, curHex.first)) //walking stack can't step past the quicksands
 // 			continue;
-// 
+//
 // 		for(ui32 nr=0; nr<neighbours.size(); nr++)
 // 		{
 // 			curNext = neighbours[nr]; //if(!accessibility[curNext] || (dists[curHex]+1)>=dists[curNext])
@@ -185,7 +185,7 @@ const CStack * BattleInfo::getNextStack() const
 // 		}
 // 	}
 // };
-// 
+//
 
 BattleHex BattleInfo::getClosestTile (bool attackerOwned, int initialPos, std::set<BattleHex> & possibilities) const
 {
@@ -224,18 +224,18 @@ BattleHex BattleInfo::getClosestTile (bool attackerOwned, int initialPos, std::s
 int BattleInfo::getAvaliableHex(TCreature creID, bool attackerOwned, int initialPos) const
 {
 	bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
-	bool flying = VLC->creh->creatures[creID]->isFlying();
+	//bool flying = VLC->creh->creatures[creID]->isFlying();
 
-	int pos; 
+	int pos;
 	if (initialPos > -1)
 		pos = initialPos;
 	else //summon elementals depending on player side
-	{ 
- 		if (attackerOwned) 
-	 		pos = 0; //top left 
- 		else 
- 			pos = GameConstants::BFIELD_WIDTH - 1; //top right 
- 	} 
+	{
+ 		if (attackerOwned)
+	 		pos = 0; //top left
+ 		else
+ 			pos = GameConstants::BFIELD_WIDTH - 1; //top right
+ 	}
 
 	auto accessibility = getAccesibility();
 
@@ -255,7 +255,7 @@ int BattleInfo::getAvaliableHex(TCreature creID, bool attackerOwned, int initial
 std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack *stack)
 {
 	auto reachability = getReachability(stack);
-	
+
 	if(reachability.predecessors[dest] == -1) //cannot reach destination
 	{
 		return std::make_pair(std::vector<BattleHex>(), 0);
@@ -450,16 +450,16 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 }
 
 // std::pair<const CStack *, BattleHex> BattleInfo::getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const
-// {	
+// {
 // 	bool ac[GameConstants::BFIELD_SIZE];
 // 	std::set<BattleHex> occupyable;
-// 
+//
 // 	getAccessibilityMap(ac, closest->doubleWide(), closest->attackerOwned, false, occupyable, closest->hasBonusOfType(Bonus::FLYING), closest);
-// 
+//
 // 	BattleHex predecessor[GameConstants::BFIELD_SIZE];
 // 	int dist[GameConstants::BFIELD_SIZE];
 // 	makeBFS(closest->position, ac, predecessor, dist, closest->doubleWide(), closest->attackerOwned, closest->hasBonusOfType(Bonus::FLYING), true);
-// 
+//
 // 	std::vector< std::pair< std::pair<int, int>, const CStack *> > stackPairs; //pairs <<distance, hex>, stack>
 // 	for(int g=0; g<GameConstants::BFIELD_SIZE; ++g)
 // 	{
@@ -473,12 +473,12 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 // 			stackPairs.push_back( std::make_pair( std::make_pair(dist[predecessor[g]], g), atG) );
 // 		}
 // 	}
-// 
+//
 // 	if(stackPairs.size() > 0)
 // 	{
 // 		std::vector< std::pair< std::pair<int, int>, const CStack *> > minimalPairs;
 // 		minimalPairs.push_back(stackPairs[0]);
-// 
+//
 // 		for(int b=1; b<stackPairs.size(); ++b)
 // 		{
 // 			if(stackPairs[b].first.first < minimalPairs[0].first.first)
@@ -491,12 +491,12 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 // 				minimalPairs.push_back(stackPairs[b]);
 // 			}
 // 		}
-// 
+//
 // 		std::pair< std::pair<int, int>, const CStack *> minPair = minimalPairs[minimalPairs.size()/2];
-// 
+//
 // 		return std::make_pair(minPair.second, predecessor[minPair.first.second]);
 // 	}
-// 
+//
 // 	return std::make_pair<const CStack * , BattleHex>(NULL, BattleHex::INVALID);
 // }
 ui32 BattleInfo::calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const
@@ -584,7 +584,7 @@ ui32 BattleInfo::calculateHealedHP(const CGHeroInstance * caster, const CSpell *
 	int healedHealth;
 	if (spell->id == Spells::SACRIFICE && sacrificedStack)
 		healedHealth = (caster->getPrimSkillLevel(2) + sacrificedStack->MaxHealth() + spell->powers[caster->getSpellSchoolLevel(spell)]) * sacrificedStack->count;
-	else 
+	else
 		healedHealth = caster->getPrimSkillLevel(2) * spell->power + spell->powers[caster->getSpellSchoolLevel(spell)];
 	healedHealth = calculateSpellBonus(healedHealth, spell, caster, stack);
 	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
@@ -610,9 +610,9 @@ const CStack * BattleInfo::battleGetStack(BattleHex pos, bool onlyAlive)
 	CStack * stack = NULL;
 	for(ui32 g=0; g<stacks.size(); ++g)
 	{
-		if(stacks[g]->position == pos 
-			|| (stacks[g]->doubleWide() 
-			&&( (stacks[g]->attackerOwned && stacks[g]->position-1 == pos) 
+		if(stacks[g]->position == pos
+			|| (stacks[g]->doubleWide()
+			&&( (stacks[g]->attackerOwned && stacks[g]->position-1 == pos)
 			||	(!stacks[g]->attackerOwned && stacks[g]->position+1 == pos)	)
 			) )
 		{
@@ -633,7 +633,7 @@ const CGHeroInstance * BattleInfo::battleGetOwner(const CStack * stack) const
 void BattleInfo::localInit()
 {
 	belligerents[0]->battle = belligerents[1]->battle = this;
-	
+
 	BOOST_FOREACH(CArmedInstance *b, belligerents)
 		b->attachTo(this);
 
@@ -767,7 +767,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 	curB->castSpells[0] = curB->castSpells[1] = 0;
 	curB->sides[0] = armies[0]->tempOwner;
 	curB->sides[1] = armies[1]->tempOwner;
-	if(curB->sides[1] == 254) 
+	if(curB->sides[1] == 254)
 		curB->sides[1] = 255;
 
 	std::vector<CStack*> & stacks = (curB->stacks);
@@ -830,7 +830,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 		if(r.rand(1,100) <= 40) //put cliff-like obstacle
 		{
 			RangeGenerator obidgen(0, ABSOLUTE_OBSTACLES_COUNT-1, ourRand);
-			
+
 			try
 			{
 				auto obstPtr = make_shared<CObstacleInstance>();
@@ -911,7 +911,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 	CGH::readBattlePositions(positions[3]["levels"], defenderTight);
 	CGH::readBattlePositions(positions[4]["levels"], attackerCreBank);
 	CGH::readBattlePositions(positions[5]["levels"], defenderCreBank);
-	
+
 	BOOST_FOREACH (auto position, config["commanderPositions"]["field"].Vector())
 	{
 		commanderField.push_back (position.Float());
@@ -922,7 +922,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 	}
 
 	//battleStartpos read
-	int k = 0; //stack serial 
+	int k = 0; //stack serial
 	for(TSlots::const_iterator i = armies[0]->Slots().begin(); i!=armies[0]->Slots().end(); i++, k++)
 	{
 		int pos;
@@ -953,7 +953,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 	}
 
 	//shifting positions of two-hex creatures
-	for(unsigned g=0; g<stacks.size(); ++g) 
+	for(unsigned g=0; g<stacks.size(); ++g)
 	{
 		//we should do that for creature bank too
 		if(stacks[g]->doubleWide() && stacks[g]->attackerOwned)
@@ -1211,8 +1211,8 @@ std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const C
 		for(auto it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
 		{
 			if( (*it)->hasBonusOfType(Bonus::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
-				|| ( (*it)->count - 1 ) * (*it)->MaxHealth() + (*it)->firstHPleft 
-		> 
+				|| ( (*it)->count - 1 ) * (*it)->MaxHealth() + (*it)->firstHPleft
+		>
 		usedSpellPower * 25 + sp->powers[spellLevel]
 			)
 			{
@@ -1244,7 +1244,7 @@ int BattleInfo::getIdForNewStack() const
 	if(stacks.size())
 	{
 		//stacks vector may be sorted not by ID and they may be not contiguous -> find stack with max ID
-		auto highestIDStack = *std::max_element(stacks.begin(), stacks.end(), 
+		auto highestIDStack = *std::max_element(stacks.begin(), stacks.end(),
 								[](const CStack *a, const CStack *b) { return a->ID < b->ID; });
 
 		return highestIDStack->ID + 1;
@@ -1294,7 +1294,7 @@ BattleInfo::BattleInfo()
 }
 
 CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)
-	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO),   
+	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO),
 	counterAttacks(1)
 {
 	assert(base);
@@ -1360,7 +1360,7 @@ ui32 CStack::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
 	speed = ((100 + percentBonus) * speed)/100;
 
 	//bind effect check - doesn't influence stack initiative
-	if (useBind && getEffect (Spells::BIND)) 
+	if (useBind && getEffect (Spells::BIND))
 	{
 		return 0;
 	}
@@ -1404,11 +1404,11 @@ const Bonus * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
 }
 
 void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
-{	
+{
 	si32 power = VLC->spellh->spells[sse.sid]->powers[sse.val];
 	switch(sse.sid)
 	{
-	case 27: //shield 
+	case 27: //shield
 	 	sf.push_back(featureGenerator(Bonus::GENERAL_DAMAGE_REDUCTION, 0, power, sse.turnsRemain));
 	 	sf.back().sid = sse.sid;
 	 	break;
@@ -1627,7 +1627,7 @@ BattleHex CStack::occupiedHex(BattleHex assumedPos) const
 			return assumedPos - 1;
 		else
 			return assumedPos + 1;
-	} 
+	}
 	else
 	{
 		return BattleHex::INVALID;
@@ -1819,12 +1819,12 @@ bool CStack::isMeleeAttackPossible(const CStack * attacker, const CStack * defen
 		&& BattleHex::mutualPosition(attackerPos, defenderPos + (defender->attackerOwned ? -1 : 1)) >= 0)
 		|| (defender->doubleWide() && attacker->doubleWide()//back <=> back
 		&& BattleHex::mutualPosition(attackerPos + (attacker->attackerOwned ? -1 : 1), defenderPos + (defender->attackerOwned ? -1 : 1)) >= 0);
-		
+
 }
 
 bool CStack::ableToRetaliate() const
 {
-	return alive() 
+	return alive()
 		&& (counterAttacks > 0 || hasBonusOfType(Bonus::UNLIMITED_RETALIATIONS))
 		&& !hasBonusOfType(Bonus::SIEGE_WEAPON)
 		&& !hasBonusOfType(Bonus::HYPNOTIZED)

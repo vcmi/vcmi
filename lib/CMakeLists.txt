@@ -17,6 +17,7 @@ set(lib_SRCS
         BattleHex.cpp
         BattleState.cpp
         CArtHandler.cpp
+        CBattleCallback.cpp
         CBuildingHandler.cpp
         CCampaignHandler.cpp
         CConsoleHandler.cpp
@@ -29,7 +30,7 @@ set(lib_SRCS
         CHeroHandler.cpp
         CLogger.cpp
         CMapInfo.cpp
-		CModHandler.cpp
+        CModHandler.cpp
         CObjectHandler.cpp
         CObstacleInstance.cpp
         Connection.cpp

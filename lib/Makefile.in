@@ -91,20 +91,20 @@ am_libvcmi_la_OBJECTS = libvcmi_la-CBinaryReader.lo \
 	libvcmi_la-CLodArchiveLoader.lo libvcmi_la-CMemoryStream.lo \
 	libvcmi_la-CResourceLoader.lo libvcmi_la-BattleAction.lo \
 	libvcmi_la-BattleState.lo libvcmi_la-CArtHandler.lo \
-	libvcmi_la-CBuildingHandler.lo libvcmi_la-CCampaignHandler.lo \
-	libvcmi_la-CConsoleHandler.lo libvcmi_la-CCreatureHandler.lo \
-	libvcmi_la-CCreatureSet.lo libvcmi_la-CDefObjInfoHandler.lo \
-	libvcmi_la-CGameInterface.lo libvcmi_la-CGameState.lo \
-	libvcmi_la-CGeneralTextHandler.lo libvcmi_la-CHeroHandler.lo \
-	libvcmi_la-CLogger.lo libvcmi_la-CMapInfo.lo \
-	libvcmi_la-CModHandler.lo libvcmi_la-CObjectHandler.lo \
-	libvcmi_la-CObstacleInstance.lo libvcmi_la-CSpellHandler.lo \
-	libvcmi_la-CTownHandler.lo libvcmi_la-CThreadHelper.lo \
-	libvcmi_la-Connection.lo libvcmi_la-HeroBonus.lo \
-	libvcmi_la-IGameCallback.lo libvcmi_la-JsonNode.lo \
-	libvcmi_la-NetPacksLib.lo libvcmi_la-ResourceSet.lo \
-	libvcmi_la-BattleHex.lo libvcmi_la-VCMI_Lib.lo \
-	libvcmi_la-map.lo
+	libvcmi_la-CBattleCallback.lo libvcmi_la-CBuildingHandler.lo \
+	libvcmi_la-CCampaignHandler.lo libvcmi_la-CConsoleHandler.lo \
+	libvcmi_la-CCreatureHandler.lo libvcmi_la-CCreatureSet.lo \
+	libvcmi_la-CDefObjInfoHandler.lo libvcmi_la-CGameInterface.lo \
+	libvcmi_la-CGameState.lo libvcmi_la-CGeneralTextHandler.lo \
+	libvcmi_la-CHeroHandler.lo libvcmi_la-CLogger.lo \
+	libvcmi_la-CMapInfo.lo libvcmi_la-CModHandler.lo \
+	libvcmi_la-CObjectHandler.lo libvcmi_la-CObstacleInstance.lo \
+	libvcmi_la-CSpellHandler.lo libvcmi_la-CTownHandler.lo \
+	libvcmi_la-CThreadHelper.lo libvcmi_la-Connection.lo \
+	libvcmi_la-HeroBonus.lo libvcmi_la-IGameCallback.lo \
+	libvcmi_la-JsonNode.lo libvcmi_la-NetPacksLib.lo \
+	libvcmi_la-ResourceSet.lo libvcmi_la-BattleHex.lo \
+	libvcmi_la-VCMI_Lib.lo libvcmi_la-map.lo
 libvcmi_la_OBJECTS = $(am_libvcmi_la_OBJECTS)
 AM_V_lt = $(am__v_lt_@AM_V@)
 am__v_lt_ = $(am__v_lt_@AM_DEFAULT_V@)
@@ -313,6 +313,8 @@ libvcmi_la_SOURCES = \
 	BattleState.h \
 	CArtHandler.cpp \
 	CArtHandler.h \
+	CBattleCallback.cpp \
+	CBattleCallback.h \
 	CBuildingHandler.cpp \
 	CBuildingHandler.h \
 	CCampaignHandler.cpp \
@@ -454,6 +456,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-BattleHex.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-BattleState.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CArtHandler.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CBattleCallback.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CBinaryReader.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CBuildingHandler.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/libvcmi_la-CCampaignHandler.Plo@am__quote@
@@ -586,6 +589,13 @@ libvcmi_la-CArtHandler.lo: CArtHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CArtHandler.cpp' object='libvcmi_la-CArtHandler.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CArtHandler.lo `test -f 'CArtHandler.cpp' || echo '$(srcdir)/'`CArtHandler.cpp
+
+libvcmi_la-CBattleCallback.lo: CBattleCallback.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CBattleCallback.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CBattleCallback.Tpo -c -o libvcmi_la-CBattleCallback.lo `test -f 'CBattleCallback.cpp' || echo '$(srcdir)/'`CBattleCallback.cpp
+@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/libvcmi_la-CBattleCallback.Tpo $(DEPDIR)/libvcmi_la-CBattleCallback.Plo
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CBattleCallback.cpp' object='libvcmi_la-CBattleCallback.lo' libtool=yes @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -c -o libvcmi_la-CBattleCallback.lo `test -f 'CBattleCallback.cpp' || echo '$(srcdir)/'`CBattleCallback.cpp
 
 libvcmi_la-CBuildingHandler.lo: CBuildingHandler.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(LIBTOOL) $(AM_V_lt) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(libvcmi_la_CXXFLAGS) $(CXXFLAGS) -MT libvcmi_la-CBuildingHandler.lo -MD -MP -MF $(DEPDIR)/libvcmi_la-CBuildingHandler.Tpo -c -o libvcmi_la-CBuildingHandler.lo `test -f 'CBuildingHandler.cpp' || echo '$(srcdir)/'`CBuildingHandler.cpp

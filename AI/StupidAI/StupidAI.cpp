@@ -55,7 +55,7 @@ struct EnemyInfo
 	}
 };
 
-bool isMoreProfitable(const EnemyInfo &ei1, const EnemyInfo& ei2) 
+bool isMoreProfitable(const EnemyInfo &ei1, const EnemyInfo& ei2)
 {
 	return (ei1.adi-ei1.adr) < (ei2.adi - ei2.adr);
 }
@@ -175,68 +175,68 @@ void CStupidAI::battleStacksAttacked(const std::vector<BattleStackAttacked> & bs
 	print("battleStacksAttacked called");
 }
 
-void CStupidAI::battleEnd(const BattleResult *br) 
+void CStupidAI::battleEnd(const BattleResult *br)
 {
 	print("battleEnd called");
 }
 
-// void CStupidAI::battleResultsApplied() 
+// void CStupidAI::battleResultsApplied()
 // {
 // 	print("battleResultsApplied called");
 // }
 
-void CStupidAI::battleNewRoundFirst(int round) 
+void CStupidAI::battleNewRoundFirst(int round)
 {
 	print("battleNewRoundFirst called");
 }
 
-void CStupidAI::battleNewRound(int round) 
+void CStupidAI::battleNewRound(int round)
 {
 	print("battleNewRound called");
 }
 
-void CStupidAI::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance) 
+void CStupidAI::battleStackMoved(const CStack * stack, std::vector<BattleHex> dest, int distance)
 {
 	print("battleStackMoved called");;
 }
 
-void CStupidAI::battleSpellCast(const BattleSpellCast *sc) 
+void CStupidAI::battleSpellCast(const BattleSpellCast *sc)
 {
 	print("battleSpellCast called");
 }
 
-void CStupidAI::battleStacksEffectsSet(const SetStackEffect & sse) 
+void CStupidAI::battleStacksEffectsSet(const SetStackEffect & sse)
 {
 	print("battleStacksEffectsSet called");
 }
 
-void CStupidAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side) 
+void CStupidAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool Side)
 {
 	print("battleStart called");
 	side = Side;
 }
 
-void CStupidAI::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom) 
+void CStupidAI::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom)
 {
 	print("battleStacksHealedRes called");
 }
 
-void CStupidAI::battleNewStackAppeared(const CStack * stack) 
+void CStupidAI::battleNewStackAppeared(const CStack * stack)
 {
 	print("battleNewStackAppeared called");
 }
 
-void CStupidAI::battleObstaclesRemoved(const std::set<si32> & removedObstacles) 
+void CStupidAI::battleObstaclesRemoved(const std::set<si32> & removedObstacles)
 {
 	print("battleObstaclesRemoved called");
 }
 
-void CStupidAI::battleCatapultAttacked(const CatapultAttack & ca) 
+void CStupidAI::battleCatapultAttacked(const CatapultAttack & ca)
 {
 	print("battleCatapultAttacked called");
 }
 
-void CStupidAI::battleStacksRemoved(const BattleStacksRemoved & bsr) 
+void CStupidAI::battleStacksRemoved(const BattleStacksRemoved & bsr)
 {
 	print("battleStacksRemoved called");
 }
@@ -254,7 +254,7 @@ BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
 
 	if(vstd::contains(avHexes, destination))
 		return BattleAction::makeMove(stack, destination);
-	
+
 	auto destNeighbours = destination.neighbouringTiles();
 	if(vstd::contains_if(destNeighbours, [&](BattleHex n) { return stack->coversPos(destination); }))
 	{
@@ -278,8 +278,8 @@ BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
 		auto distToDestNeighbour = [&](BattleHex hex) -> int
 		{
 			auto nearestNeighbourToHex = vstd::minElementByFun(destNeighbours, [&](BattleHex a)
-			{ 
-				return BattleHex::getDistance(a, hex); 
+			{
+				return BattleHex::getDistance(a, hex);
 			});
 
 			return BattleHex::getDistance(*nearestNeighbourToHex, hex);

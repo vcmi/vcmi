@@ -349,7 +349,7 @@ namespace vstd
 		std::advance(itr, index);
 		return *itr;
 	}
-	
+
 	template<typename Range, typename Predicate>
 	void erase_if(Range &vec, Predicate pred)
 	{
@@ -373,7 +373,7 @@ namespace vstd
 	auto minElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(boost::begin(rng))
 	{
 		typedef decltype(*boost::begin(rng)) ElemType;
-		return boost::min_element(rng, [&] (const ElemType &lhs, const ElemType &rhs) -> bool
+		return boost::min_element(rng, [&] (ElemType lhs, ElemType rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);
 		});

@@ -21,6 +21,8 @@ libvcmi_la_SOURCES = \
 	BattleState.h \
 	CArtHandler.cpp \
 	CArtHandler.h \
+	CBattleCallback.cpp \
+	CBattleCallback.h \
 	CBuildingHandler.cpp \
 	CBuildingHandler.h \
 	CCampaignHandler.cpp \
