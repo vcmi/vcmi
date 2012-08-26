@@ -9,7 +9,7 @@
 #define RETURN_IF_NOT_BATTLE(X) if(!duringBattle()) {tlog1 << __FUNCTION__ << " called when no battle!\n"; return X; }
 
 //allocate static member
-const int ReachabilityInfo::INFINITE_DIST;
+//const int ReachabilityInfo::INFINITE_DIST;
 
 namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 {
