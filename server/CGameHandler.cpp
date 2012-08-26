@@ -1326,7 +1326,15 @@ void CGameHandler::newTurn()
 			FoWChange fw;
 			fw.mode = 1;
 			fw.player = player;
-			getAllTiles(fw.tiles, player, -1, 0);
+
+			// find all hidden tiles
+			auto & fow = gs->getPlayerTeam(player)->fogOfWarMap;
+			for (size_t i=0; i<fow.size(); i++)
+				for (size_t j=0; j<fow[i].size(); j++)
+					for (size_t k=0; k<fow[i][j].size(); k++)
+						if (!fow[i][j][k])
+							fw.tiles.insert(int3(i,j,k));
+
 			sendAndApply (&fw);
 		}
 		if (t->hasBonusOfType (Bonus::DARKNESS))

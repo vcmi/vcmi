@@ -1164,6 +1164,16 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, int building, unsigned in
 		return true;
 
 	std::set<int> toBuild = cb->getBuildingRequiments(t, building);
+
+	//erase all already built buildings
+	for (auto buildIter = toBuild.begin(); buildIter != toBuild.end();)
+	{
+		if (vstd::contains(t->builtBuildings, *buildIter))
+			toBuild.erase(buildIter++);
+		else
+			buildIter++;
+	}
+
 	toBuild.insert(building);
 
 	BOOST_FOREACH(int buildID, toBuild)
