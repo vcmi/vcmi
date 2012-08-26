@@ -36,10 +36,10 @@ protected:
 	int player; // -1 gives access to all information, otherwise callback provides only information "visible" for player
 
 	CCallbackBase(CGameState *GS, int Player)
-		: gs(GS), player(Player)
+		: gs(GS), player(Player), battle(nullptr)
 	{}
 	CCallbackBase()
-		: gs(NULL), player(-1)
+		: gs(NULL), player(-1), battle(nullptr)
 	{}
 	
 	void setBattle(const BattleInfo *B);
@@ -104,7 +104,7 @@ struct DLL_LINKAGE ReachabilityInfo
 	typedef std::array<int, GameConstants::BFIELD_SIZE> TDistances;
 	typedef std::array<BattleHex, GameConstants::BFIELD_SIZE> TPredecessors;
 
-	static const int INFINITE_DIST = 1000000;
+	enum { 	INFINITE_DIST = 1000000 };
 
 	struct DLL_LINKAGE Parameters
 	{
@@ -128,7 +128,7 @@ struct DLL_LINKAGE ReachabilityInfo
 
 	ReachabilityInfo()
 	{
-		distances.fill(static_cast<int>(INFINITE_DIST));
+		distances.fill(INFINITE_DIST);
 		predecessors.fill(BattleHex::INVALID);
 	}
 
@@ -191,8 +191,8 @@ public:
 	void battleGetStackQueue(std::vector<const CStack *> &out, const int howMany, const int turn = 0, int lastMoved = -1) const;
 	void battleGetStackCountOutsideHexes(bool *ac) const; // returns hexes which when in front of a stack cause us to move the amount box back
 
-	//void getStackQueue( std::vector<const CStack *> &out, int howMany ) const; //returns vector of stack in order of their move sequence
-	std::vector<BattleHex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL) const; //returns numbers of hexes reachable by creature with id ID
+
+	std::vector<BattleHex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL) const; //returns hexes reachable by creature with id ID (valid movement destinations), does not contain stack current position
 
 	int battleGetSurrenderCost(int Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
 	ReachabilityInfo::TDistances battleGetDistances(const CStack * stack, BattleHex hex = BattleHex::INVALID, BattleHex * predecessors = NULL) const; //returns vector of distances to [dest hex number]

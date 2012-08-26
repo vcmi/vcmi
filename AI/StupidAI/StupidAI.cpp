@@ -98,7 +98,6 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 {
 	//boost::this_thread::sleep(boost::posix_time::seconds(2));
 	print("activeStack called for " + stack->nodeName());
-	std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack, false);
 	auto dists = cb->battleGetDistances(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
@@ -123,6 +122,9 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		}
 		else
 		{
+			std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack, false);
+			boost::copy(stack->getHexes(), std::back_inserter(avHexes)); //add current stack position - we can attack from it
+
 			BOOST_FOREACH(BattleHex hex, avHexes)
 			{
 				if(CStack::isMeleeAttackPossible(stack, s, hex))
@@ -156,7 +158,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	else
 	{
 		const EnemyInfo &ei= *std::min_element(enemiesUnreachable.begin(), enemiesUnreachable.end(), boost::bind(isCloser, _1, _2, boost::ref(dists)));
-		if(distToNearestNeighbour(ei.s->position, dists) < GameConstants::BFIELD_SIZE) //FIXME: rare crash when AI attacks banks
+		if(distToNearestNeighbour(ei.s->position, dists) < GameConstants::BFIELD_SIZE)
 		{
 			return goTowards(stack, ei.s->position);
 		}

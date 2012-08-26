@@ -473,7 +473,7 @@ void CClient::serialize( Handler &h, const int version )
 			else
 				nInt = new CPlayerInterface(pid);
 
-			callbacks[pid] = make_shared<CCallback>(gs,pid,this);
+			battleCallbacks[pid] = callbacks[pid] = make_shared<CCallback>(gs,pid,this);
 			battleints[pid] = playerint[pid] = nInt;
 			nInt->init(callbacks[pid].get());
 			nInt->serialize(h, version);

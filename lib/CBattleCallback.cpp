@@ -1086,7 +1086,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 	ret.params = params;
 
 	ret.predecessors.fill(BattleHex::INVALID);
-	ret.distances.fill(static_cast<int>(ReachabilityInfo::INFINITE_DIST));
+	ret.distances.fill(ReachabilityInfo::INFINITE_DIST);
 
 	const std::set<BattleHex> quicksands = getStoppers(params.perspective);
 	//const bool twoHexCreature = params.doubleWide;

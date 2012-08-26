@@ -935,6 +935,9 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 		assert(gs->curB->isInTacticRange(dest));
 	}
 
+	if(curStack->position == dest)
+		return 0;
+
 	//initing necessary tables
 	auto accessibility = getAccesibility();
 
@@ -3255,7 +3258,10 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action); //start movement
-			moveStack(ba.stackNumber,ba.destinationTile); //move
+			int walkedTiles = moveStack(ba.stackNumber,ba.destinationTile); //move
+			if(!walkedTiles)
+				complain("Stack failed movement!");
+
 			sendAndApply(&end_action);
 			break;
 		}
@@ -3306,26 +3312,25 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action); //start movement and attack
-			int startingPos = gs->curB->battleGetStackByID(ba.stackNumber)->position;
+			int startingPos = stack->position;
 			int distance = moveStack(ba.stackNumber, ba.destinationTile);
-			const CStack *curStack = gs->curB->battleGetStackByID(ba.stackNumber),
-				*stackAtEnd = gs->curB->battleGetStackByPos(ba.additionalInfo);
+			const CStack *stackAtEnd = gs->curB->battleGetStackByPos(ba.additionalInfo);
 
-			if(!curStack || !stackAtEnd)
+			if(!stack || !stackAtEnd)
 			{
 				sendAndApply(&end_action);
 				break;
 			}
 
-			tlog5 << curStack->nodeName() << " will attack " << stackAtEnd->nodeName() << std::endl;
+			tlog5 << stack->nodeName() << " will attack " << stackAtEnd->nodeName() << std::endl;
 
-			if(curStack->position != ba.destinationTile //we wasn't able to reach destination tile
-				&& !(curStack->doubleWide()
-					&&  ( curStack->position == ba.destinationTile + (curStack->attackerOwned ?  +1 : -1 ) )
+			if(stack->position != ba.destinationTile //we wasn't able to reach destination tile
+				&& !(stack->doubleWide()
+					&&  ( stack->position == ba.destinationTile + (stack->attackerOwned ?  +1 : -1 ) )
 						) //nor occupy specified hex
 				)
 			{
-				std::string problem = "We cannot move this stack to its destination " + curStack->getCreature()->namePl;
+				std::string problem = "We cannot move this stack to its destination " + stack->getCreature()->namePl;
 				tlog3 << problem << std::endl;
 				complain(problem);
 				ok = false;
@@ -3333,7 +3338,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				break;
 			}
 
-			if(stackAtEnd && curStack->ID == stackAtEnd->ID) //we should just move, it will be handled by following check
+			if(stackAtEnd && stack->ID == stackAtEnd->ID) //we should just move, it will be handled by following check
 			{
 				stackAtEnd = NULL;
 			}
@@ -3346,7 +3351,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				break;
 			}
 
-			if( !CStack::isMeleeAttackPossible(curStack, stackAtEnd) )
+			if( !CStack::isMeleeAttackPossible(stack, stackAtEnd) )
 			{
 				complain("Attack cannot be performed!");
 				sendAndApply(&end_action);
@@ -3357,39 +3362,39 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			//attack
 			{
 				BattleAttack bat;
-				prepareAttack(bat, curStack, stackAtEnd, distance, ba.additionalInfo);
+				prepareAttack(bat, stack, stackAtEnd, distance, ba.additionalInfo);
 				handleAttackBeforeCasting(bat); //only before first attack
 				sendAndApply(&bat);
 				handleAfterAttackCasting(bat);
 			}
 
 			//counterattack
-			if(!curStack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
+			if(!stack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
 				&& stackAtEnd->ableToRetaliate()
-				&& curStack->alive()) //attacker may have died (fire shield)
+				&& stack->alive()) //attacker may have died (fire shield)
 			{
 				BattleAttack bat;
-				prepareAttack(bat, stackAtEnd, curStack, 0, curStack->position);
+				prepareAttack(bat, stackAtEnd, stack, 0, stack->position);
 				bat.flags |= BattleAttack::COUNTER;
 				sendAndApply(&bat);
 				handleAfterAttackCasting(bat);
 			}
 
 			//second attack
-			if(curStack //FIXME: clones tend to dissapear during actions
-				&& curStack->valOfBonuses(Bonus::ADDITIONAL_ATTACK) > 0
-				&& !curStack->hasBonusOfType(Bonus::SHOOTER)
-				&& curStack->alive()
+			if(stack //FIXME: clones tend to dissapear during actions
+				&& stack->valOfBonuses(Bonus::ADDITIONAL_ATTACK) > 0
+				&& !stack->hasBonusOfType(Bonus::SHOOTER)
+				&& stack->alive()
 				&& stackAtEnd->alive()  )
 			{
 				BattleAttack bat;
-				prepareAttack(bat, curStack, stackAtEnd, 0, ba.additionalInfo);
+				prepareAttack(bat, stack, stackAtEnd, 0, ba.additionalInfo);
 				sendAndApply(&bat);
 				handleAfterAttackCasting(bat);
 			}
 
 			//return
-			if(curStack->hasBonusOfType(Bonus::RETURN_AFTER_STRIKE) && startingPos != curStack->position && curStack->alive())
+			if(stack->hasBonusOfType(Bonus::RETURN_AFTER_STRIKE) && startingPos != stack->position && stack->alive())
 			{
 				moveStack(ba.stackNumber, startingPos);
 				//NOTE: curStack->ID == ba.stackNumber (rev 1431)
@@ -3399,10 +3404,12 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case BattleAction::SHOOT: //shoot
 		{
-			const CStack *curStack = gs->curB->battleGetStackByID(ba.stackNumber),
-				*destStack= gs->curB->battleGetStackByPos(ba.destinationTile);
-			if( !gs->curB->battleCanShoot(curStack, ba.destinationTile) )
+			const CStack *destStack= gs->curB->battleGetStackByPos(ba.destinationTile);
+			if( !gs->curB->battleCanShoot(stack, ba.destinationTile) )
+			{
+				complain("Cannot shoot!");
 				break;
+			}
 
 			StartAction start_action(ba);
 			sendAndApply(&start_action); //start shooting
@@ -3410,30 +3417,30 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			{
 				BattleAttack bat;
 				bat.flags |= BattleAttack::SHOT;
-				prepareAttack(bat, curStack, destStack, 0, ba.destinationTile);
+				prepareAttack(bat, stack, destStack, 0, ba.destinationTile);
 				handleAttackBeforeCasting(bat);
 				sendAndApply(&bat);
 				handleAfterAttackCasting(bat);
 			}
 
 			//ballista & artillery handling
-			if(destStack->alive() && curStack->getCreature()->idNumber == 146)
+			if(destStack->alive() && stack->getCreature()->idNumber == 146)
 			{
 				BattleAttack bat2;
 				bat2.flags |= BattleAttack::SHOT;
-				prepareAttack(bat2, curStack, destStack, 0, ba.destinationTile);
+				prepareAttack(bat2, stack, destStack, 0, ba.destinationTile);
 				sendAndApply(&bat2);
 			}
 			//TODO: allow more than one additional attack
-			if(curStack->valOfBonuses(Bonus::ADDITIONAL_ATTACK) > 0 //if unit shots twice let's make another shot
-				&& curStack->alive()
+			if(stack->valOfBonuses(Bonus::ADDITIONAL_ATTACK) > 0 //if unit shots twice let's make another shot
+				&& stack->alive()
 				&& destStack->alive()
-				&& curStack->shots
+				&& stack->shots
 				)
 			{
 				BattleAttack bat;
 				bat.flags |= BattleAttack::SHOT;
-				prepareAttack(bat, curStack, destStack, 0, ba.destinationTile);
+				prepareAttack(bat, stack, destStack, 0, ba.destinationTile);
 				sendAndApply(&bat);
 				handleAfterAttackCasting(bat);
 			}
