@@ -128,7 +128,7 @@ struct DLL_LINKAGE ReachabilityInfo
 
 	ReachabilityInfo()
 	{
-		distances.fill(INFINITE_DIST);
+		distances.fill(static_cast<int>(INFINITE_DIST));
 		predecessors.fill(BattleHex::INVALID);
 	}
 

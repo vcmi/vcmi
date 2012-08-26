@@ -8,9 +8,6 @@
 
 #define RETURN_IF_NOT_BATTLE(X) if(!duringBattle()) {tlog1 << __FUNCTION__ << " called when no battle!\n"; return X; }
 
-//allocate static member
-//const int ReachabilityInfo::INFINITE_DIST;
-
 namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 {
 	static int lineToWallHex(int line) //returns hex with wall in given line (y coordinate)
@@ -1089,7 +1086,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 	ret.params = params;
 
 	ret.predecessors.fill(BattleHex::INVALID);
-	ret.distances.fill(ReachabilityInfo::INFINITE_DIST);
+	ret.distances.fill(static_cast<int>(ReachabilityInfo::INFINITE_DIST));
 
 	const std::set<BattleHex> quicksands = getStoppers(params.perspective);
 	//const bool twoHexCreature = params.doubleWide;
