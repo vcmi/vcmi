@@ -5257,17 +5257,20 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 
 	if (attacker->hasBonusOfType(Bonus::DEATH_STARE)) // spell id 79
 	{
+		// mechanics of Death Stare as in H3:
+		// each gorgon have 10% chance to kill (counted separately in H3) -> poisson distribution
+		// maximum amount that can be killed is (1 + gorgons / 5 ), rounded up
+
 		int staredCreatures = 0;
-		double mean = attacker->count * attacker->valOfBonuses(Bonus::DEATH_STARE, 0) / 100;
-		if (mean >= 1)
-		{
-			boost::poisson_distribution<int, double> p((int)mean);
-			boost::mt19937 rng;
-			boost::variate_generator<boost::mt19937&, boost::poisson_distribution<int, double> > dice (rng, p);
-			staredCreatures += dice();
-		}
-		if (((int)(mean * 100)) < rand() % 100) //fractional chance for one last kill
-			++staredCreatures;
+		double mean = double(attacker->count * attacker->valOfBonuses(Bonus::DEATH_STARE, 0)) / 100;
+
+		boost::poisson_distribution<> p(mean);
+		boost::mt19937 rng(rand());
+		boost::variate_generator<boost::mt19937&, boost::poisson_distribution<> > dice (rng, p);
+		staredCreatures += dice();
+
+		int maxToKill = 1 + (attacker->count + 4) / 5;
+		vstd::amin(staredCreatures, maxToKill);
 
 		staredCreatures += attacker->type->level * attacker->valOfBonuses(Bonus::DEATH_STARE, 1);
 		if (staredCreatures)

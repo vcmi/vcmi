@@ -36,10 +36,10 @@ protected:
 	int player; // -1 gives access to all information, otherwise callback provides only information "visible" for player
 
 	CCallbackBase(CGameState *GS, int Player)
-		: gs(GS), player(Player), battle(nullptr)
+		: battle(nullptr), gs(GS), player(Player)
 	{}
 	CCallbackBase()
-		: gs(NULL), player(-1), battle(nullptr)
+		: battle(nullptr), gs(nullptr), player(-1)
 	{}
 	
 	void setBattle(const BattleInfo *B);
