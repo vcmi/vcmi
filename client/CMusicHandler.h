@@ -112,7 +112,7 @@ class MusicEntry
 {
 	CMusicHandler *owner;
 	Mix_Music *music;
-	bool looped;
+	int loop; // -1 = indefinite
 	//if not null - set from which music will be randomly selected
 	std::string setName;
 	std::string currentName;
@@ -128,7 +128,7 @@ public:
 	~MusicEntry();
 
 	bool play();
-	void stop(int fade_ms=0);
+	bool stop(int fade_ms=0);
 };
 
 class CMusicHandler: public CAudioBase

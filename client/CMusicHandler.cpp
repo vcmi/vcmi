@@ -426,11 +426,7 @@ void CMusicHandler::queueNext(MusicEntry *queued)
 
 	next.reset(queued);
 
-	if (current.get() != NULL)
-	{
-		current->stop(1000);
-	}
-	else
+	if (current.get() == nullptr || !current->stop(1000))
 	{
 		current.reset(next.release());
 		current->play();
@@ -480,7 +476,7 @@ void CMusicHandler::musicFinishedCallback(void)
 MusicEntry::MusicEntry(CMusicHandler *owner, std::string setName, std::string musicURI, bool looped):
 	owner(owner),
 	music(nullptr),
-	looped(looped),
+	loop(looped ? -1 : 1),
     setName(setName)
 {
 	if (!musicURI.empty())
@@ -521,7 +517,7 @@ void MusicEntry::load(std::string musicURI)
 
 bool MusicEntry::play()
 {
-	if (!looped && music) //already played once - return
+	if (!(loop--) && music) //already played once - return
 		return false;
 
 	if (!setName.empty())
@@ -542,11 +538,16 @@ bool MusicEntry::play()
 	return true;
 }
 
-void MusicEntry::stop(int fade_ms)
+bool MusicEntry::stop(int fade_ms)
 {
-	tlog5<<"Stoping music file "<<currentName<<"\n";
-	looped = false;
-	Mix_FadeOutMusic(fade_ms);
+	if (Mix_PlayingMusic())
+	{
+		tlog5<<"Stoping music file "<<currentName<<"\n";
+		loop = 0;
+		Mix_FadeOutMusic(fade_ms);
+		return true;
+	}
+	return false;
 }
 
 bool MusicEntry::isSet(std::string set)

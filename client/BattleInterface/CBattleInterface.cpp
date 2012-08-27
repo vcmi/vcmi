@@ -1515,7 +1515,7 @@ bool CBattleInterface::isCatapultAttackable(BattleHex hex) const
 		return false;
 
 	int wallUnder = curInt->cb->battleHexToWallPart(hex);
-	if(wallUnder == -1)
+	if(wallUnder < 0) //invalid or indestructible
 		return false;
 
 	return curInt->cb->battleGetWallState(wallUnder) < EWallState::DESTROYED;
