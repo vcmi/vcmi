@@ -1088,6 +1088,9 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 	ret.predecessors.fill(BattleHex::INVALID);
 	ret.distances.fill(ReachabilityInfo::INFINITE_DIST);
 
+	if(!params.startPosition.isValid()) //if got call for arrow turrets
+		return ret;
+
 	const std::set<BattleHex> quicksands = getStoppers(params.perspective);
 	//const bool twoHexCreature = params.doubleWide;
 

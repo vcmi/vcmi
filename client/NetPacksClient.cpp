@@ -589,6 +589,9 @@ void BattleNextRound::applyCl( CClient *cl )
 
 void BattleSetActiveStack::applyCl( CClient *cl )
 {
+	if(!askPlayerInterface)
+		return;
+
 	const CStack * activated = GS(cl)->curB->battleGetStackByID(stack);
 	int playerToCall = -1; //player that will move activated stack
 	if( activated->hasBonusOfType(Bonus::HYPNOTIZED) )

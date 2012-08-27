@@ -1550,8 +1550,10 @@ void CGameHandler::setupBattle( int3 tile, const CArmedInstance *armies[2], cons
 	sendAndApply(&bs);
 }
 
-void CGameHandler::checkForBattleEnd( std::vector<CStack*> &stacks )
+void CGameHandler::checkForBattleEnd()
 {
+	auto &stacks = gs->curB->stacks;
+
 	//checking winning condition
 	bool hasStack[2]; //hasStack[0] - true if attacker has a living stack; defender similarly
 	hasStack[0] = hasStack[1] = false;
@@ -3248,6 +3250,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	switch(ba.actionType)
 	{
 	case BattleAction::END_TACTIC_PHASE: //wait
+	case BattleAction::BAD_MORALE:
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
@@ -4424,7 +4427,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				{
 					battleMadeAction.setn(true);
 				}
-				checkForBattleEnd(gs->curB->stacks);
+				checkForBattleEnd();
 				if(battleResult.get())
 				{
 					battleMadeAction.setn(true);
@@ -5588,15 +5591,13 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 void CGameHandler::makeStackDoNothing(const CStack * next)
 {
 	BattleAction doNothing;
-	doNothing.actionType = 0;
+	doNothing.actionType = BattleAction::NO_ACTION;
 	doNothing.additionalInfo = 0;
 	doNothing.destinationTile = -1;
 	doNothing.side = !next->attackerOwned;
 	doNothing.stackNumber = next->ID;
 
-	StartAction start_action(doNothing);
-	sendAndApply(&start_action);
-	sendAndApply(&end_action);
+	makeAutomaticAction(next, doNothing);
 }
 
 bool CGameHandler::insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count)
@@ -5809,10 +5810,7 @@ void CGameHandler::runBattle()
 					ba.side = !next->attackerOwned;
 					ba.stackNumber = next->ID;
 
-					StartAction start_action(ba);
-					sendAndApply(&start_action);
-					sendAndApply(&end_action);
-					checkForBattleEnd(stacks); //check if this "action" ended the battle (not likely but who knows...)
+					makeAutomaticAction(next, ba);
 					continue;
 				}
 			}
@@ -5826,13 +5824,10 @@ void CGameHandler::runBattle()
 					attack.actionType = BattleAction::WALK_AND_ATTACK;
 					attack.side = !next->attackerOwned;
 					attack.stackNumber = next->ID;
-
 					attack.additionalInfo = attackInfo.first->position;
 					attack.destinationTile = attackInfo.second;
 
-					makeBattleAction(attack);
-
-					checkForBattleEnd(stacks);
+					makeAutomaticAction(next, attack);
 				}
 				else
 				{
@@ -5860,9 +5855,7 @@ void CGameHandler::runBattle()
 					}
 				}
 
-				makeBattleAction(attack);
-
-				checkForBattleEnd(stacks);
+				makeAutomaticAction(next, attack);
 				continue;
 			}
 
@@ -5877,7 +5870,7 @@ void CGameHandler::runBattle()
 				attack.side = !next->attackerOwned;
 				attack.stackNumber = next->ID;
 
-				makeBattleAction(attack);
+				makeAutomaticAction(next, attack);
 				continue;
 			}
 
@@ -5908,8 +5901,8 @@ void CGameHandler::runBattle()
 					heal.destinationTile = toBeHealed->position;
 					heal.side = !next->attackerOwned;
 					heal.stackNumber = next->ID;
-					makeBattleAction(heal);
 
+					makeAutomaticAction(next, heal);
 					continue;
 				}
 			}
@@ -5947,7 +5940,7 @@ void CGameHandler::runBattle()
 				}
 
 				//we're after action, all results applied
-				checkForBattleEnd(stacks); //check if this action ended the battle
+				checkForBattleEnd(); //check if this action ended the battle
 
 				//check for good morale
 				nextStackMorale = next->MoraleVal();
@@ -5986,6 +5979,18 @@ void CGameHandler::runBattle()
 	}
 
 	endBattle(gs->curB->tile, gs->curB->heroes[0], gs->curB->heroes[1]);
+}
+
+bool CGameHandler::makeAutomaticAction(const CStack *stack, BattleAction &ba)
+{
+	BattleSetActiveStack bsa;
+	bsa.stack = stack->ID;
+	bsa.askPlayerInterface = false;
+	sendAndApply(&bsa);
+
+	bool ret = makeBattleAction(ba);
+	checkForBattleEnd();
+	return ret;
 }
 
 void CGameHandler::giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, int pos)

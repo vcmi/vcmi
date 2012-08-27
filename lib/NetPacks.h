@@ -1288,15 +1288,21 @@ struct BattleNextRound : public CPackForClient//3001
 };
 struct BattleSetActiveStack : public CPackForClient//3002
 {
-	BattleSetActiveStack(){type = 3002;};
+	BattleSetActiveStack()
+	{
+		type = 3002;
+		askPlayerInterface = true;
+	}
+
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ui32 stack;
+	ui8 askPlayerInterface;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stack;
+		h & stack & askPlayerInterface;
 	}
 };
 struct BattleResult : public CPackForClient//3003
