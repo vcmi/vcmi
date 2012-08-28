@@ -5798,7 +5798,6 @@ void CGameHandler::runBattle()
 					removeObstacle(*obstPtr);
 		}
 
-		std::vector<CStack*> & stacks = (gs->curB->stacks);
 		const BattleInfo & curB = *gs->curB;
 
 		//stack loop
@@ -5890,7 +5889,7 @@ void CGameHandler::runBattle()
 			{
 				std::vector< const CStack * > possibleStacks;
 
-				//is there any clean algorithm for that? (boost.range seems to lack copy_if)
+				//is there any clean algorithm for that? (boost.range seems to lack copy_if) -> remove_copy_if?
 				BOOST_FOREACH(const CStack *s, battleGetAllStacks())
 					if(s->owner == next->owner  &&  s->canBeHealed())
 						possibleStacks.push_back(s);

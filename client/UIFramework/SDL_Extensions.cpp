@@ -1281,11 +1281,13 @@ void CSDL_Ext::fillTexture(SDL_Surface *dst, SDL_Surface * src)
 	SDL_GetClipRect(src, &srcRect);
 	SDL_GetClipRect(dst, &dstRect);
 
-	for (int y=dstRect.y; y<dstRect.h; y+=srcRect.h)
+	for (int y=dstRect.y; y < dstRect.y + dstRect.h; y+=srcRect.h)
 	{
-		for (int x=dstRect.x; x<dstRect.w; x+=srcRect.w)
+		for (int x=dstRect.x; x < dstRect.x + dstRect.w; x+=srcRect.w)
 		{
-			Rect currentDest(x, y, srcRect.w, srcRect.h);
+			int xLeft = std::min<int>(srcRect.w, dstRect.x + dstRect.w - x);
+			int yLeft = std::min<int>(srcRect.h, dstRect.y + dstRect.h - y);
+			Rect currentDest(x, y, xLeft, yLeft);
 			SDL_BlitSurface(src, &srcRect, dst, &currentDest);
 		}
 	}

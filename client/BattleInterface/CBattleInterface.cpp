@@ -918,7 +918,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		if(!bresult)
 			queue->showAll(to);
 		else
-			queue->blitBg(to); //blit only background, stacks are deleted
+			queue->blitBg(to);
 	}
 
 	//printing border around interface

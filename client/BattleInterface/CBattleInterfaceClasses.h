@@ -13,6 +13,7 @@ class CHighlightableButtonsGroup;
 class CLabel;
 struct BattleResult;
 class CStack;
+class CAnimImage;
 
 /*
  * CBattleInterfaceClasses.h, part of VCMI engine
@@ -125,14 +126,14 @@ class CStackQueue : public CIntObject
 	class StackBox : public CIntObject
 	{
 	public:
-		const CStack *my;
-		SDL_Surface *bg;
+		CPicture * bg;
+		CAnimImage * icon;
+		const CStack *stack;
+		bool small;
 
-		void hover (bool on);
 		void showAll(SDL_Surface * to);
 		void setStack(const CStack *nStack);
-		StackBox(SDL_Surface *BG);
-		~StackBox();
+		StackBox(bool small);
 	};
 
 public:
@@ -141,14 +142,13 @@ public:
 	std::vector<const CStack *> stacksSorted;
 	std::vector<StackBox *> stackBoxes;
 
-	SDL_Surface *box;
-	SDL_Surface *bg;
+	SDL_Surface * bg;
+
 	CBattleInterface * owner;
 
-	void showAll(SDL_Surface * to);
 	CStackQueue(bool Embedded, CBattleInterface * _owner);
 	~CStackQueue();
 	void update();
-	void blitBg( SDL_Surface * to );
-	//void showAll(SDL_Surface * to);
+	void showAll(SDL_Surface *to);
+	void blitBg(SDL_Surface * to);
 };
