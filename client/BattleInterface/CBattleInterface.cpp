@@ -2768,8 +2768,11 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 		}
 	};
 
-	const CStack * const shere = curInt->cb->battleGetStackByPos(myNumber, false);
 	const CStack * const sactive = activeStack;
+	//Get stack on the hex - first try to grab the alive one, if not found -> allow dead stacks.
+	const CStack *shere = curInt->cb->battleGetStackByPos(myNumber, true);
+	if(!shere)
+		shere = curInt->cb->battleGetStackByPos(myNumber, false);
 
 	if (!sactive)
 		return;

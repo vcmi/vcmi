@@ -1716,8 +1716,8 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 
 
 	//get dead stack if we cast resurrection or animate dead
-	const CStack *deadStack = getStackIf([dest](const CStack *s) { return !s->alive() && s->position == dest; });
-	const CStack *aliveStack = getStackIf([dest](const CStack *s) { return s->alive() && s->position == dest;});
+	const CStack *deadStack = getStackIf([dest](const CStack *s) { return !s->alive() && s->coversPos(dest); });
+	const CStack *aliveStack = getStackIf([dest](const CStack *s) { return s->alive() && s->coversPos(dest);});
 
 
 	if(spell->isRisingSpell())
