@@ -1287,7 +1287,7 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	//try to upgrade dwelling
 	for(int i = 0; i < ARRAY_COUNT(unitsUpgrade); i++)
 	{
-		if (t->hasBuilt(unitsSource[i]))
+		if (t->hasBuilt(unitsSource[i]) && !t->hasBuilt(unitsUpgrade[i]))
 		{
 			if (tryBuildStructure(t, unitsUpgrade[i]))
 				return;
@@ -3133,8 +3133,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 				boost::sort(objs, isCloser);
 				BOOST_FOREACH(const CGObjectInstance *obj, objs)
 				{ //find safe dwelling
-					if (isSafeToVisit(hero, obj->visitablePos())) //TODO: make use of multiple heroes
-						return CGoal(VISIT_TILE).sethero(hero).settile(obj->visitablePos());
+					auto pos = obj->visitablePos();
+					if (isSafeToVisit(hero, pos) && ai->isAccessibleForHero(pos, hero)) //TODO: make use of multiple heroes
+						return CGoal(VISIT_TILE).sethero(hero).settile(pos);
 				}
 			}
 
