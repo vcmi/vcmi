@@ -641,6 +641,21 @@ void VCAI::heroExchangeStarted(si32 hero1, si32 hero2)
 {
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
+
+	auto firstHero = cb->getHero(hero1);
+	auto secondHero = cb->getHero(hero2);
+
+	requestActionASAP([=]()
+	{
+		if (firstHero->getHeroStrength() > secondHero->getHeroStrength())
+			pickBestCreatures (firstHero, secondHero);
+		else
+			pickBestCreatures (secondHero, firstHero);
+
+		completeGoal(CGoal(VISIT_HERO).sethero(firstHero)); //TODO: what if we were visited by other hero in the meantime?
+		completeGoal(CGoal(VISIT_HERO).sethero(secondHero));
+		//TODO: exchange artifacts
+	});
 }
 
 void VCAI::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
@@ -1815,6 +1830,16 @@ void VCAI::tryRealize(CGoal g)
 			//	throw cannotFulfillGoalException("There's a blocked gate!, we should never be here"); //CLEAR_WAY_TO should get keymaster tent
 		}
 		break;
+	case VISIT_HERO:
+		{
+			if(!g.hero->movement)
+				throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
+			if (ai->moveHeroToTile(g.tile, g.hero.get()))
+			{
+				throw goalFulfilledException("");
+			}
+		}
+		break;
 	case BUILD_STRUCTURE:
 		{
 			const CGTownInstance *t = g.town;
@@ -1844,7 +1869,7 @@ void VCAI::tryRealize(CGoal g)
 			throw cannotFulfillGoalException("Cannot build a given structure!");
 		}
 		break;
-		case DIG_AT_TILE:
+	case DIG_AT_TILE:
 		{
 			assert(g.hero->visitablePos() == g.tile);
 			if (g.hero->diggingStatus() == CGHeroInstance::CAN_DIG)
@@ -2742,6 +2767,17 @@ TSubgoal CGoal::whatToDoToAchieve()
 			return CGoal(VISIT_TILE).settile(pos);
 		}
 		break;
+	case VISIT_HERO:
+		{
+			const CGObjectInstance * obj = cb->getObj(objid);
+			if(!obj)
+				return CGoal(EXPLORE);
+			int3 pos = cb->getObj(objid)->visitablePos();
+
+			if (hero && ai->isAccessibleForHero(obj->pos, hero, true))
+				return CGoal(*this).settile(pos).setisElementar(true);
+		}
+		break;
 	case GET_ART_TYPE:
 		{
 			TSubgoal alternativeWay = CGoal::lookForArtSmart(aid); //TODO: use
@@ -3120,22 +3156,61 @@ TSubgoal CGoal::whatToDoToAchieve()
 			}
 			else
 			{
+				if (hero == ai->primaryHero()) //we can get army from other heroes
+				{
+					auto otherHeroes = cb->getHeroesInfo();
+					auto heroDummy = hero;
+					erase_if(otherHeroes, [heroDummy](const CGHeroInstance * h)
+					{
+						return (h == heroDummy.h || !ai->isAccessibleForHero(heroDummy->pos, h, true));
+					});
+					if (otherHeroes.size())
+					{
+						boost::sort(otherHeroes, compareArmyStrength); //TODO:  check if hero has at least one stack more powerful than ours? not likely to fail
+						int primaryPath, secondaryPath;
+						auto h = otherHeroes.back();
+						cb->setSelection(hero.h);
+							primaryPath = cb->getPathInfo(h->pos)->turns;
+						cb->setSelection(h);
+							secondaryPath = cb->getPathInfo(hero->pos)->turns;
+
+						if (primaryPath < secondaryPath)
+							return CGoal(VISIT_HERO).setisAbstract(true).setobjid(h->id).sethero(hero); //go to the other hero if we are faster
+						else
+							return CGoal(VISIT_HERO).setisAbstract(true).setobjid(hero->id).sethero(h); //let the other hero come to us
+					}
+				}
+
 				std::vector<const CGObjectInstance *> objs; //here we'll gather all dwellings
 				ai->retreiveVisitableObjs(objs);
 				erase_if(objs, [&](const CGObjectInstance *obj)
 				{
-					return (obj->ID != Obj::CREATURE_GENERATOR1); //not town/ dwelling
+					return (obj->ID != Obj::CREATURE_GENERATOR1);
 				});
 				if(objs.empty()) //no possible objects, we did eveyrthing already
 					return CGoal(EXPLORE).sethero(hero);
 				//TODO: check if we can recruit any creatures there, evaluate army
 
-				boost::sort(objs, isCloser);
-				BOOST_FOREACH(const CGObjectInstance *obj, objs)
-				{ //find safe dwelling
-					auto pos = obj->visitablePos();
-					if (isSafeToVisit(hero, pos) && ai->isAccessibleForHero(pos, hero)) //TODO: make use of multiple heroes
-						return CGoal(VISIT_TILE).sethero(hero).settile(pos);
+				if (objs.size())
+				{
+					boost::sort(objs, isCloser);
+					HeroPtr h = NULL;
+					BOOST_FOREACH(const CGObjectInstance *obj, objs)
+					{ //find safe dwelling
+						auto pos = obj->visitablePos();
+						if (shouldVisit (hero, obj)) //creatures fit in army
+							h = hero;
+						else
+						{
+							BOOST_FOREACH(auto ourHero, cb->getHeroesInfo()) //make use of multiple heroes
+							{
+								if (shouldVisit(ourHero, obj))
+									h = ourHero;
+							}
+						}
+						if (h && isSafeToVisit(h, pos) && ai->isAccessibleForHero(pos, h))
+							return CGoal(VISIT_TILE).sethero(h).settile(pos);
+					}
 				}
 			}
 
@@ -3319,6 +3394,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::SEER_HUT:
 		case Obj::QUEST_GUARD:
 		{
+			return false; //fixme: avoid crash
 			BOOST_FOREACH (auto q, ai->myCb->getMyQuests())
 			{
 				if (q.obj == obj)

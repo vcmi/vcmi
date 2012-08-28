@@ -78,14 +78,12 @@ enum EGoals
 	OBJECT_GOALS_BEGIN,
 	GET_OBJ, //visit or defeat or collect the object
 	FIND_OBJ, //find and visit any obj with objid + resid //TODO: consider universal subid for various types (aid, bid)
+	VISIT_HERO, //heroes can move around - set goal abstract and track hero every turn
 
 	GET_ART_TYPE,
 
 	//BUILD_STRUCTURE,
 	ISSUE_COMMAND,
-
-	//hero
-	//VISIT_OBJ, //hero + tile
 
 	VISIT_TILE, //tile, in conjunction with hero elementar; assumes tile is reachable
 	CLEAR_WAY_TO,
