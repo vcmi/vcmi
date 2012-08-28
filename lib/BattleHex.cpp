@@ -78,10 +78,20 @@ signed char BattleHex::mutualPosition(BattleHex hex1, BattleHex hex2)
 }
 
 char BattleHex::getDistance(BattleHex hex1, BattleHex hex2)
-{
-	int xDst = std::abs(hex1 % GameConstants::BFIELD_WIDTH - hex2 % GameConstants::BFIELD_WIDTH),
-		yDst = std::abs(hex1 / GameConstants::BFIELD_WIDTH - hex2 / GameConstants::BFIELD_WIDTH);
-	return std::max(xDst, yDst) + std::min(xDst, yDst) - (yDst + (yDst + xDst < 2 ? 0 : 1))/2;
+{	
+	int y1 = hex1.getY(), 
+		y2 = hex2.getY();
+
+	int x1 = hex1.getX() + y1 / 2.0, 
+		x2 = hex2.getX() + y2 / 2.0;
+
+	int xDst = x2 - x1,
+		yDst = y2 - y1;
+
+	if ((xDst >= 0 && yDst >= 0) || (xDst < 0 && yDst < 0)) 
+		return std::max(std::abs(xDst), std::abs(yDst));
+	else 
+		return std::abs(xDst) + std::abs(yDst);
 }
 
 void BattleHex::checkAndPush(BattleHex tile, std::vector<BattleHex> & ret)

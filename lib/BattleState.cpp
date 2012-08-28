@@ -187,7 +187,7 @@ const CStack * BattleInfo::getNextStack() const
 // };
 //
 
-BattleHex BattleInfo::getClosestTile (bool attackerOwned, int initialPos, std::set<BattleHex> & possibilities) const
+BattleHex BattleInfo::getClosestTile(bool attackerOwned, BattleHex initialPos, std::set<BattleHex> & possibilities) const
 {
 	std::vector<BattleHex> sortedTiles (possibilities.begin(), possibilities.end()); //set can't be sorted properly :(
 
@@ -206,14 +206,22 @@ BattleHex BattleInfo::getClosestTile (bool attackerOwned, int initialPos, std::s
 		return closestDistance < here.getDistance (initialPos, here);
 	};
 
-	sortedTiles.erase (boost::remove_if (sortedTiles, notClosest), sortedTiles.end()); //only closest tiles are interesting
+	vstd::erase_if(sortedTiles, notClosest); //only closest tiles are interesting
 
-	auto compareHorizontal = [attackerOwned](const BattleHex left, const BattleHex right) -> bool
+	auto compareHorizontal = [attackerOwned, initialPos](const BattleHex left, const BattleHex right) -> bool
 	{
-		if (attackerOwned)
-			return left.getX() > right.getX(); //find furthest right
+		if(left.getX() != right.getX())
+		{
+			if (attackerOwned)
+				return left.getX() > right.getX(); //find furthest right
+			else
+				return left.getX() < right.getX(); //find furthest left
+		}
 		else
-			return left.getX() < right.getX(); //find furthest left
+		{
+			//Prefer tiles in the same row.
+			return std::abs(left.getY() - initialPos.getY()) < std::abs(right.getY() - initialPos.getY());
+		}
 	};
 
 	boost::sort (sortedTiles, compareHorizontal);
@@ -438,14 +446,17 @@ CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerO
 
 	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
 	ret->position = getAvaliableHex (base.getCreatureID(), attackerOwned, position); //TODO: what if no free tile on battlefield was found?
+	ret->state.insert(EBattleStackState::ALIVE);  //alive state indication
 	return ret;
 }
+
 CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, int slot, BattleHex position) const
 {
 	int stackID = getIdForNewStack();
 	int owner = attackerOwned ? sides[0] : sides[1];
 	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
 	ret->position = position;
+	ret->state.insert(EBattleStackState::ALIVE);  //alive state indication
 	return ret;
 }
 
@@ -921,6 +932,30 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 		commanderBank.push_back (position.Float());
 	}
 
+
+	//adding war machines
+	if(!creatureBank)
+	{
+		//Checks if hero has artifact and create appropriate stack
+		auto handleWarMachine= [&](int side, int artid, int cretype, int hex)
+		{
+			if(heroes[side] && heroes[side]->getArt(artid))
+				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), true, 255, hex));
+		};
+
+		handleWarMachine(0, 13, 146, 52); //ballista
+		handleWarMachine(0, 14, 148, 18); //ammo cart
+		handleWarMachine(0, 15, 147, 154);//first aid tent
+		if(town && town->hasFort())
+			handleWarMachine(0, 3, 145, 120);//catapult
+
+		if(!town) //defending hero shouldn't receive ballista (bug #551)
+			handleWarMachine(1, 13, 146, 66); //ballista
+		handleWarMachine(1, 14, 148, 32); //ammo cart
+		handleWarMachine(1, 15, 147, 168); //first aid tent
+	}
+	//war machines added
+
 	//battleStartpos read
 	int k = 0; //stack serial
 	for(TSlots::const_iterator i = armies[0]->Slots().begin(); i!=armies[0]->Slots().end(); i++, k++)
@@ -951,69 +986,22 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 		CStack * stack = curB->generateNewStack(*i->second, false, i->first, pos);
 		stacks.push_back(stack);
 	}
+	
+// 	//shifting positions of two-hex creatures
+// 	for(unsigned g=0; g<stacks.size(); ++g)
+// 	{
+// 		//we should do that for creature bank too
+// 		if(stacks[g]->doubleWide() && stacks[g]->attackerOwned)
+// 		{
+// 			stacks[g]->position += BattleHex::RIGHT;
+// 		}
+// 		else if(stacks[g]->doubleWide() && !stacks[g]->attackerOwned)
+// 		{
+// 			if (stacks[g]->position.getX() > 1)
+// 				stacks[g]->position += BattleHex::LEFT;
+// 		}
+// 	}
 
-	//shifting positions of two-hex creatures
-	for(unsigned g=0; g<stacks.size(); ++g)
-	{
-		//we should do that for creature bank too
-		if(stacks[g]->doubleWide() && stacks[g]->attackerOwned)
-		{
-			stacks[g]->position += BattleHex::RIGHT;
-		}
-		else if(stacks[g]->doubleWide() && !stacks[g]->attackerOwned)
-		{
-			if (stacks[g]->position.getX() > 1)
-				stacks[g]->position += BattleHex::LEFT;
-		}
-	}
-
-	//adding war machines
-	if(!creatureBank)
-	{
-		if(heroes[0])
-		{
-			if(heroes[0]->getArt(13)) //ballista
-			{
-				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1), true, 255, 52);
-				stacks.push_back(stack);
-			}
-			if(heroes[0]->getArt(14)) //ammo cart
-			{
-				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), true, 255, 18);
-				stacks.push_back(stack);
-			}
-			if(heroes[0]->getArt(15)) //first aid tent
-			{
-				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), true, 255, 154);
-				stacks.push_back(stack);
-			}
-		}
-		if(heroes[1])
-		{
-			//defending hero shouldn't receive ballista (bug #551)
-			if(heroes[1]->getArt(13) && !town) //ballista
-			{
-				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(146, 1),  false, 255, 66);
-				stacks.push_back(stack);
-			}
-			if(heroes[1]->getArt(14)) //ammo cart
-			{
-				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(148, 1), false, 255, 32);
-				stacks.push_back(stack);
-			}
-			if(heroes[1]->getArt(15)) //first aid tent
-			{
-				CStack * stack = curB->generateNewStack(CStackBasicDescriptor(147, 1), false, 255, 168);
-				stacks.push_back(stack);
-			}
-		}
-		if(town && heroes[0] && town->hasFort()) //catapult
-		{
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(145, 1), true, 255, 120);
-			stacks.push_back(stack);
-		}
-	}
-	//war machines added
 
 	//adding commanders
 	for (int i = 0; i < 2; ++i)
@@ -1338,7 +1326,6 @@ void CStack::postInit()
 	shots = getCreature()->valOfBonuses(Bonus::SHOTS);
 	counterAttacks = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);
 	casts = valOfBonuses(Bonus::CASTS);
-	state.insert(EBattleStackState::ALIVE);  //alive state indication
 }
 
 ui32 CStack::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const

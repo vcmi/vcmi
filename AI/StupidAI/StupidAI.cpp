@@ -123,7 +123,6 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		else
 		{
 			std::vector<BattleHex> avHexes = cb->battleGetAvailableHexes(stack, false);
-			boost::copy(stack->getHexes(), std::back_inserter(avHexes)); //add current stack position - we can attack from it
 
 			BOOST_FOREACH(BattleHex hex, avHexes)
 			{

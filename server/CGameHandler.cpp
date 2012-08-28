@@ -939,7 +939,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 		return 0;
 
 	//initing necessary tables
-	auto accessibility = getAccesibility();
+	auto accessibility = getAccesibility(curStack);
 
 	//shifting destination (if we have double wide stack and we can occupy dest but not be exactly there)
 	if(!stackAtEnd && curStack->doubleWide() && !accessibility.accessible(dest, curStack))
@@ -3217,6 +3217,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	const CStack *stack = battleGetStackByID(ba.stackNumber); //may be nullptr if action is not about stack
 	const bool isAboutActiveStack = stack && (stack == battleActiveStack()); 
 	
+
 	switch(ba.actionType)
 	{
 	case BattleAction::WALK: //walk
@@ -3239,7 +3240,16 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			complain("This stack is dead: " + stack->nodeName());
 			return false;
 		}
-		if(!isAboutActiveStack)
+
+		if(battleTacticDist())
+		{
+			if(stack && !stack->attackerOwned != battleGetTacticsSide())
+			{
+				complain("This is not a stack of side that has tactics!");
+				return false;
+			}
+		}
+		else if(!isAboutActiveStack) 
 		{
 			complain("Action has to be about active stack!");
 			return false;
@@ -3251,6 +3261,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	{
 	case BattleAction::END_TACTIC_PHASE: //wait
 	case BattleAction::BAD_MORALE:
+	case BattleAction::NO_ACTION:
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action);

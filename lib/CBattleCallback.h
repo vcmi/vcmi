@@ -113,6 +113,7 @@ struct DLL_LINKAGE ReachabilityInfo
 		bool attackerOwned;
 		bool doubleWide;
 		bool flying;
+		std::vector<BattleHex> knownAccessible; //hexes that will be treated as accessible, even if they're occupied by stack (by default - tiles occupied by stack we do reachability for, so it doesn't block itself)
 
 		BattleHex startPosition; //assumed position of stack
 		BattlePerspective::BattlePerspective perspective; //some obstacles (eg. quicksands) may be invisible for some side
@@ -134,7 +135,7 @@ struct DLL_LINKAGE ReachabilityInfo
 
 	bool isReachable(BattleHex hex) const
 	{
-		return predecessors[hex].isValid();
+		return distances[hex] < INFINITE_DIST;
 	}
 };
 
@@ -192,7 +193,7 @@ public:
 	void battleGetStackCountOutsideHexes(bool *ac) const; // returns hexes which when in front of a stack cause us to move the amount box back
 
 
-	std::vector<BattleHex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL) const; //returns hexes reachable by creature with id ID (valid movement destinations), does not contain stack current position
+	std::vector<BattleHex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL) const; //returns hexes reachable by creature with id ID (valid movement destinations), DOES contain stack current position
 
 	int battleGetSurrenderCost(int Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
 	ReachabilityInfo::TDistances battleGetDistances(const CStack * stack, BattleHex hex = BattleHex::INVALID, BattleHex * predecessors = NULL) const; //returns vector of distances to [dest hex number]
@@ -245,6 +246,8 @@ public:
 	ReachabilityInfo getReachability(const CStack *stack) const;
 	ReachabilityInfo getReachability(const ReachabilityInfo::Parameters &params) const;
 	AccessibilityInfo getAccesibility() const;
+	AccessibilityInfo getAccesibility(const CStack *stack) const; //Hexes ocupied by stack will be marked as accessible.
+	AccessibilityInfo getAccesibility(const std::vector<BattleHex> &accessibleHexes) const; //given hexes will be marked as accessible
 	std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const;
 protected:
 	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters params) const;

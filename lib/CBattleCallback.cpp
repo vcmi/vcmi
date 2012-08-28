@@ -398,7 +398,7 @@ si8 CBattleInfoCallback::battleHasWallPenalty( const CStack * stack, BattleHex d
 si8 CBattleInfoCallback::battleCanTeleportTo(const CStack * stack, BattleHex destHex, int telportLevel) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	if(getAccesibility().accessible(destHex, stack))
+	if(getAccesibility(stack).accessible(destHex, stack))
 		return false;
 
 	if (battleGetSiegeLevel() && telportLevel < 2) //check for wall
@@ -1079,6 +1079,20 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility() const
 	return ret;
 }
 
+AccessibilityInfo CBattleInfoCallback::getAccesibility(const CStack *stack) const
+{
+	return getAccesibility(stack->getHexes());
+}
+
+AccessibilityInfo CBattleInfoCallback::getAccesibility(const std::vector<BattleHex> &accessibleHexes) const
+{
+	auto ret = getAccesibility();
+	BOOST_FOREACH(auto hex, accessibleHexes)
+		ret[hex] = EAccessibility::ACCESSIBLE;
+
+	return ret;
+}
+
 ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibility, const ReachabilityInfo::Parameters params) const
 {
 	ReachabilityInfo ret;
@@ -1131,7 +1145,7 @@ ReachabilityInfo CBattleInfoCallback::makeBFS(const AccessibilityInfo &accessibi
 
 ReachabilityInfo CBattleInfoCallback::makeBFS(const CStack *stack) const
 {
-	return makeBFS(getAccesibility(), ReachabilityInfo::Parameters(stack));
+	return makeBFS(getAccesibility(stack), ReachabilityInfo::Parameters(stack));
 }
 
 std::set<BattleHex> CBattleInfoCallback::getStoppers(BattlePerspective::BattlePerspective whichSidePerspective) const
@@ -1216,7 +1230,8 @@ ReachabilityInfo CBattleInfoCallback::getReachability(const CStack *stack) const
 	if(!battleDoWeKnowAbout(!stack->attackerOwned))
 	{
 		//Stack is held by enemy, we can't use his perspective to check for reachability.
-		tlog3 << "Falling back to our perspective for reachability lookup for " << stack->nodeName() << std::endl;
+		// Happens ie. when hovering enemy stack for its range. The arg could be set properly, but it's easier to fix it here.
+		//tlog3 << "Falling back to our perspective for reachability lookup for " << stack->nodeName() << std::endl;
 		params.perspective = battleGetMySide();
 	}
 
@@ -1228,13 +1243,13 @@ ReachabilityInfo CBattleInfoCallback::getReachability(const ReachabilityInfo::Pa
 	if(params.flying)
 		return getFlyingReachability(params);
 	else
-		return makeBFS(getAccesibility(), params);
+		return makeBFS(getAccesibility(params.knownAccessible), params);
 }
 
 ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityInfo::Parameters params) const
 {
 	ReachabilityInfo ret;
-	ret.accessibility = getAccesibility();
+	ret.accessibility = getAccesibility(params.knownAccessible);
 
 	for(int i = 0; i < GameConstants::BFIELD_SIZE; i++)
 	{
@@ -1965,6 +1980,7 @@ ReachabilityInfo::Parameters::Parameters(const CStack *Stack)
 	doubleWide = stack->doubleWide();
 	attackerOwned = stack->attackerOwned;
 	flying = stack->hasBonusOfType(Bonus::FLYING);
+	knownAccessible = stack->getHexes();
 }
 
 ESpellCastProblem::ESpellCastProblem CPlayerBattleCallback::battleCanCastThisSpell(const CSpell * spell) const
