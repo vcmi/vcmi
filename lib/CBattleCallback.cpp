@@ -307,16 +307,14 @@ bool CBattleInfoEssentials::battleCanFlee(int player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	ui8 mySide = playerToSide(player);
-	const CGHeroInstance *myHero = battleGetFightingHero(mySide),
-		*enemyHero = battleGetFightingHero(!mySide);
+	const CGHeroInstance *myHero = battleGetFightingHero(mySide);
 
 	//current player have no hero
 	if(!myHero)
 		return false;
 
-	//TODo use bonus system
-	//ie. one of heroes is wearing shakles of war
-	if(NBonus::hasOfType(enemyHero, Bonus::ENEMY_CANT_ESCAPE) || NBonus::hasOfType(myHero, Bonus::ENEMY_CANT_ESCAPE))
+	//eg. one of heroes is wearing shakles of war
+	if(myHero->hasBonusOfType(Bonus::BATTLE_NO_FLEEING))
 		return false;
 
 	//we are besieged defender

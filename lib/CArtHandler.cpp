@@ -779,7 +779,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(123,Bonus::SPELL,3,1, Bonus::INDEPENDENT_MAX); 
 
 	giveArtBonus(124, Bonus::SPELLS_OF_LEVEL,3,1); //Spellbinder's Hat
-	giveArtBonus(125, Bonus::ENEMY_CANT_ESCAPE,0); //Shackles of War
+	giveArtBonus(125, Bonus::BATTLE_NO_FLEEING,0, 0, battleWidePropagator); //Shackles of War
 	giveArtBonus(126, Bonus::BLOCK_ALL_MAGIC, 0, -1, battleWidePropagator);//Orb of Inhibition
 
 	//vial of dragon blood
