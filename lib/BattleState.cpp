@@ -937,9 +937,9 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 	if(!creatureBank)
 	{
 		//Checks if hero has artifact and create appropriate stack
-		auto handleWarMachine= [&](int side, int artid, int cretype, int hex)
+		auto handleWarMachine= [&](int side, int artslot, int cretype, int hex)
 		{
-			if(heroes[side] && heroes[side]->getArt(artid))
+			if(heroes[side] && heroes[side]->getArt(artslot))
 				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), true, 255, hex));
 		};
 
@@ -947,7 +947,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 		handleWarMachine(0, 14, 148, 18); //ammo cart
 		handleWarMachine(0, 15, 147, 154);//first aid tent
 		if(town && town->hasFort())
-			handleWarMachine(0, 3, 145, 120);//catapult
+			handleWarMachine(0, 16, 145, 120);//catapult
 
 		if(!town) //defending hero shouldn't receive ballista (bug #551)
 			handleWarMachine(1, 13, 146, 66); //ballista
