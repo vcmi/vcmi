@@ -100,6 +100,8 @@ std::string goalName(EGoals goalType)
 			return "GET OBJECT";
 		case FIND_OBJ:
 			return "FIND OBJECT";
+		case VISIT_HERO:
+			return "VISIT HERO";
 		case GET_ART_TYPE:
 			return "GET ARTIFACT OF TYPE";
 		case ISSUE_COMMAND:
@@ -359,12 +361,12 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 	if(const CGObjectInstance * dangerousObject = backOrNull(cb->getVisitableObjs(tile)))
 	{
 		objectDanger = evaluateDanger(dangerousObject); //unguarded objects can also be dangerous or unhandled
-		if (dangerousObject)
+		if (objectDanger)
 		{
 			//TODO: don't downcast objects AI shouldnt know about!
 			auto armedObj = dynamic_cast<const CArmedInstance*>(dangerousObject);
 			if(armedObj)
-				objectDanger *= fh->getTacticalAdvantage(visitor, armedObj);
+				objectDanger *= fh->getTacticalAdvantage(visitor, armedObj); //this line tends to go infinite for allied towns (?)
 		}
 	}
 
@@ -374,8 +376,6 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 
 	//TODO mozna odwiedzic blockvis nie ruszajac straznika
 	return std::max(objectDanger, guardDanger);
-
-	return 0;
 }
 
 ui64 evaluateDanger(const CGObjectInstance *obj)
@@ -647,9 +647,9 @@ void VCAI::heroExchangeStarted(si32 hero1, si32 hero2)
 
 	requestActionASAP([=]()
 	{
-		if (firstHero->getHeroStrength() > secondHero->getHeroStrength())
+		if (firstHero->getHeroStrength() > secondHero->getHeroStrength() && canGetArmy (firstHero, secondHero))
 			pickBestCreatures (firstHero, secondHero);
-		else
+		else if (canGetArmy (secondHero, firstHero))
 			pickBestCreatures (secondHero, firstHero);
 
 		completeGoal(CGoal(VISIT_HERO).sethero(firstHero)); //TODO: what if we were visited by other hero in the meantime?
@@ -721,6 +721,11 @@ void VCAI::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstan
 {
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
+
+	requestActionASAP([=]()
+	{
+		makePossibleUpgrades(visitor);
+	});
 }
 
 void VCAI::playerBonusChanged(const Bonus &bonus, bool gain)
@@ -1111,6 +1116,36 @@ void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 	}
 }
 
+bool VCAI::canGetArmy (const CGHeroInstance * h, const CGHeroInstance * source)
+{
+	int totalStacks = h->Slots().size() + source->Slots().size();
+	if (totalStacks > GameConstants::ARMY_SIZE)
+	{ //exchange stacks or move full stack
+		BOOST_FOREACH (auto slot, source->Slots())
+		{
+			if (h->getSlotFor(slot.second->type->idNumber)) //we can take full stack
+				return true;
+			BOOST_FOREACH (auto ourSlot, h->Slots())
+			{
+				if (slot.second->getPower() > ourSlot.second->getPower()) 
+					return true;
+			}
+		}
+	}
+	else //only exchange
+	{
+		BOOST_FOREACH (auto slot, source->Slots())
+		{
+			BOOST_FOREACH (auto ourSlot, h->Slots())
+			{
+				if (slot.second->getPower() > ourSlot.second->getPower()) 
+					return true;
+			}
+		}
+	}
+	return false;
+}
+
 void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source)
 {
 	//TODO - what if source is a hero (the last stack problem) -> it'd good to create a single stack of weakest cre
@@ -1138,10 +1173,16 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
 	for (int i = 0; i < bestArmy.size(); i++) //i-th strongest creature type will go to i-th slot
+	{
+		if (source->needsLastStack() && source->Slots().size() <= 1)
+			break;
 		BOOST_FOREACH(auto armyPtr, armies)
 			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
+			{
 				if(armyPtr->getCreature(j) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst slot
-						cb->mergeOrSwapStacks(armyPtr, army, j, i);
+					cb->mergeOrSwapStacks(armyPtr, army, j, i);
+			}
+	}
 
 	//TODO - having now strongest possible army, we may want to think about arranging stacks
 
@@ -3162,7 +3203,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 					auto heroDummy = hero;
 					erase_if(otherHeroes, [heroDummy](const CGHeroInstance * h)
 					{
-						return (h == heroDummy.h || !ai->isAccessibleForHero(heroDummy->pos, h, true));
+						return (h == heroDummy.h || !ai->isAccessibleForHero(heroDummy->pos, h, true) || !ai->canGetArmy(heroDummy.h, h));
 					});
 					if (otherHeroes.size())
 					{
@@ -3375,8 +3416,11 @@ bool isWeeklyRevisitable (const CGObjectInstance * obj)
 		return true;
 	switch (obj->ID)
 	{
-		case Obj::STABLES: //any other potential visitable objects?
+		case Obj::STABLES:
+		case Obj::MAGIC_WELL:
+		case Obj::HILL_FORT:
 			return true;
+			break;
 		case Obj::BORDER_GATE:
 		case Obj::BORDERGUARD:
 			return (dynamic_cast <const CGKeys *>(obj))->wasMyColorVisited (ai->playerID); //FIXME: they could be revisited sooner than in a week
@@ -3425,6 +3469,16 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 			return canRecruitCreatures;
 			break;
 		}
+		case Obj::HILL_FORT:
+		{	
+			BOOST_FOREACH (auto slot, h->Slots())
+			{
+				if (slot.second->type->upgrades.size())
+					return true; //TODO: check price?
+			}
+			return false;
+			break;
+		}
 		case Obj::MONOLITH1:
 		case Obj::MONOLITH2:
 		case Obj::MONOLITH3:
@@ -3450,6 +3504,9 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 				if (myRes[Res::GOLD] - GOLD_RESERVE < 2000 || myRes[Res::GEMS] < 10)
 					return false;
 			}
+			break;
+		case Obj::MAGIC_WELL:
+			return h->mana < h->manaLimit();
 			break;
 	}
 

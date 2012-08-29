@@ -327,6 +327,7 @@ public:
 	void buildStructure(const CGTownInstance * t);
 	//void recruitCreatures(const CGTownInstance * t);
 	void recruitCreatures(const CGDwelling * d);
+	bool canGetArmy (const CGHeroInstance * h, const CGHeroInstance * source); //can we get any better stacks from other hero?
 	void pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source); //called when we can't find a slot for new stack
 	void moveCreaturesToHero(const CGTownInstance * t);
 	bool goVisitObj(const CGObjectInstance * obj, HeroPtr h);
@@ -376,3 +377,5 @@ bool isBlockedBorderGate(int3 tileToHit);
 
 bool isWeeklyRevisitable (const CGObjectInstance * obj);
 bool shouldVisit (HeroPtr h, const CGObjectInstance * obj);
+
+void makePossibleUpgrades(const CArmedInstance *obj);
