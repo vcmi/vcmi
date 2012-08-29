@@ -241,7 +241,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 		int type = hero1->type->heroType;
 		if ( type % 2 )   type--;
 		if ( hero1->sex ) type++;
-		attackingHero = new CBattleHero(graphics->battleHeroes[type], 0, 0, false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : NULL, this);
+		attackingHero = new CBattleHero(graphics->battleHeroes[type], false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : NULL, this);
 		attackingHero->pos = genRect(attackingHero->dh->ourImages[0].bitmap->h, attackingHero->dh->ourImages[0].bitmap->w, pos.x - 43, pos.y - 19);
 	}
 	else
@@ -253,7 +253,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 		int type = hero2->type->heroType;
 		if ( type % 2 )   type--;
 		if ( hero2->sex ) type++;
-		defendingHero = new CBattleHero(graphics->battleHeroes[type ], 0, 0, true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : NULL, this);
+		defendingHero = new CBattleHero(graphics->battleHeroes[type ], true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : NULL, this);
 		defendingHero->pos = genRect(defendingHero->dh->ourImages[0].bitmap->h, defendingHero->dh->ourImages[0].bitmap->w, pos.x + 693, pos.y - 19);
 	}
 	else

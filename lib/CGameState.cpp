@@ -1657,19 +1657,6 @@ int CGameState::battleGetBattlefieldType(int3 tile) const
 	}
 }
 
-
-std::set<std::pair<int, int> > costDiff(const std::vector<ui32> &a, const std::vector<ui32> &b, const int modifier = 100) //modifer %
-{
-	std::set<std::pair<int, int> > ret;
-	for(int j=0;j<GameConstants::RESOURCE_QUANTITY;j++)
-	{
-		assert(a[j] >= b[j]);
-		if(int dif = modifier * (a[j] - b[j]) / 100)
-			ret.insert(std::make_pair(j,dif));
-	}
-	return ret;
-}
-
 UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 {
 	UpgradeInfo ret;

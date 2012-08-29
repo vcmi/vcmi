@@ -112,81 +112,50 @@ void CBattleConsole::scrollDown(ui32 by)
 void CBattleHero::show(SDL_Surface * to)
 {
 	//animation of flag
+	SDL_Rect temp_rect;
 	if(flip)
 	{
-		SDL_Rect temp_rect = genRect(
+		temp_rect = genRect(
 			flag->ourImages[flagAnim].bitmap->h,
 			flag->ourImages[flagAnim].bitmap->w,
 			pos.x + 61,
 			pos.y + 39);
-		CSDL_Ext::blit8bppAlphaTo24bpp(
-			flag->ourImages[flagAnim].bitmap,
-			NULL,
-			screen,
-			&temp_rect);
+
 	}
 	else
 	{
-		SDL_Rect temp_rect = genRect(
+		temp_rect = genRect(
 			flag->ourImages[flagAnim].bitmap->h,
 			flag->ourImages[flagAnim].bitmap->w,
 			pos.x + 72,
 			pos.y + 39);
-		CSDL_Ext::blit8bppAlphaTo24bpp(
-			flag->ourImages[flagAnim].bitmap,
-			NULL,
-			screen,
-			&temp_rect);
 	}
-	++flagAnimCount;
-	if(flagAnimCount%4==0)
-	{
-		++flagAnim;
-		flagAnim %= flag->ourImages.size();
-	}
+	CSDL_Ext::blit8bppAlphaTo24bpp(
+		flag->ourImages[flagAnim].bitmap,
+		NULL,
+		screen,
+		&temp_rect);
+
 	//animation of hero
-	int tick=-1;
-	for(size_t i = 0; i < dh->ourImages.size(); ++i)
+	SDL_Rect rect = pos;
+	CSDL_Ext::blit8bppAlphaTo24bpp(dh->ourImages[currentFrame].bitmap, NULL, to, &rect);
+
+	if ( ++animCount == 4 )
 	{
-		if(dh->ourImages[i].groupNumber==phase)
-			++tick;
-		if(tick==image)
-		{
-			SDL_Rect posb = pos;
-			CSDL_Ext::blit8bppAlphaTo24bpp(dh->ourImages[i].bitmap, NULL, to, &posb);
-			if(phase != 4 || nextPhase != -1 || image < 4)
-			{
-				if(flagAnimCount%2==0)
-				{
-					++image;
-				}
-				if(dh->ourImages[(i+1)%dh->ourImages.size()].groupNumber!=phase) //back to appropriate frame
-				{
-					image = 0;
-				}
-			}
-			if(phase == 4 && nextPhase != -1 && image == 7)
-			{
-				phase = nextPhase;
-				nextPhase = -1;
-				image = 0;
-			}
-			break;
-		}
+		animCount = 0;
+		if ( ++flagAnim >= flag->ourImages.size())
+			flagAnim = 0;
+
+		if ( ++currentFrame >= lastFrame)
+			switchToNextPhase();
 	}
 }
 
 void CBattleHero::setPhase(int newPhase)
 {
-	if(phase != 4)
-	{
-		phase = newPhase;
-		image = 0;
-	}
-	else
-	{
-		nextPhase = newPhase;
-	}
+	nextPhase = newPhase;
+	switchToNextPhase(); //immediately switch to next phase and then restore idling phase
+	nextPhase = 0;
 }
 
 void CBattleHero::clickLeft(tribool down, bool previousState)
@@ -208,7 +177,33 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 	}
 }
 
-CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bool flipG, ui8 player, const CGHeroInstance * hero, const CBattleInterface * owner): flip(flipG), myHero(hero), myOwner(owner), phase(phaseG), nextPhase(-1), image(imageG), flagAnim(0), flagAnimCount(0)
+void CBattleHero::switchToNextPhase()
+{
+	if (phase != nextPhase)
+	{
+		phase = nextPhase;
+
+		//find first and last frames of our animation
+		for (firstFrame = 0;
+		     firstFrame < dh->ourImages.size() && dh->ourImages[firstFrame].groupNumber != phase;
+		     firstFrame++);
+
+		for (lastFrame = firstFrame;
+			 lastFrame < dh->ourImages.size() && dh->ourImages[lastFrame].groupNumber == phase;
+			 lastFrame++);
+	}
+
+	currentFrame = firstFrame;
+}
+
+CBattleHero::CBattleHero(const std::string & defName, bool flipG, ui8 player, const CGHeroInstance * hero, const CBattleInterface * owner):
+    flip(flipG),
+    myHero(hero),
+    myOwner(owner),
+    phase(1),
+    nextPhase(0),
+    flagAnim(0),
+    animCount(0)
 {
 	dh = CDefHandler::giveDef( defName );
 	for(size_t i = 0; i < dh->ourImages.size(); ++i) //transforming images
@@ -234,6 +229,8 @@ CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bo
 		graphics->blueToPlayersAdv(flag->ourImages[i].bitmap, player);
 	}
 	addUsedEvents(LCLICK);
+
+	switchToNextPhase();
 }
 
 CBattleHero::~CBattleHero()

@@ -49,6 +49,7 @@ public:
 /// Hero battle animation
 class CBattleHero : public CIntObject
 {
+	void switchToNextPhase();
 public:
 	bool flip; //false if it's attacking hero, true otherwise
 	CDefHandler *dh, *flag; //animation and flag
@@ -56,12 +57,12 @@ public:
 	const CBattleInterface * myOwner; //battle interface to which this animation is assigned
 	int phase; //stage of animation
 	int nextPhase; //stage of animation to be set after current phase is fully displayed
-	int image; //frame of animation
-	ui8 flagAnim, flagAnimCount; //for flag animation
+	int currentFrame, firstFrame, lastFrame; //frame of animation
+	ui8 flagAnim, animCount; //for flag animation
 	void show(SDL_Surface * to); //prints next frame of animation to to
 	void setPhase(int newPhase); //sets phase of hero animation
 	void clickLeft(tribool down, bool previousState); //call-in
-	CBattleHero(const std::string &defName, int phaseG, int imageG, bool filpG, ui8 player, const CGHeroInstance *hero, const CBattleInterface *owner); //c-tor
+	CBattleHero(const std::string &defName, bool filpG, ui8 player, const CGHeroInstance *hero, const CBattleInterface *owner); //c-tor
 	~CBattleHero(); //d-tor
 };
 

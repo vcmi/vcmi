@@ -58,7 +58,8 @@ void Graphics::loadPaletteAndColors()
 		col.r = pals[startPoint++];
 		col.g = pals[startPoint++];
 		col.b = pals[startPoint++];
-		col.unused = pals[startPoint++];
+		col.unused = 255;
+		startPoint++;
 		playerColorPalette[i] = col;
 	}
 
