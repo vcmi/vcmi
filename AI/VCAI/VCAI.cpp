@@ -1116,49 +1116,24 @@ void VCAI::moveCreaturesToHero(const CGTownInstance * t)
 	}
 }
 
-bool VCAI::canGetArmy (const CGHeroInstance * h, const CGHeroInstance * source)
-{
-	int totalStacks = h->Slots().size() + source->Slots().size();
-	if (totalStacks > GameConstants::ARMY_SIZE)
-	{ //exchange stacks or move full stack
-		BOOST_FOREACH (auto slot, source->Slots())
-		{
-			if (h->getSlotFor(slot.second->type->idNumber)) //we can take full stack
-				return true;
-			BOOST_FOREACH (auto ourSlot, h->Slots())
-			{
-				if (slot.second->getPower() > ourSlot.second->getPower()) 
-					return true;
-			}
-		}
-	}
-	else //only exchange
-	{
-		BOOST_FOREACH (auto slot, source->Slots())
-		{
-			BOOST_FOREACH (auto ourSlot, h->Slots())
-			{
-				if (slot.second->getPower() > ourSlot.second->getPower()) 
-					return true;
-			}
-		}
-	}
-	return false;
-}
-
-void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source)
-{
-	//TODO - what if source is a hero (the last stack problem) -> it'd good to create a single stack of weakest cre
+bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * source)
+{ //TODO: merge with pickBestCreatures
 	const CArmedInstance *armies[] = {army, source};
+	int armySize = 0; 
 	//we calculate total strength for each creature type available in armies
 	std::map<const CCreature*, int> creToPower;
 	BOOST_FOREACH(auto armyPtr, armies)
 		BOOST_FOREACH(auto &i, armyPtr->Slots())
+		{
+			++armySize;//TODO: allow splitting stacks?
 			creToPower[i.second->type] += i.second->getPower();
+		}
 	//TODO - consider more than just power (ie morale penalty, hero specialty in certain stacks, etc)
 
+	if (source->needsLastStack())
+		armySize = std::min (armySize - 1, GameConstants::ARMY_SIZE); //can't move away last stack
 	std::vector<const CCreature *> bestArmy; //types that'll be in final dst army
-	for (int i = 0; i < GameConstants::ARMY_SIZE; i++) //pick the creatures from which we can get most power, as many as dest can fit
+	for (int i = 0; i < armySize; i++) //pick the creatures from which we can get most power, as many as dest can fit
 	{
 		typedef const std::pair<const CCreature*, int> &CrePowerPair;
 		auto creIt = boost::max_element(creToPower, [](CrePowerPair lhs, CrePowerPair rhs)
@@ -1174,13 +1149,57 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
 	for (int i = 0; i < bestArmy.size(); i++) //i-th strongest creature type will go to i-th slot
 	{
-		if (source->needsLastStack() && source->Slots().size() <= 1)
-			break;
 		BOOST_FOREACH(auto armyPtr, armies)
 			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
 			{
 				if(armyPtr->getCreature(j) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst slot
-					cb->mergeOrSwapStacks(armyPtr, army, j, i);
+					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1 && armyPtr != army)) //can't take away last creature
+						return true; //at least one exchange will be performed
+			}
+	}
+	return false;
+}
+
+void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance * source)
+{
+	//TODO - what if source is a hero (the last stack problem) -> it'd good to create a single stack of weakest cre
+	const CArmedInstance *armies[] = {army, source};
+	int armySize = 0; 
+	//we calculate total strength for each creature type available in armies
+	std::map<const CCreature*, int> creToPower;
+	BOOST_FOREACH(auto armyPtr, armies)
+		BOOST_FOREACH(auto &i, armyPtr->Slots())
+		{
+			++armySize;//TODO: allow splitting stacks?
+			creToPower[i.second->type] += i.second->getPower();
+		}
+	//TODO - consider more than just power (ie morale penalty, hero specialty in certain stacks, etc)
+
+	if (source->needsLastStack())
+		armySize = std::min (armySize - 1, GameConstants::ARMY_SIZE); //can't move away last stack
+	std::vector<const CCreature *> bestArmy; //types that'll be in final dst army
+	for (int i = 0; i < armySize; i++) //pick the creatures from which we can get most power, as many as dest can fit
+	{
+		typedef const std::pair<const CCreature*, int> &CrePowerPair;
+		auto creIt = boost::max_element(creToPower, [](CrePowerPair lhs, CrePowerPair rhs)
+			{
+				return lhs.second < rhs.second;
+			});
+		bestArmy.push_back(creIt->first);
+		creToPower.erase(creIt);
+		if(creToPower.empty())
+			break;
+	}
+
+	//foreach best type -> iterate over slots in both armies and if it's the appropriate type, send it to the slot where it belongs
+	for (int i = 0; i < bestArmy.size(); i++) //i-th strongest creature type will go to i-th slot
+	{
+		BOOST_FOREACH(auto armyPtr, armies)
+			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
+			{
+				if(armyPtr->getCreature(j) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst slot
+					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1 && armyPtr != army))
+						cb->mergeOrSwapStacks(armyPtr, army, j, i);
 			}
 	}
 
