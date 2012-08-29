@@ -850,7 +850,7 @@ bool CShootingAnimation::init()
 			// Add explosion anim
 			int xEnd = static_cast<int>(spi.x + spi.lastStep * spi.dx);
 			int yEnd = static_cast<int>(spi.catapultInfo->calculateY(xEnd));
-			owner->addNewAnim( new CSpellEffectAnimation(owner, "SGEXPL.DEF", xEnd - 126, yEnd - 105));
+			owner->addNewAnim( new CSpellEffectAnimation(owner, catapultDamage ? "SGEXPL.DEF" : "CSGRCK.DEF", xEnd - 126, yEnd - 105));
 		}
 	}
 

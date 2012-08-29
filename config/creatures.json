@@ -1359,6 +1359,9 @@
 				"name": [ "AzureDragon" ],
 				"faction": -1,
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],
+							   	 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  //azure dragon's breath
+							   	 [ "FEARLESS", 0, 0, 0 ],  //azure dragon is immune to fear
+							   	  [ "LEVEL_SPELL_IMMUNITY", 3, 0, 0 ],	//immunity spell levels 1-3
 								[ "FEAR", 0, 0, 0]],			//azure dragon is a dragon
 				"defname": "CADRGN.DEF"
 			},
