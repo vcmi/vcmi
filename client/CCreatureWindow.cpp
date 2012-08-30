@@ -501,7 +501,8 @@ void CCreatureWindow::recreateSkillList(int Pos)
 	for (n = numSkills; n < bonusItems.size(); ++n)
 	{
 		bonusItems[n]->visible = false;
-		selectableBonuses[n]->deactivate();
+		if (n < selectableBonuses.size())
+			selectableBonuses[n]->deactivate();
 	}
 }
 

@@ -1148,10 +1148,10 @@ void CGHeroInstance::UpdateSpeciality()
 					switch (it->subtype)
 					{
 						case PrimarySkill::ATTACK:
-							param = creatures[it->additionalInfo]->attack;
+							param = creatures[it->additionalInfo]->Attack();
 							break;
 						case PrimarySkill::DEFENSE:
-							param = creatures[it->additionalInfo]->defence;
+							param = creatures[it->additionalInfo]->Defense();
 							break;
 						default:
 							assert(0);

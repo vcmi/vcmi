@@ -5,7 +5,6 @@
 #include "Filesystem/CResourceLoader.h"
 #include "VCMI_Lib.h"
 #include "CGameState.h"
-#include "JsonNode.h"
 #include "CHeroHandler.h"
 #include "CModHandler.h"
 
@@ -317,22 +316,16 @@ void CCreatureHandler::loadCreatures()
 		ncre.growth = readNumber(befi, i, andame, buf);
 		ncre.hordeGrowth = readNumber(befi, i, andame, buf);
 
-		ncre.hitPoints = readNumber(befi, i, andame, buf);
-		ncre.addBonus(ncre.hitPoints, Bonus::STACK_HEALTH);
-		ncre.speed = readNumber(befi, i, andame, buf);
-		ncre.addBonus(ncre.speed, Bonus::STACKS_SPEED);
-		ncre.attack = readNumber(befi, i, andame, buf);
-		ncre.addBonus(ncre.attack, Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
-		ncre.defence = readNumber(befi, i, andame, buf);
-		ncre.addBonus(ncre.defence, Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
-		ncre.damageMin = readNumber(befi, i, andame, buf); //not used anymore?
-		ncre.addBonus(ncre.damageMin, Bonus::CREATURE_DAMAGE, 1);
-		ncre.damageMax = readNumber(befi, i, andame, buf);
-		ncre.addBonus(ncre.damageMax, Bonus::CREATURE_DAMAGE, 2);
+		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::STACK_HEALTH);
+		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::STACKS_SPEED);
+		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
+		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::CREATURE_DAMAGE, 1);
+		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::CREATURE_DAMAGE, 2);
+		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::SHOTS);
 
-		ncre.shots = readNumber(befi, i, andame, buf);
-		ncre.addBonus(ncre.shots, Bonus::SHOTS);
-		ncre.spells = readNumber(befi, i, andame, buf);
+		//spells - not used?
+		readNumber(befi, i, andame, buf);
 		ncre.ammMin = readNumber(befi, i, andame, buf);
 		ncre.ammMax = readNumber(befi, i, andame, buf);
 

@@ -1,10 +1,11 @@
 #pragma once
 
 
-#include "../lib/HeroBonus.h"
-#include "../lib/ConstTransitivePtr.h"
+#include "HeroBonus.h"
+#include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "GameConstants.h"
+#include "JsonNode.h"
 
 /*
  * CCreatureHandler.h, part of VCMI engine
@@ -26,9 +27,8 @@ public:
 	std::string namePl, nameSing, nameRef; //name in singular and plural form; and reference name
 	TResources cost; //cost[res_id] - amount of that resource
 	std::set<ui32> upgrades; // IDs of creatures to which this creature can be upgraded
-	ui32 hitPoints, speed, attack, defence;
-	ui32 fightValue, AIValue, growth, hordeGrowth, shots, spells;
-	ui32 damageMin, damageMax;
+	//damage, hp. etc are handled by Bonuses
+	ui32 fightValue, AIValue, growth, hordeGrowth;
 	ui32 ammMin, ammMax;
 	ui8 level; // 0 - unknown
 	std::string abilityText; //description of abilities
@@ -77,8 +77,8 @@ public:
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & namePl & nameSing & nameRef
 			& cost & upgrades 
-			& fightValue & AIValue & growth & hordeGrowth & hitPoints & speed & attack & defence & shots & spells
-			& damageMin & damageMax & ammMin & ammMax & level
+			& fightValue & AIValue & growth & hordeGrowth
+			& ammMin & ammMax & level
 			& abilityText & abilityRefs & animDefName
 			& idNumber & faction
 
