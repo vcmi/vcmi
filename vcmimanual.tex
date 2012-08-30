@@ -23,15 +23,14 @@ VCMI is a fan-made open-source project in progress. We already allow support for
 Learn more about VCMI Project at \href{http://wiki.vcmi.eu/index.php?title=VCMI}{Wiki}.\\
 Check \href{http://spreadsheets.google.com/ccc?key=pRhYM0YkAF9lIpLe4raNAWA&hl=pl}{google docs} for the list of already implemented objects, spells and artifacts.
 \section{Installation}
-\subsection{Windows}
 VCMI requires Heroes of Might \& Magic 3 complete + WoG 3.58f installation and will not run properly without their files. We strongly recommend using English version, other languages may cause unexpected errors or bizzare font glitches.\\
-To install VCMI, simply unzip downloaded archive to main HoMM3 directory. To launch it, click \texttt{VCMI\_client} icon. Server mode is inactive yet.\medskip\\
 If you don't have Wake of Gods 3.58f yet, click \href{http://www.maps4heroes.com/heroes3/files/allinone_358f.zip}{here}.\\
 For English language files, extract \href{http://download.vcmi.eu/dataEN.7z}{this package} to your \texttt{Data} folder.\bigskip\\
 Starting from 0.90, VCMI can be also installed on H3 + ERA setups.
+\subsection{Windows}
+To install VCMI, simply unzip downloaded archive to main HoMM3 directory. To launch it, click \texttt{VCMI\_client} icon. Server mode is inactive yet.\medskip\\
 \subsection{Linux}
 Visit \href{http://wiki.vcmi.eu/index.php?title=Installation_on_Linux}{Wiki article} for Linux packages and installation guidelines.\\
-All files need to be placed in \texttt{~/.vcmi} directory.
 \newpage
 \section{New features}
 A number of enchancements had been introduced thorough new versions of VCMI. In this section you can learn about all of them.
@@ -49,19 +48,13 @@ VCMI supports resolutions higher than original 800x600. Namely these are:
 \item 1920x1080
 \end{itemize}
 Switching resolution may not only change visible area of map, but also alters some interface features such as \hyperref[Stack_Queue]{Stack Queue.}\\
-There are two possible ways of changing resolution:
-\begin{itemize}
-\item Use interactive "settings" menu when in game. Changes will take place when you restart VCMI.
-\item Open config/settings.txt file and edit this line:\\
-\colorbox{SpringGreen}{\texttt{resolution=800x600; // format: WxH}}\\
-Simply replace the value with any avaliable resolution and save file. \medskip\\
-In order to set game to fullscreen mode, edit the following line:\\
-\colorbox{SpringGreen}{\texttt{fullscreen=0; // 0 - windowed mode, 1 - fullscreen}}\\
+To change resolution or full screen mode use interactive "settings" menu when in game. Changes in resolution will take place when you restart VCMI. \\
+Fullscreen mode can be toggled anytime using F4 hotkey.
 \end{itemize}
 \label{Mods}
 \subsection{Game modification}
 Since 0.9, there is a possibility to edit gameplay settings with config file. You may turn some options on/off or adjust certain values in \texttt{config/defaultMods.json} file. This file is read at game launch and the settings are stored in savegame file, so editing config won't break existing games.\\
-Files placed in \texttt{Mods} folder will override all default files and settings. This feaure, however, is not fully supported and may lead to errors.
+Files placed in \texttt{Mods} subfolders will override all default files and settings.
 \label{Stack_Experience}
 \subsection{New creature info window}
 In 0.85, new stack experience interface has been merged with regular creature window. Among old functionalities, it includes new useful info:
@@ -70,9 +63,7 @@ In 0.85, new stack experience interface has been merged with regular creature wi
 \item Stack Artifact. As yet creature artifacts are not handled, so this place is unused. You can choose enabled artifact with arrow buttons. There is also additional button below to pass currently selected artifact back to hero.
 \item Abilities description contain information about actual values and types of bonuses received by creature - be it default ability, stack experience, artifact or other effect. These descriptions use custom text files which have not been translated.
 \end{itemize}
-By default new window is used. In order to switch back to original creature window, type \texttt{switchCreWin} in console or edit this line in config file:\\
-\colorbox{SpringGreen}{\texttt{classicCreatureWindow=0;}}\\
-Switching value to 1 brings back old window.
+By default new window is used. In order to switch back to original creature window, use system setting dialog or type \texttt{switchCreWin} in console\\
 \label{Commanders}
 \subsection{Commanders}
 VCMI offers native support for Commanders. By default, they resemble original WoG behaviour with basic "Commanders: script enabled.
@@ -111,7 +102,7 @@ Since 0.9, it is possible to use any background graphics in main menu. Open \tex
 Place the background file in \texttt{Data} folder.
 \subsection{Minor improvements}
 \subsubsection{Linux directory}
-In Linux-based sysems, game maps can be located in home directory /Maps folder. Just for convenience.
+In Linux-based sysems, files placed in \texttt{$\sim$/.vcmi} directory will override data files with the same name.
 \subsection{New controls}
 VCMI introduces several minor improvements and new keybinds in user interface.
 \subsubsection{Pregame - Scenario / Saved Game list}
@@ -179,6 +170,9 @@ Make sure the issue is not already mentioned on \href{http://bugs.vcmi.eu/view_a
 Please do not report as bugs features not yet implemented. For proposing new ideas and requests, visit \href{http://forum.vcmi.eu/index.php}{our board}.\medskip\\
 VCMI comes with its own bug handlers: the console which prints game log \texttt{(server\_log, VCMI\_Client\_log, VCMI\_Server\_log)} and memory dump file (\texttt{.dmp}) created on crash on Windows systems. These may be very helpful when the nature of bug is not obvious, please attach them if necessary.\medskip\\
 To resolve an issue, we must be able to reproduce it on our computers. Please put down all circumstances in which a bug occured and what did you do before, especially if it happens rarely or is not clearly visible. The better report, the better chance to track the bug quickly.
+\subsubsection{Linux notes}
+On *nix-like systems logs can be found in \texttt{$\sim$/.vcmi} directory. \\
+When reporting compilation issues please specify name and version of your distribution.
 \section{FAQ}
 \subsection{When will the final version be released?}
 When it is finished, which is another year at least. Exact date is impossible to predict.\\

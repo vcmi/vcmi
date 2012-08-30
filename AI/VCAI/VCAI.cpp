@@ -2832,7 +2832,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				return CGoal(EXPLORE);
 			int3 pos = obj->visitablePos();
 
-			if (hero && ai->isAccessibleForHero(pos, hero, true) && isSafeToVisit(hero, pos)); //enemy heroes can get reinforcements
+			if (hero && ai->isAccessibleForHero(pos, hero, true) && isSafeToVisit(hero, pos)) //enemy heroes can get reinforcements
 				return CGoal(*this).settile(pos).setisElementar(true);
 		}
 		break;
