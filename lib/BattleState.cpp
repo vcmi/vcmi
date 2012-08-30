@@ -911,17 +911,17 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 
 	//reading battleStartpos - add creatures AFTER random obstacles are generated
 	//TODO: parse once to some structure
-	std::vector< std::vector<int> > attackerLoose, defenderLoose, attackerTight, defenderTight, attackerCreBank, defenderCreBank;
+	std::vector< std::vector<int> > looseFormations[2], tightFormations[2], creBankFormations[2];
 	std::vector <int> commanderField, commanderBank;
 	const JsonNode config(ResourceID("config/battleStartpos.json"));
 	const JsonVector &positions = config["battle_positions"].Vector();
 
-	CGH::readBattlePositions(positions[0]["levels"], attackerLoose);
-	CGH::readBattlePositions(positions[1]["levels"], defenderLoose);
-	CGH::readBattlePositions(positions[2]["levels"], attackerTight);
-	CGH::readBattlePositions(positions[3]["levels"], defenderTight);
-	CGH::readBattlePositions(positions[4]["levels"], attackerCreBank);
-	CGH::readBattlePositions(positions[5]["levels"], defenderCreBank);
+	CGH::readBattlePositions(positions[0]["levels"], looseFormations[0]);
+	CGH::readBattlePositions(positions[1]["levels"], looseFormations[1]);
+	CGH::readBattlePositions(positions[2]["levels"], tightFormations[0]);
+	CGH::readBattlePositions(positions[3]["levels"], tightFormations[1]);
+	CGH::readBattlePositions(positions[4]["levels"], creBankFormations[0]);
+	CGH::readBattlePositions(positions[5]["levels"], creBankFormations[1]);
 
 	BOOST_FOREACH (auto position, config["commanderPositions"]["field"].Vector())
 	{
@@ -957,51 +957,30 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 	//war machines added
 
 	//battleStartpos read
-	int k = 0; //stack serial
-	for(TSlots::const_iterator i = armies[0]->Slots().begin(); i!=armies[0]->Slots().end(); i++, k++)
+	for(int side = 0; side < 2; side++)
 	{
-		int pos;
-		if(creatureBank)
-			pos = attackerCreBank[armies[0]->stacksCount()-1][k];
-		else if(armies[0]->formation)
-			pos = attackerTight[armies[0]->stacksCount()-1][k];
-		else
-			pos = attackerLoose[armies[0]->stacksCount()-1][k];
+		int formationNo = armies[side]->stacksCount() - 1;
+		vstd::abetween(formationNo, 0, GameConstants::ARMY_SIZE - 1);
 
-		CStack * stack = curB->generateNewStack(*i->second, true, i->first, pos);
-		stacks.push_back(stack);
+		int k = 0; //stack serial
+		for(TSlots::const_iterator i = armies[side]->Slots().begin(); i != armies[side]->Slots().end(); i++, k++)
+		{
+			std::vector<int> *formationVector = nullptr;
+			if(creatureBank)
+				formationVector = &creBankFormations[side][formationNo];
+			else if(armies[side]->formation)
+				formationVector = &tightFormations[side][formationNo];
+			else
+				formationVector = &looseFormations[side][formationNo];
+
+			BattleHex pos = (k < formationVector->size() ? formationVector->at(k) : 0);
+			if(creatureBank && i->second->type->isDoubleWide())
+				pos += side ? BattleHex::LEFT : BattleHex::RIGHT;
+
+			CStack * stack = curB->generateNewStack(*i->second, !side, i->first, pos);
+			stacks.push_back(stack);
+		}
 	}
-
-	k = 0;
-	for(TSlots::const_iterator i = armies[1]->Slots().begin(); i!=armies[1]->Slots().end(); i++, k++)
-	{
-		int pos;
-		if(creatureBank)
-			pos = defenderCreBank[armies[1]->stacksCount()-1][k];
-		else if(armies[1]->formation)
-			pos = defenderTight[armies[1]->stacksCount()-1][k];
-		else
-			pos = defenderLoose[armies[1]->stacksCount()-1][k];
-
-		CStack * stack = curB->generateNewStack(*i->second, false, i->first, pos);
-		stacks.push_back(stack);
-	}
-	
-// 	//shifting positions of two-hex creatures
-// 	for(unsigned g=0; g<stacks.size(); ++g)
-// 	{
-// 		//we should do that for creature bank too
-// 		if(stacks[g]->doubleWide() && stacks[g]->attackerOwned)
-// 		{
-// 			stacks[g]->position += BattleHex::RIGHT;
-// 		}
-// 		else if(stacks[g]->doubleWide() && !stacks[g]->attackerOwned)
-// 		{
-// 			if (stacks[g]->position.getX() > 1)
-// 				stacks[g]->position += BattleHex::LEFT;
-// 		}
-// 	}
-
 
 	//adding commanders
 	for (int i = 0; i < 2; ++i)

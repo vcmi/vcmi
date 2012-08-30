@@ -2299,6 +2299,11 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 		*s2 = static_cast<CArmedInstance*>(gs->map->objects[id2].get());
 	const CCreatureSet &S1 = *s1, &S2 = *s2;
 	StackLocation sl1(s1, p1), sl2(s2, p2);
+	if(!sl1.validSlot()  ||  !sl2.validSlot())
+	{
+		complain("Invalid slot accessed!");
+		return false;
+	}
 
 	if(!isAllowedExchange(id1,id2))
 	{
@@ -5616,6 +5621,9 @@ bool CGameHandler::insertNewStack(const StackLocation &sl, const CCreature *c, T
 	if(sl.army->hasStackAtSlot(sl.slot))
 		COMPLAIN_RET("Slot is already taken!");
 
+	if(!sl.validSlot())
+		COMPLAIN_RET("Cannot insert stack to that slot!");
+
 	InsertNewStack ins;
 	ins.sl = sl;
 	ins.stack = CStackBasicDescriptor(c, count);
@@ -5723,6 +5731,9 @@ bool CGameHandler::moveStack(const StackLocation &src, const StackLocation &dst,
 	if(dst.army->hasStackAtSlot(dst.slot) && dst.army->getCreature(dst.slot) != src.army->getCreature(src.slot))
 		COMPLAIN_RET("Cannot move: stack of different type at destination pos!");
 
+	if(!dst.validSlot())
+		COMPLAIN_RET("Cannot move stack to that slot!");
+
 	if(count == -1)
 	{
 		count = src.army->getStackCount(src.slot);
@@ -5733,7 +5744,7 @@ bool CGameHandler::moveStack(const StackLocation &src, const StackLocation &dst,
 		&& src.army->Slots().size() == 1 //from the last stack
 		&& src.army->needsLastStack()) //that must be left
 	{
-		COMPLAIN_RET("Cannot move away the alst creature!");
+		COMPLAIN_RET("Cannot move away the last creature!");
 	}
 
 	RebalanceStacks rs;

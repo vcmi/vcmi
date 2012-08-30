@@ -348,7 +348,7 @@ bool CBattleInfoEssentials::battleCanSurrender(int player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	//conditions like for fleeing + enemy must have a hero
-	return battleCanFlee(player) && battleGetFightingHero(!playerToSide(player));
+	return battleCanFlee(player) && battleHasHero(!playerToSide(player));
 }
 
 bool CBattleInfoEssentials::battleHasHero(ui8 side) const

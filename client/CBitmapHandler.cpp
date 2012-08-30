@@ -159,7 +159,7 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 
 	if (!(bitmap = loadBitmapFromDir("DATA/", fname, setKey)) &&
 		!(bitmap = loadBitmapFromDir("SPRITES/", fname, setKey)))
-		tlog0<<"Error: Failed to find file "<<fname<<"\n";
+		tlog1<<"Error: Failed to find file "<<fname<<"\n";
 
 	return bitmap;
 }

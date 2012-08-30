@@ -82,6 +82,12 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 
 	BOOST_FOREACH(auto & slot, army.army)
 	{
+		if(slot.first >= GameConstants::ARMY_SIZE)
+		{
+			tlog3 << "Warning: " << army.name << " has stack in slot " << slot.first << std::endl;
+			continue;
+		}
+
 		new CAnimImage("CPRSMALL", slot.second.type->idNumber + 2, 0, slotsPos[slot.first].x, slotsPos[slot.first].y);
 
 		std::string subtitle;

@@ -322,6 +322,7 @@ CArmedInstance * CCreatureSet::castToArmyObj()
 
 void CCreatureSet::putStack(TSlot slot, CStackInstance *stack)
 {
+	assert(slot < GameConstants::ARMY_SIZE);
 	assert(!hasStackAtSlot(slot));
 	stacks[slot] = stack;
 	stack->setArmyObj(castToArmyObj());
