@@ -65,7 +65,7 @@ armyStructure evaluateArmyStructure (const CArmedInstance * army)
 		if (walker)
 			walkersStrenght += s.second->getPower();
 
-		amax (maxSpeed, s.second->type->speed);
+		amax (maxSpeed, s.second->type->valOfBonuses(Bonus::STACKS_SPEED));
 	}
 	armyStructure as;
 	as.walkers = walkersStrenght / totalStrenght;
