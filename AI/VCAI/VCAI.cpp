@@ -1130,8 +1130,7 @@ bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * sourc
 		}
 	//TODO - consider more than just power (ie morale penalty, hero specialty in certain stacks, etc)
 
-	if (source->needsLastStack())
-		armySize = std::min (armySize - 1, GameConstants::ARMY_SIZE); //can't move away last stack
+	armySize = std::min ((source->needsLastStack() ? armySize - 1 : armySize), GameConstants::ARMY_SIZE); //can't move away last stack
 	std::vector<const CCreature *> bestArmy; //types that'll be in final dst army
 	for (int i = 0; i < armySize; i++) //pick the creatures from which we can get most power, as many as dest can fit
 	{
@@ -1175,8 +1174,7 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 		}
 	//TODO - consider more than just power (ie morale penalty, hero specialty in certain stacks, etc)
 
-	if (source->needsLastStack())
-		armySize = std::min (armySize - 1, GameConstants::ARMY_SIZE); //can't move away last stack
+	armySize = std::min ((source->needsLastStack() ? armySize - 1 : armySize), GameConstants::ARMY_SIZE); //can't move away last stack
 	std::vector<const CCreature *> bestArmy; //types that'll be in final dst army
 	for (int i = 0; i < armySize; i++) //pick the creatures from which we can get most power, as many as dest can fit
 	{
@@ -2823,7 +2821,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			const CGObjectInstance * obj = cb->getObj(objid);
 			if(!obj)
 				return CGoal(EXPLORE);
-			int3 pos = cb->getObj(objid)->visitablePos();
+			int3 pos = obj->visitablePos();
 			return CGoal(VISIT_TILE).settile(pos);
 		}
 		break;
@@ -2832,9 +2830,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 			const CGObjectInstance * obj = cb->getObj(objid);
 			if(!obj)
 				return CGoal(EXPLORE);
-			int3 pos = cb->getObj(objid)->visitablePos();
+			int3 pos = obj->visitablePos();
 
-			if (hero && ai->isAccessibleForHero(obj->pos, hero, true))
+			if (hero && ai->isAccessibleForHero(pos, hero, true) && isSafeToVisit(hero, pos)); //enemy heroes can get reinforcements
 				return CGoal(*this).settile(pos).setisElementar(true);
 		}
 		break;
@@ -3178,7 +3176,12 @@ TSubgoal CGoal::whatToDoToAchieve()
 			BOOST_FOREACH(const CGObjectInstance *obj, objs)
 			{
 				if(ai->isAccessibleForHero(obj->visitablePos(), h))
-					return CGoal(VISIT_TILE).sethero(h).settile(obj->visitablePos());
+				{
+					if (obj->ID == GameConstants::HEROI_TYPE)
+						return CGoal(VISIT_HERO).sethero(h).setobjid(obj->id).setisAbstract(true); //track enemy hero
+					else
+						return CGoal(VISIT_TILE).sethero(h).settile(obj->visitablePos());
+				}
 			}
 
 			return CGoal(EXPLORE); //enemy is inaccessible
@@ -3230,9 +3233,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 						int primaryPath, secondaryPath;
 						auto h = otherHeroes.back();
 						cb->setSelection(hero.h);
-							primaryPath = cb->getPathInfo(h->pos)->turns;
+						primaryPath = cb->getPathInfo(h->pos)->turns;
 						cb->setSelection(h);
-							secondaryPath = cb->getPathInfo(hero->pos)->turns;
+						secondaryPath = cb->getPathInfo(hero->pos)->turns;
 
 						if (primaryPath < secondaryPath)
 							return CGoal(VISIT_HERO).setisAbstract(true).setobjid(h->id).sethero(hero); //go to the other hero if we are faster
@@ -3250,8 +3253,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				if(objs.empty()) //no possible objects, we did eveyrthing already
 					return CGoal(EXPLORE).sethero(hero);
 				//TODO: check if we can recruit any creatures there, evaluate army
-
-				if (objs.size())
+				else
 				{
 					boost::sort(objs, isCloser);
 					HeroPtr h = NULL;
@@ -3274,7 +3276,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				}
 			}
 
-			return CGoal(EXPLORE); //find dwelling
+			return CGoal(EXPLORE).sethero(hero); //find dwelling. use current hero to prevent him from doing nothing.
 		}
 		break;
 	default:
