@@ -1076,7 +1076,7 @@ struct NewTurn : public CPackForClient //101
 
 struct Component : public CPack //2002 helper for object scrips informations
 {
-	enum EComponentType {PRIM_SKILL, SEC_SKILL, RESOURCE, CREATURE, ARTIFACT, EXPERIENCE, SPELL, MORALE=8, LUCK, BUILDING, HERO, FLAG};
+	enum EComponentType {PRIM_SKILL, SEC_SKILL, RESOURCE, CREATURE, ARTIFACT, EXPERIENCE, SPELL, MORALE, LUCK, BUILDING, HERO, FLAG};
 	ui16 id, subtype; //id uses ^^^ enums, when id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels)
 	si32 val; // + give; - take
 	si16 when; // 0 - now; +x - within x days; -x - per x days
@@ -1090,7 +1090,7 @@ struct Component : public CPack //2002 helper for object scrips informations
 		type = 2002;
 	}
 	DLL_LINKAGE explicit Component(const CStackBasicDescriptor &stack);
-	Component(ui16 Type, ui16 Subtype, si32 Val, si16 When)
+	Component(Component::EComponentType Type, ui16 Subtype, si32 Val, si16 When)
 		:id(Type),subtype(Subtype),val(Val),when(When)
 	{
 		type = 2002;

@@ -2519,7 +2519,8 @@ void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, expType 
 }
 void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 {
-	int id=0, subid=0, ot=0, sound = 0;
+	Component::EComponentType id = (Component::EComponentType)0;
+	int subid=0, ot=0, sound = 0;
 	expType val=1;
 	switch(ID)
 	{
@@ -2549,13 +2550,13 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 		break;
 	case 100:
 		sound = soundBase::gazebo;
-		id=5;
+		id=Component::EXPERIENCE;
 		ot=143;
 		val=1000;
 		break;
 	case 102:
 		sound = soundBase::gazebo;
-		id = 5;
+		id = Component::EXPERIENCE;
 		subid = 1;
 		ot = 146;
 		val = 1;
@@ -2582,8 +2583,8 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				BlockingDialog sd(false,true);
 				sd.soundID = sound;
 				sd.text << std::pair<ui8,ui32>(11,ot);
-				sd.components.push_back(Component(0,0,2,0));
-				sd.components.push_back(Component(0,1,2,0));
+				sd.components.push_back(Component(Component::PRIM_SKILL, PrimarySkill::ATTACK, 2, 0));
+				sd.components.push_back(Component(Component::PRIM_SKILL, PrimarySkill::DEFENSE, 2, 0));
 				sd.player = cb->getOwner(heroID);
 				cb->showBlockingDialog(&sd,boost::bind(&CGVisitableOPH::arenaSelected,this,heroID,_1));
 				return;
@@ -2596,7 +2597,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				cb->changePrimSkill(heroID,subid,val);
 				InfoWindow iw;
 				iw.soundID = sound;
-				iw.components.push_back(Component(0,subid,val,0));
+				iw.components.push_back(Component(Component::PRIM_SKILL, subid,val,0));
 				iw.text << std::pair<ui8,ui32>(11,ot);
 				iw.player = cb->getOwner(heroID);
 				cb->showInfoDialog(&iw);
@@ -3429,7 +3430,7 @@ void CGMine::flagMine(ui8 player) const
 	iw.soundID = soundBase::FLAGMINE;
 	iw.text.addTxt(MetaString::MINE_EVNTS,producedResource); //not use subID, abandoned mines uses default mine texts
 	iw.player = player;
-	iw.components.push_back(Component(2,producedResource,producedQuantity,-1));
+	iw.components.push_back(Component(Component::RESOURCE,producedResource,producedQuantity,-1));
 	cb->showInfoDialog(&iw);
 }
 
@@ -3503,7 +3504,7 @@ void CGResource::collectRes( int player ) const
 	cb->giveResource(player,subID,amount);
 	ShowInInfobox sii;
 	sii.player = player;
-	sii.c = Component(2,subID,amount,0);
+	sii.c = Component(Component::RESOURCE,subID,amount,0);
 	sii.text << std::pair<ui8,ui32>(11,113);
 	sii.text.addReplacement(MetaString::RES_NAMES, subID);
 	cb->showCompInfo(&sii);
@@ -3572,8 +3573,9 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		int type, sub=0, val=0;
-		type = 2;
+		Component::EComponentType type = Component::RESOURCE;
+		int sub=0, val=0;
+
 		switch (ID)
 		{
 		case 55:
@@ -3800,7 +3802,7 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 		case 5:
 			{
 				iw.soundID = soundBase::treasure; //play sound only for non-scroll arts
-				iw.components.push_back(Component(4,subID,0,0));
+				iw.components.push_back(Component(Component::ARTIFACT,subID,0,0));
 				if(message.length())
 					iw.text <<  message;
 				else
@@ -3953,12 +3955,12 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 	case 12: //campfire
 		{
 			cb->giveResource(h->tempOwner,type,val2); //non-gold resource
-			cb->giveResource(h->tempOwner,6,val1);//gold
+			cb->giveResource(h->tempOwner,Res::GOLD,val1);//gold
 			InfoWindow iw;
 			iw.soundID = soundBase::experience;
 			iw.player = h->tempOwner;
-			iw.components.push_back(Component(2,6,val1,0));
-			iw.components.push_back(Component(2,type,val2,0));
+			iw.components.push_back(Component(Component::RESOURCE,Res::GOLD,val1,0));
+			iw.components.push_back(Component(Component::RESOURCE,type,val2,0));
 			iw.text << std::pair<ui8,ui32>(11,23);
 			cb->showInfoDialog(&iw);
 			break;
@@ -3971,9 +3973,9 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			iw.soundID = soundBase::GENIE;
 			iw.player = h->tempOwner;
 			if(val1)
-				iw.components.push_back(Component(2,0,val1,0));
+				iw.components.push_back(Component(Component::RESOURCE,Res::WOOD,val1,0));
 			if(val2)
-				iw.components.push_back(Component(2,6,val2,0));
+				iw.components.push_back(Component(Component::RESOURCE,Res::GOLD,val2,0));
 
 			iw.text.addTxt(MetaString::ADVOB_TXT, 51+type);
 			cb->showInfoDialog(&iw);
@@ -3988,13 +3990,13 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 
 			if(val1) //there is gold
 			{
-				iw.components.push_back(Component(2,6,val1,0));
+				iw.components.push_back(Component(Component::RESOURCE,Res::GOLD,val1,0));
 				cb->giveResource(h->tempOwner,6,val1);
 			}
 			if(type == 1) //art
 			{
 				//TODO: what if no space in backpack?
-				iw.components.push_back(Component(4, val2, 1, 0));
+				iw.components.push_back(Component(Component::ARTIFACT, val2, 1, 0));
 				iw.text.addReplacement(MetaString::ART_NAMES, val2);
 				cb->giveHeroNewArtifact(h, VLC->arth->artifacts[val2],-2);
 			}
@@ -4007,7 +4009,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			InfoWindow iw;
 			iw.soundID = soundBase::experience;
 			iw.player = h->tempOwner;
-			iw.components.push_back(Component(4,val1,1,0));
+			iw.components.push_back(Component(Component::ARTIFACT,val1,1,0));
 			iw.text.addTxt(MetaString::ADVOB_TXT, 125);
 			iw.text.addReplacement(MetaString::ART_NAMES, val1);
 			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[val1],-2);
@@ -4028,7 +4030,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 				InfoWindow iw;
 				iw.soundID = soundBase::treasure;
 				iw.player = h->tempOwner;
-				iw.components.push_back(Component(4,val1,1,0));
+				iw.components.push_back(Component(Component::ARTIFACT,val1,1,0));
 				iw.text << std::pair<ui8,ui32>(11,145);
 				iw.text.addReplacement(MetaString::ART_NAMES, val1);
 				cb->showInfoDialog(&iw);
@@ -4039,9 +4041,9 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 				BlockingDialog sd(false,true);
 				sd.player = h->tempOwner;
 				sd.text << std::pair<ui8,ui32>(11,146);
-				sd.components.push_back(Component(2,6,val1,0));
+				sd.components.push_back(Component(Component::RESOURCE,Res::GOLD,val1,0));
 				expType expVal = h->calculateXp(val2);
-				sd.components.push_back(Component(5,0,expVal, 0));
+				sd.components.push_back(Component(Component::EXPERIENCE,0,expVal, 0));
 				sd.soundID = soundBase::chest;
 				boost::function<void(ui32)> fun = boost::bind(&CGPickable::chosen,this,_1,h->id);
 				cb->showBlockingDialog(&sd,fun);
@@ -4769,7 +4771,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else //give sec skill
 	{
-		iw.components.push_back(Component(1, ability, 1, 0));
+		iw.components.push_back(Component(Component::SEC_SKILL, ability, 1, 0));
 		iw.text << std::pair<ui8,ui32>(11,171);
 		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
 		cb->changeSecSkill(h->id,ability,1,true);
@@ -4960,9 +4962,9 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		//TODO: fix if second bonus val != main bonus val
 		if(gbonus.bonus.type == Bonus::MORALE   ||   secondBonus.type == Bonus::MORALE)
-			iw.components.push_back(Component(8,0,gbonus.bonus.val,0));
+			iw.components.push_back(Component(Component::MORALE,0,gbonus.bonus.val,0));
 		if(gbonus.bonus.type == Bonus::LUCK   ||   secondBonus.type == Bonus::LUCK)
-			iw.components.push_back(Component(9,0,gbonus.bonus.val,0));
+			iw.components.push_back(Component(Component::LUCK,0,gbonus.bonus.val,0));
 		cb->giveHeroBonus(&gbonus);
 		if(second)
 		{
