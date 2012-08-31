@@ -614,9 +614,16 @@ void CStackQueue::update()
 {
 	stacksSorted.clear();
 	owner->curInt->cb->battleGetStackQueue(stacksSorted, stackBoxes.size());
-	for (int i = 0; i < stackBoxes.size() ; i++)
+	if(stacksSorted.size())
 	{
-		stackBoxes[i]->setStack(stacksSorted[i]);
+		for (int i = 0; i < stackBoxes.size() ; i++)
+		{
+			stackBoxes[i]->setStack(stacksSorted[i]);
+		}
+	}
+	else
+	{
+		//no stacks on battlefield... what to do with queue?
 	}
 }
 

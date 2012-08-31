@@ -405,39 +405,6 @@ si8 CBattleInfoCallback::battleCanTeleportTo(const CStack * stack, BattleHex des
 	return true;
 }
 
-// std::vector<int> CBattleInfoCallback::battleGetDistances(const CStack * stack, BattleHex hex /*= BattleHex::INVALID*/, BattleHex * predecessors /*= NULL*/)
-// {
-// 	// FIXME - This method is broken, hex argument is not used. However AI depends on that wrong behaviour.
-//
-// 	if(!hex.isValid())
-// 		hex = stack->position;
-//
-// 	std::vector<int> ret(GameConstants::BFIELD_SIZE, -1); //fill initial ret with -1's
-//
-// 	if(!hex.isValid()) //stack has bad position? probably castle turret, return initial values (they can't move)
-// 		return ret;
-//
-// 	bool ac[GameConstants::BFIELD_SIZE] = {0};
-// 	std::set<BattleHex> occupyable;
-// 	getBattle()->getAccessibilityMap(ac, stack->doubleWide(), stack->attackerOwned, false, occupyable, stack->hasBonusOfType(Bonus::FLYING), stack);
-// 	BattleHex pr[GameConstants::BFIELD_SIZE];
-// 	int dist[GameConstants::BFIELD_SIZE];
-// 	getBattle()->makeBFS(stack->position, ac, pr, dist, stack->doubleWide(), stack->attackerOwned, stack->hasBonusOfType(Bonus::FLYING), false);
-//
-// 	for(int i=0; i<GameConstants::BFIELD_SIZE; ++i)
-// 	{
-// 		if(pr[i] != -1)
-// 			ret[i] = dist[i];
-// 	}
-//
-// 	if(predecessors)
-// 	{
-// 		memcpy(predecessors, pr, GameConstants::BFIELD_SIZE * sizeof(BattleHex));
-// 	}
-//
-// 	return ret;
-// }
-
 std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos  /*= BattleHex::INVALID*/) const
 {
 	std::set<BattleHex> attackedHexes;
@@ -562,6 +529,14 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 		out.push_back(active);
 		if(out.size() == howMany)
 			return;
+	}
+
+	auto allStacks = battleGetAllStacks();
+	if(!vstd::contains_if(allStacks, [](const CStack *stack) { return stack->willMove(100000); })) //little evil, but 100000 should be enough for all effects to disappear
+	{
+		//No stack will be able to move, battle is over.
+		out.clear();
+		return;
 	}
 
 	BOOST_FOREACH(auto s, battleGetAllStacks())
