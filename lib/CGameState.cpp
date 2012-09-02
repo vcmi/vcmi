@@ -1053,30 +1053,12 @@ void CGameState::init(StartInfo * si)
 	}
 
 	/******************RESOURCES****************************************************/
-	TResources startresAI, startresHuman;
 	const JsonNode config(ResourceID("config/startres.json"));
 	const JsonVector &vector = config["difficulty"].Vector();
 	const JsonNode &level = vector[scenarioOps->difficulty];
-	const JsonNode &human = level["human"];
-	const JsonNode &ai = level["ai"];
 
-	startresHuman[0] = human["wood"].Float();
-	startresHuman[1] = human["mercury"].Float();
-	startresHuman[2] = human["ore"].Float();
-	startresHuman[3] = human["sulfur"].Float();
-	startresHuman[4] = human["crystal"].Float();
-	startresHuman[5] = human["gems"].Float();
-	startresHuman[6] = human["gold"].Float();
-	startresHuman[7] = human["mithril"].Float();
-
-	startresAI[0] = ai["wood"].Float();
-	startresAI[1] = ai["mercury"].Float();
-	startresAI[2] = ai["ore"].Float();
-	startresAI[3] = ai["sulfur"].Float();
-	startresAI[4] = ai["crystal"].Float();
-	startresAI[5] = ai["gems"].Float();
-	startresAI[6] = ai["gold"].Float();
-	startresAI[7] = ai["mithril"].Float();
+	TResources startresAI(level["ai"]);
+	TResources startresHuman(level["human"]);
 
 	for (std::map<ui8,PlayerState>::iterator i = players.begin(); i!=players.end(); i++)
 	{

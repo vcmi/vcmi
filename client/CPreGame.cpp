@@ -3067,9 +3067,8 @@ void CBonusSelection::updateBonusSelection()
 					picName = graphics->ERMUtoPicture[faction][buildID];
 					picNumber = -1;
 
-					tlog1<<CGI->buildh->buildings.size()<<"\t"<<faction<<"\t"<<CGI->buildh->buildings[faction].size()<<"\t"<<buildID<<"\n";
-					if (vstd::contains(CGI->buildh->buildings[faction], buildID))
-						desc = CGI->buildh->buildings[faction].find(buildID)->second->Description();
+					if (vstd::contains(CGI->townh->towns[faction].buildings, buildID))
+						desc = CGI->townh->towns[faction].buildings.find(buildID)->second->Description();
 				}
 				break;
 			case 3: //artifact

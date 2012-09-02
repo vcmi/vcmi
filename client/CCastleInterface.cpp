@@ -49,7 +49,7 @@ int hordeToDwellingID(int bid)//helper, converts horde buiding ID into correspon
 	}
 }
 
-CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const Structure *Str)
+CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const CStructure *Str)
 	:CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE | CShowableAnim::USE_RLE),
 	parent(Par),
 	town(Town),
@@ -120,7 +120,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 	if( !CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
 	{
 		int bid = hordeToDwellingID(str->ID);
-		const CBuilding *bld = CGI->buildh->buildings[str->townID].find(bid)->second;
+		const CBuilding *bld = town->town->buildings[bid];
 		if (bid < EBuilding::DWELL_FIRST)
 		{
 			std::vector<CComponent*> comps(1, new CComponent(CComponent::building, bld->tid, bld->bid));
@@ -214,7 +214,7 @@ std::string getBuildingSubtitle(int tid, int bid)//hover text for building
 	bid = hordeToDwellingID(bid);
 
 	if (bid<30)//non-dwellings - only buiding name
-		return CGI->buildh->buildings[tid].find(bid)->second->Name();
+		return CGI->townh->towns[tid].buildings[bid]->Name();
 	else//dwellings - recruit %creature%
 	{
 		int creaID = t->creatures[(bid-30)%GameConstants::CREATURES_PER_TOWN].second.back();//taking last of available creatures
@@ -445,7 +445,7 @@ public:
 };
 
 SORTHELP<CBuildingRect> buildSorter;
-SORTHELP<Structure> structSorter;
+SORTHELP<CStructure> structSorter;
 
 CCastleBuildings::CCastleBuildings(const CGTownInstance* Town):
 	town(Town),
@@ -459,10 +459,9 @@ CCastleBuildings::CCastleBuildings(const CGTownInstance* Town):
 	//Generate buildings list
 	for (std::set<si32>::const_iterator building=town->builtBuildings.begin(); building!=town->builtBuildings.end(); building++)
 	{
-		std::map<int, Structure*>::iterator structure;
-		structure = CGI->townh->structures[town->subID].find(*building);
+		auto structure = town->town->clientInfo.structures.find(*building);
 
-		if(structure != CGI->townh->structures[town->subID].end() && structure->second)
+		if(structure != town->town->clientInfo.structures.end() && structure->second)
 		{
 			if(structure->second->group<0) // no group - just add it
 				buildings.push_back(new CBuildingRect(this, town, structure->second));
@@ -471,18 +470,18 @@ CCastleBuildings::CCastleBuildings(const CGTownInstance* Town):
 		}
 	}
 
-	Structure * shipyard = CGI->townh->structures[town->subID][6];
+	CStructure * shipyard = town->town->clientInfo.structures[6];
 	//ship in shipyard
 	if(shipyard && vstd::contains(groups, shipyard->group))
 	{
 		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(town->bestLocation());
 		if(!vobjs.empty() && (vobjs.front()->ID == 8 || vobjs.front()->ID == GameConstants::HEROI_TYPE)) //there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
 		{
-			groups[shipyard->group].push_back(CGI->townh->structures[town->subID][20]);
+			groups[shipyard->group].push_back(town->town->clientInfo.structures[20]);
 		}
 	}
 	//Create building for each group
-	for (std::map< int, std::vector<const Structure*> >::iterator group = groups.begin(); group != groups.end(); group++)
+	for (std::map< int, std::vector<const CStructure*> >::iterator group = groups.begin(); group != groups.end(); group++)
 	{
 		std::sort(group->second.begin(), group->second.end(), structSorter);
 		buildings.push_back(new CBuildingRect(this, town, group->second.back()));
@@ -521,10 +520,10 @@ void CCastleBuildings::checkRules()
 		
 		int buildingID = animRule[i].buildID;
 		//check if this building have been upgraded (Ship is upgrade of Shipyard)
-		int groupID = CGI->townh->structures[town->subID][animRule[i].buildID]->group;
+		int groupID = town->town->clientInfo.structures[animRule[i].buildID]->group;
 		if (groupID != -1)
 		{
-			std::map< int, std::vector<const Structure*> >::const_iterator git= groups.find(groupID);
+			std::map< int, std::vector<const CStructure*> >::const_iterator git= groups.find(groupID);
 			if ( git == groups.end() || git->second.empty() )
 				continue;
 			buildingID  = git->second.back()->ID;
@@ -548,10 +547,9 @@ void CCastleBuildings::checkRules()
 void CCastleBuildings::addBuilding(int building)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	std::map<int, Structure*>::const_iterator structure;
-	structure = CGI->townh->structures[town->subID].find(building);
+	auto structure = town->town->clientInfo.structures.find(building);
 
-	if(structure != CGI->townh->structures[town->subID].end()) //we have info about that structure
+	if(structure != town->town->clientInfo.structures.end()) //we have info about that structure
 	{
 		if(structure->second->group<0) //no group - just add it
 		{
@@ -586,10 +584,9 @@ void CCastleBuildings::addBuilding(int building)
 void CCastleBuildings::removeBuilding(int building)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	std::map<int, Structure*>::const_iterator structure;
-	structure = CGI->townh->structures[town->subID].find(building);
+	auto structure = town->town->clientInfo.structures.find(building);
 
-	if(structure != CGI->townh->structures[town->subID].end()) //we have info about that structure
+	if(structure != town->town->clientInfo.structures.end()) //we have info about that structure
 	{
 		if(structure->second->group<0) //no group - just add it
 		{
@@ -642,7 +639,7 @@ void CCastleBuildings::buildingClicked(int building)
 {
 	tlog5<<"You've clicked on "<<building<<std::endl;
 	building = hordeToDwellingID(building);
-	const CBuilding *b = CGI->buildh->buildings[town->subID].find(building)->second;
+	const CBuilding *b = town->town->buildings.find(building)->second;
 
 	if(building >= EBuilding::DWELL_FIRST)
 	{
@@ -784,7 +781,7 @@ void CCastleBuildings::enterBlacksmith(int ArtifactID)
 	const CGHeroInstance *hero = town->visitingHero;
 	if(!hero)
 	{
-		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % CGI->buildh->buildings[town->subID].find(16)->second->Name()));
+		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(16)->second->Name()));
 		return;
 	}
 	int price = CGI->arth->artifacts[ArtifactID]->price;
@@ -797,7 +794,7 @@ void CCastleBuildings::enterBuilding(int building)
 	std::vector<CComponent*> comps(1, new CComponent(CComponent::building, town->subID, building));
 
 	LOCPLINT->showInfoDialog(
-		CGI->buildh->buildings[town->subID].find(building)->second->Description(),comps);
+		town->town->buildings.find(building)->second->Description(),comps);
 }
 
 void CCastleBuildings::enterCastleGate()
@@ -833,9 +830,9 @@ void CCastleBuildings::enterFountain(int building)
 {
 	std::vector<CComponent*> comps(1, new CComponent(CComponent::building,town->subID,building));
 
-	std::string descr = CGI->buildh->buildings[town->subID].find(building)->second->Description();
+	std::string descr = town->town->buildings.find(building)->second->Description();
 	if ( building == 21)//we need description for mystic pond as well
-		descr += "\n\n"+CGI->buildh->buildings[town->subID].find(17)->second->Description();
+		descr += "\n\n"+town->town->buildings.find(17)->second->Description();
 	if (town->bonusValue.first == 0)//fountain was builded this week
 		descr += "\n\n"+ CGI->generaltexth->allTexts[677];
 	else//fountain produced something;
@@ -1182,7 +1179,7 @@ CTownInfo::CTownInfo(int posX, int posY, const CGTownInstance* Town, bool townHa
 			return;
 		picture = new CAnimImage("ITMCL.DEF", town->fortLevel()-1);
 	}
-	building = CGI->buildh->buildings[town->subID][buildID];
+	building = town->town->buildings[buildID];
 	pos = picture->pos;
 }
 
@@ -1330,7 +1327,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 }
 
 CHallInterface::CHallInterface(const CGTownInstance *Town):
-    CWindowObject(PLAYER_COLORED | BORDERED, CGI->buildh->hall[Town->subID].first),
+    CWindowObject(PLAYER_COLORED | BORDERED, Town->town->clientInfo.hallBackground),
 	town(Town)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -1341,12 +1338,12 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 	Rect barRect(5, 556, 740, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 5, 556, false));
 
-	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->buildh->buildings[town->subID][town->hallLevel()+EBuilding::VILLAGE_HALL]->Name());
+	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, Colors::Cornsilk, town->town->buildings[town->hallLevel()+EBuilding::VILLAGE_HALL]->Name());
 	exit = new CAdventureMapButton(CGI->generaltexth->hcommands[8], "", 
 	           boost::bind(&CHallInterface::close,this), 748, 556, "TPMAGE1.DEF", SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
-	const std::vector< std::vector< std::vector<int> > > &boxList = CGI->buildh->hall[town->subID].second;
+	auto & boxList = town->town->clientInfo.hallSlots;
 	boxes.resize(boxList.size());
 	for(size_t row=0; row<boxList.size(); row++) //for each row
 	{
@@ -1356,7 +1353,7 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 			for(size_t item=0; item<boxList[row][col].size(); item++)//we are looking for the first not build structure
 			{
 				int buildingID = boxList[row][col][item];
-				building = CGI->buildh->buildings[town->subID][buildingID];
+				building = town->town->buildings[buildingID];
 
 				if (buildingID == 18 || buildingID == 24)
 				{
@@ -1407,7 +1404,7 @@ std::string CBuildWindow::getTextForState(int state)
 			{
 				if (vstd::contains(town->builtBuildings, *i))
 					continue;//skipping constructed buildings
-				ret+= CGI->buildh->buildings[town->subID][*i]->Name() + ", ";
+				ret+= town->town->buildings[*i]->Name() + ", ";
 			}
 			ret.erase(ret.size()-2);
 		}
@@ -1479,7 +1476,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	if (fortSize > GameConstants::CREATURES_PER_TOWN && town->creatures.back().second.empty())
 		fortSize--;
 	
-	const CBuilding *fortBuilding = CGI->buildh->buildings[town->subID][town->fortLevel()+6];
+	const CBuilding *fortBuilding = town->town->buildings[town->fortLevel()+6];
 	title = new CLabel(400, 12, FONT_BIG, CENTER, Colors::Cornsilk, fortBuilding->Name());
 	
 	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->Name());
@@ -1610,7 +1607,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[194], CGI->generaltexth->fcommands[5], town->creatureGrowth(level)));
 
 	creatureName = new CLabel(78,  11, FONT_SMALL, CENTER, Colors::Cornsilk, creature->namePl);
-	dwellingName = new CLabel(78, 101, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->buildh->buildings[town->subID][buildingID]->Name());
+	dwellingName = new CLabel(78, 101, FONT_SMALL, CENTER, Colors::Cornsilk, town->town->buildings[buildingID]->Name());
 
 	if (vstd::contains(town->builtBuildings, buildingID))
 	{

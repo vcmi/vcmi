@@ -94,6 +94,17 @@ public:
 
 	//error value for const operator[]
 	static const JsonNode nullNode;
+
+	/// recursivly merges source into dest, replacing identical fields
+	/// struct : recursively calls this function
+	/// arrays : append array in dest with data from source
+	/// values : value in source will replace value in dest
+	/// null   : if value in source is present but set to null it will delete entry in dest
+
+	/// this function will destroy data in source
+	static void merge(JsonNode & dest, JsonNode & source);
+	/// this function will preserve data stored in source by creating copy
+	static void mergeCopy(JsonNode & dest, JsonNode source);
 };
 
 class JsonWriter

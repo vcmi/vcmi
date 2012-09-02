@@ -17,7 +17,7 @@ class CResDataBar;
 class CSpell;
 class CTextBox;
 class CTownList;
-struct Structure;
+struct CStructure;
 class CGHeroInstance;
 class CGarrisonInt;
 class CCreature;
@@ -39,13 +39,13 @@ class CBuildingRect : public CShowableAnim
 public:
 	CCastleBuildings * parent;
 	const CGTownInstance * town;
-	const Structure* str;
+	const CStructure* str;
 	SDL_Surface* border;
 	SDL_Surface* area;
 	
 	ui32 stateCounter;//For building construction - current stage in animation
 	
-	CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const Structure *Str); //c-tor
+	CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const CStructure *Str); //c-tor
 	~CBuildingRect(); //d-tor
 	bool operator<(const CBuildingRect & p2) const;
 	void hover(bool on);
@@ -115,7 +115,7 @@ class CCastleBuildings : public CIntObject
 {
 	CPicture *background;
 	//List of buildings for each group
-	std::map< int, std::vector<const Structure*> > groups;
+	std::map< int, std::vector<const CStructure*> > groups;
 	//Vector with all blittable buildings
 	std::vector<CBuildingRect*> buildings;
 

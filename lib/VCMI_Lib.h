@@ -30,7 +30,6 @@ public:
 	CHeroHandler * heroh;
 	CCreatureHandler * creh;
 	CSpellHandler * spellh;
-	CBuildingHandler * buildh;
 	CObjectHandler * objh;
 	CDefObjInfoHandler * dobjinfo;
 	CTownHandler * townh;
@@ -48,7 +47,7 @@ public:
 	void callWhenDeserializing(); //should be called only by serialize !!!
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroh & arth & creh & townh & objh & dobjinfo & buildh & spellh & modh & IS_AI_ENABLED;;
+		h & heroh & arth & creh & townh & objh & dobjinfo & spellh & modh & IS_AI_ENABLED;;
 		if(!h.saving)
 		{
 			callWhenDeserializing();

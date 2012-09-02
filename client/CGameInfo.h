@@ -61,7 +61,6 @@ public:
 	ConstTransitivePtr<CDefObjInfoHandler> dobjinfo;
 	CGeneralTextHandler * generaltexth;
 	CMapHandler * mh;
-	ConstTransitivePtr<CBuildingHandler> buildh;
 	CTownHandler * townh;
 	//CTownHandler * townh;
 

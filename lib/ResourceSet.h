@@ -3,6 +3,8 @@
 typedef si32 TResource;
 typedef si64 TResourceCap; //to avoid overflow when adding integers. Signed values are easier to control.
 
+class JsonNode;
+
 namespace Res
 {
 	class ResourceSet;
@@ -18,6 +20,8 @@ namespace Res
 	{
 	public:
 		DLL_LINKAGE ResourceSet();
+		// read resources set from json. Format example: { "gold": 500, "wood":5 }
+		DLL_LINKAGE ResourceSet(const JsonNode & node);
 
 
 #define scalarOperator(OPSIGN)									\

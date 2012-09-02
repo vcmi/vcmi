@@ -904,7 +904,7 @@ std::string CComponent::getDescription()
 	case spell:      return CGI->spellh->spells[subtype]->descriptions[val];
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
 	case luck:       return CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
-	case building:   return CGI->buildh->buildings[subtype][val]->Description();
+	case building:   return CGI->townh->towns[subtype].buildings[val]->Description();
 	case hero:       return CGI->heroh->heroes[subtype]->name;
 	case flag:       return "";
 	}
@@ -936,7 +936,7 @@ std::string CComponent::getSubtitleInternal()
 	case spell:      return CGI->spellh->spells[subtype]->name;
 	case morale:     return "";
 	case luck:       return "";
-	case building:   return CGI->buildh->buildings[subtype][val]->Name();
+	case building:   return CGI->townh->towns[subtype].buildings[val]->Name();
 	case hero:       return CGI->heroh->heroes[subtype]->name;
 	case flag:       return CGI->generaltexth->capColors[subtype];
 	}
@@ -2437,9 +2437,9 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	{
 		switch (mode)
 		{
-		break; case EMarketMode::CREATURE_RESOURCE: title = CGI->buildh->buildings[6][21]->Name();
-		break; case EMarketMode::RESOURCE_ARTIFACT: title = CGI->buildh->buildings[market->o->subID][17]->Name();
-		break; case EMarketMode::ARTIFACT_RESOURCE: title = CGI->buildh->buildings[market->o->subID][17]->Name();
+		break; case EMarketMode::CREATURE_RESOURCE: title = CGI->townh->towns[6].buildings[21]->Name();
+		break; case EMarketMode::RESOURCE_ARTIFACT: title = CGI->townh->towns[market->o->subID].buildings[17]->Name();
+		break; case EMarketMode::ARTIFACT_RESOURCE: title = CGI->townh->towns[market->o->subID].buildings[17]->Name();
 		break; default: title = CGI->generaltexth->allTexts[158];
 		}
 	}

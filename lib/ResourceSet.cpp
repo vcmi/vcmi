@@ -1,10 +1,24 @@
 #include "StdInc.h"
 #include "ResourceSet.h"
 #include "GameConstants.h"
+#include "JsonNode.h"
 
 Res::ResourceSet::ResourceSet()
 {
 	resize(GameConstants::RESOURCE_QUANTITY, 0);
+}
+
+Res::ResourceSet::ResourceSet(const JsonNode & node)
+{
+	resize(GameConstants::RESOURCE_QUANTITY, 0);
+	at(0) = node["wood"].Float();
+	at(1) = node["mercury"].Float();
+	at(2) = node["ore"].Float();
+	at(3) = node["sulfur"].Float();
+	at(4) = node["crystal"].Float();
+	at(5) = node["gems"].Float();
+	at(6) = node["gold"].Float();
+	at(7) = node["mithril"].Float();
 }
 
 bool Res::ResourceSet::nonZero() const

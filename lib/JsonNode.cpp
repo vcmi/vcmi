@@ -236,6 +236,38 @@ const JsonNode & JsonNode::operator[](std::string child) const
 		return it->second;
 	return nullNode;
 }
+////////////////////////////////////////////////////////////////////////////////
+
+void JsonNode::merge(JsonNode & dest, JsonNode & source)
+{
+	switch (source.getType())
+	{
+		break; case DATA_NULL:   dest.setType(DATA_NULL);
+		break; case DATA_BOOL:   std::swap(dest.Bool(), source.Bool());
+		break; case DATA_FLOAT:  std::swap(dest.Float(), source.Float());
+		break; case DATA_STRING: std::swap(dest.String(), source.String());
+		break; case DATA_VECTOR:
+		{
+			//reserve place and *move* data from source to dest
+			source.Vector().reserve(source.Vector().size() + dest.Vector().size());
+
+			std::move(source.Vector().begin(), source.Vector().end(),
+			          std::back_inserter(dest.Vector()));
+		}
+		break; case DATA_STRUCT:
+		{
+			//recursively merge all entries from struct
+			BOOST_FOREACH(auto & node, source.Struct())
+				merge(dest[node.first], node.second);
+		}
+	}
+}
+
+void JsonNode::mergeCopy(JsonNode & dest, JsonNode source)
+{
+	// uses copy created in stack to safely merge two nodes
+	merge(dest, source);
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 

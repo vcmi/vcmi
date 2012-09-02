@@ -7267,7 +7267,7 @@ GrowthInfo::Entry::Entry(const std::string &format, int _count)
 GrowthInfo::Entry::Entry(int subID, EBuilding::EBuilding building, int _count)
 	: count(_count)
 {
-	description = boost::str(boost::format("%s %+d") % VLC->buildh->buildings[subID][building]->Name() % count);
+	description = boost::str(boost::format("%s %+d") % VLC->townh->towns[subID].buildings[building]->Name() % count);
 }
 
 CTownAndVisitingHero::CTownAndVisitingHero()

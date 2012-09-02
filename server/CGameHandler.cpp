@@ -2417,7 +2417,7 @@ bool CGameHandler::disbandCreature( si32 id, ui8 pos )
 bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 {
 	CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid].get());
-	CBuilding * b = VLC->buildh->buildings[t->subID][bid];
+	CBuilding * b = t->town->buildings[bid];
 
 	if(!force)
 	{
@@ -3729,7 +3729,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		CGTownInstance *town = gs->getTown(gs->getPlayer(player)->currentSelection);
 		if (town)
 		{
-			BOOST_FOREACH (CBuildingHandler::TBuildingsMap::value_type &build, VLC->buildh->buildings[town->subID])
+			BOOST_FOREACH (auto & build, town->town->buildings)
 			{
 				if (!vstd::contains(town->builtBuildings, build.first)
 				 && !build.second->Name().empty())

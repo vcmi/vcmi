@@ -547,7 +547,7 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 	if(t->builded >= GameConstants::MAX_BUILDING_PER_TURN)
 		ret = EBuildingState::CANT_BUILD_TODAY; //building limit
 
-	CBuilding * pom = VLC->buildh->buildings[t->subID][ID];
+	CBuilding * pom = t->town->buildings[ID];
 
 	if(!pom)
 		return EBuildingState::BUILDING_ERROR;
@@ -603,7 +603,7 @@ std::set<int> CGameInfoCallback::getBuildingRequiments( const CGTownInstance *t,
 
 	std::set<int> used;
 	used.insert(ID);
-	std::set<int> reqs = VLC->buildh->buildings[t->subID][ID]->requirements;
+	std::set<int> reqs = t->town->buildings[ID]->requirements;
 
 	while(true)
 	{
@@ -614,8 +614,8 @@ std::set<int> CGameInfoCallback::getBuildingRequiments( const CGTownInstance *t,
 			{
 				used.insert(*i);
 				for(
-					std::set<int>::iterator j=VLC->buildh->buildings[t->subID][*i]->requirements.begin();
-					j!= VLC->buildh->buildings[t->subID][*i]->requirements.end();
+					std::set<int>::iterator j= t->town->buildings[*i]->requirements.begin();
+					j!= t->town->buildings[*i]->requirements.end();
 				j++)
 				{
 					reqs.insert(*j);//creating full list of requirements

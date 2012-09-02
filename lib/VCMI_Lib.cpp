@@ -87,7 +87,7 @@ void LibClasses::init()
 	tlog0<<"\tCreature handler: "<<pomtime.getDiff()<<std::endl;
 
 	townh = new CTownHandler;
-	townh->loadStructures();
+	townh->load();
 	tlog0<<"\tTown handler: "<<pomtime.getDiff()<<std::endl;
 
 	objh = new CObjectHandler;
@@ -97,10 +97,6 @@ void LibClasses::init()
 	dobjinfo = new CDefObjInfoHandler;
 	dobjinfo->load();
 	tlog0<<"\tDef information handler: "<<pomtime.getDiff()<<std::endl;
-
-	buildh = new CBuildingHandler;
-	buildh->loadBuildings();
-	tlog0<<"\tBuilding handler: "<<pomtime.getDiff()<<std::endl;
 
 	spellh = new CSpellHandler;
 	spellh->loadSpells();
@@ -118,7 +114,6 @@ void LibClasses::clear()
 	delete townh;
 	delete objh;
 	delete dobjinfo;
-	delete buildh;
 	delete spellh;
 	delete modh;
 	makeNull();
@@ -133,7 +128,6 @@ void LibClasses::makeNull()
 	townh = NULL;
 	objh = NULL;
 	dobjinfo = NULL;
-	buildh = NULL;
 	spellh = NULL;
 	modh = NULL;
 }
