@@ -17,8 +17,6 @@
  *
  */
 
-static std::string emptyStr = "";
-
 const std::string & CBuilding::Name() const
 {
 	if(name.length())
@@ -26,7 +24,7 @@ const std::string & CBuilding::Name() const
 	else if(vstd::contains(VLC->generaltexth->buildings,tid) && vstd::contains(VLC->generaltexth->buildings[tid],bid))
 		return VLC->generaltexth->buildings[tid][bid].first;
 	tlog2 << "Warning: Cannot find name text for building " << bid << "for " << tid << "town.\n";
-	return emptyStr;
+	return name;
 }
 
 const std::string & CBuilding::Description() const
@@ -36,7 +34,30 @@ const std::string & CBuilding::Description() const
 	else if(vstd::contains(VLC->generaltexth->buildings,tid) && vstd::contains(VLC->generaltexth->buildings[tid],bid))
 		return VLC->generaltexth->buildings[tid][bid].second;
 	tlog2 << "Warning: Cannot find description text for building " << bid << "for " << tid << "town.\n";
-	return emptyStr;
+	return description;
+}
+
+CBuilding::BuildingType CBuilding::getBase() const
+{
+	const CBuilding * build = this;
+	while (build->upgrade >= 0)
+		build = VLC->townh->towns[build->tid].buildings[build->upgrade];
+
+	return build->bid;
+}
+
+si32 CBuilding::getDistance(CBuilding::BuildingType buildID) const
+{
+	const CBuilding * build = VLC->townh->towns[tid].buildings[buildID];
+	int distance = 0;
+	while (build->upgrade >= 0 && build != this)
+	{
+		build = VLC->townh->towns[build->tid].buildings[build->upgrade];
+		distance++;
+	}
+	if (build == this)
+		return distance;
+	return -1;
 }
 
 const std::string & CTown::Name() const
@@ -65,9 +86,8 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 	JsonNode ret;
 	JsonNode & cost = ret["cost"];
 
-	const std::string resources [] = {"wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold"};
-
-	BOOST_FOREACH(const std::string & resID, resources)
+	//note: this code will try to parse mithril as well but wil always return 0 for it
+	BOOST_FOREACH(const std::string & resID, GameConstants::RESOURCE_NAMES)
 		cost[resID].Float() = parser.readNumber();
 
 	parser.endLine();
@@ -139,16 +159,26 @@ void CTownHandler::loadBuilding(CTown &town, const JsonNode & source)
 {
 	CBuilding * ret = new CBuilding;
 
-	ret->name = source["name"].String();
-	ret->description = source["description"].String();
+	static const std::string modes [] = {"normal", "auto", "special", "grail"};
+
+	ret->mode = boost::find(modes, source["mode"].String()) - modes;
 
 	ret->tid = town.typeID;
 	ret->bid = source["id"].Float();
-
+	ret->name = source["name"].String();
+	ret->description = source["description"].String();
 	ret->resources = TResources(source["cost"]);
 
 	BOOST_FOREACH(const JsonNode &building, source["requires"].Vector())
 		ret->requirements.insert(building.Float());
+
+	if (!source["upgrades"].isNull())
+	{
+		ret->requirements.insert(source["upgrades"].Float());
+		ret->upgrade = source["upgrades"].Float();
+	}
+	else
+		ret->upgrade = -1;
 
 	town.buildings[ret->bid] = ret;
 }
@@ -165,56 +195,38 @@ void CTownHandler::loadStructure(CTown &town, const JsonNode & source)
 {
 	CStructure * ret = new CStructure;
 
-	ret->ID = source["id"].Float();
+	if (source["id"].isNull())
+	{
+		ret->building = nullptr;
+		ret->buildable = nullptr;
+	}
+	else
+	{
+		ret->building = town.buildings[source["id"].Float()];
+
+		if (source["builds"].isNull())
+			ret->buildable = ret->building;
+		else
+			ret->buildable = town.buildings[source["builds"].Float()];
+	}
+
 	ret->pos.x = source["x"].Float();
 	ret->pos.y = source["y"].Float();
-	ret->pos.z = 0;
+	ret->pos.z = source["z"].Float();
 
-	ret->defName = source["defname"].String();
+	ret->hiddenUpgrade = source["hidden"].Bool();
+	ret->defName = source["animation"].String();
 	ret->borderName = source["border"].String();
 	ret->areaName = source["area"].String();
 
-	ret->group = -1;
-	ret->townID = town.typeID;
-
-	town.clientInfo.structures[ret->ID] = ret;
+	town.clientInfo.structures.push_back(ret);
 }
 
 void CTownHandler::loadStructures(CTown &town, const JsonNode & source)
 {
-	BOOST_FOREACH(const JsonNode &node, source["structures"].Vector())
+	BOOST_FOREACH(const JsonNode &node, source.Vector())
 	{
 		loadStructure(town, node);
-	}
-
-	// Read buildings blit order for that city
-	int itr = 1;
-	BOOST_FOREACH(const JsonNode &node, source["blit_order"].Vector())
-	{
-		int buildingID = node.Float();
-
-		/* Find the building and set its order. */
-		auto i2 = town.clientInfo.structures.find(buildingID);
-		if (i2 != (town.clientInfo.structures.end()))
-			i2->second->pos.z = itr++;
-	}
-
-	// Iterate for each group for that city
-	int groupID = 0;
-	BOOST_FOREACH(const JsonNode &group, source["groups"].Vector())
-	{
-		groupID++;
-
-		// Iterate for each bulding value in the group
-		BOOST_FOREACH(const JsonNode &value, group.Vector())
-		{
-			auto buildingIter = town.clientInfo.structures.find(value.Float());
-
-			if (buildingIter != town.clientInfo.structures.end())
-			{
-				buildingIter->second->group = groupID;
-			}
-		}
 	}
 }
 
@@ -238,23 +250,27 @@ void CTownHandler::loadTownHall(CTown &town, const JsonNode & source)
 	}
 }
 
-void CTownHandler::loadTown(std::vector<CTown> &towns, const JsonNode & source)
+void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 {
-	towns.push_back(CTown());
-	CTown & town = towns.back();
+	town.clientInfo.hallBackground = source["hallBackground"].String();
+	town.clientInfo.musicTheme = source["musicTheme"].String();
+	town.clientInfo.townBackground = source["townBackground"].String();
+	town.clientInfo.guildWindow = source["guildWindow"].String();
+	town.clientInfo.buildingsIcons = source["buildingsIcons"].String();
 
-	//TODO: allow loading name and names vector from json and from h3 txt's
+	loadTownHall(town,   source["hallSlots"]);
+	loadStructures(town, source["structures"]);
+}
 
-	town.typeID = towns.size() - 1;
-
+void CTownHandler::loadTown(CTown &town, const JsonNode & source)
+{
 	town.bonus = town.typeID;
 	if (town.bonus==8)
 		town.bonus=3;
 
-	town.clientInfo.hallBackground = source["hallBackground"].String();
-	town.mageLevel = source["mage_guild"].Float();
-	town.primaryRes  = source["primary_resource"].Float();
-	town.warMachine = source["war_machine"].Float();
+	town.mageLevel = source["mageGuild"].Float();
+	town.primaryRes  = source["primaryResource"].Float();
+	town.warMachine = source["warMachine"].Float();
 
 	//  Horde building creature level
 	BOOST_FOREACH(const JsonNode &node, source["horde"].Vector())
@@ -272,20 +288,37 @@ void CTownHandler::loadTown(std::vector<CTown> &towns, const JsonNode & source)
 		town.creatures.push_back(level);
 	}
 
-	loadTownHall(town,   source["hallSlots"]);
-	loadBuildings(town,  source["buildings"]);
-	loadStructures(town, source);
+	loadBuildings(town, source["buildings"]);
+	loadClientData(town,source);
 }
 
-void CTownHandler::loadTowns(std::vector<CTown> &towns, const JsonNode & source)
+void CTownHandler::loadFactions(const JsonNode &source)
 {
-	BOOST_FOREACH(const JsonNode & node, source.Vector())
+	BOOST_FOREACH(auto & node, source.Struct())
 	{
-		loadTown(towns, node);
-	}
+		int id = node.second["index"].Float();
+		CFaction & faction = factions[id];
 
-	// ensure that correct number of town have been loaded. Safe to remove
-	assert(towns.size() == GameConstants::F_NUMBER);
+		faction.factionID = id;
+		faction.name = node.first;
+
+		faction.creatureBg120 = node.second["creatureBackground"]["120px"].String();
+		faction.creatureBg130 = node.second["creatureBackground"]["130px"].String();
+
+		if (!node.second["nativeTerrain"].isNull())
+		{
+			//get terrain as string and converto to numeric ID
+			faction.nativeTerrain = boost::find(GameConstants::TERRAIN_NAMES, node.second["nativeTerrain"].String()) - GameConstants::TERRAIN_NAMES;
+		}
+		else
+			faction.nativeTerrain = -1;
+
+		if (!node.second["town"].isNull())
+		{
+			towns[id].typeID = id;
+			loadTown(towns[id], node.second["town"]);
+		}
+	}
 }
 
 void CTownHandler::load()
@@ -295,23 +328,33 @@ void CTownHandler::load()
 	JsonNode legacyConfig;
 	loadLegacyData(legacyConfig);
 
+	//hardocoded list of H3 factions. Should be only used to convert H3 configs
+	static const std::string factionName [GameConstants::F_NUMBER] =
+	{
+		"castle", "rampart", "tower",
+		"inferno", "necropolis", "dungeon",
+		"stronghold", "fortress", "conflux"
+	};
+
 	// semi-manually merge legacy config with towns json
 	// legacy config have only one item: town buildings stored in 2d vector
-	size_t townsToMerge = std::min(buildingsConf["towns"].Vector().size(), legacyConfig.Vector().size());
-	for (size_t i=0; i< townsToMerge; i++)
+
+	for (size_t i=0; i< legacyConfig.Vector().size(); i++)
 	{
-		JsonNode & buildings = buildingsConf["towns"].Vector()[i]["buildings"];
+		JsonNode & buildings = buildingsConf[factionName[i]]["town"]["buildings"];
 		BOOST_FOREACH(JsonNode & building, buildings.Vector())
 		{
+			JsonNode & legacyFaction = legacyConfig.Vector()[i];
 			if (vstd::contains(building.Struct(), "id"))
 			{
-				JsonNode & legacyBuilding = legacyConfig.Vector()[i].Vector()[building["id"].Float()];
+				//find same buildings in legacy and json configs
+				JsonNode & legacyBuilding = legacyFaction.Vector()[building["id"].Float()];
 
-				if (!legacyBuilding.isNull())
+				if (!legacyBuilding.isNull()) //merge if h3 config was found for this building
 					JsonNode::merge(building, legacyBuilding);
 			}
 		}
 	}
 
-	loadTowns(towns, buildingsConf["towns"]);
+	loadFactions(buildingsConf);
 }

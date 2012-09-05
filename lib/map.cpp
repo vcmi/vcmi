@@ -57,18 +57,14 @@ static std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID, b
 	}
 
 	if(addAuxiliary)
-	{
-		ret.insert(10); //village hall is always present
-		ret.insert(-1); //houses near v.hall / eyecandies
-		ret.insert(-2); //terrain eyecandy, if -1 is used
-	}
+		ret.insert(EBuilding::VILLAGE_HALL); //village hall is always present
 
-	if(ret.find(11)!=ret.end())
-		ret.insert(27);
-	if(ret.find(12)!=ret.end())
-		ret.insert(28);
-	if(ret.find(13)!=ret.end())
-		ret.insert(29);
+	if(ret.find(EBuilding::CITY_HALL)!=ret.end())
+		ret.insert(EBuilding::EXTRA_CITY_HALL);
+	if(ret.find(EBuilding::TOWN_HALL)!=ret.end())
+		ret.insert(EBuilding::EXTRA_TOWN_HALL);
+	if(ret.find(EBuilding::CAPITOL)!=ret.end())
+		ret.insert(EBuilding::EXTRA_CAPITOL);
 
 	return ret;
 }
@@ -711,7 +707,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const ui8 * bufor, int &i, int su
 	else //standard buildings
 	{
 		if(readChar(bufor,i)) //has fort
-			nt->builtBuildings.insert(7);
+			nt->builtBuildings.insert(EBuilding::FORT);
 		nt->builtBuildings.insert(-50); //means that set of standard building should be included
 	}
 

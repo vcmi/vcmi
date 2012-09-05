@@ -1225,7 +1225,7 @@
 				"id": 116,
 				"level": 4,
 				"name": [ "GoldGolem" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "SPELL_DAMAGE_REDUCTION", 85, -1, 0 ],		//gold golems reduce dmg from spells
 							   	 [ "NON_LIVING", 0, 0, 0 ] ],		 	   	//diamond golems are non-living
 				"defname": "CGGOLE.DEF"
@@ -1235,7 +1235,7 @@
 				"id": 117,
 				"level": 5,
 				"name": [ "DiamondGolem" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "SPELL_DAMAGE_REDUCTION", 95, -1, 0 ],		//diamond golems reduce dmg from spells
 							   	 [ "NON_LIVING", 0, 0, 0 ] ],				//psychic elementals shouldn't get morale
 				"defname": "CDGOLE.DEF"
@@ -1357,7 +1357,7 @@
 				"id": 132,
 				"level": 10,
 				"name": [ "AzureDragon" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],
 							   	 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  //azure dragon's breath
 							   	 [ "FEARLESS", 0, 0, 0 ],  //azure dragon is immune to fear
@@ -1370,7 +1370,7 @@
 				"id": 133,
 				"level": 10,
 				"name": [ "CrystalDragon" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//crystal dragon is a dragon
 				"ability_remove": [ "FLYING" ],
 				"defname": "CCDRGN.DEF"
@@ -1380,7 +1380,7 @@
 				"id": 134,
 				"level": 8,
 				"name": [ "FairieDragon" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//faerie dragon is a dragon
 								[ "CASTS", 5, 0, 0 ],
 								[ "CREATURE_SPELL_POWER", 500, 0, 0], 	//5 spell power per dragon
@@ -1399,7 +1399,7 @@
 				"id": 135,
 				"level": 10,
 				"name": [ "RustDragon" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 100, 80, 0 ],			//always reduce defense
 							   	 [ "ACID_BREATH", 25, 0, 20 ],			//20% chance to do 25 damage
 								 [ "DRAGON_NATURE", 0, 0, 0 ] ],			//rust dragon is a dragon
@@ -1410,7 +1410,7 @@
 				"id": 136,
 				"level": 6,
 				"name": [ "Enchanter" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "NO_WALL_PENALTY", 0, 0, 0 ],
 								 [ "ENCHANTER", 3, 28, 3],		//air shield
 								 [ "ENCHANTER", 3, 41, 3],		//bless
@@ -1428,7 +1428,7 @@
 				"id": 137,
 				"level": 4,
 				"name": [ "Sharpshooter" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "NO_WALL_PENALTY", 0, 0, 0 ],
 							   	 [ "NO_DISTANCE_PENALTY", 0, 0, 0 ] ],			//Sharpshooter
 				"defname": "CSHARP.DEF",
@@ -1440,7 +1440,7 @@
 				"id": 138,
 				"level": 1,
 				"name": [ "Halfling" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "CHALF.DEF",
 				"projectile_defname": "PHALF.DEF",
 				"projectile_spin": true
@@ -1450,7 +1450,7 @@
 				"id": 139,
 				"level": 1,
 				"name": [ "Peasant" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "CPEAS.DEF"
 			},
 
@@ -1458,7 +1458,7 @@
 				"id": 140,
 				"level": 2,
 				"name": [ "Boar" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "DOUBLE_WIDE", 0, 0, 0 ] ], 			//boar should be treated as double-wide
 				"defname": "CBOAR.DEF"
 			},
@@ -1467,7 +1467,7 @@
 				"id": 141,
 				"level": 3,
 				"name": [ "Mummy" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "UNDEAD", 0, 0, 0 ] ], 
 				"defname": "CMUMMY.DEF"
 			},
@@ -1476,7 +1476,7 @@
 				"id": 142,
 				"level": 3,
 				"name": [ "warrior" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "DOUBLE_WIDE", 0, 0, 0 ] ], 			//nomads should be treated as double-wide
 				"defname": "CNOMAD.DEF"
 			},
@@ -1485,7 +1485,7 @@
 				"id": 143,
 				"level": 2,
 				"name": [ "Rogue" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "CROGUE.DEF"
 			},
 
@@ -1493,7 +1493,7 @@
 				"id": 144,
 				"level": 5,
 				"name": [ "OgreShaman" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "FULL_HP_REGENERATION", 0, 0, 0 ] ], 			//troll
 				"defname": "CTROLL.DEF"
 			},
@@ -1502,7 +1502,7 @@
 				"id": 145,
 				"level": 0,
 				"name": [ "Catapult" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "SMCATA.DEF",
 				"projectile_defname": "SMCATX.DEF",
 				"projectile_spin": true
@@ -1512,7 +1512,7 @@
 				"id": 146,
 				"level": 0,
 				"name": [ "Ballista" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "SMBAL.DEF",
 				"projectile_defname": "SMBALX.DEF",
 				"projectile_spin": false
@@ -1522,7 +1522,7 @@
 				"id": 147,
 				"level": 0,
 				"name": [ "FirstAidTent" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "HEALER", 0, 0, 0 ] ],					//Gorynyches fly
 				"defname": "SMTENT.DEF"
 			},
@@ -1531,7 +1531,7 @@
 				"id": 148,
 				"level": 0,
 				"name": [ "AmmoCart" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "NOT_ACTIVE", 0, 0, 0 ] ],						//hell hound doesn't fly
 				"defname": "SMCART.DEF"
 			},
@@ -1540,7 +1540,7 @@
 				"id": 149,
 				"level": 0,
 				"name": [ "ArrowTower" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "SHOOTER", 0, 0, 0 ] ],						//cerberus doesn't fly
 				"defname": "x"
 			},
@@ -1627,7 +1627,7 @@
 				"id": 159,
 				"level": 0,
 				"name": [ "Ghost" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM159G.DEF"
 			},
 
@@ -1635,7 +1635,7 @@
 				"id": 160,
 				"level": 0,
 				"name": [ "God1War" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM160G.DEF"
 			},
 
@@ -1643,7 +1643,7 @@
 				"id": 161,
 				"level": 0,
 				"name": [ "God2Peace" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM161G.DEF"
 			},
 
@@ -1651,7 +1651,7 @@
 				"id": 162,
 				"level": 0,
 				"name": [ "God3Mana" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM162G.DEF"
 			},
 
@@ -1659,7 +1659,7 @@
 				"id": 163,
 				"level": 0,
 				"name": [ "God4Lore" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM163G.DEF"
 			},
 
@@ -1667,7 +1667,7 @@
 				"id": 164,
 				"level": 0,
 				"name": [ "MinotaurKing" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM164GD.DEF"
 			},
 
@@ -1675,7 +1675,7 @@
 				"id": 165,
 				"level": 0,
 				"name": [ "MineralElemental" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM165GD.DEF"
 			},
 
@@ -1683,7 +1683,7 @@
 				"id": 166,
 				"level": 0,
 				"name": [ "ElectricityElemental" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM166GD.DEF"
 			},
 
@@ -1691,7 +1691,7 @@
 				"id": 167,
 				"level": 0,
 				"name": [ "AncientBasilisk" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM167GD.DEF"
 			},
 
@@ -1699,7 +1699,7 @@
 				"id": 168,
 				"level": 0,
 				"name": [ "Gorynych" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "FLYING", 0, 0, 0 ] ],
 				"defname": "ZM168DG.DEF"
 			},
@@ -1708,7 +1708,7 @@
 				"id": 169,
 				"level": 0,
 				"name": [ "WarZealot" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM169ZL.DEF",
 				"projectile_defname": "CPRZEAX.DEF",
 				"projectile_spin": false
@@ -1718,7 +1718,7 @@
 				"id": 170,
 				"level": 0,
 				"name": [ "Myriad" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM170SW.DEF",
 				"projectile_defname": "PLCBOWX.DEF",
 				"projectile_spin": false
@@ -1728,7 +1728,7 @@
 				"id": 171,
 				"level": 0,
 				"name": [ "MedusaMatriarch" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM171SR.DEF",
 				"projectile_defname": "PLCBOWX.DEF",
 				"projectile_spin": false
@@ -1738,7 +1738,7 @@
 				"id": 172,
 				"level": 0,
 				"name": [ "Nightmare" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM172N.DEF"
 			},
 
@@ -1746,7 +1746,7 @@
 				"id": 173,
 				"level": 0,
 				"name": [ "SantaGremlin" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM173M.DEF",
 				"projectile_defname": "CPRGRE.DEF",
 				"projectile_spin": true
@@ -1756,7 +1756,7 @@
 				"id": 174,
 				"level": 0,
 				"name": [ "Paladin1" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1769,7 +1769,7 @@
 				"id": 175,
 				"level": 0,
 				"name": [ "Hierophant1" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1782,7 +1782,7 @@
 				"id": 176,
 				"level": 0,
 				"name": [ "TempleGuardian1" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1795,7 +1795,7 @@
 				"id": 177,
 				"level": 0,
 				"name": [ "Succubus1" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1808,7 +1808,7 @@
 				"id": 178,
 				"level": 0,
 				"name": [ "SoulEater1" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1821,7 +1821,7 @@
 				"id": 179,
 				"level": 0,
 				"name": [ "Brute1" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1834,7 +1834,7 @@
 				"id": 180,
 				"level": 0,
 				"name": [ "OgreLeader1" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1847,7 +1847,7 @@
 				"id": 181,
 				"level": 0,
 				"name": [ "Shaman1" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1860,7 +1860,7 @@
 				"id": 182,
 				"level": 0,
 				"name": [ "AstralSpirit1" ],
-				"faction": -1,
+				"faction": 9,
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1873,7 +1873,7 @@
 				"id": 183,
 				"level": 0,
 				"name": [ "Paladin2" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM174NPC.DEF"
 			},
 
@@ -1881,7 +1881,7 @@
 				"id": 184,
 				"level": 0,
 				"name": [ "Hierophant2" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM175NPC.DEF"
 			},
 
@@ -1889,7 +1889,7 @@
 				"id": 185,
 				"level": 0,
 				"name": [ "TempleGuardian2" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM176NPC.DEF"
 			},
 
@@ -1897,7 +1897,7 @@
 				"id": 186,
 				"level": 0,
 				"name": [ "Succubus2" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM177NPC.DEF"
 			},
 
@@ -1905,7 +1905,7 @@
 				"id": 187,
 				"level": 0,
 				"name": [ "SoulEater2" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM178NPC.DEF"
 			},
 
@@ -1913,7 +1913,7 @@
 				"id": 188,
 				"level": 0,
 				"name": [ "Brute2" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM179NPC.DEF"
 			},
 
@@ -1921,7 +1921,7 @@
 				"id": 189,
 				"level": 0,
 				"name": [ "OgreLeader2" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM180NPC.DEF"
 			},
 
@@ -1929,7 +1929,7 @@
 				"id": 190,
 				"level": 0,
 				"name": [ "Shaman2" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM181NPC.DEF"
 			},
 
@@ -1937,7 +1937,7 @@
 				"id": 191,
 				"level": 0,
 				"name": [ "AstralSpirit2" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM182NPC.DEF"
 			},
 
@@ -1945,7 +1945,7 @@
 				"id": 192,
 				"level": 0,
 				"name": [ "SylvanCentaur" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM192Z.DEF",
 				"projectile_defname": "PELFX.DEF",
 				"projectile_spin": false
@@ -1955,7 +1955,7 @@
 				"id": 193,
 				"level": 0,
 				"name": [ "Sorceress" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM193Z.DEF",
 				"projectile_defname": "CPRZEAX.DEF",
 				"projectile_spin": false
@@ -1965,7 +1965,7 @@
 				"id": 194,
 				"level": 0,
 				"name": [ "Werewolf" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM194Z.DEF"
 			},
 
@@ -1973,7 +1973,7 @@
 				"id": 195,
 				"level": 0,
 				"name": [ "HellSteed" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM195Z.DEF"
 			},
 
@@ -1981,7 +1981,7 @@
 				"id": 196,
 				"level": 0,
 				"name": [ "Dracolich" ],
-				"faction": -1,
+				"faction": 9,
 				"defname": "ZM196Z.DEF",
 				"projectile_defname": "SMBALX.DEF",
 				"projectile_spin": false

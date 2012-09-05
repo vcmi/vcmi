@@ -1,20 +1,22 @@
 #include "StdInc.h"
 #include "IGameCallback.h"
 
-#include "../lib/CGameState.h"
-#include "../lib/map.h"
+#include <boost/random/linear_congruential.hpp>
+
+#include "CGameState.h"
+#include "map.h"
 #include "CObjectHandler.h"
 #include "CHeroHandler.h"
 #include "StartInfo.h"
 #include "CArtHandler.h"
 #include "CSpellHandler.h"
-#include "../lib/VCMI_Lib.h"
-#include <boost/random/linear_congruential.hpp>
+#include "VCMI_Lib.h"
 #include "CTownHandler.h"
 #include "BattleState.h"
 #include "NetPacks.h"
 #include "CBuildingHandler.h"
 #include "GameConstants.h"
+#include "CModHandler.h"
 
 /*
  * IGameCallback.cpp, part of VCMI engine
@@ -544,7 +546,7 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", -1);
 
 	int ret = EBuildingState::ALLOWED;
-	if(t->builded >= GameConstants::MAX_BUILDING_PER_TURN)
+	if(t->builded >= VLC->modh->settings.MAX_BUILDING_PER_TURN)
 		ret = EBuildingState::CANT_BUILD_TODAY; //building limit
 
 	CBuilding * pom = t->town->buildings[ID];
@@ -561,7 +563,7 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 
 	for( std::set<int>::iterator ri  =  reqs.begin(); ri != reqs.end(); ri++ )
 	{
-		if(t->builtBuildings.find(*ri)==t->builtBuildings.end())
+		if(!t->hasBuilt(*ri))
 			ret = EBuildingState::PREREQUIRES; //lack of requirements - cannot build
 	}
 
@@ -576,7 +578,7 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 		{
 			BOOST_FOREACH(const CGTownInstance *t, ps->towns)
 			{
-				if(vstd::contains(t->builtBuildings, 13))
+				if(t->hasBuilt(EBuilding::CAPITOL))
 				{
 					ret = EBuildingState::HAVE_CAPITAL; //no more than one capitol
 					break;
@@ -592,7 +594,7 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 			ret = EBuildingState::NO_WATER; //lack of water
 	}
 
-	if(t->builtBuildings.find(ID)!=t->builtBuildings.end())	//already built
+	if(t->hasBuilt(ID))	//already built
 		ret = EBuildingState::ALREADY_PRESENT;
 	return ret;
 }
@@ -603,32 +605,27 @@ std::set<int> CGameInfoCallback::getBuildingRequiments( const CGTownInstance *t,
 
 	std::set<int> used;
 	used.insert(ID);
-	std::set<int> reqs = t->town->buildings[ID]->requirements;
+	auto reqs = t->town->buildings[ID]->requirements;
 
-	while(true)
+	bool found;
+	do
 	{
-		size_t noloop=0;
-		for(std::set<int>::iterator i=reqs.begin();i!=reqs.end();i++)
+		found = false;
+		for(auto i=reqs.begin();i!=reqs.end();i++)
 		{
 			if(used.find(*i)==used.end()) //we haven't added requirements for this building
 			{
+				found = true;
+				auto & requires = t->town->buildings[*i]->requirements;
+
 				used.insert(*i);
-				for(
-					std::set<int>::iterator j= t->town->buildings[*i]->requirements.begin();
-					j!= t->town->buildings[*i]->requirements.end();
-				j++)
-				{
+				for(auto j = requires.begin(); j!= requires.end(); j++)
 					reqs.insert(*j);//creating full list of requirements
-				}
-			}
-			else
-			{
-				noloop++;
 			}
 		}
-		if(noloop==reqs.size())
-			break;
 	}
+	while (found);
+
 	return reqs;
 }
 

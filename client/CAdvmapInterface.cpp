@@ -760,7 +760,8 @@ void CAdvMapInt::show(SDL_Surface * to)
 void CAdvMapInt::selectionChanged()
 {
 	const CGTownInstance *to = LOCPLINT->towns[townList.getSelectedIndex()];
-	select(to);
+	if (selection != to)
+		select(to);
 }
 void CAdvMapInt::centerOn(int3 on)
 {
@@ -877,7 +878,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				const CGTownInstance *townWithMarket = NULL;
 				BOOST_FOREACH(const CGTownInstance *t, LOCPLINT->cb->getTownsInfo())
 				{
-					if(vstd::contains(t->builtBuildings, 14))
+					if(t->hasBuilt(EBuilding::MARKETPLACE))
 					{
 						townWithMarket = t;
 						break;

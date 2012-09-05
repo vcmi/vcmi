@@ -356,26 +356,11 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 
 void CHeroHandler::loadTerrains()
 {
-	int faction = 0;
 	const JsonNode config(ResourceID("config/terrains.json"));
 
-	nativeTerrains.resize(GameConstants::F_NUMBER);
-
-	BOOST_FOREACH(const JsonNode &terrain, config["terrains"].Vector()) {
-
-		BOOST_FOREACH(const JsonNode &cost, terrain["costs"].Vector()) {
-			int curCost = cost.Float();
-
-			heroClasses[2*faction]->terrCosts.push_back(curCost);
-			heroClasses[2*faction+1]->terrCosts.push_back(curCost);
-		}
-
-		nativeTerrains[faction] = terrain["native"].Float();
-
-		faction ++;
-	}
-
-	assert(faction == GameConstants::F_NUMBER);
+	terrCosts.reserve(GameConstants::TERRAIN_TYPES);
+	BOOST_FOREACH(const std::string & name, GameConstants::TERRAIN_NAMES)
+		terrCosts.push_back(config[name].Float());
 }
 
 CHero::CHero()

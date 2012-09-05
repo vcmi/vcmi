@@ -22,6 +22,7 @@
 #include "../lib/CBuildingHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/CHeroHandler.h"
+#include "../lib/CModHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/CSpellHandler.h"
 #include "../lib/CTownHandler.h"
@@ -162,7 +163,7 @@ void CTownTooltip::init(const InfoAboutTown &town)
 	size_t imageIndex = town.tType->typeID * 2;
 	if (town.fortLevel == 0)
 		imageIndex += GameConstants::F_NUMBER * 2;
-	if (town.built >= GameConstants::MAX_BUILDING_PER_TURN)
+	if (town.built >= CGI->modh->settings.MAX_BUILDING_PER_TURN)
 		imageIndex++;
 
 	new CAnimImage("itpt", imageIndex, 0, 3, 2);
@@ -861,7 +862,7 @@ const std::vector<std::string> CComponent::getFileName()
 	case spell:      return gen(spellsArr);
 	case morale:     return gen(moraleArr);
 	case luck:       return gen(luckArr);
-	case building:   return std::vector<std::string>(4, graphics->buildingPics[subtype]);
+	case building:   return std::vector<std::string>(4, CGI->townh->towns[subtype].clientInfo.buildingsIcons);
 	case hero:       return gen(heroArr);
 	case flag:       return gen(flagArr);
 	}
@@ -1244,18 +1245,17 @@ void CSelWindow::madeChoice()
 	LOCPLINT->cb->selectionMade(ret+1,ID);
 }
 
-
-
 CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool Animated)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos.x+=x;
 	pos.y+=y;
 
+	assert(vstd::contains(CGI->townh->factions, cre->faction));
 	if(Big)
-		bg = new CPicture(graphics->backgrounds[cre->faction],0,0,false);
+		bg = new CPicture(CGI->townh->factions[cre->faction].creatureBg130);
 	else
-		bg = new CPicture(graphics->backgroundsm[cre->faction],0,0,false);
+		bg = new CPicture(CGI->townh->factions[cre->faction].creatureBg120);
 	bg->needRefresh = true;
 	anim = new CCreatureAnim(0, 0, cre->animDefName, Rect());
 	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
@@ -2437,10 +2437,17 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	{
 		switch (mode)
 		{
-		break; case EMarketMode::CREATURE_RESOURCE: title = CGI->townh->towns[6].buildings[21]->Name();
-		break; case EMarketMode::RESOURCE_ARTIFACT: title = CGI->townh->towns[market->o->subID].buildings[17]->Name();
-		break; case EMarketMode::ARTIFACT_RESOURCE: title = CGI->townh->towns[market->o->subID].buildings[17]->Name();
-		break; default: title = CGI->generaltexth->allTexts[158];
+		break; case EMarketMode::CREATURE_RESOURCE:
+			title = CGI->townh->towns[ETownType::STRONGHOLD].buildings[EBuilding::FREELANCERS_GUILD]->Name();
+
+		break; case EMarketMode::RESOURCE_ARTIFACT:
+			title = CGI->townh->towns[market->o->subID].buildings[EBuilding::ARTIFACT_MERCHANT]->Name();
+
+		break; case EMarketMode::ARTIFACT_RESOURCE:
+			title = CGI->townh->towns[market->o->subID].buildings[EBuilding::ARTIFACT_MERCHANT]->Name();
+
+		break; default:
+			title = CGI->generaltexth->allTexts[158];
 		}
 	}
 	else
@@ -5253,7 +5260,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 		titlePic = new CPicture("UNIVBLDG");
 	else
 	if (market->o->ID == GameConstants::TOWNI_TYPE)
-		titlePic = new CAnimImage(graphics->buildingPics[market->o->subID], 21);
+		titlePic = new CAnimImage(CGI->townh->towns[ETownType::CONFLUX].clientInfo.buildingsIcons, EBuilding::MAGIC_UNIVERSITY);
 	else
 		tlog0<<"Error: Image for university was not found!\n";//This should not happen
 

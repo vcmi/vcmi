@@ -501,7 +501,7 @@ bool JsonParser::extractString(std::string &str)
 			str.append( &input[first], pos-first);
 			return error("Closing quote not found!", true);
 		}
-		if (input[pos] < ' ') // control character
+		if ((unsigned char)(input[pos]) < ' ') // control character
 		{
 			str.append( &input[first], pos-first);
 			first = pos+1;

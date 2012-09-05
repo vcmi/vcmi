@@ -401,11 +401,11 @@ void NewStructures::applyCl( CClient *cl )
 	CGTownInstance *town = GS(cl)->getTown(tid);
 	BOOST_FOREACH(si32 id, bid)
 	{
-		if(id==13) //fort or capitol
+		if(id== EBuilding::CAPITOL) //fort or capitol
 		{
 			town->defInfo = GS(cl)->capitols[town->subID];
 		}
-		if(id ==7)
+		if(id == EBuilding::FORT)
 		{
 			town->defInfo = GS(cl)->forts[town->subID];
 		}

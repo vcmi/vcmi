@@ -329,8 +329,6 @@ CMusicHandler::CMusicHandler():
 	const std::string setEnemy[] = {"AITheme0", "AITheme1", "AITheme2"};
 	const std::string setBattle[] = {"Combat01", "Combat02", "Combat03", "Combat04"};
 	const std::string setTerrain[] = {"Dirt",	"Sand",	"Grass", "Snow", "Swamp", "Rough", "Underground", "Lava", "Water"};
-	const std::string setTowns[] =  {"CstleTown", "Rampart", "TowerTown", "InfernoTown",
-	        "NecroTown", "Dungeon", "Stronghold", "FortressTown", "ElemTown"};
 
 	auto fillSet = [=](std::string setName, const std::string list[], size_t amount)
 	{
@@ -340,7 +338,6 @@ CMusicHandler::CMusicHandler():
 	fillSet("enemy-turn", setEnemy, ARRAY_COUNT(setEnemy));
 	fillSet("battle", setBattle, ARRAY_COUNT(setBattle));
 	fillSet("terrain", setTerrain, ARRAY_COUNT(setTerrain));
-	fillSet("town-theme", setTowns, ARRAY_COUNT(setTowns));
 }
 
 void CMusicHandler::addEntryToSet(std::string set, int musicID, std::string musicURI)

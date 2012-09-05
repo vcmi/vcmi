@@ -4,6 +4,7 @@
 #include "../CCallback.h"
 #include "../lib/CCreatureHandler.h" //creatures name for objects list
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/CModHandler.h" //for buildings per turn
 #include "../lib/CObjectHandler.h" //Hero/Town objects
 #include "../lib/CHeroHandler.h" // only for calculating required xp? worth it?
 #include "CAnimation.h" //CAnimImage
@@ -797,7 +798,7 @@ CTownItem::CTownItem(const CGTownInstance* Town):
 	if (!town->hasFort())
 		iconIndex += GameConstants::F_NUMBER*2;
 
-	if(town->builded >= GameConstants::MAX_BUILDING_PER_TURN)
+	if(town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN)
 		iconIndex++;
 
 	picture = new CAnimImage("ITPT", iconIndex, 0, 5, 6);

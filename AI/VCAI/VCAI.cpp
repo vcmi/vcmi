@@ -1241,7 +1241,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, int building, unsigned in
 	//erase all already built buildings
 	for (auto buildIter = toBuild.begin(); buildIter != toBuild.end();)
 	{
-		if (vstd::contains(t->builtBuildings, *buildIter))
+		if (t->hasBuilt(*buildIter))
 			toBuild.erase(buildIter++);
 		else
 			buildIter++;
@@ -1991,7 +1991,7 @@ void VCAI::tryRealize(CGoal g)
 const CGTownInstance * VCAI::findTownWithTavern() const
 {
 	BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
-		if(vstd::contains(t->builtBuildings, EBuilding::TAVERN) && !t->visitingHero)
+		if(t->hasBuilt(EBuilding::TAVERN) && !t->visitingHero)
 			return t;
 
 	return NULL;

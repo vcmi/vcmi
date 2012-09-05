@@ -83,6 +83,7 @@ public:
 		int CREEP_SIZE; // neutral stacks won't grow beyond this number
 		int WEEKLY_GROWTH; //percent
 		int NEUTRAL_STACK_EXP; 
+		int MAX_BUILDING_PER_TURN;
 		bool DWELLINGS_ACCUMULATE_CREATURES;
 		bool ALL_CREATURES_GET_DOUBLE_MONTHS;
 

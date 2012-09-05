@@ -5,6 +5,7 @@
 #include "../lib/JsonNode.h"
 #include "../lib/Filesystem/CResourceLoader.h"
 #include "../lib/map.h"
+#include "../lib/CModHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -294,7 +295,7 @@ void CTownList::CTownItem::update()
 	if (!town->hasFort())
 		iconIndex += GameConstants::F_NUMBER*2;
 
-	if(town->builded >= GameConstants::MAX_BUILDING_PER_TURN)
+	if(town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN)
 		iconIndex++;
 
 	picture->setFrame(iconIndex + 2);

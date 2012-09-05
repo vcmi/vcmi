@@ -1138,7 +1138,7 @@ void CGameHandler::newTurn()
 		bool deityOfFireBuilt = false;
 		BOOST_FOREACH(const CGTownInstance *t, gs->map->towns)
 		{
-			if(t->subID == 3 && vstd::contains(t->builtBuildings, EBuilding::GRAIL))
+			if(t->hasBuilt(EBuilding::GRAIL, ETownType::INFERNO))
 			{
 				deityOfFireBuilt = true;
 				break;
@@ -1231,7 +1231,7 @@ void CGameHandler::newTurn()
 			hth.id = h->id;
 			hth.move = h->maxMovePoints(gs->map->getTile(h->getPosition(false)).tertype != TerrainTile::water);
 
-			if(h->visitedTown && vstd::contains(h->visitedTown->builtBuildings,0)) //if hero starts turn in town with mage guild
+			if(h->visitedTown && h->visitedTown->hasBuilt(EBuilding::MAGES_GUILD_1)) //if hero starts turn in town with mage guild
 				hth.mana = std::max(h->mana, h->manaLimit()); //restore all mana
 			else
 				hth.mana = std::max((si32)(0), std::max(h->mana, std::min((si32)(h->mana + h->manaRegain()), h->manaLimit())));
@@ -1258,11 +1258,11 @@ void CGameHandler::newTurn()
 		handleTownEvents(t, n, newCreas);
 		if(newWeek) //first day of week
 		{
-			if(t->subID == 5 && vstd::contains(t->builtBuildings, EBuilding::SPECIAL_3))
+			if(t->hasBuilt(EBuilding::PORTAL_OF_SUMMON, ETownType::DUNGEON))
 				setPortalDwelling(t, true, (n.specialWeek == NewTurn::PLAGUE ? true : false)); //set creatures for Portal of Summoning
 
 			if(!firstTurn)
-				if (t->subID == 1  && player < GameConstants::PLAYER_LIMIT && vstd::contains(t->builtBuildings, EBuilding::SPECIAL_3))//dwarven treasury
+				if (t->hasBuilt(EBuilding::TREASURY, ETownType::RAMPART) && player < GameConstants::PLAYER_LIMIT)
 						n.res[player][Res::GOLD] += hadGold[player]/10; //give 10% of starting gold
 
 			SetAvailableCreatures sac;
@@ -1307,7 +1307,7 @@ void CGameHandler::newTurn()
 		}
 		if(!firstTurn  &&  player < GameConstants::PLAYER_LIMIT)//not the first day and town not neutral
 		{
-			if(vstd::contains(t->builtBuildings, EBuilding::RESOURCE_SILO)) //there is resource silo
+			if(t->hasBuilt(EBuilding::RESOURCE_SILO)) //there is resource silo
 			{
 				if(t->town->primaryRes == 127) //we'll give wood and ore
 				{
@@ -1322,7 +1322,7 @@ void CGameHandler::newTurn()
 
 			n.res[player][Res::GOLD] += t->dailyIncome();
 		}
-		if(vstd::contains(t->builtBuildings, EBuilding::GRAIL) && t->subID == 2)
+		if(t->hasBuilt(EBuilding::GRAIL, ETownType::TOWER))
 		{
 			// Skyship, probably easier to handle same as Veil of darkness
 			//do it every new day after veils apply
@@ -1579,7 +1579,7 @@ void CGameHandler::giveSpells( const CGTownInstance *t, const CGHeroInstance *h 
 	cs.learn = true;
 	for(int i=0; i<std::min(t->mageGuildLevel(),h->getSecSkillLevel(CGHeroInstance::WISDOM)+2);i++)
 	{
-		if (t->subID == 8 && vstd::contains(t->builtBuildings, EBuilding::GRAIL)) //Aurora Borealis
+		if (t->hasBuilt(EBuilding::GRAIL, ETownType::CONFLUX)) //Aurora Borealis
 		{
 			std::vector<ui16> spells;
 			getAllowedSpells(spells, i);
@@ -1795,9 +1795,9 @@ bool CGameHandler::teleportHero(si32 hid, si32 dstid, ui8 source, ui8 asker/* = 
 	const CGTownInstance *from = h->visitedTown;
 	if(((h->getOwner() != t->getOwner())
 		&& complain("Cannot teleport hero to another player"))
-	|| ((!from || from->subID!=3 || !vstd::contains(from->builtBuildings, EBuilding::SPECIAL_3))
+	|| ((!from || from->hasBuilt(EBuilding::CASTLE_GATE, ETownType::INFERNO))
 		&& complain("Hero must be in town with Castle gate for teleporting"))
-	|| ((t->subID!=3 || !vstd::contains(t->builtBuildings, EBuilding::SPECIAL_3))
+	|| (t->hasBuilt(EBuilding::CASTLE_GATE, ETownType::INFERNO)
 		&& complain("Cannot teleport hero to town without Castle gate in it")))
 			return false;
 	int3 pos = t->visitablePos();
@@ -1818,7 +1818,7 @@ void CGameHandler::setOwner(int objid, ui8 owner)
 	if(owner < GameConstants::PLAYER_LIMIT && getTown(objid)) //town captured
 	{
 		const CGTownInstance * town = getTown(objid);
-		if (town->subID == 5 && vstd::contains(town->builtBuildings, 22))
+		if (town->hasBuilt(EBuilding::PORTAL_OF_SUMMON, ETownType::DUNGEON))
 			setPortalDwelling(town, true, false);
 
 		if (!gs->getPlayer(owner)->towns.size())//player lost last town
@@ -1837,7 +1837,7 @@ void CGameHandler::setOwner(int objid, ui8 owner)
 	{
 		BOOST_FOREACH(const CGTownInstance *t, gs->getPlayer(owner)->towns)
 		{
-			if (t->subID == 5 && vstd::contains(t->builtBuildings, 22))
+			if (t->hasBuilt(EBuilding::PORTAL_OF_SUMMON, ETownType::DUNGEON))
 				setPortalDwelling(t);//set initial creatures for all portals of summoning
 		}
 	}
@@ -2421,27 +2421,34 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 
 	if(!force)
 	{
-		if (gs->canBuildStructure(t,bid) != 7)
-			COMPLAIN_RET("Cannot build that building!");
-
-		if(bid == 26) //grail
+		switch (b->mode)
 		{
-			if(!t->visitingHero || !t->visitingHero->hasArt(2))
-				COMPLAIN_RET("Cannot build grail - hero doesn't have it")
-			else
-				removeArtifact(ArtifactLocation(t->visitingHero, t->visitingHero->getArtPos(2, false)));
+		case CBuilding::BUILD_NORMAL :
+		case CBuilding::BUILD_AUTO   :
+			if (gs->canBuildStructure(t,bid) != EBuildingState::ALLOWED)
+				COMPLAIN_RET("Cannot build that building!");
+			break;
+
+		case CBuilding::BUILD_SPECIAL:
+			COMPLAIN_RET("This building can not be constructed!");
+			break;
+
+		case CBuilding::BUILD_GRAIL  :
+			if(b->mode == CBuilding::BUILD_GRAIL) //needs grail
+			{
+				if(!t->visitingHero || !t->visitingHero->hasArt(2))
+					COMPLAIN_RET("Cannot build this without grail!")
+				else
+					removeArtifact(ArtifactLocation(t->visitingHero, t->visitingHero->getArtPos(2, false)));
+			}
+			break;
 		}
 	}
 
 	NewStructures ns;
 	ns.tid = tid;
-	//we have upgr. dwelling, upgr. horde will be builded as well
-	if ( (bid == 18) && (vstd::contains(t->builtBuildings,(t->town->hordeLvl[0]+37))) )
-		ns.bid.insert(19);
-	else if ( (bid == 24) && (vstd::contains(t->builtBuildings,(t->town->hordeLvl[1]+37))) )
-		ns.bid.insert(25);
 
-	else if(bid >= EBuilding::DWELL_FIRST) //dwelling
+	if(bid >= EBuilding::DWELL_FIRST) //dwelling
 	{
 		int level = (bid - EBuilding::DWELL_FIRST) % GameConstants::CREATURES_PER_TOWN;
 		int upgradeNumber = (bid - EBuilding::DWELL_FIRST) / GameConstants::CREATURES_PER_TOWN;
@@ -2451,14 +2458,6 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 
 		CCreature * crea = VLC->creh->creatures[t->town->creatures[level][upgradeNumber]];
 
-		if (vstd::iswithin(bid, EBuilding::DWELL_UP_FIRST, EBuilding::DWELL_UP_LAST))
-		{
-			if ( (bid-37 == t->town->hordeLvl[0]) && (vstd::contains(t->builtBuildings,18)) )
-				ns.bid.insert(19);//we have horde, will be upgraded as well as dwelling
-			if ( (bid-37 == t->town->hordeLvl[1]) && (vstd::contains(t->builtBuildings,24)) )
-				ns.bid.insert(25);
-		}
-
 		SetAvailableCreatures ssi;
 		ssi.tid = tid;
 		ssi.creatures = t->creatures;
@@ -2467,19 +2466,34 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 		ssi.creatures[level].second.push_back(crea->idNumber);
 		sendAndApply(&ssi);
 	}
-	else if(bid == 11)
-		ns.bid.insert(27);
-	else if(bid == 12)
-		ns.bid.insert(28);
-	else if(bid == 13)
-		ns.bid.insert(29);
-	else if ( t->subID == 5 && bid == 22 )
+	else if ( t->subID == ETownType::DUNGEON && bid == EBuilding::MANA_VORTEX )
 	{
 		setPortalDwelling(t);
 	}
 
 	ns.bid.insert(bid);
 	ns.builded = force?t->builded:(t->builded+1);
+
+	BOOST_FOREACH(auto & build, t->town->buildings)
+	{
+		if (build.second->mode == CBuilding::BUILD_AUTO
+		    && !vstd::contains(t->builtBuildings, build.second->bid))
+		{
+			bool canBuild = true;
+			BOOST_FOREACH(int requires, build.second->requirements)
+			{
+				if (!vstd::contains(t->builtBuildings, requires)
+				 && !vstd::contains(ns.bid, requires))
+				{
+					canBuild = false;
+					break;
+				}
+			}
+			if (canBuild)
+				ns.bid.insert(build.second->bid);
+		}
+	}
+
 	sendAndApply(&ns);
 
 	//reveal ground for lookout tower
@@ -2866,7 +2880,7 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 	CGTownInstance *town = hero->visitedTown;
 	if(aid==0) //spellbook
 	{
-		if((!vstd::contains(town->builtBuildings,si32(EBuilding::MAGES_GUILD_1)) && complain("Cannot buy a spellbook, no mage guild in the town!"))
+		if((!town->hasBuilt(EBuilding::MAGES_GUILD_1) && complain("Cannot buy a spellbook, no mage guild in the town!"))
 		    || (getResource(hero->getOwner(), Res::GOLD) < GameConstants::SPELLBOOK_GOLD_COST && complain("Cannot buy a spellbook, not enough gold!") )
 		    || (hero->getArt(ArtifactPosition::SPELLBOOK) && complain("Cannot buy a spellbook, hero already has a one!"))
 		    )
@@ -2881,18 +2895,21 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 	else if(aid < 7  &&  aid > 3) //war machine
 	{
 		int price = VLC->arth->artifacts[aid]->price;
-		if((hero->getArt(9+aid) && complain("Hero already has this machine!"))
-			|| (!vstd::contains(town->builtBuildings,si32(EBuilding::BLACKSMITH)) && complain("No blackismith!"))
-			|| (gs->getPlayer(hero->getOwner())->resources[Res::GOLD] < price  && complain("Not enough gold!"))  //no gold
-			|| ((!(town->subID == 6 && vstd::contains(town->builtBuildings,si32(EBuilding::SPECIAL_3) ) )
-			&& town->town->warMachine!= aid ) &&  complain("This machine is unavailable here!")))
+		
+		if(( hero->getArt(9+aid) && complain("Hero already has this machine!"))
+		 || (gs->getPlayer(hero->getOwner())->resources[Res::GOLD] < price && complain("Not enough gold!")))
 		{
 			return false;
 		}
-
-		giveResource(hero->getOwner(),Res::GOLD,-price);
-		giveHeroNewArtifact(hero, VLC->arth->artifacts[aid], 9+aid);
-		return true;
+		if  ((town->hasBuilt(EBuilding::BLACKSMITH) && town->town->warMachine == aid )
+		 || ((town->hasBuilt(EBuilding::BALLISTA_YARD, ETownType::STRONGHOLD)) && aid == 4))
+		{
+			giveResource(hero->getOwner(),Res::GOLD,-price);
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[aid], 9+aid);
+			return true;
+		}
+		else
+			COMPLAIN_RET("This machine is unavailable here!");
 	}
 	return false;
 }
@@ -3136,7 +3153,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 
 	if(t) //tavern in town
 	{
-		if(    (!vstd::contains(t->builtBuildings,EBuilding::TAVERN)  && complain("No tavern!"))
+		if(    (!t->hasBuilt(EBuilding::TAVERN)  && complain("No tavern!"))
 			|| (t->visitingHero  && complain("There is visiting hero - no place!")))
 			return false;
 	}
@@ -3731,8 +3748,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		{
 			BOOST_FOREACH (auto & build, town->town->buildings)
 			{
-				if (!vstd::contains(town->builtBuildings, build.first)
-				 && !build.second->Name().empty())
+				if (!town->hasBuilt(build.first) && !build.second->Name().empty())
 				{
 					buildStructure(town->id, build.first, true);
 				}
@@ -4739,7 +4755,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<
 			}
 
 			for(std::set<si32>::iterator i = ev->buildings.begin(); i!=ev->buildings.end();i++)
-				if ( !vstd::contains(town->builtBuildings, *i))
+				if ( town->hasBuilt(*i))
 				{
 					buildStructure(town->id, *i, true);
 					iw.components.push_back(Component(Component::BUILDING, town->subID, *i, 0));
@@ -4902,14 +4918,14 @@ bool CGameHandler::buildBoat( ui32 objid )
 		return false;
 	}
 	else if(obj->o->ID == GameConstants::TOWNI_TYPE
-		&& !vstd::contains((static_cast<const CGTownInstance*>(obj))->builtBuildings,6))
+	        && !static_cast<const CGTownInstance*>(obj)->hasBuilt(EBuilding::SHIPYARD))
 	{
 		complain("Cannot build boat in the town - no shipyard!");
 		return false;
 	}
 
 	//TODO use "real" cost via obj->getBoatCost
-	if(getResource(obj->o->tempOwner, 6) < 1000  ||  getResource(obj->o->tempOwner, 0) < 10)
+	if(getResource(obj->o->tempOwner, Res::GOLD) < 1000  ||  getResource(obj->o->tempOwner, Res::WOOD) < 10)
 	{
 		complain("Not enough resources to build a boat!");
 		return false;

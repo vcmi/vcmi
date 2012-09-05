@@ -53,6 +53,7 @@ void CModHandler::loadConfigFromFile (std::string name)
 	settings.CREEP_SIZE = hardcodedFeatures["CREEP_SIZE"].Float();
 	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Float();
 	settings.NEUTRAL_STACK_EXP = hardcodedFeatures["NEUTRAL_STACK_EXP_DAILY"].Float();
+	settings.MAX_BUILDING_PER_TURN = hardcodedFeatures["MAX_BUILDING_PER_TURN"].Float();
 	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
 	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
 
@@ -125,11 +126,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	if (!value->isNull())
 		cre->addBonus(value->Float(), Bonus::CASTS);
 
-	value = &node["doubleWide"];
-	if (!value->isNull())
-		cre->doubleWide = value->Bool();
-	else
-		cre->doubleWide = false;
+	cre->doubleWide = value->Bool();
 
 	value = &node["abilities"];
 	if (!value->isNull())
@@ -191,7 +188,7 @@ void CModHandler::recreateHandlers()
 {
 	//TODO: consider some template magic to unify all handlers?
 
-	VLC->arth->artifacts.clear(); 
+	VLC->arth->artifacts.clear();
 	VLC->creh->creatures.clear(); //TODO: what about items from original game?
 
 	BOOST_FOREACH (auto mod, activeMods)

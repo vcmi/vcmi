@@ -72,19 +72,26 @@ namespace GameConstants
 	const int ARTIFACTS_QUANTITY=171;
 	const int HEROES_QUANTITY=156;
 	const int SPELLS_QUANTITY=70;
-	const int RESOURCE_QUANTITY=8;
-	const int TERRAIN_TYPES=10;
 	const int PRIMARY_SKILLS=4;
 	const int NEUTRAL_PLAYER=255;
 	const int NAMES_PER_TOWN=16;
 	const int CREATURES_PER_TOWN = 7; //without upgrades
-	const int MAX_BUILDING_PER_TURN = 1;
 	const int SPELL_LEVELS = 5;
 	const int AVAILABLE_HEROES_PER_PLAYER = 2;
 	const int SPELLBOOK_GOLD_COST = 500;
 
 	const ui16 BACKPACK_START = 19;
 	const int ID_CATAPULT = 3, ID_LOCK = 145;
+
+	const int TERRAIN_TYPES=10;
+	const std::string TERRAIN_NAMES [TERRAIN_TYPES] = {
+	    "dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
+	};
+
+	const int RESOURCE_QUANTITY=8;
+	const std::string RESOURCE_NAMES [RESOURCE_QUANTITY] = {
+	    "wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold", "mithril"
+	};
 }
 
 // Enum declarations
@@ -109,18 +116,67 @@ namespace EAlignment
 	enum EAlignment { GOOD, EVIL, NEUTRAL };
 }
 
+namespace ETownType
+{
+	enum ETownType
+	{
+		ANY = -1,
+		CASTLE, RAMPART, TOWER, INFERNO, NECROPOLIS, DUNGEON, STRONGHOLD, FORTRESS, CONFLUX
+	};
+}
+
 namespace EBuilding
 {
 	//Quite useful as long as most of building mechanics hardcoded
+	// NOTE: all building with completely configurable mechanics will be removed from list
 	enum EBuilding
 	{
-		MAGES_GUILD_1,  MAGES_GUILD_2, MAGES_GUILD_3,     MAGES_GUILD_4,   MAGES_GUILD_5, 
+		MAGES_GUILD_1,  MAGES_GUILD_2, MAGES_GUILD_3,     MAGES_GUILD_4,   MAGES_GUILD_5,
 		TAVERN,         SHIPYARD,      FORT,              CITADEL,         CASTLE,
 		VILLAGE_HALL,   TOWN_HALL,     CITY_HALL,         CAPITOL,         MARKETPLACE,
 		RESOURCE_SILO,  BLACKSMITH,    SPECIAL_1,         HORDE_1,         HORDE_1_UPGR,
 		SHIP,           SPECIAL_2,     SPECIAL_3,         SPECIAL_4,       HORDE_2,
-		HORDE_2_UPGR,   GRAIL,         EXTRA_CITY_HALL,   EXTRA_TOWN_HALL, EXTRA_CAPITOL,
-		DWELL_FIRST=30, DWELL_LAST=36, DWELL_UP_FIRST=37, DWELL_UP_LAST=43
+		HORDE_2_UPGR,   GRAIL,         EXTRA_TOWN_HALL,   EXTRA_CITY_HALL, EXTRA_CAPITOL,
+		DWELL_FIRST=30, DWELL_LAST=36, DWELL_UP_FIRST=37, DWELL_UP_LAST=43,
+
+		//Special buildings for towns.
+		LIGHTHOUSE  = SPECIAL_1,
+		STABLES     = SPECIAL_2, //Castle
+		BROTHERHOOD = SPECIAL_3,
+
+		MYSTIC_POND         = SPECIAL_1,
+		FOUNTAIN_OF_FORTUNE = SPECIAL_3, //Rampart
+		TREASURY            = SPECIAL_4,
+
+		ARTIFACT_MERCHANT = SPECIAL_1,
+		LOOKOUT_TOWER     = SPECIAL_2, //Tower
+		LIBRARY           = SPECIAL_3,
+		WALL_OF_KNOWLEDGE = SPECIAL_4,
+
+		STORMCLOUDS   = SPECIAL_2,
+		CASTLE_GATE   = SPECIAL_3, //Inferno
+		ORDER_OF_FIRE = SPECIAL_4,
+
+		COVER_OF_DARKNESS    = SPECIAL_1,
+		NECROMANCY_AMPLIFIER = SPECIAL_2, //Necropolis
+		SKELETON_TRANSFORMER = SPECIAL_3,
+
+		//ARTIFACT_MERCHANT - same ID as in tower
+		MANA_VORTEX      = SPECIAL_2,
+		PORTAL_OF_SUMMON = SPECIAL_3, //Dungeon
+		BATTLE_ACADEMY   = SPECIAL_4,
+
+		ESCAPE_TUNNEL     = SPECIAL_1,
+		FREELANCERS_GUILD = SPECIAL_2, //Stronghold
+		BALLISTA_YARD     = SPECIAL_3,
+		HALL_OF_VALHALLA  = SPECIAL_4,
+
+		CAGE_OF_WARLORDS = SPECIAL_1,
+		GLYPHS_OF_FEAR   = SPECIAL_2, // Fortress
+		BLOOD_OBELISK    = SPECIAL_3,
+
+		//ARTIFACT_MERCHANT - same ID as in tower
+		MAGIC_UNIVERSITY = SPECIAL_2, // Conflux
 	};
 }
 

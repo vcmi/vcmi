@@ -3,6 +3,7 @@
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "int3.h"
+//#include "GameConstants.h"
 
 /*
  * CTownHandler.h, part of VCMI engine
@@ -22,20 +23,39 @@ class JsonNode;
 /// contains all mechanics-related data about town structures
 class DLL_LINKAGE CBuilding
 {
+	typedef si32 BuildingType;//TODO: replace int with pointer?
+
 	std::string name;
 	std::string description;
 
 public:
 	si32 tid, bid; //town ID and structure ID
 	TResources resources;
-	std::set<int> requirements; //set of required buildings
+
+	std::set<BuildingType> requirements; /// set of required buildings, includes upgradeOf;
+	BuildingType upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty
+
+	enum EBuildMode
+	{
+		BUILD_NORMAL,  // 0 - normal, default
+		BUILD_AUTO,    // 1 - auto - building appears when all requirements are built
+		BUILD_SPECIAL, // 2 - special - building can not be built normally
+		BUILD_GRAIL    // 3 - grail - building reqires grail to be built
+	};
+	ui32 mode;
 
 	const std::string &Name() const;
 	const std::string &Description() const;
 
+	//return base of upgrade(s) or this
+	BuildingType getBase() const;
+
+	// returns how many times build has to be upgraded to become build
+	si32 getDistance(BuildingType build) const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tid & bid & resources & name & description & requirements;
+		h & tid & bid & resources & name & description & requirements & upgrade & mode;
 	}
 
 	friend class CTownHandler;
@@ -43,38 +63,35 @@ public:
 
 /// This is structure used only by client
 /// Consists of all gui-related data about town structures
-/// Should be mode from lib to client
+/// Should be moved from lib to client
 struct DLL_LINKAGE CStructure
 {
-	int ID;
+	CBuilding * building;  // base building. If null - this structure will be always present on screen
+	CBuilding * buildable; // building that will be used to determine built building and visible cost. Usually same as "building"
+
+	bool hiddenUpgrade; // used only if "building" is upgrade, if true - structure on town screen will behave exactly like parent (mouse clicks, hover texts, etc)
+
 	int3 pos;
 	std::string defName, borderName, areaName;
-	int townID, group;
-
-	bool operator<(const CStructure & p2) const
-	{
-		if(pos.z != p2.pos.z)
-			return (pos.z) < (p2.pos.z);
-		else
-			return (ID) < (p2.ID);
-	}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & ID & pos & defName & borderName & areaName & townID & group;
+		h & pos & defName & borderName & areaName & building & buildable;
 	}
 };
 
 class DLL_LINKAGE CTown
 {
-	std::string name; //name of type
+	std::string name;
+	std::string description;
+
 	std::vector<std::string> names; //names of the town instances
 
 public:
-	ui32 typeID;
+	ui32 typeID;//also works as factionID
 
 	/// level -> list of creatures on this tier
-	/// TODO: replace with pointers to CCreature?
+	// TODO: replace with pointers to CCreature
 	std::vector<std::vector<si32> > creatures;
 
 	bmap<int, ConstTransitivePtr<CBuilding> > buildings;
@@ -88,13 +105,21 @@ public:
 	// Client-only data. Should be moved away from lib
 	struct ClientInfo
 	{
+		std::string musicTheme;
+		std::string townBackground;
+		std::string guildWindow;
+		std::string buildingsIcons;
 		std::string hallBackground;
-		std::vector< std::vector< std::vector<int> > > hallSlots; /// vector[row][column] = list of buildings in this slot
-		bmap<int, ConstTransitivePtr<CStructure> > structures;
+		/// vector[row][column] = list of buildings in this slot
+		std::vector< std::vector< std::vector<int> > > hallSlots;
+
+		/// list of town screen structures.
+		/// NOTE: index in vector is meaningless. Vector used instead of list for a bit faster access
+		std::vector<ConstTransitivePtr<CStructure> > structures;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & hallBackground & hallSlots & structures;
+			h & musicTheme & townBackground & guildWindow & buildingsIcons & hallBackground & hallSlots & structures;
 		}
 	} clientInfo;
 
@@ -110,6 +135,23 @@ public:
 	friend class CTownHandler;
 };
 
+class CFaction
+{
+public:
+	std::string name; //reference name, usually lower case
+	ui32 factionID;
+
+	ui32 nativeTerrain;
+
+	std::string creatureBg120;
+	std::string creatureBg130;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & name & factionID & nativeTerrain & creatureBg120 & creatureBg130;
+	}
+};
+
 class DLL_LINKAGE CTownHandler
 {
 	/// loads CBuilding's into town
@@ -123,28 +165,32 @@ class DLL_LINKAGE CTownHandler
 	/// loads town hall vector (hallSlots)
 	void loadTownHall(CTown &town, const JsonNode & source);
 
-	/// load town and insert it into towns vector
-	void loadTown(std::vector<CTown> &towns, const JsonNode & source);
+	void loadClientData(CTown &town, const JsonNode & source);
+
+	void loadTown(CTown &town, const JsonNode & source);
 
 	/// main loading function, accepts merged JSON source and add all entries from it into game
 	/// all entries in JSON should be checked for validness before using this function
-	void loadTowns(std::vector<CTown> &towns, const JsonNode & source);
+	void loadFactions(const JsonNode & source);
 
 	/// load all available data from h3 txt(s) into json structure using format similar to vcmi configs
 	/// returns 2d array [townID] [buildID] of buildings
 	void loadLegacyData(JsonNode & dest);
+
 public:
-	std::vector<CTown> towns;
+	std::map<ui32, CTown> towns;
+	std::map<ui32, CFaction> factions;
 
 	CTownHandler(); //c-tor, set pointer in VLC to this
 
 	/// "entry point" for towns loading.
 	/// reads legacy txt's from H3 + vcmi json, merges them
 	/// and loads resulting structure to game using loadTowns method
+	/// in future may require loaded Creature Handler
 	void load();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & towns;
+		h & towns & factions;
 	}
 };

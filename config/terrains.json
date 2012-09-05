@@ -1,52 +1,13 @@
 {
-	// Terrains properties related to heroes - ordered by faction (0 to 8)
-	//   cost: ??
-	//   native: native terrain for the faction
-
-	"terrains": [
-		{
-			"costs": [ 100, 150, 100, 150, 175, 125, 100, 100, 100, -1 ],
-			"native": 2
-		},
-
-		{
-			"costs": [ 100, 150, 100, 150, 175, 125, 100, 100, 100, -1 ],
-			"native": 2
-		},
-
-		{
-			"costs": 	[ 100, 150, 100, 100, 175, 125, 100, 100, 100, -1 ],
-			"native": 3
-		},
-
-		{
-			"costs": 	[ 100, 150, 100, 150, 175, 125, 100, 100, 100, -1 ],
-			"native": 7
-		},
-
-		{
-			"costs": 	[ 100, 150, 100, 150, 175, 125, 100, 100, 100, -1 ],
-			"native": 0
-		},
-
-		{
-			"costs": 	[ 100, 150, 100, 150, 175, 125, 100, 100, 100, -1 ],
-			"native": 6
-		},
-
-		{
-			"costs": 	[ 100, 150, 100, 150, 175, 100, 100, 100, 100, -1 ],
-			"native": 5
-		},
-
-		{
-			"costs": 	[ 100, 150, 100, 150, 100, 125, 100, 100, 100, -1 ],
-			"native": 4
-		},
-
-		{
-			"costs": 	[ 100, 150, 100, 150, 175, 125, 100, 100, 100, -1 ],
-			"native": 2
-		}
-	]
+	// Movement costs on different terrains
+	"dirt"     : 100,
+	"sand"     : 150,
+	"grass"    : 100,
+	"snow"     : 150,
+	"swamp"    : 175,
+	"rough"    : 125,
+	"subterra" : 100,
+	"lava"     : 100,
+	"water"    : 100,
+	"rock"     : -1,
 }

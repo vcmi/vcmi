@@ -114,15 +114,14 @@ public:
 class CCastleBuildings : public CIntObject
 {
 	CPicture *background;
-	//List of buildings for each group
-	std::map< int, std::vector<const CStructure*> > groups;
-	//Vector with all blittable buildings
-	std::vector<CBuildingRect*> buildings;
+	//List of buildings and structures that can represent them
+	std::map< si32, std::vector<const CStructure*> > groups;
+	// actual IntObject's visible on screen
+	std::vector< CBuildingRect * > buildings;
 
 	const CGTownInstance * town;
 
 	const CGHeroInstance* getHero();//Select hero for buildings usage
-	void checkRules();//Check animation rules (special anims for Shipyard and Mana Vortex)
 
 	void enterBlacksmith(int ArtifactID);//support for blacksmith + ballista yard
 	void enterBuilding(int building);//for buildings with simple description + pic left-click messages
@@ -134,6 +133,7 @@ class CCastleBuildings : public CIntObject
 	void openMagesGuild();
 	void openTownHall();
 
+	void recreate();
 public:
 	CBuildingRect * selectedBuilding;
 

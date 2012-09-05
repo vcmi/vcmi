@@ -69,7 +69,6 @@ public:
 	std::vector<std::pair<int,int> > primChance;//primChance[PRIMARY_SKILL_ID] - first is for levels 2 - 9, second for 10+;;; probability (%) of getting point of primary skill when getting new level
 	std::vector<int> proSec; //probabilities of gaining secondary skills (out of 112), in id order
 	int selectionProbability[9]; //probability of selection in towns
-	std::vector<int> terrCosts; //default costs of going through terrains: dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock; -1 means terrain is imapassable
 
 	int chooseSecSkill(const std::set<int> & possibles) const; //picks secondary skill out from given possibilities
 	CHeroClass(); //c-tor
@@ -78,7 +77,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & skillLimit & name & aggression & initialAttack & initialDefence & initialPower & initialKnowledge & primChance
-			& proSec & selectionProbability & terrCosts & alignment;
+			& proSec & selectionProbability & alignment;
 	}
 	EAlignment::EAlignment getAlignment();
 };
@@ -125,6 +124,9 @@ public:
 	std::vector< ConstTransitivePtr<CHero> > heroes; //changed from nodrze
 	std::vector<CHeroClass *> heroClasses;
 	std::vector<ui64> expPerLevel; //expPerLEvel[i] is amount of exp needed to reach level i; if it is not in this vector, multiplicate last value by 1,2 to get next value
+
+	 //default costs of going through terrains: dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock; -1 means terrain is imapassable
+	std::vector<int> terrCosts;
 	
 	struct SBallisticsLevelInfo
 	{
@@ -141,8 +143,6 @@ public:
 
 	std::map<int, CObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
 	std::map<int, CObstacleInfo> absoluteObstacles; //info about obstacles that may be placed on battlefield
-
-	std::vector<int> nativeTerrains; //info about native terrains of different factions
 
 	void loadObstacles(); //loads info about obstacles
 
@@ -161,7 +161,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroClasses & heroes & expPerLevel & ballistics & nativeTerrains & puzzleInfo;
+		h & heroClasses & heroes & expPerLevel & ballistics & terrCosts & puzzleInfo;
 		h & obstacles & absoluteObstacles;
 		if(!h.saving)
 		{

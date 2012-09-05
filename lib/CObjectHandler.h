@@ -1,11 +1,5 @@
 #pragma once
 
-
-#ifndef _MSC_VER
-#include "CHeroHandler.h"
-#include "CTownHandler.h"
-#include "../lib/VCMI_Lib.h"
-#endif
 #include "../lib/CCreatureSet.h"
 #include "CArtHandler.h"
 #include "../lib/ConstTransitivePtr.h"
@@ -636,7 +630,9 @@ public:
 	GrowthInfo getGrowthInfo(int level) const;
 	bool hasFort() const;
 	bool hasCapitol() const;
+	//checks if building is constructed and town has same subID
 	bool hasBuilt(int buildingID) const;
+	bool hasBuilt(int buildingID, int townID) const;
 	int dailyIncome() const; //calculates daily income of this town
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 	void removeCapitols (ui8 owner) const;

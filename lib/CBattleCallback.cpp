@@ -321,7 +321,7 @@ bool CBattleInfoEssentials::battleCanFlee(int player) const
 	if(mySide == BattleSide::DEFENDER  &&  battleGetSiegeLevel())
 	{
 		auto town = battleGetDefendedTown();
-		if(!(town->subID == 6  &&  town->hasBuilt(EBuilding::SPECIAL_1))) //not a stronghold with escape tunnel
+		if(!town->hasBuilt(EBuilding::ESCAPE_TUNNEL, ETownType::STRONGHOLD))
 			return false;
 	}
 

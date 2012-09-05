@@ -528,7 +528,12 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 			{
 				f = scenarioOps->getIthPlayersSettings(align).castle;
 			}
-			if(f<0) f = ran()%VLC->townh->towns.size();
+			if(f<0)
+			{
+				auto iter = VLC->townh->towns.begin();
+				std::advance(iter, ran()%VLC->townh->towns.size());
+				f = iter->first;
+			}
 			return std::pair<int,int>(GameConstants::TOWNI_TYPE,f);
 		}
 	case 162: //random monster lvl5
@@ -1290,15 +1295,15 @@ void CGameState::init(StartInfo * si)
 		if(vti->builtBuildings.find(-50)!=vti->builtBuildings.end()) //give standard set of buildings
 		{
 			vti->builtBuildings.erase(-50);
-			vti->builtBuildings.insert(10);
-			vti->builtBuildings.insert(5);
-			vti->builtBuildings.insert(30);
+			vti->builtBuildings.insert(EBuilding::VILLAGE_HALL);
+			vti->builtBuildings.insert(EBuilding::TAVERN);
+			vti->builtBuildings.insert(EBuilding::DWELL_FIRST);
 			if(ran()%2)
-				vti->builtBuildings.insert(31);
+				vti->builtBuildings.insert(EBuilding::DWELL_FIRST+1);
 		}
 
-		if (vstd::contains(vti->builtBuildings,(6)) && vti->state()==2)
-			vti->builtBuildings.erase(6);//if we have harbor without water - erase it (this is H3 behaviour)
+		if (vstd::contains(vti->builtBuildings, EBuilding::SHIPYARD) && vti->state()==2)
+			vti->builtBuildings.erase(EBuilding::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
 
 		//init hordes
 		for (int i = 0; i<GameConstants::CREATURES_PER_TOWN; i++)
@@ -1307,15 +1312,15 @@ void CGameState::init(StartInfo * si)
 				vti->builtBuildings.erase(-31-i);//remove old ID
 				if (vti->town->hordeLvl[0] == i)//if town first horde is this one
 				{
-					vti->builtBuildings.insert(18);//add it
-					if (vstd::contains(vti->builtBuildings,(37+i)))//if we have upgraded dwelling as well
-						vti->builtBuildings.insert(19);//add it as well
+					vti->builtBuildings.insert(EBuilding::HORDE_1);//add it
+					if (vstd::contains(vti->builtBuildings,(EBuilding::DWELL_UP_FIRST+i)))//if we have upgraded dwelling as well
+						vti->builtBuildings.insert(EBuilding::HORDE_1_UPGR);//add it as well
 				}
 				if (vti->town->hordeLvl[1] == i)//if town second horde is this one
 				{
-					vti->builtBuildings.insert(24);
-					if (vstd::contains(vti->builtBuildings,(37+i)))
-						vti->builtBuildings.insert(25);
+					vti->builtBuildings.insert(EBuilding::HORDE_2);
+					if (vstd::contains(vti->builtBuildings,(EBuilding::DWELL_UP_FIRST+i)))
+						vti->builtBuildings.insert(EBuilding::HORDE_2_UPGR);
 				}
 			}
 
@@ -1327,9 +1332,9 @@ void CGameState::init(StartInfo * si)
 				{
 					ev->buildings.erase(-31-i);
 					if (vti->town->hordeLvl[0] == i)
-						ev->buildings.insert(18);
+						ev->buildings.insert(EBuilding::HORDE_1);
 					if (vti->town->hordeLvl[1] == i)
-						ev->buildings.insert(24);
+						ev->buildings.insert(EBuilding::HORDE_2);
 				}
 		}
 		//init spells
@@ -2058,7 +2063,7 @@ int CGameState::victoryCheck( ui8 player ) const
 			BOOST_FOREACH(const CGTownInstance *t, map->towns)
 				if((t == map->victoryCondition.obj || !map->victoryCondition.obj)
 					&& t->tempOwner == player
-					&& vstd::contains(t->builtBuildings, EBuilding::GRAIL))
+					&& t->hasBuilt(EBuilding::GRAIL))
 					return 1;
 			break;
 
@@ -2687,7 +2692,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 		//include details about hero
 		details = new Details;
 		details->goldIncome = t->dailyIncome();
-		details->customRes = vstd::contains(t->builtBuildings, 15);
+		details->customRes = t->hasBuilt(EBuilding::RESOURCE_SILO);
 		details->hallLevel = t->hallLevel();
 		details->garrisonedHero = t->garrisonHero;
 	}

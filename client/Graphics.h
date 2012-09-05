@@ -64,12 +64,7 @@ public:
 	//creatures
 	std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border
-	std::map<int,SDL_Surface*> backgrounds; //castle ID -> 100x130 background creature image // -1 is for neutral
-	std::map<int,SDL_Surface*> backgroundsm; //castle ID -> 100x120 background creature image // -1 is for neutral
 	//towns
-	std::vector< std::string > buildingPics;//filenames of def with building images (used rarely, too big to keep them loaded)
-	std::vector< std::string > townBgs;//backgrounds of town
-	std::vector< std::string > guildBgs;// name of bitmaps with imgs for mage guild screen
 	std::map<int, std::string> ERMUtoPicture[GameConstants::F_NUMBER]; //maps building ID to it's picture's name for each town type
 	//for battles
 	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type

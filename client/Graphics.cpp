@@ -87,13 +87,6 @@ void Graphics::loadPaletteAndColors()
 		playerColors[i].unused = 255;
 	}
 	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; neutralColor->unused = 255;//gray
-	const JsonNode config(ResourceID("config/town_pictures.json"));
-	BOOST_FOREACH(const JsonNode &p, config["town_pictures"].Vector()) {
-
-		townBgs.push_back(p["town_background"].String());
-		guildBgs.push_back(p["guild_background"].String());
-		buildingPics.push_back(p["building_picture"].String());
-	}
 }
 
 void Graphics::initializeBattleGraphics()
@@ -157,13 +150,6 @@ Graphics::Graphics()
 	tasks += GET_DEF_ESS(abils82,"SECSK82.DEF");
 	tasks += GET_DEF_ESS(spellscr,"SPELLSCR.DEF");
 	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
-
-	const JsonNode config(ResourceID("config/creature_backgrounds.json"));
-	BOOST_FOREACH(const JsonNode &b, config["backgrounds"].Vector()) {
-		const int id = b["id"].Float();
-		tasks += GET_SURFACE(backgrounds[id], b["bg130"].String());
-		tasks += GET_SURFACE(backgroundsm[id], b["bg120"].String());
-	}
 
 	CThreadHelper th(&tasks,std::max((ui32)1,boost::thread::hardware_concurrency()));
 	th.run();
