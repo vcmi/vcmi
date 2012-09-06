@@ -1233,6 +1233,9 @@ void VCAI::recruitCreatures(const CGDwelling * d)
 
 bool VCAI::tryBuildStructure(const CGTownInstance * t, int building, unsigned int maxDays)
 {
+	if (!vstd::contains(t->town->buildings, building))
+		return false; // no such building in town
+
 	if (t->hasBuilt(building)) //Already built? Shouldn't happen in general
 		return true;
 

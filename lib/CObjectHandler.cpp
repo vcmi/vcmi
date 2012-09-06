@@ -526,8 +526,6 @@ static int lowestSpeed(const CGHeroInstance * chi)
 
 ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from) const
 {
-	//TODO: check if all creatures are on its native terrain and change cost appropriately
-
 	//base move cost
 	unsigned ret = 100;
 
@@ -553,30 +551,30 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 	}
 	else
 	{
-		assert(vstd::contains(VLC->townh->factions, type->heroType / 2));
-		if (VLC->townh->factions[type->heroType / 2].nativeTerrain != from.tertype) //non-native terrain
-			ret = VLC->heroh->terrCosts[from.tertype];
+		//FIXME: in H3 presence of Nomad in army will remove terrain penalty for sand. Bonus not implemented in VCMI
 
-		ret = std::max(ret - 25*unsigned(getSecSkillLevel(CGHeroInstance::PATHFINDING)), 100u); //reduce 25% of terrain penalty for each pathfinding level
-	}
+		// NOTE: in H3 neutral stacks will ignore terrain penalty only if placed as topmost stack(s) in hero army.
+		// This is clearly bug in H3 however intended behaviour is not clear.
+		// Current VCMI behaviour will ignore neutrals in calculations so army in VCMI
+		// will always have best penalty without any influence from player-defined stacks order
+
+		bool nativeArmy = true;
+		BOOST_FOREACH(auto stack, stacks)
+		{
+			int nativeTerrain = VLC->townh->factions[stack.second->type->faction].nativeTerrain;
+
+			if (nativeTerrain != -1 && nativeTerrain != from.tertype)
+			{
+				nativeArmy = false;
+				break;
+			}
+		}
+		if (!nativeArmy)
+			ret = VLC->heroh->terrCosts[from.tertype];
+ 	}
 	return ret;
 }
-#if 0
-// Unused and buggy method.
-//  - for loop is wrong. will not find all creatures. must use iterator instead.
-//  - -> is the slot number. use second->first for creature index
-// Is lowestSpeed() the correct equivalent ?
-ui32 CGHeroInstance::getLowestCreatureSpeed() const
-{
-	ui32 sl = 100;
-	for(size_t h=0; h < stacksCount(); ++h)
-	{
-		if(VLC->creh->creatures[Slots().find(h)->first]->speed<sl)
-			sl = VLC->creh->creatures[Slots().find(h)->first]->speed;
-	}
-	return sl;
-}
-#endif
+
 int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 {
 	if (toh3m)
@@ -646,14 +644,17 @@ void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 
 int CGHeroInstance::maxMovePoints(bool onLand) const
 {
-	int base = -1;
+	int base;
+
 	if(onLand)
 	{
-		static const int moveForSpeed[] = { 1500, 1560, 1630, 1700, 1760, 1830, 1900, 1960, 2000 }; //first element for 3 and lower; last for 11 and more
-		int index = lowestSpeed(this) - 3;
-		vstd::amin(index, ARRAY_COUNT(moveForSpeed)-1);
-		vstd::amax(index, 0);
-		base = moveForSpeed[index];
+		// used function is f(x) = 66.6x + 1300, rounded to second digit, where x is lowest speed in army
+		static const int baseSpeed = 1300; // base speed from creature with 0 speed
+
+		int armySpeed = lowestSpeed(this) * 20 / 3;
+
+		base = armySpeed * 10 + baseSpeed; // separate *10 is intentional to receive same rounding as in h3
+		vstd::abetween(base, 1500, 2000); // base speed is limited by these values
 	}
 	else
 	{
@@ -673,32 +674,6 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	}
 	return int(base + base*modifier) + bonus;
 }
-
-// int CGHeroInstance::getSpellSecLevel(int spell) const
-// {
-// 	int bestslvl = 0;
-// 	if(VLC->spellh->spells[spell].air)
-// 		if(getSecSkillLevel(15) >= bestslvl)
-// 		{
-// 			bestslvl = getSecSkillLevel(15);
-// 		}
-// 	if(VLC->spellh->spells[spell].fire)
-// 		if(getSecSkillLevel(14) >= bestslvl)
-// 		{
-// 			bestslvl = getSecSkillLevel(14);
-// 		}
-// 	if(VLC->spellh->spells[spell].water)
-// 		if(getSecSkillLevel(16) >= bestslvl)
-// 		{
-// 			bestslvl = getSecSkillLevel(16);
-// 		}
-// 	if(VLC->spellh->spells[spell].earth)
-// 		if(getSecSkillLevel(17) >= bestslvl)
-// 		{
-// 			bestslvl = getSecSkillLevel(17);
-// 		}
-// 	return bestslvl;
-// }
 
 CGHeroInstance::CGHeroInstance()
  : IBoatGenerator(this)

@@ -527,8 +527,7 @@ void CHighlightableButtonsGroup::addButton(const std::map<int,std::string> &tool
 	CHighlightableButton *bt = new CHighlightableButton(OnSelect, 0, tooltip, HelpBox, false, defName, 0, x, y, key);
 	if(musicLike)
 	{
-		if (buttons.size() > 3)
-			bt->setOffset(buttons.size()-3);
+		bt->setOffset(buttons.size()-3);
 	}
 	bt->ID = uid;
 	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);

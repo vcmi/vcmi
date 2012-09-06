@@ -1,7 +1,10 @@
 #include "StdInc.h"
 #include "Fuzzy.h"
 #include <limits>
-//#include "../../lib/CObjectHandler.h"
+
+#include "../../lib/CObjectHandler.h"
+#include "../../lib/CCreatureHandler.h"
+#include "../../lib/VCMI_Lib.h"
 
 /*
  * Fuzzy.cpp, part of VCMI engine

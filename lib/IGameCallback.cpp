@@ -181,13 +181,11 @@ bool CGameInfoCallback::isAllowed( int type, int id )
 
 void CPrivilagedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact*> &out)
 {
-	for (int i = 0; i < 2; i++)
-	{
-		for (int j = 0; j < 3 ; j++)
-		{
-			out.push_back(VLC->arth->artifacts[getRandomArt(CArtifact::ART_TREASURE << i)]);
-		}
-	}
+	for (int j = 0; j < 3 ; j++)
+		out.push_back(VLC->arth->artifacts[getRandomArt(CArtifact::ART_TREASURE)]);
+	for (int j = 0; j < 3 ; j++)
+		out.push_back(VLC->arth->artifacts[getRandomArt(CArtifact::ART_MINOR)]);
+
 	out.push_back(VLC->arth->artifacts[getRandomArt(CArtifact::ART_MAJOR)]);
 }
 
