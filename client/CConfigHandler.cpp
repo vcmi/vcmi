@@ -105,6 +105,14 @@ SettingsListener::SettingsListener(SettingsStorage &_parent, const std::vector<s
 	parent.listeners.insert(this);
 }
 
+SettingsListener::SettingsListener(const SettingsListener &sl):
+	parent(sl.parent),
+	path(sl.path),
+	callback(sl.callback)
+{
+	parent.listeners.insert(this);
+}
+
 SettingsListener::~SettingsListener()
 {
 	parent.listeners.erase(this);

@@ -71,6 +71,7 @@ class SettingsListener
 	void nodeInvalidated(const std::vector<std::string> changedPath);
 
 public:
+	SettingsListener(const SettingsListener &sl);
 	~SettingsListener();
 
 	// assign callback function
