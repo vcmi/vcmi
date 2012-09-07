@@ -1,3 +1,27 @@
+0.89 -> 0.next
+GENERAL:
+* New filesystem allowing easier resource adding/replacing
+* Moved many hard-coded settings into text config files
+* Commander level-up dialog
+* New Quest Log window
+
+BATTLES
+* New graphics for Stack Queue
+* Death Stare works identically to H3
+* No explosion when catapult fails to damage the wall
+* Fixed crash when attacking stack dies before counterattack
+* Fixed Orb of Inhibition and Recanter's Cloak (they were incorrectly implemented)
+* Fleeing hero won't lose artifacts.
+* Spellbook won't be captured. 
+
+
+ADVENTURE AI
+* support for quests (Seer Huts, Quest Guardians, and so)
+* AI will now wander with all the heroes that have spare movement points. It should prevent stalling.
+* AI will now understand threat of Abandoned Mine.
+* AI can now exchange armies between heroes. By default, it will pass army to main hero.
+* Fixed strange case when AI found allied town extremely dangerous
+
 0.88 -> 0.89 (Jun 01 2012)
 GENERAL
 * Mostly implemented Commanders feature (missing level-up dialog)

@@ -1177,10 +1177,16 @@ void CPlayerInterface::serialize( CISer<CLoadFile> &h, const int version )
 
 bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 {
+	tlog5 << __FUNCTION__ << std::endl;
 	if(!LOCPLINT->makingTurn)
 		return false;
 	if (!h)
 		return false; //can't find hero
+
+	//It shouldn't be possible to move hero with open dialog (or dialog waiting in bg)
+	if(showingDialog->get() || dialogs.size())
+		return false;
+
 
 	if (adventureInt && adventureInt->isHeroSleeping(h))
 	{
@@ -1196,9 +1202,12 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	{
 		//evil...
 
+		tlog5 << "before [un]locks in " << __FUNCTION__ << std::endl;
 		auto unlockEvents = vstd::makeUnlockGuard(eventsM);
 		auto unlockGs = vstd::makeUnlockSharedGuard(cb->getGsMutex()); //GS mutex is above PIM because CClient::run thread first locks PIM and then GS -> so this way we avoid deadlocks
 		auto unlockPim = vstd::makeUnlockGuard(*pim);
+		tlog5 << "after [un]locks in " << __FUNCTION__ << std::endl;
+		//TODO the above combination works... but it should all be atomic (unlock all three or none)
 
 		{
 			path.convert(0);
@@ -1246,11 +1255,13 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 				int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
 				bool guarded = CGI->mh->map->isInTheMap(cb->guardingCreaturePosition(endpos - int3(1, 0, 0)));
 
+				tlog5 << "Requesting hero movement to " << endpos << std::endl;
 				cb->moveHero(h,endpos);
 
 				while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
 					stillMoveHero.cond.wait(un);
 
+				tlog5 << "Resuming " << __FUNCTION__ << std::endl;
 				if (guarded) // Abort movement if a guard was fought.
 					break;
 			}
@@ -1336,7 +1347,7 @@ void CPlayerInterface::showArtifactAssemblyDialog (ui32 artifactID, ui32 assembl
 void CPlayerInterface::requestRealized( PackageApplied *pa )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(stillMoveHero.get() == DURING_MOVE)
+	if(pa->packType == typeList.getTypeID<MoveHero>()  &&  stillMoveHero.get() == DURING_MOVE)
 		stillMoveHero.setn(CONTINUE_MOVE);
 }
 
