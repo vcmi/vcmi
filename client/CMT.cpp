@@ -704,7 +704,10 @@ static void fullScreenChanged(const JsonNode &newState)
 		return;
 	}
 
+	bool bufOnScreen = (screenBuf == screen);
 	screen = SDL_SetVideoMode(screen->w, screen->h, bitsPerPixel, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));
+	screenBuf = bufOnScreen ? screen : screen2;
+
 	GH.totalRedraw();
 }
 
