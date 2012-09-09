@@ -1593,7 +1593,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	case CSpell::CREATURE_EXPERT_MASSIVE:
 		if(mode == ECastingMode::HERO_CASTING)
 		{
-			const CGHeroInstance * caster = battleGetFightingHero(player);
+			const CGHeroInstance * caster = battleGetFightingHero(side);
 			bool targetExists = false;
 			BOOST_FOREACH(const CStack * stack, battleAliveStacks())
 			{
