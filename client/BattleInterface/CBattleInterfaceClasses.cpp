@@ -477,10 +477,7 @@ void CBattleResultWindow::bExitf()
 {
 	if(LOCPLINT->cb->getStartInfo()->mode == StartInfo::DUEL)
 	{
-		SDL_Event ev;
-		ev.type = SDL_QUIT;
-		ev.user.code = 0;
-		SDL_PushEvent(&ev);
+		CGuiHandler::pushSDLEvent(SDL_QUIT);
 		return;
 	}
 

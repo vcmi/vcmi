@@ -95,6 +95,7 @@ public:
 	static bool isNumKey(SDLKey key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
 	static bool isArrowKey(SDLKey key); 
 	static bool amIGuiThread();
+	static void pushSDLEvent(int type, int usercode = 0);
 };
 
 extern CGuiHandler GH; //global gui handler

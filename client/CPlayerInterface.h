@@ -71,12 +71,15 @@ namespace boost
 	class recursive_mutex;
 };
 
-enum {
+enum 
+{
 	/*CHANGE_SCREEN_RESOLUTION = 1,*/
 	RETURN_TO_MAIN_MENU = 2,
 	STOP_CLIENT = 3,
 	RESTART_GAME,
-	RETURN_TO_MENU_LOAD};
+	RETURN_TO_MENU_LOAD,
+	FULLSCREEN_TOGGLED
+};
 
 /// Central class for managing user interface logic
 class CPlayerInterface : public CGameInterface, public IUpdateable

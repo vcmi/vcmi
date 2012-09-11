@@ -57,7 +57,7 @@
 using namespace boost::assign;
 using namespace CSDL_Ext;
 
-extern std::queue<SDL_Event*> events;
+extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
 
 std::list<CFocusable*> CFocusable::focusables;
@@ -3439,16 +3439,6 @@ void CSystemOptionsWindow::setGameRes(int index)
 	gameRes["height"].Float() = iter->first.second;
 }
 
-void CSystemOptionsWindow::pushSDLEvent(int type, int usercode)
-{
-	GH.popIntTotally(this);
-
-	SDL_Event event;
-	event.type = type;
-	event.user.code = usercode;	// not necessarily used
-	SDL_PushEvent(&event);
-}
-
 void CSystemOptionsWindow::toggleReminder(bool on)
 {
 	Settings heroReminder = settings.write["adventure"]["heroReminder"];
@@ -3469,7 +3459,7 @@ void CSystemOptionsWindow::toggleFullscreen(bool on)
 
 void CSystemOptionsWindow::bquitf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_QUIT, 0), 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this]{ closeAndPushEvent(SDL_QUIT); }, 0);
 }
 
 void CSystemOptionsWindow::breturnf()
@@ -3479,7 +3469,7 @@ void CSystemOptionsWindow::breturnf()
 
 void CSystemOptionsWindow::bmainmenuf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_USEREVENT, RETURN_TO_MAIN_MENU), 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], [this]{ closeAndPushEvent(SDL_USEREVENT, RETURN_TO_MAIN_MENU); }, 0);
 }
 
 void CSystemOptionsWindow::bloadf()
@@ -3496,7 +3486,13 @@ void CSystemOptionsWindow::bsavef()
 
 void CSystemOptionsWindow::brestartf()
 {
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], boost::bind(&CSystemOptionsWindow::pushSDLEvent, this, SDL_USEREVENT, RESTART_GAME), 0, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[67], [this]{ closeAndPushEvent(SDL_USEREVENT, RESTART_GAME); }, 0);
+}
+
+void CSystemOptionsWindow::closeAndPushEvent(int eventType, int code /*= 0*/)
+{
+	GH.popIntTotally(this);
+	GH.pushSDLEvent(eventType, code);
 }
 
 CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):

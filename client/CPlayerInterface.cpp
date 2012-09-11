@@ -71,7 +71,7 @@ using namespace CSDL_Ext;
 
 void processCommand(const std::string &message, CClient *&client);
 
-extern std::queue<SDL_Event*> events;
+extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
 boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
 
@@ -334,19 +334,18 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		boost::unique_lock<boost::mutex> un(eventsM);
 		while(events.size())
 		{
-			SDL_Event *ev = events.front();
+			SDL_Event ev = events.front();
 			events.pop();
-			switch(ev->type)
+			switch(ev.type)
 			{
 			case SDL_MOUSEBUTTONDOWN:
 				stillMoveHero.setn(STOP_MOVE);
 				break;
 			case SDL_KEYDOWN:
-				if(ev->key.keysym.sym < SDLK_F1  ||  ev->key.keysym.sym > SDLK_F15)
+				if(ev.key.keysym.sym < SDLK_F1  ||  ev.key.keysym.sym > SDLK_F15)
 					stillMoveHero.setn(STOP_MOVE);
 				break;
 			}
-			delete ev;
 		}
 	}
 
@@ -2295,10 +2294,7 @@ void CPlayerInterface::requestStoppingClient()
 
 void CPlayerInterface::sendCustomEvent( int code )
 {
-	SDL_Event event;
-	event.type = SDL_USEREVENT;
-	event.user.code = code;
-	SDL_PushEvent(&event);
+	CGuiHandler::pushSDLEvent(SDL_USEREVENT, code);
 }
 
 void CPlayerInterface::stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute)

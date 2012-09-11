@@ -70,7 +70,7 @@ SDL_Surface *screen = NULL, //main screen surface
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 static boost::thread *mainGUIThread;
 
-std::queue<SDL_Event*> events;
+std::queue<SDL_Event> events;
 boost::mutex eventsM;
 
 static bool gOnlyAI = false;
@@ -690,14 +690,16 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo
 	//setResolution = true;
 }
 
-static void fullScreenChanged(const JsonNode &newState)
+static void fullScreenChanged()
 {
 	boost::unique_lock<boost::recursive_mutex> lock(*LOCPLINT->pim);
 
-	bool fullscreen = newState.Bool();
+	Settings full = settings.write["video"]["fullscreen"];
+	const bool toFullscreen = full->Bool();
+
 	int bitsPerPixel = screen->format->BitsPerPixel;
 
-	bitsPerPixel = SDL_VideoModeOK(screen->w, screen->h, bitsPerPixel, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));
+	bitsPerPixel = SDL_VideoModeOK(screen->w, screen->h, bitsPerPixel, SDL_SWSURFACE|(toFullscreen?SDL_FULLSCREEN:0));
 	if(bitsPerPixel == 0)
 	{
 		tlog1 << "Error: SDL says that " << screen->w << "x" << screen->h << " resolution is not available!\n";
@@ -705,7 +707,7 @@ static void fullScreenChanged(const JsonNode &newState)
 	}
 
 	bool bufOnScreen = (screenBuf == screen);
-	screen = SDL_SetVideoMode(screen->w, screen->h, bitsPerPixel, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));
+	screen = SDL_SetVideoMode(screen->w, screen->h, bitsPerPixel, SDL_SWSURFACE|(toFullscreen?SDL_FULLSCREEN:0));
 	screenBuf = bufOnScreen ? screen : screen2;
 
 	GH.totalRedraw();
@@ -714,17 +716,17 @@ static void fullScreenChanged(const JsonNode &newState)
 static void listenForEvents()
 {
 	SettingsListener resChanged = settings.listen["video"]["fullscreen"];
-	resChanged(fullScreenChanged);
+	resChanged([](const JsonNode &newState){  CGuiHandler::pushSDLEvent(SDL_USEREVENT, FULLSCREEN_TOGGLED); });
 
 	while(1) //main SDL events loop
 	{
-		SDL_Event *ev = new SDL_Event();
+		SDL_Event ev;
 
 		//tlog0 << "Waiting... ";
-		int ret = SDL_WaitEvent(ev);
-		//tlog0 << "got " << (int)ev->type;
-		if (ret == 0 || (ev->type==SDL_QUIT) ||
-			(ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
+		int ret = SDL_WaitEvent(&ev);
+		//tlog0 << "got " << (int)ev.type;
+		if (ret == 0 || (ev.type==SDL_QUIT) ||
+			(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
 		{
 			if (client)
 				client->endGame();
@@ -742,14 +744,13 @@ static void listenForEvents()
 			tlog0 << "Ending...\n";
 			break;
 		}
-		else if(LOCPLINT && ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4)
+		else if(LOCPLINT && ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
 		{
 			Settings full = settings.write["video"]["fullscreen"];
 			full->Bool() = !full->Bool();
-			delete ev;
 			continue;
 		}
-		else if(ev->type == SDL_USEREVENT)
+		else if(ev.type == SDL_USEREVENT)
 		{
 			auto endGame = []
 			{
@@ -761,7 +762,7 @@ static void listenForEvents()
 				const_cast<CGameInfo*>(CGI)->dobjinfo->load();
 			};
 
-			switch(ev->user.code)
+			switch(ev.user.code)
 			{
 		/*	case CHANGE_SCREEN_RESOLUTION:
 			{
@@ -795,12 +796,14 @@ static void listenForEvents()
 				CGP->menu->switchToTab(vstd::find_pos(CGP->menu->menuNameToEntry, "load"));
 				GH.curInt = CGP;
 				break;
+			case FULLSCREEN_TOGGLED:
+				fullScreenChanged();
+				break;
 			default:
-				tlog1 << "Error: unknown user event. Code " << ev->user.code << std::endl;
+				tlog1 << "Error: unknown user event. Code " << ev.user.code << std::endl;
 				assert(0);
 			}
 
-			delete ev;
 			continue;
 		} 
 

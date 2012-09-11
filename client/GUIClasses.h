@@ -750,8 +750,7 @@ private:
 
 	void selectGameRes();
 	void setGameRes(int index);
-
-	void pushSDLEvent(int type, int usercode);
+	void closeAndPushEvent(int eventType, int code = 0);
 
 public:
 	CSystemOptionsWindow(); //c-tor

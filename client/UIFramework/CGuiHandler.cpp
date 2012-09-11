@@ -9,7 +9,7 @@
 #include "../CConfigHandler.h"
 
 extern SDL_Surface * screenBuf, * screen2, * screen;
-extern std::queue<SDL_Event*> events;
+extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
 
 boost::thread_specific_ptr<bool> inGuiThread;
@@ -126,7 +126,7 @@ void CGuiHandler::handleEvents()
 {
 	while(true)
 	{
-		SDL_Event *ev = NULL;
+		SDL_Event ev;
 		boost::unique_lock<boost::mutex> lock(eventsM);
 		if(!events.size())
 		{
@@ -137,8 +137,7 @@ void CGuiHandler::handleEvents()
 			ev = events.front();
 			events.pop();
 		}
-		handleEvent(ev);
-		delete ev;
+		handleEvent(&ev);
 	}
 }
 
@@ -446,6 +445,14 @@ bool CGuiHandler::isArrowKey( SDLKey key )
 bool CGuiHandler::amIGuiThread()
 {
 	return inGuiThread.get() && *inGuiThread;
+}
+
+void CGuiHandler::pushSDLEvent(int type, int usercode)
+{
+	SDL_Event event;
+	event.type = type;
+	event.user.code = usercode;	// not necessarily used
+	SDL_PushEvent(&event);
 }
 
 CFramerateManager::CFramerateManager(int rate)
