@@ -354,14 +354,17 @@ void CSpellHandler::loadSpells()
 	{
 		//reading exact info
 		int spellID = spell["id"].Float();
+		CSpell *s = spells[spellID];
 
-		spells[spellID]->positiveness = spell["effect"].Float();
-		spells[spellID]->mainEffectAnim = spell["anim"].Float();
+		s->positiveness = spell["effect"].Float();
+		s->mainEffectAnim = spell["anim"].Float();
 
-		spells[spellID]->range.resize(4);
+		s->range.resize(4);
 		int idx = 0;
 		BOOST_FOREACH(const JsonNode &range, spell["ranges"].Vector())
-			spells[spellID]->range[idx++] = range.String();
+			s->range[idx++] = range.String();
+
+		s->counteredSpells = spell["counters"].StdVector<TSpell>();
 	}
 
 	spells.push_back(spells[80]); //clone Acid Breath attributes for Acid Breath damage effect

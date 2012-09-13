@@ -41,6 +41,8 @@ public:
 	bool creatureAbility; //if true, only creatures can use this spell
 	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
 	std::vector<std::string> range; //description of spell's range in SRSL by magic school level
+	std::vector<TSpell> counteredSpells; //spells that are removed when effect of this spell is placed on creature (for bless-curse, haste-slow, and similar pairs)
+
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = NULL ) const; //convert range to specific hexes; last optional out parameter is set to true, if spell would cover unavailable hexes (that are not included in ret)
 	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none)
 	ETargetType getTargetType() const;
@@ -53,7 +55,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & id & name & abbName & descriptions & level & earth & water & fire & air & power & costs 
-			& powers & probabilities & AIVals & attributes & combatSpell & creatureAbility & positiveness & range & mainEffectAnim;
+			& powers & probabilities & AIVals & attributes & combatSpell & creatureAbility & positiveness & range & counteredSpells & mainEffectAnim;
 	}
 };
 

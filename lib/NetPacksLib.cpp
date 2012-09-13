@@ -1239,20 +1239,28 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 		}
 	}
 
-	if(id == 35 || id == 78) //dispel and dispel helpful spells
+	//Handle spells removing effects from stacks
+	const CSpell *spell = VLC->spellh->spells[id];
+	const bool removeAllSpells = id == Spells::DISPEL;
+	const bool removeHelpful = id == Spells::DISPEL_HELPFUL_SPELLS;
+
+	BOOST_FOREACH(auto stackID, affectedCres)
 	{
-		bool onlyHelpful = id == 78;
-		for(std::set<ui32>::const_iterator it = affectedCres.begin(); it != affectedCres.end(); ++it)
+		if(vstd::contains(resisted, stackID))
+			continue;
+
+		CStack *s = gs->curB->getStack(stackID);
+		s->popBonuses([&](const Bonus *b) -> bool
 		{
-			CStack *s = gs->curB->getStack(*it);
-			if(s && !vstd::contains(resisted, s->ID)) //if stack exists and it didn't resist
-			{
-				if(onlyHelpful)
-					s->popBonuses(Selector::positiveSpellEffects);
-				else
-					s->popBonuses(Selector::sourceType(Bonus::SPELL_EFFECT));
-			}
-		}
+			//check for each bonus if it should be removed
+			const bool isSpellEffect = Selector::sourceType(Bonus::SPELL_EFFECT)(b);
+			const bool isPositiveSpell = Selector::positiveSpellEffects(b);
+			const int spellID = isSpellEffect ? b->sid : -1;
+
+			return (removeHelpful && isPositiveSpell)
+				|| (removeAllSpells && isSpellEffect)
+				|| vstd::contains(spell->counteredSpells, spellID);
+		});
 	}
 }
 
