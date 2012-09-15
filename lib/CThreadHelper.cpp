@@ -35,7 +35,7 @@ void CThreadHelper::processTasks()
 	while(true)
 	{
 		{
-			boost::unique_lock<boost::mutex> lock(rtinm); 
+			boost::unique_lock<boost::mutex> lock(rtinm);
 			if((pom = currentTask) >= amount)
 				break;
 			else
@@ -50,6 +50,7 @@ void CThreadHelper::processTasks()
 void setThreadName(const std::string &name)
 {
 #ifdef _WIN32
+#ifndef __GNUC__
 	//follows http://msdn.microsoft.com/en-us/library/xcb2z8hs.aspx
 	const DWORD MS_VC_EXCEPTION=0x406D1388;
 #pragma pack(push,8)
@@ -67,6 +68,7 @@ void setThreadName(const std::string &name)
 	info.dwThreadID = -1;
 	info.dwFlags = 0;
 
+
 	__try
 	{
 		RaiseException( MS_VC_EXCEPTION, 0, sizeof(info)/sizeof(ULONG_PTR), (ULONG_PTR*)&info );
@@ -74,6 +76,10 @@ void setThreadName(const std::string &name)
 	__except(EXCEPTION_EXECUTE_HANDLER)
 	{
 	}
+#else
+//not supported
+#endif
+
 #else
 	 prctl(PR_SET_NAME, name.c_str(), 0, 0, 0);
 #endif

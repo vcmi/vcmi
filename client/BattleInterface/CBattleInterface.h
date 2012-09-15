@@ -29,7 +29,7 @@ struct BattleResult;
 struct BattleSpellCast;
 struct CObstacleInstance;
 template <typename T> struct CondSh;
-struct SetStackEffect;;
+struct SetStackEffect;
 struct BattleAction;
 class CGTownInstance;
 struct CatapultAttack;

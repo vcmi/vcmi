@@ -217,7 +217,7 @@ struct DLL_LINKAGE Bonus
 	enum BonusDuration //when bonus is automatically removed
 	{
 		PERMANENT = 1,
-		ONE_BATTLE = 2, //at the end of battle 
+		ONE_BATTLE = 2, //at the end of battle
 		ONE_DAY = 4,   //at the end of day
 		ONE_WEEK = 8, //at the end of week (bonus lasts till the end of week, thats NOT 7 days
 		N_TURNS = 16, //used during battles, after battle bonus is always removed
@@ -236,7 +236,7 @@ struct DLL_LINKAGE Bonus
 
 	enum LimitEffect
 	{
-		NO_LIMIT = 0, 
+		NO_LIMIT = 0,
 		ONLY_DISTANCE_FIGHT=1, ONLY_MELEE_FIGHT, //used to mark bonuses for attack/defense primary skills from spells like Precision (distance only)
 		ONLY_ENEMY_ARMY
 	};
@@ -265,7 +265,7 @@ struct DLL_LINKAGE Bonus
 	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
 
-	std::string description; 
+	std::string description;
 
 	Bonus(ui16 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
 	Bonus(ui16 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, si32 Subtype=-1, ui8 ValType = ADDITIVE_VALUE);
@@ -357,7 +357,7 @@ private:
 public:
 	BonusList(bool BelongsToTree = false);
 	BonusList(const BonusList &bonusList);
-	BonusList& operator=(const BonusList &bonusList); 
+	BonusList& operator=(const BonusList &bonusList);
 
 	// wrapper functions of the STL vector container
 	std::vector<Bonus*>::size_type size() const { return bonuses.size(); }
@@ -393,7 +393,7 @@ public:
 
 	//void limit(const CBonusSystemNode &node); //erases bonuses using limitor
 	void eliminateDuplicates();
-	
+
 	// remove_if implementation for STL vector types
 	template <class Predicate>
 	void remove_if(Predicate pred)
@@ -409,7 +409,7 @@ public:
 		bonuses.resize(newList.size());
 		std::copy(newList.begin(), newList.end(), bonuses.begin());
 	}
-	
+
 	template <class InputIterator>
 	void insert(const int position, InputIterator first, InputIterator last);
 
@@ -465,7 +465,7 @@ public:
 	CPropagatorNodeType();
 	CPropagatorNodeType(ui8 NodeType);
 	bool shouldBeAttached(CBonusSystemNode *dest);
-	//CBonusSystemNode *getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild) OVERRIDE; 
+	//CBonusSystemNode *getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild) OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -479,7 +479,7 @@ struct BonusLimitationContext
 	const CBonusSystemNode &node;
 	const BonusList &alreadyAccepted;
 };
-	
+
 class DLL_LINKAGE ILimiter
 {
 public:
@@ -500,7 +500,7 @@ public:
 	// * selector is predicate that tests if HeroBonus matches our criteria
 	// * root is node on which call was made (NULL will be replaced with this)
 	//interface
-	virtual const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const = 0; 
+	virtual const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const = 0;
 	void getModifiersWDescr(TModDescr &out, const CSelector &selector, const std::string &cachingStr = "") const;  //out: pairs<modifier value, modifier description>
 	int getBonusesCount(const CSelector &selector, const std::string &cachingStr = "") const;
 	int valOfBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
@@ -508,7 +508,7 @@ public:
 	const TBonusListPtr getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;
 	const TBonusListPtr getBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 
-	//legacy interface 
+	//legacy interface
 	int valOfBonuses(Bonus::BonusType type, const CSelector &selector) const;
 	int valOfBonuses(Bonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then anyt;
 	bool hasBonusOfType(Bonus::BonusType type, int subtype = -1) const;//determines if hero has a bonus of given type (and optionally subtype)
@@ -540,16 +540,16 @@ private:
 
 	TNodesVector parents; //parents -> we inherit bonuses from them, we may attach our bonuses to them
 	TNodesVector children;
-	
+
 	ui8 nodeType;
 	std::string description;
-	
-	static const bool cachingEnabled; 
+
+	static const bool cachingEnabled;
 	mutable BonusList cachedBonuses;
-	mutable int cachedLast;	
+	mutable int cachedLast;
 	static int treeChanged;
 
-	// Setting a value to cachingStr before getting any bonuses caches the result for later requests. 
+	// Setting a value to cachingStr before getting any bonuses caches the result for later requests.
 	// This string needs to be unique, that's why it has to be setted in the following manner:
 	// [property key]_[value] => only for selector
 	mutable std::map<std::string, TBonusListPtr > cachedRequests;
@@ -562,7 +562,7 @@ public:
 
 	explicit CBonusSystemNode();
 	virtual ~CBonusSystemNode();
-	
+
 	void limitBonuses(const BonusList &allBonuses, BonusList &out) const; //out will bo populed with bonuses that are not limited here
 	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
 	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const;
@@ -573,8 +573,8 @@ public:
 	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from)
 	void getRedParents(TNodes &out);  //retrieves list of red parent nodes (nodes bonuses propagate from)
 	void getRedAncestors(TNodes &out);
-	void getRedChildren(TNodes &out); 
-	void getRedDescendants(TNodes &out); 
+	void getRedChildren(TNodes &out);
+	void getRedDescendants(TNodes &out);
 	Bonus *getBonus(const CSelector &selector);
 
 	void attachTo(CBonusSystemNode *parent);
@@ -604,7 +604,7 @@ public:
 	void deserializationFix();
 	void exportBonus(Bonus * b);
 	void exportBonuses();
-	
+
 	static void incrementTreeChangedNum();
 	BonusList &getBonusList();
 	const BonusList &getBonusList() const;
@@ -628,7 +628,7 @@ public:
 	}
 	enum ENodeTypes
 	{
-		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM, 
+		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM,
 		TOWN_AND_VISITOR, BATTLE
 	};
 };
@@ -641,7 +641,7 @@ namespace NBonus
 	//DLL_LINKAGE const HeroBonus * get(const CBonusSystemNode *obj, int from, int id );
 	DLL_LINKAGE void getModifiersWDescr(const CBonusSystemNode *obj, TModDescr &out, Bonus::BonusType type, int subtype = -1 );  //out: pairs<modifier value, modifier description>
 	DLL_LINKAGE int getCount(const CBonusSystemNode *obj, int from, int id);
-};
+}
 
 /// generates HeroBonus from given data
 inline Bonus makeFeatureVal(Bonus::BonusType type, ui8 duration, si16 subtype, si32 value, Bonus::BonusSource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
@@ -725,7 +725,7 @@ public:
 	{
 		return turnsRequested <= 0					//every present effect will last zero (or "less") turns
 			|| !(bonus->duration & Bonus::N_TURNS)	//so do every not expriing after N-turns effect
-			|| bonus->turnsRemain > turnsRequested;	
+			|| bonus->turnsRemain > turnsRequested;
 	}
 	CWillLastTurns& operator()(const int &setVal)
 	{
@@ -769,7 +769,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CreatureNativeTerrainLimiter : public ILimiter //applies only to creatures that are on their native terrain 
+class DLL_LINKAGE CreatureNativeTerrainLimiter : public ILimiter //applies only to creatures that are on their native terrain
 {
 public:
 	si8 terrainType;

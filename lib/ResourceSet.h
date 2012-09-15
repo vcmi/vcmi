@@ -10,7 +10,7 @@ namespace Res
 	class ResourceSet;
 	bool canAfford(const ResourceSet &res, const ResourceSet &price); //can a be used to pay price b
 
-	enum ERes 
+	enum ERes
 	{
 		WOOD = 0, MERCURY, ORE, SULFUR, CRYSTAL, GEMS, GOLD, MITHRIL
 	};
@@ -25,7 +25,7 @@ namespace Res
 
 
 #define scalarOperator(OPSIGN)									\
-		DLL_LINKAGE ResourceSet operator OPSIGN(const TResource &rhs) const	\
+		ResourceSet operator OPSIGN(const TResource &rhs) const	\
 		{														\
 			ResourceSet ret = *this;							\
 			for(int i = 0; i < size(); i++)						\
@@ -37,7 +37,7 @@ namespace Res
 
 
 #define vectorOperator(OPSIGN)										\
-		DLL_LINKAGE ResourceSet operator OPSIGN(const ResourceSet &rhs) const	\
+		ResourceSet operator OPSIGN(const ResourceSet &rhs) const	\
 		{															\
 			ResourceSet ret = *this;								\
 			for(int i = 0; i < size(); i++)							\
@@ -48,7 +48,7 @@ namespace Res
 
 
 #define opEqOperator(OPSIGN, RHS_TYPE)							\
-		DLL_LINKAGE ResourceSet& operator OPSIGN ## =(const RHS_TYPE &rhs)	\
+		ResourceSet& operator OPSIGN ## =(const RHS_TYPE &rhs)	\
 		{														\
 			return *this = *this OPSIGN rhs;					\
 		}
@@ -70,7 +70,7 @@ namespace Res
 #undef opEqOperator
 
 		//to be used for calculations of type "how many units of sth can I afford?"
-		DLL_LINKAGE int operator/(const ResourceSet &rhs)
+		int operator/(const ResourceSet &rhs)
 		{
 			int ret = INT_MAX;
 			for(int i = 0; i < size(); i++)
@@ -80,7 +80,7 @@ namespace Res
 			return ret;
 		}
 
-		DLL_LINKAGE ResourceSet & operator=(const TResource &rhs)
+		ResourceSet & operator=(const TResource &rhs)
 		{
 			for(int i = 0; i < size(); i++)
 				at(i) = rhs;
@@ -88,14 +88,14 @@ namespace Res
 			return *this;
 		}
 
-	// WARNING: comparison operators are used for "can afford" relation: a <= b means that foreach i a[i] <= b[i] 
+	// WARNING: comparison operators are used for "can afford" relation: a <= b means that foreach i a[i] <= b[i]
 	// that doesn't work the other way: a > b doesn't mean that a cannot be afforded with b, it's still b can afford a
 // 		bool operator<(const ResourceSet &rhs)
 // 		{
 // 			for(int i = 0; i < size(); i++)
 // 				if(at(i) >= rhs[i])
 // 					return false;
-// 
+//
 // 			return true;
 // 		}
 
@@ -118,7 +118,7 @@ namespace Res
 			} cur;
 			const ResourceSet &rs;
 			void advance();
-		
+
 		public:
 			nziterator(const ResourceSet &RS);
 			bool valid();
@@ -126,7 +126,7 @@ namespace Res
 			nziterator operator++(int);
 			const ResEntry& operator*() const;
 			const ResEntry* operator->() const;
-		
+
 		};
 	};
 }

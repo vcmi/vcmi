@@ -193,4 +193,4 @@ namespace CSDL_Ext
 	void applyEffect(SDL_Surface * surf, const SDL_Rect * rect, int mode); //mode: 0 - sepia, 1 - grayscale
 
 	std::string trimToFit(std::string text, int widthLimit, EFonts font);
-};
+}

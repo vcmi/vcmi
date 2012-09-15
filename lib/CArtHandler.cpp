@@ -55,12 +55,12 @@ bool CArtifact::isBig () const
 // {
 // 	if (!vstd::contains(possibleSlots, slotID))
 // 		return false;
-// 
+//
 // 	// Can't put an artifact in a locked slot.
 // 	std::map<ui16, const CArtifact*>::const_iterator it = artifWorn.find(slotID);
 // 	if (it != artifWorn.end() && it->second->id == 145)
 // 		return false;
-// 
+//
 // 	// Check if a combination artifact fits.
 // 	// TODO: Might want a more general algorithm?
 // 	//       Assumes that misc & rings fits only in their slots, and others in only one slot and no duplicates.
@@ -71,14 +71,14 @@ bool CArtifact::isBig () const
 // 		const ui16 miscSlots[] = {9, 10, 11, 12, 18};
 // 		int rings = 0;
 // 		int misc = 0;
-// 
+//
 // 		VLC->arth->unequipArtifact(tempArtifWorn, slotID);
-// 
-// 		BOOST_FOREACH(ui32 constituentID, *constituents) 
+//
+// 		BOOST_FOREACH(ui32 constituentID, *constituents)
 // 		{
 // 			const CArtifact& constituent = *VLC->arth->artifacts[constituentID];
 // 			const int slot = constituent.possibleSlots[0];
-// 
+//
 // 			if (slot == 6 || slot == 7)
 // 				rings++;
 // 			else if ((slot >= 9 && slot <= 12) || slot == 18)
@@ -86,18 +86,18 @@ bool CArtifact::isBig () const
 // 			else if (tempArtifWorn.find(slot) != tempArtifWorn.end())
 // 				return false;
 // 		}
-// 
+//
 // 		// Ensure enough ring slots are free
-// 		for (int i = 0; i < sizeof(ringSlots)/sizeof(*ringSlots); i++) 
+// 		for (int i = 0; i < sizeof(ringSlots)/sizeof(*ringSlots); i++)
 // 		{
 // 			if (tempArtifWorn.find(ringSlots[i]) == tempArtifWorn.end() || ringSlots[i] == slotID)
 // 				rings--;
 // 		}
 // 		if (rings > 0)
 // 			return false;
-// 
+//
 // 		// Ensure enough misc slots are free.
-// 		for (int i = 0; i < sizeof(miscSlots)/sizeof(*miscSlots); i++) 
+// 		for (int i = 0; i < sizeof(miscSlots)/sizeof(*miscSlots); i++)
 // 		{
 // 			if (tempArtifWorn.find(miscSlots[i]) == tempArtifWorn.end() || miscSlots[i] == slotID)
 // 				misc--;
@@ -105,7 +105,7 @@ bool CArtifact::isBig () const
 // 		if (misc > 0)
 // 			return false;
 // 	}
-// 
+//
 // 	return true;
 // }
 
@@ -113,16 +113,16 @@ bool CArtifact::isBig () const
 // {
 // 	if (constituentOf == NULL || !vstd::contains(*constituentOf, artifactID))
 // 		return false;
-// 
+//
 // 	const CArtifact &artifact = *VLC->arth->artifacts[artifactID];
 // 	assert(artifact.constituents);
-// 
-// 	BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
+//
+// 	BOOST_FOREACH(ui32 constituentID, *artifact.constituents)
 // 	{
 // 		bool found = false;
-// 		for (std::map<ui16, const CArtifact*>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it) 
+// 		for (std::map<ui16, const CArtifact*>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it)
 // 		{
-// 			if (it->second->id == constituentID) 
+// 			if (it->second->id == constituentID)
 // 			{
 // 				found = true;
 // 				break;
@@ -131,7 +131,7 @@ bool CArtifact::isBig () const
 // 		if (!found)
 // 			return false;
 // 	}
-// 
+//
 // 	return true;
 // }
 
@@ -237,7 +237,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	std::vector<ui16> slots;
 	slots += 17, 16, 15, 14, 13, 18, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
 	growingArtifacts += 146, 147, 148, 150, 151, 152, 153;
-	static std::map<char, CArtifact::EartClass> classes = 
+	static std::map<char, CArtifact::EartClass> classes =
 	  map_list_of('S',CArtifact::ART_SPECIAL)('T',CArtifact::ART_TREASURE)('N',CArtifact::ART_MINOR)('J',CArtifact::ART_MAJOR)('R',CArtifact::ART_RELIC);
 
 	CLegacyConfigParser parser("DATA/ARTRAITS.TXT");
@@ -287,7 +287,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 
 		// Fill in information about combined artifacts. Should perhaps be moved to a config file?
 		nart.constituentOf = NULL;
-		switch (nart.id) 
+		switch (nart.id)
 		{
 			case 129: // Angelic Alliance
 				nart.constituents = new std::vector<ui32>();
@@ -363,7 +363,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		const JsonNode config(ResourceID("config/commanders.json"));
 		BOOST_FOREACH(const JsonNode &artifact, config["artifacts"].Vector())
 		{
-			auto ga = dynamic_cast <CGrowingArtifact *>(artifacts[artifact["id"].Float()].get()); 
+			auto ga = dynamic_cast <CGrowingArtifact *>(artifacts[artifact["id"].Float()].get());
 			BOOST_FOREACH (auto b, artifact["bonusesPerLevel"].Vector())
 			{
 				ga->bonusesPerLevel.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *ParseBonus (b["bonus"].Vector())));
@@ -382,11 +382,11 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	addBonuses();
 
 	// Populate reverse mappings of combinational artifacts.
-	BOOST_FOREACH(CArtifact *artifact, artifacts) 
+	BOOST_FOREACH(CArtifact *artifact, artifacts)
 	{
-		if (artifact->constituents != NULL) 
+		if (artifact->constituents != NULL)
 		{
-			BOOST_FOREACH(ui32 constituentID, *artifact->constituents) 
+			BOOST_FOREACH(ui32 constituentID, *artifact->constituents)
 			{
 				if (artifacts[constituentID]->constituentOf == NULL)
 					artifacts[constituentID]->constituentOf = new std::vector<ui32>();
@@ -484,7 +484,7 @@ ui16 CArtHandler::getArtSync (ui32 rand, int flags)
 	std::vector<ConstTransitivePtr<CArtifact> > out;
 	getAllowed(out, flags);
 	CArtifact *art = out[rand % out.size()];
-	return art->id;	
+	return art->id;
 }
 void CArtHandler::getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags)
 {
@@ -575,7 +575,7 @@ void CArtHandler::makeItCreatureArt (int aid, bool onlyCreature /*=true*/)
 		a->possibleSlots[ArtBearer::COMMANDER].clear();
 	}
 	a->possibleSlots[ArtBearer::CREATURE].push_back(ArtifactPosition::CREATURE_SLOT);
-};
+}
 
 void CArtHandler::makeItCommanderArt (int aid, bool onlyCommander /*=true*/)
 {
@@ -587,7 +587,7 @@ void CArtHandler::makeItCommanderArt (int aid, bool onlyCommander /*=true*/)
 	}
 	for (int i = ArtifactPosition::COMMANDER1; i <= ArtifactPosition::COMMANDER6; ++i)
 		a->possibleSlots[ArtBearer::COMMANDER].push_back(i);
-};
+}
 
 void CArtHandler::addBonuses()
 {
@@ -601,11 +601,11 @@ void CArtHandler::addBonuses()
 
 	//Propagators/limiters used more than once
 	auto battleWidePropagator = make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE);
-	auto visitedTownPropagator = make_shared<CPropagatorNodeType>(CBonusSystemNode::TOWN_AND_VISITOR); 
+	auto visitedTownPropagator = make_shared<CPropagatorNodeType>(CBonusSystemNode::TOWN_AND_VISITOR);
 
 	auto shooterOnlyLimiter = make_shared<HasAnotherBonusLimiter>(Bonus::SHOOTER);
 	auto dragonNatureLimiter = make_shared<HasAnotherBonusLimiter>(Bonus::DRAGON_NATURE);
-	
+
 	//Attack bonus artifacts (Weapons)
 	ART_PRIM_SKILL(7,0,+2); //Centaur Axe
 	ART_PRIM_SKILL(8,0,+3); //Blackshard of the Dead Knight
@@ -625,7 +625,7 @@ void CArtHandler::addBonuses()
 	ART_PRIM_SKILL(18,0,-3);  //Sentinel's Shield
 
 	//Knowledge bonus artifacts (Helmets)
-	ART_PRIM_SKILL(19,3,+1); //Helm of the Alabaster Unicorn 
+	ART_PRIM_SKILL(19,3,+1); //Helm of the Alabaster Unicorn
 	ART_PRIM_SKILL(20,3,+2); //Skull Helmet
 	ART_PRIM_SKILL(21,3,+3); //Helm of Chaos
 	ART_PRIM_SKILL(22,3,+4); //Crown of the Supreme Magi
@@ -662,13 +662,13 @@ void CArtHandler::addBonuses()
 	ART_POWER_AND_KNOWLEDGE(43,+3); //Necklace of Dragonteeth
 	ART_POWER_AND_KNOWLEDGE(44,+4); //Crown of Dragontooth
 
-	//Luck and morale 
+	//Luck and morale
 	ART_MORALE(45,+1); //Still Eye of the Dragon
 	ART_LUCK(45,+1); //Still Eye of the Dragon
 	ART_LUCK(46,+1); //Clover of Fortune
 	ART_LUCK(47,+1); //Cards of Prophecy
 	ART_LUCK(48,+1); //Ladybird of Luck
-	ART_MORALE(49,+1); //Badge of Courage -> +1 morale 
+	ART_MORALE(49,+1); //Badge of Courage -> +1 morale
 	giveArtBonus(49,Bonus::MIND_IMMUNITY,0); //immunity to hostile mind spells:
 	ART_MORALE(50,+1); //Crest of Valor
 	ART_MORALE(51,+1); //Glyph of Gallantry
@@ -772,11 +772,11 @@ void CArtHandler::addBonuses()
 	giveArtBonus(121,Bonus::CREATURE_GROWTH,+2,4, visitedTownPropagator); //Arms of Legion
 	giveArtBonus(122,Bonus::CREATURE_GROWTH,+1,5, visitedTownPropagator); //Head of Legion
 
-	//Sea Captain's Hat 
-	giveArtBonus(123,Bonus::WHIRLPOOL_PROTECTION,0); 
-	giveArtBonus(123,Bonus::SEA_MOVEMENT,+500); 
-	giveArtBonus(123,Bonus::SPELL,3,0, Bonus::INDEPENDENT_MAX); 
-	giveArtBonus(123,Bonus::SPELL,3,1, Bonus::INDEPENDENT_MAX); 
+	//Sea Captain's Hat
+	giveArtBonus(123,Bonus::WHIRLPOOL_PROTECTION,0);
+	giveArtBonus(123,Bonus::SEA_MOVEMENT,+500);
+	giveArtBonus(123,Bonus::SPELL,3,0, Bonus::INDEPENDENT_MAX);
+	giveArtBonus(123,Bonus::SPELL,3,1, Bonus::INDEPENDENT_MAX);
 
 	giveArtBonus(124, Bonus::SPELLS_OF_LEVEL,3,1); //Spellbinder's Hat
 	giveArtBonus(125, Bonus::BATTLE_NO_FLEEING,0, 0, battleWidePropagator); //Shackles of War
@@ -919,32 +919,32 @@ void CArtHandler::clear()
 // void CArtHandler::equipArtifact( std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art ) const
 // {
 // 	unequipArtifact(artifWorn, slotID);
-// 
+//
 // 	if (art) //false when artifact is NULL -> slot set to empty
 // 	{
 // 		const CArtifact &artifact = *art;
-// 
+//
 // 		// Add artifact.
 // 		artifWorn[slotID] = art;
-// 
+//
 // 		// Add locks, in reverse order of being removed.
-// 		if (artifact.constituents != NULL) 
+// 		if (artifact.constituents != NULL)
 // 		{
 // 			bool destConsumed = false; // Determines which constituent that will be counted for together with the artifact.
-// 
-// 			BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
+//
+// 			BOOST_FOREACH(ui32 constituentID, *artifact.constituents)
 // 			{
 // 				const CArtifact &constituent = *artifacts[constituentID];
-// 
-// 				if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) 
+//
+// 				if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID))
 // 				{
 // 					destConsumed = true;
-// 				} 
-// 				else 
+// 				}
+// 				else
 // 				{
-// 					BOOST_FOREACH(ui16 slot, constituent.possibleSlots) 
+// 					BOOST_FOREACH(ui16 slot, constituent.possibleSlots)
 // 					{
-// 						if (!vstd::contains(artifWorn, slot)) 
+// 						if (!vstd::contains(artifWorn, slot))
 // 						{
 // 							artifWorn[slot] = VLC->arth->artifacts[145]; //lock
 // 							break;
@@ -955,7 +955,7 @@ void CArtHandler::clear()
 // 		}
 // 	}
 // }
-// 
+//
 // /**
 //  * Locally unequips an artifact from a hero's worn slots.
 //  * Does not test if the operation is legal.
@@ -966,30 +966,30 @@ void CArtHandler::clear()
 // {
 // 	if (!vstd::contains(artifWorn, slotID))
 // 		return;
-// 
+//
 // 	const CArtifact &artifact = *artifWorn[slotID];
-// 
+//
 // 	// Remove artifact, if it's not already removed.
 // 	artifWorn.erase(slotID);
-// 
+//
 // 	// Remove locks, in reverse order of being added.
-// 	if (artifact.constituents != NULL) 
+// 	if (artifact.constituents != NULL)
 // 	{
 // 		bool destConsumed = false;
-// 
-// 		BOOST_FOREACH(ui32 constituentID, *artifact.constituents) 
+//
+// 		BOOST_FOREACH(ui32 constituentID, *artifact.constituents)
 // 		{
 // 			const CArtifact &constituent = *artifacts[constituentID];
-// 
-// 			if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID)) 
+//
+// 			if (!destConsumed && vstd::contains(constituent.possibleSlots, slotID))
 // 			{
 // 				destConsumed = true;
-// 			} 
-// 			else 
+// 			}
+// 			else
 // 			{
-// 				BOOST_REVERSE_FOREACH(ui16 slot, constituent.possibleSlots) 
+// 				BOOST_REVERSE_FOREACH(ui16 slot, constituent.possibleSlots)
 // 				{
-// 					if (vstd::contains(artifWorn, slot) && artifWorn[slot]->id == 145) 
+// 					if (vstd::contains(artifWorn, slot) && artifWorn[slot]->id == 145)
 // 					{
 // 						artifWorn.erase(slot);
 // 						break;
@@ -1152,7 +1152,7 @@ std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CA
 		|| artType->constituents) //combined artifact already: no combining of combined artifacts... for now.
 		return ret;
 
-	BOOST_FOREACH(ui32 possibleCombinedArt, *artType->constituentOf) 
+	BOOST_FOREACH(ui32 possibleCombinedArt, *artType->constituentOf)
 	{
 		const CArtifact * const artifact = VLC->arth->artifacts[possibleCombinedArt];
 		assert(artifact->constituents);
@@ -1228,7 +1228,7 @@ bool CArtifactInstance::isPart(const CArtifactInstance *supposedPart) const
 	return supposedPart == this;
 }
 
-bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet *artSet, int slot, bool assumeDestRemoved /*= false*/) const 
+bool CCombinedArtifactInstance::canBePutAt(const CArtifactSet *artSet, int slot, bool assumeDestRemoved /*= false*/) const
 {
 	bool canMainArtifactBePlaced = CArtifactInstance::canBePutAt(artSet, slot, assumeDestRemoved);
 	if(!canMainArtifactBePlaced)
@@ -1319,7 +1319,7 @@ void CCombinedArtifactInstance::putAt(ArtifactLocation al)
 				const bool suggestedPosValid = ci.art->canBePutAt(suggestedPos);
 
 				int pos = -1;
-				if(inActiveSlot  &&  suggestedPosValid) //there is a valid suggestion where to place lock 
+				if(inActiveSlot  &&  suggestedPosValid) //there is a valid suggestion where to place lock
 					pos = ci.slot;
 				else
 					ci.slot = pos = ci.art->firstAvailableSlot(al.getHolderArtSet());
@@ -1517,7 +1517,7 @@ CArtifactSet::~CArtifactSet()
 ArtSlotInfo & CArtifactSet::retreiveNewArtSlot(ui16 slot)
 {
 	assert(!vstd::contains(artifactsWorn, slot));
-	ArtSlotInfo &ret = slot < GameConstants::BACKPACK_START 
+	ArtSlotInfo &ret = slot < GameConstants::BACKPACK_START
 		? artifactsWorn[slot]
 		: *artifactsInBackpack.insert(artifactsInBackpack.begin() + (slot - GameConstants::BACKPACK_START), ArtSlotInfo());
 

@@ -53,13 +53,13 @@ std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
 
 void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const
-{};
+{}
 
 void IObjectInterface::onHeroLeave(const CGHeroInstance * h) const
-{};
+{}
 
 void IObjectInterface::newTurn () const
-{};
+{}
 
 IObjectInterface::~IObjectInterface()
 {}

@@ -25,9 +25,10 @@
 #else
 	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
 	#include <windows.h>
+#ifndef __MINGW32__
 	#include <dbghelp.h>
 	#pragma comment(lib, "dbghelp.lib")
-
+#endif
 	typedef WORD TColor;
 	HANDLE handleIn;
 	HANDLE handleOut;
@@ -108,19 +109,20 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 
 	if (einfo->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
 	{
-		tlog1 << "Attempt to " << (einfo->ExceptionInformation[0] == 1 ? "write to " : "read from ") 
+		tlog1 << "Attempt to " << (einfo->ExceptionInformation[0] == 1 ? "write to " : "read from ")
 			<< "0x" <<  std::setw(8) << (void*)einfo->ExceptionInformation[1] << std::endl;;
 	}
 	const DWORD threadId = ::GetCurrentThreadId();
 	tlog1 << "Thread ID: " << threadId << " [" << std::dec << std::setw(0) << threadId << "]\n";
 
+#ifndef __MINGW32__
 	//exception info to be placed in the dump
 	MINIDUMP_EXCEPTION_INFORMATION meinfo = {threadId, exception, TRUE};
 
 	//create file where dump will be placed
 	char *mname = NULL;
 	char buffer[MAX_PATH + 1];
-	HMODULE hModule = NULL;	
+	HMODULE hModule = NULL;
 	GetModuleFileNameA(hModule, buffer, MAX_PATH);
 	mname = strrchr(buffer, '\\');
 	if (mname != 0)
@@ -132,6 +134,7 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 	HANDLE dfile = CreateFileA(mname, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
 	tlog1 << "Crash info will be put in " << mname << std::endl;
 	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, MiniDumpWithDataSegs, &meinfo, 0, 0);
+#endif
 	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
 	return EXCEPTION_EXECUTE_HANDLER;
 }
@@ -233,7 +236,7 @@ CConsoleHandler::~CConsoleHandler()
 }
 void CConsoleHandler::end()
 {
-	if (thread) 
+	if (thread)
 	{
 #ifndef _WIN32
 		thread->interrupt();

@@ -89,11 +89,11 @@ public:
 	ui8 defActionsDef; //default auto actions
 	ui8 captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
 	std::list<CIntObject *> createdObj; //stack of objs being created
-	
+
 	static SDLKey arrowToNum(SDLKey key); //converts arrow key to according numpad key
 	static SDLKey numToDigit(SDLKey key);//converts numpad digit key to normal digit key
 	static bool isNumKey(SDLKey key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
-	static bool isArrowKey(SDLKey key); 
+	static bool isArrowKey(SDLKey key);
 	static bool amIGuiThread();
 	static void pushSDLEvent(int type, int usercode = 0);
 };
@@ -122,8 +122,8 @@ struct SSetCaptureState
 
 namespace Colors
 {
-	
-};
+
+}
 
 #define OBJ_CONSTRUCTION SObjectConstruction obj__i(this)
 #define OBJ_CONSTRUCTION_CAPTURING_ALL defActions = 255; SSetCaptureState obj__i1(true, 255); SObjectConstruction obj__i(this)

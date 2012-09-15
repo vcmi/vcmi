@@ -124,7 +124,7 @@ public:
 	CPicture *playerListBg;
 
 	CHighlightableButtonsGroup *difficulty;
-	CDefHandler *sizes, *sFlags;;
+	CDefHandler *sizes, *sFlags;
 
 	void changeSelection(const CMapInfo *to);
 	void showAll(SDL_Surface * to);

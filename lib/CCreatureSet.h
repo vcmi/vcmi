@@ -133,7 +133,7 @@ public:
 
 class DLL_LINKAGE CCreatureSet : public IArmyDescriptor //seven combined creatures
 {
-	CCreatureSet(const CCreatureSet&);;
+	CCreatureSet(const CCreatureSet&);
 	CCreatureSet &operator=(const CCreatureSet&);
 public:
 	TSlots stacks; //slots[slot_id]->> pair(creature_id,creature_quantity)
@@ -143,7 +143,7 @@ public:
 	virtual ~CCreatureSet();
 	virtual void armyChanged();
 
-	const CStackInstance &operator[](TSlot slot) const; 
+	const CStackInstance &operator[](TSlot slot) const;
 
 	const TSlots &Slots() const {return stacks;}
 
@@ -161,13 +161,13 @@ public:
 	void giveStackExp(expType exp);
 	void setStackExp(TSlot slot, expType exp);
 
-	//derivative 
+	//derivative
 	void eraseStack(TSlot slot); //slot must be occupied
 	void joinStack(TSlot slot, CStackInstance * stack); //adds new stack to the existing stack of the same type
 	void changeStackCount(TSlot slot, TQuantity toAdd); //stack must exist!
 	bool setCreature (TSlot slot, TCreature type, TQuantity quantity) OVERRIDE; //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
 	void setToArmy(CSimpleArmy &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.
-	
+
 	const CStackInstance& getStack(TSlot slot) const; //stack must exist
 	const CStackInstance* getStackPtr(TSlot slot) const; //if stack doesn't exist, returns NULL
 	const CCreature* getCreature(TSlot slot) const; //workaround of map issue;
@@ -186,7 +186,7 @@ public:
 	ui64 getPower (TSlot slot) const; //value of specific stack
 	std::string getRoughAmount (TSlot slot) const; //rough size of specific stack
 	bool hasStackAtSlot(TSlot slot) const;
-	
+
 	bool contains(const CStackInstance *stack) const;
 	bool canBeMergedWith(const CCreatureSet &cs, bool allowMergingStacks = true) const;
 

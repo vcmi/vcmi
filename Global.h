@@ -51,6 +51,9 @@
 
 //The only available version is 3, as of Boost 1.50
 #define BOOST_FILESYSTEM_VERSION 3
+#define BOOST_THREAD_VERSION 3
+#define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
+//#define BOOST_SYSTEM_NO_DEPRECATED 1
 
 #include <boost/algorithm/string.hpp>
 #include <boost/assert.hpp>
@@ -97,7 +100,11 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 
 // Import + Export macro declarations
 #ifdef _WIN32
+#ifdef __GNUC__
+#define DLL_EXPORT __attribute__((dllexport))
+#else
 #define DLL_EXPORT __declspec(dllexport)
+#endif
 #else
 #if defined(__GNUC__) && GCC_VERSION >= 400
 #define DLL_EXPORT	__attribute__ ((visibility("default")))
@@ -107,7 +114,11 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 #endif
 
 #ifdef _WIN32
+#ifdef __GNUC__
+#define DLL_IMPORT __attribute__((dllimport))
+#else
 #define DLL_IMPORT __declspec(dllimport)
+#endif
 #else
 #if defined(__GNUC__) && GCC_VERSION >= 400
 #define DLL_IMPORT	__attribute__ ((visibility("default")))

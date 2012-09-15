@@ -351,7 +351,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPal
 	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.unused);
 	SDL_SetColorKey(ret, SDL_SRCCOLORKEY, keycol);
 	return ret;
-};
+}
 
 CDefEssential * CDefHandler::essentialize()
 {

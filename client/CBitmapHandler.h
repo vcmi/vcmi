@@ -27,4 +27,4 @@ namespace BitmapHandler
 	SDL_Surface * loadBitmapFromDir(std::string path, std::string fname, bool setKey=true);
 	//Load file from any LODs
 	SDL_Surface * loadBitmap(std::string fname, bool setKey=true);
-};
+}

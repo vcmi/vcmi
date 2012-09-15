@@ -5,8 +5,8 @@
 
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/type_traits/is_enum.hpp>
-#include <boost/type_traits/is_pointer.hpp> 
-#include <boost/type_traits/is_class.hpp> 
+#include <boost/type_traits/is_pointer.hpp>
+#include <boost/type_traits/is_class.hpp>
 #include <boost/type_traits/is_base_of.hpp>
 #include <boost/type_traits/is_array.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
@@ -66,7 +66,7 @@ namespace boost
 		class basic_socket_acceptor;
 	}
 	class mutex;
-};
+}
 
 enum SerializationLvl
 {
@@ -200,7 +200,7 @@ struct LoadWrong
 
 template<typename T>
 struct SerializationLevel
-{    
+{
 	typedef mpl::integral_c_tag tag;
 	typedef
 		typename mpl::eval_if<
@@ -252,7 +252,7 @@ public:
 	TTypeVecMap vectors; //entry must be a pointer to vector containing pointers to the objects of key type
 
 	bool smartVectorMembersSerialization;
-	bool sendStackInstanceByIds; 
+	bool sendStackInstanceByIds;
 
 	CSerializer();
 	~CSerializer();
@@ -274,7 +274,7 @@ public:
 	const VectorisedObjectInfo<T> *getVectorisedTypeInfo()
 	{
 		const std::type_info *myType = NULL;
-// 
+//
 // 		if(boost::is_base_of<CGObjectInstance, T>::value) //ugly workaround to support also types derived from CGObjectInstance -> if we encounter one, treat it aas CGObj..
 // 			myType = &typeid(CGObjectInstance);
 // 		else
@@ -342,7 +342,7 @@ public:
 template <typename T> //metafunction returning CGObjectInstance if T is its derivate or T elsewise
 struct VectorisedTypeFor
 {
-	typedef typename 
+	typedef typename
 		//if
 		mpl::eval_if<boost::is_base_of<CGObjectInstance,T>,
 		mpl::identity<CGObjectInstance>,
@@ -471,8 +471,8 @@ public:
 	COSer & operator&(const T & t)
 	{
 		return * this->This() << t;
-	}	
-	
+	}
+
 
 
 	int write(const void * data, unsigned size);
@@ -539,7 +539,7 @@ public:
 	//that part of ptr serialization was extracted to allow customization of its behavior in derived classes
 	template <typename T>
 	void savePointerHlp(ui16 tid, const T &data)
-	{		
+	{
 		if(!tid)
 			*this << *data;	 //if type is unregistered simply write all data in a standard way
 		else
@@ -556,7 +556,7 @@ public:
 	template <typename T>
 	void save(const T &data)
 	{
-		typedef 
+		typedef
 			//if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
 			mpl::identity<SavePrimitive<Serializer,T> >,
@@ -703,7 +703,7 @@ public:
 	~CISer()
 	{
 		std::map<ui16,CBasicPointerLoader*>::iterator iter;
-			
+
 		for(iter = loaders.begin(); iter != loaders.end(); iter++)
 			delete iter->second;
 	}
@@ -725,18 +725,18 @@ public:
 		this->This()->load(t);
 		return * this->This();
 	}
-	
+
 	template<class T>
 	CISer & operator&(T & t)
 	{
 		return * this->This() >> t;
-	}	
+	}
 
 	int write(const void * data, unsigned size);
 	template <typename T>
 	void load(T &data)
 	{
-		typedef 
+		typedef
 			//if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
 			mpl::identity<LoadPrimitive<Serializer,T> >,
@@ -782,7 +782,7 @@ public:
 		nonConstT &hlp = const_cast<nonConstT&>(data);
 		hlp.serialize(*this,fileVersion);
 		//data.serialize(*this,myVersion);
-	}	
+	}
 
 	template <typename T>
 	void loadSerializable(T &data)
@@ -806,7 +806,7 @@ public:
 			data = NULL;
 			return;
 		}
-				
+
 		if(smartVectorMembersSerialization)
 		{
 			typedef typename boost::remove_const<typename boost::remove_pointer<T>::type>::type TObjectType; //eg: const CGHeroInstance * => CGHeroInstance
@@ -830,7 +830,7 @@ public:
 				return;
 		}
 
-		ui32 pid = 0xffffffff; //pointer id (or maybe rather pointee id) 
+		ui32 pid = 0xffffffff; //pointer id (or maybe rather pointee id)
 		if(smartPointerSerialization)
 		{
 			*this >> pid; //get the id
@@ -1081,7 +1081,7 @@ template<typename T>
 class CApplier
 {
 public:
-	std::map<ui16,T*> apps; 
+	std::map<ui16,T*> apps;
 
 	~CApplier()
 	{

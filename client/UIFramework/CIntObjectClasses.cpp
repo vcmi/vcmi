@@ -22,7 +22,7 @@
 CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
 {
 	init();
-	bg = BG; 
+	bg = BG;
 	freeSurf = Free;
 	pos.x += x;
 	pos.y += y;
@@ -33,7 +33,7 @@ CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
 CPicture::CPicture( const std::string &bmpname, int x, int y )
 {
 	init();
-	bg = BitmapHandler::loadBitmap(bmpname); 
+	bg = BitmapHandler::loadBitmap(bmpname);
 	freeSurf = true;;
 	pos.x += x;
 	pos.y += y;
@@ -315,12 +315,12 @@ void CAdventureMapButton::clickLeft(tribool down, bool previousState)
 	if(isBlocked())
 		return;
 
-	if (down) 
+	if (down)
 	{
 		if (!soundDisabled)
 			CCS->soundh->playSound(soundBase::button);
 		setState(PRESSED);
-	} 
+	}
 	else if(hoverable && hovered)
 		setState(HIGHLIGHTED);
 	else
@@ -355,8 +355,8 @@ void CAdventureMapButton::hover (bool on)
 	if(pressedL && on)
 		setState(PRESSED);
 
-	std::string *name = (vstd::contains(hoverTexts,getState())) 
-		? (&hoverTexts[getState()]) 
+	std::string *name = (vstd::contains(hoverTexts,getState()))
+		? (&hoverTexts[getState()])
 		: (vstd::contains(hoverTexts,0) ? (&hoverTexts[0]) : NULL);
 	if(name && name->size() && !isBlocked()) //if there is no name, there is nohing to display also
 	{
@@ -533,7 +533,7 @@ void CHighlightableButtonsGroup::addButton(const std::map<int,std::string> &tool
 	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
 	bt->onlyOn = true;
 	buttons.push_back(bt);
-}	
+}
 
 CHighlightableButtonsGroup::CHighlightableButtonsGroup(const CFunctionList2<void(int)> &OnChange, bool musicLikeButtons)
 : onChange(OnChange), musicLike(musicLikeButtons)
@@ -597,7 +597,7 @@ void CHighlightableButtonsGroup::showAll(SDL_Surface * to)
 
 void CHighlightableButtonsGroup::block( ui8 on )
 {
-	for(size_t i=0;i<buttons.size(); ++i) 
+	for(size_t i=0;i<buttons.size(); ++i)
 	{
 		buttons[i]->block(on);
 	}
@@ -614,7 +614,7 @@ void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	double v = 0;
 	if(horizontal)
 	{
-		if(	std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2  ) 
+		if(	std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2  )
 			return;
 		v = sEvent.x - pos.x - 24;
 		v *= positions;
@@ -622,7 +622,7 @@ void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	}
 	else
 	{
-		if(std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2+40  ||  std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2  ) 
+		if(std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2+40  ||  std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2  )
 			return;
 		v = sEvent.y - pos.y - 24;
 		v *= positions;
@@ -746,7 +746,7 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 		left->pos.x = pos.x;
 		right->pos.x = pos.x + totalw - 16;
 	}
-	else 
+	else
 	{
 		left->pos.x = slider->pos.x = right->pos.x = pos.x;
 		left->pos.y = pos.y;
@@ -859,7 +859,7 @@ void CSlider::keyPressed(const SDL_KeyboardEvent & key)
 		return;
 	}
 
-	moveTo(moveDest); 
+	moveTo(moveDest);
 }
 
 void CSlider::moveToMax()
@@ -1270,7 +1270,7 @@ void CBoundedLabel::showAll(SDL_Surface * to)
 	CIntObject::showAll(to);
 
 	const Font &f = *graphics->fonts[font];
-	int lineHeight =  f.height; 
+	int lineHeight =  f.height;
 	int lineCapacity = pos.h / lineHeight;
 
 	int dy = f.height; //line height
@@ -1301,7 +1301,7 @@ void CBoundedLabel::recalculateLines(const std::string &Txt)
 	lines.clear();
 
 	const Font &f = *graphics->fonts[font];
-	int lineHeight =  f.height; 
+	int lineHeight =  f.height;
 
 	lines = CMessage::breakText(Txt, pos.w, font);
 
@@ -1313,13 +1313,13 @@ void CBoundedLabel::recalculateLines(const std::string &Txt)
 
 CLabelGroup::CLabelGroup(EFonts Font, EAlignment Align, const SDL_Color &Color):
 	font(Font), align(Align), color(Color)
-{};
+{}
 
 void CLabelGroup::add(int x, int y, const std::string &text)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CLabel(x, y, font, align, color, text);
-};
+}
 
 CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= Colors::Cornsilk*/)
 :CBoundedLabel(rect.x, rect.y, Font, Align, Color, Text), sliderStyle(SliderStyle), slider(NULL)
@@ -1340,7 +1340,7 @@ void CTextBox::recalculateLines(const std::string &Txt)
 	vstd::clear_pointer(slider);
 	lines.clear();
 	const Font &f = *graphics->fonts[font];
-	int lineHeight =  f.height; 
+	int lineHeight =  f.height;
 	int lineCapacity = pos.h / lineHeight;
 
 	lines = CMessage::breakText(Txt, pos.w, font);
@@ -1535,7 +1535,7 @@ void CTextInput::clickLeft( tribool down, bool previousState )
 
 void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 {
-	if(!focus || key.state != SDL_PRESSED) 
+	if(!focus || key.state != SDL_PRESSED)
 		return;
 
 	if(key.keysym.sym == SDLK_TAB)

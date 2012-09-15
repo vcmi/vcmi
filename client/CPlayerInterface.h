@@ -7,7 +7,7 @@
 #include "UIFramework/CIntObject.h"
 
 #ifdef __GNUC__
-#define sprintf_s snprintf 
+#define sprintf_s snprintf
 #endif
 
 #ifdef max
@@ -69,9 +69,9 @@ namespace boost
 {
 	class mutex;
 	class recursive_mutex;
-};
+}
 
-enum 
+enum
 {
 	/*CHANGE_SCREEN_RESOLUTION = 1,*/
 	RETURN_TO_MAIN_MENU = 2,
@@ -100,7 +100,7 @@ public:
 	CCastleInterface * castleInt; //NULL if castle window isn't opened
 	static CBattleInterface * battleInt; //NULL if no battle
 	CInGameConsole * cingconsole;
-	
+
 	CCallback * cb; //to communicate with engine
 	const BattleAction *curAction; //during the battle - action currently performed by active stack (or NULL)
 
@@ -155,7 +155,7 @@ public:
 	void receivedResource(int type, int val) OVERRIDE;
 	void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID) OVERRIDE;
 	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) OVERRIDE;
-	void showShipyardDialog(const IShipyard *obj) OVERRIDE; //obj may be town or shipyard; 
+	void showShipyardDialog(const IShipyard *obj) OVERRIDE; //obj may be town or shipyard;
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel) OVERRIDE; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID) OVERRIDE;
 	void showPuzzleMap() OVERRIDE;
@@ -234,7 +234,7 @@ public:
 	CGPath *getAndVerifyPath( const CGHeroInstance * h );
 	void acceptTurn(); //used during hot seat after your turn message is close
 	void tryDiggging(const CGHeroInstance *h);
-	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard; 
+	void showShipyardDialogOrProblemPopup(const IShipyard *obj); //obj may be town or shipyard;
 	void requestReturningToMainMenu();
 	void requestStoppingClient();
 	void sendCustomEvent(int code);

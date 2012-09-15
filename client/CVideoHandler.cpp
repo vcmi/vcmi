@@ -47,7 +47,7 @@ void checkForError(bool throwing = true)
 
 void blitBuffer(char *buffer, int x, int y, int w, int h, SDL_Surface *dst)
 {
-	const int bpp = dst->format->BytesPerPixel;	
+	const int bpp = dst->format->BytesPerPixel;
 	char *dest;
 	for(int i = h; i > 0; i--)
 	{
@@ -142,10 +142,13 @@ bool CBIKHandler::open(std::string name)
 		tlog1 << "BIK handler: failed to open " << name << std::endl;
 		goto checkErrorAndClean;
 	}
+	//GCC wants scope of waveout to dont cross labels/swith/goto
+    {
+		void *waveout = GetProcAddress(dll,"_BinkOpenWaveOut@4");
+		if(waveout)
+			binkSetSoundSystem(waveout,NULL);
 
-	void *waveout = GetProcAddress(dll,"_BinkOpenWaveOut@4");
-	if(waveout)
-		binkSetSoundSystem(waveout,NULL);
+    }
 
 	hBink = binkOpen(hBinkFile, 0x8a800000);
 	if(!hBink)
@@ -166,8 +169,8 @@ checkErrorAndClean:
 
 void CBIKHandler::show( int x, int y, SDL_Surface *dst, bool update )
 {
-	const int w = hBink->width, 
-		h = hBink->height, 
+	const int w = hBink->width,
+		h = hBink->height,
 		Bpp = dst->format->BytesPerPixel;
 
 	int mode = -1;
@@ -298,7 +301,7 @@ bool CSmackPlayer::open( std::string name )
 	Uint32 flags[2] = {0xff400, 0xfe400};
 
 	data = ptrSmackOpen( (void*)name.c_str(), flags[1], -1);
-	if (!data) 
+	if (!data)
 	{
 		tlog1 << "Smack cannot open " << name << std::endl;
 		checkForError();
@@ -337,9 +340,9 @@ void CSmackPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 {
 	int w = std::min<int>(data->width, dst->w - x), h = std::min<int>(data->height, dst->h - y);
 	/* Lock the screen for direct access to the pixels */
-	if ( SDL_MUSTLOCK(dst) ) 
+	if ( SDL_MUSTLOCK(dst) )
 	{
-		if ( SDL_LockSurface(dst) < 0 ) 
+		if ( SDL_LockSurface(dst) < 0 )
 		{
 			fprintf(stderr, "Can't lock screen: %s\n", SDL_GetError());
 			return;
@@ -374,7 +377,7 @@ void CSmackPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 				//convert rgb 555 to 565
 				Uint16 pixel = *addr;
 				Uint16 *p = (Uint16 *)((Uint8 *)dst->pixels + (j+y) * dst->pitch + (i + x) * dst->format->BytesPerPixel);
-				*p =	(pixel & 0x1F) 
+				*p =	(pixel & 0x1F)
 					  +	((pixel & 0x3e0) << 1)
 					  +	((pixel & 0x7c00) << 1);
 
@@ -383,7 +386,7 @@ void CSmackPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 		}
 	}
 
-	if ( SDL_MUSTLOCK(dst) ) 
+	if ( SDL_MUSTLOCK(dst) )
 	{
 		SDL_UnlockSurface(dst);
 	}
@@ -425,7 +428,7 @@ bool CVideoPlayer::open(std::string name)
 			out.exceptions(std::ifstream::failbit | std::ifstream::badbit);
 			out.write(data.get(), myVideo->getSize());
 		}
-		
+
 		current->open(name);
 		return true;
 	}
@@ -526,7 +529,7 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 
 
 
-	if(!w) 
+	if(!w)
 	{
 		show(x,y,dst,update);
 	}
@@ -700,7 +703,7 @@ bool CVideoPlayer::open(std::string fname)
 bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 {
 	close();
-	
+
 	this->fname = fname;
 	offset = 0;
 	refreshWait = 3;
@@ -790,7 +793,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 		// Unsupported codec
 		return false;
 	}
-  
+
 	// Open codec
 #if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 6, 0)
 	if ( avcodec_open(codecContext, codec) < 0 )
@@ -802,7 +805,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 		codec = NULL;
 		return false;
 	}
-  
+
 	// Allocate video frame
 	frame = avcodec_alloc_frame();
 
@@ -826,8 +829,8 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	// Convert the image into YUV format that SDL uses
 	if (overlay)
 	{
-		sws = sws_getContext(codecContext->width, codecContext->height, 
-							 codecContext->pix_fmt, codecContext->width, codecContext->height, 
+		sws = sws_getContext(codecContext->width, codecContext->height,
+							 codecContext->pix_fmt, codecContext->width, codecContext->height,
 							 PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
 	}
 	else
@@ -842,8 +845,8 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 		default: return false;
 		}
 
-		sws = sws_getContext(codecContext->width, codecContext->height, 
-							 codecContext->pix_fmt, codecContext->width, codecContext->height, 
+		sws = sws_getContext(codecContext->width, codecContext->height,
+							 codecContext->pix_fmt, codecContext->width, codecContext->height,
 							 screenFormat, SWS_BICUBIC, NULL, NULL, NULL);
 	}
 
@@ -905,7 +908,7 @@ bool CVideoPlayer::nextFrame()
 
 					if (overlay) {
 						SDL_LockYUVOverlay(overlay);
-				
+
 						pict.data[0] = overlay->pixels[0];
 						pict.data[1] = overlay->pixels[2];
 						pict.data[2] = overlay->pixels[1];
@@ -945,7 +948,7 @@ void CVideoPlayer::show( int x, int y, SDL_Surface *dst, bool update )
 	pos.x = x;
 	pos.y = y;
 	CSDL_Ext::blitSurface(dest, &destRect, dst, &pos);
-	
+
 	if (update)
 		SDL_UpdateRect(dst, pos.x, pos.y, pos.w, pos.h);
 }
@@ -968,14 +971,14 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 		else
 		{
 			open(fname);
-			nextFrame();			
-			
+			nextFrame();
+
 			// The y position is wrong at the first frame.
 			// Note: either the windows player or the linux player is
-			// broken. Compensate here until the bug is found.			
+			// broken. Compensate here until the bug is found.
 			show(x, y--, dst, update);
 		}
-	} 
+	}
 	else
 	{
 		redraw(x, y, dst, update);
@@ -986,7 +989,7 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 
 void CVideoPlayer::close()
 {
-	fname = "";	
+	fname = "";
 	if (sws)
 	{
 		sws_freeContext(sws);
@@ -1049,7 +1052,7 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 
 	while(nextFrame())
 	{
-		
+
 		if(stopOnKey && keyDown())
 			return false;
 
@@ -1071,7 +1074,7 @@ bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface 
 	close();
 	return ret;
 }
-	
+
 CVideoPlayer::~CVideoPlayer()
 {
 	close();
