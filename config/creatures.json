@@ -492,7 +492,7 @@
 				"name": [ "HellHound" ],
 				"faction": 3,
 				"upgrades": [47],
-				"ability_remove": [ "FLYING" ],
+				"ability_remove": [ "FLYING" ], //hell hound doesn't fly
 				"defname": "CHHOUN.DEF"
 			},
 
@@ -503,7 +503,7 @@
 				"faction": 3,
 				"ability_add": [ [ "THREE_HEADED_ATTACK", 0, 0, 0 ],
 							   	 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],
-				"ability_remove": [ "FLYING" ],
+				"ability_remove": [ "FLYING" ],  //cerberus doesn't fly
 				"defname": "CCERBU.DEF"
 			},
 
@@ -1523,7 +1523,7 @@
 				"level": 0,
 				"name": [ "FirstAidTent" ],
 				"faction": 9,
-				"ability_add": [ [ "HEALER", 0, 0, 0 ] ],					//Gorynyches fly
+				"ability_add": [ [ "HEALER", 0, 0, 0 ] ],
 				"defname": "SMTENT.DEF"
 			},
 
@@ -1532,7 +1532,7 @@
 				"level": 0,
 				"name": [ "AmmoCart" ],
 				"faction": 9,
-				"ability_add": [ [ "NOT_ACTIVE", 0, 0, 0 ] ],						//hell hound doesn't fly
+				"ability_add": [ [ "NOT_ACTIVE", 0, 0, 0 ] ],
 				"defname": "SMCART.DEF"
 			},
 
@@ -1541,7 +1541,7 @@
 				"level": 0,
 				"name": [ "ArrowTower" ],
 				"faction": 9,
-				"ability_add": [ [ "SHOOTER", 0, 0, 0 ] ],						//cerberus doesn't fly
+				"ability_add": [ [ "SHOOTER", 0, 0, 0 ] ],
 				"defname": "x"
 			},
 
@@ -1700,7 +1700,7 @@
 				"level": 0,
 				"name": [ "Gorynych" ],
 				"faction": 9,
-				"ability_add": [ [ "FLYING", 0, 0, 0 ] ],
+				"ability_add": [ [ "FLYING", 0, 0, 0 ] ],      //Gorynyches fly
 				"defname": "ZM168DG.DEF"
 			},
 
