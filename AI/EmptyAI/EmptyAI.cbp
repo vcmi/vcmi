@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="EmptyAI" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin\Debug\EmptyAI" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-ggdb" />
+				</Compiler>
+				<Linker>
+					<Add option="-lboost_system-mgw47-mt-d-1_51" />
+					<Add option="-lVCMI_lib" />
+					<Add directory="..\..\bin\Debug" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option output="bin\Release\EmptyAI" imp_lib="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).a" def_file="$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).def" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-O3" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-lboost_system-mgw47-mt-1_51" />
+					<Add option="-lVCMI_lib" />
+					<Add directory="..\..\bin\Release" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wextra" />
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add option="-Wpointer-arith" />
+			<Add option="-Wno-switch" />
+			<Add option="-Wno-sign-compare" />
+			<Add option="-Wno-unused-parameter" />
+			<Add option="-Wno-overloaded-virtual" />
+			<Add option="-fpermissive" />
+			<Add directory="$(#boost.include)" />
+			<Add directory="..\..\include" />
+		</Compiler>
+		<Linker>
+			<Add directory="$(#boost.lib)" />
+		</Linker>
+		<Unit filename="CEmptyAI.cpp" />
+		<Unit filename="CEmptyAI.h" />
+		<Unit filename="StdInc.h">
+			<Option compile="1" />
+			<Option weight="0" />
+		</Unit>
+		<Unit filename="exp_funcs.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

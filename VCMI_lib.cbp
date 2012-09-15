@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="VCMI_lib" />
+		<Option execution_dir="D:\projects\vcmi\engine\VCMI_lib\" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option platforms="Windows;" />
+				<Option output="bin\Debug\VCMI_lib" prefix_auto="0" extension_auto="1" />
+				<Option object_output="obj\Debug\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O1" />
+					<Add option="-O" />
+				</Compiler>
+				<Linker>
+					<Add option="-lboost_filesystem-mgw47-mt-d-1_51" />
+					<Add option="-lboost_system-mgw47-mt-d-1_51" />
+					<Add option="-lboost_thread-mgw47-mt-d-1_51" />
+					<Add option="-lboost_iostreams-mgw47-mt-d-1_51" />
+					<Add option="-lboost_chrono-mgw47-mt-d-1_51" />
+				</Linker>
+			</Target>
+			<Target title="Release">
+				<Option platforms="Windows;" />
+				<Option output="bin\Release\VCMI_lib" prefix_auto="0" extension_auto="1" />
+				<Option object_output="obj\Release\" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-fomit-frame-pointer" />
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-lboost_filesystem-mgw47-mt-1_51" />
+					<Add option="-lboost_system-mgw47-mt-1_51" />
+					<Add option="-lboost_thread-mgw47-mt-1_51" />
+					<Add option="-lboost_iostreams-mgw47-mt-1_51" />
+					<Add option="-lboost_chrono-mgw47-mt-1_51" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-pedantic" />
+			<Add option="-Wextra" />
+			<Add option="-Wall" />
+			<Add option="-fexceptions" />
+			<Add option="-Wpointer-arith" />
+			<Add option="-Wno-switch" />
+			<Add option="-Wno-sign-compare" />
+			<Add option="-Wno-unused-parameter" />
+			<Add option="-Wno-overloaded-virtual" />
+			<Add option="-DVCMI_DLL" />
+			<Add option="-DBOOST_THREAD_USE_LIB" />
+			<Add option="-D_WIN32_WINNT=0x0501" />
+			<Add directory="$(#boost.include)" />
+			<Add directory="$(#sdl.include)" />
+			<Add directory="." />
+			<Add directory="include" />
+			<Add directory="lib" />
+		</Compiler>
+		<Linker>
+			<Add option="-lws2_32" />
+			<Add library="$(#mingw.lib)\libz.dll.a" />
+			<Add directory="$(#boost.lib)" />
+			<Add directory="$(#sdl.lib)" />
+		</Linker>
+		<Unit filename="Global.h" />
+		<Unit filename="lib\AI_Base.h" />
+		<Unit filename="lib\BattleAction.cpp" />
+		<Unit filename="lib\BattleAction.h" />
+		<Unit filename="lib\BattleHex.cpp" />
+		<Unit filename="lib\BattleHex.h" />
+		<Unit filename="lib\BattleState.cpp" />
+		<Unit filename="lib\BattleState.h" />
+		<Unit filename="lib\CArtHandler.cpp" />
+		<Unit filename="lib\CArtHandler.h" />
+		<Unit filename="lib\CBattleCallback.cpp" />
+		<Unit filename="lib\CBattleCallback.h" />
+		<Unit filename="lib\CBuildingHandler.cpp" />
+		<Unit filename="lib\CBuildingHandler.h" />
+		<Unit filename="lib\CCampaignHandler.cpp" />
+		<Unit filename="lib\CCampaignHandler.h" />
+		<Unit filename="lib\CConsoleHandler.cpp" />
+		<Unit filename="lib\CConsoleHandler.h" />
+		<Unit filename="lib\CCreatureHandler.cpp" />
+		<Unit filename="lib\CCreatureHandler.h" />
+		<Unit filename="lib\CCreatureSet.cpp" />
+		<Unit filename="lib\CCreatureSet.h" />
+		<Unit filename="lib\CDefObjInfoHandler.cpp" />
+		<Unit filename="lib\CDefObjInfoHandler.h" />
+		<Unit filename="lib\CGameInterface.cpp" />
+		<Unit filename="lib\CGameInterface.h" />
+		<Unit filename="lib\CGameState.cpp" />
+		<Unit filename="lib\CGameState.h" />
+		<Unit filename="lib\CGeneralTextHandler.cpp" />
+		<Unit filename="lib\CGeneralTextHandler.h" />
+		<Unit filename="lib\CHeroHandler.cpp" />
+		<Unit filename="lib\CHeroHandler.h" />
+		<Unit filename="lib\CLogger.cpp" />
+		<Unit filename="lib\CLogger.h" />
+		<Unit filename="lib\CMapInfo.cpp" />
+		<Unit filename="lib\CMapInfo.h" />
+		<Unit filename="lib\CModHandler.cpp" />
+		<Unit filename="lib\CModHandler.h" />
+		<Unit filename="lib\CObjectHandler.cpp" />
+		<Unit filename="lib\CObjectHandler.h" />
+		<Unit filename="lib\CObstacleInstance.cpp" />
+		<Unit filename="lib\CObstacleInstance.h" />
+		<Unit filename="lib\CScriptingModule.h" />
+		<Unit filename="lib\CSpellHandler.cpp" />
+		<Unit filename="lib\CSpellHandler.h" />
+		<Unit filename="lib\CStopWatch.h" />
+		<Unit filename="lib\CThreadHelper.cpp" />
+		<Unit filename="lib\CThreadHelper.h" />
+		<Unit filename="lib\CTownHandler.cpp" />
+		<Unit filename="lib\CTownHandler.h" />
+		<Unit filename="lib\CondSh.h" />
+		<Unit filename="lib\Connection.cpp" />
+		<Unit filename="lib\Connection.h" />
+		<Unit filename="lib\ConstTransitivePtr.h" />
+		<Unit filename="lib\Filesystem\CBinaryReader.cpp" />
+		<Unit filename="lib\Filesystem\CBinaryReader.h" />
+		<Unit filename="lib\Filesystem\CCompressedStream.cpp" />
+		<Unit filename="lib\Filesystem\CCompressedStream.h" />
+		<Unit filename="lib\Filesystem\CFileInfo.cpp" />
+		<Unit filename="lib\Filesystem\CFileInfo.h" />
+		<Unit filename="lib\Filesystem\CFileInputStream.cpp" />
+		<Unit filename="lib\Filesystem\CFileInputStream.h" />
+		<Unit filename="lib\Filesystem\CFilesystemLoader.cpp" />
+		<Unit filename="lib\Filesystem\CFilesystemLoader.h" />
+		<Unit filename="lib\Filesystem\CInputStream.h" />
+		<Unit filename="lib\Filesystem\CLodArchiveLoader.cpp" />
+		<Unit filename="lib\Filesystem\CLodArchiveLoader.h" />
+		<Unit filename="lib\Filesystem\CMemoryStream.cpp" />
+		<Unit filename="lib\Filesystem\CMemoryStream.h" />
+		<Unit filename="lib\Filesystem\CResourceLoader.cpp" />
+		<Unit filename="lib\Filesystem\CResourceLoader.h" />
+		<Unit filename="lib\Filesystem\ISimpleResourceLoader.h" />
+		<Unit filename="lib\GameConstants.h" />
+		<Unit filename="lib\HeroBonus.cpp" />
+		<Unit filename="lib\HeroBonus.h" />
+		<Unit filename="lib\IGameCallback.cpp" />
+		<Unit filename="lib\IGameCallback.h" />
+		<Unit filename="lib\IGameEventsReceiver.h" />
+		<Unit filename="lib\Interprocess.h" />
+		<Unit filename="lib\JsonNode.cpp" />
+		<Unit filename="lib\JsonNode.h" />
+		<Unit filename="lib\NetPacks.h" />
+		<Unit filename="lib\NetPacksLib.cpp" />
+		<Unit filename="lib\RegisterTypes.h" />
+		<Unit filename="lib\ResourceSet.cpp" />
+		<Unit filename="lib\ResourceSet.h" />
+		<Unit filename="lib\StartInfo.h" />
+		<Unit filename="lib\StdInc.h">
+			<Option compile="1" />
+			<Option weight="0" />
+		</Unit>
+		<Unit filename="lib\UnlockGuard.h" />
+		<Unit filename="lib\VCMIDirs.h" />
+		<Unit filename="lib\VCMI_Lib.cpp" />
+		<Unit filename="lib\VCMI_Lib.h" />
+		<Unit filename="lib\int3.h" />
+		<Unit filename="lib\map.cpp" />
+		<Unit filename="lib\map.h" />
+		<Unit filename="lib\vcmi_endian.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

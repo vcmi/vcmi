@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_workspace_file>
+	<Workspace title="vcmi">
+		<Project filename="VCMI_lib.cbp" />
+		<Project filename="VCMI_client.cbp">
+			<Depends filename="VCMI_lib.cbp" />
+		</Project>
+		<Project filename="VCMI_server.cbp">
+			<Depends filename="VCMI_lib.cbp" />
+		</Project>
+		<Project filename="AI/FuzzyLite/FuzzyLite.cbp" />
+		<Project filename="AI/EmptyAI/EmptyAI.cbp">
+			<Depends filename="VCMI_lib.cbp" />
+		</Project>
+		<Project filename="AI/VCAI/VCAI.cbp">
+			<Depends filename="VCMI_lib.cbp" />
+			<Depends filename="AI/FuzzyLite/FuzzyLite.cbp" />
+		</Project>
+		<Project filename="AI/StupidAI/StupidAI.cbp">
+			<Depends filename="VCMI_lib.cbp" />
+		</Project>
+	</Workspace>
+</CodeBlocks_workspace_file>
