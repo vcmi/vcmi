@@ -38,6 +38,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGCreature>();
 	s.template registerType<CGSignBottle>();
 	s.template registerType<CQuest>();
+	s.template registerType<IQuestObject>();
 	s.template registerType<CGSeerHut>();
 	s.template registerType<CGQuestGuard>();
 	s.template registerType<CGWitchHut>();

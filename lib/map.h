@@ -30,6 +30,7 @@ class CGCreature;
 class CQuest;
 class CGTownInstance;
 class IModableArt;
+class IQuestObject;
 
 /// Struct which describes a single terrain tile
 struct DLL_LINKAGE TerrainTile
@@ -306,7 +307,7 @@ struct DLL_LINKAGE Mapa : public CMapHeader
 	std::vector< ConstTransitivePtr<CGHeroInstance> > heroes;
 	std::vector< ConstTransitivePtr<CGTownInstance> > towns;
 	std::vector< ConstTransitivePtr<CArtifactInstance> > artInstances; //stores all artifacts
-	std::vector< ConstTransitivePtr<CQuest> > quests;
+	std::vector< ConstTransitivePtr<CQuest> > quests; //FIXME: allow to serialize quests not related to objects
 	//std::vector< ConstTransitivePtr<CCommanderInstance> > commanders;
 	//bmap<ui16, ConstTransitivePtr<CGCreature> > monsters;
 	//bmap<ui16, ConstTransitivePtr<CGHeroInstance> > heroesToBeat;
@@ -317,7 +318,7 @@ struct DLL_LINKAGE Mapa : public CMapHeader
 
 	void readEvents( const ui8 * bufor, int &i);
 	void readObjects( const ui8 * bufor, int &i);
-	void loadQuest( CQuest * guard, const ui8 * bufor, int & i);
+	void loadQuest( IQuestObject * guard, const ui8 * bufor, int & i);
 	void readDefInfo( const ui8 * bufor, int &i);
 	void readTerrain( const ui8 * bufor, int &i);
 	void readPredefinedHeroes( const ui8 * bufor, int &i);
@@ -331,7 +332,7 @@ struct DLL_LINKAGE Mapa : public CMapHeader
 
 	CArtifactInstance *createArt(int aid, int spellID = -1);
 	void addNewArtifactInstance(CArtifactInstance *art);
-	void addQuest (CQuest *quest);
+	void addQuest (IQuestObject *quest);
 	void eraseArtifactInstance(CArtifactInstance *art);
 
 
@@ -447,11 +448,16 @@ struct DLL_LINKAGE Mapa : public CMapHeader
 			for(ui32 i=0; i<objects.size(); i++)
 			{
 				if(!objects[i]) continue;
-				if(objects[i]->ID == GameConstants::HEROI_TYPE)
-					heroes.push_back(static_cast<CGHeroInstance*>(+objects[i]));
-				else if(objects[i]->ID == GameConstants::TOWNI_TYPE)
-					towns.push_back(static_cast<CGTownInstance*>(+objects[i]));
 
+				switch (objects[i]->ID)
+				{
+					case GameConstants::HEROI_TYPE:
+						heroes.push_back (static_cast<CGHeroInstance*>(+objects[i]));
+						break;
+					case GameConstants::TOWNI_TYPE:
+						towns.push_back (static_cast<CGTownInstance*>(+objects[i]));
+						break;
+				}
 				addBlockVisTiles(objects[i]); //recreate blockvis map
 			}
 			for(ui32 i=0; i<heroes.size(); i++) //if hero is visiting/garrisoned in town set appropriate pointers

@@ -759,7 +759,21 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGSeerHut : public CArmedInstance, public CQuest //army is used when giving reward
+class DLL_LINKAGE IQuestObject
+{
+public:
+	CQuest quest;
+
+	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = NULL) const;
+	virtual bool checkQuest (const CGHeroInstance * h) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & quest;
+	}
+};
+
+class DLL_LINKAGE CGSeerHut : public CArmedInstance, public IQuestObject //army is used when giving reward
 {
 public:
 	ui8 rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature
@@ -770,21 +784,21 @@ public:
 	void initObj();
 	const std::string & getHoverText() const;
 	void setPropertyDer (ui8 what, ui32 val);
-	int checkDirection() const; //calculates the region of map where monster is placed
 	void newTurn() const;
 	void onHeroVisit (const CGHeroInstance * h) const;
+
+	int checkDirection() const; //calculates the region of map where monster is placed
+	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
+	const CGHeroInstance *getHeroToKill(bool allowNull = false) const;
+	const CGCreature *getCreatureToKill(bool allowNull = false) const;
 	void getRolloverText (MetaString &text, bool onHover) const;
 	void getCompletionText(MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h = NULL) const;
 	void finishQuest (const CGHeroInstance * h, ui32 accept) const; //common for both objects
 	void completeQuest (const CGHeroInstance * h) const;
 
-	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
-	const CGHeroInstance *getHeroToKill(bool allowNull = false) const;
-	const CGCreature *getCreatureToKill(bool allowNull = false) const;
-
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CArmedInstance&>(*this) & static_cast<CQuest&>(*this);
+		h & static_cast<CArmedInstance&>(*this) & static_cast<IQuestObject&>(*this);
 		h & rewardType & rID & rVal & seerName;
 	}
 };
@@ -1067,7 +1081,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGBorderGuard : public CGKeys, public CQuest
+class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 {
 public:
 	void initObj();
@@ -1080,7 +1094,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CQuest&>(*this);
+		h & static_cast<IQuestObject&>(*this);
 		h & static_cast<CGObjectInstance&>(*this);
 		h & blockVisit;
 	}

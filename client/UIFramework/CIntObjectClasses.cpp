@@ -1281,7 +1281,8 @@ void CBoundedLabel::showAll(SDL_Surface * to)
 	for (int i = 0; i < lineCapacity; i++)
 	{
 		const std::string &line = lines[i];
-		if(!line.size()) continue;
+		if ( !(lines.size() && line.size())) //empty message or empty line
+			continue;
 
 		int x = pos.x;
 		if(alignment == CENTER)

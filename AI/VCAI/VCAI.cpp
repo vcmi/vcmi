@@ -3462,7 +3462,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::SEER_HUT:
 		case Obj::QUEST_GUARD:
 		{
-			return false; //fixme: avoid crash
+			//return false; //fixme: avoid crash
 			BOOST_FOREACH (auto q, ai->myCb->getMyQuests())
 			{
 				if (q.obj == obj)
