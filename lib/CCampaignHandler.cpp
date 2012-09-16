@@ -56,7 +56,7 @@ CCampaign * CCampaignHandler::getCampaign( const std::string & name)
 	int scenarioID = 0;
 
 	//first entry is campaign header. start loop from 1
-	for (int g=1; g<file.size(); ++g)
+	for (int g=1; g<file.size() && g<howManyScenarios; ++g)
 	{
 		while(!ret->scenarios[scenarioID].isNotVoid()) //skip void scenarios
 		{
