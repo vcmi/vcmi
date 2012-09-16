@@ -50,8 +50,12 @@
 #include <vector>
 
 //The only available version is 3, as of Boost 1.50
+#include <boost/version.hpp>
+
 #define BOOST_FILESYSTEM_VERSION 3
+#if ( BOOST_VERSION>105000 )
 #define BOOST_THREAD_VERSION 3
+#endif
 #define BOOST_THREAD_DONT_PROVIDE_THREAD_DESTRUCTOR_CALLS_TERMINATE_IF_JOINABLE 1
 //#define BOOST_SYSTEM_NO_DEPRECATED 1
 
