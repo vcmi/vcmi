@@ -4,6 +4,7 @@
 	<Project>
 		<Option title="VCMI_lib" />
 		<Option execution_dir="D:\projects\vcmi\engine\VCMI_lib\" />
+		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
@@ -47,7 +48,6 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-pedantic" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
@@ -67,7 +67,7 @@
 		</Compiler>
 		<Linker>
 			<Add option="-lws2_32" />
-			<Add library="$(#mingw.lib)\libz.dll.a" />
+			<Add option="-lzlib" />
 			<Add directory="$(#boost.lib)" />
 			<Add directory="$(#sdl.lib)" />
 		</Linker>
