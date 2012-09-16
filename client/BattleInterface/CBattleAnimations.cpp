@@ -691,13 +691,13 @@ void CReverseAnimation::endAnim()
 
 void CReverseAnimation::setupSecondPart()
 {
-	owner->creDir[stack->ID] = !owner->creDir[stack->ID];
-
 	if(!stack)
 	{
 		endAnim();
 		return;
 	}
+
+	owner->creDir[stack->ID] = !owner->creDir[stack->ID];
 
 	Point coords = CClickableHex::getXYUnitAnim(hex, owner->creDir[stack->ID], stack, owner);
 	myAnim()->pos.x = coords.x;

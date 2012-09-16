@@ -3348,16 +3348,17 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action); //start movement and attack
-			int startingPos = stack->position;
-			int distance = moveStack(ba.stackNumber, ba.destinationTile);
-			const CStack *stackAtEnd = gs->curB->battleGetStackByPos(ba.additionalInfo);
 
+			const CStack *stackAtEnd = gs->curB->battleGetStackByPos(ba.additionalInfo);
 			if(!stack || !stackAtEnd)
 			{
 				sendAndApply(&end_action);
 				break;
 			}
-
+			
+			int distance = moveStack(ba.stackNumber, ba.destinationTile);
+			int startingPos = stack->position;
+			
 			tlog5 << stack->nodeName() << " will attack " << stackAtEnd->nodeName() << std::endl;
 
 			if(stack->position != ba.destinationTile //we wasn't able to reach destination tile

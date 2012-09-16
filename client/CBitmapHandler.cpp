@@ -139,15 +139,18 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 		          SDL_RWFromConstMem((void*)readFile.first.get(), readFile.second),
 		          1, // mark it for auto-deleting
 		          &info.getExtension()[0] + 1); //pass extension without dot (+1 character)
-
-		if (!ret)
-			tlog1<<"Failed to open "<<fname<<" via SDL_Image\n";
-
-		if (ret->format->palette)
+		if (ret)
 		{
-			//set correct value for alpha\unused channel
-			for (int i=0; i< ret->format->palette->ncolors; i++)
-				ret->format->palette->colors[i].unused = 255;
+			if (ret->format->palette)
+			{
+				//set correct value for alpha\unused channel
+				for (int i=0; i< ret->format->palette->ncolors; i++)
+					ret->format->palette->colors[i].unused = 255;
+			}			
+		}
+		else
+		{
+			tlog1<<"Failed to open "<<fname<<" via SDL_Image\n";		
 		}
 	}
 	return ret;
