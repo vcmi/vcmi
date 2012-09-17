@@ -165,21 +165,20 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	//we need to know creature id to add it
 	VLC->creh->idToProjectile[cre->idNumber] = value->String();
 
-	//TODO: sounds
-	//how to pass info to Client?
 	auto sounds = node["sound"];
-	//CreaturesBattleSounds cbs;
-	//cbs.attack = sounds["attack"].String();
-	//cbs.defend = sounds["defend"].String();
-	//cbs.killed = sounds["killed"].String(); // was killed or died
-	//cbs.move = sounds["move"].String();
-	//cbs.shoot = sounds["shoot"].String(); // range attack
-	//cbs.wince = sounds["wince"].String(); // attacked but did not die
-	//cbs.ext1 = "";  // creature specific extension
-	//cbs.ext2 = "";  // creature specific extension
-	//cbs.startMoving = sounds["moveStart"].String(); // usually same as ext1
-	//cbs.endMoving = sounds["moveEnd"].String();	// usually same as ext2
-	//CCS->soundh->CBattleSounds.push_back(cbs);
+
+#define GET_SOUND_VALUE(value_name) do { value = &node[#value_name]; if (!value->isNull()) cre->sounds.value_name = sounds[#value_name].String(); } while(0)
+	GET_SOUND_VALUE(attack);
+	GET_SOUND_VALUE(defend);
+	GET_SOUND_VALUE(killed);
+	GET_SOUND_VALUE(move);
+	GET_SOUND_VALUE(shoot);
+	GET_SOUND_VALUE(wince);
+	GET_SOUND_VALUE(ext1);
+	GET_SOUND_VALUE(ext2);
+	GET_SOUND_VALUE(startMoving);
+	GET_SOUND_VALUE(endMoving);
+#undef GET_SOUND_VALUE
 
 	creatures.push_back(cre);
 	return cre;

@@ -6,6 +6,7 @@
 #include "ResourceSet.h"
 #include "GameConstants.h"
 #include "JsonNode.h"
+#include "../client/CMusicHandler.h"
 
 /*
  * CCreatureHandler.h, part of VCMI engine
@@ -20,6 +21,7 @@
 class CLegacyConfigParser;
 class CCreatureHandler;
 class CCreature;
+struct CreaturesBattleSounds;
 
 class DLL_LINKAGE CCreature : public CBonusSystemNode
 {
@@ -44,6 +46,26 @@ public:
 	double missleFrameAngles[12];
 	int troopCountLocationOffset, attackClimaxFrame;
 	///end of anim info
+
+	//sound info
+	struct CreaturesBattleSounds
+	{
+		std::string attack;
+		std::string defend;
+		std::string killed; // was killed or died
+		std::string move;
+		std::string shoot; // range attack
+		std::string wince; // attacked but did not die
+		std::string ext1;  // creature specific extension
+		std::string ext2;  // creature specific extension
+		std::string startMoving; // usually same as ext1
+		std::string endMoving;	// usually same as ext2
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & attack & defend & killed & move & shoot & wince & ext1 & ext2 & startMoving & endMoving;
+		}
+	} sounds;
 
 	bool isItNativeTerrain(int terrain) const;
 	bool isDoubleWide() const; //returns true if unit is double wide on battlefield
@@ -85,6 +107,7 @@ public:
 			& timeBetweenFidgets & walkAnimationTime & attackAnimationTime & flightAnimationDistance
 			& upperRightMissleOffsetX & rightMissleOffsetX & lowerRightMissleOffsetX & upperRightMissleOffsetY & rightMissleOffsetY & lowerRightMissleOffsetY
 			& missleFrameAngles & troopCountLocationOffset & attackClimaxFrame;
+		h & sounds;
 
 		h & doubleWide;
 	}
@@ -126,6 +149,7 @@ public:
 	void buildBonusTreeForTiers();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
+	void loadSoundsInfo();
 	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser &parser);
 	int stringToNumber(std::string & s);//help function for parsing CREXPBON.txt
 

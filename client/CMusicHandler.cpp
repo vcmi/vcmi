@@ -153,6 +153,25 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(soundBase::soundID soundID)
 	}
 }
 
+Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound)
+{
+	// Load and insert
+	try
+	{
+		auto data = CResourceHandler::get()->loadData(ResourceID(std::string("SOUNDS/") + sound, EResType::SOUND)); //TODO: allow other sound folders?
+
+		SDL_RWops *ops = SDL_RWFromMem(data.first.release(), data.second);
+		Mix_Chunk *chunk;
+		chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
+		return chunk;
+	}
+	catch(std::exception &e)
+	{
+		tlog3 << "Cannot get sound " << sound << " chunk: " << e.what() << "\n";
+		return nullptr;
+	}
+}
+
 // Get a soundID given a filename
 soundBase::soundID CSoundHandler::getSoundID(const std::string &fileName)
 {
@@ -167,46 +186,6 @@ soundBase::soundID CSoundHandler::getSoundID(const std::string &fileName)
 
 void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CCreature> > &creatures)
 {
-	tlog5 << "\t\tReading config/cr_sounds.json" << std::endl;
-	const JsonNode config(ResourceID("config/cr_sounds.json"));
-
-	CBattleSounds.resize(creatures.size());
-
-	if (!config["creature_sounds"].isNull()) {
-
-		BOOST_FOREACH(const JsonNode &node, config["creature_sounds"].Vector()) {
-			const JsonNode *value;
-			int id;
-
-			value = &node["name"];
-
-			bmap<std::string,int>::const_iterator i = CGI->creh->nameToID.find(value->String());
-			if (i != CGI->creh->nameToID.end())
-				id = i->second;
-			else
-			{
-				tlog1 << "Sound info for an unknown creature: " << value->String() << std::endl;
-				continue;
-			}
-
-			/* This is a bit ugly. Maybe we should use an array for
-			 * sound ids instead of separate variables and define
-			 * attack/defend/killed/... as indexes. */
-#define GET_SOUND_VALUE(value_name) do { value = &node[#value_name]; if (!value->isNull()) CBattleSounds[id].value_name = getSoundID(value->String()); } while(0)
-
-			GET_SOUND_VALUE(attack);
-			GET_SOUND_VALUE(defend);
-			GET_SOUND_VALUE(killed);
-			GET_SOUND_VALUE(move);
-			GET_SOUND_VALUE(shoot);
-			GET_SOUND_VALUE(wince);
-			GET_SOUND_VALUE(ext1);
-			GET_SOUND_VALUE(ext2);
-			GET_SOUND_VALUE(startMoving);
-			GET_SOUND_VALUE(endMoving);
-#undef GET_SOUND_VALUE
-		}
-	}
 
 	//commented to avoid spurious warnings
 	/*
@@ -258,6 +237,30 @@ int CSoundHandler::playSound(soundBase::soundID soundID, int repeats)
 		channel = Mix_PlayChannel(-1, chunk, repeats);
 		if (channel == -1)
 			tlog1 << "Unable to play sound file " << soundID << " , error " << Mix_GetError() << std::endl;
+		else
+			callbacks[channel];//insert empty callback
+	}
+	else
+	{
+		channel = -1;
+	}
+
+	return channel;
+}
+
+int CSoundHandler::playSound(std::string sound, int repeats)
+{
+	if (!initialized)
+		return -1;
+
+	int channel;
+	Mix_Chunk *chunk = GetSoundChunk(sound);
+
+	if (chunk)
+	{
+		channel = Mix_PlayChannel(-1, chunk, repeats);
+		if (channel == -1)
+			tlog1 << "Unable to play sound file " << sound << " , error " << Mix_GetError() << std::endl;
 		else
 			callbacks[channel];//insert empty callback
 	}
