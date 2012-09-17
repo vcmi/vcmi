@@ -338,8 +338,7 @@ void CGeneralTextHandler::load()
 
 		//skip header
 		parser.endLine();
-
-		while (parser.endLine());
+		parser.endLine();
 
 		for (int i = 0; i < 6; ++i)
 			seerEmpty.push_back(parser.readString());

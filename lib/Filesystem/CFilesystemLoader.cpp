@@ -52,6 +52,13 @@ bool CFilesystemLoader::createEntry(std::string filename)
 
 boost::unordered_map<ResourceID, std::string> CFilesystemLoader::listFiles(size_t depth, bool initial) const
 {
+	std::set<EResType::Type> initialTypes;
+	initialTypes.insert(EResType::DIRECTORY);
+	initialTypes.insert(EResType::TEXT);
+	initialTypes.insert(EResType::ARCHIVE_LOD);
+	initialTypes.insert(EResType::ARCHIVE_VID);
+	initialTypes.insert(EResType::ARCHIVE_SND);
+
 	assert(boost::filesystem::is_directory(baseDirectory));
 	boost::unordered_map<ResourceID, std::string> fileList;
 
@@ -75,7 +82,7 @@ boost::unordered_map<ResourceID, std::string> CFilesystemLoader::listFiles(size_
 		else
 			type = EResTypeHelper::getTypeFromExtension(boost::filesystem::extension(*it));
 
-		if (!initial || type == EResType::DIRECTORY || type == EResType::ARCHIVE || type == EResType::TEXT)
+		if (!initial || vstd::contains(initialTypes, type))
 		{
 			//reconstruct relative filename (not possible via boost AFAIK)
 			std::string filename;

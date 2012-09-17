@@ -244,10 +244,10 @@ EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 			(".MPG",   EResType::VIDEO)
 	        (".MP3",   EResType::MUSIC)
 	        (".OGG",   EResType::MUSIC)
-	        (".LOD",   EResType::ARCHIVE)
-	        (".PAC",   EResType::ARCHIVE)
-	        (".VID",   EResType::ARCHIVE)
-	        (".SND",   EResType::ARCHIVE)
+	        (".LOD",   EResType::ARCHIVE_LOD)
+	        (".PAC",   EResType::ARCHIVE_LOD)
+	        (".VID",   EResType::ARCHIVE_VID)
+	        (".SND",   EResType::ARCHIVE_SND)
 	        (".PAL",   EResType::PALETTE)
 	        (".VCGM1", EResType::CLIENT_SAVEGAME)
 	        (".VLGM1", EResType::LIB_SAVEGAME)
@@ -274,7 +274,9 @@ std::string EResTypeHelper::getEResTypeAsString(EResType::Type type)
 		MAP_ENUM(VIDEO)
 		MAP_ENUM(SOUND)
 		MAP_ENUM(MUSIC)
-		MAP_ENUM(ARCHIVE)
+		MAP_ENUM(ARCHIVE_LOD)
+		MAP_ENUM(ARCHIVE_SND)
+		MAP_ENUM(ARCHIVE_VID)
 		MAP_ENUM(PALETTE)
 		MAP_ENUM(CLIENT_SAVEGAME)
 		MAP_ENUM(LIB_SAVEGAME)
@@ -333,6 +335,33 @@ void CResourceHandler::initialize()
 	recurseInDir("ALL/MODS", 2); // look for mods. Depth 2 is required for now but won't cause issues if no mods present
 }
 
+void CResourceHandler::loadDirectory(const std::string mountPoint, const JsonNode & config)
+{
+	std::string URI = config["path"].String();
+	bool writeable = config["writeable"].Bool();
+	int depth = 16;
+	if (!config["depth"].isNull())
+		depth = config["depth"].Float();
+
+	auto resources = initialLoader->getResourcesWithName(ResourceID(URI, EResType::DIRECTORY));
+
+	BOOST_FOREACH(const ResourceLocator & entry, resources)
+	{
+		std::string filename = entry.getLoader()->getOrigin() + '/' + entry.getResourceName();
+		resourceLoader->addLoader(mountPoint,
+		    shared_ptr<ISimpleResourceLoader>(new CFilesystemLoader(filename, depth)), writeable);
+	}
+}
+
+void CResourceHandler::loadArchive(const std::string mountPoint, const JsonNode & config, EResType::Type archiveType)
+{
+	std::string URI = config["path"].String();
+	std::string filename = initialLoader->getResourceName(ResourceID(URI, archiveType));
+	if (!filename.empty())
+		resourceLoader->addLoader(mountPoint,
+		    shared_ptr<ISimpleResourceLoader>(new CLodArchiveLoader(filename)), false);
+}
+
 void CResourceHandler::loadFileSystem(const std::string fsConfigURI)
 {
 	auto fsConfigData = initialLoader->loadData(ResourceID(fsConfigURI, EResType::TEXT));
@@ -346,30 +375,20 @@ void CResourceHandler::loadFileSystem(const std::string fsConfigURI)
 			CStopWatch timer;
 			tlog5 << "\t\tLoading resource at " << entry["path"].String();
 
-			std::string URI = entry["path"].String();
 			if (entry["type"].String() == "dir")
+				loadDirectory(mountPoint.first, entry);
+			if (entry["type"].String() == "lod")
+				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_LOD);
+			if (entry["type"].String() == "snd")
+				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_SND);
+			if (entry["type"].String() == "vid")
+				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_VID);
+
+			if (entry["type"].String() == "file") // for some compatibility, will be removed for 0.90
 			{
-				bool writeable = entry["writeable"].Bool();
-				int depth = 16;
-				if (!entry["depth"].isNull())
-					depth = entry["depth"].Float();
-
-				auto resources = initialLoader->getResourcesWithName(ResourceID(URI, EResType::DIRECTORY));
-
-				BOOST_FOREACH(const ResourceLocator & entry, resources)
-				{
-					std::string filename = entry.getLoader()->getOrigin() + '/' + entry.getResourceName();
-					resourceLoader->addLoader(mountPoint.first,
-					    shared_ptr<ISimpleResourceLoader>(new CFilesystemLoader(filename, depth)), writeable);
-				}
-			}
-
-			if (entry["type"].String() == "file")
-			{
-				std::string filename = initialLoader->getResourceName(ResourceID(URI, EResType::ARCHIVE));
-				if (!filename.empty())
-					resourceLoader->addLoader(mountPoint.first,
-					    shared_ptr<ISimpleResourceLoader>(new CLodArchiveLoader(filename)), false);
+				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_LOD);
+				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_SND);
+				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_VID);
 			}
 
 			tlog5 << " took " << timer.getDiff() << " ms.\n";

@@ -3411,11 +3411,10 @@ SDL_Surface * CBattleInterface::imageOfObstacle(const CObstacleInstance &oi) con
 				return vstd::circularAt(smallForceField[forceField.casterSide]->ourImages, frameIndex).bitmap;
 		}
 
-	case CObstacleInstance::MOAT:
-		//moat is blitted by SiegeHelper, this shouldn't be called
-		assert(0);
+	case CObstacleInstance::MOAT://moat is blitted by SiegeHelper, this shouldn't be called
 	default:
 		assert(0);
+		return nullptr;
 	}
 }
 

@@ -16,6 +16,7 @@
 class CResourceLoader;
 class ResourceLocator;
 class ISimpleResourceLoader;
+class JsonNode;
 
 /**
  * Specifies the resource type.
@@ -50,7 +51,9 @@ namespace EResType
 		VIDEO,
 		SOUND,
 		MUSIC,
-		ARCHIVE,
+		ARCHIVE_VID,
+		ARCHIVE_SND,
+		ARCHIVE_LOD,
 		PALETTE,
 		CLIENT_SAVEGAME,
 		LIB_SAVEGAME,
@@ -186,28 +189,6 @@ inline size_t hash_value(const ResourceID & resourceIdent)
 	boost::hash<std::string> stringHasher;
 	return stringHasher(resourceIdent.getName()) ^ intHasher(static_cast<int>(resourceIdent.getType()));
 }
-
-// namespace std
-// {
-// 	/**
-// 	 * Template specialization for std::hash.
-// 	 */
-// 	template <>
-// 	class hash<ResourceID>
-// 	{
-// public:
-// 		/**
-// 		 * Generates a hash value for the resource identifier object.
-// 		 *
-// 		 * @param resourceIdent The object from which a hash value should be generated.
-// 		 * @return the generated hash value
-// 		 */
-// 		size_t operator()(const ResourceID & resourceIdent) const
-// 		{
-// 			return hash<string>()(resourceIdent.getName()) ^ hash<int>()(static_cast<int>(resourceIdent.getType()));
-// 		}
-// 	};
-// };
 
 /**
  * This class manages the loading of resources whether standard
@@ -396,6 +377,8 @@ public:
 	 * Will load all filesystem data from Json data at this path (config/filesystem.json)
 	 */
 	static void loadFileSystem(const std::string fsConfigURI);
+	static void loadDirectory(const std::string mountPoint, const JsonNode & config);
+	static void loadArchive(const std::string mountPoint, const JsonNode & config, EResType::Type archiveType);
 
 	/**
 	 * Experimental. Checks all subfolders of MODS directory for presence of ERA-style mods
