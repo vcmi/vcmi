@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CModHandler.h"
 #include "JsonNode.h"
-
+#include "Filesystem\CResourceLoader.h" //TODO: reorganize
 /*
  * CModHandler.h, part of VCMI engine
  *
@@ -65,9 +65,8 @@ void CModHandler::loadConfigFromFile (std::string name)
 
 	//auto mods = config["activeMods"]; //TODO: load only mods from the list
 
-	CResourceLoader * modLoader = new CResourceLoader;
-
-	auto iterator = modLoader->getIterator([](const ResourceID & ident) ->  bool
+	auto resourceLoader = CResourceHandler::get();
+	auto iterator = resourceLoader->getIterator([](const ResourceID & ident) ->  bool
 	{
 		std::string name = ident.getName();
 
