@@ -410,7 +410,6 @@ void CCampaignState::initNewCampaign( const StartInfo &si )
 {
 	assert(si.mode == StartInfo::CAMPAIGN);
 	campaignName = si.mapname;
-	currentMap = si.whichMapInCampaign;
 
 	camp = CCampaignHandler::getCampaign(campaignName);
 	for (ui8 i = 0; i < camp->mapPieces.size(); i++)

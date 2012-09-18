@@ -773,10 +773,18 @@ static void listenForEvents()
 				break;
 			}*/
 			case RETURN_TO_MAIN_MENU:
-				endGame();
-				CGPreGame::create();
-				GH.curInt = CGP;
-				GH.defActionsDef = 63;
+				{
+					auto mode = client->getStartInfo()->mode;
+					endGame();
+					if(mode == StartInfo::CAMPAIGN)
+						GH.pushInt( new CBonusSelection(NULL) );
+					else
+					{
+						CGPreGame::create();
+						GH.curInt = CGP;
+						GH.defActionsDef = 63;
+					}
+				}
 				break;
 			case STOP_CLIENT:
 				client->endGame(false);

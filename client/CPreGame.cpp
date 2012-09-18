@@ -796,6 +796,7 @@ void CSelectionScreen::startCampaign()
 		CCampaign * ourCampaign = CCampaignHandler::getCampaign(SEL->current->fileURI);
 		CCampaignState * campState = new CCampaignState();
 		campState->camp = ourCampaign;
+		sInfo.campSt = campState;
 		GH.pushInt( new CBonusSelection(campState) );
 	}
 }
@@ -2924,6 +2925,8 @@ void CBonusSelection::selectMap( int whichOne )
 	sInfo.difficulty = ourCampaign->camp->scenarios[whichOne].difficulty;
 	sInfo.mapname = ourCampaign->camp->header.filename;
 	sInfo.mode = StartInfo::CAMPAIGN;
+	sInfo.campSt = ourCampaign;
+	ourCampaign->currentMap = whichOne;
 
 	//get header
 	int i = 0;
@@ -2935,10 +2938,7 @@ void CBonusSelection::selectMap( int whichOne )
 	names[1] = settings["general"]["playerName"].String();
 	updateStartInfo(ourCampaign->camp->header.filename, sInfo, ourHeader, names);
 	sInfo.turnTime = 0;
-	sInfo.whichMapInCampaign = whichOne;
 	sInfo.difficulty = ourCampaign->camp->scenarios[whichOne].difficulty;
-
-	ourCampaign->currentMap = whichOne;
 
 	mapDesc->setTxt(ourHeader->description);
 
@@ -3016,7 +3016,7 @@ void CBonusSelection::updateBonusSelection()
 	//resource - BORES.DEF
 	//player - CREST58.DEF
 	//hero - PORTRAITSLARGE (HPL###.BMPs)
-	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.whichMapInCampaign];
+	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.campSt->currentMap];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 
 	for (size_t i=0; i<bonuses->buttons.size(); i++)
@@ -3216,7 +3216,7 @@ void CBonusSelection::selectBonus( int id )
 	}
 
 
-	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.whichMapInCampaign];
+	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.campSt->currentMap];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	if (bonDescs[id].type == 8) //hero crossover
 	{

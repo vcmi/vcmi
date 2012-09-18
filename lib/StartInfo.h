@@ -10,6 +10,8 @@
  *
  */
 
+class CCampaignState;
+
 /// Struct which describes the name, the color, the starting bonus of a player
 struct PlayerSettings
 {
@@ -18,7 +20,7 @@ struct PlayerSettings
 	si32 castle, hero,  //ID, if -1 then random, if -2 then none
 		heroPortrait; //-1 if default, else ID
 	std::string heroName;
-	si8 bonus; //usees enum type Ebonus
+	si8 bonus; //uses enum type Ebonus
 	ui8 color; //from 0 - 
 	ui8 handicap;//0-no, 1-mild, 2-severe
 	ui8 team;
@@ -63,8 +65,8 @@ struct StartInfo
 	ui32 mapfileChecksum; //0 if not relevant
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname;
-	ui8 whichMapInCampaign; //used only for mode CAMPAIGN
 	ui8 choosenCampaignBonus; //used only for mode CAMPAIGN
+	CCampaignState * campSt;
 	PlayerSettings & getIthPlayersSettings(int no)
 	{
 		if(playerInfos.find(no) != playerInfos.end())
@@ -91,8 +93,8 @@ struct StartInfo
 		h & mapfileChecksum;
 		h & turnTime;
 		h & mapname;
-		h & whichMapInCampaign;
 		h & choosenCampaignBonus;
+		h & campSt;
 	}
 
 	StartInfo()

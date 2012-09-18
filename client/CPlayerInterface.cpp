@@ -2026,10 +2026,7 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 		howManyPeople--;
 		if(!howManyPeople) //all human players eliminated
 		{
-			if(cb->getStartInfo()->mode != StartInfo::CAMPAIGN)
-				requestReturningToMainMenu();
-			else
-				requestStoppingClient();
+			requestReturningToMainMenu();
 		}
 		cb->unregisterMyInterface(); //we already won/lost, nothing else matters
 	}
