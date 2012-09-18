@@ -62,6 +62,43 @@ void CModHandler::loadConfigFromFile (std::string name)
 	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();
 	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
+
+	//auto mods = config["activeMods"]; //TODO: load only mods from the list
+
+	CResourceLoader * modLoader = new CResourceLoader;
+
+	auto iterator = modLoader->getIterator([](const ResourceID & ident) ->  bool
+	{
+		std::string name = ident.getName();
+
+		return ident.getType() == EResType::TEXT
+		    && std::count(name.begin(), name.end(), '/') == 3
+		    && boost::algorithm::starts_with(name, "ALL/MODS/")
+		    && boost::algorithm::ends_with(name, "MOD"); //all mods have "mod.json" name - does it make sense?
+	});
+
+	std::set<std::string> foundMods;
+	while (iterator.hasNext())
+	{
+		foundMods.insert(iterator->getName());
+		++iterator;
+	}
+
+	BOOST_FOREACH (auto mod, foundMods)
+	{
+		tlog3 << "\t\tFound mod file: " << mod << "\n";
+
+		const JsonNode config (ResourceID("mod"));
+		const JsonNode *value = &config["creatures"];
+		if (!value->isNull())
+		{
+			BOOST_FOREACH (auto creature, value->Vector())
+			{
+				auto cre = loadCreature (creature);
+				addNewCreature (cre);
+			}
+		}
+	}
 }
 void CModHandler::saveConfigToFile (std::string name)
 {
@@ -187,10 +224,15 @@ void CModHandler::recreateHandlers()
 {
 	//TODO: consider some template magic to unify all handlers?
 
-	VLC->arth->artifacts.clear();
-	VLC->creh->creatures.clear(); //TODO: what about items from original game?
+	//VLC->arth->artifacts.clear();
+	//VLC->creh->creatures.clear(); //TODO: what about items from original game?
 
-	BOOST_FOREACH (auto mod, activeMods)
+	BOOST_FOREACH (auto creature, creatures)
+	{
+		VLC->creh->creatures.push_back (creature);
+	}
+
+	BOOST_FOREACH (auto mod, activeMods) //inactive part
 	{
 		BOOST_FOREACH (auto art, allMods[mod].artifacts)
 		{
@@ -201,6 +243,7 @@ void CModHandler::recreateHandlers()
 		BOOST_FOREACH (auto creature, allMods[mod].creatures)
 		{
 			VLC->creh->creatures.push_back (creatures[creature]);
+			//TODO VLC->creh->notUsedMonster.push_back (creatures[creature]);
 
 			//TODO: recreate upgrades and other properties based on string id
 		}

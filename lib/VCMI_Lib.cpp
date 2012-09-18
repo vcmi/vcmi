@@ -102,6 +102,9 @@ void LibClasses::init()
 	spellh->loadSpells();
 	tlog0<<"\tSpell handler: "<<pomtime.getDiff()<<std::endl;
 
+	modh->recreateHandlers(); //load all new creatures parsed in the meantime.
+	//TODO: This should be done every time mod config changes
+
 	IS_AI_ENABLED = false;
 }
 

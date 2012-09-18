@@ -419,7 +419,7 @@ void CResourceHandler::loadModsFilesystems()
 
 	BOOST_FOREACH(const std::string & entry, foundMods)
 	{
-		tlog1 << "\t\tFound mod filesystem: " << entry << "\n";
+		tlog3 << "\t\tFound mod filesystem: " << entry << "\n";
 		loadFileSystem(entry);
 	}
 }
