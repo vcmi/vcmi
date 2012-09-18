@@ -1363,6 +1363,7 @@ void CBattleInterface::stackRemoved(int stackID)
 	creAnims.erase(stackID);
 	creDir.erase(stackID);
 
+	redrawBackgroundWithHexes(activeStack);
 	queue->update();
 }
 
