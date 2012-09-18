@@ -3356,8 +3356,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				break;
 			}
 			
+			BattleHex startingPos = stack->position;
 			int distance = moveStack(ba.stackNumber, ba.destinationTile);
-			int startingPos = stack->position;
 			
 			tlog5 << stack->nodeName() << " will attack " << stackAtEnd->nodeName() << std::endl;
 
@@ -3418,7 +3418,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			}
 
 			//second attack
-			if(stack //FIXME: clones tend to dissapear during actions
+			if(stack //FIXME: clones tend to disapear during actions
 				&& stack->valOfBonuses(Bonus::ADDITIONAL_ATTACK) > 0
 				&& !stack->hasBonusOfType(Bonus::SHOOTER)
 				&& stack->alive()

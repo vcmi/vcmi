@@ -6,7 +6,6 @@
 #include "ResourceSet.h"
 #include "GameConstants.h"
 #include "JsonNode.h"
-#include "../client/CMusicHandler.h"
 
 /*
  * CCreatureHandler.h, part of VCMI engine
