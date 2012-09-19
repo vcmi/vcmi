@@ -774,12 +774,12 @@ static void listenForEvents()
 			}*/
 			case RETURN_TO_MAIN_MENU:
 				{
-					auto mode = client->getStartInfo()->mode;
-					endGame();
-					if(mode == StartInfo::CAMPAIGN)
-						GH.pushInt( new CBonusSelection(NULL) );
+					StartInfo si = *client->getStartInfo();
+					if(si.mode == StartInfo::CAMPAIGN)
+						GH.pushInt( new CBonusSelection(si.campSt) );
 					else
 					{
+						endGame();
 						CGPreGame::create();
 						GH.curInt = CGP;
 						GH.defActionsDef = 63;
