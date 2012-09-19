@@ -330,7 +330,8 @@ void CResourceHandler::initialize()
 	//create "LOCAL" dir with current userDir (may be same as rootDir)
 	initialLoader->addLoader("LOCAL/", userDir, false);
 
-	recurseInDir("ALL/CONFIG", 0);// look for configs
+	//recurseInDir("ALL/CONFIG", 0);// look for configs
+	recurseInDir("ALL/CONFIG", 4);// look for mods (2) and mod files (3) in config folder
 	recurseInDir("ALL/DATA", 0); // look for archives
 	recurseInDir("ALL/MODS", 2); // look for mods. Depth 2 is required for now but won't cause issues if no mods present
 }

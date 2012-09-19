@@ -1,7 +1,8 @@
 #include "StdInc.h"
 #include "CModHandler.h"
 #include "JsonNode.h"
-#include "Filesystem\CResourceLoader.h" //TODO: reorganize
+#include "Filesystem\CResourceLoader.h"
+#include "Filesystem\ISimpleResourceLoader.h"
 /*
  * CModHandler.h, part of VCMI engine
  *
@@ -21,6 +22,7 @@ class CObjectHandler;
 class CDefObjInfoHandler;
 class CTownHandler;
 class CGeneralTextHandler;
+class ResourceLocator;
 
 CModHandler::CModHandler()
 {
@@ -63,41 +65,32 @@ void CModHandler::loadConfigFromFile (std::string name)
 	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
 
-	//auto mods = config["activeMods"]; //TODO: load only mods from the list
+	//TODO: load only mods from the list
 
-	auto resourceLoader = CResourceHandler::get();
-	auto iterator = resourceLoader->getIterator([](const ResourceID & ident) ->  bool
-	{
-		std::string name = ident.getName();
+	//TODO: read mods from Mods/ folder
 
-		return ident.getType() == EResType::TEXT
-		    && std::count(name.begin(), name.end(), '/') == 3
-		    && boost::algorithm::starts_with(name, "ALL/MODS/")
-		    && boost::algorithm::ends_with(name, "MOD"); //all mods have "mod.json" name - does it make sense?
-	});
+	auto & configList = CResourceHandler::get()->getResourcesWithName (ResourceID("CONFIG/MODS/HOTA/MOD", EResType::TEXT)); 
 
-	std::set<std::string> foundMods;
-	while (iterator.hasNext())
-	{
-		foundMods.insert(iterator->getName());
-		++iterator;
-	}
+	BOOST_FOREACH(auto & entry, configList) 
+	{ 
+		auto stream = entry.getLoader()->load (entry.getResourceName()); 
+		std::unique_ptr<ui8[]> textData (new ui8[stream->getSize()]); 
+		stream->read (textData.get(), stream->getSize()); 
 
-	BOOST_FOREACH (auto mod, foundMods)
-	{
-		tlog3 << "\t\tFound mod file: " << mod << "\n";
+		tlog3 << "\t\tFound mod file: " << entry.getResourceName() << "\n";
+		const JsonNode config ((char*)textData.get(), stream->getSize());
 
-		const JsonNode config (ResourceID("mod"));
 		const JsonNode *value = &config["creatures"];
 		if (!value->isNull())
 		{
 			BOOST_FOREACH (auto creature, value->Vector())
 			{
-				auto cre = loadCreature (creature);
-				addNewCreature (cre);
+				auto cre = loadCreature (creature); //create and push back creature
 			}
 		}
 	}
+
+
 }
 void CModHandler::saveConfigToFile (std::string name)
 {
@@ -119,24 +112,52 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	cre->idNumber = creatures.size();
 	const JsonNode *value; //optional value
 
-	//TODO: ref name
+	//TODO: ref name?
 	auto name = node["name"];
 	cre->nameSing = name["singular"].String();
 	cre->namePl = name["plural"].String();
-	//TODO: map name->id
+	cre->nameRef = cre->nameSing;
 
+	//TODO: export resource set to separate function?
 	auto cost = node["cost"];
 	if (cost.getType() == JsonNode::DATA_FLOAT) //gold
 	{
 		cre->cost[Res::GOLD] = cost.Float();
 	}
-	else
+	else if (cost.getType() == JsonNode::DATA_VECTOR)
 	{
 		int i = 0;
 		BOOST_FOREACH (auto val, cost.Vector())
 		{
 			cre->cost[i++] = val.Float();
 		}
+	}
+	else //damn you...
+	{
+		value = &cost["gold"];
+		if (!value->isNull())
+			cre->cost[Res::GOLD] = value->Float();
+		value = &cost["gems"];
+		if (!value->isNull())
+			cre->cost[Res::GEMS] = value->Float();
+		value = &cost["crystal"];
+		if (!value->isNull())
+			cre->cost[Res::CRYSTAL] = value->Float();
+		value = &cost["mercury"];
+		if (!value->isNull())
+			cre->cost[Res::MERCURY] = value->Float();
+		value = &cost["sulfur"];
+		if (!value->isNull())
+			cre->cost[Res::SULFUR] = value->Float();
+		value = &cost["ore"];
+		if (!value->isNull())
+			cre->cost[Res::ORE] = value->Float();
+		value = &cost["wood"];
+		if (!value->isNull())
+			cre->cost[Res::WOOD] = value->Float();
+		value = &cost["mithril"];
+		if (!value->isNull())
+			cre->cost[Res::MITHRIL] = value->Float();
 	}
 
 	cre->level = node["level"].Float();
@@ -149,11 +170,20 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	cre->addBonus(node["speed"].Float(), Bonus::STACKS_SPEED);
 	cre->addBonus(node["attack"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
 	cre->addBonus(node["defense"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
-	auto vec = node["damage"].Vector();
-	cre->addBonus(vec[0].Float(), Bonus::CREATURE_DAMAGE, 1);
-	cre->addBonus(vec[1].Float(), Bonus::CREATURE_DAMAGE, 2);
+	auto vec = node["damage"];
+	cre->addBonus(vec["min"].Float(), Bonus::CREATURE_DAMAGE, 1);
+	cre->addBonus(vec["max"].Float(), Bonus::CREATURE_DAMAGE, 2);
 
 	//optional
+	value = &node["upgrades"];
+	if (!value->isNull())
+	{
+		BOOST_FOREACH (auto str, value->Vector())
+		{
+			cre->upgradeNames.insert (str.String());
+		}
+	}
+
 	value = &node["shots"];
 	if (!value->isNull())
 		cre->addBonus(value->Float(), Bonus::SHOTS);
@@ -162,7 +192,11 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	if (!value->isNull())
 		cre->addBonus(value->Float(), Bonus::CASTS);
 
-	cre->doubleWide = value->Bool();
+	value = &node["doubleWide"];
+	if (!value->isNull())
+		cre->doubleWide = value->Bool();
+	else
+		cre->doubleWide = false;
 
 	value = &node["abilities"];
 	if (!value->isNull())
@@ -198,8 +232,10 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	{
 		cre->missleFrameAngles[i++] = angle.Float();
 	}
-	//we need to know creature id to add it
-	VLC->creh->idToProjectile[cre->idNumber] = value->String();
+	//TODO: we need to know creature id to add it
+	//FIXME: creature handler is not yet initialized
+	//VLC->creh->idToProjectile[cre->idNumber] = "PLCBOWX.DEF";
+	cre->projectile = "PLCBOWX.DEF";
 
 	auto sounds = node["sound"];
 
@@ -229,7 +265,24 @@ void CModHandler::recreateHandlers()
 	BOOST_FOREACH (auto creature, creatures)
 	{
 		VLC->creh->creatures.push_back (creature);
+		//TODO: use refName?
+		//if (creature->nameRef.size())
+		//	VLC->creh->nameToID[creature->nameRef] = creature->idNumber;
+		VLC->creh->nameToID[creature->nameSing] = creature->idNumber;
 	}
+	BOOST_FOREACH (auto creature, VLC->creh->creatures) //populate upgrades described with string
+	{
+		BOOST_FOREACH (auto upgradeName, creature->upgradeNames)
+		{
+			auto it = VLC->creh->nameToID.find(upgradeName);
+			if (it != VLC->creh->nameToID.end())
+			{
+				creature->upgrades.insert (it->second);
+			}
+		}
+	}
+
+	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded
 
 	BOOST_FOREACH (auto mod, activeMods) //inactive part
 	{

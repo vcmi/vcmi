@@ -27,6 +27,7 @@ class DLL_LINKAGE CCreature : public CBonusSystemNode
 public:
 	std::string namePl, nameSing, nameRef; //name in singular and plural form; and reference name
 	TResources cost; //cost[res_id] - amount of that resource
+	std::set<std::string> upgradeNames; //for reference, they are later transformed info ui32 upgrades
 	std::set<ui32> upgrades; // IDs of creatures to which this creature can be upgraded
 	//damage, hp. etc are handled by Bonuses
 	ui32 fightValue, AIValue, growth, hordeGrowth;
@@ -44,6 +45,7 @@ public:
 	int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX, upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
 	double missleFrameAngles[12];
 	int troopCountLocationOffset, attackClimaxFrame;
+	std::string projectile;
 	///end of anim info
 
 	//sound info
@@ -97,7 +99,7 @@ public:
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & namePl & nameSing & nameRef
-			& cost & upgrades 
+			& cost & upgradeNames & upgrades 
 			& fightValue & AIValue & growth & hordeGrowth
 			& ammMin & ammMax & level
 			& abilityText & abilityRefs & animDefName
@@ -106,7 +108,7 @@ public:
 			& timeBetweenFidgets & walkAnimationTime & attackAnimationTime & flightAnimationDistance
 			& upperRightMissleOffsetX & rightMissleOffsetX & lowerRightMissleOffsetX & upperRightMissleOffsetY & rightMissleOffsetY & lowerRightMissleOffsetY
 			& missleFrameAngles & troopCountLocationOffset & attackClimaxFrame;
-		h & sounds;
+		h & sounds & projectile;
 
 		h & doubleWide;
 	}

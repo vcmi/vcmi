@@ -464,7 +464,6 @@ void CCreatureHandler::loadCreatures()
 		notUsedMonsters += creature.Float();
 	}
 
-	buildBonusTreeForTiers();
 	loadAnimationInfo();
 	loadSoundsInfo();
 
