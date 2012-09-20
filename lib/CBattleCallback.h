@@ -8,6 +8,7 @@ class CStack;
 class CSpell;
 struct BattleInfo;
 struct CObstacleInstance;
+class IBonusBearer;
 
 namespace boost
 {class shared_mutex;}
@@ -47,6 +48,7 @@ protected:
 
 public:
 	boost::shared_mutex &getGsMutex(); //just return a reference to mutex, does not lock nor anything
+	int getPlayerID() const;
 
 	friend class CBattleInfoEssentials;
 };
@@ -178,6 +180,24 @@ public:
 	//ESpellCastProblem::ESpellCastProblem battleCanCastSpell(int player, ECastingMode::ECastingMode mode) const; //Checks if player is able to cast spells (at all) at the moment
 };
 
+struct DLL_LINKAGE BattleAttackInfo
+{
+	const IBonusBearer *attackerBonuses, *defenderBonuses;
+	const CStack *attacker, *defender;
+	BattleHex attackerPosition, defenderPosition;
+
+	int attackerCount;
+	bool shooting;
+	int chargedFields;
+
+	bool luckyHit;
+	bool deathBlow;
+	bool ballistaDoubleDamage;
+
+	BattleAttackInfo(const CStack *Attacker, const CStack *Defender, bool Shooting = false);
+	BattleAttackInfo reverse() const;
+};
+
 class DLL_LINKAGE CBattleInfoCallback : public virtual CBattleInfoEssentials
 {
 public:
@@ -201,14 +221,18 @@ public:
 	bool battleCanShoot(const CStack * stack, BattleHex dest) const; //determines if stack with given ID shoot at the selected destination
 	bool battleIsStackBlocked(const CStack * stack) const; //returns true if there is neighboring enemy stack
 	std::set<const CStack*>  batteAdjacentCreatures (const CStack * stack) const;
-
+	
+	TDmgRange calculateDmgRange(const BattleAttackInfo &info) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, TQuantity attackerCount, bool shooting, ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 	TDmgRange calculateDmgRange(const CStack* attacker, const CStack* defender, bool shooting, ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg) const; //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
 
 	//hextowallpart  //int battleGetWallUnderHex(BattleHex hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
+	std::pair<ui32, ui32> battleEstimateDamage(const BattleAttackInfo &bai, std::pair<ui32, ui32> * retaliationDmg = NULL) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	std::pair<ui32, ui32> battleEstimateDamage(const CStack * attacker, const CStack * defender, std::pair<ui32, ui32> * retaliationDmg = NULL) const; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
 	si8 battleHasDistancePenalty( const CStack * stack, BattleHex destHex ) const;
+	si8 battleHasDistancePenalty(const IBonusBearer *bonusBearer, BattleHex shooterPosition, BattleHex destHex ) const;
 	si8 battleHasWallPenalty(const CStack * stack, BattleHex destHex) const; //checks if given stack has wall penalty
+	si8 battleHasWallPenalty(const IBonusBearer *bonusBearer, BattleHex shooterPosition, BattleHex destHex) const; //checks if given stack has wall penalty
 	EWallParts::EWallParts battleHexToWallPart(BattleHex hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 
 	//*** MAGIC 
@@ -218,6 +242,7 @@ public:
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(int player, const CSpell * spell, ECastingMode::ECastingMode mode) const; //checks if given player can cast given spell
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(int player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
 	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination) const; //determines if creature can cast a spell here
+	std::vector<BattleHex> battleGetPossibleTargets(int player, const CSpell *spell) const;
 
 	si32 battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode) const;
 	TSpell getRandomBeneficialSpell(const CStack * subject) const;

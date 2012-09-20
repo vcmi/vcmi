@@ -167,11 +167,10 @@ public:
 	void init(); //set initial (invalid) values
 	void postInit(); //used to finish initialization when inheriting creature parameters is working
 	std::string getName() const; //plural or singular
-	const Bonus * getEffect(ui16 id, int turn = 0) const; //effect id (SP)
-	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
 	bool willMove(int turn = 0) const; //if stack has remaining move this turn
 	bool ableToRetaliate() const; //if stack can retaliate after attacked
 	bool moved(int turn = 0) const; //if stack was already moved this turn
+	bool waited(int turn = 0) const;
 	bool canMove(int turn = 0) const; //if stack can move
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
 	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed of creature with all modificators

@@ -1155,19 +1155,6 @@ si32 CStack::magicResistance() const
 	return magicResistance;
 }
 
-const Bonus * CStack::getEffect( ui16 id, int turn /*= 0*/ ) const
-{
-	BOOST_FOREACH(Bonus *it, getBonusList())
-	{
-		if(it->source == Bonus::SPELL_EFFECT && it->sid == id)
-		{
-			if(!turn || it->turnsRemain > turn)
-				return &(*it);
-		}
-	}
-	return NULL;
-}
-
 void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 {
 	si32 power = VLC->spellh->spells[sse.sid]->powers[sse.val];
@@ -1342,17 +1329,6 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 	}
 }
 
-ui8 CStack::howManyEffectsSet(ui16 id) const
-{
-	ui8 ret = 0;
-	BOOST_FOREACH(const Bonus *it, getBonusList())
-		if(it->source == Bonus::SPELL_EFFECT && it->sid == id) //effect found
-		{
-			++ret;
-		}
-		return ret;
-}
-
 bool CStack::willMove(int turn /*= 0*/) const
 {
 	return ( turn ? true : !vstd::contains(state, EBattleStackState::DEFENDING) )
@@ -1370,6 +1346,14 @@ bool CStack::moved( int turn /*= 0*/ ) const
 {
 	if(!turn)
 		return vstd::contains(state, EBattleStackState::MOVED);
+	else
+		return false;
+}
+
+bool CStack::waited(int turn /*= 0*/) const
+{
+	if(!turn)
+		return vstd::contains(state, EBattleStackState::WAITING);
 	else
 		return false;
 }

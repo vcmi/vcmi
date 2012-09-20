@@ -54,7 +54,7 @@ DLL_LINKAGE void SetPrimSkill::applyGs( CGameState *gs )
 
 	if(which <4)
 	{
-		Bonus *skill = hero->getBonus(Selector::type(Bonus::PRIMARY_SKILL) && Selector::subtype(which) && Selector::sourceType(Bonus::HERO_BASE_SKILL));
+		Bonus *skill = hero->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) && Selector::subtype(which) && Selector::sourceType(Bonus::HERO_BASE_SKILL));
 		assert(skill);
 		
 		if(abs)
@@ -1025,7 +1025,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 		}
 		case Bonus::POISON:
 		{
-			Bonus * b = st->getBonus(Selector::source(Bonus::SPELL_EFFECT, 71) && Selector::type(Bonus::STACK_HEALTH));
+			Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, 71) && Selector::type(Bonus::STACK_HEALTH));
 			if (b)
 				b->val = val;
 			break;
@@ -1299,7 +1299,7 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 		CStack *s = gs->curB->getStack(id);
 		if(s)
 		{
-			if(spellid == 47 || spellid == 80 || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid)))//disrupting ray or acid breath or not on the list - just add	
+			if(spellid == Spells::DISRUPTING_RAY || spellid == Spells::ACID_BREATH_DEFENSE || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid)))//disrupting ray or acid breath or not on the list - just add	
 			{
 				BOOST_FOREACH(Bonus &fromEffect, effect)
 				{

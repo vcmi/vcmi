@@ -1547,20 +1547,20 @@ void CGameState::initDuel()
 		{
 			CCreature *c = VLC->creh->creatures[cc.id];
 			if(cc.attack >= 0)
-				c->getBonus(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK))->val = cc.attack;
+				c->getBonusLocalFirst(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK))->val = cc.attack;
 			if(cc.defense >= 0)
-				c->getBonus(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE))->val = cc.defense;
+				c->getBonusLocalFirst(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE))->val = cc.defense;
 			if(cc.speed >= 0)
-				c->getBonus(Selector::type(Bonus::STACKS_SPEED))->val = cc.speed;
+				c->getBonusLocalFirst(Selector::type(Bonus::STACKS_SPEED))->val = cc.speed;
 			if(cc.HP >= 0)
-				c->getBonus(Selector::type(Bonus::STACK_HEALTH))->val = cc.HP;
+				c->getBonusLocalFirst(Selector::type(Bonus::STACK_HEALTH))->val = cc.HP;
 			if(cc.dmg >= 0)
 			{
-				c->getBonus(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1))->val = cc.dmg;
-				c->getBonus(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2))->val = cc.dmg;
+				c->getBonusLocalFirst(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 1))->val = cc.dmg;
+				c->getBonusLocalFirst(Selector::typeSubtype(Bonus::CREATURE_DAMAGE, 2))->val = cc.dmg;
 			}
 			if(cc.shoots >= 0)
-				c->getBonus(Selector::type(Bonus::SHOTS))->val = cc.shoots;
+				c->getBonusLocalFirst(Selector::type(Bonus::SHOTS))->val = cc.shoots;
 		}
 	}
 
@@ -2757,7 +2757,7 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 {
 	DuelParameters ret;
 
-	const JsonNode duelData(ResourceID(fname, EResType::TEXT));
+	const JsonNode duelData(ResourceID("DATA/" + fname, EResType::TEXT));
 	ret.terType = duelData["terType"].Float();
 	ret.bfieldType = duelData["bfieldType"].Float();
 	BOOST_FOREACH(const JsonNode &n, duelData["sides"].Vector())
@@ -2791,8 +2791,13 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 
 		if(ss.heroId != -1)
 		{
-			BOOST_FOREACH(const JsonNode &spell, n["spells"].Vector())
-				ss.spells.insert(spell.Float());
+			auto spells = n["spells"];
+			if(spells.getType() == JsonNode::DATA_STRING  &&  spells.String() == "all")
+				BOOST_FOREACH(auto spell, VLC->spellh->spells)
+					ss.spells.insert(spell->id);
+			else
+				BOOST_FOREACH(const JsonNode &spell, n["spells"].Vector())
+					ss.spells.insert(spell.Float());
 		}
 	}
 

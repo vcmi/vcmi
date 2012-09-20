@@ -476,7 +476,52 @@ const TBonusListPtr IBonusBearer::getSpellBonuses() const
 	return getBonuses(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str());
 }
 
-Bonus * CBonusSystemNode::getBonus(const CSelector &selector)
+const Bonus * IBonusBearer::getEffect(ui16 id, int turn /*= 0*/) const
+{
+	//TODO should check only local bonuses?
+	auto bonuses = getAllBonuses();
+	BOOST_FOREACH(const Bonus *it, *bonuses)
+	{
+		if(it->source == Bonus::SPELL_EFFECT && it->sid == id)
+		{
+			if(!turn || it->turnsRemain > turn)
+				return &(*it);
+		}
+	}
+	return NULL;
+}
+
+ui8 IBonusBearer::howManyEffectsSet(ui16 id) const
+{
+	//TODO should check only local bonuses?
+	ui8 ret = 0;
+
+	auto bonuses = getAllBonuses();
+	BOOST_FOREACH(const Bonus *it, *bonuses)
+	{
+		if(it->source == Bonus::SPELL_EFFECT && it->sid == id) //effect found
+		{
+			++ret;
+		}
+	}
+
+	return ret;
+}
+
+const TBonusListPtr IBonusBearer::getAllBonuses() const
+{
+	auto matchAll= [] (const Bonus *) { return true; };
+	auto matchNone= [] (const Bonus *) { return true; };
+	return getAllBonuses(matchAll, matchNone);
+}
+
+const Bonus * IBonusBearer::getBonus(const CSelector &selector) const
+{
+	auto bonuses = getAllBonuses();
+	return bonuses->getFirst(selector);
+}
+
+Bonus * CBonusSystemNode::getBonusLocalFirst(const CSelector &selector)
 {
 	Bonus *ret = bonuses.getFirst(selector);
 	if(ret)
@@ -484,7 +529,7 @@ Bonus * CBonusSystemNode::getBonus(const CSelector &selector)
 
 	FOREACH_PARENT(pname)
 	{
-		ret = pname->getBonus(selector);
+		ret = pname->getBonusLocalFirst(selector);
 		if (ret)
 			return ret;
 	}
@@ -492,9 +537,9 @@ Bonus * CBonusSystemNode::getBonus(const CSelector &selector)
 	return NULL;
 }
 
-const Bonus * CBonusSystemNode::getBonus( const CSelector &selector ) const
+const Bonus * CBonusSystemNode::getBonusLocalFirst( const CSelector &selector ) const
 {
-	return (const_cast<CBonusSystemNode*>(this))->getBonus(selector);
+	return (const_cast<CBonusSystemNode*>(this))->getBonusLocalFirst(selector);
 }
 
 void CBonusSystemNode::getParents(TCNodes &out) const /*retreives list of parent nodes (nodes to inherit bonuses from) */

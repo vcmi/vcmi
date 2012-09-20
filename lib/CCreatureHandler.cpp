@@ -257,7 +257,7 @@ static void RemoveAbility(CCreature *cre, const JsonNode &ability)
 
 	Bonus::BonusType ecf = static_cast<Bonus::BonusType>(typeNo);
 
-	Bonus *b = cre->getBonus(Selector::type(ecf));
+	Bonus *b = cre->getBonusLocalFirst(Selector::type(ecf));
 	cre->removeBonus(b);
 }
 

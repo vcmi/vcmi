@@ -7,7 +7,7 @@
 #define strcpy_s(a, b, c) strncpy(a, c, b)
 #endif
 
-const char *g_cszAiName = "Stupid AI 0.1";
+const char *g_cszAiName = "Battle AI";
 
 extern "C" DLL_EXPORT int GetGlobalAiVersion()
 {

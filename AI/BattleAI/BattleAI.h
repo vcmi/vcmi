@@ -5,14 +5,14 @@
 class CBattleAI : public CBattleGameInterface
 {
 	int side;
-	CPlayerBattleCallback *cb;
+	CBattleCallback *cb;
 
 	void print(const std::string &text) const;
 public:
 	CBattleAI(void);
 	~CBattleAI(void);
 
-	void init(CPlayerBattleCallback * CB) OVERRIDE;
+	void init(CBattleCallback * CB) OVERRIDE;
 	void actionFinished(const BattleAction *action) OVERRIDE;//occurs AFTER every action taken by any stack or by the hero
 	void actionStarted(const BattleAction *action) OVERRIDE;//occurs BEFORE every action taken by any stack or by the hero
 	BattleAction activeStack(const CStack * stack) OVERRIDE; //called when it's turn of that stack
@@ -35,5 +35,8 @@ public:
 	void battleStacksRemoved(const BattleStacksRemoved & bsr) OVERRIDE; //called when certain stack is completely removed from battlefield
 
 	BattleAction goTowards(const CStack * stack, BattleHex hex );
+	BattleAction useCatapult(const CStack * stack);
+
+	void attemptCastingSpell();
 };
 

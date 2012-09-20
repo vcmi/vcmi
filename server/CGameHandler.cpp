@@ -787,7 +787,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		}
 	}
 
-	const Bonus * bonus = att->getBonus(Selector::type(Bonus::SPELL_LIKE_ATTACK));
+	const Bonus * bonus = att->getBonusLocalFirst(Selector::type(Bonus::SPELL_LIKE_ATTACK));
 	if (bonus && (bat.shot())) //TODO: make it work in meele?
 	{
 		bat.bsa.front().flags |= BattleStackAttacked::EFFECT;
@@ -1342,7 +1342,7 @@ void CGameHandler::newTurn()
 		}
 		if (t->hasBonusOfType (Bonus::DARKNESS))
 		{
-			t->hideTiles(t->getOwner(), t->getBonus(Selector::type(Bonus::DARKNESS))->val);
+			t->hideTiles(t->getOwner(), t->getBonusLocalFirst(Selector::type(Bonus::DARKNESS))->val);
 		}
 		//unhiding what shouldn't be hidden? //that's handled in netpacks client
 	}
@@ -3642,7 +3642,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			BattleStackAdded bsa;
 			bsa.attacker = summoner->attackerOwned;
 
-			bsa.creID = summoner->getBonus(Selector::type(Bonus::DAEMON_SUMMONING))->subtype; //in case summoner can summon more than one type of monsters... scream!
+			bsa.creID = summoner->getBonusLocalFirst(Selector::type(Bonus::DAEMON_SUMMONING))->subtype; //in case summoner can summon more than one type of monsters... scream!
 			ui64 risedHp = summoner->count * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID);
 			bsa.amount = std::min ((ui32)(risedHp / VLC->creh->creatures[bsa.creID]->MaxHealth()), destStack->baseAmount);
 
@@ -3676,8 +3676,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			int spellID = ba.additionalInfo;
 			BattleHex destination(ba.destinationTile);
 
-			const Bonus *randSpellcaster = stack->getBonus(Selector::type(Bonus::RANDOM_SPELLCASTER));
-			const Bonus * spellcaster = stack->getBonus(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
+			const Bonus *randSpellcaster = stack->getBonusLocalFirst(Selector::type(Bonus::RANDOM_SPELLCASTER));
+			const Bonus * spellcaster = stack->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPELLCASTER, spellID));
 
 			//TODO special bonus for genies ability
 			if(randSpellcaster && battleGetRandomStackSpell(stack, CBattleInfoCallback::RANDOM_AIMED) < 0)
@@ -4126,67 +4126,65 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			pseudoBonus.val = spellLvl;
 			pseudoBonus.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, stackSpellPower ? stackSpellPower : usedSpellPower);
 			CStack::stackEffectToFeature(sse.effect, pseudoBonus);
-			if (spellID == 72 && stack)//bind
+			if (spellID == Spells::BIND && stack)//bind
 			{
 				sse.effect.back().additionalInfo = stack->ID; //we need to know who casted Bind
 			}
 			const Bonus * bonus = NULL;
 			if (caster)
-				bonus = caster->getBonus(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, spellID));
+				bonus = caster->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, spellID));
+			//TODO does hero speciality should affects his stack casting spells?
 
 			si32 power = 0;
-			for(auto it = attackedCres.begin(); it != attackedCres.end(); ++it)
+			BOOST_FOREACH(const CStack *affected, attackedCres)
 			{
-				if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
+				if(vstd::contains(sc.resisted, affected->ID)) //this creature resisted the spell
 					continue;
-				sse.stacks.push_back((*it)->ID);
+				sse.stacks.push_back(affected->ID);
 
 				//Apply hero specials - peculiar enchants
-				if ((*it)->base) // no war machines - TODO: make it work
-				{
-					ui8 tier = (*it)->base->type->level;
-					if (bonus)
- 					{
- 	 					switch(bonus->additionalInfo)
- 	 					{
- 	 						case 0: //normal
-							{
- 	 							switch(tier)
- 	 							{
- 	 								case 1: case 2:
- 	 									power = 3;
- 	 								break;
- 	 								case 3: case 4:
- 	 									power = 2;
- 	 								break;
- 	 								case 5: case 6:
- 	 									power = 1;
- 	 								break;
- 	 							}
-								Bonus specialBonus(sse.effect.back());
-								specialBonus.val = power; //it doesn't necessarily make sense for some spells, use it wisely
-								sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> ((*it)->ID, specialBonus)); //additional premy to given effect
-							}
- 	 						break;
- 	 						case 1: //only Coronius as yet
-							{
- 	 							power = std::max(5 - tier, 0);
-								Bonus specialBonus = CStack::featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, pseudoBonus.turnsRemain);
-								specialBonus.sid = spellID;
-				 	 			sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> ((*it)->ID, specialBonus)); //additional attack to Slayer effect
-							}
- 	 						break;
- 	 					}
- 						}
-					if (caster && caster->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, spellID)) //TODO: better handling of bonus percentages
+				const ui8 tier = affected->getCreature()->level;
+				if (bonus)
+ 				{
+ 	 				switch(bonus->additionalInfo)
  	 				{
- 	 					int damagePercent = caster->level * caster->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, spellID) / tier;
-						Bonus specialBonus = CStack::featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, pseudoBonus.turnsRemain);
-						specialBonus.valType = Bonus::PERCENT_TO_ALL;
-						specialBonus.sid = spellID;
- 	 					sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> ((*it)->ID, specialBonus));
+ 	 					case 0: //normal
+						{
+ 	 						switch(tier)
+ 	 						{
+ 	 							case 1: case 2:
+ 	 								power = 3;
+ 	 							break;
+ 	 							case 3: case 4:
+ 	 								power = 2;
+ 	 							break;
+ 	 							case 5: case 6:
+ 	 								power = 1;
+ 	 							break;
+ 	 						}
+							Bonus specialBonus(sse.effect.back());
+							specialBonus.val = power; //it doesn't necessarily make sense for some spells, use it wisely
+							sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> (affected->ID, specialBonus)); //additional premy to given effect
+						}
+ 	 					break;
+ 	 					case 1: //only Coronius as yet
+						{
+ 	 						power = std::max(5 - tier, 0);
+							Bonus specialBonus = CStack::featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, pseudoBonus.turnsRemain);
+							specialBonus.sid = spellID;
+				 	 		sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> (affected->ID, specialBonus)); //additional attack to Slayer effect
+						}
+ 	 					break;
  	 				}
-				}
+ 				}
+				if (caster && caster->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, spellID)) //TODO: better handling of bonus percentages
+ 	 			{
+ 	 				int damagePercent = caster->level * caster->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, spellID) / tier;
+					Bonus specialBonus = CStack::featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, pseudoBonus.turnsRemain);
+					specialBonus.valType = Bonus::PERCENT_TO_ALL;
+					specialBonus.sid = spellID;
+ 	 				sse.uniqueBonuses.push_back (std::pair<ui32,Bonus> (affected->ID, specialBonus));
+ 	 			}
 			}
 
 			if(!sse.stacks.empty())
@@ -4531,7 +4529,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 
 		if(st->hasBonusOfType(Bonus::POISON))
 		{
-			const Bonus * b = st->getBonus(Selector::source(Bonus::SPELL_EFFECT, 71) && Selector::type(Bonus::STACK_HEALTH));
+			const Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, 71) && Selector::type(Bonus::STACK_HEALTH));
 			if (b) //TODO: what if not?...
 			{
 				bte.val = std::max (b->val - 10, -(st->valOfBonuses(Bonus::POISON)));
@@ -5984,7 +5982,7 @@ void CGameHandler::runBattle()
 				nextStackMorale = next->MoraleVal();
 				if(!vstd::contains(next->state,EBattleStackState::HAD_MORALE)  //only one extra move per turn possible
 					&& !vstd::contains(next->state,EBattleStackState::DEFENDING)
-					&& !vstd::contains(next->state,EBattleStackState::WAITING)
+					&& !next->waited()
 					&& !vstd::contains(next->state, EBattleStackState::FEAR)
 					&&  next->alive()
 					&&  nextStackMorale > 0

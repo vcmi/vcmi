@@ -1148,7 +1148,7 @@ void CGHeroInstance::updateSkill(int which, int val)
 		bool luck = which == LUCK;
 		Bonus::BonusType type[] = {Bonus::MORALE, Bonus::LUCK};
 
-		Bonus *b = getBonus(Selector::type(type[luck]) && Selector::sourceType(Bonus::SECONDARY_SKILL));
+		Bonus *b = getBonusLocalFirst(Selector::type(type[luck]) && Selector::sourceType(Bonus::SECONDARY_SKILL));
 		if(!b)
 		{
 			b = new Bonus(Bonus::PERMANENT, type[luck], Bonus::SECONDARY_SKILL, +val, which, which, Bonus::BASE_NUMBER);
@@ -1160,7 +1160,7 @@ void CGHeroInstance::updateSkill(int which, int val)
 	else if(which == DIPLOMACY) //surrender discount: 20% per level
 	{
 
-		if(Bonus *b = getBonus(Selector::type(Bonus::SURRENDER_DISCOUNT) && Selector::sourceType(Bonus::SECONDARY_SKILL)))
+		if(Bonus *b = getBonusLocalFirst(Selector::type(Bonus::SURRENDER_DISCOUNT) && Selector::sourceType(Bonus::SECONDARY_SKILL)))
 			b->val = +val;
 		else
 			addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::SURRENDER_DISCOUNT, Bonus::SECONDARY_SKILL, val * 20, which));

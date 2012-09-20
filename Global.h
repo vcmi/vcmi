@@ -383,12 +383,23 @@ namespace vstd
 		return std::inserter(c, c.end());
 	}
 
-	//Retuns iterator to the element for which the value of ValueFunction is minimal
+	//Returns iterator to the element for which the value of ValueFunction is minimal
 	template<class ForwardRange, class ValueFunction>
 	auto minElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(boost::begin(rng))
 	{
 		typedef decltype(*boost::begin(rng)) ElemType;
 		return boost::min_element(rng, [&] (ElemType lhs, ElemType rhs) -> bool
+		{
+			return vf(lhs) < vf(rhs);
+		});
+	}
+		
+	//Returns iterator to the element for which the value of ValueFunction is maximal
+	template<class ForwardRange, class ValueFunction>
+	auto maxElementByFun(const ForwardRange& rng, ValueFunction vf) -> decltype(boost::begin(rng))
+	{
+		typedef decltype(*boost::begin(rng)) ElemType;
+		return boost::max_element(rng, [&] (ElemType lhs, ElemType rhs) -> bool
 		{
 			return vf(lhs) < vf(rhs);
 		});

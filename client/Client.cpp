@@ -387,7 +387,10 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		{
 			auto cbc = make_shared<CBattleCallback>(gs, color, this);
 			battleCallbacks[color] = cbc;
-			battleints[color] = CDynLibHandler::getNewBattleAI("StupidAI");
+			if(!color)
+				battleints[color] = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
+			else
+				battleints[color] = CDynLibHandler::getNewBattleAI("StupidAI");
 			battleints[color]->init(cbc.get());
 		}
 	}

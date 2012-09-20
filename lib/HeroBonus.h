@@ -351,10 +351,16 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
 class DLL_LINKAGE BonusList
 {
 private:
-	std::vector<Bonus*> bonuses;
+	typedef std::vector<Bonus*> TInternalContainer;
+
+	TInternalContainer bonuses;
 	bool belongsToTree;
 
+
 public:
+	typedef TInternalContainer::const_reference const_reference;
+	typedef TInternalContainer::value_type value_type;
+
 	BonusList(bool BelongsToTree = false);
 	BonusList(const BonusList &bonusList);
 	BonusList& operator=(const BonusList &bonusList);
@@ -508,6 +514,9 @@ public:
 	const TBonusListPtr getBonuses(const CSelector &selector, const CSelector &limit, const std::string &cachingStr = "") const;
 	const TBonusListPtr getBonuses(const CSelector &selector, const std::string &cachingStr = "") const;
 
+	const TBonusListPtr getAllBonuses() const;
+	const Bonus *getBonus(const CSelector &selector) const; //returns any bonus visible on node that matches (or nullptr if none matches)
+
 	//legacy interface
 	int valOfBonuses(Bonus::BonusType type, const CSelector &selector) const;
 	int valOfBonuses(Bonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then anyt;
@@ -526,6 +535,8 @@ public:
 	ui32 MaxHealth() const; //get max HP of stack with all modifiers
 	bool isLiving() const; //non-undead, non-non living or alive
 	virtual si32 magicResistance() const;
+	const Bonus * getEffect(ui16 id, int turn = 0) const; //effect id (SP)
+	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
 
 	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	int getPrimSkillLevel(int id) const; //0-attack, 1-defence, 2-spell power, 3-knowledge
@@ -567,7 +578,7 @@ public:
 	TBonusListPtr limitBonuses(const BonusList &allBonuses) const; //same as above, returns out by val for convienence
 	const TBonusListPtr getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root = NULL, const std::string &cachingStr = "") const;
 	void getParents(TCNodes &out) const;  //retrieves list of parent nodes (nodes to inherit bonuses from),
-	const Bonus *getBonus(const CSelector &selector) const;
+	const Bonus *getBonusLocalFirst(const CSelector &selector) const;
 
 	//non-const interface
 	void getParents(TNodes &out);  //retrieves list of parent nodes (nodes to inherit bonuses from)
@@ -575,7 +586,7 @@ public:
 	void getRedAncestors(TNodes &out);
 	void getRedChildren(TNodes &out);
 	void getRedDescendants(TNodes &out);
-	Bonus *getBonus(const CSelector &selector);
+	Bonus *getBonusLocalFirst(const CSelector &selector);
 
 	void attachTo(CBonusSystemNode *parent);
 	void detachFrom(CBonusSystemNode *parent);

@@ -19,7 +19,7 @@ CStupidAI::~CStupidAI(void)
 	print("destroyed");
 }
 
-void CStupidAI::init( CPlayerBattleCallback * CB )
+void CStupidAI::init( CBattleCallback * CB )
 {
 	print("init called, saving ptr to IBattleCallback");
 	cbc = cb = CB;

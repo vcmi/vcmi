@@ -5,14 +5,14 @@
 class CStupidAI : public CBattleGameInterface
 {
 	int side;
-	CPlayerBattleCallback *cb;
+	CBattleCallback *cb;
 
 	void print(const std::string &text) const;
 public:
 	CStupidAI(void);
 	~CStupidAI(void);
 
-	void init(CPlayerBattleCallback * CB) OVERRIDE;
+	void init(CBattleCallback * CB) OVERRIDE;
 	void actionFinished(const BattleAction *action) OVERRIDE;//occurs AFTER every action taken by any stack or by the hero
 	void actionStarted(const BattleAction *action) OVERRIDE;//occurs BEFORE every action taken by any stack or by the hero
 	BattleAction activeStack(const CStack * stack) OVERRIDE; //called when it's turn of that stack

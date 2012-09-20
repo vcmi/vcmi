@@ -334,7 +334,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 		BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
 		{
 #define RESET_PRIM_SKILL(NAME, VALNAME) \
-			cgh->getBonus(Selector::type(Bonus::PRIMARY_SKILL) && \
+			cgh->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) && \
 				Selector::subtype(PrimarySkill::NAME) && \
 				Selector::sourceType(Bonus::HERO_BASE_SKILL) )->val = cgh->type->heroClass->VALNAME;
 

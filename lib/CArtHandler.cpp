@@ -1214,7 +1214,7 @@ void CArtifactInstance::deserializationFix()
 
 int CArtifactInstance::getGivenSpellID() const
 {
-	const Bonus * b = getBonus(Selector::type(Bonus::SPELL));
+	const Bonus * b = getBonusLocalFirst(Selector::type(Bonus::SPELL));
 	if(!b)
 	{
 		tlog3 << "Warning: " << nodeName() << " doesn't bear any spell!\n";

@@ -422,7 +422,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 			{
 				spellText = CGI->generaltexth->allTexts[610]; //"%s, duration: %d rounds."
 				boost::replace_first (spellText, "%s", CGI->spellh->spells[effect]->name);
-				int duration = battleStack->getBonus(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
+				int duration = battleStack->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT,effect))->turnsRemain;
 				boost::replace_first (spellText, "%d", boost::lexical_cast<std::string>(duration));
 
 				new CAnimImage("SpellInt", effect + 1, 0, 20 + 52 * printed, 184);

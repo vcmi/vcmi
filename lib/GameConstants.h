@@ -80,6 +80,8 @@ namespace GameConstants
 	const int AVAILABLE_HEROES_PER_PLAYER = 2;
 	const int SPELLBOOK_GOLD_COST = 500;
 
+	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
+
 	const ui16 BACKPACK_START = 19;
 	const int ID_CATAPULT = 3, ID_LOCK = 145;
 
