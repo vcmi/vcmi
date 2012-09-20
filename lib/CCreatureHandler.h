@@ -36,6 +36,7 @@ public:
 	std::string abilityText; //description of abilities
 	std::string abilityRefs; //references to abilities, in text format
 	std::string animDefName;
+	std::string advMapDef; //for new creatures only
 	si32 idNumber;
 	si8 faction; //-1 = neutral
 	ui8 doubleWide;
@@ -102,7 +103,7 @@ public:
 			& cost & upgradeNames & upgrades 
 			& fightValue & AIValue & growth & hordeGrowth
 			& ammMin & ammMax & level
-			& abilityText & abilityRefs & animDefName
+			& abilityText & abilityRefs & animDefName & advMapDef
 			& idNumber & faction
 
 			& timeBetweenFidgets & walkAnimationTime & attackAnimationTime & flightAnimationDistance

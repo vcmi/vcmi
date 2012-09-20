@@ -1,5 +1,6 @@
 #include "StdInc.h"
 #include "CModHandler.h"
+#include "CDefObjInfoHandler.h"
 #include "JsonNode.h"
 #include "Filesystem/CResourceLoader.h"
 #include "Filesystem/ISimpleResourceLoader.h"
@@ -69,7 +70,7 @@ void CModHandler::loadConfigFromFile (std::string name)
 
 	//TODO: read mods from Mods/ folder
 
-	auto & configList = CResourceHandler::get()->getResourcesWithName (ResourceID("CONFIG/MODS/HOTA/MOD", EResType::TEXT));
+	auto & configList = CResourceHandler::get()->getResourcesWithName (ResourceID("CONFIG/mod.json")); 
 
 	BOOST_FOREACH(auto & entry, configList)
 	{
@@ -109,7 +110,6 @@ void CModHandler::saveConfigToFile (std::string name)
 CCreature * CModHandler::loadCreature (const JsonNode &node)
 {
 	CCreature * cre = new CCreature();
-	cre->idNumber = creatures.size();
 	const JsonNode *value; //optional value
 
 	//TODO: ref name?
@@ -161,7 +161,8 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	}
 
 	cre->level = node["level"].Float();
-	cre->faction = -1; //TODO: node["faction"].String() to id or just node["faction"].Float();
+	cre->faction = -1; //neutral
+	//TODO: node["faction"].String() to id or just node["faction"].Float();
 	cre->fightValue = node["fightValue"].Float();
 	cre->AIValue = node["aiValue"].Float();
 	cre->growth = node["growth"].Float();
@@ -173,6 +174,10 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	auto vec = node["damage"];
 	cre->addBonus(vec["min"].Float(), Bonus::CREATURE_DAMAGE, 1);
 	cre->addBonus(vec["max"].Float(), Bonus::CREATURE_DAMAGE, 2);
+
+	auto amounts = node ["advMapAmount"];
+	cre->ammMin = amounts["min"].Float();
+	cre->ammMax = amounts["max"].Float();
 
 	//optional
 	value = &node["upgrades"];
@@ -232,6 +237,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	{
 		cre->missleFrameAngles[i++] = angle.Float();
 	}
+	cre->advMapDef = graphics["map"].String();
 	//TODO: we need to know creature id to add it
 	//FIXME: creature handler is not yet initialized
 	//VLC->creh->idToProjectile[cre->idNumber] = "PLCBOWX.DEF";
@@ -264,11 +270,18 @@ void CModHandler::recreateHandlers()
 
 	BOOST_FOREACH (auto creature, creatures)
 	{
+		creature->idNumber = VLC->creh->creatures.size(); //calculate next index for every used creature
 		VLC->creh->creatures.push_back (creature);
 		//TODO: use refName?
 		//if (creature->nameRef.size())
 		//	VLC->creh->nameToID[creature->nameRef] = creature->idNumber;
 		VLC->creh->nameToID[creature->nameSing] = creature->idNumber;
+
+		//generate adventure map object info & graphics
+		CGDefInfo* nobj = new CGDefInfo();
+		nobj = VLC->dobjinfo->gobjs[GameConstants::CREI_TYPE][0]; //copy all typical properties
+		nobj->name = creature->advMapDef; //change only def name (?)
+		VLC->dobjinfo->gobjs[GameConstants::CREI_TYPE][creature->idNumber] = nobj;
 	}
 	BOOST_FOREACH (auto creature, VLC->creh->creatures) //populate upgrades described with string
 	{

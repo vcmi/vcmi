@@ -148,9 +148,10 @@ std::string CCreature::nodeName() const
 
 bool CCreature::isItNativeTerrain(int terrain) const
 {
-	assert(vstd::contains(VLC->townh->factions, faction));
-	//not good handler dependency
-	return VLC->townh->factions[faction].nativeTerrain == terrain;
+	if (faction > -1)
+		return VLC->townh->factions[faction].nativeTerrain == terrain;
+	else
+		return VLC->townh->factions[0].nativeTerrain == terrain; //FIXME: handle neutral faction properly
 }
 
 int readNumber(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadCreatures() and loadUnitAnimInfo()
