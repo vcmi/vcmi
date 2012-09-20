@@ -1,8 +1,8 @@
 #include "StdInc.h"
 #include "CModHandler.h"
 #include "JsonNode.h"
-#include "Filesystem\CResourceLoader.h"
-#include "Filesystem\ISimpleResourceLoader.h"
+#include "Filesystem/CResourceLoader.h"
+#include "Filesystem/ISimpleResourceLoader.h"
 /*
  * CModHandler.h, part of VCMI engine
  *
@@ -69,13 +69,13 @@ void CModHandler::loadConfigFromFile (std::string name)
 
 	//TODO: read mods from Mods/ folder
 
-	auto & configList = CResourceHandler::get()->getResourcesWithName (ResourceID("CONFIG/MODS/HOTA/MOD", EResType::TEXT)); 
+	auto & configList = CResourceHandler::get()->getResourcesWithName (ResourceID("CONFIG/MODS/HOTA/MOD", EResType::TEXT));
 
-	BOOST_FOREACH(auto & entry, configList) 
-	{ 
-		auto stream = entry.getLoader()->load (entry.getResourceName()); 
-		std::unique_ptr<ui8[]> textData (new ui8[stream->getSize()]); 
-		stream->read (textData.get(), stream->getSize()); 
+	BOOST_FOREACH(auto & entry, configList)
+	{
+		auto stream = entry.getLoader()->load (entry.getResourceName());
+		std::unique_ptr<ui8[]> textData (new ui8[stream->getSize()]);
+		stream->read (textData.get(), stream->getSize());
 
 		tlog3 << "\t\tFound mod file: " << entry.getResourceName() << "\n";
 		const JsonNode config ((char*)textData.get(), stream->getSize());

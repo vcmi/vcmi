@@ -44,7 +44,7 @@ private:
 	std::map<soundBase::soundID, Mix_Chunk *> soundChunks;
 
 	Mix_Chunk *GetSoundChunk(soundBase::soundID soundID);
-	Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound);
+	Mix_Chunk *GetSoundChunk(std::string &sound);
 
 	//have entry for every currently active channel
 	//boost::function will be NULL if callback was not set
