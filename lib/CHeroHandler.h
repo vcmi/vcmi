@@ -103,21 +103,6 @@ struct DLL_LINKAGE CObstacleInfo
 	}
 };
 
-struct DLL_LINKAGE SPuzzleInfo
-{
-	ui16 number; //type of puzzle
-	si16 x, y; //position
-	ui16 whenUncovered; //determines the sequnce of discovering (the lesser it is the sooner puzzle will be discovered)
-	std::string filename; //file with graphic of this puzzle
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & number & x & y & whenUncovered & filename;
-	}
-};
-
-const int PUZZLES_PER_FACTION = 48;
-
 class DLL_LINKAGE CHeroHandler
 {
 public:
@@ -146,9 +131,6 @@ public:
 
 	void loadObstacles(); //loads info about obstacles
 
-	std::vector<SPuzzleInfo> puzzleInfo[GameConstants::F_NUMBER]; //descriptions of puzzles
-	void loadPuzzleInfo();
-
 	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
 	ui64 reqExp(ui32 level) const; //calculates experience required for given level
 
@@ -161,7 +143,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroClasses & heroes & expPerLevel & ballistics & terrCosts & puzzleInfo;
+		h & heroClasses & heroes & expPerLevel & ballistics & terrCosts;
 		h & obstacles & absoluteObstacles;
 		if(!h.saving)
 		{

@@ -292,6 +292,32 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 	loadClientData(town,source);
 }
 
+void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
+{
+	faction.puzzleMap.reserve(GameConstants::PUZZLE_MAP_PIECES);
+
+	std::string prefix = source["prefix"].String();
+	BOOST_FOREACH(const JsonNode &piece, source["pieces"].Vector())
+	{
+		size_t index = faction.puzzleMap.size();
+		SPuzzleInfo spi;
+
+		spi.x = piece["x"].Float();
+		spi.y = piece["y"].Float();
+		spi.whenUncovered = piece["index"].Float();
+		spi.number = index;
+
+		// filename calculation
+		std::ostringstream suffix;
+		suffix << std::setfill('0') << std::setw(2) << index;
+
+		spi.filename = prefix + suffix.str();
+
+		faction.puzzleMap.push_back(spi);
+	}
+	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
+}
+
 void CTownHandler::loadFactions(const JsonNode &source)
 {
 	BOOST_FOREACH(auto & node, source.Struct())
@@ -318,6 +344,8 @@ void CTownHandler::loadFactions(const JsonNode &source)
 			towns[id].typeID = id;
 			loadTown(towns[id], node.second["town"]);
 		}
+		if (!node.second["puzzleMap"].isNull())
+			loadPuzzle(faction, node.second["puzzleMap"]);
 	}
 }
 

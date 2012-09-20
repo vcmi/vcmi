@@ -1,0 +1,17 @@
+{
+	"filesystem":
+	{
+		"DATA/" :
+		[
+			{"type" : "dir",  "path" : "ALL/MODS/VCMI/Data"}
+		],
+		"SPRITES/":
+		[
+			{"type" : "dir",  "path" : "ALL/MODS/VCMI/Sprites"}
+		],
+		"MAPS/":
+		[
+			{"type" : "dir",  "path" : "ALL/MODS/VCMI/Maps"}
+		]
+	}
+}

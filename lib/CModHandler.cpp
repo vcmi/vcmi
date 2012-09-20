@@ -51,7 +51,7 @@ void CModHandler::loadConfigFromFile (std::string name)
 {
 
 	const JsonNode config(ResourceID("config/" + name + ".json"));
-	auto hardcodedFeatures = config["hardcodedFeatures"];
+	const JsonNode & hardcodedFeatures = config["hardcodedFeatures"];
 
 	settings.CREEP_SIZE = hardcodedFeatures["CREEP_SIZE"].Float();
 	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Float();
@@ -60,7 +60,7 @@ void CModHandler::loadConfigFromFile (std::string name)
 	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
 	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
 
-	auto gameModules = config["modules"];
+	const JsonNode & gameModules = config["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
 	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();
 	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
@@ -70,7 +70,7 @@ void CModHandler::loadConfigFromFile (std::string name)
 
 	//TODO: read mods from Mods/ folder
 
-	auto & configList = CResourceHandler::get()->getResourcesWithName (ResourceID("CONFIG/mod.json")); 
+	auto & configList = CResourceHandler::get()->getResourcesWithName (ResourceID("CONFIG/mod.json"));
 
 	BOOST_FOREACH(auto & entry, configList)
 	{
@@ -82,17 +82,13 @@ void CModHandler::loadConfigFromFile (std::string name)
 		const JsonNode config ((char*)textData.get(), stream->getSize());
 
 		const JsonNode *value = &config["creatures"];
-		if (!value->isNull())
+		BOOST_FOREACH (auto creature, value->Vector())
 		{
-			BOOST_FOREACH (auto creature, value->Vector())
-			{
-				auto cre = loadCreature (creature); //create and push back creature
-			}
+			auto cre = loadCreature (creature); //create and push back creature
 		}
 	}
-
-
 }
+
 void CModHandler::saveConfigToFile (std::string name)
 {
 	//JsonNode savedConf = config;
@@ -113,13 +109,13 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	const JsonNode *value; //optional value
 
 	//TODO: ref name?
-	auto name = node["name"];
+	const JsonNode & name = node["name"];
 	cre->nameSing = name["singular"].String();
 	cre->namePl = name["plural"].String();
 	cre->nameRef = cre->nameSing;
 
 	//TODO: export resource set to separate function?
-	auto cost = node["cost"];
+	const JsonNode &  cost = node["cost"];
 	if (cost.getType() == JsonNode::DATA_FLOAT) //gold
 	{
 		cre->cost[Res::GOLD] = cost.Float();
@@ -127,7 +123,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	else if (cost.getType() == JsonNode::DATA_VECTOR)
 	{
 		int i = 0;
-		BOOST_FOREACH (auto val, cost.Vector())
+		BOOST_FOREACH (auto & val, cost.Vector())
 		{
 			cre->cost[i++] = val.Float();
 		}
@@ -171,11 +167,11 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	cre->addBonus(node["speed"].Float(), Bonus::STACKS_SPEED);
 	cre->addBonus(node["attack"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
 	cre->addBonus(node["defense"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
-	auto vec = node["damage"];
+	const JsonNode &  vec = node["damage"];
 	cre->addBonus(vec["min"].Float(), Bonus::CREATURE_DAMAGE, 1);
 	cre->addBonus(vec["max"].Float(), Bonus::CREATURE_DAMAGE, 2);
 
-	auto amounts = node ["advMapAmount"];
+	auto & amounts = node ["advMapAmount"];
 	cre->ammMin = amounts["min"].Float();
 	cre->ammMax = amounts["max"].Float();
 
@@ -183,7 +179,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	value = &node["upgrades"];
 	if (!value->isNull())
 	{
-		BOOST_FOREACH (auto str, value->Vector())
+		BOOST_FOREACH (auto & str, value->Vector())
 		{
 			cre->upgradeNames.insert (str.String());
 		}
@@ -213,19 +209,19 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	}
 	//graphics
 
-	auto graphics = node["graphics"];
+	const JsonNode & graphics = node["graphics"];
 	cre->animDefName = graphics["animation"].String();
 	cre->timeBetweenFidgets = graphics["timeBetweenFidgets"].Float();
 	cre->troopCountLocationOffset = graphics["troopCountLocationOffset"].Float();
 	cre->attackClimaxFrame = graphics["attackClimaxFrame"].Float();
 
-	auto animationTime = graphics["animationTime"];
+	const JsonNode & animationTime = graphics["animationTime"];
 	cre->walkAnimationTime = animationTime["walk"].Float();
 	cre->attackAnimationTime = animationTime["attack"].Float();
 	cre->flightAnimationDistance = animationTime["flight"].Float(); //?
 	//TODO: background?
-	auto missle = graphics["missle"];
-	auto offsets = missle["offset"];
+	const JsonNode & missle = graphics["missle"];
+	const JsonNode & offsets = missle["offset"];
 	cre->upperRightMissleOffsetX = offsets["upperX"].Float();
 	cre->upperRightMissleOffsetY = offsets["upperY"].Float();
 	cre->rightMissleOffsetX = offsets["middleX"].Float();
@@ -233,7 +229,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	cre->lowerRightMissleOffsetX = offsets["lowerX"].Float();
 	cre->lowerRightMissleOffsetY = offsets["lowerY"].Float();
 	int i = 0;
-	BOOST_FOREACH (auto angle, missle["frameAngles"].Vector())
+	BOOST_FOREACH (auto & angle, missle["frameAngles"].Vector())
 	{
 		cre->missleFrameAngles[i++] = angle.Float();
 	}
@@ -243,7 +239,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	//VLC->creh->idToProjectile[cre->idNumber] = "PLCBOWX.DEF";
 	cre->projectile = "PLCBOWX.DEF";
 
-	auto sounds = node["sound"];
+	const JsonNode & sounds = node["sound"];
 
 #define GET_SOUND_VALUE(value_name) do { value = &node[#value_name]; if (!value->isNull()) cre->sounds.value_name = sounds[#value_name].String(); } while(0)
 	GET_SOUND_VALUE(attack);

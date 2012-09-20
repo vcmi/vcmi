@@ -119,46 +119,6 @@ void CHeroHandler::loadObstacles()
 	//loadObstacles(config["moats"], true, moats);
 }
 
-void CHeroHandler::loadPuzzleInfo()
-{
-	const JsonNode config(ResourceID("config/puzzle_map.json"));
-
-	int faction = 0;
-
-	BOOST_FOREACH(const JsonNode &puzzle, config["puzzles"].Vector()) 
-	{
-		int idx = 0;
-
-		BOOST_FOREACH(const JsonNode &piece, puzzle.Vector()) 
-		{
-			SPuzzleInfo spi;
-
-			spi.x = piece["x"].Float();
-			spi.y = piece["y"].Float();
-			spi.whenUncovered = piece["order"].Float();
-			spi.number = idx;
-				
-			// filename calculation
-			std::ostringstream suffix;
-			suffix << std::setfill('0') << std::setw(2);
-			suffix << idx << ".BMP";
-
-			static const std::string factionToInfix[GameConstants::F_NUMBER] = {"CAS", "RAM", "TOW", "INF", "NEC", "DUN", "STR", "FOR", "ELE"};
-			spi.filename = "PUZ" + factionToInfix[faction] + suffix.str();
-
-			puzzleInfo[faction].push_back(spi);
-
-			idx ++;
-		}
-
-		assert(idx == PUZZLES_PER_FACTION);
-
-		faction ++;
-	}
-
-	assert(faction == GameConstants::F_NUMBER);
-}
-
 void CHeroHandler::loadHeroes()
 {
 	VLC->heroh = this;

@@ -996,7 +996,7 @@ std::pair<ui32, ui32> CBattleInfoCallback::battleEstimateDamage(const BattleAtta
 {
 	RETURN_IF_NOT_BATTLE(std::make_pair(0, 0));
 
-	const bool shooting = battleCanShoot(bai.attacker, bai.defenderPosition); //TODO handle bonus bearer
+	//const bool shooting = battleCanShoot(bai.attacker, bai.defenderPosition); //TODO handle bonus bearer
 	//const ui8 mySide = !attacker->attackerOwned;
 
 	TDmgRange ret = calculateDmgRange(bai);

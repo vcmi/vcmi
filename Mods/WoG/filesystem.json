@@ -1,0 +1,35 @@
+{
+	"filesystem":
+	{
+		"DATA/" :
+		[
+			{"type" : "lod", "path" : "ALL/MODS/WOG/Data/hmm35wog.pac"},
+			{"type" : "dir", "path" : "ALL/MODS/WOG/Data"}
+		],
+		"SPRITES/":
+		[
+			{"type" : "lod", "path" : "ALL/MODS/WOG/Data/hmm35wog.pac"},
+			{"type" : "lod", "path" : "ALL/MODS/WOG/Data/wog - animated objects.pac"},
+			{"type" : "lod", "path" : "ALL/MODS/WOG/Data/wog - animated trees.pac"},
+			{"type" : "lod", "path" : "ALL/MODS/WOG/Data/wog - battle decorations.pac"}
+		],
+		"SOUNDS/":
+		[
+			{"type" : "snd", "path" : "ALL/MODS/WOG/Data/wog - sounds.snd"},
+			{"type" : "snd", "path" : "ALL/MODS/WOG/Data/wog.snd"}
+		],
+		"MUSIC/":
+		[
+			{"type" : "dir", "path" : "ALL/MODS/WOG/Mp3"}
+		],
+		"VIDEO/":
+		[
+			{"type" : "vid", "path" : "ALL/MODS/WOG/Data/wog - video.vid"},
+			{"type" : "vid", "path" : "ALL/MODS/WOG/Data/wog.vid"}
+		],
+		"MAPS/":
+		[
+			{"type" : "dir", "path" : "ALL/Maps"}
+		],
+	}
+}

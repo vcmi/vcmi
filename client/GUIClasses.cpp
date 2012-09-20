@@ -5018,14 +5018,16 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 
 	int faction = LOCPLINT->cb->getStartInfo()->playerInfos.find(LOCPLINT->playerID)->second.castle;
 
-	for(int g=0; g<PUZZLES_PER_FACTION; ++g)
+	auto & puzzleMap = CGI->townh->factions[faction].puzzleMap;
+
+	for(int g=0; g<puzzleMap.size(); ++g)
 	{
-		const SPuzzleInfo & info = CGI->heroh->puzzleInfo[faction][g];
+		const SPuzzleInfo & info = puzzleMap[g];
 
 		auto piece = new CPicture(info.filename, info.x, info.y);
 
 		//piece that will slowly disappear
-		if(info.whenUncovered < PUZZLES_PER_FACTION * discoveredRatio)
+		if(info.whenUncovered < GameConstants::PUZZLE_MAP_PIECES * discoveredRatio)
 		{
 			piecesToRemove.push_back(piece);
 			piece->needRefresh = true;

@@ -75,7 +75,6 @@ void LibClasses::init()
 	heroh = new CHeroHandler;
 	heroh->loadHeroes();
 	heroh->loadObstacles();
-	heroh->loadPuzzleInfo();
 	tlog0 <<"\tHero handler: "<<pomtime.getDiff()<<std::endl;
 
 	arth = new CArtHandler;

@@ -135,6 +135,19 @@ public:
 	friend class CTownHandler;
 };
 
+struct DLL_LINKAGE SPuzzleInfo
+{
+	ui16 number; //type of puzzle
+	si16 x, y; //position
+	ui16 whenUncovered; //determines the sequnce of discovering (the lesser it is the sooner puzzle will be discovered)
+	std::string filename; //file with graphic of this puzzle
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & number & x & y & whenUncovered & filename;
+	}
+};
+
 class CFaction
 {
 public:
@@ -146,9 +159,11 @@ public:
 	std::string creatureBg120;
 	std::string creatureBg130;
 
+	std::vector<SPuzzleInfo> puzzleMap;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & factionID & nativeTerrain & creatureBg120 & creatureBg130;
+		h & name & factionID & nativeTerrain & creatureBg120 & creatureBg130 & puzzleMap;
 	}
 };
 
@@ -168,6 +183,8 @@ class DLL_LINKAGE CTownHandler
 	void loadClientData(CTown &town, const JsonNode & source);
 
 	void loadTown(CTown &town, const JsonNode & source);
+
+	void loadPuzzle(CFaction & faction, const JsonNode & source);
 
 	/// main loading function, accepts merged JSON source and add all entries from it into game
 	/// all entries in JSON should be checked for validness before using this function

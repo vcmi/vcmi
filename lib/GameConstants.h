@@ -79,6 +79,7 @@ namespace GameConstants
 	const int SPELL_LEVELS = 5;
 	const int AVAILABLE_HEROES_PER_PLAYER = 2;
 	const int SPELLBOOK_GOLD_COST = 500;
+	const int PUZZLE_MAP_PIECES = 48;
 
 	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
 
