@@ -102,5 +102,6 @@ struct StartInfo
 		mapfileChecksum = seedPostInit = seedToBeUsed = 0;
 		mode = INVALID;
 		choosenCampaignBonus = -1;
+		campSt = nullptr;
 	}
 };
