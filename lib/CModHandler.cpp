@@ -274,8 +274,7 @@ void CModHandler::recreateHandlers()
 		VLC->creh->nameToID[creature->nameSing] = creature->idNumber;
 
 		//generate adventure map object info & graphics
-		CGDefInfo* nobj = new CGDefInfo();
-		nobj = VLC->dobjinfo->gobjs[GameConstants::CREI_TYPE][0]; //copy all typical properties
+		CGDefInfo* nobj = new CGDefInfo (*VLC->dobjinfo->gobjs[GameConstants::CREI_TYPE][0]);//copy all typical properties
 		nobj->name = creature->advMapDef; //change only def name (?)
 		VLC->dobjinfo->gobjs[GameConstants::CREI_TYPE][creature->idNumber] = nobj;
 	}
