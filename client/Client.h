@@ -148,8 +148,8 @@ public:
 	void save(const std::string & fname);
 	void loadGame(const std::string & fname);
 	void run();
-	void finishCampaign( CCampaignState * camp );
-	void proposeNextMission( CCampaignState * camp );
+	void finishCampaign( shared_ptr<CCampaignState> camp );
+	void proposeNextMission(shared_ptr<CCampaignState> camp);
 	void invalidatePaths(const CGHeroInstance *h = NULL); //invalidates paths for hero h or for any hero if h is NULL => they'll got recalculated when the next query comes
 	void calculatePaths(const CGHeroInstance *h);
 	void updatePaths(); //calls calculatePaths for same hero for which we previously calculated paths

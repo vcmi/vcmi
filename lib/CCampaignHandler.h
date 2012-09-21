@@ -124,7 +124,7 @@ class DLL_LINKAGE CCampaign
 public:
 	CCampaignHeader header;
 	std::vector<CCampaignScenario> scenarios;
-	std::map<int, std::vector<ui8> > mapPieces; //binary h3ms, scenario number -> map data
+	std::map<int, std::string > mapPieces; //binary h3ms, scenario number -> map data
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
@@ -139,17 +139,24 @@ public:
 class DLL_LINKAGE CCampaignState
 {
 public:
-	CCampaign *camp;
+	unique_ptr<CCampaign> camp;
 	std::string campaignName; 
 	std::vector<ui8> mapsConquered, mapsRemaining;
 	ui8 currentMap; 
 
-	void initNewCampaign(const StartInfo &si);
+	bmap<ui8, ui8> chosenCampaignBonuses; //used only for mode CAMPAIGN
+
+	//void initNewCampaign(const StartInfo &si);
 	void mapConquered(const std::vector<CGHeroInstance*> & heroes);
+	CScenarioTravel::STravelBonus getBonusForCurrentMap() const;
+	const CCampaignScenario &getCurrentScenario() const;
+	ui8 currentBonusID() const;
+
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & camp & campaignName & mapsRemaining & mapsConquered & currentMap;
+		h & chosenCampaignBonuses;
 	}
 };
 
@@ -158,12 +165,12 @@ class DLL_LINKAGE CCampaignHandler
 	static CCampaignHeader readHeaderFromMemory( const ui8 *buffer, int & outIt );
 	static CCampaignScenario readScenarioFromMemory( const ui8 *buffer, int & outIt, int version, int mapVersion );
 	static CScenarioTravel readScenarioTravelFromMemory( const ui8 * buffer, int & outIt , int version);
-	/// returns h3c splitted in parts. 0 = h3c header, 1-end - maps (binary h3m)
+	/// returns h3c split in parts. 0 = h3c header, 1-end - maps (binary h3m)
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps
 	static std::vector< std::vector<ui8> > getFile(const std::string & name, bool headerOnly);
 public:
 
 	static CCampaignHeader getHeader( const std::string & name); //name - name of appropriate file
 
-	static CCampaign * getCampaign(const std::string & name); //name - name of appropriate file
+	static unique_ptr<CCampaign> getCampaign(const std::string & name); //name - name of appropriate file
 };

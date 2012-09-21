@@ -5037,7 +5037,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 	{
 		end2 = true;
 
-		if(gs->campaign)
+		if(gs->scenarioOps->campState)
 		{
 			std::vector<CGHeroInstance *> hes;
 			BOOST_FOREACH(CGHeroInstance * ghi, gs->map->heroes)
@@ -5047,10 +5047,10 @@ void CGameHandler::checkLossVictory( ui8 player )
 					hes.push_back(ghi);
 				}
 			}
-			gs->campaign->mapConquered(hes);
+			gs->scenarioOps->campState->mapConquered(hes);
 
 			UpdateCampaignState ucs;
-			ucs.camp = gs->campaign;
+			ucs.camp = gs->scenarioOps->campState;
 			sendAndApply(&ucs);
 		}
 	}

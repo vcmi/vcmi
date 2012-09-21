@@ -2024,7 +2024,8 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 		makingTurn = false;
 
 		howManyPeople--;
-		if(!howManyPeople) //all human players eliminated
+		if(!howManyPeople //all human players eliminated
+			&& cb->getStartInfo()->mode != StartInfo::CAMPAIGN) //campaigns are handled in proposeNextMission
 		{
 			requestReturningToMainMenu();
 		}
@@ -2133,6 +2134,9 @@ void CPlayerInterface::acceptTurn()
 
 	//select first hero if available.
 	//TODO: check if hero is slept
+	adventureInt->heroList.update();
+	adventureInt->townList.update();
+
 	if(wanderingHeroes.size())
 		adventureInt->select(wanderingHeroes.front());
 	else
@@ -2141,8 +2145,6 @@ void CPlayerInterface::acceptTurn()
 	//show new day animation and sound on infobar
 	adventureInt->infoBar.showDate();
 
-	adventureInt->heroList.update();
-	adventureInt->townList.update();
 	adventureInt->updateNextHero(NULL);
 	adventureInt->showAll(screen);
 

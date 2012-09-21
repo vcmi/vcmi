@@ -590,6 +590,12 @@ public:
 		*this << internalPtr;
 	}
 	template <typename T>
+	void saveSerializable(const unique_ptr<T> &data)
+	{
+		T *internalPtr = data.get();
+		*this << internalPtr;
+	}
+	template <typename T>
 	void saveSerializable(const std::vector<T> &data)
 	{
 		ui32 length = data.size();
@@ -888,6 +894,13 @@ public:
 
 	template <typename T>
 	void loadSerializable(shared_ptr<T> &data)
+	{
+		T *internalPtr;
+		*this >> internalPtr;
+		data.reset(internalPtr);
+	}
+	template <typename T>
+	void loadSerializable(unique_ptr<T> &data)
 	{
 		T *internalPtr;
 		*this >> internalPtr;

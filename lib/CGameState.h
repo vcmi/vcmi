@@ -383,7 +383,6 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 {
 public:
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
-	ConstTransitivePtr<CCampaignState> campaign;
 	ui8 currentPlayer; //ID of player currently having turn
 	ConstTransitivePtr<BattleInfo> curB; //current battle
 	ui32 day; //total number of days in game
@@ -450,7 +449,7 @@ public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & scenarioOps & initialOpts & currentPlayer & day & map & players & teams & hpool & globalEffects & campaign;
+		h & scenarioOps & initialOpts & currentPlayer & day & map & players & teams & hpool & globalEffects;
 		h & villages & forts & capitols;
 		if(!h.saving)
 		{

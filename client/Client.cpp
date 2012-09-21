@@ -515,12 +515,14 @@ void CClient::updatePaths()
 		calculatePaths(h);
 }
 
-void CClient::finishCampaign( CCampaignState * camp )
+void CClient::finishCampaign( shared_ptr<CCampaignState> camp )
 {
 }
 
-void CClient::proposeNextMission( CCampaignState * camp )
+void CClient::proposeNextMission(shared_ptr<CCampaignState> camp)
 {
+	endGame(false);
+	LOCPLINT = nullptr; //TODO free res
 	GH.pushInt(new CBonusSelection(camp));
 	GH.curInt = CGP;
 }

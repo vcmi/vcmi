@@ -35,9 +35,9 @@ CCampaignHeader CCampaignHandler::getHeader( const std::string & name)
 	return ret;
 }
 
-CCampaign * CCampaignHandler::getCampaign( const std::string & name)
+unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
 {
-	CCampaign * ret = new CCampaign();
+	auto ret = make_unique<CCampaign>();
 
 	std::vector<std::vector<ui8>> file = getFile(name, false);
 
@@ -63,7 +63,13 @@ CCampaign * CCampaignHandler::getCampaign( const std::string & name)
 			scenarioID++;
 		}
 		//set map piece appropriately
-		ret->mapPieces[scenarioID++] = file[g];
+
+
+		ret->mapPieces[scenarioID].resize(file[g].size());
+		for(int i = 0; i < file[g].size(); i++)
+			ret->mapPieces[scenarioID][i] = file[g][i];
+		
+		scenarioID++;
 	}
 
 	return ret;
@@ -406,16 +412,16 @@ bool CScenarioTravel::STravelBonus::isBonusForHero() const
 	return type == 0 || type == 1 || type == 3 || type == 4 || type == 5 || type == 6;
 }
 
-void CCampaignState::initNewCampaign( const StartInfo &si )
-{
-	assert(si.mode == StartInfo::CAMPAIGN);
-	campaignName = si.mapname;
-	currentMap = si.campSt->currentMap;
-
-	camp = CCampaignHandler::getCampaign(campaignName);
-	for (ui8 i = 0; i < camp->mapPieces.size(); i++)
-		mapsRemaining.push_back(i);
-}
+// void CCampaignState::initNewCampaign( const StartInfo &si )
+// {
+// 	assert(si.mode == StartInfo::CAMPAIGN);
+// 	campaignName = si.mapname;
+// 	currentMap = si.campState->currentMap;
+// 
+// 	camp = CCampaignHandler::getCampaign(campaignName);
+// 	for (ui8 i = 0; i < camp->mapPieces.size(); i++)
+// 		mapsRemaining.push_back(i);
+// }
 
 void CCampaignState::mapConquered( const std::vector<CGHeroInstance*> & heroes )
 {
@@ -423,4 +429,20 @@ void CCampaignState::mapConquered( const std::vector<CGHeroInstance*> & heroes )
 	mapsConquered.push_back(currentMap);
 	mapsRemaining -= currentMap;
 	camp->scenarios[currentMap].conquered = true;
+}
+
+CScenarioTravel::STravelBonus CCampaignState::getBonusForCurrentMap() const
+{
+	assert(chosenCampaignBonuses.count(currentMap));
+	return getCurrentScenario().travelOptions.bonusesToChoose[currentBonusID()];
+}
+
+const CCampaignScenario & CCampaignState::getCurrentScenario() const
+{
+	return camp->scenarios[currentMap];
+}
+
+ui8 CCampaignState::currentBonusID() const
+{
+	return chosenCampaignBonuses[currentMap];
 }

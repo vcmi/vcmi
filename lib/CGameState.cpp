@@ -753,7 +753,7 @@ void CGameState::init(StartInfo * si)
 		//it's assumed that given hero should receive the bonus
 		static void giveCampaignBonusToHero(CGHeroInstance * hero, const StartInfo * si, const CScenarioTravel & st, CGameState *gs )
 		{
-			const CScenarioTravel::STravelBonus & curBonus = st.bonusesToChoose[si->choosenCampaignBonus];
+			const CScenarioTravel::STravelBonus & curBonus = si->campState->getBonusForCurrentMap();
 			if(curBonus.isBonusForHero())
 			{
 				//apply bonus
@@ -793,7 +793,7 @@ void CGameState::init(StartInfo * si)
 							{
 								continue;
 							}
-							Bonus *bb = new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::CAMPAIGN_BONUS, val, si->campSt->currentMap, g);
+							Bonus *bb = new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::CAMPAIGN_BONUS, val, si->campState->currentMap, g);
 							hero->addNewBonus(bb);
 						}
 					}
@@ -845,13 +845,12 @@ void CGameState::init(StartInfo * si)
 		break;
 	case StartInfo::CAMPAIGN:
 		{
-			campaign = new CCampaignState();
-			campaign->initNewCampaign(*scenarioOps);
-			assert(vstd::contains(campaign->camp->mapPieces, scenarioOps->campSt->currentMap));
+			auto campaign = scenarioOps->campState;
+			assert(vstd::contains(campaign->camp->mapPieces, scenarioOps->campState->currentMap));
 
-			std::vector<ui8> &mapContent = campaign->camp->mapPieces[scenarioOps->campSt->currentMap];
+			std::string &mapContent = campaign->camp->mapPieces[scenarioOps->campState->currentMap];
 			map = new Mapa();
-			map->initFromBytes((const ui8*)mapContent.data(), mapContent.size());
+			map->initFromBytes((const ui8*)mapContent.c_str(), mapContent.size());
 		}
 		break;
 	case StartInfo::DUEL:
@@ -991,11 +990,10 @@ void CGameState::init(StartInfo * si)
 
 	/*************************replace hero placeholders*****************************/
 
-	if (campaign)
+	if (scenarioOps->campState)
 	{
-
-		CScenarioTravel::STravelBonus bonus =
-			campaign->camp->scenarios[scenarioOps->campSt->currentMap].travelOptions.bonusesToChoose[scenarioOps->choosenCampaignBonus];
+		auto campaign = scenarioOps->campState;
+		CScenarioTravel::STravelBonus bonus = campaign->getBonusForCurrentMap();
 
 
 		std::vector<CGHeroInstance *> Xheroes;
@@ -1078,8 +1076,7 @@ void CGameState::init(StartInfo * si)
 	//give start resource bonus in case of campaign
 	if (scenarioOps->mode == StartInfo::CAMPAIGN)
 	{
-		CScenarioTravel::STravelBonus chosenBonus =
-			campaign->camp->scenarios[scenarioOps->campSt->currentMap].travelOptions.bonusesToChoose[scenarioOps->choosenCampaignBonus];
+		CScenarioTravel::STravelBonus chosenBonus = scenarioOps->campState->getBonusForCurrentMap();
 		if(chosenBonus.type == 7) //resource
 		{
 			std::vector<const PlayerSettings *> people = HLP::getHumanPlayerInfo(scenarioOps); //players we will give resource bonus
@@ -1163,8 +1160,7 @@ void CGameState::init(StartInfo * si)
 	if (scenarioOps->mode == StartInfo::CAMPAIGN) //give campaign bonuses for specific / best hero
 	{
 
-		CScenarioTravel::STravelBonus chosenBonus =
-			campaign->camp->scenarios[scenarioOps->campSt->currentMap].travelOptions.bonusesToChoose[scenarioOps->choosenCampaignBonus];
+		CScenarioTravel::STravelBonus chosenBonus = scenarioOps->campState->getBonusForCurrentMap();
 		if (chosenBonus.isBonusForHero() && chosenBonus.info1 != 0xFFFE) //exclude generated heroes
 		{
 			//find human player
@@ -1194,7 +1190,7 @@ void CGameState::init(StartInfo * si)
 				if(maxB < 0)
 					tlog2 << "Warning - cannot give bonus to hero cause there are no heroes!\n";
 				else
-					HLP::giveCampaignBonusToHero(heroes[maxB], scenarioOps, campaign->camp->scenarios[scenarioOps->campSt->currentMap].travelOptions, this);
+					HLP::giveCampaignBonusToHero(heroes[maxB], scenarioOps, scenarioOps->campState->getCurrentScenario().travelOptions, this);
 			}
 			else //specific hero
 			{
@@ -1202,7 +1198,7 @@ void CGameState::init(StartInfo * si)
 				{
 					if (heroes[b]->subID == chosenBonus.info1)
 					{
-						HLP::giveCampaignBonusToHero(heroes[b], scenarioOps, campaign->camp->scenarios[scenarioOps->campSt->currentMap].travelOptions, this);
+						HLP::giveCampaignBonusToHero(heroes[b], scenarioOps, scenarioOps->campState->getCurrentScenario().travelOptions, this);
 						break;
 					}
 				}
@@ -1377,8 +1373,7 @@ void CGameState::init(StartInfo * si)
 	//campaign bonuses for towns
 	if (scenarioOps->mode == StartInfo::CAMPAIGN)
 	{
-		CScenarioTravel::STravelBonus chosenBonus =
-			campaign->camp->scenarios[scenarioOps->campSt->currentMap].travelOptions.bonusesToChoose[scenarioOps->choosenCampaignBonus];
+		CScenarioTravel::STravelBonus chosenBonus = scenarioOps->campState->getBonusForCurrentMap();
 
 		if (chosenBonus.type == 2)
 		{
@@ -2008,7 +2003,10 @@ int CGameState::victoryCheck( ui8 player ) const
 
 	if (p->enteredWinningCheatCode)
 	{ //cheater or tester, but has entered the code...
-		return 1;
+		if(map->victoryCondition.condition == EVictoryConditionType::WINSTANDARD)
+			return -1;
+		else
+			return 1;
 	}
 
 	if(p->human || map->victoryCondition.appliesToAI)
@@ -2213,7 +2211,7 @@ struct statsHLP
 		}
 		return h[best];
 	}
-
+	
 	//calculates total number of artifacts that belong to given player
 	static int getNumberOfArts(const PlayerState * ps)
 	{

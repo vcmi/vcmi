@@ -793,11 +793,7 @@ void CSelectionScreen::startCampaign()
 {
 	if (SEL->current)
 	{
-		CCampaign * ourCampaign = CCampaignHandler::getCampaign(SEL->current->fileURI);
-		CCampaignState * campState = new CCampaignState();
-		campState->camp = ourCampaign;
-		sInfo.campSt = campState;
-		GH.pushInt( new CBonusSelection(campState) );
+		GH.pushInt(new CBonusSelection(SEL->current->fileURI));
 	}
 }
 
@@ -2756,10 +2752,14 @@ void CHotSeatPlayers::enterSelectionScreen()
 	GH.pushInt(new CSelectionScreen(CMenuScreen::newGame, CMenuScreen::MULTI_HOT_SEAT, &names));
 }
 
-CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
-: highlightedRegion(NULL), ourCampaign(_ourCampaign), ourHeader(NULL),
-	 diffLb(NULL), diffRb(NULL), bonuses(NULL)
+void CBonusSelection::init()
 {
+	highlightedRegion = nullptr;
+	ourHeader = nullptr;
+	diffLb = nullptr;
+	diffRb = nullptr;
+	bonuses = nullptr;
+
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	static const std::string bgNames [] = {"E1_BG.BMP", "G2_BG.BMP", "E2_BG.BMP", "G1_BG.BMP", "G3_BG.BMP", "N1_BG.BMP",
 		"S1_BG.BMP", "BR_BG.BMP", "IS_BG.BMP", "KR_BG.BMP", "NI_BG.BMP", "TA_BG.BMP", "AR_BG.BMP", "HS_BG.BMP",
@@ -2823,11 +2823,11 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 		}
 	}
 
-	//init campaign state if necessary
-	if (ourCampaign->campaignName.size() == 0)
-	{
-		ourCampaign->initNewCampaign(sInfo);
-	}
+// 	//init campaign state if necessary
+// 	if (ourCampaign->campaignName.size() == 0)
+// 	{
+// 		ourCampaign->initNewCampaign(sInfo);
+// 	}
 
 	//allies / enemies
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[390] + ":", 486, 407, FONT_SMALL, Colors::Cornsilk, background); //Allies
@@ -2860,7 +2860,26 @@ CBonusSelection::CBonusSelection( CCampaignState * _ourCampaign )
 
 	//load miniflags
 	sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
+}
 
+
+CBonusSelection::CBonusSelection(shared_ptr<CCampaignState> _ourCampaign)
+	: ourCampaign(std::move(_ourCampaign))
+{
+	init();
+}
+
+CBonusSelection::CBonusSelection( std::string campaignFName )
+{
+	ourCampaign = make_shared<CCampaignState>();
+	ourCampaign->camp = CCampaignHandler::getCampaign(campaignFName);
+	for(int i = 0; i < ourCampaign->camp->scenarios.size(); i++)
+	{
+		ourCampaign->mapsRemaining.push_back(i);
+	}
+
+	sInfo.campState = ourCampaign;
+	init();
 }
 
 CBonusSelection::~CBonusSelection()
@@ -2925,7 +2944,7 @@ void CBonusSelection::selectMap( int whichOne )
 	sInfo.difficulty = ourCampaign->camp->scenarios[whichOne].difficulty;
 	sInfo.mapname = ourCampaign->camp->header.filename;
 	sInfo.mode = StartInfo::CAMPAIGN;
-	sInfo.campSt = ourCampaign;
+	sInfo.campState = ourCampaign;
 	ourCampaign->currentMap = whichOne;
 
 	//get header
@@ -3016,7 +3035,7 @@ void CBonusSelection::updateBonusSelection()
 	//resource - BORES.DEF
 	//player - CREST58.DEF
 	//hero - PORTRAITSLARGE (HPL###.BMPs)
-	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.campSt->currentMap];
+	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.campState->currentMap];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 
 	for (size_t i=0; i<bonuses->buttons.size(); i++)
@@ -3206,9 +3225,9 @@ void CBonusSelection::selectBonus( int id )
 {
 	// Total redraw is needed because the border around the bonus images
 	// have to be undrawn/drawn.
-	if (id != sInfo.choosenCampaignBonus)
+	if (id != sInfo.campState->currentBonusID())
 	{
-		sInfo.choosenCampaignBonus = id;
+		sInfo.campState->chosenCampaignBonuses[sInfo.campState->currentMap] = id;
 		GH.totalRedraw();
 
 		if (startB->getState() == CButtonBase::BLOCKED)
@@ -3216,7 +3235,7 @@ void CBonusSelection::selectBonus( int id )
 	}
 
 
-	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.campSt->currentMap];
+	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.campState->currentMap];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	if (bonDescs[id].type == 8) //hero crossover
 	{
@@ -3566,11 +3585,7 @@ void CCampaignScreen::CCampaignButton::clickLeft(tribool down, bool previousStat
 	{
 		// Close running video and open the selected campaign
 		CCS->videoh->close();
-
-		CCampaign * ourCampaign = CCampaignHandler::getCampaign(campFile);
-		CCampaignState * campState = new CCampaignState();
-		campState->camp = ourCampaign;
-		GH.pushInt( new CBonusSelection(campState) );
+		GH.pushInt( new CBonusSelection(campFile) );
 	}
 }
 

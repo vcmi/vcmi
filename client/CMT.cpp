@@ -774,10 +774,10 @@ static void listenForEvents()
 			}*/
 			case RETURN_TO_MAIN_MENU:
 				{
-					StartInfo si = *client->getStartInfo();
-					if(si.mode == StartInfo::CAMPAIGN)
-						GH.pushInt( new CBonusSelection(si.campSt) );
-					else
+// 					StartInfo si = *client->getStartInfo();
+// 					if(si.mode == StartInfo::CAMPAIGN)
+// 						GH.pushInt( new CBonusSelection(si.campState) );
+// 					else
 					{
 						endGame();
 						CGPreGame::create();

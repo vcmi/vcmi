@@ -1,6 +1,6 @@
 ﻿
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual C++ Express 2010
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCMI_client", "client\VCMI_client.vcxproj", "{8355EBA8-65C2-44A4-BC2D-78053E1BF2D6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCMI_lib", "lib\VCMI_lib.vcxproj", "{B952FFC5-3039-4DE1-9F08-90ACDA483D8F}"
@@ -23,6 +23,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "VCAI", "AI\VCAI\VCAI.vcxpro
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FuzzyLite", "AI\FuzzyLite\FuzzyLite.vcxproj", "{D15B34EC-A32C-4968-9B0B-66998B579364}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "BattleAI", "AI\BattleAI\BattleAI.vcxproj", "{C0300513-E845-43B4-9A4F-E8817EAEF57C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{B952FFC5-3039-4DE1-9F08-90ACDA483D8F} = {B952FFC5-3039-4DE1-9F08-90ACDA483D8F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +89,14 @@ Global
 		{D15B34EC-A32C-4968-9B0B-66998B579364}.RD|Win32.ActiveCfg = RD|Win32
 		{D15B34EC-A32C-4968-9B0B-66998B579364}.RD|Win32.Build.0 = RD|Win32
 		{D15B34EC-A32C-4968-9B0B-66998B579364}.RD|x64.ActiveCfg = RD|Win32
+		{C0300513-E845-43B4-9A4F-E8817EAEF57C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{C0300513-E845-43B4-9A4F-E8817EAEF57C}.Debug|Win32.Build.0 = Debug|Win32
+		{C0300513-E845-43B4-9A4F-E8817EAEF57C}.Debug|x64.ActiveCfg = Debug|x64
+		{C0300513-E845-43B4-9A4F-E8817EAEF57C}.Debug|x64.Build.0 = Debug|x64
+		{C0300513-E845-43B4-9A4F-E8817EAEF57C}.RD|Win32.ActiveCfg = RD|Win32
+		{C0300513-E845-43B4-9A4F-E8817EAEF57C}.RD|Win32.Build.0 = RD|Win32
+		{C0300513-E845-43B4-9A4F-E8817EAEF57C}.RD|x64.ActiveCfg = RD|x64
+		{C0300513-E845-43B4-9A4F-E8817EAEF57C}.RD|x64.Build.0 = RD|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

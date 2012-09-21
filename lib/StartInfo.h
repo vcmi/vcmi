@@ -65,8 +65,9 @@ struct StartInfo
 	ui32 mapfileChecksum; //0 if not relevant
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname;
-	ui8 choosenCampaignBonus; //used only for mode CAMPAIGN
-	CCampaignState * campSt;
+
+	shared_ptr<CCampaignState> campState;
+
 	PlayerSettings & getIthPlayersSettings(int no)
 	{
 		if(playerInfos.find(no) != playerInfos.end())
@@ -93,15 +94,13 @@ struct StartInfo
 		h & mapfileChecksum;
 		h & turnTime;
 		h & mapname;
-		h & choosenCampaignBonus;
-		h & campSt;
+		h & campState;
 	}
 
 	StartInfo()
 	{
 		mapfileChecksum = seedPostInit = seedToBeUsed = 0;
 		mode = INVALID;
-		choosenCampaignBonus = -1;
-		campSt = nullptr;
+		campState = nullptr;
 	}
 };

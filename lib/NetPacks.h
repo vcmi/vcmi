@@ -526,7 +526,7 @@ struct UpdateCampaignState : public CPackForClient //119
 		type = 119;
 	}
 
-	CCampaignState *camp;
+	shared_ptr<CCampaignState> camp;
 	void applyCl(CClient *cl);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
