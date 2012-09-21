@@ -102,6 +102,7 @@ void LibClasses::init()
 	tlog0<<"\tSpell handler: "<<pomtime.getDiff()<<std::endl;
 
 	modh->recreateHandlers(); //load all new creatures parsed in the meantime.
+	//FIXME: make sure that everything is ok after game restart
 	//TODO: This should be done every time mod config changes
 
 	IS_AI_ENABLED = false;
@@ -145,6 +146,7 @@ void LibClasses::callWhenDeserializing()
 	generaltexth = new CGeneralTextHandler;
 	generaltexth->load();
 	arth->loadArtifacts(true);
+	//modh->recreateHandlers();
 	//modh->loadConfigFromFile ("defaultMods"); //TODO: remember last saved config
 }
 

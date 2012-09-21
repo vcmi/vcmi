@@ -234,10 +234,10 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 		cre->missleFrameAngles[i++] = angle.Float();
 	}
 	cre->advMapDef = graphics["map"].String();
-	//TODO: we need to know creature id to add it
-	//FIXME: creature handler is not yet initialized
-	//VLC->creh->idToProjectile[cre->idNumber] = "PLCBOWX.DEF";
+	
+	//TODO: parse
 	cre->projectile = "PLCBOWX.DEF";
+	cre->projectileSpin = false;
 
 	const JsonNode & sounds = node["sound"];
 
@@ -257,6 +257,16 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	creatures.push_back(cre);
 	return cre;
 }
+void CModHandler::recreateAdvMapDefs()
+{
+	BOOST_FOREACH (auto creature, creatures)
+	{
+		//generate adventure map object info & graphics
+		CGDefInfo* nobj = new CGDefInfo (*VLC->dobjinfo->gobjs[GameConstants::CREI_TYPE][0]);//copy all typical properties
+		nobj->name = creature->advMapDef; //change only def name (?)
+		VLC->dobjinfo->gobjs[GameConstants::CREI_TYPE][creature->idNumber] = nobj;
+	}
+}
 void CModHandler::recreateHandlers()
 {
 	//TODO: consider some template magic to unify all handlers?
@@ -273,11 +283,8 @@ void CModHandler::recreateHandlers()
 		//	VLC->creh->nameToID[creature->nameRef] = creature->idNumber;
 		VLC->creh->nameToID[creature->nameSing] = creature->idNumber;
 
-		//generate adventure map object info & graphics
-		CGDefInfo* nobj = new CGDefInfo (*VLC->dobjinfo->gobjs[GameConstants::CREI_TYPE][0]);//copy all typical properties
-		nobj->name = creature->advMapDef; //change only def name (?)
-		VLC->dobjinfo->gobjs[GameConstants::CREI_TYPE][creature->idNumber] = nobj;
 	}
+	recreateAdvMapDefs();
 	BOOST_FOREACH (auto creature, VLC->creh->creatures) //populate upgrades described with string
 	{
 		BOOST_FOREACH (auto upgradeName, creature->upgradeNames)

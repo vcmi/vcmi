@@ -284,10 +284,10 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	BOOST_FOREACH(const CStack *s, stacks)
 	{
 		int creID = (s->getCreature()->idNumber == 149) ? CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] : s->getCreature()->idNumber; //id of creature whose shots should be loaded
-		if(s->getCreature()->isShooting() && vstd::contains(CGI->creh->idToProjectile, creID))
+		if(s->getCreature()->isShooting())
 		{
 			CDefHandler *&projectile = idToProjectile[s->getCreature()->idNumber];
-			projectile = CDefHandler::giveDef(CGI->creh->idToProjectile[creID]);
+			projectile = CDefHandler::giveDef(s->getCreature()->projectile);
 
 			if(projectile->ourImages.size() > 2) //add symmetric images
 			{

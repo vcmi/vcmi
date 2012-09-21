@@ -33,6 +33,7 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/NetPacks.h"
 #include "CMessage.h"
+#include "../lib/CModHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CScriptingModule.h"
@@ -758,8 +759,9 @@ static void listenForEvents()
 				vstd::clear_pointer(client);
 
 				delete CGI->dobjinfo.get();
-				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler;
+				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler; 
 				const_cast<CGameInfo*>(CGI)->dobjinfo->load();
+				const_cast<CGameInfo*>(CGI)->modh->recreateAdvMapDefs(); //add info about new creatures to dobjinfo
 			};
 
 			switch(ev.user.code)

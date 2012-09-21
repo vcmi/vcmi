@@ -47,6 +47,7 @@ public:
 	double missleFrameAngles[12];
 	int troopCountLocationOffset, attackClimaxFrame;
 	std::string projectile;
+	ui8 projectileSpin; //if true, appropriate projectile is spinning during flight
 	///end of anim info
 
 	//sound info
@@ -109,7 +110,7 @@ public:
 			& timeBetweenFidgets & walkAnimationTime & attackAnimationTime & flightAnimationDistance
 			& upperRightMissleOffsetX & rightMissleOffsetX & lowerRightMissleOffsetX & upperRightMissleOffsetY & rightMissleOffsetY & lowerRightMissleOffsetY
 			& missleFrameAngles & troopCountLocationOffset & attackClimaxFrame;
-		h & sounds & projectile;
+		h & sounds & projectile & projectileSpin;
 
 		h & doubleWide;
 	}
@@ -129,8 +130,6 @@ public:
 	std::set<TCreature> doubledCreatures; //they get double week
 	std::vector<ConstTransitivePtr<CCreature> > creatures; //creature ID -> creature info
 	bmap<std::string,int> nameToID;
-	bmap<int,std::string> idToProjectile;
-	bmap<int,bool> idToProjectileSpin; //if true, appropriate projectile is spinning during flight
 	std::vector<si8> factionAlignments; //1 for good, 0 for neutral and -1 for evil with faction ID as index
 	int factionToTurretCreature[GameConstants::F_NUMBER]; //which creature's animation should be used to dispaly creature in turret while siege
 
@@ -168,7 +167,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
-		h & notUsedMonsters & creatures & nameToID & idToProjectile & idToProjectileSpin & factionToTurretCreature;
+		h & notUsedMonsters & creatures & nameToID & factionToTurretCreature;
 		h & stackBonuses & expRanks & maxExpPerBattle & expAfterUpgrade;
 		h & factionCommanders & skillLevels & skillRequirements & commanderLevelPremy;
 		h & allCreatures;

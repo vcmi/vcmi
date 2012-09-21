@@ -432,10 +432,10 @@ void CCreatureHandler::loadCreatures()
 		value = &creature["projectile_defname"];
 		if (!value->isNull())
 		{
-			idToProjectile[creatureID] = value->String();
+			c->projectile = value->String();
 
 			value = &creature["projectile_spin"];
-			idToProjectileSpin[creatureID] = value->Bool();
+			c->projectileSpin = value->Bool();
 		}
 
 		value = &creature["turret_shooter"];
