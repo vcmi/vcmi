@@ -241,7 +241,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 
 	const JsonNode & sounds = node["sound"];
 
-#define GET_SOUND_VALUE(value_name) do { value = &node[#value_name]; if (!value->isNull()) cre->sounds.value_name = sounds[#value_name].String(); } while(0)
+#define GET_SOUND_VALUE(value_name) do { value = &sounds[#value_name]; if (!value->isNull()) cre->sounds.value_name = value->String(); } while(0)
 	GET_SOUND_VALUE(attack);
 	GET_SOUND_VALUE(defend);
 	GET_SOUND_VALUE(killed);

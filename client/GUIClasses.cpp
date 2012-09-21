@@ -1251,11 +1251,15 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool An
 	pos.x+=x;
 	pos.y+=y;
 
-	assert(vstd::contains(CGI->townh->factions, cre->faction));
+	si8 faction = 0;//FIXME: support neutral faction
+	if (vstd::contains(CGI->townh->factions, cre->faction))
+	{
+		faction = cre->faction;
+	}
 	if(Big)
-		bg = new CPicture(CGI->townh->factions[cre->faction].creatureBg130);
+		bg = new CPicture(CGI->townh->factions[faction].creatureBg130);
 	else
-		bg = new CPicture(CGI->townh->factions[cre->faction].creatureBg120);
+		bg = new CPicture(CGI->townh->factions[faction].creatureBg120);
 	bg->needRefresh = true;
 	anim = new CCreatureAnim(0, 0, cre->animDefName, Rect());
 	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
