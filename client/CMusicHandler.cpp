@@ -155,6 +155,9 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(soundBase::soundID soundID)
 
 Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound)
 {
+	if (sound.empty())
+		return nullptr;
+
 	// Load and insert
 	try
 	{

@@ -38,6 +38,7 @@ public:
 	std::string animDefName;
 	std::string advMapDef; //for new creatures only
 	si32 idNumber;
+	si32 iconIndex; // index of icon in files like twcrport
 	si8 faction; //-1 = neutral
 	ui8 doubleWide;
 
@@ -149,7 +150,7 @@ public:
 	void loadCreatures();
 	void buildBonusTreeForTiers();
 	void loadAnimationInfo();
-	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
+	void loadUnitAnimInfo(CCreature & unit, CLegacyConfigParser &parser);
 	void loadSoundsInfo();
 	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser &parser);
 	int stringToNumber(std::string & s);//help function for parsing CREXPBON.txt

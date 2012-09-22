@@ -160,13 +160,9 @@ void CTownTooltip::init(const InfoAboutTown &town)
 
 	assert(town.tType);
 
-	size_t imageIndex = town.tType->typeID * 2;
-	if (town.fortLevel == 0)
-		imageIndex += GameConstants::F_NUMBER * 2;
-	if (town.built >= CGI->modh->settings.MAX_BUILDING_PER_TURN)
-		imageIndex++;
+	size_t iconIndex = town.tType->clientInfo.icons[town.fortLevel > 0][town.built >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
 
-	new CAnimImage("itpt", imageIndex, 0, 3, 2);
+	new CAnimImage("itpt", iconIndex, 0, 3, 2);
 
 	if(town.details)
 	{
@@ -877,7 +873,7 @@ size_t CComponent::getIndex()
 	case primskill:  return subtype;
 	case secskill:   return subtype*3 + 3 + val - 1;
 	case resource:   return subtype;
-	case creature:   return subtype+2;
+	case creature:   return CGI->creh->creatures[subtype]->iconIndex;
 	case artifact:   return subtype;
 	case experience: return 4;
 	case spell:      return subtype;
@@ -900,7 +896,7 @@ std::string CComponent::getDescription()
 	case secskill:   return CGI->generaltexth->skillInfoTexts[subtype][val-1];
 	case resource:   return CGI->generaltexth->allTexts[242];
 	case creature:   return "";
-	case artifact:   return  CGI->arth->artifacts[subtype]->Description();
+	case artifact:   return CGI->arth->artifacts[subtype]->Description();
 	case experience: return CGI->generaltexth->allTexts[241];
 	case spell:      return CGI->spellh->spells[subtype]->descriptions[val];
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];

@@ -283,7 +283,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	//loading projectiles for units
 	BOOST_FOREACH(const CStack *s, stacks)
 	{
-		int creID = (s->getCreature()->idNumber == 149) ? CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] : s->getCreature()->idNumber; //id of creature whose shots should be loaded
+		//int creID = (s->getCreature()->idNumber == 149) ? CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] : s->getCreature()->idNumber; //id of creature whose shots should be loaded
 		if(s->getCreature()->isShooting())
 		{
 			CDefHandler *&projectile = idToProjectile[s->getCreature()->idNumber];

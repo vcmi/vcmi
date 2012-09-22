@@ -252,6 +252,11 @@ void CTownHandler::loadTownHall(CTown &town, const JsonNode & source)
 
 void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 {
+	town.clientInfo.icons[0][0] = source["icons"]["village"]["normal"].Float();
+	town.clientInfo.icons[0][1] = source["icons"]["village"]["built"].Float();
+	town.clientInfo.icons[1][0] = source["icons"]["fort"]["normal"].Float();
+	town.clientInfo.icons[1][1] = source["icons"]["fort"]["built"].Float();
+
 	town.clientInfo.hallBackground = source["hallBackground"].String();
 	town.clientInfo.musicTheme = source["musicTheme"].String();
 	town.clientInfo.townBackground = source["townBackground"].String();

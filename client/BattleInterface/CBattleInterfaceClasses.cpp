@@ -371,7 +371,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 				bestMonsterID = it->second->type->idNumber;
 			}
 		}
-		new CAnimImage("TWCRPORT", bestMonsterID+2, 0, 392, 38);
+		new CAnimImage("TWCRPORT", CGI->creh->creatures[bestMonsterID]->iconIndex, 0, 392, 38);
 		//setting defenderName
 		defenderName =  CGI->creh->creatures[bestMonsterID]->namePl;
 	}
@@ -394,7 +394,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 			int yPos = 344 + step*97;
 			for(std::map<ui32,si32>::const_iterator it=br.casualties[step].begin(); it!=br.casualties[step].end(); ++it)
 			{
-				new CAnimImage("CPRSMALL", it->first+2, 0, xPos, yPos);
+				new CAnimImage("CPRSMALL", CGI->creh->creatures[it->first]->iconIndex, 0, xPos, yPos);
 				std::ostringstream amount;
 				amount<<it->second;
 				new CLabel( xPos+16, yPos + 42, FONT_SMALL, CENTER, Colors::Cornsilk, amount.str());
@@ -689,7 +689,7 @@ void CStackQueue::StackBox::setStack( const CStack *stack )
 {
 	this->stack = stack;
 	assert(stack);
-	icon->setFrame(stack->getCreature()->idNumber + 2);
+	icon->setFrame(stack->getCreature()->iconIndex);
 }
 
 CStackQueue::StackBox::StackBox(bool small):

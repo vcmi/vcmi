@@ -84,7 +84,7 @@ void CModHandler::loadConfigFromFile (std::string name)
 		const JsonNode *value = &config["creatures"];
 		BOOST_FOREACH (auto creature, value->Vector())
 		{
-			auto cre = loadCreature (creature); //create and push back creature
+			auto cre = loadCreature (creature); //FIXME: unused variable 'cre' //create and push back creature
 		}
 	}
 }
@@ -114,51 +114,11 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	cre->namePl = name["plural"].String();
 	cre->nameRef = cre->nameSing;
 
-	//TODO: export resource set to separate function?
-	const JsonNode &  cost = node["cost"];
-	if (cost.getType() == JsonNode::DATA_FLOAT) //gold
-	{
-		cre->cost[Res::GOLD] = cost.Float();
-	}
-	else if (cost.getType() == JsonNode::DATA_VECTOR)
-	{
-		int i = 0;
-		BOOST_FOREACH (auto & val, cost.Vector())
-		{
-			cre->cost[i++] = val.Float();
-		}
-	}
-	else //damn you...
-	{
-		value = &cost["gold"];
-		if (!value->isNull())
-			cre->cost[Res::GOLD] = value->Float();
-		value = &cost["gems"];
-		if (!value->isNull())
-			cre->cost[Res::GEMS] = value->Float();
-		value = &cost["crystal"];
-		if (!value->isNull())
-			cre->cost[Res::CRYSTAL] = value->Float();
-		value = &cost["mercury"];
-		if (!value->isNull())
-			cre->cost[Res::MERCURY] = value->Float();
-		value = &cost["sulfur"];
-		if (!value->isNull())
-			cre->cost[Res::SULFUR] = value->Float();
-		value = &cost["ore"];
-		if (!value->isNull())
-			cre->cost[Res::ORE] = value->Float();
-		value = &cost["wood"];
-		if (!value->isNull())
-			cre->cost[Res::WOOD] = value->Float();
-		value = &cost["mithril"];
-		if (!value->isNull())
-			cre->cost[Res::MITHRIL] = value->Float();
-	}
+	cre->cost = Res::ResourceSet(node["cost"]);
 
 	cre->level = node["level"].Float();
-	cre->faction = -1; //neutral
-	//TODO: node["faction"].String() to id or just node["faction"].Float();
+	cre->faction = 9; //neutral faction is 9 for now. Will be replaced by string -> id conversion
+	//TODO: node["faction"].String() to id
 	cre->fightValue = node["fightValue"].Float();
 	cre->AIValue = node["aiValue"].Float();
 	cre->growth = node["growth"].Float();
@@ -176,13 +136,9 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	cre->ammMax = amounts["max"].Float();
 
 	//optional
-	value = &node["upgrades"];
-	if (!value->isNull())
+	BOOST_FOREACH (auto & str, node["upgrades"].Vector())
 	{
-		BOOST_FOREACH (auto & str, value->Vector())
-		{
-			cre->upgradeNames.insert (str.String());
-		}
+		cre->upgradeNames.insert (str.String());
 	}
 
 	value = &node["shots"];
@@ -193,19 +149,11 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	if (!value->isNull())
 		cre->addBonus(value->Float(), Bonus::CASTS);
 
-	value = &node["doubleWide"];
-	if (!value->isNull())
-		cre->doubleWide = value->Bool();
-	else
-		cre->doubleWide = false;
+	cre->doubleWide = node["doubleWide"].Bool();
 
-	value = &node["abilities"];
-	if (!value->isNull())
+	BOOST_FOREACH (const JsonNode &bonus, node["abilities"].Vector())
 	{
-		BOOST_FOREACH (const JsonNode &bonus, value->Vector())
-		{
-			cre->addNewBonus(ParseBonus(bonus));
-		}
+		cre->addNewBonus(ParseBonus(bonus));
 	}
 	//graphics
 
@@ -234,6 +182,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 		cre->missleFrameAngles[i++] = angle.Float();
 	}
 	cre->advMapDef = graphics["map"].String();
+	cre->iconIndex = graphics["iconIndex"].Float();
 	
 	//TODO: parse
 	cre->projectile = "PLCBOWX.DEF";
@@ -241,7 +190,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 
 	const JsonNode & sounds = node["sound"];
 
-#define GET_SOUND_VALUE(value_name) do { value = &sounds[#value_name]; if (!value->isNull()) cre->sounds.value_name = value->String(); } while(0)
+#define GET_SOUND_VALUE(value_name) do { cre->sounds.value_name = sounds[#value_name].String(); } while(0)
 	GET_SOUND_VALUE(attack);
 	GET_SOUND_VALUE(defend);
 	GET_SOUND_VALUE(killed);

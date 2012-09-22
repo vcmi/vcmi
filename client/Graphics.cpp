@@ -360,21 +360,11 @@ SDL_Surface * Graphics::getPic(int ID, bool fort, bool builded)
 		return smallIcons->ourImages[1].bitmap;
 	else if (ID==-3)
 		return smallIcons->ourImages[2+GameConstants::F_NUMBER*4].bitmap;
-	else if (ID>GameConstants::F_NUMBER || ID<-3)
-#ifndef __GNUC__
-		throw new std::exception("Invalid ID");
-#else
-		throw new std::exception();
-#endif
 	else
 	{
-		int pom = 3;
-		if(!fort)
-			pom+=GameConstants::F_NUMBER*2;
-		pom += ID*2;
-		if (!builded)
-			pom--;
-		return smallIcons->ourImages[pom].bitmap;
+		assert(vstd::contains(CGI->townh->towns, ID));
+		int pom = CGI->townh->towns[ID].clientInfo.icons[fort][builded];
+		return smallIcons->ourImages[pom + 2].bitmap;
 	}
 }
 

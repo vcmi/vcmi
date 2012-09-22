@@ -2789,7 +2789,7 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 
 		if(ss.heroId != -1)
 		{
-			auto spells = n["spells"];
+			const JsonNode & spells = n["spells"];
 			if(spells.getType() == JsonNode::DATA_STRING  &&  spells.String() == "all")
 				BOOST_FOREACH(auto spell, VLC->spellh->spells)
 					ss.spells.insert(spell->id);

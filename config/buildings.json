@@ -107,6 +107,12 @@
 				{ "id" : 43, "animation" : "TBCSUP_6.def", "x" : 303, "y" : 0,   "z" : -1, "border" : "TOCSANG2.bmp", "area" : "TZCSANG2.bmp" },
 
 			],
+			"icons" :
+			{
+				"village" : {"normal" : 18, "built" : 19 },
+				"fort"    : {"normal" : 0,  "built" : 1 }
+			},
+
 			"musicTheme" : "music/CstleTown",
 
 			"townBackground": "TBCSBACK.bmp",
@@ -285,6 +291,12 @@
 				{ "id" : 42, "animation" : "TBRMUP_5.def", "x" : 362, "y" : 90,  "z" : -2, "border" : "TORUNI2.bmp",  "area" : "TZRUNI2.bmp" },
 				{ "id" : 43, "animation" : "TBRMUP_6.def", "x" : 502, "y" : 5,   "z" : -5, "border" : "TORDR2AA.bmp", "area" : "TZRDR2AA.bmp" }
 			],
+			"icons" :
+			{
+				"village" : {"normal" : 20, "built" : 21 },
+				"fort"    : {"normal" : 2,  "built" : 3 }
+			},
+
 			"musicTheme" : "music/Rampart",
 
 			"townBackground": "TBRMBACK.bmp",
@@ -458,6 +470,12 @@
 				{ "id" : 42, "animation" : "TBTWUP_5.def", "x" : 681, "y" : 157, "z" : 2,  "border" : "TOTNAG2.bmp",  "area" : "TZTNAG2.bmp" },
 				{ "id" : 43, "animation" : "TBTWUP_6.def", "x" : 75,  "y" : 91,  "z" : -1, "border" : "TOTTIT2.bmp",  "area" : "TZTTIT2.bmp" }
 			],
+			"icons" :
+			{
+				"village" : {"normal" : 22, "built" : 23 },
+				"fort"    : {"normal" : 4,  "built" : 5 }
+			},
+
 			"musicTheme" : "music/TowerTown",
 
 			"townBackground": "TBTWBACK.bmp",
@@ -630,6 +648,11 @@
 				{ "id" : 42, "animation" : "TBINUP_5.def", "x" : 220, "y" : 282, "z" : 5,  "border" : "TOIEFR2.bmp",  "area" : "TZIEFR2.bmp" },
 				{ "id" : 43, "animation" : "TBINUP_6.def", "x" : 420, "y" : 105, "z" : -1, "border" : "TOIDVL2.bmp",  "area" : "TZIDVL2.bmp" }
 			],
+			"icons" :
+			{
+				"village" : {"normal" : 24, "built" : 25 },
+				"fort"    : {"normal" : 6,  "built" : 7 }
+			},
 			"musicTheme" : "music/InfernoTown",
 
 			"townBackground": "TBINBACK.bmp",
@@ -808,6 +831,11 @@
 				{ "id" : 42, "animation" : "TBNCUP_5.def", "x" : 0,   "y" : 30,  "border" : "TONBKN2.bmp",  "area" : "TZNBKN2.bmp" },
 				{ "id" : 43, "animation" : "TBNCUP_6.def", "x" : 662, "y" : 23,  "border" : "TONBON2.bmp",  "area" : "TZNBON2.bmp" }
 			],
+			"icons" :
+			{
+				"village" : {"normal" : 26, "built" : 27 },
+				"fort"    : {"normal" : 8,  "built" : 9 }
+			},
 			"musicTheme" : "music/NecroTown",
 
 			"townBackground": "TBNCBACK.bmp",
@@ -980,6 +1008,11 @@
 				{ "id" : 42, "animation" : "TBDNUP_5.def", "x" : 270, "y" : 253, "z" : -1, "border" : "TODMAN2.bmp",  "area" : "TZDMAN2.bmp" },
 				{ "id" : 43, "animation" : "TBDNUP_6.def", "x" : 550, "y" : 0,   "z" : -1, "border" : "TODDRA2A.bmp", "area" : "TZDDRA2A.bmp" },
 			],
+			"icons" :
+			{
+				"village" : {"normal" : 28, "built" : 29 },
+				"fort"    : {"normal" : 10, "built" : 11 }
+			},
 			"musicTheme" : "music/Dungeon",
 
 			"townBackground": "TBDNBACK.bmp",
@@ -1150,6 +1183,11 @@
 				{ "id" : 42, "animation" : "TBSTUP_5.def", "x" : 616, "y" : 93,  "z" : -2, "border" : "TOSCYC2A.bmp", "area" : "TZSCYC2A.bmp" },
 				{ "id" : 43, "animation" : "TBSTUP_6.def", "x" : 604, "y" : 0,   "border" : "TOSBEH2A.bmp", "area" : "TZSBEH2A.bmp" }
 			],
+			"icons" :
+			{
+				"village" : {"normal" : 30, "built" : 31 },
+				"fort"    : {"normal" : 12, "built" : 13 }
+			},
 			"musicTheme" : "music/Stronghold",
 
 			"townBackground": "TBSTBACK.bmp",
@@ -1322,6 +1360,11 @@
 				{ "id" : 42, "animation" : "TBFRUP_5.def", "x" : 0,   "y" : 4,   "border" : "TOFWYV2.bmp",  "area" : "TZFWYV2.bmp" },
 				{ "id" : 43, "animation" : "TBFRUP_6.def", "x" : 587, "y" : 263, "z" : 5,  "border" : "TOFHYD2A.bmp", "area" : "TZFHYD2A.bmp" }
 			],
+			"icons" :
+			{
+				"village" : {"normal" : 32, "built" : 33 },
+				"fort"    : {"normal" : 14, "built" : 15 }
+			},
 			"musicTheme" : "music/FortressTown",
 
 			"townBackground": "TBFRBACK.bmp",
@@ -1499,6 +1542,11 @@
 				{ "id" : 42, "animation" : "TBELUP_5.def", "x" : 394, "y" : 283, "z" : 2,  "border" : "TOELUP_5.bmp", "area" : "TZELUP_5.bmp" },
 				{ "id" : 43, "animation" : "TBELUP_6.def", "x" : 43,  "y" : 0,   "z" : -2, "border" : "TOELUP_6.bmp", "area" : "TZELUP_6.bmp" },
 			],
+			"icons" :
+			{
+				"village" : {"normal" : 34, "built" : 35 },
+				"fort"    : {"normal" : 16, "built" : 17 }
+			},
 			"musicTheme" : "music/ElemTown",
 
 			"townBackground": "TBELBACK.bmp",

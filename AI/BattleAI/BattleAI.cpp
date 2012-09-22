@@ -135,6 +135,7 @@ bool isCloser(const EnemyInfo & ei1, const EnemyInfo & ei2, const ReachabilityIn
 	return distToNearestNeighbour(ei1.s->position, dists) < distToNearestNeighbour(ei2.s->position, dists);
 }
 
+//FIXME: unused function
 static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const BattleHex &h2)
 {
 	int shooters[2] = {0}; //count of shooters on hexes
@@ -167,7 +168,7 @@ struct ThreatMap
 	const CStack *endangered; 
 	std::array<int, GameConstants::BFIELD_SIZE> sufferedDamage; 
 
-	struct ThreatMap(const CStack *Endangered)
+	ThreatMap(const CStack *Endangered)
 		: endangered(Endangered)
 	{
 		sufferedDamage.fill(0);
@@ -491,7 +492,7 @@ BattleAction CBattleAI::goTowards(const CStack * stack, BattleHex destination)
 
 BattleAction CBattleAI::useCatapult(const CStack * stack)
 {
-	throw std::exception("The method or operation is not implemented.");
+	throw std::runtime_error("The method or operation is not implemented.");
 }
 
 bool isSupportedSpell(const CSpell *spell)
@@ -553,7 +554,7 @@ void CBattleAI::attemptCastingSpell()
 {
 	LOGL("Casting spells sounds like fun. Let's see...");
 
-	auto known = cb->battleGetFightingHero(side);
+	//auto known = cb->battleGetFightingHero(side);
 
 	//Get all spells we can cast
 	std::vector<const CSpell*> possibleSpells;

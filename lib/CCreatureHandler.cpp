@@ -148,10 +148,7 @@ std::string CCreature::nodeName() const
 
 bool CCreature::isItNativeTerrain(int terrain) const
 {
-	if (faction > -1)
-		return VLC->townh->factions[faction].nativeTerrain == terrain;
-	else
-		return VLC->townh->factions[0].nativeTerrain == terrain; //FIXME: handle neutral faction properly
+	return VLC->townh->factions[0].nativeTerrain == terrain; //FIXME: handle neutral faction properly
 }
 
 int readNumber(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadCreatures() and loadUnitAnimInfo()
@@ -164,20 +161,6 @@ int readNumber(int & befi, int & i, int andame, std::string & buf) //helper func
 	}
 	std::string tmp = buf.substr(befi, i-befi);
 	int ret = atoi(buf.substr(befi, i-befi).c_str());
-	++i;
-	return ret;
-}
-
-double readFloat(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadUnitAnimInfo()
-{
-	befi=i;
-	for(; i<andame; ++i)
-	{
-		if(buf[i]=='\t')
-			break;
-	}
-	std::string tmp = buf.substr(befi, i-befi);
-	double ret = atof(buf.substr(befi, i-befi).c_str());
 	++i;
 	return ret;
 }
@@ -287,6 +270,7 @@ void CCreatureHandler::loadCreatures()
 		ncre.idNumber = creatures.size();
 		ncre.cost.resize(GameConstants::RESOURCE_QUANTITY);
 		ncre.level=0;
+		ncre.iconIndex = ncre.idNumber + 2; // +2 for empty\selection images
 
 		int befi=i;
 		for(; i<andame; ++i)
@@ -624,73 +608,46 @@ void CCreatureHandler::loadCreatures()
 
 void CCreatureHandler::loadAnimationInfo()
 {
-	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/CRANIM.TXT"));
-	std::string buf((char*)textFile.first.get(), textFile.second);
-	int andame = buf.size();
-	int i=0; //buf iterator
-	int hmcr=0;
-	for(; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			++hmcr;
-		if(hmcr==2)
-			break;
-	}
-	i+=2;
+	CLegacyConfigParser parser("DATA/CRANIM.TXT");
+
+	parser.endLine(); // header
+	parser.endLine();
+
 	for(int dd=0; dd<creatures.size(); ++dd)
 	{
-		//tlog5 << "\t\t\tReading animation info for creature " << dd << std::endl;
-		loadUnitAnimInfo(*creatures[dd], buf, i);
+		while (parser.isNextEntryEmpty() && parser.endLine()) // skip empty lines
+			;
+
+		loadUnitAnimInfo(*creatures[dd], parser);
 	}
-	return;
 }
 
-void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, std::string & src, int & i)
+void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, CLegacyConfigParser & parser)
 {
-	int befi=i;
-
-	unit.timeBetweenFidgets = readFloat(befi, i, src.size(), src);
-
-	while(unit.timeBetweenFidgets == 0.0)
-	{
-		for(; i<src.size(); ++i)
-		{
-			if(src[i]=='\r')
-				break;
-		}
-		i+=2;
-
-		unit.timeBetweenFidgets = readFloat(befi, i, src.size(), src);
-	}
-
-	unit.walkAnimationTime = readFloat(befi, i, src.size(), src);
-	unit.attackAnimationTime = readFloat(befi, i, src.size(), src);
-	unit.flightAnimationDistance = readFloat(befi, i, src.size(), src);
+	unit.timeBetweenFidgets = parser.readNumber();
+	unit.walkAnimationTime = parser.readNumber();
+	unit.attackAnimationTime = parser.readNumber();
+	unit.flightAnimationDistance = parser.readNumber();
 	///////////////////////
 
-	unit.upperRightMissleOffsetX = readNumber(befi, i, src.size(), src);
-	unit.upperRightMissleOffsetY = readNumber(befi, i, src.size(), src);
-	unit.rightMissleOffsetX = readNumber(befi, i, src.size(), src);
-	unit.rightMissleOffsetY = readNumber(befi, i, src.size(), src);
-	unit.lowerRightMissleOffsetX = readNumber(befi, i, src.size(), src);
-	unit.lowerRightMissleOffsetY = readNumber(befi, i, src.size(), src);
+	unit.upperRightMissleOffsetX = parser.readNumber();
+	unit.upperRightMissleOffsetY = parser.readNumber();
+	unit.rightMissleOffsetX = parser.readNumber();
+	unit.rightMissleOffsetY = parser.readNumber();
+	unit.lowerRightMissleOffsetX = parser.readNumber();
+	unit.lowerRightMissleOffsetY = parser.readNumber();
 
 	///////////////////////
 
 	for(int jjj=0; jjj<12; ++jjj)
 	{
-		unit.missleFrameAngles[jjj] = readFloat(befi, i, src.size(), src);
+		unit.missleFrameAngles[jjj] = parser.readNumber();
 	}
 
-	unit.troopCountLocationOffset= readNumber(befi, i, src.size(), src);
-	unit.attackClimaxFrame = readNumber(befi, i, src.size(), src);
+	unit.troopCountLocationOffset= parser.readNumber();
+	unit.attackClimaxFrame = parser.readNumber();
 
-	for(; i<src.size(); ++i)
-	{
-		if(src[i]=='\r')
-			break;
-	}
-	i+=2;
+	parser.endLine();
 }
 
 void CCreatureHandler::loadSoundsInfo()

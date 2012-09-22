@@ -105,6 +105,9 @@ public:
 	// Client-only data. Should be moved away from lib
 	struct ClientInfo
 	{
+		//icons [fort is present?][build limit reached?] -> index of icon in def files
+		int icons[2][2];
+
 		std::string musicTheme;
 		std::string townBackground;
 		std::string guildWindow;
@@ -119,7 +122,7 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & musicTheme & townBackground & guildWindow & buildingsIcons & hallBackground & hallSlots & structures;
+			h & icons & musicTheme & townBackground & guildWindow & buildingsIcons & hallBackground & hallSlots & structures;
 		}
 	} clientInfo;
 

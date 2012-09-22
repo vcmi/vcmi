@@ -9,6 +9,7 @@
 #include "../lib/CObjectHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/CTownHandler.h"
 #include "../lib/NetPacks.h"
 #include "../lib/CHeroHandler.h"
 #include "CAdvmapInterface.h"
@@ -291,12 +292,7 @@ CIntObject * CTownList::CTownItem::genSelection()
 
 void CTownList::CTownItem::update()
 {
-	size_t iconIndex = town->subID*2;
-	if (!town->hasFort())
-		iconIndex += GameConstants::F_NUMBER*2;
-
-	if(town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN)
-		iconIndex++;
+	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
 
 	picture->setFrame(iconIndex + 2);
 	redraw();

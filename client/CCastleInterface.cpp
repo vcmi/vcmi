@@ -937,12 +937,7 @@ void CCastleInterface::recreateIcons()
 	delete fort;
 	delete hall;
 
-	size_t iconIndex = town->subID*2;
-	if (!town->hasFort())
-		iconIndex += GameConstants::F_NUMBER*2;
-
-	if(town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN)
-		iconIndex++;
+	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
 
 	icon->setFrame(iconIndex);
 	income->setTxt(boost::lexical_cast<std::string>(town->dailyIncome()));
@@ -981,7 +976,7 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance *Town, int Level, bool
 	ui32 creatureID = town->creatures[level].second.back();
 	creature = CGI->creh->creatures[creatureID];
 
-	picture = new CAnimImage("CPRSMALL", creatureID+2, 0, 8, 0);
+	picture = new CAnimImage("CPRSMALL", creature->iconIndex, 0, 8, 0);
 
 	std::string value;
 	if (showAvailable)
