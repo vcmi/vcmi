@@ -230,6 +230,9 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const ui8 * buff
 						bonus.info2 = read_le_u32(buffer + outIt); outIt += 4; //count
 						break;
 					}
+				default:
+					tlog1<<"Corrupted h3c file"<<std::endl;
+					break;
 				}
 				ret.bonusesToChoose.push_back(bonus);
 			}

@@ -56,7 +56,7 @@ public:
 	struct DLL_LINKAGE STravelBonus
 	{
 		enum EBonusType {SPELL, MONSTER, BUILDING, ARTIFACT, SPELL_SCROLL, PRIMARY_SKILL, SECONDARY_SKILL, RESOURCE,
-			PLAYER_PREV_SCENARIO, HERO /*???*/};
+			PLAYER_PREV_SCENARIO, HERO};
 		ui8 type; //uses EBonusType
 		si32 info1, info2, info3; //purpose depends on type
 

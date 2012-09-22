@@ -427,8 +427,6 @@ class CBonusSelection : public CIntObject
 	CHighlightableButtonsGroup * bonuses;
 
 public:
-	void bonusSelectionChanges(int choosenBonus);
-
 	StartInfo sInfo;
 	CDefHandler *sFlags;
 

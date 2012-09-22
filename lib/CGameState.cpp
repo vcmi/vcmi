@@ -467,17 +467,30 @@ int CGameState::pickHero(int owner)
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
 	if(!map->getHero(h = ps.hero,0)  &&  h>=0) //we haven't used selected hero
 		return h;
+
+	if(scenarioOps->mode == StartInfo::CAMPAIGN)
+	{
+		auto bonus = scenarioOps->campState->getBonusForCurrentMap();
+		if(bonus.type == CScenarioTravel::STravelBonus::HERO && owner == bonus.info1)
+		{
+			if(bonus.info2 != 0xffff && !map->getHero(bonus.info2)) //not random and not taken
+			{
+				return bonus.info2;
+			}
+		}
+	}
+
 	int i=0;
 
 	do //try to find free hero of our faction
 	{
 		i++;
 		h = ps.castle*GameConstants::HEROES_PER_TYPE*2+(ran()%(GameConstants::HEROES_PER_TYPE*2));//->scenarioOps->playerInfos[pru].hero = VLC->
-	} while( map->getHero(h)  &&  i<175);
-	if(i>174) //probably no free heroes - there's no point in further search, we'll take first free
+	} while( map->getHero(h)  &&  i<(GameConstants::NUMBER_OF_HEROES+1));
+	if(i>GameConstants::NUMBER_OF_HEROES) //probably no free heroes - there's no point in further search, we'll take first free
 	{
 		tlog3 << "Warning: cannot find free hero - trying to get first available..."<<std::endl;
-		for(int j=0; j<GameConstants::HEROES_PER_TYPE * 2 * GameConstants::F_NUMBER; j++)
+		for(int j=0; j<GameConstants::NUMBER_OF_HEROES; j++)
 			if(!map->getHero(j))
 				h=j;
 	}
@@ -965,7 +978,9 @@ void CGameState::init(StartInfo * si)
 	for(int i=0;i<GameConstants::PLAYER_LIMIT;i++)
 	{
 		const PlayerInfo &p = map->players[i];
-		bool generateHero = (p.generateHeroAtMainTown && p.hasMainTown);
+		bool campaignGiveHero = scenarioOps->playerInfos[i].human && scenarioOps->mode == StartInfo::CAMPAIGN &&
+			scenarioOps->campState->getBonusForCurrentMap().type == CScenarioTravel::STravelBonus::HERO;
+		bool generateHero = (p.generateHeroAtMainTown || campaignGiveHero) && p.hasMainTown;
 		if(generateHero && vstd::contains(scenarioOps->playerInfos, i))
 		{
 			int3 hpos = p.posOfMainTown;

@@ -67,6 +67,7 @@ namespace GameConstants
 	const int MAX_HEROES_PER_PLAYER = 8;
 	const int ALL_PLAYERS = 255; //bitfield
 	const int HEROES_PER_TYPE=8; //amount of heroes of each type
+	const int NUMBER_OF_HEROES = 174;
 	const int SKILL_QUANTITY=28;
 	const int SKILL_PER_HERO=8;
 	const int ARTIFACTS_QUANTITY=171;

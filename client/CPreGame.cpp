@@ -3052,17 +3052,17 @@ void CBonusSelection::updateBonusSelection()
 			std::string desc;
 			switch(bonDescs[i].type)
 			{
-			case 0: //spell
+			case CScenarioTravel::STravelBonus::SPELL:
 				desc = CGI->generaltexth->allTexts[715];
 				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2]->name);
 				break;
-			case 1: //monster
+			case CScenarioTravel::STravelBonus::MONSTER:
 				picNumber = bonDescs[i].info2 + 2;
 				desc = CGI->generaltexth->allTexts[717];
 				boost::algorithm::replace_first(desc, "%d", boost::lexical_cast<std::string>(bonDescs[i].info3));
 				boost::algorithm::replace_first(desc, "%s", CGI->creh->creatures[bonDescs[i].info2]->namePl);
 				break;
-			case 2: //building
+			case CScenarioTravel::STravelBonus::BUILDING:
 				{
 					int faction = -1;
 					for(std::map<int, PlayerSettings>::iterator it = sInfo.playerInfos.begin();
@@ -3085,15 +3085,15 @@ void CBonusSelection::updateBonusSelection()
 						desc = CGI->townh->towns[faction].buildings.find(buildID)->second->Description();
 				}
 				break;
-			case 3: //artifact
+			case CScenarioTravel::STravelBonus::ARTIFACT:
 				desc = CGI->generaltexth->allTexts[715];
 				boost::algorithm::replace_first(desc, "%s", CGI->arth->artifacts[bonDescs[i].info2]->Name());
 				break;
-			case 4: //spell scroll
+			case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 				desc = CGI->generaltexth->allTexts[716];
 				boost::algorithm::replace_first(desc, "%s", CGI->spellh->spells[bonDescs[i].info2]->name);
 				break;
-			case 5: //primary skill
+			case CScenarioTravel::STravelBonus::PRIMARY_SKILL:
 				{
 					int leadingSkill = -1;
 					std::vector<std::pair<int, int> > toPrint; //primary skills to be listed <num, val>
@@ -3126,14 +3126,14 @@ void CBonusSelection::updateBonusSelection()
 					boost::algorithm::replace_first(desc, "%s", substitute);
 					break;
 				}
-			case 6: //secondary skill
+			case CScenarioTravel::STravelBonus::SECONDARY_SKILL:
 				desc = CGI->generaltexth->allTexts[718];
 
 				boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->levels[bonDescs[i].info3]); //skill level
 				boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->skillName[bonDescs[i].info2]); //skill name
 
 				break;
-			case 7: //resource
+			case CScenarioTravel::STravelBonus::RESOURCE:
 				{
 					int serialResID = 0;
 					switch(bonDescs[i].info1)
@@ -3164,7 +3164,7 @@ void CBonusSelection::updateBonusSelection()
 					boost::algorithm::replace_first(desc, "%s", replacement);
 				}
 				break;
-			case 8: //player aka hero crossover
+			case CScenarioTravel::STravelBonus::PLAYER_PREV_SCENARIO:
 				picNumber = bonDescs[i].info1;
 				desc = CGI->generaltexth->allTexts[718];
 
@@ -3172,14 +3172,14 @@ void CBonusSelection::updateBonusSelection()
 				boost::algorithm::replace_first(desc, "%s", ourCampaign->camp->scenarios[bonDescs[i].info2].mapName); //scenario
 
 				break;
-			case 9: //hero
-
+			case CScenarioTravel::STravelBonus::HERO:
+				
 				desc = CGI->generaltexth->allTexts[718];
 				boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->capColors[bonDescs[i].info1]); //hero's color
 
 				if (bonDescs[i].info2 == 0xFFFF)
 				{
-					boost::algorithm::replace_first(desc, "%s", CGI->heroh->heroes[0]->name); //hero's name
+					boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->allTexts[101]); //hero's name
 					picNumber = 0;
 				}
 				else
@@ -3205,6 +3205,22 @@ void CBonusSelection::updateBonusSelection()
 void CBonusSelection::startMap()
 {
 	StartInfo *si = new StartInfo(sInfo);
+	
+	{ //select human player if HERO bonus
+		auto bonus = si->campState->getBonusForCurrentMap();
+		if(bonus.type == CScenarioTravel::STravelBonus::HERO)
+		{
+			std::map<ui32, std::string> names;
+			names[1] = settings["general"]["playerName"].String();
+			for(auto it = si->playerInfos.begin(); it != si->playerInfos.end(); ++it)
+			{
+				if(it->first == bonus.info1)
+					::setPlayer(it->second, 1, names);
+				else
+					::setPlayer(it->second, 0, names);
+			}
+		}
+	}
 	if (ourCampaign->mapsConquered.size())
 	{
 		GH.popInts(1);
