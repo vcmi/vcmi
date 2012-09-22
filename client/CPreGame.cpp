@@ -2871,12 +2871,7 @@ CBonusSelection::CBonusSelection(shared_ptr<CCampaignState> _ourCampaign)
 
 CBonusSelection::CBonusSelection( std::string campaignFName )
 {
-	ourCampaign = make_shared<CCampaignState>();
-	ourCampaign->camp = CCampaignHandler::getCampaign(campaignFName);
-	for(int i = 0; i < ourCampaign->camp->scenarios.size(); i++)
-	{
-		ourCampaign->mapsRemaining.push_back(i);
-	}
+	ourCampaign = make_shared<CCampaignState>(CCampaignHandler::getCampaign(campaignFName));
 
 	sInfo.campState = ourCampaign;
 	init();

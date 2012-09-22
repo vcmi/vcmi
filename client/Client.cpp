@@ -708,7 +708,7 @@ CConnection * CServerHandler::connectToServer()
 	if(!shared->sr->ready)
 		waitForServer();
 
-	th.update();
+	th.update(); //put breakpoint here to attach to server before it does something stupid
 	CConnection *ret = justConnectToServer(settings["server"]["server"].String(), port);
 
 	if(verbose)

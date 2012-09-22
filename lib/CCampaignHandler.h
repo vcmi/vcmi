@@ -55,8 +55,9 @@ public:
 
 	struct DLL_LINKAGE STravelBonus
 	{
-		ui8 type;	//0 - spell, 1 - monster, 2 - building, 3 - artifact, 4 - spell scroll, 5 - prim skill, 6 - sec skill, 7 - resource,
-					//8 - player from previous scenario, 9 - hero [???]
+		enum EBonusType {SPELL, MONSTER, BUILDING, ARTIFACT, SPELL_SCROLL, PRIMARY_SKILL, SECONDARY_SKILL, RESOURCE,
+			PLAYER_PREV_SCENARIO, HERO /*???*/};
+		ui8 type; //uses EBonusType
 		si32 info1, info2, info3; //purpose depends on type
 
 		bool isBonusForHero() const;
@@ -152,6 +153,8 @@ public:
 	const CCampaignScenario &getCurrentScenario() const;
 	ui8 currentBonusID() const;
 
+	CCampaignState();
+	CCampaignState(unique_ptr<CCampaign> _camp);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
