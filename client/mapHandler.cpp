@@ -247,8 +247,8 @@ void CMapHandler::initObjectRects()
 	{
 		const CGObjectInstance *obj = map->objects[f];
 		if(	!obj
-			|| (obj->ID==GameConstants::HEROI_TYPE && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
-			|| (obj->ID==8 && static_cast<const CGBoat*>(obj)->hero) //boat with hero (hero graphics is used)
+			|| (obj->ID==Obj::HERO && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
+			|| (obj->ID==Obj::BOAT && static_cast<const CGBoat*>(obj)->hero) //boat with hero (hero graphics is used)
 			|| !obj->defInfo
 			|| !graphics->getDef(obj)) //no graphic...
 		{
@@ -296,7 +296,7 @@ void CMapHandler::initObjectRects()
 }
 static void processDef (const CGDefInfo* def)
 {
-	if(def->id == GameConstants::EVENTI_TYPE)
+	if(def->id == Obj::EVENT)
 	{
         graphics->advmapobjGraphics[def->id][def->subid][def->name] = NULL;
 		return;
@@ -538,7 +538,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				ui8 color = obj->tempOwner;
 
 				//checking if object has non-empty graphic on this tile
-				if(obj->ID != GameConstants::HEROI_TYPE && !obj->coveringAt(top_tile.x + bx - obj->pos.x, top_tile.y + by - obj->pos.y))
+				if(obj->ID != Obj::HERO && !obj->coveringAt(top_tile.x + bx - obj->pos.x, top_tile.y + by - obj->pos.y))
 					continue;
 
 				static const int notBlittedInPuzzleMode[] = {124};
@@ -553,7 +553,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				pp.h = sr.h;
 				pp.w = sr.w;
 
-				const CGHeroInstance * themp = (obj->ID != GameConstants::HEROI_TYPE  
+				const CGHeroInstance * themp = (obj->ID != Obj::HERO  
 					? NULL  
 					: static_cast<const CGHeroInstance*>(obj));
 
@@ -1090,7 +1090,7 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 	const TerrainTile &t = map->terrain[pos.x][pos.y][pos.z];
 	for(std::vector < std::pair<const CGObjectInstance*,SDL_Rect> >::const_iterator i = tt.objects.begin(); i != tt.objects.end(); i++)
 	{
-		if(i->first->ID == 124) //Hole
+		if(i->first->ID == Obj::HOLE) //Hole
 		{
 			out = i->first->hoverName;
 			return;
@@ -1098,7 +1098,7 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 	}
 
 	if(t.hasFavourableWinds())
-		out = CGI->generaltexth->names[225]; //Favourable Winds
+		out = CGI->generaltexth->names[Obj::FAVORABLE_WINDS];
 	else if(terName)
 		out = CGI->generaltexth->terrainNames[t.tertype];
 }

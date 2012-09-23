@@ -467,7 +467,7 @@ void CCastleBuildings::recreate()
 	{
 		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(town->bestLocation());
 		//there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
-		if(!vobjs.empty() && (vobjs.front()->ID == 8 || vobjs.front()->ID == GameConstants::HEROI_TYPE))
+		if(!vobjs.empty() && (vobjs.front()->ID == Obj::BOAT || vobjs.front()->ID == Obj::HERO))
 		{
 			buildingsCopy.insert(EBuilding::SHIP);
 		}

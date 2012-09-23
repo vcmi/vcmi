@@ -39,7 +39,7 @@ public:
 	std::string advMapDef; //for new creatures only
 	si32 idNumber;
 	si32 iconIndex; // index of icon in files like twcrport
-	si8 faction; //-1 = neutral
+	TFaction faction; //-1 = neutral
 	ui8 doubleWide;
 
 	///animation info

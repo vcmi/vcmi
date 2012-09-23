@@ -349,7 +349,7 @@ static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 	CGObjectInstance * nobj;
 	switch(id)
 	{
-	case GameConstants::HEROI_TYPE: //hero
+	case Obj::HERO:
 		{
 			CGHeroInstance * nobj = new CGHeroInstance();
 			nobj->pos = pos;
@@ -358,7 +358,7 @@ static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 			//nobj->initHero(ran);
 			return nobj;
 		}
-	case GameConstants::TOWNI_TYPE: //town
+	case Obj::TOWN:
 		nobj = new CGTownInstance;
 		break;
 	default: //rest of objects
@@ -377,7 +377,7 @@ static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 	nobj->defInfo->subid = subid;
 
 	//assigning defhandler
-	if(nobj->ID==GameConstants::HEROI_TYPE || nobj->ID==GameConstants::TOWNI_TYPE)
+	if(nobj->ID==Obj::HERO || nobj->ID==Obj::TOWN)
 		return nobj;
 	nobj->defInfo = VLC->dobjinfo->gobjs[id][subid];
 	return nobj;
@@ -486,11 +486,11 @@ int CGameState::pickHero(int owner)
 	{
 		i++;
 		h = ps.castle*GameConstants::HEROES_PER_TYPE*2+(ran()%(GameConstants::HEROES_PER_TYPE*2));//->scenarioOps->playerInfos[pru].hero = VLC->
-	} while( map->getHero(h)  &&  i<(GameConstants::NUMBER_OF_HEROES+1));
-	if(i>GameConstants::NUMBER_OF_HEROES) //probably no free heroes - there's no point in further search, we'll take first free
+	} while( map->getHero(h)  &&  i<(GameConstants::HEROES_QUANTITY+18+1));
+	if(i>GameConstants::HEROES_QUANTITY+18) //probably no free heroes - there's no point in further search, we'll take first free
 	{
 		tlog3 << "Warning: cannot find free hero - trying to get first available..."<<std::endl;
-		for(int j=0; j<GameConstants::NUMBER_OF_HEROES; j++)
+		for(int j=0; j<GameConstants::HEROES_QUANTITY; j++)
 			if(!map->getHero(j))
 				h=j;
 	}
@@ -513,7 +513,7 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 	case 69: //random relic artifact
 		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_RELIC));
 	case 70: //random hero
-		return std::pair<int,int>(GameConstants::HEROI_TYPE,pickHero(obj->tempOwner));
+		return std::pair<int,int>(Obj::HERO,pickHero(obj->tempOwner));
 	case 71: //random monster
 		return std::pair<int,int>(54,VLC->creh->pickRandomMonster(boost::ref(ran)));
 	case 72: //random monster lvl1
@@ -547,7 +547,7 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 				std::advance(iter, ran()%VLC->townh->towns.size());
 				f = iter->first;
 			}
-			return std::pair<int,int>(GameConstants::TOWNI_TYPE,f);
+			return std::pair<int,int>(Obj::TOWN,f);
 		}
 	case 162: //random monster lvl5
 		return std::pair<int,int>(54, VLC->creh->pickRandomMonster(boost::ref(ran), 5));
@@ -570,13 +570,15 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 				{
 					for(ui32 i=0;i<map->objects.size();i++)
 					{
-						if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
+						if(map->objects[i]->ID==Obj::RANDOM_TOWN
+							&& dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
 						{
 							randomizeObject(map->objects[i]); //we have to randomize the castle first
 							faction = map->objects[i]->subID;
 							break;
 						}
-						else if(map->objects[i]->ID==GameConstants::TOWNI_TYPE && dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
+						else if(map->objects[i]->ID==Obj::TOWN
+							&& dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
 						{
 							faction = map->objects[i]->subID;
 							break;
@@ -636,7 +638,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	std::pair<int,int> ran = pickObject(cur);
 	if(ran.first<0 || ran.second<0) //this is not a random object, or we couldn't find anything
 	{
-		if(cur->ID==GameConstants::TOWNI_TYPE) //town - set def
+		if(cur->ID==Obj::TOWN) //town - set def
 		{
 			CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
 			t->town = &VLC->townh->towns[t->subID];
@@ -649,7 +651,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 		}
 		return;
 	}
-	else if(ran.first==GameConstants::HEROI_TYPE)//special code for hero
+	else if(ran.first==Obj::HERO)//special code for hero
 	{
 		CGHeroInstance *h = dynamic_cast<CGHeroInstance *>(cur);
 		if(!h) {tlog2<<"Wrong random hero at "<<cur->pos<<std::endl; return;}
@@ -660,7 +662,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 		map->heroes.push_back(h);
 		return; //TODO: maybe we should do something with definfo?
 	}
-	else if(ran.first==GameConstants::TOWNI_TYPE)//special code for town
+	else if(ran.first==Obj::TOWN)//special code for town
 	{
 		CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
 		if(!t) {tlog2<<"Wrong random town at "<<cur->pos<<std::endl; return;}
@@ -915,7 +917,7 @@ void CGameState::init(StartInfo * si)
 
 		//remove tiles with holes
 		for(ui32 no=0; no<map->objects.size(); ++no)
-			if(map->objects[no]->ID == 124)
+			if(map->objects[no]->ID == Obj::HOLE)
 				allowedPos -= map->objects[no]->pos;
 
 		if(allowedPos.size())
@@ -947,7 +949,7 @@ void CGameState::init(StartInfo * si)
 		obj->hoverName = VLC->generaltexth->names[obj->ID];
 
 		//handle Favouring Winds - mark tiles under it
-		if(obj->ID == 225)
+		if(obj->ID == Obj::FAVORABLE_WINDS)
 			for (int i = 0; i < obj->getWidth() ; i++)
 				for (int j = 0; j < obj->getHeight() ; j++)
 				{
@@ -989,7 +991,7 @@ void CGameState::init(StartInfo * si)
 			if(scenarioOps->playerInfos[i].hero == -1)
 				scenarioOps->playerInfos[i].hero = h;
 
-			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(GameConstants::HEROI_TYPE,h,hpos,i));
+			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(Obj::HERO,h,hpos,i));
 			nnn->id = map->objects.size();
 			nnn->initHero();
 			map->heroes.push_back(nnn);
@@ -1007,7 +1009,7 @@ void CGameState::init(StartInfo * si)
 
 
 		std::vector<CGHeroInstance *> Xheroes;
-		if (bonus.type == CScenarioTravel::STravelBonus::PLAYER_PREV_SCENARIO) //hero crossover
+		if (bonus.type == CScenarioTravel::STravelBonus::PLAYER_PREV_SCENARIO)
 		{
 			Xheroes = campaign->camp->scenarios[bonus.info2].crossoverHeroes;
 		}
@@ -1016,7 +1018,7 @@ void CGameState::init(StartInfo * si)
 		for(int g=0; g<map->objects.size(); ++g)
 		{
 			CGObjectInstance * obj = map->objects[g];
-			if (obj->ID != 214) //not a placeholder
+			if (obj->ID != Obj::HERO_PLACEHOLDER)
 			{
 				continue;
 			}
@@ -1051,7 +1053,7 @@ void CGameState::init(StartInfo * si)
 		for(int g=0; g<map->objects.size(); ++g)
 		{
 			CGObjectInstance * obj = map->objects[g];
-			if (obj->ID != 214) //not a placeholder
+			if (obj->ID != Obj::HERO_PLACEHOLDER)
 			{
 				continue;
 			}
@@ -1145,7 +1147,7 @@ void CGameState::init(StartInfo * si)
 
 	for (ui32 i=0; i<map->objects.size();i++) //prisons
 	{
-		if (map->objects[i]->ID == 62)
+		if (map->objects[i]->ID == Obj::PRISON)
 			hids.erase(map->objects[i]->subID);
 	}
 
@@ -1316,7 +1318,7 @@ void CGameState::init(StartInfo * si)
 				vti->builtBuildings.insert(EBuilding::DWELL_FIRST+1);
 		}
 
-		if (vstd::contains(vti->builtBuildings, EBuilding::SHIPYARD) && vti->state()==2)
+		if (vstd::contains(vti->builtBuildings, EBuilding::SHIPYARD) && vti->state()==IBoatGenerator::TILE_BLOCKED)
 			vti->builtBuildings.erase(EBuilding::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
 
 		//init hordes
@@ -1419,7 +1421,7 @@ void CGameState::init(StartInfo * si)
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
 		obj->initObj();
-		if(obj->ID == 62) //prison also needs to initialize hero
+		if(obj->ID == Obj::PRISON) //prison also needs to initialize hero
 			static_cast<CGHeroInstance*>(obj)->initHero();
 	}
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
@@ -1663,10 +1665,10 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 	UpgradeInfo ret;
 	const CCreature *base = stack.type;
 
-	const CGHeroInstance *h = stack.armyObj->ID == GameConstants::HEROI_TYPE ? static_cast<const CGHeroInstance*>(stack.armyObj) : NULL;
+	const CGHeroInstance *h = stack.armyObj->ID == Obj::HERO ? static_cast<const CGHeroInstance*>(stack.armyObj) : NULL;
 	const CGTownInstance *t = NULL;
 
-	if(stack.armyObj->ID == GameConstants::TOWNI_TYPE)
+	if(stack.armyObj->ID == Obj::TOWN)
 		t = static_cast<const CGTownInstance *>(stack.armyObj);
 	else if(h)
 	{	//hero speciality
@@ -2939,7 +2941,7 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 		neighbours.clear();
 
 		//handling subterranean gate => it's exit is the only neighbour
-		bool subterraneanEntry = (ct->topVisitableID() == GameConstants::SUBTERRANEAN_GATE_TYPE && useSubterraneanGates);
+		bool subterraneanEntry = (ct->topVisitableID() == Obj::SUBTERRANEAN_GATE && useSubterraneanGates);
 		if(subterraneanEntry)
 		{
 			//try finding the exit gate
@@ -2979,13 +2981,13 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 				continue;
 
 			//special case -> hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
-			if(cp->accessible == CGPathNode::VISITABLE && guardedSource && cp->theNodeBefore->land && ct->topVisitableID() == GameConstants::BOATI_TYPE)
+			if(cp->accessible == CGPathNode::VISITABLE && guardedSource && cp->theNodeBefore->land && ct->topVisitableID() == Obj::BOAT)
 				guardedSource = false;
 
 			int cost = gs->getMovementCost(hero, cp->coord, dp->coord, movement);
 
 			//special case -> moving from src Subterranean gate to dest gate -> it's free
-			if(subterraneanEntry && destTopVisObjID == GameConstants::SUBTERRANEAN_GATE_TYPE && cp->coord.z != dp->coord.z)
+			if(subterraneanEntry && destTopVisObjID == Obj::SUBTERRANEAN_GATE && cp->coord.z != dp->coord.z)
 				cost = 0;
 
 			int remains = movement - cost;
@@ -3021,7 +3023,7 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 
 				if (dp->accessible == CGPathNode::ACCESSIBLE
 					|| (useEmbarkCost && allowEmbarkAndDisembark)
-					|| destTopVisObjID == GameConstants::SUBTERRANEAN_GATE_TYPE
+					|| destTopVisObjID == Obj::SUBTERRANEAN_GATE
 					|| (guardedDst && !guardedSource)) // Can step into a hostile tile once.
 				{
 					mq.push_back(dp);
@@ -3060,7 +3062,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 
 	if(tinfo->visitable)
 	{
-		if(tinfo->visitableObjects.front()->ID == 80 && tinfo->visitableObjects.back()->ID == GameConstants::HEROI_TYPE && tinfo->visitableObjects.back()->tempOwner != hero->tempOwner) //non-owned hero stands on Sanctuary
+		if(tinfo->visitableObjects.front()->ID == 80 && tinfo->visitableObjects.back()->ID == Obj::HERO && tinfo->visitableObjects.back()->tempOwner != hero->tempOwner) //non-owned hero stands on Sanctuary
 		{
 			return CGPathNode::BLOCKED;
 		}
@@ -3076,7 +3078,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 				{
 					return CGPathNode::BLOCKVIS;
 				}
-				else if(obj->ID != GameConstants::EVENTI_TYPE) //pathfinder should ignore placed events
+				else if(obj->ID != Obj::EVENT) //pathfinder should ignore placed events
 				{
 					ret =  CGPathNode::VISITABLE;
 				}
@@ -3101,9 +3103,9 @@ bool CPathfinder::goodForLandSeaTransition()
 		{
 			if(dp->accessible == CGPathNode::ACCESSIBLE || destTopVisObjID < 0) //cannot enter empty water tile from land -> it has to be visitable
 				return false;
-			if(destTopVisObjID != GameConstants::HEROI_TYPE && destTopVisObjID != GameConstants::BOATI_TYPE) //only boat or hero can be accessed from land
+			if(destTopVisObjID != Obj::HERO && destTopVisObjID != Obj::BOAT) //only boat or hero can be accessed from land
 				return false;
-			if(destTopVisObjID == GameConstants::BOATI_TYPE)
+			if(destTopVisObjID == Obj::BOAT)
 				useEmbarkCost = 1;
 		}
 		else //disembark

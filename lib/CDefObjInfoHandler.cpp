@@ -120,7 +120,7 @@ void CDefObjInfoHandler::load()
 
 
 		gobjs[nobj->id][nobj->subid] = nobj;
-		if(nobj->id==GameConstants::TOWNI_TYPE)
+		if(nobj->id==Obj::TOWN)
 			castles[nobj->subid]=nobj;
 	}
 

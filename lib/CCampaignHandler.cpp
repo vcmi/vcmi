@@ -337,16 +337,12 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 		//trimming prim skills
 		BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
 		{
-#define RESET_PRIM_SKILL(NAME, VALNAME) \
-			cgh->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) && \
-				Selector::subtype(PrimarySkill::NAME) && \
-				Selector::sourceType(Bonus::HERO_BASE_SKILL) )->val = cgh->type->heroClass->VALNAME;
-
-			RESET_PRIM_SKILL(ATTACK, initialAttack);
-			RESET_PRIM_SKILL(DEFENSE, initialDefence);
-			RESET_PRIM_SKILL(SPELL_POWER, initialPower);
-			RESET_PRIM_SKILL(KNOWLEDGE, initialKnowledge);
-#undef RESET_PRIM_SKILL
+			for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
+			{
+				cgh->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) &&
+					Selector::subtype(g) && Selector::sourceType(Bonus::HERO_BASE_SKILL) )->val
+						= cgh->type->heroClass->initialPrimSkills[g];
+			}
 		}
 	}
 	if (!(travelOptions.whatHeroKeeps & 4))

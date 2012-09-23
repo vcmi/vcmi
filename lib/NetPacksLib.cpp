@@ -220,7 +220,7 @@ DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 	if(!bdescr.message.size() 
 		&& bonus.source == Bonus::OBJECT 
 		&& (bonus.type == Bonus::LUCK || bonus.type == Bonus::MORALE)
-		&& gs->map->objects[bonus.sid]->ID == GameConstants::EVENTI_TYPE) //it's morale/luck bonus from an event without description
+		&& gs->map->objects[bonus.sid]->ID == Obj::EVENT) //it's morale/luck bonus from an event without description
 	{
 		descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
 		boost::replace_first(descr,"%d",boost::lexical_cast<std::string>(std::abs(bonus.val)));
@@ -281,7 +281,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 		gs->map->removeBlockVisTiles(obj);
 	}
 
-	if(obj->ID==GameConstants::HEROI_TYPE)
+	if(obj->ID==Obj::HERO)
 	{
 		CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
 		PlayerState *p = gs->getPlayer(h->tempOwner);
@@ -381,7 +381,7 @@ void TryMoveHero::applyGs( CGameState *gs )
 	if(result == EMBARK) //hero enters boat at dest tile
 	{
 		const TerrainTile &tt = gs->map->getTile(CGHeroInstance::convertPosition(end, false));
-		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == 8); //the only vis obj at dest is Boat
+		assert(tt.visitableObjects.size() >= 1  &&  tt.visitableObjects.back()->ID == Obj::BOAT); //the only vis obj at dest is Boat
 		CGBoat *boat = static_cast<CGBoat*>(tt.visitableObjects.back());
 
 		gs->map->removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
@@ -921,7 +921,7 @@ DLL_LINKAGE void SetObjectProperty::applyGs( CGameState *gs )
 	CArmedInstance *cai = dynamic_cast<CArmedInstance *>(obj);
 	if(what == ObjProperty::OWNER && cai)
 	{
-		if(obj->ID == GameConstants::TOWNI_TYPE)
+		if(obj->ID == Obj::TOWN)
 		{
 			CGTownInstance *t = static_cast<CGTownInstance*>(obj);
 			if(t->tempOwner < GameConstants::PLAYER_LIMIT)

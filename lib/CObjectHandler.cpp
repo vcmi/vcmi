@@ -195,21 +195,21 @@ void CObjectHandler::loadObjects()
 
 int CObjectHandler::bankObjToIndex (const CGObjectInstance * obj)
 {
-	switch (obj->ID) //find apriopriate key
+	switch (obj->ID) //find appriopriate key
 	{
-		case 16: //bank
-			return obj->subID;
-		case 24: //derelict ship
-			return 8;
-		case 25: //utopia
-			return 10;
-		case 84: //crypt
-			return 9;
-		case 85: //shipwreck
-			return 7;
-		default:
-			tlog2 << "Unrecognixed Bank indetifier!\n";
-			return 0;
+	case Obj::CREATURE_BANK:
+		return obj->subID;
+	case Obj::DERELICT_SHIP:
+		return 8;
+	case Obj::DRAGON_UTOPIA:
+		return 10;
+	case Obj::CRYPT:
+		return 9;
+	case Obj::SHIPWRECK:
+		return 7;
+	default:
+		tlog2 << "Unrecognixed Bank indetifier!\n";
+		return 0;
 	}
 }
 int CGObjectInstance::getOwner() const
@@ -333,9 +333,9 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 		return true;
 	if(this->pos.y>cmp.pos.y)
 		return false;
-	if(cmp.ID==GameConstants::HEROI_TYPE && ID!=GameConstants::HEROI_TYPE)
+	if(cmp.ID==Obj::HERO && ID!=Obj::HERO)
 		return true;
-	if(cmp.ID!=GameConstants::HEROI_TYPE && ID==GameConstants::HEROI_TYPE)
+	if(cmp.ID!=Obj::HERO && ID==Obj::HERO)
 		return false;
 	if(!defInfo->isVisitable() && cmp.defInfo->isVisitable())
 		return true;
@@ -350,7 +350,7 @@ void CGObjectInstance::initObj()
 {
 	switch(ID)
 	{
-	case 95:
+	case Obj::TAVERN:
 		blockVisit = true;
 		break;
 	}
@@ -455,7 +455,7 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 {
 	switch(ID)
 	{
-	case 35: //Hill fort
+	case Obj::HILL_FORT:
 		{
 			OpenWindow ow;
 			ow.window = OpenWindow::HILL_FORT_WINDOW;
@@ -464,7 +464,7 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 			cb->sendAndApply(&ow);
 		}
 		break;
-	case 80: //Sanctuary
+	case Obj::SANCTUARY:
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
@@ -473,7 +473,7 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 			cb->sendAndApply(&iw);
 		}
 		break;
-	case 95: //Tavern
+	case Obj::TAVERN:
 		{
 			OpenWindow ow;
 			ow.window = OpenWindow::TAVERN_WINDOW;
@@ -679,7 +679,7 @@ CGHeroInstance::CGHeroInstance()
  : IBoatGenerator(this)
 {
 	setNodeType(HERO);
-	ID = GameConstants::HEROI_TYPE;
+	ID = Obj::HERO;
 	tacticFormationEnabled = inTownGarrison = false;
 	mana = movement = portrait = level = -1;
 	isStanding = true;
@@ -704,7 +704,7 @@ void CGHeroInstance::initHero(int SUBID)
 void CGHeroInstance::initHero()
 {
 	assert(validTypes(true));
-	if(ID == GameConstants::HEROI_TYPE)
+	if(ID == Obj::HERO)
 		initHeroDefInfo();
 	if(!type)
 		type = VLC->heroh->heroes[subID];
@@ -723,10 +723,10 @@ void CGHeroInstance::initHero()
 		portrait = subID;
 	if(!hasBonus(Selector::sourceType(Bonus::HERO_BASE_SKILL)))
 	{
-		pushPrimSkill(PrimarySkill::ATTACK, type->heroClass->initialAttack);
-		pushPrimSkill(PrimarySkill::DEFENSE, type->heroClass->initialDefence);
-		pushPrimSkill(PrimarySkill::SPELL_POWER, type->heroClass->initialPower);
-		pushPrimSkill(PrimarySkill::KNOWLEDGE, type->heroClass->initialKnowledge);
+		for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
+		{
+			pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(g), type->heroClass->initialPrimSkills[g]);
+		}
 	}
 	if(secSkills.size() == 1 && secSkills[0] == std::pair<ui8,ui8>(-1, -1)) //set secondary skills to default
 		secSkills = type->secSkillsInit;
@@ -830,10 +830,10 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 }
 void CGHeroInstance::initHeroDefInfo()
 {
-	if(!defInfo  ||  defInfo->id != GameConstants::HEROI_TYPE)
+	if(!defInfo  ||  defInfo->id != Obj::HERO)
 	{
 		defInfo = new CGDefInfo();
-		defInfo->id = GameConstants::HEROI_TYPE;
+		defInfo->id = Obj::HERO;
 		defInfo->subid = subID;
 		defInfo->printPriority = 0;
 		defInfo->visitDir = 0xff;
@@ -861,7 +861,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 {
 	if(h == this) return; //exclude potential self-visiting
 
-	if (ID == GameConstants::HEROI_TYPE) //hero
+	if (ID == Obj::HERO)
 	{
 		if( cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner)) //our or ally hero
 		{
@@ -876,7 +876,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 				cb->startBattleI(h,	this);
 		}
 	}
-	else if(ID == 62) //prison
+	else if(ID == Obj::PRISON)
 	{
 		InfoWindow iw;
 		iw.player = h->tempOwner;
@@ -885,7 +885,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 		if(cb->getHeroCount(h->tempOwner,false) < 8) //free hero slot
 		{
 			cb->changeObjPos(id,pos+int3(1,0,0),0);
-			cb->setObjProperty(id, ObjProperty::ID, GameConstants::HEROI_TYPE); //set ID to 34
+			cb->setObjProperty(id, ObjProperty::ID, Obj::HERO); //set ID to 34
 			cb->giveHero(id,h->tempOwner); //recreates def and adds hero to player
 
 			iw.text << std::pair<ui8,ui32>(11,102);
@@ -1240,7 +1240,7 @@ ui64 CGHeroInstance::getTotalStrength() const
 	return (ui64) ret;
 }
 
-expType CGHeroInstance::calculateXp(expType exp) const
+TExpType CGHeroInstance::calculateXp(TExpType exp) const
 {
 	return exp * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::LEARNING))/100.0;
 }
@@ -1410,14 +1410,13 @@ si32 CGHeroInstance::manaRegain() const
 
 int CGHeroInstance::getBoatType() const
 {
-	int alignment = type->heroType / 6;
-	switch(alignment)
+	switch(type->heroClass->getAlignment())
 	{
-	case 0:
-		return 1; //good
-	case 1:
-		return 0; //evil
-	case 2:
+	case EAlignment::GOOD:
+		return 1;
+	case EAlignment::EVIL:
+		return 0;
+	case EAlignment::NEUTRAL:
 		return 2;
 	default:
 		throw std::runtime_error("Wrong alignment!");
@@ -1436,7 +1435,7 @@ int CGHeroInstance::getSpellCost(const CSpell *sp) const
 	return sp->costs[getSpellSchoolLevel(sp)];
 }
 
-void CGHeroInstance::pushPrimSkill(int which, int val)
+void CGHeroInstance::pushPrimSkill( int which, int val )
 {
 	addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id, which));
 }
@@ -1527,7 +1526,7 @@ void CGDwelling::initObj()
 {
 	switch(ID)
 	{
-	case 17:
+	case Obj::CREATURE_GENERATOR1:
 		{
 			int crid = VLC->objh->cregens[subID];
 			const CCreature *crs = VLC->creh->creatures[crid];
@@ -1542,7 +1541,7 @@ void CGDwelling::initObj()
 		}
 		break;
 
-	case 20:
+	case Obj::CREATURE_GENERATOR4:
 		creatures.resize(4);
 		if(subID == 1) //Golem Factory
 		{
@@ -1570,11 +1569,11 @@ void CGDwelling::initObj()
 		hoverName = VLC->generaltexth->creGens4[subID];
 		break;
 
-	case 78: //Refugee Camp
+	case Obj::REFUGEE_CAMP:
 		//is handled within newturn func
 		break;
 
-	case 106: //War Machine Factory
+	case Obj::WAR_MACHINE_FACTORY:
 		creatures.resize(3);
 		creatures[0].second.push_back(146); //Ballista
 		creatures[1].second.push_back(147); //First Aid Tent
@@ -1592,7 +1591,7 @@ void CGDwelling::setProperty(ui8 what, ui32 val)
 	switch (what)
 	{
 		case ObjProperty::OWNER: //change owner
-			if (ID == 17) //single generators
+			if (ID == Obj::CREATURE_GENERATOR1) //single generators
 			{
 				if (tempOwner != GameConstants::NEUTRAL_PLAYER)
 				{
@@ -1613,7 +1612,7 @@ void CGDwelling::setProperty(ui8 what, ui32 val)
 }
 void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(ID == 78 && !creatures[0].first) //Refugee Camp, no available cres
+	if(ID == Obj::REFUGEE_CAMP && !creatures[0].first) //Refugee Camp, no available cres
 	{
 		InfoWindow iw;
 		iw.player = h->tempOwner;
@@ -1634,14 +1633,14 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		bd.player = h->tempOwner;
 		bd.flags = BlockingDialog::ALLOW_CANCEL;
 		bd.text.addTxt(MetaString::GENERAL_TXT, 421); //Much to your dismay, the %s is guarded by %s %s. Do you wish to fight the guards?
-		bd.text.addReplacement(ID == 17 ? MetaString::CREGENS : MetaString::CREGENS4, subID);
+		bd.text.addReplacement(ID == Obj::CREATURE_GENERATOR1 ? MetaString::CREGENS : MetaString::CREGENS4, subID);
 		bd.text.addReplacement(MetaString::ARRAY_TXT, 176 + Slots().begin()->second->getQuantityID()*3);
 		bd.text.addReplacement(*Slots().begin()->second);
 		cb->showBlockingDialog(&bd, boost::bind(&CGDwelling::wantsFight, this, h, _1));
 		return;
 	}
 
-	if(!relations  &&  ID != 106)
+	if(!relations  &&  ID != Obj::WAR_MACHINE_FACTORY)
 	{
 		cb->setOwner(id, h->tempOwner);
 	}
@@ -1649,21 +1648,21 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	BlockingDialog bd;
 	bd.player = h->tempOwner;
 	bd.flags = BlockingDialog::ALLOW_CANCEL;
-	if(ID == 17 || ID == 20)
+	if(ID == Obj::CREATURE_GENERATOR1 || ID == Obj::CREATURE_GENERATOR4)
 	{
-		bd.text.addTxt(MetaString::ADVOB_TXT, ID == 17 ? 35 : 36); //{%s} Would you like to recruit %s? / {%s} Would you like to recruit %s, %s, %s, or %s?
-		bd.text.addReplacement(ID == 17 ? MetaString::CREGENS : MetaString::CREGENS4, subID);
+		bd.text.addTxt(MetaString::ADVOB_TXT, ID == Obj::CREATURE_GENERATOR1 ? 35 : 36); //{%s} Would you like to recruit %s? / {%s} Would you like to recruit %s, %s, %s, or %s?
+		bd.text.addReplacement(ID == Obj::CREATURE_GENERATOR1 ? MetaString::CREGENS : MetaString::CREGENS4, subID);
 		for(size_t i = 0; i < creatures.size(); i++)
 			bd.text.addReplacement(MetaString::CRE_PL_NAMES, creatures[i].second[0]);
 	}
-	else if(ID == 78)
+	else if(ID == Obj::REFUGEE_CAMP)
 	{
 		bd.text.addTxt(MetaString::ADVOB_TXT, 35); //{%s} Would you like to recruit %s?
 		bd.text.addReplacement(MetaString::OBJ_NAMES, ID);
 		for(size_t i = 0; i < creatures.size(); i++)
 			bd.text.addReplacement(MetaString::CRE_PL_NAMES, creatures[i].second[0]);
 	}
-	else if(ID == 106)
+	else if(ID == Obj::WAR_MACHINE_FACTORY)
 		bd.text.addTxt(MetaString::ADVOB_TXT, 157); //{War Machine Factory} Would you like to purchase War Machines?
 	else
 		throw std::runtime_error("Illegal dwelling!");
@@ -1677,10 +1676,10 @@ void CGDwelling::newTurn() const
 		return;
 
 	//town growths and War Machines Factories are handled separately
-	if(ID == GameConstants::TOWNI_TYPE  ||  ID == 106)
+	if(ID == Obj::TOWN  ||  ID == Obj::WAR_MACHINE_FACTORY)
 		return;
 
-	if(ID == 78) //if it's a refugee camp, we need to pick an available creature
+	if(ID == Obj::REFUGEE_CAMP) //if it's a refugee camp, we need to pick an available creature
 	{
 		cb->setObjProperty(id, ObjProperty::AVAILABLE_CREATURE, VLC->creh->pickRandomMonster());
 	}
@@ -1717,7 +1716,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 	CCreature *crs = VLC->creh->creatures[crid];
 	TQuantity count = creatures[0].first;
 
-	if(crs->level == 1  &&  ID != 78) //first level - creatures are for free
+	if(crs->level == 1  &&  ID != Obj::REFUGEE_CAMP) //first level - creatures are for free
 	{
 		if(count) //there are available creatures
 		{
@@ -1760,7 +1759,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 	}
 	else
 	{
-		if(ID == 106) //pick available War Machines
+		if(ID == Obj::WAR_MACHINE_FACTORY) //pick available War Machines
 		{
 			//there is 1 war machine available to recruit if hero doesn't have one
 			SetAvailableCreatures sac;
@@ -1775,7 +1774,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 		OpenWindow ow;
 		ow.id1 = id;
 		ow.id2 = h->id;
-		ow.window = (ID == 17 || ID == 78)
+		ow.window = (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::REFUGEE_CAMP)
 			? OpenWindow::RECRUITMENT_FIRST
 			: OpenWindow::RECRUITMENT_ALL;
 		cb->sendAndApply(&ow);
@@ -2499,13 +2498,13 @@ void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGVisitableOPH::initObj()
 {
-	if(ID==102)
+	if(ID==Obj::TREE_OF_KNOWLEDGE)
 		ttype = ran()%3;
 	else
 		ttype = -1;
 }
 
-void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, expType expVal, ui32 result ) const
+void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, TExpType expVal, ui32 result ) const
 {
 	if(result) //player agreed to give res for exp
 	{
@@ -2518,55 +2517,55 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 {
 	Component::EComponentType id = (Component::EComponentType)0;
 	int subid=0, ot=0, sound = 0;
-	expType val=1;
+	TExpType val=1;
 	switch(ID)
 	{
-	case 4: //arena
+	case Obj::ARENA:
 		sound = soundBase::NOMAD;
 		ot = 0;
 		break;
-	case 51: //mercenary camp
+	case Obj::MERCENARY_CAMP:
 		sound = soundBase::NOMAD;
 		subid=0;
 		ot=80;
 		break;
-	case 23: //marletto tower
+	case Obj::MARLETTO_TOWER:
 		sound = soundBase::NOMAD;
 		subid=1;
 		ot=39;
 		break;
-	case 61:
+	case Obj::STAR_AXIS:
 		sound = soundBase::gazebo;
 		subid=2;
 		ot=100;
 		break;
-	case 32:
+	case Obj::GARDEN_OF_REVELATION:
 		sound = soundBase::GETPROTECTION;
 		subid=3;
 		ot=59;
 		break;
-	case 100:
+	case Obj::LEARNING_STONE:
 		sound = soundBase::gazebo;
 		id=Component::EXPERIENCE;
 		ot=143;
 		val=1000;
 		break;
-	case 102:
+	case Obj::TREE_OF_KNOWLEDGE:
 		sound = soundBase::gazebo;
 		id = Component::EXPERIENCE;
 		subid = 1;
 		ot = 146;
 		val = 1;
 		break;
-	case 41:
+	case Obj::LIBRARY_OF_ENLIGHTENMENT:
 		sound = soundBase::gazebo;
 		ot = 66;
 		break;
-	case 47: //School of Magic
+	case Obj::SCHOOL_OF_MAGIC:
 		sound = soundBase::faerie;
 		ot = 71;
 		break;
-	case 107://School of War
+	case Obj::SCHOOL_OF_WAR:
 		sound = soundBase::MILITARY;
 		ot = 158;
 		break;
@@ -2575,7 +2574,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 	{
 		switch (ID)
 		{
-		case 4: //arena
+		case Obj::ARENA:
 			{
 				BlockingDialog sd(false,true);
 				sd.soundID = sound;
@@ -2586,10 +2585,10 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				cb->showBlockingDialog(&sd,boost::bind(&CGVisitableOPH::arenaSelected,this,heroID,_1));
 				return;
 			}
-		case 51:
-		case 23:
-		case 61:
-		case 32:
+		case Obj::MERCENARY_CAMP:
+		case Obj::MARLETTO_TOWER:
+		case Obj::STAR_AXIS:
+		case Obj::GARDEN_OF_REVELATION:
 			{
 				cb->changePrimSkill(heroID,subid,val);
 				InfoWindow iw;
@@ -2600,7 +2599,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				cb->showInfoDialog(&iw);
 				break;
 			}
-		case 100: //give exp
+		case Obj::LEARNING_STONE: //give exp
 			{
 				const CGHeroInstance *h = cb->getHero(heroID);
 				val = h->calculateXp(val);
@@ -2614,7 +2613,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				cb->changePrimSkill(heroID,4,val);
 				break;
 			}
-		case 102://tree
+		case Obj::TREE_OF_KNOWLEDGE:
 			{
 				const CGHeroInstance *h = cb->getHero(heroID);
 				val = VLC->heroh->reqExp(h->level+val) - VLC->heroh->reqExp(h->level);
@@ -2633,7 +2632,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				else
 				{
 					ui32 res;
-					expType resval;
+					TExpType resval;
 					if(ttype==1)
 					{
 						res = 6;
@@ -2667,7 +2666,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				}
 				break;
 			}
-		case 41://library of enlightenment
+		case Obj::LIBRARY_OF_ENLIGHTENMENT:
 			{
 				const CGHeroInstance *h = cb->getHero(heroID);
 				if(h->level  <  10 - 2*h->getSecSkillLevel(CGHeroInstance::DIPLOMACY)) //not enough level
@@ -2693,10 +2692,10 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				}
 				break;
 			}
-		case 47: //School of Magic
-		case 107://School of War
+		case Obj::SCHOOL_OF_MAGIC:
+		case Obj::SCHOOL_OF_WAR:
 			{
-				int skill = (ID==47 ? 2 : 0);
+				int skill = (ID==Obj::SCHOOL_OF_MAGIC ? 2 : 0);
 				if(cb->getResource(cb->getOwner(heroID),6) < 1000) //not enough resources
 				{
 					InfoWindow iw;
@@ -2735,33 +2734,33 @@ const std::string & CGVisitableOPH::getHoverText() const
 	int pom = -1;
 	switch(ID)
 	{
-	case 4:
+	case Obj::ARENA:
 		pom = -1;
 		break;
-	case 51:
+	case Obj::MERCENARY_CAMP:
 		pom = 8;
 		break;
-	case 23:
+	case Obj::MARLETTO_TOWER:
 		pom = 7;
 		break;
-	case 61:
+	case Obj::STAR_AXIS:
 		pom = 11;
 		break;
-	case 32:
+	case Obj::GARDEN_OF_REVELATION:
 		pom = 4;
 		break;
-	case 100:
+	case Obj::LEARNING_STONE:
 		pom = 5;
 		break;
-	case 102:
+	case Obj::TREE_OF_KNOWLEDGE:
 		pom = 18;
 		break;
-	case 41:
+	case Obj::LIBRARY_OF_ENLIGHTENMENT:
 		break;
-	case 47: //School of Magic
+	case Obj::SCHOOL_OF_MAGIC:
 		pom = 9;
 		break;
-	case 107://School of War
+	case Obj::SCHOOL_OF_WAR:
 		pom = 10;
 		break;
 	default:
@@ -2798,7 +2797,7 @@ void CGVisitableOPH::schoolSelected(int heroID, ui32 which) const
 	if(!which) //player refused to pay
 		return;
 
-	int base = (ID == 47  ?  2  :  0);
+	int base = (ID == Obj::SCHOOL_OF_MAGIC  ?  2  :  0);
 	cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
 	cb->giveResource(cb->getOwner(heroID),6,-1000); //take 1000 gold
 	cb->changePrimSkill(heroID, base + which-1, +1); //give appropriate skill
@@ -3540,15 +3539,15 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 	int mid=0, sound = 0;
 	switch (ID)
 	{
-	case 55: //mystical garden
+	case Obj::MYSTICAL_GARDEN:
 		sound = soundBase::experience;
 		mid = 92;
 		break;
-	case 112://windmill
+	case Obj::WINDMILL:
 		sound = soundBase::GENIE;
 		mid = 170;
 		break;
-	case 109://waterwheel
+	case Obj::WATER_WHEEL:
 		sound = soundBase::GENIE;
 		mid = 164;
 		break;
@@ -3557,7 +3556,7 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	if (visited)
 	{
-		if (ID!=112)
+		if (ID!=Obj::WINDMILL)
 			mid++;
 		else
 			mid--;
@@ -3575,7 +3574,7 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 
 		switch (ID)
 		{
-		case 55:
+		case Obj::MYSTICAL_GARDEN:
 			if (rand()%2)
 			{
 				sub = 5;
@@ -3587,12 +3586,12 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 				val = 500;
 			}
 			break;
-		case 112:
+		case Obj::WINDMILL:
 			mid = 170;
 			sub = (rand() % 5) + 1;
 			val = (rand() % 4) + 3;
 			break;
-		case 109:
+		case Obj::WATER_WHEEL:
 			mid = 164;
 			sub = 6;
 			if(cb->getDate(0)<8)
@@ -3625,18 +3624,18 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 	int destinationid=-1;
 	switch(ID)
 	{
-	case 43: //one way - find corresponding exit monolith
+	case Obj::MONOLITH1: //one way - find corresponding exit monolith
 		if(vstd::contains(objs,44) && vstd::contains(objs[44],subID) && objs[44][subID].size())
 			destinationid = objs[44][subID][rand()%objs[44][subID].size()];
 		else
 			tlog2 << "Cannot find corresponding exit monolith for "<< id << std::endl;
 		break;
-	case 45://two way monolith - pick any other one
-	case 111: //Whirlpool
+	case Obj::MONOLITH3://two way monolith - pick any other one
+	case Obj::WHIRLPOOL: //Whirlpool
 		if(vstd::contains(objs,ID) && vstd::contains(objs[ID],subID) && objs[ID][subID].size()>1)
 		{
 			while ((destinationid = objs[ID][subID][rand()%objs[ID][subID].size()]) == id); //choose another exit
-			if (ID == 111)
+			if (ID == Obj::WHIRLPOOL)
 			{
 				if (!h->hasBonusOfType(Bonus::WHIRLPOOL_PROTECTION))
 				{
@@ -3668,7 +3667,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 		else
 			tlog2 << "Cannot find corresponding exit monolith for "<< id << std::endl;
 		break;
-	case 103: //find nearest subterranean gate on the other level
+	case Obj::SUBTERRANEAN_GATE: //find nearest subterranean gate on the other level
 		{
 			destinationid = getMatchingGate(id);
 			if(destinationid < 0) //no exit
@@ -3686,7 +3685,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 		tlog2 << "Cannot find exit... (obj at " << pos << ") :( \n";
 		return;
 	}
-	if (ID == 111)
+	if (ID == Obj::WHIRLPOOL)
 	{
 		std::set<int3> tiles = cb->getObj(destinationid)->getBlockedPos();
 		std::set<int3>::iterator it = tiles.begin();
@@ -3702,14 +3701,14 @@ void CGTeleport::initObj()
 	int si = subID;
 	switch (ID)
 	{
-		case 103://ignore subterranean gates subid
-		case 111:
+	case Obj::SUBTERRANEAN_GATE://ignore subterranean gates subid
+	case Obj::WHIRLPOOL:
 		{
 			si = 0;
 			break;
 		}
-		default:
-			break;
+	default:
+		break;
 	}
 	objs[ID][si].push_back(id);
 }
@@ -3718,9 +3717,9 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 {
 	//split on underground and surface gates
 	std::vector<const CGObjectInstance *> gatesSplit[2]; //surface and underground gates
-	for(size_t i = 0; i < objs[103][0].size(); i++)
+	for(size_t i = 0; i < objs[Obj::SUBTERRANEAN_GATE][0].size(); i++)
 	{
-		const CGObjectInstance *hlp = cb->getObj(objs[103][0][i]);
+		const CGObjectInstance *hlp = cb->getObj(objs[Obj::SUBTERRANEAN_GATE][0][i]);
 		gatesSplit[hlp->pos.z].push_back(hlp);
 	}
 
@@ -3775,13 +3774,13 @@ int CGTeleport::getMatchingGate(int id)
 void CGArtifact::initObj()
 {
 	blockVisit = true;
-	if(ID == 5)
+	if(ID == Obj::ARTIFACT)
 	{
 		hoverName = VLC->arth->artifacts[subID]->Name();
 		if(!storedArtifact->artType)
 			storedArtifact->setType(VLC->arth->artifacts[subID]);
 	}
-	if(ID == 93)
+	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;
 
 	assert(storedArtifact->artType);
@@ -3796,7 +3795,7 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 		iw.player = h->tempOwner;
 		switch(ID)
 		{
-		case 5:
+		case Obj::ARTIFACT:
 			{
 				iw.soundID = soundBase::treasure; //play sound only for non-scroll arts
 				iw.components.push_back(Component(Component::ARTIFACT,subID,0,0));
@@ -3806,7 +3805,7 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 					iw.text << std::pair<ui8,ui32>(12,subID);
 			}
 			break;
-		case 93:
+		case Obj::SPELL_SCROLL:
 			{
 				int spellID = storedArtifact->getGivenSpellID();
 				iw.components.push_back (Component(Component::SPELL, spellID,0,0));
@@ -3856,12 +3855,12 @@ void CGPickable::initObj()
 	blockVisit = true;
 	switch(ID)
 	{
-	case 12: //campfire
+	case Obj::CAMPFIRE:
 		val2 = (ran()%3) + 4; //4 - 6
 		val1 = val2 * 100;
 		type = ran()%6; //given resource
 		break;
-	case 29: //floatsam
+	case Obj::FLOTSAM:
 		switch(type = ran()%4)
 		{
 		case 0:
@@ -3881,7 +3880,7 @@ void CGPickable::initObj()
 			break;
 		}
 		break;
-	case 82: //sea chest
+	case Obj::SEA_CHEST:
 		{
 			int hlp = ran()%100;
 			if(hlp < 20)
@@ -3902,7 +3901,7 @@ void CGPickable::initObj()
 			}
 		}
 		break;
-	case 86: //Shipwreck Survivor
+	case Obj::SHIPWRECK_SURVIVOR:
 		{
 			int hlp = ran()%100;
 			if(hlp < 55)
@@ -3915,7 +3914,7 @@ void CGPickable::initObj()
 				val1 = cb->getRandomArt (CArtifact::ART_RELIC);
 		}
 		break;
-	case 101: //treasure chest
+	case Obj::TREASURE_CHEST:
 		{
 			int hlp = ran()%100;
 			if(hlp >= 95)
@@ -3949,7 +3948,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 
 	switch(ID)
 	{
-	case 12: //campfire
+	case Obj::CAMPFIRE:
 		{
 			cb->giveResource(h->tempOwner,type,val2); //non-gold resource
 			cb->giveResource(h->tempOwner,Res::GOLD,val1);//gold
@@ -3962,7 +3961,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			cb->showInfoDialog(&iw);
 			break;
 		}
-	case 29: //flotsam
+	case Obj::FLOTSAM:
 		{
 			cb->giveResource(h->tempOwner,0,val1); //wood
 			cb->giveResource(h->tempOwner,6,val2);//gold
@@ -3978,7 +3977,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			cb->showInfoDialog(&iw);
 			break;
 		}
-	case 82: //Sea Chest
+	case Obj::SEA_CHEST:
 		{
 			InfoWindow iw;
 			iw.soundID = soundBase::chest;
@@ -4000,7 +3999,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			cb->showInfoDialog(&iw);
 			break;
 		}
-	case 86: //Shipwreck Survivor
+	case Obj::SHIPWRECK_SURVIVOR:
 		{
 			//TODO: what if no space in backpack?
 			InfoWindow iw;
@@ -4013,7 +4012,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			cb->showInfoDialog(&iw);
 			break;
 		}
-	case 101: //treasure chest
+	case Obj::TREASURE_CHEST:
 		{
 			if (subID) //not OH3 treasure chest
 			{
@@ -4039,7 +4038,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 				sd.player = h->tempOwner;
 				sd.text << std::pair<ui8,ui32>(11,146);
 				sd.components.push_back(Component(Component::RESOURCE,Res::GOLD,val1,0));
-				expType expVal = h->calculateXp(val2);
+				TExpType expVal = h->calculateXp(val2);
 				sd.components.push_back(Component(Component::EXPERIENCE,0,expVal, 0));
 				sd.soundID = soundBase::chest;
 				boost::function<void(ui32)> fun = boost::bind(&CGPickable::chosen,this,_1,h->id);
@@ -4447,20 +4446,20 @@ const std::string & CGSeerHut::getHoverText() const
 {
 	switch (ID)
 	{
-			case 83:
-				if (quest.progress)
-				{
-					hoverName = VLC->generaltexth->allTexts[347];
-					boost::algorithm::replace_first(hoverName,"%s", seerName);
-				}
-				else //just seer hut
-					hoverName = VLC->generaltexth->names[ID];
-				break;
-			case 215:
-				hoverName = VLC->generaltexth->names[ID];
-				break;
-			default:
-				tlog5 << "unrecognized quest object\n";
+	case Obj::SEER_HUT:
+		if (quest.progress)
+		{
+			hoverName = VLC->generaltexth->allTexts[347];
+			boost::algorithm::replace_first(hoverName,"%s", seerName);
+		}
+		else //just seer hut
+			hoverName = VLC->generaltexth->names[ID];
+		break;
+	case Obj::QUEST_GUARD:
+		hoverName = VLC->generaltexth->names[ID];
+		break;
+	default:
+		tlog5 << "unrecognized quest object\n";
 	}
 	if (quest.progress & quest.missionType) //rollover when the quest is active
 	{
@@ -4593,7 +4592,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 	else
 	{
 		iw.text << VLC->generaltexth->seerEmpty[quest.textOption];
-		if (ID == 83)
+		if (ID == Obj::SEER_HUT)
 			iw.text.addReplacement(seerName);
 		cb->showInfoDialog(&iw);
 	}
@@ -4664,7 +4663,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 	{
 		case 1: //experience
 		{
-			expType expVal = h->calculateXp(rVal);
+			TExpType expVal = h->calculateXp(rVal);
 			cb->changePrimSkill(h->id, 4, expVal, false);
 			break;
 		}
@@ -4719,7 +4718,7 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest.m13489val);
 	if(allowNull && !o)
 		return NULL;
-	assert(o && o->ID == GameConstants::HEROI_TYPE);
+	assert(o && o->ID == Obj::HERO);
 	return static_cast<const CGHeroInstance*>(o);
 }
 
@@ -4728,7 +4727,7 @@ const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest.m13489val);
 	if(allowNull && !o)
 		return NULL;
-	assert(o && o->ID == 54);
+	assert(o && o->ID == Obj::MONSTER);
 	return static_cast<const CGCreature*>(o);
 }
 
@@ -4824,14 +4823,14 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 
 	switch(ID)
 	{
-	case 11: //buoy
+	case Obj::BUOY:
 		messageID = 21;
 		sound = soundBase::MORALE;
 		gbonus.bonus.type = Bonus::MORALE;
 		gbonus.bonus.val = +1;
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,94);
 		break;
-	case 14: //swan pond
+	case Obj::SWAN_POND:
 		messageID = 29;
 		sound = soundBase::LUCK;
 		gbonus.bonus.type = Bonus::LUCK;
@@ -4839,14 +4838,14 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,67);
 		bonusMove = -h->movement;
 		break;
-	case 28: //Faerie Ring
+	case Obj::FAERIE_RING:
 		messageID = 49;
 		sound = soundBase::LUCK;
 		gbonus.bonus.type = Bonus::LUCK;
 		gbonus.bonus.val = 1;
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,71);
 		break;
-	case 30: //fountain of fortune
+	case Obj::FOUNTAIN_OF_FORTUNE:
 		messageID = 55;
 		sound = soundBase::LUCK;
 		gbonus.bonus.type = Bonus::LUCK;
@@ -4854,7 +4853,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,69);
 		gbonus.bdescr.addReplacement((gbonus.bonus.val<0 ? "-" : "+") + boost::lexical_cast<std::string>(gbonus.bonus.val));
 		break;
-	case 38: //idol of fortune
+	case Obj::IDOL_OF_FORTUNE:
 		messageID = 62;
 		sound = soundBase::experience;
 
@@ -4872,14 +4871,14 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 			gbonus.bonus.type = (cb->getDate(1)%2) ? Bonus::LUCK : Bonus::MORALE;
 		}
 		break;
-	case 52: //Mermaid
+	case Obj::MERMAID:
 		messageID = 83;
 		sound = soundBase::LUCK;
 		gbonus.bonus.type = Bonus::LUCK;
 		gbonus.bonus.val = 1;
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,72);
 		break;
-	case 64: //Rally Flag
+	case Obj::RALLY_FLAG:
 		sound = soundBase::MORALE;
 		messageID = 111;
 		gbonus.bonus.type = Bonus::MORALE;
@@ -4892,14 +4891,14 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 
 		bonusMove = 400;
 		break;
-	case 56: //oasis
+	case Obj::OASIS:
 		messageID = 95;
 		gbonus.bonus.type = Bonus::MORALE;
 		gbonus.bonus.val = 1;
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,95);
 		bonusMove = 800;
 		break;
-	case 96: //temple
+	case Obj::TEMPLE:
 		messageID = 140;
 		iw.soundID = soundBase::temple;
 		gbonus.bonus.type = Bonus::MORALE;
@@ -4914,7 +4913,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 			gbonus.bdescr <<  std::pair<ui8,ui32>(6,96);
 		}
 		break;
-	case 110://Watering Hole
+	case Obj::WATERING_HOLE:
 		sound = soundBase::MORALE;
 		messageID = 166;
 		gbonus.bonus.type = Bonus::MORALE;
@@ -4922,7 +4921,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,100);
 		bonusMove = 400;
 		break;
-	case 31: //Fountain of Youth
+	case Obj::FOUNTAIN_OF_YOUTH:
 		sound = soundBase::MORALE;
 		messageID = 57;
 		gbonus.bonus.type = Bonus::MORALE;
@@ -4930,7 +4929,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,103);
 		bonusMove = 400;
 		break;
-	case 94: //Stables
+	case Obj::STABLES:
 		sound = soundBase::STORE;
 		bool someUpgradeDone = false;
 
@@ -4960,7 +4959,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 	assert(messageID);
 	if(visited)
 	{
-		if(ID==64 || ID==56 || ID==52 || ID==94)
+		if(ID==Obj::RALLY_FLAG || ID==Obj::OASIS || ID==Obj::MERMAID || ID==Obj::STABLES)
 			messageID--;
 		else
 			messageID++;
@@ -5007,7 +5006,7 @@ const std::string & CGBonusingObject::getHoverText() const
 
 void CGBonusingObject::initObj()
 {
-	if(ID == 11 || ID == 52) //Buoy / Mermaid
+	if(ID == Obj::BUOY || ID == Obj::MERMAID)
 	{
 		blockVisit = true;
 	}
@@ -5078,7 +5077,7 @@ const std::string & CGMagicWell::getHoverText() const
 
 void CGPandoraBox::initObj()
 {
-	blockVisit = (ID==6); //block only if it's really pandora's box (events also derive from that class)
+	blockVisit = (ID==Obj::PANDORAS_BOX); //block only if it's really pandora's box (events also derive from that class)
 }
 
 void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
@@ -5147,7 +5146,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 	if(gainedExp || changesPrimSkill || abilities.size())
 	{
-		expType expVal = h->calculateXp(gainedExp);
+		TExpType expVal = h->calculateXp(gainedExp);
 		//getText(iw,afterBattle,175,h); //wtf?
 		iw.text.addTxt(MetaString::ADVOB_TXT, 175); //%s learns something
 		iw.text.addReplacement(h->name);
@@ -5398,25 +5397,25 @@ void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 	iw.player = h->tempOwner;
 	switch (ID)
 	{
-		case 58://redwood observatory
-		case 60://pillar of fire
-		{
-			iw.soundID = soundBase::LIGHTHOUSE;
-			iw.text.addTxt(MetaString::ADVOB_TXT,98 + (ID==60));
+	case Obj::REDWOOD_OBSERVATORY:
+	case Obj::PILLAR_OF_FIRE:
+	{
+		iw.soundID = soundBase::LIGHTHOUSE;
+		iw.text.addTxt(MetaString::ADVOB_TXT,98 + (ID==Obj::PILLAR_OF_FIRE));
 
-			FoWChange fw;
-			fw.player = h->tempOwner;
-			fw.mode = 1;
-			cb->getTilesInRange (fw.tiles, pos, 20, h->tempOwner, 1);
-			cb->sendAndApply (&fw);
-			break;
-		}
-		case 15://cover of darkness
-		{
-			iw.text.addTxt (MetaString::ADVOB_TXT, 31);
-			hideTiles(h->tempOwner, 20);
-			break;
-		}
+		FoWChange fw;
+		fw.player = h->tempOwner;
+		fw.mode = 1;
+		cb->getTilesInRange (fw.tiles, pos, 20, h->tempOwner, 1);
+		cb->sendAndApply (&fw);
+		break;
+	}
+	case Obj::COVER_OF_DARKNESS:
+	{
+		iw.text.addTxt (MetaString::ADVOB_TXT, 31);
+		hideTiles(h->tempOwner, 20);
+		break;
+	}
 	}
 	cb->showInfoDialog(&iw);
 }
@@ -5439,11 +5438,11 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	iw.text.addTxt(MetaString::SPELL_NAME,spell);
 	iw.text << ".";
 
-	if(!h->getArt(17)) //no spellbook
+	if(!h->getArt(ArtifactPos::SPELLBOOK))
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,131);
 	}
-	else if(ID == 90  &&  !h->getSecSkillLevel(CGHeroInstance::WISDOM)) //it's third level spell and hero doesn't have wisdom
+	else if(ID == Obj::SHRINE_OF_MAGIC_THOUGHT  && !h->getSecSkillLevel(CGHeroInstance::WISDOM)) //it's third level spell and hero doesn't have wisdom
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,130);
 	}
@@ -5501,7 +5500,7 @@ void CGSignBottle::initObj()
 	if(!message.size())
 		message = VLC->generaltexth->randsign[ran()%VLC->generaltexth->randsign.size()];
 
-	if(ID == 59)
+	if(ID == Obj::OCEAN_BOTTLE)
 	{
 		blockVisit = true;
 	}
@@ -5515,7 +5514,7 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 	iw.text << message;
 	cb->showInfoDialog(&iw);
 
-	if(ID == 59)
+	if(ID == Obj::OCEAN_BOTTLE)
 		cb->removeObject(id);
 }
 
@@ -5642,19 +5641,19 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 
 	switch(ID)
 	{
-	case 22: //Corpse
+	case Obj::CORPSE:
 		txtid = 37;
 		sound = soundBase::MYSTERY;
 		break;
-	case 39: //Lean To
+	case Obj::LEAN_TO:
 		sound = soundBase::GENIE;
 		txtid = 64;
 		break;
-	case 105://Wagon
+	case Obj::WAGON:
 		sound = soundBase::GENIE;
 		txtid = 154;
 		break;
-	case 108://Warrior's Tomb
+	case Obj::WARRIORS_TOMB:
 		{
 			//ask if player wants to search the Tomb
 			BlockingDialog bd(true, false);
@@ -5677,7 +5676,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 	if(players.size()) //we have been already visited...
 	{
 		txtid++;
-		if(ID == 105) //wagon has extra text (for finding art) we need to omit
+		if(ID == Obj::WAGON) //wagon has extra text (for finding art) we need to omit
 			txtid++;
 		iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
 	}
@@ -5686,7 +5685,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 		switch(artOrRes)
 		{
 		case 0: // first visit but empty
-			if (ID == 22) //Corpse
+			if (ID == Obj::CORPSE)
 				++txtid;
 			else
 				txtid+=2;
@@ -5696,7 +5695,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 			iw.components.push_back(Component(Component::ARTIFACT,bonusType,0,0));
 			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[bonusType],-2);
 			iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
-			if (ID == 22) //Corpse
+			if (ID == Obj::CORPSE)
 			{
 				iw.text << "%s";
 				iw.text.addReplacement(MetaString::ART_NAMES, bonusType);
@@ -5708,7 +5707,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 			cb->giveResource(h->getOwner(), bonusType, bonusVal);
 			break;
 		}
-		if(ID == 105  &&  artOrRes == 1)
+		if(ID == Obj::WAGON  &&  artOrRes == 1)
 		{
 			iw.text.localStrings.back().second++;
 			iw.text.addReplacement(MetaString::ART_NAMES, bonusType);
@@ -5734,7 +5733,7 @@ void CGOnceVisitable::initObj()
 {
 	switch(ID)
 	{
-	case 22: //Corpse
+	case Obj::CORPSE:
 		{
 			blockVisit = true;
 			int hlp = ran()%100;
@@ -5750,7 +5749,7 @@ void CGOnceVisitable::initObj()
 		}
 		break;
 
-	case 39: //Lean To
+	case Obj::LEAN_TO:
 		{
 			artOrRes = 2;
 			bonusType = ran()%6; //any basic resource without gold
@@ -5758,7 +5757,7 @@ void CGOnceVisitable::initObj()
 		}
 		break;
 
-	case 108://Warrior's Tomb
+	case Obj::WARRIORS_TOMB:
 		{
 			artOrRes = 1;
 
@@ -5774,7 +5773,7 @@ void CGOnceVisitable::initObj()
 		}
 		break;
 
-	case 105://Wagon
+	case Obj::WAGON:
 		{
 			int hlp = ran()%100;
 
@@ -5988,7 +5987,7 @@ void CBank::newTurn() const
 		{
 			initialize();
 			cb->setObjProperty (id, 11, 0); //daycounter 0
-			if (ID == 24 && cb->getDate(0) > 1)
+			if (ID == Obj::DERELICT_SHIP && cb->getDate(0) > 1)
 			{
 				cb->setObjProperty (id, 12, 0);//ugly hack to make derelict ships usable only once
 				cb->setObjProperty (id, 16, 0);
@@ -6010,27 +6009,27 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		int banktext = 0;
 		switch (ID)
 		{
-			case 16: //generic bank
-				banktext = 32;
-				break;
-			case 24:
-				banktext = 41;
-				break;
-			case 25: //utopia
-				banktext = 47;
-				break;
-			case 84: //crypt
-				banktext = 119;
-				break;
-			case 85: //shipwreck
-				banktext = 122;
-				break;
+		case Obj::CREATURE_BANK:
+			banktext = 32;
+			break;
+		case Obj::DERELICT_SHIP:
+			banktext = 41;
+			break;
+		case Obj::DRAGON_UTOPIA:
+			banktext = 47;
+			break;
+		case Obj::CRYPT:
+			banktext = 119;
+			break;
+		case Obj::SHIPWRECK:
+			banktext = 122;
+			break;
 		}
 		BlockingDialog bd (true, false);
 		bd.player = h->getOwner();
 		bd.soundID = soundBase::ROGUE;
 		bd.text << VLC->generaltexth->advobtxt[banktext];
-		if (ID == 16)
+		if (ID == Obj::CREATURE_BANK)
 			bd.text.addReplacement(VLC->objh->creBanksNames[index]);
 		cb->showBlockingDialog (&bd, boost::bind (&CBank::fightGuards, this, h, _1));
 	}
@@ -6039,7 +6038,7 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		InfoWindow iw;
 		iw.soundID = soundBase::GRAVEYARD;
 		iw.player = h->getOwner();
-		if (ID == 84) //morale penalty for empty Crypt
+		if (ID == Obj::CRYPT) //morale penalty for empty Crypt
 		{
 			GiveBonus gbonus;
 			gbonus.id = h->id;
@@ -6079,52 +6078,52 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 
 		switch (ID)
 		{
-			case 16: case 25:
-				textID = 34;
-				break;
-			case 24: //derelict ship
-				if (multiplier)
-					textID = 43;
-				else
-				{
-					GiveBonus gbonus;
-					gbonus.id = h->id;
-					gbonus.bonus.duration = Bonus::ONE_BATTLE;
-					gbonus.bonus.source = Bonus::OBJECT;
-					gbonus.bonus.sid = ID;
-					gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[101];
-					gbonus.bonus.type = Bonus::MORALE;
-					gbonus.bonus.val = -1;
-					cb->giveHeroBonus(&gbonus);
-					textID = 42;
-					iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
-				}
-				break;
-			case 84: //Crypt
-				if (bc->resources.size() != 0)
-					textID = 121;
-				else
-				{
-					iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
-					GiveBonus gbonus;
-					gbonus.id = h->id;
-					gbonus.bonus.duration = Bonus::ONE_BATTLE;
-					gbonus.bonus.source = Bonus::OBJECT;
-					gbonus.bonus.sid = ID;
-					gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[ID];
-					gbonus.bonus.type = Bonus::MORALE;
-					gbonus.bonus.val = -1;
-					cb->giveHeroBonus(&gbonus);
-					textID = 120;
-					iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
-				}
-				break;
-			case 85: //shipwreck
-				if (bc->resources.size())
-					textID = 124;
-				else
-					textID = 123;
-				break;
+		case Obj::CREATURE_BANK: case Obj::DRAGON_UTOPIA:
+			textID = 34;
+			break;
+		case Obj::DERELICT_SHIP:
+			if (multiplier)
+				textID = 43;
+			else
+			{
+				GiveBonus gbonus;
+				gbonus.id = h->id;
+				gbonus.bonus.duration = Bonus::ONE_BATTLE;
+				gbonus.bonus.source = Bonus::OBJECT;
+				gbonus.bonus.sid = ID;
+				gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[101];
+				gbonus.bonus.type = Bonus::MORALE;
+				gbonus.bonus.val = -1;
+				cb->giveHeroBonus(&gbonus);
+				textID = 42;
+				iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
+			}
+			break;
+		case Obj::CRYPT:
+			if (bc->resources.size() != 0)
+				textID = 121;
+			else
+			{
+				iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
+				GiveBonus gbonus;
+				gbonus.id = h->id;
+				gbonus.bonus.duration = Bonus::ONE_BATTLE;
+				gbonus.bonus.source = Bonus::OBJECT;
+				gbonus.bonus.sid = ID;
+				gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[ID];
+				gbonus.bonus.type = Bonus::MORALE;
+				gbonus.bonus.val = -1;
+				cb->giveHeroBonus(&gbonus);
+				textID = 120;
+				iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
+			}
+			break;
+		case Obj::SHIPWRECK:
+			if (bc->resources.size())
+				textID = 124;
+			else
+				textID = 123;
+			break;
 		}
 
 		//grant resources
@@ -6410,7 +6409,7 @@ ui8 CGBorderGate::getPassableness() const
 
 void CGMagi::initObj()
 {
-	if (ID == 27)
+	if (ID == Obj::EYE_OF_MAGI)
 	{
 		blockVisit = true;
 		eyelist[subID].push_back(id);
@@ -6418,7 +6417,7 @@ void CGMagi::initObj()
 }
 void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 {
-	if (ID == 37)
+	if (ID == Obj::HUT_OF_MAGI)
 	{
 		InfoWindow iw;
 		CenterView cv;
@@ -6445,7 +6444,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 		cv.pos = h->getPosition(false);
 		cb->sendAndApply(&cv);
 	}
-	else if (ID == 27)
+	else if (ID == Obj::EYE_OF_MAGI)
 	{
 		InfoWindow iw;
 		iw.player = h->tempOwner;
@@ -6538,18 +6537,18 @@ int3 IBoatGenerator::bestLocation() const
 	return int3 (-1,-1,-1);
 }
 
-int IBoatGenerator::state() const
+IBoatGenerator::EGeneratorState IBoatGenerator::state() const
 {
 	int3 tile = bestLocation();
 	const TerrainTile *t = IObjectInterface::cb->getTile(tile);
 	if(!t)
-		return 2; //no available water
+		return TILE_BLOCKED; //no available water
 	else if(!t->blockingObjects.size())
-		return 0; //OK
-	else if(t->blockingObjects.front()->ID == 8)
-		return 1; //blocked with boat
+		return GOOD; //OK
+	else if(t->blockingObjects.front()->ID == Obj::BOAT)
+		return BOAT_ALREADY_BUILT; //blocked with boat
 	else
-		return 2; //blocked
+		return TILE_BLOCKED; //blocked
 }
 
 int IBoatGenerator::getBoatType() const
@@ -6568,10 +6567,10 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 {
 	switch(state())
 	{
-	case 1:
+	case BOAT_ALREADY_BUILT:
 		out.addTxt(MetaString::GENERAL_TXT, 51);
 		break;
-	case 2:
+	case TILE_BLOCKED:
 		if(visitor)
 		{
 			out.addTxt(MetaString::GENERAL_TXT, 134);
@@ -6580,7 +6579,7 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 		else
 			out.addTxt(MetaString::ADVOB_TXT, 189);
 		break;
-	case 3:
+	case NO_WATER:
 		tlog1 << "Shipyard without water!!! " << o->pos << "\t" << o->id << std::endl;
 		return;
 	}
@@ -6603,11 +6602,11 @@ IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
 	if(!obj)
 		return NULL;
 
-	if(obj->ID == GameConstants::TOWNI_TYPE)
+	if(obj->ID == Obj::TOWN)
 	{
 		return static_cast<CGTownInstance*>(obj);
 	}
-	else if(obj->ID == 87)
+	else if(obj->ID == Obj::SHIPYARD)
 	{
 		return static_cast<CGShipyard*>(obj);
 	}
@@ -6643,8 +6642,8 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 	if(!cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner))
 		cb->setOwner(id, h->tempOwner);
 
-	int s = state();
-	if(s)
+	auto s = state();
+	if(s == IBoatGenerator::GOOD)
 	{
 		InfoWindow iw;
 		iw.player = tempOwner;
@@ -7094,15 +7093,15 @@ const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose /*= 
 {
 	switch(obj->ID)
 	{
-	case GameConstants::TOWNI_TYPE:
+	case Obj::TOWN:
 		return static_cast<const CGTownInstance*>(obj);
-	case 2: //Altar of Sacrifice
-	case 7: //Black Market
-	case 99: //Trading Post
-	case 221: //Trading Post (snow)
-	case 213: //Freelancer's Guild
+	case Obj::ALTAR_OF_SACRIFICE:
+	case Obj::BLACK_MARKET:
+	case Obj::TRADING_POST:
+	case Obj::TRADING_POST_SNOW:
+	case Obj::FREELANCERS_GUILD:
 		return static_cast<const CGMarket*>(obj);
-	case 104: //University
+	case Obj::UNIVERSITY:
 		return static_cast<const CGUniversity*>(obj);
 	default:
 		if(verbose)
@@ -7149,22 +7148,22 @@ bool CGMarket::allowsTrade(EMarketMode::EMarketMode mode) const
 	case EMarketMode::RESOURCE_PLAYER:
 		switch(ID)
 		{
-		case 99: //Trading Post
-		case 221: //Trading Post (snow)
+		case Obj::TRADING_POST:
+		case Obj::TRADING_POST_SNOW:
 			return true;
 		default:
 			return false;
 		}
 	case EMarketMode::CREATURE_RESOURCE:
-		return ID == 213; //Freelancer's Guild
+		return ID == Obj::FREELANCERS_GUILD;
 	//case ARTIFACT_RESOURCE:
 	case EMarketMode::RESOURCE_ARTIFACT:
-		return ID == 7; //Black Market
+		return ID == Obj::BLACK_MARKET;
 	case EMarketMode::ARTIFACT_EXP:
 	case EMarketMode::CREATURE_EXP:
-		return ID == 2; //TODO? check here for alignment of visiting hero? - would not be coherent with other checks here
+		return ID == Obj::ALTAR_OF_SACRIFICE; //TODO? check here for alignment of visiting hero? - would not be coherent with other checks here
 	case EMarketMode::RESOURCE_SKILL:
-		return ID == 104;//University
+		return ID == Obj::UNIVERSITY;
 	default:
 		return false;
 	}

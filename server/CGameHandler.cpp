@@ -541,7 +541,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 				MoveArtifact ma;
 				ma.src = ArtifactLocation (loserHero, artSlot.first);
 				const CArtifactInstance * art =  ma.src.getArt();
-				if (art && !art->artType->isBig() && art->id != ArtifactId::SPELLBOOK) // don't move war machines or locked arts (spellbook)
+				if (art && !art->artType->isBig() && art->id != 0) // don't move war machines or locked arts (spellbook)
 				{
 					arts.push_back (art->artType->id);
 					ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
@@ -1667,7 +1667,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
 	if(((t.tertype == TerrainTile::rock  ||  (t.blocked && !t.visitable && !h->hasBonusOfType(Bonus::FLYING_MOVEMENT) ))
 			&& complain("Cannot move hero, destination tile is blocked!"))
-		|| ((!h->boat && !h->canWalkOnSea() && t.tertype == TerrainTile::water && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != 8 && t.visitableObjects.back()->ID != GameConstants::HEROI_TYPE)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+		|| ((!h->boat && !h->canWalkOnSea() && t.tertype == TerrainTile::water && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != 8 && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
 		|| ((h->boat && t.tertype != TerrainTile::water && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
@@ -1682,7 +1682,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	}
 
 	//hero enters the boat
-	if(!h->boat && t.visitableObjects.size() && t.visitableObjects.back()->ID == 8)
+	if(!h->boat && t.visitableObjects.size() && t.visitableObjects.back()->ID == Obj::BOAT)
 	{
 		tmh.result = TryMoveHero::EMBARK;
 		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, false);
@@ -1764,7 +1764,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	{
 		BOOST_FOREACH(CGObjectInstance* obj, t.blockingObjects)
 		{
-			if(obj->ID==GameConstants::HEROI_TYPE)
+			if(obj->ID==Obj::HERO)
 			{
 				CGHeroInstance *dh = static_cast<CGHeroInstance *>(obj);
 
@@ -1833,7 +1833,7 @@ void CGameHandler::setOwner(int objid, ui8 owner)
 	const CGObjectInstance * obj = getObj(objid);
 	const PlayerState * p = gs->getPlayer(owner);
 
-	if((obj->ID == 17 || obj->ID == 20 ) && p && p->dwellings.size()==1)//first dwelling captured
+	if((obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4 ) && p && p->dwellings.size()==1)//first dwelling captured
 	{
 		BOOST_FOREACH(const CGTownInstance *t, gs->getPlayer(owner)->towns)
 		{
@@ -1994,8 +1994,8 @@ void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstanc
 void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb, bool creatureBank )
 {
 	startBattleI(army1, army2, tile,
-		army1->ID == GameConstants::HEROI_TYPE ? static_cast<const CGHeroInstance*>(army1) : NULL,
-		army2->ID == GameConstants::HEROI_TYPE ? static_cast<const CGHeroInstance*>(army2) : NULL,
+		army1->ID == Obj::HERO ? static_cast<const CGHeroInstance*>(army1) : NULL,
+		army2->ID == Obj::HERO ? static_cast<const CGHeroInstance*>(army2) : NULL,
 		creatureBank, cb);
 }
 
@@ -2565,11 +2565,12 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 from
 
 	//TODO: test for owning
 
-	if(dw->ID == GameConstants::TOWNI_TYPE)
+	if(dw->ID == Obj::TOWN)
 		dst = (static_cast<const CGTownInstance *>(dw))->getUpperArmy();
-	else if(dw->ID == 17  ||  dw->ID == 20  ||  dw->ID == 78) //advmap dwelling
+	else if(dw->ID == Obj::CREATURE_GENERATOR1  ||  dw->ID == Obj::CREATURE_GENERATOR4  
+		||  dw->ID == Obj::REFUGEE_CAMP) //advmap dwelling
 		dst = getHero(gs->getPlayer(dw->tempOwner)->currentSelection); //TODO: check if current hero is really visiting dwelling
-	else if(dw->ID == 106)
+	else if(dw->ID == Obj::WAR_MACHINE_FACTORY)
 		dst = dynamic_cast<const CGHeroInstance *>(getTile(dw->visitablePos())->visitableObjects.back());
 
 	assert(dw && dst);
@@ -2874,7 +2875,7 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assem
 	return false;
 }
 
-bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
+bool CGameHandler::buyArtifact( ui32 hid, TArtifactID aid )
 {
 	CGHeroInstance *hero = gs->getHero(hid);
 	CGTownInstance *town = hero->visitedTown;
@@ -2933,7 +2934,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, int ri
 
 
 	SetAvailableArtifacts saa;
-	if(m->o->ID == GameConstants::TOWNI_TYPE)
+	if(m->o->ID == Obj::TOWN)
 	{
 		saa.id = -1;
 		saa.arts = CGTownInstance::merchantArtifacts;
@@ -2966,7 +2967,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, int ri
 	return true;
 }
 
-bool CGameHandler::sellArtifact(const IMarket *m, const CGHeroInstance *h, int aid, int rid)
+bool CGameHandler::sellArtifact(const IMarket *m, const CGHeroInstance *h, TArtifactID aid, int rid)
 {
 	const CArtifactInstance *art = h->getArtByInstanceId(aid);
 	if(!art)
@@ -3157,7 +3158,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 			|| (t->visitingHero  && complain("There is visiting hero - no place!")))
 			return false;
 	}
-	else if(obj->ID == 95) //Tavern on adv map
+	else if(obj->ID == Obj::TAVERN)
 	{
 		if(getTile(obj->visitablePos())->visitableObjects.back() != obj  &&  complain("Tavern entry must be unoccupied!"))
 			return false;
@@ -4865,19 +4866,19 @@ bool CGameHandler::isAllowedExchange( int id1, int id2 )
 	const CGObjectInstance *o1 = getObj(id1), *o2 = getObj(id2);
 	if (o1 && o2)
 	{
-		if(o1->ID == GameConstants::TOWNI_TYPE)
+		if(o1->ID == Obj::TOWN)
 		{
 			const CGTownInstance *t = static_cast<const CGTownInstance*>(o1);
 			if(t->visitingHero == o2  ||  t->garrisonHero == o2)
 				return true;
 		}
-		if(o2->ID == GameConstants::TOWNI_TYPE)
+		if(o2->ID == Obj::TOWN)
 		{
 			const CGTownInstance *t = static_cast<const CGTownInstance*>(o2);
 			if(t->visitingHero == o1  ||  t->garrisonHero == o1)
 				return true;
 		}
-		if(o1->ID == GameConstants::HEROI_TYPE && o2->ID == GameConstants::HEROI_TYPE
+		if(o1->ID == Obj::HERO && o2->ID == Obj::HERO
 			&& distance(o1->pos, o2->pos) < 2) //hero stands on the same tile or on the neighbouring tiles
 		{
 			//TODO: it's workaround, we should check if first hero visited second and player hasn't closed exchange window
@@ -4911,12 +4912,12 @@ bool CGameHandler::buildBoat( ui32 objid )
 {
 	const IShipyard *obj = IShipyard::castFrom(getObj(objid));
 
-	if(obj->state())
+	if(obj->state() != IBoatGenerator::GOOD)
 	{
 		complain("Cannot build boat in this shipyard!");
 		return false;
 	}
-	else if(obj->o->ID == GameConstants::TOWNI_TYPE
+	else if(obj->o->ID == Obj::TOWN
 	        && !static_cast<const CGTownInstance*>(obj)->hasBuilt(EBuilding::SHIPYARD))
 	{
 		complain("Cannot build boat in the town - no shipyard!");
@@ -5169,7 +5170,7 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 {
 	for (std::vector<ConstTransitivePtr<CGObjectInstance> >::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++) //unflag objs
 	{
-		if(*i && (*i)->ID == 124  &&  (*i)->pos == h->getPosition())
+		if(*i && (*i)->ID == Obj::HOLE  &&  (*i)->pos == h->getPosition())
 		{
 			complain("Cannot dig - there is already a hole under the hero!");
 			return false;
@@ -5181,7 +5182,7 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 
 	//create a hole
 	NewObject no;
-	no.ID = 124;
+	no.ID = Obj::HOLE;
 	no.pos = h->getPosition();
 	no.subID = getTile(no.pos)->tertype;
 	sendAndApply(&no);
@@ -5373,7 +5374,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 
 			BOOST_FOREACH(const CGObjectInstance *obj, gs->map->objects)
 			{
-				if(obj && obj->ID == 8)
+				if(obj && obj->ID == Obj::BOAT)
 				{
 					const CGBoat *b = static_cast<const CGBoat*>(obj);
 					if(b->hero) continue; //we're looking for unoccupied boat
@@ -5430,7 +5431,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 
 			//TODO: test range, visibility
 			const TerrainTile *t = &gs->map->getTile(pos);
-			if(!t->visitableObjects.size() || t->visitableObjects.back()->ID != 8)
+			if(!t->visitableObjects.size() || t->visitableObjects.back()->ID != Obj::BOAT)
 				COMPLAIN_RET("There is no boat to scuttle!");
 
 			RemoveObject ro;
@@ -5512,7 +5513,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 			if (!gs->map->isInTheMap(pos))
 				COMPLAIN_RET("Destination tile not present!")
 			TerrainTile tile = gs->map->getTile(pos);
-			if (tile.visitableObjects.empty() || tile.visitableObjects.back()->ID != GameConstants::TOWNI_TYPE )
+			if (tile.visitableObjects.empty() || tile.visitableObjects.back()->ID != Obj::TOWN )
 				COMPLAIN_RET("Town not found for Town Portal!");
 
 			CGTownInstance * town = static_cast<CGTownInstance*>(tile.visitableObjects.back());

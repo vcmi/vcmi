@@ -34,9 +34,9 @@ namespace ArtifactPosition
 	};
 }
 
-namespace ArtifactId
+namespace ArtifactPos
 {
-	enum ArtifactId
+	enum ArtifactPos
 	{
 		SPELLBOOK = 17
 	};
@@ -110,7 +110,7 @@ public:
 	CArtifactInstance();
 
 	ConstTransitivePtr<CArtifact> artType; 
-	si32 id; //id of the instance
+	TArtifactID id; //id of the instance
 
 	//CArtifactInstance(int aid);
 
@@ -189,9 +189,9 @@ public:
 
 class DLL_LINKAGE CArtHandler //handles artifacts
 {
-	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = NULL, int additionalinfo = 0);
-	void giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
-	void giveArtBonus(int aid, Bonus *bonus);
+	void giveArtBonus(TArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = NULL, int additionalinfo = 0);
+	void giveArtBonus(TArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
+	void giveArtBonus(TArtifactID aid, Bonus *bonus);
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector< ConstTransitivePtr<CArtifact> > artifacts;
@@ -208,14 +208,14 @@ public:
 	ui16 getArtSync (ui32 rand, int flags);
 	void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
 	void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
-	void erasePickedArt (si32 id);
-	bool isBigArtifact (ui32 artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
+	void erasePickedArt (TArtifactID id);
+	bool isBigArtifact (TArtifactID artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
 // 	void equipArtifact (std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art) const;
 // 	void unequipArtifact (std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID) const;
 	void initAllowedArtifactsList(const std::vector<ui8> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	static int convertMachineID(int id, bool creToArt);
-	void makeItCreatureArt (int aid, bool onlyCreature = true);
-	void makeItCommanderArt (int aid, bool onlyCommander = true);
+	void makeItCreatureArt (TArtifactID aid, bool onlyCreature = true);
+	void makeItCommanderArt (TArtifactID aid, bool onlyCommander = true);
 	CArtHandler();
 	~CArtHandler();
 
@@ -257,7 +257,7 @@ public:
 	CArtifactInstance* getArt(ui16 pos, bool excludeLocked = true); //NULL - no artifact
 	si32 getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
 	si32 getArtPos(const CArtifactInstance *art) const;
-	const CArtifactInstance *getArtByInstanceId(int artInstId) const;
+	const CArtifactInstance *getArtByInstanceId(TArtifactID artInstId) const;
 	bool hasArt(ui32 aid, bool onlyWorn = false) const; //checks if hero possess artifact of given id (either in backack or worn)
 	bool isPositionFree(ui16 pos, bool onlyLockCheck = false) const;
 	si32 getArtTypeId(ui16 pos) const;

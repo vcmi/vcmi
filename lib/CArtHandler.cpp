@@ -448,7 +448,7 @@ void CArtHandler::sortArts()
  	//	}
  	//}
 }
-void CArtHandler::erasePickedArt (si32 id)
+void CArtHandler::erasePickedArt (TArtifactID id)
 {
 	std::vector<CArtifact*>* ptr;
 	CArtifact *art = artifacts[id];
@@ -545,17 +545,17 @@ Bonus *createBonus(Bonus::BonusType type, int val, int subtype, shared_ptr<IProp
 	return added;
 }
 
-void CArtHandler::giveArtBonus( int aid, Bonus::BonusType type, int val, int subtype, int valType, shared_ptr<ILimiter> limiter, int additionalInfo)
+void CArtHandler::giveArtBonus( TArtifactID aid, Bonus::BonusType type, int val, int subtype, int valType, shared_ptr<ILimiter> limiter, int additionalInfo)
 {
 	giveArtBonus(aid, createBonus(type, val, subtype, valType, limiter, additionalInfo));
 }
 
-void CArtHandler::giveArtBonus(int aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator /*= NULL*/, int additionalInfo)
+void CArtHandler::giveArtBonus(TArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator /*= NULL*/, int additionalInfo)
 {
 	giveArtBonus(aid, createBonus(type, val, subtype, propagator, additionalInfo));
 }
 
-void CArtHandler::giveArtBonus(int aid, Bonus *bonus)
+void CArtHandler::giveArtBonus(TArtifactID aid, Bonus *bonus)
 {
 	bonus->sid = aid;
 	if(bonus->subtype == Bonus::MORALE || bonus->type == Bonus::LUCK)
@@ -566,7 +566,7 @@ void CArtHandler::giveArtBonus(int aid, Bonus *bonus)
 	artifacts[aid]->addNewBonus(bonus);
 }
 
-void CArtHandler::makeItCreatureArt (int aid, bool onlyCreature /*=true*/)
+void CArtHandler::makeItCreatureArt (TArtifactID aid, bool onlyCreature /*=true*/)
 {
 	CArtifact *a = artifacts[aid];
 	if (onlyCreature)
@@ -577,7 +577,7 @@ void CArtHandler::makeItCreatureArt (int aid, bool onlyCreature /*=true*/)
 	a->possibleSlots[ArtBearer::CREATURE].push_back(ArtifactPosition::CREATURE_SLOT);
 }
 
-void CArtHandler::makeItCommanderArt (int aid, bool onlyCommander /*=true*/)
+void CArtHandler::makeItCommanderArt (TArtifactID aid, bool onlyCommander /*=true*/)
 {
 	CArtifact *a = artifacts[aid];
 	if (onlyCommander)
@@ -1456,7 +1456,7 @@ si32 CArtifactSet::getArtPos(const CArtifactInstance *art) const
 	return -1;
 }
 
-const CArtifactInstance * CArtifactSet::getArtByInstanceId(int artInstId) const
+const CArtifactInstance * CArtifactSet::getArtByInstanceId( TArtifactID artInstId ) const
 {
 	for(std::map<ui16, ArtSlotInfo>::const_iterator i = artifactsWorn.begin(); i != artifactsWorn.end(); i++)
 		if(i->second.artifact->id == artInstId)

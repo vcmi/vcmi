@@ -211,7 +211,7 @@ bool HireHero::applyGh( CGameHandler *gh )
 {
 	const CGObjectInstance *obj = gh->getObj(tid);
 
-	if(obj->ID == GameConstants::TOWNI_TYPE)
+	if(obj->ID == Obj::TOWN)
 		ERROR_IF_NOT_OWNS(tid);
 	//TODO check for visiting hero
 

@@ -451,10 +451,10 @@ struct DLL_LINKAGE Mapa : public CMapHeader
 
 				switch (objects[i]->ID)
 				{
-					case GameConstants::HEROI_TYPE:
+					case Obj::HERO:
 						heroes.push_back (static_cast<CGHeroInstance*>(+objects[i]));
 						break;
-					case GameConstants::TOWNI_TYPE:
+					case Obj::TOWN:
 						towns.push_back (static_cast<CGTownInstance*>(+objects[i]));
 						break;
 				}
@@ -488,7 +488,7 @@ struct DLL_LINKAGE Mapa : public CMapHeader
 				//hero stands on the water - he must be in the boat
 				for(ui32 j = 0; j < t.visitableObjects.size(); j++)
 				{
-					if(t.visitableObjects[j]->ID == 8)
+					if(t.visitableObjects[j]->ID == Obj::BOAT)
 					{
 						CGBoat *b = static_cast<CGBoat *>(t.visitableObjects[j]);
 						heroes[i]->boat = b;

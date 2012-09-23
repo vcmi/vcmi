@@ -65,10 +65,10 @@ public:
 	ui32 skillLimit; //how many secondary skills can hero learn
 	std::string name;
 	double aggression;
-	int initialAttack, initialDefence, initialPower, initialKnowledge; //initial values of primary skills
+	int initialPrimSkills[GameConstants::PRIMARY_SKILLS]; //initial values of primary skills, uses PrimarySkill enum
 	std::vector<std::pair<int,int> > primChance;//primChance[PRIMARY_SKILL_ID] - first is for levels 2 - 9, second for 10+;;; probability (%) of getting point of primary skill when getting new level
 	std::vector<int> proSec; //probabilities of gaining secondary skills (out of 112), in id order
-	int selectionProbability[9]; //probability of selection in towns
+	int selectionProbability[GameConstants::F_NUMBER]; //probability of selection in towns
 
 	int chooseSecSkill(const std::set<int> & possibles) const; //picks secondary skill out from given possibilities
 	CHeroClass(); //c-tor
@@ -76,10 +76,10 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & skillLimit & name & aggression & initialAttack & initialDefence & initialPower & initialKnowledge & primChance
+		h & skillLimit & name & aggression & initialPrimSkills & primChance
 			& proSec & selectionProbability & alignment;
 	}
-	EAlignment::EAlignment getAlignment();
+	EAlignment::EAlignment getAlignment() const;
 };
 
 struct DLL_LINKAGE CObstacleInfo

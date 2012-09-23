@@ -346,14 +346,14 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	ERROR_RET_IF(!obj, "No guild object!");
-	ERROR_RET_IF(obj->ID == GameConstants::TOWNI_TYPE && !canGetFullInfo(obj), "Cannot get info about town guild object!");
+	ERROR_RET_IF(obj->ID == Obj::TOWN && !canGetFullInfo(obj), "Cannot get info about town guild object!");
 	//TODO: advmap object -> check if they're visited by our hero
 
-	if(obj->ID == GameConstants::TOWNI_TYPE  ||  obj->ID == 95) //it is a town or adv map tavern
+	if(obj->ID == Obj::TOWN  ||  obj->ID == Obj::TAVERN)
 	{
 		gs->obtainPlayersStats(thi, gs->players[obj->tempOwner].towns.size());
 	}
-	else if(obj->ID == 97) //Den of Thieves
+	else if(obj->ID == Obj::DEN_OF_THIEVES)
 	{
 		gs->obtainPlayersStats(thi, 20);
 	}
@@ -371,7 +371,7 @@ bool CGameInfoCallback::getTownInfo( const CGObjectInstance *town, InfoAboutTown
 	bool detailed = hasAccess(town->tempOwner);
 
 	//TODO vision support
-	if(town->ID == GameConstants::TOWNI_TYPE)
+	if(town->ID == Obj::TOWN)
 		dest.initFromTown(static_cast<const CGTownInstance *>(town), detailed);
 	else if(town->ID == Obj::GARRISON || town->ID == Obj::GARRISON2)
 		dest.initFromArmy(static_cast<const CArmedInstance *>(town), detailed);
@@ -492,7 +492,7 @@ std::vector <const CGObjectInstance * > CGameInfoCallback::getVisitableObjs(int3
 
 	BOOST_FOREACH(const CGObjectInstance * obj, t->visitableObjects)
 	{
-		if(player < 0 || obj->ID != GameConstants::EVENTI_TYPE) //hide events from players
+		if(player < 0 || obj->ID != Obj::EVENT) //hide events from players
 			ret.push_back(obj);
 	}
 
@@ -690,7 +690,7 @@ bool CGameInfoCallback::isOwnedOrVisited(const CGObjectInstance *obj) const
 
 	const TerrainTile *t = getTile(obj->visitablePos()); //get entrance tile
 	const CGObjectInstance *visitor = t->visitableObjects.back(); //visitong hero if present or the obejct itself at last
-	return visitor->ID == GameConstants::HEROI_TYPE && canGetFullInfo(visitor); //owned or allied hero is a visitor
+	return visitor->ID == Obj::HERO && canGetFullInfo(visitor); //owned or allied hero is a visitor
 }
 
 int CGameInfoCallback::getCurrentPlayer() const

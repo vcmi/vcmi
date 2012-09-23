@@ -502,7 +502,7 @@ void CKingdomInterface::generateObjectsList(const std::vector<const CGObjectInst
 	BOOST_FOREACH(const CGObjectInstance * object, ownedObjects)
 	{
 		//Dwellings
-		if ( object->ID == 17 )
+		if ( object->ID == Obj::CREATURE_GENERATOR1 )
 		{
 			OwnedObjectInfo &info = visibleObjects[object->subID];
 			if (info.count++ == 0)
@@ -566,7 +566,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	BOOST_FOREACH(const CGObjectInstance * object, ownedObjects)
 	{
 		//Mines
-		if ( object->ID == 53 )
+		if ( object->ID == Obj::MINE )
 		{
 			const CGMine *mine = dynamic_cast<const CGMine*>(object);
 			assert(mine);

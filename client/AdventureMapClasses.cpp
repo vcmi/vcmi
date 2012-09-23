@@ -357,7 +357,7 @@ const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 	BOOST_FOREACH(const CGObjectInstance *obj, tile->blockingObjects)
 	{
 		//heroes will be blitted later
-		if (obj->ID == GameConstants::HEROI_TYPE)
+		if (obj->ID == Obj::HERO)
 			continue;
 
 		int player = obj->getOwner();

@@ -933,7 +933,7 @@ CGObjectInstance * Mapa::loadHero(const ui8 * bufor, int &i, int idToBeGiven)
 	{
 		if(readChar(bufor,i))//customPrimSkills
 		{
-			for(int xx=0;xx<4;xx++)
+			for(int xx=0; xx<GameConstants::PRIMARY_SKILLS; xx++)
 				nhi->pushPrimSkill(xx, bufor[i++]);
 		}
 	}
@@ -1066,7 +1066,7 @@ void Mapa::readPredefinedHeroes( const ui8 * bufor, int &i)
 				if(!custom)
 					continue;
 				CGHeroInstance * cgh = new CGHeroInstance;
-				cgh->ID = GameConstants::HEROI_TYPE;
+				cgh->ID = Obj::HERO;
 				cgh->subID = z;
 				if(readChar(bufor,i))//true if hore's experience is greater than 0
 				{	cgh->exp = read_le_u32(bufor + i); i+=4;	}
@@ -1106,7 +1106,7 @@ void Mapa::readPredefinedHeroes( const ui8 * bufor, int &i)
 				}
 				if(readChar(bufor,i))//customPrimSkills
 				{
-					for(int xx=0;xx<4;xx++)
+					for(int xx=0; xx<GameConstants::PRIMARY_SKILLS; xx++)
 						cgh->pushPrimSkill(xx, bufor[i++]);
 				}
 				predefinedHeroes.push_back(cgh);
@@ -1202,7 +1202,7 @@ void Mapa::readDefInfo( const ui8 * bufor, int &i)
 			vinya->visitMap[zi] = reverse(bytes[6+zi]);
 		}
 		i+=16;
-		if(vinya->id!=GameConstants::HEROI_TYPE && vinya->id!=70)
+		if(vinya->id!=Obj::HERO && vinya->id!=70)
 		{
 			CGDefInfo *h = VLC->dobjinfo->gobjs[vinya->id][vinya->subid];
 			if(!h) 
@@ -1223,7 +1223,7 @@ void Mapa::readDefInfo( const ui8 * bufor, int &i)
 			vinya->visitDir = 0xff;
 		}
 
-		if(vinya->id == GameConstants::EVENTI_TYPE)
+		if(vinya->id == Obj::EVENT)
 			std::memset(vinya->blockMap,255,6);
 
 		//calculating coverageMap
@@ -1268,7 +1268,7 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 
 		switch(defInfo->id)
 		{
-		case GameConstants::EVENTI_TYPE: //for event objects
+		case Obj::EVENT: //for event objects
 			{
 				CGEvent *evnt = new CGEvent();
 				nobj = evnt;
@@ -1886,14 +1886,14 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 		nobj->pos = pos;
 		nobj->ID = defInfo->id;
 		nobj->id = idToBeGiven;
-		if(nobj->ID != GameConstants::HEROI_TYPE && nobj->ID != 214 && nobj->ID != 62)
+		if(nobj->ID != Obj::HERO && nobj->ID != Obj::HERO_PLACEHOLDER && nobj->ID != Obj::PRISON)
 			nobj->subID = defInfo->subid;
 		nobj->defInfo = defInfo;
 		assert(idToBeGiven == objects.size());
 		objects.push_back(nobj);
-		if(nobj->ID==GameConstants::TOWNI_TYPE)
+		if(nobj->ID==Obj::TOWN)
 			towns.push_back(static_cast<CGTownInstance*>(nobj));
-		if(nobj->ID==GameConstants::HEROI_TYPE)
+		if(nobj->ID==Obj::HERO)
 			heroes.push_back(static_cast<CGHeroInstance*>(nobj));
 	}
 
@@ -2049,9 +2049,9 @@ const CGObjectInstance *Mapa::getObjectiveObjectFrom(int3 pos, bool lookForHero)
 {
 	const std::vector <CGObjectInstance*> &objs = getTile(pos).visitableObjects;
 	assert(objs.size());
-	if(objs.size() > 1 && lookForHero && objs.front()->ID != GameConstants::HEROI_TYPE)
+	if(objs.size() > 1 && lookForHero && objs.front()->ID != Obj::HERO)
 	{
-		assert(objs.back()->ID == GameConstants::HEROI_TYPE);
+		assert(objs.back()->ID == Obj::HERO);
 		return objs.back();
 	}
 	else

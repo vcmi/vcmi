@@ -213,9 +213,9 @@ void CModHandler::recreateAdvMapDefs()
 	BOOST_FOREACH (auto creature, creatures)
 	{
 		//generate adventure map object info & graphics
-		CGDefInfo* nobj = new CGDefInfo (*VLC->dobjinfo->gobjs[GameConstants::CREI_TYPE][0]);//copy all typical properties
+		CGDefInfo* nobj = new CGDefInfo (*VLC->dobjinfo->gobjs[Obj::MONSTER][0]);//copy all typical properties
 		nobj->name = creature->advMapDef; //change only def name (?)
-		VLC->dobjinfo->gobjs[GameConstants::CREI_TYPE][creature->idNumber] = nobj;
+		VLC->dobjinfo->gobjs[Obj::MONSTER][creature->idNumber] = nobj;
 	}
 }
 void CModHandler::recreateHandlers()

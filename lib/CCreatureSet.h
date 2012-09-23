@@ -34,7 +34,7 @@ public:
 	int idRand; //hlp variable used during loading game -> "id" placeholder for randomization
 
 	const CArmedInstance * const & armyObj; //stack must be part of some army, army must be part of some object
-	expType experience;//commander needs same amount of exp as hero
+	TExpType experience;//commander needs same amount of exp as hero
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -66,7 +66,7 @@ public:
 	void setType(int creID);
 	void setType(const CCreature *c);
 	void setArmyObj(const CArmedInstance *ArmyObj);
-	virtual void giveStackExp(expType exp);
+	virtual void giveStackExp(TExpType exp);
 	bool valid(bool allowUnrandomized) const;
 	ui8 bearerType() const OVERRIDE; //from CArtifactSet
 	virtual std::string nodeName() const OVERRIDE; //from CBonusSystemnode
@@ -90,7 +90,7 @@ public:
 	CCommanderInstance (TCreature id);
 	~CCommanderInstance();
 	void setAlive (bool alive);
-	void giveStackExp (expType exp);
+	void giveStackExp (TExpType exp);
 	void levelUp ();
 
 	ui64 getPower() const {return 0;};
@@ -158,8 +158,8 @@ public:
 	void setStackCount(TSlot slot, TQuantity count); //stack must exist!
 	CStackInstance *detachStack(TSlot slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else or safely deleted)
 	void setStackType(TSlot slot, const CCreature *type);
-	void giveStackExp(expType exp);
-	void setStackExp(TSlot slot, expType exp);
+	void giveStackExp(TExpType exp);
+	void setStackExp(TSlot slot, TExpType exp);
 
 	//derivative
 	void eraseStack(TSlot slot); //slot must be occupied
@@ -172,7 +172,7 @@ public:
 	const CStackInstance* getStackPtr(TSlot slot) const; //if stack doesn't exist, returns NULL
 	const CCreature* getCreature(TSlot slot) const; //workaround of map issue;
 	int getStackCount (TSlot slot) const;
-	expType getStackExperience(TSlot slot) const;
+	TExpType getStackExperience(TSlot slot) const;
 	TSlot findStack(const CStackInstance *stack) const; //-1 if none
 	TSlot getSlotFor(TCreature creature, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
 	TSlot getSlotFor(const CCreature *c, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available

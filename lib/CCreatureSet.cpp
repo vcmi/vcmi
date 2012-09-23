@@ -97,7 +97,7 @@ int CCreatureSet::getStackCount(TSlot slot) const
 		return 0; //TODO? consider issuing a warning
 }
 
-expType CCreatureSet::getStackExperience(TSlot slot) const
+TExpType CCreatureSet::getStackExperience(TSlot slot) const
 {
 	TSlots::const_iterator i = stacks.find(slot);
 	if (i != stacks.end())
@@ -248,12 +248,12 @@ void CCreatureSet::setStackCount(TSlot slot, TQuantity count)
 	armyChanged();
 }
 
-void CCreatureSet::giveStackExp(expType exp)
+void CCreatureSet::giveStackExp(TExpType exp)
 {
 	for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); i++)
 		i->second->giveStackExp(exp);
 }
-void CCreatureSet::setStackExp(TSlot slot, expType exp)
+void CCreatureSet::setStackExp(TSlot slot, TExpType exp)
 {
 	assert(hasStackAtSlot(slot));
 	stacks[slot]->experience = exp;
@@ -519,7 +519,7 @@ si32 CStackInstance::magicResistance() const
 	return val;
 }
 
-void CStackInstance::giveStackExp(expType exp)
+void CStackInstance::giveStackExp(TExpType exp)
 {
 	int level = type->level;
 	if (!vstd::iswithin(level, 1, 7))
@@ -528,7 +528,7 @@ void CStackInstance::giveStackExp(expType exp)
 	CCreatureHandler * creh = VLC->creh;
 	ui32 maxExp = creh->expRanks[level].back();
 
-	vstd::amin(exp, (expType)maxExp); //prevent exp overflow due to different types
+	vstd::amin(exp, (TExpType)maxExp); //prevent exp overflow due to different types
 	vstd::amin(exp, (maxExp * creh->maxExpPerBattle[level])/100);
 	vstd::amin(experience += exp, maxExp); //can't get more exp than this limit
 }
@@ -1020,7 +1020,7 @@ void CCommanderInstance::setAlive (bool Alive)
 	}
 }
 
-void CCommanderInstance::giveStackExp (expType exp)
+void CCommanderInstance::giveStackExp (TExpType exp)
 {
 	if (alive)
 		experience += exp;

@@ -434,7 +434,7 @@ void SetAvailableCreatures::applyCl( CClient *cl )
 	//inform order about the change
 
 	int p = -1;
-	if(dw->ID == 106) //War Machines Factory is not flaggable, it's "owned" by visitor
+	if(dw->ID == Obj::WAR_MACHINE_FACTORY) //War Machines Factory is not flaggable, it's "owned" by visitor
 		p = cl->getTile(dw->visitablePos())->visitableObjects.back()->tempOwner;
 	else
 		p = dw->tempOwner;
@@ -923,15 +923,15 @@ void TradeComponents::applyCl(CClient *cl)
 {///Shop handler
 	switch (CGI->mh->map->objects[objectid]->ID)
 	{
-		case 7: //Black Market
-			break;
-		case 95: //Tavern
-			break;
-		case 97: //Den of Thieves
-			break;
-		case 221: //Trading Post
-			break;
-		default:
-			tlog2 << "Shop type not supported! \n";
+	case Obj::BLACK_MARKET:
+		break;
+	case Obj::TAVERN:
+		break;
+	case Obj::DEN_OF_THIEVES:
+		break;
+	case Obj::TRADING_POST_SNOW:
+		break;
+	default:
+		tlog2 << "Shop type not supported! \n";
 	}
 }

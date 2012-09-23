@@ -44,7 +44,7 @@ int CHeroClass::chooseSecSkill(const std::set<int> & possibles) const //picks se
 	throw std::runtime_error("Cannot pick secondary skill!");
 }
 
-EAlignment::EAlignment CHeroClass::getAlignment()
+EAlignment::EAlignment CHeroClass::getAlignment() const
 {
 	return (EAlignment::EAlignment)alignment;
 }
@@ -240,10 +240,10 @@ void CHeroHandler::loadHeroClasses()
 
 		hc->name             = parser.readString();
 		hc->aggression       = parser.readNumber();
-		hc->initialAttack    = parser.readNumber();
-		hc->initialDefence   = parser.readNumber();
-		hc->initialPower     = parser.readNumber();
-		hc->initialKnowledge = parser.readNumber();
+		for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
+		{
+			hc->initialPrimSkills[g] = parser.readNumber();
+		}
 
 		hc->primChance.resize(GameConstants::PRIMARY_SKILLS);
 		for(int x=0; x<GameConstants::PRIMARY_SKILLS; ++x)

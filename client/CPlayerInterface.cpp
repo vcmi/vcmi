@@ -1095,7 +1095,8 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 				ki->townChanged(townObj);
 		}
 	}
-	else if(GH.listInt.size() && (town->ID == 17  ||  town->ID == 20  ||  town->ID == 106)) //external dwelling
+	else if(GH.listInt.size() && (town->ID == Obj::CREATURE_GENERATOR1
+		||  town->ID == Obj::CREATURE_GENERATOR4  ||  town->ID == Obj::WAR_MACHINE_FACTORY))
 	{
 		CRecruitmentWindow *crw = dynamic_cast<CRecruitmentWindow*>(GH.topInt());
 		if(crw && crw->dwelling == town)
@@ -1370,7 +1371,7 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 				adventureInt->minimap.showTile(*it);
 		}
 
-		if(obj->ID == GameConstants::TOWNI_TYPE)
+		if(obj->ID == Obj::TOWN)
 		{
 			if(obj->tempOwner == playerID)
 				towns.push_back(static_cast<const CGTownInstance *>(obj));
@@ -1453,7 +1454,7 @@ void CPlayerInterface::waitWhileDialog(bool unlockPim /*= true*/)
 void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	int state = obj->state();
+	auto state = obj->state();
 	std::vector<si32> cost;
 	obj->getBoatCost(cost);
 	CShipyardWindow *csw = new CShipyardWindow(cost, state, obj->getBoatType(), boost::bind(&CCallback::buildBoat, cb, obj));
@@ -1464,12 +1465,12 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	//we might have built a boat in shipyard in opened town screen
-	if(obj->ID == 8
+	if(obj->ID == Obj::BOAT
 		&& LOCPLINT->castleInt
 		&&  obj->pos-obj->getVisitableOffset() == LOCPLINT->castleInt->town->bestLocation())
 	{
 		CCS->soundh->playSound(soundBase::newBuilding);
-		LOCPLINT->castleInt->addBuilding(20);
+		LOCPLINT->castleInt->addBuilding(EBuilding::SHIP);
 	}
 }
 
@@ -1494,7 +1495,7 @@ void CPlayerInterface::centerView (int3 pos, int focusTime)
 void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(obj->ID == GameConstants::HEROI_TYPE  &&  obj->tempOwner == playerID)
+	if(obj->ID == Obj::HERO  &&  obj->tempOwner == playerID)
 	{
 		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(obj);
 		heroKilled(h);
@@ -2215,7 +2216,7 @@ void CPlayerInterface::stopMovement()
 void CPlayerInterface::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(market->o->ID == 2) //Altar
+	if(market->o->ID == Obj::ALTAR_OF_SACRIFICE)
 	{
 		//EEMarketMode mode = market->availableModes().front();
 		if(market->allowsTrade(EMarketMode::ARTIFACT_EXP) && visitor->getAlignment() != EAlignment::EVIL)
@@ -2271,7 +2272,7 @@ void CPlayerInterface::showQuestLog()
 
 void CPlayerInterface::showShipyardDialogOrProblemPopup(const IShipyard *obj)
 {
-	if(obj->state())
+	if(obj->state() != IBoatGenerator::GOOD)
 	{
 		MetaString txt;
 		obj->getProblemText(txt);

@@ -71,7 +71,7 @@ int CCallback::selectionMade(int selection, int queryID)
 
 void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount, si32 level/*=-1*/)
 {
-	if(player!=obj->tempOwner  &&  obj->ID != 106)
+	if(player!=obj->tempOwner  &&  obj->ID != Obj::WAR_MACHINE_FACTORY)
 		return;
 
 	RecruitCreatures pack(obj->id,ID,amount,level);
@@ -239,7 +239,7 @@ void CCallback::setSelection(const CArmedInstance * obj)
 	ss.id = obj->id;
 	sendRequest(&(CPackForClient&)ss);
 
-	if(obj->ID == GameConstants::HEROI_TYPE)
+	if(obj->ID == Obj::HERO)
 	{
 		if(cl->pathInfo->hero != obj) //calculate new paths only if we selected a different hero
 			cl->calculatePaths(static_cast<const CGHeroInstance *>(obj));
