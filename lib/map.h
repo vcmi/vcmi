@@ -96,7 +96,7 @@ struct DLL_LINKAGE PlayerInfo
 	ui8 canHumanPlay;
 	ui8 canComputerPlay;
 	ui32 AITactic; //(00 - random, 01 -  warrior, 02 - builder, 03 - explorer)
-	ui32 allowedFactions; //(01 - castle; 02 - rampart; 04 - tower; 08 - inferno; 16 - necropolis; 32 - dungeon; 64 - stronghold; 128 - fortress; 256 - conflux);
+	std::set<ui32> allowedFactions; //set with factions player can play with
 	ui8 isFactionRandom;
 	ui32 mainHeroPortrait; //it's ID of hero with chosen portrait; 255 if standard
 	std::string mainHeroName;
@@ -108,7 +108,7 @@ struct DLL_LINKAGE PlayerInfo
 	ui8 generateHero;
 
 	PlayerInfo(): p7(0), p8(0), p9(0), canHumanPlay(0), canComputerPlay(0),
-		AITactic(0), allowedFactions(0), isFactionRandom(0),
+		AITactic(0), isFactionRandom(0),
 		mainHeroPortrait(0), hasMainTown(0), generateHeroAtMainTown(0),
 		team(255), generateHero(0) {};
 
@@ -117,7 +117,7 @@ struct DLL_LINKAGE PlayerInfo
 		si8 ret = -2;
 		for (int j = 0; j < GameConstants::F_NUMBER  &&  ret != -1; j++) //we start with none and find matching faction. if more than one, then set to random
 		{
-			if((1 << j) & allowedFactions)
+			if(vstd::contains(allowedFactions, j))
 			{
 				if (ret >= 0) //we've already assigned a castle and another one is possible -> set random and let player choose
 					ret = -1; //breaks

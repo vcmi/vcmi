@@ -448,7 +448,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg
 	if (creature)
 	{
 		std::string imgName = owner->smallIcons ? "cprsmall" : "TWCRPORT";
-		creatureImage = new CAnimImage(imgName, creature->idNumber + 2);
+		creatureImage = new CAnimImage(imgName, creature->iconIndex);
 	}
 	else
 		creatureImage = nullptr;

@@ -81,6 +81,8 @@ void CModHandler::loadConfigFromFile (std::string name)
 		tlog3 << "\t\tFound mod file: " << entry.getResourceName() << "\n";
 		const JsonNode config ((char*)textData.get(), stream->getSize());
 
+		VLC->townh->loadFactions(config["factions"]);
+
 		const JsonNode *value = &config["creatures"];
 		BOOST_FOREACH (auto creature, value->Vector())
 		{

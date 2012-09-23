@@ -228,10 +228,13 @@ void CMapHeader::loadPlayerInfo( int &pom, const ui8 * bufor, int &i )
 			players[pom].p7= -1;
 
 		//factions this player can choose
-		players[pom].allowedFactions = 0;
-		players[pom].allowedFactions += bufor[i++];
+		ui16 allowedFactions = bufor[i++];
 		if(version != RoE)
-			players[pom].allowedFactions += (bufor[i++])*256;
+			allowedFactions += (bufor[i++])*256;
+
+		for (size_t fact=0; fact<16; fact++)
+			if (allowedFactions & (1 << fact))
+				players[pom].allowedFactions.insert(fact);
 
 		players[pom].isFactionRandom = bufor[i++];
 		players[pom].hasMainTown = bufor[i++];

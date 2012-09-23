@@ -931,12 +931,11 @@ void CGameState::init(StartInfo * si)
 	{
 		if(it->second.castle==-1)
 		{
-			int f;
-			do
-			{
-				f = ran()%GameConstants::F_NUMBER;
-			}while(!(map->players[it->first].allowedFactions  &  1<<f));
-			it->second.castle = f;
+			int randomID = ran() % map->players[it->first].allowedFactions.size();
+			auto iter = map->players[it->first].allowedFactions.begin();
+			std::advance(iter, randomID);
+
+			it->second.castle = *iter;
 		}
 	}
 

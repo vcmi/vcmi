@@ -543,31 +543,38 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", -1);
 
-	int ret = EBuildingState::ALLOWED;
-	if(t->builded >= VLC->modh->settings.MAX_BUILDING_PER_TURN)
-		ret = EBuildingState::CANT_BUILD_TODAY; //building limit
-
 	CBuilding * pom = t->town->buildings[ID];
 
 	if(!pom)
 		return EBuildingState::BUILDING_ERROR;
 
-	//checking resources
-	if(!pom->resources.canBeAfforded(getPlayer(t->tempOwner)->resources))
-		ret = EBuildingState::NO_RESOURCES; //lack of res
+	if(t->hasBuilt(ID))	//already built
+		return EBuildingState::ALREADY_PRESENT;
+
+	//can we build it?
+	if(t->forbiddenBuildings.find(ID)!=t->forbiddenBuildings.end())
+		return EBuildingState::FORBIDDEN; //forbidden
 
 	//checking for requirements
 	std::set<int> reqs = getBuildingRequiments(t, ID);//getting all requirements
 
+	bool notAllBuilt = false;
 	for( std::set<int>::iterator ri  =  reqs.begin(); ri != reqs.end(); ri++ )
 	{
-		if(!t->hasBuilt(*ri))
-			ret = EBuildingState::PREREQUIRES; //lack of requirements - cannot build
+		if(!t->hasBuilt(*ri)) //lack of requirements - cannot build
+		{
+			if(vstd::contains(t->forbiddenBuildings, *ri)) // not built requirement forbidden - same goes to this build
+				return EBuildingState::FORBIDDEN;
+			else
+				notAllBuilt = true; // no return here - we need to check if any required builds are forbidden
+		}
 	}
 
-	//can we build it?
-	if(t->forbiddenBuildings.find(ID)!=t->forbiddenBuildings.end())
-		ret = EBuildingState::FORBIDDEN; //forbidden
+	if(t->builded >= VLC->modh->settings.MAX_BUILDING_PER_TURN)
+		return EBuildingState::CANT_BUILD_TODAY; //building limit
+
+	if (notAllBuilt)
+		return EBuildingState::PREREQUIRES;
 
 	if(ID == 13) //capitol
 	{
@@ -578,8 +585,7 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 			{
 				if(t->hasBuilt(EBuilding::CAPITOL))
 				{
-					ret = EBuildingState::HAVE_CAPITAL; //no more than one capitol
-					break;
+					return EBuildingState::HAVE_CAPITAL; //no more than one capitol
 				}
 			}
 		}
@@ -589,12 +595,14 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 		const TerrainTile *tile = getTile(t->bestLocation(), false);
 		
 		if(!tile || tile->tertype != TerrainTile::water )
-			ret = EBuildingState::NO_WATER; //lack of water
+			return EBuildingState::NO_WATER; //lack of water
 	}
 
-	if(t->hasBuilt(ID))	//already built
-		ret = EBuildingState::ALREADY_PRESENT;
-	return ret;
+	//checking resources
+	if(!pom->resources.canBeAfforded(getPlayer(t->tempOwner)->resources))
+		return EBuildingState::NO_RESOURCES; //lack of res
+
+	return EBuildingState::ALLOWED;
 }
 
 std::set<int> CGameInfoCallback::getBuildingRequiments( const CGTownInstance *t, int ID )

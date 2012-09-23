@@ -1914,41 +1914,30 @@ void OptionsTab::nextCastle( int player, int dir )
 
 	PlayerSettings &s = SEL->sInfo.playerInfos[player];
 	si32 &cur = s.castle;
-	ui32 allowed = SEL->current->mapHeader->players[s.color].allowedFactions;
+	auto & allowed = SEL->current->mapHeader->players[s.color].allowedFactions;
 
 	if (cur == -2) //no castle - no change
 		return;
 
 	if (cur == -1) //random => first/last available
 	{
-		int pom = (dir>0) ? (0) : (GameConstants::F_NUMBER-1); // last or first
-		for (;pom >= 0  &&  pom < GameConstants::F_NUMBER;  pom+=dir)
-		{
-			if((1 << pom) & allowed)
-			{
-				cur=pom;
-				break;
-			}
-		}
+		if (dir > 0)
+			cur = *allowed.begin(); //id of first town
+		else
+			cur = *allowed.rbegin(); //id of last town
+
 	}
 	else // next/previous available
 	{
-		for (;;)
+		if ( (cur == *allowed.begin() && dir < 0 )
+		  || (cur == *allowed.rbegin() && dir > 0) )
+			cur = -1;
+		else
 		{
-			cur+=dir;
-			if ((1 << cur) & allowed)
-				break;
-
-			if (cur >= GameConstants::F_NUMBER  ||  cur<0)
-			{
-				double p1 = log((double)allowed) / log(2.0)+0.000001;
-				double check = p1 - ((int)p1);
-				if (check < 0.001)
-					cur = (int)p1;
-				else
-					cur = -1;
-				break;
-			}
+			assert(dir >= -1 && dir <= 1); //othervice std::advance may go out of range
+			auto iter = allowed.find(cur);
+			std::advance(iter, dir);
+			cur = *iter;
 		}
 	}
 

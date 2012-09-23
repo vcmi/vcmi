@@ -52,23 +52,18 @@ unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
 		ret->scenarios.push_back(sc);
 	}
 
-
 	int scenarioID = 0;
 
 	//first entry is campaign header. start loop from 1
-	for (int g=1; g<file.size() && g<howManyScenarios; ++g)
+	for (int g=1; g<file.size() && scenarioID<howManyScenarios; ++g)
 	{
 		while(!ret->scenarios[scenarioID].isNotVoid()) //skip void scenarios
 		{
 			scenarioID++;
 		}
-		//set map piece appropriately
 
-
-		ret->mapPieces[scenarioID].resize(file[g].size());
-		for(int i = 0; i < file[g].size(); i++)
-			ret->mapPieces[scenarioID][i] = file[g][i];
-		
+		//set map piece appropriately, convert vector to string
+		ret->mapPieces[scenarioID].assign(reinterpret_cast< const char* >(file[g].data()), file[g].size());
 		scenarioID++;
 	}
 
