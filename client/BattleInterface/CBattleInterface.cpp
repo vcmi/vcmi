@@ -2274,9 +2274,15 @@ void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex, const std::vec
 		{165, std::list<int>{11}},      {186, std::list<int>{3}}};
 #else
 	using namespace boost::assign;
-	static const std::map<int, std::list<int> > hexToPart = map_list_of<int, std::list<int> >(12, list_of<int>(8)(1)(7))(45, list_of<int>(12)(6))
-		(101, list_of<int>(10))(118, list_of<int>(2))(165, list_of<int>(11))(186, list_of<int>(3));
+	std::map<int, std::list<int> > hexToPart;
+	hexToPart[12] = list_of<int>(8)(1)(7);
+	hexToPart[45] = list_of<int>(12)(6);
+	hexToPart[101] = list_of<int>(10);
+	hexToPart[118] = list_of<int>(2);
+	hexToPart[165] = list_of<int>(11);
+	hexToPart[186] = list_of<int>(3);
 #endif
+
 	std::map<int, std::list<int> >::const_iterator it = hexToPart.find(hex);
 	if(it != hexToPart.end())
 	{

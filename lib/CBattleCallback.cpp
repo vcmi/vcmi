@@ -1816,6 +1816,189 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		return battleIsImmune(NULL, spell, mode, dest);
 }
 
+ui32 CBattleInfoCallback::calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const
+{
+	ui32 ret = baseDamage;
+	//applying sorcery secondary skill
+	if(caster)
+	{
+		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::SORCERY)) / 100.0;
+		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, sp->id)) / 100.0;
+
+		if(sp->air)
+			ret *= (100.0 + caster->valOfBonuses(Bonus::AIR_SPELL_DMG_PREMY)) / 100.0;
+		else if(sp->fire) //only one type of bonus for Magic Arrow
+			ret *= (100.0 + caster->valOfBonuses(Bonus::FIRE_SPELL_DMG_PREMY)) / 100.0;
+		else if(sp->water)
+			ret *= (100.0 + caster->valOfBonuses(Bonus::WATER_SPELL_DMG_PREMY)) / 100.0;
+		else if(sp->earth)
+			ret *= (100.0 + caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY)) / 100.0;
+
+		if (affectedCreature && affectedCreature->getCreature()->level) //Hero specials like Solmyr, Deemer
+			ret *= (100. + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id) * caster->level) / affectedCreature->getCreature()->level)) / 100.0;
+	}
+	return ret;
+}
+
+ui32 CBattleInfoCallback::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower ) const
+{
+	ui32 ret = 0; //value to return
+
+	//check if spell really does damage - if not, return 0
+	if(VLC->spellh->damageSpells.find(sp->id) == VLC->spellh->damageSpells.end())
+		return 0;
+
+	ret = usedSpellPower * sp->power;
+	ret += sp->powers[spellSchoolLevel];
+
+	//affected creature-specific part
+	if(affectedCreature)
+	{
+		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
+		if(sp->air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 0)) //air spell & protection from air
+		{
+			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 0);
+			ret /= 100;
+		}
+		else if(sp->fire && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 1)) //fire spell & protection from fire
+		{
+			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 1);
+			ret /= 100;
+		}
+		else if(sp->water && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 2)) //water spell & protection from water
+		{
+			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 2);
+			ret /= 100;
+		}
+		else if (sp->earth && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 3)) //earth spell & protection from earth
+		{
+			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 3);
+			ret /= 100;
+		}
+		//general spell dmg reduction
+		//FIXME?
+		if(sp->air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1))
+		{
+			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
+			ret /= 100;
+		}
+		//dmg increasing
+		if( affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id) )
+		{
+			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id);
+			ret /= 100;
+		}
+	}
+	ret = calculateSpellBonus(ret, sp, caster, affectedCreature);
+	return ret;
+}
+
+std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell * spell, int skillLevel, ui8 attackerOwner, BattleHex destinationTile)
+{
+	std::set<const CStack*> attackedCres; /*std::set to exclude multiple occurrences of two hex creatures*/
+
+	const ui8 attackerSide = playerToSide(attackerOwner) == 1;
+	const auto attackedHexes = spell->rangeInHexes(destinationTile, skillLevel, attackerSide);
+	const bool onlyAlive = spell->id != Spells::RESURRECTION && spell->id != Spells::ANIMATE_DEAD; //when casting resurrection or animate dead we should be allow to select dead stack
+	//fixme: what about other rising spells (Sacrifice) ?
+	if(spell->id == Spells::DEATH_RIPPLE || spell->id == Spells::DESTROY_UNDEAD || spell->id == Spells::ARMAGEDDON)
+	{
+		BOOST_FOREACH(const CStack *stack, battleGetAllStacks())
+		{
+			if((spell->id == Spells::DEATH_RIPPLE && !stack->getCreature()->isUndead()) //death ripple
+				|| (spell->id == Spells::DESTROY_UNDEAD && stack->getCreature()->isUndead()) //destroy undead
+				|| (spell->id == Spells::ARMAGEDDON) //Armageddon
+				)
+			{
+				if(stack->isValidTarget())
+					attackedCres.insert(stack);
+			}
+		}
+	}
+	else if (spell->id == Spells::CHAIN_LIGHTNING)
+	{
+		std::set<BattleHex> possibleHexes;
+		BOOST_FOREACH (auto stack, battleGetAllStacks())
+		{
+			if (stack->isValidTarget())
+			{
+				BOOST_FOREACH (auto hex, stack->getHexes())
+				{
+					possibleHexes.insert (hex);
+				}
+			}
+		}
+		BattleHex lightningHex =  destinationTile;
+		for (int i = 0; i < 5; ++i) //TODO: depends on spell school level
+		{
+			auto stack = battleGetStackByPos (lightningHex, true);
+			if (!stack)
+				break;
+			attackedCres.insert (stack);
+			BOOST_FOREACH (auto hex, stack->getHexes())
+			{
+				possibleHexes.erase (hex); //can't hit same place twice
+			}
+			lightningHex = BattleHex::getClosestTile (attackerOwner, destinationTile, possibleHexes);
+		}
+	}
+	else if (spell->range[skillLevel].size() > 1) //custom many-hex range
+	{
+		BOOST_FOREACH(BattleHex hex, attackedHexes)
+		{
+			if(const CStack * st = battleGetStackByPos(hex, onlyAlive))
+			{
+				if (spell->id == 76) //Death Cloud //TODO: fireball and fire immunity
+				{
+					if (st->isLiving() || st->coversPos(destinationTile)) //directly hit or alive
+					{
+						attackedCres.insert(st);
+					}
+				}
+				else
+					attackedCres.insert(st);
+			}
+		}
+	}
+	else if(spell->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
+	{
+		if(skillLevel < 3)  /*not expert */
+		{
+			const CStack * st = battleGetStackByPos(destinationTile, onlyAlive);
+			if(st)
+				attackedCres.insert(st);
+		}
+		else
+		{
+			BOOST_FOREACH (auto stack, battleGetAllStacks())
+			{
+				/*if it's non negative spell and our unit or non positive spell and hostile unit */
+				if((!spell->isNegative() && stack->owner == attackerOwner)
+					||(!spell->isPositive() && stack->owner != attackerOwner )
+					)
+				{
+					if(stack->isValidTarget(!onlyAlive))
+						attackedCres.insert(stack);
+				}
+			}
+		} //if(caster->getSpellSchoolLevel(s) < 3)
+	}
+	else if(spell->getTargetType() == CSpell::CREATURE)
+	{
+		if(const CStack * st = battleGetStackByPos(destinationTile, onlyAlive))
+			attackedCres.insert(st);
+	}
+	else //custom range from attackedHexes
+	{
+		BOOST_FOREACH(BattleHex hex, attackedHexes)
+		{
+			if(const CStack * st = battleGetStackByPos(hex, onlyAlive))
+				attackedCres.insert(st);
+		}
+	}
+	return attackedCres;
+}
+
 const CStack * CBattleInfoCallback::getStackIf(boost::function<bool(const CStack*)> pred) const
 {
 	RETURN_IF_NOT_BATTLE(nullptr);
@@ -2108,6 +2291,19 @@ bool CPlayerBattleCallback::battleCanCastSpell(ESpellCastProblem::ESpellCastProb
 		*outProblem = problem;
 
 	return problem == ESpellCastProblem::OK;
+}
+
+const CGHeroInstance * CPlayerBattleCallback::battleGetMyHero() const
+{
+	return CBattleInfoEssentials::battleGetFightingHero(battleGetMySide());
+}
+
+InfoAboutHero CPlayerBattleCallback::battleGetEnemyHero() const
+{
+	InfoAboutHero ret; 
+	assert(0);
+	///TODO implement and replace usages of battleGetFightingHero obtaining enemy hero
+	return ret;
 }
 
 BattleAttackInfo::BattleAttackInfo(const CStack *Attacker, const CStack *Defender, bool Shooting)

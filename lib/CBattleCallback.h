@@ -9,6 +9,7 @@ class CSpell;
 struct BattleInfo;
 struct CObstacleInstance;
 class IBonusBearer;
+struct InfoAboutHero;
 
 namespace boost
 {class shared_mutex;}
@@ -243,6 +244,9 @@ public:
 	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(int player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
 	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination) const; //determines if creature can cast a spell here
 	std::vector<BattleHex> battleGetPossibleTargets(int player, const CSpell *spell) const;
+	ui32 calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const;
+	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
+	std::set<const CStack*> getAffectedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, BattleHex destinationTile); //calculates stack affected by given spell
 
 	si32 battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode) const;
 	TSpell getRandomBeneficialSpell(const CStack * subject) const;
@@ -294,4 +298,6 @@ public:
 	int battleGetSurrenderCost() const; //returns cost of surrendering battle, -1 if surrendering is not possible
 
 	bool battleCanCastSpell(ESpellCastProblem::ESpellCastProblem *outProblem = nullptr) const; //returns true, if caller can cast a spell. If not, if pointer is given via arg, the reason will be written.
+	const CGHeroInstance * battleGetMyHero() const;
+	InfoAboutHero battleGetEnemyHero() const;
 };

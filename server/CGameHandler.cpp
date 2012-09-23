@@ -793,7 +793,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		bat.bsa.front().flags |= BattleStackAttacked::EFFECT;
 		bat.bsa.front().effect = VLC->spellh->spells[bonus->subtype]->mainEffectAnim; //hopefully it does not interfere with any other effect?
 
-		std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(VLC->spellh->spells[bonus->subtype], bonus->val, att->owner, targetHex);
+		std::set<const CStack*> attackedCreatures = gs->curB->getAffectedCreatures(VLC->spellh->spells[bonus->subtype], bonus->val, att->owner, targetHex);
 		//TODO: get exact attacked hex for defender
 
 		BOOST_FOREACH(const CStack * stack, attackedCreatures)
@@ -3941,7 +3941,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	std::set<const CStack*> attackedCres;
 	if (mode != ECastingMode::ENCHANTER_CASTING)
 	{
-		attackedCres = gs->curB->getAttackedCreatures(spell, spellLvl, casterColor, destination);
+		attackedCres = gs->curB->getAffectedCreatures(spell, spellLvl, casterColor, destination);
 		for(std::set<const CStack*>::const_iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 		{
 			sc.affectedCres.insert((*it)->ID);

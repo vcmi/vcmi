@@ -2,6 +2,8 @@
 
 #include "../../lib/BattleHex.h"
 
+class CSpell;
+
 class CBattleAI : public CBattleGameInterface
 {
 	int side;
@@ -38,5 +40,6 @@ public:
 	BattleAction useCatapult(const CStack * stack);
 
 	void attemptCastingSpell();
+	std::vector<BattleHex> getTargetsToConsider(const CSpell *spell) const;
 };
 

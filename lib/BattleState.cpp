@@ -36,48 +36,6 @@ const CStack * BattleInfo::getNextStack() const
 		return NULL;
 }
 
-BattleHex BattleInfo::getClosestTile(bool attackerOwned, BattleHex initialPos, std::set<BattleHex> & possibilities) const
-{
-	std::vector<BattleHex> sortedTiles (possibilities.begin(), possibilities.end()); //set can't be sorted properly :(
-
-	BattleHex initialHex = BattleHex(initialPos);
-	auto compareDistance = [initialHex](const BattleHex left, const BattleHex right) -> bool
-	{
-		return initialHex.getDistance (initialHex, left) < initialHex.getDistance (initialHex, right);
-	};
-
-	boost::sort (sortedTiles, compareDistance); //closest tiles at front
-
-	int closestDistance = initialHex.getDistance(initialPos, sortedTiles.front()); //sometimes closest tiles can be many hexes away
-
-	auto notClosest = [closestDistance, initialPos](const BattleHex here) -> bool
-	{
-		return closestDistance < here.getDistance (initialPos, here);
-	};
-
-	vstd::erase_if(sortedTiles, notClosest); //only closest tiles are interesting
-
-	auto compareHorizontal = [attackerOwned, initialPos](const BattleHex left, const BattleHex right) -> bool
-	{
-		if(left.getX() != right.getX())
-		{
-			if (attackerOwned)
-				return left.getX() > right.getX(); //find furthest right
-			else
-				return left.getX() < right.getX(); //find furthest left
-		}
-		else
-		{
-			//Prefer tiles in the same row.
-			return std::abs(left.getY() - initialPos.getY()) < std::abs(right.getY() - initialPos.getY());
-		}
-	};
-
-	boost::sort (sortedTiles, compareHorizontal);
-
-	return sortedTiles.front();
-}
-
 int BattleInfo::getAvaliableHex(TCreature creID, bool attackerOwned, int initialPos) const
 {
 	bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
@@ -106,7 +64,7 @@ int BattleInfo::getAvaliableHex(TCreature creID, bool attackerOwned, int initial
 		return BattleHex::INVALID; //all tiles are covered
 	}
 
-	return getClosestTile(attackerOwned, pos, occupyable);
+	return BattleHex::getClosestTile(attackerOwned, pos, occupyable);
 }
 
 std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, BattleHex dest, const CStack *stack)
@@ -162,111 +120,6 @@ void BattleInfo::calculateCasualties( std::map<ui32,si32> *casualties ) const
 	}
 }
 
-std::set<const CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, BattleHex destinationTile)
-{
-	std::set<const CStack*> attackedCres; /*std::set to exclude multiple occurrences of two hex creatures*/
-
-	const ui8 attackerSide = sides[1] == attackerOwner;
-	const auto attackedHexes = s->rangeInHexes(destinationTile, skillLevel, attackerSide);
-	const bool onlyAlive = s->id != Spells::RESURRECTION && s->id != Spells::ANIMATE_DEAD; //when casting resurrection or animate dead we should be allow to select dead stack
-	//fixme: what about other rising spells (Sacrifice) ?
-	if(s->id == Spells::DEATH_RIPPLE || s->id == Spells::DESTROY_UNDEAD || s->id == Spells::ARMAGEDDON)
-	{
-		for(int it=0; it<stacks.size(); ++it)
-		{
-			if((s->id == Spells::DEATH_RIPPLE && !stacks[it]->getCreature()->isUndead()) //death ripple
-				|| (s->id == Spells::DESTROY_UNDEAD && stacks[it]->getCreature()->isUndead()) //destroy undead
-				|| (s->id == Spells::ARMAGEDDON) //Armageddon
-				)
-			{
-				if(stacks[it]->isValidTarget())
-					attackedCres.insert(stacks[it]);
-			}
-		}
-	}
-	else if (s->id == Spells::CHAIN_LIGHTNING)
-	{
-		std::set<BattleHex> possibleHexes;
-		BOOST_FOREACH (auto stack, stacks)
-		{
-			if (stack->isValidTarget())
-			{
-				BOOST_FOREACH (auto hex, stack->getHexes())
-				{
-					possibleHexes.insert (hex);
-				}
-			}
-		}
-		BattleHex lightningHex =  destinationTile;
-		for (int i = 0; i < 5; ++i) //TODO: depends on spell school level
-		{
-			auto stack = battleGetStackByPos (lightningHex, true);
-			if (!stack)
-				break;
-			attackedCres.insert (stack);
-			BOOST_FOREACH (auto hex, stack->getHexes())
-			{
-				possibleHexes.erase (hex); //can't hit same place twice
-			}
-			lightningHex = getClosestTile (attackerOwner, destinationTile, possibleHexes);
-		}
-	}
-	else if (s->range[skillLevel].size() > 1) //custom many-hex range
-	{
-		BOOST_FOREACH(BattleHex hex, attackedHexes)
-		{
-			if(const CStack * st = battleGetStackByPos(hex, onlyAlive))
-			{
-				if (s->id == 76) //Death Cloud //TODO: fireball and fire immunity
-				{
-					if (st->isLiving() || st->coversPos(destinationTile)) //directly hit or alive
-					{
-						attackedCres.insert(st);
-					}
-				}
-				else
-					attackedCres.insert(st);
-			}
-		}
-	}
-	else if(s->getTargetType() == CSpell::CREATURE_EXPERT_MASSIVE)
-	{
-		if(skillLevel < 3)  /*not expert */
-		{
-			const CStack * st = battleGetStackByPos(destinationTile, onlyAlive);
-			if(st)
-				attackedCres.insert(st);
-		}
-		else
-		{
-			for(int it=0; it<stacks.size(); ++it)
-			{
-				/*if it's non negative spell and our unit or non positive spell and hostile unit */
-				if((!s->isNegative() && stacks[it]->owner == attackerOwner)
-					||(!s->isPositive() && stacks[it]->owner != attackerOwner )
-					)
-				{
-					if(stacks[it]->isValidTarget(!onlyAlive))
-						attackedCres.insert(stacks[it]);
-				}
-			}
-		} //if(caster->getSpellSchoolLevel(s) < 3)
-	}
-	else if(s->getTargetType() == CSpell::CREATURE)
-	{
-		if(const CStack * st = battleGetStackByPos(destinationTile, onlyAlive))
-			attackedCres.insert(st);
-	}
-	else //custom range from attackedHexes
-	{
-		BOOST_FOREACH(BattleHex hex, attackedHexes)
-		{
-			if(const CStack * st = battleGetStackByPos(hex, onlyAlive))
-				attackedCres.insert(st);
-		}
-	}
-	return attackedCres;
-}
 
 int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower)
 {
@@ -306,85 +159,6 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
 	ret->position = position;
 	ret->state.insert(EBattleStackState::ALIVE);  //alive state indication
-	return ret;
-}
-
-ui32 BattleInfo::calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const
-{
-	ui32 ret = baseDamage;
-	//applying sorcery secondary skill
-	if(caster)
-	{
-		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::SORCERY)) / 100.0;
-		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, sp->id)) / 100.0;
-
-		if(sp->air)
-			ret *= (100.0 + caster->valOfBonuses(Bonus::AIR_SPELL_DMG_PREMY)) / 100.0;
-		else if(sp->fire) //only one type of bonus for Magic Arrow
-			ret *= (100.0 + caster->valOfBonuses(Bonus::FIRE_SPELL_DMG_PREMY)) / 100.0;
-		else if(sp->water)
-			ret *= (100.0 + caster->valOfBonuses(Bonus::WATER_SPELL_DMG_PREMY)) / 100.0;
-		else if(sp->earth)
-			ret *= (100.0 + caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY)) / 100.0;
-
-		if (affectedCreature && affectedCreature->getCreature()->level) //Hero specials like Solmyr, Deemer
-			ret *= (100. + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id) * caster->level) / affectedCreature->getCreature()->level)) / 100.0;
-	}
-	return ret;
-}
-
-ui32 BattleInfo::calculateSpellDmg( const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower ) const
-{
-	ui32 ret = 0; //value to return
-
-	//15 - magic arrows, 16 - ice bolt, 17 - lightning bolt, 18 - implosion, 20 - frost ring, 21 - fireball, 22 - inferno, 23 - meteor shower,
-	//24 - death ripple, 25 - destroy undead, 26 - armageddon, 77 - thunderbolt
-
-	//check if spell really does damage - if not, return 0
-	if(VLC->spellh->damageSpells.find(sp->id) == VLC->spellh->damageSpells.end())
-		return 0;
-
-	ret = usedSpellPower * sp->power;
-	ret += sp->powers[spellSchoolLevel];
-
-	//affected creature-specific part
-	if(affectedCreature)
-	{
-		//applying protections - when spell has more then one elements, only one protection should be applied (I think)
-		if(sp->air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 0)) //air spell & protection from air
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 0);
-			ret /= 100;
-		}
-		else if(sp->fire && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 1)) //fire spell & protection from fire
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 1);
-			ret /= 100;
-		}
-		else if(sp->water && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 2)) //water spell & protection from water
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 2);
-			ret /= 100;
-		}
-		else if (sp->earth && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, 3)) //earth spell & protection from earth
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, 3);
-			ret /= 100;
-		}
-		//general spell dmg reduction
-		if(sp->air && affectedCreature->hasBonusOfType(Bonus::SPELL_DAMAGE_REDUCTION, -1)) //air spell & protection from air
-		{
-			ret *= affectedCreature->valOfBonuses(Bonus::SPELL_DAMAGE_REDUCTION, -1);
-			ret /= 100;
-		}
-		//dmg increasing
-		if( affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id) )
-		{
-			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id);
-			ret /= 100;
-		}
-	}
-	ret = calculateSpellBonus(ret, sp, caster, affectedCreature);
 	return ret;
 }
 

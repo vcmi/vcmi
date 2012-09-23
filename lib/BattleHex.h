@@ -111,4 +111,5 @@ struct DLL_LINKAGE BattleHex
 	static void checkAndPush(BattleHex tile, std::vector<BattleHex> & ret);
 
 	bool isAvailable() const; //valid position not in first or last column
+	static BattleHex getClosestTile(bool attackerOwned, BattleHex initialPos, std::set<BattleHex> & possibilities); //TODO: vector or set? copying one to another is bad
 };

@@ -371,6 +371,20 @@ namespace vstd
 		vec.erase(boost::remove_if(vec, pred),vec.end());
 	}
 
+	//set has its own order, so remove_if won't work. TODO - reuse for map
+	template<typename Elem, typename Predicate>
+	void erase_if(std::set<Elem> &setContainer, Predicate pred)
+	{
+		auto itr = setContainer.begin();
+		auto endItr = setContainer.end(); 
+		while(itr != endItr)
+		{
+			auto tmpItr = itr++;
+			if(pred(*tmpItr))
+				setContainer.erase(tmpItr);
+		}
+	}
+
 	template<typename InputRange, typename OutputIterator, typename Predicate>
 	OutputIterator copy_if(const InputRange &input, OutputIterator result, Predicate pred)
 	{

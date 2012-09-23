@@ -90,7 +90,6 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 
 	//void getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<BattleHex> & occupyable, bool flying, const CStack* stackToOmmit = NULL) const; //send pointer to at least 187 allocated bytes
 	//static bool isAccessible(BattleHex hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos); //helper for makeBFS
-	BattleHex getClosestTile (bool attackerOwned, BattleHex initialPos, std::set<BattleHex> & possibilities) const; //TODO: vector or set? copying one to another is bad
 	int getAvaliableHex(TCreature creID, bool attackerOwned, int initialPos = -1) const; //find place for summon / clone effects
 	//void makeBFS(BattleHex start, bool*accessibility, BattleHex *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const; //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
 	std::pair< std::vector<BattleHex>, int > getPath(BattleHex start, BattleHex dest, const CStack *stack); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
@@ -102,8 +101,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 
 	ui32 calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg); //charge - number of hexes travelled before attack (for champion's jousting)
 	void calculateCasualties(std::map<ui32,si32> *casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
-	using CBattleInfoCallback::getAttackedCreatures;
-	std::set<const CStack*> getAttackedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, BattleHex destinationTile); //calculates stack affected by given spell
+	
 	//void getPotentiallyAttackableHexes(AttackableTiles &at, const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos); //hexes around target that could be attacked in melee
 	//std::set<CStack*> getAttackedCreatures(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID); //calculates range of multi-hex attacks
 	//std::set<BattleHex> getAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID); //calculates range of multi-hex attacks
@@ -112,8 +110,6 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	CStack * generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, int slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	int getIdForNewStack() const; //suggest a currently unused ID that'd suitable for generating a new stack
 	//std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
-	ui32 calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const;
-	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
 	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack, const CStack * sacrificedStack = NULL) const;
 	ui32 calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const; //for Archangel
 	ui32 calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //unused

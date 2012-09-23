@@ -2812,8 +2812,11 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 		{
 			const JsonNode & spells = n["spells"];
 			if(spells.getType() == JsonNode::DATA_STRING  &&  spells.String() == "all")
+			{
 				BOOST_FOREACH(auto spell, VLC->spellh->spells)
-					ss.spells.insert(spell->id);
+					if(spell->id <= Spells::SUMMON_AIR_ELEMENTAL) 
+						ss.spells.insert(spell->id);
+			}
 			else
 				BOOST_FOREACH(const JsonNode &spell, n["spells"].Vector())
 					ss.spells.insert(spell.Float());

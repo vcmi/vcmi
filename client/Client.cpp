@@ -116,6 +116,7 @@ void CClient::waitForMoveAndSend(int color)
 {
 	try
 	{
+		setThreadName("CClient::waitForMoveAndSend");
 		assert(vstd::contains(battleints, color));
 		BattleAction ba = battleints[color]->activeStack(gs->curB->battleGetStackByID(gs->curB->activeStack, false));
 		MakeAction temp_action(ba);
