@@ -3180,7 +3180,8 @@ void CBonusSelection::updateBonusSelection()
 				if (bonDescs[i].info2 == 0xFFFF)
 				{
 					boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->allTexts[101]); //hero's name
-					picNumber = 0;
+					picNumber = -1;
+					picName = "CBONN1A3.BMP";
 				}
 				else
 				{
@@ -3206,21 +3207,6 @@ void CBonusSelection::startMap()
 {
 	StartInfo *si = new StartInfo(sInfo);
 	
-	{ //select human player if HERO bonus
-		auto bonus = si->campState->getBonusForCurrentMap();
-		if(bonus.type == CScenarioTravel::STravelBonus::HERO)
-		{
-			std::map<ui32, std::string> names;
-			names[1] = settings["general"]["playerName"].String();
-			for(auto it = si->playerInfos.begin(); it != si->playerInfos.end(); ++it)
-			{
-				if(it->first == bonus.info1)
-					::setPlayer(it->second, 1, names);
-				else
-					::setPlayer(it->second, 0, names);
-			}
-		}
-	}
 	if (ourCampaign->mapsConquered.size())
 	{
 		GH.popInts(1);
@@ -3248,9 +3234,17 @@ void CBonusSelection::selectBonus( int id )
 
 	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.campState->currentMap];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
-	if (bonDescs[id].type == 8) //hero crossover
+	if (bonDescs[id].type == CScenarioTravel::STravelBonus::HERO)
 	{
-		SEL->setPlayer(sInfo.playerInfos[0], bonDescs[id].info1); //TODO: substitute with appropriate color
+		std::map<ui32, std::string> names;
+		names[1] = settings["general"]["playerName"].String();
+		for(auto it = sInfo.playerInfos.begin(); it != sInfo.playerInfos.end(); ++it)
+		{
+			if(it->first == bonDescs[id].info1)
+				::setPlayer(it->second, 1, names);
+			else
+				::setPlayer(it->second, 0, names);
+		}
 	}
 }
 
