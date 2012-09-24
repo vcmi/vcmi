@@ -426,10 +426,14 @@ void CCampaignState::mapConquered( const std::vector<CGHeroInstance*> & heroes )
 	camp->scenarios[currentMap].conquered = true;
 }
 
-CScenarioTravel::STravelBonus CCampaignState::getBonusForCurrentMap() const
+boost::optional<CScenarioTravel::STravelBonus> CCampaignState::getBonusForCurrentMap() const
 {
-	assert(chosenCampaignBonuses.count(currentMap));
-	return getCurrentScenario().travelOptions.bonusesToChoose[currentBonusID()];
+	auto bonuses = getCurrentScenario().travelOptions.bonusesToChoose;
+	assert(chosenCampaignBonuses.count(currentMap) || bonuses.size() == 0);
+	if(bonuses.size())
+		return bonuses[currentBonusID()];
+	else
+		return boost::optional<CScenarioTravel::STravelBonus>();
 }
 
 const CCampaignScenario & CCampaignState::getCurrentScenario() const

@@ -2765,7 +2765,6 @@ void CBonusSelection::init()
 
 	startB = new CAdventureMapButton("", "", bind(&CBonusSelection::startMap, this), 475, 536, "CBBEGIB.DEF", SDLK_RETURN);
 	backB = new CAdventureMapButton("", "", bind(&CBonusSelection::goBack, this), 624, 536, "CBCANCB.DEF", SDLK_ESCAPE);
-	startB->setState(CButtonBase::BLOCKED);
 
 	//campaign name
 	if (ourCampaign->camp->header.name.length())
@@ -2809,6 +2808,9 @@ void CBonusSelection::init()
 			regions[regions.size()-1]->rclickText = ourCampaign->camp->scenarios[g].regionText;
 		}
 	}
+
+	//unlock if no bonuses -- it's acceptable
+	startB->setState( ourCampaign->getCurrentScenario().travelOptions.bonusesToChoose.size() ? CButtonBase::BLOCKED : CButtonBase::NORMAL);
 
 // 	//init campaign state if necessary
 // 	if (ourCampaign->campaignName.size() == 0)
