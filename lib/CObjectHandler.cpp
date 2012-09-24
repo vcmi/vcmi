@@ -212,7 +212,7 @@ int CObjectHandler::bankObjToIndex (const CGObjectInstance * obj)
 		return 0;
 	}
 }
-int CGObjectInstance::getOwner() const
+TPlayerColor CGObjectInstance::getOwner() const
 {
 	//if (state)
 	//	return state->owner;
@@ -242,7 +242,7 @@ const std::string & CGObjectInstance::getHoverText() const
 {
 	return hoverName;
 }
-void CGObjectInstance::setOwner(int ow)
+void CGObjectInstance::setOwner(TPlayerColor ow)
 {
 	//if (state)
 	//	state->owner = ow;
@@ -2198,12 +2198,12 @@ void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) 
 	}
 }
 
-void CGTownInstance::removeCapitols (ui8 owner) const
+void CGTownInstance::removeCapitols (TPlayerColor owner) const
 {
 	if (hasCapitol()) // search if there's an older capitol
 	{
 		PlayerState* state = cb->gameState()->getPlayer (owner); //get all towns owned by player
-		for (std::vector<ConstTransitivePtr<CGTownInstance> >::const_iterator i = state->towns.begin(); i < state->towns.end(); ++i)
+		for (auto i = state->towns.cbegin(); i < state->towns.cend(); ++i)
 		{
 			if (*i != this && (*i)->hasCapitol())
 			{

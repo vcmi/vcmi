@@ -80,7 +80,7 @@ struct ArmyDescriptor : public std::map<TSlot, CStackBasicDescriptor>
 
 struct DLL_LINKAGE InfoAboutArmy
 {
-	ui8 owner;
+	TPlayerColor owner;
 	std::string name;
 
 	ArmyDescriptor army;

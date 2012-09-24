@@ -167,15 +167,15 @@ public:
 	CGDefInfo * defInfo;
 	ui8 animPhaseShift;
 
-	ui8 tempOwner;
+	TPlayerColor tempOwner;
 	ui8 blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
 
 	virtual ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
 	virtual int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	virtual int getSightRadious() const; //sight distance (should be used if player-owned structure)
 	void getSightTiles(boost::unordered_set<int3, ShashInt3> &tiles) const; //returns reference to the set
-	int getOwner() const;
-	void setOwner(int ow);
+	TPlayerColor getOwner() const;
+	void setOwner(TPlayerColor ow);
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
 	bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
@@ -424,7 +424,7 @@ class DLL_LINKAGE CSpecObjInfo
 {
 public:
 	virtual ~CSpecObjInfo(){};
-	ui8 player; //owner
+	TPlayerColor player; //owner
 };
 
 class DLL_LINKAGE CCreGenAsCastleInfo : public virtual CSpecObjInfo
@@ -637,7 +637,7 @@ public:
 	bool hasBuilt(int buildingID, int townID) const;
 	int dailyIncome() const; //calculates daily income of this town
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
-	void removeCapitols (ui8 owner) const;
+	void removeCapitols (TPlayerColor owner) const;
 	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
 
 	CGTownInstance();

@@ -16,7 +16,7 @@ namespace Res
 	};
 
 	//class to be representing a vector of resource
-	class ResourceSet : public std::vector<int>
+	class ResourceSet : public std::vector<TResource>
 	{
 	public:
 		DLL_LINKAGE ResourceSet();

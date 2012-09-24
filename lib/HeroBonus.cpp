@@ -1475,7 +1475,7 @@ StackOwnerLimiter::StackOwnerLimiter()
 {
 }
 
-StackOwnerLimiter::StackOwnerLimiter(ui8 Owner)
+StackOwnerLimiter::StackOwnerLimiter(TPlayerColor Owner)
 	: owner(Owner)
 {
 }
