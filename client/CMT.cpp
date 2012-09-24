@@ -832,8 +832,7 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 	SDL_FillRect(screen, 0, 0);
 	if(gOnlyAI)
 	{
-		for(std::map<int, PlayerSettings>::iterator it = options->playerInfos.begin();
-			it != options->playerInfos.end(); ++it)
+		for(auto it = options->playerInfos.begin(); it != options->playerInfos.end(); ++it)
 		{
 			it->second.human = false;
 		}

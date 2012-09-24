@@ -406,3 +406,4 @@ typedef si32 TSlot;
 typedef si32 TQuantity;
 typedef si32 TArtifactID;
 typedef ui32 TCreature; //creature id
+typedef si8 TPlayerColor;

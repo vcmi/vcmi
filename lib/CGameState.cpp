@@ -383,7 +383,7 @@ static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 	return nobj;
 }
 
-CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass /*= NULL*/) const
+CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, TPlayerColor player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass /*= NULL*/) const
 {
 	CGHeroInstance *ret = NULL;
 
@@ -397,7 +397,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, co
 
 	if(native)
 	{
-		for(bmap<ui32, ConstTransitivePtr<CGHeroInstance> >::iterator i=available.begin(); i!=available.end(); i++)
+		for(auto i=available.begin(); i!=available.end(); i++)
 		{
 			if(pavailable.find(i->first)->second & 1<<player
 				&& i->second->type->heroType/2 == town->typeID)
@@ -419,7 +419,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, co
 	{
 		int sum=0, r;
 
-		for(bmap<ui32, ConstTransitivePtr<CGHeroInstance> >::iterator i=available.begin(); i!=available.end(); i++)
+		for(auto i=available.begin(); i!=available.end(); i++)
 		{
 			if ((!bannedClass && (pavailable.find(i->first)->second & (1<<player))) ||
 				i->second->type->heroClass != bannedClass)
@@ -928,7 +928,7 @@ void CGameState::init(StartInfo * si)
 
 	//picking random factions for players
 	tlog4 << "\tPicking random factions for players";
-	for(std::map<int, PlayerSettings>::iterator it = scenarioOps->playerInfos.begin();
+	for(auto it = scenarioOps->playerInfos.begin();
 		it != scenarioOps->playerInfos.end(); ++it)
 	{
 		if(it->second.castle==-1)
@@ -962,10 +962,10 @@ void CGameState::init(StartInfo * si)
 
 	/*********creating players entries in gs****************************************/
 	tlog4 << "\tCreating player entries in gs";
-	for(std::map<int, PlayerSettings>::iterator it = scenarioOps->playerInfos.begin();
+	for(auto it = scenarioOps->playerInfos.begin();
 		it != scenarioOps->playerInfos.end(); ++it)
 	{
-		std::pair<int,PlayerState> ins(it->first,PlayerState());
+		std::pair<TPlayerColor,PlayerState> ins(it->first,PlayerState());
 		ins.second.color=ins.first;
 		ins.second.human = it->second.human;
 		ins.second.team = map->players[ins.first].team;
@@ -976,22 +976,22 @@ void CGameState::init(StartInfo * si)
 
 	/*********give starting hero****************************************/
 	tlog4 << "\tGiving starting hero";
-	for(int i=0;i<GameConstants::PLAYER_LIMIT;i++)
+	for(auto it = scenarioOps->playerInfos.begin(); it != scenarioOps->playerInfos.end(); ++it)
 	{
-		const PlayerInfo &p = map->players[i];
-		bool campaignGiveHero = scenarioOps->playerInfos[i].human && scenarioOps->mode == StartInfo::CAMPAIGN &&
+		const PlayerInfo &p = map->players[it->first];
+		bool campaignGiveHero = it->second.human && scenarioOps->mode == StartInfo::CAMPAIGN &&
 			scenarioOps->campState->getBonusForCurrentMap().type == CScenarioTravel::STravelBonus::HERO;
 		bool generateHero = (p.generateHeroAtMainTown || campaignGiveHero) && p.hasMainTown;
-		if(generateHero && vstd::contains(scenarioOps->playerInfos, i))
+		if(generateHero && vstd::contains(scenarioOps->playerInfos, it->first))
 		{
 			int3 hpos = p.posOfMainTown;
 			hpos.x+=1;
 
-			int h = pickHero(i);
-			if(scenarioOps->playerInfos[i].hero == -1)
-				scenarioOps->playerInfos[i].hero = h;
+			int h = pickHero(it->first);
+			if(it->second.hero == -1)
+				it->second.hero = h;
 
-			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(Obj::HERO,h,hpos,i));
+			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(Obj::HERO,h,hpos,it->first));
 			nnn->id = map->objects.size();
 			nnn->initHero();
 			map->heroes.push_back(nnn);
@@ -1079,7 +1079,7 @@ void CGameState::init(StartInfo * si)
 	TResources startresAI(level["ai"]);
 	TResources startresHuman(level["human"]);
 
-	for (std::map<ui8,PlayerState>::iterator i = players.begin(); i!=players.end(); i++)
+	for (auto i = players.begin(); i!=players.end(); i++)
 	{
 		PlayerState &p = i->second;
 
@@ -1182,7 +1182,7 @@ void CGameState::init(StartInfo * si)
 		{
 			//find human player
 			int humanPlayer=GameConstants::NEUTRAL_PLAYER;
-			for (std::map<ui8, PlayerState>::iterator it=players.begin(); it != players.end(); ++it)
+			for (auto it=players.begin(); it != players.end(); ++it)
 			{
 				if(it->second.human)
 				{
@@ -1225,7 +1225,7 @@ void CGameState::init(StartInfo * si)
 
 	/*************************FOG**OF**WAR******************************************/
 	tlog4 << "\tFog of war";
-	for(std::map<ui8, TeamState>::iterator k=teams.begin(); k!=teams.end(); ++k)
+	for(auto k=teams.begin(); k!=teams.end(); ++k)
 	{
 		k->second.fogOfWarMap.resize(map->width);
 		for(int g=0; g<map->width; ++g)
@@ -1254,7 +1254,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 	tlog4 << "\tStarting bonuses";
-	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
+	for(auto k=players.begin(); k!=players.end(); ++k)
 	{
 		//starting bonus
 		if(scenarioOps->playerInfos[k->first].bonus==PlayerSettings::brandom)
@@ -1441,7 +1441,7 @@ void CGameState::init(StartInfo * si)
 
 	buildBonusSystemTree();
 
-	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
+	for(auto k=players.begin(); k!=players.end(); ++k)
 	{
 		if(k->first==255)
 			continue;
@@ -2149,8 +2149,8 @@ ui8 CGameState::checkForStandardWin() const
 {
 	//std victory condition is:
 	//all enemies lost
-	ui8 supposedWinner = 255, winnerTeam = 255;
-	for(std::map<ui8,PlayerState>::const_iterator i = players.begin(); i != players.end(); i++)
+	TPlayerColor supposedWinner = 255, winnerTeam = 255;
+	for(auto i = players.begin(); i != players.end(); i++)
 	{
 		if(i->second.status == PlayerState::INGAME && i->first < GameConstants::PLAYER_LIMIT)
 		{
@@ -2180,15 +2180,15 @@ bool CGameState::checkForStandardLoss( ui8 player ) const
 
 struct statsHLP
 {
-	typedef std::pair< ui8, si64 > TStat;
+	typedef std::pair< TPlayerColor, si64 > TStat;
 	//converts [<player's color, value>] to vec[place] -> platers
-	static std::vector< std::vector< ui8 > > getRank( std::vector<TStat> stats )
+	static std::vector< std::vector< TPlayerColor > > getRank( std::vector<TStat> stats )
 	{
 		std::sort(stats.begin(), stats.end(), statsHLP());
 
 		//put first element
-		std::vector< std::vector<ui8> > ret;
-		std::vector<ui8> tmp;
+		std::vector< std::vector<TPlayerColor> > ret;
+		std::vector<TPlayerColor> tmp;
 		tmp.push_back( stats[0].first );
 		ret.push_back( tmp );
 
@@ -2202,7 +2202,7 @@ struct statsHLP
 			else
 			{
 				//create next occupied rank
-				std::vector<ui8> tmp;
+				std::vector<TPlayerColor> tmp;
 				tmp.push_back(stats[g].first);
 				ret.push_back(tmp);
 			}
@@ -2249,8 +2249,8 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 {
 #define FILL_FIELD(FIELD, VAL_GETTER) \
 	{ \
-		std::vector< std::pair< ui8, si64 > > stats; \
-		for(std::map<ui8, PlayerState>::const_iterator g = players.begin(); g != players.end(); ++g) \
+		std::vector< std::pair< TPlayerColor, si64 > > stats; \
+		for(auto g = players.begin(); g != players.end(); ++g) \
 		{ \
 			if(g->second.color == 255) \
 				continue; \
@@ -2262,7 +2262,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		tgi.FIELD = statsHLP::getRank(stats); \
 	}
 
-	for(std::map<ui8, PlayerState>::const_iterator g = players.begin(); g != players.end(); ++g)
+	for(auto g = players.begin(); g != players.end(); ++g)
 	{
 		if(g->second.color != 255)
 			tgi.playerColors.push_back(g->second.color);
@@ -2275,7 +2275,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		//num of heroes
 		FILL_FIELD(numOfHeroes, g->second.heroes.size())
 		//best hero's portrait
-		for(std::map<ui8, PlayerState>::const_iterator g = players.begin(); g != players.end(); ++g)
+		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
 			if(g->second.color == 255)
 				continue;
@@ -2320,7 +2320,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 9) //personality
 	{
-		for(std::map<ui8, PlayerState>::const_iterator g = players.begin(); g != players.end(); ++g)
+		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
 			if(g->second.color == 255) //do nothing for neutral player
 				continue;
@@ -2338,7 +2338,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	if(level >= 10) //best creature
 	{
 		//best creatures belonging to player (highest AI value)
-		for(std::map<ui8, PlayerState>::const_iterator g = players.begin(); g != players.end(); ++g)
+		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
 			if(g->second.color == 255) //do nothing for neutral player
 				continue;
@@ -2409,8 +2409,8 @@ int CGameState::lossCheck( ui8 player ) const
 bmap<ui32, ConstTransitivePtr<CGHeroInstance> > CGameState::unusedHeroesFromPool()
 {
 	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > pool = hpool.heroesPool;
-	for ( std::map<ui8, PlayerState>::iterator i = players.begin() ; i != players.end();i++)
-		for(std::vector< ConstTransitivePtr<CGHeroInstance> >::iterator j = i->second.availableHeroes.begin(); j != i->second.availableHeroes.end(); j++)
+	for ( auto i = players.cbegin() ; i != players.cend();i++)
+		for(auto j = i->second.availableHeroes.cbegin(); j != i->second.availableHeroes.cend(); j++)
 			if(*j)
 				pool.erase((**j).subID);
 
@@ -2438,7 +2438,7 @@ void CGameState::deserializationFix()
 
 void CGameState::buildGlobalTeamPlayerTree()
 {
-	for(std::map<ui8, TeamState>::iterator k=teams.begin(); k!=teams.end(); ++k)
+	for(auto k=teams.begin(); k!=teams.end(); ++k)
 	{
 		TeamState *t = &k->second;
 		t->attachTo(&globalEffects);

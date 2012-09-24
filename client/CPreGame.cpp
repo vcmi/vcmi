@@ -122,7 +122,7 @@ static void swapPlayers(PlayerSettings &a, PlayerSettings &b)
 		playerColor = b.color;
 }
 
-void setPlayer(PlayerSettings &pset, unsigned player, const std::map<ui32, std::string> &playerNames)
+void setPlayer(PlayerSettings &pset, TPlayerColor player, const std::map<TPlayerColor, std::string> &playerNames)
 {
 	if(vstd::contains(playerNames, player))
 		pset.name = playerNames.find(player)->second;
@@ -134,7 +134,7 @@ void setPlayer(PlayerSettings &pset, unsigned player, const std::map<ui32, std::
 		playerColor = pset.color;
 }
 
-void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader, const std::map<ui32, std::string> &playerNames)
+void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader, const std::map<TPlayerColor, std::string> &playerNames)
 {
 	sInfo.playerInfos.clear();
 	if(!filename.size())
@@ -144,7 +144,7 @@ void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader *
 	sInfo.mapname = filename;
 	playerColor = -1;
 
-	std::map<ui32, std::string>::const_iterator namesIt = playerNames.begin();
+	auto namesIt = playerNames.cbegin();
 
 	for (int i = 0; i < GameConstants::PLAYER_LIMIT; i++)
 	{
@@ -156,7 +156,7 @@ void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader *
 
 		PlayerSettings &pset = sInfo.playerInfos[i];
 		pset.color = i;
-		if(pinfo.canHumanPlay && namesIt != playerNames.end())
+		if(pinfo.canHumanPlay && namesIt != playerNames.cend())
 			setPlayer(pset, namesIt++->first, playerNames);
 		else
 			setPlayer(pset, 0, playerNames);
@@ -537,7 +537,7 @@ void CGPreGame::removeFromGui()
 	GH.popInt(GH.topInt()); //remove background
 }
 
-CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui32, std::string> *Names /*= NULL*/)
+CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<TPlayerColor, std::string> *Names /*= NULL*/)
 	: ISelectionScreenInfo(Names), serverHandlingThread(NULL), mx(new boost::recursive_mutex),
 	  serv(NULL), ongoingClosing(false), myNameID(255)
 {
@@ -802,12 +802,12 @@ void CSelectionScreen::startGame()
 	if(screenType == CMenuScreen::newGame)
 	{
 		//there must be at least one human player before game can be started
-		std::map<int, PlayerSettings>::const_iterator i;
-		for(i = SEL->sInfo.playerInfos.begin(); i != SEL->sInfo.playerInfos.end(); i++)
+		std::map<TPlayerColor, PlayerSettings>::const_iterator i;
+		for(i = SEL->sInfo.playerInfos.cbegin(); i != SEL->sInfo.playerInfos.cend(); i++)
 			if(i->second.human)
 				break;
 
-		if(i == SEL->sInfo.playerInfos.end())
+		if(i == SEL->sInfo.playerInfos.cend())
 		{
 			GH.pushInt(CInfoWindow::create(CGI->generaltexth->allTexts[530])); //You must position yourself prior to starting the game.
 			return;
@@ -900,8 +900,8 @@ void CSelectionScreen::handleConnection()
 
 void CSelectionScreen::setSInfo(const StartInfo &si)
 {
-	std::map<int, PlayerSettings>::const_iterator i;
-	for(i = si.playerInfos.begin(); i != si.playerInfos.end(); i++)
+	std::map<TPlayerColor, PlayerSettings>::const_iterator i;
+	for(i = si.playerInfos.cbegin(); i != si.playerInfos.cend(); i++)
 	{
 		if(i->second.human == myNameID)
 		{
@@ -910,7 +910,7 @@ void CSelectionScreen::setSInfo(const StartInfo &si)
 		}
 	}
 
-	if(i == si.playerInfos.end()) //not found
+	if(i == si.playerInfos.cend()) //not found
 		playerColor = -1;
 
 	sInfo = si;
@@ -1653,9 +1653,9 @@ void InfoCard::showAll(SDL_Surface * to)
 		}
 		else //players list
 		{
-			std::map<ui32, std::string> playerNames = SEL->playerNames;
+			std::map<TPlayerColor, std::string> playerNames = SEL->playerNames;
 			int playerSoFar = 0;
-			for (std::map<int, PlayerSettings>::const_iterator i = SEL->sInfo.playerInfos.begin(); i != SEL->sInfo.playerInfos.end(); i++)
+			for (auto i = SEL->sInfo.playerInfos.cbegin(); i != SEL->sInfo.playerInfos.cend(); i++)
 			{
 				if(i->second.human)
 				{
@@ -1665,7 +1665,7 @@ void InfoCard::showAll(SDL_Surface * to)
 			}
 
 			playerSoFar = 0;
-			for (std::map<ui32, std::string>::const_iterator i = playerNames.begin(); i != playerNames.end(); i++)
+			for (auto i = playerNames.cbegin(); i != playerNames.cend(); i++)
 			{
 				printAtLoc(i->second, 193, 285 + playerSoFar++ * graphics->fonts[FONT_SMALL]->height, FONT_SMALL, Colors::Cornsilk, to);
 			}
@@ -1744,7 +1744,7 @@ void InfoCard::showAll(SDL_Surface * to)
 			else
 				myT = -1;
 
-			for (std::map<int, PlayerSettings>::const_iterator i = SEL->sInfo.playerInfos.begin(); i != SEL->sInfo.playerInfos.end(); i++)
+			for (auto i = SEL->sInfo.playerInfos.cbegin(); i != SEL->sInfo.playerInfos.cend(); i++)
 			{
 				int *myx = ((i->first == playerColor  ||  SEL->current->mapHeader->players[i->first].team == myT) ? &fx : &ex);
 				blitAtLoc(sFlags->ourImages[i->first].bitmap, *myx, 399, to);
@@ -2059,8 +2059,7 @@ void OptionsTab::recreate()
 	usedHeroes.clear();
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	for(std::map<int, PlayerSettings>::iterator it = SEL->sInfo.playerInfos.begin();
-		it != SEL->sInfo.playerInfos.end(); ++it)
+	for(auto it = SEL->sInfo.playerInfos.begin(); it != SEL->sInfo.playerInfos.end(); ++it)
 	{
 		entries.insert(std::make_pair(it->first, new PlayerOptionsEntry(this, it->second)));
 		const std::vector<SheroName> &heroes = SEL->current->mapHeader->players[it->first].heroesNames;
@@ -2115,7 +2114,7 @@ void OptionsTab::flagPressed( int color )
 		}
 		else //human clicked -> take next
 		{
-			std::map<ui32, std::string>::const_iterator i = SEL->playerNames.find(clickedNameID); //clicked one
+			auto i = SEL->playerNames.find(clickedNameID); //clicked one
 			i++; //player AFTER clicked one
 
 			if(i != SEL->playerNames.end())
@@ -2129,7 +2128,7 @@ void OptionsTab::flagPressed( int color )
 		//if that player was somewhere else, we need to replace him with computer
 		if(newPlayer) //not AI
 		{
-			for(std::map<int, PlayerSettings>::iterator i = SEL->sInfo.playerInfos.begin(); i != SEL->sInfo.playerInfos.end(); i++)
+			for(auto i = SEL->sInfo.playerInfos.begin(); i != SEL->sInfo.playerInfos.end(); i++)
 			{
 				int curNameID = i->second.human;
 				if(i->first != color  &&  curNameID == newPlayer)
@@ -2560,8 +2559,7 @@ CScenarioInfo::CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *start
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	for(std::map<int, PlayerSettings>::const_iterator it = startInfo->playerInfos.begin();
-		it != startInfo->playerInfos.end(); ++it)
+	for(auto it = startInfo->playerInfos.cbegin(); it != startInfo->playerInfos.cend(); ++it)
 	{
 		if(it->second.human)
 		{
@@ -2729,7 +2727,7 @@ void CHotSeatPlayers::onChange(std::string newText)
 
 void CHotSeatPlayers::enterSelectionScreen()
 {
-	std::map<ui32, std::string> names;
+	std::map<TPlayerColor, std::string> names;
 	for(int i = 0, j = 1; i < ARRAY_COUNT(txt); i++)
 		if(txt[i]->text.length())
 			names[j++] = txt[i]->text;
@@ -2937,7 +2935,7 @@ void CBonusSelection::selectMap( int whichOne )
 	ourHeader = new CMapHeader();
 	ourHeader->initFromMemory((const unsigned char*)ourCampaign->camp->mapPieces.find(whichOne)->second.data(), i);
 
-	std::map<ui32, std::string> names;
+	std::map<TPlayerColor, std::string> names;
 	names[1] = settings["general"]["playerName"].String();
 	updateStartInfo(ourCampaign->camp->header.filename, sInfo, ourHeader, names);
 	sInfo.turnTime = 0;
@@ -2992,7 +2990,7 @@ void CBonusSelection::show(SDL_Surface * to)
 	int ex = 629 + graphics->fonts[FONT_SMALL]->getWidth(CGI->generaltexth->allTexts[391].c_str());
 	int myT;
 	myT = ourHeader->players[playerColor].team;
-	for (std::map<int, PlayerSettings>::const_iterator i = sInfo.playerInfos.begin(); i != sInfo.playerInfos.end(); i++)
+	for (auto i = sInfo.playerInfos.cbegin(); i != sInfo.playerInfos.cend(); i++)
 	{
 		int *myx = ((i->first == playerColor  ||  ourHeader->players[i->first].team == myT) ? &fx : &ex);
 		blitAtLoc(sFlags->ourImages[i->first].bitmap, pos.x + *myx, pos.y + 405, to);
@@ -3054,8 +3052,7 @@ void CBonusSelection::updateBonusSelection()
 			case CScenarioTravel::STravelBonus::BUILDING:
 				{
 					int faction = -1;
-					for(std::map<int, PlayerSettings>::iterator it = sInfo.playerInfos.begin();
-						it != sInfo.playerInfos.end(); ++it)
+					for(auto it = sInfo.playerInfos.begin(); it != sInfo.playerInfos.end(); ++it)
 					{
 						if (it->second.human)
 						{
@@ -3225,7 +3222,7 @@ void CBonusSelection::selectBonus( int id )
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	if (bonDescs[id].type == CScenarioTravel::STravelBonus::HERO)
 	{
-		std::map<ui32, std::string> names;
+		std::map<TPlayerColor, std::string> names;
 		names[1] = settings["general"]["playerName"].String();
 		for(auto it = sInfo.playerInfos.begin(); it != sInfo.playerInfos.end(); ++it)
 		{
@@ -3345,7 +3342,7 @@ CSavingScreen::~CSavingScreen()
 
 }
 
-ISelectionScreenInfo::ISelectionScreenInfo(const std::map<ui32, std::string> *Names /*= NULL*/)
+ISelectionScreenInfo::ISelectionScreenInfo(const std::map<TPlayerColor, std::string> *Names /*= NULL*/)
 {
 	multiPlayer = CMenuScreen::SINGLE_PLAYER;
 	assert(!SEL);
@@ -3369,14 +3366,14 @@ void ISelectionScreenInfo::updateStartInfo(std::string filename, StartInfo & sIn
 	::updateStartInfo(filename, sInfo, mapHeader, playerNames);
 }
 
-void ISelectionScreenInfo::setPlayer(PlayerSettings &pset, unsigned player)
+void ISelectionScreenInfo::setPlayer(PlayerSettings &pset, TPlayerColor player)
 {
 	::setPlayer(pset, player, playerNames);
 }
 
 int ISelectionScreenInfo::getIdOfFirstUnallocatedPlayer()
 {
-	for(std::map<ui32, std::string>::const_iterator i = playerNames.begin(); i != playerNames.end(); i++)
+	for(auto i = playerNames.cbegin(); i != playerNames.cend(); i++)
 		if(!sInfo.getPlayersSettings(i->first))  //
 			return i->first;
 
@@ -3416,7 +3413,7 @@ void PlayerJoined::apply(CSelectionScreen *selScreen)
 	SEL->playerNames[connectionID] = playerName;
 
 	//put new player in first slot with AI
-	for(std::map<int, PlayerSettings>::iterator i = SEL->sInfo.playerInfos.begin(); i != SEL->sInfo.playerInfos.end(); i++)
+	for(auto i = SEL->sInfo.playerInfos.begin(); i != SEL->sInfo.playerInfos.end(); i++)
 	{
 		if(!i->second.human)
 		{

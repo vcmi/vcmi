@@ -2272,7 +2272,7 @@ struct PlayerLeft : public CPregamePackToPropagate
 struct PlayersNames : public CPregamePackToPropagate
 {
 public:
-	std::map<ui32, std::string> playerNames;
+	std::map<TPlayerColor, std::string> playerNames;
 
 	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
 

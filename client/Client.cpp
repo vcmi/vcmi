@@ -269,7 +269,7 @@ void CClient::loadGame( const std::string & fname )
 		tlog0 << "Server opened savegame properly.\n";
 
 	*serv << ui32(gs->scenarioOps->playerInfos.size()+1); //number of players + neutral
-	for(std::map<int, PlayerSettings>::iterator it = gs->scenarioOps->playerInfos.begin(); 
+	for(auto it = gs->scenarioOps->playerInfos.begin(); 
 		it != gs->scenarioOps->playerInfos.end(); ++it)
 	{
 		*serv << ui8(it->first); //players
@@ -286,7 +286,7 @@ void CClient::loadGame( const std::string & fname )
 void CClient::newGame( CConnection *con, StartInfo *si )
 {
 	enum {SINGLE, HOST, GUEST} networkMode = SINGLE;
-	std::set<ui8> myPlayers;
+	std::set<TPlayerColor> myPlayers;
 
 	if (con == NULL) 
 	{
@@ -299,14 +299,13 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		networkMode = (con->connectionID == 1) ? HOST : GUEST;
 	}
 
-	for(std::map<int, PlayerSettings>::iterator it =si->playerInfos.begin(); 
-		it != si->playerInfos.end(); ++it)
+	for(auto it = si->playerInfos.begin(); it != si->playerInfos.end(); ++it)
 	{
 		if((networkMode == SINGLE)												//single - one client has all player
 		   || (networkMode != SINGLE && serv->connectionID == it->second.human)	//multi - client has only "its players"
 		   || (networkMode == HOST && it->second.human == false))				//multi - host has all AI players
 		{
-			myPlayers.insert(ui8(it->first)); //add player
+			myPlayers.insert(it->first); //add player
 		}
 	}
 	if(networkMode != GUEST)
@@ -353,7 +352,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 	int humanPlayers = 0;
 	int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : GameConstants::PLAYER_LIMIT;
-	for(std::map<int, PlayerSettings>::iterator it = gs->scenarioOps->playerInfos.begin(); 
+	for(auto it = gs->scenarioOps->playerInfos.begin(); 
 		it != gs->scenarioOps->playerInfos.end(); ++it)//initializing interfaces for players
 	{ 
 		ui8 color = it->first;

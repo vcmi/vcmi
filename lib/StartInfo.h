@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GameConstants.h"
+
 /*
  * StartInfo.h, part of VCMI engine
  *
@@ -21,7 +23,7 @@ struct PlayerSettings
 		heroPortrait; //-1 if default, else ID
 	std::string heroName;
 	si8 bonus; //uses enum type Ebonus
-	ui8 color; //from 0 - 
+	TPlayerColor color; //from 0 - 
 	ui8 handicap;//0-no, 1-mild, 2-severe
 	ui8 team;
 
@@ -57,7 +59,7 @@ struct StartInfo
 	ui8 mode; //uses EMode enum
 	ui8 difficulty; //0=easy; 4=impossible
 
-	typedef bmap<int, PlayerSettings> TPlayerInfos;
+	typedef bmap<TPlayerColor, PlayerSettings> TPlayerInfos;
 	TPlayerInfos playerInfos; //color indexed
 
 	ui32 seedToBeUsed; //0 if not sure (client requests server to decide, will be send in reply pack)
@@ -68,7 +70,7 @@ struct StartInfo
 
 	shared_ptr<CCampaignState> campState;
 
-	PlayerSettings & getIthPlayersSettings(int no)
+	PlayerSettings & getIthPlayersSettings(TPlayerColor no)
 	{
 		if(playerInfos.find(no) != playerInfos.end())
 			return playerInfos[no];
@@ -78,7 +80,7 @@ struct StartInfo
 
 	PlayerSettings *getPlayersSettings(const ui8 nameID)
 	{
-		for(bmap<int, PlayerSettings>::iterator it=playerInfos.begin(); it != playerInfos.end(); ++it)
+		for(auto it=playerInfos.begin(); it != playerInfos.end(); ++it)
 			if(it->second.human == nameID)
 				return &it->second;
 

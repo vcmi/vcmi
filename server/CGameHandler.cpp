@@ -105,7 +105,7 @@ static void giveExp(BattleResult &r)
 	}
 }
 
-PlayerStatus PlayerStatuses::operator[](ui8 player)
+PlayerStatus PlayerStatuses::operator[](TPlayerColor player)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
@@ -117,13 +117,13 @@ PlayerStatus PlayerStatuses::operator[](ui8 player)
 		throw std::runtime_error("No such player!");
 	}
 }
-void PlayerStatuses::addPlayer(ui8 player)
+void PlayerStatuses::addPlayer(TPlayerColor player)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	players[player];
 }
 
-int PlayerStatuses::getQueriesCount(ui8 player)
+int PlayerStatuses::getQueriesCount(TPlayerColor player)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
@@ -136,7 +136,7 @@ int PlayerStatuses::getQueriesCount(ui8 player)
 	}
 }
 
-bool PlayerStatuses::checkFlag(ui8 player, bool PlayerStatus::*flag)
+bool PlayerStatuses::checkFlag(TPlayerColor player, bool PlayerStatus::*flag)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
@@ -148,7 +148,7 @@ bool PlayerStatuses::checkFlag(ui8 player, bool PlayerStatus::*flag)
 		throw std::runtime_error("No such player!");
 	}
 }
-void PlayerStatuses::setFlag(ui8 player, bool PlayerStatus::*flag, bool val)
+void PlayerStatuses::setFlag(TPlayerColor player, bool PlayerStatus::*flag, bool val)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
@@ -161,7 +161,7 @@ void PlayerStatuses::setFlag(ui8 player, bool PlayerStatus::*flag, bool val)
 	}
 	cv.notify_all();
 }
-void PlayerStatuses::addQuery(ui8 player, ui32 id)
+void PlayerStatuses::addQuery(TPlayerColor player, ui32 id)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
@@ -174,7 +174,7 @@ void PlayerStatuses::addQuery(ui8 player, ui32 id)
 	}
 	cv.notify_all();
 }
-void PlayerStatuses::removeQuery(ui8 player, ui32 id)
+void PlayerStatuses::removeQuery(TPlayerColor player, ui32 id)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
@@ -1072,7 +1072,7 @@ void CGameHandler::init(StartInfo *si)
 	gs->init(si);
 	tlog0 << "Gamestate initialized!" << std::endl;
 
-	for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
+	for(auto i = gs->players.begin(); i != gs->players.end(); i++)
 		states.addPlayer(i->first);
 }
 
@@ -1188,14 +1188,14 @@ void CGameHandler::newTurn()
 
 	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->hpool.heroesPool;
 
-	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+	for ( auto i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
 		if(i->first == 255)
 			continue;
 		else if(i->first >= GameConstants::PLAYER_LIMIT)
 			assert(0); //illegal player number!
 
-		std::pair<ui8,si32> playerGold(i->first,i->second.resources[Res::GOLD]);
+		std::pair<TPlayerColor,si32> playerGold(i->first,i->second.resources[Res::GOLD]);
 		hadGold.insert(playerGold);
 
 		if(newWeek) //new heroes in tavern
@@ -1403,7 +1403,7 @@ void CGameHandler::newTurn()
 						iw.text.addReplacement(MetaString::ARRAY_TXT, 43 + rand()%15);
 					}
 			}
-			for (std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end(); i++)
+			for (auto i=gs->players.begin() ; i!=gs->players.end(); i++)
 			{
 				iw.player = i->first;
 				sendAndApply(&iw);
@@ -1425,7 +1425,7 @@ void CGameHandler::newTurn()
 	//warn players without town
 	if(gs->day)
 	{
-		for (std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+		for (auto i=gs->players.cbegin() ; i!=gs->players.cend();i++)
 		{
 			if(i->second.status || i->second.towns.size() || i->second.color >= GameConstants::PLAYER_LIMIT)
 				continue;
@@ -1460,7 +1460,7 @@ void CGameHandler::run(bool resume)
 	BOOST_FOREACH(CConnection *cc, conns)
 	{//init conn.
 		ui32 quantity;
-		ui8 pom;
+		TPlayerColor pom;
 		//ui32 seed;
 		if(!resume)
 		{
@@ -1503,7 +1503,7 @@ void CGameHandler::run(bool resume)
 		if(!resume)
 			newTurn();
 
-		std::map<ui8,PlayerState>::iterator i;
+		std::map<TPlayerColor,PlayerState>::iterator i;
 		if(!resume)
 			i = gs->players.begin();
 		else
@@ -5005,7 +5005,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 	{
 		iw.text.localStrings.front().second++; //message about losing because enemy won first is just after victory message
 
-		for (bmap<ui8,PlayerState>::const_iterator i = gs->players.begin(); i!=gs->players.end(); i++)
+		for (auto i = gs->players.cbegin(); i!=gs->players.cend(); i++)
 		{
 			if(i->first < GameConstants::PLAYER_LIMIT && i->first != player)//FIXME: skip already eliminated players?
 			{

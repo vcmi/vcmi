@@ -255,16 +255,16 @@ public:
 	CMenuScreen::EState screenType; //new/save/load#Game
 	const CMapInfo *current;
 	StartInfo sInfo;
-	std::map<ui32, std::string> playerNames; // id of player <-> player name; 0 is reserved as ID of AI "players"
+	std::map<TPlayerColor, std::string> playerNames; // id of player <-> player name; 0 is reserved as ID of AI "players"
 
-	ISelectionScreenInfo(const std::map<ui32, std::string> *Names = NULL);
+	ISelectionScreenInfo(const std::map<TPlayerColor, std::string> *Names = NULL);
 	virtual ~ISelectionScreenInfo();
 	virtual void update(){};
 	virtual void propagateOptions() {};
 	virtual void postRequest(ui8 what, ui8 dir) {};
 	virtual void postChatMessage(const std::string &txt){};
 
-	void setPlayer(PlayerSettings &pset, unsigned player);
+	void setPlayer(PlayerSettings &pset, TPlayerColor player);
 	void updateStartInfo( std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader );
 
 	int getIdOfFirstUnallocatedPlayer(); //returns 0 if none
@@ -294,7 +294,7 @@ public:
 	bool ongoingClosing;
 	ui8 myNameID; //used when networking - otherwise all player are "mine"
 
-	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER, const std::map<ui32, std::string> *Names = NULL);
+	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER, const std::map<TPlayerColor, std::string> *Names = NULL);
 	~CSelectionScreen();
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);

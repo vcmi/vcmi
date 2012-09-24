@@ -5527,7 +5527,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 
 	//data for information table:
 	// fields[row][column] = list of id's of players for this box
-	static std::vector< std::vector< ui8 > > SThievesGuildInfo::* fields[] =
+	static std::vector< std::vector< TPlayerColor > > SThievesGuildInfo::* fields[] =
 		{ &SThievesGuildInfo::numOfTowns, &SThievesGuildInfo::numOfHeroes,       &SThievesGuildInfo::gold,
 		  &SThievesGuildInfo::woodOre,    &SThievesGuildInfo::mercSulfCrystGems, &SThievesGuildInfo::obelisks,
 		  &SThievesGuildInfo::artifacts,  &SThievesGuildInfo::army,              &SThievesGuildInfo::income };
@@ -5559,7 +5559,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	{
 		for(int b=0; b<(tgi .* fields[g]).size(); ++b) //by places (1st, 2nd, ...)
 		{
-			std::vector<ui8> &players = (tgi .* fields[g])[b]; //get players with this place in this line
+			std::vector<TPlayerColor> &players = (tgi .* fields[g])[b]; //get players with this place in this line
 
 			//position of box
 			int xpos = 259 + 66 * b;

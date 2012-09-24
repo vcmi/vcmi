@@ -143,14 +143,14 @@ struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
 
 struct DLL_LINKAGE SThievesGuildInfo
 {
-	std::vector<ui8> playerColors; //colors of players that are in-game
+	std::vector<TPlayerColor> playerColors; //colors of players that are in-game
 
-	std::vector< std::vector< ui8 > > numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
+	std::vector< std::vector< TPlayerColor > > numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
 
-	std::map<ui8, InfoAboutHero> colorToBestHero; //maps player's color to his best heros' 
+	std::map<TPlayerColor, InfoAboutHero> colorToBestHero; //maps player's color to his best heros' 
 
-	std::map<ui8, si8> personality; // color to personality // -1 - human, AI -> (00 - random, 01 -  warrior, 02 - builder, 03 - explorer)
-	std::map<ui8, si32> bestCreature; // color to ID // id or -1 if not known
+	std::map<TPlayerColor, si8> personality; // color to personality // -1 - human, AI -> (00 - random, 01 -  warrior, 02 - builder, 03 - explorer)
+	std::map<TPlayerColor, si32> bestCreature; // color to ID // id or -1 if not known
 
 // 	template <typename Handler> void serialize(Handler &h, const int version)
 // 	{
@@ -164,7 +164,7 @@ struct DLL_LINKAGE PlayerState : public CBonusSystemNode
 {
 public:
 	enum EStatus {INGAME, LOSER, WINNER};
-	ui8 color;
+	TPlayerColor color;
 	ui8 human; //true if human controlled player, false for AI
 	ui32 currentSelection; //id of hero/town, 0xffffffff if none
 	ui8 team;
@@ -201,7 +201,7 @@ struct DLL_LINKAGE TeamState : public CBonusSystemNode
 {
 public:
 	ui8 id; //position in gameState::teams
-	std::set<ui8> players; // members of this team
+	std::set<TPlayerColor> players; // members of this team
 	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
 	
 	TeamState();
@@ -387,9 +387,9 @@ public:
 	ConstTransitivePtr<BattleInfo> curB; //current battle
 	ui32 day; //total number of days in game
 	ConstTransitivePtr<Mapa> map;
-	bmap<ui8, PlayerState> players; //ID <-> player state
-	bmap<ui8, TeamState> teams; //ID <-> team state
-	bmap<int, ConstTransitivePtr<CGDefInfo> > villages, forts, capitols; //def-info for town graphics
+	bmap<TPlayerColor, PlayerState> players;
+	bmap<TPlayerColor, TeamState> teams;
+	bmap<TPlayerColor, ConstTransitivePtr<CGDefInfo> > villages, forts, capitols; //def-info for town graphics
 	CBonusSystemNode globalEffects;
 	bmap<const CGHeroInstance*, const CGObjectInstance*> ongoingVisits;
 
@@ -398,7 +398,7 @@ public:
 		bmap<ui32, ConstTransitivePtr<CGHeroInstance> > heroesPool; //[subID] - heroes available to buy; NULL if not available
 		bmap<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
 
-		CGHeroInstance * pickHeroFor(bool native, int player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass = NULL) const;
+		CGHeroInstance * pickHeroFor(bool native, TPlayerColor player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass = NULL) const;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{

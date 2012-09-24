@@ -399,11 +399,11 @@ void CGObjectInstance::getSightTiles(boost::unordered_set<int3, ShashInt3> &tile
 }
 void CGObjectInstance::hideTiles(int ourplayer, int radius) const
 {
-	for (std::map<ui8, TeamState>::iterator i = cb->gameState()->teams.begin(); i != cb->gameState()->teams.end(); i++)
+	for (auto i = cb->gameState()->teams.begin(); i != cb->gameState()->teams.end(); i++)
 	{
 		if ( !vstd::contains(i->second.players, ourplayer ))//another team
 		{
-			for (std::set<ui8>::iterator j = i->second.players.begin(); j != i->second.players.end(); j++)
+			for (auto j = i->second.players.begin(); j != i->second.players.end(); j++)
 				if ( cb->getPlayer(*j)->status == PlayerState::INGAME )//seek for living player (if any)
 				{
 					FoWChange fw;

@@ -725,7 +725,7 @@ std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector < const CGTownInstance *> ret = std::vector < const CGTownInstance *>();
-	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+	for ( auto i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
 		for (size_t j = 0; j < (*i).second.towns.size(); ++j)
 		{

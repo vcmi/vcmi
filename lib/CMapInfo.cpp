@@ -23,7 +23,7 @@ void CMapInfo::countPlayers()
 	}
 
 	if(scenarioOpts)
-		for (std::map<int, PlayerSettings>::const_iterator i = scenarioOpts->playerInfos.begin(); i != scenarioOpts->playerInfos.end(); i++)
+		for (auto i = scenarioOpts->playerInfos.cbegin(); i != scenarioOpts->playerInfos.cend(); i++)
 			if(i->second.human)
 				actualHumanPlayers++;
 }

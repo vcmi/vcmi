@@ -897,7 +897,7 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]
 
 	//count days without town
-	for( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+	for( auto i=gs->players.begin() ; i!=gs->players.end(); i++)
 	{
 		if(i->second.towns.size() || gs->day == 1)
 			i->second.daysWithoutCastle = 0;
