@@ -328,7 +328,6 @@ CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
 	}
 
 	gh->init(&si);
-	c.addStdVecItems(gh->gs);
 	gh->conns.insert(&c);
 
 	return gh;

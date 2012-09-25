@@ -334,6 +334,8 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 	c >> si;
 	tlog0 <<"\tSending/Getting info to/from the server: "<<tmh.getDiff()<<std::endl;
+	c.enableStackSendingByID();
+	c.disableSmartPointerSerialization();
 
 	gs = const_cast<CGameInfo*>(CGI)->state;
 	gs->scenarioOps = si;

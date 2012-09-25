@@ -1480,6 +1480,10 @@ void CGameHandler::run(bool resume)
 			}
 		}
 		tlog0 << std::endl;
+
+		cc->addStdVecItems(gs);
+		cc->enableStackSendingByID();
+		cc->disableSmartPointerSerialization();
 	}
 
 	for(std::set<CConnection*>::iterator i = conns.begin(); i!=conns.end();i++)

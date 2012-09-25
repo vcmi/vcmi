@@ -1380,7 +1380,8 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 				if (guardingCreature)
 				{
 					CCS->curh->changeGraphic(0, 5 + turns*6);
-				} else
+				} 
+				else
 				{
 					if(pnode->land)
 					{
