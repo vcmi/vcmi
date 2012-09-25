@@ -980,30 +980,33 @@ void CGameState::init(StartInfo * si)
 	/*********give starting hero****************************************/
 	tlog4 << "\tGiving starting hero";
 	{
-		auto bonus = scenarioOps->campState->getBonusForCurrentMap();
-		if(bonus.is_initialized())
+		if(scenarioOps->campState)
 		{
-			for(auto it = scenarioOps->playerInfos.begin(); it != scenarioOps->playerInfos.end(); ++it)
+			auto bonus = scenarioOps->campState->getBonusForCurrentMap();
+			if(bonus.is_initialized())
 			{
-				const PlayerInfo &p = map->players[it->first];
-				bool campaignGiveHero = it->second.human && scenarioOps->mode == StartInfo::CAMPAIGN &&
-					bonus.get().type == CScenarioTravel::STravelBonus::HERO;
-				bool generateHero = (p.generateHeroAtMainTown || campaignGiveHero) && p.hasMainTown;
-				if(generateHero && vstd::contains(scenarioOps->playerInfos, it->first))
+				for(auto it = scenarioOps->playerInfos.begin(); it != scenarioOps->playerInfos.end(); ++it)
 				{
-					int3 hpos = p.posOfMainTown;
-					hpos.x+=1;
+					const PlayerInfo &p = map->players[it->first];
+					bool campaignGiveHero = it->second.human && scenarioOps->mode == StartInfo::CAMPAIGN &&
+						bonus.get().type == CScenarioTravel::STravelBonus::HERO;
+					bool generateHero = (p.generateHeroAtMainTown || campaignGiveHero) && p.hasMainTown;
+					if(generateHero && vstd::contains(scenarioOps->playerInfos, it->first))
+					{
+						int3 hpos = p.posOfMainTown;
+						hpos.x+=1;
 
-					int h = pickHero(it->first);
-					if(it->second.hero == -1)
-						it->second.hero = h;
+						int h = pickHero(it->first);
+						if(it->second.hero == -1)
+							it->second.hero = h;
 
-					CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(Obj::HERO,h,hpos,it->first));
-					nnn->id = map->objects.size();
-					nnn->initHero();
-					map->heroes.push_back(nnn);
-					map->objects.push_back(nnn);
-					map->addBlockVisTiles(nnn);
+						CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(Obj::HERO,h,hpos,it->first));
+						nnn->id = map->objects.size();
+						nnn->initHero();
+						map->heroes.push_back(nnn);
+						map->objects.push_back(nnn);
+						map->addBlockVisTiles(nnn);
+					}
 				}
 			}
 		}
