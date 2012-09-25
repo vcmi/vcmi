@@ -86,7 +86,7 @@ void CModHandler::loadConfigFromFile (std::string name)
 		const JsonNode *value = &config["creatures"];
 		BOOST_FOREACH (auto creature, value->Vector())
 		{
-			auto cre = loadCreature (creature); //FIXME: unused variable 'cre' //create and push back creature
+			loadCreature (creature);//create and push back creature
 		}
 	}
 }
@@ -114,7 +114,11 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	const JsonNode & name = node["name"];
 	cre->nameSing = name["singular"].String();
 	cre->namePl = name["plural"].String();
-	cre->nameRef = cre->nameSing;
+	value = &name["reference"];
+	if (!value->isNull())
+		cre->nameRef = value->String();
+	else
+		cre->nameRef = cre->nameSing;
 
 	cre->cost = Res::ResourceSet(node["cost"]);
 
@@ -157,6 +161,40 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	{
 		cre->addNewBonus(ParseBonus(bonus));
 	}
+	BOOST_FOREACH (const JsonNode &exp, node["stackExperience"].Vector())
+	{
+		auto bonus = ParseBonus (exp["bonus"]);
+		const JsonVector &values = exp["values"].Vector();
+		int lowerLimit = 1, upperLimit = 255;
+		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
+		{
+			BOOST_FOREACH (const JsonNode &val, values)
+			{
+				if (val.Bool() == true)
+				{
+					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
+					cre->addNewBonus (new Bonus(*bonus)); //bonuses must be unique objects
+					break; //TODO: allow bonuses to turn off?
+				}
+				++lowerLimit;
+			}
+		}
+		else
+		{
+			int lastVal = 0;
+			BOOST_FOREACH (const JsonNode &val, values)
+			{
+				if (val.Float() != lastVal)
+				{
+					bonus->val = val.Float() - lastVal;
+					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
+					cre->addNewBonus (new Bonus(*bonus));
+				}
+				lastVal = val.Float();
+				++lowerLimit;
+			}
+		}
+	}
 	//graphics
 
 	const JsonNode & graphics = node["graphics"];
@@ -171,6 +209,19 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	cre->flightAnimationDistance = animationTime["flight"].Float(); //?
 	//TODO: background?
 	const JsonNode & missle = graphics["missle"];
+	//TODO: parse
+	value = &missle["projectile"];
+	if (value->isNull())
+		cre->projectile = "PLCBOWX.DEF";
+	else
+		cre->projectile = value->String();
+
+	value = &missle["spinning"];
+	if (value->isNull())
+		cre->projectileSpin = false; //no animation by default to avoid crash
+	else
+		cre->projectileSpin = value->Bool();
+
 	const JsonNode & offsets = missle["offset"];
 	cre->upperRightMissleOffsetX = offsets["upperX"].Float();
 	cre->upperRightMissleOffsetY = offsets["upperY"].Float();
@@ -185,10 +236,6 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	}
 	cre->advMapDef = graphics["map"].String();
 	cre->iconIndex = graphics["iconIndex"].Float();
-	
-	//TODO: parse
-	cre->projectile = "PLCBOWX.DEF";
-	cre->projectileSpin = false;
 
 	const JsonNode & sounds = node["sound"];
 
@@ -206,6 +253,9 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 #undef GET_SOUND_VALUE
 
 	creatures.push_back(cre);
+
+	tlog3 << "Added new creature " << cre->nameRef << "\n";
+
 	return cre;
 }
 void CModHandler::recreateAdvMapDefs()
