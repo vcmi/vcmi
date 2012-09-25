@@ -1323,7 +1323,7 @@ struct BattleResult : public CPackForClient//3003
 	ui8 winner; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
 	std::map<ui32,si32> casualties[2]; //first => casualties of attackers - map crid => number
 	TExpType exp[2]; //exp for attacker and defender
-	std::set<TArtifactID> artifacts; //artifacts taken from loser to winner - currently unused
+	std::set<TArtifactInstanceID> artifacts; //artifacts taken from loser to winner - currently unused
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

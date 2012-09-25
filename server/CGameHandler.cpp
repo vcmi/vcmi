@@ -2967,7 +2967,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, int ri
 	return true;
 }
 
-bool CGameHandler::sellArtifact(const IMarket *m, const CGHeroInstance *h, TArtifactID aid, int rid)
+bool CGameHandler::sellArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactInstanceID aid, TResource rid )
 {
 	const CArtifactInstance *art = h->getArtByInstanceId(aid);
 	if(!art)

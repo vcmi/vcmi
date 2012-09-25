@@ -34,11 +34,20 @@ namespace ArtifactPosition
 	};
 }
 
-namespace ArtifactPos
+namespace ArtifactID
 {
-	enum ArtifactPos
+	enum ArtifactID
 	{
-		SPELLBOOK = 17
+		SPELLBOOK = 0,
+		SPELL_SCROLL = 1,
+		GRAIL = 2,
+		CATAPULT = 3,
+		BALLISTA = 4,
+		AMMO_CART = 5,
+		FIRST_AID_TENT = 6,
+		CENTAUR_AXE = 7,
+		BLACKSHARD_OF_THE_DEAD_KNIGHT = 8,
+		CORNUCOPIA = 140
 	};
 }
 
@@ -110,7 +119,7 @@ public:
 	CArtifactInstance();
 
 	ConstTransitivePtr<CArtifact> artType; 
-	TArtifactID id; //id of the instance
+	TArtifactInstanceID id;
 
 	//CArtifactInstance(int aid);
 
@@ -208,14 +217,14 @@ public:
 	ui16 getArtSync (ui32 rand, int flags);
 	void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
 	void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
-	void erasePickedArt (TArtifactID id);
+	void erasePickedArt (TArtifactInstanceID id);
 	bool isBigArtifact (TArtifactID artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
 // 	void equipArtifact (std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art) const;
 // 	void unequipArtifact (std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID) const;
 	void initAllowedArtifactsList(const std::vector<ui8> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	static int convertMachineID(int id, bool creToArt);
-	void makeItCreatureArt (TArtifactID aid, bool onlyCreature = true);
-	void makeItCommanderArt (TArtifactID aid, bool onlyCommander = true);
+	void makeItCreatureArt (TArtifactInstanceID aid, bool onlyCreature = true);
+	void makeItCommanderArt (TArtifactInstanceID aid, bool onlyCommander = true);
 	CArtHandler();
 	~CArtHandler();
 
@@ -257,7 +266,7 @@ public:
 	CArtifactInstance* getArt(ui16 pos, bool excludeLocked = true); //NULL - no artifact
 	si32 getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
 	si32 getArtPos(const CArtifactInstance *art) const;
-	const CArtifactInstance *getArtByInstanceId(TArtifactID artInstId) const;
+	const CArtifactInstance *getArtByInstanceId(TArtifactInstanceID artInstId) const;
 	bool hasArt(ui32 aid, bool onlyWorn = false) const; //checks if hero possess artifact of given id (either in backack or worn)
 	bool isPositionFree(ui16 pos, bool onlyLockCheck = false) const;
 	si32 getArtTypeId(ui16 pos) const;

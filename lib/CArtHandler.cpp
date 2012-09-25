@@ -448,7 +448,7 @@ void CArtHandler::sortArts()
  	//	}
  	//}
 }
-void CArtHandler::erasePickedArt (TArtifactID id)
+void CArtHandler::erasePickedArt( TArtifactInstanceID id )
 {
 	std::vector<CArtifact*>* ptr;
 	CArtifact *art = artifacts[id];
@@ -566,7 +566,7 @@ void CArtHandler::giveArtBonus(TArtifactID aid, Bonus *bonus)
 	artifacts[aid]->addNewBonus(bonus);
 }
 
-void CArtHandler::makeItCreatureArt (TArtifactID aid, bool onlyCreature /*=true*/)
+void CArtHandler::makeItCreatureArt (TArtifactInstanceID aid, bool onlyCreature /*=true*/)
 {
 	CArtifact *a = artifacts[aid];
 	if (onlyCreature)
@@ -577,7 +577,7 @@ void CArtHandler::makeItCreatureArt (TArtifactID aid, bool onlyCreature /*=true*
 	a->possibleSlots[ArtBearer::CREATURE].push_back(ArtifactPosition::CREATURE_SLOT);
 }
 
-void CArtHandler::makeItCommanderArt (TArtifactID aid, bool onlyCommander /*=true*/)
+void CArtHandler::makeItCommanderArt( TArtifactInstanceID aid, bool onlyCommander /*= true*/ )
 {
 	CArtifact *a = artifacts[aid];
 	if (onlyCommander)
@@ -1456,7 +1456,7 @@ si32 CArtifactSet::getArtPos(const CArtifactInstance *art) const
 	return -1;
 }
 
-const CArtifactInstance * CArtifactSet::getArtByInstanceId( TArtifactID artInstId ) const
+const CArtifactInstance * CArtifactSet::getArtByInstanceId( TArtifactInstanceID artInstId ) const
 {
 	for(std::map<ui16, ArtSlotInfo>::const_iterator i = artifactsWorn.begin(); i != artifactsWorn.end(); i++)
 		if(i->second.artifact->id == artInstId)

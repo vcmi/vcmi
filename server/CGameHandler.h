@@ -216,7 +216,7 @@ public:
 	bool assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assemble, ui32 assembleTo);
 	bool buyArtifact( ui32 hid, TArtifactID aid ); //for blacksmith and mage guild only -> buying for gold in common buildings
 	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactID rid, TArtifactID aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
-	bool sellArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactID aid, TArtifactID rid); //for artifact merchant selling
+	bool sellArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactInstanceID aid, TResource rid); //for artifact merchant selling
 	//void lootArtifacts (TArtHolder source, TArtHolder dest, std::vector<ui32> &arts); //after battle - move al arts to winer
 	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, int skill);
 	bool garrisonSwap(si32 tid);

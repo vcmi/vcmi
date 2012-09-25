@@ -5438,7 +5438,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	iw.text.addTxt(MetaString::SPELL_NAME,spell);
 	iw.text << ".";
 
-	if(!h->getArt(ArtifactPos::SPELLBOOK))
+	if(!h->getArt(ArtifactPosition::SPELLBOOK))
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,131);
 	}
