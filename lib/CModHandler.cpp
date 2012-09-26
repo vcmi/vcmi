@@ -160,12 +160,14 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	BOOST_FOREACH (const JsonNode &bonus, node["abilities"].Vector())
 	{
 		auto b = ParseBonus(bonus);
+		b->source = Bonus::CREATURE_ABILITY;
 		b->duration = Bonus::PERMANENT;
 		cre->addNewBonus(b);
 	}
 	BOOST_FOREACH (const JsonNode &exp, node["stackExperience"].Vector())
 	{
 		auto bonus = ParseBonus (exp["bonus"]);
+		bonus->source = Bonus::STACK_EXPERIENCE;
 		bonus->duration = Bonus::PERMANENT;
 		const JsonVector &values = exp["values"].Vector();
 		int lowerLimit = 1;//, upperLimit = 255;
@@ -281,6 +283,10 @@ void CModHandler::recreateHandlers()
 	BOOST_FOREACH (auto creature, creatures)
 	{
 		creature->idNumber = VLC->creh->creatures.size(); //calculate next index for every used creature
+		BOOST_FOREACH (auto bonus, creature->getBonusList())
+		{
+			bonus->sid = creature->idNumber;
+		}
 		VLC->creh->creatures.push_back (creature);
 		//TODO: use refName?
 		//if (creature->nameRef.size())

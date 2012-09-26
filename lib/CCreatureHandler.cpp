@@ -694,7 +694,9 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	case 'd':
 		b.type = Bonus::DEFENSIVE_STANCE; break;
 	case 'e':
-		b.type = Bonus::DOUBLE_DAMAGE_CHANCE; break;
+		b.type = Bonus::DOUBLE_DAMAGE_CHANCE;
+		b.subtype = 0;
+		break;
 	case 'E':
 		b.type = Bonus::DEATH_STARE;
 		b.subtype = 0; //Gorgon
