@@ -486,6 +486,8 @@ int CStackInstance::getQuantityID() const
 
 int CStackInstance::getExpRank() const
 {
+	if (!VLC->modh->modules.STACK_EXP)
+		return 0;
 	int tier = type->level;
 	if (vstd::iswithin(tier, 1, 7))
 	{

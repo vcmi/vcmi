@@ -159,11 +159,14 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 
 	BOOST_FOREACH (const JsonNode &bonus, node["abilities"].Vector())
 	{
-		cre->addNewBonus(ParseBonus(bonus));
+		auto b = ParseBonus(bonus);
+		b->duration = Bonus::PERMANENT;
+		cre->addNewBonus(b);
 	}
 	BOOST_FOREACH (const JsonNode &exp, node["stackExperience"].Vector())
 	{
 		auto bonus = ParseBonus (exp["bonus"]);
+		bonus->duration = Bonus::PERMANENT;
 		const JsonVector &values = exp["values"].Vector();
 		int lowerLimit = 1, upperLimit = 255;
 		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
@@ -172,7 +175,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 			{
 				if (val.Bool() == true)
 				{
-					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
+					bonus->limiter = make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
 					cre->addNewBonus (new Bonus(*bonus)); //bonuses must be unique objects
 					break; //TODO: allow bonuses to turn off?
 				}
