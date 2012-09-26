@@ -32,6 +32,9 @@ class CGTownInstance;
 class IModableArt;
 class IQuestObject;
 
+class CInputStream;
+typedef std::unique_ptr<CInputStream> TInputStreamPtr;
+
 /// Struct which describes a single terrain tile
 struct DLL_LINKAGE TerrainTile
 {
@@ -348,6 +351,8 @@ struct DLL_LINKAGE Mapa : public CMapHeader
 	CGHeroInstance * getHero(int ID, int mode=0);
 	bool isInTheMap(const int3 &pos) const;
 	bool isWaterTile(const int3 &pos) const; //out-of-pos safe
+
+	static TInputStreamPtr getMapStream(std::string URI);
 
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{

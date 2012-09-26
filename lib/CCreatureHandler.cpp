@@ -250,86 +250,51 @@ void CCreatureHandler::loadCreatures()
 	tlog5 << "\t\tReading config/cr_abils.json and ZCRTRAIT.TXT" << std::endl;
 
 	////////////reading ZCRTRAIT.TXT ///////////////////
-	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/ZCRTRAIT.TXT"));
-	std::string buf((char*)textFile.first.get(), textFile.second);
-	int andame = buf.size();
-	int i=0; //buf iterator
-	int hmcr=0;
-	for(; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			++hmcr;
-		if(hmcr==2)
-			break;
-	}
-	i+=2;
+	CLegacyConfigParser parser("DATA/ZCRTRAIT.TXT");
 
-	while(i<buf.size())
+	parser.endLine(); // header
+	parser.endLine();
+
+	do
 	{
+		//loop till non-empty line
+		while (parser.isNextEntryEmpty())
+			parser.endLine();
+
 		CCreature &ncre = *new CCreature;
 		ncre.idNumber = creatures.size();
 		ncre.cost.resize(GameConstants::RESOURCE_QUANTITY);
 		ncre.level=0;
 		ncre.iconIndex = ncre.idNumber + 2; // +2 for empty\selection images
 
-		int befi=i;
-		for(; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.nameSing = buf.substr(befi, i-befi);
-		++i;
-
-		befi=i;
-		for(; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.namePl = buf.substr(befi, i-befi);
-		++i;
+		ncre.nameSing = parser.readString();
+		ncre.namePl   = parser.readString();
 
 		for(int v=0; v<7; ++v)
 		{
-			ncre.cost[v] = readNumber(befi, i, andame, buf);
+			ncre.cost[v] = parser.readNumber();
 		}
-		ncre.fightValue = readNumber(befi, i, andame, buf);
-		ncre.AIValue = readNumber(befi, i, andame, buf);
-		ncre.growth = readNumber(befi, i, andame, buf);
-		ncre.hordeGrowth = readNumber(befi, i, andame, buf);
+		ncre.fightValue = parser.readNumber();
+		ncre.AIValue = parser.readNumber();
+		ncre.growth = parser.readNumber();
+		ncre.hordeGrowth = parser.readNumber();
 
-		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::STACK_HEALTH);
-		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::STACKS_SPEED);
-		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
-		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
-		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::CREATURE_DAMAGE, 1);
-		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::CREATURE_DAMAGE, 2);
-		ncre.addBonus(readNumber(befi, i, andame, buf), Bonus::SHOTS);
+		ncre.addBonus(parser.readNumber(), Bonus::STACK_HEALTH);
+		ncre.addBonus(parser.readNumber(), Bonus::STACKS_SPEED);
+		ncre.addBonus(parser.readNumber(), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
+		ncre.addBonus(parser.readNumber(), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+		ncre.addBonus(parser.readNumber(), Bonus::CREATURE_DAMAGE, 1);
+		ncre.addBonus(parser.readNumber(), Bonus::CREATURE_DAMAGE, 2);
+		ncre.addBonus(parser.readNumber(), Bonus::SHOTS);
 
 		//spells - not used?
-		readNumber(befi, i, andame, buf);
-		ncre.ammMin = readNumber(befi, i, andame, buf);
-		ncre.ammMax = readNumber(befi, i, andame, buf);
+		parser.readNumber();
+		ncre.ammMin = parser.readNumber();
+		ncre.ammMax = parser.readNumber();
 
-		befi=i;
-		for(; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.abilityText = buf.substr(befi, i-befi);
-		++i;
+		ncre.abilityText = parser.readString();
+		ncre.abilityRefs = parser.readString();
 
-		befi=i;
-		for(; i<andame; ++i)
-		{
-			if(buf[i]=='\r')
-				break;
-		}
-		ncre.abilityRefs = buf.substr(befi, i-befi);
-		i+=2;
-		if(true)
 		{ //adding abilities from ZCRTRAIT.TXT
 			if(boost::algorithm::find_first(ncre.abilityRefs, "DOUBLE_WIDE"))
 				ncre.doubleWide = true;
@@ -379,13 +344,9 @@ void CCreatureHandler::loadCreatures()
 			if(boost::algorithm::find_first(ncre.abilityRefs, "HAS_EXTENDED_ATTACK"))
 				ncre.addBonus(0, Bonus::TWO_HEX_ATTACK_BREATH);;
 		}
-
-		if(ncre.nameSing!=std::string("") && ncre.namePl!=std::string(""))
-		{
-			ncre.idNumber = creatures.size();
-			creatures.push_back(&ncre);
-		}
+		creatures.push_back(&ncre);
 	}
+	while (parser.endLine());
 
 	// loading creatures properties
 	tlog5 << "\t\tReading config/creatures.json" << std::endl;
@@ -493,7 +454,7 @@ void CCreatureHandler::loadCreatures()
 			addBonusForAllCreatures(b); //health bonus is common for all
 		parser.endLine();
 
-		for (i = 1; i < 7; ++i)
+		for (int i = 1; i < 7; ++i)
 		{
 			for (int j = 0; j < 4; ++j) //four modifiers common for tiers
 			{
@@ -534,7 +495,7 @@ void CCreatureHandler::loadCreatures()
 			expRanks[0].push_back(expRanks[0][j-1] + it + dif);
 			dif += it/5;
 		}
-		for (i = 1; i < 8; ++i)
+		for (int i = 1; i < 8; ++i)
 		{
 			dif = 0;
 			it = 1000 * i;
@@ -551,7 +512,7 @@ void CCreatureHandler::loadCreatures()
 		expBonParser.endLine(); //header
 
 		maxExpPerBattle.resize(8);
-		for (i = 1; i < 8; ++i)
+		for (int i = 1; i < 8; ++i)
 		{
 			expBonParser.readString(); //index
 			expBonParser.readString(); //float multiplier -> hardcoded
@@ -585,7 +546,7 @@ void CCreatureHandler::loadCreatures()
 		commanderLevelPremy.push_back(ParseBonus (bonus.Vector()));
 	}
 
-	i = 0;
+	int i = 0;
 	BOOST_FOREACH (auto skill, config3["skillLevels"].Vector())
 	{
 		skillLevels.push_back (std::vector<ui8>());

@@ -317,7 +317,7 @@ bool CSmackPlayer::open( std::string name )
 
 void CSmackPlayer::show( int x, int y, SDL_Surface *dst, bool update)
 {
-	int w = data->width, h = data->height;
+	int w = data->width;
 	int stripe = (-w*2) & (~3);
 
 	//put frame to the buffer

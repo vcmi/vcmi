@@ -788,7 +788,7 @@ void CInfoBar::CVisibleInfo::loadGameStatus()
 	}
 }
 
-void CInfoBar::CVisibleInfo::loadComponent(const Component compToDisplay, std::string message)
+void CInfoBar::CVisibleInfo::loadComponent(const Component & compToDisplay, std::string message)
 {
 	assert(children.empty()); // visible info should be re-created to change type
 
@@ -889,7 +889,7 @@ void CInfoBar::showDate()
 	redraw();
 }
 
-void CInfoBar::showComponent(const Component comp, std::string message)
+void CInfoBar::showComponent(const Component & comp, std::string message)
 {
 	reset(COMPONENT);
 	visibleInfo->loadComponent(comp, message);

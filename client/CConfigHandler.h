@@ -68,7 +68,7 @@ class SettingsListener
 	SettingsListener(SettingsStorage &_parent, const std::vector<std::string> &_path);
 
 	// Executes callback if changedpath begins with path
-	void nodeInvalidated(const std::vector<std::string> changedPath);
+	void nodeInvalidated(const std::vector<std::string> & changedPath);
 
 public:
 	SettingsListener(const SettingsListener &sl);

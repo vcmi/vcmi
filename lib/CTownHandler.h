@@ -3,7 +3,7 @@
 #include "ConstTransitivePtr.h"
 #include "ResourceSet.h"
 #include "int3.h"
-//#include "GameConstants.h"
+#include "GameConstants.h"
 
 /*
  * CTownHandler.h, part of VCMI engine
@@ -29,7 +29,8 @@ class DLL_LINKAGE CBuilding
 	std::string description;
 
 public:
-	si32 tid, bid; //town ID and structure ID
+	TFaction tid;
+	si32 bid; //town ID and structure ID
 	TResources resources;
 
 	std::set<BuildingType> requirements; /// set of required buildings, includes upgradeOf;
@@ -88,11 +89,11 @@ class DLL_LINKAGE CTown
 	std::vector<std::string> names; //names of the town instances
 
 public:
-	ui32 typeID;//also works as factionID
+	TFaction typeID;//also works as factionID
 
 	/// level -> list of creatures on this tier
 	// TODO: replace with pointers to CCreature
-	std::vector<std::vector<si32> > creatures;
+	std::vector<std::vector<TCreature> > creatures;
 
 	bmap<int, ConstTransitivePtr<CBuilding> > buildings;
 
@@ -155,7 +156,7 @@ class CFaction
 {
 public:
 	std::string name; //reference name, usually lower case
-	ui32 factionID;
+	TFaction factionID;
 
 	ui32 nativeTerrain;
 
@@ -194,8 +195,8 @@ class DLL_LINKAGE CTownHandler
 	void loadLegacyData(JsonNode & dest);
 
 public:
-	std::map<ui32, CTown> towns;
-	std::map<ui32, CFaction> factions;
+	std::map<TFaction, CTown> towns;
+	std::map<TFaction, CFaction> factions;
 
 	CTownHandler(); //c-tor, set pointer in VLC to this
 

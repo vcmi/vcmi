@@ -55,15 +55,15 @@ namespace SRSLPraserHelpers
 		switch(direction)
 		{
 		case 0: //top left
-			return std::make_pair(y%2 ? x-1 : x, y-1);
+			return std::make_pair((y%2) ? x-1 : x, y-1);
 		case 1: //top right
-			return std::make_pair(y%2 ? x : x+1, y-1);
+			return std::make_pair((y%2) ? x : x+1, y-1);
 		case 2:  //right
 			return std::make_pair(x+1, y);
 		case 3: //right bottom
-			return std::make_pair(y%2 ? x : x+1, y+1);
+			return std::make_pair((y%2) ? x : x+1, y+1);
 		case 4: //left bottom
-			return std::make_pair(y%2 ? x-1 : x, y+1);
+			return std::make_pair((y%2) ? x-1 : x, y+1);
 		case 5: //left
 			return std::make_pair(x-1, y);
 		default:

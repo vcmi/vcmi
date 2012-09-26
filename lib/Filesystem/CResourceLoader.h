@@ -376,9 +376,9 @@ public:
 	/**
 	 * Will load all filesystem data from Json data at this path (config/filesystem.json)
 	 */
-	static void loadFileSystem(const std::string fsConfigURI);
-	static void loadDirectory(const std::string mountPoint, const JsonNode & config);
-	static void loadArchive(const std::string mountPoint, const JsonNode & config, EResType::Type archiveType);
+	static void loadFileSystem(const std::string & fsConfigURI);
+	static void loadDirectory(const std::string & mountPoint, const JsonNode & config);
+	static void loadArchive(const std::string & mountPoint, const JsonNode & config, EResType::Type archiveType);
 
 	/**
 	 * Experimental. Checks all subfolders of MODS directory for presence of ERA-style mods

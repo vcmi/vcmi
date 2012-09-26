@@ -263,7 +263,7 @@ class CInfoBar : public CIntObject
 		void loadDay();
 		void loadEnemyTurn(int player);
 		void loadGameStatus();
-		void loadComponent(const Component comp, std::string message);
+		void loadComponent(const Component &comp, std::string message);
 
 		//can be called multiple times
 		void updateEnemyTurn(double progress);
@@ -295,7 +295,7 @@ public:
 	void showDate();
 
 	/// show component for 3 seconds. Used to display picked up resources
-	void showComponent(const Component comp, std::string message);
+	void showComponent(const Component & comp, std::string message);
 
 	/// print enemy turn progress
 	void startEnemyTurn(ui8 color);

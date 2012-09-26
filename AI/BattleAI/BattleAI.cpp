@@ -241,7 +241,7 @@ struct AttackPossibility
 };
 
 template<typename Key, typename Val>
-const Val &getValOr(const std::map<Key, Val> &Map, const Key &key, const Key &defaultValue)
+const Val &getValOr(const std::map<Key, Val> &Map, const Key &key, const Val &defaultValue)
 {
 	auto i = Map.find(key);
 	if(i != Map.end())
@@ -279,8 +279,8 @@ struct PotentialTargets
 			GenerateAttackInfo = [&](bool shooting, BattleHex hex) -> AttackPossibility
 			{
 				auto bai = BattleAttackInfo(attacker, enemy, shooting);
-				bai.attackerBonuses = getValOr(state.bonusesOfStacks, bai.attacker, bai.attacker);
-				bai.defenderBonuses = getValOr(state.bonusesOfStacks, bai.defender, bai.defender);
+				bai.attackerBonuses = getValOr(state.bonusesOfStacks, bai.attacker, static_cast<const IBonusBearer *>(bai.attacker));
+				bai.defenderBonuses = getValOr(state.bonusesOfStacks, bai.defender, static_cast<const IBonusBearer *>(bai.defender));
 
 				AttackPossibility ap = {enemy, hex, bai, 0, 0};
 				if(hex.isValid())

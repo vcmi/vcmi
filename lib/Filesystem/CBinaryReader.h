@@ -68,75 +68,19 @@ public:
 	si64 read(ui8 * data, si64 size);
 
 	/**
-	 * Reads a unsigned 8 bit integer. Advances the read pointer by one byte.
+	 * Reads integer of various size. Advances the read pointer.
 	 *
-	 * @return a unsigned 8 bit integer.
+	 * @return a read integer.
 	 *
 	 * @throws std::runtime_error if the end of the stream was reached unexpectedly
 	 */
 	ui8 readUInt8();
-
-	/**
-	 * Reads a signed 8 bit integer. Advances the read pointer by one byte.
-	 *
-	 * @return a signed 8 bit integer.
-	 *
-	 * @throws std::runtime_error if the end of the stream was reached unexpectedly
-	 */
 	si8 readInt8();
-
-	/**
-	 * Reads a unsigned 16 bit integer. Advances the read pointer by two bytes.
-	 *
-	 * @return a unsigned 16 bit integer.
-	 *
-	 * @throws std::runtime_error if the end of the stream was reached unexpectedly
-	 */
 	ui16 readUInt16();
-
-	/**
-	 * Reads a signed 16 bit integer. Advances the read pointer by two bytes.
-	 *
-	 * @return a signed 16 bit integer.
-	 *
-	 * @throws std::runtime_error if the end of the stream was reached unexpectedly
-	 */
 	si16 readInt16();
-
-	/**
-	 * Reads a unsigned 32 bit integer. Advances the read pointer by four bytes.
-	 *
-	 * @return a unsigned 32 bit integer.
-	 *
-	 * @throws std::runtime_error if the end of the stream was reached unexpectedly
-	 */
 	ui32 readUInt32();
-
-	/**
-	 * Reads a signed 32 bit integer. Advances the read pointer by four bytes.
-	 *
-	 * @return a signed 32 bit integer.
-	 *
-	 * @throws std::runtime_error if the end of the stream was reached unexpectedly
-	 */
 	si32 readInt32();
-
-	/**
-	 * Reads a unsigned 64 bit integer. Advances the read pointer by eight bytes.
-	 *
-	 * @return a unsigned 64 bit integer.
-	 *
-	 * @throws std::runtime_error if the end of the stream was reached unexpectedly
-	 */
 	ui64 readUInt64();
-
-	/**
-	 * Reads a signed 64 bit integer. Advances the read pointer by eight bytes.
-	 *
-	 * @return a signed 64 bit integer.
-	 *
-	 * @throws std::runtime_error if the end of the stream was reached unexpectedly
-	 */
 	si64 readInt64();
 
 private:

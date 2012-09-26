@@ -151,7 +151,7 @@ void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader *
 		const PlayerInfo &pinfo = mapHeader->players[i];
 
 		//neither computer nor human can play - no player
-		if (!(pinfo.canComputerPlay || pinfo.canComputerPlay))
+		if (!(pinfo.canHumanPlay || pinfo.canComputerPlay))
 			continue;
 
 		PlayerSettings &pset = sInfo.playerInfos[i];
@@ -1048,8 +1048,8 @@ void SelectionTab::parseMaps(const std::vector<ResourceID> &files, int start, in
 	{
 		try
 		{
-			CCompressedStream stream(std::move(CResourceHandler::get()->load(files[start])), true);
-			int read = stream.read(mapBuffer, 1500);
+			TInputStreamPtr stream(Mapa::getMapStream(files[start].getName()));
+			int read = stream->read(mapBuffer, 1500);
 
 			if(read < 50  ||  !mapBuffer[4])
 				throw std::runtime_error("corrupted map file");

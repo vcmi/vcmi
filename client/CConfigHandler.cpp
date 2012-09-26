@@ -118,7 +118,7 @@ SettingsListener::~SettingsListener()
 	parent.listeners.erase(this);
 }
 
-void SettingsListener::nodeInvalidated(const std::vector<std::string> changedPath)
+void SettingsListener::nodeInvalidated(const std::vector<std::string> &changedPath)
 {
 	if (!callback)
 		return;

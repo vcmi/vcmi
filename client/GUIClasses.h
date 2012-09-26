@@ -1062,7 +1062,7 @@ public:
 		void move();
 		void clickLeft(tribool down, bool previousState);
 		void update();
-		CItem(CTransformerWindow * _parent, int _size, int _id);
+		CItem(CTransformerWindow * parent, int size, int id);
 	};
 
 	const CArmedInstance *army;//object with army for transforming (hero or town)

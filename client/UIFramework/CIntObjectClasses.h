@@ -148,7 +148,7 @@ public:
 	void setIndex(size_t index, bool playerColoredButton=false);
 	void setImage(CAnimation* anim, bool playerColoredButton=false, int animFlags=0);
 	void setPlayerColor(int player);
-	void showAll(SDL_Surface * to);
+	void show(SDL_Surface * to);
 };
 
 /// A button which can be selected/deselected

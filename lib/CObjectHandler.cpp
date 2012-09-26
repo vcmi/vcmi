@@ -1500,7 +1500,6 @@ int CGHeroInstance::movementPointsAfterEmbark(int MPsBefore, int basicCost, bool
 
 CGHeroInstance::ECanDig CGHeroInstance::diggingStatus() const
 {
-	std::string hlp;
 	if(movement < maxMovePoints(true))
 		return LACK_OF_MOVEMENT;
 	else if(cb->getTile(getPosition(false))->tertype == TerrainTile::water)
@@ -2328,11 +2327,11 @@ void CGTownInstance::recreateBuildingsBonuses()
 		addBonusIfBuilt(EBuilding::FOUNTAIN_OF_FORTUNE, Bonus::LUCK, +2); //fountain of fortune
 		addBonusIfBuilt(EBuilding::GRAIL, Bonus::LUCK, +2, make_shared<CPropagatorNodeType>(PLAYER)); //guardian spirit
 	}
-	else if(subID == ETownType::RAMPART) //tower
+	else if(subID == ETownType::TOWER) //tower
 	{
 		addBonusIfBuilt(EBuilding::GRAIL, Bonus::PRIMARY_SKILL, +15, PrimarySkill::KNOWLEDGE); //grail
 	}
-	else if(subID == ETownType::TOWER) //Inferno
+	else if(subID == ETownType::INFERNO) //Inferno
 	{
 		addBonusIfBuilt(EBuilding::STORMCLOUDS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER); //Brimstone Clouds
 	}

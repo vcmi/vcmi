@@ -434,12 +434,12 @@ void CAdventureMapButton::setPlayerColor(int player)
 		image->playerColored(player);
 }
 
-void CAdventureMapButton::showAll(SDL_Surface * to)
+void CAdventureMapButton::show(SDL_Surface * to)
 {
-	CIntObject::showAll(to);
+	CIntObject::show(to);
 
 	if (borderEnabled && borderColor.unused == 0)
-		CSDL_Ext::drawBorder(to, pos.x - 1, pos.y - 1, pos.w + 2, pos.h + 2, int3(borderColor.r, borderColor.g, borderColor.b));
+		CSDL_Ext::drawBorder(to, pos.x, pos.y, pos.w, pos.h, int3(borderColor.r, borderColor.g, borderColor.b));
 }
 
 void CHighlightableButton::select(bool on)
@@ -1761,13 +1761,13 @@ void CWindowObject::updateShadow()
 
 void CWindowObject::setShadow(bool on)
 {
-	vstd::clear_pointer(shadow);
-
 	//size of shadow
 	static const int size = 8;
 
 	if (on == bool(shadow))
 		return;
+
+	vstd::clear_pointer(shadow);
 
 	//object too small to cast shadow
 	if (pos.h <= size || pos.w <= size)

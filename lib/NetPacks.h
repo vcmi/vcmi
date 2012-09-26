@@ -221,7 +221,7 @@ struct PackageApplied : public CPackForClient //94
 
 struct SystemMessage : public CPackForClient //95
 {
-	SystemMessage(const std::string Text) : text(Text){type = 95;};
+	SystemMessage(const std::string & Text) : text(Text){type = 95;};
 	SystemMessage(){type = 95;};
 	void applyCl(CClient *cl);
 

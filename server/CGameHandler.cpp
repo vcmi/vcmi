@@ -43,7 +43,7 @@
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
 #endif
-#include <boost/random/linear_congruential.hpp>
+#include <boost/random/binomial_distribution.hpp>
 #include <boost/range/algorithm/random_shuffle.hpp>
 extern bool end2;
 #ifdef min
@@ -5297,18 +5297,18 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	if (attacker->hasBonusOfType(Bonus::DEATH_STARE)) // spell id 79
 	{
 		// mechanics of Death Stare as in H3:
-		// each gorgon have 10% chance to kill (counted separately in H3) -> poisson distribution
-		// maximum amount that can be killed is (1 + gorgons / 5 ), rounded up
+		// each gorgon have 10% chance to kill (counted separately in H3) -> binomial distribution
+		// maximum amount that can be killed is ( gorgons_count / 10 ), rounded up
 
-		int staredCreatures = 0;
-		double mean = double(attacker->count * attacker->valOfBonuses(Bonus::DEATH_STARE, 0)) / 100;
+		double chanceToKill = double(attacker->count * attacker->valOfBonuses(Bonus::DEATH_STARE, 0)) / 100;
+		vstd::amin(chanceToKill, 1); //cap at 100%
 
-		boost::poisson_distribution<> p(mean);
+		boost::binomial_distribution<> distr(attacker->count, chanceToKill);
 		boost::mt19937 rng(rand());
-		boost::variate_generator<boost::mt19937&, boost::poisson_distribution<> > dice (rng, p);
-		staredCreatures += dice();
+		boost::variate_generator<boost::mt19937&, boost::binomial_distribution<> > dice (rng, distr);
+		int staredCreatures = dice();
 
-		int maxToKill = 1 + (attacker->count + 4) / 5;
+		int maxToKill = (attacker->count * chanceToKill + 99) / 100;
 		vstd::amin(staredCreatures, maxToKill);
 
 		staredCreatures += attacker->type->level * attacker->valOfBonuses(Bonus::DEATH_STARE, 1);

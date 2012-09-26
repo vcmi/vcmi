@@ -471,7 +471,6 @@ void CCreatureWindow::recreateSkillList(int Pos)
 
 	int n = 0, i = 0, j = 0;
 	int numSkills = std::min ((bonusRows + Pos) << 1, (int)bonusItems.size());
-	std::string gfxName;
 	for (n = 0; n < Pos << 1; ++n)
 	{
 		bonusItems[n]->visible = false;

@@ -387,7 +387,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, TPlayerColor p
 {
 	CGHeroInstance *ret = NULL;
 
-	if(player<0 || player>=GameConstants::PLAYER_LIMIT)
+	if(player>=GameConstants::PLAYER_LIMIT)
 	{
 		tlog1 << "Cannot pick hero for " << town->Name() << ". Wrong owner!\n";
 		return NULL;

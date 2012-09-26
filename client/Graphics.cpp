@@ -228,8 +228,7 @@ void Graphics::loadHeroAnims()
 		std::ostringstream nm;
 		nm << "AH" << std::setw(2) << std::setfill('0') << i << "_.DEF";
 		loadHeroAnim(nm.str(), rotations, &Graphics::heroAnims);
-		std::string name = nm.str();
-	}	
+	}
 
 	loadHeroAnim("AB01_.DEF", rotations, &Graphics::boatAnims);
 	loadHeroAnim("AB02_.DEF", rotations, &Graphics::boatAnims);

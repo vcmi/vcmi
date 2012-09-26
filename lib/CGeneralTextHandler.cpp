@@ -118,7 +118,11 @@ float CLegacyConfigParser::readNumber()
 
 bool CLegacyConfigParser::isNextEntryEmpty()
 {
-	return curr >= end || *curr == '\n' || *curr == '\r' || *curr == '\t';
+	char * nextSymbol = curr;
+	while (nextSymbol < end && *nextSymbol == ' ')
+		nextSymbol++; //find next meaningfull symbol
+
+	return nextSymbol >= end || *nextSymbol == '\n' || *nextSymbol == '\r' || *nextSymbol == '\t';
 }
 
 bool CLegacyConfigParser::endLine()

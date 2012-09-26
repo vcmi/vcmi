@@ -187,7 +187,7 @@ DLL_LINKAGE void SetAvailableHeroes::applyGs( CGameState *gs )
 
 	for (int i = 0; i < GameConstants::AVAILABLE_HEROES_PER_PLAYER; i++)
 	{
-		CGHeroInstance *h = (hid[i]>=0 ?  (CGHeroInstance*)gs->hpool.heroesPool[hid[i]] : NULL);
+		CGHeroInstance *h = (hid[i]>=0 ?  gs->hpool.heroesPool[hid[i]].get() : nullptr);
 		if(h && army[i])
 			h->setToArmy(army[i]);
 		p->availableHeroes.push_back(h);

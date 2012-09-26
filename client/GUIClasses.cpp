@@ -5093,8 +5093,8 @@ void CTransformerWindow::CItem::update()
 	icon->setFrame(parent->army->getCreature(id)->idNumber + 2);
 }
 
-CTransformerWindow::CItem::CItem(CTransformerWindow * _parent, int _size, int _id):
-	id(_id), size(_size), parent(_parent)
+CTransformerWindow::CItem::CItem(CTransformerWindow * parent, int size, int id):
+	id(id), size(size), parent(parent)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	addUsedEvents(LCLICK);

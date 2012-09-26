@@ -168,7 +168,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 		auto bonus = ParseBonus (exp["bonus"]);
 		bonus->duration = Bonus::PERMANENT;
 		const JsonVector &values = exp["values"].Vector();
-		int lowerLimit = 1, upperLimit = 255;
+		int lowerLimit = 1;//, upperLimit = 255;
 		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
 		{
 			BOOST_FOREACH (const JsonNode &val, values)

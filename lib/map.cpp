@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "map.h"
 
+#include "Filesystem/CBinaryReader.h"
 #include "Filesystem/CResourceLoader.h"
 #include "Filesystem/CCompressedStream.h"
 #include "CObjectHandler.h"
@@ -498,18 +499,41 @@ void Mapa::addBlockVisTiles(CGObjectInstance * obj)
 		}
 	}
 }
+
+TInputStreamPtr Mapa::getMapStream(std::string URI)
+{
+	TInputStreamPtr file = CResourceHandler::get()->load(ResourceID(URI, EResType::MAP));
+
+	CBinaryReader reader(*file.get());
+
+	ui32 header = reader.readUInt32();
+	file->seek(0); //reset file
+
+	switch (header)
+	{
+		case 0x00088B1F: // gzip header magic number, reversed for LE
+			return TInputStreamPtr(new CCompressedStream(std::move(file), true));
+		case CMapHeader::WoG :
+		case CMapHeader::AB  :
+		case CMapHeader::RoE :
+		case CMapHeader::SoD :
+			return file;
+		default :
+			return TInputStreamPtr();
+	}
+}
+
 Mapa::Mapa(std::string filename)
 	:grailPos(-1, -1, -1), grailRadious(0)
 {
 	tlog0<<"Opening map file: "<<filename<<"\t "<<std::flush;
 	
-	std::unique_ptr<CInputStream> decompressed(new CCompressedStream(
-	                                               std::move(CResourceHandler::get()->load(ResourceID(filename, EResType::MAP))), true));
+	TInputStreamPtr file = getMapStream(filename);
 
 	//load file and decompress
-	size_t mapSize = decompressed->getSize();
+	size_t mapSize = file->getSize();
 	std::unique_ptr<ui8[]>  data(new ui8 [mapSize] );
-	decompressed->read(data.get(), mapSize);
+	file->read(data.get(), mapSize);
 
 	tlog0<<"done."<<std::endl;
 

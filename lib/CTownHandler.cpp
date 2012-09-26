@@ -285,7 +285,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 
 	BOOST_FOREACH(const JsonNode &list, source["creatures"].Vector())
 	{
-		std::vector<si32> level;
+		std::vector<TCreature> level;
 		BOOST_FOREACH(const JsonNode &node, list.Vector())
 		{
 			level.push_back(node.Float());
