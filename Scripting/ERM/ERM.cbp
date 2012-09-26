@@ -3,6 +3,7 @@
 	<FileVersion major="1" minor="6" />
 	<Project>
 		<Option title="ERM" />
+		<Option pch_mode="2" />
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
@@ -15,6 +16,13 @@
 					<Add option="-ggdb" />
 				</Compiler>
 				<Linker>
+					<Add option="-lboost_program_options-mgw47-mt-1_51" />
+					<Add option="-lboost_filesystem-mgw47-mt-1_51" />
+					<Add option="-lboost_system-mgw47-mt-1_51" />
+					<Add option="-lboost_thread-mgw47-mt-1_51" />
+					<Add option="-lboost_iostreams-mgw47-mt-1_51" />
+					<Add option="-lboost_chrono-mgw47-mt-1_51" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="..\..\bin\Debug" />
 				</Linker>
 			</Target>
@@ -26,16 +34,21 @@
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-fomit-frame-pointer" />
-					<Add option="-O3" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
+					<Add option="-lboost_program_options-mgw47-mt-d-1_51" />
+					<Add option="-lboost_filesystem-mgw47-mt-d-1_51" />
+					<Add option="-lboost_system-mgw47-mt-d-1_51" />
+					<Add option="-lboost_thread-mgw47-mt-d-1_51" />
+					<Add option="-lboost_iostreams-mgw47-mt-d-1_51" />
+					<Add option="-lboost_chrono-mgw47-mt-d-1_51" />
+					<Add option="-lVCMI_lib" />
 					<Add directory="..\..\bin\Release" />
 				</Linker>
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-O1" />
 			<Add option="-O" />
 			<Add option="-Wextra" />
 			<Add option="-Wall" />
@@ -45,15 +58,10 @@
 			<Add option="-Wno-sign-compare" />
 			<Add option="-Wno-unused-parameter" />
 			<Add option="-Wno-overloaded-virtual" />
+			<Add directory="$(#boost.include)" />
 		</Compiler>
 		<Linker>
-			<Add option="-lboost_program_options-mgw47-mt-1_51" />
-			<Add option="-lboost_filesystem-mgw47-mt-1_51" />
-			<Add option="-lboost_system-mgw47-mt-1_51" />
-			<Add option="-lboost_thread-mgw47-mt-1_51" />
-			<Add option="-lboost_iostreams-mgw47-mt-1_51" />
-			<Add option="-lboost_chrono-mgw47-mt-1_51" />
-			<Add option="-lVCMI_lib" />
+			<Add directory="$(#boost.lib)" />
 		</Linker>
 		<Unit filename="ERMInterpreter.cpp" />
 		<Unit filename="ERMInterpreter.h" />
