@@ -211,3 +211,4 @@ public:
 
 DLL_LINKAGE Bonus * ParseBonus (const JsonVector &ability_vec);
 DLL_LINKAGE Bonus * ParseBonus (const JsonNode &bonus);
+DLL_LINKAGE void UnparseBonus (JsonNode &node, const Bonus * bonus);

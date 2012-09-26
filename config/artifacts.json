@@ -1,0 +1,3554 @@
+[
+	{
+		"id" : 0
+	},
+	{
+		"id" : 1
+	},
+	{
+		"id" : 2
+	},
+	{
+		"id" : 3
+	},
+	{
+		"id" : 4
+	},
+	{
+		"id" : 5
+	},
+	{
+		"id" : 6
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Centaurs Axe",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 7
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Blackshard of the Dead Knight",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 8
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Greater Gnoll's Flail",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 9
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Ogre's Club of Havoc",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 5,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 10
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Sword of Hellfire",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 6,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 11
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Titan's Gladius",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 12,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Titan's Gladius",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : -3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 12
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Shield of the Dwarven Lords",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 13
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Shield of the Yawning Dead",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 14
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Buckler of the Gnoll King",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 15
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Targ of the Rampaging Ogre",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 5,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 16
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Shield of the Damned",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 6,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 17
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Sentinel's Shield",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 12,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Sentinel's Shield",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : -3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 18
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Helm of the Alabaster Unicorn",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 19
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Skull Helmet",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 20
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Helm of Chaos",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 21
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Crown of the Supreme Magi",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 22
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Hellstorm Helmet",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 5,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 23
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Thunder Helmet",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 10,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Thunder Helmet",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : -2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 24
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Breastplate of Petrified Wood",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 25
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Rib Cage",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 26
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Scales of the Greater Basilisk",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 27
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Tunic of the Cyclops King",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 28
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Breastplate of Brimstone",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 5,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 29
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Titan's Cuirass",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 10,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Titan's Cuirass",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : -2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 30
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Armor of Wonder",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Armor of Wonder",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Armor of Wonder",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Armor of Wonder",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 31
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Sandals of the Saint",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Sandals of the Saint",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Sandals of the Saint",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Sandals of the Saint",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 32
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Celestial Necklace of Bliss",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Celestial Necklace of Bliss",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Celestial Necklace of Bliss",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Celestial Necklace of Bliss",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 33
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Lion's Shield of Courage",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Lion's Shield of Courage",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Lion's Shield of Courage",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Lion's Shield of Courage",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 34
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Sword of Judgement",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 5,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Sword of Judgement",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 5,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Sword of Judgement",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 5,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Sword of Judgement",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 5,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 35
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Helm of Heavenly Enlightenment",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 6,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Helm of Heavenly Enlightenment",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 6,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Helm of Heavenly Enlightenment",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 6,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Helm of Heavenly Enlightenment",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 6,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 36
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Quiet Eye of the Dragon",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Quiet Eye of the Dragon",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 37
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Red Dragon Flame Tongue",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Red Dragon Flame Tongue",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 38
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Dragon Scale Shield",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Dragon Scale Shield",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 39
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Dragon Scale Armor",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Dragon Scale Armor",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 40
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Dragonbone Greaves",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Dragonbone Greaves",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 41
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Dragon Wing Tabard",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Dragon Wing Tabard",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 42
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Necklace of Dragonteeth",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Necklace of Dragonteeth",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 43
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Crown of Dragontooth",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Crown of Dragontooth",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 44
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Still Eye of the Dragon",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "MORALE",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Still Eye of the Dragon +1",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "LUCK",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 45
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Clover of Fortune +1",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "LUCK",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 46
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Cards of Prophecy +1",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "LUCK",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 47
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Ladybird of Luck +1",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "LUCK",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 48
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Badge of Courage",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "MORALE",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Badge of Courage",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "MIND_IMMUNITY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 49
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Crest of Valor",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "MORALE",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 50
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Glyph of Gallantry",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "MORALE",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 51
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Speculum",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "SIGHT_RADIOUS",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 52
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Spyglass",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "SIGHT_RADIOUS",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 53
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Amulet of the Undertaker",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 12,
+				"turns" : 0,
+				"type" : "SECONDARY_SKILL_PREMY",
+				"val" : 5,
+				"valueType" : "ADDITIVE_VALUE"
+			}
+		],
+		"id" : 54
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Vampire's Cowl",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 12,
+				"turns" : 0,
+				"type" : "SECONDARY_SKILL_PREMY",
+				"val" : 10,
+				"valueType" : "ADDITIVE_VALUE"
+			}
+		],
+		"id" : 55
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Dead Man's Boots",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 12,
+				"turns" : 0,
+				"type" : "SECONDARY_SKILL_PREMY",
+				"val" : 15,
+				"valueType" : "ADDITIVE_VALUE"
+			}
+		],
+		"id" : 56
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Garniture of Interference",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 5,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 57
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Surcoat of Counterpoise",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 10,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 58
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Boots of Polarity",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 15,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 59
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Bow of Elven Cherrywood",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "SECONDARY_SKILL_PREMY",
+				"val" : 5,
+				"valueType" : "ADDITIVE_VALUE"
+			}
+		],
+		"id" : 60
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Bowstring of the Unicorn's Mane",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "SECONDARY_SKILL_PREMY",
+				"val" : 10,
+				"valueType" : "ADDITIVE_VALUE"
+			}
+		],
+		"id" : 61
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Angel Feather Arrows",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "SECONDARY_SKILL_PREMY",
+				"val" : 15,
+				"valueType" : "ADDITIVE_VALUE"
+			}
+		],
+		"id" : 62
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Bird of Perception",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 11,
+				"turns" : 0,
+				"type" : "SECONDARY_SKILL_PREMY",
+				"val" : 5,
+				"valueType" : "ADDITIVE_VALUE"
+			}
+		],
+		"id" : 63
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Stoic Watchman",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 11,
+				"turns" : 0,
+				"type" : "SECONDARY_SKILL_PREMY",
+				"val" : 10,
+				"valueType" : "ADDITIVE_VALUE"
+			}
+		],
+		"id" : 64
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Emblem of Cognizance",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 11,
+				"turns" : 0,
+				"type" : "SECONDARY_SKILL_PREMY",
+				"val" : 15,
+				"valueType" : "ADDITIVE_VALUE"
+			}
+		],
+		"id" : 65
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Statesman's Medal",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "SURRENDER_DISCOUNT",
+				"val" : 10,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 66
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Diplomat's Ring",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "SURRENDER_DISCOUNT",
+				"val" : 10,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 67
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Ambassador's Sash",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "SURRENDER_DISCOUNT",
+				"val" : 10,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 68
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Ring of the Wayfarer",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "STACKS_SPEED",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 69
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Equestrian's Gloves",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "LAND_MOVEMENT",
+				"val" : 300,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 70
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Necklace of Ocean Guidance",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "SEA_MOVEMENT",
+				"val" : 1000,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 71
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Angel Wings",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "FLYING_MOVEMENT",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 72
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Charm of Mana",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "MANA_REGENERATION",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 73
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Talisman of Mana",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "MANA_REGENERATION",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 74
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Mystic Orb of Mana",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "MANA_REGENERATION",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 75
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Collar of Conjuring",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "SPELL_DURATION",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 76
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Ring of Conjuring",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "SPELL_DURATION",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 77
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Cape of Conjuring",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "SPELL_DURATION",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 78
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Orb of the Firmament",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "AIR_SPELL_DMG_PREMY",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 79
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Orb of Silt",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "EARTH_SPELL_DMG_PREMY",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 80
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Orb of Tempestuous Fire",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "FIRE_SPELL_DMG_PREMY",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 81
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Orb of Driving Rain",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "WATER_SPELL_DMG_PREMY",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 82
+	},
+	{
+		"id" : 83
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Spirit of Oppression",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "BLOCK_MORALE",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 84
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Hourglass of the Evil Hour",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "BLOCK_LUCK",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 85
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Tome of Fire Magic",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "FIRE_SPELLS",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 86
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Tome of Air Magic",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "AIR_SPELLS",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 87
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Tome of Water Magic",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "WATER_SPELLS",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 88
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Tome of Earth Magic",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "EARTH_SPELLS",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 89
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Boots of Levitation",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "WATER_WALKING",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 90
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Golden Bow",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "NO_DISTANCE_PENALTY",
+				"val" : 0,
+				"valueType" : "ADDITIVE_VALUE"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Golden Bow",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "NO_WALL_PENALTY",
+				"val" : 0,
+				"valueType" : "ADDITIVE_VALUE"
+			}
+		],
+		"id" : 91
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Sphere of Permanence",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 35,
+				"turns" : 0,
+				"type" : "SPELL_IMMUNITY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 92
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Orb of Vulnerability",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "NEGATE_ALL_NATURAL_IMMUNITIES",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 93
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Ring of Vitality",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "STACK_HEALTH",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 94
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Ring of Life",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "STACK_HEALTH",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 95
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Vial of Lifeblood",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "STACK_HEALTH",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 96
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Necklace of Swiftness",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "STACKS_SPEED",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 97
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Boots of Speed",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "LAND_MOVEMENT",
+				"val" : 600,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 98
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Cape of Velocity",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "STACKS_SPEED",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 99
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Pendant of Dispassion",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 59,
+				"turns" : 0,
+				"type" : "SPELL_IMMUNITY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 100
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Pendant of Second Sight",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 62,
+				"turns" : 0,
+				"type" : "SPELL_IMMUNITY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 101
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Pendant of Holiness",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 42,
+				"turns" : 0,
+				"type" : "SPELL_IMMUNITY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 102
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Pendant of Life",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 24,
+				"turns" : 0,
+				"type" : "SPELL_IMMUNITY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 103
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Pendant of Death",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 25,
+				"turns" : 0,
+				"type" : "SPELL_IMMUNITY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 104
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Pendant of Free Will",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 60,
+				"turns" : 0,
+				"type" : "SPELL_IMMUNITY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 105
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Pendant of Negativity",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 17,
+				"turns" : 0,
+				"type" : "SPELL_IMMUNITY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Pendant of Negativity",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 19,
+				"turns" : 0,
+				"type" : "SPELL_IMMUNITY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 106
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Pendant of Total Recall",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 61,
+				"turns" : 0,
+				"type" : "SPELL_IMMUNITY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 107
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Pendant of Courage",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "MORALE",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Pendant of Courage +3",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "LUCK",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 108
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Everflowing Crystal Cloak",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 4,
+				"turns" : 0,
+				"type" : "GENERATE_RESOURCE",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 109
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Ring of Infinite Gems +1",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 5,
+				"turns" : 0,
+				"type" : "GENERATE_RESOURCE",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 110
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Everpouring Vial of Mercury",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "GENERATE_RESOURCE",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 111
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Inexhaustible Cart of Ore",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "GENERATE_RESOURCE",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 112
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Eversmoking Ring of Sulfur",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "GENERATE_RESOURCE",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 113
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Inexhaustible Cart of Lumber",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "GENERATE_RESOURCE",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 114
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Endless Sack of Gold",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 6,
+				"turns" : 0,
+				"type" : "GENERATE_RESOURCE",
+				"val" : 1000,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 115
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Endless Bag of Gold",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 6,
+				"turns" : 0,
+				"type" : "GENERATE_RESOURCE",
+				"val" : 750,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 116
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Endless Purse of Gold",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 6,
+				"turns" : 0,
+				"type" : "GENERATE_RESOURCE",
+				"val" : 500,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 117
+	},
+	{
+		"id" : 118
+	},
+	{
+		"id" : 119
+	},
+	{
+		"id" : 120
+	},
+	{
+		"id" : 121
+	},
+	{
+		"id" : 122
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Sea Captain's Hat",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "WHIRLPOOL_PROTECTION",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Sea Captain's Hat",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "SEA_MOVEMENT",
+				"val" : 500,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Sea Captain's Hat",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "SPELL",
+				"val" : 3,
+				"valueType" : "INDEPENDENT_MAX"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Sea Captain's Hat",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "SPELL",
+				"val" : 3,
+				"valueType" : "INDEPENDENT_MAX"
+			}
+		],
+		"id" : 123
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Spellbinder's Hat",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "SPELLS_OF_LEVEL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 124
+	},
+	{
+		"id" : 125
+	},
+	{
+		"id" : 126
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Vial of Dragon Blood",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 5,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Vial of Dragon Blood",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 5,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 127
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Armageddon's Blade",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 26,
+				"turns" : 0,
+				"type" : "SPELL",
+				"val" : 3,
+				"valueType" : "INDEPENDENT_MAX"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Armageddon's Blade",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 26,
+				"turns" : 0,
+				"type" : "SPELL_IMMUNITY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Armageddon's Blade",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Armageddon's Blade",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Armageddon's Blade",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Armageddon's Blade",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 6,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 128
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Angelic Alliance",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "NONEVIL_ALIGNMENT_MIX",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Angelic Alliance",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 48,
+				"turns" : 0,
+				"type" : "OPENING_BATTLE_SPELL",
+				"val" : 10,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 129
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Cloak of the Undead King",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "IMPROVED_NECROMANCY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 130
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Elixir of Life",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "STACK_HEALTH",
+				"val" : 25,
+				"valueType" : "PERCENT_TO_BASE"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Elixir of Life",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "HP_REGENERATION",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 131
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Armor of the Damned",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 54,
+				"turns" : 0,
+				"type" : "OPENING_BATTLE_SPELL",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Armor of the Damned",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 47,
+				"turns" : 0,
+				"type" : "OPENING_BATTLE_SPELL",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Armor of the Damned",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 45,
+				"turns" : 0,
+				"type" : "OPENING_BATTLE_SPELL",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Armor of the Damned",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 52,
+				"turns" : 0,
+				"type" : "OPENING_BATTLE_SPELL",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 132
+	},
+	{
+		"id" : 133
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Power of the Dragon Father",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "LEVEL_SPELL_IMMUNITY",
+				"val" : 4,
+				"valueType" : "INDEPENDENT_MAX"
+			}
+		],
+		"id" : 134
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Titan's Thunder",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 57,
+				"turns" : 0,
+				"type" : "SPELL",
+				"val" : 3,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 135
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Admiral's Hat",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "FREE_SHIP_BOARDING",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 136
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Bow of the Sharpshooter",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "NO_DISTANCE_PENALTY",
+				"val" : 0,
+				"valueType" : "ADDITIVE_VALUE"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Bow of the Sharpshooter",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "NO_WALL_PENALTY",
+				"val" : 0,
+				"valueType" : "ADDITIVE_VALUE"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Bow of the Sharpshooter",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "FREE_SHOOTING",
+				"val" : 0,
+				"valueType" : "ADDITIVE_VALUE"
+			}
+		],
+		"id" : 137
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Wizard's Well",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "FULL_MANA_REGENERATION",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 138
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Ring of the Magi",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "SPELL_DURATION",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 139
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Cornucopia",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "GENERATE_RESOURCE",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Cornucopia",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 3,
+				"turns" : 0,
+				"type" : "GENERATE_RESOURCE",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Cornucopia",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 4,
+				"turns" : 0,
+				"type" : "GENERATE_RESOURCE",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Cornucopia +4",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 5,
+				"turns" : 0,
+				"type" : "GENERATE_RESOURCE",
+				"val" : 4,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 140
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Magic Wand",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "CASTS",
+				"val" : 10,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Magic Wand",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 18,
+				"turns" : 0,
+				"type" : "SPELLCASTER",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Magic Wand",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 21,
+				"turns" : 0,
+				"type" : "SPELLCASTER",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Magic Wand",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "RANDOM_SPELLCASTER",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Magic Wand",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 63,
+				"turns" : 0,
+				"type" : "DAEMON_SUMMONING",
+				"val" : 10,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 2,
+				"description" : "Magic Wand",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 17,
+				"turns" : 0,
+				"type" : "ENCHANTER",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Magic Wand",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 1,
+				"turns" : 0,
+				"type" : "REBIRTH",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Magic Wand",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "MANA_DRAIN",
+				"val" : 10,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Magic Wand",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "HEALER",
+				"val" : 25,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 141
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Gold Tower Arrow",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "NO_DISTANCE_PENALTY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Gold Tower Arrow",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "ADDITIONAL_ATTACK",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Gold Tower Arrow",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 22,
+				"turns" : 0,
+				"type" : "SPELL_LIKE_ATTACK",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Gold Tower Arrow",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "CATAPULT",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Gold Tower Arrow",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "ACID_BREATH",
+				"val" : 20,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Gold Tower Arrow",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "SHOTS",
+				"val" : 200,
+				"valueType" : "PERCENT_TO_BASE"
+			},
+			{
+				"additionalInfo" : 1,
+				"description" : "Gold Tower Arrow",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 75,
+				"turns" : 0,
+				"type" : "SPELL_BEFORE_ATTACK",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 1,
+				"description" : "Gold Tower Arrow",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 59,
+				"turns" : 0,
+				"type" : "SPELL_AFTER_ATTACK",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 1,
+				"description" : "Gold Tower Arrow",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 71,
+				"turns" : 0,
+				"type" : "SPELL_AFTER_ATTACK",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 1,
+				"description" : "Gold Tower Arrow",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 47,
+				"turns" : 0,
+				"type" : "SPELL_AFTER_ATTACK",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 142
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Monster's Power",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "STACK_HEALTH",
+				"val" : 100,
+				"valueType" : "PERCENT_TO_BASE"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Monster's Power",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 2,
+				"turns" : 0,
+				"type" : "CREATURE_DAMAGE",
+				"val" : 100,
+				"valueType" : "PERCENT_TO_ALL"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Monster's Power",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "HP_REGENERATION",
+				"val" : 50,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Monster's Power",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "NO_RETALIATION",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Monster's Power",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "RETURN_AFTER_STRIKE",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Monster's Power",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "ATTACKS_ALL_ADJACENT",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Monster's Power",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "SPELL_RESISTANCE_AURA",
+				"val" : 100,
+				"valueType" : "BASE_NUMBER"
+			},
+			{
+				"additionalInfo" : 0,
+				"description" : "Monster's Power",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "DIRECT_DAMAGE_IMMUNITY",
+				"val" : 0,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 143
+	},
+	{
+		"id" : 144
+	},
+	{
+		"id" : 145
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Axe of Smashing",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 6,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 146
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Mithril Mail",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "STACK_HEALTH",
+				"val" : 12,
+				"valueType" : "PERCENT_TO_ALL"
+			}
+		],
+		"id" : 147
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Sword of Sharpness",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "CREATURE_DAMAGE",
+				"val" : 12,
+				"valueType" : "PERCENT_TO_ALL"
+			}
+		],
+		"id" : 148
+	},
+	{
+		"id" : 149
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Pendant of Sorcery",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "CASTS",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 150
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Boots of Haste",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "STACKS_SPEED",
+				"val" : 1,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 151
+	},
+	{
+		"id" : 152
+	},
+	{
+		"id" : 153
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Hardened Shield",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : 0,
+				"turns" : 0,
+				"type" : "PRIMARY_SKILL",
+				"val" : 6,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 154
+	},
+	{
+		"id" : 155
+	},
+	{
+		"bonuses" : [
+			{
+				"additionalInfo" : 0,
+				"description" : "Warlord's Banner",
+				"duration" : "PERMANENT",
+				"effectRange" : "NO_LIMIT",
+				"source" : "ARTIFACT",
+				"sourceID" : 0,
+				"subtype" : -1,
+				"turns" : 0,
+				"type" : "STACK_HEALTH",
+				"val" : 2,
+				"valueType" : "BASE_NUMBER"
+			}
+		],
+		"id" : 156
+	},
+	{
+		"id" : 157
+	},
+	{
+		"id" : 158
+	},
+	{
+		"id" : 159
+	},
+	{
+		"id" : 160
+	},
+	{
+		"id" : 161
+	},
+	{
+		"id" : 162
+	},
+	{
+		"id" : 163
+	},
+	{
+		"id" : 164
+	},
+	{
+		"id" : 165
+	},
+	{
+		"id" : 166
+	},
+	{
+		"id" : 167
+	},
+	{
+		"id" : 168
+	},
+	{
+		"id" : 169
+	},
+	{
+		"id" : 170
+	}
+]

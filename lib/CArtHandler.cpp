@@ -606,6 +606,17 @@ void CArtHandler::addBonuses()
 	auto shooterOnlyLimiter = make_shared<HasAnotherBonusLimiter>(Bonus::SHOOTER);
 	auto dragonNatureLimiter = make_shared<HasAnotherBonusLimiter>(Bonus::DRAGON_NATURE);
 
+// 	const JsonNode config(ResourceID("config/artifacts.json"));
+// 	BOOST_FOREACH(const JsonNode &artifact, config.Vector())
+// 	{
+// 		auto ga = artifacts[artifact["id"].Float()].get();
+// 		
+// 		BOOST_FOREACH (auto b, artifact["bonuses"].Vector())
+// 		{
+// 			ga->addNewBonus(ParseBonus (b["bonus"].Vector()));
+// 		}
+// 	}
+
 	//Attack bonus artifacts (Weapons)
 	ART_PRIM_SKILL(7,0,+2); //Centaur Axe
 	ART_PRIM_SKILL(8,0,+3); //Blackshard of the Dead Knight
@@ -898,6 +909,22 @@ void CArtHandler::addBonuses()
 		giveArtBonus(151, Bonus::STACKS_SPEED, 1); //Boots of haste
 		ART_PRIM_SKILL (154, 0, +6); //Hardened Shield
 	}
+
+// 	JsonNode cfg;
+// 	BOOST_FOREACH(auto art, artifacts)
+// 	{
+// 		art->id;
+// 		JsonNode jn;
+// 		jn["id"].Float() = art->id;
+// 		BOOST_FOREACH (auto b, art->getBonusList())
+// 		{
+// 			JsonNode bn;
+// 			UnparseBonus(bn, b);
+// 			jn["bonuses"].Vector().push_back(bn);
+// 		}
+// 		cfg.Vector().push_back(jn);
+// 	}
+// 	JsonWriter(std::ofstream("config/artifacts.json"), cfg);
 }
 
 void CArtHandler::clear()

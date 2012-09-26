@@ -422,6 +422,8 @@ class CBonusSelection : public CIntObject
 	CAdventureMapButton * diffLb, * diffRb; //buttons for changing difficulty
 	void changeDiff(bool increase); //if false, then decrease
 
+
+	void updateStartButtonState(int selected = -1); //-1 -- no bonus is selected
 	//bonus selection
 	void updateBonusSelection();
 	CHighlightableButtonsGroup * bonuses;
@@ -479,6 +481,7 @@ private:
 	std::vector<CPicture*> images;
 
 	CAdventureMapButton* createExitButton(const JsonNode& button);
+
 public:
 	enum CampaignSet {ROE, AB, SOD, WOG};
 

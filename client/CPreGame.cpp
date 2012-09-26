@@ -2810,7 +2810,7 @@ void CBonusSelection::init()
 	}
 
 	//unlock if no bonuses -- it's acceptable
-	startB->setState( ourCampaign->getCurrentScenario().travelOptions.bonusesToChoose.size() ? CButtonBase::BLOCKED : CButtonBase::NORMAL);
+	
 
 // 	//init campaign state if necessary
 // 	if (ourCampaign->campaignName.size() == 0)
@@ -3022,6 +3022,8 @@ void CBonusSelection::updateBonusSelection()
 	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.campState->currentMap];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 
+	updateStartButtonState(-1);
+
 	for (size_t i=0; i<bonuses->buttons.size(); i++)
 	{
 		if (bonuses->buttons[i]->active)
@@ -3215,8 +3217,7 @@ void CBonusSelection::selectBonus( int id )
 		sInfo.campState->chosenCampaignBonuses[sInfo.campState->currentMap] = id;
 		GH.totalRedraw();
 
-		if (startB->getState() == CButtonBase::BLOCKED)
-			startB->setState(CButtonBase::NORMAL);
+		updateStartButtonState(id);
 	}
 
 
@@ -3246,6 +3247,14 @@ void CBonusSelection::changeDiff( bool increase )
 	{
 		sInfo.difficulty = std::max(sInfo.difficulty - 1, 0);
 	}
+}
+
+void CBonusSelection::updateStartButtonState( int selected /*= -1*/ )
+{
+	if(selected == -1)
+		startB->setState( ourCampaign->getCurrentScenario().travelOptions.bonusesToChoose.size() ? CButtonBase::BLOCKED : CButtonBase::NORMAL);
+	else if(startB->getState() == CButtonBase::BLOCKED)
+		startB->setState(CButtonBase::NORMAL);
 }
 
 CBonusSelection::CRegion::CRegion( CBonusSelection * _owner, bool _accessible, bool _selectable, int _myNumber )
@@ -3654,3 +3663,4 @@ void CCampaignScreen::showAll(SDL_Surface *to)
 	if (pos.h != to->h || pos.w != to->w)
 		CMessage::drawBorder(1, to, pos.w+28, pos.h+30, pos.x-14, pos.y-15);
 }
+

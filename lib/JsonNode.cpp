@@ -926,10 +926,31 @@ Bonus * ParseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility
 	return b;
 }
 
+
+
 Bonus * ParseBonus (const JsonNode &ability)
 {
+
 	Bonus * b = new Bonus();
 	const JsonNode *value;
+
+	auto parseByMap = [&](const std::map<std::string, int> & map, const JsonNode * val, std::string err) -> int
+	{
+		if (!val->isNull())
+		{
+			std::string type = val->String();
+			auto it = map.find(type);
+			if (it == map.end())
+			{
+				tlog1 << "Error: invalid " << err << type << std::endl;
+				return -1;
+			}
+			else
+			{
+				return it->second;
+			}
+		}
+	};
 
 	std::string type = ability["type"].String();
 	auto it = bonusNameMap.find(type);
@@ -949,19 +970,8 @@ Bonus * ParseBonus (const JsonNode &ability)
 		b->val = value->Float();
 
 	value = &ability["valueType"];
-	if (!value->isNull())
-	{
-		std::string type = value->String();
-		auto it = bonusValueMap.find(type);
-		if (it == bonusValueMap.end())
-		{
-			tlog1 << "Error: invalid value type " << type << std::endl;
-		}
-		else
-		{
-			b->valType = it->second;
-		}
-	}
+
+	b->valType = parseByMap(bonusValueMap, &ability["valueType"], "value type ");
 
 	value = &ability["additionalInfo"];
 	if (!value->isNull())
@@ -979,52 +989,11 @@ Bonus * ParseBonus (const JsonNode &ability)
 	if (!value->isNull())
 		b->description = value->String();
 
+	b->effectRange = parseByMap(bonusLimitEffect, &ability["effectRange"], "effect range ");
 	
-	value = &ability["effectRange"];
-	if (!value->isNull())
-	{
-		std::string type = value->String();
-		auto it = bonusLimitEffect.find(type);
-		if (it == bonusLimitEffect.end())
-		{
-			tlog1 << "Error: invalid effect range " << type << std::endl;
-		}
-		else
-		{
-			b->effectRange = it->second;
-		}
-	}
+	b->duration = parseByMap(bonusDurationMap, &ability["duration"], "duration type ");
 
-	
-	value = &ability["duration"];
-	if (!value->isNull())
-	{
-		std::string type = value->String();
-		auto it = bonusDurationMap.find(type);
-		if (it == bonusDurationMap.end())
-		{
-			tlog1 << "Error: invalid duration type " << type << std::endl;
-		}
-		else
-		{
-			b->duration = it->second;
-		}
-	}
-
-	value = &ability["source"];
-	if (!value->isNull())
-	{
-		std::string type = value->String();
-		auto it = bonusSourceMap.find(type);
-		if (it == bonusSourceMap.end())
-		{
-			tlog1 << "Error: invalid source type " << type << std::endl;
-		}
-		else
-		{
-			b->source = it->second;
-		}
-	}
+	b->source = parseByMap(bonusSourceMap, &ability["source"], "source type ");
 
 	//TODO:
 
@@ -1036,4 +1005,30 @@ Bonus * ParseBonus (const JsonNode &ability)
 	//if (!value->isNull())
 	//	b->propagator = value->Float();
 	return b;
+}
+
+DLL_LINKAGE void UnparseBonus( JsonNode &node, const Bonus * bonus )
+{
+	auto reverseMap = [](const int & val, const std::map<std::string, int> map) -> std::string
+	{
+		BOOST_FOREACH(auto it, map)
+		{
+			if(it.second == val)
+			{
+				return it.first;
+			}
+		}
+	};
+	
+	node["type"].String() = reverseMap(bonus->type, bonusNameMap);
+	node["subtype"].Float() = bonus->subtype;
+	node["val"].Float() = bonus->val;
+	node["valueType"].String() = reverseMap(bonus->valType, bonusValueMap);
+	node["additionalInfo"].Float() = bonus->additionalInfo;
+	node["turns"].Float() = bonus->turnsRemain;
+	node["sourceID"].Float() = bonus->source;
+	node["description"].String() = bonus->description;
+	node["effectRange"].String() = reverseMap(bonus->effectRange, bonusLimitEffect);
+	node["duration"].String() = reverseMap(bonus->duration, bonusDurationMap);
+	node["source"].String() = reverseMap(bonus->source, bonusSourceMap);
 }
