@@ -956,8 +956,8 @@ void CAnimation::init(CDefFile * file)
 
 			BOOST_FOREACH(const JsonNode &frame, group["frames"].Vector())
 			{
-				source[groupID].push_back(frame);
-				std::string filename =  frame["file"].String();
+				source[groupID].push_back(JsonNode());
+				std::string filename =  frame.String();
 				source[groupID].back()["file"].String() = basepath + filename;
 			}
 		}

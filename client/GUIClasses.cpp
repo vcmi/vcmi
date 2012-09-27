@@ -89,7 +89,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 			continue;
 		}
 
-		new CAnimImage("CPRSMALL", slot.second.type->idNumber + 2, 0, slotsPos[slot.first].x, slotsPos[slot.first].y);
+		new CAnimImage("CPRSMALL", slot.second.type->iconIndex, 0, slotsPos[slot.first].x, slotsPos[slot.first].y);
 
 		std::string subtitle;
 		if(army.army.isDetailed)

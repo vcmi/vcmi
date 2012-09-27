@@ -385,13 +385,6 @@ void CResourceHandler::loadFileSystem(const std::string &fsConfigURI)
 			if (entry["type"].String() == "vid")
 				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_VID);
 
-			if (entry["type"].String() == "file") // for some compatibility, will be removed for 0.90
-			{
-				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_LOD);
-				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_SND);
-				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_VID);
-			}
-
 			tlog5 << " took " << timer.getDiff() << " ms.\n";
 		}
 	}
