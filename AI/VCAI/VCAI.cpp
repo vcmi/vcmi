@@ -3236,7 +3236,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 						int primaryPath, secondaryPath;
 						auto h = otherHeroes.back();
 						cb->setSelection(hero.h);
-						primaryPath = cb->getPathInfo(h->pos)->turns;
+						primaryPath = cb->getPathInfo(h->pos)->turns; //FIXME: investigate crash at this line
 						cb->setSelection(h);
 						secondaryPath = cb->getPathInfo(hero->pos)->turns;
 

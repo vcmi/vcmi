@@ -942,6 +942,8 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 			return it->second;
 		}
 	}
+	else
+		return T();
 };
 
 Bonus * ParseBonus (const JsonNode &ability)
@@ -967,7 +969,9 @@ Bonus * ParseBonus (const JsonNode &ability)
 	if (!value->isNull())
 		b->val = value->Float();
 
-	b->valType = parseByMap(bonusValueMap, &ability["valueType"], "value type ");
+	value = &ability["valueType"];
+	if (!value->isNull())
+		b->valType = parseByMap(bonusValueMap, value, "value type ");
 
 	value = &ability["additionalInfo"];
 	if (!value->isNull())
@@ -985,11 +989,15 @@ Bonus * ParseBonus (const JsonNode &ability)
 	if (!value->isNull())
 		b->description = value->String();
 
-	b->effectRange = parseByMap(bonusLimitEffect, &ability["effectRange"], "effect range ");
-	
-	b->duration = parseByMap(bonusDurationMap, &ability["duration"], "duration type ");
-
-	b->source = parseByMap(bonusSourceMap, &ability["source"], "source type ");
+	value = &ability["effectRange"];
+	if (!value->isNull())
+		b->valType = parseByMap(bonusValueMap, value, "effect range ");
+	value = &ability["duration"];
+	if (!value->isNull())
+		b->valType = parseByMap(bonusValueMap, value, "duration type ");
+	value = &ability["source"];
+	if (!value->isNull())
+		b->valType = parseByMap(bonusValueMap, value, "source type ");
 
 // 	value = &ability["limiter"];
 // 	if (!value->isNull())
