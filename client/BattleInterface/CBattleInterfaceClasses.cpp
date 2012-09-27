@@ -29,7 +29,7 @@ CBattleConsole::~CBattleConsole()
 	texts.clear();
 }
 
-void CBattleConsole::show(SDL_Surface * to)
+void CBattleConsole::showAll(SDL_Surface * to)
 {
 	if(ingcAlter.size())
 	{
@@ -108,6 +108,9 @@ void CBattleConsole::scrollDown(ui32 by)
 	if(lastShown + by < texts.size())
 		lastShown += by;
 }
+
+CBattleConsole::CBattleConsole() : lastShown(-1), alterTxt(""), whoSetAlter(0)
+{}
 
 void CBattleHero::show(SDL_Surface * to)
 {

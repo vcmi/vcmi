@@ -35,9 +35,9 @@ public:
 	std::string alterTxt; //if it's not empty, this text is displayed
 	std::string ingcAlter; //alternative text set by in-game console - very important!
 	int whoSetAlter; //who set alter text; 0 - battle interface or none, 1 - button
-	CBattleConsole() : lastShown(-1), alterTxt(""), whoSetAlter(0) {}
+	CBattleConsole();
 	~CBattleConsole(); //d-tor
-	void show(SDL_Surface * to = 0);
+	void showAll(SDL_Surface * to = 0);
 	bool addText(const std::string &text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
 	void alterText(const std::string &text); //place string at alterTxt
 	void eraseText(ui32 pos); //erases added text at position pos
