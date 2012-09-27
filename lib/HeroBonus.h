@@ -879,6 +879,8 @@ namespace Selector
 }
 
 extern DLL_LINKAGE const std::map<std::string, int> bonusNameMap, bonusValueMap, bonusSourceMap, bonusDurationMap, bonusLimitEffect;
+extern DLL_LINKAGE const std::map<std::string, TLimiterPtr> bonusLimiterMap;
+extern DLL_LINKAGE const std::map<std::string, TPropagatorPtr> bonusPropagatorMap;
 
 // BonusList template that requires full interface of CBonusSystemNode
 template <class InputIterator>

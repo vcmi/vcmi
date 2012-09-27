@@ -48,6 +48,15 @@ const std::map<std::string, int> bonusLimitEffect = boost::assign::map_list_of
 	BONUS_ITEM(ONLY_MELEE_FIGHT)
 	BONUS_ITEM(ONLY_ENEMY_ARMY);
 
+const std::map<std::string, TLimiterPtr> bonusLimiterMap = boost::assign::map_list_of
+	("SHOOTER_ONLY", make_shared<HasAnotherBonusLimiter>(Bonus::SHOOTER))
+	("DRAGON_NATURE", make_shared<HasAnotherBonusLimiter>(Bonus::DRAGON_NATURE));
+
+const std::map<std::string, TPropagatorPtr> bonusPropagatorMap = boost::assign::map_list_of
+	("BATTLE_WIDE", make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE))
+	("VISITED_TOWN_AND_VISITOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::TOWN_AND_VISITOR));
+
+
 #define BONUS_LOG_LINE(x) tlog5 << x << std::endl
 
 int CBonusSystemNode::treeChanged = 1;

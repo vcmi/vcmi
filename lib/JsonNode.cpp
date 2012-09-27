@@ -925,32 +925,30 @@ Bonus * ParseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility
 	b->turnsRemain = 0;
 	return b;
 }
-
-
+template <typename T>
+const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val, std::string err)
+{
+	if (!val->isNull())
+	{
+		std::string type = val->String();
+		auto it = map.find(type);
+		if (it == map.end())
+		{
+			tlog1 << "Error: invalid " << err << type << std::endl;
+			return T();
+		}
+		else
+		{
+			return it->second;
+		}
+	}
+};
 
 Bonus * ParseBonus (const JsonNode &ability)
 {
 
 	Bonus * b = new Bonus();
 	const JsonNode *value;
-
-	auto parseByMap = [&](const std::map<std::string, int> & map, const JsonNode * val, std::string err) -> int
-	{
-		if (!val->isNull())
-		{
-			std::string type = val->String();
-			auto it = map.find(type);
-			if (it == map.end())
-			{
-				tlog1 << "Error: invalid " << err << type << std::endl;
-				return -1;
-			}
-			else
-			{
-				return it->second;
-			}
-		}
-	};
 
 	std::string type = ability["type"].String();
 	auto it = bonusNameMap.find(type);
@@ -968,8 +966,6 @@ Bonus * ParseBonus (const JsonNode &ability)
 	value = &ability["val"];
 	if (!value->isNull())
 		b->val = value->Float();
-
-	value = &ability["valueType"];
 
 	b->valType = parseByMap(bonusValueMap, &ability["valueType"], "value type ");
 
@@ -995,15 +991,15 @@ Bonus * ParseBonus (const JsonNode &ability)
 
 	b->source = parseByMap(bonusSourceMap, &ability["source"], "source type ");
 
-	//TODO:
+// 	value = &ability["limiter"];
+// 	if (!value->isNull())
+// 		b->limiter = parseByMap(bonusLimiterMap, value, "limiter type ");
+// 
+// 
+// 	value = &ability["propagator"];
+// 	if (!value->isNull())
+// 		b->propagator = parseByMap(bonusLimiterMap, value, "propagator type ");
 
-	//value = &ability["limiter"];
-	//if (!value->isNull())
-	//	b->limiter = value->Float();
-
-	//value = &ability["propagator"];
-	//if (!value->isNull())
-	//	b->propagator = value->Float();
 	return b;
 }
 
