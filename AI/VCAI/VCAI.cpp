@@ -3539,6 +3539,10 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 		case Obj::MAGIC_WELL:
 			return h->mana < h->manaLimit();
 			break;
+
+		case Obj::BOAT:
+			return false;
+			//Boats are handled by pathfinder
 	}
 
 	if (obj->wasVisited(*h)) //it must pointer to hero instance, heroPtr calls function wasVisited(ui8 player);

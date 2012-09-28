@@ -105,9 +105,10 @@ public:
 			& cost & upgradeNames & upgrades 
 			& fightValue & AIValue & growth & hordeGrowth
 			& ammMin & ammMax & level
-			& abilityText & abilityRefs & animDefName & advMapDef
-			& idNumber & faction
+			& abilityText & abilityRefs & animDefName & advMapDef;
+		h & iconIndex;
 
+		h & idNumber & faction
 			& timeBetweenFidgets & walkAnimationTime & attackAnimationTime & flightAnimationDistance
 			& upperRightMissleOffsetX & rightMissleOffsetX & lowerRightMissleOffsetX & upperRightMissleOffsetY & rightMissleOffsetY & lowerRightMissleOffsetY
 			& missleFrameAngles & troopCountLocationOffset & attackClimaxFrame;

@@ -815,7 +815,7 @@ DLL_LINKAGE void AssembledArtifact::applyGs( CGameState *gs )
 		CArtifactInstance *constituentInstance = artSet->getArt(pos);
 
 		//move constituent from hero to be part of new, combined artifact
-		constituentInstance->removeFrom(al);
+		constituentInstance->removeFrom(ArtifactLocation(al.artHolder, pos));
 		combinedArt->addAsConstituent(constituentInstance, pos);
 		if(!vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], al.slot) && vstd::contains(combinedArt->artType->possibleSlots[artSet->bearerType()], pos))
 			al.slot = pos;

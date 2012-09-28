@@ -568,6 +568,12 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 
 					if(themp) //hero
 					{
+						if(themp->tempOwner >= GameConstants::PLAYER_LIMIT) //Neutral hero?
+						{
+							tlog1 << "A neutral hero (" << themp->name << ") at " << themp->pos << ". Should not happen!\n";
+							continue;
+						}
+
 						dir = themp->moveDir;
 
 						//pick graphics of hero (or boat if hero is sailing)
