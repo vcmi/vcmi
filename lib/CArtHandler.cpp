@@ -924,7 +924,9 @@ void CArtHandler::addBonuses()
 		}
 		cfg.Vector().push_back(jn);
 	}
- 	JsonWriter(std::ofstream("config/artifacts.json"), cfg);
+
+	std::ofstream artconfigOutput("config/artifacts.json");
+ 	JsonWriter(artconfigOutput, cfg);
 }
 
 void CArtHandler::clear()
