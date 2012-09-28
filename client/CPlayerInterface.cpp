@@ -942,10 +942,15 @@ void CPlayerInterface::showComp(const Component &comp, std::string message)
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
+	if (settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
+	{
+		return;
+	}
 	std::vector<CComponent*> intComps;
 	for(int i=0;i<components.size();i++)
 		intComps.push_back(new CComponent(*components[i]));
 	showInfoDialog(text,intComps,soundID);
+
 }
 
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<CComponent*> & components, int soundID, bool delComps)
@@ -953,6 +958,10 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	waitWhileDialog();
 
 	stopMovement();
+	if (settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
+	{
+		return;
+	}
 	CInfoWindow *temp = CInfoWindow::create(text, playerID, &components);
 	temp->setDelComps(delComps);
 	if(makingTurn && GH.listInt.size() && LOCPLINT == this)

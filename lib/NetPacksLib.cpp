@@ -320,7 +320,6 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 			{
 				if (q.obj == obj)
 				{
-					q.quest = NULL; //remove entries related to quest guards?
 					q.obj = NULL;
 				}
 			}
