@@ -1026,7 +1026,8 @@ void VCAI::makeTurnInternal()
 	try
 	{
 		//Pick objects reserved in previous turn - we expect only nerby objects there
-		BOOST_FOREACH (auto hero, reservedHeroesMap)
+		auto reservedHeroesCopy = reservedHeroesMap; //work on copy => the map may be changed while iterating (eg because hero died when attempting a goal)
+		BOOST_FOREACH (auto hero, reservedHeroesCopy)
 		{
 			cb->setSelection(hero.first.get());
 			boost::sort (hero.second, isCloser);
