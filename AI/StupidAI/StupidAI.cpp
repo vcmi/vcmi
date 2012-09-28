@@ -156,7 +156,9 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	}
 	else
 	{
+		assert(enemiesUnreachable.size());
 		const EnemyInfo &ei= *std::min_element(enemiesUnreachable.begin(), enemiesUnreachable.end(), boost::bind(isCloser, _1, _2, boost::ref(dists)));
+		assert(ei.s);
 		if(distToNearestNeighbour(ei.s->position, dists) < GameConstants::BFIELD_SIZE)
 		{
 			return goTowards(stack, ei.s->position);
