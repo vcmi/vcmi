@@ -1326,19 +1326,21 @@ void CGameHandler::newTurn()
 		{
 			// Skyship, probably easier to handle same as Veil of darkness
 			//do it every new day after veils apply
-			FoWChange fw;
-			fw.mode = 1;
-			fw.player = player;
+			if (player != GameConstants::NEUTRAL_PLAYER) //do not reveal fow for neutral player
+			{
+				FoWChange fw;
+				fw.mode = 1;
+				fw.player = player;
+				// find all hidden tiles
+				auto & fow = gs->getPlayerTeam(player)->fogOfWarMap;
+				for (size_t i=0; i<fow.size(); i++)
+					for (size_t j=0; j<fow[i].size(); j++)
+						for (size_t k=0; k<fow[i][j].size(); k++)
+							if (!fow[i][j][k])
+								fw.tiles.insert(int3(i,j,k));
 
-			// find all hidden tiles
-			auto & fow = gs->getPlayerTeam(player)->fogOfWarMap;
-			for (size_t i=0; i<fow.size(); i++)
-				for (size_t j=0; j<fow[i].size(); j++)
-					for (size_t k=0; k<fow[i][j].size(); k++)
-						if (!fow[i][j][k])
-							fw.tiles.insert(int3(i,j,k));
-
-			sendAndApply (&fw);
+				sendAndApply (&fw);
+			}
 		}
 		if (t->hasBonusOfType (Bonus::DARKNESS))
 		{
