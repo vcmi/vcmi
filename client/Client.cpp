@@ -276,7 +276,10 @@ void CClient::loadGame( const std::string & fname )
 	}
 	*serv << ui8(255); // neutrals
 	tlog0 <<"Sent info to server: "<<tmh.getDiff()<<std::endl;
-	
+
+	serv->enableStackSendingByID();
+	serv->disableSmartPointerSerialization();
+
 	{
 		CLoadFile lf(CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME)));
 		lf >> *this;
