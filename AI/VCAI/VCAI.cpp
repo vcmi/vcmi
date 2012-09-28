@@ -1947,6 +1947,9 @@ void VCAI::tryRealize(CGoal g)
 		break;
 
 	case COLLECT_RES: //TODO: use piles and mines?
+		if(cb->getResourceAmount(g.resID) >= g.value)
+			throw cannotFulfillGoalException("Goal is already fulfilled!");
+
 		if(const CGObjectInstance *obj = cb->getObj(g.objid, false))
 		{
 			if(const IMarket *m = IMarket::castFrom(obj, false))
@@ -1957,10 +1960,13 @@ void VCAI::tryRealize(CGoal g)
 					int toGive, toGet;
 					m->getOffer(i, g.resID, toGive, toGet, EMarketMode::RESOURCE_RESOURCE);
 					toGive = toGive * (cb->getResourceAmount(i) / toGive);
+					//TODO trade only as much as needed
 					cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, i, g.resID, toGive);
 					if(cb->getResourceAmount(g.resID) >= g.value)
 						return;
-				} //TODO: stop when we've sold all the resources
+				} 
+
+				throw cannotFulfillGoalException("I cannot get needed resources by trade!");
 			}
 			else
 			{

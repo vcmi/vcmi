@@ -4405,6 +4405,7 @@ void CGSeerHut::setObjToKill()
 	if (quest.missionType == CQuest::MISSION_KILL_CREATURE)
 	{
 		quest.stackToKill = getCreatureToKill(false)->getStack(0); //FIXME: stacks tend to dissapear (desync?) on server :?
+		assert(quest.stackToKill.type);
 		quest.stackToKill.count = 0; //no count in info window
 		quest.stackDirection = checkDirection();
 	}
