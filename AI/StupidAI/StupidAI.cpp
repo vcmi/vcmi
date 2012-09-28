@@ -154,7 +154,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		const EnemyInfo &ei= *std::max_element(enemiesReachable.begin(), enemiesReachable.end(), &isMoreProfitable);
 		return BattleAction::makeMeleeAttack(stack, ei.s, *std::max_element(ei.attackFrom.begin(), ei.attackFrom.end(), &willSecondHexBlockMoreEnemyShooters));
 	}
-	else
+	else if(enemiesUnreachable.size()) //due to #955 - a buggy battle may occur when there are no enemies
 	{
 		assert(enemiesUnreachable.size());
 		const EnemyInfo &ei= *std::min_element(enemiesUnreachable.begin(), enemiesUnreachable.end(), boost::bind(isCloser, _1, _2, boost::ref(dists)));
