@@ -1121,6 +1121,14 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 		cursorIndex = sector;
 	}
 
+	// Generally should NEVER happen, but to avoid the possibility of having endless loop below... [#1016]
+	if(!vstd::contains_if(sectorCursor, [](int sc) { return sc != -1; }))
+	{
+		tlog1 << "Error: for hex " << myNumber << " cannot find a hex to attack from!\n";
+		attackingHex = -1;
+		return;
+	}
+
 	// Find the closest direction attackable, starting with the right one.
 	// FIXME: Is this really how the original H3 client does it?
 	int i = 0;
