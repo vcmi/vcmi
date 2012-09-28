@@ -541,7 +541,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 				MoveArtifact ma;
 				ma.src = ArtifactLocation (loserHero, artSlot.first);
 				const CArtifactInstance * art =  ma.src.getArt();
-				if (art && !art->artType->isBig() && art->id != 0) // don't move war machines or locked arts (spellbook)
+				if (art && !art->artType->isBig() && art->artType->id != 0) // don't move war machines or locked arts (spellbook)
 				{
 					arts.push_back (art->artType->id);
 					ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
