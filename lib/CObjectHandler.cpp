@@ -6855,11 +6855,9 @@ void CArmedInstance::randomizeArmy(int type)
 		int randID = j->second->idRand;
 		if(randID > max)
 		{
-			if(randID % 2)
-				j->second->setType(VLC->townh->towns[type].creatures[(randID-197) / 2 -1][0]);
-			else
-				j->second->setType(VLC->townh->towns[type].creatures[(randID-197) / 2 -1][1]);
-
+			int level = (randID-VLC->creh->creatures.size()) / 2 -1;
+			bool upgrade = !(randID % 2);
+			j->second->setType(VLC->townh->towns[type].creatures[level][upgrade]);
 			randID = -1;
 		}
 
