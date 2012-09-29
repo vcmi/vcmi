@@ -509,7 +509,7 @@ TInputStreamPtr Mapa::getMapStream(std::string URI)
 	ui32 header = reader.readUInt32();
 	file->seek(0); //reset file
 
-	switch (header)
+	switch (header & 0xffffff) // gzip header is 3 bytes only in size
 	{
 		case 0x00088B1F: // gzip header magic number, reversed for LE
 			return TInputStreamPtr(new CCompressedStream(std::move(file), true));
@@ -519,6 +519,7 @@ TInputStreamPtr Mapa::getMapStream(std::string URI)
 		case CMapHeader::SoD :
 			return file;
 		default :
+			tlog0 << "Error: Failed to open map " << URI << ": unknown format\n";
 			return TInputStreamPtr();
 	}
 }
