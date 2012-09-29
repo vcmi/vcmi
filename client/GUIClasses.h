@@ -729,6 +729,7 @@ private:
 	CHighlightableButton * fullscreen;
 
 	CAdventureMapButton *gameResButton;
+	CLabel *gameResLabel;
 
 	void setMusicVolume( int newVolume );
 	void setSoundVolume( int newVolume );

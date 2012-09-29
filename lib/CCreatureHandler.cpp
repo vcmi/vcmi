@@ -27,8 +27,8 @@ CCreatureHandler::CCreatureHandler()
 	// Set the faction alignments to the defaults:
 	// Good: Castle, Rampart, Tower
 	// Evil: Inferno, Necropolis, Dungeon
-	// Neutral: Stronghold, Fortess, Conflux
-	factionAlignments += 1, 1, 1, -1, -1, -1, 0, 0, 0;
+	// Neutral: Stronghold, Fortess, Conflux, neutrals
+	factionAlignments += 1, 1, 1, -1, -1, -1, 0, 0, 0, 0;
 	doubledCreatures +=  4, 14, 20, 28, 44, 60, 70, 72, 85, 86, 100, 104; //according to Strategija
 
 	allCreatures.setDescription("All creatures");
@@ -148,21 +148,7 @@ std::string CCreature::nodeName() const
 
 bool CCreature::isItNativeTerrain(int terrain) const
 {
-	return VLC->townh->factions[0].nativeTerrain == terrain; //FIXME: handle neutral faction properly
-}
-
-int readNumber(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadCreatures() and loadUnitAnimInfo()
-{
-	befi=i;
-	for(; i<andame; ++i)
-	{
-		if(buf[i]=='\t')
-			break;
-	}
-	std::string tmp = buf.substr(befi, i-befi);
-	int ret = atoi(buf.substr(befi, i-befi).c_str());
-	++i;
-	return ret;
+	return VLC->townh->factions[faction].nativeTerrain == terrain;
 }
 
 /**
@@ -172,7 +158,7 @@ int readNumber(int & befi, int & i, int andame, std::string & buf) //helper func
  */
 bool CCreatureHandler::isGood (si8 faction) const
 {
-	return faction != -1 && factionAlignments[faction] == 1;
+	return factionAlignments[faction] == 1;
 }
 
 /**
@@ -182,7 +168,7 @@ bool CCreatureHandler::isGood (si8 faction) const
  */
 bool CCreatureHandler::isEvil (si8 faction) const
 {
-	return faction != -1 && factionAlignments[faction] == -1;
+	return factionAlignments[faction] == -1;
 }
 
 static void AddAbility(CCreature *cre, const JsonVector &ability_vec)

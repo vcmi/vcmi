@@ -123,7 +123,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	cre->cost = Res::ResourceSet(node["cost"]);
 
 	cre->level = node["level"].Float();
-	cre->faction = -1; //neutral faction is 9 for now. Will be replaced by string -> id conversion
+	cre->faction = 9; //neutral faction is 9 for now. Will be replaced by string -> id conversion
 	//TODO: node["faction"].String() to id
 	cre->fightValue = node["fightValue"].Float();
 	cre->AIValue = node["aiValue"].Float();
