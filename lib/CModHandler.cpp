@@ -213,21 +213,21 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	cre->attackAnimationTime = animationTime["attack"].Float();
 	cre->flightAnimationDistance = animationTime["flight"].Float(); //?
 	//TODO: background?
-	const JsonNode & missle = graphics["missle"];
+	const JsonNode & missile = graphics["missile"];
 	//TODO: parse
-	value = &missle["projectile"];
+	value = &missile["projectile"];
 	if (value->isNull())
 		cre->projectile = "PLCBOWX.DEF";
 	else
 		cre->projectile = value->String();
 
-	value = &missle["spinning"];
+	value = &missile["spinning"];
 	if (value->isNull())
 		cre->projectileSpin = false; //no animation by default to avoid crash
 	else
 		cre->projectileSpin = value->Bool();
 
-	const JsonNode & offsets = missle["offset"];
+	const JsonNode & offsets = missile["offset"];
 	cre->upperRightMissleOffsetX = offsets["upperX"].Float();
 	cre->upperRightMissleOffsetY = offsets["upperY"].Float();
 	cre->rightMissleOffsetX = offsets["middleX"].Float();
@@ -235,7 +235,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	cre->lowerRightMissleOffsetX = offsets["lowerX"].Float();
 	cre->lowerRightMissleOffsetY = offsets["lowerY"].Float();
 	int i = 0;
-	BOOST_FOREACH (auto & angle, missle["frameAngles"].Vector())
+	BOOST_FOREACH (auto & angle, missile["frameAngles"].Vector())
 	{
 		cre->missleFrameAngles[i++] = angle.Float();
 	}
