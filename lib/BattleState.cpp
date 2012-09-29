@@ -513,7 +513,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 		auto handleWarMachine= [&](int side, int artslot, int cretype, int hex)
 		{
 			if(heroes[side] && heroes[side]->getArt(artslot))
-				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), true, 255, hex));
+				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), !side, 255, hex));
 		};
 
 		handleWarMachine(0, 13, 146, 52); //ballista

@@ -14,7 +14,8 @@
 #define ERROR_AND_RETURN												\
 	do { if(c) {														\
 			SystemMessage temp_message("You are not allowed to perform this action!"); \
-			*c << &temp_message; \
+			boost::unique_lock<boost::mutex> lock(*c->wmx);				\
+			*c << &temp_message;										\
 		}																\
 		tlog1<<"Player is not allowed to perform this action!\n";		\
 		return false;} while(0)
@@ -22,7 +23,7 @@
 #define WRONG_PLAYER_MSG(expectedplayer) do {std::ostringstream oss;\
 			oss << "You were identified as player " << (int)gh->getPlayerAt(c) << " while expecting " << (int)expectedplayer;\
 			tlog1 << oss.str() << std::endl; \
-			if(c) { SystemMessage temp_message(oss.str()); *c << &temp_message; } } while(0)
+			if(c) { SystemMessage temp_message(oss.str()); boost::unique_lock<boost::mutex> lock(*c->wmx); *c << &temp_message; } } while(0)
 
 #define ERROR_IF_NOT_OWNS(id)	do{if(!PLAYER_OWNS(id)){WRONG_PLAYER_MSG(gh->getOwner(id)); ERROR_AND_RETURN; }}while(0)
 #define ERROR_IF_NOT(player)	do{if(player != gh->getPlayerAt(c)){WRONG_PLAYER_MSG(player); ERROR_AND_RETURN; }}while(0)

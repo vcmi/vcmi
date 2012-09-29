@@ -70,6 +70,10 @@ CBattleAI::CBattleAI(void)
 CBattleAI::~CBattleAI(void)
 {
 	print("destroyed");
+
+	//Restore previous state of CB - it may be shared with the main AI (like VCAI)
+	cb->waitTillRealize = wasWaitingForRealize;
+	cb->unlockGsWhenWaiting = wasUnlockingGs;
 }
 
 void CBattleAI::init( CBattleCallback * CB )
@@ -77,6 +81,9 @@ void CBattleAI::init( CBattleCallback * CB )
 	print("init called, saving ptr to IBattleCallback");
 	cbc = cb = CB;
 	playerID = CB->getPlayerID();; //TODO should be sth in callback
+
+	wasWaitingForRealize = cb->waitTillRealize;
+	wasUnlockingGs = CB->unlockGsWhenWaiting;
 	CB->waitTillRealize = true;
 	CB->unlockGsWhenWaiting = false;
 }
@@ -322,6 +329,14 @@ struct PotentialTargets
 
 		return *vstd::maxElementByFun(possibleAttacks, [](const AttackPossibility &ap) { return ap.damageDiff(); } );
 	}
+
+	int bestActionValue() const
+	{
+		if(possibleAttacks.empty())
+			return 0;
+
+		return bestAction().damageDiff();
+	}
 };
 
 BattleAction CBattleAI::activeStack( const CStack * stack )
@@ -334,6 +349,12 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 
 		if(cb->battleCanCastSpell())
 			attemptCastingSpell();
+
+		if(cb->battleGetStacks(CBattleInfoEssentials::ONLY_ENEMY).empty())
+		{
+			//We apparently won battle by casting spell, return defend... (accessing cb may cause trouble)
+			return BattleAction::makeDefend(stack);
+		}
 
 		ThreatMap threatsToUs(stack);
 		PotentialTargets targets(stack);
@@ -673,7 +694,7 @@ void CBattleAI::attemptCastingSpell()
 	BOOST_FOREACH(auto stack, cb->battleGetStacks())
 	{
 		PotentialTargets pt(stack);
-		valueOfStack[stack] = pt.bestAction().attackValue();
+		valueOfStack[stack] = pt.bestActionValue();
 	}
 
 	auto evaluateSpellcast = [&] (const PossibleSpellcast &ps) -> int
@@ -730,7 +751,7 @@ void CBattleAI::attemptCastingSpell()
 				state.bonusesOfStacks[swb.stack] = &swb;
 
 				PotentialTargets pt(swb.stack, state);
-				auto newValue = pt.bestAction().attackValue();
+				auto newValue = pt.bestActionValue();
 				auto oldValue = valueOfStack[swb.stack];
 				auto gain = newValue - oldValue;
 				if(swb.stack->owner != playerID) //enemy

@@ -359,7 +359,12 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 
 	ui64 objectDanger = 0, guardDanger = 0;
 
-	if(const CGObjectInstance * dangerousObject = backOrNull(cb->getVisitableObjs(tile)))
+	auto visitableObjects = cb->getVisitableObjs(tile);
+	// in some scenarios hero happens to be "under" the object (eg town). Then we consider ONLY the hero.
+	if(vstd::contains_if(visitableObjects, objWithID<Obj::HERO>))
+		erase_if(visitableObjects, ! boost::bind(objWithID<Obj::HERO>, _1));
+
+	if(const CGObjectInstance * dangerousObject = backOrNull(visitableObjects))
 	{
 		objectDanger = evaluateDanger(dangerousObject); //unguarded objects can also be dangerous or unhandled
 		if (objectDanger)

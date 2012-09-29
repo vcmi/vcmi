@@ -8,6 +8,9 @@ class CBattleAI : public CBattleGameInterface
 {
 	int side;
 	CBattleCallback *cb;
+	
+	//Previous setting of cb 
+	bool wasWaitingForRealize, wasUnlockingGs;
 
 	void print(const std::string &text) const;
 public:
