@@ -390,23 +390,26 @@ if( !isEarliest(false) )
 
 	//a few useful variables
 	steps = static_cast<int>(myAnim()->framesInGroup(CCreatureAnim::MOVING) * owner->getAnimSpeedMultiplier() - 1);
-	if(steps == 0) //this creature seems to have no move animation so we can end it immediately
-	{
-		endAnim();
-		return false;
-	}
-	whichStep = 0;
-	int hexWbase = 44, hexHbase = 42;
+
 	const CStack * movedStack = stack;
 	if(!movedStack || myAnim()->getType() == 5)
 	{
 		endAnim();
 		return false;
 	}
-	//bool twoTiles = movedStack->doubleWide();
 
 	Point begPosition = CClickableHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack, owner);
 	Point endPosition = CClickableHex::getXYUnitAnim(nextHex, movedStack->attackerOwned, movedStack, owner);
+
+	if(steps < 0) //this creature seems to have no move animation so we can end it immediately
+	{
+		endAnim();
+		return false;
+	}
+	whichStep = 0;
+	int hexWbase = 44, hexHbase = 42;
+
+	//bool twoTiles = movedStack->doubleWide();
 
 	int mutPos = BattleHex::mutualPosition(curStackPos, nextHex);
 
@@ -528,6 +531,7 @@ void CMovementAnimation::endAnim()
 {
 	const CStack * movedStack = stack;
 
+	myAnim()->pos = CClickableHex::getXYUnitAnim(nextHex, movedStack->attackerOwned, movedStack, owner);
 	CBattleAnimation::endAnim();
 
 	if(movedStack)
