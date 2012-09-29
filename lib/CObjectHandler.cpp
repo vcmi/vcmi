@@ -1535,7 +1535,7 @@ void CGDwelling::initObj()
 			hoverName = VLC->generaltexth->creGens[subID];
 			if(crs->level > 4)
 				putStack(0, new CStackInstance(crs, (crs->growth) * 3));
-			if (getOwner() != 255)
+			if (getOwner() != GameConstants::NEUTRAL_PLAYER)
 				cb->gameState()->players[getOwner()].dwellings.push_back (this);
 		}
 		break;
@@ -2167,7 +2167,7 @@ ui8 CGTownInstance::getPassableness() const
 {
 	if (!armedGarrison())//empty castle - anyone can visit
 		return GameConstants::ALL_PLAYERS;
-	if ( tempOwner == 255 )//neutral guarded - no one can visit
+	if ( tempOwner == GameConstants::NEUTRAL_PLAYER )//neutral guarded - no one can visit
 		return 0;
 
 	ui8 mask = 0;
@@ -5623,7 +5623,7 @@ ui8 CGGarrison::getPassableness() const
 {
 	if ( !stacksCount() )//empty - anyone can visit
 		return GameConstants::ALL_PLAYERS;
-	if ( tempOwner == 255 )//neutral guarded - no one can visit
+	if ( tempOwner == GameConstants::NEUTRAL_PLAYER )//neutral guarded - no one can visit
 		return 0;
 
 	ui8 mask = 0;

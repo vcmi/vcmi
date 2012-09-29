@@ -371,7 +371,6 @@ namespace vstd
 		vec.erase(boost::remove_if(vec, pred),vec.end());
 	}
 
-	//set has its own order, so remove_if won't work. TODO - reuse for map
 	template<typename Elem, typename Predicate>
 	void erase_if(std::set<Elem> &setContainer, Predicate pred)
 	{
@@ -382,6 +381,20 @@ namespace vstd
 			auto tmpItr = itr++;
 			if(pred(*tmpItr))
 				setContainer.erase(tmpItr);
+		}
+	}
+
+	//works for map and bmap, maybe something else
+	template<typename Key, typename Val, typename Predicate>
+	void erase_if(std::map<Key, Val> &container, Predicate pred)
+	{
+		auto itr = container.begin();
+		auto endItr = container.end(); 
+		while(itr != endItr)
+		{
+			auto tmpItr = itr++;
+			if(pred(*tmpItr))
+				container.erase(tmpItr);
 		}
 	}
 

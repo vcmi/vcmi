@@ -274,7 +274,7 @@ void CClient::loadGame( const std::string & fname )
 	{
 		*serv << ui8(it->first); //players
 	}
-	*serv << ui8(255); // neutrals
+	*serv << ui8(GameConstants::NEUTRAL_PLAYER);
 	tlog0 <<"Sent info to server: "<<tmh.getDiff()<<std::endl;
 
 	serv->enableStackSendingByID();
@@ -312,7 +312,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		}
 	}
 	if(networkMode != GUEST)
-		myPlayers.insert(255); //neutral
+		myPlayers.insert(GameConstants::NEUTRAL_PLAYER);
 
 	CStopWatch tmh;
 	const_cast<CGameInfo*>(CGI)->state = new CGameState();
@@ -466,7 +466,7 @@ void CClient::serialize( Handler &h, const int version )
 			CGameInterface *nInt = NULL;
 			if(dllname.length())
 			{
-				if(pid == 255)
+				if(pid == GameConstants::NEUTRAL_PLAYER)
 				{
 					//CBattleCallback * cbc = new CBattleCallback(gs, pid, this);//FIXME: unused?
 					CBattleGameInterface *cbgi = CDynLibHandler::getNewBattleAI(dllname);
@@ -617,10 +617,10 @@ void CClient::battleFinished()
 
 void CClient::loadNeutralBattleAI()
 {
-	battleints[255] = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
-	auto cbc = make_shared<CBattleCallback>(gs, 255, this);
-	battleCallbacks[255] = cbc;
-	battleints[255]->init(cbc.get());
+	battleints[GameConstants::NEUTRAL_PLAYER] = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
+	auto cbc = make_shared<CBattleCallback>(gs, GameConstants::NEUTRAL_PLAYER, this);
+	battleCallbacks[GameConstants::NEUTRAL_PLAYER] = cbc;
+	battleints[GameConstants::NEUTRAL_PLAYER]->init(cbc.get());
 }
 
 void CClient::commitPackage( CPackForClient *pack )

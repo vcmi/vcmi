@@ -910,22 +910,22 @@ void CArtHandler::addBonuses()
 		ART_PRIM_SKILL (154, 0, +6); //Hardened Shield
 	}
 
-	JsonNode cfg;
-	BOOST_FOREACH(auto art, artifacts)
-	{
-		JsonNode jn;
-		jn["id"].Float() = art->id;
-		BOOST_FOREACH (auto b, art->getBonusList())
-		{
-			JsonNode bn;
-			UnparseBonus(bn, b);
-			jn["bonuses"].Vector().push_back(bn);
-		}
-		cfg.Vector().push_back(jn);
-	}
-
-	std::ofstream artconfigOutput("config/artifacts.json");
- 	JsonWriter(artconfigOutput, cfg);
+// 	JsonNode cfg;
+// 	BOOST_FOREACH(auto art, artifacts)
+// 	{
+// 		JsonNode jn;
+// 		jn["id"].Float() = art->id;
+// 		BOOST_FOREACH (auto b, art->getBonusList())
+// 		{
+// 			JsonNode bn;
+// 			UnparseBonus(bn, b);
+// 			jn["bonuses"].Vector().push_back(bn);
+// 		}
+// 		cfg.Vector().push_back(jn);
+// 	}
+// 
+// 	std::ofstream artconfigOutput("config/artifacts.json");
+//  	JsonWriter(artconfigOutput, cfg);
 }
 
 void CArtHandler::clear()
