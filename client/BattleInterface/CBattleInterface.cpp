@@ -17,7 +17,7 @@
 #include "CCreatureAnimation.h"
 #include "../Graphics.h"
 #include "../CSpellWindow.h"
-#include "../CConfigHandler.h"
+#include "../../lib/CConfigHandler.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/NetPacks.h"
 #include "../CPlayerInterface.h"

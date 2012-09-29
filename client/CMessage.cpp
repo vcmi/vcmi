@@ -9,7 +9,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
 #include "GUIClasses.h"
-#include "CConfigHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "CBitmapHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
 

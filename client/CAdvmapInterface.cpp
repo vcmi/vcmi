@@ -11,7 +11,7 @@
 #include "CPlayerInterface.h"
 #include "UIFramework/SDL_Extensions.h"
 #include "CBitmapHandler.h"
-#include "CConfigHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "CSpellWindow.h"
 #include "Graphics.h"
 #include "CDefHandler.h"

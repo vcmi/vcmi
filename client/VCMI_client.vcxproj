@@ -235,7 +235,6 @@
     <ClCompile Include="..\CCallback.cpp" />
     <ClCompile Include="CBitmapHandler.cpp" />
     <ClCompile Include="CCastleInterface.cpp" />
-    <ClCompile Include="CConfigHandler.cpp" />
     <ClCompile Include="CCreatureWindow.cpp" />
     <ClCompile Include="CDefHandler.cpp" />
     <ClCompile Include="CGameInfo.cpp" />
@@ -280,7 +279,6 @@
     <ClInclude Include="CBitmapHandler.h" />
     <ClInclude Include="..\CCallback.h" />
     <ClInclude Include="CCastleInterface.h" />
-    <ClInclude Include="CConfigHandler.h" />
     <ClInclude Include="CCreatureWindow.h" />
     <ClInclude Include="CDefHandler.h" />
     <ClInclude Include="CGameInfo.h" />

@@ -2,6 +2,7 @@
 #include "VCAI.h"
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CObjectHandler.h"
+#include "../../lib/CConfigHandler.h"
 
 #define I_AM_ELEMENTAR return CGoal(*this).setisElementar(true)
 CLogger &aiLogger = tlog6;
@@ -436,7 +437,6 @@ VCAI::VCAI(void)
 {
 	LOG_ENTRY;
 	myCb = NULL;
-	battleAIName = "StupidAI";
 	makingTurn = NULL;
 }
 
@@ -2536,6 +2536,14 @@ void VCAI::requestSent(const CPackForServer *pack, int requestID)
 	{
 		status.attemptedAnsweringQuery(reply->qid, requestID);
 	}
+}
+
+std::string VCAI::getBattleAIName() const
+{
+	if(settings["server"]["neutralAI"].getType() == JsonNode::DATA_STRING)
+		return settings["server"]["neutralAI"].String();
+	else
+		return "StupidAI";
 }
 
 AIStatus::AIStatus()

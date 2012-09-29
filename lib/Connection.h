@@ -12,6 +12,7 @@
 #include <boost/type_traits/remove_pointer.hpp>
 #include <boost/type_traits/remove_const.hpp>
 
+
 #include <boost/variant.hpp>
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/equal_to.hpp>
@@ -24,7 +25,7 @@
 #include "CObjectHandler.h" //for CArmedInstance
 #include "CCampaignHandler.h" //for CCampaignState
 
-const ui32 version = 732;
+const ui32 version = 733;
 const TSlot COMMANDER_SLOT_PLACEHOLDER = -2;
 
 class CConnection;

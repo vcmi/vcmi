@@ -26,7 +26,7 @@
 #include "../lib/map.h"
 #include "../lib/JsonNode.h"
 #include "mapHandler.h"
-#include "CConfigHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "Client.h"
 #include "CPreGame.h"
 #include "BattleInterface/CBattleInterface.h"

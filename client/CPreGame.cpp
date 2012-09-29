@@ -37,7 +37,7 @@
 #include "../lib/NetPacks.h"
 #include "../lib/RegisterTypes.h"
 #include "../lib/CThreadHelper.h"
-#include "CConfigHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/GameConstants.h"
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"

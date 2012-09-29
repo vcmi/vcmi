@@ -11,7 +11,7 @@
 #include "CAnimation.h" //CAnimImage
 #include "CAdvmapInterface.h" //CResDataBar
 #include "CCastleInterface.h" //various town-specific classes
-#include "CConfigHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "CGameInfo.h"
 #include "CPlayerInterface.h" //LOCPLINT
 #include "UIFramework/CGuiHandler.h"

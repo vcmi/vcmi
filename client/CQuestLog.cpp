@@ -11,7 +11,7 @@
 #include "CDefHandler.h"
 #include "Graphics.h"
 #include "CPlayerInterface.h"
-#include "CConfigHandler.h"
+#include "../lib/CConfigHandler.h"
 
 #include "../lib/CGameState.h"
 #include "../lib/CArtHandler.h"

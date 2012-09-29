@@ -27,7 +27,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
 #include "Client.h"
-#include "CConfigHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/Connection.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
@@ -594,6 +594,23 @@ void processCommand(const std::string &message)
 		readed >> mxname;
 		if(mxname == "pim" && LOCPLINT)
 			LOCPLINT->pim->unlock();
+	}
+	else if(cn == "setBattleAI")
+	{
+		std::string fname;
+		readed >> fname;
+		tlog0 << "Will try loading that AI to see if it is correct name...\n";
+		if(auto ai = CDynLibHandler::getNewBattleAI(fname)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
+		{
+			delete ai;
+			Settings neutralAI = settings.write["server"]["neutralAI"];
+			neutralAI->String() = fname;
+			tlog0 << "Setting changed, from now the battle ai will be " << fname << "!\n";
+		}
+		else
+		{
+			tlog3 << "Setting not changes, no such AI found!\n";
+		}
 	}
 	else if(client && client->serv && client->serv->connected && LOCPLINT) //send to server
 	{

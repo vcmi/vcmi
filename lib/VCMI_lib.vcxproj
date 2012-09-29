@@ -226,6 +226,7 @@
     <ClCompile Include="CArtHandler.cpp" />
     <ClCompile Include="CBuildingHandler.cpp" />
     <ClCompile Include="CCampaignHandler.cpp" />
+    <ClCompile Include="CConfigHandler.cpp" />
     <ClCompile Include="CConsoleHandler.cpp" />
     <ClCompile Include="CCreatureHandler.cpp" />
     <ClCompile Include="CCreatureSet.cpp" />
@@ -278,6 +279,7 @@
     <ClInclude Include="CArtHandler.h" />
     <ClInclude Include="CBuildingHandler.h" />
     <ClInclude Include="CCampaignHandler.h" />
+    <ClInclude Include="CConfigHandler.h" />
     <ClInclude Include="CConsoleHandler.h" />
     <ClInclude Include="CCreatureHandler.h" />
     <ClInclude Include="CCreatureSet.h" />

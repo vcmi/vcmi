@@ -127,7 +127,7 @@ void CAdventureAI::battleStart(const CCreatureSet *army1, const CCreatureSet *ar
 {
 	assert(!battleAI);
 	assert(cbc);
-	battleAI = CDynLibHandler::getNewBattleAI(battleAIName);
+	battleAI = CDynLibHandler::getNewBattleAI(getBattleAIName());
 	battleAI->init(cbc);
 	battleAI->battleStart(army1, army2, tile, hero1, hero2, side);
 }

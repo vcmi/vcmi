@@ -11,7 +11,7 @@
 #include "../lib/CObjectHandler.h"
 #include "../lib/map.h"
 #include "CDefHandler.h"
-#include "CConfigHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/GameConstants.h"
 #include "../lib/CStopWatch.h"

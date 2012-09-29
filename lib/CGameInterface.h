@@ -111,11 +111,11 @@ class DLL_LINKAGE CAdventureAI : public CGlobalAI
 {
 public:
 	CAdventureAI() : battleAI(NULL), cbc(NULL) {};
-	CAdventureAI(const std::string &BattleAIName) : battleAIName(BattleAIName), battleAI(NULL), cbc(NULL) {};
 
-	std::string battleAIName;
 	CBattleGameInterface *battleAI;
 	CBattleCallback *cbc;
+
+	virtual std::string getBattleAIName() const = 0; //has to return name of the battle AI to be used
 
 	//battle interface
 	virtual BattleAction activeStack(const CStack * stack);

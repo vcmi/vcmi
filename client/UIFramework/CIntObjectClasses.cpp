@@ -9,7 +9,7 @@
 #include "CCursorHandler.h"
 #include "../CGameInfo.h"
 #include "../../CCallback.h"
-#include "../CConfigHandler.h"
+#include "../../lib/CConfigHandler.h"
 #include "../BattleInterface/CBattleInterface.h"
 #include "../BattleInterface/CBattleInterfaceClasses.h"
 #include "../CPlayerInterface.h"

@@ -13,7 +13,7 @@
 #include "CBitmapHandler.h"
 #include "Graphics.h"
 #include "CSpellWindow.h"
-#include "CConfigHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "CPlayerInterface.h"
 
 #include "../lib/CArtHandler.h"

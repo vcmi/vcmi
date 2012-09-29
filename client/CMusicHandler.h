@@ -1,6 +1,6 @@
 #pragma once
 
-#include "CConfigHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "CSoundBase.h"
 #include "../lib/CCreatureHandler.h"
 

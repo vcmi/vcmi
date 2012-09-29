@@ -168,9 +168,9 @@ JsonNode& Settings::operator [](std::string value)
 {
 	return node[value];
 }
-
-template struct SettingsStorage::NodeAccessor<SettingsListener>;
-template struct SettingsStorage::NodeAccessor<Settings>;
+// 
+// template DLL_LINKAGE struct SettingsStorage::NodeAccessor<SettingsListener>;
+// template DLL_LINKAGE struct SettingsStorage::NodeAccessor<Settings>;
 
 static void setButton(ButtonInfo &button, const JsonNode &g)
 {

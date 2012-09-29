@@ -13,7 +13,7 @@
 #include "CDefHandler.h"
 #include "Graphics.h"
 #include "CPlayerInterface.h"
-#include "CConfigHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "CAnimation.h"
 
 #include "../lib/CGameState.h"

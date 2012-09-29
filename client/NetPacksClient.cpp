@@ -19,7 +19,7 @@
 #include "CSoundBase.h"
 #include "mapHandler.h"
 #include "GUIClasses.h"
-#include "CConfigHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "UIFramework/SDL_Extensions.h"
 #include "BattleInterface/CBattleInterface.h"
 #include "../lib/CCampaignHandler.h"

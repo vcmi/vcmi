@@ -15,7 +15,7 @@
 #include "CPlayerInterface.h"
 //#include "UIFramework/SDL_Extensions.h"
 #include "UIFramework/SDL_Extensions.h"
-#include "CConfigHandler.h"
+#include "../lib/CConfigHandler.h"
 #include "BattleInterface/CCreatureAnimation.h"
 #include "Graphics.h"
 #include "../lib/CArtHandler.h"

@@ -269,8 +269,10 @@ public:
 	int3 explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<int3> > &tiles);
 	void recruitHero();
 
-	virtual void init(CCallback * CB);
-	virtual void yourTurn();
+	virtual std::string getBattleAIName() const OVERRIDE;
+
+	virtual void init(CCallback * CB) OVERRIDE;
+	virtual void yourTurn() OVERRIDE;
 
 	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, int queryID) OVERRIDE; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID) OVERRIDE; //TODO

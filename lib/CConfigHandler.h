@@ -15,11 +15,11 @@ class Settings;
 class SettingsListener;
 
 /// Main storage of game settings
-class SettingsStorage
+class DLL_LINKAGE SettingsStorage
 {
 	//Helper struct to access specific node either via chain of operator[] or with one operator() (vector)
 	template<typename Accessor>
-	struct NodeAccessor
+	struct DLL_LINKAGE NodeAccessor
 	{
 		SettingsStorage & parent;
 		std::vector<std::string> path;
@@ -57,7 +57,7 @@ public:
 };
 
 /// Class for listening changes in specific part of configuration (e.g. change of music volume)
-class SettingsListener
+class DLL_LINKAGE SettingsListener
 {
 	SettingsStorage &parent;
 	// Path to this node
@@ -81,7 +81,7 @@ public:
 };
 
 /// System options, provides write access to config tree with auto-saving on change
-class Settings
+class DLL_LINKAGE Settings
 {
 	SettingsStorage &parent;
 	//path to this node
@@ -109,7 +109,7 @@ public:
 
 namespace config
 {
-	struct ButtonInfo
+	struct DLL_LINKAGE ButtonInfo
 	{
 		std::string defName;
 		std::vector<std::string> additionalDefs;
@@ -117,7 +117,7 @@ namespace config
 		bool playerColoured; //if true button will be colored to main player's color (works properly only for appropriate 8bpp graphics)
 	};
 	/// Struct which holds data about position of several GUI elements at the adventure map screen
-	struct AdventureMapConfig
+	struct DLL_LINKAGE AdventureMapConfig
 	{
 		//minimap properties
 		int minimapX, minimapY, minimapW, minimapH;
@@ -153,12 +153,12 @@ namespace config
 		int overviewPics, overviewSize; //pic count in def and count of visible slots
 		std::string overviewBg; //background name
 	};
-	struct GUIOptions
+	struct DLL_LINKAGE GUIOptions
 	{
 		AdventureMapConfig ac;
 	};
 	/// Handles adventure map screen settings
-	class CConfigHandler
+	class DLL_LINKAGE CConfigHandler
 	{
 		GUIOptions *current; // pointer to current gui options
 
@@ -176,5 +176,10 @@ namespace config
 	};
 }
 
-extern SettingsStorage settings;
-extern config::CConfigHandler conf;
+extern DLL_LINKAGE SettingsStorage settings;
+extern DLL_LINKAGE config::CConfigHandler conf;
+
+// Force instantiation of the SettingsStorage::NodeAccessor class template.
+// That way method definitions can sit in the cpp file
+template struct SettingsStorage::NodeAccessor<SettingsListener>;
+template struct SettingsStorage::NodeAccessor<Settings>;

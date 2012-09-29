@@ -6,7 +6,7 @@
 #include "../CGameInfo.h"
 #include "CCursorHandler.h"
 #include "../../lib/CThreadHelper.h"
-#include "../CConfigHandler.h"
+#include "../../lib/CConfigHandler.h"
 
 extern SDL_Surface * screenBuf, * screen2, * screen;
 extern std::queue<SDL_Event> events;

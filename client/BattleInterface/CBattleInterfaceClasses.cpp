@@ -10,7 +10,7 @@
 #include "../../CCallback.h"
 #include "../CSpellWindow.h"
 #include "../Graphics.h"
-#include "../CConfigHandler.h"
+#include "../../lib/CConfigHandler.h"
 #include "../UIFramework/CGuiHandler.h"
 #include "../UIFramework/CIntObjectClasses.h"
 #include "../../lib/CGeneralTextHandler.h"
