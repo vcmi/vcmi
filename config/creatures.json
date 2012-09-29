@@ -574,7 +574,9 @@
 				"level": 7,
 				"name": [ "Devil" ],
 				"faction": 3,
+				"ability_remove": [ "FLYING" ],  //use teleport instead
 				"ability_add": [ [ "HATE", 50, 13, 0 ],
+								[ "FLYING", 0, 1, 0], //teleport
 							   	 [ "HATE", 50, 12, 0 ],
 								 [ "ENEMY_LUCK_DECREASING", 1, 0, 0 ],	//devils				//devils hate archangles
 								 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ], 	 	//devils			//devils hate angels
@@ -587,8 +589,10 @@
 				"level": 7,
 				"name": [ "ArchDevil" ],
 				"faction": 3,
-				"ability_add": [ [ "HATE", 50, 13, 0 ],				//wraith
+				"ability_remove": [ "FLYING" ],  //use teleport instead
+				"ability_add": [ [ "HATE", 50, 13, 0 ],				
 							   	 [ "HATE", 50, 12, 0 ],
+								 [ "FLYING", 0, 1, 0],
 								 [ "ENEMY_LUCK_DECREASING", 1, 0, 0 ], 	//archdevils				//archdevils hate archangles
 								 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ], 	 	//archdevils			//archdevils hate angels
 				"defname": "CADEVL.DEF"

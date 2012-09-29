@@ -387,20 +387,20 @@ void CCreatureHandler::loadCreatures()
 		if (!value->isNull() && value->Bool())
 			factionToTurretCreature[c->faction] = creatureID;
 
-		value = &creature["ability_add"];
-		if (!value->isNull()) {
-			BOOST_FOREACH(const JsonNode &ability, value->Vector())
-			{
-				AddAbility(c, ability.Vector());
-			}
-		}
-
-		value = &creature["ability_remove"];
+		value = &creature["ability_remove"];//remove first - arch devil
 		if (!value->isNull())
 		{
 			BOOST_FOREACH(const JsonNode &ability, value->Vector())
 			{
 				RemoveAbility(c, ability);
+			}
+		}
+
+		value = &creature["ability_add"];
+		if (!value->isNull()) {
+			BOOST_FOREACH(const JsonNode &ability, value->Vector())
+			{
+				AddAbility(c, ability.Vector());
 			}
 		}
 	}

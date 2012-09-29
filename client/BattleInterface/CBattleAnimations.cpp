@@ -401,8 +401,9 @@ if( !isEarliest(false) )
 	Point begPosition = CClickableHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack, owner);
 	Point endPosition = CClickableHex::getXYUnitAnim(nextHex, movedStack->attackerOwned, movedStack, owner);
 
-	if(steps < 0) //this creature seems to have no move animation so we can end it immediately
+	if(steps < 0 || stack->hasBonus(Selector::typeSubtype(Bonus::FLYING, 1))) //no movement or teleport
 	{
+		//this creature seems to have no move animation so we can end it immediately
 		endAnim();
 		return false;
 	}
