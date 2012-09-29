@@ -77,7 +77,6 @@ am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-CAnimation.$(OBJEXT) \
 	vcmiclient-CBitmapHandler.$(OBJEXT) \
 	vcmiclient-CCastleInterface.$(OBJEXT) \
-	vcmiclient-CConfigHandler.$(OBJEXT) \
 	vcmiclient-CCreatureWindow.$(OBJEXT) \
 	vcmiclient-CDefHandler.$(OBJEXT) \
 	vcmiclient-CGameInfo.$(OBJEXT) \
@@ -356,8 +355,6 @@ vcmiclient_SOURCES = \
 	CBitmapHandler.h \
 	CCastleInterface.cpp \
 	CCastleInterface.h \
-	CConfigHandler.cpp \
-	CConfigHandler.h \
 	CCreatureWindow.cpp \
 	CCreatureWindow.h \
 	CDefHandler.cpp \
@@ -494,7 +491,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CBitmapHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCallback.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCastleInterface.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CConfigHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCreatureAnimation.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCreatureWindow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CCursorHandler.Po@am__quote@
@@ -765,20 +761,6 @@ vcmiclient-CCastleInterface.obj: CCastleInterface.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CCastleInterface.cpp' object='vcmiclient-CCastleInterface.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CCastleInterface.obj `if test -f 'CCastleInterface.cpp'; then $(CYGPATH_W) 'CCastleInterface.cpp'; else $(CYGPATH_W) '$(srcdir)/CCastleInterface.cpp'; fi`
-
-vcmiclient-CConfigHandler.o: CConfigHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CConfigHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CConfigHandler.Tpo -c -o vcmiclient-CConfigHandler.o `test -f 'CConfigHandler.cpp' || echo '$(srcdir)/'`CConfigHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CConfigHandler.Tpo $(DEPDIR)/vcmiclient-CConfigHandler.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CConfigHandler.cpp' object='vcmiclient-CConfigHandler.o' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CConfigHandler.o `test -f 'CConfigHandler.cpp' || echo '$(srcdir)/'`CConfigHandler.cpp
-
-vcmiclient-CConfigHandler.obj: CConfigHandler.cpp
-@am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CConfigHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CConfigHandler.Tpo -c -o vcmiclient-CConfigHandler.obj `if test -f 'CConfigHandler.cpp'; then $(CYGPATH_W) 'CConfigHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CConfigHandler.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(AM_V_at)$(am__mv) $(DEPDIR)/vcmiclient-CConfigHandler.Tpo $(DEPDIR)/vcmiclient-CConfigHandler.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	$(AM_V_CXX)source='CConfigHandler.cpp' object='vcmiclient-CConfigHandler.obj' libtool=no @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(AM_V_CXX@am__nodep@)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CConfigHandler.obj `if test -f 'CConfigHandler.cpp'; then $(CYGPATH_W) 'CConfigHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/CConfigHandler.cpp'; fi`
 
 vcmiclient-CCreatureWindow.o: CCreatureWindow.cpp
 @am__fastdepCXX_TRUE@	$(AM_V_CXX)$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CCreatureWindow.o -MD -MP -MF $(DEPDIR)/vcmiclient-CCreatureWindow.Tpo -c -o vcmiclient-CCreatureWindow.o `test -f 'CCreatureWindow.cpp' || echo '$(srcdir)/'`CCreatureWindow.cpp

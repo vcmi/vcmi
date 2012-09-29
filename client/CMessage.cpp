@@ -435,7 +435,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 	if (ret->components.size())
 	{
 		curh += BEFORE_COMPONENTS;
-		comps.blitCompsOnSur (_or, 10, curh, ret->bitmap);
+		comps.blitCompsOnSur (_or, 40, curh, ret->bitmap);
 	}
 	if(ret->buttons.size())
 	{

@@ -928,6 +928,7 @@ Bonus * ParseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility
 template <typename T>
 const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val, std::string err)
 {
+	static T defaultValue;
 	if (!val->isNull())
 	{
 		std::string type = val->String();
@@ -935,7 +936,7 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 		if (it == map.end())
 		{
 			tlog1 << "Error: invalid " << err << type << std::endl;
-			return T();
+			return defaultValue;
 		}
 		else
 		{
@@ -943,7 +944,7 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 		}
 	}
 	else
-		return T();
+		return defaultValue;
 };
 
 Bonus * ParseBonus (const JsonNode &ability)
@@ -1022,6 +1023,8 @@ DLL_LINKAGE void UnparseBonus( JsonNode &node, const Bonus * bonus )
 				return it.first;
 			}
 		}
+		assert(0);
+		return "";
 	};
 	
 	node["type"].String() = reverseMap(bonus->type, bonusNameMap);

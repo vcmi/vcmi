@@ -27,6 +27,8 @@ libvcmi_la_SOURCES = \
 	CBuildingHandler.h \
 	CCampaignHandler.cpp \
 	CCampaignHandler.h \
+	CConfigHandler.cpp \
+	CConfigHandler.h \
 	CConsoleHandler.cpp \
 	CConsoleHandler.h \
 	CCreatureHandler.cpp \

@@ -51,8 +51,6 @@ vcmiclient_SOURCES =  \
 	CBitmapHandler.h \
 	CCastleInterface.cpp \
 	CCastleInterface.h \
-	CConfigHandler.cpp \
-	CConfigHandler.h \
 	CCreatureWindow.cpp \
 	CCreatureWindow.h \
 	CDefHandler.cpp \

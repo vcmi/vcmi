@@ -1,1 +1,1 @@
-SUBDIRS = FuzzyLite StupidAI EmptyAI VCAI
+SUBDIRS = FuzzyLite StupidAI EmptyAI VCAI BattleAI

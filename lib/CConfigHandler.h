@@ -178,8 +178,3 @@ namespace config
 
 extern DLL_LINKAGE SettingsStorage settings;
 extern DLL_LINKAGE config::CConfigHandler conf;
-
-// Force instantiation of the SettingsStorage::NodeAccessor class template.
-// That way method definitions can sit in the cpp file
-template struct SettingsStorage::NodeAccessor<SettingsListener>;
-template struct SettingsStorage::NodeAccessor<Settings>;

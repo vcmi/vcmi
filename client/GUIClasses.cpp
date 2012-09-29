@@ -1795,7 +1795,7 @@ void CObjectListWindow::init(CPicture * titlePic, std::string _title, std::strin
 		titleImage->pos.y =75 + pos.y - titleImage->pos.h/2;
 	}
 	list = new CListBox(boost::bind(&CObjectListWindow::genItem, this, _1), CListBox::DestroyFunc(),
-		Point(15, 152), Point(0, 25), 9, items.size(), 0, 1, Rect(262, -32, 256, 256) );
+		Point(14, 151), Point(0, 25), 9, items.size(), 0, 1, Rect(262, -32, 256, 256) );
 	list->type |= REDRAW_PARENT;
 }
 

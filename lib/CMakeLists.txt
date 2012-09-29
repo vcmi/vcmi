@@ -20,6 +20,7 @@ set(lib_SRCS
         CBattleCallback.cpp
         CBuildingHandler.cpp
         CCampaignHandler.cpp
+        CConfigHandler.cpp
         CConsoleHandler.cpp
         CCreatureHandler.cpp
         CCreatureSet.cpp

@@ -285,3 +285,8 @@ void config::CConfigHandler::init()
 
 	SetResolution(screenRes["width"].Float(), screenRes["height"].Float());
 }
+
+// Force instantiation of the SettingsStorage::NodeAccessor class template.
+// That way method definitions can sit in the cpp file
+template struct SettingsStorage::NodeAccessor<SettingsListener>;
+template struct SettingsStorage::NodeAccessor<Settings>;

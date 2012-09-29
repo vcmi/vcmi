@@ -913,7 +913,6 @@ void CArtHandler::addBonuses()
 	JsonNode cfg;
 	BOOST_FOREACH(auto art, artifacts)
 	{
-		art->id;
 		JsonNode jn;
 		jn["id"].Float() = art->id;
 		BOOST_FOREACH (auto b, art->getBonusList())

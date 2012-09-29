@@ -22,7 +22,6 @@ set(client_SRCS
         CAnimation.cpp
         CBitmapHandler.cpp
         CCastleInterface.cpp
-        CConfigHandler.cpp
         CCreatureWindow.cpp
         CDefHandler.cpp
         CGameInfo.cpp
