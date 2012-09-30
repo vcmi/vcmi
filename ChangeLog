@@ -1,19 +1,22 @@
 0.89 -> 0.next
 GENERAL:
+* Provisional support creature-adding mods
 * New filesystem allowing easier resource adding/replacing
+* Reorganized package for better compatibility with HotA and not affecting the original game
 * Moved many hard-coded settings into text config files
 * Commander level-up dialog
 * New Quest Log window
+* Fixed a number of bugs in campaigns, support for starting hero selection bonus. 
 
 BATTLES
 * New graphics for Stack Queue
 * Death Stare works identically to H3
 * No explosion when catapult fails to damage the wall
 * Fixed crash when attacking stack dies before counterattack
+* Fixed crash when attacking stack dies in the Moat just before the attack
 * Fixed Orb of Inhibition and Recanter's Cloak (they were incorrectly implemented)
 * Fleeing hero won't lose artifacts.
 * Spellbook won't be captured. 
-
 
 ADVENTURE AI
 * support for quests (Seer Huts, Quest Guardians, and so)
@@ -21,6 +24,15 @@ ADVENTURE AI
 * AI will now understand threat of Abandoned Mine.
 * AI can now exchange armies between heroes. By default, it will pass army to main hero.
 * Fixed strange case when AI found allied town extremely dangerous
+* Fixed crash when AI tried to "revisit" a Boat
+* Fixed crash when hero assigned to goal was lost when attempting realizing it
+* Fixed a possible freeze when exchanging resources at marketplace
+
+
+BATTLE AI
+* It is possible to select a battle AI module used by VCMI by typing into the console "setBattleAI <name>". The names of avaialble modules are "StupidAI" and "BattleAI". BattleAI may be a little smarter but less stable. By the default, StupidAI will be used, as in previous releases.
+* New battle AI module: "BattleAI" that is smarter and capable of casting some offensive and enchantment spells
+
 
 0.88 -> 0.89 (Jun 01 2012)
 GENERAL
