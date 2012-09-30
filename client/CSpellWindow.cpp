@@ -544,6 +544,12 @@ void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
 				selectSchool(schoolsOrder[index]);
 			break;
 		}
+		case SDLK_c:
+			fbattleSpellsb();
+			break;
+		case SDLK_a:
+			fadvSpellsb();
+			break;
 		default://to get rid of warnings
 			break;
 		}
