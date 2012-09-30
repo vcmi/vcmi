@@ -1,4 +1,4 @@
-0.89 -> 0.next
+0.89 -> 0.9 (Oct 01 2012)
 GENERAL:
 * Provisional support creature-adding mods
 * New filesystem allowing easier resource adding/replacing
@@ -27,7 +27,6 @@ ADVENTURE AI
 * Fixed crash when AI tried to "revisit" a Boat
 * Fixed crash when hero assigned to goal was lost when attempting realizing it
 * Fixed a possible freeze when exchanging resources at marketplace
-
 
 BATTLE AI
 * It is possible to select a battle AI module used by VCMI by typing into the console "setBattleAI <name>". The names of avaialble modules are "StupidAI" and "BattleAI". BattleAI may be a little smarter but less stable. By the default, StupidAI will be used, as in previous releases.
