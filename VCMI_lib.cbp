@@ -87,6 +87,8 @@
 		<Unit filename="lib\CBuildingHandler.h" />
 		<Unit filename="lib\CCampaignHandler.cpp" />
 		<Unit filename="lib\CCampaignHandler.h" />
+		<Unit filename="lib\CConfigHandler.cpp" />
+		<Unit filename="lib\CConfigHandler.h" />
 		<Unit filename="lib\CConsoleHandler.cpp" />
 		<Unit filename="lib\CConsoleHandler.h" />
 		<Unit filename="lib\CCreatureHandler.cpp" />

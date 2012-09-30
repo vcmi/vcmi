@@ -89,8 +89,6 @@
 		<Unit filename="client\CBitmapHandler.h" />
 		<Unit filename="client\CCastleInterface.cpp" />
 		<Unit filename="client\CCastleInterface.h" />
-		<Unit filename="client\CConfigHandler.cpp" />
-		<Unit filename="client\CConfigHandler.h" />
 		<Unit filename="client\CCreatureWindow.cpp" />
 		<Unit filename="client\CCreatureWindow.h" />
 		<Unit filename="client\CDefHandler.cpp" />
