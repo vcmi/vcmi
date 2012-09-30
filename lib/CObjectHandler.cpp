@@ -6643,7 +6643,7 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 		cb->setOwner(id, h->tempOwner);
 
 	auto s = state();
-	if(s == IBoatGenerator::GOOD)
+	if(s != IBoatGenerator::GOOD)
 	{
 		InfoWindow iw;
 		iw.player = tempOwner;

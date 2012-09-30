@@ -348,6 +348,11 @@ void CSpellWindow::showAll(SDL_Surface * to)
 	}
 }
 
+void CSpellWindow::show(SDL_Surface * to)
+{
+	statusBar->show(to);
+}
+
 class SpellbookSpellSorter
 {
 public:

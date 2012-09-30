@@ -83,12 +83,12 @@ void InfoBox::clickRight(tribool down, bool previousState)
 {
 	if (down)
 	{
-		CComponent *comp;
+		CComponent *comp = nullptr;
 		std::string text;
 		data->prepareMessage(text, &comp);
 		if (comp)
 			CRClickPopup::createAndPush(text, CInfoWindow::TCompsInfo(1, comp));
-		else
+		else if (!text.empty())
 			adventureInt->handleRightClick(text, down);
 	}
 }
@@ -97,14 +97,16 @@ void InfoBox::clickLeft(tribool down, bool previousState)
 {
 	if((!down) && previousState)
 	{
-		CComponent *comp;
+		CComponent *comp = nullptr;
 		std::string text;
 		data->prepareMessage(text, &comp);
 
 		std::vector<CComponent*> compVector;
 		if (comp)
+		{
 			compVector.push_back(comp);
-		LOCPLINT->showInfoDialog(text, compVector);
+			LOCPLINT->showInfoDialog(text, compVector);
+		}
 	}
 }
 

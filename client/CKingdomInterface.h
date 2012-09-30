@@ -202,6 +202,10 @@ private:
 		int imageID;
 		ui32 count;
 		std::string hoverText;
+		OwnedObjectInfo():
+		    imageID(0),
+		    count(0)
+		{}
 	};
 	std::vector<OwnedObjectInfo> objects;
 

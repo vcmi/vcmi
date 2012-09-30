@@ -3,6 +3,7 @@
 #include "CAnimation.h"
 #include "FunctionList.h"
 #include "../lib/ResourceSet.h"
+#include "../lib/CConfigHandler.h"
 #include "../lib/GameConstants.h"
 #include "UIFramework/CIntObject.h"
 #include "UIFramework/CIntObjectClasses.h"
@@ -730,6 +731,8 @@ private:
 
 	CAdventureMapButton *gameResButton;
 	CLabel *gameResLabel;
+
+	SettingsListener onFullscreenChanged;
 
 	void setMusicVolume( int newVolume );
 	void setSoundVolume( int newVolume );

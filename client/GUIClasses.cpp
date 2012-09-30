@@ -1377,10 +1377,10 @@ void CRecruitmentWindow::select(CCreatureCard *card)
 
 		slider->setAmount(maxAmount);
 
-		if(slider->value)
-			slider->moveTo(0);
+		if(slider->value != maxAmount)
+			slider->moveTo(maxAmount);
 		else // if slider already at 0 - emulate call to sliderMoved()
-			sliderMoved(0);
+			sliderMoved(maxAmount);
 
 		costPerTroopValue->createItems(card->creature->cost);
 		totalCostValue->createItems(card->creature->cost);
@@ -1533,10 +1533,10 @@ void CRecruitmentWindow::availableCreaturesChanged()
 	//restore selection
 	select(cards[selectedIndex]);
 
-	if(slider->value)
-		slider->moveTo(0);
+	if(slider->value == slider->amount)
+		slider->moveTo(slider->amount);
 	else // if slider already at 0 - emulate call to sliderMoved()
-		sliderMoved(0);
+		sliderMoved(slider->amount);
 }
 
 void CRecruitmentWindow::sliderMoved(int to)
@@ -3295,7 +3295,8 @@ void CSystemOptionsWindow::setMapScrollingSpeed( int newSpeed )
 }
 
 CSystemOptionsWindow::CSystemOptionsWindow():
-    CWindowObject(PLAYER_COLORED, "SysOpBck")
+    CWindowObject(PLAYER_COLORED, "SysOpBck"),
+    onFullscreenChanged(settings.listen["video"]["fullscreen"])
 {
 	//TODO: translation and\or config file
 	static const std::string fsLabel = "Fullscreen";
@@ -3401,6 +3402,8 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	showReminder->select(settings["adventure"]["heroReminder"].Bool());
 	newCreatureWin->select(settings["general"]["classicCreatureWindow"].Bool());
 	fullscreen->select(settings["video"]["fullscreen"].Bool());
+
+	onFullscreenChanged([&](const JsonNode &newState){ fullscreen->select(newState.Bool());});
 
 	gameResButton = new CAdventureMapButton("", rsHelp, boost::bind(&CSystemOptionsWindow::selectGameRes, this), 28, 275,"SYSOB12", SDLK_g);
 
