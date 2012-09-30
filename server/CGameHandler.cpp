@@ -3404,6 +3404,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			}
 
 			//attack
+			if(stack->alive()) //move can cause death, eg. by walking into the moat
 			{
 				BattleAttack bat;
 				prepareAttack(bat, stack, stackAtEnd, distance, ba.additionalInfo);
