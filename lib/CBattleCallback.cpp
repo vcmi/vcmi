@@ -1106,7 +1106,8 @@ AccessibilityInfo CBattleInfoCallback::getAccesibility(const std::vector<BattleH
 {
 	auto ret = getAccesibility();
 	BOOST_FOREACH(auto hex, accessibleHexes)
-		ret[hex] = EAccessibility::ACCESSIBLE;
+		if(hex.isValid())
+			ret[hex] = EAccessibility::ACCESSIBLE;
 
 	return ret;
 }
