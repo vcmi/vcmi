@@ -2664,14 +2664,13 @@ bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, ui32 upgID )
 	const PlayerState *p = getPlayer(player);
 	int crQuantity = obj->stacks[pos]->count;
 	int newIDpos= vstd::find_pos(ui.newID, upgID);//get position of new id in UpgradeInfo
-	TResources totalCost = ui.cost[newIDpos] * crQuantity;
 
 	//check if upgrade is possible
 	if( (ui.oldID<0 || newIDpos == -1 ) && complain("That upgrade is not possible!"))
 	{
 		return false;
 	}
-
+	TResources totalCost = ui.cost[newIDpos] * crQuantity;
 
 	//check if player has enough resources
 	if(!p->resources.canAfford(totalCost))
@@ -3172,7 +3171,11 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 
 
 	const CGHeroInstance *nh = p->availableHeroes[hid];
-	assert(nh);
+	if (!nh)
+	{
+		complain ("Hero is not available for hiring!");
+		return false;
+	}
 
 	HeroRecruited hr;
 	hr.tid = obj->id;
@@ -3185,7 +3188,9 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > pool = gs->unusedHeroesFromPool();
 
 	const CGHeroInstance *theOtherHero = p->availableHeroes[!hid];
-	const CGHeroInstance *newHero = gs->hpool.pickHeroFor(false, player, getNativeTown(player), pool, theOtherHero->type->heroClass);
+	const CGHeroInstance *newHero = NULL;
+	if (theOtherHero) //on XXL maps all heroes can be imprisoned :(
+		newHero = gs->hpool.pickHeroFor(false, player, getNativeTown(player), pool, theOtherHero->type->heroClass);
 
 	SetAvailableHeroes sah;
 	sah.player = player;

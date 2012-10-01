@@ -403,3 +403,4 @@ bool isWeeklyRevisitable (const CGObjectInstance * obj);
 bool shouldVisit (HeroPtr h, const CGObjectInstance * obj);
 
 void makePossibleUpgrades(const CArmedInstance *obj);
+bool boundaryBetweenTwoPoints (int3 pos1, int3 pos2);

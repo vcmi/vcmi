@@ -1108,9 +1108,14 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 			break;
 		case Obj::TOWN:
 			moveCreaturesToHero (dynamic_cast<const CGTownInstance *>(obj));
-			townVisitsThisWeek[h].push_back(h->visitedTown);
+			if (h->visitedTown) //we are inside, not just attacking
+			{
+				townVisitsThisWeek[h].push_back(h->visitedTown);
+				if (!h->hasSpellbook() && cb->getResourceAmount(Res::GOLD) >= GameConstants::SPELLBOOK_GOLD_COST + saving[Res::GOLD] &&
+					h->visitedTown->hasBuilt (EBuilding::MAGES_GUILD_1))
+					cb->buyArtifact(h.get(), 0); //buy spellbook
+			}
 			break;
-		break;
 	}
 }
 
@@ -1825,7 +1830,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 }
 
 int howManyTilesWillBeDiscovered(const int3 &pos, int radious)
-{
+{ //TODO: do not explore dead-end boundaries
 	int ret = 0;
 	for(int x = pos.x - radious; x <= pos.x + radious; x++)
 	{
@@ -1834,12 +1839,35 @@ int howManyTilesWillBeDiscovered(const int3 &pos, int radious)
 			int3 npos = int3(x,y,pos.z);
 			if(cb->isInTheMap(npos) && pos.dist2d(npos) - 0.5 < radious  && !cb->isVisible(npos))
 			{
-				ret++;
+				if (!boundaryBetweenTwoPoints (pos, npos))
+					ret++;
 			}
 		}
 	}
 
 	return ret;
+}
+
+bool boundaryBetweenTwoPoints (int3 pos1, int3 pos2) //determines if two points are separated by known barrier
+{
+	int xMin = std::min (pos1.x, pos2.x);
+	int xMax = std::max (pos1.x, pos2.x);
+	int yMin = std::min (pos1.y, pos2.y);
+	int yMax = std::max (pos1.y, pos2.y);
+
+	for (int x = xMin; x <= xMax; ++x)
+	{
+		for (int y = yMin; y <= yMax; ++y)
+		{
+			int3 tile = int3(x, y, pos1.z); //use only on same level, ofc
+			if (abs(pos1.dist2d(tile) - pos2.dist2d(tile)) < 1.5)
+			{
+				if (!(cb->isVisible(tile) && cb->getTile(tile)->blocked)) //if there's invisible or unblocked tile inbetween, it's good 
+					return false;
+			}
+		}
+	}
+	return true; //if all are visible and blocked, we're at dead end
 }
 
 int howManyTilesWillBeDiscovered(int radious, int3 pos, crint3 dir)
@@ -2918,6 +2946,34 @@ TSubgoal CGoal::whatToDoToAchieve()
 		//return CGoal(EXPLORE); // TODO improve
 	case EXPLORE:
 		{
+			auto objs = ai->visitableObjs; //try to use buildings that uncover map
+			erase_if(objs, [&](const CGObjectInstance *obj)
+			{
+				return (obj->ID != Obj::REDWOOD_OBSERVATORY && obj->ID != Obj::PILLAR_OF_FIRE && obj->ID != Obj::CARTOGRAPHER)
+					|| vstd::contains(ai->alreadyVisited, obj); //TODO: check if object radius is uncovered? worth it?
+			});
+			if (objs.size())
+			{
+				if (hero.get(true))
+				{
+					BOOST_FOREACH (auto obj, objs)
+					{
+						auto pos = obj->visitablePos();
+						if (isSafeToVisit(hero, pos) && ai->isAccessibleForHero(pos, hero))
+							return CGoal(VISIT_TILE).settile(pos).sethero(hero);
+					}
+				}
+				else
+				{
+					BOOST_FOREACH (auto obj, objs)
+					{
+						auto pos = obj->visitablePos();
+						if (ai->isAccessible (pos)) //TODO: check safety?
+							return CGoal(VISIT_TILE).settile(pos).sethero(hero);
+					}
+				}
+			}
+
 			if (hero)
 			{
 				return CGoal(VISIT_TILE).settile(whereToExplore(hero)).sethero(hero);
@@ -3183,13 +3239,23 @@ TSubgoal CGoal::whatToDoToAchieve()
 				return (obj->ID != Obj::TOWN && obj->ID != Obj::HERO) //not town/hero
 					|| cb->getPlayerRelations(ai->playerID, obj->tempOwner) != 0; //not enemy
 			});
+			
+			if (objs.empty()) //experiment - try to conquer dwellings and mines, it should pay off
+			{
+				ai->retreiveVisitableObjs(objs);
+				erase_if(objs, [&](const CGObjectInstance *obj)
+				{
+					return (obj->ID != Obj::CREATURE_GENERATOR1 && obj->ID != Obj::MINE) //not dwelling or mine
+						|| cb->getPlayerRelations(ai->playerID, obj->tempOwner) != 0; //not enemy
+				});
+			}
 
 			if(objs.empty())
 				return CGoal(EXPLORE); //we need to find an enemy
 
 			erase_if(objs,  [&](const CGObjectInstance *obj)
 			{
-				return !isSafeToVisit(h, obj->visitablePos());
+				return !isSafeToVisit(h, obj->visitablePos()) || vstd::contains (ai->reservedObjs, obj); //no need to capture same object twice
 			});
 
 			if(objs.empty())
@@ -3198,8 +3264,10 @@ TSubgoal CGoal::whatToDoToAchieve()
 			boost::sort(objs, isCloser);
 			BOOST_FOREACH(const CGObjectInstance *obj, objs)
 			{
-				if(ai->isAccessibleForHero(obj->visitablePos(), h))
+				if (ai->isAccessibleForHero(obj->visitablePos(), h))
 				{
+					ai->reserveObject(h, obj); //no one else will capture same object until we fail
+
 					if (obj->ID == Obj::HERO)
 						return CGoal(VISIT_HERO).sethero(h).setobjid(obj->id).setisAbstract(true); //track enemy hero
 					else
@@ -3551,6 +3619,9 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 			break;
 		case Obj::MAGIC_WELL:
 			return h->mana < h->manaLimit();
+			break;
+		case Obj::PRISON:
+			return ai->myCb->getHeroesInfo().size() < GameConstants::MAX_HEROES_PER_PLAYER;
 			break;
 
 		case Obj::BOAT:

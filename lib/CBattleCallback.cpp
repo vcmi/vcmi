@@ -1940,6 +1940,8 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 			{
 				possibleHexes.erase (hex); //can't hit same place twice
 			}
+			if (!possibleHexes.size()) //not enough targets
+				break;
 			lightningHex = BattleHex::getClosestTile (attackerOwner, destinationTile, possibleHexes);
 		}
 	}
