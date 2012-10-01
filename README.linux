@@ -21,15 +21,14 @@ To compile, at least the following packages (and their development counterparts)
 	* boost c++ libraries v1.44+ (www.boost.org):
 		- program-options
 		- filesystem
-		- iostreams
 		- system
 		- thread
 
 On Debian-based systems (e.g. Ubuntu) run:
-  sudo apt-get install g++ libsdl1.2debian libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-iostreams-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev
+  sudo apt-get install g++ libsdl1.2debian libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev
 
 On RPM-based distributions (e.g. Fedora) run:
-  sudo yum install gcc-c++ SDL-devel SDL_image-devel SDL_ttf-devel SDL_mixer-devel boost boost-devel boost-filesystem boost-iostreams boost-system boost-thread boost-program-options zlib-devel ffmpeg-devel ffmpeg-libs
+  sudo yum install gcc-c++ SDL-devel SDL_image-devel SDL_ttf-devel SDL_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options zlib-devel ffmpeg-devel ffmpeg-libs
 
 Optionaly, if you want to regenerate the build system, you will need the following tools:
  * libtool
@@ -100,6 +99,7 @@ Go to /LIB_PATH/vcmi, and type:
 Go to /LIB_PATH/vcmi/AI, and type: 
   ln -s /PATH_TO_SOURCE/AI/VCAI/.libs/VCAI.so
   ln -s /PATH_TO_SOURCE/AI/StupidAI/.libs/StupidAI.so
+  ln -s /PATH_TO_SOURCE/AI/BattleAI/.libs/BattleAI.so
 
 Go to /DATA_PATH/vcmi, and type:
   ln -s /PATH_TO_SOURCE/config

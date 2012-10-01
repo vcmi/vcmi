@@ -3,12 +3,14 @@ bin_PROGRAMS = vcmiclient
 desktopdir = $(datadir)/applications
 desktop_DATA = vcmiclient.desktop
 
-icondir = $(datadir)/icons
-dist_icon_DATA = vcmiclient.png
-
 EXTRA_DIST = \
-  $(pixmaps_extra_DATA) \
   ${desktop_DATA}
+
+dist-hook:
+	install -m 644 "$(srcdir)/icons/vcmiclient.xpm" "$(distdir)/pixmaps/vcmiclient.xpm"
+	install -m 644 "$(srcdir)/icons/vcmiclient.64x64.png" "$(distdir)/icons/hicolor/64x64/apps/vcmiclient.png"
+	install -m 644 "$(srcdir)/icons/vcmiclient.48x48.png" "$(distdir)/icons/hicolor/48x48/apps/vcmiclient.png"
+	install -m 644 "$(srcdir)/icons/vcmiclient.32x32.png" "$(distdir)/icons/hicolor/32x32/apps/vcmiclient.png"
 
 BUILT_SOURCES = StdInc.h.gch
 StdInc.h.gch: StdInc.h
