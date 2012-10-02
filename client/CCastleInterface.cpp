@@ -711,7 +711,7 @@ void CCastleBuildings::enterBlacksmith(int ArtifactID)
 		return;
 	}
 	int price = CGI->arth->artifacts[ArtifactID]->price;
-	bool possible = LOCPLINT->cb->getResourceAmount(Res::GOLD) >= price && !hero->hasArt(ArtifactID+9);
+	bool possible = LOCPLINT->cb->getResourceAmount(Res::GOLD) >= price && !hero->hasArt(ArtifactID);
 	GH.pushInt(new CBlacksmithDialog(possible,CArtHandler::convertMachineID(ArtifactID,false),ArtifactID,hero->id));
 }
 
@@ -1394,6 +1394,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	
 	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->Name());
 	exit = new CAdventureMapButton(text, "", boost::bind(&CFortScreen::close,this) ,748, 556, "TPMAGE1", SDLK_RETURN);
+	exit->assignedKeys.insert(SDLK_ESCAPE);
 
 	std::vector<Point> positions;
 	positions += Point(10,  22), Point(404, 22),

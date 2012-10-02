@@ -352,6 +352,8 @@ public:
 
 class CBoundedLabel : public CLabel
 {
+protected:
+	void blitLine(SDL_Surface * to, Point where, std::string what);
 public:
 
 	int maxW; //longest line of text in px

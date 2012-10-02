@@ -2472,7 +2472,7 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 		ssi.creatures[level].second.push_back(crea->idNumber);
 		sendAndApply(&ssi);
 	}
-	else if ( t->subID == ETownType::DUNGEON && bid == EBuilding::MANA_VORTEX )
+	else if ( t->subID == ETownType::DUNGEON && bid == EBuilding::PORTAL_OF_SUMMON )
 	{
 		setPortalDwelling(t);
 	}

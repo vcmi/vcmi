@@ -1,3 +1,10 @@
+vcmi (0.90) unstable; urgency=low
+
+  * New upstream release
+  * Removed boost iostream dependency
+
+ -- Ivan Savenko <saven.ivan@gmail.com>  Mon, 1 Oct 2012 15:20:30 +0200
+
 vcmi (0.89) unstable; urgency=low
 
   * New upstream release

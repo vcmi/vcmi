@@ -37,8 +37,7 @@ build_triplet = @build@
 host_triplet = @host@
 bin_PROGRAMS = vcmiclient$(EXEEXT)
 subdir = client
-DIST_COMMON = $(dist_icon_DATA) $(srcdir)/Makefile.am \
-	$(srcdir)/Makefile.in
+DIST_COMMON = $(srcdir)/Makefile.am $(srcdir)/Makefile.in
 ACLOCAL_M4 = $(top_srcdir)/aclocal.m4
 am__aclocal_m4_deps = $(top_srcdir)/aclocal/m4/ax_boost_base.m4 \
 	$(top_srcdir)/aclocal/m4/ax_boost_filesystem.m4 \
@@ -58,8 +57,7 @@ am__configure_deps = $(am__aclocal_m4_deps) $(CONFIGURE_DEPENDENCIES) \
 mkinstalldirs = $(install_sh) -d
 CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
-am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(desktopdir)" \
-	"$(DESTDIR)$(icondir)"
+am__installdirs = "$(DESTDIR)$(bindir)" "$(DESTDIR)$(desktopdir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-CBattleAnimations.$(OBJEXT) \
@@ -171,7 +169,7 @@ am__uninstall_files_from_dir = { \
     || { echo " ( cd '$$dir' && rm -f" $$files ")"; \
          $(am__cd) "$$dir" && rm -f $$files; }; \
   }
-DATA = $(desktop_DATA) $(dist_icon_DATA)
+DATA = $(desktop_DATA)
 ETAGS = etags
 CTAGS = ctags
 DISTFILES = $(DIST_COMMON) $(DIST_SOURCES) $(TEXINFOS) $(EXTRA_DIST)
@@ -311,10 +309,7 @@ top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 desktopdir = $(datadir)/applications
 desktop_DATA = vcmiclient.desktop
-icondir = $(datadir)/icons
-dist_icon_DATA = vcmiclient.png
 EXTRA_DIST = \
-  $(pixmaps_extra_DATA) \
   ${desktop_DATA}
 
 BUILT_SOURCES = StdInc.h.gch
@@ -1037,24 +1032,6 @@ uninstall-desktopDATA:
 	@list='$(desktop_DATA)'; test -n "$(desktopdir)" || list=; \
 	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
 	dir='$(DESTDIR)$(desktopdir)'; $(am__uninstall_files_from_dir)
-install-dist_iconDATA: $(dist_icon_DATA)
-	@$(NORMAL_INSTALL)
-	test -z "$(icondir)" || $(MKDIR_P) "$(DESTDIR)$(icondir)"
-	@list='$(dist_icon_DATA)'; test -n "$(icondir)" || list=; \
-	for p in $$list; do \
-	  if test -f "$$p"; then d=; else d="$(srcdir)/"; fi; \
-	  echo "$$d$$p"; \
-	done | $(am__base_list) | \
-	while read files; do \
-	  echo " $(INSTALL_DATA) $$files '$(DESTDIR)$(icondir)'"; \
-	  $(INSTALL_DATA) $$files "$(DESTDIR)$(icondir)" || exit $$?; \
-	done
-
-uninstall-dist_iconDATA:
-	@$(NORMAL_UNINSTALL)
-	@list='$(dist_icon_DATA)'; test -n "$(icondir)" || list=; \
-	files=`for p in $$list; do echo $$p; done | sed -e 's|^.*/||'`; \
-	dir='$(DESTDIR)$(icondir)'; $(am__uninstall_files_from_dir)
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \
@@ -1138,12 +1115,15 @@ distdir: $(DISTFILES)
 	    || exit 1; \
 	  fi; \
 	done
+	$(MAKE) $(AM_MAKEFLAGS) \
+	  top_distdir="$(top_distdir)" distdir="$(distdir)" \
+	  dist-hook
 check-am: all-am
 check: $(BUILT_SOURCES)
 	$(MAKE) $(AM_MAKEFLAGS) check-am
 all-am: Makefile $(PROGRAMS) $(DATA)
 installdirs:
-	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(desktopdir)" "$(DESTDIR)$(icondir)"; do \
+	for dir in "$(DESTDIR)$(bindir)" "$(DESTDIR)$(desktopdir)"; do \
 	  test -z "$$dir" || $(MKDIR_P) "$$dir"; \
 	done
 install: $(BUILT_SOURCES)
@@ -1200,7 +1180,7 @@ info: info-am
 
 info-am:
 
-install-data-am: install-desktopDATA install-dist_iconDATA
+install-data-am: install-desktopDATA
 
 install-dvi: install-dvi-am
 
@@ -1246,27 +1226,31 @@ ps: ps-am
 
 ps-am:
 
-uninstall-am: uninstall-binPROGRAMS uninstall-desktopDATA \
-	uninstall-dist_iconDATA
+uninstall-am: uninstall-binPROGRAMS uninstall-desktopDATA
 
 .MAKE: all check install install-am install-strip
 
 .PHONY: CTAGS GTAGS all all-am check check-am clean clean-binPROGRAMS \
-	clean-generic clean-libtool ctags distclean distclean-compile \
-	distclean-generic distclean-libtool distclean-tags distdir dvi \
-	dvi-am html html-am info info-am install install-am \
-	install-binPROGRAMS install-data install-data-am \
-	install-desktopDATA install-dist_iconDATA install-dvi \
-	install-dvi-am install-exec install-exec-am install-html \
-	install-html-am install-info install-info-am install-man \
-	install-pdf install-pdf-am install-ps install-ps-am \
-	install-strip installcheck installcheck-am installdirs \
-	maintainer-clean maintainer-clean-generic mostlyclean \
-	mostlyclean-compile mostlyclean-generic mostlyclean-libtool \
-	pdf pdf-am ps ps-am tags uninstall uninstall-am \
-	uninstall-binPROGRAMS uninstall-desktopDATA \
-	uninstall-dist_iconDATA
+	clean-generic clean-libtool ctags dist-hook distclean \
+	distclean-compile distclean-generic distclean-libtool \
+	distclean-tags distdir dvi dvi-am html html-am info info-am \
+	install install-am install-binPROGRAMS install-data \
+	install-data-am install-desktopDATA install-dvi install-dvi-am \
+	install-exec install-exec-am install-html install-html-am \
+	install-info install-info-am install-man install-pdf \
+	install-pdf-am install-ps install-ps-am install-strip \
+	installcheck installcheck-am installdirs maintainer-clean \
+	maintainer-clean-generic mostlyclean mostlyclean-compile \
+	mostlyclean-generic mostlyclean-libtool pdf pdf-am ps ps-am \
+	tags uninstall uninstall-am uninstall-binPROGRAMS \
+	uninstall-desktopDATA
 
+
+dist-hook:
+	install -m 644 "$(srcdir)/icons/vcmiclient.xpm" "$(distdir)/pixmaps/vcmiclient.xpm"
+	install -m 644 "$(srcdir)/icons/vcmiclient.64x64.png" "$(distdir)/icons/hicolor/64x64/apps/vcmiclient.png"
+	install -m 644 "$(srcdir)/icons/vcmiclient.48x48.png" "$(distdir)/icons/hicolor/48x48/apps/vcmiclient.png"
+	install -m 644 "$(srcdir)/icons/vcmiclient.32x32.png" "$(distdir)/icons/hicolor/32x32/apps/vcmiclient.png"
 StdInc.h.gch: StdInc.h
 	$(CXXCOMPILE) -c $<
 

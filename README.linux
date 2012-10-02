@@ -3,7 +3,7 @@ This readme covers VCMI compilation on Unix-like systems.
 To run the game you will need:
 1) Heroes 3 data files (SoD or Complete editions);
 2) Unofficial WoG addon
-2) VCMI data pack (http://download.vcmi.eu/vcmi-data_0.89.tar.gz)
+2) VCMI data pack (http://download.vcmi.eu/core.zip)
 
 For complete installation instructions see VCMI wiki:
 http://wiki.vcmi.eu/index.php?title=Installation_on_Linux#Preparing_data
@@ -11,7 +11,8 @@ http://wiki.vcmi.eu/index.php?title=Installation_on_Linux#Preparing_data
 I. Prerequisites
 
 To compile, at least the following packages (and their development counterparts) are needed to build:
-    * libstdc++ devel
+	* libstdc++ devel
+	* CMake build system
 	* SDL and SDL-devel
 	* SDL_mixer and SDL_mixer-devel
 	* SDL_image and SDL_image-devel
@@ -25,17 +26,10 @@ To compile, at least the following packages (and their development counterparts)
 		- thread
 
 On Debian-based systems (e.g. Ubuntu) run:
-  sudo apt-get install g++ libsdl1.2debian libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev
+  sudo apt-get install cmake g++ libsdl1.2debian libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost-dev libboost-filesystem-dev libboost-system-dev libboost-thread-dev libboost-program-options-dev
 
 On RPM-based distributions (e.g. Fedora) run:
-  sudo yum install gcc-c++ SDL-devel SDL_image-devel SDL_ttf-devel SDL_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options zlib-devel ffmpeg-devel ffmpeg-libs
-
-Optionaly, if you want to regenerate the build system, you will need the following tools:
- * libtool
- * automake
- * autoconf
-And then regenerate the build system with
-  autoreconf -i
+  sudo yum install cmake gcc-c++ SDL-devel SDL_image-devel SDL_ttf-devel SDL_mixer-devel boost boost-devel boost-filesystem boost-system boost-thread boost-program-options zlib-devel ffmpeg-devel ffmpeg-libs
 
 II. Getting the sources
 
@@ -59,23 +53,16 @@ There is a mantis call here: http://bugs.vcmi.eu/view.php?id=933.
 
 Run configure:
   cd trunk/build
-  ../src/configure
-
-Alternatively it is possible to install VCMI to non-default directory (e.g. /opt/games or /home/user/vcmi).
-To do this run:
-  ../src/configure --datadir=/DATA_PATH/ --bindir=/BIN_PATH/vcmi --libdir=/LIB_PATH/
-An example would be:
-  ../src/configure --datadir=/usr/local/share --bindir=/usr/local --libdir=/usr/local/lib64
+  cmake ../src
 
 Notice:
 The ../src/ is not a typo, it will place makefile scripts into the build dir 
-as the build dir is your working dir when calling the configure script.
+as the build dir is your working dir when calling CMake.
 
 Then build vcmi:
   make
 
 That will generate vcmiclient, vcmiserver as well as 3 .so libraries.
-
 
 III. Installing binaries
 
@@ -89,18 +76,18 @@ For more permament solution you should use links as described below.
 For development puposes, it's better to use links. Go
 to /BIN_PATH/, and type:
 
-  ln -s /PATH_TO_SOURCE/client/.libs/vcmiclient
-  ln -s /PATH_TO_SOURCE/server/.libs/vcmiserver
+  ln -s .../trunk/build/client/vcmiclient
+  ln -s .../trunk/build/server/vcmiserver
   
 Go to /LIB_PATH/vcmi, and type:
 
-  ln -s /PATH_TO_SOURCE/lib/.libs/libvcmi.so libvcmi.so.0
+  ln -s .../trunk/build/lib/libvcmi.so libvcmi.so
   
 Go to /LIB_PATH/vcmi/AI, and type: 
-  ln -s /PATH_TO_SOURCE/AI/VCAI/.libs/VCAI.so
-  ln -s /PATH_TO_SOURCE/AI/StupidAI/.libs/StupidAI.so
-  ln -s /PATH_TO_SOURCE/AI/BattleAI/.libs/BattleAI.so
+  ln -s .../trunk/build/AI/VCAI/VCAI.so
+  ln -s .../trunk/build/AI/StupidAI/StupidAI.so
+  ln -s .../trunk/build/AI/BattleAI/BattleAI.so
 
 Go to /DATA_PATH/vcmi, and type:
-  ln -s /PATH_TO_SOURCE/config
+  ln -s .../trunk/source/config
 

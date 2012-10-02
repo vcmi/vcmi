@@ -10,7 +10,7 @@
 			},
 			"playerName" : {
 				"type":"string",
-				"default" : "player"
+				"default" : "Player"
 			},
 			"showfps" : {
 				"type" : "bool",
