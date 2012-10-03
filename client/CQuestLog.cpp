@@ -139,7 +139,7 @@ void CQuestLog::init()
 	for (int i = 0; i < quests.size(); ++i)
 	{
 		MetaString text;
-		quests[i].quest.getRolloverText (text, false);
+		quests[i].quest->getRolloverText (text, false);
 		if (quests[i].obj)
 			text.addReplacement (quests[i].obj->getHoverText()); //get name of the object
 		CQuestLabel * label = new CQuestLabel (28, 199 + i * 24, FONT_SMALL, TOPLEFT, Colors::Cornsilk, text.toString());
@@ -191,7 +191,7 @@ void CQuestLog::selectQuest (int which)
 
 	MetaString text;
 	std::vector<Component> components; //TODO: display them
-	currentQuest->quest.getVisitText (text, components , currentQuest->quest.isCustomFirst, true);
+	currentQuest->quest->getVisitText (text, components , currentQuest->quest->isCustomFirst, true);
 	description->setTxt (text.toString()); //TODO: use special log entry text
 	redraw();
 }

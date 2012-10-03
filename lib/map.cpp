@@ -595,18 +595,18 @@ int Mapa::loadSeerHut( const ui8 * bufor, int i, CGObjectInstance *& nobj )
 		int artID = bufor[i]; ++i;
 		if (artID != 255) //not none quest
 		{
-			hut->quest.m5arts.push_back (artID);
-			hut->quest.missionType = CQuest::MISSION_ART;
+			hut->quest->m5arts.push_back (artID);
+			hut->quest->missionType = CQuest::MISSION_ART;
 		}
 		else
 		{
-			hut->quest.missionType = CQuest::MISSION_NONE; //no mission
+			hut->quest->missionType = CQuest::MISSION_NONE; //no mission
 		}
-		hut->quest.lastDay = -1; //no timeout
-		hut->quest.isCustomFirst = hut->quest.isCustomNext = hut->quest.isCustomComplete = false;
+		hut->quest->lastDay = -1; //no timeout
+		hut->quest->isCustomFirst = hut->quest->isCustomNext = hut->quest->isCustomComplete = false;
 	}
 
-	if (hut->quest.missionType)
+	if (hut->quest->missionType)
 	{
 		ui8 rewardType = bufor[i]; ++i;
 		hut->rewardType = rewardType;
@@ -1489,7 +1489,7 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 		case 83: //seer's hut
 			{
 				i = loadSeerHut(bufor, i, nobj);
-				addQuest (dynamic_cast<IQuestObject *>(nobj));
+				addQuest (nobj);
 				break;
 			}
 		case 113: //witch hut
@@ -1748,9 +1748,9 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 		case 215:
 			{
 				CGQuestGuard *guard = new CGQuestGuard();
-				nobj = guard;
+				addQuest (guard);
 				loadQuest(guard, bufor, i);
-				addQuest (dynamic_cast <IQuestObject *>(guard));
+				nobj = guard;
 				break;
 			}
 		case 28: //faerie ring
@@ -1831,13 +1831,13 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 		case 9: //Border Guard
 			{
 				nobj = new CGBorderGuard();
-				addQuest (dynamic_cast<IQuestObject *>(nobj));
+				addQuest (nobj);
 				break;
 			}
 		case 212: //Border Gate
 			{
 				nobj = new CGBorderGate();
-				addQuest (dynamic_cast<IQuestObject *>(nobj));
+				addQuest (nobj);
 				break;
 			}
 		case 27: case 37: //Eye and Hut of Magi
@@ -1975,18 +1975,18 @@ bool Mapa::isInTheMap(const int3 &pos) const
 
 void Mapa::loadQuest(IQuestObject * guard, const ui8 * bufor, int & i)
 {
-	guard->quest.missionType = bufor[i]; ++i;
+	guard->quest->missionType = bufor[i]; ++i;
 	//int len1, len2, len3;
-	switch(guard->quest.missionType)
+	switch(guard->quest->missionType)
 	{
 	case 0:
 		return;
 	case 2:
 		{
-			guard->quest.m2stats.resize(4);
+			guard->quest->m2stats.resize(4);
 			for(int x=0; x<4; x++)
 			{
-				guard->quest.m2stats[x] = bufor[i++];
+				guard->quest->m2stats[x] = bufor[i++];
 			}
 		}
 		break;
@@ -1994,7 +1994,7 @@ void Mapa::loadQuest(IQuestObject * guard, const ui8 * bufor, int & i)
 	case 3:
 	case 4:
 		{
-			guard->quest.m13489val = read_le_u32(bufor + i); i+=4;
+			guard->quest->m13489val = read_le_u32(bufor + i); i+=4;
 			break;
 		}
 	case 5:
@@ -2003,7 +2003,7 @@ void Mapa::loadQuest(IQuestObject * guard, const ui8 * bufor, int & i)
 			for(int yy=0; yy<artNumber; ++yy)
 			{
 				int artid = read_le_u16(bufor + i); i+=2;
-				guard->quest.m5arts.push_back(artid); 
+				guard->quest->m5arts.push_back(artid); 
 				allowedArtifact[artid] = false; //these are unavailable for random generation
 			}
 			break;
@@ -2011,20 +2011,20 @@ void Mapa::loadQuest(IQuestObject * guard, const ui8 * bufor, int & i)
 	case 6:
 		{
 			int typeNumber = bufor[i]; ++i;
-			guard->quest.m6creatures.resize(typeNumber);
+			guard->quest->m6creatures.resize(typeNumber);
 			for(int hh=0; hh<typeNumber; ++hh)
 			{
-				guard->quest.m6creatures[hh].type = VLC->creh->creatures[read_le_u16(bufor + i)]; i+=2;
-				guard->quest.m6creatures[hh].count = read_le_u16(bufor + i); i+=2;
+				guard->quest->m6creatures[hh].type = VLC->creh->creatures[read_le_u16(bufor + i)]; i+=2;
+				guard->quest->m6creatures[hh].count = read_le_u16(bufor + i); i+=2;
 			}
 			break;
 		}
 	case 7:
 		{
-			guard->quest.m7resources.resize(7);
+			guard->quest->m7resources.resize(7);
 			for(int x=0; x<7; x++)
 			{
-				guard->quest.m7resources[x] = read_le_u32(bufor + i); 
+				guard->quest->m7resources[x] = read_le_u32(bufor + i); 
 				i+=4;
 			}
 			break;
@@ -2032,7 +2032,7 @@ void Mapa::loadQuest(IQuestObject * guard, const ui8 * bufor, int & i)
 	case 8:
 	case 9:
 		{
-			guard->quest.m13489val = bufor[i]; ++i;
+			guard->quest->m13489val = bufor[i]; ++i;
 			break;
 		}
 	}
@@ -2041,18 +2041,18 @@ void Mapa::loadQuest(IQuestObject * guard, const ui8 * bufor, int & i)
 	int limit = read_le_u32(bufor + i); i+=4;
 	if(limit == ((int)0xffffffff))
 	{
-		guard->quest.lastDay = -1;
+		guard->quest->lastDay = -1;
 	}
 	else
 	{
-		guard->quest.lastDay = limit;
+		guard->quest->lastDay = limit;
 	}
-	guard->quest.firstVisitText = readString(bufor,i);
-	guard->quest.nextVisitText = readString(bufor,i);
-	guard->quest.completedText = readString(bufor,i);
-	guard->quest.isCustomFirst = guard->quest.firstVisitText.size() > 0;
-	guard->quest.isCustomNext = guard->quest.nextVisitText.size() > 0;
-	guard->quest.isCustomComplete = guard->quest.completedText.size() > 0;
+	guard->quest->firstVisitText = readString(bufor,i);
+	guard->quest->nextVisitText = readString(bufor,i);
+	guard->quest->completedText = readString(bufor,i);
+	guard->quest->isCustomFirst = guard->quest->firstVisitText.size() > 0;
+	guard->quest->isCustomNext = guard->quest->nextVisitText.size() > 0;
+	guard->quest->isCustomComplete = guard->quest->completedText.size() > 0;
 }
 
 TerrainTile & Mapa::getTile( const int3 & tile )
@@ -2098,10 +2098,11 @@ void Mapa::addNewArtifactInstance( CArtifactInstance *art )
 	artInstances.push_back(art);
 }
 
-void Mapa::addQuest (IQuestObject *obj)
+void Mapa::addQuest (CGObjectInstance *obj)
 {
-	obj->quest.qid = quests.size();
-	quests.push_back(&obj->quest);
+	auto q = dynamic_cast<IQuestObject *>(obj);
+	q->quest->qid = quests.size();
+	quests.push_back (q->quest);
 }
 
 bool Mapa::loadArtifactToSlot(CGHeroInstance *h, int slot, const ui8 * bufor, int &i)

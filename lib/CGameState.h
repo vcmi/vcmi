@@ -469,13 +469,13 @@ public:
  
 struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 {
-	CQuest quest;
+	const CQuest * quest;
 	const CGObjectInstance * obj; //related object, most likely Seer Hut
 	int3 tile;
 
 	QuestInfo(){};
 	QuestInfo (const CQuest * Quest, const CGObjectInstance * Obj, int3 Tile) :
-		quest (*Quest), obj (Obj), tile (Tile){};
+		quest (Quest), obj (Obj), tile (Tile){};
 
 	bool operator= (const QuestInfo &qi)
 	{

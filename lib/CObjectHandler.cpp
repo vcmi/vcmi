@@ -4402,42 +4402,42 @@ void CQuest::getCompletionText (MetaString &iwText, std::vector<Component> &comp
 }
 void CGSeerHut::setObjToKill()
 {
-	if (quest.missionType == CQuest::MISSION_KILL_CREATURE)
+	if (quest->missionType == CQuest::MISSION_KILL_CREATURE)
 	{
-		quest.stackToKill = getCreatureToKill(false)->getStack(0); //FIXME: stacks tend to dissapear (desync?) on server :?
-		assert(quest.stackToKill.type);
-		quest.stackToKill.count = 0; //no count in info window
-		quest.stackDirection = checkDirection();
+		quest->stackToKill = getCreatureToKill(false)->getStack(0); //FIXME: stacks tend to dissapear (desync?) on server :?
+		assert(quest->stackToKill.type);
+		quest->stackToKill.count = 0; //no count in info window
+		quest->stackDirection = checkDirection();
 	}
-	else if (quest.missionType == CQuest::MISSION_KILL_HERO)
+	else if (quest->missionType == CQuest::MISSION_KILL_HERO)
 	{
-		quest.heroName = getHeroToKill(false)->name;
-		quest.heroPortrait = getHeroToKill(false)->portrait;
+		quest->heroName = getHeroToKill(false)->name;
+		quest->heroPortrait = getHeroToKill(false)->portrait;
 	}
 }
 
 void CGSeerHut::initObj()
 {
 	seerName = VLC->generaltexth->seerNames[ran()%VLC->generaltexth->seerNames.size()];
-	quest.textOption = ran()%3;
-	quest.progress = 0;
-	if (quest.missionType)
+	quest->textOption = ran()%3;
+	quest->progress = 0;
+	if (quest->missionType)
 	{
-		if (!quest.isCustomFirst)
-			quest.firstVisitText = VLC->generaltexth->quests[quest.missionType-1][0][quest.textOption];
-		if (!quest.isCustomNext)
-			quest.nextVisitText = VLC->generaltexth->quests[quest.missionType-1][1][quest.textOption];
-		if (!quest.isCustomComplete)
-			quest.completedText = VLC->generaltexth->quests[quest.missionType-1][2][quest.textOption];
+		if (!quest->isCustomFirst)
+			quest->firstVisitText = VLC->generaltexth->quests[quest->missionType-1][0][quest->textOption];
+		if (!quest->isCustomNext)
+			quest->nextVisitText = VLC->generaltexth->quests[quest->missionType-1][1][quest->textOption];
+		if (!quest->isCustomComplete)
+			quest->completedText = VLC->generaltexth->quests[quest->missionType-1][2][quest->textOption];
 	}
 	else
-		quest.firstVisitText = VLC->generaltexth->seerEmpty[quest.textOption];
+		quest->firstVisitText = VLC->generaltexth->seerEmpty[quest->textOption];
 
 }
 
 void CGSeerHut::getRolloverText (MetaString &text, bool onHover) const
 {
-	quest.getRolloverText (text, onHover);//TODO: simplify?
+	quest->getRolloverText (text, onHover);//TODO: simplify?
 	if (!onHover)
 		text.addReplacement(seerName);
 }
@@ -4447,7 +4447,7 @@ const std::string & CGSeerHut::getHoverText() const
 	switch (ID)
 	{
 	case Obj::SEER_HUT:
-		if (quest.progress)
+		if (quest->progress)
 		{
 			hoverName = VLC->generaltexth->allTexts[347];
 			boost::algorithm::replace_first(hoverName,"%s", seerName);
@@ -4461,7 +4461,7 @@ const std::string & CGSeerHut::getHoverText() const
 	default:
 		tlog5 << "unrecognized quest object\n";
 	}
-	if (quest.progress & quest.missionType) //rollover when the quest is active
+	if (quest->progress & quest->missionType) //rollover when the quest is active
 	{
 		MetaString ms;
 		getRolloverText (ms, true);
@@ -4489,17 +4489,17 @@ void CQuest::addReplacements(MetaString &out, const std::string &base) const
 
 bool IQuestObject::checkQuest(const CGHeroInstance* h) const
 {
-	return quest.checkQuest(h);
+	return quest->checkQuest(h);
 }
 
 void IQuestObject::getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h) const
 {
-	quest.getVisitText (text,components, isCustom, FirstVisit, h);
+	quest->getVisitText (text,components, isCustom, FirstVisit, h);
 }
 
 void CGSeerHut::getCompletionText(MetaString &text, std::vector<Component> &components, bool isCustom, const CGHeroInstance * h) const
 {
-	quest.getCompletionText (text, components, isCustom, h);
+	quest->getCompletionText (text, components, isCustom, h);
 	switch (rewardType)
 	{
 		case 1: components.push_back(Component (Component::EXPERIENCE, 0, rVal*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0, 0));
@@ -4530,16 +4530,16 @@ void CGSeerHut::setPropertyDer (ui8 what, ui32 val)
 	switch (what)
 	{
 		case 10:
-			quest.progress = val;
+			quest->progress = val;
 			break;
 		case 11:
-			quest.missionType = CQuest::MISSION_NONE;
+			quest->missionType = CQuest::MISSION_NONE;
 			break;
 	}
 }
 void CGSeerHut::newTurn() const
 {
-	if (quest.lastDay >= 0 && quest.lastDay < cb->getDate(0)) //time is up
+	if (quest->lastDay >= 0 && quest->lastDay < cb->getDate(0)) //time is up
 	{
 		cb->setObjProperty (id, 11, 0);
 		cb->setObjProperty (id, 10, 0);
@@ -4550,25 +4550,25 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
-	if (quest.missionType)
+	if (quest->missionType)
 	{
-		bool firstVisit = !quest.progress;
+		bool firstVisit = !quest->progress;
 		bool failRequirements = !checkQuest(h);
 		bool isCustom=false;
 
 		if (firstVisit)
 		{
-			isCustom = quest.isCustomFirst;
+			isCustom = quest->isCustomFirst;
 			cb->setObjProperty (id, 10, CQuest::IN_PROGRESS);
 
 			AddQuest aq;
-			aq.quest = QuestInfo (&quest, this, visitablePos());
+			aq.quest = QuestInfo (quest, this, visitablePos());
 			aq.player = h->tempOwner;
 			cb->sendAndApply (&aq); //TODO: merge with setObjProperty?
 		}
 		else if (failRequirements)
 		{
-			isCustom = quest.isCustomNext;
+			isCustom = quest->isCustomNext;
 		}
 
 		if (firstVisit || failRequirements)
@@ -4591,7 +4591,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		iw.text << VLC->generaltexth->seerEmpty[quest.textOption];
+		iw.text << VLC->generaltexth->seerEmpty[quest->textOption];
 		if (ID == Obj::SEER_HUT)
 			iw.text.addReplacement(seerName);
 		cb->showInfoDialog(&iw);
@@ -4632,21 +4632,21 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 {
 	if (accept)
 	{
-		switch (quest.missionType)
+		switch (quest->missionType)
 		{
 			case CQuest::MISSION_ART:
-				for (std::vector<ui16>::const_iterator it = quest.m5arts.begin(); it != quest.m5arts.end(); ++it)
+				for (std::vector<ui16>::const_iterator it = quest->m5arts.begin(); it != quest->m5arts.end(); ++it)
 				{
 					cb->removeArtifact(ArtifactLocation(h, h->getArtPos(*it, false)));
 				}
 				break;
 			case CQuest::MISSION_ARMY:
-					cb->takeCreatures(h->id, quest.m6creatures);
+					cb->takeCreatures(h->id, quest->m6creatures);
 				break;
 			case CQuest::MISSION_RESOURCES:
 				for (int i = 0; i < 7; ++i)
 				{
-					cb->giveResource(h->getOwner(), i, -quest.m7resources[i]);
+					cb->giveResource(h->getOwner(), i, -quest->m7resources[i]);
 				}
 				break;
 			default:
@@ -4715,7 +4715,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 
 const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest.m13489val);
+	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->m13489val);
 	if(allowNull && !o)
 		return NULL;
 	assert(o && o->ID == Obj::HERO);
@@ -4724,7 +4724,7 @@ const CGHeroInstance * CGSeerHut::getHeroToKill(bool allowNull) const
 
 const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 {
-	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest.m13489val);
+	const CGObjectInstance *o = cb->getObjByQuestIdentifier(quest->m13489val);
 	if(allowNull && !o)
 		return NULL;
 	assert(o && o->ID == Obj::MONSTER);
@@ -4734,19 +4734,19 @@ const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 void CGQuestGuard::initObj()
 {
 	blockVisit = true;
-	quest.progress = 0;
-	quest.textOption = ran()%3 + 3; //3-5
-	if (quest.missionType)
+	quest->progress = 0;
+	quest->textOption = ran()%3 + 3; //3-5
+	if (quest->missionType)
 	{
-		if (!quest.isCustomFirst)
-			quest.firstVisitText = VLC->generaltexth->quests[quest.missionType-1][0][quest.textOption];
-		if (!quest.isCustomNext)
-			quest.nextVisitText = VLC->generaltexth->quests[quest.missionType-1][1][quest.textOption];
-		if (!quest.isCustomComplete)
-			quest.completedText = VLC->generaltexth->quests[quest.missionType-1][2][quest.textOption];
+		if (!quest->isCustomFirst)
+			quest->firstVisitText = VLC->generaltexth->quests[quest->missionType-1][0][quest->textOption];
+		if (!quest->isCustomNext)
+			quest->nextVisitText = VLC->generaltexth->quests[quest->missionType-1][1][quest->textOption];
+		if (!quest->isCustomComplete)
+			quest->completedText = VLC->generaltexth->quests[quest->missionType-1][2][quest->textOption];
 	}
 	else
-		quest.firstVisitText = VLC->generaltexth->seerEmpty[quest.textOption];
+		quest->firstVisitText = VLC->generaltexth->seerEmpty[quest->textOption];
 }
 void CGQuestGuard::completeQuest(const CGHeroInstance *h) const
 {
@@ -6370,7 +6370,7 @@ void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const
 		cb->showInfoDialog (&iw);
 
 		AddQuest aq;
-		aq.quest = QuestInfo (&quest, this, visitablePos());
+		aq.quest = QuestInfo (quest, this, visitablePos());
 		aq.player = h->tempOwner;
 		cb->sendAndApply (&aq);
 		//TODO: add this quest only once OR check for multiple instances later
@@ -6393,7 +6393,7 @@ void CGBorderGate::onHeroVisit( const CGHeroInstance * h ) const //TODO: passabi
 		cb->showInfoDialog(&iw);
 
 		AddQuest aq;
-		aq.quest = QuestInfo (&quest, this, visitablePos());
+		aq.quest = QuestInfo (quest, this, visitablePos());
 		aq.player = h->tempOwner;
 		cb->sendAndApply (&aq);
 	}

@@ -771,8 +771,9 @@ public:
 class DLL_LINKAGE IQuestObject
 {
 public:
-	CQuest quest;
+	CQuest * quest;
 
+	IQuestObject(){quest = new CQuest;};
 	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = NULL) const;
 	virtual bool checkQuest (const CGHeroInstance * h) const;
 
@@ -790,6 +791,7 @@ public:
 	si32 rVal; //reward value
 	std::string seerName;
 
+	CGSeerHut() : IQuestObject(){};
 	void initObj();
 	const std::string & getHoverText() const;
 	void setPropertyDer (ui8 what, ui32 val);
@@ -815,6 +817,7 @@ public:
 class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
+	CGQuestGuard() : CGSeerHut(){};
 	void initObj();
 	void completeQuest (const CGHeroInstance * h) const;
  
@@ -1093,6 +1096,7 @@ public:
 class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 {
 public:
+	CGBorderGuard() : IQuestObject(){};
 	void initObj();
 	const std::string & getHoverText() const;
 	void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = NULL) const;
@@ -1112,6 +1116,7 @@ public:
 class DLL_LINKAGE CGBorderGate : public CGBorderGuard
 {
 public:
+	CGBorderGate() : CGBorderGuard(){};
 	void onHeroVisit(const CGHeroInstance * h) const;
 	ui8 getPassableness() const;
 

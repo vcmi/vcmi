@@ -2057,6 +2057,15 @@ bool VCAI::fulfillsGoal (CGoal &goal, CGoal &mainGoal)
 	}
 	return false;
 }
+bool VCAI::fulfillsGoal (CGoal &goal, const CGoal &mainGoal)
+{
+	if (mainGoal.goalType == GET_OBJ && goal.goalType == VISIT_TILE) //deduce that GET_OBJ was completed by visiting object's tile
+	{ //TODO: more universal mechanism
+		if (cb->getObj(mainGoal.objid)->visitablePos() == goal.tile)
+			return true;
+	}
+	return false;
+}
 
 void VCAI::striveToGoal(const CGoal &ultimateGoal)
 {
@@ -2123,7 +2132,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 		catch(goalFulfilledException &e)
 		{
 			completeGoal (goal);
-			if (fulfillsGoal (goal, abstractGoal) || maxGoals > 98) //completed goal was main goal //TODO: find better condition
+			if (fulfillsGoal (goal, ultimateGoal) || maxGoals > 98) //completed goal was main goal //TODO: find better condition
 				return; 
 		}
 		catch(std::exception &e)
@@ -2185,26 +2194,26 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 
 void VCAI::striveToQuest (const QuestInfo &q)
 {
-	if (q.quest.missionType && q.quest.progress < CQuest::COMPLETE) //FIXME: quests are never synchronized. Pointer handling needed
+	if (q.quest->missionType && q.quest->progress < CQuest::COMPLETE) //FIXME: quests are never synchronized. Pointer handling needed
 	{
 		MetaString ms;
-		q.quest.getRolloverText(ms, false);
+		q.quest->getRolloverText(ms, false);
 		BNLOG ("Trying to realize quest: %s", ms.toString());
 		auto heroes = cb->getHeroesInfo();
 
-		switch (q.quest.missionType)
+		switch (q.quest->missionType)
 		{
 			case CQuest::MISSION_ART:
 			{
 				BOOST_FOREACH (auto hero, heroes) //TODO: remove duplicated code?
 				{
-					if (q.quest.checkQuest(hero))
+					if (q.quest->checkQuest(hero))
 					{
 						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
 						return;
 					}
 				}
-				BOOST_FOREACH (auto art, q.quest.m5arts)
+				BOOST_FOREACH (auto art, q.quest->m5arts)
 				{
 					striveToGoal (CGoal(GET_ART_TYPE).setaid(art)); //TODO: transport?
 				}
@@ -2215,7 +2224,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				//striveToGoal (CGoal(RECRUIT_HERO));
 				BOOST_FOREACH (auto hero, heroes)
 				{
-					if (q.quest.checkQuest(hero))
+					if (q.quest->checkQuest(hero))
 					{
 						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
 						return;
@@ -2229,13 +2238,13 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			{
 				BOOST_FOREACH (auto hero, heroes)
 				{
-					if (q.quest.checkQuest(hero)) //veyr bad info - stacks can be split between multiple heroes :(
+					if (q.quest->checkQuest(hero)) //veyr bad info - stacks can be split between multiple heroes :(
 					{
 						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
 						return;
 					}
 				}
-				BOOST_FOREACH (auto creature, q.quest.m6creatures)
+				BOOST_FOREACH (auto creature, q.quest->m6creatures)
 				{
 					striveToGoal (CGoal(GATHER_TROOPS).setobjid(creature.type->idNumber).setvalue(creature.count));
 				}
@@ -2247,16 +2256,16 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			{
 				if (heroes.size())
 				{
-					if (q.quest.checkQuest(heroes.front())) //it doesn't matter which hero it is
+					if (q.quest->checkQuest(heroes.front())) //it doesn't matter which hero it is
 					{
 						 striveToGoal (CGoal(VISIT_TILE).settile(q.tile));
 					}
 					else
 					{
-						for (int i = 0; i < q.quest.m7resources.size(); ++i)
+						for (int i = 0; i < q.quest->m7resources.size(); ++i)
 						{
-							if (q.quest.m7resources[i])
-								striveToGoal (CGoal(COLLECT_RES).setresID(i).setvalue(q.quest.m7resources[i]));
+							if (q.quest->m7resources[i])
+								striveToGoal (CGoal(COLLECT_RES).setresID(i).setvalue(q.quest->m7resources[i]));
 						}
 					}
 				}
@@ -2267,7 +2276,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			case CQuest::MISSION_KILL_HERO:
 			case CQuest::MISSION_KILL_CREATURE:
 			{
-				auto obj = cb->getObjByQuestIdentifier(q.quest.m13489val);
+				auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
 				if (obj)
 					striveToGoal (CGoal(GET_OBJ).setobjid(obj->id));
 				else
@@ -2279,13 +2288,13 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				auto heroes = cb->getHeroesInfo();
 				BOOST_FOREACH (auto hero, heroes)
 				{
-					if (q.quest.checkQuest(hero))
+					if (q.quest->checkQuest(hero))
 					{
 						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
 						return;
 					}
 				}
-				for (int i = 0; i < q.quest.m2stats.size(); ++i)
+				for (int i = 0; i < q.quest->m2stats.size(); ++i)
 				{
 					BNLOG ("Don't know how to increase primary stat %d\n", i);
 				}
@@ -2296,19 +2305,19 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				auto heroes = cb->getHeroesInfo();
 				BOOST_FOREACH (auto hero, heroes)
 				{
-					if (q.quest.checkQuest(hero))
+					if (q.quest->checkQuest(hero))
 					{
 						striveToGoal (CGoal(VISIT_TILE).settile(q.tile).sethero(hero)); //TODO: causes infinite loop :/
 						return;
 					}
 				}
-				BNLOG ("Don't know how to reach hero level %d\n", q.quest.m13489val);
+				BNLOG ("Don't know how to reach hero level %d\n", q.quest->m13489val);
 				break;
 			}
 			case CQuest::MISSION_PLAYER:
 			{
-				if (playerID != q.quest.m13489val)
-					BNLOG ("Can't be player of color %d\n", q.quest.m13489val);
+				if (playerID != q.quest->m13489val)
+					BNLOG ("Can't be player of color %d\n", q.quest->m13489val);
 				break;
 			}
 			case CQuest::MISSION_KEYMASTER:
@@ -2836,7 +2845,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 					}
 				}
 			}
-			if (o)
+			if (o && isReachable(o))
 				return CGoal(GET_OBJ).setobjid(o->id);
 			else
 				return CGoal(EXPLORE);
@@ -3522,15 +3531,25 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 	{
 		case Obj::BORDERGUARD:
 		case Obj::BORDER_GATE:
-		case Obj::SEER_HUT:
-		case Obj::QUEST_GUARD:
 		{
-			//return false; //fixme: avoid crash
 			BOOST_FOREACH (auto q, ai->myCb->getMyQuests())
 			{
 				if (q.obj == obj)
 				{
-					if (q.quest.checkQuest(*h))
+					return false; // do not visit guards or gates when wandering
+				}
+			}
+			return true; //we don't have this quest yet
+			break;
+		}
+		case Obj::SEER_HUT:
+		case Obj::QUEST_GUARD:
+		{
+			BOOST_FOREACH (auto q, ai->myCb->getMyQuests())
+			{
+				if (q.obj == obj)
+				{
+					if (q.quest->checkQuest(*h))
 						return true; //we completed the quest
 					else
 						return false; //we can't complete this quest
