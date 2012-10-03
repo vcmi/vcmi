@@ -992,50 +992,61 @@ Bonus * ParseBonus (const JsonNode &ability)
 
 	value = &ability["effectRange"];
 	if (!value->isNull())
-		b->valType = parseByMap(bonusValueMap, value, "effect range ");
+		b->valType = parseByMap(bonusLimitEffect, value, "effect range ");
 	value = &ability["duration"];
 	if (!value->isNull())
-		b->valType = parseByMap(bonusValueMap, value, "duration type ");
+		b->valType = parseByMap(bonusDurationMap, value, "duration type ");
 	value = &ability["source"];
 	if (!value->isNull())
-		b->valType = parseByMap(bonusValueMap, value, "source type ");
+		b->valType = parseByMap(bonusSourceMap, value, "source type ");
 
-// 	value = &ability["limiter"];
-// 	if (!value->isNull())
-// 		b->limiter = parseByMap(bonusLimiterMap, value, "limiter type ");
-// 
-// 
-// 	value = &ability["propagator"];
-// 	if (!value->isNull())
-// 		b->propagator = parseByMap(bonusLimiterMap, value, "propagator type ");
+	value = &ability["limiter"];
+	if (!value->isNull())
+		b->limiter = parseByMap(bonusLimiterMap, value, "limiter type ");
+
+	value = &ability["propagator"];
+	if (!value->isNull())
+		b->propagator = parseByMap(bonusPropagatorMap, value, "propagator type ");
 
 	return b;
 }
 
+//returns first Key with value equal to given one
+template<class Key, class Val>
+Key reverseMapFirst(const Val & val, const std::map<Key, Val> map)
+{
+	BOOST_FOREACH(auto it, map)
+	{
+		if(it.second == val)
+		{
+			return it.first;
+		}
+	}
+	assert(0);
+	return "";
+}
+
 DLL_LINKAGE void UnparseBonus( JsonNode &node, const Bonus * bonus )
 {
-	auto reverseMap = [](const int & val, const std::map<std::string, int> map) -> std::string
-	{
-		BOOST_FOREACH(auto it, map)
-		{
-			if(it.second == val)
-			{
-				return it.first;
-			}
-		}
-		assert(0);
-		return "";
-	};
-	
-	node["type"].String() = reverseMap(bonus->type, bonusNameMap);
+	node["type"].String() = reverseMapFirst<std::string, int>(bonus->type, bonusNameMap);
 	node["subtype"].Float() = bonus->subtype;
 	node["val"].Float() = bonus->val;
-	node["valueType"].String() = reverseMap(bonus->valType, bonusValueMap);
+	node["valueType"].String() = reverseMapFirst<std::string, int>(bonus->valType, bonusValueMap);
 	node["additionalInfo"].Float() = bonus->additionalInfo;
 	node["turns"].Float() = bonus->turnsRemain;
 	node["sourceID"].Float() = bonus->source;
 	node["description"].String() = bonus->description;
-	node["effectRange"].String() = reverseMap(bonus->effectRange, bonusLimitEffect);
-	node["duration"].String() = reverseMap(bonus->duration, bonusDurationMap);
-	node["source"].String() = reverseMap(bonus->source, bonusSourceMap);
+	node["effectRange"].String() = reverseMapFirst<std::string, int>(bonus->effectRange, bonusLimitEffect);
+	node["duration"].String() = reverseMapFirst<std::string, int>(bonus->duration, bonusDurationMap);
+	node["source"].String() = reverseMapFirst<std::string, int>(bonus->source, bonusSourceMap);
+	if(bonus->limiter != nullptr)
+	{
+		node["limiter"].String() = reverseMapFirst<std::string, TLimiterPtr>(bonus->limiter, bonusLimiterMap);
+	}
+	if(bonus->propagator != nullptr)
+	{
+		node["propagator"].String() = reverseMapFirst<std::string, TPropagatorPtr>(bonus->propagator, bonusPropagatorMap);
+	}
+	
+	
 }

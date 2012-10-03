@@ -174,6 +174,39 @@ public:
 	{
 		h & static_cast<std::map<KeyT, ValT> &>(*this);
 	}
+
+	bmap()
+	{}
+
+	bmap(const typename std::map<KeyT, ValT>::_Myt& _Right)
+		: std::map(_Right)
+	{}
+
+	explicit bmap(const typename std::map<KeyT, ValT>::key_compare& _Pred)
+		: std::map(_Pred)
+	{}
+
+	bmap(const typename std::map<KeyT, ValT>::key_compare& _Pred, const typename std::map<KeyT, ValT>::allocator_type& _Al)
+		: std::map(_Pred, _Al)
+	{}
+
+	template<class _Iter>
+	bmap(_Iter _First, _Iter _Last)
+		: std::map<KeyT, ValT>(_First, _Last)
+	{}
+
+	template<class _Iter>
+	bmap(_Iter _First, _Iter _Last,
+		const typename std::map<KeyT, ValT>::key_compare& _Pred)
+		: std::map<KeyT, ValT>(_First, _Last, _Pred)
+	{}
+
+	template<class _Iter>
+	bmap(_Iter _First, _Iter _Last,
+		const typename std::map<KeyT, ValT>::key_compare& _Pred, const typename std::map<KeyT, ValT>::allocator_type& _Al)
+		: std::map<KeyT, ValT>(_First, _Last, _Pred, _Al)
+	{}
+
 };
 
 namespace vstd

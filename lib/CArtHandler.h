@@ -219,8 +219,6 @@ public:
 	void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
 	void erasePickedArt (TArtifactInstanceID id);
 	bool isBigArtifact (TArtifactID artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
-// 	void equipArtifact (std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID, const CArtifact* art) const;
-// 	void unequipArtifact (std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID) const;
 	void initAllowedArtifactsList(const std::vector<ui8> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	static int convertMachineID(int id, bool creToArt);
 	void makeItCreatureArt (TArtifactInstanceID aid, bool onlyCreature = true);
