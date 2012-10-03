@@ -158,6 +158,16 @@ struct CGoal
 	HeroPtr hero; SETTER(HeroPtr, hero)
 	const CGTownInstance *town; SETTER(CGTownInstance *, town)
 	int bid; SETTER(int, bid)
+
+	bool operator== (CGoal &g)
+	{
+		switch (goalType)
+		{
+			case EGoals::GET_OBJ:
+				return objid == g.objid;
+		}
+		return false;
+	}
 };
 
 enum {NOT_VISIBLE = 0, NOT_CHECKED = 1, NOT_AVAILABLE};
@@ -344,7 +354,8 @@ public:
 	void setGoal(HeroPtr h, const CGoal goal);
 	void setGoal(HeroPtr h, EGoals goalType = INVALID);
 	void completeGoal (const CGoal goal); //safely removes goal from reserved hero
-	void striveToQuest (const QuestInfo &q); 
+	void striveToQuest (const QuestInfo &q);
+	bool fulfillsGoal (CGoal &goal, CGoal &mainGoal);
 
 	void recruitHero(const CGTownInstance * t);
 	std::vector<const CGObjectInstance *> getPossibleDestinations(HeroPtr h);
@@ -391,6 +402,43 @@ public:
 	void requestActionASAP(boost::function<void()> whatToDo); 
 };
 
+std::string goalName(EGoals goalType); //TODO: move to CGoal class?
+
+class cannotFulfillGoalException : public std::exception
+{
+	std::string msg;
+public:
+	explicit cannotFulfillGoalException(crstring _Message) : msg(_Message)
+	{
+	}
+
+	virtual ~cannotFulfillGoalException() throw ()
+	{
+	};
+
+	const char *what() const throw () OVERRIDE
+	{
+		return msg.c_str();
+	}
+};
+class goalFulfilledException : public std::exception
+{
+public:
+	CGoal goal;
+
+	explicit goalFulfilledException(CGoal Goal) : goal(Goal)
+	{
+	}
+
+	virtual ~goalFulfilledException() throw ()
+	{
+	};
+
+	const char *what() const throw () OVERRIDE
+	{
+		return goalName(goal.goalType).c_str();
+	}
+};
 
 template<int id>
 bool objWithID(const CGObjectInstance *obj)

@@ -1717,41 +1717,6 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /
 	return cb->getPathInfo(pos)->reachable();
 }
 
-class cannotFulfillGoalException : public std::exception
-{
-	std::string msg;
-public:
-	explicit cannotFulfillGoalException(crstring _Message) : msg(_Message)
-	{
-	}
-
-	virtual ~cannotFulfillGoalException() throw ()
-	{
-	};
-
-	const char *what() const throw () OVERRIDE
-	{
-		return msg.c_str();
-	}
-};
-class goalFulfilledException : public std::exception
-{
-	std::string msg;
-public:
-	explicit goalFulfilledException(crstring _Message) : msg(_Message)
-	{
-	}
-
-	virtual ~goalFulfilledException() throw ()
-	{
-	};
-
-	const char *what() const throw () OVERRIDE
-	{
-		return msg.c_str();
-	}
-};
-
 bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 {
 	visitedObject = NULL;
@@ -1815,6 +1780,8 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 	if (visitedObject) //we step into something interesting
 	{
 		performObjectInteraction (visitedObject, h);
+		//BNLOG("Hero %s moved from %s to %s at %s", h->name % startHpos % visitedObject->hoverName % h->visitablePos());
+		//throw goalFulfilledException (CGoal(GET_OBJ).setobjid(visitedObject->id));
 	}
 
 	if(h) //we could have lost hero after last move
@@ -1918,7 +1885,7 @@ void VCAI::tryRealize(CGoal g)
 			//{
 				if (ai->moveHeroToTile(g.tile, g.hero.get()))
 				{
-					throw goalFulfilledException("");
+					throw goalFulfilledException (g);
 				}
 			//}
 			//else
@@ -1931,7 +1898,7 @@ void VCAI::tryRealize(CGoal g)
 				throw cannotFulfillGoalException("Cannot visit tile: hero is out of MPs!");
 			if (ai->moveHeroToTile(g.tile, g.hero.get()))
 			{
-				throw goalFulfilledException("");
+				throw goalFulfilledException (g);
 			}
 		}
 		break;
@@ -2081,6 +2048,16 @@ void VCAI::endTurn()
 	tlog4 << "Player " << playerID << " ended turn\n";
 }
 
+bool VCAI::fulfillsGoal (CGoal &goal, CGoal &mainGoal)
+{
+	if (mainGoal.goalType == GET_OBJ && goal.goalType == VISIT_TILE) //deduce that GET_OBJ was completed by visiting object's tile
+	{ //TODO: more universal mechanism
+		if (cb->getObj(mainGoal.objid)->visitablePos() == goal.tile)
+			return true;
+	}
+	return false;
+}
+
 void VCAI::striveToGoal(const CGoal &ultimateGoal)
 {
 	if (ultimateGoal.invalid())
@@ -2146,9 +2123,8 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 		catch(goalFulfilledException &e)
 		{
 			completeGoal (goal);
-			if (maxGoals > 98) //completed goal was main goal
-				//TODO: find better condition
-			return;
+			if (fulfillsGoal (goal, abstractGoal) || maxGoals > 98) //completed goal was main goal //TODO: find better condition
+				return; 
 		}
 		catch(std::exception &e)
 		{
@@ -2193,9 +2169,8 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			}
 			catch(goalFulfilledException &e)
 			{
-				completeGoal (goal);
-				if (maxGoals > 98) //completed goal was main goal
-					//TODO: find better condition
+				completeGoal (goal); //FIXME: deduce that we have realized GET_OBJ goal
+				if (fulfillsGoal (goal, abstractGoal) || maxGoals > 98) //completed goal was main goal
 					return;
 			}
 			catch(std::exception &e)
@@ -2210,7 +2185,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 
 void VCAI::striveToQuest (const QuestInfo &q)
 {
-	if (q.quest.progress < CQuest::COMPLETE)
+	if (q.quest.missionType && q.quest.progress < CQuest::COMPLETE) //FIXME: quests are never synchronized. Pointer handling needed
 	{
 		MetaString ms;
 		q.quest.getRolloverText(ms, false);
@@ -2767,9 +2742,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 			case EVictoryConditionType::ARTIFACT:
 				return CGoal(GET_ART_TYPE).setaid(vc.ID);
 			case EVictoryConditionType::BEATHERO:
-				return CGoal(GET_OBJ).setobjid(vc.ID);
+				return CGoal(GET_OBJ).setobjid(vc.obj->id);
 			case EVictoryConditionType::BEATMONSTER:
-				return CGoal(GET_OBJ).setobjid(vc.ID);
+				return CGoal(GET_OBJ).setobjid(vc.obj->id);
 			case EVictoryConditionType::BUILDCITY:
 				//TODO build castle/capitol
 				break;
@@ -2814,7 +2789,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				}
 				break;
 			case EVictoryConditionType::CAPTURECITY:
-				return CGoal(GET_OBJ).setobjid(vc.ID);
+				return CGoal(GET_OBJ).setobjid(vc.obj->id);
 			case EVictoryConditionType::GATHERRESOURCE:
 				return CGoal(COLLECT_RES).setresID(vc.ID).setvalue(vc.count);
 				//TODO mines? piles? marketplace?
