@@ -2720,7 +2720,7 @@ int3 whereToExplore(HeroPtr h)
 			}
 
 			if(profits.empty())
-				throw cannotFulfillGoalException("Cannot explore - no possible ways found!");
+				return int3 (-1,-1,-1);
 
 			auto bestDest = profits.end();
 			bestDest--;
@@ -2927,14 +2927,28 @@ TSubgoal CGoal::whatToDoToAchieve()
 
 		}
 		throw cannotFulfillGoalException("Cannot reach given tile!");
-		//return CGoal(EXPLORE); // TODO improve
 	case EXPLORE:
 		{
 			auto objs = ai->visitableObjs; //try to use buildings that uncover map
-			erase_if(objs, [&](const CGObjectInstance *obj)
+			erase_if(objs, [&](const CGObjectInstance *obj) -> bool
 			{
-				return (obj->ID != Obj::REDWOOD_OBSERVATORY && obj->ID != Obj::PILLAR_OF_FIRE && obj->ID != Obj::CARTOGRAPHER)
-					|| vstd::contains(ai->alreadyVisited, obj); //TODO: check if object radius is uncovered? worth it?
+				if (vstd::contains(ai->alreadyVisited, obj))
+					return true;
+				switch (obj->ID)
+				{
+					case Obj::REDWOOD_OBSERVATORY:
+					case Obj::PILLAR_OF_FIRE:
+					case Obj::CARTOGRAPHER:
+					case Obj::SUBTERRANEAN_GATE: //TODO: check ai->knownSubterraneanGates
+					//case Obj::MONOLITH1:
+					//case obj::MONOLITH2:
+					//case obj::MONOLITH3:
+					//case Obj::WHIRLPOOL:
+						return false; //do not erase
+						break;
+					default:
+						return true;
+				}
 			});
 			if (objs.size())
 			{
@@ -2943,6 +2957,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 					BOOST_FOREACH (auto obj, objs)
 					{
 						auto pos = obj->visitablePos();
+						//FIXME: this confition fails if everything but guarded subterranen gate was explored. in this case we should gather army for hero
 						if (isSafeToVisit(hero, pos) && ai->isAccessibleForHero(pos, hero))
 							return CGoal(VISIT_TILE).settile(pos).sethero(hero);
 					}
@@ -2960,7 +2975,33 @@ TSubgoal CGoal::whatToDoToAchieve()
 
 			if (hero)
 			{
-				return CGoal(VISIT_TILE).settile(whereToExplore(hero)).sethero(hero);
+				int3 t = whereToExplore(hero);
+				if (t.z == -1) //no safe tile to explore - we need to break!
+				{
+					erase_if (objs, [&](const CGObjectInstance *obj) -> bool
+					{
+						switch (obj->ID)
+						{
+							case Obj::CARTOGRAPHER:
+							case Obj::SUBTERRANEAN_GATE:
+							//case Obj::MONOLITH1:
+							//case obj::MONOLITH2:
+							//case obj::MONOLITH3:
+							//case Obj::WHIRLPOOL:
+								return false; //do not erase
+								break;
+							default:
+								return true;
+						}
+					});
+					if (objs.size())
+					{
+						return CGoal (VISIT_TILE).settile(objs.front()->visitablePos()).sethero(hero).setisAbstract(true);
+					}
+					else
+						throw cannotFulfillGoalException("Cannot explore - no possible ways found!");
+				}
+				return CGoal(VISIT_TILE).settile(t).sethero(hero);
 			}
 
 			auto hs = cb->getHeroesInfo();
