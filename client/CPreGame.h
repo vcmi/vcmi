@@ -187,11 +187,13 @@ class OptionsTab : public CIntObject
 	CPicture *bg;
 public:
 	enum SelType {TOWN, HERO, BONUS};
+
 	struct SelectedBox : public CIntObject //img with current town/hero/bonus
 	{
 		SelType which;
 		ui8 player; //serial nr
 
+		size_t getBonusImageIndex() const;
 		SDL_Surface *getImg() const;
 		const std::string *getText() const;
 

@@ -24,12 +24,7 @@ CCreatureHandler::CCreatureHandler()
 {
 	VLC->creh = this;
 
-	// Set the faction alignments to the defaults:
-	// Good: Castle, Rampart, Tower
-	// Evil: Inferno, Necropolis, Dungeon
-	// Neutral: Stronghold, Fortess, Conflux, neutrals
-	factionAlignments += 1, 1, 1, -1, -1, -1, 0, 0, 0, 0;
-	doubledCreatures +=  4, 14, 20, 28, 44, 60, 70, 72, 85, 86, 100, 104; //according to Strategija
+	doubledCreatures +=  4, 14, 20, 28, 44, 60, 70, 72, 85, 86, 100, 104; //FIXME: move to creature config //according to Strategija
 
 	allCreatures.setDescription("All creatures");
 	creaturesOfLevel[0].setDescription("Creatures of unnormalized tier");
@@ -94,7 +89,7 @@ bool CCreature::isUndead() const
  */
 bool CCreature::isGood () const
 {
-	return VLC->creh->isGood(faction);
+	return VLC->townh->factions[faction].alignment == EAlignment::GOOD;
 }
 
 /**
@@ -103,7 +98,7 @@ bool CCreature::isGood () const
  */
 bool CCreature::isEvil () const
 {
-	return VLC->creh->isEvil(faction);
+	return VLC->townh->factions[faction].alignment == EAlignment::EVIL;
 }
 
 si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatures can be bought
@@ -149,26 +144,6 @@ std::string CCreature::nodeName() const
 bool CCreature::isItNativeTerrain(int terrain) const
 {
 	return VLC->townh->factions[faction].nativeTerrain == terrain;
-}
-
-/**
- * Determines if a faction is good.
- * @param ID of the faction.
- * @return true if the faction is good, false otherwise.
- */
-bool CCreatureHandler::isGood (si8 faction) const
-{
-	return factionAlignments[faction] == 1;
-}
-
-/**
- * Determines if a faction is evil.
- * @param ID of the faction.
- * @return true if the faction is evil, false otherwise.
- */
-bool CCreatureHandler::isEvil (si8 faction) const
-{
-	return factionAlignments[faction] == -1;
 }
 
 static void AddAbility(CCreature *cre, const JsonVector &ability_vec)

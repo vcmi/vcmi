@@ -389,7 +389,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, TPlayerColor p
 
 	if(player>=GameConstants::PLAYER_LIMIT)
 	{
-		tlog1 << "Cannot pick hero for " << town->Name() << ". Wrong owner!\n";
+		tlog1 << "Cannot pick hero for " << town->typeID << ". Wrong owner!\n";
 		return NULL;
 	}
 
@@ -1323,7 +1323,7 @@ void CGameState::init(StartInfo * si)
 		if(!vti->town)
 			vti->town = &VLC->townh->towns[vti->subID];
 		if (vti->name.length()==0) // if town hasn't name we draw it
-			vti->name = vti->town->Names()[ran()%vti->town->Names().size()];
+			vti->name = vti->town->names[ran()%vti->town->names.size()];
 
 		//init buildings
 		if(vti->builtBuildings.find(-50)!=vti->builtBuildings.end()) //give standard set of buildings

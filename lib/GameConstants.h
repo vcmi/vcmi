@@ -110,6 +110,8 @@ namespace ELossConditionType
 namespace EAlignment
 {
 	enum EAlignment { GOOD, EVIL, NEUTRAL };
+
+	const std::string names [3] = {"good", "evil", "neutral"}; //for parsing from config file
 }
 
 namespace ETownType

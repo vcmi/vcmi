@@ -83,13 +83,10 @@ struct DLL_LINKAGE CStructure
 
 class DLL_LINKAGE CTown
 {
-	std::string name;
-	std::string description;
+public:
+	TFaction typeID;//same as CFaction::factionID
 
 	std::vector<std::string> names; //names of the town instances
-
-public:
-	TFaction typeID;//also works as factionID
 
 	/// level -> list of creatures on this tier
 	// TODO: replace with pointers to CCreature
@@ -100,7 +97,6 @@ public:
 	// should be removed at least from configs in favour of auto-detection
 	std::map<int,int> hordeLvl; //[0] - first horde building creature level; [1] - second horde building (-1 if not present)
 	ui32 mageLevel; //max available mage guild level
-	int bonus; //pic number
 	ui16 primaryRes, warMachine;
 
 	// Client-only data. Should be moved away from lib
@@ -127,12 +123,9 @@ public:
 		}
 	} clientInfo;
 
-	const std::vector<std::string> & Names() const;
-	const std::string & Name() const;
-
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & names & typeID & creatures & buildings & hordeLvl & mageLevel & bonus
+		h & names & typeID & creatures & buildings & hordeLvl & mageLevel
 			& primaryRes & warMachine & clientInfo;
 	}
 
@@ -155,10 +148,12 @@ struct DLL_LINKAGE SPuzzleInfo
 class CFaction
 {
 public:
-	std::string name; //reference name, usually lower case
+	std::string name; //town name, by default - from TownName.txt
+
 	TFaction factionID;
 
-	ui32 nativeTerrain;
+	ui8 nativeTerrain;
+	ui8 alignment; // uses EAlignment enum
 
 	std::string creatureBg120;
 	std::string creatureBg130;

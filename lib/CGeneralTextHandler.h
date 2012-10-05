@@ -75,9 +75,6 @@ public:
 	//towns
 	std::vector<std::string> tcommands, hcommands, fcommands; //texts for town screen, town hall screen and fort screen
 	std::vector<std::string> tavernInfo;
-	std::vector<std::vector<std::string> > townNames; //[type id] => vec of names of instances
-	std::vector<std::string> townTypes; //castle, rampart, tower, etc
-	std::map<int, std::map<int, std::pair<std::string, std::string> > > buildings; //map[town id][building id] => pair<name, description>
 
 	std::vector<std::pair<std::string,std::string> > zelp;
 	std::vector<std::string> lossCondtions;

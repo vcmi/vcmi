@@ -882,6 +882,9 @@ bool JsonValidator::addMessage(const std::string &message)
 JsonValidator::JsonValidator(JsonNode &root, bool Minimize):
 	minimize(Minimize)
 {
+	if (root.getType() != JsonNode::DATA_STRUCT)
+		return;
+
 	JsonNode schema;
 	schema.swap(root["schema"]);
 	root.Struct().erase("schema");

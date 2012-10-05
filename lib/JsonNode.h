@@ -77,16 +77,7 @@ public:
 	const JsonMap & Struct() const;
 
 	template<typename T>
-	std::vector<T> StdVector() const
-	{
-		static_assert(std::is_arithmetic<T>::value, "This works with numbers only.");
-		std::vector<T> ret;
-		BOOST_FOREACH(const JsonNode &node, Vector())
-		{
-			ret.push_back(node.Float());
-		}
-		return ret;
-	}
+	std::vector<T> StdVector() const;
 
 	//operator [], for structs only - get child node by name
 	JsonNode & operator[](std::string child);
@@ -106,6 +97,29 @@ public:
 	/// this function will preserve data stored in source by creating copy
 	static void mergeCopy(JsonNode & dest, JsonNode source);
 };
+
+template<>
+inline std::vector<std::string> JsonNode::StdVector() const
+{
+	std::vector<std::string> ret;
+	BOOST_FOREACH(const JsonNode &node, Vector())
+	{
+		ret.push_back(node.String());
+	}
+	return ret;
+}
+
+template<typename T>
+std::vector<T> JsonNode::StdVector() const
+{
+	static_assert(std::is_arithmetic<T>::value, "This works with numbers only.");
+	std::vector<T> ret;
+	BOOST_FOREACH(const JsonNode &node, Vector())
+	{
+		ret.push_back(node.Float());
+	}
+	return ret;
+}
 
 class JsonWriter
 {

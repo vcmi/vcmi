@@ -2293,6 +2293,41 @@ OptionsTab::SelectedBox::SelectedBox( SelType Which, ui8 Player )
 	addUsedEvents(RCLICK);
 }
 
+size_t OptionsTab::SelectedBox::getBonusImageIndex() const
+{
+	enum EBonusSelection //frames of bonuses file
+	{
+		WOOD_ORE = 0,   CRYSTAL = 1,    GEM  = 2,
+		MERCURY  = 3,   SULFUR  = 5,    GOLD = 8,
+		ARTIFACT = 9,   RANDOM  = 10,
+		WOOD = 0,       ORE     = 0,    MITHRIL = 10 // resources unavailable in bonuses file
+	};
+
+	const PlayerSettings &s = SEL->sInfo.playerInfos[player];
+	switch(s.bonus)
+	{
+	case -1: return RANDOM;
+	case 0:  return ARTIFACT;
+	case 1:  return GOLD;
+	case 2:
+		switch (CGI->townh->towns[s.castle].primaryRes)
+		{
+		case 127          : return WOOD_ORE;
+		case Res::WOOD    : return WOOD;
+		case Res::MERCURY : return MERCURY;
+		case Res::ORE     : return ORE;
+		case Res::SULFUR  : return SULFUR;
+		case Res::CRYSTAL : return CRYSTAL;
+		case Res::GEMS    : return GEM;
+		case Res::GOLD    : return GOLD;
+		case Res::MITHRIL : return MITHRIL;
+		}
+	default:
+		assert(0);
+		return 0;
+	}
+}
+
 SDL_Surface * OptionsTab::SelectedBox::getImg() const
 {
 	const PlayerSettings &s = SEL->sInfo.playerInfos[player];
@@ -2323,29 +2358,9 @@ SDL_Surface * OptionsTab::SelectedBox::getImg() const
 		}
 		break;
 	case BONUS:
-		{
-			int pom;
-			switch (s.bonus)
-			{
-			case -1:
-				pom=10;
-				break;
-			case 0:
-				pom=9;
-				break;
-			case 1:
-				pom=8;
-				break;
-			case 2:
-				pom=CGI->townh->towns[s.castle].bonus;
-				break;
-			default:
-				assert(0);
-			}
-			return CGP->bonuses->ourImages[pom].bitmap;
-		}
+			return CGP->bonuses->ourImages[getBonusImageIndex()].bitmap;
 	default:
-		return NULL;
+		return nullptr;
 	}
 }
 
@@ -2356,7 +2371,7 @@ const std::string * OptionsTab::SelectedBox::getText() const
 	{
 	case TOWN:
 		if (s.castle < GameConstants::F_NUMBER  &&  s.castle >= 0)
-			return &CGI->townh->towns[s.castle].Name();
+			return &CGI->townh->factions[s.castle].name;
 		else if (s.castle == -1)
 			return &CGI->generaltexth->allTexts[522];
 		else if (s.castle == -2)

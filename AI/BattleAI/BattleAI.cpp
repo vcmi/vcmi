@@ -764,6 +764,7 @@ void CBattleAI::attemptCastingSpell()
 			}
 		default:
 			assert(0);
+			return 0;
 		}
 	};
 

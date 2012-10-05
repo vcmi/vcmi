@@ -2051,7 +2051,7 @@ void CGTownInstance::initObj()
 ///initialize town structures
 {
 	blockVisit = true;
-	hoverName = name + ", " + town->Name();
+	hoverName = name + ", " + VLC->townh->factions[town->typeID].name;
 
 	if (subID == ETownType::DUNGEON)
 		creatures.resize(GameConstants::CREATURES_PER_TOWN+1);//extra dwelling for Dungeon
@@ -2294,7 +2294,7 @@ std::vector<int> CGTownInstance::availableItemsIds(EMarketMode::EMarketMode mode
 
 std::string CGTownInstance::nodeName() const
 {
-	return "Town (" + (town ? town->Name() : "unknown") + ") of " +  name;
+	return "Town (" + (town ? VLC->townh->factions[town->typeID].name : "unknown") + ") of " +  name;
 }
 
 void CGTownInstance::deserializationFix()
@@ -2372,7 +2372,7 @@ bool CGTownInstance::addBonusIfBuilt(int building, int type, int val, TPropagato
 	if(hasBuilt(building))
 	{
 		std::ostringstream descr;
-		descr << VLC->generaltexth->buildings[subID][building].first << " ";
+		descr << town->buildings[building]->Name() << " ";
 		if(val > 0)
 			descr << "+";
 		else if(val < 0)

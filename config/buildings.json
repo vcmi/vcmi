@@ -3,6 +3,7 @@
 	{
 		"index" : 0,
 		"nativeTerrain": "grass",
+		"alignment" : "good",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASCAS",
@@ -183,6 +184,7 @@
 	{
 		"index" : 1,
 		"nativeTerrain": "grass",
+		"alignment" : "good",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASRAM",
@@ -368,6 +370,7 @@
 	{
 		"index" : 2,
 		"nativeTerrain" : "snow",
+		"alignment" : "good",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASTOW",
@@ -545,6 +548,7 @@
 	{
 		"index" : 3,
 		"nativeTerrain": "lava",
+		"alignment" : "evil",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASINF",
@@ -724,6 +728,7 @@
 	{
 		"index" : 4,
 		"nativeTerrain": "dirt",
+		"alignment" : "evil",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASNEC",
@@ -906,6 +911,7 @@
 	{
 		"index" : 5,
 		"nativeTerrain": "subterra",
+		"alignment" : "evil",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASDUN",
@@ -1082,6 +1088,7 @@
 	{
 		"index" : 6,
 		"nativeTerrain": "rough",
+		"alignment" : "neutral",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASSTR",
@@ -1257,6 +1264,7 @@
 	{
 		"index" : 7,
 		"nativeTerrain": "swamp",
+		"alignment" : "neutral",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASFOR",
@@ -1435,6 +1443,7 @@
 	{
 		"index" : 8,
 		"nativeTerrain": "grass",
+		"alignment" : "neutral",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASELE",
@@ -1615,6 +1624,7 @@
 	"neutral" :
 	{
 		"index" : 9,
+		"alignment" : "neutral",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASNEU",
