@@ -380,6 +380,10 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 	town.clientInfo.guildWindow = source["guildWindow"].String();
 	town.clientInfo.buildingsIcons = source["buildingsIcons"].String();
 
+	town.clientInfo.advMapVillage = source["adventureMap"]["village"].String();
+	town.clientInfo.advMapCastle  = source["adventureMap"]["castle"].String();
+	town.clientInfo.advMapCapitol = source["adventureMap"]["capitol"].String();
+
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);
 	loadSiegeScreen(town, source["siege"]);

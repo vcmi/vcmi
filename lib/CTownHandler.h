@@ -119,6 +119,10 @@ public:
 		/// NOTE: index in vector is meaningless. Vector used instead of list for a bit faster access
 		std::vector<ConstTransitivePtr<CStructure> > structures;
 
+		std::string advMapVillage;
+		std::string advMapCastle;
+		std::string advMapCapitol;
+
 		std::string siegePrefix;
 		std::vector<Point> siegePositions;
 		TCreature siegeShooter; // shooter creature ID

@@ -66,6 +66,12 @@
 		},
 		"town" :
 		{
+			"adventureMap" :
+			{
+				"castle" : "AVCcasx0.def",
+				"village" : "AVCCAST0.DEF",
+				"capitol" : "AVCCASZ0.DEF"
+			},
 			"structures" :
 			[
 				{ "animation" : "TBCSEXT2.def", "x" : 46,  "y" : 119 },
@@ -298,7 +304,12 @@
 		},
 		"town" :
 		{
-
+			"adventureMap" :
+			{
+				"castle" : "AVCramx0.def",
+				"village" : "AVCRAMP0.DEF",
+				"capitol" : "AVCRAMZ0.DEF"
+			},
 			"structures" :
 			[
 				{ "animation" : "TBRMEXT2.def", "x" : 327, "y" : 236 },
@@ -535,6 +546,12 @@
 		},
 		"town" :
 		{
+			"adventureMap" :
+			{
+				"castle" : "AVCtowx0.def",
+				"village" : "AVCTOWR0.DEF",
+				"capitol" : "AVCTOWZ0.DEF"
+			},
 			"structures" :
 			[
 				{ "id" : 0,  "animation" : "TBTWMAGE.def", "x" : 597, "y" : 82,  "border" : "TOTGLD1.bmp",  "area" : "TZTGLD1.bmp" },
@@ -764,6 +781,12 @@
 		},
 		"town" :
 		{
+			"adventureMap" :
+			{
+				"castle" : "AVCinfx0.def",
+				"village" : "AVCINFT0.DEF",
+				"capitol" : "AVCINFZ0.DEF"
+			},
 			"structures" :
 			[
 				{ "id" : 0,  "animation" : "TBINMAGE.def", "x" : 667, "y" : 127, "border" : "TOIMAG1A.bmp", "area" : "TZIMAG1A.bmp" },
@@ -995,6 +1018,12 @@
 		},
 		"town" :
 		{
+			"adventureMap" :
+			{
+				"castle" : "AVCnecx0.def",
+				"village" : "AVCNECR0.DEF",
+				"capitol" : "AVCNECZ0.DEF"
+			},
 			"structures" :
 			[
 				{ "animation" : "TBNCEXT2.def", "x" : 25,  "y" : 279 },
@@ -1229,6 +1258,12 @@
 		},
 		"town" :
 		{
+			"adventureMap" :
+			{
+				"castle" : "AVCdunx0.def",
+				"village" : "AVCDUNG0.DEF",
+				"capitol" : "AVCDUNZ0.DEF"
+			},
 			"structures" :
 			[
 				{ "id" : 0,  "animation" : "TBDNMAGE.def", "x" : 164, "y" : 119, "z" : -1, "border" : "TODMAG1.bmp",  "area" : "TZDMAG1.bmp" },
@@ -1457,6 +1492,12 @@
 		},
 		"town" :
 		{
+			"adventureMap" :
+			{
+				"castle" : "AVCstrx0.def",
+				"village" : "AVCSTRO0.DEF",
+				"capitol" : "AVCSTRZ0.DEF"
+			},
 			"structures" :
 			[
 				{ "animation" : "TBSTEXT3.def", "x" : 23,  "y" : 20 },
@@ -1684,6 +1725,12 @@
 		},
 		"town" :
 		{
+			"adventureMap" :
+			{
+				"castle" : "AVCftrx0.def",
+				"village" : "AVCFTRT0.DEF",
+				"capitol" : "AVCFORZ0.DEF"
+			},
 			"structures" :
 			[
 				{ "animation" : "TBFREXT2.def", "x" : 372, "y" : 227 },
@@ -1914,6 +1961,12 @@
 		},
 		"town" :
 		{
+			"adventureMap" :
+			{
+				"castle" : "avchforx.def",
+				"village" : "AVCHFOR0.DEF",
+				"capitol" : "AVCHFORZ.DEF"
+			},
 			"structures" :
 			[
 				{ "animation" : "TBELEXT5.def", "x" : 682, "y" : 183,  "z" : -1, },

@@ -1754,27 +1754,34 @@ int CGameState::getPlayerRelations( ui8 color1, ui8 color2 )
 
 void CGameState::loadTownDInfos()
 {
-    int i;
-	const JsonNode config(ResourceID("config/towns_defs.json"));
+	assert(!VLC->dobjinfo->gobjs[Obj::TOWN].empty()); //make sure that at least some def info was found
 
-    assert(config["town_defnames"].Vector().size() == GameConstants::F_NUMBER);
+	const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::TOWN].begin()->second;
+	auto & townInfos = VLC->dobjinfo->gobjs[Obj::TOWN];
 
-    i = 0;
-	BOOST_FOREACH(const JsonNode &t, config["town_defnames"].Vector())
+
+	BOOST_FOREACH(auto & town, VLC->townh->towns)
 	{
-		villages[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
-        villages[i]->name = t["village"].String();
-		map->defy.push_back(villages[i]);
+		if (!vstd::contains(VLC->dobjinfo->gobjs[Obj::TOWN], town.first)) // no obj info for this town type
+		{
+			CGDefInfo * info = new CGDefInfo(*baseInfo);
+			info->subid = town.first;
 
-		forts[i] = VLC->dobjinfo->castles[i];
-		map->defy.push_back(forts[i]);
+			townInfos[town.first] = info;
+		}
+		forts[town.first] = townInfos[town.first];
+		townInfos[town.first]->name = town.second.clientInfo.advMapCastle;
 
-		capitols[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
-        capitols[i]->name = t["capitol"].String();
-		map->defy.push_back(capitols[i]);
+		villages[town.first] = new CGDefInfo(*townInfos[town.first]);
+		villages[town.first]->name = town.second.clientInfo.advMapVillage;
 
-		++i;
-    }
+		capitols[town.first] = new CGDefInfo(*townInfos[town.first]);
+		capitols[town.first]->name = town.second.clientInfo.advMapCapitol;
+
+		map->defy.push_back(villages[town.first]);
+		map->defy.push_back(forts[town.first]);
+		map->defy.push_back(capitols[town.first]);
+	}
 }
 
 void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing)

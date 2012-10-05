@@ -120,8 +120,6 @@ void CDefObjInfoHandler::load()
 
 
 		gobjs[nobj->id][nobj->subid] = nobj;
-		if(nobj->id==Obj::TOWN)
-			castles[nobj->subid]=nobj;
 	}
 
 	for (int i = 0; i < 8 ; i++)

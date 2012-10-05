@@ -49,7 +49,6 @@ class DLL_LINKAGE CDefObjInfoHandler
 {
 public:
 	bmap<int, bmap<int, ConstTransitivePtr<CGDefInfo> > > gobjs;
-	bmap<int, ConstTransitivePtr<CGDefInfo> > castles;
 
 	void load();
 	~CDefObjInfoHandler();
@@ -57,6 +56,5 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & gobjs;
-		h & castles;
 	}
 };

@@ -957,7 +957,6 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 {
 	waitWhileDialog();
 
-	stopMovement();
 	if (settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
 	{
 		return;
@@ -968,6 +967,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	{
 		CCS->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->set(true);
+		stopMovement(); // interrupt movement to show dialog
 		GH.pushInt(temp);
 	}
 	else
@@ -1271,7 +1271,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 					stillMoveHero.cond.wait(un);
 
 				tlog5 << "Resuming " << __FUNCTION__ << std::endl;
-				if (guarded) // Abort movement if a guard was fought.
+				if (guarded || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
 					break;
 			}
 
