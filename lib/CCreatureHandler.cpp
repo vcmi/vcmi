@@ -344,10 +344,6 @@ void CCreatureHandler::loadCreatures()
 			c->projectileSpin = value->Bool();
 		}
 
-		value = &creature["turret_shooter"];
-		if (!value->isNull() && value->Bool())
-			factionToTurretCreature[c->faction] = creatureID;
-
 		value = &creature["ability_remove"];//remove first - arch devil
 		if (!value->isNull())
 		{

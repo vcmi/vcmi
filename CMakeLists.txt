@@ -15,7 +15,7 @@ option(DISABLE_ERM "Disable compilation of ERM scripting module" OFF)
 #        Building section                  #
 ############################################
 
-find_package(Boost 1.46.0 COMPONENTS program_options filesystem system thread iostreams REQUIRED)
+find_package(Boost 1.46.0 COMPONENTS program_options filesystem system thread REQUIRED)
 find_package(SDL REQUIRED)
 find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)

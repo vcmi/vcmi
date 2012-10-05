@@ -322,6 +322,51 @@ void CTownHandler::loadTownHall(CTown &town, const JsonNode & source)
 	}
 }
 
+CTown::ClientInfo::Point JsonToPoint(const JsonNode & node)
+{
+	CTown::ClientInfo::Point ret;
+	ret.x = node["x"].Float();
+	ret.y = node["y"].Float();
+	return ret;
+}
+
+void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source)
+{
+	town.clientInfo.siegePrefix = source["imagePrefix"].String();
+	town.clientInfo.siegeShooter = source["shooter"].Float();
+	town.clientInfo.siegeShooterCropHeight = source["shooterHeight"].Float();
+
+	auto & pos = town.clientInfo.siegePositions;
+	pos.resize(21);
+
+	pos[8]  = JsonToPoint(source["towers"]["top"]["tower"]);
+	pos[17] = JsonToPoint(source["towers"]["top"]["battlement"]);
+	pos[20] = JsonToPoint(source["towers"]["top"]["creature"]);
+
+	pos[2]  = JsonToPoint(source["towers"]["keep"]["tower"]);
+	pos[15] = JsonToPoint(source["towers"]["keep"]["battlement"]);
+	pos[18] = JsonToPoint(source["towers"]["keep"]["creature"]);
+
+	pos[3]  = JsonToPoint(source["towers"]["bottom"]["tower"]);
+	pos[16] = JsonToPoint(source["towers"]["bottom"]["battlement"]);
+	pos[19] = JsonToPoint(source["towers"]["bottom"]["creature"]);
+
+	pos[9]  = JsonToPoint(source["gate"]["gate"]);
+	pos[10]  = JsonToPoint(source["gate"]["arch"]);
+
+	pos[7]  = JsonToPoint(source["walls"]["upper"]);
+	pos[6]  = JsonToPoint(source["walls"]["upperMid"]);
+	pos[5]  = JsonToPoint(source["walls"]["bottomMid"]);
+	pos[4]  = JsonToPoint(source["walls"]["bottom"]);
+
+	pos[13] = JsonToPoint(source["moat"]["moat"]);
+	pos[14] = JsonToPoint(source["moat"]["bank"]);
+
+	pos[11] = JsonToPoint(source["static"]["bottom"]);
+	pos[12] = JsonToPoint(source["static"]["top"]);
+	pos[1]  = JsonToPoint(source["static"]["background"]);
+}
+
 void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 {
 	town.clientInfo.icons[0][0] = source["icons"]["village"]["normal"].Float();
@@ -337,6 +382,7 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);
+	loadSiegeScreen(town, source["siege"]);
 }
 
 void CTownHandler::loadTown(CTown &town, const JsonNode & source)

@@ -498,13 +498,13 @@ Point CClickableHex::getXYUnitAnim(const int & hexNum, const bool & attacker, co
 		switch(stack->position)
 		{
 		case -2: //keep
-			ret = graphics->wallPositions[cbi->siegeH->town->town->typeID][17];
+			ret = cbi->siegeH->town->town->clientInfo.siegePositions[18];
 			break;
 		case -3: //lower turret
-			ret = graphics->wallPositions[cbi->siegeH->town->town->typeID][18];
+			ret = cbi->siegeH->town->town->clientInfo.siegePositions[19];
 			break;
 		case -4: //upper turret
-			ret = graphics->wallPositions[cbi->siegeH->town->town->typeID][19];
+			ret = cbi->siegeH->town->town->clientInfo.siegePositions[20];
 			break;	
 		}
 	}

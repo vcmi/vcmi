@@ -138,7 +138,6 @@ Graphics::Graphics()
 	tasks += boost::bind(&Graphics::loadHeroFlags,this);
 	tasks += boost::bind(&Graphics::loadHeroPortraits,this);
 	tasks += boost::bind(&Graphics::initializeBattleGraphics,this);
-	tasks += boost::bind(&Graphics::loadWallPositions,this);
 	tasks += boost::bind(&Graphics::loadErmuToPicture,this);
 	tasks += GET_DEF_ESS(artDefs,"ARTIFACT.DEF");
 	tasks += GET_DEF_ESS(un44,"UN44.DEF");
@@ -199,22 +198,6 @@ void Graphics::loadHeroPortraits()
 		portraitLarge.push_back(BitmapHandler::loadBitmap(filename));
 
 		SDL_SetColorKey(portraitLarge[portraitLarge.size()-1],SDL_SRCCOLORKEY,SDL_MapRGB(portraitLarge[portraitLarge.size()-1]->format,0,255,255));
-	}
-}
-
-void Graphics::loadWallPositions()
-{
-	const JsonNode config(ResourceID("config/wall_pos.json"));
-
-	BOOST_FOREACH(const JsonNode &town, config["towns"].Vector()) {
-		int townID = town["id"].Float();
-
-		BOOST_FOREACH(const JsonNode &coords, town["pos"].Vector()) {
-			Point pt(coords["x"].Float(), coords["y"].Float());
-			wallPositions[townID].push_back(pt);
-		}
-
-		assert(wallPositions[townID].size() == 21);
 	}
 }
 

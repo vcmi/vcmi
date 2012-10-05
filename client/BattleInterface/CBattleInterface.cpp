@@ -158,8 +158,9 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 			SDL_Surface * moat = BitmapHandler::loadBitmap( siegeH->getSiegeName(13) ),
 				* mlip = BitmapHandler::loadBitmap( siegeH->getSiegeName(14) );
 
-			Point moatPos = graphics->wallPositions[siegeH->town->town->typeID][12],
-				mlipPos = graphics->wallPositions[siegeH->town->town->typeID][13];
+			auto & info = siegeH->town->town->clientInfo;
+			Point moatPos(info.siegePositions[13].x, info.siegePositions[13].y);
+			Point mlipPos(info.siegePositions[14].x, info.siegePositions[14].y);
 
 			if(moat) //eg. tower has no moat
 				blitAt(moat, moatPos.x,moatPos.y, background);
@@ -283,11 +284,17 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	//loading projectiles for units
 	BOOST_FOREACH(const CStack *s, stacks)
 	{
-		//int creID = (s->getCreature()->idNumber == 149) ? CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] : s->getCreature()->idNumber; //id of creature whose shots should be loaded
 		if(s->getCreature()->isShooting())
 		{
 			CDefHandler *&projectile = idToProjectile[s->getCreature()->idNumber];
-			projectile = CDefHandler::giveDef(s->getCreature()->projectile);
+
+			const CCreature * creature;//creature whose shots should be loaded
+			if (s->getCreature()->idNumber == 149)
+				creature = CGI->creh->creatures[siegeH->town->town->clientInfo.siegeShooter];
+			else
+				creature = s->getCreature();
+
+			projectile = CDefHandler::giveDef(creature->projectile);
 
 			if(projectile->ourImages.size() > 2) //add symmetric images
 			{
@@ -1331,7 +1338,7 @@ void CBattleInterface::newStack(const CStack * stack)
 
 	if(stack->position < 0) //turret
 	{
-		const CCreature & turretCreature = *CGI->creh->creatures[ CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] ];
+		const CCreature & turretCreature = *CGI->creh->creatures[siegeH->town->town->clientInfo.siegeShooter];
 		creAnims[stack->ID] = new CCreatureAnimation(turretCreature.animDefName);
 
 		// Turret positions are read out of the /config/wall_pos.txt
@@ -1351,8 +1358,8 @@ void CBattleInterface::newStack(const CStack * stack)
 
 		if (posID != 0)
 		{
-			coords.x = graphics->wallPositions[siegeH->town->town->typeID][posID - 1].x + this->pos.x;
-			coords.y = graphics->wallPositions[siegeH->town->town->typeID][posID - 1].y + this->pos.y;
+			coords.x = siegeH->town->town->clientInfo.siegePositions[posID].x + this->pos.x;
+			coords.y = siegeH->town->town->clientInfo.siegePositions[posID].y + this->pos.y;
 		}
 	}
 	else
@@ -2165,7 +2172,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	if (creature->idNumber == 149)
 	{
 		// a turret creature has a limited height, so cut it at a certain position; turret creature has no standing anim
-		unitRect.h = graphics->wallPositions[siegeH->town->town->typeID][20].y;
+		unitRect.h = siegeH->town->town->clientInfo.siegeShooterCropHeight;
 	}
 	else
 	{
@@ -3541,8 +3548,6 @@ InfoAboutHero CBattleInterface::enemyHero() const
 	return ret;
 }
 
-std::string CBattleInterface::SiegeHelper::townTypeInfixes[GameConstants::F_NUMBER] = {"CS", "RM", "TW", "IN", "NC", "DN", "ST", "FR", "EL"};
-
 CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface * _owner)
   : owner(_owner), town(siegeTown)
 {
@@ -3563,60 +3568,61 @@ CBattleInterface::SiegeHelper::~SiegeHelper()
 std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInfo) const
 {
 	if(what == 2 || what == 3 || what == 8)
-	{
-		if(additInfo == 3) additInfo = 2;
-	}
-	char buf[100];
-	SDL_itoa(additInfo, buf, 10);
-	std::string addit(buf);
+		vstd::amin(additInfo, 2);
+	else
+		vstd::amin(additInfo, 3);
+
+	std::string & prefix = town->town->clientInfo.siegePrefix;
+	std::string addit = boost::lexical_cast<std::string>(additInfo);
+
 	switch(what)
 	{
 	case 0: //background
-		return "SG" + townTypeInfixes[town->town->typeID] + "BACK.BMP";
+		return prefix + "BACK.BMP";
 	case 1: //background wall
 		{
 			switch(town->town->typeID)
 			{
 			case 5: case 4: case 1: case 6:
-				return "SG" + townTypeInfixes[town->town->typeID] + "TPW1.BMP";
+				return prefix + "TPW1.BMP";
 			case 0: case 2: case 3: case 7: case 8:
-				return "SG" + townTypeInfixes[town->town->typeID] + "TPWL.BMP";
+				return prefix + "TPWL.BMP";
 			default:
 				return "";
 			}
 		}
 	case 2: //keep
-		return "SG" + townTypeInfixes[town->town->typeID] + "MAN" + addit + ".BMP";
+		return prefix + "MAN" + addit + ".BMP";
 	case 3: //bottom tower
-		return "SG" + townTypeInfixes[town->town->typeID] + "TW1" + addit + ".BMP";
+		return prefix + "TW1" + addit + ".BMP";
 	case 4: //bottom wall
-		return "SG" + townTypeInfixes[town->town->typeID] + "WA1" + addit + ".BMP";
+		return prefix + "WA1" + addit + ".BMP";
 	case 5: //below gate
-		return "SG" + townTypeInfixes[town->town->typeID] + "WA3" + addit + ".BMP";
+		return prefix + "WA3" + addit + ".BMP";
 	case 6: //over gate
-		return "SG" + townTypeInfixes[town->town->typeID] + "WA4" + addit + ".BMP";
+		return prefix + "WA4" + addit + ".BMP";
 	case 7: //upper wall
-		return "SG" + townTypeInfixes[town->town->typeID] + "WA6" + addit + ".BMP";
+		return prefix + "WA6" + addit + ".BMP";
 	case 8: //upper tower
-		return "SG" + townTypeInfixes[town->town->typeID] + "TW2" + addit + ".BMP";
+		return prefix + "TW2" + addit + ".BMP";
 	case 9: //gate
-		return "SG" + townTypeInfixes[town->town->typeID] + "DRW" + addit + ".BMP";
+		return prefix + "DRW" + addit + ".BMP";
 	case 10: //gate arch
-		return "SG" + townTypeInfixes[town->town->typeID] + "ARCH.BMP";
+		return prefix + "ARCH.BMP";
 	case 11: //bottom static wall
-		return "SG" + townTypeInfixes[town->town->typeID] + "WA2.BMP";
+		return prefix + "WA2.BMP";
 	case 12: //upper static wall
-		return "SG" + townTypeInfixes[town->town->typeID] + "WA5.BMP";
+		return prefix + "WA5.BMP";
 	case 13: //moat
-		return "SG" + townTypeInfixes[town->town->typeID] + "MOAT.BMP";
+		return prefix + "MOAT.BMP";
 	case 14: //mlip
-		return "SG" + townTypeInfixes[town->town->typeID] + "MLIP.BMP";
+		return prefix + "MLIP.BMP";
 	case 15: //keep creature cover
-		return "SG" + townTypeInfixes[town->town->typeID] + "MANC.BMP";
+		return prefix + "MANC.BMP";
 	case 16: //bottom turret creature cover
-		return "SG" + townTypeInfixes[town->town->typeID] + "TW1C.BMP";
+		return prefix + "TW1C.BMP";
 	case 17: //upper turret creature cover
-		return "SG" + townTypeInfixes[town->town->typeID] + "TW2C.BMP";
+		return prefix + "TW2C.BMP";
 	default:
 		return "";
 	}
@@ -3625,15 +3631,14 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInf
 /// What: 1. background wall, 2. keep, 3. bottom tower, 4. bottom wall, 5. wall below gate,
 /// 6. wall over gate, 7. upper wall, 8. upper tower, 9. gate, 10. gate arch, 11. bottom static wall, 12. upper static wall, 13. moat, 14. mlip,
 /// 15. keep turret cover, 16. lower turret cover, 17. upper turret cover
-/// Positions are loaded from the config file: /config/wall_pos.txt
 void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 {
 	Point pos = Point(-1, -1);
 
 	if (what >= 1 && what <= 17)
 	{
-		pos.x = graphics->wallPositions[town->town->typeID][what - 1].x + owner->pos.x;
-		pos.y = graphics->wallPositions[town->town->typeID][what - 1].y + owner->pos.y;
+		pos.x = owner->siegeH->town->town->clientInfo.siegePositions[what].x + owner->pos.x;
+		pos.y = owner->siegeH->town->town->clientInfo.siegePositions[what].y + owner->pos.y;
 	}
 
 	if(pos.x != -1)

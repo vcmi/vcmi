@@ -71,7 +71,6 @@ public:
 	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
 	CDefEssential * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
-	std::vector< Point > wallPositions[GameConstants::F_NUMBER]; //positions of different pieces of wall <x, y>
 	//abilities
 	CDefEssential * abils82;
 	//spells
@@ -85,7 +84,6 @@ public:
 	void loadHeroAnims();
 	void loadHeroAnim(const std::string &name, const std::vector<std::pair<int,int> > &rotations, std::vector<CDefEssential *> Graphics::*dst);
 	void loadHeroPortraits();
-	void loadWallPositions();
 	void loadErmuToPicture();
 	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //returns small picture of town: ID=-1 - blank; -2 - border; -3 - random
 	void blueToPlayersAdv(SDL_Surface * sur, int player); //replaces blue interface colour with a color of player

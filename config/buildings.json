@@ -177,7 +177,58 @@
 				{ "id" : 41, "upgrades" : 34 },
 				{ "id" : 42, "upgrades" : 35 },
 				{ "id" : 43, "upgrades" : 36 }
-			]
+			],
+
+			"siege" :
+			{
+				"shooter" : 2,
+				"imagePrefix" : "SGCS",
+				"gate" :
+				{
+					"arch" : { "x" : 477, "y" : 238 },
+					"gate" : { "x" : 399, "y" : 274 }
+				},
+				"moat" :
+				{
+					"bank" : { "x" : 403, "y" : 80 },
+					"moat" : { "x" : 410, "y" : 90 }
+				},
+				"shooterHeight" : 231,
+				"static" :
+				{
+					"background" : { "x" : 600, "y" : 49 },
+					"bottom" : { "x" : 512, "y" : 347 },
+					"top" : { "x" : 489, "y" : 79 }
+				},
+				"towers" :
+				{
+					"bottom" :
+					{
+						"battlement" : { "x" : 602, "y" : 500 },
+						"creature" : { "x" : 394, "y" : 299	},
+						"tower" : { "x" : 602, "y" : 500 }
+					},
+					"keep" :
+					{
+						"battlement" : { "x" : 720, "y" : 158 },
+						"creature" : { "x" : 526, "y" : -29 },
+						"tower" : { "x" : 720, "y" : 158 }
+					},
+					"top" :
+					{
+						"battlement" : { "x" : 557, "y" : 24 },
+						"creature" : { "x" : 342, "y" : -187 },
+						"tower" : { "x" : 569, "y" : 35 }
+					}
+				},
+				"walls" :
+				{
+					"bottom" : { "x" : 528, "y" : 350 },
+					"bottomMid" : { "x" : 469, "y" : 291 },
+					"upper" : { "x" : 524, "y" : 32 },
+					"upperMid" : { "x" : 470, "y" : 127 }
+				}
+			}
 		}
 	},
 	"rampart" :
@@ -363,7 +414,58 @@
 				{ "id" : 41, "upgrades" : 34 },
 				{ "id" : 42, "upgrades" : 35 },
 				{ "id" : 43, "upgrades" : 36, "requires" : [ 2 ] }
-			]
+			],
+
+			"siege" :
+			{
+				"shooter" : 18,
+				"imagePrefix" : "SGRM",
+				"gate" :
+				{
+					"arch" : { "x" : 460, "y" : 220 },
+					"gate" : { "x" : 403, "y" : 271 }
+				},
+				"moat" :
+				{
+					"bank" : { "x" : 410, "y" : 97 },
+					"moat" : { "x" : 410, "y" : 77 }
+				},
+				"shooterHeight" : 232,
+				"static" :
+				{
+					"background" : { "x" : 608, "y" : 46 },
+					"bottom" : { "x" : 510, "y" : 364 },
+					"top" : { "x" : 492, "y" : 103 }
+				},
+				"towers" :
+				{
+					"bottom" :
+					{
+						"battlement" : { "x" : 594, "y" : 511 },
+						"creature" : { "x" : 371, "y" : 296 },
+						"tower" : { "x" : 594, "y" : 511 }
+					},
+					"keep" :
+					{
+						"battlement" : { "x" : 724, "y" : 189 },
+						"creature" : { "x" : 532, "y" : -27 },
+						"tower" : { "x" : 724, "y" : 189 }
+					},
+					"top" :
+					{
+						"battlement" : { "x" : 566, "y" : 31 },
+						"creature" : { "x" : 341, "y" : -186 },
+						"tower" : { "x" : 565, "y" : 31 }
+					}
+				},
+				"walls" :
+				{
+					"bottom" : { "x" : 549, "y" : 451 },
+					"bottomMid" : { "x" : 469, "y" : 309 },
+					"upper" : { "x" : 530, "y" : 57 },
+					"upperMid" : { "x" : 469, "y" : 186 }
+				}
+			}
 		}
 	},
 	"tower" :
@@ -541,7 +643,58 @@
 				{ "id" : 41, "upgrades" : 34 },
 				{ "id" : 42, "upgrades" : 35 },
 				{ "id" : 43, "upgrades" : 36 }
-			]
+			],
+
+			"siege" :
+			{
+				"shooter" : 34,
+				"imagePrefix" : "SGTW",
+				"gate" :
+				{
+					"arch" : { "x" : 471, "y" : 187 },
+					"gate" : { "x" : 400, "y" : 253 }
+				},
+				"moat" :
+				{
+					"bank" : { "x" : 410, "y" : 80 },
+					"moat" : { "x" : 410, "y" : 90 }
+				},
+				"shooterHeight" : 231,
+				"static" :
+				{
+					"background" : { "x" : 615, "y" : 57 },
+					"bottom" : { "x" : 517, "y" : 365 },
+					"top" : { "x" : 514, "y" : 79 }
+				},
+				"towers" :
+				{
+					"bottom" :
+					{
+						"battlement" : { "x" : 592, "y" : 516 },
+						"creature" : { "x" : 355, "y" : 311 },
+						"tower" : { "x" : 592, "y" : 516 }
+					},
+					"keep" :
+					{
+						"battlement" : { "x" : 726, "y" : 148 },
+						"creature" : { "x" : 499, "y" : -16 },
+						"tower" : { "x" : 726, "y" : 148 }
+					},
+					"top" :
+					{
+						"battlement" : { "x" : 580, "y" : 36 },
+						"creature" : { "x" : 346, "y" : -175 },
+						"tower" : { "x" : 580, "y" : 36 }
+					}
+				},
+				"walls" :
+				{
+					"bottom" : { "x" : 547, "y" : 452 },
+					"bottomMid" : { "x" : 475, "y" : 298 },
+					"upper" : { "x" : 547, "y" : 66 },
+					"upperMid" : { "x" : 488, "y" : 190 }
+				}
+			}
 		}
 	},
 	"inferno" :
@@ -721,7 +874,58 @@
 				{ "id" : 41, "upgrades" : 34, "requires" : [ 1 ] },
 				{ "id" : 42, "upgrades" : 35 },
 				{ "id" : 43, "upgrades" : 36 }
-			]
+			],
+
+			"siege" :
+			{
+				"shooter" : 44,
+				"imagePrefix" : "SGIN",
+				"gate" :
+				{
+					"arch" : { "x" : 477, "y" : 221 },
+					"gate" : { "x" : 408, "y" : 254 }
+				},
+				"moat" :
+				{
+					"bank" : { "x" : 403, "y" : 68 },
+					"moat" : { "x" : 403, "y" : 68 }
+				},
+				"shooterHeight" : 231,
+				"static" :
+				{
+					"background" : { "x" : 606, "y" : 52 },
+					"bottom" : { "x" : 522, "y" : 376 },
+					"top" : { "x" : 502, "y" : 92 }
+				},
+				"towers" :
+				{
+					"bottom" :
+					{
+						"battlement" : { "x" : 595, "y" : 514 },
+						"creature" : { "x" : 369, "y" : 298 },
+						"tower" : { "x" : 595, "y" : 514 }
+					},
+					"keep" :
+					{
+						"battlement" : { "x" : 730, "y" : 179 },
+						"creature" : { "x" : 511, "y" : -37 },
+						"tower" : { "x" : 730, "y" : 179 }
+					},
+					"top" :
+					{
+						"battlement" : { "x" : 569, "y" : 27 },
+						"creature" : { "x" : 341, "y" : -187 },
+						"tower" : { "x" : 569, "y" : 27 }
+					}
+				},
+				"walls" :
+				{
+					"bottom" : { "x" : 561, "y" : 451 },
+					"bottomMid" : { "x" : 485, "y" : 316 },
+					"upper" : { "x" : 532, "y" : 71 },
+					"upperMid" : { "x" : 480, "y" : 151 }
+				}
+			}
 		}
 	},
 	"necropolis" :
@@ -904,7 +1108,58 @@
 				{ "id" : 41, "upgrades" : 34 },
 				{ "id" : 42, "upgrades" : 35 },
 				{ "id" : 43, "upgrades" : 36 }
-			]
+			],
+
+			"siege" :
+			{
+				"shooter" : 64,
+				"imagePrefix" : "SGNC",
+				"gate" :
+				{
+					"arch" : { "x" : 474, "y" : 240 },
+					"gate" : { "x" : 401, "y" : 262 }
+				},
+				"moat" :
+				{
+					"bank" : { "x" : -1, "y" : -1 },
+					"moat" : { "x" : 406, "y" : 77 }
+				},
+				"shooterHeight" : 231,
+				"static" :
+				{
+					"background" : { "x" : 604, "y" : 58 },
+					"bottom" : { "x" : 509, "y" : 372 },
+					"top" : { "x" : 504, "y" : 97 }
+				},
+				"towers" :
+				{
+					"bottom" :
+					{
+						"battlement" : { "x" : 592, "y" : 512 },
+						"creature" : { "x" : 371, "y" : 303 },
+						"tower" : { "x" : 592, "y" : 512 }
+					},
+					"keep" :
+					{
+						"battlement" : { "x" : 730, "y" : 164 },
+						"creature" : { "x" : 501, "y" : 98 },
+						"tower" : { "x" : 730, "y" : 164 }
+					},
+					"top" :
+					{
+						"battlement" : { "x" : 561, "y" : 26 },
+						"creature" : { "x" : 339, "y" : -177 },
+						"tower" : { "x" : 561, "y" : 26 }
+					}
+				},
+				"walls" :
+				{
+					"bottom" : { "x" : 536, "y" : 445 },
+					"bottomMid" : { "x" : 478, "y" : 323 },
+					"upper" : { "x" : 543, "y" : 66 },
+					"upperMid" : { "x" : 487, "y" : 164 }
+				}
+			}
 		}
 	},
 	"dungeon" :
@@ -1081,7 +1336,58 @@
 				{ "id" : 41, "upgrades" : 34 },
 				{ "id" : 42, "upgrades" : 35 },
 				{ "id" : 43, "upgrades" : 36, "requires" : [ 2 ] }
-			]
+			],
+
+			"siege" :
+			{
+				"shooter" : 76,
+				"imagePrefix" : "SGDN",
+				"gate" :
+				{
+					"arch" : { "x" : 471, "y" : 164 },
+					"gate" : { "x" : 395, "y" : 260 }
+				},
+				"moat" :
+				{
+					"bank" : { "x" : 283, "y" : 94 },
+					"moat" : { "x" : 283, "y" : 94 }
+				},
+				"shooterHeight" : 230,
+				"static" :
+				{
+					"background" : { "x" : 608, "y" : 50 },
+					"bottom" : { "x" : 522, "y" : 305 },
+					"top" : { "x" : 494, "y" : 53 }
+				},
+				"towers" :
+				{
+					"bottom" :
+					{
+						"battlement" : { "x" : 600, "y" : 495 },
+						"creature" : { "x" : 410, "y" : 293 },
+						"tower" : { "x" : 560, "y" : 495 }
+					},
+					"keep" :
+					{
+						"battlement" : { "x" : 732, "y" : 162 },
+						"creature" : { "x" : 570, "y" : -50 },
+						"tower" : { "x" : 732, "y" : 162 }
+					},
+					"top" :
+					{
+						"battlement" : { "x" : 565, "y" : 15 },
+						"creature" : { "x" : 381, "y" : -187 },
+						"tower" : { "x" : 565, "y" : 15 }
+					}
+				},
+				"walls" :
+				{
+					"bottom" : { "x" : 559, "y" : 448 },
+					"bottomMid" : { "x" : 471, "y" : 296 },
+					"upper" : { "x" : 523, "y" : 56 },
+					"upperMid" : { "x" : 477, "y" : 180 }
+				}
+			}
 		}
 	},
 	"stronghold" :
@@ -1257,7 +1563,58 @@
 				{ "id" : 41, "upgrades" : 34 },
 				{ "id" : 42, "upgrades" : 35 },
 				{ "id" : 43, "upgrades" : 36 }
-			]
+			],
+
+			"siege" :
+			{
+				"shooter" : 88,
+				"imagePrefix" : "SGST",
+				"gate" :
+				{
+					"arch" : { "x" : 478, "y" : 235 },
+					"gate" : { "x" : 407, "y" : 266 }
+				},
+				"moat" :
+				{
+					"bank" : { "x" : 410, "y" : 91 },
+					"moat" : { "x" : 410, "y" : 90 }
+				},
+				"shooterHeight" : 231,
+				"static" :
+				{
+					"background" : { "x" : 617, "y" : 62 },
+					"bottom" : { "x" : 511, "y" : 380 },
+					"top" : { "x" : 499, "y" : 107}
+				},
+				"towers" :
+				{
+					"bottom" :
+					{
+						"battlement" : { "x" : 586, "y" : 508 },
+						"creature" : { "x" : 361, "y" : 290 },
+						"tower" : { "x" : 586, "y" : 508 }
+					},
+					"keep" :
+					{
+						"battlement" : { "x" : 731, "y" : 168 },
+						"creature" : { "x" : 531, "y" : -45 },
+						"tower" : { "x" : 731, "y" : 168 }
+					},
+					"top" :
+					{
+						"battlement" : { "x" : 568, "y" : 30 },
+						"creature" : { "x" : 342, "y" : -187 },
+						"tower" : { "x" : 568, "y" : 30 }
+					}
+				},
+				"walls" :
+				{
+					"bottom" : { "x" : 553, "y" : 440 },
+					"bottomMid" : { "x" : 483, "y" : 304 },
+					"upper" : { "x" : 534, "y" : 69 },
+					"upperMid" : { "x" : 476, "y" : 189 }
+				}
+			}
 		}
 	},
 	"fortress" :
@@ -1436,7 +1793,58 @@
 				{ "id" : 41, "upgrades" : 34, "requires" : [ 15 ] },
 				{ "id" : 42, "upgrades" : 35 },
 				{ "id" : 43, "upgrades" : 36 }
-			]
+			],
+
+			"siege" :
+			{
+				"shooter" : 100,
+				"imagePrefix" : "SGFR",
+				"gate" :
+				{
+					"arch" : { "x" : 483, "y" : 236 },
+					"gate" : { "x" : 392, "y" : 253 }
+				},
+				"moat" :
+				{
+					"bank" : { "x" : 376, "y" : 70 },
+					"moat" : { "x" : 383, "y" : 95 }
+				},
+				"shooterHeight" : 231,
+				"static" :
+				{
+					"background" : { "x" : 599, "y" : 62 },
+					"bottom" : { "x" : 522, "y" : 382 },
+					"top" : { "x" : 508, "y" : 130 }
+				},
+				"towers" :
+				{
+					"bottom" :
+					{
+						"battlement" : { "x" : 599, "y" : 505 },
+						"creature" : { "x" : 372, "y" : 308 },
+						"tower" : { "x" : 599, "y" : 505 }
+					},
+					"keep" :
+					{
+						"battlement" : { "x" : 721, "y" : 178 },
+						"creature" : { "x" : 541, "y" : -37 },
+						"tower" : { "x" : 721, "y" : 178 }
+					},
+					"top" :
+					{
+						"battlement" : { "x" : 548, "y" : 27 },
+						"creature" : { "x" : 326, "y" : -182 },
+						"tower" : { "x" : 548, "y" : 27 }
+					}
+				},
+				"walls" :
+				{
+					"bottom" : { "x" : 546, "y" : 441 },
+					"bottomMid" : { "x" : 486, "y" : 306 },
+					"upper" : { "x" : 526, "y" : 80 },
+					"upperMid" : { "x" : 498, "y" : 184 }
+				}
+			}
 		}
 	},
 	"conflux" :
@@ -1618,7 +2026,58 @@
 				{ "id" : 41, "upgrades" : 34 },
 				{ "id" : 42, "upgrades" : 35, "requires" : [ 1 ] },
 				{ "id" : 43, "upgrades" : 36 }
-			]
+			],
+
+			"siege" :
+			{
+				"shooter" : 127,
+				"imagePrefix" : "SGEL",
+				"gate" :
+				{
+					"arch" : { "x" : 486, "y" : 232 },
+					"gate" : { "x" : 408, "y" : 254 }
+				},
+				"moat" :
+				{
+					"bank" : { "x" : 407, "y" : 80 },
+					"moat" : { "x" : 407, "y" : 80 }
+				},
+				"shooterHeight" : 229,
+				"static" :
+				{
+					"background" : { "x" : 600, "y" : 50 },
+					"bottom" : { "x" : 509, "y" : 346 },
+					"top" : { "x" : 490, "y" : 97 }
+				},
+				"towers" :
+				{
+					"bottom" :
+					{
+						"battlement" : { "x" : 608, "y" : 505 },
+						"creature" : { "x" : 382, "y" : 308 },
+						"tower" : { "x" : 608, "y" : 505 }
+					},
+					"keep" :
+					{
+						"battlement" : { "x" : 736, "y" : 159 },
+						"creature" : { "x" : 529, "y" : -42 },
+						"tower" : { "x" : 736, "y" : 159 }
+					},
+					"top" :
+					{
+						"battlement" : { "x" : 576, "y" : 28 },
+						"creature" : { "x" : 341, "y" : -162 },
+						"tower" : { "x" : 576, "y" : 28 }
+					}
+				},
+				"walls" :
+				{
+					"bottom" : { "x" : 509, "y" : 346 },
+					"bottomMid" : { "x" : 468, "y" : 299 },
+					"upper" : { "x" : 521, "y" : 41 },
+					"upperMid" : { "x" : 471, "y" : 147 }
+				}
+			}
 		}
 	},
 	"neutral" :

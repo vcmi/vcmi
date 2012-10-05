@@ -132,7 +132,6 @@ public:
 	std::set<TCreature> doubledCreatures; //they get double week
 	std::vector<ConstTransitivePtr<CCreature> > creatures; //creature ID -> creature info
 	bmap<std::string,int> nameToID;
-	int factionToTurretCreature[GameConstants::F_NUMBER]; //which creature's animation should be used to dispaly creature in turret while siege
 
 	//stack exp
 	std::map<TBonusType, std::pair<std::string, std::string> > stackBonuses; // bonus => name, description
@@ -165,7 +164,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
-		h & notUsedMonsters & creatures & nameToID & factionToTurretCreature;
+		h & notUsedMonsters & creatures & nameToID;
 		h & stackBonuses & expRanks & maxExpPerBattle & expAfterUpgrade;
 		h & factionCommanders & skillLevels & skillRequirements & commanderLevelPremy;
 		h & allCreatures;

@@ -102,6 +102,8 @@ public:
 	// Client-only data. Should be moved away from lib
 	struct ClientInfo
 	{
+		struct Point { si32 x; si32 y;};
+
 		//icons [fort is present?][build limit reached?] -> index of icon in def files
 		int icons[2][2];
 
@@ -116,6 +118,11 @@ public:
 		/// list of town screen structures.
 		/// NOTE: index in vector is meaningless. Vector used instead of list for a bit faster access
 		std::vector<ConstTransitivePtr<CStructure> > structures;
+
+		std::string siegePrefix;
+		std::vector<Point> siegePositions;
+		TCreature siegeShooter; // shooter creature ID
+		si32 siegeShooterCropHeight; //trim height for shooters in turrets
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -178,6 +185,7 @@ class DLL_LINKAGE CTownHandler
 
 	/// loads town hall vector (hallSlots)
 	void loadTownHall(CTown &town, const JsonNode & source);
+	void loadSiegeScreen(CTown &town, const JsonNode & source);
 
 	void loadClientData(CTown &town, const JsonNode & source);
 

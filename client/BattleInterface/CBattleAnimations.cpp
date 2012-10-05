@@ -762,7 +762,7 @@ bool CShootingAnimation::init()
 	const CCreature *shooterInfo = shooter->getCreature();
 	if (shooterInfo->idNumber == 149)
 	{
-		int creID = CGI->creh->factionToTurretCreature[owner->siegeH->town->town->typeID];
+		int creID = owner->siegeH->town->town->clientInfo.siegeShooter;
 		shooterInfo = CGI->creh->creatures[creID];
 	}
 
