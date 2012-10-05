@@ -11,3 +11,5 @@ set(lib_SRCS
 
 add_library(vcmiERM SHARED ${lib_SRCS})
 target_link_libraries(vcmiERM ${Boost_LIBRARIES})
+
+install(TARGETS vcmiERM DESTINATION ${SCRIPTING_LIB_DIR})

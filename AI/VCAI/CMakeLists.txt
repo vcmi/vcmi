@@ -11,3 +11,5 @@ set(VCAI_SRCS
 
 add_library(VCAI SHARED ${VCAI_SRCS})
 target_link_libraries(VCAI FuzzyLite_lib vcmi)
+
+install(TARGETS VCAI DESTINATION ${AI_LIB_DIR})

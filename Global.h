@@ -177,17 +177,17 @@ public:
 
 	bmap()
 	{}
-
+#if 0 // What is _Myt? gcc\clang does not have that
 	bmap(const typename std::map<KeyT, ValT>::_Myt& _Right)
-		: std::map(_Right)
+		: std::map<KeyT, ValT>(_Right)
 	{}
-
+#endif
 	explicit bmap(const typename std::map<KeyT, ValT>::key_compare& _Pred)
-		: std::map(_Pred)
+		: std::map<KeyT, ValT>(_Pred)
 	{}
 
 	bmap(const typename std::map<KeyT, ValT>::key_compare& _Pred, const typename std::map<KeyT, ValT>::allocator_type& _Al)
-		: std::map(_Pred, _Al)
+		: std::map<KeyT, ValT>(_Pred, _Al)
 	{}
 
 	template<class _Iter>

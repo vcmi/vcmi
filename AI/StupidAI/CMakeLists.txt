@@ -10,3 +10,6 @@ set(stupidAI_SRCS
 
 add_library(StupidAI SHARED ${stupidAI_SRCS})
 target_link_libraries(StupidAI vcmi)
+
+install(TARGETS StupidAI DESTINATION ${AI_LIB_DIR})
+

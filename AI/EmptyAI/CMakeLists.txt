@@ -10,3 +10,5 @@ set(emptyAI_SRCS
 
 add_library(EmptyAI SHARED ${emptyAI_SRCS})
 target_link_libraries(EmptyAI vcmi)
+
+install(TARGETS EmptyAI DESTINATION ${AI_LIB_DIR})

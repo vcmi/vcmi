@@ -17,3 +17,6 @@ ELSEIF(WIN32)
 ENDIF()
 
 target_link_libraries(vcmiserver vcmi ${Boost_LIBRARIES} ${RT_LIB} ${DL_LIB})
+
+install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
+

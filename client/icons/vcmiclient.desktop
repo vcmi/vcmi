@@ -6,4 +6,4 @@ Comment=Open engine for Heroes of Might and Magic 3
 Icon=vcmiclient
 Exec=vcmiclient
 Categories=Game;StrategyGame;
-Version=0.89
+Version=0.90
