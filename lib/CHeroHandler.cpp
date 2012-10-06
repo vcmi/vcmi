@@ -261,7 +261,7 @@ void CHeroHandler::loadHeroClasses()
 			hc->proSec[dd] = parser.readNumber();
 		}
 
-		for(int dd=0; dd<ARRAY_COUNT(hc->selectionProbability); ++dd)
+		for(int dd=0; dd<GameConstants::F_NUMBER; ++dd)
 		{
 			hc->selectionProbability[dd] = parser.readNumber();
 		}

@@ -180,7 +180,6 @@ private:
 	class SiegeHelper
 	{
 	private:
-		static std::string townTypeInfixes[GameConstants::F_NUMBER]; //for internal use only - to build filenames
 		SDL_Surface* walls[18];
 		const CBattleInterface * owner;
 	public:

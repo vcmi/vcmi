@@ -68,7 +68,7 @@ public:
 	int initialPrimSkills[GameConstants::PRIMARY_SKILLS]; //initial values of primary skills, uses PrimarySkill enum
 	std::vector<std::pair<int,int> > primChance;//primChance[PRIMARY_SKILL_ID] - first is for levels 2 - 9, second for 10+;;; probability (%) of getting point of primary skill when getting new level
 	std::vector<int> proSec; //probabilities of gaining secondary skills (out of 112), in id order
-	int selectionProbability[GameConstants::F_NUMBER]; //probability of selection in towns
+	std::map<TFaction, int> selectionProbability; //probability of selection in towns
 
 	int chooseSecSkill(const std::set<int> & possibles) const; //picks secondary skill out from given possibilities
 	CHeroClass(); //c-tor

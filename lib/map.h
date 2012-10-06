@@ -117,19 +117,11 @@ struct DLL_LINKAGE PlayerInfo
 
 	si8 defaultCastle() const
 	{
-		si8 ret = -2;
-		for (int j = 0; j < GameConstants::F_NUMBER  &&  ret != -1; j++) //we start with none and find matching faction. if more than one, then set to random
-		{
-			if(vstd::contains(allowedFactions, j))
-			{
-				if (ret >= 0) //we've already assigned a castle and another one is possible -> set random and let player choose
-					ret = -1; //breaks
+		assert(!allowedFactions.empty()); // impossible?
 
-				if (ret == -2) //first available castle - pick
-					ret = j;
-			}
-		}
-		return ret;
+		if (allowedFactions.size() == 1)
+			return *allowedFactions.begin(); //only one faction s available - pick it
+		return -1; // set to random
 	}
 	si8 defaultHero() const
 	{

@@ -407,7 +407,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, TPlayerColor p
 		}
 		if(!pool.size())
 		{
-			tlog1 << "Cannot pick native hero for " << player << ". Picking any...\n";
+			tlog1 << "Cannot pick native hero for " << int(player) << ". Picking any...\n";
 			return pickHeroFor(false, player, town, available);
 		}
 		else
@@ -428,10 +428,10 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, TPlayerColor p
 				sum += i->second->type->heroClass->selectionProbability[town->typeID]; //total weight
 			}
 		}
-		if(!pool.size())
+		if(!pool.size() || sum == 0)
 		{
 			tlog1 << "There are no heroes available for player " << player<<"!\n";
-			return NULL;
+			return nullptr;
 		}
 
 		r = rand()%sum;
@@ -480,21 +480,32 @@ int CGameState::pickHero(int owner)
 		}
 	}
 
-	int i=0;
+	//list of heroes for this faction
+	std::vector<si32> factionHeroes;
+	factionHeroes.reserve(GameConstants::HEROES_PER_TYPE*2);
 
-	do //try to find free hero of our faction
+	size_t firstHero = ps.castle*GameConstants::HEROES_PER_TYPE*2;
+	size_t lastHero  = std::min(firstHero + GameConstants::HEROES_PER_TYPE*2, VLC->heroh->heroes.size());
+
+	//generate list of heroes
+	for (si32 i=firstHero; i<lastHero; i++)
+		factionHeroes.push_back(i);
+	// we need random order to select hero
+	std::random_shuffle(factionHeroes.begin(), factionHeroes.end());
+
+	for (size_t i=0; i<factionHeroes.size(); i++)
 	{
-		i++;
-		h = ps.castle*GameConstants::HEROES_PER_TYPE*2+(ran()%(GameConstants::HEROES_PER_TYPE*2));//->scenarioOps->playerInfos[pru].hero = VLC->
-	} while( map->getHero(h)  &&  i<(GameConstants::HEROES_QUANTITY+18+1));
-	if(i>GameConstants::HEROES_QUANTITY+18) //probably no free heroes - there's no point in further search, we'll take first free
-	{
-		tlog3 << "Warning: cannot find free hero - trying to get first available..."<<std::endl;
-		for(int j=0; j<GameConstants::HEROES_QUANTITY; j++)
-			if(!map->getHero(j))
-				h=j;
+		if (!map->getHero(factionHeroes[i]))
+			return factionHeroes[i];
 	}
-	return h;
+
+	tlog3 << "Warning: cannot find free hero - trying to get first available..."<<std::endl;
+	for(int j=0; j<VLC->heroh->heroes.size(); j++)
+		if(!map->getHero(j))
+			return j;
+
+	assert(0); //currrent code can't handle this situation
+	return -1; // no available heroes at all
 }
 
 

@@ -2012,7 +2012,9 @@ bool OptionsTab::canUseThisHero( int ID )
 	//	if(CPG->ret.playerInfos[i].hero==ID) //hero is already taken
 	//		return false;
 
-	return !vstd::contains(usedHeroes, ID) && SEL->current->mapHeader->allowedHeroes[ID];
+	return CGI->heroh->heroes.size() > ID
+	    && !vstd::contains(usedHeroes, ID)
+	    && SEL->current->mapHeader->allowedHeroes[ID];
 }
 
 void OptionsTab::nextBonus( int player, int dir )
@@ -2334,12 +2336,12 @@ SDL_Surface * OptionsTab::SelectedBox::getImg() const
 	switch(which)
 	{
 	case TOWN:
-		if (s.castle < GameConstants::F_NUMBER  &&  s.castle >= 0)
-			return graphics->getPic(s.castle, true, false);
-		else if (s.castle == -1)
+		if (s.castle == -1)
 			return CGP->rTown;
-		else if (s.castle == -2)
+		if (s.castle == -2)
 			return CGP->nTown;
+		else
+			return graphics->getPic(s.castle, true, false);
 	case HERO:
 		if (s.hero == -1)
 		{
@@ -2370,12 +2372,12 @@ const std::string * OptionsTab::SelectedBox::getText() const
 	switch(which)
 	{
 	case TOWN:
-		if (s.castle < GameConstants::F_NUMBER  &&  s.castle >= 0)
-			return &CGI->townh->factions[s.castle].name;
-		else if (s.castle == -1)
+		if (s.castle == -1)
 			return &CGI->generaltexth->allTexts[522];
 		else if (s.castle == -2)
 			return &CGI->generaltexth->allTexts[523];
+		else
+			return &CGI->townh->factions[s.castle].name;
 	case HERO:
 		if (s.hero == -1)
 			return &CGI->generaltexth->allTexts[522];
