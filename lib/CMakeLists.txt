@@ -49,3 +49,5 @@ set(lib_SRCS
 
 add_library(vcmi SHARED ${lib_SRCS})
 target_link_libraries(vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${ZLIB_LIBRARIES})
+
+install(TARGETS vcmi DESTINATION ${LIB_DIR})

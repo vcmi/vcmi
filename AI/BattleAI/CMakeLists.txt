@@ -10,3 +10,6 @@ set(battleAI_SRCS
 
 add_library(BattleAI SHARED ${battleAI_SRCS})
 target_link_libraries(BattleAI vcmi)
+
+install(TARGETS BattleAI DESTINATION ${AI_LIB_DIR})
+
