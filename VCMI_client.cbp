@@ -59,7 +59,6 @@
 			<Add option="-lboost_filesystem-mgw47-mt-1_51" />
 			<Add option="-lboost_system-mgw47-mt-1_51" />
 			<Add option="-lboost_thread-mgw47-mt-1_51" />
-			<Add option="-lboost_iostreams-mgw47-mt-1_51" />
 			<Add option="-lboost_chrono-mgw47-mt-1_51" />
 			<Add option="-lSDL" />
 			<Add option="-lSDL_image" />

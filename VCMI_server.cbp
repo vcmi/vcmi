@@ -16,13 +16,6 @@
 					<Add option="-ggdb" />
 				</Compiler>
 				<Linker>
-					<Add option="-lboost_program_options-mgw47-mt-d-1_51" />
-					<Add option="-lboost_filesystem-mgw47-mt-d-1_51" />
-					<Add option="-lboost_system-mgw47-mt-d-1_51" />
-					<Add option="-lboost_thread-mgw47-mt-d-1_51" />
-					<Add option="-lboost_iostreams-mgw47-mt-d-1_51" />
-					<Add option="-lboost_chrono-mgw47-mt-d-1_51" />
-					<Add option="-lVCMI_lib" />
 					<Add directory="bin\Debug" />
 				</Linker>
 			</Target>
@@ -37,13 +30,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="-lboost_program_options-mgw47-mt-1_51" />
-					<Add option="-lboost_filesystem-mgw47-mt-1_51" />
-					<Add option="-lboost_system-mgw47-mt-1_51" />
-					<Add option="-lboost_thread-mgw47-mt-1_51" />
-					<Add option="-lboost_iostreams-mgw47-mt-1_51" />
-					<Add option="-lboost_chrono-mgw47-mt-1_51" />
-					<Add option="-lVCMI_lib" />
 					<Add directory="bin\Release" />
 				</Linker>
 			</Target>
@@ -69,6 +55,12 @@
 			<Add option="-loleaut32" />
 			<Add option="-lws2_32" />
 			<Add option="-lmswsock" />
+			<Add option="-lboost_program_options-mgw47-mt-1_51" />
+			<Add option="-lboost_filesystem-mgw47-mt-1_51" />
+			<Add option="-lboost_system-mgw47-mt-1_51" />
+			<Add option="-lboost_thread-mgw47-mt-1_51" />
+			<Add option="-lboost_chrono-mgw47-mt-1_51" />
+			<Add option="-lVCMI_lib" />
 			<Add directory="$(#boost.lib)" />
 		</Linker>
 		<Unit filename="server\CGameHandler.cpp" />

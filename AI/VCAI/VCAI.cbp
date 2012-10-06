@@ -15,10 +15,6 @@
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add option="-lboost_system-mgw47-mt-d-1_51" />
-					<Add option="-lboost_thread-mgw47-mt-d-1_51" />
-					<Add option="-lboost_chrono-mgw47-mt-d-1_51" />
-					<Add option="-lVCMI_lib" />
 					<Add directory="..\..\bin\Debug" />
 					<Add directory="..\FuzzyLite\bin\Debug" />
 				</Linker>
@@ -34,10 +30,6 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="-lboost_system-mgw47-mt-1_51" />
-					<Add option="-lboost_thread-mgw47-mt-1_51" />
-					<Add option="-lboost_chrono-mgw47-mt-1_51" />
-					<Add option="-lVCMI_lib" />
 					<Add directory="..\..\bin\Release" />
 					<Add directory="..\FuzzyLite\bin\Release" />
 				</Linker>
@@ -60,6 +52,10 @@
 		</Compiler>
 		<Linker>
 			<Add option="-lFuzzyLite" />
+			<Add option="-lboost_system-mgw47-mt-1_51" />
+			<Add option="-lboost_thread-mgw47-mt-1_51" />
+			<Add option="-lboost_chrono-mgw47-mt-1_51" />
+			<Add option="-lVCMI_lib" />
 			<Add directory="$(#boost.lib)" />
 		</Linker>
 		<Unit filename="Fuzzy.cpp" />
