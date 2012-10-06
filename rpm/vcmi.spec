@@ -1,29 +1,29 @@
 Summary:            VCMI is an open-source project aiming to reimplement HMM3:WoG game engine, giving it new and extended possibilities.
 Name:               vcmi
-Version:            0.89
+Version:            0.9
 Release:            1%{?dist}
 License:            GPLv2+
 Group:              Amusements/Games
 
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export -r HEAD https://vcmi.svn.sourceforge.net/svnroot/vcmi/tags/0.89 vcmi-0.89-1
-#  tar -cJvf vcmi-0.89-1.tar.xz vcmi-0.89-1
-Source:             vcmi-0.89-1.tar.xz
+#  svn export -r HEAD https://vcmi.svn.sourceforge.net/svnroot/vcmi/tags/0.9 vcmi-0.9-1
+#  tar -cJf vcmi-0.9-1.tar.xz vcmi-0.9-1
+Source:             vcmi-0.9-1.tar.xz
 
 URL:                http://forum.vcmi.eu/portal.php
 BuildRequires:      gcc-c++ 
 BuildRequires:      SDL-devel            
 BuildRequires:      SDL_image-devel
 BuildRequires:      SDL_ttf-devel
-BuildRequires:      SDL_mixer-devel
-BuildRequires:      boost
-BuildRequires:      boost-devel
-BuildRequires:      boost-filesystem
-BuildRequires:      boost-iostreams
-BuildRequires:      boost-system
-BuildRequires:      boost-thread
-BuildRequires:      boost-program-options
+BuildRequires:      SDL_mixer-devel >= 1.2.8
+BuildRequires:      boost >= 1.44
+BuildRequires:      boost-devel >= 1.44
+BuildRequires:      boost-filesystem >= 1.44
+BuildRequires:      boost-iostreams >= 1.44
+BuildRequires:      boost-system >= 1.44
+BuildRequires:      boost-thread >= 1.44
+BuildRequires:      boost-program-options >= 1.44
 BuildRequires:      zlib-devel
 BuildRequires:      ffmpeg-devel
 BuildRequires:      ffmpeg-libs
@@ -39,13 +39,12 @@ As yet VCMI is not standalone program, it uses Wake of Gods files and graphics. 
 %setup -q -n %{name}-%{version}-1
 
 %build
-./configure --datadir=%{_datadir} --bindir=%{_bindir} --libdir=%{_libdir}
+cmake -DCMAKE_INSTALL_PREFIX=/usr ./
 make %{?_smp_mflags}
 
 %install
 rm -rf %{buildroot}
 make DESTDIR=%{buildroot} install
-mkdir -p %{buildroot}%{_datadir}/%{name}/
 
 %files
 %doc README README.linux COPYING AUTHORS ChangeLog
@@ -53,10 +52,13 @@ mkdir -p %{buildroot}%{_datadir}/%{name}/
 %{_bindir}/vcmiserver
 %{_libdir}/%{name}/*
 
-%dir %{_datadir}/%{name}
+%{_datadir}/%{name}/*
 %{_datadir}/applications/*
 %{_datadir}/icons/*
 
 %changelog
+* Sat Oct 06 2012 VCMI - 0.9-1
+- New upstream release
+
 * Sun Jun 08 2012 VCMI - 0.89-1
 - Initial version

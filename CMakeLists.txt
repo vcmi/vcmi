@@ -48,8 +48,11 @@ if(WIN32) # on Win everything goes into H3 root directory
 	set(LIB_DIR "" CACHE STRING "Where to install main library")
 	set(DATA_DIR "" CACHE STRING "Where to install data files")
 else()
+	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
+	include(GNUInstallDirs)
+
 	set(BIN_DIR "bin" CACHE STRING "Where to install binaries")
-	set(LIB_DIR "lib/vcmi" CACHE STRING "Where to install main library")
+	set(LIB_DIR "${CMAKE_INSTALL_LIBDIR}/vcmi" CACHE STRING "Where to install main library")
 	set(DATA_DIR "share/vcmi" CACHE STRING "Where to install data files")
 endif()
 
@@ -60,6 +63,10 @@ set (SCRIPTING_LIB_DIR "${LIB_DIR}/Scripting")
 add_definitions(-DM_DATA_DIR="${CMAKE_INSTALL_PREFIX}/${DATA_DIR}")
 add_definitions(-DM_BIN_DIR="${CMAKE_INSTALL_PREFIX}/${BIN_DIR}")
 add_definitions(-DM_LIB_DIR="${CMAKE_INSTALL_PREFIX}/${LIB_DIR}")
+
+# remain full RPATH when installing (needed to find shared libraries)
+SET(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/vcmi")
+SET(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 add_subdirectory(lib)
 add_subdirectory(client)

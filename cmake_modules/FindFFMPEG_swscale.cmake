@@ -4,9 +4,8 @@
 #   FFMPEG_INCLUDE_DIR
 #   FFMPEG_LIBRARIES
 
-FIND_PATH( FFMPEG_INCLUDE_DIR NAMES ffmpeg/avcodec.h libavcodec/avcodec.h
-  /usr/include
-  /usr/local/include
+FIND_PATH( FFMPEG_INCLUDE_DIR NAMES libavcodec/avcodec.h ffmpeg/avcodec.h
+  PATHS /usr/include /usr/local/include /usr/include/ffmpeg
 )
 
 IF( FFMPEG_INCLUDE_DIR )
