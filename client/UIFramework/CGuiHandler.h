@@ -45,16 +45,25 @@ public:
 	std::list<IShowActivatable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
 	IStatusBar * statusbar;
 
+private:
+	typedef std::list<CIntObject*> CIntObjectList;
+	
 	//active GUI elements (listening for events
-	std::list<CIntObject*> lclickable;
-	std::list<CIntObject*> rclickable;
-	std::list<CIntObject*> hoverable;
-	std::list<CIntObject*> keyinterested;
-	std::list<CIntObject*> motioninterested;
-	std::list<CIntObject*> timeinterested;
-	std::list<CIntObject*> wheelInterested;
-	std::list<CIntObject*> doubleClickInterested;
-
+	CIntObjectList lclickable, 
+				   rclickable, 
+				   hoverable, 
+				   keyinterested,
+				   motioninterested,
+	               timeinterested,
+	               wheelInterested,
+	               doubleClickInterested;
+	               
+	void processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb);               
+public:
+	void handleElementActivate(CIntObject * elem, ui16 activityFlag);
+	void handleElementDeActivate(CIntObject * elem, ui16 activityFlag);
+	
+public:
 	//objs to blit
 	std::vector<IShowable*> objsToBlit;
 

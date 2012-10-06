@@ -3,118 +3,6 @@
 #include "CGuiHandler.h"
 #include "SDL_Extensions.h"
 
-void CIntObject::activateLClick()
-{
-	GH.lclickable.push_front(this);
-	active_m |= LCLICK;
-}
-
-void CIntObject::deactivateLClick()
-{
-	std::list<CIntObject*>::iterator hlp = std::find(GH.lclickable.begin(),GH.lclickable.end(),this);
-	assert(hlp != GH.lclickable.end());
-	GH.lclickable.erase(hlp);
-	active_m &= ~LCLICK;
-}
-
-void CIntObject::activateRClick()
-{
-	GH.rclickable.push_front(this);
-	active_m |= RCLICK;
-}
-
-void CIntObject::deactivateRClick()
-{
-	std::list<CIntObject*>::iterator hlp = std::find(GH.rclickable.begin(),GH.rclickable.end(),this);
-	assert(hlp != GH.rclickable.end());
-	GH.rclickable.erase(hlp);
-	active_m &= ~RCLICK;
-}
-
-void CIntObject::activateHover()
-{
-	GH.hoverable.push_front(this);
-	active_m |= HOVER;
-}
-
-void CIntObject::deactivateHover()
-{
-	std::list<CIntObject*>::iterator hlp = std::find(GH.hoverable.begin(),GH.hoverable.end(),this);
-	assert(hlp != GH.hoverable.end());
-	GH.hoverable.erase(hlp);
-	active_m &= ~HOVER;
-}
-
-void CIntObject::activateKeys()
-{
-	GH.keyinterested.push_front(this);
-	active_m |= KEYBOARD;
-}
-
-void CIntObject::deactivateKeys()
-{
-	std::list<CIntObject*>::iterator hlp = std::find(GH.keyinterested.begin(),GH.keyinterested.end(),this);
-	assert(hlp != GH.keyinterested.end());
-	GH.keyinterested.erase(hlp);
-	active_m &= ~KEYBOARD;
-}
-
-void CIntObject::activateMouseMove()
-{
-	GH.motioninterested.push_front(this);
-	active_m |= MOVE;
-}
-
-void CIntObject::deactivateMouseMove()
-{
-	std::list<CIntObject*>::iterator hlp = std::find(GH.motioninterested.begin(),GH.motioninterested.end(),this);
-	assert(hlp != GH.motioninterested.end());
-	GH.motioninterested.erase(hlp);
-	active_m &= ~MOVE;
-}
-
-void CIntObject::activateWheel()
-{
-	GH.wheelInterested.push_front(this);
-	active_m |= WHEEL;
-}
-
-void CIntObject::deactivateWheel()
-{
-	std::list<CIntObject*>::iterator hlp = std::find(GH.wheelInterested.begin(),GH.wheelInterested.end(),this);
-	assert(hlp != GH.wheelInterested.end());
-	GH.wheelInterested.erase(hlp);
-	active_m &= ~WHEEL;
-}
-
-void CIntObject::activateDClick()
-{
-	GH.doubleClickInterested.push_front(this);
-	active_m |= DOUBLECLICK;
-}
-
-void CIntObject::deactivateDClick()
-{
-	std::list<CIntObject*>::iterator hlp = std::find(GH.doubleClickInterested.begin(),GH.doubleClickInterested.end(),this);
-	assert(hlp != GH.doubleClickInterested.end());
-	GH.doubleClickInterested.erase(hlp);
-	active_m &= ~DOUBLECLICK;
-}
-
-void CIntObject::activateTimer()
-{
-	GH.timeinterested.push_back(this);
-	active_m |= TIME;
-}
-
-void CIntObject::deactivateTimer()
-{
-	std::list<CIntObject*>::iterator hlp = std::find(GH.timeinterested.begin(),GH.timeinterested.end(),this);
-	assert(hlp != GH.timeinterested.end());
-	GH.timeinterested.erase(hlp);
-	active_m &= ~TIME;
-}
-
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
 	active_m(0),
@@ -139,7 +27,7 @@ CIntObject::CIntObject(int used_, Point pos_):
 void CIntObject::setTimer(int msToTrigger)
 {
 	if (!(active & TIME))
-		activateTimer();
+		activate(TIME);
 	toNextTick = timerDelay = msToTrigger;
 	used |= TIME;
 }
@@ -197,22 +85,7 @@ void CIntObject::activate()
 
 void CIntObject::activate(ui16 what)
 {
-	if(what & LCLICK)
-		activateLClick();
-	if(what & RCLICK)
-		activateRClick();
-	if(what & HOVER)
-		activateHover();
-	if(what & MOVE)
-		activateMouseMove();
-	if(what & KEYBOARD)
-		activateKeys();
-	if(what & TIME)
-		activateTimer();
-	if(what & WHEEL)
-		activateWheel();
-	if(what & DOUBLECLICK)
-		activateDClick();
+	GH.handleElementActivate(this, what);
 }
 
 void CIntObject::deactivate()
@@ -233,22 +106,7 @@ void CIntObject::deactivate()
 
 void CIntObject::deactivate(ui16 what)
 {
-	if(what & LCLICK)
-		deactivateLClick();
-	if(what & RCLICK)
-		deactivateRClick();
-	if(what & HOVER)
-		deactivateHover();
-	if(what & MOVE)
-		deactivateMouseMove();
-	if(what & KEYBOARD)
-		deactivateKeys();
-	if(what & TIME)
-		deactivateTimer();
-	if(what & WHEEL)
-		deactivateWheel();
-	if(what & DOUBLECLICK)
-		deactivateDClick();
+	GH.handleElementDeActivate(this, what);
 }
 
 CIntObject::~CIntObject()

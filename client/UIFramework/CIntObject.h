@@ -69,45 +69,27 @@ public:
 	virtual std::string getCurrent()=0; //returns currently displayed text
 };
 
+//typedef ui16 ActivityFlag;
+
 // Base UI element
 class CIntObject : public IShowActivatable //interface object
 {
-	//activate or deactivate specific action (LCLICK, RCLICK...)
-	void activate(ui16 what);
-	void deactivate(ui16 what);
 
 	ui16 used;//change via addUsed() or delUsed
-
-	//l-clicks handling
-	void activateLClick();
-	void deactivateLClick();
-
-	//r-clicks handling
-	void activateRClick();
-	void deactivateRClick();
-
-	//hover handling
-	void activateHover();
-	void deactivateHover();
-
-	//double click
-	void activateDClick();
-	void deactivateDClick();
-
-	//mouse wheel
-	void activateWheel();
-	void deactivateWheel();
 
 	//time handling
 	int toNextTick;
 	int timerDelay;
-	void activateTimer();
-	void deactivateTimer();
+
 	void onTimer(int timePassed);
 
 	//non-const versions of fields to allow changing them in CIntObject
 	CIntObject *parent_m; //parent object
 	ui16 active_m;
+protected:
+	//activate or deactivate specific action (LCLICK, RCLICK...)
+	void activate(ui16 what);
+	void deactivate(ui16 what);
 
 public:
 /*
@@ -115,14 +97,12 @@ public:
  * Don't use them unless you really know what they are for
  */
 	std::vector<CIntObject *> children;
-
-	//keyboard handling
-	void activateKeys();
-	void deactivateKeys();
-
-	//mouse movement handling
-	void activateMouseMove();
-	void deactivateMouseMove();
+	
+	//FIXME: workaround
+	void deactivateKeyboard()
+	{
+		deactivate(KEYBOARD);
+	}
 
 /*
  * Public interface

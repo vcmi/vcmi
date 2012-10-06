@@ -599,7 +599,7 @@ void CAdvMapInt::activate()
 {
 	CIntObject::activate();
 	if (!(active & KEYBOARD))
-		activateKeys();
+		CIntObject::activate(KEYBOARD);
 
 	screenBuf = screen;
 	GH.statusbar = &statusbar;

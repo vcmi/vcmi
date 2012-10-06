@@ -123,7 +123,7 @@ CPlayerInterface::~CPlayerInterface()
 	if(adventureInt)
 	{
 		if(adventureInt->active & CIntObject::KEYBOARD)
-			adventureInt->deactivateKeys();
+			adventureInt->deactivateKeyboard();
 		delete adventureInt;
 		adventureInt = NULL;
 	}

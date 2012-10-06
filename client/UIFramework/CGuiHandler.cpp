@@ -43,6 +43,43 @@ SSetCaptureState::~SSetCaptureState()
 	GH.defActionsDef = prevActions;
 }
 
+static inline void 
+processList(const ui16 mask, const ui16 flag, std::list<CIntObject*> *lst, std::function<void (std::list<CIntObject*> *)> cb)
+{
+	if (mask & flag)
+		cb(lst);	
+}
+
+void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std::list<CIntObject*> *)> cb) 
+{
+	processList(CIntObject::LCLICK,activityFlag,&lclickable,cb);
+	processList(CIntObject::RCLICK,activityFlag,&rclickable,cb);
+	processList(CIntObject::HOVER,activityFlag,&hoverable,cb);
+	processList(CIntObject::MOVE,activityFlag,&motioninterested,cb);
+	processList(CIntObject::KEYBOARD,activityFlag,&keyinterested,cb);
+	processList(CIntObject::TIME,activityFlag,&timeinterested,cb);
+	processList(CIntObject::WHEEL,activityFlag,&wheelInterested,cb);	
+	processList(CIntObject::DOUBLECLICK,activityFlag,&doubleClickInterested,cb);	
+}
+
+void CGuiHandler::handleElementActivate(CIntObject * elem, ui16 activityFlag)
+{
+	processLists(activityFlag,[&](CIntObjectList * lst){
+		lst->push_front(elem);		
+	});
+	elem->active_m |= activityFlag;
+}
+
+void CGuiHandler::handleElementDeActivate(CIntObject * elem, ui16 activityFlag)
+{
+	processLists(activityFlag,[&](CIntObjectList * lst){
+		CIntObjectList::iterator hlp = std::find(lst->begin(),lst->end(),elem);
+		assert(hlp != lst->end());
+		lst->erase(hlp);		
+	});
+	elem->active_m &= ~activityFlag;
+}
+
 void CGuiHandler::popInt( IShowActivatable *top )
 {
 	assert(listInt.front() == top);
