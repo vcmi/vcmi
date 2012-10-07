@@ -636,7 +636,12 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 					result = std::pair<int,int>(17, iter.first);
 
 			if (result.first == -1)
+			{
 				tlog0 << "Error: failed to find creature for dwelling of "<< int(faction) << " of level " << int(level) << "\n";
+				auto iter = VLC->objh->cregens.begin();
+				std::advance(iter, ran() % VLC->objh->cregens.size() );
+				result = std::pair<int, int>(17, iter->first);
+			}
 
 			return result;
 		}

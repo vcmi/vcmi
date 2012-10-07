@@ -1386,6 +1386,7 @@ void CRecruitmentWindow::select(CCreatureCard *card)
 		totalCostValue->createItems(card->creature->cost);
 
 		costPerTroopValue->set(card->creature->cost);
+		totalCostValue->set(card->creature->cost * maxAmount);
 
 		//Recruit %s
 		title->setTxt(boost::str(boost::format(CGI->generaltexth->tcommands[21]) % card->creature->namePl));

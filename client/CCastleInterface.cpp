@@ -1141,6 +1141,35 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 
 	switch(key.keysym.sym)
 	{
+#if 0 // code that can be used to fix blit order in towns using +/- keys. Quite ugly but works
+	case SDLK_KP_PLUS :
+		if (builds->selectedBuilding)
+		{
+			OBJ_CONSTRUCTION_CAPTURING_ALL;
+			CStructure * str = const_cast<CStructure *>(builds->selectedBuilding->str);
+			str->pos.z++;
+			delete builds;
+			builds = new CCastleBuildings(town);
+
+			BOOST_FOREACH(const CStructure * str, town->town->clientInfo.structures)
+				tlog1 << int(str->building->bid) << " -> " << int(str->pos.z) << "\n";
+		}
+		break;
+	case SDLK_KP_MINUS:
+		if (builds->selectedBuilding)
+		{
+			OBJ_CONSTRUCTION_CAPTURING_ALL;
+			CStructure * str = const_cast<CStructure *>(builds->selectedBuilding->str);
+			str->pos.z--;
+			delete builds;
+			builds = new CCastleBuildings(town);
+
+			BOOST_FOREACH(const CStructure * str, town->town->clientInfo.structures)
+				tlog1 << int(str->building->bid) << " -> " << int(str->pos.z) << "\n";
+
+		}
+		break;
+#endif
 	case SDLK_UP:
 		townlist->selectPrev();
 		break;

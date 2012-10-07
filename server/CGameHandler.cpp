@@ -2506,7 +2506,7 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 	FoWChange fw;
 	fw.player = t->tempOwner;
 	fw.mode = 1;
-	getTilesInRange(fw.tiles,t->pos,t->getSightRadious(),t->tempOwner,1);
+	t->getSightTiles(fw.tiles);
 	sendAndApply(&fw);
 
 	if (!force)
@@ -3815,9 +3815,9 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		SetResources sr;
 		sr.player = player;
 		sr.res = gs->getPlayer(player)->resources;
-		for(int i=0;i<7;i++)
+		for(int i=0;i<Res::GOLD;i++)
 			sr.res[i] += 100;
-		sr.res[6] += 19900;
+		sr.res[Res::GOLD] += 100000; //100k
 		sendAndApply(&sr);
 	}
 	else if(message == "vcmieagles") //reveal FoW
