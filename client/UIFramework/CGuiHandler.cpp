@@ -64,7 +64,7 @@ void CGuiHandler::processLists(const ui16 activityFlag, std::function<void (std:
 
 void CGuiHandler::handleElementActivate(CIntObject * elem, ui16 activityFlag)
 {
-	processLists(activityFlag,[&](CIntObjectList * lst){
+	processLists(activityFlag,[&](std::list<CIntObject*> * lst){
 		lst->push_front(elem);		
 	});
 	elem->active_m |= activityFlag;
@@ -72,8 +72,8 @@ void CGuiHandler::handleElementActivate(CIntObject * elem, ui16 activityFlag)
 
 void CGuiHandler::handleElementDeActivate(CIntObject * elem, ui16 activityFlag)
 {
-	processLists(activityFlag,[&](CIntObjectList * lst){
-		CIntObjectList::iterator hlp = std::find(lst->begin(),lst->end(),elem);
+	processLists(activityFlag,[&](std::list<CIntObject*> * lst){
+		std::list<CIntObject*>::iterator hlp = std::find(lst->begin(),lst->end(),elem);
 		assert(hlp != lst->end());
 		lst->erase(hlp);		
 	});
