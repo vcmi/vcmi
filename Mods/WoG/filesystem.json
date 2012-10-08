@@ -29,7 +29,7 @@
 		],
 		"MAPS/":
 		[
-			{"type" : "dir", "path" : "ALL/Maps"}
+			{"type" : "dir", "path" : "ALL/MODS/WOG/Maps"}
 		],
 	}
 }

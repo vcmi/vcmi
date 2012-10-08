@@ -128,6 +128,7 @@ CCreature * CModHandler::loadCreature (const JsonNode &node)
 	cre->fightValue = node["fightValue"].Float();
 	cre->AIValue = node["aiValue"].Float();
 	cre->growth = node["growth"].Float();
+	cre->hordeGrowth = node["horde"].Float(); // Needed at least until configurable buildings
 
 	cre->addBonus(node["hitPoints"].Float(), Bonus::STACK_HEALTH);
 	cre->addBonus(node["speed"].Float(), Bonus::STACKS_SPEED);
