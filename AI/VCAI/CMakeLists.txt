@@ -1,15 +1,15 @@
-project(stupidAI)
+project(VCAI)
 cmake_minimum_required(VERSION 2.6)
 
-include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
+include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib ${CMAKE_HOME_DIRECTORY}/AI/FuzzyLite)
 
-set(stupidAI_SRCS
-        StupidAI.cpp
+set(VCAI_SRCS
         main.cpp
+        VCAI.cpp
+        Fuzzy.cpp
 )
 
-add_library(StupidAI SHARED ${stupidAI_SRCS})
-target_link_libraries(StupidAI vcmi)
+add_library(VCAI SHARED ${VCAI_SRCS})
+target_link_libraries(VCAI FuzzyLite_lib vcmi)
 
-install(TARGETS StupidAI DESTINATION ${AI_LIB_DIR})
-
+install(TARGETS VCAI DESTINATION ${AI_LIB_DIR})
