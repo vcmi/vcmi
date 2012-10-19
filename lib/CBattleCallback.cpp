@@ -2200,10 +2200,14 @@ bool AccessibilityInfo::accessible(BattleHex tile, bool doubleWide, bool attacke
 	// All hexes that stack would cover if standing on tile have to be accessible.
 	BOOST_FOREACH(auto hex, CStack::getHexes(tile, doubleWide, attackerOwned))
 	{
-		const bool markedAccessible = at(hex) == EAccessibility::ACCESSIBLE;
-		const bool gateAccessible = (at(hex) == EAccessibility::GATE) && !attackerOwned; //defender can always step on gate 
-		if(!hex.isValid() || (!markedAccessible && !gateAccessible))
-			return false;
+        // If the hex is out of range then the tile isn't accessible
+        if(!hex.isValid())
+            return false;
+        // If we're no defender which step on gate and the hex isn't accessible, then the tile
+        // isn't accessible
+        else if(at(hex) != EAccessibility::ACCESSIBLE &&
+                !(at(hex) == EAccessibility::GATE && !attackerOwned))
+            return false;
 	}
 	return true;
 }
