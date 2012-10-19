@@ -46,6 +46,8 @@ set(FuzzyLite_lib_SRCS
 
 add_library(FuzzyLite_lib STATIC ${FuzzyLite_lib_SRCS})
 
-IF(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
-    SET_TARGET_PROPERTIES(FuzzyLite_lib PROPERTIES COMPILE_FLAGS "-fPIC")
-ENDIF(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+# This is more like a workaround. Gcc when linking VCAI fill keep
+# all symobls from FuzzyLite exposed to public. This triggers errors
+# when library is checked by analizers for issues
+# Correct solution is either make FuzzyLite symbols hidden or turn lib into dynamic
+SET_TARGET_PROPERTIES(FuzzyLite_lib PROPERTIES COMPILE_FLAGS "-fPIC")
