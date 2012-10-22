@@ -1,18 +1,18 @@
 Summary:            VCMI is an open-source project aiming to reimplement HMM3:WoG game engine, giving it new and extended possibilities.
 Name:               vcmi
 Version:            0.9
-Release:            1%{?dist}
+Release:            2%{?dist}
 License:            GPLv2+
 Group:              Amusements/Games
 
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export -r HEAD https://vcmi.svn.sourceforge.net/svnroot/vcmi/tags/0.9 vcmi-0.9-1
-#  tar -cJf vcmi-0.9-1.tar.xz vcmi-0.9-1
-Source:             vcmi-0.9-1.tar.xz
+#  svn export -r HEAD https://vcmi.svn.sourceforge.net/svnroot/vcmi/tags/0.9 vcmi-0.9-2
+#  tar -cJf vcmi-0.9-2.tar.xz vcmi-0.9-2
+Source:             vcmi-0.9-2.tar.xz
 
 URL:                http://forum.vcmi.eu/portal.php
-BuildRequires:      gcc-c++ 
+BuildRequires:      gcc-c++ >= 4.7.2
 BuildRequires:      SDL-devel            
 BuildRequires:      SDL_image-devel
 BuildRequires:      SDL_ttf-devel
@@ -36,7 +36,7 @@ VCMI is fan-made open-source project in progress. We already allow support for m
 As yet VCMI is not standalone program, it uses Wake of Gods files and graphics. You need to install WoG before running VCMI. 
 
 %prep
-%setup -q -n %{name}-%{version}-1
+%setup -q -n %{name}-%{version}-2
 
 %build
 cmake -DCMAKE_INSTALL_PREFIX=/usr ./
@@ -57,6 +57,9 @@ make DESTDIR=%{buildroot} install
 %{_datadir}/icons/*
 
 %changelog
+* Sun Oct 21 2012 VCMI - 0.9-2
+- Second release of 0.9, Fixed battles crash
+
 * Sat Oct 06 2012 VCMI - 0.9-1
 - New upstream release
 
