@@ -42,25 +42,18 @@ You can get latest sources with subversion:
   cd trunk
   svn co https://vcmi.svn.sourceforge.net/svnroot/vcmi/trunk src
 
-
 III. Compilation
 
-On linux distributions like Fedora Mp3 support isn't given for the time being. 
-There is a mantis call here: http://bugs.vcmi.eu/view.php?id=933. 
-
-(Fedora-only?)
-  Create a directory that will contain the shared libraries. (default is usually /usr/local/lib64/vcmi)
-
 Run configure:
-  cd trunk/build
-  cmake ../src
+  mkdir build && cd build
+  cmake ../src -DCMAKE_BUILD_TYPE=Debug (to enable debugging)
 
 Notice:
 The ../src/ is not a typo, it will place makefile scripts into the build dir 
 as the build dir is your working dir when calling CMake.
 
 Then build vcmi:
-  make
+  make -j2 (j2 = compile with 2 cpu cores, you can specifiy any value)
 
 That will generate vcmiclient, vcmiserver as well as 3 .so libraries.
 
