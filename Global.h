@@ -99,7 +99,11 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 #endif
 
 #ifdef __GNUC__
-#define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__ )
+#define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__)
+#endif
+
+#if defined(__GNUC__) && (GCC_VERSION == 470 || GCC_VERSION == 471)
+#error This GCC version has buggy std::array::at version and should not be used. Please update to 4.7.2 or use 4.6.x.
 #endif
 
 // Import + Export macro declarations
@@ -140,17 +144,17 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 //defining available c++11 features
 
 //initialization lists - only gcc-4.4 or later
-#if defined(__clang__) || (defined(__GNUC__) && (GCC_VERSION >= 404))
+#if defined(__clang__) || (defined(__GNUC__) && (GCC_VERSION >= 440))
 #define CPP11_USE_INITIALIZERS_LIST
 #endif
 
 //nullptr -  only msvc and gcc-4.6 or later, othervice define it  as NULL
-#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 406))
+#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 460))
 #define nullptr NULL
 #endif
 
 //override keyword - only msvc and gcc-4.7 or later.
-#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 407))
+#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 470))
 #define override
 #endif
 
