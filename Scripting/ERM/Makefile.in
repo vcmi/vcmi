@@ -277,7 +277,7 @@ top_srcdir = @top_srcdir@
 vcmiscriptingdir = $(VCMI_SCRIPTING_LIBS_DIR)
 BUILT_SOURCES = StdInc.h.gch
 vcmiscripting_LTLIBRARIES = libvcmiERM.la
-libvcmiERM_la_LIBADD = @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@
+libvcmiERM_la_LIBADD = @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@
 libvcmiERM_la_CXXFLAGS = -DVCMI_DLL
 libvcmiERM_la_SOURCES = \
 	ERMInterpreter.cpp \
