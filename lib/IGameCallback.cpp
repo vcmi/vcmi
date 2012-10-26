@@ -430,9 +430,9 @@ bool CGameInfoCallback::verifyPath(CPath * path, bool blockSea) const
 				continue;
 
 			const TerrainTile *prev = getTile(path->nodes[i-1].coord); //tile of previous node on the path
-			if ((   t->tertype == TerrainTile::water  &&  prev->tertype != TerrainTile::water)
-				|| (t->tertype != TerrainTile::water  &&  prev->tertype == TerrainTile::water)
-				||  prev->tertype == TerrainTile::rock
+            if ((   t->tertype == ETerrainType::WATER  &&  prev->tertype != ETerrainType::WATER)
+                || (t->tertype != ETerrainType::WATER  &&  prev->tertype == ETerrainType::WATER)
+                ||  prev->tertype == ETerrainType::ROCK
 				)
 				return false;
 		}
@@ -594,7 +594,7 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 	{
 		const TerrainTile *tile = getTile(t->bestLocation(), false);
 		
-		if(!tile || tile->tertype != TerrainTile::water )
+        if(!tile || tile->tertype != ETerrainType::WATER)
 			return EBuildingState::NO_WATER; //lack of water
 	}
 

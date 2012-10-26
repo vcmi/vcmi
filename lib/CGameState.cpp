@@ -465,7 +465,7 @@ int CGameState::pickHero(int owner)
 {
 	int h=-1;
 	const PlayerSettings &ps = scenarioOps->getIthPlayersSettings(owner);
-	if(!map->getHero(h = ps.hero,0)  &&  h>=0) //we haven't used selected hero
+    if(!map->getHero(h = ps.hero)  &&  h>=0) //we haven't used selected hero
 		return h;
 
 	if(scenarioOps->mode == StartInfo::CAMPAIGN)
@@ -699,7 +699,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	cur->ID = ran.first;
 	cur->subID = ran.second;
 	map->removeBlockVisTiles(cur); //recalculate blockvis tiles - picked object might have different than random placeholder
-	map->defy.push_back(cur->defInfo = VLC->dobjinfo->gobjs[ran.first][ran.second]);
+    map->customDefs.push_back(cur->defInfo = VLC->dobjinfo->gobjs[ran.first][ran.second]);
 	if(!cur->defInfo)
 	{
 		tlog1<<"*BIG* WARNING: Missing def declaration for "<<cur->ID<<" "<<cur->subID<<std::endl;
@@ -771,7 +771,7 @@ BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2],
 	const TerrainTile &t = map->getTile(tile);
 	int terrain = t.tertype;
 	if(t.isCoastal() && !t.isWater()) 
-		terrain = TerrainTile::sand;
+        terrain = ETerrainType::SAND;
 
 	int terType = battleGetBattlefieldType(tile);
 	return BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
@@ -865,7 +865,7 @@ void CGameState::init(StartInfo * si)
 	switch(scenarioOps->mode)
 	{
 	case StartInfo::NEW_GAME:
-		map = new Mapa(scenarioOps->mapname);
+        map = new CMap(scenarioOps->mapname);
 		break;
 	case StartInfo::CAMPAIGN:
 		{
@@ -873,7 +873,7 @@ void CGameState::init(StartInfo * si)
 			assert(vstd::contains(campaign->camp->mapPieces, scenarioOps->campState->currentMap));
 
 			std::string &mapContent = campaign->camp->mapPieces[scenarioOps->campState->currentMap];
-			map = new Mapa();
+            map = new CMap();
 			map->initFromBytes((const ui8*)mapContent.c_str(), mapContent.size());
 		}
 		break;
@@ -926,8 +926,8 @@ void CGameState::init(StartInfo * si)
  					const TerrainTile &t = map->terrain[i][j][k];
  					if(!t.blocked
 						&& !t.visitable
-						&& t.tertype != TerrainTile::water
-						&& t.tertype != TerrainTile::rock
+                        && t.tertype != ETerrainType::WATER
+                        && t.tertype != ETerrainType::ROCK
 						&& map->grailPos.dist2d(int3(i,j,k)) <= map->grailRadious)
  						allowedPos.push_back(int3(i,j,k));
  				}
@@ -974,7 +974,7 @@ void CGameState::init(StartInfo * si)
 				{
 					int3 pos = obj->pos - int3(i,j,0);
 					if(map->isInTheMap(pos))
-						map->getTile(pos).siodmyTajemniczyBajt |= 128;
+                        map->getTile(pos).extTileFlags |= 128;
 				}
 	}
 	//std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
@@ -1669,25 +1669,25 @@ int CGameState::battleGetBattlefieldType(int3 tile) const
 
 	switch(t.tertype)
 	{
-	case TerrainTile::dirt:
+    case ETerrainType::DIRT:
 		return rand()%3+3;
-	case TerrainTile::sand:
+    case ETerrainType::SAND:
 		return 2; //TODO: coast support
-	case TerrainTile::grass:
+    case ETerrainType::GRASS:
 		return rand()%2+6;
-	case TerrainTile::snow:
+    case ETerrainType::SNOW:
 		return rand()%2+10;
-	case TerrainTile::swamp:
+    case ETerrainType::SWAMP:
 		return 13;
-	case TerrainTile::rough:
+    case ETerrainType::ROUGH:
 		return 23;
-	case TerrainTile::subterranean:
+    case ETerrainType::SUBTERRANEAN:
 		return 12;
-	case TerrainTile::lava:
+    case ETerrainType::LAVA:
 		return 8;
-	case TerrainTile::water:
+    case ETerrainType::WATER:
 		return 25;
-	case TerrainTile::rock:
+    case ETerrainType::ROCK:
 		return 15;
 	default:
 		return -1;
@@ -1794,9 +1794,9 @@ void CGameState::loadTownDInfos()
 		capitols[town.first] = new CGDefInfo(*townInfos[town.first]);
 		capitols[town.first]->name = town.second.clientInfo.advMapCapitol;
 
-		map->defy.push_back(villages[town.first]);
-		map->defy.push_back(forts[town.first]);
-		map->defy.push_back(capitols[town.first]);
+        map->customDefs.push_back(villages[town.first]);
+        map->customDefs.push_back(forts[town.first]);
+        map->customDefs.push_back(capitols[town.first]);
 	}
 }
 
@@ -1819,19 +1819,19 @@ void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<i
 // 			continue;
 // 		}
 
-		if(srct.tertype == TerrainTile::water && limitCoastSailing && hlpt.tertype == TerrainTile::water && dirs[i].x && dirs[i].y) //diagonal move through water
+        if(srct.tertype == ETerrainType::WATER && limitCoastSailing && hlpt.tertype == ETerrainType::WATER && dirs[i].x && dirs[i].y) //diagonal move through water
 		{
 			int3 hlp1 = tile,
 				hlp2 = tile;
 			hlp1.x += dirs[i].x;
 			hlp2.y += dirs[i].y;
 
-			if(map->getTile(hlp1).tertype != TerrainTile::water || map->getTile(hlp2).tertype != TerrainTile::water)
+            if(map->getTile(hlp1).tertype != ETerrainType::WATER || map->getTile(hlp2).tertype != ETerrainType::WATER)
 				continue;
 		}
 
-		if((indeterminate(onLand)  ||  onLand == (hlpt.tertype!=TerrainTile::water) )
-			&& hlpt.tertype != TerrainTile::rock)
+        if((indeterminate(onLand)  ||  onLand == (hlpt.tertype!=ETerrainType::WATER) )
+            && hlpt.tertype != ETerrainType::ROCK)
 		{
 			vec.push_back(hlp);
 		}
@@ -1858,7 +1858,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 			ret *= 1.4; //40% penalty for movement over blocked tile
 		}
 	}
-	else if (d.tertype == TerrainTile::water)
+    else if (d.tertype == ETerrainType::WATER)
 	{
 		if(h->boat && s.hasFavourableWinds() && d.hasFavourableWinds()) //Favourable Winds
 			ret *= 0.666;
@@ -1882,7 +1882,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 	if(checkLast  &&  left > 0  &&  remainingMovePoints-ret < 250) //it might be the last tile - if no further move possible we take all move points
 	{
 		std::vector<int3> vec;
-		getNeighbours(d, dest, vec, s.tertype != TerrainTile::water, true);
+        getNeighbours(d, dest, vec, s.tertype != ETerrainType::WATER, true);
 		for(size_t i=0; i < vec.size(); i++)
 		{
 			int fcost = getMovementCost(h,dest,vec[i],left,false);
@@ -1952,7 +1952,7 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 			if (map->isInTheMap(pos))
 			{
 				TerrainTile &tile = map->terrain[pos.x][pos.y][pos.z];
-				if (tile.visitable && (tile.tertype == TerrainTile::water) == (posTile.tertype == TerrainTile::water))
+                if (tile.visitable && (tile.tertype == ETerrainType::WATER) == (posTile.tertype == ETerrainType::WATER))
 				{
 					BOOST_FOREACH (CGObjectInstance* obj, tile.visitableObjects)
 					{
@@ -2809,7 +2809,7 @@ DuelParameters::SideSettings::SideSettings()
 
 DuelParameters::DuelParameters()
 {
-	terType = TerrainTile::dirt;
+    terType = ETerrainType::DIRT;
 	bfieldType = 15;
 }
 
@@ -2928,7 +2928,7 @@ void CPathfinder::initializeGraph()
 				node.coord.x = i;
 				node.coord.y = j;
 				node.coord.z = k;
-				node.land = tinfo->tertype != TerrainTile::water;
+                node.land = tinfo->tertype != ETerrainType::WATER;
 				node.theNodeBefore = NULL;
 			}
 		}
@@ -3101,7 +3101,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 	CGPathNode::EAccessibility ret = (tinfo->blocked ? CGPathNode::BLOCKED : CGPathNode::ACCESSIBLE);
 
 
-	if(tinfo->tertype == TerrainTile::rock || !FoW[curPos.x][curPos.y][curPos.z])
+    if(tinfo->tertype == ETerrainType::ROCK || !FoW[curPos.x][curPos.y][curPos.z])
 		return CGPathNode::BLOCKED;
 
 	if(tinfo->visitable)

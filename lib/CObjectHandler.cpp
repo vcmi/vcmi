@@ -530,18 +530,18 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 	unsigned ret = 100;
 
 	//if there is road both on dest and src tiles - use road movement cost
-	if(dest.malle && from.malle)
+    if(dest.roadType && from.roadType)
 	{
-		int road = std::min(dest.malle,from.malle); //used road ID
+        int road = std::min(dest.roadType,from.roadType); //used road ID
 		switch(road)
 		{
-		case TerrainTile::dirtRoad:
+        case ERoadType::DIRT_ROAD:
 			ret = 75;
 			break;
-		case TerrainTile::grazvelRoad:
+        case ERoadType::GRAVEL_ROAD:
 			ret = 65;
 			break;
-		case TerrainTile::cobblestoneRoad:
+        case ERoadType::COBBLESTONE_ROAD:
 			ret = 50;
 			break;
 		default:
@@ -1502,7 +1502,7 @@ CGHeroInstance::ECanDig CGHeroInstance::diggingStatus() const
 {
 	if(movement < maxMovePoints(true))
 		return LACK_OF_MOVEMENT;
-	else if(cb->getTile(getPosition(false))->tertype == TerrainTile::water)
+    else if(cb->getTile(getPosition(false))->tertype == ETerrainType::WATER)
 		return WRONG_TERRAIN;
 	else
 	{
@@ -6530,7 +6530,7 @@ int3 IBoatGenerator::bestLocation() const
 	{
 		if (const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offsets[i], false)) //tile is in the map
 		{
-			if (tile->tertype == TerrainTile::water  &&  (!tile->blocked || tile->blockingObjects.front()->ID == 8)) //and is water and is not blocked or is blocked by boat
+            if (tile->tertype == ETerrainType::WATER  &&  (!tile->blocked || tile->blockingObjects.front()->ID == 8)) //and is water and is not blocked or is blocked by boat
 				return o->pos + offsets[i];
 		}
 	}

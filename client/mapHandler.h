@@ -15,7 +15,7 @@
 
 class CGObjectInstance;
 class CGHeroInstance;
-struct Mapa;
+struct CMap;
 class CGDefInfo;
 class CGObjectInstance;
 class CDefHandler;
@@ -73,7 +73,7 @@ class CMapHandler
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles; //informations about map tiles
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
-	const Mapa * map;
+	const CMap * map;
 
 	// Max number of tiles that will fit in the map screen. Tiles
 	// can be partial on each edges.

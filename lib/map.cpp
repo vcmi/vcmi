@@ -89,7 +89,7 @@ static ui8 reverse(ui8 arg)
 	return ret;
 }
 
-void readCreatureSet(CCreatureSet *out, const ui8 * bufor, int &i, int number, bool version) //version==true for >RoE maps
+void readCreatureSet(CCreatureSet *out, const ui8 * buffer, int &i, int number, bool version) //version==true for >RoE maps
 {
 	const int bytesPerCre = version ? 4 : 3,
 		maxID = version ? 0xffff : 0xff;
@@ -101,13 +101,13 @@ void readCreatureSet(CCreatureSet *out, const ui8 * bufor, int &i, int number, b
 
 		if (version)
 		{
-			creID = read_le_u16(bufor + i+ir*bytesPerCre);
-			count = read_le_u16(bufor + i+ir*bytesPerCre + 2);
+            creID = read_le_u16(buffer + i+ir*bytesPerCre);
+            count = read_le_u16(buffer + i+ir*bytesPerCre + 2);
 		}
 		else
 		{
-			creID = bufor[i+ir*bytesPerCre];
-			count = read_le_u16(bufor + i+ir*bytesPerCre + 1);
+            creID = buffer[i+ir*bytesPerCre];
+            count = read_le_u16(buffer + i+ir*bytesPerCre + 1);
 		}
 
 		if(creID == maxID) //empty slot
@@ -131,6 +131,40 @@ void readCreatureSet(CCreatureSet *out, const ui8 * bufor, int &i, int number, b
 	out->validTypes(true);
 }
 
+PlayerInfo::PlayerInfo(): p7(0), p8(0), p9(0), canHumanPlay(0), canComputerPlay(0),
+    AITactic(0), isFactionRandom(0),
+    mainHeroPortrait(0), hasMainTown(0), generateHeroAtMainTown(0),
+    team(255), generateHero(0)
+{
+
+}
+
+si8 PlayerInfo::defaultCastle() const
+{
+    assert(!allowedFactions.empty()); // impossible?
+
+    if(allowedFactions.size() == 1)
+    {
+        // only one faction is available - pick it
+        return *allowedFactions.begin();
+    }
+
+    // set to random
+    return -1;
+}
+
+si8 PlayerInfo::defaultHero() const
+{
+    // we will generate hero in front of main town
+    if((generateHeroAtMainTown && hasMainTown) || p8)
+    {
+        //random hero
+        return -1;
+    }
+
+    return -2;
+}
+
 CMapHeader::CMapHeader(const ui8 *map)
 {
 	int i=0;
@@ -143,33 +177,34 @@ CMapHeader::CMapHeader()
 	height = width = twoLevel = -1;
 }
 
-void CMapHeader::initFromMemory( const ui8 *bufor, int &i )
+void CMapHeader::initFromMemory( const ui8 *buffer, int &i )
 {
-	version = (Eformat)(read_le_u32(bufor + i)); i+=4; //map version
-	if(version != RoE && version != AB && version != SoD && version != WoG)
+    version = (EMapFormat::EMapFormat)(read_le_u32(buffer + i)); i+=4; //map version
+    if(version != EMapFormat::ROE && version != EMapFormat::AB && version != EMapFormat::SOD
+            && version != EMapFormat::WOG)
 	{
 		throw std::runtime_error("Invalid map format!");
 	}
-	areAnyPLayers = readChar(bufor,i); //invalid on some maps
-	height = width = (read_le_u32(bufor + i)); i+=4; // dimensions of map
-	twoLevel = readChar(bufor,i); //if there is underground
+    areAnyPLayers = readChar(buffer,i); //invalid on some maps
+    height = width = (read_le_u32(buffer + i)); i+=4; // dimensions of map
+    twoLevel = readChar(buffer,i); //if there is underground
 	int pom;
-	name = readString(bufor,i);
-	description= readString(bufor,i);
-	difficulty = readChar(bufor,i); // reading map difficulty
-	if(version != RoE)
-		levelLimit = readChar(bufor,i); // hero level limit
+    name = readString(buffer,i);
+    description= readString(buffer,i);
+    difficulty = readChar(buffer,i); // reading map difficulty
+    if(version != EMapFormat::ROE)
+        levelLimit = readChar(buffer,i); // hero level limit
 	else
 		levelLimit = 0;
-	loadPlayerInfo(pom, bufor, i);
-	loadViCLossConditions(bufor, i);
+    loadPlayerInfo(pom, buffer, i);
+    loadViCLossConditions(buffer, i);
 
-	howManyTeams=bufor[i++]; //read number of teams
+    howManyTeams=buffer[i++]; //read number of teams
 	if(howManyTeams>0) //read team numbers
 	{
 		for(int rr=0; rr<8; ++rr)
 		{
-			players[rr].team = bufor[i++];
+            players[rr].team = buffer[i++];
 		}
 	}
 	else//no alliances
@@ -182,69 +217,70 @@ void CMapHeader::initFromMemory( const ui8 *bufor, int &i )
 
 	pom = i;
 	allowedHeroes.resize(GameConstants::HEROES_QUANTITY,false);
-	for(; i<pom+ (version == RoE ? 16 : 20) ; ++i)
+    for(; i<pom+ (version == EMapFormat::ROE ? 16 : 20) ; ++i)
 	{
-		ui8 c = bufor[i];
+        ui8 c = buffer[i];
 		for(int yy=0; yy<8; ++yy)
 			if((i-pom)*8+yy < GameConstants::HEROES_QUANTITY)
 				if(c == (c|((ui8)intPow(2, yy))))
 					allowedHeroes[(i-pom)*8+yy] = true;
 	}
-	if(version>RoE) //probably reserved for further heroes
+    if(version > EMapFormat::ROE) //probably reserved for further heroes
 	{
-		int placeholdersQty = read_le_u32(bufor + i); i+=4;
+        int placeholdersQty = read_le_u32(buffer + i); i+=4;
 		for(int p = 0; p < placeholdersQty; p++)
-			placeholdedHeroes.push_back(bufor[i++]);
+            placeholdedHeroes.push_back(buffer[i++]);
 	}
 }
-void CMapHeader::loadPlayerInfo( int &pom, const ui8 * bufor, int &i )
+void CMapHeader::loadPlayerInfo( int &pom, const ui8 * buffer, int &i )
 {
 	players.resize(8);
 	for (pom=0;pom<8;pom++)
 	{
-		players[pom].canHumanPlay = bufor[i++];
-		players[pom].canComputerPlay = bufor[i++];
+        players[pom].canHumanPlay = buffer[i++];
+        players[pom].canComputerPlay = buffer[i++];
 		if ((!(players[pom].canHumanPlay || players[pom].canComputerPlay))) //if nobody can play with this player
 		{
 			switch(version)
 			{
-			case SoD: case WoG: 
+            case EMapFormat::SOD:
+            case EMapFormat::WOG:
 				i+=13;
 				break;
-			case AB:
+            case EMapFormat::AB:
 				i+=12;
 				break;
-			case RoE:
+            case EMapFormat::ROE:
 				i+=6;
 				break;
 			}
 			continue;
 		}
 
-		players[pom].AITactic = bufor[i++];
+        players[pom].AITactic = buffer[i++];
 
-		if(version == SoD || version == WoG)
-			players[pom].p7= bufor[i++];
+        if(version == EMapFormat::SOD || version == EMapFormat::WOG)
+            players[pom].p7= buffer[i++];
 		else
 			players[pom].p7= -1;
 
 		//factions this player can choose
-		ui16 allowedFactions = bufor[i++];
-		if(version != RoE)
-			allowedFactions += (bufor[i++])*256;
+        ui16 allowedFactions = buffer[i++];
+        if(version != EMapFormat::ROE)
+            allowedFactions += (buffer[i++])*256;
 
 		for (size_t fact=0; fact<16; fact++)
 			if (allowedFactions & (1 << fact))
 				players[pom].allowedFactions.insert(fact);
 
-		players[pom].isFactionRandom = bufor[i++];
-		players[pom].hasMainTown = bufor[i++];
+        players[pom].isFactionRandom = buffer[i++];
+        players[pom].hasMainTown = buffer[i++];
 		if (players[pom].hasMainTown)
 		{
-			if(version != RoE)
+            if(version != EMapFormat::ROE)
 			{
-				players[pom].generateHeroAtMainTown = bufor[i++];
-				players[pom].generateHero = bufor[i++];
+                players[pom].generateHeroAtMainTown = buffer[i++];
+                players[pom].generateHero = buffer[i++];
 			}
 			else
 			{
@@ -252,34 +288,34 @@ void CMapHeader::loadPlayerInfo( int &pom, const ui8 * bufor, int &i )
 				players[pom].generateHero = false;
 			}
 
-			players[pom].posOfMainTown.x = bufor[i++];
-			players[pom].posOfMainTown.y = bufor[i++];
-			players[pom].posOfMainTown.z = bufor[i++];
+            players[pom].posOfMainTown.x = buffer[i++];
+            players[pom].posOfMainTown.y = buffer[i++];
+            players[pom].posOfMainTown.z = buffer[i++];
 
 
 		}
-		players[pom].p8= bufor[i++];
-		players[pom].p9= bufor[i++];		
+        players[pom].p8= buffer[i++];
+        players[pom].p9= buffer[i++];
 		if(players[pom].p9!=0xff)
 		{
-			players[pom].mainHeroPortrait = bufor[i++];
-			players[pom].mainHeroName = readString(bufor,i);
+            players[pom].mainHeroPortrait = buffer[i++];
+            players[pom].mainHeroName = readString(buffer,i);
 		}
 
-		if(version != RoE)
+        if(version != EMapFormat::ROE)
 		{
-			players[pom].powerPlacehodlers = bufor[i++];//unknown byte
-			int heroCount = bufor[i++];
+            players[pom].powerPlacehodlers = buffer[i++];//unknown byte
+            int heroCount = buffer[i++];
 			i+=3;
 			for (int pp=0;pp<heroCount;pp++)
 			{
 				SheroName vv;
-				vv.heroID=bufor[i++];
-				int hnl = bufor[i++];
+                vv.heroID=buffer[i++];
+                int hnl = buffer[i++];
 				i+=3;
 				for (int zz=0;zz<hnl;zz++)
 				{
-					vv.heroName+=bufor[i++];
+                    vv.heroName+=buffer[i++];
 				}
 				players[pom].heroesNames.push_back(vv);
 			}
@@ -287,10 +323,10 @@ void CMapHeader::loadPlayerInfo( int &pom, const ui8 * bufor, int &i )
 	}
 }
 
-void CMapHeader::loadViCLossConditions( const ui8 * bufor, int &i)
+void CMapHeader::loadViCLossConditions( const ui8 * buffer, int &i)
 {
 	victoryCondition.obj = NULL;
-	victoryCondition.condition = (EVictoryConditionType::EVictoryConditionType)bufor[i++];
+    victoryCondition.condition = (EVictoryConditionType::EVictoryConditionType)buffer[i++];
 	if (victoryCondition.condition != EVictoryConditionType::WINSTANDARD) //specific victory conditions
 	{
 		int nr=0;
@@ -298,45 +334,45 @@ void CMapHeader::loadViCLossConditions( const ui8 * bufor, int &i)
 		{
 		case EVictoryConditionType::ARTIFACT:
 			{
-				victoryCondition.ID = bufor[i+2];
-				nr=(version==RoE ? 1 : 2);
+                victoryCondition.ID = buffer[i+2];
+                nr=(version == EMapFormat::ROE ? 1 : 2);
 				break;
 			}
 		case EVictoryConditionType::GATHERTROOP:
 			{
-// 				int temp1 = bufor[i+2];
-// 				int temp2 = bufor[i+3];
-				victoryCondition.ID = bufor[i+2];
-				victoryCondition.count = read_le_u32(bufor + i+(version==RoE ? 3 : 4));
-				nr=(version==RoE ? 5 : 6);
+// 				int temp1 = buffer[i+2];
+// 				int temp2 = buffer[i+3];
+                victoryCondition.ID = buffer[i+2];
+                victoryCondition.count = read_le_u32(buffer + i+(version == EMapFormat::ROE ? 3 : 4));
+                nr=(version == EMapFormat::ROE ? 5 : 6);
 				break;
 			}
 		case EVictoryConditionType::GATHERRESOURCE:
 			{
-				victoryCondition.ID = bufor[i+2];
-				victoryCondition.count = read_le_u32(bufor + i+3);
+                victoryCondition.ID = buffer[i+2];
+                victoryCondition.count = read_le_u32(buffer + i+3);
 				nr = 5;
 				break;
 			}
 		case EVictoryConditionType::BUILDCITY:
 			{
-				victoryCondition.pos.x = bufor[i+2];
-				victoryCondition.pos.y = bufor[i+3];
-				victoryCondition.pos.z = bufor[i+4];
-				victoryCondition.count = bufor[i+5];
-				victoryCondition.ID = bufor[i+6];
+                victoryCondition.pos.x = buffer[i+2];
+                victoryCondition.pos.y = buffer[i+3];
+                victoryCondition.pos.z = buffer[i+4];
+                victoryCondition.count = buffer[i+5];
+                victoryCondition.ID = buffer[i+6];
 				nr = 5;
 				break;
 			}
 		case EVictoryConditionType::BUILDGRAIL:
 			{
-				if (bufor[i+4]>2)
+                if (buffer[i+4]>2)
 					victoryCondition.pos = int3(-1,-1,-1);
 				else
 				{
-					victoryCondition.pos.x = bufor[i+2];
-					victoryCondition.pos.y = bufor[i+3];
-					victoryCondition.pos.z = bufor[i+4];
+                    victoryCondition.pos.x = buffer[i+2];
+                    victoryCondition.pos.y = buffer[i+3];
+                    victoryCondition.pos.z = buffer[i+4];
 				}
 				nr = 3;
 				break;
@@ -345,9 +381,9 @@ void CMapHeader::loadViCLossConditions( const ui8 * bufor, int &i)
 		case EVictoryConditionType::CAPTURECITY:
 		case EVictoryConditionType::BEATMONSTER:
 			{
-				victoryCondition.pos.x = bufor[i+2];
-				victoryCondition.pos.y = bufor[i+3];
-				victoryCondition.pos.z = bufor[i+4];
+                victoryCondition.pos.x = buffer[i+2];
+                victoryCondition.pos.y = buffer[i+3];
+                victoryCondition.pos.z = buffer[i+4];
 				nr = 3;
 				break;
 			}
@@ -359,34 +395,34 @@ void CMapHeader::loadViCLossConditions( const ui8 * bufor, int &i)
 			}
 		case EVictoryConditionType::TRANSPORTITEM:
 			{
-				victoryCondition.ID =  bufor[i+2];
-				victoryCondition.pos.x = bufor[i+3];
-				victoryCondition.pos.y = bufor[i+4];
-				victoryCondition.pos.z = bufor[i+5];
+                victoryCondition.ID =  buffer[i+2];
+                victoryCondition.pos.x = buffer[i+3];
+                victoryCondition.pos.y = buffer[i+4];
+                victoryCondition.pos.z = buffer[i+5];
 				nr = 4;
 				break;
 			}
 		default:
 			assert(0);
 		}
-		victoryCondition.allowNormalVictory = bufor[i++];
-		victoryCondition.appliesToAI = bufor[i++];
+        victoryCondition.allowNormalVictory = buffer[i++];
+        victoryCondition.appliesToAI = buffer[i++];
 		i+=nr;
 	}
-	lossCondition.typeOfLossCon = (ELossConditionType::ELossConditionType)bufor[i++];
+    lossCondition.typeOfLossCon = (ELossConditionType::ELossConditionType)buffer[i++];
 	switch (lossCondition.typeOfLossCon) //read loss conditions
 	{
 	case ELossConditionType::LOSSCASTLE:
 	case ELossConditionType::LOSSHERO:
 		{
-			lossCondition.pos.x=bufor[i++];
-			lossCondition.pos.y=bufor[i++];
-			lossCondition.pos.z=bufor[i++];
+            lossCondition.pos.x=buffer[i++];
+            lossCondition.pos.y=buffer[i++];
+            lossCondition.pos.z=buffer[i++];
 			break;
 		}
 	case ELossConditionType::TIMEEXPIRES:
 		{
-			lossCondition.timeLimit = read_le_u16(bufor + i);
+            lossCondition.timeLimit = read_le_u16(buffer + i);
 			i+=2;
 			break;
 		}
@@ -398,19 +434,19 @@ CMapHeader::~CMapHeader()
 
 }
 
-void Mapa::initFromBytes(const ui8 * bufor, size_t size)
+void CMap::initFromBytes(const ui8 * buffer, size_t size)
 {
 	// Compute checksum
 	boost::crc_32_type  result;
-	result.process_bytes(bufor, size);
+    result.process_bytes(buffer, size);
 	checksum = result.checksum();
 	tlog0 << "\tOur map checksum: "<<result.checksum() << std::endl;
 
 	int i=0;
-	initFromMemory(bufor,i);
+    CMapHeader::initFromMemory(buffer,i);
 	CStopWatch th;
 	th.getDiff();
-	readHeader(bufor, i);
+    readHeader(buffer, i);
 	tlog0<<"\tReading header: "<<th.getDiff()<<std::endl;
 
 	if (victoryCondition.condition == EVictoryConditionType::ARTIFACT || victoryCondition.condition == EVictoryConditionType::TRANSPORTITEM)
@@ -418,25 +454,25 @@ void Mapa::initFromBytes(const ui8 * bufor, size_t size)
 		allowedArtifact[victoryCondition.ID] = false;
 	}
 
-	readRumors(bufor, i);
+    readRumors(buffer, i);
 	tlog0<<"\tReading rumors: "<<th.getDiff()<<std::endl;
 
-	readPredefinedHeroes(bufor, i);
+    readPredefinedHeroes(buffer, i);
 	tlog0<<"\tReading predefined heroes: "<<th.getDiff()<<std::endl;
 
-	readTerrain(bufor, i);
+    readTerrain(buffer, i);
 	tlog0<<"\tReading terrain: "<<th.getDiff()<<std::endl;
 
-	readDefInfo(bufor, i);
+    readDefInfo(buffer, i);
 	tlog0<<"\tReading defs info: "<<th.getDiff()<<std::endl;
 
-	readObjects(bufor, i);
+    readObjects(buffer, i);
 	tlog0<<"\tReading objects: "<<th.getDiff()<<std::endl;
 	
-	readEvents(bufor, i);
+    readEvents(buffer, i);
 	tlog0<<"\tReading events: "<<th.getDiff()<<std::endl;
 
-	//map readed, bufor no longer needed	
+    //map readed, buffer no longer needed
 	for(ui32 f=0; f<objects.size(); ++f) //calculationg blocked / visitable positions
 	{
 		if(!objects[f]->defInfo)
@@ -447,7 +483,7 @@ void Mapa::initFromBytes(const ui8 * bufor, size_t size)
 	tlog0 << "\tMap initialization done!" << std::endl;
 }
 
-void Mapa::removeBlockVisTiles(CGObjectInstance * obj, bool total)
+void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 {
 	for(int fx=0; fx<8; ++fx)
 	{
@@ -473,7 +509,7 @@ void Mapa::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 		}
 	}
 }
-void Mapa::addBlockVisTiles(CGObjectInstance * obj)
+void CMap::addBlockVisTiles(CGObjectInstance * obj)
 {
 	for(int fx=0; fx<8; ++fx)
 	{
@@ -500,9 +536,9 @@ void Mapa::addBlockVisTiles(CGObjectInstance * obj)
 	}
 }
 
-TInputStreamPtr Mapa::getMapStream(std::string URI)
+TInputStreamPtr CMap::getMapStream(std::string name)
 {
-	TInputStreamPtr file = CResourceHandler::get()->load(ResourceID(URI, EResType::MAP));
+    TInputStreamPtr file = CResourceHandler::get()->load(ResourceID(name, EResType::MAP));
 
 	CBinaryReader reader(*file.get());
 
@@ -513,19 +549,19 @@ TInputStreamPtr Mapa::getMapStream(std::string URI)
 	{
 		case 0x00088B1F: // gzip header magic number, reversed for LE
 			return TInputStreamPtr(new CCompressedStream(std::move(file), true));
-		case CMapHeader::WoG :
-		case CMapHeader::AB  :
-		case CMapHeader::RoE :
-		case CMapHeader::SoD :
+        case EMapFormat::WOG :
+        case EMapFormat::AB  :
+        case EMapFormat::ROE :
+        case EMapFormat::SOD :
 			return file;
 		default :
-			tlog0 << "Error: Failed to open map " << URI << ": unknown format\n";
+            tlog0 << "Error: Failed to open map " << name << ": unknown format\n";
 			return TInputStreamPtr();
 	}
 }
 
-Mapa::Mapa(std::string filename)
-	:grailPos(-1, -1, -1), grailRadious(0)
+CMap::CMap(std::string filename)
+    : grailPos(-1, -1, -1), grailRadious(0)
 {
 	tlog0<<"Opening map file: "<<filename<<"\t "<<std::flush;
 	
@@ -541,20 +577,20 @@ Mapa::Mapa(std::string filename)
 	initFromBytes(data.get(), mapSize);
 }
 
-Mapa::Mapa()
+CMap::CMap()
 {
 	terrain = NULL;
 
 }
-Mapa::~Mapa()
+CMap::~CMap()
 {
-	//for(int i=0; i < defy.size(); i++)
-	//	if(defy[i]->serial < 0) //def not present in the main vector in defobjinfo
-	//		delete defy[i];
+    //for(int i=0; i < customDefs.size(); i++)
+    //	if(customDefs[i]->serial < 0) //def not present in the main vector in defobjinfo
+    //		delete customDefs[i];
 
 	if(terrain)
 	{
-		for (int ii=0;ii<width;ii++)
+        for(int ii=0;ii<width;ii++)
 		{
 			for(int jj=0;jj<height;jj++)
 				delete [] terrain[ii][jj];
@@ -563,36 +599,31 @@ Mapa::~Mapa()
 		delete [] terrain;
 	}
 	for(std::list<ConstTransitivePtr<CMapEvent> >::iterator i = events.begin(); i != events.end(); i++)
+    {
 		i->dellNull();
+    }
 }
 
-CGHeroInstance * Mapa::getHero(int ID, int mode)
+CGHeroInstance * CMap::getHero(int heroID)
 {
-	if (mode != 0)
-#ifndef __GNUC__
-		throw new std::exception("gs->getHero: This mode is not supported!");
-#else
-		throw new std::exception();
-#endif
-
 	for(ui32 i=0; i<heroes.size();i++)
-		if(heroes[i]->subID == ID)
+        if(heroes[i]->subID == heroID)
 			return heroes[i];
-	return NULL;
+    return nullptr;
 }
 
-int Mapa::loadSeerHut( const ui8 * bufor, int i, CGObjectInstance *& nobj )
+int CMap::loadSeerHut(const ui8 * buffer, int i, CGObjectInstance * & seerHut)
 {
 	CGSeerHut *hut = new CGSeerHut();
-	nobj = hut;
+    seerHut = hut;
 
-	if(version>RoE)
+    if(version > EMapFormat::ROE)
 	{
-		loadQuest(hut,bufor,i);
+        loadQuest(hut,buffer,i);
 	}
 	else //RoE
 	{
-		int artID = bufor[i]; ++i;
+        int artID = buffer[i]; ++i;
 		if (artID != 255) //not none quest
 		{
 			hut->quest->m5arts.push_back (artID);
@@ -608,79 +639,79 @@ int Mapa::loadSeerHut( const ui8 * bufor, int i, CGObjectInstance *& nobj )
 
 	if (hut->quest->missionType)
 	{
-		ui8 rewardType = bufor[i]; ++i;
+        ui8 rewardType = buffer[i]; ++i;
 		hut->rewardType = rewardType;
 
 		switch(rewardType)
 		{
 		case 1:
 			{
-				hut->rVal = read_le_u32(bufor + i); i+=4;
+                hut->rVal = read_le_u32(buffer + i); i+=4;
 				break;
 			}
 		case 2:
 			{
-				hut->rVal = read_le_u32(bufor + i); i+=4;
+                hut->rVal = read_le_u32(buffer + i); i+=4;
 				break;
 			}
 		case 3:
 			{
-				hut->rVal = bufor[i]; ++i;
+                hut->rVal = buffer[i]; ++i;
 				break;
 			}
 		case 4:
 			{
-				hut->rVal = bufor[i]; ++i;
+                hut->rVal = buffer[i]; ++i;
 				break;
 			}
 		case 5:
 			{
-				hut->rID = bufor[i]; ++i;
+                hut->rID = buffer[i]; ++i;
 				/* Only the first 3 bytes are used. Skip the 4th. */
-				hut->rVal = read_le_u32(bufor + i) & 0x00ffffff;
+                hut->rVal = read_le_u32(buffer + i) & 0x00ffffff;
 				i+=4;
 				break;
 			}
 		case 6:
 			{
-				hut->rID = bufor[i]; ++i;
-				hut->rVal = bufor[i]; ++i;
+                hut->rID = buffer[i]; ++i;
+                hut->rVal = buffer[i]; ++i;
 				break;
 			}
 		case 7:
 			{
-				hut->rID = bufor[i]; ++i;
-				hut->rVal = bufor[i]; ++i;
+                hut->rID = buffer[i]; ++i;
+                hut->rVal = buffer[i]; ++i;
 				break;
 			}
 		case 8:
 			{
-				if (version == RoE)
+                if (version == EMapFormat::ROE)
 				{
-					hut->rID = bufor[i]; i++;
+                    hut->rID = buffer[i]; i++;
 				}
 				else
 				{
-					hut->rID = read_le_u16(bufor + i); i+=2;
+                    hut->rID = read_le_u16(buffer + i); i+=2;
 				}
 				break;
 			}
 		case 9:
 			{
-				hut->rID = bufor[i]; ++i;
+                hut->rID = buffer[i]; ++i;
 				break;
 			}
 		case 10:
 			{
-				if(version>RoE)
+                if(version > EMapFormat::ROE)
 				{
-					hut->rID = read_le_u16(bufor + i); i+=2;
-					hut->rVal = read_le_u16(bufor + i); i+=2;
+                    hut->rID = read_le_u16(buffer + i); i+=2;
+                    hut->rVal = read_le_u16(buffer + i); i+=2;
 				}
 				else
 				{
-					hut->rID = bufor[i]; ++i;
-					hut->rVal = read_le_u16(bufor + i); i+=2;
+                    hut->rID = buffer[i]; ++i;
+                    hut->rVal = read_le_u16(buffer + i); i+=2;
 				}
 				break;
 			}
@@ -694,30 +725,28 @@ int Mapa::loadSeerHut( const ui8 * bufor, int i, CGObjectInstance *& nobj )
 	return i;
 }
 
-void Mapa::loadTown( CGObjectInstance * &nobj, const ui8 * bufor, int &i, int subid)
+void CMap::loadTown(CGObjectInstance * & town, const ui8 * buffer, int &i, int castleID)
 {
 	CGTownInstance * nt = new CGTownInstance();
-	//(*(static_cast<CGObjectInstance*>(nt))) = *nobj;
-	//delete nobj;
-	nobj = nt;
+    town = nt;
 	nt->identifier = 0;
-	if(version>RoE)
+    if(version > EMapFormat::ROE)
 	{	
-		nt->identifier = read_le_u32(bufor + i); i+=4;
+        nt->identifier = read_le_u32(buffer + i); i+=4;
 	}
-	nt->tempOwner = bufor[i]; ++i;
-	if(readChar(bufor,i)) //has name
-		nt->name = readString(bufor,i);
-	if(readChar(bufor,i))//true if garrison isn't empty
-		readCreatureSet(nt, bufor, i, 7, version > RoE);
-	nt->formation = bufor[i]; ++i;
-	if(readChar(bufor,i)) //custom buildings info
+    nt->tempOwner = buffer[i]; ++i;
+    if(readChar(buffer,i)) //has name
+        nt->name = readString(buffer,i);
+    if(readChar(buffer,i))//true if garrison isn't empty
+        readCreatureSet(nt, buffer, i, 7, version > EMapFormat::ROE);
+    nt->formation = buffer[i]; ++i;
+    if(readChar(buffer,i)) //custom buildings info
 	{
 		//built buildings
 		for(int byte=0;byte<6;byte++)
 		{
 			for(int bit=0;bit<8;bit++)
-				if(bufor[i] & (1<<bit))
+                if(buffer[i] & (1<<bit))
 					nt->builtBuildings.insert(byte*8+bit);
 			i++;
 		}
@@ -725,26 +754,26 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const ui8 * bufor, int &i, int su
 		for(int byte=6;byte<12;byte++)
 		{
 			for(int bit=0;bit<8;bit++)
-				if(bufor[i] & (1<<bit))
+                if(buffer[i] & (1<<bit))
 					nt->forbiddenBuildings.insert((byte-6)*8+bit);
 			i++;
 		}
-		nt->builtBuildings = convertBuildings(nt->builtBuildings,subid);
-		nt->forbiddenBuildings = convertBuildings(nt->forbiddenBuildings,subid);
+        nt->builtBuildings = convertBuildings(nt->builtBuildings,castleID);
+        nt->forbiddenBuildings = convertBuildings(nt->forbiddenBuildings,castleID);
 	}
 	else //standard buildings
 	{
-		if(readChar(bufor,i)) //has fort
+        if(readChar(buffer,i)) //has fort
 			nt->builtBuildings.insert(EBuilding::FORT);
 		nt->builtBuildings.insert(-50); //means that set of standard building should be included
 	}
 
 	int ist = i;
-	if(version>RoE)
+    if(version > EMapFormat::ROE)
 	{
 		for(; i<ist+9; ++i)
 		{
-			ui8 c = bufor[i];
+            ui8 c = buffer[i];
 			for(int yy=0; yy<8; ++yy)
 			{
 				if((i-ist)*8+yy < GameConstants::SPELLS_QUANTITY)
@@ -759,7 +788,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const ui8 * bufor, int &i, int su
 	ist = i;
 	for(; i<ist+9; ++i)
 	{
-		ui8 c = bufor[i];
+        ui8 c = buffer[i];
 		for(int yy=0; yy<8; ++yy)
 		{
 			if((i-ist)*8+yy < GameConstants::SPELLS_QUANTITY)
@@ -772,31 +801,31 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const ui8 * bufor, int &i, int su
 
 	/////// reading castle events //////////////////////////////////
 
-	int numberOfEvent = read_le_u32(bufor + i); i+=4;
+    int numberOfEvent = read_le_u32(buffer + i); i+=4;
 
 	for(int gh = 0; gh<numberOfEvent; ++gh)
 	{
 		CCastleEvent *nce = new CCastleEvent();
 		nce->town = nt;
-		nce->name = readString(bufor,i);
-		nce->message = readString(bufor,i);
+        nce->name = readString(buffer,i);
+        nce->message = readString(buffer,i);
 		for(int x=0; x < 7; x++)
 		{
-			nce->resources[x] = read_le_u32(bufor + i); 
+            nce->resources[x] = read_le_u32(buffer + i);
 			i+=4;
 		}
 
-		nce->players = bufor[i]; ++i;
-		if(version > AB)
+        nce->players = buffer[i]; ++i;
+        if(version > EMapFormat::AB)
 		{
-			nce->humanAffected = bufor[i]; ++i;
+            nce->humanAffected = buffer[i]; ++i;
 		}
 		else
 			nce->humanAffected = true;
 
-		nce->computerAffected = bufor[i]; ++i;
-		nce->firstOccurence = read_le_u16(bufor + i); i+=2;
-		nce->nextOccurence = bufor[i]; ++i;
+        nce->computerAffected = buffer[i]; ++i;
+        nce->firstOccurence = read_le_u16(buffer + i); i+=2;
+        nce->nextOccurence = buffer[i]; ++i;
 
 		i+=17;
 
@@ -804,24 +833,24 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const ui8 * bufor, int &i, int su
 		for(int byte=0;byte<6;byte++)
 		{
 			for(int bit=0;bit<8;bit++)
-				if(bufor[i] & (1<<bit))
+                if(buffer[i] & (1<<bit))
 					nce->buildings.insert(byte*8+bit);
 			i++;
 		}
-		nce->buildings = convertBuildings(nce->buildings,subid, false);
+        nce->buildings = convertBuildings(nce->buildings,castleID, false);
 		
 		nce->creatures.resize(7);
 		for(int vv=0; vv<7; ++vv)
 		{
-			nce->creatures[vv] = read_le_u16(bufor + i);i+=2;
+            nce->creatures[vv] = read_le_u16(buffer + i);i+=2;
 		}
 		i+=4;
 		nt->events.push_back(nce);
 	}//castle events have been read 
 
-	if(version > AB)
+    if(version > EMapFormat::AB)
 	{
-		nt->alignment = bufor[i]; ++i;
+        nt->alignment = buffer[i]; ++i;
 	}
 	else
 		nt->alignment = 0xff;
@@ -832,19 +861,19 @@ void Mapa::loadTown( CGObjectInstance * &nobj, const ui8 * bufor, int &i, int su
 	nt->garrisonHero = NULL;
 }
 
-CGObjectInstance * Mapa::loadHero(const ui8 * bufor, int &i, int idToBeGiven)
+CGObjectInstance * CMap::loadHero(const ui8 * buffer, int &i, int idToBeGiven)
 {
 	CGHeroInstance * nhi = new CGHeroInstance();
 
 	int identifier = 0;
-	if(version > RoE)
+    if(version > EMapFormat::ROE)
 	{
-		identifier = read_le_u32(bufor + i); i+=4;
+        identifier = read_le_u32(buffer + i); i+=4;
 		questIdentifierToId[identifier] = idToBeGiven;
 	}
 
-	ui8 owner = bufor[i++];
-	nhi->subID = bufor[i++];
+    ui8 owner = buffer[i++];
+    nhi->subID = buffer[i++];
 	
 	for(ui32 j=0; j<predefinedHeroes.size(); j++)
 	{
@@ -869,51 +898,51 @@ CGObjectInstance * Mapa::loadHero(const ui8 * bufor, int &i, int idToBeGiven)
 			break;
 		}
 	}
-	if(readChar(bufor,i))//true if hero has nonstandard name
-		nhi->name = readString(bufor,i);
-	if(version>AB)
+    if(readChar(buffer,i))//true if hero has nonstandard name
+        nhi->name = readString(buffer,i);
+    if(version > EMapFormat::AB)
 	{
-		if(readChar(bufor,i))//true if hero's experience is greater than 0
-		{	nhi->exp = read_le_u32(bufor + i); i+=4;	}
+        if(readChar(buffer,i))//true if hero's experience is greater than 0
+        {	nhi->exp = read_le_u32(buffer + i); i+=4;	}
 		else
 			nhi->exp = 0xffffffff;
 	}
 	else
 	{	
-		nhi->exp = read_le_u32(bufor + i); i+=4;	
+        nhi->exp = read_le_u32(buffer + i); i+=4;
 		if(!nhi->exp) //0 means "not set" in <=AB maps
 			nhi->exp = 0xffffffff;
 	}
 
-	bool portrait=bufor[i]; ++i;
+    bool portrait=buffer[i]; ++i;
 	if (portrait)
-		nhi->portrait = bufor[i++];
-	if(readChar(bufor,i))//true if hero has specified abilities
+        nhi->portrait = buffer[i++];
+    if(readChar(buffer,i))//true if hero has specified abilities
 	{
-		int howMany = read_le_u32(bufor + i); i+=4;
+        int howMany = read_le_u32(buffer + i); i+=4;
 		nhi->secSkills.resize(howMany);
 		for(int yy=0; yy<howMany; ++yy)
 		{
-			nhi->secSkills[yy].first = bufor[i++];
-			nhi->secSkills[yy].second = bufor[i++];
+            nhi->secSkills[yy].first = buffer[i++];
+            nhi->secSkills[yy].second = buffer[i++];
 		}
 	}
-	if(readChar(bufor,i))//true if hero has nonstandard garrison
-		readCreatureSet(nhi, bufor, i, 7, version > RoE);
+    if(readChar(buffer,i))//true if hero has nonstandard garrison
+        readCreatureSet(nhi, buffer, i, 7, version > EMapFormat::ROE);
 
-	nhi->formation =bufor[i]; ++i; //formation
-	loadArtifactsOfHero(bufor, i, nhi);
-	nhi->patrol.patrolRadious = bufor[i]; ++i;
+    nhi->formation =buffer[i]; ++i; //formation
+    loadArtifactsOfHero(buffer, i, nhi);
+    nhi->patrol.patrolRadious = buffer[i]; ++i;
 	if(nhi->patrol.patrolRadious == 0xff)
 		nhi->patrol.patrolling = false;
 	else 
 		nhi->patrol.patrolling = true;
 
-	if(version>RoE)
+    if(version > EMapFormat::ROE)
 	{
-		if(readChar(bufor,i))//true if hero has nonstandard (mapmaker defined) biography
-			nhi->biography = readString(bufor,i);
-		nhi->sex = bufor[i]; ++i;
+        if(readChar(buffer,i))//true if hero has nonstandard (mapmaker defined) biography
+            nhi->biography = readString(buffer,i);
+        nhi->sex = buffer[i]; ++i;
 		
 		if (nhi->sex != 0xFF)//remove trash
 			nhi->sex &=1;
@@ -921,9 +950,9 @@ CGObjectInstance * Mapa::loadHero(const ui8 * bufor, int &i, int idToBeGiven)
 	else
 		nhi->sex = 0xFF;
 	//spells
-	if(version>AB)
+    if(version > EMapFormat::AB)
 	{
-		bool areSpells = bufor[i]; ++i;
+        bool areSpells = buffer[i]; ++i;
 
 		if(areSpells) //TODO: sprawdzi //seems to be ok - tow
 		{
@@ -931,7 +960,7 @@ CGObjectInstance * Mapa::loadHero(const ui8 * bufor, int &i, int idToBeGiven)
 			int ist = i;
 			for(; i<ist+9; ++i)
 			{
-				ui8 c = bufor[i];
+                ui8 c = buffer[i];
 				for(int yy=0; yy<8; ++yy)
 				{
 					if((i-ist)*8+yy < GameConstants::SPELLS_QUANTITY)
@@ -943,9 +972,9 @@ CGObjectInstance * Mapa::loadHero(const ui8 * bufor, int &i, int idToBeGiven)
 			}
 		}
 	}
-	else if(version==AB) //we can read one spell
+    else if(version == EMapFormat::AB) //we can read one spell
 	{
-		ui8 buff = bufor[i]; ++i;
+        ui8 buff = buffer[i]; ++i;
 		if(buff != 254)
 		{
 			nhi->spells.insert(0xffffffff); //placeholder "preset spells"
@@ -954,12 +983,12 @@ CGObjectInstance * Mapa::loadHero(const ui8 * bufor, int &i, int idToBeGiven)
 		}
 	}
 	//spells loaded
-	if(version>AB)
+    if(version > EMapFormat::AB)
 	{
-		if(readChar(bufor,i))//customPrimSkills
+        if(readChar(buffer,i))//customPrimSkills
 		{
 			for(int xx=0; xx<GameConstants::PRIMARY_SKILLS; xx++)
-				nhi->pushPrimSkill(xx, bufor[i++]);
+                nhi->pushPrimSkill(xx, buffer[i++]);
 		}
 	}
 	i+=16;
@@ -967,40 +996,40 @@ CGObjectInstance * Mapa::loadHero(const ui8 * bufor, int &i, int idToBeGiven)
 	return nhi;
 }
 
-void Mapa::readRumors( const ui8 * bufor, int &i)
+void CMap::readRumors( const ui8 * buffer, int &i)
 {
-	int rumNr = read_le_u32(bufor + i);i+=4;
+    int rumNr = read_le_u32(buffer + i);i+=4;
 	for (int it=0;it<rumNr;it++)
 	{
 		Rumor ourRumor;
-		int nameL = read_le_u32(bufor + i);i+=4; //read length of name of rumor
+        int nameL = read_le_u32(buffer + i);i+=4; //read length of name of rumor
 		for (int zz=0; zz<nameL; zz++)
-			ourRumor.name+=bufor[i++];
-		nameL = read_le_u32(bufor + i);i+=4; //read length of rumor
+            ourRumor.name+=buffer[i++];
+        nameL = read_le_u32(buffer + i);i+=4; //read length of rumor
 		for (int zz=0; zz<nameL; zz++)
-			ourRumor.text+=bufor[i++];
+            ourRumor.text+=buffer[i++];
 		rumors.push_back(ourRumor); //add to our list
 	}
 }
 
-void Mapa::readHeader( const ui8 * bufor, int &i)
+void CMap::readHeader( const ui8 * buffer, int &i)
 {
 	//reading allowed heroes (20 bytes)
 	int ist;
 	ui8 disp = 0;
 
-	if(version>=SoD)
+    if(version >= EMapFormat::SOD)
 	{
-		disp = bufor[i++];
+        disp = buffer[i++];
 		disposedHeroes.resize(disp);
 		for(int g=0; g<disp; ++g)
 		{
-			disposedHeroes[g].ID = bufor[i++];
-			disposedHeroes[g].portrait = bufor[i++];
-			int lenbuf = read_le_u32(bufor + i); i+=4;
+            disposedHeroes[g].ID = buffer[i++];
+            disposedHeroes[g].portrait = buffer[i++];
+            int lenbuf = read_le_u32(buffer + i); i+=4;
 			for (int zz=0; zz<lenbuf; zz++)
-				disposedHeroes[g].name+=bufor[i++];
-			disposedHeroes[g].players = bufor[i++];
+                disposedHeroes[g].name+=buffer[i++];
+            disposedHeroes[g].players = buffer[i++];
 		}
 	}
 
@@ -1011,12 +1040,12 @@ void Mapa::readHeader( const ui8 * bufor, int &i)
 		allowedArtifact[x] = true;
 
 	//reading allowed artifacts:  17 or 18 bytes
-	if (version!=RoE)
+    if (version != EMapFormat::ROE)
 	{
 		ist=i; //starting i for loop
-		for (; i<ist+(version==AB ? 17 : 18); ++i)
+        for (; i<ist+(version == EMapFormat::AB ? 17 : 18); ++i)
 		{
-			ui8 c = bufor[i];
+            ui8 c = buffer[i];
 			for (int yy=0; yy<8; ++yy)
 			{
 				if ((i-ist)*8+yy < GameConstants::ARTIFACTS_QUANTITY)
@@ -1027,7 +1056,7 @@ void Mapa::readHeader( const ui8 * bufor, int &i)
 			}
 		}//allowed artifacts have been read
 	}
-	if (version == RoE || version == AB) //ban combo artifacts
+    if (version == EMapFormat::ROE || version == EMapFormat::AB) //ban combo artifacts
 	{
 		BOOST_FOREACH(CArtifact *artifact, VLC->arth->artifacts) 
 		{
@@ -1036,7 +1065,7 @@ void Mapa::readHeader( const ui8 * bufor, int &i)
 				allowedArtifact[artifact->id] = false;
 			}
 		}
-		if (version == RoE)
+        if (version == EMapFormat::ROE)
 			allowedArtifact[128] = false; //Armageddon's Blade
 	}
 
@@ -1048,13 +1077,13 @@ void Mapa::readHeader( const ui8 * bufor, int &i)
 	for(ui32 x=0;x<allowedAbilities.size();x++)
 		allowedAbilities[x] = true;
 
-	if(version>=SoD)
+    if(version >= EMapFormat::SOD)
 	{
 		//reading allowed spells (9 bytes)
 		ist=i; //starting i for loop
 		for(; i<ist+9; ++i)
 		{
-			ui8 c = bufor[i];
+            ui8 c = buffer[i];
 			for(int yy=0; yy<8; ++yy)
 				if((i-ist)*8+yy < GameConstants::SPELLS_QUANTITY)
 					if(c == (c|((ui8)intPow(2, yy))))
@@ -1066,7 +1095,7 @@ void Mapa::readHeader( const ui8 * bufor, int &i)
 		ist=i; //starting i for loop
 		for(; i<ist+4; ++i)
 		{
-			ui8 c = bufor[i];
+            ui8 c = buffer[i];
 			for(int yy=0; yy<8; ++yy)
 			{
 				if((i-ist)*8+yy < GameConstants::SKILL_QUANTITY)
@@ -1079,46 +1108,47 @@ void Mapa::readHeader( const ui8 * bufor, int &i)
 	}
 }
 
-void Mapa::readPredefinedHeroes( const ui8 * bufor, int &i)
+void CMap::readPredefinedHeroes( const ui8 * buffer, int &i)
 {
 	switch(version)
 	{
-	case WoG: case SoD:
+    case EMapFormat::WOG:
+    case EMapFormat::SOD:
 		{
 			for(int z=0;z<GameConstants::HEROES_QUANTITY;z++) //disposed heroes
 			{
-				int custom =  bufor[i++];
+                int custom =  buffer[i++];
 				if(!custom)
 					continue;
 				CGHeroInstance * cgh = new CGHeroInstance;
 				cgh->ID = Obj::HERO;
 				cgh->subID = z;
-				if(readChar(bufor,i))//true if hore's experience is greater than 0
-				{	cgh->exp = read_le_u32(bufor + i); i+=4;	}
+                if(readChar(buffer,i))//true if hore's experience is greater than 0
+                {	cgh->exp = read_le_u32(buffer + i); i+=4;	}
 				else
 					cgh->exp = 0;
-				if(readChar(bufor,i))//true if hero has specified abilities
+                if(readChar(buffer,i))//true if hero has specified abilities
 				{
-					int howMany = read_le_u32(bufor + i); i+=4;
+                    int howMany = read_le_u32(buffer + i); i+=4;
 					cgh->secSkills.resize(howMany);
 					for(int yy=0; yy<howMany; ++yy)
 					{
-						cgh->secSkills[yy].first = bufor[i]; ++i;
-						cgh->secSkills[yy].second = bufor[i]; ++i;
+                        cgh->secSkills[yy].first = buffer[i]; ++i;
+                        cgh->secSkills[yy].second = buffer[i]; ++i;
 					}
 				}
 
-				loadArtifactsOfHero(bufor, i, cgh);
+                loadArtifactsOfHero(buffer, i, cgh);
 
-				if(readChar(bufor,i))//customBio
-					cgh->biography = readString(bufor,i);
-				cgh->sex = bufor[i++]; // 0xFF is default, 00 male, 01 female
-				if(readChar(bufor,i))//are spells
+                if(readChar(buffer,i))//customBio
+                    cgh->biography = readString(buffer,i);
+                cgh->sex = buffer[i++]; // 0xFF is default, 00 male, 01 female
+                if(readChar(buffer,i))//are spells
 				{
 					int ist = i;
 					for(; i<ist+9; ++i)
 					{
-						ui8 c = bufor[i];
+                        ui8 c = buffer[i];
 						for(int yy=0; yy<8; ++yy)
 						{
 							if((i-ist)*8+yy < GameConstants::SPELLS_QUANTITY)
@@ -1129,22 +1159,22 @@ void Mapa::readPredefinedHeroes( const ui8 * bufor, int &i)
 						}
 					}
 				}
-				if(readChar(bufor,i))//customPrimSkills
+                if(readChar(buffer,i))//customPrimSkills
 				{
 					for(int xx=0; xx<GameConstants::PRIMARY_SKILLS; xx++)
-						cgh->pushPrimSkill(xx, bufor[i++]);
+                        cgh->pushPrimSkill(xx, buffer[i++]);
 				}
 				predefinedHeroes.push_back(cgh);
 			}
 			break;
 		}
-	case RoE:
+    case EMapFormat::ROE:
 		i+=0;
 		break;
 	}
 }
 
-void Mapa::readTerrain( const ui8 * bufor, int &i)
+void CMap::readTerrain( const ui8 * buffer, int &i)
 {
 	terrain = new TerrainTile**[width]; // allocate memory 
 	for (int ii=0;ii<width;ii++)
@@ -1158,14 +1188,14 @@ void Mapa::readTerrain( const ui8 * bufor, int &i)
 	{
 		for (int z=0; z<height; z++)
 		{
-			terrain[z][c][0].tertype = static_cast<TerrainTile::EterrainType>(bufor[i++]);
-			terrain[z][c][0].terview = bufor[i++];
-			terrain[z][c][0].nuine = static_cast<TerrainTile::Eriver>(bufor[i++]);
-			terrain[z][c][0].rivDir = bufor[i++];
-			terrain[z][c][0].malle = static_cast<TerrainTile::Eroad>(bufor[i++]);
-			terrain[z][c][0].roadDir = bufor[i++];
-			terrain[z][c][0].siodmyTajemniczyBajt = bufor[i++];
-			terrain[z][c][0].blocked = (terrain[z][c][0].tertype == TerrainTile::rock ? 1 : 0); //underground tiles are always blocked
+            terrain[z][c][0].tertype = static_cast<ETerrainType::ETerrainType>(buffer[i++]);
+            terrain[z][c][0].terview = buffer[i++];
+            terrain[z][c][0].riverType = static_cast<ERiverType::ERiverType>(buffer[i++]);
+            terrain[z][c][0].riverDir = buffer[i++];
+            terrain[z][c][0].roadType = static_cast<ERoadType::ERoadType>(buffer[i++]);
+            terrain[z][c][0].roadDir = buffer[i++];
+            terrain[z][c][0].extTileFlags = buffer[i++];
+            terrain[z][c][0].blocked = (terrain[z][c][0].tertype == ETerrainType::ROCK ? 1 : 0); //underground tiles are always blocked
 			terrain[z][c][0].visitable = 0;
 		}
 	}
@@ -1175,34 +1205,34 @@ void Mapa::readTerrain( const ui8 * bufor, int &i)
 		{
 			for (int z=0; z<height; z++)
 			{
-				terrain[z][c][1].tertype = static_cast<TerrainTile::EterrainType>(bufor[i++]);
-				terrain[z][c][1].terview = bufor[i++];
-				terrain[z][c][1].nuine = static_cast<TerrainTile::Eriver>(bufor[i++]);
-				terrain[z][c][1].rivDir = bufor[i++];
-				terrain[z][c][1].malle = static_cast<TerrainTile::Eroad>(bufor[i++]);
-				terrain[z][c][1].roadDir = bufor[i++];
-				terrain[z][c][1].siodmyTajemniczyBajt = bufor[i++];
-				terrain[z][c][1].blocked = (terrain[z][c][1].tertype == TerrainTile::rock ? 1 : 0); //underground tiles are always blocked
+                terrain[z][c][1].tertype = static_cast<ETerrainType::ETerrainType>(buffer[i++]);
+                terrain[z][c][1].terview = buffer[i++];
+                terrain[z][c][1].riverType = static_cast<ERiverType::ERiverType>(buffer[i++]);
+                terrain[z][c][1].riverDir = buffer[i++];
+                terrain[z][c][1].roadType = static_cast<ERoadType::ERoadType>(buffer[i++]);
+                terrain[z][c][1].roadDir = buffer[i++];
+                terrain[z][c][1].extTileFlags = buffer[i++];
+                terrain[z][c][1].blocked = (terrain[z][c][1].tertype == ETerrainType::ROCK ? 1 : 0); //underground tiles are always blocked
 				terrain[z][c][1].visitable = 0;
 			}
 		}
 	}
 }
 
-void Mapa::readDefInfo( const ui8 * bufor, int &i)
+void CMap::readDefInfo( const ui8 * buffer, int &i)
 {
-	int defAmount = read_le_u32(bufor + i); i+=4;
-	defy.reserve(defAmount+8);
+    int defAmount = read_le_u32(buffer + i); i+=4;
+    customDefs.reserve(defAmount+8);
 	for (int idd = 0 ; idd<defAmount; idd++) // reading defs
 	{
 		CGDefInfo * vinya = new CGDefInfo(); // info about new def 
 
 		//reading name
-		int nameLength = read_le_u32(bufor + i);i+=4;
+        int nameLength = read_le_u32(buffer + i);i+=4;
 		vinya->name.reserve(nameLength);
 		for (int cd=0;cd<nameLength;cd++)
 		{
-			vinya->name += bufor[i++];
+            vinya->name += buffer[i++];
 		}
 		std::transform(vinya->name.begin(),vinya->name.end(),vinya->name.begin(),(int(*)(int))toupper);
 
@@ -1210,14 +1240,14 @@ void Mapa::readDefInfo( const ui8 * bufor, int &i)
 		ui8 bytes[12];
 		for (int v=0; v<12; v++) // read info
 		{
-			bytes[v] = bufor[i++];
+            bytes[v] = buffer[i++];
 		}
-		vinya->terrainAllowed = read_le_u16(bufor + i);i+=2;
-		vinya->terrainMenu = read_le_u16(bufor + i);i+=2;
-		vinya->id = read_le_u32(bufor + i);i+=4;
-		vinya->subid = read_le_u32(bufor + i);i+=4;
-		vinya->type = bufor[i++];
-		vinya->printPriority = bufor[i++];
+        vinya->terrainAllowed = read_le_u16(buffer + i);i+=2;
+        vinya->terrainMenu = read_le_u16(buffer + i);i+=2;
+        vinya->id = read_le_u32(buffer + i);i+=4;
+        vinya->subid = read_le_u32(buffer + i);i+=4;
+        vinya->type = buffer[i++];
+        vinya->printPriority = buffer[i++];
 		for (int zi=0; zi<6; zi++)
 		{
 			vinya->blockMap[zi] = reverse(bytes[zi]);
@@ -1254,13 +1284,13 @@ void Mapa::readDefInfo( const ui8 * bufor, int &i)
 		//calculating coverageMap
 		vinya->fetchInfoFromMSK();
 
-		defy.push_back(vinya); // add this def to the vector
+        customDefs.push_back(vinya); // add this def to the vector
 	}
 
 	//add holes - they always can appear 
 	for (int i = 0; i < 8 ; i++)
 	{
-		defy.push_back(VLC->dobjinfo->gobjs[124][i]);
+        customDefs.push_back(VLC->dobjinfo->gobjs[124][i]);
 	}
 }
 
@@ -1273,22 +1303,22 @@ public:
 	}
 };
 
-void Mapa::readObjects( const ui8 * bufor, int &i)
+void CMap::readObjects(const ui8 * buffer, int &i)
 {
-	int howManyObjs = read_le_u32(bufor + i); i+=4;
+    int howManyObjs = read_le_u32(buffer + i); i+=4;
 	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
 	{
 		CGObjectInstance * nobj = 0;
 
 		int3 pos;
-		pos.x = bufor[i++];
-		pos.y = bufor[i++];
-		pos.z = bufor[i++];
+        pos.x = buffer[i++];
+        pos.y = buffer[i++];
+        pos.z = buffer[i++];
 
-		int defnum = read_le_u32(bufor + i); i+=4;
+        int defnum = read_le_u32(buffer + i); i+=4;
 		int idToBeGiven = objects.size();
 
-		CGDefInfo * defInfo = defy.at(defnum);
+        CGDefInfo * defInfo = customDefs.at(defnum);
 		i+=5;
 
 		switch(defInfo->id)
@@ -1298,77 +1328,77 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 				CGEvent *evnt = new CGEvent();
 				nobj = evnt;
 
-				bool guardMess = bufor[i]; ++i;
+                bool guardMess = buffer[i]; ++i;
 				if(guardMess)
 				{
-					int messLong = read_le_u32(bufor + i); i+=4;
+                    int messLong = read_le_u32(buffer + i); i+=4;
 					if(messLong>0)
 					{
 						for(int yy=0; yy<messLong; ++yy)
 						{
-							evnt->message +=bufor[i+yy];
+                            evnt->message +=buffer[i+yy];
 						}
 						i+=messLong;
 					}
-					if(bufor[i++])
+                    if(buffer[i++])
 					{
-						readCreatureSet(evnt, bufor, i, 7, version > RoE); 
+                        readCreatureSet(evnt, buffer, i, 7, version > EMapFormat::ROE);
 					}
 					i+=4;
 				}
-				evnt->gainedExp = read_le_u32(bufor + i); i+=4;
-				evnt->manaDiff = read_le_u32(bufor + i); i+=4;
-				evnt->moraleDiff = (char)bufor[i]; ++i;
-				evnt->luckDiff = (char)bufor[i]; ++i;
+                evnt->gainedExp = read_le_u32(buffer + i); i+=4;
+                evnt->manaDiff = read_le_u32(buffer + i); i+=4;
+                evnt->moraleDiff = (char)buffer[i]; ++i;
+                evnt->luckDiff = (char)buffer[i]; ++i;
 
 				evnt->resources.resize(GameConstants::RESOURCE_QUANTITY);
 				for(int x=0; x<7; x++)
 				{
-					evnt->resources[x] = read_le_u32(bufor + i); 
+                    evnt->resources[x] = read_le_u32(buffer + i);
 					i+=4;
 				}
 
 				evnt->primskills.resize(GameConstants::PRIMARY_SKILLS);
 				for(int x=0; x<4; x++)
 				{
-					evnt->primskills[x] = bufor[i]; 
+                    evnt->primskills[x] = buffer[i];
 					i++;
 				}
 
 				int gabn; //number of gained abilities
-				gabn = bufor[i]; ++i;
+                gabn = buffer[i]; ++i;
 				for(int oo = 0; oo<gabn; ++oo)
 				{
-					evnt->abilities.push_back(bufor[i]); ++i;
-					evnt->abilityLevels.push_back(bufor[i]); ++i;
+                    evnt->abilities.push_back(buffer[i]); ++i;
+                    evnt->abilityLevels.push_back(buffer[i]); ++i;
 				}
 
-				int gart = bufor[i]; ++i; //number of gained artifacts
+                int gart = buffer[i]; ++i; //number of gained artifacts
 				for(int oo = 0; oo<gart; ++oo)
 				{
-					if (version == RoE)
+                    if (version == EMapFormat::ROE)
 					{
-						evnt->artifacts.push_back(bufor[i]); i++;
+                        evnt->artifacts.push_back(buffer[i]); i++;
 					}
 					else
 					{
-						evnt->artifacts.push_back(read_le_u16(bufor + i)); i+=2;
+                        evnt->artifacts.push_back(read_le_u16(buffer + i)); i+=2;
 					}
 				}
 
-				int gspel = bufor[i]; ++i; //number of gained spells
+                int gspel = buffer[i]; ++i; //number of gained spells
 				for(int oo = 0; oo<gspel; ++oo)
 				{
-					evnt->spells.push_back(bufor[i]); ++i;
+                    evnt->spells.push_back(buffer[i]); ++i;
 				}
 
-				int gcre = bufor[i]; ++i; //number of gained creatures
-				readCreatureSet(&evnt->creatures, bufor,i,gcre,(version>RoE));
+                int gcre = buffer[i]; ++i; //number of gained creatures
+                readCreatureSet(&evnt->creatures, buffer,i,gcre,(version > EMapFormat::ROE));
 
 				i+=8;
-				evnt->availableFor = bufor[i]; ++i;
-				evnt->computerActivate = bufor[i]; ++i;
-				evnt->removeAfterVisit = bufor[i]; ++i;
+                evnt->availableFor = buffer[i]; ++i;
+                evnt->computerActivate = buffer[i]; ++i;
+                evnt->removeAfterVisit = buffer[i]; ++i;
 				evnt->humanActivate = true;
 
 				i+=4;
@@ -1376,7 +1406,7 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 			}
 		case 34: case 70: case 62: //34 - hero; 70 - random hero; 62 - prison
 			{
-				nobj = loadHero(bufor, i, idToBeGiven);
+                nobj = loadHero(buffer, i, idToBeGiven);
 				break;
 			}
 		case 4: //Arena
@@ -1425,40 +1455,40 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 				CGCreature *cre = new CGCreature();
 				nobj = cre;
 
-				if(version>RoE)
+                if(version > EMapFormat::ROE)
 				{
-					cre->identifier = read_le_u32(bufor + i); i+=4;
+                    cre->identifier = read_le_u32(buffer + i); i+=4;
 					questIdentifierToId[cre->identifier] = idToBeGiven;
 					//monsters[cre->identifier] = cre;
 				}
 
 				CStackInstance *hlp = new CStackInstance();
-				hlp->count =  read_le_u16(bufor + i); i+=2;
+                hlp->count =  read_le_u16(buffer + i); i+=2;
 				//type will be set during initialization
 				cre->putStack(0, hlp);
 
-				cre->character = bufor[i]; ++i;
-				bool isMesTre = bufor[i]; ++i; //true if there is message or treasury
+                cre->character = buffer[i]; ++i;
+                bool isMesTre = buffer[i]; ++i; //true if there is message or treasury
 				if(isMesTre)
 				{
-					cre->message = readString(bufor,i);
+                    cre->message = readString(buffer,i);
 					cre->resources.resize(GameConstants::RESOURCE_QUANTITY);
 					for(int j=0; j<7; j++)
 					{
-						cre->resources[j] = read_le_u32(bufor + i); i+=4;
+                        cre->resources[j] = read_le_u32(buffer + i); i+=4;
 					}
 
 					int artID;
-					if (version == RoE)
+                    if (version == EMapFormat::ROE)
 					{
-						artID = bufor[i]; i++;
+                        artID = buffer[i]; i++;
 					}
 					else
 					{
-						artID = read_le_u16(bufor + i); i+=2;
+                        artID = read_le_u16(buffer + i); i+=2;
 					}
 
-					if(version==RoE)
+                    if(version == EMapFormat::ROE)
 					{
 						if(artID!=0xff)
 							cre->gainedArtifact = artID;
@@ -1473,8 +1503,8 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 							cre->gainedArtifact = -1;
 					}
 				}
-				cre->neverFlees = bufor[i]; ++i;
-				cre->notGrowingTeam = bufor[i]; ++i;
+                cre->neverFlees = buffer[i]; ++i;
+                cre->notGrowingTeam = buffer[i]; ++i;
 				i+=2;;
 				break;
 			}
@@ -1482,13 +1512,13 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 			{
 				CGSignBottle *sb = new CGSignBottle();
 				nobj = sb;
-				sb->message = readString(bufor,i);
+                sb->message = readString(buffer,i);
 				i+=4;
 				break;
 			}
 		case 83: //seer's hut
 			{
-				i = loadSeerHut(bufor, i, nobj);
+                i = loadSeerHut(buffer, i, nobj);
 				addQuest (nobj);
 				break;
 			}
@@ -1496,12 +1526,12 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 			{
 				CGWitchHut *wh = new CGWitchHut();
 				nobj = wh;
-				if(version>RoE) //in reo we cannot specify it - all are allowed (I hope)
+                if(version > EMapFormat::ROE) //in reo we cannot specify it - all are allowed (I hope)
 				{
 					int ist=i; //starting i for loop
 					for(; i<ist+4; ++i)
 					{
-						ui8 c = bufor[i];
+                        ui8 c = buffer[i];
 						for(int yy=0; yy<8; ++yy)
 						{
 							if((i-ist)*8+yy < GameConstants::SKILL_QUANTITY)
@@ -1525,8 +1555,8 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 			{
 				CGScholar *sch = new CGScholar();
 				nobj = sch;
-				sch->bonusType = bufor[i++];
-				sch->bonusID = bufor[i++];
+                sch->bonusType = buffer[i++];
+                sch->bonusID = buffer[i++];
 				i+=6;
 				break;
 			}
@@ -1534,12 +1564,12 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 			{
 				CGGarrison *gar = new CGGarrison();
 				nobj = gar;
-				nobj->setOwner(bufor[i++]);
+                nobj->setOwner(buffer[i++]);
 				i+=3;
-				readCreatureSet(gar, bufor, i, 7, version > RoE);
-				if(version > RoE)
+                readCreatureSet(gar, buffer, i, 7, version > EMapFormat::ROE);
+                if(version > EMapFormat::ROE)
 				{
-					gar->removableUnits = bufor[i]; ++i;
+                    gar->removableUnits = buffer[i]; ++i;
 				}
 				else
 					gar->removableUnits = true;
@@ -1555,21 +1585,21 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 				CGArtifact *art = new CGArtifact();
 				nobj = art;
 
-				bool areSettings = bufor[i++];
+                bool areSettings = buffer[i++];
 				if(areSettings)
 				{
-					art->message = readString(bufor,i);
-					bool areGuards = bufor[i++];
+                    art->message = readString(buffer,i);
+                    bool areGuards = buffer[i++];
 					if(areGuards)
 					{
-						readCreatureSet(art, bufor, i, 7, version > RoE);
+                        readCreatureSet(art, buffer, i, 7, version > EMapFormat::ROE);
 					}
 					i+=4;
 				}
 
 				if(defInfo->id==93)
 				{
-					spellID = read_le_u32(bufor + i); i+=4;
+                    spellID = read_le_u32(buffer + i); i+=4;
 					artID = 1;
 				}
 				else if(defInfo->id == 5) //specific artifact
@@ -1585,17 +1615,17 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 				CGResource *res = new CGResource();
 				nobj = res;
 
-				bool isMessGuard = bufor[i]; ++i;
+                bool isMessGuard = buffer[i]; ++i;
 				if(isMessGuard)
 				{
-					res->message = readString(bufor,i);
-					if(bufor[i++])
+                    res->message = readString(buffer,i);
+                    if(buffer[i++])
 					{
-						readCreatureSet(res, bufor, i, 7, version > RoE);
+                        readCreatureSet(res, buffer, i, 7, version > EMapFormat::ROE);
 					}
 					i+=4;
 				}
-				res->amount = read_le_u32(bufor + i); i+=4;
+                res->amount = read_le_u32(buffer + i); i+=4;
 				if (defInfo->subid == 6) // Gold is multiplied by 100.
 					res->amount *= 100;
 				i+=4;
@@ -1604,21 +1634,21 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 			}
 		case 77: case 98: //random town; town
 			{
-				loadTown(nobj, bufor, i, defInfo->subid);
+                loadTown(nobj, buffer, i, defInfo->subid);
 				break;
 			}
 		case 53: 
 		case 220://mine (?)
 			{
 				nobj = new CGMine();
-				nobj->setOwner(bufor[i++]);
+                nobj->setOwner(buffer[i++]);
 				i+=3;
 				break;
 			}
 		case 17: case 18: case 19: case 20: //dwellings
 			{
 				nobj = new CGDwelling();
-				nobj->setOwner(bufor[i++]);
+                nobj->setOwner(buffer[i++]);
 				i+=3;
 				break;
 			}
@@ -1632,76 +1662,76 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 			{
 				CGShrine * shr = new CGShrine();
 				nobj = shr;
-				shr->spell = bufor[i]; i+=4;
+                shr->spell = buffer[i]; i+=4;
 				break;
 			}
 		case 6: //pandora's box
 			{
 				CGPandoraBox *box = new CGPandoraBox();
 				nobj = box;
-				bool messg = bufor[i]; ++i;
+                bool messg = buffer[i]; ++i;
 				if(messg)
 				{
-					box->message = readString(bufor,i);
-					if(bufor[i++])
+                    box->message = readString(buffer,i);
+                    if(buffer[i++])
 					{
-						readCreatureSet(box, bufor, i, 7, version > RoE);
+                        readCreatureSet(box, buffer, i, 7, version > EMapFormat::ROE);
 					}
 					i+=4;
 				}
 
-				box->gainedExp = read_le_u32(bufor + i); i+=4;
-				box->manaDiff = read_le_u32(bufor + i); i+=4;
-				box->moraleDiff = (si8)bufor[i]; ++i;
-				box->luckDiff = (si8)bufor[i]; ++i;				
+                box->gainedExp = read_le_u32(buffer + i); i+=4;
+                box->manaDiff = read_le_u32(buffer + i); i+=4;
+                box->moraleDiff = (si8)buffer[i]; ++i;
+                box->luckDiff = (si8)buffer[i]; ++i;
 
 				box->resources.resize(GameConstants::RESOURCE_QUANTITY);
 				for(int x=0; x<7; x++)
 				{
-					box->resources[x] = read_le_u32(bufor + i); 
+                    box->resources[x] = read_le_u32(buffer + i);
 					i+=4;
 				}
 
 				box->primskills.resize(GameConstants::PRIMARY_SKILLS);
 				for(int x=0; x<4; x++)
 				{
-					box->primskills[x] = bufor[i]; 
+                    box->primskills[x] = buffer[i];
 					i++;
 				}
 
 				int gabn; //number of gained abilities
-				gabn = bufor[i]; ++i;
+                gabn = buffer[i]; ++i;
 				for(int oo = 0; oo<gabn; ++oo)
 				{
-					box->abilities.push_back(bufor[i]); ++i;
-					box->abilityLevels.push_back(bufor[i]); ++i;
+                    box->abilities.push_back(buffer[i]); ++i;
+                    box->abilityLevels.push_back(buffer[i]); ++i;
 				}
-				int gart = bufor[i]; ++i; //number of gained artifacts
+                int gart = buffer[i]; ++i; //number of gained artifacts
 				for(int oo = 0; oo<gart; ++oo)
 				{
-					if(version > RoE)
+                    if(version > EMapFormat::ROE)
 					{
-						box->artifacts.push_back(read_le_u16(bufor + i)); i+=2;
+                        box->artifacts.push_back(read_le_u16(buffer + i)); i+=2;
 					}
 					else
 					{
-						box->artifacts.push_back(bufor[i]); i+=1;
+                        box->artifacts.push_back(buffer[i]); i+=1;
 					}
 				}
-				int gspel = bufor[i]; ++i; //number of gained spells
+                int gspel = buffer[i]; ++i; //number of gained spells
 				for(int oo = 0; oo<gspel; ++oo)
 				{
-					box->spells.push_back(bufor[i]); ++i;
+                    box->spells.push_back(buffer[i]); ++i;
 				}
-				int gcre = bufor[i]; ++i; //number of gained creatures
-				readCreatureSet(&box->creatures, bufor,i,gcre,(version>RoE));
+                int gcre = buffer[i]; ++i; //number of gained creatures
+                readCreatureSet(&box->creatures, buffer,i,gcre,(version > EMapFormat::ROE));
 				i+=8;
 				break;
 			}
 		case 36: //grail
 			{
 				grailPos = pos;
-				grailRadious = read_le_u32(bufor + i); i+=4;
+                grailRadious = read_le_u32(buffer + i); i+=4;
 				continue;
 			}
 		//dwellings
@@ -1718,16 +1748,16 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 					break; case 218: spec = new CCreGenLeveledInfo;
 				}
 
-				spec->player = read_le_u32(bufor + i); i+=4;
+                spec->player = read_le_u32(buffer + i); i+=4;
 				//216 and 217
 				if (auto castleSpec = dynamic_cast<CCreGenAsCastleInfo*>(spec))
 				{
-					castleSpec->identifier =  read_le_u32(bufor + i); i+=4;
+                    castleSpec->identifier =  read_le_u32(buffer + i); i+=4;
 					if(!castleSpec->identifier)
 					{
 						castleSpec->asCastle = false;
-						castleSpec->castles[0] = bufor[i]; ++i;
-						castleSpec->castles[1] = bufor[i]; ++i;
+                        castleSpec->castles[0] = buffer[i]; ++i;
+                        castleSpec->castles[1] = buffer[i]; ++i;
 					}
 					else
 					{
@@ -1738,8 +1768,8 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 				//216 and 218
 				if (auto lvlSpec = dynamic_cast<CCreGenLeveledInfo*>(spec))
 				{
-					lvlSpec->minLevel = std::max(bufor[i], ui8(1)); ++i;
-					lvlSpec->maxLevel = std::min(bufor[i], ui8(7)); ++i;
+                    lvlSpec->minLevel = std::max(buffer[i], ui8(1)); ++i;
+                    lvlSpec->maxLevel = std::min(buffer[i], ui8(7)); ++i;
 				}
 				nobj->setOwner(spec->player);
 				static_cast<CGDwelling*>(nobj)->info = spec;
@@ -1749,7 +1779,7 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 			{
 				CGQuestGuard *guard = new CGQuestGuard();
 				addQuest (guard);
-				loadQuest(guard, bufor, i);
+                loadQuest(guard, buffer, i);
 				nobj = guard;
 				break;
 			}
@@ -1802,7 +1832,7 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 		case 87: //Shipyard
 			{
 				nobj = new CGShipyard();
-				nobj->setOwner(read_le_u32(bufor + i)); i+=4;
+                nobj->setOwner(read_le_u32(buffer + i)); i+=4;
 				break;
 			}
 		case 214: //hero placeholder
@@ -1810,14 +1840,14 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 				CGHeroPlaceholder *hp = new CGHeroPlaceholder();;
 				nobj = hp;
 
-				int a = bufor[i++]; //unknown byte, seems to be always 0 (if not - scream!)
+                int a = buffer[i++]; //unknown byte, seems to be always 0 (if not - scream!)
 				tlog2 << "Unhandled Hero Placeholder detected: "<<a<<"\n";
 
-				int htid = bufor[i++]; //hero type id
+                int htid = buffer[i++]; //hero type id
 				nobj->subID = htid;
 
 				if(htid == 0xff)
-					hp->power = bufor[i++];
+                    hp->power = buffer[i++];
 				else
 					hp->power = 0;
 
@@ -1878,7 +1908,7 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 		case 42: //Lighthouse
 			{
 				nobj = new CGLighthouse();
-				nobj->tempOwner = read_le_u32(bufor + i); i+=4;
+                nobj->tempOwner = read_le_u32(buffer + i); i+=4;
 				break;
 			}
 		case 2: //Altar of Sacrifice
@@ -1925,57 +1955,57 @@ void Mapa::readObjects( const ui8 * bufor, int &i)
 	std::sort(heroes.begin(), heroes.end(), _HERO_SORTER());
 }
 
-void Mapa::readEvents( const ui8 * bufor, int &i )
+void CMap::readEvents( const ui8 * buffer, int &i )
 {
-	int numberOfEvents = read_le_u32(bufor + i); i+=4;
+    int numberOfEvents = read_le_u32(buffer + i); i+=4;
 	for(int yyoo=0; yyoo<numberOfEvents; ++yyoo)
 	{
 		CMapEvent *ne = new CMapEvent();
 		ne->name = std::string();
 		ne->message = std::string();
-		int nameLen = read_le_u32(bufor + i); i+=4;
+        int nameLen = read_le_u32(buffer + i); i+=4;
 		for(int qq=0; qq<nameLen; ++qq)
 		{
-			ne->name += bufor[i]; ++i;
+            ne->name += buffer[i]; ++i;
 		}
-		int messLen = read_le_u32(bufor + i); i+=4;
+        int messLen = read_le_u32(buffer + i); i+=4;
 		for(int qq=0; qq<messLen; ++qq)
 		{
-			ne->message +=bufor[i]; ++i;
+            ne->message +=buffer[i]; ++i;
 		}
 		for(int k=0; k < 7; k++)
 		{
-			ne->resources[k] = read_le_u32(bufor + i); i+=4;
+            ne->resources[k] = read_le_u32(buffer + i); i+=4;
 		}
-		ne->players = bufor[i]; ++i;
-		if(version>AB)
+        ne->players = buffer[i]; ++i;
+        if(version > EMapFormat::AB)
 		{
-			ne->humanAffected = bufor[i]; ++i;
+            ne->humanAffected = buffer[i]; ++i;
 		}
 		else
 			ne->humanAffected = true;
-		ne->computerAffected = bufor[i]; ++i;
-		ne->firstOccurence = read_le_u16(bufor + i); i+=2;
-		ne->nextOccurence = bufor[i]; ++i;
+        ne->computerAffected = buffer[i]; ++i;
+        ne->firstOccurence = read_le_u16(buffer + i); i+=2;
+        ne->nextOccurence = buffer[i]; ++i;
 
 		char unknown[17];
-		memcpy(unknown, bufor+i, 17);
+        memcpy(unknown, buffer+i, 17);
 		i+=17;
 
 		events.push_back(ne);
 	}
 }
 
-bool Mapa::isInTheMap(const int3 &pos) const
+bool CMap::isInTheMap(const int3 &pos) const
 {
 	if(pos.x<0 || pos.y<0 || pos.z<0 || pos.x >= width || pos.y >= height || pos.z > twoLevel)
 		return false;
 	else return true;
 }
 
-void Mapa::loadQuest(IQuestObject * guard, const ui8 * bufor, int & i)
+void CMap::loadQuest(IQuestObject * guard, const ui8 * buffer, int & i)
 {
-	guard->quest->missionType = bufor[i]; ++i;
+    guard->quest->missionType = buffer[i]; ++i;
 	//int len1, len2, len3;
 	switch(guard->quest->missionType)
 	{
@@ -1986,7 +2016,7 @@ void Mapa::loadQuest(IQuestObject * guard, const ui8 * bufor, int & i)
 			guard->quest->m2stats.resize(4);
 			for(int x=0; x<4; x++)
 			{
-				guard->quest->m2stats[x] = bufor[i++];
+                guard->quest->m2stats[x] = buffer[i++];
 			}
 		}
 		break;
@@ -1994,15 +2024,15 @@ void Mapa::loadQuest(IQuestObject * guard, const ui8 * bufor, int & i)
 	case 3:
 	case 4:
 		{
-			guard->quest->m13489val = read_le_u32(bufor + i); i+=4;
+            guard->quest->m13489val = read_le_u32(buffer + i); i+=4;
 			break;
 		}
 	case 5:
 		{
-			int artNumber = bufor[i]; ++i;
+            int artNumber = buffer[i]; ++i;
 			for(int yy=0; yy<artNumber; ++yy)
 			{
-				int artid = read_le_u16(bufor + i); i+=2;
+                int artid = read_le_u16(buffer + i); i+=2;
 				guard->quest->m5arts.push_back(artid); 
 				allowedArtifact[artid] = false; //these are unavailable for random generation
 			}
@@ -2010,12 +2040,12 @@ void Mapa::loadQuest(IQuestObject * guard, const ui8 * bufor, int & i)
 		}
 	case 6:
 		{
-			int typeNumber = bufor[i]; ++i;
+            int typeNumber = buffer[i]; ++i;
 			guard->quest->m6creatures.resize(typeNumber);
 			for(int hh=0; hh<typeNumber; ++hh)
 			{
-				guard->quest->m6creatures[hh].type = VLC->creh->creatures[read_le_u16(bufor + i)]; i+=2;
-				guard->quest->m6creatures[hh].count = read_le_u16(bufor + i); i+=2;
+                guard->quest->m6creatures[hh].type = VLC->creh->creatures[read_le_u16(buffer + i)]; i+=2;
+                guard->quest->m6creatures[hh].count = read_le_u16(buffer + i); i+=2;
 			}
 			break;
 		}
@@ -2024,7 +2054,7 @@ void Mapa::loadQuest(IQuestObject * guard, const ui8 * bufor, int & i)
 			guard->quest->m7resources.resize(7);
 			for(int x=0; x<7; x++)
 			{
-				guard->quest->m7resources[x] = read_le_u32(bufor + i); 
+                guard->quest->m7resources[x] = read_le_u32(buffer + i);
 				i+=4;
 			}
 			break;
@@ -2032,13 +2062,13 @@ void Mapa::loadQuest(IQuestObject * guard, const ui8 * bufor, int & i)
 	case 8:
 	case 9:
 		{
-			guard->quest->m13489val = bufor[i]; ++i;
+            guard->quest->m13489val = buffer[i]; ++i;
 			break;
 		}
 	}
 
 
-	int limit = read_le_u32(bufor + i); i+=4;
+    int limit = read_le_u32(buffer + i); i+=4;
 	if(limit == ((int)0xffffffff))
 	{
 		guard->quest->lastDay = -1;
@@ -2047,32 +2077,32 @@ void Mapa::loadQuest(IQuestObject * guard, const ui8 * bufor, int & i)
 	{
 		guard->quest->lastDay = limit;
 	}
-	guard->quest->firstVisitText = readString(bufor,i);
-	guard->quest->nextVisitText = readString(bufor,i);
-	guard->quest->completedText = readString(bufor,i);
+    guard->quest->firstVisitText = readString(buffer,i);
+    guard->quest->nextVisitText = readString(buffer,i);
+    guard->quest->completedText = readString(buffer,i);
 	guard->quest->isCustomFirst = guard->quest->firstVisitText.size() > 0;
 	guard->quest->isCustomNext = guard->quest->nextVisitText.size() > 0;
 	guard->quest->isCustomComplete = guard->quest->completedText.size() > 0;
 }
 
-TerrainTile & Mapa::getTile( const int3 & tile )
+TerrainTile & CMap::getTile( const int3 & tile )
 {
 	return terrain[tile.x][tile.y][tile.z];
 }
 
-const TerrainTile & Mapa::getTile( const int3 & tile ) const
+const TerrainTile & CMap::getTile( const int3 & tile ) const
 {
 	return terrain[tile.x][tile.y][tile.z];
 }
 
-bool Mapa::isWaterTile(const int3 &pos) const
+bool CMap::isWaterTile(const int3 &pos) const
 {
-	return isInTheMap(pos) && getTile(pos).tertype == TerrainTile::water;
+    return isInTheMap(pos) && getTile(pos).tertype == ETerrainType::WATER;
 }
 
-const CGObjectInstance *Mapa::getObjectiveObjectFrom(int3 pos, bool lookForHero)
+const CGObjectInstance *CMap::getObjectiveObjectFrom(int3 pos, bool lookForHero)
 {
-	const std::vector <CGObjectInstance*> &objs = getTile(pos).visitableObjects;
+    const std::vector <CGObjectInstance *> & objs = getTile(pos).visitableObjects;
 	assert(objs.size());
 	if(objs.size() > 1 && lookForHero && objs.front()->ID != Obj::HERO)
 	{
@@ -2083,7 +2113,7 @@ const CGObjectInstance *Mapa::getObjectiveObjectFrom(int3 pos, bool lookForHero)
 		return objs.front();
 }
 
-void Mapa::checkForObjectives()
+void CMap::checkForObjectives()
 {
 	if(isInTheMap(victoryCondition.pos))
 		victoryCondition.obj = getObjectiveObjectFrom(victoryCondition.pos, victoryCondition.condition == EVictoryConditionType::BEATHERO);
@@ -2092,31 +2122,31 @@ void Mapa::checkForObjectives()
 		lossCondition.obj = getObjectiveObjectFrom(lossCondition.pos, lossCondition.typeOfLossCon == ELossConditionType::LOSSHERO);
 }
 
-void Mapa::addNewArtifactInstance( CArtifactInstance *art )
+void CMap::addNewArtifactInstance( CArtifactInstance *art )
 {
 	art->id = artInstances.size();
 	artInstances.push_back(art);
 }
 
-void Mapa::addQuest (CGObjectInstance *obj)
+void CMap::addQuest (CGObjectInstance * quest)
 {
-	auto q = dynamic_cast<IQuestObject *>(obj);
+    auto q = dynamic_cast<IQuestObject *>(quest);
 	q->quest->qid = quests.size();
 	quests.push_back (q->quest);
 }
 
-bool Mapa::loadArtifactToSlot(CGHeroInstance *h, int slot, const ui8 * bufor, int &i)
+bool CMap::loadArtifactToSlot(CGHeroInstance * hero, int slot, const ui8 * buffer, int & i)
 {
-	const int artmask = version == RoE ? 0xff : 0xffff;
+    const int artmask = version == EMapFormat::ROE ? 0xff : 0xffff;
 	int aid;
 
-	if (version == RoE)
+    if (version == EMapFormat::ROE)
 	{
-		aid = bufor[i]; i++;
+        aid = buffer[i]; i++;
 	}
 	else
 	{
-		aid = read_le_u16(bufor + i); i+=2;
+        aid = read_le_u16(buffer + i); i+=2;
 	}
 
 	bool isArt  =  aid != artmask;
@@ -2134,50 +2164,50 @@ bool Mapa::loadArtifactToSlot(CGHeroInstance *h, int slot, const ui8 * bufor, in
 			slot = ArtifactPosition::SPELLBOOK;
 		}
 		
-		h->putArtifact(slot, createArt(aid));
+        hero->putArtifact(slot, createArt(aid));
 	}
 	return isArt;
 }
 
-void Mapa::loadArtifactsOfHero(const ui8 * bufor, int & i, CGHeroInstance * nhi)
+void CMap::loadArtifactsOfHero(const ui8 * buffer, int & i, CGHeroInstance * hero)
 {
-	bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
+    bool artSet = buffer[i]; ++i; //true if artifact set is not default (hero has some artifacts)
 	if(artSet)
 	{
 		for(int pom=0;pom<16;pom++)
-			loadArtifactToSlot(nhi, pom, bufor, i);
+            loadArtifactToSlot(hero, pom, buffer, i);
 
 		//misc5 art //17
-		if(version >= SoD)
+        if(version >= EMapFormat::SOD)
 		{
-			if(!loadArtifactToSlot(nhi, ArtifactPosition::MACH4, bufor, i))
-				nhi->putArtifact(ArtifactPosition::MACH4, createArt(GameConstants::ID_CATAPULT)); //catapult by default
+            if(!loadArtifactToSlot(hero, ArtifactPosition::MACH4, buffer, i))
+                hero->putArtifact(ArtifactPosition::MACH4, createArt(GameConstants::ID_CATAPULT)); //catapult by default
 		}
 
-		loadArtifactToSlot(nhi, ArtifactPosition::SPELLBOOK, bufor, i);
+        loadArtifactToSlot(hero, ArtifactPosition::SPELLBOOK, buffer, i);
 
 		//19 //???what is that? gap in file or what? - it's probably fifth slot..
-		if(version > RoE)
-			loadArtifactToSlot(nhi, ArtifactPosition::MISC5, bufor, i);
+        if(version > EMapFormat::ROE)
+            loadArtifactToSlot(hero, ArtifactPosition::MISC5, buffer, i);
 		else
 			i+=1;
 
 		//bag artifacts //20
-		int amount = read_le_u16(bufor + i); i+=2; //number of artifacts in hero's bag
+        int amount = read_le_u16(buffer + i); i+=2; //number of artifacts in hero's bag
 		for(int ss = 0; ss < amount; ++ss)
-			loadArtifactToSlot(nhi, GameConstants::BACKPACK_START + nhi->artifactsInBackpack.size(), bufor, i);
+            loadArtifactToSlot(hero, GameConstants::BACKPACK_START + hero->artifactsInBackpack.size(), buffer, i);
 	} //artifacts
 }
 
-CArtifactInstance * Mapa::createArt(int aid, int spellID /*= -1*/)
+CArtifactInstance * CMap::createArt(int aid, int spellID /*= -1*/)
 {
 	CArtifactInstance *a = NULL;
 	if(aid >= 0)
 	{
-		if(spellID < 0)
+        if(spellID < 0)
 			a = CArtifactInstance::createNewArtifactInstance(aid);
 		else
-			a = CArtifactInstance::createScroll(VLC->spellh->spells[spellID]);
+            a = CArtifactInstance::createScroll(VLC->spellh->spells[spellID]);
 	}
 	else
 		a = new CArtifactInstance();
@@ -2194,7 +2224,7 @@ CArtifactInstance * Mapa::createArt(int aid, int spellID /*= -1*/)
 	return a;
 }
 
-void Mapa::eraseArtifactInstance(CArtifactInstance *art)
+void CMap::eraseArtifactInstance(CArtifactInstance *art)
 {
 	assert(artInstances[art->id] == art);
 	artInstances[art->id].dellNull();
@@ -2207,22 +2237,22 @@ LossCondition::LossCondition()
 	pos = int3(-1,-1,-1);
 }
 
-CVictoryCondition::CVictoryCondition()
+VictoryCondition::VictoryCondition()
 {
 	pos = int3(-1,-1,-1);
 	obj = NULL;
 	ID = allowNormalVictory = appliesToAI = count = 0;
 }
 
-bool TerrainTile::entrableTerrain(const TerrainTile *from /*= NULL*/) const
+bool TerrainTile::entrableTerrain(const TerrainTile * from /*= NULL*/) const
 {
-	return entrableTerrain(from ? from->tertype != water : true, from ? from->tertype == water : true);
+    return entrableTerrain(from ? from->tertype != ETerrainType::WATER : true, from ? from->tertype == ETerrainType::WATER : true);
 }
 
 bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
 {
-	return tertype != rock 
-		&& ((allowSea && tertype == water)  ||  (allowLand && tertype != water));
+    return tertype != ETerrainType::ROCK
+        && ((allowSea && tertype == ETerrainType::WATER)  ||  (allowLand && tertype != ETerrainType::WATER));
 }
 
 bool TerrainTile::isClear(const TerrainTile *from /*= NULL*/) const
@@ -2237,15 +2267,15 @@ int TerrainTile::topVisitableID() const
 
 bool TerrainTile::isCoastal() const
 {
-	return siodmyTajemniczyBajt & 64;
+    return extTileFlags & 64;
 }
 
 bool TerrainTile::hasFavourableWinds() const
 {
-	return siodmyTajemniczyBajt & 128;
+    return extTileFlags & 128;
 }
 
 bool TerrainTile::isWater() const
 {
-	return tertype == water;
+    return tertype == ETerrainType::WATER;
 }

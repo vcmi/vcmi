@@ -44,7 +44,7 @@ public:
 };
 extern CClientState * CCS;
 
-struct Mapa;
+struct CMap;
 
 /// CGameInfo class
 /// for allowing different functions for accessing game informations
@@ -67,7 +67,7 @@ public:
 	void setFromLib();
 
 	friend class CClient;
-	friend void initVillagesCapitols(Mapa * map);
+	friend void initVillagesCapitols(CMap * map);
 
 	CGameInfo();
 };

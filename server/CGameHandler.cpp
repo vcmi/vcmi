@@ -1229,7 +1229,7 @@ void CGameHandler::newTurn()
 
 			NewTurn::Hero hth;
 			hth.id = h->id;
-			hth.move = h->maxMovePoints(gs->map->getTile(h->getPosition(false)).tertype != TerrainTile::water);
+            hth.move = h->maxMovePoints(gs->map->getTile(h->getPosition(false)).tertype != ETerrainType::WATER);
 
 			if(h->visitedTown && h->visitedTown->hasBuilt(EBuilding::MAGES_GUILD_1)) //if hero starts turn in town with mage guild
 				hth.mana = std::max(h->mana, h->manaLimit()); //restore all mana
@@ -1671,11 +1671,11 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-	if(((t.tertype == TerrainTile::rock  ||  (t.blocked && !t.visitable && !h->hasBonusOfType(Bonus::FLYING_MOVEMENT) ))
+    if(((t.tertype == ETerrainType::ROCK  ||  (t.blocked && !t.visitable && !h->hasBonusOfType(Bonus::FLYING_MOVEMENT) ))
 			&& complain("Cannot move hero, destination tile is blocked!"))
-		|| ((!h->boat && !h->canWalkOnSea() && t.tertype == TerrainTile::water && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != 8 && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+        || ((!h->boat && !h->canWalkOnSea() && t.tertype == ETerrainType::WATER && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != 8 && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
-		|| ((h->boat && t.tertype != TerrainTile::water && t.blocked)
+        || ((h->boat && t.tertype != ETerrainType::WATER && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
 		|| ((h->movement < cost  &&  dst != h->pos  &&  !instant)
 			&& complain("Hero doesn't have any movement points left!"))
@@ -1697,7 +1697,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		return true;
 	}
 	//hero leaves the boat
-	else if(h->boat && t.tertype != TerrainTile::water && !t.blocked)
+    else if(h->boat && t.tertype != ETerrainType::WATER && !t.blocked)
 	{
 		//TODO? code similarity with the block above
 		tmh.result = TryMoveHero::DISEMBARK;

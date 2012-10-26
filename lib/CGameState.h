@@ -44,7 +44,7 @@ class CGDefInfo;
 class CObjectScript;
 class CGObjectInstance;
 class CCreature;
-struct Mapa;
+struct CMap;
 struct StartInfo;
 struct SDL_Surface;
 class CMapHandler;
@@ -386,7 +386,7 @@ public:
 	ui8 currentPlayer; //ID of player currently having turn
 	ConstTransitivePtr<BattleInfo> curB; //current battle
 	ui32 day; //total number of days in game
-	ConstTransitivePtr<Mapa> map;
+	ConstTransitivePtr<CMap> map;
 	bmap<TPlayerColor, PlayerState> players;
 	bmap<TPlayerColor, TeamState> teams;
 	bmap<TPlayerColor, ConstTransitivePtr<CGDefInfo> > villages, forts, capitols; //def-info for town graphics
@@ -461,7 +461,7 @@ public:
 	friend class CCallback;
 	friend class CLuaCallback;
 	friend class CClient;
-	friend void initGameState(Mapa * map, CGameInfo * cgi);
+	friend void initGameState(CMap * map, CGameInfo * cgi);
 	friend class IGameCallback;
 	friend class CMapHandler;
 	friend class CGameHandler;

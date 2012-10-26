@@ -87,7 +87,7 @@ CSoundHandler::CSoundHandler():
 	pickupSounds += soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
 		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07;
 
-	horseSounds +=  // must be the same order as terrains (see EterrainType);
+    horseSounds +=  // must be the same order as terrains (see ETerrainType);
 		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,
 		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
 		soundBase::horseSubterranean, soundBase::horseLava,

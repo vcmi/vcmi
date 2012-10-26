@@ -1385,7 +1385,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 				{
 					if(pnode->land)
 					{
-						if(LOCPLINT->cb->getTile(h->getPosition(false))->tertype != TerrainTile::water)
+                        if(LOCPLINT->cb->getTile(h->getPosition(false))->tertype != ETerrainType::WATER)
 							CCS->curh->changeGraphic(0, 4 + turns*6);
 						else
 							CCS->curh->changeGraphic(0, 7 + turns*6); //anchor

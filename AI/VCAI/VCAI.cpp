@@ -2737,7 +2737,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 	{
 	case WIN:
 		{
-			const CVictoryCondition &vc = cb->getMapHeader()->victoryCondition;
+			const VictoryCondition &vc = cb->getMapHeader()->victoryCondition;
 			EVictoryConditionType::EVictoryConditionType cond = vc.condition;
 
 			if(!vc.appliesToAI)

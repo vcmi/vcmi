@@ -1048,7 +1048,7 @@ void SelectionTab::parseMaps(const std::vector<ResourceID> &files, int start, in
 	{
 		try
 		{
-			TInputStreamPtr stream(Mapa::getMapStream(files[start].getName()));
+			TInputStreamPtr stream(CMap::getMapStream(files[start].getName()));
 			int read = stream->read(mapBuffer, 1500);
 
 			if(read < 50  ||  !mapBuffer[4])
@@ -1360,16 +1360,16 @@ void SelectionTab::printMaps(SDL_Surface *to)
 			int temp=-1;
 			switch (currentItem->mapHeader->version)
 			{
-			case CMapHeader::RoE:
+            case EMapFormat::ROE:
 				temp=0;
 				break;
-			case CMapHeader::AB:
+            case EMapFormat::AB:
 				temp=1;
 				break;
-			case CMapHeader::SoD:
+            case EMapFormat::SOD:
 				temp=2;
 				break;
-			case CMapHeader::WoG:
+            case EMapFormat::WOG:
 				temp=3;
 				break;
 			default:

@@ -38,7 +38,7 @@ void CMapInfo::mapInit(const std::string &fname, const ui8 *map )
 	fileURI = fname;
 	int i = 0;
 	mapHeader = new CMapHeader();
-	mapHeader->version = CMapHeader::invalid;
+    mapHeader->version = EMapFormat::INVALID;
 
 	try
 	{

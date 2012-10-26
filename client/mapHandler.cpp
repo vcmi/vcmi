@@ -34,39 +34,39 @@ extern SDL_Surface * screen;
 
 std::string nameFromType (int typ)
 {
-	switch(static_cast<TerrainTile::EterrainType>(typ))
+    switch(static_cast<ETerrainType::ETerrainType>(typ))
 	{
-		case TerrainTile::dirt:
+        case ETerrainType::DIRT:
 			return std::string("DIRTTL.DEF");
 
-		case TerrainTile::sand:
+        case ETerrainType::SAND:
 			return std::string("SANDTL.DEF");
 
-		case TerrainTile::grass:
+        case ETerrainType::GRASS:
 			return std::string("GRASTL.DEF");
 
-		case TerrainTile::snow:
+        case ETerrainType::SNOW:
 			return std::string("SNOWTL.DEF");
 
-		case TerrainTile::swamp:
+        case ETerrainType::SWAMP:
 			return std::string("SWMPTL.DEF");
 
-		case TerrainTile::rough:
+        case ETerrainType::ROUGH:
 			return std::string("ROUGTL.DEF");
 
-		case TerrainTile::subterranean:
+        case ETerrainType::SUBTERRANEAN:
 			return std::string("SUBBTL.DEF");
 
-		case TerrainTile::lava:
+        case ETerrainType::LAVA:
 			return std::string("LAVATL.DEF");
 
-		case TerrainTile::water:
+        case ETerrainType::WATER:
 			return std::string("WATRTL.DEF");
 
-		case TerrainTile::rock:
+        case ETerrainType::ROCK:
 			return std::string("ROCKTL.DEF");
 
-		case TerrainTile::border:
+        case ETerrainType::BORDER:
 		//TODO use me
 		break;
 		default:
@@ -378,7 +378,7 @@ void CMapHandler::init()
 		}
 	}
 
-	std::for_each(map->defy.begin(),map->defy.end(),processDef); //load h3m defs
+    std::for_each(map->customDefs.begin(),map->customDefs.end(),processDef); //load h3m defs
 	tlog0<<"\tUnpacking and handling defs: "<<th.getDiff()<<std::endl;
 
 	//it seems to be completely unnecessary and useless
@@ -504,27 +504,27 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 			}
 			else //use default terrain graphic
 			{
-				blitterWithRotation(terrainGraphics[tinfo.tertype][tinfo.terview],rtile, extSurf, sr, tinfo.siodmyTajemniczyBajt%4);
+                blitterWithRotation(terrainGraphics[tinfo.tertype][tinfo.terview],rtile, extSurf, sr, tinfo.extTileFlags%4);
 			}
-			if(tinfo.nuine) //print river if present
+            if(tinfo.riverType) //print river if present
 			{
-				blitterWithRotationAndAlpha(staticRiverDefs[tinfo.nuine-1]->ourImages[tinfo.rivDir].bitmap,rtile, extSurf, sr, (tinfo.siodmyTajemniczyBajt>>2)%4);
+                blitterWithRotationAndAlpha(staticRiverDefs[tinfo.riverType-1]->ourImages[tinfo.riverDir].bitmap,rtile, extSurf, sr, (tinfo.extTileFlags>>2)%4);
 			}
 
 			//Roads are shifted by 16 pixels to bottom. We have to draw both parts separately
-			if (pos.y > 0 && map->terrain[pos.x][pos.y-1][pos.z].malle)
+            if (pos.y > 0 && map->terrain[pos.x][pos.y-1][pos.z].roadType)
 			{ //part from top tile
 				const TerrainTile &topTile = map->terrain[pos.x][pos.y-1][pos.z];
 				Rect source(0, 16, 32, 16);
 				Rect dest(sr.x, sr.y, sr.w, sr.h/2);
-				blitterWithRotationAndAlpha(roadDefs[topTile.malle-1]->ourImages[topTile.roadDir].bitmap, source, extSurf, dest, (topTile.siodmyTajemniczyBajt>>4)%4);
+                blitterWithRotationAndAlpha(roadDefs[topTile.roadType-1]->ourImages[topTile.roadDir].bitmap, source, extSurf, dest, (topTile.extTileFlags>>4)%4);
 			}
 
-			if(tinfo.malle) //print road from this tile
+            if(tinfo.roadType) //print road from this tile
 			{
 				Rect source(0, 0, 32, 32);
 				Rect dest(sr.x, sr.y+16, sr.w, sr.h/2);
-				blitterWithRotationAndAlpha(roadDefs[tinfo.malle-1]->ourImages[tinfo.roadDir].bitmap, source, extSurf, dest, (tinfo.siodmyTajemniczyBajt>>4)%4);
+                blitterWithRotationAndAlpha(roadDefs[tinfo.roadType-1]->ourImages[tinfo.roadDir].bitmap, source, extSurf, dest, (tinfo.extTileFlags>>4)%4);
 			}
 
 			//blit objects
