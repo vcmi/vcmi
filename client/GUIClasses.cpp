@@ -1825,10 +1825,12 @@ void CObjectListWindow::changeSelection(size_t which)
 	{
 		CItem *item;
 		if ( (item = dynamic_cast<CItem*>(element)) )
+		{
 			if (item->index == selected)
 				item->select(false);
 			if (item->index == which)
 				item->select(true);
+		}
 	}
 	selected = which;
 }
