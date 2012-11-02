@@ -527,7 +527,7 @@ void CArtHandler::getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &ou
 	}
 }
 
-Bonus *createBonus(Bonus::BonusType type, int val, int subtype, int valType, shared_ptr<ILimiter> limiter = nullptr, int additionalInfo = 0)
+Bonus *createBonus(Bonus::BonusType type, int val, int subtype, int valType, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalInfo = 0)
 {
 	Bonus *added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,-1,subtype);
 	added->additionalInfo = additionalInfo;
@@ -536,7 +536,7 @@ Bonus *createBonus(Bonus::BonusType type, int val, int subtype, int valType, sha
 	return added;
 }
 
-Bonus *createBonus(Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator = nullptr, int additionalInfo = 0)
+Bonus *createBonus(Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator = shared_ptr<IPropagator>(), int additionalInfo = 0)
 {
 	Bonus *added = new Bonus(Bonus::PERMANENT,type,Bonus::ARTIFACT,val,-1,subtype);
 	added->additionalInfo = additionalInfo;

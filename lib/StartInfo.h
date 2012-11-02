@@ -103,6 +103,5 @@ struct StartInfo
 	{
 		mapfileChecksum = seedPostInit = seedToBeUsed = 0;
 		mode = INVALID;
-		campState = nullptr;
 	}
 };

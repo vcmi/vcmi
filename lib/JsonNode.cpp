@@ -1042,11 +1042,11 @@ DLL_LINKAGE void UnparseBonus( JsonNode &node, const Bonus * bonus )
 	node["effectRange"].String() = reverseMapFirst<std::string, int>(bonus->effectRange, bonusLimitEffect);
 	node["duration"].String() = reverseMapFirst<std::string, int>(bonus->duration, bonusDurationMap);
 	node["source"].String() = reverseMapFirst<std::string, int>(bonus->source, bonusSourceMap);
-	if(bonus->limiter != nullptr)
+	if(bonus->limiter)
 	{
 		node["limiter"].String() = reverseMapFirst<std::string, TLimiterPtr>(bonus->limiter, bonusLimiterMap);
 	}
-	if(bonus->propagator != nullptr)
+	if(bonus->propagator)
 	{
 		node["propagator"].String() = reverseMapFirst<std::string, TPropagatorPtr>(bonus->propagator, bonusPropagatorMap);
 	}

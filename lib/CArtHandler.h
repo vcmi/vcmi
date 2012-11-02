@@ -198,7 +198,7 @@ public:
 
 class DLL_LINKAGE CArtHandler //handles artifacts
 {
-	void giveArtBonus(TArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = NULL, int additionalinfo = 0);
+	void giveArtBonus(TArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, int valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalinfo = 0);
 	void giveArtBonus(TArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
 	void giveArtBonus(TArtifactID aid, Bonus *bonus);
 public:
