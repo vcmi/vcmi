@@ -4,7 +4,7 @@
 #include <boost/random/linear_congruential.hpp>
 
 #include "CGameState.h"
-#include "map.h"
+#include "Map/CMap.h"
 #include "CObjectHandler.h"
 #include "CHeroHandler.h"
 #include "StartInfo.h"

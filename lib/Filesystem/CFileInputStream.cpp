@@ -49,9 +49,9 @@ si64 CFileInputStream::read(ui8 * data, si64 size)
 
 si64 CFileInputStream::seek(si64 position)
 {
-	fileStream.seekg(dataStart + std::min(position, dataSize));
-
-	return tell();
+    si64 origin = tell();
+    fileStream.seekg(dataStart + std::min(position, dataSize));
+    return tell() - origin;
 }
 
 si64 CFileInputStream::tell()

@@ -2,7 +2,7 @@
 #include "CGameState.h"
 
 #include <boost/random/linear_congruential.hpp>
-#include "CCampaignHandler.h"
+#include "Map/CCampaignHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CArtHandler.h"
 #include "CBuildingHandler.h"
@@ -15,11 +15,12 @@
 #include "CModHandler.h"
 #include "VCMI_Lib.h"
 #include "Connection.h"
-#include "map.h"
+#include "Map/CMap.h"
+#include "Map/CMapService.h"
 #include "StartInfo.h"
 #include "NetPacks.h"
 #include "RegisterTypes.h"
-#include "CMapInfo.h"
+#include "Map/CMapInfo.h"
 #include "BattleState.h"
 #include "JsonNode.h"
 #include "Filesystem/CResourceLoader.h"
@@ -865,16 +866,18 @@ void CGameState::init(StartInfo * si)
 	switch(scenarioOps->mode)
 	{
 	case StartInfo::NEW_GAME:
-        map = new CMap(scenarioOps->mapname);
+        tlog0 << "Open map file: " << scenarioOps->mapname << std::endl;
+        map = CMapService::loadMap(scenarioOps->mapname).release();
 		break;
 	case StartInfo::CAMPAIGN:
 		{
+            tlog0 << "Open campaign map file: " << scenarioOps->campState->currentMap << std::endl;
 			auto campaign = scenarioOps->campState;
 			assert(vstd::contains(campaign->camp->mapPieces, scenarioOps->campState->currentMap));
 
-			std::string &mapContent = campaign->camp->mapPieces[scenarioOps->campState->currentMap];
-            map = new CMap();
-			map->initFromBytes((const ui8*)mapContent.c_str(), mapContent.size());
+            std::string & mapContent = campaign->camp->mapPieces[scenarioOps->campState->currentMap];
+            auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
+            map = CMapService::loadMap(buffer, mapContent.size()).release();
 		}
 		break;
 	case StartInfo::DUEL:

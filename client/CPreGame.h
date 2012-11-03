@@ -5,7 +5,7 @@
 #include "../lib/StartInfo.h"
 #include "GUIClasses.h"
 #include "FunctionList.h"
-#include "../lib/CMapInfo.h"
+#include "../lib/Map/CMapInfo.h"
 
 /*
  * CPreGame.h, part of VCMI engine
@@ -142,7 +142,7 @@ class SelectionTab : public CIntObject
 private:
 	CDefHandler *format; //map size
 
-	void parseMaps(const std::vector<ResourceID> &files, int start = 0, int threads = 1);
+    void parseMaps(const std::vector<ResourceID> &files);
 	void parseGames(const std::vector<ResourceID> &files, bool multi);
 	void parseCampaigns(const std::vector<ResourceID> & files );
 	std::vector<ResourceID> getFiles(std::string dirURI, int resType);

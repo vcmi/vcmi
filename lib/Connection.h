@@ -23,7 +23,7 @@
 #include "ConstTransitivePtr.h"
 #include "CCreatureSet.h" //for CStackInstance
 #include "CObjectHandler.h" //for CArmedInstance
-#include "CCampaignHandler.h" //for CCampaignState
+#include "Map/CCampaignHandler.h" //for CCampaignState
 
 const ui32 version = 733;
 const TSlot COMMANDER_SLOT_PLACEHOLDER = -2;

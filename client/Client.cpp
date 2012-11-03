@@ -1,7 +1,7 @@
 #include "StdInc.h"
 
 #include "CMusicHandler.h"
-#include "../lib/CCampaignHandler.h"
+#include "../lib/Map/CCampaignHandler.h"
 #include "../CCallback.h"
 #include "../lib/CConsoleHandler.h"
 #include "CGameInfo.h"
@@ -23,7 +23,7 @@
 #include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/map.h"
+#include "../lib/Map/CMap.h"
 #include "../lib/JsonNode.h"
 #include "mapHandler.h"
 #include "../lib/CConfigHandler.h"

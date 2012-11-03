@@ -19,7 +19,7 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/CTownHandler.h"
-#include "../lib/map.h"
+#include "../lib/Map/CMap.h"
 #include "../lib/JsonNode.h"
 #include "mapHandler.h"
 #include "CPreGame.h"

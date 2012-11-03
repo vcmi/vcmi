@@ -8,7 +8,7 @@
 #include "CObjectHandler.h"
 #include "CModHandler.h"
 #include "VCMI_Lib.h"
-#include "map.h"
+#include "Map/CMap.h"
 #include "CSpellHandler.h"
 #include "CCreatureHandler.h"
 #include "CGameState.h"

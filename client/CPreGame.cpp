@@ -16,7 +16,7 @@
 #include "../lib/CTownHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CObjectHandler.h"
-#include "../lib/CCampaignHandler.h"
+#include "../lib/Map/CCampaignHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/JsonNode.h"
 #include "CMusicHandler.h"
@@ -24,7 +24,7 @@
 #include "Graphics.h"
 #include "../lib/Connection.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/map.h"
+#include "../lib/Map/CMap.h"
 #include "GUIClasses.h"
 #include "CPlayerInterface.h"
 #include "../CCallback.h"
@@ -41,6 +41,7 @@
 #include "../lib/GameConstants.h"
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
+#include "../lib/Map/CMapService.h"
 
 /*
  * CPreGame.cpp, part of VCMI engine
@@ -100,9 +101,8 @@ static void do_quit()
 
 static CMapInfo *mapInfoFromGame()
 {
-	CMapInfo *ret = new CMapInfo();
-	CMapHeader *headerCopy = new CMapHeader(*LOCPLINT->cb->getMapHeader()); //will be deleted by CMapInfo d-tor
-	ret->setHeader(headerCopy);
+    CMapInfo * ret = new CMapInfo();
+    ret->mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader(*LOCPLINT->cb->getMapHeader()));
 	return ret;
 }
 
@@ -771,7 +771,7 @@ void CSelectionScreen::changeSelection( const CMapInfo *to )
 	   SEL->sInfo.difficulty = to->scenarioOpts->difficulty;
 	if(screenType != CMenuScreen::campaignList)
 	{
-		updateStartInfo(to ? to->fileURI : "", sInfo, to ? to->mapHeader : NULL);
+        updateStartInfo(to ? to->fileURI : "", sInfo, to ? to->mapHeader.get() : NULL);
 	}
 	card->changeSelection(to);
 	if(screenType != CMenuScreen::campaignList)
@@ -1036,31 +1036,24 @@ std::vector<ResourceID> SelectionTab::getFiles(std::string dirURI, int resType)
 		++iterator;
 	}
 
-	allItems.resize(ret.size());
 	return ret;
 }
 
-void SelectionTab::parseMaps(const std::vector<ResourceID> &files, int start, int threads)
+void SelectionTab::parseMaps(const std::vector<ResourceID> & files)
 {
-	ui8 mapBuffer[1500];
-
-	while(start < allItems.size())
+    allItems.clear();
+    for(int i = 0; i < files.size(); ++i)
 	{
-		try
-		{
-			TInputStreamPtr stream(CMap::getMapStream(files[start].getName()));
-			int read = stream->read(mapBuffer, 1500);
-
-			if(read < 50  ||  !mapBuffer[4])
-				throw std::runtime_error("corrupted map file");
-
-			allItems[start].mapInit(files[start].getName(), mapBuffer);
-		}
-		catch(std::exception &e)
-		{
-			tlog3 << "\t\tWarning: failed to load map " << files[start].getName() << ": " << e.what() << std::endl;
-		}
-		start += threads;
+        try
+        {
+            CMapInfo mapInfo;
+            mapInfo.mapInit(files[i].getName());
+            allItems.push_back(std::move(mapInfo));
+        }
+        catch(std::exception & e)
+        {
+            tlog2 << "Map " << files[i].getName() << " is invalid. Message: " << e.what() << std::endl;
+        }
 	}
 }
 
@@ -1077,7 +1070,7 @@ void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
 			if(std::memcmp(sign,"VCMISVG",7))
 				throw std::runtime_error("not a correct savefile!");
 
-			allItems[i].mapHeader = new CMapHeader();
+            allItems[i].mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader);
 			lf >> *(allItems[i].mapHeader) >> allItems[i].scenarioOpts;
 			allItems[i].fileURI = files[i].getName();
 			allItems[i].countPlayers();
@@ -1086,12 +1079,12 @@ void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
 
 			if((allItems[i].actualHumanPlayers > 1) != multi) //if multi mode then only multi games, otherwise single
 			{
-				vstd::clear_pointer(allItems[i].mapHeader);
+                allItems[i].mapHeader.reset(nullptr);
 			}
 		}
 		catch(std::exception &e)
 		{
-			vstd::clear_pointer(allItems[i].mapHeader);
+            allItems[i].mapHeader.reset(nullptr);
 			tlog3 << "Failed to process " << files[i].getName() <<": " << e.what() << std::endl;
 		}
 	}
@@ -2612,8 +2605,8 @@ CScenarioInfo::~CScenarioInfo()
 
 bool mapSorter::operator()(const CMapInfo *aaa, const CMapInfo *bbb)
 {
-	const CMapHeader * a = aaa->mapHeader,
-		* b = bbb->mapHeader;
+    const CMapHeader * a = aaa->mapHeader.get(),
+            * b = bbb->mapHeader.get();
 	if(a && b) //if we are sorting scenarios
 	{
 		switch (sortBy)
@@ -2949,10 +2942,10 @@ void CBonusSelection::selectMap( int whichOne )
 	ourCampaign->currentMap = whichOne;
 
 	//get header
-	int i = 0;
 	delete ourHeader;
-	ourHeader = new CMapHeader();
-	ourHeader->initFromMemory((const unsigned char*)ourCampaign->camp->mapPieces.find(whichOne)->second.data(), i);
+    std::string & headerStr = ourCampaign->camp->mapPieces.find(whichOne)->second;
+    auto buffer = reinterpret_cast<const ui8 *>(headerStr.data());
+    ourHeader = CMapService::loadMapHeader(buffer, headerStr.size()).release();
 
 	std::map<TPlayerColor, std::string> names;
 	names[1] = settings["general"]["playerName"].String();

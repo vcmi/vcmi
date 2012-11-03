@@ -1,18 +1,6 @@
-#pragma once
-
-
-#ifndef _MSC_VER
-#include "CObjectHandler.h"
-#include "CDefObjInfoHandler.h"
-#endif
-
-#include "ConstTransitivePtr.h"
-#include "ResourceSet.h"
-#include "int3.h"
-#include "GameConstants.h"
 
 /*
- * map.h, part of VCMI engine
+ * CMap.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *
@@ -20,6 +8,18 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+#pragma once
+
+#ifndef _MSC_VER
+#include "../CObjectHandler.h"
+#include "../CDefObjInfoHandler.h"
+#endif
+
+#include "../ConstTransitivePtr.h"
+#include "../ResourceSet.h"
+#include "../int3.h"
+#include "../GameConstants.h"
 
 class CArtifactInstance;
 class CGDefInfo;
@@ -31,9 +31,7 @@ class CQuest;
 class CGTownInstance;
 class IModableArt;
 class IQuestObject;
-
 class CInputStream;
-typedef std::unique_ptr<CInputStream> TInputStreamPtr;
 
 namespace ETerrainType
 {
@@ -139,21 +137,21 @@ struct DLL_LINKAGE TerrainTile
      *
      * @return true if the terrain type is water
      */
-	bool isWater() const;
+    bool isWater() const;
 
     /**
      * Gets true if the terrain tile is coastal.
      *
      * @return true if the terrain tile is coastal
      */
-	bool isCoastal() const;
+    bool isCoastal() const;
 
     /**
      * Gets true if the terrain tile has favourable winds.
      *
      * @return true if the terrain tile has favourable winds
      */
-	bool hasFavourableWinds() const;
+    bool hasFavourableWinds() const;
 
     /**
      * Serialize method.
@@ -174,22 +172,22 @@ struct DLL_LINKAGE TerrainTile
 /**
  * The hero name struct consists of the hero id and name.
  */
-struct DLL_LINKAGE SheroName 
+struct DLL_LINKAGE SheroName
 {
     /** the id of the hero */
-	int heroID;
+    int heroID;
 
     /** the name of the hero */
-	std::string heroName;
+    std::string heroName;
 
     /**
      * Serialize method.
      */
     template <typename Handler>
     void serialize(Handler & h, const int version)
-	{
-		h & heroID & heroName;
-	}
+    {
+        h & heroID & heroName;
+    }
 };
 
 /**
@@ -211,10 +209,10 @@ struct DLL_LINKAGE PlayerInfo
     ui8 powerPlacehodlers;
 
     /** player can be played by a human */
-	ui8 canHumanPlay;
+    ui8 canHumanPlay;
 
     /** player can be played by the computer */
-	ui8 canComputerPlay;
+    ui8 canComputerPlay;
 
     /** defines the tactical setting of the AI: 0 - random, 1 -  warrior, 2 - builder, 3 - explorer */
     ui32 AITactic;
@@ -229,25 +227,25 @@ struct DLL_LINKAGE PlayerInfo
     ui32 mainHeroPortrait;
 
     /** the name of the main hero */
-	std::string mainHeroName;
+    std::string mainHeroName;
 
     /** list of available heroes */
-	std::vector<SheroName> heroesNames;
+    std::vector<SheroName> heroesNames;
 
     /** has the player a main town */
-	ui8 hasMainTown;
+    ui8 hasMainTown;
 
     /** generates the hero at the main town */
-	ui8 generateHeroAtMainTown;
+    ui8 generateHeroAtMainTown;
 
     /** the position of the main town */
-	int3 posOfMainTown;
+    int3 posOfMainTown;
 
     /** the team id to which the player belongs to */
-	ui8 team;
+    ui8 team;
 
     /** unused. generates a hero */
-	ui8 generateHero;
+    ui8 generateHero;
 
     /**
      * Default constructor.
@@ -273,11 +271,11 @@ struct DLL_LINKAGE PlayerInfo
      */
     template <typename Handler>
     void serialize(Handler & h, const int version)
-	{
-		h & p7 & p8 & p9 & canHumanPlay & canComputerPlay & AITactic & allowedFactions & isFactionRandom &
-			mainHeroPortrait & mainHeroName & heroesNames & hasMainTown & generateHeroAtMainTown &
-			posOfMainTown & team & generateHero;
-	}
+    {
+        h & p7 & p8 & p9 & canHumanPlay & canComputerPlay & AITactic & allowedFactions & isFactionRandom &
+            mainHeroPortrait & mainHeroName & heroesNames & hasMainTown & generateHeroAtMainTown &
+            posOfMainTown & team & generateHero;
+    }
 };
 
 /**
@@ -286,10 +284,10 @@ struct DLL_LINKAGE PlayerInfo
 struct DLL_LINKAGE LossCondition
 {
     /** specifies the condition type */
-	ELossConditionType::ELossConditionType typeOfLossCon;
+    ELossConditionType::ELossConditionType typeOfLossCon;
 
     /** the position of an object which mustn't be lost */
-	int3 pos;
+    int3 pos;
 
     /** time limit in days, -1 if not used */
     si32 timeLimit;
@@ -307,9 +305,9 @@ struct DLL_LINKAGE LossCondition
      */
     template <typename Handler>
     void serialize(Handler & h, const int version)
-	{
-		h & typeOfLossCon & pos & timeLimit & obj;
-	}
+    {
+        h & typeOfLossCon & pos & timeLimit & obj;
+    }
 };
 
 /**
@@ -349,9 +347,9 @@ struct DLL_LINKAGE VictoryCondition
      */
     template <typename Handler>
     void serialize(Handler & h, const int version)
-	{
-		h & condition & allowNormalVictory & appliesToAI & pos & ID & count & obj;
-	}
+    {
+        h & condition & allowNormalVictory & appliesToAI & pos & ID & count & obj;
+    }
 };
 
 /**
@@ -370,9 +368,9 @@ struct DLL_LINKAGE Rumor
      */
     template <typename Handler>
     void serialize(Handler & h, const int version)
-	{
-		h & name & text;
-	}
+    {
+        h & name & text;
+    }
 };
 
 /**
@@ -381,13 +379,13 @@ struct DLL_LINKAGE Rumor
 struct DLL_LINKAGE DisposedHero
 {
     /** the id of the hero */
-	ui32 ID;
+    ui32 ID;
 
     /** the portrait id of the hero, 0xFF is default */
     ui16 portrait;
 
     /** the name of the hero */
-	std::string name;
+    std::string name;
 
     /** who can hire this hero (bitfield) */
     ui8 players;
@@ -397,9 +395,9 @@ struct DLL_LINKAGE DisposedHero
      */
     template <typename Handler>
     void serialize(Handler & h, const int version)
-	{
-		h & ID & portrait & name & players;
-	}
+    {
+        h & ID & portrait & name & players;
+    }
 };
 
 /// Class which manages map events.
@@ -424,13 +422,13 @@ public:
     ui8 players;
 
     /** affected humans */
-	ui8 humanAffected;
+    ui8 humanAffected;
 
     /** affacted computer players */
-	ui8 computerAffected;
+    ui8 computerAffected;
 
     /** the day counted continously where the event happens */
-	ui32 firstOccurence;
+    ui32 firstOccurence;
 
     /** specifies after how many days the event will occur the next time; 0 if event occurs only one time */
     ui32 nextOccurence;
@@ -449,10 +447,10 @@ public:
      */
     template <typename Handler>
     void serialize(Handler & h, const int version)
-	{
-		h & name & message & resources
-			& players & humanAffected & computerAffected & firstOccurence & nextOccurence;
-	}
+    {
+        h & name & message & resources
+            & players & humanAffected & computerAffected & firstOccurence & nextOccurence;
+    }
 };
 
 /**
@@ -475,10 +473,10 @@ public:
      */
     template <typename Handler>
     void serialize(Handler & h, const int version)
-	{
+    {
         h & static_cast<CMapEvent &>(*this);
-		h & buildings & creatures;
-	}
+        h & buildings & creatures;
+    }
 };
 
 namespace EMapFormat
@@ -502,41 +500,9 @@ public:
     CMapHeader();
 
     /**
-     * Constructor.
-     *
-     * @param map a pointer to an buffer which contains bytes describing a map header
-     */
-    CMapHeader(const ui8 * map);
-
-    /**
-     * Destructor.
+     * D-tor.
      */
     virtual ~CMapHeader();
-
-    /**
-     * Initializes the map header from memory.
-     *
-     * @param buffer a pointer to an buffer which contains bytes describing a map header
-     * @param i the index where to start reading from
-     */
-    void initFromMemory(const ui8 * buffer, int & i);
-
-    /**
-     * Loads victory/loss conditions.
-     *
-     * @param buffer a pointer to an buffer which contains bytes describing a map header
-     * @param i the index where to start reading from
-     */
-    void loadViCLossConditions(const ui8 * buffer, int & i);
-
-    /**
-     * Loads information about players.
-     *
-     * @param pom
-     * @param buffer a pointer to an buffer which contains bytes describing a map header
-     * @param i the index where to start reading from
-     */
-    void loadPlayerInfo(int & pom, const ui8 * buffer, int & i);
 
     /** the version of the map */
     EMapFormat::EMapFormat version;
@@ -566,7 +532,7 @@ public:
     ui8 levelLimit;
 
     /** the loss condition */
-	LossCondition lossCondition;
+    LossCondition lossCondition;
 
     /** the victory condition */
     VictoryCondition victoryCondition;
@@ -575,7 +541,7 @@ public:
     std::vector<PlayerInfo> players;
 
     /** number of teams */
-	ui8 howManyTeams;
+    ui8 howManyTeams;
 
     /** list of allowed heroes, index is hero id */
     std::vector<ui8> allowedHeroes;
@@ -588,10 +554,10 @@ public:
      */
     template <typename Handler>
     void serialize(Handler & h, const int Version)
-	{
-		h & version & name & description & width & height & twoLevel & difficulty & levelLimit & areAnyPLayers;
+    {
+        h & version & name & description & width & height & twoLevel & difficulty & levelLimit & areAnyPLayers;
         h & players & lossCondition & victoryCondition & howManyTeams & allowedHeroes;
-	}
+    }
 };
 
 /**
@@ -601,205 +567,15 @@ public:
 class DLL_LINKAGE CMap : public CMapHeader
 {
 public:
-    /** the checksum of the map */
-	ui32 checksum;
-
-    /** a 3-dimensional array of terrain tiles, access is as follows: x, y, level */
-	TerrainTile*** terrain; 
-
-    /** list of rumors */
-	std::vector<Rumor> rumors;
-
-    /** list of disposed heroes */
-	std::vector<DisposedHero> disposedHeroes;
-
-    /** list of predefined heroes */
-	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
-
-    /** list of .def files with definitions from .h3m (may be custom) */
-    std::vector<ConstTransitivePtr<CGDefInfo> > customDefs;
-
-    /** list of allowed spells, index is the spell id */
-    std::vector<ui8> allowedSpell;
-
-    /** list of allowed artifacts, index is the artifact id */
-    std::vector<ui8> allowedArtifact;
-
-    /** list of allowed abilities, index is the ability id */
-    std::vector<ui8> allowedAbilities;
-
-    /** list of map events */
-	std::list<ConstTransitivePtr<CMapEvent> > events;
-
-    /** specifies the position of the grail */
-	int3 grailPos;
-
-    /** specifies the radius of the grail */
-	int grailRadious;
-
-    /** list of objects */
-	std::vector< ConstTransitivePtr<CGObjectInstance> > objects;
-
-    /** list of heroes */
-	std::vector< ConstTransitivePtr<CGHeroInstance> > heroes;
-
-    /** list of towns */
-	std::vector< ConstTransitivePtr<CGTownInstance> > towns;
-
-    /** list of artifacts */
-    std::vector< ConstTransitivePtr<CArtifactInstance> > artInstances;
-
-    /** list of quests */
-    std::vector< ConstTransitivePtr<CQuest> > quests;
-
-    /** associative list to identify which hero/creature id belongs to which object id(index for objects) */
-	bmap<si32, si32> questIdentifierToId;
+    /**
+     * Default constructor.
+     */
+    CMap();
 
     /**
-     * Creates map from decompressed .h3m data.
-     *
-     * @param buffer a pointer to an buffer which contains bytes describing a map
-     * @param size the length of the buffer
+     * Destructor.
      */
-    void initFromBytes(const ui8 * buffer, size_t size);
-
-    /**
-     * Reads events from a buffer.
-     *
-     * @param buffer a pointer to an buffer which contains bytes describing events
-     * @param i the index where to start reading from
-     */
-    void readEvents(const ui8 * buffer, int & i);
-
-    /**
-     * Reads objects from a buffer.
-     *
-     * @param buffer a pointer to an buffer which contains bytes describing objects
-     * @param i the index where to start reading from
-     */
-    void readObjects(const ui8 * buffer, int & i);
-
-    /**
-     * Loads quest information and stores that to a quest guard object.
-     *
-     * @param guard the quest guard object where the quest info should be applied to
-     * @param buffer a pointer to an buffer which contains bytes describing objects
-     * @param i the index where to start reading from
-     */
-    void loadQuest(IQuestObject * guard, const ui8 * buffer, int & i);
-
-    /**
-     * Reads def information from a buffer.
-     *
-     * @param buffer a pointer to an buffer which contains bytes describing def information
-     * @param i the index where to start reading from
-     */
-    void readDefInfo(const ui8 * buffer, int & i);
-
-    /**
-     * Reads terrain data from a buffer.
-     *
-     * @param buffer a pointer to an buffer which contains bytes describing terrain data
-     * @param i the index where to start reading from
-     */
-    void readTerrain(const ui8 * buffer, int & i);
-
-    /**
-     * Reads predefined heroes from a buffer.
-     *
-     * @param buffer a pointer to an buffer which contains bytes describing events
-     * @param i the index where to start reading from
-     */
-    void readPredefinedHeroes(const ui8 * buffer, int & i);
-
-    /**
-     * Reads events from a buffer.
-     *
-     * @param buffer a pointer to an buffer which contains bytes describing events
-     * @param i the index where to start reading from
-     */
-    void readHeader(const ui8 * buffer, int & i);
-
-    /**
-     * Reads events from a buffer.
-     *
-     * @param buffer a pointer to an buffer which contains bytes describing events
-     * @param i the index where to start reading from
-     */
-    void readRumors(const ui8 * buffer, int & i);
-
-    /**
-     * Loads a hero from a buffer.
-     *
-     * @param buffer a pointer to an buffer which contains bytes describing events
-     * @param i the index where to start reading from
-     * @param idToBeGiven the object id which should be set for the hero
-     * @return a object instance
-     */
-    CGObjectInstance * loadHero(const ui8 * buffer, int & i, int idToBeGiven);
-
-    /**
-     * Loads artifacts of a hero from a buffer.
-     *
-     * @param buffer a pointer to an buffer which contains bytes describing events
-     * @param i the index where to start reading from
-     * @param hero the hero which should hold those artifacts
-     */
-    void loadArtifactsOfHero(const ui8 * buffer, int & i, CGHeroInstance * hero);
-
-    /**
-     * Loads an artifact from a buffer to the given slot of the specified hero.
-     *
-     * @param hero the hero which should hold that artifact
-     * @param slot the artifact slot where to place that artifact
-     * @param buffer a pointer to an buffer which contains bytes describing events
-     * @param i the index where to start reading from
-     * @return true if it loaded an artifact
-     */
-    bool loadArtifactToSlot(CGHeroInstance * hero, int slot, const ui8 * buffer, int & i);
-
-    /**
-     * Loads a town from a buffer.
-     *
-     * @param town a pointer to a town object which gets filled by data
-     * @param buffer a pointer to an buffer which contains bytes describing events
-     * @param i the index where to start reading from
-     * @param castleID the id of the castle type
-     */
-    void loadTown(CGObjectInstance * & town, const ui8 * buffer, int & i, int castleID);
-
-    /**
-     * Loads a seer hut from a buffer.
-     *
-     * @param buffer a pointer to an buffer which contains bytes describing events
-     * @param i the index where to start reading from
-     * @param seerHut the seer hut object which gets filled by data
-     * @return index of the reading position of the buffer
-     */
-    int loadSeerHut(const ui8 * buffer, int i, CGObjectInstance * & seerHut);
-
-    /**
-     * Creates an artifact instance.
-     *
-     * @param aid the id of the artifact
-     * @param spellID optional. the id of a spell if a spell scroll object should be created
-     * @return the created artifact instance
-     */
-    CArtifactInstance * createArt(int aid, int spellID = -1);
-
-    /**
-     * Adds the specified artifact instance to the list of artifacts of this map.
-     *
-     * @param art the artifact which should be added to the list of artifacts
-     */
-    void addNewArtifactInstance(CArtifactInstance * art);
-
-    /**
-     * Adds a quest to the list of quests of this map.
-     *
-     * @param quest the quest object which should be added to the list of quests
-     */
-    void addQuest(CGObjectInstance * quest);
+    ~CMap();
 
     /**
      * Erases an artifact instance.
@@ -822,14 +598,14 @@ public:
     /**
      * Sets the victory/loss condition objectives.
      */
-	void checkForObjectives();
+    void checkForObjectives();
 
     /**
      * Adds an visitable/blocking object to a terrain tile.
      *
      * @param obj the visitable/blocking object to add to a tile
      */
-	void addBlockVisTiles(CGObjectInstance * obj);
+    void addBlockVisTiles(CGObjectInstance * obj);
 
     /**
      * Removes an visitable/blocking object from a terrain tile.
@@ -838,23 +614,6 @@ public:
      * @param total
      */
     void removeBlockVisTiles(CGObjectInstance * obj, bool total = false);
-
-    /**
-     * Constructor. Creates a map from file.
-     *
-     * @param filename the name of the h3m map file
-     */
-    CMap(std::string filename);
-
-    /**
-     * Default constructor.
-     */
-    CMap();
-
-    /**
-     * Destructor.
-     */
-    ~CMap();
 
     /**
      * Gets the terrain tile of the specified position.
@@ -896,27 +655,80 @@ public:
     bool isWaterTile(const int3 & pos) const;
 
     /**
-     * Gets a input stream from the given map name.
+     * Adds the specified artifact instance to the list of artifacts of this map.
      *
-     * @param name the name of the map
-     * @return a unique ptr to the input stream
+     * @param art the artifact which should be added to the list of artifacts
      */
-    static TInputStreamPtr getMapStream(std::string name);
+    void addNewArtifactInstance(CArtifactInstance * art);
+
+    /** the checksum of the map */
+    ui32 checksum;
+
+    /** a 3-dimensional array of terrain tiles, access is as follows: x, y, level */
+    TerrainTile*** terrain;
+
+    /** list of rumors */
+    std::vector<Rumor> rumors;
+
+    /** list of disposed heroes */
+    std::vector<DisposedHero> disposedHeroes;
+
+    /** list of predefined heroes */
+    std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
+
+    /** list of .def files with definitions from .h3m (may be custom) */
+    std::vector<ConstTransitivePtr<CGDefInfo> > customDefs;
+
+    /** list of allowed spells, index is the spell id */
+    std::vector<ui8> allowedSpell;
+
+    /** list of allowed artifacts, index is the artifact id */
+    std::vector<ui8> allowedArtifact;
+
+    /** list of allowed abilities, index is the ability id */
+    std::vector<ui8> allowedAbilities;
+
+    /** list of map events */
+    std::list<ConstTransitivePtr<CMapEvent> > events;
+
+    /** specifies the position of the grail */
+    int3 grailPos;
+
+    /** specifies the radius of the grail */
+    int grailRadious;
+
+    /** list of objects */
+    std::vector< ConstTransitivePtr<CGObjectInstance> > objects;
+
+    /** list of heroes */
+    std::vector< ConstTransitivePtr<CGHeroInstance> > heroes;
+
+    /** list of towns */
+    std::vector< ConstTransitivePtr<CGTownInstance> > towns;
+
+    /** list of artifacts */
+    std::vector< ConstTransitivePtr<CArtifactInstance> > artInstances;
+
+    /** list of quests */
+    std::vector< ConstTransitivePtr<CQuest> > quests;
+
+    /** associative list to identify which hero/creature id belongs to which object id(index for objects) */
+    bmap<si32, si32> questIdentifierToId;
 
     /**
      * Serialize method.
      */
     template <typename Handler>
     void serialize(Handler &h, const int formatVersion)
-	{
-		h & static_cast<CMapHeader&>(*this);
+    {
+        h & static_cast<CMapHeader&>(*this);
         h & rumors & allowedSpell & allowedAbilities & allowedArtifact & events & grailPos;
         h & artInstances & quests;
         h & questIdentifierToId;
 
-		//TODO: viccondetails
-		if(h.saving)
-		{
+        //TODO: viccondetails
+        if(h.saving)
+        {
             // Save terrain
             for(int i = 0; i < width ; ++i)
             {
@@ -924,60 +736,60 @@ public:
                 {
                     for(int k = 0; k <= twoLevel; ++k)
                     {
-						h & terrain[i][j][k];
+                        h & terrain[i][j][k];
                     }
                 }
             }
-		}
-		else
-		{
+        }
+        else
+        {
             // Load terrain
             terrain = new TerrainTile**[width];
             for(int ii = 0; ii < width; ++ii)
-			{
+            {
                 terrain[ii] = new TerrainTile*[height];
                 for(int jj = 0; jj < height; ++jj)
                 {
                     terrain[ii][jj] = new TerrainTile[twoLevel + 1];
                 }
-			}
+            }
             for(int i = 0; i < width ; ++i)
             {
                 for(int j = 0; j < height ; ++j)
                 {
                     for(int k = 0; k <= twoLevel ; ++k)
                     {
-						h & terrain[i][j][k];
+                        h & terrain[i][j][k];
                     }
                 }
             }
-		}
-		
+        }
+
         h & customDefs & objects;
 
         // static members
-		h & CGTeleport::objs;
-		h & CGTeleport::gates;
-		h & CGKeys::playerKeyMap;
-		h & CGMagi::eyelist;
-		h & CGObelisk::obeliskCount & CGObelisk::visited;
-		h & CGTownInstance::merchantArtifacts;
+        h & CGTeleport::objs;
+        h & CGTeleport::gates;
+        h & CGKeys::playerKeyMap;
+        h & CGMagi::eyelist;
+        h & CGObelisk::obeliskCount & CGObelisk::visited;
+        h & CGTownInstance::merchantArtifacts;
 
-		if(!h.saving)
-		{
+        if(!h.saving)
+        {
             for(ui32 i = 0; i < objects.size(); ++i)
-			{
-				if(!objects[i]) continue;
+            {
+                if(!objects[i]) continue;
 
-				switch (objects[i]->ID)
-				{
-					case Obj::HERO:
-						heroes.push_back (static_cast<CGHeroInstance*>(+objects[i]));
-						break;
-					case Obj::TOWN:
-						towns.push_back (static_cast<CGTownInstance*>(+objects[i]));
-						break;
-				}
+                switch (objects[i]->ID)
+                {
+                    case Obj::HERO:
+                        heroes.push_back (static_cast<CGHeroInstance*>(+objects[i]));
+                        break;
+                    case Obj::TOWN:
+                        towns.push_back (static_cast<CGTownInstance*>(+objects[i]));
+                        break;
+                }
 
                 // recreate blockvis map
                 addBlockVisTiles(objects[i]);
@@ -985,46 +797,46 @@ public:
 
             // if hero is visiting/garrisoned in town set appropriate pointers
             for(ui32 i = 0; i < heroes.size(); ++i)
-			{
+            {
                 int3 vistile = heroes[i]->pos;
                 vistile.x++;
                 for(ui32 j = 0; j < towns.size(); ++j)
-				{
+                {
                     // hero stands on the town entrance
                     if(vistile == towns[j]->pos)
-					{
-						if(heroes[i]->inTownGarrison)
-						{
-							towns[j]->garrisonHero = heroes[i];
-							removeBlockVisTiles(heroes[i]);
-						}
-						else
-						{
-							towns[j]->visitingHero = heroes[i];
-						}
+                    {
+                        if(heroes[i]->inTownGarrison)
+                        {
+                            towns[j]->garrisonHero = heroes[i];
+                            removeBlockVisTiles(heroes[i]);
+                        }
+                        else
+                        {
+                            towns[j]->visitingHero = heroes[i];
+                        }
 
-						heroes[i]->visitedTown = towns[j];
-						break;
-					}
-				}
+                        heroes[i]->visitedTown = towns[j];
+                        break;
+                    }
+                }
 
-				vistile.x -= 2; //manifest pos
+                vistile.x -= 2; //manifest pos
                 const TerrainTile & t = getTile(vistile);
                 if(t.tertype != ETerrainType::WATER) continue;
 
-				//hero stands on the water - he must be in the boat
+                //hero stands on the water - he must be in the boat
                 for(ui32 j = 0; j < t.visitableObjects.size(); ++j)
-				{
-					if(t.visitableObjects[j]->ID == Obj::BOAT)
-					{
+                {
+                    if(t.visitableObjects[j]->ID == Obj::BOAT)
+                    {
                         CGBoat * b = static_cast<CGBoat *>(t.visitableObjects[j]);
-						heroes[i]->boat = b;
-						b->hero = heroes[i];
-						removeBlockVisTiles(b);
-						break;
-					}
-				}
+                        heroes[i]->boat = b;
+                        b->hero = heroes[i];
+                        removeBlockVisTiles(b);
+                        break;
+                    }
+                }
             }
         }
-	}
+    }
 };

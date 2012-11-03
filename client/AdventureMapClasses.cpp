@@ -4,7 +4,7 @@
 #include "../CCallback.h"
 #include "../lib/JsonNode.h"
 #include "../lib/Filesystem/CResourceLoader.h"
-#include "../lib/map.h"
+#include "../lib/Map/CMap.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/CGameState.h"

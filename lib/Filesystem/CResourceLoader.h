@@ -330,8 +330,7 @@ public:
 	 */
 	void addLoader(std::string mountPoint, shared_ptr<ISimpleResourceLoader> loader, bool writeable);
 
-	public:
-
+private:
 	/**
 	 * Contains lists of same resources which can be accessed uniquely by an
 	 * resource identifier.

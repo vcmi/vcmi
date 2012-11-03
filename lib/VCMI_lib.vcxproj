@@ -225,7 +225,6 @@
     <ClCompile Include="BattleState.cpp" />
     <ClCompile Include="CArtHandler.cpp" />
     <ClCompile Include="CBuildingHandler.cpp" />
-    <ClCompile Include="CCampaignHandler.cpp" />
     <ClCompile Include="CConfigHandler.cpp" />
     <ClCompile Include="CConsoleHandler.cpp" />
     <ClCompile Include="CCreatureHandler.cpp" />
@@ -236,7 +235,6 @@
     <ClCompile Include="CGeneralTextHandler.cpp" />
     <ClCompile Include="CHeroHandler.cpp" />
     <ClCompile Include="CLogger.cpp" />
-    <ClCompile Include="CMapInfo.cpp" />
     <ClCompile Include="CModHandler.cpp" />
     <ClCompile Include="CObjectHandler.cpp" />
     <ClCompile Include="CObstacleInstance.cpp" />
@@ -252,11 +250,14 @@
     <ClCompile Include="Filesystem\CLodArchiveLoader.cpp" />
     <ClCompile Include="Filesystem\CMemoryStream.cpp" />
     <ClCompile Include="Filesystem\CResourceLoader.cpp" />
+    <ClCompile Include="Map\CCampaignHandler.cpp" />
+    <ClCompile Include="Map\CMap.cpp" />
+    <ClCompile Include="Map\CMapInfo.cpp" />
+    <ClCompile Include="Map\CMapService.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="CBattleCallback.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
     <ClCompile Include="JsonNode.cpp" />
-    <ClCompile Include="map.cpp" />
     <ClCompile Include="NetPacksLib.cpp" />
     <ClCompile Include="ResourceSet.cpp" />
     <ClCompile Include="StdInc.cpp">
@@ -278,7 +279,6 @@
     <ClInclude Include="BattleState.h" />
     <ClInclude Include="CArtHandler.h" />
     <ClInclude Include="CBuildingHandler.h" />
-    <ClInclude Include="CCampaignHandler.h" />
     <ClInclude Include="CConfigHandler.h" />
     <ClInclude Include="CConsoleHandler.h" />
     <ClInclude Include="CCreatureHandler.h" />
@@ -289,7 +289,6 @@
     <ClInclude Include="CGeneralTextHandler.h" />
     <ClInclude Include="CHeroHandler.h" />
     <ClInclude Include="CLogger.h" />
-    <ClInclude Include="CMapInfo.h" />
     <ClInclude Include="CModHandler.h" />
     <ClInclude Include="CObjectHandler.h" />
     <ClInclude Include="CObstacleInstance.h" />
@@ -311,6 +310,10 @@
     <ClInclude Include="Filesystem\CMemoryStream.h" />
     <ClInclude Include="Filesystem\CResourceLoader.h" />
     <ClInclude Include="Filesystem\ISimpleResourceLoader.h" />
+    <ClCompile Include="Map\CCampaignHandler.h" />
+    <ClCompile Include="Map\CMap.h" />
+    <ClCompile Include="Map\CMapInfo.h" />
+    <ClCompile Include="Map\CMapService.h" />
     <ClInclude Include="GameConstants.h" />
     <ClInclude Include="HeroBonus.h" />
     <ClInclude Include="CBattleCallback.h" />
@@ -319,7 +322,6 @@
     <ClInclude Include="int3.h" />
     <ClInclude Include="Interprocess.h" />
     <ClInclude Include="JsonNode.h" />
-    <ClInclude Include="map.h" />
     <ClInclude Include="NetPacks.h" />
     <ClInclude Include="RegisterTypes.h" />
     <ClInclude Include="ResourceSet.h" />

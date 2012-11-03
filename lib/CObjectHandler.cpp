@@ -16,7 +16,7 @@
 #include "CGameState.h"
 #include "NetPacks.h"
 #include "StartInfo.h"
-#include "map.h"
+#include "Map/CMap.h"
 #include <SDL_stdinc.h>
 #include "CBuildingHandler.h"
 #include "JsonNode.h"

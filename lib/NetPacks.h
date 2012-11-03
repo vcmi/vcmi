@@ -5,7 +5,7 @@
 #include "BattleAction.h"
 #include "HeroBonus.h"
 #include "CCreatureSet.h"
-#include "CMapInfo.h"
+#include "Map/CMapInfo.h"
 #include "StartInfo.h"
 #include "ConstTransitivePtr.h"
 #include "int3.h"

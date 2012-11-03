@@ -1,15 +1,15 @@
 #include "StdInc.h"
 #include "CCampaignHandler.h"
 
-#include "Filesystem/CResourceLoader.h"
-#include "Filesystem/CCompressedStream.h"
-#include "../lib/VCMI_Lib.h"
-#include "../lib/vcmi_endian.h"
-#include "CGeneralTextHandler.h"
-#include "StartInfo.h"
-#include "CArtHandler.h" //for hero crossover
-#include "CObjectHandler.h" //for hero crossover
-#include "CHeroHandler.h"
+#include "../Filesystem/CResourceLoader.h"
+#include "../Filesystem/CCompressedStream.h"
+#include "../VCMI_Lib.h"
+#include "../vcmi_endian.h"
+#include "../CGeneralTextHandler.h"
+#include "../StartInfo.h"
+#include "../CArtHandler.h" //for hero crossover
+#include "../CObjectHandler.h" //for hero crossover
+#include "../CHeroHandler.h"
 
 namespace fs = boost::filesystem;
 

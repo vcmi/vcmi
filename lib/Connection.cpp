@@ -6,11 +6,11 @@
 #endif
 
 //for smart objs serialization over net
-#include "../lib/CMapInfo.h"
+#include "../lib/Map/CMapInfo.h"
 #include "StartInfo.h"
 #include "BattleState.h"
 #include "CGameState.h"
-#include "map.h"
+#include "Map/CMap.h"
 #include "CModHandler.h"
 #include "CObjectHandler.h"
 #include "CCreatureHandler.h"
@@ -19,7 +19,7 @@
 #include "CHeroHandler.h"
 #include "CSpellHandler.h"
 #include "CTownHandler.h"
-#include "CCampaignHandler.h"
+#include "Map/CCampaignHandler.h"
 #include "NetPacks.h"
 
 #include <boost/asio.hpp>

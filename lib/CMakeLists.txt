@@ -13,13 +13,16 @@ set(lib_SRCS
         Filesystem/CResourceLoader.cpp
         Filesystem/CFileInputStream.cpp
         Filesystem/CCompressedStream.cpp
+        Map/CCampaignHandler.cpp
+        Map/CMap.cpp
+        Map/CMapInfo.cpp
+        Map/CMapService.cpp
         BattleAction.cpp
         BattleHex.cpp
         BattleState.cpp
         CArtHandler.cpp
         CBattleCallback.cpp
         CBuildingHandler.cpp
-        CCampaignHandler.cpp
         CConfigHandler.cpp
         CConsoleHandler.cpp
         CCreatureHandler.cpp
@@ -30,7 +33,6 @@ set(lib_SRCS
         CGeneralTextHandler.cpp
         CHeroHandler.cpp
         CLogger.cpp
-        CMapInfo.cpp
         CModHandler.cpp
         CObjectHandler.cpp
         CObstacleInstance.cpp
@@ -41,7 +43,6 @@ set(lib_SRCS
         HeroBonus.cpp
         IGameCallback.cpp
         JsonNode.cpp
-        map.cpp
         NetPacksLib.cpp
         ResourceSet.cpp
         VCMI_Lib.cpp
