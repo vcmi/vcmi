@@ -15,7 +15,7 @@
 
 class CGObjectInstance;
 class CGHeroInstance;
-struct CMap;
+class CMap;
 class CGDefInfo;
 class CGObjectInstance;
 class CDefHandler;

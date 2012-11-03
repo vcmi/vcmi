@@ -44,7 +44,7 @@ class CGDefInfo;
 class CObjectScript;
 class CGObjectInstance;
 class CCreature;
-struct CMap;
+class CMap;
 struct StartInfo;
 struct SDL_Surface;
 class CMapHandler;
@@ -71,7 +71,7 @@ namespace boost
 //numbers of creatures are exact numbers if detailed else they are quantity ids (0 - a few, 1 - several and so on; additionally -1 - unknown)
 struct ArmyDescriptor : public std::map<TSlot, CStackBasicDescriptor>
 {
-	bool isDetailed; 
+	bool isDetailed;
 	DLL_LINKAGE ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count
 	DLL_LINKAGE ArmyDescriptor();
 
@@ -147,7 +147,7 @@ struct DLL_LINKAGE SThievesGuildInfo
 
 	std::vector< std::vector< TPlayerColor > > numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
 
-	std::map<TPlayerColor, InfoAboutHero> colorToBestHero; //maps player's color to his best heros' 
+	std::map<TPlayerColor, InfoAboutHero> colorToBestHero; //maps player's color to his best heros'
 
 	std::map<TPlayerColor, si8> personality; // color to personality // -1 - human, AI -> (00 - random, 01 -  warrior, 02 - builder, 03 - explorer)
 	std::map<TPlayerColor, si32> bestCreature; // color to ID // id or -1 if not known
@@ -183,14 +183,14 @@ public:
 	std::string nodeName() const OVERRIDE;
 
 	//override
-	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const; 
+	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
 	//void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color & human & currentSelection & team & resources & status;
 		h & heroes & towns & availableHeroes & dwellings;
-		h & getBonusList(); //FIXME FIXME FIXME 
+		h & getBonusList(); //FIXME FIXME FIXME
 		h & status & daysWithoutCastle;
 		h & enteredLosingCheatCode & enteredWinningCheatCode;
 		h & static_cast<CBonusSystemNode&>(*this);
@@ -203,9 +203,9 @@ public:
 	ui8 id; //position in gameState::teams
 	std::set<TPlayerColor> players; // members of this team
 	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
-	
+
 	TeamState();
-	
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & id & players & fogOfWarMap;
@@ -324,7 +324,7 @@ struct DLL_EXPORT DuelParameters
 		int id;
 		int attack, defense, dmg, HP, speed, shoots;
 
-		CusomCreature() 
+		CusomCreature()
 		{
 			id = attack = defense = dmg = HP = speed = shoots = -1;
 		}
@@ -466,7 +466,7 @@ public:
 	friend class CMapHandler;
 	friend class CGameHandler;
 };
- 
+
 struct DLL_LINKAGE QuestInfo //universal interface for human and AI
 {
 	const CQuest * quest;

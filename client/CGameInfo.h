@@ -31,6 +31,8 @@ class CCursorHandler;
 class CGameState;
 class IMainVideoPlayer;
 
+class CMap;
+
 
 //a class for non-mechanical client GUI classes
 class CClientState
@@ -43,8 +45,6 @@ public:
 	IMainVideoPlayer * videoh;
 };
 extern CClientState * CCS;
-
-struct CMap;
 
 /// CGameInfo class
 /// for allowing different functions for accessing game informations

@@ -1,4 +1,8 @@
-#!/usr/bin/make -f
-include /usr/share/cdbs/1/class/cmake.mk
-include /usr/share/cdbs/1/rules/debhelper.mk
+#! /usr/bin/make -f
 
+%:
+	dh $@
+
+# override disabled by default rpath - we need to find libvcmi.so with it:
+override_dh_auto_configure:
+	dh_auto_configure -- -DCMAKE_SKIP_RPATH=OFF

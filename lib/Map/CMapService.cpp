@@ -75,7 +75,7 @@ std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStre
 
 const bool CMapLoaderH3M::IS_PROFILING_ENABLED = false;
 
-CMapLoaderH3M::CMapLoaderH3M(CInputStream * stream) : map(nullptr), mapHeader(nullptr), buffer(nullptr), pos(-1), size(-1)
+CMapLoaderH3M::CMapLoaderH3M(CInputStream * stream) : map(nullptr), buffer(nullptr), pos(-1), size(-1)
 {
     initBuffer(stream);
 }

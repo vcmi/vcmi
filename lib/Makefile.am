@@ -15,6 +15,14 @@ libvcmi_la_SOURCES = \
 	Filesystem/CLodArchiveLoader.cpp \
 	Filesystem/CMemoryStream.cpp \
 	Filesystem/CResourceLoader.cpp \
+	Map/CCampaignHandler.cpp \
+	Map/CCampaignHandler.h \
+	Map/CMap.cpp \
+	Map/CMap.h \
+	Map/CMapInfo.cpp \
+	Map/CMapInfo.h \
+	Map/CMapService.cpp \
+	Map/CMapService.h \
 	BattleAction.cpp \
 	BattleAction.h \
 	BattleState.cpp \
@@ -25,8 +33,6 @@ libvcmi_la_SOURCES = \
 	CBattleCallback.h \
 	CBuildingHandler.cpp \
 	CBuildingHandler.h \
-	CCampaignHandler.cpp \
-	CCampaignHandler.h \
 	CConfigHandler.cpp \
 	CConfigHandler.h \
 	CConsoleHandler.cpp \
@@ -47,8 +53,6 @@ libvcmi_la_SOURCES = \
 	CHeroHandler.h \
 	CLogger.cpp \
 	CLogger.h \
-	CMapInfo.cpp \
-	CMapInfo.h \
 	CModHandler.cpp \
 	CModHandler.h \
 	CObjectHandler.cpp \
@@ -83,6 +87,4 @@ libvcmi_la_SOURCES = \
 	BattleHex.h \
 	VCMIDirs.h \
 	VCMI_Lib.cpp \
-	VCMI_Lib.h \
-	map.cpp \
-	map.h
+	VCMI_Lib.h

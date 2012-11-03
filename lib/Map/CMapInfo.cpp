@@ -29,7 +29,7 @@ void CMapInfo::countPlayers()
                 actualHumanPlayers++;
 }
 
-CMapInfo::CMapInfo() : mapHeader(nullptr), campaignHeader(nullptr),
+CMapInfo::CMapInfo() :
     scenarioOpts(nullptr)
 {
 

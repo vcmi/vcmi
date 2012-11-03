@@ -1044,16 +1044,16 @@ void SelectionTab::parseMaps(const std::vector<ResourceID> & files)
     allItems.clear();
     for(int i = 0; i < files.size(); ++i)
 	{
-        try
-        {
-            CMapInfo mapInfo;
-            mapInfo.mapInit(files[i].getName());
-            allItems.push_back(std::move(mapInfo));
-        }
-        catch(std::exception & e)
-        {
-            tlog2 << "Map " << files[i].getName() << " is invalid. Message: " << e.what() << std::endl;
-        }
+		try
+		{
+			CMapInfo mapInfo;
+			mapInfo.mapInit(files[i].getName());
+			allItems.push_back(mapInfo);
+		}
+		catch(std::exception & e)
+		{
+			tlog2 << "Map " << files[i].getName() << " is invalid. Message: " << e.what() << std::endl;
+		}
 	}
 }
 
@@ -1079,12 +1079,12 @@ void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
 
 			if((allItems[i].actualHumanPlayers > 1) != multi) //if multi mode then only multi games, otherwise single
 			{
-                allItems[i].mapHeader.reset(nullptr);
+				allItems[i].mapHeader.reset();
 			}
 		}
 		catch(std::exception &e)
 		{
-            allItems[i].mapHeader.reset(nullptr);
+			allItems[i].mapHeader.reset();
 			tlog3 << "Failed to process " << files[i].getName() <<": " << e.what() << std::endl;
 		}
 	}
@@ -2820,7 +2820,7 @@ void CBonusSelection::init()
 	}
 
 	//unlock if no bonuses -- it's acceptable
-	
+
 
 // 	//init campaign state if necessary
 // 	if (ourCampaign->campaignName.size() == 0)
@@ -3173,7 +3173,7 @@ void CBonusSelection::updateBonusSelection()
 
 				break;
 			case CScenarioTravel::STravelBonus::HERO:
-				
+
 				desc = CGI->generaltexth->allTexts[718];
 				boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->capColors[bonDescs[i].info1]); //hero's color
 
@@ -3206,7 +3206,7 @@ void CBonusSelection::updateBonusSelection()
 void CBonusSelection::startMap()
 {
 	StartInfo *si = new StartInfo(sInfo);
-	
+
 	if (ourCampaign->mapsConquered.size())
 	{
 		GH.popInts(1);
@@ -3558,7 +3558,7 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode &config )
 	pos.y += config["y"].Float();
 	pos.w = 200;
 	pos.h = 116;
-	
+
 	campFile = config["file"].String();
 	video = config["video"].String();
 
@@ -3662,7 +3662,7 @@ CCampaignScreen::CCampaignScreen(const JsonNode &config)
 		back = createExitButton(config["exitbutton"]);
 		back->hoverable = true;
 	}
-	
+
 	BOOST_FOREACH(const JsonNode& node, config["items"].Vector())
 		campButtons.push_back(new CCampaignButton(node));
 }
