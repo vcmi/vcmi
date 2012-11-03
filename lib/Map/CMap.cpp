@@ -3,6 +3,7 @@
 
 #include "../CObjectHandler.h"
 #include "../CArtHandler.h"
+#include "../CDefObjInfoHandler.h"
 
 PlayerInfo::PlayerInfo(): p7(0), p8(0), p9(0), canHumanPlay(0), canComputerPlay(0),
     AITactic(0), isFactionRandom(0),

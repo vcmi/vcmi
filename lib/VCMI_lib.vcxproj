@@ -310,10 +310,10 @@
     <ClInclude Include="Filesystem\CMemoryStream.h" />
     <ClInclude Include="Filesystem\CResourceLoader.h" />
     <ClInclude Include="Filesystem\ISimpleResourceLoader.h" />
-    <ClCompile Include="Map\CCampaignHandler.h" />
-    <ClCompile Include="Map\CMap.h" />
-    <ClCompile Include="Map\CMapInfo.h" />
-    <ClCompile Include="Map\CMapService.h" />
+    <ClInclude Include="Map\CCampaignHandler.h" />
+    <ClInclude Include="Map\CMap.h" />
+    <ClInclude Include="Map\CMapInfo.h" />
+    <ClInclude Include="Map\CMapService.h" />
     <ClInclude Include="GameConstants.h" />
     <ClInclude Include="HeroBonus.h" />
     <ClInclude Include="CBattleCallback.h" />

@@ -11,6 +11,8 @@
 #include "../VCMI_Lib.h"
 #include "../CSpellHandler.h"
 #include "../CCreatureHandler.h"
+#include "../CObjectHandler.h"
+#include "../CDefObjInfoHandler.h"
 
 std::unique_ptr<CMap> CMapService::loadMap(const std::string & name)
 {
@@ -473,7 +475,7 @@ void CMapLoaderH3M::readAllowedHeroes()
         {
             if((pos - pom) * 8 + yy < GameConstants::HEROES_QUANTITY)
             {
-                if(c == (c | static_cast<ui8>(std::pow(2, yy))))
+                if(c == (c | static_cast<ui8>(std::pow(2., yy))))
                 {
                     mapHeader->allowedHeroes[(pos - pom) * 8 + yy] = true;
                 }
@@ -539,7 +541,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
             {
                 if((pos - ist) * 8 + yy < GameConstants::ARTIFACTS_QUANTITY)
                 {
-                    if(c == (c | static_cast<ui8>(std::pow(2, yy))))
+                    if(c == (c | static_cast<ui8>(std::pow(2., yy))))
                     {
                         map->allowedArtifact[(pos - ist) * 8 + yy] = false;
                     }
@@ -601,7 +603,7 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
             {
                 if((pos - ist) * 8 + yy < GameConstants::SPELLS_QUANTITY)
                 {
-                    if(c == (c | static_cast<ui8>(std::pow(2, yy))))
+                    if(c == (c | static_cast<ui8>(std::pow(2., yy))))
                     {
                         map->allowedSpell[(pos - ist) * 8 + yy] = false;
                     }
@@ -619,7 +621,7 @@ void CMapLoaderH3M::readAllowedSpellsAbilities()
             {
                 if((pos - ist) * 8 + yy < GameConstants::SKILL_QUANTITY)
                 {
-                    if(c == (c | static_cast<ui8>(std::pow(2, yy))))
+                    if(c == (c | static_cast<ui8>(std::pow(2., yy))))
                     {
                         map->allowedAbilities[(pos - ist) * 8 + yy] = false;
                     }
@@ -722,7 +724,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
                         {
                             if((pos - ist) * 8 + yy < GameConstants::SPELLS_QUANTITY)
                             {
-                                if(c == (c | static_cast<ui8>(std::pow(2, yy))))
+                                if(c == (c | static_cast<ui8>(std::pow(2., yy))))
                                 {
                                     hero->spells.insert((pos - ist) * 8 + yy);
                                 }
@@ -1273,7 +1275,7 @@ void CMapLoaderH3M::readObjects()
                         {
                             if((pos - ist) * 8 + yy < GameConstants::SKILL_QUANTITY)
                             {
-                                if(c == (c | static_cast<ui8>(std::pow(2, yy))))
+                                if(c == (c | static_cast<ui8>(std::pow(2., yy))))
                                 {
                                     wh->allowedAbilities.push_back((pos - ist) * 8 + yy);
                                 }
@@ -1933,7 +1935,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(int idToBeGiven)
                 {
                     if((pos - ist) * 8 + yy < GameConstants::SPELLS_QUANTITY)
                     {
-                        if(c == (c | static_cast<ui8>(std::pow(2, yy))))
+                        if(c == (c | static_cast<ui8>(std::pow(2., yy))))
                         {
                             nhi->spells.insert((pos - ist) * 8 + yy);
                         }
@@ -2283,7 +2285,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
             {
                 if((pos - ist) * 8 + yy < GameConstants::SPELLS_QUANTITY)
                 {
-                    if(c == (c | static_cast<ui8>(std::pow(2, yy))))
+                    if(c == (c | static_cast<ui8>(std::pow(2., yy))))
                     {
                         nt->obligatorySpells.push_back((pos - ist) * 8 + yy);
                     }
@@ -2300,7 +2302,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
         {
             if((pos - ist) * 8 + yy < GameConstants::SPELLS_QUANTITY)
             {
-                if(c == (c | static_cast<ui8>(std::pow(2, yy))))
+                if(c == (c | static_cast<ui8>(std::pow(2., yy))))
                 {
                     nt->possibleSpells.push_back((pos - ist) * 8 + yy);
                 }
