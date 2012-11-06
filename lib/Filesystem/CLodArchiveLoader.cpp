@@ -60,7 +60,7 @@ void CLodArchiveLoader::initLODArchive(CFileInputStream & fileStream)
 	};
 
 	// Read count of total files
-	CBinaryReader reader(fileStream);
+    CBinaryReader reader(&fileStream);
 
 	fileStream.seek(8);
 	ui32 totalFiles = reader.readUInt32();
@@ -98,7 +98,7 @@ void CLodArchiveLoader::initVIDArchive(CFileInputStream & fileStream)
 	};
 
 	// Read count of total files
-	CBinaryReader reader(fileStream);
+    CBinaryReader reader(&fileStream);
 	fileStream.seek(0);
 	ui32 totalFiles = reader.readUInt32();
 
@@ -146,7 +146,7 @@ void CLodArchiveLoader::initSNDArchive(CFileInputStream & fileStream)
 	};
 
 	// Read count of total files
-	CBinaryReader reader(fileStream);
+    CBinaryReader reader(&fileStream);
 	fileStream.seek(0);
 	ui32 totalFiles = reader.readUInt32();
 

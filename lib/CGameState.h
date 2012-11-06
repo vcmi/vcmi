@@ -149,7 +149,7 @@ struct DLL_LINKAGE SThievesGuildInfo
 
 	std::map<TPlayerColor, InfoAboutHero> colorToBestHero; //maps player's color to his best heros'
 
-	std::map<TPlayerColor, si8> personality; // color to personality // -1 - human, AI -> (00 - random, 01 -  warrior, 02 - builder, 03 - explorer)
+    std::map<TPlayerColor, EAiTactic::EAiTactic> personality; // color to personality // ai tactic
 	std::map<TPlayerColor, si32> bestCreature; // color to ID // id or -1 if not known
 
 // 	template <typename Handler> void serialize(Handler &h, const int version)

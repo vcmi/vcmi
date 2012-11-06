@@ -988,7 +988,7 @@ void CAdvMapInt::select(const CArmedInstance *sel, bool centerView /*= true*/)
 		auto pos = sel->visitablePos();
 		auto tile = LOCPLINT->cb->getTile(pos);
 		if(tile)
-			CCS->musich->playMusicFromSet("terrain", tile->tertype, true);
+			CCS->musich->playMusicFromSet("terrain", tile->terType, true);
 	}
 	if(centerView)
 		centerOn(sel);
@@ -1385,7 +1385,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 				{
 					if(pnode->land)
 					{
-                        if(LOCPLINT->cb->getTile(h->getPosition(false))->tertype != ETerrainType::WATER)
+                        if(LOCPLINT->cb->getTile(h->getPosition(false))->terType != ETerrainType::WATER)
 							CCS->curh->changeGraphic(0, 4 + turns*6);
 						else
 							CCS->curh->changeGraphic(0, 7 + turns*6); //anchor

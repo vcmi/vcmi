@@ -5,10 +5,15 @@
 #include "../CArtHandler.h"
 #include "../CDefObjInfoHandler.h"
 
-PlayerInfo::PlayerInfo(): p7(0), p8(0), p9(0), canHumanPlay(0), canComputerPlay(0),
-    AITactic(0), isFactionRandom(0),
-    mainHeroPortrait(0), hasMainTown(0), generateHeroAtMainTown(0),
-    team(255), generateHero(0)
+SHeroName::SHeroName() : heroId(-1)
+{
+
+}
+
+PlayerInfo::PlayerInfo(): p7(0), p8(0), p9(0), powerPlaceholders(-1),
+    canHumanPlay(false), canComputerPlay(false),
+    aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainHeroPortrait(0), hasMainTown(false),
+    generateHeroAtMainTown(false), team(255), generateHero(false)
 {
 
 }
@@ -39,15 +44,122 @@ si8 PlayerInfo::defaultHero() const
     return -2;
 }
 
-CMapHeader::CMapHeader() : version(EMapFormat::INVALID)
+LossCondition::LossCondition() : typeOfLossCon(ELossConditionType::LOSSSTANDARD),
+    pos(int3(-1, -1, -1)), timeLimit(-1), obj(nullptr)
 {
-    areAnyPLayers = difficulty = levelLimit = howManyTeams = 0;
-    height = width = twoLevel = -1;
+
+}
+
+VictoryCondition::VictoryCondition() : condition(EVictoryConditionType::WINSTANDARD),
+    allowNormalVictory(false), appliesToAI(false), pos(int3(-1, -1, -1)), objectId(0),
+    count(0), obj(nullptr)
+{
+
+}
+
+DisposedHero::DisposedHero() : heroId(0), portrait(255), players(0)
+{
+
+}
+
+CMapEvent::CMapEvent() : players(0), humanAffected(0), computerAffected(0),
+    firstOccurence(0), nextOccurence(0)
+{
+
+}
+
+bool CMapEvent::earlierThan(const CMapEvent & other) const
+{
+    return firstOccurence < other.firstOccurence;
+}
+
+bool CMapEvent::earlierThanOrEqual(const CMapEvent & other) const
+{
+    return firstOccurence <= other.firstOccurence;
+}
+
+CCastleEvent::CCastleEvent() : town(nullptr)
+{
+
+}
+
+TerrainTile::TerrainTile() : terType(ETerrainType::BORDER), terView(0), riverType(ERiverType::NO_RIVER),
+    riverDir(0), roadType(ERoadType::NO_ROAD), roadDir(0), extTileFlags(0), visitable(false),
+    blocked(false)
+{
+
+}
+
+bool TerrainTile::entrableTerrain(const TerrainTile * from /*= NULL*/) const
+{
+    return entrableTerrain(from ? from->terType != ETerrainType::WATER : true, from ? from->terType == ETerrainType::WATER : true);
+}
+
+bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
+{
+    return terType != ETerrainType::ROCK
+        && ((allowSea && terType == ETerrainType::WATER)  ||  (allowLand && terType != ETerrainType::WATER));
+}
+
+bool TerrainTile::isClear(const TerrainTile *from /*= NULL*/) const
+{
+    return entrableTerrain(from) && !blocked;
+}
+
+int TerrainTile::topVisitableId() const
+{
+    return visitableObjects.size() ? visitableObjects.back()->ID : -1;
+}
+
+bool TerrainTile::isCoastal() const
+{
+    return extTileFlags & 64;
+}
+
+bool TerrainTile::hasFavourableWinds() const
+{
+    return extTileFlags & 128;
+}
+
+bool TerrainTile::isWater() const
+{
+    return terType == ETerrainType::WATER;
+}
+
+CMapHeader::CMapHeader() : version(EMapFormat::INVALID), areAnyPlayers(false),
+    height(-1), width(-1), twoLevel(-1), difficulty(0), levelLimit(0),
+    howManyTeams(0)
+{
+
 }
 
 CMapHeader::~CMapHeader()
 {
 
+}
+
+CMap::CMap() : checksum(0), terrain(nullptr), grailRadious(0)
+{
+
+}
+
+CMap::~CMap()
+{
+    if(terrain)
+    {
+        for(int ii=0;ii<width;ii++)
+        {
+            for(int jj=0;jj<height;jj++)
+                delete [] terrain[ii][jj];
+            delete [] terrain[ii];
+        }
+        delete [] terrain;
+    }
+
+    for(std::list<ConstTransitivePtr<CMapEvent> >::iterator i = events.begin(); i != events.end(); i++)
+    {
+        i->dellNull();
+    }
 }
 
 void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
@@ -103,30 +215,6 @@ void CMap::addBlockVisTiles(CGObjectInstance * obj)
     }
 }
 
-CMap::CMap() : terrain(nullptr)
-{
-
-}
-
-CMap::~CMap()
-{
-    if(terrain)
-    {
-        for(int ii=0;ii<width;ii++)
-        {
-            for(int jj=0;jj<height;jj++)
-                delete [] terrain[ii][jj];
-            delete [] terrain[ii];
-        }
-        delete [] terrain;
-    }
-
-    for(std::list<ConstTransitivePtr<CMapEvent> >::iterator i = events.begin(); i != events.end(); i++)
-    {
-        i->dellNull();
-    }
-}
-
 CGHeroInstance * CMap::getHero(int heroID)
 {
     for(ui32 i=0; i<heroes.size();i++)
@@ -154,7 +242,7 @@ const TerrainTile & CMap::getTile( const int3 & tile ) const
 
 bool CMap::isWaterTile(const int3 &pos) const
 {
-    return isInTheMap(pos) && getTile(pos).tertype == ETerrainType::WATER;
+    return isInTheMap(pos) && getTile(pos).terType == ETerrainType::WATER;
 }
 
 const CGObjectInstance *CMap::getObjectiveObjectFrom(int3 pos, bool lookForHero)
@@ -189,54 +277,4 @@ void CMap::eraseArtifactInstance(CArtifactInstance *art)
 {
     assert(artInstances[art->id] == art);
     artInstances[art->id].dellNull();
-}
-
-LossCondition::LossCondition()
-{
-    obj = NULL;
-    timeLimit = -1;
-    pos = int3(-1,-1,-1);
-}
-
-VictoryCondition::VictoryCondition()
-{
-    pos = int3(-1,-1,-1);
-    obj = NULL;
-    ID = allowNormalVictory = appliesToAI = count = 0;
-}
-
-bool TerrainTile::entrableTerrain(const TerrainTile * from /*= NULL*/) const
-{
-    return entrableTerrain(from ? from->tertype != ETerrainType::WATER : true, from ? from->tertype == ETerrainType::WATER : true);
-}
-
-bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
-{
-    return tertype != ETerrainType::ROCK
-        && ((allowSea && tertype == ETerrainType::WATER)  ||  (allowLand && tertype != ETerrainType::WATER));
-}
-
-bool TerrainTile::isClear(const TerrainTile *from /*= NULL*/) const
-{
-    return entrableTerrain(from) && !blocked;
-}
-
-int TerrainTile::topVisitableID() const
-{
-    return visitableObjects.size() ? visitableObjects.back()->ID : -1;
-}
-
-bool TerrainTile::isCoastal() const
-{
-    return extTileFlags & 64;
-}
-
-bool TerrainTile::hasFavourableWinds() const
-{
-    return extTileFlags & 128;
-}
-
-bool TerrainTile::isWater() const
-{
-    return tertype == ETerrainType::WATER;
 }

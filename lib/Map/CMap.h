@@ -33,6 +33,355 @@ class IModableArt;
 class IQuestObject;
 class CInputStream;
 
+/**
+ * The hero name struct consists of the hero id and the hero name.
+ */
+struct DLL_LINKAGE SHeroName
+{
+    /**
+     * Default c-tor.
+     */
+    SHeroName();
+
+    /** the id of the hero */
+    int heroId;
+
+    /** the name of the hero */
+    std::string heroName;
+
+    /**
+     * Serialize method.
+     */
+    template <typename Handler>
+    void serialize(Handler & h, const int version)
+    {
+        h & heroId & heroName;
+    }
+};
+
+namespace EAiTactic
+{
+    enum EAiTactic
+    {
+        NONE = -1,
+        RANDOM,
+        WARRIOR,
+        BUILDER,
+        EXPLORER
+    };
+}
+
+/**
+ * The player info constains data about which factions are allowed, AI tactical settings,
+ * the main hero name, where to generate the hero, whether the faction should be selected randomly,...
+ */
+struct DLL_LINKAGE PlayerInfo
+{
+    /**
+     * Default constructor.
+     */
+    PlayerInfo();
+
+    /**
+     * Gets the default faction id or -1 for a random faction.
+     *
+     * @return the default faction id or -1 for a random faction
+     */
+    si8 defaultCastle() const;
+
+    /**
+     * Gets -1 for random hero.
+     *
+     * @return -1 for random hero
+     */
+    si8 defaultHero() const;
+
+    /** unknown, unused */
+    si32 p7;
+
+    /** TODO ? */
+    si32 p8;
+
+    /** TODO ? */
+    si32 p9;
+
+    /** TODO unused, q-ty of hero placeholders containing hero type, WARNING: powerPlaceholders sometimes gives false 0 (eg. even if there is one placeholder), maybe different meaning??? */
+    ui8 powerPlaceholders;
+
+    /** true if player can be played by a human */
+    bool canHumanPlay;
+
+    /** true if player can be played by the computer */
+    bool canComputerPlay;
+
+    /** defines the tactical setting of the AI */
+    EAiTactic::EAiTactic aiTactic;
+
+    /** IDs of allowed factions */
+    std::set<ui32> allowedFactions;
+
+    /** unused. is the faction random */
+    bool isFactionRandom;
+
+    /** specifies the ID of hero with chosen portrait; 255 if standard */
+    ui32 mainHeroPortrait;
+
+    /** the name of the main hero */
+    std::string mainHeroName;
+
+    /** list of available heroes */
+    std::vector<SHeroName> heroesNames;
+
+    /** true if the player has a main town */
+    bool hasMainTown;
+
+    /** true if the hero should be generated at the main town */
+    bool generateHeroAtMainTown;
+
+    /** the position of the main town */
+    int3 posOfMainTown;
+
+    /** the team id to which the player belongs to */
+    ui8 team;
+
+    /** unused. true if a hero should be generated */
+    bool generateHero;
+
+    /**
+     * Serialize method.
+     */
+    template <typename Handler>
+    void serialize(Handler & h, const int version)
+    {
+        h & p7 & p8 & p9 & canHumanPlay & canComputerPlay & aiTactic & allowedFactions & isFactionRandom &
+            mainHeroPortrait & mainHeroName & heroesNames & hasMainTown & generateHeroAtMainTown &
+            posOfMainTown & team & generateHero;
+    }
+};
+
+/**
+ * The loss condition describes the condition to lose the game. (e.g. lose all own heroes/castles)
+ */
+struct DLL_LINKAGE LossCondition
+{
+    /**
+     * Default constructor.
+     */
+    LossCondition();
+
+    /** specifies the condition type */
+    ELossConditionType::ELossConditionType typeOfLossCon;
+
+    /** the position of an object which mustn't be lost */
+    int3 pos;
+
+    /** time limit in days, -1 if not used */
+    si32 timeLimit;
+
+    /** set during map parsing: hero/town (depending on typeOfLossCon); nullptr if not used */
+    const CGObjectInstance * obj;
+
+    /**
+     * Serialize method.
+     */
+    template <typename Handler>
+    void serialize(Handler & h, const int version)
+    {
+        h & typeOfLossCon & pos & timeLimit & obj;
+    }
+};
+
+/**
+ * The victory condition describes the condition to win the game. (e.g. defeat all enemy heroes/castles,
+ * receive a specific artifact, ...)
+ */
+struct DLL_LINKAGE VictoryCondition
+{
+    /**
+     * Default constructor.
+     */
+    VictoryCondition();
+
+    /** specifies the condition type */
+    EVictoryConditionType::EVictoryConditionType condition;
+
+    /** true if a normal victory is allowed (defeat all enemy towns, heroes) */
+    bool allowNormalVictory;
+
+    /** true if this victory condition also applies to the AI */
+    bool appliesToAI;
+
+    /** pos of city to upgrade (3); pos of town to build grail, {-1,-1,-1} if not relevant (4); hero pos (5); town pos(6); monster pos (7); destination pos(8) */
+    int3 pos;
+
+    /** artifact ID (0); monster ID (1); resource ID (2); needed fort level in upgraded town (3); artifact ID (8) */
+    si32 objectId;
+
+    /** needed count for creatures (1) / resource (2); upgraded town hall level (3);  */
+    si32 count;
+
+    /** object of specific monster / city / hero instance (NULL if not used); set during map parsing */
+    const CGObjectInstance * obj;
+
+    /**
+     * Serialize method.
+     */
+    template <typename Handler>
+    void serialize(Handler & h, const int version)
+    {
+        h & condition & allowNormalVictory & appliesToAI & pos & objectId & count & obj;
+    }
+};
+
+/**
+ * The rumor struct consists of a rumor name and text.
+ */
+struct DLL_LINKAGE Rumor
+{
+    /** the name of the rumor */
+    std::string name;
+
+    /** the content of the rumor */
+    std::string text;
+
+    /**
+     * Serialize method.
+     */
+    template <typename Handler>
+    void serialize(Handler & h, const int version)
+    {
+        h & name & text;
+    }
+};
+
+/**
+ * The disposed hero struct describes which hero can be hired from which player.
+ */
+struct DLL_LINKAGE DisposedHero
+{
+    /**
+     * Default c-tor.
+     */
+    DisposedHero();
+
+    /** the id of the hero */
+    ui32 heroId;
+
+    /** the portrait id of the hero, 0xFF is default */
+    ui16 portrait;
+
+    /** the name of the hero */
+    std::string name;
+
+    /** who can hire this hero (bitfield) */
+    ui8 players;
+
+    /**
+     * Serialize method.
+     */
+    template <typename Handler>
+    void serialize(Handler & h, const int version)
+    {
+        h & heroId & portrait & name & players;
+    }
+};
+
+/// Class which manages map events.
+
+/**
+ * The map event is an event which gives or takes resources for a specific
+ * amount of players and can appear regularly or once a time.
+ */
+class DLL_LINKAGE CMapEvent
+{
+public:
+    /**
+     * Default c-tor.
+     */
+    CMapEvent();
+
+    /**
+     * Returns true if this map event occurs earlier than the other map event for the first time.
+     *
+     * @param other the other map event to compare with
+     * @return true if this event occurs earlier than the other map event, false if not
+     */
+    bool earlierThan(const CMapEvent & other) const;
+
+    /**
+     * Returns true if this map event occurs earlier than or at the same day than the other map event for the first time.
+     *
+     * @param other the other map event to compare with
+     * @return true if this event occurs earlier than or at the same day than the other map event, false if not
+     */
+    bool earlierThanOrEqual(const CMapEvent & other) const;
+
+    /** the name of the event */
+    std::string name;
+
+    /** the message to display */
+    std::string message;
+
+    /** gained or taken resources */
+    TResources resources;
+
+    /** affected players */
+    ui8 players;
+
+    /** affected humans */
+    ui8 humanAffected;
+
+    /** affacted computer players */
+    ui8 computerAffected;
+
+    /** the day counted continously when the event happens */
+    ui32 firstOccurence;
+
+    /** specifies after how many days the event will occur the next time; 0 if event occurs only one time */
+    ui32 nextOccurence;
+
+    /**
+     * Serialize method.
+     */
+    template <typename Handler>
+    void serialize(Handler & h, const int version)
+    {
+        h & name & message & resources
+            & players & humanAffected & computerAffected & firstOccurence & nextOccurence;
+    }
+};
+
+/**
+ * The castle event builds/adds buildings/creatures for a specific town.
+ */
+class DLL_LINKAGE CCastleEvent: public CMapEvent
+{
+public:
+    /**
+     * Default c-tor.
+     */
+    CCastleEvent();
+
+    /** build specific buildings */
+    std::set<si32> buildings;
+
+    /** additional creatures in i-th level dwelling */
+    std::vector<si32> creatures;
+
+    /** owner of this event */
+    CGTownInstance * town;
+
+    /**
+     * Serialize method.
+     */
+    template <typename Handler>
+    void serialize(Handler & h, const int version)
+    {
+        h & static_cast<CMapEvent &>(*this);
+        h & buildings & creatures;
+    }
+};
+
 namespace ETerrainType
 {
     enum ETerrainType
@@ -46,7 +395,7 @@ namespace ERiverType
 {
     enum ERiverType
     {
-        NO_RIVER = 0, CLEAR_RIVER, ICY_RIVER, MUDDY_RIVER, LAVA_RIVER
+        NO_RIVER, CLEAR_RIVER, ICY_RIVER, MUDDY_RIVER, LAVA_RIVER
     };
 }
 
@@ -54,7 +403,7 @@ namespace ERoadType
 {
     enum ERoadType
     {
-        DIRT_ROAD = 1, GRAVEL_ROAD, COBBLESTONE_ROAD
+        NO_ROAD, DIRT_ROAD, GRAVEL_ROAD, COBBLESTONE_ROAD
     };
 }
 
@@ -64,41 +413,10 @@ namespace ERoadType
  */
 struct DLL_LINKAGE TerrainTile
 {
-    /** the type of terrain */
-    ETerrainType::ETerrainType tertype;
-
-    /** the visual representation of the terrain */
-    ui8 terview;
-
-    /** the type of the river. 0 if there is no river */
-    ERiverType::ERiverType riverType;
-
-    /** the direction of the river */
-    ui8 riverDir;
-
-    /** the type of the road. 0 if there is no river */
-    ERoadType::ERoadType roadType;
-
-    /** the direction of the road */
-    ui8 roadDir;
-
     /**
-     * first two bits - how to rotate terrain graphic (next two - river graphic, next two - road);
-     * 7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favourable Winds effect
+     * Default c-tor.
      */
-    ui8 extTileFlags;
-
-    /** true if it is visitable, false if not */
-    bool visitable;
-
-    /** true if it is blocked, false if not */
-    bool blocked;
-
-    /** pointers to objects which the hero can visit while being on this tile */
-    std::vector <CGObjectInstance *> visitableObjects;
-
-    /** pointers to objects that are blocking this tile */
-    std::vector <CGObjectInstance *> blockingObjects;
+    TerrainTile();
 
     /**
      * Gets true if the terrain is not a rock. If from is water/land, same type is also required.
@@ -130,7 +448,7 @@ struct DLL_LINKAGE TerrainTile
      *
      * @return the ID of the top visitable object or -1 if there is none
      */
-    int topVisitableID() const;
+    int topVisitableId() const;
 
     /**
      * Gets true if the terrain type is water.
@@ -153,329 +471,55 @@ struct DLL_LINKAGE TerrainTile
      */
     bool hasFavourableWinds() const;
 
+    /** the type of terrain */
+    ETerrainType::ETerrainType terType;
+
+    /** the visual representation of the terrain */
+    ui8 terView;
+
+    /** the type of the river. 0 if there is no river */
+    ERiverType::ERiverType riverType;
+
+    /** the direction of the river */
+    ui8 riverDir;
+
+    /** the type of the road. 0 if there is no river */
+    ERoadType::ERoadType roadType;
+
+    /** the direction of the road */
+    ui8 roadDir;
+
+    /**
+     * first two bits - how to rotate terrain graphic (next two - river graphic, next two - road);
+     * 7th bit - whether tile is coastal (allows disembarking if land or block movement if water); 8th bit - Favourable Winds effect
+     */
+    ui8 extTileFlags;
+
+    /** true if it is visitable, false if not */
+    bool visitable;
+
+    /** true if it is blocked, false if not */
+    bool blocked;
+
+    /** pointers to objects which the hero can visit while being on this tile */
+    std::vector<CGObjectInstance *> visitableObjects;
+
+    /** pointers to objects that are blocking this tile */
+    std::vector<CGObjectInstance *> blockingObjects;
+
     /**
      * Serialize method.
      */
     template <typename Handler>
     void serialize(Handler & h, const int version)
     {
-        h & tertype & terview & riverType & riverDir & roadType &roadDir & extTileFlags & blocked;
+        h & terType & terView & riverType & riverDir & roadType &roadDir & extTileFlags & blocked;
 
         if(!h.saving)
         {
             visitable = false;
             //these flags (and obj vectors) will be restored in map serialization
         }
-    }
-};
-
-/**
- * The hero name struct consists of the hero id and name.
- */
-struct DLL_LINKAGE SheroName
-{
-    /** the id of the hero */
-    int heroID;
-
-    /** the name of the hero */
-    std::string heroName;
-
-    /**
-     * Serialize method.
-     */
-    template <typename Handler>
-    void serialize(Handler & h, const int version)
-    {
-        h & heroID & heroName;
-    }
-};
-
-/**
- * The player info constains data about which factions are allowed, AI tactical settings,
- * main hero name, where to generate the hero, whether faction is random,...
- */
-struct DLL_LINKAGE PlayerInfo
-{
-    /** unknown, unused */
-    si32 p7;
-
-    /** TODO ? */
-    si32 p8;
-
-    /** TODO ? */
-    si32 p9;
-
-    /** TODO unused, q-ty of hero placeholders containing hero type, WARNING: powerPlacehodlers sometimes gives false 0 (eg. even if there is one placeholder), maybe different meaning??? */
-    ui8 powerPlacehodlers;
-
-    /** player can be played by a human */
-    ui8 canHumanPlay;
-
-    /** player can be played by the computer */
-    ui8 canComputerPlay;
-
-    /** defines the tactical setting of the AI: 0 - random, 1 -  warrior, 2 - builder, 3 - explorer */
-    ui32 AITactic;
-
-    /** IDs of allowed factions */
-    std::set<ui32> allowedFactions;
-
-    /** unused. is the faction random */
-    ui8 isFactionRandom;
-
-    /** specifies the ID of hero with chosen portrait; 255 if standard */
-    ui32 mainHeroPortrait;
-
-    /** the name of the main hero */
-    std::string mainHeroName;
-
-    /** list of available heroes */
-    std::vector<SheroName> heroesNames;
-
-    /** has the player a main town */
-    ui8 hasMainTown;
-
-    /** generates the hero at the main town */
-    ui8 generateHeroAtMainTown;
-
-    /** the position of the main town */
-    int3 posOfMainTown;
-
-    /** the team id to which the player belongs to */
-    ui8 team;
-
-    /** unused. generates a hero */
-    ui8 generateHero;
-
-    /**
-     * Default constructor.
-     */
-    PlayerInfo();
-
-    /**
-     * Gets the default faction id or -1 for a random faction.
-     *
-     * @return the default faction id or -1 for a random faction
-     */
-    si8 defaultCastle() const;
-
-    /**
-     * Gets -1 for random hero.
-     *
-     * @return -1 for random hero
-     */
-    si8 defaultHero() const;
-
-    /**
-     * Serialize method.
-     */
-    template <typename Handler>
-    void serialize(Handler & h, const int version)
-    {
-        h & p7 & p8 & p9 & canHumanPlay & canComputerPlay & AITactic & allowedFactions & isFactionRandom &
-            mainHeroPortrait & mainHeroName & heroesNames & hasMainTown & generateHeroAtMainTown &
-            posOfMainTown & team & generateHero;
-    }
-};
-
-/**
- * The loss condition describes the condition to lose the game. (e.g. lose all own heroes/castles)
- */
-struct DLL_LINKAGE LossCondition
-{
-    /** specifies the condition type */
-    ELossConditionType::ELossConditionType typeOfLossCon;
-
-    /** the position of an object which mustn't be lost */
-    int3 pos;
-
-    /** time limit in days, -1 if not used */
-    si32 timeLimit;
-
-    /** set during map parsing: hero/town (depending on typeOfLossCon); nullptr if not used */
-    const CGObjectInstance * obj;
-
-    /**
-     * Default constructor.
-     */
-    LossCondition();
-
-    /**
-     * Serialize method.
-     */
-    template <typename Handler>
-    void serialize(Handler & h, const int version)
-    {
-        h & typeOfLossCon & pos & timeLimit & obj;
-    }
-};
-
-/**
- * The victory condition describes the condition to win the game. (e.g. defeat all enemy heroes/castles,
- * receive a specific artifact, ...)
- */
-struct DLL_LINKAGE VictoryCondition
-{
-    /** specifies the condition type */
-    EVictoryConditionType::EVictoryConditionType condition;
-
-    /** true if a normal victory is allowed (defeat all enemy towns, heroes) */
-    ui8 allowNormalVictory;
-
-    /** true if this victory condition also applies to the AI */
-    ui8 appliesToAI;
-
-    /** pos of city to upgrade (3); pos of town to build grail, {-1,-1,-1} if not relevant (4); hero pos (5); town pos(6); monster pos (7); destination pos(8) */
-    int3 pos;
-
-    /** artifact ID (0); monster ID (1); resource ID (2); needed fort level in upgraded town (3); artifact ID (8) */
-    si32 ID;
-
-    /** needed count for creatures (1) / resource (2); upgraded town hall level (3);  */
-    si32 count;
-
-    /** object of specific monster / city / hero instance (NULL if not used); set during map parsing */
-    const CGObjectInstance * obj;
-
-    /**
-     * Default constructor.
-     */
-    VictoryCondition();
-
-    /**
-     * Serialize method.
-     */
-    template <typename Handler>
-    void serialize(Handler & h, const int version)
-    {
-        h & condition & allowNormalVictory & appliesToAI & pos & ID & count & obj;
-    }
-};
-
-/**
- * The rumor struct consists of a rumor name and text.
- */
-struct DLL_LINKAGE Rumor
-{
-    /** the name of the rumor */
-    std::string name;
-
-    /** the content of the rumor */
-    std::string text;
-
-    /**
-     * Serialize method.
-     */
-    template <typename Handler>
-    void serialize(Handler & h, const int version)
-    {
-        h & name & text;
-    }
-};
-
-/**
- * The disposed hero struct describes which hero can be hired from which player.
- */
-struct DLL_LINKAGE DisposedHero
-{
-    /** the id of the hero */
-    ui32 ID;
-
-    /** the portrait id of the hero, 0xFF is default */
-    ui16 portrait;
-
-    /** the name of the hero */
-    std::string name;
-
-    /** who can hire this hero (bitfield) */
-    ui8 players;
-
-    /**
-     * Serialize method.
-     */
-    template <typename Handler>
-    void serialize(Handler & h, const int version)
-    {
-        h & ID & portrait & name & players;
-    }
-};
-
-/// Class which manages map events.
-
-/**
- * The map event is an event which gives or takes resources for a specific
- * amount of players and can appear regularly or once a time.
- */
-class DLL_LINKAGE CMapEvent
-{
-public:
-    /** the name of the event */
-    std::string name;
-
-    /** the message to display */
-    std::string message;
-
-    /** gained or taken resources */
-    TResources resources;
-
-    /** affected players */
-    ui8 players;
-
-    /** affected humans */
-    ui8 humanAffected;
-
-    /** affacted computer players */
-    ui8 computerAffected;
-
-    /** the day counted continously where the event happens */
-    ui32 firstOccurence;
-
-    /** specifies after how many days the event will occur the next time; 0 if event occurs only one time */
-    ui32 nextOccurence;
-
-    bool operator<(const CMapEvent &b) const
-    {
-        return firstOccurence < b.firstOccurence;
-    }
-    bool operator<=(const CMapEvent &b) const
-    {
-        return firstOccurence <= b.firstOccurence;
-    }
-
-    /**
-     * Serialize method.
-     */
-    template <typename Handler>
-    void serialize(Handler & h, const int version)
-    {
-        h & name & message & resources
-            & players & humanAffected & computerAffected & firstOccurence & nextOccurence;
-    }
-};
-
-/**
- * The castle event builds/adds buildings/creatures for a specific town.
- */
-class DLL_LINKAGE CCastleEvent: public CMapEvent
-{
-public:
-    /** build specific buildings */
-    std::set<si32> buildings;
-
-    /** additional creatures in i-th level dwelling */
-    std::vector<si32> creatures;
-
-    /** owner of this event */
-    CGTownInstance * town;
-
-    /**
-     * Serialize method.
-     */
-    template <typename Handler>
-    void serialize(Handler & h, const int version)
-    {
-        h & static_cast<CMapEvent &>(*this);
-        h & buildings & creatures;
     }
 };
 
@@ -507,8 +551,8 @@ public:
     /** the version of the map */
     EMapFormat::EMapFormat version;
 
-    /** if there are any playable players on the map */
-    ui8 areAnyPLayers;
+    /** unused. if there are any playable players on the map */
+    bool areAnyPlayers;
 
     /** the height of the map */
     si32 height;
@@ -555,7 +599,7 @@ public:
     template <typename Handler>
     void serialize(Handler & h, const int Version)
     {
-        h & version & name & description & width & height & twoLevel & difficulty & levelLimit & areAnyPLayers;
+        h & version & name & description & width & height & twoLevel & difficulty & levelLimit & areAnyPlayers;
         h & players & lossCondition & victoryCondition & howManyTeams & allowedHeroes;
     }
 };
@@ -633,10 +677,10 @@ public:
 
     /**
      * Gets the hero with the given id.
-     * @param heroID the hero id
+     * @param heroId the hero id
      * @return the hero with the given id
      */
-    CGHeroInstance * getHero(int heroID);
+    CGHeroInstance * getHero(int heroId);
 
     /**
      * Validates if the position is in the bounds of the map.
@@ -822,7 +866,7 @@ public:
 
                 vistile.x -= 2; //manifest pos
                 const TerrainTile & t = getTile(vistile);
-                if(t.tertype != ETerrainType::WATER) continue;
+                if(t.terType != ETerrainType::WATER) continue;
 
                 //hero stands on the water - he must be in the boat
                 for(ui32 j = 0; j < t.visitableObjects.size(); ++j)

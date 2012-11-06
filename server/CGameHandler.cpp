@@ -1078,7 +1078,7 @@ void CGameHandler::init(StartInfo *si)
 
 static bool evntCmp(const CMapEvent *a, const CMapEvent *b)
 {
-	return *a < *b;
+    return a->earlierThan(*b);
 }
 
 void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=false, bool clear = false)
@@ -1229,7 +1229,7 @@ void CGameHandler::newTurn()
 
 			NewTurn::Hero hth;
 			hth.id = h->id;
-            hth.move = h->maxMovePoints(gs->map->getTile(h->getPosition(false)).tertype != ETerrainType::WATER);
+            hth.move = h->maxMovePoints(gs->map->getTile(h->getPosition(false)).terType != ETerrainType::WATER);
 
 			if(h->visitedTown && h->visitedTown->hasBuilt(EBuilding::MAGES_GUILD_1)) //if hero starts turn in town with mage guild
 				hth.mana = std::max(h->mana, h->manaLimit()); //restore all mana
@@ -1671,11 +1671,11 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-    if(((t.tertype == ETerrainType::ROCK  ||  (t.blocked && !t.visitable && !h->hasBonusOfType(Bonus::FLYING_MOVEMENT) ))
+    if(((t.terType == ETerrainType::ROCK  ||  (t.blocked && !t.visitable && !h->hasBonusOfType(Bonus::FLYING_MOVEMENT) ))
 			&& complain("Cannot move hero, destination tile is blocked!"))
-        || ((!h->boat && !h->canWalkOnSea() && t.tertype == ETerrainType::WATER && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != 8 && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+        || ((!h->boat && !h->canWalkOnSea() && t.terType == ETerrainType::WATER && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != 8 && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
-        || ((h->boat && t.tertype != ETerrainType::WATER && t.blocked)
+        || ((h->boat && t.terType != ETerrainType::WATER && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
 		|| ((h->movement < cost  &&  dst != h->pos  &&  !instant)
 			&& complain("Hero doesn't have any movement points left!"))
@@ -1697,7 +1697,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		return true;
 	}
 	//hero leaves the boat
-    else if(h->boat && t.tertype != ETerrainType::WATER && !t.blocked)
+    else if(h->boat && t.terType != ETerrainType::WATER && !t.blocked)
 	{
 		//TODO? code similarity with the block above
 		tmh.result = TryMoveHero::DISEMBARK;
@@ -4720,7 +4720,7 @@ void CGameHandler::handleTimeEvents()
 
 			ev->firstOccurence += ev->nextOccurence;
 			std::list<ConstTransitivePtr<CMapEvent> >::iterator it = gs->map->events.begin();
-			while ( it !=gs->map->events.end() && **it <= *ev )
+            while ( it !=gs->map->events.end() && (*it)->earlierThanOrEqual(*ev))
 				it++;
 			gs->map->events.insert(it, ev);
 		}
@@ -4791,7 +4791,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<
 
 			ev->firstOccurence += ev->nextOccurence;
 			std::list<CCastleEvent*>::iterator it = town->events.begin();
-			while ( it !=town->events.end() &&  **it <= *ev )
+            while ( it !=town->events.end() &&  (*it)->earlierThanOrEqual(*ev))
 				it++;
 			town->events.insert(it, ev);
 		}
@@ -5085,17 +5085,17 @@ void CGameHandler::getLossVicMessage( ui8 player, si8 standard, bool victory, In
 			{
 			case EVictoryConditionType::ARTIFACT:
 				out.text.addTxt(MetaString::GENERAL_TXT, 280); //Congratulations! You have found the %s, and can claim victory!
-				out.text.addReplacement(MetaString::ART_NAMES,gs->map->victoryCondition.ID); //artifact name
+                out.text.addReplacement(MetaString::ART_NAMES,gs->map->victoryCondition.objectId); //artifact name
 				break;
 			case EVictoryConditionType::GATHERTROOP:
 				out.text.addTxt(MetaString::GENERAL_TXT, 276); //Congratulations! You have over %d %s in your armies. Your enemies have no choice but to bow down before your power!
 				out.text.addReplacement(gs->map->victoryCondition.count);
-				out.text.addReplacement(MetaString::CRE_PL_NAMES, gs->map->victoryCondition.ID);
+                out.text.addReplacement(MetaString::CRE_PL_NAMES, gs->map->victoryCondition.objectId);
 				break;
 			case EVictoryConditionType::GATHERRESOURCE:
 				out.text.addTxt(MetaString::GENERAL_TXT, 278); //Congratulations! You have collected over %d %s in your treasury. Victory is yours!
 				out.text.addReplacement(gs->map->victoryCondition.count);
-				out.text.addReplacement(MetaString::RES_NAMES, gs->map->victoryCondition.ID);
+                out.text.addReplacement(MetaString::RES_NAMES, gs->map->victoryCondition.objectId);
 				break;
 			case EVictoryConditionType::BUILDCITY:
 				out.text.addTxt(MetaString::GENERAL_TXT, 282); //Congratulations! You have successfully upgraded your town, and can claim victory!
@@ -5196,7 +5196,7 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 	NewObject no;
 	no.ID = Obj::HOLE;
 	no.pos = h->getPosition();
-	no.subID = getTile(no.pos)->tertype;
+	no.subID = getTile(no.pos)->terType;
 	sendAndApply(&no);
 
 	//take MPs

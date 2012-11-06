@@ -558,7 +558,7 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 			break;
 		case 124://hole
 			const TerrainTile &t = gs->map->getTile(pos);
-			o->defInfo = VLC->dobjinfo->gobjs[ID][t.tertype];
+			o->defInfo = VLC->dobjinfo->gobjs[ID][t.terType];
 			assert(o->defInfo);
 		break;
 	}

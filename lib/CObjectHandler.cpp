@@ -530,7 +530,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 	unsigned ret = 100;
 
 	//if there is road both on dest and src tiles - use road movement cost
-    if(dest.roadType && from.roadType)
+    if(dest.roadType != ERoadType::NO_ROAD && from.roadType != ERoadType::NO_ROAD)
 	{
         int road = std::min(dest.roadType,from.roadType); //used road ID
 		switch(road)
@@ -563,14 +563,14 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 		{
 			int nativeTerrain = VLC->townh->factions[stack.second->type->faction].nativeTerrain;
 
-			if (nativeTerrain != -1 && nativeTerrain != from.tertype)
+            if (nativeTerrain != -1 && nativeTerrain != from.terType)
 			{
 				nativeArmy = false;
 				break;
 			}
 		}
 		if (!nativeArmy)
-			ret = VLC->heroh->terrCosts[from.tertype];
+            ret = VLC->heroh->terrCosts[from.terType];
  	}
 	return ret;
 }
@@ -1502,7 +1502,7 @@ CGHeroInstance::ECanDig CGHeroInstance::diggingStatus() const
 {
 	if(movement < maxMovePoints(true))
 		return LACK_OF_MOVEMENT;
-    else if(cb->getTile(getPosition(false))->tertype == ETerrainType::WATER)
+    else if(cb->getTile(getPosition(false))->terType == ETerrainType::WATER)
 		return WRONG_TERRAIN;
 	else
 	{
@@ -6516,7 +6516,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 //
 //	TerrainTile *tile;
 //	for(int i = 0; i < offsets.size(); i++)
-//		if((tile = IObjectInterface::cb->getTile(o->pos + offsets[i]))  &&  tile->tertype == TerrainTile::water) //tile is in the map and is water
+//		if((tile = IObjectInterface::cb->getTile(o->pos + offsets[i]))  &&  tile->terType == TerrainTile::water) //tile is in the map and is water
 //			return true;
 //	return false;
 //}
@@ -6530,7 +6530,7 @@ int3 IBoatGenerator::bestLocation() const
 	{
 		if (const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offsets[i], false)) //tile is in the map
 		{
-            if (tile->tertype == ETerrainType::WATER  &&  (!tile->blocked || tile->blockingObjects.front()->ID == 8)) //and is water and is not blocked or is blocked by boat
+            if (tile->terType == ETerrainType::WATER  &&  (!tile->blocked || tile->blockingObjects.front()->ID == 8)) //and is water and is not blocked or is blocked by boat
 				return o->pos + offsets[i];
 		}
 	}

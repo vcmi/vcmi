@@ -5641,11 +5641,14 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	BOOST_FOREACH(auto & it, tgi.personality)
 	{
 		std::string text;
-		if(it.second == -1)
+        if(it.second == EAiTactic::NONE)
+        {
 			text = CGI->generaltexth->arraytxt[172];
-		else
-		if (it.second)
-			text = CGI->generaltexth->arraytxt[168 + it.second];
+        }
+        else if(it.second != EAiTactic::RANDOM)
+        {
+            text = CGI->generaltexth->arraytxt[168 + it.second];
+        }
 
 		new CLabel(283 + 66*counter, 459, FONT_SMALL, CENTER, Colors::Cornsilk, text);
 

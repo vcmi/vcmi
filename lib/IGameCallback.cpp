@@ -133,8 +133,8 @@ void CPrivilagedInfoCallback::getAllTiles (boost::unordered_set<int3, ShashInt3>
 		{
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
-				if ((getTile (int3 (xd,yd,zd))->tertype == 8 && water)
-					|| (getTile (int3 (xd,yd,zd))->tertype != 8 && land))
+				if ((getTile (int3 (xd,yd,zd))->terType == 8 && water)
+					|| (getTile (int3 (xd,yd,zd))->terType != 8 && land))
 					tiles.insert(int3(xd,yd,zd));
 			}
 		}
@@ -157,7 +157,7 @@ void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
 				tinfo = getTile(int3 (xd,yd,zd));
-				if (tinfo->tertype != 8 && !tinfo->blocked) //land and free
+				if (tinfo->terType != 8 && !tinfo->blocked) //land and free
 					tiles.push_back (int3 (xd,yd,zd));
 			}
 		}
@@ -430,9 +430,9 @@ bool CGameInfoCallback::verifyPath(CPath * path, bool blockSea) const
 				continue;
 
 			const TerrainTile *prev = getTile(path->nodes[i-1].coord); //tile of previous node on the path
-            if ((   t->tertype == ETerrainType::WATER  &&  prev->tertype != ETerrainType::WATER)
-                || (t->tertype != ETerrainType::WATER  &&  prev->tertype == ETerrainType::WATER)
-                ||  prev->tertype == ETerrainType::ROCK
+            if ((   t->terType == ETerrainType::WATER  &&  prev->terType != ETerrainType::WATER)
+                || (t->terType != ETerrainType::WATER  &&  prev->terType == ETerrainType::WATER)
+                ||  prev->terType == ETerrainType::ROCK
 				)
 				return false;
 		}
@@ -594,7 +594,7 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 	{
 		const TerrainTile *tile = getTile(t->bestLocation(), false);
 		
-        if(!tile || tile->tertype != ETerrainType::WATER)
+        if(!tile || tile->terType != ETerrainType::WATER)
 			return EBuildingState::NO_WATER; //lack of water
 	}
 

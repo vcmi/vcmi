@@ -770,7 +770,7 @@ CGameState::~CGameState()
 BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town)
 {
 	const TerrainTile &t = map->getTile(tile);
-	int terrain = t.tertype;
+    int terrain = t.terType;
 	if(t.isCoastal() && !t.isWater()) 
         terrain = ETerrainType::SAND;
 
@@ -929,8 +929,8 @@ void CGameState::init(StartInfo * si)
  					const TerrainTile &t = map->terrain[i][j][k];
  					if(!t.blocked
 						&& !t.visitable
-                        && t.tertype != ETerrainType::WATER
-                        && t.tertype != ETerrainType::ROCK
+                        && t.terType != ETerrainType::WATER
+                        && t.terType != ETerrainType::ROCK
 						&& map->grailPos.dist2d(int3(i,j,k)) <= map->grailRadious)
  						allowedPos.push_back(int3(i,j,k));
  				}
@@ -1209,7 +1209,7 @@ void CGameState::init(StartInfo * si)
 
 	for(ui32 i=0; i<map->disposedHeroes.size(); i++)
 	{
-		hpool.pavailable[map->disposedHeroes[i].ID] = map->disposedHeroes[i].players;
+        hpool.pavailable[map->disposedHeroes[i].heroId] = map->disposedHeroes[i].players;
 	}
 
 	if (scenarioOps->mode == StartInfo::CAMPAIGN) //give campaign bonuses for specific / best hero
@@ -1670,7 +1670,7 @@ int CGameState::battleGetBattlefieldType(int3 tile) const
 	if(!t.isWater() && t.isCoastal())
 		return 1; //sand/beach
 
-	switch(t.tertype)
+    switch(t.terType)
 	{
     case ETerrainType::DIRT:
 		return rand()%3+3;
@@ -1822,19 +1822,19 @@ void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<i
 // 			continue;
 // 		}
 
-        if(srct.tertype == ETerrainType::WATER && limitCoastSailing && hlpt.tertype == ETerrainType::WATER && dirs[i].x && dirs[i].y) //diagonal move through water
+        if(srct.terType == ETerrainType::WATER && limitCoastSailing && hlpt.terType == ETerrainType::WATER && dirs[i].x && dirs[i].y) //diagonal move through water
 		{
 			int3 hlp1 = tile,
 				hlp2 = tile;
 			hlp1.x += dirs[i].x;
 			hlp2.y += dirs[i].y;
 
-            if(map->getTile(hlp1).tertype != ETerrainType::WATER || map->getTile(hlp2).tertype != ETerrainType::WATER)
+            if(map->getTile(hlp1).terType != ETerrainType::WATER || map->getTile(hlp2).terType != ETerrainType::WATER)
 				continue;
 		}
 
-        if((indeterminate(onLand)  ||  onLand == (hlpt.tertype!=ETerrainType::WATER) )
-            && hlpt.tertype != ETerrainType::ROCK)
+        if((indeterminate(onLand)  ||  onLand == (hlpt.terType!=ETerrainType::WATER) )
+            && hlpt.terType != ETerrainType::ROCK)
 		{
 			vec.push_back(hlp);
 		}
@@ -1861,7 +1861,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 			ret *= 1.4; //40% penalty for movement over blocked tile
 		}
 	}
-    else if (d.tertype == ETerrainType::WATER)
+    else if (d.terType == ETerrainType::WATER)
 	{
 		if(h->boat && s.hasFavourableWinds() && d.hasFavourableWinds()) //Favourable Winds
 			ret *= 0.666;
@@ -1885,7 +1885,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 	if(checkLast  &&  left > 0  &&  remainingMovePoints-ret < 250) //it might be the last tile - if no further move possible we take all move points
 	{
 		std::vector<int3> vec;
-        getNeighbours(d, dest, vec, s.tertype != ETerrainType::WATER, true);
+        getNeighbours(d, dest, vec, s.terType != ETerrainType::WATER, true);
 		for(size_t i=0; i < vec.size(); i++)
 		{
 			int fcost = getMovementCost(h,dest,vec[i],left,false);
@@ -1955,7 +1955,7 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 			if (map->isInTheMap(pos))
 			{
 				TerrainTile &tile = map->terrain[pos.x][pos.y][pos.z];
-                if (tile.visitable && (tile.tertype == ETerrainType::WATER) == (posTile.tertype == ETerrainType::WATER))
+                if (tile.visitable && (tile.terType == ETerrainType::WATER) == (posTile.terType == ETerrainType::WATER))
 				{
 					BOOST_FOREACH (CGObjectInstance* obj, tile.visitableObjects)
 					{
@@ -2081,7 +2081,7 @@ int CGameState::victoryCheck( ui8 player ) const
 		case EVictoryConditionType::ARTIFACT:
 			//check if any hero has winning artifact
 			for(size_t i = 0; i < p->heroes.size(); i++)
-				if(p->heroes[i]->hasArt(map->victoryCondition.ID))
+                if(p->heroes[i]->hasArt(map->victoryCondition.objectId))
 					return 1;
 
 			break;
@@ -2098,7 +2098,7 @@ int CGameState::victoryCheck( ui8 player ) const
 						&&  (ai = dynamic_cast<const CArmedInstance*>(map->objects[i].get()))) //contains army
 					{
 						for(TSlots::const_iterator i=ai->Slots().begin(); i!=ai->Slots().end(); ++i) //iterate through army
-							if(i->second->type->idNumber == map->victoryCondition.ID) //it's searched creature
+                            if(i->second->type->idNumber == map->victoryCondition.objectId) //it's searched creature
 								total += i->second->count;
 					}
 				}
@@ -2109,7 +2109,7 @@ int CGameState::victoryCheck( ui8 player ) const
 			break;
 
 		case EVictoryConditionType::GATHERRESOURCE:
-			if(p->resources[map->victoryCondition.ID] >= map->victoryCondition.count)
+            if(p->resources[map->victoryCondition.objectId] >= map->victoryCondition.count)
 				return 1;
 
 			break;
@@ -2117,7 +2117,7 @@ int CGameState::victoryCheck( ui8 player ) const
 		case EVictoryConditionType::BUILDCITY:
 			{
 				const CGTownInstance *t = static_cast<const CGTownInstance *>(map->victoryCondition.obj);
-				if(t->tempOwner == player && t->fortLevel()-1 >= map->victoryCondition.ID && t->hallLevel()-1 >= map->victoryCondition.count)
+                if(t->tempOwner == player && t->fortLevel()-1 >= map->victoryCondition.objectId && t->hallLevel()-1 >= map->victoryCondition.count)
 					return 1;
 			}
 			break;
@@ -2176,8 +2176,8 @@ int CGameState::victoryCheck( ui8 player ) const
 		case EVictoryConditionType::TRANSPORTITEM:
 			{
 				const CGTownInstance *t = static_cast<const CGTownInstance *>(map->victoryCondition.obj);
-				if((t->visitingHero && t->visitingHero->hasArt(map->victoryCondition.ID))
-					|| (t->garrisonHero && t->garrisonHero->hasArt(map->victoryCondition.ID)))
+                if((t->visitingHero && t->visitingHero->hasArt(map->victoryCondition.objectId))
+                    || (t->garrisonHero && t->garrisonHero->hasArt(map->victoryCondition.objectId)))
 				{
 					return 1;
 				}
@@ -2370,11 +2370,11 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 				continue;
 			if(g->second.human)
 			{
-				tgi.personality[g->second.color] = -1;
+                tgi.personality[g->second.color] = EAiTactic::NONE;
 			}
 			else //AI
 			{
-				tgi.personality[g->second.color] = map->players[g->second.color].AITactic;
+                tgi.personality[g->second.color] = map->players[g->second.color].aiTactic;
 			}
 
 		}
@@ -2931,7 +2931,7 @@ void CPathfinder::initializeGraph()
 				node.coord.x = i;
 				node.coord.y = j;
 				node.coord.z = k;
-                node.land = tinfo->tertype != ETerrainType::WATER;
+                node.land = tinfo->terType != ETerrainType::WATER;
 				node.theNodeBefore = NULL;
 			}
 		}
@@ -2988,7 +2988,7 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 		neighbours.clear();
 
 		//handling subterranean gate => it's exit is the only neighbour
-		bool subterraneanEntry = (ct->topVisitableID() == Obj::SUBTERRANEAN_GATE && useSubterraneanGates);
+        bool subterraneanEntry = (ct->topVisitableId() == Obj::SUBTERRANEAN_GATE && useSubterraneanGates);
 		if(subterraneanEntry)
 		{
 			//try finding the exit gate
@@ -3012,7 +3012,7 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 			const int3 &n = neighbours[i]; //current neighbor
 			dp = getNode(n);
 			dt = &gs->map->getTile(n);
-			destTopVisObjID = dt->topVisitableID();
+            destTopVisObjID = dt->topVisitableId();
 
 			useEmbarkCost = 0; //0 - usual movement; 1 - embark; 2 - disembark
 
@@ -3028,7 +3028,7 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 				continue;
 
 			//special case -> hero embarked a boat standing on a guarded tile -> we must allow to move away from that tile
-			if(cp->accessible == CGPathNode::VISITABLE && guardedSource && cp->theNodeBefore->land && ct->topVisitableID() == Obj::BOAT)
+            if(cp->accessible == CGPathNode::VISITABLE && guardedSource && cp->theNodeBefore->land && ct->topVisitableId() == Obj::BOAT)
 				guardedSource = false;
 
 			int cost = gs->getMovementCost(hero, cp->coord, dp->coord, movement);
@@ -3104,7 +3104,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 	CGPathNode::EAccessibility ret = (tinfo->blocked ? CGPathNode::BLOCKED : CGPathNode::ACCESSIBLE);
 
 
-    if(tinfo->tertype == ETerrainType::ROCK || !FoW[curPos.x][curPos.y][curPos.z])
+    if(tinfo->terType == ETerrainType::ROCK || !FoW[curPos.x][curPos.y][curPos.z])
 		return CGPathNode::BLOCKED;
 
 	if(tinfo->visitable)

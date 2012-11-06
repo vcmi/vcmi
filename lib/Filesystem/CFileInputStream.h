@@ -93,6 +93,7 @@ private:
 
 	si64 dataStart;
 	si64 dataSize;
+
 	/** Native c++ input file stream object. */
 	std::ifstream fileStream;
 };

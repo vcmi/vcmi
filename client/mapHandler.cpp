@@ -504,7 +504,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 			}
 			else //use default terrain graphic
 			{
-                blitterWithRotation(terrainGraphics[tinfo.tertype][tinfo.terview],rtile, extSurf, sr, tinfo.extTileFlags%4);
+                blitterWithRotation(terrainGraphics[tinfo.terType][tinfo.terView],rtile, extSurf, sr, tinfo.extTileFlags%4);
 			}
             if(tinfo.riverType) //print river if present
 			{
@@ -512,15 +512,15 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 			}
 
 			//Roads are shifted by 16 pixels to bottom. We have to draw both parts separately
-            if (pos.y > 0 && map->terrain[pos.x][pos.y-1][pos.z].roadType)
+            if (pos.y > 0 && map->terrain[pos.x][pos.y-1][pos.z].roadType != ERoadType::NO_ROAD)
 			{ //part from top tile
 				const TerrainTile &topTile = map->terrain[pos.x][pos.y-1][pos.z];
 				Rect source(0, 16, 32, 16);
 				Rect dest(sr.x, sr.y, sr.w, sr.h/2);
-                blitterWithRotationAndAlpha(roadDefs[topTile.roadType-1]->ourImages[topTile.roadDir].bitmap, source, extSurf, dest, (topTile.extTileFlags>>4)%4);
+                blitterWithRotationAndAlpha(roadDefs[topTile.roadType - 1]->ourImages[topTile.roadDir].bitmap, source, extSurf, dest, (topTile.extTileFlags>>4)%4);
 			}
 
-            if(tinfo.roadType) //print road from this tile
+            if(tinfo.roadType != ERoadType::NO_ROAD) //print road from this tile
 			{
 				Rect source(0, 0, 32, 32);
 				Rect dest(sr.x, sr.y+16, sr.w, sr.h/2);
@@ -1106,7 +1106,7 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 	if(t.hasFavourableWinds())
 		out = CGI->generaltexth->names[Obj::FAVORABLE_WINDS];
 	else if(terName)
-		out = CGI->generaltexth->terrainNames[t.tertype];
+        out = CGI->generaltexth->terrainNames[t.terType];
 }
 
 TerrainTile2::TerrainTile2()

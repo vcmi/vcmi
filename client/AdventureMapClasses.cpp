@@ -370,9 +370,9 @@ const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 
 	// else - use terrain color (blocked version or normal)
 	if (tile->blocked && (!tile->visitable))
-		return parent->colors.find(tile->tertype)->second.second;
+		return parent->colors.find(tile->terType)->second.second;
 	else
-		return parent->colors.find(tile->tertype)->second.first;
+		return parent->colors.find(tile->terType)->second.first;
 }
 void CMinimapInstance::tileToPixels (const int3 &tile, int &x, int &y, int toX, int toY)
 {

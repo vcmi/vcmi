@@ -2057,9 +2057,9 @@ void OptionsTab::recreate()
 	for(auto it = SEL->sInfo.playerInfos.begin(); it != SEL->sInfo.playerInfos.end(); ++it)
 	{
 		entries.insert(std::make_pair(it->first, new PlayerOptionsEntry(this, it->second)));
-		const std::vector<SheroName> &heroes = SEL->current->mapHeader->players[it->first].heroesNames;
+        const std::vector<SHeroName> &heroes = SEL->current->mapHeader->players[it->first].heroesNames;
 		for(size_t hi=0; hi<heroes.size(); hi++)
-			usedHeroes.insert(heroes[hi].heroID);
+            usedHeroes.insert(heroes[hi].heroId);
 	}
 
 }

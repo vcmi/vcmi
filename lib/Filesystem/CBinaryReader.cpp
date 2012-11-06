@@ -27,7 +27,7 @@ CBinaryReader::CBinaryReader() : stream(nullptr)
 
 }
 
-CBinaryReader::CBinaryReader(CInputStream & stream) : stream(&stream)
+CBinaryReader::CBinaryReader(CInputStream * stream) : stream(stream)
 {
 
 }
@@ -37,9 +37,9 @@ CInputStream * CBinaryReader::getStream()
 	return stream;
 }
 
-void CBinaryReader::setStream(CInputStream & stream)
+void CBinaryReader::setStream(CInputStream * stream)
 {
-	this->stream = &stream;
+    this->stream = stream;
 }
 
 si64 CBinaryReader::read(ui8 * data, si64 size)

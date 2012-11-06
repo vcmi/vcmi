@@ -2749,7 +2749,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			switch(cond)
 			{
 			case EVictoryConditionType::ARTIFACT:
-				return CGoal(GET_ART_TYPE).setaid(vc.ID);
+                return CGoal(GET_ART_TYPE).setaid(vc.objectId);
 			case EVictoryConditionType::BEATHERO:
 				return CGoal(GET_OBJ).setobjid(vc.obj->id);
 			case EVictoryConditionType::BEATMONSTER:
@@ -2800,12 +2800,12 @@ TSubgoal CGoal::whatToDoToAchieve()
 			case EVictoryConditionType::CAPTURECITY:
 				return CGoal(GET_OBJ).setobjid(vc.obj->id);
 			case EVictoryConditionType::GATHERRESOURCE:
-				return CGoal(COLLECT_RES).setresID(vc.ID).setvalue(vc.count);
+                return CGoal(COLLECT_RES).setresID(vc.objectId).setvalue(vc.count);
 				//TODO mines? piles? marketplace?
 				//save?
 				break;
 			case EVictoryConditionType::GATHERTROOP:
-				return CGoal(GATHER_TROOPS).setobjid(vc.ID).setvalue(vc.count);
+                return CGoal(GATHER_TROOPS).setobjid(vc.objectId).setvalue(vc.count);
 				break;
 			case EVictoryConditionType::TAKEDWELLINGS:
 				break;
@@ -3422,7 +3422,7 @@ bool CGoal::invalid() const
 
 bool isBlockedBorderGate(int3 tileToHit)
 {
-	return cb->getTile(tileToHit)->topVisitableID() == Obj::BORDER_GATE
+    return cb->getTile(tileToHit)->topVisitableId() == Obj::BORDER_GATE
 		&& cb->getPathInfo(tileToHit)->accessible != CGPathNode::ACCESSIBLE;
 }
 
@@ -3480,7 +3480,7 @@ bool canBeEmbarkmentPoint(const TerrainTile *t)
 {
 	//tile must be free of with unoccupied boat
 	return !t->blocked
-		|| (t->visitableObjects.size() == 1 && t->topVisitableID() == Obj::BOAT);
+        || (t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::BOAT);
 }
 
 void SectorMap::exploreNewSector(crint3 pos, int num)
@@ -3726,7 +3726,7 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 				auto firstEP = boost::find_if(src->embarkmentPoints, [=](crint3 pos) -> bool
 				{
 					const TerrainTile *t = cb->getTile(pos);
-					return t && t->visitableObjects.size() == 1 && t->topVisitableID() == Obj::BOAT
+                    return t && t->visitableObjects.size() == 1 && t->topVisitableId() == Obj::BOAT
 						&& retreiveTile(pos) == sectorToReach->id;
 				});
 

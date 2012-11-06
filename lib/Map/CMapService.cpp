@@ -51,7 +51,7 @@ std::unique_ptr<CInputStream> CMapService::getStreamFromMem(const ui8 * buffer, 
 std::unique_ptr<IMapLoader> CMapService::getMapLoader(std::unique_ptr<CInputStream> & stream)
 {
     // Read map header
-    CBinaryReader reader(*stream.get());
+    CBinaryReader reader(stream.get());
     ui32 header = reader.readUInt32();
     reader.getStream()->seek(0);
 
@@ -205,7 +205,7 @@ void CMapLoaderH3M::readHeader()
     }
 
     // Read map name, description, dimensions,...
-    mapHeader->areAnyPLayers = readChar(buffer, pos); // Invalid on some maps
+    mapHeader->areAnyPlayers = static_cast<bool>(readChar(buffer, pos));
     mapHeader->height = mapHeader->width = (read_le_u32(buffer + pos));
     pos += 4;
     mapHeader->twoLevel = readChar(buffer, pos);
@@ -232,8 +232,8 @@ void CMapLoaderH3M::readPlayerInfo()
     mapHeader->players.resize(8);
     for(int i = 0; i < 8; ++i)
     {
-        mapHeader->players[i].canHumanPlay = buffer[pos++];
-        mapHeader->players[i].canComputerPlay = buffer[pos++];
+        mapHeader->players[i].canHumanPlay = static_cast<bool>(buffer[pos++]);
+        mapHeader->players[i].canComputerPlay = static_cast<bool>(buffer[pos++]);
 
         // If nobody can play with this player
         if((!(mapHeader->players[i].canHumanPlay || mapHeader->players[i].canComputerPlay)))
@@ -254,7 +254,7 @@ void CMapLoaderH3M::readPlayerInfo()
             continue;
         }
 
-        mapHeader->players[i].AITactic = buffer[pos++];
+        mapHeader->players[i].aiTactic = static_cast<EAiTactic::EAiTactic>(buffer[pos++]);
 
         if(mapHeader->version == EMapFormat::SOD || mapHeader->version == EMapFormat::WOG)
         {
@@ -280,14 +280,14 @@ void CMapLoaderH3M::readPlayerInfo()
             }
         }
 
-        mapHeader->players[i].isFactionRandom = buffer[pos++];
-        mapHeader->players[i].hasMainTown = buffer[pos++];
+        mapHeader->players[i].isFactionRandom = static_cast<bool>(buffer[pos++]);
+        mapHeader->players[i].hasMainTown = static_cast<bool>(buffer[pos++]);
         if(mapHeader->players[i].hasMainTown)
         {
             if(mapHeader->version != EMapFormat::ROE)
             {
-                mapHeader->players[i].generateHeroAtMainTown = buffer[pos++];
-                mapHeader->players[i].generateHero = buffer[pos++];
+                mapHeader->players[i].generateHeroAtMainTown = static_cast<bool>(buffer[pos++]);
+                mapHeader->players[i].generateHero = static_cast<bool>(buffer[pos++]);
             }
             else
             {
@@ -310,13 +310,13 @@ void CMapLoaderH3M::readPlayerInfo()
 
         if(mapHeader->version != EMapFormat::ROE)
         {
-            mapHeader->players[i].powerPlacehodlers = buffer[pos++]; //unknown byte
+            mapHeader->players[i].powerPlaceholders = buffer[pos++]; //unknown byte
             int heroCount = buffer[pos++];
             pos += 3;
             for(int pp = 0; pp < heroCount; ++pp)
             {
-                SheroName vv;
-                vv.heroID = buffer[pos++];
+                SHeroName vv;
+                vv.heroId = buffer[pos++];
                 int hnl = buffer[pos++];
                 pos += 3;
                 for(int zz = 0; zz < hnl; ++zz)
@@ -343,20 +343,20 @@ void CMapLoaderH3M::readVictoryLossConditions()
         {
         case EVictoryConditionType::ARTIFACT:
             {
-                mapHeader->victoryCondition.ID = buffer[pos + 2];
+                mapHeader->victoryCondition.objectId = buffer[pos + 2];
                 nr = (mapHeader->version == EMapFormat::ROE ? 1 : 2);
                 break;
             }
         case EVictoryConditionType::GATHERTROOP:
             {
-                mapHeader->victoryCondition.ID = buffer[pos + 2];
+                mapHeader->victoryCondition.objectId = buffer[pos + 2];
                 mapHeader->victoryCondition.count = read_le_u32(buffer + pos + (mapHeader->version == EMapFormat::ROE ? 3 : 4));
                 nr = (mapHeader->version == EMapFormat::ROE ? 5 : 6);
                 break;
             }
         case EVictoryConditionType::GATHERRESOURCE:
             {
-                mapHeader->victoryCondition.ID = buffer[pos + 2];
+                mapHeader->victoryCondition.objectId = buffer[pos + 2];
                 mapHeader->victoryCondition.count = read_le_u32(buffer + pos + 3);
                 nr = 5;
                 break;
@@ -367,7 +367,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
                 mapHeader->victoryCondition.pos.y = buffer[pos + 3];
                 mapHeader->victoryCondition.pos.z = buffer[pos + 4];
                 mapHeader->victoryCondition.count = buffer[pos + 5];
-                mapHeader->victoryCondition.ID = buffer[pos + 6];
+                mapHeader->victoryCondition.objectId = buffer[pos + 6];
                 nr = 5;
                 break;
             }
@@ -404,7 +404,7 @@ void CMapLoaderH3M::readVictoryLossConditions()
             }
         case EVictoryConditionType::TRANSPORTITEM:
             {
-                mapHeader->victoryCondition.ID =  buffer[pos + 2];
+                mapHeader->victoryCondition.objectId =  buffer[pos + 2];
                 mapHeader->victoryCondition.pos.x = buffer[pos + 3];
                 mapHeader->victoryCondition.pos.y = buffer[pos + 4];
                 mapHeader->victoryCondition.pos.z = buffer[pos + 5];
@@ -414,8 +414,8 @@ void CMapLoaderH3M::readVictoryLossConditions()
         default:
             assert(0);
         }
-        mapHeader->victoryCondition.allowNormalVictory = buffer[pos++];
-        mapHeader->victoryCondition.appliesToAI = buffer[pos++];
+        mapHeader->victoryCondition.allowNormalVictory = static_cast<bool>(buffer[pos++]);
+        mapHeader->victoryCondition.appliesToAI = static_cast<bool>(buffer[pos++]);
         pos += nr;
     }
 
@@ -505,7 +505,7 @@ void CMapLoaderH3M::readDisposedHeroes()
         map->disposedHeroes.resize(disp);
         for(int g = 0; g < disp; ++g)
         {
-            map->disposedHeroes[g].ID = buffer[pos++];
+            map->disposedHeroes[g].heroId = buffer[pos++];
             map->disposedHeroes[g].portrait = buffer[pos++];
             int lenbuf = read_le_u32(buffer + pos);
             pos += 4;
@@ -572,7 +572,7 @@ void CMapLoaderH3M::readAllowedArtifacts()
     if(map->victoryCondition.condition == EVictoryConditionType::ARTIFACT
             || map->victoryCondition.condition == EVictoryConditionType::TRANSPORTITEM)
     {
-        map->allowedArtifact[map->victoryCondition.ID] = false;
+        map->allowedArtifact[map->victoryCondition.objectId] = false;
     }
 }
 
@@ -900,14 +900,14 @@ void CMapLoaderH3M::readTerrain()
         {
             for(int z = 0; z < map->height; z++)
             {
-                map->terrain[z][c][a].tertype = static_cast<ETerrainType::ETerrainType>(buffer[pos++]);
-                map->terrain[z][c][a].terview = buffer[pos++];
+                map->terrain[z][c][a].terType = static_cast<ETerrainType::ETerrainType>(buffer[pos++]);
+                map->terrain[z][c][a].terView = buffer[pos++];
                 map->terrain[z][c][a].riverType = static_cast<ERiverType::ERiverType>(buffer[pos++]);
                 map->terrain[z][c][a].riverDir = buffer[pos++];
                 map->terrain[z][c][a].roadType = static_cast<ERoadType::ERoadType>(buffer[pos++]);
                 map->terrain[z][c][a].roadDir = buffer[pos++];
                 map->terrain[z][c][a].extTileFlags = buffer[pos++];
-                map->terrain[z][c][a].blocked = (map->terrain[z][c][a].tertype == ETerrainType::ROCK ? 1 : 0); //underground tiles are always blocked
+                map->terrain[z][c][a].blocked = (map->terrain[z][c][a].terType == ETerrainType::ROCK ? 1 : 0); //underground tiles are always blocked
                 map->terrain[z][c][a].visitable = 0;
             }
         }
@@ -1819,7 +1819,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(int idToBeGiven)
 
     for(int j = 0; j < map->disposedHeroes.size(); ++j)
     {
-        if(map->disposedHeroes[j].ID == nhi->subID)
+        if(map->disposedHeroes[j].heroId == nhi->subID)
         {
             nhi->name = map->disposedHeroes[j].name;
             nhi->portrait = map->disposedHeroes[j].portrait;
