@@ -2,11 +2,11 @@
 
 
 
-#ifndef _MSC_VER
+//#ifndef _MSC_VER
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
 #include "Map/CMap.h"
-#endif
+//#endif
 
 #include "HeroBonus.h"
 #include "CCreatureSet.h"
