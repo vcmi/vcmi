@@ -77,7 +77,7 @@ public:
 	{
 		T *ptr = static_cast<T*>(pack);
 
-		boost::unique_lock<boost::shared_mutex> lock(*gs->mx); 
+		boost::unique_lock<boost::shared_mutex> lock(*gs->mx);
 		ptr->applyGs(gs);
 	}
 };
@@ -771,7 +771,7 @@ BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2],
 {
 	const TerrainTile &t = map->getTile(tile);
     int terrain = t.terType;
-	if(t.isCoastal() && !t.isWater()) 
+	if(t.isCoastal() && !t.isWater())
         terrain = ETerrainType::SAND;
 
 	int terType = battleGetBattlefieldType(tile);
@@ -840,7 +840,7 @@ void CGameState::init(StartInfo * si)
 	auto getHumanPlayerInfo = [&]() -> std::vector<const PlayerSettings *>
 	{
 		std::vector<const PlayerSettings *> ret;
-		for(auto it = scenarioOps->playerInfos.cbegin(); 
+		for(auto it = scenarioOps->playerInfos.cbegin();
 			it != scenarioOps->playerInfos.cend(); ++it)
 		{
 			if(it->second.human)
@@ -1033,7 +1033,7 @@ void CGameState::init(StartInfo * si)
 			}
 		}
 	}
-	
+
 
 	/*************************replace hero placeholders*****************************/
 	tlog4 << "\tReplacing hero placeholders";
@@ -1105,7 +1105,7 @@ void CGameState::init(StartInfo * si)
 				}
 			}
 		}
-		
+
 	}
 
 	/******************RESOURCES****************************************************/
@@ -1513,7 +1513,7 @@ void CGameState::init(StartInfo * si)
 	if(scenarioOps->seedPostInit > 0)
 	{
 		//RNG must be in the same state on all machines when initialization is done (otherwise we have desync)
-		assert(scenarioOps->seedPostInit == seedAfterInit); 
+		assert(scenarioOps->seedPostInit == seedAfterInit);
 	}
 	else
 	{
@@ -2276,16 +2276,29 @@ struct statsHLP
 		}
 		return h[best];
 	}
-	
+
 	//calculates total number of artifacts that belong to given player
 	static int getNumberOfArts(const PlayerState * ps)
 	{
 		int ret = 0;
-		for(int g=0; g<ps->heroes.size(); ++g)
+		BOOST_FOREACH(auto h, ps->heroes)
 		{
-			ret += ps->heroes[g]->artifactsInBackpack.size() + ps->heroes[g]->artifactsWorn.size();
+			ret += h->artifactsInBackpack.size() + h->artifactsWorn.size();
 		}
 		return ret;
+	}
+
+	// get total strength of player army
+	static si64 getArmyStrength(const PlayerState * ps)
+	{
+		si64 str = 0;
+
+		BOOST_FOREACH(auto h, ps->heroes)
+		{
+			if(!h->inTownGarrison)		//original h3 behavior
+				str += h->getArmyStrength();
+		}
+		return str;
 	}
 };
 
@@ -2352,7 +2365,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 6) //army strength
 	{
-		//TODO
+		FILL_FIELD(army, statsHLP::getArmyStrength(&g->second))
 	}
 	if(level >= 7) //income
 	{
@@ -2858,7 +2871,7 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 			if(spells.getType() == JsonNode::DATA_STRING  &&  spells.String() == "all")
 			{
 				BOOST_FOREACH(auto spell, VLC->spellh->spells)
-					if(spell->id <= Spells::SUMMON_AIR_ELEMENTAL) 
+					if(spell->id <= Spells::SUMMON_AIR_ELEMENTAL)
 						ss.spells.insert(spell->id);
 			}
 			else

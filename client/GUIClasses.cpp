@@ -5536,6 +5536,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	LOCPLINT->cb->getThievesGuildInfo(tgi, owner);
 
 	exitb = new CAdventureMapButton (CGI->generaltexth->allTexts[600], "", boost::bind(&CThievesGuildWindow::close,this), 748, 556, "TPMAGE1", SDLK_RETURN);
+	exitb->assignedKeys.insert(SDLK_ESCAPE);
 	statusBar = new CGStatusBar(3, 555, "TStatBar.bmp", 742);
 
 	resdatabar = new CMinorResDataBar();
@@ -5589,7 +5590,8 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 			for (size_t j=0; j< 2; j++)
 			{
 				// origin of this row | offset for 2nd row| shift right for short rows
-				int rowStartX = xpos   +   (j ? 6 : 0)   +   (rowLength[j] < 3 ? 12 : 0);
+				//if we have 2 rows, start either from mid or beginning (depending on count), otherwise center the flags
+				int rowStartX = xpos   +   (j ? 6 + (rowLength[j] < 3 ? 12 : 0) : 24 - 6 * rowLength[j]);
 				int rowStartY = ypos   +   (j ? 4 : 0);
 
 				for (size_t i=0; i< rowLength[j]; i++)

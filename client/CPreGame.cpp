@@ -1070,8 +1070,10 @@ void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
 			if(std::memcmp(sign,"VCMISVG",7))
 				throw std::runtime_error("not a correct savefile!");
 
-            allItems[i].mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader);
-			lf >> *(allItems[i].mapHeader) >> allItems[i].scenarioOpts;
+			allItems.resize(allItems.size() + 1);
+			allItems[i].mapHeader = std::shared_ptr<CMapHeader>(new CMapHeader);
+			allItems[i].scenarioOpts = new StartInfo;
+			lf >> *(allItems[i].mapHeader.get()) >> allItems[i].scenarioOpts;
 			allItems[i].fileURI = files[i].getName();
 			allItems[i].countPlayers();
 			std::time_t time = CFileInfo(CResourceHandler::get()->getResourceName(files[i])).getDate();
@@ -1084,7 +1086,7 @@ void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
 		}
 		catch(std::exception &e)
 		{
-			allItems[i].mapHeader.reset();
+			allItems.pop_back();
 			tlog3 << "Failed to process " << files[i].getName() <<": " << e.what() << std::endl;
 		}
 	}
