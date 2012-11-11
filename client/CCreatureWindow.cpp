@@ -314,10 +314,10 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 				break;
 		}
 		//print commander level
-		new CLabel(488, 62, FONT_MEDIUM, CENTER, Colors::Jasmine,
+		new CLabel(488, 62, FONT_MEDIUM, CENTER, Colors::YELLOW,
 		           boost::lexical_cast<std::string>((ui16)(commander->level)));
 
-		new CLabel(488, 82, FONT_SMALL, CENTER, Colors::Cornsilk,
+		new CLabel(488, 82, FONT_SMALL, CENTER, Colors::WHITE,
 		           boost::lexical_cast<std::string>(stack->experience));
 	}
 	else
@@ -346,8 +346,8 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		if (CGI->modh->modules.STACK_EXP && type < COMMANDER)
 		{
 			int rank = std::min(stack->getExpRank(), 10); //hopefully nobody adds more
-			new CLabel(488, 82, FONT_SMALL, CENTER, Colors::Cornsilk, boost::lexical_cast<std::string>(stack->experience));
-			new CLabel(488, 62, FONT_MEDIUM, CENTER, Colors::Jasmine,
+			new CLabel(488, 82, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(stack->experience));
+			new CLabel(488, 62, FONT_MEDIUM, CENTER, Colors::YELLOW,
 			           CGI->generaltexth->zcrexp[rank] + " [" + boost::lexical_cast<std::string>(rank) + "]");
 
 			if (type > BATTLE) //we need it only on adv. map
@@ -450,7 +450,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 
 void CCreatureWindow::printLine(int nr, const std::string &text, int baseVal, int val/*=-1*/, bool range/*=false*/)
 {
-	new CLabel(162, 48 + nr*19, FONT_SMALL, TOPLEFT, Colors::Cornsilk, text);
+	new CLabel(162, 48 + nr*19, FONT_SMALL, TOPLEFT, Colors::WHITE, text);
 
 	std::string hlp;
 	if(range && baseVal != val)
@@ -460,7 +460,7 @@ void CCreatureWindow::printLine(int nr, const std::string &text, int baseVal, in
 	else
 		hlp = boost::lexical_cast<std::string>(baseVal);
 
-	new CLabel(325, 64 + nr*19, FONT_SMALL, BOTTOMRIGHT, Colors::Cornsilk, hlp);
+	new CLabel(325, 64 + nr*19, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, hlp);
 }
 
 void CCreatureWindow::recreateSkillList(int Pos)
@@ -509,7 +509,7 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 
-	printAtMiddleLoc((type >= COMMANDER ? c->nameSing : c->namePl), 180, 30, FONT_SMALL, Colors::Jasmine, to); //creature name
+	printAtMiddleLoc((type >= COMMANDER ? c->nameSing : c->namePl), 180, 30, FONT_SMALL, Colors::YELLOW, to); //creature name
 
 	printLine(0, CGI->generaltexth->primarySkillNames[0], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->Attack());
 	printLine(1, CGI->generaltexth->primarySkillNames[1], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->Defense());
@@ -523,13 +523,13 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 	}
 	if (stackNode->valOfBonuses(Bonus::CASTS))
 	{
-		printAtMiddleLoc(CGI->generaltexth->allTexts[399], 356, 62, FONT_SMALL, Colors::Cornsilk, to);
+		printAtMiddleLoc(CGI->generaltexth->allTexts[399], 356, 62, FONT_SMALL, Colors::WHITE, to);
 		std::string casts;
 		if (type == BATTLE)
 			casts = boost::lexical_cast<std::string>((ui16)dynamic_cast<const CStack*>(stackNode)->casts); //ui8 is converted to char :(
 		else
 			casts = boost::lexical_cast<std::string>(stackNode->valOfBonuses(Bonus::CASTS));
-		printAtMiddleLoc(casts, 356, 82, FONT_SMALL, Colors::Cornsilk, to);
+		printAtMiddleLoc(casts, 356, 82, FONT_SMALL, Colors::WHITE, to);
 	}
 
 	//TODO
@@ -563,7 +563,7 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 void CCreatureWindow::show(SDL_Surface * to)
 {
 	if (count.size()) //army stack
-		printTo(count, pos.x + 114, pos.y + 174,FONT_TIMES, Colors::Cornsilk, to);
+		printTo(count, pos.x + 114, pos.y + 174,FONT_TIMES, Colors::WHITE, to);
 }
 
 
@@ -710,8 +710,8 @@ void CBonusItem::showAll (SDL_Surface * to)
 {
 	if (visible)
 	{
-		printAt(name, pos.x + 72, pos.y + 6, FONT_SMALL, Colors::Jasmine, to);
-		printAt(description, pos.x + 72, pos.y + 30, FONT_SMALL, Colors::Cornsilk, to);
+		printAt(name, pos.x + 72, pos.y + 6, FONT_SMALL, Colors::YELLOW, to);
+		printAt(description, pos.x + 72, pos.y + 30, FONT_SMALL, Colors::WHITE, to);
 		if (bonusGraphics && bonusGraphics->bg)
 			blitAtLoc(bonusGraphics->bg, 12, 2, to);
 	}
@@ -807,7 +807,7 @@ CCreInfoWindow::~CCreInfoWindow()
 
 void CCreInfoWindow::printLine(int position, const std::string &text, int baseVal, int val/*=-1*/, bool range/*=false*/)
 {
-	infoTexts[position].first = new CLabel(155, 48 + position*19, FONT_SMALL, TOPLEFT, Colors::Cornsilk, text);
+	infoTexts[position].first = new CLabel(155, 48 + position*19, FONT_SMALL, TOPLEFT, Colors::WHITE, text);
 	std::string valueStr;
 
 	if(range && baseVal != val)
@@ -819,7 +819,7 @@ void CCreInfoWindow::printLine(int position, const std::string &text, int baseVa
 	else
 		valueStr = boost::lexical_cast<std::string>(baseVal);
 
-	infoTexts[position].second = new CLabel(276, 63 + position*19, FONT_SMALL, BOTTOMRIGHT, Colors::Cornsilk, valueStr);
+	infoTexts[position].second = new CLabel(276, 63 + position*19, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, valueStr);
 }
 
 void CCreInfoWindow::init(const CCreature *creature, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner, int count, bool LClicked)
@@ -834,9 +834,9 @@ void CCreInfoWindow::init(const CCreature *creature, const CBonusSystemNode *sta
 	animation = new CCreaturePic(21, 48, creature);
 
 	std::string countStr = boost::lexical_cast<std::string>(count);
-	creatureCount = new CLabel(114, 174, FONT_TIMES, BOTTOMRIGHT, Colors::Cornsilk, countStr);
+	creatureCount = new CLabel(114, 174, FONT_TIMES, BOTTOMRIGHT, Colors::WHITE, countStr);
 
-	creatureName = new CLabel(149, 30, FONT_SMALL, CENTER, Colors::Jasmine, creature->namePl);
+	creatureName = new CLabel(149, 30, FONT_SMALL, CENTER, Colors::YELLOW, creature->namePl);
 
 	printLine(0, CGI->generaltexth->primarySkillNames[0], creature->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK));
 	printLine(1, CGI->generaltexth->primarySkillNames[1], creature->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE));
@@ -862,7 +862,7 @@ void CCreInfoWindow::init(const CCreature *creature, const CBonusSystemNode *sta
 
 	if(!LClicked)
 	{
-		abilityText = new CLabel(17, 231, FONT_SMALL, TOPLEFT, Colors::Cornsilk, creature->abilityText);
+		abilityText = new CLabel(17, 231, FONT_SMALL, TOPLEFT, Colors::WHITE, creature->abilityText);
 	}
 	else
 	{

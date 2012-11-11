@@ -129,11 +129,6 @@ struct SSetCaptureState
 	~SSetCaptureState();
 };
 
-namespace Colors
-{
-
-}
-
 #define OBJ_CONSTRUCTION SObjectConstruction obj__i(this)
 #define OBJ_CONSTRUCTION_CAPTURING_ALL defActions = 255; SSetCaptureState obj__i1(true, 255); SObjectConstruction obj__i(this)
 #define BLOCK_CAPTURING SSetCaptureState obj__i(false, 0)

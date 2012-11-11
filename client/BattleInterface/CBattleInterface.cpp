@@ -2270,7 +2270,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 			creAnims[ID]->pos.x + xAdd + 15,
 			creAnims[ID]->pos.y + yAdd + 5,
 			FONT_TINY,
-			Colors::Cornsilk,
+			Colors::WHITE,
 			to
 		);
 	}

@@ -713,7 +713,7 @@ void CInfoBar::CVisibleInfo::loadDay()
 	else
 		labelText = CGI->generaltexth->allTexts[64] + " " + boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(1));
 
-	forceRefresh.push_back(new CLabel(95, 31, FONT_MEDIUM, CENTER, Colors::Cornsilk, labelText));
+	forceRefresh.push_back(new CLabel(95, 31, FONT_MEDIUM, CENTER, Colors::WHITE, labelText));
 }
 
 void CInfoBar::CVisibleInfo::loadEnemyTurn(int player)
@@ -763,8 +763,8 @@ void CInfoBar::CVisibleInfo::loadGameStatus()
 	//generate component
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CPicture("ADSTATIN");
-	auto allyLabel  = new CLabel(10, 106, FONT_SMALL, TOPLEFT, Colors::Cornsilk, CGI->generaltexth->allTexts[390] + ":");
-	auto enemyLabel = new CLabel(10, 136, FONT_SMALL, TOPLEFT, Colors::Cornsilk, CGI->generaltexth->allTexts[391] + ":");
+	auto allyLabel  = new CLabel(10, 106, FONT_SMALL, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[390] + ":");
+	auto enemyLabel = new CLabel(10, 136, FONT_SMALL, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
 
 	int posx = allyLabel->pos.w + allyLabel->pos.x - pos.x + 4;
 	BOOST_FOREACH(int & player, allies)
@@ -784,7 +784,7 @@ void CInfoBar::CVisibleInfo::loadGameStatus()
 	{
 		new CAnimImage("itmtl", i, 0, 6 + 42 * i , 11);
 		if (halls[i])
-			new CLabel( 26 + 42 * i, 64, FONT_SMALL, CENTER, Colors::Cornsilk, boost::lexical_cast<std::string>(halls[i]));
+			new CLabel( 26 + 42 * i, 64, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(halls[i]));
 	}
 }
 
@@ -799,7 +799,7 @@ void CInfoBar::CVisibleInfo::loadComponent(const Component & compToDisplay, std:
 	auto comp = new CComponent(compToDisplay);
 	comp->moveTo(Point(pos.x+47, pos.y+50));
 
-	new CTextBox(message, Rect(10, 4, 160, 50), 0, FONT_SMALL, CENTER, Colors::Cornsilk);
+	new CTextBox(message, Rect(10, 4, 160, 50), 0, FONT_SMALL, CENTER, Colors::WHITE);
 }
 
 void CInfoBar::CVisibleInfo::updateEnemyTurn(double progress)

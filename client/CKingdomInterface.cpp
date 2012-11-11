@@ -47,21 +47,21 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data)
 	pos = image->pos;
 
 	if (infoPos == POS_CORNER)
-		value = new CLabel(pos.w, pos.h, font, BOTTOMRIGHT, Colors::Cornsilk, data->getValueText());
+		value = new CLabel(pos.w, pos.h, font, BOTTOMRIGHT, Colors::WHITE, data->getValueText());
 
 	if (infoPos == POS_INSIDE)
-		value = new CLabel(pos.w/2, pos.h-6, font, CENTER, Colors::Cornsilk, data->getValueText());
+		value = new CLabel(pos.w/2, pos.h-6, font, CENTER, Colors::WHITE, data->getValueText());
 
 	if (infoPos == POS_UP_DOWN || infoPos == POS_DOWN)
-		value = new CLabel(pos.w/2, pos.h+8, font, CENTER, Colors::Cornsilk, data->getValueText());
+		value = new CLabel(pos.w/2, pos.h+8, font, CENTER, Colors::WHITE, data->getValueText());
 
 	if (infoPos == POS_UP_DOWN)
-		name = new CLabel(pos.w/2, -12, font, CENTER, Colors::Cornsilk, data->getNameText());
+		name = new CLabel(pos.w/2, -12, font, CENTER, Colors::WHITE, data->getNameText());
 
 	if (infoPos == POS_RIGHT)
 	{
-		name = new CLabel(pos.w+6, 6, font, TOPLEFT, Colors::Cornsilk, data->getNameText());
-		value = new CLabel(pos.w+6, pos.h-16, font, TOPLEFT, Colors::Cornsilk, data->getValueText());
+		name = new CLabel(pos.w+6, 6, font, TOPLEFT, Colors::WHITE, data->getNameText());
+		value = new CLabel(pos.w+6, pos.h-16, font, TOPLEFT, Colors::WHITE, data->getValueText());
 	}
 	pos = image->pos;
 	if (name)
@@ -604,7 +604,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	incomeArea = new CHoverableArea;
 	incomeArea->pos = Rect(pos.x+580, pos.y+31+footerPos, 136, 68);
 	incomeArea->hoverText = CGI->generaltexth->allTexts[255];
-	incomeAmount = new CLabel(628, footerPos + 70, FONT_SMALL, TOPLEFT, Colors::Cornsilk, boost::lexical_cast<std::string>(totalIncome));
+	incomeAmount = new CLabel(628, footerPos + 70, FONT_SMALL, TOPLEFT, Colors::WHITE, boost::lexical_cast<std::string>(totalIncome));
 }
 
 void CKingdomInterface::generateButtons()
@@ -689,8 +689,8 @@ CKingdHeroList::CKingdHeroList(size_t maxSize)
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	title = new CPicture("OVTITLE",16,0);
 	title->colorize(LOCPLINT->playerID);
-	heroLabel =   new CLabel(150, 10, FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->overview[0]);
-	skillsLabel = new CLabel(500, 10, FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->overview[1]);
+	heroLabel =   new CLabel(150, 10, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->overview[0]);
+	skillsLabel = new CLabel(500, 10, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->overview[1]);
 
 	ui32 townCount = LOCPLINT->cb->howManyHeroes(false);
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
@@ -741,9 +741,9 @@ CKingdTownList::CKingdTownList(size_t maxSize)
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	title = new CPicture("OVTITLE",16,0);
 	title->colorize(LOCPLINT->playerID);
-	townLabel   = new CLabel(146,10,FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->overview[3]);
-	garrHeroLabel  = new CLabel(375,10,FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->overview[4]);
-	visitHeroLabel = new CLabel(608,10,FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->overview[5]);
+	townLabel   = new CLabel(146,10,FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->overview[3]);
+	garrHeroLabel  = new CLabel(375,10,FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->overview[4]);
+	visitHeroLabel = new CLabel(608,10,FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->overview[5]);
 
 	ui32 townCount = LOCPLINT->cb->howManyTowns();
 	ui32 size = conf.go()->ac.overviewSize*116 + 19;
@@ -788,9 +788,9 @@ CTownItem::CTownItem(const CGTownInstance* Town):
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	background =  new CAnimImage("OVSLOT", 6);
-	name = new CLabel(74, 8, FONT_SMALL, TOPLEFT, Colors::Cornsilk, town->name);
+	name = new CLabel(74, 8, FONT_SMALL, TOPLEFT, Colors::WHITE, town->name);
 
-	income = new CLabel( 190, 60, FONT_SMALL, CENTER, Colors::Cornsilk, boost::lexical_cast<std::string>(town->dailyIncome()));
+	income = new CLabel( 190, 60, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(town->dailyIncome()));
 	hall = new CTownInfo( 69, 31, town, true);
 	fort = new CTownInfo(111, 31, town, false);
 
@@ -886,7 +886,7 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 	arts2->recActions = DISPOSE | SHARE_POS;
 	backpack->recActions = DISPOSE | SHARE_POS;
 
-	name = new CLabel(75, 7, FONT_SMALL, TOPLEFT, Colors::Cornsilk, hero->name);
+	name = new CLabel(75, 7, FONT_SMALL, TOPLEFT, Colors::WHITE, hero->name);
 
 	std::vector<CArtPlace*> arts;
 	arts.insert(arts.end(), arts1->arts.begin(), arts1->arts.end());
@@ -910,7 +910,7 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 		size_t begin = overlay.find('{');
 		size_t end   = overlay.find('}', begin);
 		overlay = overlay.substr(begin+1, end - begin);
-		artButtons->buttons[it]->addTextOverlay(overlay, FONT_SMALL, Colors::Jasmine);
+		artButtons->buttons[it]->addTextOverlay(overlay, FONT_SMALL, Colors::YELLOW);
 	}
 	artButtons->onChange += boost::bind(&CTabbedInt::setActive, artsTabs, _1);
 	artButtons->onChange += boost::bind(&CHeroItem::onArtChange, this, _1);
@@ -921,8 +921,8 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 	portrait = new CAnimImage("PortraitsLarge", hero->subID, 0, 5, 6);
 	heroArea = new CHeroArea(5, 6, hero);
 
-	name = new CLabel(73, 7, FONT_SMALL, TOPLEFT, Colors::Cornsilk, hero->name);
-	artsText = new CLabel(320, 55, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->overview[2]);
+	name = new CLabel(73, 7, FONT_SMALL, TOPLEFT, Colors::WHITE, hero->name);
+	artsText = new CLabel(320, 55, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->overview[2]);
 
 	for (size_t i=0; i<GameConstants::PRIMARY_SKILLS; i++)
 		heroInfo.push_back(new InfoBox(Point(78+i*36, 26), InfoBox::POS_DOWN, InfoBox::SIZE_SMALL, 

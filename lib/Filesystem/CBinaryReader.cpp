@@ -39,7 +39,7 @@ CInputStream * CBinaryReader::getStream()
 
 void CBinaryReader::setStream(CInputStream * stream)
 {
-    this->stream = stream;
+	this->stream = stream;
 }
 
 si64 CBinaryReader::read(ui8 * data, si64 size)

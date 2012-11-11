@@ -17,6 +17,7 @@ set(lib_SRCS
         Map/CMap.cpp
         Map/CMapInfo.cpp
         Map/CMapService.cpp
+   		RMG/CMapGenOptions.cpp
         BattleAction.cpp
         BattleHex.cpp
         BattleState.cpp
@@ -48,7 +49,25 @@ set(lib_SRCS
         VCMI_Lib.cpp
 )
 
-add_library(vcmi SHARED ${lib_SRCS})
+set(lib_HEADERS
+		AI_Base.h
+		CondSh.h
+		ConstTransitivePtr.h
+		CScriptingModule.h
+		CStopWatch.h
+		GameConstants.h
+		IGameEventsReceiver.h
+		int3.h
+		Interprocess.h
+		NetPacks.h
+		RegisterTypes.h
+		StartInfo.h
+		UnlockGuard.h
+		VCMIDirs.h
+		vcmi_endian.h
+)
+
+add_library(vcmi SHARED ${lib_SRCS} ${lib_HEADERS})
 target_link_libraries(vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${ZLIB_LIBRARIES})
 
 install(TARGETS vcmi DESTINATION ${LIB_DIR})

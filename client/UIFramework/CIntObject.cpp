@@ -127,12 +127,12 @@ CIntObject::~CIntObject()
 		parent_m->removeChild(this);
 }
 
-void CIntObject::printAtLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::Cornsilk*/, SDL_Surface * dst/*=screen*/ )
+void CIntObject::printAtLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::WHITE*/, SDL_Surface * dst/*=screen*/ )
 {
 	CSDL_Ext::printAt(text, pos.x + x, pos.y + y, font, kolor, dst);
 }
 
-void CIntObject::printAtMiddleLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::Cornsilk*/, SDL_Surface * dst/*=screen*/ )
+void CIntObject::printAtMiddleLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::WHITE*/, SDL_Surface * dst/*=screen*/ )
 {
 	CSDL_Ext::printAtMiddle(text, pos.x + x, pos.y + y, font, kolor, dst);
 }

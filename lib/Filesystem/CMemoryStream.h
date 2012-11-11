@@ -20,12 +20,12 @@ class DLL_LINKAGE CMemoryStream : public CInputStream
 {
 public:
 	/**
-     * C-tor. The data buffer won't be free'd. (no ownership)
+	 * C-tor. The data buffer won't be free'd. (no ownership)
 	 *
-     * @param data a pointer to the data array.
+	 * @param data a pointer to the data array.
 	 * @param size The size in bytes of the array.
 	 */
-    CMemoryStream(const ui8 * data, si64 size);
+	CMemoryStream(const ui8 * data, si64 size);
 
 	/**
 	 * Reads n bytes from the stream into the data buffer.
@@ -67,8 +67,8 @@ public:
 	si64 getSize();
 
 private:
-    /** A pointer to the data array. */
-    const ui8 * data;
+	/** A pointer to the data array. */
+	const ui8 * data;
 
 	/** The size in bytes of the array. */
 	si64 size;

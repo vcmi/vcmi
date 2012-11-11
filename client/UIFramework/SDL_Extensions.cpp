@@ -24,6 +24,11 @@ SDL_Color Colors::createColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a /*= 0*/)
 	return temp;
 }
 
+const SDL_Color Colors::YELLOW = createColor(229, 215, 123, 0);
+const SDL_Color Colors::WHITE = createColor(255, 243, 222, 0);
+const SDL_Color Colors::MetallicGold = createColor(173, 142, 66);
+const SDL_Color Colors::Maize = createColor(242, 226, 110);
+
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
 	SDL_Surface * ret = SDL_CreateRGBSurface(mod->flags,w,h,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
@@ -155,7 +160,7 @@ void CSDL_Ext::printAtWB(const std::string & text, int x, int y, EFonts font, in
 }
 
 
-void CSDL_Ext::printAtMiddleWB( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor/*=Colors::Jasmine*/, SDL_Surface * dst/*=screen*/ )
+void CSDL_Ext::printAtMiddleWB( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor/*=Colors::YELLOW*/, SDL_Surface * dst/*=screen*/ )
 {
 	if (graphics->fontsTrueType[font])
 	{
@@ -204,7 +209,7 @@ void printAtMiddle(const std::string & text, int x, int y, TTF_Font * font, SDL_
 	SDL_FreeSurface(temp);
 }
 
-void CSDL_Ext::printAtMiddle( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::Cornsilk*/, SDL_Surface * dst/*=screen*/ )
+void CSDL_Ext::printAtMiddle( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::WHITE*/, SDL_Surface * dst/*=screen*/ )
 {
 	if (graphics->fontsTrueType[font])
 	{
@@ -351,7 +356,7 @@ void printTo(const std::string & text, int x, int y, TTF_Font * font, SDL_Color 
 	SDL_FreeSurface(temp);
 }
 
-void CSDL_Ext::printTo( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::Cornsilk*/, SDL_Surface * dst/*=screen*/ )
+void CSDL_Ext::printTo( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::WHITE*/, SDL_Surface * dst/*=screen*/ )
 {
 	if (graphics->fontsTrueType[font])
 	{
@@ -612,18 +617,18 @@ void CSDL_Ext::blitWithRotate2(const SDL_Surface *src, const SDL_Rect * srcRect,
 template<int bpp>
 void CSDL_Ext::blitWithRotate3(const SDL_Surface *src, const SDL_Rect * srcRect, SDL_Surface * dst, const SDL_Rect * dstRect)//srcRect is not used, works with 8bpp sources and 24/32 bpp dests
 {
- 	Uint8 *sp = (Uint8 *)src->pixels + (src->h - srcRect->h - srcRect->y)*src->pitch + (src->w - srcRect->w - srcRect->x);
- 	Uint8 *dporg = (Uint8 *)dst->pixels +(dstRect->y + dstRect->h - 1)*dst->pitch + (dstRect->x+dstRect->w)*bpp;
- 	const SDL_Color * const colors = src->format->palette->colors;
+	Uint8 *sp = (Uint8 *)src->pixels + (src->h - srcRect->h - srcRect->y)*src->pitch + (src->w - srcRect->w - srcRect->x);
+	Uint8 *dporg = (Uint8 *)dst->pixels +(dstRect->y + dstRect->h - 1)*dst->pitch + (dstRect->x+dstRect->w)*bpp;
+	const SDL_Color * const colors = src->format->palette->colors;
 
- 	for(int i=dstRect->h; i>0; i--, dporg -= dst->pitch)
- 	{
- 		Uint8 *dp = dporg;
- 		for(int j=dstRect->w; j>0; j--, sp++)
+	for(int i=dstRect->h; i>0; i--, dporg -= dst->pitch)
+	{
+		Uint8 *dp = dporg;
+		for(int j=dstRect->w; j>0; j--, sp++)
 			ColorPutter<bpp, -1>::PutColor(dp, colors[*sp]);
 
 		sp += src->w - dstRect->w;
- 	}
+	}
 }
 
 template<int bpp>
@@ -1123,7 +1128,7 @@ template<int bpp>
 void scaleSurfaceFastInternal(SDL_Surface *surf, SDL_Surface *ret)
 {
 	const float factorX = float(surf->w) / float(ret->w),
-	            factorY = float(surf->h) / float(ret->h);
+				factorY = float(surf->h) / float(ret->h);
 
 	for(int y = 0; y < ret->h; y++)
 	{
@@ -1131,7 +1136,7 @@ void scaleSurfaceFastInternal(SDL_Surface *surf, SDL_Surface *ret)
 		{
 			//coordinates we want to calculate
 			int origX = floor(factorX * x),
-			    origY = floor(factorY * y);
+				origY = floor(factorY * y);
 
 			// Get pointers to source pixels
 			Uint8 *srcPtr = (Uint8*)surf->pixels + origY * surf->pitch + origX * bpp;
@@ -1167,7 +1172,7 @@ template<int bpp>
 void scaleSurfaceInternal(SDL_Surface *surf, SDL_Surface *ret)
 {
 	const float factorX = float(surf->w - 1) / float(ret->w),
-	            factorY = float(surf->h - 1) / float(ret->h);
+				factorY = float(surf->h - 1) / float(ret->h);
 
 	for(int y = 0; y < ret->h; y++)
 	{
@@ -1175,10 +1180,10 @@ void scaleSurfaceInternal(SDL_Surface *surf, SDL_Surface *ret)
 		{
 			//coordinates we want to interpolate
 			float origX = factorX * x,
-			      origY = factorY * y;
+				  origY = factorY * y;
 
 			float x1 = floor(origX), x2 = floor(origX+1),
-			      y1 = floor(origY), y2 = floor(origY+1);
+				  y1 = floor(origY), y2 = floor(origY+1);
 			//assert( x1 >= 0 && y1 >= 0 && x2 < surf->w && y2 < surf->h);//All pixels are in range
 
 			// Calculate weights of each source pixel

@@ -242,19 +242,19 @@ CDwellingInfoBox::CDwellingInfoBox(int centerX, int centerY, const CGTownInstanc
 
 	const CCreature * creature = CGI->creh->creatures[Town->creatures[level].second.back()];
 
-	title = new CLabel(80, 30, FONT_SMALL, CENTER, Colors::Cornsilk, creature->namePl);
+	title = new CLabel(80, 30, FONT_SMALL, CENTER, Colors::WHITE, creature->namePl);
 	animation =  new CCreaturePic(30, 44, creature, true, true);
 	
 	std::string text = boost::lexical_cast<std::string>(Town->creatures[level].first);
-	available = new CLabel(80,190, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[217] + text);
-	costPerTroop = new CLabel(80, 227, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[346]);
+	available = new CLabel(80,190, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[217] + text);
+	costPerTroop = new CLabel(80, 227, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[346]);
 	
 	for(int i = 0; i<GameConstants::RESOURCE_QUANTITY; i++)
 	{
 		if(creature->cost[i])
 		{
 			resPicture.push_back(new CAnimImage("RESOURCE", i, 0, 0, 0));
-			resAmount.push_back(new CLabel(0,0, FONT_SMALL, CENTER, Colors::Cornsilk, boost::lexical_cast<std::string>(creature->cost[i])));
+			resAmount.push_back(new CLabel(0,0, FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(creature->cost[i])));
 		}
 	}
 
@@ -852,7 +852,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 
 	garr = new CGarrisonInt(305, 387, 4, Point(0,96), panel->bg, Point(62,374), town->getUpperArmy(), town->visitingHero);
 	heroes = new HeroSlots(town, Point(241, 387), Point(241, 483), garr, true);
-	title = new CLabel(85, 387, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk, town->name);
+	title = new CLabel(85, 387, FONT_MEDIUM, TOPLEFT, Colors::WHITE, town->name);
 	income = new CLabel(195, 443, FONT_SMALL, CENTER);
 	icon = new CAnimImage("ITPT", 0, 0, 15, 387);
 
@@ -986,14 +986,14 @@ CCreaInfo::CCreaInfo(Point position, const CGTownInstance *Town, int Level, bool
 
 	if (compact)
 	{
-		label = new CLabel(40, 32, FONT_TINY, BOTTOMRIGHT, Colors::Cornsilk, value);
+		label = new CLabel(40, 32, FONT_TINY, BOTTOMRIGHT, Colors::WHITE, value);
 		pos.x += 8;
 		pos.w = 32;
 		pos.h = 32;
 	}
 	else
 	{
-		label = new CLabel(24, 40, FONT_SMALL, CENTER, Colors::Cornsilk, value);
+		label = new CLabel(24, 40, FONT_SMALL, CENTER, Colors::WHITE, value);
 		pos.w = 48;
 		pos.h = 48;
 	}
@@ -1275,7 +1275,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int x, int y, const CGTownInstance * 
 	panel = new CAnimImage("TPTHBAR", panelIndex[state], 0,   1, 73);
 	if ( iconIndex[state] >=0 )
 		icon  = new CAnimImage("TPTHCHK",  iconIndex[state], 0, 136, 56);
-	label = new CLabel(75, 81, FONT_SMALL, CENTER, Colors::Cornsilk, building->Name());
+	label = new CLabel(75, 81, FONT_SMALL, CENTER, Colors::WHITE, building->Name());
 }
 
 CHallInterface::CHallInterface(const CGTownInstance *Town):
@@ -1290,7 +1290,7 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 	Rect barRect(5, 556, 740, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 5, 556, false));
 
-	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, Colors::Cornsilk, town->town->buildings[town->hallLevel()+EBuilding::VILLAGE_HALL]->Name());
+	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, Colors::WHITE, town->town->buildings[town->hallLevel()+EBuilding::VILLAGE_HALL]->Name());
 	exit = new CAdventureMapButton(CGI->generaltexth->hcommands[8], "", 
 	           boost::bind(&CHallInterface::close,this), 748, 556, "TPMAGE1.DEF", SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
@@ -1364,7 +1364,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	new CAnimImage(town->town->clientInfo.buildingsIcons, building->bid, 0, 125, 50);
 	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	new CLabel(197, 30, FONT_MEDIUM, CENTER, Colors::Cornsilk,
+	new CLabel(197, 30, FONT_MEDIUM, CENTER, Colors::WHITE,
 	            boost::str(boost::format(CGI->generaltexth->hcommands[7]) % building->Name()));
 	new CTextBox(building->Description(), Rect(33, 135, 329, 67), 0, FONT_MEDIUM, CENTER);
 	new CTextBox(getTextForState(state),  Rect(33, 216, 329, 67), 0, FONT_SMALL,  CENTER);
@@ -1419,7 +1419,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 		fortSize--;
 	
 	const CBuilding *fortBuilding = town->town->buildings[town->fortLevel()+6];
-	title = new CLabel(400, 12, FONT_BIG, CENTER, Colors::Cornsilk, fortBuilding->Name());
+	title = new CLabel(400, 12, FONT_BIG, CENTER, Colors::WHITE, fortBuilding->Name());
 	
 	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->Name());
 	exit = new CAdventureMapButton(text, "", boost::bind(&CFortScreen::close,this) ,748, 556, "TPMAGE1", SDLK_RETURN);
@@ -1494,8 +1494,8 @@ void LabeledValue::init(std::string nameText, std::string descr, int min, int ma
 		if (min != max)
 			valueText += '-' + boost::lexical_cast<std::string>(max);
 	}
-	name =  new CLabel(3, 0, FONT_SMALL, TOPLEFT, Colors::Cornsilk, nameText);
-	value = new CLabel(pos.w-3, pos.h-2, FONT_SMALL, BOTTOMRIGHT, Colors::Cornsilk, valueText);
+	name =  new CLabel(3, 0, FONT_SMALL, TOPLEFT, Colors::WHITE, nameText);
+	value = new CLabel(pos.w-3, pos.h-2, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, valueText);
 }
 
 void LabeledValue::hover(bool on)
@@ -1549,14 +1549,14 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	sizes.y+=20;
 	values.push_back(new LabeledValue(sizes, CGI->generaltexth->allTexts[194], CGI->generaltexth->fcommands[5], town->creatureGrowth(level)));
 
-	creatureName = new CLabel(78,  11, FONT_SMALL, CENTER, Colors::Cornsilk, creature->namePl);
-	dwellingName = new CLabel(78, 101, FONT_SMALL, CENTER, Colors::Cornsilk, town->town->buildings[buildingID]->Name());
+	creatureName = new CLabel(78,  11, FONT_SMALL, CENTER, Colors::WHITE, creature->namePl);
+	dwellingName = new CLabel(78, 101, FONT_SMALL, CENTER, Colors::WHITE, town->town->buildings[buildingID]->Name());
 
 	if (vstd::contains(town->builtBuildings, buildingID))
 	{
 		ui32 available = town->creatures[level].first;
 		std::string availableText = CGI->generaltexth->allTexts[217]+ boost::lexical_cast<std::string>(available);
-		availableCount = new CLabel(78, 119, FONT_SMALL, CENTER, Colors::Cornsilk, availableText);
+		availableCount = new CLabel(78, 119, FONT_SMALL, CENTER, Colors::WHITE, availableText);
 	}
 }
 
@@ -1687,10 +1687,10 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	anim = new CCreatureAnim(64, 50, creature->animDefName, Rect());
 	anim->clipRect(113,125,200,150);
 	
-	title = new CLabel(165, 28, FONT_BIG, CENTER, Colors::Jasmine, 
+	title = new CLabel(165, 28, FONT_BIG, CENTER, Colors::YELLOW, 
 	            boost::str(boost::format(CGI->generaltexth->allTexts[274]) % creature->nameSing));
-	costText = new CLabel(165, 218, FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->jktexts[43]);
-	costValue = new CLabel(165, 290, FONT_MEDIUM, CENTER, Colors::Cornsilk,
+	costText = new CLabel(165, 218, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->jktexts[43]);
+	costValue = new CLabel(165, 290, FONT_MEDIUM, CENTER, Colors::WHITE,
 	                boost::lexical_cast<std::string>(CGI->arth->artifacts[aid]->price));
 
 	std::string text = boost::str(boost::format(CGI->generaltexth->allTexts[595]) % creature->nameSing);

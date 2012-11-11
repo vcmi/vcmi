@@ -38,15 +38,33 @@ void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst=screen);
 void updateRect (SDL_Rect * rect, SDL_Surface * scr = screen);
 bool isItIn(const SDL_Rect * rect, int x, int y);
 
-namespace Colors
+/**
+ * The colors class defines color constants of type SDL_Color.
+ */
+class Colors
 {
-	SDL_Color createColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a = 0);
+public:
+	/** the h3 yellow color, typically used for headlines */
+	static const SDL_Color YELLOW;
 
-	const SDL_Color	Jasmine = createColor(229, 215, 123, 0); // http://en.wikipedia.org/wiki/Jasmine_%28color%29
-	const SDL_Color Cornsilk = createColor(255, 243, 222, 0); // http://en.wikipedia.org/wiki/Shades_of_white
-	const SDL_Color MetallicGold = createColor(173, 142, 66); // http://en.wikipedia.org/wiki/Gold_%28color%29
-	const SDL_Color Maize = createColor(242, 226, 110); // http://en.wikipedia.org/wiki/Maize_%28color%29
-}
+	/** the standard h3 white color */
+	static const SDL_Color WHITE;
+
+	static const SDL_Color MetallicGold;
+	static const SDL_Color Maize;
+
+private:
+	/**
+	 * Creates a SDL_Color object.
+	 *
+	 * @param r the red value ranging from 0 to 255
+	 * @param g the green value ranging from 0 to 255
+	 * @param b the blue value ranging from 0 to 255
+	 * @param a the alpha value ranging from 0(opaque) to 255(transparent)
+	 * @return the created SDL_Color object
+	 */
+	static SDL_Color createColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a = 0);
+};
 
 //MSVC gives an error when calling abs with ui64 -> we add template that will match calls with unsigned arg and return it
 template<typename T>
@@ -109,7 +127,7 @@ namespace CSDL_Ext
 		SDL_Rect oldRect;
 	public:
 		CClipRectGuard(SDL_Surface * surface, const SDL_Rect & rect):
-		    surf(surface)
+			surf(surface)
 		{
 			SDL_GetClipRect(surf, &oldRect);
 			SDL_SetClipRect(surf, &rect);
@@ -164,11 +182,11 @@ namespace CSDL_Ext
 	int blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	Uint32 colorToUint32(const SDL_Color * color); //little endian only
 
-	void printAtWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor=Colors::Cornsilk, SDL_Surface * dst=screen);
-	void printAt(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=Colors::Cornsilk, SDL_Surface * dst=screen);
-	void printTo(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=Colors::Cornsilk, SDL_Surface * dst=screen);
-	void printAtMiddle(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=Colors::Cornsilk, SDL_Surface * dst=screen);
-	void printAtMiddleWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor=Colors::Jasmine, SDL_Surface * dst=screen);
+	void printAtWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor=Colors::WHITE, SDL_Surface * dst=screen);
+	void printAt(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=Colors::WHITE, SDL_Surface * dst=screen);
+	void printTo(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=Colors::WHITE, SDL_Surface * dst=screen);
+	void printAtMiddle(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=Colors::WHITE, SDL_Surface * dst=screen);
+	void printAtMiddleWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor=Colors::YELLOW, SDL_Surface * dst=screen);
 
 	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color);

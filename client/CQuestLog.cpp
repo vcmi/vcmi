@@ -130,7 +130,7 @@ CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
 void CQuestLog::init()
 {
 	minimap = new CQuestMinimap (Rect (47, 33, 144, 144));
-	description = new CTextBox ("", Rect(245, 33, 350, 355), 1, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk);
+	description = new CTextBox ("", Rect(245, 33, 350, 355), 1, FONT_MEDIUM, TOPLEFT, Colors::WHITE);
 	ok = new CAdventureMapButton("",CGI->generaltexth->zelp[445].second, boost::bind(&CQuestLog::close,this), 547, 401, "IOKAY.DEF", SDLK_RETURN);
 
 	if (quests.size() > QUEST_COUNT)
@@ -142,7 +142,7 @@ void CQuestLog::init()
 		quests[i].quest->getRolloverText (text, false);
 		if (quests[i].obj)
 			text.addReplacement (quests[i].obj->getHoverText()); //get name of the object
-		CQuestLabel * label = new CQuestLabel (28, 199 + i * 24, FONT_SMALL, TOPLEFT, Colors::Cornsilk, text.toString());
+		CQuestLabel * label = new CQuestLabel (28, 199 + i * 24, FONT_SMALL, TOPLEFT, Colors::WHITE, text.toString());
 		label->callback = boost::bind(&CQuestLog::selectQuest, this, i);
 		label->setBounds (172, 30);
 		labels.push_back(label);

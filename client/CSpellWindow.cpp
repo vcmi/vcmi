@@ -321,7 +321,7 @@ void CSpellWindow::showAll(SDL_Surface * to)
 
 	std::ostringstream mana;
 	mana<<myHero->mana;
-	CSDL_Ext::printAtMiddle(mana.str(), pos.x+435, pos.y +426, FONT_SMALL, Colors::Jasmine, to);
+	CSDL_Ext::printAtMiddle(mana.str(), pos.x+435, pos.y +426, FONT_SMALL, Colors::YELLOW, to);
 	
 	statusBar->showAll(to);
 
@@ -841,13 +841,13 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 	if(spellCost > owner->myHero->mana) //hero cannot cast this spell
 	{
 		static const SDL_Color unavailableSpell = {239, 189, 33, 0};
-		firstLineColor = Colors::Cornsilk;
+		firstLineColor = Colors::WHITE;
 		secondLineColor = unavailableSpell;
 	}
 	else
 	{
-		firstLineColor = Colors::Jasmine;
-		secondLineColor = Colors::Cornsilk;
+		firstLineColor = Colors::YELLOW;
+		secondLineColor = Colors::WHITE;
 	}
 	//printing spell's name
 	CSDL_Ext::printAtMiddle(spell->name, pos.x + 39, pos.y + 70, FONT_TINY, firstLineColor, to);

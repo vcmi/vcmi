@@ -38,8 +38,8 @@ class CQuestLabel : public LRClickableAreaWText, public CBoundedLabel
 public:
 	boost::function<void()> callback;
 
-	CQuestLabel (int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::Cornsilk, const std::string &Text =  "")
-		: CBoundedLabel (x, y, FONT_SMALL, TOPLEFT, Colors::Cornsilk, Text){};
+	CQuestLabel (int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "")
+		: CBoundedLabel (x, y, FONT_SMALL, TOPLEFT, Colors::WHITE, Text){};
 	void clickLeft(tribool down, bool previousState);
 	void showAll(SDL_Surface * to);
 };

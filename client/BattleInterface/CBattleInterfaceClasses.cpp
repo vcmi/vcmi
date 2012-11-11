@@ -33,22 +33,22 @@ void CBattleConsole::showAll(SDL_Surface * to)
 {
 	if(ingcAlter.size())
 	{
-		CSDL_Ext::printAtMiddleWB(ingcAlter, pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, Colors::Cornsilk, to);
+		CSDL_Ext::printAtMiddleWB(ingcAlter, pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, Colors::WHITE, to);
 	}
 	else if(alterTxt.size())
 	{
-		CSDL_Ext::printAtMiddleWB(alterTxt, pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, Colors::Cornsilk, to);
+		CSDL_Ext::printAtMiddleWB(alterTxt, pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, Colors::WHITE, to);
 	}
 	else if(texts.size())
 	{
 		if(texts.size()==1)
 		{
-			CSDL_Ext::printAtMiddleWB(texts[0], pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, Colors::Cornsilk, to);
+			CSDL_Ext::printAtMiddleWB(texts[0], pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, Colors::WHITE, to);
 		}
 		else
 		{
-			CSDL_Ext::printAtMiddleWB(texts[lastShown-1], pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, Colors::Cornsilk, to);
-			CSDL_Ext::printAtMiddleWB(texts[lastShown], pos.x + pos.w/2, pos.y + 27, FONT_SMALL, 80, Colors::Cornsilk, to);
+			CSDL_Ext::printAtMiddleWB(texts[lastShown-1], pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, Colors::WHITE, to);
+			CSDL_Ext::printAtMiddleWB(texts[lastShown], pos.x + pos.w/2, pos.y + 27, FONT_SMALL, 80, Colors::WHITE, to);
 		}
 	}
 }
@@ -271,29 +271,29 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	exit->update();
 
 	//creating labels
-	labels.push_back(new CLabel(242,  32, FONT_BIG,    CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[392]));//window title
-	labels.push_back(new CLabel(122, 214, FONT_MEDIUM, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[393]));//animation speed
-	labels.push_back(new CLabel(122, 293, FONT_MEDIUM, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[394]));//music volume
-	labels.push_back(new CLabel(122, 359, FONT_MEDIUM, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[395]));//effects' volume
-	labels.push_back(new CLabel(353,  66, FONT_MEDIUM, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[396]));//auto - combat options
-	labels.push_back(new CLabel(353, 265, FONT_MEDIUM, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[397]));//creature info
+	labels.push_back(new CLabel(242,  32, FONT_BIG,    CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[392]));//window title
+	labels.push_back(new CLabel(122, 214, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[393]));//animation speed
+	labels.push_back(new CLabel(122, 293, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[394]));//music volume
+	labels.push_back(new CLabel(122, 359, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[395]));//effects' volume
+	labels.push_back(new CLabel(353,  66, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[396]));//auto - combat options
+	labels.push_back(new CLabel(353, 265, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[397]));//creature info
 
 	//auto - combat options
-	labels.push_back(new CLabel(283,  86, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk, CGI->generaltexth->allTexts[398]));//creatures
-	labels.push_back(new CLabel(283, 116, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk, CGI->generaltexth->allTexts[399]));//spells
-	labels.push_back(new CLabel(283, 146, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk, CGI->generaltexth->allTexts[400]));//catapult
-	labels.push_back(new CLabel(283, 176, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk, CGI->generaltexth->allTexts[151]));//ballista
-	labels.push_back(new CLabel(283, 206, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk, CGI->generaltexth->allTexts[401]));//first aid tent
+	labels.push_back(new CLabel(283,  86, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[398]));//creatures
+	labels.push_back(new CLabel(283, 116, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[399]));//spells
+	labels.push_back(new CLabel(283, 146, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[400]));//catapult
+	labels.push_back(new CLabel(283, 176, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[151]));//ballista
+	labels.push_back(new CLabel(283, 206, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[401]));//first aid tent
 
 	//creature info
-	labels.push_back(new CLabel(283, 285, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk, CGI->generaltexth->allTexts[402]));//all stats
-	labels.push_back(new CLabel(283, 315, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk, CGI->generaltexth->allTexts[403]));//spells only
+	labels.push_back(new CLabel(283, 285, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[402]));//all stats
+	labels.push_back(new CLabel(283, 315, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[403]));//spells only
 
 	//general options
-	labels.push_back(new CLabel(61,  57, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk, CGI->generaltexth->allTexts[404]));
-	labels.push_back(new CLabel(61,  90, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk, CGI->generaltexth->allTexts[405]));
-	labels.push_back(new CLabel(61, 123, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk, CGI->generaltexth->allTexts[406]));
-	labels.push_back(new CLabel(61, 156, FONT_MEDIUM, TOPLEFT, Colors::Cornsilk, CGI->generaltexth->allTexts[407]));
+	labels.push_back(new CLabel(61,  57, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[404]));
+	labels.push_back(new CLabel(61,  90, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[405]));
+	labels.push_back(new CLabel(61, 123, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[406]));
+	labels.push_back(new CLabel(61, 156, FONT_MEDIUM, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[407]));
 }
 
 void CBattleOptionsWindow::bDefaultf()
@@ -319,18 +319,18 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 
 	if(br.winner==0) //attacker won
 	{
-		new CLabel( 59, 124, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[410]);
-		new CLabel(408, 124, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[411]);
+		new CLabel( 59, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]);
+		new CLabel(408, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]);
 	}
 	else //if(br.winner==1)
 	{
-		new CLabel( 59, 124, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[411]);
-		new CLabel(412, 124, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[410]);
+		new CLabel( 59, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[411]);
+		new CLabel(412, 124, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[410]);
 	}
 
-	new CLabel(232, 302, FONT_BIG, CENTER, Colors::Jasmine,  CGI->generaltexth->allTexts[407]);
-	new CLabel(232, 332, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[408]);
-	new CLabel(232, 428, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[409]);
+	new CLabel(232, 302, FONT_BIG, CENTER, Colors::YELLOW,  CGI->generaltexth->allTexts[407]);
+	new CLabel(232, 332, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[408]);
+	new CLabel(232, 428, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[409]);
 
 	std::string attackerName, defenderName;
 
@@ -380,16 +380,16 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	}
 
 	//printing attacker and defender's names
-	new CLabel( 89, 37, FONT_SMALL, TOPLEFT, Colors::Cornsilk, attackerName);
+	new CLabel( 89, 37, FONT_SMALL, TOPLEFT, Colors::WHITE, attackerName);
 
-	new CLabel( 381, 53, FONT_SMALL, BOTTOMRIGHT, Colors::Cornsilk, defenderName);
+	new CLabel( 381, 53, FONT_SMALL, BOTTOMRIGHT, Colors::WHITE, defenderName);
 
 	//printing casualities
 	for(int step = 0; step < 2; ++step)
 	{
 		if(br.casualties[step].size()==0)
 		{
-			new CLabel( 235, 360 + 97*step, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[523]);
+			new CLabel( 235, 360 + 97*step, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[523]);
 		}
 		else
 		{
@@ -400,7 +400,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 				new CAnimImage("CPRSMALL", CGI->creh->creatures[it->first]->iconIndex, 0, xPos, yPos);
 				std::ostringstream amount;
 				amount<<it->second;
-				new CLabel( xPos+16, yPos + 42, FONT_SMALL, CENTER, Colors::Cornsilk, amount.str());
+				new CLabel( xPos+16, yPos + 42, FONT_SMALL, CENTER, Colors::WHITE, amount.str());
 				xPos += 42;
 			}
 		}
@@ -429,7 +429,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 			boost::algorithm::replace_first(str,"%d",boost::lexical_cast<std::string>(br.exp[weAreAttacker?0:1]));
 		}
 		
-		new CTextBox(str, Rect(69, 203, 330, 68), 0, FONT_SMALL, CENTER, Colors::Cornsilk);
+		new CTextBox(str, Rect(69, 203, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
 	}
 	else // we lose
 	{
@@ -439,21 +439,21 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 			{
 				CCS->musich->playMusic("Music/LoseCombat", false);
 				CCS->videoh->open("LBSTART.BIK");
-				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[311]);
+				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[311]);
 				break;
 			}
 		case 1: //flee
 			{
 				CCS->musich->playMusic("Music/Retreat Battle", false);
 				CCS->videoh->open("RTSTART.BIK");
-				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[310]);
+				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[310]);
 				break;
 			}
 		case 2: //surrender
 			{
 				CCS->musich->playMusic("Music/Surrender Battle", false);
 				CCS->videoh->open("SURRENDER.BIK");
-				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[309]);
+				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[309]);
 				break;
 			}
 		}
@@ -683,9 +683,9 @@ void CStackQueue::StackBox::showAll(SDL_Surface * to)
 	CIntObject::showAll(to);
 
 	if(small)
-		printAtMiddleLoc(makeNumberShort(stack->count), pos.w/2, pos.h - 7, FONT_SMALL, Colors::Cornsilk, to);
+		printAtMiddleLoc(makeNumberShort(stack->count), pos.w/2, pos.h - 7, FONT_SMALL, Colors::WHITE, to);
 	else
-		printAtMiddleLoc(makeNumberShort(stack->count), pos.w/2, pos.h - 8, FONT_MEDIUM, Colors::Cornsilk, to);
+		printAtMiddleLoc(makeNumberShort(stack->count), pos.w/2, pos.h - 8, FONT_MEDIUM, Colors::WHITE, to);
 }
 
 void CStackQueue::StackBox::setStack( const CStack *stack )

@@ -254,6 +254,7 @@
     <ClCompile Include="Map\CMap.cpp" />
     <ClCompile Include="Map\CMapInfo.cpp" />
     <ClCompile Include="Map\CMapService.cpp" />
+    <ClCompile Include="RMG\CMapGenOptions.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="CBattleCallback.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
@@ -314,6 +315,7 @@
     <ClInclude Include="Map\CMap.h" />
     <ClInclude Include="Map\CMapInfo.h" />
     <ClInclude Include="Map\CMapService.h" />
+    <ClInclude Include="RMG\CMapGenOptions.h" />
     <ClInclude Include="GameConstants.h" />
     <ClInclude Include="HeroBonus.h" />
     <ClInclude Include="CBattleCallback.h" />

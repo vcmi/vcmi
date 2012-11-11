@@ -6,6 +6,7 @@
 #include "GUIClasses.h"
 #include "FunctionList.h"
 #include "../lib/Map/CMapInfo.h"
+#include "../lib/RMG/CMapGenOptions.h"
 
 /*
  * CPreGame.h, part of VCMI engine
@@ -178,7 +179,7 @@ public:
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void onDoubleClick();
 	SelectionTab(CMenuScreen::EState Type, const boost::function<void(CMapInfo *)> &OnSelect, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER);
-	~SelectionTab();
+    ~SelectionTab();
 };
 
 /// The options tab which is shown at the map selection phase.
@@ -249,6 +250,107 @@ public:
 	bool canUseThisHero( int ID );
 };
 
+/**
+ * The random map tab shows options for generating a random map.
+ */
+class RandomMapTab : public CIntObject
+{
+public:
+    /**
+     * C-tor.
+     */
+    RandomMapTab();
+
+    /**
+     * Shows the interface and the visual representation of this tab.
+     *
+     * @param to where the graphics should be inserted
+     */
+    void showAll(SDL_Surface * to);
+
+private:
+    /**
+     * Adds buttons specified by the defs list to the given buttons group.
+     *
+     * @param group the button group where the buttons should be added to
+     * @param defs the names of the button defs
+     * @param startIndex start index of the defs vector
+     * @param endIndex end index of the defs vector
+     * @param btnWidth width of one button(fixed width)
+     * @param helpStartIndex the index of the first help msg entry
+     */
+    void addButtonsToGroup(CHighlightableButtonsGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex) const;
+
+    /**
+     * Adds buttons specified by the defs list and the random button to the given buttons group. Auto-selects the
+     * random button.
+     *
+     * @param group the button group where the buttons should be added to
+     * @param defs the names of the button defs
+     * @param startIndex start index of the defs vector
+     * @param endIndex end index of the defs vector
+     * @param btnWidth width of one button(fixed width)
+     * @param helpStartIndex the index of the first help msg entry
+     * @param helpRandIndex the index of the random help msg entry
+     */
+    void addButtonsWithRandToGroup(CHighlightableButtonsGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex, int helpRandIndex) const;
+
+    /**
+     * Deactives buttons of a highlightable button group beginning from startId. Buttons with a id
+     * lower than startId will be activated/reseted.
+     *
+     * @param group the associated highlightable button group
+     * @param startId the id of the first button to deactivate
+     */
+    void deactivateButtonsFrom(CHighlightableButtonsGroup * group, int startId);
+
+    /**
+     * Validates players count and updates teams count, comp only players/teams count if necessary.
+     *
+     * @param playersCnt the players count to validate
+     */
+    void validatePlayersCnt(int playersCnt);
+
+    /**
+     * Validates computer only players count and updates comp only teams count if necessary.
+     *
+     * @param compOnlyPlayersCnt the computer only players count to validate
+     */
+    void validateCompOnlyPlayersCnt(int compOnlyPlayersCnt);
+
+    /** the background image of the rmg options tab */
+    CPicture * bg;
+
+    /** the map size buttons group */
+    CHighlightableButtonsGroup * mapSizeBtnGroup;
+
+    /** the two levels highlightable button */
+    CHighlightableButton * twoLevelsBtn;
+
+    /** the players count group */
+    CHighlightableButtonsGroup * playersCntGroup;
+
+    /** the teams count group */
+    CHighlightableButtonsGroup * teamsCntGroup;
+
+    /** the computer only players count group */
+    CHighlightableButtonsGroup * compOnlyPlayersCntGroup;
+
+    /** the computer only teams count group */
+    CHighlightableButtonsGroup * compOnlyTeamsCntGroup;
+
+    /** the water content group */
+    CHighlightableButtonsGroup * waterContentGroup;
+
+    /** the monster strength group */
+    CHighlightableButtonsGroup * monsterStrengthGroup;
+
+    CAdventureMapButton * showRandMaps;
+
+    /** the map options selected by the user */
+    CMapGenOptions options;
+};
+
 /// Interface for selecting a map.
 class ISelectionScreenInfo
 {
@@ -283,6 +385,7 @@ public:
 	CPicture *bg; //general bg image
 	InfoCard *card;
 	OptionsTab *opt;
+    RandomMapTab * randMapTab;
 	CAdventureMapButton *start, *back;
 
 	SelectionTab *sel;

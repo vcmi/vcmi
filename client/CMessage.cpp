@@ -277,7 +277,7 @@ SDL_Surface * CMessage::blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * 
 	return ret;
 }
 
-SDL_Surface * FNT_RenderText (EFonts font, std::string text, SDL_Color kolor= Colors::Cornsilk)
+SDL_Surface * FNT_RenderText (EFonts font, std::string text, SDL_Color kolor= Colors::WHITE)
 {
 	if (graphics->fontsTrueType[font])
 		return TTF_RenderText_Blended(graphics->fontsTrueType[font], text.c_str(), kolor);
@@ -312,7 +312,7 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 				z++;
 
 			if (z)
-				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), Colors::Cornsilk));
+				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), Colors::WHITE));
 			(*brtext)[i].erase(0,z);
 
 			if ((*brtext)[i].length() && (*brtext)[i][0] == '{')
@@ -329,7 +329,7 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 				z++;
 
 			if (z)
-				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), Colors::Jasmine));
+				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), Colors::YELLOW));
 			(*brtext)[i].erase(0,z);
 
 			if ((*brtext)[i].length() && (*brtext)[i][0] == '}')
@@ -363,7 +363,7 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_
 	curh += imgToBmp;
 	blitAt(bitmap,(ret->w/2)-(bitmap->w/2),curh,ret);
 	curh += bitmap->h + 5;
-	CSDL_Ext::printAtMiddle(sub,ret->w/2,curh+10,FONT_SMALL,Colors::Cornsilk,ret);
+	CSDL_Ext::printAtMiddle(sub,ret->w/2,curh+10,FONT_SMALL,Colors::WHITE,ret);
 	delete txtg;
 	return ret;
 }
@@ -373,7 +373,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 	SDL_Surface * _or = NULL;
 
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
-		_or = FNT_RenderText(FONT_MEDIUM,CGI->generaltexth->allTexts[4],Colors::Cornsilk);
+		_or = FNT_RenderText(FONT_MEDIUM,CGI->generaltexth->allTexts[4],Colors::WHITE);
 
 	const int sizes[][2] = {{400, 125}, {500, 150}, {600, 200}, {480, 400}};
 

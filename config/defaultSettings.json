@@ -23,7 +23,11 @@
 			"sound" : {
 				"type" : "number",
 				"default" : 88
-			}
+            },
+            "enableRMG" : {
+                "type" : "bool",
+                "default" : false
+            }
 		},
 		"default" : {}
 	},

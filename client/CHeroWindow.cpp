@@ -324,41 +324,41 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	CIntObject::showAll(to);
 	 
 	//printing hero's name
-	printAtMiddleLoc(curHero->name, 190, 38, FONT_BIG, Colors::Jasmine, to);
+	printAtMiddleLoc(curHero->name, 190, 38, FONT_BIG, Colors::YELLOW, to);
 	 
 	//printing hero's level
 	std::string secondLine= CGI->generaltexth->allTexts[342];
 	boost::algorithm::replace_first(secondLine,"%d",boost::lexical_cast<std::string>(curHero->level));
 	boost::algorithm::replace_first(secondLine,"%s",curHero->type->heroClass->name);
-	printAtMiddleLoc(secondLine, 190, 65, FONT_MEDIUM, Colors::Cornsilk, to);
+	printAtMiddleLoc(secondLine, 190, 65, FONT_MEDIUM, Colors::WHITE, to);
 	 	
 	//primary skills names
-	printAtMiddleLoc(CGI->generaltexth->jktexts[1], 52, 99, FONT_SMALL, Colors::Jasmine, to);
-	printAtMiddleLoc(CGI->generaltexth->jktexts[2], 123, 99, FONT_SMALL, Colors::Jasmine, to);
-	printAtMiddleLoc(CGI->generaltexth->jktexts[3], 193, 99, FONT_SMALL, Colors::Jasmine, to);
-	printAtMiddleLoc(CGI->generaltexth->jktexts[4], 262, 99, FONT_SMALL, Colors::Jasmine, to);
+	printAtMiddleLoc(CGI->generaltexth->jktexts[1], 52, 99, FONT_SMALL, Colors::YELLOW, to);
+	printAtMiddleLoc(CGI->generaltexth->jktexts[2], 123, 99, FONT_SMALL, Colors::YELLOW, to);
+	printAtMiddleLoc(CGI->generaltexth->jktexts[3], 193, 99, FONT_SMALL, Colors::YELLOW, to);
+	printAtMiddleLoc(CGI->generaltexth->jktexts[4], 262, 99, FONT_SMALL, Colors::YELLOW, to);
 	 
 	//dismiss / quest log
 	std::vector<std::string> toPrin = CMessage::breakText(CGI->generaltexth->jktexts[8]);
 	if(toPrin.size()==1)
 	{
-	 	printAtLoc(toPrin[0], 372, 439, FONT_SMALL, Colors::Cornsilk, to);
+	 	printAtLoc(toPrin[0], 372, 439, FONT_SMALL, Colors::WHITE, to);
 	}
 	else
 	{
-	 	printAtLoc(toPrin[0], 372, 430, FONT_SMALL, Colors::Cornsilk, to);
-	 	printAtLoc(toPrin[1], 372, 446, FONT_SMALL, Colors::Cornsilk, to);
+	 	printAtLoc(toPrin[0], 372, 430, FONT_SMALL, Colors::WHITE, to);
+	 	printAtLoc(toPrin[1], 372, 446, FONT_SMALL, Colors::WHITE, to);
 	}
 	 
 	toPrin = CMessage::breakText(CGI->generaltexth->jktexts[9]);
 	if(toPrin.size()==1)
 	{
-	 	printAtLoc(toPrin[0], 512, 439, FONT_SMALL, Colors::Cornsilk, to);
+	 	printAtLoc(toPrin[0], 512, 439, FONT_SMALL, Colors::WHITE, to);
 	}
 	else
 	{
-	 	printAtLoc(toPrin[0], 512, 430, FONT_SMALL, Colors::Cornsilk, to);
-	 	printAtLoc(toPrin[1], 512, 446, FONT_SMALL, Colors::Cornsilk, to);
+	 	printAtLoc(toPrin[0], 512, 430, FONT_SMALL, Colors::WHITE, to);
+	 	printAtLoc(toPrin[1], 512, 446, FONT_SMALL, Colors::WHITE, to);
 	}
 	 
 	//printing primary skills' amounts
@@ -366,27 +366,27 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	{
 	 	std::ostringstream primarySkill;
 	 	primarySkill << primSkillAreas[m]->bonusValue;
-	 	printAtMiddleLoc(primarySkill.str(), 53 + 70 * m, 166, FONT_SMALL, Colors::Cornsilk, to);
+	 	printAtMiddleLoc(primarySkill.str(), 53 + 70 * m, 166, FONT_SMALL, Colors::WHITE, to);
 	}
 	 
 	//secondary skills
 	for(size_t v=0; v<std::min(secSkillAreas.size(), curHero->secSkills.size()); ++v)
 	{
-	 	printAtLoc(CGI->generaltexth->levels[curHero->secSkills[v].second-1], (v%2) ? 212 : 68, 280 + 48 * (v/2), FONT_SMALL, Colors::Cornsilk, to);
-	 	printAtLoc(CGI->generaltexth->skillName[curHero->secSkills[v].first], (v%2) ? 212 : 68, 300 + 48 * (v/2), FONT_SMALL, Colors::Cornsilk, to);
+	 	printAtLoc(CGI->generaltexth->levels[curHero->secSkills[v].second-1], (v%2) ? 212 : 68, 280 + 48 * (v/2), FONT_SMALL, Colors::WHITE, to);
+	 	printAtLoc(CGI->generaltexth->skillName[curHero->secSkills[v].first], (v%2) ? 212 : 68, 300 + 48 * (v/2), FONT_SMALL, Colors::WHITE, to);
 	}
 	 
 	//printing special ability
-	printAtLoc(CGI->generaltexth->jktexts[5].substr(1, CGI->generaltexth->jktexts[5].size()-2), 69, 183, FONT_SMALL, Colors::Jasmine, to);
-	printAtLoc(CGI->generaltexth->hTxts[curHero->subID].bonusName, 69, 205, FONT_SMALL, Colors::Cornsilk, to);
+	printAtLoc(CGI->generaltexth->jktexts[5].substr(1, CGI->generaltexth->jktexts[5].size()-2), 69, 183, FONT_SMALL, Colors::YELLOW, to);
+	printAtLoc(CGI->generaltexth->hTxts[curHero->subID].bonusName, 69, 205, FONT_SMALL, Colors::WHITE, to);
 	 
 	//printing necessery texts
-	printAtLoc(CGI->generaltexth->jktexts[6].substr(1, CGI->generaltexth->jktexts[6].size()-2), 69, 232, FONT_SMALL, Colors::Jasmine, to);
+	printAtLoc(CGI->generaltexth->jktexts[6].substr(1, CGI->generaltexth->jktexts[6].size()-2), 69, 232, FONT_SMALL, Colors::YELLOW, to);
 	std::ostringstream expstr;
 	expstr << curHero->exp;
-	printAtLoc(expstr.str(), 68, 252, FONT_SMALL, Colors::Cornsilk, to);
-	printAtLoc(CGI->generaltexth->jktexts[7].substr(1, CGI->generaltexth->jktexts[7].size()-2), 213, 232, FONT_SMALL, Colors::Jasmine, to);
+	printAtLoc(expstr.str(), 68, 252, FONT_SMALL, Colors::WHITE, to);
+	printAtLoc(CGI->generaltexth->jktexts[7].substr(1, CGI->generaltexth->jktexts[7].size()-2), 213, 232, FONT_SMALL, Colors::YELLOW, to);
 	std::ostringstream manastr;
 	manastr << curHero->mana << '/' << heroWArt.manaLimit();
-	printAtLoc(manastr.str(), 211, 252, FONT_SMALL, Colors::Cornsilk, to);
+	printAtLoc(manastr.str(), 211, 252, FONT_SMALL, Colors::WHITE, to);
 }

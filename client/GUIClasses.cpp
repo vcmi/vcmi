@@ -69,7 +69,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	new CLabel(66, 2, FONT_SMALL, TOPLEFT, Colors::Cornsilk, army.name);
+	new CLabel(66, 2, FONT_SMALL, TOPLEFT, Colors::WHITE, army.name);
 
 	std::vector<Point> slotsPos;
 	slotsPos.push_back(Point(36,73));
@@ -100,7 +100,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 				subtitle = CGI->generaltexth->arraytxt[171 + 3*(slot.second.count)];
 		}
 
-		new CLabel(slotsPos[slot.first].x + 17, slotsPos[slot.first].y + 41, FONT_TINY, CENTER, Colors::Cornsilk, subtitle);
+		new CLabel(slotsPos[slot.first].x + 17, slotsPos[slot.first].y + 41, FONT_TINY, CENTER, Colors::WHITE, subtitle);
 	}
 
 }
@@ -125,10 +125,10 @@ void CHeroTooltip::init(const InfoAboutHero &hero)
 	if(hero.details)
 	{
 		for (size_t i = 0; i < hero.details->primskills.size(); i++)
-			new CLabel(75 + 28 * i, 58, FONT_SMALL, CENTER, Colors::Cornsilk,
+			new CLabel(75 + 28 * i, 58, FONT_SMALL, CENTER, Colors::WHITE,
 			           boost::lexical_cast<std::string>(hero.details->primskills[i]));
 
-		new CLabel(158, 98, FONT_TINY, CENTER, Colors::Cornsilk,
+		new CLabel(158, 98, FONT_TINY, CENTER, Colors::WHITE,
 		           boost::lexical_cast<std::string>(hero.details->mana));
 
 		new CAnimImage("IMRL22", hero.details->morale + 3, 0, 5, 74);
@@ -169,7 +169,7 @@ void CTownTooltip::init(const InfoAboutTown &town)
 			new CAnimImage("ITMTLS", town.details->hallLevel, 0, 67, 31);
 
 		if (town.details->goldIncome)
-			new CLabel(157, 58, FONT_TINY, CENTER, Colors::Cornsilk,
+			new CLabel(157, 58, FONT_TINY, CENTER, Colors::WHITE,
 		               boost::lexical_cast<std::string>(town.details->goldIncome));
 
 		if(town.details->garrisonedHero) //garrisoned hero icon
@@ -474,7 +474,7 @@ void CGarrisonSlot::showAll(SDL_Surface * to)
 		creatureImage->showAll(to);
 		char buf[15];
 		SDL_itoa(count,buf,10);
-		printTo(buf, pos.x+pos.w, pos.y+pos.h+1, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, Colors::Cornsilk, to);
+		printTo(buf, pos.x+pos.w, pos.y+pos.h+1, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, Colors::WHITE, to);
 
 		if((owner->highlighted==this)
 			|| (owner->splitting && owner->highlighted->creature == creature))
@@ -608,7 +608,7 @@ CInfoWindow::CInfoWindow(std::string Text, int player, const TCompsInfo &comps, 
 		buttons.push_back(button);
 	}
 
-	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::Cornsilk);
+	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::WHITE);
 	if(!text->slider)
 	{
 		text->pos.w = text->maxW;
@@ -817,7 +817,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 	BOOST_FOREACH(auto & line, textLines)
 	{
 		int height = graphics->fonts[FONT_SMALL]->height;
-		CLabel * label = new CLabel(pos.w/2, pos.h + height/2, FONT_SMALL, CENTER, Colors::Cornsilk, line);
+		CLabel * label = new CLabel(pos.w/2, pos.h + height/2, FONT_SMALL, CENTER, Colors::WHITE, line);
 
 		pos.h += height;
 		if (label->pos.w > pos.w)
@@ -1129,7 +1129,7 @@ void CComponentBox::placeComponents(bool selectable)
 				{
 					Point orPos = Point(currentX, currentY) + getOrTextPos(prevComp, *iter);
 
-					new CLabel(orPos.x, orPos.y, FONT_MEDIUM, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[4]);
+					new CLabel(orPos.x, orPos.y, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[4]);
 				}
 				currentX += getDistance(prevComp, *iter);
 			}
@@ -1205,7 +1205,7 @@ CSelWindow::CSelWindow(const std::string &Text, int player, int charperline, con
 		buttons[i]->callback += boost::bind(&CInfoWindow::close,this); //each button will close the window apart from call-defined actions
 	}
 
-	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::Cornsilk);
+	text = new CTextBox(Text, Rect(0, 0, 250, 100), 0, FONT_MEDIUM, CENTER, Colors::WHITE);
 
 	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
 	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
@@ -1309,7 +1309,7 @@ CRecruitmentWindow::CCostBox::CCostBox(Rect position, std::string title)
 	type |= REDRAW_PARENT;
 	pos = position + pos;
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	new CLabel(pos.w/2, 10, FONT_SMALL, CENTER, Colors::Cornsilk, title);
+	new CLabel(pos.w/2, 10, FONT_SMALL, CENTER, Colors::WHITE, title);
 }
 
 void CRecruitmentWindow::CCostBox::set(TResources res)
@@ -1336,7 +1336,7 @@ void CRecruitmentWindow::CCostBox::createItems(TResources res)
 	while (iter.valid())
 	{
 		CAnimImage * image = new CAnimImage("RESOURCE", iter->resType);
-		CLabel * text = new CLabel(15, 43, FONT_SMALL, CENTER, Colors::Cornsilk, "0");
+		CLabel * text = new CLabel(15, 43, FONT_SMALL, CENTER, Colors::WHITE, "0");
 
 		resources.insert(std::make_pair(iter->resType, std::make_pair(text, image)));
 		iter++;
@@ -1461,15 +1461,15 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 	buyButton = new CAdventureMapButton(CGI->generaltexth->zelp[554],boost::bind(&CRecruitmentWindow::buy,this),212,313,"IBY6432.DEF",SDLK_RETURN);
 	cancelButton = new CAdventureMapButton(CGI->generaltexth->zelp[555],boost::bind(&CRecruitmentWindow::close,this),290,313,"ICN6432.DEF",SDLK_ESCAPE);
 
-	title = new CLabel(243, 32, FONT_BIG, CENTER, Colors::Jasmine);
-	availableValue = new CLabel(205, 253, FONT_SMALL, CENTER, Colors::Cornsilk);
-	toRecruitValue = new CLabel(279, 253, FONT_SMALL, CENTER, Colors::Cornsilk);
+	title = new CLabel(243, 32, FONT_BIG, CENTER, Colors::YELLOW);
+	availableValue = new CLabel(205, 253, FONT_SMALL, CENTER, Colors::WHITE);
+	toRecruitValue = new CLabel(279, 253, FONT_SMALL, CENTER, Colors::WHITE);
 
 	costPerTroopValue =  new CCostBox(Rect(65, 222, 97, 74), CGI->generaltexth->allTexts[346]);
 	totalCostValue = new CCostBox(Rect(323, 222, 97, 74), CGI->generaltexth->allTexts[466]);
 
-	new CLabel(205, 233, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[465]); //available t
-	new CLabel(279, 233, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[16]); //recruit t
+	new CLabel(205, 233, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[465]); //available t
+	new CLabel(279, 233, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[16]); //recruit t
 
 	availableCreaturesChanged();
 }
@@ -1590,7 +1590,7 @@ CSplitWindow::CSplitWindow(const CCreature * creature, boost::function<void(int,
 
 	std::string title = CGI->generaltexth->allTexts[256];
 	boost::algorithm::replace_first(title,"%s", creature->namePl);
-	new CLabel(150, 34, FONT_BIG, CENTER, Colors::Jasmine, title);
+	new CLabel(150, 34, FONT_BIG, CENTER, Colors::YELLOW, title);
 }
 
 void CSplitWindow::setAmountText(std::string text, bool left)
@@ -1638,16 +1638,16 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 	new CAdventureMapButton("", "", boost::bind(&CLevelWindow::close, this), 297, 413, "IOKAY", SDLK_RETURN);
 
 	//%s has gained a level.
-	new CLabel(192, 33, FONT_MEDIUM, CENTER, Colors::Cornsilk,
+	new CLabel(192, 33, FONT_MEDIUM, CENTER, Colors::WHITE,
 	           boost::str(boost::format(CGI->generaltexth->allTexts[444]) % hero->name));
 
 	//%s is now a level %d %s.
-	new CLabel(192, 162, FONT_MEDIUM, CENTER, Colors::Cornsilk,
+	new CLabel(192, 162, FONT_MEDIUM, CENTER, Colors::WHITE,
 	           boost::str(boost::format(CGI->generaltexth->allTexts[445]) % hero->name % hero->level % hero->type->heroClass->name));
 
 	new CAnimImage("PSKIL42", pskill, 0, 174, 190);
 
-	new CLabel(192, 253, FONT_MEDIUM, CENTER, Colors::Cornsilk,
+	new CLabel(192, 253, FONT_MEDIUM, CENTER, Colors::WHITE,
 	           CGI->generaltexth->primarySkillNames[pskill] + " +1");
 
 	if (!skills.empty())
@@ -1688,7 +1688,7 @@ void CMinorResDataBar::showAll(SDL_Surface * to)
 	for (int i=0;i<7;i++)
 	{
 		SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
-		CSDL_Ext::printAtMiddle(buf,pos.x + 50 + 76*i,pos.y+pos.h/2,FONT_SMALL,Colors::Cornsilk,to);
+		CSDL_Ext::printAtMiddle(buf,pos.x + 50 + 76*i,pos.y+pos.h/2,FONT_SMALL,Colors::WHITE,to);
 	}
 	std::vector<std::string> temp;
 	SDL_itoa(LOCPLINT->cb->getDate(3),buf,10); temp.push_back(std::string(buf));
@@ -1701,7 +1701,7 @@ void CMinorResDataBar::showAll(SDL_Surface * to)
 	+ ": %s, "
 		+	CGI->generaltexth->allTexts[64]
 	+ ": %s",temp)
-		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,FONT_SMALL,Colors::Cornsilk,to);
+		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,FONT_SMALL,Colors::WHITE,to);
 }
 
 CMinorResDataBar::CMinorResDataBar()
@@ -1729,7 +1729,7 @@ CObjectListWindow::CItem::CItem(CObjectListWindow *_parent, size_t _id, std::str
 	addUsedEvents(LCLICK);
 	type |= REDRAW_PARENT;
 
-	text = new CLabel(pos.w/2, pos.h/2, FONT_SMALL, CENTER, Colors::Cornsilk, _text);
+	text = new CLabel(pos.w/2, pos.h/2, FONT_SMALL, CENTER, Colors::WHITE, _text);
 	select(index == parent->selected);
 }
 
@@ -1779,8 +1779,8 @@ void CObjectListWindow::init(CPicture * titlePic, std::string _title, std::strin
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	title = new CLabel(152, 27, FONT_BIG, CENTER, Colors::Jasmine, _title);
-	descr = new CLabel(145, 133, FONT_SMALL, CENTER, Colors::Cornsilk, _descr);
+	title = new CLabel(152, 27, FONT_BIG, CENTER, Colors::YELLOW, _title);
+	descr = new CLabel(145, 133, FONT_SMALL, CENTER, Colors::WHITE, _descr);
 
 	ok = new CAdventureMapButton("","",boost::bind(&CObjectListWindow::elementSelected, this),15,402,"IOKAY.DEF", SDLK_RETURN);
 	ok->block(true);
@@ -1916,7 +1916,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 	if(SDL_Surface *hlp = getSurface())
 		blitAt(hlp, pos + posToBitmap, to);
 
-	printAtMiddleLoc(subtitle, posToSubCenter, FONT_SMALL, Colors::Cornsilk, to);
+	printAtMiddleLoc(subtitle, posToSubCenter, FONT_SMALL, Colors::WHITE, to);
 }
 
 void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
@@ -2462,7 +2462,7 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 		}
 	}
 
-	new CLabel(300, 27, FONT_BIG, CENTER, Colors::Jasmine, title);
+	new CLabel(300, 27, FONT_BIG, CENTER, Colors::YELLOW, title);
 
 	initItems(false);
 	initItems(true);
@@ -2494,17 +2494,17 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	case EMarketMode::RESOURCE_RESOURCE:
 	case EMarketMode::RESOURCE_PLAYER:
 	case EMarketMode::RESOURCE_ARTIFACT:
-		new CLabel(154, 148, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[270]);
+		new CLabel(154, 148, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[270]);
 		break;
 
 	case EMarketMode::CREATURE_RESOURCE:
 		//%s's Creatures
-		new CLabel(152, 102, FONT_SMALL, CENTER, Colors::Cornsilk,
+		new CLabel(152, 102, FONT_SMALL, CENTER, Colors::WHITE,
 		           boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name));
 		break;
 	case EMarketMode::ARTIFACT_RESOURCE:
 		//%s's Artifacts
-		new CLabel(152, 102, FONT_SMALL, CENTER, Colors::Cornsilk,
+		new CLabel(152, 102, FONT_SMALL, CENTER, Colors::WHITE,
 		           boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name));
 		break;
 	}
@@ -2516,11 +2516,11 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	case EMarketMode::CREATURE_RESOURCE:
 	case EMarketMode::RESOURCE_ARTIFACT:
 	case EMarketMode::ARTIFACT_RESOURCE:
-		new CLabel(445, 148, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[168]);
+		new CLabel(445, 148, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[168]);
 		traderTextRect = Rect(316, 48, 260, 75);
 		break;
 	case EMarketMode::RESOURCE_PLAYER:
-		new CLabel(445, 55, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->allTexts[169]);
+		new CLabel(445, 55, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[169]);
 		traderTextRect = Rect(28, 48, 260, 75);
 		break;
 	}
@@ -2872,14 +2872,14 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 	if(Mode == EMarketMode::CREATURE_EXP)
 	{
 		//%s's Creatures
-		new CLabel(155, 30, FONT_SMALL, CENTER, Colors::Jasmine,
+		new CLabel(155, 30, FONT_SMALL, CENTER, Colors::YELLOW,
 		           boost::str(boost::format(CGI->generaltexth->allTexts[272]) % hero->name));
 
 		//Altar of Sacrifice
-		new CLabel(450, 30, FONT_SMALL, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[479]);
+		new CLabel(450, 30, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[479]);
 
 		 //To sacrifice creatures, move them from your army on to the Altar and click Sacrifice
-		new CTextBox(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, CENTER, Colors::Jasmine);
+		new CTextBox(CGI->generaltexth->allTexts[480], Rect(320, 56, 256, 40), 0, FONT_SMALL, CENTER, Colors::YELLOW);
 
 		slider = new CSlider(231,481,137,0,0,0);
 		slider->moved = boost::bind(&CAltarWindow::sliderMoved,this,_1);
@@ -2895,9 +2895,9 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 	else
 	{
 		//Sacrifice artifacts for experience
-		new CLabel(450, 34, FONT_SMALL, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[477]);
+		new CLabel(450, 34, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[477]);
 		//%s's Creatures
-		new CLabel(302, 423, FONT_SMALL, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[478]);
+		new CLabel(302, 423, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[478]);
 
 		sacrificeAll = new CAdventureMapButton(CGI->generaltexth->zelp[571], boost::bind(&CAltarWindow::SacrificeAll,this),393,520,"ALTFILL.DEF");
 		sacrificeAll->block(hero->artifactsInBackpack.empty() && hero->artifactsWorn.empty());
@@ -2912,9 +2912,9 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 	}
 
 	//Experience needed to reach next level
-	new CTextBox(CGI->generaltexth->allTexts[475], Rect(15, 415, 125, 50), 0, FONT_SMALL, CENTER, Colors::Jasmine);
+	new CTextBox(CGI->generaltexth->allTexts[475], Rect(15, 415, 125, 50), 0, FONT_SMALL, CENTER, Colors::YELLOW);
 	//Total experience on the Altar
-	new CTextBox(CGI->generaltexth->allTexts[476], Rect(15, 495, 125, 40), 0, FONT_SMALL, CENTER, Colors::Jasmine);
+	new CTextBox(CGI->generaltexth->allTexts[476], Rect(15, 495, 125, 40), 0, FONT_SMALL, CENTER, Colors::YELLOW);
 
 	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
@@ -3215,7 +3215,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 
 		int dmp, val;
 		market->getOffer(arts->commonInfo->src.art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);
-		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, Colors::Cornsilk, to);
+		printAtMiddleLoc(boost::lexical_cast<std::string>(val), 304, 498, FONT_SMALL, Colors::WHITE, to);
 	}
 }
 
@@ -3310,10 +3310,10 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	static const std::string rsHelp = "{Select resolution}\n\n Change in-game screen resolution. Will only affect adventure map. Game restart required to apply new resolution.";
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	title = new CLabel(242, 32, FONT_BIG, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[568]);
+	title = new CLabel(242, 32, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[568]);
 
 	//left window section
-	leftGroup =  new CLabelGroup(FONT_MEDIUM, CENTER, Colors::Jasmine);
+	leftGroup =  new CLabelGroup(FONT_MEDIUM, CENTER, Colors::YELLOW);
 	leftGroup->add(122,  64, CGI->generaltexth->allTexts[569]);
 	leftGroup->add(122, 130, CGI->generaltexth->allTexts[570]);
 	leftGroup->add(122, 196, CGI->generaltexth->allTexts[571]);
@@ -3322,7 +3322,7 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	leftGroup->add(122, 412, CGI->generaltexth->allTexts[395]);
 
 	//right section
-	rightGroup = new CLabelGroup(FONT_MEDIUM, TOPLEFT, Colors::Cornsilk);
+	rightGroup = new CLabelGroup(FONT_MEDIUM, TOPLEFT, Colors::WHITE);
 	rightGroup->add(282, 57,  CGI->generaltexth->allTexts[572]);
 	rightGroup->add(282, 89,  CGI->generaltexth->allTexts[573]);
 	rightGroup->add(282, 121, CGI->generaltexth->allTexts[574]);
@@ -3414,7 +3414,7 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["width"].Float());
 	resText += "x";
 	resText += boost::lexical_cast<std::string>(settings["video"]["screenRes"]["height"].Float());
-	gameResLabel = new CLabel(170, 292, FONT_MEDIUM, CENTER, Colors::Jasmine, resText);
+	gameResLabel = new CLabel(170, 292, FONT_MEDIUM, CENTER, Colors::YELLOW, resText);
 
 }
 
@@ -3528,9 +3528,9 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 		selected = -1;
 	oldSelected = -1;
 
-	new CLabel(200, 35, FONT_BIG, CENTER, Colors::Jasmine, CGI->generaltexth->jktexts[37]);
-	new CLabel(320, 328, FONT_SMALL, CENTER, Colors::Cornsilk, "2500");
-	new CTextBox(LOCPLINT->cb->getTavernGossip(tavernObj), Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::Cornsilk);
+	new CLabel(200, 35, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[37]);
+	new CLabel(320, 328, FONT_SMALL, CENTER, Colors::WHITE, "2500");
+	new CTextBox(LOCPLINT->cb->getTavernGossip(tavernObj), Rect(32, 190, 330, 68), 0, FONT_SMALL, CENTER, Colors::WHITE);
 
 	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	cancel = new CAdventureMapButton(CGI->generaltexth->tavernInfo[7],"", boost::bind(&CTavernWindow::close, this), 310, 428, "ICANCEL.DEF", SDLK_ESCAPE);
@@ -3599,7 +3599,7 @@ void CTavernWindow::show(SDL_Surface * to)
 			boost::algorithm::replace_first(recruit->hoverTexts[0],"%s",sel->h->type->heroClass->name);
 		}
 
-		printAtMiddleWB(sel->descr,pos.x+146,pos.y+389,FONT_SMALL,40,Colors::Cornsilk,to);
+		printAtMiddleWB(sel->descr,pos.x+146,pos.y+389,FONT_SMALL,40,Colors::WHITE,to);
 		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
 	}
 }
@@ -3879,7 +3879,7 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 		titleText = CGI->generaltexth->allTexts[35];
 		boost::algorithm::replace_first(titleText, "%s", garr->armedObjs[0]->Slots().begin()->second->type->namePl);
 	}
-	new CLabel(275, 30, FONT_BIG, CENTER, Colors::Jasmine, titleText);
+	new CLabel(275, 30, FONT_BIG, CENTER, Colors::YELLOW, titleText);
 
 	new CAnimImage("CREST58", garr->armedObjs[0]->getOwner(), 0, 28, 124);
 	new CAnimImage("PortraitsLarge", dynamic_cast<const CGHeroInstance*>(garr->armedObjs[1])->portrait, 0, 29, 222);
@@ -4827,8 +4827,8 @@ void CExchangeWindow::prepareBackground()
 	                      % h->name % h->level % h->type->heroClass->name);
 	};
 
-	new CLabel(147, 25, FONT_SMALL, CENTER, Colors::Cornsilk, genTitle(heroInst[0]));
-	new CLabel(653, 25, FONT_SMALL, CENTER, Colors::Cornsilk, genTitle(heroInst[1]));
+	new CLabel(147, 25, FONT_SMALL, CENTER, Colors::WHITE, genTitle(heroInst[0]));
+	new CLabel(653, 25, FONT_SMALL, CENTER, Colors::WHITE, genTitle(heroInst[1]));
 
 	//printing primary skills
 	for(int g=0; g<4; ++g)
@@ -4840,7 +4840,7 @@ void CExchangeWindow::prepareBackground()
 		CHeroWithMaybePickedArtifact heroWArt = CHeroWithMaybePickedArtifact(this, heroInst[b]);
 		//printing primary skills' amounts
 		for(int m=0; m<4; ++m)
-			new CLabel(352 + 93 * b, 35 + 36 * m, FONT_SMALL, CENTER, Colors::Cornsilk,
+			new CLabel(352 + 93 * b, 35 + 36 * m, FONT_SMALL, CENTER, Colors::WHITE,
 		               boost::lexical_cast<std::string>(heroWArt.getPrimSkillLevel(m)));
 
 		//printing secondary skills
@@ -4856,11 +4856,11 @@ void CExchangeWindow::prepareBackground()
 
 		//experience
 		new CAnimImage("PSKIL32", 4, 0, 103 + 490*b, 45);
-		new CLabel(119 + 490*b, 71, FONT_SMALL, CENTER, Colors::Cornsilk, makeNumberShort(heroInst[b]->exp));
+		new CLabel(119 + 490*b, 71, FONT_SMALL, CENTER, Colors::WHITE, makeNumberShort(heroInst[b]->exp));
 
 		//mana points
 		new CAnimImage("PSKIL32", 5, 0, 139 + 490*b, 45);
-		new CLabel(155 + 490*b, 71, FONT_SMALL, CENTER, Colors::Cornsilk, makeNumberShort(heroInst[b]->mana));
+		new CLabel(155 + 490*b, 71, FONT_SMALL, CENTER, Colors::WHITE, makeNumberShort(heroInst[b]->mana));
 	}
 
 	//printing portraits
@@ -4991,8 +4991,8 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 	std::string goldValue = boost::lexical_cast<std::string>(cost[Res::GOLD]);
 	std::string woodValue = boost::lexical_cast<std::string>(cost[Res::WOOD]);
 
-	goldCost = new CLabel(118, 294, FONT_SMALL, CENTER, Colors::Cornsilk, goldValue);
-	woodCost = new CLabel(212, 294, FONT_SMALL, CENTER, Colors::Cornsilk, woodValue);
+	goldCost = new CLabel(118, 294, FONT_SMALL, CENTER, Colors::WHITE, goldValue);
+	woodCost = new CLabel(212, 294, FONT_SMALL, CENTER, Colors::WHITE, woodValue);
 
 	goldPic = new CAnimImage("RESOURCE", Res::GOLD, 0, 100, 244);
 	woodPic = new CAnimImage("RESOURCE", Res::WOOD, 0, 196, 244);
@@ -5012,8 +5012,8 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 
 	statusBar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	title =     new CLabel(164, 27,  FONT_BIG,    CENTER, Colors::Jasmine, CGI->generaltexth->jktexts[13]);
-	costLabel = new CLabel(164, 220, FONT_MEDIUM, CENTER, Colors::Cornsilk,   CGI->generaltexth->jktexts[14]);
+	title =     new CLabel(164, 27,  FONT_BIG,    CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[13]);
+	costLabel = new CLabel(164, 220, FONT_MEDIUM, CENTER, Colors::WHITE,   CGI->generaltexth->jktexts[14]);
 }
 
 CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
@@ -5030,7 +5030,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 	quitb->borderEnabled = true;
 
 	new CPicture("PUZZLOGO", 607, 3);
-	new CLabel(700, 95, FONT_BIG, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[463]);
+	new CLabel(700, 95, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[463]);
 	new CResDataBar("ZRESBAR.bmp", 3, 575, 32, 2, 85, 85);
 
 	int faction = LOCPLINT->cb->getStartInfo()->playerInfos.find(LOCPLINT->playerID)->second.castle;
@@ -5122,7 +5122,7 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * parent, int size, int id):
 	pos.x += 45  + (id%3)*83 + id/6*83;
 	pos.y += 109 + (id/3)*98;
 	icon = new CAnimImage("TWCRPORT", parent->army->getCreature(id)->idNumber + 2);
-	new CLabel(28, 76,FONT_SMALL, CENTER, Colors::Cornsilk, boost::lexical_cast<std::string>(size));//stack size
+	new CLabel(28, 76,FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(size));//stack size
 }
 
 void CTransformerWindow::makeDeal()
@@ -5168,10 +5168,10 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[592],boost::bind(&CTransformerWindow::close, this),392,416,"ICANCEL.DEF",SDLK_ESCAPE);
 	bar    = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
-	new CLabel(153, 29,FONT_SMALL, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[485]);//holding area
-	new CLabel(153+295, 29, FONT_SMALL, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[486]);//transformer
-	new CTextBox(CGI->generaltexth->allTexts[487], Rect(26,  56, 255, 40), 0, FONT_MEDIUM, CENTER, Colors::Jasmine);//move creatures to create skeletons
-	new CTextBox(CGI->generaltexth->allTexts[488], Rect(320, 56, 255, 40), 0, FONT_MEDIUM, CENTER, Colors::Jasmine);//creatures here will become skeletons
+	new CLabel(153, 29,FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[485]);//holding area
+	new CLabel(153+295, 29, FONT_SMALL, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[486]);//transformer
+	new CTextBox(CGI->generaltexth->allTexts[487], Rect(26,  56, 255, 40), 0, FONT_MEDIUM, CENTER, Colors::YELLOW);//move creatures to create skeletons
+	new CTextBox(CGI->generaltexth->allTexts[488], Rect(320, 56, 255, 40), 0, FONT_MEDIUM, CENTER, Colors::YELLOW);//creatures here will become skeletons
 
 }
 
@@ -5240,8 +5240,8 @@ void CUniversityWindow::CItem::showAll(SDL_Surface * to)
 
 	blitAtLoc(bar->bg, -28, -22, to);
 	blitAtLoc(bar->bg, -28,  48, to);
-	printAtMiddleLoc  (CGI->generaltexth->skillName[ID], 22, -13, FONT_SMALL, Colors::Cornsilk,to);//Name
-	printAtMiddleLoc  (CGI->generaltexth->levels[0], 22, 57, FONT_SMALL, Colors::Cornsilk,to);//Level(always basic)
+	printAtMiddleLoc  (CGI->generaltexth->skillName[ID], 22, -13, FONT_SMALL, Colors::WHITE,to);//Name
+	printAtMiddleLoc  (CGI->generaltexth->levels[0], 22, 57, FONT_SMALL, Colors::WHITE,to);//Level(always basic)
 
 	CAnimImage::showAll(to);
 }
@@ -5283,10 +5283,10 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 		titlePic->center(Point(232 + pos.x, 76 + pos.y));
 
 	//Clerk speech
-	new CTextBox(CGI->generaltexth->allTexts[603], Rect(24, 129, 413, 70), 0, FONT_SMALL, CENTER, Colors::Cornsilk);
+	new CTextBox(CGI->generaltexth->allTexts[603], Rect(24, 129, 413, 70), 0, FONT_SMALL, CENTER, Colors::WHITE);
 
 	//University
-	new CLabel(231, 26, FONT_MEDIUM, CENTER, Colors::Jasmine, CGI->generaltexth->allTexts[602]);
+	new CLabel(231, 26, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[602]);
 
 	std::vector<int> list = market->availableItemsIds(EMarketMode::RESOURCE_SKILL);
 
@@ -5312,14 +5312,14 @@ CUnivConfirmWindow::CUnivConfirmWindow(CUniversityWindow * PARENT, int SKILL, bo
 	boost::replace_first(text, "%s", CGI->generaltexth->skillName[SKILL]);
 	boost::replace_first(text, "%d", "2000");
 
-	new CTextBox(text, Rect(24, 129, 413, 70), 0, FONT_SMALL, CENTER, Colors::Cornsilk);//Clerk speech
+	new CTextBox(text, Rect(24, 129, 413, 70), 0, FONT_SMALL, CENTER, Colors::WHITE);//Clerk speech
 
-	new CLabel(230, 37,  FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth-> skillName[SKILL]);//Skill name
+	new CLabel(230, 37,  FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth-> skillName[SKILL]);//Skill name
 	new CAnimImage("SECSKILL", SKILL*3+3, 0, 211, 51);//skill
-	new CLabel(230, 107, FONT_SMALL, CENTER, Colors::Cornsilk, CGI->generaltexth->levels[1]);//Skill level
+	new CLabel(230, 107, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->levels[1]);//Skill level
 
 	new CAnimImage("RESOURCE", Res::GOLD, 0, 210, 210);//gold
-	new CLabel(230, 267, FONT_SMALL, CENTER, Colors::Cornsilk, "2000");//Cost
+	new CLabel(230, 267, FONT_SMALL, CENTER, Colors::WHITE, "2000");//Cost
 
 	std::string hoverText = CGI->generaltexth->allTexts[609];
 	boost::replace_first(hoverText, "%s", CGI->generaltexth->levels[0]+ " " + CGI->generaltexth->skillName[SKILL]);
@@ -5354,7 +5354,7 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	slotsCount=7;
 	resources =  CDefHandler::giveDefEss("SMALRES.DEF");
 
-	new CLabel(325, 32, FONT_BIG, CENTER, Colors::Jasmine, fort->hoverName);//Hill Fort
+	new CLabel(325, 32, FONT_BIG, CENTER, Colors::YELLOW, fort->hoverName);//Hill Fort
 
 	heroPic = new CHeroArea(30, 60, hero);
 
@@ -5457,14 +5457,14 @@ void CHillFortWindow::showAll (SDL_Surface *to)
 					if(!val) continue;
 
 					blitAtLoc(resources->ourImages[j].bitmap, 104+76*i, curY, to);
-					printToLoc(boost::lexical_cast<std::string>(val), 168+76*i, curY+16, FONT_SMALL, Colors::Cornsilk, to);
+					printToLoc(boost::lexical_cast<std::string>(val), 168+76*i, curY+16, FONT_SMALL, Colors::WHITE, to);
 					curY += 20;
 				}
 			}
 			else//free upgrade - print gold image and "Free" text
 			{
 				blitAtLoc(resources->ourImages[6].bitmap, 104+76*i, 128, to);
-				printToLoc(CGI->generaltexth->allTexts[344], 168+76*i, 144, FONT_SMALL, Colors::Cornsilk, to);
+				printToLoc(CGI->generaltexth->allTexts[344], 168+76*i, 144, FONT_SMALL, Colors::WHITE, to);
 			}
 		}
 	}
@@ -5473,7 +5473,7 @@ void CHillFortWindow::showAll (SDL_Surface *to)
 		if (totalSumm[i])//this resource is used - display it
 		{
 			blitAtLoc(resources->ourImages[i].bitmap, 104+76*i, 237, to);
-			printToLoc(boost::lexical_cast<std::string>(totalSumm[i]), 166+76*i, 253, FONT_SMALL, Colors::Cornsilk, to);
+			printToLoc(boost::lexical_cast<std::string>(totalSumm[i]), 166+76*i, 253, FONT_SMALL, Colors::WHITE, to);
 		}
 	}
 }
@@ -5563,14 +5563,14 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 
 		std::string text = CGI->generaltexth->jktexts[24+g];
 		boost::algorithm::trim_if(text,boost::algorithm::is_any_of("\""));
-		new CLabel(135, y, FONT_MEDIUM, CENTER, Colors::Jasmine, text);
+		new CLabel(135, y, FONT_MEDIUM, CENTER, Colors::YELLOW, text);
 	}
 
 	for(int g=1; g<tgi.playerColors.size(); ++g)
 		new CAnimImage("PRSTRIPS", g-1, 0, 250 + 66*g, 7);
 
 	for(int g=0; g<tgi.playerColors.size(); ++g)
-		new CLabel(283 + 66*g, 24, FONT_BIG, CENTER, Colors::Jasmine, CGI->generaltexth->jktexts[16+g]);
+		new CLabel(283 + 66*g, 24, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[16+g]);
 
 	//printing flags
 	for(int g = 0; g < ARRAY_COUNT(fields); ++g) //by lines
@@ -5618,10 +5618,10 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 			if(iter.second.details)
 			{
 				new CTextBox(CGI->generaltexth->allTexts[184], Rect(260 + 66*counter, 396, 52, 64),
-				             0, FONT_TINY, TOPLEFT, Colors::Cornsilk);
+				             0, FONT_TINY, TOPLEFT, Colors::WHITE);
 				for (int i=0; i<iter.second.details->primskills.size(); ++i)
 				{
-					new CLabel(310 + 66 * counter, 407 + 11*i, FONT_TINY, BOTTOMRIGHT, Colors::Cornsilk,
+					new CLabel(310 + 66 * counter, 407 + 11*i, FONT_TINY, BOTTOMRIGHT, Colors::WHITE,
 					           boost::lexical_cast<std::string>(iter.second.details->primskills[i]));
 				}
 			}
@@ -5652,7 +5652,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
             text = CGI->generaltexth->arraytxt[168 + it.second];
         }
 
-		new CLabel(283 + 66*counter, 459, FONT_SMALL, CENTER, Colors::Cornsilk, text);
+		new CLabel(283 + 66*counter, 459, FONT_SMALL, CENTER, Colors::WHITE, text);
 
 		counter++;
 	}

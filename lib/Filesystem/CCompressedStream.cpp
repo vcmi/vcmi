@@ -6,11 +6,11 @@
 static const int inflateBlockSize = 10000;
 
 CCompressedStream::CCompressedStream(std::unique_ptr<CInputStream> stream, bool gzip, size_t decompressedSize):
-    gzipStream(std::move(stream)),
-    buffer(decompressedSize),
-    decompressedSize(0),
-    compressedBuffer(inflateBlockSize),
-    position(0)
+	gzipStream(std::move(stream)),
+	buffer(decompressedSize),
+	decompressedSize(0),
+	compressedBuffer(inflateBlockSize),
+	position(0)
 {
 	assert(gzipStream);
 

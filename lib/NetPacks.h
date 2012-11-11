@@ -2225,7 +2225,7 @@ struct UpdateStartOptions : public CPregamePackToPropagate
 
 struct PregameGuiAction : public CPregamePackToPropagate
 {
-	enum {NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST};
+    enum {NO_TAB, OPEN_OPTIONS, OPEN_SCENARIO_LIST, OPEN_RANDOM_MAP_OPTIONS};
 
 	ui8 action;
 

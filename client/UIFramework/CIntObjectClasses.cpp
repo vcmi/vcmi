@@ -1147,7 +1147,7 @@ void CStatusBar::show(SDL_Surface * to)
 	SDL_Rect srcRect = genRect(pos.h,pos.w,0,0);
 	SDL_Rect dstRect = genRect(pos.h,pos.w,pos.x,pos.y);
 	CSDL_Ext::blitSurface(bg,&srcRect,to,&dstRect);
-	CSDL_Ext::printAtMiddle(current,middlex,middley,FONT_SMALL,Colors::Cornsilk,to);
+	CSDL_Ext::printAtMiddle(current,middlex,middley,FONT_SMALL,Colors::WHITE,to);
 }
 
 std::string CStatusBar::getCurrent()
@@ -1218,7 +1218,7 @@ void CLabel::showAll(SDL_Surface * to)
 	printer[alignment](toPrint, pos.x + textOffset.x, pos.y + textOffset.y, font, color, to);
 }
 
-CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= Colors::Cornsilk*/, const std::string &Text /*= ""*/)
+CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= Colors::WHITE*/, const std::string &Text /*= ""*/)
 :alignment(Align), font(Font), color(Color), text(Text)
 {
 	autoRedraw = true;
@@ -1279,7 +1279,7 @@ void CBoundedLabel::blitLine(SDL_Surface *to, Point where, std::string what)
 		end = what.find_first_of(delimeters[currDelimeter % 2], begin);
 		std::string toPrint = what.substr(begin, end);
 		if (currDelimeter % 2)
-			CSDL_Ext::printAt(toPrint, where.x, where.y, font, Colors::Jasmine, to);
+			CSDL_Ext::printAt(toPrint, where.x, where.y, font, Colors::YELLOW, to);
 		else
 			CSDL_Ext::printAt(toPrint, where.x, where.y, font, color, to);
 		begin = end;
@@ -1344,7 +1344,7 @@ void CLabelGroup::add(int x, int y, const std::string &text)
 	new CLabel(x, y, font, align, color, text);
 }
 
-CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= Colors::Cornsilk*/)
+CTextBox::CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= TOPLEFT*/, const SDL_Color &Color /*= Colors::WHITE*/)
 :CBoundedLabel(rect.x, rect.y, Font, Align, Color, Text), sliderStyle(SliderStyle), slider(NULL)
 {
 	type |= REDRAW_PARENT;
@@ -1436,13 +1436,13 @@ std::string CGStatusBar::getCurrent()
 	return text;
 }
 
-//CGStatusBar::CGStatusBar(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= Colors::Cornsilk*/, const std::string &Text /*= ""*/)
+//CGStatusBar::CGStatusBar(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= Colors::WHITE*/, const std::string &Text /*= ""*/)
 //: CLabel(x, y, Font, Align, Color, Text)
 //{
 //	init();
 //}
 
-CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= CENTER*/, const SDL_Color &Color /*= Colors::Cornsilk*/)
+CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment Align /*= CENTER*/, const SDL_Color &Color /*= Colors::WHITE*/)
 : CLabel(BG->pos.x, BG->pos.y, Font, Align, Color, "")
 {
 	init();

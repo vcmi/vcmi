@@ -99,7 +99,7 @@ public:
 	bool swappedImages,//fix for some buttons: normal and pressed image are swapped
 		keepFrame; // don't change visual representation
 
-	void addTextOverlay(const std::string &Text, EFonts font, SDL_Color color = Colors::Cornsilk);
+    void addTextOverlay(const std::string &Text, EFonts font, SDL_Color color = Colors::WHITE);
 	void update();//to refresh button after image or text change
 
 	void setOffset(int newOffset);
@@ -347,7 +347,7 @@ public:
 
 	virtual void setTxt(const std::string &Txt);
 	void showAll(SDL_Surface * to); //shows statusbar (with current text)
-	CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::Cornsilk, const std::string &Text =  "");
+    CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
 };
 
 class CBoundedLabel : public CLabel
@@ -361,7 +361,7 @@ public:
 
 	std::vector<std::string> lines;
 
-	CBoundedLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::Cornsilk, const std::string &Text =  "")
+    CBoundedLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "")
 		: CLabel (x, y, Font, Align, Color, Text){};
 	void setTxt(const std::string &Txt);
 	void setBounds(int limitW, int limitH);
@@ -377,7 +377,7 @@ class CLabelGroup : public CIntObject
 	EAlignment align;
 	const SDL_Color &color;
 public:
-	CLabelGroup(EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::Cornsilk);
+    CLabelGroup(EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
 	void add(int x=0, int y=0, const std::string &text =  "");
 };
 
@@ -391,8 +391,8 @@ public:
 	std::vector<CAnimImage* > effects;
 	CSlider *slider;
 
-	//CTextBox( std::string Text, const Point &Pos, int w, int h, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::Cornsilk);
-	CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::Cornsilk);
+    //CTextBox( std::string Text, const Point &Pos, int w, int h, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
+    CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
 	void showAll(SDL_Surface * to); //shows statusbar (with current text)
 	void recalculateLines(const std::string &Txt);
 
@@ -412,8 +412,8 @@ public:
 	std::string getCurrent(); //returns currently displayed text
 	void show(SDL_Surface * to); //shows statusbar (with current text)
 
-	//CGStatusBar(int x, int y, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::Cornsilk, const std::string &Text =  "");
-	CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::Cornsilk); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
+    //CGStatusBar(int x, int y, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
+    CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::WHITE); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
 	CGStatusBar(int x, int y, std::string name, int maxw=-1); 
 
 	~CGStatusBar();
