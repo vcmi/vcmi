@@ -28,6 +28,8 @@ class CTextBox;
 class CCampaignState;
 class CConnection;
 class JsonNode;
+class CMapGenOptions;
+class RandomMapTab;
 struct CPackForSelectionScreen;
 struct PlayerInfo;
 

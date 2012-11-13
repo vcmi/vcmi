@@ -31,7 +31,7 @@ public:
 	std::vector <TModID> requirements;
 
 	/// mod configuration (mod.json).
-	std::unique_ptr<JsonNode> config;
+	std::shared_ptr<JsonNode> config; //TODO: unique_ptr can't be serialized
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

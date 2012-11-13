@@ -596,7 +596,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		opt = new OptionsTab(); //scenario options tab
 		opt->recActions = DISPOSE;
 
-		randMapTab = new RandomMapTab;
+		randMapTab = new RandomMapTab();
 		randMapTab->recActions = DISPOSE;
 	}
 	sel = new SelectionTab(screenType, bind(&CSelectionScreen::changeSelection, this, _1), multiPlayer); //scenario selection tab

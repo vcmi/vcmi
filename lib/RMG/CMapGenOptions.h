@@ -48,7 +48,7 @@ namespace EMonsterStrength
  * The map gen options class holds values about general map
  * generation settings e.g. the size of the map, the count of players,...
  */
-class CMapGenOptions
+class DLL_LINKAGE CMapGenOptions
 {
 public:
 	/**
