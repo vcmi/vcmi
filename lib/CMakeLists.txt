@@ -50,6 +50,8 @@ set(lib_SRCS
 )
 
 set(lib_HEADERS
+		Filesystem/CInputStream.h
+		Filesystem/ISimpleResourceLoader.h
 		AI_Base.h
 		CondSh.h
 		ConstTransitivePtr.h

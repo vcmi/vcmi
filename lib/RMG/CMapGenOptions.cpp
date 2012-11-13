@@ -1,21 +1,45 @@
 #include "StdInc.h"
 #include "CMapGenOptions.h"
 
-CMapGenOptions::CMapGenOptions() : mapSize(EMapSize::MEDIUM), hasTwoLevels(true),
+CMapGenOptions::CMapGenOptions() : width(72), height(72), hasTwoLevels(true),
 	playersCnt(-1), teamsCnt(-1), compOnlyPlayersCnt(-1), compOnlyTeamsCnt(-1),
 	waterContent(EWaterContent::NORMAL), monsterStrength(EMonsterStrength::NORMAL)
 {
 
 }
 
-EMapSize::EMapSize CMapGenOptions::getMapSize() const
+int CMapGenOptions::getWidth() const
 {
-	return mapSize;
+	return width;
 }
 
-void CMapGenOptions::setMapSize(EMapSize::EMapSize value)
+void CMapGenOptions::setWidth(int value)
 {
-	mapSize = value;
+	if(value > 0)
+	{
+		width = value;
+	}
+	else
+	{
+		throw std::runtime_error("Map width lower than 1 not allowed.");
+	}
+}
+
+int CMapGenOptions::getHeight() const
+{
+	return height;
+}
+
+void CMapGenOptions::setHeight(int value)
+{
+	if(value > 0)
+	{
+		height = value;
+	}
+	else
+	{
+		throw std::runtime_error("Map height lower than 1 not allowed.");
+	}
 }
 
 bool CMapGenOptions::getHasTwoLevels() const

@@ -11,17 +11,6 @@
 
 #pragma once
 
-namespace EMapSize
-{
-	enum EMapSize
-	{
-		SMALL,
-		MEDIUM,
-		LARGE,
-		EXTRA_LARGE
-	};
-}
-
 namespace EWaterContent
 {
 	enum EWaterContent
@@ -57,23 +46,37 @@ public:
 	CMapGenOptions();
 
 	/**
-	 * Gets the size of the map.
+	 * Gets the width of the map.
 	 *
-	 * @return size of the map
+	 * @return width of the map in tiles, default is 72
 	 */
-	EMapSize::EMapSize getMapSize() const;
+	int getWidth() const;
 
 	/**
-	 * Sets the size of the map.
+	 * Sets the width of the map.
 	 *
-	 * @param value the size of the map
+	 * @param value the width of the map in tiles, any values higher than 0 are allowed
 	 */
-	void setMapSize(EMapSize::EMapSize value);
+	void setWidth(int value);
+
+	/**
+	 * Gets the height of the map.
+	 *
+	 * @return height of the map in tiles, default is 72
+	 */
+	int getHeight() const;
+
+	/**
+	 * Sets the height of the map.
+	 *
+	 * @param value the height of the map in tiles, any values higher than 0 are allowed
+	 */
+	void setHeight(int value);
 
 	/**
 	 * Gets the flag whether the map should be generated with two levels.
 	 *
-	 * @return true for two level map
+	 * @return true for two level map, default is true
 	 */
 	bool getHasTwoLevels() const;
 
@@ -87,7 +90,7 @@ public:
 	/**
 	 * Gets the count of the players.
 	 *
-	 * @return the count of the players ranging from 1 to 8, -1 for random
+	 * @return the count of the players ranging from 1 to 8, -1 for random, default is -1
 	 */
 	int getPlayersCnt() const;
 
@@ -101,7 +104,7 @@ public:
 	/**
 	 * Gets the count of the teams.
 	 *
-	 * @return the count of the teams ranging from 0 to <players count - 1>, -1 for random
+	 * @return the count of the teams ranging from 0 to <players count - 1>, -1 for random, default is -1
 	 */
 	int getTeamsCnt() const;
 
@@ -115,7 +118,7 @@ public:
 	/**
 	 * Gets the count of the computer only players.
 	 *
-	 * @return the count of the computer only players ranging from 0 to <8 - players count>, -1 for random
+	 * @return the count of the computer only players ranging from 0 to <8 - players count>, -1 for random, default is -1
 	 */
 	int getCompOnlyPlayersCnt() const;
 
@@ -129,7 +132,7 @@ public:
 	/**
 	 * Gets the count of the computer only teams.
 	 *
-	 * @return the count of the computer only teams ranging from 0 to <comp only players - 1>, -1 for random
+	 * @return the count of the computer only teams ranging from 0 to <comp only players - 1>, -1 for random, default is -1
 	 */
 	int getCompOnlyTeamsCnt() const;
 
@@ -143,7 +146,7 @@ public:
 	/**
 	 * Gets the water content.
 	 *
-	 * @return the water content
+	 * @return the water content, default is normal
 	 */
 	EWaterContent::EWaterContent getWaterContent() const;
 
@@ -157,7 +160,7 @@ public:
 	/**
 	 * Gets the strength of the monsters.
 	 *
-	 * @return the strenght of the monsters
+	 * @return the strenght of the monsters, default is normal
 	 */
 	EMonsterStrength::EMonsterStrength getMonsterStrength() const;
 
@@ -169,8 +172,11 @@ public:
 	void setMonsterStrength(EMonsterStrength::EMonsterStrength value);
 
 private:
-	/** the size of the map */
-	EMapSize::EMapSize mapSize;
+	/** the width of the map in tiles */
+	int width;
+
+	/** the height of the map in tiles */
+	int height;
 
 	/** true if the map has two levels/underground */
 	bool hasTwoLevels;

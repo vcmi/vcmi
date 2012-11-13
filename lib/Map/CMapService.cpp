@@ -99,7 +99,7 @@ void CMapLoaderH3M::initBuffer(CInputStream * stream)
 std::unique_ptr<CMap> CMapLoaderH3M::loadMap()
 {
 	// Init map object by parsing the input buffer
-	map = new CMap;
+	map = new CMap();
 	mapHeader = std::unique_ptr<CMapHeader>(dynamic_cast<CMapHeader *>(map));
 	init();
 
@@ -672,7 +672,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 				int custom =  buffer[pos++];
 				if(!custom) continue;
 
-				CGHeroInstance * hero = new CGHeroInstance;
+				CGHeroInstance * hero = new CGHeroInstance();
 				hero->ID = Obj::HERO;
 				hero->subID = z;
 
@@ -851,7 +851,7 @@ CArtifactInstance * CMapLoaderH3M::createArtifact(int aid, int spellID /*= -1*/)
 	}
 	else
 	{
-		a = new CArtifactInstance;
+		a = new CArtifactInstance();
 	}
 
 	addNewArtifactInstance(a);
@@ -923,7 +923,7 @@ void CMapLoaderH3M::readDefInfo()
 	// Read custom defs
 	for(int idd = 0; idd < defAmount; ++idd)
 	{
-		CGDefInfo * defInfo = new CGDefInfo;
+		CGDefInfo * defInfo = new CGDefInfo();
 
 		// Read name
 		int nameLength = read_le_u32(buffer + pos);
@@ -1140,14 +1140,14 @@ void CMapLoaderH3M::readObjects()
 		case 47: //School of Magic
 		case 107: //School of War
 			{
-				nobj = new CGVisitableOPH;
+				nobj = new CGVisitableOPH();
 				break;
 			}
 		case 55: //mystical garden
 		case 112://windmill
 		case 109://water wheel
 			{
-				nobj = new CGVisitableOPW;
+				nobj = new CGVisitableOPW();
 				break;
 			}
 		case 43: //teleport
@@ -1156,7 +1156,7 @@ void CMapLoaderH3M::readObjects()
 		case 103://subterranean gate
 		case 111://Whirlpool
 			{
-				nobj = new CGTeleport;
+				nobj = new CGTeleport();
 				break;
 			}
 		case 12: //campfire
@@ -1165,14 +1165,14 @@ void CMapLoaderH3M::readObjects()
 		case 86: //Shipwreck Survivor
 		case 101://treasure chest
 			{
-				nobj = new CGPickable;
+				nobj = new CGPickable();
 				break;
 			}
 		case 54:  //Monster
 		case 71: case 72: case 73: case 74: case 75:	// Random Monster 1 - 4
 		case 162: case 163: case 164:					// Random Monster 5 - 7
 			{
-				CGCreature * cre = new CGCreature;
+				CGCreature * cre = new CGCreature();
 				nobj = cre;
 
 				if(map->version > EMapFormat::ROE)
@@ -1182,7 +1182,7 @@ void CMapLoaderH3M::readObjects()
 					map->questIdentifierToId[cre->identifier] = idToBeGiven;
 				}
 
-				CStackInstance * hlp = new CStackInstance;
+				CStackInstance * hlp = new CStackInstance();
 				hlp->count = read_le_u16(buffer + pos);
 				pos += 2;
 
@@ -1247,7 +1247,7 @@ void CMapLoaderH3M::readObjects()
 			}
 		case 59: case 91: //ocean bottle and sign
 			{
-				CGSignBottle * sb = new CGSignBottle;
+				CGSignBottle * sb = new CGSignBottle();
 				nobj = sb;
 				sb->message = readString(buffer, pos);
 				pos += 4;
@@ -1261,7 +1261,7 @@ void CMapLoaderH3M::readObjects()
 			}
 		case 113: //witch hut
 			{
-				CGWitchHut * wh = new CGWitchHut;
+				CGWitchHut * wh = new CGWitchHut();
 				nobj = wh;
 
 				// in reo we cannot specify it - all are allowed (I hope)
@@ -1295,7 +1295,7 @@ void CMapLoaderH3M::readObjects()
 			}
 		case 81: //scholar
 			{
-				CGScholar * sch = new CGScholar;
+				CGScholar * sch = new CGScholar();
 				nobj = sch;
 				sch->bonusType = buffer[pos++];
 				sch->bonusID = buffer[pos++];
@@ -1304,7 +1304,7 @@ void CMapLoaderH3M::readObjects()
 			}
 		case 33: case 219: //garrison
 			{
-				CGGarrison * gar = new CGGarrison;
+				CGGarrison * gar = new CGGarrison();
 				nobj = gar;
 				nobj->setOwner(buffer[pos++]);
 				pos += 3;
@@ -1327,7 +1327,7 @@ void CMapLoaderH3M::readObjects()
 			{
 				int artID = -1;
 				int spellID = -1;
-				CGArtifact * art = new CGArtifact;
+				CGArtifact * art = new CGArtifact();
 				nobj = art;
 
 				bool areSettings = buffer[pos++];
@@ -1359,7 +1359,7 @@ void CMapLoaderH3M::readObjects()
 			}
 		case 76: case 79: //random resource; resource
 			{
-				CGResource * res = new CGResource;
+				CGResource * res = new CGResource();
 				nobj = res;
 
 				bool isMessGuard = buffer[pos];
@@ -1392,14 +1392,14 @@ void CMapLoaderH3M::readObjects()
 		case 53:
 		case 220://mine (?)
 			{
-				nobj = new CGMine;
+				nobj = new CGMine();
 				nobj->setOwner(buffer[pos++]);
 				pos += 3;
 				break;
 			}
 		case 17: case 18: case 19: case 20: //dwellings
 			{
-				nobj = new CGDwelling;
+				nobj = new CGDwelling();
 				nobj->setOwner(buffer[pos++]);
 				pos += 3;
 				break;
@@ -1407,12 +1407,12 @@ void CMapLoaderH3M::readObjects()
 		case 78: //Refugee Camp
 		case 106: //War Machine Factory
 			{
-				nobj = new CGDwelling;
+				nobj = new CGDwelling();
 				break;
 			}
 		case 88: case 89: case 90: //spell shrine
 			{
-				CGShrine * shr = new CGShrine;
+				CGShrine * shr = new CGShrine();
 				nobj = shr;
 				shr->spell = buffer[pos];
 				pos += 4;
@@ -1420,7 +1420,7 @@ void CMapLoaderH3M::readObjects()
 			}
 		case 6: //pandora's box
 			{
-				CGPandoraBox * box = new CGPandoraBox;
+				CGPandoraBox * box = new CGPandoraBox();
 				nobj = box;
 				bool messg = buffer[pos];
 				++pos;
@@ -1507,13 +1507,13 @@ void CMapLoaderH3M::readObjects()
 		case 217: //same as castle
 		case 218: //level range
 			{
-				nobj = new CGDwelling;
+				nobj = new CGDwelling();
 				CSpecObjInfo * spec = nullptr;
 				switch(defInfo->id)
 				{
-					break; case 216: spec = new CCreGenLeveledCastleInfo;
-					break; case 217: spec = new CCreGenAsCastleInfo;
-					break; case 218: spec = new CCreGenLeveledInfo;
+					break; case 216: spec = new CCreGenLeveledCastleInfo();
+					break; case 217: spec = new CCreGenAsCastleInfo();
+					break; case 218: spec = new CCreGenLeveledInfo();
 				}
 
 				spec->player = read_le_u32(buffer + pos);
@@ -1552,7 +1552,7 @@ void CMapLoaderH3M::readObjects()
 			}
 		case 215:
 			{
-				CGQuestGuard * guard = new CGQuestGuard;
+				CGQuestGuard * guard = new CGQuestGuard();
 				addQuest(guard);
 				readQuest(guard);
 				nobj = guard;
@@ -1571,19 +1571,19 @@ void CMapLoaderH3M::readObjects()
 		case 52: //Mermaid
 		case 94: //Stables
 			{
-				nobj = new CGBonusingObject;
+				nobj = new CGBonusingObject();
 				break;
 			}
 		case 49: //Magic Well
 			{
-				nobj = new CGMagicWell;
+				nobj = new CGMagicWell();
 				break;
 			}
 		case 15: //Cover of darkness
 		case 58: //Redwood Observatory
 		case 60: //Pillar of Fire
 			{
-				nobj = new CGObservatory;
+				nobj = new CGObservatory();
 				break;
 			}
 		case 22: //Corpse
@@ -1591,29 +1591,29 @@ void CMapLoaderH3M::readObjects()
 		case 105://Wagon
 		case 108://Warrior's Tomb
 			{
-				nobj = new CGOnceVisitable;
+				nobj = new CGOnceVisitable();
 				break;
 			}
 		case 8: //Boat
 			{
-				nobj = new CGBoat;
+				nobj = new CGBoat();
 				break;
 			}
 		case 92: //Sirens
 			{
-				nobj = new CGSirens;
+				nobj = new CGSirens();
 				break;
 			}
 		case 87: //Shipyard
 			{
-				nobj = new CGShipyard;
+				nobj = new CGShipyard();
 				nobj->setOwner(read_le_u32(buffer + pos));
 				pos += 4;
 				break;
 			}
 		case 214: //hero placeholder
 			{
-				CGHeroPlaceholder * hp = new CGHeroPlaceholder;
+				CGHeroPlaceholder * hp = new CGHeroPlaceholder();
 				nobj = hp;
 
 				int a = buffer[pos++]; //unknown byte, seems to be always 0 (if not - scream!)
@@ -1635,59 +1635,59 @@ void CMapLoaderH3M::readObjects()
 			}
 		case 10: //Keymaster
 			{
-				nobj = new CGKeymasterTent;
+				nobj = new CGKeymasterTent();
 				break;
 			}
 		case 9: //Border Guard
 			{
-				nobj = new CGBorderGuard;
+				nobj = new CGBorderGuard();
 				addQuest(nobj);
 				break;
 			}
 		case 212: //Border Gate
 			{
-				nobj = new CGBorderGate;
+				nobj = new CGBorderGate();
 				addQuest (nobj);
 				break;
 			}
 		case 27: case 37: //Eye and Hut of Magi
 			{
-				nobj = new CGMagi;
+				nobj = new CGMagi();
 				break;
 			}
 		case 16: case 24: case 25: case 84: case 85: //treasure bank
 			{
-				nobj = new CBank;
+				nobj = new CBank();
 				break;
 			}
 		case 63: //Pyramid
 			{
-				nobj = new CGPyramid;
+				nobj = new CGPyramid();
 				break;
 			}
 		case 13: //Cartographer
 			{
-				nobj = new CCartographer;
+				nobj = new CCartographer();
 				break;
 			}
 		case 48: //Magic Spring
 			{
-				nobj = new CGMagicSpring;
+				nobj = new CGMagicSpring();
 				break;
 			}
 		case 97: //den of thieves
 			{
-				nobj = new CGDenOfthieves;
+				nobj = new CGDenOfthieves();
 				break;
 			}
 		case 57: //Obelisk
 			{
-				nobj = new CGObelisk;
+				nobj = new CGObelisk();
 				break;
 			}
 		case 42: //Lighthouse
 			{
-				nobj = new CGLighthouse;
+				nobj = new CGLighthouse();
 				nobj->tempOwner = read_le_u32(buffer + pos);
 				pos += 4;
 				break;
@@ -1697,22 +1697,22 @@ void CMapLoaderH3M::readObjects()
 		case 213: //Freelancer's Guild
 		case 221: //Trading Post (snow)
 			{
-				nobj = new CGMarket;
+				nobj = new CGMarket();
 				break;
 			}
 		case 104: //University
 			{
-				nobj = new CGUniversity;
+				nobj = new CGUniversity();
 				break;
 			}
 		case 7: //Black Market
 			{
-				nobj = new CGBlackMarket;
+				nobj = new CGBlackMarket();
 				break;
 			}
 		default: //any other object
 			{
-				nobj = new CGObjectInstance;
+				nobj = new CGObjectInstance();
 				break;
 			}
 		}
@@ -1767,7 +1767,7 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number, bool version
 		// Empty slot
 		if(creID == maxID) continue;
 
-		CStackInstance * hlp = new CStackInstance;
+		CStackInstance * hlp = new CStackInstance();
 		hlp->count = count;
 
 		if(creID > maxID - 0xf)
@@ -1790,7 +1790,7 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number, bool version
 
 CGObjectInstance * CMapLoaderH3M::readHero(int idToBeGiven)
 {
-	CGHeroInstance * nhi = new CGHeroInstance;
+	CGHeroInstance * nhi = new CGHeroInstance();
 
 	int identifier = 0;
 	if(map->version > EMapFormat::ROE)
@@ -1977,7 +1977,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(int idToBeGiven)
 
 CGSeerHut * CMapLoaderH3M::readSeerHut()
 {
-	CGSeerHut * hut = new CGSeerHut;
+	CGSeerHut * hut = new CGSeerHut();
 
 	if(map->version > EMapFormat::ROE)
 	{
@@ -2208,7 +2208,7 @@ void CMapLoaderH3M::addQuest(CGObjectInstance * quest)
 
 CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 {
-	CGTownInstance * nt = new CGTownInstance;
+	CGTownInstance * nt = new CGTownInstance();
 	nt->identifier = 0;
 	if(map->version > EMapFormat::ROE)
 	{
@@ -2316,7 +2316,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 
 	for(int gh = 0; gh < numberOfEvent; ++gh)
 	{
-		CCastleEvent * nce = new CCastleEvent;
+		CCastleEvent * nce = new CCastleEvent();
 		nce->town = nt;
 		nce->name = readString(buffer, pos);
 		nce->message = readString(buffer, pos);
@@ -2456,7 +2456,7 @@ void CMapLoaderH3M::readEvents()
 	pos += 4;
 	for(int yyoo = 0; yyoo < numberOfEvents; ++yyoo)
 	{
-		CMapEvent * ne = new CMapEvent;
+		CMapEvent * ne = new CMapEvent();
 		ne->name = std::string();
 		ne->message = std::string();
 		int nameLen = read_le_u32(buffer + pos);

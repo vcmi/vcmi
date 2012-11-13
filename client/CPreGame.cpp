@@ -1077,25 +1077,30 @@ void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
 			ui8 sign[8];
 			lf >> sign;
 			if(std::memcmp(sign,"VCMISVG",7))
-				throw std::runtime_error("not a correct savefile!");
-
-			allItems.resize(allItems.size() + 1);
-			allItems[i].mapHeader = std::shared_ptr<CMapHeader>(new CMapHeader);
-			allItems[i].scenarioOpts = new StartInfo;
-			lf >> *(allItems[i].mapHeader.get()) >> allItems[i].scenarioOpts;
-			allItems[i].fileURI = files[i].getName();
-			allItems[i].countPlayers();
-			std::time_t time = CFileInfo(CResourceHandler::get()->getResourceName(files[i])).getDate();
-			allItems[i].date = std::asctime(std::localtime(&time));
-
-			if((allItems[i].actualHumanPlayers > 1) != multi) //if multi mode then only multi games, otherwise single
 			{
-				allItems[i].mapHeader.reset();
+				throw std::runtime_error("not a correct savefile!");
 			}
+
+			// Create the map info object
+			CMapInfo mapInfo;
+			mapInfo.mapHeader = std::shared_ptr<CMapHeader>(new CMapHeader);
+			mapInfo.scenarioOpts = new StartInfo;
+			lf >> *(mapInfo.mapHeader.get()) >> mapInfo.scenarioOpts;
+			mapInfo.fileURI = files[i].getName();
+			mapInfo.countPlayers();
+			std::time_t time = CFileInfo(CResourceHandler::get()->getResourceName(files[i])).getDate();
+			mapInfo.date = std::asctime(std::localtime(&time));
+
+			// If multi mode then only multi games, otherwise single
+			if((mapInfo.actualHumanPlayers > 1) != multi)
+			{
+				mapInfo.mapHeader.reset();
+			}
+
+			allItems.push_back(mapInfo);
 		}
-		catch(std::exception &e)
+		catch(std::exception & e)
 		{
-			allItems.pop_back();
 			tlog3 << "Failed to process " << files[i].getName() <<": " << e.what() << std::endl;
 		}
 	}
@@ -1550,7 +1555,9 @@ RandomMapTab::RandomMapTab()
 	mapSizeBtnGroup->select(1, false);
 	mapSizeBtnGroup->onChange = [&](int btnId)
 	{
-		options.setMapSize(static_cast<EMapSize::EMapSize>(btnId));
+		const std::vector<int> mapSizeVal = boost::assign::list_of(36)(72)(108)(144); // Map sizes in this order: S, M, L, XL
+		options.setWidth(mapSizeVal[btnId]);
+		options.setHeight(mapSizeVal[btnId]);
 	};
 
 	// Two levels

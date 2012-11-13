@@ -14,7 +14,7 @@
 /**
  * Abstract class which provides method definitions for reading from a stream.
  */
-class DLL_LINKAGE CInputStream : public boost::noncopyable
+class DLL_LINKAGE CInputStream : private boost::noncopyable
 {
 public:
 	/**
