@@ -4,6 +4,8 @@ class JsonNode;
 typedef std::map <std::string, JsonNode> JsonMap;
 typedef std::vector <JsonNode> JsonVector;
 
+DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const JsonNode &node);
+
 struct Bonus;
 class ResourceID;
 
@@ -96,6 +98,23 @@ public:
 	static void merge(JsonNode & dest, JsonNode & source);
 	/// this function will preserve data stored in source by creating copy
 	static void mergeCopy(JsonNode & dest, JsonNode source);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		if (h.saving)
+		{
+			std::ostringstream stream;
+			stream << *this;
+			std::string str = stream.str();
+			h & str;
+		}
+		else
+		{
+			std::string str;
+			h & str;
+			JsonNode(str.c_str(), str.size()).swap(*this);
+		}
+	}
 };
 
 template<>
@@ -135,8 +154,6 @@ public:
 	void writeNode(const JsonNode &node);
 	JsonWriter(std::ostream &output, const JsonNode &node);
 };
-
-DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const JsonNode &node);
 
 //Tiny string class that uses const char* as data for speed, members are private
 //for ease of debugging and some compatibility with std::string

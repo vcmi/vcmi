@@ -146,13 +146,14 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 				//set correct value for alpha\unused channel
 				for (int i=0; i< ret->format->palette->ncolors; i++)
 					ret->format->palette->colors[i].unused = 255;
-			}			
+			}
 		}
 		else
 		{
-			tlog1<<"Failed to open "<<fname<<" via SDL_Image\n";		
+			tlog1<<"Failed to open "<<fname<<" via SDL_Image\n";
 		}
 	}
+	SDL_SetColorKey(ret, SDL_SRCCOLORKEY, SDL_MapRGB(ret->format, 0, 255, 255));
 	return ret;
 }
 

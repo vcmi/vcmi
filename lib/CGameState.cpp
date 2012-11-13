@@ -660,11 +660,11 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 			CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
 			t->town = &VLC->townh->towns[t->subID];
 			if(t->hasCapitol())
-				t->defInfo = capitols[t->subID];
+				t->defInfo = VLC->dobjinfo->capitols[t->subID];
 			else if(t->hasFort())
-				t->defInfo = forts[t->subID];
+				t->defInfo = VLC->dobjinfo->gobjs[Obj::TOWN][t->subID];
 			else
-				t->defInfo = villages[t->subID];
+				t->defInfo = VLC->dobjinfo->villages[t->subID];
 		}
 		return;
 	}
@@ -685,13 +685,14 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 		if(!t) {tlog2<<"Wrong random town at "<<cur->pos<<std::endl; return;}
 		cur->ID = ran.first;
 		cur->subID = ran.second;
-		t->town = &VLC->townh->towns[ran.second];
+		//FIXME: copy-pasted from above
+		t->town = &VLC->townh->towns[t->subID];
 		if(t->hasCapitol())
-			t->defInfo = capitols[t->subID];
+			t->defInfo = VLC->dobjinfo->capitols[t->subID];
 		else if(t->hasFort())
-			t->defInfo = forts[t->subID];
+			t->defInfo = VLC->dobjinfo->gobjs[Obj::TOWN][t->subID];
 		else
-			t->defInfo = villages[t->subID];
+			t->defInfo = VLC->dobjinfo->villages[t->subID];
 		t->randomizeArmy(t->subID);
 		map->towns.push_back(t);
 		return;
@@ -700,7 +701,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	cur->ID = ran.first;
 	cur->subID = ran.second;
 	map->removeBlockVisTiles(cur); //recalculate blockvis tiles - picked object might have different than random placeholder
-    map->customDefs.push_back(cur->defInfo = VLC->dobjinfo->gobjs[ran.first][ran.second]);
+	map->customDefs.push_back(cur->defInfo = VLC->dobjinfo->gobjs[ran.first][ran.second]);
 	if(!cur->defInfo)
 	{
 		tlog1<<"*BIG* WARNING: Missing def declaration for "<<cur->ID<<" "<<cur->subID<<std::endl;
@@ -761,10 +762,6 @@ CGameState::~CGameState()
 	//delete initialOpts;
 	delete applierGs;
 	delete objCaller;
-
-	//TODO: delete properly that definfos
-	villages.clear();
-	capitols.clear();
 }
 
 BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town)
@@ -866,18 +863,18 @@ void CGameState::init(StartInfo * si)
 	switch(scenarioOps->mode)
 	{
 	case StartInfo::NEW_GAME:
-        tlog0 << "Open map file: " << scenarioOps->mapname << std::endl;
-        map = CMapService::loadMap(scenarioOps->mapname).release();
+		tlog0 << "Open map file: " << scenarioOps->mapname << std::endl;
+		map = CMapService::loadMap(scenarioOps->mapname).release();
 		break;
 	case StartInfo::CAMPAIGN:
 		{
-            tlog0 << "Open campaign map file: " << scenarioOps->campState->currentMap << std::endl;
+			tlog0 << "Open campaign map file: " << scenarioOps->campState->currentMap << std::endl;
 			auto campaign = scenarioOps->campState;
 			assert(vstd::contains(campaign->camp->mapPieces, scenarioOps->campState->currentMap));
 
-            std::string & mapContent = campaign->camp->mapPieces[scenarioOps->campState->currentMap];
-            auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
-            map = CMapService::loadMap(buffer, mapContent.size()).release();
+			std::string & mapContent = campaign->camp->mapPieces[scenarioOps->campState->currentMap];
+			auto buffer = reinterpret_cast<const ui8 *>(mapContent.data());
+			map = CMapService::loadMap(buffer, mapContent.size()).release();
 		}
 		break;
 	case StartInfo::DUEL:
@@ -906,7 +903,6 @@ void CGameState::init(StartInfo * si)
 		scenarioOps->mapfileChecksum = map->checksum;
 
 	day = 0;
-	loadTownDInfos();
 
 	tlog4 << "Initialization:";
 	tlog4 << "\tPicking grail position";
@@ -920,14 +916,14 @@ void CGameState::init(StartInfo * si)
  		std::vector<int3> allowedPos;
 
 		// add all not blocked tiles in range
- 		for (int i = 0; i < map->width ; i++)
- 		{
- 			for (int j = 0; j < map->height ; j++)
- 			{
- 				for (int k = 0; k <= map->twoLevel ; k++)
- 				{
- 					const TerrainTile &t = map->terrain[i][j][k];
- 					if(!t.blocked
+		for (int i = 0; i < map->width ; i++)
+		{
+			for (int j = 0; j < map->height ; j++)
+			{
+				for (int k = 0; k <= map->twoLevel ; k++)
+				{
+					const TerrainTile &t = map->terrain[i][j][k];
+					if(!t.blocked
 						&& !t.visitable
                         && t.terType != ETerrainType::WATER
                         && t.terType != ETerrainType::ROCK
@@ -946,7 +942,7 @@ void CGameState::init(StartInfo * si)
 			map->grailPos = allowedPos[ran() % allowedPos.size()];
 		else
 			tlog2 << "Warning: Grail cannot be placed, no appropriate tile found!\n";
- 	}
+	}
 
 	//picking random factions for players
 	tlog4 << "\tPicking random factions for players";
@@ -1769,38 +1765,6 @@ int CGameState::getPlayerRelations( ui8 color1, ui8 color2 )
 	if (ts && vstd::contains(ts->players, color2))
 		return 1;
 	return 0;
-}
-
-void CGameState::loadTownDInfos()
-{
-	assert(!VLC->dobjinfo->gobjs[Obj::TOWN].empty()); //make sure that at least some def info was found
-
-	const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::TOWN].begin()->second;
-	auto & townInfos = VLC->dobjinfo->gobjs[Obj::TOWN];
-
-
-	BOOST_FOREACH(auto & town, VLC->townh->towns)
-	{
-		if (!vstd::contains(VLC->dobjinfo->gobjs[Obj::TOWN], town.first)) // no obj info for this town type
-		{
-			CGDefInfo * info = new CGDefInfo(*baseInfo);
-			info->subid = town.first;
-
-			townInfos[town.first] = info;
-		}
-		forts[town.first] = townInfos[town.first];
-		townInfos[town.first]->name = town.second.clientInfo.advMapCastle;
-
-		villages[town.first] = new CGDefInfo(*townInfos[town.first]);
-		villages[town.first]->name = town.second.clientInfo.advMapVillage;
-
-		capitols[town.first] = new CGDefInfo(*townInfos[town.first]);
-		capitols[town.first]->name = town.second.clientInfo.advMapCapitol;
-
-        map->customDefs.push_back(villages[town.first]);
-        map->customDefs.push_back(forts[town.first]);
-        map->customDefs.push_back(capitols[town.first]);
-	}
 }
 
 void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing)

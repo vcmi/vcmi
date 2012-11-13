@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include "GameConstants.h"
 #include "../lib/ConstTransitivePtr.h"
 
 /*
@@ -50,11 +50,14 @@ class DLL_LINKAGE CDefObjInfoHandler
 public:
 	bmap<int, bmap<int, ConstTransitivePtr<CGDefInfo> > > gobjs;
 
+	bmap<TFaction, ConstTransitivePtr<CGDefInfo> > capitols;
+	bmap<TFaction, ConstTransitivePtr<CGDefInfo> > villages;
+
 	void load();
 	~CDefObjInfoHandler();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & gobjs;
+		h & gobjs & capitols & villages;
 	}
 };

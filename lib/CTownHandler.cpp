@@ -442,7 +442,7 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
-void CTownHandler::loadFactions(const JsonNode &source)
+void CTownHandler::load(const JsonNode &source)
 {
 	BOOST_FOREACH(auto & node, source.Struct())
 	{
@@ -469,6 +469,8 @@ void CTownHandler::loadFactions(const JsonNode &source)
 		}
 		if (!node.second["puzzleMap"].isNull())
 			loadPuzzle(faction, node.second["puzzleMap"]);
+
+		tlog3 << "Added faction: " << node.first << "\n";
 	}
 }
 
@@ -518,5 +520,5 @@ void CTownHandler::load()
 			}
 		}
 	}
-	loadFactions(buildingsConf);
+	load(buildingsConf);
 }

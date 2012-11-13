@@ -40,7 +40,6 @@ class CGHeroInstance;
 class CGTownInstance;
 class CArmedInstance;
 class CGDwelling;
-class CGDefInfo;
 class CObjectScript;
 class CGObjectInstance;
 class CCreature;
@@ -389,7 +388,6 @@ public:
 	ConstTransitivePtr<CMap> map;
 	bmap<TPlayerColor, PlayerState> players;
 	bmap<TPlayerColor, TeamState> teams;
-	bmap<TPlayerColor, ConstTransitivePtr<CGDefInfo> > villages, forts, capitols; //def-info for town graphics
 	CBonusSystemNode globalEffects;
 	bmap<const CGHeroInstance*, const CGObjectInstance*> ongoingVisits;
 
@@ -411,7 +409,6 @@ public:
 	void init(StartInfo * si);
 
 	void initDuel();
-	void loadTownDInfos();
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
 	int pickHero(int owner);
@@ -450,11 +447,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & scenarioOps & initialOpts & currentPlayer & day & map & players & teams & hpool & globalEffects;
-		h & villages & forts & capitols;
-		if(!h.saving)
-		{
-			loadTownDInfos();
-		}
 		BONUS_TREE_DESERIALIZATION_FIX
 	}
 

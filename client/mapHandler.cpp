@@ -240,6 +240,36 @@ void CMapHandler::borderAndTerrainBitmapInit()
 	}
 	delete bord;
 }
+
+static void processDef (const CGDefInfo* def)
+{
+	if(def->id == Obj::EVENT)
+	{
+		graphics->advmapobjGraphics[def->name] = NULL;
+		return;
+	}
+	CDefEssential * ourDef = graphics->getDef(def);
+	if(!ourDef) //if object has already set handler (eg. heroes) it should not be overwritten
+	{
+		if(def->name.size())
+		{
+			graphics->advmapobjGraphics[def->name] = CDefHandler::giveDefEss(def->name);
+		}
+		else
+		{
+			tlog2 << "No def name for " << def->id << "  " << def->subid << std::endl;
+			return;
+		}
+		ourDef = graphics->getDef(def);
+
+	}
+	//alpha transformation
+	for(size_t yy=0; yy < ourDef->ourImages.size(); ++yy)
+	{
+		CSDL_Ext::alphaTransform(ourDef->ourImages[yy].bitmap);
+	}
+}
+
 void CMapHandler::initObjectRects()
 {
 	//initializing objects / rects
@@ -249,11 +279,15 @@ void CMapHandler::initObjectRects()
 		if(	!obj
 			|| (obj->ID==Obj::HERO && static_cast<const CGHeroInstance*>(obj)->inTownGarrison) //garrisoned hero
 			|| (obj->ID==Obj::BOAT && static_cast<const CGBoat*>(obj)->hero) //boat with hero (hero graphics is used)
-			|| !obj->defInfo
-			|| !graphics->getDef(obj)) //no graphic...
+			|| !obj->defInfo )
 		{
 			continue;
 		}
+		if (!graphics->getDef(obj)) //try to load it
+			processDef(obj->defInfo);
+		if (!graphics->getDef(obj)) // stil no graphics? exit
+			continue;
+
 		const SDL_Surface *bitmap = graphics->getDef(obj)->ourImages[0].bitmap;
 		for(int fx=0; fx<bitmap->w>>5; ++fx) //bitmap->w/32
 		{
@@ -294,53 +328,20 @@ void CMapHandler::initObjectRects()
 		}
 	}
 }
-static void processDef (const CGDefInfo* def)
-{
-	if(def->id == Obj::EVENT)
-	{
-        graphics->advmapobjGraphics[def->id][def->subid][def->name] = NULL;
-		return;
-	}
-    CDefEssential * ourDef = graphics->getDef(def);
-	if(!ourDef) //if object has already set handler (eg. heroes) it should not be overwritten 
-	{
-		if(def->name.size())
-		{
-			if(vstd::contains(graphics->mapObjectDefs, def->name))
-			{
-                graphics->advmapobjGraphics[def->id][def->subid][def->name] = graphics->mapObjectDefs[def->name];
-			}
-			else
-			{
-                graphics->mapObjectDefs[def->name] = graphics->advmapobjGraphics[def->id][def->subid][def->name] = CDefHandler::giveDefEss(def->name);
-			}
-		}
-		else
-		{
-			tlog2 << "No def name for " << def->id << "  " << def->subid << std::endl;
-			return;
-		}
-        ourDef = graphics->getDef(def);
-        
-	}
-	//alpha transformation
-	for(size_t yy=0; yy < ourDef->ourImages.size(); ++yy)
-	{
-		CSDL_Ext::alphaTransform(ourDef->ourImages[yy].bitmap);
-	}
-}
+
 void CMapHandler::initHeroDef(const CGHeroInstance * h)
 {
-    graphics->advmapobjGraphics[h->defInfo->id][h->defInfo->subid][h->defInfo->name] = graphics->flags1[0];
+	graphics->advmapobjGraphics[h->defInfo->name] = graphics->flags1[0];
 }
+
 void CMapHandler::init()
 {
 	CStopWatch th;
 	th.getDiff();
 
-    graphics->advmapobjGraphics[8][0]["AB01_.DEF"] = graphics->boatAnims[0];
-    graphics->advmapobjGraphics[8][1]["AB02_.DEF"] = graphics->boatAnims[1];
-    graphics->advmapobjGraphics[8][2]["AB03_.DEF"] = graphics->boatAnims[2];
+	graphics->advmapobjGraphics["AB01_.DEF"] = graphics->boatAnims[0];
+	graphics->advmapobjGraphics["AB02_.DEF"] = graphics->boatAnims[1];
+	graphics->advmapobjGraphics["AB03_.DEF"] = graphics->boatAnims[2];
 	// Size of visible terrain.
 	int mapW = conf.go()->ac.advmapW;
 	int mapH = conf.go()->ac.advmapH;
@@ -381,18 +382,6 @@ void CMapHandler::init()
     std::for_each(map->customDefs.begin(),map->customDefs.end(),processDef); //load h3m defs
 	tlog0<<"\tUnpacking and handling defs: "<<th.getDiff()<<std::endl;
 
-	//it seems to be completely unnecessary and useless
-// 	for(int i=0;i<PLAYER_LIMIT;i++)
-// 	{
-// 		for(size_t j=0; j < map->players[i].heroesNames.size(); ++j)
-// 		{
-// 			usedHeroes.insert(map->players[i].heroesNames[j].heroID);
-// 		}
-// 	}
-// 	tlog0<<"\tChecking used heroes: "<<th.getDif()<<std::endl;
-
-
-
 	prepareFOWDefs();
 	roadsRiverTerrainInit();	//road's and river's DefHandlers; and simple values initialization
 	borderAndTerrainBitmapInit();
@@ -414,7 +403,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 
 	// Basic rectangle for a tile. Should be a const but conflicts with SDL headers
 	SDL_Rect rtile = { 0, 0, 32, 32 };
-									
+
 	// Absolute coords of the first pixel in the top left corner
 	int srx_init = offsetX + extRect->x;
 	int sry_init = offsetY + extRect->y;

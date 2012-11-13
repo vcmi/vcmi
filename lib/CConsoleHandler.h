@@ -30,8 +30,16 @@ public:
 
 	template<typename T> void print(const T &data, int lvl)
 	{
+#ifndef _WIN32
+		// with love from ffmpeg - library is trying to print some warnings from separate thread
+		// this results in broken console on Linux. Lock stdout to print all our data at once
+		flockfile(stdout);
+#endif
 		setColor(lvl);
 		std::cout << data << std::flush;
 		setColor(-1);
+#ifndef _WIN32
+		funlockfile(stdout);
+#endif
 	}
 };

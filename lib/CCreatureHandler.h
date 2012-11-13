@@ -140,26 +140,39 @@ public:
 	si8 expAfterUpgrade;//multiplier in %
 
 	//Commanders
-	std::map <ui8, ui32> factionCommanders;
+	std::map <TFaction, TCreature> factionCommanders;
 	BonusList commanderLevelPremy; //bonus values added with each level-up
 	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
 	std::vector <std::pair <Bonus, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
 
-	void deserializationFix();
-	void loadCreatures();
-	void buildBonusTreeForTiers();
-	void loadAnimationInfo();
-	void loadUnitAnimInfo(CCreature & unit, CLegacyConfigParser &parser);
-	void loadSoundsInfo();
-	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser &parser);
-	int stringToNumber(std::string & s);//help function for parsing CREXPBON.txt
+	/// loading functions
 
-	int pickRandomMonster(const boost::function<int()> &randGen = 0, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
-	void addBonusForTier(int tier, Bonus *b); //tier must be <1-7>
-	void addBonusForAllCreatures(Bonus *b);
+	/// load all creatures from H3 files
+	void loadCreatures();
+	/// load all creatures from json structure
+	void load(const JsonNode & node);
+	/// load one creature from json config
+	CCreature * loadCreature(const JsonNode & node);
+	/// generates tier-specific bonus tree entries
+	void buildBonusTreeForTiers();
+	/// read cranim.txt file from H3
+	void loadAnimationInfo();
+	/// read one line from cranim.txt
+	void loadUnitAnimInfo(CCreature & unit, CLegacyConfigParser &parser);
+	/// load cr_sounds.json config
+	void loadSoundsInfo();
+	/// parse crexpbon.txt file from H3
+	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser &parser);
+	/// help function for parsing CREXPBON.txt
+	int stringToNumber(std::string & s);
 
 	CCreatureHandler();
 	~CCreatureHandler();
+
+	void deserializationFix();
+	int pickRandomMonster(const boost::function<int()> &randGen = 0, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
+	void addBonusForTier(int tier, Bonus *b); //tier must be <1-7>
+	void addBonusForAllCreatures(Bonus *b);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

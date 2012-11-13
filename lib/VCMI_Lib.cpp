@@ -101,7 +101,8 @@ void LibClasses::init()
 	spellh->loadSpells();
 	tlog0<<"\tSpell handler: "<<pomtime.getDiff()<<std::endl;
 
-	modh->recreateHandlers(); //load all new creatures parsed in the meantime.
+	modh->loadActiveMods();
+	modh->reload();
 	//FIXME: make sure that everything is ok after game restart
 	//TODO: This should be done every time mod config changes
 

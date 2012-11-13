@@ -86,7 +86,6 @@ void registerTypes1(Serializer &s)
 	s.template registerType<StackOwnerLimiter>();
 
 	s.template registerType<CModInfo>();
-	s.template registerType<CModIdentifier>();
 
 	s.template registerType<CBonusSystemNode>();
 	s.template registerType<CArtifact>();

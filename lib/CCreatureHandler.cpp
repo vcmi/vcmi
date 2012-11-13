@@ -611,6 +611,162 @@ void CCreatureHandler::loadSoundsInfo()
 	}
 }
 
+void CCreatureHandler::load(const JsonNode & node)
+{
+	BOOST_FOREACH(auto & entry, node.Struct())
+	{
+		if (!entry.second.isNull()) // may happens if mod removed creature by setting json entry to null
+		{
+			CCreature * creature = loadCreature(entry.second);
+			creature->nameRef = entry.first;
+			creature->idNumber = creatures.size();
+			nameToID[entry.first] = creatures.size();
+
+			creatures.push_back(creature);
+			tlog3 << "Added creature: " << entry.first << "\n";
+			//TODO: notify modHandler that this refName can be resolved to ID
+		}
+	}
+}
+
+CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
+{
+	CCreature * cre = new CCreature();
+
+	const JsonNode & name = node["name"];
+	cre->nameSing = name["singular"].String();
+	cre->namePl = name["plural"].String();
+
+	cre->cost = Res::ResourceSet(node["cost"]);
+
+	cre->level = node["level"].Float();
+	cre->faction = node["faction"].Float(); //TODO: replaced by string -> id conversion
+	cre->fightValue = node["fightValue"].Float();
+	cre->AIValue = node["aiValue"].Float();
+	cre->growth = node["growth"].Float();
+	cre->hordeGrowth = node["horde"].Float(); // Needed at least until configurable buildings
+
+	cre->addBonus(node["hitPoints"].Float(), Bonus::STACK_HEALTH);
+	cre->addBonus(node["speed"].Float(), Bonus::STACKS_SPEED);
+	cre->addBonus(node["attack"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
+	cre->addBonus(node["defense"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
+	const JsonNode &  vec = node["damage"];
+	cre->addBonus(vec["min"].Float(), Bonus::CREATURE_DAMAGE, 1);
+	cre->addBonus(vec["max"].Float(), Bonus::CREATURE_DAMAGE, 2);
+
+	auto & amounts = node ["advMapAmount"];
+	cre->ammMin = amounts["min"].Float();
+	cre->ammMax = amounts["max"].Float();
+
+	//optional
+	BOOST_FOREACH (auto & str, node["upgrades"].Vector())
+	{
+		cre->upgradeNames.insert (str.String());
+	}
+
+	if (!node["shots"].isNull())
+		cre->addBonus(node["shots"].Float(), Bonus::SHOTS);
+
+	if (node["spellPoints"].isNull())
+		cre->addBonus(node["spellPoints"].Float(), Bonus::CASTS);
+
+	cre->doubleWide = node["doubleWide"].Bool();
+
+	BOOST_FOREACH (const JsonNode &bonus, node["abilities"].Vector())
+	{
+		auto b = ParseBonus(bonus);
+		b->source = Bonus::CREATURE_ABILITY;
+		b->duration = Bonus::PERMANENT;
+		cre->addNewBonus(b);
+	}
+
+	BOOST_FOREACH (const JsonNode &exp, node["stackExperience"].Vector())
+	{
+		auto bonus = ParseBonus (exp["bonus"]);
+		bonus->source = Bonus::STACK_EXPERIENCE;
+		bonus->duration = Bonus::PERMANENT;
+		const JsonVector &values = exp["values"].Vector();
+		int lowerLimit = 1;//, upperLimit = 255;
+		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
+		{
+			BOOST_FOREACH (const JsonNode &val, values)
+			{
+				if (val.Bool() == true)
+				{
+					bonus->limiter = make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
+					cre->addNewBonus (new Bonus(*bonus)); //bonuses must be unique objects
+					break; //TODO: allow bonuses to turn off?
+				}
+				++lowerLimit;
+			}
+		}
+		else
+		{
+			int lastVal = 0;
+			BOOST_FOREACH (const JsonNode &val, values)
+			{
+				if (val.Float() != lastVal)
+				{
+					bonus->val = val.Float() - lastVal;
+					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
+					cre->addNewBonus (new Bonus(*bonus));
+				}
+				lastVal = val.Float();
+				++lowerLimit;
+			}
+		}
+	}
+	//graphics
+
+	const JsonNode & graphics = node["graphics"];
+	cre->animDefName = graphics["animation"].String();
+	cre->timeBetweenFidgets = graphics["timeBetweenFidgets"].Float();
+	cre->troopCountLocationOffset = graphics["troopCountLocationOffset"].Float();
+	cre->attackClimaxFrame = graphics["attackClimaxFrame"].Float();
+
+	const JsonNode & animationTime = graphics["animationTime"];
+	cre->walkAnimationTime = animationTime["walk"].Float();
+	cre->attackAnimationTime = animationTime["attack"].Float();
+	cre->flightAnimationDistance = animationTime["flight"].Float(); //?
+	//TODO: background?
+	const JsonNode & missile = graphics["missile"];
+	//TODO: parse
+	cre->projectile = missile["projectile"].String();
+	cre->projectileSpin = missile["spinning"].Bool();
+
+	const JsonNode & offsets = missile["offset"];
+	cre->upperRightMissleOffsetX = offsets["upperX"].Float();
+	cre->upperRightMissleOffsetY = offsets["upperY"].Float();
+	cre->rightMissleOffsetX = offsets["middleX"].Float();
+	cre->rightMissleOffsetY = offsets["middleY"].Float();
+	cre->lowerRightMissleOffsetX = offsets["lowerX"].Float();
+	cre->lowerRightMissleOffsetY = offsets["lowerY"].Float();
+	int i = 0;
+	BOOST_FOREACH (auto & angle, missile["frameAngles"].Vector())
+	{
+		cre->missleFrameAngles[i++] = angle.Float();
+	}
+	cre->advMapDef = graphics["map"].String();
+	cre->iconIndex = graphics["iconIndex"].Float();
+
+	const JsonNode & sounds = node["sound"];
+
+#define GET_SOUND_VALUE(value_name) do { cre->sounds.value_name = sounds[#value_name].String(); } while(0)
+	GET_SOUND_VALUE(attack);
+	GET_SOUND_VALUE(defend);
+	GET_SOUND_VALUE(killed);
+	GET_SOUND_VALUE(move);
+	GET_SOUND_VALUE(shoot);
+	GET_SOUND_VALUE(wince);
+	GET_SOUND_VALUE(ext1);
+	GET_SOUND_VALUE(ext2);
+	GET_SOUND_VALUE(startMoving);
+	GET_SOUND_VALUE(endMoving);
+#undef GET_SOUND_VALUE
+
+	return cre;
+}
+
 void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser & parser) //help function for parsing CREXPBON.txt
 {
 	bool enable = false; //some bonuses are activated with values 2 or 1
@@ -914,7 +1070,7 @@ static int retreiveRandNum(const boost::function<int()> &randGen)
 
 template <typename T> const T & pickRandomElementOf(const std::vector<T> &v, const boost::function<int()> &randGen)
 {
-	return v[retreiveRandNum(randGen) % v.size()];
+	return v.at(retreiveRandNum(randGen) % v.size());
 }
 
 int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, int tier) const
@@ -936,7 +1092,6 @@ int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, i
 			assert(b->getNodeType() == CBonusSystemNode::CREATURE);
 			int creid = static_cast<const CCreature*>(b)->idNumber;
 			if(!vstd::contains(notUsedMonsters, creid))
-
 				allowed.push_back(creid);
 		}
 

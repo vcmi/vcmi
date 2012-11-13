@@ -346,7 +346,9 @@ SDL_Surface * Graphics::getPic(int ID, bool fort, bool builded)
 	{
 		assert(vstd::contains(CGI->townh->towns, ID));
 		int pom = CGI->townh->towns[ID].clientInfo.icons[fort][builded];
-		return smallIcons->ourImages[pom + 2].bitmap;
+		if (smallIcons->ourImages.size() > pom + 2)
+			return smallIcons->ourImages[pom + 2].bitmap;
+		return nullptr;
 	}
 }
 
@@ -478,12 +480,12 @@ void Graphics::loadFonts()
 
 CDefEssential * Graphics::getDef( const CGObjectInstance * obj )
 {
-	return advmapobjGraphics[obj->defInfo->id][obj->defInfo->subid][obj->defInfo->name];
+	return advmapobjGraphics[obj->defInfo->name];
 }
 
 CDefEssential * Graphics::getDef( const CGDefInfo * info )
 {
-	return advmapobjGraphics[info->id][info->subid][info->name];
+	return advmapobjGraphics[info->name];
 }
 
 void Graphics::loadErmuToPicture()

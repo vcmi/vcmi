@@ -778,7 +778,7 @@ static void listenForEvents()
 				delete CGI->dobjinfo.get();
 				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler; 
 				const_cast<CGameInfo*>(CGI)->dobjinfo->load();
-				const_cast<CGameInfo*>(CGI)->modh->recreateAdvMapDefs(); //add info about new creatures to dobjinfo
+				const_cast<CGameInfo*>(CGI)->modh->reload(); //add info about new creatures to dobjinfo
 			};
 
 			switch(ev.user.code)

@@ -403,11 +403,11 @@ void NewStructures::applyCl( CClient *cl )
 	{
 		if(id== EBuilding::CAPITOL) //fort or capitol
 		{
-			town->defInfo = GS(cl)->capitols[town->subID];
+			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->capitols[town->subID].get());
 		}
 		if(id == EBuilding::FORT)
 		{
-			town->defInfo = GS(cl)->forts[town->subID];
+			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->gobjs[Obj::TOWN][town->subID].get());
 		}
 		if(vstd::contains(cl->playerint,town->tempOwner))
 			cl->playerint[town->tempOwner]->buildChanged(town,id,1);
@@ -420,7 +420,7 @@ void RazeStructures::applyCl (CClient *cl)
 	{
 		if (id == 13) //fort or capitol
 		{
-			town->defInfo = GS(cl)->forts[town->subID];
+			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->gobjs[Obj::TOWN][town->subID].get());
 		}
 		if(vstd::contains (cl->playerint,town->tempOwner))
 			cl->playerint[town->tempOwner]->buildChanged (town,id,2);

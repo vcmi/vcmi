@@ -20,65 +20,46 @@
 class CModHandler;
 class CModIndentifier;
 class CModInfo;
+class JsonNode;
 
-typedef si32 artID;
-typedef si32 creID;
-
-class DLL_LINKAGE CModIdentifier
-{
-	//TODO? are simple integer identifiers enough?
-	int id;
-public:
-	// int operator ()() {return 0;};
-	bool operator < (CModIdentifier rhs) const {return true;}; //for map
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & id;
-	}
-};
-
+typedef si32 TModID;
 
 class DLL_LINKAGE CModInfo
 {
 public:
-	std::vector <CModIdentifier> requirements;
-	std::vector <ResourceID> usedFiles;
-	//TODO: config options?
+	/// TODO: list of mods that should be loaded before this one
+	std::vector <TModID> requirements;
 
-	//items added by this mod
-	std::vector <artID> artifacts;
-	std::vector <creID> creatures;
-
-	//TODO: some additional scripts?
+	/// mod configuration (mod.json).
+	std::unique_ptr<JsonNode> config;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & requirements & artifacts & creatures;
-		//h & usedFiles; //TODO: make seralizable?
+		h & requirements & config;
 	}
 };
 
 class DLL_LINKAGE CModHandler
 {
 public:
-	std::string currentConfig; //save settings in this file
-	//list of all possible objects in game, including inactive mods or not allowed
-	std::vector <ConstTransitivePtr<CCreature> > creatures;
-	std::vector <ConstTransitivePtr<CArtifact> > artifacts;
+	//std::string currentConfig; //save settings in this file
 
-	std::map <CModIdentifier, CModInfo> allMods;
-	std::set <CModIdentifier> activeMods;
+	std::map <TModID, CModInfo> allMods;
+	std::set <TModID> activeMods;//TODO: use me
 
-	//create unique object indentifier
-	artID addNewArtifact (CArtifact * art);
-	creID addNewCreature (CCreature * cre);
-
-	void loadConfigFromFile (std::string name);
+	/// management of game settings config
+	void loadConfigFromFile (std::string name);	
 	void saveConfigToFile (std::string name);
-	CCreature * loadCreature (const JsonNode &node);
-	void recreateAdvMapDefs();
-	void recreateHandlers();
+
+	/// find all available mods and load them into FS
+	void findAvailableMods();
+
+	/// load content from all available mods
+	void loadActiveMods();
+
+	/// actions that should be triggered on map restart
+	/// TODO: merge into appropriate handlers?
+	void reload();
 
 	struct DLL_LINKAGE hardcodedFeatures
 	{
@@ -110,12 +91,9 @@ public:
 	} modules;
 
 	CModHandler();
-	~CModHandler();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & currentConfig;
-		h & creatures & artifacts;
 		h & allMods & activeMods & settings & modules;
 	}
 };

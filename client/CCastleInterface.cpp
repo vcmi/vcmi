@@ -1152,7 +1152,10 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 			builds = new CCastleBuildings(town);
 
 			BOOST_FOREACH(const CStructure * str, town->town->clientInfo.structures)
-				tlog1 << int(str->building->bid) << " -> " << int(str->pos.z) << "\n";
+			{
+				if (str->building)
+					tlog1 << int(str->building->bid) << " -> " << int(str->pos.z) << "\n";
+			}
 		}
 		break;
 	case SDLK_KP_MINUS:
@@ -1165,7 +1168,10 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 			builds = new CCastleBuildings(town);
 
 			BOOST_FOREACH(const CStructure * str, town->town->clientInfo.structures)
-				tlog1 << int(str->building->bid) << " -> " << int(str->pos.z) << "\n";
+			{
+				if (str->building)
+					tlog1 << int(str->building->bid) << " -> " << int(str->pos.z) << "\n";
+			}
 
 		}
 		break;

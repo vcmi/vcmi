@@ -30,26 +30,14 @@ CModHandler::CModHandler()
 	VLC->modh = this;
 
 	loadConfigFromFile ("defaultMods");
+	findAvailableMods();
 	//CResourceHandler::loadModsFilesystems(); //scan for all mods
 	//TODO: mod filesystem is already initialized at LibClasses launch
 	//TODO: load default (last?) config
 }
-artID CModHandler::addNewArtifact (CArtifact * art)
-{
-	int id = artifacts.size();
-	artifacts.push_back (art);
-	return id;
-}
-creID CModHandler::addNewCreature (CCreature * cre)
-{
-	int id = creatures.size();
-	creatures.push_back (cre);
-	return id;
-}
 
 void CModHandler::loadConfigFromFile (std::string name)
 {
-
 	const JsonNode config(ResourceID("config/" + name + ".json"));
 	const JsonNode & hardcodedFeatures = config["hardcodedFeatures"];
 
@@ -67,28 +55,6 @@ void CModHandler::loadConfigFromFile (std::string name)
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
 
 	//TODO: load only mods from the list
-
-	//TODO: read mods from Mods/ folder
-
-	auto & configList = CResourceHandler::get()->getResourcesWithName (ResourceID("CONFIG/mod.json"));
-
-	BOOST_FOREACH(auto & entry, configList)
-	{
-		auto stream = entry.getLoader()->load (entry.getResourceName());
-		std::unique_ptr<ui8[]> textData (new ui8[stream->getSize()]);
-		stream->read (textData.get(), stream->getSize());
-
-		tlog3 << "\t\tFound mod file: " << entry.getResourceName() << "\n";
-		const JsonNode config ((char*)textData.get(), stream->getSize());
-
-		VLC->townh->loadFactions(config["factions"]);
-
-		const JsonNode *value = &config["creatures"];
-		BOOST_FOREACH (auto creature, value->Vector())
-		{
-			loadCreature (creature);//create and push back creature
-		}
-	}
 }
 
 void CModHandler::saveConfigToFile (std::string name)
@@ -105,229 +71,80 @@ void CModHandler::saveConfigToFile (std::string name)
 	//file << savedConf;
 }
 
-CCreature * CModHandler::loadCreature (const JsonNode &node)
+
+void CModHandler::findAvailableMods()
 {
-	CCreature * cre = new CCreature();
-	const JsonNode *value; //optional value
+	//TODO: read mods from Mods/ folder
 
-	//TODO: ref name?
-	const JsonNode & name = node["name"];
-	cre->nameSing = name["singular"].String();
-	cre->namePl = name["plural"].String();
-	value = &name["reference"];
-	if (!value->isNull())
-		cre->nameRef = value->String();
-	else
-		cre->nameRef = cre->nameSing;
+	auto & configList = CResourceHandler::get()->getResourcesWithName (ResourceID("CONFIG/mod.json"));
 
-	cre->cost = Res::ResourceSet(node["cost"]);
-
-	cre->level = node["level"].Float();
-	cre->faction = 9; //neutral faction is 9 for now. Will be replaced by string -> id conversion
-	//TODO: node["faction"].String() to id
-	cre->fightValue = node["fightValue"].Float();
-	cre->AIValue = node["aiValue"].Float();
-	cre->growth = node["growth"].Float();
-	cre->hordeGrowth = node["horde"].Float(); // Needed at least until configurable buildings
-
-	cre->addBonus(node["hitPoints"].Float(), Bonus::STACK_HEALTH);
-	cre->addBonus(node["speed"].Float(), Bonus::STACKS_SPEED);
-	cre->addBonus(node["attack"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
-	cre->addBonus(node["defense"].Float(), Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE);
-	const JsonNode &  vec = node["damage"];
-	cre->addBonus(vec["min"].Float(), Bonus::CREATURE_DAMAGE, 1);
-	cre->addBonus(vec["max"].Float(), Bonus::CREATURE_DAMAGE, 2);
-
-	auto & amounts = node ["advMapAmount"];
-	cre->ammMin = amounts["min"].Float();
-	cre->ammMax = amounts["max"].Float();
-
-	//optional
-	BOOST_FOREACH (auto & str, node["upgrades"].Vector())
+	BOOST_FOREACH(auto & entry, configList)
 	{
-		cre->upgradeNames.insert (str.String());
-	}
+		auto stream = entry.getLoader()->load (entry.getResourceName());
+		std::unique_ptr<ui8[]> textData (new ui8[stream->getSize()]);
+		stream->read (textData.get(), stream->getSize());
 
-	value = &node["shots"];
-	if (!value->isNull())
-		cre->addBonus(value->Float(), Bonus::SHOTS);
-
-	value = &node["spellPoints"];
-	if (!value->isNull())
-		cre->addBonus(value->Float(), Bonus::CASTS);
-
-	cre->doubleWide = node["doubleWide"].Bool();
-
-	BOOST_FOREACH (const JsonNode &bonus, node["abilities"].Vector())
-	{
-		auto b = ParseBonus(bonus);
-		b->source = Bonus::CREATURE_ABILITY;
-		b->duration = Bonus::PERMANENT;
-		cre->addNewBonus(b);
-	}
-	BOOST_FOREACH (const JsonNode &exp, node["stackExperience"].Vector())
-	{
-		auto bonus = ParseBonus (exp["bonus"]);
-		bonus->source = Bonus::STACK_EXPERIENCE;
-		bonus->duration = Bonus::PERMANENT;
-		const JsonVector &values = exp["values"].Vector();
-		int lowerLimit = 1;//, upperLimit = 255;
-		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
-		{
-			BOOST_FOREACH (const JsonNode &val, values)
-			{
-				if (val.Bool() == true)
-				{
-					bonus->limiter = make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
-					cre->addNewBonus (new Bonus(*bonus)); //bonuses must be unique objects
-					break; //TODO: allow bonuses to turn off?
-				}
-				++lowerLimit;
-			}
-		}
-		else
-		{
-			int lastVal = 0;
-			BOOST_FOREACH (const JsonNode &val, values)
-			{
-				if (val.Float() != lastVal)
-				{
-					bonus->val = val.Float() - lastVal;
-					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
-					cre->addNewBonus (new Bonus(*bonus));
-				}
-				lastVal = val.Float();
-				++lowerLimit;
-			}
-		}
-	}
-	//graphics
-
-	const JsonNode & graphics = node["graphics"];
-	cre->animDefName = graphics["animation"].String();
-	cre->timeBetweenFidgets = graphics["timeBetweenFidgets"].Float();
-	cre->troopCountLocationOffset = graphics["troopCountLocationOffset"].Float();
-	cre->attackClimaxFrame = graphics["attackClimaxFrame"].Float();
-
-	const JsonNode & animationTime = graphics["animationTime"];
-	cre->walkAnimationTime = animationTime["walk"].Float();
-	cre->attackAnimationTime = animationTime["attack"].Float();
-	cre->flightAnimationDistance = animationTime["flight"].Float(); //?
-	//TODO: background?
-	const JsonNode & missile = graphics["missile"];
-	//TODO: parse
-	value = &missile["projectile"];
-	if (value->isNull())
-		cre->projectile = "PLCBOWX.DEF";
-	else
-		cre->projectile = value->String();
-
-	value = &missile["spinning"];
-	if (value->isNull())
-		cre->projectileSpin = false; //no animation by default to avoid crash
-	else
-		cre->projectileSpin = value->Bool();
-
-	const JsonNode & offsets = missile["offset"];
-	cre->upperRightMissleOffsetX = offsets["upperX"].Float();
-	cre->upperRightMissleOffsetY = offsets["upperY"].Float();
-	cre->rightMissleOffsetX = offsets["middleX"].Float();
-	cre->rightMissleOffsetY = offsets["middleY"].Float();
-	cre->lowerRightMissleOffsetX = offsets["lowerX"].Float();
-	cre->lowerRightMissleOffsetY = offsets["lowerY"].Float();
-	int i = 0;
-	BOOST_FOREACH (auto & angle, missile["frameAngles"].Vector())
-	{
-		cre->missleFrameAngles[i++] = angle.Float();
-	}
-	cre->advMapDef = graphics["map"].String();
-	cre->iconIndex = graphics["iconIndex"].Float();
-
-	const JsonNode & sounds = node["sound"];
-
-#define GET_SOUND_VALUE(value_name) do { cre->sounds.value_name = sounds[#value_name].String(); } while(0)
-	GET_SOUND_VALUE(attack);
-	GET_SOUND_VALUE(defend);
-	GET_SOUND_VALUE(killed);
-	GET_SOUND_VALUE(move);
-	GET_SOUND_VALUE(shoot);
-	GET_SOUND_VALUE(wince);
-	GET_SOUND_VALUE(ext1);
-	GET_SOUND_VALUE(ext2);
-	GET_SOUND_VALUE(startMoving);
-	GET_SOUND_VALUE(endMoving);
-#undef GET_SOUND_VALUE
-
-	creatures.push_back(cre);
-
-	tlog3 << "Added new creature " << cre->nameRef << "\n";
-
-	return cre;
-}
-void CModHandler::recreateAdvMapDefs()
-{
-	BOOST_FOREACH (auto creature, creatures)
-	{
-		//generate adventure map object info & graphics
-		CGDefInfo* nobj = new CGDefInfo (*VLC->dobjinfo->gobjs[Obj::MONSTER][0]);//copy all typical properties
-		nobj->name = creature->advMapDef; //change only def name (?)
-		VLC->dobjinfo->gobjs[Obj::MONSTER][creature->idNumber] = nobj;
+		tlog3 << "\t\tFound mod file: " << entry.getResourceName() << "\n";
+		allMods[allMods.size()].config.reset(new JsonNode((char*)textData.get(), stream->getSize()));
 	}
 }
-void CModHandler::recreateHandlers()
+
+void CModHandler::loadActiveMods()
 {
-	//TODO: consider some template magic to unify all handlers?
-
-	//VLC->arth->artifacts.clear();
-	//VLC->creh->creatures.clear(); //TODO: what about items from original game?
-
-	BOOST_FOREACH (auto creature, creatures)
+	BOOST_FOREACH(auto & mod, allMods)
 	{
-		creature->idNumber = VLC->creh->creatures.size(); //calculate next index for every used creature
-		BOOST_FOREACH (auto bonus, creature->getBonusList())
-		{
-			bonus->sid = creature->idNumber;
-		}
-		VLC->creh->creatures.push_back (creature);
-		//TODO: use refName?
-		//if (creature->nameRef.size())
-		//	VLC->creh->nameToID[creature->nameRef] = creature->idNumber;
-		VLC->creh->nameToID[creature->nameSing] = creature->idNumber;
+		const JsonNode & config = *mod.second.config;
 
+		VLC->townh->load(config["factions"]);
+		VLC->creh->load(config["creatures"]);
 	}
-	recreateAdvMapDefs();
-	BOOST_FOREACH (auto creature, VLC->creh->creatures) //populate upgrades described with string
-	{
-		BOOST_FOREACH (auto upgradeName, creature->upgradeNames)
-		{
-			auto it = VLC->creh->nameToID.find(upgradeName);
-			if (it != VLC->creh->nameToID.end())
-			{
-				creature->upgrades.insert (it->second);
-			}
-		}
-	}
-
 	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded
-
-	BOOST_FOREACH (auto mod, activeMods) //inactive part
-	{
-		BOOST_FOREACH (auto art, allMods[mod].artifacts)
-		{
-			VLC->arth->artifacts.push_back (artifacts[art]);
-
-			//TODO: recreate types / limiters based on string id
-		}
-		BOOST_FOREACH (auto creature, allMods[mod].creatures)
-		{
-			VLC->creh->creatures.push_back (creatures[creature]);
-			//TODO VLC->creh->notUsedMonster.push_back (creatures[creature]);
-
-			//TODO: recreate upgrades and other properties based on string id
-		}
-	}
 }
 
-CModHandler::~CModHandler()
+void CModHandler::reload()
 {
+	{
+		assert(!VLC->dobjinfo->gobjs[Obj::MONSTER].empty()); //make sure that at least some def info was found
+
+		const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::MONSTER].begin()->second;
+
+		BOOST_FOREACH(auto & crea, VLC->creh->creatures)
+		{
+			if (!vstd::contains(VLC->dobjinfo->gobjs[Obj::MONSTER], crea->idNumber)) // no obj info for this type
+			{
+				CGDefInfo * info = new CGDefInfo(*baseInfo);
+				info->subid = crea->idNumber;
+				info->name = crea->advMapDef;
+
+				VLC->dobjinfo->gobjs[Obj::MONSTER][crea->idNumber] = info;
+			}
+		}
+	}
+
+	{
+		assert(!VLC->dobjinfo->gobjs[Obj::TOWN].empty()); //make sure that at least some def info was found
+
+		const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::TOWN].begin()->second;
+		auto & townInfos = VLC->dobjinfo->gobjs[Obj::TOWN];
+
+		BOOST_FOREACH(auto & town, VLC->townh->towns)
+		{
+			auto & cientInfo = town.second.clientInfo;
+
+			if (!vstd::contains(VLC->dobjinfo->gobjs[Obj::TOWN], town.first)) // no obj info for this type
+			{
+				CGDefInfo * info = new CGDefInfo(*baseInfo);
+				info->subid = town.first;
+
+				townInfos[town.first] = info;
+			}
+			townInfos[town.first]->name = cientInfo.advMapCastle;
+
+			VLC->dobjinfo->villages[town.first] = new CGDefInfo(*townInfos[town.first]);
+			VLC->dobjinfo->villages[town.first]->name = cientInfo.advMapVillage;
+
+			VLC->dobjinfo->capitols[town.first] = new CGDefInfo(*townInfos[town.first]);
+			VLC->dobjinfo->capitols[town.first]->name = cientInfo.advMapCapitol;
+		}
+	}
 }
