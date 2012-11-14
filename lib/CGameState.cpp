@@ -1889,7 +1889,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
  * @return int3(-1, -1, -1) if the tile is unguarded, or the position of
  * the monster guarding the tile.
  */
-const std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
+std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 {
 	std::vector<CGObjectInstance*> guards;
 	const int3 originalPos = pos;

@@ -116,7 +116,7 @@ public:
 
 	//map
 	int3 guardingCreaturePosition (int3 pos) const;
-	const std::vector<CGObjectInstance*> getGuardingCreatures (int3 pos) const;
+	std::vector<const CGObjectInstance*> getGuardingCreatures (int3 pos) const;
 	const CMapHeader * getMapHeader()const;
 	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 	const TerrainTile * getTile(int3 tile, bool verbose = true) const;

@@ -386,10 +386,15 @@ int3 CGameInfoCallback::guardingCreaturePosition (int3 pos) const
 	return gs->guardingCreaturePosition(pos);
 }
 
-const std::vector<CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (int3 pos) const
+std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (int3 pos) const
 {
-	ERROR_RET_VAL_IF(!isVisible(pos), "Tile is not visible!", std::vector<CGObjectInstance*>());
-	return gs->guardingCreatures (pos);
+	ERROR_RET_VAL_IF(!isVisible(pos), "Tile is not visible!", std::vector<const CGObjectInstance*>());
+	std::vector<const CGObjectInstance*> ret;
+	BOOST_FOREACH(auto cr, gs->guardingCreatures(pos))
+	{
+		ret.push_back(cr);
+	}
+	return ret;
 }
 
 bool CGameInfoCallback::getHeroInfo( const CGObjectInstance *hero, InfoAboutHero &dest ) const
