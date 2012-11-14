@@ -332,7 +332,7 @@ void CCreatureHandler::loadCreatures()
 
 		BOOST_FOREACH(const JsonNode &value, creature["upgrades"].Vector())
 		{
-			c->upgrades.insert(value.Float());
+			c->upgradeNames.insert(value.String());
 		}
 
 		value = &creature["projectile_defname"];

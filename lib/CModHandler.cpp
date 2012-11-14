@@ -118,6 +118,16 @@ void CModHandler::reload()
 
 				VLC->dobjinfo->gobjs[Obj::MONSTER][crea->idNumber] = info;
 			}
+			BOOST_FOREACH(auto up, crea->upgradeNames)
+			{
+				auto it = VLC->creh->nameToID.find(up);
+				if (it != VLC->creh->nameToID.end())
+				{
+					crea->upgrades.insert (it->second);
+				}
+				else
+					tlog2 << "Not found upgrade with name " << up << "\n";
+			}
 		}
 	}
 

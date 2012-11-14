@@ -285,7 +285,7 @@
 			"levels": [
 				{
 					"chance": 30,
-					"guards": [ { "number": 30, "id": 104} ],
+					"guards": [ { "number": 30, "id": 105} ],
 					"upgrade_chance": 30,
 					"combat_value": 154,
 					"reward_creatures": [ { "number": 4, "id": 108 } ],
@@ -295,7 +295,7 @@
 				},
 				{
 					"chance": 30,
-					"guards": [ { "number": 45, "id": 104 } ],
+					"guards": [ { "number": 45, "id": 105 } ],
 					"upgrade_chance": 0,
 					"combat_value": 230,
 					"reward_creatures": [ { "number": 6, "id": 108 } ],
@@ -305,7 +305,7 @@
 				},
 				{
 					"chance": 30,
-					"guards": [ { "number": 60, "id": 104 } ],
+					"guards": [ { "number": 60, "id": 105 } ],
 					"upgrade_chance": 0,
 					"combat_value": 307,
 					"reward_creatures": [ { "number": 8, "id": 108 } ],
@@ -315,7 +315,7 @@
 				},
 				{
 					"chance": 10,
-					"guards": [ { "number": 90, "id": 104 } ],
+					"guards": [ { "number": 90, "id": 105 } ],
 					"upgrade_chance": 0,
 					"combat_value": 461,
 					"reward_creatures": [ { "number": 12, "id": 108 } ],
