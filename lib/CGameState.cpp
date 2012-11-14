@@ -1889,6 +1889,54 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
  * @return int3(-1, -1, -1) if the tile is unguarded, or the position of
  * the monster guarding the tile.
  */
+const std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
+{
+	std::vector<CGObjectInstance*> guards;
+	const int3 originalPos = pos;
+	if (!map->isInTheMap(pos))
+		return guards;
+
+	const TerrainTile &posTile = map->terrain[pos.x][pos.y][pos.z];
+	if (posTile.visitable)
+	{
+		BOOST_FOREACH (CGObjectInstance* obj, posTile.visitableObjects)
+		{
+			if(obj->blockVisit)
+			{
+				if (obj->ID == 54) // Monster
+					guards.push_back(obj);
+			}
+		}
+	}
+	pos -= int3(1, 1, 0); // Start with top left.
+	for (int dx = 0; dx < 3; dx++)
+	{
+		for (int dy = 0; dy < 3; dy++)
+		{
+			if (map->isInTheMap(pos))
+			{
+				TerrainTile &tile = map->terrain[pos.x][pos.y][pos.z];
+                if (tile.visitable && (tile.terType == ETerrainType::WATER) == (posTile.terType == ETerrainType::WATER))
+				{
+					BOOST_FOREACH (CGObjectInstance* obj, tile.visitableObjects)
+					{
+						if (obj->ID == 54  &&  checkForVisitableDir(pos, &map->getTile(originalPos), originalPos)) // Monster being able to attack investigated tile
+						{
+							guards.push_back(obj);
+						}
+					}
+				}
+			}
+
+			pos.y++;
+		}
+		pos.y -= 3;
+		pos.x++;
+	}
+	return guards;
+
+}
+
 int3 CGameState::guardingCreaturePosition (int3 pos) const
 {
 	const int3 originalPos = pos;

@@ -376,9 +376,11 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 		}
 	}
 
-	int3 guardPos = cb->guardingCreaturePosition(tile);
-	if(guardPos.x >= 0 && guardPos != tile)
-		guardDanger = evaluateDanger(guardPos, visitor);
+	auto guards = cb->getGuardingCreatures(tile);
+	BOOST_FOREACH (auto cre, guards)
+	{
+		amax (guardDanger, evaluateDanger(cre) * fh->getTacticalAdvantage(visitor, dynamic_cast<const CArmedInstance*>(cre))); //we are interested in strongest monster around
+	}
 
 	//TODO mozna odwiedzic blockvis nie ruszajac straznika
 	return std::max(objectDanger, guardDanger);

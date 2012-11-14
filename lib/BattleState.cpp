@@ -720,14 +720,14 @@ std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const C
 	std::vector<ui32> ret;
 	for(auto it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
 	{
-		if(battleIsImmune(caster, sp, mode, (*it)->position) != ESpellCastProblem::OK)
+		if(battleIsImmune(caster, sp, mode, (*it)->position) != ESpellCastProblem::OK) //FIXME: immune stacks should not display resisted animation
 		{
 			ret.push_back((*it)->ID);
 			continue;
 		}
 
-		//non-negative spells on friendly stacks should always succeed, unless immune
-		if(!sp->isNegative() && (*it)->owner == casterSideOwner)
+		//non-negative spells should always succeed, unless immune
+		if(!sp->isNegative())// && (*it)->owner == casterSideOwner)
 			continue;
 
 		/*

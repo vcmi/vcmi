@@ -366,6 +366,7 @@ void CSpellHandler::loadSpells()
 
 		s->counteredSpells = spell["counters"].StdVector<TSpell>();
 	}
+	//spell fixes
 
 	spells.push_back(spells[80]); //clone Acid Breath attributes for Acid Breath damage effect
 	//forgetfulness needs to get targets automatically on expert level
