@@ -3,6 +3,7 @@
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CObjectHandler.h"
 #include "../../lib/CConfigHandler.h"
+#include "../../lib/CHerohandler.h"
 
 #define I_AM_ELEMENTAR return CGoal(*this).setisElementar(true)
 CLogger &aiLogger = tlog6;
@@ -73,7 +74,7 @@ const int ALLOWED_ROAMING_HEROES = 8;
 
 const int GOLD_MINE_PRODUCTION = 1000, WOOD_ORE_MINE_PRODUCTION = 2, RESOURCE_MINE_PRODUCTION = 1;
 
-std::string goalName(EGoals goalType)
+std::string CGoal::name() const
 {
 	switch (goalType)
 	{
@@ -93,26 +94,30 @@ std::string goalName(EGoals goalType)
 			return "GATHER ARMY";
 		case BOOST_HERO:
 			return "BOOST_HERO (unsupported)";
+		case RECRUIT_HERO:
+			return "RECRUIT HERO";
 		case BUILD_STRUCTURE:
 			return "BUILD STRUCTURE";
 		case COLLECT_RES:
 			return "COLLECT RESOURCE";
+		case GATHER_TROOPS:
+			return "GATHER TROOPS";
 		case GET_OBJ:
-			return "GET OBJECT";
+			return "GET OBJECT " + objid;
 		case FIND_OBJ:
-			return "FIND OBJECT";
+			return "FIND OBJECT " + objid;
 		case VISIT_HERO:
-			return "VISIT HERO";
+			return "VISIT HERO " + VLC->heroh->heroes[objid]->name;
 		case GET_ART_TYPE:
-			return "GET ARTIFACT OF TYPE";
+			return "GET ARTIFACT OF TYPE " + VLC->arth->artifacts[aid]->Name();
 		case ISSUE_COMMAND:
 			return "ISSUE COMMAND (unsupported)";
 		case VISIT_TILE:
-			return "VISIT TILE";
+			return "VISIT TILE " + tile();
 		case CLEAR_WAY_TO:
-			return "CLEAR WAY TO";
+			return "CLEAR WAY TO " + tile();
 		case DIG_AT_TILE:
-			return "DIG AT TILE";
+			return "DIG AT TILE " + tile();
 		default:
 			return boost::lexical_cast<std::string>(goalType);
 	}
@@ -1858,7 +1863,7 @@ void getVisibleNeighbours(const std::vector<int3> &tiles, std::vector<int3> &out
 
 void VCAI::tryRealize(CGoal g)
 {
-	BNLOG("Attempting realizing goal with code %s", goalName(g.goalType));
+	BNLOG("Attempting realizing goal with code %s", g.name());
 	switch(g.goalType)
 	{
 	case EXPLORE:
@@ -2079,12 +2084,12 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 	while(1)
 	{
 		CGoal goal = ultimateGoal;
-		BNLOG("Striving to goal of type %s", goalName(ultimateGoal.goalType));
+		BNLOG("Striving to goal of type %s", ultimateGoal.name());
 		int maxGoals = 100; //preventing deadlock for mutually dependent goals
 		while(!goal.isElementar && !goal.isAbstract && maxGoals)
 		{
 			INDENT;
-			BNLOG("Considering goal %s", goalName(goal.goalType));
+			BNLOG("Considering goal %s", goal.name());
 			try
 			{
 				boost::this_thread::interruption_point();
@@ -2093,7 +2098,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			}
 			catch(std::exception &e)
 			{
-				BNLOG("Goal %s decomposition failed: %s", goalName(goal.goalType) % e.what());
+				BNLOG("Goal %s decomposition failed: %s", goal.name() % e.what());
 				//setGoal (goal.hero, INVALID); //test: if we don't know how to realize goal, we should abandon it for now
 				return;
 			}
@@ -2118,7 +2123,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			if (goal.isAbstract)
 			{
 				abstractGoal = goal; //allow only one abstract goal per call
-				BNLOG("Choosing abstract goal %s", goalName(goal.goalType));
+				BNLOG("Choosing abstract goal %s", goal.name());
 				break;
 			}
 			else
@@ -2139,7 +2144,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 		}
 		catch(std::exception &e)
 		{
-			BNLOG("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.", goalName(goal.goalType) % goalName(ultimateGoal.goalType));
+			BNLOG("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.", goal.name() % ultimateGoal.name());
 			BNLOG("The error message was: %s", e.what());
 			break;
 		}
@@ -2162,7 +2167,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 				}
 				catch(std::exception &e)
 				{
-					BNLOG("Goal %s decomposition failed: %s", goalName(goal.goalType) % e.what());
+					BNLOG("Goal %s decomposition failed: %s", goal.name() % e.what());
 					//setGoal (goal.hero, INVALID);
 					return;
 				}
@@ -2186,7 +2191,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			}
 			catch(std::exception &e)
 			{
-				BNLOG("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.", goalName(goal.goalType) % goalName(ultimateGoal.goalType));
+				BNLOG("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.", goal.name() % ultimateGoal.name());
 				BNLOG("The error message was: %s", e.what());
 				break;
 			}
@@ -2733,7 +2738,7 @@ int3 whereToExplore(HeroPtr h)
 
 TSubgoal CGoal::whatToDoToAchieve()
 {
-	BNLOG("Decomposing goal of type %s", goalName(goalType));
+	BNLOG("Decomposing goal of type %s", name());
 	INDENT;
 	switch(goalType)
 	{

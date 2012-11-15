@@ -78,6 +78,12 @@ public:
 			return false;
 		return false;
 	}
+	inline std::string operator ()() const
+	{
+		return	"(" + boost::lexical_cast<std::string>(x) +
+				" " + boost::lexical_cast<std::string>(y) +
+				" " + boost::lexical_cast<std::string>(z) + ")";
+	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & x & y & z;

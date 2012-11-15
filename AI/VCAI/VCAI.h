@@ -128,6 +128,7 @@ struct CGoal
 	bool isElementar; SETTER(bool, isElementar)
 	bool isAbstract; SETTER(bool, isAbstract) //allows to remember abstract goals
 	int priority; SETTER(bool, priority)
+	std::string name() const;
 
 	virtual TSubgoal whatToDoToAchieve();
 
@@ -403,8 +404,6 @@ public:
 	void requestActionASAP(boost::function<void()> whatToDo); 
 };
 
-std::string goalName(EGoals goalType); //TODO: move to CGoal class?
-
 class cannotFulfillGoalException : public std::exception
 {
 	std::string msg;
@@ -437,7 +436,7 @@ public:
 
 	const char *what() const throw () OVERRIDE
 	{
-		return goalName(goal.goalType).c_str();
+		return goal.name().c_str();
 	}
 };
 
