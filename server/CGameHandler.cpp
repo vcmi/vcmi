@@ -1635,7 +1635,6 @@ void CGameHandler::setAmount(int objid, ui32 val)
 
 bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*/ )
 {
-	bool blockvis = false;
 	const CGHeroInstance *h = getHero(hid);
 
 	if(!h  || (asker != 255 && (instant  ||   h->getOwner() != gs->currentPlayer)) //not turn of that hero or player can't simply teleport hero (at least not with this function)
@@ -1644,7 +1643,6 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		tlog1 << "Illegal call to move hero!\n";
 		return false;
 	}
-
 
 	tlog5 << "Player " <<int(asker) << " wants to move hero "<< hid << " from "<< h->pos << " to " << dst << std::endl;
 	int3 hmpos = dst + int3(-1,0,0);
@@ -1671,12 +1669,14 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 
 	//it's a rock or blocked and not visitable tile
 	//OR hero is on land and dest is water and (there is not present only one object - boat)
-    if(((t.terType == ETerrainType::ROCK  ||  (t.blocked && !t.visitable && !h->hasBonusOfType(Bonus::FLYING_MOVEMENT) ))
+	if(((t.terType == ETerrainType::ROCK  ||  (t.blocked && !t.visitable && !h->hasBonusOfType(Bonus::FLYING_MOVEMENT) ))
 			&& complain("Cannot move hero, destination tile is blocked!"))
-        || ((!h->boat && !h->canWalkOnSea() && t.terType == ETerrainType::WATER && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != 8 && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
+		|| ((!h->boat && !h->canWalkOnSea() && t.terType == ETerrainType::WATER && (t.visitableObjects.size() < 1 ||  (t.visitableObjects.back()->ID != 8 && t.visitableObjects.back()->ID != Obj::HERO)))  //hero is not on boat/water walking and dst water tile doesn't contain boat/hero (objs visitable from land) -> we test back cause boat may be on top of another object (#276)
 			&& complain("Cannot move hero, destination tile is on water!"))
-        || ((h->boat && t.terType != ETerrainType::WATER && t.blocked)
+		|| ((h->boat && t.terType != ETerrainType::WATER && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!"))
+		|| ( (distance(h->pos, dst) >= 1.5 && !instant)
+			&& complain("Tiles are not neighboring!"))
 		|| ((h->movement < cost  &&  dst != h->pos  &&  !instant)
 			&& complain("Hero doesn't have any movement points left!"))
 		|| (states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle)
@@ -1687,105 +1687,104 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		return false;
 	}
 
-	//hero enters the boat
-	if(!h->boat && t.visitableObjects.size() && t.visitableObjects.back()->ID == Obj::BOAT)
-	{
-		tmh.result = TryMoveHero::EMBARK;
-		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, false);
-		getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
-		sendAndApply(&tmh);
-		return true;
-	}
-	//hero leaves the boat
-    else if(h->boat && t.terType != ETerrainType::WATER && !t.blocked)
-	{
-		//TODO? code similarity with the block above
-		tmh.result = TryMoveHero::DISEMBARK;
-		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, true);
-		getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
-		sendAndApply(&tmh);
-		tryAttackingGuard(guardPos, h);
-		return true;
-	}
+	//several generic blocks of code
 
-	//checks for standard movement
-	if(!instant)
+	// should be called if hero changes tile but before applying TryMoveHero package
+	auto leaveTile = [&]()
 	{
-		if( (distance(h->pos,dst) >= 1.5  &&  complain("Tiles are not neighboring!"))
-			|| (h->movement < cost  &&  h->movement < 100  &&  complain("Not enough move points!")))
+		BOOST_FOREACH(CGObjectInstance *obj, gs->map->terrain[h->pos.x-1][h->pos.y][h->pos.z].visitableObjects)
 		{
-			sendAndApply(&tmh);
-			return false;
+			obj->onHeroLeave(h);
 		}
+		getTilesInRange(tmh.fowRevealed, h->getSightCenter()+(tmh.end-tmh.start), h->getSightRadious(), h->tempOwner, 1);
+	};
 
-		//check if there is blocking visitable object
-		blockvis = false;
-		tmh.movePoints = std::max((ui32)(0),h->movement-cost); //take move points
+	//interaction with blocking object (like resources)
+	auto blockingVisit = [&]() -> bool
+	{
 		BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
 		{
 			if(obj != h  &&  obj->blockVisit  &&  !(obj->getPassableness() & 1<<h->tempOwner))
 			{
-				blockvis = true;
-				break;
-			}
-		}
-		//we start moving
-		if(blockvis)//interaction with blocking object (like resources)
-		{
-			tmh.result = TryMoveHero::BLOCKING_VISIT;
-			sendAndApply(&tmh);
-			//failed to move to that tile but we visit object
-			if(t.visitableObjects.size())
+				//can't move to that tile but we visit object
 				objectVisited(t.visitableObjects.back(), h);
 
-			tlog5 << "Blocking visit at " << hmpos << std::endl;
-			return true;
-		}
-		else //normal move
-		{
-			BOOST_FOREACH(CGObjectInstance *obj, gs->map->terrain[h->pos.x-1][h->pos.y][h->pos.z].visitableObjects)
-			{
-				obj->onHeroLeave(h);
-			}
-			getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
-
-			tmh.result = TryMoveHero::SUCCESS;
-			tmh.attackedFrom = guardPos;
-			sendAndApply(&tmh);
-			tlog5 << "Moved to " <<tmh.end<<std::endl;
-
-			// If a creature guards the tile, block visit.
-			const bool fightingGuard = tryAttackingGuard(guardPos, h);
-
-			if(!fightingGuard && t.visitableObjects.size()) //call objects if they are visited
-			{
-				visitObjectOnTile(t, h);
-			}
-
-			tlog5 << "Movement end!\n";
-			return true;
-		}
-	}
-	else //instant move - teleportation
-	{
-		BOOST_FOREACH(CGObjectInstance* obj, t.blockingObjects)
-		{
-			if(obj->ID==Obj::HERO)
-			{
-				CGHeroInstance *dh = static_cast<CGHeroInstance *>(obj);
-
-				if( gameState()->getPlayerRelations(dh->tempOwner, h->tempOwner))
-				{
-					heroExchange(h->id, dh->id);
-					return true;
-				}
-				startBattleI(h, dh);
+				tlog5 << "Blocking visit at " << hmpos << std::endl;
 				return true;
 			}
 		}
-		tmh.result = TryMoveHero::TELEPORTATION;
-		getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
+		return false;
+	};
+
+	auto applyWithResult = [&](TryMoveHero::EResult result) -> bool
+	{
+		tmh.result = result;
 		sendAndApply(&tmh);
+		return result != TryMoveHero::FAILED;
+	};
+
+	//hero enters the boat
+	if(!h->boat && !t.visitableObjects.empty() && t.visitableObjects.back()->ID == Obj::BOAT)
+	{
+		// blockingVisit test?
+		leaveTile();
+		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, false);
+		return applyWithResult(TryMoveHero::EMBARK);
+		//attack guards on embarking? In H3 creatures on water had no zone of control at all
+	}
+
+	//hero leaves the boat
+	if(h->boat && t.terType != ETerrainType::WATER && !t.blocked)
+	{
+		// blockingVisit test?
+		leaveTile();
+		tmh.attackedFrom = guardPos;
+		tmh.movePoints = h->movementPointsAfterEmbark(h->movement, cost, true);
+
+		applyWithResult(TryMoveHero::DISEMBARK);
+		if (!tryAttackingGuard(guardPos, h))
+			visitObjectOnTile(t, h);
+		return true;
+	}
+
+	//standard movement
+	if(!instant)
+	{
+		tmh.movePoints = std::max(ui32(0), h->movement - cost);
+
+		if(blockingVisit())
+			return applyWithResult(TryMoveHero::BLOCKING_VISIT);
+
+		leaveTile();
+
+		tmh.attackedFrom = guardPos;
+		applyWithResult(TryMoveHero::SUCCESS);
+
+		tlog5 << "Moved to " <<tmh.end<<std::endl;
+
+		if (!tryAttackingGuard(guardPos, h)) // If a creature guards the tile, block visit.
+			visitObjectOnTile(t, h);
+
+		tlog5 << "Movement end!\n";
+		return true;
+	}
+	else //instant move - teleportation
+	{
+		if(blockingVisit()) // e.g. hero on the other side of teleporter
+			return applyWithResult(TryMoveHero::BLOCKING_VISIT);
+
+		leaveTile();
+		applyWithResult(TryMoveHero::TELEPORTATION);
+
+		// visit town for town portal \ castle gates
+		// do not use generic visitObjectOnTile to avoid double-teleporting
+		// if this moveHero call was triggered by teleporter
+		if (!t.visitableObjects.empty())
+		{
+			if (CGTownInstance * town = dynamic_cast<CGTownInstance *>(t.visitableObjects.back()))
+				town->onHeroVisit(h);
+		}
+
 		return true;
 	}
 }
@@ -1808,9 +1807,7 @@ bool CGameHandler::teleportHero(si32 hid, si32 dstid, ui8 source, ui8 asker/* = 
 			return false;
 	int3 pos = t->visitablePos();
 	pos += h->getVisitableOffset();
-	stopHeroVisitCastle(from->id, hid);
 	moveHero(hid,pos,1);
-	heroVisitCastle(dstid, hid);
 	return true;
 }
 
@@ -5484,19 +5481,13 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 				break;
 			}
 
-			//we need obtain guard pos before moving hero, otherwise we get nothing, because tile will be "unguarded" by hero
-			int3 guardPos = gs->guardingCreaturePosition(pos);
-
-			TryMoveHero tmh;
-			tmh.id = h->id;
-			tmh.movePoints = std::max<int>(0, h->movement - 300);
-			tmh.result = TryMoveHero::TELEPORTATION;
-			tmh.start = h->pos;
-			tmh.end = pos + h->getVisitableOffset();
-			getTilesInRange(tmh.fowRevealed, pos, h->getSightRadious(), h->tempOwner,1);
-			sendAndApply(&tmh);
-
-			tryAttackingGuard(guardPos, h);
+			if (moveHero(h->id, pos + h->getVisitableOffset(), true))
+			{
+				SetMovePoints smp;
+				smp.hid = h->id;
+				smp.val = std::max<ui32>(0, h->movement - 300);
+				sendAndApply(&smp);
+			}
 		}
 		break;
 	case FLY: //Fly
@@ -5550,10 +5541,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 				if (town->id != nearest)
 					COMPLAIN_RET("This hero can only teleport to nearest town!")
 			}
-			if (h->visitedTown)
-				stopHeroVisitCastle(h->visitedTown->id, h->id);
-			if (moveHero(h->id, town->visitablePos() + h->getVisitableOffset() ,1))
-				heroVisitCastle(town->id, h->id);
+			moveHero(h->id, town->visitablePos() + h->getVisitableOffset() ,1);
 		}
 		break;
 
@@ -5576,11 +5564,14 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 
 void CGameHandler::visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h)
 {
-	//to prevent self-visiting heroes on space press
-	if(t.visitableObjects.back() != h)
-		objectVisited(t.visitableObjects.back(), h);
-	else if(t.visitableObjects.size() > 1)
-		objectVisited(*(t.visitableObjects.end()-2),h);
+	if (!t.visitableObjects.empty())
+	{
+		//to prevent self-visiting heroes on space press
+		if(t.visitableObjects.back() != h)
+			objectVisited(t.visitableObjects.back(), h);
+		else if(t.visitableObjects.size() > 1)
+			objectVisited(*(t.visitableObjects.end()-2),h);
+	}
 }
 
 bool CGameHandler::tryAttackingGuard(const int3 &guardPos, const CGHeroInstance * h)

@@ -751,7 +751,11 @@ void CServerHandler::callServer()
 	if (result == 0)
 		tlog1 << "Server closed correctly\n";
 	else
+	{
 		tlog0 << "Error: server failed to close correctly or crashed!\n";
+		tlog0 << "Check " << logName << " for more info\n";
+		exit(1);// exit in case of error. Othervice without working server VCMI will hang
+	}
 }
 
 CConnection * CServerHandler::justConnectToServer(const std::string &host, const std::string &port)

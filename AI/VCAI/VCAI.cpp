@@ -3,7 +3,7 @@
 #include "../../lib/UnlockGuard.h"
 #include "../../lib/CObjectHandler.h"
 #include "../../lib/CConfigHandler.h"
-#include "../../lib/CHerohandler.h"
+#include "../../lib/CHeroHandler.h"
 
 #define I_AM_ELEMENTAR return CGoal(*this).setisElementar(true)
 CLogger &aiLogger = tlog6;
@@ -103,9 +103,9 @@ std::string CGoal::name() const
 		case GATHER_TROOPS:
 			return "GATHER TROOPS";
 		case GET_OBJ:
-			return "GET OBJECT " + objid;
+			return "GET OBJECT " + boost::lexical_cast<std::string>(objid);
 		case FIND_OBJ:
-			return "FIND OBJECT " + objid;
+			return "FIND OBJECT " + boost::lexical_cast<std::string>(objid);
 		case VISIT_HERO:
 			return "VISIT HERO " + VLC->heroh->heroes[objid]->name;
 		case GET_ART_TYPE:

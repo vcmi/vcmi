@@ -286,7 +286,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		if (ho->pos != details.end //hero didn't change tile but visit succeeded
 			|| directlyAttackingCreature) // or creature was attacked from endangering tile.
 		{
-			eraseCurrentPathOf(ho);
+			eraseCurrentPathOf(ho, false);
 		}
 		else if(adventureInt->terrain.currentPath  &&  ho->pos == details.end) //&& hero is moving
 		{

@@ -515,16 +515,28 @@ int main(int argc, char** argv)
 	{
 		io_service io_service;
 		CVCMIServer server;
-		while(!end2)
+
+		try
 		{
-			server.start();
+			while(!end2)
+			{
+				server.start();
+			}
+			io_service.run();
 		}
-		io_service.run();
-	} 
-	catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
+		catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
+		{
+			tlog1 << e.what() << std::endl;
+			end2 = true;
+		}HANDLE_EXCEPTION
+	}
+	catch(boost::system::system_error &e)
 	{
 		tlog1 << e.what() << std::endl;
-		end2 = true;
-	}HANDLE_EXCEPTION
+		//catch any startup errors (e.g. can't access port) errors
+		//and return non-zero status so client can detect error
+		throw;
+	}
+
   return 0;
 }
