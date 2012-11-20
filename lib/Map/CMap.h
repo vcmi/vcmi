@@ -11,12 +11,10 @@
 
 #pragma once
 
-#ifndef _MSC_VER
-#include "../CObjectHandler.h"
-#include "../CDefObjInfoHandler.h"
-#endif
+#include "StdInc.h"
 
 #include "../ConstTransitivePtr.h"
+#include "../CObjectHandler.h"
 #include "../ResourceSet.h"
 #include "../int3.h"
 #include "../GameConstants.h"
@@ -96,7 +94,46 @@ struct DLL_LINKAGE PlayerInfo
 	 */
 	si8 defaultHero() const;
 
-	/** unknown, unused */
+	/** True if the player can be played by a human. */
+	bool canHumanPlay;
+
+	/** True if th player can be played by the computer */
+	bool canComputerPlay;
+
+	/** Defines the tactical setting of the AI. The default value is EAiTactic::RANDOM. */
+	EAiTactic::EAiTactic aiTactic;
+
+	/** A list of unique IDs of allowed factions. */
+	std::set<ui32> allowedFactions;
+
+	/** Unused. True if the faction should be chosen randomly. */
+	bool isFactionRandom;
+
+	/** Specifies the ID of the main hero with chosen portrait. The default value is 255. */
+	ui32 mainHeroPortrait;
+
+	/** The name of the main hero. */
+	std::string mainHeroName;
+
+	/** The list of renamed heroes. */
+	std::vector<SHeroName> heroesNames;
+
+	/** True if the player has a main town. The default value is true. */
+	bool hasMainTown;
+
+	/** True if the main hero should be generated at the main town. The default value is true. */
+	bool generateHeroAtMainTown;
+
+	/** The position of the main town. */
+	int3 posOfMainTown;
+
+	/** The team id to which the player belongs to. The default value is 255 representing that the player belongs to no team. */
+	ui8 team;
+
+	/** Unused. True if a hero should be generated. */
+	bool generateHero;
+
+	/** Unknown and unused. */
 	si32 p7;
 
 	/** TODO ? */
@@ -105,47 +142,12 @@ struct DLL_LINKAGE PlayerInfo
 	/** TODO ? */
 	si32 p9;
 
-	/** TODO unused, q-ty of hero placeholders containing hero type, WARNING: powerPlaceholders sometimes gives false 0 (eg. even if there is one placeholder), maybe different meaning??? */
+	/**
+	 * Unused. Count of hero placeholders containing hero type.
+	 * WARNING: powerPlaceholders sometimes gives false 0 (eg. even if there is one placeholder),
+	 * maybe different meaning ???
+	 */
 	ui8 powerPlaceholders;
-
-	/** true if player can be played by a human */
-	bool canHumanPlay;
-
-	/** true if player can be played by the computer */
-	bool canComputerPlay;
-
-	/** defines the tactical setting of the AI */
-	EAiTactic::EAiTactic aiTactic;
-
-	/** IDs of allowed factions */
-	std::set<ui32> allowedFactions;
-
-	/** unused. is the faction random */
-	bool isFactionRandom;
-
-	/** specifies the ID of hero with chosen portrait; 255 if standard */
-	ui32 mainHeroPortrait;
-
-	/** the name of the main hero */
-	std::string mainHeroName;
-
-	/** list of available heroes */
-	std::vector<SHeroName> heroesNames;
-
-	/** true if the player has a main town */
-	bool hasMainTown;
-
-	/** true if the hero should be generated at the main town */
-	bool generateHeroAtMainTown;
-
-	/** the position of the main town */
-	int3 posOfMainTown;
-
-	/** the team id to which the player belongs to */
-	ui8 team;
-
-	/** unused. true if a hero should be generated */
-	bool generateHero;
 
 	/**
 	 * Serialize method.
@@ -548,50 +550,59 @@ public:
 	 */
 	virtual ~CMapHeader();
 
-	/** the version of the map */
+	/** The version of the map. The default value is EMapFormat::SOD. */
 	EMapFormat::EMapFormat version;
 
-	/** unused. if there are any playable players on the map */
-	bool areAnyPlayers;
-
-	/** the height of the map */
+	/** The height of the map. The default value is 72. */
 	si32 height;
 
-	/** the width of the map */
+	/** The width of the map. The default value is 72. */
 	si32 width;
 
-	/** specifies if the map has two levels */
-	si32 twoLevel;
+	/** Specifies if the map has two levels. The default value is true. */
+	bool twoLevel;
 
-	/** the name of the map */
+	/** The name of the map. */
 	std::string name;
 
-	/** the description of the map */
+	/** The description of the map. */
 	std::string description;
 
-	/** specifies the difficulty of the map ranging from 0 easy to 4 impossible */
+	/**
+	 * Specifies the difficulty of the map ranging from 0 easy to 4 impossible.
+	 * The default value is 1 representing a normal map difficulty.
+	 */
 	ui8 difficulty;
 
-	/** specifies the maximum level to reach for a hero */
+	/**
+	 * Specifies the maximum level to reach for a hero. A value of 0 states that there is no
+	 * maximum level for heroes.
+	 */
 	ui8 levelLimit;
 
-	/** the loss condition */
+	/** Specifies the loss condition. The default value is lose all your towns and heroes. */
 	LossCondition lossCondition;
 
-	/** the victory condition */
+	/** Specifies the victory condition. The default value is defeat all enemies. */
 	VictoryCondition victoryCondition;
 
-	/** list of player information */
+	/** A list containing information about players. */
 	std::vector<PlayerInfo> players;
 
-	/** number of teams */
+	/** The number of teams. */
 	ui8 howManyTeams;
 
-	/** list of allowed heroes, index is hero id */
+	/**
+	 * A list of allowed heroes. The index is the hero id and the value is either 0 for not allowed or 1 for allowed.
+	 * The default value is a list of default allowed heroes. See CHeroHandler::getDefaultAllowedHeroes for more info.
+	 */
 	std::vector<ui8> allowedHeroes;
 
-	/** list of placeholded heroes, index is id of heroes types */
+	/** A list of placeholded heroes. The index is the id of a hero type. */
 	std::vector<ui16> placeholdedHeroes;
+
+	/** Unused. True if there are any playable players on the map. */
+	bool areAnyPlayers;
 
 	/**
 	 * Serialize method.
@@ -778,7 +789,7 @@ public:
 			{
 				for(int j = 0; j < height ; ++j)
 				{
-					for(int k = 0; k <= twoLevel; ++k)
+					for(int k = 0; k < (twoLevel ? 2 : 1); ++k)
 					{
 						h & terrain[i][j][k];
 					}
@@ -794,14 +805,14 @@ public:
 				terrain[ii] = new TerrainTile*[height];
 				for(int jj = 0; jj < height; ++jj)
 				{
-					terrain[ii][jj] = new TerrainTile[twoLevel + 1];
+					terrain[ii][jj] = new TerrainTile[twoLevel ? 2 : 1];
 				}
 			}
 			for(int i = 0; i < width ; ++i)
 			{
 				for(int j = 0; j < height ; ++j)
 				{
-					for(int k = 0; k <= twoLevel ; ++k)
+					for(int k = 0; k < (twoLevel ? 2 : 1); ++k)
 					{
 						h & terrain[i][j][k];
 					}

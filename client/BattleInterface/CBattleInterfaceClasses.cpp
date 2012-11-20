@@ -314,7 +314,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	bg->colorize(owner->curInt->playerID);
 
 	exit = new CAdventureMapButton ("", "", boost::bind(&CBattleResultWindow::bExitf,this), 384, 505, "iok6432.def", SDLK_RETURN);
-	exit->borderColor = Colors::MetallicGold;
+	exit->borderColor = Colors::METALLIC_GOLD;
 	exit->borderEnabled = true;
 
 	if(br.winner==0) //attacker won

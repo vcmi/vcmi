@@ -8,26 +8,9 @@
 #include "../CDefHandler.h"
 #include "../Graphics.h"
 
-/*
- * SDL_Extensions.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
-
-SDL_Color Colors::createColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a /*= 0*/)
-{
-	SDL_Color temp = {r, g, b, a};
-	return temp;
-}
-
-const SDL_Color Colors::YELLOW = createColor(229, 215, 123, 0);
-const SDL_Color Colors::WHITE = createColor(255, 243, 222, 0);
-const SDL_Color Colors::MetallicGold = createColor(173, 142, 66);
-const SDL_Color Colors::Maize = createColor(242, 226, 110);
+const SDL_Color Colors::YELLOW = { 229, 215, 123, 0 };
+const SDL_Color Colors::WHITE = { 255, 243, 222, 0 };
+const SDL_Color Colors::METALLIC_GOLD = { 173, 142, 66, 0 };
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {

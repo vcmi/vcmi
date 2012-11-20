@@ -25,6 +25,7 @@
 #include "JsonNode.h"
 #include "Filesystem/CResourceLoader.h"
 #include "GameConstants.h"
+#include "RMG/CMapGenOptions.h"
 
 DLL_LINKAGE boost::rand48 ran;
 class CGObjectInstance;
@@ -863,8 +864,18 @@ void CGameState::init(StartInfo * si)
 	switch(scenarioOps->mode)
 	{
 	case StartInfo::NEW_GAME:
-		tlog0 << "Open map file: " << scenarioOps->mapname << std::endl;
-		map = CMapService::loadMap(scenarioOps->mapname).release();
+		{
+			if(scenarioOps->createRandomMap)
+			{
+				tlog0 << "Create random map." << std::endl;
+				//TODO random map
+			}
+			else
+			{
+				tlog0 << "Open map file: " << scenarioOps->mapname << std::endl;
+				map = CMapService::loadMap(scenarioOps->mapname).release();
+			}
+		}
 		break;
 	case StartInfo::CAMPAIGN:
 		{
@@ -920,7 +931,7 @@ void CGameState::init(StartInfo * si)
 		{
 			for (int j = 0; j < map->height ; j++)
 			{
-				for (int k = 0; k <= map->twoLevel ; k++)
+				for (int k = 0; k < (map->twoLevel ? 2 : 1); k++)
 				{
 					const TerrainTile &t = map->terrain[i][j][k];
 					if(!t.blocked
@@ -1266,11 +1277,11 @@ void CGameState::init(StartInfo * si)
 
 		for(int g=-0; g<map->width; ++g)
 			for(int h=0; h<map->height; ++h)
-				k->second.fogOfWarMap[g][h].resize(map->twoLevel+1, 0);
+				k->second.fogOfWarMap[g][h].resize(map->twoLevel ? 2 : 1, 0);
 
 		for(int g=0; g<map->width; ++g)
 			for(int h=0; h<map->height; ++h)
-				for(int v=0; v<map->twoLevel+1; ++v)
+				for(int v = 0; v < (map->twoLevel ? 2 : 1); ++v)
 					k->second.fogOfWarMap[g][h][v] = 0;
 
 		BOOST_FOREACH(CGObjectInstance *obj, map->objects)

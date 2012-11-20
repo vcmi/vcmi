@@ -21,6 +21,7 @@
 #include "CTownHandler.h"
 #include "Map/CCampaignHandler.h"
 #include "NetPacks.h"
+#include "CDefObjInfoHandler.h"
 
 #include <boost/asio.hpp>
 
@@ -199,11 +200,11 @@ CConnection::~CConnection(void)
 
 template<class T>
 CConnection & CConnection::operator&(const T &t) {
-    throw new std::exception();
+	throw std::exception();
 //XXX this is temporaly ? solution to fix gcc (4.3.3, other?) compilation
 //    problem for more details contact t0@czlug.icis.pcz.pl or impono@gmail.com
 //    do not remove this exception it shoudnt be called
-    return *this;
+	return *this;
 }
 
 void CConnection::close()

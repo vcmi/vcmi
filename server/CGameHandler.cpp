@@ -3822,11 +3822,11 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		FoWChange fc;
 		fc.mode = 1;
 		fc.player = player;
-		int3 * hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->twoLevel + 1)];
+		int3 * hlp_tab = new int3[gs->map->width * gs->map->height * (gs->map->twoLevel ? 2 : 1)];
 		int lastUnc = 0;
 		for(int i=0;i<gs->map->width;i++)
 			for(int j=0;j<gs->map->height;j++)
-				for(int k=0;k<gs->map->twoLevel+1;k++)
+				for(int k = 0; k < (gs->map->twoLevel ? 2 : 1); k++)
 					if(!gs->getPlayerTeam(fc.player)->fogOfWarMap[i][j][k])
 						hlp_tab[lastUnc++] = int3(i,j,k);
 		fc.tiles.insert(hlp_tab, hlp_tab + lastUnc);

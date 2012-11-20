@@ -49,7 +49,7 @@ rett * createAny(std::string dllname, std::string methodName)
 	if (!dll)
 	{
 		tlog1 << "Cannot open dynamic library ("<<dllname<<"). Throwing..."<<std::endl;
-		throw new std::string("Cannot open dynamic library");
+		throw std::runtime_error("Cannot open dynamic library");
 	}
 
 	getName(temp);

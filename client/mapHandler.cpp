@@ -349,7 +349,7 @@ void CMapHandler::init()
 	//sizes of terrain
 	sizes.x = map->width;
 	sizes.y = map->height;
-	sizes.z = map->twoLevel+1;
+	sizes.z = map->twoLevel ? 2 : 1;
 
 	// Total number of visible tiles. Subtract the center tile, then
 	// compute the number of tiles on each side, and reassemble.

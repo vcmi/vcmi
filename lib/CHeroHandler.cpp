@@ -323,6 +323,20 @@ void CHeroHandler::loadTerrains()
 		terrCosts.push_back(config[name].Float());
 }
 
+std::vector<ui8> CHeroHandler::getDefaultAllowedHeroes() const
+{
+	// Look Data/HOTRAITS.txt for reference
+	std::vector<ui8> allowedHeroes;
+	allowedHeroes.resize(156, 1);
+	for(int i = 145; i < 156; ++i)
+	{
+		allowedHeroes[i] = 0;
+	}
+	allowedHeroes[4] = 0;
+	allowedHeroes[25] = 0;
+	return allowedHeroes;
+}
+
 CHero::CHero()
 {
 	startingSpell = -1;

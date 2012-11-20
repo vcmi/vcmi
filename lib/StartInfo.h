@@ -12,6 +12,8 @@
  *
  */
 
+#include "RMG/CMapGenOptions.h"
+
 class CCampaignState;
 
 /// Struct which describes the name, the color, the starting bonus of a player
@@ -66,7 +68,9 @@ struct StartInfo
 	ui32 seedPostInit; //so we know that game is correctly synced at the start; 0 if not known yet
 	ui32 mapfileChecksum; //0 if not relevant
 	ui8 turnTime; //in minutes, 0=unlimited
-	std::string mapname;
+	std::string mapname; // empty for random map, otherwise name of the map or savegame
+	bool createRandomMap; // true if a random map should be created
+	shared_ptr<CMapGenOptions> mapGenOptions; // needs to be not nullptr if createRandomMap=true
 
 	shared_ptr<CCampaignState> campState;
 
@@ -96,12 +100,14 @@ struct StartInfo
 		h & mapfileChecksum;
 		h & turnTime;
 		h & mapname;
+		h & createRandomMap;
+		h & mapGenOptions;
 		h & campState;
 	}
 
-	StartInfo()
+	StartInfo() : mode(INVALID), difficulty(0), seedToBeUsed(0), seedPostInit(0),
+		mapfileChecksum(0), turnTime(0), createRandomMap(false)
 	{
-		mapfileChecksum = seedPostInit = seedToBeUsed = 0;
-		mode = INVALID;
+
 	}
 };

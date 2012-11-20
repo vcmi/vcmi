@@ -216,6 +216,17 @@ public:
 	/// and loads resulting structure to game using loadTowns method
 	void load();
 
+	/**
+	 * Gets a list of default allowed factions. OH3 factions are in the range of 0 to 8.
+	 *
+	 * TODO Proposal for town modding: Replace faction id with a unique machine readable town name
+	 * and create a JSON config file or merge it with other configs which describes which
+	 * towns can be used for random map generation / map editor(default map settings).
+	 *
+	 * @return a list of allowed factions, the index which is unique is the faction id
+	 */
+	std::set<ui32> getDefaultAllowedFactions() const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & towns & factions;

@@ -68,8 +68,15 @@ ISelectionScreenInfo *SEL;
 
 static int playerColor; //if more than one player - applies to the first
 
-static std::string selectedName; //set when game is started/loaded
-
+/**
+ * Stores the current name of the savegame.
+ *
+ * TODO better solution for auto-selection when saving already saved games.
+ * -> CSelectionScreen should be divided into CLoadGameScreen, CSaveGameScreen,...
+ * The name of the savegame can then be stored non-statically in CGameState and
+ * passed separately to CSaveGameScreen.
+ */
+static std::string saveGameName;
 
 struct EvilHlpStruct
 {
@@ -137,16 +144,17 @@ void setPlayer(PlayerSettings &pset, TPlayerColor player, const std::map<TPlayer
 void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader, const std::map<TPlayerColor, std::string> &playerNames)
 {
 	sInfo.playerInfos.clear();
-	if(!filename.size())
+	if(!mapHeader)
+	{
 		return;
+	}
 
-	/*sInfo.playerInfos.resize(to->playerAmnt);*/
 	sInfo.mapname = filename;
 	playerColor = -1;
 
 	auto namesIt = playerNames.cbegin();
 
-	for (int i = 0; i < GameConstants::PLAYER_LIMIT; i++)
+	for (int i = 0; i < mapHeader->players.size(); i++)
 	{
 		const PlayerInfo &pinfo = mapHeader->players[i];
 
@@ -597,6 +605,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		opt->recActions = DISPOSE;
 
 		randMapTab = new RandomMapTab();
+		randMapTab->getMapInfoChanged() += bind(&CSelectionScreen::changeSelection, this, _1);
 		randMapTab->recActions = DISPOSE;
 	}
 	sel = new SelectionTab(screenType, bind(&CSelectionScreen::changeSelection, this, _1), multiPlayer); //scenario selection tab
@@ -608,7 +617,12 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		{
 			card->difficulty->onChange = bind(&CSelectionScreen::difficultyChange, this, _1);
 			card->difficulty->select(1, 0);
-			CAdventureMapButton *select = new CAdventureMapButton(CGI->generaltexth->zelp[45], bind(&CSelectionScreen::toggleTab, this, sel), 411, 80, "GSPBUTT.DEF", SDLK_s);
+			CAdventureMapButton * select = new CAdventureMapButton(CGI->generaltexth->zelp[45], 0, 411, 80, "GSPBUTT.DEF", SDLK_s);
+			select->callback = [&]()
+			{
+				toggleTab(sel);
+				changeSelection(sel->getSelectedMapInfo());
+			};
 			select->addTextOverlay(CGI->generaltexth->allTexts[500], FONT_SMALL);
 
 			CAdventureMapButton *opts = new CAdventureMapButton(CGI->generaltexth->zelp[46], bind(&CSelectionScreen::toggleTab, this, opt), 411, 510, "GSPBUTT.DEF", SDLK_a);
@@ -618,7 +632,11 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 			randomBtn->addTextOverlay(CGI->generaltexth->allTexts[740], FONT_SMALL);
 			if(settings["general"]["enableRMG"].Bool())
 			{
-				randomBtn->callback = bind(&CSelectionScreen::toggleTab, this, randMapTab);
+				randomBtn->callback = [&]()
+				{
+					toggleTab(randMapTab);
+					changeSelection(&randMapTab->getMapInfo());
+				};
 			}
 
 			start  = new CAdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startGame, this), 411, 535, "SCNRBEG.DEF", SDLK_b);
@@ -766,7 +784,7 @@ void CSelectionScreen::toggleTab(CIntObject *tab)
 	GH.totalRedraw();
 }
 
-void CSelectionScreen::changeSelection( const CMapInfo *to )
+void CSelectionScreen::changeSelection(const CMapInfo * to)
 {
 	if(multiPlayer == CMenuScreen::MULTI_NETWORK_GUEST)
 	{
@@ -781,6 +799,19 @@ void CSelectionScreen::changeSelection( const CMapInfo *to )
 	if(screenType != CMenuScreen::campaignList)
 	{
 		updateStartInfo(to ? to->fileURI : "", sInfo, to ? to->mapHeader.get() : NULL);
+
+		if(screenType == CMenuScreen::newGame)
+		{
+			sInfo.createRandomMap = to->isRandomMap;
+			if(to->isRandomMap)
+			{
+				sInfo.mapGenOptions = std::shared_ptr<CMapGenOptions>(new CMapGenOptions(randMapTab->getMapGenOptions()));
+			}
+			else
+			{
+				sInfo.mapGenOptions = nullptr;
+			}
+		}
 	}
 	card->changeSelection(to);
 	if(screenType != CMenuScreen::campaignList)
@@ -837,11 +868,19 @@ void CSelectionScreen::startGame()
 		if(!current)
 			return;
 
-		selectedName = sInfo.mapname;
-		StartInfo *si = new StartInfo(sInfo);
+		saveGameName.clear();
+		if(screenType == CMenuScreen::loadGame)
+		{
+			saveGameName = sInfo.mapname;
+		}
+		if(sInfo.createRandomMap)
+		{
+			// Random map generation fails for now, so don't start game...
+			return;
+		}
+
+		StartInfo * si = new StartInfo(sInfo);
 		CGP->removeFromGui();
-		//SEL->current = NULL;
-		//curOpts = NULL;
 		::startGame(si);
 	}
 	else
@@ -849,13 +888,13 @@ void CSelectionScreen::startGame()
 		if(!(sel && sel->txt && sel->txt->text.size()))
 			return;
 
-		selectedName = "Saves/" + sel->txt->text;
+		saveGameName = "Saves/" + sel->txt->text;
 
 		CFunctionList<void()> overWrite;
-		overWrite += boost::bind(&CCallback::save, LOCPLINT->cb, selectedName);
+		overWrite += boost::bind(&CCallback::save, LOCPLINT->cb, saveGameName);
 		overWrite += bind(&CGuiHandler::popIntTotally, &GH, this);
 
-		if(CResourceHandler::get()->existsResource(ResourceID(selectedName, EResType::LIB_SAVEGAME)))
+		if(CResourceHandler::get()->existsResource(ResourceID(saveGameName, EResType::LIB_SAVEGAME)))
 		{
 			std::string hlp = CGI->generaltexth->allTexts[493]; //%s exists. Overwrite?
 			boost::algorithm::replace_first(hlp, "%s", sel->txt->text);
@@ -1228,12 +1267,13 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 		select(0);
 		break;
 	case CMenuScreen::saveGame:;
-		if(selectedName.size())
+		if(saveGameName.empty())
 		{
-			if(selectedName[2] == 'M') //name starts with ./Maps instead of ./Games => there was nothing to select
-				txt->setTxt("NEWGAME");
-			else
-				selectFName(selectedName);
+			txt->setTxt("NEWGAME");
+		}
+		else
+		{
+			selectFName(saveGameName);
 		}
 	}
 }
@@ -1541,6 +1581,11 @@ void SelectionTab::selectFName( std::string fname )
 	selectAbs(0);
 }
 
+const CMapInfo * SelectionTab::getSelectedMapInfo() const
+{
+	return curItems.empty() ? nullptr : curItems[selectionPos];
+}
+
 RandomMapTab::RandomMapTab()
 {
 	OBJ_CONSTRUCTION;
@@ -1556,16 +1601,17 @@ RandomMapTab::RandomMapTab()
 	mapSizeBtnGroup->onChange = [&](int btnId)
 	{
 		const std::vector<int> mapSizeVal = boost::assign::list_of(36)(72)(108)(144); // Map sizes in this order: S, M, L, XL
-		options.setWidth(mapSizeVal[btnId]);
-		options.setHeight(mapSizeVal[btnId]);
+		mapGenOptions.setWidth(mapSizeVal[btnId]);
+		mapGenOptions.setHeight(mapSizeVal[btnId]);
+		updateMapInfo();
 	};
 
 	// Two levels
 	twoLevelsBtn = new CHighlightableButton(0, 0, std::map<int,std::string>(),
 		CGI->generaltexth->zelp[202].second, false, "RANUNDR", nullptr, 346, 81);
-	twoLevelsBtn->callback = [&]() { options.setHasTwoLevels(true); };
-	twoLevelsBtn->callback2 = [&]() { options.setHasTwoLevels(false); };
 	twoLevelsBtn->select(true);
+	twoLevelsBtn->callback = [&]() { mapGenOptions.setHasTwoLevels(true); updateMapInfo(); };
+	twoLevelsBtn->callback2 = [&]() { mapGenOptions.setHasTwoLevels(false); updateMapInfo(); };
 
 	// Create number defs list
 	std::vector<std::string> numberDefs;
@@ -1583,10 +1629,11 @@ RandomMapTab::RandomMapTab()
 	addButtonsWithRandToGroup(playersCntGroup, numberDefs, 1, 8, NUMBERS_WIDTH, 204, 212);
 	playersCntGroup->onChange = [&](int btnId)
 	{
-		options.setPlayersCnt(btnId);
+		mapGenOptions.setPlayersCnt(btnId);
 		deactivateButtonsFrom(teamsCntGroup, btnId);
 		deactivateButtonsFrom(compOnlyPlayersCntGroup, 8 - btnId + 1);
 		validatePlayersCnt(btnId);
+		updateMapInfo();
 	};
 
 	// Amount of teams
@@ -1596,7 +1643,8 @@ RandomMapTab::RandomMapTab()
 	addButtonsWithRandToGroup(teamsCntGroup, numberDefs, 0, 7, NUMBERS_WIDTH, 214, 222);
 	teamsCntGroup->onChange = [&](int btnId)
 	{
-		options.setTeamsCnt(btnId);
+		mapGenOptions.setTeamsCnt(btnId);
+		updateMapInfo();
 	};
 
 	// Computer only players
@@ -1604,11 +1652,13 @@ RandomMapTab::RandomMapTab()
 	compOnlyPlayersCntGroup->pos.y = 285;
 	compOnlyPlayersCntGroup->pos.x = BTNS_GROUP_LEFT_MARGIN;
 	addButtonsWithRandToGroup(compOnlyPlayersCntGroup, numberDefs, 0, 7, NUMBERS_WIDTH, 224, 232);
+	compOnlyPlayersCntGroup->select(0, true);
 	compOnlyPlayersCntGroup->onChange = [&](int btnId)
 	{
-		options.setCompOnlyPlayersCnt(btnId);
+		mapGenOptions.setCompOnlyPlayersCnt(btnId);
 		deactivateButtonsFrom(compOnlyTeamsCntGroup, btnId);
 		validateCompOnlyPlayersCnt(btnId);
+		updateMapInfo();
 	};
 
 	// Computer only teams
@@ -1616,9 +1666,11 @@ RandomMapTab::RandomMapTab()
 	compOnlyTeamsCntGroup->pos.y = 351;
 	compOnlyTeamsCntGroup->pos.x = BTNS_GROUP_LEFT_MARGIN;
 	addButtonsWithRandToGroup(compOnlyTeamsCntGroup, numberDefs, 0, 6, NUMBERS_WIDTH, 234, 241);
+	deactivateButtonsFrom(compOnlyTeamsCntGroup, 0);
 	compOnlyTeamsCntGroup->onChange = [&](int btnId)
 	{
-		options.setCompOnlyTeamsCnt(btnId);
+		mapGenOptions.setCompOnlyTeamsCnt(btnId);
+		updateMapInfo();
 	};
 
 	const int WIDE_BTN_WIDTH = 85;
@@ -1630,7 +1682,7 @@ RandomMapTab::RandomMapTab()
 	addButtonsWithRandToGroup(waterContentGroup, waterContentBtns, 0, 2, WIDE_BTN_WIDTH, 243, 246);
 	waterContentGroup->onChange = [&](int btnId)
 	{
-		options.setWaterContent(static_cast<EWaterContent::EWaterContent>(btnId));
+		mapGenOptions.setWaterContent(static_cast<EWaterContent::EWaterContent>(btnId));
 	};
 
 	// Monster strength
@@ -1641,37 +1693,39 @@ RandomMapTab::RandomMapTab()
 	addButtonsWithRandToGroup(monsterStrengthGroup, monsterStrengthBtns, 0, 2, WIDE_BTN_WIDTH, 248, 251);
 	monsterStrengthGroup->onChange = [&](int btnId)
 	{
-		options.setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(btnId));
+		mapGenOptions.setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(btnId));
 	};
 
 	// Show random maps btn
 	showRandMaps = new CAdventureMapButton("", CGI->generaltexth->zelp[252].second, 0, 54, 535, "RANSHOW");
+
+	// Initialize map info object
+	mapInfo.isRandomMap = true;
+	shared_ptr<CMapHeader> mapHeader(new CMapHeader());
+	mapHeader->version = EMapFormat::SOD;
+	mapHeader->name = CGI->generaltexth->allTexts[740];
+	mapHeader->description = CGI->generaltexth->allTexts[741];
+	mapHeader->difficulty = 1; // Normal
+	mapInfo.mapHeader = mapHeader;
+	updateMapInfo();
 }
 
 void RandomMapTab::addButtonsWithRandToGroup(CHighlightableButtonsGroup * group, const std::vector<std::string> & defs, int nStart, int nEnd, int btnWidth, int helpStartIndex, int helpRandIndex) const
 {
 	addButtonsToGroup(group, defs, nStart, nEnd, btnWidth, helpStartIndex);
 
-	// Add rand button and select rand if help text index is given
-	const std::string randomDef = "RANRAND";
-	if (helpRandIndex != -1)
-	{
-		// Buttons are relative to button group, TODO better solution?
-		SObjectConstruction obj__i(group);
-
-		group->addButton(new CHighlightableButton("", CGI->generaltexth->zelp[helpRandIndex].second, 0, 256, 0, randomDef, -1));
-		group->select(-1, true);
-	}
+	// Buttons are relative to button group, TODO better solution?
+	SObjectConstruction obj__i(group);
+	const std::string RANDOM_DEF = "RANRAND";
+	group->addButton(new CHighlightableButton("", CGI->generaltexth->zelp[helpRandIndex].second, 0, 256, 0, RANDOM_DEF, CMapGenOptions::RANDOM_SIZE));
+	group->select(CMapGenOptions::RANDOM_SIZE, true);
 }
 
 void RandomMapTab::addButtonsToGroup(CHighlightableButtonsGroup * group, const std::vector<std::string> & defs, int nStart, int nEnd, int btnWidth, int helpStartIndex) const
 {
 	// Buttons are relative to button group, TODO better solution?
 	SObjectConstruction obj__i(group);
-
-	const int cnt = nEnd - nStart + 1;
-
-	// Buttons
+	int cnt = nEnd - nStart + 1;
 	for(int i = 0; i < cnt; ++i)
 	{
 		group->addButton(new CHighlightableButton("", CGI->generaltexth->zelp[helpStartIndex + i].second, 0, i * btnWidth, 0, defs[i + nStart], i + nStart));
@@ -1682,7 +1736,7 @@ void RandomMapTab::deactivateButtonsFrom(CHighlightableButtonsGroup * group, int
 {
 	BOOST_FOREACH(CHighlightableButton * btn, group->buttons)
 	{
-		if(startId == -1 || btn->ID < startId)
+		if(startId == CMapGenOptions::RANDOM_SIZE || btn->ID < startId)
 		{
 			if(btn->isBlocked())
 			{
@@ -1701,36 +1755,36 @@ void RandomMapTab::deactivateButtonsFrom(CHighlightableButtonsGroup * group, int
 
 void RandomMapTab::validatePlayersCnt(int playersCnt)
 {
-	if(playersCnt == -1)
+	if(playersCnt == CMapGenOptions::RANDOM_SIZE)
 	{
 		return;
 	}
 
-	if(options.getTeamsCnt() >= playersCnt)
+	if(mapGenOptions.getTeamsCnt() >= playersCnt)
 	{
-		options.setTeamsCnt(playersCnt - 1);
-		teamsCntGroup->select(options.getTeamsCnt(), true);
+		mapGenOptions.setTeamsCnt(playersCnt - 1);
+		teamsCntGroup->select(mapGenOptions.getTeamsCnt(), true);
 	}
-	if(options.getCompOnlyPlayersCnt() > 8 - playersCnt)
+	if(mapGenOptions.getCompOnlyPlayersCnt() > 8 - playersCnt)
 	{
-		options.setCompOnlyPlayersCnt(8 - playersCnt);
-		compOnlyPlayersCntGroup->select(options.getCompOnlyPlayersCnt(), true);
+		mapGenOptions.setCompOnlyPlayersCnt(8 - playersCnt);
+		compOnlyPlayersCntGroup->select(mapGenOptions.getCompOnlyPlayersCnt(), true);
 	}
 
-	validateCompOnlyPlayersCnt(options.getCompOnlyPlayersCnt());
+	validateCompOnlyPlayersCnt(mapGenOptions.getCompOnlyPlayersCnt());
 }
 
 void RandomMapTab::validateCompOnlyPlayersCnt(int compOnlyPlayersCnt)
 {
-	if(compOnlyPlayersCnt == -1)
+	if(compOnlyPlayersCnt == CMapGenOptions::RANDOM_SIZE)
 	{
 		return;
 	}
 
-	if(options.getCompOnlyTeamsCnt() >= compOnlyPlayersCnt)
+	if(mapGenOptions.getCompOnlyTeamsCnt() >= compOnlyPlayersCnt)
 	{
-		options.setCompOnlyTeamsCnt(compOnlyPlayersCnt - 1);
-		compOnlyTeamsCntGroup->select(options.getCompOnlyTeamsCnt(), true);
+		mapGenOptions.setCompOnlyTeamsCnt(compOnlyPlayersCnt - 1);
+		compOnlyTeamsCntGroup->select(mapGenOptions.getCompOnlyTeamsCnt(), true);
 	}
 }
 
@@ -1762,6 +1816,53 @@ void RandomMapTab::showAll(SDL_Surface * to)
 
 	// Monster strength
 	printAtLoc(CGI->generaltexth->allTexts[758], 68, 465, FONT_SMALL, Colors::WHITE, to);
+}
+
+void RandomMapTab::updateMapInfo()
+{
+	mapInfo.mapHeader->height = mapGenOptions.getHeight();
+	mapInfo.mapHeader->width = mapGenOptions.getWidth();
+	mapInfo.mapHeader->twoLevel = mapGenOptions.getHasTwoLevels();
+
+	// Generate player information
+	mapInfo.mapHeader->players.clear();
+	int playersToGen = (mapGenOptions.getPlayersCnt() == CMapGenOptions::RANDOM_SIZE
+		|| mapGenOptions.getCompOnlyPlayersCnt() == CMapGenOptions::RANDOM_SIZE)
+			? 8 : mapGenOptions.getPlayersCnt() + mapGenOptions.getCompOnlyPlayersCnt();
+	mapInfo.mapHeader->howManyTeams = playersToGen;
+
+	for(int i = 0; i < playersToGen; ++i)
+	{
+		PlayerInfo player;
+		player.canComputerPlay = true;
+		if(i >= mapGenOptions.getPlayersCnt() && mapGenOptions.getPlayersCnt() != CMapGenOptions::RANDOM_SIZE)
+		{
+			player.canHumanPlay = false;
+		}
+		else
+		{
+			player.canHumanPlay = true;
+		}
+		player.team = i;
+		mapInfo.mapHeader->players.push_back(player);
+	}
+
+	mapInfoChanged(&mapInfo);
+}
+
+CFunctionList<void(const CMapInfo *)> & RandomMapTab::getMapInfoChanged()
+{
+	return mapInfoChanged;
+}
+
+const CMapInfo & RandomMapTab::getMapInfo() const
+{
+	return mapInfo;
+}
+
+const CMapGenOptions & RandomMapTab::getMapGenOptions() const
+{
+	return mapGenOptions;
 }
 
 CChatBox::CChatBox(const Rect &rect)
@@ -3435,7 +3536,8 @@ void CBonusSelection::updateBonusSelection()
 			CAnimation * anim = new CAnimation();
 			anim->setCustom(picName, 0);
 			bonusButton->setImage(anim);
-			bonusButton->borderColor = Colors::Maize; // yellow border
+			const SDL_Color brightYellow = { 242, 226, 110, 0 };
+			bonusButton->borderColor = brightYellow;
 			bonuses->addButton(bonusButton);
 		}
 }
@@ -3784,7 +3886,7 @@ void StartWithCurrentSettings::apply(CSelectionScreen *selScreen)
 
 	selScreen->serv = NULL; //hide it so it won't be deleted
 	vstd::clear_pointer(selScreen->serverHandlingThread); //detach us
-	selectedName = selScreen->sInfo.mapname;
+	saveGameName.clear();
 
 	CGP->removeFromGui();
 

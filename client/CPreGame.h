@@ -175,6 +175,7 @@ public:
 	void printMaps(SDL_Surface *to);
 	int getLine();
 	void selectFName(std::string fname);
+	const CMapInfo * getSelectedMapInfo() const;
 
 	void showAll(SDL_Surface * to);
 	void clickLeft(tribool down, bool previousState);
@@ -270,6 +271,34 @@ public:
      */
     void showAll(SDL_Surface * to);
 
+	/**
+	 * Updates the map info object and fires the associated callback method.
+	 */
+	void updateMapInfo();
+
+	/**
+	 * Gets the map info changed callback method list object. This event
+	 * occurs when the updateMapInfo method has been called or the options
+	 * of this tab have been changed.
+	 *
+	 * @return the map info changed callback method list object
+	 */
+	CFunctionList<void (const CMapInfo *)> & getMapInfoChanged();
+
+	/**
+	 * Gets the created map info object.
+	 *
+	 * @return the created map info object
+	 */
+	const CMapInfo & getMapInfo() const;
+
+	/**
+	 * Gets the map generation options.
+	 *
+	 * @return the map generation options
+	 */
+	const CMapGenOptions & getMapGenOptions() const;
+
 private:
     /**
      * Adds buttons specified by the defs list to the given buttons group.
@@ -347,10 +376,17 @@ private:
     /** the monster strength group */
     CHighlightableButtonsGroup * monsterStrengthGroup;
 
+	/** show previously created random maps button */
     CAdventureMapButton * showRandMaps;
 
     /** the map options selected by the user */
-    CMapGenOptions options;
+	CMapGenOptions mapGenOptions;
+
+	/** map info object describing a randomly created map */
+	CMapInfo mapInfo;
+
+	/** callback method which gets called when the random options have been changed */
+	CFunctionList<void(const CMapInfo *)> mapInfoChanged;
 };
 
 /// Interface for selecting a map.

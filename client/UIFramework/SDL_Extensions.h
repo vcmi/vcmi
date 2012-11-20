@@ -16,7 +16,6 @@
  *
  */
 
-
 //A macro to force inlining some of our functions. Compiler (at least MSVC) is not so smart here-> without that displaying is MUCH slower
 #ifdef _MSC_VER
 	#define STRONG_INLINE __forceinline
@@ -50,20 +49,8 @@ public:
 	/** the standard h3 white color */
 	static const SDL_Color WHITE;
 
-	static const SDL_Color MetallicGold;
-	static const SDL_Color Maize;
-
-private:
-	/**
-	 * Creates a SDL_Color object.
-	 *
-	 * @param r the red value ranging from 0 to 255
-	 * @param g the green value ranging from 0 to 255
-	 * @param b the blue value ranging from 0 to 255
-	 * @param a the alpha value ranging from 0(opaque) to 255(transparent)
-	 * @return the created SDL_Color object
-	 */
-	static SDL_Color createColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a = 0);
+	/** the metallic gold color used mostly as a border around buttons */
+	static const SDL_Color METALLIC_GOLD;
 };
 
 //MSVC gives an error when calling abs with ui64 -> we add template that will match calls with unsigned arg and return it

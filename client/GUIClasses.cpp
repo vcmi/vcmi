@@ -602,7 +602,7 @@ CInfoWindow::CInfoWindow(std::string Text, int player, const TCompsInfo &comps, 
 	for(int i=0;i<Buttons.size();i++)
 	{
 		CAdventureMapButton *button = new CAdventureMapButton("","",boost::bind(&CInfoWindow::close,this),0,0,Buttons[i].first);
-		button->borderColor = Colors::MetallicGold;
+		button->borderColor = Colors::METALLIC_GOLD;
 		button->borderEnabled = true;
 		button->callback.add(Buttons[i].second); //each button will close the window apart from call-defined actions
 		buttons.push_back(button);
@@ -5026,7 +5026,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 
 	quitb = new CAdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CPuzzleWindow::close, this), 670, 538, "IOK6432.DEF", SDLK_RETURN);
 	quitb->assignedKeys.insert(SDLK_ESCAPE);
-	quitb->borderColor = Colors::MetallicGold;
+	quitb->borderColor = Colors::METALLIC_GOLD;
 	quitb->borderEnabled = true;
 
 	new CPicture("PUZZLOGO", 607, 3);

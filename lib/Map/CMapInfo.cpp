@@ -1,4 +1,3 @@
-#include "StdInc.h"
 #include "CMapInfo.h"
 
 #include "../StartInfo.h"
@@ -29,8 +28,8 @@ void CMapInfo::countPlayers()
 				actualHumanPlayers++;
 }
 
-CMapInfo::CMapInfo() :
-	scenarioOpts(nullptr)
+CMapInfo::CMapInfo() : scenarioOpts(nullptr), playerAmnt(0), humanPlayers(0),
+	actualHumanPlayers(0), isRandomMap(false)
 {
 
 }

@@ -1,5 +1,5 @@
-#include "StdInc.h"
 #include "CMapService.h"
+
 #include "../Filesystem/CResourceLoader.h"
 #include "../Filesystem/CBinaryReader.h"
 #include "../Filesystem/CCompressedStream.h"
@@ -208,7 +208,7 @@ void CMapLoaderH3M::readHeader()
 	mapHeader->areAnyPlayers = static_cast<bool>(readChar(buffer, pos));
 	mapHeader->height = mapHeader->width = (read_le_u32(buffer + pos));
 	pos += 4;
-	mapHeader->twoLevel = readChar(buffer, pos);
+	mapHeader->twoLevel = static_cast<bool>(readChar(buffer, pos));
 	mapHeader->name = readString(buffer, pos);
 	mapHeader->description = readString(buffer, pos);
 	mapHeader->difficulty = readChar(buffer, pos);
@@ -272,6 +272,7 @@ void CMapLoaderH3M::readPlayerInfo()
 			allowedFactions += (buffer[pos++]) * 256;
 		}
 
+		mapHeader->players[i].allowedFactions.clear();
 		for(int fact = 0; fact < 16; ++fact)
 		{
 			if(allowedFactions & (1 << fact))
@@ -884,7 +885,7 @@ void CMapLoaderH3M::readTerrain()
 		map->terrain[ii] = new TerrainTile*[map->height];
 		for(int jj = 0; jj < map->height; jj++)
 		{
-			map->terrain[ii][jj] = new TerrainTile[map->twoLevel + 1];
+			map->terrain[ii][jj] = new TerrainTile[map->twoLevel ? 2 : 1];
 		}
 	}
 

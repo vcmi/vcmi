@@ -522,3 +522,13 @@ void CTownHandler::load()
 	}
 	load(buildingsConf);
 }
+
+std::set<ui32> CTownHandler::getDefaultAllowedFactions() const
+{
+	std::set<ui32> allowedFactions;
+	for(int i = 0; i <= 8; ++i)
+	{
+		allowedFactions.insert(i);
+	}
+	return allowedFactions;
+}

@@ -375,7 +375,7 @@ void CGuiHandler::run()
 	inGuiThread.reset(new bool(true));
 	try
 	{
-		if (settings["video"]["fullscreen"].Bool())
+		if(settings["video"]["fullscreen"].Bool())
 			CCS->curh->centerCursor();
 
 		mainFPSmng->init(); // resets internal clock, needed for FPS manager
@@ -386,7 +386,12 @@ void CGuiHandler::run()
 
 			mainFPSmng->framerateDelay(); // holds a constant FPS
 		}
-	} HANDLE_EXCEPTION
+	}
+	catch(const std::exception & ex)
+	{
+		tlog1 << "Error: " << ex.what() << std::endl;
+		exit(EXIT_FAILURE);
+	}
 }
 
 CGuiHandler::CGuiHandler()

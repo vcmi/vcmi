@@ -1,8 +1,9 @@
-#include "StdInc.h"
 #include "CMap.h"
 
-#include "../CObjectHandler.h"
 #include "../CArtHandler.h"
+#include "../VCMI_Lib.h"
+#include "../CTownHandler.h"
+#include "../CHeroHandler.h"
 #include "../CDefObjInfoHandler.h"
 
 SHeroName::SHeroName() : heroId(-1)
@@ -10,18 +11,15 @@ SHeroName::SHeroName() : heroId(-1)
 
 }
 
-PlayerInfo::PlayerInfo(): p7(0), p8(0), p9(0), powerPlaceholders(-1),
-	canHumanPlay(false), canComputerPlay(false),
-	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainHeroPortrait(0), hasMainTown(false),
-	generateHeroAtMainTown(false), team(255), generateHero(false)
+PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
+	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainHeroPortrait(255), hasMainTown(true),
+	generateHeroAtMainTown(true), team(255), generateHero(false), p7(0), p8(0), p9(0), powerPlaceholders(-1)
 {
-
+	allowedFactions = VLC->townh->getDefaultAllowedFactions();
 }
 
 si8 PlayerInfo::defaultCastle() const
 {
-	assert(!allowedFactions.empty()); // impossible?
-
 	if(allowedFactions.size() == 1)
 	{
 		// only one faction is available - pick it
@@ -126,11 +124,10 @@ bool TerrainTile::isWater() const
 	return terType == ETerrainType::WATER;
 }
 
-CMapHeader::CMapHeader() : version(EMapFormat::INVALID), areAnyPlayers(false),
-	height(-1), width(-1), twoLevel(-1), difficulty(0), levelLimit(0),
-	howManyTeams(0)
+CMapHeader::CMapHeader() : version(EMapFormat::SOD), height(72), width(72),
+	twoLevel(true), difficulty(1), levelLimit(0), howManyTeams(0), areAnyPlayers(false)
 {
-
+	allowedHeroes = VLC->heroh->getDefaultAllowedHeroes();
 }
 
 CMapHeader::~CMapHeader()
@@ -225,9 +222,15 @@ CGHeroInstance * CMap::getHero(int heroID)
 
 bool CMap::isInTheMap(const int3 &pos) const
 {
-	if(pos.x<0 || pos.y<0 || pos.z<0 || pos.x >= width || pos.y >= height || pos.z > twoLevel)
+	if(pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= width || pos.y >= height
+			|| pos.z > (twoLevel ? 1 : 0))
+	{
 		return false;
-	else return true;
+	}
+	else
+	{
+		return true;
+	}
 }
 
 TerrainTile & CMap::getTile( const int3 & tile )
@@ -245,9 +248,9 @@ bool CMap::isWaterTile(const int3 &pos) const
 	return isInTheMap(pos) && getTile(pos).terType == ETerrainType::WATER;
 }
 
-const CGObjectInstance *CMap::getObjectiveObjectFrom(int3 pos, bool lookForHero)
+const CGObjectInstance * CMap::getObjectiveObjectFrom(int3 pos, bool lookForHero)
 {
-	const std::vector <CGObjectInstance *> & objs = getTile(pos).visitableObjects;
+	const std::vector<CGObjectInstance *> & objs = getTile(pos).visitableObjects;
 	assert(objs.size());
 	if(objs.size() > 1 && lookForHero && objs.front()->ID != Obj::HERO)
 	{
@@ -261,19 +264,23 @@ const CGObjectInstance *CMap::getObjectiveObjectFrom(int3 pos, bool lookForHero)
 void CMap::checkForObjectives()
 {
 	if(isInTheMap(victoryCondition.pos))
+	{
 		victoryCondition.obj = getObjectiveObjectFrom(victoryCondition.pos, victoryCondition.condition == EVictoryConditionType::BEATHERO);
+	}
 
 	if(isInTheMap(lossCondition.pos))
+	{
 		lossCondition.obj = getObjectiveObjectFrom(lossCondition.pos, lossCondition.typeOfLossCon == ELossConditionType::LOSSHERO);
+	}
 }
 
-void CMap::addNewArtifactInstance( CArtifactInstance *art )
+void CMap::addNewArtifactInstance(CArtifactInstance * art)
 {
 	art->id = artInstances.size();
 	artInstances.push_back(art);
 }
 
-void CMap::eraseArtifactInstance(CArtifactInstance *art)
+void CMap::eraseArtifactInstance(CArtifactInstance * art)
 {
 	assert(artInstances[art->id] == art);
 	artInstances[art->id].dellNull();

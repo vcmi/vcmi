@@ -160,7 +160,7 @@ void CQuestLog::showAll(SDL_Surface * to)
 	}
 	if (labels.size() && labels[questIndex]->active)
 	{
-		CSDL_Ext::drawBorder(to, Rect::around(labels[questIndex]->pos), int3(Colors::MetallicGold.r, Colors::MetallicGold.g, Colors::MetallicGold.b));
+		CSDL_Ext::drawBorder(to, Rect::around(labels[questIndex]->pos), int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b));
 	}
 	description->show(to);
 	minimap->update();

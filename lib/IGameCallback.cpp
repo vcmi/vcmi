@@ -116,9 +116,7 @@ void CPrivilagedInfoCallback::getAllTiles (boost::unordered_set<int3, ShashInt3>
 	std::vector<int> floors;
 	if(level == -1)
 	{
-		
-		for (int xd = 0; xd <= gs->map->width - 1; xd++)
-		for(int b=0; b<gs->map->twoLevel + 1; ++b) //if gs->map->twoLevel is false then false (0) + 1 is 1, if it's true (1) then we have 2
+		for(int b = 0; b < (gs->map->twoLevel ? 2 : 1); ++b)
 		{
 			floors.push_back(b);
 		}
@@ -144,7 +142,7 @@ void CPrivilagedInfoCallback::getAllTiles (boost::unordered_set<int3, ShashInt3>
 void CPrivilagedInfoCallback::getFreeTiles (std::vector<int3> &tiles) const
 {
 	std::vector<int> floors;
-	for (int b=0; b<gs->map->twoLevel + 1; ++b) //if gs->map->twoLevel is false then false (0) + 1 is 1, if it's true (1) then we have 2
+	for (int b = 0; b < (gs->map->twoLevel ? 2 : 1); ++b)
 	{
 		floors.push_back(b);
 	}
@@ -529,7 +527,7 @@ std::vector < const CGObjectInstance * > CGameInfoCallback::getFlaggableObjects(
 
 int3 CGameInfoCallback::getMapSize() const
 {
-	return int3(gs->map->width, gs->map->height, gs->map->twoLevel+1);
+	return int3(gs->map->width, gs->map->height, gs->map->twoLevel ? 2 : 1);
 }
 
 std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const CGObjectInstance * townOrTavern) const

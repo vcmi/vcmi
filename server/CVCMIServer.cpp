@@ -315,17 +315,19 @@ CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
 	StartInfo si;
 	c >> si; //get start options
 
-	bool mapFound = CResourceHandler::get()->existsResource(ResourceID(si.mapname, EResType::MAP));
+	if(!si.createRandomMap)
+	{
+		bool mapFound = CResourceHandler::get()->existsResource(ResourceID(si.mapname, EResType::MAP));
 
-	if(!mapFound && si.mode == StartInfo::NEW_GAME) //TODO some checking for campaigns
-	{
-		c << ui8(1); //WRONG!
-		return NULL;
+		//TODO some checking for campaigns
+		if(!mapFound && si.mode == StartInfo::NEW_GAME)
+		{
+			c << ui8(1); //WRONG!
+			return nullptr;
+		}
 	}
-	else
-	{
-		c << ui8(0); //OK!
-	}
+
+	c << ui8(0); //OK!
 
 	gh->init(&si);
 	gh->conns.insert(&c);

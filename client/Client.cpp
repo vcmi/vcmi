@@ -250,7 +250,7 @@ void CClient::loadGame( const std::string & fname )
 
 		const_cast<CGameInfo*>(CGI)->state = gs;
 		const_cast<CGameInfo*>(CGI)->mh->map = gs->map;
-		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
+		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel ? 2 : 1));
 		CGI->mh->init();
 
 		tlog0 <<"Initing maphandler: "<<tmh.getDiff()<<std::endl;
@@ -351,7 +351,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		CGI->mh->map = gs->map;
 		tlog0 <<"Creating mapHandler: "<<tmh.getDiff()<<std::endl;
 		CGI->mh->init();
-		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
+		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel ? 2 : 1));
 		tlog0 <<"Initializing mapHandler (together): "<<tmh.getDiff()<<std::endl;
 	}
 

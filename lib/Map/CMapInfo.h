@@ -1,5 +1,7 @@
 #pragma once
 
+#include "StdInc.h"
+
 // Forward class declarations aren't enough here. The compiler
 // generated CMapInfo d-tor, generates the unique_ptr d-tor as well here
 // as a inline method. The unique_ptr d-tor requires a complete type. Defining
@@ -30,6 +32,7 @@ public:
 	int playerAmnt; //players in map
 	int humanPlayers; //players ALLOWED to be controlled by human
 	int actualHumanPlayers; // >1 if multiplayer game
+	bool isRandomMap; // true if the map will be created randomly, false if not
 
 	CMapInfo();
 	void mapInit(const std::string & fname);

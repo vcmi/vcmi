@@ -141,6 +141,17 @@ public:
 	CHeroHandler(); //c-tor
 	~CHeroHandler(); //d-tor
 
+	/**
+	 * Gets a list of default allowed heroes.
+	 *
+	 * TODO Proposal for hero modding: Replace hero id with a unique machine readable hero name and
+	 * create a JSON config file or merge it with a existing config file which describes which heroes can be used for
+	 * random map generation / map editor(default map settings). (Gelu, ... should be excluded)
+	 *
+	 * @return a list of allowed heroes, the index is the hero id and the value either 0 for not allowed and 1 for allowed
+	 */
+	std::vector<ui8> getDefaultAllowedHeroes() const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & heroClasses & heroes & expPerLevel & ballistics & terrCosts;

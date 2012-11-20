@@ -1,5 +1,15 @@
-#pragma once
 
+/*
+ * Connection.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
+#pragma once
 
 #include <typeinfo> //XXX this is in namespace std if you want w/o use typeinfo.h?
 
@@ -11,7 +21,6 @@
 #include <boost/type_traits/is_array.hpp>
 #include <boost/type_traits/remove_pointer.hpp>
 #include <boost/type_traits/remove_const.hpp>
-
 
 #include <boost/variant.hpp>
 #include <boost/mpl/eval_if.hpp>
@@ -38,16 +47,6 @@ class CHero;
 struct CPack;
 extern DLL_LINKAGE LibClasses * VLC;
 namespace mpl = boost::mpl;
-
-/*
- * Connection.h, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 namespace boost
 {

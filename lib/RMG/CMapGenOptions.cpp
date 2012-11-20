@@ -1,14 +1,13 @@
-#include "StdInc.h"
 #include "CMapGenOptions.h"
 
 CMapGenOptions::CMapGenOptions() : width(72), height(72), hasTwoLevels(true),
-	playersCnt(-1), teamsCnt(-1), compOnlyPlayersCnt(-1), compOnlyTeamsCnt(-1),
-	waterContent(EWaterContent::NORMAL), monsterStrength(EMonsterStrength::NORMAL)
+	playersCnt(-1), teamsCnt(-1), compOnlyPlayersCnt(0), compOnlyTeamsCnt(-1),
+	waterContent(EWaterContent::RANDOM), monsterStrength(EMonsterStrength::RANDOM)
 {
 
 }
 
-int CMapGenOptions::getWidth() const
+si32 CMapGenOptions::getWidth() const
 {
 	return width;
 }
@@ -25,12 +24,12 @@ void CMapGenOptions::setWidth(int value)
 	}
 }
 
-int CMapGenOptions::getHeight() const
+si32 CMapGenOptions::getHeight() const
 {
 	return height;
 }
 
-void CMapGenOptions::setHeight(int value)
+void CMapGenOptions::setHeight(si32 value)
 {
 	if(value > 0)
 	{
@@ -52,14 +51,14 @@ void CMapGenOptions::setHasTwoLevels(bool value)
 	hasTwoLevels = value;
 }
 
-int CMapGenOptions::getPlayersCnt() const
+si8 CMapGenOptions::getPlayersCnt() const
 {
 	return playersCnt;
 }
 
-void CMapGenOptions::setPlayersCnt(int value)
+void CMapGenOptions::setPlayersCnt(si8 value)
 {
-	if((value >= 1 && value <= 8) || value == -1)
+	if((value >= 1 && value <= 8) || value == RANDOM_SIZE)
 	{
 		playersCnt = value;
 	}
@@ -69,14 +68,14 @@ void CMapGenOptions::setPlayersCnt(int value)
 	}
 }
 
-int CMapGenOptions::getTeamsCnt() const
+si8 CMapGenOptions::getTeamsCnt() const
 {
 	return teamsCnt;
 }
 
-void CMapGenOptions::setTeamsCnt(int value)
+void CMapGenOptions::setTeamsCnt(si8 value)
 {
-	if(playersCnt == -1 || (value >= 0 && value < playersCnt) || value == -1)
+	if(playersCnt == RANDOM_SIZE || (value >= 0 && value < playersCnt) || value == RANDOM_SIZE)
 	{
 		teamsCnt = value;
 	}
@@ -87,14 +86,14 @@ void CMapGenOptions::setTeamsCnt(int value)
 	}
 }
 
-int CMapGenOptions::getCompOnlyPlayersCnt() const
+si8 CMapGenOptions::getCompOnlyPlayersCnt() const
 {
 	return compOnlyPlayersCnt;
 }
 
-void CMapGenOptions::setCompOnlyPlayersCnt(int value)
+void CMapGenOptions::setCompOnlyPlayersCnt(si8 value)
 {
-	if(value == -1 || (value >= 0 && value <= 8 - playersCnt))
+	if(value == RANDOM_SIZE || (value >= 0 && value <= 8 - playersCnt))
 	{
 		compOnlyPlayersCnt = value;
 	}
@@ -106,14 +105,14 @@ void CMapGenOptions::setCompOnlyPlayersCnt(int value)
 	}
 }
 
-int CMapGenOptions::getCompOnlyTeamsCnt() const
+si8 CMapGenOptions::getCompOnlyTeamsCnt() const
 {
 	return compOnlyTeamsCnt;
 }
 
-void CMapGenOptions::setCompOnlyTeamsCnt(int value)
+void CMapGenOptions::setCompOnlyTeamsCnt(si8 value)
 {
-	if(value == -1 || compOnlyPlayersCnt == -1 || (value >= 0 && value <= compOnlyPlayersCnt - 1))
+	if(value == RANDOM_SIZE || compOnlyPlayersCnt == RANDOM_SIZE || (value >= 0 && value <= compOnlyPlayersCnt - 1))
 	{
 		compOnlyTeamsCnt = value;
 	}
