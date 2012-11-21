@@ -11,8 +11,6 @@
 
 #pragma once
 
-#include "StdInc.h"
-
 class CMap;
 class CMapHeader;
 class CInputStream;

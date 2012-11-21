@@ -1,3 +1,4 @@
+#include "StdInc.h"
 #include "CMap.h"
 
 #include "../CArtHandler.h"

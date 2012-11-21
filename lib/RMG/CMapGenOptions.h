@@ -11,8 +11,6 @@
 
 #pragma once
 
-#include "StdInc.h"
-
 namespace EWaterContent
 {
 	enum EWaterContent

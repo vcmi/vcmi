@@ -11,8 +11,6 @@
 
 #pragma once
 
-#include "StdInc.h"
-
 #include "../ConstTransitivePtr.h"
 #include "../CObjectHandler.h"
 #include "../ResourceSet.h"

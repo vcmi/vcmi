@@ -1289,6 +1289,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(const CStack*
 
 	const int WN = GameConstants::BFIELD_WIDTH;
 	ui16 hex = (attackerPos != BattleHex::INVALID) ? attackerPos.hex : attacker->position.hex; //real or hypothetical (cursor) position
+	//FIXME: dragons or cerbers can rotate before attack, making their base hex different (#1124)
 	if (attacker->hasBonusOfType(Bonus::ATTACKS_ALL_ADJACENT))
 	{
 		boost::copy(attacker->getSurroundingHexes(attackerPos), vstd::set_inserter(at.hostileCreaturePositions));

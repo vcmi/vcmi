@@ -1,3 +1,4 @@
+#include "StdInc.h"
 #include "CMapService.h"
 
 #include "../Filesystem/CResourceLoader.h"

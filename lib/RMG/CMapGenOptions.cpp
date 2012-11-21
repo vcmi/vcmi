@@ -1,3 +1,4 @@
+#include "StdInc.h"
 #include "CMapGenOptions.h"
 
 CMapGenOptions::CMapGenOptions() : width(72), height(72), hasTwoLevels(true),

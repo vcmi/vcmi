@@ -1,3 +1,4 @@
+#include "StdInc.h"
 #include "CMapInfo.h"
 
 #include "../StartInfo.h"

@@ -1,7 +1,5 @@
 #pragma once
 
-#include "StdInc.h"
-
 // Forward class declarations aren't enough here. The compiler
 // generated CMapInfo d-tor, generates the unique_ptr d-tor as well here
 // as a inline method. The unique_ptr d-tor requires a complete type. Defining
