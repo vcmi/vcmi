@@ -23,6 +23,8 @@ libvcmi_la_SOURCES = \
 	Map/CMapInfo.h \
 	Map/CMapService.cpp \
 	Map/CMapService.h \
+	RMG/CMapGenOptions.cpp \
+	RMG/CMapGenOptions.h \
 	BattleAction.cpp \
 	BattleAction.h \
 	BattleState.cpp \
