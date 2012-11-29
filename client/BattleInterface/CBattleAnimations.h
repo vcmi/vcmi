@@ -44,9 +44,6 @@ public:
 	const CStack * stack; //id of stack whose animation it is
 
 	CBattleStackAnimation(CBattleInterface * _owner, const CStack * _stack);
-	
-	static bool isToReverseHlp(BattleHex hexFrom, BattleHex hexTo, bool curDir); //helper for isToReverse
-	static bool isToReverse(BattleHex hexFrom, BattleHex hexTo, bool curDir /*if true, creature is in attacker's direction*/, bool toDoubleWide, bool toDir); //determines if creature should be reversed (it stands on hexFrom and should 'see' hexTo)
 
 	CCreatureAnimation * myAnim(); //animation for our stack
 };

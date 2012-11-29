@@ -63,48 +63,6 @@ CBattleStackAnimation::CBattleStackAnimation(CBattleInterface * _owner, const CS
 : CBattleAnimation(_owner), stack(_stack) 
 {}
 
-bool CBattleStackAnimation::isToReverseHlp(BattleHex hexFrom, BattleHex hexTo, bool curDir)
-{
-	int fromMod = hexFrom % GameConstants::BFIELD_WIDTH;
-	int fromDiv = hexFrom / GameConstants::BFIELD_WIDTH;
-	int toMod = hexTo % GameConstants::BFIELD_WIDTH;
-
-	if(curDir && fromMod < toMod)
-		return false;
-	else if(curDir && fromMod > toMod)
-		return true;
-	else if(curDir && fromMod == toMod)
-	{
-		return fromDiv % 2 == 0;
-	}
-	else if(!curDir && fromMod < toMod)
-		return true;
-	else if(!curDir && fromMod > toMod)
-		return false;
-	else if(!curDir && fromMod == toMod)
-	{
-		return fromDiv % 2 == 1;
-	}
-	tlog1 << "Catastrope in CBattleStackAnimation::isToReverse!" << std::endl;
-	return false; //should never happen
-}
-
-bool CBattleStackAnimation::isToReverse(BattleHex hexFrom, BattleHex hexTo, bool curDir, bool toDoubleWide, bool toDir)
-{
-	if(hexTo < 0) //turret
-		return false;
-
-	if(toDoubleWide)
-	{
-		return isToReverseHlp(hexFrom, hexTo, curDir) &&
-			(toDir ? isToReverseHlp(hexFrom, hexTo-1, curDir) : isToReverseHlp(hexFrom, hexTo+1, curDir) );
-	}
-	else
-	{
-		return isToReverseHlp(hexFrom, hexTo, curDir);
-	}
-}
-
 CCreatureAnimation* CBattleStackAnimation::myAnim()
 {
 	return owner->creAnims[stack->ID];
@@ -197,7 +155,7 @@ bool CDefenceAnimation::init()
 
 
 	//reverse unit if necessary
-	if(attacker && isToReverse(stack->position, attacker->position, owner->creDir[stack->ID], attacker->doubleWide(), owner->creDir[attacker->ID]))
+	if (attacker && owner->curInt->cb->isToReverse(stack->position, attacker->position, owner->creDir[stack->ID], attacker->doubleWide(), owner->creDir[attacker->ID]))
 	{
 		owner->addNewAnim(new CReverseAnimation(owner, stack, stack->position, true));
 		return false;
@@ -313,9 +271,9 @@ bool CMeleeAttackAnimation::init()
 		return false;
 	}
 
-	bool toReverse = isToReverse(attackingStackPosBeforeReturn, dest, owner->creDir[stack->ID], attackedStack->doubleWide(), owner->creDir[attackedStack->ID]);
+	bool toReverse = owner->curInt->cb->isToReverse(attackingStackPosBeforeReturn, dest, owner->creDir[stack->ID], attackedStack->doubleWide(), owner->creDir[attackedStack->ID]);
 
-	if(toReverse)
+	if (toReverse)
 	{
 
 		owner->addNewAnim(new CReverseAnimation(owner, stack, attackingStackPosBeforeReturn, true));

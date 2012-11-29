@@ -1282,14 +1282,26 @@ ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityIn
 	return ret;
 }
 
-AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos) const
+AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos) const
 {
+	//TODO: apply rotation to two-hex attackers
+	auto side = playerToSide (attacker->owner);
+
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
 
 	const int WN = GameConstants::BFIELD_WIDTH;
 	ui16 hex = (attackerPos != BattleHex::INVALID) ? attackerPos.hex : attacker->position.hex; //real or hypothetical (cursor) position
+
 	//FIXME: dragons or cerbers can rotate before attack, making their base hex different (#1124)
+	bool reverse = isToReverse (hex, destinationTile, side, attacker->doubleWide(), side);
+	if (reverse && attacker->doubleWide())
+	{
+		if (attacker->owner)
+			--hex; //move left
+		else
+			++hex; //move right
+	}
 	if (attacker->hasBonusOfType(Bonus::ATTACKS_ALL_ADJACENT))
 	{
 		boost::copy(attacker->getSurroundingHexes(attackerPos), vstd::set_inserter(at.hostileCreaturePositions));
@@ -1301,7 +1313,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(const CStack*
 		std::vector<BattleHex> hexes = attacker->getSurroundingHexes(attackerPos);
 		BOOST_FOREACH (BattleHex tile, hexes)
 		{
-			if ((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition(tile, hex) > -1) //adjacent both to attacker's head and attacked tile
+			if ((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition (tile, hex) > -1) //adjacent both to attacker's head and attacked tile
 				|| tile == destinationTile) //or simply attacked directly
 			{
 				const CStack * st = battleGetStackByPos(tile, true);
@@ -1312,7 +1324,7 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(const CStack*
 			}
 		}
 	}
-	if (attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH))
+	if (attacker->hasBonusOfType(Bonus::TWO_HEX_ATTACK_BREATH) && BattleHex::mutualPosition (destinationTile.hex, hex) > -1) //only adjacent hexes are subject of dragon breath calculation
 	{
 		std::vector<BattleHex> hexes; //only one, in fact
 		int pseudoVector = destinationTile.hex - hex;
@@ -1320,24 +1332,24 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes(const CStack*
 		{
 		case 1:
 		case -1:
-			BattleHex::checkAndPush(destinationTile.hex + pseudoVector, hexes);
+			BattleHex::checkAndPush (destinationTile.hex + pseudoVector, hexes);
 			break;
-		case WN: //17
-		case WN + 1: //18
-		case -WN: //-17
-		case -WN + 1: //-16
-			BattleHex::checkAndPush(destinationTile.hex + pseudoVector + ((hex/WN)%2 ? 1 : -1 ), hexes);
+		case WN: //17 //left-down or right-down
+		case -WN: //-17 //left-up or right-up
+		case WN + 1: //18 //right-down
+		case -WN + 1: //-16 //right-up
+			BattleHex::checkAndPush (destinationTile.hex + pseudoVector + ((hex/WN)%2 ? 1 : -1 ), hexes);
 			break;
-		case WN-1: //16
-		case -WN-1: //-18
-			BattleHex::checkAndPush(destinationTile.hex + pseudoVector + ((hex/WN)%2 ? 1 : 0), hexes);
+		case WN-1: //16 //left-down
+		case -WN-1: //-18 //left-up
+			BattleHex::checkAndPush (destinationTile.hex + pseudoVector + ((hex/WN)%2 ? 1 : 0), hexes);
 			break;
 		}
 		BOOST_FOREACH (BattleHex tile, hexes)
 		{
 			//friendly stacks can also be damaged by Dragon Breath
-			if(battleGetStackByPos(tile, true))
-				at.friendlyCreaturePositions.insert(tile);
+			if (battleGetStackByPos (tile, true))
+				at.friendlyCreaturePositions.insert (tile);
 		}
 	}
 
@@ -1367,6 +1379,48 @@ std::set<const CStack*> CBattleInfoCallback::getAttackedCreatures(const CStack* 
 		}
 	}
 	return attackedCres;
+}
+
+bool CBattleInfoCallback::isToReverseHlp (BattleHex hexFrom, BattleHex hexTo, bool curDir) const //TODO: this should apply also to mechanics and cursor interface
+{
+	int fromMod = hexFrom % GameConstants::BFIELD_WIDTH;
+	int fromDiv = hexFrom / GameConstants::BFIELD_WIDTH;
+	int toMod = hexTo % GameConstants::BFIELD_WIDTH;
+
+	if(curDir && fromMod < toMod)
+		return false;
+	else if(curDir && fromMod > toMod)
+		return true;
+	else if(curDir && fromMod == toMod)
+	{
+		return fromDiv % 2 == 0;
+	}
+	else if(!curDir && fromMod < toMod)
+		return true;
+	else if(!curDir && fromMod > toMod)
+		return false;
+	else if(!curDir && fromMod == toMod)
+	{
+		return fromDiv % 2 == 1;
+	}
+	tlog1 << "Catastrope in CBattleInfoCallback::isToReverse!" << std::endl;
+	return false; //should never happen
+}
+
+bool CBattleInfoCallback::isToReverse (BattleHex hexFrom, BattleHex hexTo, bool curDir, bool toDoubleWide, bool toDir) const //TODO: this should apply also to mechanics and cursor interface
+{
+	if (hexTo < 0) //turret
+		return false;
+
+	if (toDoubleWide)
+	{
+		return (isToReverseHlp (hexFrom, hexTo, curDir)) &&
+			(toDir ? isToReverseHlp (hexFrom, hexTo-1, curDir) : isToReverseHlp (hexFrom, hexTo+1, curDir));
+	}
+	else
+	{
+		return isToReverseHlp(hexFrom, hexTo, curDir);
+	}
 }
 
 ReachabilityInfo::TDistances CBattleInfoCallback::battleGetDistances(const CStack * stack, BattleHex hex /*= BattleHex::INVALID*/, BattleHex * predecessors /*= NULL*/) const
@@ -1400,17 +1454,19 @@ si8 CBattleInfoCallback::battleHasDistancePenalty(const IBonusBearer *bonusBeare
 	if(bonusBearer->hasBonusOfType(Bonus::NO_DISTANCE_PENALTY))
 		return false;
 
-	if(BattleHex::getDistance(shooterPosition, destHex) <= GameConstants::BATTLE_PENALTY_DISTANCE)
-		return false;
-
 	if(const CStack * dstStack = battleGetStackByPos(destHex, false))
 	{
-		//If on dest hex stands stack that occupies a hex within our distance
+		//If any hex of target creature is within range, there is no penalty
 		BOOST_FOREACH(auto hex, dstStack->getHexes())
 			if(BattleHex::getDistance(shooterPosition, hex) <= GameConstants::BATTLE_PENALTY_DISTANCE)
 				return false;
 
 		//TODO what about two-hex shooters?
+	}
+	else
+	{
+		if (BattleHex::getDistance(shooterPosition, destHex) <= GameConstants::BATTLE_PENALTY_DISTANCE)
+			return false;
 	}
 
 	return true;

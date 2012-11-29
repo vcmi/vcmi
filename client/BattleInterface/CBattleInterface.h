@@ -122,7 +122,7 @@ private:
 	CDefHandler *fireWall;
 	CDefHandler *smallForceField[2], *bigForceField[2]; // [side]
 
-	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation>
+	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation> //TODO: move it to battle callback
 	ui8 animCount;
 	const CStack * activeStack; //number of active stack; NULL - no one
 	const CStack * stackToActivate; //when animation is playing, we should wait till the end to make the next stack active; NULL of none
