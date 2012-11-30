@@ -775,8 +775,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 
 	if (!bat.shot()) //multiple-hex attack - only in meele
 	{
-		std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(att, targetHex);
-		//TODO: get exact attacked hex for defender
+		std::set<const CStack*> attackedCreatures = gs->curB->getAttackedCreatures(att, targetHex); //creatures other than primary target
 
 		BOOST_FOREACH(const CStack * stack, attackedCreatures)
 		{

@@ -1284,8 +1284,9 @@ ReachabilityInfo CBattleInfoCallback::getFlyingReachability(const ReachabilityIn
 
 AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos) const
 {
+	//does not return hex attacked directly
 	//TODO: apply rotation to two-hex attackers
-	auto side = playerToSide (attacker->owner);
+	bool isAttacker = attacker->attackerOwned;
 
 	AttackableTiles at;
 	RETURN_IF_NOT_BATTLE(at);
@@ -1294,27 +1295,21 @@ AttackableTiles CBattleInfoCallback::getPotentiallyAttackableHexes (const CStack
 	ui16 hex = (attackerPos != BattleHex::INVALID) ? attackerPos.hex : attacker->position.hex; //real or hypothetical (cursor) position
 
 	//FIXME: dragons or cerbers can rotate before attack, making their base hex different (#1124)
-	bool reverse = isToReverse (hex, destinationTile, side, attacker->doubleWide(), side);
-	if (reverse && attacker->doubleWide())
+	bool reverse = isToReverse (hex, destinationTile, isAttacker, attacker->doubleWide(), isAttacker);
+	if (reverse)
 	{
-		if (attacker->owner)
-			--hex; //move left
-		else
-			++hex; //move right
+		hex = attacker->occupiedHex(hex); //the other hex stack stands on
 	}
 	if (attacker->hasBonusOfType(Bonus::ATTACKS_ALL_ADJACENT))
 	{
-		boost::copy(attacker->getSurroundingHexes(attackerPos), vstd::set_inserter(at.hostileCreaturePositions));
-// 		BOOST_FOREACH (BattleHex tile, attacker->getSurroundingHexes(attackerPos))
-// 			at.hostileCreaturePositions.insert(tile);
+		boost::copy (attacker->getSurroundingHexes (attackerPos), vstd::set_inserter (at.hostileCreaturePositions));
 	}
 	if (attacker->hasBonusOfType(Bonus::THREE_HEADED_ATTACK))
 	{
 		std::vector<BattleHex> hexes = attacker->getSurroundingHexes(attackerPos);
 		BOOST_FOREACH (BattleHex tile, hexes)
 		{
-			if ((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition (tile, hex) > -1) //adjacent both to attacker's head and attacked tile
-				|| tile == destinationTile) //or simply attacked directly
+			if ((BattleHex::mutualPosition(tile, destinationTile) > -1 && BattleHex::mutualPosition (tile, hex) > -1)) //adjacent both to attacker's head and attacked tile
 			{
 				const CStack * st = battleGetStackByPos(tile, true);
 				if(st && st->owner != attacker->owner) //only hostile stacks - does it work well with Berserk?
