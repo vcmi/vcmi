@@ -62,12 +62,17 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <_ProjectFileVersion>10.0.30128.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)</OutDir>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)_VC9\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)_VC9\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">..\..\RD</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(Configuration)_VC9\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(SolutionDir)$(Configuration)\bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">G:\Programowanie\VCMI\RD</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|x64'">$(SolutionDir)$(Configuration)\bin\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RD|x64'">$(Configuration)\</IntDir>
@@ -94,8 +99,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <AdditionalOptions>/MP4 %(AdditionalOptions) /bigobj
-</AdditionalOptions>
+      <AdditionalOptions>/MP4 /bigobj %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MinimalRebuild>false</MinimalRebuild>
@@ -104,20 +108,21 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <DisableSpecificWarnings>4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <ExpandAttributedSource>false</ExpandAttributedSource>
-      <AssemblerOutput>NoListing</AssemblerOutput>
-      <PreprocessToFile>false</PreprocessToFile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
       <PrecompiledHeaderOutputFile>$(IntDir)StdInc.h.pch</PrecompiledHeaderOutputFile>
       <PreprocessorDefinitions>VCMI_DLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL.lib;zdll.lib;SDL_image.lib;SDL_ttf.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>E:\Programowanie\VCMI;../../libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <PreBuildEvent>
+      <Command>
+      </Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -170,7 +175,7 @@
       <AdditionalDependencies>zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>
       </Version>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>G:\Programowanie\VCMI\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <OptimizeReferences>true</OptimizeReferences>
@@ -183,15 +188,14 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">
     <ClCompile>
-      <AdditionalOptions>/Oy- %(AdditionalOptions) /bigobj
-</AdditionalOptions>
+      <AdditionalOptions>/Oy- %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Full</Optimization>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <OmitFramePointers>false</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Programowanie\VCMI\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
@@ -209,14 +213,13 @@
       <AdditionalDependencies>zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Version>
       </Version>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>F:\Programowanie\VCMI\libs;../../libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
-      <Profile>true</Profile>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>

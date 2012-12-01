@@ -66,7 +66,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(SolutionDir)\AI\</OutDir>
+    <OutDir>..\..\..\AI</OutDir>
     <IncludePath>$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -76,7 +76,7 @@
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
-    <OutDir>$(SolutionDir)$(Configuration)\bin\AI\</OutDir>
+    <OutDir>G:\Programowanie\VCMI\RD\AI\</OutDir>
     <IncludePath>$(IncludePath)</IncludePath>
     <LibraryPath>$(LibraryPath)</LibraryPath>
   </PropertyGroup>
@@ -89,17 +89,18 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Zm150 %(AdditionalOptions)</AdditionalOptions>
+      <PreprocessorDefinitions>_WINDLL;_ITERATOR_DEBUG_LEVEL=2;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>VCMI_lib.lib;FuzzyLite.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>VCMI_lib.lib;G:\Programowanie\VCMI\AI\FuzzyLite.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>$(OutDir)..;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)VCAI.dll</OutputFile>
+      <AdditionalLibraryDirectories>../../..;%(AdditionalLibraryDirectories);../../../libs</AdditionalLibraryDirectories>
+      <ShowProgress>LinkVerbose</ShowProgress>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -125,8 +126,7 @@
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\..\..\include\fuzzyLite;..\..\..\include\fuzzyLite\fuzzylite</AdditionalIncludeDirectories>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
       <AdditionalOptions>/Zm150 %(AdditionalOptions)</AdditionalOptions>
@@ -136,8 +136,9 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalDependencies>VCMI_lib.lib;FuzzyLite.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir)..;$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(OutDir)..;$(OutDir);G:\Programowanie\VCMI\libs;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)VCAI.dll</OutputFile>
+      <PerUserRedirection>true</PerUserRedirection>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">

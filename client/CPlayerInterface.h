@@ -5,7 +5,7 @@
 #include "FunctionList.h"
 #include "../lib/CGameInterface.h"
 #include "UIFramework/CIntObject.h"
-#include "CGameState.h"
+#include "../lib/CGameState.h"
 
 #ifdef __GNUC__
 #define sprintf_s snprintf

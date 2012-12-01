@@ -62,12 +62,17 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <_ProjectFileVersion>10.0.30128.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(SolutionDir)</OutDir>
+    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)_VC9\</IntDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)_VC9\</IntDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">..\..\RD</OutDir>
+    <IntDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(Configuration)_VC9\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(SolutionDir)$(Configuration)\bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">G:\Programowanie\VCMI\RD</OutDir>
     <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|x64'">$(SolutionDir)$(Configuration)\bin\</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RD|x64'">$(Configuration)\</IntDir>
@@ -96,7 +101,7 @@
     <ClCompile>
       <AdditionalOptions>/MP4 %(AdditionalOptions)</AdditionalOptions>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Programowanie\Biblioteki\boost_1_45_0\stage\lib;..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
       <MinimalRebuild>false</MinimalRebuild>
@@ -105,14 +110,13 @@
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
       <DisableSpecificWarnings>4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-      <AssemblerOutput>NoListing</AssemblerOutput>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <AdditionalDependencies>SDL.lib;zlib.lib;SDL_image.lib;SDL_ttf.lib;SDL_mixer.lib;VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>G:\Programowanie\VCMI\AI;../..;../../libs;../;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences>false</OptimizeReferences>
       <TargetMachine>MachineX86</TargetMachine>
@@ -160,7 +164,7 @@
       <OmitFramePointers>false</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Programowanie\VCMI\include;..\..\include;F:\Programowanie\VCMI\vcmi\client;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -174,8 +178,8 @@
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL.lib;zlib.lib;SDL_image.lib;SDL_ttf.lib;SDL_mixer.lib;VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL.lib;zdll.lib;SDL_image.lib;SDL_ttf.lib;SDL_mixer.lib;VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>G:\Programowanie\VCMI\libs;G:\Programowanie\VCMI\RD;../;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <Driver>NotSet</Driver>
@@ -186,6 +190,7 @@
       <TargetMachine>MachineX86</TargetMachine>
       <Profile>true</Profile>
       <ShowProgress>NotSet</ShowProgress>
+      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">
@@ -197,7 +202,7 @@
       <OmitFramePointers>false</OmitFramePointers>
       <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
       <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>F:\Programowanie\VCMI\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <StringPooling>true</StringPooling>
       <BasicRuntimeChecks>Default</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
@@ -211,8 +216,8 @@
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL.lib;zlib.lib;SDL_image.lib;SDL_ttf.lib;SDL_mixer.lib;VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>SDL.lib;zdll.lib;SDL_image.lib;SDL_ttf.lib;SDL_mixer.lib;VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>F:\Programowanie\VCMI\libs;../../RD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <Driver>NotSet</Driver>
@@ -275,13 +280,16 @@
     <ClInclude Include="BattleInterface\CBattleInterfaceClasses.h" />
     <ClInclude Include="BattleInterface\CCreatureAnimation.h" />
     <ClInclude Include="CAdvmapInterface.h" />
+    <ClInclude Include="..\hch\CArtHandler.h" />
     <ClInclude Include="CAnimation.h" />
     <ClInclude Include="CBitmapHandler.h" />
+    <ClInclude Include="..\hch\CBuildingHandler.h" />
     <ClInclude Include="..\CCallback.h" />
     <ClInclude Include="CCastleInterface.h" />
     <ClInclude Include="CCreatureWindow.h" />
     <ClInclude Include="CDefHandler.h" />
     <ClInclude Include="CGameInfo.h" />
+    <ClInclude Include="..\hch\CHeroHandler.h" />
     <ClInclude Include="CHeroWindow.h" />
     <ClInclude Include="CKingdomInterface.h" />
     <ClInclude Include="Client.h" />
@@ -292,12 +300,12 @@
     <ClInclude Include="CQuestLog.h" />
     <ClInclude Include="CSoundBase.h" />
     <ClInclude Include="CSpellWindow.h" />
+    <ClInclude Include="..\hch\CVideoHandler.h" />
     <ClInclude Include="CVideoHandler.h" />
     <ClInclude Include="FontBase.h" />
     <ClInclude Include="FunctionList.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GUIClasses.h" />
-    <ClInclude Include="mapHandler.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="UIFramework\CCursorHandler.h" />
@@ -309,7 +317,6 @@
     <ClInclude Include="UIFramework\SDL_Pixels.h" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\ChangeLog" />
     <None Include="vcmi.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -318,6 +325,7 @@
   <ItemGroup>
     <ProjectReference Include="..\lib\VCMI_lib.vcxproj">
       <Project>{b952ffc5-3039-4de1-9f08-90acda483d8f}</Project>
+      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
