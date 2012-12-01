@@ -666,6 +666,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::SPELL_IMMUNITY:
 				case Bonus::SPELLCASTER:
 				case Bonus::ENCHANTER:
+				case Bonus::ENCHANTED:
 					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
 					break;
 				case Bonus::MAGIC_RESISTANCE:
@@ -690,7 +691,8 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 	{
 			//"E_ALIVE.bmp"
 			//"E_ART.bmp"
-			//"E_BLESS.bmp"
+		case Bonus::ENCHANTED:
+			fileName = "E_BLESS.bmp"; break;
 			//"E_BLOCK.bmp"
 			//"E_BLOCK1.bmp"
 			//"E_BLOCK2.bmp"

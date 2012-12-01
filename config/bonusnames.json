@@ -56,6 +56,7 @@
 			{ "id": "REBIRTH", "name": "Rebirth (%d%)", "description": "Stack will rise after death" },
 			{ "id": "SPELLCASTER", "name": "Spellcaster (%s)", "description": "Can cast spells" },
 			{ "id": "ENCHANTER", "name": "Enchanter (%s)", "description": "Casts mass spell every turn" },
+			{ "id": "ENCHANTED", "name": "Enchanted (%s)", "description": "Affected by permanent spell" },
 			{ "id": "RANDOM_SPELLCASTER", "name": "Random spellcaster", "description": "Can cast random spell" },
 			{ "id": "DAEMON_SUMMONING", "name": "Summoner (%s)", "description": "Can rise creatures from corpses" }
 		]

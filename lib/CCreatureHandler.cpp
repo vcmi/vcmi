@@ -799,7 +799,6 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.type = Bonus::STACKS_SPEED; break;
 	case 'O':
 		b.type = Bonus::SHOTS; break;
-
 	case 'b':
 		b.type = Bonus::ENEMY_DEFENCE_REDUCTION; break;
 	case 'C':
@@ -826,7 +825,6 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.type = Bonus::MAGIC_RESISTANCE;
 		b.subtype = 0; //otherwise creature window goes crazy
 		break;
-
 	case 'f': //on-off skill
 		enable = true; //sometimes format is: 2 -> 0, 1 -> 1
 		switch (mod[0])
@@ -866,7 +864,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'U':
 				b.type = Bonus::UNDEAD; break;
 			default:
-			tlog5 << "Not parsed bonus " << buf << mod << "\n";
+				tlog5 << "Not parsed bonus " << buf << mod << "\n";
 				return;
 				break;
 		}
@@ -992,6 +990,11 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.type = Bonus::SPELL_BEFORE_ATTACK;
 		b.subtype = stringToNumber(mod);
 		b.additionalInfo = 3; //always expert?
+		break;
+	case 's':
+		b.type = Bonus::ENCHANTED;
+		b.subtype = stringToNumber(mod);
+		b.valType = Bonus::INDEPENDENT_MAX;
 		break;
 	default:
 		tlog5 << "Not parsed bonus " << buf << mod << "\n";

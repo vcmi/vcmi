@@ -1517,6 +1517,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 			}
 			break;
 		case Spells::FORGETFULNESS:
+		case Spells::PRECISION:
 			if (!subject->hasBonusOfType(Bonus::SHOOTER))
 				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 			break;

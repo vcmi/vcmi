@@ -4605,6 +4605,36 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 				sendAndApply(&ssp);
 			}
 		}
+		bl = *(st->getBonuses(Selector::type(Bonus::ENCHANTED)));
+		BOOST_FOREACH (auto b, bl)
+		{
+			SetStackEffect sse;
+			int val = bl.valOfBonuses (Selector::typeSubtype(b->type, b->subtype));
+			if (val > 3)
+			{
+				BOOST_FOREACH (auto s, gs->curB->battleGetAllStacks())
+				{
+					if (st->owner == s->owner && s->isValidTarget()) //all allied
+						sse.stacks.push_back (s->ID);
+				}
+			}
+			else
+				sse.stacks.push_back (st->ID);
+			//from handleSpellCasting
+			//SetStackEffect sse;
+			//Bonus pseudoBonus;
+			//pseudoBonus.sid = spellID;
+			//pseudoBonus.val = spellLvl;
+			//pseudoBonus.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, stackSpellPower ? stackSpellPower : usedSpellPower);
+			//CStack::stackEffectToFeature(sse.effect, pseudoBonus);
+
+			Bonus pseudoBonus;
+			pseudoBonus.sid = b->subtype;
+			pseudoBonus.val = ((val > 3) ?  (val - 3) : val);
+			pseudoBonus.turnsRemain = 50;
+			st->stackEffectToFeature (sse.effect, pseudoBonus);
+			sendAndApply (&sse);
+		}
 	}
 }
 
