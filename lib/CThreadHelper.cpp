@@ -3,7 +3,7 @@
 
 #ifdef _WIN32
 	#include <windows.h>
-#else
+#elif !defined(__APPLE__)
 	#include <sys/prctl.h>
 #endif
 /*
@@ -80,7 +80,7 @@ void setThreadName(const std::string &name)
 //not supported
 #endif
 
-#else
-	 prctl(PR_SET_NAME, name.c_str(), 0, 0, 0);
+#elif defined(__linux__)
+	prctl(PR_SET_NAME, name.c_str(), 0, 0, 0);
 #endif
 }

@@ -10,13 +10,15 @@ set(server_SRCS
         NetPacksServer.cpp
 )
 
-IF(UNIX)
-    add_executable(vcmiserver ${server_SRCS})
-ELSEIF(WIN32)
+if(WIN32)
     add_executable(vcmiserver WIN32 ${server_SRCS})
-ENDIF()
+else()
+    add_executable(vcmiserver ${server_SRCS})
+endif()
 
 target_link_libraries(vcmiserver vcmi ${Boost_LIBRARIES} ${RT_LIB} ${DL_LIB})
 
-install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
+if (NOT APPLE) # Already inside vcmiclient bundle
+    install(TARGETS vcmiserver DESTINATION ${BIN_DIR})
+endif()
 

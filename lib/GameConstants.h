@@ -19,15 +19,22 @@ namespace GameConstants
 	 * BIN_DIR is where the vcmiclient/vcmiserver binaries reside
 	 * LIB_DIR is where the AI libraries reside (linux only)
 	 */
-	#ifdef _WIN32
+	#if defined(_WIN32)
 		const std::string DATA_DIR = ".";
 		const std::string BIN_DIR = ".";
 		const std::string LIB_DIR = ".";
 		const std::string SERVER_NAME = "VCMI_server.exe";
 		const std::string LIB_EXT = "dll";
 		const std::string PATH_SEPARATOR = "\\";
-	#else
-		#ifndef M_DATA_DIR
+	#elif defined(__APPLE__)
+		const std::string DATA_DIR = "../Data";
+        const std::string BIN_DIR = ".";
+        const std::string LIB_DIR = ".";
+        const std::string SERVER_NAME = "./vcmiserver";
+        const std::string LIB_EXT = "dylib";
+        const std::string PATH_SEPARATOR = "/";
+    #else
+        #ifndef M_DATA_DIR
 		#error M_DATA_DIR undefined.
 		#else
 		const std::string DATA_DIR = M_DATA_DIR;

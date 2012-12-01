@@ -5,6 +5,7 @@
 #include "../../lib/ConstTransitivePtr.h" //may be reundant
 #include "../CAnimation.h"
 #include "../../lib/GameConstants.h"
+#include "CBattleAnimations.h"
 
 /*
  * CBattleInterface.h, part of VCMI engine

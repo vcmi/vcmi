@@ -2,6 +2,7 @@
 
 
 #include "../lib/int3.h"
+#include "SDL.h"
 
 /*
  * mapHandler.h, part of VCMI engine
@@ -21,7 +22,7 @@ class CGObjectInstance;
 class CDefHandler;
 struct TerrainTile;
 struct SDL_Surface;
-struct SDL_Rect;
+//struct SDL_Rect;
 class CDefEssential;
 
 struct TerrainTile2

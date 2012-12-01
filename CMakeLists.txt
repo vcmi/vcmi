@@ -15,6 +15,25 @@ option(DISABLE_ERM "Disable compilation of ERM scripting module" ON)
 #        Building section                  #
 ############################################
 
+if (APPLE)
+	# Default location for thirdparty libs
+	set(CMAKE_INCLUDE_PATH "../include")
+	set(CMAKE_LIBRARY_PATH "../lib")
+	set(CMAKE_FRAMEWORK_PATH "../Frameworks")
+	set(BOOST_ROOT "../")
+
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
+	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_HOME_DIRECTORY}/bin")
+
+	set(CMAKE_XCODE_ATTRIBUTE_CONFIGURATION_BUILD_DIR "${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)")
+	set(CMAKE_XCODE_ATTRIBUTE_LD_RUNPATH_SEARCH_PATHS "@executable_path/../Frameworks")
+
+	# Build with clang ang libc++
+	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
+	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+endif()
+
 find_package(Boost 1.46.0 COMPONENTS program_options filesystem system thread REQUIRED)
 find_package(SDL REQUIRED)
 find_package(SDL_image REQUIRED)
@@ -47,6 +66,13 @@ if(WIN32) # on Win everything goes into H3 root directory
 	set(BIN_DIR "" CACHE STRING "Where to install binaries")
 	set(LIB_DIR "" CACHE STRING "Where to install main library")
 	set(DATA_DIR "" CACHE STRING "Where to install data files")
+elseif(APPLE)
+	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
+	include(GNUInstallDirs)
+
+	set(BIN_DIR "." CACHE STRING "Where to install binaries")
+	set(LIB_DIR "." CACHE STRING "Where to install main library")
+	set(DATA_DIR "../h3" CACHE STRING "Where to install data files")
 else()
 	# includes lib path which determines where to install shared libraries (either /lib or /lib64)
 	include(GNUInstallDirs)
@@ -79,17 +105,21 @@ endif()
 #    Installation section             #
 #######################################
 
-# copy whole directory but .svn control files and user-specific settings.json
-install(DIRECTORY config DESTINATION ${DATA_DIR} PATTERN ".svn" EXCLUDE PATTERN "settings.json" EXCLUDE)
-# copy vcmi mod along with all its content
-install(DIRECTORY Mods/vcmi DESTINATION ${DATA_DIR}/Mods PATTERN ".svn" EXCLUDE)
-# copy only fs.json for WoG
-install(FILES Mods/WoG/filesystem.json DESTINATION ${DATA_DIR}/Mods/WoG)
+# For apple this files will be already inside vcmiclient bundle
+if (NOT APPLE)
+	# copy whole directory but .svn control files and user-specific settings.json
+	install(DIRECTORY config DESTINATION ${DATA_DIR} PATTERN ".svn" EXCLUDE PATTERN "settings.json" EXCLUDE)
+	# copy vcmi mod along with all its content
+	install(DIRECTORY Mods/vcmi DESTINATION ${DATA_DIR}/Mods PATTERN ".svn" EXCLUDE)
+	# copy only fs.json for WoG
+	install(FILES Mods/WoG/filesystem.json DESTINATION ${DATA_DIR}/Mods/WoG)
+endif()
 
 if(WIN32)
 	#TODO: install any additional dll's. This version (may be broken) will copy all dll's including H3 ones
 	#FILE(GLOB dll_files "${CMAKE_BINARY_DIR}/*.dll")
 	#INSTALL(FILES ${dll_files} DESTINATION ${BIN_DIR})
+elseif(APPLE)
 else()
 	#install icons and desktop file on Linux
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png" DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
@@ -118,6 +148,8 @@ set(CPACK_INCLUDE_TOPLEVEL_DIRECTORY 0)
 
 if(WIN32)
 	set(CPACK_GENERATOR ZIP) # just use zip? CPack has some GUI install as well
+elseif(APPLE)
+	set(CPACK_GENERATOR DragNDrop)
 else()
 	set(CPACK_GENERATOR TGZ)
 endif()

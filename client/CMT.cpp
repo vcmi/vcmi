@@ -177,11 +177,20 @@ static void prog_help(const po::options_description &opts)
 
 #ifdef _WIN32
 int _tmain(int argc, _TCHAR* argv[])
+#elif defined(__APPLE__)
+int SDL_main(int argc, char *argv[])
 #else
 int main(int argc, char** argv)
 #endif
 {
-	tlog0 << "Starting... " << std::endl;      
+#ifdef __APPLE__
+	// Correct working dir executable folder (not bundle folder) so we can use executable relative pathes
+    std::string executablePath = argv[0];
+    std::string workDir = executablePath.substr(0, executablePath.rfind('/'));
+    chdir(workDir.c_str());
+#endif
+    
+	tlog0 << "Starting... " << std::endl;
 	po::options_description opts("Allowed options");
 	opts.add_options()
 		("help,h", "display help and exit")

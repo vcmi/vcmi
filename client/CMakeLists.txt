@@ -42,11 +42,45 @@ set(client_SRCS
         NetPacksClient.cpp
 )
 
-IF(UNIX)
-    add_executable(vcmiclient ${client_SRCS})
-ELSEIF(WIN32)
+if(WIN32)
     add_executable(vcmiclient WIN32 ${client_SRCS})
-ENDIF()
+elseif(APPLE)
+    # When building for OS X we need add SDLMain.m to source files
+    add_executable(vcmiclient MACOSX_BUNDLE ${client_SRCS} SDLMain.m ${CMAKE_CURRENT_SOURCE_DIR}/vcmi.icns)
+
+    # Because server and AI libs would be copies to bundle they need to be built before client
+    add_dependencies(vcmiclient vcmiserver VCAI EmptyAI StupidAI BattleAI)
+
+    # Copy icon file
+    set(MACOSX_BUNDLE_ICON_FILE vcmi.icns)
+    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/vcmi.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+
+    # Copy server executable, libs and game data to bundle
+    set(BUNDLE_PATH ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiclient.app/Contents)
+    set(MakeVCMIBundle
+        # Copy all needed binaries
+        mkdir -p ${BUNDLE_PATH}/MacOS/AI &&
+        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiserver ${BUNDLE_PATH}/MacOS/vcmiserver &&
+        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libvcmi.dylib ${BUNDLE_PATH}/MacOS/libvcmi.dylib &&
+        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libVCAI.dylib ${BUNDLE_PATH}/MacOS/AI/libVCAI.dylib &&
+        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libStupidAI.dylib ${BUNDLE_PATH}/MacOS/AI/libStupidAI.dylib &&
+        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libEmptyAI.dylib ${BUNDLE_PATH}/MacOS/AI/libEmptyAI.dylib &&
+        cp ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/libBattleAI.dylib ${BUNDLE_PATH}/MacOS/AI/libBattleAI.dylib &&
+
+        # Copy frameworks
+        cp -r ${CMAKE_HOME_DIRECTORY}/${CMAKE_FRAMEWORK_PATH} ${BUNDLE_PATH}/Frameworks &&
+
+        # Copy vcmi data
+        mkdir -p ${BUNDLE_PATH}/Data &&
+        mkdir -p ${BUNDLE_PATH}/Data/Mods &&
+        mkdir -p ${BUNDLE_PATH}/Data/Mods/WoG &&
+        cp -r ${CMAKE_HOME_DIRECTORY}/config ${BUNDLE_PATH}/Data/config &&
+        cp -r ${CMAKE_HOME_DIRECTORY}/Mods/vcmi ${BUNDLE_PATH}/Data/Mods/vcmi &&
+        cp ${CMAKE_HOME_DIRECTORY}/Mods/WoG/filesystem.json ${BUNDLE_PATH}/Data/Mods/WoG/filesystem.json)
+    add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${MakeVCMIBundle})
+else()
+    add_executable(vcmiclient ${client_SRCS})
+endif()
 
 target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${RT_LIB} ${DL_LIB})
 
