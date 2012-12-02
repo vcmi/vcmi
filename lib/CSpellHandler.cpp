@@ -364,7 +364,7 @@ void CSpellHandler::loadSpells()
 		BOOST_FOREACH(const JsonNode &range, spell["ranges"].Vector())
 			s->range[idx++] = range.String();
 
-		s->counteredSpells = spell["counters"].StdVector<TSpell>();
+		s->counteredSpells = spell["counters"].convertTo<std::vector<TSpell> >();
 	}
 	//spell fixes
 

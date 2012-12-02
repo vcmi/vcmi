@@ -841,7 +841,7 @@ void CGameState::init(StartInfo * si)
 		for(auto it = scenarioOps->playerInfos.cbegin();
 			it != scenarioOps->playerInfos.cend(); ++it)
 		{
-			if(it->second.human)
+			if(it->second.playerID != PlayerSettings::PLAYER_AI)
 				ret.push_back(&it->second);
 		}
 
@@ -996,7 +996,7 @@ void CGameState::init(StartInfo * si)
 	{
 		std::pair<TPlayerColor,PlayerState> ins(it->first,PlayerState());
 		ins.second.color=ins.first;
-		ins.second.human = it->second.human;
+		ins.second.human = it->second.playerID;
 		ins.second.team = map->players[ins.first].team;
 		teams[ins.second.team].id = ins.second.team;//init team
 		teams[ins.second.team].players.insert(ins.first);//add player to team
@@ -1021,7 +1021,8 @@ void CGameState::init(StartInfo * si)
 		for(auto it = scenarioOps->playerInfos.begin(); it != scenarioOps->playerInfos.end(); ++it)
 		{
 			const PlayerInfo &p = map->players[it->first];
-			bool generateHero = (p.generateHeroAtMainTown || (it->second.human && campaignGiveHero)) && p.hasMainTown;
+			bool generateHero = (p.generateHeroAtMainTown ||
+			                     (it->second.playerID != PlayerSettings::PLAYER_AI && campaignGiveHero)) && p.hasMainTown;
 			if(generateHero && vstd::contains(scenarioOps->playerInfos, it->first))
 			{
 				int3 hpos = p.posOfMainTown;
@@ -1040,7 +1041,6 @@ void CGameState::init(StartInfo * si)
 			}
 		}
 	}
-
 
 	/*************************replace hero placeholders*****************************/
 	tlog4 << "\tReplacing hero placeholders";
@@ -1301,14 +1301,14 @@ void CGameState::init(StartInfo * si)
 	for(auto k=players.begin(); k!=players.end(); ++k)
 	{
 		//starting bonus
-		if(scenarioOps->playerInfos[k->first].bonus==PlayerSettings::brandom)
+		if(scenarioOps->playerInfos[k->first].bonus==PlayerSettings::RANDOM)
 			scenarioOps->playerInfos[k->first].bonus = ran()%3;
 		switch(scenarioOps->playerInfos[k->first].bonus)
 		{
-		case PlayerSettings::bgold:
+		case PlayerSettings::GOLD:
 			k->second.resources[Res::GOLD] += 500 + (ran()%6)*100;
 			break;
-		case PlayerSettings::bresource:
+		case PlayerSettings::RESOURCE:
 			{
 				int res = VLC->townh->towns[scenarioOps->playerInfos[k->first].castle].primaryRes;
 				if(res == 127)
@@ -1322,7 +1322,7 @@ void CGameState::init(StartInfo * si)
 				}
 				break;
 			}
-		case PlayerSettings::bartifact:
+		case PlayerSettings::ARTIFACT:
 			{
  				if(!k->second.heroes.size())
 				{

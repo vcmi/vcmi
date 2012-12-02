@@ -19,19 +19,31 @@ class CCampaignState;
 /// Struct which describes the name, the color, the starting bonus of a player
 struct PlayerSettings
 {
-	enum Ebonus {brandom=-1,bartifact, bgold, bresource};
+	enum { PLAYER_AI = 0 }; // for use in playerID
 
-	si32 castle, hero,  //ID, if -1 then random, if -2 then none
-		heroPortrait; //-1 if default, else ID
+	enum Ebonus {
+		NONE     = -2,
+		RANDOM   = -1,
+		ARTIFACT =  0,
+		GOLD     =  1,
+		RESOURCE =  2
+	};
+
+	//uses enum type Ebonus
+	si8 bonus;
+	si16 castle;
+	si32 hero,
+	     heroPortrait; //-1 if default, else ID
+
 	std::string heroName;
-	si8 bonus; //uses enum type Ebonus
 	TPlayerColor color; //from 0 - 
 	ui8 handicap;//0-no, 1-mild, 2-severe
 	ui8 team;
 
 	std::string name;
-	ui8 human; //0 - AI, non-0 serves as player id
-	template <typename Handler> 	void serialize(Handler &h, const int version)
+	ui8 playerID; //0 - AI, non-0 serves as player id
+	template <typename Handler>
+	void serialize(Handler &h, const int version)
 	{
 		h & castle;
 		h & hero;
@@ -41,13 +53,13 @@ struct PlayerSettings
 		h & color;
 		h & handicap;
 		h & name;
-		h & human;
+		h & playerID;
 		h & team;
 	}
 
 	PlayerSettings()
 	{
-		bonus = brandom;
+		bonus = RANDOM;
 		castle = -2;
 		heroPortrait = -1;
 	}
@@ -85,13 +97,14 @@ struct StartInfo
 	PlayerSettings *getPlayersSettings(const ui8 nameID)
 	{
 		for(auto it=playerInfos.begin(); it != playerInfos.end(); ++it)
-			if(it->second.human == nameID)
+			if(it->second.playerID == nameID)
 				return &it->second;
 
 		return NULL;
 	}
 
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename Handler>
+	void serialize(Handler &h, const int version)
 	{
 		h & mode;
 		h & difficulty;

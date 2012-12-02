@@ -394,7 +394,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 	town.mageLevel = source["mageGuild"].Float();
 	town.primaryRes  = source["primaryResource"].Float();
 	town.warMachine = source["warMachine"].Float();
-	town.names = source["names"].StdVector<std::string>();
+	town.names = source["names"].convertTo<std::vector<std::string> >();
 
 	//  Horde building creature level
 	BOOST_FOREACH(const JsonNode &node, source["horde"].Vector())
@@ -515,7 +515,7 @@ void CTownHandler::load()
 					JsonNode & legacyBuilding = legacyBuildings[building["id"].Float()];
 
 					if (!legacyBuilding.isNull()) //merge if h3 config was found for this building
-						JsonNode::merge(building, legacyBuilding);
+						JsonUtils::merge(building, legacyBuilding);
 				}
 			}
 		}
@@ -523,12 +523,12 @@ void CTownHandler::load()
 	load(buildingsConf);
 }
 
-std::set<ui32> CTownHandler::getDefaultAllowedFactions() const
+std::set<TFaction> CTownHandler::getDefaultAllowedFactions() const
 {
-	std::set<ui32> allowedFactions;
-	for(int i = 0; i <= 8; ++i)
+	std::set<TFaction> allowedFactions;
+	BOOST_FOREACH(auto town, towns)
 	{
-		allowedFactions.insert(i);
+		allowedFactions.insert(town.first);
 	}
 	return allowedFactions;
 }

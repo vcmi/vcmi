@@ -500,7 +500,7 @@ void CCreatureHandler::loadCreatures()
 	}
 	BOOST_FOREACH (auto bonus, config3["bonusPerLevel"].Vector())
 	{
-		commanderLevelPremy.push_back(ParseBonus (bonus.Vector()));
+		commanderLevelPremy.push_back(JsonUtils::parseBonus (bonus.Vector()));
 	}
 
 	int i = 0;
@@ -517,7 +517,7 @@ void CCreatureHandler::loadCreatures()
 	BOOST_FOREACH (auto ability, config3["abilityRequirements"].Vector())
 	{
 		std::pair <Bonus, std::pair <ui8, ui8> > a;
-		a.first = *ParseBonus (ability["ability"].Vector());
+		a.first = *JsonUtils::parseBonus (ability["ability"].Vector());
 		a.second.first = ability["skills"].Vector()[0].Float();
 		a.second.second = ability["skills"].Vector()[1].Float();
 		skillRequirements.push_back (a);
@@ -674,7 +674,7 @@ CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
 
 	BOOST_FOREACH (const JsonNode &bonus, node["abilities"].Vector())
 	{
-		auto b = ParseBonus(bonus);
+		auto b = JsonUtils::parseBonus(bonus);
 		b->source = Bonus::CREATURE_ABILITY;
 		b->duration = Bonus::PERMANENT;
 		cre->addNewBonus(b);
@@ -682,7 +682,7 @@ CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
 
 	BOOST_FOREACH (const JsonNode &exp, node["stackExperience"].Vector())
 	{
-		auto bonus = ParseBonus (exp["bonus"]);
+		auto bonus = JsonUtils::parseBonus (exp["bonus"]);
 		bonus->source = Bonus::STACK_EXPERIENCE;
 		bonus->duration = Bonus::PERMANENT;
 		const JsonVector &values = exp["values"].Vector();

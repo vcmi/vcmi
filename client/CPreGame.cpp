@@ -120,12 +120,12 @@ static void setPlayersFromGame()
 
 static void swapPlayers(PlayerSettings &a, PlayerSettings &b)
 {
-	std::swap(a.human, b.human);
+	std::swap(a.playerID, b.playerID);
 	std::swap(a.name, b.name);
 
-	if(a.human == 1)
+	if(a.playerID == 1)
 		playerColor = a.color;
-	else if(b.human == 1)
+	else if(b.playerID == 1)
 		playerColor = b.color;
 }
 
@@ -136,7 +136,7 @@ void setPlayer(PlayerSettings &pset, TPlayerColor player, const std::map<TPlayer
 	else
 		pset.name = CGI->generaltexth->allTexts[468];//Computer
 
-	pset.human = player;
+	pset.playerID = player;
 	if(player == playerNames.begin()->first)
 		playerColor = pset.color;
 }
@@ -844,7 +844,7 @@ void CSelectionScreen::startGame()
 		//there must be at least one human player before game can be started
 		std::map<TPlayerColor, PlayerSettings>::const_iterator i;
 		for(i = SEL->sInfo.playerInfos.cbegin(); i != SEL->sInfo.playerInfos.cend(); i++)
-			if(i->second.human)
+			if(i->second.playerID != PlayerSettings::PLAYER_AI)
 				break;
 
 		if(i == SEL->sInfo.playerInfos.cend())
@@ -951,7 +951,7 @@ void CSelectionScreen::setSInfo(const StartInfo &si)
 	std::map<TPlayerColor, PlayerSettings>::const_iterator i;
 	for(i = si.playerInfos.cbegin(); i != si.playerInfos.cend(); i++)
 	{
-		if(i->second.human == myNameID)
+		if(i->second.playerID == myNameID)
 		{
 			playerColor = i->first;
 			break;
@@ -1988,10 +1988,10 @@ void InfoCard::showAll(SDL_Surface * to)
 			int playerSoFar = 0;
 			for (auto i = SEL->sInfo.playerInfos.cbegin(); i != SEL->sInfo.playerInfos.cend(); i++)
 			{
-				if(i->second.human)
+				if(i->second.playerID != PlayerSettings::PLAYER_AI)
 				{
 					printAtLoc(i->second.name, 24, 285 + playerSoFar++ * graphics->fonts[FONT_SMALL]->height, FONT_SMALL, Colors::WHITE, to);
-					playerNames.erase(i->second.human);
+					playerNames.erase(i->second.playerID);
 				}
 			}
 
@@ -2244,7 +2244,7 @@ void OptionsTab::nextCastle( int player, int dir )
 	}
 
 	PlayerSettings &s = SEL->sInfo.playerInfos[player];
-	si32 &cur = s.castle;
+	si16 &cur = s.castle;
 	auto & allowed = SEL->current->mapHeader->players[s.color].allowedFactions;
 
 	if (cur == -2) //no castle - no change
@@ -2274,8 +2274,8 @@ void OptionsTab::nextCastle( int player, int dir )
 
 	if(s.hero >= 0)
 		s.hero = -1;
-	if(cur < 0  &&  s.bonus == PlayerSettings::bresource)
-		s.bonus = PlayerSettings::brandom;
+	if(cur < 0  &&  s.bonus == PlayerSettings::RESOURCE)
+		s.bonus = PlayerSettings::RANDOM;
 
 	entries[player]->selectButtons();
 
@@ -2293,7 +2293,7 @@ void OptionsTab::nextHero( int player, int dir )
 
 	PlayerSettings &s = SEL->sInfo.playerInfos[player];
 	int old = s.hero;
-	if (s.castle < 0  ||  !s.human  ||  s.hero == -2)
+	if (s.castle < 0  ||  s.playerID == PlayerSettings::PLAYER_AI  ||  s.hero == PlayerSettings::NONE)
 		return;
 
 	if (s.hero == -1) //random => first/last available
@@ -2359,23 +2359,23 @@ void OptionsTab::nextBonus( int player, int dir )
 	PlayerSettings &s = SEL->sInfo.playerInfos[player];
 	si8 &ret = s.bonus += dir;
 
-	if (s.hero==-2 && !SEL->current->mapHeader->players[s.color].heroesNames.size() && ret==PlayerSettings::bartifact) //no hero - can't be artifact
+	if (s.hero==-2 && !SEL->current->mapHeader->players[s.color].heroesNames.size() && ret==PlayerSettings::ARTIFACT) //no hero - can't be artifact
 	{
 		if (dir<0)
-			ret=PlayerSettings::brandom;
-		else ret=PlayerSettings::bgold;
+			ret=PlayerSettings::RANDOM;
+		else ret=PlayerSettings::GOLD;
 	}
 
-	if(ret > PlayerSettings::bresource)
-		ret = PlayerSettings::brandom;
-	if(ret < PlayerSettings::brandom)
-		ret = PlayerSettings::bresource;
+	if(ret > PlayerSettings::RESOURCE)
+		ret = PlayerSettings::RANDOM;
+	if(ret < PlayerSettings::RANDOM)
+		ret = PlayerSettings::RESOURCE;
 
-	if (s.castle==-1 && ret==PlayerSettings::bresource) //random castle - can't be resource
+	if (s.castle==-1 && ret==PlayerSettings::RESOURCE) //random castle - can't be resource
 	{
 		if (dir<0)
-			ret=PlayerSettings::bgold;
-		else ret=PlayerSettings::brandom;
+			ret=PlayerSettings::GOLD;
+		else ret=PlayerSettings::RANDOM;
 	}
 
 	SEL->propagateOptions();
@@ -2427,7 +2427,7 @@ void OptionsTab::flagPressed( int color )
 	else
 	{
 		//identify clicked player
-		int clickedNameID = clicked.human; //human is a number of player, zero means AI
+		int clickedNameID = clicked.playerID; //human is a number of player, zero means AI
 
 		if(clickedNameID > 0  &&  playerToRestore.id == clickedNameID) //player to restore is about to being replaced -> put him back to the old place
 		{
@@ -2463,10 +2463,10 @@ void OptionsTab::flagPressed( int color )
 		{
 			for(auto i = SEL->sInfo.playerInfos.begin(); i != SEL->sInfo.playerInfos.end(); i++)
 			{
-				int curNameID = i->second.human;
+				int curNameID = i->second.playerID;
 				if(i->first != color  &&  curNameID == newPlayer)
 				{
-					assert(i->second.human);
+					assert(i->second.playerID);
 					playerToRestore.color = i->first;
 					playerToRestore.id = newPlayer;
 					SEL->setPlayer(i->second, 0); //set computer
@@ -2584,7 +2584,7 @@ void OptionsTab::PlayerOptionsEntry::selectButtons()
 		btns[1]->enable();
 	}
 
-	if( (pi.defaultHero() != -1  ||  !s.human  ||  s.castle < 0) //fixed hero
+	if( (pi.defaultHero() != -1  ||  !s.playerID  ||  s.castle < 0) //fixed hero
 		|| (SEL->isGuest() && s.color != playerColor))//or not our player
 	{
 		btns[2]->disable();
@@ -2792,20 +2792,20 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 			{
 				switch(val)
 				{
-				case PlayerSettings::brandom:
+				case PlayerSettings::RANDOM:
 					title = &CGI->generaltexth->allTexts[86]; //{Random Bonus}
 					description = &CGI->generaltexth->allTexts[94]; //Gold, wood and ore, or an artifact is randomly chosen as your starting bonus
 					break;
-				case PlayerSettings::bartifact:
+				case PlayerSettings::ARTIFACT:
 					title = &CGI->generaltexth->allTexts[83]; //{Artifact Bonus}
 					description = &CGI->generaltexth->allTexts[90]; //An artifact is randomly chosen and equipped to your starting hero
 					break;
-				case PlayerSettings::bgold:
+				case PlayerSettings::GOLD:
 					title = &CGI->generaltexth->allTexts[84]; //{Gold Bonus}
 					subTitle = &CGI->generaltexth->allTexts[87]; //500-1000
 					description = &CGI->generaltexth->allTexts[92]; //At the start of the game, 500-1000 gold is added to your Kingdom's resource pool
 					break;
-				case PlayerSettings::bresource:
+				case PlayerSettings::RESOURCE:
 					{
 						title = &CGI->generaltexth->allTexts[85]; //{Resource Bonus}
 						switch(CGI->townh->towns[s.castle].primaryRes)
@@ -2909,7 +2909,7 @@ CScenarioInfo::CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *start
 
 	for(auto it = startInfo->playerInfos.cbegin(); it != startInfo->playerInfos.cend(); ++it)
 	{
-		if(it->second.human)
+		if(it->second.playerID)
 		{
 			playerColor = it->first;
 		}
@@ -3406,7 +3406,7 @@ void CBonusSelection::updateBonusSelection()
 					int faction = -1;
 					for(auto it = sInfo.playerInfos.begin(); it != sInfo.playerInfos.end(); ++it)
 					{
-						if (it->second.human)
+						if (it->second.playerID)
 						{
 							faction = it->second.castle;
 							break;
@@ -3775,7 +3775,7 @@ void PlayerJoined::apply(CSelectionScreen *selScreen)
 	//put new player in first slot with AI
 	for(auto i = SEL->sInfo.playerInfos.begin(); i != SEL->sInfo.playerInfos.end(); i++)
 	{
-		if(!i->second.human)
+		if(!i->second.playerID)
 		{
 			selScreen->setPlayer(i->second, connectionID);
 			selScreen->opt->entries[i->second.color]->selectButtons();

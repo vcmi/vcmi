@@ -304,9 +304,9 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 	for(auto it = si->playerInfos.begin(); it != si->playerInfos.end(); ++it)
 	{
-		if((networkMode == SINGLE)												//single - one client has all player
-		   || (networkMode != SINGLE && serv->connectionID == it->second.human)	//multi - client has only "its players"
-		   || (networkMode == HOST && it->second.human == false))				//multi - host has all AI players
+		if((networkMode == SINGLE)                                                      //single - one client has all player
+		   || (networkMode != SINGLE && serv->connectionID == it->second.playerID)      //multi - client has only "its players"
+		   || (networkMode == HOST && it->second.playerID == PlayerSettings::PLAYER_AI))//multi - host has all AI players
 		{
 			myPlayers.insert(it->first); //add player
 		}
@@ -368,7 +368,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		if(si->mode != StartInfo::DUEL)
 		{
 			auto cb = make_shared<CCallback>(gs,color,this);
-			if(!it->second.human) 
+			if(it->second.playerID == PlayerSettings::PLAYER_AI)
 			{
 				std::string AItoGive = settings["server"]["playerAI"].String();
 				if(!sensibleAILimit)

@@ -1202,6 +1202,8 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 			pos.h = img->height();
 		}
 	}
+	else
+		tlog1 << "Error: accessing unavailable frame " << Group << ":" << Frame << " in CAnimation!\n";
 }
 
 void CAnimImage::playerColored(int currPlayer)

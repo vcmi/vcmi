@@ -4,7 +4,9 @@
 #include "HeroBonus.h"
 #include "Filesystem/CResourceLoader.h"
 
-const JsonNode JsonNode::nullNode;
+using namespace JsonDetail;
+
+static const JsonNode nullNode;
 
 JsonNode::JsonNode(JsonType Type):
 	type(DATA_NULL)
@@ -97,16 +99,6 @@ bool JsonNode::operator == (const JsonNode &other) const
 bool JsonNode::operator != (const JsonNode &other) const
 {
 	return !(*this == other);
-}
-
-void JsonNode::minimize(const JsonNode& schema)
-{
-	JsonValidator validator(*this, schema, true);
-}
-
-void JsonNode::validate(const JsonNode& schema)
-{
-	JsonValidator validator(*this, schema, false);
 }
 
 JsonNode::JsonType JsonNode::getType() const
@@ -236,39 +228,6 @@ const JsonNode & JsonNode::operator[](std::string child) const
 		return it->second;
 	return nullNode;
 }
-////////////////////////////////////////////////////////////////////////////////
-
-void JsonNode::merge(JsonNode & dest, JsonNode & source)
-{
-	switch (source.getType())
-	{
-		break; case DATA_NULL:   dest.setType(DATA_NULL);
-		break; case DATA_BOOL:   std::swap(dest.Bool(), source.Bool());
-		break; case DATA_FLOAT:  std::swap(dest.Float(), source.Float());
-		break; case DATA_STRING: std::swap(dest.String(), source.String());
-		break; case DATA_VECTOR:
-		{
-			//reserve place and *move* data from source to dest
-			source.Vector().reserve(source.Vector().size() + dest.Vector().size());
-
-			std::move(source.Vector().begin(), source.Vector().end(),
-			          std::back_inserter(dest.Vector()));
-		}
-		break; case DATA_STRUCT:
-		{
-			//recursively merge all entries from struct
-			BOOST_FOREACH(auto & node, source.Struct())
-				merge(dest[node.first], node.second);
-		}
-	}
-}
-
-void JsonNode::mergeCopy(JsonNode & dest, JsonNode source)
-{
-	// uses copy created in stack to safely merge two nodes
-	merge(dest, source);
-}
-
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename Iterator>
@@ -830,7 +789,7 @@ bool JsonValidator::validateProperties(JsonNode &node, const JsonNode &schema)
 	{
 		if (nodeIter->first < schemaIter->first) //No schema for entry
 		{
-			validateNode(nodeIter->second, JsonNode::nullNode, nodeIter->first);
+			validateNode(nodeIter->second, nullNode, nodeIter->first);
 
 			JsonMap::iterator toRemove = nodeIter++;
 			node.Struct().erase(toRemove);
@@ -853,7 +812,7 @@ bool JsonValidator::validateProperties(JsonNode &node, const JsonNode &schema)
 	}
 	while (nodeIter != node.Struct().end())
 	{
-		validateNode(nodeIter->second, JsonNode::nullNode, nodeIter->first);
+		validateNode(nodeIter->second, nullNode, nodeIter->first);
 		JsonMap::iterator toRemove = nodeIter++;
 		node.Struct().erase(toRemove);
 	}
@@ -910,7 +869,7 @@ JsonValidator::JsonValidator(JsonNode &root, const JsonNode &schema, bool Minimi
 	tlog3<<errors;
 }
 
-Bonus * ParseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
+Bonus * JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
 {
 	Bonus * b = new Bonus();
 	std::string type = ability_vec[0].String();
@@ -950,7 +909,7 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 		return defaultValue;
 };
 
-Bonus * ParseBonus (const JsonNode &ability)
+Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 {
 
 	Bonus * b = new Bonus();
@@ -1029,7 +988,7 @@ Key reverseMapFirst(const Val & val, const std::map<Key, Val> map)
 	return "";
 }
 
-DLL_LINKAGE void UnparseBonus( JsonNode &node, const Bonus * bonus )
+void JsonUtils::unparseBonus( JsonNode &node, const Bonus * bonus )
 {
 	node["type"].String() = reverseMapFirst<std::string, int>(bonus->type, bonusNameMap);
 	node["subtype"].Float() = bonus->subtype;
@@ -1050,6 +1009,45 @@ DLL_LINKAGE void UnparseBonus( JsonNode &node, const Bonus * bonus )
 	{
 		node["propagator"].String() = reverseMapFirst<std::string, TPropagatorPtr>(bonus->propagator, bonusPropagatorMap);
 	}
-	
-	
+}
+
+void JsonUtils::minimize(JsonNode & node, const JsonNode& schema)
+{
+	JsonValidator validator(node, schema, true);
+}
+
+void JsonUtils::validate(JsonNode & node, const JsonNode& schema)
+{
+	JsonValidator validator(node, schema, false);
+}
+
+void JsonUtils::merge(JsonNode & dest, JsonNode & source)
+{
+	switch (source.getType())
+	{
+		break; case JsonNode::DATA_NULL:   dest.setType(JsonNode::DATA_NULL);
+		break; case JsonNode::DATA_BOOL:   std::swap(dest.Bool(), source.Bool());
+		break; case JsonNode::DATA_FLOAT:  std::swap(dest.Float(), source.Float());
+		break; case JsonNode::DATA_STRING: std::swap(dest.String(), source.String());
+		break; case JsonNode::DATA_VECTOR:
+		{
+			//reserve place and *move* data from source to dest
+			source.Vector().reserve(source.Vector().size() + dest.Vector().size());
+
+			std::move(source.Vector().begin(), source.Vector().end(),
+			          std::back_inserter(dest.Vector()));
+		}
+		break; case JsonNode::DATA_STRUCT:
+		{
+			//recursively merge all entries from struct
+			BOOST_FOREACH(auto & node, source.Struct())
+				merge(dest[node.first], node.second);
+		}
+	}
+}
+
+void JsonUtils::mergeCopy(JsonNode & dest, JsonNode source)
+{
+	// uses copy created in stack to safely merge two nodes
+	merge(dest, source);
 }

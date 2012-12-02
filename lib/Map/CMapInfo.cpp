@@ -25,7 +25,7 @@ void CMapInfo::countPlayers()
 
 	if(scenarioOpts)
 		for (auto i = scenarioOpts->playerInfos.cbegin(); i != scenarioOpts->playerInfos.cend(); i++)
-			if(i->second.human)
+			if(i->second.playerID != PlayerSettings::PLAYER_AI)
 				actualHumanPlayers++;
 }
 

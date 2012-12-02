@@ -53,11 +53,6 @@ public:
 	bool operator == (const JsonNode &other) const;
 	bool operator != (const JsonNode &other) const;
 
-	//removes all nodes that are identical to default entry in schema
-	void minimize(const JsonNode& schema);
-	//check schema
-	void validate(const JsonNode& schema);
-
 	//Convert node to another type. Converting to NULL will clear all data
 	void setType(JsonType Type);
 	JsonType getType() const;
@@ -78,29 +73,19 @@ public:
 	const JsonVector & Vector() const;
 	const JsonMap & Struct() const;
 
-	template<typename T>
-	std::vector<T> StdVector() const;
+	/// convert json tree into specified type. Json tree must have same type as Type
+	/// Valid types: bool, string, any numeric, map and vector
+	/// example: convertTo< std::map< std::vector<int> > >();
+	template<typename Type>
+	Type convertTo() const;
 
 	//operator [], for structs only - get child node by name
 	JsonNode & operator[](std::string child);
 	const JsonNode & operator[](std::string child) const;
 
-	//error value for const operator[]
-	static const JsonNode nullNode;
-
-	/// recursivly merges source into dest, replacing identical fields
-	/// struct : recursively calls this function
-	/// arrays : append array in dest with data from source
-	/// values : value in source will replace value in dest
-	/// null   : if value in source is present but set to null it will delete entry in dest
-
-	/// this function will destroy data in source
-	static void merge(JsonNode & dest, JsonNode & source);
-	/// this function will preserve data stored in source by creating copy
-	static void mergeCopy(JsonNode & dest, JsonNode source);
-
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		// simple saving - save json in its string interpretation
 		if (h.saving)
 		{
 			std::ostringstream stream;
@@ -117,129 +102,199 @@ public:
 	}
 };
 
-template<>
-inline std::vector<std::string> JsonNode::StdVector() const
+namespace JsonUtils
 {
-	std::vector<std::string> ret;
-	BOOST_FOREACH(const JsonNode &node, Vector())
-	{
-		ret.push_back(node.String());
-	}
-	return ret;
+	DLL_LINKAGE Bonus * parseBonus (const JsonVector &ability_vec);
+	DLL_LINKAGE Bonus * parseBonus (const JsonNode &bonus);
+	DLL_LINKAGE void unparseBonus (JsonNode &node, const Bonus * bonus);
+
+	/// recursivly merges source into dest, replacing identical fields
+	/// struct : recursively calls this function
+	/// arrays : append array in dest with data from source
+	/// values : value in source will replace value in dest
+	/// null   : if value in source is present but set to null it will delete entry in dest
+
+	/// this function will destroy data in source
+	DLL_LINKAGE void merge(JsonNode & dest, JsonNode & source);
+	/// this function will preserve data stored in source by creating copy
+	DLL_LINKAGE void mergeCopy(JsonNode & dest, JsonNode source);
+
+	/// removes all nodes that are identical to default entry in schema
+	DLL_LINKAGE void minimize(JsonNode & node, const JsonNode& schema);
+
+	/// check schema
+	DLL_LINKAGE void validate(JsonNode & node, const JsonNode& schema);
 }
 
-template<typename T>
-std::vector<T> JsonNode::StdVector() const
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+// End of public section of the file. Anything below should be only used internally in JsonNode.cpp //
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
+namespace JsonDetail
 {
-	static_assert(std::is_arithmetic<T>::value, "This works with numbers only.");
-	std::vector<T> ret;
-	BOOST_FOREACH(const JsonNode &node, Vector())
+	// convertion helpers for JsonNode::convertTo (partial template function instantiation is illegal in c++)
+	template<typename Type>
+	struct JsonConverter
 	{
-		ret.push_back(node.Float());
-	}
-	return ret;
-}
-
-class JsonWriter
-{
-	//prefix for each line (tabulation)
-	std::string prefix;
-	std::ostream &out;
-public:
-	template<typename Iterator>
-	void writeContainer(Iterator begin, Iterator end);
-	void writeEntry(JsonMap::const_iterator entry);
-	void writeEntry(JsonVector::const_iterator entry);
-	void writeString(const std::string &string);
-	void writeNode(const JsonNode &node);
-	JsonWriter(std::ostream &output, const JsonNode &node);
-};
-
-//Tiny string class that uses const char* as data for speed, members are private
-//for ease of debugging and some compatibility with std::string
-class constString
-{
-	const char *data;
-	const size_t datasize;
-
-public:
-	constString(const char * inputString, size_t stringSize):
-		data(inputString),
-		datasize(stringSize)
-	{
-	}
-
-	inline size_t size() const
-	{
-		return datasize;
+		static Type convert(const JsonNode & node)
+		{
+			///this should be triggered only for numeric types
+			static_assert(std::is_arithmetic<Type>::value, "Unsupported type for JsonNode::convertTo()!");
+			return node.Float();
+		}
 	};
 
-	inline const char& operator[] (size_t position)
+	template<typename Type>
+	struct JsonConverter<std::map<std::string, Type> >
 	{
-		assert (position < datasize);
-		return data[position];
-	}
-};
+		static std::map<std::string, Type> convert(const JsonNode & node)
+		{
+			std::map<std::string, Type> ret;
+			BOOST_FOREACH(auto entry, node.Struct())
+			{
+				ret.insert(entry.first, entry.second.convertTo<Type>());
+			}
+			return ret;
 
-//Internal class for string -> JsonNode conversion
-class JsonParser
+		}
+	};
+
+	template<typename Type>
+	struct JsonConverter<std::vector<Type> >
+	{
+		static std::vector<Type> convert(const JsonNode & node)
+		{
+			std::vector<Type> ret;
+			BOOST_FOREACH(auto entry, node.Vector())
+			{
+				ret.push_back(entry.convertTo<Type>());
+			}
+			return ret;
+		}
+	};
+
+	template<>
+	struct JsonConverter<std::string>
+	{
+		static std::string convert(const JsonNode & node)
+		{
+			return node.String();
+		}
+	};
+
+	template<>
+	struct JsonConverter<bool>
+	{
+		static bool convert(const JsonNode & node)
+		{
+			return node.Bool();
+		}
+	};
+
+	class JsonWriter
+	{
+		//prefix for each line (tabulation)
+		std::string prefix;
+		std::ostream &out;
+	public:
+		template<typename Iterator>
+		void writeContainer(Iterator begin, Iterator end);
+		void writeEntry(JsonMap::const_iterator entry);
+		void writeEntry(JsonVector::const_iterator entry);
+		void writeString(const std::string &string);
+		void writeNode(const JsonNode &node);
+		JsonWriter(std::ostream &output, const JsonNode &node);
+	};
+
+	//Tiny string class that uses const char* as data for speed, members are private
+	//for ease of debugging and some compatibility with std::string
+	class constString
+	{
+		const char *data;
+		const size_t datasize;
+
+	public:
+		constString(const char * inputString, size_t stringSize):
+			data(inputString),
+			datasize(stringSize)
+		{
+		}
+
+		inline size_t size() const
+		{
+			return datasize;
+		};
+
+		inline const char& operator[] (size_t position)
+		{
+			assert (position < datasize);
+			return data[position];
+		}
+	};
+
+	//Internal class for string -> JsonNode conversion
+	class JsonParser
+	{
+		std::string errors;     // Contains description of all encountered errors
+		constString input;      // Input data
+		ui32 lineCount; // Currently parsed line, starting from 1
+		size_t lineStart;       // Position of current line start
+		size_t pos;             // Current position of parser
+
+		//Helpers
+		bool extractEscaping(std::string &str);
+		bool extractLiteral(const std::string &literal);
+		bool extractString(std::string &string);
+		bool extractWhitespace(bool verbose = true);
+		bool extractSeparator();
+		bool extractElement(JsonNode &node, char terminator);
+
+		//Methods for extracting JSON data
+		bool extractArray(JsonNode &node);
+		bool extractFalse(JsonNode &node);
+		bool extractFloat(JsonNode &node);
+		bool extractNull(JsonNode &node);
+		bool extractString(JsonNode &node);
+		bool extractStruct(JsonNode &node);
+		bool extractTrue(JsonNode &node);
+		bool extractValue(JsonNode &node);
+
+		//Add error\warning message to list
+		bool error(const std::string &message, bool warning=false);
+
+	public:
+		JsonParser(const char * inputString, size_t stringSize, JsonNode &root);
+	};
+
+	//Internal class for Json validation, used automaticaly in JsonNode constructor. Behaviour:
+	// - "schema" entry from root node is used for validation and will be removed
+	// - any missing entries will be replaced with default value from schema (if present)
+	// - if entry uses different type than defined in schema it will be removed
+	// - entries nod described in schema will be kept unchanged
+	class JsonValidator
+	{
+		std::string errors;     // Contains description of all encountered errors
+		std::list<std::string> currentPath; // path from root node to current one
+		bool minimize;
+
+		bool validateType(JsonNode &node, const JsonNode &schema, JsonNode::JsonType type);
+		bool validateSchema(JsonNode::JsonType &type, const JsonNode &schema);
+		bool validateNode(JsonNode &node, const JsonNode &schema, const std::string &name);
+		bool validateItems(JsonNode &node, const JsonNode &schema);
+		bool validateProperties(JsonNode &node, const JsonNode &schema);
+
+		bool addMessage(const std::string &message);
+	public:
+		// validate node with "schema" entry
+		JsonValidator(JsonNode &root, bool minimize=false);
+		// validate with external schema
+		JsonValidator(JsonNode &root, const JsonNode &schema, bool minimize=false);
+	};
+
+} // namespace JsonDetail
+
+template<typename Type>
+Type JsonNode::convertTo() const
 {
-	std::string errors;     // Contains description of all encountered errors
-	constString input;      // Input data
-	ui32 lineCount; // Currently parsed line, starting from 1
-	size_t lineStart;       // Position of current line start
-	size_t pos;             // Current position of parser
-
-	//Helpers
-	bool extractEscaping(std::string &str);
-	bool extractLiteral(const std::string &literal);
-	bool extractString(std::string &string);
-	bool extractWhitespace(bool verbose = true);
-	bool extractSeparator();
-	bool extractElement(JsonNode &node, char terminator);
-
-	//Methods for extracting JSON data
-	bool extractArray(JsonNode &node);
-	bool extractFalse(JsonNode &node);
-	bool extractFloat(JsonNode &node);
-	bool extractNull(JsonNode &node);
-	bool extractString(JsonNode &node);
-	bool extractStruct(JsonNode &node);
-	bool extractTrue(JsonNode &node);
-	bool extractValue(JsonNode &node);
-
-	//Add error\warning message to list
-	bool error(const std::string &message, bool warning=false);
-
-public:
-	JsonParser(const char * inputString, size_t stringSize, JsonNode &root);
-};
-
-//Internal class for Json validation, used automaticaly in JsonNode constructor. Behaviour:
-// - "schema" entry from root node is used for validation and will be removed
-// - any missing entries will be replaced with default value from schema (if present)
-// - if entry uses different type than defined in schema it will be removed
-// - entries nod described in schema will be kept unchanged
-class JsonValidator
-{
-	std::string errors;     // Contains description of all encountered errors
-	std::list<std::string> currentPath; // path from root node to current one
-	bool minimize;
-
-	bool validateType(JsonNode &node, const JsonNode &schema, JsonNode::JsonType type);
-	bool validateSchema(JsonNode::JsonType &type, const JsonNode &schema);
-	bool validateNode(JsonNode &node, const JsonNode &schema, const std::string &name);
-	bool validateItems(JsonNode &node, const JsonNode &schema);
-	bool validateProperties(JsonNode &node, const JsonNode &schema);
-
-	bool addMessage(const std::string &message);
-public:
-	// validate node with "schema" entry
-	JsonValidator(JsonNode &root, bool minimize=false);
-	// validate with external schema
-	JsonValidator(JsonNode &root, const JsonNode &schema, bool minimize=false);
-};
-
-DLL_LINKAGE Bonus * ParseBonus (const JsonVector &ability_vec);
-DLL_LINKAGE Bonus * ParseBonus (const JsonNode &bonus);
-DLL_LINKAGE void UnparseBonus (JsonNode &node, const Bonus * bonus);
+	return JsonDetail::JsonConverter<Type>::convert(*this);
+}

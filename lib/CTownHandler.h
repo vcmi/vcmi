@@ -225,7 +225,7 @@ public:
 	 *
 	 * @return a list of allowed factions, the index which is unique is the faction id
 	 */
-	std::set<ui32> getDefaultAllowedFactions() const;
+	std::set<TFaction> getDefaultAllowedFactions() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

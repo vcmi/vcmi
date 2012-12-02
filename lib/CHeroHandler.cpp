@@ -106,9 +106,9 @@ void CHeroHandler::loadObstacles()
 			obi.defName = obs["defname"].String();
 			obi.width = obs["width"].Float();
 			obi.height = obs["height"].Float();
-			obi.allowedTerrains = obs["allowedTerrain"].StdVector<ui8>();
-			obi.allowedSpecialBfields = obs["specialBattlefields"].StdVector<ui8>();
-			obi.blockedTiles = obs["blockedTiles"].StdVector<si16>();
+			obi.allowedTerrains = obs["allowedTerrain"].convertTo<std::vector<ui8> >();
+			obi.allowedSpecialBfields = obs["specialBattlefields"].convertTo<std::vector<ui8> >();
+			obi.blockedTiles = obs["blockedTiles"].convertTo<std::vector<si16> >();
 			obi.isAbsoluteObstacle = absolute;
 		}
 	};

@@ -449,10 +449,10 @@ public:
 
 	void processPacks();
 	void setSInfo(const StartInfo &si);
-	void update() OVERRIDE;
-	void propagateOptions() OVERRIDE;
-	void postRequest(ui8 what, ui8 dir) OVERRIDE;
-	void postChatMessage(const std::string &txt) OVERRIDE;
+	void update() override;
+	void propagateOptions() override;
+	void postRequest(ui8 what, ui8 dir) override;
+	void postChatMessage(const std::string &txt) override;
 	void propagateNames();
 	void showAll(SDL_Surface *to);
 };

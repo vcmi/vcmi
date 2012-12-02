@@ -24,7 +24,6 @@ using namespace boost::assign;
  */
 
 extern boost::rand48 ran;
-extern Bonus * ParseBonus (const JsonVector &ability_vec);
 
 const std::string & CArtifact::Name() const
 {
@@ -366,11 +365,11 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 			auto ga = dynamic_cast <CGrowingArtifact *>(artifacts[artifact["id"].Float()].get());
 			BOOST_FOREACH (auto b, artifact["bonusesPerLevel"].Vector())
 			{
-				ga->bonusesPerLevel.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *ParseBonus (b["bonus"].Vector())));
+				ga->bonusesPerLevel.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *JsonUtils::parseBonus (b["bonus"].Vector())));
 			}
 			BOOST_FOREACH (auto b, artifact["thresholdBonuses"].Vector())
 			{
-				ga->thresholdBonuses.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *ParseBonus (b["bonus"].Vector())));
+				ga->thresholdBonuses.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *JsonUtils::parseBonus (b["bonus"].Vector())));
 			}
 		}
 	}
@@ -614,7 +613,7 @@ void CArtHandler::addBonuses()
 		
 		BOOST_FOREACH (auto b, artifact["bonuses"].Vector())
 		{
-			ga->addNewBonus(ParseBonus (b));
+			ga->addNewBonus(JsonUtils::parseBonus (b));
 		}
 		if(artifact["type"].String() == "Creature")
 			makeItCreatureArt(ga->id);

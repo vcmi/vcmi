@@ -5363,7 +5363,7 @@ void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(!(availableFor & (1 << h->tempOwner)))
 		return;
-	if(cb->getPlayerSettings(h->tempOwner)->human)
+	if(cb->getPlayerSettings(h->tempOwner)->playerID)
 	{
 		if(humanActivate)
 			activated(h);

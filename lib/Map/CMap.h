@@ -102,7 +102,7 @@ struct DLL_LINKAGE PlayerInfo
 	EAiTactic::EAiTactic aiTactic;
 
 	/** A list of unique IDs of allowed factions. */
-	std::set<ui32> allowedFactions;
+	std::set<TFaction> allowedFactions;
 
 	/** Unused. True if the faction should be chosen randomly. */
 	bool isFactionRandom;

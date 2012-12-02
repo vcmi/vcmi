@@ -860,7 +860,7 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 	{
 		for(auto it = options->playerInfos.begin(); it != options->playerInfos.end(); ++it)
 		{
-			it->second.human = false;
+			it->second.playerID = PlayerSettings::PLAYER_AI;
 		}
 	}
 /*	const JsonNode& res = settings["video"]["screenRes"];
