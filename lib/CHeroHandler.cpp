@@ -7,6 +7,7 @@
 #include "JsonNode.h"
 #include "GameConstants.h"
 #include "BattleHex.h"
+#include "CModHandler.h"
 
 /*
  * CHeroHandler.cpp, part of VCMI engine
@@ -134,10 +135,15 @@ void CHeroHandler::loadHeroes()
 
 		for(int x=0;x<3;x++)
 		{
-			hero->lowStack[x] = parser.readNumber();
-			hero->highStack[x] = parser.readNumber();
-			hero->refTypeStack[x] = parser.readString();
-			boost::algorithm::replace_all(hero->refTypeStack[x], " ", ""); //remove spaces
+			hero->initialArmy[x].minAmount = parser.readNumber();
+			hero->initialArmy[x].maxAmount = parser.readNumber();
+
+			std::string refName = parser.readString();
+			boost::algorithm::replace_all(refName, " ", ""); //remove spaces
+			VLC->modh->identifiers.requestIdentifier(std::string("creature.") + refName, [=](si32 creature)
+			{
+				hero->initialArmy[x].creature = creature;
+			});
 		}
 		parser.endLine();
 

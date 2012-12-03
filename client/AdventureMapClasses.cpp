@@ -294,7 +294,7 @@ void CTownList::CTownItem::update()
 {
 	size_t iconIndex = town->town->clientInfo.icons[town->hasFort()][town->builded >= CGI->modh->settings.MAX_BUILDING_PER_TURN];
 
-	picture->setFrame(iconIndex);
+	picture->setFrame(iconIndex + 2);
 	redraw();
 }
 

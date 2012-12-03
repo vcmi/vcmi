@@ -22,6 +22,24 @@ class CModIndentifier;
 class CModInfo;
 class JsonNode;
 
+/// class that stores all object identifiers strings and maps them to numeric ID's
+/// if possible, objects ID's should be in format <type>.<name>, camelCase e.g. "creature.grandElf"
+class CIdentifierStorage
+{
+	std::map<std::string, si32 > registeredObjects;
+	std::map<std::string, std::vector<boost::function<void(si32)> > > missingObjects;
+
+public:
+	/// request identifier for specific object name. If ID is not yet resolved callback will be queued
+	/// and will be called later
+	void requestIdentifier(std::string name, const boost::function<void(si32)> & callback);
+	/// registers new object, calls all associated callbacks
+	void registerObject(std::string name, si32 identifier);
+
+	/// called at the very end of loading to check for any missing ID's
+	void finalize() const;
+};
+
 typedef si32 TModID;
 
 class DLL_LINKAGE CModInfo
@@ -41,11 +59,13 @@ public:
 
 class DLL_LINKAGE CModHandler
 {
-public:
 	//std::string currentConfig; //save settings in this file
 
 	std::map <TModID, CModInfo> allMods;
 	std::set <TModID> activeMods;//TODO: use me
+
+public:
+	CIdentifierStorage identifiers;
 
 	/// management of game settings config
 	void loadConfigFromFile (std::string name);	

@@ -5,6 +5,7 @@
 #include "CGeneralTextHandler.h"
 #include "JsonNode.h"
 #include "GameConstants.h"
+#include "CModHandler.h"
 #include "Filesystem/CResourceLoader.h"
 
 /*
@@ -402,14 +403,24 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 		town.hordeLvl[town.hordeLvl.size()] = node.Float();
 	}
 
-	BOOST_FOREACH(const JsonNode &list, source["creatures"].Vector())
+	const JsonVector & creatures = source["creatures"].Vector();
+
+	town.creatures.resize(creatures.size());
+
+	for (size_t i=0; i< creatures.size(); i++)
 	{
-		std::vector<TCreature> level;
-		BOOST_FOREACH(const JsonNode &node, list.Vector())
+		const JsonVector & level = creatures[i].Vector();
+
+		town.creatures[i].resize(level.size());
+
+		for (size_t j=0; j<level.size(); j++)
 		{
-			level.push_back(node.Float());
+			VLC->modh->identifiers.requestIdentifier(std::string("creature.") + level[j].String(), [=, &town](si32 creature)
+			{
+				town.creatures[i][j] = creature;
+			});
 		}
-		town.creatures.push_back(level);
+
 	}
 
 	loadBuildings(town, source["buildings"]);
@@ -471,6 +482,7 @@ void CTownHandler::load(const JsonNode &source)
 			loadPuzzle(faction, node.second["puzzleMap"]);
 
 		tlog3 << "Added faction: " << node.first << "\n";
+		VLC->modh->identifiers.registerObject(std::string("faction.") + node.first, faction.factionID);
 	}
 }
 

@@ -1072,7 +1072,7 @@ void CCreaInfo::clickRight(tribool down, bool previousState)
 			CInfoPopup *mess = new CInfoPopup();//creating popup
 			mess->free = true;
 			mess->bitmap = CMessage::drawBoxTextBitmapSub
-			(LOCPLINT->playerID, descr,graphics->bigImgs[creature->idNumber],"");
+			(LOCPLINT->playerID, descr,graphics->bigImgs[creature->iconIndex],"");
 			mess->pos.x = screen->w/2 - mess->bitmap->w/2;
 			mess->pos.y = screen->h/2 - mess->bitmap->h/2;
 			GH.pushInt(mess);

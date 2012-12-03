@@ -1,0 +1,257 @@
+#!/bin/bash
+
+#
+# VCMI data builder script
+# Extracts game data from various sources and creates a tree with the right files
+#
+# Authors: listed in file AUTHORS in main folder
+#
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 2 of the License, or
+# (at your option) any later version.
+#
+
+# no console arguments - print help
+if [ $# -eq 0 ] ; then
+	print_help=true
+fi
+
+# command line parsing
+# can't use system getopt which is not cross-platform (BSD/Mac)
+# can't use built-in getopts which can't parse long options (too difficult to avoid - e.g. CD1/CD2)
+while [ $# -gt 0 ]
+do
+	case $1 in
+		--cd1) cd1_dir=$2           ; shift 2 ;;
+		--cd2) cd2_dir=$2           ; shift 2 ;;
+		--gog) gog_file=$2          ; shift 2 ;;
+		--data) data_dir=$2         ; shift 2 ;;
+		--wog) wog_archive=$2       ; shift 2 ;;
+		--vcmi) vcmi_archive=$2     ; shift 2 ;;
+		--download) download=true   ; shift 1 ;;
+		--validate) validate=true   ; shift 1 ;;
+		*) print_help=true          ; shift 1 ;;
+	esac
+done
+
+if [[ -n "$print_help" ]]
+then
+	echo "VCMI data builder utility"
+	echo "Usage: vcmibuilder <options>"
+	echo "Options:"
+	echo " --cd1 DIRECTORY  " "Path to mounted first CD with Heroes 3 install files"
+	echo "                  " "Requires unshield"
+	echo
+	echo " --cd2 DIRECTORY  " "Path to second CD with Heroes 3 data files."
+	echo
+	echo " --gog EXECUTABLE " "Path to gog.com executable"
+	echo "                  " "Requires innoextract ( http://constexpr.org/innoextract/ )"
+	echo
+	echo " --data DIRECTORY " "Path to installed Heroes 3 data"
+	echo
+	echo " --wog ARCHIVE    " "Path to manually downloaded WoG archive"
+	echo "                  " "Requires unzip"
+	echo
+	echo " --vcmi ARCHIVE   " "Path to manually downloaded VCMI data package"
+	echo "                  " "Requires unzip"
+	echo
+	echo " --download       " "If specified vcmibuilder will download packages using wget"
+	echo "                  " "Requires wget and Internet connection"
+	echo
+	echo " --validate       " "If specified vcmibuilder will run basic validness checks"
+	exit 1
+fi
+
+# test presence of program $1, $2 will be passed as parameters to test presence
+test_utility ()
+{
+	$1 $2 > /dev/null 2>&1 || { echo "$1 was not found. Please install it" 1>&2 ; exit 1; }
+} 
+
+#print error message and exit
+fail ()
+{
+	$2
+	echo "$1" 1>&2
+	exit 1
+}
+
+# print warning to stderr.
+warning ()
+{
+	echo "$1" 1>&2
+	warn_user=true
+}
+
+# check if selected options are correct.
+
+if [[ -n "$data_dir" ]]
+then
+	if [[ -n "$gog_file" ]] || [[ -n "$cd1_dir" ]] || [[ -n "$cd2_dir" ]]
+	then
+		warning "Warning: Installed data dir was specified. Both gog and cd options will be ignored"
+		unset gog_file cd1_dir cd2_dir
+	fi
+fi
+
+if [[ -n "$gog_file" ]]
+then
+	test_utility "innoextract"
+	if [[ -n "$cd1_dir" ]] || [[ -n "$cd2_dir" ]]
+	then
+		warning "Warning: Both gog and cd options were specified. cd options will be ignored"
+		unset cd1_dir cd2_dir
+	fi
+fi
+
+if [[ -n "$cd1_dir" ]] 
+then
+	test_utility "unshield" "-V"
+fi
+
+if [[ -n "$download" ]] 
+then
+	if [[ -n "$wog_archive" ]] && [[ -n "$vcmi_archive" ]]
+	then
+		warning "Warning: Both wog and vcmi options were specified. Download option will not be used"
+		unset download
+	else
+		test_utility "wget" "-V"
+	fi
+fi
+
+if [[ -n "$download" ]] || [[ -n "$wog_archive" ]] || [[ -n "$vcmi_archive" ]]
+then
+	test_utility "unzip"
+fi
+
+if [[ -z "$gog_file" ]] && [[ -z "$data_dir" ]] && ( [[ -z "$cd1_dir" ]] || [[ -z "$cd2_dir" ]] )
+then
+	warning "Warning: Selected options will not create complete Heroes 3 data!"
+fi
+
+if [[ -z "$download" ]] && ( [[ -z "$wog_archive" ]] || [[ -z "$vcmi_archive" ]])
+then
+	warning "Warning: Selected options will not create complete VCMI data!"
+fi
+
+# if at least one warning has been printed - ask for confirmation
+if [[ -n "$warn_user" ]]
+then
+	read -p "Do you wish to continue? (y/n) " -n 1
+	echo #print eol
+	if [[ ! $REPLY =~ ^[Yy]$ ]]
+	then
+		exit 1
+	fi
+fi
+
+# start installation
+
+dest_dir="./vcmi"
+mkdir -p $dest_dir
+
+if [[ -n "$gog_file" ]]
+then
+	data_dir="./app"
+	# innoextract always reports error (iconv 84 error). Just test file for presence
+	test -f $gog_file || fail "Error: gog.com executable was not found!"
+	innoextract -s -p 1 $gog_file
+fi
+
+if [[ -n "$cd1_dir" ]]
+then
+	data_dir="./cddir"
+	mkdir -p $data_dir
+	unshield -d $data_dir x $cd1_dir/_setup/data1.cab || fail "Error: failed to extract from Install Shield installer!" "rm -rf ./cddir"
+	
+	# a bit tricky - different releases have different root directory. Move extracted files to data_dir
+	if [ -d $data_dir/"Heroes3" ]
+	then
+		mv $data_dir/Heroes3/* $data_dir
+	elif [ -d $data_dir"/Program_Files" ]
+	then
+		mv $data_dir/Program_Files/* $data_dir
+	else
+		echo "Error: failed to find extracted game files!"
+		echo "Extracted directories are: "
+		ls -la $data_dir
+		echo "Please report this on vcmi.eu"
+		exit 1;
+	fi
+fi
+
+if [[ -n "$cd2_dir" ]]
+then
+	mkdir -p $dest_dir/Data
+
+	if [ -d $cd2_dir/heroes3 ]
+	then
+		cp $cd2_dir/heroes3/Data/Heroes3.vid $dest_dir/Data/VIDEO.VID
+		cp $cd2_dir/heroes3/Data/Heroes3.snd $dest_dir/Data/Heroes3-cd2.snd
+	else
+		cp $cd2_dir/Heroes3/Data/Heroes3.vid $dest_dir/Data/VIDEO.VID
+		cp $cd2_dir/Heroes3/Data/Heroes3.snd $dest_dir/Data/Heroes3-cd2.snd
+	fi
+fi
+
+if [[ -n "$data_dir" ]]
+then
+	cp -r $data_dir/Data $dest_dir
+	cp -r $data_dir/Maps $dest_dir
+
+	# this folder is named differently from time to time
+	# vcmi can handle any case but script can't
+	if [ -d $data_dir/MP3 ]
+	then
+		cp -r $data_dir/MP3 $dest_dir
+	else
+		cp -r $data_dir/Mp3 $dest_dir
+	fi
+fi
+
+if [[ -n "$download" ]]
+then
+	if [[ -z "$wog_archive" ]]
+	then
+		wget "http://download.vcmi.eu/WoG/wog.zip" -O wog.zip || fail "Error: failed to download WoG archive!" "rm -f wog.zip"
+		wog_archive="./wog.zip"
+	fi
+	
+	if [[ -z "$vcmi_archive" ]]
+	then
+		wget "http://download.vcmi.eu/core.zip" -O core.zip || fail "Error: failed to download WoG archive!" "rm -f core.zip"
+		vcmi_archive="./core.zip"
+	fi
+fi
+
+if [[ -n "$wog_archive" ]]
+then
+	echo "decompressing $wog_archive"
+	unzip -qo $wog_archive -d $dest_dir || fail "Error: failed to extract WoG archive!"
+fi
+
+if [[ -n "$vcmi_archive" ]]
+then
+	echo "decompressing $vcmi_archive"
+	unzip -qo $vcmi_archive -d $dest_dir || fail "Error: failed to extract WoG archive!"
+fi
+
+if [[ -n "$validate" ]]
+then
+	test -f $dest_dir/Data/H3bitmap.lod || fail "Error: Heroes 3 data files are missing!"
+	test -f $dest_dir/Data/H3sprite.lod || fail "Error: Heroes 3 data files are missing!"
+	test -f $dest_dir/Data/VIDEO.VID    || fail "Error: Heroes 3 data files (CD2) are missing!"
+	test -d $dest_dir/Mods/WoG/Data     || fail "Error: WoG data files are missing!"
+	test -d $dest_dir/Mods/vcmi/Data    || fail "Error: VCMI data files are missing!"
+fi
+
+#TODO: Cleanup? How?
+
+echo
+echo "vcmibuilder finished succesfully"
+echo "resulting data was placed into $PWD/vcmi"
+echo "any other files in current directory can be removed"
+echo
+

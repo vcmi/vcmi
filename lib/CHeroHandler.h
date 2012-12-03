@@ -33,14 +33,27 @@ struct SSpecialtyInfo
 class DLL_LINKAGE CHero
 {
 public:
+	struct InitialArmyStack
+	{
+		ui32 minAmount;
+		ui32 maxAmount;
+		TCreature creature;
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & minAmount & maxAmount & creature;
+		}
+	};
+
 	enum EHeroClasses {KNIGHT, CLERIC, RANGER, DRUID, ALCHEMIST, WIZARD,
 		DEMONIAC, HERETIC, DEATHKNIGHT, NECROMANCER, WARLOCK, OVERLORD,
 		BARBARIAN, BATTLEMAGE, BEASTMASTER, WITCH, PLANESWALKER, ELEMENTALIST};
 
 	std::string name; //name of hero
 	si32 ID;
-	ui32 lowStack[3], highStack[3]; //amount of units; described below
-	std::string refTypeStack[3]; //reference names of units appearing in hero's army if he is recruited in tavern
+
+	InitialArmyStack initialArmy[3];
+
 	CHeroClass * heroClass;
 	EHeroClasses heroType; //hero class
 	std::vector<std::pair<ui8,ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
@@ -54,7 +67,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & ID & lowStack & highStack & refTypeStack	& heroClass & heroType & secSkillsInit & spec & startingSpell & sex;
+		h & name & ID & initialArmy & heroClass & heroType & secSkillsInit & spec & startingSpell & sex;
 	}
 };
 

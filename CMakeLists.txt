@@ -113,6 +113,8 @@ if (NOT APPLE)
 	install(DIRECTORY Mods/vcmi DESTINATION ${DATA_DIR}/Mods PATTERN ".svn" EXCLUDE)
 	# copy only fs.json for WoG
 	install(FILES Mods/WoG/filesystem.json DESTINATION ${DATA_DIR}/Mods/WoG)
+
+	install(FILES vcmibuilder DESTINATION ${BIN_DIR})
 endif()
 
 if(WIN32)

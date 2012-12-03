@@ -4,6 +4,7 @@
 #include "JsonNode.h"
 #include "Filesystem/CResourceLoader.h"
 #include "Filesystem/ISimpleResourceLoader.h"
+
 /*
  * CModHandler.h, part of VCMI engine
  *
@@ -24,6 +25,46 @@ class CDefObjInfoHandler;
 class CTownHandler;
 class CGeneralTextHandler;
 class ResourceLocator;
+
+void CIdentifierStorage::requestIdentifier(std::string name, const boost::function<void(si32)> & callback)
+{
+	auto iter = registeredObjects.find(name);
+
+	if (iter != registeredObjects.end())
+		callback(iter->second); //already registered - trigger callback immediately
+	else
+		missingObjects[name].push_back(callback); // queue callback
+}
+
+void CIdentifierStorage::registerObject(std::string name, si32 identifier)
+{
+	// do not allow to register same object twice
+	assert(registeredObjects.find(name) == registeredObjects.end());
+
+	registeredObjects[name] = identifier;
+
+	auto iter = missingObjects.find(name);
+	if (iter != missingObjects.end())
+	{
+		//call all awaiting callbacks
+		BOOST_FOREACH(auto function, iter->second)
+		{
+			function(identifier);
+		}
+		missingObjects.erase(iter);
+	}
+}
+
+void CIdentifierStorage::finalize() const
+{
+	// print list of missing objects and crash
+	// in future should try to do some cleanup (like returning all id's as 0)
+	BOOST_FOREACH(auto object, missingObjects)
+	{
+		tlog1 << "Error: object " << object.first << " was not found!\n";
+	}
+	assert(missingObjects.empty());
+}
 
 CModHandler::CModHandler()
 {
@@ -99,6 +140,7 @@ void CModHandler::loadActiveMods()
 		VLC->creh->load(config["creatures"]);
 	}
 	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded
+	identifiers.finalize();
 }
 
 void CModHandler::reload()
@@ -117,16 +159,6 @@ void CModHandler::reload()
 				info->name = crea->advMapDef;
 
 				VLC->dobjinfo->gobjs[Obj::MONSTER][crea->idNumber] = info;
-			}
-			BOOST_FOREACH(auto up, crea->upgradeNames)
-			{
-				auto it = VLC->creh->nameToID.find(up);
-				if (it != VLC->creh->nameToID.end())
-				{
-					crea->upgrades.insert (it->second);
-				}
-				else
-					tlog2 << "Not found upgrade with name " << up << "\n";
 			}
 		}
 	}

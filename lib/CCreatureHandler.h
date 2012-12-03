@@ -86,7 +86,7 @@ public:
 	bool valid() const;
 
 	void addBonus(int val, int type, int subtype = -1);
-	std::string nodeName() const OVERRIDE;
+	std::string nodeName() const override;
 	//void getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const;
 
 	template<typename RanGen>
@@ -102,7 +102,7 @@ public:
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
 		h & namePl & nameSing & nameRef
-			& cost & upgradeNames & upgrades 
+			& cost & upgrades
 			& fightValue & AIValue & growth & hordeGrowth
 			& ammMin & ammMax & level
 			& abilityText & abilityRefs & animDefName & advMapDef;
@@ -131,7 +131,6 @@ public:
 	std::set<int> notUsedMonsters;
 	std::set<TCreature> doubledCreatures; //they get double week
 	std::vector<ConstTransitivePtr<CCreature> > creatures; //creature ID -> creature info
-	bmap<std::string,int> nameToID;
 
 	//stack exp
 	std::map<TBonusType, std::pair<std::string, std::string> > stackBonuses; // bonus => name, description
@@ -160,6 +159,7 @@ public:
 	/// read one line from cranim.txt
 	void loadUnitAnimInfo(CCreature & unit, CLegacyConfigParser &parser);
 	/// load cr_sounds.json config
+	void loadCreatureSounds(JsonNode node, si32 creaID);
 	void loadSoundsInfo();
 	/// parse crexpbon.txt file from H3
 	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser &parser);
@@ -177,7 +177,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
-		h & notUsedMonsters & creatures & nameToID;
+		h & notUsedMonsters & creatures;
 		h & stackBonuses & expRanks & maxExpPerBattle & expAfterUpgrade;
 		h & factionCommanders & skillLevels & skillRequirements & commanderLevelPremy;
 		h & allCreatures;

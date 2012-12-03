@@ -134,7 +134,16 @@
 				[ [ 30, 37 ], [ 31, 38 ], [ 32, 39 ], [ 33, 40 ] ],
 				[ [ 34, 41 ], [ 35, 42 ], [ 36, 43 ] ]
 			],
-			"creatures" : [ [0, 1], [2, 3], [4, 5], [6, 7], [8, 9], [10, 11], [12, 13] ],
+			"creatures" :
+			[
+				["Pikeman", "Halberdier"],
+				["Archer", "HeavyCrossbowman"],
+				["Griffin", "RoyalGriffin"],
+				["Swordsman", "Crusader"],
+				["Monk", "Zealot"],
+				["Cavalier", "Champion"],
+				["Angel", "Archangel"]
+			],
 			"horde" : [ 2, -1 ],
 			"primaryResource" : 127,
 			"mageGuild" : 4,
@@ -375,7 +384,16 @@
 				[ [ 30, 37 ], [ 31, 38 ], [ 32, 39 ], [ 33, 40 ] ],
 				[ [ 34, 41 ], [ 35, 42 ], [ 36, 43 ] ]
 			],
-			"creatures" : [ [14, 15], [16, 17], [18, 19], [20, 21], [22, 23], [24, 25], [26, 27] ],
+			"creatures" :
+			[
+				["Centaur", "EliteCentaur"],
+				["Dwarf", "BattleDwarf"],
+				["WoodElf", "GrandElf"],
+				["Pegasus", "SilverPegasus"],
+				["Treefolk", "BriarTreefolk"],
+				["Unicorn", "WarUnicorn"],
+				["GreenDragon", "GoldDragon"]
+			],
 			"horde" : [ 1, 4 ],
 			"mageGuild" : 5,
 			"primaryResource" : 4,
@@ -612,7 +630,16 @@
 				[ [ 30, 37 ], [ 31, 38 ], [ 32, 39 ], [ 33, 40 ] ],
 				[ [ 34, 41 ], [ 35, 42 ], [ 36, 43 ] ]
 			],
-			"creatures" : [ [28, 29], [30, 31], [32, 33], [34, 35], [36, 37], [38, 39], [40, 41] ],
+			"creatures" :
+			[
+				["ApprenticeGremlin", "MasterGremlin"],
+				["StoneGargoyle", "ObsidianGargoyle"],
+				["IronGolem", "StoneGolem"],
+				["Mage", "ArchMage"],
+				["Genie", "Caliph"],
+				["NagaSentinel", "NagaGuardian"],
+				["LesserTitan", "GreaterTitan"]
+			],
 			"horde" : [ 1, -1 ],
 			"primaryResource" : 5,
 			"mageGuild" : 5,
@@ -847,7 +874,16 @@
 				[ [ 30, 37 ], [ 31, 38 ], [ 32, 39 ], [ 33, 40 ] ],
 				[ [ 34, 41 ], [ 35, 42 ], [ 36, 43 ] ]
 			],
-			"creatures" : [ [42, 43], [44, 45], [46, 47], [48, 49], [50, 51], [52, 53], [54, 55] ],
+			"creatures" :
+			[
+				["Imp", "Familiar"],
+				["Gog", "Magog"],
+				["HellHound", "Cerberus"],
+				["Single-HornedDemon", "Dual-HornedDemon"],
+				["PitFiend", "PitFoe"],
+				["Efreet", "EfreetSultan"],
+				["Devil", "ArchDevil"]
+			],
 			"horde" : [ 0, 2 ],
 			"mageGuild" : 5,
 			"primaryResource" : 1,
@@ -1088,7 +1124,16 @@
 				[ [ 30, 37 ], [ 31, 38 ], [ 32, 39 ], [ 33, 40 ] ],
 				[ [ 34, 41 ], [ 35, 42 ], [ 36, 43 ] ]
 			],
-			"creatures" : [ [56, 57], [58, 59], [60, 61], [62, 63], [64, 65], [66, 67], [68, 69] ],
+			"creatures" :
+			[
+				["Skeleton", "SkeletonWarrior"],
+				["Zombie", "ZombieLord"],
+				["Wight", "Wraith"],
+				["Vampire", "Nosferatu"],
+				["Lich", "PowerLich"],
+				["BlackKnight", "BlackLord"],
+				["BoneDragon", "GhostDragon"]
+			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
 			"primaryResource" : 127,
@@ -1323,7 +1368,16 @@
 				[ [ 30, 37 ], [ 31, 38 ], [ 32, 39 ], [ 33, 40 ] ],
 				[ [ 34, 41 ], [ 35, 42 ], [ 36, 43 ] ]
 			],
-			"creatures" : [ [70, 71], [72, 73], [74, 75], [76, 77], [78, 79], [80, 81], [82, 83] ],
+			"creatures" :
+			[
+				["Troglodyte", "InfernalTroglodyte"],
+				["Harpy", "HarpyHag"],
+				["Beholder", "EvilEye"],
+				["Medusa", "MedusaQueen"],
+				["Minotaur", "MinotaurKing"],
+				["Manticore", "Scorpicore"],
+				["RedDragon", "BlackDragon"]
+			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
 			"primaryResource" : 3,
@@ -1556,7 +1610,16 @@
 				[ [ 30, 37 ], [ 31, 38 ], [ 32, 39 ], [ 33, 40 ] ],
 				[ [ 34, 41 ], [ 35, 42 ], [ 36, 43 ] ]
 			],
-			"creatures" : [ [84, 85], [86, 87], [88, 89], [90, 91], [92, 93], [94, 95], [96, 97] ],
+			"creatures" :
+			[
+				["Goblin", "Hobgoblin"],
+				["GoblinWolfRider", "HobgoblinWolfRider"],
+				["Orc", "OrcChieftain"],
+				["Ogre", "OgreMage"],
+				["Roc", "Thunderbird"],
+				["Cyclops", "CyclopsLord"],
+				["YoungBehemoth", "AncientBehemoth"]
+			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 3,
 			"primaryResource" : 127,
@@ -1791,7 +1854,16 @@
 				[ [ 30, 37 ], [ 31, 38 ], [ 32, 39 ], [ 33, 40 ] ],
 				[ [ 34, 41 ], [ 35, 42 ], [ 36, 43 ] ]
 			],
-			"creatures" : [ [98, 99], [100, 101], [104, 105], [106, 107], [102, 103], [108, 109], [110, 111] ],
+			"creatures" :
+			[
+				["Gnoll", "GnollMarauder"],
+				["PrimitiveLizardman", "AdvancedLizardman"],
+				["Dragonflies", "FireDragonFly"],
+				["Basilisk", "GreaterBasilisk"],
+				["CopperGorgon", "BronzeGorgon"],
+				["Wyvern", "WyvernMonarch"],
+				["Hydra", "ChaosHydra"]
+			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 3,
 			"primaryResource" : 127,
@@ -2031,7 +2103,16 @@
 				[ [ 30, 37 ], [ 31, 38 ], [ 32, 39 ], [ 33, 40 ] ],
 				[ [ 34, 41 ], [ 35, 42 ], [ 36, 43 ] ]
 			],
-			"creatures" : [ [118, 119], [112, 127], [115, 123], [114, 129], [113, 125], [120, 121], [130, 131] ],
+			"creatures" :
+			[
+				["Pixie", "Sprite"],
+				["AirElemental", "StormElemental"],
+				["WaterElemental", "IceElemental"],
+				["FireElemental", "ElectricityElemental"],
+				["EarthElemental", "StoneElemental"],
+				["PsiElemental", "MagicElemental"],
+				["Firebird", "Pheonix"]
+			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
 			"primaryResource" : 1,

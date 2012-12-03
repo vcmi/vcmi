@@ -22,7 +22,7 @@
 				"id": 0,
 				"level": 1,
 				"name": [ "Pikeman" ],
-				"faction": 0,
+				"faction": "castle",
 				"upgrades": ["Halberdier"],
 				"ability_add": [ [ "CHARGE_IMMUNITY", 0, 0, 0 ] ], 		//pikeman immunity to Champion charge bonus
 				"defname": "CPKMAN.DEF"
@@ -32,7 +32,7 @@
 				"id": 1,
 				"level": 1,
 				"name": [ "Halberdier" ],
-				"faction": 0,
+				"faction": "castle",
 				"ability_add": [ [ "CHARGE_IMMUNITY", 0, 0, 0 ] ], 		//halberdier immunity to Champion charge bonus
 				"defname": "CHALBD.DEF"
 			},
@@ -41,7 +41,7 @@
 				"id": 2,
 				"level": 2,
 				"name": [ "Archer", "LightCrossbowman" ],
-				"faction": 0,
+				"faction": "castle",
 				"upgrades": ["HeavyCrossbowman"],
 				"defname": "CLCBOW.DEF",
 				"projectile_defname": "PLCBOWX.DEF",
@@ -52,7 +52,7 @@
 				"id": 3,
 				"level": 2,
 				"name": [ "HeavyCrossbowman" ],
-				"faction": 0,
+				"faction": "castle",
 				"defname": "CHCBOW.DEF",
 				"projectile_defname": "PLCBOWX.DEF",
 				"projectile_spin": false
@@ -62,7 +62,7 @@
 				"id": 4,
 				"level": 3,
 				"name": [ "Griffin" ],
-				"faction": 0,
+				"faction": "castle",
 				"ability_add": [ [ "ADDITIONAL_RETALIATION", 1, 0, 0 ] ], 	//griffins retaliate twice
 				"upgrades": ["RoyalGriffin"],
 				"defname": "CGRIFF.DEF"
@@ -72,7 +72,7 @@
 				"id": 5,
 				"level": 3,
 				"name": [ "RoyalGriffin" ],
-				"faction": 0,
+				"faction": "castle",
 				"ability_add": [ [ "UNLIMITED_RETALIATIONS", 0, 0, 0 ] ],	//royal griffins retaliate always
 				"defname": "CRGRIF.DEF"
 			},
@@ -81,7 +81,7 @@
 				"id": 6,
 				"level": 4,
 				"name": [ "Swordsman" ],
-				"faction": 0,
+				"faction": "castle",
 				"upgrades": ["Crusader"],
 				"defname": "CSWORD.DEF"
 			},
@@ -90,7 +90,7 @@
 				"id": 7,
 				"level": 4,
 				"name": [ "Crusader" ],
-				"faction": 0,
+				"faction": "castle",
 				"defname": "CCRUSD.DEF"
 			},
 
@@ -98,7 +98,7 @@
 				"id": 8,
 				"level": 5,
 				"name": [ "Monk" ],
-				"faction": 0,
+				"faction": "castle",
 				"upgrades": ["Zealot"],
 				"defname": "CMONKK.DEF",
 				"projectile_defname": "CPRZEAX.DEF",
@@ -109,7 +109,7 @@
 				"id": 9,
 				"level": 5,
 				"name": [ "Zealot" ],
-				"faction": 0,
+				"faction": "castle",
 				"defname": "CZEALT.DEF",
 				"projectile_defname": "CPRZEAX.DEF",
 				"projectile_spin": false
@@ -119,7 +119,7 @@
 				"id": 10,
 				"level": 6,
 				"name": [ "Cavalier" ],
-				"faction": 0,
+				"faction": "castle",
 				"upgrades": ["Champion"],
 				"defname": "CCAVLR.DEF"
 			},
@@ -128,7 +128,7 @@
 				"id": 11,
 				"level": 6,
 				"name": [ "Champion" ],
-				"faction": 0,
+				"faction": "castle",
 				"defname": "CCHAMP.DEF"
 			},
 
@@ -136,7 +136,7 @@
 				"id": 12,
 				"level": 7,
 				"name": [ "Angel" ],
-				"faction": 0,
+				"faction": "castle",
 				"ability_add": [ [ "HATE", 50, 55, 0 ],					//angels hate archdevils
 							   	 [ "HATE", 50, 54, 0 ] ],			   	 	//angels hate devils
 				"upgrades": ["Archangel"],
@@ -147,7 +147,7 @@
 				"id": 13,
 				"level": 7,
 				"name": [ "Archangel" ],
-				"faction": 0,
+				"faction": "castle",
 				"ability_add": [ [ "SPECIFIC_SPELL_POWER", 100, 38, 0 ],			// 100 hp per Archangel
 							   	 [ "SPELLCASTER", 0, 38, 0 ],			//archangels cast resurrection
 								 [ "HATE", 50, 55, 0 ],					//archangels hate arch
@@ -160,7 +160,7 @@
 				"id": 14,
 				"level": 1,
 				"name": [ "Centaur" ],
-				"faction": 1,
+				"faction": "rampart",
 				"upgrades": ["EliteCentaur"],
 				"defname": "CCENTR.DEF"
 			},
@@ -169,7 +169,7 @@
 				"id": 15,
 				"level": 1,
 				"name": [ "EliteCentaur" ],
-				"faction": 1,
+				"faction": "rampart",
 				"defname": "CECENT.DEF"
 			},
 
@@ -177,7 +177,7 @@
 				"id": 16,
 				"level": 2,
 				"name": [ "Dwarf" ],
-				"faction": 1,
+				"faction": "rampart",
 				"ability_add": [ [ "MAGIC_RESISTANCE", 20, 0, 0 ] ], 		//dwarf's magic resistance 20%
 				"upgrades": ["BattleDwarf"],
 				"defname": "CDWARF.DEF"
@@ -187,7 +187,7 @@
 				"id": 17,
 				"level": 2,
 				"name": [ "BattleDwarf" ],
-				"faction": 1,
+				"faction": "rampart",
 				"ability_add": [ [ "MAGIC_RESISTANCE", 40, 0, 0 ] ], 	 	//battle dwarf's magic resistance 40%
 				"defname": "CBDWAR.DEF"
 			},
@@ -196,7 +196,7 @@
 				"id": 18,
 				"level": 3,
 				"name": [ "WoodElf" ],
-				"faction": 1,
+				"faction": "rampart",
 				"upgrades": ["GrandElf"],
 				"defname": "CELF.DEF",
 				"projectile_defname": "PELFX.DEF",
@@ -207,7 +207,7 @@
 				"id": 19,
 				"level": 3,
 				"name": [ "GrandElf" ],
-				"faction": 1,
+				"faction": "rampart",
 				"defname": "CGRELF.DEF",
 				"projectile_defname": "PELFX.DEF",
 				"projectile_spin": false
@@ -217,7 +217,7 @@
 				"id": 20,
 				"level": 4,
 				"name": [ "Pegasus" ],
-				"faction": 1,
+				"faction": "rampart",
 				"ability_add": [ [ "CHANGES_SPELL_COST_FOR_ENEMY", 2, 0, 0 ] ],	//pegasus makes spell cost higher for enemy mage
 				"upgrades": ["SilverPegasus"],
 				"defname": "CPEGAS.DEF"
@@ -227,7 +227,7 @@
 				"id": 21,
 				"level": 4,
 				"name": [ "SilverPegasus" ],
-				"faction": 1,
+				"faction": "rampart",
 				"ability_add": [ [ "CHANGES_SPELL_COST_FOR_ENEMY", 2, 0, 0 ] ], 	//silver pegasus makes spell cost higher for enemy mage
 				"defname": "CAPEGS.DEF"
 			},
@@ -236,7 +236,7 @@
 				"id": 22,
 				"level": 5,
 				"name": [ "Treefolk" ],
-				"faction": 1,
+				"faction": "rampart",
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 100, 72, 0 ] ],   //dendroids cast bind
 				"upgrades": ["BriarTreefolk"],
 				"defname": "CTREE.DEF"
@@ -246,7 +246,7 @@
 				"id": 23,
 				"level": 5,
 				"name": [ "BriarTreefolk" ],
-				"faction": 1,
+				"faction": "rampart",
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 100, 72, 0 ] ],	//dendroid guards cast bind
 				"defname": "CBTREE.DEF"
 			},
@@ -255,7 +255,7 @@
 				"id": 24,
 				"level": 6,
 				"name": [ "Unicorn" ],
-				"faction": 1,
+				"faction": "rampart",
 				"ability_add": [ [ "SPELL_RESISTANCE_AURA", 0, 55, 0 ],	//unicorn
 							   	 [ "SPELL_AFTER_ATTACK", 20, 62, 0 ] ],	//unicorns cast blind with 20% probability
 				"upgrades": ["WarUnicorn"],
@@ -266,7 +266,7 @@
 				"id": 25,
 				"level": 6,
 				"name": [ "WarUnicorn" ],
-				"faction": 1,
+				"faction": "rampart",
 				"ability_add": [ [ "SPELL_RESISTANCE_AURA", 20, 55, 0 ], 	//war unicorn
 				 			   	 [ "SPELL_AFTER_ATTACK", 20, 62, 0 ] ],	//war unicorns cast blind with 20% probability
 				"defname": "CWUNIC.DEF"
@@ -276,7 +276,7 @@
 				"id": 26,
 				"level": 7,
 				"name": [ "GreenDragon" ],
-				"faction": 1,
+				"faction": "rampart",
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//green dragon is a dragon
 							   	 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//green dragon's breath
 				 				 [ "LEVEL_SPELL_IMMUNITY", 3, 0, 0 ] ], 	//green dragon's spell immunity
@@ -288,7 +288,7 @@
 				"id": 27,
 				"level": 7,
 				"name": [ "GoldDragon" ],
-				"faction": 1,
+				"faction": "rampart",
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//gold dragon is a dragon
 							   [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//gold dragon's breath
 							   [ "LEVEL_SPELL_IMMUNITY", 4, 0, 0 ] ], 	//gold dragon's spell immunity
@@ -299,7 +299,7 @@
 				"id": 28,
 				"level": 1,
 				"name": [ "ApprenticeGremlin" ],
-				"faction": 2,
+				"faction": "tower",
 				"upgrades": ["MasterGremlin"],
 				"defname": "CGREMA.DEF"
 			},
@@ -308,7 +308,7 @@
 				"id": 29,
 				"level": 1,
 				"name": [ "MasterGremlin" ],
-				"faction": 2,
+				"faction": "tower",
 				"defname": "CGREMM.DEF",
 				"projectile_defname": "CPRGRE.DEF",
 				"projectile_spin": false
@@ -318,7 +318,7 @@
 				"id": 30,
 				"level": 2,
 				"name": [ "StoneGargoyle" ],
-				"faction": 2,
+				"faction": "tower",
 				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ],  	  		//stone gargoyles are non-living
 				"upgrades": ["ObsidianGargoyle"],
 				"defname": "CGARGO.DEF"
@@ -328,7 +328,7 @@
 				"id": 31,
 				"level": 2,
 				"name": [ "ObsidianGargoyle" ],
-				"faction": 2,
+				"faction": "tower",
 				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ],  			//obsidian gargoyles are non-living
 				"defname": "COGARG.DEF"
 			},
@@ -337,7 +337,7 @@
 				"id": 32,
 				"level": 3,
 				"name": [ "IronGolem" ],
-				"faction": 2,
+				"faction": "tower",
 				"ability_add": [ [ "SPELL_DAMAGE_REDUCTION", 50, -1, 0 ],		//stone golems reduce dmg from spells
 							   [ "NON_LIVING", 0, 0, 0 ] ],  			//stone golems are non-living
 				"upgrades": ["StoneGolem"], //?
@@ -348,7 +348,7 @@
 				"id": 33,
 				"level": 3,
 				"name": [ "StoneGolem" ],
-				"faction": 2,
+				"faction": "tower",
 				"ability_add": [ [ "SPELL_DAMAGE_REDUCTION", 75, -1, 0 ],	   	//iron golems reduce dmg from spells
 							   [ "NON_LIVING", 0, 0, 0 ] ],  			//iron golems are non-living
 				"defname": "CIGOLE.DEF"
@@ -358,7 +358,7 @@
 				"id": 34,
 				"level": 4,
 				"name": [ "Mage" ],
-				"faction": 2,
+				"faction": "tower",
 				"ability_add": [ [ "CHANGES_SPELL_COST_FOR_ALLY", 2, 0, 0 ] ],   	//mages reduce spell cost
 				"upgrades": ["ArchMage"],
 				"defname": "CMAGE.DEF",
@@ -370,7 +370,7 @@
 				"id": 35,
 				"level": 4,
 				"name": [ "ArchMage" ],
-				"faction": 2,
+				"faction": "tower",
 				"ability_add": [ [ "CHANGES_SPELL_COST_FOR_ALLY", 2, 0, 0 ]],		//archmages reduce spell cost
 				"defname": "CAMAGE.DEF",
 				"projectile_defname": "PMAGEX.DEF",
@@ -381,7 +381,7 @@
 				"id": 36,
 				"level": 5,
 				"name": [ "Genie" ],
-				"faction": 2,
+				"faction": "tower",
 				"ability_add": [ [ "HATE", 50, 53, 0 ],				  	//master genies hate efreets
 							   [ "HATE", 50, 52, 0 ] ],				  	//genies hate efreet sultans
 				"upgrades": ["Caliph"],
@@ -392,7 +392,7 @@
 				"id": 37,
 				"level": 5,
 				"name": [ "Caliph" ],
-				"faction": 2,
+				"faction": "tower",
 				"ability_add": [ [ "CREATURE_ENCHANT_POWER", 5, 0, 0 ],		//spells last 5 turns
 							   	 [ "RANDOM_SPELLCASTER", 2, 0, 0 ],  		//master genies cast spells on advanced level
 								 [ "CASTS", 3, 0, 0],
@@ -405,7 +405,7 @@
 				"id": 38,
 				"level": 6,
 				"name": [ "NagaSentinel" ],
-				"faction": 2,
+				"faction": "tower",
 				"ability_add": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],		//nagas block retaliation
 				"upgrades": ["NagaGuardian"],
 				"defname": "CNAGA.DEF"
@@ -415,7 +415,7 @@
 				"id": 39,
 				"level": 6,
 				"name": [ "NagaGuardian" ],
-				"faction": 2,
+				"faction": "tower",
 				"ability_add": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],  	//naga queens block retaliation
 				"defname": "CNAGAG.DEF"
 			},
@@ -424,7 +424,7 @@
 				"id": 40,
 				"level": 7,
 				"name": [ "LesserTitan" ],
-				"faction": 2,
+				"faction": "tower",
 				"ability_add": [ ["MIND_IMMUNITY", 0, 0, 0] ],			//giants are immune to mind spells
 				"upgrades": ["GreaterTitan"],
 				"defname": "CLTITA.DEF"
@@ -434,7 +434,7 @@
 				"id": 41,
 				"level": 7,
 				"name": [ "GreaterTitan" ],
-				"faction": 2,
+				"faction": "tower",
 				"ability_add": [ ["MIND_IMMUNITY", 0, 0, 0],			//Titans are immune to mind spells
 								 [ "HATE", 50, 83, 0 ] ],					//titans hate black dragons
 				"defname": "CGTITA.DEF",
@@ -446,7 +446,7 @@
 				"id": 42,
 				"level": 1,
 				"name": [ "Imp" ],
-				"faction": 3,
+				"faction": "inferno",
 				"upgrades": ["Familiar"],
 				"defname": "CIMP.DEF"
 			},
@@ -455,7 +455,7 @@
 				"id": 43,
 				"level": 1,
 				"name": [ "Familiar" ],
-				"faction": 3,
+				"faction": "inferno",
 				"ability_add": [ [ "MANA_CHANNELING", 20, 0, 0 ] ], 		//familiars
 				"defname": "CFAMIL.DEF"
 			},
@@ -464,7 +464,7 @@
 				"id": 44,
 				"level": 2,
 				"name": [ "Gog" ],
-				"faction": 3,
+				"faction": "inferno",
 				"upgrades": ["Magog"],
 				"defname": "CGOG.DEF",
 				"projectile_defname": "CPRGOGX.DEF",
@@ -475,7 +475,7 @@
 				"id": 45,
 				"level": 2,
 				"name": [ "Magog" ],
-				"faction": 3,
+				"faction": "inferno",
 				"ability_add": [ [ "SPELL_LIKE_ATTACK", 0, 21, 0 ] ], 		//magogs fire with fireballs
 				"defname": "CMAGOG.DEF",
 				"projectile_defname": "CPRGOGX.DEF",
@@ -486,7 +486,7 @@
 				"id": 46,
 				"level": 3,
 				"name": [ "HellHound" ],
-				"faction": 3,
+				"faction": "inferno",
 				"upgrades": ["Cerberus"],
 				"ability_remove": [ "FLYING" ], //hell hound doesn't fly
 				"defname": "CHHOUN.DEF"
@@ -496,7 +496,7 @@
 				"id": 47,
 				"level": 3,
 				"name": [ "Cerberus" ],
-				"faction": 3,
+				"faction": "inferno",
 				"ability_add": [ [ "THREE_HEADED_ATTACK", 0, 0, 0 ],
 							   	 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],
 				"ability_remove": [ "FLYING" ],  //cerberus doesn't fly
@@ -507,7 +507,7 @@
 				"id": 48,
 				"level": 4,
 				"name": [ "Single-HornedDemon" ],
-				"faction": 3,
+				"faction": "inferno",
 				"upgrades": ["Dual-HornedDemon"],
 				"defname": "COHDEM.DEF"
 			},
@@ -516,7 +516,7 @@
 				"id": 49,
 				"level": 4,
 				"name": [ "Dual-HornedDemon" ],
-				"faction": 3,
+				"faction": "inferno",
 				"defname": "CTHDEM.DEF"
 			},
 
@@ -524,7 +524,7 @@
 				"id": 50,
 				"level": 5,
 				"name": [ "PitFiend" ],
-				"faction": 3,
+				"faction": "inferno",
 				"upgrades": ["PitFoe"],
 				"defname": "CPFIEN.DEF"
 			},
@@ -533,7 +533,7 @@
 				"id": 51,
 				"level": 5,
 				"name": [ "PitFoe" ],
-				"faction": 3,
+				"faction": "inferno",
 				"ability_add": [ [ "DAEMON_SUMMONING", 50, 48, 0 ],
 								[ "CASTS", 1, 0, 0] ],		//pit lord
 				"defname": "CPFOE.DEF"
@@ -543,7 +543,7 @@
 				"id": 52,
 				"level": 6,
 				"name": [ "Efreet" ],
-				"faction": 3,
+				"faction": "inferno",
 				"ability_add": [ [ "HATE", 50, 37, 0 ],
 							   	 [ "HATE", 50, 36, 0 ],
 								 [ "FLYING", 0, 0, 0 ],  					//efreeti hate master genies
@@ -556,7 +556,7 @@
 				"id": 53,
 				"level": 6,
 				"name": [ "EfreetSultan" ],
-				"faction": 3,
+				"faction": "inferno",
 				"ability_add": [ [ "HATE", 50, 37, 0 ],
 							   	 [ "HATE", 50, 36, 0 ],
 								 [ "FLYING", 0, 0, 0 ],		  	 		//efreet sultans hate master genies
@@ -569,7 +569,7 @@
 				"id": 54,
 				"level": 7,
 				"name": [ "Devil" ],
-				"faction": 3,
+				"faction": "inferno",
 				"ability_remove": [ "FLYING" ],  //use teleport instead
 				"ability_add": [ [ "HATE", 50, 13, 0 ],
 								[ "FLYING", 0, 1, 0], //teleport
@@ -584,7 +584,7 @@
 				"id": 55,
 				"level": 7,
 				"name": [ "ArchDevil" ],
-				"faction": 3,
+				"faction": "inferno",
 				"ability_remove": [ "FLYING" ],  //use teleport instead
 				"ability_add": [ [ "HATE", 50, 13, 0 ],
 							   	 [ "HATE", 50, 12, 0 ],
@@ -598,7 +598,7 @@
 				"id": 56,
 				"level": 1,
 				"name": [ "Skeleton" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"upgrades": ["SkeletonWarrior"],
 				"defname": "CSKELE.DEF"
 			},
@@ -607,7 +607,7 @@
 				"id": 57,
 				"level": 1,
 				"name": [ "SkeletonWarrior" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"defname": "CWSKEL.DEF"
 			},
 
@@ -615,7 +615,7 @@
 				"id": 58,
 				"level": 2,
 				"name": [ "Zombie" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"upgrades": ["ZombieLord"],
 				"defname": "CZOMBI.DEF"
 			},
@@ -624,7 +624,7 @@
 				"id": 59,
 				"level": 2,
 				"name": [ "ZombieLord" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"defname": "CZOMLO.DEF"
 			},
 
@@ -632,7 +632,7 @@
 				"id": 60,
 				"level": 3,
 				"name": [ "Wight" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"ability_add": [ [ "FULL_HP_REGENERATION", 0, 1, 0 ] ],			//wight
 				"upgrades": ["Wraith"],
 				"defname": "CWIGHT.DEF"
@@ -642,7 +642,7 @@
 				"id": 61,
 				"level": 3,
 				"name": [ "Wraith" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"ability_add": [ [ "FULL_HP_REGENERATION", 0, 1, 0 ], 			//wraith
 							   	 [ "MANA_DRAIN", 2, 0, 0 ] ],
 				"defname": "CWRAIT.DEF"
@@ -652,7 +652,7 @@
 				"id": 62,
 				"level": 4,
 				"name": [ "Vampire" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"ability_add": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],		//vampires		//vampire lords
 				"upgrades": ["Nosferatu"],
 				"defname": "CVAMP.DEF"
@@ -662,7 +662,7 @@
 				"id": 63,
 				"level": 4,
 				"name": [ "Nosferatu" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"ability_add": [ [ "LIFE_DRAIN", 0, 0, 0 ],
 							   	 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],		//vampire lords
 				"defname": "CNOSFE.DEF"
@@ -672,7 +672,7 @@
 				"id": 64,
 				"level": 5,
 				"name": [ "Lich" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"ability_add": [ [ "SPELL_LIKE_ATTACK", 0, 76, 0 ] ],		//liches
 				"upgrades": ["PowerLich"],
 				"defname": "CLICH.DEF",
@@ -684,7 +684,7 @@
 				"id": 65,
 				"level": 5,
 				"name": [ "PowerLich" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"ability_add": [ [ "SPELL_LIKE_ATTACK", 0, 76, 0 ] ], 		//power liches
 				"defname": "CPLICH.DEF",
 				"projectile_defname": "PLICH.DEF",
@@ -695,7 +695,7 @@
 				"id": 66,
 				"level": 6,
 				"name": [ "BlackKnight" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 42, 0 ] ], 	//black knights
 				"upgrades": ["BlackLord"],
 				"defname": "CBKNIG.DEF"
@@ -705,7 +705,7 @@
 				"id": 67,
 				"level": 6,
 				"name": [ "BlackLord" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 42, 0 ], 	//dread knights
 							   	 [ "DOUBLE_DAMAGE_CHANCE", 20, 0, 0 ] ],	//vampire lords
 				"defname": "CBLORD.DEF"
@@ -715,7 +715,7 @@
 				"id": 68,
 				"level": 7,
 				"name": [ "BoneDragon" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//bone dragon is a dragon
 				"upgrades": ["GhostDragon"],
 				"defname": "CNDRGN.DEF"
@@ -725,7 +725,7 @@
 				"id": 69,
 				"level": 7,
 				"name": [ "GhostDragon" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//ghost dragon is a dragon
 							   	 [ "SPELL_AFTER_ATTACK", 20, 75, 0 ] ],  	//ghost dragon
 				"defname": "CHDRGN.DEF"
@@ -735,7 +735,7 @@
 				"id": 70,
 				"level": 1,
 				"name": [ "Troglodyte" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"ability_add": [ [ "SPELL_IMMUNITY", 0, 62, 0 ] ],	  	   	//troglodytes are immune to blind
 				"upgrades": ["InfernalTroglodyte"],
 				"defname": "CTROGL.DEF"
@@ -745,7 +745,7 @@
 				"id": 71,
 				"level": 1,
 				"name": [ "InfernalTroglodyte" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"ability_add": [ [ "SPELL_IMMUNITY", 0, 62, 0 ] ],		   	//infernal troglodytes are immune to blind
 				"defname": "CITROG.DEF"
 			},
@@ -754,7 +754,7 @@
 				"id": 72,
 				"level": 2,
 				"name": [ "Harpy" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"ability_add": [ [ "RETURN_AFTER_STRIKE", 0, 0, 0 ] ],	   	//Harpies return after attack
 				"upgrades": ["HarpyHag"],
 				"defname": "CHARPY.DEF"
@@ -764,7 +764,7 @@
 				"id": 73,
 				"level": 2,
 				"name": [ "HarpyHag", "M73" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"ability_add": [ [ "RETURN_AFTER_STRIKE", 0, 0, 0 ],	   	//Harpy Hags return after attack
 							   	 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],	   	//Harpy Hags
 				"defname": "CHARPH.DEF"
@@ -774,7 +774,7 @@
 				"id": 74,
 				"level": 3,
 				"name": [ "Beholder" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"upgrades": ["EvilEye"],
 				"defname": "CBEHOL.DEF",
 				"projectile_defname": "SMBALX.DEF",
@@ -785,7 +785,7 @@
 				"id": 75,
 				"level": 3,
 				"name": [ "EvilEye", "M75" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"defname": "CEVEYE.DEF",
 				"projectile_defname": "SMBALX.DEF",
 				"projectile_spin": false
@@ -795,7 +795,7 @@
 				"id": 76,
 				"level": 4,
 				"name": [ "Medusa", "Medusae" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 70, 2000 ] ],  	//medusas			//minotaurs
 				"upgrades": ["MedusaQueen"],
 				"defname": "CMEDUS.DEF",
@@ -807,7 +807,7 @@
 				"id": 77,
 				"level": 4,
 				"name": [ "MedusaQueen" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 70, 2000 ] ],  	//medusa queens			//minotaur kings
 				"defname": "CMEDUQ.DEF",
 				"projectile_defname": "PMEDUSX.DEF",
@@ -818,7 +818,7 @@
 				"id": 78,
 				"level": 5,
 				"name": [ "Minotaur" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"ability_add": [ [ "SELF_MORALE", 0, 0, 0 ] ],
 				"upgrades": ["MinotaurKing"],
 				"defname": "CMINOT.DEF"
@@ -828,7 +828,7 @@
 				"id": 79,
 				"level": 5,
 				"name": [ "MinotaurKing" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"ability_add": [ [ "SELF_MORALE", 0, 0, 0 ] ],
 				"defname": "CMINOK.DEF"
 			},
@@ -837,7 +837,7 @@
 				"id": 80,
 				"level": 6,
 				"name": [ "Manticore" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"upgrades": ["Scorpicore"],
 				"defname": "CMCORE.DEF"
 			},
@@ -846,7 +846,7 @@
 				"id": 81,
 				"level": 6,
 				"name": [ "Scorpicore" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 74, 0 ] ],   	//scorpicore
 				"defname": "CCMCOR.DEF"
 			},
@@ -855,7 +855,7 @@
 				"id": 82,
 				"level": 7,
 				"name": [ "RedDragon" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//red dragon is a dragon
 							   	 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//Red Dragon has breath attack
 								 [ "LEVEL_SPELL_IMMUNITY", 3, 0, 0 ] ],   	//red dragon's spell immunity
@@ -867,7 +867,7 @@
 				"id": 83,
 				"level": 7,
 				"name": [ "BlackDragon" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//black dragon is a dragon
 							   	 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//Black Dragon has breath attack
 								 [ "HATE", 50, 41, 0 ],	//Hate Titans
@@ -879,8 +879,8 @@
 			{
 				"id": 84,
 				"level": 1,
-				"name": [ "Goblin" ],
-				"faction": 6,
+				"name": [ "Goblin", "Goblins" ],
+				"faction": "stronghold",
 				"upgrades": ["Hobgoblin"],
 				"defname": "CGOBLI.DEF"
 			},
@@ -889,7 +889,7 @@
 				"id": 85,
 				"level": 1,
 				"name": [ "Hobgoblin" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"defname": "CHGOBL.DEF"
 			},
 
@@ -897,7 +897,7 @@
 				"id": 86,
 				"level": 2,
 				"name": [ "GoblinWolfRider" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"upgrades": ["HobgoblinWolfRider"],
 				"defname": "CBWLFR.DEF"
 			},
@@ -906,7 +906,7 @@
 				"id": 87,
 				"level": 2,
 				"name": [ "HobgoblinWolfRider" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"ability_add": [ [ "ADDITIONAL_ATTACK", 1, 0, 0 ] ],		//wolf raider
 				"defname": "CUWLFR.DEF"
 			},
@@ -915,7 +915,7 @@
 				"id": 88,
 				"level": 3,
 				"name": [ "Orc" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"upgrades": ["OrcChieftain"],
 				"defname": "CORC.DEF",
 				"projectile_defname": "PORCHX.DEF",
@@ -926,7 +926,7 @@
 				"id": 89,
 				"level": 3,
 				"name": [ "OrcChieftain" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"defname": "CORCCH.DEF",
 				"projectile_defname": "PORCHX.DEF",
 				"projectile_spin": true
@@ -936,7 +936,7 @@
 				"id": 90,
 				"level": 4,
 				"name": [ "Ogre" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"upgrades": ["OgreMage"],
 				"defname": "COGRE.DEF"
 			},
@@ -945,7 +945,7 @@
 				"id": 91,
 				"level": 4,
 				"name": [ "OgreMage" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"ability_add": [ [ "SPELLCASTER", 2, 43, 0 ],
 								 [ "CASTS", 3, 0, 0],
 								 [ "CREATURE_ENCHANT_POWER", 3, 0, 0]],   	   	   	//ogre magi cast bloodlust
@@ -956,7 +956,7 @@
 				"id": 92,
 				"level": 5,
 				"name": [ "Roc" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"upgrades": ["Thunderbird"],
 				"defname": "CROC.DEF"
 			},
@@ -965,7 +965,7 @@
 				"id": 93,
 				"level": 5,
 				"name": [ "Thunderbird" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"ability_add": [ [ "SPECIFIC_SPELL_POWER", 10, 77, 0 ],	//10 damage per unit
 							   	 [ "SPELL_AFTER_ATTACK", 20, 77, 0 ] ],   	//thunderbirds
 				"defname": "CTBIRD.DEF"
@@ -975,7 +975,7 @@
 				"id": 94,
 				"level": 6,
 				"name": [ "Cyclops" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"upgrades": ["CyclopsLord"],
 				"defname": "CCYCLR.DEF",
 				"projectile_defname": "PCYCLBX.DEF",
@@ -986,7 +986,7 @@
 				"id": 95,
 				"level": 6,
 				"name": [ "CyclopsLord" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"defname": "CCYCLLOR.DEF",
 				"projectile_defname": "PCYCLBX.DEF",
 				"projectile_spin": true
@@ -996,7 +996,7 @@
 				"id": 96,
 				"level": 7,
 				"name": [ "YoungBehemoth" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"ability_add": [ [ "ENEMY_DEFENCE_REDUCTION", 40, 0, 0 ] ],		//behemots
 				"upgrades": ["AncientBehemoth"],
 				"defname": "CYBEHE.DEF"
@@ -1006,7 +1006,7 @@
 				"id": 97,
 				"level": 7,
 				"name": [ "AncientBehemoth" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"ability_add": [ [ "ENEMY_DEFENCE_REDUCTION", 80, 0, 0 ] ],		//ancient behemots
 				"defname": "CABEHE.DEF"
 			},
@@ -1015,7 +1015,7 @@
 				"id": 98,
 				"level": 1,
 				"name": [ "Gnoll" ],
-				"faction": 7,
+				"faction": "fortress",
 				"upgrades": ["GnollMarauder"],
 				"defname": "CGNOLL.DEF"
 			},
@@ -1024,15 +1024,15 @@
 				"id": 99,
 				"level": 1,
 				"name": [ "GnollMarauder" ],
-				"faction": 7,
+				"faction": "fortress",
 				"defname": "CGNOLM.DEF"
 			},
 
 			{
 				"id": 100,
 				"level": 2,
-				"name": [ "PrimitiveLizardman" ],
-				"faction": 7,
+				"name": [ "PrimitiveLizardman", "Lizardman" ],
+				"faction": "fortress",
 				"upgrades": ["AdvancedLizardman"],
 				"defname": "CPLIZA.DEF",
 				"projectile_defname": "PPLIZAX.DEF",
@@ -1043,7 +1043,7 @@
 				"id": 101,
 				"level": 2,
 				"name": [ "AdvancedLizardman" ],
-				"faction": 7,
+				"faction": "fortress",
 				"defname": "CALIZA.DEF",
 				"projectile_defname": "PPLIZAX.DEF",
 				"projectile_spin": false
@@ -1053,7 +1053,7 @@
 				"id": 102,
 				"level": 5,
 				"name": [ "CopperGorgon" ],
-				"faction": 7,
+				"faction": "fortress",
 				"upgrades": ["BronzeGorgon"],
 				"defname": "CCGORG.DEF"
 			},
@@ -1062,7 +1062,7 @@
 				"id": 103,
 				"level": 5,
 				"name": [ "BronzeGorgon" ],
-				"faction": 7,
+				"faction": "fortress",
 				"ability_add": [ [ "DEATH_STARE", 10, 0, 0 ] ],   	//mighty gorgons
 				"defname": "CBGOG.DEF"
 			},
@@ -1071,7 +1071,7 @@
 				"id": 104,
 				"level": 3,
 				"name": [ "Dragonflies", "DragonFly", "SerpentFly" ],
-				"faction": 7,
+				"faction": "fortress",
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 100, 78, 0 ] ],  	//serpent fly
 				"upgrades": ["FireDragonFly"],
 				"defname": "CDRFLY.DEF"
@@ -1081,7 +1081,7 @@
 				"id": 105,
 				"level": 3,
 				"name": [ "FireDragonFly" ],
-				"faction": 7,
+				"faction": "fortress",
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 100, 78, 0 ],	//dragon fly
 							   [ "SPELL_AFTER_ATTACK", 100, 45, 0 ] ],  	//mighty gorgons
 				"defname": "CDRFIR.DEF"
@@ -1091,7 +1091,7 @@
 				"id": 106,
 				"level": 4,
 				"name": [ "Basilisk" ],
-				"faction": 7,
+				"faction": "fortress",
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 70, 0 ] ],   	//basilisks
 				"upgrades": ["GreaterBasilisk"],
 				"defname": "CBASIL.DEF"
@@ -1101,7 +1101,7 @@
 				"id": 107,
 				"level": 4,
 				"name": [ "GreaterBasilisk" ],
-				"faction": 7,
+				"faction": "fortress",
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 70, 0 ] ],   	//greater basilisks
 				"defname": "CGBASI.DEF"
 			},
@@ -1110,7 +1110,7 @@
 				"id": 108,
 				"level": 6,
 				"name": [ "Wyvern" ],
-				"faction": 7,
+				"faction": "fortress",
 				"upgrades": ["WyvernMonarch"],
 				"defname": "CWYVER.DEF"
 			},
@@ -1119,7 +1119,7 @@
 				"id": 109,
 				"level": 6,
 				"name": [ "WyvernMonarch" ],
-				"faction": 7,
+				"faction": "fortress",
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 20, 71, 0 ] ],   	//Wyvern Monarch
 				"defname": "CWYVMN.DEF"
 			},
@@ -1128,7 +1128,7 @@
 				"id": 110,
 				"level": 7,
 				"name": [ "Hydra" ],
-				"faction": 7,
+				"faction": "fortress",
 				"ability_add": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ], 	   	//hydras
 							   [ "ATTACKS_ALL_ADJACENT", 0, 0, 0 ] ],   	//hydras
 				"upgrades": ["ChaosHydra"],
@@ -1139,7 +1139,7 @@
 				"id": 111,
 				"level": 7,
 				"name": [ "ChaosHydra" ],
-				"faction": 7,
+				"faction": "fortress",
 				"ability_add": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ], 	   	//chaos hydras
 							   [ "ATTACKS_ALL_ADJACENT", 0, 0, 0 ] ],   	//chaos hydras
 				"defname": "CCHYDR.DEF"
@@ -1149,7 +1149,7 @@
 				"id": 112,
 				"level": 2,
 				"name": [ "AirElemental", "AirElementals" ],
-				"faction": 8,
+				"faction": "conflux",
 				"ability_add": [ [ "SPELL_IMMUNITY", 0, 61, 0 ],			//air elementals are immune to mind spells (forgetfulness)	//earth elementals are non-living
 							   [ "SPELL_IMMUNITY", 0, 60, 0 ],			//air elementals are immune to mind spells (hypnotize)
 							   [ "SPELL_IMMUNITY", 0, 59, 0 ],			//air elementals are immune to mind spells (berserk)
@@ -1166,7 +1166,7 @@
 				"id": 113,
 				"level": 5,
 				"name": [ "EarthElemental", "EarthElementals" ],
-				"faction": 8,
+				"faction": "conflux",
 				"ability_add": [ [ "SPELL_IMMUNITY", 0, 61, 0 ],			//earth elementals are immune to mind spells (forgetfulness)
 							   	 [ "SPELL_IMMUNITY", 0, 60, 0 ],			//earth elementals are immune to mind spells (hypnotize)
 							   	 [ "SPELL_IMMUNITY", 0, 59, 0 ],			//earth elementals are immune to mind spells (berserk)
@@ -1183,7 +1183,7 @@
 				"id": 114,
 				"level": 4,
 				"name": [ "FireElemental", "FireElementals" ],
-				"faction": 8,
+				"faction": "conflux",
 				"ability_add": [ [ "SPELL_IMMUNITY", 0, 61, 0 ],			//fire elementals are immune to mind spells (forgetfulness)
 							   [ "SPELL_IMMUNITY", 0, 60, 0 ],			//fire elementals are immune to mind spells (hypnotize)	//water elemental should be treated as double-wide
 							   [ "SPELL_IMMUNITY", 0, 59, 0 ],			//fire elementals are immune to mind spells (berserk)
@@ -1200,7 +1200,7 @@
 				"id": 115,
 				"level": 3,
 				"name": [ "WaterElemental", "WaterElementals" ],
-				"faction": 8,
+				"faction": "conflux",
 				"ability_add": [ [ "SPELL_IMMUNITY", 0, 61, 0 ],			//water elementals are immune to mind spells (forgetfulness)
 							   	 [ "SPELL_IMMUNITY", 0, 60, 0 ],			//water elementals are immune to mind spells (hypnotize)	//gold golems are non-living
 								 [ "SPELL_IMMUNITY", 0, 59, 0 ],			//water elementals are immune to mind spells (berserk)
@@ -1221,7 +1221,7 @@
 				"id": 116,
 				"level": 4,
 				"name": [ "GoldGolem" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "SPELL_DAMAGE_REDUCTION", 85, -1, 0 ],		//gold golems reduce dmg from spells
 							   	 [ "NON_LIVING", 0, 0, 0 ] ],		 	   	//diamond golems are non-living
 				"defname": "CGGOLE.DEF"
@@ -1231,7 +1231,7 @@
 				"id": 117,
 				"level": 5,
 				"name": [ "DiamondGolem" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "SPELL_DAMAGE_REDUCTION", 95, -1, 0 ],		//diamond golems reduce dmg from spells
 							   	 [ "NON_LIVING", 0, 0, 0 ] ],				//psychic elementals shouldn't get morale
 				"defname": "CDGOLE.DEF"
@@ -1241,7 +1241,7 @@
 				"id": 118,
 				"level": 1,
 				"name": [ "Pixie", "Pixies" ],
-				"faction": 8,
+				"faction": "conflux",
 				"upgrades": ["Sprite"],
 				"defname": "CPIXIE.DEF"
 			},
@@ -1250,7 +1250,7 @@
 				"id": 119,
 				"level": 1,
 				"name": [ "Sprite" ],
-				"faction": 8,
+				"faction": "conflux",
 				"defname": "CSPRITE.DEF"
 			},
 
@@ -1258,7 +1258,7 @@
 				"id": 120,
 				"level": 6,
 				"name": [ "PsiElemental" ],
-				"faction": 8,
+				"faction": "conflux",
 				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ],				//magic elementals shouldn't get morale
 				"ability_remove": [ "DOUBLE_WIDE" ],
 				"upgrades": ["MagicElemental"],
@@ -1269,7 +1269,7 @@
 				"id": 121,
 				"level": 6,
 				"name": [ "MagicElemental" ],
-				"faction": 8,
+				"faction": "conflux",
 				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ],				//ice elementals shouldn't get morale
 							   	 [ "LEVEL_SPELL_IMMUNITY", 5, 0, 0 ] ],	//magic elementals are immune to all spells
 				"ability_remove": [ "DOUBLE_WIDE" ],
@@ -1280,7 +1280,7 @@
 				"id": 123,
 				"level": 3,
 				"name": [ "IceElemental" ],
-				"faction": 8,
+				"faction": "conflux",
 				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ],
 							   	 [ "DOUBLE_WIDE", 0, 0, 0 ],					//ice elemental should be treated as double-wide
 								 [ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],
@@ -1295,7 +1295,7 @@
 				"id": 125,
 				"level": 5,
 				"name": [ "StoneElemental" ],
-				"faction": 8,
+				"faction": "conflux",
 				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ],						//magma elementals shouldn't get morale
 								[ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],
 								[ "CASTS", 3, 0, 0 ],
@@ -1307,7 +1307,7 @@
 				"id": 127,
 				"level": 2,
 				"name": [ "StormElemental" ],
-				"faction": 8,
+				"faction": "conflux",
 				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ],						//storm elementals shouldn't get morale
 								[ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],
 								[ "CASTS", 3, 0, 0 ],
@@ -1321,7 +1321,7 @@
 				"id": 129,
 				"level": 4,
 				"name": [ "ElectricityElemental" ],
-				"faction": 8,
+				"faction": "conflux",
 				"ability_add": [ [ "NON_LIVING", 0, 0, 0 ] ,					//energy elementals shouldn't get morale //Crystal Dragons do not fly
 								[ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],
 								[ "CASTS", 3, 0, 0 ],
@@ -1333,7 +1333,7 @@
 				"id": 130,
 				"level": 7,
 				"name": [ "Firebird" ],
-				"faction": 8,
+				"faction": "conflux",
 				"upgrades": ["Pheonix"],
 				"defname": "CFBIRD.DEF"
 			},
@@ -1342,7 +1342,7 @@
 				"id": 131,
 				"level": 7,
 				"name": [ "Pheonix" ],
-				"faction": 8,
+				"faction": "conflux",
 				"ability_add": [ [ "CASTS", 1, 0, 0 ],	//Phoenix rebirths once
 							   	 [ "REBIRTH", 20, 0, 0 ] ],	//20% of stack is resurrected
 				"defname": "CPHX.DEF"
@@ -1352,7 +1352,7 @@
 				"id": 132,
 				"level": 10,
 				"name": [ "AzureDragon" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],
 							   	 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  //azure dragon's breath
 							   	 [ "FEARLESS", 0, 0, 0 ],  //azure dragon is immune to fear
@@ -1365,7 +1365,7 @@
 				"id": 133,
 				"level": 10,
 				"name": [ "CrystalDragon" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//crystal dragon is a dragon
 				"ability_remove": [ "FLYING" ],
 				"defname": "CCDRGN.DEF"
@@ -1375,7 +1375,7 @@
 				"id": 134,
 				"level": 8,
 				"name": [ "FairieDragon" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//faerie dragon is a dragon
 								[ "CASTS", 5, 0, 0 ],
 								[ "CREATURE_SPELL_POWER", 500, 0, 0], 	//5 spell power per dragon
@@ -1394,7 +1394,7 @@
 				"id": 135,
 				"level": 10,
 				"name": [ "RustDragon" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "SPELL_AFTER_ATTACK", 100, 80, 0 ],			//always reduce defense
 							   	 [ "ACID_BREATH", 25, 0, 20 ],			//20% chance to do 25 damage
 								 [ "DRAGON_NATURE", 0, 0, 0 ] ],			//rust dragon is a dragon
@@ -1404,8 +1404,8 @@
 			{
 				"id": 136,
 				"level": 6,
-				"name": [ "Enchanter" ],
-				"faction": 9,
+				"name": [ "Enchanter", "Enchanters" ],
+				"faction": "neutral",
 				"ability_add": [ [ "NO_WALL_PENALTY", 0, 0, 0 ],
 								 [ "ENCHANTER", 3, 28, 3],		//air shield
 								 [ "ENCHANTER", 3, 41, 3],		//bless
@@ -1422,8 +1422,8 @@
 			{
 				"id": 137,
 				"level": 4,
-				"name": [ "Sharpshooter" ],
-				"faction": 9,
+				"name": [ "Sharpshooter", "Sharpshooters" ],
+				"faction": "neutral",
 				"ability_add": [ [ "NO_WALL_PENALTY", 0, 0, 0 ],
 							   	 [ "NO_DISTANCE_PENALTY", 0, 0, 0 ] ],			//Sharpshooter
 				"defname": "CSHARP.DEF",
@@ -1435,7 +1435,7 @@
 				"id": 138,
 				"level": 1,
 				"name": [ "Halfling" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "CHALF.DEF",
 				"projectile_defname": "PHALF.DEF",
 				"projectile_spin": true
@@ -1445,7 +1445,7 @@
 				"id": 139,
 				"level": 1,
 				"name": [ "Peasant" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "CPEAS.DEF"
 			},
 
@@ -1453,7 +1453,7 @@
 				"id": 140,
 				"level": 2,
 				"name": [ "Boar" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "DOUBLE_WIDE", 0, 0, 0 ] ], 			//boar should be treated as double-wide
 				"defname": "CBOAR.DEF"
 			},
@@ -1462,7 +1462,7 @@
 				"id": 141,
 				"level": 3,
 				"name": [ "Mummy" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "UNDEAD", 0, 0, 0 ] ],
 				"defname": "CMUMMY.DEF"
 			},
@@ -1471,7 +1471,7 @@
 				"id": 142,
 				"level": 3,
 				"name": [ "warrior" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "DOUBLE_WIDE", 0, 0, 0 ] ], 			//nomads should be treated as double-wide
 				"defname": "CNOMAD.DEF"
 			},
@@ -1480,7 +1480,7 @@
 				"id": 143,
 				"level": 2,
 				"name": [ "Rogue" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "CROGUE.DEF"
 			},
 
@@ -1488,7 +1488,7 @@
 				"id": 144,
 				"level": 5,
 				"name": [ "OgreShaman" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "FULL_HP_REGENERATION", 0, 0, 0 ] ], 			//troll
 				"defname": "CTROLL.DEF"
 			},
@@ -1497,7 +1497,7 @@
 				"id": 145,
 				"level": 0,
 				"name": [ "Catapult" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "SMCATA.DEF",
 				"projectile_defname": "SMCATX.DEF",
 				"projectile_spin": true
@@ -1507,7 +1507,7 @@
 				"id": 146,
 				"level": 0,
 				"name": [ "Ballista" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "SMBAL.DEF",
 				"projectile_defname": "SMBALX.DEF",
 				"projectile_spin": false
@@ -1517,7 +1517,7 @@
 				"id": 147,
 				"level": 0,
 				"name": [ "FirstAidTent" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "HEALER", 0, 0, 0 ] ],
 				"defname": "SMTENT.DEF"
 			},
@@ -1526,7 +1526,7 @@
 				"id": 148,
 				"level": 0,
 				"name": [ "AmmoCart" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "NOT_ACTIVE", 0, 0, 0 ] ],
 				"defname": "SMCART.DEF"
 			},
@@ -1535,7 +1535,7 @@
 				"id": 149,
 				"level": 0,
 				"name": [ "ArrowTower" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "SHOOTER", 0, 0, 0 ] ],
 				"projectile_defname": "SMBALX.DEF", //workaround for crash
 				"defname": "x"
@@ -1545,7 +1545,7 @@
 				"id": 150,
 				"level": 0,
 				"name": [ "SupremeArchangel" ],
-				"faction": 0,
+				"faction": "castle",
 				"defname": "ZM150Z.DEF"
 			},
 
@@ -1553,7 +1553,7 @@
 				"id": 151,
 				"level": 8,
 				"name": [ "DiamondDragon" ],
-				"faction": 1,
+				"faction": "rampart",
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//diamond dragon is a dragon		//psychic elemental
 				"defname": "ZM151Z.DEF"
 			},
@@ -1562,7 +1562,7 @@
 				"id": 152,
 				"level": 8,
 				"name": [ "LordofThunder" ],
-				"faction": 2,
+				"faction": "tower",
 				"defname": "ZM152Z.DEF",
 				"projectile_defname": "CPRGTIX.DEF",
 				"projectile_spin": false
@@ -1572,7 +1572,7 @@
 				"id": 153,
 				"level": 8,
 				"name": [ "HellBaron" ],
-				"faction": 3,
+				"faction": "inferno",
 				"defname": "ZM153Z.DEF"
 			},
 
@@ -1580,7 +1580,7 @@
 				"id": 154,
 				"level": 8,
 				"name": [ "BloodDragon" ],
-				"faction": 4,
+				"faction": "necropolis",
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//blood dragon is a dragon		//magic elemental
 				"defname": "ZM154Z.DEF"
 			},
@@ -1589,7 +1589,7 @@
 				"id": 155,
 				"level": 8,
 				"name": [ "DarknessDragon" ],
-				"faction": 5,
+				"faction": "dungeon",
 				"ability_add": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//darkness dragon is a dragon
 				"defname": "ZM155Z.DEF"
 			},
@@ -1598,7 +1598,7 @@
 				"id": 156,
 				"level": 8,
 				"name": [ "GhostBehemoth" ],
-				"faction": 6,
+				"faction": "stronghold",
 				"defname": "ZM156Z.DEF"
 			},
 
@@ -1606,7 +1606,7 @@
 				"id": 157,
 				"level": 8,
 				"name": [ "HellHydra" ],
-				"faction": 7,
+				"faction": "fortress",
 				"ability_remove": [ "SHOOTER" ],	//Hell Hydra certainly does not shoot
 				"defname": "ZM157Z.DEF"
 			},
@@ -1615,7 +1615,7 @@
 				"id": 158,
 				"level": 8,
 				"name": [ "SacredPhoenix" ],
-				"faction": 8,
+				"faction": "conflux",
 				"defname": "ZM158Z.DEF"
 			},
 
@@ -1623,7 +1623,7 @@
 				"id": 159,
 				"level": 0,
 				"name": [ "Ghost" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM159G.DEF"
 			},
 
@@ -1631,7 +1631,7 @@
 				"id": 160,
 				"level": 0,
 				"name": [ "God1War" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM160G.DEF"
 			},
 
@@ -1639,7 +1639,7 @@
 				"id": 161,
 				"level": 0,
 				"name": [ "God2Peace" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM161G.DEF"
 			},
 
@@ -1647,7 +1647,7 @@
 				"id": 162,
 				"level": 0,
 				"name": [ "God3Mana" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM162G.DEF"
 			},
 
@@ -1655,15 +1655,15 @@
 				"id": 163,
 				"level": 0,
 				"name": [ "God4Lore" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM163G.DEF"
 			},
 
 			{
 				"id": 164,
 				"level": 0,
-				"name": [ "MinotaurKing" ],
-				"faction": 9,
+				"name": [ "MinotaurKing2" ], /// WTF is this? Same ID as Minotaur King from Dungeon
+				"faction": "neutral",
 				"defname": "ZM164GD.DEF"
 			},
 
@@ -1671,15 +1671,15 @@
 				"id": 165,
 				"level": 0,
 				"name": [ "MineralElemental" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM165GD.DEF"
 			},
 
 			{
 				"id": 166,
 				"level": 0,
-				"name": [ "ElectricityElemental" ],
-				"faction": 9,
+				"name": [ "ElectricityElemental2" ], /// WTF is this? Same ID as elemental from Conflux
+				"faction": "neutral",
 				"defname": "ZM166GD.DEF"
 			},
 
@@ -1687,7 +1687,7 @@
 				"id": 167,
 				"level": 0,
 				"name": [ "AncientBasilisk" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM167GD.DEF"
 			},
 
@@ -1695,7 +1695,7 @@
 				"id": 168,
 				"level": 0,
 				"name": [ "Gorynych" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "FLYING", 0, 0, 0 ] ],      //Gorynyches fly
 				"defname": "ZM168DG.DEF"
 			},
@@ -1704,7 +1704,7 @@
 				"id": 169,
 				"level": 0,
 				"name": [ "WarZealot" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM169ZL.DEF",
 				"projectile_defname": "CPRZEAX.DEF",
 				"projectile_spin": false
@@ -1714,7 +1714,7 @@
 				"id": 170,
 				"level": 0,
 				"name": [ "Myriad" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM170SW.DEF",
 				"projectile_defname": "PLCBOWX.DEF",
 				"projectile_spin": false
@@ -1724,7 +1724,7 @@
 				"id": 171,
 				"level": 0,
 				"name": [ "MedusaMatriarch" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM171SR.DEF",
 				"projectile_defname": "PLCBOWX.DEF",
 				"projectile_spin": false
@@ -1734,7 +1734,7 @@
 				"id": 172,
 				"level": 0,
 				"name": [ "Nightmare" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM172N.DEF"
 			},
 
@@ -1742,7 +1742,7 @@
 				"id": 173,
 				"level": 0,
 				"name": [ "SantaGremlin" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM173M.DEF",
 				"projectile_defname": "CPRGRE.DEF",
 				"projectile_spin": true
@@ -1752,7 +1752,7 @@
 				"id": 174,
 				"level": 0,
 				"name": [ "Paladin1" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1765,7 +1765,7 @@
 				"id": 175,
 				"level": 0,
 				"name": [ "Hierophant1" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1778,7 +1778,7 @@
 				"id": 176,
 				"level": 0,
 				"name": [ "TempleGuardian1" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1791,7 +1791,7 @@
 				"id": 177,
 				"level": 0,
 				"name": [ "Succubus1" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1804,7 +1804,7 @@
 				"id": 178,
 				"level": 0,
 				"name": [ "SoulEater1" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1817,7 +1817,7 @@
 				"id": 179,
 				"level": 0,
 				"name": [ "Brute1" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1830,7 +1830,7 @@
 				"id": 180,
 				"level": 0,
 				"name": [ "OgreLeader1" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1843,7 +1843,7 @@
 				"id": 181,
 				"level": 0,
 				"name": [ "Shaman1" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1856,7 +1856,7 @@
 				"id": 182,
 				"level": 0,
 				"name": [ "AstralSpirit1" ],
-				"faction": 9,
+				"faction": "neutral",
 				"ability_add": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 								[ "CASTS", 1, 0, 0 ] ,
 								[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
@@ -1869,7 +1869,7 @@
 				"id": 183,
 				"level": 0,
 				"name": [ "Paladin2" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM174NPC.DEF"
 			},
 
@@ -1877,7 +1877,7 @@
 				"id": 184,
 				"level": 0,
 				"name": [ "Hierophant2" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM175NPC.DEF"
 			},
 
@@ -1885,7 +1885,7 @@
 				"id": 185,
 				"level": 0,
 				"name": [ "TempleGuardian2" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM176NPC.DEF"
 			},
 
@@ -1893,7 +1893,7 @@
 				"id": 186,
 				"level": 0,
 				"name": [ "Succubus2" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM177NPC.DEF"
 			},
 
@@ -1901,7 +1901,7 @@
 				"id": 187,
 				"level": 0,
 				"name": [ "SoulEater2" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM178NPC.DEF"
 			},
 
@@ -1909,7 +1909,7 @@
 				"id": 188,
 				"level": 0,
 				"name": [ "Brute2" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM179NPC.DEF"
 			},
 
@@ -1917,7 +1917,7 @@
 				"id": 189,
 				"level": 0,
 				"name": [ "OgreLeader2" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM180NPC.DEF"
 			},
 
@@ -1925,7 +1925,7 @@
 				"id": 190,
 				"level": 0,
 				"name": [ "Shaman2" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM181NPC.DEF"
 			},
 
@@ -1933,7 +1933,7 @@
 				"id": 191,
 				"level": 0,
 				"name": [ "AstralSpirit2" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM182NPC.DEF"
 			},
 
@@ -1941,7 +1941,7 @@
 				"id": 192,
 				"level": 0,
 				"name": [ "SylvanCentaur" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM192Z.DEF",
 				"projectile_defname": "PELFX.DEF",
 				"projectile_spin": false
@@ -1951,7 +1951,7 @@
 				"id": 193,
 				"level": 0,
 				"name": [ "Sorceress" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM193Z.DEF",
 				"projectile_defname": "CPRZEAX.DEF",
 				"projectile_spin": false
@@ -1961,7 +1961,7 @@
 				"id": 194,
 				"level": 0,
 				"name": [ "Werewolf" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM194Z.DEF"
 			},
 
@@ -1969,7 +1969,7 @@
 				"id": 195,
 				"level": 0,
 				"name": [ "HellSteed" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM195Z.DEF"
 			},
 
@@ -1977,7 +1977,7 @@
 				"id": 196,
 				"level": 0,
 				"name": [ "Dracolich" ],
-				"faction": 9,
+				"faction": "neutral",
 				"defname": "ZM196Z.DEF",
 				"projectile_defname": "SMBALX.DEF",
 				"projectile_spin": false

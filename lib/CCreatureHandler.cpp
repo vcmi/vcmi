@@ -318,21 +318,23 @@ void CCreatureHandler::loadCreatures()
 		int creatureID = creature["id"].Float();
 		const JsonNode *value;
 
-		/* A creature can have several names. */
-		BOOST_FOREACH(const JsonNode &name, creature["name"].Vector())
-		{
-			boost::assign::insert(nameToID)(name.String(), creatureID);
-		}
-
 		// Set various creature properties
 		CCreature *c = creatures[creatureID];
 		c->level = creature["level"].Float();
-		c->faction = creature["faction"].Float();
+
 		c->animDefName = creature["defname"].String();
+
+		VLC->modh->identifiers.requestIdentifier(std::string("faction.") + creature["faction"].String(), [=](si32 faction)
+		{
+			c->faction = faction;
+		});
 
 		BOOST_FOREACH(const JsonNode &value, creature["upgrades"].Vector())
 		{
-			c->upgradeNames.insert(value.String());
+			VLC->modh->identifiers.requestIdentifier(std::string("creature.") + value.String(), [=](si32 identifier)
+			{
+				c->upgrades.insert(identifier);
+			});
 		}
 
 		value = &creature["projectile_defname"];
@@ -359,6 +361,12 @@ void CCreatureHandler::loadCreatures()
 			{
 				AddAbility(c, ability.Vector());
 			}
+		}
+
+		/* A creature can have several names. */
+		BOOST_FOREACH(const JsonNode &name, creature["name"].Vector())
+		{
+			VLC->modh->identifiers.registerObject(std::string("creature.") + name.String(), c->idNumber);
 		}
 	}
 
@@ -568,34 +576,12 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, CLegacyConfigParser & 
 	parser.endLine();
 }
 
-void CCreatureHandler::loadSoundsInfo()
+void CCreatureHandler::loadCreatureSounds(JsonNode node, si32 creaID) // passing node by value to get clearer binding code
 {
-	tlog5 << "\t\tReading config/cr_sounds.json" << std::endl;
-	const JsonNode config(ResourceID("config/cr_sounds.json"));
-
-	if (!config["creature_sounds"].isNull())
-	{
-
-		BOOST_FOREACH(const JsonNode &node, config["creature_sounds"].Vector())
-		{
-			const JsonNode *value;
-			int id;
-
-			value = &node["name"];
-
-			bmap<std::string,int>::const_iterator i = nameToID.find(value->String());
-			if (i != nameToID.end())
-				id = i->second;
-			else
-			{
-				tlog1 << "Sound info for an unknown creature: " << value->String() << std::endl;
-				continue;
-			}
-
-			/* This is a bit ugly. Maybe we should use an array for
-			 * sound ids instead of separate variables and define
-			 * attack/defend/killed/... as indexes. */
-#define GET_SOUND_VALUE(value_name) do { value = &node[#value_name]; if (!value->isNull()) creatures[id]->sounds.value_name = value->String(); } while(0)
+	/* This is a bit ugly. Maybe we should use an array for
+	 * sound ids instead of separate variables and define
+	 * attack/defend/killed/... as indexes. */
+#define GET_SOUND_VALUE(value_name) do { creatures[creaID]->sounds.value_name = node[#value_name].String(); } while(0)
 			GET_SOUND_VALUE(attack);
 			GET_SOUND_VALUE(defend);
 			GET_SOUND_VALUE(killed);
@@ -607,6 +593,20 @@ void CCreatureHandler::loadSoundsInfo()
 			GET_SOUND_VALUE(startMoving);
 			GET_SOUND_VALUE(endMoving);
 #undef GET_SOUND_VALUE
+}
+
+void CCreatureHandler::loadSoundsInfo()
+{
+	tlog5 << "\t\tReading config/cr_sounds.json" << std::endl;
+	const JsonNode config(ResourceID("config/cr_sounds.json"));
+
+	if (!config["creature_sounds"].isNull())
+	{
+
+		BOOST_FOREACH(const JsonNode &node, config["creature_sounds"].Vector())
+		{
+			VLC->modh->identifiers.requestIdentifier(std::string("creature.") + node["name"].String(),
+			        boost::bind(&CCreatureHandler::loadCreatureSounds, this, node, _1));
 		}
 	}
 }
@@ -620,11 +620,10 @@ void CCreatureHandler::load(const JsonNode & node)
 			CCreature * creature = loadCreature(entry.second);
 			creature->nameRef = entry.first;
 			creature->idNumber = creatures.size();
-			nameToID[entry.first] = creatures.size();
 
 			creatures.push_back(creature);
 			tlog3 << "Added creature: " << entry.first << "\n";
-			//TODO: notify modHandler that this refName can be resolved to ID
+			VLC->modh->identifiers.registerObject(std::string("creature.") + creature->nameRef, creature->idNumber);
 		}
 	}
 }
@@ -640,7 +639,6 @@ CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
 	cre->cost = Res::ResourceSet(node["cost"]);
 
 	cre->level = node["level"].Float();
-	cre->faction = node["faction"].Float(); //TODO: replaced by string -> id conversion
 	cre->fightValue = node["fightValue"].Float();
 	cre->AIValue = node["aiValue"].Float();
 	cre->growth = node["growth"].Float();
@@ -658,10 +656,22 @@ CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
 	cre->ammMin = amounts["min"].Float();
 	cre->ammMax = amounts["max"].Float();
 
+	std::string factionStr = node["faction"].String();
+	if (factionStr.empty())
+		factionStr = "neutral"; //TODO: should be done in schema
+
+	VLC->modh->identifiers.requestIdentifier(std::string("faction.") + factionStr, [=](si32 faction)
+	{
+		cre->faction = faction;
+	});
+
 	//optional
 	BOOST_FOREACH (auto & str, node["upgrades"].Vector())
 	{
-		cre->upgradeNames.insert (str.String());
+		VLC->modh->identifiers.requestIdentifier(std::string("creature.") + str.String(), [=](si32 identifier)
+		{
+			cre->upgrades.insert(identifier);
+		});
 	}
 
 	if (!node["shots"].isNull())

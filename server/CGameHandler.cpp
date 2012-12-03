@@ -716,7 +716,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		if(result == 1) //retreat
 		{
 			sah.army[0].clear();
-			sah.army[0].setCreature(0, VLC->creh->nameToID[loserHero->type->refTypeStack[0]],1);
+			sah.army[0].setCreature(0, loserHero->type->initialArmy[0].creature, 1);
 		}
 
 		if(const CGHeroInstance *another =  getPlayer(loser)->availableHeroes[1])
@@ -3195,7 +3195,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 	{
 		sah.hid[hid] = newHero->subID;
 		sah.army[hid].clear();
-		sah.army[hid].setCreature(0, VLC->creh->nameToID[newHero->type->refTypeStack[0]],1);
+		sah.army[hid].setCreature(0, newHero->type->initialArmy[0].creature, 1);
 	}
 	else
 		sah.hid[hid] = -1;

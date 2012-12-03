@@ -783,38 +783,27 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 
 	for(int stackNo=0; stackNo < howManyStacks; stackNo++)
 	{
-		int creID = 0;
-		auto creItr = VLC->creh->nameToID.find(type->refTypeStack[stackNo]);
-		if(creItr == VLC->creh->nameToID.end())
-		{
-			tlog1 << "Cannot find a creature named " << type->refTypeStack[stackNo] << std::endl;
-			tlog1 << "Available creatures: \n";
-			BOOST_FOREACH(auto i, VLC->creh->nameToID)
-			{
-				tlog1 << boost::format("\t%s => %d\n") % i.first % i.second;
-			}
-		}
-		else
-			creID = creItr->second;
+		auto & stack = type->initialArmy[stackNo];
 
-		int range = type->highStack[stackNo] - type->lowStack[stackNo];
-		int count = ran()%(range+1) + type->lowStack[stackNo];
+		int range = stack.maxAmount - stack.minAmount;
+		int count = ran()%(range+1) + stack.minAmount;
 
-		if(creID>=145 && creID<=149) //war machine
+		if(stack.creature >= 145 &&
+		   stack.creature <= 149) //war machine
 		{
 			warMachinesGiven++;
 			if(dst != this)
 				continue;
 
 			int slot = -1, aid = -1;
-			switch (creID)
+			switch (stack.creature)
 			{
 			case 145: //catapult
 				slot = ArtifactPosition::MACH4;
 				aid = 3;
 				break;
 			default:
-				aid = CArtHandler::convertMachineID(creID,true);
+				aid = CArtHandler::convertMachineID(stack.creature, true);
 				slot = 9 + aid;
 				break;
 			}
@@ -825,7 +814,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 				tlog3 << "Hero " << name << " already has artifact at " << slot << ", omitting giving " << aid << std::endl;
 		}
 		else
-			dst->setCreature(stackNo-warMachinesGiven, creID, count);
+			dst->setCreature(stackNo-warMachinesGiven, stack.creature, count);
 	}
 }
 void CGHeroInstance::initHeroDefInfo()

@@ -837,7 +837,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	{
 
 		PixelFormat screenFormat = PIX_FMT_NONE;
-		if (screen->format->Bshift < screen->format->Rshift)
+		if (screen->format->Bshift > screen->format->Rshift)
 		{
 			// this a BGR surface
 			switch (screen->format->BytesPerPixel)
