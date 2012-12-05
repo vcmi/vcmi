@@ -221,7 +221,7 @@ then
 	
 	if [[ -z "$vcmi_archive" ]]
 	then
-		wget "http://download.vcmi.eu/core.zip" -O core.zip || fail "Error: failed to download WoG archive!" "rm -f core.zip"
+		wget "http://download.vcmi.eu/core.zip" -O core.zip || fail "Error: failed to download VCMI archive!" "rm -f core.zip"
 		vcmi_archive="./core.zip"
 	fi
 fi
@@ -235,7 +235,7 @@ fi
 if [[ -n "$vcmi_archive" ]]
 then
 	echo "decompressing $vcmi_archive"
-	unzip -qo $vcmi_archive -d $dest_dir || fail "Error: failed to extract WoG archive!"
+	unzip -qo $vcmi_archive -d $dest_dir || fail "Error: failed to extract VCMI archive!"
 fi
 
 if [[ -n "$validate" ]]

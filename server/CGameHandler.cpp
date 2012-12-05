@@ -1698,6 +1698,13 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		getTilesInRange(tmh.fowRevealed, h->getSightCenter()+(tmh.end-tmh.start), h->getSightRadious(), h->tempOwner, 1);
 	};
 
+	auto applyWithResult = [&](TryMoveHero::EResult result) -> bool
+	{
+		tmh.result = result;
+		sendAndApply(&tmh);
+		return result != TryMoveHero::FAILED;
+	};
+
 	//interaction with blocking object (like resources)
 	auto blockingVisit = [&]() -> bool
 	{
@@ -1705,6 +1712,9 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		{
 			if(obj != h  &&  obj->blockVisit  &&  !(obj->getPassableness() & 1<<h->tempOwner))
 			{
+
+				applyWithResult(TryMoveHero::BLOCKING_VISIT);
+
 				//can't move to that tile but we visit object
 				objectVisited(t.visitableObjects.back(), h);
 
@@ -1713,13 +1723,6 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			}
 		}
 		return false;
-	};
-
-	auto applyWithResult = [&](TryMoveHero::EResult result) -> bool
-	{
-		tmh.result = result;
-		sendAndApply(&tmh);
-		return result != TryMoveHero::FAILED;
 	};
 
 	//hero enters the boat
@@ -1752,7 +1755,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		tmh.movePoints = std::max(ui32(0), h->movement - cost);
 
 		if(blockingVisit())
-			return applyWithResult(TryMoveHero::BLOCKING_VISIT);
+			return true;
 
 		leaveTile();
 
@@ -1770,7 +1773,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	else //instant move - teleportation
 	{
 		if(blockingVisit()) // e.g. hero on the other side of teleporter
-			return applyWithResult(TryMoveHero::BLOCKING_VISIT);
+			return true;
 
 		leaveTile();
 		applyWithResult(TryMoveHero::TELEPORTATION);
