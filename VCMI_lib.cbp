@@ -56,10 +56,10 @@
 		<Linker>
 			<Add option="-lws2_32" />
 			<Add option="-lzlib" />
-			<Add option="-lboost_filesystem-mgw47-mt-1_51" />
-			<Add option="-lboost_system-mgw47-mt-1_51" />
-			<Add option="-lboost_thread-mgw47-mt-1_51" />
-			<Add option="-lboost_chrono-mgw47-mt-1_51" />
+			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
+			<Add option="-lboost_system$(#boost.libsuffix)" />
+			<Add option="-lboost_thread$(#boost.libsuffix)" />
+			<Add option="-lboost_chrono$(#boost.libsuffix)" />
 			<Add directory="$(#boost.lib)" />
 			<Add directory="$(#sdl.lib)" />
 		</Linker>
@@ -152,6 +152,8 @@
 		<Unit filename="lib/Map/CMapService.h" />
 		<Unit filename="lib/NetPacks.h" />
 		<Unit filename="lib/NetPacksLib.cpp" />
+		<Unit filename="lib/RMG/CMapGenOptions.cpp" />
+		<Unit filename="lib/RMG/CMapGenOptions.h" />
 		<Unit filename="lib/RegisterTypes.h" />
 		<Unit filename="lib/ResourceSet.cpp" />
 		<Unit filename="lib/ResourceSet.h" />

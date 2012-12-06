@@ -7,8 +7,8 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin\Debug\VCMI_server" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Debug\" />
+				<Option output="bin/Debug/VCMI_server" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option use_console_runner="0" />
@@ -16,12 +16,12 @@
 					<Add option="-ggdb" />
 				</Compiler>
 				<Linker>
-					<Add directory="bin\Debug" />
+					<Add directory="bin/Debug" />
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin\Release\VCMI_server" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Release\" />
+				<Option output="bin/Release/VCMI_server" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -30,7 +30,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add directory="bin\Release" />
+					<Add directory="bin/Release" />
 				</Linker>
 			</Target>
 		</Build>
@@ -55,20 +55,20 @@
 			<Add option="-loleaut32" />
 			<Add option="-lws2_32" />
 			<Add option="-lmswsock" />
-			<Add option="-lboost_program_options-mgw47-mt-1_51" />
-			<Add option="-lboost_filesystem-mgw47-mt-1_51" />
-			<Add option="-lboost_system-mgw47-mt-1_51" />
-			<Add option="-lboost_thread-mgw47-mt-1_51" />
-			<Add option="-lboost_chrono-mgw47-mt-1_51" />
+			<Add option="-lboost_program_options$(#boost.libsuffix)" />
+			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
+			<Add option="-lboost_system$(#boost.libsuffix)" />
+			<Add option="-lboost_thread$(#boost.libsuffix)" />
+			<Add option="-lboost_chrono$(#boost.libsuffix)" />
 			<Add option="-lVCMI_lib" />
 			<Add directory="$(#boost.lib)" />
 		</Linker>
-		<Unit filename="server\CGameHandler.cpp" />
-		<Unit filename="server\CGameHandler.h" />
-		<Unit filename="server\CVCMIServer.cpp" />
-		<Unit filename="server\CVCMIServer.h" />
-		<Unit filename="server\NetPacksServer.cpp" />
-		<Unit filename="server\StdInc.h">
+		<Unit filename="server/CGameHandler.cpp" />
+		<Unit filename="server/CGameHandler.h" />
+		<Unit filename="server/CVCMIServer.cpp" />
+		<Unit filename="server/CVCMIServer.h" />
+		<Unit filename="server/NetPacksServer.cpp" />
+		<Unit filename="server/StdInc.h">
 			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>

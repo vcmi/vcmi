@@ -7,20 +7,20 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin\Debug\VCMI_client" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Debug\" />
+				<Option output="bin/Debug/VCMI_client" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
 				</Compiler>
 				<Linker>
-					<Add directory="bin\Debug" />
+					<Add directory="bin/Debug" />
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin\Release\VCMI_client" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj\Release\" />
+				<Option output="bin/Release/VCMI_client" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -29,7 +29,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add directory="bin\Release" />
+					<Add directory="bin/Release" />
 				</Linker>
 			</Target>
 		</Build>
@@ -55,11 +55,11 @@
 			<Add option="-lole32" />
 			<Add option="-loleaut32" />
 			<Add option="-lws2_32" />
-			<Add option="-lboost_program_options-mgw47-mt-1_51" />
-			<Add option="-lboost_filesystem-mgw47-mt-1_51" />
-			<Add option="-lboost_system-mgw47-mt-1_51" />
-			<Add option="-lboost_thread-mgw47-mt-1_51" />
-			<Add option="-lboost_chrono-mgw47-mt-1_51" />
+			<Add option="-lboost_program_options$(#boost.libsuffix)" />
+			<Add option="-lboost_filesystem$(#boost.libsuffix)" />
+			<Add option="-lboost_system$(#boost.libsuffix)" />
+			<Add option="-lboost_thread$(#boost.libsuffix)" />
+			<Add option="-lboost_chrono$(#boost.libsuffix)" />
 			<Add option="-lSDL" />
 			<Add option="-lSDL_image" />
 			<Add option="-lSDL_mixer" />
@@ -70,82 +70,82 @@
 		</Linker>
 		<Unit filename="CCallback.cpp" />
 		<Unit filename="CCallback.h" />
-		<Unit filename="client\AdventureMapClasses.cpp" />
-		<Unit filename="client\AdventureMapClasses.h" />
-		<Unit filename="client\BattleInterface\CBattleAnimations.cpp" />
-		<Unit filename="client\BattleInterface\CBattleAnimations.h" />
-		<Unit filename="client\BattleInterface\CBattleInterface.cpp" />
-		<Unit filename="client\BattleInterface\CBattleInterface.h" />
-		<Unit filename="client\BattleInterface\CBattleInterfaceClasses.cpp" />
-		<Unit filename="client\BattleInterface\CBattleInterfaceClasses.h" />
-		<Unit filename="client\BattleInterface\CCreatureAnimation.cpp" />
-		<Unit filename="client\BattleInterface\CCreatureAnimation.h" />
-		<Unit filename="client\CAdvmapInterface.cpp" />
-		<Unit filename="client\CAdvmapInterface.h" />
-		<Unit filename="client\CAnimation.cpp" />
-		<Unit filename="client\CAnimation.h" />
-		<Unit filename="client\CBitmapHandler.cpp" />
-		<Unit filename="client\CBitmapHandler.h" />
-		<Unit filename="client\CCastleInterface.cpp" />
-		<Unit filename="client\CCastleInterface.h" />
-		<Unit filename="client\CCreatureWindow.cpp" />
-		<Unit filename="client\CCreatureWindow.h" />
-		<Unit filename="client\CDefHandler.cpp" />
-		<Unit filename="client\CDefHandler.h" />
-		<Unit filename="client\CGameInfo.cpp" />
-		<Unit filename="client\CGameInfo.h" />
-		<Unit filename="client\CHeroWindow.cpp" />
-		<Unit filename="client\CHeroWindow.h" />
-		<Unit filename="client\CKingdomInterface.cpp" />
-		<Unit filename="client\CKingdomInterface.h" />
-		<Unit filename="client\CMT.cpp" />
-		<Unit filename="client\CMessage.cpp" />
-		<Unit filename="client\CMessage.h" />
-		<Unit filename="client\CMusicHandler.cpp" />
-		<Unit filename="client\CMusicHandler.h" />
-		<Unit filename="client\CPlayerInterface.cpp" />
-		<Unit filename="client\CPlayerInterface.h" />
-		<Unit filename="client\CPreGame.cpp" />
-		<Unit filename="client\CPreGame.h" />
-		<Unit filename="client\CQuestLog.cpp" />
-		<Unit filename="client\CQuestLog.h" />
-		<Unit filename="client\CSoundBase.h" />
-		<Unit filename="client\CSpellWindow.cpp" />
-		<Unit filename="client\CSpellWindow.h" />
-		<Unit filename="client\CVideoHandler.cpp" />
-		<Unit filename="client\CVideoHandler.h" />
-		<Unit filename="client\Client.cpp" />
-		<Unit filename="client\Client.h" />
-		<Unit filename="client\FontBase.h" />
-		<Unit filename="client\FunctionList.h" />
-		<Unit filename="client\GUIClasses.cpp" />
-		<Unit filename="client\GUIClasses.h" />
-		<Unit filename="client\Graphics.cpp" />
-		<Unit filename="client\Graphics.h" />
-		<Unit filename="client\NetPacksClient.cpp" />
-		<Unit filename="client\StdInc.h">
+		<Unit filename="client/AdventureMapClasses.cpp" />
+		<Unit filename="client/AdventureMapClasses.h" />
+		<Unit filename="client/BattleInterface/CBattleAnimations.cpp" />
+		<Unit filename="client/BattleInterface/CBattleAnimations.h" />
+		<Unit filename="client/BattleInterface/CBattleInterface.cpp" />
+		<Unit filename="client/BattleInterface/CBattleInterface.h" />
+		<Unit filename="client/BattleInterface/CBattleInterfaceClasses.cpp" />
+		<Unit filename="client/BattleInterface/CBattleInterfaceClasses.h" />
+		<Unit filename="client/BattleInterface/CCreatureAnimation.cpp" />
+		<Unit filename="client/BattleInterface/CCreatureAnimation.h" />
+		<Unit filename="client/CAdvmapInterface.cpp" />
+		<Unit filename="client/CAdvmapInterface.h" />
+		<Unit filename="client/CAnimation.cpp" />
+		<Unit filename="client/CAnimation.h" />
+		<Unit filename="client/CBitmapHandler.cpp" />
+		<Unit filename="client/CBitmapHandler.h" />
+		<Unit filename="client/CCastleInterface.cpp" />
+		<Unit filename="client/CCastleInterface.h" />
+		<Unit filename="client/CCreatureWindow.cpp" />
+		<Unit filename="client/CCreatureWindow.h" />
+		<Unit filename="client/CDefHandler.cpp" />
+		<Unit filename="client/CDefHandler.h" />
+		<Unit filename="client/CGameInfo.cpp" />
+		<Unit filename="client/CGameInfo.h" />
+		<Unit filename="client/CHeroWindow.cpp" />
+		<Unit filename="client/CHeroWindow.h" />
+		<Unit filename="client/CKingdomInterface.cpp" />
+		<Unit filename="client/CKingdomInterface.h" />
+		<Unit filename="client/CMT.cpp" />
+		<Unit filename="client/CMessage.cpp" />
+		<Unit filename="client/CMessage.h" />
+		<Unit filename="client/CMusicHandler.cpp" />
+		<Unit filename="client/CMusicHandler.h" />
+		<Unit filename="client/CPlayerInterface.cpp" />
+		<Unit filename="client/CPlayerInterface.h" />
+		<Unit filename="client/CPreGame.cpp" />
+		<Unit filename="client/CPreGame.h" />
+		<Unit filename="client/CQuestLog.cpp" />
+		<Unit filename="client/CQuestLog.h" />
+		<Unit filename="client/CSoundBase.h" />
+		<Unit filename="client/CSpellWindow.cpp" />
+		<Unit filename="client/CSpellWindow.h" />
+		<Unit filename="client/CVideoHandler.cpp" />
+		<Unit filename="client/CVideoHandler.h" />
+		<Unit filename="client/Client.cpp" />
+		<Unit filename="client/Client.h" />
+		<Unit filename="client/FontBase.h" />
+		<Unit filename="client/FunctionList.h" />
+		<Unit filename="client/GUIClasses.cpp" />
+		<Unit filename="client/GUIClasses.h" />
+		<Unit filename="client/Graphics.cpp" />
+		<Unit filename="client/Graphics.h" />
+		<Unit filename="client/NetPacksClient.cpp" />
+		<Unit filename="client/StdInc.h">
 			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
-		<Unit filename="client\UIFramework\CCursorHandler.cpp" />
-		<Unit filename="client\UIFramework\CCursorHandler.h" />
-		<Unit filename="client\UIFramework\CGuiHandler.cpp" />
-		<Unit filename="client\UIFramework\CGuiHandler.h" />
-		<Unit filename="client\UIFramework\CIntObject.cpp" />
-		<Unit filename="client\UIFramework\CIntObject.h" />
-		<Unit filename="client\UIFramework\CIntObjectClasses.cpp" />
-		<Unit filename="client\UIFramework\CIntObjectClasses.h" />
-		<Unit filename="client\UIFramework\Geometries.cpp" />
-		<Unit filename="client\UIFramework\Geometries.h" />
-		<Unit filename="client\UIFramework\SDL_Extensions.cpp" />
-		<Unit filename="client\UIFramework\SDL_Extensions.h" />
-		<Unit filename="client\UIFramework\SDL_Pixels.h" />
-		<Unit filename="client\VCMI_client.rc">
+		<Unit filename="client/UIFramework/CCursorHandler.cpp" />
+		<Unit filename="client/UIFramework/CCursorHandler.h" />
+		<Unit filename="client/UIFramework/CGuiHandler.cpp" />
+		<Unit filename="client/UIFramework/CGuiHandler.h" />
+		<Unit filename="client/UIFramework/CIntObject.cpp" />
+		<Unit filename="client/UIFramework/CIntObject.h" />
+		<Unit filename="client/UIFramework/CIntObjectClasses.cpp" />
+		<Unit filename="client/UIFramework/CIntObjectClasses.h" />
+		<Unit filename="client/UIFramework/Geometries.cpp" />
+		<Unit filename="client/UIFramework/Geometries.h" />
+		<Unit filename="client/UIFramework/SDL_Extensions.cpp" />
+		<Unit filename="client/UIFramework/SDL_Extensions.h" />
+		<Unit filename="client/UIFramework/SDL_Pixels.h" />
+		<Unit filename="client/VCMI_client.rc">
 			<Option compilerVar="WINDRES" />
 		</Unit>
-		<Unit filename="client\mapHandler.cpp" />
-		<Unit filename="client\mapHandler.h" />
-		<Unit filename="client\resource.h" />
+		<Unit filename="client/mapHandler.cpp" />
+		<Unit filename="client/mapHandler.h" />
+		<Unit filename="client/resource.h" />
 		<Extensions>
 			<code_completion />
 			<envvars />
