@@ -63,12 +63,16 @@ class DLL_LINKAGE CArtifact : public CBonusSystemNode //container for artifacts
 {
 protected:
 	std::string name, description; //set if custom
+	std::string eventText; //short story displayed upon picking
 public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter
+	const std::string &EventText() const;
 	bool isBig () const;
+	void setName (std::string desc);
 	void setDescription (std::string desc);
+	void setEventText (std::string desc);
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const OVERRIDE;

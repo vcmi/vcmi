@@ -823,6 +823,8 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.type = Bonus::DEATH_STARE;
 		b.subtype = 0; //Gorgon
 		break;
+	case 'F':
+		b.type = Bonus::FEAR; break;
 	case 'g':
 		b.type = Bonus::SPELL_DAMAGE_REDUCTION;
 		b.subtype = -1; //all magic schools
@@ -988,7 +990,9 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		break;
 
 	case 'a':
-	case 'c': //some special abilities are threated as spells, work in progress
+	case 'c':
+	case 'K':
+	case 'k':
 		b.type = Bonus::SPELL_AFTER_ATTACK;
 		b.subtype = stringToNumber(mod); 
 		break;
@@ -997,9 +1001,14 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.subtype = stringToNumber(mod);
 		break;
 	case 'p':
+	case 'J':
 		b.type = Bonus::SPELL_BEFORE_ATTACK;
 		b.subtype = stringToNumber(mod);
 		b.additionalInfo = 3; //always expert?
+		break;
+	case 'r':
+		b.type = Bonus::HP_REGENERATION;
+		b.val = stringToNumber(mod);
 		break;
 	case 's':
 		b.type = Bonus::ENCHANTED;

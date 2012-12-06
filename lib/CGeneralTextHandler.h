@@ -67,11 +67,6 @@ public:
 	std::vector<std::string> capColors; //names of player colors with first letter capitalized ("Red",...)
 	std::vector<std::string> turnDurations; //turn durations for pregame (1 Minute ... Unlimited) 
 
-	//artifacts
-	std::vector<std::string> artifEvents;
-	std::vector<std::string> artifNames;
-	std::vector<std::string> artifDescriptions;
-
 	//towns
 	std::vector<std::string> tcommands, hcommands, fcommands; //texts for town screen, town hall screen and fort screen
 	std::vector<std::string> tavernInfo;

@@ -173,6 +173,10 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	{
 		dst = VLC->arth->artifacts[ser]->Description();
 	}
+	else if (type == ART_EVNTS)
+	{
+		dst = VLC->arth->artifacts[ser]->EventText(); 
+	}
 	else
 	{
 		std::vector<std::string> *vec;
@@ -201,9 +205,6 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 			break;
 		case ADVOB_TXT:
 			vec = &VLC->generaltexth->advobtxt;
-			break;
-		case ART_EVNTS:
-			vec = &VLC->generaltexth->artifEvents;
 			break;
 		case SEC_SKILL_NAME:
 			vec = &VLC->generaltexth->skillName;

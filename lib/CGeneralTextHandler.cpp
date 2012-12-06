@@ -166,7 +166,6 @@ void CGeneralTextHandler::load()
 	readToVector("DATA/TVRNINFO.TXT", tavernInfo);
 	readToVector("DATA/TURNDUR.TXT",  turnDurations);
 	readToVector("DATA/HEROSCRN.TXT", heroscrn);
-	readToVector("DATA/ARTEVENT.TXT", artifEvents);
 	readToVector("DATA/TENTCOLR.TXT", tentColors);
 	readToVector("DATA/SKILLLEV.TXT", levels);
 	readToVector("DATA/OBJNAMES.TXT", names);

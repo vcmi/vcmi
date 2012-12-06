@@ -3790,7 +3790,7 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 				if(message.length())
 					iw.text <<  message;
 				else
-					iw.text << std::pair<ui8,ui32>(12,subID);
+					iw.text << std::pair<ui8, ui32> (MetaString::ART_EVNTS, subID);
 			}
 			break;
 		case Obj::SPELL_SCROLL:

@@ -27,18 +27,16 @@ extern boost::rand48 ran;
 
 const std::string & CArtifact::Name() const
 {
-	if(name.size())
-		return name;
-	else
-		return VLC->generaltexth->artifNames[id];
+	return name;
 }
 
 const std::string & CArtifact::Description() const
 {
-	if(description.size())
-		return description;
-	else
-		return VLC->generaltexth->artifDescriptions[id];
+	return description;
+}
+const std::string & CArtifact::EventText() const
+{
+	return eventText;
 }
 
 bool CArtifact::isBig () const
@@ -184,9 +182,17 @@ std::string CArtifact::nodeName() const
 // // 	//boost::algorithm::replace_first(description, "[spell name]", VLC->spellh->spells[spellid].name);
 // }
 
+void CArtifact::setName (std::string desc)
+{
+	name = desc;
+}
 void CArtifact::setDescription (std::string desc)
 {
 	description = desc;
+}
+void CArtifact::setEventText (std::string desc)
+{
+	eventText = desc;
 }
 
 void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
@@ -240,12 +246,11 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	  map_list_of('S',CArtifact::ART_SPECIAL)('T',CArtifact::ART_TREASURE)('N',CArtifact::ART_MINOR)('J',CArtifact::ART_MAJOR)('R',CArtifact::ART_RELIC);
 
 	CLegacyConfigParser parser("DATA/ARTRAITS.TXT");
+	CLegacyConfigParser events("DATA/ARTEVENT.TXT");
 
 	parser.endLine(); // header
 	parser.endLine();
 
-	VLC->generaltexth->artifNames.resize(GameConstants::ARTIFACTS_QUANTITY);
-	VLC->generaltexth->artifDescriptions.resize(GameConstants::ARTIFACTS_QUANTITY);
 	std::map<ui32,ui8>::iterator itr;
 
 	for (int i=0; i<GameConstants::ARTIFACTS_QUANTITY; i++)
@@ -261,7 +266,9 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		}
 		CArtifact &nart = *art;
 		nart.id=i;
-		VLC->generaltexth->artifNames[i] = parser.readString();
+		nart.setName (parser.readString());
+		nart.setEventText (events.readString());
+		events.endLine();
 
 		nart.price= parser.readNumber();
 
@@ -277,7 +284,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		nart.aClass = classes[parser.readString()[0]];
 
 		//load description and remove quotation marks
-		VLC->generaltexth->artifDescriptions[i] = parser.readString();
+		nart.setDescription (parser.readString());
 
 		parser.endLine();
 

@@ -4623,13 +4623,6 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 			}
 			else
 				sse.stacks.push_back (st->ID);
-			//from handleSpellCasting
-			//SetStackEffect sse;
-			//Bonus pseudoBonus;
-			//pseudoBonus.sid = spellID;
-			//pseudoBonus.val = spellLvl;
-			//pseudoBonus.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, stackSpellPower ? stackSpellPower : usedSpellPower);
-			//CStack::stackEffectToFeature(sse.effect, pseudoBonus);
 
 			Bonus pseudoBonus;
 			pseudoBonus.sid = b->subtype;
