@@ -32,11 +32,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Centaurs Axe",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -51,11 +47,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Blackshard of the Dead Knight",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -70,11 +62,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Greater Gnoll's Flail",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -89,11 +77,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Ogre's Club of Havoc",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -108,11 +92,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Sword of Hellfire",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -127,11 +107,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Titan's Gladius",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -140,11 +116,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Titan's Gladius",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -159,11 +131,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Shield of the Dwarven Lords",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -178,11 +146,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Shield of the Yawning Dead",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -197,11 +161,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Buckler of the Gnoll King",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -216,11 +176,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Targ of the Rampaging Ogre",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -235,11 +191,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Shield of the Damned",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -254,11 +206,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Sentinel's Shield",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -267,11 +215,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Sentinel's Shield",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -286,11 +230,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Helm of the Alabaster Unicorn",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -305,11 +245,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Skull Helmet",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -324,11 +260,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Helm of Chaos",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -343,11 +275,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Crown of the Supreme Magi",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -362,11 +290,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Hellstorm Helmet",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -381,11 +305,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Thunder Helmet",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -394,11 +314,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Thunder Helmet",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -413,11 +329,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Breastplate of Petrified Wood",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -432,11 +344,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Rib Cage",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -451,11 +359,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Scales of the Greater Basilisk",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -470,11 +374,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Tunic of the Cyclops King",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -489,11 +389,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Breastplate of Brimstone",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -508,11 +404,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Titan's Cuirass",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -521,11 +413,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Titan's Cuirass",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -540,11 +428,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Armor of Wonder",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -553,11 +437,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Armor of Wonder",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -566,11 +446,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Armor of Wonder",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -579,11 +455,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Armor of Wonder",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -598,11 +470,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Sandals of the Saint",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -611,11 +479,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Sandals of the Saint",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -624,11 +488,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Sandals of the Saint",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -637,11 +497,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Sandals of the Saint",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -656,11 +512,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Celestial Necklace of Bliss",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -669,11 +521,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Celestial Necklace of Bliss",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -682,11 +530,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Celestial Necklace of Bliss",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -695,11 +539,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Celestial Necklace of Bliss",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -714,11 +554,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Lion's Shield of Courage",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -727,11 +563,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Lion's Shield of Courage",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -740,11 +572,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Lion's Shield of Courage",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -753,11 +581,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Lion's Shield of Courage",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -772,11 +596,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Sword of Judgement",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -785,11 +605,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Sword of Judgement",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -798,11 +614,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Sword of Judgement",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -811,11 +623,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Sword of Judgement",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -830,11 +638,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Helm of Heavenly Enlightenment",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -843,11 +647,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Helm of Heavenly Enlightenment",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -856,11 +656,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Helm of Heavenly Enlightenment",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -869,11 +665,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Helm of Heavenly Enlightenment",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -888,11 +680,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Quiet Eye of the Dragon",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -901,11 +689,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Quiet Eye of the Dragon",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -920,11 +704,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Red Dragon Flame Tongue",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -933,11 +713,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Red Dragon Flame Tongue",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -952,11 +728,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Dragon Scale Shield",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -965,11 +737,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Dragon Scale Shield",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -984,11 +752,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Dragon Scale Armor",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -997,11 +761,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Dragon Scale Armor",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -1016,11 +776,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Dragonbone Greaves",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -1029,11 +785,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Dragonbone Greaves",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -1048,11 +800,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Dragon Wing Tabard",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -1061,11 +809,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Dragon Wing Tabard",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -1080,11 +824,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Necklace of Dragonteeth",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -1093,11 +833,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Necklace of Dragonteeth",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -1112,11 +848,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Crown of Dragontooth",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -1125,11 +857,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Crown of Dragontooth",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -1144,11 +872,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Still Eye of the Dragon",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "MORALE",
@@ -1157,11 +881,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Still Eye of the Dragon +1",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "LUCK",
@@ -1176,11 +896,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Clover of Fortune +1",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "LUCK",
@@ -1195,11 +911,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Cards of Prophecy +1",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "LUCK",
@@ -1214,11 +926,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Ladybird of Luck +1",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "LUCK",
@@ -1233,11 +941,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Badge of Courage",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "MORALE",
@@ -1246,11 +950,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Badge of Courage",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "MIND_IMMUNITY",
@@ -1265,11 +965,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Crest of Valor",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "MORALE",
@@ -1284,11 +980,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Glyph of Gallantry",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "MORALE",
@@ -1303,11 +995,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Speculum",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "SIGHT_RADIOUS",
@@ -1322,11 +1010,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Spyglass",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "SIGHT_RADIOUS",
@@ -1341,11 +1025,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Amulet of the Undertaker",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 12,
 					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
@@ -1360,11 +1040,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Vampire's Cowl",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 12,
 					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
@@ -1379,11 +1055,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Dead Man's Boots",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 12,
 					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
@@ -1398,11 +1070,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Garniture of Interference",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "MAGIC_RESISTANCE",
@@ -1417,11 +1085,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Surcoat of Counterpoise",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "MAGIC_RESISTANCE",
@@ -1436,11 +1100,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Boots of Polarity",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "MAGIC_RESISTANCE",
@@ -1455,11 +1115,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Bow of Elven Cherrywood",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
@@ -1474,11 +1130,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Bowstring of the Unicorn's Mane",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
@@ -1493,11 +1145,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Angel Feather Arrows",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
@@ -1512,11 +1160,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Bird of Perception",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 11,
 					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
@@ -1531,11 +1175,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Stoic Watchman",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 11,
 					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
@@ -1550,11 +1190,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Emblem of Cognizance",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 11,
 					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
@@ -1569,11 +1205,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Statesman's Medal",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "SURRENDER_DISCOUNT",
@@ -1588,11 +1220,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Diplomat's Ring",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "SURRENDER_DISCOUNT",
@@ -1607,11 +1235,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Ambassador's Sash",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "SURRENDER_DISCOUNT",
@@ -1626,11 +1250,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Ring of the Wayfarer",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "STACKS_SPEED",
@@ -1645,11 +1265,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Equestrian's Gloves",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "LAND_MOVEMENT",
@@ -1664,11 +1280,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Necklace of Ocean Guidance",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "SEA_MOVEMENT",
@@ -1683,11 +1295,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Angel Wings",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "FLYING_MOVEMENT",
@@ -1702,11 +1310,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Charm of Mana",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "MANA_REGENERATION",
@@ -1721,11 +1325,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Talisman of Mana",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "MANA_REGENERATION",
@@ -1740,11 +1340,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Mystic Orb of Mana",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "MANA_REGENERATION",
@@ -1759,11 +1355,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Collar of Conjuring",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "SPELL_DURATION",
@@ -1778,11 +1370,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Ring of Conjuring",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "SPELL_DURATION",
@@ -1797,11 +1385,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Cape of Conjuring",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "SPELL_DURATION",
@@ -1816,11 +1400,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Orb of the Firmament",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "AIR_SPELL_DMG_PREMY",
@@ -1835,11 +1415,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Orb of Silt",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "EARTH_SPELL_DMG_PREMY",
@@ -1854,11 +1430,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Orb of Tempestuous Fire",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "FIRE_SPELL_DMG_PREMY",
@@ -1873,11 +1445,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Orb of Driving Rain",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "WATER_SPELL_DMG_PREMY",
@@ -1896,11 +1464,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Spirit of Oppression",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "BLOCK_MORALE",
@@ -1915,11 +1479,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Hourglass of the Evil Hour",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "BLOCK_LUCK",
@@ -1934,11 +1494,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Tome of Fire Magic",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "FIRE_SPELLS",
@@ -1953,11 +1509,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Tome of Air Magic",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "AIR_SPELLS",
@@ -1972,11 +1524,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Tome of Water Magic",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "WATER_SPELLS",
@@ -1991,11 +1539,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Tome of Earth Magic",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "EARTH_SPELLS",
@@ -2010,11 +1554,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Boots of Levitation",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "WATER_WALKING",
@@ -2029,12 +1569,8 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Golden Bow",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
 					"limiter" : "SHOOTER_ONLY",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "NO_DISTANCE_PENALTY",
@@ -2043,12 +1579,8 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Golden Bow",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
 					"limiter" : "SHOOTER_ONLY",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "NO_WALL_PENALTY",
@@ -2063,11 +1595,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Sphere of Permanence",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 35,
 					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
@@ -2082,11 +1610,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Orb of Vulnerability",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "NEGATE_ALL_NATURAL_IMMUNITIES",
@@ -2101,11 +1625,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Ring of Vitality",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "STACK_HEALTH",
@@ -2120,11 +1640,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Ring of Life",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "STACK_HEALTH",
@@ -2139,11 +1655,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Vial of Lifeblood",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "STACK_HEALTH",
@@ -2158,11 +1670,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Necklace of Swiftness",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "STACKS_SPEED",
@@ -2177,11 +1685,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Boots of Speed",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "LAND_MOVEMENT",
@@ -2196,11 +1700,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Cape of Velocity",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "STACKS_SPEED",
@@ -2215,11 +1715,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Pendant of Dispassion",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 59,
 					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
@@ -2234,11 +1730,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Pendant of Second Sight",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 62,
 					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
@@ -2253,11 +1745,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Pendant of Holiness",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 42,
 					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
@@ -2272,11 +1760,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Pendant of Life",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 24,
 					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
@@ -2291,12 +1775,8 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Pendant of Death",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
 					"limiter" : "IS_UNDEAD",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 25,
 					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
@@ -2311,11 +1791,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Pendant of Free Will",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 60,
 					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
@@ -2330,11 +1806,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Pendant of Negativity",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 17,
 					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
@@ -2343,11 +1815,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Pendant of Negativity",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 19,
 					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
@@ -2362,11 +1830,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Pendant of Total Recall",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 61,
 					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
@@ -2381,11 +1845,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Pendant of Courage",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "MORALE",
@@ -2394,11 +1854,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Pendant of Courage +3",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "LUCK",
@@ -2413,11 +1869,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Everflowing Crystal Cloak",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 4,
 					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
@@ -2432,11 +1884,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Ring of Infinite Gems +1",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 5,
 					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
@@ -2451,11 +1899,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Everpouring Vial of Mercury",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
@@ -2470,11 +1914,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Inexhaustible Cart of Ore",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
@@ -2489,11 +1929,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Eversmoking Ring of Sulfur",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
@@ -2508,11 +1944,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Inexhaustible Cart of Lumber",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
@@ -2527,11 +1959,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Endless Sack of Gold",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 6,
 					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
@@ -2546,11 +1974,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Endless Bag of Gold",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 6,
 					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
@@ -2565,11 +1989,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Endless Purse of Gold",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 6,
 					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
@@ -2604,11 +2024,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Sea Captain's Hat",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "WHIRLPOOL_PROTECTION",
@@ -2617,11 +2033,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Sea Captain's Hat",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "SEA_MOVEMENT",
@@ -2630,11 +2042,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Sea Captain's Hat",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "SPELL",
@@ -2643,11 +2051,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Sea Captain's Hat",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "SPELL",
@@ -2662,11 +2066,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Spellbinder's Hat",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "SPELLS_OF_LEVEL",
@@ -2689,12 +2089,8 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Vial of Dragon Blood",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
 					"limiter" : "DRAGON_NATURE",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -2703,12 +2099,8 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Vial of Dragon Blood",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
 					"limiter" : "DRAGON_NATURE",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -2723,11 +2115,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Armageddon's Blade",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 26,
 					"turns" : 0,
 					"type" : "SPELL",
@@ -2736,11 +2124,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Armageddon's Blade",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 26,
 					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
@@ -2749,11 +2133,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Armageddon's Blade",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -2762,11 +2142,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Armageddon's Blade",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -2775,11 +2151,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Armageddon's Blade",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -2788,11 +2160,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Armageddon's Blade",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -2807,11 +2175,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Angelic Alliance",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "NONEVIL_ALIGNMENT_MIX",
@@ -2820,11 +2184,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Angelic Alliance",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 48,
 					"turns" : 0,
 					"type" : "OPENING_BATTLE_SPELL",
@@ -2839,11 +2199,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Cloak of the Undead King",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "IMPROVED_NECROMANCY",
@@ -2858,11 +2214,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Elixir of Life",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "STACK_HEALTH",
@@ -2871,11 +2223,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Elixir of Life",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "HP_REGENERATION",
@@ -2890,11 +2238,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Armor of the Damned",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 54,
 					"turns" : 0,
 					"type" : "OPENING_BATTLE_SPELL",
@@ -2903,11 +2247,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Armor of the Damned",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 47,
 					"turns" : 0,
 					"type" : "OPENING_BATTLE_SPELL",
@@ -2916,11 +2256,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Armor of the Damned",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 45,
 					"turns" : 0,
 					"type" : "OPENING_BATTLE_SPELL",
@@ -2929,11 +2265,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Armor of the Damned",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 52,
 					"turns" : 0,
 					"type" : "OPENING_BATTLE_SPELL",
@@ -2952,11 +2284,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Power of the Dragon Father",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "LEVEL_SPELL_IMMUNITY",
@@ -2971,11 +2299,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Titan's Thunder",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 57,
 					"turns" : 0,
 					"type" : "SPELL",
@@ -2990,11 +2314,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Admiral's Hat",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "FREE_SHIP_BOARDING",
@@ -3009,12 +2329,8 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Bow of the Sharpshooter",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
 					"limiter" : "SHOOTER_ONLY",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "NO_DISTANCE_PENALTY",
@@ -3023,12 +2339,8 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Bow of the Sharpshooter",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
 					"limiter" : "SHOOTER_ONLY",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "NO_WALL_PENALTY",
@@ -3037,12 +2349,8 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Bow of the Sharpshooter",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
 					"limiter" : "SHOOTER_ONLY",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "FREE_SHOOTING",
@@ -3057,11 +2365,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Wizard's Well",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "FULL_MANA_REGENERATION",
@@ -3076,11 +2380,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Ring of the Magi",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "SPELL_DURATION",
@@ -3095,11 +2395,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Cornucopia",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
@@ -3108,11 +2404,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Cornucopia",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 3,
 					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
@@ -3121,11 +2413,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Cornucopia",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 4,
 					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
@@ -3134,11 +2422,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Cornucopia +4",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 5,
 					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
@@ -3146,17 +2430,14 @@
 					"valueType" : "BASE_NUMBER"
 				}
 			],
-			"id" : 140
+			"id" : 140,
+			"type" : "Hero"
 		},
 		{
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Magic Wand",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "CASTS",
@@ -3165,11 +2446,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Magic Wand",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 18,
 					"turns" : 0,
 					"type" : "SPELLCASTER",
@@ -3178,11 +2455,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Magic Wand",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 21,
 					"turns" : 0,
 					"type" : "SPELLCASTER",
@@ -3191,11 +2464,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Magic Wand",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "RANDOM_SPELLCASTER",
@@ -3204,11 +2473,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Magic Wand",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 63,
 					"turns" : 0,
 					"type" : "DAEMON_SUMMONING",
@@ -3217,11 +2482,7 @@
 				},
 				{
 					"additionalInfo" : 2,
-					"description" : "Magic Wand",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 17,
 					"turns" : 0,
 					"type" : "ENCHANTER",
@@ -3230,11 +2491,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Magic Wand",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 1,
 					"turns" : 0,
 					"type" : "REBIRTH",
@@ -3243,11 +2500,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Magic Wand",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "MANA_DRAIN",
@@ -3256,11 +2509,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Magic Wand",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "HEALER",
@@ -3275,11 +2524,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Gold Tower Arrow",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "NO_DISTANCE_PENALTY",
@@ -3288,11 +2533,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Gold Tower Arrow",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "ADDITIONAL_ATTACK",
@@ -3301,11 +2542,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Gold Tower Arrow",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 22,
 					"turns" : 0,
 					"type" : "SPELL_LIKE_ATTACK",
@@ -3314,11 +2551,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Gold Tower Arrow",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "CATAPULT",
@@ -3327,11 +2560,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Gold Tower Arrow",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "ACID_BREATH",
@@ -3340,11 +2569,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Gold Tower Arrow",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "SHOTS",
@@ -3353,11 +2578,7 @@
 				},
 				{
 					"additionalInfo" : 1,
-					"description" : "Gold Tower Arrow",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 75,
 					"turns" : 0,
 					"type" : "SPELL_BEFORE_ATTACK",
@@ -3366,11 +2587,7 @@
 				},
 				{
 					"additionalInfo" : 1,
-					"description" : "Gold Tower Arrow",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 59,
 					"turns" : 0,
 					"type" : "SPELL_AFTER_ATTACK",
@@ -3379,11 +2596,7 @@
 				},
 				{
 					"additionalInfo" : 1,
-					"description" : "Gold Tower Arrow",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 71,
 					"turns" : 0,
 					"type" : "SPELL_AFTER_ATTACK",
@@ -3392,11 +2605,7 @@
 				},
 				{
 					"additionalInfo" : 1,
-					"description" : "Gold Tower Arrow",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 47,
 					"turns" : 0,
 					"type" : "SPELL_AFTER_ATTACK",
@@ -3411,11 +2620,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Monster's Power",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "STACK_HEALTH",
@@ -3424,11 +2629,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Monster's Power",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 2,
 					"turns" : 0,
 					"type" : "CREATURE_DAMAGE",
@@ -3437,11 +2638,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Monster's Power",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "HP_REGENERATION",
@@ -3450,11 +2647,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Monster's Power",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "NO_RETALIATION",
@@ -3463,11 +2656,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Monster's Power",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "RETURN_AFTER_STRIKE",
@@ -3476,11 +2665,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Monster's Power",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "ATTACKS_ALL_ADJACENT",
@@ -3489,11 +2674,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Monster's Power",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "SPELL_RESISTANCE_AURA",
@@ -3502,11 +2683,7 @@
 				},
 				{
 					"additionalInfo" : 0,
-					"description" : "Monster's Power",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "DIRECT_DAMAGE_IMMUNITY",
@@ -3529,11 +2706,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Axe of Smashing",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -3548,11 +2721,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Mithril Mail",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "STACK_HEALTH",
@@ -3567,11 +2736,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Sword of Sharpness",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "CREATURE_DAMAGE",
@@ -3590,11 +2755,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Pendant of Sorcery",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "CASTS",
@@ -3609,11 +2770,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Boots of Haste",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "STACKS_SPEED",
@@ -3636,11 +2793,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Hardened Shield",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : 0,
 					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
@@ -3659,11 +2812,7 @@
 			"bonuses" : [
 				{
 					"additionalInfo" : 0,
-					"description" : "Warlord's Banner",
-					"duration" : "PERMANENT",
 					"effectRange" : "NO_LIMIT",
-					"source" : "ARTIFACT",
-					"sourceID" : 0,
 					"subtype" : -1,
 					"turns" : 0,
 					"type" : "STACK_HEALTH",
