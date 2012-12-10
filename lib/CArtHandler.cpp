@@ -9,7 +9,6 @@
 #include "CSpellHandler.h"
 #include "CObjectHandler.h"
 #include "NetPacks.h"
-#include "JsonNode.h"
 
 using namespace boost::assign;
 
@@ -24,6 +23,40 @@ using namespace boost::assign;
  */
 
 extern boost::rand48 ran;
+
+const std::map<std::string, int> artRarityMap = boost::assign::map_list_of 
+	("TREASURE", CArtifact::ART_TREASURE)
+	("MINOR", CArtifact::ART_MINOR)
+	("MAJOR", CArtifact::ART_MAJOR)
+	("RELIC", CArtifact::ART_RELIC)
+	("SPECIAL", CArtifact::ART_SPECIAL);
+
+#define ART_BEARER(x) ( #x, ArtBearer::x )
+	const std::map<std::string, int> artifactBearerMap = boost::assign::map_list_of ART_BEARER_LIST;
+#undef ART_BEARER
+
+#define ART_POS(x) ( #x, ArtifactPosition::x )
+
+const std::map<std::string, int> artifactPositionMap = boost::assign::map_list_of 
+	ART_POS(HEAD)
+	ART_POS(SHOULDERS)
+	ART_POS(NECK)
+	ART_POS(RIGHT_HAND)
+	ART_POS(LEFT_HAND)
+	ART_POS(TORSO)
+	ART_POS(RIGHT_RING)
+	ART_POS(LEFT_RING)
+	ART_POS(FEET)
+	ART_POS(MISC1)
+	ART_POS(MISC2)
+	ART_POS(MISC3)
+	ART_POS(MISC4)
+	ART_POS(MISC5)
+	ART_POS(MACH1)
+	ART_POS(MACH2)
+	ART_POS(MACH3)
+	ART_POS(MACH4)
+	ART_POS(SPELLBOOK); //no need to specify commander / stack position?
 
 const std::string & CArtifact::Name() const
 {
@@ -400,6 +433,82 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 			}
 		}
 	}
+}
+
+void CArtHandler::load(const JsonNode & node)
+{
+	BOOST_FOREACH(auto & entry, node.Struct())
+	{
+		if (!entry.second.isNull()) // may happens if mod removed creature by setting json entry to null
+		{
+			CArtifact * art = loadArtifact(entry.second);
+			art->setName (entry.first);
+			art->id = artifacts.size();
+
+			artifacts.push_back(art);
+			tlog3 << "Added artifact: " << entry.first << "\n";
+			VLC->modh->identifiers.registerObject (std::string("artifact.") + art->Name(), art->id);
+		}
+	}
+}
+
+CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
+{
+	CArtifact * art = new CArtifact;
+	const JsonNode *value;
+
+	const JsonNode & text = node["text"];
+	art->setName		(text["name"].String());
+	art->setDescription	(text["description"].String());
+	art->setName		(text["event"].String());
+
+	art->image = node["image"].String();
+
+	art->price = node["value"].Float();
+	
+	int bearerType = -1;
+
+	auto it = artifactBearerMap.find (value->String());
+	if (it != artifactPositionMap.end())
+	{
+		bearerType = it->second;
+		switch (bearerType)
+		{
+			case ArtBearer::HERO: //TODO: allow arts having several possible bearers
+				break;
+			case ArtBearer::COMMANDER:
+				makeItCommanderArt(art->id); //TODO: when id is deduced?
+				break;
+			case ArtBearer::CREATURE:
+				makeItCreatureArt(art->id);
+				break;
+		}
+	}
+	else
+		tlog2 << "Warning! Artifact type " << value->String() << " not recognized!";
+
+	value = &node["slot"];
+	if (!value->isNull() && bearerType == ArtBearer::HERO) //we assume non-hero slots are irrelevant?
+	{
+		auto it = artifactPositionMap.find (value->String());
+		if (it != artifactPositionMap.end())
+		{
+			auto slot = it->second;
+			art->possibleSlots[ArtBearer::HERO].push_back (slot);
+		}
+		else
+			tlog2 << "Warning! Artifact slot " << value->String() << " not recognized!";
+	}
+
+	BOOST_FOREACH (const JsonNode &bonus, node["bonuses"].Vector())
+	{
+		auto b = JsonUtils::parseBonus(bonus);
+		b->source = Bonus::ARTIFACT;
+		b->duration = Bonus::PERMANENT;
+		art->addNewBonus(b);
+	}
+
+	return art;
 }
 
 int CArtHandler::convertMachineID(int id, bool creToArt )

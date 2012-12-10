@@ -44,7 +44,7 @@ public:
 	SDL_Color * playerColorPalette; //palette to make interface colors good - array of size [256]
 	SDL_Color * neutralColorPalette; 
 
-	CDefEssential * artDefs; //artifacts
+	CDefEssential * artDefs; //artifacts //TODO: move to CArtifact class
 	std::vector<SDL_Surface *> portraitSmall; //48x32 px portraits of heroes
 	std::vector<SDL_Surface *> portraitLarge; //58x64 px portraits of heroes
 	std::vector<CDefEssential *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,

@@ -4136,7 +4136,7 @@ void CArtPlace::showAll(SDL_Surface * to)
 {
 	if (ourArt && !picked && ourArt == ourOwner->curHero->getArt(slotID, false)) //last condition is needed for disassembling -> artifact may be gone, but we don't know yet TODO: real, nice solution
 	{
-		int graphic = locked ? 145 : ourArt->artType->id;
+		int graphic = locked ? GameConstants::ID_LOCK : ourArt->artType->id;
 		blitAt(graphics->artDefs->ourImages[graphic].bitmap, pos.x, pos.y, to);
 	}
 

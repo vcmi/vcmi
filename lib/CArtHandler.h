@@ -3,6 +3,7 @@
 
 #include "../lib/HeroBonus.h"
 #include "../lib/ConstTransitivePtr.h"
+#include "JsonNode.h"
 
 /*
  * CArtHandler.h, part of VCMI engine
@@ -51,11 +52,18 @@ namespace ArtifactID
 	};
 }
 
+#define ART_BEARER_LIST \
+	ART_BEARER(HERO)\
+	ART_BEARER(CREATURE)\
+	ART_BEARER(COMMANDER)
+
 namespace ArtBearer
 {
 	enum
 	{
-		HERO, CREATURE, COMMANDER
+#define ART_BEARER(x) x,
+		ART_BEARER_LIST
+#undef ART_BEARER
 	};
 }
 
@@ -66,6 +74,9 @@ protected:
 	std::string eventText; //short story displayed upon picking
 public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
+
+	std::string image;
+
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter
 	const std::string &EventText() const;
@@ -89,7 +100,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & name & description & price & possibleSlots & constituents & constituentOf & aClass & id;
+		h & name & description & eventText & image & price & possibleSlots & constituents & constituentOf & aClass & id;
 	}
 
 	CArtifact();
@@ -213,6 +224,11 @@ public:
 	std::set<ui32> growingArtifacts;
 
 	void loadArtifacts(bool onlyTxt);
+	/// load all artifacts from json structure
+	void load(const JsonNode & node);
+	/// load one artifact from json config
+	CArtifact * loadArtifact(const JsonNode & node);
+
 	void sortArts();
 	void addBonuses();
 	void clear();
