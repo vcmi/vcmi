@@ -114,7 +114,10 @@ if (NOT APPLE)
 	# copy only fs.json for WoG
 	install(FILES Mods/WoG/filesystem.json DESTINATION ${DATA_DIR}/Mods/WoG)
 
-	install(FILES vcmibuilder DESTINATION ${BIN_DIR})
+	install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
+		OWNER_WRITE OWNER_READ OWNER_EXECUTE
+		            GROUP_READ GROUP_EXECUTE
+		            WORLD_READ WORLD_EXECUTE)
 endif()
 
 if(WIN32)

@@ -334,7 +334,11 @@ CTown::ClientInfo::Point JsonToPoint(const JsonNode & node)
 void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source)
 {
 	town.clientInfo.siegePrefix = source["imagePrefix"].String();
-	town.clientInfo.siegeShooter = source["shooter"].Float();
+	VLC->modh->identifiers.requestIdentifier(std::string("creature.") + source["shooter"].String(), [&town](si32 creature)
+	{
+		town.clientInfo.siegeShooter = creature;
+	});
+
 	town.clientInfo.siegeShooterCropHeight = source["shooterHeight"].Float();
 
 	auto & pos = town.clientInfo.siegePositions;

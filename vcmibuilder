@@ -235,7 +235,10 @@ fi
 if [[ -n "$vcmi_archive" ]]
 then
 	echo "decompressing $vcmi_archive"
-	unzip -qo $vcmi_archive -d $dest_dir || fail "Error: failed to extract VCMI archive!"
+	# exlude *json - temporary solution for autotools -> cmake transition period
+	# 0.90 packages made by autotools do not have .json files available in svn
+	# cmake however can install them correctly so they should not be extracted from .zip in case of cmake package
+	unzip -qo $vcmi_archive -d $dest_dir -x "*.json" "*.txt" "*.PAL" || fail "Error: failed to extract VCMI archive!"
 fi
 
 if [[ -n "$validate" ]]

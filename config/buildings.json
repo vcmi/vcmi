@@ -196,7 +196,7 @@
 
 			"siege" :
 			{
-				"shooter" : 2,
+				"shooter" : "Archer",
 				"imagePrefix" : "SGCS",
 				"gate" :
 				{
@@ -447,7 +447,7 @@
 
 			"siege" :
 			{
-				"shooter" : 18,
+				"shooter" : "WoodElf",
 				"imagePrefix" : "SGRM",
 				"gate" :
 				{
@@ -691,7 +691,7 @@
 
 			"siege" :
 			{
-				"shooter" : 34,
+				"shooter" : "Mage",
 				"imagePrefix" : "SGTW",
 				"gate" :
 				{
@@ -937,7 +937,7 @@
 
 			"siege" :
 			{
-				"shooter" : 44,
+				"shooter" : "Gog",
 				"imagePrefix" : "SGIN",
 				"gate" :
 				{
@@ -1186,7 +1186,7 @@
 
 			"siege" :
 			{
-				"shooter" : 64,
+				"shooter" : "Lich",
 				"imagePrefix" : "SGNC",
 				"gate" :
 				{
@@ -1429,7 +1429,7 @@
 
 			"siege" :
 			{
-				"shooter" : 76,
+				"shooter" : "Beholder",
 				"imagePrefix" : "SGDN",
 				"gate" :
 				{
@@ -1671,7 +1671,7 @@
 
 			"siege" :
 			{
-				"shooter" : 88,
+				"shooter" : "Orc",
 				"imagePrefix" : "SGST",
 				"gate" :
 				{
@@ -1916,7 +1916,7 @@
 
 			"siege" :
 			{
-				"shooter" : 100,
+				"shooter" : "PrimitiveLizardman",
 				"imagePrefix" : "SGFR",
 				"gate" :
 				{
@@ -2164,7 +2164,7 @@
 
 			"siege" :
 			{
-				"shooter" : 127,
+				"shooter" : "StormElemental",
 				"imagePrefix" : "SGEL",
 				"gate" :
 				{
