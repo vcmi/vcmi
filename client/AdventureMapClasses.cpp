@@ -479,11 +479,17 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 
 	const JsonNode config(ResourceID(from, EResType::TEXT));
 
-	BOOST_FOREACH(const JsonNode &m, config["MinimapColors"].Vector())
+	BOOST_FOREACH(auto &m, config.Struct())
 	{
-		int id = m["terrain_id"].Float();
+		auto index = boost::find(GameConstants::TERRAIN_NAMES, m.first);
+		if (index == boost::end(GameConstants::TERRAIN_NAMES))
+		{
+			tlog1 << "Error: unknown terrain in terrains.json: " << m.first << "\n";
+			continue;
+		}
+		int terrainID = index - boost::begin(GameConstants::TERRAIN_NAMES);
 
-		const JsonVector &unblockedVec = m["unblocked"].Vector();
+		const JsonVector &unblockedVec = m.second["minimapUnblocked"].Vector();
 		SDL_Color normal =
 		{
 			ui8(unblockedVec[0].Float()),
@@ -492,7 +498,7 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 			ui8(255)
 		};
 
-		const JsonVector &blockedVec = m["blocked"].Vector();
+		const JsonVector &blockedVec = m.second["minimapBlocked"].Vector();
 		SDL_Color blocked =
 		{
 			ui8(blockedVec[0].Float()),
@@ -501,7 +507,7 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 			ui8(255)
 		};
 
-		ret.insert(std::make_pair(id, std::make_pair(normal, blocked)));
+		ret.insert(std::make_pair(terrainID, std::make_pair(normal, blocked)));
 	}
 	return ret;
 }
@@ -511,7 +517,7 @@ CMinimap::CMinimap(const Rect &position):
     aiShield(nullptr),
     minimap(nullptr),
     level(0),
-    colors(loadColors("config/minimap.json"))
+    colors(loadColors("config/terrains.json"))
 {
 	pos.w = position.w;
 	pos.h = position.h;

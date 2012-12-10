@@ -192,18 +192,45 @@ class OptionsTab : public CIntObject
 public:
 	enum SelType {TOWN, HERO, BONUS};
 
-	struct SelectedBox : public CIntObject //img with current town/hero/bonus
+	struct CPlayerSettingsHelper
 	{
-		SelType which;
-		ui8 player; //serial nr
+		const PlayerSettings & settings;
+		const SelType type;
 
-		size_t getBonusImageIndex() const;
-		SDL_Surface *getImg() const;
-		const std::string *getText() const;
+		CPlayerSettingsHelper(const PlayerSettings & settings, SelType type):
+		    settings(settings),
+		    type(type)
+		{}
 
-		SelectedBox(SelType Which, ui8 Player);
-		void showAll(SDL_Surface * to);
+		/// visible image settings
+		size_t getImageIndex();
+		std::string getImageName();
+
+		std::string getName();       /// name visible in options dialog
+		std::string getTitle();      /// title in popup box
+		std::string getSubtitle();   /// popup box subtitle
+		std::string getDescription();/// popup box description, not always present
+	};
+
+	class CPregameTooltipBox : public CWindowObject, public CPlayerSettingsHelper
+	{
+		void genHeader();
+		void genTownWindow();
+		void genHeroWindow();
+		void genBonusWindow();
+	public:
+		CPregameTooltipBox(CPlayerSettingsHelper & helper);
+	};
+
+	struct SelectedBox : public CIntObject, public CPlayerSettingsHelper //img with current town/hero/bonus
+	{
+		CAnimImage * image;
+		CLabel *subtitle;
+
+		SelectedBox(Point position, PlayerSettings & settings, SelType type);
 		void clickRight(tribool down, bool previousState);
+
+		void update();
 	};
 
 	struct PlayerOptionsEntry : public CIntObject
@@ -221,6 +248,7 @@ public:
 		PlayerOptionsEntry(OptionsTab *owner, PlayerSettings &S);
 		void selectButtons(); //hides unavailable buttons
 		void showAll(SDL_Surface * to);
+		void update();
 	};
 
 	CSlider *turnDuration;
@@ -645,8 +673,6 @@ public:
 
 	CMenuScreen* menu;
 
-	SDL_Surface *nHero, *rHero, *nTown, *rTown; // none/random hero/town imgs
-	CDefHandler *bonuses;
 	CDefHandler *victory, *loss;
 
 	~CGPreGame();

@@ -107,8 +107,8 @@ struct DLL_LINKAGE PlayerInfo
 	/** Unused. True if the faction should be chosen randomly. */
 	bool isFactionRandom;
 
-	/** Specifies the ID of the main hero with chosen portrait. The default value is 255. */
-	ui32 mainHeroPortrait;
+	/** Specifies the ID of the main hero with chosen portrait. The default value is -1. */
+	si32 mainHeroPortrait;
 
 	/** The name of the main hero. */
 	std::string mainHeroName;
@@ -134,11 +134,11 @@ struct DLL_LINKAGE PlayerInfo
 	/** Unknown and unused. */
 	si32 p7;
 
-	/** TODO ? */
-	si32 p8;
+	/** Player has a (custom?) hero */
+	bool hasHero;
 
-	/** TODO ? */
-	si32 p9;
+	/** ID of custom hero, -1 if none */
+	si32 customHeroID;
 
 	/**
 	 * Unused. Count of hero placeholders containing hero type.
@@ -153,7 +153,7 @@ struct DLL_LINKAGE PlayerInfo
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & p7 & p8 & p9 & canHumanPlay & canComputerPlay & aiTactic & allowedFactions & isFactionRandom &
+		h & p7 & hasHero & customHeroID & canHumanPlay & canComputerPlay & aiTactic & allowedFactions & isFactionRandom &
 			mainHeroPortrait & mainHeroName & heroesNames & hasMainTown & generateHeroAtMainTown &
 			posOfMainTown & team & generateHero;
 	}

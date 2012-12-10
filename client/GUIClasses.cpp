@@ -811,13 +811,17 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 	pos.w = image->pos.w;
 	pos.h = image->pos.h;
 
+	EFonts font = FONT_SMALL;
+	if (imageSize < small)
+		font = FONT_TINY; //other sizes?
+
 	pos.h += 4; //distance between text and image
 
-	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(80, pos.w), FONT_SMALL);
+	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(80, pos.w), font);
 	BOOST_FOREACH(auto & line, textLines)
 	{
-		int height = graphics->fonts[FONT_SMALL]->height;
-		CLabel * label = new CLabel(pos.w/2, pos.h + height/2, FONT_SMALL, CENTER, Colors::WHITE, line);
+		int height = graphics->fonts[font]->height;
+		CLabel * label = new CLabel(pos.w/2, pos.h + height/2, font, CENTER, Colors::WHITE, line);
 
 		pos.h += height;
 		if (label->pos.w > pos.w)
@@ -1035,7 +1039,7 @@ Point CComponentBox::getOrTextPos(CComponent *left, CComponent *right)
 
 int CComponentBox::getDistance(CComponent *left, CComponent *right)
 {
-	static const int betweenImagesMin = 50;
+	static const int betweenImagesMin = 20;
 	static const int betweenSubtitlesMin = 10;
 
 	int leftSubtitle  = ( left->pos.w -  left->image->pos.w) / 2;
@@ -4253,9 +4257,14 @@ void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
 
 CHeroArea::CHeroArea(int x, int y, const CGHeroInstance * _hero):hero(_hero)
 {
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos.x += x;	pos.w = 58;
 	pos.y += y;	pos.h = 64;
+
+	if (hero)
+		new CAnimImage("PortraitsLarge", hero->portrait);
 }
 
 void CHeroArea::clickLeft(tribool down, bool previousState)
@@ -4276,12 +4285,6 @@ void CHeroArea::hover(bool on)
 		GH.statusbar->print(hero->hoverName);
 	else
 		GH.statusbar->clear();
-}
-
-void CHeroArea::showAll(SDL_Surface * to)
-{
-	if (hero)
-		blitAtLoc(graphics->portraitLarge[hero->portrait],0,0,to);
 }
 
 void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)

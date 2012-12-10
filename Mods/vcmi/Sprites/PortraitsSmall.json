@@ -163,6 +163,8 @@
 		{ "frame" : 159, "file" : "HPS133Nc.bmp"},
 		{ "frame" : 160, "file" : "HPS134Nc.bmp"},
 		{ "frame" : 161, "file" : "HPS135Wi.bmp"},
-		{ "frame" : 162, "file" : "HPS136Wi.bmp"}
+		{ "frame" : 162, "file" : "HPS136Wi.bmp"},
+		{ "frame" : 200, "file" : "HPSRAND1.bmp"}, //random hero
+		{ "frame" : 201, "file" : "HPSRAND6.bmp"} //no hero
 	]
 }

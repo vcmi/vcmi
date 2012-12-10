@@ -136,12 +136,9 @@ Graphics::Graphics()
 	tasks += boost::bind(&Graphics::loadTrueType,this);
 	tasks += boost::bind(&Graphics::loadPaletteAndColors,this);
 	tasks += boost::bind(&Graphics::loadHeroFlags,this);
-	tasks += boost::bind(&Graphics::loadHeroPortraits,this);
 	tasks += boost::bind(&Graphics::initializeBattleGraphics,this);
 	tasks += boost::bind(&Graphics::loadErmuToPicture,this);
 	tasks += GET_DEF_ESS(artDefs,"ARTIFACT.DEF");
-	tasks += GET_DEF_ESS(un44,"UN44.DEF");
-	tasks += GET_DEF_ESS(smallIcons,"ITPA.DEF");
 	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");
 	tasks += GET_DEF(smi,"CPRSMALL.DEF");
 	tasks += GET_DEF(smi2,"TWCRPORT.DEF");
@@ -174,31 +171,6 @@ Graphics::Graphics()
 	SDL_Color green = {0x30, 0x5c, 0x20, SDL_ALPHA_OPAQUE};
 	bigImgs[71]->format->palette->colors[7] = green;
 	delete smi2;
-}
-void Graphics::loadHeroPortraits()
-{	
-	const JsonNode config(ResourceID("config/portraits.json"));
-
-	BOOST_FOREACH(const JsonNode &portrait_node, config["hero_portrait"].Vector()) {
-		std::string filename = portrait_node["filename"].String();
-
-		/* Small portrait. */
-		portraitSmall.push_back(BitmapHandler::loadBitmap(filename));
-
-		/* Large portrait. Alter the filename. Size letter is usually
-		 * third one, but there are exceptions and it should fix the
-		 * problem. */
-		for (int ff=0; ff<filename.size(); ++ff)
-		{
-			if (filename[ff]=='S') {
-				filename[ff]='L';
-				break;
-			}
-		}
-		portraitLarge.push_back(BitmapHandler::loadBitmap(filename));
-
-		SDL_SetColorKey(portraitLarge[portraitLarge.size()-1],SDL_SRCCOLORKEY,SDL_MapRGB(portraitLarge[portraitLarge.size()-1]->format,0,255,255));
-	}
 }
 
 void Graphics::loadHeroAnims()
@@ -333,23 +305,6 @@ void Graphics::loadHeroFlags()
 	}
 	grupa.join_all();
 	tlog0 << "Loading and transforming heroes' flags: "<<th.getDiff()<<std::endl;
-}
-SDL_Surface * Graphics::getPic(int ID, bool fort, bool builded)
-{
-	if (ID==-1)
-		return smallIcons->ourImages[0].bitmap;
-	else if (ID==-2)
-		return smallIcons->ourImages[1].bitmap;
-	else if (ID==-3)
-		return smallIcons->ourImages[2+GameConstants::F_NUMBER*4].bitmap;
-	else
-	{
-		assert(vstd::contains(CGI->townh->towns, ID));
-		int pom = CGI->townh->towns[ID].clientInfo.icons[fort][builded];
-		if (smallIcons->ourImages.size() > pom + 2)
-			return smallIcons->ourImages[pom + 2].bitmap;
-		return nullptr;
-	}
 }
 
 void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)

@@ -60,8 +60,8 @@ struct PlayerSettings
 	PlayerSettings()
 	{
 		bonus = RANDOM;
-		castle = -2;
-		heroPortrait = -1;
+		castle = NONE;
+		heroPortrait = RANDOM;
 	}
 };
 

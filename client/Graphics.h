@@ -45,11 +45,8 @@ public:
 	SDL_Color * neutralColorPalette; 
 
 	CDefEssential * artDefs; //artifacts //TODO: move to CArtifact class
-	std::vector<SDL_Surface *> portraitSmall; //48x32 px portraits of heroes
-	std::vector<SDL_Surface *> portraitLarge; //58x64 px portraits of heroes
 	std::vector<CDefEssential *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,
-	CDefEssential * un44; //many things
-	CDefEssential * smallIcons, *resources32; //resources 32x32
+	CDefEssential * resources32; //resources 32x32
 	CDefEssential * flags;
 	CDefEssential * heroMoveArrows;
 	std::vector<CDefEssential *> heroAnims; // [class id: 0 - 17]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
@@ -82,9 +79,7 @@ public:
 	void loadHeroFlags(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr, bool mode);
 	void loadHeroAnims();
 	void loadHeroAnim(const std::string &name, const std::vector<std::pair<int,int> > &rotations, std::vector<CDefEssential *> Graphics::*dst);
-	void loadHeroPortraits();
 	void loadErmuToPicture();
-	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //returns small picture of town: ID=-1 - blank; -2 - border; -3 - random
 	void blueToPlayersAdv(SDL_Surface * sur, int player); //replaces blue interface colour with a color of player
 	void loadTrueType();
 	void loadFonts();

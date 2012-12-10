@@ -326,7 +326,7 @@ void CHeroHandler::loadTerrains()
 
 	terrCosts.reserve(GameConstants::TERRAIN_TYPES);
 	BOOST_FOREACH(const std::string & name, GameConstants::TERRAIN_NAMES)
-		terrCosts.push_back(config[name].Float());
+		terrCosts.push_back(config[name]["moveCost"].Float());
 }
 
 std::vector<ui8> CHeroHandler::getDefaultAllowedHeroes() const

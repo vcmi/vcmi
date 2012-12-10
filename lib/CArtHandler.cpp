@@ -468,6 +468,7 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 	
 	int bearerType = -1;
 
+	// FIXME FIXME FIXME: value is unitialized = crash!
 	auto it = artifactBearerMap.find (value->String());
 	if (it != artifactPositionMap.end())
 	{

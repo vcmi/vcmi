@@ -13,8 +13,8 @@ SHeroName::SHeroName() : heroId(-1)
 }
 
 PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
-	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainHeroPortrait(255), hasMainTown(true),
-	generateHeroAtMainTown(true), team(255), generateHero(false), p7(0), p8(0), p9(0), powerPlaceholders(-1)
+	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainHeroPortrait(-1), hasMainTown(true),
+	generateHeroAtMainTown(true), team(255), generateHero(false), p7(0), hasHero(false), customHeroID(-1), powerPlaceholders(-1)
 {
 	allowedFactions = VLC->townh->getDefaultAllowedFactions();
 }
@@ -34,7 +34,7 @@ si8 PlayerInfo::defaultCastle() const
 si8 PlayerInfo::defaultHero() const
 {
 	// we will generate hero in front of main town
-	if((generateHeroAtMainTown && hasMainTown) || p8)
+	if((generateHeroAtMainTown && hasMainTown) || hasHero)
 	{
 		//random hero
 		return -1;

@@ -302,13 +302,19 @@ void CMapLoaderH3M::readPlayerInfo()
 			mapHeader->players[i].posOfMainTown.z = buffer[pos++];
 		}
 
-		mapHeader->players[i].p8 = buffer[pos++];
-		mapHeader->players[i].p9 = buffer[pos++];
-		if(mapHeader->players[i].p9 != 0xff)
+		mapHeader->players[i].hasHero = buffer[pos++];
+		mapHeader->players[i].customHeroID = buffer[pos++];
+
+		if(mapHeader->players[i].customHeroID != 0xff)
 		{
 			mapHeader->players[i].mainHeroPortrait = buffer[pos++];
+			if (mapHeader->players[i].mainHeroPortrait == 0xff)
+				mapHeader->players[i].mainHeroPortrait = -1; //correct 1-byte -1 (0xff) into 4-byte -1
+
 			mapHeader->players[i].mainHeroName = readString(buffer, pos);
 		}
+		else
+			mapHeader->players[i].customHeroID = -1; //correct 1-byte -1 (0xff) into 4-byte -1
 
 		if(mapHeader->version != EMapFormat::ROE)
 		{

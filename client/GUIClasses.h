@@ -846,15 +846,14 @@ public:
 /// Opens hero window by left-clicking on it
 class CHeroArea: public CIntObject
 {
-public:
 	const CGHeroInstance * hero;
+public:
 
 	CHeroArea(int x, int y, const CGHeroInstance * _hero);
 
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
 	void hover(bool on);
-	void showAll(SDL_Surface * to);
 };
 
 /// Opens town screen by left-clicking on it

@@ -173,11 +173,19 @@ void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader *
 		pset.hero = pinfo.defaultHero();
 
 
-		if(pinfo.mainHeroName.length())
+		if(pinfo.customHeroID >= 0)
 		{
-			pset.heroName = pinfo.mainHeroName;
-			if((pset.heroPortrait = pinfo.mainHeroPortrait) == 255)
-				pset.heroPortrait = pinfo.p9;
+			pset.hero = pinfo.customHeroID;
+
+			if (!pinfo.mainHeroName.empty())
+				pset.heroName = pinfo.mainHeroName;
+			else
+				pset.heroName = CGI->heroh->heroes[pinfo.customHeroID]->name;
+
+			if (pinfo.mainHeroPortrait >= 0)
+				pset.heroPortrait = pinfo.mainHeroPortrait;
+			else
+				pset.heroPortrait = pinfo.customHeroID;
 		}
 		pset.handicap = 0;
 	}
@@ -470,21 +478,12 @@ void CGPreGame::loadGraphics()
 
 	victory = CDefHandler::giveDef("SCNRVICT.DEF");
 	loss = CDefHandler::giveDef("SCNRLOSS.DEF");
-	bonuses = CDefHandler::giveDef("SCNRSTAR.DEF");
-	rHero = BitmapHandler::loadBitmap("HPSRAND1.bmp");
-	rTown = BitmapHandler::loadBitmap("HPSRAND0.bmp");
-	nHero = BitmapHandler::loadBitmap("HPSRAND6.bmp");
-	nTown = BitmapHandler::loadBitmap("HPSRAND5.bmp");
 }
 
 void CGPreGame::disposeGraphics()
 {
 	delete victory;
 	delete loss;
-	SDL_FreeSurface(rHero);
-	SDL_FreeSurface(nHero);
-	SDL_FreeSurface(rTown);
-	SDL_FreeSurface(nTown);
 }
 
 void CGPreGame::update()
@@ -2247,10 +2246,10 @@ void OptionsTab::nextCastle( int player, int dir )
 	si16 &cur = s.castle;
 	auto & allowed = SEL->current->mapHeader->players[s.color].allowedFactions;
 
-	if (cur == -2) //no castle - no change
+	if (cur == PlayerSettings::NONE) //no change
 		return;
 
-	if (cur == -1) //random => first/last available
+	if (cur == PlayerSettings::RANDOM) //first/last available
 	{
 		if (dir > 0)
 			cur = *allowed.begin(); //id of first town
@@ -2272,14 +2271,15 @@ void OptionsTab::nextCastle( int player, int dir )
 		}
 	}
 
-	if(s.hero >= 0)
-		s.hero = -1;
+	if(s.hero >= 0 && SEL->current->mapHeader->players[s.color].customHeroID < 0) // remove hero unless it set to fixed one in map editor
+		s.hero =  PlayerSettings::RANDOM;
 	if(cur < 0  &&  s.bonus == PlayerSettings::RESOURCE)
 		s.bonus = PlayerSettings::RANDOM;
 
 	entries[player]->selectButtons();
 
 	SEL->propagateOptions();
+	entries[player]->update();
 	redraw();
 }
 
@@ -2296,7 +2296,7 @@ void OptionsTab::nextHero( int player, int dir )
 	if (s.castle < 0  ||  s.playerID == PlayerSettings::PLAYER_AI  ||  s.hero == PlayerSettings::NONE)
 		return;
 
-	if (s.hero == -1) //random => first/last available
+	if (s.hero == PlayerSettings::RANDOM) // first/last available
 	{
 		int max = (s.castle*GameConstants::HEROES_PER_TYPE*2+15),
 			min = (s.castle*GameConstants::HEROES_PER_TYPE*2);
@@ -2314,9 +2314,9 @@ void OptionsTab::nextHero( int player, int dir )
 	{
 		usedHeroes.erase(old);
 		usedHeroes.insert(s.hero);
+		entries[player]->update();
 		redraw();
 	}
-
 	SEL->propagateOptions();
 }
 
@@ -2339,10 +2339,6 @@ int OptionsTab::nextAllowedHero( int min, int max, int incl, int dir )
 
 bool OptionsTab::canUseThisHero( int ID )
 {
-	//for(int i=0;i<CPG->ret.playerInfos.size();i++)
-	//	if(CPG->ret.playerInfos[i].hero==ID) //hero is already taken
-	//		return false;
-
 	return CGI->heroh->heroes.size() > ID
 		&& !vstd::contains(usedHeroes, ID)
 		&& SEL->current->mapHeader->allowedHeroes[ID];
@@ -2359,7 +2355,9 @@ void OptionsTab::nextBonus( int player, int dir )
 	PlayerSettings &s = SEL->sInfo.playerInfos[player];
 	si8 &ret = s.bonus += dir;
 
-	if (s.hero==-2 && !SEL->current->mapHeader->players[s.color].heroesNames.size() && ret==PlayerSettings::ARTIFACT) //no hero - can't be artifact
+	if (s.hero==PlayerSettings::NONE &&
+		!SEL->current->mapHeader->players[s.color].heroesNames.size() &&
+		ret==PlayerSettings::ARTIFACT) //no hero - can't be artifact
 	{
 		if (dir<0)
 			ret=PlayerSettings::RANDOM;
@@ -2371,7 +2369,7 @@ void OptionsTab::nextBonus( int player, int dir )
 	if(ret < PlayerSettings::RANDOM)
 		ret = PlayerSettings::RESOURCE;
 
-	if (s.castle==-1 && ret==PlayerSettings::RESOURCE) //random castle - can't be resource
+	if (s.castle==PlayerSettings::RANDOM && ret==PlayerSettings::RESOURCE) //random castle - can't be resource
 	{
 		if (dir<0)
 			ret=PlayerSettings::GOLD;
@@ -2379,6 +2377,7 @@ void OptionsTab::nextBonus( int player, int dir )
 	}
 
 	SEL->propagateOptions();
+	entries[player]->update();
 	redraw();
 }
 
@@ -2549,15 +2548,9 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 	else
 		flag = NULL;
 
-	town = new SelectedBox(TOWN, s.color);
-	town->pos.x += 119;
-	town->pos.y += 2;
-	hero = new SelectedBox(HERO, s.color);
-	hero->pos.x += 195;
-	hero->pos.y += 2;
-	bonus = new SelectedBox(BONUS, s.color);
-	bonus->pos.x += 271;
-	bonus->pos.y += 2;
+	town = new SelectedBox(Point(119, 2), s, TOWN);
+	hero = new SelectedBox(Point(195, 2), s, HERO);
+	bonus = new SelectedBox(Point(271, 2), s, BONUS);
 }
 
 void OptionsTab::PlayerOptionsEntry::showAll(SDL_Surface * to)
@@ -2565,6 +2558,13 @@ void OptionsTab::PlayerOptionsEntry::showAll(SDL_Surface * to)
 	CIntObject::showAll(to);
 	printAtMiddleLoc(s.name, 55, 10, FONT_SMALL, Colors::WHITE, to);
 	printAtMiddleWBLoc(CGI->generaltexth->arraytxt[206+whoCanPlay], 28, 34, FONT_TINY, 8, Colors::WHITE, to);
+}
+
+void OptionsTab::PlayerOptionsEntry::update()
+{
+	town->update();
+	hero->update();
+	bonus->update();
 }
 
 void OptionsTab::PlayerOptionsEntry::selectButtons()
@@ -2608,299 +2608,312 @@ void OptionsTab::PlayerOptionsEntry::selectButtons()
 	}
 }
 
-void OptionsTab::SelectedBox::showAll(SDL_Surface * to)
-{
-	//PlayerSettings &s = SEL->sInfo.playerInfos[player];
-	SDL_Surface *toBlit = getImg();
-	const std::string *toPrint = getText();
-	blitAt(toBlit, pos, to);
-	printAtMiddleLoc(*toPrint, 23, 39, FONT_TINY, Colors::WHITE, to);
-}
-
-OptionsTab::SelectedBox::SelectedBox( SelType Which, ui8 Player )
-:which(Which), player(Player)
-{
-	SDL_Surface *img = getImg();
-	pos.w = img->w;
-	pos.h = img->h;
-	addUsedEvents(RCLICK);
-}
-
-size_t OptionsTab::SelectedBox::getBonusImageIndex() const
+size_t OptionsTab::CPlayerSettingsHelper::getImageIndex()
 {
 	enum EBonusSelection //frames of bonuses file
 	{
 		WOOD_ORE = 0,   CRYSTAL = 1,    GEM  = 2,
 		MERCURY  = 3,   SULFUR  = 5,    GOLD = 8,
 		ARTIFACT = 9,   RANDOM  = 10,
-		WOOD = 0,       ORE     = 0,    MITHRIL = 10 // resources unavailable in bonuses file
+		WOOD = 0,       ORE     = 0,    MITHRIL = 10, // resources unavailable in bonuses file
+
+		TOWN_RANDOM = 38,  TOWN_NONE = 39, // Special frames in ITPA
+		HERO_RANDOM = 200, HERO_NONE = 201 // Special frames in PortraitsSmall
 	};
 
-	const PlayerSettings &s = SEL->sInfo.playerInfos[player];
-	switch(s.bonus)
-	{
-	case -1: return RANDOM;
-	case 0:  return ARTIFACT;
-	case 1:  return GOLD;
-	case 2:
-		switch (CGI->townh->towns[s.castle].primaryRes)
-		{
-		case 127          : return WOOD_ORE;
-		case Res::WOOD    : return WOOD;
-		case Res::MERCURY : return MERCURY;
-		case Res::ORE     : return ORE;
-		case Res::SULFUR  : return SULFUR;
-		case Res::CRYSTAL : return CRYSTAL;
-		case Res::GEMS    : return GEM;
-		case Res::GOLD    : return GOLD;
-		case Res::MITHRIL : return MITHRIL;
-		}
-	default:
-		assert(0);
-		return 0;
-	}
-}
-
-SDL_Surface * OptionsTab::SelectedBox::getImg() const
-{
-	const PlayerSettings &s = SEL->sInfo.playerInfos[player];
-	switch(which)
+	switch(type)
 	{
 	case TOWN:
-		if (s.castle == -1)
-			return CGP->rTown;
-		if (s.castle == -2)
-			return CGP->nTown;
-		else
-			return graphics->getPic(s.castle, true, false);
-	case HERO:
-		if (s.hero == -1)
+		switch (settings.castle)
 		{
-			return CGP->rHero;
+		case PlayerSettings::NONE:   return TOWN_NONE;
+		case PlayerSettings::RANDOM: return TOWN_RANDOM;
+		default: return CGI->townh->towns[settings.castle].clientInfo.icons[true][false] + 2;
 		}
-		else if (s.hero == -2)
-		{
-			if(s.heroPortrait >= 0)
-				return graphics->portraitSmall[s.heroPortrait];
-			else
-				return CGP->nHero;
-		}
-		else
-		{
-			return graphics->portraitSmall[s.hero];
-		}
-		break;
-	case BONUS:
-			return CGP->bonuses->ourImages[getBonusImageIndex()].bitmap;
-	default:
-		return nullptr;
-	}
-}
 
-const std::string * OptionsTab::SelectedBox::getText() const
-{
-	const PlayerSettings &s = SEL->sInfo.playerInfos[player];
-	switch(which)
-	{
-	case TOWN:
-		if (s.castle == -1)
-			return &CGI->generaltexth->allTexts[522];
-		else if (s.castle == -2)
-			return &CGI->generaltexth->allTexts[523];
-		else
-			return &CGI->townh->factions[s.castle].name;
 	case HERO:
-		if (s.hero == -1)
-			return &CGI->generaltexth->allTexts[522];
-		else if (s.hero == -2)
+		switch (settings.hero)
 		{
-			if(s.heroPortrait >= 0)
-			{
-				if(s.heroName.length())
-					return &s.heroName;
-				else
-					return &CGI->heroh->heroes[s.heroPortrait]->name;
-			}
-			else
-				return &CGI->generaltexth->allTexts[523];
-		}
-		else
-		{
-			//if(s.heroName.length())
-			//	return &s.heroName;
-			//else
-				return &CGI->heroh->heroes[s.hero]->name;
-		}
-	case BONUS:
-		switch (s.bonus)
-		{
-		case -1:
-			return &CGI->generaltexth->allTexts[522];
+		case PlayerSettings::NONE:   return HERO_NONE;
+		case PlayerSettings::RANDOM: return HERO_RANDOM;
 		default:
-			return &CGI->generaltexth->arraytxt[214 + s.bonus];
+			{
+				if(settings.heroPortrait >= 0)
+					return settings.heroPortrait;
+				return settings.hero;
+			}
 		}
-	default:
-		return NULL;
+
+	case BONUS:
+		{
+			switch(settings.bonus)
+			{
+			case PlayerSettings::RANDOM:   return RANDOM;
+			case PlayerSettings::ARTIFACT: return ARTIFACT;
+			case PlayerSettings::GOLD:     return GOLD;
+			case PlayerSettings::RESOURCE:
+				{
+					switch(CGI->townh->towns[settings.castle].primaryRes)
+					{
+					case 127          : return WOOD_ORE;
+					case Res::WOOD    : return WOOD;
+					case Res::MERCURY : return MERCURY;
+					case Res::ORE     : return ORE;
+					case Res::SULFUR  : return SULFUR;
+					case Res::CRYSTAL : return CRYSTAL;
+					case Res::GEMS    : return GEM;
+					case Res::GOLD    : return GOLD;
+					case Res::MITHRIL : return MITHRIL;
+					}
+				}
+			}
+		}
 	}
+	return 0;
+}
+
+std::string OptionsTab::CPlayerSettingsHelper::getImageName()
+{
+	switch(type)
+	{
+	case OptionsTab::TOWN:  return "ITPA";
+	case OptionsTab::HERO:  return "PortraitsSmall";
+	case OptionsTab::BONUS: return "SCNRSTAR";
+	}
+	return "";
+}
+
+std::string OptionsTab::CPlayerSettingsHelper::getTitle()
+{
+	switch(type)
+	{
+	case OptionsTab::TOWN: return (settings.castle < 0) ? CGI->generaltexth->allTexts[103] : CGI->generaltexth->allTexts[80];
+	case OptionsTab::HERO: return (settings.hero   < 0) ? CGI->generaltexth->allTexts[101] : CGI->generaltexth->allTexts[77];
+	case OptionsTab::BONUS:
+		{
+			switch(settings.bonus)
+			{
+			case PlayerSettings::RANDOM:   return CGI->generaltexth->allTexts[86]; //{Random Bonus}
+			case PlayerSettings::ARTIFACT: return CGI->generaltexth->allTexts[83]; //{Artifact Bonus}
+			case PlayerSettings::GOLD:     return CGI->generaltexth->allTexts[84]; //{Gold Bonus}
+			case PlayerSettings::RESOURCE: return CGI->generaltexth->allTexts[85]; //{Resource Bonus}
+			}
+		}
+	}
+	return "";
+}
+
+std::string OptionsTab::CPlayerSettingsHelper::getName()
+{
+	switch(type)
+	{
+	case TOWN:
+		{
+			switch (settings.castle)
+			{
+			case PlayerSettings::NONE   : return CGI->generaltexth->allTexts[523];
+			case PlayerSettings::RANDOM : return CGI->generaltexth->allTexts[522];
+			default : return CGI->townh->factions[settings.castle].name;
+			}
+		}
+	case HERO:
+		{
+			switch (settings.hero)
+			{
+			case PlayerSettings::NONE   : return CGI->generaltexth->allTexts[523];
+			case PlayerSettings::RANDOM : return CGI->generaltexth->allTexts[522];
+			default :
+				{
+					if (!settings.heroName.empty())
+						return settings.heroName;
+					return CGI->heroh->heroes[settings.hero]->name;
+				}
+			}
+		}
+	case BONUS:
+		{
+			switch (settings.bonus)
+			{
+				case PlayerSettings::RANDOM : return CGI->generaltexth->allTexts[522];
+				default: return CGI->generaltexth->arraytxt[214 + settings.bonus];
+			}
+		}
+	}
+	return "";
+}
+
+std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
+{
+	switch(type)
+	{
+	case TOWN: return getName();
+	case HERO:
+		{
+			if (settings.hero >= 0)
+				return getName() + " - " + CGI->heroh->heroes[settings.hero]->heroClass->name;
+			return getName();
+		}
+
+	case BONUS:
+		{
+			switch(settings.bonus)
+			{
+			case PlayerSettings::GOLD:     return CGI->generaltexth->allTexts[87]; //500-1000
+			case PlayerSettings::RESOURCE:
+				{
+					switch(CGI->townh->towns[settings.castle].primaryRes)
+					{
+					case Res::MERCURY: return CGI->generaltexth->allTexts[694];
+					case Res::SULFUR:  return CGI->generaltexth->allTexts[695];
+					case Res::CRYSTAL: return CGI->generaltexth->allTexts[692];
+					case Res::GEMS:    return CGI->generaltexth->allTexts[693];
+					case 127:          return CGI->generaltexth->allTexts[89]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
+					}
+				}
+			}
+		}
+	}
+	return "";
+}
+
+std::string OptionsTab::CPlayerSettingsHelper::getDescription()
+{
+	switch(type)
+	{
+	case TOWN: return CGI->generaltexth->allTexts[104];
+	case HERO: return CGI->generaltexth->allTexts[102];
+	case BONUS:
+		{
+			switch(settings.bonus)
+			{
+			case PlayerSettings::RANDOM:   return CGI->generaltexth->allTexts[94]; //Gold, wood and ore, or an artifact is randomly chosen as your starting bonus
+			case PlayerSettings::ARTIFACT: return CGI->generaltexth->allTexts[90]; //An artifact is randomly chosen and equipped to your starting hero
+			case PlayerSettings::GOLD:     return CGI->generaltexth->allTexts[92]; //At the start of the game, 500-1000 gold is added to your Kingdom's resource pool
+			case PlayerSettings::RESOURCE:
+				{
+					switch(CGI->townh->towns[settings.castle].primaryRes)
+					{
+					case Res::MERCURY: return CGI->generaltexth->allTexts[690];
+					case Res::SULFUR:  return CGI->generaltexth->allTexts[691];
+					case Res::CRYSTAL: return CGI->generaltexth->allTexts[688];
+					case Res::GEMS:    return CGI->generaltexth->allTexts[689];
+					case 127:          return CGI->generaltexth->allTexts[93]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
+					}
+				}
+			}
+		}
+	}
+	return "";
+}
+
+OptionsTab::CPregameTooltipBox::CPregameTooltipBox(CPlayerSettingsHelper & helper):
+	CWindowObject(BORDERED | RCLICK_POPUP),
+	CPlayerSettingsHelper(helper)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	int value;
+
+	switch(CPlayerSettingsHelper::type)
+	{
+	break; case TOWN:
+			value = settings.castle;
+	break; case HERO:
+			value = settings.hero;
+	break; case BONUS:
+			value = settings.bonus;
+	}
+
+	if (value == PlayerSettings::RANDOM)
+		genBonusWindow();
+	else if (CPlayerSettingsHelper::type == BONUS)
+		genBonusWindow();
+	else if (CPlayerSettingsHelper::type == HERO)
+		genHeroWindow();
+	else if (CPlayerSettingsHelper::type == TOWN)
+		genTownWindow();
+
+	center();
+}
+
+void OptionsTab::CPregameTooltipBox::genHeader()
+{
+	new CFilledTexture("DIBOXBCK", pos);
+	updateShadow();
+
+	new CLabel(pos.w / 2 + 8, 21, FONT_MEDIUM, CENTER, Colors::YELLOW, getTitle());
+
+	new CLabel(pos.w / 2, 88, FONT_SMALL, CENTER, Colors::WHITE, getSubtitle());
+
+	new CAnimImage(getImageName(), getImageIndex(), 0, pos.w / 2 - 24, 45);
+}
+
+void OptionsTab::CPregameTooltipBox::genTownWindow()
+{
+	pos = Rect(0, 0, 228, 290);
+	genHeader();
+
+	new CLabel(pos.w / 2 + 8, 122, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[79]);
+
+	std::vector<CComponent *> components;
+	const CTown & town = CGI->townh->towns[settings.castle];
+
+	for (size_t i=0; i< town.creatures.size(); i++)
+		components.push_back(new CComponent(CComponent::creature, town.creatures[i].front(), 0, CComponent::tiny));
+
+	new CComponentBox(components, Rect(0, 140, pos.w, 140));
+}
+
+void OptionsTab::CPregameTooltipBox::genHeroWindow()
+{
+	pos = Rect(0, 0, 292, 226);
+	genHeader();
+
+	// speciality
+	new CAnimImage("UN44", settings.hero, 0, pos.w / 2 - 22, 134);
+
+	new CLabel(pos.w / 2 + 4, 117, FONT_MEDIUM, CENTER,  Colors::YELLOW, CGI->generaltexth->allTexts[78]);
+	new CLabel(pos.w / 2,     188, FONT_SMALL,  CENTER, Colors::WHITE, CGI->generaltexth->hTxts[settings.hero].bonusName);
+}
+
+void OptionsTab::CPregameTooltipBox::genBonusWindow()
+{
+	pos = Rect(0, 0, 228, 162);
+	genHeader();
+
+	new CTextBox(getDescription(), Rect(10, 88, pos.w - 20, 70), 0, FONT_SMALL, CENTER, Colors::WHITE );
+}
+
+OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, SelType type)
+	:CIntObject(RCLICK, position),
+	CPlayerSettingsHelper(settings, type)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	image = new CAnimImage(getImageName(), getImageIndex());
+	subtitle = new CLabel(23, 39, FONT_TINY, CENTER, Colors::WHITE, getName());
+
+	pos = image->pos;
+}
+
+void OptionsTab::SelectedBox::update()
+{
+	image->setFrame(getImageIndex());
+	subtitle->setTxt(getName());
 }
 
 void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 {
-	if(indeterminate(down) || !down) return;
-	const PlayerSettings &s = SEL->sInfo.playerInfos[player];
-	SDL_Surface *bmp = NULL;
-	const std::string *title = NULL, *subTitle = NULL;
-
-	subTitle = getText();
-
-	int val=-1;
-	switch(which)
+	if (down)
 	{
-	case TOWN:
-		val = s.castle;
-		break;
-	case HERO:
-		val = s.hero;
-		if(val == -2) //none => we may have some preset info
-		{
-			int p9 = SEL->current->mapHeader->players[s.color].p9;
-			if(p9 != 255  &&  SEL->sInfo.playerInfos[player].heroPortrait >= 0)
-				val = p9;
-		}
-		break;
-	case BONUS:
-		val = s.bonus;
-		break;
+		// cases when we do not need to display a message
+		if (settings.castle == -2 && CPlayerSettingsHelper::type == TOWN )
+			return;
+		if (settings.hero == -2 && SEL->current->mapHeader->players[settings.color].customHeroID == -1 && CPlayerSettingsHelper::type == HERO)
+			return;
+
+		GH.pushInt(new CPregameTooltipBox(*this));
 	}
-
-	if(val == -1  ||  which == BONUS) //random or bonus box
-	{
-		bmp = CMessage::drawDialogBox(256, 190);
-		std::string *description = NULL;
-
-		switch(which)
-		{
-		case TOWN:
-			title = &CGI->generaltexth->allTexts[103];
-			description = &CGI->generaltexth->allTexts[104];
-			break;
-		case HERO:
-			title = &CGI->generaltexth->allTexts[101];
-			description = &CGI->generaltexth->allTexts[102];
-			break;
-		case BONUS:
-			{
-				switch(val)
-				{
-				case PlayerSettings::RANDOM:
-					title = &CGI->generaltexth->allTexts[86]; //{Random Bonus}
-					description = &CGI->generaltexth->allTexts[94]; //Gold, wood and ore, or an artifact is randomly chosen as your starting bonus
-					break;
-				case PlayerSettings::ARTIFACT:
-					title = &CGI->generaltexth->allTexts[83]; //{Artifact Bonus}
-					description = &CGI->generaltexth->allTexts[90]; //An artifact is randomly chosen and equipped to your starting hero
-					break;
-				case PlayerSettings::GOLD:
-					title = &CGI->generaltexth->allTexts[84]; //{Gold Bonus}
-					subTitle = &CGI->generaltexth->allTexts[87]; //500-1000
-					description = &CGI->generaltexth->allTexts[92]; //At the start of the game, 500-1000 gold is added to your Kingdom's resource pool
-					break;
-				case PlayerSettings::RESOURCE:
-					{
-						title = &CGI->generaltexth->allTexts[85]; //{Resource Bonus}
-						switch(CGI->townh->towns[s.castle].primaryRes)
-						{
-						case 1:
-							subTitle = &CGI->generaltexth->allTexts[694];
-							description = &CGI->generaltexth->allTexts[690];
-							break;
-						case 3:
-							subTitle = &CGI->generaltexth->allTexts[695];
-							description = &CGI->generaltexth->allTexts[691];
-							break;
-						case 4:
-							subTitle = &CGI->generaltexth->allTexts[692];
-							description = &CGI->generaltexth->allTexts[688];
-							break;
-						case 5:
-							subTitle = &CGI->generaltexth->allTexts[693];
-							description = &CGI->generaltexth->allTexts[689];
-							break;
-						case 127:
-							subTitle = &CGI->generaltexth->allTexts[89]; //5-10 wood / 5-10 ore
-							description = &CGI->generaltexth->allTexts[93]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
-							break;
-						}
-					}
-					break;
-				}
-			}
-			break;
-		}
-
-		if(description)
-			CSDL_Ext::printAtMiddleWB(*description, 125, 145, FONT_SMALL, 37, Colors::WHITE, bmp);
-	}
-	else if(val == -2)
-	{
-		return;
-	}
-	else if(which == TOWN)
-	{
-		bmp = CMessage::drawDialogBox(256, 319);
-		title = &CGI->generaltexth->allTexts[80];
-
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[79], 135, 137, FONT_MEDIUM, Colors::YELLOW, bmp);
-
-		const CTown &t = CGI->townh->towns[val];
-		//print creatures
-		int x = 60, y = 159;
-		for(int i = 0; i < 7; i++)
-		{
-			int c = t.creatures[i][0];
-			blitAt(graphics->smallImgs[c], x, y, bmp);
-			CSDL_Ext::printAtMiddleWB(CGI->creh->creatures[c]->nameSing, x + 16, y + 45, FONT_TINY, 10, Colors::WHITE, bmp);
-
-			if(i == 2)
-			{
-				x = 40;
-				y += 76;
-			}
-			else
-			{
-				x += 52;
-			}
-		}
-
-	}
-	else if(val >= 0)
-	{
-		const CHero *h = CGI->heroh->heroes[val];
-		bmp = CMessage::drawDialogBox(320, 255);
-		title = &CGI->generaltexth->allTexts[77];
-
-		CSDL_Ext::printAtMiddle(*title, 167, 36, FONT_MEDIUM, Colors::YELLOW, bmp);
-		CSDL_Ext::printAtMiddle(*subTitle + " - " + h->heroClass->name, 160, 99, FONT_SMALL, Colors::WHITE, bmp);
-
-		blitAt(getImg(), 136, 56, bmp);
-
-		//print specialty
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[78], 166, 132, FONT_MEDIUM, Colors::YELLOW, bmp);
-		blitAt(graphics->un44->ourImages[val].bitmap, 140, 150, bmp);
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->hTxts[val].bonusName, 166, 203, FONT_SMALL, Colors::WHITE, bmp);
-
-		GH.pushInt(new CInfoPopup(bmp, true));
-		return;
-	}
-
-	if(title)
-		CSDL_Ext::printAtMiddle(*title, 135, 36, FONT_MEDIUM, Colors::YELLOW, bmp);
-	if(subTitle)
-		CSDL_Ext::printAtMiddle(*subTitle, 127, 103, FONT_SMALL, Colors::WHITE, bmp);
-
-	blitAt(getImg(), 104, 60, bmp);
-
-	GH.pushInt(new CInfoPopup(bmp, true));
 }
 
 CScenarioInfo::CScenarioInfo(const CMapHeader *mapHeader, const StartInfo *startInfo)

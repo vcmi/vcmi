@@ -67,7 +67,6 @@ public:
 	void setFromLib();
 
 	friend class CClient;
-	friend void initVillagesCapitols(CMap * map);
 
 	CGameInfo();
 };
