@@ -396,9 +396,19 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 
 void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 {
+	auto resIter = boost::find(GameConstants::RESOURCE_NAMES, source["primaryResource"].String());
+	if (resIter == boost::end(GameConstants::RESOURCE_NAMES))
+		town.primaryRes = 127; //Wood + Ore
+	else
+		town.primaryRes = resIter - boost::begin(GameConstants::RESOURCE_NAMES);
+
+	VLC->modh->identifiers.requestIdentifier(std::string("creature." + source["warMachine"].String()),
+	[&town](si32 creature)
+	{
+		town.warMachine = CArtHandler::convertMachineID(creature, true);
+	});
+
 	town.mageLevel = source["mageGuild"].Float();
-	town.primaryRes  = source["primaryResource"].Float();
-	town.warMachine = source["warMachine"].Float();
 	town.names = source["names"].convertTo<std::vector<std::string> >();
 
 	//  Horde building creature level

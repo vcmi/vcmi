@@ -105,6 +105,9 @@ public:
 
 	static void showYesNoDialog( const std::string & text, const std::vector<CComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps = true, int player = 1); //use only before the game starts! (showYesNoDialog in LOCPLINT must be used then)
 	static CInfoWindow *create(const std::string &text, int playerID = 1, const std::vector<CComponent*> *components = NULL, bool DelComps = false);
+
+	/// create text from title and description: {title}\n\n description
+	static std::string genText(std::string title, std::string description);
 };
 
 /// component selection window
@@ -130,6 +133,7 @@ public:
 
 	static CIntObject* createInfoWin(Point position, const CGObjectInstance * specific);
 	static void createAndPush(const std::string &txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
+	static void createAndPush(const std::string &txt, CComponent * component);
 	static void createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment = BOTTOMRIGHT);
 };
 
@@ -210,7 +214,7 @@ public:
 	std::string getDescription();
 	std::string getSubtitle();
 
-	CComponent(Etype Type, int Subtype, int Val, ESize imageSize=large);//c-tor
+	CComponent(Etype Type, int Subtype, int Val = 0, ESize imageSize=large);//c-tor
 	CComponent(const Component &c); //c-tor
 
 	void clickRight(tribool down, bool previousState); //call-in
@@ -311,18 +315,20 @@ class CGarrisonSlot : public CIntObject
 	CGarrisonInt *owner;
 	const CStackInstance *myStack; //NULL if slot is empty
 	const CCreature *creature;
-	int count; //number of creatures
 	int upg; //0 - up garrison, 1 - down garrison
-	bool highlight;
 
 	CAnimImage * creatureImage;
+	CAnimImage * selectionImage; // image for selection, not always visible
+	CLabel * stackCount;
+
+	void setHighlight(bool on);
 public:
 	virtual void hover (bool on); //call-in
-	const CArmedInstance * getObj();
-	bool our();
+	const CArmedInstance * getObj() const;
+	bool our() const;
 	void clickRight(tribool down, bool previousState);
 	void clickLeft(tribool down, bool previousState);
-	void showAll(SDL_Surface * to);
+	void update();
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg=0, const CStackInstance * Creature=NULL);
 
 	friend class CGarrisonInt;
@@ -331,15 +337,23 @@ public:
 /// Class which manages slots of upper and lower garrison, splitting of units
 class CGarrisonInt :public CIntObject
 {
+	CGarrisonSlot *highlighted; //chosen slot. Should be changed only via selectSlot
+	bool inSplittingMode;
+
 public:
+	void selectSlot(CGarrisonSlot * slot); //null = deselect
+	const CGarrisonSlot * getSelection();
+
+	void setSplittingMode(bool on);
+	bool getSplittingMode();
+
 	int interx; //space between slots
 	Point garOffset; //offset between garrisons (not used if only one hero)
-	CGarrisonSlot *highlighted; //chosen slot
 	std::vector<CAdventureMapButton *> splitButtons; //may be empty if no buttons
 
 	int p2, //TODO: comment me
 	    shiftPos;//1st slot of the second row, set shiftPoint for effect
-	bool splitting, pb,
+	bool pb,
 	     smallIcons, //true - 32x32 imgs, false - 58x64
 	     removableUnits,//player can remove units from up
 	     twoRows,//slots will be placed in 2 rows
@@ -358,7 +372,6 @@ public:
 
 	void activate();
 	void createSlots();
-	void deleteSlots();
 	void recreateSlots();
 
 	void splitClick(); //handles click on split button

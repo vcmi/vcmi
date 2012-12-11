@@ -129,7 +129,7 @@ void Graphics::initializeBattleGraphics()
 }
 Graphics::Graphics()
 {
-	CDefHandler *smi, *smi2;
+	CDefHandler *smi2;
 
 	std::vector<Task> tasks; //preparing list of graphics to load
 	tasks += boost::bind(&Graphics::loadFonts,this);
@@ -140,7 +140,6 @@ Graphics::Graphics()
 	tasks += boost::bind(&Graphics::loadErmuToPicture,this);
 	tasks += GET_DEF_ESS(artDefs,"ARTIFACT.DEF");
 	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");
-	tasks += GET_DEF(smi,"CPRSMALL.DEF");
 	tasks += GET_DEF(smi2,"TWCRPORT.DEF");
 	tasks += GET_DEF_ESS(flags,"CREST58.DEF");
 	tasks += GET_DEF_ESS(abils82,"SECSK82.DEF");
@@ -155,13 +154,6 @@ Graphics::Graphics()
 		CSDL_Ext::alphaTransform(heroMoveArrows->ourImages[y].bitmap);
 	}
 
-	//handling 32x32px imgs
-	smi->notFreeImgs = true;
-	for (size_t i=0; i<smi->ourImages.size(); ++i)
-	{
-		smallImgs[i-2] = smi->ourImages[i].bitmap;
-	}
-	delete smi;
 	smi2->notFreeImgs = true;
 	for (size_t i=0; i<smi2->ourImages.size(); ++i)
 	{

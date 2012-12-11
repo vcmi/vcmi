@@ -813,7 +813,7 @@ CTownItem::CTownItem(const CGTownInstance* Town):
 
 void CTownItem::updateGarrisons()
 {
-	garr->highlighted = NULL;
+	garr->selectSlot(nullptr);
 	garr->setArmy(town->getUpperArmy(), 0);
 	garr->setArmy(town->visitingHero, 1);
 	garr->recreateSlots();

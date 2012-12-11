@@ -109,9 +109,8 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 		const CBuilding *bld = town->town->buildings[bid];
 		if (bid < EBuilding::DWELL_FIRST)
 		{
-			std::vector<CComponent*> comps(1, new CComponent(CComponent::building, bld->tid, bld->bid));
-
-			CRClickPopup::createAndPush(bld->Description(), comps);
+			CRClickPopup::createAndPush(CInfoWindow::genText(bld->Name(), bld->Description()),
+			                            new CComponent(CComponent::building, bld->tid, bld->bid));
 		}
 		else
 		{
@@ -325,8 +324,8 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 	CHeroGSlot *other = upg  ?  owner->garrisonedHero :  owner->visitingHero;
 	if(!down)
 	{
-		owner->garr->splitting = false;
-		owner->garr->highlighted = NULL;
+		owner->garr->setSplittingMode(false);
+		owner->garr->selectSlot(nullptr);
 
 		if(hero && selection)
 		{
@@ -361,7 +360,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 		else if(hero)
 		{
 			setHighlight(true);
-			owner->garr->highlighted = NULL;
+			owner->garr->selectSlot(nullptr);
 			showAll(screen2);
 		}
 		hover(false);hover(true); //refresh statusbar
@@ -1067,16 +1066,7 @@ void CCreaInfo::clickRight(tribool down, bool previousState)
 		if (showAvailable)
 			GH.pushInt(new CDwellingInfoBox(screen->w/2, screen->h/2, town, level));
 		else
-		{
-			std::string descr = genGrowthText();
-			CInfoPopup *mess = new CInfoPopup();//creating popup
-			mess->free = true;
-			mess->bitmap = CMessage::drawBoxTextBitmapSub
-			(LOCPLINT->playerID, descr,graphics->bigImgs[creature->iconIndex],"");
-			mess->pos.x = screen->w/2 - mess->bitmap->w/2;
-			mess->pos.y = screen->h/2 - mess->bitmap->h/2;
-			GH.pushInt(mess);
-		}
+			CRClickPopup::createAndPush(genGrowthText(), new CComponent(CComponent::creature, creature->idNumber));
 	}
 }
 
@@ -1118,21 +1108,11 @@ void CTownInfo::hover(bool on)
 }
 
 void CTownInfo::clickRight(tribool down, bool previousState)
-{//FIXME: castleInt may be NULL
-	if(down && building && LOCPLINT->castleInt)
-	{
-		CInfoPopup *mess = new CInfoPopup();
-		mess->free = true;
+{
+	if(down && building)
+		CRClickPopup::createAndPush(CInfoWindow::genText(building->Name(), building->Description()),
+		                            new CComponent(CComponent::building, building->tid, building->bid));
 
-		mess->bitmap = CMessage::drawBoxTextBitmapSub
-			(LOCPLINT->playerID,
-			 building->Description(),
-			 LOCPLINT->castleInt->bicons->ourImages[building->bid].bitmap,
-			 building->Name());
-		mess->pos.x = screen->w/2 - mess->bitmap->w/2;
-		mess->pos.y = screen->h/2 - mess->bitmap->h/2;
-		GH.pushInt(mess);
-	}
 }
 
 void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
@@ -1646,28 +1626,13 @@ CMageGuildScreen::Scroll::Scroll(Point position, const CSpell *Spell)
 void CMageGuildScreen::Scroll::clickLeft(tribool down, bool previousState)
 {
 	if(down)
-	{
-		std::vector<CComponent*> comps(1,
-			new CComponent(CComponent::spell,spell->id,0)
-		);
-		LOCPLINT->showInfoDialog(spell->descriptions[0],comps, soundBase::sound_todo);
-	}
+		LOCPLINT->showInfoDialog(spell->descriptions[0], new CComponent(CComponent::spell,spell->id));
 }
 
 void CMageGuildScreen::Scroll::clickRight(tribool down, bool previousState)
 {
 	if(down)
-	{
-		CInfoPopup *vinya = new CInfoPopup();
-		vinya->free = true;
-		vinya->bitmap = CMessage::drawBoxTextBitmapSub
-			(LOCPLINT->playerID,
-			spell->descriptions[0],graphics->spellscr->ourImages[spell->id].bitmap,
-			spell->name,30,30);
-		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
-		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
-		GH.pushInt(vinya);
-	}
+		CRClickPopup::createAndPush(spell->descriptions[0], new CComponent(CComponent::spell, spell->id));
 }
 
 void CMageGuildScreen::Scroll::hover(bool on)

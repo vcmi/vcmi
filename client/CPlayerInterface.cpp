@@ -509,7 +509,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 
 	if(CCastleInterface *c = castleInt)
 	{
-		c->garr->highlighted = NULL;
+		c->garr->selectSlot(nullptr);
 		c->garr->setArmy(town->getUpperArmy(), 0);
 		c->garr->setArmy(town->visitingHero, 1);
 		c->garr->recreateSlots();
@@ -535,10 +535,11 @@ void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownIn
 	waitWhileDialog();
 	openTownWindow(town);
 }
-void CPlayerInterface::garrisonChanged( const CGObjectInstance * obj)
+void CPlayerInterface::garrisonsChanged(std::vector<const CGObjectInstance *> objs)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	updateInfo(obj);
+	BOOST_FOREACH(auto object, objs)
+		updateInfo(object);
 
 	for(std::list<IShowActivatable*>::iterator i = GH.listInt.begin(); i != GH.listInt.end(); i++)
 	{
@@ -548,12 +549,17 @@ void CPlayerInterface::garrisonChanged( const CGObjectInstance * obj)
 
 		if(CTradeWindow *cmw = dynamic_cast<CTradeWindow*>(*i))
 		{
-			if(obj == cmw->hero)
+			if(vstd::contains(objs, cmw->hero))
 				cmw->garrisonChanged();
 		}
 	}
 
 	GH.totalRedraw();
+}
+
+void CPlayerInterface::garrisonChanged( const CGObjectInstance * obj)
+{
+	garrisonsChanged(std::vector<const CGObjectInstance *>(1, obj));
 }
 
 void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, int what) //what: 1 - built, 2 - demolished
@@ -951,6 +957,14 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 		intComps.push_back(new CComponent(*components[i]));
 	showInfoDialog(text,intComps,soundID);
 
+}
+
+void CPlayerInterface::showInfoDialog(const std::string &text, CComponent * component)
+{
+	std::vector<CComponent*> intComps;
+	intComps.push_back(component);
+
+	showInfoDialog(text, intComps, soundBase::sound_todo, true);
 }
 
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<CComponent*> & components, int soundID, bool delComps)
@@ -2327,9 +2341,13 @@ void CPlayerInterface::stacksErased(const StackLocation &location)
 void CPlayerInterface::stacksSwapped(const StackLocation &loc1, const StackLocation &loc2)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	garrisonChanged(loc1.army);
+
+	std::vector<const CGObjectInstance *> objects;
+	objects.push_back(loc1.army);
 	if(loc2.army != loc1.army)
-		garrisonChanged(loc2.army);
+		objects.push_back(loc2.army);
+
+	garrisonsChanged(objects);
 }
 
 void CPlayerInterface::newStackInserted(const StackLocation &location, const CStackInstance &stack)
@@ -2342,11 +2360,13 @@ void CPlayerInterface::stacksRebalanced(const StackLocation &src, const StackLoc
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 
-	garrisonChanged(src.army);
-	if(dst.army != src.army)
-		garrisonChanged(dst.army);
+	std::vector<const CGObjectInstance *> objects;
+	objects.push_back(src.army);
+	if(src.army != dst.army)
+		objects.push_back(dst.army);
+
+	garrisonsChanged(objects);
 }
-#undef UPDATE_IF
 
 void CPlayerInterface::artifactPut(const ArtifactLocation &al)
 {

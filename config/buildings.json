@@ -145,9 +145,8 @@
 				["Angel", "Archangel"]
 			],
 			"horde" : [ 2, -1 ],
-			"primaryResource" : 127,
 			"mageGuild" : 4,
-			"warMachine" : 4,
+			"warMachine" : "Ballista",
 
 			"buildings" :
 			[
@@ -396,8 +395,8 @@
 			],
 			"horde" : [ 1, 4 ],
 			"mageGuild" : 5,
-			"primaryResource" : 4,
-			"warMachine" : 6,
+			"primaryResource" : "crystal",
+			"warMachine" : "FirstAidTent",
 
 			"buildings" :
 			[
@@ -641,9 +640,9 @@
 				["LesserTitan", "GreaterTitan"]
 			],
 			"horde" : [ 1, -1 ],
-			"primaryResource" : 5,
+			"primaryResource" : "gems",
 			"mageGuild" : 5,
-			"warMachine" : 5,
+			"warMachine" : "AmmoCart",
 
 			"buildings" :
 			[
@@ -886,8 +885,8 @@
 			],
 			"horde" : [ 0, 2 ],
 			"mageGuild" : 5,
-			"primaryResource" : 1,
-			"warMachine" : 5,
+			"primaryResource" : "mercury",
+			"warMachine" : "Ballista",
 
 			"buildings" :
 			[
@@ -1136,8 +1135,7 @@
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
-			"primaryResource" : 127,
-			"warMachine" : 6,
+			"warMachine" : "FirstAidTent",
 
 			"buildings" :
 			[
@@ -1380,8 +1378,8 @@
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
-			"primaryResource" : 3,
-			"warMachine" : 4,
+			"primaryResource" : "sulfur",
+			"warMachine" : "Ballista",
 
 			"buildings" :
 			[
@@ -1622,8 +1620,7 @@
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 3,
-			"primaryResource" : 127,
-			"warMachine" : 5,
+			"warMachine" : "AmmoCart",
 
 			"buildings" :
 			[
@@ -1866,8 +1863,7 @@
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 3,
-			"primaryResource" : 127,
-			"warMachine" : 6,
+			"warMachine" : "FirstAidTent",
 
 			"buildings" :
 			[
@@ -2115,8 +2111,8 @@
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
-			"primaryResource" : 1,
-			"warMachine" : 4,
+			"primaryResource" : "mercury",
+			"warMachine" : "Ballista",
 
 			"buildings" :
 			[

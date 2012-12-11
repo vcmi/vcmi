@@ -210,6 +210,7 @@ public:
 
 	//-------------//
 	void showArtifactAssemblyDialog(ui32 artifactID, ui32 assembleTo, bool assemble, CFunctionList<void()> onYes, CFunctionList<void()> onNo);
+	void garrisonsChanged(std::vector<const CGObjectInstance *> objs);
 	void garrisonChanged(const CGObjectInstance * obj);
 	void heroKilled(const CGHeroInstance* hero);
 	void waitWhileDialog(bool unlockPim = true);
@@ -223,6 +224,7 @@ public:
 	void updateInfo(const CGObjectInstance * specific);
 	void init(CCallback * CB);
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
+	void showInfoDialog(const std::string &text, CComponent * component);
 	void showInfoDialog(const std::string &text, const std::vector<CComponent*> & components = std::vector<CComponent*>(), int soundID = 0, bool delComps = false);
 	void showYesNoDialog(const std::string &text, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps = false, const std::vector<CComponent*> & components = std::vector<CComponent*>()); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
 	void stopMovement();

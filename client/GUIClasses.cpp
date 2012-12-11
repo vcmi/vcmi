@@ -200,6 +200,14 @@ CTownTooltip::CTownTooltip(Point pos, const CGTownInstance * town):
 	init(InfoAboutTown(town, true));
 }
 
+void CGarrisonSlot::setHighlight(bool on)
+{
+	if (on)
+		selectionImage->recActions |= UPDATE | SHOWALL; //show
+	else
+		selectionImage->recActions &= ~(UPDATE | SHOWALL); //hide
+}
+
 void CGarrisonSlot::hover (bool on)
 {
 	////Hoverable::hover(on);
@@ -208,29 +216,29 @@ void CGarrisonSlot::hover (bool on)
 		std::string temp;
 		if(creature)
 		{
-			if(owner->highlighted)
+			if(owner->getSelection())
 			{
-				if(owner->highlighted == this)
+				if(owner->getSelection() == this)
 				{
 					temp = CGI->generaltexth->tcommands[4]; //View %s
 					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
 				}
-				else if (owner->highlighted->creature == creature)
+				else if (owner->getSelection()->creature == creature)
 				{
 					temp = CGI->generaltexth->tcommands[2]; //Combine %s armies
 					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
 				}
-				else if (owner->highlighted->creature)
+				else if (owner->getSelection()->creature)
 				{
 					temp = CGI->generaltexth->tcommands[7]; //Exchange %s with %s
-					boost::algorithm::replace_first(temp,"%s",owner->highlighted->creature->nameSing);
+					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->nameSing);
 					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
 				}
 				else
 				{
-					tlog2 << "Warning - shouldn't be - highlighted void slot "<<owner->highlighted<<std::endl;
+					tlog2 << "Warning - shouldn't be - highlighted void slot "<<owner->getSelection()<<std::endl;
 					tlog2 << "Highlighted set to NULL"<<std::endl;
-					owner->highlighted = NULL;
+					owner->selectSlot(nullptr);
 				}
 			}
 			else
@@ -252,12 +260,12 @@ void CGarrisonSlot::hover (bool on)
 		}
 		else
 		{
-			if(owner->highlighted)
+			if(owner->getSelection())
 			{
-				const CArmedInstance *highl = owner->highlighted->getObj();
+				const CArmedInstance *highl = owner->getSelection()->getObj();
 				if(  highl->needsLastStack()		//we are moving stack from hero's
 				  && highl->stacksCount() == 1	//it's only stack
-				  && owner->highlighted->upg != upg	//we're moving it to the other garrison
+				  && owner->getSelection()->upg != upg	//we're moving it to the other garrison
 				  )
 				{
 					temp = CGI->generaltexth->tcommands[5]; //Cannot move last army to garrison
@@ -265,7 +273,7 @@ void CGarrisonSlot::hover (bool on)
 				else
 				{
 					temp = CGI->generaltexth->tcommands[6]; //Move %s
-					boost::algorithm::replace_first(temp,"%s",owner->highlighted->creature->nameSing);
+					boost::algorithm::replace_first(temp,"%s",owner->getSelection()->creature->nameSing);
 				}
 			}
 			else
@@ -281,12 +289,12 @@ void CGarrisonSlot::hover (bool on)
 	}
 }
 
-const CArmedInstance * CGarrisonSlot::getObj()
+const CArmedInstance * CGarrisonSlot::getObj() const
 {
 	return 	(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]);
 }
 
-bool CGarrisonSlot::our()
+bool CGarrisonSlot::our() const
 {
 	return 	upg?(owner->owned[1]):(owner->owned[0]);
 }
@@ -303,9 +311,9 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 	if(down)
 	{
 		bool refr = false;
-		if(owner->highlighted)
+		if(owner->getSelection())
 		{
-			if(owner->highlighted == this) //view info
+			if(owner->getSelection() == this) //view info
 			{
 				UpgradeInfo pom;
 				LOCPLINT->cb->getUpgradeInfo(getObj(), ID, pom);
@@ -317,8 +325,8 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				if (canUpgrade) upgr = boost::bind(&CCallback::upgradeCreature, LOCPLINT->cb, getObj(), ID, pom.newID[0]);
 				if (canDismiss) dism = boost::bind(&CCallback::dismissCreature, LOCPLINT->cb, getObj(), ID);
 
-				owner->highlighted = NULL;
-				owner->splitting = false;
+				owner->selectSlot(nullptr);
+				owner->setSplittingMode(false);
 
 				for(size_t i = 0; i<owner->splitButtons.size(); i++)
 					owner->splitButtons[i]->block(true);
@@ -331,61 +339,61 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 			else
 			{
 				// Only allow certain moves if troops aren't removable or not ours.
-				if (  ( owner->highlighted->our()//our creature is selected
-				     || owner->highlighted->creature == creature )//or we are rebalancing army
+				if (  ( owner->getSelection()->our()//our creature is selected
+				     || owner->getSelection()->creature == creature )//or we are rebalancing army
 				   && ( owner->removableUnits
-				     || (upg == 0 &&  ( owner->highlighted->upg == 1 && !creature ) )
-					 || (upg == 1 &&    owner->highlighted->upg == 1 ) ) )
+				     || (upg == 0 &&  ( owner->getSelection()->upg == 1 && !creature ) )
+					 || (upg == 1 &&    owner->getSelection()->upg == 1 ) ) )
 				{
 					//we want to split
-					if((owner->splitting || LOCPLINT->shiftPressed())
+					if((owner->getSplittingMode() || LOCPLINT->shiftPressed())
 						&& (!creature
-							|| (creature == owner->highlighted->creature)))
+							|| (creature == owner->getSelection()->creature)))
 					{
 						owner->p2 = ID; //store the second stack pos
 						owner->pb = upg;//store the second stack owner (up or down army)
-						owner->splitting = false;
+						owner->setSplittingMode(false);
 
 						int minLeft=0, minRight=0;
 
-						if(upg != owner->highlighted->upg) //not splitting within same army
+						if(upg != owner->getSelection()->upg) //not splitting within same army
 						{
-							if(owner->highlighted->getObj()->stacksCount() == 1 //we're splitting away the last stack
-								&& owner->highlighted->getObj()->needsLastStack() )
+							if(owner->getSelection()->getObj()->stacksCount() == 1 //we're splitting away the last stack
+								&& owner->getSelection()->getObj()->needsLastStack() )
 							{
 								minLeft = 1;
 							}
 							if(getObj()->stacksCount() == 1 //destination army can't be emptied, unless we're rebalancing two stacks of same creature
-								&& owner->highlighted->creature == creature
+								&& owner->getSelection()->creature == creature
 								&& getObj()->needsLastStack() )
 							{
 								minRight = 1;
 							}
 						}
 
-						GH.pushInt(new CSplitWindow(owner->highlighted->creature, boost::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
-						                            minLeft, minRight, owner->highlighted->count, count));
+						GH.pushInt(new CSplitWindow(owner->getSelection()->creature, boost::bind(&CGarrisonInt::splitStacks, owner, _1, _2),
+						                            minLeft, minRight, owner->getSelection()->myStack->count, myStack->count));
 						refr = true;
 					}
-					else if(creature != owner->highlighted->creature) //swap
+					else if(creature != owner->getSelection()->creature) //swap
 					{
 						LOCPLINT->cb->swapCreatures(
 							(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-							(!owner->highlighted->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-							ID,owner->highlighted->ID);
+							(!owner->getSelection()->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
+							ID,owner->getSelection()->ID);
 					}
 					else //merge
 					{
 						LOCPLINT->cb->mergeStacks(
-							(!owner->highlighted->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
+							(!owner->getSelection()->upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
 							(!upg)?(owner->armedObjs[0]):(owner->armedObjs[1]),
-							owner->highlighted->ID,ID);
+							owner->getSelection()->ID,ID);
 					}
 				}
 				else // Highlight
 				{
 					if(creature)
-						owner->highlighted = this;
+						owner->selectSlot(this);
 					redraw();
 					refr = true;
 				}
@@ -417,7 +425,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 			}
 			if (!artSelected && creature)
 			{
-				owner->highlighted = this;
+				owner->selectSlot(this);
 				if(creature)
 				{
 					for(size_t i = 0; i<owner->splitButtons.size(); i++)
@@ -428,6 +436,26 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 			refr = true;
 		}
 		if(refr) {hover(false);	hover(true); } //to refresh statusbar
+	}
+}
+
+void CGarrisonSlot::update()
+{
+	myStack = getObj()->getStackPtr(ID);
+	creature = myStack ? myStack->type : NULL;
+
+	if (creature)
+	{
+		creatureImage->recActions |= (UPDATE | SHOWALL);
+		creatureImage->setFrame(creature->iconIndex);
+
+		stackCount->recActions |= (UPDATE | SHOWALL);
+		stackCount->setTxt(boost::lexical_cast<std::string>(myStack->count));
+	}
+	else
+	{
+		creatureImage->recActions &= ~(UPDATE | SHOWALL);
+		stackCount->recActions &= ~(UPDATE | SHOWALL);
 	}
 }
 
@@ -444,15 +472,15 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg
 	ID = IID;
 	myStack = Creature;
 	creature = Creature ? Creature->type : NULL;
-	if (creature)
-	{
-		std::string imgName = owner->smallIcons ? "cprsmall" : "TWCRPORT";
-		creatureImage = new CAnimImage(imgName, creature->iconIndex);
-	}
-	else
-		creatureImage = nullptr;
 
-	count = Creature ? Creature->count : 0;
+	std::string imgName = owner->smallIcons ? "cprsmall" : "TWCRPORT";
+
+	creatureImage = new CAnimImage(imgName, creature ? creature->iconIndex : 0);
+	if (!creature)
+		creatureImage->recActions &= ~(UPDATE | SHOWALL);
+
+	selectionImage = new CAnimImage(imgName, 1);
+	selectionImage->recActions &= ~(UPDATE | SHOWALL); //hide it
 
 	if(Owner->smallIcons)
 	{
@@ -464,29 +492,12 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg
 		pos.w = 58;
 		pos.h = 64;
 	}
-}
 
-void CGarrisonSlot::showAll(SDL_Surface * to)
-{
-	std::map<int,SDL_Surface*> &imgs = (owner->smallIcons ? graphics->smallImgs : graphics->bigImgs);
-	if(creature)
-	{
-		creatureImage->showAll(to);
-		char buf[15];
-		SDL_itoa(count,buf,10);
-		printTo(buf, pos.x+pos.w, pos.y+pos.h+1, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, Colors::WHITE, to);
-
-		if((owner->highlighted==this)
-			|| (owner->splitting && owner->highlighted->creature == creature))
-		{
-			blitAt(imgs[-1],pos,to);
-		}
-	}
-	else//empty slot
-	{
-		if(owner->splitting && owner->highlighted->our())
-			blitAt(imgs[-1],pos,to);
-	}
+	stackCount = new CLabel(pos.w, pos.h, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, BOTTOMRIGHT, Colors::WHITE);
+	if (!creature)
+		stackCount->recActions &= ~(UPDATE | SHOWALL);
+	else
+		stackCount->setTxt(boost::lexical_cast<std::string>(myStack->count));
 }
 
 void CGarrisonInt::addSplitBtn(CAdventureMapButton * button)
@@ -530,46 +541,45 @@ void CGarrisonInt::createSlots()
 		createSet (slotsDown, armedObjs[1], garOffset.x, garOffset.y, width+interx, 1);
 }
 
-void CGarrisonInt::deleteSlots()
-{
-	for (int i=0; i<slotsUp.size(); i++)
-		vstd::clear_pointer(slotsUp[i]);
-
-	for (int i=0; i<slotsDown.size(); i++)
-		vstd::clear_pointer(slotsDown[i]);
-}
-
 void CGarrisonInt::recreateSlots()
 {
-
-	splitting = false;
-	highlighted = NULL;
+	setSplittingMode(false);
+	selectSlot(nullptr);
 
 	for(size_t i = 0; i<splitButtons.size(); i++)
 		splitButtons[i]->block(true);
 
-	deleteSlots();
-	createSlots();
+
+	BOOST_FOREACH(CGarrisonSlot * slot, slotsUp)
+		slot->update();
+
+	BOOST_FOREACH(CGarrisonSlot * slot, slotsDown)
+		slot->update();
 }
 
 void CGarrisonInt::splitClick()
 {
-	if(!highlighted)
+	if(!getSelection())
 		return;
-	splitting = !splitting;
+	setSplittingMode(!getSplittingMode());
 	redraw();
 }
 void CGarrisonInt::splitStacks(int, int amountRight)
 {
-	LOCPLINT->cb->splitStack(armedObjs[highlighted->upg], armedObjs[pb], highlighted->ID, p2, amountRight);
+	LOCPLINT->cb->splitStack(armedObjs[getSelection()->upg], armedObjs[pb], getSelection()->ID, p2, amountRight);
 }
 
 CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset,
-                            SDL_Surface *pomsur, const Point& SurOffset,
-                            const CArmedInstance *s1, const CArmedInstance *s2,
-                            bool _removableUnits, bool smallImgs, bool _twoRows )
-	: interx(inx), garOffset(garsOffset), highlighted(NULL), splitting(false),
-	smallIcons(smallImgs), removableUnits (_removableUnits), twoRows(_twoRows)
+                           SDL_Surface *pomsur, const Point& SurOffset,
+                           const CArmedInstance *s1, const CArmedInstance *s2,
+                           bool _removableUnits, bool smallImgs, bool _twoRows ) :
+    highlighted(nullptr),
+    inSplittingMode(false),
+    interx(inx),
+    garOffset(garsOffset),
+    smallIcons(smallImgs),
+    removableUnits(_removableUnits),
+    twoRows(_twoRows)
 {
 	setArmy(s1, false);
 	setArmy(s2, true);
@@ -581,10 +591,48 @@ CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset,
 void CGarrisonInt::activate()
 {
 	for(size_t i = 0; i<splitButtons.size(); i++)
-		if( (splitButtons[i]->isBlocked()) != !highlighted)
-			splitButtons[i]->block(!highlighted);
+		splitButtons[i]->block(getSelection() != nullptr);
 
 	CIntObject::activate();
+}
+
+const CGarrisonSlot * CGarrisonInt::getSelection()
+{
+	return highlighted;
+}
+
+void CGarrisonInt::selectSlot(CGarrisonSlot *slot)
+{
+	if (slot != highlighted)
+	{
+		if (highlighted)
+			highlighted->setHighlight(false);
+
+		highlighted = slot;
+
+		if (highlighted)
+			highlighted->setHighlight(true);
+	}
+}
+
+void CGarrisonInt::setSplittingMode(bool on)
+{
+	assert(on == false || highlighted != nullptr); //can't be in splitting mode without selection
+
+	if (inSplittingMode || on)
+	{
+		BOOST_FOREACH(CGarrisonSlot * slot, slotsUp)
+			slot->setHighlight(slot->creature == nullptr || slot->creature == getSelection()->creature);
+
+		BOOST_FOREACH(CGarrisonSlot * slot, slotsDown)
+			slot->setHighlight(slot->creature == nullptr || slot->creature == getSelection()->creature);
+		inSplittingMode = on;
+	}
+}
+
+bool CGarrisonInt::getSplittingMode()
+{
+	return inSplittingMode;
 }
 
 void CGarrisonInt::setArmy(const CArmedInstance *army, bool bottomGarrison)
@@ -687,6 +735,11 @@ CInfoWindow * CInfoWindow::create(const std::string &text, int playerID /*= 1*/,
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	CInfoWindow * ret = new CInfoWindow(text, playerID, components ? *components : std::vector<CComponent*>(), pom, DelComps);
 	return ret;
+}
+
+std::string CInfoWindow::genText(std::string title, std::string description)
+{
+	return std::string("{") + title + "}" + "\n\n" + description;
 }
 
 void CInfoWindow::setDelComps(bool DelComps)
@@ -5193,16 +5246,8 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
-		CInfoPopup *message = new CInfoPopup();
-		message->free = true;
-		message->bitmap = CMessage::drawBoxTextBitmapSub
-		                            (LOCPLINT->playerID,
-		                             CGI->generaltexth->skillInfoTexts[ID][0],
-		                             graphics->abils82->ourImages[ID*3+3].bitmap,
-		                             CGI->generaltexth->skillName[ID]);
-		message->pos.x = screen->w/2 - message->bitmap->w/2;
-		message->pos.y = screen->h/2 - message->bitmap->h/2;
-		GH.pushInt(message);
+		CRClickPopup::createAndPush(CGI->generaltexth->skillInfoTexts[ID][0],
+		        new CComponent(CComponent::secskill, ID, 0));
 	}
 }
 
@@ -5811,6 +5856,14 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 	temp->fitToScreen(10);
 	CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
 	GH.pushInt(rcpi);
+}
+
+void CRClickPopup::createAndPush(const std::string &txt, CComponent * component)
+{
+	CInfoWindow::TCompsInfo intComps;
+	intComps.push_back(component);
+
+	createAndPush(txt, intComps);
 }
 
 Point CInfoBoxPopup::toScreen(Point p)
