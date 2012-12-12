@@ -370,7 +370,6 @@ public:
 	void addSplitBtn(CAdventureMapButton * button);
 	void createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int distance, int posY, int Upg );
 
-	void activate();
 	void createSlots();
 	void recreateSlots();
 

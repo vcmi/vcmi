@@ -441,8 +441,18 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 
 void CGarrisonSlot::update()
 {
-	myStack = getObj()->getStackPtr(ID);
-	creature = myStack ? myStack->type : NULL;
+	if (getObj() != nullptr)
+	{
+		addUsedEvents(LCLICK | RCLICK | HOVER);
+		myStack = getObj()->getStackPtr(ID);
+		creature = myStack ? myStack->type : NULL;
+	}
+	else
+	{
+		removeUsedEvents(LCLICK | RCLICK | HOVER);
+		myStack = nullptr;
+		creature = nullptr;
+	}
 
 	if (creature)
 	{
@@ -459,19 +469,18 @@ void CGarrisonSlot::update()
 	}
 }
 
-CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg, const CStackInstance * Creature)
+CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg, const CStackInstance * Creature):
+    ID(IID),
+    owner(Owner),
+    myStack(Creature),
+    creature(Creature ? Creature->type : nullptr),
+    upg(Upg)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
-	addUsedEvents(LCLICK | RCLICK | HOVER);
+	if (getObj())
+		addUsedEvents(LCLICK | RCLICK | HOVER);
 	pos.x += x;
 	pos.y += y;
-	owner = Owner;
-
-	//assert(Creature == CGI->creh->creatures[Creature->idNumber]);
-	upg = Upg;
-	ID = IID;
-	myStack = Creature;
-	creature = Creature ? Creature->type : NULL;
 
 	std::string imgName = owner->smallIcons ? "cprsmall" : "TWCRPORT";
 
@@ -505,15 +514,19 @@ void CGarrisonInt::addSplitBtn(CAdventureMapButton * button)
 	addChild(button);
 	button->recActions = defActions;
 	splitButtons.push_back(button);
+	button->block(getSelection() == nullptr);
 }
 
 void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSet * set, int posX, int posY, int distance, int Upg )
 {
 	ret.resize(7);
 
-	for(TSlots::const_iterator i=set->Slots().begin(); i!=set->Slots().end(); i++)
+	if (set)
 	{
-		ret[i->first] = new CGarrisonSlot(this, posX + (i->first*distance), posY, i->first, Upg, i->second);
+		for(TSlots::const_iterator i=set->Slots().begin(); i!=set->Slots().end(); i++)
+		{
+			ret[i->first] = new CGarrisonSlot(this, posX + (i->first*distance), posY, i->first, Upg, i->second);
+		}
 	}
 
 	for(int i=0; i<ret.size(); i++)
@@ -534,11 +547,8 @@ void CGarrisonInt::createSlots()
 
 	int width = smallIcons? 32 : 58;
 
-	if(armedObjs[0])
-		createSet(slotsUp, armedObjs[0], 0, 0, width+interx, 0);
-
-	if(armedObjs[1])
-		createSet (slotsDown, armedObjs[1], garOffset.x, garOffset.y, width+interx, 1);
+	createSet(slotsUp, armedObjs[0], 0, 0, width+interx, 0);
+	createSet(slotsDown, armedObjs[1], garOffset.x, garOffset.y, width+interx, 1);
 }
 
 void CGarrisonInt::recreateSlots()
@@ -588,14 +598,6 @@ CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset,
 	createSlots();
 }
 
-void CGarrisonInt::activate()
-{
-	for(size_t i = 0; i<splitButtons.size(); i++)
-		splitButtons[i]->block(getSelection() != nullptr);
-
-	CIntObject::activate();
-}
-
 const CGarrisonSlot * CGarrisonInt::getSelection()
 {
 	return highlighted;
@@ -609,6 +611,8 @@ void CGarrisonInt::selectSlot(CGarrisonSlot *slot)
 			highlighted->setHighlight(false);
 
 		highlighted = slot;
+		BOOST_FOREACH (auto button, splitButtons)
+			button->block(highlighted == nullptr);
 
 		if (highlighted)
 			highlighted->setHighlight(true);
