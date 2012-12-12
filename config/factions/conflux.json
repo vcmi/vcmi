@@ -1,0 +1,250 @@
+{
+	"conflux" :
+	{
+		"index" : 8,
+		"nativeTerrain": "grass",
+		"alignment" : "neutral",
+		"creatureBackground" :
+		{
+			"120px" : "TPCASELE",
+			"130px" : "CRBKGELE"
+		},
+		"puzzleMap" :
+		{
+			"prefix" : "PUZELE",
+			"pieces" :
+			[
+				{ "x": 7, "y": 8, "index": 1 },
+				{ "x": 7, "y": 54, "index": 6 },
+				{ "x": 7, "y": 227, "index": 16 },
+				{ "x": 7, "y": 426, "index": 9 },
+				{ "x": 15, "y": 48, "index": 22 },
+				{ "x": 45, "y": 375, "index": 32 },
+				{ "x": 48, "y": 249, "index": 28 },
+				{ "x": 86, "y": 500, "index": 15 },
+				{ "x": 93, "y": 55, "index": 37 },
+				{ "x": 99, "y": 245, "index": 7 },
+				{ "x": 101, "y": 354, "index": 27 },
+				{ "x": 104, "y": 175, "index": 35 },
+				{ "x": 107, "y": 14, "index": 21 },
+				{ "x": 124, "y": 296, "index": 38 },
+				{ "x": 134, "y": 8, "index": 4 },
+				{ "x": 181, "y": 466, "index": 26 },
+				{ "x": 182, "y": 200, "index": 40 },
+				{ "x": 189, "y": 381, "index": 33 },
+				{ "x": 192, "y": 40, "index": 8 },
+				{ "x": 192, "y": 364, "index": 11 },
+				{ "x": 201, "y": 124, "index": 48 },
+				{ "x": 203, "y": 330, "index": 42 },
+				{ "x": 228, "y": 293, "index": 45 },
+				{ "x": 235, "y": 39, "index": 25 },
+				{ "x": 242, "y": 335, "index": 44 },
+				{ "x": 275, "y": 488, "index": 5 },
+				{ "x": 278, "y": 202, "index": 46 },
+				{ "x": 290, "y": 80, "index": 13 },
+				{ "x": 291, "y": 115, "index": 20 },
+				{ "x": 308, "y": 225, "index": 43 },
+				{ "x": 310, "y": 158, "index": 39 },
+				{ "x": 312, "y": 24, "index": 12 },
+				{ "x": 317, "y": 8, "index": 2 },
+				{ "x": 323, "y": 443, "index": 10 },
+				{ "x": 327, "y": 253, "index": 41 },
+				{ "x": 330, "y": 36, "index": 36 },
+				{ "x": 349, "y": 330, "index": 34 },
+				{ "x": 349, "y": 426, "index": 17 },
+				{ "x": 407, "y": 191, "index": 47 },
+				{ "x": 421, "y": 430, "index": 31 },
+				{ "x": 428, "y": 246, "index": 23 },
+				{ "x": 467, "y": 90, "index": 29 },
+				{ "x": 481, "y": 13, "index": 30 },
+				{ "x": 489, "y": 346, "index": 18 },
+				{ "x": 504, "y": 113, "index": 19 },
+				{ "x": 504, "y": 190, "index": 24 },
+				{ "x": 507, "y": 8, "index": 14 },
+				{ "x": 542, "y": 436, "index": 3 }
+			]
+		},
+		"town" :
+		{
+			"adventureMap" :
+			{
+				"castle" : "avchforx.def",
+				"village" : "AVCHFOR0.DEF",
+				"capitol" : "AVCHFORZ.DEF"
+			},
+			"structures" :
+			[
+				{ "animation" : "TBELEXT5.def", "x" : 682, "y" : 183,  "z" : -1, },
+				{ "animation" : "TBELEXT1.def", "x" : 23,  "y" : 218 },
+				{ "id" : 0,  "animation" : "TBELMAGE.def", "x" : 206, "y" : 58,  "z" : 4,  "border" : "TOELMAGE.bmp", "area" : "TZELMAGE.bmp" },
+				{ "id" : 1,  "animation" : "TBELMAG2.def", "x" : 206, "y" : 58,  "z" : 4,  "border" : "TOELMAG2.bmp", "area" : "TZELMAG2.bmp" },
+				{ "id" : 2,  "animation" : "TBELMAG3.def", "x" : 206, "y" : 58,  "z" : 4,  "border" : "TOELMAG3.bmp", "area" : "TZELMAG3.bmp" },
+				{ "id" : 3,  "animation" : "TBELMAG4.def", "x" : 206, "y" : 58,  "z" : 4,  "border" : "TOELMAG4.bmp", "area" : "TZELMAG4.bmp" },
+				{ "id" : 4,  "animation" : "TBELMAG5.def", "x" : 206, "y" : 58,  "z" : 4,  "border" : "TOELMAG5.bmp", "area" : "TZELMAG5.bmp" },
+				{ "id" : 5,  "animation" : "TBELTVRN.def", "x" : 553, "y" : 203, "z" : 1,  "border" : "TOELTVRN.bmp", "area" : "TZELTVRN.bmp" },
+				{ "id" : 6,  "animation" : "TBELDOCK.def", "x" : 239, "y" : 215, "z" : 2,  "border" : "TOELDOCK.bmp", "area" : "TZELDOCK.bmp" },
+				{ "id" : 7,  "animation" : "TBELCSTL.def", "x" : 349, "y" : 101, "z" : -1, "border" : "TOELCSTL.bmp", "area" : "TZELCSTL.bmp" },
+				{ "id" : 8,  "animation" : "TBELCAS2.def", "x" : 349, "y" : 101, "z" : -1, "border" : "TOELCAS2.bmp", "area" : "TZELCAS2.bmp" },
+				{ "id" : 9,  "animation" : "TBELCAS3.def", "x" : 349, "y" : 101, "z" : -1, "border" : "TOELCAS3.bmp", "area" : "TZELCAS3.bmp" },
+				{ "id" : 10, "animation" : "TBELHALL.def", "x" : -1,  "y" : 164, "z" : 5,  "border" : "TOELHALL.bmp", "area" : "TZELHALL.bmp" },
+				{ "id" : 11, "animation" : "TBELHAL2.def", "x" : 0,   "y" : 165, "z" : 5,  "border" : "TOELHAL2.bmp", "area" : "TZELHAL2.bmp" },
+				{ "id" : 12, "animation" : "TBELHAL3.def", "x" : 0,   "y" : 165, "z" : 5,  "border" : "TOELHAL3.bmp", "area" : "TZELHAL3.bmp" },
+				{ "id" : 13, "animation" : "TBELHAL4.def", "x" : 0,   "y" : 164, "z" : 5,  "border" : "TOELHAL4.bmp", "area" : "TZELHAL4.bmp" },
+				{ "id" : 14, "animation" : "TBELMARK.def", "x" : 347, "y" : 216, "z" : 4,  "border" : "TOELMARK.bmp", "area" : "TZELMARK.bmp" },
+				{ "id" : 15, "animation" : "TBELSILO.def", "x" : 372, "y" : 171, "z" : 2,  "border" : "TOELSILO.bmp", "area" : "TZELSILO.bmp" },
+				{ "id" : 16, "animation" : "TBELBLAK.def", "x" : 449, "y" : 151, "z" : 1,  "border" : "TOELBLAK.bmp", "area" : "TZELBLAK.bmp" },
+				{ "id" : 17, "animation" : "TBELSPEC.def", "x" : 284, "y" : 246, "z" : 4,  "border" : "TOELSPEC.bmp", "area" : "TZELSPEC.bmp" },
+				{ "id" : 18, "animation" : "TBELHRD1.def", "x" : 689, "y" : 250, "border" : "TOELHRD1.bmp", "area" : "TZELHRD1.bmp", "hidden" : true },
+				{ "id" : 19, "animation" : "TBELHRD2.def", "x" : 689, "y" : 250, "border" : "TOELHRD2.bmp", "area" : "TZELHRD2.bmp", "hidden" : true, "builds" : 18 },
+				{ "id" : 20, "animation" : "TBELBOAT.def", "x" : 239, "y" : 215, "z" : 2,  "border" : "TOELBOAT.bmp", "area" : "TZELBOAT.bmp", "hidden" : true },
+				{ "id" : 21, "animation" : "TBELEXT6.def", "x" : 104, "y" : 170, "z" : 3,  "border" : "TOELEXT6.bmp", "area" : "TZELEXT6.bmp" },
+				{ "id" : 26, "animation" : "TBELHOLY.def", "x" : 307, "y" : 2,   "border" : "TOELHOLY.bmp", "area" : "TZELHOLY.bmp" },
+				{ "id" : 27, "animation" : "TBELEXT2.def", "x" : 232, "y" : 205 },
+				{ "id" : 28, "animation" : "TBELEXT3.def", "x" : 516, "y" : 223, "z" : 1 },
+				{ "id" : 29, "animation" : "TBELEXT4.def", "x" : 0,   "y" : 252, "z" : 6 },
+				{ "id" : 30, "animation" : "TBELDW_0.def", "x" : 689, "y" : 250, "border" : "TOELDW_0.bmp", "area" : "TZELDW_0.bmp" },
+				{ "id" : 31, "animation" : "TBELDW_1.def", "x" : 630, "y" : 50,  "border" : "TOELDW_1.bmp", "area" : "TZELDW_1.bmp" },
+				{ "id" : 32, "animation" : "TBELDW_2.def", "x" : 709, "y" : 210, "z" : -1, "border" : "TOELDW_2.bmp", "area" : "TZELDW_2.bmp" },
+				{ "id" : 33, "animation" : "TBELDW_3.def", "x" : 108, "y" : 131, "z" : -1, "border" : "TOELDW_3.bmp", "area" : "TZELDW_3.bmp" },
+				{ "id" : 34, "animation" : "TBELDW_4.def", "x" : 264, "y" : 168, "z" : -1, "border" : "TOELDW_4.bmp", "area" : "TZELDW_4.bmp" },
+				{ "id" : 35, "animation" : "TBELDW_5.def", "x" : 394, "y" : 283, "z" : 2,  "border" : "TOELDW_5.bmp", "area" : "TZELDW_5.bmp" },
+				{ "id" : 36, "animation" : "TBELDW_6.def", "x" : 43,  "y" : 16,  "z" : -2, "border" : "TOELDW_6.bmp", "area" : "TZELDW_6.bmp" },
+				{ "id" : 37, "animation" : "TBELUP_0.def", "x" : 689, "y" : 250, "border" : "TOELUP_0.bmp", "area" : "TZELUP_0.bmp" },
+				{ "id" : 38, "animation" : "TBELUP_1.def", "x" : 630, "y" : 50,  "border" : "TOELUP_1.bmp", "area" : "TZELUP_1.bmp" },
+				{ "id" : 39, "animation" : "TBELUP_2.def", "x" : 709, "y" : 210, "z" : -1, "border" : "TOELUP_2.bmp", "area" : "TZELUP_2.bmp" },
+				{ "id" : 40, "animation" : "TBELUP_3.def", "x" : 108, "y" : 131, "z" : -1, "border" : "TOELUP_3.bmp", "area" : "TZELUP_3.bmp" },
+				{ "id" : 41, "animation" : "TBELUP_4.def", "x" : 264, "y" : 168, "z" : -1, "border" : "TOELUP_4.bmp", "area" : "TZELUP_4.bmp" },
+				{ "id" : 42, "animation" : "TBELUP_5.def", "x" : 394, "y" : 283, "z" : 2,  "border" : "TOELUP_5.bmp", "area" : "TZELUP_5.bmp" },
+				{ "id" : 43, "animation" : "TBELUP_6.def", "x" : 43,  "y" : 0,   "z" : -2, "border" : "TOELUP_6.bmp", "area" : "TZELUP_6.bmp" },
+			],
+			"icons" :
+			{
+				"village" : {"normal" : 34, "built" : 35 },
+				"fort"    : {"normal" : 16, "built" : 17 }
+			},
+			"musicTheme" : "music/ElemTown",
+
+			"townBackground": "TBELBACK.bmp",
+			"guildWindow": "TPMAGEEL.bmp",
+			"buildingsIcons": "HALLELEM.DEF",
+			"hallBackground": "TPTHBKFR.BMP",
+			"hallSlots":
+			[
+				[ [ 10, 11, 12, 13 ], [ 7, 8, 9 ], [ 5 ], [ 16 ] ],
+				[ [ 14, 15 ], [ 0, 1, 2, 3, 4 ], [ 6 ] ],
+				[ [ 21 ], [ 17 ], [ 18, 19 ] ],
+				[ [ 30, 37 ], [ 31, 38 ], [ 32, 39 ], [ 33, 40 ] ],
+				[ [ 34, 41 ], [ 35, 42 ], [ 36, 43 ] ]
+			],
+			"creatures" :
+			[
+				["Pixie", "Sprite"],
+				["AirElemental", "StormElemental"],
+				["WaterElemental", "IceElemental"],
+				["FireElemental", "ElectricityElemental"],
+				["EarthElemental", "StoneElemental"],
+				["PsiElemental", "MagicElemental"],
+				["Firebird", "Pheonix"]
+			],
+			"horde" : [ 0, -1 ],
+			"mageGuild" : 5,
+			"primaryResource" : "mercury",
+			"warMachine" : "Ballista",
+
+			"buildings" :
+			[
+				{ "id" : 0 },
+				{ "id" : 1,  "upgrades" : 0 },
+				{ "id" : 2,  "upgrades" : 1 },
+				{ "id" : 3,  "upgrades" : 2 },
+				{ "id" : 4,  "upgrades" : 3 },
+				{ "id" : 5 },
+				{ "id" : 6 },
+				{ "id" : 7 },
+				{ "id" : 8,  "upgrades" : 7 },
+				{ "id" : 9,  "upgrades" : 8 },
+				{ "id" : 10, "mode" : "auto" },
+				{ "id" : 11, "upgrades" : 10, "requires" : [ 5 ] },
+				{ "id" : 12, "upgrades" : 11, "requires" : [ 0, 14, 16 ] },
+				{ "id" : 13, "upgrades" : 12, "requires" : [ 9 ] },
+				{ "id" : 14 },
+				{ "id" : 15, "requires" : [ 14 ] },
+				{ "id" : 16 },
+				{ "id" : 17, "requires" : [ 14 ] },
+				{ "id" : 18, "upgrades" : 30 },
+				{ "id" : 19, "upgrades" : 37, "requires" : [ 18 ], "mode" : "auto" },
+				{ "id" : 20, "upgrades" : 6 },
+				{ "id" : 21, "requires" : [ 0 ] },
+				{ "id" : 26, "mode" : "grail"},
+				{ "id" : 27, "requires" : [ 11 ], "mode" : "auto" },
+				{ "id" : 28, "requires" : [ 12 ], "mode" : "auto" },
+				{ "id" : 29, "requires" : [ 13 ], "mode" : "auto" },
+				{ "id" : 30, "requires" : [ 7 ] },
+				{ "id" : 31, "requires" : [ 30, 0 ] },
+				{ "id" : 32, "requires" : [ 30, 0 ] },
+				{ "id" : 33, "requires" : [ 31 ] },
+				{ "id" : 34, "requires" : [ 32 ] },
+				{ "id" : 35, "requires" : [ 33, 34 ] },
+				{ "id" : 36, "requires" : [ 35 ] },
+				{ "id" : 37, "upgrades" : 30 },
+				{ "id" : 38, "upgrades" : 31 },
+				{ "id" : 39, "upgrades" : 32 },
+				{ "id" : 40, "upgrades" : 33, "requires" : [ 31 ] },
+				{ "id" : 41, "upgrades" : 34 },
+				{ "id" : 42, "upgrades" : 35, "requires" : [ 1 ] },
+				{ "id" : 43, "upgrades" : 36 }
+			],
+
+			"siege" :
+			{
+				"shooter" : "StormElemental",
+				"imagePrefix" : "SGEL",
+				"gate" :
+				{
+					"arch" : { "x" : 486, "y" : 232 },
+					"gate" : { "x" : 408, "y" : 254 }
+				},
+				"moat" :
+				{
+					"bank" : { "x" : 407, "y" : 80 },
+					"moat" : { "x" : 407, "y" : 80 }
+				},
+				"shooterHeight" : 229,
+				"static" :
+				{
+					"background" : { "x" : 600, "y" : 50 },
+					"bottom" : { "x" : 509, "y" : 346 },
+					"top" : { "x" : 490, "y" : 97 }
+				},
+				"towers" :
+				{
+					"bottom" :
+					{
+						"battlement" : { "x" : 608, "y" : 505 },
+						"creature" : { "x" : 382, "y" : 308 },
+						"tower" : { "x" : 608, "y" : 505 }
+					},
+					"keep" :
+					{
+						"battlement" : { "x" : 736, "y" : 159 },
+						"creature" : { "x" : 529, "y" : -42 },
+						"tower" : { "x" : 736, "y" : 159 }
+					},
+					"top" :
+					{
+						"battlement" : { "x" : 576, "y" : 28 },
+						"creature" : { "x" : 341, "y" : -162 },
+						"tower" : { "x" : 576, "y" : 28 }
+					}
+				},
+				"walls" :
+				{
+					"bottom" : { "x" : 509, "y" : 346 },
+					"bottomMid" : { "x" : 468, "y" : 299 },
+					"upper" : { "x" : 521, "y" : 41 },
+					"upperMid" : { "x" : 471, "y" : 147 }
+				}
+			}
+		}
+	}
+}

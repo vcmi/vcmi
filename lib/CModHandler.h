@@ -40,39 +40,48 @@ public:
 	void finalize() const;
 };
 
-typedef si32 TModID;
+typedef std::string TModID;
 
 class DLL_LINKAGE CModInfo
 {
 public:
-	/// TODO: list of mods that should be loaded before this one
-	std::vector <TModID> requirements;
+	/// identifier, identical to name of folder with mod
+	std::string identifier;
 
-	/// mod configuration (mod.json).
-	std::shared_ptr<JsonNode> config; //TODO: unique_ptr can't be serialized
+	/// human-readable strings
+	std::string name;
+	std::string description;
+
+	/// priority in which this mod should be loaded
+	/// may be somewhat ignored to load required mods first or overriden by user
+	double loadPriority;
+
+	/// TODO: list of mods that should be loaded before this one
+	std::set <TModID> requirements;
+
+	// mod configuration (mod.json). (no need to store it right now)
+	// std::shared_ptr<JsonNode> config; //TODO: unique_ptr can't be serialized
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & requirements & config;
+		h & name & requirements;
 	}
 };
 
 class DLL_LINKAGE CModHandler
 {
-	//std::string currentConfig; //save settings in this file
-
 	std::map <TModID, CModInfo> allMods;
-	std::set <TModID> activeMods;//TODO: use me
+	std::vector <TModID> activeMods;//active mods, in order in which they were loaded
 
+	void loadConfigFromFile (std::string name);
 public:
 	CIdentifierStorage identifiers;
 
-	/// management of game settings config
-	void loadConfigFromFile (std::string name);	
-	void saveConfigToFile (std::string name);
+	/// receives list of available mods and trying to load mod.json from all of them
+	void initialize(std::vector<std::string> availableMods);
 
-	/// find all available mods and load them into FS
-	void findAvailableMods();
+	/// returns list of mods that should be active with order in which they shoud be loaded
+	std::vector<std::string> getActiveMods();
 
 	/// load content from all available mods
 	void loadActiveMods();

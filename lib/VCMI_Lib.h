@@ -40,9 +40,9 @@ public:
 	~LibClasses();
 	void init(); //uses standard config file
 	void clear(); //deletes all handlers and its data
-	void makeNull(); //sets all handler (except of lodhs) pointers to null
+	void makeNull(); //sets all handler pointers to null
 
-	static void loadFilesystem();
+	void loadFilesystem();// basic initialization. should be called before init()
 
 	void callWhenDeserializing(); //should be called only by serialize !!!
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -57,4 +57,6 @@ public:
 
 extern DLL_LINKAGE LibClasses * VLC;
 
-DLL_LINKAGE void initDLL(CConsoleHandler *Console, std::ostream *Logfile);
+DLL_LINKAGE void preinitDLL(CConsoleHandler *Console, std::ostream *Logfile);
+DLL_LINKAGE void loadDLLClasses();
+

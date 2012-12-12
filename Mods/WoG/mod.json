@@ -31,5 +31,9 @@
 		[
 			{"type" : "dir", "path" : "ALL/MODS/WOG/Maps"}
 		],
-	}
+	},
+
+	"name" : "In The Wake of Gods",
+	"description" : "Unnofficial addon for Heroes of Might and Magic III",
+	"priority" : 5
 }

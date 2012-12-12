@@ -1,0 +1,245 @@
+{
+	"dungeon" :
+	{
+		"index" : 5,
+		"nativeTerrain": "subterra",
+		"alignment" : "evil",
+		"creatureBackground" :
+		{
+			"120px" : "TPCASDUN",
+			"130px" : "CRBKGDUN"
+		},
+		"puzzleMap" :
+		{
+			"prefix" : "PUZDUN",
+			"pieces" :
+			[
+				{ "x": 7, "y": 8, "index": 31 },
+				{ "x": 7, "y": 125, "index": 1 },
+				{ "x": 7, "y": 353, "index": 33 },
+				{ "x": 7, "y": 394, "index": 6 },
+				{ "x": 30, "y": 101, "index": 36 },
+				{ "x": 33, "y": 219, "index": 16 },
+				{ "x": 57, "y": 171, "index": 13 },
+				{ "x": 62, "y": 8, "index": 47 },
+				{ "x": 63, "y": 90, "index": 41 },
+				{ "x": 83, "y": 471, "index": 10 },
+				{ "x": 94, "y": 117, "index": 21 },
+				{ "x": 99, "y": 8, "index": 5 },
+				{ "x": 113, "y": 258, "index": 32 },
+				{ "x": 156, "y": 146, "index": 28 },
+				{ "x": 165, "y": 288, "index": 42 },
+				{ "x": 172, "y": 388, "index": 44 },
+				{ "x": 177, "y": 36, "index": 39 },
+				{ "x": 194, "y": 235, "index": 46 },
+				{ "x": 204, "y": 502, "index": 3 },
+				{ "x": 236, "y": 320, "index": 23 },
+				{ "x": 238, "y": 8, "index": 20 },
+				{ "x": 245, "y": 75, "index": 25 },
+				{ "x": 247, "y": 396, "index": 29 },
+				{ "x": 247, "y": 459, "index": 14 },
+				{ "x": 253, "y": 152, "index": 48 },
+				{ "x": 301, "y": 233, "index": 43 },
+				{ "x": 323, "y": 8, "index": 12 },
+				{ "x": 323, "y": 178, "index": 45 },
+				{ "x": 328, "y": 342, "index": 30 },
+				{ "x": 329, "y": 428, "index": 19 },
+				{ "x": 339, "y": 8, "index": 26 },
+				{ "x": 357, "y": 141, "index": 27 },
+				{ "x": 374, "y": 8, "index": 15 },
+				{ "x": 374, "y": 236, "index": 34 },
+				{ "x": 392, "y": 439, "index": 35 },
+				{ "x": 400, "y": 291, "index": 40 },
+				{ "x": 401, "y": 103, "index": 18 },
+				{ "x": 422, "y": 381, "index": 37 },
+				{ "x": 436, "y": 8, "index": 17 },
+				{ "x": 438, "y": 336, "index": 24 },
+				{ "x": 449, "y": 131, "index": 9 },
+				{ "x": 453, "y": 161, "index": 11 },
+				{ "x": 471, "y": 267, "index": 38 },
+				{ "x": 477, "y": 64, "index": 22 },
+				{ "x": 480, "y": 456, "index": 8 },
+				{ "x": 485, "y": 8, "index": 2 },
+				{ "x": 536, "y": 197, "index": 4 },
+				{ "x": 541, "y": 22, "index": 7 }
+			]
+		},
+		"town" :
+		{
+			"adventureMap" :
+			{
+				"castle" : "AVCdunx0.def",
+				"village" : "AVCDUNG0.DEF",
+				"capitol" : "AVCDUNZ0.DEF"
+			},
+			"structures" :
+			[
+				{ "id" : 0,  "animation" : "TBDNMAGE.def", "x" : 164, "y" : 119, "z" : -1, "border" : "TODMAG1.bmp",  "area" : "TZDMAG1.bmp" },
+				{ "id" : 1,  "animation" : "TBDNMAG2.def", "x" : 164, "y" : 97,  "z" : -1, "border" : "TODMAG2.bmp",  "area" : "TZDMAG2.bmp" },
+				{ "id" : 2,  "animation" : "TBDNMAG3.def", "x" : 164, "y" : 77,  "z" : -1, "border" : "TODMAG3.bmp",  "area" : "TZDMAG3.bmp" },
+				{ "id" : 3,  "animation" : "TBDNMAG4.def", "x" : 164, "y" : 61,  "z" : -1, "border" : "TODMAG4.bmp",  "area" : "TZDMAG4.bmp" },
+				{ "id" : 4,  "animation" : "TBDNMAG5.def", "x" : 164, "y" : 15,  "z" : -1, "border" : "TODMAG5.bmp",  "area" : "TZDMAG5.bmp" },
+				{ "id" : 5,  "animation" : "TBDNTVRN.def", "x" : 211, "y" : 297, "border" : "TODTAV.bmp",   "area" : "TZDTAV.bmp" },
+				{ "id" : 7,  "animation" : "TBDNCSTL.def", "x" : 363, "y" : 87,  "z" : 2,  "border" : "TODCAS1.bmp",  "area" : "TZDCAS1.bmp" },
+				{ "id" : 8,  "animation" : "TBDNCAS2.def", "x" : 363, "y" : 87,  "z" : 2,  "border" : "TODCAS2.bmp",  "area" : "TZDCAS2.bmp" },
+				{ "id" : 9,  "animation" : "TBDNCAS3.def", "x" : 363, "y" : 87,  "z" : 2,  "border" : "TODCAS3.bmp",  "area" : "TZDCAS3.bmp" },
+				{ "id" : 10, "animation" : "TBDNHALL.def", "x" : 0,   "y" : 234, "border" : "TODHALL1.bmp", "area" : "TZDHALL1.bmp" },
+				{ "id" : 11, "animation" : "TBDNHAL2.def", "x" : 0,   "y" : 223, "border" : "TODHALL2.bmp", "area" : "TZDHALL2.bmp" },
+				{ "id" : 12, "animation" : "TBDNHAL3.def", "x" : 0,   "y" : 223, "border" : "TODHALL3.bmp", "area" : "TZDHALL3.bmp" },
+				{ "id" : 13, "animation" : "TBDNHAL4.def", "x" : 0,   "y" : 203, "z" : -1, "border" : "TODHALL4.bmp", "area" : "TZDHALL4.bmp" },
+				{ "id" : 14, "animation" : "TBDNMARK.def", "x" : 590, "y" : 318, "z" : -2, "border" : "TODMARK.bmp",  "area" : "TZDMARK.bmp" },
+				{ "id" : 15, "animation" : "TBDNSILO.def", "x" : 624, "y" : 335, "z" : 1,  "border" : "TODSILO.bmp",  "area" : "TZDSILO.bmp" },
+				{ "id" : 16, "animation" : "TBDNBLAK.def", "x" : 544, "y" : 248, "z" : -3, "border" : "TODSMITH.bmp", "area" : "TZDSMITH.bmp" },
+				{ "id" : 17, "animation" : "TBDNSPEC.def", "x" : 746, "y" : 294, "z" : 1,  "border" : "TODART.bmp",   "area" : "TZDART.bmp" },
+				{ "id" : 18, "animation" : "TBDNHRD1.def", "x" : 0,   "y" : 326, "z" : 2,  "border" : "TODTR1HA.bmp", "area" : "TZDTR1HA.bmp", "hidden" : true },
+				{ "id" : 19, "animation" : "TBDNHRD2.def", "x" : 0,   "y" : 300, "z" : 2,  "border" : "TODTR2HA.bmp", "area" : "TZDTR2HA.bmp", "hidden" : true, "builds" : 18 },
+				{ "id" : 21, "animation" : "TBDNEXT0.def", "x" : 131, "y" : 26 , "border" : "TODVOR1A.bmp", "area" : "TZDVOR1A.bmp" },
+				{ "id" : 22, "animation" : "TBDNEXT1.def", "x" : 687, "y" : 177, "border" : "TODPORTA.bmp", "area" : "TZDPORTA.bmp" },
+				{ "id" : 23, "animation" : "TBDNEXT2.def", "x" : 313, "y" : 298, "border" : "TODACAD.bmp",  "area" : "TZDACAD.bmp" },
+				{ "id" : 26, "animation" : "TBDNHOLY.def", "x" : 562, "y" : 24,  "z" : 1,  "border" : "TODHOLY.bmp",  "area" : "TZDHOLY.bmp" },
+				{ "id" : 30, "animation" : "TBDNDW_0.def", "x" : 0,   "y" : 326, "z" : 2,  "border" : "TODTRG1A.bmp", "area" : "TZDTRG1A.bmp" },
+				{ "id" : 31, "animation" : "TBDNDW_1.def", "x" : 0,   "y" : 26,  "border" : "TODHAR1.bmp",  "area" : "TZDHAR1.bmp" },
+				{ "id" : 32, "animation" : "TBDNDW_2.def", "x" : 118, "y" : 308, "z" : 1,  "border" : "TODBEH1A.bmp", "area" : "TZDBEH1A.bmp" },
+				{ "id" : 33, "animation" : "TBDNDW_3.def", "x" : 300, "y" : 29,  "z" : -1, "border" : "TODMED1.bmp",  "area" : "TZDMED1.bmp" },
+				{ "id" : 34, "animation" : "TBDNDW_4.def", "x" : 551, "y" : 186, "z" : 1,  "border" : "TODMIN1.bmp",  "area" : "TZDMIN1.bmp" },
+				{ "id" : 35, "animation" : "TBDNDW_5.def", "x" : 270, "y" : 253, "z" : -1, "border" : "TODMAN1.bmp",  "area" : "TZDMAN1.bmp" },
+				{ "id" : 36, "animation" : "TBDNDW_6.def", "x" : 550, "y" : 0,   "z" : -1, "border" : "TODDRA1A.bmp", "area" : "TZDDRA1A.bmp" },
+				{ "id" : 37, "animation" : "TBDNUP_0.def", "x" : 0,   "y" : 300, "z" : 2,  "border" : "TODTRG2A.bmp", "area" : "TZDTRG2A.bmp" },
+				{ "id" : 38, "animation" : "TBDNUP_1.def", "x" : 0,   "y" : 26,  "border" : "TODHAR2.bmp",  "area" : "TZDHAR2.bmp" },
+				{ "id" : 39, "animation" : "TBDNUP_2.def", "x" : 118, "y" : 256, "z" : 1,  "border" : "TODBEH2A.bmp", "area" : "TZDBEH2A.bmp" },
+				{ "id" : 40, "animation" : "TBDNUP_3.def", "x" : 300, "y" : 29,  "z" : -1, "border" : "TODMED2.bmp",  "area" : "TZDMED2.bmp" },
+				{ "id" : 41, "animation" : "TBDNUP_4.def", "x" : 519, "y" : 172, "z" : 1,  "border" : "TODMIN2.bmp",  "area" : "TZDMIN2.bmp" },
+				{ "id" : 42, "animation" : "TBDNUP_5.def", "x" : 270, "y" : 253, "z" : -1, "border" : "TODMAN2.bmp",  "area" : "TZDMAN2.bmp" },
+				{ "id" : 43, "animation" : "TBDNUP_6.def", "x" : 550, "y" : 0,   "z" : -1, "border" : "TODDRA2A.bmp", "area" : "TZDDRA2A.bmp" },
+			],
+			"icons" :
+			{
+				"village" : {"normal" : 28, "built" : 29 },
+				"fort"    : {"normal" : 10, "built" : 11 }
+			},
+			"musicTheme" : "music/Dungeon",
+
+			"townBackground": "TBDNBACK.bmp",
+			"guildWindow": "TPMAGEDN.bmp",
+			"buildingsIcons": "HALLDUNG.DEF",
+			"hallBackground": "TPTHBKDG.BMP",
+			"hallSlots":
+			[
+				[ [ 10, 11, 12, 13 ], [ 7, 8, 9 ], [ 5 ], [ 16 ] ],
+				[ [ 14, 15 ], [ 0, 1, 2, 3, 4 ], [ 21 ], [ 22 ] ],
+				[ [ 17 ], [ 23 ], [ 18, 19 ] ],
+				[ [ 30, 37 ], [ 31, 38 ], [ 32, 39 ], [ 33, 40 ] ],
+				[ [ 34, 41 ], [ 35, 42 ], [ 36, 43 ] ]
+			],
+			"creatures" :
+			[
+				["Troglodyte", "InfernalTroglodyte"],
+				["Harpy", "HarpyHag"],
+				["Beholder", "EvilEye"],
+				["Medusa", "MedusaQueen"],
+				["Minotaur", "MinotaurKing"],
+				["Manticore", "Scorpicore"],
+				["RedDragon", "BlackDragon"]
+			],
+			"horde" : [ 0, -1 ],
+			"mageGuild" : 5,
+			"primaryResource" : "sulfur",
+			"warMachine" : "Ballista",
+
+			"buildings" :
+			[
+				{ "id" : 0 },
+				{ "id" : 1,  "upgrades" : 0 },
+				{ "id" : 2,  "upgrades" : 1 },
+				{ "id" : 3,  "upgrades" : 2 },
+				{ "id" : 4,  "upgrades" : 3 },
+				{ "id" : 5 },
+				{ "id" : 7 },
+				{ "id" : 8,  "upgrades" : 7 },
+				{ "id" : 9,  "upgrades" : 8 },
+				{ "id" : 10, "mode" : "auto" },
+				{ "id" : 11, "upgrades" : 10, "requires" : [ 5 ] },
+				{ "id" : 12, "upgrades" : 11, "requires" : [ 0, 14, 16 ] },
+				{ "id" : 13, "upgrades" : 12, "requires" : [ 9 ] },
+				{ "id" : 14 },
+				{ "id" : 15, "requires" : [ 14 ] },
+				{ "id" : 16 },
+				{ "id" : 17, "requires" : [ 14 ] },
+				{ "id" : 18, "upgrades" : 30 },
+				{ "id" : 19, "upgrades" : 37, "requires" : [ 18 ], "mode" : "auto" },
+				{ "id" : 21, "requires" : [ 0 ] },
+				{ "id" : 22 },
+				{ "id" : 23 },
+				{ "id" : 26, "mode" : "grail"},
+				{ "id" : 27, "requires" : [ 11 ], "mode" : "auto" },
+				{ "id" : 28, "requires" : [ 12 ], "mode" : "auto" },
+				{ "id" : 29, "requires" : [ 13 ], "mode" : "auto" },
+				{ "id" : 30, "requires" : [ 7 ] },
+				{ "id" : 31, "requires" : [ 30 ] },
+				{ "id" : 32, "requires" : [ 30 ] },
+				{ "id" : 33, "requires" : [ 31, 32 ] },
+				{ "id" : 34, "requires" : [ 33 ] },
+				{ "id" : 35, "requires" : [ 33 ] },
+				{ "id" : 36, "requires" : [ 1, 34, 35 ] },
+				{ "id" : 37, "upgrades" : 30 },
+				{ "id" : 38, "upgrades" : 31 },
+				{ "id" : 39, "upgrades" : 32 },
+				{ "id" : 40, "upgrades" : 33 },
+				{ "id" : 41, "upgrades" : 34 },
+				{ "id" : 42, "upgrades" : 35 },
+				{ "id" : 43, "upgrades" : 36, "requires" : [ 2 ] }
+			],
+
+			"siege" :
+			{
+				"shooter" : "Beholder",
+				"imagePrefix" : "SGDN",
+				"gate" :
+				{
+					"arch" : { "x" : 471, "y" : 164 },
+					"gate" : { "x" : 395, "y" : 260 }
+				},
+				"moat" :
+				{
+					"bank" : { "x" : 283, "y" : 94 },
+					"moat" : { "x" : 283, "y" : 94 }
+				},
+				"shooterHeight" : 230,
+				"static" :
+				{
+					"background" : { "x" : 608, "y" : 50 },
+					"bottom" : { "x" : 522, "y" : 305 },
+					"top" : { "x" : 494, "y" : 53 }
+				},
+				"towers" :
+				{
+					"bottom" :
+					{
+						"battlement" : { "x" : 600, "y" : 495 },
+						"creature" : { "x" : 410, "y" : 293 },
+						"tower" : { "x" : 560, "y" : 495 }
+					},
+					"keep" :
+					{
+						"battlement" : { "x" : 732, "y" : 162 },
+						"creature" : { "x" : 570, "y" : -50 },
+						"tower" : { "x" : 732, "y" : 162 }
+					},
+					"top" :
+					{
+						"battlement" : { "x" : 565, "y" : 15 },
+						"creature" : { "x" : 381, "y" : -187 },
+						"tower" : { "x" : 565, "y" : 15 }
+					}
+				},
+				"walls" :
+				{
+					"bottom" : { "x" : 559, "y" : 448 },
+					"bottomMid" : { "x" : 471, "y" : 296 },
+					"upper" : { "x" : 523, "y" : 56 },
+					"upperMid" : { "x" : 477, "y" : 180 }
+				}
+			}
+		}
+	}
+}

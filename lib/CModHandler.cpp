@@ -71,10 +71,6 @@ CModHandler::CModHandler()
 	VLC->modh = this;
 
 	loadConfigFromFile ("defaultMods");
-	findAvailableMods();
-	//CResourceHandler::loadModsFilesystems(); //scan for all mods
-	//TODO: mod filesystem is already initialized at LibClasses launch
-	//TODO: load default (last?) config
 }
 
 void CModHandler::loadConfigFromFile (std::string name)
@@ -94,51 +90,59 @@ void CModHandler::loadConfigFromFile (std::string name)
 	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();
 	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
-
-	//TODO: load only mods from the list
 }
 
-void CModHandler::saveConfigToFile (std::string name)
+void CModHandler::initialize(std::vector<std::string> availableMods)
 {
-	//JsonNode savedConf = config;
-	//JsonNode schema(ResourceID("config/defaultSettings.json"));
-
-	//savedConf.Struct().erase("session");
-	//savedConf.minimize(schema);
-
-	CResourceHandler::get()->createResource("config/" + name +".json");
-
-	std::ofstream file(CResourceHandler::get()->getResourceName(ResourceID("config/" + name +".json")), std::ofstream::trunc);
-	//file << savedConf;
-}
-
-
-void CModHandler::findAvailableMods()
-{
-	//TODO: read mods from Mods/ folder
-
-	auto & configList = CResourceHandler::get()->getResourcesWithName (ResourceID("CONFIG/mod.json"));
-
-	BOOST_FOREACH(auto & entry, configList)
+	BOOST_FOREACH(std::string &name, availableMods)
 	{
-		auto stream = entry.getLoader()->load (entry.getResourceName());
-		std::unique_ptr<ui8[]> textData (new ui8[stream->getSize()]);
-		stream->read (textData.get(), stream->getSize());
+		std::string modFileName = "mods/" + name + "/mod.json";
 
-		tlog3 << "\t\tFound mod file: " << entry.getResourceName() << "\n";
-		allMods[allMods.size()].config.reset(new JsonNode((char*)textData.get(), stream->getSize()));
+		if (CResourceHandler::get()->existsResource(ResourceID(modFileName)))
+		{
+			const JsonNode config = JsonNode(ResourceID(modFileName));
+
+			if (!config.isNull())
+			{
+				allMods[name].identifier = name;
+				allMods[name].name = config["name"].String();
+				allMods[name].description = config["description"].String();
+				allMods[name].loadPriority = config["priority"].Float();
+				activeMods.push_back(name);
+
+				tlog1 << "\t\tMod ";
+				tlog2 << allMods[name].name;
+				tlog1 << " enabled\n";
+			}
+		}
+		else
+			tlog1 << "\t\t Directory " << name << " does not contains VCMI mod\n";
 	}
+
+	std::sort(activeMods.begin(), activeMods.end(), [&](std::string a, std::string b)
+	{
+		return allMods[a].loadPriority < allMods[b].loadPriority;
+	});
+}
+
+
+std::vector<std::string> CModHandler::getActiveMods()
+{
+	return activeMods;
 }
 
 void CModHandler::loadActiveMods()
 {
-	BOOST_FOREACH(auto & mod, allMods)
+	BOOST_FOREACH(std::string & modName, activeMods)
 	{
-		const JsonNode & config = *mod.second.config;
+		std::string modFileName = "mods/" + modName + "/mod.json";
 
-		VLC->townh->load(config["factions"]);
-		VLC->creh->load(config["creatures"]);
+		const JsonNode config = JsonNode(ResourceID(modFileName));
+
+		VLC->townh->load(JsonUtils::assembleFromFiles(config ["factions"].convertTo<std::vector<std::string> >()));
+		VLC->creh->load( JsonUtils::assembleFromFiles(config["creatures"].convertTo<std::vector<std::string> >()));
 	}
+
 	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded
 	identifiers.finalize();
 }

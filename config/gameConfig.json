@@ -1,0 +1,15 @@
+{
+	"factions" :
+	[
+		"config/factions/castle.json",
+		"config/factions/rampart.json",
+		"config/factions/tower.json",
+		"config/factions/necropolis.json",
+		"config/factions/inferno.json",
+		"config/factions/dungeon.json",
+		"config/factions/stronghold.json",
+		"config/factions/fortress.json",
+		"config/factions/conflux.json",
+		"config/factions/neutral.json"
+	]
+}

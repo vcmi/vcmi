@@ -502,7 +502,8 @@ void CTownHandler::load(const JsonNode &source)
 
 void CTownHandler::load()
 {
-	JsonNode buildingsConf(ResourceID("config/buildings.json"));
+	JsonNode gameConf(ResourceID("config/gameConfig.json"));
+	JsonNode buildingsConf = JsonUtils::assembleFromFiles(gameConf["factions"].convertTo<std::vector<std::string> >());
 
 	JsonNode legacyConfig;
 	loadLegacyData(legacyConfig);

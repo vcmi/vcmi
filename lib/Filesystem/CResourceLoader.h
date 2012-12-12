@@ -380,10 +380,11 @@ public:
 	static void loadArchive(const std::string & mountPoint, const JsonNode & config, EResType::Type archiveType);
 
 	/**
-	 * Experimental. Checks all subfolders of MODS directory for presence of ERA-style mods
-	 * If this directory has filesystem.json file it will be added to resources
+	 * Checks all subfolders of MODS directory for presence of mods
+	 * If this directory has mod.json file it will be added to resources
 	 */
-	static void loadModsFilesystems();
+	static std::vector<std::string> getAvailableMods();
+	static void setActiveMods(std::vector<std::string> enabledMods); //WARNING: not reentrable. Do not call it twice!!!
 
 private:
 	/** Instance of resource loader */

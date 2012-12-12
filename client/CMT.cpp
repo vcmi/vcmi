@@ -130,7 +130,7 @@ void init()
 	tlog0<<"\tInitializing sound: "<<pomtime.getDiff()<<std::endl;
 	tlog0<<"Initializing screen and sound handling: "<<tmh.getDiff()<<std::endl;
 
-	initDLL(::console,logfile);
+	loadDLLClasses();
 	const_cast<CGameInfo*>(CGI)->setFromLib();
 	CCS->soundh->initCreaturesSounds(CGI->creh->creatures);
 	CCS->soundh->initSpellsSounds(CGI->spellh->spells);
@@ -241,7 +241,7 @@ int main(int argc, char** argv)
 	atexit(dispose);
 	tlog0 <<"Creating console and logfile: "<<pomtime.getDiff() << std::endl;
 
-	LibClasses::loadFilesystem();
+	preinitDLL(::console, logfile);
 
 	settings.init();
 	conf.init();

@@ -509,9 +509,9 @@ int main(int argc, char** argv)
 		port = _ttoi(argv[1]);
 #endif
 	}
-	LibClasses::loadFilesystem();
+	preinitDLL(console,logfile);
 	tlog0 << "Port " << port << " will be used." << std::endl;
-	initDLL(console,logfile);
+	loadDLLClasses();
 	srand ( (ui32)time(NULL) );
 	try
 	{

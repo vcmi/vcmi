@@ -13,5 +13,9 @@
 		[
 			{"type" : "dir",  "path" : "ALL/MODS/VCMI/Maps"}
 		]
-	}
+	},
+
+	"name" : "VCMI essential files",
+	"description" : "Essential files required for VCMI to run correctly",
+	"priority" : 10
 }

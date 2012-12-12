@@ -1023,6 +1023,12 @@ void JsonUtils::validate(JsonNode & node, const JsonNode& schema)
 
 void JsonUtils::merge(JsonNode & dest, JsonNode & source)
 {
+	if (dest.getType() == JsonNode::DATA_NULL)
+	{
+		std::swap(dest, source);
+		return;
+	}
+
 	switch (source.getType())
 	{
 		break; case JsonNode::DATA_NULL:   dest.setType(JsonNode::DATA_NULL);
@@ -1031,11 +1037,19 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source)
 		break; case JsonNode::DATA_STRING: std::swap(dest.String(), source.String());
 		break; case JsonNode::DATA_VECTOR:
 		{
-			//reserve place and *move* data from source to dest
-			source.Vector().reserve(source.Vector().size() + dest.Vector().size());
+			size_t total = std::min(source.Vector().size(), dest.Vector().size());
 
-			std::move(source.Vector().begin(), source.Vector().end(),
-			          std::back_inserter(dest.Vector()));
+			for (size_t i=0; i< total; i++)
+				merge(dest.Vector()[i], source.Vector()[i]);
+
+			if (source.Vector().size() < dest.Vector().size())
+			{
+				//reserve place and *move* data from source to dest
+				source.Vector().reserve(source.Vector().size() + dest.Vector().size());
+
+				std::move(source.Vector().begin(), source.Vector().end(),
+				          std::back_inserter(dest.Vector()));
+			}
 		}
 		break; case JsonNode::DATA_STRUCT:
 		{
@@ -1050,4 +1064,16 @@ void JsonUtils::mergeCopy(JsonNode & dest, JsonNode source)
 {
 	// uses copy created in stack to safely merge two nodes
 	merge(dest, source);
+}
+
+JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files)
+{
+	JsonNode result;
+
+	BOOST_FOREACH(std::string file, files)
+	{
+		JsonNode section(ResourceID(file, EResType::TEXT));
+		merge(result, section);
+	}
+	return result;
 }

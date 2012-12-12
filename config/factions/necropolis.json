@@ -1,0 +1,250 @@
+{
+	"necropolis" :
+	{
+		"index" : 4,
+		"nativeTerrain": "dirt",
+		"alignment" : "evil",
+		"creatureBackground" :
+		{
+			"120px" : "TPCASNEC",
+			"130px" : "CRBKGNEC"
+		},
+		"puzzleMap" :
+		{
+			"prefix" : "PUZNEC",
+			"pieces" :
+			[
+				{ "x": 7, "y": 8, "index": 22 },
+				{ "x": 7, "y": 188, "index": 1 },
+				{ "x": 7, "y": 329, "index": 20 },
+				{ "x": 7, "y": 403, "index": 24 },
+				{ "x": 8, "y": 8, "index": 47 },
+				{ "x": 14, "y": 138, "index": 30 },
+				{ "x": 15, "y": 8, "index": 9 },
+				{ "x": 34, "y": 374, "index": 31 },
+				{ "x": 55, "y": 82, "index": 25 },
+				{ "x": 55, "y": 150, "index": 38 },
+				{ "x": 57, "y": 281, "index": 8 },
+				{ "x": 94, "y": 188, "index": 36 },
+				{ "x": 108, "y": 344, "index": 6 },
+				{ "x": 119, "y": 424, "index": 13 },
+				{ "x": 124, "y": 256, "index": 37 },
+				{ "x": 131, "y": 8, "index": 7 },
+				{ "x": 139, "y": 92, "index": 11 },
+				{ "x": 145, "y": 371, "index": 29 },
+				{ "x": 148, "y": 42, "index": 21 },
+				{ "x": 175, "y": 200, "index": 44 },
+				{ "x": 200, "y": 291, "index": 45 },
+				{ "x": 201, "y": 66, "index": 42 },
+				{ "x": 210, "y": 482, "index": 18 },
+				{ "x": 247, "y": 98, "index": 28 },
+				{ "x": 250, "y": 227, "index": 48 },
+				{ "x": 262, "y": 8, "index": 15 },
+				{ "x": 293, "y": 373, "index": 32 },
+				{ "x": 303, "y": 286, "index": 46 },
+				{ "x": 318, "y": 173, "index": 43 },
+				{ "x": 345, "y": 444, "index": 2 },
+				{ "x": 356, "y": 8, "index": 5 },
+				{ "x": 357, "y": 386, "index": 17 },
+				{ "x": 362, "y": 38, "index": 40 },
+				{ "x": 382, "y": 8, "index": 19 },
+				{ "x": 382, "y": 119, "index": 35 },
+				{ "x": 421, "y": 164, "index": 27 },
+				{ "x": 422, "y": 249, "index": 4 },
+				{ "x": 428, "y": 52, "index": 14 },
+				{ "x": 429, "y": 101, "index": 10 },
+				{ "x": 443, "y": 132, "index": 41 },
+				{ "x": 452, "y": 239, "index": 34 },
+				{ "x": 465, "y": 441, "index": 23 },
+				{ "x": 469, "y": 300, "index": 39 },
+				{ "x": 476, "y": 20, "index": 3 },
+				{ "x": 537, "y": 249, "index": 33 },
+				{ "x": 547, "y": 430, "index": 12 },
+				{ "x": 559, "y": 140, "index": 26 },
+				{ "x": 558, "y": 8, "index": 16 }
+			]
+		},
+		"town" :
+		{
+			"adventureMap" :
+			{
+				"castle" : "AVCnecx0.def",
+				"village" : "AVCNECR0.DEF",
+				"capitol" : "AVCNECZ0.DEF"
+			},
+			"structures" :
+			[
+				{ "animation" : "TBNCEXT2.def", "x" : 25,  "y" : 279 },
+				{ "id" : 0,  "animation" : "TBNCMAGE.def", "x" : 341, "y" : 116, "z" : -1, "border" : "TONMAG1.bmp",  "area" : "TZNMAG1.bmp" },
+				{ "id" : 1,  "animation" : "TBNCMAG2.def", "x" : 341, "y" : 97,  "z" : -1, "border" : "TONMAG2.bmp",  "area" : "TZNMAG2.bmp" },
+				{ "id" : 2,  "animation" : "TBNCMAG3.def", "x" : 341, "y" : 78,  "z" : -1, "border" : "TONMAG3.bmp",  "area" : "TZNMAG3.bmp" },
+				{ "id" : 3,  "animation" : "TBNCMAG4.def", "x" : 340, "y" : 62,  "z" : -1, "border" : "TONMAG4.bmp",  "area" : "TZNMAG4.bmp" },
+				{ "id" : 4,  "animation" : "TBNCMAG5.def", "x" : 343, "y" : 35,  "z" : -1, "border" : "TONMAG5.bmp",  "area" : "TZNMAG5.bmp" },
+				{ "id" : 5,  "animation" : "TBNCTVRN.def", "x" : 508, "y" : 189, "border" : "TONTAV.bmp",   "area" : "TZNTAV.bmp"  },
+				{ "id" : 6,  "animation" : "TBNCDOCK.def", "x" : 617, "y" : 265, "z" : -2, "border" : "TONSHPBA.bmp", "area" : "TZNSHPBA.bmp" },
+				{ "id" : 7,  "animation" : "TBNCCSTL.def", "x" : 138, "y" : 66,  "border" : "TONCAS1.bmp",  "area" : "TZNCAS1.bmp" },
+				{ "id" : 8,  "animation" : "TBNCCAS2.def", "x" : 139, "y" : 66,  "border" : "TONCAS2.bmp",  "area" : "TZNCAS2.bmp" },
+				{ "id" : 9,  "animation" : "TBNCCAS3.def", "x" : 34,  "y" : 18,  "border" : "TONCAS3.bmp",  "area" : "TZNCAS3.bmp" },
+				{ "id" : 10, "animation" : "TBNCHALL.def", "x" : 468, "y" : 76,  "z" : -1, "border" : "TONHAL1.bmp",  "area" : "TZNHAL1.bmp" },
+				{ "id" : 11, "animation" : "TBNCHAL2.def", "x" : 482, "y" : 56,  "z" : -1, "border" : "TONHAL2.bmp",  "area" : "TZNHAL2.bmp" },
+				{ "id" : 12, "animation" : "TBNCHAL3.def", "x" : 478, "y" : 26,  "z" : -1, "border" : "TONHAL3.bmp",  "area" : "TZNHAL3.bmp" },
+				{ "id" : 13, "animation" : "TBNCHAL4.def", "x" : 481, "y" : 26,  "z" : -1, "border" : "TONHAL4.bmp",  "area" : "TZNHAL4.bmp" },
+				{ "id" : 14, "animation" : "TBNCMARK.def", "x" : 347, "y" : 215, "z" : 2,  "border" : "TONMRK1.bmp",  "area" : "TZNMRK1.bmp" },
+				{ "id" : 15, "animation" : "TBNCSILO.def", "x" : 276, "y" : 185, "z" : 1,  "border" : "TONMRK2.bmp",  "area" : "TZNMRK2.bmp" },
+				{ "id" : 16, "animation" : "TBNCBLAK.def", "x" : 382, "y" : 252, "z" : 4,  "border" : "TONSMITA.bmp", "area" : "TZNSMITA.bmp" },
+				{ "id" : 17, "animation" : "TBNCSPEC.def", "x" : 18,  "y" : 0,   "z" : -1, "border" : "TONSHRDA.bmp", "area" : "TZNSHRDA.bmp" },
+				{ "id" : 18, "animation" : "TBNCHRD1.def", "x" : 80,  "y" : 222, "z" : 4, "border" : "TONSKE1H.bmp", "area" : "TZNSKE1H.bmp", "hidden" : true },
+				{ "id" : 19, "animation" : "TBNCHRD2.def", "x" : 64,  "y" : 222, "z" : 4, "border" : "TONSKE2H.bmp", "area" : "TZNSKE2H.bmp", "hidden" : true, "builds" : 18 },
+				{ "id" : 20, "animation" : "TBNCBOAT.def", "x" : 617, "y" : 265, "z" : -2, "border" : "TONSHPNA.bmp", "area" : "TZNSHPNA.bmp", "hidden" : true },
+				{ "id" : 21, "animation" : "TBNCEXT0.def", "x" : 307, "y" : 61,  "z" : -2, "border" : "TONNECRA.bmp", "area" : "TZNNECRA.bmp" },
+				{ "id" : 22, "animation" : "TBNCEXT1.def", "x" : 247, "y" : 275, "z" : 4,  "border" : "TONSKELT.bmp", "area" : "TZNSKELT.bmp" },
+				{ "id" : 26, "animation" : "TBNCHOLY.def", "x" : 410, "y" : 88,  "border" : "TONHOLYA.bmp", "area" : "TZNHOLYA.bmp" },
+				{ "id" : 27, "animation" : "TBNCEXT3.def", "x" : 0,   "y" : 241 },
+				{ "id" : 28, "animation" : "TBNCEXT4.def", "x" : 321, "y" : 255 },
+				{ "id" : 29, "animation" : "TBNCEXT5.def", "x" : 475, "y" : 257 },
+				{ "id" : 30, "animation" : "TBNCDW_0.def", "x" : 80,  "y" : 222, "z" : 4, "border" : "TONSKEL1.bmp", "area" : "TZNSKEL1.bmp" },
+				{ "id" : 31, "animation" : "TBNCDW_1.def", "x" : 502, "y" : 223, "border" : "TONZOMB1.bmp", "area" : "TZNZOMB1.bmp" },
+				{ "id" : 32, "animation" : "TBNCDW_2.def", "x" : 0,   "y" : 187, "z" : 2, "border" : "TONWIGH1.bmp", "area" : "TZNWIGH1.bmp" },
+				{ "id" : 33, "animation" : "TBNCDW_3.def", "x" : 607, "y" : 212, "z" : 2, "border" : "TONVAM1.bmp",  "area" : "TZNVAM1.bmp" },
+				{ "id" : 34, "animation" : "TBNCDW_4.def", "x" : 206, "y" : 207, "z" : 3, "border" : "TONLICH1.bmp", "area" : "TZNLICH1.bmp" },
+				{ "id" : 35, "animation" : "TBNCDW_5.def", "x" : 0,   "y" : 31,  "border" : "TONBKN1.bmp",  "area" : "TZNBKN1.bmp" },
+				{ "id" : 36, "animation" : "TBNCDW_6.def", "x" : 663, "y" : 25,  "border" : "TONBON1.bmp",  "area" : "TZNBON1.bmp" },
+				{ "id" : 37, "animation" : "TBNCUP_0.def", "x" : 64,  "y" : 222, "z" : 4, "border" : "TONSKEL2.bmp", "area" : "TZNSKEL2.bmp" },
+				{ "id" : 38, "animation" : "TBNCUP_1.def", "x" : 498, "y" : 224, "border" : "TONZOMB2.bmp", "area" : "TZNZOMB2.bmp" },
+				{ "id" : 39, "animation" : "TBNCUP_2.def", "x" : 0,   "y" : 179, "z" : 2, "border" : "TONWIGH2.bmp", "area" : "TZNWIGH2.bmp" },
+				{ "id" : 40, "animation" : "TBNCUP_3.def", "x" : 615, "y" : 193, "z" : 2, "border" : "TONVAM2.bmp",  "area" : "TZNVAM2.bmp" },
+				{ "id" : 41, "animation" : "TBNCUP_4.def", "x" : 222, "y" : 171, "z" : 3, "border" : "TONLICH2.bmp", "area" : "TZNLICH2.bmp" },
+				{ "id" : 42, "animation" : "TBNCUP_5.def", "x" : 0,   "y" : 30,  "border" : "TONBKN2.bmp",  "area" : "TZNBKN2.bmp" },
+				{ "id" : 43, "animation" : "TBNCUP_6.def", "x" : 662, "y" : 23,  "border" : "TONBON2.bmp",  "area" : "TZNBON2.bmp" }
+			],
+			"icons" :
+			{
+				"village" : {"normal" : 26, "built" : 27 },
+				"fort"    : {"normal" : 8,  "built" : 9 }
+			},
+			"musicTheme" : "music/NecroTown",
+
+			"townBackground": "TBNCBACK.bmp",
+			"guildWindow": "TPMAGENC.bmp",
+			"buildingsIcons": "HALLNECR.DEF",
+			"hallBackground": "TPTHBKNC.BMP",
+			"hallSlots":
+			[
+				[ [ 10, 11, 12, 13 ], [ 7, 8, 9 ], [ 5 ], [ 16 ] ],
+				[ [ 14, 15 ], [ 0, 1, 2, 3, 4 ], [ 21 ], [ 6 ] ],
+				[ [ 17 ], [ 22 ], [ 18, 19 ] ],
+				[ [ 30, 37 ], [ 31, 38 ], [ 32, 39 ], [ 33, 40 ] ],
+				[ [ 34, 41 ], [ 35, 42 ], [ 36, 43 ] ]
+			],
+			"creatures" :
+			[
+				["Skeleton", "SkeletonWarrior"],
+				["Zombie", "ZombieLord"],
+				["Wight", "Wraith"],
+				["Vampire", "Nosferatu"],
+				["Lich", "PowerLich"],
+				["BlackKnight", "BlackLord"],
+				["BoneDragon", "GhostDragon"]
+			],
+			"horde" : [ 0, -1 ],
+			"mageGuild" : 5,
+			"warMachine" : "FirstAidTent",
+
+			"buildings" :
+			[
+				{ "id" : 0 },
+				{ "id" : 1,  "upgrades" : 0 },
+				{ "id" : 2,  "upgrades" : 1 },
+				{ "id" : 3,  "upgrades" : 2 },
+				{ "id" : 4,  "upgrades" : 3 },
+				{ "id" : 5 },
+				{ "id" : 6 },
+				{ "id" : 7 },
+				{ "id" : 8,  "upgrades" : 7 },
+				{ "id" : 9,  "upgrades" : 8 },
+				{ "id" : 10, "mode" : "auto" },
+				{ "id" : 11, "upgrades" : 10, "requires" : [ 5 ] },
+				{ "id" : 12, "upgrades" : 11, "requires" : [ 0, 14, 16 ] },
+				{ "id" : 13, "upgrades" : 12, "requires" : [ 9 ] },
+				{ "id" : 14 },
+				{ "id" : 15, "requires" : [ 14 ] },
+				{ "id" : 16 },
+				{ "id" : 17, "requires" : [ 7 ] },
+				{ "id" : 18, "upgrades" : 30, "requires" : [ 22 ] },
+				{ "id" : 19, "upgrades" : 37, "requires" : [ 18 ], "mode" : "auto" },
+				{ "id" : 20, "upgrades" : 6 },
+				{ "id" : 21, "requires" : [ 0 ] },
+				{ "id" : 22, "requires" : [ 30 ] },
+				{ "id" : 26, "mode" : "grail"},
+				{ "id" : 27, "requires" : [ 11 ], "mode" : "auto" },
+				{ "id" : 28, "requires" : [ 12 ], "mode" : "auto" },
+				{ "id" : 29, "requires" : [ 13 ], "mode" : "auto" },
+				{ "id" : 30, "requires" : [ 7 ] },
+				{ "id" : 31, "requires" : [ 30 ] },
+				{ "id" : 32, "requires" : [ 30 ] },
+				{ "id" : 33, "requires" : [ 31 ] },
+				{ "id" : 34, "requires" : [ 0, 31 ] },
+				{ "id" : 35, "requires" : [ 33, 34 ] },
+				{ "id" : 36, "requires" : [ 35 ] },
+				{ "id" : 37, "upgrades" : 30 },
+				{ "id" : 38, "upgrades" : 31 },
+				{ "id" : 39, "upgrades" : 32 },
+				{ "id" : 40, "upgrades" : 33, "requires" : [ 21 ] },
+				{ "id" : 41, "upgrades" : 34 },
+				{ "id" : 42, "upgrades" : 35 },
+				{ "id" : 43, "upgrades" : 36 }
+			],
+
+			"siege" :
+			{
+				"shooter" : "Lich",
+				"imagePrefix" : "SGNC",
+				"gate" :
+				{
+					"arch" : { "x" : 474, "y" : 240 },
+					"gate" : { "x" : 401, "y" : 262 }
+				},
+				"moat" :
+				{
+					"bank" : { "x" : -1, "y" : -1 },
+					"moat" : { "x" : 406, "y" : 77 }
+				},
+				"shooterHeight" : 231,
+				"static" :
+				{
+					"background" : { "x" : 604, "y" : 58 },
+					"bottom" : { "x" : 509, "y" : 372 },
+					"top" : { "x" : 504, "y" : 97 }
+				},
+				"towers" :
+				{
+					"bottom" :
+					{
+						"battlement" : { "x" : 592, "y" : 512 },
+						"creature" : { "x" : 371, "y" : 303 },
+						"tower" : { "x" : 592, "y" : 512 }
+					},
+					"keep" :
+					{
+						"battlement" : { "x" : 730, "y" : 164 },
+						"creature" : { "x" : 501, "y" : 98 },
+						"tower" : { "x" : 730, "y" : 164 }
+					},
+					"top" :
+					{
+						"battlement" : { "x" : 561, "y" : 26 },
+						"creature" : { "x" : 339, "y" : -177 },
+						"tower" : { "x" : 561, "y" : 26 }
+					}
+				},
+				"walls" :
+				{
+					"bottom" : { "x" : 536, "y" : 445 },
+					"bottomMid" : { "x" : 478, "y" : 323 },
+					"upper" : { "x" : 543, "y" : 66 },
+					"upperMid" : { "x" : 487, "y" : 164 }
+				}
+			}
+		}
+	}
+}

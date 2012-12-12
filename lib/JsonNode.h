@@ -110,7 +110,7 @@ namespace JsonUtils
 
 	/// recursivly merges source into dest, replacing identical fields
 	/// struct : recursively calls this function
-	/// arrays : append array in dest with data from source
+	/// arrays : each entry will be merged recursively
 	/// values : value in source will replace value in dest
 	/// null   : if value in source is present but set to null it will delete entry in dest
 
@@ -118,6 +118,12 @@ namespace JsonUtils
 	DLL_LINKAGE void merge(JsonNode & dest, JsonNode & source);
 	/// this function will preserve data stored in source by creating copy
 	DLL_LINKAGE void mergeCopy(JsonNode & dest, JsonNode source);
+
+	/**
+	 * @brief generate one Json structure from multiple files
+	 * @param files - list of filenames with parts of json structure
+	 */
+	DLL_LINKAGE JsonNode assembleFromFiles(std::vector<std::string> files);
 
 	/// removes all nodes that are identical to default entry in schema
 	DLL_LINKAGE void minimize(JsonNode & node, const JsonNode& schema);
@@ -155,7 +161,6 @@ namespace JsonDetail
 				ret.insert(entry.first, entry.second.convertTo<Type>());
 			}
 			return ret;
-
 		}
 	};
 

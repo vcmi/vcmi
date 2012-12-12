@@ -49,6 +49,10 @@
 		[
 			{"type" : "dir",  "path" : "ALL/Maps"}
 		],
+		"MODS/":
+		[
+			{"type" : "dir",  "path" : "ALL/Mods", "depth": 1}
+		],
 		"SAVES/":
 		[
 			{"type" : "dir",  "path" : "LOCAL/Games", "writeable": true},

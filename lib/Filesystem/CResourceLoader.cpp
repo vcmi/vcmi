@@ -330,8 +330,7 @@ void CResourceHandler::initialize()
 	//create "LOCAL" dir with current userDir (may be same as rootDir)
 	initialLoader->addLoader("LOCAL/", userDir, false);
 
-	//recurseInDir("ALL/CONFIG", 0);// look for configs
-	recurseInDir("ALL/CONFIG", 4);// look for mods (2) and mod files (3) in config folder
+	recurseInDir("ALL/CONFIG", 0);// look for configs
 	recurseInDir("ALL/DATA", 0); // look for archives
 	recurseInDir("ALL/MODS", 2); // look for mods. Depth 2 is required for now but won't cause issues if no mods present
 }
@@ -374,7 +373,7 @@ void CResourceHandler::loadFileSystem(const std::string &fsConfigURI)
 		BOOST_FOREACH(auto & entry, mountPoint.second.Vector())
 		{
 			CStopWatch timer;
-			tlog5 << "\t\tLoading resource at " << entry["path"].String();
+			tlog5 << "\t\tLoading resource at " << entry["path"].String() << "\n";
 
 			if (entry["type"].String() == "dir")
 				loadDirectory(mountPoint.first, entry);
@@ -385,35 +384,40 @@ void CResourceHandler::loadFileSystem(const std::string &fsConfigURI)
 			if (entry["type"].String() == "vid")
 				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_VID);
 
-			tlog5 << " took " << timer.getDiff() << " ms.\n";
+			tlog5 << "Resource loaded in " << timer.getDiff() << " ms.\n";
 		}
 	}
 }
 
-void CResourceHandler::loadModsFilesystems()
+std::vector<std::string> CResourceHandler::getAvailableMods()
 {
 	auto iterator = initialLoader->getIterator([](const ResourceID & ident) ->  bool
 	{
 		std::string name = ident.getName();
 
-		return ident.getType() == EResType::TEXT
-		    && std::count(name.begin(), name.end(), '/') == 3
-		    && boost::algorithm::starts_with(name, "ALL/MODS/")
-		    && boost::algorithm::ends_with(name, "FILESYSTEM");
+		return ident.getType() == EResType::DIRECTORY
+		    && std::count(name.begin(), name.end(), '/') == 2
+		    && boost::algorithm::starts_with(name, "ALL/MODS/");
 	});
 
-	//sorted storage for found mods
-	//implements basic load order (entries in hashtable are basically random)
-	std::set<std::string> foundMods;
+	//storage for found mods
+	std::vector<std::string> foundMods;
 	while (iterator.hasNext())
 	{
-		foundMods.insert(iterator->getName());
+		std::string name = iterator->getName();
+
+		name.erase(0, name.find_last_of('/') + 1);        //Remove path prefix
+
+		foundMods.push_back(name);
 		++iterator;
 	}
+	return foundMods;
+}
 
-	BOOST_FOREACH(const std::string & entry, foundMods)
+void CResourceHandler::setActiveMods(std::vector<std::string> enabledMods)
+{
+	BOOST_FOREACH(std::string & modName, enabledMods)
 	{
-		tlog3 << "\t\tFound mod filesystem: " << entry << "\n";
-		loadFileSystem(entry);
+		loadFileSystem("all/mods/" + modName + "/mod.json");
 	}
 }

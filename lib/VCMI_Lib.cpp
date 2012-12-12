@@ -31,12 +31,20 @@ LibClasses * VLC = NULL;
 
 DLL_LINKAGE VCMIDirs GVCMIDirs;
 
-
-DLL_LINKAGE void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
+DLL_LINKAGE void preinitDLL(CConsoleHandler *Console, std::ostream *Logfile)
 {
 	console = Console;
 	logfile = Logfile;
 	VLC = new LibClasses;
+	try
+	{
+		VLC->loadFilesystem();
+	}
+	HANDLE_EXCEPTION;
+}
+
+DLL_LINKAGE void loadDLLClasses()
+{
 	try
 	{
 		VLC->init();
@@ -55,18 +63,19 @@ void LibClasses::loadFilesystem()
 	CResourceHandler::loadFileSystem("ALL/config/filesystem.json");
 	tlog0<<"\t Data loading: "<<loadTime.getDiff()<<std::endl;
 
-	CResourceHandler::loadModsFilesystems();
+	modh = new CModHandler;
+	tlog0<<"\tMod handler: "<<loadTime.getDiff()<<std::endl;
+
+	modh->initialize(CResourceHandler::getAvailableMods());
+	CResourceHandler::setActiveMods(modh->getActiveMods());
 	tlog0<<"\t Mod filesystems: "<<loadTime.getDiff()<<std::endl;
 
-	tlog0<<"File system handler: "<<totalTime.getDiff()<<std::endl;
+	tlog0<<"Basic initialization: "<<totalTime.getDiff()<<std::endl;
 }
 
 void LibClasses::init()
 {
 	CStopWatch pomtime;
-
-	modh = new CModHandler; //TODO: all handlers should use mod handler to manage objects
-	tlog0<<"\tMod handler: "<<pomtime.getDiff()<<std::endl;
 
 	generaltexth = new CGeneralTextHandler;
 	generaltexth->load();
