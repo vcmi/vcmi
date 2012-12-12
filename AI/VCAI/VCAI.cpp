@@ -107,7 +107,7 @@ std::string CGoal::name() const
 		case FIND_OBJ:
 			return "FIND OBJECT " + boost::lexical_cast<std::string>(objid);
 		case VISIT_HERO:
-			return "VISIT HERO " + VLC->heroh->heroes[objid]->name;
+			return "VISIT HERO " + boost::lexical_cast<std::string>(objid);
 		case GET_ART_TYPE:
 			return "GET ARTIFACT OF TYPE " + VLC->arth->artifacts[aid]->Name();
 		case ISSUE_COMMAND:
