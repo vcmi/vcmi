@@ -111,8 +111,8 @@ if (NOT APPLE)
 	install(DIRECTORY config DESTINATION ${DATA_DIR} PATTERN ".svn" EXCLUDE PATTERN "settings.json" EXCLUDE)
 	# copy vcmi mod along with all its content
 	install(DIRECTORY Mods/vcmi DESTINATION ${DATA_DIR}/Mods PATTERN ".svn" EXCLUDE)
-	# copy only fs.json for WoG
-	install(FILES Mods/WoG/filesystem.json DESTINATION ${DATA_DIR}/Mods/WoG)
+	# copy only mod.json for WoG
+	install(FILES Mods/WoG/mod.json DESTINATION ${DATA_DIR}/Mods/WoG)
 
 	install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
 		OWNER_WRITE OWNER_READ OWNER_EXECUTE
