@@ -494,7 +494,10 @@ int CGameState::pickHero(int owner)
 	for (si32 i=firstHero; i<lastHero; i++)
 		factionHeroes.push_back(i);
 	// we need random order to select hero
-	std::random_shuffle(factionHeroes.begin(), factionHeroes.end());
+	std::random_shuffle(factionHeroes.begin(), factionHeroes.end(), [](size_t range)
+	{
+		return ran() % range;
+	});
 
 	for (size_t i=0; i<factionHeroes.size(); i++)
 	{
