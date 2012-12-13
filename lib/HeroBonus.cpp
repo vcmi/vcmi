@@ -1021,7 +1021,7 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 		{
 			Bonus *b = undecided[i];
 			BonusLimitationContext context = {b, *this, out};
-			int decision = b->limiter ? b->limiter->limit(context) : ILimiter::ACCEPT; //bonuses without limiters will be accepted by default
+			int decision = b->limit(context); //bonuses without limiters will be accepted by default
 			if(decision == ILimiter::DISCARD)
 			{
 				undecided.erase(i);
@@ -1156,6 +1156,14 @@ Bonus * Bonus::addPropagator(TPropagatorPtr Propagator)
 {
 	propagator = Propagator;
 	return this;
+}
+
+int Bonus::limit(const BonusLimitationContext &context) const
+{
+	if (limiter)
+		return limiter->callNext(context);
+	else
+		return ILimiter::ACCEPT; //accept if there's no limiter
 }
 
 CSelector DLL_LINKAGE operator&&(const CSelector &first, const CSelector &second)
@@ -1297,6 +1305,11 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 	return out;
 }
 
+int LimiterDecorator::limit(const BonusLimitationContext &context) const /*return true to drop the bonus */
+{
+	return false;
+}
+
 ILimiter::~ILimiter()
 {
 }
@@ -1384,6 +1397,16 @@ CPropagatorNodeType::CPropagatorNodeType(ui8 NodeType)
 bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)
 {
 	return nodeType == dest->getNodeType();
+}
+
+int LimiterDecorator::callNext(const BonusLimitationContext &context) const
+{
+	if (next)
+	{
+		return (limit(context) || callNext(context)); //either of limiters will cause bonus to drop
+	}
+	else //we are last on the list
+		return limit (context);
 }
 
 CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter(int TerrainType) 

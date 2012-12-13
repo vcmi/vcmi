@@ -19,6 +19,8 @@ class CBonusSystemNode;
 class ILimiter;
 class IPropagator;
 class BonusList;
+class LimiterDecorator;
+struct BonusLimitationContext;
 
 typedef shared_ptr<BonusList> TBonusListPtr;
 typedef shared_ptr<ILimiter> TLimiterPtr;
@@ -29,7 +31,14 @@ typedef std::set<const CBonusSystemNode*> TCNodes;
 typedef std::vector<CBonusSystemNode *> TNodesVector;
 typedef boost::function<bool(const Bonus*)> CSelector;
 
+class DLL_LINKAGE LimiterDecorator //follows decorator design pattern
+{
+public:
+	TLimiterPtr next; //forms a list
 
+	virtual int limit(const BonusLimitationContext &context) const; //0 - accept bonus; 1 - drop bonus; 2 - delay (drops eventually)
+	virtual int callNext(const BonusLimitationContext &context) const;
+};
 
 #define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.smartPointerSerialization) deserializationFix();
 
@@ -207,7 +216,7 @@ typedef boost::function<bool(const Bonus*)> CSelector;
 	BONUS_VALUE(INDEPENDENT_MIN) //used for SECONDARY_SKILL_PREMY bonus
 
 /// Struct for handling bonuses of several types. Can be transferred to any hero
-struct DLL_LINKAGE Bonus
+struct DLL_LINKAGE Bonus : public LimiterDecorator
 {
 	enum BonusType
 	{
@@ -344,6 +353,7 @@ struct DLL_LINKAGE Bonus
 
 	Bonus *addLimiter(TLimiterPtr Limiter); //returns this for convenient chain-calls
 	Bonus *addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
+	int limit(const BonusLimitationContext &context) const; //for backward compatibility
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
@@ -487,14 +497,13 @@ struct BonusLimitationContext
 	const BonusList &alreadyAccepted;
 };
 
-class DLL_LINKAGE ILimiter
+class DLL_LINKAGE ILimiter : public LimiterDecorator
 {
 public:
 	enum EDecision {ACCEPT, DISCARD, NOT_SURE};
 
+	virtual int limit(const BonusLimitationContext &context) const;
 	virtual ~ILimiter();
-
-	virtual int limit(const BonusLimitationContext &context) const; //0 - accept bonus; 1 - drop bonus; 2 - delay (drops eventually)
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{}
