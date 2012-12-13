@@ -141,6 +141,7 @@ void CModHandler::loadActiveMods()
 
 		VLC->townh->load(JsonUtils::assembleFromFiles(config ["factions"].convertTo<std::vector<std::string> >()));
 		VLC->creh->load( JsonUtils::assembleFromFiles(config["creatures"].convertTo<std::vector<std::string> >()));
+		VLC->arth->load( JsonUtils::assembleFromFiles(config["artifacts"].convertTo<std::vector<std::string> >()));
 	}
 
 	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded

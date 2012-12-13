@@ -601,7 +601,7 @@ public:
 	void attachTo(CBonusSystemNode *parent);
 	void detachFrom(CBonusSystemNode *parent);
 	void detachFromAll();
-	void addNewBonus(Bonus *b); //b will be deleted with destruction of node
+	virtual void addNewBonus(Bonus *b); //b will be deleted with destruction of node
 	void accumulateBonus(Bonus &b); //add value of bonus with same type/subtype or create new
 
 	void newChildAttached(CBonusSystemNode *child);

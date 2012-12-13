@@ -76,6 +76,8 @@ public:
 	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 
 	std::string image;
+	std::string large; // big image for cutom artifacts, used in drag & drop
+	si32 iconIndex; //TODO: handle automatically
 
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter
@@ -87,6 +89,7 @@ public:
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const OVERRIDE;
+	void addNewBonus(Bonus *b) OVERRIDE;
 
 	virtual void levelUpArtifact (CArtifactInstance * art){};
 
@@ -100,7 +103,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & name & description & eventText & image & price & possibleSlots & constituents & constituentOf & aClass & id;
+		h & name & description & eventText & image & large & iconIndex &
+			price & possibleSlots & constituents & constituentOf & aClass & id;
 	}
 
 	CArtifact();

@@ -215,6 +215,14 @@ std::string CArtifact::nodeName() const
 // // 	//boost::algorithm::replace_first(description, "[spell name]", VLC->spellh->spells[spellid].name);
 // }
 
+void CArtifact::addNewBonus(Bonus *b)
+{
+	b->source = Bonus::ARTIFACT;
+	b->duration = Bonus::PERMANENT;
+	b->description = name;
+	CBonusSystemNode::addNewBonus(b);
+}
+
 void CArtifact::setName (std::string desc)
 {
 	name = desc;
@@ -462,7 +470,12 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 	art->setDescription	(text["description"].String());
 	art->setName		(text["event"].String());
 
-	art->image = node["image"].String();
+	const JsonNode & graphics = graphics["text"];
+	art->iconIndex = graphics["iconIndex"].Float();
+	art->image = graphics["image"].String();
+	value = &graphics["large"];
+	if (!value->isNull())
+		art->large = value->String();
 
 	art->price = node["value"].Float();
 	
@@ -504,8 +517,7 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 	BOOST_FOREACH (const JsonNode &bonus, node["bonuses"].Vector())
 	{
 		auto b = JsonUtils::parseBonus(bonus);
-		b->source = Bonus::ARTIFACT;
-		b->duration = Bonus::PERMANENT;
+		//TODO: bonus->sid = art->id;
 		art->addNewBonus(b);
 	}
 
@@ -715,11 +727,7 @@ void CArtHandler::addBonuses()
 		BOOST_FOREACH (auto b, artifact["bonuses"].Vector())
 		{
 			auto bonus = JsonUtils::parseBonus (b);
-			//common properties
-			bonus->source = Bonus::ARTIFACT;
 			bonus->sid = ga->id;
-			bonus->duration = Bonus::PERMANENT;
-			bonus->description = ga->Name();
 			ga->addNewBonus (bonus);
 		}
 		if(artifact["type"].String() == "Creature")
