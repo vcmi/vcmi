@@ -102,7 +102,14 @@ public:
 	// Client-only data. Should be moved away from lib
 	struct ClientInfo
 	{
-		struct Point { si32 x; si32 y;};
+		struct Point
+		{
+			si32 x;
+			si32 y;
+
+			template <typename Handler> void serialize(Handler &h, const int version)
+			{ h & x & y; }
+		};
 
 		//icons [fort is present?][build limit reached?] -> index of icon in def files
 		int icons[2][2];
@@ -131,6 +138,8 @@ public:
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & icons & musicTheme & townBackground & guildWindow & buildingsIcons & hallBackground & hallSlots & structures;
+			h & advMapVillage & advMapCastle & advMapCapitol;
+			h & siegePrefix & siegePositions & siegeShooter & siegeShooterCropHeight;
 		}
 	} clientInfo;
 

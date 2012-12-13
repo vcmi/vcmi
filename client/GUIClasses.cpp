@@ -5326,16 +5326,12 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 
 	CIntObject * titlePic = nullptr;
 
-	if ( market->o->ID == Obj::UNIVERSITY ) // this is adventure map university
-		titlePic = new CPicture("UNIVBLDG");
-	else
 	if (market->o->ID == Obj::TOWN)
 		titlePic = new CAnimImage(CGI->townh->towns[ETownType::CONFLUX].clientInfo.buildingsIcons, EBuilding::MAGIC_UNIVERSITY);
 	else
-		tlog0<<"Error: Image for university was not found!\n";//This should not happen
+		titlePic = new CPicture("UNIVBLDG");
 
-	if (titlePic)
-		titlePic->center(Point(232 + pos.x, 76 + pos.y));
+	titlePic->center(Point(232 + pos.x, 76 + pos.y));
 
 	//Clerk speech
 	new CTextBox(CGI->generaltexth->allTexts[603], Rect(24, 129, 413, 70), 0, FONT_SMALL, CENTER, Colors::WHITE);

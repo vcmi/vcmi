@@ -3585,10 +3585,8 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInf
 			{
 			case 5: case 4: case 1: case 6:
 				return prefix + "TPW1.BMP";
-			case 0: case 2: case 3: case 7: case 8:
-				return prefix + "TPWL.BMP";
 			default:
-				return "";
+				return prefix + "TPWL.BMP";
 			}
 		}
 	case 2: //keep

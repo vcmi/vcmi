@@ -827,6 +827,7 @@ public:
 		h & CGMagi::eyelist;
 		h & CGObelisk::obeliskCount & CGObelisk::visited;
 		h & CGTownInstance::merchantArtifacts;
+		h & CGTownInstance::universitySkills;
 
 		if(!h.saving)
 		{

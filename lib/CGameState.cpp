@@ -1344,6 +1344,7 @@ void CGameState::init(StartInfo * si)
 	}
 	/****************************TOWNS************************************************/
 	tlog4 << "\tTowns";
+	CGTownInstance::universitySkills.clear();
 	for ( int i=0; i<4; i++)
 		CGTownInstance::universitySkills.push_back(14+i);//skills for university
 
