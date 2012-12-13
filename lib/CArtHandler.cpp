@@ -470,7 +470,7 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 	art->setDescription	(text["description"].String());
 	art->setName		(text["event"].String());
 
-	const JsonNode & graphics = graphics["text"];
+	const JsonNode & graphics = node["graphics"];
 	art->iconIndex = graphics["iconIndex"].Float();
 	art->image = graphics["image"].String();
 	value = &graphics["large"];
