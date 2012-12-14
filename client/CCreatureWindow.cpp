@@ -624,9 +624,9 @@ void CCreatureWindow::setArt(const CArtifactInstance *art)
 	if (creatureArtifact)
 	{
 		if (artifactImage == NULL)
-			artifactImage = new CAnimImage("ARTIFACT", creatureArtifact->artType->id, 0, 466, 100);
+			artifactImage = new CAnimImage("ARTIFACT", creatureArtifact->artType->iconIndex, 0, 466, 100);
 		else
-			artifactImage->setFrame(creatureArtifact->artType->id);
+			artifactImage->setFrame(creatureArtifact->artType->iconIndex);
 	}
 	else
 		artifactImage = NULL;

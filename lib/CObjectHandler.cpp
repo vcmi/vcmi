@@ -725,7 +725,7 @@ void CGHeroInstance::initHero()
 	{
 		for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
 		{
-			pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(g), type->heroClass->initialPrimSkills[g]);
+			pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(g), type->heroClass->primarySkillInitial[g]);
 		}
 	}
 	if(secSkills.size() == 1 && secSkills[0] == std::pair<ui8,ui8>(-1, -1)) //set secondary skills to default
@@ -753,7 +753,7 @@ void CGHeroInstance::initHero()
 
 	if (VLC->modh->modules.COMMANDERS)
 	{
-		commander = new CCommanderInstance (VLC->creh->factionCommanders[type->heroType / 2]); //hopefully it returns town type
+		commander = new CCommanderInstance (VLC->creh->factionCommanders[type->heroClass->faction]);
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
 	}
 

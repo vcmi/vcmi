@@ -100,7 +100,7 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 
 	if(tHovered != pom) //tile outside the map
 	{
-		CCS->curh->changeGraphic(0, 0);
+		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 		return;
 	}
 
@@ -116,7 +116,7 @@ void CTerrainRect::hover(bool on)
 	if (!on)
 	{
 		adventureInt->statusbar.clear();
-		CCS->curh->changeGraphic(0,0);
+		CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
 	}
 	//Hoverable::hover(on);
 }
@@ -634,7 +634,7 @@ void CAdvMapInt::deactivate()
 	{
 		scrollingDir = 0;
 
-		CCS->curh->changeGraphic(0,0);
+		CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
 		kingOverview.deactivate();
 		underground.deactivate();
 		questlog.deactivate();
@@ -1213,7 +1213,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 {
 	if(!LOCPLINT->cb->isVisible(mapPos))
 	{
-		CCS->curh->changeGraphic(0, 0);
+		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 		statusbar.clear();
 		return;
 	}
@@ -1247,18 +1247,18 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		{
 		case Spells::SCUTTLE_BOAT:
 			if(objAtTile && objAtTile->ID == Obj::BOAT)
-				CCS->curh->changeGraphic(0, 42);
+				CCS->curh->changeGraphic(ECursor::ADVENTURE, 42);
 			else
-				CCS->curh->changeGraphic(0, 0);
+				CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 			return;
 		case Spells::DIMENSION_DOOR:
 			{
 				const TerrainTile *t = LOCPLINT->cb->getTile(mapPos, false);
 				int3 hpos = selection->getSightCenter();
 				if((!t  ||  t->isClear(LOCPLINT->cb->getTile(hpos)))   &&   isInScreenRange(hpos, mapPos))
-					CCS->curh->changeGraphic(0, 41);
+					CCS->curh->changeGraphic(ECursor::ADVENTURE, 41);
 				else
-					CCS->curh->changeGraphic(0, 0);
+					CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 				return;
 			}
 		}
@@ -1271,14 +1271,14 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 		if(objAtTile)
 		{
 			if(objAtTile->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner))
-				CCS->curh->changeGraphic(0, 3);
+				CCS->curh->changeGraphic(ECursor::ADVENTURE, 3);
 			else if(objAtTile->ID == Obj::HERO && objAtTile->tempOwner == LOCPLINT->playerID)
-				CCS->curh->changeGraphic(0, 2);
+				CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);
 			else
-				CCS->curh->changeGraphic(0, 0);
+				CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 		}
 		else
-			CCS->curh->changeGraphic(0, 0);
+			CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 	}
 	else if(const CGHeroInstance *h = curHero())
 	{
@@ -1291,18 +1291,18 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 				if(!LOCPLINT->cb->getPlayerRelations( LOCPLINT->playerID, objAtTile->tempOwner)) //enemy hero
 				{
 					if(accessible)
-						CCS->curh->changeGraphic(0, 5 + turns*6);
+						CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
 					else
-						CCS->curh->changeGraphic(0, 0);
+						CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 				}
 				else //our or ally hero
 				{
 					if(selection == objAtTile)
-						CCS->curh->changeGraphic(0, 2);
+						CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);
 					else if(accessible)
-						CCS->curh->changeGraphic(0, 8 + turns*6);
+						CCS->curh->changeGraphic(ECursor::ADVENTURE, 8 + turns*6);
 					else
-						CCS->curh->changeGraphic(0, 2);
+						CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);
 				}
 			}
 			else if(objAtTile->ID == Obj::TOWN)
@@ -1315,30 +1315,30 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 
 						// Show movement cursor for unguarded enemy towns, otherwise attack cursor.
 						if (townObj && !townObj->armedGarrison())
-							CCS->curh->changeGraphic(0, 9 + turns*6);
+							CCS->curh->changeGraphic(ECursor::ADVENTURE, 9 + turns*6);
 						else
-							CCS->curh->changeGraphic(0, 5 + turns*6);
+							CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
 
 					}
 					else
 					{
-						CCS->curh->changeGraphic(0, 0);
+						CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 					}
 				}
 				else //our or ally town
 				{
 					if(accessible)
-						CCS->curh->changeGraphic(0, 9 + turns*6);
+						CCS->curh->changeGraphic(ECursor::ADVENTURE, 9 + turns*6);
 					else
-						CCS->curh->changeGraphic(0, 3);
+						CCS->curh->changeGraphic(ECursor::ADVENTURE, 3);
 				}
 			}
 			else if(objAtTile->ID == Obj::BOAT)
 			{
 				if(accessible)
-					CCS->curh->changeGraphic(0, 6 + turns*6);
+					CCS->curh->changeGraphic(ECursor::ADVENTURE, 6 + turns*6);
 				else
-					CCS->curh->changeGraphic(0, 0);
+					CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 			}
 			else if (objAtTile->ID == Obj::GARRISON || objAtTile->ID == Obj::GARRISON2)
 			{
@@ -1349,28 +1349,28 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 					// Show battle cursor for guarded enemy garrisons, otherwise movement cursor.
 					if (garrObj  &&  garrObj->stacksCount()
 						&& !LOCPLINT->cb->getPlayerRelations( LOCPLINT->playerID, garrObj->tempOwner) )
-						CCS->curh->changeGraphic(0, 5 + turns*6);
+						CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
 					else
-						CCS->curh->changeGraphic(0, 9 + turns*6);
+						CCS->curh->changeGraphic(ECursor::ADVENTURE, 9 + turns*6);
 				}
 				else
-					CCS->curh->changeGraphic(0, 0);
+					CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 			}
 			else if (guardingCreature && accessible) //(objAtTile->ID == 54) //monster
 			{
-				CCS->curh->changeGraphic(0, 5 + turns*6);
+				CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
 			}
 			else
 			{
 				if(accessible)
 				{
 					if(pnode->land)
-						CCS->curh->changeGraphic(0, 9 + turns*6);
+						CCS->curh->changeGraphic(ECursor::ADVENTURE, 9 + turns*6);
 					else
-						CCS->curh->changeGraphic(0, 28 + turns);
+						CCS->curh->changeGraphic(ECursor::ADVENTURE, 28 + turns);
 				}
 				else
-					CCS->curh->changeGraphic(0, 0);
+					CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 			}
 		}
 		else //no objs
@@ -1379,29 +1379,29 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 			{
 				if (guardingCreature)
 				{
-					CCS->curh->changeGraphic(0, 5 + turns*6);
+					CCS->curh->changeGraphic(ECursor::ADVENTURE, 5 + turns*6);
 				} 
 				else
 				{
 					if(pnode->land)
 					{
                         if(LOCPLINT->cb->getTile(h->getPosition(false))->terType != ETerrainType::WATER)
-							CCS->curh->changeGraphic(0, 4 + turns*6);
+							CCS->curh->changeGraphic(ECursor::ADVENTURE, 4 + turns*6);
 						else
-							CCS->curh->changeGraphic(0, 7 + turns*6); //anchor
+							CCS->curh->changeGraphic(ECursor::ADVENTURE, 7 + turns*6); //anchor
 					}
 					else
-						CCS->curh->changeGraphic(0, 6 + turns*6);
+						CCS->curh->changeGraphic(ECursor::ADVENTURE, 6 + turns*6);
 				}
 			}
 			else
-				CCS->curh->changeGraphic(0, 0);
+				CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 		}
 	}
 
 	if(ourInaccessibleShipyard(objAtTile))
 	{
-		CCS->curh->changeGraphic(0, 6);
+		CCS->curh->changeGraphic(ECursor::ADVENTURE, 6);
 	}
 }
 
@@ -1480,7 +1480,7 @@ const IShipyard * CAdvMapInt::ourInaccessibleShipyard(const CGObjectInstance *ob
 {
 	const IShipyard *ret = IShipyard::castFrom(obj);
 
-	if(!ret || obj->tempOwner != player || CCS->curh->mode || (CCS->curh->number != 6 && CCS->curh->number != 0))
+	if(!ret || obj->tempOwner != player || CCS->curh->type || (CCS->curh->frame != 6 && CCS->curh->frame != 0))
 		return NULL;
 
 	return ret;

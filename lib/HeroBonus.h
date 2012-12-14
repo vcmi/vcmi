@@ -38,6 +38,9 @@ public:
 
 	virtual int limit(const BonusLimitationContext &context) const; //0 - accept bonus; 1 - drop bonus; 2 - delay (drops eventually)
 	virtual int callNext(const BonusLimitationContext &context) const;
+
+	virtual ~LimiterDecorator()
+	{}
 };
 
 #define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.smartPointerSerialization) deserializationFix();

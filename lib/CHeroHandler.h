@@ -18,6 +18,7 @@ class CDefHandler;
 class CGameInfo;
 class CGHeroInstance;
 struct BattleHex;
+class JsonNode;
 
 struct SSpecialtyInfo
 {	si32 type;
@@ -45,17 +46,12 @@ public:
 		}
 	};
 
-	enum EHeroClasses {KNIGHT, CLERIC, RANGER, DRUID, ALCHEMIST, WIZARD,
-		DEMONIAC, HERETIC, DEATHKNIGHT, NECROMANCER, WARLOCK, OVERLORD,
-		BARBARIAN, BATTLEMAGE, BEASTMASTER, WITCH, PLANESWALKER, ELEMENTALIST};
-
 	std::string name; //name of hero
 	si32 ID;
 
 	InitialArmyStack initialArmy[3];
 
 	CHeroClass * heroClass;
-	EHeroClasses heroType; //hero class
 	std::vector<std::pair<ui8,ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	std::vector<SSpecialtyInfo> spec;
 	si32 startingSpell; //-1 if none
@@ -67,20 +63,25 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & ID & initialArmy & heroClass & heroType & secSkillsInit & spec & startingSpell & sex;
+		h & name & ID & initialArmy & heroClass & secSkillsInit & spec & startingSpell & sex;
 	}
 };
 
 class DLL_LINKAGE CHeroClass
 {
 public:
-	ui8 alignment; 
-	ui32 skillLimit; //how many secondary skills can hero learn
-	std::string name;
+	std::string identifier;
+	std::string name; // translatable
 	double aggression;
-	int initialPrimSkills[GameConstants::PRIMARY_SKILLS]; //initial values of primary skills, uses PrimarySkill enum
-	std::vector<std::pair<int,int> > primChance;//primChance[PRIMARY_SKILL_ID] - first is for levels 2 - 9, second for 10+;;; probability (%) of getting point of primary skill when getting new level
-	std::vector<int> proSec; //probabilities of gaining secondary skills (out of 112), in id order
+	TFaction faction;
+	ui8 id;
+
+	std::vector<int> primarySkillInitial;  // initial primary skills
+	std::vector<int> primarySkillLowLevel; // probability (%) of getting point of primary skill when getting level
+	std::vector<int> primarySkillHighLevel;// same for high levels (> 10)
+
+	std::vector<int> secSkillProbability; //probabilities of gaining secondary skills (out of 112), in id order
+
 	std::map<TFaction, int> selectionProbability; //probability of selection in towns
 
 	int chooseSecSkill(const std::set<int> & possibles) const; //picks secondary skill out from given possibilities
@@ -89,8 +90,10 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & skillLimit & name & aggression & initialPrimSkills & primChance
-			& proSec & selectionProbability & alignment;
+		h & identifier & name & faction & aggression;
+		h & primarySkillInitial   & primarySkillLowLevel;
+		h & primarySkillHighLevel & secSkillProbability;
+		h & selectionProbability;
 	}
 	EAlignment::EAlignment getAlignment() const;
 };
@@ -116,14 +119,38 @@ struct DLL_LINKAGE CObstacleInfo
 	}
 };
 
-class DLL_LINKAGE CHeroHandler
+class DLL_LINKAGE CHeroClassHandler
 {
 public:
-	std::vector< ConstTransitivePtr<CHero> > heroes; //changed from nodrze
-	std::vector<CHeroClass *> heroClasses;
+	std::vector< ConstTransitivePtr<CHeroClass> > heroClasses;
+
+	/// load from H3 config
+	void load();
+
+	/// load any number of classes from json
+	void load(const JsonNode & classes);
+
+	/// load one class from json
+	void loadClass(const JsonNode & heroClass);
+
+	~CHeroClassHandler();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & heroClasses;
+	}
+};
+
+class DLL_LINKAGE CHeroHandler
+{
 	std::vector<ui64> expPerLevel; //expPerLEvel[i] is amount of exp needed to reach level i; if it is not in this vector, multiplicate last value by 1,2 to get next value
 
-	 //default costs of going through terrains: dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock; -1 means terrain is imapassable
+public:
+	CHeroClassHandler classes;
+
+	std::vector< ConstTransitivePtr<CHero> > heroes; //changed from nodrze
+
+	//default costs of going through terrains: dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock; -1 means terrain is imapassable
 	std::vector<int> terrCosts;
 	
 	struct SBallisticsLevelInfo
@@ -147,9 +174,8 @@ public:
 	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
 	ui64 reqExp(ui32 level) const; //calculates experience required for given level
 
+	void load();
 	void loadHeroes();
-	void loadHeroClasses();
-	void initHeroClasses();
 	void loadTerrains();
 	CHeroHandler(); //c-tor
 	~CHeroHandler(); //d-tor
@@ -167,15 +193,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroClasses & heroes & expPerLevel & ballistics & terrCosts;
+		h & classes & heroes & expPerLevel & ballistics & terrCosts;
 		h & obstacles & absoluteObstacles;
-		if(!h.saving)
-		{
-			//restore class pointers
-			for (int i=0; i<heroes.size(); i++)
-			{
-				heroes[i]->heroClass = heroClasses[heroes[i]->heroType];
-			}
-		}
 	}
 };

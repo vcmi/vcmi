@@ -66,8 +66,6 @@ public:
 	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
 	CDefEssential * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
-	//abilities
-	CDefEssential * abils82;
 	//spells
 	CDefEssential *spellscr; //spell on the scroll 83x61
 	//functions

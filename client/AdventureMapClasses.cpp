@@ -12,6 +12,7 @@
 #include "../lib/CTownHandler.h"
 #include "../lib/NetPacks.h"
 #include "../lib/CHeroHandler.h"
+#include "../lib/StringConstants.h"
 #include "CAdvmapInterface.h"
 #include "CAnimation.h"
 #include "CGameInfo.h"

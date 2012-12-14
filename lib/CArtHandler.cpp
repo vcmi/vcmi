@@ -310,6 +310,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		}
 		CArtifact &nart = *art;
 		nart.id=i;
+		nart.iconIndex=i;
 		nart.setName (parser.readString());
 		nart.setEventText (events.readString());
 		events.endLine();

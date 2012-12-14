@@ -58,6 +58,7 @@ set(lib_HEADERS
 		CScriptingModule.h
 		CStopWatch.h
 		GameConstants.h
+		StringConstants.h
 		IGameEventsReceiver.h
 		int3.h
 		Interprocess.h

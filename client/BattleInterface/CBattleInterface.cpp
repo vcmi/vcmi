@@ -239,7 +239,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	//loading hero animations
 	if(hero1) // attacking hero
 	{
-		int type = hero1->type->heroType;
+		int type = hero1->type->heroClass->id;
 		if ( type % 2 )   type--;
 		if ( hero1->sex ) type++;
 		attackingHero = new CBattleHero(graphics->battleHeroes[type], false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : NULL, this);
@@ -251,7 +251,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	}
 	if(hero2) // defending hero
 	{
-		int type = hero2->type->heroType;
+		int type = hero2->type->heroClass->id;
 		if ( type % 2 )   type--;
 		if ( hero2->sex ) type++;
 		defendingHero = new CBattleHero(graphics->battleHeroes[type ], true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : NULL, this);
@@ -1142,7 +1142,7 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 	while (sectorCursor[(cursorIndex + i)%sectorCursor.size()] == -1) //Why hast thou forsaken me?
 		i = i <= 0 ? 1 - i : -i; // 0, 1, -1, 2, -2, 3, -3 etc..
 	int index = (cursorIndex + i)%sectorCursor.size(); //hopefully we get elements from sectorCursor
-	cursor->changeGraphic(1, sectorCursor[index]);
+	cursor->changeGraphic(ECursor::COMBAT, sectorCursor[index]);
 	switch (index)
 	{
 		case 0:
@@ -1182,7 +1182,7 @@ void CBattleInterface::bOptionsf()
 	if(spellDestSelectMode) //we are casting a spell
 		return;
 
-	CCS->curh->changeGraphic(0,0);
+	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
 
 	Rect tempRect = genRect(431, 481, 160, 84);
 	tempRect += pos.topLeft();
@@ -1238,7 +1238,7 @@ void CBattleInterface::bFleef()
 void CBattleInterface::reallyFlee()
 {
 	giveCommand(BattleAction::RETREAT,0,0);
-	CCS->curh->changeGraphic(0, 0);
+	CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 }
 
 void CBattleInterface::reallySurrender()
@@ -1250,7 +1250,7 @@ void CBattleInterface::reallySurrender()
 	else
 	{
 		giveCommand(BattleAction::SURRENDER,0,0);
-		CCS->curh->changeGraphic(0, 0);
+		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 	}
 }
 
@@ -1265,7 +1265,7 @@ void CBattleInterface::bSpellf()
 	if(spellDestSelectMode) //we are casting a spell
 		return;
 
-	CCS->curh->changeGraphic(0,0);
+	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
 
 	if(!myTurn)
 		return;
@@ -1585,7 +1585,7 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 
 void CBattleInterface::displayBattleFinished()
 {
-	CCS->curh->changeGraphic(0,0);
+	CCS->curh->changeGraphic(ECursor::ADVENTURE,0);
 
 	SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
 	resWindow = new CBattleResultWindow(*bresult, temp_rect, this);
@@ -2076,7 +2076,7 @@ void CBattleInterface::endCastingSpell()
 	spellToCast = NULL;
 	sp = NULL;
 	spellDestSelectMode = false;
-	CCS->curh->changeGraphic(1, 6);
+	CCS->curh->changeGraphic(ECursor::COMBAT, ECursor::COMBAT_POINTER);
 
 	if (activeStack)
 	{
@@ -2762,7 +2762,8 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 	//used when hovering -> tooltip message and cursor to be set
 	std::string consoleMsg;
 	bool setCursor = true; //if we want to suppress setting cursor
-	int cursorType = ECursor::COMBAT, cursorFrame = ECursor::COMBAT_POINTER; //TODO: is this line used?
+	ECursor::ECursorTypes cursorType = ECursor::COMBAT;
+	int cursorFrame = ECursor::COMBAT_POINTER; //TODO: is this line used?
 	
 	//used when l-clicking -> action to be called upon the click
 	std::function<void()> realizeAction;
@@ -3256,7 +3257,7 @@ BattleHex CBattleInterface::fromWhichHexAttack(BattleHex myNumber)
 {
 	//TODO far too much repeating code
 	BattleHex destHex = -1;
-	switch(CCS->curh->number)
+	switch(CCS->curh->frame)
 	{
 	case 12: //from bottom right
 		{

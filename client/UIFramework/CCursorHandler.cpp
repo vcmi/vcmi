@@ -3,8 +3,8 @@
 
 #include <SDL.h>
 #include "SDL_Extensions.h"
-#include "../CGameInfo.h"
-#include "../CDefHandler.h"
+#include "CAnimation.h"
+#include "UIFramework/CGuiHandler.h"
 
 /*
  * CCursorHandler.cpp, part of VCMI engine
@@ -20,31 +20,44 @@ extern SDL_Surface * screen;
 
 void CCursorHandler::initCursor()
 {
-	mode = number = xpos = ypos = 0;
-	dndImage = NULL;
+	xpos = ypos = 0;
+	type = ECursor::DEFAULT;
+	dndObject = nullptr;
+
 	help = CSDL_Ext::newSurface(40,40);
-	cursors.push_back(CDefHandler::giveDef("CRADVNTR.DEF"));
-	cursors.push_back(CDefHandler::giveDef("CRCOMBAT.DEF"));
-	cursors.push_back(CDefHandler::giveDef("CRDEFLT.DEF"));
-	cursors.push_back(CDefHandler::giveDef("CRSPELL.DEF"));
 	SDL_ShowCursor(SDL_DISABLE);
+
+	changeGraphic(ECursor::ADVENTURE, 0);
 }
 
-void CCursorHandler::changeGraphic(const int & type, const int & no)
+void CCursorHandler::changeGraphic(ECursor::ECursorTypes type, int index)
 {
-	mode = type;
-	number = no;
+	std::string cursorDefs[4] = { "CRADVNTR.DEF", "CRCOMBAT.DEF", "CRDEFLT.DEF", "CRSPELL.DEF" };
+
+	if (type != this->type)
+	{
+		BLOCK_CAPTURING; // not used here
+
+		this->type = type;
+		this->frame = index;
+
+		delete currentCursor;
+		currentCursor = new CAnimImage(cursorDefs[int(type)], index);
+	}
+
+	if (frame != index)
+	{
+		frame = index;
+		currentCursor->setFrame(index);
+	}
 }
 
-/**
- * Replaces the cursor with a custom image.
- *
- * @param image Image to replace cursor with or NULL to use the normal
- * cursor.
- */
-void CCursorHandler::dragAndDropCursor(SDL_Surface* image)
+void CCursorHandler::dragAndDropCursor(CAnimImage * object)
 {
-	dndImage = image;
+	if (dndObject)
+		delete dndObject;
+
+	dndObject = object;
 }
 
 void CCursorHandler::cursorMove(const int & x, const int & y)
@@ -52,31 +65,34 @@ void CCursorHandler::cursorMove(const int & x, const int & y)
 	xpos = x;
 	ypos = y;
 }
-void CCursorHandler::draw1()
+
+void CCursorHandler::drawWithScreenRestore()
 {
-	if(!Show) return;
+	if(!showing) return;
 	int x = xpos, y = ypos;
 	shiftPos(x, y);
 
 	SDL_Rect temp_rect1 = genRect(40,40,x,y);
 	SDL_Rect temp_rect2 = genRect(40,40,0,0);
 	SDL_BlitSurface(screen, &temp_rect1, help, &temp_rect2);
-// 	if (dndImage)
-// 		blitAt(dndImage, x - dndImage->w/2, y - dndImage->h/2);
-// 	else
-// 		blitAt(cursors[mode]->ourImages[number].bitmap,x,y);
 
-	if (dndImage) {
-		SDL_Rect temp_rect =genRect(40, 40, x - dndImage->w/2, y - dndImage->h/2);
-			SDL_BlitSurface(dndImage, NULL, screen, &temp_rect);
-	} else {
-		SDL_Rect temp_rect = genRect(40,40,x,y);
-			SDL_BlitSurface(cursors[mode]->ourImages[number].bitmap, NULL, screen, &temp_rect);
+	if (dndObject)
+	{
+		dndObject->moveTo(Point(x - dndObject->pos.w/2, y - dndObject->pos.h/2));
+		dndObject->showAll(screen);
+	}
+	else
+	{
+		currentCursor->moveTo(Point(x,y));
+		currentCursor->showAll(screen);
 	}
 }
-void CCursorHandler::draw2()
+
+void CCursorHandler::drawRestored()
 {
-	if(!Show) return;
+	if(!showing)
+		return;
+
 	int x = xpos, y = ypos;
 	shiftPos(x, y);
 
@@ -87,21 +103,21 @@ void CCursorHandler::draw2()
 
 void CCursorHandler::draw(SDL_Surface *to)
 {
-	SDL_Rect temp_rect = genRect(40, 40, xpos, ypos);
-	CSDL_Ext::blitSurface(cursors[mode]->ourImages[number].bitmap, 0, to, &temp_rect);
+	currentCursor->moveTo(Point(xpos, ypos));
+	currentCursor->showAll(screen);
 }
 
 void CCursorHandler::shiftPos( int &x, int &y )
 {
-	if((mode==1 && number!=6) || mode ==3)
+	if(( type == ECursor::COMBAT && frame != ECursor::COMBAT_POINTER) || type == ECursor::SPELLBOOK)
 	{
 		x-=16;
 		y-=16;
 
 		// Properly align the melee attack cursors.
-		if (mode == 1) 
+		if (type == ECursor::COMBAT == 1)
 		{
-			switch (number) 
+			switch (frame)
 			{
 			case 7: // Bottom left
 				x -= 6;
@@ -138,22 +154,22 @@ void CCursorHandler::shiftPos( int &x, int &y )
 			}
 		}
 	}
-	else if(mode==0)
+	else if(ECursor::ADVENTURE == 0)
 	{
-		if(number == 0); //to exclude
-		else if(number == 2)
+		if (frame == 0); //to exclude
+		else if(frame == 2)
 		{
 			x -= 12;
 			y -= 10;
 		}
-		else if(number == 3)
+		else if(frame == 3)
 		{
 			x -= 12;
 			y -= 12;
 		}
-		else if(number < 27)
+		else if(frame < 27)
 		{
-			int hlpNum = (number - 4)%6;
+			int hlpNum = (frame - 4)%6;
 			if(hlpNum == 0)
 			{
 				x -= 15;
@@ -185,12 +201,12 @@ void CCursorHandler::shiftPos( int &x, int &y )
 				y -= 16;
 			}
 		}
-		else if(number == 41)
+		else if(frame == 41)
 		{
 			x -= 14;
 			y -= 16;
 		}
-		else if(number < 31 || number == 42)
+		else if(frame < 31 || frame == 42)
 		{
 			x -= 20;
 			y -= 20;
@@ -200,10 +216,9 @@ void CCursorHandler::shiftPos( int &x, int &y )
 
 void CCursorHandler::centerCursor()
 {
-	SDL_Surface *cursor = this->cursors[mode]->ourImages[number].bitmap;
-	this->xpos = (screen->w / 2.) - (cursor->w / 2.);
-	this->ypos = (screen->h / 2.) - (cursor->h / 2.);
-	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);	
+	this->xpos = (screen->w / 2.) - (currentCursor->pos.w / 2.);
+	this->ypos = (screen->h / 2.) - (currentCursor->pos.h / 2.);
+	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
 	SDL_WarpMouse(this->xpos, this->ypos);
 	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 }
@@ -213,6 +228,6 @@ CCursorHandler::~CCursorHandler()
 	if(help)
 		SDL_FreeSurface(help);
 
-	for(int g=0; g<cursors.size(); ++g)
-		delete cursors[g];
+	delete currentCursor;
+	delete dndObject;
 }

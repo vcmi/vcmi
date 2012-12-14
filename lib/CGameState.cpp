@@ -403,7 +403,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, TPlayerColor p
 		for(auto i=available.begin(); i!=available.end(); i++)
 		{
 			if(pavailable.find(i->first)->second & 1<<player
-				&& i->second->type->heroType/2 == town->typeID)
+				&& i->second->type->heroClass->faction == town->typeID)
 			{
 				pool.push_back(i->second); //get all available heroes
 			}
@@ -680,7 +680,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 		cur->ID = ran.first;
 		h->portrait = cur->subID = ran.second;
 		h->type = VLC->heroh->heroes[ran.second];
-		h->randomizeArmy(h->type->heroType/2);
+		h->randomizeArmy(h->type->heroClass->faction);
 		map->heroes.push_back(h);
 		return; //TODO: maybe we should do something with definfo?
 	}

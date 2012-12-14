@@ -5,7 +5,7 @@
 #include "Filesystem/CResourceLoader.h"
 #include "VCMI_Lib.h"
 #include "JsonNode.h"
-#include "GameConstants.h"
+#include "StringConstants.h"
 #include "BattleHex.h"
 #include "CModHandler.h"
 
@@ -21,7 +21,6 @@
 
 CHeroClass::CHeroClass()
 {
-	skillLimit = 8;
 }
 CHeroClass::~CHeroClass()
 {
@@ -33,12 +32,12 @@ int CHeroClass::chooseSecSkill(const std::set<int> & possibles) const //picks se
 	int totalProb = 0;
 	for(std::set<int>::const_iterator i=possibles.begin(); i!=possibles.end(); i++)
 	{
-		totalProb += proSec[*i];
+		totalProb += secSkillProbability[*i];
 	}
 	int ran = rand()%totalProb;
 	for(std::set<int>::const_iterator i=possibles.begin(); i!=possibles.end(); i++)
 	{
-		ran -= proSec[*i];
+		ran -= secSkillProbability[*i];
 		if(ran<0)
 			return *i;
 	}
@@ -47,7 +46,7 @@ int CHeroClass::chooseSecSkill(const std::set<int> & possibles) const //picks se
 
 EAlignment::EAlignment CHeroClass::getAlignment() const
 {
-	return (EAlignment::EAlignment)alignment;
+	return EAlignment::EAlignment(VLC->townh->factions[faction].alignment);
 }
 
 std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
@@ -83,17 +82,77 @@ bool CObstacleInfo::isAppropriate(int terrainType, int specialBattlefield /*= -1
 	return vstd::contains(allowedTerrains, terrainType);
 }
 
+void CHeroClassHandler::load()
+{
+	CLegacyConfigParser parser("DATA/HCTRAITS.TXT");
+
+	parser.endLine(); // header
+	parser.endLine();
+
+	do
+	{
+		CHeroClass * hc = new CHeroClass;
+
+		hc->name             = parser.readString();
+		hc->aggression       = parser.readNumber();
+		hc->id = heroClasses.size();
+
+		hc->primarySkillInitial   = parser.readNumArray<int>(GameConstants::PRIMARY_SKILLS);
+		hc->primarySkillLowLevel  = parser.readNumArray<int>(GameConstants::PRIMARY_SKILLS);
+		hc->primarySkillHighLevel = parser.readNumArray<int>(GameConstants::PRIMARY_SKILLS);
+
+		hc->secSkillProbability   = parser.readNumArray<int>(GameConstants::SKILL_QUANTITY);
+
+		for(int dd=0; dd<GameConstants::F_NUMBER; ++dd)
+		{
+			hc->selectionProbability[dd] = parser.readNumber();
+		}
+
+		VLC->modh->identifiers.requestIdentifier("faction." + ETownType::names[heroClasses.size()/2],
+		[=](si32 faction)
+		{
+			hc->faction = faction;
+		});
+
+		heroClasses.push_back(hc);
+		VLC->modh->identifiers.registerObject("heroClass." + GameConstants::HERO_CLASSES_NAMES[hc->id], hc->id);
+	}
+	while (parser.endLine() && !parser.isNextEntryEmpty());
+}
+
+void CHeroClassHandler::load(const JsonNode & classes)
+{
+	//TODO
+}
+
+void CHeroClassHandler::loadClass(const JsonNode & heroClass)
+{
+	//TODO
+}
+
+CHeroClassHandler::~CHeroClassHandler()
+{
+	BOOST_FOREACH(auto heroClass, heroClasses)
+	{
+		delete heroClass.get();
+	}
+}
+
 CHeroHandler::~CHeroHandler()
 {
-	for (int i = 0; i < heroes.size(); i++)
-		heroes[i].dellNull();
-
-	for (int i = 0; i < heroClasses.size(); i++)
-		delete heroClasses[i];
+	BOOST_FOREACH(auto hero, heroes)
+		delete hero.get();
 }
 
 CHeroHandler::CHeroHandler()
 {}
+
+void CHeroHandler::load()
+{
+	classes.load();
+	loadHeroes();
+	loadObstacles();
+}
 
 void CHeroHandler::loadObstacles()
 {
@@ -154,20 +213,20 @@ void CHeroHandler::loadHeroes()
 	// Load heroes information
 	const JsonNode config(ResourceID("config/heroes.json"));
 	BOOST_FOREACH(const JsonNode &hero, config["heroes"].Vector()) {
-		int hid = hero["id"].Float();
+
+		CHero * currentHero = heroes[hero["id"].Float()];
 		const JsonNode *value;
 
 		// sex: 0=male, 1=female
-		heroes[hid]->sex = !!hero["female"].Bool();
-		heroes[hid]->heroType = CHero::EHeroClasses((int)hero["class"].Float());
+		currentHero->sex = !!hero["female"].Bool();
 
 		BOOST_FOREACH(const JsonNode &set, hero["skill_set"].Vector()) {
-			heroes[hid]->secSkillsInit.push_back(std::make_pair(set["skill"].Float(), set["level"].Float()));
+			currentHero->secSkillsInit.push_back(std::make_pair(set["skill"].Float(), set["level"].Float()));
 		}
 
 		value = &hero["spell"];
 		if (!value->isNull()) {
-			heroes[hid]->startingSpell = value->Float();
+			currentHero->startingSpell = value->Float();
 		}
 
 		BOOST_FOREACH(const JsonNode &specialty, hero["specialties"].Vector())
@@ -179,12 +238,17 @@ void CHeroHandler::loadHeroes()
 			dummy.subtype = specialty["subtype"].Float();
 			dummy.additionalinfo = specialty["info"].Float();
 
-			heroes[hid]->spec.push_back(dummy); //put a copy of dummy
+			currentHero->spec.push_back(dummy); //put a copy of dummy
 		}
+
+		VLC->modh->identifiers.requestIdentifier("heroClass." + hero["class"].String(),
+		[=](si32 classID)
+		{
+			currentHero->heroClass = classes.heroClasses[classID];
+		});
 	}
 
-	loadHeroClasses();
-	initHeroClasses();
+	loadTerrains();
 	expPerLevel.push_back(0);
 	expPerLevel.push_back(1000);
 	expPerLevel.push_back(2000);
@@ -230,61 +294,6 @@ void CHeroHandler::loadHeroes()
 		ballistics.push_back(bli);
 	}
 	while (ballParser.endLine());
-}
-
-void CHeroHandler::loadHeroClasses()
-{
-	CLegacyConfigParser parser("DATA/HCTRAITS.TXT");
-
-	parser.endLine(); // header
-	parser.endLine();
-
-	do
-	{
-		CHeroClass * hc = new CHeroClass;
-		hc->alignment = heroClasses.size() / 6;
-
-		hc->name             = parser.readString();
-		hc->aggression       = parser.readNumber();
-		for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
-		{
-			hc->initialPrimSkills[g] = parser.readNumber();
-		}
-
-		hc->primChance.resize(GameConstants::PRIMARY_SKILLS);
-		for(int x=0; x<GameConstants::PRIMARY_SKILLS; ++x)
-		{
-			hc->primChance[x].first = parser.readNumber();
-		}
-		for(int x=0; x<GameConstants::PRIMARY_SKILLS; ++x)
-		{
-			hc->primChance[x].second = parser.readNumber();
-		}
-
-		hc->proSec.resize(GameConstants::SKILL_QUANTITY);
-		for(int dd=0; dd<GameConstants::SKILL_QUANTITY; ++dd)
-		{
-			hc->proSec[dd] = parser.readNumber();
-		}
-
-		for(int dd=0; dd<GameConstants::F_NUMBER; ++dd)
-		{
-			hc->selectionProbability[dd] = parser.readNumber();
-		}
-
-		heroClasses.push_back(hc);
-	}
-	while (parser.endLine() && !parser.isNextEntryEmpty());
-}
-
-void CHeroHandler::initHeroClasses()
-{
-	for(int gg=0; gg<heroes.size(); ++gg)
-	{
-		heroes[gg]->heroClass = heroClasses[heroes[gg]->heroType];
-	}
-
-	loadTerrains();
 }
 
 ui32 CHeroHandler::level (ui64 experience) const

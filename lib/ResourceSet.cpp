@@ -1,6 +1,6 @@
 #include "StdInc.h"
 #include "ResourceSet.h"
-#include "GameConstants.h"
+#include "StringConstants.h"
 #include "JsonNode.h"
 
 Res::ResourceSet::ResourceSet()

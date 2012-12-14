@@ -173,7 +173,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 			if(myOwner->bfield[it]->hovered && myOwner->bfield[it]->strictHovered)
 				return;
 		}
-		CCS->curh->changeGraphic(0,0);
+		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 
 		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (screen->w - 620)/2, (screen->h - 595)/2), myHero, myOwner->curInt);
 		GH.pushInt(spellWindow);

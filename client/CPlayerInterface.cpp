@@ -1569,9 +1569,9 @@ void CPlayerInterface::update()
 		GH.drawFPSCounter();
 
 	// draw the mouse cursor and update the screen
-	CCS->curh->draw1();
+	CCS->curh->drawWithScreenRestore();
 	CSDL_Ext::update(screen);
-	CCS->curh->draw2();
+	CCS->curh->drawRestored();
 }
 
 int CPlayerInterface::getLastIndex( std::string namePrefix)

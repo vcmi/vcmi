@@ -881,16 +881,26 @@ public:
 /// Artifacts can be placed there. Gets shown at the hero window
 class CArtPlace: public LRClickableAreaWTextComp
 {
-public:
-	int slotID; //Arts::EPOS enum + backpack starting from Arts::BACKPACK_START
+	CAnimImage *image;
+	CAnimImage *selection;
 
+	void createImage();
+
+public:
+	// consider these members as const - change them only with appropriate methods e.g. lockSlot()
+	bool locked;
 	bool picked;
 	bool marked;
-	bool locked;
-	CArtifactsOfHero * ourOwner;
-	const CArtifactInstance * ourArt;
 
-	CArtPlace(const CArtifactInstance * Art); //c-tor
+	int slotID; //Arts::EPOS enum + backpack starting from Arts::BACKPACK_START
+
+	void lockSlot(bool on);
+	void pickSlot(bool on);
+	void selectSlot(bool on);
+
+	CArtifactsOfHero * ourOwner;
+	const CArtifactInstance * ourArt; // should be changed only with setArtifact()
+
 	CArtPlace(Point position, const CArtifactInstance * Art = NULL); //c-tor
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);

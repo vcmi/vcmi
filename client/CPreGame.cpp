@@ -511,9 +511,9 @@ void CGPreGame::update()
 		GH.drawFPSCounter();
 
 	// draw the mouse cursor and update the screen
-	CCS->curh->draw1();
+	CCS->curh->drawWithScreenRestore();
 	CSDL_Ext::update(screen);
-	CCS->curh->draw2();
+	CCS->curh->drawRestored();
 }
 
 void CGPreGame::openCampaignScreen(std::string name)
@@ -808,7 +808,7 @@ void CSelectionScreen::changeSelection(const CMapInfo * to)
 			}
 			else
 			{
-				sInfo.mapGenOptions = nullptr;
+				sInfo.mapGenOptions.reset();
 			}
 		}
 	}
@@ -2812,7 +2812,7 @@ OptionsTab::CPregameTooltipBox::CPregameTooltipBox(CPlayerSettingsHelper & helpe
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	int value;
+	int value = PlayerSettings::NONE;
 
 	switch(CPlayerSettingsHelper::type)
 	{

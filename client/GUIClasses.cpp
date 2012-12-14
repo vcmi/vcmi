@@ -203,9 +203,9 @@ CTownTooltip::CTownTooltip(Point pos, const CGTownInstance * town):
 void CGarrisonSlot::setHighlight(bool on)
 {
 	if (on)
-		selectionImage->recActions |= UPDATE | SHOWALL; //show
+		selectionImage->enable(); //show
 	else
-		selectionImage->recActions &= ~(UPDATE | SHOWALL); //hide
+		selectionImage->disable(); //hide
 }
 
 void CGarrisonSlot::hover (bool on)
@@ -459,16 +459,16 @@ void CGarrisonSlot::update()
 
 	if (creature)
 	{
-		creatureImage->recActions |= (UPDATE | SHOWALL);
+		creatureImage->enable();
 		creatureImage->setFrame(creature->iconIndex);
 
-		stackCount->recActions |= (UPDATE | SHOWALL);
+		stackCount->enable();
 		stackCount->setTxt(boost::lexical_cast<std::string>(myStack->count));
 	}
 	else
 	{
-		creatureImage->recActions &= ~(UPDATE | SHOWALL);
-		stackCount->recActions &= ~(UPDATE | SHOWALL);
+		creatureImage->disable();
+		stackCount->disable();
 	}
 }
 
@@ -489,10 +489,10 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg
 
 	creatureImage = new CAnimImage(imgName, creature ? creature->iconIndex : 0);
 	if (!creature)
-		creatureImage->recActions &= ~(UPDATE | SHOWALL);
+		creatureImage->disable();
 
 	selectionImage = new CAnimImage(imgName, 1);
-	selectionImage->recActions &= ~(UPDATE | SHOWALL); //hide it
+	selectionImage->disable();
 
 	if(Owner->smallIcons)
 	{
@@ -507,7 +507,7 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg
 
 	stackCount = new CLabel(pos.w, pos.h, owner->smallIcons ? FONT_TINY : FONT_MEDIUM, BOTTOMRIGHT, Colors::WHITE);
 	if (!creature)
-		stackCount->recActions &= ~(UPDATE | SHOWALL);
+		stackCount->disable();
 	else
 		stackCount->setTxt(boost::lexical_cast<std::string>(myStack->count));
 }
@@ -937,7 +937,7 @@ size_t CComponent::getIndex()
 	case secskill:   return subtype*3 + 3 + val - 1;
 	case resource:   return subtype;
 	case creature:   return CGI->creh->creatures[subtype]->iconIndex;
-	case artifact:   return subtype;
+	case artifact:   return CGI->arth->artifacts[subtype]->iconIndex;
 	case experience: return 4;
 	case spell:      return subtype;
 	case morale:     return val+3;
@@ -2005,7 +2005,7 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 				aw->arts->markPossibleSlots(art);
 
 				//aw->arts->commonInfo->dst.AOH = aw->arts;
-				CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[art->artType->id].bitmap);
+				CCS->curh->dragAndDropCursor(new CAnimImage("artifact", art->artType->iconIndex));
 
 				aw->arts->artifactsOnAltar.erase(art);
 				id = -1;
@@ -3964,16 +3964,67 @@ void CWindowWithGarrison::updateGarrisons()
 	garr->recreateSlots();
 }
 
-CArtPlace::CArtPlace(const CArtifactInstance* Art)
-	:picked(false), marked(false), locked(false), ourArt(Art)
-{
-}
-
 CArtPlace::CArtPlace(Point position, const CArtifactInstance * Art):
-	picked(false), marked(false), locked(false), ourArt(Art)
+    locked(false), picked(false), marked(false), ourArt(Art)
 {
 	pos += position;
 	pos.w = pos.h = 44;
+	createImage();
+}
+
+void CArtPlace::createImage()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	int graphic = 0;
+	if (ourArt)
+		graphic = ourArt->artType->iconIndex;
+	if (locked)
+		graphic = GameConstants::ID_LOCK;
+
+	image = new CAnimImage("artifact", graphic);
+	if (!ourArt)
+		image->disable();
+
+	selection = new CAnimImage("artifact", GameConstants::ID_SELECTION);
+	selection->disable();
+}
+
+void CArtPlace::lockSlot(bool on)
+{
+	if (locked == on)
+		return;
+
+	locked = on;
+
+	if (on)
+		image->setFrame(GameConstants::ID_LOCK);
+	else
+		image->setFrame(ourArt->artType->iconIndex);
+}
+
+void CArtPlace::pickSlot(bool on)
+{
+	if (picked == on)
+		return;
+
+	picked = on;
+	if (on)
+		image->disable();
+	else
+		image->enable();
+}
+
+void CArtPlace::selectSlot(bool on)
+{
+	if (marked == on)
+		return;
+
+	marked = on;
+	if (on)
+		selection->enable();
+	else
+		selection->disable();
 }
 
 void CArtPlace::clickLeft(tribool down, bool previousState)
@@ -3994,7 +4045,7 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 			else
 			{
 				ourOwner->unmarkSlots(false);
-				marked = true;
+				selectSlot(true);
 				ourOwner->highlightModeCallback(this);
 			}
 		}
@@ -4150,19 +4201,20 @@ void CArtPlace::select ()
 	if (locked)
 		return;
 
-	picked = true;
+	selectSlot(true);
+	pickSlot(true);
 	if(ourArt->canBeDisassembled() && slotID < GameConstants::BACKPACK_START) //worn combined artifact -> locks have to disappear
 	{
 		for(int i = 0; i < GameConstants::BACKPACK_START; i++)
 		{
 			CArtPlace *ap = ourOwner->getArtPlace(i);
-			ap->picked = ourArt->isPart(ap->ourArt);
+			ap->pickSlot(ourArt->isPart(ap->ourArt));
 		}
 	}
 
 	//int backpackCorrection = -(slotID - Arts::BACKPACK_START < ourOwner->backpackPos);
 
-	CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[ourArt->artType->id].bitmap);
+	CCS->curh->dragAndDropCursor(new CAnimImage("artifact", ourArt->artType->iconIndex));
 	ourOwner->commonInfo->src.setTo(this, false);
 	ourOwner->markPossibleSlots(ourArt);
 
@@ -4178,11 +4230,11 @@ void CArtPlace::select ()
  */
 void CArtPlace::deselect ()
 {
-	picked = false;
+	pickSlot(false);
 	if(ourArt && ourArt->canBeDisassembled()) //combined art returned to its slot -> restore locks
 	{
 		for(int i = 0; i < GameConstants::BACKPACK_START; i++)
-			ourOwner->getArtPlace(i)->picked = false;
+			ourOwner->getArtPlace(i)->pickSlot(false);
 	}
 
 	CCS->curh->dragAndDropCursor(NULL);
@@ -4200,8 +4252,7 @@ void CArtPlace::showAll(SDL_Surface * to)
 {
 	if (ourArt && !picked && ourArt == ourOwner->curHero->getArt(slotID, false)) //last condition is needed for disassembling -> artifact may be gone, but we don't know yet TODO: real, nice solution
 	{
-		int graphic = locked ? GameConstants::ID_LOCK : ourArt->artType->id;
-		blitAt(graphics->artDefs->ourImages[graphic].bitmap, pos.x, pos.y, to);
+		CIntObject::showAll(to);
 	}
 
 	if(marked && active)
@@ -4246,11 +4297,14 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 	ourArt = art;
 	if(!art)
 	{
+		image->disable();
 		text = std::string();
 		hoverText = CGI->generaltexth->allTexts[507];
 	}
 	else
 	{
+		image->enable();
+		image->setFrame(locked ? GameConstants::ID_LOCK : art->artType->iconIndex);
 		text = ourArt->artType->Description();
 		if(art->artType->id == 1) //spell scroll
 		{
@@ -4529,7 +4583,7 @@ void CArtifactsOfHero::markPossibleSlots(const CArtifactInstance* art)
 {
 	BOOST_FOREACH(CArtifactsOfHero *aoh, commonInfo->participants)
 		BOOST_FOREACH(CArtPlace *place, aoh->artWorn)
-			place->marked = art->canBePutAt(ArtifactLocation(aoh->curHero, place->slotID), true);
+			place->selectSlot(art->canBePutAt(ArtifactLocation(aoh->curHero, place->slotID), true));
 
 	safeRedraw();
 }
@@ -4552,9 +4606,9 @@ void CArtifactsOfHero::unmarkSlots(bool withRedraw /*= true*/)
 void CArtifactsOfHero::unmarkLocalSlots(bool withRedraw /*= true*/)
 {
 	BOOST_FOREACH(CArtPlace *place, artWorn)
-		place->marked = false;
+		place->selectSlot(false);
 	BOOST_FOREACH(CArtPlace *place, backpack)
-		place->marked = false;
+		place->selectSlot(false);
 
 	if(withRedraw)
 		safeRedraw();
@@ -4570,13 +4624,13 @@ void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, int slotID)
 		return;
 	}
 
-	artPlace->picked = false;
+	artPlace->pickSlot(false);
 	artPlace->slotID = slotID;
 
 	if(const ArtSlotInfo *asi = curHero->getSlot(slotID))
 	{
 		artPlace->setArtifact(asi->artifact);
-		artPlace->locked = asi->locked;
+		artPlace->lockSlot(asi->locked);
 	}
 	else
 		artPlace->setArtifact(NULL);
@@ -4587,7 +4641,7 @@ void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, int slotID)
  */
 void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, int slotID)
 {
-	artPlace->picked = false;
+	artPlace->pickSlot(false);
 	artPlace->slotID = slotID;
 	artPlace->setArtifact(NULL);
 }
@@ -4638,20 +4692,19 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 	pos += position;
 	artWorn.resize(19);
 
-	std::vector<Rect> slotPos;
-	slotPos += genRect(44,44,509,30), genRect(44,44,567,240), genRect(44,44,509,80),
-		genRect(44,44,383,68), genRect(44,44,564,183), genRect(44,44,509,130),
-		genRect(44,44,431,68), genRect(44,44,610,183), genRect(44,44,515,295),
-		genRect(44,44,383,143), genRect(44,44,399,194), genRect(44,44,415,245),
-		genRect(44,44,431,296), genRect(44,44,564,30), genRect(44,44,610,30),
-		genRect(44,44,610,76), genRect(44,44,610,122), genRect(44,44,610,310),
-		genRect(44,44,381,296);
+	std::vector<Point> slotPos;
+	slotPos += Point(509,30),  Point(567,240), Point(509,80),
+	           Point(383,68),  Point(564,183), Point(509,130),
+	           Point(431,68),  Point(610,183), Point(515,295),
+	           Point(383,143), Point(399,194), Point(415,245),
+	           Point(431,296), Point(564,30),  Point(610,30),
+	           Point(610,76),  Point(610,122), Point(610,310),
+	           Point(381,296);
 
 	// Create slots for worn artifacts.
 	for (size_t g = 0; g < 19 ; g++)
 	{
-		artWorn[g] = new CArtPlace(NULL);
-		artWorn[g]->pos = slotPos[g] + pos;
+		artWorn[g] = new CArtPlace(slotPos[g]);
 		artWorn[g]->ourOwner = this;
 		eraseSlotData(artWorn[g], g);
 	}
@@ -4659,12 +4712,9 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 	// Create slots for the backpack.
 	for(size_t s=0; s<5; ++s)
 	{
-		CArtPlace * add = new CArtPlace(NULL);
+		CArtPlace * add = new CArtPlace(Point(403 + 46 * s, 365));
 
 		add->ourOwner = this;
-		add->pos.x = pos.x + 403 + 46*s;
-		add->pos.y = pos.y + 365;
-		add->pos.h = add->pos.w = 44;
 		eraseSlotData(add, 19 + s);
 
 		backpack.push_back(add);
@@ -4782,7 +4832,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			commonInfo->src.art = dst.getArt();
 			commonInfo->src.slotID = dst.slot;
 			assert(commonInfo->src.AOH);
-			CCS->curh->dragAndDropCursor(graphics->artDefs->ourImages[dst.getArt()->artType->id].bitmap);
+			CCS->curh->dragAndDropCursor(new CAnimImage("artifact", dst.getArt()->artType->iconIndex));
 			markPossibleSlots(dst.getArt());
 		}
 	}
@@ -5272,7 +5322,7 @@ int CUniversityWindow::CItem::state()
 		return 1;
 	if (parent->hero->secSkills.size() >= GameConstants::SKILL_PER_HERO)//can't learn more skills
 		return 0;
-	if (parent->hero->type->heroClass->proSec[ID]==0)//can't learn this skill (like necromancy for most of non-necros)
+	if (parent->hero->type->heroClass->secSkillProbability[ID]==0)//can't learn this skill (like necromancy for most of non-necros)
 		return 0;
 	return 2;
 }

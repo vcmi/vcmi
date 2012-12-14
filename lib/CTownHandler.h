@@ -148,8 +148,6 @@ public:
 		h & names & typeID & creatures & buildings & hordeLvl & mageLevel
 			& primaryRes & warMachine & clientInfo;
 	}
-
-	friend class CTownHandler;
 };
 
 struct DLL_LINKAGE SPuzzleInfo

@@ -82,8 +82,7 @@ void LibClasses::init()
 	tlog0<<"\tGeneral text handler: "<<pomtime.getDiff()<<std::endl;
 
 	heroh = new CHeroHandler;
-	heroh->loadHeroes();
-	heroh->loadObstacles();
+	heroh->load();
 	tlog0 <<"\tHero handler: "<<pomtime.getDiff()<<std::endl;
 
 	arth = new CArtHandler;

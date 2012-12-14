@@ -1,9 +1,6 @@
 #pragma once
 
-
-
-struct SDL_Thread;
-class CDefHandler;
+class CAnimImage;
 struct SDL_Surface;
 
 /*
@@ -30,25 +27,48 @@ namespace ECursor
 /// handles mouse cursor
 class CCursorHandler 
 {
-public:
-	int mode, number;
 	SDL_Surface * help;
-	SDL_Surface * dndImage;
-	bool Show;
+	CAnimImage * currentCursor;
+	CAnimImage * dndObject; //if set, overrides currentCursor
+	bool showing;
 
-	std::vector<CDefHandler*> cursors;
-	int xpos, ypos; //position of cursor
-	void initCursor(); //inits cursorHandler - run only once, it's not memleak-proof (rev 1333)
-	void cursorMove(const int & x, const int & y); //change cursor's positions to (x, y)
-	void changeGraphic(const int & type, const int & no); //changes cursor graphic for type type (0 - adventure, 1 - combat, 2 - default, 3 - spellbook) and frame no (not used for type 3)
-	void dragAndDropCursor (SDL_Surface* image); // Replace cursor with a custom image.
-	void draw1();
+public:
+	/// position of cursor
+	int xpos, ypos;
+
+	/// Current cursor
+	ECursor::ECursorTypes type;
+	size_t frame;
+
+	/// inits cursorHandler - run only once, it's not memleak-proof (rev 1333)
+	void initCursor();
+
+	/// changes cursor graphic for type type (0 - adventure, 1 - combat, 2 - default, 3 - spellbook) and frame index (not used for type 3)
+	void changeGraphic(ECursor::ECursorTypes type, int index);
+
+	/**
+	 * Replaces the cursor with a custom image.
+	 *
+	 * @param image Image to replace cursor with or NULL to use the normal
+	 * cursor. CursorHandler takes ownership of object
+	 */
+	void dragAndDropCursor (CAnimImage * image);
+
+	/// Draw cursor preserving original image below cursor
+	void drawWithScreenRestore();
+	/// Restore original image below cursor
+	void drawRestored();
+	/// Simple draw cursor
 	void draw(SDL_Surface *to);
 
 	void shiftPos( int &x, int &y );
-	void draw2();
-	void hide() { Show=0; };
-	void show() { Show=1; };
+	void hide() { showing=0; };
+	void show() { showing=1; };
+
+	/// change cursor's positions to (x, y)
+	void cursorMove(const int & x, const int & y);
+	/// Move cursor to screen center
 	void centerCursor();
+
 	~CCursorHandler();
 };

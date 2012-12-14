@@ -1,1036 +1,2281 @@
 {
 	// heroes' information.
-	//   id: hero id
-	//   female: true if hero is female, else false
-	//   skill_set: initial set of secondary abilities (skill ID, initial skill level)
-	//   spell: hero starts with that initial spell
-	"heroes": [
-		{ "id": 0,
-		  "class" : 0,
-		  "female": false,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 1, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 1, "info": 0 } ] },
-		{ "id": 1,
-		  "class" : 0,
-		  "female": true,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 1, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 2 } ] },
-		{ "id": 2,
-		  "class" : 0,
-		  "female": false,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 23, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 4 } ] },
-		{ "id": 3,
-		  "class" : 0,
-		  "female": true,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 5, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 2, "subtype": 5, "info": 1 } ] },
-		{ "id": 4,
-		  "class" : 0,
-		  "female": false,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 13, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 13, "info": 0 } ] },
-		{ "id": 5,
-		  "class" : 0,
-		  "female": true,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 6 } ] },
-		{ "id": 6,
-		  "class" : 0,
-		  "female": false,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 20, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 146 } ] },
-		{ "id": 7,
-		  "class" : 0,
-		  "female": true,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 19, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 10 } ] },
-		{ "id": 8,
-		  "class" : 1,
-		  "female": false,
-		  "spell": 46,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 27, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 27, "info": 0 } ] },
-		{ "id": 9,
-		  "class" : 1,
-		  "female": true,
-		  "spell": 41,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 4, "level": 1 } ],
-		  "specialties": [ { "type":6, "val": 3, "subtype": 41, "info": 0 } ] },
-		{ "id": 10,
-		  "class" : 1,
-		  "female": false,
-		  "spell": 45,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 13, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 45, "info": 0 } ] },
-		{ "id": 11,
-		  "class" : 1,
-		  "female": true,
-		  "spell": 20,
-		  "skill_set": [ { "skill": 7, "level": 2 } ],
-		  "specialties": [ { "type":3, "val": 3, "subtype": 20, "info": 0 } ] },
-		{ "id": 12,
-		  "class" : 1,
-		  "female": false,
-		  "spell": 42,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 8, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 8 } ] },
-		{ "id": 13,
-		  "class" : 1,
-		  "female": true,
-		  "spell": 35,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 11, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 11, "info": 0 } ] },
-		{ "id": 14,
-		  "class" : 1,
-		  "spell": 48,
-		  "female": false,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 21, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 48, "info": 0 } ] },
-		{ "id": 15,
-		  "class" : 1,
-		  "female": true,
-		  "spell": 37,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 24, "level": 1 } ],
-		  "specialties": [ { "type":10, "val": 350, "subtype": 6, "info": 0 } ] },
-		{ "id": 16,
-		  "class" : 2,
-		  "female": true,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 23, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 23, "info": 0 } ] },
-		{ "id": 17,
-		  "class" : 2,
-		  "female": false,
-		  "skill_set": [ { "skill": 9, "level": 1 },
-		  			    { "skill": 26, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 16 } ] },
-		{ "id": 18,
-		  "class" : 2,
-		  "female": true,
-		  "skill_set": [ { "skill": 1, "level": 2 } ],
-		  "specialties": [ { "type":10, "val": 350, "subtype": 6, "info": 0 } ] },
-		{ "id": 19,
-		  "class" : 2,
-		  "female": false,
-		  "skill_set": [ { "skill": 4, "level": 1 },
-		  			    { "skill": 6, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 22 } ] },
-		{ "id": 20,
-		  "class" : 2,
-		  "female": false,
-		  "skill_set": [ { "skill": 26, "level": 2 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 26, "info": 0 } ] },
-		{ "id": 21,
-		  "class" : 2,
-		  "female": false,
-		  "skill_set": [ { "skill": 1, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 18 } ] },
-		{ "id": 22,
-		  "class" : 2,
-		  "female": false,
-		  "skill_set": [ { "skill": 0, "level": 1 },
-		  			    { "skill": 26, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 24 } ] },
-		{ "id": 23,
-		  "class" : 2,
-		  "female": true,
-		  "skill_set": [ { "skill": 1, "level": 1 },
-		  			    { "skill": 2, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 2, "info": 0 } ] },
-		{ "id": 24,
-		  "class" : 3,
-		  "spell": 55,
-		  "female": false,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 18, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 55, "info": 1 } ] },
-		{ "id": 25,
-		  "class" : 3,
-		  "female": false,
-		  "spell": 37,
-		  "skill_set": [ { "skill": 7, "level": 2 },
-		  			    { "skill": 10, "level": 1 } ],
-		  "specialties": [ { "type":3, "val": 3, "subtype": 37, "info": 0 } ] },
-		{ "id": 26,
-		  "class" : 3,
-		  "female": false,
-		  "spell": 42,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 24, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 24, "info": 0 } ] },
-		{ "id": 27,
-		  "class" : 3,
-		  "female": true,
-		  "spell": 0,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 27, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 27, "info": 0 } ] },
-		{ "id": 28,
-		  "class" : 3,
-		  "female": false,
-		  "spell": 15,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 11, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 11, "info": 0 } ] },
-		{ "id": 29,
-		  "class" : 3,
-		  "spell": 51,
-		  "female": true,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 9, "level": 1 } ],
-		  "specialties": [ { "type":7, "val": 0, "subtype": 51, "info": 0 } ] },
-		{ "id": 30,
-		  "class" : 3,
-		  "female": false,
-		  "spell": 16,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 25, "level": 1 } ],
-		  "specialties": [ { "type":3, "val": 3, "subtype": 16, "info": 0 } ] },
-		{ "id": 31,
-		  "class" : 3,
-		  "female": false,
-		  "spell": 30,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 3, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 20 } ] },
-		{ "id": 32,
-		  "class" : 4,
-		  "female": false,
-		  "spell": 27,
-		  "skill_set": [ { "skill": 3, "level": 1 },
-		  			    { "skill": 8, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 30 } ] },
-		{ "id": 33,
-		  "class" : 4,
-		  "female": false,
-		  "spell": 15,
-		  "skill_set": [ { "skill": 18, "level": 2 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 36 } ] },
-		{ "id": 34,
-		  "class" : 4,
-		  "spell": 53,
-		  "female": true,
-		  "skill_set": [ { "skill": 8, "level": 1 },
-		  			    { "skill": 25, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 32 } ] },
-		{ "id": 35,
-		  "class" : 4,
-		  "female": true,
-		  "spell": 27,
-		  "skill_set": [ { "skill": 18, "level": 1 },
-		  			    { "skill": 23, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 23, "info": 0 } ] },
-		{ "id": 36,
-		  "class" : 4,
-		  "female": false,
-		  "spell": 15,
-		  "skill_set": [ { "skill": 8, "level": 1 },
-		  			    { "skill": 19, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 146 } ] },
-		{ "id": 37,
-		  "class" : 4,
-		  "female": false,
-		  "spell": 53,
-		  "skill_set": [ { "skill": 18, "level": 1 },
-		  			    { "skill": 26, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 38 } ] },
-		{ "id": 38,
-		  "class" : 4,
-		  "female": true,
-		  "spell": 15,
-		  "skill_set": [ { "skill": 8, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":10, "val": 1, "subtype": 1, "info": 0 } ] },
-		{ "id": 39,
-		  "class" : 4,
-		  "spell": 15,
-		  "female": true,
-		  "skill_set": [ { "skill": 18, "level": 1 },
-		  			    { "skill": 24, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 36 } ] },
-		{ "id": 40,
-		  "class" : 5,
-		  "female": false,
-		  "spell": 60,
-		  "skill_set": [ { "skill": 7, "level": 2 } ],
-		  "specialties": [ { "type":3, "val": 3, "subtype": 60, "info": 0 } ] },
-		{ "id": 41,
-		  "class" : 5,
-		  "female": false,
-		  "spell": 46,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 8, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 8, "info": 1 } ] },
-		{ "id": 42,
-		  "class" : 5,
-		  "female": true,
-		  "spell": 35,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 11, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 11, "info": 0 } ] },
-		{ "id": 43,
-		  "class" : 5,
-		  "female": true,
-		  "spell": 51,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 24, "level": 1 } ],
-		  "specialties": [ { "type":7, "val": 0, "subtype": 51, "info": 0 } ] },
-		{ "id": 44,
-		  "class" : 5,
-		  "spell": 27,
-		  "female": false,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 10, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 34 } ] },
-		{ "id": 45,
-		  "class" : 5,
-		  "female": false,
-		  "spell": 19,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 25, "level": 1 } ],
-		  "specialties": [ { "type":3, "val": 3, "subtype": 19, "info": 0 } ] },
-		{ "id": 46,
-		  "class" : 5,
-		  "female": true,
-		  "spell": 53,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 4, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 53, "info": 0 } ] },
-		{ "id": 47,
-		  "class" : 5,
-		  "female": true,
-		  "spell": 42,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 18, "level": 1 } ],
-		  "specialties": [ { "type":10, "val": 350, "subtype": 6, "info": 0 } ] },
-		{ "id": 48,
-		  "class" : 6,
-		  "female": true,
-		  "skill_set": [ { "skill": 3, "level": 2 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 46 } ] },
-		{ "id": 49,
-		  "class" : 6,
-		  "female": false,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 18, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 52 } ] },
-		{ "id": 50,
-		  "class" : 6,
-		  "female": true,
-		  "skill_set": [ { "skill": 23, "level": 2 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 48 } ] },
-		{ "id": 51,
-		  "class" : 6,
-		  "female": false,
-		  "skill_set": [ { "skill": 19, "level": 1 },
-		  			    { "skill": 26, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 42 } ] },
-		{ "id": 52,
-		  "class" : 6,
-		  "female": true,
-		  "skill_set": [ { "skill": 18, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":10, "val": 350, "subtype": 6, "info": 0 } ] },
-		{ "id": 53,
-		  "class" : 6,
-		  "female": false,
-		  "skill_set": [ { "skill": 1, "level": 1 },
-		  			    { "skill": 3, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 42 } ] },
-		{ "id": 54,
-		  "class" : 6,
-		  "female": true,
-		  "skill_set": [ { "skill": 20, "level": 1 },
-		  			    { "skill": 2, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 146 } ] },
-		{ "id": 55,
-		  "class" : 6,
-		  "female": true,
-		  "skill_set": [ { "skill": 22, "level": 2 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 50 } ] },
-		{ "id": 56,
-		  "class" : 7,
-		  "spell": 3,
-		  "female": false,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 24, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 24, "info": 0 } ] },
-		{ "id": 57,
-		  "class" : 7,
-		  "female": false,
-		  "spell": 22,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 18, "level": 1 } ],
-		  "specialties": [ { "type":3, "val": 3, "subtype": 22, "info": 0 } ] },
-		{ "id": 58,
-		  "class" : 7,
-		  "female": false,
-		  "spell": 30,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 8, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 8, "info": 1 } ] },
-		{ "id": 59,
-		  "class" : 7,
-		  "female": true,
-		  "spell": 45,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 10, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 45, "info": 0 } ] },
-		{ "id": 60,
-		  "class" : 7,
-		  "female": false,
-		  "spell": 53,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 21, "level": 1 } ],
-		  "specialties": [ { "type":10, "val": 1, "subtype": 3, "info": 0 } ] },
-		{ "id": 61,
-		  "class" : 7,
-		  "female": true,
-		  "spell": 43,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 11, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 43, "info": 0 } ] },
-		{ "id": 62,
-		  "class" : 7,
-		  "female": false,
-		  "spell": 46,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 25, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 25, "info": 0 } ] },
-		{ "id": 63,
-		  "class" : 7,
-		  "female": false,
-		  "spell": 21,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 6, "level": 1 } ],
-		  "specialties": [ { "type":3, "val": 3, "subtype": 21, "info": 0 } ] },
-		{ "id": 64,
-		  "class" : 8,
-		  "female": false,
-		  "spell": 53,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 26, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 58 } ] },
-		{ "id": 65,
-		  "class" : 8,
-		  "female": false,
-		  "spell": 46,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 20, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 62 } ] },
-		{ "id": 66,
-		  "class" : 8,
-		  "female": false,
-		  "spell": 54,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 21, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 64 } ] },
-		{ "id": 67,
-		  "class" : 8,
-		  "female": true,
-		  "spell": 15,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 19, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 60 } ] },
-		{ "id": 68,
-		  "class" : 8,
-		  "female": true,
-		  "spell": 15,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 66 } ] },
-		{ "id": 69,
-		  "class" : 8,
-		  "female": true,
-		  "spell": 15,
-		  "skill_set": [ { "skill": 12, "level": 2 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 12, "info": 0 } ] },
-		{ "id": 70,
-		  "class" : 8,
-		  "female": false,
-		  "spell": 15,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":10, "val": 350, "subtype": 6, "info": 0 } ] },
-		{ "id": 71,
-		  "class" : 8,
-		  "female": false,
-		  "spell": 27,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 23, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 56 } ] },
-		{ "id": 72,
-		  "class" : 9,
-		  "female": true,
-		  "spell": 24,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 18, "level": 1 } ],
-		  "specialties": [ { "type":3, "val": 3, "subtype": 24, "info": 0 } ] },
-		{ "id": 73,
-		  "class" : 9,
-		  "female": true,
-		  "spell": 23,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 7, "level": 1 } ],
-		  "specialties": [ { "type":3, "val": 3, "subtype": 23, "info": 0 } ] },
-		{ "id": 74,
-		  "class" : 9,
-		  "female": false,
-		  "spell": 54,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 25, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 25, "info": 0 } ] },
-		{ "id": 75,
-		  "class" : 9,
-		  "female": false,
-		  "spell": 27,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 11, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 11, "info": 1 } ] },
-		{ "id": 76,
-		  "class" : 9,
-		  "female": false,
-		  "spell": 39,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 8, "level": 1 } ],
-		  "specialties": [ { "type":3, "val": 39, "subtype": 0, "info": 3 } ] },
-		{ "id": 77,
-		  "class" : 9,
-		  "female": true,
-		  "spell": 46,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 21, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 46, "info": 0 } ] },
-		{ "id": 78,
-		  "class" : 9,
-		  "female": true,
-		  "spell": 42,
-		  "skill_set": [ { "skill": 12, "level": 2 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 12, "info": 0 } ] },
-		{ "id": 79,
-		  "class" : 9,
-		  "female": false,
-		  "spell": 30,
-		  "skill_set": [ { "skill": 12, "level": 1 },
-		  			    { "skill": 24, "level": 1 } ],
-		  "specialties": [ { "type":10, "val": 350, "subtype": 6, "info": 0 } ] },
-		{ "id": 80,
-		  "class" : 10,
-		  "female": true,
-		  "skill_set": [ { "skill": 3, "level": 1 },
-		  			    { "skill": 6, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 72 } ] },
-		{ "id": 81,
-		  "class" : 10,
-		  "female": false,
-		  "skill_set": [ { "skill": 20, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 146 } ] },
-		{ "id": 82,
-		  "class" : 10,
-		  "female": false,
-		  "skill_set": [ { "skill": 19, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 78 } ] },
-		{ "id": 83,
-		  "class" : 10,
-		  "female": false,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 26, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 74 } ] },
-		{ "id": 84,
-		  "class" : 10,
-		  "female": false,
-		  "skill_set": [ { "skill": 22, "level": 2 } ],
-		  "specialties": [ { "type":10, "val": 350, "subtype": 6, "info": 0 } ] },
-		{ "id": 85,
-		  "class" : 10,
-		  "female": false,
-		  "skill_set": [ { "skill": 2, "level": 1 },
-		  			    { "skill": 19, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 2, "info": 0 } ] },
-		{ "id": 86,
-		  "class" : 10,
-		  "female": true,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 18, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 80 } ] },
-		{ "id": 87,
-		  "class" : 10,
-		  "female": false,
-		  "skill_set": [ { "skill": 19, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 70 } ] },
-		{ "id": 88,
-		  "class" : 11,
-		  "spell": 38,
-		  "female": false,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 18, "level": 1 } ],
-		  "specialties": [ { "type":3, "val": 3, "subtype": 38, "info": 0 } ] },
-		{ "id": 89,
-		  "class" : 11,
-		  "female": false,
-		  "spell": 27,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 8, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 8, "info": 1 } ] },
-		{ "id": 90,
-		  "class" : 11,
-		  "female": false,
-		  "spell": 43,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 25, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 25, "info": 0 } ] },
-		{ "id": 91,
-		  "class" : 11,
-		  "female": true,
-		  "spell": 38,
-		  "skill_set": [ { "skill": 7, "level": 2 } ],
-		  "specialties": [ { "type":3, "val": 3, "subtype": 38, "info": 0 } ] },
-		{ "id": 92,
-		  "class" : 11,
-		  "female": false,
-		  "spell": 54,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 11, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 11, "info": 1 } ] },
-		{ "id": 93,
-		  "class" : 11,
-		  "female": false,
-		  "spell": 23,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 3, "level": 2 } ],
-		  "specialties": [ { "type":3, "val": 3, "subtype": 23, "info": 0 } ] },
-		{ "id": 94,
-		  "class" : 11,
-		  "female": true,
-		  "spell": 30,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 24, "level": 1 } ],
-		  "specialties": [ { "type":10, "val": 1, "subtype": 4, "info": 0 } ] },
-		{ "id": 95,
-		  "class" : 11,
-		  "female": false,
-		  "spell": 46,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 21, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 46, "info": 0 } ] },
-		{ "id": 96,
-		  "class" : 12,
-		  "female": false,
-		  "skill_set": [ { "skill": 22, "level": 1 },
-		  			    { "skill": 10, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 94 } ] },
-		{ "id": 97,
-		  "class" : 12,
-		  "female": false,
-		  "skill_set": [ { "skill": 22, "level": 1 },
-		  			    { "skill": 20, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 146 } ] },
-		{ "id": 98,
-		  "class" : 12,
-		  "female": false,
-		  "skill_set": [ { "skill": 22, "level": 1 },
-		  			    { "skill": 1, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 88 } ] },
-		{ "id": 99,
-		  "class" : 12,
-		  "female": true,
-		  "skill_set": [ { "skill": 22, "level": 1 },
-		  			    { "skill": 3, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 92 } ] },
-		{ "id": 100,
-		  "class" : 12,
-		  "female": true,
-		  "skill_set": [ { "skill": 22, "level": 1 },
-		  			    { "skill": 0, "level": 1 } ] },
-		{ "id": 101,
-		  "class" : 12,
-		  "female": false,
-		  "skill_set": [ { "skill": 22, "level": 1 },
-		  			    { "skill": 26, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 84 } ] },
-		{ "id": 102,
-		  "class" : 12,
-		  "female": false,
-		  "skill_set": [ { "skill": 22, "level": 2 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 90 } ] },
-		{ "id": 103,
-		  "class" : 12,
-		  "female": false,
-		  "skill_set": [ { "skill": 22, "level": 1 },
-		  			    { "skill": 19, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 22, "info": 0 } ] },
-		{ "id": 104,
-		  "class" : 13,
-		  "spell": 43,
-		  "female": true,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 25, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 86 } ] },
-		{ "id": 105,
-		  "class" : 13,
-		  "female": false,
-		  "spell": 15,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 6, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 25, "info": 0 } ] },
-		{ "id": 106,
-		  "class" : 13,
-		  "female": true,
-		  "spell": 46,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 2, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 90 } ] },
-		{ "id": 107,
-		  "class" : 13,
-		  "female": false,
-		  "spell": 53,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 19, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 2, "info": 0 } ] },
-		{ "id": 108,
-		  "class" : 13,
-		  "female": false,
-		  "spell": 44,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 20, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 53, "info": 0 } ] },
-		{ "id": 109,
-		  "class" : 13,
-		  "spell": 54,
-		  "female": true,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 44, "info": 0 } ] },
-		{ "id": 110,
-		  "class" : 13,
-		  "female": true,
-		  "spell": 30,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 11, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 25, "info": 0 } ] },
-		{ "id": 111,
-		  "class" : 13,
-		  "female": false,
-		  "spell": 43,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 26, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 11, "info": 1 } ] },
-		{ "id": 112,
-		  "class" : 14,
-		  "female": false,
-		  "skill_set": [ { "skill": 23, "level": 1 },
-		  			    { "skill": 26, "level": 1 } ],
-		  "specialties": [ { "type":10, "val": 1, "subtype": 5, "info": 0 } ] },
-		{ "id": 113,
-		  "class" : 14,
-		  "female": false,
-		  "skill_set": [ { "skill": 23, "level": 1 },
-		  			    { "skill": 6, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 106 } ] },
-		{ "id": 114,
-		  "class" : 14,
-		  "female": false,
-		  "skill_set": [ { "skill": 23, "level": 1 },
-		  			    { "skill": 1, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 98 } ] },
-		{ "id": 115,
-		  "class" : 14,
-		  "female": false,
-		  "skill_set": [ { "skill": 23, "level": 2 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 100 } ] },
-		{ "id": 116,
-		  "class" : 14,
-		  "female": false,
-		  "skill_set": [ { "skill": 23, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 23, "info": 0 } ] },
-		{ "id": 117,
-		  "class" : 14,
-		  "female": false,
-		  "skill_set": [ { "skill": 23, "level": 1 },
-		  			    { "skill": 0, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 102 } ] },
-		{ "id": 118,
-		  "class" : 14,
-		  "female": false,
-		  "skill_set": [ { "skill": 23, "level": 1 },
-		  			    { "skill": 20, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 104 } ] },
-		{ "id": 119,
-		  "class" : 14,
-		  "female": false,
-		  "skill_set": [ { "skill": 23, "level": 1 },
-		  			    { "skill": 3, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 146 } ] },
-		{ "id": 120,
-		  "class" : 15,
-		  "spell": 45,
-		  "female": true,
-		  "skill_set": [ { "skill": 7, "level": 2 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 108 } ] },
-		{ "id": 121,
-		  "class" : 15,
-		  "female": true,
-		  "spell": 15,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 8, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 8, "info": 1 } ] },
-		{ "id": 122,
-		  "class" : 15,
-		  "female": true,
-		  "spell": 54,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 5, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 2, "subtype": 5, "info": 1 } ] },
-		{ "id": 123,
-		  "class" : 15,
-		  "female": true,
-		  "spell": 31,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 27, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 27, "info": 1 } ] },
-		{ "id": 124,
-		  "class" : 15,
-		  "female": true,
-		  "spell": 46,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 21, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 46, "info": 0 } ] },
-		{ "id": 125,
-		  "class" : 15,
-		  "female": true,
-		  "spell": 27,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 25, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 25, "info": 0 } ] },
-		{ "id": 126,
-		  "class" : 15,
-		  "female": true,
-		  "spell": 35,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 24, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 24, "info": 0 } ] },
-		{ "id": 127,
-		  "class" : 15,
-		  "female": true,
-		  "spell": 46,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 11, "level": 1 } ],
-		  "specialties": [ { "type":2, "val": 5, "subtype": 11, "info": 1 } ] },
-		{ "id": 128,
-		  "class" : 16,
-		  "female": true,
-		  "skill_set": [ { "skill": 20, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":4, "val": 3, "subtype": 1, "info": 120 },
-		  				  { "type":4, "val": 3, "subtype": 2, "info": 120 } ] },
-		{ "id": 129,
-		  "class" : 16,
-		  "female": true,
-		  "skill_set": [ { "skill": 13, "level": 1 },
-		  			    { "skill": 19, "level": 1 } ],
-		  "specialties": [ { "type":4, "val": 2, "subtype": 1, "info": 113 },
-		  				  { "type":4, "val": 1, "subtype": 2, "info": 113 },
-						  	 { "type":4, "val": 5, "subtype": 4, "info": 113 } ] },
-		{ "id": 130,
-		  "class" : 16,
-		  "female": true,
-		  "skill_set": [ { "skill": 20, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":4, "val": 1, "subtype": 1, "info": 114 },
-		  				  { "type":4, "val": 2, "subtype": 1, "info": 114 },
-						  	 { "type":4, "val": 2, "subtype": 3, "info": 114 } ] },
-		{ "id": 131,
-		  "class" : 16,
-		  "female": true,
-		  "skill_set": [ { "skill": 19, "level": 2 } ],
-		  "specialties": [ { "type":4, "val": 2, "subtype": 1, "info": 115 } ] },
-		{ "id": 132,
-		  "class" : 16,
-		  "female": false,
-		  "skill_set": [ { "skill": 2, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":4, "val": 3, "subtype": 1, "info": 120 },
-		  				  { "type":4, "val": 3, "subtype": 2, "info": 120 } ] },
-		{ "id": 133,
-		  "class" : 16,
-		  "female": false,
-		  "skill_set": [ { "skill": 13, "level": 1 },
-		  			    { "skill": 19, "level": 1 } ],
-		  "specialties": [ { "type":4, "val": 2, "subtype": 1, "info": 113 },
-		  				  { "type":4, "val": 1, "subtype": 2, "info": 113 },
-						  	 { "type":4, "val": 5, "subtype": 4, "info": 113 } ] },
-		{ "id": 134,
-		  "class" : 16,
-		  "female": false,
-		  "skill_set": [ { "skill": 22, "level": 2 } ],
-		  "specialties": [ { "type":4, "val": 1, "subtype": 1, "info": 114 },
-		  				  { "type":4, "val": 2, "subtype": 1, "info": 114 },
-						  	 { "type":4, "val": 2, "subtype": 3, "info": 114 } ] },
-		{ "id": 135,
-		  "class" : 16,
-		  "female": false,
-		  "skill_set": [ { "skill": 19, "level": 1 },
-		  			    { "skill": 21, "level": 1 } ],
-		  "specialties": [ { "type":4, "val": 2, "subtype": 1, "info": 115 } ] },
-		{ "id": 136,
-		  "class" : 17,
-		  "spell": 13,
-		  "female": true,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 14, "level": 1 } ],
-		  "specialties": [ { "type":5, "val": 100, "subtype": 13, "info": 0 } ] },
-		{ "id": 137,
-		  "class" : 17,
-		  "female": true,
-		  "spell": 53,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 15, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 53, "info": 0 } ] },
-		{ "id": 138,
-		  "class" : 17,
-		  "female": true,
-		  "spell": 15,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 16, "level": 1 } ],
-		  "specialties": [ { "type":5, "val": 50, "subtype": 15, "info": 0 } ] },
-		{ "id": 139,
-		  "class" : 17,
-		  "female": true,
-		  "spell": 46,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 17, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 46, "info": 0 } ] },
-		{ "id": 140,
-		  "class" : 17,
-		  "female": false,
-		  "spell": 43,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 14, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 43, "info": 0 } ] },
-		{ "id": 141,
-		  "class" : 17,
-		  "female": false,
-		  "spell": 47,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 15, "level": 1 } ],
-		  "specialties": [ { "type":8, "val": 0, "subtype": 47, "info": 0 } ] },
-		{ "id": 142,
-		  "class" : 17,
-		  "female": false,
-		  "spell": 35,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 16, "level": 1 } ],
-		  "specialties": [ { "type":10, "val": 350, "subtype": 6, "info": 0 } ] },
-		{ "id": 143,
-		  "class" : 17,
-		  "female": false,
-		  "spell": 54,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 17, "level": 1 } ],
-		  "specialties": [ { "type":10, "val": 350, "subtype": 6, "info": 0 } ] },
-		{ "id": 144,
-		  "class" : 0,
-		  "female": false,
-		  "skill_set": [ { "skill": 6, "level": 2 } ],
-		  "specialties": [ { "type":12, "val": 2, "subtype": 0, "info": 0 } ] },
-		{ "id": 145,
-		  "class" : 15,
-		  "female": true,
-		  "spell": 22,
-		  "skill_set": [ { "skill": 7, "level": 1 },
-		  			    { "skill": 14, "level": 3 } ],
-		  "specialties": [ { "type":11, "val": 14, "subtype": 0, "info": 0 } ] },
-		{ "id": 146,
-		  "class" : 0,
-		  "female": true,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 4 } ] },
-		{ "id": 147,
-		  "class" : 5,
-		  "female": false,
-		  "spell": 53,
-		  "skill_set": [ { "skill": 7, "level": 2 } ],
-		  "specialties": [ { "type":9, "val": 0, "subtype": 8, "info": 136 },
-		  				  { "type":9, "val": 0, "subtype": 34, "info": 136 } ] },
-		{ "id": 148,
-		  "class" : 2,
-		  "female": false,
-		  "skill_set": [ { "skill": 1, "level": 1 },
-		  			    { "skill": 6, "level": 1 } ],
-		  "specialties": [ { "type":9, "val": 0, "subtype": 2, "info": 137 },
-		  				  { "type":9, "val": 0, "subtype": 18, "info": 137 } ] },
-		{ "id": 149,
-		  "class" : 12,
-		  "female": false,
-		  "skill_set": [ { "skill": 22, "level": 2 } ],
-		  "specialties": [ { "type":4, "val": 5, "subtype": 1, "info": 96 },
-		  				  { "type":4, "val": 5, "subtype": 2, "info": 96 },
-						  	 { "type":4, "val": 10, "subtype": 3, "info": 96 } ] },
-		{ "id": 150,
-		  "class" : 8,
-		  "female": false,
-		  "spell": 54,
-		  "skill_set": [ { "skill": 12, "level": 2 } ],
-		  "specialties": [ { "type":4, "val": 5, "subtype": 1, "info": 66 },
-		  				  { "type":4, "val": 5, "subtype": 2, "info": 66 },
-						  	 { "type":4, "val": 10, "subtype": 3, "info": 66 } ] },
-		{ "id": 151,
-		  "class" : 10,
-		  "female": true,
-		  "spell": 15,
-		  "skill_set": [ { "skill": 13, "level": 1 },
-		  			    { "skill": 19, "level": 1 } ],
-		  "specialties": [ { "type":13, "val": 5, "subtype": 1, "info": 0 },
-		  				  { "type":13, "val": 5, "subtype": 2, "info": 0 } ] },
-		{ "id": 152,
-		  "class" : 0,
-		  "female": false,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 23, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 4 } ] },
-		{ "id": 153,
-		  "class" : 10,
-		  "female": true,
-		  "spell": 15,
-		  "skill_set": [ { "skill": 13, "level": 1 },
-		  			    { "skill": 19, "level": 1 } ],
-		  "specialties": [ { "type":13, "val": 1, "subtype": 1, "info": 5 },
-		  				  { "type":13, "val": 1, "subtype": 1, "info": 5 } ] },
-		{ "id": 154,
-		  "class" : 12,
-		  "female": false,
-		  "skill_set": [ { "skill": 19, "level": 1 },
-		  			    { "skill": 22, "level": 1 } ],
-		  "specialties": [ { "type":1, "val": 0, "subtype": 0, "info": 90 } ] },
-		{ "id": 155,
-		  "class" : 6,
-		  "female": false,
-		  "skill_set": [ { "skill": 6, "level": 1 },
-		  			    { "skill": 19, "level": 1 } ],
-		  "specialties": [ { "type":4, "val": 4, "subtype": 1, "info": 54 },
-		  				  { "type":4, "val": 2, "subtype": 2, "info": 54 },
-						  	 { "type":4, "val": 1, "subtype": 5, "info": 54 } ] }
+	//	 id: hero id
+	//	 female: true if hero is female, else false
+	//	 skill_set: initial set of secondary abilities (skill ID, initial skill level)
+	//	 spell: hero starts with that initial spell
+	"heroes":
+	[
+		{
+			"id": 0,
+			"class" : "knight",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 1, "level": 1 }
+			],
+		 "specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 1, "info": 0 }
+			]
+		},
+		{
+			"id": 1,
+			"class" : "knight",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 1, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 2 }
+			]
+		},
+		{
+			"id": 2,
+			"class" : "knight",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 23, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 4 }
+			]
+		},
+		{
+			"id": 3,
+			"class" : "knight",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 5, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 2, "subtype": 5, "info": 1 }
+			]
+		},
+		{
+			"id": 4,
+			"class" : "knight",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 13, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 13, "info": 0 }
+			]
+		},
+		{
+			"id": 5,
+			"class" : "knight",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 6 }
+			]
+		},
+		{
+			"id": 6,
+			"class" : "knight",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 20, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 146 }
+			]
+		},
+		{
+			"id": 7,
+			"class" : "knight",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 19, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 10 }
+			]
+		},
+		{
+			"id": 8,
+			"class" : "cleric",
+			"female": false,
+			"spell": 46,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 27, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 27, "info": 0 }
+			]
+		},
+		{
+			"id": 9,
+			"class" : "cleric",
+			"female": true,
+			"spell": 41,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 4, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":6, "val": 3, "subtype": 41, "info": 0 }
+			]
+		},
+		{
+			"id": 10,
+			"class" : "cleric",
+			"female": false,
+			"spell": 45,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 13, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 45, "info": 0 }
+			]
+		},
+		{
+			"id": 11,
+			"class" : "cleric",
+			"female": true,
+			"spell": 20,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":3, "val": 3, "subtype": 20, "info": 0 }
+			]
+		},
+		{
+			"id": 12,
+			"class" : "cleric",
+			"female": false,
+			"spell": 42,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 8, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 8 }
+			]
+		},
+		{
+			"id": 13,
+			"class" : "cleric",
+			"female": true,
+			"spell": 35,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 11, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 11, "info": 0 }
+			]
+		},
+		{
+			"id": 14,
+			"class" : "cleric",
+			"spell": 48,
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 21, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 48, "info": 0 }
+			]
+		},
+		{
+			"id": 15,
+			"class" : "cleric",
+			"female": true,
+			"spell": 37,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 24, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+			]
+		},
+		{
+			"id": 16,
+			"class" : "ranger",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 23, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 23, "info": 0 }
+			]
+		},
+		{
+			"id": 17,
+			"class" : "ranger",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 9, "level": 1 },
+				{ "skill": 26, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 16 }
+			]
+		},
+		{
+			"id": 18,
+			"class" : "ranger",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 1, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+			]
+		},
+		{
+			"id": 19,
+			"class" : "ranger",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 4, "level": 1 },
+				{ "skill": 6, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 22 }
+			]
+		},
+		{
+			"id": 20,
+			"class" : "ranger",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 26, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 26, "info": 0 }
+			]
+		},
+		{
+			"id": 21,
+			"class" : "ranger",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 1, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 18 }
+			]
+		},
+		{
+			"id": 22,
+			"class" : "ranger",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 0, "level": 1 },
+				{ "skill": 26, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 24 }
+			]
+		},
+		{
+			"id": 23,
+			"class" : "ranger",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 1, "level": 1 },
+				{ "skill": 2, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 2, "info": 0 }
+			]
+		},
+		{
+			"id": 24,
+			"class" : "druid",
+			"spell": 55,
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 18, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 55, "info": 1 }
+			]
+		},
+		{
+			"id": 25,
+			"class" : "druid",
+			"female": false,
+			"spell": 37,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 2 },
+				{ "skill": 10, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":3, "val": 3, "subtype": 37, "info": 0 }
+			]
+		},
+		{
+			"id": 26,
+			"class" : "druid",
+			"female": false,
+			"spell": 42,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 24, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 24, "info": 0 }
+			]
+		},
+		{
+			"id": 27,
+			"class" : "druid",
+			"female": true,
+			"spell": 0,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 27, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 27, "info": 0 }
+			]
+		},
+		{
+			"id": 28,
+			"class" : "druid",
+			"female": false,
+			"spell": 15,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 11, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 11, "info": 0 }
+			]
+		},
+		{
+			"id": 29,
+			"class" : "druid",
+			"spell": 51,
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 9, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":7, "val": 0, "subtype": 51, "info": 0 }
+			]
+		},
+		{
+			"id": 30,
+			"class" : "druid",
+			"female": false,
+			"spell": 16,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 25, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":3, "val": 3, "subtype": 16, "info": 0 }
+			]
+		},
+		{
+			"id": 31,
+			"class" : "druid",
+			"female": false,
+			"spell": 30,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 3, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 20 }
+			]
+		},
+		{
+			"id": 32,
+			"class" : "alchemist",
+			"female": false,
+			"spell": 27,
+			"skill_set":
+			[
+				{ "skill": 3, "level": 1 },
+				{ "skill": 8, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 30 }
+			]
+		},
+		{
+			"id": 33,
+			"class" : "alchemist",
+			"female": false,
+			"spell": 15,
+			"skill_set":
+			[
+				{ "skill": 18, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 36 }
+			]
+		},
+		{
+			"id": 34,
+			"class" : "alchemist",
+			"spell": 53,
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 8, "level": 1 },
+				{ "skill": 25, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 32 }
+			]
+		},
+		{
+			"id": 35,
+			"class" : "alchemist",
+			"female": true,
+			"spell": 27,
+			"skill_set":
+			[
+				{ "skill": 18, "level": 1 },
+				{ "skill": 23, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 23, "info": 0 }
+			]
+		},
+		{
+			"id": 36,
+			"class" : "alchemist",
+			"female": false,
+			"spell": 15,
+			"skill_set":
+			[
+				{ "skill": 8, "level": 1 },
+				{ "skill": 19, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 146 }
+			]
+		},
+		{
+			"id": 37,
+			"class" : "alchemist",
+			"female": false,
+			"spell": 53,
+			"skill_set":
+			[
+				{ "skill": 18, "level": 1 },
+				{ "skill": 26, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 38 }
+			]
+		},
+		{
+			"id": 38,
+			"class" : "alchemist",
+			"female": true,
+			"spell": 15,
+			"skill_set":
+			[
+				{ "skill": 8, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":10, "val": 1, "subtype": 1, "info": 0 }
+			]
+		},
+		{
+			"id": 39,
+			"class" : "alchemist",
+			"spell": 15,
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 18, "level": 1 },
+				{ "skill": 24, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 36 }
+			]
+		},
+		{
+			"id": 40,
+			"class" : "wizard",
+			"female": false,
+			"spell": 60,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":3, "val": 3, "subtype": 60, "info": 0 }
+			]
+		},
+		{
+			"id": 41,
+			"class" : "wizard",
+			"female": false,
+			"spell": 46,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 8, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 8, "info": 1 }
+			]
+		},
+		{
+			"id": 42,
+			"class" : "wizard",
+			"female": true,
+			"spell": 35,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 11, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 11, "info": 0 }
+			]
+		},
+		{
+			"id": 43,
+			"class" : "wizard",
+			"female": true,
+			"spell": 51,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 24, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":7, "val": 0, "subtype": 51, "info": 0 }
+			]
+		},
+		{
+			"id": 44,
+			"class" : "wizard",
+			"spell": 27,
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 10, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 34 }
+			]
+		},
+		{
+			"id": 45,
+			"class" : "wizard",
+			"female": false,
+			"spell": 19,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 25, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":3, "val": 3, "subtype": 19, "info": 0 }
+			]
+		},
+		{
+			"id": 46,
+			"class" : "wizard",
+			"female": true,
+			"spell": 53,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 4, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 53, "info": 0 }
+			]
+		},
+		{
+			"id": 47,
+			"class" : "wizard",
+			"female": true,
+			"spell": 42,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 18, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+			]
+		},
+		{
+			"id": 48,
+			"class" : "demoniac",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 3, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 46 }
+			]
+		},
+		{
+			"id": 49,
+			"class" : "demoniac",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 18, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 52 }
+			]
+		},
+		{
+			"id": 50,
+			"class" : "demoniac",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 23, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 48 }
+			]
+		},
+		{
+			"id": 51,
+			"class" : "demoniac",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 19, "level": 1 },
+				{ "skill": 26, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 42 }
+			]
+		},
+		{
+			"id": 52,
+			"class" : "demoniac",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 18, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+			]
+		},
+		{
+			"id": 53,
+			"class" : "demoniac",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 1, "level": 1 },
+				{ "skill": 3, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 42 }
+			]
+		},
+		{
+			"id": 54,
+			"class" : "demoniac",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 20, "level": 1 },
+				{ "skill": 2, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 146 }
+			]
+		},
+		{
+			"id": 55,
+			"class" : "demoniac",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 22, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 50 }
+			]
+		},
+		{
+			"id": 56,
+			"class" : "heretic",
+			"spell": 3,
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 24, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 24, "info": 0 }
+			]
+		},
+		{
+			"id": 57,
+			"class" : "heretic",
+			"female": false,
+			"spell": 22,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 18, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":3, "val": 3, "subtype": 22, "info": 0 }
+			]
+		},
+		{
+			"id": 58,
+			"class" : "heretic",
+			"female": false,
+			"spell": 30,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 8, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 8, "info": 1 }
+			]
+		},
+		{
+			"id": 59,
+			"class" : "heretic",
+			"female": true,
+			"spell": 45,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 10, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 45, "info": 0 }
+			]
+		},
+		{
+			"id": 60,
+			"class" : "heretic",
+			"female": false,
+			"spell": 53,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 21, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":10, "val": 1, "subtype": 3, "info": 0 }
+			]
+		},
+		{
+			"id": 61,
+			"class" : "heretic",
+			"female": true,
+			"spell": 43,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 11, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 43, "info": 0 }
+			]
+		},
+		{
+			"id": 62,
+			"class" : "heretic",
+			"female": false,
+			"spell": 46,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 25, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 25, "info": 0 }
+			]
+		},
+		{
+			"id": 63,
+			"class" : "heretic",
+			"female": false,
+			"spell": 21,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 6, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":3, "val": 3, "subtype": 21, "info": 0 }
+			]
+		},
+		{
+			"id": 64,
+			"class" : "deathknight",
+			"female": false,
+			"spell": 53,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 26, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 58 }
+			]
+		},
+		{
+			"id": 65,
+			"class" : "deathknight",
+			"female": false,
+			"spell": 46,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 20, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 62 }
+			]
+		},
+		{
+			"id": 66,
+			"class" : "deathknight",
+			"female": false,
+			"spell": 54,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 21, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 64 }
+			]
+		},
+		{
+			"id": 67,
+			"class" : "deathknight",
+			"female": true,
+			"spell": 15,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 19, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 60 }
+			]
+		},
+		{
+			"id": 68,
+			"class" : "deathknight",
+			"female": true,
+			"spell": 15,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 66 }
+			]
+		},
+		{
+			"id": 69,
+			"class" : "deathknight",
+			"female": true,
+			"spell": 15,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 12, "info": 0 }
+			]
+		},
+		{
+			"id": 70,
+			"class" : "deathknight",
+			"female": false,
+			"spell": 15,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+			]
+		},
+		{
+			"id": 71,
+			"class" : "deathknight",
+			"female": false,
+			"spell": 27,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 23, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 56 }
+			]
+		},
+		{
+			"id": 72,
+			"class" : "necromancer",
+			"female": true,
+			"spell": 24,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 18, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":3, "val": 3, "subtype": 24, "info": 0 }
+			]
+		},
+		{
+			"id": 73,
+			"class" : "necromancer",
+			"female": true,
+			"spell": 23,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 7, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":3, "val": 3, "subtype": 23, "info": 0 }
+			]
+		},
+		{
+			"id": 74,
+			"class" : "necromancer",
+			"female": false,
+			"spell": 54,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 25, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 25, "info": 0 }
+			]
+		},
+		{
+			"id": 75,
+			"class" : "necromancer",
+			"female": false,
+			"spell": 27,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 11, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 11, "info": 1 }
+			]
+		},
+		{
+			"id": 76,
+			"class" : "necromancer",
+			"female": false,
+			"spell": 39,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 8, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":3, "val": 39, "subtype": 0, "info": 3 }
+			]
+		},
+		{
+			"id": 77,
+			"class" : "necromancer",
+			"female": true,
+			"spell": 46,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 21, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 46, "info": 0 }
+			]
+		},
+		{
+			"id": 78,
+			"class" : "necromancer",
+			"female": true,
+			"spell": 42,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 12, "info": 0 }
+			]
+		},
+		{
+			"id": 79,
+			"class" : "necromancer",
+			"female": false,
+			"spell": 30,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 1 },
+				{ "skill": 24, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+			]
+		},
+		{
+			"id": 80,
+			"class" : "warlock",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 3, "level": 1 },
+				{ "skill": 6, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 72 }
+			]
+		},
+		{
+			"id": 81,
+			"class" : "warlock",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 20, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 146 }
+			]
+		},
+		{
+			"id": 82,
+			"class" : "warlock",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 19, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 78 }
+			]
+		},
+		{
+			"id": 83,
+			"class" : "warlock",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 26, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 74 }
+			]
+		},
+		{
+			"id": 84,
+			"class" : "warlock",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 22, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+			]
+		},
+		{
+			"id": 85,
+			"class" : "warlock",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 2, "level": 1 },
+				{ "skill": 19, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 2, "info": 0 }
+			]
+		},
+		{
+			"id": 86,
+			"class" : "warlock",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 18, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 80 }
+			]
+		},
+		{
+			"id": 87,
+			"class" : "warlock",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 19, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 70 }
+			]
+		},
+		{
+			"id": 88,
+			"class" : "overlord",
+			"spell": 38,
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 18, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":3, "val": 3, "subtype": 38, "info": 0 }
+			]
+		},
+		{
+			"id": 89,
+			"class" : "overlord",
+			"female": false,
+			"spell": 27,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 8, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 8, "info": 1 }
+			]
+		},
+		{
+			"id": 90,
+			"class" : "overlord",
+			"female": false,
+			"spell": 43,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 25, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 25, "info": 0 }
+			]
+		},
+		{
+			"id": 91,
+			"class" : "overlord",
+			"female": true,
+			"spell": 38,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":3, "val": 3, "subtype": 38, "info": 0 }
+			]
+		},
+		{
+			"id": 92,
+			"class" : "overlord",
+			"female": false,
+			"spell": 54,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 11, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 11, "info": 1 }
+			]
+		},
+		{
+			"id": 93,
+			"class" : "overlord",
+			"female": false,
+			"spell": 23,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 3, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":3, "val": 3, "subtype": 23, "info": 0 }
+			]
+		},
+		{
+			"id": 94,
+			"class" : "overlord",
+			"female": true,
+			"spell": 30,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 24, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":10, "val": 1, "subtype": 4, "info": 0 }
+			]
+		},
+		{
+			"id": 95,
+			"class" : "overlord",
+			"female": false,
+			"spell": 46,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 21, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 46, "info": 0 }
+			]
+		},
+		{
+			"id": 96,
+			"class" : "barbarian",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 22, "level": 1 },
+				{ "skill": 10, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 94 }
+			]
+		},
+		{
+			"id": 97,
+			"class" : "barbarian",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 22, "level": 1 },
+				{ "skill": 20, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 146 }
+			]
+		},
+		{
+			"id": 98,
+			"class" : "barbarian",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 22, "level": 1 },
+				{ "skill": 1, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 88 }
+			]
+		},
+		{
+			"id": 99,
+			"class" : "barbarian",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 22, "level": 1 },
+				{ "skill": 3, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 92 }
+			]
+		},
+		{
+			"id": 100,
+			"class" : "barbarian",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 22, "level": 1 },
+				{ "skill": 0, "level": 1 }
+			]
+		},
+		{
+			"id": 101,
+			"class" : "barbarian",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 22, "level": 1 },
+				{ "skill": 26, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 84 }
+			]
+		},
+		{
+			"id": 102,
+			"class" : "barbarian",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 22, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 90 }
+			]
+		},
+		{
+			"id": 103,
+			"class" : "barbarian",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 22, "level": 1 },
+				{ "skill": 19, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 22, "info": 0 }
+			]
+		},
+		{
+			"id": 104,
+			"class" : "battlemage",
+			"spell": 43,
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 25, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 86 }
+			]
+		},
+		{
+			"id": 105,
+			"class" : "battlemage",
+			"female": false,
+			"spell": 15,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 6, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 25, "info": 0 }
+			]
+		},
+		{
+			"id": 106,
+			"class" : "battlemage",
+			"female": true,
+			"spell": 46,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 2, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 90 }
+			]
+		},
+		{
+			"id": 107,
+			"class" : "battlemage",
+			"female": false,
+			"spell": 53,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 19, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 2, "info": 0 }
+			]
+		},
+		{
+			"id": 108,
+			"class" : "battlemage",
+			"female": false,
+			"spell": 44,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 20, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 53, "info": 0 }
+			]
+		},
+		{
+			"id": 109,
+			"class" : "battlemage",
+			"spell": 54,
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 44, "info": 0 }
+			]
+		},
+		{
+			"id": 110,
+			"class" : "battlemage",
+			"female": true,
+			"spell": 30,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 11, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 25, "info": 0 }
+			]
+		},
+		{
+			"id": 111,
+			"class" : "battlemage",
+			"female": false,
+			"spell": 43,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 26, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 11, "info": 1 }
+			]
+		},
+		{
+			"id": 112,
+			"class" : "beastmaster",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 23, "level": 1 },
+				{ "skill": 26, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":10, "val": 1, "subtype": 5, "info": 0 }
+			]
+		},
+		{
+			"id": 113,
+			"class" : "beastmaster",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 23, "level": 1 },
+				{ "skill": 6, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 106 }
+			]
+		},
+		{
+			"id": 114,
+			"class" : "beastmaster",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 23, "level": 1 },
+				{ "skill": 1, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 98 }
+			]
+		},
+		{
+			"id": 115,
+			"class" : "beastmaster",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 23, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 100 }
+			]
+		},
+		{
+			"id": 116,
+			"class" : "beastmaster",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 23, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 23, "info": 0 }
+			]
+		},
+		{
+			"id": 117,
+			"class" : "beastmaster",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 23, "level": 1 },
+				{ "skill": 0, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 102 }
+			]
+		},
+		{
+			"id": 118,
+			"class" : "beastmaster",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 23, "level": 1 },
+				{ "skill": 20, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 104 }
+			]
+		},
+		{
+			"id": 119,
+			"class" : "beastmaster",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 23, "level": 1 },
+				{ "skill": 3, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 146 }
+			]
+		},
+		{
+			"id": 120,
+			"class" : "witch",
+			"spell": 45,
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 108 }
+			]
+		},
+		{
+			"id": 121,
+			"class" : "witch",
+			"female": true,
+			"spell": 15,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 8, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 8, "info": 1 }
+			]
+		},
+		{
+			"id": 122,
+			"class" : "witch",
+			"female": true,
+			"spell": 54,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 5, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 2, "subtype": 5, "info": 1 }
+			]
+		},
+		{
+			"id": 123,
+			"class" : "witch",
+			"female": true,
+			"spell": 31,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 27, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 27, "info": 1 }
+			]
+		},
+		{
+			"id": 124,
+			"class" : "witch",
+			"female": true,
+			"spell": 46,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 21, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 46, "info": 0 }
+			]
+		},
+		{
+			"id": 125,
+			"class" : "witch",
+			"female": true,
+			"spell": 27,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 25, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 25, "info": 0 }
+			]
+		},
+		{
+			"id": 126,
+			"class" : "witch",
+			"female": true,
+			"spell": 35,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 24, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 24, "info": 0 }
+			]
+		},
+		{
+			"id": 127,
+			"class" : "witch",
+			"female": true,
+			"spell": 46,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 11, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":2, "val": 5, "subtype": 11, "info": 1 }
+			]
+		},
+		{
+			"id": 128,
+			"class" : "planeswalker",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 20, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":4, "val": 3, "subtype": 1, "info": 120 },
+				{ "type":4, "val": 3, "subtype": 2, "info": 120 }
+			]
+		},
+		{
+			"id": 129,
+			"class" : "planeswalker",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 13, "level": 1 },
+				{ "skill": 19, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":4, "val": 2, "subtype": 1, "info": 113 },
+				{ "type":4, "val": 1, "subtype": 2, "info": 113 },
+				{ "type":4, "val": 5, "subtype": 4, "info": 113 }
+			]
+		},
+		{
+			"id": 130,
+			"class" : "planeswalker",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 20, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":4, "val": 1, "subtype": 1, "info": 114 },
+				{ "type":4, "val": 2, "subtype": 1, "info": 114 },
+				{ "type":4, "val": 2, "subtype": 3, "info": 114 }
+			]
+		},
+		{
+			"id": 131,
+			"class" : "planeswalker",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 19, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":4, "val": 2, "subtype": 1, "info": 115 }
+			]
+		},
+		{
+			"id": 132,
+			"class" : "planeswalker",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 2, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":4, "val": 3, "subtype": 1, "info": 120 },
+				{ "type":4, "val": 3, "subtype": 2, "info": 120 }
+			]
+		},
+		{
+			"id": 133,
+			"class" : "planeswalker",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 13, "level": 1 },
+				{ "skill": 19, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":4, "val": 2, "subtype": 1, "info": 113 },
+				{ "type":4, "val": 1, "subtype": 2, "info": 113 },
+				{ "type":4, "val": 5, "subtype": 4, "info": 113 }
+			]
+		},
+		{
+			"id": 134,
+			"class" : "planeswalker",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 22, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":4, "val": 1, "subtype": 1, "info": 114 },
+				{ "type":4, "val": 2, "subtype": 1, "info": 114 },
+				{ "type":4, "val": 2, "subtype": 3, "info": 114 }
+			]
+		},
+		{
+			"id": 135,
+			"class" : "planeswalker",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 19, "level": 1 },
+				{ "skill": 21, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":4, "val": 2, "subtype": 1, "info": 115 }
+			]
+		},
+		{
+			"id": 136,
+			"class" : "elementalist",
+			"spell": 13,
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 14, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":5, "val": 100, "subtype": 13, "info": 0 }
+			]
+		},
+		{
+			"id": 137,
+			"class" : "elementalist",
+			"female": true,
+			"spell": 53,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 15, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 53, "info": 0 }
+			]
+		},
+		{
+			"id": 138,
+			"class" : "elementalist",
+			"female": true,
+			"spell": 15,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 16, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":5, "val": 50, "subtype": 15, "info": 0 }
+			]
+		},
+		{
+			"id": 139,
+			"class" : "elementalist",
+			"female": true,
+			"spell": 46,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 17, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 46, "info": 0 }
+			]
+		},
+		{
+			"id": 140,
+			"class" : "elementalist",
+			"female": false,
+			"spell": 43,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 14, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 43, "info": 0 }
+			]
+		},
+		{
+			"id": 141,
+			"class" : "elementalist",
+			"female": false,
+			"spell": 47,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 15, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":8, "val": 0, "subtype": 47, "info": 0 }
+			]
+		},
+		{
+			"id": 142,
+			"class" : "elementalist",
+			"female": false,
+			"spell": 35,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 16, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+			]
+		},
+		{
+			"id": 143,
+			"class" : "elementalist",
+			"female": false,
+			"spell": 54,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 17, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+			]
+		},
+		{
+			"id": 144,
+			"class" : "knight",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":12, "val": 2, "subtype": 0, "info": 0 }
+			]
+		},
+		{
+			"id": 145,
+			"class" : "witch",
+			"female": true,
+			"spell": 22,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 1 },
+				{ "skill": 14, "level": 3 } ],
+			"specialties":
+			[
+				{ "type":11, "val": 14, "subtype": 0, "info": 0 }
+			]
+		},
+		{
+			"id": 146,
+			"class" : "knight",
+			"female": true,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 4 }
+			]
+		},
+		{
+			"id": 147,
+			"class" : "wizard",
+			"female": false,
+			"spell": 53,
+			"skill_set":
+			[
+				{ "skill": 7, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":9, "val": 0, "subtype": 8, "info": 136 },
+				{ "type":9, "val": 0, "subtype": 34, "info": 136 }
+			]
+		},
+		{
+			"id": 148,
+			"class" : "ranger",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 1, "level": 1 },
+				{ "skill": 6, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":9, "val": 0, "subtype": 2, "info": 137 },
+				{ "type":9, "val": 0, "subtype": 18, "info": 137 }
+			]
+		},
+		{
+			"id": 149,
+			"class" : "barbarian",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 22, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":4, "val": 5,  "subtype": 1, "info": 96 },
+				{ "type":4, "val": 5,  "subtype": 2, "info": 96 },
+				{ "type":4, "val": 10, "subtype": 3, "info": 96 }
+			]
+		},
+		{
+			"id": 150,
+			"class" : "deathknight",
+			"female": false,
+			"spell": 54,
+			"skill_set":
+			[
+				{ "skill": 12, "level": 2 }
+			],
+			"specialties":
+			[
+				{ "type":4, "val": 5,  "subtype": 1, "info": 66 },
+				{ "type":4, "val": 5,  "subtype": 2, "info": 66 },
+				{ "type":4, "val": 10, "subtype": 3, "info": 66 }
+			]
+		},
+		{
+			"id": 151,
+			"class" : "warlock",
+			"female": true,
+			"spell": 15,
+			"skill_set":
+			[
+				{ "skill": 13, "level": 1 },
+				{ "skill": 19, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":13, "val": 5, "subtype": 1, "info": 0 },
+				{ "type":13, "val": 5, "subtype": 2, "info": 0 }
+			]
+		},
+		{
+			"id": 152,
+			"class" : "knight",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 23, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 4 }
+			]
+		},
+		{
+			"id": 153,
+			"class" : "warlock",
+			"female": true,
+			"spell": 15,
+			"skill_set":
+			[
+				{ "skill": 13, "level": 1 },
+				{ "skill": 19, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":13, "val": 1, "subtype": 1, "info": 5 },
+				{ "type":13, "val": 1, "subtype": 1, "info": 5 }
+			]
+		},
+		{
+			"id": 154,
+			"class" : "barbarian",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 19, "level": 1 },
+				{ "skill": 22, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":1, "val": 0, "subtype": 0, "info": 90 }
+			]
+		},
+		{
+			"id": 155,
+			"class" : "demoniac",
+			"female": false,
+			"skill_set":
+			[
+				{ "skill": 6, "level": 1 },
+				{ "skill": 19, "level": 1 }
+			],
+			"specialties":
+			[
+				{ "type":4, "val": 4, "subtype": 1, "info": 54 },
+				{ "type":4, "val": 2, "subtype": 2, "info": 54 },
+				{ "type":4, "val": 1, "subtype": 5, "info": 54 }
+			]
+		}
 	]
 }

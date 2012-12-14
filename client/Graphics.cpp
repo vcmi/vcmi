@@ -142,7 +142,6 @@ Graphics::Graphics()
 	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");
 	tasks += GET_DEF(smi2,"TWCRPORT.DEF");
 	tasks += GET_DEF_ESS(flags,"CREST58.DEF");
-	tasks += GET_DEF_ESS(abils82,"SECSK82.DEF");
 	tasks += GET_DEF_ESS(spellscr,"SPELLSCR.DEF");
 	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
 

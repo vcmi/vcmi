@@ -35,6 +35,16 @@ public:
 	std::string readString();
 	float readNumber();
 
+	template <typename numeric>
+	std::vector<numeric> readNumArray(size_t size)
+	{
+		std::vector<numeric> ret;
+		ret.reserve(size);
+		while (size--)
+			ret.push_back(readNumber());
+		return ret;
+	}
+
 	/// returns true if next entry is empty
 	bool isNextEntryEmpty();
 

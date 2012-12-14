@@ -84,17 +84,11 @@ namespace GameConstants
 	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
 
 	const ui16 BACKPACK_START = 19;
-	const int ID_CATAPULT = 3, ID_LOCK = 145;
+	const int ID_CATAPULT = 3, ID_SELECTION=144, ID_LOCK = 145;
 
 	const int TERRAIN_TYPES=10;
-	const std::string TERRAIN_NAMES [TERRAIN_TYPES] = {
-	    "dirt", "sand", "grass", "snow", "swamp", "rough", "subterra", "lava", "water", "rock"
-	};
-
 	const int RESOURCE_QUANTITY=8;
-	const std::string RESOURCE_NAMES [RESOURCE_QUANTITY] = {
-	    "wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold", "mithril"
-	};
+
 }
 
 // Enum declarations
@@ -117,8 +111,6 @@ namespace ELossConditionType
 namespace EAlignment
 {
 	enum EAlignment { GOOD, EVIL, NEUTRAL };
-
-	const std::string names [3] = {"good", "evil", "neutral"}; //for parsing from config file
 }
 
 namespace ETownType

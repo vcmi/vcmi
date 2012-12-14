@@ -215,10 +215,12 @@ void CGameHandler::levelUpHero(int ID)
 	//give prim skill
 	tlog5 << hero->name <<" got level "<<hero->level<<std::endl;
 	int r = rand()%100, pom=0, x=0;
-	int std::pair<int,int>::*g  =  (hero->level>9) ? (&std::pair<int,int>::second) : (&std::pair<int,int>::first);
+
+	auto & skillChances = (hero->level>9) ? hero->type->heroClass->primarySkillLowLevel : hero->type->heroClass->primarySkillHighLevel;
+
 	for(;x<GameConstants::PRIMARY_SKILLS;x++)
 	{
-		pom += hero->type->heroClass->primChance[x].*g;
+		pom += skillChances[x];
 		if(r<pom)
 			break;
 	}
@@ -257,14 +259,14 @@ void CGameHandler::levelUpHero(int ID)
 		hlu.skills.push_back(s);
 		basicAndAdv.erase(s);
 	}
-	else if(none.size() && hero->secSkills.size() < hero->type->heroClass->skillLimit)
+	else if(none.size() && hero->secSkills.size() < GameConstants::SKILL_PER_HERO)
 	{
 		hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //give new skill
 		none.erase(hlu.skills.back());
 	}
 
 	//second offered skill
-	if(none.size() && hero->secSkills.size() < hero->type->heroClass->skillLimit) //hero have free skill slot
+	if(none.size() && hero->secSkills.size() < GameConstants::SKILL_PER_HERO) //hero have free skill slot
 	{
 		hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //new skill
 	}
@@ -1695,7 +1697,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		{
 			obj->onHeroLeave(h);
 		}
-		getTilesInRange(tmh.fowRevealed, h->getSightCenter()+(tmh.end-tmh.start), h->getSightRadious(), h->tempOwner, 1);
+		this->getTilesInRange(tmh.fowRevealed, h->getSightCenter()+(tmh.end-tmh.start), h->getSightRadious(), h->tempOwner, 1);
 	};
 
 	auto applyWithResult = [&](TryMoveHero::EResult result) -> bool
@@ -3006,7 +3008,7 @@ bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, int s
 	if (h->secSkills.size() >= GameConstants::SKILL_PER_HERO)//can't learn more skills
 		COMPLAIN_RET("Hero can't learn any more skills");
 
-	if (h->type->heroClass->proSec[skill]==0)//can't learn this skill (like necromancy for most of non-necros)
+	if (h->type->heroClass->secSkillProbability[skill]==0)//can't learn this skill (like necromancy for most of non-necros)
 		COMPLAIN_RET("The hero can't learn this skill!");
 
 	if(!vstd::contains(m->availableItemsIds(EMarketMode::RESOURCE_SKILL), skill))

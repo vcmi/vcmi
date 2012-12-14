@@ -568,7 +568,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 						//pick graphics of hero (or boat if hero is sailing)
 						iv = (themp->boat) 
 							? &graphics->boatAnims[themp->boat->subID]->ourImages
-							: &graphics->heroAnims[themp->type->heroType]->ourImages;
+							: &graphics->heroAnims[themp->type->heroClass->id]->ourImages;
 
 						//pick appropriate flag set
 						if(themp->boat)

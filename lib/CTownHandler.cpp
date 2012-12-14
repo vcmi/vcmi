@@ -4,7 +4,7 @@
 #include "VCMI_Lib.h"
 #include "CGeneralTextHandler.h"
 #include "JsonNode.h"
-#include "GameConstants.h"
+#include "StringConstants.h"
 #include "CModHandler.h"
 #include "Filesystem/CResourceLoader.h"
 
@@ -508,20 +508,12 @@ void CTownHandler::load()
 	JsonNode legacyConfig;
 	loadLegacyData(legacyConfig);
 
-	//hardcoded list of H3 factions. Should be only used to convert H3 configs
-	static const std::string factionName [GameConstants::F_NUMBER] =
-	{
-		"castle", "rampart", "tower",
-		"inferno", "necropolis", "dungeon",
-		"stronghold", "fortress", "conflux"
-	};
-
 	// semi-manually merge legacy config with towns json
 
 	for (size_t i=0; i< legacyConfig.Vector().size(); i++)
 	{
 		JsonNode & legacyFaction = legacyConfig.Vector()[i];
-		JsonNode & outputFaction = buildingsConf[factionName[i]];
+		JsonNode & outputFaction = buildingsConf[ETownType::names[i]];
 
 		if (outputFaction["name"].isNull())
 			outputFaction["name"] = legacyFaction["name"];
