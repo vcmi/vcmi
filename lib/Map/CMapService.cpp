@@ -531,8 +531,8 @@ void CMapLoaderH3M::readDisposedHeroes()
 
 void CMapLoaderH3M::readAllowedArtifacts()
 {
-	map->allowedArtifact.resize(GameConstants::ARTIFACTS_QUANTITY);
-	for(ui32 x = 0; x < map->allowedArtifact.size(); x++)
+	map->allowedArtifact.resize (VLC->arth->artifacts.size()); //handle new artifacts, make them allowed by default
+	for (ui32 x = 0; x < map->allowedArtifact.size(); ++x)
 	{
 		map->allowedArtifact[x] = true;
 	}

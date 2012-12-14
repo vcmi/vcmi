@@ -24,7 +24,7 @@ using namespace boost::assign;
 
 extern boost::rand48 ran;
 
-const std::map<std::string, int> artRarityMap = boost::assign::map_list_of 
+const std::map<std::string, CArtifact::EartClass> artifactClassMap = boost::assign::map_list_of 
 	("TREASURE", CArtifact::ART_TREASURE)
 	("MINOR", CArtifact::ART_MINOR)
 	("MAJOR", CArtifact::ART_MAJOR)
@@ -168,6 +168,9 @@ bool CArtifact::isBig () const
 CArtifact::CArtifact()
 {
 	setNodeType(ARTIFACT);
+	possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
+	possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
+	possibleSlots[ArtBearer::COMMANDER];
 }
 
 CArtifact::~CArtifact()
@@ -312,10 +315,6 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		events.endLine();
 
 		nart.price= parser.readNumber();
-
-		nart.possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
-		nart.possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
-		nart.possibleSlots[ArtBearer::COMMANDER];
 
 		for(int j=0;j<slots.size();j++)
 		{
@@ -468,7 +467,7 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 	const JsonNode & text = node["text"];
 	art->setName		(text["name"].String());
 	art->setDescription	(text["description"].String());
-	art->setName		(text["event"].String());
+	art->setEventText		(text["event"].String());
 
 	const JsonNode & graphics = node["graphics"];
 	art->iconIndex = graphics["iconIndex"].Float();
@@ -478,40 +477,68 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 		art->large = value->String();
 
 	art->price = node["value"].Float();
+
+	{
+		auto it = artifactClassMap.find (node["class"].String());
+		if (it != artifactClassMap.end())
+		{
+			art->aClass = it->second;
+		}
+		else
+		{
+			tlog2 << "Warning! Artifact rarity " << value->String() << " not recognized!";
+			art->aClass = CArtifact::ART_SPECIAL;
+		}
+	}
 	
 	int bearerType = -1;
 
-	// FIXME FIXME FIXME: value is unitialized = crash!
-	auto it = artifactBearerMap.find (value->String());
-	if (it != artifactPositionMap.end())
 	{
-		bearerType = it->second;
-		switch (bearerType)
+		auto it = artifactBearerMap.find (node["type"].String());
+		if (it != artifactBearerMap.end())
 		{
-			case ArtBearer::HERO: //TODO: allow arts having several possible bearers
-				break;
-			case ArtBearer::COMMANDER:
-				makeItCommanderArt(art->id); //TODO: when id is deduced?
-				break;
-			case ArtBearer::CREATURE:
-				makeItCreatureArt(art->id);
-				break;
+			bearerType = it->second;
+			switch (bearerType)
+			{
+				case ArtBearer::HERO: //TODO: allow arts having several possible bearers
+					break;
+				case ArtBearer::COMMANDER:
+					makeItCommanderArt(art->id); //TODO: when id is deduced?
+					break;
+				case ArtBearer::CREATURE:
+					makeItCreatureArt(art->id);
+					break;
+			}
 		}
+		else
+			tlog2 << "Warning! Artifact type " << value->String() << " not recognized!";
 	}
-	else
-		tlog2 << "Warning! Artifact type " << value->String() << " not recognized!";
 
 	value = &node["slot"];
 	if (!value->isNull() && bearerType == ArtBearer::HERO) //we assume non-hero slots are irrelevant?
 	{
-		auto it = artifactPositionMap.find (value->String());
-		if (it != artifactPositionMap.end())
+		std::string slotName = value->String();
+		if (slotName == "MISC")
 		{
-			auto slot = it->second;
-			art->possibleSlots[ArtBearer::HERO].push_back (slot);
+			//unfortunatelly slot ids aare not continuous
+			art->possibleSlots[ArtBearer::HERO] += ArtifactPosition::MISC1, ArtifactPosition::MISC2, ArtifactPosition::MISC3, ArtifactPosition::MISC4, ArtifactPosition::MISC5;
+		}
+		else if (slotName == "RING")
+		{
+			art->possibleSlots[ArtBearer::HERO] += ArtifactPosition::LEFT_RING, ArtifactPosition::RIGHT_RING;
 		}
 		else
-			tlog2 << "Warning! Artifact slot " << value->String() << " not recognized!";
+		{
+
+			auto it = artifactPositionMap.find (slotName);
+			if (it != artifactPositionMap.end())
+			{
+				auto slot = it->second;
+				art->possibleSlots[ArtBearer::HERO].push_back (slot);
+			}
+			else
+				tlog2 << "Warning! Artifact slot " << value->String() << " not recognized!";
+		}
 	}
 
 	BOOST_FOREACH (const JsonNode &bonus, node["bonuses"].Vector())
@@ -770,6 +797,10 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<ui8> &allowed)
 		{
 			allowedArtifacts.push_back(artifacts[i]);
 		}
+	}
+	for (int i = GameConstants::ARTIFACTS_QUANTITY; i < artifacts.size(); ++i) //allow all new artifacts by default
+	{
+		allowedArtifacts.push_back(artifacts[i]);
 	}
 }
 
