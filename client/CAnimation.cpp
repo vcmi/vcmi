@@ -68,6 +68,53 @@ public:
 	~CompImageLoader();
 };
 
+// Extremely simple file cache. TODO: smarter, more general solution
+class CFileCache
+{
+	static const int cacheSize = 50; //Max number of cached files
+	struct FileData
+	{
+		ResourceID name;
+		size_t size;
+		ui8 * data;
+
+		ui8 * getCopy()
+		{
+			ui8 * ret = new ui8[size];
+			std::copy(data, data + size, ret);
+			return ret;
+		}
+		~FileData()
+		{
+			delete data;
+		}
+	};
+
+	std::list<FileData> cache;
+public:
+	ui8 * getCachedFile(ResourceID && rid)
+	{
+		BOOST_FOREACH(auto & file, cache)
+		{
+			if (file.name == rid)
+				return file.getCopy();
+		}
+		// Still here? Cache miss
+		if (cache.size() > cacheSize)
+			cache.pop_front();
+		cache.push_back(FileData());
+
+		auto data =  CResourceHandler::get()->loadData(rid);
+		cache.back().name = ResourceID(rid);
+		cache.back().size = data.second;
+		cache.back().data = data.first.release();
+
+		return cache.back().getCopy();
+	}
+};
+
+static CFileCache animationCache;
+
 /*************************************************************************
  *  DefFile, class used for def loading                                  *
  *************************************************************************/
@@ -88,8 +135,7 @@ CDefFile::CDefFile(std::string Name):
 		{   0,   0,   0, 128},//  50% - shadow body   below selection
 		{   0,   0,   0, 192} // 75% - shadow border below selection
 	};
-	data = CResourceHandler::get()->loadData(
-	           ResourceID(std::string("SPRITES/") + Name, EResType::ANIMATION)).first.release();
+	data = animationCache.getCachedFile(ResourceID(std::string("SPRITES/") + Name, EResType::ANIMATION));
 
 	palette = new SDL_Color[256];
 	int it = 0;
@@ -109,8 +155,8 @@ CDefFile::CDefFile(std::string Name):
 		palette[i].b = data[it++];
 		palette[i].unused = 255;
 	}
-	if (type == 71)//Buttons/buildings don't have shadows\semi-transparency
-		memset(palette, 0, sizeof(SDL_Color)*8);
+	if (type == 71 || type == 64)//Buttons/buildings don't have shadows\semi-transparency
+		memset(palette, 0, sizeof(SDL_Color)*2);
 	else
 		memcpy(palette, H3Palette, sizeof(SDL_Color)*8);//initialize shadow\selection colors
 
@@ -414,7 +460,7 @@ inline void CompImageLoader::Load(size_t size, const ui8 * data)
 				while (runLength < size && color == data[runLength])
 					runLength++;
 
-				if (runLength > 1)//Row of one color found - use RLE
+				if (runLength > 1 && runLength < 255)//Row of one color found - use RLE
 				{
 					Load(runLength, color);
 					data += runLength;
@@ -485,7 +531,6 @@ inline void CompImageLoader::Load(size_t size, ui8 color)
 	if (entry && entry[0] == color)
 	{
 		size_t toCopy = std::min<size_t>(size, 255 - entry[1]);
-		entry[1] = 255;
 		size -= toCopy;
 		entry[1] += toCopy;
 	}
