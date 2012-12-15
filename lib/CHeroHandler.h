@@ -56,7 +56,6 @@ public:
 	std::vector<SSpecialtyInfo> spec;
 	si32 startingSpell; //-1 if none
 	ui8 sex; // default sex: 0=male, 1=female
-	//bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
 
 	CHero();
 	~CHero();
@@ -131,7 +130,7 @@ public:
 	void load(const JsonNode & classes);
 
 	/// load one class from json
-	void loadClass(const JsonNode & heroClass);
+	CHeroClass * loadClass(const JsonNode & heroClass);
 
 	~CHeroClassHandler();
 
@@ -148,9 +147,9 @@ class DLL_LINKAGE CHeroHandler
 public:
 	CHeroClassHandler classes;
 
-	std::vector< ConstTransitivePtr<CHero> > heroes; //changed from nodrze
+	std::vector< ConstTransitivePtr<CHero> > heroes;
 
-	//default costs of going through terrains: dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock; -1 means terrain is imapassable
+	//default costs of going through terrains. -1 means terrain is impassable
 	std::vector<int> terrCosts;
 	
 	struct SBallisticsLevelInfo
@@ -169,14 +168,24 @@ public:
 	std::map<int, CObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
 	std::map<int, CObstacleInfo> absoluteObstacles; //info about obstacles that may be placed on battlefield
 
-	void loadObstacles(); //loads info about obstacles
-
 	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
 	ui64 reqExp(ui32 level) const; //calculates experience required for given level
 
+	/// Load multiple heroes from json
+	void load(const JsonNode & heroes);
+
+	/// Load single hero from json
+	CHero * loadHero(const JsonNode & hero);
+
+	/// Load everything (calls functions below + classes.load())
 	void load();
+
 	void loadHeroes();
+	void loadExperience();
+	void loadBallistics();
 	void loadTerrains();
+	void loadObstacles();
+
 	CHeroHandler(); //c-tor
 	~CHeroHandler(); //d-tor
 

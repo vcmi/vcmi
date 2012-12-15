@@ -12,10 +12,10 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 1, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "archery", "level": "basic" }
 			],
-		 "specialties":
+			"specialties":
 			[
 				{ "type":2, "val": 5, "subtype": 1, "info": 0 }
 			]
@@ -26,8 +26,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 1, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "archery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -40,8 +40,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 23, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "armorer", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -54,8 +54,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 5, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "navigation", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -68,8 +68,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 13, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "estates", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -82,8 +82,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -96,8 +96,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 20, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "artillery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -110,8 +110,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 19, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "tactics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -125,8 +125,8 @@
 			"spell": 46,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 27, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "firstAid", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -140,8 +140,8 @@
 			"spell": 41,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 4, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "diplomacy", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -155,8 +155,8 @@
 			"spell": 45,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 13, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "estates", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -170,7 +170,7 @@
 			"spell": 20,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 2 }
+				{ "skill" : "wisdom", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -184,8 +184,8 @@
 			"spell": 42,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 8, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "mysticism", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -199,8 +199,8 @@
 			"spell": 35,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 11, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "eagleEye", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -214,8 +214,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 21, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "learning", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -229,8 +229,8 @@
 			"spell": 37,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 24, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "intelligence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -243,8 +243,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 23, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "armorer", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -257,8 +257,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 9, "level": 1 },
-				{ "skill": 26, "level": 1 }
+				{ "skill" : "luck", "level": "basic" },
+				{ "skill" : "resistance", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -271,7 +271,7 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 1, "level": 2 }
+				{ "skill" : "archery", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -284,8 +284,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 4, "level": 1 },
-				{ "skill": 6, "level": 1 }
+				{ "skill" : "diplomacy", "level": "basic" },
+				{ "skill" : "leadership", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -298,7 +298,7 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 26, "level": 2 }
+				{ "skill" : "resistance", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -311,8 +311,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 1, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "archery", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -325,8 +325,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 0, "level": 1 },
-				{ "skill": 26, "level": 1 }
+				{ "skill" : "pathfinding", "level": "basic" },
+				{ "skill" : "resistance", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -339,8 +339,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 1, "level": 1 },
-				{ "skill": 2, "level": 1 }
+				{ "skill" : "archery", "level": "basic" },
+				{ "skill" : "logistics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -354,8 +354,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 18, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "scholar", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -369,8 +369,8 @@
 			"spell": 37,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 2 },
-				{ "skill": 10, "level": 1 }
+				{ "skill" : "wisdom", "level": "advanced" },
+				{ "skill" : "ballistics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -384,8 +384,8 @@
 			"spell": 42,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 24, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "intelligence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -399,8 +399,8 @@
 			"spell": 0,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 27, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "firstAid", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -414,8 +414,8 @@
 			"spell": 15,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 11, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "eagleEye", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -429,8 +429,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 9, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "luck", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -444,8 +444,8 @@
 			"spell": 16,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 25, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "sorcery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -459,8 +459,8 @@
 			"spell": 30,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 3, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "scouting", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -474,8 +474,8 @@
 			"spell": 27,
 			"skill_set":
 			[
-				{ "skill": 3, "level": 1 },
-				{ "skill": 8, "level": 1 }
+				{ "skill" : "scouting", "level": "basic" },
+				{ "skill" : "mysticism", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -489,7 +489,7 @@
 			"spell": 15,
 			"skill_set":
 			[
-				{ "skill": 18, "level": 2 }
+				{ "skill" : "scholar", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -503,8 +503,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 8, "level": 1 },
-				{ "skill": 25, "level": 1 }
+				{ "skill" : "mysticism", "level": "basic" },
+				{ "skill" : "sorcery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -518,8 +518,8 @@
 			"spell": 27,
 			"skill_set":
 			[
-				{ "skill": 18, "level": 1 },
-				{ "skill": 23, "level": 1 }
+				{ "skill" : "scholar", "level": "basic" },
+				{ "skill" : "armorer", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -533,8 +533,8 @@
 			"spell": 15,
 			"skill_set":
 			[
-				{ "skill": 8, "level": 1 },
-				{ "skill": 19, "level": 1 }
+				{ "skill" : "mysticism", "level": "basic" },
+				{ "skill" : "tactics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -548,8 +548,8 @@
 			"spell": 53,
 			"skill_set":
 			[
-				{ "skill": 18, "level": 1 },
-				{ "skill": 26, "level": 1 }
+				{ "skill" : "scholar", "level": "basic" },
+				{ "skill" : "resistance", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -563,8 +563,8 @@
 			"spell": 15,
 			"skill_set":
 			[
-				{ "skill": 8, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "mysticism", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -578,8 +578,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 18, "level": 1 },
-				{ "skill": 24, "level": 1 }
+				{ "skill" : "scholar", "level": "basic" },
+				{ "skill" : "intelligence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -593,7 +593,7 @@
 			"spell": 60,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 2 }
+				{ "skill" : "wisdom", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -607,8 +607,8 @@
 			"spell": 46,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 8, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "mysticism", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -622,8 +622,8 @@
 			"spell": 35,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 11, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "eagleEye", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -637,8 +637,8 @@
 			"spell": 51,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 24, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "intelligence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -652,8 +652,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 10, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "ballistics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -667,8 +667,8 @@
 			"spell": 19,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 25, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "sorcery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -682,8 +682,8 @@
 			"spell": 53,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 4, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "diplomacy", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -697,8 +697,8 @@
 			"spell": 42,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 18, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "scholar", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -711,7 +711,7 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 3, "level": 2 }
+				{ "skill" : "scouting", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -724,8 +724,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 18, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "scholar", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -738,7 +738,7 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 23, "level": 2 }
+				{ "skill" : "armorer", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -751,8 +751,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 19, "level": 1 },
-				{ "skill": 26, "level": 1 }
+				{ "skill" : "tactics", "level": "basic" },
+				{ "skill" : "resistance", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -765,8 +765,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 18, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "scholar", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -779,8 +779,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 1, "level": 1 },
-				{ "skill": 3, "level": 1 }
+				{ "skill" : "archery", "level": "basic" },
+				{ "skill" : "scouting", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -793,8 +793,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 20, "level": 1 },
-				{ "skill": 2, "level": 1 }
+				{ "skill" : "artillery", "level": "basic" },
+				{ "skill" : "logistics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -807,7 +807,7 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 22, "level": 2 }
+				{ "skill" : "offence", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -821,8 +821,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 24, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "intelligence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -836,8 +836,8 @@
 			"spell": 22,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 18, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "scholar", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -851,8 +851,8 @@
 			"spell": 30,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 8, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "mysticism", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -866,8 +866,8 @@
 			"spell": 45,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 10, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "ballistics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -881,8 +881,8 @@
 			"spell": 53,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 21, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "learning", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -896,8 +896,8 @@
 			"spell": 43,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 11, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "eagleEye", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -911,8 +911,8 @@
 			"spell": 46,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 25, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "sorcery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -926,8 +926,8 @@
 			"spell": 21,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 6, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "leadership", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -941,8 +941,8 @@
 			"spell": 53,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 26, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "resistance", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -956,8 +956,8 @@
 			"spell": 46,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 20, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "artillery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -971,8 +971,8 @@
 			"spell": 54,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 21, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "learning", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -986,8 +986,8 @@
 			"spell": 15,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 19, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "tactics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1001,8 +1001,8 @@
 			"spell": 15,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1016,7 +1016,7 @@
 			"spell": 15,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 2 }
+				{ "skill" : "necromancy", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -1030,8 +1030,8 @@
 			"spell": 15,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1045,8 +1045,8 @@
 			"spell": 27,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 23, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "armorer", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1060,8 +1060,8 @@
 			"spell": 24,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 18, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "scholar", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1075,8 +1075,8 @@
 			"spell": 23,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 7, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "wisdom", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1090,8 +1090,8 @@
 			"spell": 54,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 25, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "sorcery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1105,8 +1105,8 @@
 			"spell": 27,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 11, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "eagleEye", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1120,8 +1120,8 @@
 			"spell": 39,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 8, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "mysticism", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1135,8 +1135,8 @@
 			"spell": 46,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 21, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "learning", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1150,7 +1150,7 @@
 			"spell": 42,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 2 }
+				{ "skill" : "necromancy", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -1164,8 +1164,8 @@
 			"spell": 30,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 1 },
-				{ "skill": 24, "level": 1 }
+				{ "skill" : "necromancy", "level": "basic" },
+				{ "skill" : "intelligence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1178,8 +1178,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 3, "level": 1 },
-				{ "skill": 6, "level": 1 }
+				{ "skill" : "scouting", "level": "basic" },
+				{ "skill" : "leadership", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1192,8 +1192,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 20, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "artillery", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1206,8 +1206,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 19, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "tactics", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1220,8 +1220,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 26, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "resistance", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1234,7 +1234,7 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 22, "level": 2 }
+				{ "skill" : "offence", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -1247,8 +1247,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 2, "level": 1 },
-				{ "skill": 19, "level": 1 }
+				{ "skill" : "logistics", "level": "basic" },
+				{ "skill" : "tactics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1261,8 +1261,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 18, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "scholar", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1275,8 +1275,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 19, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "tactics", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1290,8 +1290,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 18, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "scholar", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1305,8 +1305,8 @@
 			"spell": 27,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 8, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "mysticism", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1320,8 +1320,8 @@
 			"spell": 43,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 25, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "sorcery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1335,7 +1335,7 @@
 			"spell": 38,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 2 }
+				{ "skill" : "wisdom", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -1349,8 +1349,8 @@
 			"spell": 54,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 11, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "eagleEye", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1364,8 +1364,8 @@
 			"spell": 23,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 3, "level": 2 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "scouting", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -1379,8 +1379,8 @@
 			"spell": 30,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 24, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "intelligence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1394,8 +1394,8 @@
 			"spell": 46,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 21, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "learning", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1408,8 +1408,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 22, "level": 1 },
-				{ "skill": 10, "level": 1 }
+				{ "skill" : "offence", "level": "basic" },
+				{ "skill" : "ballistics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1422,8 +1422,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 22, "level": 1 },
-				{ "skill": 20, "level": 1 }
+				{ "skill" : "offence", "level": "basic" },
+				{ "skill" : "artillery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1436,8 +1436,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 22, "level": 1 },
-				{ "skill": 1, "level": 1 }
+				{ "skill" : "offence", "level": "basic" },
+				{ "skill" : "archery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1450,8 +1450,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 22, "level": 1 },
-				{ "skill": 3, "level": 1 }
+				{ "skill" : "offence", "level": "basic" },
+				{ "skill" : "scouting", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1464,8 +1464,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 22, "level": 1 },
-				{ "skill": 0, "level": 1 }
+				{ "skill" : "offence", "level": "basic" },
+				{ "skill" : "pathfinding", "level": "basic" }
 			]
 		},
 		{
@@ -1474,8 +1474,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 22, "level": 1 },
-				{ "skill": 26, "level": 1 }
+				{ "skill" : "offence", "level": "basic" },
+				{ "skill" : "resistance", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1488,7 +1488,7 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 22, "level": 2 }
+				{ "skill" : "offence", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -1501,8 +1501,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 22, "level": 1 },
-				{ "skill": 19, "level": 1 }
+				{ "skill" : "offence", "level": "basic" },
+				{ "skill" : "tactics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1516,8 +1516,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 25, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "sorcery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1531,8 +1531,8 @@
 			"spell": 15,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 6, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "leadership", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1546,8 +1546,8 @@
 			"spell": 46,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 2, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "logistics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1561,8 +1561,8 @@
 			"spell": 53,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 19, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "tactics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1576,8 +1576,8 @@
 			"spell": 44,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 20, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "artillery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1591,8 +1591,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1606,8 +1606,8 @@
 			"spell": 30,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 11, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "eagleEye", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1621,8 +1621,8 @@
 			"spell": 43,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 26, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "resistance", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1635,8 +1635,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 23, "level": 1 },
-				{ "skill": 26, "level": 1 }
+				{ "skill" : "armorer", "level": "basic" },
+				{ "skill" : "resistance", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1649,8 +1649,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 23, "level": 1 },
-				{ "skill": 6, "level": 1 }
+				{ "skill" : "armorer", "level": "basic" },
+				{ "skill" : "leadership", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1663,8 +1663,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 23, "level": 1 },
-				{ "skill": 1, "level": 1 }
+				{ "skill" : "armorer", "level": "basic" },
+				{ "skill" : "archery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1677,7 +1677,7 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 23, "level": 2 }
+				{ "skill" : "armorer", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -1690,8 +1690,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 23, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "armorer", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1704,8 +1704,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 23, "level": 1 },
-				{ "skill": 0, "level": 1 }
+				{ "skill" : "armorer", "level": "basic" },
+				{ "skill" : "pathfinding", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1718,8 +1718,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 23, "level": 1 },
-				{ "skill": 20, "level": 1 }
+				{ "skill" : "armorer", "level": "basic" },
+				{ "skill" : "artillery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1732,8 +1732,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 23, "level": 1 },
-				{ "skill": 3, "level": 1 }
+				{ "skill" : "armorer", "level": "basic" },
+				{ "skill" : "scouting", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1747,7 +1747,7 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 2 }
+				{ "skill" : "wisdom", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -1761,8 +1761,8 @@
 			"spell": 15,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 8, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "mysticism", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1776,8 +1776,8 @@
 			"spell": 54,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 5, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "navigation", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1791,8 +1791,8 @@
 			"spell": 31,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 27, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "firstAid", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1806,8 +1806,8 @@
 			"spell": 46,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 21, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "learning", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1821,8 +1821,8 @@
 			"spell": 27,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 25, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "sorcery", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1836,8 +1836,8 @@
 			"spell": 35,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 24, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "intelligence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1851,8 +1851,8 @@
 			"spell": 46,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 11, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "eagleEye", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1865,8 +1865,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 20, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "artillery", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1880,8 +1880,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 13, "level": 1 },
-				{ "skill": 19, "level": 1 }
+				{ "skill" : "estates", "level": "basic" },
+				{ "skill" : "tactics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1896,8 +1896,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 20, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "artillery", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1912,7 +1912,7 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 19, "level": 2 }
+				{ "skill" : "tactics", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -1925,8 +1925,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 2, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "logistics", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1940,8 +1940,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 13, "level": 1 },
-				{ "skill": 19, "level": 1 }
+				{ "skill" : "estates", "level": "basic" },
+				{ "skill" : "tactics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1956,7 +1956,7 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 22, "level": 2 }
+				{ "skill" : "offence", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -1971,8 +1971,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 19, "level": 1 },
-				{ "skill": 21, "level": 1 }
+				{ "skill" : "tactics", "level": "basic" },
+				{ "skill" : "learning", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -1986,8 +1986,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 14, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "fireMagic", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2001,8 +2001,8 @@
 			"spell": 53,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 15, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "airMagic", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2016,8 +2016,8 @@
 			"spell": 15,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 16, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "waterMagic", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2031,8 +2031,8 @@
 			"spell": 46,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 17, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "earthMagic", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2046,8 +2046,8 @@
 			"spell": 43,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 14, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "fireMagic", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2061,8 +2061,8 @@
 			"spell": 47,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 15, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "airMagic", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2076,8 +2076,8 @@
 			"spell": 35,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 16, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "waterMagic", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2091,8 +2091,8 @@
 			"spell": 54,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 17, "level": 1 }
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "earthMagic", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2105,7 +2105,7 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 2 }
+				{ "skill" : "leadership", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -2119,8 +2119,8 @@
 			"spell": 22,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 1 },
-				{ "skill": 14, "level": 3 } ],
+				{ "skill" : "wisdom", "level": "basic" },
+				{ "skill" : "fireMagic", "level": "expert" } ],
 			"specialties":
 			[
 				{ "type":11, "val": 14, "subtype": 0, "info": 0 }
@@ -2132,8 +2132,8 @@
 			"female": true,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2147,7 +2147,7 @@
 			"spell": 53,
 			"skill_set":
 			[
-				{ "skill": 7, "level": 2 }
+				{ "skill" : "wisdom", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -2161,8 +2161,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 1, "level": 1 },
-				{ "skill": 6, "level": 1 }
+				{ "skill" : "archery", "level": "basic" },
+				{ "skill" : "leadership", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2176,7 +2176,7 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 22, "level": 2 }
+				{ "skill" : "offence", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -2192,7 +2192,7 @@
 			"spell": 54,
 			"skill_set":
 			[
-				{ "skill": 12, "level": 2 }
+				{ "skill" : "necromancy", "level": "advanced" }
 			],
 			"specialties":
 			[
@@ -2208,8 +2208,8 @@
 			"spell": 15,
 			"skill_set":
 			[
-				{ "skill": 13, "level": 1 },
-				{ "skill": 19, "level": 1 }
+				{ "skill" : "estates", "level": "basic" },
+				{ "skill" : "tactics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2223,8 +2223,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 23, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "armorer", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2238,8 +2238,8 @@
 			"spell": 15,
 			"skill_set":
 			[
-				{ "skill": 13, "level": 1 },
-				{ "skill": 19, "level": 1 }
+				{ "skill" : "estates", "level": "basic" },
+				{ "skill" : "tactics", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2253,8 +2253,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 19, "level": 1 },
-				{ "skill": 22, "level": 1 }
+				{ "skill" : "tactics", "level": "basic" },
+				{ "skill" : "offence", "level": "basic" }
 			],
 			"specialties":
 			[
@@ -2267,8 +2267,8 @@
 			"female": false,
 			"skill_set":
 			[
-				{ "skill": 6, "level": 1 },
-				{ "skill": 19, "level": 1 }
+				{ "skill" : "leadership", "level": "basic" },
+				{ "skill" : "tactics", "level": "basic" }
 			],
 			"specialties":
 			[

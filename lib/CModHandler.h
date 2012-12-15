@@ -3,9 +3,6 @@
 #include "Filesystem/CResourceLoader.h"
 
 #include "VCMI_Lib.h"
-#include "CCreatureHandler.h"
-#include "CArtHandler.h"
-#include "CTownHandler.h"
 
 /*
  * CModHandler.h, part of VCMI engine

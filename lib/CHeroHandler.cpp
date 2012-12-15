@@ -8,6 +8,7 @@
 #include "StringConstants.h"
 #include "BattleHex.h"
 #include "CModHandler.h"
+#include "CTownHandler.h"
 
 /*
  * CHeroHandler.cpp, part of VCMI engine
@@ -125,7 +126,7 @@ void CHeroClassHandler::load(const JsonNode & classes)
 	//TODO
 }
 
-void CHeroClassHandler::loadClass(const JsonNode & heroClass)
+CHeroClass *CHeroClassHandler::loadClass(const JsonNode & heroClass)
 {
 	//TODO
 }
@@ -147,11 +148,49 @@ CHeroHandler::~CHeroHandler()
 CHeroHandler::CHeroHandler()
 {}
 
+void CHeroHandler::load(const JsonNode & heroes)
+{
+	//TODO
+}
+
+CHero * CHeroHandler::loadHero(const JsonNode & hero)
+{
+	//TODO
+}
+
 void CHeroHandler::load()
 {
 	classes.load();
 	loadHeroes();
 	loadObstacles();
+	loadTerrains();
+	loadBallistics();
+	loadExperience();
+}
+
+void CHeroHandler::loadExperience()
+{
+	expPerLevel.push_back(0);
+	expPerLevel.push_back(1000);
+	expPerLevel.push_back(2000);
+	expPerLevel.push_back(3200);
+	expPerLevel.push_back(4600);
+	expPerLevel.push_back(6200);
+	expPerLevel.push_back(8000);
+	expPerLevel.push_back(10000);
+	expPerLevel.push_back(12200);
+	expPerLevel.push_back(14700);
+	expPerLevel.push_back(17500);
+	expPerLevel.push_back(20600);
+	expPerLevel.push_back(24320);
+	expPerLevel.push_back(28784);
+	expPerLevel.push_back(34140);
+	while (expPerLevel[expPerLevel.size() - 1] > expPerLevel[expPerLevel.size() - 2])
+	{
+		int i = expPerLevel.size() - 1;
+		expPerLevel.push_back (expPerLevel[i] + (expPerLevel[i] - expPerLevel[i-1]) * 1.2);
+	}
+	expPerLevel.pop_back();//last value is broken
 }
 
 void CHeroHandler::loadObstacles()
@@ -220,8 +259,11 @@ void CHeroHandler::loadHeroes()
 		// sex: 0=male, 1=female
 		currentHero->sex = !!hero["female"].Bool();
 
-		BOOST_FOREACH(const JsonNode &set, hero["skill_set"].Vector()) {
-			currentHero->secSkillsInit.push_back(std::make_pair(set["skill"].Float(), set["level"].Float()));
+		BOOST_FOREACH(const JsonNode &set, hero["skill_set"].Vector())
+		{
+			int skillID    = boost::range::find(SecondarySkill::names,  set["skill"].String()) - boost::begin(SecondarySkill::names);
+			int skillLevel = boost::range::find(SecondarySkill::levels, set["level"].String()) - boost::begin(SecondarySkill::levels);
+			currentHero->secSkillsInit.push_back(std::make_pair(skillID, skillLevel));
 		}
 
 		value = &hero["spell"];
@@ -247,30 +289,10 @@ void CHeroHandler::loadHeroes()
 			currentHero->heroClass = classes.heroClasses[classID];
 		});
 	}
+}
 
-	loadTerrains();
-	expPerLevel.push_back(0);
-	expPerLevel.push_back(1000);
-	expPerLevel.push_back(2000);
-	expPerLevel.push_back(3200);
-	expPerLevel.push_back(4600);
-	expPerLevel.push_back(6200);
-	expPerLevel.push_back(8000);
-	expPerLevel.push_back(10000);
-	expPerLevel.push_back(12200);
-	expPerLevel.push_back(14700);
-	expPerLevel.push_back(17500);
-	expPerLevel.push_back(20600);
-	expPerLevel.push_back(24320);
-	expPerLevel.push_back(28784);
-	expPerLevel.push_back(34140);
-	while (expPerLevel[expPerLevel.size() - 1] > expPerLevel[expPerLevel.size() - 2])
-	{
-		int i = expPerLevel.size() - 1;
-		expPerLevel.push_back (expPerLevel[i] + (expPerLevel[i] - expPerLevel[i-1]) * 1.2);
-	}
-	expPerLevel.pop_back();//last value is broken
-
+void CHeroHandler::loadBallistics()
+{
 	CLegacyConfigParser ballParser("DATA/BALLIST.TXT");
 
 	ballParser.endLine(); //header

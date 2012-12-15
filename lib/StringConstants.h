@@ -54,6 +54,11 @@ namespace SecondarySkill
 		"artillery",    "learning",     "offence",      "armorer",      "intelligence", // 25
 		"sorcery",      "resistance",   "firstAid"
 	};
+
+	const std::string levels [4] =
+	{
+	    "none", "basic", "advanced", "expert"
+	};
 }
 
 namespace ETownType

@@ -23,6 +23,7 @@ void CCursorHandler::initCursor()
 	xpos = ypos = 0;
 	type = ECursor::DEFAULT;
 	dndObject = nullptr;
+	currentCursor = nullptr;
 
 	help = CSDL_Ext::newSurface(40,40);
 	SDL_ShowCursor(SDL_DISABLE);

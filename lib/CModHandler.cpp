@@ -5,6 +5,11 @@
 #include "Filesystem/CResourceLoader.h"
 #include "Filesystem/ISimpleResourceLoader.h"
 
+#include "CCreatureHandler.h"
+#include "CArtHandler.h"
+#include "CTownHandler.h"
+#include "CHeroHandler.h"
+
 /*
  * CModHandler.h, part of VCMI engine
  *
@@ -131,6 +136,12 @@ std::vector<std::string> CModHandler::getActiveMods()
 	return activeMods;
 }
 
+template<typename Handler>
+void handleData(Handler handler, const JsonNode & config)
+{
+	handler->load(JsonUtils::assembleFromFiles(config.convertTo<std::vector<std::string> >()));
+}
+
 void CModHandler::loadActiveMods()
 {
 	BOOST_FOREACH(std::string & modName, activeMods)
@@ -139,9 +150,12 @@ void CModHandler::loadActiveMods()
 
 		const JsonNode config = JsonNode(ResourceID(modFileName));
 
-		VLC->townh->load(JsonUtils::assembleFromFiles(config ["factions"].convertTo<std::vector<std::string> >()));
-		VLC->creh->load( JsonUtils::assembleFromFiles(config["creatures"].convertTo<std::vector<std::string> >()));
-		VLC->arth->load( JsonUtils::assembleFromFiles(config["artifacts"].convertTo<std::vector<std::string> >()));
+		handleData(VLC->townh, config["factions"]);
+		handleData(VLC->creh, config["creatures"]);
+		handleData(VLC->arth, config["artifacts"]);
+
+		handleData(&VLC->heroh->classes, config["heroClasses"]);
+		handleData(VLC->heroh, config["heroes"]);
 	}
 
 	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded

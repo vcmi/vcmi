@@ -6,6 +6,7 @@
 #include "JsonNode.h"
 #include "StringConstants.h"
 #include "CModHandler.h"
+#include "CArtHandler.h"
 #include "Filesystem/CResourceLoader.h"
 
 /*
