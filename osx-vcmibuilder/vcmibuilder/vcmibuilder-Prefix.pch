@@ -1,0 +1,7 @@
+//
+// Prefix header for all source files of the 'vcmibuilder' target in the 'vcmibuilder' project
+//
+
+#ifdef __OBJC__
+    #import <Cocoa/Cocoa.h>
+#endif

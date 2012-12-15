@@ -188,6 +188,13 @@ int main(int argc, char** argv)
     std::string executablePath = argv[0];
     std::string workDir = executablePath.substr(0, executablePath.rfind('/'));
     chdir(workDir.c_str());
+    
+    FILE* check = fopen("../Data/game_data_prepared", "r");
+    if (check == NULL) {
+        system("open ./vcmibuilder.app");
+        return 0;
+    }
+    fclose(check);
 #endif
     
 	tlog0 << "Starting... " << std::endl;
