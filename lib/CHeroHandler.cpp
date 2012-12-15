@@ -129,6 +129,7 @@ void CHeroClassHandler::load(const JsonNode & classes)
 CHeroClass *CHeroClassHandler::loadClass(const JsonNode & heroClass)
 {
 	//TODO
+	return new CHeroClass;
 }
 
 CHeroClassHandler::~CHeroClassHandler()
@@ -156,6 +157,7 @@ void CHeroHandler::load(const JsonNode & heroes)
 CHero * CHeroHandler::loadHero(const JsonNode & hero)
 {
 	//TODO
+	return new CHero;
 }
 
 void CHeroHandler::load()

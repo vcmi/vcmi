@@ -3,8 +3,8 @@
 
 #include <SDL.h>
 #include "SDL_Extensions.h"
-#include "CAnimation.h"
-#include "UIFramework/CGuiHandler.h"
+#include "../CAnimation.h"
+#include "CGuiHandler.h"
 
 /*
  * CCursorHandler.cpp, part of VCMI engine
