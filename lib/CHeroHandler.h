@@ -142,7 +142,9 @@ public:
 
 class DLL_LINKAGE CHeroHandler
 {
-	std::vector<ui64> expPerLevel; //expPerLEvel[i] is amount of exp needed to reach level i; if it is not in this vector, multiplicate last value by 1,2 to get next value
+	/// expPerLEvel[i] is amount of exp needed to reach level i;
+	/// consists of 201 values. Any higher levels require experience larger that ui64 can hold
+	std::vector<ui64> expPerLevel;
 
 public:
 	CHeroClassHandler classes;

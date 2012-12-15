@@ -253,10 +253,9 @@ void CHeroHandler::loadHeroes()
 
 	// Load heroes information
 	const JsonNode config(ResourceID("config/heroes.json"));
-	BOOST_FOREACH(const JsonNode &hero, config["heroes"].Vector()) {
-
+	BOOST_FOREACH(const JsonNode &hero, config["heroes"].Vector())
+	{
 		CHero * currentHero = heroes[hero["id"].Float()];
-		const JsonNode *value;
 
 		// sex: 0=male, 1=female
 		currentHero->sex = !!hero["female"].Bool();
@@ -268,9 +267,8 @@ void CHeroHandler::loadHeroes()
 			currentHero->secSkillsInit.push_back(std::make_pair(skillID, skillLevel));
 		}
 
-		value = &hero["spell"];
-		if (!value->isNull()) {
-			currentHero->startingSpell = value->Float();
+		if (!hero["spell"].isNull()) {
+			currentHero->startingSpell = hero["spell"].Float();
 		}
 
 		BOOST_FOREACH(const JsonNode &specialty, hero["specialties"].Vector())
@@ -322,19 +320,7 @@ void CHeroHandler::loadBallistics()
 
 ui32 CHeroHandler::level (ui64 experience) const
 {
-	int i;
-	if (experience <= expPerLevel.back())
-	{
-		for (i = expPerLevel.size()-1; experience < expPerLevel[i]; i--);
-		return i + 1;
-	}
-	else
-	{
-		i = expPerLevel.size() - 1;
-		while (experience > reqExp (i))
-			i++;
-		return i;
-	}
+	return boost::range::upper_bound(expPerLevel, experience) - boost::begin(expPerLevel);
 }
 
 ui64 CHeroHandler::reqExp (ui32 level) const

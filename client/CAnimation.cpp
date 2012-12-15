@@ -84,9 +84,13 @@ class CFileCache
 			std::copy(data, data + size, ret);
 			return ret;
 		}
+		FileData():
+		    size(0),
+		    data(nullptr)
+		{}
 		~FileData()
 		{
-			delete data;
+			delete [] data;
 		}
 	};
 
