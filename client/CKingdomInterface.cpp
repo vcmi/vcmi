@@ -171,7 +171,7 @@ std::string InfoBoxAbstractHeroData::getNameText()
 			return text.substr(begin, end-begin);
 		}
 	case HERO_SPECIAL:
-		return CGI->generaltexth->hTxts[getSubID()].bonusName;
+		return CGI->heroh->heroes[getSubID()]->specName;
 	case HERO_SECONDARY_SKILL:
 		if (getValue())
 			return CGI->generaltexth->skillName[getSubID()];
@@ -237,6 +237,7 @@ size_t InfoBoxAbstractHeroData::getImageIndex()
 	switch (type)
 	{
 	case HERO_SPECIAL:
+		return VLC->heroh->heroes[getSubID()]->imageIndex;
 	case HERO_PRIMARY_SKILL:
 		return getSubID();
 	case HERO_MANA:
@@ -262,7 +263,7 @@ bool InfoBoxAbstractHeroData::prepareMessage(std::string &text, CComponent **com
 	switch (type)
 	{
 	case HERO_SPECIAL:
-		text = CGI->generaltexth->hTxts[getSubID()].longBonus;
+		text = CGI->heroh->heroes[getSubID()]->specDescr;
 		*comp = NULL;
 		return true;
 	case HERO_PRIMARY_SKILL:
@@ -918,7 +919,7 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 
 	garr = new CGarrisonInt(6, 78, 4, Point(), NULL, Point(), hero, NULL, true, true);
 
-	portrait = new CAnimImage("PortraitsLarge", hero->subID, 0, 5, 6);
+	portrait = new CAnimImage("PortraitsLarge", hero->portrait, 0, 5, 6);
 	heroArea = new CHeroArea(5, 6, hero);
 
 	name = new CLabel(73, 7, FONT_SMALL, TOPLEFT, Colors::WHITE, hero->name);

@@ -175,8 +175,8 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 
 	assert(hero == curHero);
 
-	specArea->text = CGI->generaltexth->hTxts[curHero->subID].longBonus;
-	specImage->setFrame(curHero->subID);
+	specArea->text = curHero->type->specDescr;
+	specImage->setFrame(curHero->type->imageIndex);
 
 	tacticsButton->callback.clear();
 	tacticsButton->callback2.clear();
@@ -378,7 +378,7 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	 
 	//printing special ability
 	printAtLoc(CGI->generaltexth->jktexts[5].substr(1, CGI->generaltexth->jktexts[5].size()-2), 69, 183, FONT_SMALL, Colors::YELLOW, to);
-	printAtLoc(CGI->generaltexth->hTxts[curHero->subID].bonusName, 69, 205, FONT_SMALL, Colors::WHITE, to);
+	printAtLoc(curHero->type->specName, 69, 205, FONT_SMALL, Colors::WHITE, to);
 	 
 	//printing necessery texts
 	printAtLoc(CGI->generaltexth->jktexts[6].substr(1, CGI->generaltexth->jktexts[6].size()-2), 69, 232, FONT_SMALL, Colors::YELLOW, to);

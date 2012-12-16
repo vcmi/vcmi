@@ -708,19 +708,23 @@ void CGHeroInstance::initHero()
 		initHeroDefInfo();
 	if(!type)
 		type = VLC->heroh->heroes[subID];
-	if(!vstd::contains(spells, 0xffffffff) && type->startingSpell >= 0) //hero starts with a spell
-		spells.insert(type->startingSpell);
+
+	if(!vstd::contains(spells, 0xffffffff)) //hero starts with a spell
+	{
+		BOOST_FOREACH(auto spellID, type->spells)
+			spells.insert(spellID);
+	}
 	else //remove placeholder
 		spells -= 0xffffffff;
 
-	if(!getArt(ArtifactPosition::MACH4) && !getArt(ArtifactPosition::SPELLBOOK) && type->startingSpell >= 0) //no catapult means we haven't read pre-existent set -> use default rules for spellbook
+	if(!getArt(ArtifactPosition::MACH4) && !getArt(ArtifactPosition::SPELLBOOK) && !type->spells.empty()) //no catapult means we haven't read pre-existent set -> use default rules for spellbook
 		putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
 
 	if(!getArt(ArtifactPosition::MACH4))
 		putArtifact(ArtifactPosition::MACH4, CArtifactInstance::createNewArtifactInstance(3)); //everyone has a catapult
 
 	if(portrait < 0 || portrait == 255)
-		portrait = subID;
+		portrait = type->imageIndex;
 	if(!hasBonus(Selector::sourceType(Bonus::HERO_BASE_SKILL)))
 	{
 		for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
@@ -780,6 +784,8 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 		howManyStacks = 2;
 	else
 		howManyStacks = 3;
+
+	vstd::amin(howManyStacks, type->initialArmy.size());
 
 	for(int stackNo=0; stackNo < howManyStacks; stackNo++)
 	{
@@ -892,8 +898,7 @@ const std::string & CGHeroInstance::getBiography() const
 {
 	if (biography.length())
 		return biography;
-	else
-		return VLC->generaltexth->hTxts[subID].biography;
+	return type->biography;
 }
 void CGHeroInstance::initObj()
 {

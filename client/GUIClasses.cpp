@@ -943,7 +943,7 @@ size_t CComponent::getIndex()
 	case morale:     return val+3;
 	case luck:       return val+3;
 	case building:   return val;
-	case hero:       return subtype;
+	case hero:       return CGI->heroh->heroes[subtype]->imageIndex;
 	case flag:       return subtype;
 	}
 	assert(0);
@@ -3706,7 +3706,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 				  h->name.c_str(), h->level, h->type->heroClass->name.c_str(), artifs);
 		descr[sizeof(descr)-1] = '\0';
 
-		new CAnimImage("portraitsLarge", h->subID);
+		new CAnimImage("portraitsLarge", h->portrait);
 	}
 }
 
@@ -4965,7 +4965,7 @@ void CExchangeWindow::prepareBackground()
 		}
 
 		//hero's specialty
-		new CAnimImage("UN32", heroInst[b]->subID, 0, 67 + 490*b, 45);
+		new CAnimImage("UN32", heroInst[b]->type->imageIndex, 0, 67 + 490*b, 45);
 
 		//experience
 		new CAnimImage("PSKIL32", 4, 0, 103 + 490*b, 45);
@@ -5042,7 +5042,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2):
 		speciality[b] = new LRClickableAreaWText();
 		speciality[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + 45);
 		speciality[b]->hoverText = CGI->generaltexth->heroscrn[27];
-		speciality[b]->text = CGI->generaltexth->hTxts[heroInst[b]->subID].longBonus;
+		speciality[b]->text = heroInst[b]->type->specDescr;
 
 		experience[b] = new LRClickableAreaWText();
 		experience[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + 45);

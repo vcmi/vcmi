@@ -49,7 +49,7 @@ public:
 	CDefEssential * resources32; //resources 32x32
 	CDefEssential * flags;
 	CDefEssential * heroMoveArrows;
-	std::vector<CDefEssential *> heroAnims; // [class id: 0 - 17]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
+	std::map<std::string, CDefEssential *> heroAnims; // [hero class def name]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
 	std::vector<CDefEssential *> boatAnims; // [boat type: 0 - 3]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
 	CDefHandler * FoWfullHide; //for Fog of War
 	CDefHandler * FoWpartialHide; //for For of War
@@ -63,7 +63,6 @@ public:
 	std::map<int, std::string> ERMUtoPicture[GameConstants::F_NUMBER]; //maps building ID to it's picture's name for each town type
 	//for battles
 	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
-	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
 	CDefEssential * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
 	//spells
@@ -75,7 +74,7 @@ public:
 	void loadHeroFlags();
 	void loadHeroFlags(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr, bool mode);
 	void loadHeroAnims();
-	void loadHeroAnim(const std::string &name, const std::vector<std::pair<int,int> > &rotations, std::vector<CDefEssential *> Graphics::*dst);
+	CDefEssential *  loadHeroAnim(const std::string &name, const std::vector<std::pair<int,int> > &rotations);
 	void loadErmuToPicture();
 	void blueToPlayersAdv(SDL_Surface * sur, int player); //replaces blue interface colour with a color of player
 	void loadTrueType();

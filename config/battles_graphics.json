@@ -28,29 +28,6 @@
 		"CMBKDECK.BMP"
 	],
 
-	// Hero animation used in battles.
-	// Each 2 def represent male and female heroes for each race
-	"heroes": [
-		"CH00.DEF",
-		"CH01.DEF",
-		"CH02.DEF",
-		"CH03.DEF",
-		"CH05.DEF",
-		"CH04.DEF",
-		"CH06.DEF",
-		"CH07.DEF",
-		"CH08.DEF",
-		"CH09.DEF",
-		"CH010.DEF",
-		"CH11.DEF",
-		"CH013.DEF",
-		"CH012.DEF",
-		"CH014.DEF",
-		"CH015.DEF",
-		"CH16.DEF",
-		"CH17.DEF"
-	],
-
 	// WoG_Ac_format_to_def_names_mapping
 	"ac_mapping": [
 		{ "id": 0, "defnames": [ "C10SPW.DEF" ] },

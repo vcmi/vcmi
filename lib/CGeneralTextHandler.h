@@ -58,14 +58,6 @@ public:
 class DLL_LINKAGE CGeneralTextHandler //Handles general texts
 {
 public:
-	class HeroTexts
-	{
-	public:
-		std::string bonusName, shortBonus, longBonus; //for special abilities
-		std::string biography; //biography, of course
-	};
-
-	std::vector<HeroTexts> hTxts;
 	std::vector<std::string> allTexts;
 
 	std::vector<std::string> arraytxt;

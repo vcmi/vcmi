@@ -190,25 +190,6 @@ void CGeneralTextHandler::load()
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser("DATA/HEROSPEC.TXT");
-		CLegacyConfigParser bioParser("DATA/HEROBIOS.TXT");
-
-		//skip header
-		parser.endLine();
-		parser.endLine();
-
-		do
-		{
-			HeroTexts texts;
-			texts.bonusName  = parser.readString();
-			texts.shortBonus = parser.readString();
-			texts.longBonus  = parser.readString();
-			texts.biography  = bioParser.readString();
-			hTxts.push_back(texts);
-		}
-		while (parser.endLine() && bioParser.endLine());
-	}
-	{
 		CLegacyConfigParser nameParser("DATA/MINENAME.TXT");
 		CLegacyConfigParser eventParser("DATA/MINEEVNT.TXT");
 

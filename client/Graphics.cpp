@@ -9,6 +9,7 @@
 #include "CGameInfo.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
+#include "../lib/CHeroHandler.h"
 #include "../lib/CTownHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/CGeneralTextHandler.h"
@@ -103,16 +104,6 @@ void Graphics::initializeBattleGraphics()
 		idx++;
 	}
 
-	//initializing battle hero animation
-	idx = config["heroes"].Vector().size();
-	battleHeroes.resize(idx);
-
-	idx = 0;
-	BOOST_FOREACH(const JsonNode &h, config["heroes"].Vector()) {
-		battleHeroes[idx] = h.String();
-		idx ++;
-	}
-
 	//initialization of AC->def name mapping
 	BOOST_FOREACH(const JsonNode &ac, config["ac_mapping"].Vector()) {
 		int ACid = ac["id"].Float();
@@ -169,22 +160,26 @@ void Graphics::loadHeroAnims()
 	std::vector<std::pair<int,int> > rotations; //first - group number to be rotated1, second - group number after rotation1
 	rotations += std::make_pair(6,10), std::make_pair(7,11), std::make_pair(8,12), std::make_pair(1,13),
 		std::make_pair(2,14), std::make_pair(3,15);
-	for(size_t i=0; i<GameConstants::F_NUMBER * 2; ++i)
+
+	for(size_t i=0; i<CGI->heroh->classes.heroClasses.size(); ++i)
 	{
-		std::ostringstream nm;
-		nm << "AH" << std::setw(2) << std::setfill('0') << i << "_.DEF";
-		loadHeroAnim(nm.str(), rotations, &Graphics::heroAnims);
+		const CHeroClass * hc = CGI->heroh->classes.heroClasses[i];
+
+		if (!vstd::contains(heroAnims, hc->imageMapFemale))
+			heroAnims[hc->imageMapFemale] = loadHeroAnim(hc->imageMapFemale, rotations);
+
+		if (!vstd::contains(heroAnims, hc->imageMapMale))
+			heroAnims[hc->imageMapMale] = loadHeroAnim(hc->imageMapMale, rotations);
 	}
 
-	loadHeroAnim("AB01_.DEF", rotations, &Graphics::boatAnims);
-	loadHeroAnim("AB02_.DEF", rotations, &Graphics::boatAnims);
-	loadHeroAnim("AB03_.DEF", rotations, &Graphics::boatAnims);
+	boatAnims.push_back(loadHeroAnim("AB01_.DEF", rotations));
+	boatAnims.push_back(loadHeroAnim("AB02_.DEF", rotations));
+	boatAnims.push_back(loadHeroAnim("AB03_.DEF", rotations));
 }
 
-void Graphics::loadHeroAnim( const std::string &name, const std::vector<std::pair<int,int> > &rotations, std::vector<CDefEssential *> Graphics::*dst )
+CDefEssential * Graphics::loadHeroAnim( const std::string &name, const std::vector<std::pair<int,int> > &rotations)
 {
 	CDefEssential *anim = CDefHandler::giveDefEss(name);
-	(this->*dst).push_back(anim);
 	int pom = 0; //how many groups has been rotated
 	for(int o=7; pom<6; ++o)
 	{
@@ -216,6 +211,7 @@ void Graphics::loadHeroAnim( const std::string &name, const std::vector<std::pai
 	{
 		CSDL_Ext::alphaTransform(anim->ourImages[ff].bitmap);
 	}
+	return anim;
 }
 
 void Graphics::loadHeroFlags(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr, bool mode)

@@ -2640,7 +2640,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex()
 			{
 				if(settings.heroPortrait >= 0)
 					return settings.heroPortrait;
-				return settings.hero;
+				return CGI->heroh->heroes[settings.hero]->imageIndex;
 			}
 		}
 
@@ -2870,10 +2870,10 @@ void OptionsTab::CPregameTooltipBox::genHeroWindow()
 	genHeader();
 
 	// speciality
-	new CAnimImage("UN44", settings.hero, 0, pos.w / 2 - 22, 134);
+	new CAnimImage("UN44", CGI->heroh->heroes[settings.hero]->imageIndex, 0, pos.w / 2 - 22, 134);
 
 	new CLabel(pos.w / 2 + 4, 117, FONT_MEDIUM, CENTER,  Colors::YELLOW, CGI->generaltexth->allTexts[78]);
-	new CLabel(pos.w / 2,     188, FONT_SMALL,  CENTER, Colors::WHITE, CGI->generaltexth->hTxts[settings.hero].bonusName);
+	new CLabel(pos.w / 2,     188, FONT_SMALL,  CENTER, Colors::WHITE, CGI->heroh->heroes[settings.hero]->specName);
 }
 
 void OptionsTab::CPregameTooltipBox::genBonusWindow()

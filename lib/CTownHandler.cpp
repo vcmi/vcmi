@@ -472,7 +472,13 @@ void CTownHandler::load(const JsonNode &source)
 {
 	BOOST_FOREACH(auto & node, source.Struct())
 	{
-		int id = node.second["index"].Float();
+		int id;
+
+		if (node.second["index"].isNull())
+			id = factions.rbegin()->first + 1;
+		else
+			id = node.second["index"].Float();
+
 		CFaction & faction = factions[id];
 
 		faction.factionID = id;

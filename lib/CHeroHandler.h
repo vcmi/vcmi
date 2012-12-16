@@ -1,6 +1,5 @@
 #pragma once
 
-
 #include "../lib/ConstTransitivePtr.h"
 #include "GameConstants.h"
 
@@ -13,6 +12,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
 class CHeroClass;
 class CDefHandler;
 class CGameInfo;
@@ -46,23 +46,35 @@ public:
 		}
 	};
 
-	std::string name; //name of hero
 	si32 ID;
+	si32 imageIndex;
 
-	InitialArmyStack initialArmy[3];
+	std::vector<InitialArmyStack> initialArmy;
 
 	CHeroClass * heroClass;
 	std::vector<std::pair<ui8,ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	std::vector<SSpecialtyInfo> spec;
-	si32 startingSpell; //-1 if none
+	std::set<si32> spells;
 	ui8 sex; // default sex: 0=male, 1=female
 
-	CHero();
-	~CHero();
+	/// Localized texts
+	std::string name; //name of hero
+	std::string biography;
+	std::string specName;
+	std::string specDescr;
+	std::string specTooltip;
+
+	/// Graphics
+	std::string iconSpecSmall;
+	std::string iconSpecLarge;
+	std::string portraitSmall;
+	std::string portraitLarge;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & ID & initialArmy & heroClass & secSkillsInit & spec & startingSpell & sex;
+		h & ID & imageIndex & initialArmy & heroClass & secSkillsInit & spec & spells & sex;
+		h & name & biography & specName & specDescr & specTooltip;
+		h & iconSpecSmall & iconSpecLarge & portraitSmall & portraitLarge;
 	}
 };
 
@@ -83,9 +95,12 @@ public:
 
 	std::map<TFaction, int> selectionProbability; //probability of selection in towns
 
+	std::string imageBattleMale;
+	std::string imageBattleFemale;
+	std::string imageMapMale;
+	std::string imageMapFemale;
+
 	int chooseSecSkill(const std::set<int> & possibles) const; //picks secondary skill out from given possibilities
-	CHeroClass(); //c-tor
-	~CHeroClass(); //d-tor
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -93,6 +108,7 @@ public:
 		h & primarySkillInitial   & primarySkillLowLevel;
 		h & primarySkillHighLevel & secSkillProbability;
 		h & selectionProbability;
+		h & imageBattleMale & imageBattleFemale & imageMapMale & imageMapFemale;
 	}
 	EAlignment::EAlignment getAlignment() const;
 };
@@ -130,7 +146,7 @@ public:
 	void load(const JsonNode & classes);
 
 	/// load one class from json
-	CHeroClass * loadClass(const JsonNode & heroClass);
+	CHeroClass * loadClass(const JsonNode & node);
 
 	~CHeroClassHandler();
 
@@ -146,6 +162,8 @@ class DLL_LINKAGE CHeroHandler
 	/// consists of 201 values. Any higher levels require experience larger that ui64 can hold
 	std::vector<ui64> expPerLevel;
 
+	/// common function for loading heroes from mods and from H3
+	void loadHeroJson(CHero * hero, const JsonNode & node);
 public:
 	CHeroClassHandler classes;
 
@@ -177,12 +195,13 @@ public:
 	void load(const JsonNode & heroes);
 
 	/// Load single hero from json
-	CHero * loadHero(const JsonNode & hero);
+	CHero * loadHero(const JsonNode & node);
 
 	/// Load everything (calls functions below + classes.load())
 	void load();
 
 	void loadHeroes();
+	void loadHeroTexts();
 	void loadExperience();
 	void loadBallistics();
 	void loadTerrains();

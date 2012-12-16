@@ -239,10 +239,13 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	//loading hero animations
 	if(hero1) // attacking hero
 	{
-		int type = hero1->type->heroClass->id;
-		if ( type % 2 )   type--;
-		if ( hero1->sex ) type++;
-		attackingHero = new CBattleHero(graphics->battleHeroes[type], false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : NULL, this);
+		std::string battleImage;
+		if ( hero1->sex )
+			battleImage = hero1->type->heroClass->imageBattleFemale;
+		else
+			battleImage = hero1->type->heroClass->imageBattleMale;
+
+		attackingHero = new CBattleHero(battleImage, false, hero1->tempOwner, hero1->tempOwner == curInt->playerID ? hero1 : NULL, this);
 		attackingHero->pos = genRect(attackingHero->dh->ourImages[0].bitmap->h, attackingHero->dh->ourImages[0].bitmap->w, pos.x - 43, pos.y - 19);
 	}
 	else
@@ -251,10 +254,13 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	}
 	if(hero2) // defending hero
 	{
-		int type = hero2->type->heroClass->id;
-		if ( type % 2 )   type--;
-		if ( hero2->sex ) type++;
-		defendingHero = new CBattleHero(graphics->battleHeroes[type ], true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : NULL, this);
+		std::string battleImage;
+		if ( hero2->sex )
+			battleImage = hero1->type->heroClass->imageBattleFemale;
+		else
+			battleImage = hero1->type->heroClass->imageBattleMale;
+
+		defendingHero = new CBattleHero(battleImage, true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : NULL, this);
 		defendingHero->pos = genRect(defendingHero->dh->ourImages[0].bitmap->h, defendingHero->dh->ourImages[0].bitmap->w, pos.x + 693, pos.y - 19);
 	}
 	else
