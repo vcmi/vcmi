@@ -77,6 +77,7 @@ public:
 
 	std::string image;
 	std::string large; // big image for cutom artifacts, used in drag & drop
+	std::string advMapDef; //used for adventure map object
 	si32 iconIndex; //TODO: handle automatically
 
 	const std::string &Name() const; //getter
@@ -103,7 +104,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CBonusSystemNode&>(*this);
-		h & name & description & eventText & image & large & iconIndex &
+		h & name & description & eventText & image & large & advMapDef & iconIndex &
 			price & possibleSlots & constituents & constituentOf & aClass & id;
 	}
 

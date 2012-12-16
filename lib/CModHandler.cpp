@@ -165,6 +165,7 @@ void CModHandler::loadActiveMods()
 void CModHandler::reload()
 {
 	{
+		//recreate adventure map defs
 		assert(!VLC->dobjinfo->gobjs[Obj::MONSTER].empty()); //make sure that at least some def info was found
 
 		const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::MONSTER].begin()->second;
@@ -178,6 +179,23 @@ void CModHandler::reload()
 				info->name = crea->advMapDef;
 
 				VLC->dobjinfo->gobjs[Obj::MONSTER][crea->idNumber] = info;
+			}
+		}
+	}
+	{
+		assert(!VLC->dobjinfo->gobjs[Obj::ARTIFACT].empty());
+
+		const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::ARTIFACT].begin()->second;
+
+		BOOST_FOREACH(auto & art, VLC->arth->artifacts)
+		{
+			if (!vstd::contains(VLC->dobjinfo->gobjs[Obj::ARTIFACT], art->id)) // no obj info for this type
+			{
+				CGDefInfo * info = new CGDefInfo(*baseInfo);
+				info->subid = art->id;
+				info->name = art->advMapDef;
+
+				VLC->dobjinfo->gobjs[Obj::ARTIFACT][art->id] = info;
 			}
 		}
 	}

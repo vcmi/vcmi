@@ -171,6 +171,8 @@ CArtifact::CArtifact()
 	possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::COMMANDER];
+	constituents = NULL; //default pointer to zero
+	constituentOf = NULL;
 }
 
 CArtifact::~CArtifact()
@@ -333,7 +335,6 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 			continue;
 
 		// Fill in information about combined artifacts. Should perhaps be moved to a config file?
-		nart.constituentOf = NULL;
 		switch (nart.id)
 		{
 			case 129: // Angelic Alliance
@@ -399,7 +400,6 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 			// TODO: WoG combinationals
 
 			default:
-				nart.constituents = NULL;
 				break;
 		}
 
@@ -476,6 +476,7 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 	value = &graphics["large"];
 	if (!value->isNull())
 		art->large = value->String();
+	art->advMapDef = graphics["map"].String();
 
 	art->price = node["value"].Float();
 
