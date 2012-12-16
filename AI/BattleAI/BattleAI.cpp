@@ -604,7 +604,7 @@ SpellTypes spellType(const CSpell *spell)
 	default:
 		return OTHER;
 	}
-};
+}
 
 struct PossibleSpellcast
 {

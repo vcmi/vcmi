@@ -325,12 +325,12 @@ bool isCloser(const CGObjectInstance *lhs, const CGObjectInstance *rhs)
 		return ln->turns < rn->turns;
 
 	return (ln->moveRemains > rn->moveRemains);
-};
+}
 
 bool compareMovement(HeroPtr lhs, HeroPtr rhs)
 {
 	return lhs->movement > rhs->movement;
-};
+}
 
 ui64 evaluateDanger(const CGObjectInstance *obj);
 
