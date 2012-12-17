@@ -6,6 +6,7 @@
 #include "JsonNode.h"
 #include "StringConstants.h"
 #include "CModHandler.h"
+#include "CHeroHandler.h"
 #include "CArtHandler.h"
 #include "Filesystem/CResourceLoader.h"
 
@@ -435,7 +436,17 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 				town.creatures[i][j] = creature;
 			});
 		}
+	}
 
+	/// set chance of specific hero class to appear in this town
+	BOOST_FOREACH(auto &node, source["tavern"].Struct())
+	{
+		int chance = node.second.Float();
+
+		VLC->modh->identifiers.requestIdentifier(std::string("heroClass.") + node.first, [=, &town](si32 classID)
+		{
+			VLC->heroh->classes.heroClasses[classID]->selectionProbability[town.typeID] = chance;
+		});
 	}
 
 	loadBuildings(town, source["buildings"]);

@@ -12,6 +12,7 @@
 #include "../VCMI_Lib.h"
 #include "../CSpellHandler.h"
 #include "../CCreatureHandler.h"
+#include "../CHeroHandler.h"
 #include "../CObjectHandler.h"
 #include "../CDefObjInfoHandler.h"
 
@@ -268,17 +269,19 @@ void CMapLoaderH3M::readPlayerInfo()
 
 		// Factions this player can choose
 		ui16 allowedFactions = buffer[pos++];
-		if(mapHeader->version != EMapFormat::ROE)
-		{
-			allowedFactions += (buffer[pos++]) * 256;
-		}
+		// How many factions will be read from map
+		ui16 totalFactions = GameConstants::F_NUMBER;
 
-		mapHeader->players[i].allowedFactions.clear();
-		for(int fact = 0; fact < 16; ++fact)
+		if(mapHeader->version != EMapFormat::ROE)
+			allowedFactions += (buffer[pos++]) * 256;
+		else
+			totalFactions--; //exclude conflux for ROE
+
+		for(int fact = 0; fact < totalFactions; ++fact)
 		{
-			if(allowedFactions & (1 << fact))
+			if(!(allowedFactions & (1 << fact)))
 			{
-				mapHeader->players[i].allowedFactions.insert(fact);
+				mapHeader->players[i].allowedFactions.erase(fact);
 			}
 		}
 
@@ -475,7 +478,7 @@ void CMapLoaderH3M::readTeamInfo()
 void CMapLoaderH3M::readAllowedHeroes()
 {
 	int pom = pos;
-	mapHeader->allowedHeroes.resize(GameConstants::HEROES_QUANTITY, false);
+	mapHeader->allowedHeroes.resize(VLC->heroh->heroes.size(), true);
 	for(; pos < pom + (mapHeader->version == EMapFormat::ROE ? 16 : 20) ; ++pos)
 	{
 		ui8 c = buffer[pos];
@@ -483,9 +486,9 @@ void CMapLoaderH3M::readAllowedHeroes()
 		{
 			if((pos - pom) * 8 + yy < GameConstants::HEROES_QUANTITY)
 			{
-				if(c == (c | static_cast<ui8>(std::pow(2., yy))))
+				if(c != (c | static_cast<ui8>(std::pow(2., yy))))
 				{
-					mapHeader->allowedHeroes[(pos - pom) * 8 + yy] = true;
+					mapHeader->allowedHeroes[(pos - pom) * 8 + yy] = false;
 				}
 			}
 		}

@@ -276,9 +276,9 @@ public:
 	~OptionsTab();
 	void showAll(SDL_Surface * to);
 
-	int nextAllowedHero( int min, int max, int incl, int dir );
+	int nextAllowedHero(int player, int min, int max, int incl, int dir );
 
-	bool canUseThisHero( int ID );
+	bool canUseThisHero(int player, int ID );
 };
 
 /**

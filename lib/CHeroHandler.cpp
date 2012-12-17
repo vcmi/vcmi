@@ -217,7 +217,7 @@ void CHeroHandler::load(const JsonNode & input)
 			hero->ID = heroes.size();
 
 			heroes.push_back(hero);
-			tlog3 << "Added hero : " << entry.first << "\n";
+			tlog3 << "Added hero: " << entry.first << "\n";
 			VLC->modh->identifiers.registerObject("hero." + entry.first, hero->ID);
 		}
 	}
@@ -264,7 +264,8 @@ CHero * CHeroHandler::loadHero(const JsonNode & node)
 void CHeroHandler::loadHeroJson(CHero * hero, const JsonNode & node)
 {
 	// sex: 0=male, 1=female
-	hero->sex = !!node["female"].Bool();
+	hero->sex = node["female"].Bool();
+	hero->special = node["special"].Bool();
 
 	BOOST_FOREACH(const JsonNode &set, node["skills"].Vector())
 	{
@@ -418,7 +419,7 @@ void CHeroHandler::loadHeroTexts()
 		hero->specDescr   = parser.readString();
 		hero->biography   = bioParser.readString();
 	}
-	while (parser.endLine() && bioParser.endLine() && heroes.size() < i);
+	while (parser.endLine() && bioParser.endLine() && heroes.size() > i);
 }
 
 void CHeroHandler::loadBallistics()
@@ -482,12 +483,12 @@ std::vector<ui8> CHeroHandler::getDefaultAllowedHeroes() const
 {
 	// Look Data/HOTRAITS.txt for reference
 	std::vector<ui8> allowedHeroes;
-	allowedHeroes.resize(156, 1);
-	for(int i = 145; i < 156; ++i)
+	allowedHeroes.reserve(heroes.size());
+
+	BOOST_FOREACH(const CHero * hero, heroes)
 	{
-		allowedHeroes[i] = 0;
+		allowedHeroes.push_back(!hero->special);
 	}
-	allowedHeroes[4] = 0;
-	allowedHeroes[25] = 0;
+
 	return allowedHeroes;
 }

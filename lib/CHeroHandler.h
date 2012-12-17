@@ -56,6 +56,7 @@ public:
 	std::vector<SSpecialtyInfo> spec;
 	std::set<si32> spells;
 	ui8 sex; // default sex: 0=male, 1=female
+	ui8 special; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
 
 	/// Localized texts
 	std::string name; //name of hero

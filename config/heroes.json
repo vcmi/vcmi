@@ -66,6 +66,7 @@
 			"id": 4,
 			"class" : "knight",
 			"female": false,
+			"special" : true,
 			"skills":
 			[
 				{ "skill" : "leadership", "level": "basic" },
@@ -2103,6 +2104,7 @@
 			"id": 144,
 			"class" : "knight",
 			"female": false,
+			"special" : true,
 			"skills":
 			[
 				{ "skill" : "leadership", "level": "advanced" }
@@ -2116,6 +2118,7 @@
 			"id": 145,
 			"class" : "witch",
 			"female": true,
+			"special" : true,
 			"spellbook": [ 22 ],
 			"skills":
 			[
@@ -2130,6 +2133,7 @@
 			"id": 146,
 			"class" : "knight",
 			"female": true,
+			"special" : true,
 			"skills":
 			[
 				{ "skill" : "leadership", "level": "basic" },
@@ -2144,6 +2148,7 @@
 			"id": 147,
 			"class" : "wizard",
 			"female": false,
+			"special" : true,
 			"spellbook": [ 53 ],
 			"skills":
 			[
@@ -2159,6 +2164,7 @@
 			"id": 148,
 			"class" : "ranger",
 			"female": false,
+			"special" : true,
 			"skills":
 			[
 				{ "skill" : "archery", "level": "basic" },
@@ -2174,6 +2180,7 @@
 			"id": 149,
 			"class" : "barbarian",
 			"female": false,
+			"special" : true,
 			"skills":
 			[
 				{ "skill" : "offence", "level": "advanced" }
@@ -2189,6 +2196,7 @@
 			"id": 150,
 			"class" : "deathknight",
 			"female": false,
+			"special" : true,
 			"spellbook": [ 54 ],
 			"skills":
 			[
@@ -2205,6 +2213,7 @@
 			"id": 151,
 			"class" : "warlock",
 			"female": true,
+			"special" : true,
 			"spellbook": [ 15 ],
 			"skills":
 			[
@@ -2221,6 +2230,7 @@
 			"id": 152,
 			"class" : "knight",
 			"female": false,
+			"special" : true,
 			"skills":
 			[
 				{ "skill" : "leadership", "level": "basic" },
@@ -2235,6 +2245,7 @@
 			"id": 153,
 			"class" : "warlock",
 			"female": true,
+			"special" : true,
 			"spellbook": [ 15 ],
 			"skills":
 			[
@@ -2251,6 +2262,7 @@
 			"id": 154,
 			"class" : "barbarian",
 			"female": false,
+			"special" : true,
 			"skills":
 			[
 				{ "skill" : "tactics", "level": "basic" },
@@ -2265,6 +2277,7 @@
 			"id": 155,
 			"class" : "demoniac",
 			"female": false,
+			"special" : true,
 			"skills":
 			[
 				{ "skill" : "leadership", "level": "basic" },

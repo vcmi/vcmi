@@ -2298,16 +2298,16 @@ void OptionsTab::nextHero( int player, int dir )
 
 	if (s.hero == PlayerSettings::RANDOM) // first/last available
 	{
-		int max = (s.castle*GameConstants::HEROES_PER_TYPE*2+15),
-			min = (s.castle*GameConstants::HEROES_PER_TYPE*2);
-		s.hero = nextAllowedHero(min,max,0,dir);
+		int max = CGI->heroh->heroes.size(),
+			min = 0;
+		s.hero = nextAllowedHero(player, min,max,0,dir);
 	}
 	else
 	{
 		if(dir > 0)
-			s.hero = nextAllowedHero(s.hero,(s.castle*GameConstants::HEROES_PER_TYPE*2+16),1,dir);
+			s.hero = nextAllowedHero(player, s.hero, CGI->heroh->heroes.size(), 1, dir);
 		else
-			s.hero = nextAllowedHero(s.castle*GameConstants::HEROES_PER_TYPE*2-1,s.hero,1,dir);
+			s.hero = nextAllowedHero(player,  0, s.hero, 1, dir);
 	}
 
 	if(old != s.hero)
@@ -2320,28 +2320,29 @@ void OptionsTab::nextHero( int player, int dir )
 	SEL->propagateOptions();
 }
 
-int OptionsTab::nextAllowedHero( int min, int max, int incl, int dir )
+int OptionsTab::nextAllowedHero( int player, int min, int max, int incl, int dir )
 {
 	if(dir>0)
 	{
 		for(int i=min+incl; i<=max-incl; i++)
-			if(canUseThisHero(i))
+			if(canUseThisHero(player, i))
 				return i;
 	}
 	else
 	{
 		for(int i=max-incl; i>=min+incl; i--)
-			if(canUseThisHero(i))
+			if(canUseThisHero(player, i))
 				return i;
 	}
 	return -1;
 }
 
-bool OptionsTab::canUseThisHero( int ID )
+bool OptionsTab::canUseThisHero( int player, int ID )
 {
 	return CGI->heroh->heroes.size() > ID
-		&& !vstd::contains(usedHeroes, ID)
-		&& SEL->current->mapHeader->allowedHeroes[ID];
+	        && SEL->sInfo.playerInfos[player].castle == CGI->heroh->heroes[ID]->heroClass->faction
+	        && !vstd::contains(usedHeroes, ID)
+	        && SEL->current->mapHeader->allowedHeroes[ID];
 }
 
 void OptionsTab::nextBonus( int player, int dir )
