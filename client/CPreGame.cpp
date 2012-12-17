@@ -502,8 +502,8 @@ void CGPreGame::update()
 	GH.updateTime();
 	GH.handleEvents();
 
-	if (GH.curInt == NULL) // no redraw, when a new game was created
-		return;
+	//if (GH.curInt == NULL) // no redraw, when a new game was created
+		//return;
 
 	GH.topInt()->show(screen);
 
@@ -638,7 +638,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 				};
 			}
 
-			start  = new CAdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startGame, this), 411, 535, "SCNRBEG.DEF", SDLK_b);
+			start  = new CAdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startScenario, this), 411, 535, "SCNRBEG.DEF", SDLK_b);
 
 			if(network)
 			{
@@ -659,11 +659,11 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		break;
 	case CMenuScreen::loadGame:
 		sel->recActions = 255;
-		start  = new CAdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startGame, this), 411, 535, "SCNRLOD.DEF", SDLK_l);
+		start  = new CAdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startScenario, this), 411, 535, "SCNRLOD.DEF", SDLK_l);
 		break;
 	case CMenuScreen::saveGame:
 		sel->recActions = 255;
-		start  = new CAdventureMapButton("", CGI->generaltexth->zelp[103].second, bind(&CSelectionScreen::startGame, this), 411, 535, "SCNRSAV.DEF");
+		start  = new CAdventureMapButton("", CGI->generaltexth->zelp[103].second, bind(&CSelectionScreen::startScenario, this), 411, 535, "SCNRSAV.DEF");
 		break;
 	case CMenuScreen::campaignList:
 		sel->recActions = 255;
@@ -836,7 +836,7 @@ void CSelectionScreen::startCampaign()
 	}
 }
 
-void CSelectionScreen::startGame()
+void CSelectionScreen::startScenario()
 {
 	if(screenType == CMenuScreen::newGame)
 	{
@@ -880,7 +880,7 @@ void CSelectionScreen::startGame()
 
 		StartInfo * si = new StartInfo(sInfo);
 		CGP->removeFromGui();
-		::startGame(si);
+		CGP->showLoadingScreen(boost::bind(&startGame, si, (CConnection *)nullptr));
 	}
 	else
 	{
@@ -3564,11 +3564,19 @@ void CBonusSelection::startMap()
 	{
 		GH.popInts(1);
 	}
-	else
+	const CCampaignScenario & scenario = ourCampaign->camp->scenarios[ourCampaign->currentMap];
+
+	tlog1 << "Starting scenario " << int(ourCampaign->currentMap) << "\n";
+
+	if (scenario.prolog.hasPrologEpilog)
 	{
-		CGP->removeFromGui();
+		tlog1 << "Video: " << scenario.prolog.prologVideo <<"\n";
+		tlog1 << "Audio: " << scenario.prolog.prologMusic <<"\n";
+		tlog1 << "Text:  " << scenario.prolog.prologText <<"\n";
 	}
-	::startGame(si);
+	else
+		tlog1 << "Without prolog\n";
+	CGP->showLoadingScreen(boost::bind(&startGame, si, (CConnection *)nullptr));
 }
 
 void CBonusSelection::selectBonus( int id )
@@ -3582,7 +3590,6 @@ void CBonusSelection::selectBonus( int id )
 
 		updateStartButtonState(id);
 	}
-
 
 	const CCampaignScenario &scenario = ourCampaign->camp->scenarios[sInfo.campState->currentMap];
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
@@ -3902,9 +3909,7 @@ void StartWithCurrentSettings::apply(CSelectionScreen *selScreen)
 	vstd::clear_pointer(selScreen->serverHandlingThread); //detach us
 	saveGameName.clear();
 
-	CGP->removeFromGui();
-
-	::startGame(startingInfo.sInfo, startingInfo.serv);
+	CGP->showLoadingScreen(boost::bind(&startGame, startingInfo.sInfo, startingInfo.serv));
 	throw 666; //EVIL, EVIL, EVIL workaround to kill thread (does "goto catch" outside listening loop)
 }
 
@@ -3917,15 +3922,6 @@ CCampaignScreen::CCampaignButton::CCampaignButton(const JsonNode &config )
 
 	campFile = config["file"].String();
 	video = config["video"].String();
-
-//On linux we can only play *.mjpg videos from LOKI release
-#ifdef _WIN32
-	std::transform(video.begin(), video.end(), video.begin(), toupper);
-	video += ".BIK";
-#else
-	std::transform(video.begin(), video.end(), video.begin(), tolower);
-	video += ".mjpg";
-#endif
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
@@ -4030,3 +4026,31 @@ void CCampaignScreen::showAll(SDL_Surface *to)
 		CMessage::drawBorder(1, to, pos.w+28, pos.h+30, pos.x-14, pos.y-15);
 }
 
+void CGPreGame::showLoadingScreen(boost::function<void()> loader)
+{
+	if (GH.listInt.front() == CGP) //pregame active
+		CGP->removeFromGui();
+	GH.pushInt(new CLoadingScreen(loader));
+}
+
+std::string CLoadingScreen::getBackground()
+{
+	const JsonVector & conf = (*CGP->pregameConfig)["loading"].Vector();
+
+	if (conf.empty())
+		return "loadbar";
+	return conf[ rand() % conf.size() ].String();
+}
+
+CLoadingScreen::CLoadingScreen(boost::function<void ()> loader):
+    CWindowObject(BORDERED, getBackground()),
+    loadingThread(loader)
+{}
+
+void CLoadingScreen::showAll(SDL_Surface *to)
+{
+	Rect rect(0,0,to->w, to->h);
+	SDL_FillRect(to, &rect, 0);
+
+	CWindowObject::showAll(to);
+}

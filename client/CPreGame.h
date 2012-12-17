@@ -470,7 +470,7 @@ public:
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);
 	void startCampaign();
-	void startGame();
+	void startScenario();
 	void difficultyChange(int to);
 
 	void handleConnection();
@@ -683,6 +683,18 @@ public:
 
 	static CGPreGame * create();
 	void removeFromGui();
+	static void showLoadingScreen(boost::function<void()> loader);
+};
+
+class CLoadingScreen : public CWindowObject
+{
+	boost::thread loadingThread;
+
+	std::string getBackground();
+public:
+	CLoadingScreen(boost::function<void()> loader);
+
+	void showAll(SDL_Surface *to);
 };
 
 extern ISelectionScreenInfo *SEL;

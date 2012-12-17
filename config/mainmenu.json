@@ -1,6 +1,9 @@
 {
 	//images used in game selection screen
 	"game-select" : ["ZPIC1000", "ZPIC1001"],
+
+	"loading" : ["ZPIC106", "LoadBar"],
+
 	//Main menu window, consists of several sub-menus aka items
 	"window":
 	{

@@ -2420,8 +2420,9 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 void CPlayerInterface::playerStartsTurn(ui8 player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if(!GH.listInt.size())
+	if (GH.listInt.empty() || GH.listInt.front() != adventureInt)
 	{
+		GH.popInts(GH.listInt.size());
 		GH.pushInt(adventureInt);
 	}
 	if(howManyPeople == 1)
