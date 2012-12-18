@@ -377,7 +377,8 @@ public:
 
 	ui8 getSecSkillLevel(SecondarySkill skill) const; //0 - no skill
 	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
-
+	bool canLearnSkill() const; ///true if hero has free secondary skill slot
+	
 	int maxMovePoints(bool onLand) const;
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false) const; 
 

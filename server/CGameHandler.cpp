@@ -259,14 +259,14 @@ void CGameHandler::levelUpHero(int ID)
 		hlu.skills.push_back(s);
 		basicAndAdv.erase(s);
 	}
-	else if(none.size() && hero->secSkills.size() < GameConstants::SKILL_PER_HERO)
+	else if(none.size() && hero->canLearnSkill())
 	{
 		hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //give new skill
 		none.erase(hlu.skills.back());
 	}
 
 	//second offered skill
-	if(none.size() && hero->secSkills.size() < GameConstants::SKILL_PER_HERO) //hero have free skill slot
+	if(none.size() && hero->canLearnSkill()) //hero have free skill slot
 	{
 		hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //new skill
 	}
@@ -3005,7 +3005,7 @@ bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, int s
 	if (h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(skill)))
 		COMPLAIN_RET("Hero already know this skill");
 
-	if (h->secSkills.size() >= GameConstants::SKILL_PER_HERO)//can't learn more skills
+	if (!h->canLearnSkill())
 		COMPLAIN_RET("Hero can't learn any more skills");
 
 	if (h->type->heroClass->secSkillProbability[skill]==0)//can't learn this skill (like necromancy for most of non-necros)

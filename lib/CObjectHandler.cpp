@@ -642,6 +642,11 @@ void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 	}
 }
 
+bool CGHeroInstance::canLearnSkill() const
+{
+	return secSkills.size() < GameConstants::SKILL_PER_HERO;
+}
+
 int CGHeroInstance::maxMovePoints(bool onLand) const
 {
 	int base;
@@ -4764,7 +4769,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 		iw.text << std::pair<ui8,ui32>(11,172);
 		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
 	}
-	else if(h->secSkills.size() >= GameConstants::SKILL_PER_HERO) //already all skills slots used
+	else if(!h->canLearnSkill()) //already all skills slots used
 	{
 		iw.text << std::pair<ui8,ui32>(11,173);
 		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
@@ -5169,8 +5174,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		{
 			int curLev = h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(abilities[i]));
 
-			if( (curLev  &&  curLev < abilityLevels[i])
-				|| (h->secSkills.size() < GameConstants::SKILL_PER_HERO) )
+			if( (curLev  &&  curLev < abilityLevels[i])	|| (h->canLearnSkill() ))
 			{
 				cb->changeSecSkill(h->id,abilities[i],abilityLevels[i],true);
 			}
@@ -5525,7 +5529,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	//check if the bonus if applicable, if not - give primary skill (always possible)
 	int ssl = h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(bid)); //current sec skill level, used if bonusType == 1
 	if((type == 1
-			&& ((ssl == 3)  ||  (!ssl  &&  h->secSkills.size() == GameConstants::SKILL_PER_HERO))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
+			&& ((ssl == 3)  ||  (!ssl  &&  !h->canLearnSkill()))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
 		|| (type == 2  &&  (!h->getArt(17) || vstd::contains(h->spells, (ui32) bid)
 		|| (VLC->spellh->spells[bid]->level > h->getSecSkillLevel(CGHeroInstance::WISDOM) + 2)
 		))) //hero doesn't have a spellbook or already knows the spell or doesn't have Wisdom
