@@ -693,6 +693,7 @@ class CLoadingScreen : public CWindowObject
 	std::string getBackground();
 public:
 	CLoadingScreen(boost::function<void()> loader);
+	~CLoadingScreen();
 
 	void showAll(SDL_Surface *to);
 };

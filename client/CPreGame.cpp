@@ -4047,6 +4047,11 @@ CLoadingScreen::CLoadingScreen(boost::function<void ()> loader):
     loadingThread(loader)
 {}
 
+CLoadingScreen::~CLoadingScreen()
+{
+	loadingThread.join();
+}
+
 void CLoadingScreen::showAll(SDL_Surface *to)
 {
 	Rect rect(0,0,to->w, to->h);

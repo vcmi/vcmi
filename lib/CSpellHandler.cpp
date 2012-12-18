@@ -8,6 +8,7 @@
 #include <cctype>
 #include "GameConstants.h"
 #include "BattleHex.h"
+#include "CModHandler.h"
 
 /*
  * CSpellHandler.cpp, part of VCMI engine
@@ -281,18 +282,15 @@ CSpell * CSpellHandler::loadSpell(CLegacyConfigParser & parser)
 	spell->fire    = parser.readString() == "x";
 	spell->air     = parser.readString() == "x";
 
-	for (int i = 0; i < 4 ; i++)
-		spell->costs.push_back(parser.readNumber());
+	spell->costs = parser.readNumArray<si32>(4);
 
 	spell->power = parser.readNumber();
-	for (int i = 0; i < 4 ; i++)
-		spell->powers.push_back(parser.readNumber());
+	spell->powers = parser.readNumArray<si32>(4);
 
 	for (int i = 0; i < 9 ; i++)
-		spell->probabilities.push_back(parser.readNumber());
+		spell->probabilities[i] = parser.readNumber();
 
-	for (int i = 0; i < 4 ; i++)
-		spell->AIVals.push_back(parser.readNumber());
+	spell->AIVals = parser.readNumArray<si32>(4);
 
 	for (int i = 0; i < 4 ; i++)
 		spell->descriptions.push_back(parser.readString());
@@ -350,21 +348,25 @@ void CSpellHandler::loadSpells()
 	//loading of additional spell traits
 	const JsonNode config(ResourceID("config/spell_info.json"));
 
-	BOOST_FOREACH(const JsonNode &spell, config["spells"].Vector())
+	BOOST_FOREACH(auto &spell, config["spells"].Struct())
 	{
 		//reading exact info
-		int spellID = spell["id"].Float();
+		int spellID = spell.second["id"].Float();
 		CSpell *s = spells[spellID];
 
-		s->positiveness = spell["effect"].Float();
-		s->mainEffectAnim = spell["anim"].Float();
+		s->positiveness = spell.second["effect"].Float();
+		s->mainEffectAnim = spell.second["anim"].Float();
 
 		s->range.resize(4);
 		int idx = 0;
-		BOOST_FOREACH(const JsonNode &range, spell["ranges"].Vector())
+		BOOST_FOREACH(const JsonNode &range, spell.second["ranges"].Vector())
 			s->range[idx++] = range.String();
 
-		s->counteredSpells = spell["counters"].convertTo<std::vector<TSpell> >();
+		s->counteredSpells = spell.second["counters"].convertTo<std::vector<TSpell> >();
+
+		s->identifier = spell.first;
+		VLC->modh->identifiers.registerObject("spell." + spell.first, spellID);
+
 	}
 	//spell fixes
 

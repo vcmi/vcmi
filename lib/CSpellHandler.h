@@ -23,6 +23,7 @@ public:
 	enum ETargetType {NO_TARGET, CREATURE, CREATURE_EXPERT_MASSIVE, OBSTACLE};
 	enum ESpellPositiveness {NEGATIVE = -1, NEUTRAL = 0, POSITIVE = 1};
 	TSpell id;
+	std::string identifier;
 	std::string name;
 	std::string abbName; //abbreviated name
 	std::vector<std::string> descriptions; //descriptions of spell for skill levels: 0 - none, 1 - basic, etc
@@ -34,7 +35,7 @@ public:
 	si32 power; //spell's power
 	std::vector<si32> costs; //per skill level: 0 - none, 1 - basic, etc
 	std::vector<si32> powers; //[er skill level: 0 - none, 1 - basic, etc
-	std::vector<si32> probabilities; //% chance to gain for castles 
+	std::map<TFaction, si32> probabilities; //% chance to gain for castles
 	std::vector<si32> AIVals; //AI values: per skill level: 0 - none, 1 - basic, etc
 	std::string attributes; //reference only attributes
 	bool combatSpell; //is this spell combat (true) or adventure (false)
@@ -54,7 +55,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & name & abbName & descriptions & level & earth & water & fire & air & power & costs 
+		h & identifier & id & name & abbName & descriptions & level & earth & water & fire & air & power & costs
 			& powers & probabilities & AIVals & attributes & combatSpell & creatureAbility & positiveness & range & counteredSpells & mainEffectAnim;
 	}
 };

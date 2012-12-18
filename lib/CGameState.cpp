@@ -1418,7 +1418,11 @@ void CGameState::init(StartInfo * si)
 
 			for(ui32 ps=0;ps<vti->possibleSpells.size();ps++)
 				total += VLC->spellh->spells[vti->possibleSpells[ps]]->probabilities[vti->subID];
-			int r = (total)? ran()%total : -1;
+
+			if (total == 0) // remaining spells have 0 probability
+				break;
+
+			int r = ran()%total;
 			for(ui32 ps=0; ps<vti->possibleSpells.size();ps++)
 			{
 				r -= VLC->spellh->spells[vti->possibleSpells[ps]]->probabilities[vti->subID];
@@ -1435,6 +1439,7 @@ void CGameState::init(StartInfo * si)
 			vti->spells[s->level-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}
+		vti->possibleSpells.clear();
 		if(vti->getOwner() != 255)
 			getPlayer(vti->getOwner())->towns.push_back(vti);
 	}

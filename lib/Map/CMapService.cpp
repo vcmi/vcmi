@@ -2296,7 +2296,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 			{
 				if((pos - ist) * 8 + yy < GameConstants::SPELLS_QUANTITY)
 				{
-					if(c != (c | static_cast<ui8>(std::pow(2., yy))))
+					if(c == (c | static_cast<ui8>(std::pow(2., yy))))
 					{
 						nt->obligatorySpells.push_back((pos - ist) * 8 + yy);
 					}

@@ -8,6 +8,7 @@
 #include "CModHandler.h"
 #include "CHeroHandler.h"
 #include "CArtHandler.h"
+#include "CSpellHandler.h"
 #include "Filesystem/CResourceLoader.h"
 
 /*
@@ -443,9 +444,19 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 	{
 		int chance = node.second.Float();
 
-		VLC->modh->identifiers.requestIdentifier(std::string("heroClass.") + node.first, [=, &town](si32 classID)
+		VLC->modh->identifiers.requestIdentifier("heroClass." + node.first, [=, &town](si32 classID)
 		{
 			VLC->heroh->classes.heroClasses[classID]->selectionProbability[town.typeID] = chance;
+		});
+	}
+
+	BOOST_FOREACH(auto &node, source["guildSpells"].Struct())
+	{
+		int chance = node.second.Float();
+
+		VLC->modh->identifiers.requestIdentifier("spell." + node.first, [=, &town](si32 spellID)
+		{
+			VLC->spellh->spells[spellID]->probabilities[town.typeID] = chance;
 		});
 	}
 
