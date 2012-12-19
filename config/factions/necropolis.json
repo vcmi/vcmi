@@ -4,6 +4,7 @@
 		"index" : 4,
 		"nativeTerrain": "dirt",
 		"alignment" : "evil",
+		"commander" : "SoulEater1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASNEC",

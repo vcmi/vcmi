@@ -4,6 +4,7 @@
 		"index" : 6,
 		"nativeTerrain": "rough",
 		"alignment" : "neutral",
+		"commander" : "OgreLeader1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASSTR",

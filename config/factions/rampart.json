@@ -4,6 +4,7 @@
 		"index" : 1,
 		"nativeTerrain": "grass",
 		"alignment" : "good",
+		"commander" : "Hierophant1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASRAM",

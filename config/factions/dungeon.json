@@ -4,6 +4,7 @@
 		"index" : 5,
 		"nativeTerrain": "subterra",
 		"alignment" : "evil",
+		"commander" : "Brute1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASDUN",

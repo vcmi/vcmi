@@ -582,7 +582,7 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 			//if castle alignment available
 			if (auto info = dynamic_cast<CCreGenAsCastleInfo*>(dwl->info))
 			{
-				faction = ran()%GameConstants::F_NUMBER;
+				faction = ran() % VLC->townh->factions.size();
 				if (info->asCastle)
 				{
 					for(ui32 i=0;i<map->objects.size();i++)

@@ -9,6 +9,7 @@
 #include "CArtHandler.h"
 #include "CTownHandler.h"
 #include "CHeroHandler.h"
+#include "CObjectHandler.h"
 
 /*
  * CModHandler.h, part of VCMI engine
@@ -224,6 +225,21 @@ void CModHandler::reload()
 
 			VLC->dobjinfo->capitols[town.first] = new CGDefInfo(*townInfos[town.first]);
 			VLC->dobjinfo->capitols[town.first]->name = cientInfo.advMapCapitol;
+
+			for (int i = 0; i < town.second.dwellings.size(); ++i)
+			{
+				const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::CREATURE_GENERATOR1][i]; //get same blockmap as first dwelling of tier i
+
+				BOOST_FOREACH (auto cre, town.second.creatures[i]) //both unupgraded and upgraded get same dwelling
+				{
+					CGDefInfo * info = new CGDefInfo(*baseInfo);
+					info->subid = cre;
+					info->name = town.second.dwellings[i];
+					VLC->dobjinfo->gobjs[Obj::CREATURE_GENERATOR1][cre] = info;
+
+					VLC->objh->cregens[cre] = cre; //map of dwelling -> creature id
+				}
+			}
 		}
 	}
 }

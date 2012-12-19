@@ -139,7 +139,6 @@ public:
 	si8 expAfterUpgrade;//multiplier in %
 
 	//Commanders
-	std::map <TFaction, TCreature> factionCommanders;
 	BonusList commanderLevelPremy; //bonus values added with each level-up
 	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
 	std::vector <std::pair <Bonus, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
@@ -179,7 +178,7 @@ public:
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
 		h & notUsedMonsters & creatures;
 		h & stackBonuses & expRanks & maxExpPerBattle & expAfterUpgrade;
-		h & factionCommanders & skillLevels & skillRequirements & commanderLevelPremy;
+		h & skillLevels & skillRequirements & commanderLevelPremy;
 		h & allCreatures;
 		h & creaturesOfLevel;
 		BONUS_TREE_DESERIALIZATION_FIX

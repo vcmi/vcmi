@@ -762,7 +762,7 @@ void CGHeroInstance::initHero()
 
 	if (VLC->modh->modules.COMMANDERS)
 	{
-		commander = new CCommanderInstance (VLC->creh->factionCommanders[type->heroClass->faction]);
+		commander = new CCommanderInstance (VLC->townh->factions[type->heroClass->faction].commander);
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
 	}
 
@@ -1531,7 +1531,14 @@ void CGDwelling::initObj()
 
 			creatures.resize(1);
 			creatures[0].second.push_back(crid);
-			hoverName = VLC->generaltexth->creGens[subID];
+			if (subID >= VLC->generaltexth->creGens.size()) //very messy workaround
+			{
+				int faction = VLC->creh->creatures[subID]->faction;
+				assert (VLC->townh->towns[faction].dwellingNames.size());
+				hoverName = VLC->townh->towns[faction].dwellingNames[VLC->creh->creatures[subID]->level - 1];
+			}
+			else
+				hoverName = VLC->generaltexth->creGens[subID];
 			if(crs->level > 4)
 				putStack(0, new CStackInstance(crs, (crs->growth) * 3));
 			if (getOwner() != GameConstants::NEUTRAL_PLAYER)

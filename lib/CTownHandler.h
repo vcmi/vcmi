@@ -94,6 +94,9 @@ public:
 
 	bmap<int, ConstTransitivePtr<CBuilding> > buildings;
 
+	std::vector<std::string> dwellings; //defs for adventure map dwellings for new towns, [0] means tier 1 creatures etc.
+	std::vector<std::string> dwellingNames;
+
 	// should be removed at least from configs in favour of auto-detection
 	std::map<int,int> hordeLvl; //[0] - first horde building creature level; [1] - second horde building (-1 if not present)
 	ui32 mageLevel; //max available mage guild level
@@ -145,7 +148,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & names & typeID & creatures & buildings & hordeLvl & mageLevel
+		h & names & typeID & creatures & dwellings & dwellingNames & buildings & hordeLvl & mageLevel
 			& primaryRes & warMachine & clientInfo;
 	}
 };
@@ -172,6 +175,9 @@ public:
 
 	ui8 nativeTerrain;
 	ui8 alignment; // uses EAlignment enum
+
+	//std::string commanderClass;
+	TCreature commander;
 
 	std::string creatureBg120;
 	std::string creatureBg130;

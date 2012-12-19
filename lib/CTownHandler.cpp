@@ -392,6 +392,16 @@ void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 	town.clientInfo.advMapCastle  = source["adventureMap"]["castle"].String();
 	town.clientInfo.advMapCapitol = source["adventureMap"]["capitol"].String();
 
+	const JsonNode *value = &source["adventureMap"]["dwellings"];
+	if (!value->isNull())
+	{
+		BOOST_FOREACH (const JsonNode &d, value->Vector())
+		{
+			town.dwellings.push_back (d["graphics"].String());
+			town.dwellingNames.push_back (d["name"].String());
+		}
+	}
+
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);
 	loadSiegeScreen(town, source["siege"]);
@@ -505,6 +515,12 @@ void CTownHandler::load(const JsonNode &source)
 
 		faction.factionID = id;
 		faction.name = node.second["name"].String();
+
+		VLC->modh->identifiers.requestIdentifier ("creature." + node.second["commander"].String(),
+			[=](si32 commanderID)
+			{
+				factions[id].commander = commanderID;
+			}); //TODO: resolve string id
 
 		faction.creatureBg120 = node.second["creatureBackground"]["120px"].String();
 		faction.creatureBg130 = node.second["creatureBackground"]["130px"].String();

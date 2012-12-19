@@ -4,6 +4,7 @@
 		"index" : 0,
 		"nativeTerrain": "grass",
 		"alignment" : "good",
+		"commander" : "Paladin1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASCAS",

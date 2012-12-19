@@ -4,6 +4,7 @@
 		"index" : 7,
 		"nativeTerrain": "swamp",
 		"alignment" : "neutral",
+		"commander" : "Shaman1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASFOR",

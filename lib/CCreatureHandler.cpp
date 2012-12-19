@@ -502,10 +502,6 @@ void CCreatureHandler::loadCreatures()
 	tlog5 << "\t\tReading config/commanders.json" << std::endl;
 	const JsonNode config3(ResourceID("config/commanders.json"));
 
-	BOOST_FOREACH (auto creature, config3["factionCreatures"].Vector())
-	{
-		factionCommanders[creature["faction"].Float()] =  creature["id"].Float();
-	}
 	BOOST_FOREACH (auto bonus, config3["bonusPerLevel"].Vector())
 	{
 		commanderLevelPremy.push_back(JsonUtils::parseBonus (bonus.Vector()));
