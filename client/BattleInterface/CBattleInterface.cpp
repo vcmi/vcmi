@@ -2271,14 +2271,9 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 		SDL_Rect temp_rect = genRect(amountNormal->h, amountNormal->w, creAnims[ID]->pos.x + xAdd, creAnims[ID]->pos.y + yAdd);
 		SDL_BlitSurface(amountBG, NULL, to, &temp_rect);
 		//blitting amount
-		CSDL_Ext::printAtMiddle(
-			makeNumberShort(stack->count),
-			creAnims[ID]->pos.x + xAdd + 15,
-			creAnims[ID]->pos.y + yAdd + 5,
-			FONT_TINY,
-			Colors::WHITE,
-			to
-		);
+
+		Point textPos(creAnims[ID]->pos.x + xAdd + 15, creAnims[ID]->pos.y + yAdd + 5);
+		graphics->fonts[FONT_TINY]->renderTextCenter(to, makeNumberShort(stack->count), Colors::WHITE, textPos);
 	}
 }
 

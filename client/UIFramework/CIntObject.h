@@ -2,7 +2,7 @@
 
 #include <SDL_events.h>
 #include "Geometries.h"
-#include "../FontBase.h"
+#include "../Graphics.h"
 
 struct SDL_Surface;
 class CPicture;

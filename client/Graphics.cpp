@@ -124,7 +124,6 @@ Graphics::Graphics()
 
 	std::vector<Task> tasks; //preparing list of graphics to load
 	tasks += boost::bind(&Graphics::loadFonts,this);
-	tasks += boost::bind(&Graphics::loadTrueType,this);
 	tasks += boost::bind(&Graphics::loadPaletteAndColors,this);
 	tasks += boost::bind(&Graphics::loadHeroFlags,this);
 	tasks += boost::bind(&Graphics::initializeBattleGraphics,this);
@@ -386,38 +385,24 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
 	}
 }
 
-void Graphics::loadTrueType()
-{
-	for(int i = 0; i < FONTS_NUMBER; i++)
-		fontsTrueType[i] = NULL;
-}
-
-Font * Graphics::loadFont( const char * name )
-{
-	ui8 * hlp = CResourceHandler::get()->loadData(
-	                ResourceID(std::string("DATA/") + name, EResType::FONT)).first.release();
-	if(!hlp)
-	{
-		tlog1 << "Error: cannot load font: " << name << std::endl;
-		return NULL;
-	}
-
-	int magic =  SDL_SwapLE32(*(const Uint32*)hlp);
-	if(magic != 589598 && magic != 589599)
-		tlog1 << "Suspicious font file, fname " << name << "n";
-
-	Font *ret = new Font(hlp);
-	return ret;
-}
-
 void Graphics::loadFonts()
 {
-	static const char *fontnames [] = {"BIGFONT.FNT", "CALLI10R.FNT", "CREDITS.FNT", "HISCORE.FNT", "MEDFONT.FNT",
-								"SMALFONT.FNT", "TIMES08R.FNT", "TINY.FNT", "VERD10B.FNT"} ;
+	const JsonNode config(ResourceID("config/fonts.json"));
 
-	assert(ARRAY_COUNT(fontnames) == FONTS_NUMBER);
-	for(int i = 0; i < FONTS_NUMBER; i++)
-		fonts[i] = loadFont(fontnames[i]);
+	const JsonVector & bmpConf = config["bitmap"].Vector();
+	const JsonNode   & ttfConf = config["trueType"];
+
+	assert(bmpConf.size() == FONTS_NUMBER);
+
+	for (size_t i=0; i<FONTS_NUMBER; i++)
+	{
+		std::string filename = bmpConf[i].String();
+
+		if (ttfConf[filename].isNull()) // no ttf override
+			fonts[i] = new CBitmapFont(filename);
+		else
+			fonts[i] = new CTrueTypeFont(ttfConf[filename]);
+	}
 }
 
 CDefEssential * Graphics::getDef( const CGObjectInstance * obj )
@@ -447,60 +432,3 @@ void Graphics::loadErmuToPicture()
 	}
 	assert (etp_idx == 44);
 }
-
-Font::Font(ui8 *Data)
-{
-	data = Data;
-	int i = 0;
-
-	height = data[5];
-
-	i = 32;
-	for(int ci = 0; ci < 256; ci++)
-	{
-		chars[ci].leftOffset = read_le_u32(data + i); i+=4;
-		chars[ci].width = read_le_u32(data + i); i+=4;
-		chars[ci].rightOffset = read_le_u32(data + i); i+=4;
-
-		//if(ci>=30)
-		//	tlog0 << ci << ". (" << (char)ci << "). Width: " << chars[ci].width << " U1/U2:" << chars[ci].unknown1 << "/" << chars[ci].unknown2 << std::endl;
-	}
-	for(int ci = 0; ci < 256; ci++)
-	{
-		int offset =  read_le_u32(data + i); i+=4;
-		chars[ci].pixels = data + 4128 + offset;
-	}
-}
-
-Font::~Font()
-{
-	delete [] data;
-}
-
-int Font::getWidth(const char *text ) const
-{
-	int length = std::strlen(text);
-	int ret = 0;
-
-	for(int i = 0; i < length; i++)
-	{
-		ui8 c = text[i];
-		ret += chars[c].width + chars[c].leftOffset + chars[c].rightOffset;
-	}
-
-	return ret;
-}
-
-int Font::getCharWidth( char c ) const
-{
-	const Char &C = chars[(ui8)c];
-	return C.width + C.leftOffset + C.rightOffset;;
-}
-
-/*
-void Font::WriteAt(const char *text, SDL_Surface *sur, int x, int y )
-{
-	 SDL_Surface *SDL_CreateRGBSurfaceFrom(pixels, w, h, 8, int pitch,
-                        224, 28, 3, 0);
-}
-*/

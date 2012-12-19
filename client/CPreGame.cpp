@@ -1369,7 +1369,6 @@ void SelectionTab::printMaps(SDL_Surface *to)
 
 
 	SDL_Color itemColor;
-#define POS(xx, yy) pos.x + xx, pos.y + yy + line*25
 	for (int line = 0; line < positions  &&  elemIdx < curItems.size(); elemIdx++, line++)
 	{
 		CMapInfo *currentItem = curItems[elemIdx];
@@ -1384,7 +1383,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 			//amount of players
 			std::ostringstream ostr(std::ostringstream::out);
 			ostr << currentItem->playerAmnt << "/" << currentItem->humanPlayers;
-			CSDL_Ext::printAt(ostr.str(), POS(29, 120), FONT_SMALL, itemColor, to);
+			printAtLoc(ostr.str(), 29, 120 + line * 25, FONT_SMALL, itemColor, to);
 
 			//map size
 			std::string temp2 = "C";
@@ -1403,7 +1402,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 				temp2="XL";
 				break;
 			}
-			CSDL_Ext::printAtMiddle(temp2, POS(70, 128), FONT_SMALL, itemColor, to);
+			printAtMiddleLoc(temp2, 70, 128 + line * 25, FONT_SMALL, itemColor, to);
 
 			int temp=-1;
 			switch (currentItem->mapHeader->version)
@@ -1425,28 +1424,28 @@ void SelectionTab::printMaps(SDL_Surface *to)
 				tlog2 << "Warning: " << currentItem->fileURI << " has wrong version!\n";
 				continue;
 			}
-			blitAt(format->ourImages[temp].bitmap, POS(88, 117), to);
+			blitAtLoc(format->ourImages[temp].bitmap, 88, 117 + line * 25, to);
 
 			//victory conditions
 			if (currentItem->mapHeader->victoryCondition.condition == EVictoryConditionType::WINSTANDARD)
 				temp = 11;
 			else
 				temp = currentItem->mapHeader->victoryCondition.condition;
-			blitAt(CGP->victory->ourImages[temp].bitmap, POS(306, 117), to);
+			blitAtLoc(CGP->victory->ourImages[temp].bitmap, 306, 117 + line * 25, to);
 
 			//loss conditions
 			if (currentItem->mapHeader->lossCondition.typeOfLossCon == ELossConditionType::LOSSSTANDARD)
 				temp=3;
 			else
 				temp=currentItem->mapHeader->lossCondition.typeOfLossCon;
-			blitAt(CGP->loss->ourImages[temp].bitmap, POS(339, 117), to);
+			blitAtLoc(CGP->loss->ourImages[temp].bitmap, 339, 117 + line * 25, to);
 		}
 		else //if campaign
 		{
 			//number of maps in campaign
 			std::ostringstream ostr(std::ostringstream::out);
 			ostr << CGI->generaltexth->campaignRegionNames[ currentItem->campaignHeader->mapVersion ].size();
-			CSDL_Ext::printAt(ostr.str(), POS(29, 120), FONT_SMALL, itemColor, to);
+			printAtLoc(ostr.str(), 29, 120 + line * 25, FONT_SMALL, itemColor, to);
 		}
 
 		std::string name;
@@ -1467,10 +1466,8 @@ void SelectionTab::printMaps(SDL_Surface *to)
 		}
 
 		//print name
-		CSDL_Ext::printAtMiddle(CSDL_Ext::trimToFit(name, 185, FONT_SMALL), POS(213, 128), FONT_SMALL, itemColor, to);
-
+		printAtMiddleLoc(name, 213, 128 + line * 25, FONT_SMALL, itemColor, to);
 	}
-#undef POS
 }
 
 void SelectionTab::showAll(SDL_Surface * to)
@@ -1490,14 +1487,14 @@ void SelectionTab::showAll(SDL_Surface * to)
 		title = CGI->generaltexth->arraytxt[231];
 		break;
 	case CMenuScreen::campaignList:
-		title = "Select a Campaign"; //TODO: find where is the title
+		title = CGI->generaltexth->arraytxt[726];
 		break;
 	}
 
-	CSDL_Ext::printAtMiddle(title, pos.x+205, pos.y+28, FONT_MEDIUM, Colors::YELLOW, to); //Select a Scenario to Play
+	printAtMiddleLoc(title, 205, 28, FONT_MEDIUM, Colors::YELLOW, to); //Select a Scenario to Play
 	if(tabType != CMenuScreen::campaignList)
 	{
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[510], pos.x+87, pos.y+62, FONT_SMALL, Colors::YELLOW, to); //Map sizes
+		printAtMiddleLoc(CGI->generaltexth->allTexts[510], 87, 62, FONT_SMALL, Colors::YELLOW, to); //Map sizes
 	}
 }
 
@@ -1871,13 +1868,12 @@ CChatBox::CChatBox(const Rect &rect)
 	addUsedEvents(KEYBOARD);
 	captureAllKeys = true;
 
-	const int height = graphics->fonts[FONT_SMALL]->height;
+	const int height = graphics->fonts[FONT_SMALL]->getLineHeight();
 	inputBox = new CTextInput(Rect(0, rect.h - height, rect.w, height));
 	inputBox->removeUsedEvents(KEYBOARD);
 	chatHistory = new CTextBox("", Rect(0, 0, rect.w, rect.h - height), 1);
 
-	SDL_Color green = {0,252,0, SDL_ALPHA_OPAQUE};
-	chatHistory->color = green;
+	chatHistory->color = Colors::GREEN;
 }
 
 void CChatBox::keyPressed(const SDL_KeyboardEvent & key)
@@ -1989,7 +1985,7 @@ void InfoCard::showAll(SDL_Surface * to)
 			{
 				if(i->second.playerID != PlayerSettings::PLAYER_AI)
 				{
-					printAtLoc(i->second.name, 24, 285 + playerSoFar++ * graphics->fonts[FONT_SMALL]->height, FONT_SMALL, Colors::WHITE, to);
+					printAtLoc(i->second.name, 24, 285 + playerSoFar++ * graphics->fonts[FONT_SMALL]->getLineHeight(), FONT_SMALL, Colors::WHITE, to);
 					playerNames.erase(i->second.playerID);
 				}
 			}
@@ -1997,7 +1993,7 @@ void InfoCard::showAll(SDL_Surface * to)
 			playerSoFar = 0;
 			for (auto i = playerNames.cbegin(); i != playerNames.cend(); i++)
 			{
-				printAtLoc(i->second, 193, 285 + playerSoFar++ * graphics->fonts[FONT_SMALL]->height, FONT_SMALL, Colors::WHITE, to);
+				printAtLoc(i->second, 193, 285 + playerSoFar++ * graphics->fonts[FONT_SMALL]->getLineHeight(), FONT_SMALL, Colors::WHITE, to);
 			}
 
 		}
@@ -2064,8 +2060,8 @@ void InfoCard::showAll(SDL_Surface * to)
 				printToLoc((static_cast<const CMapInfo*>(SEL->current))->date,308,34, FONT_SMALL, Colors::WHITE, to);
 
 			//print flags
-			int fx = 34  + graphics->fonts[FONT_SMALL]->getWidth(CGI->generaltexth->allTexts[390].c_str());
-			int ex = 200 + graphics->fonts[FONT_SMALL]->getWidth(CGI->generaltexth->allTexts[391].c_str());
+			int fx = 34  + graphics->fonts[FONT_SMALL]->getStringWidth(CGI->generaltexth->allTexts[390]);
+			int ex = 200 + graphics->fonts[FONT_SMALL]->getStringWidth(CGI->generaltexth->allTexts[391]);
 
 			int myT;
 
@@ -2117,7 +2113,7 @@ void InfoCard::showAll(SDL_Surface * to)
 
 		//name
 		if (name.length())
-			printAtLoc(CSDL_Ext::trimToFit(name, 300, FONT_BIG), 26, 39, FONT_BIG, Colors::YELLOW, to);
+			printAtLoc(name, 26, 39, FONT_BIG, Colors::YELLOW, to);
 		else
 			printAtLoc("Unnamed", 26, 39, FONT_BIG, Colors::YELLOW, to);
 	}
@@ -2150,14 +2146,16 @@ void InfoCard::clickRight( tribool down, bool previousState )
 void InfoCard::showTeamsPopup()
 {
 	SDL_Surface *bmp = CMessage::drawDialogBox(256, 90 + 50 * SEL->current->mapHeader->howManyTeams);
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[657], 128, 30, FONT_MEDIUM, Colors::YELLOW, bmp); //{Team Alignments}
+
+	graphics->fonts[FONT_MEDIUM]->renderTextCenter(bmp, CGI->generaltexth->allTexts[657], Colors::YELLOW, Point(128, 30));
 
 	for(int i = 0; i < SEL->current->mapHeader->howManyTeams; i++)
 	{
 		std::vector<ui8> flags;
 		std::string hlp = CGI->generaltexth->allTexts[656]; //Team %d
 		hlp.replace(hlp.find("%d"), 2, boost::lexical_cast<std::string>(i+1));
-		CSDL_Ext::printAtMiddle(hlp, 128, 65 + 50*i, FONT_SMALL, Colors::WHITE, bmp);
+
+		graphics->fonts[FONT_SMALL]->renderTextCenter(bmp, hlp, Colors::WHITE, Point(128, 65 + 50 * i));
 
 		for(int j = 0; j < GameConstants::PLAYER_LIMIT; j++)
 			if((SEL->current->mapHeader->players[j].canHumanPlay || SEL->current->mapHeader->players[j].canComputerPlay)
@@ -2224,11 +2222,11 @@ void OptionsTab::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 	printAtMiddleLoc(CGI->generaltexth->allTexts[515], 222, 30, FONT_BIG, Colors::YELLOW, to);
-	printAtMiddleWBLoc(CGI->generaltexth->allTexts[516], 222, 58, FONT_SMALL, 55, Colors::WHITE, to); //Select starting options, handicap, and name for each player in the game.
-	printAtMiddleWBLoc(CGI->generaltexth->allTexts[517], 107, 102, FONT_SMALL, 14, Colors::YELLOW, to); //Player Name Handicap Type
-	printAtMiddleWBLoc(CGI->generaltexth->allTexts[518], 197, 102, FONT_SMALL, 10, Colors::YELLOW, to); //Starting Town
-	printAtMiddleWBLoc(CGI->generaltexth->allTexts[519], 273, 102, FONT_SMALL, 10, Colors::YELLOW, to); //Starting Hero
-	printAtMiddleWBLoc(CGI->generaltexth->allTexts[520], 349, 102, FONT_SMALL, 10, Colors::YELLOW, to); //Starting Bonus
+	printAtMiddleWBLoc(CGI->generaltexth->allTexts[516], 222, 68, FONT_SMALL, 300, Colors::WHITE, to); //Select starting options, handicap, and name for each player in the game.
+	printAtMiddleWBLoc(CGI->generaltexth->allTexts[517], 107, 110, FONT_SMALL, 100, Colors::YELLOW, to); //Player Name Handicap Type
+	printAtMiddleWBLoc(CGI->generaltexth->allTexts[518], 197, 110, FONT_SMALL, 70, Colors::YELLOW, to); //Starting Town
+	printAtMiddleWBLoc(CGI->generaltexth->allTexts[519], 273, 110, FONT_SMALL, 70, Colors::YELLOW, to); //Starting Hero
+	printAtMiddleWBLoc(CGI->generaltexth->allTexts[520], 349, 110, FONT_SMALL, 70, Colors::YELLOW, to); //Starting Bonus
 	printAtMiddleLoc(CGI->generaltexth->allTexts[521], 222, 538, FONT_SMALL, Colors::YELLOW, to); // Player Turn Duration
 	if (turnDuration)
 		printAtMiddleLoc(CGI->generaltexth->turnDurations[turnDuration->value], 319,559, FONT_SMALL, Colors::WHITE, to);//Turn duration value
@@ -2558,7 +2556,7 @@ void OptionsTab::PlayerOptionsEntry::showAll(SDL_Surface * to)
 {
 	CIntObject::showAll(to);
 	printAtMiddleLoc(s.name, 55, 10, FONT_SMALL, Colors::WHITE, to);
-	printAtMiddleWBLoc(CGI->generaltexth->arraytxt[206+whoCanPlay], 28, 34, FONT_TINY, 8, Colors::WHITE, to);
+	printAtMiddleWBLoc(CGI->generaltexth->arraytxt[206+whoCanPlay], 28, 39, FONT_TINY, 50, Colors::WHITE, to);
 }
 
 void OptionsTab::PlayerOptionsEntry::update()
@@ -3130,16 +3128,15 @@ void CBonusSelection::init()
 
 	//campaign name
 	if (ourCampaign->camp->header.name.length())
-		CSDL_Ext::printAt(ourCampaign->camp->header.name, 481, 28, FONT_BIG, Colors::YELLOW, background);
+		graphics->fonts[FONT_BIG]->renderTextLeft(background, ourCampaign->camp->header.name, Colors::YELLOW, Point(481, 28));
 	else
-		CSDL_Ext::printAt("Unnamed", 481, 28, FONT_BIG, Colors::YELLOW, background);
+		graphics->fonts[FONT_BIG]->renderTextLeft(background, CGI->generaltexth->allTexts[508], Colors::YELLOW, Point(481, 28));
 
 	//map size icon
 	sizes = CDefHandler::giveDef("SCNRMPSZ.DEF");
 
-
 	//campaign description
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[38], 481, 63, FONT_SMALL, Colors::YELLOW, background);
+	graphics->fonts[FONT_SMALL]->renderTextLeft(background, CGI->generaltexth->allTexts[38], Colors::YELLOW, Point(481, 63));
 
 	cmpgDesc = new CTextBox(ourCampaign->camp->header.description, Rect(480, 86, 286, 117), 1);
 	//cmpgDesc->showAll(background);
@@ -3148,7 +3145,7 @@ void CBonusSelection::init()
 	mapDesc = new CTextBox("", Rect(480, 280, 286, 117), 1);
 
 	//bonus choosing
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[71], 511, 432, FONT_MEDIUM, Colors::WHITE, background); //Choose a bonus:
+	graphics->fonts[FONT_MEDIUM]->renderTextLeft(background, CGI->generaltexth->allTexts[71], Colors::WHITE, Point(511, 432));
 	bonuses = new CHighlightableButtonsGroup(bind(&CBonusSelection::selectBonus, this, _1));
 
 	//set left part of window
@@ -3181,15 +3178,15 @@ void CBonusSelection::init()
 // 	}
 
 	//allies / enemies
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[390] + ":", 486, 407, FONT_SMALL, Colors::WHITE, background); //Allies
-	CSDL_Ext::printAt(CGI->generaltexth->allTexts[391] + ":", 619, 407, FONT_SMALL, Colors::WHITE, background); //Enemies
+	graphics->fonts[FONT_SMALL]->renderTextLeft(background, CGI->generaltexth->allTexts[390] + ":", Colors::WHITE, Point(486, 407));
+	graphics->fonts[FONT_SMALL]->renderTextLeft(background, CGI->generaltexth->allTexts[391] + ":", Colors::WHITE, Point(619, 407));
 
 	SDL_FreeSurface(panel);
 
 	//difficulty
 	std::vector<std::string> difficulty;
 	boost::split(difficulty, CGI->generaltexth->allTexts[492], boost::is_any_of(" "));
-	CSDL_Ext::printAt(difficulty.back(), 689, 432, FONT_MEDIUM, Colors::WHITE, background); //Difficulty
+	graphics->fonts[FONT_MEDIUM]->renderTextLeft(background, difficulty.back(), Colors::WHITE, Point(689, 432));
 
 	//difficulty pics
 	for (int b=0; b<ARRAY_COUNT(diffPics); ++b)
@@ -3350,8 +3347,8 @@ void CBonusSelection::show(SDL_Surface * to)
 	blitAtLoc(sizes->ourImages[temp].bitmap, 735, 26, to);
 
 	//flags
-	int fx = 496  + graphics->fonts[FONT_SMALL]->getWidth(CGI->generaltexth->allTexts[390].c_str());
-	int ex = 629 + graphics->fonts[FONT_SMALL]->getWidth(CGI->generaltexth->allTexts[391].c_str());
+	int fx = 496  + graphics->fonts[FONT_SMALL]->getStringWidth(CGI->generaltexth->allTexts[390]);
+	int ex = 629 + graphics->fonts[FONT_SMALL]->getStringWidth(CGI->generaltexth->allTexts[391]);
 	int myT;
 	myT = ourHeader->players[playerColor].team;
 	for (auto i = sInfo.playerInfos.cbegin(); i != sInfo.playerInfos.cend(); i++)
@@ -4045,7 +4042,9 @@ std::string CLoadingScreen::getBackground()
 CLoadingScreen::CLoadingScreen(boost::function<void ()> loader):
     CWindowObject(BORDERED, getBackground()),
     loadingThread(loader)
-{}
+{
+	CCS->musich->stopMusic(5000);
+}
 
 CLoadingScreen::~CLoadingScreen()
 {

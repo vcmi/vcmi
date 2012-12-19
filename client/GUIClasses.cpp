@@ -880,7 +880,7 @@ void CComponent::init(Etype Type, int Subtype, int Val, ESize imageSize)
 	std::vector<std::string> textLines = CMessage::breakText(getSubtitle(), std::max<int>(80, pos.w), font);
 	BOOST_FOREACH(auto & line, textLines)
 	{
-		int height = graphics->fonts[font]->height;
+		int height = graphics->fonts[font]->getLineHeight();
 		CLabel * label = new CLabel(pos.w/2, pos.h + height/2, font, CENTER, Colors::WHITE, line);
 
 		pos.h += height;
@@ -1748,24 +1748,22 @@ void CMinorResDataBar::show(SDL_Surface * to)
 void CMinorResDataBar::showAll(SDL_Surface * to)
 {
 	blitAt(bg,pos.x,pos.y,to);
-	char buf[30];
 	for (int i=0;i<7;i++)
 	{
-		SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
-		CSDL_Ext::printAtMiddle(buf,pos.x + 50 + 76*i,pos.y+pos.h/2,FONT_SMALL,Colors::WHITE,to);
+		std::string text = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(i));
+
+		graphics->fonts[FONT_SMALL]->renderTextCenter(to, text, Colors::WHITE, Point(pos.x + 50 + 76 * i, pos.y + pos.h/2));
 	}
 	std::vector<std::string> temp;
-	SDL_itoa(LOCPLINT->cb->getDate(3),buf,10); temp.push_back(std::string(buf));
-	SDL_itoa(LOCPLINT->cb->getDate(2),buf,10); temp.push_back(buf);
-	SDL_itoa(LOCPLINT->cb->getDate(1),buf,10); temp.push_back(buf);
-	CSDL_Ext::printAtMiddle(CSDL_Ext::processStr(
-		CGI->generaltexth->allTexts[62]
-	+": %s, "
-		+ CGI->generaltexth->allTexts[63]
-	+ ": %s, "
-		+	CGI->generaltexth->allTexts[64]
-	+ ": %s",temp)
-		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,FONT_SMALL,Colors::WHITE,to);
+
+	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(3)));
+	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(2)));
+	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(1)));
+
+	std::string datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63]
+	                        + ": %s, " + CGI->generaltexth->allTexts[64] + ": %s";
+
+	graphics->fonts[FONT_SMALL]->renderTextCenter(to, processStr(datetext,temp), Colors::WHITE, Point(pos.x+545+(pos.w-545)/2,pos.y+pos.h/2));
 }
 
 CMinorResDataBar::CMinorResDataBar()
@@ -3663,7 +3661,7 @@ void CTavernWindow::show(SDL_Surface * to)
 			boost::algorithm::replace_first(recruit->hoverTexts[0],"%s",sel->h->type->heroClass->name);
 		}
 
-		printAtMiddleWB(sel->descr,pos.x+146,pos.y+389,FONT_SMALL,40,Colors::WHITE,to);
+		printAtMiddleWBLoc(sel->descr, 146, 389, FONT_SMALL, 200, Colors::WHITE, to);
 		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
 	}
 }
@@ -3728,13 +3726,14 @@ void CInGameConsole::show(SDL_Surface * to)
 	boost::unique_lock<boost::mutex> lock(texts_mx);
 	for(std::list< std::pair< std::string, int > >::iterator it = texts.begin(); it != texts.end(); ++it, ++number)
 	{
-		SDL_Color green = {0,0xff,0,0};
 		Point leftBottomCorner(0, screen->h);
 		if(LOCPLINT->battleInt)
 		{
 			leftBottomCorner = LOCPLINT->battleInt->pos.bottomLeft();
 		}
-		CSDL_Ext::printAt(it->first, leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number*20, FONT_MEDIUM, green);
+		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, it->first, Colors::GREEN,
+		    Point(leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number*20));
+
 		if(SDL_GetTicks() - it->second > defaultTimeout)
 		{
 			toDel.push_back(it);

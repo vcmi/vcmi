@@ -23,6 +23,7 @@
 #include "../../lib/CTownHandler.h"
 #include "../CBitmapHandler.h"
 #include "../CCreatureWindow.h"
+#include "../CMessage.h"
 
 CBattleConsole::~CBattleConsole()
 {
@@ -31,24 +32,27 @@ CBattleConsole::~CBattleConsole()
 
 void CBattleConsole::showAll(SDL_Surface * to)
 {
+	Point textPos(pos.x + pos.w/2, pos.y + 11);
+
 	if(ingcAlter.size())
 	{
-		CSDL_Ext::printAtMiddleWB(ingcAlter, pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, Colors::WHITE, to);
+		graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(ingcAlter, pos.w, FONT_SMALL), Colors::WHITE, textPos);
 	}
 	else if(alterTxt.size())
 	{
-		CSDL_Ext::printAtMiddleWB(alterTxt, pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, Colors::WHITE, to);
+		graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(alterTxt, pos.w, FONT_SMALL), Colors::WHITE, textPos);
 	}
 	else if(texts.size())
 	{
 		if(texts.size()==1)
 		{
-			CSDL_Ext::printAtMiddleWB(texts[0], pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, Colors::WHITE, to);
+			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(texts[0], pos.w, FONT_SMALL), Colors::WHITE, textPos);
 		}
 		else
 		{
-			CSDL_Ext::printAtMiddleWB(texts[lastShown-1], pos.x + pos.w/2, pos.y + 11, FONT_SMALL, 80, Colors::WHITE, to);
-			CSDL_Ext::printAtMiddleWB(texts[lastShown], pos.x + pos.w/2, pos.y + 27, FONT_SMALL, 80, Colors::WHITE, to);
+			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(texts[lastShown - 1], pos.w, FONT_SMALL), Colors::WHITE, textPos);
+			textPos.y += 16;
+			graphics->fonts[FONT_SMALL]->renderTextLinesCenter(to, CMessage::breakText(texts[lastShown], pos.w, FONT_SMALL), Colors::WHITE, textPos);
 		}
 	}
 }

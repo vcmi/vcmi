@@ -363,6 +363,8 @@ void CCreatureHandler::loadCreatures()
 			}
 		}
 
+		c->nameRef = creature["name"].Vector().at(0).String();
+
 		/* A creature can have several names. */
 		BOOST_FOREACH(const JsonNode &name, creature["name"].Vector())
 		{

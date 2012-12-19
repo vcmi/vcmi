@@ -2,6 +2,7 @@
 #include "CIntObject.h"
 #include "CGuiHandler.h"
 #include "SDL_Extensions.h"
+#include "CMessage.h"
 
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),
@@ -129,17 +130,17 @@ CIntObject::~CIntObject()
 
 void CIntObject::printAtLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::WHITE*/, SDL_Surface * dst/*=screen*/ )
 {
-	CSDL_Ext::printAt(text, pos.x + x, pos.y + y, font, kolor, dst);
+	graphics->fonts[font]->renderTextLeft(dst, text, kolor, Point(pos.x + x, pos.y + y));
 }
 
 void CIntObject::printAtMiddleLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=Colors::WHITE*/, SDL_Surface * dst/*=screen*/ )
 {
-	CSDL_Ext::printAtMiddle(text, pos.x + x, pos.y + y, font, kolor, dst);
+	printAtMiddleLoc(text, Point(x,y), font, kolor, dst);
 }
 
 void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst)
 {
-	printAtMiddleLoc(text, p.x, p.y, font, kolor, dst);
+	graphics->fonts[font]->renderTextCenter(dst, text, kolor, pos.topLeft() + p);
 }
 
 void CIntObject::blitAtLoc( SDL_Surface * src, int x, int y, SDL_Surface * dst )
@@ -154,12 +155,12 @@ void CIntObject::blitAtLoc(SDL_Surface * src, const Point &p, SDL_Surface * dst)
 
 void CIntObject::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
-	CSDL_Ext::printAtMiddleWB(text, pos.x + x, pos.y + y, font, charpr, kolor, dst);
+	graphics->fonts[font]->renderTextLinesCenter(dst, CMessage::breakText(text, charpr, font), kolor, Point(pos.x + x, pos.y + y));
 }
 
 void CIntObject::printToLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst )
 {
-	CSDL_Ext::printTo(text, pos.x + x, pos.y + y, font, kolor, dst);
+	graphics->fonts[font]->renderTextRight(dst, text, kolor, Point(pos.x + x, pos.y + y));
 }
 
 void CIntObject::addUsedEvents(ui16 newActions)

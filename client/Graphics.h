@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include "FontBase.h"
+#include "UIFramework/Fonts.h"
 #include "../lib/GameConstants.h"
 #include "UIFramework/Geometries.h"
 
@@ -27,7 +27,10 @@ struct InfoAboutTown;
 class CGObjectInstance;
 class CGDefInfo;
 
-typedef struct _TTF_Font TTF_Font; //from SDL_ttf.h
+enum EFonts
+{
+	FONT_BIG, FONT_CALLI, FONT_CREDITS, FONT_HIGH_SCORE, FONT_MEDIUM, FONT_SMALL, FONT_TIMES, FONT_TINY, FONT_VERD
+};
 
 /// Handles fonts, hero images, town images, various graphics
 class Graphics
@@ -35,9 +38,8 @@ class Graphics
 public:
 	//Fonts
 	static const int FONTS_NUMBER = 9;
-	Font *fonts[FONTS_NUMBER];
-	TTF_Font * fontsTrueType[FONTS_NUMBER];//true type fonts, if some of the fonts not loaded - NULL
-
+	IFont * fonts[FONTS_NUMBER];
+	\
 	//various graphics
 	SDL_Color * playerColors; //array [8]
 	SDL_Color * neutralColor;
@@ -77,9 +79,7 @@ public:
 	CDefEssential *  loadHeroAnim(const std::string &name, const std::vector<std::pair<int,int> > &rotations);
 	void loadErmuToPicture();
 	void blueToPlayersAdv(SDL_Surface * sur, int player); //replaces blue interface colour with a color of player
-	void loadTrueType();
 	void loadFonts();
-	Font *loadFont(const char * name);
 };
 
 extern Graphics * graphics;

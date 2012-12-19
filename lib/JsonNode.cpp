@@ -7,7 +7,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
- 
+
 #include "StdInc.h"
 #include "JsonNode.h"
 
@@ -460,10 +460,11 @@ bool JsonParser::extractString(std::string &str)
 		if (input[pos] == '\\') // Escaping
 		{
 			str.append( &input[first], pos-first);
-			first = pos++;
+			pos++;
 			if (pos == input.size())
 				break;
 			extractEscaping(str);
+			first = pos + 1;
 		}
 		if (input[pos] == '\n') // end-of-line
 		{

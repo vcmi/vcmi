@@ -339,28 +339,9 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	printAtMiddleLoc(CGI->generaltexth->jktexts[4], 262, 99, FONT_SMALL, Colors::YELLOW, to);
 	 
 	//dismiss / quest log
-	std::vector<std::string> toPrin = CMessage::breakText(CGI->generaltexth->jktexts[8]);
-	if(toPrin.size()==1)
-	{
-	 	printAtLoc(toPrin[0], 372, 439, FONT_SMALL, Colors::WHITE, to);
-	}
-	else
-	{
-	 	printAtLoc(toPrin[0], 372, 430, FONT_SMALL, Colors::WHITE, to);
-	 	printAtLoc(toPrin[1], 372, 446, FONT_SMALL, Colors::WHITE, to);
-	}
-	 
-	toPrin = CMessage::breakText(CGI->generaltexth->jktexts[9]);
-	if(toPrin.size()==1)
-	{
-	 	printAtLoc(toPrin[0], 512, 439, FONT_SMALL, Colors::WHITE, to);
-	}
-	else
-	{
-	 	printAtLoc(toPrin[0], 512, 430, FONT_SMALL, Colors::WHITE, to);
-	 	printAtLoc(toPrin[1], 512, 446, FONT_SMALL, Colors::WHITE, to);
-	}
-	 
+	printAtMiddleWBLoc(CGI->generaltexth->jktexts[8], 388, 455, FONT_SMALL, 50, Colors::WHITE, to);
+	printAtMiddleWBLoc(CGI->generaltexth->jktexts[9], 534, 455, FONT_SMALL, 50, Colors::WHITE, to);
+
 	//printing primary skills' amounts
 	for(int m=0; m<4; ++m)
 	{

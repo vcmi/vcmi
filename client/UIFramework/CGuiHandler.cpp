@@ -424,7 +424,7 @@ void CGuiHandler::drawFPSCounter()
 	Uint32 black = SDL_MapRGB(screen->format, 10, 10, 10);
 	SDL_FillRect(screen, &overlay, black);
 	std::string fps = boost::lexical_cast<std::string>(mainFPSmng->fps);
-	CSDL_Ext::printAt(fps, 10, 10, FONT_BIG, yellow, screen);
+	graphics->fonts[FONT_BIG]->renderTextLeft(screen, fps, yellow, Point(10, 10));
 }
 
 SDLKey CGuiHandler::arrowToNum( SDLKey key )

@@ -1,0 +1,37 @@
+{
+	// Original HoMM 3 bitmap fonts
+	// Stored in H3Bitmap.lod with fnt extension
+	// Warning: Do not change number of entries in this list
+	"bitmap" :
+	[
+		"BIGFONT",  // Mostly used for window titles
+		"CALLI10R", // Unused in VCMI
+		"CREDITS",  // Used for credits menu
+		"HISCORE",  // Unused in VCMI
+		"MEDFONT",  // Some titles
+		"SMALFONT", // Most of the messages
+		"TIMES08R", // Used to display amounts on creature card 
+		"TINY",     // Some text
+		"VERD10B"   // Unused in VCMI
+	],
+	
+	// True type replacements
+	// Should be in format:
+	// <replaced bitmap font name, case-sensetive> : <true type font description>
+	// "file" - file to load font from, must be in data/ directory
+	// "size" - point size of font
+	// "style" - italic and\or bold, indicates font style
+	// "blend" - if set to true, font will be antialiased
+	"trueType":
+	{
+		//"BIGFONT"  : { "file" : "TimesNewRoman.ttf", "size" : 20, "style" : ["bold"], "blend" : true},
+		//"CALLI10R" : { "file" : "Georgia.ttf",       "size" : 10},
+		//"CREDITS"  : { "file" : "TimesNewRoman.ttf", "size" : 13, "blend" : true},
+		//"HISCORE"  : { "file" : "Georgia.ttf",       "size" : 13},
+		//"MEDFONT"  : { "file" : "TimesNewRoman.ttf", "size" : 16, "blend" : true},
+		//"SMALFONT" : { "file" : "Georgia.ttf",       "size" : 13},
+		//"TIMES08R" : { "file" : "TimesNewRoman.ttf", "size" :  8, "blend" : true},
+		//"TINY"     : { "file" : "Georgia.ttf",       "size" : 10},
+		//"VERD10B"  : { "file" : "Georgia.ttf",       "size" : 13}
+	}
+}

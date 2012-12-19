@@ -14,6 +14,7 @@ set(client_SRCS
         UIFramework/CGuiHandler.cpp
         UIFramework/CIntObject.cpp
         UIFramework/CIntObjectClasses.cpp
+        UIFramework/Fonts.cpp
         UIFramework/Geometries.cpp
         UIFramework/CCursorHandler.cpp
         UIFramework/SDL_Extensions.cpp

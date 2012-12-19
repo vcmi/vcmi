@@ -1390,7 +1390,7 @@ void CShowableAnim::rotate(bool on, bool vertical)
 }
 
 CCreatureAnim::CCreatureAnim(int x, int y, std::string name, Rect picPos, ui8 flags, EAnimType type):
-	CShowableAnim(x,y,name,flags,3,type)
+	CShowableAnim(x,y,name,flags,4,type)
 {
 	xOffset = picPos.x;
 	yOffset = picPos.y;

@@ -3,7 +3,7 @@
 #include <SDL_video.h>
 #include <SDL_ttf.h>
 #include "../../lib/int3.h"
-#include "../FontBase.h"
+#include "../Graphics.h"
 #include "Geometries.h"
 
 /*
@@ -51,6 +51,9 @@ public:
 
 	/** the metallic gold color used mostly as a border around buttons */
 	static const SDL_Color METALLIC_GOLD;
+
+	/** green color used for in-game console */
+	static const SDL_Color GREEN;
 };
 
 //MSVC gives an error when calling abs with ui64 -> we add template that will match calls with unsigned arg and return it
@@ -169,12 +172,6 @@ namespace CSDL_Ext
 	int blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	Uint32 colorToUint32(const SDL_Color * color); //little endian only
 
-	void printAtWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor=Colors::WHITE, SDL_Surface * dst=screen);
-	void printAt(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=Colors::WHITE, SDL_Surface * dst=screen);
-	void printTo(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=Colors::WHITE, SDL_Surface * dst=screen);
-	void printAtMiddle(const std::string & text, int x, int y, EFonts font, SDL_Color kolor=Colors::WHITE, SDL_Surface * dst=screen);
-	void printAtMiddleWB(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor=Colors::YELLOW, SDL_Surface * dst=screen);
-
 	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color);
 	void drawBorder(SDL_Surface * sur, const SDL_Rect &r, const int3 &color);
@@ -196,6 +193,4 @@ namespace CSDL_Ext
 	template<int bpp>
 	void applyEffectBpp( SDL_Surface * surf, const SDL_Rect * rect, int mode );
 	void applyEffect(SDL_Surface * surf, const SDL_Rect * rect, int mode); //mode: 0 - sepia, 1 - grayscale
-
-	std::string trimToFit(std::string text, int widthLimit, EFonts font);
 }

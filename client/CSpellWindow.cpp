@@ -321,7 +321,7 @@ void CSpellWindow::showAll(SDL_Surface * to)
 
 	std::ostringstream mana;
 	mana<<myHero->mana;
-	CSDL_Ext::printAtMiddle(mana.str(), pos.x+435, pos.y +426, FONT_SMALL, Colors::YELLOW, to);
+	printAtMiddleLoc(mana.str(), 435, 426, FONT_SMALL, Colors::YELLOW, to);
 	
 	statusBar->showAll(to);
 
@@ -800,12 +800,8 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 			boost::algorithm::replace_first(dmgInfo, "%d", boost::lexical_cast<std::string>(causedDmg));
 		}
 
-		SDL_Surface *spellBox = CMessage::drawBoxTextBitmapSub(
-			owner->myInt->playerID,
-			CGI->spellh->spells[mySpell]->descriptions[schoolLevel] + dmgInfo, this->owner->spells->ourImages[mySpell].bitmap,
-			CGI->spellh->spells[mySpell]->name,30,30);
-		CInfoPopup *vinya = new CInfoPopup(spellBox, true);
-		GH.pushInt(vinya);
+		CRClickPopup::createAndPush(CGI->spellh->spells[mySpell]->descriptions[schoolLevel] + dmgInfo,
+		                            new CComponent(CComponent::spell, mySpell));
 	}
 }
 
@@ -850,13 +846,13 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 		secondLineColor = Colors::WHITE;
 	}
 	//printing spell's name
-	CSDL_Ext::printAtMiddle(spell->name, pos.x + 39, pos.y + 70, FONT_TINY, firstLineColor, to);
+	printAtMiddleLoc(spell->name, 39, 70, FONT_TINY, firstLineColor, to);
 	//printing lvl
-	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[171 + spell->level], pos.x + 39, pos.y + 82, FONT_TINY, secondLineColor, to);
+	printAtMiddleLoc(CGI->generaltexth->allTexts[171 + spell->level], 39, 82, FONT_TINY, secondLineColor, to);
 	//printing  cost
 	std::ostringstream ss;
 	ss << CGI->generaltexth->allTexts[387] << ": " << spellCost;
-	CSDL_Ext::printAtMiddle(ss.str(), pos.x + 39, pos.y + 94, FONT_TINY, secondLineColor, to);
+	printAtMiddleLoc(ss.str(), 39, 94, FONT_TINY, secondLineColor, to);
 }
 
 void CSpellWindow::SpellArea::setSpell(int spellID)

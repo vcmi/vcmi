@@ -562,8 +562,9 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 
 void CCreatureWindow::show(SDL_Surface * to)
 {
-	if (count.size()) //army stack
-		printTo(count, pos.x + 114, pos.y + 174,FONT_TIMES, Colors::WHITE, to);
+	CIntObject::show(to);
+	if (!count.empty()) //army stack
+		graphics->fonts[FONT_TIMES]->renderTextRight(to, count, Colors::WHITE, Point(pos.x + 114, pos.y + 174));
 }
 
 
@@ -710,8 +711,8 @@ void CBonusItem::showAll (SDL_Surface * to)
 {
 	if (visible)
 	{
-		printAt(name, pos.x + 72, pos.y + 6, FONT_SMALL, Colors::YELLOW, to);
-		printAt(description, pos.x + 72, pos.y + 30, FONT_SMALL, Colors::WHITE, to);
+		graphics->fonts[FONT_SMALL]->renderTextLeft(to, name, Colors::YELLOW, Point(pos.x + 72, pos.y + 6));
+		graphics->fonts[FONT_SMALL]->renderTextLeft(to, name, Colors::WHITE,  Point(pos.x + 72, pos.y + 30));
 		if (bonusGraphics && bonusGraphics->bg)
 			blitAtLoc(bonusGraphics->bg, 12, 2, to);
 	}

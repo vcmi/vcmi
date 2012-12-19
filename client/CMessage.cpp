@@ -58,8 +58,8 @@ struct ComponentsToBlit
 	std::vector< std::vector<ComponentResolved*> > comps;
 	int w, h;
 
-	void blitCompsOnSur(SDL_Surface * _or, int inter, int &curh, SDL_Surface *ret);
-	ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, SDL_Surface* _or); //c-tor
+	void blitCompsOnSur(bool blitOr, int inter, int &curh, SDL_Surface *ret);
+	ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, bool blitOr); //c-tor
 	~ComponentsToBlit(); //d-tor
 };
 
@@ -131,9 +131,7 @@ SDL_Surface * CMessage::drawDialogBox(int w, int h, int playerColor)
 	return ret;
 }
 
-/* The map file contains long texts, with or without line breaks. This
- * method takes such a text and breaks it into into several lines. */
-std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSize/*=30*/, const boost::function<int(char)> &charMetric /*= 0*/, bool allowLeadingWhitespace /*= false*/ )
+std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSize, EFonts font )
 {
 	std::vector<std::string> ret;
 
@@ -153,11 +151,8 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 				opened=true;
 			else if (text[z]=='}')
 				opened=false;
-			else if(charMetric)
-				lineLength += charMetric(text[z]);
 			else
-				lineLength++;
-
+				lineLength += graphics->fonts[font]->getSymbolWidth(text[z]);
 			z++;
 		}
 
@@ -176,8 +171,8 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 			if (pos > 0)
 				z = pos+1;
 		}
-		
-		if(z) //non-blank line 
+
+		if(z) //non-blank line
 		{
 			ret.push_back(text.substr(0, z));
 
@@ -187,7 +182,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 
 			text.erase(0, z);
 		}
-		else if(text[z] == 0x0a) //blank line 
+		else if(text[z] == 0x0a) //blank line
 		{
 			ret.push_back(""); //add empty string, no extra actions needed
 		}
@@ -204,8 +199,9 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 			lineManuallyBroken = true;
 		}
 
-		if(!allowLeadingWhitespace || !lineManuallyBroken)
-			boost::algorithm::trim_left_if(text,boost::algorithm::is_any_of(std::string(" "))); 
+		//if(!allowLeadingWhitespace || !lineManuallyBroken)
+		if(!lineManuallyBroken)
+			boost::algorithm::trim_left_if(text,boost::algorithm::is_any_of(std::string(" ")));
 
 		if (opened)
 		{
@@ -216,164 +212,18 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 	}
 
 	/* Trim whitespaces of every line. */
-	if(!allowLeadingWhitespace)
+	//if(!allowLeadingWhitespace)
 		for (size_t i=0; i<ret.size(); i++)
 			boost::algorithm::trim(ret[i]);
 
 	return ret;
 }
 
-std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineWidth, EFonts font )
-{
-	return breakText(text, maxLineWidth, boost::bind(&Font::getCharWidth, graphics->fonts[font], _1), true);
-}
-
-std::pair<int,int> CMessage::getMaxSizes(std::vector<std::vector<SDL_Surface*> > * txtg, int fontHeight)
-{
-	std::pair<int,int> ret;
-	ret.first = -1;
-	ret.second=0;
-	for (size_t i=0; i<txtg->size();i++) //we are searching widest line and total height
-	{
-		int lw=0;
-		for (size_t j=0;j<(*txtg)[i].size();j++)
-		{
-			lw+=(*txtg)[i][j]->w;
-			ret.second+=(*txtg)[i][j]->h;
-		}
-		if(!(*txtg)[i].size())
-			ret.second+=fontHeight;
-		if (ret.first<lw)
-			ret.first=lw;
-	}
-	return ret;
-}
-
-// Blit the text in txtg onto one surface. txtg contains lines of
-// text. Each line can be split into pieces. Currently only lines with
-// the same height are supported (ie. fontHeight).
-SDL_Surface * CMessage::blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * txtg, int fontHeight, int & curh, SDL_Surface * ret, int xCenterPos)
-{
-	for (size_t i=0; i<txtg->size(); i++, curh += fontHeight)
-	{
-		int lw=0; //line width
-		for (size_t j=0;j<(*txtg)[i].size();j++)
-			lw+=(*txtg)[i][j]->w; 
-
-		int pw = (xCenterPos < 0)  ?  ret->w/2  :  xCenterPos; 
-		pw -= lw/2; //x coord for the start of the text
-
-		int tw = pw;
-		for (size_t j=0;j<(*txtg)[i].size();j++) //blit text
-		{
-			SDL_Surface *surf = (*txtg)[i][j];
-			blitAt(surf, tw, curh, ret);
-			tw+=surf->w;
-			SDL_FreeSurface(surf);
-			(*txtg)[i][j] = NULL;
-		}
-	}
-
-	return ret;
-}
-
-SDL_Surface * FNT_RenderText (EFonts font, std::string text, SDL_Color kolor= Colors::WHITE)
-{
-	if (graphics->fontsTrueType[font])
-		return TTF_RenderText_Blended(graphics->fontsTrueType[font], text.c_str(), kolor);
-	const Font *f = graphics->fonts[font];
-	int w = f->getWidth(text.c_str()),
-	    h = f->height;
-	SDL_Surface * ret = CSDL_Ext::newSurface(w, h, screen);
-	CSDL_Ext::fillRect (ret, NULL, SDL_MapRGB(ret->format,128,128,128));//if use default black - no shadowing
-	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,128,128,128));
-	CSDL_Ext::printAt(text.c_str(), 0, 0, font, kolor, ret);
-	return ret;
-}
-
-std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::string> * brtext, int &fontHeigh, EFonts font)
-{
-	std::vector<std::vector<SDL_Surface*> > * txtg = new std::vector<std::vector<SDL_Surface*> >();
-	txtg->resize(brtext->size());
-	if (graphics->fontsTrueType[font])
-		fontHeigh = TTF_FontHeight(graphics->fontsTrueType[font]);
-	else
-		fontHeigh = graphics->fonts[font]->height;
-
-	for (size_t i=0; i<brtext->size();i++) //foreach line
-	{
-		while((*brtext)[i].length()) //if something left
-		{
-			size_t z;
-
-			/* Handle normal text. */
-			z = 0;
-			while(z < (*brtext)[i].length() && (*brtext)[i][z] != ('{'))
-				z++;
-
-			if (z)
-				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), Colors::WHITE));
-			(*brtext)[i].erase(0,z);
-
-			if ((*brtext)[i].length() && (*brtext)[i][0] == '{')
-				/* Remove '{' */
-				(*brtext)[i].erase(0,1);
-
-			if ((*brtext)[i].length()==0)
-				/* End of line */
-				continue;
-
-			/* This text will be highlighted. */
-			z = 0;
-			while(z < (*brtext)[i].length() && (*brtext)[i][z] != ('}'))
-				z++;
-
-			if (z)
-				(*txtg)[i].push_back(FNT_RenderText(font, (*brtext)[i].substr(0,z), Colors::YELLOW));
-			(*brtext)[i].erase(0,z);
-
-			if ((*brtext)[i].length() && (*brtext)[i][0] == '}')
-				/* Remove '}' */
-				(*brtext)[i].erase(0,1);
-
-		} //ends while((*brtext)[i].length())
-	} //ends for(int i=0; i<brtext->size();i++)
-	return txtg;
-}
-
-SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_Surface* bitmap, std::string sub, int charperline/*=30*/, int imgToBmp/*=55*/ )
-{
-	int curh;
-	int fontHeight;
-	std::vector<std::string> tekst = breakText(text,charperline);
-	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(&tekst, fontHeight);
-	std::pair<int,int> txts = getMaxSizes(txtg, fontHeight), boxs;
-	boxs.first = std::max(txts.first,bitmap->w) // text/bitmap max width
-		+ 50; //side margins
-	boxs.second =
-		(curh=45) //top margin
-		+ txts.second //text total height
-		+ imgToBmp //text <=> img
-		+ bitmap->h
-		+ 5 // to sibtitle
-		+ (*txtg)[0][0]->h
-		+ 30;
-	SDL_Surface *ret = drawDialogBox(boxs.first,boxs.second,player);
-	blitTextOnSur(txtg,fontHeight,curh,ret);
-	curh += imgToBmp;
-	blitAt(bitmap,(ret->w/2)-(bitmap->w/2),curh,ret);
-	curh += bitmap->h + 5;
-	CSDL_Ext::printAtMiddle(sub,ret->w/2,curh+10,FONT_SMALL,Colors::WHITE,ret);
-	delete txtg;
-	return ret;
-}
-
 void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 {
-	SDL_Surface * _or = NULL;
-
+	bool blitOr = false;
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
-		_or = FNT_RenderText(FONT_MEDIUM,CGI->generaltexth->allTexts[4],Colors::WHITE);
+		blitOr = true;
 
 	const int sizes[][2] = {{400, 125}, {500, 150}, {600, 200}, {480, 400}};
 
@@ -392,7 +242,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 
 	std::pair<int,int> winSize(ret->text->pos.w, ret->text->pos.h); //start with text size
 
-	ComponentsToBlit comps(ret->components,500,_or);
+	ComponentsToBlit comps(ret->components,500, blitOr);
 	if (ret->components.size())
 		winSize.second += 10 + comps.h; //space to first component
 
@@ -436,7 +286,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 	if (ret->components.size())
 	{
 		curh += BEFORE_COMPONENTS;
-		comps.blitCompsOnSur (_or, BETWEEN_COMPS, curh, ret->bitmap);
+		comps.blitCompsOnSur (blitOr, BETWEEN_COMPS, curh, ret->bitmap);
 	}
 	if(ret->buttons.size())
 	{
@@ -452,9 +302,6 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 	}
 	for(size_t i=0; i<ret->components.size(); i++)
 		ret->components[i]->moveBy(Point(ret->pos.x, ret->pos.y));
-
-	if(_or)
-		SDL_FreeSurface(_or);
 }
 
 void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int x, int y)
@@ -562,8 +409,10 @@ ComponentsToBlit::~ComponentsToBlit()
 
 }
 
-ComponentsToBlit::ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, SDL_Surface* _or)
+ComponentsToBlit::ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, bool blitOr)
 {
+	int orWidth = graphics->fonts[FONT_MEDIUM]->getStringWidth(CGI->generaltexth->allTexts[4]);
+
 	w = h = 0;
 	if(SComps.empty())
 		return;
@@ -576,7 +425,7 @@ ComponentsToBlit::ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, 
 	{
 		ComponentResolved *cur = new ComponentResolved(SComps[i]);
 
-		int toadd = (cur->pos.w + BETWEEN_COMPS + (_or ? _or->w : 0));
+		int toadd = (cur->pos.w + BETWEEN_COMPS + (blitOr ? orWidth : 0));
 		if (curw + toadd > maxw)
 		{
 			curr++;
@@ -603,8 +452,10 @@ ComponentsToBlit::ComponentsToBlit(std::vector<CComponent*> & SComps, int maxw, 
 	}
 }
 
-void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, SDL_Surface *ret )
+void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Surface *ret )
 {
+	int orWidth = graphics->fonts[FONT_MEDIUM]->getStringWidth(CGI->generaltexth->allTexts[4]);
+
 	for (size_t i=0;i<comps.size();i++)//for each row
 	{
 		int totalw=0, maxHeight=0;
@@ -616,8 +467,8 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 		}
 
 		//add space between comps in this row
-		if(_or)
-			totalw += (inter*2+_or->w) * ((comps)[i].size() - 1);
+		if(blitOr)
+			totalw += (inter*2+orWidth) * ((comps)[i].size() - 1);
 		else
 			totalw += (inter) * ((comps)[i].size() - 1);
 
@@ -636,11 +487,14 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 			//if there is subsequent component blit "or"
 			if(j<((comps)[i].size()-1))
 			{
-				if(_or)
+				if(blitOr)
 				{
 					curw+=inter;
-					blitAt(_or,curw,middleh-(_or->h/2),ret);
-					curw+=_or->w;
+
+					graphics->fonts[FONT_MEDIUM]->renderTextLeft(ret, CGI->generaltexth->allTexts[4], Colors::WHITE,
+					        Point(curw,middleh-(graphics->fonts[FONT_MEDIUM]->getLineHeight()/2)));
+
+					curw+=orWidth;
 				}
 				curw+=inter;
 			}

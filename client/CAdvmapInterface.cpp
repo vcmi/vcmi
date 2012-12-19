@@ -335,20 +335,19 @@ CResDataBar::~CResDataBar()
 void CResDataBar::draw(SDL_Surface * to)
 {
 	blitAt(bg,pos.x,pos.y,to);
-	char * buf = new char[15];
 	for (int i=0;i<7;i++)
 	{
-		SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
-		printAt(buf,txtpos[i].first,txtpos[i].second,FONT_SMALL,Colors::WHITE,to);
+		std::string text = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(i));
+
+		graphics->fonts[FONT_SMALL]->renderTextLeft(to, text, Colors::WHITE, Point(txtpos[i].first,txtpos[i].second));
 	}
 	std::vector<std::string> temp;
-	SDL_itoa(LOCPLINT->cb->getDate(3),buf,10); temp+=std::string(buf);
-	SDL_itoa(LOCPLINT->cb->getDate(2),buf,10); temp+=std::string(buf);
-	SDL_itoa(LOCPLINT->cb->getDate(1),buf,10); temp+=std::string(buf);
-	printAt(processStr(datetext,temp),txtpos[7].first,txtpos[7].second,FONT_SMALL,Colors::WHITE,to);
-	temp.clear();
-	//updateRect(&pos,screen);
-	delete[] buf;
+
+	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(3)));
+	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(2)));
+	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(1)));
+
+	graphics->fonts[FONT_SMALL]->renderTextLeft(to, processStr(datetext,temp), Colors::WHITE, Point(txtpos[7].first,txtpos[7].second));
 }
 
 void CResDataBar::show(SDL_Surface * to)
