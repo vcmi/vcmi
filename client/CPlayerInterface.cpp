@@ -1579,10 +1579,14 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 	using namespace boost::filesystem;
 	using namespace boost::algorithm;
 
+	path gamesDir = GVCMIDirs.UserPath + "/Games";
 	std::map<std::time_t, int> dates; //save number => datestamp
 
 	directory_iterator enddir;
-	for (directory_iterator dir(GVCMIDirs.UserPath + "/Games"); dir!=enddir; dir++)
+	if(!exists(gamesDir))
+		create_directory(gamesDir);
+
+	for (directory_iterator dir(gamesDir); dir!=enddir; dir++)
 	{
 		if(is_regular(dir->status()))
 		{

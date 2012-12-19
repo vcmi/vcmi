@@ -2,7 +2,7 @@
 #include "CIntObject.h"
 #include "CGuiHandler.h"
 #include "SDL_Extensions.h"
-#include "CMessage.h"
+#include "../CMessage.h"
 
 CIntObject::CIntObject(int used_, Point pos_):
 	parent_m(nullptr),

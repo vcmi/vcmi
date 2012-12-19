@@ -801,13 +801,14 @@ void CSelectionScreen::changeSelection(const CMapInfo * to)
 
 		if(screenType == CMenuScreen::newGame)
 		{
-			sInfo.createRandomMap = to->isRandomMap;
-			if(to->isRandomMap)
+			if(to && to->isRandomMap)
 			{
+				sInfo.createRandomMap = true;
 				sInfo.mapGenOptions = std::shared_ptr<CMapGenOptions>(new CMapGenOptions(randMapTab->getMapGenOptions()));
 			}
 			else
 			{
+				sInfo.createRandomMap = false;
 				sInfo.mapGenOptions.reset();
 			}
 		}
@@ -4025,7 +4026,7 @@ void CCampaignScreen::showAll(SDL_Surface *to)
 
 void CGPreGame::showLoadingScreen(boost::function<void()> loader)
 {
-	if (GH.listInt.front() == CGP) //pregame active
+	if (GH.listInt.size() && GH.listInt.front() == CGP) //pregame active
 		CGP->removeFromGui();
 	GH.pushInt(new CLoadingScreen(loader));
 }
