@@ -89,6 +89,7 @@
 		<Unit filename="config/factions/stronghold.json" />
 		<Unit filename="config/factions/tower.json" />
 		<Unit filename="config/filesystem.json" />
+		<Unit filename="config/fonts.json" />
 		<Unit filename="config/gameConfig.json" />
 		<Unit filename="config/heroClasses.json" />
 		<Unit filename="config/heroes.json" />

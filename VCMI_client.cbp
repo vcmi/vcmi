@@ -116,7 +116,6 @@
 		<Unit filename="client/CVideoHandler.h" />
 		<Unit filename="client/Client.cpp" />
 		<Unit filename="client/Client.h" />
-		<Unit filename="client/FontBase.h" />
 		<Unit filename="client/FunctionList.h" />
 		<Unit filename="client/GUIClasses.cpp" />
 		<Unit filename="client/GUIClasses.h" />
@@ -135,6 +134,8 @@
 		<Unit filename="client/UIFramework/CIntObject.h" />
 		<Unit filename="client/UIFramework/CIntObjectClasses.cpp" />
 		<Unit filename="client/UIFramework/CIntObjectClasses.h" />
+		<Unit filename="client/UIFramework/Fonts.cpp" />
+		<Unit filename="client/UIFramework/Fonts.h" />
 		<Unit filename="client/UIFramework/Geometries.cpp" />
 		<Unit filename="client/UIFramework/Geometries.h" />
 		<Unit filename="client/UIFramework/SDL_Extensions.cpp" />
