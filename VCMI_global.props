@@ -4,12 +4,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <_PropertySheetDisplayName>VCMI_global</_PropertySheetDisplayName>
-    <LibraryPath>D:\Programme\Boost\boost_1_48_0\stage\lib;$(SolutionDir)..\libs\$(PlatformShortName);$(LibraryPath)</LibraryPath>
-    <IncludePath>D:\Programme\Boost\boost_1_48_0;$(SolutionDir)..\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(SolutionDir)..\libs\$(PlatformShortName);$(VCMI_Out);$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)..\include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup>
+    <Link />
     <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

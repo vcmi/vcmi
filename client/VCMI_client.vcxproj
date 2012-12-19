@@ -27,53 +27,56 @@
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\VCMI_global_release.props" />
     <Import Project="..\VCMI_global.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\VCMI_global_release.props" />
     <Import Project="..\VCMI_global.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\VCMI_global_debug.props" />
     <Import Project="..\VCMI_global.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\VCMI_global_debug.props" />
     <Import Project="..\VCMI_global.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <_ProjectFileVersion>10.0.30319.1</_ProjectFileVersion>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)_VC9\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(SolutionDir)</OutDir>
+    <_ProjectFileVersion>10.0.30128.1</_ProjectFileVersion>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(VCMI_Out)</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(VCMI_Out)</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(SolutionDir)$(Configuration)\</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(Configuration)_VC9\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">..\..\RD</OutDir>
-    <IntDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(Configuration)_VC9\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(Configuration)\</IntDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">G:\Programowanie\VCMI\RD</OutDir>
-    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|x64'">$(SolutionDir)$(Configuration)\bin\</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(VCMI_Out)</OutDir>
+    <OutDir Condition="'$(Configuration)|$(Platform)'=='RD|x64'">$(VCMI_Out)</OutDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">$(Configuration)\</IntDir>
     <IntDir Condition="'$(Configuration)|$(Platform)'=='RD|x64'">$(Configuration)\</IntDir>
     <CodeAnalysisRuleSet Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">AllRules.ruleset</CodeAnalysisRuleSet>
@@ -88,38 +91,21 @@
     <CodeAnalysisRules Condition="'$(Configuration)|$(Platform)'=='RD|x64'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='RD|Win32'" />
     <CodeAnalysisRuleAssemblies Condition="'$(Configuration)|$(Platform)'=='RD|x64'" />
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(LibraryPath)</LibraryPath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">C:\C++\boost_1_42_0;$(IncludePath)</IncludePath>
-    <IncludePath Condition="'$(Configuration)|$(Platform)'=='RD|x64'">C:\C++\boost_1_42_0;$(IncludePath)</IncludePath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">C:\C++\boost_1_42_0\stage\lib;$(LibraryPath)</LibraryPath>
-    <LibraryPath Condition="'$(Configuration)|$(Platform)'=='RD|x64'">C:\C++\boost_1_42_0\stage\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <AdditionalOptions>/MP4 %(AdditionalOptions)</AdditionalOptions>
-      <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>E:\Programowanie\Biblioteki\boost_1_45_0\stage\lib;..\..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessToFile>false</PreprocessToFile>
-      <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
-      <MinimalRebuild>false</MinimalRebuild>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <Optimization>
+      </Optimization>
       <DisableSpecificWarnings>4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <AssemblerOutput>NoListing</AssemblerOutput>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <AdditionalDependencies>SDL.lib;zlib.lib;SDL_image.lib;SDL_ttf.lib;SDL_mixer.lib;VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
-      <AdditionalLibraryDirectories>G:\Programowanie\VCMI\AI;../..;../../libs;../;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences>false</OptimizeReferences>
-      <TargetMachine>MachineX86</TargetMachine>
       <Profile>true</Profile>
     </Link>
     <Manifest>
@@ -129,15 +115,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <AdditionalOptions>/MP4 %(AdditionalOptions)</AdditionalOptions>
-      <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessToFile>false</PreprocessToFile>
       <PreprocessSuppressLineNumbers>false</PreprocessSuppressLineNumbers>
-      <MinimalRebuild>false</MinimalRebuild>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <WarningLevel>Level1</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <DisableSpecificWarnings>4251;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <AssemblerOutput>NoListing</AssemblerOutput>
       <PrecompiledHeader>Use</PrecompiledHeader>
@@ -146,8 +125,6 @@
     <Link>
       <AdditionalDependencies>SDL.lib;zlib.lib;SDL_image.lib;SDL_ttf.lib;SDL_mixer.lib;VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>LinkVerbose</ShowProgress>
-      <AdditionalLibraryDirectories>$(OutDir);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
       <OptimizeReferences>false</OptimizeReferences>
       <Profile>true</Profile>
     </Link>
@@ -157,75 +134,28 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
     <ClCompile>
-      <AdditionalOptions>/Oy- %(AdditionalOptions)</AdditionalOptions>
-      <Optimization>Full</Optimization>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OmitFramePointers>false</OmitFramePointers>
-      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>F:\Programowanie\VCMI\include;..\..\include;F:\Programowanie\VCMI\vcmi\client;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <StringPooling>true</StringPooling>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <AssemblerOutput>All</AssemblerOutput>
-      <AssemblerListingLocation>$(SolutionDir)$(Configuration)\</AssemblerListingLocation>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL.lib;zdll.lib;SDL_image.lib;SDL_ttf.lib;SDL_mixer.lib;VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>G:\Programowanie\VCMI\libs;G:\Programowanie\VCMI\RD;../;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <GenerateMapFile>true</GenerateMapFile>
+      <AdditionalDependencies>SDL.lib;zlib.lib;SDL_image.lib;SDL_ttf.lib;SDL_mixer.lib;VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Driver>NotSet</Driver>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
-      <TargetMachine>MachineX86</TargetMachine>
-      <Profile>true</Profile>
       <ShowProgress>NotSet</ShowProgress>
-      <OutputFile>$(OutDir)$(TargetName)$(TargetExt)</OutputFile>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">
     <ClCompile>
       <AdditionalOptions>/Oy- %(AdditionalOptions)</AdditionalOptions>
-      <Optimization>Full</Optimization>
-      <IntrinsicFunctions>true</IntrinsicFunctions>
-      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <OmitFramePointers>false</OmitFramePointers>
-      <EnableFiberSafeOptimizations>true</EnableFiberSafeOptimizations>
-      <WholeProgramOptimization>true</WholeProgramOptimization>
-      <AdditionalIncludeDirectories>F:\Programowanie\VCMI\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <StringPooling>true</StringPooling>
-      <BasicRuntimeChecks>Default</BasicRuntimeChecks>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <FunctionLevelLinking>false</FunctionLevelLinking>
-      <EnableEnhancedInstructionSet>NotSet</EnableEnhancedInstructionSet>
-      <AssemblerOutput>All</AssemblerOutput>
-      <AssemblerListingLocation>$(SolutionDir)$(Configuration)\</AssemblerListingLocation>
-      <WarningLevel>Level3</WarningLevel>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>SDL.lib;zdll.lib;SDL_image.lib;SDL_ttf.lib;SDL_mixer.lib;VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>F:\Programowanie\VCMI\libs;../../RD;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <GenerateMapFile>true</GenerateMapFile>
+      <AdditionalDependencies>SDL.lib;zlib.lib;SDL_image.lib;SDL_ttf.lib;SDL_mixer.lib;VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <Driver>NotSet</Driver>
-      <OptimizeReferences>true</OptimizeReferences>
-      <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <LinkTimeCodeGeneration>
       </LinkTimeCodeGeneration>
-      <Profile>true</Profile>
       <ShowProgress>NotSet</ShowProgress>
     </Link>
   </ItemDefinitionGroup>
@@ -269,6 +199,7 @@
     <ClCompile Include="UIFramework\CGuiHandler.cpp" />
     <ClCompile Include="UIFramework\CIntObject.cpp" />
     <ClCompile Include="UIFramework\CIntObjectClasses.cpp" />
+    <ClCompile Include="UIFramework\Fonts.cpp" />
     <ClCompile Include="UIFramework\Geometries.cpp" />
     <ClCompile Include="UIFramework\SDL_Extensions.cpp" />
   </ItemGroup>
@@ -280,16 +211,13 @@
     <ClInclude Include="BattleInterface\CBattleInterfaceClasses.h" />
     <ClInclude Include="BattleInterface\CCreatureAnimation.h" />
     <ClInclude Include="CAdvmapInterface.h" />
-    <ClInclude Include="..\hch\CArtHandler.h" />
     <ClInclude Include="CAnimation.h" />
     <ClInclude Include="CBitmapHandler.h" />
-    <ClInclude Include="..\hch\CBuildingHandler.h" />
     <ClInclude Include="..\CCallback.h" />
     <ClInclude Include="CCastleInterface.h" />
     <ClInclude Include="CCreatureWindow.h" />
     <ClInclude Include="CDefHandler.h" />
     <ClInclude Include="CGameInfo.h" />
-    <ClInclude Include="..\hch\CHeroHandler.h" />
     <ClInclude Include="CHeroWindow.h" />
     <ClInclude Include="CKingdomInterface.h" />
     <ClInclude Include="Client.h" />
@@ -300,23 +228,25 @@
     <ClInclude Include="CQuestLog.h" />
     <ClInclude Include="CSoundBase.h" />
     <ClInclude Include="CSpellWindow.h" />
-    <ClInclude Include="..\hch\CVideoHandler.h" />
     <ClInclude Include="CVideoHandler.h" />
     <ClInclude Include="FontBase.h" />
     <ClInclude Include="FunctionList.h" />
     <ClInclude Include="Graphics.h" />
     <ClInclude Include="GUIClasses.h" />
+    <ClInclude Include="mapHandler.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="UIFramework\CCursorHandler.h" />
     <ClInclude Include="UIFramework\CGuiHandler.h" />
     <ClInclude Include="UIFramework\CIntObject.h" />
     <ClInclude Include="UIFramework\CIntObjectClasses.h" />
+    <ClInclude Include="UIFramework\Fonts.h" />
     <ClInclude Include="UIFramework\Geometries.h" />
     <ClInclude Include="UIFramework\SDL_Extensions.h" />
     <ClInclude Include="UIFramework\SDL_Pixels.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\ChangeLog" />
     <None Include="vcmi.ico" />
   </ItemGroup>
   <ItemGroup>
@@ -325,7 +255,6 @@
   <ItemGroup>
     <ProjectReference Include="..\lib\VCMI_lib.vcxproj">
       <Project>{b952ffc5-3039-4de1-9f08-90acda483d8f}</Project>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
