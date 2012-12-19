@@ -2,6 +2,16 @@
 
 #include "CConsoleHandler.h"
 
+/*
+ * CLogger.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 extern DLL_LINKAGE std::ostream *logfile;
 extern DLL_LINKAGE CConsoleHandler *console;
 

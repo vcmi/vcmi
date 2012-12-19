@@ -6,6 +6,16 @@
 #include "CSpellHandler.h"
 #include "VCMI_Lib.h"
 
+/*
+ * CBattleCallback.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 #define RETURN_IF_NOT_BATTLE(X) if(!duringBattle()) {tlog1 << __FUNCTION__ << " called when no battle!\n"; return X; }
 
 namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO

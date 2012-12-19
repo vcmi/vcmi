@@ -1,6 +1,16 @@
 #include "StdInc.h"
 #include "CLogger.h"
 
+/*
+ * CLogger.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 // Console, file definitions
 DLL_LINKAGE CConsoleHandler *console = NULL;
 DLL_LINKAGE std::ostream *logfile = NULL;
