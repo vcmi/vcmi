@@ -1,7 +1,6 @@
 #include "StdInc.h"
 #include "ERMParser.h"
 
-
 //To make compilation with older boost versions possible
 //Don't know exact version - 1.46 works while 1.42 not
 #if BOOST_VERSION >= 104600

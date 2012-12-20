@@ -64,6 +64,7 @@
 		<Unit filename="ERMScriptModule.cpp" />
 		<Unit filename="ERMScriptModule.h" />
 		<Unit filename="StdInc.h">
+			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
 		<Extensions>
