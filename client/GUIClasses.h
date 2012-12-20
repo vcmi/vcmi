@@ -587,18 +587,23 @@ public:
 	};
 	class CTradeableItem : public CIntObject
 	{
-		const CArtifactInstance *hlp; //holds ptr to artifact instance id type artifact
+		CAnimImage * image;
+
+		std::string getFilename();
+		int getIndex();
 	public:
+		const CArtifactInstance *hlp; //holds ptr to artifact instance id type artifact
 		EType type;
 		int id;
-		int serial;
-		bool left;
+		const int serial;
+		const bool left;
 		std::string subtitle; //empty if default
+
+		void setType(EType newType);
+		void setID(int newID);
 
 		const CArtifactInstance *getArtInstance() const;
 		void setArtInstance(const CArtifactInstance *art);
-// 		const CArtifact *getArt() const;
-// 		void setArt(const CArtifact *artT) const;
 
 		CFunctionList<void()> callback;
 		bool downSelection;
@@ -609,7 +614,6 @@ public:
 		void hover (bool on);
 		void showAll(SDL_Surface * to);
 		void clickLeft(tribool down, bool previousState);
-		SDL_Surface *getSurface();
 		std::string getName(int number = -1) const;
 		CTradeableItem(EType Type, int ID, bool Left, int Serial);
 	};

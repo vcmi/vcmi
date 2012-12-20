@@ -1146,7 +1146,8 @@ void CComponentBox::placeComponents(bool selectable)
 		const int distance = prevComp ? getDistance(prevComp, comp) : 0;
 
 		//start next row
-		if (pos.w != 0 && rows.back().width + comp->pos.w + distance > pos.w)
+		if ((pos.w != 0 && rows.back().width + comp->pos.w + distance > pos.w) // row is full
+			|| rows.back().comps >= 4) // no more than 4 comps per row
 		{
 			prevComp = nullptr;
 			rows.push_back (RowData (0,0,0));
@@ -1182,11 +1183,14 @@ void CComponentBox::placeComponents(bool selectable)
 	//move components to their positions
 	for (size_t row = 0; row < rows.size(); row++)
 	{
+		// amount of free space we may add on each side of every component
+		int freeSpace = (pos.w - rows[row].width) / (rows[row].comps * 2);
 		prevComp = nullptr;
 
-		int currentX = (pos.w - rows[row].width) / 2;
+		int currentX = 0;
 		for (size_t col = 0; col < rows[row].comps; col++)
 		{
+			currentX += freeSpace;
 			if (prevComp)
 			{
 				if (selectable)
@@ -1200,6 +1204,7 @@ void CComponentBox::placeComponents(bool selectable)
 
 			(*iter)->moveBy(Point(currentX, currentY));
 			currentX += (*iter)->pos.w;
+			currentX += freeSpace;
 
 			prevComp = *(iter++);
 		}
@@ -1933,15 +1938,90 @@ void CObjectListWindow::keyPressed (const SDL_KeyboardEvent & key)
 	changeSelection(sel);
 }
 
-CTradeWindow::CTradeableItem::CTradeableItem( EType Type, int ID, bool Left, int Serial)
+CTradeWindow::CTradeableItem::CTradeableItem( EType Type, int ID, bool Left, int Serial):
+    type(Type),
+    id(ID),
+    serial(Serial),
+    left(Left)
 {
-	serial = Serial;
-	left = Left;
-	type = Type;
-	id = ID;
 	addUsedEvents(LCLICK | HOVER | RCLICK);
 	downSelection = false;
 	hlp = NULL;
+	image = nullptr;
+}
+
+void CTradeWindow::CTradeableItem::setType(EType newType)
+{
+	if (type != newType)
+	{
+		OBJ_CONSTRUCTION_CAPTURING_ALL;
+		type = newType;
+		delete image;
+
+		if (getIndex() < 0)
+		{
+			image = new CAnimImage(getFilename(), 0);
+			image->disable();
+		}
+		else
+			image = new CAnimImage(getFilename(), getIndex());
+	}
+}
+
+void CTradeWindow::CTradeableItem::setID(int newID)
+{
+	if (id != newID)
+	{
+		id = newID;
+		if (image)
+		{
+			int index = getIndex();
+			if (index < 0)
+				image->disable();
+			else
+			{
+				image->enable();
+				image->setFrame(index);
+			}
+		}
+	}
+}
+
+std::string CTradeWindow::CTradeableItem::getFilename()
+{
+	switch(type)
+	{
+	case RESOURCE:
+		return "resource 32";
+	case PLAYER:
+		return "flags";
+	case ARTIFACT_TYPE:
+	case ARTIFACT_PLACEHOLDER:
+	case ARTIFACT_INSTANCE:
+		return "artdefs";
+	case CREATURE:
+		return "crtport";
+	default:
+		return "";
+	}
+}
+
+int CTradeWindow::CTradeableItem::getIndex()
+{
+	switch(type)
+	{
+	case RESOURCE:
+	case PLAYER:
+		return id;
+	case ARTIFACT_TYPE:
+	case ARTIFACT_PLACEHOLDER:
+	case ARTIFACT_INSTANCE:
+		return id;
+	case CREATURE:
+		return id;
+	default:
+		return -1;
+	}
 }
 
 void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
@@ -1975,8 +2055,11 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 		break;
 	}
 
-	if(SDL_Surface *hlp = getSurface())
-		blitAt(hlp, pos + posToBitmap, to);
+	if (image)
+	{
+		image->moveTo(posToBitmap);
+		image->showAll(to);
+	}
 
 	printAtMiddleLoc(subtitle, posToSubCenter, FONT_SMALL, Colors::WHITE, to);
 }
@@ -2006,7 +2089,7 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 				CCS->curh->dragAndDropCursor(new CAnimImage("artifact", art->artType->iconIndex));
 
 				aw->arts->artifactsOnAltar.erase(art);
-				id = -1;
+				setID(-1);
 				subtitle = "";
 				aw->deal->block(!aw->arts->artifactsOnAltar.size());
 			}
@@ -2029,25 +2112,6 @@ void CTradeWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 				return;
 		}
 		mw->selectionChanged(left);
-	}
-}
-
-SDL_Surface * CTradeWindow::CTradeableItem::getSurface()
-{
-	switch(type)
-	{
-	case RESOURCE:
-		return graphics->resources32->ourImages[id].bitmap;
-	case PLAYER:
-		return graphics->flags->ourImages[id].bitmap;
-	case ARTIFACT_TYPE:
-	case ARTIFACT_PLACEHOLDER:
-	case ARTIFACT_INSTANCE:
-		return id >= 0 ? graphics->artDefs->ourImages[id].bitmap : NULL;
-	case CREATURE:
-		return graphics->bigImgs[id];
-	default:
-		return NULL;
 	}
 }
 
@@ -2146,9 +2210,9 @@ void CTradeWindow::CTradeableItem::setArtInstance(const CArtifactInstance *art)
 	assert(type == ARTIFACT_PLACEHOLDER || type == ARTIFACT_INSTANCE);
 	hlp = art;
 	if(art)
-		id = art->artType->id;
+		setID(art->artType->id);
 	else
-		id = -1;
+		setID(-1);
 }
 
 CTradeWindow::CTradeWindow(std::string bgName, const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode):
@@ -3045,7 +3109,7 @@ void CAltarWindow::makeDeal()
 
 		BOOST_FOREACH(CTradeableItem *t, items[0])
 		{
-			t->type = CREATURE_PLACEHOLDER;
+			t->setType(CREATURE_PLACEHOLDER);
 			t->subtitle = "";
 		}
 	}
@@ -3059,7 +3123,7 @@ void CAltarWindow::makeDeal()
 
 		BOOST_FOREACH(CTradeableItem *t, items[0])
 		{
-			t->id = -1;
+			t->setID(-1);
 			t->subtitle = "";
 		}
 
@@ -3232,7 +3296,7 @@ void CAltarWindow::blockTrade()
 void CAltarWindow::updateRight(CTradeableItem *toUpdate)
 {
 	int val = sacrificedUnits[toUpdate->serial];
-	toUpdate->type = val ? CREATURE : CREATURE_PLACEHOLDER;
+	toUpdate->setType(val ? CREATURE : CREATURE_PLACEHOLDER);
 	toUpdate->subtitle = val ? boost::str(boost::format(CGI->generaltexth->allTexts[122]) % boost::lexical_cast<std::string>(val * expPerUnit[toUpdate->serial])) : ""; //%s exp
 }
 

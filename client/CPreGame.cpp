@@ -2861,7 +2861,7 @@ void OptionsTab::CPregameTooltipBox::genTownWindow()
 	for (size_t i=0; i< town.creatures.size(); i++)
 		components.push_back(new CComponent(CComponent::creature, town.creatures[i].front(), 0, CComponent::tiny));
 
-	new CComponentBox(components, Rect(0, 140, pos.w, 140));
+	new CComponentBox(components, Rect(10, 140, pos.w - 20, 140));
 }
 
 void OptionsTab::CPregameTooltipBox::genHeroWindow()
@@ -2881,7 +2881,7 @@ void OptionsTab::CPregameTooltipBox::genBonusWindow()
 	pos = Rect(0, 0, 228, 162);
 	genHeader();
 
-	new CTextBox(getDescription(), Rect(10, 88, pos.w - 20, 70), 0, FONT_SMALL, CENTER, Colors::WHITE );
+	new CTextBox(getDescription(), Rect(10, 100, pos.w - 20, 70), 0, FONT_SMALL, CENTER, Colors::WHITE );
 }
 
 OptionsTab::SelectedBox::SelectedBox(Point position, PlayerSettings & settings, SelType type)

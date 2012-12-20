@@ -1215,22 +1215,12 @@ void CLabel::showAll(SDL_Surface * to)
 	if(!toPrint.length())
 		return;
 
-	switch (alignment)
-	{
-	break; case TOPLEFT :
-		CIntObject::printAtLoc(toPrint, textOffset.x, textOffset.y, font, color, to);
-	break; case CENTER :
-		CIntObject::printAtMiddleLoc(toPrint, textOffset.x, textOffset.y, font, color, to);
-	break; case BOTTOMRIGHT :
-		CIntObject::printToLoc(toPrint, textOffset.x, textOffset.y, font, color, to);
-	break; default :
-		assert(0);
-	}
+	blitLine(to, pos.topLeft()/2 + pos.bottomRight()/2, toPrint);
 
 }
 
 CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= Colors::WHITE*/, const std::string &Text /*= ""*/)
-:alignment(Align), font(Font), color(Color), text(Text)
+:CTextContainer(Align, Font, Color), text(Text)
 {
 	autoRedraw = true;
 	pos.x += x;
@@ -1239,8 +1229,11 @@ CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, con
 	bg = NULL;
 	ignoreLeadingWhitespace = false;
 
-	pos.w = graphics->fonts[font]->getStringWidth(text.c_str());
-	pos.h = graphics->fonts[font]->getLineHeight();
+	if (alignment == TOPLEFT) // causes issues for MIDDLE
+	{
+		pos.w = graphics->fonts[font]->getStringWidth(text.c_str());
+		pos.h = graphics->fonts[font]->getLineHeight();
+	}
 }
 
 std::string CLabel::visibleText()
@@ -1276,9 +1269,19 @@ void CBoundedLabel::setTxt(const std::string &Txt)
 	CLabel::setTxt(Txt);
 }
 
-void CBoundedLabel::blitLine(SDL_Surface *to, Point where, std::string what)
+void CTextContainer::blitLine(SDL_Surface *to, Point where, std::string what)
 {
 	const IFont * f = graphics->fonts[font];
+
+	auto renderer = &IFont::renderTextLeft;
+
+	switch (alignment)
+	{
+	break; case TOPLEFT:     renderer = &IFont::renderTextLeft;
+	break; case CENTER:      renderer = &IFont::renderTextCenter;
+	break; case BOTTOMRIGHT: renderer = &IFont::renderTextRight;
+	break; default: assert(0);
+	}
 
 	size_t begin = 0;
 	size_t end;
@@ -1292,9 +1295,9 @@ void CBoundedLabel::blitLine(SDL_Surface *to, Point where, std::string what)
 		{
 			std::string toPrint = what.substr(begin, end-1);
 			if (currDelimeter % 2) // Enclosed in {} text - set to yellow
-				graphics->fonts[font]->renderTextLeft(to, toPrint, Colors::YELLOW, where);
+				(graphics->fonts[font]->*renderer)(to, toPrint, Colors::YELLOW, where);
 			else // Non-enclosed text
-				graphics->fonts[font]->renderTextLeft(to, toPrint, color, where);
+				(graphics->fonts[font]->*renderer)(to, toPrint, color, where);
 			begin = end;
 			where.x += f->getStringWidth(toPrint.c_str());
 		}
@@ -1302,6 +1305,12 @@ void CBoundedLabel::blitLine(SDL_Surface *to, Point where, std::string what)
 	}
 	while (begin++ != std::string::npos);
 }
+
+CTextContainer::CTextContainer(EAlignment alignment, EFonts font, SDL_Color color):
+	alignment(alignment),
+	font(font),
+	color(color)
+{}
 
 void CBoundedLabel::showAll(SDL_Surface * to)
 {
@@ -1402,7 +1411,8 @@ void CTextBox::showAll(SDL_Surface * to)
 	const IFont * f = graphics->fonts[font];
 	int dy = f->getLineHeight(); //line height
 	int base_y = pos.y;
-	if(alignment == CENTER)
+
+	if (alignment == CENTER)
 		base_y += std::max((pos.h - maxH)/2,0);
 
 	int howManyLinesToPrint = slider ? slider->capacity : lines.size();
@@ -1413,13 +1423,8 @@ void CTextBox::showAll(SDL_Surface * to)
 		const std::string &line = lines[i + firstLineToPrint];
 		if(!line.size()) continue;
 
-		int x = pos.x;
-		if(alignment == CENTER)
-		{
-			x += (pos.w - f->getStringWidth(line.c_str())) / 2;
-			if(slider)
-				x -= slider->pos.w / 2 + 5;
-		}
+		int width = pos.w + (slider ? (slider->pos.w) : 0);
+		int x = pos.x + int(alignment) * width / 2;
 
 		blitLine(to, Point(x, base_y + i * dy), line);
 	}

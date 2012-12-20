@@ -329,16 +329,27 @@ public:
 	std::string getCurrent(); //getter for current
 };
 
-/// Label which shows text
-class CLabel : public virtual CIntObject
+class CTextContainer : public virtual CIntObject
 {
 protected:
-	virtual std::string visibleText();
+	void blitLine(SDL_Surface * to, Point where, std::string what);
+
+	CTextContainer(EAlignment alignment, EFonts font, SDL_Color color);
+	//CTextContainer() {};
 
 public:
 	EAlignment alignment;
 	EFonts font;
 	SDL_Color color;
+};
+
+/// Label which shows text
+class CLabel : public CTextContainer
+{
+protected:
+	virtual std::string visibleText();
+
+public:
 	std::string text;
 	CPicture *bg;
 	bool autoRedraw;  //whether control will redraw itself on setTxt
@@ -352,8 +363,6 @@ public:
 
 class CBoundedLabel : public CLabel
 {
-protected:
-	void blitLine(SDL_Surface * to, Point where, std::string what);
 public:
 
 	int maxW; //longest line of text in px
@@ -421,8 +430,7 @@ public:
 };
 
 /// UIElement which can get input focus
-class CFocusable 
-	: public virtual CIntObject
+class CFocusable : public virtual CIntObject
 {
 public:
 	bool focus; //only one focusable control can have focus at one moment

@@ -4,6 +4,7 @@ To run the game you will need:
 1) Heroes 3 data files (SoD or Complete editions);
 2) Unofficial WoG addon
 2) VCMI data pack (http://download.vcmi.eu/core.zip)
+All of them can be installed manually or using vcmibuilder script
 
 For complete installation instructions see VCMI wiki:
 http://wiki.vcmi.eu/index.php?title=Installation_on_Linux#Preparing_data
@@ -59,15 +60,11 @@ That will generate vcmiclient, vcmiserver as well as 3 .so libraries.
 
 III. Installing binaries
 
-Since VCMI is still in development, there's no install procedure, although this will work:
+To install VCMI type (as root):
   make install
-You also need to update configuration files:
- cp /PATH_TO_SOURCE/config /DATA_PATH/vcmi
-In this case you'll have to manually update these files after any changes.
-For more permament solution you should use links as described below.
 
-For development puposes, it's better to use links. Go
-to /BIN_PATH/, and type:
+For development puposes, it's better to use links instead.
+Go to /BIN_PATH/, and type:
 
   ln -s .../trunk/build/client/vcmiclient
   ln -s .../trunk/build/server/vcmiserver
@@ -83,4 +80,6 @@ Go to /LIB_PATH/vcmi/AI, and type:
 
 Go to /DATA_PATH/vcmi, and type:
   ln -s .../trunk/source/config
+  ln -s .../trunk/source/Mods
+
 

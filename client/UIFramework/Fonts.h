@@ -48,9 +48,6 @@ public:
 	/// pos = bottomright corner of the text
 	void renderTextCenter(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const;
 
-	/**
-	 * @param maxWidth -  max width in pixels of one line
-	 */
 	/// pos = topleft corner of the text
 	void renderTextLinesLeft(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, const Point & pos) const;
 	/// pos = center of the text
