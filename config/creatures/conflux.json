@@ -1,0 +1,336 @@
+{
+	"airElemental" :
+	{
+		"id": 112,
+		"level": 2,
+		"extraNames": [ "airElementals" ],
+		"faction": "conflux",
+		"abilities": [ [ "SPELL_IMMUNITY", 0, 61, 0 ],			//air elementals are immune to mind spells (forgetfulness)	//earth elementals are non-living
+					   [ "SPELL_IMMUNITY", 0, 60, 0 ],			//air elementals are immune to mind spells (hypnotize)
+					   [ "SPELL_IMMUNITY", 0, 59, 0 ],			//air elementals are immune to mind spells (berserk)
+					   [ "SPELL_IMMUNITY", 0, 50, 0 ],			//air elementals are immune to mind spells (sorrow)
+					   [ "SPELL_IMMUNITY", 0, 23, 0 ],			//air elementals are immune to meteor shower
+					   [ "NON_LIVING", 0, 0, 0 ],
+					   [ "MORE_DAMAGE_FROM_SPELL", 100, 19, 0 ],		//air elementals are vulnerable to chain lightning
+					   [ "MORE_DAMAGE_FROM_SPELL", 100, 17, 0 ] ],	  	//air elementals are vulnerable to lightning bolt		//air elementals are non-living
+		"upgrades": ["stormElemental"],
+		"graphics" :
+		{
+			"animation": "CAELEM.DEF"
+		},
+		"sound" :
+		{
+			"attack": "AELMATTK.wav",
+			"defend": "AELMDFND.wav",
+			"killed": "AELMKILL.wav",
+			"move": "AELMMOVE.wav",
+			"wince": "AELMWNCE.wav"
+		}
+	},
+	"earthElemental" :
+	{
+		"id": 113,
+		"level": 5,
+		"faction": "conflux",
+		"abilities": [ [ "SPELL_IMMUNITY", 0, 61, 0 ],			//earth elementals are immune to mind spells (forgetfulness)
+						 [ "SPELL_IMMUNITY", 0, 60, 0 ],			//earth elementals are immune to mind spells (hypnotize)
+						 [ "SPELL_IMMUNITY", 0, 59, 0 ],			//earth elementals are immune to mind spells (berserk)
+						 [ "SPELL_IMMUNITY", 0, 50, 0 ],			//earth elementals are immune to mind spells (sorrow)
+						 [ "SPELL_IMMUNITY", 0, 19, 0 ],			//earth elementals are immune to chain lightning
+						 [ "SPELL_IMMUNITY", 0, 17, 0 ],			//earth elementals are immune to lightning bolt
+						 [ "NON_LIVING", 0, 0, 0 ],
+						 [ "MORE_DAMAGE_FROM_SPELL", 100, 23, 0 ] ],		//earth elementals are vulnerable to meteor shower
+		"upgrades": ["magmaElemental"],
+		"graphics" :
+		{
+			"animation": "CEELEM.DEF"
+		},
+		"sound" :
+		{
+			"attack": "EELMATTK.wav",
+			"defend": "EELMDFND.wav",
+			"killed": "EELMKILL.wav",
+			"move": "EELMMOVE.wav",
+			"wince": "EELMWNCE.wav"
+		}
+	},
+	"fireElemental" :
+	{
+		"id": 114,
+		"level": 4,
+		"faction": "conflux",
+		"abilities": [ [ "SPELL_IMMUNITY", 0, 61, 0 ],			//fire elementals are immune to mind spells (forgetfulness)
+					   [ "SPELL_IMMUNITY", 0, 60, 0 ],			//fire elementals are immune to mind spells (hypnotize)	//water elemental should be treated as double-wide
+					   [ "SPELL_IMMUNITY", 0, 59, 0 ],			//fire elementals are immune to mind spells (berserk)
+					   [ "SPELL_IMMUNITY", 0, 50, 0 ],			//fire elementals are immune to mind spells (sorrow)
+					   [ "NON_LIVING", 0, 0, 0 ],				//fire elementals are non-living
+					   [ "MORE_DAMAGE_FROM_SPELL", 100, 20, 0 ],		//fire elementals are vulnerable to frost ring
+					   [ "MORE_DAMAGE_FROM_SPELL", 100, 16, 0 ],		//fire elementals are vulnerable to ice bolt
+					   [ "FIRE_IMMUNITY", 0, 0, 0 ] ],			//fire elementals are immune to fire spells
+		"upgrades": ["energyElemental"],
+		"graphics" :
+		{
+			"animation": "CFELEM.DEF"
+		},
+		"sound" :
+		{
+			"attack": "FELMATTK.wav",
+			"defend": "FELMDFND.wav",
+			"killed": "FELMKILL.wav",
+			"move": "FELMMOVE.wav",
+			"wince": "FELMWNCE.wav"
+		}
+	},
+	"waterElemental" :
+	{
+		"id": 115,
+		"level": 3,
+		"extraNames": [ "waterElementals" ],
+		"faction": "conflux",
+		"abilities": [ [ "SPELL_IMMUNITY", 0, 61, 0 ],			//water elementals are immune to mind spells (forgetfulness)
+						 [ "SPELL_IMMUNITY", 0, 60, 0 ],			//water elementals are immune to mind spells (hypnotize)
+						 [ "SPELL_IMMUNITY", 0, 59, 0 ],			//water elementals are immune to mind spells (berserk)
+						 [ "SPELL_IMMUNITY", 0, 50, 0 ],			//water elementals are immune to mind spells (sorrow)
+						 [ "SPELL_IMMUNITY", 0, 20, 0 ],			//water elementals are immune to frost ring
+						 [ "SPELL_IMMUNITY", 0, 16, 0 ],			//water elementals are immune to ice bolt
+						 [ "NON_LIVING", 0, 0, 0 ],				//water elementals are non-living
+						 [ "MORE_DAMAGE_FROM_SPELL", 100, 29, 0 ],		//water elementals are vulnerable to fire shield
+						 [ "MORE_DAMAGE_FROM_SPELL", 100, 22, 0 ],		//water elementals are vulnerable to inferno
+						 [ "MORE_DAMAGE_FROM_SPELL", 100, 21, 0 ],		//water elementals are vulnerable to fireball
+						 [ "MORE_DAMAGE_FROM_SPELL", 100, 13, 0 ],		//water elementals are vulnerable to fire wall
+						 [ "DOUBLE_WIDE", 0, 0, 0 ] ],
+		"upgrades": ["iceElemental"],
+		"graphics" :
+		{
+			"animation": "CWELEM.DEF"
+		},
+		"sound" :
+		{
+			"attack": "WELMATTK.wav",
+			"defend": "WELMDFND.wav",
+			"killed": "WELMKILL.wav",
+			"move": "WELMMOVE.wav",
+			"wince": "WELMWNCE.wav"
+		}
+	},
+	"pixie" :
+	{
+		"id": 118,
+		"level": 1,
+		"extraNames": [ "pixies" ],
+		"faction": "conflux",
+		"upgrades": ["sprite"],
+		"graphics" :
+		{
+			"animation": "CPIXIE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "PIXIATTK.wav",
+			"defend": "PIXIDFND.wav",
+			"killed": "PIXIKILL.wav",
+			"move": "PIXIMOVE.wav",
+			"wince": "PIXIWNCE.wav"
+		}
+	},
+	"sprite" :
+	{
+		"id": 119,
+		"level": 1,
+		"faction": "conflux",
+		"graphics" :
+		{
+			"animation": "CSPRITE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "SPRTATTK.wav",
+			"defend": "SPRTDFND.wav",
+			"killed": "SPRTKILL.wav",
+			"move": "SPRTMOVE.wav",
+			"wince": "SPRTWNCE.wav"
+		}
+	},
+	"psychicElemental" :
+	{
+		"id": 120,
+		"level": 6,
+		"faction": "conflux",
+		"abilities": [ [ "NON_LIVING", 0, 0, 0 ] ],				//magic elementals shouldn't get morale
+		"ability_remove": [ "DOUBLE_WIDE" ],
+		"upgrades": ["magicElemental"],
+		"graphics" :
+		{
+			"animation": "CPSYEL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "PSYCATTK.wav",
+			"defend": "PSYCDFND.wav",
+			"killed": "PSYCKILL.wav",
+			"move": "PSYCMOVE.wav",
+			"wince": "PSYCWNCE.wav"
+		}
+	},
+	"magicElemental" :
+	{
+		"id": 121,
+		"level": 6,
+		"faction": "conflux",
+		"abilities": [ [ "NON_LIVING", 0, 0, 0 ],				//ice elementals shouldn't get morale
+						 [ "LEVEL_SPELL_IMMUNITY", 5, 0, 0 ] ],	//magic elementals are immune to all spells
+		"ability_remove": [ "DOUBLE_WIDE" ],
+		"graphics" :
+		{
+			"animation": "CMAGEL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "MGELATTK.wav",
+			"defend": "MGELDFND.wav",
+			"killed": "MGELKILL.wav",
+			"move": "MGELMOVE.wav",
+			"wince": "MGELWNCE.wav"
+		}
+	},
+	"iceElemental" :
+	{
+		"id": 123,
+		"level": 3,
+		"faction": "conflux",
+		"abilities": [ [ "NON_LIVING", 0, 0, 0 ],
+						 [ "DOUBLE_WIDE", 0, 0, 0 ],					//ice elemental should be treated as double-wide
+						 [ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],
+						 [ "CASTS", 3, 0, 0 ],
+						 [ "SPELLCASTER", 2, 32, 0 ]],
+		"graphics" :
+		{
+			"animation": "CICEE.DEF",
+			"missile" :
+			{
+				"projectile": "PICEE.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "ICELATTK.wav",
+			"defend": "ICELDFND.wav",
+			"killed": "ICELKILL.wav",
+			"move": "ICELMOVE.wav",
+			"shoot": "ICELSHOT.wav",
+			"wince": "ICELWNCE.wav"
+		}
+	},
+	"magmaElemental" :
+	{
+		"id": 125,
+		"level": 5,
+		"faction": "conflux",
+		"abilities": [ [ "NON_LIVING", 0, 0, 0 ],						//magma elementals shouldn't get morale
+						[ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],
+						[ "CASTS", 3, 0, 0 ],
+						[ "SPELLCASTER", 2, 33, 0 ]],
+		"graphics" :
+		{
+			"animation": "CSTONE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "MAGMATTK.wav",
+			"defend": "MAGMDFND.wav",
+			"killed": "MAGMKILL.wav",
+			"move": "MAGMMOVE.wav",
+			"wince": "MAGMWNCE.wav"
+		}
+	},
+	"stormElemental" :
+	{
+		"id": 127,
+		"level": 2,
+		"faction": "conflux",
+		"abilities": [ [ "NON_LIVING", 0, 0, 0 ],						//storm elementals shouldn't get morale
+						[ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],
+						[ "CASTS", 3, 0, 0 ],
+						[ "SPELLCASTER", 2, 30, 0 ]],
+		"graphics" :
+		{
+			"animation": "CSTORM.DEF",
+			"missile" :
+			{
+				"projectile": "CPRGTIX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "STORATTK.wav",
+			"defend": "STORDFND.wav",
+			"killed": "STORKILL.wav",
+			"move": "STORMOVE.wav",
+			"shoot": "STORSHOT.wav",
+			"wince": "STORWNCE.wav"
+		}
+	},
+	"energyElemental" :
+	{
+		"id": 129,
+		"level": 4,
+		"faction": "conflux",
+		"abilities": [ [ "NON_LIVING", 0, 0, 0 ] ,					//energy elementals shouldn't get morale //Crystal Dragons do not fly
+						[ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],
+						[ "CASTS", 3, 0, 0 ],
+						[ "SPELLCASTER", 2, 31, 0 ]],
+		"graphics" :
+		{
+			"animation": "CNRG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "ENERATTK.wav",
+			"defend": "ENERDFND.wav",
+			"killed": "ENERKILL.wav",
+			"move": "ENERMOVE.wav",
+			"wince": "ENERWNCE.wav"
+		}
+	},
+	"firebird" :
+	{
+		"id": 130,
+		"level": 7,
+		"faction": "conflux",
+		"upgrades": ["phoenix"],
+		"graphics" :
+		{
+			"animation": "CFBIRD.DEF"
+		},
+		"sound" :
+		{
+			"attack": "FIRBATTK.wav",
+			"defend": "FIRBDFND.wav",
+			"killed": "FIRBKILL.wav",
+			"move": "FIRBMOVE.wav",
+			"wince": "FIRBWNCE.wav"
+		}
+	},
+	"phoenix" :
+	{
+		"id": 131,
+		"level": 7,
+		"faction": "conflux",
+		"abilities": [ [ "CASTS", 1, 0, 0 ],	//Phoenix rebirths once
+						 [ "REBIRTH", 20, 0, 0 ] ],	//20% of stack is resurrected
+		"graphics" :
+		{
+			"animation": "CPHX.DEF"
+		},
+		"sound" :
+		{
+			"attack": "PHOEATTK.wav",
+			"defend": "PHOEDFND.wav",
+			"killed": "PHOEKILL.wav",
+			"move": "PHOEMOVE.wav",
+			"wince": "PHOEWNCE.wav"
+		}
+	}
+}

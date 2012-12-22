@@ -11,5 +11,24 @@
 		"config/factions/fortress.json",
 		"config/factions/conflux.json",
 		"config/factions/neutral.json"
+	],
+
+	"creatures" :
+	[
+		"config/creatures/castle.json",
+		"config/creatures/rampart.json",
+		"config/creatures/tower.json",
+
+		"config/creatures/necropolis.json",
+		"config/creatures/inferno.json",
+		"config/creatures/dungeon.json",
+
+		"config/creatures/stronghold.json",
+		"config/creatures/fortress.json",
+		"config/creatures/conflux.json",
+
+		"config/creatures/neutral.json",
+		"config/creatures/special.json",
+		"config/creatures/wog.json"
 	]
 }

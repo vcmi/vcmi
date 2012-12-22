@@ -381,6 +381,7 @@ void CHeroHandler::loadHeroes()
 
 			std::string refName = parser.readString();
 			boost::algorithm::replace_all(refName, " ", ""); //remove spaces
+			refName[0] = std::tolower(refName[0]); // to camelCase
 			VLC->modh->identifiers.requestIdentifier(std::string("creature.") + refName, [=](si32 creature)
 			{
 				hero->initialArmy[x].creature = creature;

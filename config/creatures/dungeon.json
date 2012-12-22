@@ -1,0 +1,310 @@
+{
+	"troglodyte" :
+	{
+		"id": 70,
+		"level": 1,
+		"faction": "dungeon",
+		"abilities": [ [ "SPELL_IMMUNITY", 0, 62, 0 ] ],	  	   	//troglodytes are immune to blind
+		"upgrades": ["infernalTroglodyte"],
+		"graphics" :
+		{
+			"animation": "CTROGL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "TROGATTK.wav",
+			"defend": "TROGDFND.wav",
+			"killed": "TROGKILL.wav",
+			"move": "TROGMOVE.wav",
+			"wince": "TROGWNCE.wav"
+		}
+	},
+	"infernalTroglodyte" :
+	{
+		"id": 71,
+		"level": 1,
+		"faction": "dungeon",
+		"abilities": [ [ "SPELL_IMMUNITY", 0, 62, 0 ] ],		   	//infernal troglodytes are immune to blind
+		"graphics" :
+		{
+			"animation": "CITROG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "ITRGATTK.wav",
+			"defend": "ITRGDFND.wav",
+			"killed": "ITRGKILL.wav",
+			"move": "ITRGMOVE.wav",
+			"wince": "ITRGWNCE.wav"
+		}
+	},
+	"harpy" :
+	{
+		"id": 72,
+		"level": 2,
+		"faction": "dungeon",
+		"abilities": [ [ "RETURN_AFTER_STRIKE", 0, 0, 0 ] ],	   	//Harpies return after attack
+		"upgrades": ["harpyHag"],
+		"graphics" :
+		{
+			"animation": "CHARPY.DEF"
+		},
+		"sound" :
+		{
+			"attack": "HARPATTK.wav",
+			"defend": "HARPDFND.wav",
+			"killed": "HARPKILL.wav",
+			"move": "HARPMOVE.wav",
+			"shoot": "silence",
+			"wince": "HARPWNCE.wav"
+		}
+	},
+	"harpyHag" :
+	{
+		"id": 73,
+		"level": 2,
+		"faction": "dungeon",
+		"abilities": [ [ "RETURN_AFTER_STRIKE", 0, 0, 0 ],	   	//Harpy Hags return after attack
+						 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],	   	//Harpy Hags
+		"graphics" :
+		{
+			"animation": "CHARPH.DEF"
+		},
+		"sound" :
+		{
+			"attack": "HHAGATTK.wav",
+			"defend": "HHAGDFND.wav",
+			"killed": "HHAGKILL.wav",
+			"move": "HHAGMOVE.wav",
+			"shoot": "HHAGSHOT.wav",
+			"wince": "HHAGWNCE.wav"
+		}
+	},
+	"beholder" :
+	{
+		"id": 74,
+		"level": 3,
+		"faction": "dungeon",
+		"upgrades": ["evilEye"],
+		"graphics" :
+		{
+			"animation": "CBEHOL.DEF",
+			"missile" :
+			{
+				"projectile": "SMBALX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "BHDRATTK.wav",
+			"defend": "BHDRDFND.wav",
+			"killed": "BHDRKILL.wav",
+			"move": "BHDRMOVE.wav",
+			"shoot": "BHDRSHOT.wav",
+			"wince": "BHDRWNCE.wav",
+			"ext1": "BHDRDETH.wav"
+		}
+	},
+	"evilEye" :
+	{
+		"id": 75,
+		"level": 3,
+		"faction": "dungeon",
+		"graphics" :
+		{
+			"animation": "CEVEYE.DEF",
+			"missile" :
+			{
+				"projectile": "SMBALX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "EVLIATTK.wav",
+			"defend": "EVLIDFND.wav",
+			"killed": "EVLIKILL.wav",
+			"move": "EVLIMOVE.wav",
+			"shoot": "EVLISHOT.wav",
+			"wince": "EVLIWNCE.wav",
+			"ext1": "EVLIDETH.wav"
+		}
+	},
+	"medusa" :
+	{
+		"id": 76,
+		"level": 4,
+		"faction": "dungeon",
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 70, 2000 ] ],  	//medusas			//minotaurs
+		"upgrades": ["medusaQueen"],
+		"graphics" :
+		{
+			"animation": "CMEDUS.DEF",
+			"missile" :
+			{
+				"projectile": "PMEDUSX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "MEDUATTK.wav",
+			"defend": "MEDUDFND.wav",
+			"killed": "MEDUKILL.wav",
+			"move": "MEDUMOVE.wav",
+			"shoot": "MEDUSHOT.wav",
+			"wince": "MEDUWNCE.wav"
+		}
+	},
+	"medusaQueen" :
+	{
+		"id": 77,
+		"level": 4,
+		"faction": "dungeon",
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 70, 2000 ] ],  	//medusa queens			//minotaur kings
+		"graphics" :
+		{
+			"animation": "CMEDUQ.DEF",
+			"missile" :
+			{
+				"projectile": "PMEDUSX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "MEDQATTK.wav",
+			"defend": "MEDQDFND.wav",
+			"killed": "MEDQKILL.wav",
+			"move": "MEDQMOVE.wav",
+			"shoot": "MEDQSHOT.wav",
+			"wince": "MEDQWNCE.wav"
+		}
+	},
+	"minotaur" :
+	{
+		"id": 78,
+		"level": 5,
+		"faction": "dungeon",
+		"abilities": [ [ "SELF_MORALE", 0, 0, 0 ] ],
+		"upgrades": ["minotaurKing"],
+		"graphics" :
+		{
+			"animation": "CMINOT.DEF"
+		},
+		"sound" :
+		{
+			"attack": "MINOATTK.wav",
+			"defend": "MINODFND.wav",
+			"killed": "MINOKILL.wav",
+			"move": "MINOMOVE.wav",
+			"wince": "MINOWNCE.wav"
+		}
+	},
+	"minotaurKing" :
+	{
+		"id": 79,
+		"level": 5,
+		"faction": "dungeon",
+		"abilities": [ [ "SELF_MORALE", 0, 0, 0 ] ],
+		"graphics" :
+		{
+			"animation": "CMINOK.DEF"
+		},
+		"sound" :
+		{
+			"attack": "MINKATTK.wav",
+			"defend": "MINKDFND.wav",
+			"killed": "MINKKILL.wav",
+			"move": "MINKMOVE.wav",
+			"shoot": "MINKSHOT.wav",
+			"wince": "MINKWNCE.wav"
+		}
+	},
+	"manticore" :
+	{
+		"id": 80,
+		"level": 6,
+		"faction": "dungeon",
+		"upgrades": ["scorpicore"],
+		"graphics" :
+		{
+			"animation": "CMCORE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "MANTATTK.wav",
+			"defend": "MANTDFND.wav",
+			"killed": "MANTKILL.wav",
+			"move": "MANTMOVE.wav",
+			"shoot": "MANTSHOT.wav",
+			"wince": "MANTWNCE.wav"
+		}
+	},
+	"scorpicore" :
+	{
+		"id": 81,
+		"level": 6,
+		"faction": "dungeon",
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 74, 0 ] ],   	//scorpicore
+		"graphics" :
+		{
+			"animation": "CCMCOR.DEF"
+		},
+		"sound" :
+		{
+			"attack": "SCRPATTK.wav",
+			"defend": "SCRPDFND.wav",
+			"killed": "SCRPKILL.wav",
+			"move": "SCRPMOVE.wav",
+			"shoot": "SCRPSHOT.wav",
+			"wince": "SCRPWNCE.wav"
+		}
+	},
+	"redDragon" :
+	{
+		"id": 82,
+		"level": 7,
+		"faction": "dungeon",
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//red dragon is a dragon
+						 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//Red Dragon has breath attack
+						 [ "LEVEL_SPELL_IMMUNITY", 3, 0, 0 ] ],   	//red dragon's spell immunity
+		"upgrades": ["blackDragon"],
+		"graphics" :
+		{
+			"animation": "CRDRGN.DEF"
+		},
+		"sound" :
+		{
+			"attack": "RDDRATTK.wav",
+			"defend": "RDDRDFND.wav",
+			"killed": "RDDRKILL.wav",
+			"move": "RDDRMOVE.wav",
+			"wince": "RDDRWNCE.wav"
+		}
+	},
+	"blackDragon" :
+	{
+		"id": 83,
+		"level": 7,
+		"faction": "dungeon",
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//black dragon is a dragon
+						 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//Black Dragon has breath attack
+						 [ "HATE", 50, 41, 0 ],	//Hate Titans
+						 [ "HATE", 50, 40, 0 ],	//Hate Giants
+						 [ "LEVEL_SPELL_IMMUNITY", 5, 0, 0 ] ],   	//black dragon's spell immunity
+		"graphics" :
+		{
+			"animation": "CBDRGN.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BKDRATTK.wav",
+			"defend": "BKDRDFND.wav",
+			"killed": "BKDRKILL.wav",
+			"move": "BKDRMOVE.wav",
+			"wince": "BKDRWNCE.wav"
+		}
+	}
+}

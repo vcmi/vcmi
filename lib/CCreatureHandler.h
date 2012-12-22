@@ -32,7 +32,6 @@ public:
 	//damage, hp. etc are handled by Bonuses
 	ui32 fightValue, AIValue, growth, hordeGrowth;
 	ui32 ammMin, ammMax;
-	ui8 level; // 0 - unknown
 	std::string abilityText; //description of abilities
 	std::string abilityRefs; //references to abilities, in text format
 	std::string animDefName;
@@ -40,7 +39,9 @@ public:
 	si32 idNumber;
 	si32 iconIndex; // index of icon in files like twcrport
 	TFaction faction; //-1 = neutral
+	ui8 level; // 0 - unknown
 	ui8 doubleWide;
+	ui8 special; // Creature is not available normally (war machines, commanders, etc
 
 	///animation info
 	double timeBetweenFidgets, walkAnimationTime, attackAnimationTime, flightAnimationDistance;
@@ -157,9 +158,6 @@ public:
 	void loadAnimationInfo();
 	/// read one line from cranim.txt
 	void loadUnitAnimInfo(CCreature & unit, CLegacyConfigParser &parser);
-	/// load cr_sounds.json config
-	void loadCreatureSounds(JsonNode node, si32 creaID);
-	void loadSoundsInfo();
 	/// parse crexpbon.txt file from H3
 	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser &parser);
 	/// help function for parsing CREXPBON.txt

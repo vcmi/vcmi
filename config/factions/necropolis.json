@@ -4,7 +4,7 @@
 		"index" : 4,
 		"nativeTerrain": "dirt",
 		"alignment" : "evil",
-		"commander" : "SoulEater1",
+		"commander" : "soulEater1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASNEC",
@@ -139,17 +139,17 @@
 			],
 			"creatures" :
 			[
-				["Skeleton", "SkeletonWarrior"],
-				["Zombie", "ZombieLord"],
-				["Wight", "Wraith"],
-				["Vampire", "Nosferatu"],
-				["Lich", "PowerLich"],
-				["BlackKnight", "BlackLord"],
-				["BoneDragon", "GhostDragon"]
+				["skeleton", "skeletonWarrior"],
+				["walkingDead", "zombieLord"],
+				["wight", "wraith"],
+				["vampire", "vampireLord"],
+				["lich", "powerLich"],
+				["blackKnight", "dreadKnight"],
+				["boneDragon", "ghostDragon"]
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
-			"warMachine" : "FirstAidTent",
+			"warMachine" : "firstAidTent",
 
 			"buildings" :
 			[
@@ -198,7 +198,7 @@
 
 			"siege" :
 			{
-				"shooter" : "Lich",
+				"shooter" : "lich",
 				"imagePrefix" : "SGNC",
 				"gate" :
 				{

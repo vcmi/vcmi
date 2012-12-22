@@ -17,7 +17,7 @@ option(DISABLE_ERM "Disable compilation of ERM scripting module" ON)
 
 if (APPLE)
 	# Default location for thirdparty libs
-	set(CMAKE_INCLUDE_PATH "../include")
+	set(CMAKE_INCLUDE_PATH "../include ${CMAKE_OSX_SYSROOT}/usr/include")
 	set(CMAKE_LIBRARY_PATH "../lib")
 	set(CMAKE_FRAMEWORK_PATH "../Frameworks")
 	set(BOOST_ROOT "../")

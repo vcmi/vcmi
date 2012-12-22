@@ -4,7 +4,7 @@
 		"index" : 5,
 		"nativeTerrain": "subterra",
 		"alignment" : "evil",
-		"commander" : "Brute1",
+		"commander" : "brute1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASDUN",
@@ -134,18 +134,18 @@
 			],
 			"creatures" :
 			[
-				["Troglodyte", "InfernalTroglodyte"],
-				["Harpy", "HarpyHag"],
-				["Beholder", "EvilEye"],
-				["Medusa", "MedusaQueen"],
-				["Minotaur", "MinotaurKing"],
-				["Manticore", "Scorpicore"],
-				["RedDragon", "BlackDragon"]
+				["troglodyte", "infernalTroglodyte"],
+				["harpy", "harpyHag"],
+				["beholder", "evilEye"],
+				["medusa", "medusaQueen"],
+				["minotaur", "minotaurKing"],
+				["manticore", "scorpicore"],
+				["redDragon", "blackDragon"]
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
 			"primaryResource" : "sulfur",
-			"warMachine" : "Ballista",
+			"warMachine" : "ballista",
 
 			"buildings" :
 			[
@@ -193,7 +193,7 @@
 
 			"siege" :
 			{
-				"shooter" : "Beholder",
+				"shooter" : "beholder",
 				"imagePrefix" : "SGDN",
 				"gate" :
 				{

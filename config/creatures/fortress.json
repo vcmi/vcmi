@@ -1,0 +1,287 @@
+{
+	"gnoll" :
+	{
+		"id": 98,
+		"level": 1,
+		"faction": "fortress",
+		"upgrades": ["gnollMarauder"],
+		"graphics" :
+		{
+			"animation": "CGNOLL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "GNOLATTK.wav",
+			"defend": "GNOLDFND.wav",
+			"killed": "GNOLKILL.wav",
+			"move": "GNOLMOVE.wav",
+			"wince": "GNOLWNCE.wav"
+		}
+	},
+	"gnollMarauder" :
+	{
+		"id": 99,
+		"level": 1,
+		"faction": "fortress",
+		"graphics" :
+		{
+			"animation": "CGNOLM.DEF"
+		},
+		"sound" :
+		{
+			"attack": "GNLMATTK.wav",
+			"defend": "GNLMDFND.wav",
+			"killed": "GNLMKILL.wav",
+			"move": "GNLMMOVE.wav",
+			"wince": "GNLMWNCE.wav"
+		}
+	},
+	"lizardman" :
+	{
+		"id": 100,
+		"level": 2,
+		"extraNames": [ "primitiveLizardman", ],
+		"faction": "fortress",
+		"upgrades": ["lizardWarrior"],
+		"graphics" :
+		{
+			"animation": "CPLIZA.DEF",
+			"missile" :
+			{
+				"projectile": "PPLIZAX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "PLIZATTK.wav",
+			"defend": "PLIZDFND.wav",
+			"killed": "PLIZKILL.wav",
+			"move": "PLIZMOVE.wav",
+			"shoot": "PLIZSHOT.wav",
+			"wince": "PLIZWNCE.wav"
+		}
+	},
+	"lizardWarrior" :
+	{
+		"id": 101,
+		"level": 2,
+		"faction": "fortress",
+		"graphics" :
+		{
+			"animation": "CALIZA.DEF",
+			"missile" :
+			{
+				"projectile": "PPLIZAX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "ALIZATTK.wav",
+			"defend": "ALIZDFND.wav",
+			"killed": "ALIZKILL.wav",
+			"move": "ALIZMOVE.wav",
+			"shoot": "ALIZSHOT.wav",
+			"wince": "ALIZWNCE.wav"
+		}
+	},
+	"gorgon" :
+	{
+		"id": 102,
+		"level": 5,
+		"faction": "fortress",
+		"upgrades": ["mightyGorgon"],
+		"graphics" :
+		{
+			"animation": "CCGORG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "CGORATTK.wav",
+			"defend": "CGORDFND.wav",
+			"killed": "CGORKILL.wav",
+			"move": "CGORMOVE.wav",
+			"wince": "CGORWNCE.wav"
+		}
+	},
+	"mightyGorgon" :
+	{
+		"id": 103,
+		"level": 5,
+		"faction": "fortress",
+		"abilities": [ [ "DEATH_STARE", 10, 0, 0 ] ],   	//mighty gorgons
+		"graphics" :
+		{
+			"animation": "CBGOG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BGORATTK.wav",
+			"defend": "BGORDFND.wav",
+			"killed": "BGORKILL.wav",
+			"move": "BGORMOVE.wav",
+			"wince": "BGORWNCE.wav"
+		}
+	},
+	"serpentFly" :
+	{
+		"id": 104,
+		"level": 3,
+		"extraNames": [ "dragonFly" ],
+		"faction": "fortress",
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, 78, 0 ] ],  	//serpent fly
+		"upgrades": ["fireDragonFly"],
+		"graphics" :
+		{
+			"animation": "CDRFLY.DEF"
+		},
+		"sound" :
+		{
+			"attack": "DFLYATTK.wav",
+			"defend": "DFLYDFND.wav",
+			"killed": "DFLYKILL.wav",
+			"move": "DFLYMOVE.wav",
+			"wince": "DFLYWNCE.wav"
+		}
+	},
+	"fireDragonFly" : // dragonFly is correct in-game, incorrect in HOTRAITS
+	{
+		"id": 105,
+		"level": 3,
+		"faction": "fortress",
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, 78, 0 ],	//dragon fly
+					   [ "SPELL_AFTER_ATTACK", 100, 45, 0 ] ],  	//mighty gorgons
+		"graphics" :
+		{
+			"animation": "CDRFIR.DEF"
+		},
+		"sound" :
+		{
+			"attack": "FDFLATTK.wav",
+			"defend": "FDFLDFND.wav",
+			"killed": "FDFLKILL.wav",
+			"move": "FDFLMOVE.wav",
+			"shoot": "FDFLSHOT.wav",
+			"wince": "FDFLWNCE.wav"
+		}
+	},
+	"basilisk" :
+	{
+		"id": 106,
+		"level": 4,
+		"faction": "fortress",
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 70, 0 ] ],   	//basilisks
+		"upgrades": ["greaterBasilisk"],
+		"graphics" :
+		{
+			"animation": "CBASIL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BASLATTK.wav",
+			"defend": "BASLDFND.wav",
+			"killed": "BASLKILL.wav",
+			"move": "BASLMOVE.wav",
+			"wince": "BASLWNCE.wav"
+		}
+	},
+	"greaterBasilisk" :
+	{
+		"id": 107,
+		"level": 4,
+		"faction": "fortress",
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 70, 0 ] ],   	//greater basilisks
+		"graphics" :
+		{
+			"animation": "CGBASI.DEF"
+		},
+		"sound" :
+		{
+			"attack": "GBASATTK.wav",
+			"defend": "GBASDFND.wav",
+			"killed": "GBASKILL.wav",
+			"move": "GBASMOVE.wav",
+			"wince": "GBASWNCE.wav"
+		}
+	},
+	"wyvern" :
+	{
+		"id": 108,
+		"level": 6,
+		"faction": "fortress",
+		"upgrades": ["wyvernMonarch"],
+		"graphics" :
+		{
+			"animation": "CWYVER.DEF"
+		},
+		"sound" :
+		{
+			"attack": "WYVNATTK.wav",
+			"defend": "WYVNDFND.wav",
+			"killed": "WYVNKILL.wav",
+			"move": "WYVNMOVE.wav",
+			"wince": "WYVNWNCE.wav"
+		}
+	},
+	"wyvernMonarch" :
+	{
+		"id": 109,
+		"level": 6,
+		"faction": "fortress",
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 71, 0 ] ],   	//Wyvern Monarch
+		"graphics" :
+		{
+			"animation": "CWYVMN.DEF"
+		},
+		"sound" :
+		{
+			"attack": "WYVMATTK.wav",
+			"defend": "WYVMDFND.wav",
+			"killed": "WYVMKILL.wav",
+			"move": "WYVMMOVE.wav",
+			"wince": "WYVMWNCE.wav"
+		}
+	},
+	"hydra" :
+	{
+		"id": 110,
+		"level": 7,
+		"faction": "fortress",
+		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ], 	   	//hydras
+					   [ "ATTACKS_ALL_ADJACENT", 0, 0, 0 ] ],   	//hydras
+		"upgrades": ["chaosHydra"],
+		"graphics" :
+		{
+			"animation": "CHYDRA.DEF"
+		},
+		"sound" :
+		{
+			"attack": "HYDRATTK.wav",
+			"defend": "HYDRDFND.wav",
+			"killed": "HYDRKILL.wav",
+			"move": "HYDRMOVE.wav",
+			"wince": "HYDRWNCE.wav"
+		}
+	},
+	"chaosHydra" :
+	{
+		"id": 111,
+		"level": 7,
+		"faction": "fortress",
+		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ], 	   	//chaos hydras
+					   [ "ATTACKS_ALL_ADJACENT", 0, 0, 0 ] ],   	//chaos hydras
+		"graphics" :
+		{
+			"animation": "CCHYDR.DEF"
+		},
+		"sound" :
+		{
+			"attack": "CHYDATTK.wav",
+			"defend": "CHYDDFND.wav",
+			"killed": "CHYDKILL.wav",
+			"move": "CHYDMOVE.wav",
+			"wince": "CHYDWNCE.wav"
+		}
+	}
+}

@@ -1,0 +1,122 @@
+{
+	// Several unused in H3 creatures
+	// TODO: better way to disable them
+	"unused122" :
+	{
+		"faction": "neutral",
+		"special" : true,
+		"id" : 122
+	},
+	"unused124" :
+	{
+		"faction": "neutral",
+		"special" : true,
+		"id" : 124
+	},
+	"unused126" :
+	{
+		"faction": "neutral",
+		"special" : true,
+		"id" : 126
+	},
+	"unused128" :
+	{
+		"faction": "neutral",
+		"special" : true,
+		"id" : 128
+	},
+
+	"catapult" :
+	{
+		"special" : true,
+		"id": 145,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "SMCATA.DEF",
+			"missile" :
+			{
+				"projectile": "SMCATX.DEF",
+				"spinning": true
+			}
+		},
+		"sound" :
+		{
+			"killed": "CATAKILL.wav",
+			"shoot": "CATASHOT.wav",
+			"wince": "CATAWNCE.wav"
+		}
+	},
+	"ballista" :
+	{
+		"special" : true,
+		"id": 146,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "SMBAL.DEF",
+			"missile" :
+			{
+				"projectile": "SMBALX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"killed": "BALLKILL.wav",
+			"shoot": "BALLSHOT.wav",
+			"wince": "BALLWNCE.wav"
+		}
+	},
+	"firstAidTent" :
+	{
+		"special" : true,
+		"id": 147,
+		"level": 0,
+		"faction": "neutral",
+		"abilities": [ [ "HEALER", 0, 0, 0 ] ],
+		"graphics" :
+		{
+			"animation": "SMTENT.DEF"
+		},
+		"sound" :
+		{
+			"killed": "FAIDKILL.wav",
+			"wince": "FAIDWNCE.wav"
+		}
+	},
+	"ammoCart" :
+	{
+		"special" : true,
+		"id": 148,
+		"level": 0,
+		"faction": "neutral",
+		"abilities": [ [ "NOT_ACTIVE", 0, 0, 0 ] ],
+		"graphics" :
+		{
+			"animation": "SMCART.DEF"
+		},
+		"sound" :
+		{
+			"killed": "CARTKILL.wav",
+			"wince": "CARTWNCE.wav"
+		}
+	},
+	"arrowTower" :
+	{
+		"special" : true,
+		"id": 149,
+		"level": 0,
+		"faction": "neutral",
+		"abilities": [ [ "SHOOTER", 0, 0, 0 ] ],
+		"graphics" :
+		{
+			"missile" :
+			{
+				"projectile": "SMBALX.DEF", //workaround for crash
+			}
+		}
+	}
+}

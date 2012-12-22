@@ -1,0 +1,333 @@
+// Neutral creatures as in SoD
+{
+	"goldGolem" :
+	{
+		"id": 116,
+		"level": 4,
+		"faction": "neutral",
+		"abilities": [ [ "SPELL_DAMAGE_REDUCTION", 85, -1, 0 ],		//gold golems reduce dmg from spells
+						 [ "NON_LIVING", 0, 0, 0 ] ],		 	   	//diamond golems are non-living
+		"graphics" :
+		{
+			"animation": "CGGOLE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "GGLMATTK.wav",
+			"defend": "GGLMDFND.wav",
+			"killed": "GGLMKILL.wav",
+			"move": "GGLMMOVE.wav",
+			"wince": "GGLMWNCE.wav"
+		}
+	},
+	"diamondGolem" :
+	{
+		"id": 117,
+		"level": 5,
+		"faction": "neutral",
+		"abilities": [ [ "SPELL_DAMAGE_REDUCTION", 95, -1, 0 ],		//diamond golems reduce dmg from spells
+						 [ "NON_LIVING", 0, 0, 0 ] ],				//psychic elementals shouldn't get morale
+		"graphics" :
+		{
+			"animation": "CDGOLE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "DGLMATTK.wav",
+			"defend": "DGLMDFND.wav",
+			"killed": "DGLMKILL.wav",
+			"move": "DGLMMOVE.wav",
+			"wince": "DGLMWNCE.wav"
+		}
+	},
+	"azureDragon" :
+	{
+		"id": 132,
+		"level": 10,
+		"faction": "neutral",
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],
+						 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  //azure dragon's breath
+						 [ "FEARLESS", 0, 0, 0 ],  //azure dragon is immune to fear
+						  [ "LEVEL_SPELL_IMMUNITY", 3, 0, 0 ],	//immunity spell levels 1-3
+						[ "FEAR", 0, 0, 0]],			//azure dragon is a dragon
+		"graphics" :
+		{
+			"animation": "CADRGN.DEF"
+		},
+		"sound" :
+		{
+			"attack": "AZURATTK.wav",
+			"defend": "AZURDFND.wav",
+			"killed": "AZURKILL.wav",
+			"move": "AZURMOVE.wav",
+			"wince": "AZURWNCE.wav"
+		}
+	},
+	"crystalDragon" :
+	{
+		"id": 133,
+		"level": 10,
+		"faction": "neutral",
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//crystal dragon is a dragon
+		"ability_remove": [ "FLYING" ],
+		"graphics" :
+		{
+			"animation": "CCDRGN.DEF"
+		},
+		"sound" :
+		{
+			"attack": "CRYSATTK.wav",
+			"defend": "CRYSDFND.wav",
+			"killed": "CRYSKILL.wav",
+			"move": "CRYSMOVE.wav",
+			"wince": "CRYSWNCE.wav"
+		}
+	},
+	"fairieDragon" :
+	{
+		"id": 134,
+		"level": 8,
+		"faction": "neutral",
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//faerie dragon is a dragon
+						[ "CASTS", 5, 0, 0 ],
+						[ "CREATURE_SPELL_POWER", 500, 0, 0], 	//5 spell power per dragon
+						[ "SPELLCASTER", 2, 15, 10 ],			//magic arrow
+						[ "SPELLCASTER", 2, 16, 22 ],			//ice bolt
+						[ "SPELLCASTER", 2, 17, 22 ],			//thunderbolt
+						[ "SPELLCASTER", 2, 19, 5 ],			//chain lightning
+						[ "SPELLCASTER", 2, 20, 10 ],			//frost ring
+						[ "SPELLCASTER", 2, 21, 21 ],			//fireball
+						[ "SPELLCASTER", 2, 22, 5 ],			//inferno
+						[ "SPELLCASTER", 2, 23, 5 ]],			//meteor shower
+		"graphics" :
+		{
+			"animation": "CFDRGN.DEF"
+		},
+		"sound" :
+		{
+			"attack": "FAERATTK.wav",
+			"defend": "FAERDFND.wav",
+			"killed": "FAERKILL.wav",
+			"move": "FAERMOVE.wav",
+			"shoot": "FAERSHOT.wav",
+			"wince": "FAERWNCE.wav"
+		}
+	},
+	"rustDragon" :
+	{
+		"id": 135,
+		"level": 10,
+		"faction": "neutral",
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, 80, 0 ],			//always reduce defense
+						 [ "ACID_BREATH", 25, 0, 20 ],			//20% chance to do 25 damage
+						 [ "DRAGON_NATURE", 0, 0, 0 ] ],			//rust dragon is a dragon
+		"graphics" :
+		{
+			"animation": "CRSDGN.DEF"
+		},
+		"sound" :
+		{
+			"attack": "RUSTATTK.wav",
+			"defend": "RUSTDFND.wav",
+			"killed": "RUSTKILL.wav",
+			"move": "RUSTMOVE.wav",
+			"wince": "RUSTWNCE.wav"
+		}
+	},
+	"enchanter" :
+	{
+		"id": 136,
+		"level": 6,
+		"extraNames": [ "enchanters" ],
+		"faction": "neutral",
+		"abilities": [ [ "NO_WALL_PENALTY", 0, 0, 0 ],
+						 [ "ENCHANTER", 3, 28, 3],		//air shield
+						 [ "ENCHANTER", 3, 41, 3],		//bless
+						 [ "ENCHANTER", 3, 45, 3],		//wealness
+						 [ "ENCHANTER", 3, 46, 3],		//stone skin
+						 [ "ENCHANTER", 3, 53, 3],		//slow
+						 [ "ENCHANTER", 3, 54, 3],		//haster
+						 [ "CASTS", 5, 0, 0]],			//Enchanter
+		"graphics" :
+		{
+			"animation": "CENCH.DEF",
+			"missile" :
+			{
+				"projectile": "SMBALX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "ENCHATTK.wav",
+			"defend": "ENCHDFND.wav",
+			"killed": "ENCHKILL.wav",
+			"move": "ENCHMOVE.wav",
+			"shoot": "ENCHSHOT.wav",
+			"wince": "ENCHWNCE.wav"
+		}
+	},
+	"sharpshooter" :
+	{
+		"id": 137,
+		"level": 4,
+		"extraNames": [ "sharpshooters" ],
+		"faction": "neutral",
+		"abilities": [ [ "NO_WALL_PENALTY", 0, 0, 0 ],
+						 [ "NO_DISTANCE_PENALTY", 0, 0, 0 ] ],			//Sharpshooter
+		"graphics" :
+		{
+			"animation": "CSHARP.DEF",
+			"missile" :
+			{
+				"projectile": "PELFX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "HCRSATTK.wav",
+			"defend": "HCRSDFND.wav",
+			"killed": "HCRSKILL.wav",
+			"move": "HCRSMOVE.wav",
+			"shoot": "HCRSSHOT.wav",
+			"wince": "HCRSWNCE.wav"
+		}
+	},
+	"halfling" :
+	{
+		"id": 138,
+		"level": 1,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "CHALF.DEF",
+			"missile" :
+			{
+				"projectile": "PHALF.DEF",
+				"spinning": true
+			}
+		},
+		"sound" :
+		{
+			"attack": "HALFATTK.wav",
+			"defend": "HALFDFND.wav",
+			"killed": "HALFKILL.wav",
+			"move": "HALFMOVE.wav",
+			"shoot": "HALFSHOT.wav",
+			"wince": "HALFWNCE.wav"
+		}
+	},
+	"peasant" :
+	{
+		"id": 139,
+		"level": 1,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "CPEAS.DEF"
+		},
+		"sound" :
+		{
+			"attack": "PSNTATTK.wav",
+			"defend": "PSNTDFND.wav",
+			"killed": "PSNTKILL.wav",
+			"move": "PSNTMOVE.wav",
+			"wince": "PSNTWNCE.wav"
+		}
+	},
+	"boar" :
+	{
+		"id": 140,
+		"level": 2,
+		"faction": "neutral",
+		"abilities": [ [ "DOUBLE_WIDE", 0, 0, 0 ] ], 			//boar should be treated as double-wide
+		"graphics" :
+		{
+			"animation": "CBOAR.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BOARATTK.wav",
+			"defend": "BOARDFND.wav",
+			"killed": "BOARKILL.wav",
+			"move": "BOARMOVE.wav",
+			"wince": "BOARWNCE.wav"
+		}
+	},
+	"mummy" :
+	{
+		"id": 141,
+		"level": 3,
+		"faction": "neutral",
+		"abilities": [ [ "UNDEAD", 0, 0, 0 ] ],
+		"graphics" :
+		{
+			"animation": "CMUMMY.DEF"
+		},
+		"sound" :
+		{
+			"attack": "MUMYATTK.wav",
+			"defend": "MUMYDFND.wav",
+			"killed": "MUMYKILL.wav",
+			"move": "MUMYMOVE.wav",
+			"wince": "MUMYWNCE.wav"
+		}
+	},
+	"nomad" :
+	{
+		"id": 142,
+		"level": 3,
+		"faction": "neutral",
+		"abilities": [ [ "DOUBLE_WIDE", 0, 0, 0 ] ], 			//nomads should be treated as double-wide
+		"graphics" :
+		{
+			"animation": "CNOMAD.DEF"
+		},
+		"sound" :
+		{
+			"attack": "NMADATTK.wav",
+			"defend": "NMADDFND.wav",
+			"killed": "NMADKILL.wav",
+			"move": "NMADMOVE.wav",
+			"wince": "NMADWNCE.wav"
+		}
+	},
+	"rogue" :
+	{
+		"id": 143,
+		"level": 2,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "CROGUE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "ROGUATTK.wav",
+			"defend": "ROGUDFND.wav",
+			"killed": "ROGUKILL.wav",
+			"move": "ROGUMOVE.wav",
+			"wince": "ROGUWNCE.wav"
+		}
+	},
+	"troll" :
+	{
+		"id": 144,
+		"level": 5,
+		"faction": "neutral",
+		"abilities": [ [ "FULL_HP_REGENERATION", 0, 0, 0 ] ], 			//troll
+		"graphics" :
+		{
+			"animation": "CTROLL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "TRLLATTK.wav",
+			"defend": "TRLLDFND.wav",
+			"killed": "TRLLKILL.wav",
+			"move": "TRLLMOVE.wav",
+			"wince": "TRLLWNCE.wav"
+		}
+	}
+}

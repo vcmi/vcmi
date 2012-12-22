@@ -520,7 +520,7 @@ void CTownHandler::load(const JsonNode &source)
 			[=](si32 commanderID)
 			{
 				factions[id].commander = commanderID;
-			}); //TODO: resolve string id
+			});
 
 		faction.creatureBg120 = node.second["creatureBackground"]["120px"].String();
 		faction.creatureBg130 = node.second["creatureBackground"]["130px"].String();

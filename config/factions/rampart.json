@@ -4,7 +4,7 @@
 		"index" : 1,
 		"nativeTerrain": "grass",
 		"alignment" : "good",
-		"commander" : "Hierophant1",
+		"commander" : "hierophant1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASRAM",
@@ -140,18 +140,18 @@
 			],
 			"creatures" :
 			[
-				["Centaur", "EliteCentaur"],
-				["Dwarf", "BattleDwarf"],
-				["WoodElf", "GrandElf"],
-				["Pegasus", "SilverPegasus"],
-				["Treefolk", "BriarTreefolk"],
-				["Unicorn", "WarUnicorn"],
-				["GreenDragon", "GoldDragon"]
+				["centaur", "centaurCaptain"],
+				["dwarf", "battleDwarf"],
+				["woodElf", "grandElf"],
+				["pegasus", "silverPegasus"],
+				["dendroidGuard", "dendroidSoldier"],
+				["unicorn", "warUnicorn"],
+				["greenDragon", "goldDragon"]
 			],
 			"horde" : [ 1, 4 ],
 			"mageGuild" : 5,
 			"primaryResource" : "crystal",
-			"warMachine" : "FirstAidTent",
+			"warMachine" : "firstAidTent",
 
 			"buildings" :
 			[
@@ -201,7 +201,7 @@
 
 			"siege" :
 			{
-				"shooter" : "WoodElf",
+				"shooter" : "woodElf",
 				"imagePrefix" : "SGRM",
 				"gate" :
 				{

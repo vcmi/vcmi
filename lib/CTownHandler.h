@@ -176,7 +176,6 @@ public:
 	ui8 nativeTerrain;
 	ui8 alignment; // uses EAlignment enum
 
-	//std::string commanderClass;
 	TCreature commander;
 
 	std::string creatureBg120;

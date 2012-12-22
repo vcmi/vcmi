@@ -1,0 +1,309 @@
+{
+	"imp" :
+	{
+		"id": 42,
+		"level": 1,
+		"faction": "inferno",
+		"upgrades": ["familiar"],
+		"graphics" :
+		{
+			"animation": "CIMP.DEF"
+		},
+		"sound" :
+		{
+			"attack": "IMPPATTK.wav",
+			"defend": "IMPPDFND.wav",
+			"killed": "IMPPKILL.wav",
+			"move": "IMPPMOVE.wav",
+			"wince": "IMPPWNCE.wav"
+		}
+	},
+	"familiar" :
+	{
+		"id": 43,
+		"level": 1,
+		"faction": "inferno",
+		"abilities": [ [ "MANA_CHANNELING", 20, 0, 0 ] ], 		//familiars
+		"graphics" :
+		{
+			"animation": "CFAMIL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "FMLRATTK.wav",
+			"defend": "FMLRDFND.wav",
+			"killed": "FMLRKILL.wav",
+			"move": "FMLRMOVE.wav",
+			"wince": "FMLRWNCE.wav"
+		}
+	},
+	"gog" :
+	{
+		"id": 44,
+		"level": 2,
+		"faction": "inferno",
+		"upgrades": ["magog"],
+		"graphics" :
+		{
+			"animation": "CGOG.DEF",
+			"missile" :
+			{
+				"projectile": "CPRGOGX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "GOGGATTK.wav",
+			"defend": "GOGGDFND.wav",
+			"killed": "GOGGKILL.wav",
+			"move": "GOGGMOVE.wav",
+			"shoot": "GOGGSHOT.wav",
+			"wince": "GOGGWNCE.wav",
+			"ext1": "GOGFLAME.wav"
+		}
+	},
+	"magog" :
+	{
+		"id": 45,
+		"level": 2,
+		"faction": "inferno",
+		"abilities": [ [ "SPELL_LIKE_ATTACK", 0, 21, 0 ] ], 		//magogs fire with fireballs
+		"graphics" :
+		{
+			"animation": "CMAGOG.DEF",
+			"missile" :
+			{
+				"projectile": "CPRGOGX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "MGOGATTK.wav",
+			"defend": "MGOGDFND.wav",
+			"killed": "MGOGKILL.wav",
+			"move": "MGOGMOVE.wav",
+			"shoot": "MGOGSHOT.wav",
+			"wince": "MGOGWNCE.wav",
+			"ext1": "GOGFLAME.wav"
+		}
+	},
+	"hellHound" :
+	{
+		"id": 46,
+		"level": 3,
+		"faction": "inferno",
+		"upgrades": ["cerberus"],
+		"ability_remove": [ "FLYING" ], //hell hound doesn't fly
+		"graphics" :
+		{
+			"animation": "CHHOUN.DEF"
+		},
+		"sound" :
+		{
+			"attack": "HHNDATTK.wav",
+			"defend": "HHNDDFND.wav",
+			"killed": "HHNDKILL.wav",
+			"move": "HHNDMOVE.wav",
+			"wince": "HHNDWNCE.wav"
+		}
+	},
+	"cerberus" :
+	{
+		"id": 47,
+		"level": 3,
+		"faction": "inferno",
+		"abilities": [ [ "THREE_HEADED_ATTACK", 0, 0, 0 ],
+						 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],
+		"ability_remove": [ "FLYING" ],  //cerberus doesn't fly
+		"graphics" :
+		{
+			"animation": "CCERBU.DEF"
+		},
+		"sound" :
+		{
+			"attack": "CERBATTK.wav",
+			"defend": "CERBDFND.wav",
+			"killed": "CERBKILL.wav",
+			"move": "CERBMOVE.wav",
+			"wince": "CERBWNCE.wav"
+		}
+	},
+	"demon" :
+	{
+		"id": 48,
+		"level": 4,
+		"faction": "inferno",
+		"upgrades": ["hornedDemon"],
+		"graphics" :
+		{
+			"animation": "COHDEM.DEF"
+		},
+		"sound" :
+		{
+			"attack": "SHDMATTK.wav",
+			"defend": "SHDMDFND.wav",
+			"killed": "SHDMKILL.wav",
+			"move": "SHDMMOVE.wav",
+			"wince": "SHDMWNCE.wav"
+		}
+	},
+	"hornedDemon" :
+	{
+		"id": 49,
+		"level": 4,
+		"faction": "inferno",
+		"graphics" :
+		{
+			"animation": "CTHDEM.DEF"
+		},
+		"sound" :
+		{
+			"attack": "DHDMATTK.wav",
+			"defend": "DHDMDFND.wav",
+			"killed": "DHDMKILL.wav",
+			"move": "DHDMMOVE.wav",
+			"wince": "DHDMWNCE.wav"
+		}
+	},
+	"pitFiend" :
+	{
+		"id": 50,
+		"level": 5,
+		"faction": "inferno",
+		"upgrades": ["pitLord"],
+		"graphics" :
+		{
+			"animation": "CPFIEN.DEF"
+		},
+		"sound" :
+		{
+			"attack": "PFNDATTK.wav",
+			"defend": "PFNDDFND.wav",
+			"killed": "PFNDKILL.wav",
+			"move": "PFNDMOVE.wav",
+			"wince": "PFNDWNCE.wav"
+		}
+	},
+	"pitLord" :
+	{
+		"id": 51,
+		"level": 5,
+		"faction": "inferno",
+		"abilities": [ [ "DAEMON_SUMMONING", 50, 48, 0 ],
+						[ "CASTS", 1, 0, 0] ],		//pit lord
+		"graphics" :
+		{
+			"animation": "CPFOE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "PFOEATTK.wav",
+			"defend": "PFOEDFND.wav",
+			"killed": "PFOEKILL.wav",
+			"move": "PFOEMOVE.wav",
+			"wince": "PFOEWNCE.wav"
+		}
+	},
+	"efreet" :
+	{
+		"id": 52,
+		"level": 6,
+		"faction": "inferno",
+		"abilities": [ [ "HATE", 50, 37, 0 ],
+						 [ "HATE", 50, 36, 0 ],
+						 [ "FLYING", 0, 0, 0 ],  					//efreeti hate master genies
+						 [ "FIRE_IMMUNITY", 0, 0, 0 ] ], 			//efreeti hate genies
+		"upgrades": ["efreetSultan"],
+		"graphics" :
+		{
+			"animation": "CEFREE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "EFRTATTK.wav",
+			"defend": "EFRTDFND.wav",
+			"killed": "EFRTKILL.wav",
+			"move": "EFRTMOVE.wav",
+			"wince": "EFRTWNCE.wav"
+		}
+	},
+	"efreetSultan" :
+	{
+		"id": 53,
+		"level": 6,
+		"faction": "inferno",
+		"abilities": [ [ "HATE", 50, 37, 0 ],
+						 [ "HATE", 50, 36, 0 ],
+						 [ "FLYING", 0, 0, 0 ],		  	 		//efreet sultans hate master genies
+						 [ "FIRE_SHIELD", 0, 36, 0 ],				//efreet sultans hate genies
+						 [ "FIRE_IMMUNITY", 0, 0, 0 ] ],			//efreet sultan		//Efreet Sultan
+		"graphics" :
+		{
+			"animation": "CEFRES.DEF"
+		},
+		"sound" :
+		{
+			"attack": "ESULATTK.wav",
+			"defend": "ESULDFND.wav",
+			"killed": "ESULKILL.wav",
+			"move": "ESULMOVE.wav",
+			"shoot": "ESULSHOT.wav",
+			"wince": "ESULWNCE.wav"
+		}
+	},
+	"devil" :
+	{
+		"id": 54,
+		"level": 7,
+		"faction": "inferno",
+		"ability_remove": [ "FLYING" ],  //use teleport instead
+		"abilities": [ [ "HATE", 50, 13, 0 ],
+						[ "FLYING", 0, 1, 0], //teleport
+						 [ "HATE", 50, 12, 0 ],
+						 [ "ENEMY_LUCK_DECREASING", 1, 0, 0 ],	//devils				//devils hate archangles
+						 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ], 	 	//devils			//devils hate angels
+		"upgrades": ["archDevil"],
+		"graphics" :
+		{
+			"animation": "CDEVIL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "DEVLATTK.wav",
+			"defend": "DEVLDFND.wav",
+			"killed": "DEVLKILL.wav",
+			"move": "DEVLMOVE.wav",
+			"wince": "DEVLWNCE.wav",
+			"ext1": "DEVLEXT1.wav",
+			"ext2": "DEVLEXT2.wav"
+		}
+	},
+	"archDevil" :
+	{
+		"id": 55,
+		"level": 7,
+		"faction": "inferno",
+		"ability_remove": [ "FLYING" ],  //use teleport instead
+		"abilities": [ [ "HATE", 50, 13, 0 ],
+						 [ "HATE", 50, 12, 0 ],
+						 [ "FLYING", 0, 1, 0],
+						 [ "ENEMY_LUCK_DECREASING", 1, 0, 0 ], 	//archdevils				//archdevils hate archangles
+						 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ], 	 	//archdevils			//archdevils hate angels
+		"graphics" :
+		{
+			"animation": "CADEVL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "ADVLATTK.wav",
+			"defend": "ADVLDFND.wav",
+			"killed": "ADVLKILL.wav",
+			"move": "ADVLMOVE.wav",
+			"wince": "ADVLWNCE.wav",
+			"startMoving": "ADVLEXT1.wav",
+			"stopMoving": "ADVLEXT2.wav"
+		}
+	}
+}

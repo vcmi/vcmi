@@ -1,0 +1,297 @@
+{
+	"pikeman" :
+	{
+		"id": 0,
+		"level": 1,
+		"faction": "castle",
+		"upgrades": ["halberdier"],
+		"abilities": [ [ "CHARGE_IMMUNITY", 0, 0, 0 ] ], 		//pikeman immunity to Champion charge bonus
+		"graphics" :
+		{
+			"animation": "CPKMAN.DEF"
+		},
+		"sound" :
+		{
+			"attack": "PIKEATTK.wav",
+			"defend": "PIKEDFND.wav",
+			"killed": "PIKEKILL.wav",
+			"move": "PIKEMOVE.wav",
+			"wince": "PIKEWNCE.wav"
+		}
+	},
+	"halberdier" :
+	{
+		"id": 1,
+		"level": 1,
+		"faction": "castle",
+		"abilities": [ [ "CHARGE_IMMUNITY", 0, 0, 0 ] ], 		//halberdier immunity to Champion charge bonus
+		"graphics" :
+		{
+			"animation": "CHALBD.DEF"
+		},
+		"sound" :
+		{
+			"attack": "HALBATTK.wav",
+			"defend": "HALBDFND.wav",
+			"killed": "HALBKILL.wav",
+			"move": "HALBMOVE.wav",
+			"wince": "HALBWNCE.wav"
+		}
+	},
+	"archer" :
+	{
+		"id": 2,
+		"level": 2,
+		"extraNames": [ "lightCrossbowman" ],
+		"faction": "castle",
+		"upgrades": ["marksman"],
+		"graphics" :
+		{
+			"animation": "CLCBOW.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "LCRSATTK.wav",
+			"defend": "LCRSDFND.wav",
+			"killed": "LCRSKILL.wav",
+			"move": "LCRSMOVE.wav",
+			"shoot": "LCRSSHOT.wav",
+			"wince": "LCRSWNCE.wav"
+		}
+	},
+	"marksman" :
+	{
+		"id": 3,
+		"level": 2,
+		"faction": "castle",
+		"graphics" :
+		{
+			"animation": "CHCBOW.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "HCRSATTK.wav",
+			"defend": "HCRSDFND.wav",
+			"killed": "HCRSKILL.wav",
+			"move": "HCRSMOVE.wav",
+			"shoot": "HCRSSHOT.wav",
+			"wince": "HCRSWNCE.wav"
+		}
+	},
+	"griffin" :
+	{
+		"id": 4,
+		"level": 3,
+		"faction": "castle",
+		"abilities": [ [ "ADDITIONAL_RETALIATION", 1, 0, 0 ] ], 	//griffins retaliate twice
+		"upgrades": ["royalGriffin"],
+		"graphics" :
+		{
+			"animation": "CGRIFF.DEF"
+		},
+		"sound" :
+		{
+			"attack": "GRIFATTK.wav",
+			"defend": "GRIFDFND.wav",
+			"killed": "GRIFKILL.wav",
+			"move": "GRIFMOVE.wav",
+			"wince": "GRIFWNCE.wav"
+		}
+	},
+	"royalGriffin" :
+	{
+		"id": 5,
+		"level": 3,
+		"faction": "castle",
+		"abilities": [ [ "UNLIMITED_RETALIATIONS", 0, 0, 0 ] ],	//royal griffins retaliate always
+		"graphics" :
+		{
+			"animation": "CRGRIF.DEF"
+		},
+		"sound" :
+		{
+			"attack": "RGRFATTK.wav",
+			"defend": "RGRFDFND.wav",
+			"killed": "RGRFKILL.wav",
+			"move": "RGRFMOVE.wav",
+						"wince": "RGRFWNCE.wav"
+		}
+	},
+	"swordsman" :
+	{
+		"id": 6,
+		"level": 4,
+		"faction": "castle",
+		"upgrades": ["crusader"],
+		"graphics" :
+		{
+			"animation": "CSWORD.DEF"
+		},
+		"sound" :
+		{
+			"attack": "SWRDATTK.wav",
+			"defend": "SWRDDFND.wav",
+			"killed": "SWRDKILL.wav",
+			"move": "SWRDMOVE.wav",
+			"wince": "SWRDWNCE.wav"
+		}
+	},
+	"crusader" :
+	{
+		"id": 7,
+		"level": 4,
+		"faction": "castle",
+		"graphics" :
+		{
+			"animation": "CCRUSD.DEF"
+		},
+		"sound" :
+		{
+			"attack": "CRUSATTK.wav",
+			"defend": "CRUSDFND.wav",
+			"killed": "CRUSKILL.wav",
+			"move": "CRUSMOVE.wav",
+			"wince": "CRUSWNCE.wav"
+		}
+	},
+	"monk" :
+	{
+		"id": 8,
+		"level": 5,
+		"faction": "castle",
+		"upgrades": ["zealot"],
+		"graphics" :
+		{
+			"animation": "CMONKK.DEF",
+			"missile" :
+			{
+				"projectile": "CPRZEAX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "MONKATTK.wav",
+			"defend": "MONKDFND.wav",
+			"killed": "MONKKILL.wav",
+			"move": "MONKMOVE.wav",
+			"shoot": "MONKSHOT.wav",
+			"wince": "MONKWNCE.wav"
+		}
+	},
+	"zealot" :
+	{
+		"id": 9,
+		"level": 5,
+		"faction": "castle",
+		"graphics" :
+		{
+			"animation": "CZEALT.DEF",
+			"missile" :
+			{
+				"projectile": "CPRZEAX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "ZELTATTK.wav",
+			"defend": "ZELTDFND.wav",
+			"killed": "ZELTKILL.wav",
+			"move": "ZELTMOVE.wav",
+			"shoot": "ZELTSHOT.wav",
+			"wince": "ZELTWNCE.wav"
+		}
+	},
+	"cavalier" :
+	{
+		"id": 10,
+		"level": 6,
+		"faction": "castle",
+		"upgrades": ["champion"],
+		"graphics" :
+		{
+			"animation": "CCAVLR.DEF"
+		},
+		"sound" :
+		{
+			"attack": "CAVAATTK.wav",
+			"defend": "CAVADFND.wav",
+			"killed": "CAVAKILL.wav",
+			"move": "CAVAMOVE.wav",
+			"wince": "CAVAWNCE.wav"
+		}
+	},
+	"champion" :
+	{
+		"id": 11,
+		"level": 6,
+		"faction": "castle",
+		"graphics" :
+		{
+			"animation": "CCHAMP.DEF"
+		},
+		"sound" :
+		{
+			"attack": "CHMPATTK.wav",
+			"defend": "CHMPDFND.wav",
+			"killed": "CHMPKILL.wav",
+			"move": "CHMPMOVE.wav",
+			"wince": "CHMPWNCE.wav"
+		}
+	},
+	"angel" :
+	{
+		"id": 12,
+		"level": 7,
+		"faction": "castle",
+		"abilities": [ [ "HATE", 50, 55, 0 ],					//angels hate archdevils
+						 [			 "HATE", 50, 54, 0 ] ],			   	 	//angels hate devils
+		"upgrades": ["archangel"],
+		"graphics" :
+		{
+			"animation": "CANGEL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "ANGLATTK.wav",
+			"defend": "ANGLDFND.wav",
+			"killed": "ANGLKILL.wav",
+			"move": "ANGLMOVE.wav",
+			"wince": "ANGLWNCE.wav"
+		}
+	},
+	"archangel" :
+	{
+		"id": 13,
+		"level": 7,
+		"faction": "castle",
+		"abilities": [ [ "SPECIFIC_SPELL_POWER", 100, 38, 0 ],			// 100 hp per Archangel
+						 [ "SPELLCASTER", 0, 38, 0 ],			//archangels cast resurrection
+						 [ "HATE", 50, 55, 0 ],					//archangels hate arch
+						 [ "HATE", 50, 54, 0 ] ,					//archangels hate devils
+						 [ "CASTS", 1, 0, 0]],
+		"graphics" :
+		{
+			"animation": "CRANGL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "AAGLATTK.wav",
+			"defend": "AAGLDFND.wav",
+			"killed": "AAGLKILL.wav",
+			"move": "AAGLMOVE.wav",
+			"wince": "AAGLWNCE.wav"
+		}
+	}
+}

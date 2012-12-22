@@ -4,7 +4,7 @@
 		"index" : 3,
 		"nativeTerrain": "lava",
 		"alignment" : "evil",
-		"commander" : "Succubus1",
+		"commander" : "succubus1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASINF",
@@ -135,18 +135,18 @@
 			],
 			"creatures" :
 			[
-				["Imp", "Familiar"],
-				["Gog", "Magog"],
-				["HellHound", "Cerberus"],
-				["Single-HornedDemon", "Dual-HornedDemon"],
-				["PitFiend", "PitFoe"],
-				["Efreet", "EfreetSultan"],
-				["Devil", "ArchDevil"]
+				["imp", "familiar"],
+				["gog", "magog"],
+				["hellHound", "cerberus"],
+				["demon", "hornedDemon"],
+				["pitFiend", "pitLord"],
+				["efreet", "efreetSultan"],
+				["devil", "archDevil"]
 			],
 			"horde" : [ 0, 2 ],
 			"mageGuild" : 5,
 			"primaryResource" : "mercury",
-			"warMachine" : "Ballista",
+			"warMachine" : "ballista",
 
 			"buildings" :
 			[
@@ -196,7 +196,7 @@
 
 			"siege" :
 			{
-				"shooter" : "Gog",
+				"shooter" : "gog",
 				"imagePrefix" : "SGIN",
 				"gate" :
 				{

@@ -1,19 +1,5 @@
 
 {
-	//Map faction - commander creature
-	//Using "attacking creature" from WoG - whatever it means
-	"factionCreatures":
-	[
-		{"faction": 0, "id": 174},
-		{"faction": 1, "id": 175},
-		{"faction": 2, "id": 176},
-		{"faction": 3, "id": 177},
-		{"faction": 4, "id": 178},
-		{"faction": 5, "id": 179},
-		{"faction": 6, "id": 180},
-		{"faction": 7, "id": 181},
-		{"faction": 8, "id": 182}
-	],
 	//Commander receives these bonuses on level-up
 	"bonusPerLevel":
 	[

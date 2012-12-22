@@ -4,7 +4,7 @@
 		"index" : 2,
 		"nativeTerrain" : "snow",
 		"alignment" : "good",
-		"commander" : "TempleGuardian1",
+		"commander" : "templeGuardian1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASTOW",
@@ -135,18 +135,18 @@
 			],
 			"creatures" :
 			[
-				["ApprenticeGremlin", "MasterGremlin"],
-				["StoneGargoyle", "ObsidianGargoyle"],
-				["IronGolem", "StoneGolem"],
-				["Mage", "ArchMage"],
-				["Genie", "Caliph"],
-				["NagaSentinel", "NagaGuardian"],
-				["LesserTitan", "GreaterTitan"]
+				["gremlin", "masterGremlin"],
+				["stoneGargoyle", "obsidianGargoyle"],
+				["ironGolem", "stoneGolem"],
+				["mage", "archMage"],
+				["genie", "masterGenie"],
+				["naga", "nagaQueen"],
+				["giant", "titan"]
 			],
 			"horde" : [ 1, -1 ],
 			"primaryResource" : "gems",
 			"mageGuild" : 5,
-			"warMachine" : "AmmoCart",
+			"warMachine" : "ammoCart",
 
 			"buildings" :
 			[
@@ -194,7 +194,7 @@
 
 			"siege" :
 			{
-				"shooter" : "Mage",
+				"shooter" : "mage",
 				"imagePrefix" : "SGTW",
 				"gate" :
 				{

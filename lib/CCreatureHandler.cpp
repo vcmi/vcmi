@@ -310,11 +310,14 @@ void CCreatureHandler::loadCreatures()
 	while (parser.endLine());
 
 	// loading creatures properties
-	tlog5 << "\t\tReading config/creatures.json" << std::endl;
-	const JsonNode config(ResourceID("config/creatures.json"));
+	tlog5 << "\t\tReading creatures json configs" << std::endl;
 
-	BOOST_FOREACH(const JsonNode &creature, config["creatures"].Vector())
+	const JsonNode gameConf(ResourceID("config/gameConfig.json"));
+	const JsonNode config(JsonUtils::assembleFromFiles(gameConf["creatures"].convertTo<std::vector<std::string> >()));
+
+	BOOST_FOREACH(auto & node, config.Struct())
 	{
+		const JsonNode &creature = node.second;
 		int creatureID = creature["id"].Float();
 		const JsonNode *value;
 
@@ -355,7 +358,7 @@ void CCreatureHandler::loadCreatures()
 			}
 		}
 
-		value = &creature["ability_add"];
+		value = &creature["abilities"];
 		if (!value->isNull()) {
 			BOOST_FOREACH(const JsonNode &ability, value->Vector())
 			{
@@ -363,23 +366,37 @@ void CCreatureHandler::loadCreatures()
 			}
 		}
 
-		c->nameRef = creature["name"].Vector().at(0).String();
+		c->special = creature["special"].Bool();
+		if ( c->special )
+			notUsedMonsters.insert(c->idNumber);
 
-		/* A creature can have several names. */
-		BOOST_FOREACH(const JsonNode &name, creature["name"].Vector())
+		const JsonNode & sounds = creature["sound"];
+
+#define GET_SOUND_VALUE(value_name) c->sounds.value_name = sounds[#value_name].String()
+		GET_SOUND_VALUE(attack);
+		GET_SOUND_VALUE(defend);
+		GET_SOUND_VALUE(killed);
+		GET_SOUND_VALUE(move);
+		GET_SOUND_VALUE(shoot);
+		GET_SOUND_VALUE(wince);
+		GET_SOUND_VALUE(ext1);
+		GET_SOUND_VALUE(ext2);
+		GET_SOUND_VALUE(startMoving);
+		GET_SOUND_VALUE(endMoving);
+#undef GET_SOUND_VALUE
+
+		// Main reference name, e.g. royalGriffin
+		c->nameRef = node.first;
+		VLC->modh->identifiers.registerObject("creature." + node.first, c->idNumber);
+
+		// Alternative names, if any
+		BOOST_FOREACH(const JsonNode &name, creature["extraNames"].Vector())
 		{
-			VLC->modh->identifiers.registerObject(std::string("creature.") + name.String(), c->idNumber);
+			VLC->modh->identifiers.registerObject("creature." + name.String(), c->idNumber);
 		}
 	}
 
-	BOOST_FOREACH(const JsonNode &creature, config["unused_creatures"].Vector())
-	{
-		notUsedMonsters += creature.Float();
-	}
-
 	loadAnimationInfo();
-	loadSoundsInfo();
-
 
 	//reading creature ability names
 	const JsonNode config2(ResourceID("config/bonusnames.json"));
@@ -572,41 +589,6 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, CLegacyConfigParser & 
 	unit.attackClimaxFrame = parser.readNumber();
 
 	parser.endLine();
-}
-
-void CCreatureHandler::loadCreatureSounds(JsonNode node, si32 creaID) // passing node by value to get clearer binding code
-{
-	/* This is a bit ugly. Maybe we should use an array for
-	 * sound ids instead of separate variables and define
-	 * attack/defend/killed/... as indexes. */
-#define GET_SOUND_VALUE(value_name) do { creatures[creaID]->sounds.value_name = node[#value_name].String(); } while(0)
-			GET_SOUND_VALUE(attack);
-			GET_SOUND_VALUE(defend);
-			GET_SOUND_VALUE(killed);
-			GET_SOUND_VALUE(move);
-			GET_SOUND_VALUE(shoot);
-			GET_SOUND_VALUE(wince);
-			GET_SOUND_VALUE(ext1);
-			GET_SOUND_VALUE(ext2);
-			GET_SOUND_VALUE(startMoving);
-			GET_SOUND_VALUE(endMoving);
-#undef GET_SOUND_VALUE
-}
-
-void CCreatureHandler::loadSoundsInfo()
-{
-	tlog5 << "\t\tReading config/cr_sounds.json" << std::endl;
-	const JsonNode config(ResourceID("config/cr_sounds.json"));
-
-	if (!config["creature_sounds"].isNull())
-	{
-
-		BOOST_FOREACH(const JsonNode &node, config["creature_sounds"].Vector())
-		{
-			VLC->modh->identifiers.requestIdentifier(std::string("creature.") + node["name"].String(),
-			        boost::bind(&CCreatureHandler::loadCreatureSounds, this, node, _1));
-		}
-	}
 }
 
 void CCreatureHandler::load(const JsonNode & node)

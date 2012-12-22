@@ -1,0 +1,308 @@
+{
+	"gremlin" :
+	{
+		"id": 28,
+		"level": 1,
+		"extraNames": [ "apprenticeGremlin" ],
+		"faction": "tower",
+		"upgrades": ["masterGremlin"],
+		"graphics" :
+		{
+			"animation": "CGREMA.DEF"
+		},
+		"sound" :
+		{
+			"attack": "AGRMATTK.wav",
+			"defend": "AGRMDFND.wav",
+			"killed": "AGRMKILL.wav",
+			"move": "AGRMMOVE.wav",
+			"shoot": "AGRMSHOT.wav",
+			"wince": "AGRMWNCE.wav"
+		}
+	},
+	"masterGremlin" :
+	{
+		"id": 29,
+		"level": 1,
+		"faction": "tower",
+		"graphics" :
+		{
+			"animation": "CGREMM.DEF",
+			"missile" :
+			{
+				"projectile": "CPRGRE.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "MGRMATTK.wav",
+			"defend": "MGRMDFND.wav",
+			"killed": "MGRMKILL.wav",
+			"move": "MGRMMOVE.wav",
+			"shoot": "MGRMSHOT.wav",
+			"wince": "MGRMWNCE.wav"
+		}
+	},
+	"stoneGargoyle" :
+	{
+		"id": 30,
+		"level": 2,
+		"faction": "tower",
+		"abilities": [ [ "NON_LIVING", 0, 0, 0 ] ],  	  		//stone gargoyles are non-living
+		"upgrades": ["obsidianGargoyle"],
+		"graphics" :
+		{
+			"animation": "CGARGO.DEF"
+		},
+		"sound" :
+		{
+			"attack": "SGRGATTK.wav",
+			"defend": "SGRGDFND.wav",
+			"killed": "SGRGKILL.wav",
+			"move": "SGRGMOVE.wav",
+			"wince": "SGRGWNCE.wav"
+		}
+	},
+	"obsidianGargoyle" :
+	{
+		"id": 31,
+		"level": 2,
+		"faction": "tower",
+		"abilities": [ [ "NON_LIVING", 0, 0, 0 ] ],  			//obsidian gargoyles are non-living
+		"graphics" :
+		{
+			"animation": "COGARG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "OGRGATTK.wav",
+			"defend": "OGRGDFND.wav",
+			"killed": "OGRGKILL.wav",
+			"move": "OGRGMOVE.wav",
+			"wince": "OGRGWNCE.wav"
+		}
+	},
+	"ironGolem" : //FIXME correct ID is stoneGolem, unchangeable due to HOTRAITS.TXT
+	{
+		"id": 32,
+		"level": 3,
+		"faction": "tower",
+		"abilities": [ [ "SPELL_DAMAGE_REDUCTION", 50, -1, 0 ],		//stone golems reduce dmg from spells
+					   [ "NON_LIVING", 0, 0, 0 ] ],  			//stone golems are non-living
+		"upgrades": ["stoneGolem"],
+		"graphics" :
+		{
+			"animation": "CSGOLE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "SGLMATTK.wav",
+			"defend": "SGLMDFND.wav",
+			"killed": "SGLMKILL.wav",
+			"move": "SGLMMOVE.wav",
+			"wince": "SGLMWNCE.wav"
+		}
+	},
+	"stoneGolem" : //FIXME correct ID is ironGolem, unchangeable due to HOTRAITS.TXT
+	{
+		"id": 33,
+		"level": 3,
+		"faction": "tower",
+		"abilities": [ [ "SPELL_DAMAGE_REDUCTION", 75, -1, 0 ],	   	//iron golems reduce dmg from spells
+					   [ "NON_LIVING", 0, 0, 0 ] ],  			//iron golems are non-living
+		"graphics" :
+		{
+			"animation": "CIGOLE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "IGLMATTK.wav",
+			"defend": "IGLMDFND.wav",
+			"killed": "IGLMKILL.wav",
+			"move": "IGLMMOVE.wav",
+			"wince": "IGLMWNCE.wav"
+		}
+	},
+	"mage" :
+	{
+		"id": 34,
+		"level": 4,
+		"faction": "tower",
+		"abilities": [ [ "CHANGES_SPELL_COST_FOR_ALLY", 2, 0, 0 ] ],   	//mages reduce spell cost
+		"upgrades": ["archMage"],
+		"graphics" :
+		{
+			"animation": "CMAGE.DEF",
+			"missile" :
+			{
+				"projectile": "PMAGEX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "MAGEATTK.wav",
+			"defend": "MAGEDFND.wav",
+			"killed": "MAGEKILL.wav",
+			"move": "MAGEMOVE.wav",
+			"shoot": "MAGESHOT.wav",
+			"wince": "MAGEWNCE.wav"
+		}
+	},
+	"archMage" :
+	{
+		"id": 35,
+		"level": 4,
+		"faction": "tower",
+		"abilities": [ [ "CHANGES_SPELL_COST_FOR_ALLY", 2, 0, 0 ]],		//archmages reduce spell cost
+		"graphics" :
+		{
+			"animation": "CAMAGE.DEF",
+			"missile" :
+			{
+				"projectile": "PMAGEX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "AMAGATTK.wav",
+			"defend": "AMAGDFND.wav",
+			"killed": "AMAGKILL.wav",
+			"move": "AMAGMOVE.wav",
+			"shoot": "AMAGSHOT.wav",
+			"wince": "AMAGWNCE.wav"
+		}
+	},
+	"genie" :
+	{
+		"id": 36,
+		"level": 5,
+		"faction": "tower",
+		"abilities": [ [ "HATE", 50, 53, 0 ],				  	//master genies hate efreets
+					   [ "HATE", 50, 52, 0 ] ],				  	//genies hate efreet sultans
+		"upgrades": ["masterGenie"],
+		"graphics" :
+		{
+			"animation": "CGENIE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "GENIATTK.wav",
+			"defend": "GENIDFND.wav",
+			"killed": "GENIKILL.wav",
+			"move": "GENIMOVE.wav",
+			"wince": "GENIWNCE.wav"
+		}
+	},
+	"masterGenie" :
+	{
+		"id": 37,
+		"level": 5,
+		"faction": "tower",
+		"abilities": [ [ "CREATURE_ENCHANT_POWER", 5, 0, 0 ],		//spells last 5 turns
+						 [ "RANDOM_SPELLCASTER", 2, 0, 0 ],  		//master genies cast spells on advanced level
+						 [ "CASTS", 3, 0, 0],
+						 [ "HATE", 50, 53, 0 ],
+						 [ "HATE", 50, 52, 0 ] ],				  	//master genies hate efreet sultans
+		"graphics" :
+		{
+			"animation": "CSULTA.DEF"
+		},
+		"sound" :
+		{
+			"attack": "CALFATTK.wav",
+			"defend": "CALFDFND.wav",
+			"killed": "CALFKILL.wav",
+			"move": "CALFMOVE.wav",
+			"shoot": "CALFSHOT.wav",
+			"wince": "CALFWNCE.wav"
+		}
+	},
+	"naga" :
+	{
+		"id": 38,
+		"level": 6,
+		"faction": "tower",
+		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],		//nagas block retaliation
+		"upgrades": ["nagaQueen"],
+		"graphics" :
+		{
+			"animation": "CNAGA.DEF"
+		},
+		"sound" :
+		{
+			"attack": "NSENATTK.wav",
+			"defend": "NSENDFND.wav",
+			"killed": "NSENKILL.wav",
+			"move": "NSENMOVE.wav",
+			"wince": "NSENWNCE.wav"
+		}
+	},
+	"nagaQueen" :
+	{
+		"id": 39,
+		"level": 6,
+		"faction": "tower",
+		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],  	//naga queens block retaliation
+		"graphics" :
+		{
+			"animation": "CNAGAG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "NGRDATTK.wav",
+			"defend": "NGRDDFND.wav",
+			"killed": "NGRDKILL.wav",
+			"move": "NGRDMOVE.wav",
+			"wince": "NGRDWNCE.wav"
+		}
+	},
+	"giant" :
+	{
+		"id": 40,
+		"level": 7,
+		"faction": "tower",
+		"abilities": [ ["MIND_IMMUNITY", 0, 0, 0] ],			//giants are immune to mind spells
+		"upgrades": ["titan"],
+		"graphics" :
+		{
+			"animation": "CLTITA.DEF"
+		},
+		"sound" :
+		{
+			"attack": "LTITATTK.wav",
+			"defend": "LTITDFND.wav",
+			"killed": "LTITKILL.wav",
+			"move": "LTITMOVE.wav",
+			"wince": "LTITWNCE.wav"
+		}
+	},
+	"titan" :
+	{
+		"id": 41,
+		"level": 7,
+		"faction": "tower",
+		"abilities": [ ["MIND_IMMUNITY", 0, 0, 0],			//Titans are immune to mind spells
+						 [ "HATE", 50, 83, 0 ] ],					//titans hate black dragons
+		"graphics" :
+		{
+			"animation": "CGTITA.DEF",
+			"missile" :
+			{
+				"projectile": "CPRGTIX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "GTITATTK.wav",
+			"defend": "GTITDFND.wav",
+			"killed": "GTITKILL.wav",
+			"move": "GTITMOVE.wav",
+			"shoot": "GTITSHOT.wav",
+			"wince": "GTITWNCE.wav"
+		}
+	}
+}

@@ -1,0 +1,729 @@
+{
+	"supremeArchangel" :
+	{
+		"id": 150,
+		"level": 0,
+		"faction": "castle",
+		"graphics" :
+		{
+			"animation": "ZM150Z.DEF"
+		}
+	},
+	"diamondDragon" :
+	{
+		"id": 151,
+		"level": 8,
+		"faction": "rampart",
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//diamond dragon is a dragon		//psychic elemental
+		"graphics" :
+		{
+			"animation": "ZM151Z.DEF"
+		}
+	},
+	"lordofThunder" :
+	{
+		"id": 152,
+		"level": 8,
+		"faction": "tower",
+		"graphics" :
+		{
+			"animation": "ZM152Z.DEF",
+			"missile" :
+			{
+				"projectile": "CPRGTIX.DEF",
+				"spinning": false
+			}
+		}
+	},
+	"hellBaron" :
+	{
+		"id": 153,
+		"level": 8,
+		"faction": "inferno",
+		"graphics" :
+		{
+			"animation": "ZM153Z.DEF"
+		}
+	},
+	"bloodDragon" :
+	{
+		"id": 154,
+		"level": 8,
+		"faction": "necropolis",
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//blood dragon is a dragon		//magic elemental
+		"graphics" :
+		{
+			"animation": "ZM154Z.DEF"
+		}
+	},
+	"darknessDragon" :
+	{
+		"id": 155,
+		"level": 8,
+		"faction": "dungeon",
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//darkness dragon is a dragon
+		"graphics" :
+		{
+			"animation": "ZM155Z.DEF"
+		}
+	},
+	"ghostBehemoth" :
+	{
+		"id": 156,
+		"level": 8,
+		"faction": "stronghold",
+		"graphics" :
+		{
+			"animation": "ZM156Z.DEF"
+		}
+	},
+	"hellHydra" :
+	{
+		"id": 157,
+		"level": 8,
+		"faction": "fortress",
+		"ability_remove": [ "SHOOTER" ],	//Hell Hydra certainly does not shoot
+		"graphics" :
+		{
+			"animation": "ZM157Z.DEF"
+		}
+	},
+	"sacredPhoenix" :
+	{
+		"id": 158,
+		"level": 8,
+		"faction": "conflux",
+		"graphics" :
+		{
+			"animation": "ZM158Z.DEF"
+		}
+	},
+	"ghost" :
+	{
+		"id": 159,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM159G.DEF"
+		}
+	},
+	"godWar" :
+	{
+		"special" : true,
+		"id": 160,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM160G.DEF"
+		}
+	},
+	"godPeace" :
+	{
+		"special" : true,
+		"id": 161,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM161G.DEF"
+		}
+	},
+	"godMana" :
+	{
+		"special" : true,
+		"id": 162,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM162G.DEF"
+		}
+	},
+	"godLore" :
+	{
+		"special" : true,
+		"id": 163,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM163G.DEF"
+		}
+	},
+	"minotaurKing2" :// WTF is this? Same ID as Minotaur King from Dungeon
+	{
+		"id": 164,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM164GD.DEF"
+		}
+	},
+	"mineralElemental" :
+	{
+		"id": 165,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM165GD.DEF"
+		}
+	},
+	"electricityElemental" :
+	{
+		"id": 166,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM166GD.DEF"
+		}
+	},
+	"ancientBasilisk" :
+	{
+		"id": 167,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM167GD.DEF"
+		}
+	},
+	"gorynych" :
+	{
+		"id": 168,
+		"level": 0,
+		"faction": "neutral",
+		"abilities": [ [ "FLYING", 0, 0, 0 ] ],      //Gorynyches fly
+		"graphics" :
+		{
+			"animation": "ZM168DG.DEF"
+		}
+	},
+	"warZealot" :
+	{
+		"id": 169,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM169ZL.DEF",
+			"missile" :
+			{
+				"projectile": "CPRZEAX.DEF",
+				"spinning": false
+			}
+		}
+	},
+	"myriad" :
+	{
+		"id": 170,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM170SW.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF",
+				"spinning": false
+			}
+		}
+	},
+	"medusaMatriarch" :
+	{
+		"id": 171,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM171SR.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF",
+				"spinning": false
+			}
+		}
+	},
+	"nightmare" :
+	{
+		"id": 172,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM172N.DEF"
+		}
+	},
+	"santaGremlin" :
+	{
+		"id": 173,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM173M.DEF",
+			"missile" :
+			{
+				"projectile": "CPRGRE.DEF",
+				"spinning": true
+			}
+		},
+	},
+	"paladin1" :
+	{
+		"special" : true,
+		"id": 174,
+		"level": 0,
+		"faction": "neutral",
+		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+						[ "CASTS", 1, 0, 0 ] ,
+						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "SPELLCASTER", 3, 37, 0 ] ], //expert cure
+		"graphics" :
+		{
+			"animation": "ZM174NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
+		},
+		"sounds" :
+		{
+			"attack": "CRUSATTK.wav",
+			"defend": "CRUSDFND.wav",
+			"killed": "CRUSKILL.wav",
+			"move": "CRUSMOVE.wav",
+			"wince": "CRUSWNCE.wav"
+		}
+	},
+	"hierophant1" :
+	{
+		"special" : true,
+		"id": 175,
+		"level": 0,
+		"faction": "neutral",
+		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+						[ "CASTS", 1, 0, 0 ] ,
+						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "SPELLCASTER", 3, 27, 0 ] ], //expert shield
+		"graphics" :
+		{
+			"animation": "ZM175NPC.DEF",
+			"missile" :
+			{
+				"projectile": "CPRZEAX.DEF"
+			}
+		},
+		"sounds" :
+		{
+			"attack": "MONKATTK.wav",
+			"defend": "MONKDFND.wav",
+			"killed": "MONKKILL.wav",
+			"move": "MONKMOVE.wav",
+			"shoot": "MONKSHOT.wav",
+			"wince": "MONKWNCE.wav"
+		}
+	},
+	"templeGuardian1" :
+	{
+		"special" : true,
+		"id": 176,
+		"level": 0,
+		"faction": "neutral",
+		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+						[ "CASTS", 1, 0, 0 ] ,
+						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "SPELLCASTER", 3, 44, 0 ] ], //expert precision
+		"graphics" :
+		{
+			"animation": "ZM176NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
+		},
+		"sounds" :
+		{
+			"attack": "LICHATTK.wav",
+			"defend": "LICHDFND.wav",
+			"killed": "LICHKILL.wav",
+			"move": "LICHMOVE.wav",
+			"shoot": "LICHSHOT.wav",
+			"wince": "LICHWNCE.wav",
+			"ext1": "LICHATK2.wav"
+		}
+	},
+	"succubus1" :
+	{
+		"special" : true,
+		"id": 177,
+		"level": 0,
+		"faction": "neutral",
+		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+						[ "CASTS", 1, 0, 0 ] ,
+						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "SPELLCASTER", 3, 29, 0 ] ], //expert fire shield
+		"graphics" :
+		{
+			"animation": "ZM177NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
+		},
+		"sounds" :
+		{
+			"attack": "SGRGATTK.wav",
+			"defend": "SGRGDFND.wav",
+			"killed": "SGRGKILL.wav",
+			"move": "SGRGMOVE.wav",
+			"wince": "SGRGWNCE.wav"
+		}
+	},
+	"soulEater1" :
+	{
+		"special" : true,
+		"id": 178,
+		"level": 0,
+		"faction": "neutral",
+		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+						[ "CASTS", 1, 0, 0 ] ,
+						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "SPELLCASTER", 3, 39, 0 ] ], //expert animate dead
+		"graphics" :
+		{
+			"animation": "ZM178NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
+		},
+		"sounds" :
+		{
+			"attack": "GNOLATTK.wav",
+			"defend": "GNOLDFND.wav",
+			"killed": "GNOLKILL.wav",
+			"move": "GNOLMOVE.wav",
+			"wince": "GNOLWNCE.wav"
+		}
+	},
+	"brute1" :
+	{
+		"special" : true,
+		"id": 179,
+		"level": 0,
+		"faction": "neutral",
+		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+						[ "CASTS", 1, 0, 0 ] ,
+						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "SPELLCASTER", 3, 46, 0 ] ], //expert stone skin
+		"graphics" :
+		{
+			"animation": "ZM179NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
+		},
+		"sounds" :
+		{
+			"attack": "PFOEATTK.wav",
+			"defend": "PFOEDFND.wav",
+			"killed": "PFOEKILL.wav",
+			"move": "PFOEMOVE.wav",
+			"wince": "PFOEWNCE.wav"
+		}
+	},
+	"ogreLeader1" :
+	{
+		"special" : true,
+		"id": 180,
+		"level": 0,
+		"faction": "neutral",
+		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+						[ "CASTS", 1, 0, 0 ] ,
+						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "SPELLCASTER", 3, 37, 0 ] ], //expert cure
+		"graphics" :
+		{
+			"animation": "ZM180NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
+		},
+		"sounds" :
+		{
+			"attack": "TRLLATTK.wav",
+			"defend": "TRLLDFND.wav",
+			"killed": "TRLLKILL.wav",
+			"move": "TRLLMOVE.wav",
+			"wince": "TRLLWNCE.wav"
+		}
+	},
+	"shaman1" :
+	{
+		"special" : true,
+		"id": 181,
+		"level": 0,
+		"faction": "neutral",
+		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+						[ "CASTS", 1, 0, 0 ] ,
+						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "SPELLCASTER", 3, 53, 0 ] ], //expert haste
+		"graphics" :
+		{
+			"animation": "ZM181NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
+		},
+		"sounds" :
+		{
+			"attack": "AMAGATTK.wav",
+			"defend": "AMAGDFND.wav",
+			"killed": "AMAGKILL.wav",
+			"move": "AMAGMOVE.wav",
+			"shoot": "AMAGSHOT.wav",
+			"wince": "AMAGWNCE.wav"
+		}
+	},
+	"astralSpirit1" :
+	{
+		"special" : true,
+		"id": 182,
+		"level": 0,
+		"faction": "neutral",
+		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
+						[ "CASTS", 1, 0, 0 ] ,
+						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "SPELLCASTER", 3, 58, 0 ] ], //expert counterstrike
+		"graphics" :
+		{
+			"animation": "ZM182NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
+		},
+		"sounds" :
+		{
+			"attack": "GENIATTK.wav",
+			"defend": "GENIDFND.wav",
+			"killed": "GENIKILL.wav",
+			"move": "GENIMOVE.wav",
+			"wince": "GENIWNCE.wav"
+		}
+	},
+	"paladin2" :
+	{
+		"special" : true,
+		"id": 183,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM174NPC.DEF"
+		}
+	},
+	"hierophant2" :
+	{
+		"special" : true,
+		"id": 184,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM175NPC.DEF"
+		}
+	},
+	"templeGuardian2" :
+	{
+		"special" : true,
+		"id": 185,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM176NPC.DEF"
+		}
+	},
+	"succubus2" :
+	{
+		"special" : true,
+		"id": 186,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM177NPC.DEF"
+		}
+	},
+	"soulEater2" :
+	{
+		"special" : true,
+		"id": 187,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM178NPC.DEF"
+		}
+	},
+	"brute2" :
+	{
+		"special" : true,
+		"id": 188,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM179NPC.DEF"
+		}
+	},
+	"ogreLeader2" :
+	{
+		"special" : true,
+		"id": 189,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM180NPC.DEF"
+		}
+	},
+	"shaman2" :
+	{
+		"special" : true,
+		"id": 190,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM181NPC.DEF"
+		}
+	},
+	"astralSpirit2" :
+	{
+		"special" : true,
+		"id": 191,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM182NPC.DEF"
+		}
+	},
+	"sylvanCentaur" :
+	{
+		"id": 192,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM192Z.DEF",
+			"missile" :
+			{
+				"projectile": "PELFX.DEF",
+				"spinning": false
+			}
+		}
+	},
+	"sorceresses" :
+	{
+		"id": 193,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM193Z.DEF",
+			"missile" :
+			{
+				"projectile": "CPRZEAX.DEF",
+				"spinning": false
+			}
+		}
+	},
+	"werewolf" :
+	{
+		"id": 194,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM194Z.DEF"
+		}
+	},
+	"hellSteed" :
+	{
+		"id": 195,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM195Z.DEF"
+		}
+	},
+	"dracolich" :
+	{
+		"id": 196,
+		"level": 0,
+		"faction": "neutral",
+		"graphics" :
+		{
+			"animation": "ZM196Z.DEF",
+			"missile" :
+			{
+				"projectile": "SMBALX.DEF",
+				"spinning": false
+			}
+		}
+	}
+}
+
+// For future reference. Creatures from WoG and their sound prefixes.
+//aagl ZM150Z.def SupremeArchangel
+//godr ZM151Z.def DiamondDragon
+//gtit ZM152Z.def LordofThunder
+//advl ZM153Z.def HellBaron
+//ghdr ZM154Z.def BloodDragon
+//bkdr ZM155Z.def DarknessDragon
+//bmth ZM156Z.def GhostBehemoth
+//chyd ZM157Z.def HellHydra
+//phoe ZM158Z.def SacredPhoenix
+//wrth ZM159G.def Ghost
+//aagl ZM160G.def God1War
+//aagl ZM161G.def God2Peace
+//aagl ZM162G.def God3Mana
+//aagl ZM163G.def God4Lore
+//sglm ZM164GD.def MinotaurKing
+//sglm ZM165GD.def MineralElemental
+//sglm ZM166GD.def ElectricityElemental
+//sglm ZM167GD.def AncientBasilisk
+//bkdr ZM168DG.def Gorynych
+//zelt ZM169ZL.def WarZealot
+//hcrs ZM170SW.def Myriad
+//hcrs ZM171SR.def MedusaMatriarch
+//bgor ZM172N.def Nightmare
+//aagl ZM173M.def SantaGremlin
+
+//crus ZM174NPC.def Paladin2
+//monk ZM175NPC.def Hierophant2
+//lich ZM176NPC.def TempleGuardian2
+//sgrg ZM177NPC.def Succubus2
+//gnol ZM178NPC.def SoulEater2
+///pfoe ZM179NPC.def Brute2
+//trll ZM180NPC.def OgreLeader2
+//amag ZM181NPC.def Shaman2
+//geni ZM182NPC.def AstralSpirit2
+
+//ecnt ZM192Z.def SylvanCentaur
+//monk ZM193Z.def Sorceress
+//monk ZM194Z.def Werewolf
+//bgor ZM195Z.def HellSteed
+//ghdr ZM196Z.def Dracolich

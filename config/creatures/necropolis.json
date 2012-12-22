@@ -1,0 +1,294 @@
+{
+	"skeleton" :
+	{
+		"id": 56,
+		"level": 1,
+		"faction": "necropolis",
+		"upgrades": ["skeletonWarrior"],
+		"graphics" :
+		{
+			"animation": "CSKELE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "SKELATTK.wav",
+			"defend": "SKELDFND.wav",
+			"killed": "SKELKILL.wav",
+			"move": "SKELMOVE.wav",
+			"wince": "SKELWNCE.wav"
+		}
+	},
+	"skeletonWarrior" :
+	{
+		"id": 57,
+		"level": 1,
+		"faction": "necropolis",
+		"graphics" :
+		{
+			"animation": "CWSKEL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "SKLWATTK.wav",
+			"defend": "SKLWDFND.wav",
+			"killed": "SKLWKILL.wav",
+			"move": "SKLWMOVE.wav",
+			"wince": "SKLWWNCE.wav"
+		}
+	},
+	"walkingDead" :
+	{
+		"id": 58,
+		"level": 2,
+		"extraNames": [ "zombie" ], //FIXME: zombie is a name of upgrade but not in HOTRAITS
+		"faction" : "necropolis",
+		"upgrades": ["zombieLord"],
+		"graphics" :
+		{
+			"animation": "CZOMBI.DEF"
+		},
+		"sound" :
+		{
+			"attack": "ZOMBATTK.wav",
+			"defend": "ZOMBDFND.wav",
+			"killed": "ZOMBKILL.wav",
+			"move": "ZOMBMOVE.wav",
+			"wince": "ZOMBWNCE.wav"
+		}
+	},
+	"zombieLord" : //FIXME: zombie is a correct in-name but not in HOTRAITS.TXT
+	{
+		"id": 59,
+		"level": 2,
+		"faction": "necropolis",
+		"graphics" :
+		{
+			"animation": "CZOMLO.DEF"
+		},
+		"sound" :
+		{
+			"attack": "ZMBLATTK.wav",
+			"defend": "ZMBLDFND.wav",
+			"killed": "ZMBLKILL.wav",
+			"move": "ZMBLMOVE.wav",
+			"wince": "ZMBLWNCE.wav"
+		}
+	},
+	"wight" :
+	{
+		"id": 60,
+		"level": 3,
+		"faction": "necropolis",
+		"abilities": [ [ "FULL_HP_REGENERATION", 0, 1, 0 ] ],			//wight
+		"upgrades": ["wraith"],
+		"graphics" :
+		{
+			"animation": "CWIGHT.DEF"
+		},
+		"sound" :
+		{
+			"attack": "WGHTATTK.wav",
+			"defend": "WGHTDFND.wav",
+			"killed": "WGHTKILL.wav",
+			"move": "WGHTMOVE.wav",
+			"wince": "WGHTWNCE.wav"
+		}
+	},
+	"wraith" :
+	{
+		"id": 61,
+		"level": 3,
+		"faction": "necropolis",
+		"abilities": [ [ "FULL_HP_REGENERATION", 0, 1, 0 ], 			//wraith
+						 [ "MANA_DRAIN", 2, 0, 0 ] ],
+		"graphics" :
+		{
+			"animation": "CWRAIT.DEF"
+		},
+		"sound" :
+		{
+			"attack": "WRTHATTK.wav",
+			"defend": "WRTHDFND.wav",
+			"killed": "WRTHKILL.wav",
+			"move": "WRTHMOVE.wav",
+			"wince": "WRTHWNCE.wav"
+		}
+	},
+	"vampire" :
+	{
+		"id": 62,
+		"level": 4,
+		"faction": "necropolis",
+		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],		//vampires		//vampire lords
+		"upgrades": ["vampireLord"],
+		"graphics" :
+		{
+			"animation": "CVAMP.DEF"
+		},
+		"sound" :
+		{
+			"attack": "VAMPATTK.wav",
+			"defend": "VAMPDFND.wav",
+			"killed": "VAMPKILL.wav",
+			"move": "VAMPMOVE.wav",
+			"wince": "VAMPWNCE.wav",
+			"startMoving": "VAMPEXT1.wav",
+			"stopMoving": "VAMPEXT2.wav"
+		}
+	},
+	"vampireLord" :
+	{
+		"id": 63,
+		"level": 4,
+		"faction": "necropolis",
+		"abilities": [ [ "LIFE_DRAIN", 0, 0, 0 ],
+						 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],		//vampire lords
+		"graphics" :
+		{
+			"animation": "CNOSFE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "NOSFATTK.wav",
+			"defend": "NOSFDFND.wav",
+			"killed": "NOSFKILL.wav",
+			"move": "NOSFMOVE.wav",
+			"shoot": "NOSFSHOT.wav",
+			"wince": "NOSFWNCE.wav",
+			"ext1": "NOSFEXT1.wav",
+			"ext2": "NOSFEXT2.wav"
+		}
+	},
+	"lich" :
+	{
+		"id": 64,
+		"level": 5,
+		"faction": "necropolis",
+		"abilities": [ [ "SPELL_LIKE_ATTACK", 0, 76, 0 ] ],		//liches
+		"upgrades": ["powerLich"],
+		"graphics" :
+		{
+			"animation": "CLICH.DEF",
+			"missile" :
+			{
+				"projectile": "PLICH.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "LICHATTK.wav",
+			"defend": "LICHDFND.wav",
+			"killed": "LICHKILL.wav",
+			"move": "LICHMOVE.wav",
+			"shoot": "LICHSHOT.wav",
+			"wince": "LICHWNCE.wav",
+			"ext1": "LICHATK2.wav"
+		}
+	},
+	"powerLich" :
+	{
+		"id": 65,
+		"level": 5,
+		"faction": "necropolis",
+		"abilities": [ [ "SPELL_LIKE_ATTACK", 0, 76, 0 ] ], 		//power liches
+		"graphics" :
+		{
+			"animation": "CPLICH.DEF",
+			"missile" :
+			{
+				"projectile": "PLICH.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "PLCHATTK.wav",
+			"defend": "PLCHDFND.wav",
+			"killed": "PLCHKILL.wav",
+			"move": "PLCHMOVE.wav",
+			"shoot": "PLCHSHOT.wav",
+			"wince": "PLCHWNCE.wav"
+		}
+	},
+	"blackKnight" :
+	{
+		"id": 66,
+		"level": 6,
+		"faction": "necropolis",
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 42, 0 ] ], 	//black knights
+		"upgrades": ["dreadKnight"],
+		"graphics" :
+		{
+			"animation": "CBKNIG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BKNTATTK.wav",
+			"defend": "BKNTDFND.wav",
+			"killed": "BKNTKILL.wav",
+			"move": "BKNTMOVE.wav",
+			"wince": "BKNTWNCE.wav"
+		}
+	},
+	"dreadKnight" :
+	{
+		"id": 67,
+		"level": 6,
+		"faction": "necropolis",
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 42, 0 ], 	//dread knights
+						 [ "DOUBLE_DAMAGE_CHANCE", 20, 0, 0 ] ],	//vampire lords
+		"graphics" :
+		{
+			"animation": "CBLORD.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BLRDATTK.wav",
+			"defend": "BLRDDFND.wav",
+			"killed": "BLRDKILL.wav",
+			"move": "BLRDMOVE.wav",
+			"wince": "BLRDWNCE.wav"
+		}
+	},
+	"boneDragon" :
+	{
+		"id": 68,
+		"level": 7,
+		"faction": "necropolis",
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//bone dragon is a dragon
+		"upgrades": ["ghostDragon"],
+		"graphics" :
+		{
+			"animation": "CNDRGN.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BODRATTK.wav",
+			"defend": "BODRDFND.wav",
+			"killed": "BODRKILL.wav",
+			"move": "BODRMOVE.wav",
+			"wince": "BODRWNCE.wav"
+		}
+	},
+	"ghostDragon" :
+	{
+		"id": 69,
+		"level": 7,
+		"faction": "necropolis",
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//ghost dragon is a dragon
+						 [ "SPELL_AFTER_ATTACK", 20, 75, 0 ] ],  	//ghost dragon
+		"graphics" :
+		{
+			"animation": "CHDRGN.DEF"
+		},
+		"sound" :
+		{
+			"attack": "GHDRATTK.wav",
+			"defend": "GHDRDFND.wav",
+			"killed": "GHDRKILL.wav",
+			"move": "GHDRMOVE.wav",
+			"wince": "GHDRWNCE.wav"
+		}
+	}
+}

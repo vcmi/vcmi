@@ -4,7 +4,7 @@
 		"index" : 8,
 		"nativeTerrain": "grass",
 		"alignment" : "neutral",
-		"commander" : "AstralSpirit1",
+		"commander" : "astralSpirit1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASELE",
@@ -139,18 +139,18 @@
 			],
 			"creatures" :
 			[
-				["Pixie", "Sprite"],
-				["AirElemental", "StormElemental"],
-				["WaterElemental", "IceElemental"],
-				["FireElemental", "ElectricityElemental"],
-				["EarthElemental", "StoneElemental"],
-				["PsiElemental", "MagicElemental"],
-				["Firebird", "Pheonix"]
+				["pixie", "sprite"],
+				["airElemental", "stormElemental"],
+				["waterElemental", "iceElemental"],
+				["fireElemental", "energyElemental"],
+				["earthElemental", "magmaElemental"],
+				["psychicElemental", "magicElemental"],
+				["firebird", "phoenix"]
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
 			"primaryResource" : "mercury",
-			"warMachine" : "Ballista",
+			"warMachine" : "ballista",
 
 			"buildings" :
 			[
@@ -198,7 +198,7 @@
 
 			"siege" :
 			{
-				"shooter" : "StormElemental",
+				"shooter" : "stormElemental",
 				"imagePrefix" : "SGEL",
 				"gate" :
 				{

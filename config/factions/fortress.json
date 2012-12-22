@@ -4,7 +4,7 @@
 		"index" : 7,
 		"nativeTerrain": "swamp",
 		"alignment" : "neutral",
-		"commander" : "Shaman1",
+		"commander" : "shaman1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASFOR",
@@ -135,17 +135,17 @@
 			],
 			"creatures" :
 			[
-				["Gnoll", "GnollMarauder"],
-				["PrimitiveLizardman", "AdvancedLizardman"],
-				["Dragonflies", "FireDragonFly"],
-				["Basilisk", "GreaterBasilisk"],
-				["CopperGorgon", "BronzeGorgon"],
-				["Wyvern", "WyvernMonarch"],
-				["Hydra", "ChaosHydra"]
+				["gnoll", "gnollMarauder"],
+				["lizardman", "lizardWarrior"],
+				["serpentFly", "fireDragonFly"],
+				["basilisk", "greaterBasilisk"],
+				["gorgon", "mightyGorgon"],
+				["wyvern", "wyvernMonarch"],
+				["hydra", "chaosHydra"]
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 3,
-			"warMachine" : "FirstAidTent",
+			"warMachine" : "firstAidTent",
 
 			"buildings" :
 			[
@@ -194,7 +194,7 @@
 
 			"siege" :
 			{
-				"shooter" : "PrimitiveLizardman",
+				"shooter" : "lizardman",
 				"imagePrefix" : "SGFR",
 				"gate" :
 				{

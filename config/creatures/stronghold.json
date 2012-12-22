@@ -1,0 +1,295 @@
+{
+	"goblin" :
+	{
+		"id": 84,
+		"level": 1,
+		"extraNames": [ "goblins" ],
+		"faction": "stronghold",
+		"upgrades": ["hobgoblin"],
+		"graphics" :
+		{
+			"animation": "CGOBLI.DEF"
+		},
+		"sound" :
+		{
+			"attack": "GBLNATTK.wav",
+			"defend": "GBLNDFND.wav",
+			"killed": "GBLNKILL.wav",
+			"move": "GBLNMOVE.wav",
+			"wince": "GBLNWNCE.wav"
+		}
+	},
+	"hobgoblin" :
+	{
+		"id": 85,
+		"level": 1,
+		"faction": "stronghold",
+		"graphics" :
+		{
+			"animation": "CHGOBL.DEF"
+		},
+		"sound" :
+		{
+			"attack": "HGOBATTK.wav",
+			"defend": "HGOBDFND.wav",
+			"killed": "HGOBKILL.wav",
+			"move": "HGOBMOVE.wav",
+			"wince": "HGOBWNCE.wav"
+		}
+	},
+	"goblinWolfRider" :
+	{
+		"id": 86,
+		"level": 2,
+		"faction": "stronghold",
+		"upgrades": ["hobgoblinWolfRider"],
+		"graphics" :
+		{
+			"animation": "CBWLFR.DEF"
+		},
+		"sound" :
+		{
+			"attack": "GWRDATTK.wav",
+			"defend": "GWRDDFND.wav",
+			"killed": "GWRDKILL.wav",
+			"move": "GWRDMOVE.wav",
+			"wince": "GWRDWNCE.wav"
+		}
+	},
+	"hobgoblinWolfRider" :
+	{
+		"id": 87,
+		"level": 2,
+		"faction": "stronghold",
+		"abilities": [ [ "ADDITIONAL_ATTACK", 1, 0, 0 ] ],		//wolf raider
+		"graphics" :
+		{
+			"animation": "CUWLFR.DEF"
+		},
+		"sound" :
+		{
+			"attack": "HGWRATTK.wav",
+			"defend": "HGWRDFND.wav",
+			"killed": "HGWRKILL.wav",
+			"move": "HGWRMOVE.wav",
+			"wince": "HGWRWNCE.wav"
+		}
+	},
+	"orc" :
+	{
+		"id": 88,
+		"level": 3,
+		"faction": "stronghold",
+		"upgrades": ["orcChieftain"],
+		"graphics" :
+		{
+			"animation": "CORC.DEF",
+			"missile" :
+			{
+				"projectile": "PORCHX.DEF",
+				"spinning": true
+			}
+		},
+		"sound" :
+		{
+			"attack": "OORCATTK.wav",
+			"defend": "OORCDFND.wav",
+			"killed": "OORCKILL.wav",
+			"move": "OORCMOVE.wav",
+			"shoot": "OORCSHOT.wav",
+			"wince": "OORCWNCE.wav"
+		}
+	},
+	"orcChieftain" :
+	{
+		"id": 89,
+		"level": 3,
+		"faction": "stronghold",
+		"graphics" :
+		{
+			"animation": "CORCCH.DEF",
+			"missile" :
+			{
+				"projectile": "PORCHX.DEF",
+				"spinning": true
+			}
+		},
+		"sound" :
+		{
+			"attack": "ORCCATTK.wav",
+			"defend": "ORCCDFND.wav",
+			"killed": "ORCCKILL.wav",
+			"move": "ORCCMOVE.wav",
+			"shoot": "ORCCSHOT.wav",
+			"wince": "ORCCWNCE.wav"
+		}
+	},
+	"ogre" :
+	{
+		"id": 90,
+		"level": 4,
+		"faction": "stronghold",
+		"upgrades": ["ogreMage"],
+		"graphics" :
+		{
+			"animation": "COGRE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "OGREATTK.wav",
+			"defend": "OGREDFND.wav",
+			"killed": "OGREKILL.wav",
+			"move": "OGREMOVE.wav",
+			"wince": "OGREWNCE.wav"
+		}
+	},
+	"ogreMage" :
+	{
+		"id": 91,
+		"level": 4,
+		"faction": "stronghold",
+		"abilities": [ [ "SPELLCASTER", 2, 43, 0 ],
+						 [ "CASTS", 3, 0, 0],
+						 [ "CREATURE_ENCHANT_POWER", 3, 0, 0]],   	   	   	//ogre magi cast bloodlust
+		"graphics" :
+		{
+			"animation": "COGMAG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "OGRMATTK.wav",
+			"defend": "OGRMDFND.wav",
+			"killed": "OGRMKILL.wav",
+			"move": "OGRMMOVE.wav",
+			"shoot": "OGRMSHOT.wav",
+			"wince": "OGRMWNCE.wav"
+		}
+	},
+	"roc" :
+	{
+		"id": 92,
+		"level": 5,
+		"faction": "stronghold",
+		"upgrades": ["thunderbird"],
+		"graphics" :
+		{
+			"animation": "CROC.DEF"
+		},
+		"sound" :
+		{
+			"attack": "ROCCATTK.wav",
+			"defend": "ROCCDFND.wav",
+			"killed": "ROCCKILL.wav",
+			"move": "ROCCMOVE.wav",
+			"wince": "ROCCWNCE.wav"
+		}
+	},
+	"thunderbird" :
+	{
+		"id": 93,
+		"level": 5,
+		"faction": "stronghold",
+		"abilities": [ [ "SPECIFIC_SPELL_POWER", 10, 77, 0 ],	//10 damage per unit
+						 [ "SPELL_AFTER_ATTACK", 20, 77, 0 ] ],   	//thunderbirds
+		"graphics" :
+		{
+			"animation": "CTBIRD.DEF"
+		},
+		"sound" :
+		{
+			"attack": "TBRDATTK.wav",
+			"defend": "TBRDDFND.wav",
+			"killed": "TBRDKILL.wav",
+			"move": "TBRDMOVE.wav",
+			"wince": "TBRDWNCE.wav"
+		}
+	},
+	"cyclop" :
+	{
+		"id": 94,
+		"level": 6,
+		"faction": "stronghold",
+		"upgrades": ["cyclopKing"],
+		"graphics" :
+		{
+			"animation": "CCYCLR.DEF",
+			"missile" :
+			{
+				"projectile": "PCYCLBX.DEF",
+				"spinning": true
+			}
+		},
+		"sound" :
+		{
+			"attack": "CCYCATTK.wav",
+			"defend": "CCYCDFND.wav",
+			"killed": "CCYCKILL.wav",
+			"move": "CCYCMOVE.wav",
+			"shoot": "CCYCSHOT.wav",
+			"wince": "CCYCWNCE.wav"
+		}
+	},
+	"cyclopKing" :
+	{
+		"id": 95,
+		"level": 6,
+		"faction": "stronghold",
+		"graphics" :
+		{
+			"animation": "CCYCLLOR.DEF",
+			"missile" :
+			{
+				"projectile": "PCYCLBX.DEF",
+				"spinning": true
+			}
+		},
+		"sound" :
+		{
+			"attack": "CYCLATTK.wav",
+			"defend": "CYCLDFND.wav",
+			"killed": "CYCLKILL.wav",
+			"move": "CYCLMOVE.wav",
+			"shoot": "CYCLSHOT.wav",
+			"wince": "CYCLWNCE.wav"
+		}
+	},
+	"behemoth" :
+	{
+		"id": 96,
+		"level": 7,
+		"faction": "stronghold",
+		"abilities": [ [ "ENEMY_DEFENCE_REDUCTION", 40, 0, 0 ] ],		//behemots
+		"upgrades": ["ancientBehemoth"],
+		"graphics" :
+		{
+			"animation": "CYBEHE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "YBMHATTK.wav",
+			"defend": "YBMHDFND.wav",
+			"killed": "YBMHKILL.wav",
+			"move": "YBMHMOVE.wav",
+			"wince": "YBMHWNCE.wav"
+		}
+	},
+	"ancientBehemoth" :
+	{
+		"id": 97,
+		"level": 7,
+		"faction": "stronghold",
+		"abilities": [ [ "ENEMY_DEFENCE_REDUCTION", 80, 0, 0 ] ],		//ancient behemots
+		"graphics" :
+		{
+			"animation": "CABEHE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BMTHATTK.wav",
+			"defend": "BMTHDFND.wav",
+			"killed": "BMTHKILL.wav",
+			"move": "BMTHMOVE.wav",
+			"wince": "BMTHWNCE.wav"
+		}
+	}
+}

@@ -26,6 +26,8 @@ class CIdentifierStorage
 	std::map<std::string, si32 > registeredObjects;
 	std::map<std::string, std::vector<boost::function<void(si32)> > > missingObjects;
 
+	//Check if identifier can be valid (camelCase, point as separator)
+	void checkIdentifier(std::string & ID);
 public:
 	/// request identifier for specific object name. If ID is not yet resolved callback will be queued
 	/// and will be called later

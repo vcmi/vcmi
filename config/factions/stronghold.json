@@ -4,7 +4,7 @@
 		"index" : 6,
 		"nativeTerrain": "rough",
 		"alignment" : "neutral",
-		"commander" : "OgreLeader1",
+		"commander" : "ogreLeader1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASSTR",
@@ -133,17 +133,17 @@
 			],
 			"creatures" :
 			[
-				["Goblin", "Hobgoblin"],
-				["GoblinWolfRider", "HobgoblinWolfRider"],
-				["Orc", "OrcChieftain"],
-				["Ogre", "OgreMage"],
-				["Roc", "Thunderbird"],
-				["Cyclops", "CyclopsLord"],
-				["YoungBehemoth", "AncientBehemoth"]
+				["goblin", "hobgoblin"],
+				["goblinWolfRider", "hobgoblinWolfRider"],
+				["orc", "orcChieftain"],
+				["ogre", "ogreMage"],
+				["roc", "thunderbird"],
+				["cyclop", "cyclopKing"],
+				["behemoth", "ancientBehemoth"]
 			],
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 3,
-			"warMachine" : "AmmoCart",
+			"warMachine" : "ammoCart",
 
 			"buildings" :
 			[
@@ -191,7 +191,7 @@
 
 			"siege" :
 			{
-				"shooter" : "Orc",
+				"shooter" : "orc",
 				"imagePrefix" : "SGST",
 				"gate" :
 				{

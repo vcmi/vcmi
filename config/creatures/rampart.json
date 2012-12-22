@@ -1,0 +1,291 @@
+{
+	"centaur" :
+	{
+		"id": 14,
+		"level": 1,
+		"faction": "rampart",
+		"upgrades": ["centaurCaptain"],
+		"graphics" :
+		{
+			"animation": "CCENTR.DEF"
+		},
+		"sound" :
+		{
+			"attack": "CNTRATTK.wav",
+			"defend": "CNTRDFND.wav",
+			"killed": "CNTRKILL.wav",
+			"move": "CNTRMOVE.wav",
+			"shoot": "CNTRSHOT.wav",
+			"wince": "CNTRWNCE.wav"
+		}
+	},
+	"centaurCaptain" :
+	{
+		"id": 15,
+		"level": 1,
+		"faction": "rampart",
+		"graphics" :
+		{
+			"animation": "CECENT.DEF"
+		},
+		"sound" :
+		{
+			"attack": "ECNTATTK.wav",
+			"defend": "ECNTDFND.wav",
+			"killed": "ECNTKILL.wav",
+			"move": "ECNTMOVE.wav",
+			"wince": "ECNTWNCE.wav"
+		}
+	},
+	"dwarf" :
+	{
+		"id": 16,
+		"level": 2,
+		"faction": "rampart",
+		"abilities": [ [ "MAGIC_RESISTANCE", 20, 0, 0 ] ], 		//dwarf's magic resistance 20%
+		"upgrades": ["battleDwarf"],
+		"graphics" :
+		{
+			"animation": "CDWARF.DEF"
+		},
+		"sound" :
+		{
+			"attack": "DWRFATTK.wav",
+			"defend": "DWRFDFND.wav",
+			"killed": "DWRFKILL.wav",
+			"move": "DWRFMOVE.wav",
+			"wince": "DWRFWNCE.wav"
+		}
+	},
+	"battleDwarf" :
+	{
+		"id": 17,
+		"level": 2,
+		"faction": "rampart",
+		"abilities": [ [ "MAGIC_RESISTANCE", 40, 0, 0 ] ], 	 	//battle dwarf's magic resistance 40%
+		"graphics" :
+		{
+			"animation": "CBDWAR.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BDRFATTK.wav",
+			"defend": "BDRFDFND.wav",
+			"killed": "BDRFKILL.wav",
+			"move": "BDRFMOVE.wav",
+			"wince": "BDRFWNCE.wav"
+		}
+	},
+	"woodElf" :
+	{
+		"id": 18,
+		"level": 3,
+		"faction": "rampart",
+		"upgrades": ["grandElf"],
+		"graphics" :
+		{
+			"animation": "CELF.DEF",
+			"missile" :
+			{
+				"projectile": "PELFX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "WELFATTK.wav",
+			"defend": "WELFDFND.wav",
+			"killed": "WELFKILL.wav",
+			"move": "WELFMOVE.wav",
+			"shoot": "WELFSHOT.wav",
+			"wince": "WELFWNCE.wav"
+		}
+	},
+	"grandElf" :
+	{
+		"id": 19,
+		"level": 3,
+		"faction": "rampart",
+		"graphics" :
+		{
+			"animation": "CGRELF.DEF",
+			"missile" :
+			{
+				"projectile": "PELFX.DEF",
+				"spinning": false
+			}
+		},
+		"sound" :
+		{
+			"attack": "GELFATTK.wav",
+			"defend": "GELFDFND.wav",
+			"killed": "GELFKILL.wav",
+			"move": "GELFMOVE.wav",
+			"shoot": "GELFSHOT.wav",
+			"wince": "GELFWNCE.wav"
+		}
+	},
+	"pegasus" :
+	{
+		"id": 20,
+		"level": 4,
+		"faction": "rampart",
+		"abilities": [ [ "CHANGES_SPELL_COST_FOR_ENEMY", 2, 0, 0 ] ],	//pegasus makes spell cost higher for enemy mage
+		"upgrades": ["silverPegasus"],
+		"graphics" :
+		{
+			"animation": "CPEGAS.DEF"
+		},
+		"sound" :
+		{
+			"attack": "PEGAATTK.wav",
+			"defend": "PEGADFND.wav",
+			"killed": "PEGAKILL.wav",
+			"move": "PEGAMOVE.wav",
+			"wince": "PEGAWNCE.wav"
+		}
+	},
+	"silverPegasus" :
+	{
+		"id": 21,
+		"level": 4,
+		"faction": "rampart",
+		"abilities": [ [ "CHANGES_SPELL_COST_FOR_ENEMY", 2, 0, 0 ] ], 	//silver pegasus makes spell cost higher for enemy mage
+		"graphics" :
+		{
+			"animation": "CAPEGS.DEF"
+		},
+		"sound" :
+		{
+			"attack": "APEGATTK.wav",
+			"defend": "APEGDFND.wav",
+			"killed": "APEGKILL.wav",
+			"move": "APEGMOVE.wav",
+			"wince": "APEGWNCE.wav"
+		}
+	},
+	"dendroidGuard" :
+	{
+		"id": 22,
+		"level": 5,
+		"faction": "rampart",
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, 72, 0 ] ],   //dendroids cast bind
+		"upgrades": ["dendroidSoldier"],
+		"graphics" :
+		{
+			"animation": "CTREE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "TREEATTK.wav",
+			"defend": "TREEDFND.wav",
+			"killed": "TREEKILL.wav",
+			"move": "TREEMOVE.wav",
+			"wince": "TREEWNCE.wav"
+		}
+	},
+	"dendroidSoldier" :
+	{
+		"id": 23,
+		"level": 5,
+		"faction": "rampart",
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, 72, 0 ] ],	//dendroid guards cast bind
+		"graphics" :
+		{
+			"animation": "CBTREE.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BTREATTK.wav",
+			"defend": "BTREDFND.wav",
+			"killed": "BTREKILL.wav",
+			"move": "BTREMOVE.wav",
+			"wince": "BTREWNCE.wav"
+		}
+	},
+	"unicorn" :
+	{
+		"id": 24,
+		"level": 6,
+		"faction": "rampart",
+		"abilities": [ [ "SPELL_RESISTANCE_AURA", 0, 55, 0 ],	//unicorn
+						 [ "SPELL_AFTER_ATTACK", 20, 62, 0 ] ],	//unicorns cast blind with 20% probability
+		"upgrades": ["warUnicorn"],
+		"graphics" :
+		{
+			"animation": "CUNICO.DEF"
+		},
+		"sound" :
+		{
+			"attack": "UNICATTK.wav",
+			"defend": "UNICDFND.wav",
+			"killed": "UNICKILL.wav",
+			"move": "UNICMOVE.wav",
+			"wince": "UNICWNCE.wav"
+		}
+	},
+	"warUnicorn" :
+	{
+		"id": 25,
+		"level": 6,
+		"faction": "rampart",
+		"abilities": [ [ "SPELL_RESISTANCE_AURA", 20, 55, 0 ], 	//war unicorn
+						 [ "SPELL_AFTER_ATTACK", 20, 62, 0 ] ],	//war unicorns cast blind with 20% probability
+		"graphics" :
+		{
+			"animation": "CWUNIC.DEF"
+		},
+		"sound" :
+		{
+			"attack": "WUNCATTK.wav",
+			"defend": "WUNCDFND.wav",
+			"killed": "WUNCKILL.wav",
+			"move": "WUNCMOVE.wav",
+			"shoot": "WUNCSHOT.wav",
+			"wince": "WUNCWNCE.wav"
+		}
+	},
+	"greenDragon" :
+	{
+		"id": 26,
+		"level": 7,
+		"faction": "rampart",
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//green dragon is a dragon
+						 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//green dragon's breath
+						 [ "LEVEL_SPELL_IMMUNITY", 3, 0, 0 ] ], 	//green dragon's spell immunity
+		"upgrades": ["goldDragon"],
+		"graphics" :
+		{
+			"animation": "CGDRAG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "GRDRATTK.wav",
+			"defend": "GRDRDFND.wav",
+			"killed": "GRDRKILL.wav",
+			"move": "GRDRMOVE.wav",
+			"wince": "GRDRWNCE.wav"
+		}
+	},
+	"goldDragon" :
+	{
+		"id": 27,
+		"level": 7,
+		"faction": "rampart",
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//gold dragon is a dragon
+					   [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//gold dragon's breath
+					   [ "LEVEL_SPELL_IMMUNITY", 4, 0, 0 ] ], 	//gold dragon's spell immunity
+		"graphics" :
+		{
+			"animation": "CDDRAG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "GODRATTK.wav",
+			"defend": "GODRDFND.wav",
+			"killed": "GODRKILL.wav",
+			"move": "GODRMOVE.wav",
+			"wince": "GODRWNCE.wav"
+		}
+	}
+}

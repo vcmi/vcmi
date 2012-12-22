@@ -4,7 +4,7 @@
 		"index" : 0,
 		"nativeTerrain": "grass",
 		"alignment" : "good",
-		"commander" : "Paladin1",
+		"commander" : "paladin1",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASCAS",
@@ -137,17 +137,17 @@
 			],
 			"creatures" :
 			[
-				["Pikeman", "Halberdier"],
-				["Archer", "HeavyCrossbowman"],
-				["Griffin", "RoyalGriffin"],
-				["Swordsman", "Crusader"],
-				["Monk", "Zealot"],
-				["Cavalier", "Champion"],
-				["Angel", "Archangel"]
+				["pikeman", "halberdier"],
+				["archer", "marksman"],
+				["griffin", "royalGriffin"],
+				["swordsman", "crusader"],
+				["monk", "zealot"],
+				["cavalier", "champion"],
+				["angel", "archangel"]
 			],
 			"horde" : [ 2, -1 ],
 			"mageGuild" : 4,
-			"warMachine" : "Ballista",
+			"warMachine" : "ballista",
 
 			"buildings" :
 			[
@@ -196,7 +196,7 @@
 
 			"siege" :
 			{
-				"shooter" : "Archer",
+				"shooter" : "archer",
 				"imagePrefix" : "SGCS",
 				"gate" :
 				{

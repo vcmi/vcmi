@@ -21,19 +21,30 @@
  *
  */
 
-class CArtHandler;
-class CHeroHandler;
-class CCreatureHandler;
-class CSpellHandler;
-class CBuildingHandler;
-class CObjectHandler;
-class CDefObjInfoHandler;
-class CTownHandler;
-class CGeneralTextHandler;
-class ResourceLocator;
+void CIdentifierStorage::checkIdentifier(std::string & ID)
+{
+	if (boost::algorithm::ends_with(ID, "."))
+		tlog0 << "BIG WARNING: identifier " << ID << " seems to be broken!\n";
+	else
+	{
+		size_t pos = 0;
+		do
+		{
+			if (std::tolower(ID[pos]) != ID[pos] ) //Not in camelCase
+			{
+				tlog0 << "Warning: identifier " << ID << " is not in camelCase!\n";
+				ID[pos] = std::tolower(ID[pos]);// Try to fix the ID
+			}
+			pos = ID.find('.', pos);
+		}
+		while(pos++ != std::string::npos);
+	}
+}
 
 void CIdentifierStorage::requestIdentifier(std::string name, const boost::function<void(si32)> & callback)
 {
+	checkIdentifier(name);
+
 	auto iter = registeredObjects.find(name);
 
 	if (iter != registeredObjects.end())
@@ -44,6 +55,8 @@ void CIdentifierStorage::requestIdentifier(std::string name, const boost::functi
 
 void CIdentifierStorage::registerObject(std::string name, si32 identifier)
 {
+	checkIdentifier(name);
+
 	// do not allow to register same object twice
 	assert(registeredObjects.find(name) == registeredObjects.end());
 

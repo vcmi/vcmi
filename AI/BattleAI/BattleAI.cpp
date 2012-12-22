@@ -145,6 +145,7 @@ bool isCloser(const EnemyInfo & ei1, const EnemyInfo & ei2, const ReachabilityIn
 }
 
 //FIXME: unused function
+/*
 static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const BattleHex &h2)
 {
 	int shooters[2] = {0}; //count of shooters on hexes
@@ -157,6 +158,7 @@ static bool willSecondHexBlockMoreEnemyShooters(const BattleHex &h1, const Battl
 
 	return shooters[0] < shooters[1];
 }
+*/
 
 template <typename Container, typename Pred>
 auto sum(const Container & c, Pred p) -> decltype(p(*boost::begin(c)))
