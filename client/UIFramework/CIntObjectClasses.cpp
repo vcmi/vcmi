@@ -1099,63 +1099,6 @@ CSimpleWindow::~CSimpleWindow()
 	}
 }
 
-CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
-{
-	bg=BitmapHandler::loadBitmap(name);
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	pos.x += x;
-	pos.y += y;
-	if(maxw >= 0)
-		pos.w = std::min(bg->w,maxw);
-	else
-		pos.w=bg->w;
-	pos.h=bg->h;
-	middlex=(pos.w/2)+pos.x;
-	middley=(bg->h/2)+pos.y;
-}
-
-CStatusBar::~CStatusBar()
-{
-	SDL_FreeSurface(bg);
-}
-
-void CStatusBar::clear()
-{
-	if(LOCPLINT->cingconsole->enteredText == "") //for appropriate support for in-game console
-	{
-		current="";
-		redraw();
-	}
-}
-
-void CStatusBar::print(const std::string & text)
-{
-	if(LOCPLINT->cingconsole->enteredText == "" || text == LOCPLINT->cingconsole->enteredText) //for appropriate support for in-game console
-	{
-		current=text;
-		redraw();
-	}
-}
-
-void CStatusBar::showAll(SDL_Surface * to)
-{
-	show(to);
-}
-
-void CStatusBar::show(SDL_Surface * to)
-{
-	SDL_Rect srcRect = genRect(pos.h,pos.w,0,0);
-	SDL_Rect dstRect = genRect(pos.h,pos.w,pos.x,pos.y);
-	CSDL_Ext::blitSurface(bg,&srcRect,to,&dstRect);
-
-	graphics->fonts[FONT_SMALL]->renderTextCenter(to, current, Colors::WHITE, Point(middlex, middley));
-}
-
-std::string CStatusBar::getCurrent()
-{
-	return current;
-}
-
 void CHoverableArea::hover (bool on)
 {
 	if (on)
@@ -1215,7 +1158,8 @@ void CLabel::showAll(SDL_Surface * to)
 	if(!toPrint.length())
 		return;
 
-	blitLine(to, pos.topLeft()/2 + pos.bottomRight()/2, toPrint);
+	//blitLine(to, pos.topLeft()/2 + pos.bottomRight()/2, toPrint);
+    blitLine(to, pos.topLeft() + textOffset, toPrint);
 
 }
 
@@ -1439,14 +1383,18 @@ void CTextBox::sliderMoved(int to)
 	redraw();
 }
 
+const Point CGStatusBar::edgeOffset = Point(5, 1);
+
 void CGStatusBar::print(const std::string & Text)
 {
-	setTxt(Text);
+    if(!textLock)
+	    setTxt(Text);
 }
 
 void CGStatusBar::clear()
 {
-	setTxt("");
+    if(!textLock)
+	    setTxt("");
 }
 
 std::string CGStatusBar::getCurrent()
@@ -1468,6 +1416,7 @@ CGStatusBar::CGStatusBar(CPicture *BG, EFonts Font /*= FONT_SMALL*/, EAlignment 
 	addChild(bg);
 	pos = bg->pos;
 	calcOffset();
+    textLock = false;
 }
 
 CGStatusBar::CGStatusBar(int x, int y, std::string name/*="ADROLLVR.bmp"*/, int maxw/*=-1*/)
@@ -1477,12 +1426,13 @@ CGStatusBar::CGStatusBar(int x, int y, std::string name/*="ADROLLVR.bmp"*/, int 
 	init();
 	bg = new CPicture(name);
 	pos = bg->pos;
-	if(maxw < pos.w)
+	if((unsigned int)maxw < pos.w)
 	{
 		vstd::amin(pos.w, maxw);
 		bg->srcRect = new Rect(0, 0, maxw, pos.h);
 	}
 	calcOffset();
+    textLock = false;
 }
 
 CGStatusBar::~CGStatusBar()
@@ -1492,7 +1442,7 @@ CGStatusBar::~CGStatusBar()
 
 void CGStatusBar::show(SDL_Surface * to)
 {
-
+    showAll(to);
 }
 
 void CGStatusBar::init()
@@ -1505,13 +1455,21 @@ void CGStatusBar::calcOffset()
 {
 	switch(alignment)
 	{
+	case TOPLEFT:
+		textOffset = Point(edgeOffset.x, edgeOffset.y);
+		break;
 	case CENTER:
 		textOffset = Point(pos.w/2, pos.h/2);
 		break;
 	case BOTTOMRIGHT:
-		textOffset = Point(pos.w, pos.h);
+		textOffset = Point(pos.w - edgeOffset.x, pos.h - edgeOffset.y);
 		break;
 	}
+}
+
+void CGStatusBar::lock(bool shouldLock)
+{
+    textLock = shouldLock;
 }
 
 CTextInput::CTextInput(const Rect &Pos, EFonts font, const CFunctionList<void(const std::string &)> &CB):

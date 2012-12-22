@@ -3939,7 +3939,12 @@ void CInGameConsole::startEnteringText()
 	enteredText = "_";
 	if(GH.topInt() == adventureInt)
 	{
+        GH.statusbar->alignment = TOPLEFT;
+        GH.statusbar->calcOffset();
 		GH.statusbar->print(enteredText);
+
+        //Prevent changes to the text from mouse interaction with the adventure map
+        GH.statusbar->lock(true);
 	}
 	else if(LOCPLINT->battleInt)
 	{
@@ -3960,7 +3965,10 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 	enteredText = "";
 	if(GH.topInt() == adventureInt)
 	{
-		GH.statusbar->clear();
+        GH.statusbar->alignment = CENTER;
+        GH.statusbar->calcOffset();
+        GH.statusbar->lock(false);
+        GH.statusbar->clear();
 	}
 	else if(LOCPLINT->battleInt)
 	{
@@ -3972,7 +3980,10 @@ void CInGameConsole::refreshEnteredText()
 {
 	if(GH.topInt() == adventureInt)
 	{
+        GH.statusbar->lock(false);
+        GH.statusbar->clear();
 		GH.statusbar->print(enteredText);
+        GH.statusbar->lock(true);
 	}
 	else if(LOCPLINT->battleInt)
 	{

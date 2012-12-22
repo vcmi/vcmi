@@ -4,7 +4,7 @@
 #include "Geometries.h"
 
 class CFramerateManager;
-class IStatusBar;
+class CGStatusBar;
 class CIntObject;
 class IUpdateable;
 class IShowActivatable;
@@ -43,7 +43,7 @@ class CGuiHandler
 public:
 	CFramerateManager * mainFPSmng; //to keep const framerate
 	std::list<IShowActivatable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
-	IStatusBar * statusbar;
+	CGStatusBar * statusbar;
 
 private:
 	typedef std::list<CIntObject*> CIntObjectList;

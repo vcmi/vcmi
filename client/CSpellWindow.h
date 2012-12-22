@@ -17,7 +17,7 @@ struct SDL_Surface;
 class CDefHandler;
 struct SDL_Rect;
 class CGHeroInstance;
-class CStatusBar;
+class CGStatusBar;
 class CPlayerInterface;
 
 /// Spellbook button is used by the spell window class
@@ -71,7 +71,7 @@ private:
 	SpellbookInteractiveArea * selectSpellsA, * selectSpellsE, * selectSpellsF, * selectSpellsW, * selectSpellsAll;
 	SpellbookInteractiveArea * lCorner, * rCorner;
 	SpellArea * spellAreas[12];
-	CStatusBar * statusBar;
+	CGStatusBar * statusBar;
 
 	Uint8 sitesPerTabAdv[5];
 	Uint8 sitesPerTabBattle[5];

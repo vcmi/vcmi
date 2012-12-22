@@ -312,23 +312,6 @@ public:
 	size_t getPos();
 };
 
-/// Status bar which is shown at the bottom of the in-game screens
-class CStatusBar : public CIntObject, public IStatusBar
-{
-public:
-	SDL_Surface * bg; //background
-	int middlex, middley; //middle of statusbar
-	std::string current; //text currently printed
-
-	CStatusBar(int x, int y, std::string name="ADROLLVR.bmp", int maxw=-1); //c-tor
-	~CStatusBar(); //d-tor
-	void print(const std::string & text); //prints text and refreshes statusbar
-	void clear();//clears statusbar and refreshes
-	void showAll(SDL_Surface * to); //shows statusbar (with current text)
-	void show(SDL_Surface * to);
-	std::string getCurrent(); //getter for current
-};
-
 class CTextContainer : public virtual CIntObject
 {
 protected:
@@ -409,11 +392,12 @@ public:
 };
 
 /// Status bar which is shown at the bottom of the in-game screens
-class CGStatusBar : public CLabel, public IStatusBar
+class CGStatusBar : public CLabel
 {
+    bool textLock; //Used for blocking changes to the text
 	void init();
 public:
-	IStatusBar *oldStatusBar;
+	CGStatusBar *oldStatusBar;
 
 	//statusbar interface overloads
 	void print(const std::string & Text); //prints text and refreshes statusbar
@@ -427,6 +411,10 @@ public:
 
 	~CGStatusBar();
 	void calcOffset();
+
+    void lock(bool shouldLock); //If true, current text cannot be changed until lock(false) is called
+
+    const static Point edgeOffset; //Amount to move text from side when alignment is left or right
 };
 
 /// UIElement which can get input focus

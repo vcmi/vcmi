@@ -59,16 +59,6 @@ public:
 	virtual ~IShowActivatable(){}; //d-tor
 };
 
-// Status bar interface
-class IStatusBar
-{
-public:
-	virtual ~IStatusBar(){}; //d-tor
-	virtual void print(const std::string & text)=0; //prints text and refreshes statusbar
-	virtual void clear()=0;//clears statusbar and refreshes
-	virtual std::string getCurrent()=0; //returns currently displayed text
-};
-
 //typedef ui16 ActivityFlag;
 
 // Base UI element

@@ -109,7 +109,7 @@ public:
 	SDL_Surface * bg;
 	std::vector<CDefHandler *> gems;
 	CMinimap minimap;
-	CStatusBar statusbar;
+	CGStatusBar statusbar;
 
 	CAdventureMapButton kingOverview,//- kingdom overview
 		underground,//- underground switch

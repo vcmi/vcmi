@@ -54,7 +54,6 @@ class CInGameConsole;
 class CGarrisonInt;
 class CInGameConsole;
 union SDL_Event;
-class IStatusBar;
 class CInfoWindow;
 class IShowActivatable;
 class ClickableL;
