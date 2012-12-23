@@ -26,7 +26,7 @@
 		"level": 5,
 		"faction": "neutral",
 		"abilities": [ [ "SPELL_DAMAGE_REDUCTION", 95, -1, 0 ],		//diamond golems reduce dmg from spells
-						 [ "NON_LIVING", 0, 0, 0 ] ],				//psychic elementals shouldn't get morale
+						 [ "NON_LIVING", 0, 0, 0 ] ],
 		"graphics" :
 		{
 			"animation": "CDGOLE.DEF"
@@ -69,7 +69,7 @@
 		"level": 10,
 		"faction": "neutral",
 		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//crystal dragon is a dragon
-		"ability_remove": [ "FLYING" ],
+		"ability_remove": [ "FLYING" ],							//Crystal Dragons do not fly
 		"graphics" :
 		{
 			"animation": "CCDRGN.DEF"

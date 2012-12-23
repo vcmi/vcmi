@@ -277,7 +277,7 @@
 		"id": 129,
 		"level": 4,
 		"faction": "conflux",
-		"abilities": [ [ "NON_LIVING", 0, 0, 0 ] ,					//energy elementals shouldn't get morale //Crystal Dragons do not fly
+		"abilities": [ [ "NON_LIVING", 0, 0, 0 ] ,					//energy elementals shouldn't get morale
 						[ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],
 						[ "CASTS", 3, 0, 0 ],
 						[ "SPELLCASTER", 2, 31, 0 ]],

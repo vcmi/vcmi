@@ -14,7 +14,7 @@
 		"id": 151,
 		"level": 8,
 		"faction": "rampart",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//diamond dragon is a dragon		//psychic elemental
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//diamond dragon is a dragon
 		"graphics" :
 		{
 			"animation": "ZM151Z.DEF"
@@ -50,7 +50,7 @@
 		"id": 154,
 		"level": 8,
 		"faction": "necropolis",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//blood dragon is a dragon		//magic elemental
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//blood dragon is a dragon
 		"graphics" :
 		{
 			"animation": "ZM154Z.DEF"
