@@ -120,18 +120,13 @@ void Graphics::initializeBattleGraphics()
 }
 Graphics::Graphics()
 {
-	CDefHandler *smi2;
-
 	std::vector<Task> tasks; //preparing list of graphics to load
 	tasks += boost::bind(&Graphics::loadFonts,this);
 	tasks += boost::bind(&Graphics::loadPaletteAndColors,this);
 	tasks += boost::bind(&Graphics::loadHeroFlags,this);
 	tasks += boost::bind(&Graphics::initializeBattleGraphics,this);
 	tasks += boost::bind(&Graphics::loadErmuToPicture,this);
-	tasks += GET_DEF_ESS(artDefs,"ARTIFACT.DEF");
 	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");
-	tasks += GET_DEF(smi2,"TWCRPORT.DEF");
-	tasks += GET_DEF_ESS(flags,"CREST58.DEF");
 	tasks += GET_DEF_ESS(spellscr,"SPELLSCR.DEF");
 	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
 
@@ -142,16 +137,6 @@ Graphics::Graphics()
 	{
 		CSDL_Ext::alphaTransform(heroMoveArrows->ourImages[y].bitmap);
 	}
-
-	smi2->notFreeImgs = true;
-	for (size_t i=0; i<smi2->ourImages.size(); ++i)
-	{
-		bigImgs[i-2] = smi2->ourImages[i].bitmap;
-	}
-	//hack for green color on big infernal troglodite image - Mantis #758
-	SDL_Color green = {0x30, 0x5c, 0x20, SDL_ALPHA_OPAQUE};
-	bigImgs[71]->format->palette->colors[7] = green;
-	delete smi2;
 }
 
 void Graphics::loadHeroAnims()

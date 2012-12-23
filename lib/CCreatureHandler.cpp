@@ -317,80 +317,26 @@ void CCreatureHandler::loadCreatures()
 
 	BOOST_FOREACH(auto & node, config.Struct())
 	{
-		const JsonNode &creature = node.second;
-		int creatureID = creature["id"].Float();
-		const JsonNode *value;
-
-		// Set various creature properties
+		int creatureID = node.second["id"].Float();
 		CCreature *c = creatures[creatureID];
-		c->level = creature["level"].Float();
 
-		c->animDefName = creature["defname"].String();
-
-		VLC->modh->identifiers.requestIdentifier(std::string("faction.") + creature["faction"].String(), [=](si32 faction)
+		BOOST_FOREACH(const JsonNode &ability, node.second["ability_remove"].Vector())
 		{
-			c->faction = faction;
-		});
-
-		BOOST_FOREACH(const JsonNode &value, creature["upgrades"].Vector())
+			RemoveAbility(c, ability);
+		}
+		BOOST_FOREACH(const JsonNode &ability, node.second["abilities"].Vector())
 		{
-			VLC->modh->identifiers.requestIdentifier(std::string("creature.") + value.String(), [=](si32 identifier)
-			{
-				c->upgrades.insert(identifier);
-			});
+			AddAbility(c, ability.Vector());
 		}
 
-		value = &creature["projectile_defname"];
-		if (!value->isNull())
-		{
-			c->projectile = value->String();
-
-			value = &creature["projectile_spin"];
-			c->projectileSpin = value->Bool();
-		}
-
-		value = &creature["ability_remove"];//remove first - arch devil
-		if (!value->isNull())
-		{
-			BOOST_FOREACH(const JsonNode &ability, value->Vector())
-			{
-				RemoveAbility(c, ability);
-			}
-		}
-
-		value = &creature["abilities"];
-		if (!value->isNull()) {
-			BOOST_FOREACH(const JsonNode &ability, value->Vector())
-			{
-				AddAbility(c, ability.Vector());
-			}
-		}
-
-		c->special = creature["special"].Bool();
-		if ( c->special )
-			notUsedMonsters.insert(c->idNumber);
-
-		const JsonNode & sounds = creature["sound"];
-
-#define GET_SOUND_VALUE(value_name) c->sounds.value_name = sounds[#value_name].String()
-		GET_SOUND_VALUE(attack);
-		GET_SOUND_VALUE(defend);
-		GET_SOUND_VALUE(killed);
-		GET_SOUND_VALUE(move);
-		GET_SOUND_VALUE(shoot);
-		GET_SOUND_VALUE(wince);
-		GET_SOUND_VALUE(ext1);
-		GET_SOUND_VALUE(ext2);
-		GET_SOUND_VALUE(startMoving);
-		GET_SOUND_VALUE(endMoving);
-#undef GET_SOUND_VALUE
+		loadCreatureJson(c, node.second);
 
 		// Main reference name, e.g. royalGriffin
 		c->nameRef = node.first;
 		VLC->modh->identifiers.registerObject("creature." + node.first, c->idNumber);
 
 		// Alternative names, if any
-		BOOST_FOREACH(const JsonNode &name, creature["extraNames"].Vector())
+		BOOST_FOREACH(const JsonNode &name, node.second["extraNames"].Vector())
 		{
 			VLC->modh->identifiers.registerObject("creature." + name.String(), c->idNumber);
 		}
@@ -618,7 +564,6 @@ CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
 
 	cre->cost = Res::ResourceSet(node["cost"]);
 
-	cre->level = node["level"].Float();
 	cre->fightValue = node["fightValue"].Float();
 	cre->AIValue = node["aiValue"].Float();
 	cre->growth = node["growth"].Float();
@@ -635,24 +580,6 @@ CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
 	auto & amounts = node ["advMapAmount"];
 	cre->ammMin = amounts["min"].Float();
 	cre->ammMax = amounts["max"].Float();
-
-	std::string factionStr = node["faction"].String();
-	if (factionStr.empty())
-		factionStr = "neutral"; //TODO: should be done in schema
-
-	VLC->modh->identifiers.requestIdentifier(std::string("faction.") + factionStr, [=](si32 faction)
-	{
-		cre->faction = faction;
-	});
-
-	//optional
-	BOOST_FOREACH (auto & str, node["upgrades"].Vector())
-	{
-		VLC->modh->identifiers.requestIdentifier(std::string("creature.") + str.String(), [=](si32 identifier)
-		{
-			cre->upgrades.insert(identifier);
-		});
-	}
 
 	if (!node["shots"].isNull())
 		cre->addBonus(node["shots"].Float(), Bonus::SHOTS);
@@ -709,7 +636,6 @@ CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
 	//graphics
 
 	const JsonNode & graphics = node["graphics"];
-	cre->animDefName = graphics["animation"].String();
 	cre->timeBetweenFidgets = graphics["timeBetweenFidgets"].Float();
 	cre->troopCountLocationOffset = graphics["troopCountLocationOffset"].Float();
 	cre->attackClimaxFrame = graphics["attackClimaxFrame"].Float();
@@ -718,12 +644,8 @@ CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
 	cre->walkAnimationTime = animationTime["walk"].Float();
 	cre->attackAnimationTime = animationTime["attack"].Float();
 	cre->flightAnimationDistance = animationTime["flight"].Float(); //?
-	//TODO: background?
-	const JsonNode & missile = graphics["missile"];
-	//TODO: parse
-	cre->projectile = missile["projectile"].String();
-	cre->projectileSpin = missile["spinning"].Bool();
 
+	const JsonNode & missile = graphics["missile"];
 	const JsonNode & offsets = missile["offset"];
 	cre->upperRightMissleOffsetX = offsets["upperX"].Float();
 	cre->upperRightMissleOffsetY = offsets["upperY"].Float();
@@ -739,9 +661,38 @@ CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
 	cre->advMapDef = graphics["map"].String();
 	cre->iconIndex = graphics["iconIndex"].Float();
 
-	const JsonNode & sounds = node["sound"];
+	loadCreatureJson(cre, node);
+	return cre;
+}
 
-#define GET_SOUND_VALUE(value_name) do { cre->sounds.value_name = sounds[#value_name].String(); } while(0)
+void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & config)
+{
+	creature->level = config["level"].Float();
+	creature->animDefName = config["graphics"]["animation"].String();
+
+	VLC->modh->identifiers.requestIdentifier(std::string("faction.") + config["faction"].String(), [=](si32 faction)
+	{
+		creature->faction = faction;
+	});
+
+	BOOST_FOREACH(const JsonNode &value, config["upgrades"].Vector())
+	{
+		VLC->modh->identifiers.requestIdentifier(std::string("creature.") + value.String(), [=](si32 identifier)
+		{
+			creature->upgrades.insert(identifier);
+		});
+	}
+
+	creature->projectile = config["graphics"]["missile"]["projectile"].String();
+	creature->projectileSpin = config["graphics"]["missile"]["spinning"].Bool();
+
+	creature->special = config["special"].Bool();
+	if ( creature->special )
+		notUsedMonsters.insert(creature->idNumber);
+
+	const JsonNode & sounds = config["sound"];
+
+#define GET_SOUND_VALUE(value_name) creature->sounds.value_name = sounds[#value_name].String()
 	GET_SOUND_VALUE(attack);
 	GET_SOUND_VALUE(defend);
 	GET_SOUND_VALUE(killed);
@@ -753,8 +704,6 @@ CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
 	GET_SOUND_VALUE(startMoving);
 	GET_SOUND_VALUE(endMoving);
 #undef GET_SOUND_VALUE
-
-	return cre;
 }
 
 void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser & parser) //help function for parsing CREXPBON.txt

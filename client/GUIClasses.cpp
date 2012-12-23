@@ -1938,16 +1938,17 @@ void CObjectListWindow::keyPressed (const SDL_KeyboardEvent & key)
 	changeSelection(sel);
 }
 
-CTradeWindow::CTradeableItem::CTradeableItem( EType Type, int ID, bool Left, int Serial):
-    type(Type),
+CTradeWindow::CTradeableItem::CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial):
+    CIntObject(LCLICK | HOVER | RCLICK, pos),
+    type(EType(-1)),// set to invalid, will be corrected in setType
     id(ID),
     serial(Serial),
     left(Left)
 {
-	addUsedEvents(LCLICK | HOVER | RCLICK);
 	downSelection = false;
 	hlp = NULL;
 	image = nullptr;
+	setType(Type);
 }
 
 void CTradeWindow::CTradeableItem::setType(EType newType)
@@ -1992,13 +1993,13 @@ std::string CTradeWindow::CTradeableItem::getFilename()
 	switch(type)
 	{
 	case RESOURCE:
-		return "resource 32";
+		return "RESOURCE";
 	case PLAYER:
-		return "flags";
+		return "CREST58";
 	case ARTIFACT_TYPE:
 	case ARTIFACT_PLACEHOLDER:
 	case ARTIFACT_INSTANCE:
-		return "artdefs";
+		return "artifact";
 	case CREATURE:
 		return "crtport";
 	default:
@@ -2057,7 +2058,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 
 	if (image)
 	{
-		image->moveTo(posToBitmap);
+		image->moveTo(pos.topLeft() + posToBitmap);
 		image->showAll(to);
 	}
 
@@ -2121,12 +2122,12 @@ void CTradeWindow::CTradeableItem::showAllAt(const Point &dstPos, const std::str
 	std::string oldSub = subtitle;
 	downSelection = true;
 
-	pos = dstPos;
+	moveTo(dstPos);
 	subtitle = customSub;
 	showAll(to);
 
 	downSelection = false;
-	pos = oldPos;
+	moveTo(oldPos.topLeft());
 	subtitle = oldSub;
 }
 
@@ -2274,9 +2275,8 @@ void CTradeWindow::initItems(bool Left)
 			xOffset = -361;
 			yOffset = +46;
 
-			CTradeableItem *hlp = new CTradeableItem(itemsType[Left], -1, 1, 0);
+			CTradeableItem *hlp = new CTradeableItem(Point(137, 469), itemsType[Left], -1, 1, 0);
 			hlp->recActions &= ~(UPDATE | SHOWALL);
-			hlp->pos += Rect(137, 469, 42, 42);
 			items[Left].push_back(hlp);
 		}
 		else //ARTIFACT_EXP
@@ -2320,8 +2320,8 @@ void CTradeWindow::initItems(bool Left)
 		if(id < 0 && mode != EMarketMode::ARTIFACT_EXP)  //when sacrificing artifacts we need to prepare empty slots
 			continue;
 
-		CTradeableItem *hlp = new CTradeableItem(itemsType[Left], id, Left, j);
-		hlp->pos = pos[j] + hlp->pos;
+		CTradeableItem *hlp = new CTradeableItem(pos[j].topLeft(), itemsType[Left], id, Left, j);
+		hlp->pos = pos[j] + this->pos.topLeft();
 		items[Left].push_back(hlp);
 	}
 
@@ -3017,6 +3017,7 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 
 		initItems(true);
 		mimicCres();
+		artIcon = nullptr;
 	}
 	else
 	{
@@ -3035,6 +3036,8 @@ CAltarWindow::CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero /*=
 
 		initItems(true);
 		initItems(false);
+		artIcon = new CAnimImage("ARTIFACT", 0, 0, 281, 442);
+		artIcon->disable();
 	}
 
 	//Experience needed to reach next level
@@ -3198,8 +3201,8 @@ void CAltarWindow::mimicCres()
 
 	BOOST_FOREACH(CTradeableItem *t, items[1])
 	{
-		CTradeableItem *hlp = new CTradeableItem(CREATURE_PLACEHOLDER, t->id, false, t->serial);
-		hlp->pos = positions[t->serial] + hlp->pos;
+		CTradeableItem *hlp = new CTradeableItem(positions[t->serial].topLeft(), CREATURE_PLACEHOLDER, t->id, false, t->serial);
+		hlp->pos = positions[t->serial] + this->pos.topLeft();
 		items[0].push_back(hlp);
 	}
 }
@@ -3337,7 +3340,8 @@ void CAltarWindow::showAll(SDL_Surface * to)
 	CTradeWindow::showAll(to);
 	if(mode == EMarketMode::ARTIFACT_EXP && arts && arts->commonInfo->src.art)
 	{
-		blitAtLoc(graphics->artDefs->ourImages[arts->commonInfo->src.art->artType->id].bitmap, 281, 442, to);
+		artIcon->setFrame(arts->commonInfo->src.art->artType->id);
+		artIcon->showAll(to);
 
 		int dmp, val;
 		market->getOffer(arts->commonInfo->src.art->artType->id, 0, dmp, val, EMarketMode::ARTIFACT_EXP);

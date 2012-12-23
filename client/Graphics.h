@@ -46,10 +46,8 @@ public:
 	SDL_Color * playerColorPalette; //palette to make interface colors good - array of size [256]
 	SDL_Color * neutralColorPalette; 
 
-	CDefEssential * artDefs; //artifacts //TODO: move to CArtifact class
 	std::vector<CDefEssential *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,
 	CDefEssential * resources32; //resources 32x32
-	CDefEssential * flags;
 	CDefEssential * heroMoveArrows;
 	std::map<std::string, CDefEssential *> heroAnims; // [hero class def name]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
 	std::vector<CDefEssential *> boatAnims; // [boat type: 0 - 3]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
@@ -59,8 +57,6 @@ public:
 	std::map<std::string, CDefEssential *> advmapobjGraphics;
 	CDefEssential * getDef(const CGObjectInstance * obj);
 	CDefEssential * getDef(const CGDefInfo * info);
-	//creatures
-	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	//towns
 	std::map<int, std::string> ERMUtoPicture[GameConstants::F_NUMBER]; //maps building ID to it's picture's name for each town type
 	//for battles

@@ -615,7 +615,7 @@ public:
 		void showAll(SDL_Surface * to);
 		void clickLeft(tribool down, bool previousState);
 		std::string getName(int number = -1) const;
-		CTradeableItem(EType Type, int ID, bool Left, int Serial);
+		CTradeableItem(Point pos, EType Type, int ID, bool Left, int Serial);
 	};
 
 	const IMarket *market;
@@ -687,6 +687,7 @@ public:
 
 class CAltarWindow : public CTradeWindow
 {
+	CAnimImage * artIcon;
 public:
 	CAltarWindow(const IMarket *Market, const CGHeroInstance *Hero, EMarketMode::EMarketMode Mode); //c-tor
 

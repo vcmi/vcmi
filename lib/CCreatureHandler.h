@@ -125,9 +125,11 @@ public:
 
 class DLL_LINKAGE CCreatureHandler
 {
-private: //?
+private:
 	CBonusSystemNode allCreatures;
 	CBonusSystemNode creaturesOfLevel[GameConstants::CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
+
+	void loadCreatureJson(CCreature * creature, const JsonNode & config);
 public:
 	std::set<int> notUsedMonsters;
 	std::set<TCreature> doubledCreatures; //they get double week
