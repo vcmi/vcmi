@@ -437,7 +437,7 @@ ui64 evaluateDanger(const CGObjectInstance *obj)
 		return fh->estimateBankDanger (VLC->objh->bankObjToIndex(obj));
 	case Obj::PYRAMID:
 		{
-		    if(obj.subID == 0)
+		    if(obj->subID == 0)
 				return fh->estimateBankDanger (VLC->objh->bankObjToIndex(obj));
 			else
 				return 0;
