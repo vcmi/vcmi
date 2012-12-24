@@ -7,8 +7,8 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
-				<Option output="bin/Debug/VCMI_server" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Debug/" />
+				<Option output="../bin/Debug/VCMI_server" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../obj/Debug/Server" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Option use_console_runner="0" />
@@ -16,12 +16,12 @@
 					<Add option="-ggdb" />
 				</Compiler>
 				<Linker>
-					<Add directory="bin/Debug" />
+					<Add directory="../bin/Debug" />
 				</Linker>
 			</Target>
 			<Target title="Release">
-				<Option output="bin/Release/VCMI_server" prefix_auto="1" extension_auto="1" />
-				<Option object_output="obj/Release/" />
+				<Option output="../bin/Release/VCMI_server" prefix_auto="1" extension_auto="1" />
+				<Option object_output="../obj/Release/Server" />
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
@@ -30,7 +30,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add directory="bin/Release" />
+					<Add directory="../bin/Release" />
 				</Linker>
 			</Target>
 		</Build>
@@ -47,8 +47,7 @@
 			<Add option="-DBOOST_THREAD_USE_LIB" />
 			<Add directory="$(#boost.include)" />
 			<Add directory="$(#sdl.include)" />
-			<Add directory="." />
-			<Add directory="include" />
+			<Add directory="../include" />
 		</Compiler>
 		<Linker>
 			<Add option="-lole32" />
@@ -63,12 +62,12 @@
 			<Add option="-lVCMI_lib" />
 			<Add directory="$(#boost.lib)" />
 		</Linker>
-		<Unit filename="server/CGameHandler.cpp" />
-		<Unit filename="server/CGameHandler.h" />
-		<Unit filename="server/CVCMIServer.cpp" />
-		<Unit filename="server/CVCMIServer.h" />
-		<Unit filename="server/NetPacksServer.cpp" />
-		<Unit filename="server/StdInc.h">
+		<Unit filename="CGameHandler.cpp" />
+		<Unit filename="CGameHandler.h" />
+		<Unit filename="CVCMIServer.cpp" />
+		<Unit filename="CVCMIServer.h" />
+		<Unit filename="NetPacksServer.cpp" />
+		<Unit filename="StdInc.h">
 			<Option compile="1" />
 			<Option weight="0" />
 		</Unit>
