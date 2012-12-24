@@ -1135,53 +1135,61 @@ void CMapLoaderH3M::readObjects()
 				pos += 4;
 				break;
 			}
-		case 34: case 70: case 62: //34 - hero; 70 - random hero; 62 - prison
+		case Obj::HERO:
+		case Obj::RANDOM_HERO:
+		case Obj::PRISON:
 			{
 				nobj = readHero(idToBeGiven);
 				break;
 			}
-		case 4: //Arena
-		case 51: //Mercenary Camp
-		case 23: //Marletto Tower
-		case 61: // Star Axis
-		case 32: // Garden of Revelation
-		case 100: //Learning Stone
-		case 102: //Tree of Knowledge
-		case 41: //Library of Enlightenment
-		case 47: //School of Magic
-		case 107: //School of War
+		case Obj::ARENA:
+		case Obj::MERCENARY_CAMP:
+		case Obj::MARLETTO_TOWER:
+		case Obj::STAR_AXIS:
+		case Obj::GARDEN_OF_REVELATION:
+		case Obj::LEARNING_STONE:
+		case Obj::TREE_OF_KNOWLEDGE:
+		case Obj::LIBRARY_OF_ENLIGHTENMENT:
+		case Obj::SCHOOL_OF_MAGIC:
+		case Obj::SCHOOL_OF_WAR:
 			{
 				nobj = new CGVisitableOPH();
 				break;
 			}
-		case 55: //mystical garden
-		case 112://windmill
-		case 109://water wheel
+		case Obj::MYSTICAL_GARDEN:
+		case Obj::WINDMILL:
+		case Obj::WATER_WHEEL:
 			{
 				nobj = new CGVisitableOPW();
 				break;
 			}
-		case 43: //teleport
-		case 44: //teleport
-		case 45: //teleport
-		case 103://subterranean gate
-		case 111://Whirlpool
+		case Obj::MONOLITH1: 
+		case Obj::MONOLITH2:
+		case Obj::MONOLITH3:
+		case Obj::SUBTERRANEAN_GATE:
+		case Obj::WHIRLPOOL:
 			{
 				nobj = new CGTeleport();
 				break;
 			}
-		case 12: //campfire
-		case 29: //Flotsam
-		case 82: //Sea Chest
-		case 86: //Shipwreck Survivor
-		case 101://treasure chest
+		case Obj::CAMPFIRE:
+		case Obj::FLOTSAM:
+		case Obj::SEA_CHEST:
+		case Obj::SHIPWRECK_SURVIVOR:
+		case Obj::TREASURE_CHEST:
 			{
 				nobj = new CGPickable();
 				break;
 			}
-		case 54:  //Monster
-		case 71: case 72: case 73: case 74: case 75:	// Random Monster 1 - 4
-		case 162: case 163: case 164:					// Random Monster 5 - 7
+		case Obj::MONSTER:  //Monster
+		case Obj::RANDOM_MONSTER: 
+		case Obj::RANDOM_MONSTER_L1: 
+		case Obj::RANDOM_MONSTER_L2:
+		case Obj::RANDOM_MONSTER_L3: 
+		case Obj::RANDOM_MONSTER_L4:
+		case Obj::RANDOM_MONSTER_L5: 
+		case Obj::RANDOM_MONSTER_L6: 
+		case Obj::RANDOM_MONSTER_L7:
 			{
 				CGCreature * cre = new CGCreature();
 				nobj = cre;
@@ -1256,7 +1264,8 @@ void CMapLoaderH3M::readObjects()
 				pos += 2;
 				break;
 			}
-		case 59: case 91: //ocean bottle and sign
+		case Obj::OCEAN_BOTTLE: 
+		case Obj::SIGN:
 			{
 				CGSignBottle * sb = new CGSignBottle();
 				nobj = sb;
@@ -1264,18 +1273,18 @@ void CMapLoaderH3M::readObjects()
 				pos += 4;
 				break;
 			}
-		case 83: //seer's hut
+		case Obj::SEER_HUT:
 			{
 				nobj = readSeerHut();
 				addQuest(nobj);
 				break;
 			}
-		case 113: //witch hut
+		case Obj::WITCH_HUT: 
 			{
 				CGWitchHut * wh = new CGWitchHut();
 				nobj = wh;
 
-				// in reo we cannot specify it - all are allowed (I hope)
+				// in RoE we cannot specify it - all are allowed (I hope)
 				if(map->version > EMapFormat::ROE)
 				{
 					int ist=pos;
@@ -1304,7 +1313,7 @@ void CMapLoaderH3M::readObjects()
 				}
 				break;
 			}
-		case 81: //scholar
+		case Obj::SCHOLAR:
 			{
 				CGScholar * sch = new CGScholar();
 				nobj = sch;
@@ -1313,7 +1322,8 @@ void CMapLoaderH3M::readObjects()
 				pos += 6;
 				break;
 			}
-		case 33: case 219: //garrison
+		case Obj::GARRISON: 
+		case Obj::GARRISON2:
 			{
 				CGGarrison * gar = new CGGarrison();
 				nobj = gar;
@@ -1332,9 +1342,13 @@ void CMapLoaderH3M::readObjects()
 				pos += 8;
 				break;
 			}
-		case 5: //artifact
-		case 65: case 66: case 67: case 68: case 69: //random artifact
-		case 93: //spell scroll
+		case Obj::ARTIFACT:
+		case Obj::RANDOM_ART: 
+		case Obj::RANDOM_TREASURE_ART: 
+		case Obj::RANDOM_MINOR_ART: 
+		case Obj::RANDOM_MAJOR_ART:
+		case Obj::RANDOM_RELIC_ART:
+		case Obj::SPELL_SCROLL:
 			{
 				int artID = -1;
 				int spellID = -1;
@@ -1353,13 +1367,13 @@ void CMapLoaderH3M::readObjects()
 					pos += 4;
 				}
 
-				if(defInfo->id == 93)
+				if(defInfo->id == Obj::SPELL_SCROLL)
 				{
 					spellID = read_le_u32(buffer + pos);
 					pos += 4;
 					artID = 1;
 				}
-				else if(defInfo->id == 5)
+				else if(defInfo->id == Obj::ARTIFACT)
 				{
 					//specific artifact
 					artID = defInfo->subid;
@@ -1368,7 +1382,8 @@ void CMapLoaderH3M::readObjects()
 				art->storedArtifact = createArtifact(artID, spellID);
 				break;
 			}
-		case 76: case 79: //random resource; resource
+		case Obj::RANDOM_RESOURCE: 
+		case Obj::RESOURCE:
 			{
 				CGResource * res = new CGResource();
 				nobj = res;
@@ -1395,33 +1410,39 @@ void CMapLoaderH3M::readObjects()
 
 				break;
 			}
-		case 77: case 98: //random town; town
+		case Obj::RANDOM_TOWN: 
+		case Obj::TOWN:
 			{
 				nobj = readTown(defInfo->subid);
 				break;
 			}
-		case 53:
-		case 220://mine (?)
+		case Obj::MINE:
+		case Obj::ABANDONED_MINE:
 			{
 				nobj = new CGMine();
 				nobj->setOwner(buffer[pos++]);
 				pos += 3;
 				break;
 			}
-		case 17: case 18: case 19: case 20: //dwellings
+		case Obj::CREATURE_GENERATOR1: 
+		case Obj::CREATURE_GENERATOR2: 
+		case Obj::CREATURE_GENERATOR3: 
+		case Obj::CREATURE_GENERATOR4:
 			{
 				nobj = new CGDwelling();
 				nobj->setOwner(buffer[pos++]);
 				pos += 3;
 				break;
 			}
-		case 78: //Refugee Camp
-		case 106: //War Machine Factory
+		case Obj::REFUGEE_CAMP:
+		case Obj::WAR_MACHINE_FACTORY:
 			{
 				nobj = new CGDwelling();
 				break;
 			}
-		case 88: case 89: case 90: //spell shrine
+		case Obj::SHRINE_OF_MAGIC_INCANTATION: 
+		case Obj::SHRINE_OF_MAGIC_GESTURE: 
+		case Obj::SHRINE_OF_MAGIC_THOUGHT:
 			{
 				CGShrine * shr = new CGShrine();
 				nobj = shr;
@@ -1429,7 +1450,7 @@ void CMapLoaderH3M::readObjects()
 				pos += 4;
 				break;
 			}
-		case 6: //pandora's box
+		case Obj::PANDORAS_BOX:
 			{
 				CGPandoraBox * box = new CGPandoraBox();
 				nobj = box;
@@ -1506,25 +1527,24 @@ void CMapLoaderH3M::readObjects()
 				pos += 8;
 				break;
 			}
-		case 36: //grail
+		case Obj::GRAIL:
 			{
 				map->grailPos = objPos;
 				map->grailRadious = read_le_u32(buffer + pos);
 				pos += 4;
 				continue;
 			}
-		//dwellings
-		case 216: //same as castle + level range
-		case 217: //same as castle
-		case 218: //level range
+		case Obj::RANDOM_DWELLING: //same as castle + level range
+		case Obj::RANDOM_DWELLING_LVL: //same as castle, fixed level 
+		case Obj::RANDOM_DWELLING_FACTION: //level range, fixed faction
 			{
 				nobj = new CGDwelling();
 				CSpecObjInfo * spec = nullptr;
 				switch(defInfo->id)
 				{
-					break; case 216: spec = new CCreGenLeveledCastleInfo();
-					break; case 217: spec = new CCreGenAsCastleInfo();
-					break; case 218: spec = new CCreGenLeveledInfo();
+					break; case Obj::RANDOM_DWELLING: spec = new CCreGenLeveledCastleInfo();
+					break; case Obj::RANDOM_DWELLING_LVL: spec = new CCreGenAsCastleInfo();
+					break; case Obj::RANDOM_DWELLING_FACTION: spec = new CCreGenLeveledInfo();
 				}
 
 				spec->player = read_le_u32(buffer + pos);
@@ -1561,7 +1581,7 @@ void CMapLoaderH3M::readObjects()
 				static_cast<CGDwelling *>(nobj)->info = spec;
 				break;
 			}
-		case 215:
+	case Obj::QUEST_GUARD:
 			{
 				CGQuestGuard * guard = new CGQuestGuard();
 				addQuest(guard);
@@ -1569,60 +1589,60 @@ void CMapLoaderH3M::readObjects()
 				nobj = guard;
 				break;
 			}
-		case 28: //faerie ring
-		case 14: //Swan pond
-		case 38: //idol of fortune
-		case 30: //Fountain of Fortune
-		case 64: //Rally Flag
-		case 56: //oasis
-		case 96: //temple
-		case 110://Watering Hole
-		case 31: //Fountain of Youth
-		case 11: //Buoy
-		case 52: //Mermaid
-		case 94: //Stables
+		case Obj::FAERIE_RING:
+		case Obj::SWAN_POND:
+		case Obj::IDOL_OF_FORTUNE:
+		case Obj::FOUNTAIN_OF_FORTUNE:
+		case Obj::RALLY_FLAG:
+		case Obj::OASIS:
+		case Obj::TEMPLE:
+		case Obj::WATERING_HOLE:
+		case Obj::FOUNTAIN_OF_YOUTH:
+		case Obj::BUOY:
+		case Obj::MERMAID:
+		case Obj::STABLES:
 			{
 				nobj = new CGBonusingObject();
 				break;
 			}
-		case 49: //Magic Well
+		case Obj::MAGIC_WELL:
 			{
 				nobj = new CGMagicWell();
 				break;
 			}
-		case 15: //Cover of darkness
-		case 58: //Redwood Observatory
-		case 60: //Pillar of Fire
+		case Obj::COVER_OF_DARKNESS:
+		case Obj::REDWOOD_OBSERVATORY:
+		case Obj::PILLAR_OF_FIRE:
 			{
 				nobj = new CGObservatory();
 				break;
 			}
-		case 22: //Corpse
-		case 39: //Lean To
-		case 105://Wagon
-		case 108://Warrior's Tomb
+		case Obj::CORPSE: 
+		case Obj::LEAN_TO:
+		case Obj::WAGON:
+		case Obj::WARRIORS_TOMB:
 			{
 				nobj = new CGOnceVisitable();
 				break;
 			}
-		case 8: //Boat
+		case Obj::BOAT:
 			{
 				nobj = new CGBoat();
 				break;
 			}
-		case 92: //Sirens
+		case Obj::SIRENS:
 			{
 				nobj = new CGSirens();
 				break;
 			}
-		case 87: //Shipyard
+		case Obj::SHIPYARD:
 			{
 				nobj = new CGShipyard();
 				nobj->setOwner(read_le_u32(buffer + pos));
 				pos += 4;
 				break;
 			}
-		case 214: //hero placeholder
+		case Obj::HERO_PLACEHOLDER: //hero placeholder
 			{
 				CGHeroPlaceholder * hp = new CGHeroPlaceholder();
 				nobj = hp;
@@ -1644,79 +1664,93 @@ void CMapLoaderH3M::readObjects()
 
 				break;
 			}
-		case 10: //Keymaster
+		case Obj::KEYMASTER:
 			{
 				nobj = new CGKeymasterTent();
 				break;
 			}
-		case 9: //Border Guard
+		case Obj::BORDERGUARD:
 			{
 				nobj = new CGBorderGuard();
 				addQuest(nobj);
 				break;
 			}
-		case 212: //Border Gate
+		case Obj::BORDER_GATE:
 			{
 				nobj = new CGBorderGate();
 				addQuest (nobj);
 				break;
 			}
-		case 27: case 37: //Eye and Hut of Magi
+		case Obj::EYE_OF_MAGI: 
+		case Obj::HUT_OF_MAGI:
 			{
 				nobj = new CGMagi();
 				break;
 			}
-		case 16: case 24: case 25: case 84: case 85: //treasure bank
+		case Obj::CREATURE_BANK: 
+		case Obj::DERELICT_SHIP: 
+		case Obj::DRAGON_UTOPIA: 
+		case Obj::CRYPT: 
+		case Obj::SHIPWRECK:
 			{
 				nobj = new CBank();
 				break;
 			}
-		case 63: //Pyramid
+		case Obj::PYRAMID: //Pyramid of WoG object
 			{
-				nobj = new CGPyramid();
+				if(defInfo->subid == 0)
+				{
+					nobj = new CGPyramid();
+				}
+				else
+				{
+					//WoG object
+					//TODO: possible special handling
+					nobj = new CGObjectInstance();
+				}				
 				break;
 			}
-		case 13: //Cartographer
+		case Obj::CARTOGRAPHER:
 			{
 				nobj = new CCartographer();
 				break;
 			}
-		case 48: //Magic Spring
+		case Obj::MAGIC_SPRING: 
 			{
 				nobj = new CGMagicSpring();
 				break;
 			}
-		case 97: //den of thieves
+		case Obj::DEN_OF_THIEVES:
 			{
 				nobj = new CGDenOfthieves();
 				break;
 			}
-		case 57: //Obelisk
+		case Obj::OBELISK:
 			{
 				nobj = new CGObelisk();
 				break;
 			}
-		case 42: //Lighthouse
+		case Obj::LIGHTHOUSE: //Lighthouse
 			{
 				nobj = new CGLighthouse();
 				nobj->tempOwner = read_le_u32(buffer + pos);
 				pos += 4;
 				break;
 			}
-		case 2: //Altar of Sacrifice
-		case 99: //Trading Post
-		case 213: //Freelancer's Guild
-		case 221: //Trading Post (snow)
+		case Obj::ALTAR_OF_SACRIFICE: 
+		case Obj::TRADING_POST: 
+		case Obj::FREELANCERS_GUILD: 
+		case Obj::TRADING_POST_SNOW:
 			{
 				nobj = new CGMarket();
 				break;
 			}
-		case 104: //University
+		case Obj::UNIVERSITY:
 			{
 				nobj = new CGUniversity();
 				break;
 			}
-		case 7: //Black Market
+		case Obj::BLACK_MARKET:
 			{
 				nobj = new CGBlackMarket();
 				break;

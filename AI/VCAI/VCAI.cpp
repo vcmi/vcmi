@@ -433,8 +433,15 @@ ui64 evaluateDanger(const CGObjectInstance *obj)
 	case Obj::DRAGON_UTOPIA:
 	case Obj::SHIPWRECK: //shipwreck
 	case Obj::DERELICT_SHIP: //derelict ship
-	case Obj::PYRAMID:
+//	case Obj::PYRAMID:
 		return fh->estimateBankDanger (VLC->objh->bankObjToIndex(obj));
+	case Obj::PYRAMID:
+		{
+		    if(obj.subID == 0)
+				return fh->estimateBankDanger (VLC->objh->bankObjToIndex(obj));
+			else
+				return 0;
+		}
 	default:
 		return 0;
 	}

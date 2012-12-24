@@ -208,7 +208,7 @@ int CObjectHandler::bankObjToIndex (const CGObjectInstance * obj)
 	case Obj::SHIPWRECK:
 		return 7;
 	default:
-		tlog2 << "Unrecognixed Bank indetifier!\n";
+		tlog2 << "Unrecognized Bank indetifier!\n";
 		return 0;
 	}
 }
