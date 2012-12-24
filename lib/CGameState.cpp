@@ -519,31 +519,31 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 {
 	switch(obj->ID)
 	{
-	case 65:
-		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
-	case 66: //random treasure artifact
-		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_TREASURE));
-	case 67: //random minor artifact
-		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_MINOR));
-	case 68: //random major artifact
-		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_MAJOR));
-	case 69: //random relic artifact
-		return std::pair<int,int>(5, VLC->arth->getRandomArt (CArtifact::ART_RELIC));
-	case 70: //random hero
-		return std::pair<int,int>(Obj::HERO,pickHero(obj->tempOwner));
-	case 71: //random monster
-		return std::pair<int,int>(54,VLC->creh->pickRandomMonster(boost::ref(ran)));
-	case 72: //random monster lvl1
-		return std::pair<int,int>(54,VLC->creh->pickRandomMonster(boost::ref(ran), 1));
-	case 73: //random monster lvl2
-		return std::pair<int,int>(54,VLC->creh->pickRandomMonster(boost::ref(ran), 2));
-	case 74: //random monster lvl3
-		return std::pair<int,int>(54,VLC->creh->pickRandomMonster(boost::ref(ran), 3));
-	case 75: //random monster lvl4
-		return std::pair<int,int>(54, VLC->creh->pickRandomMonster(boost::ref(ran), 4));
-	case 76: //random resource
-		return std::pair<int,int>(79,ran()%7); //now it's OH3 style, use %8 for mithril
-	case 77: //random town
+	case Obj::RANDOM_ART:
+		return std::pair<int,int>(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
+	case Obj::RANDOM_TREASURE_ART: 
+		return std::pair<int,int>(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_TREASURE));
+	case Obj::RANDOM_MINOR_ART:
+		return std::pair<int,int>(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_MINOR));
+	case Obj::RANDOM_MAJOR_ART:
+		return std::pair<int,int>(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_MAJOR));
+	case Obj::RANDOM_RELIC_ART:
+		return std::pair<int,int>(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_RELIC));
+	case Obj::RANDOM_HERO:
+		return std::pair<int,int>(Obj::HERO, pickHero(obj->tempOwner));
+	case Obj::RANDOM_MONSTER:
+		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran)));
+	case Obj::RANDOM_MONSTER_L1:
+		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 1));
+	case Obj::RANDOM_MONSTER_L2:
+		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 2));
+	case Obj::RANDOM_MONSTER_L3:
+		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 3));
+	case Obj::RANDOM_MONSTER_L4:
+		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 4));
+	case Obj::RANDOM_RESOURCE:
+		return std::pair<int,int>(Obj::RESOURCE,ran()%7); //now it's OH3 style, use %8 for mithril
+	case Obj::RANDOM_TOWN:
 		{
 			int align = (static_cast<CGTownInstance*>(obj))->alignment,
 				f;
@@ -566,15 +566,15 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 			}
 			return std::pair<int,int>(Obj::TOWN,f);
 		}
-	case 162: //random monster lvl5
-		return std::pair<int,int>(54, VLC->creh->pickRandomMonster(boost::ref(ran), 5));
-	case 163: //random monster lvl6
-		return std::pair<int,int>(54, VLC->creh->pickRandomMonster(boost::ref(ran), 6));
-	case 164: //random monster lvl7
-		return std::pair<int,int>(54, VLC->creh->pickRandomMonster(boost::ref(ran), 7));
-	case 216: //random dwellings
-	case 217:
-	case 218:
+	case Obj::RANDOM_MONSTER_L5:
+		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 5));
+	case Obj::RANDOM_MONSTER_L6:
+		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 6));
+	case Obj::RANDOM_MONSTER_L7:
+		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 7));
+	case Obj::RANDOM_DWELLING: 
+	case Obj::RANDOM_DWELLING_LVL:
+	case Obj::RANDOM_DWELLING_FACTION:
 		{
 			CGDwelling * dwl = static_cast<CGDwelling*>(obj);
 			int faction;
