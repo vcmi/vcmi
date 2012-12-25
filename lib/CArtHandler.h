@@ -87,6 +87,7 @@ public:
 	void setName (std::string desc);
 	void setDescription (std::string desc);
 	void setEventText (std::string desc);
+	void addConstituent (ui32 component);
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const OVERRIDE;

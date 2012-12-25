@@ -2324,7 +2324,16 @@
 				}
 			],
 			"id" : 129,
-			"type" : "Hero"
+			"type" : "Hero",
+			"components":
+			[
+				"armorOfWonder",
+				"sandalsOfTheSaint",
+				"celestialNecklaceOfBliss",
+				"lionsShieldOfCourage",
+				"swordOfJudgement",
+				"helmOfHeavenlyEnlightenment"
+			]
 		},
 		"cloakOfTheUndeadKing":
 		{
@@ -2340,7 +2349,13 @@
 				}
 			],
 			"id" : 130,
-			"type" : "Hero"
+			"type" : "Hero",
+			"components":
+			[
+				"amuletOfTheUndertaker",
+				"vampiresCowl",
+				"deadMansBoots"
+			]
 		},
 		"elixirOfLife":
 		{
@@ -2365,7 +2380,13 @@
 				}
 			],
 			"id" : 131,
-			"type" : "Hero"
+			"type" : "Hero",
+			"components":
+			[
+				"ringOfVitality",
+				"ringOfLife",
+				"vialOfLifeblood"
+			]
 		},
 		"armorOfTheDamned":
 		{
@@ -2408,12 +2429,27 @@
 				}
 			],
 			"id" : 132,
-			"type" : "Hero"
+			"type" : "Hero",
+			"components":
+			[
+				"blackshardOfTheDeadKnight",
+				"shieldOfTheYawningDead",
+				"skullHelmet",
+				"ribCage"
+			]
 		},
 		"statueOfLegion": //TODO: implement
 		{
 			"id" : 133,
-			"type" : "Hero"
+			"type" : "Hero",
+			"components":
+			[
+				"legsOfLegion",
+				"loinsOfLegion",
+				"torsoOfLegion",
+				"armsOfLegion",
+				"headOfLegion"
+			]
 		},
 		"powerOfTheDragonFather": //TODO: add stat bonus
 		{
@@ -2429,7 +2465,19 @@
 				}
 			],
 			"id" : 134,
-			"type" : "Hero"
+			"type" : "Hero",
+			"components":
+			[
+				"quietEyeOfTheDragon",
+				"redDragonFlameTongue",
+				"dragonScaleShield",
+				"dragonScaleArmor",
+				"dragonboneGreaves",
+				"dragonWingTabard",
+				"necklaceOfDragonteeth",
+				"crownOfDragontooth",
+				"stillEyeOfTheDragon"
+			]
 		},
 		"titansThunder":
 		{
@@ -2445,7 +2493,14 @@
 				}
 			],
 			"id" : 135,
-			"type" : "Hero"
+			"type" : "Hero",
+			"components":
+			[
+				"titansGladius",
+				"sentinelsShield",
+				"thunderHelmet",
+				"titansCuirass"
+			]
 		},
 		"admiralsHat":
 		{
@@ -2461,7 +2516,12 @@
 				}
 			],
 			"id" : 136,
-			"type" : "Hero"
+			"type" : "Hero",
+			"components":
+			[
+				"necklaceOfOceanGuidance",
+				"seaCaptainsHat"
+			]
 		},
 		"bowOfTheSharpshooter": //TODO: limiters
 		{
@@ -2498,7 +2558,13 @@
 				}
 			],
 			"id" : 137,
-			"type" : "Hero"
+			"type" : "Hero",
+			"components":
+			[
+				"bowOfElvenCherrywood",
+				"bowstringOfTheUnicornsMane",
+				"angelFeatherArrows"
+			]
 		},
 		"wizardsWell":
 		{
@@ -2514,7 +2580,13 @@
 				}
 			],
 			"id" : 138,
-			"type" : "Hero"
+			"type" : "Hero",
+			"components":
+			[
+				"charmOfMana",
+				"talismanOfMana",
+				"mysticOrbOfMana"
+			]
 		},
 		"ringOfTheMagi":
 		{
@@ -2530,7 +2602,13 @@
 				}
 			],
 			"id" : 139,
-			"type" : "Hero"
+			"type" : "Hero",
+			"components":
+			[
+				"collarOfConjuring",
+				"ringOfConjuring",
+				"capeOfConjuring"
+			]
 		},
 		"cornucopia":
 		{
@@ -2573,7 +2651,13 @@
 				}
 			],
 			"id" : 140,
-			"type" : "Hero"
+			"type" : "Hero",
+			"components":
+			[
+				"everflowingCrystalCloak",
+				"ringOfInfiniteGems",
+				"everpouringVialOfMercury",
+				"inexhaustibleCartOfOre"			]
 		},
 		"magicWand":
 		{
@@ -2988,7 +3072,14 @@
 		"barbarianLordsAxeOfFerocity": //TODO: implement
 		{
 			"id" : 158,
-			"type" : "Hero"
+			"type" : "Hero",
+			"components":
+			[
+				"ogresClubOfHavoc",
+				"targOfTheRampagingOgre",
+				"crownOfTheSupremeMagi",
+				"tunicOfTheCyclopsKing"
+			]
 		},
 		"dragonheart":
 		{
