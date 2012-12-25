@@ -40,10 +40,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
@@ -56,10 +53,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
@@ -72,10 +66,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
@@ -88,10 +79,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 5,
 					"valueType" : "BASE_NUMBER"
@@ -104,10 +92,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 6,
 					"valueType" : "BASE_NUMBER"
@@ -120,19 +105,13 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 12,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : -3,
 					"valueType" : "BASE_NUMBER"
@@ -145,10 +124,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
@@ -161,10 +137,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
@@ -177,10 +150,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
@@ -193,10 +163,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 5,
 					"valueType" : "BASE_NUMBER"
@@ -209,10 +176,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 6,
 					"valueType" : "BASE_NUMBER"
@@ -225,19 +189,13 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 12,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : -3,
 					"valueType" : "BASE_NUMBER"
@@ -250,10 +208,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -266,10 +221,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
@@ -282,10 +234,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
@@ -298,10 +247,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
@@ -314,10 +260,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 5,
 					"valueType" : "BASE_NUMBER"
@@ -330,19 +273,13 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 10,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : -2,
 					"valueType" : "BASE_NUMBER"
@@ -355,10 +292,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -371,10 +305,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
@@ -387,10 +318,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
@@ -403,10 +331,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
@@ -419,10 +344,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 5,
 					"valueType" : "BASE_NUMBER"
@@ -435,19 +357,13 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 10,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : -2,
 					"valueType" : "BASE_NUMBER"
@@ -460,37 +376,25 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -503,37 +407,25 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
@@ -546,37 +438,25 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
@@ -589,37 +469,25 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
@@ -632,37 +500,25 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 5,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 5,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 5,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 5,
 					"valueType" : "BASE_NUMBER"
@@ -675,37 +531,25 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 6,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 6,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 6,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 6,
 					"valueType" : "BASE_NUMBER"
@@ -718,19 +562,13 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -743,19 +581,13 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
@@ -768,19 +600,13 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
@@ -793,19 +619,13 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
@@ -818,19 +638,13 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -843,19 +657,13 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
@@ -868,19 +676,13 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
@@ -893,19 +695,13 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
@@ -918,19 +714,11 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "MORALE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "LUCK",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -943,10 +731,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "LUCK",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -959,10 +743,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "LUCK",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -975,10 +755,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "LUCK",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -991,19 +767,11 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "MORALE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "MIND_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1016,10 +784,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "MORALE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1032,10 +796,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "MORALE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1048,10 +808,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "SIGHT_RADIOUS",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1064,10 +820,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "SIGHT_RADIOUS",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1080,10 +832,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 12,
-					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 5,
 					"valueType" : "ADDITIVE_VALUE"
@@ -1096,10 +845,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 12,
-					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 10,
 					"valueType" : "ADDITIVE_VALUE"
@@ -1112,10 +858,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 12,
-					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 15,
 					"valueType" : "ADDITIVE_VALUE"
@@ -1128,10 +871,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "MAGIC_RESISTANCE",
 					"val" : 5,
 					"valueType" : "BASE_NUMBER"
@@ -1144,10 +884,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "MAGIC_RESISTANCE",
 					"val" : 10,
 					"valueType" : "BASE_NUMBER"
@@ -1160,10 +897,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "MAGIC_RESISTANCE",
 					"val" : 15,
 					"valueType" : "BASE_NUMBER"
@@ -1176,10 +910,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 5,
 					"valueType" : "ADDITIVE_VALUE"
@@ -1192,10 +923,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 10,
 					"valueType" : "ADDITIVE_VALUE"
@@ -1208,10 +936,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 15,
 					"valueType" : "ADDITIVE_VALUE"
@@ -1224,10 +949,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 11,
-					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 5,
 					"valueType" : "ADDITIVE_VALUE"
@@ -1240,10 +962,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 11,
-					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 10,
 					"valueType" : "ADDITIVE_VALUE"
@@ -1256,10 +975,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 11,
-					"turns" : 0,
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 15,
 					"valueType" : "ADDITIVE_VALUE"
@@ -1272,10 +988,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "SURRENDER_DISCOUNT",
 					"val" : 10,
 					"valueType" : "BASE_NUMBER"
@@ -1288,10 +1000,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "SURRENDER_DISCOUNT",
 					"val" : 10,
 					"valueType" : "BASE_NUMBER"
@@ -1304,10 +1012,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "SURRENDER_DISCOUNT",
 					"val" : 10,
 					"valueType" : "BASE_NUMBER"
@@ -1320,10 +1024,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "STACKS_SPEED",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1336,10 +1036,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "LAND_MOVEMENT",
 					"val" : 300,
 					"valueType" : "BASE_NUMBER"
@@ -1352,10 +1048,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "SEA_MOVEMENT",
 					"val" : 1000,
 					"valueType" : "BASE_NUMBER"
@@ -1368,10 +1060,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "FLYING_MOVEMENT",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1384,10 +1073,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "MANA_REGENERATION",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1400,10 +1085,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "MANA_REGENERATION",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
@@ -1416,10 +1097,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "MANA_REGENERATION",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
@@ -1432,10 +1109,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "SPELL_DURATION",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1448,10 +1121,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "SPELL_DURATION",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
@@ -1464,10 +1133,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "SPELL_DURATION",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
@@ -1480,10 +1145,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "AIR_SPELL_DMG_PREMY",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
@@ -1496,10 +1157,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "EARTH_SPELL_DMG_PREMY",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
@@ -1512,10 +1169,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "FIRE_SPELL_DMG_PREMY",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
@@ -1528,10 +1181,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "WATER_SPELL_DMG_PREMY",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
@@ -1549,10 +1198,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "BLOCK_MORALE",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1565,10 +1210,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "BLOCK_LUCK",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1581,10 +1222,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "FIRE_SPELLS",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1597,10 +1234,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "AIR_SPELLS",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1613,10 +1246,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "WATER_SPELLS",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1629,10 +1258,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "EARTH_SPELLS",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1645,10 +1270,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "WATER_WALKING",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1661,21 +1283,15 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"limiter" : "SHOOTER_ONLY",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "NO_DISTANCE_PENALTY",
 					"val" : 0,
 					"valueType" : "ADDITIVE_VALUE"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"limiter" : "SHOOTER_ONLY",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "NO_WALL_PENALTY",
 					"val" : 0,
 					"valueType" : "ADDITIVE_VALUE"
@@ -1688,10 +1304,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 35,
-					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1704,10 +1317,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "NEGATE_ALL_NATURAL_IMMUNITIES",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1720,10 +1329,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "STACK_HEALTH",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1736,10 +1341,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "STACK_HEALTH",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1752,10 +1353,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "STACK_HEALTH",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
@@ -1768,10 +1365,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "STACKS_SPEED",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1784,10 +1377,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "LAND_MOVEMENT",
 					"val" : 600,
 					"valueType" : "BASE_NUMBER"
@@ -1800,10 +1389,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "STACKS_SPEED",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
@@ -1816,10 +1401,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 59,
-					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1832,10 +1414,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 62,
-					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1848,10 +1427,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 42,
-					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1864,10 +1440,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 24,
-					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1880,11 +1453,8 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"limiter" : "IS_UNDEAD",
 					"subtype" : 25,
-					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1897,10 +1467,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 60,
-					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1913,19 +1480,13 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 17,
-					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 19,
-					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1938,10 +1499,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 61,
-					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1954,19 +1512,11 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "MORALE",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "LUCK",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
@@ -1979,10 +1529,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 4,
-					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1995,10 +1542,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 5,
-					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -2011,10 +1555,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -2027,10 +1568,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -2043,10 +1581,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -2059,10 +1594,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -2075,10 +1607,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 6,
-					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1000,
 					"valueType" : "BASE_NUMBER"
@@ -2091,10 +1620,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 6,
-					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
 					"val" : 750,
 					"valueType" : "BASE_NUMBER"
@@ -2107,10 +1633,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 6,
-					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
 					"val" : 500,
 					"valueType" : "BASE_NUMBER"
@@ -2148,37 +1671,23 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "WHIRLPOOL_PROTECTION",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "SEA_MOVEMENT",
 					"val" : 500,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "SPELL",
 					"val" : 3,
 					"valueType" : "INDEPENDENT_MAX"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "SPELL",
 					"val" : 3,
 					"valueType" : "INDEPENDENT_MAX"
@@ -2191,10 +1700,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "SPELLS_OF_LEVEL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
@@ -2217,21 +1723,15 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"limiter" : "DRAGON_NATURE",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 5,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"limiter" : "DRAGON_NATURE",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 5,
 					"valueType" : "BASE_NUMBER"
@@ -2244,55 +1744,37 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 26,
-					"turns" : 0,
 					"type" : "SPELL",
 					"val" : 3,
 					"valueType" : "INDEPENDENT_MAX"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 26,
-					"turns" : 0,
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 6,
 					"valueType" : "BASE_NUMBER"
@@ -2305,19 +1787,12 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "NONEVIL_ALIGNMENT_MIX",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 48,
-					"turns" : 0,
 					"type" : "OPENING_BATTLE_SPELL",
 					"val" : 10,
 					"valueType" : "BASE_NUMBER"
@@ -2339,10 +1814,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "IMPROVED_NECROMANCY", //TODO: more flexible?
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -2361,19 +1832,11 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "STACK_HEALTH",
 					"val" : 25,
 					"valueType" : "PERCENT_TO_BASE"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "HP_REGENERATION",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
@@ -2392,37 +1855,25 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 54,
-					"turns" : 0,
 					"type" : "OPENING_BATTLE_SPELL",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 47,
-					"turns" : 0,
 					"type" : "OPENING_BATTLE_SPELL",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 45,
-					"turns" : 0,
 					"type" : "OPENING_BATTLE_SPELL",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 52,
-					"turns" : 0,
 					"type" : "OPENING_BATTLE_SPELL",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
@@ -2455,10 +1906,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "LEVEL_SPELL_IMMUNITY",
 					"val" : 4,
 					"valueType" : "INDEPENDENT_MAX"
@@ -2483,10 +1930,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 57,
-					"turns" : 0,
 					"type" : "SPELL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
@@ -2506,10 +1950,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "FREE_SHIP_BOARDING",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -2527,31 +1967,22 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"limiter" : "SHOOTER_ONLY",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "NO_DISTANCE_PENALTY",
 					"val" : 0,
 					"valueType" : "ADDITIVE_VALUE"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"limiter" : "SHOOTER_ONLY",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "NO_WALL_PENALTY",
 					"val" : 0,
 					"valueType" : "ADDITIVE_VALUE"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"limiter" : "SHOOTER_ONLY",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "FREE_SHOOTING",
 					"val" : 0,
 					"valueType" : "ADDITIVE_VALUE"
@@ -2570,10 +2001,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "FULL_MANA_REGENERATION",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -2592,10 +2019,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "SPELL_DURATION",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
@@ -2614,37 +2037,25 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 3,
-					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 4,
-					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 5,
-					"turns" : 0,
 					"type" : "GENERATE_RESOURCE",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
@@ -2657,88 +2068,59 @@
 				"everflowingCrystalCloak",
 				"ringOfInfiniteGems",
 				"everpouringVialOfMercury",
-				"inexhaustibleCartOfOre"			]
+				"inexhaustibleCartOfOre"
+			]
 		},
 		"magicWand":
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "CASTS",
 					"val" : 10,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 18,
-					"turns" : 0,
 					"type" : "SPELLCASTER",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 21,
-					"turns" : 0,
 					"type" : "SPELLCASTER",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "RANDOM_SPELLCASTER",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 63,
-					"turns" : 0,
 					"type" : "DAEMON_SUMMONING",
 					"val" : 10,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
 					"additionalInfo" : 2,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 17,
-					"turns" : 0,
 					"type" : "ENCHANTER",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 1,
-					"turns" : 0,
 					"type" : "REBIRTH",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "MANA_DRAIN",
 					"val" : 10,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "HEALER",
 					"val" : 25,
 					"valueType" : "BASE_NUMBER"
@@ -2751,91 +2133,61 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "NO_DISTANCE_PENALTY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "ADDITIONAL_ATTACK",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 22,
-					"turns" : 0,
 					"type" : "SPELL_LIKE_ATTACK",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "CATAPULT",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "ACID_BREATH",
 					"val" : 20,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "SHOTS",
 					"val" : 200,
 					"valueType" : "PERCENT_TO_BASE"
 				},
 				{
 					"additionalInfo" : 1,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 75,
-					"turns" : 0,
 					"type" : "SPELL_BEFORE_ATTACK",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
 					"additionalInfo" : 1,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 59,
-					"turns" : 0,
 					"type" : "SPELL_AFTER_ATTACK",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
 					"additionalInfo" : 1,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 71,
-					"turns" : 0,
 					"type" : "SPELL_AFTER_ATTACK",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
 					"additionalInfo" : 1,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 47,
-					"turns" : 0,
 					"type" : "SPELL_AFTER_ATTACK",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
@@ -2848,73 +2200,42 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "STACK_HEALTH",
 					"val" : 100,
 					"valueType" : "PERCENT_TO_BASE"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 2,
-					"turns" : 0,
 					"type" : "CREATURE_DAMAGE",
 					"val" : 100,
 					"valueType" : "PERCENT_TO_ALL"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "HP_REGENERATION",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "NO_RETALIATION",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "RETURN_AFTER_STRIKE",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "ATTACKS_ALL_ADJACENT",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "SPELL_RESISTANCE_AURA",
 					"val" : 100,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "DIRECT_DAMAGE_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -2936,10 +2257,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 6,
 					"valueType" : "BASE_NUMBER"
@@ -2952,10 +2270,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "STACK_HEALTH",
 					"val" : 12,
 					"valueType" : "PERCENT_TO_ALL"
@@ -2968,10 +2282,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "CREATURE_DAMAGE",
 					"val" : 12,
 					"valueType" : "PERCENT_TO_ALL"
@@ -2989,10 +2300,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "CASTS",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -3005,10 +2312,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "STACKS_SPEED",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -3031,10 +2334,7 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
 					"subtype" : 0,
-					"turns" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 6,
 					"valueType" : "BASE_NUMBER"
@@ -3052,10 +2352,6 @@
 		{
 			"bonuses" : [
 				{
-					"additionalInfo" : 0,
-					"effectRange" : "NO_LIMIT",
-					"subtype" : -1,
-					"turns" : 0,
 					"type" : "STACK_HEALTH",
 					"val" : 2,
 					"valueType" : "BASE_NUMBER"
