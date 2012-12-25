@@ -749,20 +749,22 @@ void CArtHandler::makeItCommanderArt( TArtifactInstanceID aid, bool onlyCommande
 void CArtHandler::addBonuses()
 {
 	const JsonNode config(ResourceID("config/artifacts.json"));
-	BOOST_FOREACH(const JsonNode &artifact, config["artifacts"].Vector())
+	BOOST_FOREACH (auto & artifact, config["artifacts"].Struct()) //pair <string, JsonNode> (id, properties)
 	{
-		auto ga = artifacts[artifact["id"].Float()].get();
+		auto ga = artifacts[artifact.second["id"].Float()].get();
 		
-		BOOST_FOREACH (auto b, artifact["bonuses"].Vector())
+		BOOST_FOREACH (auto b, artifact.second["bonuses"].Vector())
 		{
 			auto bonus = JsonUtils::parseBonus (b);
 			bonus->sid = ga->id;
 			ga->addNewBonus (bonus);
 		}
-		if(artifact["type"].String() == "Creature")
+		if(artifact.second["type"].String() == "Creature")
 			makeItCreatureArt(ga->id);
-		else if(artifact["type"].String() == "Commander")
+		else if(artifact.second["type"].String() == "Commander")
 			makeItCommanderArt(ga->id);
+
+		VLC->modh->identifiers.registerObject ("artifact." + artifact.first, ga->id);
 	}
 }
 

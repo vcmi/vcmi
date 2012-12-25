@@ -1,33 +1,42 @@
 {
-	"artifacts" : [
+	"artifacts" :
+	{
+		"spellBook":
 		{
 			"id" : 0,
 			"type" : "Hero"
 		},
+		"spellScroll":
 		{
 			"id" : 1,
 			"type" : "Hero"
 		},
+		"grail":
 		{
 			"id" : 2,
 			"type" : "Hero"
 		},
+		"catapult":
 		{
 			"id" : 3,
 			"type" : "Hero"
 		},
+		"ballista":
 		{
 			"id" : 4,
 			"type" : "Hero"
 		},
+		"ammoCart":
 		{
 			"id" : 5,
 			"type" : "Hero"
 		},
+		"firstAidTent":
 		{
 			"id" : 6,
 			"type" : "Hero"
 		},
+		"centaurAxe":
 		{
 			"bonuses" : [
 				{
@@ -43,6 +52,7 @@
 			"id" : 7,
 			"type" : "Hero"
 		},
+		"blackshardOfTheDeadKnight":
 		{
 			"bonuses" : [
 				{
@@ -58,6 +68,7 @@
 			"id" : 8,
 			"type" : "Hero"
 		},
+		"greaterGnollsFlail":
 		{
 			"bonuses" : [
 				{
@@ -73,6 +84,7 @@
 			"id" : 9,
 			"type" : "Hero"
 		},
+		"ogresClubOfHavoc":
 		{
 			"bonuses" : [
 				{
@@ -88,6 +100,7 @@
 			"id" : 10,
 			"type" : "Hero"
 		},
+		"swordOfHellfire":
 		{
 			"bonuses" : [
 				{
@@ -103,6 +116,7 @@
 			"id" : 11,
 			"type" : "Hero"
 		},
+		"titansGladius":
 		{
 			"bonuses" : [
 				{
@@ -127,6 +141,7 @@
 			"id" : 12,
 			"type" : "Hero"
 		},
+		"shieldOfTheDwarvenLords":
 		{
 			"bonuses" : [
 				{
@@ -142,6 +157,7 @@
 			"id" : 13,
 			"type" : "Hero"
 		},
+		"shieldOfTheYawningDead":
 		{
 			"bonuses" : [
 				{
@@ -157,6 +173,7 @@
 			"id" : 14,
 			"type" : "Hero"
 		},
+		"bucklerOfTheGnollKing":
 		{
 			"bonuses" : [
 				{
@@ -172,6 +189,7 @@
 			"id" : 15,
 			"type" : "Hero"
 		},
+		"targOfTheRampagingOgre":
 		{
 			"bonuses" : [
 				{
@@ -187,6 +205,7 @@
 			"id" : 16,
 			"type" : "Hero"
 		},
+		"shieldOfTheDamned":
 		{
 			"bonuses" : [
 				{
@@ -202,6 +221,7 @@
 			"id" : 17,
 			"type" : "Hero"
 		},
+		"sentinelsShield":
 		{
 			"bonuses" : [
 				{
@@ -226,6 +246,7 @@
 			"id" : 18,
 			"type" : "Hero"
 		},
+		"helmOfTheAlabasterUnicorn":
 		{
 			"bonuses" : [
 				{
@@ -241,6 +262,7 @@
 			"id" : 19,
 			"type" : "Hero"
 		},
+		"skullHelmet":
 		{
 			"bonuses" : [
 				{
@@ -256,6 +278,7 @@
 			"id" : 20,
 			"type" : "Hero"
 		},
+		"helmOfChaos":
 		{
 			"bonuses" : [
 				{
@@ -271,6 +294,7 @@
 			"id" : 21,
 			"type" : "Hero"
 		},
+		"crownOfTheSupremeMagi":
 		{
 			"bonuses" : [
 				{
@@ -286,6 +310,7 @@
 			"id" : 22,
 			"type" : "Hero"
 		},
+		"hellstormHelmet":
 		{
 			"bonuses" : [
 				{
@@ -301,6 +326,7 @@
 			"id" : 23,
 			"type" : "Hero"
 		},
+		"thunderHelmet":
 		{
 			"bonuses" : [
 				{
@@ -325,6 +351,7 @@
 			"id" : 24,
 			"type" : "Hero"
 		},
+		"breastplateOfPetrifiedWood":
 		{
 			"bonuses" : [
 				{
@@ -340,6 +367,7 @@
 			"id" : 25,
 			"type" : "Hero"
 		},
+		"ribCage":
 		{
 			"bonuses" : [
 				{
@@ -355,6 +383,7 @@
 			"id" : 26,
 			"type" : "Hero"
 		},
+		"scalesOfTheGreaterBasilisk":
 		{
 			"bonuses" : [
 				{
@@ -370,6 +399,7 @@
 			"id" : 27,
 			"type" : "Hero"
 		},
+		"tunicOfTheCyclopsKing":
 		{
 			"bonuses" : [
 				{
@@ -385,6 +415,7 @@
 			"id" : 28,
 			"type" : "Hero"
 		},
+		"breastplateOfBrimstone":
 		{
 			"bonuses" : [
 				{
@@ -400,6 +431,7 @@
 			"id" : 29,
 			"type" : "Hero"
 		},
+		"titansCuirass":
 		{
 			"bonuses" : [
 				{
@@ -424,6 +456,7 @@
 			"id" : 30,
 			"type" : "Hero"
 		},
+		"armorOfWonder":
 		{
 			"bonuses" : [
 				{
@@ -466,6 +499,7 @@
 			"id" : 31,
 			"type" : "Hero"
 		},
+		"sandalsOfTheSaint":
 		{
 			"bonuses" : [
 				{
@@ -508,6 +542,7 @@
 			"id" : 32,
 			"type" : "Hero"
 		},
+		"celestialNecklaceOfBliss":
 		{
 			"bonuses" : [
 				{
@@ -550,6 +585,7 @@
 			"id" : 33,
 			"type" : "Hero"
 		},
+		"lionsShieldOfCourage":
 		{
 			"bonuses" : [
 				{
@@ -592,6 +628,7 @@
 			"id" : 34,
 			"type" : "Hero"
 		},
+		"swordOfJudgement":
 		{
 			"bonuses" : [
 				{
@@ -634,6 +671,7 @@
 			"id" : 35,
 			"type" : "Hero"
 		},
+		"helmOfHeavenlyEnlightenment":
 		{
 			"bonuses" : [
 				{
@@ -676,6 +714,7 @@
 			"id" : 36,
 			"type" : "Hero"
 		},
+		"quietEyeOfTheDragon":
 		{
 			"bonuses" : [
 				{
@@ -700,6 +739,7 @@
 			"id" : 37,
 			"type" : "Hero"
 		},
+		"redDragonFlameTongue":
 		{
 			"bonuses" : [
 				{
@@ -724,6 +764,7 @@
 			"id" : 38,
 			"type" : "Hero"
 		},
+		"dragonScaleShield":
 		{
 			"bonuses" : [
 				{
@@ -748,6 +789,7 @@
 			"id" : 39,
 			"type" : "Hero"
 		},
+		"dragonScaleArmor":
 		{
 			"bonuses" : [
 				{
@@ -772,6 +814,7 @@
 			"id" : 40,
 			"type" : "Hero"
 		},
+		"dragonboneGreaves":
 		{
 			"bonuses" : [
 				{
@@ -796,6 +839,7 @@
 			"id" : 41,
 			"type" : "Hero"
 		},
+		"dragonWingTabard":
 		{
 			"bonuses" : [
 				{
@@ -820,6 +864,7 @@
 			"id" : 42,
 			"type" : "Hero"
 		},
+		"necklaceOfDragonteeth":
 		{
 			"bonuses" : [
 				{
@@ -844,6 +889,7 @@
 			"id" : 43,
 			"type" : "Hero"
 		},
+		"crownOfDragontooth":
 		{
 			"bonuses" : [
 				{
@@ -868,6 +914,7 @@
 			"id" : 44,
 			"type" : "Hero"
 		},
+		"stillEyeOfTheDragon":
 		{
 			"bonuses" : [
 				{
@@ -892,6 +939,7 @@
 			"id" : 45,
 			"type" : "Hero"
 		},
+		"cloverOfFortune":
 		{
 			"bonuses" : [
 				{
@@ -907,6 +955,7 @@
 			"id" : 46,
 			"type" : "Hero"
 		},
+		"cardsOfProphecy":
 		{
 			"bonuses" : [
 				{
@@ -922,6 +971,7 @@
 			"id" : 47,
 			"type" : "Hero"
 		},
+		"ladybirdOfLuck":
 		{
 			"bonuses" : [
 				{
@@ -937,6 +987,7 @@
 			"id" : 48,
 			"type" : "Hero"
 		},
+		"badgeOfCourage":
 		{
 			"bonuses" : [
 				{
@@ -961,6 +1012,7 @@
 			"id" : 49,
 			"type" : "Hero"
 		},
+		"crestOfValor":
 		{
 			"bonuses" : [
 				{
@@ -976,6 +1028,7 @@
 			"id" : 50,
 			"type" : "Hero"
 		},
+		"glyphOfGallantry":
 		{
 			"bonuses" : [
 				{
@@ -991,6 +1044,7 @@
 			"id" : 51,
 			"type" : "Hero"
 		},
+		"speculum":
 		{
 			"bonuses" : [
 				{
@@ -1006,6 +1060,7 @@
 			"id" : 52,
 			"type" : "Hero"
 		},
+		"spyglass":
 		{
 			"bonuses" : [
 				{
@@ -1021,6 +1076,7 @@
 			"id" : 53,
 			"type" : "Hero"
 		},
+		"amuletOfTheUndertaker":
 		{
 			"bonuses" : [
 				{
@@ -1036,6 +1092,7 @@
 			"id" : 54,
 			"type" : "Hero"
 		},
+		"vampiresCowl":
 		{
 			"bonuses" : [
 				{
@@ -1051,6 +1108,7 @@
 			"id" : 55,
 			"type" : "Hero"
 		},
+		"deadMansBoots":
 		{
 			"bonuses" : [
 				{
@@ -1066,6 +1124,7 @@
 			"id" : 56,
 			"type" : "Hero"
 		},
+		"garnitureOfInterference":
 		{
 			"bonuses" : [
 				{
@@ -1081,6 +1140,7 @@
 			"id" : 57,
 			"type" : "Hero"
 		},
+		"surcoatOfCounterpoise":
 		{
 			"bonuses" : [
 				{
@@ -1096,6 +1156,7 @@
 			"id" : 58,
 			"type" : "Hero"
 		},
+		"bootsOfPolarity":
 		{
 			"bonuses" : [
 				{
@@ -1111,6 +1172,7 @@
 			"id" : 59,
 			"type" : "Hero"
 		},
+		"bowOfElvenCherrywood":
 		{
 			"bonuses" : [
 				{
@@ -1126,6 +1188,7 @@
 			"id" : 60,
 			"type" : "Hero"
 		},
+		"bowstringOfTheUnicornsMane":
 		{
 			"bonuses" : [
 				{
@@ -1141,6 +1204,7 @@
 			"id" : 61,
 			"type" : "Hero"
 		},
+		"angelFeatherArrows":
 		{
 			"bonuses" : [
 				{
@@ -1156,6 +1220,7 @@
 			"id" : 62,
 			"type" : "Hero"
 		},
+		"birdOfPerception":
 		{
 			"bonuses" : [
 				{
@@ -1171,6 +1236,7 @@
 			"id" : 63,
 			"type" : "Hero"
 		},
+		"stoicWatchman":
 		{
 			"bonuses" : [
 				{
@@ -1186,6 +1252,7 @@
 			"id" : 64,
 			"type" : "Hero"
 		},
+		"emblemOfCognizance":
 		{
 			"bonuses" : [
 				{
@@ -1201,6 +1268,7 @@
 			"id" : 65,
 			"type" : "Hero"
 		},
+		"statesmansMedal":
 		{
 			"bonuses" : [
 				{
@@ -1216,6 +1284,7 @@
 			"id" : 66,
 			"type" : "Hero"
 		},
+		"diplomatsRing":
 		{
 			"bonuses" : [
 				{
@@ -1231,6 +1300,7 @@
 			"id" : 67,
 			"type" : "Hero"
 		},
+		"ambassadorsSash":
 		{
 			"bonuses" : [
 				{
@@ -1246,6 +1316,7 @@
 			"id" : 68,
 			"type" : "Hero"
 		},
+		"ringOfTheWayfarer":
 		{
 			"bonuses" : [
 				{
@@ -1261,6 +1332,7 @@
 			"id" : 69,
 			"type" : "Hero"
 		},
+		"equestriansGloves":
 		{
 			"bonuses" : [
 				{
@@ -1276,6 +1348,7 @@
 			"id" : 70,
 			"type" : "Hero"
 		},
+		"necklaceOfOceanGuidance":
 		{
 			"bonuses" : [
 				{
@@ -1291,6 +1364,7 @@
 			"id" : 71,
 			"type" : "Hero"
 		},
+		"angelWings":
 		{
 			"bonuses" : [
 				{
@@ -1306,6 +1380,7 @@
 			"id" : 72,
 			"type" : "Hero"
 		},
+		"charmOfMana":
 		{
 			"bonuses" : [
 				{
@@ -1321,6 +1396,7 @@
 			"id" : 73,
 			"type" : "Hero"
 		},
+		"talismanOfMana":
 		{
 			"bonuses" : [
 				{
@@ -1336,6 +1412,7 @@
 			"id" : 74,
 			"type" : "Hero"
 		},
+		"mysticOrbOfMana":
 		{
 			"bonuses" : [
 				{
@@ -1351,6 +1428,7 @@
 			"id" : 75,
 			"type" : "Hero"
 		},
+		"collarOfConjuring":
 		{
 			"bonuses" : [
 				{
@@ -1366,6 +1444,7 @@
 			"id" : 76,
 			"type" : "Hero"
 		},
+		"ringOfConjuring":
 		{
 			"bonuses" : [
 				{
@@ -1381,6 +1460,7 @@
 			"id" : 77,
 			"type" : "Hero"
 		},
+		"capeOfConjuring":
 		{
 			"bonuses" : [
 				{
@@ -1396,6 +1476,7 @@
 			"id" : 78,
 			"type" : "Hero"
 		},
+		"orbOfTheFirmament":
 		{
 			"bonuses" : [
 				{
@@ -1411,6 +1492,7 @@
 			"id" : 79,
 			"type" : "Hero"
 		},
+		"orbOfSilt":
 		{
 			"bonuses" : [
 				{
@@ -1426,6 +1508,7 @@
 			"id" : 80,
 			"type" : "Hero"
 		},
+		"orbOfTempestuousFire":
 		{
 			"bonuses" : [
 				{
@@ -1441,6 +1524,7 @@
 			"id" : 81,
 			"type" : "Hero"
 		},
+		"orbOfDrivingRain":
 		{
 			"bonuses" : [
 				{
@@ -1456,10 +1540,12 @@
 			"id" : 82,
 			"type" : "Hero"
 		},
+		"recantersCloak": //TODO: implement?
 		{
 			"id" : 83,
 			"type" : "Hero"
 		},
+		"spiritOfOppression":
 		{
 			"bonuses" : [
 				{
@@ -1475,6 +1561,7 @@
 			"id" : 84,
 			"type" : "Hero"
 		},
+		"hourglassOfTheEvilHour":
 		{
 			"bonuses" : [
 				{
@@ -1490,6 +1577,7 @@
 			"id" : 85,
 			"type" : "Hero"
 		},
+		"tomeOfFireMagic":
 		{
 			"bonuses" : [
 				{
@@ -1505,6 +1593,7 @@
 			"id" : 86,
 			"type" : "Hero"
 		},
+		"tomeOfAirMagic":
 		{
 			"bonuses" : [
 				{
@@ -1520,6 +1609,7 @@
 			"id" : 87,
 			"type" : "Hero"
 		},
+		"tomeOfWaterMagic":
 		{
 			"bonuses" : [
 				{
@@ -1535,6 +1625,7 @@
 			"id" : 88,
 			"type" : "Hero"
 		},
+		"tomeOfEarthMagic":
 		{
 			"bonuses" : [
 				{
@@ -1550,6 +1641,7 @@
 			"id" : 89,
 			"type" : "Hero"
 		},
+		"bootsOfLevitation":
 		{
 			"bonuses" : [
 				{
@@ -1565,6 +1657,7 @@
 			"id" : 90,
 			"type" : "Hero"
 		},
+		"goldenBow":
 		{
 			"bonuses" : [
 				{
@@ -1591,6 +1684,7 @@
 			"id" : 91,
 			"type" : "Hero"
 		},
+		"sphereOfPermanence":
 		{
 			"bonuses" : [
 				{
@@ -1606,6 +1700,7 @@
 			"id" : 92,
 			"type" : "Hero"
 		},
+		"orbOfVulnerability":
 		{
 			"bonuses" : [
 				{
@@ -1621,6 +1716,7 @@
 			"id" : 93,
 			"type" : "Hero"
 		},
+		"ringOfVitality":
 		{
 			"bonuses" : [
 				{
@@ -1636,6 +1732,7 @@
 			"id" : 94,
 			"type" : "Hero"
 		},
+		"ringOfLife":
 		{
 			"bonuses" : [
 				{
@@ -1651,6 +1748,7 @@
 			"id" : 95,
 			"type" : "Hero"
 		},
+		"vialOfLifeblood":
 		{
 			"bonuses" : [
 				{
@@ -1666,6 +1764,7 @@
 			"id" : 96,
 			"type" : "Hero"
 		},
+		"necklaceOfSwiftness":
 		{
 			"bonuses" : [
 				{
@@ -1681,6 +1780,7 @@
 			"id" : 97,
 			"type" : "Hero"
 		},
+		"bootsOfSpeed":
 		{
 			"bonuses" : [
 				{
@@ -1696,6 +1796,7 @@
 			"id" : 98,
 			"type" : "Hero"
 		},
+		"capeOfVelocity":
 		{
 			"bonuses" : [
 				{
@@ -1711,6 +1812,7 @@
 			"id" : 99,
 			"type" : "Hero"
 		},
+		"pendantOfDispassion":
 		{
 			"bonuses" : [
 				{
@@ -1726,6 +1828,7 @@
 			"id" : 100,
 			"type" : "Hero"
 		},
+		"pendantOfSecondSight":
 		{
 			"bonuses" : [
 				{
@@ -1741,6 +1844,7 @@
 			"id" : 101,
 			"type" : "Hero"
 		},
+		"pendantOfHoliness":
 		{
 			"bonuses" : [
 				{
@@ -1756,6 +1860,7 @@
 			"id" : 102,
 			"type" : "Hero"
 		},
+		"pendantOfLife":
 		{
 			"bonuses" : [
 				{
@@ -1771,6 +1876,7 @@
 			"id" : 103,
 			"type" : "Hero"
 		},
+		"pendantOfDeath":
 		{
 			"bonuses" : [
 				{
@@ -1787,6 +1893,7 @@
 			"id" : 104,
 			"type" : "Hero"
 		},
+		"pendantOfFreeWill":
 		{
 			"bonuses" : [
 				{
@@ -1802,6 +1909,7 @@
 			"id" : 105,
 			"type" : "Hero"
 		},
+		"pendantOfNegativity":
 		{
 			"bonuses" : [
 				{
@@ -1826,6 +1934,7 @@
 			"id" : 106,
 			"type" : "Hero"
 		},
+		"pendantOfTotalRecall":
 		{
 			"bonuses" : [
 				{
@@ -1841,6 +1950,7 @@
 			"id" : 107,
 			"type" : "Hero"
 		},
+		"pendantOfCourage":
 		{
 			"bonuses" : [
 				{
@@ -1865,6 +1975,7 @@
 			"id" : 108,
 			"type" : "Hero"
 		},
+		"everflowingCrystalCloak":
 		{
 			"bonuses" : [
 				{
@@ -1880,6 +1991,7 @@
 			"id" : 109,
 			"type" : "Hero"
 		},
+		"ringOfInfiniteGems":
 		{
 			"bonuses" : [
 				{
@@ -1895,6 +2007,7 @@
 			"id" : 110,
 			"type" : "Hero"
 		},
+		"everpouringVialOfMercury":
 		{
 			"bonuses" : [
 				{
@@ -1910,6 +2023,7 @@
 			"id" : 111,
 			"type" : "Hero"
 		},
+		"inexhaustibleCartOfOre":
 		{
 			"bonuses" : [
 				{
@@ -1925,6 +2039,7 @@
 			"id" : 112,
 			"type" : "Hero"
 		},
+		"eversmokingRingOfSulfur":
 		{
 			"bonuses" : [
 				{
@@ -1940,6 +2055,7 @@
 			"id" : 113,
 			"type" : "Hero"
 		},
+		"inexhaustibleCartOfLumber":
 		{
 			"bonuses" : [
 				{
@@ -1955,6 +2071,7 @@
 			"id" : 114,
 			"type" : "Hero"
 		},
+		"endlessSackOfGold":
 		{
 			"bonuses" : [
 				{
@@ -1970,6 +2087,7 @@
 			"id" : 115,
 			"type" : "Hero"
 		},
+		"endlessBagOfGold":
 		{
 			"bonuses" : [
 				{
@@ -1985,6 +2103,7 @@
 			"id" : 116,
 			"type" : "Hero"
 		},
+		"endlessPurseOfGold":
 		{
 			"bonuses" : [
 				{
@@ -2000,26 +2119,32 @@
 			"id" : 117,
 			"type" : "Hero"
 		},
+		"legsOfLegion": //TODO: implement
 		{
 			"id" : 118,
 			"type" : "Hero"
 		},
+		"loinsOfLegion":
 		{
 			"id" : 119,
 			"type" : "Hero"
 		},
+		"torsoOfLegion":
 		{
 			"id" : 120,
 			"type" : "Hero"
 		},
+		"armsOfLegion":
 		{
 			"id" : 121,
 			"type" : "Hero"
 		},
+		"headOfLegion":
 		{
 			"id" : 122,
 			"type" : "Hero"
 		},
+		"seaCaptainsHat":
 		{
 			"bonuses" : [
 				{
@@ -2062,6 +2187,7 @@
 			"id" : 123,
 			"type" : "Hero"
 		},
+		"spellbindersHat":
 		{
 			"bonuses" : [
 				{
@@ -2077,14 +2203,17 @@
 			"id" : 124,
 			"type" : "Hero"
 		},
+		"shacklesOfWar": //TODO: implement
 		{
 			"id" : 125,
 			"type" : "Hero"
 		},
+		"orbOfInhibition": //TODO: implement
 		{
 			"id" : 126,
 			"type" : "Hero"
 		},
+		"vialOfDragonBlood": //TODO: limiter
 		{
 			"bonuses" : [
 				{
@@ -2111,6 +2240,7 @@
 			"id" : 127,
 			"type" : "Hero"
 		},
+		"armageddonsBlade":
 		{
 			"bonuses" : [
 				{
@@ -2171,6 +2301,7 @@
 			"id" : 128,
 			"type" : "Hero"
 		},
+		"angelicAlliance":
 		{
 			"bonuses" : [
 				{
@@ -2195,6 +2326,7 @@
 			"id" : 129,
 			"type" : "Hero"
 		},
+		"cloakOfTheUndeadKing":
 		{
 			"bonuses" : [
 				{
@@ -2202,7 +2334,7 @@
 					"effectRange" : "NO_LIMIT",
 					"subtype" : -1,
 					"turns" : 0,
-					"type" : "IMPROVED_NECROMANCY",
+					"type" : "IMPROVED_NECROMANCY", //TODO: more flexible?
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				}
@@ -2210,6 +2342,7 @@
 			"id" : 130,
 			"type" : "Hero"
 		},
+		"elixirOfLife":
 		{
 			"bonuses" : [
 				{
@@ -2234,6 +2367,7 @@
 			"id" : 131,
 			"type" : "Hero"
 		},
+		"armorOfTheDamned":
 		{
 			"bonuses" : [
 				{
@@ -2276,10 +2410,12 @@
 			"id" : 132,
 			"type" : "Hero"
 		},
+		"statueOfLegion": //TODO: implement
 		{
 			"id" : 133,
 			"type" : "Hero"
 		},
+		"powerOfTheDragonFather": //TODO: add stat bonus
 		{
 			"bonuses" : [
 				{
@@ -2295,6 +2431,7 @@
 			"id" : 134,
 			"type" : "Hero"
 		},
+		"titansThunder":
 		{
 			"bonuses" : [
 				{
@@ -2310,6 +2447,7 @@
 			"id" : 135,
 			"type" : "Hero"
 		},
+		"admiralsHat":
 		{
 			"bonuses" : [
 				{
@@ -2325,6 +2463,7 @@
 			"id" : 136,
 			"type" : "Hero"
 		},
+		"bowOfTheSharpshooter": //TODO: limiters
 		{
 			"bonuses" : [
 				{
@@ -2361,6 +2500,7 @@
 			"id" : 137,
 			"type" : "Hero"
 		},
+		"wizardsWell":
 		{
 			"bonuses" : [
 				{
@@ -2376,6 +2516,7 @@
 			"id" : 138,
 			"type" : "Hero"
 		},
+		"ringOfTheMagi":
 		{
 			"bonuses" : [
 				{
@@ -2391,6 +2532,7 @@
 			"id" : 139,
 			"type" : "Hero"
 		},
+		"cornucopia":
 		{
 			"bonuses" : [
 				{
@@ -2433,6 +2575,7 @@
 			"id" : 140,
 			"type" : "Hero"
 		},
+		"magicWand":
 		{
 			"bonuses" : [
 				{
@@ -2520,6 +2663,7 @@
 			"id" : 141,
 			"type" : "Creature"
 		},
+		"goldTowerArrow":
 		{
 			"bonuses" : [
 				{
@@ -2616,6 +2760,7 @@
 			"id" : 142,
 			"type" : "Creature"
 		},
+		"monstersPower":
 		{
 			"bonuses" : [
 				{
@@ -2694,6 +2839,7 @@
 			"id" : 143,
 			"type" : "Creature"
 		},
+		//TODO: id for unused artifacts?
 		{
 			"id" : 144,
 			"type" : "Hero"
@@ -2702,6 +2848,7 @@
 			"id" : 145,
 			"type" : "Hero"
 		},
+		"axeOfSmashing": //TODO: move growing bonuses to this config, someday
 		{
 			"bonuses" : [
 				{
@@ -2717,6 +2864,7 @@
 			"id" : 146,
 			"type" : "Commander"
 		},
+		"mithrilMail":
 		{
 			"bonuses" : [
 				{
@@ -2732,6 +2880,7 @@
 			"id" : 147,
 			"type" : "Commander"
 		},
+		"swordOfSharpness":
 		{
 			"bonuses" : [
 				{
@@ -2747,10 +2896,12 @@
 			"id" : 148,
 			"type" : "Commander"
 		},
+		"helmOfImmortality": //TODO: implement
 		{
 			"id" : 149,
 			"type" : "Commander"
 		},
+		"pendantOfSorcery":
 		{
 			"bonuses" : [
 				{
@@ -2766,6 +2917,7 @@
 			"id" : 150,
 			"type" : "Commander"
 		},
+		"bootsOfHaste":
 		{
 			"bonuses" : [
 				{
@@ -2781,14 +2933,17 @@
 			"id" : 151,
 			"type" : "Commander"
 		},
+		"bowOfSeeking":
 		{
 			"id" : 152,
 			"type" : "Commander"
 		},
+		"dragonEyeRing": //TODO: implement
 		{
 			"id" : 153,
 			"type" : "Commander"
 		},
+		"hardenedShield":
 		{
 			"bonuses" : [
 				{
@@ -2804,10 +2959,12 @@
 			"id" : 154,
 			"type" : "Commander"
 		},
+		"slavasRingOfPower": //TODO: implement if possible
 		{
 			"id" : 155,
 			"type" : "Commander"
 		},
+		"warlordsBanner":
 		{
 			"bonuses" : [
 				{
@@ -2823,22 +2980,27 @@
 			"id" : 156,
 			"type" : "Creature"
 		},
+		"crimsonShieldOfRetribution": //TODO: implement
 		{
 			"id" : 157,
 			"type" : "Hero"
 		},
+		"barbarianLordsAxeOfFerocity": //TODO: implement
 		{
 			"id" : 158,
 			"type" : "Hero"
 		},
+		"dragonheart":
 		{
 			"id" : 159,
 			"type" : "Hero"
 		},
+		"gateKey":
 		{
 			"id" : 160,
 			"type" : "Hero"
 		},
+		//TODO: rename unused artifacts
 		{
 			"id" : 161,
 			"type" : "Hero"
@@ -2879,5 +3041,5 @@
 			"id" : 170,
 			"type" : "Hero"
 		}
-	]
+	}
 }

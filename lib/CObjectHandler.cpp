@@ -905,7 +905,7 @@ const std::string & CGHeroInstance::getBiography() const
 		return biography;
 	return type->biography;
 }
-void CGHeroInstance::initObj()
+void CGHeroInstance::initObj() //TODO: use bonus system
 {
 	blockVisit = true;
 	speciality.growthsWithLevel = false;
@@ -929,7 +929,7 @@ void CGHeroInstance::initObj()
 					const CCreature &specCreature = *VLC->creh->creatures[it->additionalinfo]; //creature in which we have specialty
 
 					int creLevel = specCreature.level;
-					if(!creLevel) //TODO: set fixed level for War Machines
+					if(!creLevel)
 					{
 						if(it->additionalinfo == 146)
 							creLevel = 5; //treat ballista as 5-level
@@ -1094,7 +1094,7 @@ void CGHeroInstance::initObj()
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
 	type->name = name;
 }
-void CGHeroInstance::UpdateSpeciality()
+void CGHeroInstance::UpdateSpeciality() //TODO: calculate special value of bonuses on-the-fly?
 {
 	if (speciality.growthsWithLevel)
 	{
