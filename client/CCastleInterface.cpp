@@ -851,7 +851,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 
 	garr = new CGarrisonInt(305, 387, 4, Point(0,96), panel->bg, Point(62,374), town->getUpperArmy(), town->visitingHero);
 	heroes = new HeroSlots(town, Point(241, 387), Point(241, 483), garr, true);
-	title = new CLabel(60, 382, FONT_MEDIUM, TOPLEFT, Colors::WHITE, town->name);
+	title = new CLabel(85, 387, FONT_MEDIUM, TOPLEFT, Colors::WHITE, town->name);
 	income = new CLabel(195, 443, FONT_SMALL, CENTER);
 	icon = new CAnimImage("ITPT", 0, 0, 15, 387);
 
