@@ -10,6 +10,7 @@
 #include "CTownHandler.h"
 #include "CHeroHandler.h"
 #include "CObjectHandler.h"
+#include "StringConstants.h"
 
 /*
  * CModHandler.h, part of VCMI engine
@@ -88,6 +89,11 @@ void CIdentifierStorage::finalize() const
 CModHandler::CModHandler()
 {
 	VLC->modh = this;
+
+	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
+	{
+		identifiers.registerObject("resource." + GameConstants::RESOURCE_NAMES[i], i);
+	}
 
 	loadConfigFromFile ("defaultMods");
 }

@@ -910,7 +910,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 1,
+					"subtype" : "skill.archery",
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 5,
 					"valueType" : "ADDITIVE_VALUE"
@@ -923,7 +923,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 1,
+					"subtype" : "skill.archery",
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 10,
 					"valueType" : "ADDITIVE_VALUE"
@@ -936,7 +936,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 1,
+					"subtype" : "skill.archery",
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 15,
 					"valueType" : "ADDITIVE_VALUE"
@@ -949,7 +949,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 11,
+					"subtype" : "skill.eagleEye",
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 5,
 					"valueType" : "ADDITIVE_VALUE"
@@ -962,7 +962,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 11,
+					"subtype" : "skill.eagleEye",
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 10,
 					"valueType" : "ADDITIVE_VALUE"
@@ -975,7 +975,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 11,
+					"subtype" : "skill.eagleEye",
 					"type" : "SECONDARY_SKILL_PREMY",
 					"val" : 15,
 					"valueType" : "ADDITIVE_VALUE"
@@ -1401,7 +1401,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 59,
+					"subtype" : "spell.berserk",
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1414,7 +1414,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 62,
+					"subtype" : "spell.blind",
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1427,7 +1427,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 42,
+					"subtype" : "spell.curse",
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1440,7 +1440,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 24,
+					"subtype" : "spell.deathRipple",
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1454,7 +1454,7 @@
 			"bonuses" : [
 				{
 					"limiter" : "IS_UNDEAD",
-					"subtype" : 25,
+					"subtype" : "spell.destroyUndead",
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1467,7 +1467,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 60,
+					"subtype" : "spell.hypnotize",
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1480,13 +1480,13 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 17,
+					"subtype" : "spell.lightningBolt",
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"subtype" : 19,
+					"subtype" : "spell.chainLightning",
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1499,7 +1499,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 61,
+					"subtype" : "spell.forgetfulness",
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1529,7 +1529,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 4,
+					"subtype" : "resource.crystal",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1542,7 +1542,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 5,
+					"subtype" : "resource.gems",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1555,7 +1555,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 1,
+					"subtype" : "resource.mercury",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1568,7 +1568,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 2,
+					"subtype" : "resource.ore",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1581,7 +1581,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 3,
+					"subtype" : "resource.sulfur",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1594,7 +1594,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 0,
+					"subtype" : "resource.wood",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1,
 					"valueType" : "BASE_NUMBER"
@@ -1607,7 +1607,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 6,
+					"subtype" : "resource.gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 1000,
 					"valueType" : "BASE_NUMBER"
@@ -1620,7 +1620,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 6,
+					"subtype" : "resource.gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 750,
 					"valueType" : "BASE_NUMBER"
@@ -1633,7 +1633,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 6,
+					"subtype" : "resource.gold",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 500,
 					"valueType" : "BASE_NUMBER"
@@ -1681,13 +1681,13 @@
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"subtype" : 0,
+					"subtype" : "spell.summonBoat",
 					"type" : "SPELL",
 					"val" : 3,
 					"valueType" : "INDEPENDENT_MAX"
 				},
 				{
-					"subtype" : 1,
+					"subtype" : "spell.scuttleBoat",
 					"type" : "SPELL",
 					"val" : 3,
 					"valueType" : "INDEPENDENT_MAX"
@@ -1744,13 +1744,13 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 26,
+					"subtype" : "spell.armageddon",
 					"type" : "SPELL",
 					"val" : 3,
 					"valueType" : "INDEPENDENT_MAX"
 				},
 				{
-					"subtype" : 26,
+					"subtype" : "spell.armageddon",
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -1792,7 +1792,7 @@
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"subtype" : 48,
+					"subtype" : "spell.prayer",
 					"type" : "OPENING_BATTLE_SPELL",
 					"val" : 10,
 					"valueType" : "BASE_NUMBER"
@@ -1855,25 +1855,25 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 54,
+					"subtype" : "spell.slow",
 					"type" : "OPENING_BATTLE_SPELL",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"subtype" : 47,
+					"subtype" : "spell.curse",
 					"type" : "OPENING_BATTLE_SPELL",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"subtype" : 45,
+					"subtype" : "spell.weakness",
 					"type" : "OPENING_BATTLE_SPELL",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"subtype" : 52,
+					"subtype" : "spell.misfortune",
 					"type" : "OPENING_BATTLE_SPELL",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
@@ -1930,7 +1930,7 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 57,
+					"subtype" : "spell.titanBolt",
 					"type" : "SPELL",
 					"val" : 3,
 					"valueType" : "BASE_NUMBER"
@@ -2037,25 +2037,25 @@
 		{
 			"bonuses" : [
 				{
-					"subtype" : 1,
+					"subtype" : "resource.crystal",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"subtype" : 3,
+					"subtype" : "resource.gems",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"subtype" : 4,
+					"subtype" : "resource.mercury",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"subtype" : 5,
+					"subtype" : "resource.sulfur",
 					"type" : "GENERATE_RESOURCE",
 					"val" : 4,
 					"valueType" : "BASE_NUMBER"
@@ -2080,13 +2080,13 @@
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"subtype" : 18,
+					"subtype" : "spell.implosion",
 					"type" : "SPELLCASTER",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"subtype" : 21,
+					"subtype" : "spell.fireball",
 					"type" : "SPELLCASTER",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -2097,14 +2097,14 @@
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"subtype" : 63,
+					"subtype" : "creature.vampireLord",
 					"type" : "DAEMON_SUMMONING",
 					"val" : 10,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
 					"additionalInfo" : 2,
-					"subtype" : 17,
+					"subtype" : "spell.lightningBolt",
 					"type" : "ENCHANTER",
 					"val" : 0,
 					"valueType" : "BASE_NUMBER"
@@ -2166,28 +2166,28 @@
 				},
 				{
 					"additionalInfo" : 1,
-					"subtype" : 75,
+					"subtype" : "spell.age",
 					"type" : "SPELL_BEFORE_ATTACK",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
 					"additionalInfo" : 1,
-					"subtype" : 59,
+					"subtype" : "spell.berserk",
 					"type" : "SPELL_AFTER_ATTACK",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
 					"additionalInfo" : 1,
-					"subtype" : 71,
+					"subtype" : "spell.poison",
 					"type" : "SPELL_AFTER_ATTACK",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
 					"additionalInfo" : 1,
-					"subtype" : 47,
+					"subtype" : "spell.disruptingRay",
 					"type" : "SPELL_AFTER_ATTACK",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"

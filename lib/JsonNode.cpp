@@ -13,8 +13,13 @@
 
 #include "HeroBonus.h"
 #include "Filesystem/CResourceLoader.h"
+#include "VCMI_Lib.h" //for identifier resolution
+#include "CModHandler.h"
 
 using namespace JsonDetail;
+
+class LibClasses;
+class CModHandler;
 
 static const JsonNode nullNode;
 
@@ -920,6 +925,29 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 		return defaultValue;
 };
 
+void JsonUtils::resolveIdentifier (si32 &var, const JsonNode &node, std::string name)
+{
+	const JsonNode *value;
+	value = &node[name];
+	if (!value->isNull())
+	{
+		switch (value->getType())
+		{
+			case JsonNode::DATA_FLOAT:
+				var = value->Float();
+				break;
+			case JsonNode::DATA_STRING:
+				VLC->modh->identifiers.requestIdentifier (value->String(), [&](si32 identifier)
+				{
+					var = identifier;
+				});
+				break;
+			default:
+				tlog2 << "Error! Wrong indentifier used for value of " << name; 
+		}
+	}
+}
+
 Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 {
 
@@ -935,9 +963,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 	}
 	b->type = it->second;
 
-	value = &ability["subtype"];
-	if (!value->isNull())
-		b->subtype = value->Float();
+	resolveIdentifier (b->subtype, ability, "subtype");
 
 	value = &ability["val"];
 	if (!value->isNull())
