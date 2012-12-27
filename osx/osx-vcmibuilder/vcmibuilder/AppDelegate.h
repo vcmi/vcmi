@@ -5,6 +5,8 @@
     NSString* outputDir;
     NSString* tempDir;
     NSString* dataDir;
+    NSString* currentArchiveName;
+    NSString* currentArchiveFilename;
     
     NSMutableArray* actions;
     
@@ -38,6 +40,8 @@
 
 - (void)downloadWogArchive;
 - (void)unzipWogArchive;
+- (void)downloadVcmiArchive;
+- (void)unzipVcmiArchive;
 - (void)extractGameData;
 - (void)innoexctract;
 - (NSString*)attachDiskImage:(NSString*)path;

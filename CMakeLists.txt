@@ -17,7 +17,7 @@ option(DISABLE_ERM "Disable compilation of ERM scripting module" ON)
 
 if (APPLE)
 	# Default location for thirdparty libs
-	set(CMAKE_INCLUDE_PATH "../include ${CMAKE_OSX_SYSROOT}/usr/include")
+	set(CMAKE_INCLUDE_PATH "../include" "${CMAKE_OSX_SYSROOT}/usr/include")
 	set(CMAKE_LIBRARY_PATH "../lib")
 	set(CMAKE_FRAMEWORK_PATH "../Frameworks")
 	set(BOOST_ROOT "../")
@@ -155,6 +155,8 @@ if(WIN32)
 	set(CPACK_GENERATOR ZIP) # just use zip? CPack has some GUI install as well
 elseif(APPLE)
 	set(CPACK_GENERATOR DragNDrop)
+	set(CPACK_DMG_BACKGROUND_IMAGE "${CMAKE_SOURCE_DIR}/osx/dmg_background.png")
+	set(CPACK_DMG_DS_STORE "${CMAKE_SOURCE_DIR}/osx/dmg_DS_Store")
 else()
 	set(CPACK_GENERATOR TGZ)
 endif()

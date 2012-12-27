@@ -23,37 +23,39 @@
 - (void)download:(NSURLDownload*)download didReceiveDataOfLength:(NSUInteger)length
 {
     self->bytesRecieved += length;
-    [self showProgressText:[NSString stringWithFormat:@"Downloading WoG archive: %3.1f Mb / %3.1f Mb",
+    [self showProgressText:[NSString stringWithFormat:@"Downloading %@ archive: %3.1f Mb / %3.1f Mb", self->currentArchiveName,
                             self->bytesRecieved / 1024.0f / 1024.0f, self->bytesExpected / 1024.0f / 1024.0f]];
 }
 
 - (void)download:(NSURLDownload*)download decideDestinationWithSuggestedFilename:(NSString*)filename
 {
-    [download setDestination:[tempDir stringByAppendingString:@"/wog.zip"] allowOverwrite:YES];
+    [download setDestination:[tempDir stringByAppendingString:currentArchiveFilename] allowOverwrite:YES];
 }
 
 - (void)downloadDidFinish:(NSURLDownload*)download
 {
-    [self showProgressText:@"Downloading WoG archive: completed"];
+    [self showProgressText:[NSString stringWithFormat:@"Downloading %@ archive: completed", self->currentArchiveName]];
     [self nextAction];
 }
 
 - (void)download:(NSURLDownload*)download didFailWithError:(NSError*)error
 {
-    [self showProgressText:@"Downloading WoG archive: failed"];
+    [self showProgressText:[NSString stringWithFormat:@"Downloading %@ archive: failed", self->currentArchiveName]];
     [self showErrorText:[error localizedDescription]];
 }
 
 - (void)nextAction
 {
     dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-        SEL sel = NSSelectorFromString(actions[0]);
-        [actions removeObjectAtIndex:0];
-        @try {
-            [self performSelector:sel];
-        }
-        @catch (NSException* e) {
-            [self showErrorText:[e name]];
+        if ([actions count] > 0) {
+            SEL sel = NSSelectorFromString(actions[0]);
+            [actions removeObjectAtIndex:0];
+            @try {
+                [self performSelector:sel];
+            }
+            @catch (NSException* e) {
+                [self showErrorText:[e name]];
+            }
         }
     });
 }
@@ -100,6 +102,8 @@
     // First of all we need to download WoG archive
     // Downloading should be done on main thread because of callbacks
     dispatch_async(dispatch_get_main_queue(), ^{
+        self->currentArchiveName = @"WoG";
+        self->currentArchiveFilename = @"/wog.zip";
         NSURL* url = [NSURL URLWithString:@"http://download.vcmi.eu/WoG/wog.zip"];
         self.download = [[NSURLDownload alloc] initWithRequest:[NSURLRequest requestWithURL:url] delegate:self];
     });
@@ -109,8 +113,31 @@
 {
     // Then we unzip downloaded WoG archive
     [self showProgressText:@"Unzipping WoG archive"];
-    if ([self runTask:@"/usr/bin/unzip" withArgs:@[@"-qo", [tempDir stringByAppendingString:@"/wog.zip"], @"-d", outputDir] withWorkingDir:nil withPipe:nil] != 0) {
+    if ([self runTask:@"/usr/bin/unzip" withArgs:@[@"-qo", [tempDir stringByAppendingString:currentArchiveFilename], @"-d", outputDir] withWorkingDir:nil withPipe:nil] != 0) {
         return [self showErrorText:@"Failed to unzip WoG archive"];
+    }
+    
+    [self nextAction];
+}
+
+- (void)downloadVcmiArchive
+{
+    // Than we need to download VCMI archive
+    // Downloading should be done on main thread because of callbacks
+    dispatch_async(dispatch_get_main_queue(), ^{
+        self->currentArchiveName = @"VCMI";
+        self->currentArchiveFilename = @"/core.zip";
+        NSURL* url = [NSURL URLWithString:@"http://download.vcmi.eu/core.zip"];
+        self.download = [[NSURLDownload alloc] initWithRequest:[NSURLRequest requestWithURL:url] delegate:self];
+    });
+}
+
+- (void)unzipVcmiArchive
+{
+    // Then we unzip downloaded VCMI archive
+    [self showProgressText:@"Unzipping VCMI archive"];
+    if ([self runTask:@"/usr/bin/unzip" withArgs:@[@"-qo", [tempDir stringByAppendingString:currentArchiveFilename], @"-d", outputDir, @"-x", @"*.json", @"*.txt", @"*.PAL"] withWorkingDir:nil withPipe:nil] != 0) {
+        return [self showErrorText:@"Failed to unzip VCMI archive"];
     }
     
     [self nextAction];
@@ -266,6 +293,8 @@
             @"validateAction",
             @"downloadWogArchive",
             @"unzipWogArchive",
+            @"downloadVcmiArchive",
+            @"unzipVcmiArchive",
             @"extractGameData",
             @"extractionCompleted",
             nil
