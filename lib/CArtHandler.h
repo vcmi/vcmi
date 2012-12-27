@@ -234,6 +234,8 @@ public:
 	void load(const JsonNode & node);
 	/// load one artifact from json config
 	CArtifact * loadArtifact(const JsonNode & node);
+	///read (optional) components of combined artifact
+	void readComponents (const JsonNode & node, CArtifact * art);
 
 	void sortArts();
 	void addBonuses();
@@ -247,7 +249,9 @@ public:
 	bool isBigArtifact (TArtifactID artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
 	void initAllowedArtifactsList(const std::vector<ui8> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	static int convertMachineID(int id, bool creToArt);
+	void makeItCreatureArt (CArtifact * a, bool onlyCreature = true);
 	void makeItCreatureArt (TArtifactInstanceID aid, bool onlyCreature = true);
+	void makeItCommanderArt (CArtifact * a, bool onlyCommander = true);
 	void makeItCommanderArt (TArtifactInstanceID aid, bool onlyCommander = true);
 	CArtHandler();
 	~CArtHandler();

@@ -437,10 +437,10 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 				case ArtBearer::HERO: //TODO: allow arts having several possible bearers
 					break;
 				case ArtBearer::COMMANDER:
-					makeItCommanderArt(art->id); //TODO: when id is deduced?
+					makeItCommanderArt (art, false); //do not erase already existing slots
 					break;
 				case ArtBearer::CREATURE:
-					makeItCreatureArt(art->id);
+					makeItCreatureArt (art, false);
 					break;
 			}
 		}
@@ -474,6 +474,8 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 				tlog2 << "Warning! Artifact slot " << value->String() << " not recognized!";
 		}
 	}
+
+	readComponents (node, art);
 
 	BOOST_FOREACH (const JsonNode &bonus, node["bonuses"].Vector())
 	{
@@ -660,10 +662,8 @@ void CArtHandler::giveArtBonus(TArtifactID aid, Bonus *bonus)
 
 	artifacts[aid]->addNewBonus(bonus);
 }
-
-void CArtHandler::makeItCreatureArt (TArtifactInstanceID aid, bool onlyCreature /*=true*/)
+void CArtHandler::makeItCreatureArt (CArtifact * a, bool onlyCreature /*=true*/)
 {
-	CArtifact *a = artifacts[aid];
 	if (onlyCreature)
 	{
 		a->possibleSlots[ArtBearer::HERO].clear();
@@ -672,9 +672,14 @@ void CArtHandler::makeItCreatureArt (TArtifactInstanceID aid, bool onlyCreature 
 	a->possibleSlots[ArtBearer::CREATURE].push_back(ArtifactPosition::CREATURE_SLOT);
 }
 
-void CArtHandler::makeItCommanderArt( TArtifactInstanceID aid, bool onlyCommander /*= true*/ )
+void CArtHandler::makeItCreatureArt (TArtifactInstanceID aid, bool onlyCreature /*=true*/)
 {
 	CArtifact *a = artifacts[aid];
+	makeItCreatureArt (a, onlyCreature);
+}
+
+void CArtHandler::makeItCommanderArt (CArtifact * a, bool onlyCommander /*= true*/ )
+{
 	if (onlyCommander)
 	{
 		a->possibleSlots[ArtBearer::HERO].clear();
@@ -682,6 +687,12 @@ void CArtHandler::makeItCommanderArt( TArtifactInstanceID aid, bool onlyCommande
 	}
 	for (int i = ArtifactPosition::COMMANDER1; i <= ArtifactPosition::COMMANDER6; ++i)
 		a->possibleSlots[ArtBearer::COMMANDER].push_back(i);
+}
+
+void CArtHandler::makeItCommanderArt( TArtifactInstanceID aid, bool onlyCommander /*= true*/ )
+{
+	CArtifact *a = artifacts[aid];
+	makeItCommanderArt (a, onlyCommander);
 }
 
 void CArtHandler::addBonuses()
@@ -702,21 +713,27 @@ void CArtHandler::addBonuses()
 		else if(artifact.second["type"].String() == "Commander")
 			makeItCommanderArt(ga->id);
 
-		const JsonNode *value;
-		value = &artifact.second["components"];
-		if (!value->isNull())
-		{
-			ga->constituents = new std::vector<ui32>();
-			BOOST_FOREACH (auto component, value->Vector())
-			{
-				VLC->modh->identifiers.requestIdentifier(std::string("artifact.") + component.String(),
-					boost::bind (&CArtifact::addConstituent, ga, _1)
-				);
-			}
-		}
+		readComponents (artifact.second, ga);
 
 		VLC->modh->identifiers.registerObject ("artifact." + artifact.first, ga->id);
 	}
+}
+
+void CArtHandler::readComponents (const JsonNode & node, CArtifact * art)
+{
+	const JsonNode *value;
+	value = &node["components"];
+	if (!value->isNull())
+	{
+		art->constituents = new std::vector<ui32>();
+		BOOST_FOREACH (auto component, value->Vector())
+		{
+			VLC->modh->identifiers.requestIdentifier(std::string("artifact.") + component.String(),
+				boost::bind (&CArtifact::addConstituent, art, _1)
+			);
+		}
+	}
+
 }
 
 void CArtHandler::clear()
@@ -755,7 +772,15 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<ui8> &allowed)
 	}
 	for (int i = GameConstants::ARTIFACTS_QUANTITY; i < artifacts.size(); ++i) //allow all new artifacts by default
 	{
-		allowedArtifacts.push_back(artifacts[i]);
+		 if (artifacts[i]->possibleSlots[ArtBearer::HERO].size())
+			allowedArtifacts.push_back(artifacts[i]);
+		 else //check if active modules allow artifact to be every used
+		 {
+			 if (artifacts[i]->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS ||
+				 artifacts[i]->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT)
+				 allowedArtifacts.push_back(artifacts[i]);
+			 //keep im mind that artifact can be worn by more than one type of bearer
+		 }
 	}
 }
 
