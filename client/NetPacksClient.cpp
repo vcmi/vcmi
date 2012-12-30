@@ -224,7 +224,7 @@ void MoveArtifact::applyCl( CClient *cl )
 {
 	INTERFACE_CALL_IF_PRESENT(src.owningPlayer(), artifactMoved, src, dst);
 	if(src.owningPlayer() != dst.owningPlayer())
-		INTERFACE_CALL_IF_PRESENT(src.owningPlayer(), artifactMoved, src, dst);
+		INTERFACE_CALL_IF_PRESENT(dst.owningPlayer(), artifactMoved, src, dst);
 }
 
 void AssembledArtifact::applyCl( CClient *cl )

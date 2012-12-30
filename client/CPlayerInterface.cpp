@@ -1292,6 +1292,10 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 			CCS->soundh->stopSound(sh);
 		}
 
+        //Update cursor so icon can change if needed when it reappears; doesn;'t apply if a dialog box pops up at the end of the movement
+        if(!showingDialog->get())
+            GH.fakeMouseMove();
+
 		//RAII unlocks
 	}
 
