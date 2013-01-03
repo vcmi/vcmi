@@ -5,7 +5,7 @@
 //#ifndef _MSC_VER
 #include "CCreatureHandler.h"
 #include "VCMI_Lib.h"
-#include "Map/CMap.h"
+#include "Mapping/CMap.h"
 //#endif
 
 #include "HeroBonus.h"

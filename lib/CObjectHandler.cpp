@@ -16,7 +16,7 @@
 #include "CGameState.h"
 #include "NetPacks.h"
 #include "StartInfo.h"
-#include "Map/CMap.h"
+#include "Mapping/CMap.h"
 #include <SDL_stdinc.h>
 #include "CBuildingHandler.h"
 #include "JsonNode.h"
@@ -2484,11 +2484,11 @@ void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 		onNAHeroVisit(h->id, false);
 		switch(ID)
 		{
-		case 102: //tree
-		case 4: //arena
-		case 41://library
-		case 47: //School of Magic
-		case 107://School of War
+		case Obj::TREE_OF_KNOWLEDGE:
+		case Obj::ARENA:
+		case Obj::LIBRARY_OF_ENLIGHTENMENT:
+		case Obj::SCHOOL_OF_MAGIC:
+		case Obj::SCHOOL_OF_WAR:
 			break;
 		default:
 			cb->setObjProperty(id, ObjProperty::VISITORS, h->id); //add to the visitors
@@ -3439,10 +3439,10 @@ ui32 CGMine::defaultResProduction()
 {
 	switch(producedResource)
 	{
-	case 0: //wood
-	case 2: //ore
+	case Res::WOOD: 
+	case Res::ORE:
 		return 2;
-	case 6: //gold
+	case Res::GOLD:
 		return 1000;
 	default:
 		return 1;
@@ -3630,8 +3630,8 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 	switch(ID)
 	{
 	case Obj::MONOLITH1: //one way - find corresponding exit monolith
-		if(vstd::contains(objs,44) && vstd::contains(objs[44],subID) && objs[44][subID].size())
-			destinationid = objs[44][subID][rand()%objs[44][subID].size()];
+		if(vstd::contains(objs,Obj::MONOLITH2) && vstd::contains(objs[Obj::MONOLITH2],subID) && objs[Obj::MONOLITH2][subID].size())
+			destinationid = objs[Obj::MONOLITH2][subID][rand()%objs[Obj::MONOLITH2][subID].size()];
 		else
 			tlog2 << "Cannot find corresponding exit monolith for "<< id << std::endl;
 		break;

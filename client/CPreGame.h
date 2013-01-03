@@ -5,7 +5,7 @@
 #include "../lib/StartInfo.h"
 #include "GUIClasses.h"
 #include "FunctionList.h"
-#include "../lib/Map/CMapInfo.h"
+#include "../lib/Mapping/CMapInfo.h"
 #include "../lib/RMG/CMapGenOptions.h"
 
 /*

@@ -267,7 +267,7 @@ void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
 
 CArtHandler::CArtHandler()
 {
-	VLC->arth = this;
+	//VLC->arth = this;
 
 	// War machines are the default big artifacts.
 	for (ui32 i = 3; i <= 6; i++)

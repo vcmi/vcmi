@@ -13,10 +13,10 @@ set(lib_SRCS
         Filesystem/CResourceLoader.cpp
         Filesystem/CFileInputStream.cpp
         Filesystem/CCompressedStream.cpp
-        Map/CCampaignHandler.cpp
-        Map/CMap.cpp
-        Map/CMapInfo.cpp
-        Map/CMapService.cpp
+        Mapping/CCampaignHandler.cpp
+        Mapping/CMap.cpp
+        Mapping/CMapInfo.cpp
+        Mapping/CMapService.cpp
    		RMG/CMapGenOptions.cpp
         BattleAction.cpp
         BattleHex.cpp

@@ -24,6 +24,8 @@ class CModHandler;
 /// Loads and constructs several handlers
 class DLL_LINKAGE LibClasses
 {
+	void callWhenDeserializing(); //should be called only by serialize !!!
+	void makeNull(); //sets all handler pointers to null
 public:
 	bool IS_AI_ENABLED; //VLC is the only object visible from both CMT and GeniusAI
 	CArtHandler * arth;
@@ -40,11 +42,11 @@ public:
 	~LibClasses();
 	void init(); //uses standard config file
 	void clear(); //deletes all handlers and its data
-	void makeNull(); //sets all handler pointers to null
+
 
 	void loadFilesystem();// basic initialization. should be called before init()
 
-	void callWhenDeserializing(); //should be called only by serialize !!!
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & heroh & arth & creh & townh & objh & dobjinfo & spellh & modh & IS_AI_ENABLED;;

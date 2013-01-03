@@ -88,8 +88,6 @@ void CIdentifierStorage::finalize() const
 
 CModHandler::CModHandler()
 {
-	VLC->modh = this;
-
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
 		identifiers.registerObject("resource." + GameConstants::RESOURCE_NAMES[i], i);

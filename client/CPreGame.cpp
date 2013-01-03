@@ -16,7 +16,7 @@
 #include "../lib/CTownHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CObjectHandler.h"
-#include "../lib/Map/CCampaignHandler.h"
+#include "../lib/Mapping/CCampaignHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/JsonNode.h"
 #include "CMusicHandler.h"
@@ -24,7 +24,7 @@
 #include "Graphics.h"
 #include "../lib/Connection.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/Map/CMap.h"
+#include "../lib/Mapping/CMap.h"
 #include "GUIClasses.h"
 #include "CPlayerInterface.h"
 #include "../CCallback.h"
@@ -41,7 +41,7 @@
 #include "../lib/GameConstants.h"
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
-#include "../lib/Map/CMapService.h"
+#include "../lib/Mapping/CMapService.h"
 
 /*
  * CPreGame.cpp, part of VCMI engine

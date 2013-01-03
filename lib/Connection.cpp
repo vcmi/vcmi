@@ -2,15 +2,15 @@
 #include "Connection.h"
 
 #ifndef _MSC_VER
-#include "../lib/RegisterTypes.h"
+#include "RegisterTypes.h"
 #endif
 
 //for smart objs serialization over net
-#include "../lib/Map/CMapInfo.h"
+#include "Mapping/CMapInfo.h"
 #include "StartInfo.h"
 #include "BattleState.h"
 #include "CGameState.h"
-#include "Map/CMap.h"
+#include "Mapping/CMap.h"
 #include "CModHandler.h"
 #include "CObjectHandler.h"
 #include "CCreatureHandler.h"
@@ -19,7 +19,7 @@
 #include "CHeroHandler.h"
 #include "CSpellHandler.h"
 #include "CTownHandler.h"
-#include "Map/CCampaignHandler.h"
+#include "Mapping/CCampaignHandler.h"
 #include "NetPacks.h"
 #include "CDefObjInfoHandler.h"
 

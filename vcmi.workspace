@@ -2,15 +2,28 @@
 <CodeBlocks_workspace_file>
 	<Workspace title="vcmi">
 		<Project filename="lib/VCMI_lib.cbp" />
-		<Project filename="client/VCMI_client.cbp" />
-		<Project filename="server/VCMI_server.cbp" />
+		<Project filename="client/VCMI_client.cbp">
+			<Depends filename="lib/VCMI_lib.cbp" />
+		</Project>
+		<Project filename="server/VCMI_server.cbp">
+			<Depends filename="lib/VCMI_lib.cbp" />
+		</Project>
 		<Project filename="AI/FuzzyLite/FuzzyLite.cbp" />
-		<Project filename="AI/EmptyAI/EmptyAI.cbp" />
+		<Project filename="AI/EmptyAI/EmptyAI.cbp">
+			<Depends filename="lib/VCMI_lib.cbp" />
+		</Project>
 		<Project filename="AI/VCAI/VCAI.cbp">
+			<Depends filename="lib/VCMI_lib.cbp" />
 			<Depends filename="AI/FuzzyLite/FuzzyLite.cbp" />
 		</Project>
-		<Project filename="AI/StupidAI/StupidAI.cbp" />
-		<Project filename="AI/BattleAI/BattleAI.cbp" />
-		<Project filename="Scripting/ERM/ERM.cbp" />
+		<Project filename="AI/StupidAI/StupidAI.cbp">
+			<Depends filename="lib/VCMI_lib.cbp" />
+		</Project>
+		<Project filename="AI/BattleAI/BattleAI.cbp">
+			<Depends filename="lib/VCMI_lib.cbp" />
+		</Project>
+		<Project filename="Scripting/ERM/ERM.cbp">
+			<Depends filename="lib/VCMI_lib.cbp" />
+		</Project>
 	</Workspace>
 </CodeBlocks_workspace_file>
