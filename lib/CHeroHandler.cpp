@@ -498,3 +498,10 @@ std::vector<ui8> CHeroHandler::getDefaultAllowedHeroes() const
 
 	return allowedHeroes;
 }
+
+std::vector<ui8> CHeroHandler::getDefaultAllowedAbilities() const
+{
+	std::vector<ui8> allowedAbilities;
+	allowedAbilities.resize(GameConstants::SKILL_QUANTITY, 1);
+	return allowedAbilities;
+}

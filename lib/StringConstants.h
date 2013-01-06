@@ -31,6 +31,9 @@ namespace GameConstants
 	    "demoniac",  "heretic",    "deathknight", "necromancer", "warlock",      "overlord",
 	    "barbarian", "battlemage", "beastmaster", "witch",       "planeswalker", "elementalist"
 	};
+	const std::string PLAYER_COLOR_NAMES [PLAYER_LIMIT] = {
+		"red", "blue", "tan", "green", "orange", "purple", "teal", "pink"
+	};
 }
 
 namespace EAlignment

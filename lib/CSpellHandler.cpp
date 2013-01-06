@@ -378,3 +378,10 @@ void CSpellHandler::loadSpells()
 	risingSpells += 38, 39, 40;
 	mindSpells += 50, 59, 60, 61, 62;
 }
+
+std::vector<ui8> CSpellHandler::getDefaultAllowedSpells() const
+{
+	std::vector<ui8> allowedSpells;
+	allowedSpells.resize(GameConstants::SPELLS_QUANTITY, 1);
+	return allowedSpells;
+}

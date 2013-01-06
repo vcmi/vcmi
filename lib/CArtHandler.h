@@ -256,6 +256,13 @@ public:
 	CArtHandler();
 	~CArtHandler();
 
+	/**
+	 * Gets a list of default allowed artifacts.
+	 *
+	 * @return a list of allowed artifacts, the index is the artifact id and the value either 0 for not allowed or 1 for allowed
+	 */
+	std::vector<ui8> getDefaultAllowedArtifacts() const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & artifacts & allowedArtifacts & treasures & minors & majors & relics

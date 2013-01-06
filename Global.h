@@ -94,6 +94,9 @@ typedef boost::int32_t si32; //signed int 32 bits (4 bytes)
 typedef boost::int16_t si16; //signed int 16 bits (2 bytes)
 typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 
+// Fixed width bool data type is important for serialization
+static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
+
 #if defined _M_X64 && defined _WIN32 //Win64 -> cannot load 32-bit DLLs for video handling
 	#define DISABLE_VIDEO
 #endif

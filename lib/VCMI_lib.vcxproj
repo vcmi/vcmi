@@ -197,7 +197,9 @@
     <ClCompile Include="Mapping\CMap.cpp" />
     <ClCompile Include="Mapping\CMapInfo.cpp" />
     <ClCompile Include="Mapping\CMapService.cpp" />
+    <ClCompile Include="Mapping\CMapEditManager.cpp" />
     <ClCompile Include="RMG\CMapGenOptions.cpp" />
+    <ClCompile Include="RMG\CMapGenerator.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="CBattleCallback.cpp" />
     <ClCompile Include="IGameCallback.cpp" />
@@ -239,6 +241,7 @@
     <ClInclude Include="CondSh.h" />
     <ClInclude Include="Connection.h" />
     <ClInclude Include="ConstTransitivePtr.h" />
+    <ClInclude Include="CRandomGenerator.h" />
     <ClInclude Include="CScriptingModule.h" />
     <ClInclude Include="CSpellHandler.h" />
     <ClInclude Include="CStopWatch.h" />
@@ -258,7 +261,9 @@
     <ClInclude Include="Mapping\CMap.h" />
     <ClInclude Include="Mapping\CMapInfo.h" />
     <ClInclude Include="Mapping\CMapService.h" />
+    <ClInclude Include="Mapping\CMapEditManager.h" />
     <ClInclude Include="RMG\CMapGenOptions.h" />
+    <ClInclude Include="RMG\CMapGenerator.h" />
     <ClInclude Include="GameConstants.h" />
     <ClInclude Include="HeroBonus.h" />
     <ClInclude Include="CBattleCallback.h" />

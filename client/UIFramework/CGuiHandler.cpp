@@ -387,9 +387,9 @@ void CGuiHandler::run()
 			mainFPSmng->framerateDelay(); // holds a constant FPS
 		}
 	}
-	catch(const std::exception & ex)
+	catch(const std::exception & e)
 	{
-		tlog1 << "Error: " << ex.what() << std::endl;
+		tlog1 << "Error: " << e.what() << std::endl;
 		exit(EXIT_FAILURE);
 	}
 }

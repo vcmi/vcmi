@@ -165,9 +165,17 @@ void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader *
 		PlayerSettings &pset = sInfo.playerInfos[i];
 		pset.color = i;
 		if(pinfo.canHumanPlay && namesIt != playerNames.cend())
+		{
 			setPlayer(pset, namesIt++->first, playerNames);
+		}
 		else
+		{
 			setPlayer(pset, 0, playerNames);
+			if(!pinfo.canHumanPlay)
+			{
+				pset.compOnly = true;
+			}
+		}
 
 		pset.castle = pinfo.defaultCastle();
 		pset.hero = pinfo.defaultHero();
@@ -873,11 +881,6 @@ void CSelectionScreen::startScenario()
 		{
 			saveGameName = sInfo.mapname;
 		}
-		if(sInfo.createRandomMap)
-		{
-			// Random map generation fails for now, so don't start game...
-			return;
-		}
 
 		StartInfo * si = new StartInfo(sInfo);
 		CGP->removeFromGui();
@@ -1138,9 +1141,9 @@ void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
 
 			allItems.push_back(mapInfo);
 		}
-		catch(std::exception & e)
+		catch(const std::exception & e)
 		{
-			tlog3 << "Failed to process " << files[i].getName() <<": " << e.what() << std::endl;
+			tlog3 << "Error: Failed to process " << files[i].getName() <<": " << e.what() << std::endl;
 		}
 	}
 }
@@ -1590,8 +1593,8 @@ RandomMapTab::RandomMapTab()
 
 	// Map Size
 	mapSizeBtnGroup = new CHighlightableButtonsGroup(0);
-	mapSizeBtnGroup->pos.y = 81;
-	mapSizeBtnGroup->pos.x = 158;
+	mapSizeBtnGroup->pos.y += 81;
+	mapSizeBtnGroup->pos.x += 158;
 	const std::vector<std::string> mapSizeBtns = boost::assign::list_of("RANSIZS")("RANSIZM")("RANSIZL")("RANSIZX");
 	addButtonsToGroup(mapSizeBtnGroup, mapSizeBtns, 0, 3, 47, 198);
 	mapSizeBtnGroup->select(1, false);
@@ -1621,8 +1624,8 @@ RandomMapTab::RandomMapTab()
 	const int BTNS_GROUP_LEFT_MARGIN = 67;
 	// Amount of players
 	playersCntGroup = new CHighlightableButtonsGroup(0);
-	playersCntGroup->pos.y = 153;
-	playersCntGroup->pos.x = BTNS_GROUP_LEFT_MARGIN;
+	playersCntGroup->pos.y += 153;
+	playersCntGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	addButtonsWithRandToGroup(playersCntGroup, numberDefs, 1, 8, NUMBERS_WIDTH, 204, 212);
 	playersCntGroup->onChange = [&](int btnId)
 	{
@@ -1635,8 +1638,8 @@ RandomMapTab::RandomMapTab()
 
 	// Amount of teams
 	teamsCntGroup = new CHighlightableButtonsGroup(0);
-	teamsCntGroup->pos.y = 219;
-	teamsCntGroup->pos.x = BTNS_GROUP_LEFT_MARGIN;
+	teamsCntGroup->pos.y += 219;
+	teamsCntGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	addButtonsWithRandToGroup(teamsCntGroup, numberDefs, 0, 7, NUMBERS_WIDTH, 214, 222);
 	teamsCntGroup->onChange = [&](int btnId)
 	{
@@ -1646,8 +1649,8 @@ RandomMapTab::RandomMapTab()
 
 	// Computer only players
 	compOnlyPlayersCntGroup = new CHighlightableButtonsGroup(0);
-	compOnlyPlayersCntGroup->pos.y = 285;
-	compOnlyPlayersCntGroup->pos.x = BTNS_GROUP_LEFT_MARGIN;
+	compOnlyPlayersCntGroup->pos.y += 285;
+	compOnlyPlayersCntGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	addButtonsWithRandToGroup(compOnlyPlayersCntGroup, numberDefs, 0, 7, NUMBERS_WIDTH, 224, 232);
 	compOnlyPlayersCntGroup->select(0, true);
 	compOnlyPlayersCntGroup->onChange = [&](int btnId)
@@ -1660,8 +1663,8 @@ RandomMapTab::RandomMapTab()
 
 	// Computer only teams
 	compOnlyTeamsCntGroup = new CHighlightableButtonsGroup(0);
-	compOnlyTeamsCntGroup->pos.y = 351;
-	compOnlyTeamsCntGroup->pos.x = BTNS_GROUP_LEFT_MARGIN;
+	compOnlyTeamsCntGroup->pos.y += 351;
+	compOnlyTeamsCntGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	addButtonsWithRandToGroup(compOnlyTeamsCntGroup, numberDefs, 0, 6, NUMBERS_WIDTH, 234, 241);
 	deactivateButtonsFrom(compOnlyTeamsCntGroup, 0);
 	compOnlyTeamsCntGroup->onChange = [&](int btnId)
@@ -1673,8 +1676,8 @@ RandomMapTab::RandomMapTab()
 	const int WIDE_BTN_WIDTH = 85;
 	// Water content
 	waterContentGroup = new CHighlightableButtonsGroup(0);
-	waterContentGroup->pos.y = 419;
-	waterContentGroup->pos.x = BTNS_GROUP_LEFT_MARGIN;
+	waterContentGroup->pos.y += 419;
+	waterContentGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	const std::vector<std::string> waterContentBtns = boost::assign::list_of("RANNONE")("RANNORM")("RANISLD");
 	addButtonsWithRandToGroup(waterContentGroup, waterContentBtns, 0, 2, WIDE_BTN_WIDTH, 243, 246);
 	waterContentGroup->onChange = [&](int btnId)
@@ -1684,8 +1687,8 @@ RandomMapTab::RandomMapTab()
 
 	// Monster strength
 	monsterStrengthGroup = new CHighlightableButtonsGroup(0);
-	monsterStrengthGroup->pos.y = 485;
-	monsterStrengthGroup->pos.x = BTNS_GROUP_LEFT_MARGIN;
+	monsterStrengthGroup->pos.y += 485;
+	monsterStrengthGroup->pos.x += BTNS_GROUP_LEFT_MARGIN;
 	const std::vector<std::string> monsterStrengthBtns = boost::assign::list_of("RANWEAK")("RANNORM")("RANSTRG");
 	addButtonsWithRandToGroup(monsterStrengthGroup, monsterStrengthBtns, 0, 2, WIDE_BTN_WIDTH, 248, 251);
 	monsterStrengthGroup->onChange = [&](int btnId)

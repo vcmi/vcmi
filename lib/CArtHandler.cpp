@@ -9,6 +9,7 @@
 #include "CSpellHandler.h"
 #include "CObjectHandler.h"
 #include "NetPacks.h"
+#include "GameConstants.h"
 
 using namespace boost::assign;
 
@@ -776,12 +777,21 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<ui8> &allowed)
 			allowedArtifacts.push_back(artifacts[i]);
 		 else //check if active modules allow artifact to be every used
 		 {
-			 if (artifacts[i]->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS ||
-				 artifacts[i]->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT)
+			 if ((artifacts[i]->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS) ||
+				 (artifacts[i]->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT))
 				 allowedArtifacts.push_back(artifacts[i]);
 			 //keep im mind that artifact can be worn by more than one type of bearer
 		 }
 	}
+}
+
+std::vector<ui8> CArtHandler::getDefaultAllowedArtifacts() const
+{
+	std::vector<ui8> allowedArtifacts;
+	allowedArtifacts.resize(127, 1);
+	allowedArtifacts.resize(141, 0);
+	allowedArtifacts.resize(GameConstants::ARTIFACTS_QUANTITY, 1);
+	return allowedArtifacts;
 }
 
 CArtifactInstance::CArtifactInstance()

@@ -1971,11 +1971,9 @@ bool CGTownInstance::hasCapitol() const
 	return hasBuilt(EBuilding::CAPITOL);
 }
 CGTownInstance::CGTownInstance()
-	:IShipyard(this), IMarket(this)
+	:IShipyard(this), IMarket(this), town(nullptr), builded(0), destroyed(0), identifier(0), alignment(0xff)
 {
-	builded=-1;
-	destroyed=-1;
-	town=NULL;
+
 }
 
 CGTownInstance::~CGTownInstance()

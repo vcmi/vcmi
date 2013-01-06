@@ -1,8 +1,10 @@
 #include "StdInc.h"
 #include "CMapGenOptions.h"
 
+#include "../GameConstants.h"
+
 CMapGenOptions::CMapGenOptions() : width(72), height(72), hasTwoLevels(true),
-	playersCnt(-1), teamsCnt(-1), compOnlyPlayersCnt(0), compOnlyTeamsCnt(-1),
+	playersCnt(RANDOM_SIZE), teamsCnt(RANDOM_SIZE), compOnlyPlayersCnt(0), compOnlyTeamsCnt(RANDOM_SIZE),
 	waterContent(EWaterContent::RANDOM), monsterStrength(EMonsterStrength::RANDOM)
 {
 
@@ -13,7 +15,7 @@ si32 CMapGenOptions::getWidth() const
 	return width;
 }
 
-void CMapGenOptions::setWidth(int value)
+void CMapGenOptions::setWidth(si32 value)
 {
 	if(value > 0)
 	{
@@ -21,7 +23,7 @@ void CMapGenOptions::setWidth(int value)
 	}
 	else
 	{
-		throw std::runtime_error("Map width lower than 1 not allowed.");
+		throw std::runtime_error("A map width lower than 1 is not allowed.");
 	}
 }
 
@@ -38,7 +40,7 @@ void CMapGenOptions::setHeight(si32 value)
 	}
 	else
 	{
-		throw std::runtime_error("Map height lower than 1 not allowed.");
+		throw std::runtime_error("A map height lower than 1 is not allowed.");
 	}
 }
 
@@ -59,13 +61,14 @@ si8 CMapGenOptions::getPlayersCnt() const
 
 void CMapGenOptions::setPlayersCnt(si8 value)
 {
-	if((value >= 1 && value <= 8) || value == RANDOM_SIZE)
+	if((value >= 1 && value <= GameConstants::PLAYER_LIMIT) || value == RANDOM_SIZE)
 	{
 		playersCnt = value;
 	}
 	else
 	{
-		throw std::runtime_error("Players count of RMG options should be between 1 and 8 or -1 for random.");
+		throw std::runtime_error("Players count of RMG options should be between 1 and " +
+			boost::lexical_cast<std::string>(GameConstants::PLAYER_LIMIT) + " or CMapGenOptions::RANDOM_SIZE for random.");
 	}
 }
 
@@ -83,7 +86,7 @@ void CMapGenOptions::setTeamsCnt(si8 value)
 	else
 	{
 		throw std::runtime_error("Teams count of RMG options should be between 0 and <" +
-			boost::lexical_cast<std::string>(playersCnt) + "(players count) - 1> or -1 for random.");
+			boost::lexical_cast<std::string>(playersCnt) + "(players count) - 1> or CMapGenOptions::RANDOM_SIZE for random.");
 	}
 }
 
@@ -94,15 +97,15 @@ si8 CMapGenOptions::getCompOnlyPlayersCnt() const
 
 void CMapGenOptions::setCompOnlyPlayersCnt(si8 value)
 {
-	if(value == RANDOM_SIZE || (value >= 0 && value <= 8 - playersCnt))
+	if(value == RANDOM_SIZE || (value >= 0 && value <= GameConstants::PLAYER_LIMIT - playersCnt))
 	{
 		compOnlyPlayersCnt = value;
 	}
 	else
 	{
 		throw std::runtime_error(std::string("Computer only players count of RMG options should be ") +
-			"between 0 and <8 - " + boost::lexical_cast<std::string>(playersCnt) +
-			"(playersCount)> or -1 for random.");
+			"between 0 and <GameConstants::PLAYER_LIMIT - " + boost::lexical_cast<std::string>(playersCnt) +
+			"(playersCount)> or CMapGenOptions::RANDOM_SIZE for random.");
 	}
 }
 
@@ -113,7 +116,7 @@ si8 CMapGenOptions::getCompOnlyTeamsCnt() const
 
 void CMapGenOptions::setCompOnlyTeamsCnt(si8 value)
 {
-	if(value == RANDOM_SIZE || compOnlyPlayersCnt == RANDOM_SIZE || (value >= 0 && value <= compOnlyPlayersCnt - 1))
+	if(value == RANDOM_SIZE || compOnlyPlayersCnt == RANDOM_SIZE || (value >= 0 && value <= std::max(compOnlyPlayersCnt - 1, 0)))
 	{
 		compOnlyTeamsCnt = value;
 	}
@@ -121,7 +124,7 @@ void CMapGenOptions::setCompOnlyTeamsCnt(si8 value)
 	{
 		throw std::runtime_error(std::string("Computer only teams count of RMG options should be ") +
 			"between 0 and <" + boost::lexical_cast<std::string>(compOnlyPlayersCnt) +
-			"(compOnlyPlayersCnt) - 1> or -1 for random.");
+			"(compOnlyPlayersCnt) - 1> or CMapGenOptions::RANDOM_SIZE for random.");
 	}
 }
 

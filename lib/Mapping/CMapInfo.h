@@ -40,6 +40,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int Version)
 	{
 		h & mapHeader & campaignHeader & scenarioOpts & fileURI & date & playerAmnt & humanPlayers;
-		h & actualHumanPlayers;
+		h & actualHumanPlayers & isRandomMap;
 	}
 };

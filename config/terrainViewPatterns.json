@@ -1,0 +1,428 @@
+// Defines terrain view patterns.
+
+// The following properties are mandatory:
+// data:		the 3x3 pattern
+// mapping:		maps the pattern to a range of terrain view images/frames of the .DEF, e.g. 10-15
+//				for patterns which represent two transitions a comma can be used to distinct between dirt and sand
+//				e.g. 10-15, 25-35 whereas the first value is always dirt and the second sand
+
+// The following properties are optional:
+// flipMode:	should the same be flipped or different images be used(see rock) or is flip not supported at all; allowed values: sameImage | diffImages; default is: sameImage
+// id:			the identifier for the pattern if it's referenced by other patterns
+// minPoints:	the minimum points to reach to validate the pattern successfully
+
+// The following table shows the rules for the 3x3 pattern of all terrain types: 
+// I) normal(e.g. grass, lava, ...):
+// N:		Native type
+// D:		Dirt border
+// S:		Sand border
+// T:		Sand OR dirt border(all Ts in the pattern are replaced by dirt OR sand)
+// ?:		T or N
+// II) dirt:
+// N:		Native type
+// D:		Dirt border
+// S:		Sand border
+// ?:		Any border
+// III) sand:
+// N:		Native type
+// S:		Sand border
+// IV) water:
+// N:		Native type
+// S:		Sand border
+// ?:		Any border
+// V) rock:
+// N:		Native type
+// S:		Sand border
+// ?:		Any border
+
+// Some additional info:
+// Rules can be combined with comma. e.g. T, N which would be the same meaning of ?. It's most useful in combination with pattern chaining.
+// Chaining of patterns is supported. To reference a another pattern you simply add the <Ref Id> to the relevant field of the pattern.
+// Rules can be given points: <[Rule OR Ref Id]-Points> With the property minPoints simple conditions can be built.
+
+{
+	"normal" :
+	[
+		// Standard transitions
+		{
+			"data" :
+			[
+				"?", "?", "T",
+				"?", "N", "N",
+				"T", "N", "N"
+			],
+			"mapping" : "0-3, 20-23"
+		},
+		{
+			"data" :
+			[
+				"?", "N", "N",
+				"T", "N", "N",
+				"?", "N", "N"
+			],
+			"mapping" : "4-7, 24-27"
+		},
+		{
+			"data" :
+			[
+				"?", "T", "?",
+				"N", "N", "N",
+				"N", "N", "N"
+			],
+			"mapping" : "8-11, 28-31"
+		},
+		{
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "N",
+				"N", "N", "T"
+			],
+			"mapping" : "12-15, 32-35"
+		},
+		{
+			"data" :
+			[
+				"T", "T", "a-1,?",
+				"T", "N", "N",
+				"a-1,?", "N", "N"
+			],
+			"mapping" : "16-17, 36-37",
+			"id" : "a",
+			"minPoints" : 1
+		},
+		{
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "a-1,N",
+				"N", "a-1,N", "T"
+			],
+			"mapping" : "18-19, 38-39",
+			"minPoints" : 1
+		},
+		// Mixed transitions
+		{
+			"data" :
+			[
+				"T", "N", "N",
+				"N", "N", "N",
+				"N", "N", "T"
+			],
+			"mapping" : "40, 42"
+		},
+		{
+			"data" :
+			[
+				"D", "N", "N",
+				"N", "N", "N",
+				"N", "N", "S"
+			],
+			"mapping" : "41"
+		},
+		{
+			"data" :
+			[
+				"N", "N", "D,N",
+				"N", "N", "D",
+				"S", "D", "D,N"
+			],
+			"mapping" : "43"
+		},
+		{
+			"data" :
+			[
+				"N", "N", "S",
+				"N", "N", "D",
+				"D,N", "D", "D,N"
+			],
+			"mapping" : "44"
+		},
+		{
+			"data" :
+			[
+				"N", "N", "D,N",
+				"N", "N", "D",
+				"N", "N", "S"
+			],
+			"mapping" : "45"
+		},
+		{
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "N",
+				"D,N", "D", "S"
+			],
+			"mapping" : "46"
+		},
+		{
+			"data" :
+			[
+				"N", "N", "D,S,N",
+				"N", "N", "S",
+				"D", "D", "D,S,N"
+			],
+			"mapping" : "47"
+		},
+		{
+			"data" :
+			[
+				"N", "N", "D",
+				"N", "N", "D",
+				"D,S,N", "S", "D,S,N"
+			],
+			"mapping" : "48"
+		},
+		// No transition
+		{
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "N",
+				"N", "N", "N"
+			],
+			"mapping" : "49-72"
+		}
+	],
+	"dirt" :
+	[
+		// Standard transitions
+		{
+			"data" :
+			[
+				"?", "S", "S",
+				"S", "N", "N",
+				"S", "N", "N"
+			],
+			"mapping" : "0-3"
+		},
+		{
+			"data" :
+			[
+				"?", "D", "D",
+				"S", "N", "N",
+				"?", "D", "D"
+			],
+			"mapping" : "4-7"
+		},
+		{
+			"data" :
+			[
+				"?", "S", "?",
+				"D", "N", "D",
+				"D", "N", "D"
+			],
+			"mapping" : "8-11"
+		},
+		{
+			"data" :
+			[
+				"D", "D", "D",
+				"D", "N", "N",
+				"D", "N", "S"
+			],
+			"mapping" : "12-15"
+		},
+		{
+			"data" :
+			[
+				"S", "S", "D",
+				"S", "N", "b-1,D",
+				"D", "b-1,D", "D"
+			],
+			"mapping" : "16-17",
+			"id" : "a",
+			"minPoints" : 1
+		},
+		{
+			"data" :
+			[
+				"D", "D", "D",
+				"D", "N", "a-1,D",
+				"D", "a-1,D", "S"
+			],
+			"mapping" : "18-19",
+			"id" : "b",
+			"minPoints" : 1
+		},
+		// Mixed transition
+		{
+			"data" :
+			[
+				"S", "D", "D",
+				"D", "N", "D",
+				"D", "D", "S"
+			],
+			"mapping" : "20"
+		},
+		// No transition
+		{
+			"data" :
+			[
+				"D", "D", "D",
+				"D", "N", "D",
+				"D", "D", "D"
+			],
+			"mapping" : "21-44"
+		}
+	],
+	"sand" :
+	[
+		{
+			"data" :
+			[
+				"S", "S", "S",
+				"S", "N", "S",
+				"S", "S", "S"
+			],
+			"mapping" : "0-23"
+		}
+	],
+	"water" :
+	[
+		// Standard transitions
+		{
+			"data" :
+			[
+				"S", "S", "S",
+				"S", "N", "N",
+				"S", "N", "N"
+			],
+			"mapping" : "0-3"
+		},
+		{
+			"data" :
+			[
+				"?", "N", "N",
+				"S", "N", "N",
+				"?", "N", "N"
+			],
+			"mapping" : "4-7"
+		},
+		{
+			"data" :
+			[
+				"?", "S", "?",
+				"N", "N", "N",
+				"N", "N", "N"
+			],
+			"mapping" : "8-11"
+		},
+		{
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "N",
+				"N", "N", "S"
+			],
+			"mapping" : "12-15"
+		},
+		{
+			"data" :
+			[
+				"S", "S", "N",
+				"S", "N", "N",
+				"N", "N", "N"
+			],
+			"mapping" : "16-17",
+			"id" : "a"
+		},
+		{
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "a-1,N",
+				"N", "a-1,N", "S"
+			],
+			"mapping" : "18-19",
+			"minPoints" : 1
+		},
+		// No transition
+		{
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "N",
+				"N", "N", "N"
+			],
+			"mapping" : "20-32"
+		}
+	],
+	"rock" :
+	[
+		// No transition
+		{
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "N",
+				"N", "N", "N"
+			],
+			"mapping" : "0-7"
+		},
+		// Standard transitions
+		{
+			"data" :
+			[
+				"?", "S", "?",
+				"S", "N", "N",
+				"?", "N", "N"
+			],
+			"mapping" : "8-15",
+			"flipMode" : "diffImages"
+		},
+		{
+			"data" :
+			[
+				"?", "N", "N",
+				"S", "N", "N",
+				"?", "N", "N"
+			],
+			"mapping" : "16-19",
+			"flipMode" : "diffImages"
+		},
+		{
+			"data" :
+			[
+				"?", "S", "?",
+				"N", "N", "N",
+				"N", "N", "N"
+			],
+			"mapping" : "20-23",
+			"flipMode" : "diffImages"
+		},
+		{
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "N",
+				"N", "N", "S"
+			],
+			"mapping" : "24-31",
+			"flipMode" : "diffImages"
+		},
+		{
+			"data" :
+			[
+				"S", "S", "N",
+				"S", "N", "N",
+				"N", "N", "N"
+			],
+			"mapping" : "32-39",
+			"flipMode" : "diffImages",
+			"id" : "a"
+		},
+		{
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "a-1,N",
+				"N", "a-1,N", "S"
+			],
+			"mapping" : "40-47",
+			"flipMode" : "diffImages",
+			"minPoints" : 1
+		}
+	]
+}

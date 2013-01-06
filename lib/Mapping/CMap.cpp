@@ -6,6 +6,7 @@
 #include "../CTownHandler.h"
 #include "../CHeroHandler.h"
 #include "../CDefObjInfoHandler.h"
+#include "../CSpellHandler.h"
 
 SHeroName::SHeroName() : heroId(-1)
 {
@@ -13,8 +14,8 @@ SHeroName::SHeroName() : heroId(-1)
 }
 
 PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
-	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainHeroPortrait(-1), hasMainTown(true),
-	generateHeroAtMainTown(true), team(255), generateHero(false), p7(0), hasHero(false), customHeroID(-1), powerPlaceholders(-1)
+	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainHeroPortrait(-1), hasMainTown(false),
+	generateHeroAtMainTown(false), team(255), generateHero(false), p7(0), hasHero(false), customHeroID(-1), powerPlaceholders(-1)
 {
 	allowedFactions = VLC->townh->getDefaultAllowedFactions();
 }
@@ -129,6 +130,7 @@ CMapHeader::CMapHeader() : version(EMapFormat::SOD), height(72), width(72),
 	twoLevel(true), difficulty(1), levelLimit(0), howManyTeams(0), areAnyPlayers(false)
 {
 	allowedHeroes = VLC->heroh->getDefaultAllowedHeroes();
+	players.resize(GameConstants::PLAYER_LIMIT);
 }
 
 CMapHeader::~CMapHeader()
@@ -138,7 +140,9 @@ CMapHeader::~CMapHeader()
 
 CMap::CMap() : checksum(0), terrain(nullptr), grailRadious(0)
 {
-
+	allowedAbilities = VLC->heroh->getDefaultAllowedAbilities();
+	allowedArtifact = VLC->arth->getDefaultAllowedArtifacts();
+	allowedSpell = VLC->spellh->getDefaultAllowedSpells();
 }
 
 CMap::~CMap()
@@ -186,6 +190,7 @@ void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 		}
 	}
 }
+
 void CMap::addBlockVisTiles(CGObjectInstance * obj)
 {
 	for(int fx=0; fx<8; ++fx)
@@ -285,4 +290,24 @@ void CMap::eraseArtifactInstance(CArtifactInstance * art)
 {
 	assert(artInstances[art->id] == art);
 	artInstances[art->id].dellNull();
+}
+
+void CMap::addQuest(CGObjectInstance * quest)
+{
+	auto q = dynamic_cast<IQuestObject *>(quest);
+	q->quest->qid = quests.size();
+	quests.push_back(q->quest);
+}
+
+void CMap::initTerrain()
+{
+	terrain = new TerrainTile**[width];
+	for(int i = 0; i < width; ++i)
+	{
+		terrain[i] = new TerrainTile*[height];
+		for(int j = 0; j < height; ++j)
+		{
+			terrain[i][j] = new TerrainTile[twoLevel ? 2 : 1];
+		}
+	}
 }

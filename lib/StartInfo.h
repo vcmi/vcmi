@@ -42,6 +42,7 @@ struct PlayerSettings
 
 	std::string name;
 	ui8 playerID; //0 - AI, non-0 serves as player id
+	bool compOnly; //true if this player is a computer only player; required for RMG
 	template <typename Handler>
 	void serialize(Handler &h, const int version)
 	{
@@ -55,13 +56,12 @@ struct PlayerSettings
 		h & name;
 		h & playerID;
 		h & team;
+		h & compOnly;
 	}
 
-	PlayerSettings()
+	PlayerSettings() : bonus(RANDOM), castle(NONE), heroPortrait(RANDOM), compOnly(false)
 	{
-		bonus = RANDOM;
-		castle = NONE;
-		heroPortrait = RANDOM;
+		
 	}
 };
 

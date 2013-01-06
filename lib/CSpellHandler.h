@@ -101,6 +101,13 @@ public:
 	std::set<TSpell> mindSpells;
 	void loadSpells();
 
+	/**
+	 * Gets a list of default allowed spells. OH3 spells are all allowed by default.
+	 *
+	 * @return a list of allowed spells, the index is the spell id and the value either 0 for not allowed or 1 for allowed
+	 */
+	std::vector<ui8> getDefaultAllowedSpells() const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & spells & damageSpells & risingSpells & mindSpells;

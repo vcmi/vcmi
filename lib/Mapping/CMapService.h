@@ -226,13 +226,6 @@ private:
 	CArtifactInstance * createArtifact(int aid, int spellID = -1);
 
 	/**
-	 * Adds the specified artifact instance to the list of artifacts of this map.
-	 *
-	 * @param art the artifact which should be added to the list of artifacts
-	 */
-	void addNewArtifactInstance(CArtifactInstance * art);
-
-	/**
 	 * Read rumors.
 	 */
 	void readRumors();
@@ -289,13 +282,6 @@ private:
 	void readQuest(IQuestObject * guard);
 
 	/**
-	 * Adds the specified quest instance to the list of quests.
-	 *
-	 * @param quest the quest object which should be added to the list of quests
-	 */
-	void addQuest(CGObjectInstance * quest);
-
-	/**
 	 * Reads a town.
 	 *
 	 * @param castleID the id of the castle type
@@ -317,13 +303,6 @@ private:
 	 * Reads events.
 	 */
 	void readEvents();
-
-	/**
-	 * Adds object instance to block visitable tiles.
-	 *
-	 * @param obj the object to add
-	 */
-	void addBlockVisibleTiles(CGObjectInstance * obj);
 
 	/**
 	 * Reverses the input argument.

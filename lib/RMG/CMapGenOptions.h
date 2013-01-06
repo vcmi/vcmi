@@ -89,61 +89,61 @@ public:
 	void setHasTwoLevels(bool value);
 
 	/**
-	 * Gets the count of the players. The default value is -1 representing a random
+	 * Gets the count of the players. The default value is RANDOM_SIZE representing a random
 	 * player count.
 	 *
-	 * @return the count of the players ranging from 1 to 8 or -1 for random
+	 * @return the count of the players ranging from 1 to GameConstants::PLAYER_LIMIT or RANDOM_SIZE for random
 	 */
 	si8 getPlayersCnt() const;
 
 	/**
 	 * Sets the count of the players.
 	 *
-	 * @param value the count of the players ranging from 1 to 8, -1 for random
+	 * @param value the count of the players ranging from 1 to GameConstants::PLAYER_LIMIT, RANDOM_SIZE for random
 	 */
 	void setPlayersCnt(si8 value);
 
 	/**
-	 * Gets the count of the teams. The default value is -1 representing a random
+	 * Gets the count of the teams. The default value is RANDOM_SIZE representing a random
 	 * team count.
 	 *
-	 * @return the count of the teams ranging from 0 to <players count - 1> or -1 for random
+	 * @return the count of the teams ranging from 0 to <players count - 1> or RANDOM_SIZE for random
 	 */
 	si8 getTeamsCnt() const;
 
 	/**
 	 * Sets the count of the teams
 	 *
-	 * @param value the count of the teams ranging from 0 to <players count - 1>, -1 for random
+	 * @param value the count of the teams ranging from 0 to <players count - 1>, RANDOM_SIZE for random
 	 */
 	void setTeamsCnt(si8 value);
 
 	/**
 	 * Gets the count of the computer only players. The default value is 0.
 	 *
-	 * @return the count of the computer only players ranging from 0 to <8 - players count> or -1 for random
+	 * @return the count of the computer only players ranging from 0 to <GameConstants::PLAYER_LIMIT - players count> or RANDOM_SIZE for random
 	 */
 	si8 getCompOnlyPlayersCnt() const;
 
 	/**
 	 * Sets the count of the computer only players.
 	 *
-	 * @param value the count of the computer only players ranging from 0 to <8 - players count>, -1 for random
+	 * @param value the count of the computer only players ranging from 0 to <GameConstants::PLAYER_LIMIT - players count>, RANDOM_SIZE for random
 	 */
 	void setCompOnlyPlayersCnt(si8 value);
 
 	/**
-	 * Gets the count of the computer only teams. The default value is -1 representing
+	 * Gets the count of the computer only teams. The default value is RANDOM_SIZE representing
 	 * a random computer only team count.
 	 *
-	 * @return the count of the computer only teams ranging from 0 to <comp only players - 1> or -1 for random
+	 * @return the count of the computer only teams ranging from 0 to <comp only players - 1> or RANDOM_SIZE for random
 	 */
 	si8 getCompOnlyTeamsCnt() const;
 
 	/**
 	 * Sets the count of the computer only teams.
 	 *
-	 * @param value the count of the computer only teams ranging from 0 to <comp only players - 1>, -1 for random
+	 * @param value the count of the computer only teams ranging from 0 to <comp only players - 1>, RANDOM_SIZE for random
 	 */
 	void setCompOnlyTeamsCnt(si8 value);
 
@@ -213,6 +213,8 @@ public:
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
+		//FIXME: Enum is not a fixed with data type. Add enum class to both enums
+		// later. For now it is ok.
 		h & width & height & hasTwoLevels & playersCnt & teamsCnt & compOnlyPlayersCnt;
 		h & compOnlyTeamsCnt & waterContent & monsterStrength;
 	}

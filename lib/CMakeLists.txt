@@ -5,48 +5,50 @@ include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIRECTORY} ${
 include_directories(${Boost_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 
 set(lib_SRCS
-        Filesystem/CBinaryReader.cpp
-        Filesystem/CFilesystemLoader.cpp
-        Filesystem/CMemoryStream.cpp
-        Filesystem/CFileInfo.cpp
-        Filesystem/CLodArchiveLoader.cpp
-        Filesystem/CResourceLoader.cpp
-        Filesystem/CFileInputStream.cpp
-        Filesystem/CCompressedStream.cpp
-        Mapping/CCampaignHandler.cpp
-        Mapping/CMap.cpp
-        Mapping/CMapInfo.cpp
-        Mapping/CMapService.cpp
-   		RMG/CMapGenOptions.cpp
-        BattleAction.cpp
-        BattleHex.cpp
-        BattleState.cpp
-        CArtHandler.cpp
-        CBattleCallback.cpp
-        CBuildingHandler.cpp
-        CConfigHandler.cpp
-        CConsoleHandler.cpp
-        CCreatureHandler.cpp
-        CCreatureSet.cpp
-        CDefObjInfoHandler.cpp
-        CGameInterface.cpp
-        CGameState.cpp
-        CGeneralTextHandler.cpp
-        CHeroHandler.cpp
-        CLogger.cpp
-        CModHandler.cpp
-        CObjectHandler.cpp
-        CObstacleInstance.cpp
-        Connection.cpp
-        CSpellHandler.cpp
-        CThreadHelper.cpp
-        CTownHandler.cpp
-        HeroBonus.cpp
-        IGameCallback.cpp
-        JsonNode.cpp
-        NetPacksLib.cpp
-        ResourceSet.cpp
-        VCMI_Lib.cpp
+		Filesystem/CBinaryReader.cpp
+		Filesystem/CFilesystemLoader.cpp
+		Filesystem/CMemoryStream.cpp
+		Filesystem/CFileInfo.cpp
+		Filesystem/CLodArchiveLoader.cpp
+		Filesystem/CResourceLoader.cpp
+		Filesystem/CFileInputStream.cpp
+		Filesystem/CCompressedStream.cpp
+		Mapping/CCampaignHandler.cpp
+		Mapping/CMap.cpp
+		Mapping/CMapEditManager.cpp
+		Mapping/CMapInfo.cpp
+		Mapping/CMapService.cpp
+		RMG/CMapGenOptions.cpp
+		RMG/CMapGenerator.cpp
+		BattleAction.cpp
+		BattleHex.cpp
+		BattleState.cpp
+		CArtHandler.cpp
+		CBattleCallback.cpp
+		CBuildingHandler.cpp
+		CConfigHandler.cpp
+		CConsoleHandler.cpp
+		CCreatureHandler.cpp
+		CCreatureSet.cpp
+		CDefObjInfoHandler.cpp
+		CGameInterface.cpp
+		CGameState.cpp
+		CGeneralTextHandler.cpp
+		CHeroHandler.cpp
+		CLogger.cpp
+		CModHandler.cpp
+		CObjectHandler.cpp
+		CObstacleInstance.cpp
+		Connection.cpp
+		CSpellHandler.cpp
+		CThreadHelper.cpp
+		CTownHandler.cpp
+		HeroBonus.cpp
+		IGameCallback.cpp
+		JsonNode.cpp
+		NetPacksLib.cpp
+		ResourceSet.cpp
+		VCMI_Lib.cpp
 )
 
 set(lib_HEADERS
@@ -55,6 +57,7 @@ set(lib_HEADERS
 		AI_Base.h
 		CondSh.h
 		ConstTransitivePtr.h
+		CRandomGenerator.h
 		CScriptingModule.h
 		CStopWatch.h
 		GameConstants.h

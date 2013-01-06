@@ -116,10 +116,10 @@ struct DLL_LINKAGE PlayerInfo
 	/** The list of renamed heroes. */
 	std::vector<SHeroName> heroesNames;
 
-	/** True if the player has a main town. The default value is true. */
+	/** True if the player has a main town. The default value is false. */
 	bool hasMainTown;
 
-	/** True if the main hero should be generated at the main town. The default value is true. */
+	/** True if the main hero should be generated at the main town. The default value is false. */
 	bool generateHeroAtMainTown;
 
 	/** The position of the main town. */
@@ -286,11 +286,9 @@ struct DLL_LINKAGE DisposedHero
 	}
 };
 
-/// Class which manages map events.
-
 /**
- * The map event is an event which gives or takes resources for a specific
- * amount of players and can appear regularly or once a time.
+ * The map event is an event which e.g. gives or takes resources of a specific
+ * amount to/from players and can appear regularly or once a time.
  */
 class DLL_LINKAGE CMapEvent
 {
@@ -584,7 +582,7 @@ public:
 	/** Specifies the victory condition. The default value is defeat all enemies. */
 	VictoryCondition victoryCondition;
 
-	/** A list containing information about players. */
+	/** A list containing information about players. The default size of the vector is GameConstants::PLAYER_LIMIT. */
 	std::vector<PlayerInfo> players;
 
 	/** The number of teams. */
@@ -714,10 +712,22 @@ public:
 	 */
 	void addNewArtifactInstance(CArtifactInstance * art);
 
+	/**
+	 * Adds the specified quest instance to the list of quests.
+	 *
+	 * @param quest the quest object which should be added to the list of quests
+	 */
+	void addQuest(CGObjectInstance * quest);
+
+	/**
+	 * Initializes the terrain of the map by allocating memory.
+	 */
+	void initTerrain();
+
 	/** the checksum of the map */
 	ui32 checksum;
 
-	/** a 3-dimensional array of terrain tiles, access is as follows: x, y, level */
+	/** a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground */
 	TerrainTile*** terrain;
 
 	/** list of rumors */

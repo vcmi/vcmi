@@ -173,7 +173,7 @@ void CMapLoaderH3M::init()
 	for(int f = 0; f < map->objects.size(); ++f)
 	{
 		if(!map->objects[f]->defInfo) continue;
-		addBlockVisibleTiles(map->objects[f]);
+		map->addBlockVisTiles(map->objects[f]);
 	}
 	times.push_back(MapLoadingTime("blocked/visitable tiles", sw.getDiff()));
 
@@ -231,8 +231,7 @@ void CMapLoaderH3M::readHeader()
 
 void CMapLoaderH3M::readPlayerInfo()
 {
-	mapHeader->players.resize(8);
-	for(int i = 0; i < 8; ++i)
+	for(int i = 0; i < mapHeader->players.size(); ++i)
 	{
 		mapHeader->players[i].canHumanPlay = static_cast<bool>(buffer[pos++]);
 		mapHeader->players[i].canComputerPlay = static_cast<bool>(buffer[pos++]);
@@ -865,7 +864,7 @@ CArtifactInstance * CMapLoaderH3M::createArtifact(int aid, int spellID /*= -1*/)
 		a = new CArtifactInstance();
 	}
 
-	addNewArtifactInstance(a);
+	map->addNewArtifactInstance(a);
 
 	//TODO make it nicer
 	if(a->artType && a->artType->constituents)
@@ -873,31 +872,16 @@ CArtifactInstance * CMapLoaderH3M::createArtifact(int aid, int spellID /*= -1*/)
 		CCombinedArtifactInstance * comb = dynamic_cast<CCombinedArtifactInstance *>(a);
 		BOOST_FOREACH(CCombinedArtifactInstance::ConstituentInfo & ci, comb->constituentsInfo)
 		{
-			addNewArtifactInstance(ci.art);
+			map->addNewArtifactInstance(ci.art);
 		}
 	}
 
 	return a;
 }
 
-void CMapLoaderH3M::addNewArtifactInstance(CArtifactInstance * art)
-{
-	art->id = map->artInstances.size();
-	map->artInstances.push_back(art);
-}
-
 void CMapLoaderH3M::readTerrain()
 {
-	// Allocate memory for terrain data
-	map->terrain = new TerrainTile**[map->width];
-	for(int ii = 0; ii < map->width; ii++)
-	{
-		map->terrain[ii] = new TerrainTile*[map->height];
-		for(int jj = 0; jj < map->height; jj++)
-		{
-			map->terrain[ii][jj] = new TerrainTile[map->twoLevel ? 2 : 1];
-		}
-	}
+	map->initTerrain();
 
 	// Read terrain
 	for(int a = 0; a < 2; ++a)
@@ -1276,7 +1260,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::SEER_HUT:
 			{
 				nobj = readSeerHut();
-				addQuest(nobj);
+				map->addQuest(nobj);
 				break;
 			}
 		case Obj::WITCH_HUT: 
@@ -1584,7 +1568,7 @@ void CMapLoaderH3M::readObjects()
 	case Obj::QUEST_GUARD:
 			{
 				CGQuestGuard * guard = new CGQuestGuard();
-				addQuest(guard);
+				map->addQuest(guard);
 				readQuest(guard);
 				nobj = guard;
 				break;
@@ -1672,13 +1656,13 @@ void CMapLoaderH3M::readObjects()
 		case Obj::BORDERGUARD:
 			{
 				nobj = new CGBorderGuard();
-				addQuest(nobj);
+				map->addQuest(nobj);
 				break;
 			}
 		case Obj::BORDER_GATE:
 			{
 				nobj = new CGBorderGate();
-				addQuest (nobj);
+				map->addQuest (nobj);
 				break;
 			}
 		case Obj::EYE_OF_MAGI: 
@@ -2244,17 +2228,9 @@ void CMapLoaderH3M::readQuest(IQuestObject * guard)
 	guard->quest->isCustomComplete = guard->quest->completedText.size() > 0;
 }
 
-void CMapLoaderH3M::addQuest(CGObjectInstance * quest)
-{
-	auto q = dynamic_cast<IQuestObject *>(quest);
-	q->quest->qid = map->quests.size();
-	map->quests.push_back(q->quest);
-}
-
 CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 {
 	CGTownInstance * nt = new CGTownInstance();
-	nt->identifier = 0;
 	if(map->version > EMapFormat::ROE)
 	{
 		nt->identifier = read_le_u32(buffer + pos);
@@ -2421,15 +2397,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 		nt->alignment = buffer[pos];
 		++pos;
 	}
-	else
-	{
-		nt->alignment = 0xff;
-	}
 	pos += 3;
-
-	nt->builded = 0;
-	nt->destroyed = 0;
-	nt->garrisonHero = nullptr;
 
 	return nt;
 }
@@ -2546,33 +2514,6 @@ void CMapLoaderH3M::readEvents()
 		pos += 17;
 
 		map->events.push_back(ne);
-	}
-}
-
-void CMapLoaderH3M::addBlockVisibleTiles(CGObjectInstance * obj)
-{
-	for(int fx = 0; fx < 8; ++fx)
-	{
-		for(int fy = 0; fy < 6; ++fy)
-		{
-			int xVal = obj->pos.x + fx - 7;
-			int yVal = obj->pos.y + fy - 5;
-			int zVal = obj->pos.z;
-			if(xVal >= 0 && xVal < map->width && yVal >= 0 && yVal < map->height)
-			{
-				TerrainTile & curt = map->terrain[xVal][yVal][zVal];
-				if(((obj->defInfo->visitMap[fy] >> (7 - fx)) & 1))
-				{
-					curt.visitableObjects.push_back(obj);
-					curt.visitable = true;
-				}
-				if(!((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1))
-				{
-					curt.blockingObjects.push_back(obj);
-					curt.blocked = true;
-				}
-			}
-		}
 	}
 }
 

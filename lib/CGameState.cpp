@@ -26,6 +26,7 @@
 #include "Filesystem/CResourceLoader.h"
 #include "GameConstants.h"
 #include "RMG/CMapGenOptions.h"
+#include "RMG/CMapGenerator.h"
 
 DLL_LINKAGE boost::rand48 ran;
 class CGObjectInstance;
@@ -872,7 +873,46 @@ void CGameState::init(StartInfo * si)
 			if(scenarioOps->createRandomMap)
 			{
 				tlog0 << "Create random map." << std::endl;
-				//TODO random map
+
+				// Create player settings for RMG
+				std::map<TPlayerColor, CMapGenerator::CPlayerSettings> players;
+				BOOST_FOREACH(auto pInfo, scenarioOps->playerInfos)
+				{
+					const PlayerSettings & startSettings = pInfo.second;
+					CMapGenerator::CPlayerSettings player;
+					player.setColor(startSettings.color);
+					player.setStartingTown(startSettings.castle);
+					if(startSettings.playerID > 0)
+					{
+						player.setPlayerType(CMapGenerator::CPlayerSettings::HUMAN);
+					}
+					else if(startSettings.compOnly)
+					{
+						player.setPlayerType(CMapGenerator::CPlayerSettings::COMP_ONLY);
+					}
+					players[player.getColor()] = player;
+				}
+
+				// Gen map
+				CMapGenerator mapGen(*scenarioOps->mapGenOptions, players, scenarioOps->seedToBeUsed);
+				map = mapGen.generate().release();
+
+				// Update starting options
+				for(auto it = scenarioOps->playerInfos.begin(); it != scenarioOps->playerInfos.end();)
+				{
+					PlayerSettings & pSettings = it->second;
+					if(!(map->players[pSettings.color].canHumanPlay || map->players[pSettings.color].canComputerPlay))
+					{
+						scenarioOps->playerInfos.erase(it++);
+					}
+					else
+					{
+						pSettings.compOnly = !(map->players[pSettings.color].canHumanPlay);
+						pSettings.team = map->players[pSettings.color].team;
+						pSettings.castle = map->players[pSettings.color].defaultCastle();
+						++it;
+					}
+				}
 			}
 			else
 			{
@@ -901,7 +941,6 @@ void CGameState::init(StartInfo * si)
 	}
 	VLC->arth->initAllowedArtifactsList(map->allowedArtifact);
 	tlog0 << "Map loaded!" << std::endl;
-
 
 	//tlog0 <<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
 	tlog0 << "\tOur checksum for the map: "<< map->checksum << std::endl;
