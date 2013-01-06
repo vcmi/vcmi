@@ -3355,7 +3355,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 					auto heroDummy = hero;
 					erase_if(otherHeroes, [heroDummy](const CGHeroInstance * h)
 					{
-						return (h == heroDummy.h || !ai->isAccessibleForHero(heroDummy->pos, h, true) || !ai->canGetArmy(heroDummy.h, h));
+						return (h == heroDummy.h || !ai->isAccessibleForHero(heroDummy->visitablePos(), h, true) || !ai->canGetArmy(heroDummy.h, h));
 					});
 					if (otherHeroes.size())
 					{
@@ -3363,9 +3363,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 						int primaryPath, secondaryPath;
 						auto h = otherHeroes.back();
 						cb->setSelection(hero.h);
-						primaryPath = cb->getPathInfo(h->pos)->turns; //FIXME: investigate crash at this line
+						primaryPath = cb->getPathInfo(h->visitablePos())->turns;
 						cb->setSelection(h);
-						secondaryPath = cb->getPathInfo(hero->pos)->turns;
+						secondaryPath = cb->getPathInfo(hero->visitablePos())->turns;
 
 						if (primaryPath < secondaryPath)
 							return CGoal(VISIT_HERO).setisAbstract(true).setobjid(h->id).sethero(hero); //go to the other hero if we are faster
@@ -3533,7 +3533,7 @@ void SectorMap::exploreNewSector(crint3 pos, int num)
 						}
 					});
 					if(t->visitable && vstd::contains(ai->knownSubterraneanGates, t->visitableObjects.front()))
-						toVisit.push(ai->knownSubterraneanGates[t->visitableObjects.front()]->pos);
+						toVisit.push(ai->knownSubterraneanGates[t->visitableObjects.front()]->visitablePos());
 				}
 			}
 		}
@@ -3805,7 +3805,7 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 					else
 					{
 						//TODO pick best shipyard to take over
-						return shipyards.front()->o->pos;
+						return shipyards.front()->o->visitablePos();
 					}
 				}
 			}

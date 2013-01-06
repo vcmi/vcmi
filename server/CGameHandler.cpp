@@ -1918,19 +1918,20 @@ void CGameHandler::takeCreatures(int objid, const std::vector<CStackBasicDescrip
 		TQuantity collected = 0;
 		while(collected < sbd.count)
 		{
-			TSlots::const_iterator i = obj->Slots().begin();
-			for(; i != obj->Slots().end(); i++)
+			bool foundSth = false;
+			for(auto i = obj->Slots().begin(); i != obj->Slots().end(); i++)
 			{
 				if(i->second->type == sbd.type)
 				{
 					TQuantity take = std::min(sbd.count - collected, i->second->count); //collect as much cres as we can
 					changeStackCount(StackLocation(obj, i->first), -take, false);
 					collected += take;
+					foundSth = true;
 					break;
 				}
 			}
 
-			if(i ==  obj->Slots().end()) //we went through the whole loop and haven't found appropriate cres
+			if(!foundSth) //we went through the whole loop and haven't found appropriate cres
 			{
 				complain("Unexpected failure during taking creatures!");
 				return;
