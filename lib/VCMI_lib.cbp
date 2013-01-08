@@ -9,7 +9,7 @@
 		<Build>
 			<Target title="Debug">
 				<Option platforms="Windows;" />
-				<Option output="../bin/Debug/VCMI_lib" prefix_auto="0" extension_auto="1" />
+				<Option output="../VCMI_lib" prefix_auto="0" extension_auto="1" />
 				<Option object_output="../obj/Debug/Lib" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -21,7 +21,7 @@
 			</Target>
 			<Target title="Release">
 				<Option platforms="Windows;" />
-				<Option output="../bin/Release/VCMI_lib" prefix_auto="0" extension_auto="1" />
+				<Option output="../VCMI_lib" prefix_auto="0" extension_auto="1" />
 				<Option object_output="../obj/Release/Lib" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -101,6 +101,7 @@
 		<Unit filename="CObjectHandler.h" />
 		<Unit filename="CObstacleInstance.cpp" />
 		<Unit filename="CObstacleInstance.h" />
+		<Unit filename="CRandomGenerator.h" />
 		<Unit filename="CScriptingModule.h" />
 		<Unit filename="CSpellHandler.cpp" />
 		<Unit filename="CSpellHandler.h" />
@@ -144,6 +145,8 @@
 		<Unit filename="Mapping/CCampaignHandler.h" />
 		<Unit filename="Mapping/CMap.cpp" />
 		<Unit filename="Mapping/CMap.h" />
+		<Unit filename="Mapping/CMapEditManager.cpp" />
+		<Unit filename="Mapping/CMapEditManager.h" />
 		<Unit filename="Mapping/CMapInfo.cpp" />
 		<Unit filename="Mapping/CMapInfo.h" />
 		<Unit filename="Mapping/CMapService.cpp" />
@@ -152,6 +155,8 @@
 		<Unit filename="NetPacksLib.cpp" />
 		<Unit filename="RMG/CMapGenOptions.cpp" />
 		<Unit filename="RMG/CMapGenOptions.h" />
+		<Unit filename="RMG/CMapGenerator.cpp" />
+		<Unit filename="RMG/CMapGenerator.h" />
 		<Unit filename="RegisterTypes.h" />
 		<Unit filename="ResourceSet.cpp" />
 		<Unit filename="ResourceSet.h" />
