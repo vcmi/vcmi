@@ -258,7 +258,7 @@ CMapEditManager::ValidationResult CMapEditManager::validateTerrainView(int posx,
 			const std::pair<std::string, int> & rulePair = pattern.data[i][j];
 			const std::string & rule = rulePair.first;
 			bool isNative = (rule == TerrainViewPattern::RULE_NATIVE || rule == TerrainViewPattern::RULE_ANY) && !isAlien;
-			auto validationRslt = [&](bool rslt)
+			auto validationRslt = [&](bool rslt) -> bool
 			{
 				if(rslt)
 				{
