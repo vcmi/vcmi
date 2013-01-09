@@ -289,7 +289,7 @@ int CMapGenerator::countHumanPlayers() const
 {
 	return static_cast<int>(std::count_if(players.begin(), players.end(), [](const std::pair<TPlayerColor, CPlayerSettings> & pair)
 	{
-		return pair.second.getPlayerType() == CPlayerSettings::HUMAN;
+		return pair.second.getPlayerType() == CMapGenerator::CPlayerSettings::HUMAN;
 	}));
 }
 
