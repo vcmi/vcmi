@@ -51,19 +51,18 @@ public:
 	std::string name;
 	std::string description;
 
-	/// priority in which this mod should be loaded
-	/// may be somewhat ignored to load required mods first or overriden by user
-	double loadPriority;
+	/// list of mods that should be loaded before this one
+	std::set <TModID> dependencies;
 
-	/// TODO: list of mods that should be loaded before this one
-	std::set <TModID> requirements;
+	/// list of mods that can't be used in the same time as this one
+	std::set <TModID> conflicts;
 
 	// mod configuration (mod.json). (no need to store it right now)
 	// std::shared_ptr<JsonNode> config; //TODO: unique_ptr can't be serialized
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & requirements;
+		h & identifier & description & name & dependencies & conflicts;
 	}
 };
 
@@ -73,6 +72,18 @@ class DLL_LINKAGE CModHandler
 	std::vector <TModID> activeMods;//active mods, in order in which they were loaded
 
 	void loadConfigFromFile (std::string name);
+
+	bool hasCircularDependency(TModID mod, std::set <TModID> currentList = std::set <TModID>()) const;
+
+	//returns false if mod list is incorrec and prints error to console. Possible errors are:
+	// - missing dependency mod
+	// - conflicting mod in load order
+	// - circular dependencies
+	bool checkDependencies(const std::vector <TModID> & input) const;
+
+	// returns load order in which all dependencies are resolved, e.g. loaded after required mods
+	// function assumes that input list is valid (checkDependencies returned true)
+	std::vector <TModID> resolveDependencies(std::vector<TModID> input) const;
 public:
 	CIdentifierStorage identifiers;
 

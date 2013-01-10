@@ -6894,39 +6894,51 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 	}
 
 	//number of alignments and presence of undead
-	bool canMix = hasBonusOfType(Bonus::NONEVIL_ALIGNMENT_MIX);
-	std::set<si8> factions;
-	for(TSlots::const_iterator i=Slots().begin(); i!=Slots().end(); i++)
+	std::set<TFaction> factions;
+	bool hasUndead = false;
+
+	BOOST_FOREACH(auto slot, Slots())
 	{
-	 	// Take Angelic Alliance troop-mixing freedom of non-evil, non-Conflux units into account.
-	 	const si8 faction = i->second->type->faction;
-	 	if (canMix
-	 		&& ((faction >= 0 && faction <= 2) || faction == 6 || faction == 7))
-	 	{
-	 		factions.insert(0); // Insert a single faction of the affected group, Castle will do.
-	 	}
-	 	else
-	 	{
-	 		factions.insert(faction);
-	 	}
+		const CStackInstance * inst = slot.second;
+		const CCreature * creature  = VLC->creh->creatures[inst->getCreatureID()];
+
+		factions.insert(creature->faction);
+		// Check for undead flag instead of faction (undead mummies are neutral)
+		hasUndead |= inst->hasBonusOfType(Bonus::UNDEAD);
 	}
 
-	if(factions.size() == 1)
+	size_t factionsInArmy = factions.size();
+
+	// Take Angelic Alliance troop-mixing freedom of non-evil units into account.
+	if (hasBonusOfType(Bonus::NONEVIL_ALIGNMENT_MIX))
+	{
+		size_t mixableFactions = 0;
+
+		BOOST_FOREACH(TFaction f, factions)
+		{
+			if (VLC->townh->factions[f].alignment != EAlignment::EVIL)
+				mixableFactions++;
+		}
+		if (mixableFactions > 0)
+			factionsInArmy -= mixableFactions - 1;
+	}
+
+	if(factionsInArmy == 1)
 	{
 		b->val = +1;
 		b->description = VLC->generaltexth->arraytxt[115]; //All troops of one alignment +1
 	}
 	else
 	{
-	 	b->val = 2-factions.size();
-		b->description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factions.size() % b->val); //Troops of %d alignments %d
+	 	b->val = 2 - factionsInArmy;
+		b->description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d
 	}
 	boost::algorithm::trim(b->description);
 
-	//-1 modifier for any Necropolis unit in army
+	//-1 modifier for any Undead unit in army
 	const ui8 UNDEAD_MODIFIER_ID = -2;
 	Bonus *undeadModifier = getBonusList().getFirst(Selector::source(Bonus::ARMY, UNDEAD_MODIFIER_ID));
- 	if(vstd::contains(factions, ETownType::NECROPOLIS))
+ 	if(hasUndead)
 	{
 		if(!undeadModifier)
 			addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, -1, UNDEAD_MODIFIER_ID, VLC->generaltexth->arraytxt[116]));

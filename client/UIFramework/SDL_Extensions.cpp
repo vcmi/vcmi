@@ -194,13 +194,20 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y
 
 void CSDL_Ext::alphaTransform(SDL_Surface *src)
 {
-	//NOTE: colors #7 & #8 used in some of WoG objects. Don't know how they're handled by H3
 	assert(src->format->BitsPerPixel == 8);
-	SDL_Color colors[] = {{0,0,0,0}, {0,0,0,32}, {0,0,0,64}, {0,0,0,128}, {0,0,0,128},
-						{255,255,255,0}, {255,255,255,0}, {255,255,255,0}, {0,0,0,192}, {0,0,0,192}};
+	SDL_Color colors[] =
+	{
+	    {  0,   0,  0,   0}, {  0,   0,   0,  32}, {  0,   0,   0,  64},
+	    {  0,   0,  0, 128}, {  0,   0,   0, 128}
+	};
 
-	SDL_SetColors(src, colors, 0, ARRAY_COUNT(colors));
-	SDL_SetColorKey(src, SDL_SRCCOLORKEY, SDL_MapRGBA(src->format, 0, 0, 0, 255));
+
+	for (size_t i=0; i< ARRAY_COUNT(colors); i++ )
+	{
+		SDL_Color & palColor = src->format->palette->colors[i];
+		palColor = colors[i];
+	}
+	SDL_SetColorKey(src, SDL_SRCCOLORKEY, 0);
 }
 
 static void prepareOutRect(SDL_Rect *src, SDL_Rect *dst, const SDL_Rect & clip_rect)

@@ -5911,20 +5911,20 @@ void CWindowWithArtifacts::artifactRemoved(const ArtifactLocation &artLoc)
 
 void CWindowWithArtifacts::artifactMoved(const ArtifactLocation &artLoc, const ArtifactLocation &destLoc)
 {
-    CArtifactsOfHero *destaoh = NULL;
+	CArtifactsOfHero *destaoh = NULL;
 	BOOST_FOREACH(CArtifactsOfHero *aoh, artSets)
-    {
+	{
 		aoh->artifactMoved(artLoc, destLoc);
-        aoh->redraw();
-        if(destLoc.isHolder(aoh->getHero()))
-            destaoh = aoh;
-    }
+		aoh->redraw();
+		if(destLoc.isHolder(aoh->getHero()))
+			destaoh = aoh;
+	}
 
-    //Make sure the status bar is updated so it does not display old text
-    if(destaoh != NULL)
-    {
-        destaoh->getArtPlace(destLoc.slot)->hover(true);
-    }
+	//Make sure the status bar is updated so it does not display old text
+	if(destaoh != NULL && destaoh->getArtPlace(destLoc.slot) != NULL)
+	{
+		destaoh->getArtPlace(destLoc.slot)->hover(true);
+	}
 }
 
 void CWindowWithArtifacts::artifactDisassembled(const ArtifactLocation &artLoc)

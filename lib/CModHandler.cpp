@@ -115,37 +115,155 @@ void CModHandler::loadConfigFromFile (std::string name)
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
 }
 
+// currentList is passed by value to get current list of depending mods
+bool CModHandler::hasCircularDependency(TModID modID, std::set <TModID> currentList) const
+{
+	const CModInfo & mod = allMods.at(modID);
+
+	// Mod already present? We found a loop
+	if (vstd::contains(currentList, modID))
+	{
+		tlog0 << "Error: Circular dependency detected! Printing dependency list:\n";
+		tlog0 << "\t" << mod.name << " -> \n";
+		return true;
+	}
+
+	currentList.insert(modID);
+
+	// recursively check every dependency of this mod
+	BOOST_FOREACH(const TModID & dependency, mod.dependencies)
+	{
+		if (hasCircularDependency(dependency, currentList))
+		{
+			tlog0 << "\t" << mod.name << " ->\n"; // conflict detected, print dependency list
+			return true;
+		}
+	}
+	return false;
+}
+
+bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
+{
+	BOOST_FOREACH(const TModID & id, input)
+	{
+		const CModInfo & mod = allMods.at(id);
+
+		BOOST_FOREACH(const TModID & dep, mod.dependencies)
+		{
+			if (!vstd::contains(input, dep))
+			{
+				tlog0 << "Error: Mod " << mod.name << " requires missing " << dep << "!\n";
+				return false;
+			}
+		}
+
+		BOOST_FOREACH(const TModID & conflicting, mod.conflicts)
+		{
+			if (vstd::contains(input, conflicting))
+			{
+				tlog0 << "Error: Mod " << mod.name << " conflicts with " << allMods.at(conflicting).name << "!\n";
+				return false;
+			}
+		}
+
+		if (hasCircularDependency(id))
+			return false;
+	}
+	return true;
+}
+
+std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input) const
+{
+	// Algorithm may not be the fastest one but VCMI does not needs any speed here
+	// Unless user have dozens of mods with complex dependencies this cide should be fine
+
+	std::vector <TModID> output;
+	output.reserve(input.size());
+
+	std::set <TModID> resolvedMods;
+
+	// Check if all mod dependencies are resolved (moved to resolvedMods)
+	auto isResolved = [&](const CModInfo mod) -> bool
+	{
+		BOOST_FOREACH(const TModID & dependency, mod.dependencies)
+		{
+			if (!vstd::contains(resolvedMods, dependency))
+				return false;
+		}
+		return true;
+	};
+
+	while (!input.empty())
+	{
+		for (auto it = input.begin(); it != input.end();)
+		{
+			if (isResolved(allMods.at(*it)))
+			{
+				resolvedMods.insert(*it);
+				output.push_back(*it);
+				it = input.erase(it);
+				continue;
+			}
+			it++;
+		}
+	}
+
+	return output;
+}
+
 void CModHandler::initialize(std::vector<std::string> availableMods)
 {
-	BOOST_FOREACH(std::string &name, availableMods)
+	JsonNode modConfig(ResourceID("config/modSettings.json"));
+	const JsonNode & modList = modConfig["activeMods"];
+	JsonNode resultingList;
+
+	std::vector <TModID> detectedMods;
+
+	BOOST_FOREACH(std::string name, availableMods)
 	{
+		boost::to_lower(name);
 		std::string modFileName = "mods/" + name + "/mod.json";
 
 		if (CResourceHandler::get()->existsResource(ResourceID(modFileName)))
 		{
 			const JsonNode config = JsonNode(ResourceID(modFileName));
 
-			if (!config.isNull())
-			{
-				allMods[name].identifier = name;
-				allMods[name].name = config["name"].String();
-				allMods[name].description = config["description"].String();
-				allMods[name].loadPriority = config["priority"].Float();
-				activeMods.push_back(name);
+			if (config.isNull())
+				continue;
 
-				tlog1 << "\t\tMod ";
-				tlog2 << allMods[name].name;
-				tlog1 << " enabled\n";
+			if (!modList[name].isNull() && modList[name].Bool() == false )
+			{
+				resultingList[name].Bool() = false;
+				continue; // disabled mod
 			}
+			resultingList[name].Bool() = true;
+
+			CModInfo & mod = allMods[name];
+
+			mod.identifier = name;
+			mod.name = config["name"].String();
+			mod.description =  config["description"].String();
+			mod.dependencies = config["depends"].convertTo<std::set<std::string> >();
+			mod.conflicts =    config["conflicts"].convertTo<std::set<std::string> >();
+			detectedMods.push_back(name);
 		}
 		else
 			tlog1 << "\t\t Directory " << name << " does not contains VCMI mod\n";
 	}
 
-	std::sort(activeMods.begin(), activeMods.end(), [&](std::string a, std::string b)
+	if (!checkDependencies(detectedMods))
 	{
-		return allMods[a].loadPriority < allMods[b].loadPriority;
-	});
+		tlog0 << "Critical error: failed to load mods! Exiting...\n";
+		exit(1);
+	}
+
+	activeMods = resolveDependencies(detectedMods);
+
+	modConfig["activeMods"] = resultingList;
+	CResourceHandler::get()->createResource("CONFIG/modSettings.json");
+
+	std::ofstream file(CResourceHandler::get()->getResourceName(ResourceID("config/modSettings.json")), std::ofstream::trunc);
+	file << modConfig;
 }
 
 
@@ -162,8 +280,11 @@ void handleData(Handler handler, const JsonNode & config)
 
 void CModHandler::loadActiveMods()
 {
-	BOOST_FOREACH(std::string & modName, activeMods)
+	BOOST_FOREACH(const TModID & modName, activeMods)
 	{
+		tlog1 << "\t\tLoading mod ";
+		tlog2 << allMods[modName].name << "\n";
+
 		std::string modFileName = "mods/" + modName + "/mod.json";
 
 		const JsonNode config = JsonNode(ResourceID(modFileName));

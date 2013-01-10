@@ -176,6 +176,20 @@ namespace JsonDetail
 	};
 
 	template<typename Type>
+	struct JsonConverter<std::set<Type> >
+	{
+		static std::set<Type> convert(const JsonNode & node)
+		{
+			std::set<Type> ret;
+			BOOST_FOREACH(auto entry, node.Vector())
+			{
+				ret.insert(entry.convertTo<Type>());
+			}
+			return ret;
+		}
+	};
+
+	template<typename Type>
 	struct JsonConverter<std::vector<Type> >
 	{
 		static std::vector<Type> convert(const JsonNode & node)
