@@ -1,3 +1,13 @@
+/*
+ * CObjectHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 #include "StdInc.h"
 #include "CObjectHandler.h"
 
@@ -25,16 +35,6 @@
 
 using namespace boost::assign;
 
-/*
- * CObjectHandler.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
-
 // It looks that we can't rely on shadowCoverage correctness (Mantis #866). This may result
 // in notable performance decrease (SDL blit with custom alpha blit) not notable on my system (Ivan)
 #define USE_COVERAGE_MAP 0
@@ -52,6 +52,38 @@ std::map<ui8, ui8> CGObelisk::visited; //map: team_id => how many obelisks has b
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
 
+///helpers
+static void openWindow(const OpenWindow::EWindow type, const ui32 id1, const ui32 id2 = 0)
+{
+	OpenWindow ow;
+	ow.window = type;
+	ow.id1 = id1;
+	ow.id2 = id2;
+	IObjectInterface::cb->sendAndApply(&ow);
+}
+
+static void showInfoDialog(const TPlayerColor playerID, const ui32 txtID, const ui16 soundID)
+{
+	InfoWindow iw;
+	iw.soundID = soundID;
+	iw.player = playerID;
+	iw.text.addTxt(MetaString::ADVOB_TXT,txtID);
+	IObjectInterface::cb->sendAndApply(&iw);
+}
+
+static void showInfoDialog(const int heroID, const ui32 txtID, const ui16 soundID)
+{
+	const TPlayerColor playerID = IObjectInterface::cb->getOwner(heroID);
+	showInfoDialog(playerID,txtID,soundID);
+}
+
+static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID)
+{
+	const TPlayerColor playerID = h->getOwner();
+	showInfoDialog(playerID,txtID,soundID);
+}
+
+///IObjectInterface
 void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const
 {}
 
@@ -457,29 +489,18 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 	{
 	case Obj::HILL_FORT:
 		{
-			OpenWindow ow;
-			ow.window = OpenWindow::HILL_FORT_WINDOW;
-			ow.id1 = id;
-			ow.id2 = h->id;
-			cb->sendAndApply(&ow);
+			openWindow(OpenWindow::HILL_FORT_WINDOW,id,h->id);
 		}
 		break;
 	case Obj::SANCTUARY:
 		{
-			InfoWindow iw;
-			iw.player = h->tempOwner;
-			iw.soundID = soundBase::GETPROTECTION;
-			iw.text.addTxt(MetaString::ADVOB_TXT, 114);  //You enter the sanctuary and immediately feel as if a great weight has been lifted off your shoulders.  You feel safe here.
-			cb->sendAndApply(&iw);
+			//You enter the sanctuary and immediately feel as if a great weight has been lifted off your shoulders.  You feel safe here.
+			showInfoDialog(h,114,soundBase::GETPROTECTION);
 		}
 		break;
 	case Obj::TAVERN:
 		{
-			OpenWindow ow;
-			ow.window = OpenWindow::TAVERN_WINDOW;
-			ow.id1 = h->id;
-			ow.id2 = id;
-			cb->sendAndApply(&ow);
+			openWindow(OpenWindow::TAVERN_WINDOW,h->id,id);
 		}
 		break;
 	}
@@ -878,9 +899,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else if(ID == Obj::PRISON)
 	{
-		InfoWindow iw;
-		iw.player = h->tempOwner;
-		iw.soundID = soundBase::ROGUE;
+		int txt_id;
 
 		if(cb->getHeroCount(h->tempOwner,false) < 8) //free hero slot
 		{
@@ -888,14 +907,14 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 			cb->setObjProperty(id, ObjProperty::ID, Obj::HERO); //set ID to 34
 			cb->giveHero(id,h->tempOwner); //recreates def and adds hero to player
 
-			iw.text << std::pair<ui8,ui32>(11,102);
+			txt_id = 102;
 		}
 		else //already 8 wandering heroes
 		{
-			iw.text << std::pair<ui8,ui32>(11,103);
+			txt_id = 103;
 		}
 
-		cb->showInfoDialog(&iw);
+		showInfoDialog(h,txt_id,soundBase::ROGUE);
 	}
 }
 
@@ -1634,9 +1653,8 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 
 	if( !relations  &&  stacksCount() > 0) //object is guarded, owned by enemy
 	{
-		BlockingDialog bd;
+		BlockingDialog bd(true,false);
 		bd.player = h->tempOwner;
-		bd.flags = BlockingDialog::ALLOW_CANCEL;
 		bd.text.addTxt(MetaString::GENERAL_TXT, 421); //Much to your dismay, the %s is guarded by %s %s. Do you wish to fight the guards?
 		bd.text.addReplacement(ID == Obj::CREATURE_GENERATOR1 ? MetaString::CREGENS : MetaString::CREGENS4, subID);
 		bd.text.addReplacement(MetaString::ARRAY_TXT, 176 + Slots().begin()->second->getQuantityID()*3);
@@ -1650,9 +1668,8 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		cb->setOwner(id, h->tempOwner);
 	}
 
-	BlockingDialog bd;
+	BlockingDialog bd (true,false);
 	bd.player = h->tempOwner;
-	bd.flags = BlockingDialog::ALLOW_CANCEL;
 	if(ID == Obj::CREATURE_GENERATOR1 || ID == Obj::CREATURE_GENERATOR4)
 	{
 		bd.text.addTxt(MetaString::ADVOB_TXT, ID == Obj::CREATURE_GENERATOR1 ? 35 : 36); //{%s} Would you like to recruit %s? / {%s} Would you like to recruit %s, %s, %s, or %s?
@@ -2557,7 +2574,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 		sound = soundBase::gazebo;
 		id = Component::EXPERIENCE;
 		subid = 1;
-		ot = 146;
+		ot = 147;
 		val = 1;
 		break;
 	case Obj::LIBRARY_OF_ENLIGHTENMENT:
@@ -2581,7 +2598,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 			{
 				BlockingDialog sd(false,true);
 				sd.soundID = sound;
-				sd.text << std::pair<ui8,ui32>(11,ot);
+				sd.text.addTxt(MetaString::ADVOB_TXT,ot);
 				sd.components.push_back(Component(Component::PRIM_SKILL, PrimarySkill::ATTACK, 2, 0));
 				sd.components.push_back(Component(Component::PRIM_SKILL, PrimarySkill::DEFENSE, 2, 0));
 				sd.player = cb->getOwner(heroID);
@@ -2597,7 +2614,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				InfoWindow iw;
 				iw.soundID = sound;
 				iw.components.push_back(Component(Component::PRIM_SKILL, subid,val,0));
-				iw.text << std::pair<ui8,ui32>(11,ot);
+				iw.text.addTxt(MetaString::ADVOB_TXT,ot);
 				iw.player = cb->getOwner(heroID);
 				cb->showInfoDialog(&iw);
 				break;
@@ -2610,7 +2627,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				iw.soundID = sound;
 				iw.components.push_back(Component(id,subid,val,0));
 				iw.player = cb->getOwner(heroID);
-				iw.text << std::pair<ui8,ui32>(11,ot);
+				iw.text.addTxt(MetaString::ADVOB_TXT,ot);
 				iw.soundID = soundBase::gazebo;
 				cb->showInfoDialog(&iw);
 				cb->changePrimSkill(heroID,4,val);
@@ -2627,7 +2644,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 					iw.soundID = sound;
 					iw.components.push_back(Component(id,subid,1,0));
 					iw.player = cb->getOwner(heroID);
-					iw.text << std::pair<ui8,ui32>(11,148);
+					iw.text.addTxt(MetaString::ADVOB_TXT,148);
 					cb->showInfoDialog(&iw);
 					cb->changePrimSkill(heroID,4,val);
 					break;
@@ -2638,13 +2655,13 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 					TExpType resval;
 					if(ttype==1)
 					{
-						res = 6;
+						res = Res::GOLD;
 						resval = 2000;
 						ot = 149;
 					}
 					else
 					{
-						res = 5;
+						res = Res::GEMS;
 						resval = 10;
 						ot = 151;
 					}
@@ -2652,18 +2669,14 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 					if(cb->getResource(h->tempOwner,res) < resval) //not enough resources
 					{
 						ot++;
-						InfoWindow iw;
-						iw.soundID = sound;
-						iw.player = h->tempOwner;
-						iw.text << std::pair<ui8,ui32>(11,ot);
-						cb->showInfoDialog(&iw);
+						showInfoDialog(h,ot,sound);
 						return;
 					}
 
 					BlockingDialog sd (true, false);
 					sd.soundID = sound;
 					sd.player = cb->getOwner(heroID);
-					sd.text << std::pair<ui8,ui32>(11,ot);
+					sd.text.addTxt(MetaString::ADVOB_TXT,ot);
 					sd.components.push_back (Component (Component::RESOURCE, res, resval, 0));
 					cb->showBlockingDialog(&sd,boost::bind(&CGVisitableOPH::treeSelected,this,heroID,res,resval,val,_1));
 				}
@@ -2672,13 +2685,10 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 		case Obj::LIBRARY_OF_ENLIGHTENMENT:
 			{
 				const CGHeroInstance *h = cb->getHero(heroID);
+				int txt_id = 66;
 				if(h->level  <  10 - 2*h->getSecSkillLevel(CGHeroInstance::DIPLOMACY)) //not enough level
 				{
-					InfoWindow iw;
-					iw.soundID = sound;
-					iw.player = cb->getOwner(heroID);
-					iw.text << std::pair<ui8,ui32>(11,68);
-					cb->showInfoDialog(&iw);
+					txt_id += 2;
 				}
 				else
 				{
@@ -2687,12 +2697,8 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 					cb->changePrimSkill(heroID,1,2);
 					cb->changePrimSkill(heroID,2,2);
 					cb->changePrimSkill(heroID,3,2);
-					InfoWindow iw;
-					iw.soundID = sound;
-					iw.player = cb->getOwner(heroID);
-					iw.text << std::pair<ui8,ui32>(11,66);
-					cb->showInfoDialog(&iw);
 				}
+				showInfoDialog(h,txt_id,sound);
 				break;
 			}
 		case Obj::SCHOOL_OF_MAGIC:
@@ -2701,18 +2707,14 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				int skill = (ID==Obj::SCHOOL_OF_MAGIC ? 2 : 0);
 				if(cb->getResource(cb->getOwner(heroID),6) < 1000) //not enough resources
 				{
-					InfoWindow iw;
-					iw.soundID = sound;
-					iw.player = cb->getOwner(heroID);
-					iw.text << std::pair<ui8,ui32>(MetaString::ADVOB_TXT,ot+2);
-					cb->showInfoDialog(&iw);
+					showInfoDialog(heroID,ot+2,sound);
 				}
 				else
 				{
 					BlockingDialog sd(true,true);
 					sd.soundID = sound;
 					sd.player = cb->getOwner(heroID);
-					sd.text << std::pair<ui8,ui32>(11,ot);
+					sd.text.addTxt(MetaString::ADVOB_TXT,ot);
 					sd.components.push_back(Component(Component::PRIM_SKILL, skill, +1, 0));
 					sd.components.push_back(Component(Component::PRIM_SKILL, skill+1, +1, 0));
 					cb->showBlockingDialog(&sd,boost::bind(&CGVisitableOPH::schoolSelected,this,heroID,_1));
@@ -2724,11 +2726,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 	else
 	{
 		ot++;
-		InfoWindow iw;
-		iw.soundID = sound;
-		iw.player = cb->getOwner(heroID);
-		iw.text << std::pair<ui8,ui32>(11,ot);
-		cb->showInfoDialog(&iw);
+		showInfoDialog(heroID,ot,sound);
 	}
 }
 
@@ -2816,7 +2814,7 @@ void COPWBonus::setProperty(ui8 what, ui32 val)
 {
 	switch (what)
 	{
-		case 4:
+		case ObjProperty::VISITORS:
 			visitors.insert(val);
 			break;
 		case 12:
@@ -2900,7 +2898,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 						break;
 					case ETownType::DUNGEON://academy of battle scholars
 						what = 4;
-						val = 1000*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0;
+						val = h->calculateXp(1000);
 						mid = 583;
 						iw.components.push_back (Component(Component::EXPERIENCE, 0, val, 0));
 						break;
@@ -2934,7 +2932,9 @@ const std::string & CGCreature::getHoverText() const
 	MetaString ms;
 	int pom = stacks.begin()->second->getQuantityID();
 	pom = 172 + 3*pom;
-	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
+	ms.addTxt(MetaString::ARRAY_TXT,pom);
+	ms << " " ;
+	ms.addTxt(MetaString::CRE_PL_NAMES,subID);
 	ms.toString(hoverName);
 
 	if(const CGHeroInstance *selHero = cb->getSelectedHero(cb->getCurrentPlayer()))
@@ -2977,7 +2977,7 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
-			ynd.text << std::pair<ui8,ui32>(MetaString::ADVOB_TXT, 86);
+			ynd.text.addTxt(MetaString::ADVOB_TXT, 86);
 			ynd.text.addReplacement(MetaString::CRE_PL_NAMES, subID);
 			cb->showBlockingDialog(&ynd,boost::bind(&CGCreature::joinDecision,this,h,0,_1));
 			break;
@@ -3210,10 +3210,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 		}
 		else //they fight
 		{
-			InfoWindow iw;
-			iw.player = h->tempOwner;
-			iw.text << std::pair<ui8,ui32>(11,87);  //Insulted by your refusal of their offer, the monsters attack!
-			cb->showInfoDialog(&iw);
+			showInfoDialog(h,87,0);//Insulted by your refusal of their offer, the monsters attack!
 			fight(h);
 		}
 	}
@@ -3313,7 +3310,7 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 {
 	BlockingDialog ynd(true,false);
 	ynd.player = h->tempOwner;
-	ynd.text << std::pair<ui8,ui32>(11,91);
+	ynd.text.addTxt(MetaString::ADVOB_TXT,91);
 	ynd.text.addReplacement(MetaString::CRE_PL_NAMES, subID);
 	cb->showBlockingDialog(&ynd,boost::bind(&CGCreature::fleeDecision,this,h,_1));
 }
@@ -3334,7 +3331,7 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		BlockingDialog ynd(true,false);
 		ynd.player = h->tempOwner;
-		ynd.text << std::pair<ui8,ui32>(MetaString::ADVOB_TXT, subID == 7 ? 84 : 187);
+		ynd.text.addTxt(MetaString::ADVOB_TXT, subID == 7 ? 84 : 187);
 		cb->showBlockingDialog(&ynd,boost::bind(&CGMine::fight, this, _1, h));
 		return;
 	}
@@ -3401,11 +3398,7 @@ void CGMine::endBattle(BattleResult *result, ui8 attackingPlayer) const
 	{
 		if(subID == 7)
 		{
-			InfoWindow iw;
-			iw.player = attackingPlayer;
-			iw.text.addTxt(MetaString::ADVOB_TXT, 85);
-			cb->showInfoDialog(&iw);
-
+			showInfoDialog(attackingPlayer,85,0);
 		}
 		flagMine(attackingPlayer);
 	}
@@ -3437,7 +3430,7 @@ ui32 CGMine::defaultResProduction()
 {
 	switch(producedResource)
 	{
-	case Res::WOOD: 
+	case Res::WOOD:
 	case Res::ORE:
 		return 2;
 	case Res::GOLD:
@@ -3504,7 +3497,7 @@ void CGResource::collectRes( int player ) const
 	ShowInInfobox sii;
 	sii.player = player;
 	sii.c = Component(Component::RESOURCE,subID,amount,0);
-	sii.text << std::pair<ui8,ui32>(11,113);
+	sii.text.addTxt(MetaString::ADVOB_TXT,113);
 	sii.text.addReplacement(MetaString::RES_NAMES, subID);
 	cb->showCompInfo(&sii);
 	cb->removeObject(id);
@@ -3563,12 +3556,7 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 			mid++;
 		else
 			mid--;
-
-		InfoWindow iw;
-		iw.soundID = sound;
-		iw.player = h->tempOwner;
-		iw.text << std::pair<ui8,ui32>(11,mid);
-		cb->showInfoDialog(&iw);
+		showInfoDialog(h,mid,sound);
 	}
 	else
 	{
@@ -3607,7 +3595,7 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 		iw.soundID = sound;
 		iw.player = h->tempOwner;
 		iw.components.push_back(Component(type,sub,val,0));
-		iw.text << std::pair<ui8,ui32>(11,mid);
+		iw.text.addTxt(MetaString::ADVOB_TXT,mid);
 		cb->showInfoDialog(&iw);
 		cb->setObjProperty(id, ObjProperty::VISITED, true);
 		MetaString ms; //set text to "visited"
@@ -3675,10 +3663,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 			destinationid = getMatchingGate(id);
 			if(destinationid < 0) //no exit
 			{
-				InfoWindow iw;
-				iw.player = h->tempOwner;
-				iw.text.addTxt(MetaString::ADVOB_TXT, 153);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
-				cb->sendAndApply(&iw);
+				showInfoDialog(h,153,0);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
 			}
 			break;
 		}
@@ -3960,7 +3945,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			iw.player = h->tempOwner;
 			iw.components.push_back(Component(Component::RESOURCE,Res::GOLD,val1,0));
 			iw.components.push_back(Component(Component::RESOURCE,type,val2,0));
-			iw.text << std::pair<ui8,ui32>(11,23);
+			iw.text.addTxt(MetaString::ADVOB_TXT,23);
 			cb->showInfoDialog(&iw);
 			break;
 		}
@@ -4030,7 +4015,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 				iw.soundID = soundBase::treasure;
 				iw.player = h->tempOwner;
 				iw.components.push_back(Component(Component::ARTIFACT,val1,1,0));
-				iw.text << std::pair<ui8,ui32>(11,145);
+				iw.text.addTxt(MetaString::ADVOB_TXT,145);
 				iw.text.addReplacement(MetaString::ART_NAMES, val1);
 				cb->showInfoDialog(&iw);
 				break;
@@ -4039,7 +4024,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			{
 				BlockingDialog sd(false,true);
 				sd.player = h->tempOwner;
-				sd.text << std::pair<ui8,ui32>(11,146);
+				sd.text.addTxt(MetaString::ADVOB_TXT,146);
 				sd.components.push_back(Component(Component::RESOURCE,Res::GOLD,val1,0));
 				TExpType expVal = h->calculateXp(val2);
 				sd.components.push_back(Component(Component::EXPERIENCE,0,expVal, 0));
@@ -4771,18 +4756,18 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 
 	if(h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(ability))) //you alredy know this skill
 	{
-		iw.text << std::pair<ui8,ui32>(11,172);
+		iw.text.addTxt(MetaString::ADVOB_TXT,172);
 		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
 	}
 	else if(!h->canLearnSkill()) //already all skills slots used
 	{
-		iw.text << std::pair<ui8,ui32>(11,173);
+		iw.text.addTxt(MetaString::ADVOB_TXT,173);
 		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
 	}
 	else //give sec skill
 	{
 		iw.components.push_back(Component(Component::SEC_SKILL, ability, 1, 0));
-		iw.text << std::pair<ui8,ui32>(11,171);
+		iw.text.addTxt(MetaString::ADVOB_TXT,171);
 		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
 		cb->changeSecSkill(h->id,ability,1,true);
 	}
@@ -4990,7 +4975,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		}
 	}
 	iw.soundID = sound;
-	iw.text << std::pair<ui8,ui32>(11,messageID);
+	iw.text.addTxt(MetaString::ADVOB_TXT,messageID);
 	cb->showInfoDialog(&iw);
 }
 
@@ -5019,9 +5004,7 @@ void CGBonusingObject::initObj()
 void CGMagicSpring::onHeroVisit(const CGHeroInstance * h) const
 {
 	int messageID;
-	InfoWindow iw;
-	iw.player = h->tempOwner;
-	iw.soundID = soundBase::GENIE;
+
 	if (!visited)
 	{
 		if (h->mana > h->manaLimit())
@@ -5035,8 +5018,7 @@ void CGMagicSpring::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else
 		messageID = 75;
-	iw.text << std::pair<ui8,ui32>(11,messageID);
-	cb->showInfoDialog(&iw);
+	showInfoDialog(h,messageID,soundBase::GENIE);
 }
 
 const std::string & CGMagicSpring::getHoverText() const
@@ -5052,12 +5034,10 @@ const std::string & CGMagicSpring::getHoverText() const
 void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
 {
 	int message;
-	InfoWindow iw;
-	iw.soundID = soundBase::faerie;
-	iw.player = h->tempOwner;
+
 	if(h->hasBonusFrom(Bonus::OBJECT,ID)) //has already visited Well today
 	{
-		message = 78;
+		message = 78;//"A second drink at the well in one day will not help you."
 	}
 	else if(h->mana < h->manaLimit())
 	{
@@ -5069,8 +5049,7 @@ void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		message = 79;
 	}
-	iw.text << std::pair<ui8,ui32>(11,message); //"A second drink at the well in one day will not help you."
-	cb->showInfoDialog(&iw);
+	showInfoDialog(h,message,soundBase::faerie);
 }
 
 const std::string & CGMagicWell::getHoverText() const
@@ -5099,10 +5078,7 @@ void CGPandoraBox::open( const CGHeroInstance * h, ui32 accept ) const
 	{
 		if (stacksCount() > 0) //if pandora's box is protected by army
 		{
-			InfoWindow iw;
-			iw.player = h->tempOwner;
-			iw.text.addTxt(MetaString::ADVOB_TXT, 16);
-			cb->showInfoDialog(&iw);
+			showInfoDialog(h,16,0);
 			cb->startBattleI(h, this, boost::bind(&CGPandoraBox::endBattle, this, h, _1)); //grants things after battle
 		}
 		else if (message.size() == 0 && resources.size() == 0
@@ -5111,11 +5087,8 @@ void CGPandoraBox::open( const CGHeroInstance * h, ui32 accept ) const
 				&& spells.size() == 0 && creatures.Slots().size() > 0
 				&& gainedExp == 0 && manaDiff == 0 && moraleDiff == 0 && luckDiff == 0) //if it gives nothing without battle
 		{
-			InfoWindow iw;
-			iw.player = h->tempOwner;
-			iw.text.addTxt(MetaString::ADVOB_TXT, 15);
-			cb->showInfoDialog(&iw);
-
+			showInfoDialog(h,15,0);
+			cb->removeObject(id);
 		}
 		else //if it gives something without battle
 		{
@@ -6309,17 +6282,15 @@ bool CGKeymasterTent::wasVisited (ui8 player) const
 
 void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 {
-	InfoWindow iw;
-	iw.soundID = soundBase::CAVEHEAD;
-	iw.player = h->getOwner();
+	int txt_id;
 	if (!wasMyColorVisited (h->getOwner()) )
 	{
 		cb->setObjProperty(id, h->tempOwner+101, subID);
-		iw.text << std::pair<ui8,ui32>(11,19);
+		txt_id=19;
 	}
 	else
-		iw.text << std::pair<ui8,ui32>(11,20);
-    cb->showInfoDialog(&iw);
+		txt_id=20;
+    showInfoDialog(h,txt_id,soundBase::CAVEHEAD);
 }
 
 void CGBorderGuard::initObj()
@@ -6366,11 +6337,7 @@ void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		InfoWindow iw;
-		iw.player = h->getOwner();
-		iw.soundID = soundBase::CAVEHEAD;
-		iw.text << std::pair<ui8,ui32>(11,18);
-		cb->showInfoDialog (&iw);
+		showInfoDialog(h,18,soundBase::CAVEHEAD);
 
 		AddQuest aq;
 		aq.quest = QuestInfo (quest, this, visitablePos());
@@ -6390,10 +6357,7 @@ void CGBorderGate::onHeroVisit( const CGHeroInstance * h ) const //TODO: passabi
 {
 	if (!wasMyColorVisited (h->getOwner()) )
 	{
-		InfoWindow iw;
-		iw.player = h->getOwner();
-		iw.text << std::pair<ui8,ui32>(11,18);
-		cb->showInfoDialog(&iw);
+		showInfoDialog(h,18,0);
 
 		AddQuest aq;
 		aq.quest = QuestInfo (quest, this, visitablePos());
@@ -6422,15 +6386,11 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 {
 	if (ID == Obj::HUT_OF_MAGI)
 	{
-		InfoWindow iw;
 		CenterView cv;
 		FoWChange fw;
-		cv.player = iw.player = fw.player = h->tempOwner;
+		cv.player = fw.player = h->tempOwner;
 
-		iw.soundID = soundBase::LIGHTHOUSE;
-		iw.player = h->tempOwner;
-		iw.text.addTxt (MetaString::ADVOB_TXT, 61);
-		cb->showInfoDialog(&iw);
+		showInfoDialog(h,61,soundBase::LIGHTHOUSE);
 
 		fw.mode = 1;
 		std::vector<si32>::iterator it;
@@ -6449,10 +6409,7 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 	}
 	else if (ID == Obj::EYE_OF_MAGI)
 	{
-		InfoWindow iw;
-		iw.player = h->tempOwner;
-		iw.text.addTxt (MetaString::ADVOB_TXT, 48);
-		cb->showInfoDialog(&iw);
+		showInfoDialog(h,48,soundBase::invalid);
 	}
 
 }
@@ -6479,7 +6436,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 	iw.player = h->tempOwner;
 	if(h->hasBonusFrom(Bonus::OBJECT,ID)) //has already visited Sirens
 	{
-		iw.text.addTxt(11,133);
+		iw.text.addTxt(MetaString::ADVOB_TXT,133);
 	}
 	else
 	{
@@ -6499,13 +6456,13 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 		if(xp)
 		{
 			xp = h->calculateXp(xp);
-			iw.text.addTxt(11,132);
+			iw.text.addTxt(MetaString::ADVOB_TXT,132);
 			iw.text.addReplacement(xp);
 			cb->changePrimSkill(h->id, 4, xp, false);
 		}
 		else
 		{
-			iw.text.addTxt(11,134);
+			iw.text.addTxt(MetaString::ADVOB_TXT,134);
 		}
 	}
 	cb->showInfoDialog(&iw);
@@ -6655,11 +6612,7 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		OpenWindow ow;
-		ow.id1 = id;
-		ow.id2 = h->id;
-		ow.window = OpenWindow::SHIPYARD_WINDOW;
-		cb->sendAndApply(&ow);
+		openWindow(OpenWindow::SHIPYARD_WINDOW,id,h->id);
 	}
 }
 
@@ -6694,20 +6647,12 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 		}
 		else //if he cannot afford
 		{
-			InfoWindow iw;
-			iw.player = h->getOwner();
-			iw.soundID = soundBase::CAVEHEAD;
-			iw.text << std::pair<ui8,ui32>(11,28);
-			cb->showInfoDialog (&iw);
+			showInfoDialog(h,28,soundBase::CAVEHEAD);
 		}
 	}
 	else //if he already visited carographer
 	{
-		InfoWindow iw;
-		iw.player = h->getOwner();
-		iw.soundID = soundBase::CAVEHEAD;
-		iw.text << std::pair<ui8,ui32>(11,24);
-		cb->showInfoDialog (&iw);
+		showInfoDialog(h,24,soundBase::CAVEHEAD);
 	}
 }
 
@@ -6748,10 +6693,7 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 
 		cb->setObjProperty(id,20,team); //increment general visited obelisks counter
 
-		OpenWindow ow;
-		ow.id1 = h->tempOwner;
-		ow.window = OpenWindow::PUZZLE_MAP;
-		cb->sendAndApply(&ow);
+		openWindow(OpenWindow::PUZZLE_MAP,h->tempOwner);
 
 		cb->setObjProperty(id,10,team); //mark that particular obelisk as visited
 	}
@@ -6803,14 +6745,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		ui8 oldOwner = tempOwner;
 		cb->setOwner(id,h->tempOwner); //not ours? flag it!
-
-
-		InfoWindow iw;
-		iw.player = h->tempOwner;
-		iw.text.addTxt(MetaString::ADVOB_TXT, 69);
-		iw.soundID = soundBase::LIGHTHOUSE;
-		cb->sendAndApply(&iw);
-
+		showInfoDialog(h,69,soundBase::LIGHTHOUSE);
 		giveBonusTo(h->tempOwner);
 
 		if(oldOwner < GameConstants::PLAYER_LIMIT) //remove bonus from old owner
@@ -7141,11 +7076,7 @@ std::vector<EMarketMode::EMarketMode> IMarket::availableModes() const
 
 void CGMarket::onHeroVisit(const CGHeroInstance * h) const
 {
-	OpenWindow ow;
-	ow.id1 = id;
-	ow.id2 = h->id;
-	ow.window = OpenWindow::MARKET_WINDOW;
-	cb->sendAndApply(&ow);
+	openWindow(OpenWindow::MARKET_WINDOW,id,h->id);
 }
 
 int CGMarket::getMarketEfficiency() const
@@ -7270,11 +7201,7 @@ std::vector<int> CGUniversity::availableItemsIds(EMarketMode::EMarketMode mode) 
 
 void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 {
-	OpenWindow ow;
-	ow.id1 = id;
-	ow.id2 = h->id;
-	ow.window = OpenWindow::UNIVERSITY_WINDOW;
-	cb->sendAndApply(&ow);
+	openWindow(OpenWindow::UNIVERSITY_WINDOW,id,h->id);
 }
 
 GrowthInfo::Entry::Entry(const std::string &format, int _count)

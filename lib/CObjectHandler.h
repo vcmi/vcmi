@@ -68,7 +68,7 @@ public:
 
 	//following field are used only for kill creature/hero missions, the original objects became inaccessible after their removal, so we need to store info needed for messages / hover text
 	ui8 textOption;
-	CStackBasicDescriptor stackToKill; 
+	CStackBasicDescriptor stackToKill;
 	ui8 stackDirection;
 	std::string heroName; //backup of hero name
 	si32 heroPortrait;
@@ -131,7 +131,7 @@ public:
 
 	enum EGeneratorState {GOOD, BOAT_ALREADY_BUILT, TILE_BLOCKED, NO_WATER};
 	EGeneratorState state() const; //0 - can buid, 1 - there is already a boat at dest tile, 2 - dest tile is blocked, 3 - no water
-	void getProblemText(MetaString &out, const CGHeroInstance *visitor = NULL) const; 
+	void getProblemText(MetaString &out, const CGHeroInstance *visitor = NULL) const;
 };
 
 class DLL_LINKAGE IShipyard : public IBoatGenerator
@@ -155,7 +155,7 @@ public:
 	virtual int availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const; //-1 if unlimited
 	virtual std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
 
-	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units 
+	bool getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMarketMode mode) const; //val1 - how many units of id1 player has to give to receive val2 units
 	std::vector<EMarketMode::EMarketMode> availableModes() const;
 
 	static const IMarket *castFrom(const CGObjectInstance *obj, bool verbose = true);
@@ -170,7 +170,7 @@ public:
 	mutable std::string hoverName;
 	int3 pos; //h3m pos
 	si32 ID, subID; //normal ID (this one from OH3 maps ;]) - eg. town=98; hero=34
-	si32 id;//number of object in CObjectHandler's vector		
+	si32 id;//number of object in CObjectHandler's vector
 	CGDefInfo * defInfo;
 	ui8 animPhaseShift;
 
@@ -303,11 +303,11 @@ public:
 	std::vector<std::pair<ui8,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	ui32 movement; //remaining movement points
 	ui8 sex;
-	ui8 inTownGarrison; // if hero is in town garrison 
+	ui8 inTownGarrison; // if hero is in town garrison
 	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
 	ConstTransitivePtr<CCommanderInstance> commander;
 	const CGBoat *boat; //set to CGBoat when sailing
-	
+
 
 	//std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
 	//std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
@@ -362,7 +362,7 @@ public:
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
 
 	//////////////////////////////////////////////////////////////////////////
-	
+
 	bool hasSpellbook() const;
 	EAlignment::EAlignment getAlignment() const;
 	const std::string &getBiography() const;
@@ -378,9 +378,9 @@ public:
 	ui8 getSecSkillLevel(SecondarySkill skill) const; //0 - no skill
 	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
 	bool canLearnSkill() const; ///true if hero has free secondary skill slot
-	
+
 	int maxMovePoints(bool onLand) const;
-	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false) const; 
+	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false) const;
 
 // 	const CArtifact* getArtAtPos(ui16 pos) const; //NULL - no artifact
 // 	const CArtifact * getArt(int pos) const;
@@ -396,12 +396,12 @@ public:
 	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
 	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
-	ECanDig diggingStatus() const; //0 - can dig; 1 - lack of movement; 2 - 
+	ECanDig diggingStatus() const; //0 - can dig; 1 - lack of movement; 2 -
 
 	//////////////////////////////////////////////////////////////////////////
 
-	void initHero(); 
-	void initHero(int SUBID); 
+	void initHero();
+	void initHero(int SUBID);
 
 	void putArtifact(ui16 pos, CArtifactInstance *art);
 	void putInBackpack(CArtifactInstance *art);
@@ -706,7 +706,7 @@ public:
 		h & static_cast<CGPandoraBox &>(*this);
 		h & removeAfterVisit & availableFor & computerActivate & humanActivate;
 	}
-	
+
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void activated(const CGHeroInstance * h) const;
 
@@ -751,7 +751,7 @@ public:
 		h & static_cast<CArmedInstance&>(*this);
 		h & identifier & character & message & resources & gainedArtifact & neverFlees & notGrowingTeam & temppower & restore;
 	}
-}; 
+};
 
 
 class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottles
@@ -821,7 +821,7 @@ public:
 	CGQuestGuard() : CGSeerHut(){};
 	void initObj();
 	void completeQuest (const CGHeroInstance * h) const;
- 
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGSeerHut&>(*this);
@@ -851,7 +851,7 @@ public:
 	ui8 bonusType; //255 - random, 0 - primary skill, 1 - secondary skill, 2 - spell
 	ui16 bonusID; //ID of skill/spell
 
-	void giveAnyBonus(const CGHeroInstance * h) const;
+	void giveAnyBonus(const CGHeroInstance * h) const; //FIXME: unused?
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void initObj();
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -887,7 +887,7 @@ public:
 	void fightForArt(ui32 agreed, const CGHeroInstance *h) const;
 	void endBattle(BattleResult *result, const CGHeroInstance *h) const;
 	void pick( const CGHeroInstance * h ) const;
-	void initObj();	
+	void initObj();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -948,19 +948,19 @@ public:
 
 class DLL_LINKAGE CGMine : public CArmedInstance
 {
-public: 
+public:
 	ui8 producedResource;
 	ui32 producedQuantity;
 
 	void offerLeavingGuards(const CGHeroInstance *h) const;
 	void endBattle(BattleResult *result, ui8 attackingPlayer) const;
 	void fight(ui32 agreed, const CGHeroInstance *h) const;
-	
+
 	void onHeroVisit(const CGHeroInstance * h) const;
 
 	void flagMine(ui8 player) const;
 	void newTurn() const;
-	void initObj();	
+	void initObj();
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
@@ -992,7 +992,7 @@ public:
 	static std::map<int,std::map<int, std::vector<int> > > objs; //teleports: map[ID][subID] => vector of ids
 	static std::vector<std::pair<int, int> > gates; //subterranean gates: pairs of ids
 	void onHeroVisit(const CGHeroInstance * h) const;
-	void initObj();	
+	void initObj();
 	static void postInit();
 	static int getMatchingGate(int id); //receives id of one subterranean gate and returns id of the paired one, -1 if none
 
@@ -1008,7 +1008,7 @@ public:
 	bool wasVisited (const CGHeroInstance * h) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
 	const std::string & getHoverText() const;
-	void initObj();	
+	void initObj();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1016,18 +1016,18 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGMagicSpring : public CGVisitableOPW 
-{///unfortunatelly, this one is quite different than others 
-public: 
-	void onHeroVisit(const CGHeroInstance * h) const; 
-	const std::string & getHoverText() const; 
+class DLL_LINKAGE CGMagicSpring : public CGVisitableOPW
+{///unfortunatelly, this one is quite different than others
+public:
+	void onHeroVisit(const CGHeroInstance * h) const;
+	const std::string & getHoverText() const;
 
-	template <typename Handler> void serialize(Handler &h, const int version) 
-	{ 
-		h & static_cast<CGObjectInstance&>(*this); 
-		h & visited; 
-	} 
-}; 
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & visited;
+	}
+};
 
 class DLL_LINKAGE CGMagicWell : public CGObjectInstance //objects giving bonuses to luck/morale/movement
 {
@@ -1046,7 +1046,7 @@ class DLL_LINKAGE CGSirens : public CGObjectInstance
 public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 	const std::string & getHoverText() const;
-	void initObj();	
+	void initObj();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1067,7 +1067,7 @@ public:
 
 
 class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
-{	
+{
 public:
 	static std::map <ui8, std::set <ui8> > playerKeyMap; //[players][keysowned]
 	//SubID 0 - lightblue, 1 - green, 2 - red, 3 - darkblue, 4 - brown, 5 - purple, 6 - white, 7 - black
@@ -1127,13 +1127,13 @@ public:
 	}
 };
 
-class DLL_LINKAGE CGBoat : public CGObjectInstance 
+class DLL_LINKAGE CGBoat : public CGObjectInstance
 {
 public:
 	ui8 direction;
 	const CGHeroInstance *hero;  //hero on board
 
-	void initObj();	
+	void initObj();
 
 	CGBoat()
 	{
@@ -1156,7 +1156,7 @@ public:
 
 	void onHeroVisit(const CGHeroInstance * h) const;
 	const std::string & getHoverText() const;
-	void initObj();	
+	void initObj();
 	void searchTomb(const CGHeroInstance *h, ui32 accept) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1236,7 +1236,7 @@ public:
 
 class DLL_LINKAGE CCartographer : public CPlayersVisited
 {
-///behaviour varies depending on surface and  floor 
+///behaviour varies depending on surface and  floor
 public:
 	void onHeroVisit( const CGHeroInstance * h ) const;
 	void buyMap (const CGHeroInstance *h, ui32 accept) const;
@@ -1288,12 +1288,12 @@ class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
 public:
 	CGMarket();
 	void onHeroVisit(const CGHeroInstance * h) const; //open trading window
-	
+
 	int getMarketEfficiency() const;
 	bool allowsTrade(EMarketMode::EMarketMode mode) const;
 	int availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const; //-1 if unlimited
 	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
-	
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
@@ -1307,7 +1307,7 @@ public:
 
 	void newTurn() const; //reset artifacts for black market every month
 	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
-	
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGMarket&>(*this);
@@ -1319,11 +1319,11 @@ class DLL_LINKAGE CGUniversity : public CGMarket
 {
 public:
 	std::vector<int> skills; //available skills
-	
+
 	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
 	void initObj();//set skills for trade
 	void onHeroVisit(const CGHeroInstance * h) const; //open window
-	
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGMarket&>(*this);

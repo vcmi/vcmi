@@ -1,5 +1,9 @@
 #include "StdInc.h"
 
+#include <boost/asio.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
+
 #include "../lib/Filesystem/CResourceLoader.h"
 #include "../lib/Mapping/CCampaignHandler.h"
 #include "../lib/CThreadHelper.h"
