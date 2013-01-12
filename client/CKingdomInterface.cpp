@@ -137,12 +137,7 @@ std::string InfoBoxAbstractHeroData::getValueText()
 	case HERO_PRIMARY_SKILL:
 		return boost::lexical_cast<std::string>(getValue());
 	case HERO_SPECIAL:
-		{
-			std::string text = CGI->generaltexth->jktexts[5];
-			size_t begin = text.find('{');
-			size_t end   = text.find('}', begin);
-			return text.substr(begin, end-begin);
-		}
+		return CGI->generaltexth->jktexts[5];
 	case HERO_SECONDARY_SKILL:
 		{
 			si64 value = getValue();
@@ -164,12 +159,7 @@ std::string InfoBoxAbstractHeroData::getNameText()
 	case HERO_MANA:
 		return CGI->generaltexth->allTexts[387];
 	case HERO_EXPERIENCE:
-		{
-			std::string text = CGI->generaltexth->jktexts[6];
-			size_t begin = text.find('{');
-			size_t end   = text.find('}', begin);
-			return text.substr(begin, end-begin);
-		}
+		return CGI->generaltexth->jktexts[6];
 	case HERO_SPECIAL:
 		return CGI->heroh->heroes[getSubID()]->specName;
 	case HERO_SECONDARY_SKILL:
@@ -902,16 +892,14 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 	artButtons = new CHighlightableButtonsGroup(0);
 	for (size_t it = 0; it<3; it++)
 	{
+		int stringID[3] = {259, 261, 262};
+
 		std::map<int,std::string> tooltip;
 		tooltip[0] = CGI->generaltexth->overview[13+it];
 		std::string overlay = CGI->generaltexth->overview[8+it];
 
 		artButtons->addButton(tooltip, overlay, "OVBUTN3",364+it*112, 46, it);
-
-		size_t begin = overlay.find('{');
-		size_t end   = overlay.find('}', begin);
-		overlay = overlay.substr(begin+1, end - begin);
-		artButtons->buttons[it]->addTextOverlay(overlay, FONT_SMALL, Colors::YELLOW);
+		artButtons->buttons[it]->addTextOverlay(CGI->generaltexth->allTexts[stringID[it]], FONT_SMALL, Colors::YELLOW);
 	}
 	artButtons->onChange += boost::bind(&CTabbedInt::setActive, artsTabs, _1);
 	artButtons->onChange += boost::bind(&CHeroItem::onArtChange, this, _1);

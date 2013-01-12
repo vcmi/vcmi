@@ -104,9 +104,6 @@ public:
 	std::vector <std::string> campaignMapNames;
 	std::vector < std::vector <std::string> > campaignRegionNames;
 
-	std::string getTitle(const std::string & text);
-	std::string getDescr(const std::string & text);
-
 	void load();
 	CGeneralTextHandler();
 };

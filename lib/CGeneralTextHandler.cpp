@@ -324,27 +324,6 @@ void CGeneralTextHandler::load()
 	}
 }
 
-std::string CGeneralTextHandler::getTitle(const std::string & text)
-{
-	std::string ret;
-	int i=0;
-	while ((text[i++]!='{'));
-	while ((text[i]!='}') && (i<text.length()))
-		ret+=text[i++];
-	return ret;
-}
-
-std::string CGeneralTextHandler::getDescr(const std::string & text)
-{
-	std::string ret;
-	int i=0;
-	while ((text[i++]!='}'));
-	i+=2;
-	while ((text[i]!='"') && (i<text.length()))
-		ret+=text[i++];
-	return ret;
-}
-
 CGeneralTextHandler::CGeneralTextHandler()
 {
 
