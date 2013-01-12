@@ -56,7 +56,7 @@ DLL_LINKAGE void SetPrimSkill::applyGs( CGameState *gs )
 	{
 		Bonus *skill = hero->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) && Selector::subtype(which) && Selector::sourceType(Bonus::HERO_BASE_SKILL));
 		assert(skill);
-		
+
 		if(abs)
 			skill->val = val;
 		else
@@ -162,16 +162,17 @@ DLL_LINKAGE void FoWChange::applyGs( CGameState *gs )
 		boost::unordered_set<int3, ShashInt3> tilesRevealed;
 		for (size_t i = 0; i < gs->map->objects.size(); i++)
 		{
-			if (gs->map->objects[i])
+			const CGObjectInstance *o = gs->map->objects[i];
+			if (o)
 			{
-				switch(gs->map->objects[i]->ID)
+				switch(o->ID)
 				{
-				case 34://hero
-				case 53://mine
-				case 98://town
-				case 220:
-					if(vstd::contains(team->players, gs->map->objects[i]->tempOwner)) //check owned observators
-						gs->map->objects[i]->getSightTiles(tilesRevealed);
+				case Obj::HERO:
+				case Obj::MINE:
+				case Obj::TOWN:
+				case Obj::ABANDONED_MINE:
+					if(vstd::contains(team->players, o->tempOwner)) //check owned observators
+						o->getSightTiles(tilesRevealed);
 					break;
 				}
 			}
@@ -217,8 +218,8 @@ DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 
 	std::string &descr = b->description;
 
-	if(!bdescr.message.size() 
-		&& bonus.source == Bonus::OBJECT 
+	if(!bdescr.message.size()
+		&& bonus.source == Bonus::OBJECT
 		&& (bonus.type == Bonus::LUCK || bonus.type == Bonus::MORALE)
 		&& gs->map->objects[bonus.sid]->ID == Obj::EVENT) //it's morale/luck bonus from an event without description
 	{
@@ -259,7 +260,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 		node = gs->getPlayer(whoID);
 
 	BonusList &bonuses = node->getBonusList();
-	
+
 	for (int i = 0; i < bonuses.size(); i++)
 	{
 		Bonus *b = bonuses[i];
@@ -305,7 +306,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 			gs->hpool.pavailable[h->subID] = 0xff;
 
 		gs->map->objects[id] = NULL;
-		
+
 
 		return;
 	}
@@ -442,7 +443,7 @@ DLL_LINKAGE void SetHeroesInTown::applyGs( CGameState *gs )
 {
 	CGTownInstance *t = gs->getTown(tid);
 
-	CGHeroInstance *v  = gs->getHero(visiting), 
+	CGHeroInstance *v  = gs->getHero(visiting),
 		*g = gs->getHero(garrison);
 
 	bool newVisitorComesFromGarrison = v && v == t->garrisonHero;
@@ -519,14 +520,14 @@ DLL_LINKAGE void GiveHero::applyGs( CGameState *gs )
 
 DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 {
-	
+
 	CGObjectInstance *o = NULL;
 	switch(ID)
 	{
-	case 8:
+	case Obj::BOAT:
 		o = new CGBoat();
 		break;
-	case 54: //probably more options will be needed
+	case Obj::MONSTER: //probably more options will be needed
 		o = new CGCreature();
 		{
 			//CStackInstance hlp;
@@ -552,11 +553,11 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 
 	switch(ID)
 	{
-		case 54: //cfreature
+		case Obj::MONSTER:
 			o->defInfo = VLC->dobjinfo->gobjs[ID][subID];
 			assert(o->defInfo);
 			break;
-		case 124://hole
+		case Obj::HOLE:
 			const TerrainTile &t = gs->map->getTile(pos);
 			o->defInfo = VLC->dobjinfo->gobjs[ID][t.terType];
 			assert(o->defInfo);
@@ -1035,7 +1036,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 			st->state.insert(EBattleStackState::FEAR);
 			break;
 		default:
-			tlog2 << "Unrecognized trigger effect type "<< type <<"\n"; 
+			tlog2 << "Unrecognized trigger effect type "<< type <<"\n";
 	}
 }
 
@@ -1061,7 +1062,7 @@ void BattleResult::applyGs( CGameState *gs )
 	CGHeroInstance *h;
 	for (int i = 0; i < 2; ++i)
 	{
-		h = gs->curB->heroes[i]; 
+		h = gs->curB->heroes[i];
 		if (h)
 		{
 			h->getBonusList().remove_if(Bonus::OneBattle); 	//remove any "until next battle" bonuses
@@ -1143,7 +1144,7 @@ DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
 	CStack *attacker = gs->curB->getStack(stackAttacking);
 	if(counter())
 		attacker->counterAttacks--;
-	
+
 	if(shot())
 	{
 		//don't remove ammo if we have a working ammo cart
@@ -1298,7 +1299,7 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 		CStack *s = gs->curB->getStack(id);
 		if(s)
 		{
-			if(spellid == Spells::DISRUPTING_RAY || spellid == Spells::ACID_BREATH_DEFENSE || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid)))//disrupting ray or acid breath or not on the list - just add	
+			if(spellid == Spells::DISRUPTING_RAY || spellid == Spells::ACID_BREATH_DEFENSE || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid)))//disrupting ray or acid breath or not on the list - just add
 			{
 				BOOST_FOREACH(Bonus &fromEffect, effect)
 				{
@@ -1343,7 +1344,7 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 
 		//checking if we resurrect a stack that is under a living stack
 		auto accessibility = gs->curB->getAccesibility();
-		
+
 		if(!changedStack->alive() && !accessibility.accessible(changedStack->position, changedStack))
 		{
 			tlog1 << "Cannot resurrect " << changedStack->nodeName() << " because hex " << changedStack->position << " is occupied!\n";
@@ -1374,7 +1375,7 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 		//removal of negative effects
 		if(resurrected)
 		{
-			
+
 // 			for (BonusList::iterator it = changedStack->bonuses.begin(); it != changedStack->bonuses.end(); it++)
 // 			{
 // 				if(VLC->spellh->spells[(*it)->sid]->positiveness < 0)
@@ -1382,7 +1383,7 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 // 					changedStack->bonuses.erase(it);
 // 				}
 // 			}
-			
+
 			//removing all features from negative spells
 			const BonusList tmpFeatures = changedStack->getBonusList();
 			//changedStack->bonuses.clear();
@@ -1403,11 +1404,11 @@ DLL_LINKAGE void ObstaclesRemoved::applyGs( CGameState *gs )
 {
 	if(gs->curB) //if there is a battle
 	{
-		for(std::set<si32>::const_iterator it = obstacles.begin(); it != obstacles.end(); ++it)
+		BOOST_FOREACH(const si32 rem_obst,obstacles)
 		{
 			for(int i=0; i<gs->curB->obstacles.size(); ++i)
 			{
-				if(gs->curB->obstacles[i]->uniqueID == *it) //remove this obstacle
+				if(gs->curB->obstacles[i]->uniqueID == rem_obst) //remove this obstacle
 				{
 					gs->curB->obstacles.erase(gs->curB->obstacles.begin() + i);
 					break;
@@ -1421,10 +1422,10 @@ DLL_LINKAGE void CatapultAttack::applyGs( CGameState *gs )
 {
 	if(gs->curB && gs->curB->siege != 0) //if there is a battle and it's a siege
 	{
-		for(std::set< std::pair< std::pair< ui8, si16 >, ui8> >::const_iterator it = attackedParts.begin(); it != attackedParts.end(); ++it)
+		BOOST_FOREACH(const auto &it,attackedParts)
 		{
-			gs->curB->si.wallState[it->first.first] = 
-				std::min( gs->curB->si.wallState[it->first.first] + it->second, 3 );
+			gs->curB->si.wallState[it.first.first] =
+				std::min( gs->curB->si.wallState[it.first.first] + it.second, 3 );
 		}
 	}
 }
@@ -1433,12 +1434,11 @@ DLL_LINKAGE void BattleStacksRemoved::applyGs( CGameState *gs )
 {
 	if(!gs->curB)
 		return;
-
-	for(std::set<ui32>::const_iterator it = stackIDs.begin(); it != stackIDs.end(); ++it) //for each removed stack
+	BOOST_FOREACH(ui32 rem_stack, stackIDs)
 	{
 		for(int b=0; b<gs->curB->stacks.size(); ++b) //find it in vector of stacks
 		{
-			if(gs->curB->stacks[b]->ID == *it) //if found
+			if(gs->curB->stacks[b]->ID == rem_stack) //if found
 			{
 				CStack *toRemove = gs->curB->stacks[b];
 				gs->curB->stacks.erase(gs->curB->stacks.begin() + b); //remove

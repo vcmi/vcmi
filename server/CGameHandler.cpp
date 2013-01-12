@@ -962,7 +962,7 @@ int CGameHandler::moveStack(int stack, BattleHex dest)
 		complain("Given destination is not accessible!");
 		return 0;
 	}
-	
+
 	std::pair< std::vector<BattleHex>, int > path = gs->curB->getPath(curStack->position, dest, curStack);
 
 	ret = path.second;
@@ -2575,7 +2575,7 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 from
 
 	if(dw->ID == Obj::TOWN)
 		dst = (static_cast<const CGTownInstance *>(dw))->getUpperArmy();
-	else if(dw->ID == Obj::CREATURE_GENERATOR1  ||  dw->ID == Obj::CREATURE_GENERATOR4  
+	else if(dw->ID == Obj::CREATURE_GENERATOR1  ||  dw->ID == Obj::CREATURE_GENERATOR4
 		||  dw->ID == Obj::REFUGEE_CAMP) //advmap dwelling
 		dst = getHero(gs->getPlayer(dw->tempOwner)->currentSelection); //TODO: check if current hero is really visiting dwelling
 	else if(dw->ID == Obj::WAR_MACHINE_FACTORY)
@@ -2903,7 +2903,7 @@ bool CGameHandler::buyArtifact( ui32 hid, TArtifactID aid )
 	else if(aid < 7  &&  aid > 3) //war machine
 	{
 		int price = VLC->arth->artifacts[aid]->price;
-		
+
 		if(( hero->getArt(9+aid) && complain("Hero already has this machine!"))
 		 || (gs->getPlayer(hero->getOwner())->resources[Res::GOLD] < price && complain("Not enough gold!")))
 		{
@@ -3251,8 +3251,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 
 	const CStack *stack = battleGetStackByID(ba.stackNumber); //may be nullptr if action is not about stack
-	const bool isAboutActiveStack = stack && (stack == battleActiveStack()); 
-	
+	const bool isAboutActiveStack = stack && (stack == battleActiveStack());
+
 
 	switch(ba.actionType)
 	{
@@ -3285,7 +3285,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				return false;
 			}
 		}
-		else if(!isAboutActiveStack) 
+		else if(!isAboutActiveStack)
 		{
 			complain("Action has to be about active stack!");
 			return false;
@@ -3369,10 +3369,10 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				sendAndApply(&end_action);
 				break;
 			}
-			
+
 			BattleHex startingPos = stack->position;
 			int distance = moveStack(ba.stackNumber, ba.destinationTile);
-			
+
 			tlog5 << stack->nodeName() << " will attack " << stackAtEnd->nodeName() << std::endl;
 
 			if(stack->position != ba.destinationTile //we wasn't able to reach destination tile
@@ -4961,8 +4961,12 @@ bool CGameHandler::buildBoat( ui32 objid )
 		return false;
 	}
 
-	//TODO use "real" cost via obj->getBoatCost
-	if(getResource(obj->o->tempOwner, Res::GOLD) < 1000  ||  getResource(obj->o->tempOwner, Res::WOOD) < 10)
+	const TPlayerColor playerID = obj->o->tempOwner;
+	TResources boatCost;
+	obj->getBoatCost(boatCost);
+	TResources aviable = gs->getPlayer(playerID)->resources;
+
+	if (!aviable.canAfford(boatCost))
 	{
 		complain("Not enough resources to build a boat!");
 		return false;
@@ -4977,15 +4981,13 @@ bool CGameHandler::buildBoat( ui32 objid )
 
 	//take boat cost
 	SetResources sr;
-	sr.player = obj->o->tempOwner;
-	sr.res = gs->getPlayer(obj->o->tempOwner)->resources;
-	sr.res[Res::WOOD] -= 10;
-	sr.res[Res::GOLD] -= 1000;
+	sr.player = playerID;
+	sr.res = (aviable - boatCost);
 	sendAndApply(&sr);
 
 	//create boat
 	NewObject no;
-	no.ID = 8;
+	no.ID = Obj::BOAT;
 	no.subID = obj->getBoatType();
 	no.pos = tile + int3(1,0,0);
 	sendAndApply(&no);
