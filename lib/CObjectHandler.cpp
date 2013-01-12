@@ -687,18 +687,13 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 		base = 1500; //on water base movement is always 1500 (speed of army doesn't matter)
 	}
 
-	int bonus = valOfBonuses(Bonus::MOVEMENT) + (onLand ? valOfBonuses(Bonus::LAND_MOVEMENT) : valOfBonuses(Bonus::SEA_MOVEMENT));
+	const Bonus::BonusType bt = onLand ? Bonus::LAND_MOVEMENT : Bonus::SEA_MOVEMENT;
+	const int bonus = valOfBonuses(Bonus::MOVEMENT) + valOfBonuses(bt);
 
-	double modifier = 0;
-	if(onLand)
-	{
-		modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, LOGISTICS) / 100.0;
-	}
-	else
-	{
-		modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, NAVIGATION) / 100.0;
-	}
-	return int(base + base*modifier) + bonus;
+	const int subtype = onLand ? LOGISTICS : NAVIGATION;
+	const double modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, subtype) / 100.0;
+
+	return int(base* (1+modifier)) + bonus;
 }
 
 CGHeroInstance::CGHeroInstance()
@@ -930,27 +925,27 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 	speciality.growthsWithLevel = false;
 
 	if(!type)
-		return; //TODO support prison
+		return; //TODO: support prison
 
-	for (std::vector<SSpecialtyInfo>::const_iterator it = type->spec.begin(); it != type->spec.end(); it++)
+	BOOST_FOREACH(const auto &spec, type->spec)
 	{
 		Bonus *bonus = new Bonus();
-		bonus->val = it->val;
+		bonus->val = spec.val;
 		bonus->sid = id; //from the hero, speciality has no unique id
 		bonus->duration = Bonus::PERMANENT;
 		bonus->source = Bonus::HERO_SPECIAL;
-		switch (it->type)
+		switch (spec.type)
 		{
 			case 1:// creature speciality
 				{
 					speciality.growthsWithLevel = true;
 
-					const CCreature &specCreature = *VLC->creh->creatures[it->additionalinfo]; //creature in which we have specialty
+					const CCreature &specCreature = *VLC->creh->creatures[spec.additionalinfo]; //creature in which we have specialty
 
 					int creLevel = specCreature.level;
 					if(!creLevel)
 					{
-						if(it->additionalinfo == 146)
+						if(spec.additionalinfo == 146)
 							creLevel = 5; //treat ballista as 5-level
 						else
 						{
@@ -961,7 +956,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 
 					bonus->limiter.reset(new CCreatureTypeLimiter (specCreature, true)); //with upgrades
 					bonus->type = Bonus::PRIMARY_SKILL;
-					bonus->additionalInfo = it->additionalinfo;
+					bonus->additionalInfo = spec.additionalinfo;
 					bonus->valType = Bonus::ADDITIVE_VALUE;
 
 					bonus->subtype = PrimarySkill::ATTACK;
@@ -982,12 +977,12 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 				speciality.growthsWithLevel = true;
 				bonus->type = Bonus::SPECIAL_SECONDARY_SKILL; //needs to be recalculated with level, based on this value
 				bonus->valType = Bonus::BASE_NUMBER; // to receive nonzero value
-				bonus->subtype = it->subtype; //skill id
-				bonus->val = it->val; //value per level, in percent
+				bonus->subtype = spec.subtype; //skill id
+				bonus->val = spec.val; //value per level, in percent
 				speciality.addNewBonus(bonus);
 				bonus = new Bonus(*bonus);
 
-				switch (it->additionalinfo)
+				switch (spec.additionalinfo)
 				{
 					case 0: //normal
 						bonus->valType = Bonus::PERCENT_TO_BASE;
@@ -1001,11 +996,11 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 				break;
 			case 3://spell damage bonus, level dependent but calculated elsewhere
 				bonus->type = Bonus::SPECIAL_SPELL_LEV;
-				bonus->subtype = it->subtype;
+				bonus->subtype = spec.subtype;
 				speciality.addNewBonus(bonus);
 				break;
 			case 4://creature stat boost
-				switch (it->subtype)
+				switch (spec.subtype)
 				{
 					case 1://attack
 						bonus->type = Bonus::PRIMARY_SKILL;
@@ -1029,45 +1024,44 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 						continue;
 				}
 				bonus->valType = Bonus::ADDITIVE_VALUE;
-				bonus->limiter.reset(new CCreatureTypeLimiter (*VLC->creh->creatures[it->additionalinfo], true));
+				bonus->limiter.reset(new CCreatureTypeLimiter (*VLC->creh->creatures[spec.additionalinfo], true));
 				speciality.addNewBonus(bonus);
 				break;
 			case 5://spell damage bonus in percent
 				bonus->type = Bonus::SPECIFIC_SPELL_DAMAGE;
 				bonus->valType = Bonus::BASE_NUMBER; // current spell system is screwed
-				bonus->subtype = it->subtype; //spell id
+				bonus->subtype = spec.subtype; //spell id
 				speciality.addNewBonus(bonus);
 				break;
 			case 6://damage bonus for bless (Adela)
 				bonus->type = Bonus::SPECIAL_BLESS_DAMAGE;
-				bonus->subtype = it->subtype; //spell id if you ever wanted to use it otherwise
-				bonus->additionalInfo = it->additionalinfo; //damage factor
+				bonus->subtype = spec.subtype; //spell id if you ever wanted to use it otherwise
+				bonus->additionalInfo = spec.additionalinfo; //damage factor
 				speciality.addNewBonus(bonus);
 				break;
 			case 7://maxed mastery for spell
 				bonus->type = Bonus::MAXED_SPELL;
-				bonus->subtype = it->subtype; //spell i
+				bonus->subtype = spec.subtype; //spell i
 				speciality.addNewBonus(bonus);
 				break;
 			case 8://peculiar spells - enchantments
 				bonus->type = Bonus::SPECIAL_PECULIAR_ENCHANT;
-				bonus->subtype = it->subtype; //spell id
-				bonus->additionalInfo = it->additionalinfo;//0, 1 for Coronius
+				bonus->subtype = spec.subtype; //spell id
+				bonus->additionalInfo = spec.additionalinfo;//0, 1 for Coronius
 				speciality.addNewBonus(bonus);
 				break;
 			case 9://upgrade creatures
 			{
-				std::vector< ConstTransitivePtr<CCreature> >* creatures = &VLC->creh->creatures;
+				const auto &creatures = VLC->creh->creatures;
 				bonus->type = Bonus::SPECIAL_UPGRADE;
-				bonus->subtype = it->subtype; //base id
-				bonus->additionalInfo = it->additionalinfo; //target id
+				bonus->subtype = spec.subtype; //base id
+				bonus->additionalInfo = spec.additionalinfo; //target id
 				speciality.addNewBonus(bonus);
 				bonus = new Bonus(*bonus);
 
-				for (std::set<ui32>::iterator i = (*creatures)[it->subtype]->upgrades.begin();
-					i != (*creatures)[it->subtype]->upgrades.end(); i++)
+				BOOST_FOREACH(auto cre_id, creatures[spec.subtype]->upgrades)
 				{
-					bonus->subtype = *i; //propagate for regular upgrades of base creature
+					bonus->subtype = cre_id; //propagate for regular upgrades of base creature
 					speciality.addNewBonus(bonus);
 					bonus = new Bonus(*bonus);
 				}
@@ -1076,11 +1070,11 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 			}
 			case 10://resource generation
 				bonus->type = Bonus::GENERATE_RESOURCE;
-				bonus->subtype = it->subtype;
+				bonus->subtype = spec.subtype;
 				speciality.addNewBonus(bonus);
 				break;
 			case 11://starting skill with mastery (Adrienne)
-				cb->changeSecSkill(id, it->val, it->additionalinfo); //simply give it and forget
+				cb->changeSecSkill(id, spec.val, spec.additionalinfo); //simply give it and forget
 				break;
 			case 12://army speed
 				bonus->type = Bonus::STACKS_SPEED;
@@ -1089,7 +1083,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 			case 13://Dragon bonuses (Mutare)
 				bonus->type = Bonus::PRIMARY_SKILL;
 				bonus->valType = Bonus::ADDITIVE_VALUE;
-				switch (it->subtype)
+				switch (spec.subtype)
 				{
 					case 1:
 						bonus->subtype = PrimarySkill::ATTACK;
@@ -1106,8 +1100,8 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 		}
 	}
 	//initialize bonuses
-	for (std::vector<std::pair<ui8,ui8> >::iterator it = secSkills.begin(); it != secSkills.end(); it++)
-		updateSkill(it->first, it->second);
+	BOOST_FOREACH(auto skill_info, secSkills)
+		updateSkill(skill_info.first, skill_info.second);
 	UpdateSpeciality();
 
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
@@ -1117,7 +1111,7 @@ void CGHeroInstance::UpdateSpeciality() //TODO: calculate special value of bonus
 {
 	if (speciality.growthsWithLevel)
 	{
-		std::vector< ConstTransitivePtr<CCreature> > & creatures = VLC->creh->creatures;
+		const auto &creatures = VLC->creh->creatures;
 
 		BOOST_FOREACH(Bonus *it, speciality.getBonusList())
 		{
@@ -2535,7 +2529,7 @@ void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, TExpType
 }
 void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 {
-	Component::EComponentType id = (Component::EComponentType)0;
+	Component::EComponentType c_id = Component::PRIM_SKILL; //most used here
 	int subid=0, ot=0, sound = 0;
 	TExpType val=1;
 	switch(ID)
@@ -2546,33 +2540,33 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 		break;
 	case Obj::MERCENARY_CAMP:
 		sound = soundBase::NOMAD;
-		subid=0;
+		subid=PrimarySkill::ATTACK;
 		ot=80;
 		break;
 	case Obj::MARLETTO_TOWER:
 		sound = soundBase::NOMAD;
-		subid=1;
+		subid=PrimarySkill::DEFENSE;
 		ot=39;
 		break;
 	case Obj::STAR_AXIS:
 		sound = soundBase::gazebo;
-		subid=2;
+		subid=PrimarySkill::SPELL_POWER;
 		ot=100;
 		break;
 	case Obj::GARDEN_OF_REVELATION:
 		sound = soundBase::GETPROTECTION;
-		subid=3;
+		subid=PrimarySkill::KNOWLEDGE;
 		ot=59;
 		break;
 	case Obj::LEARNING_STONE:
 		sound = soundBase::gazebo;
-		id=Component::EXPERIENCE;
+		c_id=Component::EXPERIENCE;
 		ot=143;
 		val=1000;
 		break;
 	case Obj::TREE_OF_KNOWLEDGE:
 		sound = soundBase::gazebo;
-		id = Component::EXPERIENCE;
+		c_id = Component::EXPERIENCE;
 		subid = 1;
 		ot = 147;
 		val = 1;
@@ -2586,6 +2580,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 		ot = 71;
 		break;
 	case Obj::SCHOOL_OF_WAR:
+		c_id=Component::PRIM_SKILL;
 		sound = soundBase::MILITARY;
 		ot = 158;
 		break;
@@ -2599,8 +2594,8 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				BlockingDialog sd(false,true);
 				sd.soundID = sound;
 				sd.text.addTxt(MetaString::ADVOB_TXT,ot);
-				sd.components.push_back(Component(Component::PRIM_SKILL, PrimarySkill::ATTACK, 2, 0));
-				sd.components.push_back(Component(Component::PRIM_SKILL, PrimarySkill::DEFENSE, 2, 0));
+				sd.components.push_back(Component(c_id, PrimarySkill::ATTACK, 2, 0));
+				sd.components.push_back(Component(c_id, PrimarySkill::DEFENSE, 2, 0));
 				sd.player = cb->getOwner(heroID);
 				cb->showBlockingDialog(&sd,boost::bind(&CGVisitableOPH::arenaSelected,this,heroID,_1));
 				return;
@@ -2613,7 +2608,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				cb->changePrimSkill(heroID,subid,val);
 				InfoWindow iw;
 				iw.soundID = sound;
-				iw.components.push_back(Component(Component::PRIM_SKILL, subid,val,0));
+				iw.components.push_back(Component(c_id, subid,val,0));
 				iw.text.addTxt(MetaString::ADVOB_TXT,ot);
 				iw.player = cb->getOwner(heroID);
 				cb->showInfoDialog(&iw);
@@ -2625,10 +2620,9 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				val = h->calculateXp(val);
 				InfoWindow iw;
 				iw.soundID = sound;
-				iw.components.push_back(Component(id,subid,val,0));
+				iw.components.push_back(Component(c_id,subid,val,0));
 				iw.player = cb->getOwner(heroID);
 				iw.text.addTxt(MetaString::ADVOB_TXT,ot);
-				iw.soundID = soundBase::gazebo;
 				cb->showInfoDialog(&iw);
 				cb->changePrimSkill(heroID,4,val);
 				break;
@@ -2639,10 +2633,10 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				val = VLC->heroh->reqExp(h->level+val) - VLC->heroh->reqExp(h->level);
 				if(!ttype)
 				{
-					cb->setObjProperty(this->id, ObjProperty::VISITORS, heroID); //add to the visitors
+					cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
 					InfoWindow iw;
 					iw.soundID = sound;
-					iw.components.push_back(Component(id,subid,1,0));
+					iw.components.push_back(Component(c_id,subid,1,0));
 					iw.player = cb->getOwner(heroID);
 					iw.text.addTxt(MetaString::ADVOB_TXT,148);
 					cb->showInfoDialog(&iw);
@@ -2692,11 +2686,11 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				}
 				else
 				{
-					cb->setObjProperty(this->id, ObjProperty::VISITORS, heroID); //add to the visitors
-					cb->changePrimSkill(heroID,0,2);
-					cb->changePrimSkill(heroID,1,2);
-					cb->changePrimSkill(heroID,2,2);
-					cb->changePrimSkill(heroID,3,2);
+					cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
+					cb->changePrimSkill(heroID,PrimarySkill::ATTACK,2);
+					cb->changePrimSkill(heroID,PrimarySkill::DEFENSE,2);
+					cb->changePrimSkill(heroID,PrimarySkill::KNOWLEDGE,2);
+					cb->changePrimSkill(heroID,PrimarySkill::SPELL_POWER,2);
 				}
 				showInfoDialog(h,txt_id,sound);
 				break;
@@ -2715,8 +2709,8 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 					sd.soundID = sound;
 					sd.player = cb->getOwner(heroID);
 					sd.text.addTxt(MetaString::ADVOB_TXT,ot);
-					sd.components.push_back(Component(Component::PRIM_SKILL, skill, +1, 0));
-					sd.components.push_back(Component(Component::PRIM_SKILL, skill+1, +1, 0));
+					sd.components.push_back(Component(c_id, skill, +1, 0));
+					sd.components.push_back(Component(c_id, skill+1, +1, 0));
 					cb->showBlockingDialog(&sd,boost::bind(&CGVisitableOPH::schoolSelected,this,heroID,_1));
 				}
 			}
@@ -3933,7 +3927,6 @@ void CGPickable::initObj()
 
 void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 {
-
 	switch(ID)
 	{
 	case Obj::CAMPFIRE:
@@ -3951,8 +3944,8 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 		}
 	case Obj::FLOTSAM:
 		{
-			cb->giveResource(h->tempOwner,0,val1); //wood
-			cb->giveResource(h->tempOwner,6,val2);//gold
+			cb->giveResource(h->tempOwner,Res::WOOD,val1); //wood
+			cb->giveResource(h->tempOwner,Res::GOLD,val2);//gold
 			InfoWindow iw;
 			iw.soundID = soundBase::GENIE;
 			iw.player = h->tempOwner;
@@ -3989,7 +3982,6 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 		}
 	case Obj::SHIPWRECK_SURVIVOR:
 		{
-			//TODO: what if no space in backpack?
 			InfoWindow iw;
 			iw.soundID = soundBase::experience;
 			iw.player = h->tempOwner;
@@ -4491,7 +4483,7 @@ void CGSeerHut::getCompletionText(MetaString &text, std::vector<Component> &comp
 	quest->getCompletionText (text, components, isCustom, h);
 	switch (rewardType)
 	{
-		case 1: components.push_back(Component (Component::EXPERIENCE, 0, rVal*(100+h->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0, 0));
+		case 1: components.push_back(Component (Component::EXPERIENCE, 0, h->calculateXp(rVal), 0));
 			break;
 		case 2: components.push_back(Component (Component::PRIM_SKILL, 5, rVal, 0));
 			break;
@@ -4799,6 +4791,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 	bool visited = h->hasBonusFrom(Bonus::OBJECT,ID);
 	int messageID=0;
 	int bonusMove = 0, sound = -1;
+	ui32 descr_id = 0;
 	InfoWindow iw;
 	iw.player = h->tempOwner;
 	GiveBonus gbonus;
@@ -4817,14 +4810,14 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		sound = soundBase::MORALE;
 		gbonus.bonus.type = Bonus::MORALE;
 		gbonus.bonus.val = +1;
-		gbonus.bdescr <<  std::pair<ui8,ui32>(6,94);
+		descr_id = 94;
 		break;
 	case Obj::SWAN_POND:
 		messageID = 29;
 		sound = soundBase::LUCK;
 		gbonus.bonus.type = Bonus::LUCK;
 		gbonus.bonus.val = 2;
-		gbonus.bdescr <<  std::pair<ui8,ui32>(6,67);
+		descr_id = 67;
 		bonusMove = -h->movement;
 		break;
 	case Obj::FAERIE_RING:
@@ -4832,14 +4825,14 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		sound = soundBase::LUCK;
 		gbonus.bonus.type = Bonus::LUCK;
 		gbonus.bonus.val = 1;
-		gbonus.bdescr <<  std::pair<ui8,ui32>(6,71);
+		descr_id = 71;
 		break;
 	case Obj::FOUNTAIN_OF_FORTUNE:
 		messageID = 55;
 		sound = soundBase::LUCK;
 		gbonus.bonus.type = Bonus::LUCK;
 		gbonus.bonus.val = rand()%5 - 1;
-		gbonus.bdescr <<  std::pair<ui8,ui32>(6,69);
+		descr_id = 69;
 		gbonus.bdescr.addReplacement((gbonus.bonus.val<0 ? "-" : "+") + boost::lexical_cast<std::string>(gbonus.bonus.val));
 		break;
 	case Obj::IDOL_OF_FORTUNE:
@@ -4847,7 +4840,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		sound = soundBase::experience;
 
 		gbonus.bonus.val = 1;
-		gbonus.bdescr <<  std::pair<ui8,ui32>(6,68);
+		descr_id = 68;
 		if(cb->getDate(1) == 7) //7th day of week
 		{
 			gbonus.bonus.type = Bonus::MORALE;
@@ -4865,14 +4858,14 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		sound = soundBase::LUCK;
 		gbonus.bonus.type = Bonus::LUCK;
 		gbonus.bonus.val = 1;
-		gbonus.bdescr <<  std::pair<ui8,ui32>(6,72);
+		descr_id = 72;
 		break;
 	case Obj::RALLY_FLAG:
 		sound = soundBase::MORALE;
 		messageID = 111;
 		gbonus.bonus.type = Bonus::MORALE;
 		gbonus.bonus.val = 1;
-		gbonus.bdescr <<  std::pair<ui8,ui32>(6,102);
+		descr_id = 102;
 
 		second = true;
 		secondBonus = gbonus.bonus;
@@ -4884,7 +4877,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		messageID = 95;
 		gbonus.bonus.type = Bonus::MORALE;
 		gbonus.bonus.val = 1;
-		gbonus.bdescr <<  std::pair<ui8,ui32>(6,95);
+		descr_id = 95;
 		bonusMove = 800;
 		break;
 	case Obj::TEMPLE:
@@ -4894,12 +4887,12 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		if(cb->getDate(1)==7) //sunday
 		{
 			gbonus.bonus.val = 2;
-			gbonus.bdescr <<  std::pair<ui8,ui32>(6,97);
+			descr_id = 97;
 		}
 		else
 		{
 			gbonus.bonus.val = 1;
-			gbonus.bdescr <<  std::pair<ui8,ui32>(6,96);
+			descr_id = 96;
 		}
 		break;
 	case Obj::WATERING_HOLE:
@@ -4907,7 +4900,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		messageID = 166;
 		gbonus.bonus.type = Bonus::MORALE;
 		gbonus.bonus.val = 1;
-		gbonus.bdescr <<  std::pair<ui8,ui32>(6,100);
+		descr_id = 100;
 		bonusMove = 400;
 		break;
 	case Obj::FOUNTAIN_OF_YOUTH:
@@ -4915,7 +4908,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		messageID = 57;
 		gbonus.bonus.type = Bonus::MORALE;
 		gbonus.bonus.val = 1;
-		gbonus.bdescr <<  std::pair<ui8,ui32>(6,103);
+		descr_id = 103;
 		bonusMove = 400;
 		break;
 	case Obj::STABLES:
@@ -4942,9 +4935,11 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		gbonus.bonus.val = 600;
 		bonusMove = 600;
 		gbonus.bonus.duration = Bonus::ONE_WEEK;
-		gbonus.bdescr <<  std::pair<ui8,ui32>(6, 100);
+		//gbonus.bdescr <<  std::pair<ui8,ui32>(6, 100);
 		break;
 	}
+	if (descr_id != 0)
+		gbonus.bdescr.addTxt(MetaString::ARRAY_TXT,descr_id);
 	assert(messageID);
 	if(visited)
 	{
@@ -6004,7 +5999,7 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		BlockingDialog bd (true, false);
 		bd.player = h->getOwner();
 		bd.soundID = soundBase::ROGUE;
-		bd.text << VLC->generaltexth->advobtxt[banktext];
+		bd.text.addTxt(MetaString::ADVOB_TXT,banktext);
 		if (ID == Obj::CREATURE_BANK)
 			bd.text.addReplacement(VLC->objh->creBanksNames[index]);
 		cb->showBlockingDialog (&bd, boost::bind (&CBank::fightGuards, this, h, _1));

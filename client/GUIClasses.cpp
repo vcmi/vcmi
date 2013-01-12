@@ -3275,7 +3275,7 @@ void CAltarWindow::calcTotalExp()
 			val += valOfArt; //WAS val += valOfArt * arts->artifactsOnAltar.count(*i);
 		}
 	}
-	val *=(100+hero->getSecSkillLevel(CGHeroInstance::LEARNING)*5)/100.0;
+	val = hero->calculateXp(val);
 	expOnAltar->setTxt(boost::lexical_cast<std::string>(val));
 }
 
