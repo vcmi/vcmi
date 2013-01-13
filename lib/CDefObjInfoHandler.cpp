@@ -48,7 +48,6 @@ void CGDefInfo::fetchInfoFromMSK()
 
 void CDefObjInfoHandler::load()
 {
-	VLC->dobjinfo = this;
 	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/ZOBJCTS.TXT"));
 
 	std::istringstream inp(std::string((char*)textFile.first.get(), textFile.second));
@@ -60,7 +59,7 @@ void CDefObjInfoHandler::load()
 		CGDefInfo* nobj = new CGDefInfo();
 		std::string dump;
 		inp>>nobj->name;
-		
+
 		std::transform(nobj->name.begin(), nobj->name.end(), nobj->name.begin(), (int(*)(int))toupper);
 
 		for(int o=0; o<6; ++o)
@@ -89,7 +88,7 @@ void CDefObjInfoHandler::load()
 			}
 		}
 
-		for(int yy=0; yy<2; ++yy) //first - on which types of terrain object can be placed; 
+		for(int yy=0; yy<2; ++yy) //first - on which types of terrain object can be placed;
 			inp>>dump; //second -in which terrains' menus object in the editor will be available (?)
 		inp>>nobj->id;
 		inp>>nobj->subid;
@@ -101,9 +100,25 @@ void CDefObjInfoHandler::load()
 		{
 			nobj->visitDir = 0xff;
 		}
-		else 
+		else
 		{
-			static int visitableFromTop[] = {29, 82, 86, 11, 59, 8, 111,33,81,12,9,212,215,22}; //sea chest, flotsam, shipwreck survivor, buoy, ocean bottle, boat, whirlpool, garrison, scholar, campfire, borderguard, bordergate, questguard, corpse
+			using namespace Obj;
+			static int visitableFromTop[] =
+				{FLOTSAM,
+				SEA_CHEST,
+				SHIPWRECK_SURVIVOR,
+				BUOY,
+				OCEAN_BOTTLE,
+				BOAT,
+				WHIRLPOOL,
+				GARRISON,
+				SCHOLAR,
+				CAMPFIRE,
+				BORDERGUARD,
+				BORDER_GATE,
+				QUEST_GUARD,
+				CORPSE};
+
 			for(int i=0; i < ARRAY_COUNT(visitableFromTop); i++)
 			{
 				if(visitableFromTop[i] == nobj->id)
@@ -130,12 +145,12 @@ void CDefObjInfoHandler::load()
 
 		if(i)
 		{
-			gobjs[124][i] = new CGDefInfo(*gobjs[124][0]);
+			gobjs[Obj::HOLE][i] = new CGDefInfo(*gobjs[Obj::HOLE][0]);
 		}
-		gobjs[124][i]->name = holeDefs[i];
+		gobjs[Obj::HOLE][i]->name = holeDefs[i];
 	}
 }
- 
+
 CDefObjInfoHandler::~CDefObjInfoHandler()
 {
 	for(bmap<int,bmap<int, ConstTransitivePtr<CGDefInfo> > >::iterator i=gobjs.begin(); i!=gobjs.end(); i++)

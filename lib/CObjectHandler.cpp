@@ -83,6 +83,12 @@ static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16
 	showInfoDialog(playerID,txtID,soundID);
 }
 
+static std::string & visitedTxt(const bool visited)
+{
+	int id = visited ? 352 : 353;
+	return VLC->generaltexth->allTexts[id];
+}
+
 ///IObjectInterface
 void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const
 {}
@@ -465,10 +471,8 @@ void CGObjectInstance::getNameVis( std::string &hname ) const
 	hname = VLC->generaltexth->names[ID];
 	if(h)
 	{
-		if(!h->hasBonusFrom(Bonus::OBJECT,ID))
-			hname += " " + VLC->generaltexth->allTexts[353]; //not visited
-		else
-			hname += " " + VLC->generaltexth->allTexts[352]; //visited
+		const bool visited = h->hasBonusFrom(Bonus::OBJECT,ID);
+		hname + " " + visitedTxt(visited);
 	}
 }
 
@@ -1604,7 +1608,7 @@ void CGDwelling::initObj()
 	}
 }
 
-void CGDwelling::setProperty(ui8 what, ui32 val)
+void CGDwelling::setPropertyDer(ui8 what, ui32 val)
 {
 	switch (what)
 	{
@@ -2768,9 +2772,8 @@ const std::string & CGVisitableOPH::getHoverText() const
 	if(h)
 	{
 		hoverName += "\n\n";
-		hoverName += (vstd::contains(visitors,h->id))
-							? (VLC->generaltexth->allTexts[352])  //visited
-							: ( VLC->generaltexth->allTexts[353]); //not visited
+		bool visited = vstd::contains(visitors,h->id);
+		hoverName += visitedTxt(visited);
 	}
 	return hoverName;
 }
@@ -2794,7 +2797,7 @@ void CGVisitableOPH::schoolSelected(int heroID, ui32 which) const
 
 	int base = (ID == Obj::SCHOOL_OF_MAGIC  ?  2  :  0);
 	cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
-	cb->giveResource(cb->getOwner(heroID),6,-1000); //take 1000 gold
+	cb->giveResource(cb->getOwner(heroID),Res::GOLD,-1000); //take 1000 gold
 	cb->changePrimSkill(heroID, base + which-1, +1); //give appropriate skill
 }
 
@@ -2826,7 +2829,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 		switch (town->subID)
 		{
 			case ETownType::CASTLE: //Stables
-				if (!h->hasBonusFrom(Bonus::OBJECT, 94)) //does not stack with advMap Stables
+				if (!h->hasBonusFrom(Bonus::OBJECT, Obj::STABLES)) //does not stack with advMap Stables
 				{
 					GiveBonus gb;
 					gb.bonus = Bonus(Bonus::ONE_WEEK, Bonus::LAND_MOVEMENT, Bonus::OBJECT, 600, 94, VLC->generaltexth->arraytxt[100]);
@@ -3593,7 +3596,7 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 		cb->showInfoDialog(&iw);
 		cb->setObjProperty(id, ObjProperty::VISITED, true);
 		MetaString ms; //set text to "visited"
-		ms << std::pair<ui8,ui32>(3,ID) << " " << std::pair<ui8,ui32>(1,352);
+		ms.addTxt(MetaString::OBJ_NAMES,ID); ms << " "; ms.addTxt(MetaString::GENERAL_TXT,352);
 		cb->setHoverName(id,&ms);
 	}
 }
@@ -4745,25 +4748,24 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	iw.player = h->getOwner();
 	if(!wasVisited(h->tempOwner))
 		cb->setObjProperty(id,10,h->tempOwner);
-
+	ui32 txt_id;
 	if(h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(ability))) //you alredy know this skill
 	{
-		iw.text.addTxt(MetaString::ADVOB_TXT,172);
-		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
+		txt_id =172;
 	}
 	else if(!h->canLearnSkill()) //already all skills slots used
 	{
-		iw.text.addTxt(MetaString::ADVOB_TXT,173);
-		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
+		txt_id = 173;
 	}
 	else //give sec skill
 	{
 		iw.components.push_back(Component(Component::SEC_SKILL, ability, 1, 0));
-		iw.text.addTxt(MetaString::ADVOB_TXT,171);
-		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
+		txt_id = 171;
 		cb->changeSecSkill(h->id,ability,1,true);
 	}
 
+	iw.text.addTxt(MetaString::ADVOB_TXT,txt_id);
+	iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
 	cb->showInfoDialog(&iw);
 }
 
@@ -4980,10 +4982,8 @@ const std::string & CGBonusingObject::getHoverText() const
 	hoverName = VLC->generaltexth->names[ID];
 	if(h)
 	{
-		if(!h->hasBonusFrom(Bonus::OBJECT,ID))
-			hoverName += " " + VLC->generaltexth->allTexts[353]; //not visited
-		else
-			hoverName += " " + VLC->generaltexth->allTexts[352]; //visited
+		bool visited = h->hasBonusFrom(Bonus::OBJECT,ID);
+		hoverName += " " + visitedTxt(visited);
 	}
 	return hoverName;
 }
@@ -5018,11 +5018,7 @@ void CGMagicSpring::onHeroVisit(const CGHeroInstance * h) const
 
 const std::string & CGMagicSpring::getHoverText() const
 {
-	hoverName = VLC->generaltexth->names[ID];
-	if(!visited)
-		hoverName += " " + VLC->generaltexth->allTexts[353]; //not visited
-	else
-		hoverName += " " + VLC->generaltexth->allTexts[352]; //visited
+	hoverName = VLC->generaltexth->names[ID] + " " + visitedTxt(visited);
 	return hoverName;
 }
 
@@ -5489,10 +5485,11 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 		cb->removeObject(id);
 }
 
-void CGScholar::giveAnyBonus( const CGHeroInstance * h ) const
-{
-
-}
+//TODO: remove
+//void CGScholar::giveAnyBonus( const CGHeroInstance * h ) const
+//{
+//
+//}
 
 void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 {
@@ -5691,12 +5688,8 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 
 const std::string & CGOnceVisitable::getHoverText() const
 {
-	hoverName = VLC->generaltexth->names[ID] + " ";
-
-	hoverName += (wasVisited(cb->getCurrentPlayer())
-		? (VLC->generaltexth->allTexts[352])  //visited
-		: ( VLC->generaltexth->allTexts[353])); //not visited
-
+	const bool visited = wasVisited(cb->getCurrentPlayer());
+	hoverName = VLC->generaltexth->names[ID] + " " + visitedTxt(visited);
 	return hoverName;
 }
 
@@ -5812,11 +5805,8 @@ void CBank::initObj()
 }
 const std::string & CBank::getHoverText() const
 {
-	hoverName = VLC->objh->creBanksNames[index];
-	if (bc == NULL)
-		hoverName += " " + VLC->generaltexth->allTexts[352];
-	else
-		hoverName += " " + VLC->generaltexth->allTexts[353];
+	bool visited = (bc == nullptr);
+	hoverName = VLC->objh->creBanksNames[index] + " " + visitedTxt(visited);
 	return hoverName;
 }
 void CBank::reset(ui16 var1) //prevents desync
@@ -6185,11 +6175,7 @@ void CGPyramid::initObj()
 }
 const std::string & CGPyramid::getHoverText() const
 {
-	hoverName = VLC->objh->creBanksNames[21];
-	if (bc == NULL)
-		hoverName += " " + VLC->generaltexth->allTexts[352];
-	else
-		hoverName += " " + VLC->generaltexth->allTexts[353];
+	hoverName = VLC->objh->creBanksNames[21]+ " " + visitedTxt((bc==nullptr));
 	return hoverName;
 }
 void CGPyramid::onHeroVisit (const CGHeroInstance * h) const
@@ -6253,21 +6239,19 @@ bool CGKeys::wasMyColorVisited (int player) const
 		return false;
 }
 
+const std::string& CGKeys::getHoverText() const
+{
+	bool visited = wasMyColorVisited (cb->getLocalPlayer());
+	hoverName = getName() + "\n" + visitedTxt(visited);
+	return hoverName;
+}
+
+
 const std::string CGKeys::getName() const
 {
 	std::string name;
 	name = VLC->generaltexth->tentColors[subID] + " " + VLC->generaltexth->names[ID];
 	return name;
-}
-
-const std::string & CGKeymasterTent::getHoverText() const
-{
-	hoverName = getName();
-	if (wasMyColorVisited (cb->getCurrentPlayer()) )//TODO: use local player, not current
-		hoverName += "\n" + VLC->generaltexth->allTexts[352];
-	else
-		hoverName += "\n" + VLC->generaltexth->allTexts[353];
-	return hoverName;
 }
 
 bool CGKeymasterTent::wasVisited (ui8 player) const
@@ -6292,16 +6276,6 @@ void CGBorderGuard::initObj()
 {
 	//ui32 m13489val = subID; //store color as quest info
 	blockVisit = true;
-}
-
-const std::string & CGBorderGuard::getHoverText() const
-{
-	hoverName = getName();
-	if (wasMyColorVisited (cb->getCurrentPlayer()) )//TODO: use local player, not current
-		hoverName += "\n" + VLC->generaltexth->allTexts[352];
-	else
-		hoverName += "\n" + VLC->generaltexth->allTexts[353];
-	return hoverName;
 }
 
 void CGBorderGuard::getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h) const
@@ -6543,8 +6517,8 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 void IShipyard::getBoatCost( std::vector<si32> &cost ) const
 {
 	cost.resize(GameConstants::RESOURCE_QUANTITY);
-	cost[0] = 10;
-	cost[6] = 1000;
+	cost[Res::WOOD] = 10;
+	cost[Res::GOLD] = 1000;
 }
 
 IShipyard::IShipyard(const CGObjectInstance *O)
@@ -6707,11 +6681,8 @@ void CGObelisk::initObj()
 
 const std::string & CGObelisk::getHoverText() const
 {
-	hoverName = VLC->generaltexth->names[ID];
-	if(wasVisited(cb->getCurrentPlayer()))
-		hoverName += " " + VLC->generaltexth->allTexts[352]; //not visited
-	else
-		hoverName += " " + VLC->generaltexth->allTexts[353]; //visited
+	bool visited = wasVisited(cb->getLocalPlayer());
+	hoverName = VLC->generaltexth->names[ID] + " " + visitedTxt(visited);
 	return hoverName;
 }
 
@@ -6805,11 +6776,11 @@ CArmedInstance::CArmedInstance()
 	battle = NULL;
 }
 
-int CArmedInstance::valOfGlobalBonuses(CSelector selector) const
-{
-	//if (tempOwner != NEUTRAL_PLAYER)
-	return cb->gameState()->players[tempOwner].valOfBonuses(selector);
-}
+//int CArmedInstance::valOfGlobalBonuses(CSelector selector) const
+//{
+////	if (tempOwner != NEUTRAL_PLAYER)
+//	return cb->gameState()->players[tempOwner].valOfBonuses(selector);
+//}
 
 void CArmedInstance::updateMoraleBonusFromArmy()
 {

@@ -163,9 +163,6 @@ public:
 
 class DLL_LINKAGE CGObjectInstance : public IObjectInterface
 {
-protected:
-	void getNameVis(std::string &hname) const;
-	void giveDummyBonus(int heroID, ui8 duration = Bonus::ONE_DAY) const;
 public:
 	mutable std::string hoverName;
 	int3 pos; //h3m pos
@@ -201,11 +198,10 @@ public:
 	//CGObjectInstance& operator=(const CGObjectInstance & right);
 	virtual const std::string & getHoverText() const;
 
-	//////////////////////////////////////////////////////////////////////////
-	void initObj();
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void setProperty(ui8 what, ui32 val);//synchr
-	virtual void setPropertyDer(ui8 what, ui32 val);//synchr
+	///IObjectInterface
+	void initObj() override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void setProperty(ui8 what, ui32 val) override;//synchr
 
 	friend class CGameHandler;
 
@@ -215,6 +211,11 @@ public:
 		h & hoverName & pos & ID & subID & id & animPhaseShift & tempOwner & blockVisit & defInfo;
 		//definfo is handled by map serializer
 	}
+protected:
+	virtual void setPropertyDer(ui8 what, ui32 val);//synchr
+
+	void getNameVis(std::string &hname) const;
+	void giveDummyBonus(int heroID, ui8 duration = Bonus::ONE_DAY) const;
 };
 class CGHeroPlaceholder : public CGObjectInstance
 {
@@ -235,7 +236,7 @@ public:
 	std::set<ui8> players; //players that visited this object
 
 	bool wasVisited(ui8 player) const;
-	virtual void setPropertyDer( ui8 what, ui32 val );
+	void setPropertyDer(ui8 what, ui32 val) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -252,10 +253,10 @@ public:
 	void randomizeArmy(int type);
 	void updateMoraleBonusFromArmy();
 
-	void armyChanged() OVERRIDE;
+	void armyChanged() override;
 
 	//////////////////////////////////////////////////////////////////////////
-	int valOfGlobalBonuses(CSelector selector) const; //used only for castle interface								???
+//	int valOfGlobalBonuses(CSelector selector) const; //used only for castle interface								???
 	virtual CBonusSystemNode *whereShouldBeAttached(CGameState *gs);
 	virtual CBonusSystemNode *whatShouldBeAttached();
 	//////////////////////////////////////////////////////////////////////////
@@ -417,15 +418,17 @@ public:
 	virtual ~CGHeroInstance();
 	//////////////////////////////////////////////////////////////////////////
 	//
-	ui8 bearerType() const OVERRIDE;
+	ui8 bearerType() const override;
 	//////////////////////////////////////////////////////////////////////////
 
-	virtual CBonusSystemNode *whereShouldBeAttached(CGameState *gs) OVERRIDE;
-	virtual std::string nodeName() const OVERRIDE;
+	CBonusSystemNode *whereShouldBeAttached(CGameState *gs) override;
+	std::string nodeName() const override;
 	void deserializationFix();
-	void setPropertyDer(ui8 what, ui32 val);//synchr
-	void initObj();
-	void onHeroVisit(const CGHeroInstance * h) const;
+
+	void initObj() override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+protected:
+	void setPropertyDer(ui8 what, ui32 val) override;//synchr
 };
 
 class DLL_LINKAGE CSpecObjInfo
@@ -466,10 +469,12 @@ public:
 		h & static_cast<CArmedInstance&>(*this) & creatures;
 	}
 
-	void initObj();
-	void setProperty(ui8 what, ui32 val);
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void newTurn() const;
+	void initObj() override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void newTurn() const override;
+protected:
+	void setPropertyDer(ui8 what, ui32 val) override;
+private:
 	void heroAcceptsCreatures(const CGHeroInstance *h, ui32 answer) const;
 	void fightOver(const CGHeroInstance *h, BattleResult *result) const;
 	void wantsFight(const CGHeroInstance *h, ui32 answer) const;
@@ -481,22 +486,26 @@ class DLL_LINKAGE CGVisitableOPH : public CGObjectInstance //objects visitable o
 public:
 	std::set<si32> visitors; //ids of heroes who have visited this obj
 	si8 ttype; //tree type - used only by trees of knowledge: 0 - give level for free; 1 - take 2000 gold; 2 - take 10 gems
-	const std::string & getHoverText() const;
 
-	void setPropertyDer(ui8 what, ui32 val);//synchr
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void onNAHeroVisit(int heroID, bool alreadyVisited) const;
-	void initObj();
-	bool wasVisited (const CGHeroInstance * h) const;
-	void treeSelected(int heroID, int resType, int resVal, TExpType expVal, ui32 result) const; //handle player's anwer to the Tree of Knowledge dialog
-	void schoolSelected(int heroID, ui32 which) const;
-	void arenaSelected(int heroID, int primSkill) const;
+	const std::string & getHoverText() const override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void initObj() override;
+	bool wasVisited (const CGHeroInstance * h) const override;
+
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & visitors & ttype;
 	}
+protected:
+	void setPropertyDer(ui8 what, ui32 val) override;//synchr
+private:
+	void onNAHeroVisit(int heroID, bool alreadyVisited) const;
+	///dialog callbacks
+	void treeSelected(int heroID, int resType, int resVal, TExpType expVal, ui32 result) const;
+	void schoolSelected(int heroID, ui32 which) const;
+	void arenaSelected(int heroID, int primSkill) const;
 };
 class DLL_LINKAGE CGTownBuilding : public IObjectInterface
 {
@@ -515,8 +524,8 @@ class DLL_LINKAGE COPWBonus : public CGTownBuilding
 {///used for OPW bonusing structures
 public:
 	std::set<si32> visitors;
-	void setProperty(ui8 what, ui32 val);
-	void onHeroVisit (const CGHeroInstance * h) const;
+	void setProperty(ui8 what, ui32 val) override;
+	void onHeroVisit (const CGHeroInstance * h) const override;
 
 	COPWBonus (int index, CGTownInstance *TOWN);
 	COPWBonus (){ID = 0; town = NULL;};
@@ -533,8 +542,8 @@ class DLL_LINKAGE CTownBonus : public CGTownBuilding
 ///feel free to merge inheritance tree
 public:
 	std::set<si32> visitors;
-	void setProperty(ui8 what, ui32 val);
-	void onHeroVisit (const CGHeroInstance * h) const;
+	void setProperty(ui8 what, ui32 val) override;
+	void onHeroVisit (const CGHeroInstance * h) const override;
 
 	CTownBonus (int index, CGTownInstance *TOWN);
 	CTownBonus (){ID = 0; town = NULL;};
@@ -604,8 +613,8 @@ public:
 	}
 	//////////////////////////////////////////////////////////////////////////
 
-	virtual CBonusSystemNode *whatShouldBeAttached() OVERRIDE;
-	std::string nodeName() const OVERRIDE;
+	CBonusSystemNode *whatShouldBeAttached() override;
+	std::string nodeName() const override;
 	void deserializationFix();
 	void recreateBuildingsBonuses();
 	bool addBonusIfBuilt(int building, int type, int val, TPropagatorPtr prop, int subtype = -1); //returns true if building is built and bonus has been added
@@ -622,11 +631,10 @@ public:
 	int getSightRadious() const; //returns sight distance
 	int getBoatType() const; //0 - evil (if a ship can be evil...?), 1 - good, 2 - neutral
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
-	int getMarketEfficiency() const; //=market count
+	int getMarketEfficiency() const override; //=market count
 	bool allowsTrade(EMarketMode::EMarketMode mode) const;
 	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
-	void setPropertyDer(ui8 what, ui32 val);
-	void newTurn() const;
+
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -651,13 +659,16 @@ public:
 	CGTownInstance();
 	virtual ~CGTownInstance();
 
-	//////////////////////////////////////////////////////////////////////////
-
-
+	///IObjectInterface overrides
+	void newTurn() const override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void onHeroLeave(const CGHeroInstance * h) const override;
+	void initObj() override;
+protected:
+	void setPropertyDer(ui8 what, ui32 val) override;
+private:
+	///dialog callbacks
 	void fightOver(const CGHeroInstance *h, BattleResult *result) const;
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void onHeroLeave(const CGHeroInstance * h) const;
-	void initObj();
 };
 class DLL_LINKAGE CGPandoraBox : public CArmedInstance
 {
@@ -677,13 +688,8 @@ public:
 	std::vector<si32> spells; //gained spells
 	CCreatureSet creatures; //gained creatures
 
-	void initObj();
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void open (const CGHeroInstance * h, ui32 accept) const;
-	void endBattle(const CGHeroInstance *h, BattleResult *result) const;
-	void giveContents(const CGHeroInstance *h, bool afterBattle) const;
-	void getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const;
-	void getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const;
+	void initObj() override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -691,6 +697,13 @@ public:
 		h & message & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
 			& abilities & abilityLevels & artifacts & spells & creatures;
 	}
+protected:
+	void endBattle(const CGHeroInstance *h, BattleResult *result) const;
+	void giveContents(const CGHeroInstance *h, bool afterBattle) const;
+private:
+	void open (const CGHeroInstance * h, ui32 accept) const;
+	void getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const;
+	void getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const;
 };
 
 class DLL_LINKAGE CGEvent : public CGPandoraBox  //event objects
@@ -707,9 +720,9 @@ public:
 		h & removeAfterVisit & availableFor & computerActivate & humanActivate;
 	}
 
-	void onHeroVisit(const CGHeroInstance * h) const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+private:
 	void activated(const CGHeroInstance * h) const;
-
 };
 
 class DLL_LINKAGE CGCreature : public CArmedInstance //creatures on map
@@ -724,18 +737,12 @@ public:
 	ui8 notGrowingTeam; //if true, number of units won't grow
 	ui64 temppower; //used to handle fractional stack growth for tiny stacks
 
-	void fight(const CGHeroInstance *h) const;
-	void onHeroVisit(const CGHeroInstance * h) const;
-	const std::string & getHoverText() const;
 
-	void flee( const CGHeroInstance * h ) const;
-	void endBattle(BattleResult *result) const;
-	void fleeDecision(const CGHeroInstance *h, ui32 pursue) const;
-	void joinDecision(const CGHeroInstance *h, int cost, ui32 accept) const;
-	void initObj();
-	void newTurn() const;
-	void setPropertyDer(ui8 what, ui32 val);
-	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	const std::string & getHoverText() const override;
+	void initObj() override;
+	void newTurn() const override;
+
 
 	struct DLL_LINKAGE RestoredCreature // info about merging stacks after battle back into one
 	{
@@ -751,6 +758,18 @@ public:
 		h & static_cast<CArmedInstance&>(*this);
 		h & identifier & character & message & resources & gainedArtifact & neverFlees & notGrowingTeam & temppower & restore;
 	}
+protected:
+	void setPropertyDer(ui8 what, ui32 val) override;
+private:
+
+	void fight(const CGHeroInstance *h) const;
+	void flee( const CGHeroInstance * h ) const;
+	void endBattle(BattleResult *result) const;
+	void fleeDecision(const CGHeroInstance *h, ui32 pursue) const;
+	void joinDecision(const CGHeroInstance *h, int cost, ui32 accept) const;
+
+	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
+
 };
 
 
@@ -759,8 +778,8 @@ class DLL_LINKAGE CGSignBottle : public CGObjectInstance //signs and ocean bottl
 public:
 	std::string message;
 
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void initObj();
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void initObj() override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -793,11 +812,10 @@ public:
 	std::string seerName;
 
 	CGSeerHut() : IQuestObject(){};
-	void initObj();
-	const std::string & getHoverText() const;
-	void setPropertyDer (ui8 what, ui32 val);
-	void newTurn() const;
-	void onHeroVisit (const CGHeroInstance * h) const;
+	void initObj() override;
+	const std::string & getHoverText() const override;
+	void newTurn() const override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	int checkDirection() const; //calculates the region of map where monster is placed
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
@@ -813,13 +831,15 @@ public:
 		h & static_cast<CArmedInstance&>(*this) & static_cast<IQuestObject&>(*this);
 		h & rewardType & rID & rVal & seerName;
 	}
+protected:
+	void setPropertyDer(ui8 what, ui32 val) override;
 };
 
 class DLL_LINKAGE CGQuestGuard : public CGSeerHut
 {
 public:
 	CGQuestGuard() : CGSeerHut(){};
-	void initObj();
+	void initObj() override;
 	void completeQuest (const CGHeroInstance * h) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -834,9 +854,9 @@ public:
 	std::vector<si32> allowedAbilities;
 	ui32 ability;
 
-	const std::string & getHoverText() const;
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void initObj();
+	const std::string & getHoverText() const override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void initObj() override;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CPlayersVisited&>(*this);
@@ -851,9 +871,9 @@ public:
 	ui8 bonusType; //255 - random, 0 - primary skill, 1 - secondary skill, 2 - spell
 	ui16 bonusID; //ID of skill/spell
 
-	void giveAnyBonus(const CGHeroInstance * h) const; //FIXME: unused?
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void initObj();
+//	void giveAnyBonus(const CGHeroInstance * h) const; //TODO: remove
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void initObj() override;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
@@ -867,7 +887,7 @@ public:
 	ui8 removableUnits;
 
 	ui8 getPassableness() const;
-	void onHeroVisit (const CGHeroInstance *h) const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
 	void fightOver (const CGHeroInstance *h, BattleResult *result) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -883,11 +903,11 @@ public:
 	CArtifactInstance *storedArtifact;
 	std::string message;
 
-	void onHeroVisit(const CGHeroInstance * h) const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
 	void fightForArt(ui32 agreed, const CGHeroInstance *h) const;
 	void endBattle(BattleResult *result, const CGHeroInstance *h) const;
 	void pick( const CGHeroInstance * h ) const;
-	void initObj();
+	void initObj() override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -902,9 +922,10 @@ public:
 	ui32 amount; //0 if random
 	std::string message;
 
-	void onHeroVisit(const CGHeroInstance * h) const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void initObj() override;
+
 	void collectRes(int player) const;
-	void initObj();
 	void fightForRes(ui32 agreed, const CGHeroInstance *h) const;
 	void endBattle(BattleResult *result, const CGHeroInstance *h) const;
 
@@ -920,8 +941,8 @@ class DLL_LINKAGE CGPickable : public CGObjectInstance //campfire, treasure ches
 public:
 	ui32 type, val1, val2;
 
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void initObj();
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void initObj() override;
 	void chosen(int which, int heroID) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -935,9 +956,9 @@ class DLL_LINKAGE CGShrine : public CPlayersVisited
 {
 public:
 	ui8 spell; //number of spell or 255 if random
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void initObj();
-	const std::string & getHoverText() const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void initObj() override;
+	const std::string & getHoverText() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -956,11 +977,11 @@ public:
 	void endBattle(BattleResult *result, ui8 attackingPlayer) const;
 	void fight(ui32 agreed, const CGHeroInstance *h) const;
 
-	void onHeroVisit(const CGHeroInstance * h) const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	void flagMine(ui8 player) const;
-	void newTurn() const;
-	void initObj();
+	void newTurn() const override;
+	void initObj() override;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
@@ -974,16 +995,17 @@ class DLL_LINKAGE CGVisitableOPW : public CGObjectInstance //objects visitable O
 public:
 	ui8 visited; //true if object has been visited this week
 
-	void setPropertyDer(ui8 what, ui32 val);//synchr
 	bool wasVisited(ui8 player) const;
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void newTurn() const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void newTurn() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 		h & visited;
 	}
+protected:
+	void setPropertyDer(ui8 what, ui32 val) override;
 };
 
 class DLL_LINKAGE CGTeleport : public CGObjectInstance //teleports and subterranean gates
@@ -991,8 +1013,8 @@ class DLL_LINKAGE CGTeleport : public CGObjectInstance //teleports and subterran
 public:
 	static std::map<int,std::map<int, std::vector<int> > > objs; //teleports: map[ID][subID] => vector of ids
 	static std::vector<std::pair<int, int> > gates; //subterranean gates: pairs of ids
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void initObj();
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void initObj() override;
 	static void postInit();
 	static int getMatchingGate(int id); //receives id of one subterranean gate and returns id of the paired one, -1 if none
 
@@ -1006,9 +1028,9 @@ class DLL_LINKAGE CGBonusingObject : public CGObjectInstance //objects giving bo
 {
 public:
 	bool wasVisited (const CGHeroInstance * h) const;
-	void onHeroVisit(const CGHeroInstance * h) const;
-	const std::string & getHoverText() const;
-	void initObj();
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	const std::string & getHoverText() const override;
+	void initObj() override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1019,8 +1041,8 @@ public:
 class DLL_LINKAGE CGMagicSpring : public CGVisitableOPW
 {///unfortunatelly, this one is quite different than others
 public:
-	void onHeroVisit(const CGHeroInstance * h) const;
-	const std::string & getHoverText() const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	const std::string & getHoverText() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1032,8 +1054,8 @@ public:
 class DLL_LINKAGE CGMagicWell : public CGObjectInstance //objects giving bonuses to luck/morale/movement
 {
 public:
-	void onHeroVisit(const CGHeroInstance * h) const;
-	const std::string & getHoverText() const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	const std::string & getHoverText() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1044,9 +1066,9 @@ public:
 class DLL_LINKAGE CGSirens : public CGObjectInstance
 {
 public:
-	void onHeroVisit(const CGHeroInstance * h) const;
-	const std::string & getHoverText() const;
-	void initObj();
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	const std::string & getHoverText() const override;
+	void initObj() override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1057,7 +1079,7 @@ public:
 class DLL_LINKAGE CGObservatory : public CGObjectInstance //Redwood observatory
 {
 public:
-	void onHeroVisit(const CGHeroInstance * h) const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1072,21 +1094,24 @@ public:
 	static std::map <ui8, std::set <ui8> > playerKeyMap; //[players][keysowned]
 	//SubID 0 - lightblue, 1 - green, 2 - red, 3 - darkblue, 4 - brown, 5 - purple, 6 - white, 7 - black
 
-	void setPropertyDer (ui8 what, ui32 val);
 	const std::string getName() const; //depending on color
 	bool wasMyColorVisited (int player) const;
+
+	const std::string & getHoverText() const override;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 	}
+protected:
+	void setPropertyDer(ui8 what, ui32 val) override;
 };
 
 class DLL_LINKAGE CGKeymasterTent : public CGKeys
 {
 public:
 	bool wasVisited (ui8 player) const;
-	void onHeroVisit(const CGHeroInstance * h) const;
-	const std::string & getHoverText() const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1098,12 +1123,13 @@ class DLL_LINKAGE CGBorderGuard : public CGKeys, public IQuestObject
 {
 public:
 	CGBorderGuard() : IQuestObject(){};
-	void initObj();
-	const std::string & getHoverText() const;
+	void initObj() override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+
 	void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = NULL) const;
 	void getRolloverText (MetaString &text, bool onHover) const;
 	bool checkQuest (const CGHeroInstance * h) const;
-	void onHeroVisit(const CGHeroInstance * h) const;
+
 	void openGate(const CGHeroInstance *h, ui32 accept) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1118,8 +1144,9 @@ class DLL_LINKAGE CGBorderGate : public CGBorderGuard
 {
 public:
 	CGBorderGate() : CGBorderGuard(){};
-	void onHeroVisit(const CGHeroInstance * h) const;
-	ui8 getPassableness() const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+
+	ui8 getPassableness() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1133,7 +1160,7 @@ public:
 	ui8 direction;
 	const CGHeroInstance *hero;  //hero on board
 
-	void initObj();
+	void initObj() override;
 
 	CGBoat()
 	{
@@ -1154,9 +1181,10 @@ public:
 	ui32 bonusType, //id of res or artifact
 		bonusVal; //resource amount (or not used)
 
-	void onHeroVisit(const CGHeroInstance * h) const;
-	const std::string & getHoverText() const;
-	void initObj();
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	const std::string & getHoverText() const override;
+	void initObj() override;
+
 	void searchTomb(const CGHeroInstance *h, ui32 accept) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1175,14 +1203,14 @@ class DLL_LINKAGE CBank : public CArmedInstance
 	std::vector<ui32> artifacts; //fixed and deterministic
 	ui32 daycounter;
 
-	void initObj();
-	const std::string & getHoverText() const;
-	void setPropertyDer (ui8 what, ui32 val);
+	void initObj() override;
+	const std::string & getHoverText() const override;
 	void initialize() const;
 	void reset(ui16 var1);
-	void newTurn() const;
-	bool wasVisited (ui8 player) const;
-	virtual void onHeroVisit (const CGHeroInstance * h) const;
+	void newTurn() const override;
+	bool wasVisited (ui8 player) const override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+
 	virtual void fightGuards (const CGHeroInstance *h, ui32 accept) const;
 	virtual void endBattle (const CGHeroInstance *h, const BattleResult *result) const;
 
@@ -1191,17 +1219,20 @@ class DLL_LINKAGE CBank : public CArmedInstance
 		h & static_cast<CArmedInstance&>(*this);
 		h & index & multiplier & artifacts & daycounter & bc;
 	}
+protected:
+	void setPropertyDer(ui8 what, ui32 val) override;
 };
 class DLL_LINKAGE CGPyramid : public CBank
 {
 public:
 	ui16 spell;
 
-	void initObj();
-	const std::string & getHoverText() const;
-	void newTurn() const {}; //empty, no reset
-	void onHeroVisit (const CGHeroInstance * h) const;
-	void endBattle (const CGHeroInstance *h, const BattleResult *result) const;
+	void initObj() override;
+	const std::string & getHoverText() const override;
+	void newTurn() const override {}; //empty, no reset
+	void onHeroVisit(const CGHeroInstance * h) const override;
+
+	void endBattle (const CGHeroInstance *h, const BattleResult *result) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1215,7 +1246,7 @@ class CGShipyard : public CGObjectInstance, public IShipyard
 public:
 	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
 	CGShipyard();
-	void onHeroVisit(const CGHeroInstance * h) const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
 };
 
 class DLL_LINKAGE CGMagi : public CGObjectInstance
@@ -1223,8 +1254,8 @@ class DLL_LINKAGE CGMagi : public CGObjectInstance
 public:
 	static std::map <si32, std::vector<si32> > eyelist; //[subID][id], supports multiple sets as in H5
 
-	void initObj();
-	void onHeroVisit(const CGHeroInstance * h) const;
+	void initObj() override;
+	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1238,7 +1269,7 @@ class DLL_LINKAGE CCartographer : public CPlayersVisited
 {
 ///behaviour varies depending on surface and  floor
 public:
-	void onHeroVisit( const CGHeroInstance * h ) const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
 	void buyMap (const CGHeroInstance *h, ui32 accept) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1249,7 +1280,7 @@ public:
 
 class DLL_LINKAGE CGDenOfthieves : public CGObjectInstance
 {
-	void onHeroVisit (const CGHeroInstance * h) const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
 };
 
 class DLL_LINKAGE CGObelisk : public CPlayersVisited
@@ -1258,23 +1289,24 @@ public:
 	static ui8 obeliskCount; //how many obelisks are on map
 	static std::map<ui8, ui8> visited; //map: team_id => how many obelisks has been visited
 
-	void setPropertyDer (ui8 what, ui32 val);
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void initObj();
-	const std::string & getHoverText() const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void initObj() override;
+	const std::string & getHoverText() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CPlayersVisited&>(*this);
 	}
+protected:
+	void setPropertyDer(ui8 what, ui32 val) override;
 };
 
 class DLL_LINKAGE CGLighthouse : public CGObjectInstance
 {
 public:
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void initObj();
-	const std::string & getHoverText() const;
+	void onHeroVisit(const CGHeroInstance * h) const override;
+	void initObj() override;
+	const std::string & getHoverText() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1287,12 +1319,14 @@ class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket
 {
 public:
 	CGMarket();
-	void onHeroVisit(const CGHeroInstance * h) const; //open trading window
+	///IObjectIntercae
+	void onHeroVisit(const CGHeroInstance * h) const override; //open trading window
 
-	int getMarketEfficiency() const;
-	bool allowsTrade(EMarketMode::EMarketMode mode) const;
-	int availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const; //-1 if unlimited
-	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
+	///IMarket
+	int getMarketEfficiency() const override;
+	bool allowsTrade(EMarketMode::EMarketMode mode) const override;
+	int availableUnits(EMarketMode::EMarketMode mode, int marketItemSerial) const override; //-1 if unlimited
+	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1305,8 +1339,8 @@ class DLL_LINKAGE CGBlackMarket : public CGMarket
 public:
 	std::vector<const CArtifact *> artifacts; //available artifacts
 
-	void newTurn() const; //reset artifacts for black market every month
-	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
+	void newTurn() const override; //reset artifacts for black market every month
+	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1321,8 +1355,8 @@ public:
 	std::vector<int> skills; //available skills
 
 	std::vector<int> availableItemsIds(EMarketMode::EMarketMode mode) const;
-	void initObj();//set skills for trade
-	void onHeroVisit(const CGHeroInstance * h) const; //open window
+	void initObj() override;//set skills for trade
+	void onHeroVisit(const CGHeroInstance * h) const override; //open window
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

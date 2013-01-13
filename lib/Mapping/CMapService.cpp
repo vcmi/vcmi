@@ -993,7 +993,7 @@ void CMapLoaderH3M::readDefInfo()
 	//add holes - they always can appear
 	for(int i = 0; i < 8 ; ++i)
 	{
-		map->customDefs.push_back(VLC->dobjinfo->gobjs[124][i]);
+		map->customDefs.push_back(VLC->dobjinfo->gobjs[Obj::HOLE][i]);
 	}
 }
 
@@ -1147,7 +1147,7 @@ void CMapLoaderH3M::readObjects()
 				nobj = new CGVisitableOPW();
 				break;
 			}
-		case Obj::MONOLITH1: 
+		case Obj::MONOLITH1:
 		case Obj::MONOLITH2:
 		case Obj::MONOLITH3:
 		case Obj::SUBTERRANEAN_GATE:
@@ -1166,13 +1166,13 @@ void CMapLoaderH3M::readObjects()
 				break;
 			}
 		case Obj::MONSTER:  //Monster
-		case Obj::RANDOM_MONSTER: 
-		case Obj::RANDOM_MONSTER_L1: 
+		case Obj::RANDOM_MONSTER:
+		case Obj::RANDOM_MONSTER_L1:
 		case Obj::RANDOM_MONSTER_L2:
-		case Obj::RANDOM_MONSTER_L3: 
+		case Obj::RANDOM_MONSTER_L3:
 		case Obj::RANDOM_MONSTER_L4:
-		case Obj::RANDOM_MONSTER_L5: 
-		case Obj::RANDOM_MONSTER_L6: 
+		case Obj::RANDOM_MONSTER_L5:
+		case Obj::RANDOM_MONSTER_L6:
 		case Obj::RANDOM_MONSTER_L7:
 			{
 				CGCreature * cre = new CGCreature();
@@ -1248,7 +1248,7 @@ void CMapLoaderH3M::readObjects()
 				pos += 2;
 				break;
 			}
-		case Obj::OCEAN_BOTTLE: 
+		case Obj::OCEAN_BOTTLE:
 		case Obj::SIGN:
 			{
 				CGSignBottle * sb = new CGSignBottle();
@@ -1263,7 +1263,7 @@ void CMapLoaderH3M::readObjects()
 				map->addQuest(nobj);
 				break;
 			}
-		case Obj::WITCH_HUT: 
+		case Obj::WITCH_HUT:
 			{
 				CGWitchHut * wh = new CGWitchHut();
 				nobj = wh;
@@ -1306,7 +1306,7 @@ void CMapLoaderH3M::readObjects()
 				pos += 6;
 				break;
 			}
-		case Obj::GARRISON: 
+		case Obj::GARRISON:
 		case Obj::GARRISON2:
 			{
 				CGGarrison * gar = new CGGarrison();
@@ -1327,9 +1327,9 @@ void CMapLoaderH3M::readObjects()
 				break;
 			}
 		case Obj::ARTIFACT:
-		case Obj::RANDOM_ART: 
-		case Obj::RANDOM_TREASURE_ART: 
-		case Obj::RANDOM_MINOR_ART: 
+		case Obj::RANDOM_ART:
+		case Obj::RANDOM_TREASURE_ART:
+		case Obj::RANDOM_MINOR_ART:
 		case Obj::RANDOM_MAJOR_ART:
 		case Obj::RANDOM_RELIC_ART:
 		case Obj::SPELL_SCROLL:
@@ -1366,7 +1366,7 @@ void CMapLoaderH3M::readObjects()
 				art->storedArtifact = createArtifact(artID, spellID);
 				break;
 			}
-		case Obj::RANDOM_RESOURCE: 
+		case Obj::RANDOM_RESOURCE:
 		case Obj::RESOURCE:
 			{
 				CGResource * res = new CGResource();
@@ -1394,7 +1394,7 @@ void CMapLoaderH3M::readObjects()
 
 				break;
 			}
-		case Obj::RANDOM_TOWN: 
+		case Obj::RANDOM_TOWN:
 		case Obj::TOWN:
 			{
 				nobj = readTown(defInfo->subid);
@@ -1408,9 +1408,9 @@ void CMapLoaderH3M::readObjects()
 				pos += 3;
 				break;
 			}
-		case Obj::CREATURE_GENERATOR1: 
-		case Obj::CREATURE_GENERATOR2: 
-		case Obj::CREATURE_GENERATOR3: 
+		case Obj::CREATURE_GENERATOR1:
+		case Obj::CREATURE_GENERATOR2:
+		case Obj::CREATURE_GENERATOR3:
 		case Obj::CREATURE_GENERATOR4:
 			{
 				nobj = new CGDwelling();
@@ -1424,8 +1424,8 @@ void CMapLoaderH3M::readObjects()
 				nobj = new CGDwelling();
 				break;
 			}
-		case Obj::SHRINE_OF_MAGIC_INCANTATION: 
-		case Obj::SHRINE_OF_MAGIC_GESTURE: 
+		case Obj::SHRINE_OF_MAGIC_INCANTATION:
+		case Obj::SHRINE_OF_MAGIC_GESTURE:
 		case Obj::SHRINE_OF_MAGIC_THOUGHT:
 			{
 				CGShrine * shr = new CGShrine();
@@ -1519,7 +1519,7 @@ void CMapLoaderH3M::readObjects()
 				continue;
 			}
 		case Obj::RANDOM_DWELLING: //same as castle + level range
-		case Obj::RANDOM_DWELLING_LVL: //same as castle, fixed level 
+		case Obj::RANDOM_DWELLING_LVL: //same as castle, fixed level
 		case Obj::RANDOM_DWELLING_FACTION: //level range, fixed faction
 			{
 				nobj = new CGDwelling();
@@ -1601,7 +1601,7 @@ void CMapLoaderH3M::readObjects()
 				nobj = new CGObservatory();
 				break;
 			}
-		case Obj::CORPSE: 
+		case Obj::CORPSE:
 		case Obj::LEAN_TO:
 		case Obj::WAGON:
 		case Obj::WARRIORS_TOMB:
@@ -1665,16 +1665,16 @@ void CMapLoaderH3M::readObjects()
 				map->addQuest (nobj);
 				break;
 			}
-		case Obj::EYE_OF_MAGI: 
+		case Obj::EYE_OF_MAGI:
 		case Obj::HUT_OF_MAGI:
 			{
 				nobj = new CGMagi();
 				break;
 			}
-		case Obj::CREATURE_BANK: 
-		case Obj::DERELICT_SHIP: 
-		case Obj::DRAGON_UTOPIA: 
-		case Obj::CRYPT: 
+		case Obj::CREATURE_BANK:
+		case Obj::DERELICT_SHIP:
+		case Obj::DRAGON_UTOPIA:
+		case Obj::CRYPT:
 		case Obj::SHIPWRECK:
 			{
 				nobj = new CBank();
@@ -1691,7 +1691,7 @@ void CMapLoaderH3M::readObjects()
 					//WoG object
 					//TODO: possible special handling
 					nobj = new CGObjectInstance();
-				}				
+				}
 				break;
 			}
 		case Obj::CARTOGRAPHER:
@@ -1699,7 +1699,7 @@ void CMapLoaderH3M::readObjects()
 				nobj = new CCartographer();
 				break;
 			}
-		case Obj::MAGIC_SPRING: 
+		case Obj::MAGIC_SPRING:
 			{
 				nobj = new CGMagicSpring();
 				break;
@@ -1721,9 +1721,9 @@ void CMapLoaderH3M::readObjects()
 				pos += 4;
 				break;
 			}
-		case Obj::ALTAR_OF_SACRIFICE: 
-		case Obj::TRADING_POST: 
-		case Obj::FREELANCERS_GUILD: 
+		case Obj::ALTAR_OF_SACRIFICE:
+		case Obj::TRADING_POST:
+		case Obj::FREELANCERS_GUILD:
 		case Obj::TRADING_POST_SNOW:
 			{
 				nobj = new CGMarket();
