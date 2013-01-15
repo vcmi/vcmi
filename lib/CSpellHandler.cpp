@@ -96,7 +96,7 @@ namespace SRSLPraserHelpers
 			mainPointForLayer[b] = hexToPair(center);
 
 		for(int it=1; it<=high; ++it) //it - distance to the center
-		{		
+		{
 			for(int b=0; b<6; ++b)
 				mainPointForLayer[b] = gotoDir(mainPointForLayer[b], b);
 
@@ -122,11 +122,19 @@ namespace SRSLPraserHelpers
 		return ret;
 	}
 }
+
 using namespace SRSLPraserHelpers;
 CSpellHandler::CSpellHandler()
 {
-	VLC->spellh = this;
 }
+
+CSpell::CSpell()
+{
+	_isDamage = false;
+	_isMind = false;
+	_isRising = false;
+}
+
 std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
 {
 	std::vector<BattleHex> ret;
@@ -238,7 +246,7 @@ CSpell::ETargetType CSpell::getTargetType() const //TODO: parse these at game la
 
 	if(attributes.find("OBSTACLE_TARGET") != std::string::npos)
 		return OBSTACLE;
-	
+
 	return NO_TARGET;
 }
 
@@ -254,13 +262,30 @@ bool CSpell::isNegative() const
 
 bool CSpell::isRisingSpell() const
 {
-	return vstd::contains(VLC->spellh->risingSpells, id);
+	return _isRising;
 }
 
 bool CSpell::isDamageSpell() const
 {
-	return vstd::contains(VLC->spellh->damageSpells, id);
+	return _isDamage;
 }
+
+bool CSpell::isMindSpell() const
+{
+	return _isMind;
+}
+
+void CSpell::getEffects(std::vector<Bonus>& lst) const
+{
+	lst.reserve(lst.size() + _effects.size());
+
+	BOOST_FOREACH (Bonus b, _effects)
+	{
+		lst.push_back(b);
+	}
+}
+
+
 bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
 {
 	int3 diff = pos - center;
@@ -343,7 +368,10 @@ void CSpellHandler::loadSpells()
 	}
 	while (parser.endLine() && !parser.isNextEntryEmpty());
 
-	boost::replace_first (spells[47]->attributes, "2", ""); // disrupting ray will now affect single creature
+	boost::replace_first (spells[Spells::DISRUPTING_RAY]->attributes, "2", ""); // disrupting ray will now affect single creature
+
+
+	spells.push_back(spells[Spells::ACID_BREATH_DEFENSE]); //clone Acid Breath attributes for Acid Breath damage effect
 
 	//loading of additional spell traits
 	const JsonNode config(ResourceID("config/spell_info.json"));
@@ -367,16 +395,50 @@ void CSpellHandler::loadSpells()
 		s->identifier = spell.first;
 		VLC->modh->identifiers.registerObject("spell." + spell.first, spellID);
 
+		const JsonNode & flags_node = spell.second["flags"];
+		if (!flags_node.isNull())
+		{
+			auto flags = flags_node.convertTo<std::vector<std::string> >();
+
+			BOOST_FOREACH (const auto & flag, flags)
+			{
+				if (flag == "damage")
+				{
+					s->_isDamage = true;
+				}
+				else if (flag == "rising")
+				{
+					s->_isRising = true;
+				}
+				else if (flag == "mind")
+				{
+					s->_isMind = true;
+				}
+
+			}
+		}
+
+		const JsonNode & effects_node = spell.second["effects"];
+
+		if (!effects_node.isNull())
+		{
+			BOOST_FOREACH (const JsonNode & bonus_node, effects_node.Vector())
+			{
+				Bonus * b = JsonUtils::parseBonus(bonus_node);
+				b->sid = s->id;
+				b->source = Bonus::SPELL_EFFECT;
+				b->duration = Bonus::N_TURNS; //default
+				//TODO: make duration configurable
+				s->_effects.push_back(*b);
+			}
+		}
+
 	}
+
 	//spell fixes
 
-	spells.push_back(spells[80]); //clone Acid Breath attributes for Acid Breath damage effect
 	//forgetfulness needs to get targets automatically on expert level
-	boost::replace_first(spells[61]->attributes, "CREATURE_TARGET", "CREATURE_TARGET_2"); //TODO: use flags instead?
-
-	damageSpells += 11, 13, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 57, 77;
-	risingSpells += 38, 39, 40;
-	mindSpells += 50, 59, 60, 61, 62;
+	boost::replace_first(spells[Spells::FORGETFULNESS]->attributes, "CREATURE_TARGET", "CREATURE_TARGET_2"); //TODO: use flags instead?
 }
 
 std::vector<ui8> CSpellHandler::getDefaultAllowedSpells() const

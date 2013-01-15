@@ -1,94 +1,920 @@
 {
 	// Additional spell info, not included in original heroes III files
 	//   id: spell ID
-	//   effect: -1 -> spell is negative for influenced creatures, 
+	//   effect: -1 -> spell is negative for influenced creatures,
     //			  0 -> spell is indifferent for them
     //			  1 -> spell is positive for them
 	//   anim: main effect animation (AC format), -1 - none
     //   ranges: spell range description in SRSL ([no magic] [basic] [advanced] [expert])
 
+    // flags: string array of
+    //		damage
+    //		directDamage //todo
+    //		rising
+    //		mind
+
+    //effects: array of bonus for permanent effects
+
 	"spells":
 	{
-		"summonBoat"     : { "id": 0, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"scuttleBoat"    : { "id": 1, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"visions"        : { "id": 2, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"viewEarth"      : { "id": 3, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"disguise"       : { "id": 4, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"viewAir"        : { "id": 5, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"fly"            : { "id": 6, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"waterWalk"      : { "id": 7, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"dimensionDoor"  : { "id": 8, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"townPortal"     : { "id": 9, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"quicksand"      : { "id": 10, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"landMine"       : { "id": 11, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"forceField"     : { "id": 12, "effect": 0, "anim": -1, "ranges": [ "0", "0", "0", "0" ] },
-		"fireWall"       : { "id": 13, "effect": 0, "anim": -1, "ranges": [ "0", "0", "0", "0" ] },
-		"earthquake"     : { "id": 14, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"magicArrow"     : { "id": 15, "effect": -1, "anim": 64, "ranges": [ "0", "0", "0", "0" ] },
-		"iceBolt"        : { "id": 16, "effect": -1, "anim": 46, "ranges": [ "0", "0", "0", "0" ] },
-		"lightningBolt"  : { "id": 17, "effect": -1, "anim": 38, "ranges": [ "0", "0", "0", "0" ] },
-		"implosion"      : { "id": 18, "effect": -1, "anim": 10, "ranges": [ "0", "0", "0", "0" ] },
-		"chainLightning" : { "id": 19, "effect": -1, "anim": 38, "ranges": [ "0", "0", "0", "0" ] },
-		"frostRing"      : { "id": 20, "effect": -1, "anim": 45, "ranges": [ "1", "1", "1", "1" ] },
-		"fireball"       : { "id": 21, "effect": -1, "anim": 53, "ranges": [ "0,1", "0,1", "0,1", "0,1" ] },
-		"inferno"        : { "id": 22, "effect": -1, "anim": 9, "ranges": [ "0-2", "0-2", "0-2", "0-2" ] },
-		"meteorShower"   : { "id": 23, "effect": -1, "anim": 16, "ranges": [ "0,1", "0,1", "0,1", "0,1" ] },
-		"deathRipple"    : { "id": 24, "effect": -1, "anim": 8, "ranges": [ "X", "X", "X", "X" ] },
-		"destroyUndead"  : { "id": 25, "effect": -1, "anim": 29, "ranges": [ "X", "X", "X", "X" ] },
-		"armageddon"     : { "id": 26, "effect": -1, "anim": 12, "ranges": [ "X", "X", "X", "X" ] },
-		"shield"         : { "id": 27, "effect": 1, "anim": 27, "ranges": [ "0", "0", "0", "X" ] },
-		"airShield"      : { "id": 28, "effect": 1, "anim": 2, "ranges": [ "0", "0", "0", "X" ] },
-		"fireShield"     : { "id": 29, "effect": 1, "anim": 11, "ranges": [ "0", "0", "0", "X" ] },
-		"protectAir"     : { "id": 30, "effect": 1, "anim": 22, "ranges": [ "0", "0", "0", "X" ] },
-		"protectFire"    : { "id": 31, "effect": 1, "anim": 24, "ranges": [ "0", "0", "0", "X" ] },
-		"protectWater"   : { "id": 32, "effect": 1, "anim": 23, "ranges": [ "0", "0", "0", "X" ] },
-		"protectEarth"   : { "id": 33, "effect": 1, "anim": 26, "ranges": [ "0", "0", "0", "X" ] },
-		"antiMagic"      : { "id": 34, "effect": 1, "anim": 5, "ranges": [ "0", "0", "0", "X" ] },
-		"dispel"         : { "id": 35, "effect": 0, "anim": 41, "ranges": [ "0", "0", "0", "X" ] },
-		"magicMirror"    : { "id": 36, "effect": 1, "anim": 3, "ranges": [ "0", "0", "0", "0" ] },
-		"cure"           : { "id": 37, "effect": 1, "anim": 39, "ranges": [ "0", "0", "0", "0" ] },
-		"resurrection"   : { "id": 38, "effect": 1, "anim": 79, "ranges": [ "0", "0", "0", "0" ] },
-		"animateDead"    : { "id": 39, "effect": 1, "anim": 79, "ranges": [ "0", "0", "0", "0" ] },
-		"sacrifice"      : { "id": 40, "effect": 1, "anim": 79, "ranges": [ "0", "0", "0", "0" ] },
-		"bless"          : { "id": 41, "effect": 1, "anim": 36, "ranges": [ "0", "0", "0", "X" ], "counters" : [42] },
-		"curse"          : { "id": 42, "effect": -1, "anim": 40, "ranges": [ "0", "0", "0", "X" ], "counters" : [41] },
-		"bloodlust"      : { "id": 43, "effect": 1, "anim": 4, "ranges": [ "0", "0", "0", "X" ], "counters" : [45] },
-		"precision"      : { "id": 44, "effect": 1, "anim": 25, "ranges": [ "0", "0", "0", "X" ] },
-		"weakness"       : { "id": 45, "effect": -1, "anim": 56, "ranges": [ "0", "0", "0", "X" ], "counters" : [43] },
-		"stoneSkin"      : { "id": 46, "effect": 1, "anim": 54, "ranges": [ "0", "0", "0", "X" ] },
-		"disruptingRay"  : { "id": 47, "effect": -1, "anim": 14, "ranges": [ "0", "0", "0", "0" ] },
-		"prayer"         : { "id": 48, "effect": 1, "anim": 0, "ranges": [ "0", "0", "0", "X" ] },
-		"mirth"          : { "id": 49, "effect": 1, "anim": 20, "ranges": [ "0", "0", "0", "X" ], "counters" : [50] },
-		"sorrow"         : { "id": 50, "effect": -1, "anim": 30, "ranges": [ "0", "0", "0", "X" ], "counters" : [49] },
-		"fortune"        : { "id": 51, "effect": 1, "anim": 18, "ranges": [ "0", "0", "0", "X" ], "counters" : [52] },
-		"misfortune"     : { "id": 52, "effect": -1, "anim": 48, "ranges": [ "0", "0", "0", "X" ], "counters" : [51] },
-		"haste"          : { "id": 53, "effect": 1, "anim": 31, "ranges": [ "0", "0", "0", "X" ], "counters" : [54] },
-		"slow"           : { "id": 54, "effect": -1, "anim": 19, "ranges": [ "0", "0", "0", "X" ], "counters" : [53] },
-		"slayer"         : { "id": 55, "effect": 1, "anim": 28, "ranges": [ "0", "0", "0", "0" ] },
-		"frenzy"         : { "id": 56, "effect": 1, "anim": 17, "ranges": [ "0", "0", "0", "0" ] },
-		"titanBolt"      : { "id": 57, "effect": -1, "anim": 38, "ranges": [ "0", "0", "0", "0" ] },
-		"counterstrike"  : { "id": 58, "effect": 1, "anim": 7, "ranges": [ "0", "0", "0", "X" ] },
-		"berserk"        : { "id": 59, "effect": -1, "anim": 35, "ranges": [ "0", "0", "0-1", "0-2" ] },
-		"hypnotize"      : { "id": 60, "effect": -1, "anim": 21, "ranges": [ "0", "0", "0", "0" ] },
-		"forgetfulness"  : { "id": 61, "effect": -1, "anim": 42, "ranges": [ "0", "0", "0", "X" ] },
-		"blind"          : { "id": 62, "effect": -1, "anim": 6, "ranges": [ "0", "0", "0", "0" ] },
-		"teleport"       : { "id": 63, "effect": 1, "anim": -1, "ranges": [ "0", "0", "0", "0" ] },
-		"removeObstacle" : { "id": 64, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"clone"          : { "id": 65, "effect": 1, "anim": -1, "ranges": [ "0", "0", "0", "0" ] },
-		"fireElemental"  : { "id": 66, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"earthElemental" : { "id": 67, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"waterElemental" : { "id": 68, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"airElemental"   : { "id": 69, "effect": 0, "anim": -1, "ranges": [ "X", "X", "X", "X" ] },
-		"stoneGaze"      : { "id": 70, "effect": 0, "anim": 70, "ranges": [ "0", "0", "0", "0" ] },
-		"poison"         : { "id": 71, "effect": -1, "anim": 67, "ranges": [ "0", "0", "0", "0" ] },
-		"bind"           : { "id": 72, "effect": 0, "anim": 68, "ranges": [ "0", "0", "0", "0" ] },
-		"disease"        : { "id": 73, "effect": -1, "anim": 69, "ranges": [ "0", "0", "0", "0" ] },
-		"paralyze"       : { "id": 74, "effect": -1, "anim": 70, "ranges": [ "0", "0", "0", "0" ] },
-		"age"            : { "id": 75, "effect": -1, "anim": 71, "ranges": [ "0", "0", "0", "0" ] },
-		"deathCloud"     : { "id": 76, "effect": 0, "anim": 72, "ranges": [ "0-1", "0-1", "0-1", "0-1" ] },
-		"thunderbolt"    : { "id": 77, "effect": -1, "anim": 38, "ranges": [ "0", "0", "0", "0" ] },
-		"dispelHelpful"  : { "id": 78, "effect": -1, "anim": 41, "ranges": [ "0", "0", "0", "0" ] },
-		"deathStare"     : { "id": 79, "effect": 0, "anim": 80, "ranges": [ "0", "0", "0", "0" ] },
-		"acidBreath"     : { "id": 80, "effect": 0, "anim": 81, "ranges": [ "0", "0", "0", "0" ] }
+		"summonBoat"     :
+		{
+			"id": 0,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"scuttleBoat"    :
+		{
+			"id": 1,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"visions"        :
+		{
+			"id": 2,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"viewEarth"      :
+		{
+			"id": 3,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"disguise"       :
+		{
+			"id": 4,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"viewAir"        :
+		{
+			"id": 5,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"fly"            :
+		{
+			"id": 6,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"waterWalk"      :
+		{
+			"id": 7,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"dimensionDoor"  :
+		{
+			"id": 8,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"townPortal"     :
+		{
+			"id": 9,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"quicksand"      :
+		{
+			"id": 10,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"landMine"       :
+		{
+			"id": 11,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ],
+			"flags" : ["damage"]
+		},
+		"forceField"     :
+		{
+			"id": 12,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "0", "0", "0", "0" ]
+		},
+		"fireWall"       :
+		{
+			"id": 13,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["damage"]
+		},
+		"earthquake"     :
+		{
+			"id": 14,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"magicArrow"     :
+		{
+			"id": 15,
+			"effect": -1,
+			"anim": 64,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["damage"]
+		},
+		"iceBolt"        :
+		{
+			"id": 16,
+			"effect": -1,
+			"anim": 46,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["damage"]
+		},
+		"lightningBolt"  :
+		{
+			"id": 17,
+			"effect": -1,
+			"anim": 38,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["damage"]
+		},
+		"implosion"      :
+		{
+			"id": 18,
+			"effect": -1,
+			"anim": 10,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["damage"]
+		},
+		"chainLightning" :
+		{
+			"id": 19,
+			"effect": -1,
+			"anim": 38,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["damage"]
+		},
+		"frostRing"      :
+		{
+			"id": 20,
+			"effect": -1,
+			"anim": 45,
+			"ranges": [ "1", "1", "1", "1" ],
+			"flags" : ["damage"]
+		},
+		"fireball"       :
+		{
+			"id": 21,
+			"effect": -1,
+			"anim": 53,
+			"ranges": [ "0,1", "0,1", "0,1", "0,1" ],
+			"flags" : ["damage"]
+		},
+		"inferno"        :
+		{
+			"id": 22,
+			"effect": -1,
+			"anim": 9,
+			"ranges": [ "0-2", "0-2", "0-2", "0-2" ],
+			"flags" : ["damage"]
+		},
+		"meteorShower"   :
+		{
+			"id": 23,
+			"effect": -1,
+			"anim": 16,
+			"ranges": [ "0,1", "0,1", "0,1", "0,1" ],
+			"flags" : ["damage"]
+		},
+		"deathRipple"    :
+		{
+			"id": 24,
+			"effect": -1,
+			"anim": 8,
+			"ranges": [ "X", "X", "X", "X" ],
+			"flags" : ["damage"]
+		},
+		"destroyUndead"  :
+		{
+			"id": 25,
+			"effect": -1,
+			"anim": 29,
+			"ranges": [ "X", "X", "X", "X" ],
+			"flags" : ["damage"]
+		},
+		"armageddon"     :
+		{
+			"id": 26,
+			"effect": -1,
+			"anim": 12,
+			"ranges": [ "X", "X", "X", "X" ],
+			"flags" : ["damage"]
+		},
+		"shield"         :
+		{
+			"id": 27,
+			"effect": 1,
+			"anim": 27,
+			"ranges": [ "0", "0", "0", "X" ],
+			"effects":
+			[
+				{
+					"type": 	"GENERAL_DAMAGE_REDUCTION",
+					"subtype":0
+				}
+			]
+		},
+		"airShield"      :
+		{
+			"id": 28,
+			"effect": 1,
+			"anim": 2,
+			"ranges": [ "0", "0", "0", "X" ],
+			"effects":
+			[
+				{
+					"type": 	"GENERAL_DAMAGE_REDUCTION",
+					"subtype":1
+				}
+			]
+		},
+		"fireShield"     :
+		{
+			"id": 29,
+			"effect": 1,
+			"anim": 11,
+			"ranges": [ "0", "0", "0", "X" ],
+			"effects":
+			[
+				{
+					"type": 	"FIRE_SHIELD"
+				}
+			]
+		},
+		"protectAir"     :
+		{
+			"id": 30,
+			"effect": 1,
+			"anim": 22,
+			"ranges": [ "0", "0", "0", "X" ],
+			"effects":
+			[
+				{
+					"type": 	"SPELL_DAMAGE_REDUCTION",
+					"subtype":0
+				}
+			]
+		},
+		"protectFire"    :
+		{
+			"id": 31,
+			"effect": 1,
+			"anim": 24,
+			"ranges": [ "0", "0", "0", "X" ],
+			"effects":
+			[
+				{
+					"type": 	"SPELL_DAMAGE_REDUCTION",
+					"subtype":1
+				}
+			]
+		},
+		"protectWater"   :
+		{
+			"id": 32,
+			"effect": 1,
+			"anim": 23,
+			"ranges": [ "0", "0", "0", "X" ],
+			"effects":
+			[
+				{
+					"type": 	"SPELL_DAMAGE_REDUCTION",
+					"subtype":2
+				}
+			]
+		},
+		"protectEarth"   :
+		{
+			"id": 33,
+			"effect": 1,
+			"anim": 26,
+			"ranges": [ "0", "0", "0", "X" ],
+			"effects":
+			[
+				{
+					"type": 	"SPELL_DAMAGE_REDUCTION",
+					"subtype":3
+				}
+			]
+		},
+		"antiMagic"      :
+		{
+			"id": 34,
+			"effect": 1,
+			"anim": 5,
+			"ranges": [ "0", "0", "0", "X" ],
+			"effects":
+			[
+				{
+					"type": 	"LEVEL_SPELL_IMMUNITY",
+					"subtype":5,
+					"valType":"INDEPENDENT_MAX"
+				}
+			]
+		},
+		"dispel"         :
+		{
+			"id": 35,
+			"effect": 0,
+			"anim": 41,
+			"ranges": [ "0", "0", "0", "X" ]
+		},
+		"magicMirror"    :
+		{
+			"id": 36,
+			"effect": 1,
+			"anim": 3,
+			"ranges": [ "0", "0", "0", "0" ],
+			"effects":
+			[
+				{
+					"type": 	"MAGIC_MIRROR",
+					"valType":"INDEPENDENT_MAX"
+				}
+			]
+		},
+		"cure"           :
+		{
+			"id": 37,
+			"effect": 1,
+			"anim": 39,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["rising"]
+		},
+		"resurrection"   :
+		{
+			"id": 38,
+			"effect": 1,
+			"anim": 79,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["rising"]
+		},
+		"animateDead"    :
+		{
+			"id": 39,
+			"effect": 1,
+			"anim": 79,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["rising"]
+		},
+		"sacrifice"      :
+		{
+			"id": 40,
+			"effect": 1,
+			"anim": 79,
+			"ranges": [ "0", "0", "0", "0" ]
+		},
+		"bless"          :
+		{
+			"id": 41,
+			"effect": 1,
+			"anim": 36,
+			"ranges": [ "0", "0", "0", "X" ],
+			"counters" : [42],
+			"effects":
+			[
+				{
+					"type": 	"ALWAYS_MAXIMUM_DAMAGE",
+					"valType":"INDEPENDENT_MAX"
+				}
+			]
+		},
+		"curse"          :
+		{
+			"id": 42,
+			"effect": -1,
+			"anim": 40,
+			"ranges": [ "0", "0", "0", "X" ], "counters" : [41],
+			"effects":
+			[
+				{
+					"type": 	"ALWAYS_MINIMUM_DAMAGE",
+					"valType":"INDEPENDENT_MAX"
+				}
+			]
+		},
+		"bloodlust"      :
+		{
+			"id": 43,
+			"effect": 1,
+			"anim": 4,
+			"ranges": [ "0", "0", "0", "X" ], "counters" : [45],
+			"effects":
+			[
+				{
+					"type": 	"PRIMARY_SKILL",
+					"subtype": 0, //ATTACK
+					"effectRange" : "ONLY_MELEE_FIGHT"
+				}
+			]
+		},
+		"precision"      :
+		{
+			"id": 44,
+			"effect": 1,
+			"anim": 25,
+			"ranges": [ "0", "0", "0", "X" ],
+			"effects":
+			[
+				{
+					"type": 	"PRIMARY_SKILL",
+					"subtype": 0, //ATTACK
+					"effectRange" : "ONLY_DISTANCE_FIGHT"
+				}
+			]
+		},
+		"weakness"       :
+		{
+			"id": 45,
+			"effect": -1,
+			"anim": 56,
+			"ranges": [ "0", "0", "0", "X" ], "counters" : [43],
+			"effects":
+			[
+				{
+					"type": 	"PRIMARY_SKILL",
+					"subtype": 0 //ATTACK
+				}
+			]
+		},
+		"stoneSkin"      :
+		{
+			"id": 46,
+			"effect": 1,
+			"anim": 54,
+			"ranges": [ "0", "0", "0", "X" ],
+			"effects":
+			[
+				{
+					"type": 	"PRIMARY_SKILL",
+					"subtype": 1 //DEFENSE
+				}
+			]
+		},
+		"disruptingRay"  :
+		{
+			"id": 47,
+			"effect": -1,
+			"anim": 14,
+			"ranges": [ "0", "0", "0", "0" ],
+			"effects":
+			[
+				{
+					"type": 	"PRIMARY_SKILL",
+					"subtype": 1 //DEFENSE
+				}
+			]
+		},
+		"prayer"         :
+		{
+			"id": 48,
+			"effect": 1,
+			"anim": 0,
+			"ranges": [ "0", "0", "0", "X" ],
+			"effects":
+			[
+				{
+					"type": 	"PRIMARY_SKILL",
+					"subtype": 0 //ATTACK
+				},
+				{
+					"type": 	"PRIMARY_SKILL",
+					"subtype": 1 //DEFENSE
+				},
+				{
+					"type": 	"STACKS_SPEED"
+				}
+			]
+		},
+		"mirth"          :
+		{
+			"id": 49,
+			"effect": 1,
+			"anim": 20,
+			"ranges": [ "0", "0", "0", "X" ],
+			"counters" : [50],
+			"effects":
+			[
+				{
+					"type": 	"MORALE"
+				}
+			]
+		},
+		"sorrow"         :
+		{
+			"id": 50,
+			"effect": -1,
+			"anim": 30,
+			"ranges": [ "0", "0", "0", "X" ], "counters" : [49],
+			"flags" : ["mind"],
+			"effects":
+			[
+				{
+					"type": 	"MORALE"
+				}
+			]
+		},
+		"fortune"        :
+		{
+			"id": 51,
+			"effect": 1,
+			"anim": 18,
+			"ranges": [ "0", "0", "0", "X" ],
+			"counters" : [52],
+			"effects":
+			[
+				{
+					"type": 	"LUCK"
+				}
+			]
+		},
+		"misfortune"     :
+		{
+			"id": 52,
+			"effect": -1,
+			"anim": 48,
+			"ranges": [ "0", "0", "0", "X" ],
+			"counters" : [51],
+			"effects":
+			[
+				{
+					"type": 	"LUCK"
+				}
+			]
+		},
+		"haste"          :
+		{
+			"id": 53,
+			"effect": 1,
+			"anim": 31,
+			"ranges": [ "0", "0", "0", "X" ],
+			"counters" : [54],
+			"effects":
+			[
+				{
+					"type": 	"STACKS_SPEED"
+				}
+			]
+		},
+		"slow"           :
+		{
+			"id": 54,
+			"effect": -1,
+			"anim": 19,
+			"ranges": [ "0", "0", "0", "X" ],
+			"counters" : [53],
+			"effects":
+			[
+				{
+					"type": 	"STACKS_SPEED"
+				}
+			]
+		},
+		"slayer"         :
+		{
+			"id": 55,
+			"effect": 1,
+			"anim": 28,
+			"ranges": [ "0", "0", "0", "0" ],
+			"effects":
+			[
+				{
+					"type": 	"SLAYER"
+				}
+			]
+		},
+		"frenzy"         :
+		{
+			"id": 56,
+			"effect": 1,
+			"anim": 17,
+			"ranges": [ "0", "0", "0", "0" ],
+			"effects":
+			[
+				{
+					"type": 	"IN_FRENZY"
+				}
+			]
+		},
+		"titanBolt"      :
+		{
+			"id": 57,
+			"effect": -1,
+			"anim": 38,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["damage"]
+		},
+		"counterstrike"  :
+		{
+			"id": 58,
+			"effect": 1,
+			"anim": 7,
+			"ranges": [ "0", "0", "0", "X" ],
+			"effects":
+			[
+				{
+					"type": 	"ADDITIONAL_RETALIATION"
+				}
+			]
+		},
+		"berserk"        :
+		{
+			"id": 59,
+			"effect": -1,
+			"anim": 35,
+			"ranges": [ "0", "0", "0-1", "0-2" ],
+			"flags" : ["mind"],
+			"effects":
+			[
+				{
+					"type": 	"ATTACKS_NEAREST_CREATURE"
+				}
+			]
+		},
+		"hypnotize"      :
+		{
+			"id": 60,
+			"effect": -1,
+			"anim": 21,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["mind"],
+			"effects":
+			[
+				{
+					"type": 	"HYPNOTIZED"
+				}
+			]
+		},
+		"forgetfulness"  :
+		{
+			"id": 61,
+			"effect": -1,
+			"anim": 42,
+			"ranges": [ "0", "0", "0", "X" ],
+			"flags" : ["mind"],
+			"effects":
+			[
+				{
+					"type": 	"FORGETFULL"
+				}
+			]
+		},
+		"blind"          :
+		{
+			"id": 62,
+			"effect": -1,
+			"anim": 6,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["mind"],
+			"effects":
+			[
+				{
+					"type": 	"NOT_ACTIVE",
+					"subtype": 	62, //really ase spell id, is it right?
+					//TODO: duration
+				},
+				{
+					"type": 	"GENERAL_ATTACK_REDUCTION"
+					//TODO: duration
+				},
+				{
+					"type": 	"NO_RETALIATION",
+					"duration":	"UNITL_BEING_ATTACKED"
+				}
+			]
+		},
+		"teleport"       :
+		{
+			"id": 63,
+			"effect": 1,
+			"anim": -1,
+			"ranges": [ "0", "0", "0", "0" ]
+		},
+		"removeObstacle" :
+		{
+			"id": 64,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"clone"          :
+		{
+			"id": 65,
+			"effect": 1,
+			"anim": -1,
+			"ranges": [ "0", "0", "0", "0" ]
+		},
+		"fireElemental"  :
+		{
+			"id": 66,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"earthElemental" :
+		{
+			"id": 67,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"waterElemental" :
+		{
+			"id": 68,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"airElemental"   :
+		{
+			"id": 69,
+			"effect": 0,
+			"anim": -1,
+			"ranges": [ "X", "X", "X", "X" ]
+		},
+		"stoneGaze"      :
+		{
+			"id": 70,
+			"effect": 0,
+			"anim": 70,
+			"ranges": [ "0", "0", "0", "0" ],
+			"effects":
+			[
+				{
+					"type": 	"NOT_ACTIVE",
+					"subtype": 	62
+					//TODO: duration
+				},
+				{
+					"type": 	"NO_RETALIATION",
+					"duration":	"UNITL_BEING_ATTACKED"
+				}
+			]
+		},
+		"poison"         :
+		{
+			"id": 71,
+			"effect": -1,
+			"anim": 67,
+			"ranges": [ "0", "0", "0", "0" ],
+			"effects":
+			[
+				{
+					"type": 	"POISON",
+					"val" : 	30,
+					"valueType": 	"INDEPENDENT_MAX"
+				},
+				{
+					"type": 	"STACK_HEALTH",
+					"val" : 	-10,
+					"valueType": 	"PERCENT_TO_ALL"
+				}
+			]
+		},
+		"bind"           :
+		{
+			"id": 72,
+			"effect": 0,
+			"anim": 68,
+			"ranges": [ "0", "0", "0", "0" ],
+			"effects":
+			[
+				{
+					"type": 	"BIND_EFFECT",
+					"val" : 	30,
+					"turns" : 	1,
+					"duration" : 	"PERMANENT"
+				}
+			]
+		},
+		"disease"        :
+		{
+			"id": 73,
+			"effect": -1,
+			"anim": 69,
+			"ranges": [ "0", "0", "0", "0" ],
+			"effects":
+			[
+				{
+					"type": 	"PRIMARY_SKILL",
+					"subtype": 	0,
+					"val" : 	-2,
+				},
+				{
+					"type": 	"PRIMARY_SKILL",
+					"subtype": 	1,
+					"val" : 	-2,
+				}
+			]
+		},
+		"paralyze"       :
+		{
+			"id": 74,
+			"effect": -1,
+			"anim": 70,
+			"ranges": [ "0", "0", "0", "0" ],
+			"effects":
+			[
+				{
+					"type": 	"NOT_ACTIVE",
+					"subtype": 	74,
+					//TODO: duration
+				},
+				{
+					"type": 	"NO_RETALIATION",
+					"duration":	"UNITL_BEING_ATTACKED"
+				}
+			]
+		},
+		"age"            :
+		{
+			"id": 75,
+			"effect": -1,
+			"anim": 71,
+			"ranges": [ "0", "0", "0", "0" ],
+			"effects":
+			[
+				{
+					"type": 	"STACK_HEALTH",
+					"val" : 	-50,
+					"valueType": 	"PERCENT_TO_ALL"
+				}
+			]
+		},
+		"deathCloud"     :
+		{
+			"id": 76,
+			"effect": 0,
+			"anim": 72,
+			"ranges": [ "0-1", "0-1", "0-1", "0-1" ]
+		},
+		"thunderbolt"    :
+		{
+			"id": 77,
+			"effect": -1,
+			"anim": 38,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["damage"]
+		},
+		"dispelHelpful"  :
+		{
+			"id": 78,
+			"effect": -1,
+			"anim": 41,
+			"ranges": [ "0", "0", "0", "0" ]
+		},
+		"deathStare"     :
+		{
+			"id": 79,
+			"effect": 0,
+			"anim": 80,
+			"ranges": [ "0", "0", "0", "0" ]
+		},
+		"acidBreath"     :
+		{
+			"id": 80,
+			"effect": 0,
+			"anim": 81,
+			"ranges": [ "0", "0", "0", "0" ],
+			"effects":
+			[
+				{
+					"type": 	"PRIMARY_SKILL",
+					"subtype": 	1,
+					"val" : 	-3,
+					"duration" : 	"PERMANENT",
+					"valueType": 	"ADDITIVE_VALUE"
+				}
+			]
+		},
+		"acidBreathDamage"     :
+		{
+			"id": 81,
+			"effect": 0,
+			"anim": 81,
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["damage"]
+
+		}
 	}
 }

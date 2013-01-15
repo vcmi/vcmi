@@ -176,7 +176,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	}
 	else if (type == ART_EVNTS)
 	{
-		dst = VLC->arth->artifacts[ser]->EventText(); 
+		dst = VLC->arth->artifacts[ser]->EventText();
 	}
 	else
 	{
@@ -522,7 +522,7 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 	{
 	case Obj::RANDOM_ART:
 		return std::pair<int,int>(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
-	case Obj::RANDOM_TREASURE_ART: 
+	case Obj::RANDOM_TREASURE_ART:
 		return std::pair<int,int>(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_TREASURE));
 	case Obj::RANDOM_MINOR_ART:
 		return std::pair<int,int>(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_MINOR));
@@ -573,7 +573,7 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 6));
 	case Obj::RANDOM_MONSTER_L7:
 		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 7));
-	case Obj::RANDOM_DWELLING: 
+	case Obj::RANDOM_DWELLING:
 	case Obj::RANDOM_DWELLING_LVL:
 	case Obj::RANDOM_DWELLING_FACTION:
 		{
@@ -1963,7 +1963,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 		{
 			if(obj->blockVisit)
 			{
-				if (obj->ID == 54) // Monster
+				if (obj->ID == Obj::MONSTER) // Monster
 					guards.push_back(obj);
 			}
 		}
@@ -1976,11 +1976,11 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 			if (map->isInTheMap(pos))
 			{
 				TerrainTile &tile = map->terrain[pos.x][pos.y][pos.z];
-                if (tile.visitable && (tile.terType == ETerrainType::WATER) == (posTile.terType == ETerrainType::WATER))
+                if (tile.visitable && (tile.isWater() == posTile.isWater()))
 				{
 					BOOST_FOREACH (CGObjectInstance* obj, tile.visitableObjects)
 					{
-						if (obj->ID == 54  &&  checkForVisitableDir(pos, &map->getTile(originalPos), originalPos)) // Monster being able to attack investigated tile
+						if (obj->ID == Obj::MONSTER  &&  checkForVisitableDir(pos, &map->getTile(originalPos), originalPos)) // Monster being able to attack investigated tile
 						{
 							guards.push_back(obj);
 						}
@@ -2010,7 +2010,7 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 		{
 			if(obj->blockVisit)
 			{
-				if (obj->ID == 54) // Monster
+				if (obj->ID == Obj::MONSTER) // Monster
 					return pos;
 				else
 					return int3(-1, -1, -1); //blockvis objects are not guarded by neighbouring creatures
@@ -2027,11 +2027,11 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 			if (map->isInTheMap(pos))
 			{
 				TerrainTile &tile = map->terrain[pos.x][pos.y][pos.z];
-                if (tile.visitable && (tile.terType == ETerrainType::WATER) == (posTile.terType == ETerrainType::WATER))
+                if (tile.visitable && (tile.isWater() == posTile.isWater()))
 				{
 					BOOST_FOREACH (CGObjectInstance* obj, tile.visitableObjects)
 					{
-						if (obj->ID == 54  &&  checkForVisitableDir(pos, &map->getTile(originalPos), originalPos)) // Monster being able to attack investigated tile
+						if (obj->ID == Obj::MONSTER  &&  checkForVisitableDir(pos, &map->getTile(originalPos), originalPos)) // Monster being able to attack investigated tile
 						{
 							return pos;
 						}
@@ -2429,7 +2429,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 4) //obelisks found
 	{
-		//TODO
+		//TODO: obtainPlayersStats - obelisks found
 	}
 	if(level >= 5) //artifacts
 	{
@@ -2441,7 +2441,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 7) //income
 	{
-		//TODO
+		//TODO:obtainPlayersStats - income
 	}
 	if(level >= 8) //best hero's stats
 	{
@@ -2507,18 +2507,11 @@ int CGameState::lossCheck( ui8 player ) const
 		switch(map->lossCondition.typeOfLossCon)
 		{
 		case ELossConditionType::LOSSCASTLE:
-			{
-				const CGTownInstance *t = dynamic_cast<const CGTownInstance *>(map->lossCondition.obj);
-				assert(t);
-				if(t->tempOwner != player)
-					return 1;
-			}
-			break;
 		case ELossConditionType::LOSSHERO:
 			{
-				const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(map->lossCondition.obj);
-				assert(h);
-				if(h->tempOwner != player)
+				const CGObjectInstance *obj = map->lossCondition.obj;
+				assert(obj);
+				if(obj->tempOwner != player)
 					return 1;
 			}
 			break;
@@ -3177,13 +3170,6 @@ bool CPathfinder::canMoveBetween(const int3 &a, const int3 &b) const
 	return gs->checkForVisitableDir(a, b) && gs->checkForVisitableDir(b, a);
 }
 
-bool CPathfinder::canStepOntoDst() const
-{
-	//TODO remove
-	assert(0);
-	return false;
-}
-
 CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile *tinfo) const
 {
 	CGPathNode::EAccessibility ret = (tinfo->blocked ? CGPathNode::BLOCKED : CGPathNode::ACCESSIBLE);
@@ -3194,7 +3180,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 
 	if(tinfo->visitable)
 	{
-		if(tinfo->visitableObjects.front()->ID == 80 && tinfo->visitableObjects.back()->ID == Obj::HERO && tinfo->visitableObjects.back()->tempOwner != hero->tempOwner) //non-owned hero stands on Sanctuary
+		if(tinfo->visitableObjects.front()->ID == Obj::SANCTUARY && tinfo->visitableObjects.back()->ID == Obj::HERO && tinfo->visitableObjects.back()->tempOwner != hero->tempOwner) //non-owned hero stands on Sanctuary
 		{
 			return CGPathNode::BLOCKED;
 		}

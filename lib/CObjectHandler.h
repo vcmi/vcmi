@@ -167,7 +167,7 @@ public:
 	mutable std::string hoverName;
 	int3 pos; //h3m pos
 	si32 ID, subID; //normal ID (this one from OH3 maps ;]) - eg. town=98; hero=34
-	si32 id;//number of object in CObjectHandler's vector
+	si32 id;//number of object in map's vector
 	CGDefInfo * defInfo;
 	ui8 animPhaseShift;
 

@@ -3,6 +3,7 @@
 #include "../lib/ConstTransitivePtr.h"
 #include "int3.h"
 #include "GameConstants.h"
+#include "HeroBonus.h"
 
 /*
  * CSpellHandler.h, part of VCMI engine
@@ -44,20 +45,38 @@ public:
 	std::vector<std::string> range; //description of spell's range in SRSL by magic school level
 	std::vector<TSpell> counteredSpells; //spells that are removed when effect of this spell is placed on creature (for bless-curse, haste-slow, and similar pairs)
 
+	CSpell();
+
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = NULL ) const; //convert range to specific hexes; last optional out parameter is set to true, if spell would cover unavailable hexes (that are not included in ret)
 	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none)
 	ETargetType getTargetType() const;
 
 	bool isPositive() const;
 	bool isNegative() const;
+
 	bool isRisingSpell() const;
 	bool isDamageSpell() const;
+	bool isMindSpell() const;
+
+
+	void getEffects(std::vector<Bonus> & lst) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & identifier & id & name & abbName & descriptions & level & earth & water & fire & air & power & costs
 			& powers & probabilities & AIVals & attributes & combatSpell & creatureAbility & positiveness & range & counteredSpells & mainEffectAnim;
+		h & _isRising & _isDamage & _isMind;
+		h & _effects;
 	}
+	friend class CSpellHandler;
+
+private:
+	bool _isRising;
+	bool _isDamage;
+	bool _isMind;
+
+	std::vector<Bonus> _effects;
+
 };
 
 namespace Spells
@@ -68,18 +87,18 @@ namespace Spells
 		FLY=6, WATER_WALK=7, DIMENSION_DOOR=8, TOWN_PORTAL=9,
 
 		QUICKSAND=10, LAND_MINE=11, FORCE_FIELD=12, FIRE_WALL=13, EARTHQUAKE=14,
-		MAGIC_ARROW=15, ICE_BOLT=16, LIGHTNING_BOLT=17, IMPLOSION=18, 
-		CHAIN_LIGHTNING=19, FROST_RING=20, FIREBALL=21, INFERNO=22, 
-		METEOR_SHOWER=23, DEATH_RIPPLE=24, DESTROY_UNDEAD=25, ARMAGEDDON=26, 
-		SHIELD=27, AIR_SHIELD=28, FIRE_SHIELD=29, PROTECTION_FROM_AIR=30, 
-		PROTECTION_FROM_FIRE=31, PROTECTION_FROM_WATER=32, 
-		PROTECTION_FROM_EARTH=33, ANTI_MAGIC=34, DISPEL=35, MAGIC_MIRROR=36, 
-		CURE=37, RESURRECTION=38, ANIMATE_DEAD=39, SACRIFICE=40, BLESS=41, 
-		CURSE=42, BLOODLUST=43, PRECISION=44, WEAKNESS=45, STONE_SKIN=46, 
-		DISRUPTING_RAY=47, PRAYER=48, MIRTH=49, SORROW=50, FORTUNE=51, 
-		MISFORTUNE=52, HASTE=53, SLOW=54, SLAYER=55, FRENZY=56, 
-		TITANS_LIGHTNING_BOLT=57, COUNTERSTRIKE=58, BERSERK=59, HYPNOTIZE=60, 
-		FORGETFULNESS=61, BLIND=62, TELEPORT=63, REMOVE_OBSTACLE=64, CLONE=65, 
+		MAGIC_ARROW=15, ICE_BOLT=16, LIGHTNING_BOLT=17, IMPLOSION=18,
+		CHAIN_LIGHTNING=19, FROST_RING=20, FIREBALL=21, INFERNO=22,
+		METEOR_SHOWER=23, DEATH_RIPPLE=24, DESTROY_UNDEAD=25, ARMAGEDDON=26,
+		SHIELD=27, AIR_SHIELD=28, FIRE_SHIELD=29, PROTECTION_FROM_AIR=30,
+		PROTECTION_FROM_FIRE=31, PROTECTION_FROM_WATER=32,
+		PROTECTION_FROM_EARTH=33, ANTI_MAGIC=34, DISPEL=35, MAGIC_MIRROR=36,
+		CURE=37, RESURRECTION=38, ANIMATE_DEAD=39, SACRIFICE=40, BLESS=41,
+		CURSE=42, BLOODLUST=43, PRECISION=44, WEAKNESS=45, STONE_SKIN=46,
+		DISRUPTING_RAY=47, PRAYER=48, MIRTH=49, SORROW=50, FORTUNE=51,
+		MISFORTUNE=52, HASTE=53, SLOW=54, SLAYER=55, FRENZY=56,
+		TITANS_LIGHTNING_BOLT=57, COUNTERSTRIKE=58, BERSERK=59, HYPNOTIZE=60,
+		FORGETFULNESS=61, BLIND=62, TELEPORT=63, REMOVE_OBSTACLE=64, CLONE=65,
 		SUMMON_FIRE_ELEMENTAL=66, SUMMON_EARTH_ELEMENTAL=67, SUMMON_WATER_ELEMENTAL=68, SUMMON_AIR_ELEMENTAL=69,
 
 		STONE_GAZE=70, POISON=71, BIND=72, DISEASE=73, PARALYZE=74, AGE=75, DEATH_CLOUD=76, THUNDERBOLT=77,
@@ -96,9 +115,7 @@ class DLL_LINKAGE CSpellHandler
 public:
 	CSpellHandler();
 	std::vector< ConstTransitivePtr<CSpell> > spells;
-	std::set<TSpell> damageSpells; //they inflict damage and require particular threatment
-	std::set<TSpell> risingSpells; //they affect dead stacks and need special target selection
-	std::set<TSpell> mindSpells;
+
 	void loadSpells();
 
 	/**
@@ -110,6 +127,6 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & spells & damageSpells & risingSpells & mindSpells;
+		h & spells ;
 	}
 };

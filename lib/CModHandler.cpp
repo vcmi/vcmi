@@ -292,6 +292,7 @@ void CModHandler::loadActiveMods()
 		handleData(VLC->townh, config["factions"]);
 		handleData(VLC->creh, config["creatures"]);
 		handleData(VLC->arth, config["artifacts"]);
+		//todo: spells
 
 		handleData(&VLC->heroh->classes, config["heroClasses"]);
 		handleData(VLC->heroh, config["heroes"]);

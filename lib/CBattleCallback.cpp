@@ -782,7 +782,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 		minDmg = info.attackerBonuses->getMinDamage() * info.attackerCount,
 		maxDmg = info.attackerBonuses->getMaxDamage() * info.attackerCount;
 
-	const CCreature *attackerType = info.attacker->getCreature(), 
+	const CCreature *attackerType = info.attacker->getCreature(),
 		*defenderType = info.defender->getCreature();
 
 	if(attackerType->idNumber == 149) //arrow turret
@@ -1591,7 +1591,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 			if (battleTestElementalImmunity(Bonus::AIR_IMMUNITY))
 				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 		}
-		if (vstd::contains(VLC->spellh->mindSpells, spell->id))
+		if (spell->isMindSpell())
 		{
 			if (subject->hasBonusOfType(Bonus::MIND_IMMUNITY))
 				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
@@ -1706,7 +1706,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	switch(spell->getTargetType())
 	{
 	case CSpell::CREATURE:
-	case CSpell::CREATURE_EXPERT_MASSIVE:  
+	case CSpell::CREATURE_EXPERT_MASSIVE:
 		if(mode == ECastingMode::HERO_CASTING)
 		{
 			const CGHeroInstance * caster = battleGetFightingHero(side);
@@ -1909,7 +1909,7 @@ ui32 CBattleInfoCallback::calculateSpellDmg( const CSpell * sp, const CGHeroInst
 	ui32 ret = 0; //value to return
 
 	//check if spell really does damage - if not, return 0
-	if(VLC->spellh->damageSpells.find(sp->id) == VLC->spellh->damageSpells.end())
+	if(!sp->isDamageSpell())
 		return 0;
 
 	ret = usedSpellPower * sp->power;
@@ -2373,7 +2373,7 @@ const CGHeroInstance * CPlayerBattleCallback::battleGetMyHero() const
 
 InfoAboutHero CPlayerBattleCallback::battleGetEnemyHero() const
 {
-	InfoAboutHero ret; 
+	InfoAboutHero ret;
 	assert(0);
 	///TODO implement and replace usages of battleGetFightingHero obtaining enemy hero
 	return ret;

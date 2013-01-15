@@ -1384,13 +1384,12 @@ void CGHeroInstance::showNecromancyDialog(const CStackBasicDescriptor &raisedSta
 	{
 		iw.text.addTxt(MetaString::GENERAL_TXT, 145);
 		iw.text.addReplacement(raisedStack.count);
-		iw.text.addReplacement(MetaString::CRE_PL_NAMES, raisedStack.type->idNumber);
 	}
 	else // Practicing the dark arts of necromancy, ... (singular)
 	{
 		iw.text.addTxt(MetaString::GENERAL_TXT, 146);
-		iw.text.addReplacement(MetaString::CRE_SING_NAMES, raisedStack.type->idNumber);
 	}
+	iw.text.addReplacement(raisedStack);
 
 	cb->showInfoDialog(&iw);
 }
@@ -4772,7 +4771,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 const std::string & CGWitchHut::getHoverText() const
 {
 	hoverName = VLC->generaltexth->names[ID];
-	if(wasVisited(cb->getCurrentPlayer())) //TODO: use local player, not current
+	if(wasVisited(cb->getLocalPlayer()))
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
 		boost::algorithm::replace_first(hoverName,"%s",VLC->generaltexth->skillName[ability]);
@@ -6113,14 +6112,12 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 		//display loot
 		if (!iw.components.empty())
 		{
+			iw.text.addTxt (MetaString::ADVOB_TXT, textID);
 			if (textID == 34)
 			{
-				iw.text.addTxt(MetaString::ADVOB_TXT, 34);//Heaving defeated %s, you discover %s
 				iw.text.addReplacement(MetaString::CRE_PL_NAMES, result->casualties[1].begin()->first);
 				iw.text.addReplacement(loot.buildList());
 			}
-			else
-				iw.text.addTxt (MetaString::ADVOB_TXT, textID);
 			cb->showInfoDialog(&iw);
 		}
 		loot.clear();

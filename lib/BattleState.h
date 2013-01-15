@@ -33,8 +33,8 @@ struct BattleStackAttacked;
 //only for use in BattleInfo
 struct DLL_LINKAGE SiegeInfo
 {
-	ui8 wallState[EWallParts::PARTS_COUNT]; 
-	
+	ui8 wallState[EWallParts::PARTS_COUNT];
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & wallState;
@@ -101,7 +101,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 
 	ui32 calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg); //charge - number of hexes travelled before attack (for champion's jousting)
 	void calculateCasualties(std::map<ui32,si32> *casualties) const; //casualties are array of maps size 2 (attacker, defeneder), maps are (crid => amount)
-	
+
 	//void getPotentiallyAttackableHexes(AttackableTiles &at, const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos); //hexes around target that could be attacked in melee
 	//std::set<CStack*> getAttackedCreatures(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID); //calculates range of multi-hex attacks
 	//std::set<BattleHex> getAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID); //calculates range of multi-hex attacks
@@ -114,7 +114,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	ui32 calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const; //for Archangel
 	ui32 calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //unused
 	bool resurrects(TSpell spellid) const; //TODO: move it to spellHandler?
-	
+
 	const CGHeroInstance * getHero(int player) const; //returns fighting hero that belongs to given player
 
 
@@ -136,7 +136,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 };
 
 class DLL_LINKAGE CStack : public CBonusSystemNode, public CStackBasicDescriptor
-{ 
+{
 public:
 	const CStackInstance *base; //garrison slot from which stack originates (NULL for war machines, summoned cres, etc)
 
@@ -179,7 +179,6 @@ public:
 	{
 		Bonus hb = makeFeatureVal(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain, additionalInfo);
 		hb.effectRange = limit;
-		hb.source = Bonus::SPELL_EFFECT;
 		return hb;
 	}
 
@@ -187,7 +186,6 @@ public:
 	{
 		Bonus ret = makeFeatureVal(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain);
 		ret.valType = valType;
-		ret.source = Bonus::SPELL_EFFECT;
 		return ret;
 	}
 

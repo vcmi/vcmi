@@ -955,7 +955,7 @@ void CMapLoaderH3M::readDefInfo()
 			defInfo->visitMap[zi] = reverse(bytes[6 + zi]);
 		}
 		pos += 16;
-		if(defInfo->id != Obj::HERO && defInfo->id != 70)
+		if(defInfo->id != Obj::HERO && defInfo->id != Obj::RANDOM_HERO)
 		{
 			CGDefInfo * h = VLC->dobjinfo->gobjs[defInfo->id][defInfo->subid];
 			if(!h)
@@ -1160,11 +1160,22 @@ void CMapLoaderH3M::readObjects()
 		case Obj::FLOTSAM:
 		case Obj::SEA_CHEST:
 		case Obj::SHIPWRECK_SURVIVOR:
-		case Obj::TREASURE_CHEST:
 			{
 				nobj = new CGPickable();
 				break;
 			}
+		case Obj::TREASURE_CHEST:
+				if(defInfo->subid == 0)
+				{
+					nobj = new CGPickable();
+				}
+				else
+				{
+					//WoG pickable object
+					//TODO: possible special handling
+					nobj = new CGObjectInstance();
+				}
+				break;
 		case Obj::MONSTER:  //Monster
 		case Obj::RANDOM_MONSTER:
 		case Obj::RANDOM_MONSTER_L1:

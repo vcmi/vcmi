@@ -186,7 +186,7 @@ ui32 BattleInfo::calculateHealedHP(const CSpell * spell, int usedSpellPower, int
 }
 bool BattleInfo::resurrects(TSpell spellid) const
 {
-	return vstd::contains(VLC->spellh->risingSpells, spellid);
+	return VLC->spellh->spells[spellid]->isRisingSpell();
 }
 
 const CStack * BattleInfo::battleGetStack(BattleHex pos, bool onlyAlive)
@@ -931,170 +931,146 @@ si32 CStack::magicResistance() const
 
 void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 {
-	si32 power = VLC->spellh->spells[sse.sid]->powers[sse.val];
+	//TODO: get rid of this spaghetti code
+
+	const CSpell * sp = VLC->spellh->spells[sse.sid];
+	si32 power = sp->powers[sse.val];
+
+	auto add = [&](Bonus::BonusType type, si16 subtype, si32 value,si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
+	{
+	 	sf.push_back(featureGenerator(type, subtype, value, sse.turnsRemain,additionalInfo, limit));
+	 	sf.back().sid = sse.sid;
+	};
+
+	auto addVT = [&](Bonus::BonusType type, si16 subtype, si32 value, ui8 valType,si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
+	{
+		add(type, subtype, value, additionalInfo, limit);
+		sf.back().valType = valType;
+	};
+
+	auto addDur = [&](Bonus::BonusType type, si16 subtype, si32 value, ui8 duration ,si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
+	{
+		add(type, subtype, value, additionalInfo, limit);
+		sf.back().duration = duration;
+	};
+
 	switch(sse.sid)
 	{
-	case 27: //shield
-	 	sf.push_back(featureGenerator(Bonus::GENERAL_DAMAGE_REDUCTION, 0, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 28: //air shield
-	 	sf.push_back(featureGenerator(Bonus::GENERAL_DAMAGE_REDUCTION, 1, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 29: //fire shield
-	 	sf.push_back(featureGenerator(Bonus::FIRE_SHIELD, 0, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 30: //protection from air
-	 	sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 0, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 31: //protection from fire
-	 	sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 1, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 32: //protection from water
-	 	sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 2, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 33: //protection from earth
-	 	sf.push_back(featureGenerator(Bonus::SPELL_DAMAGE_REDUCTION, 3, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 34: //anti-magic
-	 	sf.push_back(featureGenerator(Bonus::LEVEL_SPELL_IMMUNITY, GameConstants::SPELL_LEVELS, power - 1, sse.turnsRemain));
-		sf.back().valType = Bonus::INDEPENDENT_MAX;
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 36: //magic mirror
-		sf.push_back(featureGenerator(Bonus::MAGIC_MIRROR, -1, power, sse.turnsRemain));
-		sf.back().valType = Bonus::INDEPENDENT_MAX;
-	 	sf.back().sid = sse.sid;
-	case 41: //bless
-		sf.push_back(featureGenerator(Bonus::ALWAYS_MAXIMUM_DAMAGE, -1, power, sse.turnsRemain));
-		sf.back().valType = Bonus::INDEPENDENT_MAX;
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 42: //curse
-	 	sf.push_back(featureGenerator(Bonus::ALWAYS_MINIMUM_DAMAGE, -1, power, sse.turnsRemain, sse.val >= 2 ? 20 : 0));
-		sf.back().valType = Bonus::INDEPENDENT_MAX;
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 43: //bloodlust
-	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain, 0, Bonus::ONLY_MELEE_FIGHT));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 44: //precision
-	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain, 0, Bonus::ONLY_DISTANCE_FIGHT));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 45: //weakness
-	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -1 * power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 46: //stone skin
-	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 47: //disrupting ray
-	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -1 * power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-		sf.back().valType = Bonus::ADDITIVE_VALUE;
-	 	break;
-	case 48: //prayer
-	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	sf.push_back(featureGenerator(Bonus::STACKS_SPEED, 0, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 49: //mirth
-	 	sf.push_back(featureGenerator(Bonus::MORALE, 0, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 50: //sorrow
-	 	sf.push_back(featureGenerator(Bonus::MORALE, 0, -1 * power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 51: //fortune
-	 	sf.push_back(featureGenerator(Bonus::LUCK, 0, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 52: //misfortune
-	 	sf.push_back(featureGenerator(Bonus::LUCK, 0, -1 * power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 53: //haste
-	 	sf.push_back(featureGenerator(Bonus::STACKS_SPEED, 0, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 54: //slow
-	 	sf.push_back(featureGeneratorVT(Bonus::STACKS_SPEED, 0, -1 * ( 100 - power ), sse.turnsRemain, Bonus::PERCENT_TO_ALL));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 55: //slayer
-	 	sf.push_back(featureGenerator(Bonus::SLAYER, 0, sse.val, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 56: //frenzy
-	 	sf.push_back(featureGenerator(Bonus::IN_FRENZY, 0, VLC->spellh->spells[56]->powers[sse.val]/100.0, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 58: //counterstrike
-	 	sf.push_back(featureGenerator(Bonus::ADDITIONAL_RETALIATION, 0, power, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 59: //bersek
-	 	sf.push_back(featureGenerator(Bonus::ATTACKS_NEAREST_CREATURE, 0, sse.val, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 60: //hypnotize
-	 	sf.push_back(featureGenerator(Bonus::HYPNOTIZED, 0, sse.val, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case 61: //forgetfulness
-	 	sf.push_back(featureGenerator(Bonus::FORGETFULL, 0, sse.val, sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-	 	break;
-	case Spells::BLIND: //blind
-		sf.push_back(makeFeatureVal(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, sse.sid, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
-		sf.back().sid = sse.sid;
-		sf.push_back(makeFeatureVal(Bonus::GENERAL_ATTACK_REDUCTION, Bonus::UNTIL_ATTACK | Bonus::N_TURNS, 0, power, Bonus::SPELL_EFFECT, sse.turnsRemain));
-		sf.back().sid = sse.sid;
-		sf.push_back(makeFeatureVal(Bonus::NO_RETALIATION, Bonus::UNITL_BEING_ATTACKED, 0, 0, Bonus::SPELL_EFFECT, 0)); // don't retaliate after basilisk / unicorn attack
-		sf.back().sid = sse.sid;
-	 	break;
-	case Spells::STONE_GAZE: //Stone Gaze
-	case Spells::PARALYZE: //Paralyze
-		sf.push_back(makeFeatureVal(Bonus::NOT_ACTIVE, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS, sse.sid, 0, Bonus::SPELL_EFFECT, sse.turnsRemain));
-		sf.back().sid = sse.sid;
-		sf.push_back(makeFeatureVal(Bonus::NO_RETALIATION, Bonus::UNITL_BEING_ATTACKED, 0, 0, Bonus::SPELL_EFFECT, 0)); // don't retaliate after basilisk / unicorn attack
-		sf.back().sid = sse.sid;
+	case Spells::SHIELD:
+		add(Bonus::GENERAL_DAMAGE_REDUCTION, 0, power);
 		break;
-	case 71: //Poison
-		sf.push_back(featureGeneratorVT(Bonus::POISON, 0, 30, sse.turnsRemain, Bonus::INDEPENDENT_MAX)); //max hp penalty from this source
-		sf.back().sid = sse.sid;
-		sf.push_back(featureGeneratorVT(Bonus::STACK_HEALTH, 0, -10, sse.turnsRemain, Bonus::PERCENT_TO_ALL));
-		sf.back().sid = sse.sid;
+	case Spells::AIR_SHIELD:
+	 	add(Bonus::GENERAL_DAMAGE_REDUCTION, 1, power);
+	 	break;
+	case Spells::FIRE_SHIELD:
+	 	add(Bonus::FIRE_SHIELD, 0, power);
+	 	break;
+	case Spells::PROTECTION_FROM_AIR:
+	 	add(Bonus::SPELL_DAMAGE_REDUCTION, 0, power);
+	 	break;
+	case Spells::PROTECTION_FROM_FIRE:
+	 	add(Bonus::SPELL_DAMAGE_REDUCTION, 1, power);
+	 	break;
+	case Spells::PROTECTION_FROM_WATER:
+	 	add(Bonus::SPELL_DAMAGE_REDUCTION, 2, power);
+	 	break;
+	case Spells::PROTECTION_FROM_EARTH:
+	 	add(Bonus::SPELL_DAMAGE_REDUCTION, 3, power);
+	 	break;
+	case Spells::ANTI_MAGIC:
+	 	addVT(Bonus::LEVEL_SPELL_IMMUNITY, GameConstants::SPELL_LEVELS, power - 1, Bonus::INDEPENDENT_MAX);break;
+	case Spells::MAGIC_MIRROR:
+		addVT(Bonus::MAGIC_MIRROR, -1, power,Bonus::INDEPENDENT_MAX);
 		break;
-	case 72: //Bind
+	case Spells::BLESS:
+		addVT(Bonus::ALWAYS_MAXIMUM_DAMAGE, -1, power,Bonus::INDEPENDENT_MAX);
+	 	break;
+	case Spells::CURSE:
+		addVT(Bonus::ALWAYS_MINIMUM_DAMAGE, -1, power, Bonus::INDEPENDENT_MAX, sse.val >= 2 ? 20 : 0);
+	 	break;
+	case Spells::BLOODLUST:
+		add(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, 0, Bonus::ONLY_MELEE_FIGHT);
+	 	break;
+	case Spells::PRECISION:
+		add(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, 0, Bonus::ONLY_DISTANCE_FIGHT);
+	 	break;
+	case Spells::WEAKNESS:
+		add(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -1 * power);
+		break;
+	case Spells::STONE_SKIN:
+		add(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power);
+	 	break;
+	case Spells::DISRUPTING_RAY:
+		addVT(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -1 * power,Bonus::ADDITIVE_VALUE);
+	 	break;
+	case Spells::PRAYER:
+		add(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power);
+		add(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power);
+		add(Bonus::STACKS_SPEED, 0, power);
+	 	break;
+	case Spells::MIRTH:
+		add(Bonus::MORALE, 0, power);
+	 	break;
+	case Spells::SORROW:
+		add(Bonus::MORALE, 0, -1 * power);
+	 	break;
+	case Spells::FORTUNE:
+		add(Bonus::LUCK, 0, power);
+	 	break;
+	case Spells::MISFORTUNE:
+		add(Bonus::LUCK, 0, -1 * power);
+	 	break;
+	case Spells::HASTE: //haste
+		add(Bonus::STACKS_SPEED, 0, power);
+	 	break;
+	case Spells::SLOW:
+		addVT(Bonus::STACKS_SPEED, 0, -1 * ( 100 - power ),Bonus::PERCENT_TO_ALL);
+	 	break;
+	case Spells::SLAYER:
+		add(Bonus::SLAYER, 0, sse.val);
+	 	break;
+	case Spells::FRENZY:
+		add(Bonus::IN_FRENZY, 0, power/100.0);
+	 	break;
+	case Spells::COUNTERSTRIKE:
+		add(Bonus::ADDITIONAL_RETALIATION, 0, power);
+	 	break;
+	case Spells::BERSERK:
+		add(Bonus::ATTACKS_NEAREST_CREATURE, 0, sse.val);
+	 	break;
+	case Spells::HYPNOTIZE:
+	 	add(Bonus::HYPNOTIZED, 0, sse.val);
+	 	break;
+	case Spells::FORGETFULNESS:
+		add(Bonus::FORGETFULL, 0, sse.val);
+	 	break;
+	case Spells::BLIND:
+		addDur(Bonus::NOT_ACTIVE, sse.sid, 0, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS);
+		addDur(Bonus::GENERAL_ATTACK_REDUCTION, 0, power, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS);
+		addDur(Bonus::NO_RETALIATION,0,0, Bonus::UNITL_BEING_ATTACKED);
+	 	break;
+	case Spells::STONE_GAZE:
+	case Spells::PARALYZE:
+		addDur(Bonus::NOT_ACTIVE, sse.sid, 0, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS);
+		addDur(Bonus::NO_RETALIATION,0,0, Bonus::UNITL_BEING_ATTACKED);
+		break;
+	case Spells::POISON: //Poison
+		addVT(Bonus::POISON, 0, 30,Bonus::INDEPENDENT_MAX); //max hp penalty from this source
+		addVT(Bonus::STACK_HEALTH, 0, -10, Bonus::PERCENT_TO_ALL);
+		break;
+	case Spells::BIND:
 		sf.push_back(featureGenerator(Bonus::BIND_EFFECT, 0, 0, 1)); //marker
 		sf.back().duration = Bonus::PERMANENT;
 	 	sf.back().sid = sse.sid;
 		break;
-	case 73: //Disease
-		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -2 , sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
-		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -2 , sse.turnsRemain));
-	 	sf.back().sid = sse.sid;
+	case Spells::DISEASE:
+		add(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -2);
+		add(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -2);
 		break;
-	case 75: //Age
-		sf.push_back(featureGeneratorVT(Bonus::STACK_HEALTH, 0, -50, sse.turnsRemain, Bonus::PERCENT_TO_ALL));
-		sf.back().sid = sse.sid;
+	case Spells::AGE:
+		addVT(Bonus::STACK_HEALTH, 0, -50, Bonus::PERCENT_TO_ALL);
 		break;
-	case 80: //Acid Breath
+	case Spells::ACID_BREATH_DEFENSE:
 		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -sse.turnsRemain, 1));
 	 	sf.back().sid = sse.sid;
 		sf.back().duration = Bonus::PERMANENT;

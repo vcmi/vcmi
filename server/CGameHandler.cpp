@@ -4376,7 +4376,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			{
 				BattleStackAttacked bsa;
 				bsa.flags |= BattleStackAttacked::EFFECT;
-				bsa.effect = VLC->spellh->spells[80]->mainEffectAnim; //use acid breath
+				bsa.effect = spell->mainEffectAnim;
 				bsa.damageAmount = usedSpellPower; //damage times the number of attackers
 				bsa.stackAttacked = (*it)->ID;
 				bsa.attackerID = -1;
