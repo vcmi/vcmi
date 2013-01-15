@@ -936,21 +936,32 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 	const CSpell * sp = VLC->spellh->spells[sse.sid];
 	si32 power = sp->powers[sse.val];
 
-	auto add = [&](Bonus::BonusType type, si16 subtype, si32 value,si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
+	auto addFull = [&](Bonus::BonusType type, si16 subtype, si32 value, si32 additionalInfo, si32 limit)
 	{
 	 	sf.push_back(featureGenerator(type, subtype, value, sse.turnsRemain,additionalInfo, limit));
-	 	sf.back().sid = sse.sid;
+	 	sf.back().sid = sse.sid;		
+	};
+	
+	auto add = [&](Bonus::BonusType type, si16 subtype, si32 value)
+	{
+		addFull(type, subtype, value, 0, Bonus::NO_LIMIT);
 	};
 
-	auto addVT = [&](Bonus::BonusType type, si16 subtype, si32 value, ui8 valType,si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
+	auto addVT = [&](Bonus::BonusType type, si16 subtype, si32 value, ui8 valType)
 	{
-		add(type, subtype, value, additionalInfo, limit);
+		add(type, subtype, value);
+		sf.back().valType = valType;
+	};
+	
+	auto addVTFull = [&](Bonus::BonusType type, si16 subtype, si32 value, ui8 valType,si32 additionalInfo)
+	{
+		addFull(type, subtype, value, additionalInfo, Bonus::NO_LIMIT);
 		sf.back().valType = valType;
 	};
 
-	auto addDur = [&](Bonus::BonusType type, si16 subtype, si32 value, ui8 duration ,si32 additionalInfo = 0, si32 limit = Bonus::NO_LIMIT)
+	auto addDur = [&](Bonus::BonusType type, si16 subtype, si32 value, ui8 duration)
 	{
-		add(type, subtype, value, additionalInfo, limit);
+		add(type, subtype, value);
 		sf.back().duration = duration;
 	};
 
@@ -980,19 +991,19 @@ void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 	case Spells::ANTI_MAGIC:
 	 	addVT(Bonus::LEVEL_SPELL_IMMUNITY, GameConstants::SPELL_LEVELS, power - 1, Bonus::INDEPENDENT_MAX);break;
 	case Spells::MAGIC_MIRROR:
-		addVT(Bonus::MAGIC_MIRROR, -1, power,Bonus::INDEPENDENT_MAX);
+		addVT(Bonus::MAGIC_MIRROR, -1, power, Bonus::INDEPENDENT_MAX);
 		break;
 	case Spells::BLESS:
 		addVT(Bonus::ALWAYS_MAXIMUM_DAMAGE, -1, power,Bonus::INDEPENDENT_MAX);
 	 	break;
 	case Spells::CURSE:
-		addVT(Bonus::ALWAYS_MINIMUM_DAMAGE, -1, power, Bonus::INDEPENDENT_MAX, sse.val >= 2 ? 20 : 0);
+		addVTFull(Bonus::ALWAYS_MINIMUM_DAMAGE, -1, power, Bonus::INDEPENDENT_MAX, sse.val >= 2 ? 20 : 0);
 	 	break;
 	case Spells::BLOODLUST:
-		add(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, 0, Bonus::ONLY_MELEE_FIGHT);
+		addFull(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, 0, Bonus::ONLY_MELEE_FIGHT);
 	 	break;
 	case Spells::PRECISION:
-		add(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, 0, Bonus::ONLY_DISTANCE_FIGHT);
+		addFull(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, 0, Bonus::ONLY_DISTANCE_FIGHT);
 	 	break;
 	case Spells::WEAKNESS:
 		add(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -1 * power);
