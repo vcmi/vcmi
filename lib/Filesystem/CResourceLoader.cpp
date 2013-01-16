@@ -253,7 +253,10 @@ EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)
 	        (".PAL",   EResType::PALETTE)
 	        (".VCGM1", EResType::CLIENT_SAVEGAME)
 	        (".VLGM1", EResType::LIB_SAVEGAME)
-	        (".VSGM1", EResType::SERVER_SAVEGAME);
+	        (".VSGM1", EResType::SERVER_SAVEGAME)
+	        (".ERM",   EResType::ERM)
+	        (".ERT",   EResType::ERT)
+	        (".ERS",   EResType::ERS);
 
 	auto iter = stringToRes.find(extension);
 	if (iter == stringToRes.end())
@@ -285,6 +288,9 @@ std::string EResTypeHelper::getEResTypeAsString(EResType::Type type)
 		MAP_ENUM(LIB_SAVEGAME)
 		MAP_ENUM(SERVER_SAVEGAME)
 		MAP_ENUM(DIRECTORY)
+		MAP_ENUM(ERM)
+		MAP_ENUM(ERT)
+		MAP_ENUM(ERS)
 		MAP_ENUM(OTHER);
 
 #undef MAP_ENUM

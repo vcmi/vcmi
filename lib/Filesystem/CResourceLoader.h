@@ -60,6 +60,9 @@ namespace EResType
 		LIB_SAVEGAME,
 		SERVER_SAVEGAME,
 		DIRECTORY,
+		ERM,
+		ERT,
+		ERS,
 		OTHER
 	};
 }

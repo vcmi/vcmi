@@ -835,7 +835,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	if(const Bonus *slayerEffect = info.attackerBonuses->getEffect(Spells::SLAYER)) //slayer handling
 	{
 		std::vector<int> affectedIds;
-		int spLevel = slayerEffect->val;
+		int spLevel = slayerEffect->val; 
 
 		for(int g = 0; g < VLC->creh->creatures.size(); ++g)
 		{
@@ -1487,7 +1487,6 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
 
-
 	// Get stack at destination hex -> subject of our spell.
 	const CStack * subject = battleGetStackByPos(dest, !spell->isRisingSpell()); //only alive if not rising spell
 
@@ -1495,28 +1494,14 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 	{
 		if (spell->isPositive() && subject->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
 			return ESpellCastProblem::OK;
+			
+		if (spell->isImmuneBy(subject)) //TODO: move all logic to spellhandler
+			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 
 		switch (spell->id) //TODO: more general logic for new spells?
 		{
-		case Spells::DESTROY_UNDEAD:
-			if (!subject->hasBonusOfType(Bonus::UNDEAD))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-			break;
-		case Spells::DEATH_RIPPLE:
-			if (subject->hasBonusOfType(Bonus::SIEGE_WEAPON))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL; //don't break here - undeads and war machines are immune, non-living are not
-		case Spells::BLESS:
-		case Spells::CURSE: //undeads are immune to bless & curse
-			if (subject->hasBonusOfType(Bonus::UNDEAD))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-			break;
-		case Spells::HASTE:
-		case Spells::SLOW:
-		case Spells::TELEPORT:
 		case Spells::CLONE:
-			if (subject->hasBonusOfType(Bonus::SIEGE_WEAPON))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL; //war machines are immune to some spells than involve movement
-			if (spell->id == Spells::CLONE && caster) //TODO: how about stacks casting Clone?
+			if (caster) //TODO: how about stacks casting Clone?
 			{
 				if (vstd::contains(subject->state, EBattleStackState::CLONED))
 					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL; //can't clone already cloned creature
@@ -1525,11 +1510,6 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 				if (maxLevel < creLevel) //tier 1-5 for basic, 1-6 for advanced, 1-7 for expert
 					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 			}
-			break;
-		case Spells::FORGETFULNESS:
-		case Spells::PRECISION:
-			if (!subject->hasBonusOfType(Bonus::SHOOTER))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 			break;
 		case Spells::DISPEL_HELPFUL_SPELLS:
 			{
@@ -1551,69 +1531,12 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 			break;
 		}
 
-		const bool damageSpell = spell->isDamageSpell();
-		auto battleTestElementalImmunity = [&](Bonus::BonusType element) -> bool //helper for battleisImmune
-		{
-			if (!spell->isPositive()) //negative or indifferent
-			{
-				if ((damageSpell && subject->hasBonusOfType(element, 2)) || subject->hasBonusOfType(element, 1))
-					return true;
-			}
-			else if (spell->isPositive()) //positive
-			{
-				if (subject->hasBonusOfType(element, 0)) //must be immune to all spells
-					return true;
-			}
-			return false;
-		};
-
-
-		if (damageSpell && subject->hasBonusOfType(Bonus::DIRECT_DAMAGE_IMMUNITY))
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-
-		if (spell->fire)
-		{
-			if (battleTestElementalImmunity(Bonus::FIRE_IMMUNITY))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}
-		if (spell->water)
-		{
-			if (battleTestElementalImmunity(Bonus::WATER_IMMUNITY))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}
-		if (spell->earth)
-		{
-			if (battleTestElementalImmunity(Bonus::EARTH_IMMUNITY))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}
-		if (spell->air)
-		{
-			if (battleTestElementalImmunity(Bonus::AIR_IMMUNITY))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}
-		if (spell->isMindSpell())
-		{
-			if (subject->hasBonusOfType(Bonus::MIND_IMMUNITY))
-				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}
-
 		if (spell->isRisingSpell())
 		{
 			if (subject->count >= subject->baseAmount) //TODO: calculate potential hp raised
 				return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 		}
 
-		TBonusListPtr immunities = subject->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
-		if(subject->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
-		{
-			immunities->remove_if([](const Bonus* b){  return b->source == Bonus::CREATURE_ABILITY;  });
-		}
-
-		if(subject->hasBonusOfType(Bonus::SPELL_IMMUNITY, spell->id)
-			|| ( immunities->size() > 0  &&  immunities->totalValue() >= spell->level  &&  spell->level))
-		{
-			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
-		}
 	}
 	else //no target stack on this tile
 	{
@@ -1661,7 +1584,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	}
 
 
-	if(spell->id < 10) //it's adventure spell (not combat))
+	if(!spell->combatSpell)
 		return ESpellCastProblem::ADVMAP_SPELL_INSTEAD_OF_BATTLE_SPELL;
 
 	//TODO?

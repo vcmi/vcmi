@@ -130,9 +130,10 @@ CSpellHandler::CSpellHandler()
 
 CSpell::CSpell()
 {
-	_isDamage = false;
-	_isMind = false;
-	_isRising = false;
+	isDamage = false;
+	isMind = false;
+	isRising = false;
+	isOffensive = false;
 }
 
 std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
@@ -262,27 +263,116 @@ bool CSpell::isNegative() const
 
 bool CSpell::isRisingSpell() const
 {
-	return _isRising;
+	return isRising;
 }
 
 bool CSpell::isDamageSpell() const
 {
-	return _isDamage;
+	return isDamage;
 }
 
 bool CSpell::isMindSpell() const
 {
-	return _isMind;
+	return isMind;
 }
 
-void CSpell::getEffects(std::vector<Bonus>& lst) const
+bool CSpell::isOffensiveSpell() const
 {
-	lst.reserve(lst.size() + _effects.size());
+	return isOffensive;
+}
 
-	BOOST_FOREACH (Bonus b, _effects)
+bool CSpell::hasEffects() const
+{
+	return !effects[0].empty();
+}
+
+
+void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
+{
+	if (level < 0 || level>3)
 	{
+		tlog1 << __FUNCTION__ << " invalid school level " << level;
+		return;
+	}
+	lst.reserve(lst.size() + effects[level].size());
+
+	BOOST_FOREACH (Bonus b, effects[level])
+	{
+		//TODO: value, add value
 		lst.push_back(b);
 	}
+}
+
+bool CSpell::isImmuneBy(const IBonusBearer* obj) const
+{
+	BOOST_FOREACH(auto b, limiters)
+	{
+		if (!obj->hasBonusOfType(b))
+			return true;
+	}
+
+	BOOST_FOREACH(auto b, immunities)
+	{
+		if (obj->hasBonusOfType(b))
+			return true;
+	}
+
+	if (isMindSpell() && obj->hasBonusOfType(Bonus::MIND_IMMUNITY))
+		return true;
+
+	if (isDamageSpell() && obj->hasBonusOfType(Bonus::DIRECT_DAMAGE_IMMUNITY))
+		return true;
+
+	auto battleTestElementalImmunity = [&,this](Bonus::BonusType element) -> bool
+	{
+		if (!isPositive()) //negative or indifferent
+		{
+			if ((isDamageSpell() && obj->hasBonusOfType(element, 2)) || obj->hasBonusOfType(element, 1))
+				return true;
+		}
+		else if (isPositive()) //positive
+		{
+			if (obj->hasBonusOfType(element, 0)) //must be immune to all spells
+				return true;
+		}
+		return false;
+	};
+
+	if (fire)
+	{
+		if (battleTestElementalImmunity(Bonus::FIRE_IMMUNITY))
+			return true;
+	}
+	if (water)
+	{
+		if (battleTestElementalImmunity(Bonus::WATER_IMMUNITY))
+			return true;
+	}
+
+	if (earth)
+	{
+		if (battleTestElementalImmunity(Bonus::EARTH_IMMUNITY))
+			return true;
+	}
+	if (air)
+	{
+		if (battleTestElementalImmunity(Bonus::AIR_IMMUNITY))
+			return true;
+	}
+
+	TBonusListPtr immunities = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
+	if(obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
+	{
+		immunities->remove_if([](const Bonus* b){  return b->source == Bonus::CREATURE_ABILITY;  });
+	}
+
+	if(obj->hasBonusOfType(Bonus::SPELL_IMMUNITY, id)
+		|| ( immunities->size() > 0  &&  immunities->totalValue() >= level  &&  level))
+	{
+		return true;
+	}
+
+	return false;
 }
 
 
@@ -329,44 +419,31 @@ void CSpellHandler::loadSpells()
 {
 	CLegacyConfigParser parser("DATA/SPTRAITS.TXT");
 
-	for(int i=0; i<5; i++) // header
-		parser.endLine();
-
-	do //read adventure map spells
+	auto read = [&,this](bool combat, bool alility)
 	{
-		CSpell * spell = loadSpell(parser);
-		spell->id = spells.size();
-		spell->combatSpell = false;
-		spell->creatureAbility = false;
-		spells.push_back(spell);
-	}
-	while (parser.endLine() && !parser.isNextEntryEmpty());
+		do
+		{
+			CSpell * spell = loadSpell(parser);
+			spell->id = spells.size();
+			spell->combatSpell = combat;
+			spell->creatureAbility = alility;
+			spells.push_back(spell);
+		}
+		while (parser.endLine() && !parser.isNextEntryEmpty());
+	};
 
-	for(int i=0; i<3; i++)
-		parser.endLine();
-
-	do //read battle spells
+	auto skip = [&](int cnt)
 	{
-		CSpell * spell = loadSpell(parser);
-		spell->id = spells.size();
-		spell->combatSpell = true;
-		spell->creatureAbility = false;
-		spells.push_back(spell);
-	}
-	while (parser.endLine() && !parser.isNextEntryEmpty());
+		for(int i=0; i<cnt; i++)
+			parser.endLine();
+	};
 
-	for(int i=0; i<3; i++)
-		parser.endLine();
-
-	do //read creature abilities
-	{
-		CSpell * spell = loadSpell(parser);
-		spell->id = spells.size();
-		spell->combatSpell = true;
-		spell->creatureAbility = true;
-		spells.push_back(spell);
-	}
-	while (parser.endLine() && !parser.isNextEntryEmpty());
+	skip(5);// header
+	read(false,false); //read adventure map spells
+	skip(3);
+	read(true,false); //read battle spells
+	skip(3);
+	read(true,true);//read creature abilities
 
 	boost::replace_first (spells[Spells::DISRUPTING_RAY]->attributes, "2", ""); // disrupting ray will now affect single creature
 
@@ -404,34 +481,78 @@ void CSpellHandler::loadSpells()
 			{
 				if (flag == "damage")
 				{
-					s->_isDamage = true;
+					s->isDamage = true;
 				}
 				else if (flag == "rising")
 				{
-					s->_isRising = true;
+					s->isRising = true;
 				}
 				else if (flag == "mind")
 				{
-					s->_isMind = true;
+					s->isMind = true;
 				}
-
+				else if (flag == "offensive")
+				{
+					s->isOffensive = true;
+				}
 			}
 		}
 
 		const JsonNode & effects_node = spell.second["effects"];
 
-		if (!effects_node.isNull())
+		BOOST_FOREACH (const JsonNode & bonus_node, effects_node.Vector())
 		{
-			BOOST_FOREACH (const JsonNode & bonus_node, effects_node.Vector())
+			auto &v_node = bonus_node["values"];
+			auto &a_node = bonus_node["ainfos"];
+
+			auto v = v_node.convertTo<std::vector<int> >();
+			auto a = a_node.convertTo<std::vector<int> >();
+
+			for (int i=0; i<4 ; i++)
 			{
 				Bonus * b = JsonUtils::parseBonus(bonus_node);
-				b->sid = s->id;
-				b->source = Bonus::SPELL_EFFECT;
-				b->duration = Bonus::N_TURNS; //default
-				//TODO: make duration configurable
-				s->_effects.push_back(*b);
+				b->sid = s->id; //for all
+				b->source = Bonus::SPELL_EFFECT;//for all
+				b->val = s->powers[i];
+
+				if (!v.empty())
+					b->val = v[i];
+				if (!a.empty())
+					b->additionalInfo = a[i];
+
+				s->effects[i].push_back(*b);
 			}
+
 		}
+
+
+		auto find_in_map = [](std::string name, std::vector<Bonus::BonusType> &vec)
+		{
+			auto it = bonusNameMap.find(name);
+			if (it == bonusNameMap.end())
+			{
+				tlog1 << "Error: invalid bonus name" << name << std::endl;
+			}
+			else
+			{
+				vec.push_back((Bonus::BonusType)it->second);
+			}
+		};
+
+		auto read_node = [&](std::string name, std::vector<Bonus::BonusType> &vec)
+		{
+			const JsonNode & node = spell.second[name];
+
+			if (!node.isNull())
+			{
+				auto names = node.convertTo<std::vector<std::string> >();
+				BOOST_FOREACH(auto name, names)
+				   find_in_map(name, vec);
+			}
+		};
+
+		read_node("immunity",s->immunities);
+		read_node("limit",s->limiters);
 
 	}
 

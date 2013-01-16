@@ -120,7 +120,6 @@ void BattleInfo::calculateCasualties( std::map<ui32,si32> *casualties ) const
 	}
 }
 
-
 int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower)
 {
 	if(!caster)
@@ -167,9 +166,9 @@ ui32 BattleInfo::calculateHealedHP(const CGHeroInstance * caster, const CSpell *
 	bool resurrect = resurrects(spell->id);
 	int healedHealth;
 	if (spell->id == Spells::SACRIFICE && sacrificedStack)
-		healedHealth = (caster->getPrimSkillLevel(2) + sacrificedStack->MaxHealth() + spell->powers[caster->getSpellSchoolLevel(spell)]) * sacrificedStack->count;
+		healedHealth = (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + sacrificedStack->MaxHealth() + spell->powers[caster->getSpellSchoolLevel(spell)]) * sacrificedStack->count;
 	else
-		healedHealth = caster->getPrimSkillLevel(2) * spell->power + spell->powers[caster->getSpellSchoolLevel(spell)];
+		healedHealth = caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) * spell->power + spell->powers[caster->getSpellSchoolLevel(spell)];
 	healedHealth = calculateSpellBonus(healedHealth, spell, caster, stack);
 	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
 }
@@ -746,7 +745,7 @@ std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const C
 
 	}
 
-	if(sp->id == 60) //hypnotize
+	if(sp->id == Spells::HYPNOTIZE) //hypnotize
 	{
 		for(auto it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
 		{
@@ -931,163 +930,17 @@ si32 CStack::magicResistance() const
 
 void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 {
-	//TODO: get rid of this spaghetti code
-
 	const CSpell * sp = VLC->spellh->spells[sse.sid];
-	si32 power = sp->powers[sse.val];
 
-	auto addFull = [&](Bonus::BonusType type, si16 subtype, si32 value, si32 additionalInfo, si32 limit)
-	{
-	 	sf.push_back(featureGenerator(type, subtype, value, sse.turnsRemain,additionalInfo, limit));
-	 	sf.back().sid = sse.sid;		
-	};
-	
-	auto add = [&](Bonus::BonusType type, si16 subtype, si32 value)
-	{
-		addFull(type, subtype, value, 0, Bonus::NO_LIMIT);
-	};
+	std::vector<Bonus> tmp;
+	sp->getEffects(tmp, sse.val);
 
-	auto addVT = [&](Bonus::BonusType type, si16 subtype, si32 value, ui8 valType)
+	BOOST_FOREACH(Bonus& b, tmp)
 	{
-		add(type, subtype, value);
-		sf.back().valType = valType;
-	};
-	
-	auto addVTFull = [&](Bonus::BonusType type, si16 subtype, si32 value, ui8 valType,si32 additionalInfo)
-	{
-		addFull(type, subtype, value, additionalInfo, Bonus::NO_LIMIT);
-		sf.back().valType = valType;
-	};
-
-	auto addDur = [&](Bonus::BonusType type, si16 subtype, si32 value, ui8 duration)
-	{
-		add(type, subtype, value);
-		sf.back().duration = duration;
-	};
-
-	switch(sse.sid)
-	{
-	case Spells::SHIELD:
-		add(Bonus::GENERAL_DAMAGE_REDUCTION, 0, power);
-		break;
-	case Spells::AIR_SHIELD:
-	 	add(Bonus::GENERAL_DAMAGE_REDUCTION, 1, power);
-	 	break;
-	case Spells::FIRE_SHIELD:
-	 	add(Bonus::FIRE_SHIELD, 0, power);
-	 	break;
-	case Spells::PROTECTION_FROM_AIR:
-	 	add(Bonus::SPELL_DAMAGE_REDUCTION, 0, power);
-	 	break;
-	case Spells::PROTECTION_FROM_FIRE:
-	 	add(Bonus::SPELL_DAMAGE_REDUCTION, 1, power);
-	 	break;
-	case Spells::PROTECTION_FROM_WATER:
-	 	add(Bonus::SPELL_DAMAGE_REDUCTION, 2, power);
-	 	break;
-	case Spells::PROTECTION_FROM_EARTH:
-	 	add(Bonus::SPELL_DAMAGE_REDUCTION, 3, power);
-	 	break;
-	case Spells::ANTI_MAGIC:
-	 	addVT(Bonus::LEVEL_SPELL_IMMUNITY, GameConstants::SPELL_LEVELS, power - 1, Bonus::INDEPENDENT_MAX);break;
-	case Spells::MAGIC_MIRROR:
-		addVT(Bonus::MAGIC_MIRROR, -1, power, Bonus::INDEPENDENT_MAX);
-		break;
-	case Spells::BLESS:
-		addVT(Bonus::ALWAYS_MAXIMUM_DAMAGE, -1, power,Bonus::INDEPENDENT_MAX);
-	 	break;
-	case Spells::CURSE:
-		addVTFull(Bonus::ALWAYS_MINIMUM_DAMAGE, -1, power, Bonus::INDEPENDENT_MAX, sse.val >= 2 ? 20 : 0);
-	 	break;
-	case Spells::BLOODLUST:
-		addFull(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, 0, Bonus::ONLY_MELEE_FIGHT);
-	 	break;
-	case Spells::PRECISION:
-		addFull(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power, 0, Bonus::ONLY_DISTANCE_FIGHT);
-	 	break;
-	case Spells::WEAKNESS:
-		add(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -1 * power);
-		break;
-	case Spells::STONE_SKIN:
-		add(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power);
-	 	break;
-	case Spells::DISRUPTING_RAY:
-		addVT(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -1 * power,Bonus::ADDITIVE_VALUE);
-	 	break;
-	case Spells::PRAYER:
-		add(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, power);
-		add(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, power);
-		add(Bonus::STACKS_SPEED, 0, power);
-	 	break;
-	case Spells::MIRTH:
-		add(Bonus::MORALE, 0, power);
-	 	break;
-	case Spells::SORROW:
-		add(Bonus::MORALE, 0, -1 * power);
-	 	break;
-	case Spells::FORTUNE:
-		add(Bonus::LUCK, 0, power);
-	 	break;
-	case Spells::MISFORTUNE:
-		add(Bonus::LUCK, 0, -1 * power);
-	 	break;
-	case Spells::HASTE: //haste
-		add(Bonus::STACKS_SPEED, 0, power);
-	 	break;
-	case Spells::SLOW:
-		addVT(Bonus::STACKS_SPEED, 0, -1 * ( 100 - power ),Bonus::PERCENT_TO_ALL);
-	 	break;
-	case Spells::SLAYER:
-		add(Bonus::SLAYER, 0, sse.val);
-	 	break;
-	case Spells::FRENZY:
-		add(Bonus::IN_FRENZY, 0, power/100.0);
-	 	break;
-	case Spells::COUNTERSTRIKE:
-		add(Bonus::ADDITIONAL_RETALIATION, 0, power);
-	 	break;
-	case Spells::BERSERK:
-		add(Bonus::ATTACKS_NEAREST_CREATURE, 0, sse.val);
-	 	break;
-	case Spells::HYPNOTIZE:
-	 	add(Bonus::HYPNOTIZED, 0, sse.val);
-	 	break;
-	case Spells::FORGETFULNESS:
-		add(Bonus::FORGETFULL, 0, sse.val);
-	 	break;
-	case Spells::BLIND:
-		addDur(Bonus::NOT_ACTIVE, sse.sid, 0, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS);
-		addDur(Bonus::GENERAL_ATTACK_REDUCTION, 0, power, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS);
-		addDur(Bonus::NO_RETALIATION,0,0, Bonus::UNITL_BEING_ATTACKED);
-	 	break;
-	case Spells::STONE_GAZE:
-	case Spells::PARALYZE:
-		addDur(Bonus::NOT_ACTIVE, sse.sid, 0, Bonus::UNITL_BEING_ATTACKED | Bonus::N_TURNS);
-		addDur(Bonus::NO_RETALIATION,0,0, Bonus::UNITL_BEING_ATTACKED);
-		break;
-	case Spells::POISON: //Poison
-		addVT(Bonus::POISON, 0, 30,Bonus::INDEPENDENT_MAX); //max hp penalty from this source
-		addVT(Bonus::STACK_HEALTH, 0, -10, Bonus::PERCENT_TO_ALL);
-		break;
-	case Spells::BIND:
-		sf.push_back(featureGenerator(Bonus::BIND_EFFECT, 0, 0, 1)); //marker
-		sf.back().duration = Bonus::PERMANENT;
-	 	sf.back().sid = sse.sid;
-		break;
-	case Spells::DISEASE:
-		add(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK, -2);
-		add(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -2);
-		break;
-	case Spells::AGE:
-		addVT(Bonus::STACK_HEALTH, 0, -50, Bonus::PERCENT_TO_ALL);
-		break;
-	case Spells::ACID_BREATH_DEFENSE:
-		sf.push_back(featureGenerator(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE, -sse.turnsRemain, 1));
-	 	sf.back().sid = sse.sid;
-		sf.back().duration = Bonus::PERMANENT;
-		sf.back().valType = Bonus::ADDITIVE_VALUE;
-		break;
+		b.turnsRemain =  sse.turnsRemain;
+		sf.push_back(b);
 	}
+
 }
 
 bool CStack::willMove(int turn /*= 0*/) const

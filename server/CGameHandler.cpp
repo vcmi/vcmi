@@ -3994,58 +3994,11 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			vstd::amin(sc.dmgToDisplay, (*attackedCres.begin())->count); //stack is already reduced after attack
 	}
 	StacksInjured si;
-
+	
 	//applying effects
-	switch (spellID)
+	
+	if (spell->isOffensiveSpell())
 	{
-	case Spells::QUICKSAND:
-	case Spells::LAND_MINE:
-		{
-			std::vector<BattleHex> availableTiles;
-			for(int i = 0; i < GameConstants::BFIELD_SIZE; i += 1)
-			{
-				BattleHex hex = i;
-				if(hex.getX() > 2 && hex.getX() < 14 && !battleGetStackByPos(hex, false) & !battleGetObstacleOnPos(hex, false))
-					availableTiles.push_back(hex);
-			}
-			boost::range::random_shuffle(availableTiles);
-
-			const int patchesForSkill[] = {4, 4, 6, 8};
-			const int patchesToPut = std::min<int>(patchesForSkill[spellLvl], availableTiles.size());
-
-			//land mines or quicksand patches are handled as spell created obstacles
-			for (int i = 0; i < patchesToPut; i++)
-				placeObstacle(availableTiles[i]);
-		}
-
-		break;
-	case Spells::FORCE_FIELD:
-		placeObstacle(destination);
-		break;
-	case Spells::FIRE_WALL:
-		{
-			//fire wall is build from multiple obstacles - one fire piece for each affected hex
-			auto affectedHexes = spell->rangeInHexes(destination, spellLvl, casterSide);
-			BOOST_FOREACH(BattleHex hex, affectedHexes)
-				placeObstacle(hex);
-		}
-		break;
-	//damage spells
-	case Spells::MAGIC_ARROW:
-	case Spells::ICE_BOLT:
-	case Spells::LIGHTNING_BOLT:
-	case Spells::IMPLOSION:
-	case Spells::CHAIN_LIGHTNING:
-	case Spells::FROST_RING:
-	case Spells::FIREBALL:
-	case Spells::INFERNO:
-	case Spells::METEOR_SHOWER:
-	case Spells::DEATH_RIPPLE:
-	case Spells::DESTROY_UNDEAD:
-	case Spells::ARMAGEDDON:
-	case Spells::TITANS_LIGHTNING_BOLT:
-	case Spells::THUNDERBOLT: //(thunderbirds)
-		{
 			int spellDamage = 0;
 			if (stack && mode != ECastingMode::MAGIC_MIRROR)
 			{
@@ -4088,48 +4041,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 
 				if (spellID == Spells::CHAIN_LIGHTNING)
 					++chainLightningModifier;
-			}
-			break;
-		}
-		// permanent effects
-	case Spells::SHIELD:
-	case Spells::AIR_SHIELD:
-	case Spells::FIRE_SHIELD:
-	case Spells::PROTECTION_FROM_AIR:
-	case Spells::PROTECTION_FROM_FIRE:
-	case Spells::PROTECTION_FROM_WATER:
-	case Spells::PROTECTION_FROM_EARTH:
-	case Spells::ANTI_MAGIC:
-	case Spells::MAGIC_MIRROR:
-	case Spells::BLESS:
-	case Spells::CURSE:
-	case Spells::BLOODLUST:
-	case Spells::PRECISION:
-	case Spells::WEAKNESS:
-	case Spells::STONE_SKIN:
-	case Spells::DISRUPTING_RAY:
-	case Spells::PRAYER:
-	case Spells::MIRTH:
-	case Spells::SORROW:
-	case Spells::FORTUNE:
-	case Spells::MISFORTUNE:
-	case Spells::HASTE:
-	case Spells::SLOW:
-	case Spells::SLAYER:
-	case Spells::FRENZY:
-	case Spells::COUNTERSTRIKE:
-	case Spells::BERSERK:
-	case Spells::HYPNOTIZE:
-	case Spells::FORGETFULNESS:
-	case Spells::BLIND:
-	case Spells::STONE_GAZE:
-	case Spells::POISON:
-	case Spells::BIND:
-	case Spells::DISEASE:
-	case Spells::PARALYZE:
-	case Spells::AGE:
-	case Spells::ACID_BREATH_DEFENSE:
-		{
+			}		
+	}
+	else if (spell->hasEffects())
+	{
 			int stackSpellPower = 0;
 			if (stack && mode != ECastingMode::MAGIC_MIRROR)
 			{
@@ -4204,25 +4119,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 
 			if(!sse.stacks.empty())
 				sendAndApply(&sse);
-			break;
-		}
-	case Spells::TELEPORT:
-		{
-			BattleStackMoved bsm;
-			bsm.distance = -1;
-			bsm.stack = selectedStack;
-			std::vector<BattleHex> tiles;
-			tiles.push_back(destination);
-			bsm.tilesToMove = tiles;
-			bsm.teleporting = true;
-			sendAndApply(&bsm);
-			break;
-		}
-	case Spells::CURE:
-	case Spells::RESURRECTION:
-	case Spells::ANIMATE_DEAD:
-	case Spells::SACRIFICE:
-		{
+					
+	}
+	else if (spell->isRisingSpell() || spell->id == Spells::CURE)
+	{
 			int hpGained = 0;
 			if (stack)
 			{
@@ -4264,7 +4164,53 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 				BattleStacksRemoved bsr;
 				bsr.stackIDs.insert (selectedStack); //somehow it works for teleport?
 				sendAndApply(&bsr);
+			}		
+	}
+	else
+	switch (spellID)
+	{
+	case Spells::QUICKSAND:
+	case Spells::LAND_MINE:
+		{
+			std::vector<BattleHex> availableTiles;
+			for(int i = 0; i < GameConstants::BFIELD_SIZE; i += 1)
+			{
+				BattleHex hex = i;
+				if(hex.getX() > 2 && hex.getX() < 14 && !battleGetStackByPos(hex, false) & !battleGetObstacleOnPos(hex, false))
+					availableTiles.push_back(hex);
 			}
+			boost::range::random_shuffle(availableTiles);
+
+			const int patchesForSkill[] = {4, 4, 6, 8};
+			const int patchesToPut = std::min<int>(patchesForSkill[spellLvl], availableTiles.size());
+
+			//land mines or quicksand patches are handled as spell created obstacles
+			for (int i = 0; i < patchesToPut; i++)
+				placeObstacle(availableTiles[i]);
+		}
+
+		break;
+	case Spells::FORCE_FIELD:
+		placeObstacle(destination);
+		break;
+	case Spells::FIRE_WALL:
+		{
+			//fire wall is build from multiple obstacles - one fire piece for each affected hex
+			auto affectedHexes = spell->rangeInHexes(destination, spellLvl, casterSide);
+			BOOST_FOREACH(BattleHex hex, affectedHexes)
+				placeObstacle(hex);
+		}
+		break;
+	case Spells::TELEPORT:
+		{
+			BattleStackMoved bsm;
+			bsm.distance = -1;
+			bsm.stack = selectedStack;
+			std::vector<BattleHex> tiles;
+			tiles.push_back(destination);
+			bsm.tilesToMove = tiles;
+			bsm.teleporting = true;
+			sendAndApply(&bsm);
 			break;
 		}
 	case Spells::SUMMON_FIRE_ELEMENTAL:
@@ -5536,7 +5482,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 
 			GiveBonus gb;
 			gb.id = h->id;
-			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::WATER_WALKING, Bonus::SPELL_EFFECT, 0, Spells::FLY, subtype);
+			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::WATER_WALKING, Bonus::SPELL_EFFECT, 0, Spells::WATER_WALK, subtype);
 			sendAndApply(&gb);
 		}
 		break;

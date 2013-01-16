@@ -6,14 +6,25 @@
     //			  1 -> spell is positive for them
 	//   anim: main effect animation (AC format), -1 - none
     //   ranges: spell range description in SRSL ([no magic] [basic] [advanced] [expert])
+    //	 counters: array of ids of countering spells
 
     // flags: string array of
     //		damage
-    //		directDamage //todo
+    //		offensive
     //		rising
     //		mind
+    //		summoning //todo:
 
-    //effects: array of bonus for permanent effects
+    //effects: array of structure for bonuses for permanent effects
+    // {bonus format} - effect //todo
+    // + values: [4 int values] (OPTIONAL default from sptraits) values for levels
+    // + ainfos: [4 int values] (optional) additional infos for levels (atm only CURSE)
+    
+    //
+    //immunity - name of bonus granting immunity to this spell
+    //
+    // 	immunity: array any of these bonus grants immunity
+    //  limit: array required bonus to be affected, all required
 
 	"spells":
 	{
@@ -130,7 +141,7 @@
 			"effect": -1,
 			"anim": 64,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"]
 		},
 		"iceBolt"        :
 		{
@@ -138,7 +149,7 @@
 			"effect": -1,
 			"anim": 46,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"]
 		},
 		"lightningBolt"  :
 		{
@@ -146,7 +157,7 @@
 			"effect": -1,
 			"anim": 38,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"]
 		},
 		"implosion"      :
 		{
@@ -154,7 +165,7 @@
 			"effect": -1,
 			"anim": 10,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"]
 		},
 		"chainLightning" :
 		{
@@ -162,7 +173,7 @@
 			"effect": -1,
 			"anim": 38,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"]
 		},
 		"frostRing"      :
 		{
@@ -170,7 +181,7 @@
 			"effect": -1,
 			"anim": 45,
 			"ranges": [ "1", "1", "1", "1" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"]
 		},
 		"fireball"       :
 		{
@@ -178,7 +189,7 @@
 			"effect": -1,
 			"anim": 53,
 			"ranges": [ "0,1", "0,1", "0,1", "0,1" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"]
 		},
 		"inferno"        :
 		{
@@ -186,7 +197,7 @@
 			"effect": -1,
 			"anim": 9,
 			"ranges": [ "0-2", "0-2", "0-2", "0-2" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"]
 		},
 		"meteorShower"   :
 		{
@@ -194,7 +205,7 @@
 			"effect": -1,
 			"anim": 16,
 			"ranges": [ "0,1", "0,1", "0,1", "0,1" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"]
 		},
 		"deathRipple"    :
 		{
@@ -202,7 +213,8 @@
 			"effect": -1,
 			"anim": 8,
 			"ranges": [ "X", "X", "X", "X" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"],
+			"immunity":  ["SIEGE_WEAPON","UNDEAD"]
 		},
 		"destroyUndead"  :
 		{
@@ -210,7 +222,9 @@
 			"effect": -1,
 			"anim": 29,
 			"ranges": [ "X", "X", "X", "X" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"],
+			"limit":["UNDEAD"]
+			
 		},
 		"armageddon"     :
 		{
@@ -218,7 +232,7 @@
 			"effect": -1,
 			"anim": 12,
 			"ranges": [ "X", "X", "X", "X" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"]
 		},
 		"shield"         :
 		{
@@ -228,9 +242,11 @@
 			"ranges": [ "0", "0", "0", "X" ],
 			"effects":
 			[
+
 				{
 					"type": 	"GENERAL_DAMAGE_REDUCTION",
-					"subtype":0
+					"subtype":0,
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -244,7 +260,8 @@
 			[
 				{
 					"type": 	"GENERAL_DAMAGE_REDUCTION",
-					"subtype":1
+					"subtype":1,
+					"duration": "N_TURNS"	
 				}
 			]
 		},
@@ -257,7 +274,8 @@
 			"effects":
 			[
 				{
-					"type": 	"FIRE_SHIELD"
+					"type": 	"FIRE_SHIELD",
+					"duration": "N_TURNS"	
 				}
 			]
 		},
@@ -270,10 +288,14 @@
 			"effects":
 			[
 				{
+
 					"type": 	"SPELL_DAMAGE_REDUCTION",
-					"subtype":0
+					"subtype":0,
+					"duration": "N_TURNS"
+			
 				}
 			]
+			
 		},
 		"protectFire"    :
 		{
@@ -285,7 +307,8 @@
 			[
 				{
 					"type": 	"SPELL_DAMAGE_REDUCTION",
-					"subtype":1
+					"subtype":1,
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -299,7 +322,8 @@
 			[
 				{
 					"type": 	"SPELL_DAMAGE_REDUCTION",
-					"subtype":2
+					"subtype":2,
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -313,7 +337,8 @@
 			[
 				{
 					"type": 	"SPELL_DAMAGE_REDUCTION",
-					"subtype":3
+					"subtype":3,
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -327,8 +352,10 @@
 			[
 				{
 					"type": 	"LEVEL_SPELL_IMMUNITY",
-					"subtype":5,
-					"valType":"INDEPENDENT_MAX"
+					"subtype":5, //needed?
+					"valType":"INDEPENDENT_MAX",
+					"duration": "N_TURNS",
+					"values":[3,3,4,5]
 				}
 			]
 		},
@@ -349,7 +376,8 @@
 			[
 				{
 					"type": 	"MAGIC_MIRROR",
-					"valType":"INDEPENDENT_MAX"
+					"valType":"INDEPENDENT_MAX",
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -358,8 +386,7 @@
 			"id": 37,
 			"effect": 1,
 			"anim": 39,
-			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["rising"]
+			"ranges": [ "0", "0", "0", "0" ]
 		},
 		"resurrection"   :
 		{
@@ -382,7 +409,8 @@
 			"id": 40,
 			"effect": 1,
 			"anim": 79,
-			"ranges": [ "0", "0", "0", "0" ]
+			"ranges": [ "0", "0", "0", "0" ],
+			"flags" : ["rising"]
 		},
 		"bless"          :
 		{
@@ -395,9 +423,11 @@
 			[
 				{
 					"type": 	"ALWAYS_MAXIMUM_DAMAGE",
-					"valType":"INDEPENDENT_MAX"
+					"valType":"INDEPENDENT_MAX",
+					"duration": "N_TURNS"
 				}
-			]
+			],
+			"immunity":["UNDEAD"]
 		},
 		"curse"          :
 		{
@@ -409,9 +439,13 @@
 			[
 				{
 					"type": 	"ALWAYS_MINIMUM_DAMAGE",
-					"valType":"INDEPENDENT_MAX"
+					"subtype": -1, //any attack
+					"valType":	"INDEPENDENT_MAX",
+					"duration": "N_TURNS",
+					"ainfos":[0,0,20,20]
 				}
-			]
+			],
+			"immunity":["UNDEAD"]
 		},
 		"bloodlust"      :
 		{
@@ -424,7 +458,8 @@
 				{
 					"type": 	"PRIMARY_SKILL",
 					"subtype": 0, //ATTACK
-					"effectRange" : "ONLY_MELEE_FIGHT"
+					"effectRange" : "ONLY_MELEE_FIGHT",
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -439,9 +474,11 @@
 				{
 					"type": 	"PRIMARY_SKILL",
 					"subtype": 0, //ATTACK
-					"effectRange" : "ONLY_DISTANCE_FIGHT"
+					"effectRange" : "ONLY_DISTANCE_FIGHT",
+					"duration": "N_TURNS"
 				}
-			]
+			],
+			"limit":["SHOOTER"]
 		},
 		"weakness"       :
 		{
@@ -453,7 +490,9 @@
 			[
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 0 //ATTACK
+					"subtype": 0, //ATTACK
+					"duration": "N_TURNS",
+					"values":[-3,-3,-6,-6]
 				}
 			]
 		},
@@ -467,7 +506,8 @@
 			[
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 1 //DEFENSE
+					"subtype": 1, //DEFENSE
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -481,7 +521,10 @@
 			[
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 1 //DEFENSE
+					"subtype": 1, //DEFENSE
+					"valueType": "ADDITIVE_VALUE",
+					"duration": "N_TURNS",
+					"values":[-3,-3,-4,-5]
 				}
 			]
 		},
@@ -495,14 +538,17 @@
 			[
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 0 //ATTACK
+					"subtype": 0, //ATTACK
+					"duration": "N_TURNS"
 				},
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 1 //DEFENSE
+					"subtype": 1, //DEFENSE
+					"duration": "N_TURNS"
 				},
 				{
-					"type": 	"STACKS_SPEED"
+					"type": 	"STACKS_SPEED",
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -516,7 +562,8 @@
 			"effects":
 			[
 				{
-					"type": 	"MORALE"
+					"type": 	"MORALE",
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -530,7 +577,9 @@
 			"effects":
 			[
 				{
-					"type": 	"MORALE"
+					"type": 	"MORALE",
+					"duration": "N_TURNS",
+					"values":[-1,-1,-2,-2]
 				}
 			]
 		},
@@ -544,7 +593,8 @@
 			"effects":
 			[
 				{
-					"type": 	"LUCK"
+					"type": 	"LUCK",
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -558,7 +608,9 @@
 			"effects":
 			[
 				{
-					"type": 	"LUCK"
+					"type": 	"LUCK",
+					"duration": "N_TURNS",
+					"values":[-1,-1,-2,-2]
 				}
 			]
 		},
@@ -572,9 +624,11 @@
 			"effects":
 			[
 				{
-					"type": 	"STACKS_SPEED"
+					"type": 	"STACKS_SPEED",
+					"duration": "N_TURNS"
 				}
-			]
+			],
+			"immunity":["SIEGE_WEAPON"]
 		},
 		"slow"           :
 		{
@@ -586,9 +640,13 @@
 			"effects":
 			[
 				{
-					"type": 	"STACKS_SPEED"
+					"type": 	"STACKS_SPEED",
+					"valueType": "PERCENT_TO_ALL",
+					"duration": "N_TURNS"
+					"values":[-25,-25,-50,-50]
 				}
-			]
+			],
+			"immunity":["SIEGE_WEAPON"]
 		},
 		"slayer"         :
 		{
@@ -599,7 +657,9 @@
 			"effects":
 			[
 				{
-					"type": 	"SLAYER"
+					"type": 	"SLAYER",
+					"duration": "N_TURNS",
+					"values":[0,1,2,3]
 				}
 			]
 		},
@@ -612,7 +672,8 @@
 			"effects":
 			[
 				{
-					"type": 	"IN_FRENZY"
+					"type": 	"IN_FRENZY",
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -622,7 +683,7 @@
 			"effect": -1,
 			"anim": 38,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"]
 		},
 		"counterstrike"  :
 		{
@@ -633,7 +694,8 @@
 			"effects":
 			[
 				{
-					"type": 	"ADDITIONAL_RETALIATION"
+					"type": 	"ADDITIONAL_RETALIATION",
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -647,7 +709,9 @@
 			"effects":
 			[
 				{
-					"type": 	"ATTACKS_NEAREST_CREATURE"
+					"type": 	"ATTACKS_NEAREST_CREATURE",
+					"duration": "N_TURNS",
+					"values":[0,1,2,3]
 				}
 			]
 		},
@@ -661,7 +725,9 @@
 			"effects":
 			[
 				{
-					"type": 	"HYPNOTIZED"
+					"type": 	"HYPNOTIZED",
+					"duration": "N_TURNS",
+					"values":[0,1,2,3]
 				}
 			]
 		},
@@ -675,9 +741,12 @@
 			"effects":
 			[
 				{
-					"type": 	"FORGETFULL"
+					"type": 	"FORGETFULL",
+					"duration": "N_TURNS",
+					"values":[0,1,2,3]
 				}
-			]
+			],
+			"limit":["SHOOTER"]
 		},
 		"blind"          :
 		{
@@ -690,16 +759,18 @@
 			[
 				{
 					"type": 	"NOT_ACTIVE",
-					"subtype": 	62, //really ase spell id, is it right?
-					//TODO: duration
+					"subtype": 	62,
+					"duration":	"UNITL_BEING_ATTACKED N_TURNS",
+					"values":[0,0,0,0] 
 				},
 				{
-					"type": 	"GENERAL_ATTACK_REDUCTION"
-					//TODO: duration
+					"type": 	"GENERAL_ATTACK_REDUCTION",
+					"duration":	"UNITL_BEING_ATTACKED N_TURNS" 
 				},
 				{
 					"type": 	"NO_RETALIATION",
-					"duration":	"UNITL_BEING_ATTACKED"
+					"duration":	"UNITL_BEING_ATTACKED",
+					"values":[0,0,0,0] 
 				}
 			]
 		},
@@ -708,7 +779,8 @@
 			"id": 63,
 			"effect": 1,
 			"anim": -1,
-			"ranges": [ "0", "0", "0", "0" ]
+			"ranges": [ "0", "0", "0", "0" ],
+			"immunity":["SIEGE_WEAPON"]
 		},
 		"removeObstacle" :
 		{
@@ -722,7 +794,8 @@
 			"id": 65,
 			"effect": 1,
 			"anim": -1,
-			"ranges": [ "0", "0", "0", "0" ]
+			"ranges": [ "0", "0", "0", "0" ],
+			"immunity":["SIEGE_WEAPON"]
 		},
 		"fireElemental"  :
 		{
@@ -762,12 +835,14 @@
 			[
 				{
 					"type": 	"NOT_ACTIVE",
-					"subtype": 	62
-					//TODO: duration
+					"subtype": 	62,
+					"duration":	"UNITL_BEING_ATTACKED N_TURNS",
+					"values":[0,0,0,0] 
 				},
 				{
 					"type": 	"NO_RETALIATION",
-					"duration":	"UNITL_BEING_ATTACKED"
+					"duration":	"UNITL_BEING_ATTACKED",
+					"values":[0,0,0,0] 
 				}
 			]
 		},
@@ -781,13 +856,16 @@
 			[
 				{
 					"type": 	"POISON",
-					"val" : 	30,
-					"valueType": 	"INDEPENDENT_MAX"
+					"valueType": 	"INDEPENDENT_MAX",
+					"duration": "N_TURNS",
+					"values":[30,30,30,30]
 				},
 				{
 					"type": 	"STACK_HEALTH",
 					"val" : 	-10,
-					"valueType": 	"PERCENT_TO_ALL"
+					"valueType": 	"PERCENT_TO_ALL",
+					"duration": "N_TURNS",
+					"values":[-10,-10,-10,-10]
 				}
 			]
 		},
@@ -801,9 +879,9 @@
 			[
 				{
 					"type": 	"BIND_EFFECT",
-					"val" : 	30,
-					"turns" : 	1,
-					"duration" : 	"PERMANENT"
+					"duration" : 	"PERMANENT",
+					"addInfo" : 	-1,
+					"values":[0,0,0,0]
 				}
 			]
 		},
@@ -818,12 +896,14 @@
 				{
 					"type": 	"PRIMARY_SKILL",
 					"subtype": 	0,
-					"val" : 	-2,
+					"duration": "N_TURNS",
+					"values":[-2,-2,-2,-2]
 				},
 				{
 					"type": 	"PRIMARY_SKILL",
 					"subtype": 	1,
-					"val" : 	-2,
+					"duration": "N_TURNS",
+					"values":[-2,-2,-2,-2]
 				}
 			]
 		},
@@ -838,11 +918,13 @@
 				{
 					"type": 	"NOT_ACTIVE",
 					"subtype": 	74,
-					//TODO: duration
+					"duration":	"UNITL_BEING_ATTACKED N_TURNS",
+					"values":[0,0,0,0]  
 				},
 				{
 					"type": 	"NO_RETALIATION",
-					"duration":	"UNITL_BEING_ATTACKED"
+					"duration":	"UNITL_BEING_ATTACKED",
+					"values":[0,0,0,0] 
 				}
 			]
 		},
@@ -856,8 +938,9 @@
 			[
 				{
 					"type": 	"STACK_HEALTH",
-					"val" : 	-50,
-					"valueType": 	"PERCENT_TO_ALL"
+					"valueType": 	"PERCENT_TO_ALL",
+					"duration": "N_TURNS",
+					"values":[-50,-50,-50,-50]
 				}
 			]
 		},
@@ -874,7 +957,7 @@
 			"effect": -1,
 			"anim": 38,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage"]
+			"flags" : ["damage, offensive"]
 		},
 		"dispelHelpful"  :
 		{
@@ -901,9 +984,9 @@
 				{
 					"type": 	"PRIMARY_SKILL",
 					"subtype": 	1,
-					"val" : 	-3,
 					"duration" : 	"PERMANENT",
-					"valueType": 	"ADDITIVE_VALUE"
+					"valueType": 	"ADDITIVE_VALUE",
+					"values":[-3,-3,-3,-3]
 				}
 			]
 		},

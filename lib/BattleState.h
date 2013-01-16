@@ -182,13 +182,6 @@ public:
 		return hb;
 	}
 
-	static inline Bonus featureGeneratorVT(Bonus::BonusType type, si16 subtype, si32 value, ui16 turnsRemain, ui8 valType)
-	{
-		Bonus ret = makeFeatureVal(type, Bonus::N_TURNS, subtype, value, Bonus::SPELL_EFFECT, turnsRemain);
-		ret.valType = valType;
-		return ret;
-	}
-
 	static bool isMeleeAttackPossible(const CStack * attacker, const CStack * defender, BattleHex attackerPos = BattleHex::INVALID, BattleHex defenderPos = BattleHex::INVALID);
 
 	bool doubleWide() const;

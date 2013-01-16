@@ -56,26 +56,33 @@ public:
 
 	bool isRisingSpell() const;
 	bool isDamageSpell() const;
-	bool isMindSpell() const;
+	bool isMindSpell() const;	
+	bool isOffensiveSpell() const;
+	
+	bool hasEffects() const;
+	void getEffects(std::vector<Bonus> &lst, const int level) const;
 
-
-	void getEffects(std::vector<Bonus> & lst) const;
+	bool isImmuneBy(const IBonusBearer *obj) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & identifier & id & name & abbName & descriptions & level & earth & water & fire & air & power & costs
 			& powers & probabilities & AIVals & attributes & combatSpell & creatureAbility & positiveness & range & counteredSpells & mainEffectAnim;
-		h & _isRising & _isDamage & _isMind;
-		h & _effects;
+		h & isRising & isDamage & isMind;
+		h & effects & immunities & limiters;
 	}
 	friend class CSpellHandler;
 
 private:
-	bool _isRising;
-	bool _isDamage;
-	bool _isMind;
+	bool isRising;
+	bool isDamage;
+	bool isMind;
+	bool isOffensive;
 
-	std::vector<Bonus> _effects;
+	std::vector<Bonus> effects [4];
+	std::vector<Bonus::BonusType> immunities; //any of these hrants immunity
+	std::vector<Bonus::BonusType> limiters; //all of them are required
+	
 
 };
 

@@ -545,67 +545,12 @@ enum SpellTypes
 
 SpellTypes spellType(const CSpell *spell)
 {
-	switch(spell->id)
-	{
-		//offense spell
-	case Spells::MAGIC_ARROW:
-	case Spells::ICE_BOLT:
-	case Spells::LIGHTNING_BOLT:
-	case Spells::IMPLOSION:
-	case Spells::CHAIN_LIGHTNING:
-	case Spells::FROST_RING:
-	case Spells::FIREBALL:
-	case Spells::INFERNO:
-	case Spells::METEOR_SHOWER:
-	case Spells::DEATH_RIPPLE:
-	case Spells::DESTROY_UNDEAD:
-	case Spells::ARMAGEDDON:
-	case Spells::TITANS_LIGHTNING_BOLT:
-	case Spells::THUNDERBOLT: //(thunderbirds)
+	if (spell->isOffensiveSpell())
 		return OFFENSIVE_SPELL;
+	if (spell->hasEffects())
+		return TIMED_EFFECT;	
+	return OTHER;
 
-	case Spells::SHIELD:
-	case Spells::AIR_SHIELD:
-	case Spells::FIRE_SHIELD:
-	case Spells::PROTECTION_FROM_AIR:
-	case Spells::PROTECTION_FROM_FIRE:
-	case Spells::PROTECTION_FROM_WATER:
-	case Spells::PROTECTION_FROM_EARTH:
-	case Spells::ANTI_MAGIC:
-	case Spells::MAGIC_MIRROR:
-	case Spells::BLESS:
-	case Spells::CURSE:
-	case Spells::BLOODLUST:
-	case Spells::PRECISION:
-	case Spells::WEAKNESS:
-	case Spells::STONE_SKIN:
-	case Spells::DISRUPTING_RAY:
-	case Spells::PRAYER:
-	case Spells::MIRTH:
-	case Spells::SORROW:
-	case Spells::FORTUNE:
-	case Spells::MISFORTUNE:
-	case Spells::HASTE:
-	case Spells::SLOW:
-	case Spells::SLAYER:
-	case Spells::FRENZY:
-	case Spells::COUNTERSTRIKE:
-	case Spells::BERSERK:
-	case Spells::HYPNOTIZE:
-	case Spells::FORGETFULNESS:
-	case Spells::BLIND:
-	case Spells::STONE_GAZE:
-	case Spells::POISON:
-	case Spells::BIND:
-	case Spells::DISEASE:
-	case Spells::PARALYZE:
-	case Spells::AGE:
-	case Spells::ACID_BREATH_DEFENSE:
-		return TIMED_EFFECT;
-
-	default:
-		return OTHER;
-	}
 }
 
 struct PossibleSpellcast

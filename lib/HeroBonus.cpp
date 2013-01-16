@@ -418,9 +418,9 @@ si32 IBonusBearer::Attack() const
 {
 	si32 ret = valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK);
 
-	if (int frenzyPower = valOfBonuses(Bonus::IN_FRENZY)) //frenzy for attacker
+	if (double frenzyPower = valOfBonuses(Bonus::IN_FRENZY)) //frenzy for attacker
 	{
-		ret += frenzyPower * Defense(false);
+		ret += (frenzyPower/100) * (double)Defense(false);
 	}
 	vstd::amax(ret, 0);
 
