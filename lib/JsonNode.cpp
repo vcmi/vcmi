@@ -943,7 +943,7 @@ void JsonUtils::resolveIdentifier (si32 &var, const JsonNode &node, std::string 
 				});
 				break;
 			default:
-				tlog2 << "Error! Wrong indentifier used for value of " << name; 
+				tlog2 << "Error! Wrong indentifier used for value of " << name;
 		}
 	}
 }
@@ -962,7 +962,7 @@ void JsonUtils::resolveIdentifier (const JsonNode &node, si32 &var)
 			});
 			break;
 		default:
-			tlog2 << "Error! Wrong indentifier used for identifier!"; 
+			tlog2 << "Error! Wrong indentifier used for identifier!";
 	}
 }
 
@@ -1009,20 +1009,41 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 
 	value = &ability["effectRange"];
 	if (!value->isNull())
-		b->valType = parseByMap(bonusLimitEffect, value, "effect range ");
+		b->effectRange = parseByMap(bonusLimitEffect, value, "effect range ");
+
 	value = &ability["duration"];
 	if (!value->isNull())
-		b->valType = parseByMap(bonusDurationMap, value, "duration type ");
+	{
+		switch (value->getType())
+		{
+		case JsonNode::DATA_STRING:
+			b->duration = parseByMap(bonusDurationMap, value, "duration type ");
+			break;
+		case JsonNode::DATA_VECTOR:
+			{
+				ui16 dur = 0;
+				BOOST_FOREACH (const JsonNode & d, value->Vector())
+				{
+					dur |= parseByMap(bonusDurationMap, &d, "duration type ");
+				}
+				b->duration = dur;
+			}
+			break;
+		default:
+			tlog2 << "Error! Wrong bonus duration format.";
+		}
+	}
+
 	value = &ability["source"];
 	if (!value->isNull())
-		b->valType = parseByMap(bonusSourceMap, value, "source type ");
+		b->source = parseByMap(bonusSourceMap, value, "source type ");
 
 	value = &ability["limiters"];
 	if (!value->isNull())
 	{
 		BOOST_FOREACH (const JsonNode & limiter, value->Vector())
 		{
-			switch (limiter.getType()) 
+			switch (limiter.getType())
 			{
 				case JsonNode::DATA_STRING: //pre-defined limiters
 					b->limiter = parseByMap(bonusLimiterMap, &limiter, "limiter type ");
