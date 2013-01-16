@@ -3,15 +3,15 @@
 	{
 		"DATA/" :
 		[
-			{"type" : "dir",  "path" : "ALL/MODS/VCMI/Data"}
+			{"type" : "dir",  "path" : "/Data"}
 		],
 		"SPRITES/":
 		[
-			{"type" : "dir",  "path" : "ALL/MODS/VCMI/Sprites"}
+			{"type" : "dir",  "path" : "/Sprites"}
 		],
 		"MAPS/":
 		[
-			{"type" : "dir",  "path" : "ALL/MODS/VCMI/Maps"}
+			{"type" : "dir",  "path" : "/Maps"}
 		]
 	},
 
