@@ -19,7 +19,7 @@
     // {bonus format} - effect //todo
     // + values: [4 int values] (OPTIONAL default from sptraits) values for levels
     // + ainfos: [4 int values] (optional) additional infos for levels (atm only CURSE)
-    
+
     //
     //immunity - name of bonus granting immunity to this spell
     //
@@ -224,7 +224,7 @@
 			"ranges": [ "X", "X", "X", "X" ],
 			"flags" : ["damage, offensive"],
 			"limit":["UNDEAD"]
-			
+
 		},
 		"armageddon"     :
 		{
@@ -261,7 +261,7 @@
 				{
 					"type": 	"GENERAL_DAMAGE_REDUCTION",
 					"subtype":1,
-					"duration": "N_TURNS"	
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -275,7 +275,7 @@
 			[
 				{
 					"type": 	"FIRE_SHIELD",
-					"duration": "N_TURNS"	
+					"duration": "N_TURNS"
 				}
 			]
 		},
@@ -292,10 +292,10 @@
 					"type": 	"SPELL_DAMAGE_REDUCTION",
 					"subtype":0,
 					"duration": "N_TURNS"
-			
+
 				}
 			]
-			
+
 		},
 		"protectFire"    :
 		{
@@ -642,7 +642,7 @@
 				{
 					"type": 	"STACKS_SPEED",
 					"valueType": "PERCENT_TO_ALL",
-					"duration": "N_TURNS"
+					"duration": "N_TURNS",
 					"values":[-25,-25,-50,-50]
 				}
 			],
@@ -761,16 +761,16 @@
 					"type": 	"NOT_ACTIVE",
 					"subtype": 	62,
 					"duration":	"UNITL_BEING_ATTACKED N_TURNS",
-					"values":[0,0,0,0] 
+					"values":[0,0,0,0]
 				},
 				{
 					"type": 	"GENERAL_ATTACK_REDUCTION",
-					"duration":	"UNITL_BEING_ATTACKED N_TURNS" 
+					"duration":	"UNITL_BEING_ATTACKED N_TURNS"
 				},
 				{
 					"type": 	"NO_RETALIATION",
 					"duration":	"UNITL_BEING_ATTACKED",
-					"values":[0,0,0,0] 
+					"values":[0,0,0,0]
 				}
 			]
 		},
@@ -837,12 +837,12 @@
 					"type": 	"NOT_ACTIVE",
 					"subtype": 	62,
 					"duration":	"UNITL_BEING_ATTACKED N_TURNS",
-					"values":[0,0,0,0] 
+					"values":[0,0,0,0]
 				},
 				{
 					"type": 	"NO_RETALIATION",
 					"duration":	"UNITL_BEING_ATTACKED",
-					"values":[0,0,0,0] 
+					"values":[0,0,0,0]
 				}
 			]
 		},
@@ -919,12 +919,12 @@
 					"type": 	"NOT_ACTIVE",
 					"subtype": 	74,
 					"duration":	"UNITL_BEING_ATTACKED N_TURNS",
-					"values":[0,0,0,0]  
+					"values":[0,0,0,0]
 				},
 				{
 					"type": 	"NO_RETALIATION",
 					"duration":	"UNITL_BEING_ATTACKED",
-					"values":[0,0,0,0] 
+					"values":[0,0,0,0]
 				}
 			]
 		},
