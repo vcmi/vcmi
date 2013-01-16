@@ -18,13 +18,16 @@ struct Bonus;
 class CBonusSystemNode;
 class ILimiter;
 class IPropagator;
+class ICalculator;
 class BonusList;
 class LimiterDecorator;
 struct BonusLimitationContext;
+struct BonusCalculationContext;
 
 typedef shared_ptr<BonusList> TBonusListPtr;
 typedef shared_ptr<ILimiter> TLimiterPtr;
 typedef shared_ptr<IPropagator> TPropagatorPtr;
+typedef shared_ptr<ICalculator> TCalculatorPtr;
 typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
@@ -277,6 +280,7 @@ struct DLL_LINKAGE Bonus : public LimiterDecorator
 
 	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
+	TCalculatorPtr calculator;
 
 	std::string description;
 
@@ -354,8 +358,8 @@ struct DLL_LINKAGE Bonus : public LimiterDecorator
 
 	std::string Description() const;
 
-	Bonus *addLimiter(TLimiterPtr Limiter); //returns this for convenient chain-calls
-	Bonus *addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
+	Bonus * addLimiter(TLimiterPtr Limiter);
+	Bonus * addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
 	int limit(const BonusLimitationContext &context) const; //for backward compatibility
 };
 
@@ -499,6 +503,13 @@ struct BonusLimitationContext
 	const CBonusSystemNode &node;
 	const BonusList &alreadyAccepted;
 };
+
+struct BonusCalculationContext
+{
+	const Bonus *b;
+	const CBonusSystemNode &node;
+};
+
 
 class DLL_LINKAGE ILimiter : public LimiterDecorator
 {
@@ -894,6 +905,18 @@ namespace Selector
 extern DLL_LINKAGE const std::map<std::string, int> bonusNameMap, bonusValueMap, bonusSourceMap, bonusDurationMap, bonusLimitEffect;
 extern DLL_LINKAGE const bmap<std::string, TLimiterPtr> bonusLimiterMap;
 extern DLL_LINKAGE const bmap<std::string, TPropagatorPtr> bonusPropagatorMap;
+
+class DLL_LINKAGE ICalculator //calculate value of bonus on-the-fly
+{
+public:
+	enum EDecision {ACCEPT, DISCARD, NOT_SURE};
+
+	virtual si32 val(const BonusCalculationContext &context) const {return 0;};
+	virtual ~ICalculator(){};
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{}
+};
 
 // BonusList template that requires full interface of CBonusSystemNode
 template <class InputIterator>

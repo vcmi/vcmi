@@ -1189,10 +1189,18 @@
 			"id" : 82,
 			"type" : ["HERO"]
 		},
-		"recantersCloak": //TODO: implement?
+		"recantersCloak":
 		{
 			"id" : 83,
-			"type" : ["HERO"]
+			"type" : ["HERO"],
+			"bonuses": [
+				{
+					"type" : "BLOCK_MAGIC_ABOVE",
+					"val" : 2,
+					"valueType" : "INDEPENDENT_MIN",
+					"propagator": "BATTLE_WIDE"
+				}
+			]
 		},
 		"spiritOfOppression":
 		{
@@ -1283,14 +1291,14 @@
 		{
 			"bonuses" : [
 				{
-					"limiter" : "SHOOTER_ONLY",
+					"limiters" : ["SHOOTER_ONLY"],
 					"subtype" : 0,
 					"type" : "NO_DISTANCE_PENALTY",
 					"val" : 0,
 					"valueType" : "ADDITIVE_VALUE"
 				},
 				{
-					"limiter" : "SHOOTER_ONLY",
+					"limiters" : ["SHOOTER_ONLY"],
 					"subtype" : 0,
 					"type" : "NO_WALL_PENALTY",
 					"val" : 0,
@@ -1453,7 +1461,7 @@
 		{
 			"bonuses" : [
 				{
-					"limiter" : "IS_UNDEAD",
+					"limiters" : ["IS_UNDEAD"],
 					"subtype" : "spell.destroyUndead",
 					"type" : "SPELL_IMMUNITY",
 					"val" : 0,
@@ -1642,30 +1650,70 @@
 			"id" : 117,
 			"type" : ["HERO"]
 		},
-		"legsOfLegion": //TODO: implement
+		"legsOfLegion":
 		{
 			"id" : 118,
-			"type" : ["HERO"]
+			"type" : ["HERO"],
+			"bonuses" : [
+				{
+					"type" : "CREATURE_GROWTH",
+					"subtype" : 2,
+					"val" : 5,
+					"propagator": "VISITED_TOWN_AND_VISITOR"
+				}
+			]
 		},
 		"loinsOfLegion":
 		{
 			"id" : 119,
-			"type" : ["HERO"]
+			"type" : ["HERO"],
+			"bonuses" : [
+				{
+					"type" : "CREATURE_GROWTH",
+					"subtype" : 3,
+					"val" : 4,
+					"propagator": "VISITED_TOWN_AND_VISITOR"
+				}
+			]
 		},
 		"torsoOfLegion":
 		{
 			"id" : 120,
-			"type" : ["HERO"]
+			"type" : ["HERO"],
+			"bonuses" : [
+				{
+					"type" : "CREATURE_GROWTH",
+					"subtype" : 4,
+					"val" : 3,
+					"propagator": "VISITED_TOWN_AND_VISITOR"
+				}
+			]
 		},
 		"armsOfLegion":
 		{
 			"id" : 121,
-			"type" : ["HERO"]
+			"type" : ["HERO"],
+			"bonuses" : [
+				{
+					"type" : "CREATURE_GROWTH",
+					"subtype" : 5,
+					"val" : 2,
+					"propagator": "VISITED_TOWN_AND_VISITOR"
+				}
+			]
 		},
 		"headOfLegion":
 		{
 			"id" : 122,
-			"type" : ["HERO"]
+			"type" : ["HERO"],
+		"bonuses" : [
+				{
+					"type" : "CREATURE_GROWTH",
+					"subtype" : 6,
+					"val" : 1,
+					"propagator": "VISITED_TOWN_AND_VISITOR"
+				}
+			]
 		},
 		"seaCaptainsHat":
 		{
@@ -1709,28 +1757,40 @@
 			"id" : 124,
 			"type" : ["HERO"]
 		},
-		"shacklesOfWar": //TODO: implement
+		"shacklesOfWar":
 		{
 			"id" : 125,
-			"type" : ["HERO"]
+			"type" : ["HERO"],
+			"bonuses" : [
+				{
+					"type" : "BATTLE_NO_FLEEING",
+					"propagator": "BATTLE_WIDE"
+				}
+			]
 		},
-		"orbOfInhibition": //TODO: implement
+		"orbOfInhibition":
 		{
 			"id" : 126,
-			"type" : ["HERO"]
+			"type" : ["HERO"],
+			"bonuses" : [
+				{
+					"type" : "BLOCK_ALL_MAGIC",
+					"propagator": "BATTLE_WIDE"
+				}
+			]
 		},
-		"vialOfDragonBlood": //TODO: limiter
+		"vialOfDragonBlood":
 		{
 			"bonuses" : [
 				{
-					"limiter" : "DRAGON_NATURE",
+					"limiters" : ["DRAGON_NATURE"],
 					"subtype" : 0,
 					"type" : "PRIMARY_SKILL",
 					"val" : 5,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"limiter" : "DRAGON_NATURE",
+					"limiters" : ["DRAGON_NATURE"],
 					"subtype" : 1,
 					"type" : "PRIMARY_SKILL",
 					"val" : 5,
@@ -1889,7 +1949,7 @@
 				"ribCage"
 			]
 		},
-		"statueOfLegion": //TODO: implement
+		"statueOfLegion":
 		{
 			"id" : 133,
 			"type" : ["HERO"],
@@ -1900,19 +1960,50 @@
 				"torsoOfLegion",
 				"armsOfLegion",
 				"headOfLegion"
+			],
+			"bonuses" : [
+				{
+					"type" : "CREATURE_GROWTH_PERCENT",
+					"val" : 50,
+					"propagator": "PLAYER_PROPAGATOR"
+				}
 			]
 		},
-		"powerOfTheDragonFather": //TODO: add stat bonus
+		"powerOfTheDragonFather":
 		{
+			"id" : 134,
+			"type" : ["HERO"],
 			"bonuses" : [
 				{
 					"type" : "LEVEL_SPELL_IMMUNITY",
 					"val" : 4,
 					"valueType" : "INDEPENDENT_MAX"
+				},
+				{
+					"subtype" : 0,
+					"type" : "PRIMARY_SKILL",
+					"val" : 6,
+					"valueType" : "BASE_NUMBER"
+				},
+				{
+					"subtype" : 1,
+					"type" : "PRIMARY_SKILL",
+					"val" : 6,
+					"valueType" : "BASE_NUMBER"
+				},
+				{
+					"subtype" : 2,
+					"type" : "PRIMARY_SKILL",
+					"val" : 6,
+					"valueType" : "BASE_NUMBER"
+				},
+				{
+					"subtype" : 3,
+					"type" : "PRIMARY_SKILL",
+					"val" : 6,
+					"valueType" : "BASE_NUMBER"
 				}
 			],
-			"id" : 134,
-			"type" : ["HERO"],
 			"components":
 			[
 				"quietEyeOfTheDragon",
@@ -1963,25 +2054,27 @@
 				"seaCaptainsHat"
 			]
 		},
-		"bowOfTheSharpshooter": //TODO: limiters
+		"bowOfTheSharpshooter":
 		{
 			"bonuses" : [
 				{
-					"limiter" : "SHOOTER_ONLY",
+					"limiters" : [
+							"SHOOTER_ONLY",
+							],
 					"subtype" : 0,
 					"type" : "NO_DISTANCE_PENALTY",
 					"val" : 0,
 					"valueType" : "ADDITIVE_VALUE"
 				},
 				{
-					"limiter" : "SHOOTER_ONLY",
+					"limiters" : ["SHOOTER_ONLY"],
 					"subtype" : 0,
 					"type" : "NO_WALL_PENALTY",
 					"val" : 0,
 					"valueType" : "ADDITIVE_VALUE"
 				},
 				{
-					"limiter" : "SHOOTER_ONLY",
+					"limiters" : ["SHOOTER_ONLY"],
 					"subtype" : 0,
 					"type" : "FREE_SHOOTING",
 					"val" : 0,

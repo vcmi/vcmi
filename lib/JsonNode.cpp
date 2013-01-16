@@ -903,25 +903,6 @@ Bonus * JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with
 	b->turnsRemain = 0;
 	return b;
 }
-
-template <typename T>
-const T & parseByMapStr(const std::map<std::string, T> & map, const std::string & val, std::string err)
-{
-	static T defaultValue;
-	
-	auto it = map.find(val);
-	if (it == map.end())
-	{
-		tlog1 << "Error: invalid " << err << val << std::endl;
-		return defaultValue;
-	}
-	else
-	{
-		return it->second;
-	}
-
-}
-
 template <typename T>
 const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val, std::string err)
 {
@@ -929,11 +910,20 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 	if (!val->isNull())
 	{
 		std::string type = val->String();
-		return parseByMapStr(map, type, err);
+		auto it = map.find(type);
+		if (it == map.end())
+		{
+			tlog1 << "Error: invalid " << err << type << std::endl;
+			return defaultValue;
+		}
+		else
+		{
+			return it->second;
+		}
 	}
 	else
 		return defaultValue;
-}
+};
 
 void JsonUtils::resolveIdentifier (si32 &var, const JsonNode &node, std::string name)
 {
@@ -955,6 +945,24 @@ void JsonUtils::resolveIdentifier (si32 &var, const JsonNode &node, std::string 
 			default:
 				tlog2 << "Error! Wrong indentifier used for value of " << name; 
 		}
+	}
+}
+
+void JsonUtils::resolveIdentifier (const JsonNode &node, si32 &var)
+{
+	switch (node.getType())
+	{
+		case JsonNode::DATA_FLOAT:
+			var = node.Float();
+			break;
+		case JsonNode::DATA_STRING:
+			VLC->modh->identifiers.requestIdentifier (node.String(), [&](si32 identifier)
+			{
+				var = identifier;
+			});
+			break;
+		default:
+			tlog2 << "Error! Wrong indentifier used for identifier!"; 
 	}
 }
 
@@ -1004,25 +1012,56 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 		b->valType = parseByMap(bonusLimitEffect, value, "effect range ");
 	value = &ability["duration"];
 	if (!value->isNull())
-	{
-		int dur = 0;
-		std::vector<std::string> strs;
-		boost::split(strs, value->String(), boost::is_any_of("\t "));
-		BOOST_FOREACH(auto s, strs)
-		{
-		  dur |=parseByMapStr(bonusDurationMap, s, "duration type ");
-		}
- 
-		b->duration = dur;
-	}
-		
+		b->valType = parseByMap(bonusDurationMap, value, "duration type ");
 	value = &ability["source"];
 	if (!value->isNull())
 		b->valType = parseByMap(bonusSourceMap, value, "source type ");
 
-	value = &ability["limiter"];
+	value = &ability["limiters"];
 	if (!value->isNull())
-		b->limiter = parseByMap(bonusLimiterMap, value, "limiter type ");
+	{
+		BOOST_FOREACH (const JsonNode & limiter, value->Vector())
+		{
+			switch (limiter.getType()) 
+			{
+				case JsonNode::DATA_STRING: //pre-defined limiters
+					b->limiter = parseByMap(bonusLimiterMap, &limiter, "limiter type ");
+					break;
+				case JsonNode::DATA_STRUCT: //customisable limiters
+					{
+						shared_ptr<ILimiter> l;
+						if (limiter["type"].String() == "CREATURE_TYPE_LIMITER")
+						{
+							//continue;
+							//l = make_shared<CCreatureTypeLimiter>(); //TODO: How the hell resolve pointer to creature?
+						}
+						if (limiter["type"].String() == "HAS_ANOTHER_BONUS_LIMITER")
+						{
+							shared_ptr<HasAnotherBonusLimiter> l2 = make_shared<HasAnotherBonusLimiter>();
+							const JsonVector vec = limiter["parameters"].Vector();
+							std::string anotherBonusType = vec[0].String();
+
+							auto it = bonusNameMap.find (anotherBonusType);
+							if (it == bonusNameMap.end())
+							{
+								tlog1 << "Error: invalid ability type " << anotherBonusType << std::endl;
+								continue;
+							}
+							l2->type = it->second;
+
+							if (vec.size() > 1 )
+							{
+								resolveIdentifier (vec[1], l2->subtype);
+								l2->isSubtypeRelevant = true;
+							}
+							l = l2;
+						}
+						b->addLimiter(l);
+					}
+					break;
+			}
+		}
+	}
 
 	value = &ability["propagator"];
 	if (!value->isNull())

@@ -118,6 +118,7 @@ namespace JsonUtils
 	DLL_LINKAGE Bonus * parseBonus (const JsonNode &bonus);
 	DLL_LINKAGE void unparseBonus (JsonNode &node, const Bonus * bonus);
 	DLL_LINKAGE void resolveIdentifier (si32 &var, const JsonNode &node, std::string name);
+	DLL_LINKAGE void resolveIdentifier (const JsonNode &node, si32 &var);
 
 	/// recursivly merges source into dest, replacing identical fields
 	/// struct : recursively calls this function

@@ -65,7 +65,8 @@ const bmap<std::string, TLimiterPtr> bonusLimiterMap = boost::assign::map_list_o
 
 const bmap<std::string, TPropagatorPtr> bonusPropagatorMap = boost::assign::map_list_of
 	("BATTLE_WIDE", make_shared<CPropagatorNodeType>(CBonusSystemNode::BATTLE))
-	("VISITED_TOWN_AND_VISITOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::TOWN_AND_VISITOR));
+	("VISITED_TOWN_AND_VISITOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::TOWN_AND_VISITOR))
+	("PLAYER_PROPAGATOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::PLAYER));
 
 
 #define BONUS_LOG_LINE(x) tlog5 << x << std::endl
@@ -95,6 +96,7 @@ BonusList& BonusList::operator=(const BonusList &bonusList)
 
 int BonusList::totalValue() const
 {
+	int tempVal = 0;
 	int base = 0;
 	int percentToBase = 0;
 	int percentToAll = 0;
@@ -107,6 +109,15 @@ int BonusList::totalValue() const
 	for (size_t i = 0; i < bonuses.size(); i++)
 	{
 		Bonus *b = bonuses[i];
+
+		if (b->calculator)
+		{
+			assert (false);
+			BonusCalculationContext bcc = {b, CBonusSystemNode()};
+			tempVal = b->calculator->val (bcc);
+		}
+		else
+			tempVal = b->val;
 
 		switch(b->valType)
 		{
@@ -1156,12 +1167,6 @@ Bonus::~Bonus()
 {
 }
 
-Bonus * Bonus::addLimiter(TLimiterPtr Limiter)
-{
-	limiter = Limiter;
-	return this;
-}
-
 Bonus * Bonus::addPropagator(TPropagatorPtr Propagator)
 {
 	propagator = Propagator;
@@ -1313,6 +1318,21 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 #undef printField
 
 	return out;
+}
+Bonus * Bonus::addLimiter(TLimiterPtr Limiter)
+{
+	if (next) //insert at the beginning of list
+	{
+		TLimiterPtr temp = next;
+		next = Limiter;
+		next->next = temp;
+	}
+	else
+	{
+		next = Limiter;
+	}
+	return this;
+
 }
 
 int LimiterDecorator::limit(const BonusLimitationContext &context) const /*return true to drop the bonus */
