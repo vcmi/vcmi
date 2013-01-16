@@ -4,37 +4,37 @@
 		"spellBook":
 		{
 			"id" : 0,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"spellScroll":
 		{
 			"id" : 1,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"grail":
 		{
 			"id" : 2,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"catapult":
 		{
 			"id" : 3,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"ballista":
 		{
 			"id" : 4,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"ammoCart":
 		{
 			"id" : 5,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"firstAidTent":
 		{
 			"id" : 6,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"centaurAxe":
 		{
@@ -47,7 +47,7 @@
 				}
 			],
 			"id" : 7,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"blackshardOfTheDeadKnight":
 		{
@@ -60,7 +60,7 @@
 				}
 			],
 			"id" : 8,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"greaterGnollsFlail":
 		{
@@ -73,7 +73,7 @@
 				}
 			],
 			"id" : 9,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"ogresClubOfHavoc":
 		{
@@ -86,7 +86,7 @@
 				}
 			],
 			"id" : 10,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"swordOfHellfire":
 		{
@@ -99,7 +99,7 @@
 				}
 			],
 			"id" : 11,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"titansGladius":
 		{
@@ -118,7 +118,7 @@
 				}
 			],
 			"id" : 12,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"shieldOfTheDwarvenLords":
 		{
@@ -131,7 +131,7 @@
 				}
 			],
 			"id" : 13,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"shieldOfTheYawningDead":
 		{
@@ -144,7 +144,7 @@
 				}
 			],
 			"id" : 14,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"bucklerOfTheGnollKing":
 		{
@@ -157,7 +157,7 @@
 				}
 			],
 			"id" : 15,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"targOfTheRampagingOgre":
 		{
@@ -170,7 +170,7 @@
 				}
 			],
 			"id" : 16,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"shieldOfTheDamned":
 		{
@@ -183,7 +183,7 @@
 				}
 			],
 			"id" : 17,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"sentinelsShield":
 		{
@@ -202,7 +202,7 @@
 				}
 			],
 			"id" : 18,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"helmOfTheAlabasterUnicorn":
 		{
@@ -215,7 +215,7 @@
 				}
 			],
 			"id" : 19,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"skullHelmet":
 		{
@@ -228,7 +228,7 @@
 				}
 			],
 			"id" : 20,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"helmOfChaos":
 		{
@@ -241,7 +241,7 @@
 				}
 			],
 			"id" : 21,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"crownOfTheSupremeMagi":
 		{
@@ -254,7 +254,7 @@
 				}
 			],
 			"id" : 22,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"hellstormHelmet":
 		{
@@ -267,7 +267,7 @@
 				}
 			],
 			"id" : 23,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"thunderHelmet":
 		{
@@ -286,7 +286,7 @@
 				}
 			],
 			"id" : 24,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"breastplateOfPetrifiedWood":
 		{
@@ -299,7 +299,7 @@
 				}
 			],
 			"id" : 25,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"ribCage":
 		{
@@ -312,7 +312,7 @@
 				}
 			],
 			"id" : 26,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"scalesOfTheGreaterBasilisk":
 		{
@@ -325,7 +325,7 @@
 				}
 			],
 			"id" : 27,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"tunicOfTheCyclopsKing":
 		{
@@ -338,7 +338,7 @@
 				}
 			],
 			"id" : 28,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"breastplateOfBrimstone":
 		{
@@ -351,7 +351,7 @@
 				}
 			],
 			"id" : 29,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"titansCuirass":
 		{
@@ -370,7 +370,7 @@
 				}
 			],
 			"id" : 30,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"armorOfWonder":
 		{
@@ -401,7 +401,7 @@
 				}
 			],
 			"id" : 31,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"sandalsOfTheSaint":
 		{
@@ -432,7 +432,7 @@
 				}
 			],
 			"id" : 32,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"celestialNecklaceOfBliss":
 		{
@@ -463,7 +463,7 @@
 				}
 			],
 			"id" : 33,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"lionsShieldOfCourage":
 		{
@@ -494,7 +494,7 @@
 				}
 			],
 			"id" : 34,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"swordOfJudgement":
 		{
@@ -525,7 +525,7 @@
 				}
 			],
 			"id" : 35,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"helmOfHeavenlyEnlightenment":
 		{
@@ -556,7 +556,7 @@
 				}
 			],
 			"id" : 36,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"quietEyeOfTheDragon":
 		{
@@ -575,7 +575,7 @@
 				}
 			],
 			"id" : 37,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"redDragonFlameTongue":
 		{
@@ -594,7 +594,7 @@
 				}
 			],
 			"id" : 38,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"dragonScaleShield":
 		{
@@ -613,7 +613,7 @@
 				}
 			],
 			"id" : 39,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"dragonScaleArmor":
 		{
@@ -632,7 +632,7 @@
 				}
 			],
 			"id" : 40,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"dragonboneGreaves":
 		{
@@ -651,7 +651,7 @@
 				}
 			],
 			"id" : 41,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"dragonWingTabard":
 		{
@@ -670,7 +670,7 @@
 				}
 			],
 			"id" : 42,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"necklaceOfDragonteeth":
 		{
@@ -689,7 +689,7 @@
 				}
 			],
 			"id" : 43,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"crownOfDragontooth":
 		{
@@ -708,7 +708,7 @@
 				}
 			],
 			"id" : 44,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"stillEyeOfTheDragon":
 		{
@@ -725,7 +725,7 @@
 				}
 			],
 			"id" : 45,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"cloverOfFortune":
 		{
@@ -737,7 +737,7 @@
 				}
 			],
 			"id" : 46,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"cardsOfProphecy":
 		{
@@ -749,7 +749,7 @@
 				}
 			],
 			"id" : 47,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"ladybirdOfLuck":
 		{
@@ -761,7 +761,7 @@
 				}
 			],
 			"id" : 48,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"badgeOfCourage":
 		{
@@ -778,7 +778,7 @@
 				}
 			],
 			"id" : 49,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"crestOfValor":
 		{
@@ -790,7 +790,7 @@
 				}
 			],
 			"id" : 50,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"glyphOfGallantry":
 		{
@@ -802,7 +802,7 @@
 				}
 			],
 			"id" : 51,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"speculum":
 		{
@@ -814,7 +814,7 @@
 				}
 			],
 			"id" : 52,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"spyglass":
 		{
@@ -826,7 +826,7 @@
 				}
 			],
 			"id" : 53,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"amuletOfTheUndertaker":
 		{
@@ -839,7 +839,7 @@
 				}
 			],
 			"id" : 54,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"vampiresCowl":
 		{
@@ -852,7 +852,7 @@
 				}
 			],
 			"id" : 55,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"deadMansBoots":
 		{
@@ -865,7 +865,7 @@
 				}
 			],
 			"id" : 56,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"garnitureOfInterference":
 		{
@@ -878,7 +878,7 @@
 				}
 			],
 			"id" : 57,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"surcoatOfCounterpoise":
 		{
@@ -891,7 +891,7 @@
 				}
 			],
 			"id" : 58,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"bootsOfPolarity":
 		{
@@ -904,7 +904,7 @@
 				}
 			],
 			"id" : 59,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"bowOfElvenCherrywood":
 		{
@@ -917,7 +917,7 @@
 				}
 			],
 			"id" : 60,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"bowstringOfTheUnicornsMane":
 		{
@@ -930,7 +930,7 @@
 				}
 			],
 			"id" : 61,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"angelFeatherArrows":
 		{
@@ -943,7 +943,7 @@
 				}
 			],
 			"id" : 62,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"birdOfPerception":
 		{
@@ -956,7 +956,7 @@
 				}
 			],
 			"id" : 63,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"stoicWatchman":
 		{
@@ -969,7 +969,7 @@
 				}
 			],
 			"id" : 64,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"emblemOfCognizance":
 		{
@@ -982,7 +982,7 @@
 				}
 			],
 			"id" : 65,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"statesmansMedal":
 		{
@@ -994,7 +994,7 @@
 				}
 			],
 			"id" : 66,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"diplomatsRing":
 		{
@@ -1006,7 +1006,7 @@
 				}
 			],
 			"id" : 67,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"ambassadorsSash":
 		{
@@ -1018,7 +1018,7 @@
 				}
 			],
 			"id" : 68,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"ringOfTheWayfarer":
 		{
@@ -1030,7 +1030,7 @@
 				}
 			],
 			"id" : 69,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"equestriansGloves":
 		{
@@ -1042,7 +1042,7 @@
 				}
 			],
 			"id" : 70,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"necklaceOfOceanGuidance":
 		{
@@ -1054,7 +1054,7 @@
 				}
 			],
 			"id" : 71,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"angelWings":
 		{
@@ -1067,7 +1067,7 @@
 				}
 			],
 			"id" : 72,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"charmOfMana":
 		{
@@ -1079,7 +1079,7 @@
 				}
 			],
 			"id" : 73,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"talismanOfMana":
 		{
@@ -1091,7 +1091,7 @@
 				}
 			],
 			"id" : 74,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"mysticOrbOfMana":
 		{
@@ -1103,7 +1103,7 @@
 				}
 			],
 			"id" : 75,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"collarOfConjuring":
 		{
@@ -1115,7 +1115,7 @@
 				}
 			],
 			"id" : 76,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"ringOfConjuring":
 		{
@@ -1127,7 +1127,7 @@
 				}
 			],
 			"id" : 77,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"capeOfConjuring":
 		{
@@ -1139,7 +1139,7 @@
 				}
 			],
 			"id" : 78,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"orbOfTheFirmament":
 		{
@@ -1151,7 +1151,7 @@
 				}
 			],
 			"id" : 79,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"orbOfSilt":
 		{
@@ -1163,7 +1163,7 @@
 				}
 			],
 			"id" : 80,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"orbOfTempestuousFire":
 		{
@@ -1175,7 +1175,7 @@
 				}
 			],
 			"id" : 81,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"orbOfDrivingRain":
 		{
@@ -1187,12 +1187,12 @@
 				}
 			],
 			"id" : 82,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"recantersCloak": //TODO: implement?
 		{
 			"id" : 83,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"spiritOfOppression":
 		{
@@ -1204,7 +1204,7 @@
 				}
 			],
 			"id" : 84,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"hourglassOfTheEvilHour":
 		{
@@ -1216,7 +1216,7 @@
 				}
 			],
 			"id" : 85,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"tomeOfFireMagic":
 		{
@@ -1228,7 +1228,7 @@
 				}
 			],
 			"id" : 86,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"tomeOfAirMagic":
 		{
@@ -1240,7 +1240,7 @@
 				}
 			],
 			"id" : 87,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"tomeOfWaterMagic":
 		{
@@ -1252,7 +1252,7 @@
 				}
 			],
 			"id" : 88,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"tomeOfEarthMagic":
 		{
@@ -1264,7 +1264,7 @@
 				}
 			],
 			"id" : 89,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"bootsOfLevitation":
 		{
@@ -1277,7 +1277,7 @@
 				}
 			],
 			"id" : 90,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"goldenBow":
 		{
@@ -1298,7 +1298,7 @@
 				}
 			],
 			"id" : 91,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"sphereOfPermanence":
 		{
@@ -1311,7 +1311,7 @@
 				}
 			],
 			"id" : 92,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"orbOfVulnerability":
 		{
@@ -1323,7 +1323,7 @@
 				}
 			],
 			"id" : 93,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"ringOfVitality":
 		{
@@ -1335,7 +1335,7 @@
 				}
 			],
 			"id" : 94,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"ringOfLife":
 		{
@@ -1347,7 +1347,7 @@
 				}
 			],
 			"id" : 95,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"vialOfLifeblood":
 		{
@@ -1359,7 +1359,7 @@
 				}
 			],
 			"id" : 96,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"necklaceOfSwiftness":
 		{
@@ -1371,7 +1371,7 @@
 				}
 			],
 			"id" : 97,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"bootsOfSpeed":
 		{
@@ -1383,7 +1383,7 @@
 				}
 			],
 			"id" : 98,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"capeOfVelocity":
 		{
@@ -1395,7 +1395,7 @@
 				}
 			],
 			"id" : 99,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"pendantOfDispassion":
 		{
@@ -1408,7 +1408,7 @@
 				}
 			],
 			"id" : 100,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"pendantOfSecondSight":
 		{
@@ -1421,7 +1421,7 @@
 				}
 			],
 			"id" : 101,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"pendantOfHoliness":
 		{
@@ -1434,7 +1434,7 @@
 				}
 			],
 			"id" : 102,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"pendantOfLife":
 		{
@@ -1447,7 +1447,7 @@
 				}
 			],
 			"id" : 103,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"pendantOfDeath":
 		{
@@ -1461,7 +1461,7 @@
 				}
 			],
 			"id" : 104,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"pendantOfFreeWill":
 		{
@@ -1474,7 +1474,7 @@
 				}
 			],
 			"id" : 105,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"pendantOfNegativity":
 		{
@@ -1493,7 +1493,7 @@
 				}
 			],
 			"id" : 106,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"pendantOfTotalRecall":
 		{
@@ -1506,7 +1506,7 @@
 				}
 			],
 			"id" : 107,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"pendantOfCourage":
 		{
@@ -1523,7 +1523,7 @@
 				}
 			],
 			"id" : 108,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"everflowingCrystalCloak":
 		{
@@ -1536,7 +1536,7 @@
 				}
 			],
 			"id" : 109,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"ringOfInfiniteGems":
 		{
@@ -1549,7 +1549,7 @@
 				}
 			],
 			"id" : 110,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"everpouringVialOfMercury":
 		{
@@ -1562,7 +1562,7 @@
 				}
 			],
 			"id" : 111,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"inexhaustibleCartOfOre":
 		{
@@ -1575,7 +1575,7 @@
 				}
 			],
 			"id" : 112,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"eversmokingRingOfSulfur":
 		{
@@ -1588,7 +1588,7 @@
 				}
 			],
 			"id" : 113,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"inexhaustibleCartOfLumber":
 		{
@@ -1601,7 +1601,7 @@
 				}
 			],
 			"id" : 114,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"endlessSackOfGold":
 		{
@@ -1614,7 +1614,7 @@
 				}
 			],
 			"id" : 115,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"endlessBagOfGold":
 		{
@@ -1627,7 +1627,7 @@
 				}
 			],
 			"id" : 116,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"endlessPurseOfGold":
 		{
@@ -1640,32 +1640,32 @@
 				}
 			],
 			"id" : 117,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"legsOfLegion": //TODO: implement
 		{
 			"id" : 118,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"loinsOfLegion":
 		{
 			"id" : 119,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"torsoOfLegion":
 		{
 			"id" : 120,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"armsOfLegion":
 		{
 			"id" : 121,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"headOfLegion":
 		{
 			"id" : 122,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"seaCaptainsHat":
 		{
@@ -1694,7 +1694,7 @@
 				}
 			],
 			"id" : 123,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"spellbindersHat":
 		{
@@ -1707,17 +1707,17 @@
 				}
 			],
 			"id" : 124,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"shacklesOfWar": //TODO: implement
 		{
 			"id" : 125,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"orbOfInhibition": //TODO: implement
 		{
 			"id" : 126,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"vialOfDragonBlood": //TODO: limiter
 		{
@@ -1738,7 +1738,7 @@
 				}
 			],
 			"id" : 127,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"armageddonsBlade":
 		{
@@ -1781,7 +1781,7 @@
 				}
 			],
 			"id" : 128,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"angelicAlliance":
 		{
@@ -1799,7 +1799,7 @@
 				}
 			],
 			"id" : 129,
-			"type" : "Hero",
+			"type" : ["HERO"],
 			"components":
 			[
 				"armorOfWonder",
@@ -1820,7 +1820,7 @@
 				}
 			],
 			"id" : 130,
-			"type" : "Hero",
+			"type" : ["HERO"],
 			"components":
 			[
 				"amuletOfTheUndertaker",
@@ -1843,7 +1843,7 @@
 				}
 			],
 			"id" : 131,
-			"type" : "Hero",
+			"type" : ["HERO"],
 			"components":
 			[
 				"ringOfVitality",
@@ -1880,7 +1880,7 @@
 				}
 			],
 			"id" : 132,
-			"type" : "Hero",
+			"type" : ["HERO"],
 			"components":
 			[
 				"blackshardOfTheDeadKnight",
@@ -1892,7 +1892,7 @@
 		"statueOfLegion": //TODO: implement
 		{
 			"id" : 133,
-			"type" : "Hero",
+			"type" : ["HERO"],
 			"components":
 			[
 				"legsOfLegion",
@@ -1912,7 +1912,7 @@
 				}
 			],
 			"id" : 134,
-			"type" : "Hero",
+			"type" : ["HERO"],
 			"components":
 			[
 				"quietEyeOfTheDragon",
@@ -1937,7 +1937,7 @@
 				}
 			],
 			"id" : 135,
-			"type" : "Hero",
+			"type" : ["HERO"],
 			"components":
 			[
 				"titansGladius",
@@ -1956,7 +1956,7 @@
 				}
 			],
 			"id" : 136,
-			"type" : "Hero",
+			"type" : ["HERO"],
 			"components":
 			[
 				"necklaceOfOceanGuidance",
@@ -1989,7 +1989,7 @@
 				}
 			],
 			"id" : 137,
-			"type" : "Hero",
+			"type" : ["HERO"],
 			"components":
 			[
 				"bowOfElvenCherrywood",
@@ -2007,7 +2007,7 @@
 				}
 			],
 			"id" : 138,
-			"type" : "Hero",
+			"type" : ["HERO"],
 			"components":
 			[
 				"charmOfMana",
@@ -2025,7 +2025,7 @@
 				}
 			],
 			"id" : 139,
-			"type" : "Hero",
+			"type" : ["HERO"],
 			"components":
 			[
 				"collarOfConjuring",
@@ -2062,7 +2062,7 @@
 				}
 			],
 			"id" : 140,
-			"type" : "Hero",
+			"type" : ["HERO"],
 			"components":
 			[
 				"everflowingCrystalCloak",
@@ -2127,7 +2127,7 @@
 				}
 			],
 			"id" : 141,
-			"type" : "Creature"
+			"type" : ["CREATURE"]
 		},
 		"goldTowerArrow":
 		{
@@ -2194,7 +2194,7 @@
 				}
 			],
 			"id" : 142,
-			"type" : "Creature"
+			"type" : ["CREATURE"]
 		},
 		"monstersPower":
 		{
@@ -2242,16 +2242,17 @@
 				}
 			],
 			"id" : 143,
-			"type" : "Creature"
+			"type" : ["CREATURE"]
 		},
-		//TODO: id for unused artifacts?
+		"art144":
 		{
 			"id" : 144,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
+		"art145":
 		{
 			"id" : 145,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"axeOfSmashing": //TODO: move growing bonuses to this config, someday
 		{
@@ -2264,7 +2265,7 @@
 				}
 			],
 			"id" : 146,
-			"type" : "Commander"
+			"type" : ["COMMANDER"]
 		},
 		"mithrilMail":
 		{
@@ -2276,7 +2277,7 @@
 				}
 			],
 			"id" : 147,
-			"type" : "Commander"
+			"type" : ["COMMANDER"]
 		},
 		"swordOfSharpness":
 		{
@@ -2289,12 +2290,12 @@
 				}
 			],
 			"id" : 148,
-			"type" : "Commander"
+			"type" : ["COMMANDER"]
 		},
 		"helmOfImmortality": //TODO: implement
 		{
 			"id" : 149,
-			"type" : "Commander"
+			"type" : ["COMMANDER"]
 		},
 		"pendantOfSorcery":
 		{
@@ -2306,7 +2307,7 @@
 				}
 			],
 			"id" : 150,
-			"type" : "Commander"
+			"type" : ["COMMANDER"]
 		},
 		"bootsOfHaste":
 		{
@@ -2318,17 +2319,17 @@
 				}
 			],
 			"id" : 151,
-			"type" : "Commander"
+			"type" : ["COMMANDER"]
 		},
 		"bowOfSeeking":
 		{
 			"id" : 152,
-			"type" : "Commander"
+			"type" : ["COMMANDER"]
 		},
 		"dragonEyeRing": //TODO: implement
 		{
 			"id" : 153,
-			"type" : "Commander"
+			"type" : ["COMMANDER"]
 		},
 		"hardenedShield":
 		{
@@ -2341,12 +2342,12 @@
 				}
 			],
 			"id" : 154,
-			"type" : "Commander"
+			"type" : ["COMMANDER"]
 		},
 		"slavasRingOfPower": //TODO: implement if possible
 		{
 			"id" : 155,
-			"type" : "Commander"
+			"type" : ["COMMANDER"]
 		},
 		"warlordsBanner":
 		{
@@ -2358,17 +2359,17 @@
 				}
 			],
 			"id" : 156,
-			"type" : "Creature"
+			"type" : ["CREATURE"]
 		},
 		"crimsonShieldOfRetribution": //TODO: implement
 		{
 			"id" : 157,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"barbarianLordsAxeOfFerocity": //TODO: implement
 		{
 			"id" : 158,
-			"type" : "Hero",
+			"type" : ["HERO"],
 			"components":
 			[
 				"ogresClubOfHavoc",
@@ -2380,53 +2381,62 @@
 		"dragonheart":
 		{
 			"id" : 159,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
 		"gateKey":
 		{
 			"id" : 160,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
-		//TODO: rename unused artifacts
+		"art161":
 		{
 			"id" : 161,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
+		"art162":
 		{
 			"id" : 162,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
+		"art163":
 		{
 			"id" : 163,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
+		"art164":
 		{
 			"id" : 164,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
+		"art165":
 		{
 			"id" : 165,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
+		"art166":
 		{
 			"id" : 166,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
+		"art167":
 		{
 			"id" : 167,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
+		"art168":
 		{
 			"id" : 168,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
+		"art169":
 		{
 			"id" : 169,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		},
+		"art170":
 		{
 			"id" : 170,
-			"type" : "Hero"
+			"type" : ["HERO"]
 		}
 	}
 }

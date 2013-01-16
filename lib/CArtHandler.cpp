@@ -427,30 +427,36 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 	}
 	
 	int bearerType = -1;
+	bool heroArt = false;
 
 	{
-		auto it = artifactBearerMap.find (node["type"].String());
-		if (it != artifactBearerMap.end())
+		const JsonNode & bearer = node["type"];
+		BOOST_FOREACH (const JsonNode & b, bearer.Vector())
 		{
-			bearerType = it->second;
-			switch (bearerType)
+			auto it = artifactBearerMap.find (b.String());
+			if (it != artifactBearerMap.end())
 			{
-				case ArtBearer::HERO: //TODO: allow arts having several possible bearers
-					break;
-				case ArtBearer::COMMANDER:
-					makeItCommanderArt (art, false); //do not erase already existing slots
-					break;
-				case ArtBearer::CREATURE:
-					makeItCreatureArt (art, false);
-					break;
+				bearerType = it->second;
+				switch (bearerType)
+				{
+					case ArtBearer::HERO: //TODO: allow arts having several possible bearers
+						heroArt = true;
+						break;
+					case ArtBearer::COMMANDER:
+						makeItCommanderArt (art, false); //do not erase already existing slots
+						break;
+					case ArtBearer::CREATURE:
+						makeItCreatureArt (art, false);
+						break;
+				}
 			}
+			else
+				tlog2 << "Warning! Artifact type " << b.String() << " not recognized!";
 		}
-		else
-			tlog2 << "Warning! Artifact type " << value->String() << " not recognized!";
 	}
 
 	value = &node["slot"];
-	if (!value->isNull() && bearerType == ArtBearer::HERO) //we assume non-hero slots are irrelevant?
+	if (!value->isNull() && heroArt) //we assume non-hero slots are irrelevant?
 	{
 		std::string slotName = value->String();
 		if (slotName == "MISC")
@@ -709,11 +715,27 @@ void CArtHandler::addBonuses()
 			bonus->sid = ga->id;
 			ga->addNewBonus (bonus);
 		}
-		if(artifact.second["type"].String() == "Creature")
-			makeItCreatureArt(ga->id);
-		else if(artifact.second["type"].String() == "Commander")
-			makeItCommanderArt(ga->id);
-
+		BOOST_FOREACH (const JsonNode & b, artifact.second["type"].Vector()) //TODO: remove duplicate code
+		{
+			auto it = artifactBearerMap.find (b.String());
+			if (it != artifactBearerMap.end())
+			{
+				int bearerType = it->second;
+				switch (bearerType)
+				{
+					case ArtBearer::HERO:
+						break;
+					case ArtBearer::COMMANDER:
+						makeItCommanderArt (ga); //original artifacts should have only one bearer type
+						break;
+					case ArtBearer::CREATURE:
+						makeItCreatureArt (ga);
+						break;
+				}
+			}
+			else
+				tlog2 << "Warning! Artifact type " << b.String() << " not recognized!";
+		}
 		readComponents (artifact.second, ga);
 
 		VLC->modh->identifiers.registerObject ("artifact." + artifact.first, ga->id);
