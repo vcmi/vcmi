@@ -387,7 +387,7 @@ void CArtHandler::load(const JsonNode & node)
 			art->id = artifacts.size();
 
 			artifacts.push_back(art);
-			tlog3 << "Added artifact: " << entry.first << "\n";
+			tlog5 << "Added artifact: " << entry.first << "\n";
 			VLC->modh->identifiers.registerObject (std::string("artifact.") + art->Name(), art->id);
 		}
 	}

@@ -116,7 +116,7 @@ void CCursorHandler::shiftPos( int &x, int &y )
 		y-=16;
 
 		// Properly align the melee attack cursors.
-		if (type == ECursor::COMBAT == 1)
+		if (type == ECursor::COMBAT)
 		{
 			switch (frame)
 			{
@@ -155,7 +155,7 @@ void CCursorHandler::shiftPos( int &x, int &y )
 			}
 		}
 	}
-	else if(ECursor::ADVENTURE == 0)
+	else if(type == ECursor::ADVENTURE)
 	{
 		if (frame == 0); //to exclude
 		else if(frame == 2)

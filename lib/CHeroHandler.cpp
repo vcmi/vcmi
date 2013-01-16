@@ -141,7 +141,7 @@ void CHeroClassHandler::load(const JsonNode & classes)
 			heroClass->id = heroClasses.size();
 
 			heroClasses.push_back(heroClass);
-			tlog3 << "Added hero class: " << entry.first << "\n";
+			tlog5 << "Added hero class: " << entry.first << "\n";
 			VLC->modh->identifiers.registerObject("heroClass." + heroClass->identifier, heroClass->id);
 		}
 	}
@@ -222,7 +222,7 @@ void CHeroHandler::load(const JsonNode & input)
 			hero->ID = heroes.size();
 
 			heroes.push_back(hero);
-			tlog3 << "Added hero: " << entry.first << "\n";
+			tlog5 << "Added hero: " << entry.first << "\n";
 			VLC->modh->identifiers.registerObject("hero." + entry.first, hero->ID);
 		}
 	}

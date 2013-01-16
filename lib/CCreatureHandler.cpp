@@ -548,7 +548,7 @@ void CCreatureHandler::load(const JsonNode & node)
 			creature->idNumber = creatures.size();
 
 			creatures.push_back(creature);
-			tlog3 << "Added creature: " << entry.first << "\n";
+			tlog5 << "Added creature: " << entry.first << "\n";
 			VLC->modh->identifiers.registerObject(std::string("creature.") + creature->nameRef, creature->idNumber);
 		}
 	}

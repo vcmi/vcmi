@@ -540,7 +540,7 @@ void CTownHandler::load(const JsonNode &source)
 		if (!node.second["puzzleMap"].isNull())
 			loadPuzzle(faction, node.second["puzzleMap"]);
 
-		tlog3 << "Added faction: " << node.first << "\n";
+		tlog5 << "Added faction: " << node.first << "\n";
 		VLC->modh->identifiers.registerObject(std::string("faction.") + node.first, faction.factionID);
 	}
 }

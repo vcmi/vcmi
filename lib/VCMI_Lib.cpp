@@ -60,7 +60,7 @@ void LibClasses::loadFilesystem()
 	CResourceHandler::initialize();
 	tlog0<<"\t Initialization: "<<loadTime.getDiff()<<std::endl;
 
-	CResourceHandler::loadFileSystem("ALL/config/filesystem.json");
+	CResourceHandler::loadFileSystem("", "ALL/config/filesystem.json");
 	tlog0<<"\t Data loading: "<<loadTime.getDiff()<<std::endl;
 
 	modh = new CModHandler;

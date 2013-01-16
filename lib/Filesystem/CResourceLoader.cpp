@@ -344,9 +344,9 @@ void CResourceHandler::initialize()
 	recurseInDir("ALL/MODS", 2); // look for mods. Depth 2 is required for now but won't cause issues if no mods present
 }
 
-void CResourceHandler::loadDirectory(const std::string &mountPoint, const JsonNode & config)
+void CResourceHandler::loadDirectory(const std::string &prefix, const std::string &mountPoint, const JsonNode & config)
 {
-	std::string URI = config["path"].String();
+	std::string URI = prefix + config["path"].String();
 	bool writeable = config["writeable"].Bool();
 	int depth = 16;
 	if (!config["depth"].isNull())
@@ -362,36 +362,41 @@ void CResourceHandler::loadDirectory(const std::string &mountPoint, const JsonNo
 	}
 }
 
-void CResourceHandler::loadArchive(const std::string &mountPoint, const JsonNode & config, EResType::Type archiveType)
+void CResourceHandler::loadArchive(const std::string &prefix, const std::string &mountPoint, const JsonNode & config, EResType::Type archiveType)
 {
-	std::string URI = config["path"].String();
+	std::string URI = prefix + config["path"].String();
 	std::string filename = initialLoader->getResourceName(ResourceID(URI, archiveType));
 	if (!filename.empty())
 		resourceLoader->addLoader(mountPoint,
 		    shared_ptr<ISimpleResourceLoader>(new CLodArchiveLoader(filename)), false);
 }
 
-void CResourceHandler::loadFileSystem(const std::string &fsConfigURI)
+void CResourceHandler::loadFileSystem(const std::string & prefix, const std::string &fsConfigURI)
 {
 	auto fsConfigData = initialLoader->loadData(ResourceID(fsConfigURI, EResType::TEXT));
 
 	const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
 
-	BOOST_FOREACH(auto & mountPoint, fsConfig["filesystem"].Struct())
+	loadFileSystem(prefix, fsConfig["filesystem"]);
+}
+
+void CResourceHandler::loadFileSystem(const std::string & prefix, const JsonNode &fsConfig)
+{
+	BOOST_FOREACH(auto & mountPoint, fsConfig.Struct())
 	{
 		BOOST_FOREACH(auto & entry, mountPoint.second.Vector())
 		{
 			CStopWatch timer;
-			tlog5 << "\t\tLoading resource at " << entry["path"].String() << "\n";
+			tlog5 << "\t\tLoading resource at " << prefix + entry["path"].String() << "\n";
 
 			if (entry["type"].String() == "dir")
-				loadDirectory(mountPoint.first, entry);
+				loadDirectory(prefix, mountPoint.first, entry);
 			if (entry["type"].String() == "lod")
-				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_LOD);
+				loadArchive(prefix, mountPoint.first, entry, EResType::ARCHIVE_LOD);
 			if (entry["type"].String() == "snd")
-				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_SND);
+				loadArchive(prefix, mountPoint.first, entry, EResType::ARCHIVE_SND);
 			if (entry["type"].String() == "vid")
-				loadArchive(mountPoint.first, entry, EResType::ARCHIVE_VID);
+				loadArchive(prefix, mountPoint.first, entry, EResType::ARCHIVE_VID);
 
 			tlog5 << "Resource loaded in " << timer.getDiff() << " ms.\n";
 		}
@@ -425,8 +430,22 @@ std::vector<std::string> CResourceHandler::getAvailableMods()
 
 void CResourceHandler::setActiveMods(std::vector<std::string> enabledMods)
 {
+	// default FS config for mods: directory "Content" that acts as H3 root directory
+	JsonNode defaultFS;
+
+	defaultFS[""].Vector().resize(1);
+	defaultFS[""].Vector()[0]["type"].String() = "dir";
+	defaultFS[""].Vector()[0]["path"].String() = "/Content";
+
 	BOOST_FOREACH(std::string & modName, enabledMods)
 	{
-		loadFileSystem("all/mods/" + modName + "/mod.json");
+		ResourceID modConfFile("all/mods/" + modName + "/mod", EResType::TEXT);
+		auto fsConfigData = initialLoader->loadData(modConfFile);
+		const JsonNode fsConfig((char*)fsConfigData.first.get(), fsConfigData.second);
+
+		if (!fsConfig["filesystem"].isNull())
+			loadFileSystem("all/mods/" + modName, fsConfig["filesystem"]);
+		else
+			loadFileSystem("all/mods/" + modName, defaultFS);
 	}
 }

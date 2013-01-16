@@ -945,6 +945,7 @@ CIntObject * CHeroItem::onTabSelected(size_t index)
 void CHeroItem::onTabDeselected(CIntObject *object)
 {
 	addChild(object, false);
+	object->deactivate();
 	object->recActions = DISPOSE | SHARE_POS;
 }
 

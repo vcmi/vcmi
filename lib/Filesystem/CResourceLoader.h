@@ -378,10 +378,12 @@ public:
 
 	/**
 	 * Will load all filesystem data from Json data at this path (config/filesystem.json)
+	 * @param prefix - prefix for all paths in filesystem config
 	 */
-	static void loadFileSystem(const std::string & fsConfigURI);
-	static void loadDirectory(const std::string & mountPoint, const JsonNode & config);
-	static void loadArchive(const std::string & mountPoint, const JsonNode & config, EResType::Type archiveType);
+	static void loadFileSystem(const std::string &prefix, const std::string & fsConfigURI);
+	static void loadFileSystem(const std::string &prefix, const JsonNode & fsConfig);
+	static void loadDirectory(const std::string &prefix, const std::string & mountPoint, const JsonNode & config);
+	static void loadArchive(const std::string &prefix, const std::string & mountPoint, const JsonNode & config, EResType::Type archiveType);
 
 	/**
 	 * Checks all subfolders of MODS directory for presence of mods
