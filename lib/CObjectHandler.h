@@ -42,7 +42,7 @@ struct TerrainTile;
 struct InfoWindow;
 struct Component;
 struct BankConfig;
-struct UpdateHeroSpeciality;
+struct UpdateHerospecialty;
 struct NewArtifact;
 class CGBoat;
 class CArtifactSet;
@@ -328,13 +328,18 @@ public:
 
 	struct DLL_LINKAGE HeroSpecial : CBonusSystemNode
 	{
-		bool growthsWithLevel;
+		bool growsWithLevel;
+
+		HeroSpecial(){growsWithLevel = false;};
+
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & static_cast<CBonusSystemNode&>(*this);
-			h & growthsWithLevel;
+			h & growsWithLevel;
 		}
-	} speciality;
+	};
+
+	std::vector<HeroSpecial*> specialty;
 
 	//BonusList bonuses;
 	//////////////////////////////////////////////////////////////////////////
@@ -347,7 +352,7 @@ public:
 		h & exp & level & name & biography & portrait & mana & secSkills & movement
 			& sex & inTownGarrison & /*artifacts & artifWorn & */spells & patrol & moveDir;
 
-		h & type & speciality & commander;
+		h & type & specialty & commander;
 		BONUS_TREE_DESERIALIZATION_FIX
 		//visitied town pointer will be restored by map serialization method
 	}
@@ -411,7 +416,7 @@ public:
 	//void giveArtifact (ui32 aid);
 	void initHeroDefInfo();
 	void pushPrimSkill(int which, int val);
-	void UpdateSpeciality();
+	void Updatespecialty();
 	void updateSkill(int which, int val);
 
 	CGHeroInstance();

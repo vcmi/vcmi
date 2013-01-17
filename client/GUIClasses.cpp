@@ -5117,10 +5117,10 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2):
 
 		portrait[b] = new CHeroArea(257 + 228*b, 13, heroInst[b]);
 
-		speciality[b] = new LRClickableAreaWText();
-		speciality[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + 45);
-		speciality[b]->hoverText = CGI->generaltexth->heroscrn[27];
-		speciality[b]->text = heroInst[b]->type->specDescr;
+		specialty[b] = new LRClickableAreaWText();
+		specialty[b]->pos = genRect(32, 32, pos.x + 69 + 490*b, pos.y + 45);
+		specialty[b]->hoverText = CGI->generaltexth->heroscrn[27];
+		specialty[b]->text = heroInst[b]->type->specDescr;
 
 		experience[b] = new LRClickableAreaWText();
 		experience[b]->pos = genRect(32, 32, pos.x + 105 + 490*b, pos.y + 45);

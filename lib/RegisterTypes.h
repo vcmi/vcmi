@@ -76,6 +76,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<IPropagator>();
 	s.template registerType<CPropagatorNodeType>();
 
+	s.template registerType<LimiterDecorator>();
 	s.template registerType<ILimiter>();
 	s.template registerType<CCreatureTypeLimiter>();
 	s.template registerType<HasAnotherBonusLimiter>();

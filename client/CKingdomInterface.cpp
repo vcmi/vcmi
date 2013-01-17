@@ -570,7 +570,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 		}
 	}
 
-	//Heroes can produce gold as well - skill, speciality or arts
+	//Heroes can produce gold as well - skill, specialty or arts
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
 	for(size_t i=0; i<heroes.size(); i++)
 	{

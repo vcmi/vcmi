@@ -248,7 +248,7 @@ void CModHandler::initialize(std::vector<std::string> availableMods)
 			detectedMods.push_back(name);
 		}
 		else
-			tlog1 << "\t\t Directory " << name << " does not contains VCMI mod\n";
+			tlog3 << "\t\t Directory " << name << " does not contains VCMI mod\n";
 	}
 
 	if (!checkDependencies(detectedMods))

@@ -2872,7 +2872,7 @@ void OptionsTab::CPregameTooltipBox::genHeroWindow()
 	pos = Rect(0, 0, 292, 226);
 	genHeader();
 
-	// speciality
+	// specialty
 	new CAnimImage("UN44", CGI->heroh->heroes[settings.hero]->imageIndex, 0, pos.w / 2 - 22, 134);
 
 	new CLabel(pos.w / 2 + 4, 117, FONT_MEDIUM, CENTER,  Colors::YELLOW, CGI->generaltexth->allTexts[78]);

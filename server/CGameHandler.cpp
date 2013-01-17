@@ -4063,7 +4063,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			const Bonus * bonus = NULL;
 			if (caster)
 				bonus = caster->getBonusLocalFirst(Selector::typeSubtype(Bonus::SPECIAL_PECULIAR_ENCHANT, spellID));
-			//TODO does hero speciality should affects his stack casting spells?
+			//TODO does hero specialty should affects his stack casting spells?
 
 			si32 power = 0;
 			BOOST_FOREACH(const CStack *affected, attackedCres)
@@ -4073,7 +4073,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 				sse.stacks.push_back(affected->ID);
 
 				//Apply hero specials - peculiar enchants
-				const ui8 tier = affected->getCreature()->level;
+				const ui8 tier = std::max((ui8)1, affected->getCreature()->level); //don't divide by 0 for certain creatures (commanders, war machines)
 				if (bonus)
  				{
  	 				switch(bonus->additionalInfo)

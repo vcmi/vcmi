@@ -25,7 +25,7 @@ struct BonusLimitationContext;
 struct BonusCalculationContext;
 
 typedef shared_ptr<BonusList> TBonusListPtr;
-typedef shared_ptr<ILimiter> TLimiterPtr;
+typedef shared_ptr<LimiterDecorator> TLimiterPtr;
 typedef shared_ptr<IPropagator> TPropagatorPtr;
 typedef shared_ptr<ICalculator> TCalculatorPtr;
 typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
@@ -44,6 +44,11 @@ public:
 
 	virtual ~LimiterDecorator()
 	{}
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & next;
+	}
 };
 
 #define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.smartPointerSerialization) deserializationFix();
@@ -303,6 +308,7 @@ struct DLL_LINKAGE Bonus : public LimiterDecorator
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<LimiterDecorator&>(*this);
 		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & limiter & propagator;
 	}
 
@@ -520,7 +526,9 @@ public:
 	virtual ~ILimiter();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
-	{}
+	{
+		h & static_cast<LimiterDecorator&>(*this);
+	}
 };
 
 class DLL_LINKAGE IBonusBearer
@@ -663,7 +671,7 @@ public:
 	}
 	enum ENodeTypes
 	{
-		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, SPECIALITY, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM,
+		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, specialty, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM,
 		TOWN_AND_VISITOR, BATTLE
 	};
 };

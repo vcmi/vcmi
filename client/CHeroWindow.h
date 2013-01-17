@@ -65,7 +65,7 @@ class CHeroWindow: public CWindowObject, public CWindowWithGarrison, public CWin
 	std::vector<LRClickableAreaWTextComp *> primSkillAreas;
 	LRClickableAreaWText * expArea;
 	LRClickableAreaWText * spellPointsArea;
-	LRClickableAreaWText * specArea;//speciality
+	LRClickableAreaWText * specArea;//specialty
 	CAnimImage *specImage;
 	MoraleLuckBox * morale, * luck;
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas;

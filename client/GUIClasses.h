@@ -1019,7 +1019,7 @@ class CExchangeWindow : public CWindowObject, public CWindowWithGarrison, public
 
 	MoraleLuckBox *morale[2], *luck[2];
 
-	LRClickableAreaWText *speciality[2];
+	LRClickableAreaWText *specialty[2];
 	LRClickableAreaWText *experience[2];
 	LRClickableAreaWText *spellPoints[2];
 	CHeroArea *portrait[2];

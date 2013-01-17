@@ -1764,8 +1764,8 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 	if(stack.armyObj->ID == Obj::TOWN)
 		t = static_cast<const CGTownInstance *>(stack.armyObj);
 	else if(h)
-	{	//hero speciality
-		TBonusListPtr lista = h->speciality.getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
+	{	//hero specialty
+		TBonusListPtr lista = h->getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
 		BOOST_FOREACH(const Bonus *it, *lista)
 		{
 			ui16 nid = it->additionalInfo;
