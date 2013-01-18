@@ -1369,6 +1369,11 @@ CCreatureTypeLimiter::CCreatureTypeLimiter()
 	includeUpgrades = false;
 }
 
+void CCreatureTypeLimiter::setCreature (TCreature id)
+{
+	creature = VLC->creh->creatures[id];
+}
+
 HasAnotherBonusLimiter::HasAnotherBonusLimiter( TBonusType bonus )
 	: type(bonus), subtype(0), isSubtypeRelevant(false)
 {

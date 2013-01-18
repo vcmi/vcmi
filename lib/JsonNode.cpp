@@ -1053,8 +1053,18 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 						shared_ptr<ILimiter> l;
 						if (limiter["type"].String() == "CREATURE_TYPE_LIMITER")
 						{
-							//continue;
-							//l = make_shared<CCreatureTypeLimiter>(); //TODO: How the hell resolve pointer to creature?
+							shared_ptr<CCreatureTypeLimiter> l2 = make_shared<CCreatureTypeLimiter>(); //TODO: How the hell resolve pointer to creature?
+							const JsonVector vec = limiter["parameters"].Vector();
+							VLC->modh->identifiers.requestIdentifier(std::string("creature.") + vec[0].String(), [=](si32 creature)
+							{
+								l2->setCreature (creature);
+							});
+							if (vec.size() > 1)
+							{
+								l2->includeUpgrades = vec[1].Bool();
+							}
+							else
+								l2->includeUpgrades = false;
 						}
 						if (limiter["type"].String() == "HAS_ANOTHER_BONUS_LIMITER")
 						{
