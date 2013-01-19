@@ -1065,6 +1065,8 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 							}
 							else
 								l2->includeUpgrades = false;
+
+							l = l2;
 						}
 						if (limiter["type"].String() == "HAS_ANOTHER_BONUS_LIMITER")
 						{

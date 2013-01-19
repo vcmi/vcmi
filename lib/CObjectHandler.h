@@ -328,7 +328,7 @@ public:
 
 	struct DLL_LINKAGE HeroSpecial : CBonusSystemNode
 	{
-		bool growsWithLevel;
+		ui8 growsWithLevel;
 
 		HeroSpecial(){growsWithLevel = false;};
 

@@ -1181,7 +1181,6 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 								param = creatures[b->additionalInfo]->Defense();
 								break;
 							default:
-								assert(0);
 								param = 0;
 						}
 						b->val = ceil(param * (1 + primSkillModifier)) - param; //yep, overcomplicated but matches original
