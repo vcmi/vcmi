@@ -1048,7 +1048,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 				case JsonNode::DATA_STRING: //pre-defined limiters
 					b->limiter = parseByMap(bonusLimiterMap, &limiter, "limiter type ");
 					break;
-				case JsonNode::DATA_STRUCT: //customisable limiters
+				case JsonNode::DATA_STRUCT: //customizable limiters
 					{
 						shared_ptr<ILimiter> l;
 						if (limiter["type"].String() == "CREATURE_TYPE_LIMITER")

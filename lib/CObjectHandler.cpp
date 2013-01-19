@@ -1104,6 +1104,20 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 	attachTo(hs); //do we ever need to detach it?
 	specialty.push_back(hs); //will it work?
 
+	BOOST_FOREACH (auto hs2, type->specialty) //copy active (probably growing) bonuses from hero prootype to hero object
+	{
+		HeroSpecial * hs = new HeroSpecial();
+		hs->setNodeType(CBonusSystemNode::specialty);
+		BOOST_FOREACH (auto bonus, hs2.bonuses)
+		{
+			hs->addNewBonus (bonus);
+		}
+		hs->growsWithLevel = hs2.growsWithLevel;
+
+		attachTo(hs); //do we ever need to detach it?
+		specialty.push_back(hs); //will it work?
+	}
+
 	//initialize bonuses
 	BOOST_FOREACH(auto skill_info, secSkills)
 		updateSkill(skill_info.first, skill_info.second);
@@ -1133,9 +1147,9 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 						CCreature * cre = NULL;
 						int creLevel = 0;
 						TLimiterPtr limiterNode (b);
-						while (limiterNode->next)
+						while (limiterNode->limiter)
 						{
-							limiterNode = limiterNode->next; //search list
+							limiterNode = limiterNode->limiter; //search list
 							if (foundLimiter = dynamic_cast<CCreatureTypeLimiter*>(limiterNode.get())) //TODO: more general eveluation of bonuses?
 							{
 								cre = const_cast<CCreature*>(foundLimiter->creature);

@@ -37,7 +37,7 @@ typedef boost::function<bool(const Bonus*)> CSelector;
 class DLL_LINKAGE LimiterDecorator //follows decorator design pattern
 {
 public:
-	TLimiterPtr next; //forms a list
+	TLimiterPtr limiter; //forms a list
 
 	virtual int limit(const BonusLimitationContext &context) const; //0 - accept bonus; 1 - drop bonus; 2 - delay (drops eventually)
 	virtual int callNext(const BonusLimitationContext &context) const;
@@ -47,7 +47,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & next;
+		h & limiter;
 	}
 };
 
@@ -283,7 +283,6 @@ struct DLL_LINKAGE Bonus : public LimiterDecorator
 	si32 additionalInfo;
 	ui8 effectRange; //if not NO_LIMIT, bonus will be omitted by default
 
-	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
 	TCalculatorPtr calculator;
 
@@ -309,7 +308,7 @@ struct DLL_LINKAGE Bonus : public LimiterDecorator
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<LimiterDecorator&>(*this);
-		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & limiter & propagator;
+		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & propagator;
 	}
 
 	static bool compareByAdditionalInfo(const Bonus *a, const Bonus *b)
@@ -366,7 +365,7 @@ struct DLL_LINKAGE Bonus : public LimiterDecorator
 
 	Bonus * addLimiter(TLimiterPtr Limiter);
 	Bonus * addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
-	int limit(const BonusLimitationContext &context) const; //for backward compatibility
+	int limit(const BonusLimitationContext &context) const OVERRIDE; //for backward compatibility
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
@@ -522,7 +521,7 @@ class DLL_LINKAGE ILimiter : public LimiterDecorator
 public:
 	enum EDecision {ACCEPT, DISCARD, NOT_SURE};
 
-	virtual int limit(const BonusLimitationContext &context) const;
+	virtual int limit(const BonusLimitationContext &context) const OVERRIDE;
 	virtual ~ILimiter();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -791,6 +790,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<ILimiter&>(*this);
 		h & creature & includeUpgrades;
 	}
 };
@@ -809,6 +809,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<ILimiter&>(*this);
 		h & type & subtype & isSubtypeRelevant;
 	}
 };
@@ -824,6 +825,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<ILimiter&>(*this);
 		h & terrainType;
 	}
 };
@@ -839,6 +841,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<ILimiter&>(*this);
 		h & faction;
 	}
 };
@@ -854,6 +857,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<ILimiter&>(*this);
 		h & alignment;
 	}
 };
@@ -869,6 +873,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<ILimiter&>(*this);
 		h & owner;
 	}
 };
@@ -884,6 +889,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<ILimiter&>(*this);
 		h & minRank & maxRank;
 	}
 };

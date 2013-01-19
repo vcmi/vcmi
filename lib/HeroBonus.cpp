@@ -1321,15 +1321,15 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 }
 Bonus * Bonus::addLimiter(TLimiterPtr Limiter)
 {
-	if (next) //insert at the beginning of list
+	if (limiter) //insert at the beginning of list
 	{
-		TLimiterPtr temp = next;
-		next = Limiter;
-		next->next = temp;
+		TLimiterPtr temp = limiter;
+		limiter = Limiter;
+		limiter->limiter = temp;
 	}
 	else
 	{
-		next = Limiter;
+		limiter = Limiter;
 	}
 	return this;
 
@@ -1436,7 +1436,7 @@ bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)
 
 int LimiterDecorator::callNext(const BonusLimitationContext &context) const
 {
-	if (next)
+	if (limiter)
 	{
 		return (limit(context) || callNext(context)); //either of limiters will cause bonus to drop
 	}

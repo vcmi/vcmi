@@ -9,6 +9,7 @@
 #include "BattleHex.h"
 #include "CModHandler.h"
 #include "CTownHandler.h"
+#include "CObjectHandler.h" //for hero specialty
 
 /*
  * CHeroHandler.cpp, part of VCMI engine
@@ -285,6 +286,7 @@ void CHeroHandler::loadHeroJson(CHero * hero, const JsonNode & node)
 		hero->spells.insert(spell.Float());
 	}
 
+	//deprecated, used only for original spciealties
 	BOOST_FOREACH(const JsonNode &specialty, node["specialties"].Vector())
 	{
 		SSpecialtyInfo spec;
@@ -295,6 +297,18 @@ void CHeroHandler::loadHeroJson(CHero * hero, const JsonNode & node)
 		spec.additionalinfo = specialty["info"].Float();
 
 		hero->spec.push_back(spec); //put a copy of dummy
+	}
+	//new format, using bonus system
+	BOOST_FOREACH(const JsonNode &specialty, node["specialty"].Vector())
+	{
+		SSpecialtyBonus hs;
+		hs.growsWithLevel = specialty["growsWithLevel"].Bool();
+		BOOST_FOREACH (const JsonNode & bonus, specialty["bonuses"].Vector())
+		{
+			auto b = JsonUtils::parseBonus(bonus);
+			hs.bonuses.push_back (b);
+		}
+		hero->specialty.push_back (hs); //now, how to get CGHeroInstance from it?
 	}
 
 	VLC->modh->identifiers.requestIdentifier("heroClass." + node["class"].String(),

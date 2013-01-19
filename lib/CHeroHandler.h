@@ -2,6 +2,7 @@
 
 #include "../lib/ConstTransitivePtr.h"
 #include "GameConstants.h"
+#include "HeroBonus.h"
 
 /*
  * CHeroHandler.h, part of VCMI engine
@@ -31,6 +32,17 @@ struct SSpecialtyInfo
 	}
 };
 
+struct SSpecialtyBonus
+/// temporary hold
+{
+	ui8 growsWithLevel;
+	BonusList bonuses;
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & growsWithLevel & bonuses;
+	}
+};
+
 class DLL_LINKAGE CHero
 {
 public:
@@ -54,6 +66,7 @@ public:
 	CHeroClass * heroClass;
 	std::vector<std::pair<ui8,ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	std::vector<SSpecialtyInfo> spec;
+	std::vector<SSpecialtyBonus> specialty;
 	std::set<si32> spells;
 	ui8 sex; // default sex: 0=male, 1=female
 	ui8 special; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
@@ -73,7 +86,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & ID & imageIndex & initialArmy & heroClass & secSkillsInit & spec & spells & sex;
+		h & ID & imageIndex & initialArmy & heroClass & secSkillsInit & spec & specialty & spells & sex;
 		h & name & biography & specName & specDescr & specTooltip;
 		h & iconSpecSmall & iconSpecLarge & portraitSmall & portraitLarge;
 	}
