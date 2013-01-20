@@ -292,6 +292,7 @@ struct DLL_LINKAGE Bonus
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & limiter & propagator;
+		h & calculator;
 	}
 
 	static bool compareByAdditionalInfo(const Bonus *a, const Bonus *b)

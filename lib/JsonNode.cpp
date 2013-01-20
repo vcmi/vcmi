@@ -991,9 +991,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 	if (!value->isNull())
 		b->valType = parseByMap(bonusValueMap, value, "value type ");
 
-	value = &ability["additionalInfo"];
-	if (!value->isNull())
-		b->additionalInfo = value->Float();
+	resolveIdentifier (b->additionalInfo, ability, "addInfo");
 
 	value = &ability["turns"];
 	if (!value->isNull())

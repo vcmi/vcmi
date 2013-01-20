@@ -925,6 +925,8 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 {
 	blockVisit = true;
 	HeroSpecial * hs = new HeroSpecial();
+	hs->setNodeType(CBonusSystemNode::specialty);
+	attachTo(hs); //do we ever need to detach it?
 
 	if(!type)
 		return; //TODO: support prison
@@ -956,7 +958,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 						}
 					}
 
-					bonus->additionalInfo = spec.additionalinfo; //creature id
+					//bonus->additionalInfo = spec.additionalinfo; //creature id, should not be used again - this works only with limiter
 					bonus->limiter.reset(new CCreatureTypeLimiter (specCreature, true)); //with upgrades
 					bonus->type = Bonus::PRIMARY_SKILL;
 					bonus->valType = Bonus::ADDITIVE_VALUE;
@@ -1102,13 +1104,13 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 				tlog2 << "Unexpected hero specialty " << type <<'\n';
 		}
 	}
-	hs->setNodeType(CBonusSystemNode::specialty);
-	attachTo(hs); //do we ever need to detach it?
 	specialty.push_back(hs); //will it work?
 
 	BOOST_FOREACH (auto hs2, type->specialty) //copy active (probably growing) bonuses from hero prootype to hero object
 	{
 		HeroSpecial * hs = new HeroSpecial();
+		attachTo(hs); //do we ever need to detach it?
+
 		hs->setNodeType(CBonusSystemNode::specialty);
 		BOOST_FOREACH (auto bonus, hs2.bonuses)
 		{
@@ -1116,7 +1118,6 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 		}
 		hs->growsWithLevel = hs2.growsWithLevel;
 
-		attachTo(hs); //do we ever need to detach it?
 		specialty.push_back(hs); //will it work?
 	}
 
@@ -1145,16 +1146,18 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 						break; //use only hero skills as bonuses to avoid feedback loop
 					case Bonus::PRIMARY_SKILL: //for creatures, that is
 					{
+						const CCreature * cre = NULL;
 						int creLevel = 0;
 						if (auto creatureLimiter = std::dynamic_pointer_cast<CCreatureTypeLimiter>(b->limiter)) //TODO: more general eveluation of bonuses?
 						{
-							creLevel = creatureLimiter->creature->level;
-							if(!creLevel)
+							cre = creatureLimiter->creature;
+							creLevel = cre->level;
+							if (!creLevel)
 							{
 								creLevel = 5; //treat ballista as tier 5
 							}
 						}
-						else
+						else //no creature found, can't calculate value
 						{
 							tlog2 << "Primary skill specialty growth supported only with creature type limiters\n";
 							break;
@@ -1165,13 +1168,13 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 						switch (b->subtype)
 						{
 							case PrimarySkill::ATTACK:
-								param = creatures[b->additionalInfo]->Attack();
+								param = cre->Attack();
 								break;
 							case PrimarySkill::DEFENSE:
-								param = creatures[b->additionalInfo]->Defense();
+								param = cre->Defense();
 								break;
 							default:
-								param = 0;
+								continue;
 						}
 						b->val = ceil(param * (1 + primSkillModifier)) - param; //yep, overcomplicated but matches original
 						break;
@@ -1514,6 +1517,11 @@ bool CGHeroInstance::hasSpellbook() const
 void CGHeroInstance::deserializationFix()
 {
 	artDeserializationFix(this);
+
+	//BOOST_FOREACH (auto hs, specialty)
+	//{
+	//	attachTo (hs);
+	//}
 }
 
 CBonusSystemNode * CGHeroInstance::whereShouldBeAttached(CGameState *gs)

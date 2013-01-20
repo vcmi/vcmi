@@ -383,12 +383,11 @@ void CArtHandler::load(const JsonNode & node)
 		if (!entry.second.isNull()) // may happens if mod removed creature by setting json entry to null
 		{
 			CArtifact * art = loadArtifact(entry.second);
-			art->setName (entry.first);
 			art->id = artifacts.size();
 
 			artifacts.push_back(art);
 			tlog5 << "Added artifact: " << entry.first << "\n";
-			VLC->modh->identifiers.registerObject (std::string("artifact.") + art->Name(), art->id);
+			VLC->modh->identifiers.registerObject (std::string("artifact.") + entry.first, art->id);
 		}
 	}
 }

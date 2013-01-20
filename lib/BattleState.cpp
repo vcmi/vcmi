@@ -752,7 +752,7 @@ std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const C
 			if( (*it)->hasBonusOfType(Bonus::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
 				|| ( (*it)->count - 1 ) * (*it)->MaxHealth() + (*it)->firstHPleft
 		>
-		usedSpellPower * 25 + sp->powers[spellLevel]
+		usedSpellPower * 25 + sp->powers[spellLevel] //TODO: allow 'damage' bonus for hypnotize
 			)
 			{
 				ret.push_back((*it)->ID);
