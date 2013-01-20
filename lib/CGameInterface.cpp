@@ -54,7 +54,11 @@ rett * createAny(std::string dllname, std::string methodName)
 	else if(!getName || !getAI)
 	{
 		tlog1 << dllname << " does not export method " << methodName << std::endl;
+#ifdef _WIN32
 		FreeLibrary(dll);
+#else
+		dlclose(dll);
+#endif
 		throw std::runtime_error("Cannot find method " + methodName);
 	}
 

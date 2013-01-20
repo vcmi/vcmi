@@ -59,7 +59,8 @@ struct PlayerSettings
 		h & compOnly;
 	}
 
-	PlayerSettings() : bonus(RANDOM), castle(NONE), heroPortrait(RANDOM), compOnly(false)
+	PlayerSettings() : bonus(RANDOM), castle(NONE), hero(RANDOM), heroPortrait(RANDOM),
+		color(0), handicap(0), team(0), playerID(PLAYER_AI), compOnly(false)
 	{
 		
 	}

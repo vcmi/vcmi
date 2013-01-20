@@ -111,7 +111,7 @@ std::unique_ptr<CMap> CMapLoaderH3M::loadMap()
 std::unique_ptr<CMapHeader> CMapLoaderH3M::loadMapHeader()
 {
 	// Read header
-	mapHeader = std::unique_ptr<CMapHeader>(new CMapHeader);
+	mapHeader = make_unique<CMapHeader>();
 	readHeader();
 
 	return std::move(mapHeader);

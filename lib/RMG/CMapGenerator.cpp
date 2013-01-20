@@ -29,11 +29,11 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 
 	//TODO select a template based on the map gen options or adapt it if necessary
 
-	map = std::unique_ptr<CMap>(new CMap());
+	map = make_unique<CMap>();
 	addHeaderInfo();
 
-	terViewPatternConfig = std::unique_ptr<CTerrainViewPatternConfig>(new CTerrainViewPatternConfig());
-	mapMgr = std::unique_ptr<CMapEditManager>(new CMapEditManager(terViewPatternConfig.get(), map.get(), randomSeed));
+	terViewPatternConfig = make_unique<CTerrainViewPatternConfig>();
+	mapMgr = make_unique<CMapEditManager>(terViewPatternConfig.get(), map.get(), randomSeed);
 	genTerrain();
 	genTowns();
 
@@ -44,7 +44,7 @@ void CMapGenerator::validateOptions() const
 {
 	int playersCnt = 0;
 	int compOnlyPlayersCnt = 0;
-	BOOST_FOREACH(const tPlayersMap::value_type & pair, players)
+	BOOST_FOREACH(const auto & pair, players)
 	{
 		if(pair.second.getPlayerType() == CPlayerSettings::COMP_ONLY)
 		{
@@ -94,7 +94,7 @@ void CMapGenerator::validateOptions() const
 		throw std::runtime_error("1 human player is required at least");
 	}
 
-	BOOST_FOREACH(const tPlayersMap::value_type & pair, players)
+	BOOST_FOREACH(const auto & pair, players)
 	{
 		if(pair.first != pair.second.getColor())
 		{
@@ -212,7 +212,7 @@ std::string CMapGenerator::getMapDescription() const
 	ss << static_cast<int>(mapGenOptions.getCompOnlyPlayersCnt()) << ", water " << waterContentStr[mapGenOptions.getWaterContent()];
 	ss << ", monster " << monsterStrengthStr[mapGenOptions.getMonsterStrength()] << ", second expansion map";
 
-	BOOST_FOREACH(const tPlayersMap::value_type & pair, players)
+	BOOST_FOREACH(const auto & pair, players)
 	{
 		const CPlayerSettings & pSettings = pair.second;
 		if(pSettings.getPlayerType() == CPlayerSettings::HUMAN)
@@ -265,7 +265,7 @@ void CMapGenerator::addPlayerInfo()
 	}
 
 	// Team numbers are assigned randomly to every player
-	BOOST_FOREACH(const tPlayersMap::value_type & pair, players)
+	BOOST_FOREACH(const auto & pair, players)
 	{
 		const CPlayerSettings & pSettings = pair.second;
 		PlayerInfo player;
@@ -287,7 +287,7 @@ void CMapGenerator::addPlayerInfo()
 
 int CMapGenerator::countHumanPlayers() const
 {
-	return static_cast<int>(std::count_if(players.begin(), players.end(), [](const std::pair<TPlayerColor, CPlayerSettings> & pair)
+	return static_cast<int>(boost::count_if(players, [](const std::pair<TPlayerColor, CPlayerSettings> & pair)
 	{
 		return pair.second.getPlayerType() == CMapGenerator::CPlayerSettings::HUMAN;
 	}));
@@ -319,8 +319,14 @@ void CMapGenerator::genTowns()
 		town->builtBuildings.insert(EBuilding::FORT);
 		town->builtBuildings.insert(-50);
 		mapMgr->insertObject(town, townPos[side].x, townPos[side].y + (pos / 2) * 5, false);
-		map->players[owner].allowedFactions.clear();
-		map->players[owner].allowedFactions.insert(townTypes[side]);
+
+		// Update player info
+		PlayerInfo & pInfo = map->players[owner];
+		pInfo.allowedFactions.clear();
+		pInfo.allowedFactions.insert(townTypes[side]);
+		pInfo.hasMainTown = true;
+		pInfo.posOfMainTown = town->pos - int3(2, 0, 0);
+		pInfo.generateHeroAtMainTown = true;
 	}
 }
 
@@ -340,7 +346,7 @@ TPlayerColor CMapGenerator::getNextPlayerColor() const
 {
 	for(TPlayerColor i = 0; i < GameConstants::PLAYER_LIMIT; ++i)
 	{
-		if(players.find(i) == players.end())
+		if(!players.count(i))
 		{
 			return i;
 		}

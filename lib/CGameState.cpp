@@ -898,21 +898,27 @@ void CGameState::init(StartInfo * si)
 				map = mapGen.generate().release();
 
 				// Update starting options
-				for(auto it = scenarioOps->playerInfos.begin(); it != scenarioOps->playerInfos.end();)
+				for(int i = 0; i < map->players.size(); ++i)
 				{
-					PlayerSettings & pSettings = it->second;
-					if(!(map->players[pSettings.color].canHumanPlay || map->players[pSettings.color].canComputerPlay))
+					const PlayerInfo & pInfo = map->players[i];
+					if(pInfo.canComputerPlay || pInfo.canHumanPlay)
 					{
-						scenarioOps->playerInfos.erase(it++);
+						PlayerSettings & pSettings = scenarioOps->playerInfos[i];
+						pSettings.compOnly = !pInfo.canHumanPlay;
+						pSettings.team = pInfo.team;
+						pSettings.castle = pInfo.defaultCastle();
+						if(pSettings.playerID == PlayerSettings::PLAYER_AI && pSettings.name.empty())
+						{
+							pSettings.name = VLC->generaltexth->allTexts[468];
+						}
+						pSettings.color = i;
 					}
 					else
 					{
-						pSettings.compOnly = !(map->players[pSettings.color].canHumanPlay);
-						pSettings.team = map->players[pSettings.color].team;
-						pSettings.castle = map->players[pSettings.color].defaultCastle();
-						++it;
+						scenarioOps->playerInfos.erase(i);
 					}
 				}
+
 			}
 			else
 			{

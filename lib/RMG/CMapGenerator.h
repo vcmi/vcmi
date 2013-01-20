@@ -193,7 +193,4 @@ private:
 
 	/** The random gen player settings. */
 	std::map<TPlayerColor, CPlayerSettings> players;
-
-	/** Typedef of the players map, so that boost foreach can be used. */
-	typedef std::map<TPlayerColor, CPlayerSettings> tPlayersMap;
 };

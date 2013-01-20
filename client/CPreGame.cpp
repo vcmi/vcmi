@@ -1844,6 +1844,8 @@ void RandomMapTab::updateMapInfo()
 			player.canHumanPlay = true;
 		}
 		player.team = i;
+		player.hasMainTown = true;
+		player.generateHeroAtMainTown = true;
 		mapInfo.mapHeader->players.push_back(player);
 	}
 
