@@ -141,7 +141,7 @@
 			"effect": -1,
 			"anim": 64,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage, offensive"]
+			"flags" : ["damage", "offensive"]
 		},
 		"iceBolt"        :
 		{
@@ -149,7 +149,7 @@
 			"effect": -1,
 			"anim": 46,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage, offensive"]
+			"flags" : ["damage", "offensive"]
 		},
 		"lightningBolt"  :
 		{
@@ -157,7 +157,7 @@
 			"effect": -1,
 			"anim": 38,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage, offensive"]
+			"flags" : ["damage", "offensive"]
 		},
 		"implosion"      :
 		{
@@ -165,7 +165,7 @@
 			"effect": -1,
 			"anim": 10,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage, offensive"]
+			"flags" : ["damage", "offensive"]
 		},
 		"chainLightning" :
 		{
@@ -173,7 +173,7 @@
 			"effect": -1,
 			"anim": 38,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage, offensive"]
+			"flags" : ["damage", "offensive"]
 		},
 		"frostRing"      :
 		{
@@ -181,7 +181,7 @@
 			"effect": -1,
 			"anim": 45,
 			"ranges": [ "1", "1", "1", "1" ],
-			"flags" : ["damage, offensive"]
+			"flags" : ["damage", "offensive"]
 		},
 		"fireball"       :
 		{
@@ -189,7 +189,7 @@
 			"effect": -1,
 			"anim": 53,
 			"ranges": [ "0,1", "0,1", "0,1", "0,1" ],
-			"flags" : ["damage, offensive"]
+			"flags" : ["damage", "offensive"]
 		},
 		"inferno"        :
 		{
@@ -197,7 +197,7 @@
 			"effect": -1,
 			"anim": 9,
 			"ranges": [ "0-2", "0-2", "0-2", "0-2" ],
-			"flags" : ["damage, offensive"]
+			"flags" : ["damage", "offensive"]
 		},
 		"meteorShower"   :
 		{
@@ -205,7 +205,7 @@
 			"effect": -1,
 			"anim": 16,
 			"ranges": [ "0,1", "0,1", "0,1", "0,1" ],
-			"flags" : ["damage, offensive"]
+			"flags" : ["damage", "offensive"]
 		},
 		"deathRipple"    :
 		{
@@ -213,7 +213,7 @@
 			"effect": -1,
 			"anim": 8,
 			"ranges": [ "X", "X", "X", "X" ],
-			"flags" : ["damage, offensive"],
+			"flags" : ["damage", "offensive"],
 			"immunity":  ["SIEGE_WEAPON","UNDEAD"]
 		},
 		"destroyUndead"  :
@@ -222,7 +222,7 @@
 			"effect": -1,
 			"anim": 29,
 			"ranges": [ "X", "X", "X", "X" ],
-			"flags" : ["damage, offensive"],
+			"flags" : ["damage", "offensive"],
 			"limit":["UNDEAD"]
 
 		},
@@ -232,7 +232,7 @@
 			"effect": -1,
 			"anim": 12,
 			"ranges": [ "X", "X", "X", "X" ],
-			"flags" : ["damage, offensive"]
+			"flags" : ["damage", "offensive"]
 		},
 		"shield"         :
 		{
@@ -683,7 +683,7 @@
 			"effect": -1,
 			"anim": 38,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage, offensive"]
+			"flags" : ["damage", "offensive"]
 		},
 		"counterstrike"  :
 		{
@@ -957,7 +957,7 @@
 			"effect": -1,
 			"anim": 38,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage, offensive"]
+			"flags" : ["damage", "offensive"]
 		},
 		"dispelHelpful"  :
 		{
