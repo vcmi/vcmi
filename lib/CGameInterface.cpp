@@ -51,6 +51,12 @@ rett * createAny(std::string dllname, std::string methodName)
 		tlog1 << "Cannot open dynamic library ("<<dllname<<"). Throwing..."<<std::endl;
 		throw std::runtime_error("Cannot open dynamic library");
 	}
+	else if(!getName || !getAI)
+	{
+		tlog1 << dllname << " does not export method " << methodName << std::endl;
+		FreeLibrary(dll);
+		throw std::runtime_error("Cannot find method " + methodName);
+	}
 
 	getName(temp);
 	tlog0 << "Loaded " << temp << std::endl;

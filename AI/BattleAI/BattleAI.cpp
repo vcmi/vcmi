@@ -71,9 +71,12 @@ CBattleAI::~CBattleAI(void)
 {
 	print("destroyed");
 
-	//Restore previous state of CB - it may be shared with the main AI (like VCAI)
-	cb->waitTillRealize = wasWaitingForRealize;
-	cb->unlockGsWhenWaiting = wasUnlockingGs;
+	if(cb)
+	{
+		//Restore previous state of CB - it may be shared with the main AI (like VCAI)
+		cb->waitTillRealize = wasWaitingForRealize;
+		cb->unlockGsWhenWaiting = wasUnlockingGs;
+	}
 }
 
 void CBattleAI::init( CBattleCallback * CB )

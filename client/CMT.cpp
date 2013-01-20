@@ -616,16 +616,20 @@ void processCommand(const std::string &message)
 		std::string fname;
 		readed >> fname;
 		tlog0 << "Will try loading that AI to see if it is correct name...\n";
-		if(auto ai = CDynLibHandler::getNewBattleAI(fname)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
+		try
 		{
-			delete ai;
-			Settings neutralAI = settings.write["server"]["neutralAI"];
-			neutralAI->String() = fname;
-			tlog0 << "Setting changed, from now the battle ai will be " << fname << "!\n";
+			if(auto ai = CDynLibHandler::getNewBattleAI(fname)) //test that given AI is indeed available... heavy but it is easy to make a typo and break the game
+			{
+				delete ai;
+				Settings neutralAI = settings.write["server"]["neutralAI"];
+				neutralAI->String() = fname;
+				tlog0 << "Setting changed, from now the battle ai will be " << fname << "!\n";
+			}
 		}
-		else
+		catch(std::exception &e)
 		{
-			tlog3 << "Setting not changes, no such AI found!\n";
+			tlog3 << "Failed opening " << fname << ": " << e.what() << std::endl;
+			tlog3 << "Setting not changes, AI not found or invalid!\n";
 		}
 	}
 	else if(client && client->serv && client->serv->connected && LOCPLINT) //send to server
