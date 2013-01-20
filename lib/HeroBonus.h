@@ -20,12 +20,10 @@ class ILimiter;
 class IPropagator;
 class ICalculator;
 class BonusList;
-class LimiterDecorator;
-struct BonusLimitationContext;
 struct BonusCalculationContext;
 
 typedef shared_ptr<BonusList> TBonusListPtr;
-typedef shared_ptr<LimiterDecorator> TLimiterPtr;
+typedef shared_ptr<ILimiter> TLimiterPtr;
 typedef shared_ptr<IPropagator> TPropagatorPtr;
 typedef shared_ptr<ICalculator> TCalculatorPtr;
 typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
@@ -34,22 +32,7 @@ typedef std::set<const CBonusSystemNode*> TCNodes;
 typedef std::vector<CBonusSystemNode *> TNodesVector;
 typedef boost::function<bool(const Bonus*)> CSelector;
 
-class DLL_LINKAGE LimiterDecorator //follows decorator design pattern
-{
-public:
-	TLimiterPtr limiter; //forms a list
 
-	virtual int limit(const BonusLimitationContext &context) const; //0 - accept bonus; 1 - drop bonus; 2 - delay (drops eventually)
-	virtual int callNext(const BonusLimitationContext &context) const;
-
-	virtual ~LimiterDecorator()
-	{}
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & limiter;
-	}
-};
 
 #define BONUS_TREE_DESERIALIZATION_FIX if(!h.saving && h.smartPointerSerialization) deserializationFix();
 
@@ -227,7 +210,7 @@ public:
 	BONUS_VALUE(INDEPENDENT_MIN) //used for SECONDARY_SKILL_PREMY bonus
 
 /// Struct for handling bonuses of several types. Can be transferred to any hero
-struct DLL_LINKAGE Bonus : public LimiterDecorator
+struct DLL_LINKAGE Bonus
 {
 	enum BonusType
 	{
@@ -283,6 +266,7 @@ struct DLL_LINKAGE Bonus : public LimiterDecorator
 	si32 additionalInfo;
 	ui8 effectRange; //if not NO_LIMIT, bonus will be omitted by default
 
+	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
 	TCalculatorPtr calculator;
 
@@ -307,8 +291,7 @@ struct DLL_LINKAGE Bonus : public LimiterDecorator
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<LimiterDecorator&>(*this);
-		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & propagator;
+		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & limiter & propagator;
 	}
 
 	static bool compareByAdditionalInfo(const Bonus *a, const Bonus *b)
@@ -363,9 +346,8 @@ struct DLL_LINKAGE Bonus : public LimiterDecorator
 
 	std::string Description() const;
 
-	Bonus * addLimiter(TLimiterPtr Limiter);
-	Bonus * addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
-	int limit(const BonusLimitationContext &context) const OVERRIDE; //for backward compatibility
+	Bonus *addLimiter(TLimiterPtr Limiter); //returns this for convenient chain-calls
+	Bonus *addPropagator(TPropagatorPtr Propagator); //returns this for convenient chain-calls
 };
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus);
@@ -509,24 +491,17 @@ struct BonusLimitationContext
 	const BonusList &alreadyAccepted;
 };
 
-struct BonusCalculationContext
-{
-	const Bonus *b;
-	const CBonusSystemNode &node;
-};
-
-
-class DLL_LINKAGE ILimiter : public LimiterDecorator
+class DLL_LINKAGE ILimiter
 {
 public:
 	enum EDecision {ACCEPT, DISCARD, NOT_SURE};
 
-	virtual int limit(const BonusLimitationContext &context) const OVERRIDE;
 	virtual ~ILimiter();
+
+	virtual int limit(const BonusLimitationContext &context) const; //0 - accept bonus; 1 - drop bonus; 2 - delay (drops eventually)
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<LimiterDecorator&>(*this);
 	}
 };
 
@@ -774,6 +749,16 @@ public:
 		turnsRequested = setVal;
 		return *this;
 	}
+};
+
+//Stores multiple limiters. If any of them fails -> bonus is dropped.
+class DLL_LINKAGE LimiterList : public ILimiter
+{
+	std::vector<TLimiterPtr> limiters;
+
+public:
+	int limit(const BonusLimitationContext &context) const OVERRIDE;
+	void add(TLimiterPtr limiter);
 };
 
 class DLL_LINKAGE CCreatureTypeLimiter : public ILimiter //affect only stacks of given creature (and optionally it's upgrades)

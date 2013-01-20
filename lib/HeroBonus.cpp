@@ -96,7 +96,6 @@ BonusList& BonusList::operator=(const BonusList &bonusList)
 
 int BonusList::totalValue() const
 {
-	int tempVal = 0;
 	int base = 0;
 	int percentToBase = 0;
 	int percentToAll = 0;
@@ -109,15 +108,6 @@ int BonusList::totalValue() const
 	for (size_t i = 0; i < bonuses.size(); i++)
 	{
 		Bonus *b = bonuses[i];
-
-		if (b->calculator)
-		{
-			assert (false);
-			BonusCalculationContext bcc = {b, CBonusSystemNode()};
-			tempVal = b->calculator->val (bcc);
-		}
-		else
-			tempVal = b->val;
 
 		switch(b->valType)
 		{
@@ -471,7 +461,9 @@ ui32 IBonusBearer::getMaxDamage() const
 
 si32 IBonusBearer::manaLimit() const
 {
-	return si32(getPrimSkillLevel(3) * (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, 24)) / 10.0);
+	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE) 
+		* (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::INTELLIGENCE)) 
+		/ 10.0);
 }
 
 int IBonusBearer::getPrimSkillLevel(int id) const
@@ -1042,7 +1034,7 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 		{
 			Bonus *b = undecided[i];
 			BonusLimitationContext context = {b, *this, out};
-			int decision = b->limit(context); //bonuses without limiters will be accepted by default
+			int decision = b->limiter ? b->limiter->limit(context) : ILimiter::ACCEPT; //bonuses without limiters will be accepted by default
 			if(decision == ILimiter::DISCARD)
 			{
 				undecided.erase(i);
@@ -1171,14 +1163,6 @@ Bonus * Bonus::addPropagator(TPropagatorPtr Propagator)
 {
 	propagator = Propagator;
 	return this;
-}
-
-int Bonus::limit(const BonusLimitationContext &context) const
-{
-	if (limiter)
-		return limiter->callNext(context);
-	else
-		return ILimiter::ACCEPT; //accept if there's no limiter
 }
 
 CSelector DLL_LINKAGE operator&&(const CSelector &first, const CSelector &second)
@@ -1319,25 +1303,28 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 
 	return out;
 }
+
 Bonus * Bonus::addLimiter(TLimiterPtr Limiter)
 {
-	if (limiter) //insert at the beginning of list
+	if (limiter)
 	{
-		TLimiterPtr temp = limiter;
-		limiter = Limiter;
-		limiter->limiter = temp;
+		//If we already have limiter list, retreive it
+		auto limiterList = std::dynamic_pointer_cast<LimiterList>(limiter);
+		if(!limiterList)
+		{
+			//Create a new limiter list with old limiter and the new one will be pushed later
+			limiterList = make_shared<LimiterList>();
+			limiterList->add(limiter);
+			limiter = limiterList;
+		}
+
+		limiterList->add(Limiter);
 	}
 	else
 	{
 		limiter = Limiter;
 	}
 	return this;
-
-}
-
-int LimiterDecorator::limit(const BonusLimitationContext &context) const /*return true to drop the bonus */
-{
-	return false;
 }
 
 ILimiter::~ILimiter()
@@ -1432,16 +1419,6 @@ CPropagatorNodeType::CPropagatorNodeType(ui8 NodeType)
 bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)
 {
 	return nodeType == dest->getNodeType();
-}
-
-int LimiterDecorator::callNext(const BonusLimitationContext &context) const
-{
-	if (limiter)
-	{
-		return (limit(context) || callNext(context)); //either of limiters will cause bonus to drop
-	}
-	else //we are last on the list
-		return limit (context);
 }
 
 CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter(int TerrainType) 
@@ -1546,4 +1523,33 @@ StackOwnerLimiter::StackOwnerLimiter()
 StackOwnerLimiter::StackOwnerLimiter(ui8 Owner)
 	: owner(Owner)
 {
+}
+// int Bonus::limit(const BonusLimitationContext &context) const 
+//  	1162	{ 
+//  	1163	        if (limiter) 
+//  	1164	                return limiter->callNext(context); 
+//  	1165	        else 
+//  	1166	                return ILimiter::ACCEPT; //accept if there's no limiter 
+//  	1167	} 
+ 	//1168	 
+
+int LimiterList::limit( const BonusLimitationContext &context ) const 
+{
+	bool wasntSure = false;
+
+	BOOST_FOREACH(auto limiter, limiters)
+	{
+		auto result = limiter->limit(context);
+		if(result == ILimiter::DISCARD)
+			return result;
+		if(result == ILimiter::NOT_SURE)
+			wasntSure = true;
+	}
+
+	return wasntSure ? ILimiter::NOT_SURE : ILimiter::ACCEPT;
+}
+
+void LimiterList::add( TLimiterPtr limiter )
+{
+	limiters.push_back(limiter);
 }

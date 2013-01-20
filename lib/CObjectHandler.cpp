@@ -956,6 +956,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 						}
 					}
 
+					bonus->additionalInfo = spec.additionalinfo; //creature id
 					bonus->limiter.reset(new CCreatureTypeLimiter (specCreature, true)); //with upgrades
 					bonus->type = Bonus::PRIMARY_SKILL;
 					bonus->valType = Bonus::ADDITIVE_VALUE;
@@ -1024,6 +1025,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 					default:
 						continue;
 				}
+				bonus->additionalInfo = spec.additionalinfo; //creature id
 				bonus->valType = Bonus::ADDITIVE_VALUE;
 				bonus->limiter.reset(new CCreatureTypeLimiter (*VLC->creh->creatures[spec.additionalinfo], true));
 				hs->addNewBonus(bonus);
@@ -1143,33 +1145,21 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 						break; //use only hero skills as bonuses to avoid feedback loop
 					case Bonus::PRIMARY_SKILL: //for creatures, that is
 					{
-						CCreatureTypeLimiter * foundLimiter = NULL;
-						CCreature * cre = NULL;
 						int creLevel = 0;
-						TLimiterPtr limiterNode (b);
-						while (limiterNode->limiter)
+						if (auto creatureLimiter = std::dynamic_pointer_cast<CCreatureTypeLimiter>(b->limiter)) //TODO: more general eveluation of bonuses?
 						{
-							limiterNode = limiterNode->limiter; //search list
-							if (foundLimiter = dynamic_cast<CCreatureTypeLimiter*>(limiterNode.get())) //TODO: more general eveluation of bonuses?
+							creLevel = creatureLimiter->creature->level;
+							if(!creLevel)
 							{
-								cre = const_cast<CCreature*>(foundLimiter->creature);
-								creLevel = cre->level;
-								break;
+								creLevel = 5; //treat ballista as tier 5
 							}
 						}
-						if (!foundLimiter)
+						else
 						{
 							tlog2 << "Primary skill specialty growth supported only with creature type limiters\n";
 							break;
 						}
-						if (cre)
-						{
-							creLevel = cre->level;
-						}
-						if(!creLevel)
-						{
-							creLevel = 5; //treat ballista as tier 5
-						}
+
 						double primSkillModifier = (int)(level / creLevel) / 20.0;
 						int param;
 						switch (b->subtype)
