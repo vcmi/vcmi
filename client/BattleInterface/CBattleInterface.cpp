@@ -1204,10 +1204,12 @@ void CBattleInterface::bSurrenderf()
 	int cost = curInt->cb->battleGetSurrenderCost();
 	if(cost >= 0)
 	{
-		const CGHeroInstance *opponent = curInt->cb->battleGetFightingHero(1);
-		std::string enemyHeroName = opponent ? opponent->name : "#ENEMY#"; //TODO: should surrendering without enemy hero be enabled?
+		std::string enemyHeroName = curInt->cb->battleGetEnemyHero().name;
+		if(enemyHeroName.empty())
+			enemyHeroName = "#ENEMY#"; //TODO: should surrendering without enemy hero be enabled?
+
 		std::string surrenderMessage = boost::str(boost::format(CGI->generaltexth->allTexts[32]) % enemyHeroName % cost); //%s states: "I will accept your surrender and grant you and your troops safe passage for the price of %d gold."
-		curInt->showYesNoDialog(surrenderMessage, boost::bind(&CBattleInterface::reallySurrender,this), 0, false);
+		curInt->showYesNoDialog(surrenderMessage, [this]{ reallySurrender(); }, 0, false);
 	}
 }
 
@@ -1714,7 +1716,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		std::string text = CGI->generaltexth->allTexts[195];
 		if(sc->castedByHero)
 		{
-			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetFightingHero(sc->side)->name);
+			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetHeroInfo(sc->side).name);
 			boost::algorithm::replace_first(text, "%s", CGI->spellh->spells[sc->id]->name); //spell name
 			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl ); //target
 		}
@@ -1829,7 +1831,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		std::string text = CGI->generaltexth->allTexts[196];
 		if(sc->castedByHero)
 		{
-			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetFightingHero(sc->side)->name);
+			boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetHeroInfo(sc->side).name);
 		}
 		else if(sc->attackerType < CGI->creh->creatures.size())
 		{
@@ -2911,7 +2913,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case FREE_LOCATION:
 				{
 					ui8 side = curInt->cb->battleGetMySide();
-					auto hero = curInt->cb->battleGetFightingHero(side);
+					auto hero = curInt->cb->battleGetMyHero();
 					assert(!creatureCasting); //we assume hero casts this spell
 					assert(hero);
 

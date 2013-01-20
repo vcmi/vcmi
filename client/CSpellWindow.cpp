@@ -645,7 +645,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 						if(vstd::contains(s->state, EBattleStackState::SUMMONED))
 						{
 							elemental = s->getCreature()->namePl;
-							summoner = owner->myInt->cb->battleGetFightingHero(!s->attackerOwned)->name;
+							summoner = owner->myInt->cb->battleGetHeroInfo(!s->attackerOwned).name;
 							break;
 						}
 					}

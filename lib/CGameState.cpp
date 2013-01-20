@@ -2764,6 +2764,9 @@ InfoAboutHero::InfoAboutHero(const InfoAboutHero & iah):
 }
 
 InfoAboutHero::InfoAboutHero(const CGHeroInstance *h, bool detailed)
+	: details(nullptr),
+	hclass(nullptr),
+	portrait(-1)
 {
 	initFromHero(h, detailed);
 }

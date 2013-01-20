@@ -296,6 +296,15 @@ const CGHeroInstance * CBattleInfoEssentials::battleGetFightingHero(ui8 side) co
 	return getBattle()->heroes[side];
 }
 
+InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo( ui8 side ) const
+{
+	auto hero = getBattle()->heroes[side];
+	if(!hero)
+		tlog3 << __FUNCTION__ << ": side " << (int)side << " does not have hero!\n";
+
+	return InfoAboutHero(hero, battleDoWeKnowAbout(side));
+}
+
 int CBattleInfoEssentials::battleCastSpells(ui8 side) const
 {
 	RETURN_IF_NOT_BATTLE(-1);
@@ -2296,10 +2305,7 @@ const CGHeroInstance * CPlayerBattleCallback::battleGetMyHero() const
 
 InfoAboutHero CPlayerBattleCallback::battleGetEnemyHero() const
 {
-	InfoAboutHero ret;
-	assert(0);
-	///TODO implement and replace usages of battleGetFightingHero obtaining enemy hero
-	return ret;
+	return battleGetHeroInfo(!battleGetMySide());
 }
 
 BattleAttackInfo::BattleAttackInfo(const CStack *Attacker, const CStack *Defender, bool Shooting)

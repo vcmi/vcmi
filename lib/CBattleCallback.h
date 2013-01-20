@@ -181,7 +181,8 @@ public:
 	ui8 battleGetSiegeLevel() const; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	bool battleHasHero(ui8 side) const;
 	int battleCastSpells(ui8 side) const; //how many spells has given side casted
-	const CGHeroInstance * battleGetFightingHero(ui8 side) const;
+	const CGHeroInstance * battleGetFightingHero(ui8 side) const; //depracated for players callback, easy to get wrong
+	InfoAboutHero battleGetHeroInfo(ui8 side) const;
 
 	//helpers
 	TStacks battleAliveStacks() const;
