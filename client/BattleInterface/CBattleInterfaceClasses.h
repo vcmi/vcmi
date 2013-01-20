@@ -36,7 +36,6 @@ public:
 	std::string ingcAlter; //alternative text set by in-game console - very important!
 	int whoSetAlter; //who set alter text; 0 - battle interface or none, 1 - button
 	CBattleConsole();
-	~CBattleConsole(); //d-tor
 	void showAll(SDL_Surface * to = 0);
 	bool addText(const std::string &text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
 	void alterText(const std::string &text); //place string at alterTxt
@@ -70,7 +69,6 @@ public:
 class CBattleOptionsWindow : public CIntObject
 {
 private:
-	CBattleInterface * myInt;
 	CPicture * background;
 	CAdventureMapButton * setToDefault, * exit;
 	CHighlightableButton * viewGrid, * movementShadow, * mouseShadow;

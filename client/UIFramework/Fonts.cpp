@@ -182,10 +182,9 @@ void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, co
 	int posX = pos.x;
 	int posY = pos.y;
 
-	// Safe to remove but I would like to trace all cases of this. Please report on Mantis or send note to me
-	// Ivan
-	assert(data[0] != '{');
-	assert(data[data.size()-1] != '}');
+	// Should be used to detect incorrect text parsing. Disabled right now due to some old UI code (mostly pregame and battles)
+	//assert(data[0] != '{');
+	//assert(data[data.size()-1] != '}');
 
 	SDL_LockSurface(surface);
 	// for each symbol

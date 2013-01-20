@@ -239,6 +239,12 @@ int main(int argc, char** argv)
 	putenv((char*)"SDL_VIDEO_WINDOW_POS");
 	putenv((char*)"SDL_VIDEO_CENTERED=1");
 
+	// Have effect on X11 system only (Linux).
+	// For whatever reason in fullscreen mode SDL takes "raw" mouse input from DGA X11 extension
+	// (DGA = Direct graphics access). Because this is raw input (before any speed\acceleration proceesing)
+	// it may result in very small \ very fast mouse when game in fullscreen mode
+	putenv((char*)"SDL_VIDEO_X11_DGAMOUSE=0");
+
 	CStopWatch total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
 	logfile = new std::ofstream((GVCMIDirs.UserPath + "/VCMI_Client_log.txt").c_str());
@@ -797,6 +803,9 @@ static void listenForEvents()
 
 				delete CGI->dobjinfo.get();
 				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler; 
+
+				VLC->dobjinfo = const_cast<CGameInfo*>(CGI)->dobjinfo; // update dobjinfo pointer in VLC (used by modHandler::reload())
+
 				const_cast<CGameInfo*>(CGI)->dobjinfo->load();
 				const_cast<CGameInfo*>(CGI)->modh->reload(); //add info about new creatures to dobjinfo
 			};

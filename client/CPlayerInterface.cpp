@@ -1147,7 +1147,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	h & spellbookSettings;
 
 	//sleeping heroes
-	ui8 sleepingSize;
+	ui8 sleepingSize = 0; //fix for uninitialized warning
 	if (h.saving)
 		sleepingSize = sleepingHeroes.size();
 	h & sleepingSize;
@@ -1165,7 +1165,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	}
 
 	//hero list order
-	ui8 heroListSize;
+	ui8 heroListSize = 0; //fix for uninitialized warning
 	if (h.saving)
 		heroListSize = wanderingHeroes.size();
 	else

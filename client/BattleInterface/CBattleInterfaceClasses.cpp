@@ -25,14 +25,9 @@
 #include "../CCreatureWindow.h"
 #include "../CMessage.h"
 
-CBattleConsole::~CBattleConsole()
-{
-	texts.clear();
-}
-
 void CBattleConsole::showAll(SDL_Surface * to)
 {
-	Point textPos(pos.x + pos.w/2, pos.y + 11);
+	Point textPos(pos.x + pos.w/2, pos.y + 17);
 
 	if(ingcAlter.size())
 	{
@@ -246,7 +241,7 @@ CBattleHero::~CBattleHero()
 	delete flag;
 }
 
-CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner): myInt(owner)
+CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos = position;

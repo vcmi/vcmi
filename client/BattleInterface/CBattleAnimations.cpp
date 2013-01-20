@@ -106,8 +106,8 @@ CAttackAnimation::CAttackAnimation(CBattleInterface *_owner, const CStack *attac
 }
 
 CDefenceAnimation::CDefenceAnimation(StackAttackedInfo _attackedInfo, CBattleInterface * _owner)
-: CBattleStackAnimation(_owner, _attackedInfo.defender), dmg(_attackedInfo.dmg),
-amountKilled(_attackedInfo.amountKilled), attacker(_attackedInfo.attacker), byShooting(_attackedInfo.byShooting),
+: CBattleStackAnimation(_owner, _attackedInfo.defender),
+attacker(_attackedInfo.attacker), byShooting(_attackedInfo.byShooting),
 killed(_attackedInfo.killed) 
 {}
 
@@ -689,7 +689,7 @@ void CReverseAnimation::setupSecondPart()
 }
 
 CShootingAnimation::CShootingAnimation(CBattleInterface * _owner, const CStack * attacker, BattleHex _dest, const CStack * _attacked, bool _catapult, int _catapultDmg)
-: CAttackAnimation(_owner, attacker, _dest, _attacked), catapultDamage(_catapultDmg), catapult(_catapult) 
+: CAttackAnimation(_owner, attacker, _dest, _attacked), catapultDamage(_catapultDmg)
 {}
 
 bool CShootingAnimation::init()

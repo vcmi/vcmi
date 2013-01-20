@@ -453,13 +453,13 @@ void CClient::serialize( Handler &h, const int version )
 	}
 	else
 	{
-		ui8 players;
+		ui8 players = 0; //fix for uninitialized warning
 		h & players;
 
 		for(int i=0; i < players; i++)
 		{
 			std::string dllname;
-			ui8 pid;
+			ui8 pid = 0; //fix for uninitialized warning
 			h & pid & dllname;
 
 

@@ -281,7 +281,6 @@ class CHeroItem : public CIntObject, public CWindowWithGarrison
 
 	std::vector<CIntObject *> artTabs;
 
-	CAnimImage *background;
 	CAnimImage *portrait;
 	CLabel *name;
 	CHeroArea *heroArea;

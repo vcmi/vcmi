@@ -1135,7 +1135,7 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 	{
 		if (hs->growsWithLevel)
 		{
-			const auto &creatures = VLC->creh->creatures;
+			//const auto &creatures = VLC->creh->creatures;
 
 			BOOST_FOREACH(Bonus * b, hs->getBonusList())
 			{

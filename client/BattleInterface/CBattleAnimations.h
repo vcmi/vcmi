@@ -70,8 +70,6 @@ class CDefenceAnimation : public CBattleStackAnimation
 {
 private:
 	//std::vector<StackAttackedInfo> attackedInfos;
-	int dmg; //damage dealt
-	int amountKilled; //how many creatures in stack has been killed
 	const CStack * attacker; //attacking stack
 	bool byShooting; //if true, stack has been attacked by shooting
 	bool killed; //if true, stack has been killed
@@ -196,7 +194,6 @@ class CShootingAnimation : public CAttackAnimation
 {
 private:
 	int catapultDamage;
-	bool catapult;
 public:
 	bool init();
 	void nextFrame();

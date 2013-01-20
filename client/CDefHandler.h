@@ -75,8 +75,6 @@ class CDefHandler
 {
 private:
 	ui32 DEFType;
-	int length;
-	//ui32 * RWEntries;
 	struct SEntry
 	{
 		std::string name;

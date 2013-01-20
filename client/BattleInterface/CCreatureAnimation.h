@@ -23,7 +23,6 @@ class CCreatureAnimation : public CIntObject
 {
 private:
 	int totalEntries, DEFType, totalBlocks;
-	int length;
 	BMPPalette palette[256];
 	struct SEntry
 	{

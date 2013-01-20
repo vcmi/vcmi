@@ -4390,8 +4390,8 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 			// so we want to replace text in [...] with a spell name
 			// however other language versions don't have name placeholder at all, so we have to be careful
 			int spellID = art->getGivenSpellID();
-			int nameStart = text.find_first_of('[');
-			int nameEnd = text.find_first_of(']', nameStart);
+			size_t nameStart = text.find_first_of('[');
+			size_t nameEnd = text.find_first_of(']', nameStart);
 			if(spellID >= 0)
 			{
 				if(nameStart != std::string::npos  &&  nameEnd != std::string::npos)
