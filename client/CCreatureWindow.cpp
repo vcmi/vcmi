@@ -712,7 +712,7 @@ void CBonusItem::showAll (SDL_Surface * to)
 	if (visible)
 	{
 		graphics->fonts[FONT_SMALL]->renderTextLeft(to, name, Colors::YELLOW, Point(pos.x + 72, pos.y + 6));
-		graphics->fonts[FONT_SMALL]->renderTextLeft(to, name, Colors::WHITE,  Point(pos.x + 72, pos.y + 30));
+		graphics->fonts[FONT_SMALL]->renderTextLeft(to, description, Colors::WHITE,  Point(pos.x + 72, pos.y + 30));
 		if (bonusGraphics && bonusGraphics->bg)
 			blitAtLoc(bonusGraphics->bg, 12, 2, to);
 	}
