@@ -289,7 +289,6 @@ void CClient::loadGame( const std::string & fname )
 void CClient::newGame( CConnection *con, StartInfo *si )
 {
 	enum {SINGLE, HOST, GUEST} networkMode = SINGLE;
-	std::set<TPlayerColor> myPlayers;
 
 	if (con == NULL) 
 	{
@@ -301,18 +300,6 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		serv = con;
 		networkMode = (con->connectionID == 1) ? HOST : GUEST;
 	}
-
-	for(auto it = si->playerInfos.begin(); it != si->playerInfos.end(); ++it)
-	{
-		if((networkMode == SINGLE)                                                      //single - one client has all player
-		   || (networkMode != SINGLE && serv->connectionID == it->second.playerID)      //multi - client has only "its players"
-		   || (networkMode == HOST && it->second.playerID == PlayerSettings::PLAYER_AI))//multi - host has all AI players
-		{
-			myPlayers.insert(it->first); //add player
-		}
-	}
-	if(networkMode != GUEST)
-		myPlayers.insert(GameConstants::NEUTRAL_PLAYER);
 
 	CStopWatch tmh;
 	const_cast<CGameInfo*>(CGI)->state = new CGameState();
@@ -332,19 +319,34 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			tlog0 << "Server opened map properly.\n";
 	}
 
-	c << myPlayers;
-
-
 	c >> si;
 	tlog0 <<"\tSending/Getting info to/from the server: "<<tmh.getDiff()<<std::endl;
 	c.enableStackSendingByID();
 	c.disableSmartPointerSerialization();
 
+	// Initialize game state
 	gs = const_cast<CGameInfo*>(CGI)->state;
 	gs->scenarioOps = si;
 	gs->init(si);
 	tlog0 <<"Initializing GameState (together): "<<tmh.getDiff()<<std::endl;
 
+	// Now after possible random map gen, we know exact player count.
+	// Inform server about how many players client handles
+	std::set<TPlayerColor> myPlayers;
+	for(auto it = gs->scenarioOps->playerInfos.begin(); it != gs->scenarioOps->playerInfos.end(); ++it)
+	{
+		if((networkMode == SINGLE)                                                      //single - one client has all player
+		   || (networkMode != SINGLE && serv->connectionID == it->second.playerID)      //multi - client has only "its players"
+		   || (networkMode == HOST && it->second.playerID == PlayerSettings::PLAYER_AI))//multi - host has all AI players
+		{
+			myPlayers.insert(it->first); //add player
+		}
+	}
+	if(networkMode != GUEST)
+		myPlayers.insert(GameConstants::NEUTRAL_PLAYER);
+	c << myPlayers;
+
+	// Init map handler
 	if(gs->map)
 	{
 		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();

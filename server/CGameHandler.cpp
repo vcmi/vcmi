@@ -1461,25 +1461,22 @@ void CGameHandler::run(bool resume)
 {
 	using namespace boost::posix_time;
 	BOOST_FOREACH(CConnection *cc, conns)
-	{//init conn.
-		ui32 quantity;
-		TPlayerColor pom;
-		//ui32 seed;
+	{
 		if(!resume)
 		{
 			(*cc) << gs->initialOpts; // gs->scenarioOps
 		}
 
-		(*cc) >> quantity; //how many players will be handled at that client
+		std::set<TPlayerColor> players;
+		(*cc) >> players; //how many players will be handled at that client
 
-		tlog0 << "Connection " << cc->connectionID << " will handle " << quantity << " player: ";
-		for(int i=0;i<quantity;i++)
+		tlog0 << "Connection " << cc->connectionID << " will handle " << players.size() << " player: ";
+		BOOST_FOREACH(TPlayerColor color, players)
 		{
-			(*cc) >> pom; //read player color
-			tlog0 << (int)pom << " ";
+			tlog0 << static_cast<int>(color) << " ";
 			{
 				boost::unique_lock<boost::recursive_mutex> lock(gsm);
-				connections[pom] = cc;
+				connections[color] = cc;
 			}
 		}
 		tlog0 << std::endl;

@@ -779,7 +779,7 @@ void CArtHandler::clearHlpLists()
 bool CArtHandler::legalArtifact(int id)
 {
 	return (artifacts[id]->possibleSlots[ArtBearer::HERO].size() ||
-			artifacts[id]->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS) ||
+			(artifacts[id]->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS)) ||
 			(artifacts[id]->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT);
 }
 
