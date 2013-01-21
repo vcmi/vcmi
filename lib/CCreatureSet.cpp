@@ -646,6 +646,11 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
 					break;
 				}
+				case Bonus::SPELL_LIKE_ATTACK:
+				{
+					boost::algorithm::replace_first(text, "%s", VLC->spellh->spells[bonus->subtype]->name);
+					break;
+				}
 				default:
 					{}//TODO: allow custom bonus types... someday, somehow
 			}

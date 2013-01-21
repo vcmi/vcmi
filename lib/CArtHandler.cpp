@@ -776,13 +776,20 @@ void CArtHandler::clearHlpLists()
 	relics.clear();
 }
 
+bool CArtHandler::legalArtifact(int id)
+{
+	return (artifacts[id]->possibleSlots[ArtBearer::HERO].size() ||
+			artifacts[id]->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS) ||
+			(artifacts[id]->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT);
+}
+
 void CArtHandler::initAllowedArtifactsList(const std::vector<ui8> &allowed)
 {
 	allowedArtifacts.clear();
 	clearHlpLists();
 	for (int i=0; i<144; ++i) //yes, 144
 	{
-		if (allowed[i])
+		if (allowed[i] && legalArtifact(i))
 			allowedArtifacts.push_back(artifacts[i]);
 	}
 	if (VLC->modh->modules.COMMANDERS) //allow all commander artifacts for testing
@@ -798,8 +805,7 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<ui8> &allowed)
 			allowedArtifacts.push_back(artifacts[i]);
 		 else //check if active modules allow artifact to be every used
 		 {
-			 if ((artifacts[i]->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS) ||
-				 (artifacts[i]->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT))
+			 if (legalArtifact(i))
 				 allowedArtifacts.push_back(artifacts[i]);
 			 //keep im mind that artifact can be worn by more than one type of bearer
 		 }

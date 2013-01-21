@@ -8,6 +8,7 @@
 			{ "id": "TWO_HEX_ATTACK_BREATH", "name": "Breath", "description": "Breath Attack (2-hex range)" },
 			{ "id": "SPELL_AFTER_ATTACK", "name": "Caster - %s", "description": "%d% chance to cast after attack" },
 			{ "id": "SPELL_BEFORE_ATTACK", "name": "Caster - %s", "description": "%d% chance to cast before attack" },
+			{ "id": "SPELL_LIKE_ATTACK", "name": "Spell-like attack", "description": "Attacks with %s" },
 			{ "id": "CATAPULT", "name": "Catapult", "description": "Attacks siege walls" },
 			{ "id": "JOUSTING", "name": "Champion Charge", "description": "+5% damage per hex travelled" },
 			{ "id": "DOUBLE_DAMAGE_CHANCE", "name": "Death Blow", "description": "%d% chance for double damage" },

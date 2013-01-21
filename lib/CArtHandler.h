@@ -243,6 +243,7 @@ public:
 	void clearHlpLists();
 	ui16 getRandomArt (int flags);
 	ui16 getArtSync (ui32 rand, int flags);
+	bool CArtHandler::legalArtifact(int id);
 	void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
 	void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
 	void erasePickedArt (TArtifactInstanceID id);
