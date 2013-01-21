@@ -25,9 +25,9 @@ namespace ArtifactPosition
 {
 	enum ArtifactPosition
 	{
-		PRE_FIRST = -1, 
+		PRE_FIRST = -1,
 		HEAD, SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, RIGHT_RING, LEFT_RING, FEET, MISC1, MISC2, MISC3, MISC4,
-		MACH1, MACH2, MACH3, MACH4, SPELLBOOK, MISC5, 
+		MACH1, MACH2, MACH3, MACH4, SPELLBOOK, MISC5,
 		AFTER_LAST,
 		//cres
 		CREATURE_SLOT = 0,
@@ -139,7 +139,7 @@ protected:
 public:
 	CArtifactInstance();
 
-	ConstTransitivePtr<CArtifact> artType; 
+	ConstTransitivePtr<CArtifact> artType;
 	TArtifactInstanceID id;
 
 	//CArtifactInstance(int aid);
@@ -243,7 +243,7 @@ public:
 	void clearHlpLists();
 	ui16 getRandomArt (int flags);
 	ui16 getArtSync (ui32 rand, int flags);
-	bool CArtHandler::legalArtifact(int id);
+	bool legalArtifact(int id);
 	void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
 	void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
 	void erasePickedArt (TArtifactInstanceID id);
@@ -314,6 +314,6 @@ public:
 	{
 		h & artifactsInBackpack & artifactsWorn;
 	}
-	
+
 	void artDeserializationFix(CBonusSystemNode *node);
 };

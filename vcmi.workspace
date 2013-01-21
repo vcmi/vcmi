@@ -22,8 +22,5 @@
 		<Project filename="AI/BattleAI/BattleAI.cbp">
 			<Depends filename="lib/VCMI_lib.cbp" />
 		</Project>
-		<Project filename="Scripting/ERM/ERM.cbp">
-			<Depends filename="lib/VCMI_lib.cbp" />
-		</Project>
 	</Workspace>
 </CodeBlocks_workspace_file>
