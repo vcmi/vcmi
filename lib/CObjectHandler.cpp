@@ -1639,7 +1639,7 @@ void CGDwelling::initObj()
 	}
 }
 
-void CGDwelling::setPropertyDer(ui8 what, ui32 val)
+void CGDwelling::setProperty(ui8 what, ui32 val)
 {
 	switch (what)
 	{

@@ -346,6 +346,7 @@ struct PotentialTargets
 
 BattleAction CBattleAI::activeStack( const CStack * stack )
 {
+	cbc = cb; //TODO: make solid sure that AIs always use their callbacks (need to take care of event handlers too)
 	try
 	{
 		print("activeStack called for " + stack->nodeName());
