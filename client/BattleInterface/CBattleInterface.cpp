@@ -2043,9 +2043,10 @@ void CBattleInterface::activateStack()
 	{
 		stackCanCastSpell = true;
 		if(randomSpellcaster)
-			creatureSpellToCast = -1;
-		else
-			creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
+			creatureSpellToCast = -1; //spell will be set later on cast
+
+		creatureSpellToCast = curInt->cb->battleGetRandomStackSpell(s, CBattleInfoCallback::RANDOM_AIMED); //faerie dragon can cast only one spell until their next move
+		//TODO: what if creature can cast BOTH random genie spell and aimed spell?
 	}
 	else
 	{
