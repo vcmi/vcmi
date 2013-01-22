@@ -1195,7 +1195,7 @@ void CComponentBox::placeComponents(bool selectable)
 			{
 				if (selectable)
 				{
-					Point orPos = Point(currentX, currentY) + getOrTextPos(prevComp, *iter);
+					Point orPos = Point(currentX - freeSpace, currentY) + getOrTextPos(prevComp, *iter);
 
 					new CLabel(orPos.x, orPos.y, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[4]);
 				}
@@ -1731,7 +1731,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 								hero->getSecSkillLevel( static_cast<CGHeroInstance::SecondarySkill>(skills[i]) )+1,
 								CComponent::medium));
 		}
-		box = new CComponentBox(comps, Rect(25, 300, pos.w - 50, 100));
+		box = new CComponentBox(comps, Rect(75, 300, pos.w - 150, 100));
 	}
 	else
 		box = nullptr;
@@ -2001,7 +2001,7 @@ std::string CTradeWindow::CTradeableItem::getFilename()
 	case ARTIFACT_INSTANCE:
 		return "artifact";
 	case CREATURE:
-		return "crtport";
+		return "TWCRPORT";
 	default:
 		return "";
 	}
@@ -2009,17 +2009,20 @@ std::string CTradeWindow::CTradeableItem::getFilename()
 
 int CTradeWindow::CTradeableItem::getIndex()
 {
+	if (id < 0)
+		return -1;
+
 	switch(type)
 	{
 	case RESOURCE:
 	case PLAYER:
 		return id;
 	case ARTIFACT_TYPE:
-	case ARTIFACT_PLACEHOLDER:
 	case ARTIFACT_INSTANCE:
-		return id;
+	case ARTIFACT_PLACEHOLDER:
+		return VLC->arth->artifacts[id]->iconIndex;
 	case CREATURE:
-		return id;
+		return VLC->creh->creatures[id]->iconIndex;
 	default:
 		return -1;
 	}
@@ -2059,7 +2062,7 @@ void CTradeWindow::CTradeableItem::showAll(SDL_Surface * to)
 	if (image)
 	{
 		image->moveTo(pos.topLeft() + posToBitmap);
-		image->showAll(to);
+		CIntObject::showAll(to);
 	}
 
 	printAtMiddleLoc(subtitle, posToSubCenter, FONT_SMALL, Colors::WHITE, to);
@@ -2569,9 +2572,11 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 
 		break; case EMarketMode::RESOURCE_ARTIFACT:
 			title = CGI->townh->towns[market->o->subID].buildings[EBuilding::ARTIFACT_MERCHANT]->Name();
+			sliderNeeded = false;
 
 		break; case EMarketMode::ARTIFACT_RESOURCE:
 			title = CGI->townh->towns[market->o->subID].buildings[EBuilding::ARTIFACT_MERCHANT]->Name();
+			sliderNeeded = false;
 
 		break; default:
 			title = CGI->generaltexth->allTexts[158];
@@ -3340,7 +3345,7 @@ void CAltarWindow::showAll(SDL_Surface * to)
 	CTradeWindow::showAll(to);
 	if(mode == EMarketMode::ARTIFACT_EXP && arts && arts->commonInfo->src.art)
 	{
-		artIcon->setFrame(arts->commonInfo->src.art->artType->id);
+		artIcon->setFrame(arts->commonInfo->src.art->artType->iconIndex);
 		artIcon->showAll(to);
 
 		int dmp, val;
