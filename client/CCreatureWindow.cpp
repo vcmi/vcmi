@@ -43,7 +43,7 @@ class CSelectableSkill;
  */
 
 CCreatureWindow::CCreatureWindow (const CStack &stack, int Type):
-    CWindowObject(PLAYER_COLORED | (Type < 3 ? RCLICK_POPUP : 0 ) ),
+    CWindowObject(PLAYER_COLORED | (Type == 0 ? RCLICK_POPUP : 0 ) ),
     type(Type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -58,7 +58,7 @@ CCreatureWindow::CCreatureWindow (const CStack &stack, int Type):
 }
 
 CCreatureWindow::CCreatureWindow (const CStackInstance &stack, int Type):
-    CWindowObject(PLAYER_COLORED | (Type < 3 ? RCLICK_POPUP : 0 ) ),
+    CWindowObject(PLAYER_COLORED | (Type == 0 ? RCLICK_POPUP : 0 ) ),
     type(Type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -67,7 +67,7 @@ CCreatureWindow::CCreatureWindow (const CStackInstance &stack, int Type):
 }
 
 CCreatureWindow::CCreatureWindow(int Cid, int Type, int creatureCount):
-   CWindowObject(PLAYER_COLORED | (Type < 3 ? RCLICK_POPUP : 0 ) ),
+   CWindowObject(PLAYER_COLORED | (Type == 0 ? RCLICK_POPUP : 0 ) ),
     type(Type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -78,7 +78,7 @@ CCreatureWindow::CCreatureWindow(int Cid, int Type, int creatureCount):
 }
 
 CCreatureWindow::CCreatureWindow(const CStackInstance &st, int Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui):
-    CWindowObject(PLAYER_COLORED | (Type < 3 ? RCLICK_POPUP : 0 ) ),
+    CWindowObject(PLAYER_COLORED | (Type == 0 ? RCLICK_POPUP : 0 ) ),
     type(Type),
     dismiss(0),
     upgrade(0),
@@ -899,7 +899,7 @@ CIntObject * createCreWindow(
 		if(settings["general"]["classicCreatureWindow"].Bool())
 			return new CCreInfoWindow(*s, lclick);
 		else
-			return new CCreatureWindow(*s, CCreatureWindow::BATTLE);
+			return new CCreatureWindow(*s, lclick ? CCreatureWindow::BATTLE : CCreatureWindow::OTHER);
 	}
 }
 

@@ -22,9 +22,10 @@ PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
 
 si8 PlayerInfo::defaultCastle() const
 {
-	if(allowedFactions.size() == 1)
+	if(allowedFactions.size() == 1 || !isFactionRandom)
 	{
-		// only one faction is available - pick it
+		// faction can't be chosen - set to first that is marked as allowed
+		assert(!allowedFactions.empty());
 		return *allowedFactions.begin();
 	}
 
