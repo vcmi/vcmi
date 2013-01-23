@@ -1,3 +1,30 @@
+0.9 -> 0.91 (Feb 01 2012)
+
+GENERAL:
+* VCMI build on OS X is now supported
+* Completely removed autotools
+
+MODS:
+- Simplified mod structure. Mods from 0.9 will not be compatible.
+* Mods can be turned on and off in config/modSettings.json file
+* Support for new factions, including:
+- New towns
+- New hero classes
+- New heroes
+- New town-related external dwellings
+* Support for new artifact, including combined, commander and stack artifacts
+* Extended configuration options
+- All game objects are referenced by string identifiers
+- Subtype resolution for bonuses
+
+BATTLES:
+* Support for "enchanted" WoG ability
+
+ADVENTURE AI:
+* AI will try to use Subterranean Gate, Redwood Observatory and Cartographer for exploration
+* Improved exploration algorithm
+* AI will prioritize dwellings and mines when there are no opponents visible
+
 0.89 -> 0.9 (Oct 01 2012)
 GENERAL:
 * Provisional support creature-adding mods
