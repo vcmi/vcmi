@@ -207,10 +207,6 @@ CHeroHandler::~CHeroHandler()
 
 CHeroHandler::CHeroHandler()
 {
-	for (int i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
-	{
-		VLC->modh->identifiers.registerObject("skill." + SecondarySkill::names[i], i);
-	}
 }
 
 void CHeroHandler::load(const JsonNode & input)
@@ -320,6 +316,10 @@ void CHeroHandler::loadHeroJson(CHero * hero, const JsonNode & node)
 
 void CHeroHandler::load()
 {
+	for (int i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
+	{
+		VLC->modh->identifiers.registerObject("skill." + SecondarySkill::names[i], i);
+	}
 	classes.load();
 	loadHeroes();
 	loadHeroTexts();
