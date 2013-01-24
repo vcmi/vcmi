@@ -4388,7 +4388,13 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 	{
 		image->enable();
 		image->setFrame(locked ? GameConstants::ID_LOCK : art->artType->iconIndex);
-		text = ourArt->artType->Description();
+
+		std::string artDesc = ourArt->artType->Description();
+		if (vstd::contains (artDesc, '{'))
+			text = artDesc;
+		else
+			text = '{' + ourArt->artType->Name() + "}\n\n" + artDesc; //workaround for new artifacts with single name, turns it to H3-style
+
 		if(art->artType->id == 1) //spell scroll
 		{
 			// we expect scroll description to be like this: This scroll contains the [spell name] spell which is added into your spell book for as long as you carry the scroll.
