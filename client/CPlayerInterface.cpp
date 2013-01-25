@@ -2428,11 +2428,18 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 void CPlayerInterface::playerStartsTurn(ui8 player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (GH.listInt.empty() || GH.listInt.front() != adventureInt)
+
+	if (!vstd::contains (GH.listInt, adventureInt))
 	{
-		GH.popInts(GH.listInt.size());
-		GH.pushInt(adventureInt);
+		GH.popInts (GH.listInt.size()); //after map load - remove everything else
+		GH.pushInt (adventureInt);
 	}
+	else
+	{
+		while (GH.listInt.front() != adventureInt && !dynamic_cast<CInfoWindow*>(GH.listInt.front())) //don't remove dialogs that expect query answer
+			GH.popInts(1);
+	}
+
 	if(howManyPeople == 1)
 	{
 		GH.curInt = this;
