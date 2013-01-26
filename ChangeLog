@@ -3,6 +3,8 @@
 GENERAL:
 * VCMI build on OS X is now supported
 * Completely removed autotools
+* Added RMG interace and ability to generate simplest working maps
+* Added loading screen
 
 MODS:
 - Simplified mod structure. Mods from 0.9 will not be compatible.
