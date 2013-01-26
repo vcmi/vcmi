@@ -42,7 +42,8 @@ find_package(SDL_ttf REQUIRED)
 find_package(ZLIB REQUIRED)
 
 if(NOT WIN32)
-	find_package(FFMPEG_swscale REQUIRED)
+	set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
+	find_package(FFmpeg REQUIRED)
 
 	INCLUDE(CheckLibraryExists)
 

@@ -53,7 +53,7 @@ std::string CLegacyConfigParser::extractQuotedPart()
 	curr++; // skip quote
 	char * begin = curr;
 
-	while (curr != end && *curr != '\"')
+	while (curr != end && *curr != '\"' && *curr != '\t')
 		curr++;
 
 	return std::string(begin, curr++); //increment curr to close quote
@@ -68,8 +68,12 @@ std::string CLegacyConfigParser::extractQuotedString()
 	{
 		ret += extractQuotedPart();
 
-		if (curr < end && *curr == '\"') //double quote - add it to string and continue
+		// double quote - add it to string and continue unless
+		// line terminated using tabulation
+		if (curr < end && *curr == '\"' && *curr != '\t')
+		{
 			ret += '\"';
+		}
 		else // end of string
 			return ret;
 	}
