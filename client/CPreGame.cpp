@@ -637,14 +637,11 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 
 			CAdventureMapButton * randomBtn = new CAdventureMapButton(CGI->generaltexth->zelp[47], 0, 411, 105, "GSPBUTT.DEF", SDLK_r);
 			randomBtn->addTextOverlay(CGI->generaltexth->allTexts[740], FONT_SMALL);
-			if(settings["general"]["enableRMG"].Bool())
+			randomBtn->callback = [&]()
 			{
-				randomBtn->callback = [&]()
-				{
-					toggleTab(randMapTab);
-					changeSelection(&randMapTab->getMapInfo());
-				};
-			}
+				toggleTab(randMapTab);
+				changeSelection(&randMapTab->getMapInfo());
+			};
 
 			start  = new CAdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startScenario, this), 411, 535, "SCNRBEG.DEF", SDLK_b);
 

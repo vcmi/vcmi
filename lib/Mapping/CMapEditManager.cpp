@@ -20,6 +20,18 @@ TerrainViewPattern::TerrainViewPattern() : minPoints(0), flipMode(FLIP_MODE_SAME
 
 }
 
+TerrainViewPattern::WeightedRule::WeightedRule() : points(0)
+{
+
+}
+
+bool TerrainViewPattern::WeightedRule::isStandardRule() const
+{
+	return TerrainViewPattern::RULE_ANY == name || TerrainViewPattern::RULE_DIRT == name
+		|| TerrainViewPattern::RULE_NATIVE == name || TerrainViewPattern::RULE_SAND == name
+		|| TerrainViewPattern::RULE_TRANSITION == name;
+}
+
 CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 {
 	const JsonNode config(ResourceID("config/terrainViewPatterns.json"));
@@ -46,19 +58,15 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 				boost::split(rules, cell, boost::is_any_of(","));
 				BOOST_FOREACH(std::string ruleStr, rules)
 				{
-					std::vector<std::string> rule;
-					boost::split(rule, ruleStr, boost::is_any_of("-"));
-					std::pair<std::string, int> pair;
-					pair.first = rule[0];
-					if(rule.size() > 1)
+					std::vector<std::string> ruleParts;
+					boost::split(ruleParts, ruleStr, boost::is_any_of("-"));
+					TerrainViewPattern::WeightedRule rule;
+					rule.name = ruleParts[0];
+					if(ruleParts.size() > 1)
 					{
-						pair.second = boost::lexical_cast<int>(rule[1]);
+						rule.points = boost::lexical_cast<int>(ruleParts[1]);
 					}
-					else
-					{
-						pair.second = 0;
-					}
-					pattern.data[i].push_back(pair);
+					pattern.data[i].push_back(rule);
 				}
 			}
 
@@ -93,6 +101,19 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 const std::vector<TerrainViewPattern> & CTerrainViewPatternConfig::getPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const
 {
 	return patterns.find(terGroup)->second;
+}
+
+const TerrainViewPattern & CTerrainViewPatternConfig::getPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const
+{
+	const std::vector<TerrainViewPattern> & groupPatterns = getPatternsForGroup(terGroup);
+	BOOST_FOREACH(const TerrainViewPattern & pattern, groupPatterns)
+	{
+		if(id == pattern.id)
+		{
+			return pattern;
+		}
+	}
+	throw std::runtime_error("Pattern with ID not found: " + id);
 }
 
 CMapEditManager::CMapEditManager(const CTerrainViewPatternConfig * terViewPatternConfig, CMap * map, int randomSeed /*= std::time(nullptr)*/)
@@ -133,7 +154,7 @@ void CMapEditManager::drawTerrain(ETerrainType::ETerrainType terType, int posx, 
 	//TODO there are situations where more tiles are affected implicitely
 	//TODO add coastal bit to extTileFlags appropriately
 
-	//updateTerrainViews(posx - 1, posy - 1, width + 2, height + 2, mapLevel);
+	updateTerrainViews(posx - 1, posy - 1, width + 2, height + 2, mapLevel);
 }
 
 void CMapEditManager::updateTerrainViews(int posx, int posy, int width, int height, int mapLevel)
@@ -146,30 +167,31 @@ void CMapEditManager::updateTerrainViews(int posx, int posy, int width, int heig
 					terViewPatternConfig->getPatternsForGroup(getTerrainGroup(map->terrain[i][j][mapLevel].terType));
 
 			// Detect a pattern which fits best
-			int totalPoints, bestPattern, bestFlip = -1;
+			int bestPattern = -1, bestFlip = -1;
 			std::string transitionReplacement;
-			for(int i = 0; i < patterns.size(); ++i)
+			for(int k = 0; k < patterns.size(); ++k)
 			{
-				const TerrainViewPattern & pattern = patterns[i];
+				const TerrainViewPattern & pattern = patterns[k];
 
-				for(int flip = 0; flip < 3; ++flip)
+				for(int flip = 0; flip < 4; ++flip)
 				{
 					ValidationResult valRslt = validateTerrainView(i, j, mapLevel, flip > 0 ? getFlippedPattern(pattern, flip) : pattern);
 					if(valRslt.result)
 					{
-						if(valRslt.points > totalPoints)
-						{
-							totalPoints = valRslt.points;
-							bestPattern = i;
-							bestFlip = flip;
-							transitionReplacement = valRslt.transitionReplacement;
-						}
+						tlog5 << "Pattern detected at pos " << i << "x" << j << "x" << mapLevel << ": P-Nr. " << k
+							  << ", Flip " << flip << ", Repl. " << valRslt.transitionReplacement << std::endl;
+
+						bestPattern = k;
+						bestFlip = flip;
+						transitionReplacement = valRslt.transitionReplacement;
 						break;
 					}
 				}
 			}
 			if(bestPattern == -1)
 			{
+				// This shouldn't be the case
+				tlog2 << "No pattern detected at pos " << i << "x" << j << "x" << mapLevel << std::endl;
 				continue;
 			}
 
@@ -219,7 +241,7 @@ ETerrainGroup::ETerrainGroup CMapEditManager::getTerrainGroup(ETerrainType::ETer
 	}
 }
 
-CMapEditManager::ValidationResult CMapEditManager::validateTerrainView(int posx, int posy, int mapLevel, const TerrainViewPattern & pattern) const
+CMapEditManager::ValidationResult CMapEditManager::validateTerrainView(int posx, int posy, int mapLevel, const TerrainViewPattern & pattern, int recDepth /*= 0*/) const
 {
 	ETerrainType::ETerrainType centerTerType = map->terrain[posx][posy][mapLevel].terType;
 	int totalPoints = 0;
@@ -255,53 +277,79 @@ CMapEditManager::ValidationResult CMapEditManager::validateTerrainView(int posx,
 		int topPoints = -1;
 		for(int j = 0; j < pattern.data[i].size(); ++j)
 		{
-			const std::pair<std::string, int> & rulePair = pattern.data[i][j];
-			const std::string & rule = rulePair.first;
-			bool isNative = (rule == TerrainViewPattern::RULE_NATIVE || rule == TerrainViewPattern::RULE_ANY) && !isAlien;
-			auto validationRslt = [&](bool rslt) -> bool
+			TerrainViewPattern::WeightedRule rule = pattern.data[i][j];
+			if(!rule.isStandardRule())
+			{
+				if(recDepth == 0)
+				{
+					const TerrainViewPattern & patternForRule = terViewPatternConfig->getPatternById(pattern.terGroup, rule.name);
+					ValidationResult rslt = validateTerrainView(cx, cy, mapLevel, patternForRule, 1);
+					if(!rslt.result)
+					{
+						return ValidationResult(false);
+					}
+					else
+					{
+						topPoints = std::max(topPoints, rule.points);
+						continue;
+					}
+				}
+				else
+				{
+					rule.name = TerrainViewPattern::RULE_NATIVE;
+				}
+			}
+
+			bool nativeTestOk = (rule.name == TerrainViewPattern::RULE_NATIVE || rule.name == TerrainViewPattern::RULE_ANY) && !isAlien;
+			auto applyValidationRslt = [&](bool rslt)
 			{
 				if(rslt)
 				{
-					topPoints = std::max(topPoints, rulePair.second);
+					topPoints = std::max(topPoints, rule.points);
 				}
-				return rslt;
 			};
 
 			// Validate cell with the ruleset of the pattern
-			bool validation;
 			if(pattern.terGroup == ETerrainGroup::NORMAL)
 			{
-				bool isDirt = (rule == TerrainViewPattern::RULE_DIRT
-						|| rule == TerrainViewPattern::RULE_TRANSITION || rule == TerrainViewPattern::RULE_ANY)
+				bool dirtTestOk = (rule.name == TerrainViewPattern::RULE_DIRT
+						|| rule.name == TerrainViewPattern::RULE_TRANSITION || rule.name == TerrainViewPattern::RULE_ANY)
 						&& isAlien && !isSandType(terType);
-				bool isSand = (rule == TerrainViewPattern::RULE_SAND || rule == TerrainViewPattern::RULE_TRANSITION
-						|| rule == TerrainViewPattern::RULE_ANY)
+				bool sandTestOk = (rule.name == TerrainViewPattern::RULE_SAND || rule.name == TerrainViewPattern::RULE_TRANSITION
+						|| rule.name == TerrainViewPattern::RULE_ANY)
 						&& isSandType(terType);
 
-				if(transitionReplacement.empty() && (rule == TerrainViewPattern::RULE_TRANSITION
-					|| rule == TerrainViewPattern::RULE_ANY) && (isDirt || isSand))
+				if(transitionReplacement.empty() && (rule.name == TerrainViewPattern::RULE_TRANSITION
+					|| rule.name == TerrainViewPattern::RULE_ANY) && (dirtTestOk || sandTestOk))
 				{
-					transitionReplacement = isDirt ? TerrainViewPattern::RULE_DIRT : TerrainViewPattern::RULE_SAND;
+					transitionReplacement = dirtTestOk ? TerrainViewPattern::RULE_DIRT : TerrainViewPattern::RULE_SAND;
 				}
-				validation = validationRslt((isDirt && transitionReplacement != TerrainViewPattern::RULE_SAND)
-						|| (isSand && transitionReplacement != TerrainViewPattern::RULE_DIRT)
-						|| isNative);
+				applyValidationRslt((dirtTestOk && transitionReplacement != TerrainViewPattern::RULE_SAND)
+						|| (sandTestOk && transitionReplacement != TerrainViewPattern::RULE_DIRT)
+						|| nativeTestOk);
 			}
 			else if(pattern.terGroup == ETerrainGroup::DIRT)
 			{
-				bool isSand = rule == TerrainViewPattern::RULE_SAND && isSandType(terType);
-				bool isDirt = rule == TerrainViewPattern::RULE_DIRT && !isSandType(terType) && !isNative;
-				validation = validationRslt(rule == TerrainViewPattern::RULE_ANY || isSand || isDirt || isNative);
+				bool sandTestOk = rule.name == TerrainViewPattern::RULE_SAND && isSandType(terType);
+				bool dirtTestOk = rule.name == TerrainViewPattern::RULE_DIRT && !isSandType(terType) && !nativeTestOk;
+				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || dirtTestOk || nativeTestOk);
 			}
-			else if(pattern.terGroup == ETerrainGroup::SAND || pattern.terGroup == ETerrainGroup::WATER ||
-					pattern.terGroup == ETerrainGroup::ROCK)
+			else if(pattern.terGroup == ETerrainGroup::SAND)
 			{
-				bool isSand = rule == TerrainViewPattern::RULE_SAND && isSandType(terType) && !isNative;
-				validation = validationRslt(rule == TerrainViewPattern::RULE_ANY || isSand || isNative);
+				bool sandTestOk = rule.name == TerrainViewPattern::RULE_SAND && isAlien;
+				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || nativeTestOk);
 			}
-			if(!validation)
+			else if(pattern.terGroup == ETerrainGroup::WATER)
 			{
-				return ValidationResult(false);
+				bool sandTestOk = rule.name == TerrainViewPattern::RULE_SAND && terType != ETerrainType::DIRT
+						&& terType != ETerrainType::WATER;
+				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || nativeTestOk);
+			}
+			else if(pattern.terGroup == ETerrainGroup::ROCK)
+			{
+				bool sandTestOk = rule.name == TerrainViewPattern::RULE_SAND && terType != ETerrainType::DIRT
+						&& terType != ETerrainType::ROCK;
+				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || nativeTestOk);
 			}
 		}
 
@@ -320,7 +368,7 @@ CMapEditManager::ValidationResult CMapEditManager::validateTerrainView(int posx,
 		return ValidationResult(false);
 	}
 
-	return ValidationResult(true, totalPoints, transitionReplacement);
+	return ValidationResult(true, transitionReplacement);
 }
 
 bool CMapEditManager::isSandType(ETerrainType::ETerrainType terType) const
@@ -379,8 +427,8 @@ void CMapEditManager::insertObject(CGObjectInstance * obj, int posx, int posy, b
 	map->addBlockVisTiles(obj);
 }
 
-CMapEditManager::ValidationResult::ValidationResult(bool result, int points /*= 0*/, const std::string & transitionReplacement /*= ""*/)
-	: result(result), points(points), transitionReplacement(transitionReplacement)
+CMapEditManager::ValidationResult::ValidationResult(bool result, const std::string & transitionReplacement /*= ""*/)
+	: result(result), transitionReplacement(transitionReplacement)
 {
 
 }

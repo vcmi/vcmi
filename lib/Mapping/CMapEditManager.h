@@ -37,6 +37,30 @@ namespace ETerrainGroup
  */
 struct TerrainViewPattern
 {
+	/**
+	 * A weighted rule struct is a combination of the rule name and optionally points.
+	 */
+	struct WeightedRule
+	{
+		/** The name of the rule. Can be any value of the RULE_* constants or a ID of a another pattern. */
+		std::string name;
+
+		/** Optional. A rule can have points. Patterns may have a minimum count of points to reach to be successful. */
+		int points;
+
+		/**
+		 * Constructor.
+		 */
+		WeightedRule();
+
+		/**
+		 * Gets true if this rule is a standard rule which means that it has a value of one of the RULE_* constants.
+		 *
+		 * @return true for a standard rule
+		 */
+		bool isStandardRule() const;
+	};
+
 	/** Constant for the flip mode same image. Pattern will be flipped and the same image will be used(which is given in the mapping). */
 	static const std::string FLIP_MODE_SAME_IMAGE;
 
@@ -76,9 +100,8 @@ struct TerrainViewPattern
 	 * can be used. Their meaning differs also from type to type.
 	 *
 	 * std::vector -> several rules can be used in one cell
-	 * std::pair   -> combination of the name of the rule and a optional number of points
 	 */
-	std::array<std::vector<std::pair<std::string, int> >, 9> data;
+	std::array<std::vector<WeightedRule>, 9> data;
 
 	/** The identifier of the pattern, if it's referenced from a another pattern. */
 	std::string id;
@@ -120,6 +143,15 @@ public:
 	 * @return a vector containing patterns
 	 */
 	const std::vector<TerrainViewPattern> & getPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
+
+	/**
+	 * Gets a pattern by ID. Throws if pattern isn't available(config error).
+	 *
+	 * @param terGroup the terrain group e.g. normal for grass, lava,... OR dirt OR sand,...
+	 * @param id the id of the pattern
+	 * @return the pattern which matches the ID
+	 */
+	const TerrainViewPattern & getPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
 
 private:
 	/** The patterns data. */
@@ -182,16 +214,12 @@ private:
 		 * Constructor.
 		 *
 		 * @param result the result of the validation either true or false
-		 * @param points optional. the points which were achieved with that pattern
 		 * @param transitionReplacement optional. the replacement of a T rule, either D or S
 		 */
-		ValidationResult(bool result, int points = 0, const std::string & transitionReplacement = "");
+		ValidationResult(bool result, const std::string & transitionReplacement = "");
 
 		/** The result of the validation. */
 		bool result;
-
-		/** The points which were achieved with that pattern. */
-		int points;
 
 		/** The replacement of a T rule, either D or S. */
 		std::string transitionReplacement;
@@ -223,9 +251,10 @@ private:
 	 * @param posy the y position
 	 * @param mapLevel the map level, 0 for open and 1 for underground
 	 * @param pattern the pattern to validate the terrain view with
+	 * @param recDepth the depth of the recursion, 0 for no recursion - 1 for recursion
 	 * @return a validation result struct
 	 */
-	ValidationResult validateTerrainView(int posx, int posy, int mapLevel, const TerrainViewPattern & pattern) const;
+	ValidationResult validateTerrainView(int posx, int posy, int mapLevel, const TerrainViewPattern & pattern, int recDepth = 0) const;
 
 	/**
 	 * Tests whether the given terrain type is a sand type. Sand types are: Water, Sand and Rock
