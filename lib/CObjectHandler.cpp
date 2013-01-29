@@ -1746,7 +1746,7 @@ void CGDwelling::newTurn() const
 		{
 			CCreature *cre = VLC->creh->creatures[creatures[i].second[0]];
 			TQuantity amount = cre->growth * (1 + cre->valOfBonuses(Bonus::CREATURE_GROWTH_PERCENT)/100) + cre->valOfBonuses(Bonus::CREATURE_GROWTH);
-			if (VLC->modh->settings.DWELLINGS_ACCUMULATE_CREATURES)
+			if (VLC->modh->settings.DWELLINGS_ACCUMULATE_CREATURES && ID != Obj::REFUGEE_CAMP) //camp should not try to accumulate different kinds of creatures
 				sac.creatures[i].first += amount;
 			else
 				sac.creatures[i].first = amount;
