@@ -256,13 +256,19 @@ size_t CTrueTypeFont::getStringWidth(const std::string & data) const
 
 void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
 {
+	if (color.r != 0 && color.g != 0 && color.b != 0) // not black - add shadow
+	{
+		SDL_Color black = { 0, 0, 0, SDL_ALPHA_OPAQUE};
+		renderText(surface, data, black, Point(pos.x + 1, pos.y + 1));
+	}
+
 	if (!data.empty())
 	{
 		SDL_Surface * rendered;
 		if (blended)
-			rendered = TTF_RenderText_Solid(font.get(), data.c_str(), color);
-		else
 			rendered = TTF_RenderText_Blended(font.get(), data.c_str(), color);
+		else
+			rendered = TTF_RenderText_Solid(font.get(), data.c_str(), color);
 
 		assert(rendered);
 

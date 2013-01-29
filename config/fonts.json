@@ -24,14 +24,14 @@
 	// "blend" - if set to true, font will be antialiased
 	"trueType":
 	{
-		//"BIGFONT"  : { "file" : "TimesNewRoman.ttf", "size" : 20, "style" : ["bold"], "blend" : true},
+		//"BIGFONT"  : { "file" : "LiberationSerif-Bold.ttf", "size" : 22, "blend" : true},
 		//"CALLI10R" : { "file" : "Georgia.ttf",       "size" : 10},
-		//"CREDITS"  : { "file" : "TimesNewRoman.ttf", "size" : 13, "blend" : true},
+		//"CREDITS"  : { "file" : "LiberationSerif-Bold.ttf", "size" : 28},
 		//"HISCORE"  : { "file" : "Georgia.ttf",       "size" : 13},
-		//"MEDFONT"  : { "file" : "TimesNewRoman.ttf", "size" : 16, "blend" : true},
-		//"SMALFONT" : { "file" : "Georgia.ttf",       "size" : 13},
-		//"TIMES08R" : { "file" : "TimesNewRoman.ttf", "size" :  8, "blend" : true},
-		//"TINY"     : { "file" : "Georgia.ttf",       "size" : 10},
+		//"MEDFONT"  : { "file" : "LiberationSerif-Bold.ttf", "size" : 16}, // breaks messages (from map events)
+		//"SMALFONT" : { "file" : "LiberationSerif-Regular.ttf",       "size" : 13, "blend" : true},
+		//"TIMES08R" : { "file" : "LiberationSerif-Regular.ttf", "size" :  11, "blend" : true},
+		//"TINY"     : { "file" : "LiberationSerif-Regular.ttf",       "size" : 11, "blend" : true},
 		//"VERD10B"  : { "file" : "Georgia.ttf",       "size" : 13}
 	}
 }
