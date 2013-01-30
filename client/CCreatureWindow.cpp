@@ -42,8 +42,8 @@ class CSelectableSkill;
  *
  */
 
-CCreatureWindow::CCreatureWindow (const CStack &stack, int Type):
-    CWindowObject(PLAYER_COLORED | (Type == 0 ? RCLICK_POPUP : 0 ) ),
+CCreatureWindow::CCreatureWindow (const CStack &stack, CreWinType Type):
+    CWindowObject(PLAYER_COLORED | (Type == OTHER ? RCLICK_POPUP : 0 ) ),
     type(Type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -57,8 +57,8 @@ CCreatureWindow::CCreatureWindow (const CStack &stack, int Type):
 	}
 }
 
-CCreatureWindow::CCreatureWindow (const CStackInstance &stack, int Type):
-    CWindowObject(PLAYER_COLORED | (Type == 0 ? RCLICK_POPUP : 0 ) ),
+CCreatureWindow::CCreatureWindow (const CStackInstance &stack, CreWinType Type):
+    CWindowObject(PLAYER_COLORED | (Type == OTHER ? RCLICK_POPUP : 0 ) ),
     type(Type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -66,8 +66,8 @@ CCreatureWindow::CCreatureWindow (const CStackInstance &stack, int Type):
 	init(&stack, &stack, dynamic_cast<const CGHeroInstance*>(stack.armyObj));
 }
 
-CCreatureWindow::CCreatureWindow(int Cid, int Type, int creatureCount):
-   CWindowObject(PLAYER_COLORED | (Type == 0 ? RCLICK_POPUP : 0 ) ),
+CCreatureWindow::CCreatureWindow(int Cid, CreWinType Type, int creatureCount):
+   CWindowObject(PLAYER_COLORED | (Type == OTHER ? RCLICK_POPUP : 0 ) ),
     type(Type)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -77,8 +77,8 @@ CCreatureWindow::CCreatureWindow(int Cid, int Type, int creatureCount):
 	delete stack;
 }
 
-CCreatureWindow::CCreatureWindow(const CStackInstance &st, int Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui):
-    CWindowObject(PLAYER_COLORED | (Type == 0 ? RCLICK_POPUP : 0 ) ),
+CCreatureWindow::CCreatureWindow(const CStackInstance &st, CreWinType Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui):
+    CWindowObject(PLAYER_COLORED | (Type == OTHER ? RCLICK_POPUP : 0 ) ),
     type(Type),
     dismiss(0),
     upgrade(0),
@@ -517,7 +517,7 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 	if (stackNode->valOfBonuses(Bonus::SHOTS) && stackNode->hasBonusOfType(Bonus::SHOOTER))
 	{//only for shooting units - important with wog exp shooters
 		if (type == BATTLE)
-			printLine(2, CGI->generaltexth->allTexts[198], dynamic_cast<const CStack*>(stackNode)->shots);
+			printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS), dynamic_cast<const CStack*>(stackNode)->shots);
 		else
 			printLine(2, CGI->generaltexth->allTexts[198], stackNode->valOfBonuses(Bonus::SHOTS));
 	}
@@ -899,11 +899,11 @@ CIntObject * createCreWindow(
 		if(settings["general"]["classicCreatureWindow"].Bool())
 			return new CCreInfoWindow(*s, lclick);
 		else
-			return new CCreatureWindow(*s, lclick ? CCreatureWindow::BATTLE : CCreatureWindow::OTHER);
+			return new CCreatureWindow(*s, LOCPLINT->battleInt ? CCreatureWindow::BATTLE : CCreatureWindow::OTHER);
 	}
 }
 
-CIntObject * createCreWindow(int Cid, int Type, int creatureCount)
+CIntObject * createCreWindow(int Cid, CCreatureWindow::CreWinType Type, int creatureCount)
 {
 	if(settings["general"]["classicCreatureWindow"].Bool())
 		return new CCreInfoWindow(Cid, Type, creatureCount);
@@ -911,10 +911,10 @@ CIntObject * createCreWindow(int Cid, int Type, int creatureCount)
 		return new CCreatureWindow(Cid, Type, creatureCount);
 }
 
-CIntObject * createCreWindow(const CStackInstance *s, int type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui)
+CIntObject * createCreWindow(const CStackInstance *s, CCreatureWindow::CreWinType type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui)
 {
 	if(settings["general"]["classicCreatureWindow"].Bool())
-		return new CCreInfoWindow(*s, type==3, Upg, Dsm, ui);
+		return new CCreInfoWindow(*s, type==CCreatureWindow::HERO, Upg, Dsm, ui);
 	else
 		return  new CCreatureWindow(*s, type, Upg, Dsm, ui);
 }

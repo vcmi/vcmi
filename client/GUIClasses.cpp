@@ -303,7 +303,7 @@ void CGarrisonSlot::clickRight(tribool down, bool previousState)
 {
 	if(down && creature)
 	{
-		GH.pushInt(createCreWindow(myStack, 2));
+		GH.pushInt(createCreWindow(myStack, CCreatureWindow::ARMY));
 	}
 }
 void CGarrisonSlot::clickLeft(tribool down, bool previousState)
@@ -333,7 +333,7 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 
 				redraw();
 				refr = true;
-				CIntObject *creWindow = createCreWindow(myStack, 3, upgr, dism, &pom);
+				CIntObject *creWindow = createCreWindow(myStack, CCreatureWindow::HERO, upgr, dism, &pom);
 				GH.pushInt(creWindow);
 			}
 			else
@@ -1361,7 +1361,7 @@ void CRecruitmentWindow::CCreatureCard::clickLeft(tribool down, bool previousSta
 void CRecruitmentWindow::CCreatureCard::clickRight(tribool down, bool previousState)
 {
 	if (down)
-		GH.pushInt(createCreWindow(creature->idNumber, 0, 0));
+		GH.pushInt(createCreWindow(creature->idNumber, CCreatureWindow::OTHER, 0));
 }
 
 void CRecruitmentWindow::CCreatureCard::showAll(SDL_Surface * to)

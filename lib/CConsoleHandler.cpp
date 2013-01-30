@@ -24,7 +24,7 @@
 	#define CONSOLE_TEAL "\x1b[1;36m"
 #else
 	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
-	#include <windows.h>
+	#include <Windows.h>
 #ifndef __MINGW32__
 	#include <dbghelp.h>
 	#pragma comment(lib, "dbghelp.lib")

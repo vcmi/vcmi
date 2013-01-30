@@ -43,7 +43,7 @@ class CCreatureWindow : public CWindowObject, public CArtifactHolder
 public:
 	enum CreWinType {OTHER = 0, BATTLE = 1, ARMY = 2, HERO = 3, COMMANDER = 4, COMMANDER_LEVEL_UP = 5, COMMANDER_BATTLE = 6}; // > 3 are opened permanently
 	//bool active; //TODO: comment me
-	int type;//0 - rclick popup; 1 - normal window
+	CreWinType type;
 	int bonusRows; //height of skill window
 	int displayedArtifact;
 
@@ -86,12 +86,12 @@ public:
 	boost::function<void()> Upg; //upgrade button callback
 	boost::function<void(ui32)> levelUp; //choose commander skill to level up
 
-	CCreatureWindow(const CStack & stack, int type); //battle c-tor
-	CCreatureWindow (const CStackInstance &stack, int Type); //pop-up c-tor
-	CCreatureWindow(const CStackInstance &st, int Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //full garrison window
+	CCreatureWindow(const CStack & stack, CreWinType type); //battle c-tor
+	CCreatureWindow (const CStackInstance &stack, CreWinType Type); //pop-up c-tor
+	CCreatureWindow(const CStackInstance &st, CreWinType Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //full garrison window
 	CCreatureWindow(const CCommanderInstance * commander, const CStack * stack = NULL); //commander window
 	CCreatureWindow(std::vector<ui32> &skills, const CCommanderInstance * commander, boost::function<void(ui32)> callback); 
-	CCreatureWindow(int Cid, int Type, int creatureCount); //c-tor
+	CCreatureWindow(int Cid, CreWinType Type, int creatureCount); //c-tor
 
 	void init(const CStackInstance *stack, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner);
 	void showAll(SDL_Surface * to);
@@ -159,5 +159,5 @@ public:
 };
 
 CIntObject *createCreWindow(const CStack *s, bool lclick = false);
-CIntObject *createCreWindow(int Cid, int Type, int creatureCount);
-CIntObject *createCreWindow(const CStackInstance *s, int type, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL);
+CIntObject *createCreWindow(int Cid, CCreatureWindow::CreWinType Type, int creatureCount);
+CIntObject *createCreWindow(const CStackInstance *s, CCreatureWindow::CreWinType type, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL);
