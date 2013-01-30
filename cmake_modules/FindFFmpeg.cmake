@@ -144,5 +144,10 @@ foreach (_component ${FFmpeg_FIND_COMPONENTS})
   list(APPEND _FFmpeg_REQUIRED_VARS ${_component}_LIBRARIES ${_component}_INCLUDE_DIRS)
 endforeach ()
 
+# On OS X we ffmpeg libraries depend on VideoDecodeAcceleration and CoreVideo frameworks
+IF (APPLE)
+    SET(FFMPEG_LIBRARIES ${FFMPEG_LIBRARIES} "-framework VideoDecodeAcceleration -framework CoreVideo -lbz2")
+ENDIF()
+
 # Give a nice error message if some of the required vars are missing.
 find_package_handle_standard_args(FFmpeg DEFAULT_MSG ${_FFmpeg_REQUIRED_VARS})

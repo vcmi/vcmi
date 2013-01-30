@@ -163,20 +163,20 @@ fi
 if [[ -n "$cd1_dir" ]]
 then
 	data_dir="./cddir"
-	mkdir -p $data_dir
-	unshield -d $data_dir x $cd1_dir/_setup/data1.cab || fail "Error: failed to extract from Install Shield installer!" "rm -rf ./cddir"
+	mkdir -p "$data_dir" 
+	unshield -d "$data_dir" x $cd1_dir/_setup/data1.cab || fail "Error: failed to extract from Install Shield installer!" "rm -rf ./cddir" 
 	
 	# a bit tricky - different releases have different root directory. Move extracted files to data_dir
-	if [ -d $data_dir/"Heroes3" ]
+	if [ -d "$data_dir"/"Heroes3" ] 
 	then
-		mv $data_dir/Heroes3/* $data_dir
-	elif [ -d $data_dir"/Program_Files" ]
+	    mv "$data_dir"/Heroes3/* "$data_dir" 
+	elif [ -d "$data_dir""/Program_Files" ] 
 	then
-		mv $data_dir/Program_Files/* $data_dir
+	    mv "$data_dir"/Program_Files/* "$data_dir" 
 	else
 		echo "Error: failed to find extracted game files!"
 		echo "Extracted directories are: "
-		ls -la $data_dir
+	    ls -la "$data_dir" 
 		echo "Please report this on vcmi.eu"
 		exit 1;
 	fi
@@ -198,16 +198,16 @@ fi
 
 if [[ -n "$data_dir" ]]
 then
-	cp -r $data_dir/Data $dest_dir
-	cp -r $data_dir/Maps $dest_dir
+	cp -r "$data_dir"/Data $dest_dir 
+	cp -r "$data_dir"/Maps $dest_dir 
 
 	# this folder is named differently from time to time
 	# vcmi can handle any case but script can't
-	if [ -d $data_dir/MP3 ]
+	if [ -d "$data_dir"/MP3 ] 
 	then
-		cp -r $data_dir/MP3 $dest_dir
+		cp -r "$data_dir"/MP3 $dest_dir 
 	else
-		cp -r $data_dir/Mp3 $dest_dir
+		cp -r "$data_dir"/Mp3 $dest_dir 
 	fi
 fi
 
