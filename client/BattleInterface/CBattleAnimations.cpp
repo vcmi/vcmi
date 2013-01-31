@@ -705,6 +705,13 @@ bool CShootingAnimation::init()
 		return false;
 	}
 
+	//reverse unit if necessary
+	if (attackingStack && owner->curInt->cb->isToReverse(attackingStack->position, attackedStack->position, owner->creDir[attackingStack->ID], attackingStack->doubleWide(), owner->creDir[attackedStack->ID]))
+	{
+		owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->position, true));
+		return false;
+	}
+
 	// Create the projectile animation
 
 	double projectileAngle; //in radians; if positive, projectiles goes up
