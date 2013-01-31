@@ -581,7 +581,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	SDL_SetClipRect(to, &pos);
 
 	//printing background and hexes
-	if(activeStack != NULL && creAnims[activeStack->ID]->getType() != 0) //show everything with range
+	if(activeStack != NULL && creAnims[activeStack->ID]->getType() != CCreatureAnim::MOVING) //show everything with range
 	{
 		blitAt(backgroundWithHexes, pos.x, pos.y, to);
 	}
@@ -711,7 +711,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		const CStack *s = stacks[i];
 		if(creAnims.find(s->ID) == creAnims.end()) //e.g. for summoned but not yet handled stacks
 			continue;
-		if(creAnims[s->ID]->getType() != 5 && s->position >= 0) //don't show turrets here
+		if(creAnims[s->ID]->getType() != CCreatureAnim::DEATH && s->position >= 0) //don't show turrets here
 			stackAliveByHex[s->position].push_back(s);
 	}
 	std::vector<const CStack *> stackDeadByHex[GameConstants::BFIELD_SIZE];
@@ -720,7 +720,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		const CStack *s = stacks[i];
 		if(creAnims.find(s->ID) == creAnims.end()) //e.g. for summoned but not yet handled stacks
 			continue;
-		if(creAnims[s->ID]->getType() == 5)
+		if(creAnims[s->ID]->getType() == CCreatureAnim::DEATH)
 			stackDeadByHex[s->position].push_back(s);
 	}
 
@@ -956,7 +956,7 @@ void CBattleInterface::showAliveStacks(std::vector<const CStack *> *aliveStacks,
 	{
 		const CStack *s = aliveStacks[hex][v];
 
-		if(!s->hasBonusOfType(Bonus::FLYING) || creAnims[s->ID]->getType() != 0)
+		if(!s->hasBonusOfType(Bonus::FLYING) || creAnims[s->ID]->getType() != CCreatureAnim::DEATH)
 			showAliveStack(s, to);
 		else
 			flyingStacks->push_back(s);
@@ -2171,12 +2171,13 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	const CCreature *creature = stack->getCreature();
 	SDL_Rect unitRect = {creAnims[ID]->pos.x, creAnims[ID]->pos.y, uint16_t(creAnims[ID]->fullWidth), uint16_t(creAnims[ID]->fullHeight)};
 
-	int animType = creAnims[ID]->getType();
+	CCreatureAnim::EAnimType animType = creAnims[ID]->getType();
 
 	int affectingSpeed = getAnimSpeed();
-	if(animType == 1 || animType == 2) //standing stacks should not stand faster :)
+	if(animType == CCreatureAnim::MOUSEON || animType == CCreatureAnim::HOLDING) //standing stacks should not stand faster :)
 		affectingSpeed = 2;
-	bool incrementFrame = (animCount%(4/affectingSpeed)==0) && animType!=5 && animType!=20 && animType!=2;
+	bool incrementFrame = (animCount%(4/affectingSpeed)==0) && animType!=CCreatureAnim::DEATH &&
+		animType!=CCreatureAnim::MOVE_START && animType!=CCreatureAnim::HOLDING;
 
 	if (creature->idNumber == 149)
 	{
@@ -2186,7 +2187,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	else
 	{
 		// standing animation
-		if(animType == 2)
+		if(animType == CCreatureAnim::HOLDING)
 		{
 			if(standingFrame.find(ID)!=standingFrame.end())
 			{
@@ -2521,7 +2522,8 @@ void CBattleInterface::endAction(const BattleAction* action)
 			attackingHero->setPhase(0);
 	}
 
-	if(stack && action->actionType == BattleAction::WALK && creAnims[action->stackNumber]->getType() != 2) //walk or walk & attack
+	if(stack && action->actionType == BattleAction::WALK &&
+		creAnims[action->stackNumber]->getType() != CCreatureAnim::HOLDING) //walk or walk & attack
 	{
 		pendingAnims.push_back(std::make_pair(new CMovementEndAnimation(this, stack, action->destinationTile), false));
 	}

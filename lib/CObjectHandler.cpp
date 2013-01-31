@@ -1123,7 +1123,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 
 	//initialize bonuses
 	BOOST_FOREACH(auto skill_info, secSkills)
-		updateSkill(skill_info.first, skill_info.second);
+		updateSkill(static_cast<CGHeroInstance::SecondarySkill>(skill_info.first), skill_info.second);
 	Updatespecialty();
 
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
@@ -1184,7 +1184,7 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 		}
 	}
 }
-void CGHeroInstance::updateSkill(int which, int val)
+void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 {
 	if(which == LEADERSHIP || which == LUCK)
 	{ //luck-> VLC->generaltexth->arraytxt[73+luckSkill]; VLC->generaltexth->arraytxt[104+moraleSkill]

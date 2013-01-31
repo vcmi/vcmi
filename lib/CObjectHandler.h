@@ -417,7 +417,7 @@ public:
 	void initHeroDefInfo();
 	void pushPrimSkill(int which, int val);
 	void Updatespecialty();
-	void updateSkill(int which, int val);
+	void updateSkill(SecondarySkill which, int val);
 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();

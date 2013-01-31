@@ -1141,7 +1141,7 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 		switch(spellBeingCasted->id)
 		{
 		case Spells::SCUTTLE_BOAT: //Scuttle Boat
-			if(topBlocking && topBlocking->ID == 8)
+			if(topBlocking && topBlocking->ID == Obj::BOAT)
 				leaveCastingMode(true, mapPos);
 			break;
 		case Spells::DIMENSION_DOOR:

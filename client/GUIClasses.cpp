@@ -2586,9 +2586,9 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 	{
 		switch (market->o->ID)
 		{
-		break; case 7:   title = CGI->generaltexth->allTexts[349];
-		break; case 99:  title = CGI->generaltexth->allTexts[159];
-		break; case 221: title = CGI->generaltexth->allTexts[159];
+		break; case Obj::BLACK_MARKET:   title = CGI->generaltexth->allTexts[349];
+		break; case Obj::TRADING_POST:  title = CGI->generaltexth->allTexts[159];
+		break; case Obj::TRADING_POST_SNOW: title = CGI->generaltexth->allTexts[159];
 		break; default:  title = market->o->getHoverText();
 		}
 	}

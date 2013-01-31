@@ -542,12 +542,12 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				pp.h = sr.h;
 				pp.w = sr.w;
 
-				const CGHeroInstance * themp = (obj->ID != Obj::HERO  
+				const CGHeroInstance * themp = (obj->ID != Obj::HERO
 					? NULL  
 					: static_cast<const CGHeroInstance*>(obj));
 
 				//print hero / boat and flag
-				if((themp && themp->moveDir && themp->type) || (obj->ID == 8)) //it's hero or boat
+				if((themp && themp->moveDir && themp->type) || (obj->ID == Obj::BOAT)) //it's hero or boat
 				{
 					const int IMGVAL = 8; //frames per group of movement animation
 					ui8 dir;

@@ -564,7 +564,7 @@ bool CMovementStartAnimation::init()
 		return false;
 
 
-	if(!stack || myAnim()->getType() == 5)
+	if(!stack || myAnim()->getType() == CCreatureAnim::DEATH)
 	{
 		CMovementStartAnimation::endAnim();
 		return false;
@@ -602,7 +602,7 @@ CReverseAnimation::CReverseAnimation(CBattleInterface * _owner, const CStack * s
 
 bool CReverseAnimation::init()
 {
-	if(myAnim() == NULL || myAnim()->getType() == 5)
+	if(myAnim() == NULL || myAnim()->getType() == CCreatureAnim::DEATH)
 	{
 		endAnim();
 
@@ -699,7 +699,7 @@ bool CShootingAnimation::init()
 
 	const CStack * shooter = attackingStack;
 
-	if(!shooter || myAnim()->getType() == 5)
+	if(!shooter || myAnim()->getType() == CCreatureAnim::DEATH)
 	{
 		endAnim();
 		return false;
