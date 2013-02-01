@@ -2208,7 +2208,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 
 void VCAI::striveToQuest (const QuestInfo &q)
 {
-	if (q.quest->missionType && q.quest->progress < CQuest::COMPLETE) //FIXME: quests are never synchronized. Pointer handling needed
+	if (q.quest->missionType && q.quest->progress != CQuest::COMPLETE) //FIXME: quests are never synchronized. Pointer handling needed
 	{
 		MetaString ms;
 		q.quest->getRolloverText(ms, false);

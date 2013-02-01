@@ -1252,7 +1252,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 	}
 
 
-	int skillValType = skillVal ? Bonus::BASE_NUMBER : Bonus::INDEPENDENT_MIN;
+	Bonus::ValueType skillValType = skillVal ? Bonus::BASE_NUMBER : Bonus::INDEPENDENT_MIN;
 	if(Bonus * b = getBonusList().getFirst(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, which) && Selector::sourceType(Bonus::SECONDARY_SKILL))) //only local hero bonus
 	{
 		b->val = skillVal;
@@ -1260,7 +1260,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 	}
 	else
 	{
-		Bonus *bonus = new Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, id, skillVal, ID, which, skillValType);
+		Bonus *bonus = new Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::SECONDARY_SKILL, skillVal, id, which, skillValType);
 		bonus->source = Bonus::SECONDARY_SKILL;
 		addNewBonus(bonus);
 	}
@@ -4444,7 +4444,7 @@ void CGSeerHut::initObj()
 {
 	seerName = VLC->generaltexth->seerNames[ran()%VLC->generaltexth->seerNames.size()];
 	quest->textOption = ran()%3;
-	quest->progress = 0;
+	quest->progress = CQuest::NOT_ACTIVE;
 	if (quest->missionType)
 	{
 		if (!quest->isCustomFirst)
@@ -4471,7 +4471,7 @@ const std::string & CGSeerHut::getHoverText() const
 	switch (ID)
 	{
 	case Obj::SEER_HUT:
-		if (quest->progress)
+		if (quest->progress != CQuest::NOT_ACTIVE)
 		{
 			hoverName = VLC->generaltexth->allTexts[347];
 			boost::algorithm::replace_first(hoverName,"%s", seerName);
@@ -4526,25 +4526,25 @@ void CGSeerHut::getCompletionText(MetaString &text, std::vector<Component> &comp
 	quest->getCompletionText (text, components, isCustom, h);
 	switch (rewardType)
 	{
-		case 1: components.push_back(Component (Component::EXPERIENCE, 0, h->calculateXp(rVal), 0));
+		case EXPERIENCE: components.push_back(Component (Component::EXPERIENCE, 0, h->calculateXp(rVal), 0));
 			break;
-		case 2: components.push_back(Component (Component::PRIM_SKILL, 5, rVal, 0));
+		case MANA_POINTS: components.push_back(Component (Component::PRIM_SKILL, 5, rVal, 0));
 			break;
-		case 3: components.push_back(Component (Component::MORALE, 0, rVal, 0));
+		case MORALE_BONUS: components.push_back(Component (Component::MORALE, 0, rVal, 0));
 			break;
-		case 4: components.push_back(Component (Component::LUCK, 0, rVal, 0));
+		case LUCK_BONUS: components.push_back(Component (Component::LUCK, 0, rVal, 0));
 			break;
-		case 5: components.push_back(Component (Component::RESOURCE, rID, rVal, 0));
+		case RESOURCES: components.push_back(Component (Component::RESOURCE, rID, rVal, 0));
 			break;
-		case 6: components.push_back(Component (Component::PRIM_SKILL, rID, rVal, 0));
+		case PRIMARY_SKILL: components.push_back(Component (Component::PRIM_SKILL, rID, rVal, 0));
 			break;
-		case 7: components.push_back(Component (Component::SEC_SKILL, rID, rVal, 0));
+		case SECONDARY_SKILL: components.push_back(Component (Component::SEC_SKILL, rID, rVal, 0));
 			break;
-		case 8: components.push_back(Component (Component::ARTIFACT, rID, 0, 0));
+		case ARTIFACT: components.push_back(Component (Component::ARTIFACT, rID, 0, 0));
 			break;
-		case 9: components.push_back(Component (Component::SPELL, rID, 0, 0));
+		case SPELL: components.push_back(Component (Component::SPELL, rID, 0, 0));
 			break;
-		case 10: components.push_back(Component (Component::CREATURE, rID, rVal, 0));
+		case CREATURE: components.push_back(Component (Component::CREATURE, rID, rVal, 0));
 			break;
 	}
 }
@@ -4554,7 +4554,7 @@ void CGSeerHut::setPropertyDer (ui8 what, ui32 val)
 	switch (what)
 	{
 		case 10:
-			quest->progress = val;
+			quest->progress = static_cast<CQuest::Eprogress>(val);
 			break;
 		case 11:
 			quest->missionType = CQuest::MISSION_NONE;
@@ -4685,18 +4685,18 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 {
 	switch (rewardType)
 	{
-		case 1: //experience
+		case EXPERIENCE:
 		{
 			TExpType expVal = h->calculateXp(rVal);
 			cb->changePrimSkill(h->id, 4, expVal, false);
 			break;
 		}
-		case 2: //mana points
+		case MANA_POINTS:
 		{
 			cb->setManaPoints(h->id, h->mana+rVal);
 			break;
 		}
-		case 3: case 4: //morale /luck
+		case MORALE_BONUS: case LUCK_BONUS:
 		{
 			Bonus hb(Bonus::ONE_WEEK, (rewardType == 3 ? Bonus::MORALE : Bonus::LUCK),
 				Bonus::OBJECT, rVal, h->id, "", -1);
@@ -4706,26 +4706,26 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			cb->giveHeroBonus(&gb);
 		}
 			break;
-		case 5: //resources
+		case RESOURCES:
 			cb->giveResource(h->getOwner(), rID, rVal);
 			break;
-		case 6: //main ability bonus (attak, defence etd.)
+		case PRIMARY_SKILL:
 			cb->changePrimSkill(h->id, rID, rVal, false);
 			break;
-		case 7: // secondary ability gain
+		case SECONDARY_SKILL:
 			cb->changeSecSkill(h->id, rID, rVal, false);
 			break;
-		case 8: // artifact
+		case ARTIFACT:
 			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[rID],-2);
 			break;
-		case 9:// spell
+		case SPELL:
 		{
 			std::set<ui32> spell;
 			spell.insert (rID);
 			cb->changeSpells(h->id, true, spell);
 		}
 			break;
-		case 10:// creature
+		case CREATURE:
 			{
 				CCreatureSet creatures;
 				creatures.setCreature(0, rID, rVal);
@@ -4758,7 +4758,7 @@ const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 void CGQuestGuard::initObj()
 {
 	blockVisit = true;
-	quest->progress = 0;
+	quest->progress = CQuest::NOT_ACTIVE;
 	quest->textOption = ran()%3 + 3; //3-5
 	if (quest->missionType)
 	{
@@ -5534,17 +5534,17 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 {
 
-	int type = bonusType;
+	EBonusType type = bonusType;
 	int bid = bonusID;
 	//check if the bonus if applicable, if not - give primary skill (always possible)
 	int ssl = h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(bid)); //current sec skill level, used if bonusType == 1
-	if((type == 1
+	if((type == SECONDARY_SKILL
 			&& ((ssl == 3)  ||  (!ssl  &&  !h->canLearnSkill()))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
-		|| (type == 2  &&  (!h->getArt(17) || vstd::contains(h->spells, (ui32) bid)
+		|| (type == SPELL  &&  (!h->getArt(17) || vstd::contains(h->spells, (ui32) bid)
 		|| (VLC->spellh->spells[bid]->level > h->getSecSkillLevel(CGHeroInstance::WISDOM) + 2)
 		))) //hero doesn't have a spellbook or already knows the spell or doesn't have Wisdom
 	{
-		type = 0;
+		type = PRIM_SKILL;
 		bid = ran() % GameConstants::PRIMARY_SKILLS;
 	}
 
@@ -5556,15 +5556,15 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 
 	switch (type)
 	{
-	case 0:
+	case PRIM_SKILL:
 		cb->changePrimSkill(h->id,bid,+1);
 		iw.components.push_back(Component(Component::PRIM_SKILL,bid,+1,0));
 		break;
-	case 1:
+	case SECONDARY_SKILL:
 		cb->changeSecSkill(h->id,bid,+1);
 		iw.components.push_back(Component(Component::SEC_SKILL,bid,ssl+1,0));
 		break;
-	case 2:
+	case SPELL:
 		{
 			std::set<ui32> hlp;
 			hlp.insert(bid);
@@ -5584,18 +5584,18 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 void CGScholar::initObj()
 {
 	blockVisit = true;
-	if(bonusType == 255)
+	if(bonusType == RANDOM)
 	{
-		bonusType = ran()%3;
+		bonusType = static_cast<EBonusType>(ran()%3);
 		switch(bonusType)
 		{
-		case 0:
+		case PRIM_SKILL:
 			bonusID = ran() % GameConstants::PRIMARY_SKILLS;
 			break;
-		case 1:
+		case SECONDARY_SKILL:
 			bonusID = ran() % GameConstants::SKILL_QUANTITY;
 			break;
-		case 2:
+		case SPELL:
 			std::vector<ui16> possibilities;
 			for (int i = 1; i < 6; ++i)
 				cb->getAllowedSpells (possibilities, i);

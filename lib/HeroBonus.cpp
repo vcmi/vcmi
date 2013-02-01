@@ -359,7 +359,7 @@ void IBonusBearer::getModifiersWDescr(TModDescr &out, const CSelector &selector,
 {
 	getBonuses(selector, cachingStr)->getModifiersWDescr(out);
 }
-int IBonusBearer::getBonusesCount(int from, int id) const
+int IBonusBearer::getBonusesCount(Bonus::BonusSource from, int id) const
 {
 	std::stringstream cachingStr;
 	cachingStr << "source_" << from << "id_" << id;
@@ -381,7 +381,7 @@ const TBonusListPtr IBonusBearer::getBonuses(const CSelector &selector, const CS
 	return getAllBonuses(selector, limit, NULL, cachingStr);
 }
 
-bool IBonusBearer::hasBonusFrom(ui8 source, ui32 sourceID) const
+bool IBonusBearer::hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const
 {
 	std::stringstream cachingStr;
 	cachingStr << "source_" << source << "id_" << sourceID;
@@ -1087,7 +1087,7 @@ void NBonus::getModifiersWDescr(const CBonusSystemNode *obj, TModDescr &out, Bon
 		return obj->getModifiersWDescr(out, type, subtype);
 }
 
-int NBonus::getCount(const CBonusSystemNode *obj, int from, int id)
+int NBonus::getCount(const CBonusSystemNode *obj, Bonus::BonusSource from, int id)
 {
 	if(obj)
 		return obj->getBonusesCount(from, id);
@@ -1128,7 +1128,7 @@ std::string Bonus::Description() const
 	return str.str();
 }
 
-Bonus::Bonus(ui16 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype/*=-1*/) 
+Bonus::Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype/*=-1*/) 
 	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), description(Desc)
 {
 	additionalInfo = -1;
@@ -1138,7 +1138,7 @@ Bonus::Bonus(ui16 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, s
 	boost::algorithm::trim(description);
 }
 
-Bonus::Bonus(ui16 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, si32 Subtype/*=-1*/, ui8 ValType /*= ADDITIVE_VALUE*/) 
+Bonus::Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype/*=-1*/, ValueType ValType /*= ADDITIVE_VALUE*/) 
 	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), valType(ValType)
 {
 	additionalInfo = -1;
@@ -1180,8 +1180,8 @@ namespace Selector
 	DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype(&Bonus::subtype, 0);
 	DLL_LINKAGE CSelectFieldEqual<si32> info(&Bonus::additionalInfo, 0);
 	DLL_LINKAGE CSelectFieldEqual<ui16> duration(&Bonus::duration, 0);
-	DLL_LINKAGE CSelectFieldEqual<ui8> sourceType(&Bonus::source, 0);
-	DLL_LINKAGE CSelectFieldEqual<ui8> effectRange(&Bonus::effectRange, Bonus::NO_LIMIT);
+	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType(&Bonus::source, Bonus::OTHER);
+	DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange(&Bonus::effectRange, Bonus::NO_LIMIT);
 	DLL_LINKAGE CWillLastTurns turns;
 
 	CSelector DLL_LINKAGE typeSubtype(TBonusType Type, TBonusSubtype Subtype)
@@ -1194,9 +1194,9 @@ namespace Selector
 		return CSelectFieldEqual<TBonusType>(&Bonus::type, type) && CSelectFieldEqual<TBonusSubtype>(&Bonus::subtype, subtype) && CSelectFieldEqual<si32>(&Bonus::additionalInfo, info);
 	}
 
-	CSelector DLL_LINKAGE source(ui8 source, ui32 sourceID)
+	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID)
 	{
-		return CSelectFieldEqual<ui8>(&Bonus::source, source) && CSelectFieldEqual<ui32>(&Bonus::sid, sourceID);
+		return CSelectFieldEqual<Bonus::BonusSource>(&Bonus::source, source) && CSelectFieldEqual<ui32>(&Bonus::sid, sourceID);
 	}
 
 	CSelector DLL_EXPORT durationType(ui16 duration)
@@ -1204,9 +1204,9 @@ namespace Selector
 		return CSelectFieldEqual<ui16>(&Bonus::duration, duration);
 	}
 
-	CSelector DLL_LINKAGE sourceTypeSel(ui8 source)
+	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source)
 	{
-		return CSelectFieldEqual<ui8>(&Bonus::source, source);
+		return CSelectFieldEqual<Bonus::BonusSource>(&Bonus::source, source);
 	}
 
 	bool DLL_LINKAGE matchesType(const CSelector &sel, TBonusType type)

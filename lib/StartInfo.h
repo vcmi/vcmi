@@ -29,15 +29,15 @@ struct PlayerSettings
 		RESOURCE =  2
 	};
 
-	//uses enum type Ebonus
-	si8 bonus;
+	Ebonus bonus;
 	si16 castle;
 	si32 hero,
 	     heroPortrait; //-1 if default, else ID
 
 	std::string heroName;
 	TPlayerColor color; //from 0 - 
-	ui8 handicap;//0-no, 1-mild, 2-severe
+	enum EHandicap {NO_HANDICAP, MILD, SEVERE};
+	EHandicap handicap;//0-no, 1-mild, 2-severe
 	ui8 team;
 
 	std::string name;
@@ -60,7 +60,7 @@ struct PlayerSettings
 	}
 
 	PlayerSettings() : bonus(RANDOM), castle(NONE), hero(RANDOM), heroPortrait(RANDOM),
-		color(0), handicap(0), team(0), playerID(PLAYER_AI), compOnly(false)
+		color(0), handicap(NO_HANDICAP), team(0), playerID(PLAYER_AI), compOnly(false)
 	{
 		
 	}
@@ -71,7 +71,7 @@ struct StartInfo
 {
 	enum EMode {NEW_GAME, LOAD_GAME, CAMPAIGN, DUEL, INVALID = 255};
 
-	ui8 mode; //uses EMode enum
+	EMode mode;
 	ui8 difficulty; //0=easy; 4=impossible
 
 	typedef bmap<TPlayerColor, PlayerSettings> TPlayerInfos;

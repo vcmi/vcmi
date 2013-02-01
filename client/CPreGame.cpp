@@ -195,7 +195,7 @@ void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader *
 			else
 				pset.heroPortrait = pinfo.customHeroID;
 		}
-		pset.handicap = 0;
+		pset.handicap = PlayerSettings::NO_HANDICAP;
 	}
 }
 
@@ -2355,7 +2355,7 @@ void OptionsTab::nextBonus( int player, int dir )
 	}
 
 	PlayerSettings &s = SEL->sInfo.playerInfos[player];
-	si8 &ret = s.bonus += dir;
+	PlayerSettings::Ebonus &ret = s.bonus = static_cast<PlayerSettings::Ebonus>(static_cast<int>(s.bonus) + dir);
 
 	if (s.hero==PlayerSettings::NONE &&
 		!SEL->current->mapHeader->players[s.color].heroesNames.size() &&

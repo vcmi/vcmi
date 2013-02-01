@@ -1312,7 +1312,7 @@ void CMapLoaderH3M::readObjects()
 			{
 				CGScholar * sch = new CGScholar();
 				nobj = sch;
-				sch->bonusType = buffer[pos++];
+				sch->bonusType = static_cast<CGScholar::EBonusType>(buffer[pos++]);
 				sch->bonusID = buffer[pos++];
 				pos += 6;
 				break;
@@ -2046,7 +2046,7 @@ CGSeerHut * CMapLoaderH3M::readSeerHut()
 	{
 		ui8 rewardType = buffer[pos];
 		++pos;
-		hut->rewardType = rewardType;
+		hut->rewardType = static_cast<CGSeerHut::ERewardType>(rewardType);
 
 		switch(rewardType)
 		{
@@ -2151,7 +2151,7 @@ CGSeerHut * CMapLoaderH3M::readSeerHut()
 
 void CMapLoaderH3M::readQuest(IQuestObject * guard)
 {
-	guard->quest->missionType = buffer[pos];
+	guard->quest->missionType = static_cast<CQuest::Emission>(buffer[pos]);
 	++pos;
 
 	switch(guard->quest->missionType)

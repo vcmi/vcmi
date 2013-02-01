@@ -1351,7 +1351,7 @@ void CGameState::init(StartInfo * si)
 	{
 		//starting bonus
 		if(scenarioOps->playerInfos[k->first].bonus==PlayerSettings::RANDOM)
-			scenarioOps->playerInfos[k->first].bonus = ran()%3;
+			scenarioOps->playerInfos[k->first].bonus = static_cast<PlayerSettings::Ebonus>(ran()%3);
 		switch(scenarioOps->playerInfos[k->first].bonus)
 		{
 		case PlayerSettings::GOLD:

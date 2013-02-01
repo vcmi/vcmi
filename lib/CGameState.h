@@ -15,6 +15,7 @@
 #include "ResourceSet.h"
 #include "int3.h"
 #include "CObjectHandler.h"
+#include "IGameCallback.h"
 
 
 /*
@@ -162,7 +163,7 @@ struct DLL_LINKAGE SThievesGuildInfo
 struct DLL_LINKAGE PlayerState : public CBonusSystemNode
 {
 public:
-	enum EStatus {INGAME, LOSER, WINNER};
+	enum EStatus {WRONG = -1, INGAME, LOSER, WINNER};
 	TPlayerColor color;
 	ui8 human; //true if human controlled player, false for AI
 	ui32 currentSelection; //id of hero/town, 0xffffffff if none
@@ -175,7 +176,7 @@ public:
 	std::vector<QuestInfo> quests; //store info about all received quests
 
 	ui8 enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
-	ui8 status; //0 - in game, 1 - loser, 2 - winner <- uses EStatus enum
+	EStatus status;
 	ui8 daysWithoutCastle;
 
 	PlayerState();

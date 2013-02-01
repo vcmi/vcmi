@@ -75,6 +75,7 @@ enum SerializationLvl
 	Primitive,
 	Array,
 	Pointer,
+	Enum,
 	Serializable
 };
 
@@ -131,6 +132,23 @@ struct SaveSerializable
 	static void invoke(Ser &s, const T &data)
 	{
 		s.saveSerializable(data);
+	}
+};
+
+template<typename Ser,typename T>
+struct SaveEnum
+{
+	static void invoke(Ser &s, const T &data)
+	{
+		s.saveEnum(data);
+	}
+};
+template<typename Ser,typename T>
+struct LoadEnum
+{
+	static void invoke(Ser &s, T &data)
+	{
+		s.loadEnum(data);
 	}
 };
 template<typename Ser,typename T>
@@ -209,6 +227,10 @@ struct SerializationLevel
 			mpl::int_<Primitive>,
 		//else
 		typename mpl::eval_if<
+			boost::is_enum<T>,
+			mpl::int_<Enum>,
+		//else
+		typename mpl::eval_if<
 			boost::is_class<T>,
 			mpl::int_<Serializable>,
 		//else
@@ -225,6 +247,7 @@ struct SerializationLevel
 			mpl::int_<Primitive>,
 		//else
 			mpl::int_<Wrong>
+		>
 		>
 		>
 		>
@@ -562,6 +585,9 @@ public:
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
 			mpl::identity<SavePrimitive<Serializer,T> >,
 			//else if
+			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Enum> >,
+			mpl::identity<SaveEnum<Serializer,T> >,
+			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
 			mpl::identity<SavePointer<Serializer,T> >,
 			//else if
@@ -572,6 +598,7 @@ public:
 			mpl::identity<SaveSerializable<Serializer,T> >,
 			//else
 			mpl::identity<SaveWrong<Serializer,T> >
+			>
 			>
 			>
 			>
@@ -655,6 +682,12 @@ public:
 
 		VariantVisitorSaver<Serializer> visitor(*this->This());
 		boost::apply_visitor(visitor, data);
+	}
+	template <typename E>
+	void saveEnum(const E &data)
+	{
+		si32 writ = static_cast<si32>(data);
+		*this << writ;
 	}
 };
 
@@ -748,6 +781,9 @@ public:
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
 			mpl::identity<LoadPrimitive<Serializer,T> >,
 			//else if
+			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Enum> >,
+			mpl::identity<LoadEnum<Serializer,T> >,
+			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
 			mpl::identity<LoadPointer<Serializer,T> >,
 			//else if
@@ -758,6 +794,7 @@ public:
 			mpl::identity<LoadSerializable<Serializer,T> >,
 			//else
 			mpl::identity<LoadWrong<Serializer,T> >
+			>
 			>
 			>
 			>
@@ -1005,6 +1042,13 @@ public:
 			loadSerializableBySerializeCall(s);
 	}
 
+	template <typename E>
+	void loadEnum(E &data)
+	{
+		si32 read;
+		*this >> read;
+		data = static_cast<E>(read);
+	}
 };
 
 class DLL_LINKAGE CSaveFile

@@ -57,7 +57,8 @@ public:
 
 	si32 qid; //unique quets id for serialization / identification
 
-	ui8 missionType, progress;
+	Emission missionType;
+	Eprogress progress;
 	si32 lastDay; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
 
 	ui32 m13489val;
@@ -76,7 +77,7 @@ public:
 	std::string firstVisitText, nextVisitText, completedText;
 	bool isCustomFirst, isCustomNext, isCustomComplete;
 
-	CQuest(){missionType = 0;}; //default constructor
+	CQuest(){missionType = MISSION_NONE;}; //default constructor
 
 	virtual bool checkQuest (const CGHeroInstance * h) const; //determines whether the quest is complete or not
 	virtual void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = NULL) const;
@@ -737,7 +738,7 @@ public:
 	si8 character; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
 	std::string message; //message printed for attacking hero
 	std::vector<ui32> resources; //[res_id], resources given to hero that has won with monsters
-	si32 gainedArtifact; //ID of artifact gained to hero, -1 if none
+	TArtifactID gainedArtifact; //ID of artifact gained to hero, -1 if none
 	ui8 neverFlees; //if true, the troops will never flee
 	ui8 notGrowingTeam; //if true, number of units won't grow
 	ui64 temppower; //used to handle fractional stack growth for tiny stacks
@@ -811,7 +812,8 @@ public:
 class DLL_LINKAGE CGSeerHut : public CArmedInstance, public IQuestObject //army is used when giving reward
 {
 public:
-	ui8 rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature
+	enum ERewardType {NOTHING, EXPERIENCE, MANA_POINTS, MORALE_BONUS, LUCK_BONUS, RESOURCES, PRIMARY_SKILL, SECONDARY_SKILL, ARTIFACT, SPELL, CREATURE};
+	ERewardType rewardType;
 	si32 rID; //reward ID
 	si32 rVal; //reward value
 	std::string seerName;
@@ -873,7 +875,8 @@ public:
 class DLL_LINKAGE CGScholar : public CGObjectInstance
 {
 public:
-	ui8 bonusType; //255 - random, 0 - primary skill, 1 - secondary skill, 2 - spell
+	enum EBonusType {PRIM_SKILL, SECONDARY_SKILL, SPELL, RANDOM = 255};
+	EBonusType bonusType;
 	ui16 bonusID; //ID of skill/spell
 
 //	void giveAnyBonus(const CGHeroInstance * h) const; //TODO: remove

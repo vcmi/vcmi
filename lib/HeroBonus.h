@@ -18,14 +18,11 @@ struct Bonus;
 class CBonusSystemNode;
 class ILimiter;
 class IPropagator;
-class ICalculator;
 class BonusList;
-struct BonusCalculationContext;
 
 typedef shared_ptr<BonusList> TBonusListPtr;
 typedef shared_ptr<ILimiter> TLimiterPtr;
 typedef shared_ptr<IPropagator> TPropagatorPtr;
-typedef shared_ptr<ICalculator> TCalculatorPtr;
 typedef std::vector<std::pair<int,std::string> > TModDescr; //modifiers values and their descriptions
 typedef std::set<CBonusSystemNode*> TNodes;
 typedef std::set<const CBonusSystemNode*> TCNodes;
@@ -258,22 +255,21 @@ struct DLL_LINKAGE Bonus
 	TBonusType type; //uses BonusType values - says to what is this bonus - 1 byte
 	TBonusSubtype subtype; //-1 if not applicable - 4 bytes
 
-	ui8 source;//source type" uses BonusSource values - what gave that bonus
+	BonusSource source;//source type" uses BonusSource values - what gave that bonus
 	si32 val;
 	ui32 sid; //source id: id of object/artifact/spell
-	ui8 valType; //by ValueType enum
+	ValueType valType;
 
 	si32 additionalInfo;
-	ui8 effectRange; //if not NO_LIMIT, bonus will be omitted by default
+	LimitEffect effectRange; //if not NO_LIMIT, bonus will be omitted by default
 
 	TLimiterPtr limiter;
 	TPropagatorPtr propagator;
-	TCalculatorPtr calculator;
 
 	std::string description;
 
-	Bonus(ui16 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
-	Bonus(ui16 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, si32 Subtype=-1, ui8 ValType = ADDITIVE_VALUE);
+	Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
+	Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype=-1, ValueType ValType = ADDITIVE_VALUE);
 	Bonus();
 	~Bonus();
 
@@ -292,7 +288,6 @@ struct DLL_LINKAGE Bonus
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & limiter & propagator;
-		h & calculator;
 	}
 
 	static bool compareByAdditionalInfo(const Bonus *a, const Bonus *b)
@@ -528,9 +523,9 @@ public:
 	int valOfBonuses(Bonus::BonusType type, const CSelector &selector) const;
 	int valOfBonuses(Bonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then anyt;
 	bool hasBonusOfType(Bonus::BonusType type, int subtype = -1) const;//determines if hero has a bonus of given type (and optionally subtype)
-	bool hasBonusFrom(ui8 source, ui32 sourceID) const;
+	bool hasBonusFrom(Bonus::BonusSource source, ui32 sourceID) const;
 	void getModifiersWDescr( TModDescr &out, Bonus::BonusType type, int subtype = -1 ) const;  //out: pairs<modifier value, modifier description>
-	int getBonusesCount(int from, int id) const;
+	int getBonusesCount(Bonus::BonusSource from, int id) const;
 
 	//various hlp functions for non-trivial values
 	ui32 getMinDamage() const; //used for stacks and creatures only
@@ -658,7 +653,7 @@ namespace NBonus
 	DLL_LINKAGE bool hasOfType(const CBonusSystemNode *obj, Bonus::BonusType type, int subtype = -1);//determines if hero has a bonus of given type (and optionally subtype)
 	//DLL_LINKAGE const HeroBonus * get(const CBonusSystemNode *obj, int from, int id );
 	DLL_LINKAGE void getModifiersWDescr(const CBonusSystemNode *obj, TModDescr &out, Bonus::BonusType type, int subtype = -1 );  //out: pairs<modifier value, modifier description>
-	DLL_LINKAGE int getCount(const CBonusSystemNode *obj, int from, int id);
+	DLL_LINKAGE int getCount(const CBonusSystemNode *obj, Bonus::BonusSource from, int id);
 }
 
 /// generates HeroBonus from given data
@@ -888,15 +883,15 @@ namespace Selector
 	extern DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype;
 	extern DLL_LINKAGE CSelectFieldEqual<si32> info;
 	extern DLL_LINKAGE CSelectFieldEqual<ui16> duration;
-	extern DLL_LINKAGE CSelectFieldEqual<ui8> sourceType;
-	extern DLL_LINKAGE CSelectFieldEqual<ui8> effectRange;
+	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType;
+	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
 	extern DLL_LINKAGE CWillLastTurns turns;
 
 	CSelector DLL_LINKAGE typeSubtype(TBonusType Type, TBonusSubtype Subtype);
 	CSelector DLL_LINKAGE typeSubtypeInfo(TBonusType type, TBonusSubtype subtype, si32 info);
-	CSelector DLL_LINKAGE source(ui8 source, ui32 sourceID);
+	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID);
 	CSelector DLL_LINKAGE durationType(ui16 duration);
-	CSelector DLL_LINKAGE sourceTypeSel(ui8 source);
+	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source);
 
 	bool DLL_LINKAGE matchesType(const CSelector &sel, TBonusType type);
 	bool DLL_LINKAGE matchesTypeSubtype(const CSelector &sel, TBonusType type, TBonusSubtype subtype);
@@ -907,17 +902,6 @@ extern DLL_LINKAGE const std::map<std::string, int> bonusNameMap, bonusValueMap,
 extern DLL_LINKAGE const bmap<std::string, TLimiterPtr> bonusLimiterMap;
 extern DLL_LINKAGE const bmap<std::string, TPropagatorPtr> bonusPropagatorMap;
 
-class DLL_LINKAGE ICalculator //calculate value of bonus on-the-fly
-{
-public:
-	enum EDecision {ACCEPT, DISCARD, NOT_SURE};
-
-	virtual si32 val(const BonusCalculationContext &context) const {return 0;};
-	virtual ~ICalculator(){};
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{}
-};
 
 // BonusList template that requires full interface of CBonusSystemNode
 template <class InputIterator>

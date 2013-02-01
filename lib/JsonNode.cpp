@@ -989,7 +989,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 
 	value = &ability["valueType"];
 	if (!value->isNull())
-		b->valType = parseByMap(bonusValueMap, value, "value type ");
+		b->valType = static_cast<Bonus::ValueType>(parseByMap(bonusValueMap, value, "value type "));
 
 	resolveIdentifier (b->additionalInfo, ability, "addInfo");
 
@@ -1007,7 +1007,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 
 	value = &ability["effectRange"];
 	if (!value->isNull())
-		b->effectRange = parseByMap(bonusLimitEffect, value, "effect range ");
+		b->effectRange = static_cast<Bonus::LimitEffect>(parseByMap(bonusLimitEffect, value, "effect range "));
 
 	value = &ability["duration"];
 	if (!value->isNull())
@@ -1034,7 +1034,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 
 	value = &ability["source"];
 	if (!value->isNull())
-		b->source = parseByMap(bonusSourceMap, value, "source type ");
+		b->source = static_cast<Bonus::BonusSource>(parseByMap(bonusSourceMap, value, "source type "));
 
 	value = &ability["limiters"];
 	if (!value->isNull())
