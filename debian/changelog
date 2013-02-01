@@ -1,3 +1,10 @@
+vcmi (0.91) unstable; urgency=low
+
+  * New upstream release
+  * Build system is now CMake
+
+ -- Ivan Savenko <ivan@ivan-pc>  Fri, 01 Feb 2013 10:49:40 +0200
+
 vcmi (0.90) unstable; urgency=low
 
   * New upstream release

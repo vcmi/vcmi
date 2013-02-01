@@ -134,6 +134,8 @@ else()
 
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png" DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
 
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png" DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
+
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop" DESTINATION share/applications)
 
 endif()
