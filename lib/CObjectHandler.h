@@ -478,7 +478,6 @@ public:
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void newTurn() const override;
-protected:
 	void setProperty(ui8 what, ui32 val) override;
 private:
 	void heroAcceptsCreatures(const CGHeroInstance *h, ui32 answer) const;

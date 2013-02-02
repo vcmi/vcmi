@@ -51,15 +51,19 @@ public:
 	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none)
 	ETargetType getTargetType() const;
 
-	bool isPositive() const;
-	bool isNegative() const;
+	inline bool isCombatSpell() const;
+	inline bool isAdventureSpell() const;
+	inline bool isCreatureAbility() const;
 
-	bool isRisingSpell() const;
-	bool isDamageSpell() const;
-	bool isMindSpell() const;	
-	bool isOffensiveSpell() const;
-	
-	bool hasEffects() const;
+	inline bool isPositive() const;
+	inline bool isNegative() const;
+
+	inline bool isRisingSpell() const;
+	inline bool isDamageSpell() const;
+	inline bool isMindSpell() const; //TODO: deprecated - remove, refactor
+	inline bool isOffensiveSpell() const;
+
+	inline bool hasEffects() const;
 	void getEffects(std::vector<Bonus> &lst, const int level) const;
 
 	bool isImmuneBy(const IBonusBearer *obj) const;
@@ -82,9 +86,62 @@ private:
 	std::vector<Bonus> effects [4];
 	std::vector<Bonus::BonusType> immunities; //any of these hrants immunity
 	std::vector<Bonus::BonusType> limiters; //all of them are required
-	
+
 
 };
+
+///CSpell inlines
+
+bool CSpell::isCombatSpell() const
+{
+	return combatSpell;
+}
+
+bool CSpell::isAdventureSpell() const
+{
+	return !combatSpell;
+}
+
+bool CSpell::isCreatureAbility() const
+{
+	return creatureAbility;
+}
+
+bool CSpell::isPositive() const
+{
+	return positiveness == POSITIVE;
+}
+
+bool CSpell::isNegative() const
+{
+	return positiveness == NEGATIVE;
+}
+
+bool CSpell::isRisingSpell() const
+{
+	return isRising;
+}
+
+bool CSpell::isDamageSpell() const
+{
+	return isDamage;
+}
+
+bool CSpell::isMindSpell() const
+{
+	return isMind;
+}
+
+bool CSpell::isOffensiveSpell() const
+{
+	return isOffensive;
+}
+
+bool CSpell::hasEffects() const
+{
+	return !effects[0].empty();
+}
+
 
 namespace Spells
 {

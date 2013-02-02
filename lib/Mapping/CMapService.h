@@ -24,6 +24,10 @@ class CCreatureSet;
 class CInputStream;
 class IMapLoader;
 
+#include "../vcmi_endian.h"
+#include "../int3.h"
+
+
 /**
  * The map service provides loading of VCMI/H3 map files. It can
  * be extended to save maps later as well.
@@ -311,6 +315,77 @@ private:
 	 * @return the reversed 8-bit integer
 	 */
 	ui8 reverse(ui8 arg);
+
+
+
+	/**
+	* Helper to read ui8 from buffer
+	*/
+	inline ui8 readUI8()
+	{
+	   return buffer[pos++];
+	}
+
+	/**
+	* Helper to read si8 from buffer
+	*/
+	inline si8 readSI8()
+	{
+	   return static_cast<si8>(buffer[pos++]);
+	}
+
+	/**
+	* Helper to read ui16 from buffer
+	*/
+	inline ui16 readUI16()
+	{
+		ui16 ret = read_le_u16(buffer+pos);
+		pos +=2;
+		return ret;
+	}
+
+	/**
+	* Helper to read ui32 from buffer
+	*/
+	inline ui32 readUI32()
+	{
+		ui32 ret = read_le_u32(buffer+pos);
+		pos +=4;
+		return ret;
+	}
+
+	/**
+	* Helper to read 8bit flag from buffer
+	*/
+	inline bool readBool()
+	{
+		return readUI8() != 0;
+	}
+
+	/**
+	* Helper to read string from buffer
+	*/
+	inline std::string readString()
+	{
+		return ::readString(buffer,pos);
+	}
+
+	/**
+	* Helper to skip unused data inbuffer
+	*/
+	inline void skip(const int count)
+	{
+		pos += count;
+	}
+
+	inline int3 readInt3()
+	{
+		int3 p;
+		p.x = readUI8();
+		p.y = readUI8();
+		p.z = readUI8();
+		return p;
+	}
 
 	/**
 	 * Init buffer / size.

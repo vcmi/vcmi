@@ -31,7 +31,6 @@
 #include "CBuildingHandler.h"
 #include "JsonNode.h"
 #include "Filesystem/CResourceLoader.h"
-#include "GameConstants.h"
 
 using namespace boost::assign;
 

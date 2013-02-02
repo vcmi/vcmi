@@ -6,7 +6,6 @@
 #include "VCMI_Lib.h"
 #include "JsonNode.h"
 #include <cctype>
-#include "GameConstants.h"
 #include "BattleHex.h"
 #include "CModHandler.h"
 
@@ -251,40 +250,6 @@ CSpell::ETargetType CSpell::getTargetType() const //TODO: parse these at game la
 	return NO_TARGET;
 }
 
-bool CSpell::isPositive() const
-{
-	return positiveness == POSITIVE;
-}
-
-bool CSpell::isNegative() const
-{
-	return positiveness == NEGATIVE;
-}
-
-bool CSpell::isRisingSpell() const
-{
-	return isRising;
-}
-
-bool CSpell::isDamageSpell() const
-{
-	return isDamage;
-}
-
-bool CSpell::isMindSpell() const
-{
-	return isMind;
-}
-
-bool CSpell::isOffensiveSpell() const
-{
-	return isOffensive;
-}
-
-bool CSpell::hasEffects() const
-{
-	return !effects[0].empty();
-}
 
 
 void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
