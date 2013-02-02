@@ -75,7 +75,7 @@ protected:
 
 public:
 	//various
-	int getDate(int mode=0)const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
+	int getDate(Date::EDateType mode=Date::DAY)const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	const StartInfo * getStartInfo(bool beforeRandomization = false)const;
 	bool isAllowed(int type, int id); //type: 0 - spell; 1- artifact; 2 - secondary skill
 

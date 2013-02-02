@@ -717,31 +717,31 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	map->addBlockVisTiles(cur);
 }
 
-int CGameState::getDate(int mode) const
+int CGameState::getDate(Date::EDateType mode) const
 {
 	int temp;
 	switch (mode)
 	{
-	case 0: //day number
+	case Date::DAY:
 		return day;
 		break;
-	case 1: //day of week
+	case Date::DAY_OF_WEEK: //day of week
 		temp = (day)%7; // 1 - Monday, 7 - Sunday
 		if (temp)
 			return temp;
 		else return 7;
 		break;
-	case 2:  //current week
+	case Date::WEEK:  //current week
 		temp = ((day-1)/7)+1;
 		if (!(temp%4))
 			return 4;
 		else
 			return (temp%4);
 		break;
-	case 3: //current month
+	case Date::MONTH: //current month
 		return ((day-1)/28)+1;
 		break;
-	case 4: //day of month
+	case Date::DAY_OF_MONTH: //day of month
 		temp = (day)%28;
 		if (temp)
 			return temp;

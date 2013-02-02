@@ -422,6 +422,18 @@ namespace BattlefieldBI
 	};
 }
 
+namespace Date
+{
+	enum EDateType
+	{
+		DAY = 0,
+		DAY_OF_WEEK = 1,
+		WEEK = 2,
+		MONTH = 3,
+		DAY_OF_MONTH
+	};
+}
+
 // Typedef declarations
 typedef si8 TFaction;
 typedef si64 TExpType;

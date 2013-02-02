@@ -1723,7 +1723,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGDwelling::newTurn() const
 {
-	if(cb->getDate(1) != 1) //not first day of week
+	if(cb->getDate(Date::DAY_OF_WEEK) != 1) //not first day of week
 		return;
 
 	//town growths and War Machines Factories are handled separately
@@ -2136,11 +2136,11 @@ void CGTownInstance::initObj()
 
 void CGTownInstance::newTurn() const
 {
-	if (cb->getDate(1) == 1) //reset on new week
+	if (cb->getDate(Date::DAY_OF_WEEK) == 1) //reset on new week
 	{
 		//give resources for Rampart, Mystic Pond
 		if (hasBuilt(EBuilding::MYSTIC_POND, ETownType::RAMPART)
-			&& cb->getDate(0) != 1 && (tempOwner < GameConstants::PLAYER_LIMIT))
+			&& cb->getDate(Date::DAY) != 1 && (tempOwner < GameConstants::PLAYER_LIMIT))
 		{
 			int resID = rand()%4+2;//bonus to random rare resource
 			resID = (resID==2)?1:resID;
@@ -2184,7 +2184,7 @@ void CGTownInstance::newTurn() const
 				}
 				if ((stacksCount() < GameConstants::ARMY_SIZE && rand()%100 < 25) || Slots().empty()) //add new stack
 				{
-					int i = rand() % std::min (GameConstants::ARMY_SIZE, cb->getDate(3)<<1);
+					int i = rand() % std::min (GameConstants::ARMY_SIZE, cb->getDate(Date::MONTH)<<1);
 					TCreature c = town->creatures[i][0];
 					TSlot n = -1;
 
@@ -3120,7 +3120,7 @@ void CGCreature::initObj()
 }
 void CGCreature::newTurn() const
 {//Works only for stacks of single type of size up to 2 millions
-	if (stacks.begin()->second->count < VLC->modh->settings.CREEP_SIZE && cb->getDate(1) == 1 && cb->getDate(0) > 1)
+	if (stacks.begin()->second->count < VLC->modh->settings.CREEP_SIZE && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
 	{
 		ui32 power = temppower * (100 +  VLC->modh->settings.WEEKLY_GROWTH)/100;
 		cb->setObjProperty(id, ObjProperty::MONSTER_COUNT, std::min (power/1000 , (ui32)VLC->modh->settings.CREEP_SIZE)); //set new amount
@@ -3545,7 +3545,7 @@ void CGResource::endBattle( BattleResult *result, const CGHeroInstance *h ) cons
 
 void CGVisitableOPW::newTurn() const
 {
-	if (cb->getDate(1) == 1) //first day of week = 1
+	if (cb->getDate(Date::DAY_OF_WEEK) == 1) //first day of week = 1
 	{
 		cb->setObjProperty(id, ObjProperty::VISITED, false);
 		MetaString ms; //set text to "not visited"
@@ -3613,7 +3613,7 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 		case Obj::WATER_WHEEL:
 			mid = 164;
 			sub = 6;
-			if(cb->getDate(0)<8)
+			if(cb->getDate(Date::DAY)<8)
 				val = 500;
 			else
 				val = 1000;
@@ -4563,7 +4563,7 @@ void CGSeerHut::setPropertyDer (ui8 what, ui32 val)
 }
 void CGSeerHut::newTurn() const
 {
-	if (quest->lastDay >= 0 && quest->lastDay < cb->getDate(0)) //time is up
+	if (quest->lastDay >= 0 && quest->lastDay < cb->getDate()) //time is up
 	{
 		cb->setObjProperty (id, 11, 0);
 		cb->setObjProperty (id, 10, 0);
@@ -4883,7 +4883,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 
 		gbonus.bonus.val = 1;
 		descr_id = 68;
-		if(cb->getDate(1) == 7) //7th day of week
+		if(cb->getDate(Date::DAY_OF_WEEK) == 7) //7th day of week
 		{
 			gbonus.bonus.type = Bonus::MORALE;
 			second = true;
@@ -4892,7 +4892,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		}
 		else
 		{
-			gbonus.bonus.type = (cb->getDate(1)%2) ? Bonus::LUCK : Bonus::MORALE;
+			gbonus.bonus.type = (cb->getDate(Date::DAY_OF_WEEK)%2) ? Bonus::LUCK : Bonus::MORALE;
 		}
 		break;
 	case Obj::MERMAID:
@@ -4926,7 +4926,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		messageID = 140;
 		iw.soundID = soundBase::temple;
 		gbonus.bonus.type = Bonus::MORALE;
-		if(cb->getDate(1)==7) //sunday
+		if(cb->getDate(Date::DAY_OF_WEEK)==7) //sunday
 		{
 			gbonus.bonus.val = 2;
 			descr_id = 97;
@@ -5982,13 +5982,13 @@ void CBank::newTurn() const
 {
 	if (bc == NULL)
 	{
-		if (cb->getDate(0) == 1)
+		if (cb->getDate() == 1)
 			initialize(); //initialize on first day
 		else if (daycounter >= 28 && (subID < 13 || subID > 16)) //no reset for Emissaries
 		{
 			initialize();
 			cb->setObjProperty (id, 11, 0); //daycounter 0
-			if (ID == Obj::DERELICT_SHIP && cb->getDate(0) > 1)
+			if (ID == Obj::DERELICT_SHIP && cb->getDate() > 1)
 			{
 				cb->setObjProperty (id, 12, 0);//ugly hack to make derelict ships usable only once
 				cb->setObjProperty (id, 16, 0);
@@ -7162,7 +7162,7 @@ std::vector<int> CGBlackMarket::availableItemsIds(EMarketMode::EMarketMode mode)
 
 void CGBlackMarket::newTurn() const
 {
-	if(cb->getDate(2) != 1)
+	if(cb->getDate(Date::DAY_OF_MONTH) != 1) //new month
 		return;
 
 	SetAvailableArtifacts saa;

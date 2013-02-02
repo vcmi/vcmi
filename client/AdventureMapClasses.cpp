@@ -675,13 +675,13 @@ void CInfoBar::CVisibleInfo::loadTown(const CGTownInstance *town)
 
 void CInfoBar::CVisibleInfo::playNewDaySound()
 {
-	if (LOCPLINT->cb->getDate(1) != 1) // not first day of the week
+	if (LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) != 1) // not first day of the week
 		CCS->soundh->playSound(soundBase::newDay);
 	else
-	if (LOCPLINT->cb->getDate(2) != 1) // not first week in month
+	if (LOCPLINT->cb->getDate(Date::WEEK) != 1) // not first week in month
 		CCS->soundh->playSound(soundBase::newWeek);
 	else
-	if (LOCPLINT->cb->getDate(3) != 1) // not first month
+	if (LOCPLINT->cb->getDate(Date::MONTH) != 1) // not first month
 		CCS->soundh->playSound(soundBase::newMonth);
 	else
 		CCS->soundh->playSound(soundBase::newDay);
@@ -689,13 +689,13 @@ void CInfoBar::CVisibleInfo::playNewDaySound()
 
 std::string CInfoBar::CVisibleInfo::getNewDayName()
 {
-	if (LOCPLINT->cb->getDate(0) == 1)
+	if (LOCPLINT->cb->getDate(Date::DAY) == 1)
 		return "NEWDAY";
 
-	if (LOCPLINT->cb->getDate(1) != 1)
+	if (LOCPLINT->cb->getDate(Date::DAY) != 1)
 		return "NEWDAY";
 
-	switch(LOCPLINT->cb->getDate(2))
+	switch(LOCPLINT->cb->getDate(Date::WEEK))
 	{
 	case 1:  return "NEWWEEK1";
 	case 2:  return "NEWWEEK2";
@@ -715,10 +715,10 @@ void CInfoBar::CVisibleInfo::loadDay()
 	new CShowableAnim(1, 0, getNewDayName(), CShowableAnim::PLAY_ONCE);
 
 	std::string labelText;
-	if (LOCPLINT->cb->getDate(1) == 1 && LOCPLINT->cb->getDate(0) != 1) // monday of any week but first - show new week info
-		labelText = CGI->generaltexth->allTexts[63] + " " + boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(2));
+	if (LOCPLINT->cb->getDate(Date::DAY_OF_WEEK) == 1 && LOCPLINT->cb->getDate(Date::DAY) != 1) // monday of any week but first - show new week info
+		labelText = CGI->generaltexth->allTexts[63] + " " + boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::WEEK));
 	else
-		labelText = CGI->generaltexth->allTexts[64] + " " + boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(1));
+		labelText = CGI->generaltexth->allTexts[64] + " " + boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK));
 
 	forceRefresh.push_back(new CLabel(95, 31, FONT_MEDIUM, CENTER, Colors::WHITE, labelText));
 }

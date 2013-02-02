@@ -1761,9 +1761,9 @@ void CMinorResDataBar::showAll(SDL_Surface * to)
 	}
 	std::vector<std::string> temp;
 
-	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(3)));
-	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(2)));
-	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(1)));
+	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::MONTH)));
+	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::WEEK)));
+	temp.push_back(boost::lexical_cast<std::string>(LOCPLINT->cb->getDate(Date::DAY_OF_WEEK)));
 
 	std::string datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63]
 	                        + ": %s, " + CGI->generaltexth->allTexts[64] + ": %s";

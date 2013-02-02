@@ -891,7 +891,7 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 		h.applyGs(gs);
 
 	gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
-	if(gs->getDate(1)) //new week
+	if(gs->getDate(Date::DAY_OF_WEEK) == 1) //new week
 		gs->globalEffects.popBonuses(Bonus::OneWeek); //works for children -> all game objs
 
 	//TODO not really a single root hierarchy, what about bonuses placed elsewhere? [not an issue with H3 mechanics but in the future...]

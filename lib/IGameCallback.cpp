@@ -407,7 +407,7 @@ bool CGameInfoCallback::getHeroInfo( const CGObjectInstance *hero, InfoAboutHero
 	return true;
 }
 
-int CGameInfoCallback::getDate(int mode) const
+int CGameInfoCallback::getDate(Date::EDateType mode) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getDate(mode);

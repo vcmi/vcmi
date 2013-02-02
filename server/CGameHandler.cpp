@@ -1126,9 +1126,9 @@ void CGameHandler::newTurn()
 	n.creatureid = -1;
 	n.day = gs->day + 1;
 
-	bool firstTurn = !getDate(0);
-	bool newWeek = getDate(1) == 7; //day numbers are confusing, as day was not yet switched
-	bool newMonth = getDate(4) == 28;
+	bool firstTurn = !getDate(Date::DAY);
+	bool newWeek = getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
+	bool newMonth = getDate(Date::DAY_OF_MONTH) == 28;
 
 	std::map<ui8, si32> hadGold;//starting gold - for buildings like dwarven treasury
 	srand(time(NULL));

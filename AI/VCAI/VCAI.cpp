@@ -980,7 +980,7 @@ void VCAI::makeTurn()
 	BNLOG("Player %d starting turn", playerID);
 	INDENT;
 
-	switch(cb->getDate(1))
+	switch(cb->getDate(Date::DAY_OF_WEEK))
 	{
 		case 1:
 		{
@@ -1374,15 +1374,15 @@ void VCAI::buildStructure(const CGTownInstance * t)
 		if (tryBuildNextStructure(t, std::vector<int>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
 			return;
 
-	if (cb->getDate(1) > 6)// last 2 days of week - try to focus on growth
+	if (cb->getDate(Date::DAY_OF_WEEK) > 6)// last 2 days of week - try to focus on growth
 	{
 		if (tryBuildNextStructure(t, std::vector<int>(unitGrowth, unitGrowth + ARRAY_COUNT(unitGrowth)), 2))
 			return;
 	}
 
 	// first in-game week or second half of any week: try build dwellings
-	if (cb->getDate(0) < 7 || cb->getDate(1) > 3)
-		if (tryBuildAnyStructure(t, std::vector<int>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(1)))
+	if (cb->getDate(Date::DAY) < 7 || cb->getDate(Date::DAY_OF_WEEK) > 3)
+		if (tryBuildAnyStructure(t, std::vector<int>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK)))
 			return;
 
 	//try to upgrade dwelling
