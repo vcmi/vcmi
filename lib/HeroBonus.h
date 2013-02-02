@@ -467,10 +467,10 @@ public:
 
 class DLL_LINKAGE CPropagatorNodeType : public IPropagator
 {
-	ui8 nodeType;
+	int nodeType; //CBonusSystemNode::ENodeTypes
 public:
 	CPropagatorNodeType();
-	CPropagatorNodeType(ui8 NodeType);
+	CPropagatorNodeType(int NodeType);
 	bool shouldBeAttached(CBonusSystemNode *dest);
 	//CBonusSystemNode *getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild) OVERRIDE;
 
@@ -547,6 +547,12 @@ public:
 
 class DLL_LINKAGE CBonusSystemNode : public IBonusBearer
 {
+public:
+	enum ENodeTypes
+	{
+		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, specialty, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM,
+		TOWN_AND_VISITOR, BATTLE, COMMANDER
+	};
 private:
 	BonusList bonuses; //wielded bonuses (local or up-propagated here)
 	BonusList exportedBonuses; //bonuses coming from this node (wielded or propagated away)
@@ -554,7 +560,7 @@ private:
 	TNodesVector parents; //parents -> we inherit bonuses from them, we may attach our bonuses to them
 	TNodesVector children;
 
-	ui8 nodeType;
+	ENodeTypes nodeType;
 	std::string description;
 
 	static const bool cachingEnabled;
@@ -622,8 +628,8 @@ public:
 	BonusList &getBonusList();
 	const BonusList &getBonusList() const;
 	BonusList &getExportedBonusList();
-	ui8 getNodeType() const;
-	void setNodeType(ui8 type);
+	CBonusSystemNode::ENodeTypes getNodeType() const;
+	void setNodeType(CBonusSystemNode::ENodeTypes type);
 	const TNodesVector &getParentNodes() const;
 	const TNodesVector &getChildrenNodes() const;
 	const std::string &getDescription() const;
@@ -639,11 +645,6 @@ public:
 		BONUS_TREE_DESERIALIZATION_FIX
 		//h & parents & children;
 	}
-	enum ENodeTypes
-	{
-		UNKNOWN, STACK_INSTANCE, STACK_BATTLE, specialty, ARTIFACT, CREATURE, ARTIFACT_INSTANCE, HERO, PLAYER, TEAM,
-		TOWN_AND_VISITOR, BATTLE
-	};
 };
 
 namespace NBonus
@@ -761,10 +762,10 @@ class DLL_LINKAGE CCreatureTypeLimiter : public ILimiter //affect only stacks of
 {
 public:
 	const CCreature *creature;
-	ui8 includeUpgrades;
+	bool includeUpgrades;
 
 	CCreatureTypeLimiter();
-	CCreatureTypeLimiter(const CCreature &Creature, ui8 IncludeUpgrades = true);
+	CCreatureTypeLimiter(const CCreature &Creature, bool IncludeUpgrades = true);
 	void setCreature (TCreature id);
 
 	int limit(const BonusLimitationContext &context) const OVERRIDE;
@@ -781,7 +782,7 @@ class DLL_LINKAGE HasAnotherBonusLimiter : public ILimiter //applies only to nod
 public:
 	TBonusType type;
 	TBonusSubtype subtype;
-	ui8 isSubtypeRelevant; //check for subtype only if this is true
+	bool isSubtypeRelevant; //check for subtype only if this is true
 
 	HasAnotherBonusLimiter(TBonusType bonus = Bonus::NONE);
 	HasAnotherBonusLimiter(TBonusType bonus, TBonusSubtype _subtype);
@@ -798,7 +799,7 @@ public:
 class DLL_LINKAGE CreatureNativeTerrainLimiter : public ILimiter //applies only to creatures that are on their native terrain
 {
 public:
-	si8 terrainType;
+	int terrainType;
 	CreatureNativeTerrainLimiter();
 	CreatureNativeTerrainLimiter(int TerrainType);
 

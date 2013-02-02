@@ -55,7 +55,7 @@ public:
 		MISSION_ART = 5, MISSION_ARMY = 6, MISSION_RESOURCES = 7, MISSION_HERO = 8, MISSION_PLAYER = 9, MISSION_KEYMASTER = 10};
 	enum Eprogress {NOT_ACTIVE, IN_PROGRESS, COMPLETE};
 
-	si32 qid; //unique quets id for serialization / identification
+	si32 qid; //unique quest id for serialization / identification
 
 	Emission missionType;
 	Eprogress progress;
@@ -172,8 +172,8 @@ public:
 	CGDefInfo * defInfo;
 	ui8 animPhaseShift;
 
-	ui8 tempOwner;
-	ui8 blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
+	TPlayerColor tempOwner;
+	bool blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
 
 	virtual ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
 	virtual int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
@@ -234,9 +234,9 @@ public:
 class DLL_LINKAGE CPlayersVisited: public CGObjectInstance
 {
 public:
-	std::set<ui8> players; //players that visited this object
+	std::set<TPlayerColor> players; //players that visited this object
 
-	bool wasVisited(ui8 player) const;
+	bool wasVisited(TPlayerColor player) const;
 	void setPropertyDer(ui8 what, ui32 val) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -305,7 +305,7 @@ public:
 	std::vector<std::pair<ui8,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	ui32 movement; //remaining movement points
 	ui8 sex;
-	ui8 inTownGarrison; // if hero is in town garrison
+	bool inTownGarrison; // if hero is in town garrison
 	ConstTransitivePtr<CGTownInstance> visitedTown; //set if hero is visiting town or in the town garrison
 	ConstTransitivePtr<CCommanderInstance> commander;
 	const CGBoat *boat; //set to CGBoat when sailing
@@ -319,7 +319,7 @@ public:
 	struct DLL_LINKAGE Patrol
 	{
 		Patrol(){patrolling=false;patrolRadious=-1;};
-		ui8 patrolling;
+		bool patrolling;
 		ui32 patrolRadious;
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -329,7 +329,7 @@ public:
 
 	struct DLL_LINKAGE HeroSpecial : CBonusSystemNode
 	{
-		ui8 growsWithLevel;
+		bool growsWithLevel;
 
 		HeroSpecial(){growsWithLevel = false;};
 
@@ -714,10 +714,10 @@ private:
 class DLL_LINKAGE CGEvent : public CGPandoraBox  //event objects
 {
 public:
-	ui8 removeAfterVisit; //true if event is removed after occurring
+	bool removeAfterVisit; //true if event is removed after occurring
 	ui8 availableFor; //players whom this event is available for
-	ui8 computerActivate; //true if computre player can activate this event
-	ui8 humanActivate; //true if human player can activate this event
+	bool computerActivate; //true if computer player can activate this event
+	bool humanActivate; //true if human player can activate this event
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -738,8 +738,8 @@ public:
 	std::string message; //message printed for attacking hero
 	std::vector<ui32> resources; //[res_id], resources given to hero that has won with monsters
 	TArtifactID gainedArtifact; //ID of artifact gained to hero, -1 if none
-	ui8 neverFlees; //if true, the troops will never flee
-	ui8 notGrowingTeam; //if true, number of units won't grow
+	bool neverFlees; //if true, the troops will never flee
+	bool notGrowingTeam; //if true, number of units won't grow
 	ui64 temppower; //used to handle fractional stack growth for tiny stacks
 
 
@@ -891,7 +891,7 @@ public:
 class DLL_LINKAGE CGGarrison : public CArmedInstance
 {
 public:
-	ui8 removableUnits;
+	bool removableUnits;
 
 	ui8 getPassableness() const;
 	void onHeroVisit(const CGHeroInstance * h) const override;
@@ -1002,7 +1002,7 @@ class DLL_LINKAGE CGVisitableOPW : public CGObjectInstance //objects visitable O
 public:
 	ui8 visited; //true if object has been visited this week
 
-	bool wasVisited(ui8 player) const;
+	bool wasVisited(TPlayerColor player) const;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void newTurn() const override;
 
@@ -1046,7 +1046,7 @@ public:
 };
 
 class DLL_LINKAGE CGMagicSpring : public CGVisitableOPW
-{///unfortunatelly, this one is quite different than others
+{///unfortunately, this one is quite different than others
 public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	const std::string & getHoverText() const override;
@@ -1098,11 +1098,11 @@ public:
 class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
 {
 public:
-	static std::map <ui8, std::set <ui8> > playerKeyMap; //[players][keysowned]
+	static std::map <TPlayerColor, std::set <ui8> > playerKeyMap; //[players][keysowned]
 	//SubID 0 - lightblue, 1 - green, 2 - red, 3 - darkblue, 4 - brown, 5 - purple, 6 - white, 7 - black
 
 	const std::string getName() const; //depending on color
-	bool wasMyColorVisited (int player) const;
+	bool wasMyColorVisited (TPlayerColor player) const;
 
 	const std::string & getHoverText() const override;
 
@@ -1117,7 +1117,7 @@ protected:
 class DLL_LINKAGE CGKeymasterTent : public CGKeys
 {
 public:
-	bool wasVisited (ui8 player) const;
+	bool wasVisited (TPlayerColor player) const;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)

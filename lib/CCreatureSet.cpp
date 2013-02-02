@@ -1020,7 +1020,7 @@ void CCommanderInstance::init()
 	type = NULL;
 	idRand = -1;
 	_armyObj = NULL;
-	setNodeType (Bonus::COMMANDER);
+	setNodeType (CBonusSystemNode::COMMANDER);
 	secondarySkills.resize (ECommander::SPELL_POWER + 1);
 }
 

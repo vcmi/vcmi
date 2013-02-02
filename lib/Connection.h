@@ -34,7 +34,7 @@
 #include "CObjectHandler.h" //for CArmedInstance
 #include "Mapping/CCampaignHandler.h" //for CCampaignState
 
-const ui32 version = 734;
+const ui32 version = 735;
 const TSlot COMMANDER_SLOT_PLACEHOLDER = -2;
 
 class CConnection;
@@ -72,6 +72,7 @@ namespace boost
 enum SerializationLvl
 {
 	Wrong=0,
+	Boolean,
 	Primitive,
 	Array,
 	Pointer,
@@ -118,6 +119,23 @@ public:
 
 extern DLL_LINKAGE CTypeList typeList;
 
+
+template<typename Ser>
+struct SaveBoolean
+{
+	static void invoke(Ser &s, const bool &data)
+	{
+		s.saveBoolean(data);
+	}
+};
+template<typename Ser>
+struct LoadBoolean
+{
+	static void invoke(Ser &s, bool &data)
+	{
+		s.loadBoolean(data);
+	}
+};
 template<typename Ser,typename T>
 struct SavePrimitive
 {
@@ -223,6 +241,10 @@ struct SerializationLevel
 	typedef mpl::integral_c_tag tag;
 	typedef
 		typename mpl::eval_if<
+			boost::is_same<T, bool>,
+			mpl::int_<Boolean>,
+		//else
+		typename mpl::eval_if<
 			boost::is_fundamental<T>,
 			mpl::int_<Primitive>,
 		//else
@@ -247,6 +269,7 @@ struct SerializationLevel
 			mpl::int_<Primitive>,
 		//else
 			mpl::int_<Wrong>
+		>
 		>
 		>
 		>
@@ -406,7 +429,7 @@ struct SaveIfStackInstance<Ser, CStackInstance *>
 		assert(data->armyObj);
 		TSlot slot = -1;
 
-		if(data->getNodeType() == Bonus::COMMANDER)
+		if(data->getNodeType() == CBonusSystemNode::COMMANDER)
 			slot = COMMANDER_SLOT_PLACEHOLDER;
 		else
 			slot = data->armyObj->findStack(data);
@@ -582,6 +605,9 @@ public:
 	{
 		typedef
 			//if
+			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Boolean> >,
+			mpl::identity<SaveBoolean<Serializer> >,
+			//else if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
 			mpl::identity<SavePrimitive<Serializer,T> >,
 			//else if
@@ -598,6 +624,7 @@ public:
 			mpl::identity<SaveSerializable<Serializer,T> >,
 			//else
 			mpl::identity<SaveWrong<Serializer,T> >
+			>
 			>
 			>
 			>
@@ -689,6 +716,11 @@ public:
 		si32 writ = static_cast<si32>(data);
 		*this << writ;
 	}
+	void saveBoolean(const bool & data)
+	{
+		ui8 writ = static_cast<ui8>(data);
+		*this << writ;
+	}
 };
 
 
@@ -778,6 +810,9 @@ public:
 	{
 		typedef
 			//if
+			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Boolean> >,
+			mpl::identity<LoadBoolean<Serializer> >,
+			//else if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
 			mpl::identity<LoadPrimitive<Serializer,T> >,
 			//else if
@@ -794,6 +829,7 @@ public:
 			mpl::identity<LoadSerializable<Serializer,T> >,
 			//else
 			mpl::identity<LoadWrong<Serializer,T> >
+			>
 			>
 			>
 			>
@@ -1048,6 +1084,12 @@ public:
 		si32 read;
 		*this >> read;
 		data = static_cast<E>(read);
+	}
+	void loadBoolean(bool &data)
+	{
+		ui8 read;
+		*this >> read;
+		data = static_cast<bool>(read);
 	}
 };
 

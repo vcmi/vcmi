@@ -530,7 +530,7 @@ void CTownHandler::load(const JsonNode &source)
 		if (alignment == -1)
 			faction.alignment = EAlignment::NEUTRAL;
 		else
-			faction.alignment = alignment;
+			faction.alignment = static_cast<EAlignment::EAlignment>(alignment);
 
 		if (!node.second["town"].isNull())
 		{

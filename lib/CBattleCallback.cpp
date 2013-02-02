@@ -405,7 +405,7 @@ bool CBattleInfoEssentials::battleHasHero(ui8 side) const
 ui8 CBattleInfoEssentials::battleGetWallState(int partOfWall) const
 {
 	RETURN_IF_NOT_BATTLE(0);
-	if(getBattle()->siege == 0)
+	if(getBattle()->siege == CGTownInstance::NONE)
 		return 0;
 
 	assert(partOfWall >= 0 && partOfWall < EWallParts::PARTS_COUNT);

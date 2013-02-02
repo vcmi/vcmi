@@ -374,7 +374,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 	else
 	{
 		curB->town = NULL;
-		curB->siege = 0;
+		curB->siege = CGTownInstance::NONE;
 		curB->terrainType = terrain;
 	}
 
@@ -566,13 +566,13 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 
 	}
 
-	if (curB->siege == 2 || curB->siege == 3)
+	if (curB->siege == CGTownInstance::CITADEL || curB->siege == CGTownInstance::CASTLE)
 	{
 		// keep tower
 		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), false, 255, -2);
 		stacks.push_back(stack);
 
-		if (curB->siege == 3)
+		if (curB->siege == CGTownInstance::CASTLE)
 		{
 			// lower tower + upper tower
 			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(149, 1), false, 255, -4);

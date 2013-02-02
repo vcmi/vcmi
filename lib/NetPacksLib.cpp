@@ -1420,7 +1420,7 @@ DLL_LINKAGE void ObstaclesRemoved::applyGs( CGameState *gs )
 
 DLL_LINKAGE void CatapultAttack::applyGs( CGameState *gs )
 {
-	if(gs->curB && gs->curB->siege != 0) //if there is a battle and it's a siege
+	if(gs->curB && gs->curB->siege != CGTownInstance::NONE) //if there is a battle and it's a siege
 	{
 		BOOST_FOREACH(const auto &it,attackedParts)
 		{

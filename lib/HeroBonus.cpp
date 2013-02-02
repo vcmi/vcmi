@@ -970,7 +970,7 @@ void CBonusSystemNode::exportBonuses()
 		exportBonus(b);
 }
 
-ui8 CBonusSystemNode::getNodeType() const
+CBonusSystemNode::ENodeTypes CBonusSystemNode::getNodeType() const
 {
 	return nodeType;
 }
@@ -995,7 +995,7 @@ const TNodesVector& CBonusSystemNode::getChildrenNodes() const
 	return children;
 }
 
-void CBonusSystemNode::setNodeType(ui8 type)
+void CBonusSystemNode::setNodeType(CBonusSystemNode::ENodeTypes type)
 {
 	nodeType = type;
 }
@@ -1345,7 +1345,7 @@ int CCreatureTypeLimiter::limit(const BonusLimitationContext &context) const
 	//drop bonus if it's not our creature and (we dont check upgrades or its not our upgrade)
 }
 
-CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature &Creature, ui8 IncludeUpgrades /*= true*/)
+CCreatureTypeLimiter::CCreatureTypeLimiter(const CCreature &Creature, bool IncludeUpgrades /*= true*/)
 	:creature(&Creature), includeUpgrades(IncludeUpgrades)
 {
 }
@@ -1411,7 +1411,7 @@ CPropagatorNodeType::CPropagatorNodeType()
 
 }
 
-CPropagatorNodeType::CPropagatorNodeType(ui8 NodeType)
+CPropagatorNodeType::CPropagatorNodeType(int NodeType)
 	: nodeType(NodeType)
 {
 }

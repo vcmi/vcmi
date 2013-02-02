@@ -131,7 +131,7 @@ void CPlayersVisited::setPropertyDer( ui8 what, ui32 val )
 		players.insert((ui8)val);
 }
 
-bool CPlayersVisited::wasVisited( ui8 player ) const
+bool CPlayersVisited::wasVisited( TPlayerColor player ) const
 {
 	return vstd::contains(players,player);
 }
@@ -3552,7 +3552,7 @@ void CGVisitableOPW::newTurn() const
 		cb->setHoverName(id,&ms);
 	}
 }
-bool CGVisitableOPW::wasVisited(ui8 player) const
+bool CGVisitableOPW::wasVisited(TPlayerColor player) const
 {
 	return visited; //TODO: other players should see object as unvisited
 }
@@ -6268,7 +6268,7 @@ void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for play
 		playerKeyMap.find(what-101)->second.insert((ui8)val);
 }
 
-bool CGKeys::wasMyColorVisited (int player) const
+bool CGKeys::wasMyColorVisited (TPlayerColor player) const
 {
 	if (vstd::contains(playerKeyMap[player], subID)) //creates set if it's not there
 		return true;
@@ -6291,7 +6291,7 @@ const std::string CGKeys::getName() const
 	return name;
 }
 
-bool CGKeymasterTent::wasVisited (ui8 player) const
+bool CGKeymasterTent::wasVisited (TPlayerColor player) const
 {
 	return wasMyColorVisited (player);
 }

@@ -47,7 +47,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 {
 	ui8 sides[2]; //sides[0] - attacker, sides[1] - defender
 	si32 round, activeStack, selectedStack;
-	ui8 siege; //    = 0 ordinary battle    = 1 a siege with a Fort    = 2 a siege with a Citadel    = 3 a siege with a Castle
+	CGTownInstance::EFortLevel siege;
 	const CGTownInstance * town; //used during town siege - id of attacked town; -1 if not town defence
 	int3 tile; //for background and bonuses
 	CGHeroInstance* heroes[2];
@@ -60,7 +60,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	SiegeInfo si;
 
 	si32 battlefieldType; //like !!BA:B
-	ui8 terrainType; //used for some stack nativity checks (not the bonus limiters though that have their own copy)
+	int terrainType; //used for some stack nativity checks (not the bonus limiters though that have their own copy)
 
 	ui8 tacticsSide; //which side is requested to play tactics phase
 	ui8 tacticDistance; //how many hexes we can go forward (1 = only hexes adjacent to margin line)

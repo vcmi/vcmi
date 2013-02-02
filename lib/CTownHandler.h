@@ -174,7 +174,7 @@ public:
 	TFaction factionID;
 
 	ui8 nativeTerrain;
-	ui8 alignment; // uses EAlignment enum
+	EAlignment::EAlignment alignment;
 
 	TCreature commander;
 
