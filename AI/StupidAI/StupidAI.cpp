@@ -106,7 +106,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 		BattleAction attack;
 		static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};
 		attack.destinationTile = wallHexes[ rand()%ARRAY_COUNT(wallHexes) ];
-		attack.actionType = BattleAction::CATAPULT;
+		attack.actionType = Battle::CATAPULT;
 		attack.additionalInfo = 0;
 		attack.side = side;
 		attack.stackNumber = stack->ID;

@@ -525,7 +525,8 @@ void CTownHandler::load(const JsonNode &source)
 		faction.creatureBg120 = node.second["creatureBackground"]["120px"].String();
 		faction.creatureBg130 = node.second["creatureBackground"]["130px"].String();
 
-		faction.nativeTerrain = vstd::find_pos(GameConstants::TERRAIN_NAMES, node.second["nativeTerrain"].String());
+		faction.nativeTerrain = static_cast<ETerrainType::ETerrainType>(vstd::find_pos(GameConstants::TERRAIN_NAMES,
+			node.second["nativeTerrain"].String()));
 		int alignment = vstd::find_pos(EAlignment::names, node.second["alignment"].String());
 		if (alignment == -1)
 			faction.alignment = EAlignment::NEUTRAL;

@@ -773,11 +773,11 @@ CGameState::~CGameState()
 BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town)
 {
 	const TerrainTile &t = map->getTile(tile);
-    int terrain = t.terType;
+    ETerrainType::ETerrainType terrain = t.terType;
 	if(t.isCoastal() && !t.isWater())
         terrain = ETerrainType::SAND;
 
-	int terType = battleGetBattlefieldType(tile);
+	BFieldType::BFieldType terType = battleGetBattlefieldType(tile);
 	return BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
 }
 
@@ -1679,23 +1679,23 @@ void CGameState::initDuel()
 		}
 	}
 
-	curB = BattleInfo::setupBattle(int3(), dp.bfieldType, dp.terType, armies, heroes, false, town);
+	curB = BattleInfo::setupBattle(int3(), dp.terType, dp.bfieldType, armies, heroes, false, town);
 	curB->obstacles = dp.obstacles;
 	curB->localInit();
 	return;
 }
 
-int CGameState::battleGetBattlefieldType(int3 tile) const
+BFieldType::BFieldType CGameState::battleGetBattlefieldType(int3 tile) const
 {
 	if(tile==int3() && curB)
 		tile = curB->tile;
 	else if(tile==int3() && !curB)
-		return -1;
+		return BFieldType::NONE;
 
 	const TerrainTile &t = map->getTile(tile);
 	//fight in mine -> subterranean
 	if(dynamic_cast<const CGMine *>(t.visitableObjects.front()))
-		return 12;
+		return BFieldType::SUBTERRANEAN;
 
 	BOOST_FOREACH(auto &obj, map->objects)
 	{
@@ -1707,55 +1707,55 @@ int CGameState::battleGetBattlefieldType(int3 tile) const
 		switch(obj->ID)
 		{
 		case Obj::CLOVER_FIELD:
-			return 19;
+			return BFieldType::CLOVER_FIELD;
 		case Obj::CURSED_GROUND1: case Obj::CURSED_GROUND2:
-			return 22;
+			return BFieldType::CURSED_GROUND;
 		case Obj::EVIL_FOG:
-			return 20;
+			return BFieldType::EVIL_FOG;
 		case Obj::FAVORABLE_WINDS:
-			return 21;
+			return BFieldType::FAVOURABLE_WINDS;
 		case Obj::FIERY_FIELDS:
-			return 14;
+			return BFieldType::FIERY_FIELDS;
 		case Obj::HOLY_GROUNDS:
-			return 18;
+			return BFieldType::HOLY_GROUND;
 		case Obj::LUCID_POOLS:
-			return 17;
+			return BFieldType::LUCID_POOLS;
 		case Obj::MAGIC_CLOUDS:
-			return 16;
+			return BFieldType::MAGIC_CLOUDS;
 		case Obj::MAGIC_PLAINS1: case Obj::MAGIC_PLAINS2:
-			return 9;
+			return BFieldType::MAGIC_PLAINS;
 		case Obj::ROCKLANDS:
-			return 15;
+			return BFieldType::ROCKLANDS;
 		}
 	}
 
 	if(!t.isWater() && t.isCoastal())
-		return 1; //sand/beach
+		return BFieldType::SAND_SHORE;
 
     switch(t.terType)
 	{
     case ETerrainType::DIRT:
-		return rand()%3+3;
+		return static_cast<BFieldType::BFieldType>(rand()%3+3);
     case ETerrainType::SAND:
-		return 2; //TODO: coast support
+		return BFieldType::SAND_MESAS; //TODO: coast support
     case ETerrainType::GRASS:
-		return rand()%2+6;
+		return static_cast<BFieldType::BFieldType>(rand()%2+6);
     case ETerrainType::SNOW:
-		return rand()%2+10;
+		return static_cast<BFieldType::BFieldType>(rand()%2+10);
     case ETerrainType::SWAMP:
-		return 13;
+		return BFieldType::SWAMP_TREES;
     case ETerrainType::ROUGH:
-		return 23;
+		return BFieldType::ROUGH;
     case ETerrainType::SUBTERRANEAN:
-		return 12;
+		return BFieldType::SUBTERRANEAN;
     case ETerrainType::LAVA:
-		return 8;
+		return BFieldType::LAVA;
     case ETerrainType::WATER:
-		return 25;
+		return BFieldType::SHIP;
     case ETerrainType::ROCK:
-		return 15;
+		return BFieldType::ROCKLANDS;
 	default:
-		return -1;
+		return BFieldType::NONE;
 	}
 }
 
@@ -1820,17 +1820,17 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 	return ret;
 }
 
-int CGameState::getPlayerRelations( ui8 color1, ui8 color2 )
+PlayerRelations::PlayerRelations CGameState::getPlayerRelations( TPlayerColor color1, TPlayerColor color2 )
 {
 	if ( color1 == color2 )
-		return 2;
-	if(color1 == 255 || color2 == 255) //neutral player has no friends
-		return  0;
+		return PlayerRelations::SAME_PLAYER;
+	if(color1 == GameConstants::NEUTRAL_PLAYER || color2 == GameConstants::NEUTRAL_PLAYER) //neutral player has no friends
+		return PlayerRelations::ENEMIES;
 
 	const TeamState * ts = getPlayerTeam(color1);
 	if (ts && vstd::contains(ts->players, color2))
-		return 1;
-	return 0;
+		return PlayerRelations::ALLIES;
+	return PlayerRelations::ENEMIES;
 }
 
 void CGameState::getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand, bool limitCoastSailing)
@@ -2293,7 +2293,7 @@ ui8 CGameState::checkForStandardWin() const
 	return supposedWinner;
 }
 
-bool CGameState::checkForStandardLoss( ui8 player ) const
+bool CGameState::checkForStandardLoss( TPlayerColor player ) const
 {
 	//std loss condition is: player lost all towns and heroes
 	const PlayerState &p = *CGameInfoCallback::getPlayer(player);
@@ -2496,7 +2496,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 #undef FILL_FIELD
 }
 
-int CGameState::lossCheck( ui8 player ) const
+int CGameState::lossCheck( TPlayerColor player ) const
 {
 	const PlayerState *p = CGameInfoCallback::getPlayer(player);
 	//if(map->lossCondition.typeOfLossCon == lossStandard)
@@ -2900,7 +2900,7 @@ DuelParameters::SideSettings::SideSettings()
 DuelParameters::DuelParameters()
 {
     terType = ETerrainType::DIRT;
-	bfieldType = 15;
+	bfieldType = BFieldType::ROCKLANDS;
 }
 
 DuelParameters DuelParameters::fromJSON(const std::string &fname)
@@ -2908,8 +2908,8 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 	DuelParameters ret;
 
 	const JsonNode duelData(ResourceID("DATA/" + fname, EResType::TEXT));
-	ret.terType = duelData["terType"].Float();
-	ret.bfieldType = duelData["bfieldType"].Float();
+	ret.terType = static_cast<ETerrainType::ETerrainType>((int)duelData["terType"].Float());
+	ret.bfieldType = static_cast<BFieldType::BFieldType>((int)duelData["bfieldType"].Float());
 	BOOST_FOREACH(const JsonNode &n, duelData["sides"].Vector())
 	{
 		SideSettings &ss = ret.sides[(int)n["side"].Float()];

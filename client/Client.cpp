@@ -112,7 +112,7 @@ CClient::~CClient(void)
 	delete applier;
 }
 
-void CClient::waitForMoveAndSend(int color)
+void CClient::waitForMoveAndSend(TPlayerColor color)
 {
 	try
 	{
@@ -362,7 +362,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	for(auto it = gs->scenarioOps->playerInfos.begin(); 
 		it != gs->scenarioOps->playerInfos.end(); ++it)//initializing interfaces for players
 	{ 
-		ui8 color = it->first;
+		TPlayerColor color = it->first;
 		gs->currentPlayer = color;
 		if(!vstd::contains(myPlayers, color))
 			continue;
@@ -667,7 +667,7 @@ void CClient::invalidatePaths(const CGHeroInstance *h /*= NULL*/)
 		pathInfo->isValid = false;
 }
 
-int CClient::sendRequest(const CPack *request, int player)
+int CClient::sendRequest(const CPack *request, TPlayerColor player)
 {
 	static ui32 requestCounter = 0;
 

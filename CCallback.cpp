@@ -178,7 +178,7 @@ bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 
 int CBattleCallback::battleMakeAction(BattleAction* action)
 {
-	assert(action->actionType == BattleAction::HERO_SPELL);
+	assert(action->actionType == Battle::HERO_SPELL);
 	MakeCustomAction mca(*action);
 	sendRequest(&mca);
 	return 0;

@@ -47,6 +47,7 @@ struct ProjectileInfo;
 class CClickableHex;
 struct BattleHex;
 struct InfoAboutHero;
+class BattleAction;
 
 /// Class which manages the locked hex fields that are blocked e.g. by obstacles
 class CBattleObstacle
@@ -171,7 +172,7 @@ private:
 
 	std::list<ProjectileInfo> projectiles; //projectiles flying on battlefield
 	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
-	void giveCommand(ui8 action, BattleHex tile, ui32 stackID, si32 additional=-1, si32 selectedStack = -1);
+	void giveCommand(Battle::ActionType action, BattleHex tile, ui32 stackID, si32 additional=-1, si32 selectedStack = -1);
 	bool isTileAttackable(const BattleHex & number) const; //returns true if tile 'number' is neighboring any tile from active stack's range or is one of these tiles
 	bool isCatapultAttackable(BattleHex hex) const; //returns true if given tile can be attacked by catapult
 

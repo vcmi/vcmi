@@ -651,14 +651,14 @@ const CMapHeader * CGameInfoCallback::getMapHeader() const
 
 bool CGameInfoCallback::hasAccess(int playerId) const
 {
-	return player < 0 || gs->getPlayerRelations( playerId, player );
+	return player < 0 || gs->getPlayerRelations( playerId, player ) != PlayerRelations::ENEMIES;
 }
 
 int CGameInfoCallback::getPlayerStatus(int player) const
 {
 	const PlayerState *ps = gs->getPlayer(player, false);
-	if(!ps)
-		return -1;
+	ERROR_RET_VAL_IF(!ps, "No such player!", -1);
+
 	return ps->status;
 }
 
@@ -667,7 +667,7 @@ std::string CGameInfoCallback::getTavernGossip(const CGObjectInstance * townOrTa
 	return "GOSSIP TEST";
 }
 
-int CGameInfoCallback::getPlayerRelations( ui8 color1, ui8 color2 ) const
+PlayerRelations::PlayerRelations CGameInfoCallback::getPlayerRelations( TPlayerColor color1, TPlayerColor color2 ) const
 {
 	return gs->getPlayerRelations(color1, color2);
 }

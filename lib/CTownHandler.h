@@ -173,7 +173,7 @@ public:
 
 	TFaction factionID;
 
-	ui8 nativeTerrain;
+	ETerrainType::ETerrainType nativeTerrain;
 	EAlignment::EAlignment alignment;
 
 	TCreature commander;

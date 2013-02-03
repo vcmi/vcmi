@@ -20,6 +20,11 @@
  *
  */
 
+#ifdef _MSC_VER
+#pragma warning (disable : 4800 ) /* disable conversion to bool warning -- I think it's intended in all places */
+#endif //_MSC_VER
+
+
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 #include <cstdio>
 #include <stdio.h>

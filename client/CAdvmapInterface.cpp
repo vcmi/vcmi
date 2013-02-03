@@ -1269,7 +1269,7 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	{
 		if(objAtTile)
 		{
-			if(objAtTile->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner))
+			if(objAtTile->ID == Obj::TOWN && LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, objAtTile->tempOwner) != PlayerRelations::ENEMIES)
 				CCS->curh->changeGraphic(ECursor::ADVENTURE, 3);
 			else if(objAtTile->ID == Obj::HERO && objAtTile->tempOwner == LOCPLINT->playerID)
 				CCS->curh->changeGraphic(ECursor::ADVENTURE, 2);

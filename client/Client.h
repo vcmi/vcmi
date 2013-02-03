@@ -113,12 +113,12 @@ class CClient : public IGameCallback
 {
 public:
 	CCallback *cb;
-	std::map<ui8,shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
-	std::map<ui8,shared_ptr<CBattleCallback> > battleCallbacks; //callbacks given to player interfaces
+	std::map<TPlayerColor,shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
+	std::map<TPlayerColor,shared_ptr<CBattleCallback> > battleCallbacks; //callbacks given to player interfaces
 	std::vector<IGameEventsReceiver*> privilagedGameEventReceivers; //scripting modules, spectator interfaces
 	std::vector<IBattleEventsReceiver*> privilagedBattleEventReceivers; //scripting modules, spectator interfaces
-	std::map<ui8,CGameInterface *> playerint;
-	std::map<ui8,CBattleGameInterface *> battleints;
+	std::map<TPlayerColor,CGameInterface *> playerint;
+	std::map<TPlayerColor,CBattleGameInterface *> battleints;
 	bool hotSeat;
 	CConnection *serv;
 	BattleAction *curbaction;
@@ -133,7 +133,7 @@ public:
 	std::queue<CPack *> packs;
 	boost::mutex packsM;
 
-	void waitForMoveAndSend(int color);
+	void waitForMoveAndSend(TPlayerColor color);
 	//void sendRequest(const CPackForServer *request, bool waitForRealization);
 	CClient(void);
 	CClient(CConnection *con, StartInfo *si);
@@ -215,7 +215,7 @@ public:
 	friend class CBattleCallback; //handling players actions
 	friend void processCommand(const std::string &message, CClient *&client); //handling console
 	
-	int sendRequest(const CPack *request, int player); //returns ID given to that request
+	int sendRequest(const CPack *request, TPlayerColor player); //returns ID given to that request
 
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
 	void battleStarted(const BattleInfo * info);

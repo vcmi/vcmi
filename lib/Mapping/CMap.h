@@ -380,15 +380,6 @@ public:
 	}
 };
 
-namespace ETerrainType
-{
-	enum ETerrainType
-	{
-		BORDER = -1, DIRT, SAND, GRASS, SNOW, SWAMP,
-		ROUGH, SUBTERRANEAN, LAVA, WATER, ROCK
-	};
-}
-
 namespace ERiverType
 {
 	enum ERiverType

@@ -3253,15 +3253,15 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 	switch(ba.actionType)
 	{
-	case BattleAction::WALK: //walk
-	case BattleAction::DEFEND: //defend
-	case BattleAction::WAIT: //wait
-	case BattleAction::WALK_AND_ATTACK: //walk or attack
-	case BattleAction::SHOOT: //shoot
-	case BattleAction::CATAPULT: //catapult
-	case BattleAction::STACK_HEAL: //healing with First Aid Tent
-	case BattleAction::DAEMON_SUMMONING:
-	case BattleAction::MONSTER_SPELL:
+	case Battle::WALK: //walk
+	case Battle::DEFEND: //defend
+	case Battle::WAIT: //wait
+	case Battle::WALK_AND_ATTACK: //walk or attack
+	case Battle::SHOOT: //shoot
+	case Battle::CATAPULT: //catapult
+	case Battle::STACK_HEAL: //healing with First Aid Tent
+	case Battle::DAEMON_SUMMONING:
+	case Battle::MONSTER_SPELL:
 
 		if(!stack)
 		{
@@ -3292,16 +3292,16 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 	switch(ba.actionType)
 	{
-	case BattleAction::END_TACTIC_PHASE: //wait
-	case BattleAction::BAD_MORALE:
-	case BattleAction::NO_ACTION:
+	case Battle::END_TACTIC_PHASE: //wait
+	case Battle::BAD_MORALE:
+	case Battle::NO_ACTION:
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
 			sendAndApply(&end_action);
 			break;
 		}
-	case BattleAction::WALK: //walk
+	case Battle::WALK:
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action); //start movement
@@ -3312,7 +3312,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&end_action);
 			break;
 		}
-	case BattleAction::DEFEND: //defend
+	case Battle::DEFEND:
 		{
 			//defensive stance //TODO: remove this bonus when stack becomes active
 			SetStackEffect sse;
@@ -3324,14 +3324,14 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			//don't break - we share code with next case
 		}
-	case BattleAction::WAIT: //wait
+	case Battle::WAIT:
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
 			sendAndApply(&end_action);
 			break;
 		}
-	case BattleAction::RETREAT: //retreat/flee
+	case Battle::RETREAT: //retreat/flee
 		{
 			if(!gs->curB->battleCanFlee(gs->curB->sides[ba.side]))
 				complain("Cannot retreat!");
@@ -3339,7 +3339,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				setBattleResult(1, !ba.side); //surrendering side loses
 			break;
 		}
-	case BattleAction::SURRENDER:
+	case Battle::SURRENDER:
 		{
 			int player = gs->curB->sides[ba.side];
 			int cost = gs->curB->battleGetSurrenderCost(player);
@@ -3355,7 +3355,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			break;
 		}
 		break;
-	case BattleAction::WALK_AND_ATTACK: //walk or attack
+	case Battle::WALK_AND_ATTACK: //walk or attack
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action); //start movement and attack
@@ -3451,7 +3451,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&end_action);
 			break;
 		}
-	case BattleAction::SHOOT: //shoot
+	case Battle::SHOOT:
 		{
 			const CStack *destStack= gs->curB->battleGetStackByPos(ba.destinationTile);
 			if( !gs->curB->battleCanShoot(stack, ba.destinationTile) )
@@ -3497,7 +3497,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&end_action);
 			break;
 		}
-	case BattleAction::CATAPULT: //catapult
+	case Battle::CATAPULT:
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
@@ -3600,7 +3600,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&end_action);
 			break;
 		}
-		case BattleAction::STACK_HEAL: //healing with First Aid Tent
+		case Battle::STACK_HEAL: //healing with First Aid Tent
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
@@ -3641,7 +3641,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&end_action);
 			break;
 		}
-		case BattleAction::DAEMON_SUMMONING:
+		case Battle::DAEMON_SUMMONING:
 			//TODO: From Strategija:
 			//Summon Demon is a level 2 spell.
 		{
@@ -3679,7 +3679,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&end_action);
 			break;
 		}
-		case BattleAction::MONSTER_SPELL:
+		case Battle::MONSTER_SPELL:
 		{
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
@@ -3721,7 +3721,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	return ok;
 }
 
-void CGameHandler::playerMessage( ui8 player, const std::string &message )
+void CGameHandler::playerMessage( TPlayerColor player, const std::string &message )
 {
 	bool cheated=true;
 	PlayerMessage temp_message(player,message);
@@ -3865,7 +3865,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	}
 }
 
-void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
+void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex destination, ui8 casterSide, TPlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
 	int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack, si32 selectedStack)
 {
 	const CSpell *spell = VLC->spellh->spells[spellID];
@@ -4376,7 +4376,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 {
 	switch(ba.actionType)
 	{
-	case BattleAction::HERO_SPELL: //hero casts spell
+	case Battle::HERO_SPELL:
 		{
 			const CGHeroInstance *h = gs->curB->heroes[ba.side];
 			const CGHeroInstance *secondHero = gs->curB->heroes[!ba.side];
@@ -4995,7 +4995,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 				sendAndApply(&iw);
 
 				peg.player = i->first;
-				peg.victory = gameState()->getPlayerRelations(player, i->first) == 1; // ally of winner
+				peg.victory = gameState()->getPlayerRelations(player, i->first) == PlayerRelations::ALLIES; // ally of winner
 				sendAndApply(&peg);
 			}
 		}
@@ -5599,7 +5599,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 void CGameHandler::makeStackDoNothing(const CStack * next)
 {
 	BattleAction doNothing;
-	doNothing.actionType = BattleAction::NO_ACTION;
+	doNothing.actionType = Battle::NO_ACTION;
 	doNothing.additionalInfo = 0;
 	doNothing.destinationTile = -1;
 	doNothing.side = !next->attackerOwned;
@@ -5818,7 +5818,7 @@ void CGameHandler::runBattle()
 				{
 					//unit loses its turn - empty freeze action
 					BattleAction ba;
-					ba.actionType = BattleAction::BAD_MORALE;
+					ba.actionType = Battle::BAD_MORALE;
 					ba.additionalInfo = 1;
 					ba.side = !next->attackerOwned;
 					ba.stackNumber = next->ID;
@@ -5834,7 +5834,7 @@ void CGameHandler::runBattle()
 				if(attackInfo.first != NULL)
 				{
 					BattleAction attack;
-					attack.actionType = BattleAction::WALK_AND_ATTACK;
+					attack.actionType = Battle::WALK_AND_ATTACK;
 					attack.side = !next->attackerOwned;
 					attack.stackNumber = next->ID;
 					attack.additionalInfo = attackInfo.first->position;
@@ -5855,7 +5855,7 @@ void CGameHandler::runBattle()
 				&& (!curOwner || curOwner->getSecSkillLevel(CGHeroInstance::ARTILLERY) == 0)) //hero has no artillery
 			{
 				BattleAction attack;
-				attack.actionType = BattleAction::SHOOT;
+				attack.actionType = Battle::SHOOT;
 				attack.side = !next->attackerOwned;
 				attack.stackNumber = next->ID;
 
@@ -5878,7 +5878,7 @@ void CGameHandler::runBattle()
 				static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};
 
 				attack.destinationTile = wallHexes[ rand()%ARRAY_COUNT(wallHexes) ];
-				attack.actionType = BattleAction::CATAPULT;
+				attack.actionType = Battle::CATAPULT;
 				attack.additionalInfo = 0;
 				attack.side = !next->attackerOwned;
 				attack.stackNumber = next->ID;
@@ -5909,7 +5909,7 @@ void CGameHandler::runBattle()
 					const CStack * toBeHealed = possibleStacks.front();
 
 					BattleAction heal;
-					heal.actionType = BattleAction::STACK_HEAL;
+					heal.actionType = Battle::STACK_HEAL;
 					heal.additionalInfo = 0;
 					heal.destinationTile = toBeHealed->position;
 					heal.side = !next->attackerOwned;

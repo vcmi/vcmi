@@ -45,7 +45,7 @@ struct DLL_LINKAGE SiegeInfo
 
 struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallback
 {
-	ui8 sides[2]; //sides[0] - attacker, sides[1] - defender
+	TPlayerColor sides[2]; //sides[0] - attacker, sides[1] - defender
 	si32 round, activeStack, selectedStack;
 	CGTownInstance::EFortLevel siege;
 	const CGTownInstance * town; //used during town siege - id of attacked town; -1 if not town defence
@@ -59,8 +59,8 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	si16 enchanterCounter[2]; //tends to pass through 0, so sign is needed
 	SiegeInfo si;
 
-	si32 battlefieldType; //like !!BA:B
-	int terrainType; //used for some stack nativity checks (not the bonus limiters though that have their own copy)
+	BFieldType::BFieldType battlefieldType; //like !!BA:B
+	ETerrainType::ETerrainType terrainType; //used for some stack nativity checks (not the bonus limiters though that have their own copy)
 
 	ui8 tacticsSide; //which side is requested to play tactics phase
 	ui8 tacticDistance; //how many hexes we can go forward (1 = only hexes adjacent to margin line)
@@ -115,7 +115,7 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	ui32 calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //unused
 	bool resurrects(TSpell spellid) const; //TODO: move it to spellHandler?
 
-	const CGHeroInstance * getHero(int player) const; //returns fighting hero that belongs to given player
+	const CGHeroInstance * getHero(TPlayerColor player) const; //returns fighting hero that belongs to given player
 
 
 	std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<const CStack*> affectedCreatures, int casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const;
@@ -125,13 +125,13 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	void localInit();
 
 	void localInitStack(CStack * s);
-	static BattleInfo * setupBattle( int3 tile, int terrain, int battlefieldType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town );
+	static BattleInfo * setupBattle( int3 tile, ETerrainType::ETerrainType terrain, BFieldType::BFieldType battlefieldType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town );
 	//bool hasNativeStack(ui8 side) const;
 
-	int theOtherPlayer(int player) const;
-	ui8 whatSide(int player) const;
+	TPlayerColor theOtherPlayer(TPlayerColor player) const;
+	ui8 whatSide(TPlayerColor player) const;
 
-	static int battlefieldTypeToBI(int bfieldType); //converts above to ERM BI format
+	static BattlefieldBI::BattlefieldBI battlefieldTypeToBI(BFieldType::BFieldType bfieldType); //converts above to ERM BI format
 	static int battlefieldTypeToTerrain(int bfieldType); //converts above to ERM BI format
 };
 
@@ -143,8 +143,9 @@ public:
 	ui32 ID; //unique ID of stack
 	ui32 baseAmount;
 	ui32 firstHPleft; //HP of first creature in stack
-	ui8 owner, slot;  //owner - player colour (255 for neutrals), slot - position in garrison (may be 255 for neutrals/called creatures)
-	ui8 attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
+	TPlayerColor owner;
+	ui8 slot;  //owner - player colour (255 for neutrals), slot - position in garrison (may be 255 for neutrals/called creatures)
+	bool attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
 	BattleHex position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
 	si16 shots; //how many shots left

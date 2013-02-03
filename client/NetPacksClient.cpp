@@ -160,7 +160,7 @@ void FoWChange::applyCl( CClient *cl )
 {
 
 	BOOST_FOREACH(auto &i, cl->playerint)
-		if(cl->getPlayerRelations(i.first, player) > 0) //ally or the same player 
+		if(cl->getPlayerRelations(i.first, player) != PlayerRelations::ENEMIES)
 		{
 			if(mode)
 				i.second->tileRevealed(tiles);
@@ -376,7 +376,7 @@ void TryMoveHero::applyCl( CClient *cl )
 	int player = h->tempOwner;
 
 	BOOST_FOREACH(auto &i, cl->playerint)
-		if(cl->getPlayerRelations(i.first, player) > 0) //ally or the same player 
+		if(cl->getPlayerRelations(i.first, player) != PlayerRelations::ENEMIES)
 			i.second->tileRevealed(fowRevealed);
 
 	//notify interfaces about move

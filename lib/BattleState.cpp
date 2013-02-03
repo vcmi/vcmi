@@ -343,7 +343,7 @@ struct RangeGenerator
 	boost::function<int()> myRand;
 };
 
-BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town )
+BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType::ETerrainType terrain, BFieldType::BFieldType battlefieldType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town )
 {
 	CMP_stack cmpst;
 	BattleInfo *curB = new BattleInfo;
@@ -599,23 +599,23 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 	int bonusSubtype = -1;
 	switch(battlefieldType)
 	{
-	case 9: //magic plains
+	case BFieldType::MAGIC_PLAINS:
 		{
 			bonusSubtype = 0;
 		}
-	case 14: //fiery fields
+	case BFieldType::FIERY_FIELDS:
 		{
 			if(bonusSubtype == -1) bonusSubtype = 1;
 		}
-	case 15: //rock lands
+	case BFieldType::ROCKLANDS:
 		{
 			if(bonusSubtype == -1) bonusSubtype = 8;
 		}
-	case 16: //magic clouds
+	case BFieldType::MAGIC_CLOUDS:
 		{
 			if(bonusSubtype == -1) bonusSubtype = 2;
 		}
-	case 17: //lucid pools
+	case BFieldType::LUCID_POOLS:
 		{
 			if(bonusSubtype == -1) bonusSubtype = 4;
 		}
@@ -625,24 +625,24 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 			break;
 		}
 
-	case 18: //holy ground
+	case BFieldType::HOLY_GROUND:
 		{
 			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD)));
 			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL)));
 			break;
 		}
-	case 19: //clover field
+	case BFieldType::CLOVER_FIELD:
 		{ //+2 luck bonus for neutral creatures
 			curB->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, +2, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureFactionLimiter>(-1)));
 			break;
 		}
-	case 20: //evil fog
+	case BFieldType::EVIL_FOG:
 		{
 			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, -1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::GOOD)));
 			curB->addNewBonus(makeFeature(Bonus::MORALE, Bonus::ONE_BATTLE, 0, +1, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::EVIL)));
 			break;
 		}
-	case 22: //cursed ground
+	case BFieldType::CURSED_GROUND:
 		{
 			curB->addNewBonus(makeFeature(Bonus::NO_MORALE, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
 			curB->addNewBonus(makeFeature(Bonus::NO_LUCK, Bonus::ONE_BATTLE, 0, 0, Bonus::TERRAIN_OVERLAY));
@@ -705,7 +705,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, int terrain, int battlefieldTyp
 	return curB;
 }
 
-const CGHeroInstance * BattleInfo::getHero( int player ) const
+const CGHeroInstance * BattleInfo::getHero( TPlayerColor player ) const
 {
 	assert(sides[0] == player || sides[1] == player);
 	if(heroes[0] && heroes[0]->getOwner() == player)
@@ -763,12 +763,12 @@ std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const C
 	return ret;
 }
 
-int BattleInfo::theOtherPlayer(int player) const
+TPlayerColor BattleInfo::theOtherPlayer(TPlayerColor player) const
 {
 	return sides[!whatSide(player)];
 }
 
-ui8 BattleInfo::whatSide(int player) const
+ui8 BattleInfo::whatSide(TPlayerColor player) const
 {
 	for(int i = 0; i < ARRAY_COUNT(sides); i++)
 		if(sides[i] == player)
@@ -801,13 +801,20 @@ shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile) cons
 	return shared_ptr<CObstacleInstance>();
 }
 
-int BattleInfo::battlefieldTypeToBI(int bfieldType)
+BattlefieldBI::BattlefieldBI BattleInfo::battlefieldTypeToBI(BFieldType::BFieldType bfieldType)
 {
-	static const std::map<int, int> theMap = boost::assign::map_list_of(19, BattlefieldBI::CLOVER_FIELD)
-		(22, BattlefieldBI::CURSED_GROUND)(20, BattlefieldBI::EVIL_FOG)(21, BattlefieldBI::NONE)
-		(14, BattlefieldBI::FIERY_FIELDS)(18, BattlefieldBI::HOLY_GROUND)(17, BattlefieldBI::LUCID_POOLS)
-		(16, BattlefieldBI::MAGIC_CLOUDS)(9, BattlefieldBI::MAGIC_PLAINS)(15, BattlefieldBI::ROCKLANDS)
-		(1, BattlefieldBI::COASTAL);
+	static const std::map<BFieldType::BFieldType, BattlefieldBI::BattlefieldBI> theMap = boost::assign::map_list_of
+		(BFieldType::CLOVER_FIELD, BattlefieldBI::CLOVER_FIELD)
+		(BFieldType::CURSED_GROUND, BattlefieldBI::CURSED_GROUND)
+		(BFieldType::EVIL_FOG, BattlefieldBI::EVIL_FOG)
+		(BFieldType::FAVOURABLE_WINDS, BattlefieldBI::NONE)
+		(BFieldType::FIERY_FIELDS, BattlefieldBI::FIERY_FIELDS)
+		(BFieldType::HOLY_GROUND, BattlefieldBI::HOLY_GROUND)
+		(BFieldType::LUCID_POOLS, BattlefieldBI::LUCID_POOLS)
+		(BFieldType::MAGIC_CLOUDS, BattlefieldBI::MAGIC_CLOUDS)
+		(BFieldType::MAGIC_PLAINS, BattlefieldBI::MAGIC_PLAINS)
+		(BFieldType::ROCKLANDS, BattlefieldBI::ROCKLANDS)
+		(BFieldType::SAND_SHORE, BattlefieldBI::COASTAL);
 
 	auto itr = theMap.find(bfieldType);
 	if(itr != theMap.end())

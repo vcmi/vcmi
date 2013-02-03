@@ -113,7 +113,7 @@ CScriptingModule * CDynLibHandler::getNewScriptingModule(std::string dllname)
 
 BattleAction CGlobalAI::activeStack( const CStack * stack )
 {
-	BattleAction ba; ba.actionType = BattleAction::DEFEND;
+	BattleAction ba; ba.actionType = Battle::DEFEND;
 	ba.stackNumber = stack->ID;
 	return ba;
 }

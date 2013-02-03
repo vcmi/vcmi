@@ -83,7 +83,7 @@ public:
 	const PlayerState * getPlayer(int color, bool verbose = true) const;
 	int getResource(int Player, int which) const;
 	bool isVisible(int3 pos) const;
-	int getPlayerRelations(ui8 color1, ui8 color2) const;// 0 = enemy, 1 = ally, 2 = same player 
+	PlayerRelations::PlayerRelations getPlayerRelations(TPlayerColor color1, TPlayerColor color2) const;
 	void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
 	int getPlayerStatus(int player) const; //-1 if no such player
 	int getCurrentPlayer() const; //player that currently makes move // TODO synchronous turns

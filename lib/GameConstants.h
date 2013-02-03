@@ -401,17 +401,16 @@ namespace SecSkillLevel
 	};
 }
 
+
 //follows ERM BI (battle image) format
 namespace BattlefieldBI
 {
-	enum
+	enum BattlefieldBI
 	{
 		NONE = -1,
 		COASTAL,
-		//Discrepency from ERM BI description - we have magic plains and cursed gronds swapped
-		MAGIC_PLAINS,
 		CURSED_GROUND,
-		//
+		MAGIC_PLAINS,
 		HOLY_GROUND,
 		EVIL_FOG,
 		CLOVER_FIELD,
@@ -433,6 +432,44 @@ namespace Date
 		DAY_OF_MONTH
 	};
 }
+
+namespace Battle
+{
+	enum ActionType
+	{
+		END_TACTIC_PHASE = -2, INVALID = -1, NO_ACTION = 0, HERO_SPELL, WALK, DEFEND, RETREAT, SURRENDER, WALK_AND_ATTACK, SHOOT, WAIT, CATAPULT, MONSTER_SPELL, BAD_MORALE,
+		STACK_HEAL, DAEMON_SUMMONING
+	};
+}
+
+namespace ETerrainType
+{
+	enum ETerrainType
+	{
+		WRONG = -2, BORDER = -1, DIRT, SAND, GRASS, SNOW, SWAMP,
+		ROUGH, SUBTERRANEAN, LAVA, WATER, ROCK
+	};
+}
+
+
+namespace BFieldType
+{
+	//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines 
+	//8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields
+	//15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog
+	//21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
+	enum BFieldType {NONE = -1, NONE2, SAND_SHORE, SAND_MESAS, DIRT_BIRCHES, DIRT_HILLS, DIRT_PINES, GRASS_HILLS,
+		GRASS_PINES, LAVA, MAGIC_PLAINS, SNOW_MOUNTAINS, SNOW_TREES, SUBTERRANEAN, SWAMP_TREES, FIERY_FIELDS,
+		ROCKLANDS, MAGIC_CLOUDS, LUCID_POOLS, HOLY_GROUND, CLOVER_FIELD, EVIL_FOG, FAVOURABLE_WINDS, CURSED_GROUND,
+		ROUGH, SHIP_TO_SHIP, SHIP
+	};
+}
+
+namespace PlayerRelations
+{
+	enum PlayerRelations {ENEMIES, ALLIES, SAME_PLAYER};
+}
+
 
 // Typedef declarations
 typedef si8 TFaction;

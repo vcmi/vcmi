@@ -20,12 +20,7 @@ struct DLL_LINKAGE BattleAction
 {
 	ui8 side; //who made this action: false - left, true - right player
 	ui32 stackNumber;//stack ID, -1 left hero, -2 right hero,
-	enum ActionType
-	{
-		END_TACTIC_PHASE = -2, INVALID = -1, NO_ACTION = 0, HERO_SPELL, WALK, DEFEND, RETREAT, SURRENDER, WALK_AND_ATTACK, SHOOT, WAIT, CATAPULT, MONSTER_SPELL, BAD_MORALE,
-		STACK_HEAL, DAEMON_SUMMONING
-	};
-	si8 actionType; //use ActionType enum for values
+	Battle::ActionType actionType; //use ActionType enum for values
 	BattleHex destinationTile;
 	si32 additionalInfo; // e.g. spell number if type is 1 || 10; tile to attack if type is 6
 	si32 selectedStack; //spell subject for teleport / sacrifice

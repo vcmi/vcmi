@@ -286,7 +286,8 @@ struct DLL_LINKAGE CPathsInfo
 
 struct DLL_EXPORT DuelParameters
 {
-	si32 terType, bfieldType;
+	ETerrainType::ETerrainType terType;
+	BFieldType::BFieldType bfieldType;
 	struct DLL_EXPORT SideSettings
 	{
 		struct DLL_EXPORT StackSettings
@@ -415,19 +416,19 @@ public:
 	void giveHeroArtifact(CGHeroInstance *h, int aid);
 
 	void apply(CPack *pack);
-	int battleGetBattlefieldType(int3 tile) const;//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
+	BFieldType::BFieldType battleGetBattlefieldType(int3 tile) const;
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
-	int getPlayerRelations(ui8 color1, ui8 color2);// 0 = enemy, 1 = ally, 2 = same player
+	PlayerRelations::PlayerRelations getPlayerRelations(TPlayerColor color1, TPlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	bool checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst) const; //check if src tile is visitable from dst tile
 	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists
 	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or NULL if path does not exists
 	int3 guardingCreaturePosition (int3 pos) const;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
-	int victoryCheck(ui8 player) const; //checks if given player is winner; -1 if std victory, 1 if special victory, 0 else
-	int lossCheck(ui8 player) const; //checks if given player is loser;  -1 if std loss, 1 if special, 0 else
+	int victoryCheck(TPlayerColor player) const; //checks if given player is winner; -1 if std victory, 1 if special victory, 0 else
+	int lossCheck(TPlayerColor player) const; //checks if given player is loser;  -1 if std loss, 1 if special, 0 else
 	ui8 checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 if no winner
-	bool checkForStandardLoss(ui8 player) const; //checks if given player lost the game
+	bool checkForStandardLoss(TPlayerColor player) const; //checks if given player lost the game
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
 	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
 	BattleInfo * setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town);

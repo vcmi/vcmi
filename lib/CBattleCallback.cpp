@@ -124,15 +124,15 @@ int CCallbackBase::getPlayerID() const
 	return player;
 }
 
-ui8 CBattleInfoEssentials::battleTerrainType() const
+ETerrainType::ETerrainType CBattleInfoEssentials::battleTerrainType() const
 {
-	RETURN_IF_NOT_BATTLE(-1);
+	RETURN_IF_NOT_BATTLE(ETerrainType::WRONG);
 	return getBattle()->terrainType;
 }
 
-int CBattleInfoEssentials::battleGetBattlefieldType() const
+BFieldType::BFieldType CBattleInfoEssentials::battleGetBattlefieldType() const
 {
-	RETURN_IF_NOT_BATTLE(-1);
+	RETURN_IF_NOT_BATTLE(BFieldType::NONE);
 	return getBattle()->battlefieldType;
 }
 
@@ -347,7 +347,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(int
 	return ESpellCastProblem::OK;
 }
 
-bool CBattleInfoEssentials::battleCanFlee(int player) const
+bool CBattleInfoEssentials::battleCanFlee(TPlayerColor player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	ui8 mySide = playerToSide(player);
@@ -372,7 +372,7 @@ bool CBattleInfoEssentials::battleCanFlee(int player) const
 	return true;
 }
 
-ui8 CBattleInfoEssentials::playerToSide(int player) const
+ui8 CBattleInfoEssentials::playerToSide(TPlayerColor player) const
 {
 	RETURN_IF_NOT_BATTLE(-1);
 	int ret = vstd::find_pos(getBattle()->sides, player);
@@ -388,7 +388,7 @@ ui8 CBattleInfoEssentials::battleGetSiegeLevel() const
 	return getBattle()->siege;
 }
 
-bool CBattleInfoEssentials::battleCanSurrender(int player) const
+bool CBattleInfoEssentials::battleCanSurrender(TPlayerColor player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	//conditions like for fleeing + enemy must have a hero
@@ -2148,7 +2148,7 @@ TSpell CBattleInfoCallback::getRandomCastedSpell(const CStack * caster) const
 	return -1;
 }
 
-int CBattleInfoCallback::battleGetSurrenderCost(int Player) const
+int CBattleInfoCallback::battleGetSurrenderCost(TPlayerColor Player) const
 {
 	RETURN_IF_NOT_BATTLE(-3);
 	if(!battleCanSurrender(Player))

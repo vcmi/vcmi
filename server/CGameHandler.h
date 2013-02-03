@@ -195,10 +195,10 @@ public:
 	void handleConnection(std::set<int> players, CConnection &c);
 	int getPlayerAt(CConnection *c) const;
 
-	void playerMessage( ui8 player, const std::string &message);
+	void playerMessage( TPlayerColor player, const std::string &message);
 	bool makeBattleAction(BattleAction &ba);
 	bool makeAutomaticAction(const CStack *stack, BattleAction &ba); //used when action is taken by stack without volition of player (eg. unguided catapult attack)
-	void handleSpellCasting(int spellID, int spellLvl, BattleHex destination, ui8 casterSide, ui8 casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
+	void handleSpellCasting(int spellID, int spellLvl, BattleHex destination, ui8 casterSide, TPlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
 		int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack, si32 selectedStack = -1);
 	bool makeCustomAction(BattleAction &ba);
 	void stackTurnTrigger(const CStack * stack);

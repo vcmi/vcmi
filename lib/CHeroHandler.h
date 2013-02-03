@@ -131,8 +131,8 @@ struct DLL_LINKAGE CObstacleInfo
 {
 	si32 ID;
 	std::string defName;
-	std::vector<ui8> allowedTerrains;
-	std::vector<ui8> allowedSpecialBfields;
+	std::vector<ETerrainType::ETerrainType> allowedTerrains;
+	std::vector<BFieldType::BFieldType> allowedSpecialBfields;
 
 	ui8 isAbsoluteObstacle; //there may only one such obstacle in battle and its position is always the same
 	si32 width, height; //how much space to the right and up is needed to place obstacle (affects only placement algorithm)
@@ -140,7 +140,7 @@ struct DLL_LINKAGE CObstacleInfo
 
 	std::vector<BattleHex> getBlocked(BattleHex hex) const; //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
 
-	bool isAppropriate(int terrainType, int specialBattlefield = -1) const;
+	bool isAppropriate(ETerrainType::ETerrainType terrainType, int specialBattlefield = -1) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

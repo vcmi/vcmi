@@ -246,8 +246,8 @@ bool MakeAction::applyGh( CGameHandler *gh )
 	
 	if(b->tacticDistance)
 	{
-		if(ba.actionType != BattleAction::WALK  &&  ba.actionType != BattleAction::END_TACTIC_PHASE  
-			&& ba.actionType != BattleAction::RETREAT && ba.actionType != BattleAction::SURRENDER)
+		if(ba.actionType != Battle::WALK  &&  ba.actionType != Battle::END_TACTIC_PHASE  
+			&& ba.actionType != Battle::RETREAT && ba.actionType != Battle::SURRENDER)
 			ERROR_AND_RETURN;
 		if(gh->connections[b->sides[b->tacticsSide]] != c) 
 			ERROR_AND_RETURN;
@@ -266,7 +266,7 @@ bool MakeCustomAction::applyGh( CGameHandler *gh )
 	const CStack *active = GS(gh)->curB->battleGetStackByID(GS(gh)->curB->activeStack);
 	if(!active) ERROR_AND_RETURN;
 	if(gh->connections[active->owner] != c) ERROR_AND_RETURN;
-	if(ba.actionType != BattleAction::HERO_SPELL) ERROR_AND_RETURN;
+	if(ba.actionType != Battle::HERO_SPELL) ERROR_AND_RETURN;
 	return gh->makeCustomAction(ba);
 }
 

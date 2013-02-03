@@ -164,8 +164,8 @@ public:
 
 	BattlePerspective::BattlePerspective battleGetMySide() const;
 
-	ui8 battleTerrainType() const;
-	int battleGetBattlefieldType() const; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
+	ETerrainType::ETerrainType battleTerrainType() const;
+	BFieldType::BFieldType battleGetBattlefieldType() const;
 	std::vector<shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
 	TStacks battleGetAllStacks() const; //returns all stacks, alive or dead or undead or mechanical :)
 	bool battleHasNativeStack(ui8 side) const;
@@ -175,9 +175,9 @@ public:
 	const CStack *battleActiveStack() const;
 	si8 battleTacticDist() const; //returns tactic distance in current tactics phase; 0 if not in tactics phase
 	si8 battleGetTacticsSide() const; //returns which side is in tactics phase, undefined if none (?)
-	bool battleCanFlee(int player) const;
-	bool battleCanSurrender(int player) const;
-	ui8 playerToSide(int player) const;
+	bool battleCanFlee(TPlayerColor player) const;
+	bool battleCanSurrender(TPlayerColor player) const;
+	ui8 playerToSide(TPlayerColor player) const;
 	ui8 battleGetSiegeLevel() const; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	bool battleHasHero(ui8 side) const;
 	int battleCastSpells(ui8 side) const; //how many spells has given side casted
@@ -227,7 +227,7 @@ public:
 
 	std::vector<BattleHex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL) const; //returns hexes reachable by creature with id ID (valid movement destinations), DOES contain stack current position
 
-	int battleGetSurrenderCost(int Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
+	int battleGetSurrenderCost(TPlayerColor Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
 	ReachabilityInfo::TDistances battleGetDistances(const CStack * stack, BattleHex hex = BattleHex::INVALID, BattleHex * predecessors = NULL) const; //returns vector of distances to [dest hex number]
 	std::set<BattleHex> battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const;
 	bool battleCanShoot(const CStack * stack, BattleHex dest) const; //determines if stack with given ID shoot at the selected destination

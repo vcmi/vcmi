@@ -760,7 +760,7 @@ void CInfoBar::CVisibleInfo::loadGameStatus()
 	{
 		if(LOCPLINT->cb->getPlayerStatus(i) == PlayerState::INGAME)
 		{
-			if (LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, i) > 0)
+			if (LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, i) != PlayerRelations::ENEMIES)
 				allies.push_back(i);
 			else
 				enemies.push_back(i);

@@ -13,6 +13,8 @@
  *
  */
 
+using namespace Battle;
+
 BattleAction::BattleAction()
 {
 	side = -1;

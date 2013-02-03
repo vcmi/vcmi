@@ -1180,7 +1180,7 @@ DLL_LINKAGE void StartAction::applyGs( CGameState *gs )
 {
 	CStack *st = gs->curB->getStack(ba.stackNumber);
 
-	if(ba.actionType == BattleAction::END_TACTIC_PHASE)
+	if(ba.actionType == Battle::END_TACTIC_PHASE)
 	{
 		gs->curB->tacticDistance = 0;
 		return;
@@ -1193,7 +1193,7 @@ DLL_LINKAGE void StartAction::applyGs( CGameState *gs )
 		return;
 	}
 
-	if(ba.actionType != BattleAction::HERO_SPELL) //don't check for stack if it's custom action by hero
+	if(ba.actionType != Battle::HERO_SPELL) //don't check for stack if it's custom action by hero
 	{
 		assert(st);
 	}
@@ -1204,13 +1204,13 @@ DLL_LINKAGE void StartAction::applyGs( CGameState *gs )
 
 	switch(ba.actionType)
 	{
-	case BattleAction::DEFEND:
+	case Battle::DEFEND:
 		st->state.insert(EBattleStackState::DEFENDING);
 		break;
-	case BattleAction::WAIT:
+	case Battle::WAIT:
 		st->state.insert(EBattleStackState::WAITING);
 		return;
-	case BattleAction::HERO_SPELL: //no change in current stack state
+	case Battle::HERO_SPELL: //no change in current stack state
 		return;
 	default: //any active stack action - attack, catapult, heal, spell...
 		st->state.insert(EBattleStackState::MOVED);

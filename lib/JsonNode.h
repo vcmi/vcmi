@@ -151,14 +151,37 @@ namespace JsonUtils
 namespace JsonDetail
 {
 	// convertion helpers for JsonNode::convertTo (partial template function instantiation is illegal in c++)
+
+	template <typename T, int arithm> 
+	struct JsonConvImpl;
+
+	template <typename T>
+	struct JsonConvImpl<T, 0>
+	{
+		static T convertImpl(const JsonNode & node)
+		{
+			return (T)(int)node.Float();
+		}
+	};
+
+	template <typename T>
+	struct JsonConvImpl<T, 1>
+	{
+		static T convertImpl(const JsonNode & node)
+		{
+			return node.Float();
+		}
+	};
+
 	template<typename Type>
 	struct JsonConverter
 	{
 		static Type convert(const JsonNode & node)
 		{
-			///this should be triggered only for numeric types
-			static_assert(std::is_arithmetic<Type>::value, "Unsupported type for JsonNode::convertTo()!");
-			return node.Float();
+			///this should be triggered only for numeric types and enums
+			static_assert(boost::mpl::or_<std::is_arithmetic<Type>, std::is_enum<Type> >::value, "Unsupported type for JsonNode::convertTo()!");
+			return JsonConvImpl<Type, std::is_arithmetic<Type>::value>::convertImpl(node);
+				
 		}
 	};
 

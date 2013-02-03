@@ -393,7 +393,7 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 
 ui64 evaluateDanger(const CGObjectInstance *obj)
 {
-	if(obj->tempOwner < GameConstants::PLAYER_LIMIT && cb->getPlayerRelations(obj->tempOwner, ai->playerID)) //owned or allied objects don't pose any threat
+	if(obj->tempOwner < GameConstants::PLAYER_LIMIT && cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
 		return 0;
 
 	switch(obj->ID)
@@ -1454,7 +1454,7 @@ std::vector<const CGObjectInstance *> VCAI::getPossibleDestinations(HeroPtr h)
 			const CGObjectInstance *topObj = cb->getVisitableObjs(pos).back(); //it may be hero visiting this obj
 			//we don't try visiting object on which allied or owned hero stands
 			// -> it will just trigger exchange windows and AI will be confused that obj behind doesn't get visited
-			if(topObj->ID == Obj::HERO  &&  cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != 0)
+			if(topObj->ID == Obj::HERO  &&  cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
 				return true;
 
 			return false;
@@ -2929,7 +2929,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			}
 
 			auto topObj = backOrNull(cb->getVisitableObjs(tileToHit));
-			if(topObj && topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != 0)
+			if(topObj && topObj->ID == Obj::HERO && cb->getPlayerRelations(h->tempOwner, topObj->tempOwner) != PlayerRelations::ENEMIES)
 			{
 				std::string problem = boost::str(boost::format("%s stands in the way of %s.\n") % topObj->getHoverText()  % h->getHoverText());
 				throw cannotFulfillGoalException(problem);
@@ -3276,7 +3276,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			erase_if(objs, [&](const CGObjectInstance *obj)
 			{
 				return (obj->ID != Obj::TOWN && obj->ID != Obj::HERO) //not town/hero
-					|| cb->getPlayerRelations(ai->playerID, obj->tempOwner) != 0; //not enemy
+					|| cb->getPlayerRelations(ai->playerID, obj->tempOwner) != PlayerRelations::ENEMIES;
 			});
 			
 			if (objs.empty()) //experiment - try to conquer dwellings and mines, it should pay off
@@ -3285,7 +3285,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				erase_if(objs, [&](const CGObjectInstance *obj)
 				{
 					return (obj->ID != Obj::CREATURE_GENERATOR1 && obj->ID != Obj::MINE) //not dwelling or mine
-						|| cb->getPlayerRelations(ai->playerID, obj->tempOwner) != 0; //not enemy
+						|| cb->getPlayerRelations(ai->playerID, obj->tempOwner) != PlayerRelations::ENEMIES;
 				});
 			}
 

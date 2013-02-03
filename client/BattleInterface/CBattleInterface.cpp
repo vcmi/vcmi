@@ -1245,7 +1245,7 @@ void CBattleInterface::bFleef()
 
 void CBattleInterface::reallyFlee()
 {
-	giveCommand(BattleAction::RETREAT,0,0);
+	giveCommand(Battle::RETREAT,0,0);
 	CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 }
 
@@ -1257,7 +1257,7 @@ void CBattleInterface::reallySurrender()
 	}
 	else
 	{
-		giveCommand(BattleAction::SURRENDER,0,0);
+		giveCommand(Battle::SURRENDER,0,0);
 		CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 	}
 }
@@ -1312,7 +1312,7 @@ void CBattleInterface::bWaitf()
 		return;
 
 	if(activeStack != NULL)
-		giveCommand(8,0,activeStack->ID);
+		giveCommand(Battle::WAIT,0,activeStack->ID);
 }
 
 void CBattleInterface::bDefencef()
@@ -1321,7 +1321,7 @@ void CBattleInterface::bDefencef()
 		return;
 
 	if(activeStack != NULL)
-		giveCommand(3,0,activeStack->ID);
+		giveCommand(Battle::DEFEND,0,activeStack->ID);
 }
 
 void CBattleInterface::bConsoleUpf()
@@ -1476,10 +1476,10 @@ void CBattleInterface::newRound(int number)
 
 }
 
-void CBattleInterface::giveCommand(ui8 action, BattleHex tile, ui32 stackID, si32 additional, si32 selected)
+void CBattleInterface::giveCommand(Battle::ActionType action, BattleHex tile, ui32 stackID, si32 additional, si32 selected)
 {
 	const CStack *stack = curInt->cb->battleGetStackByID(stackID);
-	if(!stack && action != BattleAction::HERO_SPELL && action != BattleAction::RETREAT && action != BattleAction::SURRENDER)
+	if(!stack && action != Battle::HERO_SPELL && action != Battle::RETREAT && action != Battle::SURRENDER)
 	{
 		return;
 	}
@@ -1498,11 +1498,11 @@ void CBattleInterface::giveCommand(ui8 action, BattleHex tile, ui32 stackID, si3
 	//some basic validations
 	switch(action)
 	{
-		case BattleAction::WALK_AND_ATTACK:
+		case Battle::WALK_AND_ATTACK:
 			assert(curInt->cb->battleGetStackByPos(additional)); //stack to attack must exist
-		case BattleAction::WALK:
-		case BattleAction::SHOOT:
-		case BattleAction::CATAPULT:
+		case Battle::WALK:
+		case Battle::SHOOT:
+		case Battle::CATAPULT:
 			assert(tile < GameConstants::BFIELD_SIZE);
 			break;
 	}
@@ -1905,7 +1905,7 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 void CBattleInterface::castThisSpell(int spellID)
 {
 	BattleAction * ba = new BattleAction;
-	ba->actionType = BattleAction::HERO_SPELL;
+	ba->actionType = Battle::HERO_SPELL;
 	ba->additionalInfo = spellID; //spell number
 	ba->destinationTile = -1;
 	ba->stackNumber = (attackingHeroInstance->tempOwner == curInt->playerID) ? -1 : -2;
@@ -2230,7 +2230,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	if(stack->count > 0 //don't print if stack is not alive
 		&& (!curInt->curAction
 			|| (curInt->curAction->stackNumber != ID //don't print if stack is currently taking an action
-				&& (curInt->curAction->actionType != BattleAction::WALK_AND_ATTACK  ||  stack->position != curInt->curAction->additionalInfo) //nor if it's an object of attack
+				&& (curInt->curAction->actionType != Battle::WALK_AND_ATTACK  ||  stack->position != curInt->curAction->additionalInfo) //nor if it's an object of attack
 				&& (curInt->curAction->destinationTile != stack->position) //nor if it's on destination tile for current action
 				)
 			)
@@ -2514,7 +2514,7 @@ void CBattleInterface::endAction(const BattleAction* action)
 // 	{
 // 		activate();
 // 	}
-	if(action->actionType == BattleAction::HERO_SPELL)
+	if(action->actionType == Battle::HERO_SPELL)
 	{
 		if(action->side)
 			defendingHero->setPhase(0);
@@ -2522,12 +2522,12 @@ void CBattleInterface::endAction(const BattleAction* action)
 			attackingHero->setPhase(0);
 	}
 
-	if(stack && action->actionType == BattleAction::WALK &&
+	if(stack && action->actionType == Battle::WALK &&
 		creAnims[action->stackNumber]->getType() != CCreatureAnim::HOLDING) //walk or walk & attack
 	{
 		pendingAnims.push_back(std::make_pair(new CMovementEndAnimation(this, stack, action->destinationTile), false));
 	}
-	if(action->actionType == BattleAction::CATAPULT) //catapult
+	if(action->actionType == Battle::CATAPULT) //catapult
 	{
 	}
 
@@ -2551,7 +2551,7 @@ void CBattleInterface::endAction(const BattleAction* action)
 	if(tacticsMode) //stack ended movement in tactics phase -> select the next one
 		bTacticNextStack(stack); 
 
-	if( action->actionType == BattleAction::HERO_SPELL) //we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
+	if( action->actionType == Battle::HERO_SPELL) //we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
 		redrawBackgroundWithHexes(activeStack);
 }
 
@@ -2585,7 +2585,7 @@ void CBattleInterface::showQueue()
 
 void CBattleInterface::startAction(const BattleAction* action)
 {
-	if(action->actionType == BattleAction::END_TACTIC_PHASE)
+	if(action->actionType == Battle::END_TACTIC_PHASE)
 	{
 		SDL_FreeSurface(menu);
 		menu = BitmapHandler::loadBitmap("CBAR.bmp");
@@ -2616,11 +2616,11 @@ void CBattleInterface::startAction(const BattleAction* action)
 	}
 	else
 	{
-		assert(action->actionType == BattleAction::HERO_SPELL); //only cast spell is valid action without acting stack number
+		assert(action->actionType == Battle::HERO_SPELL); //only cast spell is valid action without acting stack number
 	}
 
-	if(action->actionType == BattleAction::WALK
-		|| (action->actionType == BattleAction::WALK_AND_ATTACK && action->destinationTile != stack->position))
+	if(action->actionType == Battle::WALK
+		|| (action->actionType == Battle::WALK_AND_ATTACK && action->destinationTile != stack->position))
 	{
 		moveStarted = true;
 		if(creAnims[action->stackNumber]->framesInGroup(CCreatureAnim::MOVE_START))
@@ -2635,7 +2635,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 
 	char txt[400];
 
-	if (action->actionType == BattleAction::HERO_SPELL) //when hero casts spell
+	if (action->actionType == Battle::HERO_SPELL) //when hero casts spell
 	{
 		if(action->side)
 			defendingHero->setPhase(4);
@@ -2652,10 +2652,10 @@ void CBattleInterface::startAction(const BattleAction* action)
 	int txtid = 0;
 	switch(action->actionType)
 	{
-	case BattleAction::WAIT:
+	case Battle::WAIT:
 		txtid = 136;
 		break;
-	case BattleAction::BAD_MORALE:
+	case Battle::BAD_MORALE:
 		txtid = -34; //negative -> no separate singular/plural form
 		displayEffect(30,stack->position);
 		break;
@@ -2675,7 +2675,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 	//displaying special abilities
 	switch (action->actionType)
 	{
-		case BattleAction::STACK_HEAL:
+		case Battle::STACK_HEAL:
 			displayEffect(74, action->destinationTile);
 			CCS->soundh->playSound(soundBase::REGENER);
 			break;
@@ -3011,13 +3011,13 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 						std::vector<BattleHex> acc = curInt->cb->battleGetAvailableHexes(activeStack, false);
 						int shiftedDest = myNumber + (activeStack->attackerOwned ? 1 : -1);
 						if(vstd::contains(acc, myNumber))
-							giveCommand (BattleAction::WALK ,myNumber, activeStack->ID);
+							giveCommand (Battle::WALK ,myNumber, activeStack->ID);
 						else if(vstd::contains(acc, shiftedDest))
-							giveCommand (BattleAction::WALK, shiftedDest, activeStack->ID);
+							giveCommand (Battle::WALK, shiftedDest, activeStack->ID);
 					}
 					else
 					{
-						giveCommand (BattleAction::WALK, myNumber, activeStack->ID);
+						giveCommand (Battle::WALK, myNumber, activeStack->ID);
 					}
 				};
 				break;
@@ -3032,7 +3032,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 					BattleHex attackFromHex = fromWhichHexAttack(myNumber);
 					if (attackFromHex >= 0) //we can be in this line when unreachable creature is L - clicked (as of revision 1308)
 					{
-						giveCommand(BattleAction::WALK_AND_ATTACK, attackFromHex, activeStack->ID, myNumber);
+						giveCommand(Battle::WALK_AND_ATTACK, attackFromHex, activeStack->ID, myNumber);
 					}
 				};
 
@@ -3047,7 +3047,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				else
 					cursorFrame = ECursor::COMBAT_SHOOT;
 
-				realizeAction = [=] {giveCommand(BattleAction::SHOOT, myNumber, activeStack->ID);};
+				realizeAction = [=] {giveCommand(Battle::SHOOT, myNumber, activeStack->ID);};
 				std::string estDmgText = formatDmgRange(curInt->cb->battleEstimateDamage(sactive, shere)); //calculating estimated dmg
 				//printing - Shoot %s (%d shots left, %s damage)
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[296]) % shere->getName() % sactive->shots % estDmgText).str();
@@ -3101,15 +3101,15 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			case HEAL:
 				cursorFrame = ECursor::COMBAT_HEAL;
 				consoleMsg = (boost::format(CGI->generaltexth->allTexts[419]) % shere->getName()).str(); //Apply first aid to the %s
-				realizeAction = [=]{ giveCommand(BattleAction::STACK_HEAL, myNumber, activeStack->ID); }; //command healing
+				realizeAction = [=]{ giveCommand(Battle::STACK_HEAL, myNumber, activeStack->ID); }; //command healing
 				break;
 			case RISE_DEMONS:
 				cursorType = ECursor::SPELLBOOK;
-				realizeAction = [=]{ giveCommand(BattleAction::DAEMON_SUMMONING, myNumber, activeStack->ID); };
+				realizeAction = [=]{ giveCommand(Battle::DAEMON_SUMMONING, myNumber, activeStack->ID); };
 				break;
 			case CATAPULT:
 				cursorFrame = ECursor::COMBAT_SHOOT_CATAPULT;
-				realizeAction = [=]{ giveCommand(BattleAction::CATAPULT, myNumber, activeStack->ID); };
+				realizeAction = [=]{ giveCommand(Battle::CATAPULT, myNumber, activeStack->ID); };
 				break;
 			case CREATURE_INFO:
 			{
@@ -3194,11 +3194,11 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				{
 					if (sp)
 					{
-						giveCommand(BattleAction::MONSTER_SPELL, myNumber, sactive->ID, creatureSpellToCast);
+						giveCommand(Battle::MONSTER_SPELL, myNumber, sactive->ID, creatureSpellToCast);
 					}
 					else //unknown random spell
 					{
-						giveCommand(BattleAction::MONSTER_SPELL, myNumber, sactive->ID, curInt->cb->battleGetRandomStackSpell(shere, CBattleInfoCallback::RANDOM_GENIE));
+						giveCommand(Battle::MONSTER_SPELL, myNumber, sactive->ID, curInt->cb->battleGetRandomStackSpell(shere, CBattleInfoCallback::RANDOM_GENIE));
 					}
 				}
 				else

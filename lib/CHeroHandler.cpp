@@ -70,7 +70,7 @@ std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 	return ret;
 }
 
-bool CObstacleInfo::isAppropriate(int terrainType, int specialBattlefield /*= -1*/) const
+bool CObstacleInfo::isAppropriate(ETerrainType::ETerrainType terrainType, int specialBattlefield /*= -1*/) const
 {
 	if(specialBattlefield != -1)
 		return vstd::contains(allowedSpecialBfields, specialBattlefield);
@@ -366,8 +366,8 @@ void CHeroHandler::loadObstacles()
 			obi.defName = obs["defname"].String();
 			obi.width = obs["width"].Float();
 			obi.height = obs["height"].Float();
-			obi.allowedTerrains = obs["allowedTerrain"].convertTo<std::vector<ui8> >();
-			obi.allowedSpecialBfields = obs["specialBattlefields"].convertTo<std::vector<ui8> >();
+			obi.allowedTerrains = obs["allowedTerrain"].convertTo<std::vector<ETerrainType::ETerrainType> >();
+			obi.allowedSpecialBfields = obs["specialBattlefields"].convertTo<std::vector<BFieldType::BFieldType> >();
 			obi.blockedTiles = obs["blockedTiles"].convertTo<std::vector<si16> >();
 			obi.isAbsoluteObstacle = absolute;
 		}
