@@ -706,7 +706,7 @@ bool CShootingAnimation::init()
 	}
 
 	//reverse unit if necessary
-	if (attackingStack && owner->curInt->cb->isToReverse(attackingStack->position, attackedStack->position, owner->creDir[attackingStack->ID], attackingStack->doubleWide(), owner->creDir[attackedStack->ID]))
+	if (attackingStack && attackedStack && owner->curInt->cb->isToReverse(attackingStack->position, attackedStack->position, owner->creDir[attackingStack->ID], attackingStack->doubleWide(), owner->creDir[attackedStack->ID]))
 	{
 		owner->addNewAnim(new CReverseAnimation(owner, attackingStack, attackingStack->position, true));
 		return false;
