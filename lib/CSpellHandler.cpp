@@ -527,9 +527,9 @@ void CSpellHandler::loadSpells()
 	boost::replace_first(spells[Spells::FORGETFULNESS]->attributes, "CREATURE_TARGET", "CREATURE_TARGET_2"); //TODO: use flags instead?
 }
 
-std::vector<ui8> CSpellHandler::getDefaultAllowedSpells() const
+std::vector<bool> CSpellHandler::getDefaultAllowedSpells() const
 {
-	std::vector<ui8> allowedSpells;
-	allowedSpells.resize(GameConstants::SPELLS_QUANTITY, 1);
+	std::vector<bool> allowedSpells;
+	allowedSpells.resize(GameConstants::SPELLS_QUANTITY, true);
 	return allowedSpells;
 }

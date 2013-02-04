@@ -12,6 +12,8 @@
 #pragma once
 
 #include "CMapService.h"
+#include "../GameConstants.h"
+#include "../ResourceSet.h"
 
 #include "../vcmi_endian.h"
 #include "../int3.h"
@@ -159,9 +161,8 @@ private:
 	 *
 	 * @param out the loaded creature set
 	 * @param number the count of creatures to read
-	 * @param version true for > ROE maps
 	 */
-	void readCreatureSet(CCreatureSet * out, int number, bool version);
+	void readCreatureSet(CCreatureSet * out, int number);
 
 	/**
 	 * Reads a hero.
@@ -208,6 +209,18 @@ private:
 	 */
 	void readEvents();
 
+	void readSpells(std::set<TSpell> & dest);
+
+	void readResourses(TResources& resources);
+
+	/** Reads bitmask to boolean vector
+	* @param dest destination vector, shall be filed with "true" values
+	* @param byteCount size in bytes of bimask
+	* @param limit max count of vector elements to alter
+	* @param negate if true then set bit in mask means clear flag in vertor
+	*/
+	void readBitmask(std::vector<bool> & dest, const int byteCount, const int limit, bool negate = true);
+
 	/**
 	 * Reverses the input argument.
 	 *
@@ -215,8 +228,6 @@ private:
 	 * @return the reversed 8-bit integer
 	 */
 	ui8 reverse(ui8 arg);
-
-
 
 	/**
 	* Helper to read ui8 from buffer

@@ -580,10 +580,10 @@ public:
 	ui8 howManyTeams;
 
 	/**
-	 * A list of allowed heroes. The index is the hero id and the value is either 0 for not allowed or 1 for allowed.
+	 * A list of allowed heroes. The index is the hero id and the value = hero allowed.
 	 * The default value is a list of default allowed heroes. See CHeroHandler::getDefaultAllowedHeroes for more info.
 	 */
-	std::vector<ui8> allowedHeroes;
+	std::vector<bool> allowedHeroes;
 
 	/** A list of placeholded heroes. The index is the id of a hero type. */
 	std::vector<ui16> placeholdedHeroes;
@@ -734,13 +734,13 @@ public:
 	std::vector<ConstTransitivePtr<CGDefInfo> > customDefs;
 
 	/** list of allowed spells, index is the spell id */
-	std::vector<ui8> allowedSpell;
+	std::vector<bool> allowedSpell;
 
 	/** list of allowed artifacts, index is the artifact id */
-	std::vector<ui8> allowedArtifact;
+	std::vector<bool> allowedArtifact;
 
 	/** list of allowed abilities, index is the ability id */
-	std::vector<ui8> allowedAbilities;
+	std::vector<bool> allowedAbilities;
 
 	/** list of map events */
 	std::list<ConstTransitivePtr<CMapEvent> > events;

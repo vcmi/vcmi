@@ -185,7 +185,7 @@ public:
 
 	//default costs of going through terrains. -1 means terrain is impassable
 	std::vector<int> terrCosts;
-	
+
 	struct SBallisticsLevelInfo
 	{
 		ui8 keep, tower, gate, wall; //chance to hit in percent (eg. 87 is 87%)
@@ -233,14 +233,14 @@ public:
 	 *
 	 * @return a list of allowed heroes, the index is the hero id and the value either 0 for not allowed or 1 for allowed
 	 */
-	std::vector<ui8> getDefaultAllowedHeroes() const;
+	std::vector<bool> getDefaultAllowedHeroes() const;
 
 	/**
 	 * Gets a list of default allowed abilities. OH3 abilities/skills are all allowed by default.
 	 *
-	 * @return a list of allowed abilities, the index is the ability id and the value either 0 for not allowed or 1 for allowed
+	 * @return a list of allowed abilities, the index is the ability id
 	 */
-	std::vector<ui8> getDefaultAllowedAbilities() const;
+	std::vector<bool> getDefaultAllowedAbilities() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

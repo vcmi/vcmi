@@ -679,7 +679,7 @@ public:
 	si32 manaDiff; //amount of gained / lost mana
 	si32 moraleDiff; //morale modifier
 	si32 luckDiff; //luck modifier
-	std::vector<si32> resources;//gained / lost resources
+	TResources resources;//gained / lost resources
 	std::vector<si32> primskills;//gained / lost prim skills
 	std::vector<SecondarySkill::SecondarySkill> abilities; //gained abilities
 	std::vector<si32> abilityLevels; //levels of gained abilities
@@ -730,7 +730,7 @@ public:
 	ui32 identifier; //unique code for this monster (used in missions)
 	si8 character; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
 	std::string message; //message printed for attacking hero
-	std::vector<ui32> resources; //[res_id], resources given to hero that has won with monsters
+	TResources resources; // resources given to hero that has won with monsters
 	TArtifactID gainedArtifact; //ID of artifact gained to hero, -1 if none
 	bool neverFlees; //if true, the troops will never flee
 	bool notGrowingTeam; //if true, number of units won't grow

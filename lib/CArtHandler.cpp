@@ -25,7 +25,7 @@ using namespace boost::assign;
 
 extern boost::rand48 ran;
 
-const std::map<std::string, CArtifact::EartClass> artifactClassMap = boost::assign::map_list_of 
+const std::map<std::string, CArtifact::EartClass> artifactClassMap = boost::assign::map_list_of
 	("TREASURE", CArtifact::ART_TREASURE)
 	("MINOR", CArtifact::ART_MINOR)
 	("MAJOR", CArtifact::ART_MAJOR)
@@ -38,7 +38,7 @@ const std::map<std::string, CArtifact::EartClass> artifactClassMap = boost::assi
 
 #define ART_POS(x) ( #x, ArtifactPosition::x )
 
-const std::map<std::string, int> artifactPositionMap = boost::assign::map_list_of 
+const std::map<std::string, int> artifactPositionMap = boost::assign::map_list_of
 	ART_POS(HEAD)
 	ART_POS(SHOULDERS)
 	ART_POS(NECK)
@@ -424,7 +424,7 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 			art->aClass = CArtifact::ART_SPECIAL;
 		}
 	}
-	
+
 	int bearerType = -1;
 	bool heroArt = false;
 
@@ -707,7 +707,7 @@ void CArtHandler::addBonuses()
 	BOOST_FOREACH (auto & artifact, config["artifacts"].Struct()) //pair <string, JsonNode> (id, properties)
 	{
 		auto ga = artifacts[artifact.second["id"].Float()].get();
-		
+
 		BOOST_FOREACH (auto b, artifact.second["bonuses"].Vector())
 		{
 			auto bonus = JsonUtils::parseBonus (b);
@@ -783,7 +783,7 @@ bool CArtHandler::legalArtifact(int id)
 			(artifacts[id]->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT);
 }
 
-void CArtHandler::initAllowedArtifactsList(const std::vector<ui8> &allowed)
+void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 {
 	allowedArtifacts.clear();
 	clearHlpLists();
@@ -812,12 +812,12 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<ui8> &allowed)
 	}
 }
 
-std::vector<ui8> CArtHandler::getDefaultAllowedArtifacts() const
+std::vector<bool> CArtHandler::getDefaultAllowedArtifacts() const
 {
-	std::vector<ui8> allowedArtifacts;
-	allowedArtifacts.resize(127, 1);
-	allowedArtifacts.resize(141, 0);
-	allowedArtifacts.resize(GameConstants::ARTIFACTS_QUANTITY, 1);
+	std::vector<bool> allowedArtifacts;
+	allowedArtifacts.resize(127, true);
+	allowedArtifacts.resize(141, false);
+	allowedArtifacts.resize(GameConstants::ARTIFACTS_QUANTITY, true);
 	return allowedArtifacts;
 }
 

@@ -248,7 +248,7 @@ public:
 	void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
 	void erasePickedArt (TArtifactInstanceID id);
 	bool isBigArtifact (TArtifactID artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
-	void initAllowedArtifactsList(const std::vector<ui8> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
+	void initAllowedArtifactsList(const std::vector<bool> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	static int convertMachineID(int id, bool creToArt);
 	void makeItCreatureArt (CArtifact * a, bool onlyCreature = true);
 	void makeItCreatureArt (TArtifactInstanceID aid, bool onlyCreature = true);
@@ -260,9 +260,9 @@ public:
 	/**
 	 * Gets a list of default allowed artifacts.
 	 *
-	 * @return a list of allowed artifacts, the index is the artifact id and the value either 0 for not allowed or 1 for allowed
+	 * @return a list of allowed artifacts, the index is the artifact id
 	 */
-	std::vector<ui8> getDefaultAllowedArtifacts() const;
+	std::vector<bool> getDefaultAllowedArtifacts() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

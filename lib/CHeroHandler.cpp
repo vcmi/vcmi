@@ -359,7 +359,7 @@ void CHeroHandler::loadObstacles()
 {
 	auto loadObstacles = [](const JsonNode &node, bool absolute, std::map<int, CObstacleInfo> &out)
 	{
-		BOOST_FOREACH(const JsonNode &obs, node.Vector()) 
+		BOOST_FOREACH(const JsonNode &obs, node.Vector())
 		{
 			int ID = obs["id"].Float();
 			CObstacleInfo & obi = out[ID];
@@ -500,10 +500,10 @@ void CHeroHandler::loadTerrains()
 		terrCosts.push_back(config[name]["moveCost"].Float());
 }
 
-std::vector<ui8> CHeroHandler::getDefaultAllowedHeroes() const
+std::vector<bool> CHeroHandler::getDefaultAllowedHeroes() const
 {
 	// Look Data/HOTRAITS.txt for reference
-	std::vector<ui8> allowedHeroes;
+	std::vector<bool> allowedHeroes;
 	allowedHeroes.reserve(heroes.size());
 
 	BOOST_FOREACH(const CHero * hero, heroes)
@@ -514,9 +514,9 @@ std::vector<ui8> CHeroHandler::getDefaultAllowedHeroes() const
 	return allowedHeroes;
 }
 
-std::vector<ui8> CHeroHandler::getDefaultAllowedAbilities() const
+std::vector<bool> CHeroHandler::getDefaultAllowedAbilities() const
 {
-	std::vector<ui8> allowedAbilities;
-	allowedAbilities.resize(GameConstants::SKILL_QUANTITY, 1);
+	std::vector<bool> allowedAbilities;
+	allowedAbilities.resize(GameConstants::SKILL_QUANTITY, true);
 	return allowedAbilities;
 }

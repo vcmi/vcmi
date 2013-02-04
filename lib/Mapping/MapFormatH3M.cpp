@@ -405,24 +405,11 @@ void CMapLoaderH3M::readTeamInfo()
 
 void CMapLoaderH3M::readAllowedHeroes()
 {
-	int lim = mapHeader->version == EMapFormat::ROE ? 16 : 20;
-
 	mapHeader->allowedHeroes.resize(VLC->heroh->heroes.size(), true);
 
-	for(int i = 0; i<lim; ++i)
-	{
-		ui8 c = readUI8();
-		for(int yy = 0; yy < 8; ++yy)
-		{
-			if(i * 8 + yy < GameConstants::HEROES_QUANTITY)
-			{
-				if(c != (c | static_cast<ui8>(std::pow(2., yy))))
-				{
-					mapHeader->allowedHeroes[i * 8 + yy] = false;
-				}
-			}
-		}
-	}
+	const int bytes = mapHeader->version == EMapFormat::ROE ? 16 : 20;
+
+	readBitmask(mapHeader->allowedHeroes,bytes,GameConstants::HEROES_QUANTITY, false);
 
 	// Probably reserved for further heroes
 	if(mapHeader->version > EMapFormat::ROE)
@@ -457,31 +444,15 @@ void CMapLoaderH3M::readDisposedHeroes()
 
 void CMapLoaderH3M::readAllowedArtifacts()
 {
-	map->allowedArtifact.resize (VLC->arth->artifacts.size()); //handle new artifacts, make them allowed by default
-	for (ui32 x = 0; x < map->allowedArtifact.size(); ++x)
-	{
-		map->allowedArtifact[x] = true;
-	}
+	map->allowedArtifact.resize (VLC->arth->artifacts.size(),true); //handle new artifacts, make them allowed by default
 
 	// Reading allowed artifacts:  17 or 18 bytes
 	if(map->version != EMapFormat::ROE)
 	{
-		int lim = map->version == EMapFormat::AB ? 17 : 18;
+		const int bytes = map->version == EMapFormat::AB ? 17 : 18;
 
-		for(int i = 0; i < lim; ++i)
-		{
-			ui8 c = readUI8();
-			for(int yy = 0; yy < 8; ++yy)
-			{
-				if(i * 8 + yy < GameConstants::ARTIFACTS_QUANTITY)
-				{
-					if(c == (c | static_cast<ui8>(std::pow(2., yy))))
-					{
-						map->allowedArtifact[i * 8 + yy] = false;
-					}
-				}
-			}
-		}
+		readBitmask(map->allowedArtifact,bytes,GameConstants::ARTIFACTS_QUANTITY);
+
 	}
 
 	// ban combo artifacts
@@ -513,53 +484,20 @@ void CMapLoaderH3M::readAllowedArtifacts()
 void CMapLoaderH3M::readAllowedSpellsAbilities()
 {
 	// Read allowed spells
-	map->allowedSpell.resize(GameConstants::SPELLS_QUANTITY);
-	for(ui32 x = 0; x < map->allowedSpell.size(); x++)
-	{
-		map->allowedSpell[x] = true;
-	}
+	map->allowedSpell.resize(GameConstants::SPELLS_QUANTITY, true);
 
 	// Read allowed abilities
-	map->allowedAbilities.resize(GameConstants::SKILL_QUANTITY);
-	for(ui32 x = 0; x < map->allowedAbilities.size(); x++)
-	{
-		map->allowedAbilities[x] = true;
-	}
+	map->allowedAbilities.resize(GameConstants::SKILL_QUANTITY, true);
 
 	if(map->version >= EMapFormat::SOD)
 	{
 		// Reading allowed spells (9 bytes)
-		for(int i = 0; i < 9; ++i)
-		{
-			ui8 c = readUI8();
-			for(int yy = 0; yy < 8; ++yy)
-			{
-				if(i * 8 + yy < GameConstants::SPELLS_QUANTITY)
-				{
-					if(c == (c | static_cast<ui8>(std::pow(2., yy))))
-					{
-						map->allowedSpell[i* 8 + yy] = false;
-					}
-				}
-			}
-		}
-
+		const int spell_bytes = 9;
+		readBitmask(map->allowedSpell, spell_bytes, GameConstants::SPELLS_QUANTITY);
 
 		// Allowed hero's abilities (4 bytes)
-		for(int i = 0; i < 4; ++i)
-		{
-			ui8 c = readUI8();
-			for(int yy = 0; yy < 8; ++yy)
-			{
-				if(i * 8 + yy < GameConstants::SKILL_QUANTITY)
-				{
-					if(c == (c | static_cast<ui8>(std::pow(2., yy))))
-					{
-						map->allowedAbilities[i * 8 + yy] = false;
-					}
-				}
-			}
-		}
+		const int abil_bytes = 4;
+		readBitmask(map->allowedAbilities, abil_bytes, GameConstants::SKILL_QUANTITY);
 	}
 }
 
@@ -629,20 +567,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 				// are spells
 				if(readBool())
 				{
-					for(int i = 0; i < 9; ++i)
-					{
-						ui8 c = readUI8();
-						for(int yy = 0; yy < 8; ++yy)
-						{
-							if(i * 8 + yy < GameConstants::SPELLS_QUANTITY)
-							{
-								if(c == (c | static_cast<ui8>(std::pow(2., yy))))
-								{
-									hero->spells.insert(i * 8 + yy);
-								}
-							}
-						}
-					}
+					readSpells(hero->spells);
 				}
 
 				// customPrimSkills
@@ -914,7 +839,7 @@ void CMapLoaderH3M::readObjects()
 
 					if(readBool())
 					{
-						readCreatureSet(evnt, 7, map->version > EMapFormat::ROE);
+						readCreatureSet(evnt, 7);
 					}
 					skip(4);
 				}
@@ -923,11 +848,7 @@ void CMapLoaderH3M::readObjects()
 				evnt->moraleDiff = readSI8();
 				evnt->luckDiff = readSI8();
 
-				evnt->resources.resize(GameConstants::RESOURCE_QUANTITY);
-				for(int x = 0; x < 7; ++x)
-				{
-					evnt->resources[x] = readUI32();
-				}
+				readResourses(evnt->resources);
 
 				evnt->primskills.resize(GameConstants::PRIMARY_SKILLS);
 				for(int x = 0; x < 4; ++x)
@@ -962,7 +883,7 @@ void CMapLoaderH3M::readObjects()
 				}
 
 				int gcre = readUI8(); //number of gained creatures
-				readCreatureSet(&evnt->creatures, gcre, map->version > EMapFormat::ROE);
+				readCreatureSet(&evnt->creatures, gcre);
 
 				skip(8);
 				evnt->availableFor = readUI8();
@@ -1059,11 +980,7 @@ void CMapLoaderH3M::readObjects()
 				if(readBool()) //true if there is message or treasury
 				{
 					cre->message = readString();
-					cre->resources.resize(GameConstants::RESOURCE_QUANTITY);
-					for(int j = 0; j < 7; ++j)
-					{
-						cre->resources[j] = readUI32();
-					}
+					readResourses(cre->resources);
 
 					int artID;
 					if (map->version == EMapFormat::ROE)
@@ -1167,7 +1084,7 @@ void CMapLoaderH3M::readObjects()
 				nobj = gar;
 				nobj->setOwner(readUI8());
 				skip(3);
-				readCreatureSet(gar, 7, map->version > EMapFormat::ROE);
+				readCreatureSet(gar, 7);
 				if(map->version > EMapFormat::ROE)
 				{
 					gar->removableUnits = readBool();
@@ -1197,7 +1114,7 @@ void CMapLoaderH3M::readObjects()
 					art->message = readString();
 					if(readBool())
 					{
-						readCreatureSet(art, 7, map->version > EMapFormat::ROE);
+						readCreatureSet(art, 7);
 					}
 					skip(4);
 				}
@@ -1227,7 +1144,7 @@ void CMapLoaderH3M::readObjects()
 					res->message = readString();
 					if(readBool())
 					{
-						readCreatureSet(res, 7, map->version > EMapFormat::ROE);
+						readCreatureSet(res, 7);
 					}
 					skip(4);
 				}
@@ -1289,7 +1206,7 @@ void CMapLoaderH3M::readObjects()
 					box->message = readString();
 					if(readBool())
 					{
-						readCreatureSet(box, 7, map->version > EMapFormat::ROE);
+						readCreatureSet(box, 7);
 					}
 					skip(4);
 				}
@@ -1299,11 +1216,7 @@ void CMapLoaderH3M::readObjects()
 				box->moraleDiff = readSI8();
 				box->luckDiff = readSI8();
 
-				box->resources.resize(GameConstants::RESOURCE_QUANTITY);
-				for(int x = 0; x < 7; ++x)
-				{
-					box->resources[x] = readUI32();
-				}
+				readResourses(box->resources);
 
 				box->primskills.resize(GameConstants::PRIMARY_SKILLS);
 				for(int x = 0; x < 4; ++x)
@@ -1335,7 +1248,7 @@ void CMapLoaderH3M::readObjects()
 					box->spells.push_back(readUI8());
 				}
 				int gcre = readUI8(); //number of gained creatures
-				readCreatureSet(&box->creatures, gcre, map->version > EMapFormat::ROE);
+				readCreatureSet(&box->creatures, gcre);
 				skip(8);
 				break;
 			}
@@ -1591,8 +1504,9 @@ void CMapLoaderH3M::readObjects()
 	});
 }
 
-void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number, bool version)
+void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 {
+	const bool version = (map->version > EMapFormat::ROE);
 	const int maxID = version ? 0xffff : 0xff;
 
 	for(int ir = 0; ir < number; ++ir)
@@ -1720,7 +1634,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(int idToBeGiven)
 	// True if hero has nonstandard garrison
 	if(readBool())
 	{
-		readCreatureSet(nhi, 7, map->version > EMapFormat::ROE);
+		readCreatureSet(nhi, 7);
 	}
 
 	nhi->formation = readUI8();
@@ -1761,20 +1675,8 @@ CGObjectInstance * CMapLoaderH3M::readHero(int idToBeGiven)
 		if(readBool())
 		{
 			nhi->spells.insert(0xffffffff); //placeholder "preset spells"
-			for(int i = 0; i < 9; ++i)
-			{
-				ui8 c = readUI8();
-				for(int yy = 0; yy < 8; ++yy)
-				{
-					if(i * 8 + yy < GameConstants::SPELLS_QUANTITY)
-					{
-						if(c == (c | static_cast<ui8>(std::pow(2., yy))))
-						{
-							nhi->spells.insert(i * 8 + yy);
-						}
-					}
-				}
-			}
+
+			readSpells(nhi->spells);
 		}
 	}
 	else if(map->version == EMapFormat::AB)
@@ -2017,7 +1919,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 	// True if garrison isn't empty
 	if(readBool())
 	{
-		readCreatureSet(nt, 7, map->version > EMapFormat::ROE);
+		readCreatureSet(nt, 7);
 	}
 	nt->formation = readUI8();
 
@@ -2107,6 +2009,9 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 		nce->town = nt;
 		nce->name = readString();
 		nce->message = readString();
+
+		readResourses(nce->resources);
+
 		for(int x = 0; x < 7; ++x)
 		{
 			nce->resources[x] = readUI32();
@@ -2230,10 +2135,7 @@ void CMapLoaderH3M::readEvents()
 		ne->name = readString();
 		ne->message = readString();
 
-		for(int k = 0; k < 7; ++k)
-		{
-			ne->resources[k] = readUI32();
-		}
+		readResourses(ne->resources);
 		ne->players = readUI8();
 		if(map->version > EMapFormat::AB)
 		{
@@ -2252,6 +2154,52 @@ void CMapLoaderH3M::readEvents()
 		map->events.push_back(ne);
 	}
 }
+
+void CMapLoaderH3M::readSpells(std::set<TSpell>& dest)
+{
+	for(int byte  = 0; byte < 9; ++byte)
+	{
+		ui8 c = readUI8();
+		for(int bit = 0; bit < 8; ++bit)
+		{
+			if(byte * 8 + bit < GameConstants::SPELLS_QUANTITY)
+			{
+				if(c & (1 << bit))
+				{
+					dest.insert(byte * 8 + bit);
+				}
+			}
+		}
+	}
+}
+
+void CMapLoaderH3M::readResourses(TResources& resources)
+{
+	resources.resize(GameConstants::RESOURCE_QUANTITY); //needed?
+	for(int x = 0; x < 7; ++x)
+	{
+		resources[x] = readUI32();
+	}
+}
+
+
+void CMapLoaderH3M::readBitmask(std::vector<bool>& dest, const int byteCount, const int limit, bool negate)
+{
+	for(int byte = 0; byte < byteCount; ++byte)
+	{
+		const ui8 mask = readUI8();
+		for(int bit = 0; bit < 8; ++bit)
+		{
+			if(byte * 8 + bit < limit)
+			{
+				const bool flag = mask & (1 << bit);
+				if((negate && flag) || (!negate && !flag))
+					dest[byte * 8 + bit] = false;
+			}
+		}
+	}
+}
+
 
 ui8 CMapLoaderH3M::reverse(ui8 arg)
 {
