@@ -7,6 +7,10 @@
     installationCompleted = NO;
     outputDir = [[[NSBundle mainBundle] bundlePath] stringByAppendingString:@"/../../Data"];
     tempDir = NSTemporaryDirectory();
+    
+    // Output to Application Support
+    //NSArray* appSupportDirs = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask];
+    //outputDir = [[appSupportDirs[0] path] stringByAppendingString:@"/vcmi"];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)sender
@@ -243,7 +247,20 @@
     [self.installButton setTitle:@"Run VCMI"];
     [self.progressIndicator stopAnimation:self];
     
-    [NSApp requestUserAttention:NSCriticalRequest];
+    // Notify user that installation completed
+    NSUserNotification* notification = [[NSUserNotification alloc] init];
+    if (notification != nil) {
+        // On OS X 10.8 and newer use notification center
+        [notification setTitle:@"VCMI"];
+        [notification setInformativeText:@"Installation completed"];
+        [notification setDeliveryDate:[NSDate dateWithTimeInterval:0 sinceDate:[NSDate date]]];
+        [notification setSoundName:NSUserNotificationDefaultSoundName];
+        NSUserNotificationCenter *center = [NSUserNotificationCenter defaultUserNotificationCenter];
+        [center scheduleNotification:notification];
+    } else {
+        // On older OS X version force dock icon to jump
+        [NSApp requestUserAttention:NSCriticalRequest];
+    }
     
     // Hide all progress related controls
     [self.progressIndicator setHidden:YES];

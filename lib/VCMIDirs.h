@@ -17,7 +17,6 @@
 	using namespace boost::filesystem;
 #endif
 
-
 /// Where to find the various VCMI files. This is mostly useful for linux. 
 class VCMIDirs {
 public:
@@ -31,10 +30,21 @@ public:
 		try {
 #ifdef ANDROID
 			UserPath = DATA_DIR;
+#elif defined(__APPLE__)
+            // This is Cocoa code that should be normally used to get path to Application Support folder but can't use it here for now...
+            // NSArray* urls = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask];
+            // UserPath = path([urls[0] path] + "/vcmi").string();
+            
+            // ...so here goes a bit of hardcode instead
+            std::string home_dir = ".";
+			if (getenv("HOME") != NULL )
+				home_dir = getenv("HOME");
+            
+			UserPath = path(home_dir + "/Library/Application Support/vcmi").string();
 #else
 			// Find vcmi user directory and create it if necessary
 			std::string home_dir = ".";
-			if( getenv("HOME") != NULL )
+			if (getenv("HOME") != NULL )
 				home_dir = getenv("HOME");
 
 			UserPath = path(home_dir + "/.vcmi").string();
