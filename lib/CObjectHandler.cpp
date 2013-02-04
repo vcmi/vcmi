@@ -769,13 +769,6 @@ void CGHeroInstance::initHero()
 	}
 	assert(validTypes());
 
-	if (VLC->modh->modules.COMMANDERS)
-	{
-		commander = new CCommanderInstance (VLC->townh->factions[type->heroClass->faction].commander);
-		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
-		commander->giveStackExp (exp);
-	}
-
 	if (exp == 0xffffffff)
 	{
 		initExp();
@@ -787,6 +780,13 @@ void CGHeroInstance::initHero()
 	else //warp hero at the beginning of next turn
 	{
 		level = 1;
+	}
+
+	if (VLC->modh->modules.COMMANDERS)
+	{
+		commander = new CCommanderInstance (VLC->townh->factions[type->heroClass->faction].commander);
+		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
+		commander->giveStackExp (exp); //after our exp is set
 	}
 
 	hoverName = VLC->generaltexth->allTexts[15];
