@@ -141,7 +141,7 @@ struct LoadBoolean
 template<typename Ser>
 struct SaveBooleanVector
 {
-	static void invoke(Ser &s, const bool &data)
+	static void invoke(Ser &s, const std::vector<bool> &data)
 	{
 		s.saveBooleanVector(data);
 	}
@@ -149,7 +149,7 @@ struct SaveBooleanVector
 template<typename Ser>
 struct LoadBooleanVector
 {
-	static void invoke(Ser &s, bool &data)
+	static void invoke(Ser &s, std::vector<bool> &data)
 	{
 		s.loadBooleanVector(data);
 	}

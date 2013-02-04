@@ -21,17 +21,17 @@
  *
  */
 
-int CHeroClass::chooseSecSkill(const std::set<int> & possibles) const //picks secondary skill out from given possibilities
+SecondarySkill::SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill::SecondarySkill> & possibles) const //picks secondary skill out from given possibilities
 {
 	if(possibles.size()==1)
 		return *possibles.begin();
 	int totalProb = 0;
-	for(std::set<int>::const_iterator i=possibles.begin(); i!=possibles.end(); i++)
+	for(auto i=possibles.begin(); i!=possibles.end(); i++)
 	{
 		totalProb += secSkillProbability[*i];
 	}
 	int ran = rand()%totalProb;
-	for(std::set<int>::const_iterator i=possibles.begin(); i!=possibles.end(); i++)
+	for(auto i=possibles.begin(); i!=possibles.end(); i++)
 	{
 		ran -= secSkillProbability[*i];
 		if(ran<0)
@@ -271,7 +271,8 @@ void CHeroHandler::loadHeroJson(CHero * hero, const JsonNode & node)
 
 	BOOST_FOREACH(const JsonNode &set, node["skills"].Vector())
 	{
-		int skillID    = boost::range::find(SecondarySkill::names,  set["skill"].String()) - boost::begin(SecondarySkill::names);
+		SecondarySkill::SecondarySkill skillID = static_cast<SecondarySkill::SecondarySkill>(
+			boost::range::find(SecondarySkill::names,  set["skill"].String()) - boost::begin(SecondarySkill::names));
 		int skillLevel = boost::range::find(SecondarySkill::levels, set["level"].String()) - boost::begin(SecondarySkill::levels);
 
 		hero->secSkillsInit.push_back(std::make_pair(skillID, skillLevel));

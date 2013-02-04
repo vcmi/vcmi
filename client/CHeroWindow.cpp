@@ -222,7 +222,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	for(size_t g=0; g< secSkillAreas.size(); ++g)
 	{
 		int skill = curHero->secSkills[g].first,
-			level = curHero->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(curHero->secSkills[g].first));
+			level = curHero->getSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(curHero->secSkills[g].first));
 		secSkillAreas[g]->type = skill;
 		secSkillAreas[g]->bonusValue = level;
 		secSkillAreas[g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
@@ -256,7 +256,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	}
 	dismissButton->block(!!curHero->visitedTown || noDismiss);
 
-	if(curHero->getSecSkillLevel(CGHeroInstance::TACTICS) == 0)
+	if(curHero->getSecSkillLevel(SecondarySkill::TACTICS) == 0)
 		tacticsButton->block(true);
 	else
 	{

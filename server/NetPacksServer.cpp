@@ -176,23 +176,23 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 	case EMarketMode::RESOURCE_RESOURCE:
 		return gh->tradeResources(m, val, player, r1, r2);
 	case EMarketMode::RESOURCE_PLAYER:
-		return gh->sendResources(val, player, r1, r2);
+		return gh->sendResources(val, player, static_cast<Res::ERes>(r1), static_cast<Res::ERes>(r2));
 	case EMarketMode::CREATURE_RESOURCE:
 		if(!hero)
 			COMPLAIN_AND_RETURN("Only hero can sell creatures!");
-		return gh->sellCreatures(val, m, hero, r1, r2);
+		return gh->sellCreatures(val, m, hero, r1, static_cast<Res::ERes>(r2));
 	case EMarketMode::RESOURCE_ARTIFACT:
 		if(!hero)
 			COMPLAIN_AND_RETURN("Only hero can buy artifacts!");
-		return gh->buyArtifact(m, hero, r1, r2);
+		return gh->buyArtifact(m, hero, static_cast<Res::ERes>(r1), static_cast<Res::ERes>(r2));
 	case EMarketMode::ARTIFACT_RESOURCE:
 		if(!hero)
 			COMPLAIN_AND_RETURN("Only hero can sell artifacts!");
-		return gh->sellArtifact(m, hero, r1, r2);
+		return gh->sellArtifact(m, hero, r1, static_cast<Res::ERes>(r2));
 	case EMarketMode::CREATURE_UNDEAD:
 		return gh->transformInUndead(m, hero, r1);
 	case EMarketMode::RESOURCE_SKILL:
-		return gh->buySecSkill(m, hero, r2);
+		return gh->buySecSkill(m, hero, static_cast<SecondarySkill::SecondarySkill>(r2));
 	case EMarketMode::CREATURE_EXP:
 		return gh->sacrificeCreatures(m, hero, r1, val);
 	case EMarketMode::ARTIFACT_EXP:

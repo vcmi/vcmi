@@ -834,7 +834,7 @@ void CGameState::init(StartInfo * si)
 				}
 				break;
 			case CScenarioTravel::STravelBonus::SECONDARY_SKILL:
-				hero->setSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(curBonus->info2), curBonus->info3, true);
+				hero->setSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(curBonus->info2), curBonus->info3, true);
 				break;
 			}
 		}
@@ -1619,7 +1619,7 @@ void CGameState::initDuel()
 			obj = h;
 			h->subID = ss.heroId;
 			for(int i = 0; i < ss.heroPrimSkills.size(); i++)
-				h->pushPrimSkill(i, ss.heroPrimSkills[i]);
+				h->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(i), ss.heroPrimSkills[i]);
 
 			if(ss.spells.size())
 			{
@@ -1634,7 +1634,7 @@ void CGameState::initDuel()
 
 			typedef const std::pair<si32, si8> &TSecSKill;
 			BOOST_FOREACH(TSecSKill secSkill, ss.heroSecSkills)
-				h->setSecSkillLevel((CGHeroInstance::SecondarySkill)secSkill.first, secSkill.second, 1);
+				h->setSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(secSkill.first), secSkill.second, 1);
 
 			h->initHero(h->subID);
 			obj->initObj();

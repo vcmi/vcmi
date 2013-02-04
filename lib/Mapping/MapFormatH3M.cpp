@@ -610,7 +610,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 					hero->secSkills.resize(howMany);
 					for(int yy = 0; yy < howMany; ++yy)
 					{
-						hero->secSkills[yy].first = readUI8();
+						hero->secSkills[yy].first = static_cast<SecondarySkill::SecondarySkill>(readUI8());
 						hero->secSkills[yy].second = readUI8();
 					}
 				}
@@ -650,7 +650,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 				{
 					for(int xx = 0; xx < GameConstants::PRIMARY_SKILLS; xx++)
 					{
-						hero->pushPrimSkill(xx, readUI8());
+						hero->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(xx), readUI8());
 					}
 				}
 				map->predefinedHeroes.push_back(hero);
@@ -932,13 +932,13 @@ void CMapLoaderH3M::readObjects()
 				evnt->primskills.resize(GameConstants::PRIMARY_SKILLS);
 				for(int x = 0; x < 4; ++x)
 				{
-					evnt->primskills[x] = readUI8();
+					evnt->primskills[x] = static_cast<PrimarySkill::PrimarySkill>(readUI8());
 				}
 
 				int gabn = readUI8(); // Number of gained abilities
 				for(int oo = 0; oo < gabn; ++oo)
 				{
-					evnt->abilities.push_back(readUI8());
+					evnt->abilities.push_back(static_cast<SecondarySkill::SecondarySkill>(readUI8()));
 					evnt->abilityLevels.push_back(readUI8());
 				}
 
@@ -1308,13 +1308,13 @@ void CMapLoaderH3M::readObjects()
 				box->primskills.resize(GameConstants::PRIMARY_SKILLS);
 				for(int x = 0; x < 4; ++x)
 				{
-					box->primskills[x] = readUI8();
+					box->primskills[x] = static_cast<PrimarySkill::PrimarySkill>(readUI8());
 				}
 
 				int gabn = readUI8();//number of gained abilities
 				for(int oo = 0; oo < gabn; ++oo)
 				{
-					box->abilities.push_back(readUI8());
+					box->abilities.push_back(static_cast<SecondarySkill::SecondarySkill>(readUI8()));
 					box->abilityLevels.push_back(readUI8());
 				}
 				int gart = readUI8(); //number of gained artifacts
@@ -1712,7 +1712,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(int idToBeGiven)
 		nhi->secSkills.resize(howMany);
 		for(int yy = 0; yy < howMany; ++yy)
 		{
-			nhi->secSkills[yy].first = readUI8();
+			nhi->secSkills[yy].first = static_cast<SecondarySkill::SecondarySkill>(readUI8());
 			nhi->secSkills[yy].second = readUI8();
 		}
 	}
@@ -1798,7 +1798,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(int idToBeGiven)
 		{
 			for(int xx = 0; xx < GameConstants::PRIMARY_SKILLS; ++xx)
 			{
-				nhi->pushPrimSkill(xx, readUI8());
+				nhi->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(xx), readUI8());
 			}
 		}
 	}

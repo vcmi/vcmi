@@ -629,7 +629,7 @@ bool CGHeroInstance::canWalkOnSea() const
 	return hasBonusOfType(Bonus::FLYING_MOVEMENT) || hasBonusOfType(Bonus::WATER_WALKING);
 }
 
-ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
+ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill::SecondarySkill skill) const
 {
 	for(size_t i=0; i < secSkills.size(); ++i)
 		if(secSkills[i].first == skill)
@@ -637,11 +637,11 @@ ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
 	return 0;
 }
 
-void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
+void CGHeroInstance::setSecSkillLevel(SecondarySkill::SecondarySkill which, int val, bool abs)
 {
 	if(getSecSkillLevel(which) == 0)
 	{
-		secSkills.push_back(std::pair<int,int>(which, val));
+		secSkills.push_back(std::pair<SecondarySkill::SecondarySkill,ui8>(which, val));
 		updateSkill(which, val);
 	}
 	else
@@ -693,7 +693,7 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	const Bonus::BonusType bt = onLand ? Bonus::LAND_MOVEMENT : Bonus::SEA_MOVEMENT;
 	const int bonus = valOfBonuses(Bonus::MOVEMENT) + valOfBonuses(bt);
 
-	const int subtype = onLand ? LOGISTICS : NAVIGATION;
+	const int subtype = onLand ? SecondarySkill::LOGISTICS : SecondarySkill::NAVIGATION;
 	const double modifier = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, subtype) / 100.0;
 
 	return int(base* (1+modifier)) + bonus;
@@ -714,7 +714,7 @@ CGHeroInstance::CGHeroInstance()
 	boat = NULL;
 	commander = NULL;
 	sex = 0xff;
-	secSkills.push_back(std::make_pair(-1, -1));
+	secSkills.push_back(std::make_pair(SecondarySkill::DEFAULT, -1));
 }
 
 void CGHeroInstance::initHero(int SUBID)
@@ -754,7 +754,7 @@ void CGHeroInstance::initHero()
 			pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(g), type->heroClass->primarySkillInitial[g]);
 		}
 	}
-	if(secSkills.size() == 1 && secSkills[0] == std::pair<ui8,ui8>(-1, -1)) //set secondary skills to default
+	if(secSkills.size() == 1 && secSkills[0] == std::pair<SecondarySkill::SecondarySkill,ui8>(SecondarySkill::DEFAULT, -1)) //set secondary skills to default
 		secSkills = type->secSkillsInit;
 	if (!name.length())
 		name = type->name;
@@ -1091,7 +1091,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 				hs->addNewBonus(bonus);
 				break;
 			case 11://starting skill with mastery (Adrienne)
-				cb->changeSecSkill(id, spec.val, spec.additionalinfo); //simply give it and forget
+				cb->changeSecSkill(id, static_cast<SecondarySkill::SecondarySkill>(spec.val), spec.additionalinfo); //simply give it and forget
 				break;
 			case 12://army speed
 				bonus->type = Bonus::STACKS_SPEED;
@@ -1135,7 +1135,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 
 	//initialize bonuses
 	BOOST_FOREACH(auto skill_info, secSkills)
-		updateSkill(static_cast<CGHeroInstance::SecondarySkill>(skill_info.first), skill_info.second);
+		updateSkill(static_cast<SecondarySkill::SecondarySkill>(skill_info.first), skill_info.second);
 	Updatespecialty();
 
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
@@ -1196,11 +1196,11 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 		}
 	}
 }
-void CGHeroInstance::updateSkill(SecondarySkill which, int val)
+void CGHeroInstance::updateSkill(SecondarySkill::SecondarySkill which, int val)
 {
-	if(which == LEADERSHIP || which == LUCK)
+	if(which == SecondarySkill::LEADERSHIP || which == SecondarySkill::LUCK)
 	{ //luck-> VLC->generaltexth->arraytxt[73+luckSkill]; VLC->generaltexth->arraytxt[104+moraleSkill]
-		bool luck = which == LUCK;
+		bool luck = which == SecondarySkill::LUCK;
 		Bonus::BonusType type[] = {Bonus::MORALE, Bonus::LUCK};
 
 		Bonus *b = getBonusLocalFirst(Selector::type(type[luck]) && Selector::sourceType(Bonus::SECONDARY_SKILL));
@@ -1212,7 +1212,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 		else
 			b->val = +val;
 	}
-	else if(which == DIPLOMACY) //surrender discount: 20% per level
+	else if(which == SecondarySkill::DIPLOMACY) //surrender discount: 20% per level
 	{
 
 		if(Bonus *b = getBonusLocalFirst(Selector::type(Bonus::SURRENDER_DISCOUNT) && Selector::sourceType(Bonus::SECONDARY_SKILL)))
@@ -1224,43 +1224,43 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 	int skillVal = 0;
 	switch (which)
 	{
-		case ARCHERY:
-			switch (val)
-			{
-				case 1:
-					skillVal = 10; break;
-				case 2:
-					skillVal = 25; break;
-				case 3:
-					skillVal = 50; break;
-			}
-			break;
-		case LOGISTICS:
-			skillVal = 10 * val; break;
-		case NAVIGATION:
-			skillVal = 50 * val; break;
-		case MYSTICISM:
-			skillVal = val; break;
-		case EAGLE_EYE:
-			skillVal = 30 + 10 * val; break;
-		case NECROMANCY:
-			skillVal = 10 * val; break;
-		case LEARNING:
-			skillVal = 5 * val; break;
-		case OFFENCE:
-			skillVal = 10 * val; break;
-		case ARMORER:
-			skillVal = 5 * val; break;
-		case INTELLIGENCE:
-			skillVal = 25 << (val-1); break;
-		case SORCERY:
-			skillVal = 5 * val; break;
-		case RESISTANCE:
-			skillVal = 5 << (val-1); break;
-		case FIRST_AID:
-			skillVal = 25 + 25*val; break;
-		case ESTATES:
-			skillVal = 125 << (val-1); break;
+	case SecondarySkill::ARCHERY:
+		switch (val)
+		{
+		case 1:
+			skillVal = 10; break;
+		case 2:
+			skillVal = 25; break;
+		case 3:
+			skillVal = 50; break;
+		}
+		break;
+	case SecondarySkill::LOGISTICS:
+		skillVal = 10 * val; break;
+	case SecondarySkill::NAVIGATION:
+		skillVal = 50 * val; break;
+	case SecondarySkill::MYSTICISM:
+		skillVal = val; break;
+	case SecondarySkill::EAGLE_EYE:
+		skillVal = 30 + 10 * val; break;
+	case SecondarySkill::NECROMANCY:
+		skillVal = 10 * val; break;
+	case SecondarySkill::LEARNING:
+		skillVal = 5 * val; break;
+	case SecondarySkill::OFFENCE:
+		skillVal = 10 * val; break;
+	case SecondarySkill::ARMORER:
+		skillVal = 5 * val; break;
+	case SecondarySkill::INTELLIGENCE:
+		skillVal = 25 << (val-1); break;
+	case SecondarySkill::SORCERY:
+		skillVal = 5 * val; break;
+	case SecondarySkill::RESISTANCE:
+		skillVal = 5 << (val-1); break;
+	case SecondarySkill::FIRST_AID:
+		skillVal = 25 + 25*val; break;
+	case SecondarySkill::ESTATES:
+		skillVal = 125 << (val-1); break;
 	}
 
 
@@ -1297,7 +1297,7 @@ ui64 CGHeroInstance::getTotalStrength() const
 
 TExpType CGHeroInstance::calculateXp(TExpType exp) const
 {
-	return exp * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::LEARNING))/100.0;
+	return exp * (100 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::LEARNING))/100.0;
 }
 
 ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSchool) const
@@ -1308,7 +1308,7 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 	if(spell-> schoolName)									\
 	{															\
 		int thisSchool = std::max<int>(getSecSkillLevel( \
-			static_cast<CGHeroInstance::SecondarySkill>(14 + (schoolMechanicsId))), \
+			static_cast<SecondarySkill::SecondarySkill>(14 + (schoolMechanicsId))), \
 			valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << (schoolMechanicsId))); \
 		if(thisSchool > skill)									\
 		{														\
@@ -1360,12 +1360,12 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
  */
 CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &battleResult) const
 {
-	const ui8 necromancyLevel = getSecSkillLevel(CGHeroInstance::NECROMANCY);
+	const ui8 necromancyLevel = getSecSkillLevel(SecondarySkill::NECROMANCY);
 
 	// Hero knows necromancy.
 	if (necromancyLevel > 0)
 	{
-		double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, NECROMANCY)/100.0;
+		double necromancySkill = valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::NECROMANCY)/100.0;
 		vstd::amin(necromancySkill, 1.0); //it's impossible to raise more creatures than all...
 		const std::map<ui32,si32> &casualties = battleResult.casualties[!battleResult.winner];
 		ui32 raisedUnits = 0;
@@ -1440,7 +1440,7 @@ int3 CGHeroInstance::getSightCenter() const
 
 int CGHeroInstance::getSightRadious() const
 {
-	return 5 + getSecSkillLevel(CGHeroInstance::SCOUTING) + valOfBonuses(Bonus::SIGHT_RADIOUS); //default + scouting
+	return 5 + getSecSkillLevel(SecondarySkill::SCOUTING) + valOfBonuses(Bonus::SIGHT_RADIOUS); //default + scouting
 }
 
 si32 CGHeroInstance::manaRegain() const
@@ -1489,7 +1489,7 @@ int CGHeroInstance::getSpellCost(const CSpell *sp) const
 	return sp->costs[getSpellSchoolLevel(sp)];
 }
 
-void CGHeroInstance::pushPrimSkill( int which, int val )
+void CGHeroInstance::pushPrimSkill( PrimarySkill::PrimarySkill which, int val )
 {
 	addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id, which));
 }
@@ -2157,7 +2157,7 @@ void CGTownInstance::newTurn() const
 			int resID = rand()%4+2;//bonus to random rare resource
 			resID = (resID==2)?1:resID;
 			int resVal = rand()%4+1;//with size 1..4
-			cb->giveResource(tempOwner, resID, resVal);
+			cb->giveResource(tempOwner, static_cast<Res::ERes>(resID), resVal);
 			cb->setObjProperty (id, 14, resID);
 			cb->setObjProperty (id, 15, resVal);
 		}
@@ -2400,8 +2400,8 @@ void CGTownInstance::recreateBuildingsBonuses()
 	else if(subID == ETownType::NECROPOLIS) //necropolis
 	{
 		addBonusIfBuilt(EBuilding::COVER_OF_DARKNESS,    Bonus::DARKNESS, +20);
-		addBonusIfBuilt(EBuilding::NECROMANCY_AMPLIFIER, Bonus::SECONDARY_SKILL_PREMY, +10, make_shared<CPropagatorNodeType>(PLAYER), CGHeroInstance::NECROMANCY); //necromancy amplifier
-		addBonusIfBuilt(EBuilding::GRAIL, Bonus::SECONDARY_SKILL_PREMY, +20, make_shared<CPropagatorNodeType>(PLAYER), CGHeroInstance::NECROMANCY); //Soul prison
+		addBonusIfBuilt(EBuilding::NECROMANCY_AMPLIFIER, Bonus::SECONDARY_SKILL_PREMY, +10, make_shared<CPropagatorNodeType>(PLAYER), SecondarySkill::NECROMANCY); //necromancy amplifier
+		addBonusIfBuilt(EBuilding::GRAIL, Bonus::SECONDARY_SKILL_PREMY, +20, make_shared<CPropagatorNodeType>(PLAYER), SecondarySkill::NECROMANCY); //Soul prison
 	}
 	else if(subID == ETownType::DUNGEON) //Dungeon
 	{
@@ -2569,8 +2569,8 @@ void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, TExpType
 {
 	if(result) //player agreed to give res for exp
 	{
-		cb->giveResource(cb->getOwner(heroID),resType,-resVal); //take resource
-		cb->changePrimSkill(heroID,4,expVal); //give exp
+		cb->giveResource(cb->getOwner(heroID), static_cast<Res::ERes>(resType), -resVal); //take resource
+		cb->changePrimSkill(heroID, PrimarySkill::EXPERIENCE, expVal);
 		cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
 	}
 }
@@ -2652,10 +2652,10 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 		case Obj::STAR_AXIS:
 		case Obj::GARDEN_OF_REVELATION:
 			{
-				cb->changePrimSkill(heroID,subid,val);
+				cb->changePrimSkill(heroID, static_cast<PrimarySkill::PrimarySkill>(subid), val);
 				InfoWindow iw;
 				iw.soundID = sound;
-				iw.components.push_back(Component(c_id, subid,val,0));
+				iw.components.push_back(Component(c_id, subid, val, 0));
 				iw.text.addTxt(MetaString::ADVOB_TXT,ot);
 				iw.player = cb->getOwner(heroID);
 				cb->showInfoDialog(&iw);
@@ -2671,7 +2671,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				iw.player = cb->getOwner(heroID);
 				iw.text.addTxt(MetaString::ADVOB_TXT,ot);
 				cb->showInfoDialog(&iw);
-				cb->changePrimSkill(heroID,4,val);
+				cb->changePrimSkill(heroID, PrimarySkill::EXPERIENCE, val);
 				break;
 			}
 		case Obj::TREE_OF_KNOWLEDGE:
@@ -2687,13 +2687,13 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 					iw.player = cb->getOwner(heroID);
 					iw.text.addTxt(MetaString::ADVOB_TXT,148);
 					cb->showInfoDialog(&iw);
-					cb->changePrimSkill(heroID,4,val);
+					cb->changePrimSkill(heroID, PrimarySkill::EXPERIENCE, val);
 					break;
 				}
 				else
 				{
 					ui32 res;
-					TExpType resval;
+					si32 resval;
 					if(ttype==1)
 					{
 						res = Res::GOLD;
@@ -2727,7 +2727,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 			{
 				const CGHeroInstance *h = cb->getHero(heroID);
 				int txt_id = 66;
-				if(h->level  <  10 - 2*h->getSecSkillLevel(CGHeroInstance::DIPLOMACY)) //not enough level
+				if(h->level  <  10 - 2*h->getSecSkillLevel(SecondarySkill::DIPLOMACY)) //not enough level
 				{
 					txt_id += 2;
 				}
@@ -2824,7 +2824,7 @@ const std::string & CGVisitableOPH::getHoverText() const
 void CGVisitableOPH::arenaSelected( int heroID, int primSkill ) const
 {
 	cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
-	cb->changePrimSkill(heroID,primSkill-1,2);
+	cb->changePrimSkill(heroID, static_cast<PrimarySkill::PrimarySkill>(primSkill-1), 2);
 }
 
 void CGVisitableOPH::setPropertyDer( ui8 what, ui32 val )
@@ -2841,7 +2841,7 @@ void CGVisitableOPH::schoolSelected(int heroID, ui32 which) const
 	int base = (ID == Obj::SCHOOL_OF_MAGIC  ?  2  :  0);
 	cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
 	cb->giveResource(cb->getOwner(heroID),Res::GOLD,-1000); //take 1000 gold
-	cb->changePrimSkill(heroID, base + which-1, +1); //give appropriate skill
+	cb->changePrimSkill(heroID, static_cast<PrimarySkill::PrimarySkill>(base + which-1), +1); //give appropriate skill
 }
 
 COPWBonus::COPWBonus (int index, CGTownInstance *TOWN)
@@ -2912,32 +2912,33 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 	if (town->hasBuilt(ID) && visitors.find(heroID) == visitors.end())
 	{
 		InfoWindow iw;
-		int what=0, val=0, mid=0;
+		PrimarySkill::PrimarySkill what = PrimarySkill::ATTACK;
+		int val=0, mid=0;
 		switch (ID)
 		{
 			case EBuilding::SPECIAL_4:
 				switch(town->subID)
 				{
 					case ETownType::TOWER: //wall
-						what = 3;
+						what = PrimarySkill::KNOWLEDGE;
 						val = 1;
 						mid = 581;
 						iw.components.push_back (Component(Component::PRIM_SKILL, 3, 1, 0));
 						break;
 					case ETownType::INFERNO: //order of fire
-						what = 2;
+						what = PrimarySkill::SPELL_POWER;
 						val = 1;
 						mid = 582;
 						iw.components.push_back (Component(Component::PRIM_SKILL, 2, 1, 0));
 						break;
 					case ETownType::STRONGHOLD://hall of valhalla
-						what = 0;
+						what = PrimarySkill::ATTACK;
 						val = 1;
 						mid = 584;
 						iw.components.push_back (Component(Component::PRIM_SKILL, 0, 1, 0));
 						break;
 					case ETownType::DUNGEON://academy of battle scholars
-						what = 4;
+						what = PrimarySkill::EXPERIENCE;
 						val = h->calculateXp(1000);
 						mid = 583;
 						iw.components.push_back (Component(Component::EXPERIENCE, 0, val, 0));
@@ -2948,7 +2949,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 				switch(town->subID)
 				{
 					case ETownType::FORTRESS: //cage of warlords
-						what = 1;
+						what = PrimarySkill::DEFENSE;
 						val = 1;
 						mid = 585;
 						iw.components.push_back (Component(Component::PRIM_SKILL, 1, 1, 0));
@@ -3206,17 +3207,17 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	if(count*2 > totalCount)
 		sympathy++; // 2 - hero have similar creatures more that 50%
 
-	int charisma = powerFactor + h->getSecSkillLevel(CGHeroInstance::DIPLOMACY) + sympathy;
+	int charisma = powerFactor + h->getSecSkillLevel(SecondarySkill::DIPLOMACY) + sympathy;
 
 	if(charisma < character) //creatures will fight
 		return -2;
 
 	if (allowJoin)
 	{
-		if(h->getSecSkillLevel(CGHeroInstance::DIPLOMACY) + sympathy + 1 >= character)
+		if(h->getSecSkillLevel(SecondarySkill::DIPLOMACY) + sympathy + 1 >= character)
 			return 0; //join for free
 
-		else if(h->getSecSkillLevel(CGHeroInstance::DIPLOMACY) * 2  +  sympathy  +  1 >= character)
+		else if(h->getSecSkillLevel(SecondarySkill::DIPLOMACY) * 2  +  sympathy  +  1 >= character)
 			return VLC->creh->creatures[subID]->cost[6] * getStackCount(0); //join for gold
 	}
 
@@ -3270,7 +3271,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 
 		//take gold
 		if(cost)
-			cb->giveResource(h->tempOwner,6,-cost);
+			cb->giveResource(h->tempOwner,Res::GOLD,-cost);
 
 		cb->tryJoiningArmy(this, h, true, true);
 	}
@@ -3401,10 +3402,10 @@ void CGMine::initObj()
 		putStack(0, troglodytes);
 
 		//after map reading tempOwner placeholds bitmask for allowed resources
-		std::vector<int> possibleResources;
+		std::vector<Res::ERes> possibleResources;
 		for (int i = 0; i < 8; i++)
 			if(tempOwner & 1<<i)
-				possibleResources.push_back(i);
+				possibleResources.push_back(static_cast<Res::ERes>(i));
 
 		assert(possibleResources.size());
 		producedResource = possibleResources[ran()%possibleResources.size()];
@@ -3413,7 +3414,7 @@ void CGMine::initObj()
 	}
 	else
 	{
-		producedResource = subID;
+		producedResource = static_cast<Res::ERes>(subID);
 
 		MetaString ms;
 		ms << std::pair<ui8,ui32>(9,producedResource);
@@ -3432,7 +3433,7 @@ void CGMine::fight(ui32 agreed, const CGHeroInstance *h) const
 	cb->startBattleI(h, this, boost::bind(&CGMine::endBattle, this, _1, h->tempOwner));
 }
 
-void CGMine::endBattle(BattleResult *result, ui8 attackingPlayer) const
+void CGMine::endBattle(BattleResult *result, TPlayerColor attackingPlayer) const
 {
 	if(result->winner == 0) //attacker won
 	{
@@ -3444,7 +3445,7 @@ void CGMine::endBattle(BattleResult *result, ui8 attackingPlayer) const
 	}
 }
 
-void CGMine::flagMine(ui8 player) const
+void CGMine::flagMine(TPlayerColor player) const
 {
 	assert(tempOwner != player);
 	cb->setOwner(id,player); //not ours? flag it!
@@ -3533,7 +3534,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGResource::collectRes( int player ) const
 {
-	cb->giveResource(player,subID,amount);
+	cb->giveResource(player, static_cast<Res::ERes>(subID), amount);
 	ShowInInfobox sii;
 	sii.player = player;
 	sii.c = Component(Component::RESOURCE,subID,amount,0);
@@ -3601,36 +3602,37 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 	else
 	{
 		Component::EComponentType type = Component::RESOURCE;
-		int sub=0, val=0;
+		Res::ERes sub=Res::WOOD;
+		int val=0;
 
 		switch (ID)
 		{
 		case Obj::MYSTICAL_GARDEN:
 			if (rand()%2)
 			{
-				sub = 5;
+				sub = Res::GEMS;
 				val = 5;
 			}
 			else
 			{
-				sub = 6;
+				sub = Res::GOLD;
 				val = 500;
 			}
 			break;
 		case Obj::WINDMILL:
 			mid = 170;
-			sub = (rand() % 5) + 1;
+			sub = static_cast<Res::ERes>((rand() % 5) + 1);
 			val = (rand() % 4) + 3;
 			break;
 		case Obj::WATER_WHEEL:
 			mid = 164;
-			sub = 6;
+			sub = Res::GOLD;
 			if(cb->getDate(Date::DAY)<8)
 				val = 500;
 			else
 				val = 1000;
 		}
-		cb->giveResource(h->tempOwner,sub,val);
+		cb->giveResource(h->tempOwner, sub, val);
 		InfoWindow iw;
 		iw.soundID = sound;
 		iw.player = h->tempOwner;
@@ -3986,7 +3988,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 	{
 	case Obj::CAMPFIRE:
 		{
-			cb->giveResource(h->tempOwner,type,val2); //non-gold resource
+			cb->giveResource(h->tempOwner,static_cast<Res::ERes>(type),val2); //non-gold resource
 			cb->giveResource(h->tempOwner,Res::GOLD,val1);//gold
 			InfoWindow iw;
 			iw.soundID = soundBase::experience;
@@ -4023,7 +4025,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			if(val1) //there is gold
 			{
 				iw.components.push_back(Component(Component::RESOURCE,Res::GOLD,val1,0));
-				cb->giveResource(h->tempOwner,6,val1);
+				cb->giveResource(h->tempOwner,Res::GOLD,val1);
 			}
 			if(type == 1) //art
 			{
@@ -4091,10 +4093,10 @@ void CGPickable::chosen( int which, int heroID ) const
 	switch(which)
 	{
 	case 1: //player pick gold
-		cb->giveResource(cb->getOwner(heroID),6,val1);
+		cb->giveResource(cb->getOwner(heroID), Res::GOLD, val1);
 		break;
 	case 2: //player pick exp
-		cb->changePrimSkill(heroID, 4, h->calculateXp(val2));
+		cb->changePrimSkill(heroID, PrimarySkill::EXPERIENCE, h->calculateXp(val2));
 		break;
 	default:
 		throw std::runtime_error("Unhandled treasure choice");
@@ -4682,7 +4684,7 @@ void CGSeerHut::finishQuest(const CGHeroInstance * h, ui32 accept) const
 			case CQuest::MISSION_RESOURCES:
 				for (int i = 0; i < 7; ++i)
 				{
-					cb->giveResource(h->getOwner(), i, -quest->m7resources[i]);
+					cb->giveResource(h->getOwner(), static_cast<Res::ERes>(i), -quest->m7resources[i]);
 				}
 				break;
 			default:
@@ -4700,7 +4702,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 		case EXPERIENCE:
 		{
 			TExpType expVal = h->calculateXp(rVal);
-			cb->changePrimSkill(h->id, 4, expVal, false);
+			cb->changePrimSkill(h->id, PrimarySkill::EXPERIENCE, expVal, false);
 			break;
 		}
 		case MANA_POINTS:
@@ -4719,13 +4721,13 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 		}
 			break;
 		case RESOURCES:
-			cb->giveResource(h->getOwner(), rID, rVal);
+			cb->giveResource(h->getOwner(), static_cast<Res::ERes>(rID), rVal);
 			break;
 		case PRIMARY_SKILL:
-			cb->changePrimSkill(h->id, rID, rVal, false);
+			cb->changePrimSkill(h->id, static_cast<PrimarySkill::PrimarySkill>(rID), rVal, false);
 			break;
 		case SECONDARY_SKILL:
-			cb->changeSecSkill(h->id, rID, rVal, false);
+			cb->changeSecSkill(h->id, static_cast<SecondarySkill::SecondarySkill>(rID), rVal, false);
 			break;
 		case ARTIFACT:
 			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[rID],-2);
@@ -4801,7 +4803,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	if(!wasVisited(h->tempOwner))
 		cb->setObjProperty(id,10,h->tempOwner);
 	ui32 txt_id;
-	if(h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(ability))) //you alredy know this skill
+	if(h->getSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(ability))) //you alredy know this skill
 	{
 		txt_id =172;
 	}
@@ -4813,7 +4815,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		iw.components.push_back(Component(Component::SEC_SKILL, ability, 1, 0));
 		txt_id = 171;
-		cb->changeSecSkill(h->id,ability,1,true);
+		cb->changeSecSkill(h->id, static_cast<SecondarySkill::SecondarySkill>(ability), 1, true);
 	}
 
 	iw.text.addTxt(MetaString::ADVOB_TXT,txt_id);
@@ -4829,7 +4831,7 @@ const std::string & CGWitchHut::getHoverText() const
 		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
 		boost::algorithm::replace_first(hoverName,"%s",VLC->generaltexth->skillName[ability]);
 		const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
-		if(h && h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(ability))) //hero knows that ability
+		if(h && h->getSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(ability))) //hero knows that ability
 			hoverName += "\n\n" + VLC->generaltexth->allTexts[357]; // (Already learned)
 	}
 	return hoverName;
@@ -5184,16 +5186,16 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 		//give exp
 		if(expVal)
-			cb->changePrimSkill(h->id,4,expVal,false);
+			cb->changePrimSkill(h->id, PrimarySkill::EXPERIENCE, expVal, false);
 		//give prim skills
 		for(int i=0; i<primskills.size(); i++)
 			if(primskills[i])
-				cb->changePrimSkill(h->id,i,primskills[i],false);
+				cb->changePrimSkill(h->id,static_cast<PrimarySkill::PrimarySkill>(i),primskills[i],false);
 
 		//give sec skills
 		for(int i=0; i<abilities.size(); i++)
 		{
-			int curLev = h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(abilities[i]));
+			int curLev = h->getSecSkillLevel(abilities[i]);
 
 			if( (curLev  &&  curLev < abilityLevels[i])	|| (h->canLearnSkill() ))
 			{
@@ -5219,7 +5221,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		std::vector<ConstTransitivePtr<CSpell> > * sp = &VLC->spellh->spells;
 		for(std::vector<si32>::const_iterator i=spells.begin(); i != spells.end(); i++)
 		{
-			if ((*sp)[*i]->level <= h->getSecSkillLevel(CGHeroInstance::WISDOM) + 2) //enough wisdom
+			if ((*sp)[*i]->level <= h->getSecSkillLevel(SecondarySkill::WISDOM) + 2) //enough wisdom
 			{
 				iw.components.push_back(Component(Component::SPELL,*i,0,0));
 				spellsToGive.insert(*i);
@@ -5310,7 +5312,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 	for(int i=0; i<resources.size(); i++)
 		if(resources[i])
-			cb->giveResource(h->getOwner(),i,resources[i]);
+			cb->giveResource(h->getOwner(),static_cast<Res::ERes>(i),resources[i]);
 
 	for(int i=0; i<artifacts.size(); i++)
 		cb->giveHeroNewArtifact(h, VLC->arth->artifacts[artifacts[i]],-2);
@@ -5461,7 +5463,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,131);
 	}
-	else if(ID == Obj::SHRINE_OF_MAGIC_THOUGHT  && !h->getSecSkillLevel(CGHeroInstance::WISDOM)) //it's third level spell and hero doesn't have wisdom
+	else if(ID == Obj::SHRINE_OF_MAGIC_THOUGHT  && !h->getSecSkillLevel(SecondarySkill::WISDOM)) //it's third level spell and hero doesn't have wisdom
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,130);
 	}
@@ -5549,11 +5551,11 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	EBonusType type = bonusType;
 	int bid = bonusID;
 	//check if the bonus if applicable, if not - give primary skill (always possible)
-	int ssl = h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(bid)); //current sec skill level, used if bonusType == 1
+	int ssl = h->getSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(bid)); //current sec skill level, used if bonusType == 1
 	if((type == SECONDARY_SKILL
 			&& ((ssl == 3)  ||  (!ssl  &&  !h->canLearnSkill()))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
 		|| (type == SPELL  &&  (!h->getArt(17) || vstd::contains(h->spells, (ui32) bid)
-		|| (VLC->spellh->spells[bid]->level > h->getSecSkillLevel(CGHeroInstance::WISDOM) + 2)
+		|| (VLC->spellh->spells[bid]->level > h->getSecSkillLevel(SecondarySkill::WISDOM) + 2)
 		))) //hero doesn't have a spellbook or already knows the spell or doesn't have Wisdom
 	{
 		type = PRIM_SKILL;
@@ -5569,11 +5571,11 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	switch (type)
 	{
 	case PRIM_SKILL:
-		cb->changePrimSkill(h->id,bid,+1);
+		cb->changePrimSkill(h->id,static_cast<PrimarySkill::PrimarySkill>(bid),+1);
 		iw.components.push_back(Component(Component::PRIM_SKILL,bid,+1,0));
 		break;
 	case SECONDARY_SKILL:
-		cb->changeSecSkill(h->id,bid,+1);
+		cb->changeSecSkill(h->id,static_cast<SecondarySkill::SecondarySkill>(bid),+1);
 		iw.components.push_back(Component(Component::SEC_SKILL,bid,ssl+1,0));
 		break;
 	case SPELL:
@@ -5724,7 +5726,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 		case 2: //res
 			iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
 			iw.components.push_back (Component(Component::RESOURCE, bonusType, bonusVal, 0));
-			cb->giveResource(h->getOwner(), bonusType, bonusVal);
+			cb->giveResource(h->getOwner(), static_cast<Res::ERes>(bonusType), bonusVal);
 			break;
 		}
 		if(ID == Obj::WAGON  &&  artOrRes == 1)
@@ -6150,7 +6152,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 					loot << "%d %s";
 					loot.addReplacement(iw.components.back().val);
 					loot.addReplacement(MetaString::RES_NAMES, iw.components.back().subtype);
-					cb->giveResource (h->getOwner(), it, bc->resources[it]);
+					cb->giveResource (h->getOwner(), static_cast<Res::ERes>(it), bc->resources[it]);
 				}
 			}
 		}
@@ -6262,7 +6264,7 @@ void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) 
 		iw.text.addTxt (MetaString::SPELL_NAME, spell);
 		if (!h->getArt(17))
 			iw.text.addTxt (MetaString::ADVOB_TXT, 109); //no spellbook
-		else if (h->getSecSkillLevel(CGHeroInstance::WISDOM) < 3)
+		else if (h->getSecSkillLevel(SecondarySkill::WISDOM) < 3)
 			iw.text.addTxt (MetaString::ADVOB_TXT, 108); //no expert Wisdom
 		else
 		{
@@ -6460,7 +6462,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 	else
 	{
 		giveDummyBonus(h->id, Bonus::ONE_BATTLE);
-		int xp = 0;
+		TExpType xp = 0;
 
 		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); i++)
 		{
@@ -6477,7 +6479,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 			xp = h->calculateXp(xp);
 			iw.text.addTxt(MetaString::ADVOB_TXT,132);
 			iw.text.addReplacement(xp);
-			cb->changePrimSkill(h->id, 4, xp, false);
+			cb->changePrimSkill(h->id, PrimarySkill::EXPERIENCE, xp, false);
 		}
 		else
 		{
@@ -6679,7 +6681,7 @@ void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
 {
 	if (accept) //if hero wants to buy map
 	{
-		cb->giveResource (h->tempOwner, 6, -1000);
+		cb->giveResource (h->tempOwner, Res::GOLD, -1000);
 		FoWChange fw;
 		fw.mode = 1;
 		fw.player = h->tempOwner;

@@ -165,15 +165,15 @@ public:
 	void changeSpells(int hid, bool give, const std::set<ui32> &spells) OVERRIDE {};
 	bool removeObject(int objid) OVERRIDE {return false;};
 	void setBlockVis(int objid, bool bv) OVERRIDE {};
-	void setOwner(int objid, ui8 owner) OVERRIDE {};
+	void setOwner(int objid, TPlayerColor owner) OVERRIDE {};
 	void setHoverName(int objid, MetaString * name) OVERRIDE {};
-	void changePrimSkill(int ID, int which, si64 val, bool abs=false) OVERRIDE {};
-	void changeSecSkill(int ID, int which, int val, bool abs=false) OVERRIDE {}; 
+	void changePrimSkill(int ID, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) OVERRIDE {};
+	void changeSecSkill(int ID, SecondarySkill::SecondarySkill which, int val, bool abs=false) OVERRIDE {}; 
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE {};
 	ui32 showBlockingDialog(BlockingDialog *iw) OVERRIDE {return 0;}; //synchronous version of above
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) OVERRIDE {};
 	void showThievesGuildWindow(int player, int requestingObjId) OVERRIDE {};
-	void giveResource(int player, int which, int val) OVERRIDE {};
+	void giveResource(int player, Res::ERes which, int val) OVERRIDE {};
 
 	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE {};
 	void takeCreatures(int objid, const std::vector<CStackBasicDescriptor> &creatures) OVERRIDE {};

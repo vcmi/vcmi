@@ -574,7 +574,7 @@ void CKingdomInterface::generateMinesList(const std::vector<const CGObjectInstan
 	std::vector<const CGHeroInstance*> heroes = LOCPLINT->cb->getHeroesInfo(true);
 	for(size_t i=0; i<heroes.size(); i++)
 	{
-		totalIncome += heroes[i]->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::ESTATES));
+		totalIncome += heroes[i]->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ESTATES));
 		totalIncome += heroes[i]->valOfBonuses(Selector::typeSubtype(Bonus::GENERATE_RESOURCE, Res::GOLD));
 	}
 

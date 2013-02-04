@@ -207,15 +207,15 @@ public:
 	virtual void changeSpells(int hid, bool give, const std::set<ui32> &spells)=0;
 	virtual bool removeObject(int objid)=0;
 	virtual void setBlockVis(int objid, bool bv)=0;
-	virtual void setOwner(int objid, ui8 owner)=0;
+	virtual void setOwner(int objid, TPlayerColor owner)=0;
 	virtual void setHoverName(int objid, MetaString * name)=0;
-	virtual void changePrimSkill(int ID, int which, si64 val, bool abs=false)=0;
-	virtual void changeSecSkill(int ID, int which, int val, bool abs=false)=0; 
+	virtual void changePrimSkill(int ID, PrimarySkill::PrimarySkill which, si64 val, bool abs=false)=0;
+	virtual void changeSecSkill(int ID, SecondarySkill::SecondarySkill which, int val, bool abs=false)=0; 
 	virtual void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback)=0;
 	virtual ui32 showBlockingDialog(BlockingDialog *iw) =0; //synchronous version of above //TODO:
 	virtual void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) =0; //cb will be called when player closes garrison window
 	virtual void showThievesGuildWindow(int player, int requestingObjId) =0;
-	virtual void giveResource(int player, int which, int val)=0;
+	virtual void giveResource(int player, Res::ERes which, int val)=0;
 
 	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
 	virtual void takeCreatures(int objid, const std::vector<CStackBasicDescriptor> &creatures) =0;

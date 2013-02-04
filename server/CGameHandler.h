@@ -121,7 +121,7 @@ public:
 	void applyBattleEffects(BattleAttack &bat, const CStack *att, const CStack *def, int distance, bool secondary); //damage, drain life & fire shield
 	void checkForBattleEnd();
 	void setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance *heroes[2], bool creatureBank, const CGTownInstance *town);
-	void setBattleResult(int resultType, int victoriusSide);
+	void setBattleResult(BattleResult::EResult resultType, int victoriusSide);
 
 	CGameHandler(void);
 	~CGameHandler(void);
@@ -134,14 +134,14 @@ public:
 	void setBlockVis(int objid, bool bv) OVERRIDE;
 	void setOwner(int objid, ui8 owner) OVERRIDE;
 	void setHoverName(int objid, MetaString * name) OVERRIDE;
-	void changePrimSkill(int ID, int which, si64 val, bool abs=false) OVERRIDE;
-	void changeSecSkill(int ID, int which, int val, bool abs=false) OVERRIDE; 
+	void changePrimSkill(int ID, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) OVERRIDE;
+	void changeSecSkill(int ID, SecondarySkill::SecondarySkill which, int val, bool abs=false) OVERRIDE; 
 	//void showInfoDialog(InfoWindow *iw) OVERRIDE;
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE;
 	ui32 showBlockingDialog(BlockingDialog *iw) OVERRIDE; //synchronous version of above
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) OVERRIDE;
 	void showThievesGuildWindow(int player, int requestingObjId) OVERRIDE;
-	void giveResource(int player, int which, int val) OVERRIDE;
+	void giveResource(int player, Res::ERes which, int val) OVERRIDE;
 
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE;
 	void takeCreatures(int objid, const std::vector<CStackBasicDescriptor> &creatures) OVERRIDE;
@@ -182,7 +182,7 @@ public:
 	void visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h);
 	bool teleportHero(si32 hid, si32 dstid, ui8 source, ui8 asker = 255);
 	void vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h);
-	void levelUpHero(int ID, int skill);//handle client respond and send one more request if needed
+	void levelUpHero(int ID, SecondarySkill::SecondarySkill skill);//handle client respond and send one more request if needed
 	void levelUpHero(int ID);//initial call - check if hero have remaining levelups & handle them
 	void levelUpCommander (const CCommanderInstance * c, int skill); //secondary skill 1 to 6, special skill : skill - 100
 	void levelUpCommander (const CCommanderInstance * c);
@@ -210,15 +210,15 @@ public:
 	bool setFormation( si32 hid, ui8 formation );
 	bool tradeResources(const IMarket *market, ui32 val, ui8 player, ui32 id1, ui32 id2);
 	bool sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, TSlot slot, ui32 count);
-	bool sendResources(ui32 val, ui8 player, ui32 r1, ui32 r2);
-	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, ui32 resourceID);
+	bool sendResources(ui32 val, TPlayerColor player, Res::ERes r1, TPlayerColor r2);
+	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, Res::ERes resourceID);
 	bool transformInUndead(const IMarket *market, const CGHeroInstance * hero, ui32 slot);
 	bool assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assemble, ui32 assembleTo);
 	bool buyArtifact( ui32 hid, TArtifactID aid ); //for blacksmith and mage guild only -> buying for gold in common buildings
-	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactID rid, TArtifactID aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
-	bool sellArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactInstanceID aid, TResource rid); //for artifact merchant selling
+	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, Res::ERes rid, TArtifactID aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
+	bool sellArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactInstanceID aid, Res::ERes rid); //for artifact merchant selling
 	//void lootArtifacts (TArtHolder source, TArtHolder dest, std::vector<ui32> &arts); //after battle - move al arts to winer
-	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, int skill);
+	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, SecondarySkill::SecondarySkill skill);
 	bool garrisonSwap(si32 tid);
 	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
 	bool recruitCreatures(si32 objid, ui32 crid, ui32 cram, si32 level);

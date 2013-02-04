@@ -890,12 +890,12 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 
 	//handling secondary abilities and artifacts giving premies to them
 	if(info.shooting)
-		additiveBonus += info.attackerBonuses->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::ARCHERY) / 100.0;
+		additiveBonus += info.attackerBonuses->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARCHERY) / 100.0;
 	else
-		additiveBonus += info.attackerBonuses->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::OFFENCE) / 100.0;
+		additiveBonus += info.attackerBonuses->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::OFFENCE) / 100.0;
 
 	if(info.defenderBonuses)
-		multBonus *= (std::max(0, 100 - info.defenderBonuses->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::ARMORER))) / 100.0;
+		multBonus *= (std::max(0, 100 - info.defenderBonuses->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARMORER))) / 100.0;
 
 	//handling hate effect
 	additiveBonus += info.attackerBonuses->valOfBonuses(Bonus::HATE, defenderType->idNumber) / 100.;
@@ -1818,7 +1818,7 @@ ui32 CBattleInfoCallback::calculateSpellBonus(ui32 baseDamage, const CSpell * sp
 	//applying sorcery secondary skill
 	if(caster)
 	{
-		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::SORCERY)) / 100.0;
+		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
 		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, sp->id)) / 100.0;
 
 		if(sp->air)

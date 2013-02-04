@@ -213,7 +213,7 @@ void CCallback::buyArtifact(const CGHeroInstance *hero, int aid)
 	sendRequest(&pack);
 }
 
-void CCallback::trade(const CGObjectInstance *market, int mode, int id1, int id2, int val1, const CGHeroInstance *hero/* = NULL*/)
+void CCallback::trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero/* = NULL*/)
 {
 	TradeOnMarketplace pack;
 	pack.market = market;

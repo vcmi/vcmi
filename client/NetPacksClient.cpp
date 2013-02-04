@@ -535,7 +535,7 @@ void HeroLevelUp::applyCl( CClient *cl )
 	//INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroGotLevel, h, primskill, skills, id);
 	if(vstd::contains(cl->playerint,h->tempOwner))
 	{
-		cl->playerint[h->tempOwner]->heroGotLevel(h, static_cast<int>(primskill), skills, queryID);
+		cl->playerint[h->tempOwner]->heroGotLevel(h, primskill, skills, queryID);
 	}
 	//else
 	//	cb->selectionMade(0, queryID);

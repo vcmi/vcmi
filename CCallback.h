@@ -54,7 +54,7 @@ public:
 	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 
-	virtual void trade(const CGObjectInstance *market, int mode, int id1, int id2, int val1, const CGHeroInstance *hero = NULL)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
+	virtual void trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero = NULL)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
 
 	virtual int selectionMade(int selection, int queryID) =0;
 	virtual int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//swaps creatures between two possibly different garrisons // TODO: AI-unsafe code - fix it!
@@ -135,7 +135,7 @@ public:
 	void endTurn();
 	void swapGarrisonHero(const CGTownInstance *town);
 	void buyArtifact(const CGHeroInstance *hero, int aid);
-	void trade(const CGObjectInstance *market, int mode, int id1, int id2, int val1, const CGHeroInstance *hero = NULL);
+	void trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero = NULL);
 	void setFormation(const CGHeroInstance * hero, bool tight);
 	void setSelection(const CArmedInstance * obj);
 	void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero);

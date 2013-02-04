@@ -462,7 +462,7 @@ ui32 IBonusBearer::getMaxDamage() const
 si32 IBonusBearer::manaLimit() const
 {
 	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE) 
-		* (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::INTELLIGENCE)) 
+		* (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::INTELLIGENCE)) 
 		/ 10.0);
 }
 

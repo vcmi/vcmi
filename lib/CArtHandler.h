@@ -97,10 +97,10 @@ public:
 
 	ui32 price;
 	bmap<ui8, std::vector<ui16> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
-	std::vector<ui32> * constituents; // Artifacts IDs a combined artifact consists of, or NULL.
-	std::vector<ui32> * constituentOf; // Reverse map of constituents.
+	std::vector<TArtifactID> * constituents; // Artifacts IDs a combined artifact consists of, or NULL.
+	std::vector<TArtifactID> * constituentOf; // Reverse map of constituents.
 	EartClass aClass;
-	si32 id;
+	TArtifactID id;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

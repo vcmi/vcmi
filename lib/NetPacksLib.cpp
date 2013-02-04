@@ -52,7 +52,7 @@ DLL_LINKAGE void SetPrimSkill::applyGs( CGameState *gs )
 	CGHeroInstance *hero = gs->getHero(id);
 	assert(hero);
 
-	if(which <4)
+	if(which < PrimarySkill::EXPERIENCE)
 	{
 		Bonus *skill = hero->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) && Selector::subtype(which) && Selector::sourceType(Bonus::HERO_BASE_SKILL));
 		assert(skill);
@@ -62,7 +62,7 @@ DLL_LINKAGE void SetPrimSkill::applyGs( CGameState *gs )
 		else
 			skill->val += val;
 	}
-	else if(which == 4) //XP
+	else if(which == PrimarySkill::EXPERIENCE)
 	{
 		if(abs)
 			hero->exp = val;
@@ -74,7 +74,7 @@ DLL_LINKAGE void SetPrimSkill::applyGs( CGameState *gs )
 DLL_LINKAGE void SetSecSkill::applyGs( CGameState *gs )
 {
 	CGHeroInstance *hero = gs->getHero(id);
-	hero->setSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(which), val, abs);
+	hero->setSecSkillLevel(which, val, abs);
 }
 
 DLL_LINKAGE void SetCommanderProperty::applyGs(CGameState *gs)

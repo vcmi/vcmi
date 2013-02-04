@@ -886,7 +886,7 @@ void VCAI::yourTurn()
 	makingTurn = new boost::thread(&VCAI::makeTurn, this);
 }
 
-void VCAI::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, int queryID)
+void VCAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill::SecondarySkill> &skills, int queryID)
 {
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;

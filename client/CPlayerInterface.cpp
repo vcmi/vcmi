@@ -468,7 +468,7 @@ void CPlayerInterface::receivedResource(int type, int val)
 	GH.totalRedraw();
 }
 
-void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16>& skills, int queryID)
+void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill::SecondarySkill>& skills, int queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();

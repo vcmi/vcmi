@@ -369,7 +369,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 			BOOST_FOREACH(ui32 constituentID, *artifact->constituents)
 			{
 				if (artifacts[constituentID]->constituentOf == NULL)
-					artifacts[constituentID]->constituentOf = new std::vector<ui32>();
+					artifacts[constituentID]->constituentOf = new std::vector<TArtifactID>();
 				artifacts[constituentID]->constituentOf->push_back(artifact->id);
 			}
 		}
@@ -747,7 +747,7 @@ void CArtHandler::readComponents (const JsonNode & node, CArtifact * art)
 	value = &node["components"];
 	if (!value->isNull())
 	{
-		art->constituents = new std::vector<ui32>();
+		art->constituents = new std::vector<TArtifactID>();
 		BOOST_FOREACH (auto component, value->Vector())
 		{
 			VLC->modh->identifiers.requestIdentifier(std::string("artifact.") + component.String(),

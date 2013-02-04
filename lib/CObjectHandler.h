@@ -5,6 +5,7 @@
 #include "../lib/ConstTransitivePtr.h"
 #include "int3.h"
 #include "GameConstants.h"
+#include "ResourceSet.h"
 
 /*
  * CObjectHandler.h, part of VCMI engine
@@ -275,13 +276,6 @@ public:
 class DLL_LINKAGE CGHeroInstance : public CArmedInstance, public IBoatGenerator, public CArtifactSet
 {
 public:
-	enum SecondarySkill
-	{
-		PATHFINDING = 0, ARCHERY, LOGISTICS, SCOUTING, DIPLOMACY, NAVIGATION, LEADERSHIP, WISDOM, MYSTICISM,
-		LUCK, BALLISTICS, EAGLE_EYE, NECROMANCY, ESTATES, FIRE_MAGIC, AIR_MAGIC, WATER_MAGIC, EARTH_MAGIC,
-		SCHOLAR, TACTICS, ARTILLERY, LEARNING, OFFENCE, ARMORER, INTELLIGENCE, SORCERY, RESISTANCE,
-		FIRST_AID
-	};
 	enum ECanDig
 	{
 		CAN_DIG, LACK_OF_MOVEMENT, WRONG_TERRAIN, TILE_OCCUPIED
@@ -302,7 +296,7 @@ public:
 	std::string biography; //if custom
 	si32 portrait; //may be custom
 	si32 mana; // remaining spell points
-	std::vector<std::pair<ui8,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
+	std::vector<std::pair<SecondarySkill::SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	ui32 movement; //remaining movement points
 	ui8 sex;
 	bool inTownGarrison; // if hero is in town garrison
@@ -382,8 +376,8 @@ public:
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
 
-	ui8 getSecSkillLevel(SecondarySkill skill) const; //0 - no skill
-	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
+	ui8 getSecSkillLevel(SecondarySkill::SecondarySkill skill) const; //0 - no skill
+	void setSecSkillLevel(SecondarySkill::SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
 	bool canLearnSkill() const; ///true if hero has free secondary skill slot
 
 	int maxMovePoints(bool onLand) const;
@@ -416,9 +410,9 @@ public:
 	void initArmy(IArmyDescriptor *dst = NULL);
 	//void giveArtifact (ui32 aid);
 	void initHeroDefInfo();
-	void pushPrimSkill(int which, int val);
+	void pushPrimSkill(PrimarySkill::PrimarySkill which, int val);
 	void Updatespecialty();
-	void updateSkill(SecondarySkill which, int val);
+	void updateSkill(SecondarySkill::SecondarySkill which, int val);
 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
@@ -686,8 +680,8 @@ public:
 	si32 moraleDiff; //morale modifier
 	si32 luckDiff; //luck modifier
 	std::vector<si32> resources;//gained / lost resources
-	std::vector<si32> primskills;//gained / lost resources
-	std::vector<si32> abilities; //gained abilities
+	std::vector<si32> primskills;//gained / lost prim skills
+	std::vector<SecondarySkill::SecondarySkill> abilities; //gained abilities
 	std::vector<si32> abilityLevels; //levels of gained abilities
 	std::vector<si32> artifacts; //gained artifacts
 	std::vector<si32> spells; //gained spells
@@ -977,16 +971,16 @@ public:
 class DLL_LINKAGE CGMine : public CArmedInstance
 {
 public:
-	ui8 producedResource;
+	Res::ERes producedResource;
 	ui32 producedQuantity;
 
 	void offerLeavingGuards(const CGHeroInstance *h) const;
-	void endBattle(BattleResult *result, ui8 attackingPlayer) const;
+	void endBattle(BattleResult *result, TPlayerColor attackingPlayer) const;
 	void fight(ui32 agreed, const CGHeroInstance *h) const;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
-	void flagMine(ui8 player) const;
+	void flagMine(TPlayerColor player) const;
 	void newTurn() const override;
 	void initObj() override;
 	template <typename Handler> void serialize(Handler &h, const int version)

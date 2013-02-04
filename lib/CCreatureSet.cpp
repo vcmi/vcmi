@@ -525,7 +525,7 @@ si32 CStackInstance::magicResistance() const
 	if (const CGHeroInstance * hero = dynamic_cast<const CGHeroInstance *>(_armyObj))
 	{
 		//resistance skill
-		val += hero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::RESISTANCE);
+		val += hero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::RESISTANCE);
 	}
 	vstd::amin (val, 100);
 	return val;
@@ -740,7 +740,7 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 		case Bonus::MAGIC_RESISTANCE:
 			fileName = "E_DWARF.bmp"; break;
 		case Bonus::SECONDARY_SKILL_PREMY:
-			if (bonus->subtype == CGHeroInstance::RESISTANCE)
+			if (bonus->subtype == SecondarySkill::RESISTANCE)
 			{
 				fileName = "E_DWARF.bmp";
 			}

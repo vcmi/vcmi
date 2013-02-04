@@ -497,7 +497,7 @@ class CLevelWindow : public CWindowObject
 	void selectionChanged(unsigned to);
 public:
 
-	CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> callback); //c-tor
+	CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill::SecondarySkill> &skills, boost::function<void(ui32)> callback); //c-tor
 	~CLevelWindow(); //d-tor
 
 };

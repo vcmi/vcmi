@@ -195,7 +195,7 @@ void callWith(std::vector<T> args, boost::function<void(T)> fun, ui32 which)
 	fun(args[which]);
 }
 
-void CGameHandler::levelUpHero(int ID, int skill)
+void CGameHandler::levelUpHero(int ID, SecondarySkill::SecondarySkill skill)
 {
 	changeSecSkill(ID, skill, 1, 0);
 	levelUpHero(ID);
@@ -227,21 +227,21 @@ void CGameHandler::levelUpHero(int ID)
 	tlog5 << "The hero gets the primary skill with the no. " << x << " with a probability of " << r << "%." <<  std::endl;
 	SetPrimSkill sps;
 	sps.id = ID;
-	sps.which = x;
+	sps.which = static_cast<PrimarySkill::PrimarySkill>(x);
 	sps.abs = false;
 	sps.val = 1;
 	sendAndApply(&sps);
 
 	HeroLevelUp hlu;
 	hlu.heroid = ID;
-	hlu.primskill = x;
+	hlu.primskill = static_cast<PrimarySkill::PrimarySkill>(x);
 	hlu.level = hero->level+1;
 
 	//picking sec. skills for choice
-	std::set<int> basicAndAdv, expert, none;
+	std::set<SecondarySkill::SecondarySkill> basicAndAdv, expert, none;
 	for(int i=0;i<GameConstants::SKILL_QUANTITY;i++)
 		if (isAllowed(2,i))
-			none.insert(i);
+			none.insert(static_cast<SecondarySkill::SecondarySkill>(i));
 
 	for(unsigned i=0;i<hero->secSkills.size();i++)
 	{
@@ -255,7 +255,7 @@ void CGameHandler::levelUpHero(int ID)
 	//first offered skill
 	if(basicAndAdv.size())
 	{
-		int s = hero->type->heroClass->chooseSecSkill(basicAndAdv);//upgrade existing
+		SecondarySkill::SecondarySkill s = hero->type->heroClass->chooseSecSkill(basicAndAdv);//upgrade existing
 		hlu.skills.push_back(s);
 		basicAndAdv.erase(s);
 	}
@@ -292,8 +292,9 @@ void CGameHandler::levelUpHero(int ID)
 		if(hlu.skills.size() > 1) //apply and ask for secondary skill
 		{
 			boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind 
-					(callWith<ui16>, hlu.skills, boost::function<void(ui16)>(boost::bind
-					(&CGameHandler::levelUpHero, this, ID,_1) ), _1));
+					(callWith<SecondarySkill::SecondarySkill>, hlu.skills,
+					boost::function<void(SecondarySkill::SecondarySkill)>(boost::bind
+						(&CGameHandler::levelUpHero, this, ID,_1) ), _1));
 			applyAndAsk(&hlu,hero->tempOwner,callback); //call levelUpHero when client responds
 		}
 		else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
@@ -456,7 +457,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	}
 }
 
-void CGameHandler::changePrimSkill(int ID, int which, si64 val, bool abs)
+void CGameHandler::changePrimSkill(int ID, PrimarySkill::PrimarySkill which, si64 val, bool abs)
 {
 	SetPrimSkill sps;
 	sps.id = ID;
@@ -466,7 +467,7 @@ void CGameHandler::changePrimSkill(int ID, int which, si64 val, bool abs)
 	sendAndApply(&sps);
 
 	//only for exp - hero may level up
-	if (which == 4)
+	if (which == PrimarySkill::EXPERIENCE)
 	{
 		levelUpHero(ID);
 		CGHeroInstance *h = static_cast<CGHeroInstance *>(gs->map->objects[ID].get());
@@ -483,7 +484,7 @@ void CGameHandler::changePrimSkill(int ID, int which, si64 val, bool abs)
 	}
 }
 
-void CGameHandler::changeSecSkill( int ID, int which, int val, bool abs/*=false*/ )
+void CGameHandler::changeSecSkill( int ID, SecondarySkill::SecondarySkill which, int val, bool abs/*=false*/ )
 {
 	SetSecSkill sss;
 	sss.id = ID;
@@ -492,7 +493,7 @@ void CGameHandler::changeSecSkill( int ID, int which, int val, bool abs/*=false*
 	sss.abs = abs;
 	sendAndApply(&sss);
 
-	if(which == 7) //Wisdom
+	if(which == SecondarySkill::WISDOM)
 	{
 		const CGHeroInstance *h = getHero(ID);
 		if(h && h->visitedTown)
@@ -551,10 +552,10 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 	if(victoriousHero)
 	{
-		if(int eagleEyeLevel = victoriousHero->getSecSkillLevel(CGHeroInstance::EAGLE_EYE))
+		if(int eagleEyeLevel = victoriousHero->getSecSkillLevel(SecondarySkill::EAGLE_EYE))
 		{
 			int maxLevel = eagleEyeLevel + 1;
-			double eagleEyeChance = victoriousHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::EAGLE_EYE);
+			double eagleEyeChance = victoriousHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::EAGLE_EYE);
 			BOOST_FOREACH(const CSpell *sp, gs->curB->usedSpellsHistory[!battleResult.data->winner])
 				if(sp->level <= maxLevel && !vstd::contains(victoriousHero->spells, sp->id) && rand() % 100 < eagleEyeChance)
 					cs.spells.insert(sp->id);
@@ -712,9 +713,9 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 		//give exp
 		if (battleResult.data->exp[0] && hero1)
-			changePrimSkill(hero1->id,4,battleResult.data->exp[0]);
+			changePrimSkill(hero1->id, PrimarySkill::EXPERIENCE, battleResult.data->exp[0]);
 		else if (battleResult.data->exp[1] && hero2)
-			changePrimSkill(hero2->id,4,battleResult.data->exp[1]);
+			changePrimSkill(hero2->id, PrimarySkill::EXPERIENCE, battleResult.data->exp[1]);
 		else
 			afterBattleCallback();
 	}
@@ -798,7 +799,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	{
 		static const int artilleryLvlToChance[] = {0, 50, 75, 100};
 		const CGHeroInstance * owner = gs->curB->getHero(att->owner);
-		int chance = artilleryLvlToChance[owner->getSecSkillLevel(CGHeroInstance::ARTILLERY)];
+		int chance = artilleryLvlToChance[owner->getSecSkillLevel(SecondarySkill::ARTILLERY)];
 		if(chance > rand() % 100)
 		{
 			bat.flags |= BattleAttack::BALLISTA_DOUBLE_DMG;
@@ -1284,7 +1285,7 @@ void CGameHandler::newTurn()
 
 			if(!firstTurn) //not first day
 			{
-				n.res[i->first][Res::GOLD] += h->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::ESTATES)); //estates
+				n.res[i->first][Res::GOLD] += h->valOfBonuses(Selector::typeSubtype(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ESTATES)); //estates
 
 				for (int k = 0; k < GameConstants::RESOURCE_QUANTITY; k++)
 				{
@@ -1613,18 +1614,18 @@ void CGameHandler::checkForBattleEnd()
 	}
 	if(!hasStack[0] || !hasStack[1]) //somebody has won
 	{
-		setBattleResult(0, hasStack[1]);
+		setBattleResult(BattleResult::NORMAL, hasStack[1]);
 	}
 }
 
 void CGameHandler::giveSpells( const CGTownInstance *t, const CGHeroInstance *h )
 {
 	if(!h->hasSpellbook())
-		return; //hero hasn't spellbok
+		return; //hero hasn't spellbook
 	ChangeSpells cs;
 	cs.hid = h->id;
 	cs.learn = true;
-	for(int i=0; i<std::min(t->mageGuildLevel(),h->getSecSkillLevel(CGHeroInstance::WISDOM)+2);i++)
+	for(int i=0; i<std::min(t->mageGuildLevel(),h->getSecSkillLevel(SecondarySkill::WISDOM)+2);i++)
 	{
 		if (t->hasBuilt(EBuilding::GRAIL, ETownType::CONFLUX)) //Aurora Borealis
 		{
@@ -1917,7 +1918,7 @@ ui32 CGameHandler::showBlockingDialog( BlockingDialog *iw )
 	return 0;
 }
 
-void CGameHandler::giveResource(int player, int which, int val) //TODO: cap according to Bersy's suggestion
+void CGameHandler::giveResource(int player, Res::ERes which, int val) //TODO: cap according to Bersy's suggestion
 {
 	if(!val) return; //don't waste time on empty call
 	SetResource sr;
@@ -2109,18 +2110,18 @@ void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
 	const CGHeroInstance * h1 = getHero(fromHero);
 	const CGHeroInstance * h2 = getHero(toHero);
 
-	if ( h1->getSecSkillLevel(CGHeroInstance::SCHOLAR) < h2->getSecSkillLevel(CGHeroInstance::SCHOLAR) )
+	if ( h1->getSecSkillLevel(SecondarySkill::SCHOLAR) < h2->getSecSkillLevel(SecondarySkill::SCHOLAR) )
 	{
 		std::swap (h1,h2);//1st hero need to have higher scholar level for correct message
 		std::swap(fromHero, toHero);
 	}
 
-	int ScholarLevel = h1->getSecSkillLevel(CGHeroInstance::SCHOLAR);//heroes can trade up to this level
+	int ScholarLevel = h1->getSecSkillLevel(SecondarySkill::SCHOLAR);//heroes can trade up to this level
 	if (!ScholarLevel || !h1->hasSpellbook() || !h2->hasSpellbook() )
 		return;//no scholar skill or no spellbook
 
-	int h1Lvl = std::min(ScholarLevel+1, h1->getSecSkillLevel(CGHeroInstance::WISDOM)+2),
-	    h2Lvl = std::min(ScholarLevel+1, h2->getSecSkillLevel(CGHeroInstance::WISDOM)+2);//heroes can receive this levels
+	int h1Lvl = std::min(ScholarLevel+1, h1->getSecSkillLevel(SecondarySkill::WISDOM)+2),
+	    h2Lvl = std::min(ScholarLevel+1, h2->getSecSkillLevel(SecondarySkill::WISDOM)+2);//heroes can receive this levels
 
 	ChangeSpells cs1;
 	cs1.learn = true;
@@ -2962,7 +2963,7 @@ bool CGameHandler::buyArtifact( ui32 hid, TArtifactID aid )
 	return false;
 }
 
-bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, int rid, int aid)
+bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::ERes rid, TArtifactID aid)
 {
 	if(!vstd::contains(m->availableItemsIds(EMarketMode::RESOURCE_ARTIFACT), aid))
 		COMPLAIN_RET("That artifact is unavailable!");
@@ -3014,7 +3015,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, int ri
 	return true;
 }
 
-bool CGameHandler::sellArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactInstanceID aid, TResource rid )
+bool CGameHandler::sellArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactInstanceID aid, Res::ERes rid )
 {
 	const CArtifactInstance *art = h->getArtByInstanceId(aid);
 	if(!art)
@@ -3038,12 +3039,12 @@ bool CGameHandler::sellArtifact( const IMarket *m, const CGHeroInstance *h, TArt
 //	}
 //}
 
-bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, int skill)
+bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, SecondarySkill::SecondarySkill skill)
 {
 	if (!h)
 		COMPLAIN_RET("You need hero to buy a skill!");
 
-	if (h->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(skill)))
+	if (h->getSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(skill)))
 		COMPLAIN_RET("Hero already know this skill");
 
 	if (!h->canLearnSkill())
@@ -3087,18 +3088,18 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 val, ui8 player, u
 
 	SetResource sr;
 	sr.player = player;
-	sr.resid = id1;
+	sr.resid = static_cast<Res::ERes>(id1);
 	sr.val = r1 - b1 * units;
 	sendAndApply(&sr);
 
-	sr.resid = id2;
+	sr.resid = static_cast<Res::ERes>(id2);
 	sr.val = r2 + b2 * units;
 	sendAndApply(&sr);
 
 	return true;
 }
 
-bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, ui32 resourceID)
+bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, Res::ERes resourceID)
 {
 	if(!vstd::contains(hero->Slots(), slot))
 		COMPLAIN_RET("Hero doesn't have any creature in that slot!");
@@ -3158,7 +3159,7 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 	return true;
 }
 
-bool CGameHandler::sendResources(ui32 val, ui8 player, ui32 r1, ui32 r2)
+bool CGameHandler::sendResources(ui32 val, TPlayerColor player, Res::ERes r1, TPlayerColor r2)
 {
 	const PlayerState *p2 = gs->getPlayer(r2, false);
 	if(!p2  ||  p2->status != PlayerState::INGAME)
@@ -3379,7 +3380,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			if(!gs->curB->battleCanFlee(gs->curB->sides[ba.side]))
 				complain("Cannot retreat!");
 			else
-				setBattleResult(1, !ba.side); //surrendering side loses
+				setBattleResult(BattleResult::ESCAPE, !ba.side); //surrendering side loses
 			break;
 		}
 	case Battle::SURRENDER:
@@ -3393,7 +3394,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			else
 			{
 				giveResource(player, Res::GOLD, -cost);
-				setBattleResult(2, !ba.side); //surrendering side loses
+				setBattleResult(BattleResult::SURRENDER, !ba.side); //surrendering side loses
 			}
 			break;
 		}
@@ -3545,7 +3546,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			StartAction start_action(ba);
 			sendAndApply(&start_action);
 			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
-			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(CGHeroInstance::BALLISTICS)];
+			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(SecondarySkill::BALLISTICS)];
 
 			int attackedPart = gs->curB->battleHexToWallPart(ba.destinationTile);
 			if(attackedPart < 0)
@@ -3656,7 +3657,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				complain("There is either no healer, no destination, or healer cannot heal :P");
 			}
 			int maxHealable = destStack->MaxHealth() - destStack->firstHPleft;
-			int maxiumHeal = healer->count * std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, CGHeroInstance::FIRST_AID));
+			int maxiumHeal = healer->count * std::max(10, attackingHero->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::FIRST_AID));
 
 			int healed = std::min(maxHealable, maxiumHeal);
 
@@ -3881,7 +3882,7 @@ void CGameHandler::playerMessage( TPlayerColor player, const std::string &messag
 	else if(message == "vcmiglorfindel") //selected hero gains a new level
 	{
 		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
-		changePrimSkill(hero->id,4,VLC->heroh->reqExp(hero->level+1) - VLC->heroh->reqExp(hero->level));
+		changePrimSkill(hero->id, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level+1) - VLC->heroh->reqExp(hero->level));
 	}
 	else if(message == "vcmisilmaril") //player wins
 	{
@@ -5617,7 +5618,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 	int dump, exp;
 	market->getOffer(crid, 0, dump, exp, EMarketMode::CREATURE_EXP);
 	exp *= count;
-	changePrimSkill(hero->id, 4, hero->calculateXp(exp));
+	changePrimSkill(hero->id, PrimarySkill::EXPERIENCE, hero->calculateXp(exp));
 
 	return true;
 }
@@ -5635,7 +5636,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 	m->getOffer(hero->getArtTypeId(slot), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 
 	removeArtifact(al);
-	changePrimSkill(hero->id, 4, expToGive);
+	changePrimSkill(hero->id, PrimarySkill::EXPERIENCE, expToGive);
 	return true;
 }
 
@@ -5895,7 +5896,7 @@ void CGameHandler::runBattle()
 			const CGHeroInstance * curOwner = gs->curB->battleGetOwner(next);
 
 			if( (next->position < 0 || next->getCreature()->idNumber == 146)	//arrow turret or ballista
-				&& (!curOwner || curOwner->getSecSkillLevel(CGHeroInstance::ARTILLERY) == 0)) //hero has no artillery
+				&& (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::ARTILLERY) == 0)) //hero has no artillery
 			{
 				BattleAction attack;
 				attack.actionType = Battle::SHOOT;
@@ -5915,7 +5916,7 @@ void CGameHandler::runBattle()
 				continue;
 			}
 
-			if(next->getCreature()->idNumber == 145 && (!curOwner || curOwner->getSecSkillLevel(CGHeroInstance::BALLISTICS) == 0)) //catapult, hero has no ballistics
+			if(next->getCreature()->idNumber == 145 && (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::BALLISTICS) == 0)) //catapult, hero has no ballistics
 			{
 				BattleAction attack;
 				static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};
@@ -5946,7 +5947,7 @@ void CGameHandler::runBattle()
 					continue;
 				}
 
-				if(!curOwner || curOwner->getSecSkillLevel(CGHeroInstance::FIRST_AID) == 0) //no hero or hero has no first aid
+				if(!curOwner || curOwner->getSecSkillLevel(SecondarySkill::FIRST_AID) == 0) //no hero or hero has no first aid
 				{
 					range::random_shuffle(possibleStacks);
 					const CStack * toBeHealed = possibleStacks.front();
@@ -6106,7 +6107,7 @@ void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact 
 	giveHeroArtifact(h, a, pos);
 }
 
-void CGameHandler::setBattleResult(int resultType, int victoriusSide)
+void CGameHandler::setBattleResult(BattleResult::EResult resultType, int victoriusSide)
 {
 	if(battleResult.get())
 	{

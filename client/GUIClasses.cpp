@@ -1695,7 +1695,7 @@ void CSplitWindow::sliderMoved(int to)
 	setAmount(rightMin + to, false);
 }
 
-CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> callback):
+CLevelWindow::CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill::SecondarySkill> &skills, boost::function<void(ui32)> callback):
     CWindowObject(PLAYER_COLORED, "LVLUPBKG"),
     cb(callback)
 {
@@ -1728,7 +1728,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 			comps.push_back(new CSelectableComponent(
 								CComponent::secskill,
 								skills[i],
-								hero->getSecSkillLevel( static_cast<CGHeroInstance::SecondarySkill>(skills[i]) )+1,
+								hero->getSecSkillLevel( static_cast<SecondarySkill::SecondarySkill>(skills[i]) )+1,
 								CComponent::medium));
 		}
 		box = new CComponentBox(comps, Rect(75, 300, pos.w - 150, 100));
@@ -5407,7 +5407,7 @@ void CUniversityWindow::CItem::hover(bool on)
 
 int CUniversityWindow::CItem::state()
 {
-	if (parent->hero->getSecSkillLevel(static_cast<CGHeroInstance::SecondarySkill>(ID)))//hero know this skill
+	if (parent->hero->getSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(ID)))//hero know this skill
 		return 1;
 	if (!parent->hero->canLearnSkill())//can't learn more skills
 		return 0;

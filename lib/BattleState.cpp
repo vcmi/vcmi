@@ -668,7 +668,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType::ETerrainType terr
 	for(int i = 0; i < ARRAY_COUNT(tacticLvls); i++)
 	{
 		if(heroes[i])
-			tacticLvls[i] += heroes[i]->getSecSkillLevel(CGHeroInstance::TACTICS);
+			tacticLvls[i] += heroes[i]->getSecSkillLevel(SecondarySkill::TACTICS);
 	}
 	int tacticsSkillDiff = tacticLvls[0] - tacticLvls[1];
 
