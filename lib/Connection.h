@@ -77,7 +77,8 @@ enum SerializationLvl
 	Array,
 	Pointer,
 	Enum,
-	Serializable
+	Serializable,
+	BooleanVector
 };
 
 
@@ -136,6 +137,24 @@ struct LoadBoolean
 		s.loadBoolean(data);
 	}
 };
+
+template<typename Ser>
+struct SaveBooleanVector
+{
+	static void invoke(Ser &s, const bool &data)
+	{
+		s.saveBooleanVector(data);
+	}
+};
+template<typename Ser>
+struct LoadBooleanVector
+{
+	static void invoke(Ser &s, bool &data)
+	{
+		s.loadBooleanVector(data);
+	}
+};
+
 template<typename Ser,typename T>
 struct SavePrimitive
 {
@@ -245,6 +264,10 @@ struct SerializationLevel
 			mpl::int_<Boolean>,
 		//else
 		typename mpl::eval_if<
+			boost::is_same<T, std::vector<bool> >,
+			mpl::int_<BooleanVector>,
+		//else
+		typename mpl::eval_if<
 			boost::is_fundamental<T>,
 			mpl::int_<Primitive>,
 		//else
@@ -269,6 +292,7 @@ struct SerializationLevel
 			mpl::int_<Primitive>,
 		//else
 			mpl::int_<Wrong>
+		>
 		>
 		>
 		>
@@ -608,6 +632,9 @@ public:
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Boolean> >,
 			mpl::identity<SaveBoolean<Serializer> >,
 			//else if
+			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<BooleanVector> >,
+			mpl::identity<SaveBooleanVector<Serializer> >,
+			//else if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
 			mpl::identity<SavePrimitive<Serializer,T> >,
 			//else if
@@ -624,6 +651,7 @@ public:
 			mpl::identity<SaveSerializable<Serializer,T> >,
 			//else
 			mpl::identity<SaveWrong<Serializer,T> >
+			>
 			>
 			>
 			>
@@ -721,6 +749,12 @@ public:
 		ui8 writ = static_cast<ui8>(data);
 		*this << writ;
 	}
+	void saveBooleanVector(const std::vector<bool> & data)
+	{
+		std::vector<ui8> convData;
+		std::copy(data.begin(), data.end(), convData.begin());
+		saveSerializable(convData);
+	}
 };
 
 
@@ -813,6 +847,9 @@ public:
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Boolean> >,
 			mpl::identity<LoadBoolean<Serializer> >,
 			//else if
+			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<BooleanVector> >,
+			mpl::identity<LoadBooleanVector<Serializer> >,
+			//else if
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
 			mpl::identity<LoadPrimitive<Serializer,T> >,
 			//else if
@@ -829,6 +866,7 @@ public:
 			mpl::identity<LoadSerializable<Serializer,T> >,
 			//else
 			mpl::identity<LoadWrong<Serializer,T> >
+			>
 			>
 			>
 			>
@@ -1090,6 +1128,12 @@ public:
 		ui8 read;
 		*this >> read;
 		data = static_cast<bool>(read);
+	}
+	void loadBooleanVector(std::vector<bool> & data)
+	{
+		std::vector<ui8> convData;
+		loadSerializable(convData);
+		std::copy(convData.begin(), convData.end(), data.begin());
 	}
 };
 
