@@ -1011,19 +1011,6 @@ CCreatureHandler::~CCreatureHandler()
 {
 }
 
-static int retreiveRandNum(const boost::function<int()> &randGen)
-{
-	if(randGen)
-		return randGen();
-	else
-		return rand();
-}
-
-template <typename T> const T & pickRandomElementOf(const std::vector<T> &v, const boost::function<int()> &randGen)
-{
-	return v.at(retreiveRandNum(randGen) % v.size());
-}
-
 int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, int tier) const
 {
 	int r = 0;
@@ -1031,7 +1018,7 @@ int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, i
 	{
 		do 
 		{
-			r = pickRandomElementOf(creatures, randGen)->idNumber;
+			r = vstd::pickRandomElementOf(creatures, randGen)->idNumber;
 		} while (vstd::contains(VLC->creh->notUsedMonsters,r));
 	}
 	else
@@ -1052,7 +1039,7 @@ int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, i
 			return 0;
 		}
 
-		return pickRandomElementOf(allowed, randGen);
+		return vstd::pickRandomElementOf(allowed, randGen);
 	}
 	return r;
 }

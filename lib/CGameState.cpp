@@ -1317,7 +1317,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 	/*************************FOG**OF**WAR******************************************/
-	tlog4 << "\tFog of war";
+	tlog4 << "\tFog of war"; //FIXME: should be initialized after all bonuses are set
 	for(auto k=teams.begin(); k!=teams.end(); ++k)
 	{
 		k->second.fogOfWarMap.resize(map->width);
@@ -1520,8 +1520,6 @@ void CGameState::init(StartInfo * si)
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
 		obj->initObj();
-		if(obj->ID == Obj::PRISON) //prison also needs to initialize hero
-			static_cast<CGHeroInstance*>(obj)->initHero();
 	}
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{

@@ -537,6 +537,8 @@ void HeroLevelUp::applyCl( CClient *cl )
 	{
 		cl->playerint[h->tempOwner]->heroGotLevel(h, static_cast<int>(primskill), skills, queryID);
 	}
+	//else
+	//	cb->selectionMade(0, queryID);
 }
 
 void CommanderLevelUp::applyCl( CClient *cl )

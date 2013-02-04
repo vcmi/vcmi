@@ -94,7 +94,8 @@ namespace GameConstants
 // Enum declarations
 namespace PrimarySkill
 {
-	enum PrimarySkill { ATTACK, DEFENSE, SPELL_POWER, KNOWLEDGE};
+	enum PrimarySkill { ATTACK, DEFENSE, SPELL_POWER, KNOWLEDGE,
+				EXPERIENCE = 4}; //for some reason changePrimSkill uses it
 }
 
 namespace EVictoryConditionType

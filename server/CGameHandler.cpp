@@ -275,20 +275,37 @@ void CGameHandler::levelUpHero(int ID)
 		hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(basicAndAdv)); //upgrade existing
 	}
 
-	if(hlu.skills.size() > 1) //apply and ask for secondary skill
+	if (hero->tempOwner == GameConstants::NEUTRAL_PLAYER) //choose skill automatically
 	{
-		boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::levelUpHero,this,ID,_1)),_1));
-		applyAndAsk(&hlu,hero->tempOwner,callback); //call levelUpHero when client responds
+		sendAndApply (&hlu);
+		if (hlu.skills.size())
+		{
+			levelUpHero (ID, vstd::pickRandomElementOf (hlu.skills, rand));
+		}
+		else //apply and send info
+		{
+			levelUpHero(ID);
+		}
 	}
-	else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
+	else
 	{
-		sendAndApply(&hlu);
-		levelUpHero(ID, hlu.skills.back());
-	}
-	else //apply and send info
-	{
-		sendAndApply(&hlu);
-		levelUpHero(ID);
+		if(hlu.skills.size() > 1) //apply and ask for secondary skill
+		{
+			boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind 
+					(callWith<ui16>, hlu.skills, boost::function<void(ui16)>(boost::bind
+					(&CGameHandler::levelUpHero, this, ID,_1) ), _1));
+			applyAndAsk(&hlu,hero->tempOwner,callback); //call levelUpHero when client responds
+		}
+		else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
+		{
+			sendAndApply(&hlu);
+			levelUpHero(ID, hlu.skills.back());
+		}
+		else //apply and send info
+		{
+			sendAndApply(&hlu);
+			levelUpHero(ID);
+		}
 	}
 }
 
@@ -407,20 +424,35 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	}
 	int skillAmount = clu.skills.size();
 
-	if (skillAmount > 1) //apply and ask for secondary skill
-	{
-		auto callback = boost::function<void(ui32)>(boost::bind(callWith<ui32>, clu.skills, boost::function<void(ui32)>(boost::bind(&CGameHandler::levelUpCommander, this, c, _1)), _1));
-		applyAndAsk (&clu, c->armyObj->tempOwner, callback); //call levelUpCommander when client responds
-	}
-	else if (skillAmount == 1) //apply, give only possible skill and send info
+	if (hero->tempOwner == GameConstants::NEUTRAL_PLAYER) //choose skill automatically
 	{
 		sendAndApply(&clu);
-		levelUpCommander(c, clu.skills.back());
+		if (clu.skills.size())
+		{
+			levelUpCommander(c, vstd::pickRandomElementOf (clu.skills, rand));
+		}
+		else //apply and send info
+		{
+			levelUpCommander(c);
+		}
 	}
-	else //apply and send info
+	else
 	{
-		sendAndApply(&clu);
-		levelUpCommander(c);
+		if (skillAmount > 1) //apply and ask for secondary skill
+		{
+			auto callback = boost::function<void(ui32)>(boost::bind(callWith<ui32>, clu.skills, boost::function<void(ui32)>(boost::bind(&CGameHandler::levelUpCommander, this, c, _1)), _1));
+			applyAndAsk (&clu, c->armyObj->tempOwner, callback); //call levelUpCommander when client responds
+		}
+		else if (skillAmount == 1) //apply, give only possible skill and send info
+		{
+			sendAndApply(&clu);
+			levelUpCommander(c, clu.skills.back());
+		}
+		else //apply and send info
+		{
+			sendAndApply(&clu);
+			levelUpCommander(c);
+		}
 	}
 }
 
@@ -1132,6 +1164,17 @@ void CGameHandler::newTurn()
 
 	std::map<ui8, si32> hadGold;//starting gold - for buildings like dwarven treasury
 	srand(time(NULL));
+
+	if (firstTurn)
+	{
+		BOOST_FOREACH (auto obj, gs->map->objects)
+		{
+			if (obj->ID == Obj::PRISON) //give imprisoned hero 0 exp to level him up. easiest to do at this point
+			{
+				changePrimSkill (obj->id, PrimarySkill::EXPERIENCE, 0);
+			}
+		}
+	}
 
 	if (newWeek && !firstTurn)
 	{

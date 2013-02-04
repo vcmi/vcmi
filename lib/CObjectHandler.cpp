@@ -758,14 +758,6 @@ void CGHeroInstance::initHero()
 		secSkills = type->secSkillsInit;
 	if (!name.length())
 		name = type->name;
-	if (exp == 0xffffffff)
-	{
-		initExp();
-	}
-	else
-	{
-		level = VLC->heroh->level(exp);
-	}
 
 	if (sex == 0xFF)//sex is default
 		sex = type->sex;
@@ -781,6 +773,20 @@ void CGHeroInstance::initHero()
 	{
 		commander = new CCommanderInstance (VLC->townh->factions[type->heroClass->faction].commander);
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
+		commander->giveStackExp (exp);
+	}
+
+	if (exp == 0xffffffff)
+	{
+		initExp();
+	}
+	else if (ID != Obj::PRISON)
+	{
+		level = VLC->heroh->level(exp);
+	}
+	else //warp hero at the beginning of next turn
+	{
+		level = 1;
 	}
 
 	hoverName = VLC->generaltexth->allTexts[15];
@@ -897,9 +903,16 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	{
 		int txt_id;
 
-		if(cb->getHeroCount(h->tempOwner,false) < 8) //free hero slot
+		if(cb->getHeroCount(h->tempOwner,false) < GameConstants::MAX_HEROES_PER_PLAYER) //free hero slot
 		{
 			cb->changeObjPos(id,pos+int3(1,0,0),0);
+			//update hero parameters
+			SetMovePoints smp;
+			smp.hid = id;
+			smp.val = maxMovePoints (true); //TODO: hota prison on water?
+			cb->setMovePoints (&smp);
+			cb->setManaPoints (id, manaLimit());
+
 			cb->setObjProperty(id, ObjProperty::ID, Obj::HERO); //set ID to 34
 			cb->giveHero(id,h->tempOwner); //recreates def and adds hero to player
 
@@ -928,7 +941,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 	attachTo(hs); //do we ever need to detach it?
 
 	if(!type)
-		return; //TODO: support prison
+		initHero(); //TODO: set up everything for prison before specialties are configured
 
 	BOOST_FOREACH(const auto &spec, type->spec) //TODO: unfity with bonus system
 	{

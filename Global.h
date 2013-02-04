@@ -481,6 +481,19 @@ namespace vstd
 			return vf(lhs) < vf(rhs);
 		});
 	}
+
+	static int retreiveRandNum(const boost::function<int()> &randGen)
+	{
+		if (randGen)
+			return randGen();
+		else
+			return rand();
+	}
+
+	template <typename T> const T & pickRandomElementOf(const std::vector<T> &v, const boost::function<int()> &randGen)
+	{
+		return v.at(retreiveRandNum(randGen) % v.size());
+	}
 }
 
 using std::shared_ptr;
