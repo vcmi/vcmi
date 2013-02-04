@@ -151,6 +151,8 @@
 		<Unit filename="Mapping/CMapInfo.h" />
 		<Unit filename="Mapping/CMapService.cpp" />
 		<Unit filename="Mapping/CMapService.h" />
+		<Unit filename="Mapping/MapFormatH3M.cpp" />
+		<Unit filename="Mapping/MapFormatH3M.h" />
 		<Unit filename="NetPacks.h" />
 		<Unit filename="NetPacksLib.cpp" />
 		<Unit filename="RMG/CMapGenOptions.cpp" />

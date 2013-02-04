@@ -18,6 +18,7 @@ set(lib_SRCS
 		Mapping/CMapEditManager.cpp
 		Mapping/CMapInfo.cpp
 		Mapping/CMapService.cpp
+		Mapping/MapFormatH3M.cpp
 		RMG/CMapGenOptions.cpp
 		RMG/CMapGenerator.cpp
 		BattleAction.cpp
@@ -54,6 +55,12 @@ set(lib_SRCS
 set(lib_HEADERS
 		Filesystem/CInputStream.h
 		Filesystem/ISimpleResourceLoader.h
+		Mapping/CCampaignHandler.h
+		Mapping/CMap.h
+		Mapping/CMapEditManager.h
+		Mapping/CMapInfo.h
+		Mapping/CMapService.h
+		Mapping/MapFormatH3M.h
 		AI_Base.h
 		CondSh.h
 		ConstTransitivePtr.h
