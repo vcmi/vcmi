@@ -3583,7 +3583,8 @@ void CBonusSelection::selectBonus( int id )
 {
 	// Total redraw is needed because the border around the bonus images
 	// have to be undrawn/drawn.
-	if (id != sInfo.campState->currentBonusID())
+	if (!vstd::contains(sInfo.campState->chosenCampaignBonuses, sInfo.campState->currentMap)
+		|| id != sInfo.campState->currentBonusID())
 	{
 		sInfo.campState->chosenCampaignBonuses[sInfo.campState->currentMap] = id;
 		GH.totalRedraw();

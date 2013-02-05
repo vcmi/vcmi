@@ -890,12 +890,12 @@ TeamState *CNonConstInfoCallback::getTeam(ui8 teamID)
 	return const_cast<TeamState*>(CGameInfoCallback::getTeam(teamID));
 }
 
-TeamState *CNonConstInfoCallback::getPlayerTeam(ui8 color)
+TeamState *CNonConstInfoCallback::getPlayerTeam(TPlayerColor color)
 {
 	return const_cast<TeamState*>(CGameInfoCallback::getPlayerTeam(color));
 }
 
-PlayerState * CNonConstInfoCallback::getPlayer( ui8 color, bool verbose )
+PlayerState * CNonConstInfoCallback::getPlayer( TPlayerColor color, bool verbose )
 {
 	return const_cast<PlayerState*>(CGameInfoCallback::getPlayer(color, verbose));
 }

@@ -181,9 +181,9 @@ public:
 class DLL_LINKAGE CNonConstInfoCallback : public CPrivilagedInfoCallback
 {
 public:
-	PlayerState *getPlayer(ui8 color, bool verbose = true);
+	PlayerState *getPlayer(TPlayerColor color, bool verbose = true);
 	TeamState *getTeam(ui8 teamID);//get team by team ID
-	TeamState *getPlayerTeam(ui8 color);// get team by player color
+	TeamState *getPlayerTeam(TPlayerColor color);// get team by player color
 	CGHeroInstance *getHero(int objid);
 	CGTownInstance *getTown(int objid);
 	TerrainTile * getTile(int3 pos);

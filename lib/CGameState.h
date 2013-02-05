@@ -421,7 +421,6 @@ public:
 	PlayerRelations::PlayerRelations getPlayerRelations(TPlayerColor color1, TPlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	bool checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst) const; //check if src tile is visitable from dst tile
-	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists
 	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or NULL if path does not exists
 	int3 guardingCreaturePosition (int3 pos) const;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
@@ -438,7 +437,7 @@ public:
 	void buildGlobalTeamPlayerTree();
 	void deserializationFix();
 
-	bool isVisible(int3 pos, int player);
+	bool isVisible(int3 pos, TPlayerColor player);
 	bool isVisible(const CGObjectInstance *obj, int player);
 
 	CGameState(); //c-tor

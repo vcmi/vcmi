@@ -264,11 +264,6 @@ void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroIn
 	}
 }
 
-bool CCallback::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret)
-{
-	return gs->getPath(src,dest,hero, ret);
-}
-
 void CCallback::save( const std::string &fname )
 {
 	cl->save(fname);

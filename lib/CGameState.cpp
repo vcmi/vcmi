@@ -1131,7 +1131,9 @@ void CGameState::init(StartInfo * si)
 					}
 					if (!found)
 					{
-						//TODO: create new hero of this type
+						CGHeroInstance * nh = new CGHeroInstance();
+						nh->initHero(hp->subID);
+						replaceHero(g, nh);
 					}
 				}
 			}
@@ -1156,7 +1158,7 @@ void CGameState::init(StartInfo * si)
 					if(Xheroes.size() > hp->power - 1)
 						replaceHero(g, Xheroes[hp->power - 1]);
 					else
-						tlog2 << "Warning, to hero to replace!\n";
+						tlog2 << "Warning, no hero to replace!\n";
 					//we don't have to remove hero from Xheroes because it would destroy the order and duplicates shouldn't happen
 				}
 			}
@@ -1933,13 +1935,6 @@ void CGameState::apply(CPack *pack)
 	applierGs->apps[typ]->applyOnGS(this,pack);
 }
 
-bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret)
-{
-	//the old pathfinder is not supported anymore!
-	assert(0);
-	return false;
-}
-
 void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src, int movement)
 {
 	CPathfinder pathfinder(out, this, hero);
@@ -2052,9 +2047,9 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 	return int3(-1, -1, -1);
 }
 
-bool CGameState::isVisible(int3 pos, int player)
+bool CGameState::isVisible(int3 pos, TPlayerColor player)
 {
-	if(player == 255) //neutral player
+	if(player == GameConstants::NEUTRAL_PLAYER)
 		return false;
 	return getPlayerTeam(player)->fogOfWarMap[pos.x][pos.y][pos.z];
 }
@@ -2064,7 +2059,7 @@ bool CGameState::isVisible( const CGObjectInstance *obj, int player )
 	if(player == -1)
 		return true;
 
-	if(player == 255) //neutral player  -> TODO ??? needed?
+	if(player == GameConstants::NEUTRAL_PLAYER) //-> TODO ??? needed?
 		return false;
 	//object is visible when at least one blocked tile is visible
 	for(int fx=0; fx<8; ++fx)
