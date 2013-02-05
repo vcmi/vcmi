@@ -1496,7 +1496,7 @@ int RankRangeLimiter::limit(const BonusLimitationContext &context) const
 	const CStackInstance *csi = retreiveStackInstance(&context.node);
 	if(csi)
 	{
-		if (csi->getNodeType() == Bonus::COMMANDER) //no stack exp bonuses for commander creatures
+		if (csi->getNodeType() == CBonusSystemNode::COMMANDER) //no stack exp bonuses for commander creatures
 			return true;
 		return csi->getExpRank() < minRank || csi->getExpRank() > maxRank;
 	}

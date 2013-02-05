@@ -4,7 +4,6 @@
 #include "../lib/Filesystem/CResourceLoader.h"
 #include "../lib/Filesystem/ISimpleResourceLoader.h"
 #include "../lib/JsonNode.h"
-#include "../lib/vcmi_endian.h"
 
 #include "CBitmapHandler.h"
 #include "Graphics.h"
@@ -131,13 +130,13 @@ CDefFile::CDefFile(std::string Name):
 	static SDL_Color H3Palette[8] =
 	{
 		{   0,   0,   0,   0},// 100% - transparency
-		{   0,   0,   0, 192},//  75% - shadow border,
+		{   0,   0,   0,  64},//  75% - shadow border,
 		{   0,   0,   0, 128},// TODO: find exact value
 		{   0,   0,   0, 128},// TODO: for transparency
 		{   0,   0,   0, 128},//  50% - shadow body
 		{   0,   0,   0,   0},// 100% - selection highlight
 		{   0,   0,   0, 128},//  50% - shadow body   below selection
-		{   0,   0,   0, 192} // 75% - shadow border below selection
+		{   0,   0,   0,  64} // 75% - shadow border below selection
 	};
 	data = animationCache.getCachedFile(ResourceID(std::string("SPRITES/") + Name, EResType::ANIMATION));
 
@@ -196,14 +195,13 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 	const SSpriteDef sd = * reinterpret_cast<const SSpriteDef *>(FDef);
 	SSpriteDef sprite;
 
-	//sprite.size = SDL_SwapLE32(sd.size);//unused
-	sprite.format = SDL_SwapLE32(sd.format);
-	sprite.fullWidth = SDL_SwapLE32(sd.fullWidth);
-	sprite.fullHeight = SDL_SwapLE32(sd.fullHeight);
-	sprite.width = SDL_SwapLE32(sd.width);
-	sprite.height = SDL_SwapLE32(sd.height);
-	sprite.leftMargin = SDL_SwapLE32(sd.leftMargin);
-	sprite.topMargin = SDL_SwapLE32(sd.topMargin);
+	sprite.format = read_le_u32(&sd.format);
+	sprite.fullWidth = read_le_u32(&sd.fullWidth);
+	sprite.fullHeight = read_le_u32(&sd.fullHeight);
+	sprite.width = read_le_u32(&sd.width);
+	sprite.height = read_le_u32(&sd.height);
+	sprite.leftMargin = read_le_u32(&sd.leftMargin);
+	sprite.topMargin = read_le_u32(&sd.topMargin);
 
 	ui32 currentOffset = sizeof(SSpriteDef);
 	ui32 BaseOffset =    sizeof(SSpriteDef);

@@ -4,7 +4,6 @@
 
 #include "../lib/Filesystem/CResourceLoader.h"
 #include "../lib/VCMI_Lib.h"
-#include "../lib/vcmi_endian.h"
 #include "CBitmapHandler.h"
 
 /*
@@ -58,10 +57,10 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 	ui8 *p;
 
 	defName = name;
-	DEFType = SDL_SwapLE32(de.DEFType);
-	width = SDL_SwapLE32(de.width);
-	height = SDL_SwapLE32(de.height);
-	ui32 totalBlocks = SDL_SwapLE32(de.totalBlocks);
+	DEFType = read_le_u32(&de.DEFType);
+	width = read_le_u32(&de.width);
+	height = read_le_u32(&de.height);
+	ui32 totalBlocks = read_le_u32(&de.totalBlocks);
 
 	for (ui32 it=0;it<256;it++)
 	{
@@ -147,13 +146,13 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPal
 	BaseOffset = SEntries[SIndex].offset;
 	SSpriteDef sd = * reinterpret_cast<const SSpriteDef *>(FDef + BaseOffset);
 
-	defType2 = SDL_SwapLE32(sd.defType2);
-	FullWidth = SDL_SwapLE32(sd.FullWidth);
-	FullHeight = SDL_SwapLE32(sd.FullHeight);
-	SpriteWidth = SDL_SwapLE32(sd.SpriteWidth);
-	SpriteHeight = SDL_SwapLE32(sd.SpriteHeight);
-	LeftMargin = SDL_SwapLE32(sd.LeftMargin);
-	TopMargin = SDL_SwapLE32(sd.TopMargin);
+	defType2 = read_le_u32(&sd.defType2);
+	FullWidth = read_le_u32(&sd.FullWidth);
+	FullHeight = read_le_u32(&sd.FullHeight);
+	SpriteWidth = read_le_u32(&sd.SpriteWidth);
+	SpriteHeight = read_le_u32(&sd.SpriteHeight);
+	LeftMargin = read_le_u32(&sd.LeftMargin);
+	TopMargin = read_le_u32(&sd.TopMargin);
 	RightMargin = FullWidth - SpriteWidth - LeftMargin;
 	BottomMargin = FullHeight - SpriteHeight - TopMargin;
 

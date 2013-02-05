@@ -1,5 +1,6 @@
 #pragma once
 
+//FIXME:library file depends on SDL - make cause troubles
 #include <SDL_endian.h>
 
 /*
@@ -18,7 +19,7 @@
  *    memory. On big endian machines, the value will be byteswapped.
  */
 
-#if defined(linux) && defined(sparc) 
+#if defined(linux) && (defined(sparc) || defined(__arm__))
 /* SPARC does not support unaligned memory access. Let gcc know when
  * to emit the right code. */
 struct unaligned_Uint16 { ui16 val __attribute__(( packed )); };
@@ -39,9 +40,15 @@ static inline ui32 read_unaligned_u32(const void *p)
 #define read_le_u16(p) (SDL_SwapLE16(read_unaligned_u16(p)))
 #define read_le_u32(p) (SDL_SwapLE32(read_unaligned_u32(p)))
 
+#define PACKED_STRUCT __attribute__(( packed ))
+
 #else
+
 #define read_le_u16(p) (SDL_SwapLE16(* reinterpret_cast<const ui16 *>(p)))
 #define read_le_u32(p) (SDL_SwapLE32(* reinterpret_cast<const ui32 *>(p)))
+
+#define PACKED_STRUCT
+
 #endif
 
 static inline char readChar(const ui8 * buffer, int & i)

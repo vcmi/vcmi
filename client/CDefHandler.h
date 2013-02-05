@@ -1,6 +1,6 @@
 #pragma once
 
-
+#include "../lib/vcmi_endian.h"
 
 struct SDL_Surface;
 struct BMPPalette;
@@ -24,17 +24,19 @@ struct Cimage
 
 // Def entry in file. Integer fields are all little endian and will
 // need to be converted.
-struct SDefEntryBlock {
+struct SDefEntryBlock
+{
 	ui32 unknown1;
 	ui32 totalInBlock;
 	ui32 unknown2;
 	ui32 unknown3;
 	ui8 data[0];
-};
+} PACKED_STRUCT;
 
 // Def entry in file. Integer fields are all little endian and will
 // need to be converted.
-struct SDefEntry {
+struct SDefEntry
+{
 	ui32 DEFType;
 	ui32 width;
 	ui32 height;
@@ -49,11 +51,12 @@ struct SDefEntry {
 	// SDefEntry is followed by a series of SDefEntryBlock
 	// This is commented out because VC++ doesn't accept C99 syntax.
 	//struct SDefEntryBlock blocks[];
-};
+} PACKED_STRUCT;
 
 // Def entry in file. Integer fields are all little endian and will
 // need to be converted.
-struct SSpriteDef {
+struct SSpriteDef
+{
 	ui32 prSize;
 	ui32 defType2;
 	ui32 FullWidth;
@@ -62,7 +65,7 @@ struct SSpriteDef {
 	ui32 SpriteHeight;
 	ui32 LeftMargin;
 	ui32 TopMargin;
-};
+} PACKED_STRUCT;
 
 class CDefEssential //DefHandler with images only
 {

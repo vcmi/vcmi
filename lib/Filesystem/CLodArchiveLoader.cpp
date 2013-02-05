@@ -49,43 +49,32 @@ CLodArchiveLoader::CLodArchiveLoader(const std::string & archive)
 
 void CLodArchiveLoader::initLODArchive(CFileInputStream & fileStream)
 {
-	// Define LodEntryBlock struct
-	struct LodEntryBlock
-	{
-		char filename[16];
-		ui32 offset;
-		ui32 uncompressedSize;
-		ui32 unused;
-		ui32 size;
-	};
-
 	// Read count of total files
-    CBinaryReader reader(&fileStream);
+	CBinaryReader reader(&fileStream);
 
 	fileStream.seek(8);
 	ui32 totalFiles = reader.readUInt32();
 
 	// Get all entries from file
 	fileStream.seek(0x5c);
-	struct LodEntryBlock * lodEntries = new struct LodEntryBlock[totalFiles];
-	fileStream.read(reinterpret_cast<ui8 *>(lodEntries), sizeof(struct LodEntryBlock) * totalFiles);
 
 	// Insert entries to list
 	for(ui32 i = 0; i < totalFiles; i++)
 	{
+		char filename[16];
+		reader.read(reinterpret_cast<ui8*>(filename), 16);
+
 		// Create archive entry
 		ArchiveEntry entry;
-		entry.name = lodEntries[i].filename;
-		entry.offset= SDL_SwapLE32(lodEntries[i].offset);
-		entry.realSize = SDL_SwapLE32(lodEntries[i].uncompressedSize);
-		entry.size = SDL_SwapLE32(lodEntries[i].size);
+		entry.name     = filename;
+		entry.offset   = reader.readUInt32();
+		entry.realSize = reader.readUInt32();
+		fileStream.skip(4); // unused, unknown
+		entry.size     = reader.readUInt32();
 
 		// Add lod entry to local entries map
 		entries[entry.name] = entry;
 	}
-
-	// Delete lod entries array
-	delete[] lodEntries;
 }
 
 void CLodArchiveLoader::initVIDArchive(CFileInputStream & fileStream)
