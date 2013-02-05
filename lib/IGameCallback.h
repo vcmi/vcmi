@@ -101,7 +101,6 @@ public:
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
 	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
 	int estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
-	bool verifyPath(CPath * path, bool blockSea)const;
 	const CGHeroInstance* getSelectedHero(int player) const; //NULL if no hero is selected
 	const CGHeroInstance* getSelectedHero() const; //of current (active) player
 

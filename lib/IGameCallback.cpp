@@ -424,32 +424,6 @@ std::vector < std::string > CGameInfoCallback::getObjDescriptions(int3 pos) cons
 		ret.push_back(obj->getHoverText());
 	return ret;
 }
-bool CGameInfoCallback::verifyPath(CPath * path, bool blockSea) const
-{
-	for (size_t i=0; i < path->nodes.size(); ++i)
-	{
-		const TerrainTile *t = getTile(path->nodes[i].coord); //current tile
-		ERROR_RET_VAL_IF(!t, "Path contains not visible tile: " << path->nodes[i].coord << "!", false);
-		if (t->blocked && !t->visitable)
-			return false; //path is wrong - one of the tiles is blocked
-
-		if (blockSea)
-		{
-			if (i==0)
-				continue;
-
-			const TerrainTile *prev = getTile(path->nodes[i-1].coord); //tile of previous node on the path
-            if ((   t->terType == ETerrainType::WATER  &&  prev->terType != ETerrainType::WATER)
-                || (t->terType != ETerrainType::WATER  &&  prev->terType == ETerrainType::WATER)
-                ||  prev->terType == ETerrainType::ROCK
-				)
-				return false;
-		}
-
-
-	}
-	return true;
-}
 
 bool CGameInfoCallback::isVisible(int3 pos, int Player) const
 {

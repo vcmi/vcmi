@@ -222,26 +222,18 @@ struct UpgradeInfo
 	UpgradeInfo(){oldID = -1;};
 };
 
-struct CPathNode
-{
-	bool accessible; //true if a hero can be on this node
-	int dist; //distance from the first node of searching; -1 is infinity
-	CPathNode * theNodeBefore;
-	int3 coord; //coordiantes
-	bool visited;
-};
-
 struct DLL_LINKAGE CGPathNode
 {
 	enum EAccessibility
 	{
-		ACCESSIBLE=1, //tile can be entered and passed
+		NOT_SET = 0,
+		ACCESSIBLE = 1, //tile can be entered and passed
 		VISITABLE, //tile can be entered as the last tile in path
 		BLOCKVIS,  //visitable from neighbouring tile but not passable
 		BLOCKED //tile can't be entered nor visited
 	};
 
-	ui8 accessible; //the enum above
+	EAccessibility accessible;
 	ui8 land;
 	ui8 turns;
 	ui32 moveRemains;
@@ -250,16 +242,6 @@ struct DLL_LINKAGE CGPathNode
 
 	CGPathNode();
 	bool reachable() const;
-};
-
-
-struct DLL_LINKAGE CPath
-{
-	std::vector<CPathNode> nodes; //just get node by node
-
-	int3 startPos() const; // start point
-	int3 endPos() const; //destination point
-	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
 };
 
 struct DLL_LINKAGE CGPath

@@ -588,6 +588,9 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 				{
 					for(ui32 i=0;i<map->objects.size();i++)
 					{
+						if(!map->objects[i])
+							continue;
+
 						if(map->objects[i]->ID==Obj::RANDOM_TOWN
 							&& dynamic_cast<CGTownInstance*>(map->objects[i].get())->identifier == info->identifier)
 						{
@@ -853,13 +856,6 @@ void CGameState::init(StartInfo * si)
 		return ret;
 	};
 
-	auto replaceHero = [&](int objId, CGHeroInstance * ghi)
-	{
-		ghi->id = objId;
-		gs->map->objects[objId] = ghi;
-		gs->map->heroes.push_back(ghi);
-	};
-
 	tlog0 << "\tUsing random seed: "<< si->seedToBeUsed << std::endl;
 	ran.seed((boost::int32_t)si->seedToBeUsed);
 	scenarioOps = new StartInfo(*si);
@@ -995,7 +991,7 @@ void CGameState::init(StartInfo * si)
 
 		//remove tiles with holes
 		for(ui32 no=0; no<map->objects.size(); ++no)
-			if(map->objects[no]->ID == Obj::HOLE)
+			if(map->objects[no] && map->objects[no]->ID == Obj::HOLE)
 				allowedPos -= map->objects[no]->pos;
 
 		if(allowedPos.size())
@@ -1023,6 +1019,9 @@ void CGameState::init(StartInfo * si)
 	tlog4 << "\tRandomizing objects";
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
+		if(!obj)
+			continue;
+
 		randomizeObject(obj);
 		obj->hoverName = VLC->generaltexth->names[obj->ID];
 
@@ -1095,6 +1094,14 @@ void CGameState::init(StartInfo * si)
 	tlog4 << "\tReplacing hero placeholders";
 	if (scenarioOps->campState)
 	{
+		auto replaceHero = [&](int objId, CGHeroInstance * ghi)
+		{
+			ghi->tempOwner = getHumanPlayerInfo()[0]->color;
+			ghi->id = objId;
+			gs->map->objects[objId] = ghi;
+			gs->map->heroes.push_back(ghi);
+		};
+
 		auto campaign = scenarioOps->campState;
 		auto bonus = campaign->getBonusForCurrentMap();
 
@@ -1158,7 +1165,12 @@ void CGameState::init(StartInfo * si)
 					if(Xheroes.size() > hp->power - 1)
 						replaceHero(g, Xheroes[hp->power - 1]);
 					else
-						tlog2 << "Warning, no hero to replace!\n";
+					{
+						tlog3 << "Warning, no hero to replace!\n";
+						map->removeBlockVisTiles(hp, true);
+						delete hp;
+						map->objects[g] = NULL;
+					}
 					//we don't have to remove hero from Xheroes because it would destroy the order and duplicates shouldn't happen
 				}
 			}
@@ -1235,15 +1247,18 @@ void CGameState::init(StartInfo * si)
 			tlog2 << "Warning - hero with uninitialized owner!\n";
 			continue;
 		}
-		CGHeroInstance * vhi = (map->heroes[i]);
-		vhi->initHero();
-		players.find(vhi->getOwner())->second.heroes.push_back(vhi);
-		hids.erase(vhi->subID);
+		CGHeroInstance * vhi = map->heroes[i];
+		if(vhi->sex == 0xff) //campaign heroes already come initialized -- I hope this will skip them
+		{
+			vhi->initHero();
+			players.find(vhi->getOwner())->second.heroes.push_back(vhi);
+			hids.erase(vhi->subID);
+		}
 	}
 
 	for (ui32 i=0; i<map->objects.size();i++) //prisons
 	{
-		if (map->objects[i]->ID == Obj::PRISON)
+		if (map->objects[i] && map->objects[i]->ID == Obj::PRISON)
 			hids.erase(map->objects[i]->subID);
 	}
 
@@ -1337,7 +1352,7 @@ void CGameState::init(StartInfo * si)
 
 		BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 		{
-			if( !vstd::contains(k->second.players, obj->tempOwner)) continue; //not a flagged object
+			if(!obj || !vstd::contains(k->second.players, obj->tempOwner)) continue; //not a flagged object
 
 			boost::unordered_set<int3, ShashInt3> tiles;
 			obj->getSightTiles(tiles);
@@ -1521,10 +1536,14 @@ void CGameState::init(StartInfo * si)
 	objCaller->preInit();
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
-		obj->initObj();
+		if(obj)
+			obj->initObj();
 	}
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
+		if(!obj)
+			continue;
+
 		switch (obj->ID)
 		{
 			case Obj::QUEST_GUARD:
@@ -1542,7 +1561,7 @@ void CGameState::init(StartInfo * si)
 
 	for(auto k=players.begin(); k!=players.end(); ++k)
 	{
-		if(k->first==255)
+		if(k->first==GameConstants::NEUTRAL_PLAYER)
 			continue;
 
 		//init visiting and garrisoned heroes
@@ -2590,30 +2609,10 @@ void CGameState::giveHeroArtifact(CGHeroInstance *h, int aid)
 	 ai->putAt(ArtifactLocation(h, ai->firstAvailableSlot(h)));
 }
 
-int3 CPath::startPos() const
-{
-	return nodes[nodes.size()-1].coord;
-}
-void CPath::convert(ui8 mode) //mode=0 -> from 'manifest' to 'object'
-{
-	if (mode==0)
-	{
-		for (ui32 i=0;i<nodes.size();i++)
-		{
-			nodes[i].coord = CGHeroInstance::convertPosition(nodes[i].coord,true);
-		}
-	}
-}
-
-int3 CPath::endPos() const
-{
-	return nodes[0].coord;
-}
-
 CGPathNode::CGPathNode()
 :coord(-1,-1,-1)
 {
-	accessible = 0;
+	accessible = NOT_SET;
 	land = 0;
 	moveRemains = 0;
 	turns = 255;

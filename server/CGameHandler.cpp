@@ -1170,7 +1170,7 @@ void CGameHandler::newTurn()
 	{
 		BOOST_FOREACH (auto obj, gs->map->objects)
 		{
-			if (obj->ID == Obj::PRISON) //give imprisoned hero 0 exp to level him up. easiest to do at this point
+			if (obj && obj->ID == Obj::PRISON) //give imprisoned hero 0 exp to level him up. easiest to do at this point
 			{
 				changePrimSkill (obj->id, PrimarySkill::EXPERIENCE, 0);
 			}
@@ -5006,7 +5006,7 @@ void CGameHandler::winLoseHandle(ui8 players )
 	}
 }
 
-void CGameHandler::checkLossVictory( ui8 player )
+void CGameHandler::checkLossVictory( TPlayerColor player )
 {
 	const PlayerState *p = gs->getPlayer(player);
 	if(p->status) //player already won / lost
@@ -5046,11 +5046,11 @@ void CGameHandler::checkLossVictory( ui8 player )
 	}
 	else //player lost -> all his objects become unflagged (neutral)
 	{
-		std::vector<ConstTransitivePtr<CGHeroInstance> > hlp = p->heroes;
-		for (std::vector<ConstTransitivePtr<CGHeroInstance> >::const_iterator i = hlp.begin(); i != hlp.end(); i++) //eliminate heroes
+		auto hlp = p->heroes;
+		for (auto i = hlp.cbegin(); i != hlp.cend(); i++) //eliminate heroes
 			removeObject((*i)->id);
 
-		for (std::vector<ConstTransitivePtr<CGObjectInstance> >::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++) //unflag objs
+		for (auto i = gs->map->objects.cbegin(); i != gs->map->objects.cend(); i++) //unflag objs
 		{
 			if(*i  &&  (*i)->tempOwner == player)
 				setOwner((**i).id,GameConstants::NEUTRAL_PLAYER);
@@ -5060,7 +5060,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 		winLoseHandle(GameConstants::ALL_PLAYERS & ~(1<<player));
 	}
 
-	if(vic)
+	if(vic && p->human)
 	{
 		end2 = true;
 
@@ -5069,7 +5069,7 @@ void CGameHandler::checkLossVictory( ui8 player )
 			std::vector<CGHeroInstance *> hes;
 			BOOST_FOREACH(CGHeroInstance * ghi, gs->map->heroes)
 			{
-				if (ghi->tempOwner == vic)
+				if (ghi->tempOwner == player)
 				{
 					hes.push_back(ghi);
 				}
@@ -5194,7 +5194,7 @@ void CGameHandler::getLossVicMessage( ui8 player, si8 standard, bool victory, In
 
 bool CGameHandler::dig( const CGHeroInstance *h )
 {
-	for (std::vector<ConstTransitivePtr<CGObjectInstance> >::const_iterator i = gs->map->objects.begin(); i != gs->map->objects.end(); i++) //unflag objs
+	for (auto i = gs->map->objects.cbegin(); i != gs->map->objects.cend(); i++) //unflag objs
 	{
 		if(*i && (*i)->ID == Obj::HOLE  &&  (*i)->pos == h->getPosition())
 		{

@@ -107,7 +107,7 @@ public:
 	int moveStack(int stack, BattleHex dest); //returned value - travelled distance
 	void startBattle(const CArmedInstance *armies[2], int3 tile, const CGHeroInstance *heroes[2], bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town = NULL); //use hero=NULL for no hero
 	void runBattle();
-	void checkLossVictory(ui8 player);
+	void checkLossVictory(TPlayerColor player);
 	void winLoseHandle(ui8 players=255); //players: bit field - colours of players to be checked; default: all
 	void getLossVicMessage(ui8 player, si8 standard, bool victory, InfoWindow &out) const;
 
