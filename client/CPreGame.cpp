@@ -3161,7 +3161,7 @@ void CBonusSelection::init()
 			if (highlightedRegion == NULL)
 			{
 				highlightedRegion = regions.back();
-				selectMap(g);
+				selectMap(g, true);
 			}
 		}
 		else if (ourCampaign->camp->scenarios[g].conquered) //display as striped
@@ -3285,29 +3285,32 @@ void CBonusSelection::loadPositionsOfGraphics()
 	assert(idx == CGI->generaltexth->campaignMapNames.size());
 }
 
-void CBonusSelection::selectMap( int whichOne )
+void CBonusSelection::selectMap( int whichOne, bool initialSelect )
 {
-	sInfo.difficulty = ourCampaign->camp->scenarios[whichOne].difficulty;
-	sInfo.mapname = ourCampaign->camp->header.filename;
-	sInfo.mode = StartInfo::CAMPAIGN;
-	sInfo.campState = ourCampaign;
-	ourCampaign->currentMap = whichOne;
+	if(initialSelect || ourCampaign->currentMap != whichOne)
+	{
+		sInfo.difficulty = ourCampaign->camp->scenarios[whichOne].difficulty;
+		sInfo.mapname = ourCampaign->camp->header.filename;
+		sInfo.mode = StartInfo::CAMPAIGN;
+		sInfo.campState = ourCampaign;
+		ourCampaign->currentMap = whichOne;
 
-	//get header
-	delete ourHeader;
-	std::string & headerStr = ourCampaign->camp->mapPieces.find(whichOne)->second;
-	auto buffer = reinterpret_cast<const ui8 *>(headerStr.data());
-	ourHeader = CMapService::loadMapHeader(buffer, headerStr.size()).release();
+		//get header
+		delete ourHeader;
+		std::string & headerStr = ourCampaign->camp->mapPieces.find(whichOne)->second;
+		auto buffer = reinterpret_cast<const ui8 *>(headerStr.data());
+		ourHeader = CMapService::loadMapHeader(buffer, headerStr.size()).release();
 
-	std::map<TPlayerColor, std::string> names;
-	names[1] = settings["general"]["playerName"].String();
-	updateStartInfo(ourCampaign->camp->header.filename, sInfo, ourHeader, names);
-	sInfo.turnTime = 0;
-	sInfo.difficulty = ourCampaign->camp->scenarios[whichOne].difficulty;
+		std::map<TPlayerColor, std::string> names;
+		names[1] = settings["general"]["playerName"].String();
+		updateStartInfo(ourCampaign->camp->header.filename, sInfo, ourHeader, names);
+		sInfo.turnTime = 0;
+		sInfo.difficulty = ourCampaign->camp->scenarios[whichOne].difficulty;
 
-	mapDesc->setTxt(ourHeader->description);
+		mapDesc->setTxt(ourHeader->description);
 
-	updateBonusSelection();
+		updateBonusSelection();
+	}
 }
 
 void CBonusSelection::show(SDL_Surface * to)
@@ -3675,7 +3678,7 @@ void CBonusSelection::CRegion::clickLeft( tribool down, bool previousState )
 	}
 	if( !down && selectable && !CSDL_Ext::isTransparent(graphics[0], GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) )
 	{
-		owner->selectMap(myNumber);
+		owner->selectMap(myNumber, false);
 		owner->highlightedRegion = this;
 		parent->showAll(screen);
 	}

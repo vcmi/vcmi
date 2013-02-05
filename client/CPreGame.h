@@ -603,7 +603,7 @@ public:
 	StartInfo sInfo;
 	CDefHandler *sFlags;
 
-	void selectMap(int whichOne);
+	void selectMap(int whichOne, bool initialSelect);
 	void selectBonus(int id);
 	void init();
 
