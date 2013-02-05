@@ -2012,11 +2012,6 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 
 		readResourses(nce->resources);
 
-		for(int x = 0; x < 7; ++x)
-		{
-			nce->resources[x] = readUI32();
-		}
-
 		nce->players = readUI8();
 		if(map->version > EMapFormat::AB)
 		{

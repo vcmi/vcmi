@@ -752,7 +752,7 @@ public:
 	void saveBooleanVector(const std::vector<bool> & data)
 	{
 		std::vector<ui8> convData;
-		std::copy(data.begin(), data.end(), convData.begin());
+		std::copy(data.begin(), data.end(), std::back_inserter(convData));
 		saveSerializable(convData);
 	}
 };
@@ -1133,7 +1133,7 @@ public:
 	{
 		std::vector<ui8> convData;
 		loadSerializable(convData);
-		std::copy(convData.begin(), convData.end(), data.begin());
+		std::copy(convData.begin(), convData.end(), std::back_inserter(data));
 	}
 };
 
