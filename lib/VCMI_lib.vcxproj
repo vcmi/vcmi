@@ -198,6 +198,7 @@
     <ClCompile Include="Mapping\CMapInfo.cpp" />
     <ClCompile Include="Mapping\CMapService.cpp" />
     <ClCompile Include="Mapping\CMapEditManager.cpp" />
+    <ClCompile Include="Mapping\MapFormatH3M.cpp" />
     <ClCompile Include="RMG\CMapGenOptions.cpp" />
     <ClCompile Include="RMG\CMapGenerator.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
@@ -262,6 +263,7 @@
     <ClInclude Include="Mapping\CMapInfo.h" />
     <ClInclude Include="Mapping\CMapService.h" />
     <ClInclude Include="Mapping\CMapEditManager.h" />
+    <ClInclude Include="Mapping\MapFormatH3M.h" />
     <ClInclude Include="RMG\CMapGenOptions.h" />
     <ClInclude Include="RMG\CMapGenerator.h" />
     <ClInclude Include="GameConstants.h" />
