@@ -245,7 +245,7 @@ public:
 	CPlayerInterface(int Player);//c-tor
 	~CPlayerInterface();//d-tor
 
-	CondSh<bool> terminate_cond; // confirm termination
+	static CondSh<bool> terminate_cond; // confirm termination
 
 	//////////////////////////////////////////////////////////////////////////
 

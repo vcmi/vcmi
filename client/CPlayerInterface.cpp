@@ -74,6 +74,7 @@ void processCommand(const std::string &message, CClient *&client);
 extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
 boost::recursive_mutex * CPlayerInterface::pim = new boost::recursive_mutex;
+CondSh<bool> CPlayerInterface::terminate_cond;
 
 CPlayerInterface * LOCPLINT;
 
@@ -1539,10 +1540,10 @@ void CPlayerInterface::update()
 	while(!terminate_cond.get() && !pim->try_lock()) //try acquiring long until it succeeds or we are told to terminate
 		boost::this_thread::sleep(boost::posix_time::milliseconds(15));
 
+	boost::unique_lock<boost::recursive_mutex> un(*pim, boost::adopt_lock); //create lock from already owned mutex
 	if(terminate_cond.get())
 		return;
 
-	boost::unique_lock<boost::recursive_mutex> un(*pim, boost::adopt_lock); //create lock from already owned mutex
 	//make sure that gamestate won't change when GUI objects may obtain its parts on event processing or drawing request
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 

@@ -828,8 +828,7 @@ static void listenForEvents()
 // 					else
 					{
 						endGame();
-						CGPreGame::create();
-						GH.curInt = CGP;
+						GH.curInt = CGPreGame::create();;
 						GH.defActionsDef = 63;
 					}
 				}

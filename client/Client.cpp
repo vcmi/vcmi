@@ -531,7 +531,7 @@ void CClient::proposeNextMission(shared_ptr<CCampaignState> camp)
 	endGame(false);
 	LOCPLINT = nullptr; //TODO free res
 	GH.pushInt(new CBonusSelection(camp));
-	GH.curInt = CGP;
+	GH.curInt = CGPreGame::create();
 }
 
 void CClient::stopConnection()

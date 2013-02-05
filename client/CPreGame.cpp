@@ -472,6 +472,8 @@ CGPreGame::CGPreGame():
 CGPreGame::~CGPreGame()
 {
 	disposeGraphics();
+	if(CGP == this)
+		CGP = nullptr;
 }
 
 void CGPreGame::openSel(CMenuScreen::EState screenType, CMenuScreen::EMultiMode multi /*= CMenuScreen::SINGLE_PLAYER*/)

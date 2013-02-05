@@ -406,11 +406,6 @@ CVideoPlayer::~CVideoPlayer()
 
 bool CVideoPlayer::open(std::string name)
 {
-	if(boost::algorithm::ends_with(name, ".BIK"))
-		current = &bikPlayer;
-	else
-		current = &smkPlayer;
-
 	fname = name;
 	first = true;
 
@@ -419,8 +414,15 @@ bool CVideoPlayer::open(std::string name)
 		// Extract video from video.vid so we can play it.
 		// We can handle only videos in form of single file, no archive support yet.
 		{
-			auto myVideo = CResourceHandler::get()->load(ResourceID("VIDEO/" + name, EResType::VIDEO));
+			ResourceID videoID = ResourceID("VIDEO/" + name, EResType::VIDEO);
+			std::string realVideoFilename = CResourceHandler::get()->getResourceName(videoID);
 
+			if(boost::algorithm::iends_with(realVideoFilename, ".BIK"))
+				current = &bikPlayer;
+			else
+				current = &smkPlayer;
+
+			auto myVideo = CResourceHandler::get()->load(videoID);
 			unique_ptr<char[]> data = unique_ptr<char[]>(new char[myVideo->getSize()]);
 			myVideo->read((ui8*)data.get(), myVideo->getSize());
 
