@@ -574,21 +574,12 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 
 #ifndef DISABLE_VIDEO
 
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 117, 0)
-
 // Define a set of functions to read data
 static int lodRead(void* opaque, uint8_t* buf, int size)
 {
 	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
 
-	vstd::amin(size, video->length - video->offset);
-
-	if (size < 0)
-		return -1;
-
-	memcpy(buf, video->data + video->offset, size);
-	video->offset += size;
-	return size;
+	return video->data->read(buf, size);
 }
 
 static si64 lodSeek(void * opaque, si64 pos, int whence)
@@ -596,79 +587,10 @@ static si64 lodSeek(void * opaque, si64 pos, int whence)
 	auto video = reinterpret_cast<CVideoPlayer *>(opaque);
 
 	if (whence & AVSEEK_SIZE)
-		return video->length;
+		return video->data->getSize();
 
-	video->offset = pos;
-	vstd::amin(video->offset, video->length);
-	return video->offset;
+	return video->data->seek(pos);
 }
-
-#else
-
-static const char *protocol_name = "lod";
-
-// Open a pseudo file. Name is something like 'lod:0x56432ab6c43df8fe'
-static int lodOpen(URLContext *context, const char *filename, int flags)
-{
-	CVideoPlayer *video;
-
-	// Retrieve pointer to CVideoPlayer object
-	filename += strlen(protocol_name) + 1;
-	video = (CVideoPlayer *)(uintptr_t)strtoull(filename, NULL, 16);
-
-	// TODO: check flags ?
-
-	context->priv_data = video;
-
-	return 0;
-}
-
-static int lodClose(URLContext* h)
-{
-	return 0;
-}
-
-// Define a set of functions to read data
-static int lodRead(URLContext *context, ui8 *buf, int size)
-{
-	CVideoPlayer *video = (CVideoPlayer *)context->priv_data;
-
-	vstd::amin(size, video->length - video->offset);
-
-	if (size < 0)
-		return -1;
-
-	// TODO: can we avoid that copy ?
-	memcpy(buf, video->data + video->offset, size);
-
-	video->offset += size;
-
-	return size;
-}
-
-static si64 lodSeek(URLContext *context, si64 pos, int whence)
-{
-	CVideoPlayer *video = (CVideoPlayer *)context->priv_data;
-
-	if (whence & AVSEEK_SIZE)
-		return video->length;
-
-	video->offset = pos;
-	vstd::amin(video->offset, video->length);
-	return video->offset;
-}
-
-static URLProtocol lod_protocol =
-{
-	protocol_name,
-	lodOpen,
-	lodRead,
-	NULL,						// no write
-	lodSeek,
-	lodClose
-};
-
-#endif
 
 CVideoPlayer::CVideoPlayer()
 {
@@ -679,20 +601,11 @@ CVideoPlayer::CVideoPlayer()
 	overlay = NULL;
 	dest = NULL;
 	context = nullptr;
-	buffer = nullptr;
 
 	// Register codecs. TODO: May be overkill. Should call a
 	// combination of av_register_input_format() /
 	// av_register_output_format() / av_register_protocol() instead.
 	av_register_all();
-
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 117, 0)
-#elif LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 69, 0)
-	// Register our protocol 'lod' so we can directly read from mmaped memory
-	av_register_protocol2(&lod_protocol, sizeof(lod_protocol));
-#else
-	av_register_protocol(&lod_protocol);
-#endif
 }
 
 bool CVideoPlayer::open(std::string fname)
@@ -707,51 +620,26 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	close();
 
 	this->fname = fname;
-	offset = 0;
 	refreshWait = 3;
 	refreshCount = -1;
 	doLoop = loop;
 
 	ResourceID resource(std::string("Video/") + fname, EResType::VIDEO);
 
-	if (CResourceHandler::get()->existsResource(resource))
-	{
-		auto extracted = CResourceHandler::get()->loadData(resource);
-		data = (char *)extracted.first.release();
-		length = extracted.second;
-	}
-	else
-	{
-		data = nullptr;
-		length = 0;
+	if (!CResourceHandler::get()->existsResource(resource))
 		return false;
-	}
 
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 117, 0)
+	data = CResourceHandler::get()->load(resource);
 
 	static const int BUFFER_SIZE = 4096;
-	buffer  = (unsigned char *)av_malloc(BUFFER_SIZE);// will be freed by ffmpeg
+
+	unsigned char * buffer  = (unsigned char *)av_malloc(BUFFER_SIZE);// will be freed by ffmpeg
 	context = avio_alloc_context( buffer, BUFFER_SIZE, 0, (void *)this, lodRead, NULL, lodSeek);
 
 	format = avformat_alloc_context();
 	format->pb = context;
 	// filename is not needed - file was already open and stored in this->data;
 	int avfopen = avformat_open_input(&format, "dummyFilename", nullptr, nullptr);
-
-#else
-
-	std::string filePath;
-	filePath.resize(100);
-	// Create our URL name with the 'lod' protocol as a prefix and a
-	// back pointer to our object. Should be 32 and 64 bits compatible.
-	sprintf(&filePath[0], "%s:0x%016llx", protocol_name, (unsigned long long)(uintptr_t)this);
-
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 0, 0)
-	int avfopen = av_open_input_file(&format, filePath.c_str(), NULL, 0, NULL);
-#else
-	int avfopen = avformat_open_input(&format, filePath.c_str(), NULL, NULL);
-#endif
-#endif
 
 	if (avfopen != 0)
 	{
@@ -769,11 +657,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	stream = -1;
 	for(ui32 i=0; i<format->nb_streams; i++)
 	{
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(53, 0, 0)
-		if (format->streams[i]->codec->codec_type==CODEC_TYPE_VIDEO)
-#else
 		if (format->streams[i]->codec->codec_type==AVMEDIA_TYPE_VIDEO)
-#endif
 		{
 			stream = i;
 			break;
@@ -888,7 +772,6 @@ bool CVideoPlayer::nextFrame()
 
 	while(!frameFinished)
 	{
-
 		int ret = av_read_frame(format, &packet);
 		if (ret < 0)
 		{
@@ -912,11 +795,7 @@ bool CVideoPlayer::nextFrame()
 			{
 				// Decode video frame
 
-#if LIBAVCODEC_VERSION_INT < AV_VERSION_INT(52, 25, 0)
-				avcodec_decode_video(codecContext, frame, &frameFinished, packet.data, packet.size);
-#else
 				avcodec_decode_video2(codecContext, frame, &frameFinished, &packet);
-#endif
 
 				// Did we get a video frame?
 				if (frameFinished)
@@ -1048,13 +927,11 @@ void CVideoPlayer::close()
 #endif
 	}
 
-#if LIBAVCODEC_VERSION_INT > AV_VERSION_INT(52, 117, 0)
 	if (context)
 	{
 		av_free(context);
 		context = nullptr;
 	}
-#endif
 }
 
 // Plays a video. Only works for overlays.

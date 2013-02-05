@@ -217,19 +217,13 @@ public:
 
 #ifndef DISABLE_VIDEO
 
+#include "../lib/Filesystem/CInputStream.h"
+
 #include <SDL.h>
 #include <SDL_video.h>
 #if SDL_VERSION_ATLEAST(1,3,0)
 #include <SDL_compat.h>
 #endif
-
-//Workaround for compile error in ffmpeg (UINT_64C was not declared)
-#define __STDC_CONSTANT_MACROS
-#ifdef _STDINT_H
-#undef _STDINT_H
-#endif
-#include <stdint.h>
-
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -238,7 +232,6 @@ extern "C" {
 
 class CVideoPlayer : public IMainVideoPlayer
 {
-private:
 	int stream;					// stream index in video
 	AVFormatContext *format;
 	AVCodecContext *codecContext; // codec context for stream
@@ -246,7 +239,6 @@ private:
 	AVFrame *frame; 
 	struct SwsContext *sws;
 
-	unsigned char* buffer;
 	AVIOContext * context;
 
 	// Destination. Either overlay or dest.
@@ -282,10 +274,9 @@ public:
 	bool wait(){return false;};
 	int curFrame() const {return -1;};
 	int frameCount() const {return -1;};
-	
-	const char *data;			// video buffer
-	int length;					// video size
-	ui32 offset;		// current data offset
+
+	// public to allow access from ffmpeg IO functions
+	std::unique_ptr<CInputStream> data;
 };
 
 #endif
