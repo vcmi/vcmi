@@ -155,6 +155,7 @@ public:
 
 	CCampaignState();
 	CCampaignState(unique_ptr<CCampaign> _camp);
+	~CCampaignState(){};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

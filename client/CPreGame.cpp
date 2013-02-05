@@ -498,6 +498,10 @@ void CGPreGame::disposeGraphics()
 
 void CGPreGame::update()
 {
+	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim); 
+	if(CGP != this) //don't update if you are not a main interface
+		return;
+
 	if (GH.listInt.empty())
 	{
 		GH.pushInt(this);
@@ -3565,10 +3569,10 @@ void CBonusSelection::startMap()
 {
 	StartInfo *si = new StartInfo(sInfo);
 
-	if (ourCampaign->mapsConquered.size())
+	/*if (ourCampaign->mapsConquered.size())
 	{
 		GH.popInts(1);
-	}
+	}*/
 	const CCampaignScenario & scenario = ourCampaign->camp->scenarios[ourCampaign->currentMap];
 
 	tlog1 << "Starting scenario " << int(ourCampaign->currentMap) << "\n";
