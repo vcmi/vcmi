@@ -161,6 +161,7 @@ CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool at
 	return ret;
 }
 
+//All spells casted by hero 9resurrection, cure, sacrifice)
 ui32 BattleInfo::calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack, const CStack * sacrificedStack) const
 {
 	bool resurrect = resurrects(spell->id);
@@ -172,11 +173,13 @@ ui32 BattleInfo::calculateHealedHP(const CGHeroInstance * caster, const CSpell *
 	healedHealth = calculateSpellBonus(healedHealth, spell, caster, stack);
 	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
 }
+//Archangel
 ui32 BattleInfo::calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const
 {
 	bool resurrect = resurrects(spell->id);
 	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
 }
+//Casted by stack, no hero bonus applied
 ui32 BattleInfo::calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const
 {
 	bool resurrect = resurrects(spell->id);
@@ -752,7 +755,7 @@ std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const C
 			if( (*it)->hasBonusOfType(Bonus::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
 				|| ( (*it)->count - 1 ) * (*it)->MaxHealth() + (*it)->firstHPleft
 		>
-		usedSpellPower * 25 + sp->powers[spellLevel] //TODO: allow 'damage' bonus for hypnotize
+		calculateSpellBonus (usedSpellPower * 25 + sp->powers[spellLevel], sp, caster, *it) //apply 'damage' bonus for hypnotize, including hero specialty
 			)
 			{
 				ret.push_back((*it)->ID);

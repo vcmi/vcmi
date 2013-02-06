@@ -787,8 +787,14 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const CStack* attacker, const C
 
 TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) const
 {
+	auto battleBonusValue = [&](const IBonusBearer * bearer, CSelector selector) -> int
+	{
+		return bearer->getBonuses(selector, Selector::effectRange(Bonus::NO_LIMIT) || //any regular bonuses or just ones for melee/ranged
+			(info.shooting ? Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT) : Selector::effectRange(Bonus::ONLY_MELEE_FIGHT)))->totalValue();
+	};
+
 	double additiveBonus = 1.0, multBonus = 1.0,
-		minDmg = info.attackerBonuses->getMinDamage() * info.attackerCount,
+		minDmg = info.attackerBonuses->getMinDamage() * info.attackerCount,//TODO: ONLY_MELEE_FIGHT / ONLY_DISTANCE_FIGHT
 		maxDmg = info.attackerBonuses->getMaxDamage() * info.attackerCount;
 
 	const CCreature *attackerType = info.attacker->getCreature(),
@@ -813,35 +819,14 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	}
 
 	int attackDefenceDifference = 0;
-	if(info.attackerBonuses->hasBonusOfType(Bonus::GENERAL_ATTACK_REDUCTION))
-	{
-		double multAttackReduction = info.attackerBonuses->valOfBonuses(Bonus::GENERAL_ATTACK_REDUCTION, -1024) / 100.0;
-		attackDefenceDifference = info.attackerBonuses->Attack() * multAttackReduction;
-	}
-	else
-	{
-		attackDefenceDifference = info.attackerBonuses->Attack();
-	}
 
-	if(info.attackerBonuses->hasBonusOfType(Bonus::ENEMY_DEFENCE_REDUCTION))
-	{
-		double multDefenceReduction = (100 - info.attackerBonuses->valOfBonuses(Bonus::ENEMY_DEFENCE_REDUCTION, -1024)) / 100.0;
-		attackDefenceDifference -= info.defenderBonuses->Defense() * multDefenceReduction;
-	}
-	else
-	{
-		attackDefenceDifference -= info.defenderBonuses->Defense();
-	}
+	double multAttackReduction = (100 - battleBonusValue (info.attackerBonuses, Selector::type(Bonus::GENERAL_ATTACK_REDUCTION))) / 100.0;
+	attackDefenceDifference += battleBonusValue (info.attackerBonuses, Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK)) * multAttackReduction;
 
-	//calculating total attack/defense skills modifier
+	double multDefenceReduction = (100 - battleBonusValue (info.attackerBonuses, Selector::type(Bonus::ENEMY_DEFENCE_REDUCTION))) / 100.0;
+	attackDefenceDifference -= info.defenderBonuses->Defense() * multDefenceReduction;
 
-	if(info.shooting) //precision handling (etc.)
-		attackDefenceDifference += info.attackerBonuses->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT))->totalValue();
-	else //bloodlust handling (etc.)
-		attackDefenceDifference += info.attackerBonuses->getBonuses(Selector::typeSubtype(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), Selector::effectRange(Bonus::ONLY_MELEE_FIGHT))->totalValue();
-
-
-	if(const Bonus *slayerEffect = info.attackerBonuses->getEffect(Spells::SLAYER)) //slayer handling
+	if(const Bonus *slayerEffect = info.attackerBonuses->getEffect(Spells::SLAYER)) //slayer handling //TODO: apply only ONLY_MELEE_FIGHT / DISTANCE_FIGHT?
 	{
 		std::vector<int> affectedIds;
 		int spLevel = slayerEffect->val; 
@@ -918,17 +903,17 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	}
 
 	//handling spell effects
-	if(!info.shooting && info.defenderBonuses->hasBonusOfType(Bonus::GENERAL_DAMAGE_REDUCTION, 0)) //eg. shield
+	if(!info.shooting) //eg. shield
 	{
 		multBonus *= (100 - info.defenderBonuses->valOfBonuses(Bonus::GENERAL_DAMAGE_REDUCTION, 0)) / 100.0;
 	}
-	else if(info.shooting && info.defenderBonuses->hasBonusOfType(Bonus::GENERAL_DAMAGE_REDUCTION, 1)) //eg. air shield
+	else if(info.shooting) //eg. air shield
 	{
 		multBonus *= (100 - info.defenderBonuses->valOfBonuses(Bonus::GENERAL_DAMAGE_REDUCTION, 1)) / 100.0;
 	}
 
-	TBonusListPtr curseEffects = info.attackerBonuses->getBonuses(Selector::type(Bonus::ALWAYS_MINIMUM_DAMAGE)); //attacker->getEffect(42);
-	TBonusListPtr blessEffects = info.attackerBonuses->getBonuses(Selector::type(Bonus::ALWAYS_MAXIMUM_DAMAGE)); //attacker->getEffect(43);
+	TBonusListPtr curseEffects = info.attackerBonuses->getBonuses(Selector::type(Bonus::ALWAYS_MINIMUM_DAMAGE));
+	TBonusListPtr blessEffects = info.attackerBonuses->getBonuses(Selector::type(Bonus::ALWAYS_MAXIMUM_DAMAGE));
 	int curseBlessAdditiveModifier = blessEffects->totalValue() - curseEffects->totalValue();
 	double curseMultiplicativePenalty = curseEffects->size() ? (*std::max_element(curseEffects->begin(), curseEffects->end(), &Bonus::compareByAdditionalInfo))->additionalInfo : 0;
 

@@ -110,9 +110,9 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	CStack * generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, int slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	int getIdForNewStack() const; //suggest a currently unused ID that'd suitable for generating a new stack
 	//std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
-	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack, const CStack * sacrificedStack = NULL) const;
+	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack, const CStack * sacrificedStack = NULL) const; //Sacrifice
 	ui32 calculateHealedHP(int healedHealth, const CSpell * spell, const CStack * stack) const; //for Archangel
-	ui32 calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //unused
+	ui32 calculateHealedHP(const CSpell * spell, int usedSpellPower, int spellSchoolLevel, const CStack * stack) const; //healing spells casted by stacks
 	bool resurrects(TSpell spellid) const; //TODO: move it to spellHandler?
 
 	const CGHeroInstance * getHero(TPlayerColor player) const; //returns fighting hero that belongs to given player

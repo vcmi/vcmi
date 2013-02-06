@@ -282,6 +282,7 @@
 		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
 						[ "SPELLCASTER", 3, 37, 0 ] ], //expert cure
 		"graphics" :
 		{
@@ -309,6 +310,7 @@
 		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
 						[ "SPELLCASTER", 3, 27, 0 ] ], //expert shield
 		"graphics" :
 		{
@@ -337,6 +339,7 @@
 		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
 						[ "SPELLCASTER", 3, 44, 0 ] ], //expert precision
 		"graphics" :
 		{
@@ -366,6 +369,7 @@
 		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
 						[ "SPELLCASTER", 3, 29, 0 ] ], //expert fire shield
 		"graphics" :
 		{
@@ -393,6 +397,7 @@
 		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
 						[ "SPELLCASTER", 3, 39, 0 ] ], //expert animate dead
 		"graphics" :
 		{
@@ -420,6 +425,7 @@
 		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
 						[ "SPELLCASTER", 3, 46, 0 ] ], //expert stone skin
 		"graphics" :
 		{
@@ -447,6 +453,7 @@
 		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
 						[ "SPELLCASTER", 3, 37, 0 ] ], //expert cure
 		"graphics" :
 		{
@@ -474,6 +481,7 @@
 		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
 						[ "SPELLCASTER", 3, 53, 0 ] ], //expert haste
 		"graphics" :
 		{
@@ -502,6 +510,7 @@
 		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
+						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
 						[ "SPELLCASTER", 3, 58, 0 ] ], //expert counterstrike
 		"graphics" :
 		{

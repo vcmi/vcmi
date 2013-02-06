@@ -365,6 +365,9 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 				scp.accumulatedBonus.type = Bonus::MAGIC_RESISTANCE;
 				scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, ECommander::RESISTANCE);
 				sendAndApply (&scp); //additional pack
+				scp.accumulatedBonus.type = Bonus::CREATURE_SPELL_POWER;
+				scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, ECommander::SPELL_POWER) * 100; //like hero with spellpower = ability level
+				sendAndApply (&scp); //additional pack
 				scp.accumulatedBonus.type = Bonus::CASTS;
 				scp.accumulatedBonus.val = difference (VLC->creh->skillLevels, c->secondarySkills, ECommander::CASTS);
 				sendAndApply (&scp); //additional pack
@@ -4179,22 +4182,22 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			for(auto it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
 				if(vstd::contains(sc.resisted, (*it)->ID) //this creature resisted the spell
-					|| (spellID == Spells::ANIMATE_DEAD && !(*it)->hasBonusOfType(Bonus::UNDEAD)) //we try to cast animate dead on living stack
+					|| (spellID == Spells::ANIMATE_DEAD && !(*it)->hasBonusOfType(Bonus::UNDEAD)) //we try to cast animate dead on living stack, TODO: showuld be not affected earlier
 					)
 					continue;
 				StacksHealedOrResurrected::HealInfo hi;
 				hi.stackID = (*it)->ID;
-				if (stack)
+				if (stack) //casted by creature
 				{
 					if (hpGained)
 					{
-						hi.healedHP = gs->curB->calculateHealedHP(hpGained, spell, *it);
+						hi.healedHP = gs->curB->calculateHealedHP(hpGained, spell, *it); //archangel
 					}
 					else
-						hi.healedHP = gs->curB->calculateHealedHP(spell, usedSpellPower, spellLvl, *it);
+						hi.healedHP = gs->curB->calculateHealedHP(spell, usedSpellPower, spellLvl, *it); //any typical spell (commander's cure or animate dead) 
 				}
 				else
-					hi.healedHP = gs->curB->calculateHealedHP(caster, spell, *it, gs->curB->battleGetStackByID(selectedStack));
+					hi.healedHP = gs->curB->calculateHealedHP(caster, spell, *it, gs->curB->battleGetStackByID(selectedStack)); //Casted by hero
 				hi.lowLevelResurrection = spellLvl <= 1;
 				shr.healedStacks.push_back(hi);
 			}
@@ -4633,7 +4636,7 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 
 	//helper info
 	const SpellCreatedObstacle *spellObstacle = dynamic_cast<const SpellCreatedObstacle*>(&obstacle); //not nice but we may need spell params
-	const ui8 side = !curStack->attackerOwned;
+	const ui8 side = curStack->attackerOwned; //if enemy is defending (false = 0), side of our hero is also 0 (attacker)
 	const CGHeroInstance *hero = gs->curB->heroes[side];
 
 	if(obstacle.obstacleType == CObstacleInstance::MOAT)
