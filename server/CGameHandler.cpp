@@ -4100,6 +4100,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			pseudoBonus.val = spellLvl;
 			pseudoBonus.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, stackSpellPower ? stackSpellPower : usedSpellPower);
 			CStack::stackEffectToFeature(sse.effect, pseudoBonus);
+			if (spellID == Spells::SHIELD || spellID == Spells::AIR_SHIELD)
+			{
+				sse.effect.back().val = (100 - sse.effect.back().val); //fix to original config: shiled should display damage reduction
+			}
 			if (spellID == Spells::BIND && stack)//bind
 			{
 				sse.effect.back().additionalInfo = stack->ID; //we need to know who casted Bind
