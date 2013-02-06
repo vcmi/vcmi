@@ -186,8 +186,8 @@ public:
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) OVERRIDE {}
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) OVERRIDE {return false;}
 
-	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, int pos) OVERRIDE {};
-	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, int pos) OVERRIDE {};
+	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition::ArtifactPosition pos) OVERRIDE {};
+	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition::ArtifactPosition pos) OVERRIDE {};
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) OVERRIDE {}; 
 	void removeArtifact(const ArtifactLocation &al) OVERRIDE {};
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE {return false;};

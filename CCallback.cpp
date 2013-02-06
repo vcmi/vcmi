@@ -153,7 +153,7 @@ bool CCallback::swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation
  * @param assembleTo If assemble is true, this represents the artifact ID of the combination
  * artifact to assemble to. Otherwise it's not used.
  */
-bool CCallback::assembleArtifacts (const CGHeroInstance * hero, ui16 artifactSlot, bool assemble, ui32 assembleTo)
+bool CCallback::assembleArtifacts (const CGHeroInstance * hero, ArtifactPosition::ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo)
 {
 	if (player != hero->tempOwner)
 		return false;

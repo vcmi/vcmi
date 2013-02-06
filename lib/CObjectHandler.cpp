@@ -841,9 +841,9 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 				slot = 9 + aid;
 				break;
 			}
-
-			if(!getArt(slot))
-				putArtifact(slot, CArtifactInstance::createNewArtifactInstance(aid));
+			auto convSlot = static_cast<ArtifactPosition::ArtifactPosition>(slot);
+			if(!getArt(convSlot))
+				putArtifact(convSlot, CArtifactInstance::createNewArtifactInstance(aid));
 			else
 				tlog3 << "Hero " << name << " already has artifact at " << slot << ", omitting giving " << aid << std::endl;
 		}
@@ -1335,7 +1335,7 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 
 bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 {
-	if(!getArt(17)) //if hero has no spellbook
+	if(!getArt(ArtifactPosition::SPELLBOOK)) //if hero has no spellbook
 		return false;
 
 	if(vstd::contains(spells, spell->id) //hero has this spell in spellbook
@@ -1510,7 +1510,7 @@ std::string CGHeroInstance::nodeName() const
 	return "Hero " + name;
 }
 
-void CGHeroInstance::putArtifact(ui16 pos, CArtifactInstance *art)
+void CGHeroInstance::putArtifact(ArtifactPosition::ArtifactPosition pos, CArtifactInstance *art)
 {
 	assert(!getArt(pos));
 	art->putAt(ArtifactLocation(this, pos));
@@ -1828,9 +1828,9 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 			SetAvailableCreatures sac;
 			sac.tid = id;
 			sac.creatures = creatures;
-			sac.creatures[0].first = !h->getArt(13); //ballista
-			sac.creatures[1].first = !h->getArt(15); //first aid tent
-			sac.creatures[2].first = !h->getArt(14); //ammo cart
+			sac.creatures[0].first = !h->getArt(ArtifactPosition::MACH1); //ballista
+			sac.creatures[1].first = !h->getArt(ArtifactPosition::MACH3); //first aid tent
+			sac.creatures[2].first = !h->getArt(ArtifactPosition::MACH2); //ammo cart
 			cb->sendAndApply(&sac);
 		}
 
@@ -3874,7 +3874,7 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGArtifact::pick(const CGHeroInstance * h) const
 {
-	cb->giveHeroArtifact(h, storedArtifact, -2);
+	cb->giveHeroArtifact(h, storedArtifact, ArtifactPosition::FIRST_AVAILABLE);
 	cb->removeObject(id);
 }
 
@@ -4032,7 +4032,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 				//TODO: what if no space in backpack?
 				iw.components.push_back(Component(Component::ARTIFACT, val2, 1, 0));
 				iw.text.addReplacement(MetaString::ART_NAMES, val2);
-				cb->giveHeroNewArtifact(h, VLC->arth->artifacts[val2],-2);
+				cb->giveHeroNewArtifact(h, VLC->arth->artifacts[val2],ArtifactPosition::FIRST_AVAILABLE);
 			}
 			cb->showInfoDialog(&iw);
 			break;
@@ -4045,7 +4045,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			iw.components.push_back(Component(Component::ARTIFACT,val1,1,0));
 			iw.text.addTxt(MetaString::ADVOB_TXT, 125);
 			iw.text.addReplacement(MetaString::ART_NAMES, val1);
-			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[val1],-2);
+			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[val1],ArtifactPosition::FIRST_AVAILABLE);
 			cb->showInfoDialog(&iw);
 			break;
 		}
@@ -4059,7 +4059,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 
 			if(type) //there is an artifact
 			{
-				cb->giveHeroNewArtifact(h, VLC->arth->artifacts[val1],-2);
+				cb->giveHeroNewArtifact(h, VLC->arth->artifacts[val1],ArtifactPosition::FIRST_AVAILABLE);
 				InfoWindow iw;
 				iw.soundID = soundBase::treasure;
 				iw.player = h->tempOwner;
@@ -4730,7 +4730,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			cb->changeSecSkill(h->id, static_cast<SecondarySkill::SecondarySkill>(rID), rVal, false);
 			break;
 		case ARTIFACT:
-			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[rID],-2);
+			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[rID],ArtifactPosition::FIRST_AVAILABLE);
 			break;
 		case SPELL:
 		{
@@ -5315,7 +5315,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 			cb->giveResource(h->getOwner(),static_cast<Res::ERes>(i),resources[i]);
 
 	for(int i=0; i<artifacts.size(); i++)
-		cb->giveHeroNewArtifact(h, VLC->arth->artifacts[artifacts[i]],-2);
+		cb->giveHeroNewArtifact(h, VLC->arth->artifacts[artifacts[i]],ArtifactPosition::FIRST_AVAILABLE);
 
 	iw.components.clear();
 	iw.text.clear();
@@ -5554,7 +5554,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	int ssl = h->getSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(bid)); //current sec skill level, used if bonusType == 1
 	if((type == SECONDARY_SKILL
 			&& ((ssl == 3)  ||  (!ssl  &&  !h->canLearnSkill()))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
-		|| (type == SPELL  &&  (!h->getArt(17) || vstd::contains(h->spells, (ui32) bid)
+		|| (type == SPELL  &&  (!h->getArt(ArtifactPosition::SPELLBOOK) || vstd::contains(h->spells, (ui32) bid)
 		|| (VLC->spellh->spells[bid]->level > h->getSecSkillLevel(SecondarySkill::WISDOM) + 2)
 		))) //hero doesn't have a spellbook or already knows the spell or doesn't have Wisdom
 	{
@@ -5715,7 +5715,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 			break;
 		case 1: //art
 			iw.components.push_back(Component(Component::ARTIFACT,bonusType,0,0));
-			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[bonusType],-2);
+			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[bonusType],ArtifactPosition::FIRST_AVAILABLE);
 			iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
 			if (ID == Obj::CORPSE)
 			{
@@ -5833,7 +5833,7 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 			iw.components.push_back(Component(Component::ARTIFACT,bonusType,0,0));
 			iw.text.addReplacement(MetaString::ART_NAMES, bonusType);
 
-			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[bonusType],-2);
+			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[bonusType],ArtifactPosition::FIRST_AVAILABLE);
 		}
 
 		if(!h->hasBonusFrom(Bonus::OBJECT,ID)) //we don't have modifier from this object yet
@@ -6162,7 +6162,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			iw.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
 			loot << "%s";
 			loot.addReplacement(MetaString::ART_NAMES, *it);
-			cb->giveHeroNewArtifact (h, VLC->arth->artifacts[*it], -2);
+			cb->giveHeroNewArtifact (h, VLC->arth->artifacts[*it], ArtifactPosition::FIRST_AVAILABLE);
 		}
 		//display loot
 		if (!iw.components.empty())
@@ -6262,7 +6262,7 @@ void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) 
 		iw.player = h->getOwner();
 		iw.text.addTxt (MetaString::ADVOB_TXT, 106);
 		iw.text.addTxt (MetaString::SPELL_NAME, spell);
-		if (!h->getArt(17))
+		if (!h->getArt(ArtifactPosition::SPELLBOOK))
 			iw.text.addTxt (MetaString::ADVOB_TXT, 109); //no spellbook
 		else if (h->getSecSkillLevel(SecondarySkill::WISDOM) < 3)
 			iw.text.addTxt (MetaString::ADVOB_TXT, 108); //no expert Wisdom

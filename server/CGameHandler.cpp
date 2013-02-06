@@ -590,7 +590,8 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			{
 				//we assume that no big artifacts can be found
 				MoveArtifact ma;
-				ma.src = ArtifactLocation (loserHero, GameConstants::BACKPACK_START); //backpack automatically shifts arts to beginning
+				ma.src = ArtifactLocation (loserHero,
+					static_cast<ArtifactPosition::ArtifactPosition>(GameConstants::BACKPACK_START)); //backpack automatically shifts arts to beginning
 				const CArtifactInstance * art =  ma.src.getArt();
 				arts.push_back (art->artType->id);
 				ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
@@ -2865,7 +2866,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 		COMPLAIN_RET("Cannot move catapult!");
 
 	if(dst.slot >= GameConstants::BACKPACK_START)
-		vstd::amin(dst.slot, GameConstants::BACKPACK_START + dst.getHolderArtSet()->artifactsInBackpack.size());
+		vstd::amin(dst.slot, static_cast<ArtifactPosition::ArtifactPosition>(GameConstants::BACKPACK_START + dst.getHolderArtSet()->artifactsInBackpack.size()));
 
 	if (src.slot == dst.slot  &&  src.artHolder == dst.artHolder)
 		COMPLAIN_RET("Won't move artifact: Dest same as source!");
@@ -2873,7 +2874,8 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 	if(dst.slot < GameConstants::BACKPACK_START  &&  destArtifact) //moving art to another slot
 	{
 		//old artifact must be removed first
-		moveArtifact(dst, ArtifactLocation(dst.artHolder, dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START));
+		moveArtifact(dst, ArtifactLocation(dst.artHolder, static_cast<ArtifactPosition::ArtifactPosition>(
+			dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
 	}
 
 	MoveArtifact ma;
@@ -2891,7 +2893,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
  * @param assembleTo If assemble is true, this represents the artifact ID of the combination
  * artifact to assemble to. Otherwise it's not used.
  */
-bool CGameHandler::assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assemble, ui32 assembleTo)
+bool CGameHandler::assembleArtifacts (si32 heroID, ArtifactPosition::ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo)
 {
 
 	CGHeroInstance *hero = gs->getHero(heroID);
@@ -2930,7 +2932,7 @@ bool CGameHandler::buyArtifact( ui32 hid, TArtifactID aid )
 {
 	CGHeroInstance *hero = gs->getHero(hid);
 	CGTownInstance *town = hero->visitedTown;
-	if(aid==0) //spellbook
+	if(aid==ArtifactID::SPELLBOOK)
 	{
 		if((!town->hasBuilt(EBuilding::MAGES_GUILD_1) && complain("Cannot buy a spellbook, no mage guild in the town!"))
 		    || (getResource(hero->getOwner(), Res::GOLD) < GameConstants::SPELLBOOK_GOLD_COST && complain("Cannot buy a spellbook, not enough gold!") )
@@ -2948,16 +2950,16 @@ bool CGameHandler::buyArtifact( ui32 hid, TArtifactID aid )
 	{
 		int price = VLC->arth->artifacts[aid]->price;
 
-		if(( hero->getArt(9+aid) && complain("Hero already has this machine!"))
+		if(( hero->getArt(static_cast<ArtifactPosition::ArtifactPosition>(9+aid)) && complain("Hero already has this machine!"))
 		 || (gs->getPlayer(hero->getOwner())->resources[Res::GOLD] < price && complain("Not enough gold!")))
 		{
 			return false;
 		}
 		if  ((town->hasBuilt(EBuilding::BLACKSMITH) && town->town->warMachine == aid )
-		 || ((town->hasBuilt(EBuilding::BALLISTA_YARD, ETownType::STRONGHOLD)) && aid == 4))
+		 || ((town->hasBuilt(EBuilding::BALLISTA_YARD, ETownType::STRONGHOLD)) && aid == ArtifactID::BALLISTA))
 		{
 			giveResource(hero->getOwner(),Res::GOLD,-price);
-			giveHeroNewArtifact(hero, VLC->arth->artifacts[aid], 9+aid);
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[aid], static_cast<ArtifactPosition::ArtifactPosition>(9+aid));
 			return true;
 		}
 		else
@@ -3014,7 +3016,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::E
 
 	sendAndApply(&saa);
 
-	giveHeroNewArtifact(h, VLC->arth->artifacts[aid], -2);
+	giveHeroNewArtifact(h, VLC->arth->artifacts[aid], ArtifactPosition::FIRST_AVAILABLE);
 	return true;
 }
 
@@ -3900,7 +3902,7 @@ void CGameHandler::playerMessage( TPlayerColor player, const std::string &messag
 		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
 		if(!hero) return;
 		for (int g=7; g<=140; ++g)
-			giveHeroNewArtifact(hero, VLC->arth->artifacts[g], -1);
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[g], ArtifactPosition::PRE_FIRST);
 	}
 	else
 		cheated = false;
@@ -5234,7 +5236,7 @@ bool CGameHandler::dig( const CGHeroInstance *h )
 		iw.text.addTxt(MetaString::GENERAL_TXT, 58); //"Congratulations! After spending many hours digging here, your hero has uncovered the "
 		iw.text.addTxt(MetaString::ART_NAMES, 2);
 		iw.soundID = soundBase::ULTIMATEARTIFACT;
-		giveHeroNewArtifact(h, VLC->arth->artifacts[2], -1); //give grail
+		giveHeroNewArtifact(h, VLC->arth->artifacts[2], ArtifactPosition::PRE_FIRST); //give grail
 		sendAndApply(&iw);
 
 		iw.soundID = soundBase::invalid;
@@ -5631,7 +5633,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, int slot)
+bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition::ArtifactPosition slot)
 {
 	ArtifactLocation al(hero, slot);
 	const CArtifactInstance *a = al.getArt();
@@ -6058,16 +6060,16 @@ bool CGameHandler::makeAutomaticAction(const CStack *stack, BattleAction &ba)
 	return ret;
 }
 
-void CGameHandler::giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, int pos)
+void CGameHandler::giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition::ArtifactPosition pos)
 {
 	assert(a->artType);
 	ArtifactLocation al;
 	al.artHolder = const_cast<CGHeroInstance*>(h);
 
-	int slot = -1;
+	ArtifactPosition::ArtifactPosition slot = ArtifactPosition::PRE_FIRST;
 	if(pos < 0)
 	{
-		if(pos == -2)
+		if(pos == ArtifactPosition::FIRST_AVAILABLE)
 			slot = a->firstAvailableSlot(h);
 		else
 			slot = a->firstBackpackSlot(h);
@@ -6095,7 +6097,7 @@ void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstan
 	sendAndApply(&pa);
 }
 
-void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, int pos)
+void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition::ArtifactPosition pos)
 {
 	CArtifactInstance *a = NULL;
 	if(!artType->constituents)

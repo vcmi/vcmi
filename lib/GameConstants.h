@@ -483,6 +483,20 @@ namespace PlayerRelations
 	enum PlayerRelations {ENEMIES, ALLIES, SAME_PLAYER};
 }
 
+namespace ArtifactPosition
+{
+	enum ArtifactPosition
+	{
+		FIRST_AVAILABLE = -2,
+		PRE_FIRST = -1, //sometimes used as error, sometimes as first free in backpack
+		HEAD, SHOULDERS, NECK, RIGHT_HAND, LEFT_HAND, TORSO, RIGHT_RING, LEFT_RING, FEET, MISC1, MISC2, MISC3, MISC4,
+		MACH1, MACH2, MACH3, MACH4, SPELLBOOK, MISC5,
+		AFTER_LAST,
+		//cres
+		CREATURE_SLOT = 0,
+		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6, COMMANDER_AFTER_LAST
+	};
+}
 
 // Typedef declarations
 typedef si8 TFaction;

@@ -298,7 +298,7 @@ void CHeroWindow::commanderWindow()
 	{
 		const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
 		//artSelected = true;
-		int freeSlot = art->firstAvailableSlot (curHero->commander);
+		ArtifactPosition::ArtifactPosition freeSlot = art->firstAvailableSlot (curHero->commander);
 		if (freeSlot < ArtifactPosition::COMMANDER_AFTER_LAST) //we don't want to put it in commander's backpack!
 		{
 			ArtifactLocation src (srcHero, commonInfo->src.slotID);

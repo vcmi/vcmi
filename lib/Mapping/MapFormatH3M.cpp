@@ -661,7 +661,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 			slot = ArtifactPosition::SPELLBOOK;
 		}
 
-		hero->putArtifact(slot, createArtifact(aid));
+		hero->putArtifact(static_cast<ArtifactPosition::ArtifactPosition>(slot), createArtifact(aid));
 	}
 
 	return isArt;

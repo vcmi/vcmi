@@ -227,8 +227,8 @@ public:
 	virtual void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) =0; //merges army from src do dst or opens a garrison window
 	virtual bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count) = 0;
 
-	virtual void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, int pos) = 0;
-	virtual void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, int pos) = 0; //pos==-1 - first free slot in backpack=0; pos==-2 - default if available or backpack
+	virtual void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition::ArtifactPosition pos) = 0;
+	virtual void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition::ArtifactPosition pos) = 0; //pos==-1 - first free slot in backpack=0; pos==-2 - default if available or backpack
 	virtual void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) = 0;
 	virtual void removeArtifact(const ArtifactLocation &al) = 0;
 	virtual bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) = 0;

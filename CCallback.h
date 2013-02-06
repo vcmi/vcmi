@@ -63,7 +63,7 @@ public:
 	virtual int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
 	//virtual bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
 	virtual bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2)=0;
-	virtual bool assembleArtifacts(const CGHeroInstance * hero, ui16 artifactSlot, bool assemble, ui32 assembleTo)=0;
+	virtual bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition::ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, int stackPos)=0;
 	virtual void endTurn()=0;
 	virtual void buyArtifact(const CGHeroInstance *hero, int aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
@@ -126,7 +126,7 @@ public:
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2);
 	//bool moveArtifact(const CGHeroInstance * hero, ui16 src, const CStackInstance * stack, ui16 dest); // TODO: unify classes
 	//bool moveArtifact(const CStackInstance * stack, ui16 src , const CGHeroInstance * hero, ui16 dest); // TODO: unify classes
-	bool assembleArtifacts(const CGHeroInstance * hero, ui16 artifactSlot, bool assemble, ui32 assembleTo);
+	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition::ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo);
 	bool buildBuilding(const CGTownInstance *town, si32 buildingID);
 	void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount, si32 level=-1);
 	bool dismissCreature(const CArmedInstance *obj, int stackPos);

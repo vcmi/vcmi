@@ -1298,7 +1298,7 @@ void CGameState::init(StartInfo * si)
 			size_t totalArts = GameConstants::BACKPACK_START + oldHero->artifactsInBackpack.size();
 			for (size_t i=0; i<totalArts; i++ )
 			{
-				const ArtSlotInfo *info = oldHero->getSlot(i);
+				const ArtSlotInfo *info = oldHero->getSlot(static_cast<ArtifactPosition::ArtifactPosition>(i));
 				if (!info)
 					continue;
 
@@ -1309,9 +1309,9 @@ void CGameState::init(StartInfo * si)
 				int id  = art->artType->id;
 				assert( 8*18 > id );//number of arts that fits into h3m format
 				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
-
+				auto slot = static_cast<ArtifactPosition::ArtifactPosition>(i);
 				if (takeable)
-					hero->setNewArtSlot(i, const_cast<CArtifactInstance*>(oldHero->getSlot(i)->artifact.get()), false);
+					hero->setNewArtSlot(slot, const_cast<CArtifactInstance*>(oldHero->getSlot(slot)->artifact.get()), false);
 			}
 		}
 
@@ -1716,7 +1716,7 @@ void CGameState::initDuel()
 
 			BOOST_FOREACH(auto &parka, ss.artifacts)
 			{
-				h->putArtifact(parka.first, parka.second);
+				h->putArtifact(static_cast<ArtifactPosition::ArtifactPosition>(parka.first), parka.second);
 			}
 
 			typedef const std::pair<si32, si8> &TSecSKill;

@@ -512,22 +512,22 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType::ETerrainType terr
 	if(!creatureBank)
 	{
 		//Checks if hero has artifact and create appropriate stack
-		auto handleWarMachine= [&](int side, int artslot, int cretype, int hex)
+		auto handleWarMachine= [&](int side, ArtifactPosition::ArtifactPosition artslot, int cretype, int hex)
 		{
 			if(heroes[side] && heroes[side]->getArt(artslot))
 				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), !side, 255, hex));
 		};
 
-		handleWarMachine(0, 13, 146, 52); //ballista
-		handleWarMachine(0, 14, 148, 18); //ammo cart
-		handleWarMachine(0, 15, 147, 154);//first aid tent
+		handleWarMachine(0, ArtifactPosition::MACH1, 146, 52); //ballista
+		handleWarMachine(0, ArtifactPosition::MACH2, 148, 18); //ammo cart
+		handleWarMachine(0, ArtifactPosition::MACH3, 147, 154);//first aid tent
 		if(town && town->hasFort())
-			handleWarMachine(0, 16, 145, 120);//catapult
+			handleWarMachine(0, ArtifactPosition::MACH4, 145, 120);//catapult
 
 		if(!town) //defending hero shouldn't receive ballista (bug #551)
-			handleWarMachine(1, 13, 146, 66); //ballista
-		handleWarMachine(1, 14, 148, 32); //ammo cart
-		handleWarMachine(1, 15, 147, 168); //first aid tent
+			handleWarMachine(1, ArtifactPosition::MACH1, 146, 66); //ballista
+		handleWarMachine(1, ArtifactPosition::MACH2, 148, 32); //ammo cart
+		handleWarMachine(1, ArtifactPosition::MACH3, 147, 168); //first aid tent
 	}
 	//war machines added
 

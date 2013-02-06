@@ -404,7 +404,7 @@ public:
 	void initHero();
 	void initHero(int SUBID);
 
-	void putArtifact(ui16 pos, CArtifactInstance *art);
+	void putArtifact(ArtifactPosition::ArtifactPosition pos, CArtifactInstance *art);
 	void putInBackpack(CArtifactInstance *art);
 	void initExp();
 	void initArmy(IArmyDescriptor *dst = NULL);

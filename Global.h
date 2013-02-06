@@ -494,6 +494,12 @@ namespace vstd
 	{
 		return v.at(retreiveRandNum(randGen) % v.size());
 	}
+
+	template<typename T>
+	void advance(T &obj, int change)
+	{
+		obj = (T)(((int)obj) + change);
+	}
 }
 
 using std::shared_ptr;

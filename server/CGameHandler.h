@@ -154,8 +154,8 @@ public:
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) OVERRIDE;
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) OVERRIDE;
 
-	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, int pos) OVERRIDE;
-	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, int pos) OVERRIDE;
+	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition::ArtifactPosition pos) OVERRIDE;
+	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition::ArtifactPosition pos) OVERRIDE;
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) OVERRIDE; 
 	void removeArtifact(const ArtifactLocation &al) OVERRIDE;
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE;
@@ -213,7 +213,7 @@ public:
 	bool sendResources(ui32 val, TPlayerColor player, Res::ERes r1, TPlayerColor r2);
 	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, Res::ERes resourceID);
 	bool transformInUndead(const IMarket *market, const CGHeroInstance * hero, ui32 slot);
-	bool assembleArtifacts (si32 heroID, ui16 artifactSlot, bool assemble, ui32 assembleTo);
+	bool assembleArtifacts (si32 heroID, ArtifactPosition::ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo);
 	bool buyArtifact( ui32 hid, TArtifactID aid ); //for blacksmith and mage guild only -> buying for gold in common buildings
 	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, Res::ERes rid, TArtifactID aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
 	bool sellArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactInstanceID aid, Res::ERes rid); //for artifact merchant selling
@@ -261,7 +261,7 @@ public:
 	void handleAttackBeforeCasting (const BattleAttack & bat);
 	void handleAfterAttackCasting (const BattleAttack & bat);
 	void attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker);
-	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, int slot);
+	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition::ArtifactPosition slot);
 	void spawnWanderingMonsters(int creatureID);
 	friend class CVCMIServer;
 	friend class CScriptCallback;

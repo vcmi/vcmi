@@ -7,6 +7,7 @@
 #include "../lib/GameConstants.h"
 #include "UIFramework/CIntObject.h"
 #include "UIFramework/CIntObjectClasses.h"
+#include "../lib/GameConstants.h"
 
 #ifdef max
 #undef max
@@ -725,7 +726,7 @@ public:
 
 	void artifactPicked();
 	int firstFreeSlot();
-	void moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, const CArtifactInstance *art);
+	void moveFromSlotToAltar(ArtifactPosition::ArtifactPosition slotID, CTradeableItem* altarSlot, const CArtifactInstance *art);
 };
 
 class CSystemOptionsWindow : public CWindowObject
@@ -897,7 +898,7 @@ public:
 	bool picked;
 	bool marked;
 
-	int slotID; //Arts::EPOS enum + backpack starting from Arts::BACKPACK_START
+	ArtifactPosition::ArtifactPosition slotID; //Arts::EPOS enum + backpack starting from Arts::BACKPACK_START
 
 	void lockSlot(bool on);
 	void pickSlot(bool on);
@@ -932,7 +933,7 @@ public:
 	{
 		struct Artpos
 		{
-			int slotID;
+			ArtifactPosition::ArtifactPosition slotID;
 			const CArtifactsOfHero *AOH;
 			const CArtifactInstance *art;
 
@@ -971,11 +972,11 @@ public:
 	void markPossibleSlots(const CArtifactInstance* art);
 	void unmarkSlots(bool withRedraw = true); //unmarks slots in all visible AOHs
 	void unmarkLocalSlots(bool withRedraw = true); //unmarks slots in that particular AOH
-	void setSlotData (CArtPlace* artPlace, int slotID);
+	void setSlotData (CArtPlace* artPlace, ArtifactPosition::ArtifactPosition slotID);
 	void updateWornSlots (bool redrawParent = true);
 
-	void updateSlot(int i);
-	void eraseSlotData (CArtPlace* artPlace, int slotID);
+	void updateSlot(ArtifactPosition::ArtifactPosition i);
+	void eraseSlotData (CArtPlace* artPlace, ArtifactPosition::ArtifactPosition slotID);
 
 	CArtifactsOfHero(const Point& position, bool createCommonPart = false);
 	//Alternative constructor, used if custom artifacts positioning required (Kingdom interface)

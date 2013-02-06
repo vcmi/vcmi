@@ -578,7 +578,7 @@ void processCommand(const std::string &message)
 		{
 			BOOST_FOREACH(const CGHeroInstance *h, LOCPLINT->cb->getHeroesInfo())
 				if(h->type->ID == id1)
-					if(const CArtifactInstance *a = h->getArt(id2))
+					if(const CArtifactInstance *a = h->getArt(static_cast<ArtifactPosition::ArtifactPosition>(id2)))
 						tlog4 << a->nodeName();
 		}
 	}

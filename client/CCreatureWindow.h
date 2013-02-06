@@ -45,7 +45,7 @@ public:
 	//bool active; //TODO: comment me
 	CreWinType type;
 	int bonusRows; //height of skill window
-	int displayedArtifact;
+	ArtifactPosition::ArtifactPosition displayedArtifact;
 
 	std::string count; //creature count in text format
 	const CCreature *c; //related creature

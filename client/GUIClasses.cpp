@@ -3165,9 +3165,9 @@ void CAltarWindow::SacrificeAll()
 	}
 	else
 	{
-		for(std::map<ui16, ArtSlotInfo>::const_iterator i = hero->artifactsWorn.begin(); i != hero->artifactsWorn.end(); i++)
+		for(auto i = hero->artifactsWorn.cbegin(); i != hero->artifactsWorn.cend(); i++)
 		{
-			if(i->second.artifact->artType->id != 145) //ignore locks from assembled artifacts
+			if(i->second.artifact->artType->id != ArtifactID::ART_LOCK) //ignore locks from assembled artifacts
 				moveFromSlotToAltar(i->first, NULL, i->second.artifact);
 		}
 
@@ -3385,9 +3385,9 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 	return true;
 }
 
-void CAltarWindow::moveFromSlotToAltar(int slotID, CTradeableItem* altarSlot, const CArtifactInstance *art)
+void CAltarWindow::moveFromSlotToAltar(ArtifactPosition::ArtifactPosition slotID, CTradeableItem* altarSlot, const CArtifactInstance *art)
 {
-	int freeBackpackSlot = hero->artifactsInBackpack.size() + GameConstants::BACKPACK_START;
+	auto freeBackpackSlot = static_cast<ArtifactPosition::ArtifactPosition>(hero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
 	if(arts->commonInfo->src.art)
 	{
 		arts->commonInfo->dst.slotID = freeBackpackSlot;
@@ -3771,7 +3771,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 
 		int artifs = h->artifactsWorn.size() + h->artifactsInBackpack.size();
 		for(int i=13; i<=17; i++) //war machines and spellbook don't count
-			if(vstd::contains(h->artifactsWorn,i))
+			if(vstd::contains(h->artifactsWorn,static_cast<ArtifactPosition::ArtifactPosition>(i)))
 				artifs--;
 		sprintf_s(descr, sizeof(descr),CGI->generaltexth->allTexts[215].c_str(),
 				  h->name.c_str(), h->level, h->type->heroClass->name.c_str(), artifs);
@@ -4182,21 +4182,22 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 
 					switch(cur->id)
 					{
-					case 3:
+					case ArtifactID::CATAPULT:
 						//should not happen, catapult cannot be selected
-						assert(cur->id != 3);
+						assert(cur->id != ArtifactID::CATAPULT);
 						break;
 					case 4: case 5: case 6: //war machines cannot go to backpack
 						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % cur->Name()));
 						break;
 					default:
 						setMeAsDest();
-						vstd::amin(ourOwner->commonInfo->dst.slotID, ourOwner->curHero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
+						vstd::amin(ourOwner->commonInfo->dst.slotID, static_cast<ArtifactPosition::ArtifactPosition>(
+							ourOwner->curHero->artifactsInBackpack.size() + GameConstants::BACKPACK_START));
 						if(srcInBackpack && srcInSameHero)
 						{
 							if(!ourArt								//cannot move from backpack to AFTER backpack -> combined with vstd::amin above it will guarantee that dest is at most the last artifact
 							  || ourOwner->commonInfo->src.slotID < ourOwner->commonInfo->dst.slotID) //rearranging arts in backpack after taking src artifact, the dest id will be shifted
-								ourOwner->commonInfo->dst.slotID--;
+								vstd::advance(ourOwner->commonInfo->dst.slotID, -1);
 						}
 						if(srcInSameHero && ourOwner->commonInfo->dst.slotID == ourOwner->commonInfo->src.slotID) //we came to src == dst
 							deselect();
@@ -4588,7 +4589,7 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 
 	// Fill the slots for worn artifacts and backpack.
 	for (int g = 0; g < artWorn.size() ; g++)
-		setSlotData(artWorn[g], g);
+		setSlotData(artWorn[g], static_cast<ArtifactPosition::ArtifactPosition>(g));
 	scrollBackpack(0);
 }
 
@@ -4622,7 +4623,7 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 
 		if (s < artsInBackpack)
 		{
-			int slotID = GameConstants::BACKPACK_START + (s + backpackPos)%artsInBackpack;
+			auto slotID = static_cast<ArtifactPosition::ArtifactPosition>(GameConstants::BACKPACK_START + (s + backpackPos)%artsInBackpack);
 			const CArtifactInstance *art = curHero->getArt(slotID);
 			assert(art);
 			if(!vstd::contains(toOmit, art))
@@ -4639,7 +4640,7 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 		}
 	}
 	for( ; s - omitedSoFar < backpack.size(); s++)
-		eraseSlotData(backpack[s-omitedSoFar], GameConstants::BACKPACK_START + s);
+		eraseSlotData(backpack[s-omitedSoFar], static_cast<ArtifactPosition::ArtifactPosition>(GameConstants::BACKPACK_START + s));
 
 	//in artifact merchant selling artifacts we may have highlight on one of backpack artifacts -> market needs update, cause artifact under highlight changed
 	if(highlightModeCallback)
@@ -4706,7 +4707,7 @@ void CArtifactsOfHero::unmarkLocalSlots(bool withRedraw /*= true*/)
 /**
  * Assigns an artifacts to an artifact place depending on it's new slot ID.
  */
-void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, int slotID)
+void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, ArtifactPosition::ArtifactPosition slotID)
 {
 	if(!artPlace && slotID >= GameConstants::BACKPACK_START) //spurious call from artifactMoved in attempt to update hidden backpack slot
 	{
@@ -4728,7 +4729,7 @@ void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, int slotID)
 /**
  * Makes given artifact slot appear as empty with a certain slot ID.
  */
-void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, int slotID)
+void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, ArtifactPosition::ArtifactPosition slotID)
 {
 	artPlace->pickSlot(false);
 	artPlace->slotID = slotID;
@@ -4754,14 +4755,14 @@ CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector
 	for (size_t g = 0; g < artWorn.size() ; g++)
 	{
 		artWorn[g]->ourOwner = this;
-		eraseSlotData(artWorn[g], g);
+		eraseSlotData(artWorn[g], static_cast<ArtifactPosition::ArtifactPosition>(g));
 	}
 
 	// Init slots for the backpack.
 	for(size_t s=0; s<backpack.size(); ++s)
 	{
 		backpack[s]->ourOwner = this;
-		eraseSlotData(backpack[s], GameConstants::BACKPACK_START + s);
+		eraseSlotData(backpack[s], static_cast<ArtifactPosition::ArtifactPosition>(GameConstants::BACKPACK_START + s));
 	}
 
 	leftArtRoll->callback  += boost::bind(&CArtifactsOfHero::scrollBackpack,this,-1);
@@ -4791,11 +4792,11 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 	           Point(381,296);
 
 	// Create slots for worn artifacts.
-	for (size_t g = 0; g < 19 ; g++)
+	for (size_t g = 0; g < GameConstants::BACKPACK_START ; g++)
 	{
 		artWorn[g] = new CArtPlace(slotPos[g]);
 		artWorn[g]->ourOwner = this;
-		eraseSlotData(artWorn[g], g);
+		eraseSlotData(artWorn[g], static_cast<ArtifactPosition::ArtifactPosition>(g));
 	}
 
 	// Create slots for the backpack.
@@ -4804,7 +4805,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 		CArtPlace * add = new CArtPlace(Point(403 + 46 * s, 365));
 
 		add->ourOwner = this;
-		eraseSlotData(add, 19 + s);
+		eraseSlotData(add, static_cast<ArtifactPosition::ArtifactPosition>(GameConstants::BACKPACK_START + s));
 
 		backpack.push_back(add);
 	}
@@ -4930,7 +4931,7 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 			src.isHolder(commonInfo->src.AOH->curHero)) //artifact taken from before currently picked one
 	{
 		//int fixedSlot = src.hero->getArtPos(commonInfo->src.art);
-		commonInfo->src.slotID--;
+		vstd::advance(commonInfo->src.slotID, -1);
 		assert(commonInfo->src.valid());
 	}
 	else
@@ -4998,7 +4999,7 @@ void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation &al)
 void CArtifactsOfHero::updateWornSlots(bool redrawParent /*= true*/)
 {
 	for(int i = 0; i < artWorn.size(); i++)
-		updateSlot(i);
+		updateSlot(static_cast<ArtifactPosition::ArtifactPosition>(i));
 
 
 	if(redrawParent)
@@ -5010,7 +5011,7 @@ const CGHeroInstance * CArtifactsOfHero::getHero() const
 	return curHero;
 }
 
-void CArtifactsOfHero::updateSlot(int slotID)
+void CArtifactsOfHero::updateSlot(ArtifactPosition::ArtifactPosition slotID)
 {
 	setSlotData(getArtPlace(slotID), slotID);
 }
@@ -5952,7 +5953,7 @@ void CWindowWithArtifacts::artifactAssembled(const ArtifactLocation &artLoc)
 
 void CArtifactsOfHero::SCommonPart::Artpos::clear()
 {
-	slotID = -1;
+	slotID = ArtifactPosition::PRE_FIRST;
 	AOH = NULL;
 	art = NULL;
 }

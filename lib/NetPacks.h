@@ -895,7 +895,6 @@ struct RebalanceStacks : CGarrisonOperationPack  //526
 	}
 };
 
-typedef si32 TArtPos;
 typedef boost::variant<ConstTransitivePtr<CGHeroInstance>, ConstTransitivePtr<CStackInstance> > TArtHolder;
 
 //struct GetArtifactSet : boost::static_visitor<>
@@ -913,20 +912,20 @@ struct ArtifactLocation
 
 
 	TArtHolder artHolder;
-	TArtPos slot;
+	ArtifactPosition::ArtifactPosition slot;
 
 	ArtifactLocation()
 	{
 		artHolder = ConstTransitivePtr<CGHeroInstance>();
-		slot = -1;
+		slot = ArtifactPosition::PRE_FIRST;
 	}
 	template <typename T>
-	ArtifactLocation(const T *ArtHolder, TArtPos Slot)
+	ArtifactLocation(const T *ArtHolder, ArtifactPosition::ArtifactPosition Slot)
 	{
 		artHolder = const_cast<T*>(ArtHolder); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
 		slot = Slot;
 	}
-	ArtifactLocation(TArtHolder ArtHolder, TArtPos Slot)
+	ArtifactLocation(TArtHolder ArtHolder, ArtifactPosition::ArtifactPosition Slot)
 	{
 		artHolder = ArtHolder;
 		slot = Slot;
@@ -1902,10 +1901,10 @@ struct ExchangeArtifacts : public CPackForServer
 struct AssembleArtifacts : public CPackForServer
 {
 	AssembleArtifacts(){};
-	AssembleArtifacts(si32 _heroID, ui16 _artifactSlot, bool _assemble, ui32 _assembleTo)
+	AssembleArtifacts(si32 _heroID, ArtifactPosition::ArtifactPosition _artifactSlot, bool _assemble, ui32 _assembleTo)
 		: heroID(_heroID), artifactSlot(_artifactSlot), assemble(_assemble), assembleTo(_assembleTo){};
 	si32 heroID;
-	ui16 artifactSlot;
+	ArtifactPosition::ArtifactPosition artifactSlot;
 	bool assemble; // True to assemble artifact, false to disassemble.
 	ui32 assembleTo; // Artifact to assemble into.
 

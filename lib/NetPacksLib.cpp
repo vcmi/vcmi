@@ -811,7 +811,7 @@ DLL_LINKAGE void AssembledArtifact::applyGs( CGameState *gs )
 	//retrieve all constituents
 	BOOST_FOREACH(si32 constituentID, *builtArt->constituents)
 	{
-		int pos = artSet->getArtPos(constituentID);
+		ArtifactPosition::ArtifactPosition pos = artSet->getArtPos(constituentID);
 		assert(pos >= 0);
 		CArtifactInstance *constituentInstance = artSet->getArt(pos);
 

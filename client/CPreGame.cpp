@@ -1153,6 +1153,7 @@ void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
 
 void SelectionTab::parseCampaigns(const std::vector<ResourceID> & files )
 {
+	allItems.resize(files.size());
 	for(int i=0; i<files.size(); i++)
 	{
 		//allItems[i].date = std::asctime(std::localtime(&files[i].date));
@@ -1494,7 +1495,7 @@ void SelectionTab::showAll(SDL_Surface * to)
 		title = CGI->generaltexth->arraytxt[231];
 		break;
 	case CMenuScreen::campaignList:
-		title = CGI->generaltexth->arraytxt[726];
+		title = CGI->generaltexth->allTexts[726];
 		break;
 	}
 
