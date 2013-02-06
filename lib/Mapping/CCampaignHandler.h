@@ -1,5 +1,8 @@
 #pragma once
 
+#include "../../Global.h"
+#include "../../lib/GameConstants.h"
+
 /*
  * CCampaignHandler.h, part of VCMI engine
  *
@@ -106,7 +109,7 @@ public:
 
 	CScenarioTravel travelOptions;
 
-	std::vector<CGHeroInstance*> crossoverHeroes;
+	std::vector<CGHeroInstance *> crossoverHeroes;
 
 	void loadPreconditionRegions(ui32 regions);
 	void prepareCrossoverHeroes(std::vector<CGHeroInstance *> heroes);

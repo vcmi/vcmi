@@ -1092,12 +1092,12 @@ void CGameState::init(StartInfo * si)
 
 	/*************************replace hero placeholders*****************************/
 	tlog4 << "\tReplacing hero placeholders";
-	std::vector<std::tuple<CGHeroInstance*, int> > campHeroReplacements; //instance, id in vector
+	std::vector<std::pair<CGHeroInstance*, int> > campHeroReplacements; //instance, id in vector
 	if (scenarioOps->campState)
 	{
 		auto replaceHero = [&](int objId, CGHeroInstance * ghi)
 		{
-			campHeroReplacements.push_back(std::make_tuple(ghi, objId));
+			campHeroReplacements.push_back(std::make_pair(ghi, objId));
 // 			ghi->tempOwner = getHumanPlayerInfo()[0]->color;
 // 			ghi->id = objId;
 // 			gs->map->objects[objId] = ghi;
@@ -1109,7 +1109,7 @@ void CGameState::init(StartInfo * si)
 
 		if(bonus.is_initialized())
 		{
-			std::vector<CGHeroInstance *> Xheroes;
+			std::vector<CGHeroInstance*> Xheroes;
 			if (bonus->type == CScenarioTravel::STravelBonus::PLAYER_PREV_SCENARIO)
 			{
 				Xheroes = campaign->camp->scenarios[bonus->info2].crossoverHeroes;
@@ -1128,7 +1128,7 @@ void CGameState::init(StartInfo * si)
 				if(hp->subID != 0xFF) //select by type
 				{
 					bool found = false;
-					BOOST_FOREACH(CGHeroInstance * ghi, Xheroes)
+					BOOST_FOREACH(auto ghi, Xheroes)
 					{
 						if (ghi->subID == hp->subID)
 						{
@@ -1153,6 +1153,7 @@ void CGameState::init(StartInfo * si)
 			{
 				return a->getHeroStrength() > b->getHeroStrength();
 			}); //sort, descending strength
+
 			for(int g=0; g<map->objects.size(); ++g)
 			{
 				CGObjectInstance * obj = map->objects[g];
@@ -1257,10 +1258,10 @@ void CGameState::init(StartInfo * si)
 
 	BOOST_FOREACH(auto obj, campHeroReplacements)
 	{
-		CGHeroInstance * hero = new CGHeroInstance(),
-			* oldHero = std::get<0>(obj);
+		CGHeroInstance * hero = new CGHeroInstance();
+		CGHeroInstance * oldHero = obj.first;
 		hero->initHero(oldHero->subID);
-		hero->id = std::get<1>(obj);
+		hero->id = obj.second;
 		map->objects[hero->id] = hero;
 		map->heroes.push_back(hero);
 		const auto & travelOptions = scenarioOps->campState->getCurrentScenario().travelOptions;
@@ -1278,7 +1279,7 @@ void CGameState::init(StartInfo * si)
 				hero->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) &&
 					Selector::subtype(g) && Selector::sourceType(Bonus::HERO_BASE_SKILL) )->val
 					= oldHero->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) &&
-					Selector::subtype(g) && Selector::sourceType(Bonus::HERO_BASE_SKILL) )->val;
+						Selector::subtype(g) && Selector::sourceType(Bonus::HERO_BASE_SKILL) )->val;
 			}
 		}
 		if (travelOptions.whatHeroKeeps & 4)

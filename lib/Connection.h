@@ -738,6 +738,19 @@ public:
 		VariantVisitorSaver<Serializer> visitor(*this->This());
 		boost::apply_visitor(visitor, data);
 	}
+	template <typename T>
+	void saveSerializable(const boost::optional<T> &data)
+	{
+		if(data)
+		{
+			*this << (ui8)1;
+			*this << *data;
+		}
+		else
+		{
+			*this << (ui8)0;
+		}
+	}
 	template <typename E>
 	void saveEnum(const E &data)
 	{
@@ -1101,6 +1114,22 @@ public:
 		else
 			assert(0);
 		//TODO write more if needed, general solution would be much longer
+	}
+	template <typename T>
+	void loadSerializable(boost::optional<T> & data)
+	{
+		ui8 present;
+		*this >> present;
+		if(present)
+		{
+			T t;
+			*this >> t;
+			data = t;
+		}
+		else
+		{
+			data = boost::optional<T>();
+		}
 	}
 	void loadSerializable(CStackInstance *&s)
 	{

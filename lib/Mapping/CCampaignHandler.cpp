@@ -323,7 +323,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 {
 	crossoverHeroes = heroes;
 
-	
+
 	if (!(travelOptions.whatHeroKeeps & 1))
 	{
 		//trimming experience
@@ -341,7 +341,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 			{
 				cgh->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) &&
 					Selector::subtype(g) && Selector::sourceType(Bonus::HERO_BASE_SKILL) )->val
-						= cgh->type->heroClass->primarySkillInitial[g];
+					= cgh->type->heroClass->primarySkillInitial[g];
 			}
 		}
 	}
@@ -372,7 +372,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 				const ArtSlotInfo *info = hero->getSlot(i);
 				if (!info)
 					continue;
-				
+
 				const CArtifactInstance *art = info->artifact;
 				if (!art)//FIXME: check spellbook and catapult behaviour
 					continue;
