@@ -381,7 +381,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 				assert( 8*18 > id );//number of arts that fits into h3m format
 				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
 
-				if (takeable)
+				if (!takeable)
 					hero->eraseArtSlot(i);
 			}
 		}

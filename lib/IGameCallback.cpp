@@ -330,14 +330,16 @@ int CGameInfoCallback::estimateSpellDamage(const CSpell * sp, const CGHeroInstan
 	if(!gs->curB) //no battle
 	{
 		if (hero) //but we see hero's spellbook
-			return gs->curB->calculateSpellDmg(sp, hero, NULL, hero->getSpellSchoolLevel(sp), hero->getPrimSkillLevel(2));
+			return gs->curB->calculateSpellDmg(
+				sp, hero, NULL, hero->getSpellSchoolLevel(sp), hero->getPrimSkillLevel(PrimarySkill::SPELL_POWER));
 		else
 			return 0; //mage guild
 	}
 	//gs->getHero(gs->currentPlayer)
 	//const CGHeroInstance * ourHero = gs->curB->heroes[0]->tempOwner == player ? gs->curB->heroes[0] : gs->curB->heroes[1];
 	const CGHeroInstance * ourHero = hero;
-	return gs->curB->calculateSpellDmg(sp, ourHero, NULL, ourHero->getSpellSchoolLevel(sp), ourHero->getPrimSkillLevel(2));
+	return gs->curB->calculateSpellDmg(
+		sp, ourHero, NULL, ourHero->getSpellSchoolLevel(sp), ourHero->getPrimSkillLevel(PrimarySkill::SPELL_POWER));
 }
 
 void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj)

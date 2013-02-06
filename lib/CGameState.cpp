@@ -161,7 +161,7 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	else if(type == MINE_EVNTS)
 	{
 		dst = VLC->generaltexth->mines[ser].second;
-	}
+	} 
 	else if(type == SPELL_NAME)
 	{
 		dst = VLC->spellh->spells[ser]->name;
@@ -1092,14 +1092,16 @@ void CGameState::init(StartInfo * si)
 
 	/*************************replace hero placeholders*****************************/
 	tlog4 << "\tReplacing hero placeholders";
+	std::vector<std::tuple<CGHeroInstance*, int> > campHeroReplacements; //instance, id in vector
 	if (scenarioOps->campState)
 	{
 		auto replaceHero = [&](int objId, CGHeroInstance * ghi)
 		{
-			ghi->tempOwner = getHumanPlayerInfo()[0]->color;
-			ghi->id = objId;
-			gs->map->objects[objId] = ghi;
-			gs->map->heroes.push_back(ghi);
+			campHeroReplacements.push_back(std::make_tuple(ghi, objId));
+// 			ghi->tempOwner = getHumanPlayerInfo()[0]->color;
+// 			ghi->id = objId;
+// 			gs->map->objects[objId] = ghi;
+// 			gs->map->heroes.push_back(ghi);
 		};
 
 		auto campaign = scenarioOps->campState;
@@ -1248,28 +1250,91 @@ void CGameState::init(StartInfo * si)
 			continue;
 		}
 		CGHeroInstance * vhi = map->heroes[i];
-		if(vhi->sex == 0xff) //campaign heroes already come initialized -- I hope this will skip them
+		vhi->initHero();
+		players.find(vhi->getOwner())->second.heroes.push_back(vhi);
+		hids.erase(vhi->subID);
+	}
+
+	BOOST_FOREACH(auto obj, campHeroReplacements)
+	{
+		CGHeroInstance * hero = new CGHeroInstance(),
+			* oldHero = std::get<0>(obj);
+		hero->initHero(oldHero->subID);
+		hero->id = std::get<1>(obj);
+		map->objects[hero->id] = hero;
+		map->heroes.push_back(hero);
+		const auto & travelOptions = scenarioOps->campState->getCurrentScenario().travelOptions;
+
+		if (travelOptions.whatHeroKeeps & 1)
 		{
-			vhi->initHero();
-			players.find(vhi->getOwner())->second.heroes.push_back(vhi);
-			hids.erase(vhi->subID);
+			//giving exp
+			hero->exp = oldHero->exp;
+		}
+		if (travelOptions.whatHeroKeeps & 2)
+		{
+			//giving prim skills
+			for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
+			{
+				hero->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) &&
+					Selector::subtype(g) && Selector::sourceType(Bonus::HERO_BASE_SKILL) )->val
+					= oldHero->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) &&
+					Selector::subtype(g) && Selector::sourceType(Bonus::HERO_BASE_SKILL) )->val;
+			}
+		}
+		if (travelOptions.whatHeroKeeps & 4)
+		{
+			//giving sec skills
+			hero->secSkills = oldHero->secSkills;
+		}
+		if (travelOptions.whatHeroKeeps & 8)
+		{
+			//giving spells
+			hero->spells = oldHero->spells;
+		}
+		if (travelOptions.whatHeroKeeps & 16)
+		{
+			//giving artifacts
+			size_t totalArts = GameConstants::BACKPACK_START + oldHero->artifactsInBackpack.size();
+			for (size_t i=0; i<totalArts; i++ )
+			{
+				const ArtSlotInfo *info = oldHero->getSlot(i);
+				if (!info)
+					continue;
+
+				const CArtifactInstance *art = info->artifact;
+				if (!art)//FIXME: check spellbook and catapult behaviour
+					continue;
+
+				int id  = art->artType->id;
+				assert( 8*18 > id );//number of arts that fits into h3m format
+				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
+
+				if (takeable)
+					hero->setNewArtSlot(i, const_cast<CArtifactInstance*>(oldHero->getSlot(i)->artifact.get()), false);
+			}
+		}
+
+		//giving creatures
+		if(!oldHero->stacks.empty())
+		{
+			hero->stacks = oldHero->stacks;
 		}
 	}
 
-	for (ui32 i=0; i<map->objects.size();i++) //prisons
+	BOOST_FOREACH(auto obj, map->objects) //prisons
 	{
-		if (map->objects[i] && map->objects[i]->ID == Obj::PRISON)
-			hids.erase(map->objects[i]->subID);
+		if(obj && obj->ID == Obj::PRISON)
+			hids.erase(obj->subID);
 	}
 
-	for(ui32 i=0; i<map->predefinedHeroes.size(); i++)
+	BOOST_FOREACH(auto ph, map->predefinedHeroes)
 	{
-		if(!vstd::contains(hids,map->predefinedHeroes[i]->subID))
+		if(!vstd::contains(hids, ph->subID))
 			continue;
-		map->predefinedHeroes[i]->initHero();
-		hpool.heroesPool[map->predefinedHeroes[i]->subID] = map->predefinedHeroes[i];
-		hpool.pavailable[map->predefinedHeroes[i]->subID] = 0xff;
-		hids.erase(map->predefinedHeroes[i]->subID);
+		ph->initHero();
+		hpool.heroesPool[ph->subID] = ph;
+		hpool.pavailable[ph->subID] = 0xff;
+		hids.erase(ph->subID);
 	}
 
 	BOOST_FOREACH(int hid, hids) //all not used allowed heroes go with default state into the pool
@@ -2796,7 +2861,7 @@ void InfoAboutHero::initFromHero(const CGHeroInstance *h, bool detailed)
 
 		for (int i = 0; i < GameConstants::PRIMARY_SKILLS ; i++)
 		{
-			details->primskills[i] = h->getPrimSkillLevel(i);
+			details->primskills[i] = h->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(i));
 		}
 	}
 }

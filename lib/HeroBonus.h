@@ -541,7 +541,7 @@ public:
 	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
 
 	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
-	int getPrimSkillLevel(int id) const; //0-attack, 1-defence, 2-spell power, 3-knowledge
+	int getPrimSkillLevel(PrimarySkill::PrimarySkill id) const;
 	const TBonusListPtr getSpellBonuses() const;
 };
 

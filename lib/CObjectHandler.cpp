@@ -1286,7 +1286,7 @@ void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
 
 double CGHeroInstance::getHeroStrength() const
 {
-	return sqrt((1.0 + 0.05*getPrimSkillLevel(0)) * (1.0 + 0.05*getPrimSkillLevel(1)));
+	return sqrt((1.0 + 0.05*getPrimSkillLevel(PrimarySkill::ATTACK)) * (1.0 + 0.05*getPrimSkillLevel(PrimarySkill::DEFENSE)));
 }
 
 ui64 CGHeroInstance::getTotalStrength() const
@@ -4115,9 +4115,9 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 				return true;
 			return false;
 		case MISSION_PRIMARY_STAT:
-			for (int i = 0; i < 4; ++i)
+			for (int i = 0; i < GameConstants::PRIMARY_SKILLS; ++i)
 			{
-				if (h->getPrimSkillLevel(i) < m2stats[i])
+				if (h->getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(i)) < m2stats[i])
 					return false;
 			}
 			return true;

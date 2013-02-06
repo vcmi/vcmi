@@ -5041,9 +5041,9 @@ void CExchangeWindow::prepareBackground()
 	{
 		CHeroWithMaybePickedArtifact heroWArt = CHeroWithMaybePickedArtifact(this, heroInst[b]);
 		//printing primary skills' amounts
-		for(int m=0; m<4; ++m)
+		for(int m=0; m<GameConstants::PRIMARY_SKILLS; ++m)
 			new CLabel(352 + 93 * b, 35 + 36 * m, FONT_SMALL, CENTER, Colors::WHITE,
-		               boost::lexical_cast<std::string>(heroWArt.getPrimSkillLevel(m)));
+		               boost::lexical_cast<std::string>(heroWArt.getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(m))));
 
 		//printing secondary skills
 		for(int m=0; m<heroInst[b]->secSkills.size(); ++m)

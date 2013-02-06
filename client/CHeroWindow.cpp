@@ -215,7 +215,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	//primary skills support
 	for(size_t g=0; g<primSkillAreas.size(); ++g)
 	{
-		primSkillAreas[g]->bonusValue = heroWArt.getPrimSkillLevel(g);
+		primSkillAreas[g]->bonusValue = heroWArt.getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(g));
 	}
 
 	//secondary skills support

@@ -4455,7 +4455,8 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				StartAction start_action(ba);
 				sendAndApply(&start_action); //start spell casting
 
-				handleSpellCasting (ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner, h, secondHero, h->getPrimSkillLevel(2),
+				handleSpellCasting (ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner,
+									h, secondHero, h->getPrimSkillLevel(PrimarySkill::SPELL_POWER),
 									ECastingMode::HERO_CASTING, NULL, ba.selectedStack);
 
 				sendAndApply(&end_action);

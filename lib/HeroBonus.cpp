@@ -466,7 +466,7 @@ si32 IBonusBearer::manaLimit() const
 		/ 10.0);
 }
 
-int IBonusBearer::getPrimSkillLevel(int id) const
+int IBonusBearer::getPrimSkillLevel(PrimarySkill::PrimarySkill id) const
 {
 	int ret = 0;
 	if(id == PrimarySkill::ATTACK)
