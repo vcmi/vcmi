@@ -9,8 +9,8 @@
     tempDir = NSTemporaryDirectory();
     
     // Output to Application Support
-    //NSArray* appSupportDirs = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask];
-    //outputDir = [[appSupportDirs[0] path] stringByAppendingString:@"/vcmi"];
+    NSArray* appSupportDirs = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask];
+    outputDir = [[appSupportDirs[0] path] stringByAppendingString:@"/vcmi"];
 }
 
 - (BOOL)applicationShouldTerminateAfterLastWindowClosed:(NSApplication*)sender
@@ -241,7 +241,7 @@
     
     // After everythin is complete we create marker file. VCMI will look for this file to exists on startup and
     // will run this setup otherwise
-    system([[NSString stringWithFormat:@"touch %@/game_data_prepared", outputDir] UTF8String]);
+    system([[NSString stringWithFormat:@"touch \"%@/game_data_prepared\"", outputDir] UTF8String]);
     
     [self showProgressText:@"Installation complete"];
     [self.installButton setTitle:@"Run VCMI"];

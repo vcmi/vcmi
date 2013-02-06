@@ -189,7 +189,8 @@ int main(int argc, char** argv)
     std::string workDir = executablePath.substr(0, executablePath.rfind('/'));
     chdir(workDir.c_str());
     
-    FILE* check = fopen("../Data/game_data_prepared", "r");
+    // Check that game data is prepared. Otherwise run vcmibuilder helper application
+    FILE* check = fopen((GVCMIDirs.UserPath + "/game_data_prepared").c_str(), "r");
     if (check == NULL) {
         system("open ./vcmibuilder.app");
         return 0;

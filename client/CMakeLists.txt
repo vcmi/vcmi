@@ -47,14 +47,16 @@ if(WIN32)
     add_executable(vcmiclient WIN32 ${client_SRCS})
 elseif(APPLE)
     # When building for OS X we need add SDLMain.m to source files
-    add_executable(vcmiclient MACOSX_BUNDLE ${client_SRCS} SDLMain.m ${CMAKE_CURRENT_SOURCE_DIR}/vcmi.icns)
+    add_executable(vcmiclient MACOSX_BUNDLE ${client_SRCS} SDLMain.m vcmi.icns Info.plist)
 
     # Because server and AI libs would be copies to bundle they need to be built before client
     add_dependencies(vcmiclient vcmiserver VCAI EmptyAI StupidAI BattleAI)
 
+    # Custom Info.plist
+    set_target_properties(vcmiclient PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
+
     # Copy icon file
-    set(MACOSX_BUNDLE_ICON_FILE vcmi.icns)
-    set_source_files_properties(${CMAKE_CURRENT_SOURCE_DIR}/vcmi.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    set_source_files_properties(vcmi.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
     # Copy server executable, libs and game data to bundle
     set(BUNDLE_PATH ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiclient.app/Contents)
