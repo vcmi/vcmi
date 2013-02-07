@@ -205,8 +205,17 @@ std::string getBuildingSubtitle(const CStructure * structure)//hover text for bu
 		return t->town->buildings[structure->building->bid]->Name();
 	else//dwellings - recruit %creature%
 	{
-		int creaID = t->creatures[(bid-30)%GameConstants::CREATURES_PER_TOWN].second.back();//taking last of available creatures
-		return CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creaID]->namePl;
+		auto & availableCreatures = t->creatures[(bid-30)%GameConstants::CREATURES_PER_TOWN].second;
+		if(availableCreatures.size())
+		{
+			int creaID = availableCreatures.back();//taking last of available creatures
+			return CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creaID]->namePl;
+		}
+		else
+		{
+			tlog2 << "Problem: dwelling with id " << bid << " offers no creatures!\n";
+			return "#ERROR#";
+		}
 	}
 }
 

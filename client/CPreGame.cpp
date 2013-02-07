@@ -471,9 +471,13 @@ CGPreGame::CGPreGame():
 
 CGPreGame::~CGPreGame()
 {
+	boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim); 
 	disposeGraphics();
 	if(CGP == this)
 		CGP = nullptr;
+
+	if(GH.curInt == this)
+		GH.curInt = nullptr;
 }
 
 void CGPreGame::openSel(CMenuScreen::EState screenType, CMenuScreen::EMultiMode multi /*= CMenuScreen::SINGLE_PLAYER*/)
