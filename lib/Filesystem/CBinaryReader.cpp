@@ -79,6 +79,25 @@ INSTANTIATE(si64, readInt64)
 
 #undef INSTANTIATE
 
+std::string CBinaryReader::readString()
+{
+    int len = readUInt32();
+	assert(len >= 0 && len <= 500000); //not too long
+    std::string ret;
+    ret.reserve(len);
+    for(int gg = 0; gg < len; ++gg)
+	{
+        ret += readInt8();
+	}
+	return ret;
+}
+
+void CBinaryReader::skip(int count)
+{
+	stream->skip(count);
+}
+
+
 std::string CBinaryReader::getEndOfStreamExceptionMsg(long bytesToRead) const
 {
 	std::stringstream ss;

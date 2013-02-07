@@ -73,6 +73,14 @@ public:
 	ui64 readUInt64();
 	si64 readInt64();
 
+	std::string readString();
+
+	inline bool readBool()
+	{
+		return readUInt8() != 0;
+	}
+
+	void skip(int count);
 private:
     /**
      * Reads any integer. Advances the read pointer by its size.

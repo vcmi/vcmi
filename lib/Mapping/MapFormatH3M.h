@@ -15,8 +15,9 @@
 #include "../GameConstants.h"
 #include "../ResourceSet.h"
 
-#include "../vcmi_endian.h"
 #include "../int3.h"
+
+#include "../Filesystem/CBinaryReader.h"
 
 class CGHeroInstance;
 class CArtifactInstance;
@@ -209,9 +210,17 @@ private:
 	 */
 	void readEvents();
 
+	/**
+	* read optional message and optional guards
+	*/
+	void readMessageAndGuards(std::string& message, CCreatureSet * guards);
+
 	void readSpells(std::set<TSpell> & dest);
 
 	void readResourses(TResources& resources);
+
+	template <class Indenifier>
+	void readBitmask(std::set<Indenifier> &dest, const int byteCount, const int limit, bool negate = true);
 
 	/** Reads bitmask to boolean vector
 	* @param dest destination vector, shall be filed with "true" values
@@ -230,80 +239,16 @@ private:
 	ui8 reverse(ui8 arg);
 
 	/**
-	* Helper to read ui8 from buffer
+	* Helper to read map position
 	*/
-	inline ui8 readUI8()
-	{
-	   return buffer[pos++];
-	}
-
-	/**
-	* Helper to read si8 from buffer
-	*/
-	inline si8 readSI8()
-	{
-	   return static_cast<si8>(buffer[pos++]);
-	}
-
-	/**
-	* Helper to read ui16 from buffer
-	*/
-	inline ui16 readUI16()
-	{
-		ui16 ret = read_le_u16(buffer+pos);
-		pos +=2;
-		return ret;
-	}
-
-	/**
-	* Helper to read ui32 from buffer
-	*/
-	inline ui32 readUI32()
-	{
-		ui32 ret = read_le_u32(buffer+pos);
-		pos +=4;
-		return ret;
-	}
-
-	/**
-	* Helper to read 8bit flag from buffer
-	*/
-	inline bool readBool()
-	{
-		return readUI8() != 0;
-	}
-
-	/**
-	* Helper to read string from buffer
-	*/
-	inline std::string readString()
-	{
-		return ::readString(buffer,pos);
-	}
-
-	/**
-	* Helper to skip unused data inbuffer
-	*/
-	inline void skip(const int count)
-	{
-		pos += count;
-	}
-
 	inline int3 readInt3()
 	{
 		int3 p;
-		p.x = readUI8();
-		p.y = readUI8();
-		p.z = readUI8();
+		p.x = reader.readUInt8();
+		p.y = reader.readUInt8();
+		p.z = reader.readUInt8();
 		return p;
 	}
-
-	/**
-	 * Init buffer / size.
-	 *
-	 * @param stream the stream which serves as the data input
-	 */
-	void initBuffer(CInputStream * stream);
 
 	/** ptr to the map object which gets filled by data from the buffer */
 	CMap * map;
@@ -314,13 +259,7 @@ private:
 	 */
 	std::unique_ptr<CMapHeader> mapHeader;
 
-	/** pointer to the array containing the map data;
-	 * TODO replace with CBinaryReader later (this makes pos & size redundant) */
-	ui8 * buffer;
+	CBinaryReader reader;
+	CInputStream * inputStream;
 
-	/** current buffer reading position */
-	int pos;
-
-	/** size of the map in bytes */
-	int size;
 };
