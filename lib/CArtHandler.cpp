@@ -271,7 +271,7 @@ CArtHandler::CArtHandler()
 	//VLC->arth = this;
 
 	// War machines are the default big artifacts.
-	for (ui32 i = 3; i <= 6; i++)
+	for (ArtifactID::ArtifactID i = ArtifactID::CATAPULT; i <= ArtifactID::FIRST_AID_TENT; vstd::advance(i, 1))
 		bigArtifacts.insert(i);
 }
 
@@ -288,7 +288,9 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 {
 	std::vector<ui16> slots;
 	slots += 17, 16, 15, 14, 13, 18, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
-	growingArtifacts += 146, 147, 148, 150, 151, 152, 153;
+	growingArtifacts += ArtifactID::AXE_OF_SMASHING, ArtifactID::MITHRIL_MAIL,
+		ArtifactID::SWORD_OF_SHARPNESS, ArtifactID::PENDANT_OF_SORCERY, ArtifactID::BOOTS_OF_HASTE,
+		ArtifactID::BOW_OF_SEEKING, ArtifactID::DRAGON_EYE_RING;
 	static std::map<char, CArtifact::EartClass> classes =
 	  map_list_of('S',CArtifact::ART_SPECIAL)('T',CArtifact::ART_TREASURE)('N',CArtifact::ART_MINOR)('J',CArtifact::ART_MAJOR)('R',CArtifact::ART_RELIC);
 
@@ -300,7 +302,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 
 	std::map<ui32,ui8>::iterator itr;
 
-	for (int i=0; i<GameConstants::ARTIFACTS_QUANTITY; i++)
+	for (ArtifactID::ArtifactID i=static_cast<ArtifactID::ArtifactID>(0); i<GameConstants::ARTIFACTS_QUANTITY; vstd::advance(i, 1))
 	{
 		CArtifact *art;
 		if (vstd::contains (growingArtifacts, i))
@@ -369,7 +371,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 			BOOST_FOREACH(ui32 constituentID, *artifact->constituents)
 			{
 				if (artifacts[constituentID]->constituentOf == NULL)
-					artifacts[constituentID]->constituentOf = new std::vector<TArtifactID>();
+					artifacts[constituentID]->constituentOf = new std::vector<ArtifactID::ArtifactID>();
 				artifacts[constituentID]->constituentOf->push_back(artifact->id);
 			}
 		}
@@ -383,7 +385,7 @@ void CArtHandler::load(const JsonNode & node)
 		if (!entry.second.isNull()) // may happens if mod removed creature by setting json entry to null
 		{
 			CArtifact * art = loadArtifact(entry.second);
-			art->id = artifacts.size();
+			art->id = static_cast<ArtifactID::ArtifactID>(artifacts.size());
 
 			artifacts.push_back(art);
 			tlog5 << "Added artifact: " << entry.first << "\n";
@@ -493,41 +495,42 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 	return art;
 }
 
-void CArtifact::addConstituent (ui32 component)
+void CArtifact::addConstituent (ArtifactID::ArtifactID component)
 {
 	assert (constituents);
 	constituents->push_back (component);
 }
 
-int CArtHandler::convertMachineID(int id, bool creToArt )
+ArtifactID::ArtifactID CArtHandler::creatureToMachineID(CreatureID::CreatureID id)
 {
 	int dif = 142;
-	if(creToArt)
+	switch (id)
 	{
-		switch (id)
-		{
-		case 147:
-			dif--;
-			break;
-		case 148:
-			dif++;
-			break;
-		}
-		dif = -dif;
+	case 147:
+		dif--;
+		break;
+	case 148:
+		dif++;
+		break;
 	}
-	else
+	dif = -dif;
+	return static_cast<ArtifactID::ArtifactID>(id+dif);
+}
+
+CreatureID::CreatureID CArtHandler::machineIDToCreature(ArtifactID::ArtifactID id)
+{
+	int dif = 142;
+
+	switch (id)
 	{
-		switch (id)
-		{
-		case 6:
-			dif--;
-			break;
-		case 5:
-			dif++;
-			break;
-		}
+	case 6:
+		dif--;
+		break;
+	case 5:
+		dif++;
+		break;
 	}
-	return id + dif;
+	return static_cast<CreatureID::CreatureID>(id + dif);
 }
 
 void CArtHandler::sortArts()
@@ -648,17 +651,17 @@ Bonus *createBonus(Bonus::BonusType type, int val, int subtype, shared_ptr<IProp
 	return added;
 }
 
-void CArtHandler::giveArtBonus( TArtifactID aid, Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, shared_ptr<ILimiter> limiter, int additionalInfo)
+void CArtHandler::giveArtBonus( ArtifactID::ArtifactID aid, Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, shared_ptr<ILimiter> limiter, int additionalInfo)
 {
 	giveArtBonus(aid, createBonus(type, val, subtype, valType, limiter, additionalInfo));
 }
 
-void CArtHandler::giveArtBonus(TArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator /*= NULL*/, int additionalInfo)
+void CArtHandler::giveArtBonus(ArtifactID::ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator /*= NULL*/, int additionalInfo)
 {
 	giveArtBonus(aid, createBonus(type, val, subtype, propagator, additionalInfo));
 }
 
-void CArtHandler::giveArtBonus(TArtifactID aid, Bonus *bonus)
+void CArtHandler::giveArtBonus(ArtifactID::ArtifactID aid, Bonus *bonus)
 {
 	bonus->sid = aid;
 	if(bonus->subtype == Bonus::MORALE || bonus->type == Bonus::LUCK)
@@ -747,11 +750,14 @@ void CArtHandler::readComponents (const JsonNode & node, CArtifact * art)
 	value = &node["components"];
 	if (!value->isNull())
 	{
-		art->constituents = new std::vector<TArtifactID>();
+		art->constituents = new std::vector<ArtifactID::ArtifactID>();
 		BOOST_FOREACH (auto component, value->Vector())
 		{
 			VLC->modh->identifiers.requestIdentifier(std::string("artifact.") + component.String(),
-				boost::bind (&CArtifact::addConstituent, art, _1)
+				[art](si32 id)
+				{
+					art->addConstituent(static_cast<ArtifactID::ArtifactID>(id));
+				}
 			);
 		}
 	}

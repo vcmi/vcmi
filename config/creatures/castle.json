@@ -95,6 +95,7 @@
 		"faction": "castle",
 		"abilities": [ [ "ADDITIONAL_RETALIATION", 1, 0, 0 ] ], 	//griffins retaliate twice
 		"upgrades": ["royalGriffin"],
+		"hasDoubleWeek": true,
 		"graphics" :
 		{
 			"animation": "CGRIFF.DEF"

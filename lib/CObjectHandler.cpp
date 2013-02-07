@@ -138,12 +138,12 @@ bool CPlayersVisited::wasVisited( TPlayerColor player ) const
 
 // Bank helper. Find the creature ID and their number, and store the
 // result in storage (either guards or reward creatures).
-static void readCreatures(const JsonNode &creature, std::vector< std::pair <ui16, ui32> > &storage)
+static void readCreatures(const JsonNode &creature, std::vector< std::pair <CreatureID::CreatureID, ui32> > &storage)
 {
-	std::pair<si16, si32> creInfo = std::make_pair(-1, 0);
+	std::pair<CreatureID::CreatureID, si32> creInfo = std::make_pair(CreatureID::NONE, 0);
 
 	creInfo.second = creature["number"].Float();
-	creInfo.first = creature["id"].Float();
+	creInfo.first = static_cast<CreatureID::CreatureID>((si32)creature["id"].Float());
 	storage.push_back(creInfo);
 }
 
@@ -195,7 +195,7 @@ void CObjectHandler::loadObjects()
 	const JsonNode config(ResourceID("config/dwellings.json"));
 	BOOST_FOREACH(const JsonNode &dwelling, config["dwellings"].Vector())
 	{
-		cregens[dwelling["dwelling"].Float()] = dwelling["creature"].Float();
+		cregens[dwelling["dwelling"].Float()] = static_cast<CreatureID::CreatureID>((si32)dwelling["creature"].Float());
 	}
 	tlog5 << "\t\tDone loading cregens!\n";
 
@@ -262,7 +262,8 @@ CGObjectInstance::CGObjectInstance(): animPhaseShift(rand()%0xff)
 	pos = int3(-1,-1,-1);
 	//std::cout << "Tworze obiekt "<<this<<std::endl;
 	//state = new CLuaObjectScript();
-	ID = subID = id = -1;
+	ID = Obj::NO_OBJ;
+	subID = id = -1;
 	defInfo = NULL;
 	tempOwner = 254;
 	blockVisit = false;
@@ -404,7 +405,7 @@ void CGObjectInstance::setProperty( ui8 what, ui32 val )
 		blockVisit = val;
 		break;
 	case ObjProperty::ID:
-		ID = val;
+		ID = static_cast<Obj::Obj>(val);
 		break;
 	case ObjProperty::SUBID:
 		subID = val;
@@ -822,22 +823,23 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 		int range = stack.maxAmount - stack.minAmount;
 		int count = ran()%(range+1) + stack.minAmount;
 
-		if(stack.creature >= 145 &&
-		   stack.creature <= 149) //war machine
+		if(stack.creature >= CreatureID::CATAPULT &&
+		   stack.creature <= CreatureID::ARROW_TOWERS) //war machine
 		{
 			warMachinesGiven++;
 			if(dst != this)
 				continue;
 
-			int slot = -1, aid = -1;
+			int slot = -1;
+			ArtifactID::ArtifactID aid = ArtifactID::NONE;
 			switch (stack.creature)
 			{
-			case 145: //catapult
+			case CreatureID::CATAPULT:
 				slot = ArtifactPosition::MACH4;
-				aid = 3;
+				aid = ArtifactID::CATAPULT;
 				break;
 			default:
-				aid = CArtHandler::convertMachineID(stack.creature, true);
+				aid = CArtHandler::creatureToMachineID(stack.creature);
 				slot = 9 + aid;
 				break;
 			}
@@ -1575,7 +1577,7 @@ CGHeroInstance::ECanDig CGHeroInstance::diggingStatus() const
 	}
 }
 
-ui8 CGHeroInstance::bearerType() const
+ArtBearer::ArtBearer CGHeroInstance::bearerType() const
 {
 	return ArtBearer::HERO;
 }
@@ -1586,14 +1588,14 @@ void CGDwelling::initObj()
 	{
 	case Obj::CREATURE_GENERATOR1:
 		{
-			int crid = VLC->objh->cregens[subID];
+			CreatureID::CreatureID crid = VLC->objh->cregens[subID];
 			const CCreature *crs = VLC->creh->creatures[crid];
 
 			creatures.resize(1);
 			creatures[0].second.push_back(crid);
 			if (subID >= VLC->generaltexth->creGens.size()) //very messy workaround
 			{
-				int faction = VLC->creh->creatures[subID]->faction;
+				TFaction faction = VLC->creh->creatures[subID]->faction;
 				assert (VLC->townh->towns[faction].dwellingNames.size());
 				hoverName = VLC->townh->towns[faction].dwellingNames[VLC->creh->creatures[subID]->level - 1];
 			}
@@ -1610,22 +1612,22 @@ void CGDwelling::initObj()
 		creatures.resize(4);
 		if(subID == 1) //Golem Factory
 		{
-			creatures[0].second.push_back(32);  //Stone Golem
-			creatures[1].second.push_back(33);  //Iron Golem
-			creatures[2].second.push_back(116); //Gold Golem
-			creatures[3].second.push_back(117); //Diamond Golem
+			creatures[0].second.push_back(CreatureID::STONE_GOLEM);
+			creatures[1].second.push_back(CreatureID::IRON_GOLEM);
+			creatures[2].second.push_back(CreatureID::GOLD_GOLEM);
+			creatures[3].second.push_back(CreatureID::DIAMOND_GOLEM);
 			//guards
-			putStack(0, new CStackInstance(116, 9));
-			putStack(1, new CStackInstance(117, 6));
+			putStack(0, new CStackInstance(CreatureID::GOLD_GOLEM, 9));
+			putStack(1, new CStackInstance(CreatureID::DIAMOND_GOLEM, 6));
 		}
 		else if(subID == 0) // Elemental Conflux
 		{
-			creatures[0].second.push_back(112); //Air Elemental
-			creatures[1].second.push_back(114); //Fire Elemental
-			creatures[2].second.push_back(113); //Earth Elemental
-			creatures[3].second.push_back(115); //Water Elemental
+			creatures[0].second.push_back(CreatureID::AIR_ELEMENTAL);
+			creatures[1].second.push_back(CreatureID::FIRE_ELEMENTAL);
+			creatures[2].second.push_back(CreatureID::EARTH_ELEMENTAL);
+			creatures[3].second.push_back(CreatureID::WATER_ELEMENTAL);
 			//guards
-			putStack(0, new CStackInstance(113, 12));
+			putStack(0, new CStackInstance(CreatureID::EARTH_ELEMENTAL, 12));
 		}
 		else
 		{
@@ -1640,9 +1642,9 @@ void CGDwelling::initObj()
 
 	case Obj::WAR_MACHINE_FACTORY:
 		creatures.resize(3);
-		creatures[0].second.push_back(146); //Ballista
-		creatures[1].second.push_back(147); //First Aid Tent
-		creatures[2].second.push_back(148); //Ammo Cart
+		creatures[0].second.push_back(CreatureID::BALLISTA);
+		creatures[1].second.push_back(CreatureID::FIRST_AID_TENT);
+		creatures[2].second.push_back(CreatureID::AMMO_CART);
 		break;
 
 	default:
@@ -1670,7 +1672,7 @@ void CGDwelling::setProperty(ui8 what, ui32 val)
 		case ObjProperty::AVAILABLE_CREATURE:
 			creatures.resize(1);
 			creatures[0].second.resize(1);
-			creatures[0].second[0] = val;
+			creatures[0].second[0] = static_cast<CreatureID::CreatureID>(val);
 			break;
 	}
 	CGObjectInstance::setProperty(what,val);
@@ -1775,7 +1777,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 	if(!answer)
 		return;
 
-	int crid = creatures[0].second[0];
+	CreatureID::CreatureID crid = creatures[0].second[0];
 	CCreature *crs = VLC->creh->creatures[crid];
 	TQuantity count = creatures[0].first;
 
@@ -2197,7 +2199,7 @@ void CGTownInstance::newTurn() const
 				if ((stacksCount() < GameConstants::ARMY_SIZE && rand()%100 < 25) || Slots().empty()) //add new stack
 				{
 					int i = rand() % std::min (GameConstants::ARMY_SIZE, cb->getDate(Date::MONTH)<<1);
-					TCreature c = town->creatures[i][0];
+					CreatureID::CreatureID c = town->creatures[i][0];
 					TSlot n = -1;
 
 					TQuantity count = creatureGrowth(i);
@@ -3118,7 +3120,7 @@ void CGCreature::initObj()
 		break;
 	}
 
-	stacks[0]->setType(subID);
+	stacks[0]->setType(static_cast<CreatureID::CreatureID>(subID));
 	TQuantity &amount = stacks[0]->count;
 	CCreature &c = *VLC->creh->creatures[subID];
 	if(!amount)
@@ -3336,7 +3338,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 			TSlot slotId = (stacks.size() / 2);
 			if(ui32 upgradesSize = getStack(slotId).type->upgrades.size())
 			{
-				std::set<TCreature>::const_iterator it = getStack(slotId).type->upgrades.begin(); //pick random in case there are more
+				auto it = getStack(slotId).type->upgrades.cbegin(); //pick random in case there are more
 				std::advance (it, rand() % upgradesSize);
 				cb->changeStackType(StackLocation(this, slotId), VLC->creh->creatures[*it]);
 			}
@@ -3398,12 +3400,12 @@ void CGMine::initObj()
 	{
 		//set guardians
 		int howManyTroglodytes = 100 + ran()%100;
-		CStackInstance *troglodytes = new CStackInstance(70, howManyTroglodytes);
+		CStackInstance *troglodytes = new CStackInstance(CreatureID::TROGLODYTES, howManyTroglodytes);
 		putStack(0, troglodytes);
 
 		//after map reading tempOwner placeholds bitmask for allowed resources
 		std::vector<Res::ERes> possibleResources;
-		for (int i = 0; i < 8; i++)
+		for (int i = 0; i < GameConstants::PLAYER_LIMIT; i++)
 			if(tempOwner & 1<<i)
 				possibleResources.push_back(static_cast<Res::ERes>(i));
 
@@ -4742,7 +4744,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 		case CREATURE:
 			{
 				CCreatureSet creatures;
-				creatures.setCreature(0, rID, rVal);
+				creatures.setCreature(0, static_cast<CreatureID::CreatureID>(rID), rVal);
 				cb->giveCreatures(this, h, creatures, false);
 			}
 			break;
@@ -4973,9 +4975,9 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 
 		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); ++i)
 		{
-			if(i->second->type->idNumber == 10)
+			if(i->second->type->idNumber == CreatureID::CAVALIER)
 			{
-				cb->changeStackType(StackLocation(h, i->first), VLC->creh->creatures[11]);
+				cb->changeStackType(StackLocation(h, i->first), VLC->creh->creatures[CreatureID::CHAMPION]);
 				someUpgradeDone = true;
 			}
 		}
@@ -5925,14 +5927,13 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 					case 1:
 						for	(int i = 0; i < 4; ++i)
 							setCreature (i, bc->guards[0].first, bc->guards[0].second  / 5 );
-						setCreature (4, bc->guards[0].first + upgraded, bc->guards[0].second  / 5 );
+						setCreature (4, static_cast<CreatureID::CreatureID>(bc->guards[0].first + upgraded), bc->guards[0].second  / 5 );
 						break;
 					case 4:
 					{
-						std::vector< std::pair <ui16, ui32> >::const_iterator it;
 						if (bc->guards.back().second) //all stacks are present
 						{
-							for (it = bc->guards.begin(); it != bc->guards.end(); it++)
+							for (auto it = bc->guards.begin(); it != bc->guards.end(); it++)
 							{
 								setCreature (stacksCount(), it->first, it->second);
 							}
@@ -5941,7 +5942,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 						{
 							setCreature (0, bc->guards[0].first, bc->guards[0].second  / 2 );
 							setCreature (1, bc->guards[1].first, bc->guards[1].second / 2);
-							setCreature (2, bc->guards[2].first + upgraded, bc->guards[2].second);
+							setCreature (2, static_cast<CreatureID::CreatureID>(bc->guards[2].first + upgraded), bc->guards[2].second);
 							setCreature (3, bc->guards[1].first, bc->guards[1].second / 2 );
 							setCreature (4, bc->guards[0].first, bc->guards[0].second - (bc->guards[0].second  / 2) );
 
@@ -6181,7 +6182,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 
 		//grant creatures
 		CCreatureSet ourArmy;
-		for (std::vector< std::pair <ui16, ui32> >::const_iterator it = bc->creatures.begin(); it != bc->creatures.end(); it++)
+		for (auto it = bc->creatures.cbegin(); it != bc->creatures.cend(); it++)
 		{
 			int slot = ourArmy.getSlotFor(it->first);
 			ourArmy.addToSlot(slot, it->first, it->second);

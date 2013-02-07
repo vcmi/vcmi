@@ -101,7 +101,7 @@ BattleAction CStupidAI::activeStack( const CStack * stack )
 	auto dists = cb->battleGetDistances(stack);
 	std::vector<EnemyInfo> enemiesShootable, enemiesReachable, enemiesUnreachable;
 
-	if(stack->type->idNumber == 145) //catapult
+	if(stack->type->idNumber == CreatureID::CATAPULT)
 	{
 		BattleAction attack;
 		static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};

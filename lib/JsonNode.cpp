@@ -1055,7 +1055,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 							const JsonVector vec = limiter["parameters"].Vector();
 							VLC->modh->identifiers.requestIdentifier(std::string("creature.") + vec[0].String(), [=](si32 creature)
 							{
-								l2->setCreature (creature);
+								l2->setCreature (static_cast<CreatureID::CreatureID>(creature));
 							});
 							if (vec.size() > 1)
 							{

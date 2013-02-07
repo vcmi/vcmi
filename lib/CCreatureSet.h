@@ -27,7 +27,7 @@ public:
 	TQuantity count;
 
 	CStackBasicDescriptor();
-	CStackBasicDescriptor(TCreature id, TQuantity Count);
+	CStackBasicDescriptor(CreatureID::CreatureID id, TQuantity Count);
 	CStackBasicDescriptor(const CCreature *c, TQuantity Count);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -65,20 +65,20 @@ public:
 	std::string getQuantityTXT(bool capitalized = true) const;
 	virtual int getExpRank() const;
 	si32 magicResistance() const;
-	int getCreatureID() const; //-1 if not available
+	CreatureID::CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
 	virtual void init();
 	CStackInstance();
-	CStackInstance(TCreature id, TQuantity count);
+	CStackInstance(CreatureID::CreatureID id, TQuantity count);
 	CStackInstance(const CCreature *cre, TQuantity count);
 	~CStackInstance();
 
-	void setType(int creID);
+	void setType(CreatureID::CreatureID creID);
 	void setType(const CCreature *c);
 	void setArmyObj(const CArmedInstance *ArmyObj);
 	virtual void giveStackExp(TExpType exp);
 	bool valid(bool allowUnrandomized) const;
-	ui8 bearerType() const OVERRIDE; //from CArtifactSet
+	ArtBearer::ArtBearer bearerType() const OVERRIDE; //from CArtifactSet
 	virtual std::string nodeName() const OVERRIDE; //from CBonusSystemnode
 	void deserializationFix();
 };
@@ -97,7 +97,7 @@ public:
 	//std::vector <CArtifactInstance *> arts;
 	void init() OVERRIDE;
 	CCommanderInstance();
-	CCommanderInstance (TCreature id);
+	CCommanderInstance (CreatureID::CreatureID id);
 	~CCommanderInstance();
 	void setAlive (bool alive);
 	void giveStackExp (TExpType exp);
@@ -105,7 +105,7 @@ public:
 
 	ui64 getPower() const {return 0;};
 	int getExpRank() const;
-	ui8 bearerType() const OVERRIDE; //from CArtifactSet
+	ArtBearer::ArtBearer bearerType() const OVERRIDE; //from CArtifactSet
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -123,7 +123,7 @@ class IArmyDescriptor
 {
 public:
 	virtual void clear() = 0;
-	virtual bool setCreature(TSlot slot, TCreature cre, TQuantity count) = 0;
+	virtual bool setCreature(TSlot slot, CreatureID::CreatureID cre, TQuantity count) = 0;
 };
 
 //simplified version of CCreatureSet
@@ -132,7 +132,7 @@ class DLL_LINKAGE CSimpleArmy : public IArmyDescriptor
 public:
 	TSimpleSlots army;
 	void clear() OVERRIDE;
-	bool setCreature(TSlot slot, TCreature cre, TQuantity count) OVERRIDE;
+	bool setCreature(TSlot slot, CreatureID::CreatureID cre, TQuantity count) OVERRIDE;
 	operator bool() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -157,7 +157,7 @@ public:
 
 	const TSlots &Slots() const {return stacks;}
 
-	void addToSlot(TSlot slot, TCreature cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
+	void addToSlot(TSlot slot, CreatureID::CreatureID cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
 	void addToSlot(TSlot slot, CStackInstance *stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
 	void clear() OVERRIDE;
 	void setFormation(bool tight);
@@ -175,7 +175,7 @@ public:
 	void eraseStack(TSlot slot); //slot must be occupied
 	void joinStack(TSlot slot, CStackInstance * stack); //adds new stack to the existing stack of the same type
 	void changeStackCount(TSlot slot, TQuantity toAdd); //stack must exist!
-	bool setCreature (TSlot slot, TCreature type, TQuantity quantity) OVERRIDE; //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
+	bool setCreature (TSlot slot, CreatureID::CreatureID type, TQuantity quantity) OVERRIDE; //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
 	void setToArmy(CSimpleArmy &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.
 
 	const CStackInstance& getStack(TSlot slot) const; //stack must exist
@@ -184,7 +184,7 @@ public:
 	int getStackCount (TSlot slot) const;
 	TExpType getStackExperience(TSlot slot) const;
 	TSlot findStack(const CStackInstance *stack) const; //-1 if none
-	TSlot getSlotFor(TCreature creature, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
+	TSlot getSlotFor(CreatureID::CreatureID creature, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
 	TSlot getSlotFor(const CCreature *c, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
 	TSlot getFreeSlot(ui32 slotsAmount = GameConstants::ARMY_SIZE) const;
 	bool mergableStacks(std::pair<TSlot, TSlot> &out, TSlot preferable = -1) const; //looks for two same stacks, returns slot positions;

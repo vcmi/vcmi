@@ -933,7 +933,7 @@ void IGameEventRealizer::setObjProperty(int objid, int prop, si64 val)
 	commitPackage(&sob);
 }
 
-const CGObjectInstance * IGameCallback::putNewObject(int ID, int subID, int3 pos)
+const CGObjectInstance * IGameCallback::putNewObject(Obj::Obj ID, int subID, int3 pos)
 {
 	NewObject no;
 	no.ID = ID; //creature
@@ -945,7 +945,7 @@ const CGObjectInstance * IGameCallback::putNewObject(int ID, int subID, int3 pos
 
 const CGCreature * IGameCallback::putNewMonster(int creID, int count, int3 pos)
 {
-	const CGObjectInstance *m = putNewObject(54, creID, pos);
+	const CGObjectInstance *m = putNewObject(Obj::MONSTER, creID, pos);
 	setObjProperty(m->id, ObjProperty::MONSTER_COUNT, count);
 	setObjProperty(m->id, ObjProperty::MONSTER_POWER, (si64)1000*count);
 	return dynamic_cast<const CGCreature*>(m);

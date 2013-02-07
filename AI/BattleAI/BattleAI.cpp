@@ -350,7 +350,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 	try
 	{
 		print("activeStack called for " + stack->nodeName());
-		if(stack->type->idNumber == 145) //catapult
+		if(stack->type->idNumber == CreatureID::CATAPULT)
 			return useCatapult(stack);
 
 		if(cb->battleCanCastSpell())

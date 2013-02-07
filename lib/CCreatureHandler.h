@@ -28,7 +28,7 @@ public:
 	std::string namePl, nameSing, nameRef; //name in singular and plural form; and reference name
 	TResources cost; //cost[res_id] - amount of that resource
 	std::set<std::string> upgradeNames; //for reference, they are later transformed info ui32 upgrades
-	std::set<ui32> upgrades; // IDs of creatures to which this creature can be upgraded
+	std::set<CreatureID::CreatureID> upgrades; // IDs of creatures to which this creature can be upgraded
 	//damage, hp. etc are handled by Bonuses
 	ui32 fightValue, AIValue, growth, hordeGrowth;
 	ui32 ammMin, ammMax;
@@ -36,11 +36,11 @@ public:
 	std::string abilityRefs; //references to abilities, in text format
 	std::string animDefName;
 	std::string advMapDef; //for new creatures only
-	si32 idNumber;
+	CreatureID::CreatureID idNumber;
 	si32 iconIndex; // index of icon in files like twcrport
 	TFaction faction; //-1 = neutral
 	ui8 level; // 0 - unknown
-	ui8 doubleWide;
+	bool doubleWide;
 	ui8 special; // Creature is not available normally (war machines, commanders, etc
 
 	///animation info
@@ -132,7 +132,7 @@ private:
 	void loadCreatureJson(CCreature * creature, const JsonNode & config);
 public:
 	std::set<int> notUsedMonsters;
-	std::set<TCreature> doubledCreatures; //they get double week
+	std::set<CreatureID::CreatureID> doubledCreatures; //they get double week
 	std::vector<ConstTransitivePtr<CCreature> > creatures; //creature ID -> creature info
 
 	//stack exp
@@ -169,7 +169,7 @@ public:
 	~CCreatureHandler();
 
 	void deserializationFix();
-	int pickRandomMonster(const boost::function<int()> &randGen = 0, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
+	CreatureID::CreatureID pickRandomMonster(const boost::function<int()> &randGen = 0, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
 	void addBonusForTier(int tier, Bonus *b); //tier must be <1-7>
 	void addBonusForAllCreatures(Bonus *b);
 

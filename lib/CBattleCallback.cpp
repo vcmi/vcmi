@@ -605,7 +605,7 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 			else
 				p = 3;
 		}
-		else if(s->getCreature()->idNumber == 145  ||  s->getCreature()->idNumber == 149) //catapult and turrets are first
+		else if(s->getCreature()->idNumber == CreatureID::CATAPULT  ||  s->getCreature()->idNumber == CreatureID::ARROW_TOWERS) //catapult and turrets are first
 		{
 			p = 0;
 		}
@@ -765,7 +765,7 @@ bool CBattleInfoCallback::battleCanShoot(const CStack * stack, BattleHex dest) c
 	if(stack->hasBonusOfType(Bonus::FORGETFULL)) //forgetfulness
 		return false;
 
-	if(stack->getCreature()->idNumber == 145 && dst) //catapult cannot attack creatures
+	if(stack->getCreature()->idNumber == CreatureID::CATAPULT && dst) //catapult cannot attack creatures
 		return false;
 
 	//const CGHeroInstance * stackHero = battleGetOwner(stack);
@@ -800,12 +800,12 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	const CCreature *attackerType = info.attacker->getCreature(),
 		*defenderType = info.defender->getCreature();
 
-	if(attackerType->idNumber == 149) //arrow turret
+	if(attackerType->idNumber == CreatureID::ARROW_TOWERS)
 	{
 		SiegeStuffThatShouldBeMovedToHandlers::retreiveTurretDamageRange(info.attacker, minDmg, maxDmg);
 	}
 
-	if(info.attackerBonuses->hasBonusOfType(Bonus::SIEGE_WEAPON) && attackerType->idNumber != 149) //any siege weapon, but only ballista can attack (second condition - not arrow turret)
+	if(info.attackerBonuses->hasBonusOfType(Bonus::SIEGE_WEAPON) && attackerType->idNumber != CreatureID::ARROW_TOWERS) //any siege weapon, but only ballista can attack (second condition - not arrow turret)
 	{ //minDmg and maxDmg are multiplied by hero attack + 1
 		auto retreiveHeroPrimSkill = [&](int skill) -> int
 		{

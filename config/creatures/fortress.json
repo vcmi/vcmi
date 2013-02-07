@@ -43,6 +43,7 @@
 		"extraNames": [ "primitiveLizardman", ],
 		"faction": "fortress",
 		"upgrades": ["lizardWarrior"],
+		"hasDoubleWeek": true,
 		"graphics" :
 		{
 			"animation": "CPLIZA.DEF",
@@ -132,6 +133,7 @@
 		"faction": "fortress",
 		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, 78, 0 ] ],  	//serpent fly
 		"upgrades": ["fireDragonFly"],
+		"hasDoubleWeek": true,
 		"graphics" :
 		{
 			"animation": "CDRFLY.DEF"

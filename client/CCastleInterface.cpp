@@ -694,7 +694,7 @@ void CCastleBuildings::buildingClicked(int building)
 						break;
 
 				case ETownType::STRONGHOLD: //Ballista Yard
-						enterBlacksmith(4);
+						enterBlacksmith(ArtifactID::BALLISTA);
 						break;
 
 				default:
@@ -710,7 +710,7 @@ void CCastleBuildings::buildingClicked(int building)
 	}
 }
 
-void CCastleBuildings::enterBlacksmith(int ArtifactID)
+void CCastleBuildings::enterBlacksmith(ArtifactID::ArtifactID artifactID)
 {
 	const CGHeroInstance *hero = town->visitingHero;
 	if(!hero)
@@ -718,9 +718,9 @@ void CCastleBuildings::enterBlacksmith(int ArtifactID)
 		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(16)->second->Name()));
 		return;
 	}
-	int price = CGI->arth->artifacts[ArtifactID]->price;
-	bool possible = LOCPLINT->cb->getResourceAmount(Res::GOLD) >= price && !hero->hasArt(ArtifactID);
-	GH.pushInt(new CBlacksmithDialog(possible,CArtHandler::convertMachineID(ArtifactID,false),ArtifactID,hero->id));
+	int price = CGI->arth->artifacts[artifactID]->price;
+	bool possible = LOCPLINT->cb->getResourceAmount(Res::GOLD) >= price && !hero->hasArt(artifactID);
+	GH.pushInt(new CBlacksmithDialog(possible, CArtHandler::machineIDToCreature(artifactID), artifactID, hero->id));
 }
 
 void CCastleBuildings::enterBuilding(int building)
@@ -795,7 +795,7 @@ void CCastleBuildings::enterMagesGuild()
 		{
 			CFunctionList<void()> onYes = boost::bind(&CCastleBuildings::openMagesGuild,this);
 			CFunctionList<void()> onNo = onYes;
-			onYes += boost::bind(&CCallback::buyArtifact,LOCPLINT->cb, hero,0);
+			onYes += boost::bind(&CCallback::buyArtifact,LOCPLINT->cb, hero,ArtifactID::SPELLBOOK);
 			std::vector<CComponent*> components(1, new CComponent(CComponent::artifact,0,0));
 
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214], onYes, onNo, true, components);
@@ -1653,7 +1653,7 @@ void CMageGuildScreen::Scroll::hover(bool on)
 
 }
 
-CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid):
+CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, ArtifactID::ArtifactID aid, int hid):
     CWindowObject(PLAYER_COLORED, "TPSMITH")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;

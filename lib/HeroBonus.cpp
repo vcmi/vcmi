@@ -1356,7 +1356,7 @@ CCreatureTypeLimiter::CCreatureTypeLimiter()
 	includeUpgrades = false;
 }
 
-void CCreatureTypeLimiter::setCreature (TCreature id)
+void CCreatureTypeLimiter::setCreature (CreatureID::CreatureID id)
 {
 	creature = VLC->creh->creatures[id];
 }

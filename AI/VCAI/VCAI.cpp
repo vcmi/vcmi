@@ -1127,7 +1127,7 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 				townVisitsThisWeek[h].push_back(h->visitedTown);
 				if (!h->hasSpellbook() && cb->getResourceAmount(Res::GOLD) >= GameConstants::SPELLBOOK_GOLD_COST + saving[Res::GOLD] &&
 					h->visitedTown->hasBuilt (EBuilding::MAGES_GUILD_1))
-					cb->buyArtifact(h.get(), 0); //buy spellbook
+					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
 			}
 			break;
 	}
@@ -1243,7 +1243,7 @@ void VCAI::recruitCreatures(const CGDwelling * d)
 			continue;
 
 		int count = d->creatures[i].first;
-		int creID = d->creatures[i].second.back();
+		CreatureID::CreatureID creID = d->creatures[i].second.back();
 //		const CCreature *c = VLC->creh->creatures[creID];
 // 		if(containsSavedRes(c->cost))
 // 			continue;

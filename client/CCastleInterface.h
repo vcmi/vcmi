@@ -123,7 +123,7 @@ class CCastleBuildings : public CIntObject
 
 	const CGHeroInstance* getHero();//Select hero for buildings usage
 
-	void enterBlacksmith(int ArtifactID);//support for blacksmith + ballista yard
+	void enterBlacksmith(ArtifactID::ArtifactID artifactID);//support for blacksmith + ballista yard
 	void enterBuilding(int building);//for buildings with simple description + pic left-click messages
 	void enterCastleGate();
 	void enterFountain(int building);//Rampart's fountains
@@ -369,5 +369,5 @@ class CBlacksmithDialog : public CWindowObject
 	CGStatusBar *statusBar;
 
 public:
-	CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid);
+	CBlacksmithDialog(bool possible, int creMachineID, ArtifactID::ArtifactID aid, int hid);
 };

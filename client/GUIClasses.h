@@ -430,7 +430,7 @@ class CRecruitmentWindow : public CWindowObject
 		void createItems(TResources res);
 	};
 
-	boost::function<void(int,int)> onRecruit; //void (int ID, int amount) <-- call to recruit creatures
+	boost::function<void(CreatureID::CreatureID,int)> onRecruit; //void (int ID, int amount) <-- call to recruit creatures
 
 	int level;
 	const CArmedInstance *dst;
@@ -454,11 +454,11 @@ class CRecruitmentWindow : public CWindowObject
 	void showAll(SDL_Surface *to);
 public:
 	const CGDwelling * const dwelling;
-	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> & Recruit, int y_offset = 0); //creatures - pairs<creature_ID,amount> //c-tor
+	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(CreatureID::CreatureID,int)> & Recruit, int y_offset = 0); //creatures - pairs<creature_ID,amount> //c-tor
 	void availableCreaturesChanged();
 };
 
-/// Split window where creatures can be splitted up into two single unit stacks
+/// Split window where creatures can be split up into two single unit stacks
 class CSplitWindow : public CWindowObject
 {
 	boost::function<void(int, int)> callback;

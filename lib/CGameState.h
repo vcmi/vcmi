@@ -216,10 +216,10 @@ public:
 
 struct UpgradeInfo
 {
-	int oldID; //creature to be upgraded
-	std::vector<int> newID; //possible upgrades
+	CreatureID::CreatureID oldID; //creature to be upgraded
+	std::vector<CreatureID::CreatureID> newID; //possible upgrades
 	std::vector<TResources> cost; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>; cost is for single unit (not entire stack)
-	UpgradeInfo(){oldID = -1;};
+	UpgradeInfo(){oldID = CreatureID::NONE;};
 };
 
 struct DLL_LINKAGE CGPathNode
@@ -274,7 +274,7 @@ struct DLL_EXPORT DuelParameters
 	{
 		struct DLL_EXPORT StackSettings
 		{
-			si32 type;
+			CreatureID::CreatureID type;
 			si32 count;
 			template <typename Handler> void serialize(Handler &h, const int version)
 			{
@@ -282,7 +282,7 @@ struct DLL_EXPORT DuelParameters
 			}
 
 			StackSettings();
-			StackSettings(si32 Type, si32 Count);
+			StackSettings(CreatureID::CreatureID Type, si32 Count);
 		} stacks[GameConstants::ARMY_SIZE];
 
 		si32 heroId; //-1 if none
@@ -365,7 +365,7 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 {
 public:
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
-	ui8 currentPlayer; //ID of player currently having turn
+	TPlayerColor currentPlayer; //ID of player currently having turn
 	ConstTransitivePtr<BattleInfo> curB; //current battle
 	ui32 day; //total number of days in game
 	ConstTransitivePtr<CMap> map;
@@ -393,7 +393,7 @@ public:
 
 	void initDuel();
 	void randomizeObject(CGObjectInstance *cur);
-	std::pair<int,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
+	std::pair<Obj::Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
 	int pickHero(int owner);
 	void giveHeroArtifact(CGHeroInstance *h, int aid);
 

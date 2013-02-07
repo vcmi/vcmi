@@ -69,7 +69,7 @@ int CCallback::selectionMade(int selection, int queryID)
 	return sendRequest(&pack);
 }
 
-void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount, si32 level/*=-1*/)
+void CCallback::recruitCreatures(const CGObjectInstance *obj, CreatureID::CreatureID ID, ui32 amount, si32 level/*=-1*/)
 {
 	if(player!=obj->tempOwner  &&  obj->ID != Obj::WAR_MACHINE_FACTORY)
 		return;
@@ -88,7 +88,7 @@ bool CCallback::dismissCreature(const CArmedInstance *obj, int stackPos)
 	return true;
 }
 
-bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, int newID)
+bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, CreatureID::CreatureID newID)
 {
 	UpgradeCreature pack(stackPos,obj->id,newID);
 	sendRequest(&pack);
@@ -205,7 +205,7 @@ void CCallback::swapGarrisonHero( const CGTownInstance *town )
 	sendRequest(&pack);
 }
 
-void CCallback::buyArtifact(const CGHeroInstance *hero, int aid)
+void CCallback::buyArtifact(const CGHeroInstance *hero, ArtifactID::ArtifactID aid)
 {
 	if(hero->tempOwner != player) return;
 

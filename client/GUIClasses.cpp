@@ -1467,10 +1467,10 @@ void CRecruitmentWindow::select(CCreatureCard *card)
 
 void CRecruitmentWindow::buy()
 {
-	int crid =  selected->creature->idNumber,
-		dstslot = dst-> getSlotFor(crid);
+	CreatureID::CreatureID crid =  selected->creature->idNumber;
+	TSlot dstslot = dst-> getSlotFor(crid);
 
-	if(dstslot < 0 && !vstd::contains(CGI->arth->bigArtifacts,CGI->arth->convertMachineID(crid, true))) //no available slot
+	if(dstslot < 0 && !vstd::contains(CGI->arth->bigArtifacts,CGI->arth->creatureToMachineID(crid))) //no available slot
 	{
 		std::string txt;
 		if(dst->ID == Obj::HERO)
@@ -1510,7 +1510,7 @@ void CRecruitmentWindow::showAll(SDL_Surface * to)
 	drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, int3(173,142,66));
 }
 
-CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> &Recruit, int y_offset):
+CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(CreatureID::CreatureID,int)> &Recruit, int y_offset):
     CWindowObject(PLAYER_COLORED, "TPRCRT"),
 	onRecruit(Recruit),
     level(Level),
@@ -4365,7 +4365,7 @@ bool CArtPlace::fitsHere(const CArtifactInstance * art) const
 
 	// Anything can but War Machines can be placed in backpack.
 	if (slotID >= GameConstants::BACKPACK_START)
-		return !CGI->arth->isBigArtifact(art->id);
+		return !CGI->arth->isBigArtifact(art->artType->id);
 
 	return art->canBePutAt(ArtifactLocation(ourOwner->curHero, slotID), true);
 }

@@ -90,7 +90,7 @@ void CDefObjInfoHandler::load()
 
 		for(int yy=0; yy<2; ++yy) //first - on which types of terrain object can be placed;
 			inp>>dump; //second -in which terrains' menus object in the editor will be available (?)
-		inp>>nobj->id;
+		si32 id; inp >> id; nobj->id = static_cast<Obj::Obj>(id);
 		inp>>nobj->subid;
 		inp>>nobj->type;
 

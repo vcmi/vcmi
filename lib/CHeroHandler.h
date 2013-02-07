@@ -50,7 +50,7 @@ public:
 	{
 		ui32 minAmount;
 		ui32 maxAmount;
-		TCreature creature;
+		CreatureID::CreatureID creature;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{

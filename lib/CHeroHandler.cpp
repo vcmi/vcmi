@@ -255,7 +255,7 @@ CHero * CHeroHandler::loadHero(const JsonNode & node)
 
 		VLC->modh->identifiers.requestIdentifier(std::string("creature.") + source["creature"].String(), [=](si32 creature)
 		{
-			hero->initialArmy[i].creature = creature;
+			hero->initialArmy[i].creature = static_cast<CreatureID::CreatureID>(creature);
 		});
 	}
 
@@ -404,7 +404,7 @@ void CHeroHandler::loadHeroes()
 			refName[0] = std::tolower(refName[0]); // to camelCase
 			VLC->modh->identifiers.requestIdentifier(std::string("creature.") + refName, [=](si32 creature)
 			{
-				hero->initialArmy[x].creature = creature;
+				hero->initialArmy[x].creature = static_cast<CreatureID::CreatureID>(creature);
 			});
 		}
 		parser.endLine();

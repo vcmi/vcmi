@@ -265,6 +265,7 @@ namespace Obj
 {
 	enum Obj
 	{
+		NO_OBJ = -1,
 		ALTAR_OF_SACRIFICE = 2,
 		ANCHOR_POINT = 3,
 		ARENA = 4,
@@ -498,6 +499,60 @@ namespace ArtifactPosition
 	};
 }
 
+namespace ArtifactID
+{
+	enum ArtifactID
+	{
+		NONE = -1,
+		SPELLBOOK = 0,
+		SPELL_SCROLL = 1,
+		GRAIL = 2,
+		CATAPULT = 3,
+		BALLISTA = 4,
+		AMMO_CART = 5,
+		FIRST_AID_TENT = 6,
+		CENTAUR_AXE = 7,
+		BLACKSHARD_OF_THE_DEAD_KNIGHT = 8,
+		CORNUCOPIA = 140,
+		ART_LOCK = 145,
+		AXE_OF_SMASHING = 146,
+		MITHRIL_MAIL = 147,
+		SWORD_OF_SHARPNESS = 148,
+		HELM_OF_IMMORTALITY = 149,
+		PENDANT_OF_SORCERY = 150,
+		BOOTS_OF_HASTE = 151,
+		BOW_OF_SEEKING = 152,
+		DRAGON_EYE_RING = 153,
+		HARDENED_SHIELD = 154,
+		SLAVAS_RING_OF_POWER = 155
+	};
+}
+
+namespace CreatureID
+{
+	enum CreatureID
+	{
+		NONE = -1,
+		CAVALIER = 10,
+		CHAMPION = 11,
+		STONE_GOLEM = 32,
+		IRON_GOLEM = 33,
+		IMP = 42,
+		TROGLODYTES = 70,
+		AIR_ELEMENTAL = 112,
+		EARTH_ELEMENTAL = 113,
+		FIRE_ELEMENTAL = 114,
+		WATER_ELEMENTAL = 115,
+		GOLD_GOLEM = 116,
+		DIAMOND_GOLEM = 117,
+		CATAPULT = 145,
+		BALLISTA = 146,
+		FIRST_AID_TENT = 147,
+		AMMO_CART = 148,
+		ARROW_TOWERS = 149
+	};
+}
+
 // Typedef declarations
 typedef si8 TFaction;
 typedef si64 TExpType;
@@ -507,7 +562,5 @@ typedef ui8 TBonusType;
 typedef si32 TBonusSubtype;
 typedef si32 TSlot;
 typedef si32 TQuantity;
-typedef si32 TArtifactID;
 typedef si32 TArtifactInstanceID;
-typedef ui32 TCreature; //creature id
 typedef ui8 TPlayerColor;

@@ -24,6 +24,7 @@
 		"id": 85,
 		"level": 1,
 		"faction": "stronghold",
+		"hasDoubleWeek": true,
 		"graphics" :
 		{
 			"animation": "CHGOBL.DEF"
@@ -43,6 +44,7 @@
 		"level": 2,
 		"faction": "stronghold",
 		"upgrades": ["hobgoblinWolfRider"],
+		"hasDoubleWeek": true,
 		"graphics" :
 		{
 			"animation": "CBWLFR.DEF"

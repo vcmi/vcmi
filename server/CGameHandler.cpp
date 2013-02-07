@@ -1144,7 +1144,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 
 			ui32 dwellpos = rand()%dwellings.size();//take random dwelling
 			ui32 creapos = rand()%dwellings[dwellpos]->creatures.size();//for multi-creature dwellings like Golem Factory
-			ui32 creature = dwellings[dwellpos]->creatures[creapos].second[0];
+			CreatureID::CreatureID creature = dwellings[dwellpos]->creatures[creapos].second[0];
 
 			if (clear)
 				ssi.creatures[GameConstants::CREATURES_PER_TOWN].first = std::max((ui32)1, (VLC->creh->creatures[creature]->growth)/2);
@@ -1160,7 +1160,7 @@ void CGameHandler::newTurn()
 	tlog5 << "Turn " << gs->day+1 << std::endl;
 	NewTurn n;
 	n.specialWeek = NewTurn::NO_ACTION;
-	n.creatureid = -1;
+	n.creatureid = CreatureID::NONE;
 	n.day = gs->day + 1;
 
 	bool firstTurn = !getDate(Date::DAY);
@@ -1197,7 +1197,7 @@ void CGameHandler::newTurn()
 		if(deityOfFireBuilt)
 		{
 			n.specialWeek = NewTurn::DEITYOFFIRE;
-			n.creatureid = 42;
+			n.creatureid = CreatureID::IMP;
 		}
 		else
 		{
@@ -1209,12 +1209,12 @@ void CGameHandler::newTurn()
 					n.specialWeek = NewTurn::DOUBLE_GROWTH;
 					if (VLC->modh->settings.ALL_CREATURES_GET_DOUBLE_MONTHS)
 					{
-						std::pair<int,int> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+						std::pair<int,CreatureID::CreatureID> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
 						n.creatureid = newMonster.second;
 					}
 					else
 					{
-						std::set<TCreature>::const_iterator it = VLC->creh->doubledCreatures.begin();
+						auto it = VLC->creh->doubledCreatures.cbegin();
 						std::advance (it, rand() % VLC->creh->doubledCreatures.size()); //picking random element of set is tiring
 						n.creatureid = *it;
 					}
@@ -1227,7 +1227,7 @@ void CGameHandler::newTurn()
 				if (monthType < 25)
 				{
 					n.specialWeek = NewTurn::BONUS_GROWTH; //+5
-					std::pair<int,int> newMonster (54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+					std::pair<int, CreatureID::CreatureID> newMonster (54, VLC->creh->pickRandomMonster(boost::ref(rand)));
 					//TODO do not pick neutrals
 					n.creatureid = newMonster.second;
 				}
@@ -2609,7 +2609,7 @@ void CGameHandler::sendMessageToAll( const std::string &message )
 	sendToAllClients(&sm);
 }
 
-bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 fromLvl )
+bool CGameHandler::recruitCreatures( si32 objid, CreatureID::CreatureID crid, ui32 cram, si32 fromLvl )
 {
 	const CGDwelling *dw = static_cast<CGDwelling*>(gs->map->objects[objid].get());
 	const CArmedInstance *dst = NULL;
@@ -2637,7 +2637,7 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram, si32 from
 	{
 		if ( (fromLvl != -1) && ( level !=fromLvl ) )
 			continue;
-		const std::pair<ui32, std::vector<ui32> > &cur = dw->creatures[level]; //current level info <amount, list of cr. ids>
+		const auto &cur = dw->creatures[level]; //current level info <amount, list of cr. ids>
 		int i = 0;
 		for(; i < cur.second.size(); i++) //look for crid among available creatures list on current level
 			if(cur.second[i] == crid)
@@ -2928,7 +2928,7 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ArtifactPosition::ArtifactPos
 	return false;
 }
 
-bool CGameHandler::buyArtifact( ui32 hid, TArtifactID aid )
+bool CGameHandler::buyArtifact( ui32 hid, ArtifactID::ArtifactID aid )
 {
 	CGHeroInstance *hero = gs->getHero(hid);
 	CGTownInstance *town = hero->visitedTown;
@@ -2968,7 +2968,7 @@ bool CGameHandler::buyArtifact( ui32 hid, TArtifactID aid )
 	return false;
 }
 
-bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::ERes rid, TArtifactID aid)
+bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::ERes rid, ArtifactID::ArtifactID aid)
 {
 	if(!vstd::contains(m->availableItemsIds(EMarketMode::RESOURCE_ARTIFACT), aid))
 		COMPLAIN_RET("That artifact is unavailable!");
@@ -3703,7 +3703,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			BattleStackAdded bsa;
 			bsa.attacker = summoner->attackerOwned;
 
-			bsa.creID = summoner->getBonusLocalFirst(Selector::type(Bonus::DAEMON_SUMMONING))->subtype; //in case summoner can summon more than one type of monsters... scream!
+			bsa.creID = static_cast<CreatureID::CreatureID>(summoner->getBonusLocalFirst(Selector::type(Bonus::DAEMON_SUMMONING))->subtype); //in case summoner can summon more than one type of monsters... scream!
 			ui64 risedHp = summoner->count * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID);
 			bsa.amount = std::min ((ui32)(risedHp / VLC->creh->creatures[bsa.creID]->MaxHealth()), destStack->baseAmount);
 
@@ -3975,7 +3975,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	sc.tile = destination;
 	sc.dmgToDisplay = 0;
 	sc.castedByHero = (bool)caster;
-	sc.attackerType = (stack ? stack->type->idNumber : -1);
+	sc.attackerType = (stack ? stack->type->idNumber : CreatureID::NONE);
 	sc.manaGained = 0;
 	sc.spellCost = 0;
 
@@ -4268,20 +4268,20 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	case Spells::SUMMON_WATER_ELEMENTAL:
 	case Spells::SUMMON_AIR_ELEMENTAL:
 		{ //elemental summoning
-			int creID;
+			CreatureID::CreatureID creID;
 			switch(spellID)
 			{
 				case Spells::SUMMON_FIRE_ELEMENTAL:
-					creID = 114;
+					creID = CreatureID::FIRE_ELEMENTAL;
 					break;
 				case Spells::SUMMON_EARTH_ELEMENTAL:
-					creID = 113;
+					creID = CreatureID::EARTH_ELEMENTAL;
 					break;
 				case Spells::SUMMON_WATER_ELEMENTAL:
-					creID = 115;
+					creID = CreatureID::WATER_ELEMENTAL;
 					break;
 				case Spells::SUMMON_AIR_ELEMENTAL:
-					creID = 112;
+					creID = CreatureID::AIR_ELEMENTAL;
 					break;
 			}
 
@@ -5093,7 +5093,7 @@ void CGameHandler::checkLossVictory( TPlayerColor player )
 	}
 }
 
-void CGameHandler::getLossVicMessage( ui8 player, si8 standard, bool victory, InfoWindow &out ) const
+void CGameHandler::getLossVicMessage( TPlayerColor player, si8 standard, bool victory, InfoWindow &out ) const
 {
 //	const PlayerState *p = gs->getPlayer(player);
 // 	if(!p->human)
@@ -5442,7 +5442,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 			else //create boat
 			{
 				NewObject no;
-				no.ID = 8;
+				no.ID = Obj::BOAT;
 				no.subID = h->getBoatType();
 				no.pos = summonPos + int3(1,0,0);;
 				sendAndApply(&no);
@@ -6136,7 +6136,7 @@ void CGameHandler::commitPackage( CPackForClient *pack )
 	sendAndApply(pack);
 }
 
-void CGameHandler::spawnWanderingMonsters(int creatureID)
+void CGameHandler::spawnWanderingMonsters(CreatureID::CreatureID creatureID)
 {
 	std::vector<int3>::iterator tile;
 	std::vector<int3> tiles;

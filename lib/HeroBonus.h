@@ -766,7 +766,7 @@ public:
 
 	CCreatureTypeLimiter();
 	CCreatureTypeLimiter(const CCreature &Creature, bool IncludeUpgrades = true);
-	void setCreature (TCreature id);
+	void setCreature (CreatureID::CreatureID id);
 
 	int limit(const BonusLimitationContext &context) const OVERRIDE;
 

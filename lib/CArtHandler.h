@@ -22,24 +22,6 @@ struct ArtifactLocation;
 class CArtifactSet;
 class CArtifactInstance;
 
-namespace ArtifactID
-{
-	enum ArtifactID
-	{
-		SPELLBOOK = 0,
-		SPELL_SCROLL = 1,
-		GRAIL = 2,
-		CATAPULT = 3,
-		BALLISTA = 4,
-		AMMO_CART = 5,
-		FIRST_AID_TENT = 6,
-		CENTAUR_AXE = 7,
-		BLACKSHARD_OF_THE_DEAD_KNIGHT = 8,
-		CORNUCOPIA = 140,
-		ART_LOCK = 145
-	};
-}
-
 #define ART_BEARER_LIST \
 	ART_BEARER(HERO)\
 	ART_BEARER(CREATURE)\
@@ -47,7 +29,7 @@ namespace ArtifactID
 
 namespace ArtBearer
 {
-	enum
+	enum ArtBearer
 	{
 #define ART_BEARER(x) x,
 		ART_BEARER_LIST
@@ -75,7 +57,7 @@ public:
 	void setName (std::string desc);
 	void setDescription (std::string desc);
 	void setEventText (std::string desc);
-	void addConstituent (ui32 component);
+	void addConstituent (ArtifactID::ArtifactID component);
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const OVERRIDE;
@@ -84,11 +66,11 @@ public:
 	virtual void levelUpArtifact (CArtifactInstance * art){};
 
 	ui32 price;
-	bmap<ui8, std::vector<ArtifactPosition::ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
-	std::vector<TArtifactID> * constituents; // Artifacts IDs a combined artifact consists of, or NULL.
-	std::vector<TArtifactID> * constituentOf; // Reverse map of constituents.
+	bmap<ArtBearer::ArtBearer, std::vector<ArtifactPosition::ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
+	std::vector<ArtifactID::ArtifactID> * constituents; // Artifacts IDs a combined artifact consists of, or NULL.
+	std::vector<ArtifactID::ArtifactID> * constituentOf; // Reverse map of constituents.
 	EartClass aClass;
-	TArtifactID id;
+	ArtifactID::ArtifactID id;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -207,15 +189,15 @@ public:
 
 class DLL_LINKAGE CArtHandler //handles artifacts
 {
-	void giveArtBonus(TArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, Bonus::ValueType valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalinfo = 0);
-	void giveArtBonus(TArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
-	void giveArtBonus(TArtifactID aid, Bonus *bonus);
+	void giveArtBonus(ArtifactID::ArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, Bonus::ValueType valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalinfo = 0);
+	void giveArtBonus(ArtifactID::ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
+	void giveArtBonus(ArtifactID::ArtifactID aid, Bonus *bonus);
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector< ConstTransitivePtr<CArtifact> > artifacts;
 	std::vector<CArtifact *> allowedArtifacts;
-	std::set<ui32> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
-	std::set<ui32> growingArtifacts;
+	std::set<ArtifactID::ArtifactID> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
+	std::set<ArtifactID::ArtifactID> growingArtifacts;
 
 	void loadArtifacts(bool onlyTxt);
 	/// load all artifacts from json structure
@@ -235,9 +217,10 @@ public:
 	void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
 	void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
 	void erasePickedArt (TArtifactInstanceID id);
-	bool isBigArtifact (TArtifactID artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
+	bool isBigArtifact (ArtifactID::ArtifactID artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
 	void initAllowedArtifactsList(const std::vector<bool> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
-	static int convertMachineID(int id, bool creToArt);
+	static ArtifactID::ArtifactID creatureToMachineID(CreatureID::CreatureID id);
+	static CreatureID::CreatureID machineIDToCreature(ArtifactID::ArtifactID id);
 	void makeItCreatureArt (CArtifact * a, bool onlyCreature = true);
 	void makeItCreatureArt (TArtifactInstanceID aid, bool onlyCreature = true);
 	void makeItCommanderArt (CArtifact * a, bool onlyCommander = true);
@@ -295,7 +278,7 @@ public:
 	bool isPositionFree(ArtifactPosition::ArtifactPosition pos, bool onlyLockCheck = false) const;
 	si32 getArtTypeId(ArtifactPosition::ArtifactPosition pos) const;
 
-	virtual ui8 bearerType() const = 0;
+	virtual ArtBearer::ArtBearer bearerType() const = 0;
 	virtual ~CArtifactSet();
 
 	template <typename Handler> void serialize(Handler &h, const int version)

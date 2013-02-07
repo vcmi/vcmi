@@ -24,8 +24,6 @@ CCreatureHandler::CCreatureHandler()
 {
 	VLC->creh = this;
 
-	doubledCreatures +=  4, 14, 20, 28, 44, 60, 70, 72, 85, 86, 100, 104; //FIXME: move to creature config //according to Strategija
-
 	allCreatures.setDescription("All creatures");
 	creaturesOfLevel[0].setDescription("Creatures of unnormalized tier");
 	for(int i = 1; i < ARRAY_COUNT(creaturesOfLevel); i++)
@@ -223,7 +221,7 @@ void CCreatureHandler::loadCreatures()
 			parser.endLine();
 
 		CCreature &ncre = *new CCreature;
-		ncre.idNumber = creatures.size();
+		ncre.idNumber = static_cast<CreatureID::CreatureID>(creatures.size());
 		ncre.cost.resize(GameConstants::RESOURCE_QUANTITY);
 		ncre.level=0;
 		ncre.iconIndex = ncre.idNumber + 2; // +2 for empty\selection images
@@ -545,7 +543,7 @@ void CCreatureHandler::load(const JsonNode & node)
 		{
 			CCreature * creature = loadCreature(entry.second);
 			creature->nameRef = entry.first;
-			creature->idNumber = creatures.size();
+			creature->idNumber = static_cast<CreatureID::CreatureID>(creatures.size());
 
 			creatures.push_back(creature);
 			tlog5 << "Added creature: " << entry.first << "\n";
@@ -679,9 +677,12 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	{
 		VLC->modh->identifiers.requestIdentifier(std::string("creature.") + value.String(), [=](si32 identifier)
 		{
-			creature->upgrades.insert(identifier);
+			creature->upgrades.insert(static_cast<CreatureID::CreatureID>(identifier));
 		});
 	}
+
+	if(config["hasDoubleWeek"].Bool())
+		doubledCreatures.insert(creature->idNumber);
 
 	creature->projectile = config["graphics"]["missile"]["projectile"].String();
 	creature->projectileSpin = config["graphics"]["missile"]["spinning"].Bool();
@@ -1011,7 +1012,7 @@ CCreatureHandler::~CCreatureHandler()
 {
 }
 
-int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, int tier) const
+CreatureID::CreatureID CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, int tier) const
 {
 	int r = 0;
 	if(tier == -1) //pick any allowed creature
@@ -1024,11 +1025,11 @@ int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, i
 	else
 	{
 		assert(vstd::iswithin(tier, 1, 7));
-		std::vector<int> allowed;
+		std::vector<CreatureID::CreatureID> allowed;
 		BOOST_FOREACH(const CBonusSystemNode *b, creaturesOfLevel[tier].getChildrenNodes())
 		{
 			assert(b->getNodeType() == CBonusSystemNode::CREATURE);
-			int creid = static_cast<const CCreature*>(b)->idNumber;
+			CreatureID::CreatureID creid = static_cast<const CCreature*>(b)->idNumber;
 			if(!vstd::contains(notUsedMonsters, creid))
 				allowed.push_back(creid);
 		}
@@ -1036,12 +1037,12 @@ int CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, i
 		if(!allowed.size())
 		{
 			tlog2 << "Cannot pick a random creature of tier " << tier << "!\n";
-			return 0;
+			return CreatureID::NONE;
 		}
 
 		return vstd::pickRandomElementOf(allowed, randGen);
 	}
-	return r;
+	return static_cast<CreatureID::CreatureID>(r);
 }
 
 void CCreatureHandler::addBonusForTier(int tier, Bonus *b)

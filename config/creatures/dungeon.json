@@ -6,6 +6,7 @@
 		"faction": "dungeon",
 		"abilities": [ [ "SPELL_IMMUNITY", 0, 62, 0 ] ],	  	   	//troglodytes are immune to blind
 		"upgrades": ["infernalTroglodyte"],
+		"hasDoubleWeek": true,
 		"graphics" :
 		{
 			"animation": "CTROGL.DEF"
@@ -45,6 +46,7 @@
 		"faction": "dungeon",
 		"abilities": [ [ "RETURN_AFTER_STRIKE", 0, 0, 0 ] ],	   	//Harpies return after attack
 		"upgrades": ["harpyHag"],
+		"hasDoubleWeek": true,
 		"graphics" :
 		{
 			"animation": "CHARPY.DEF"

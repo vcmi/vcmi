@@ -109,7 +109,7 @@ public:
 	void runBattle();
 	void checkLossVictory(TPlayerColor player);
 	void winLoseHandle(ui8 players=255); //players: bit field - colours of players to be checked; default: all
-	void getLossVicMessage(ui8 player, si8 standard, bool victory, InfoWindow &out) const;
+	void getLossVicMessage(TPlayerColor player, si8 standard, bool victory, InfoWindow &out) const;
 
 	////used only in endBattle - don't touch elsewhere
 	boost::function<void(BattleResult*)> * battleEndCallback;
@@ -214,14 +214,14 @@ public:
 	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, Res::ERes resourceID);
 	bool transformInUndead(const IMarket *market, const CGHeroInstance * hero, ui32 slot);
 	bool assembleArtifacts (si32 heroID, ArtifactPosition::ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo);
-	bool buyArtifact( ui32 hid, TArtifactID aid ); //for blacksmith and mage guild only -> buying for gold in common buildings
-	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, Res::ERes rid, TArtifactID aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
+	bool buyArtifact( ui32 hid, ArtifactID::ArtifactID aid ); //for blacksmith and mage guild only -> buying for gold in common buildings
+	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, Res::ERes rid, ArtifactID::ArtifactID aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
 	bool sellArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactInstanceID aid, Res::ERes rid); //for artifact merchant selling
 	//void lootArtifacts (TArtHolder source, TArtHolder dest, std::vector<ui32> &arts); //after battle - move al arts to winer
 	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, SecondarySkill::SecondarySkill skill);
 	bool garrisonSwap(si32 tid);
 	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
-	bool recruitCreatures(si32 objid, ui32 crid, ui32 cram, si32 level);
+	bool recruitCreatures(si32 objid, CreatureID::CreatureID crid, ui32 cram, si32 level);
 	bool buildStructure(si32 tid, si32 bid, bool force=false);//force - for events: no cost, no checkings
 	bool razeStructure(si32 tid, si32 bid);
 	bool disbandCreature( si32 id, ui8 pos );
@@ -232,7 +232,7 @@ public:
 	void handleTownEvents(CGTownInstance *town, NewTurn &n, std::map<si32, std::map<si32, si32> > &newCreas);
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
-	void engageIntoBattle( ui8 player );
+	void engageIntoBattle( TPlayerColor player );
 	bool dig(const CGHeroInstance *h);
 	bool castSpell(const CGHeroInstance *h, int spellID, const int3 &pos);
 	void moveArmy(const CArmedInstance *src, const CArmedInstance *dst, bool allowMerging);
@@ -242,7 +242,7 @@ public:
 		h & QID & states;
 	}
 
-	ui32 getQueryResult(ui8 player, int queryID);
+	ui32 getQueryResult(TPlayerColor player, int queryID);
 	void sendMessageToAll(const std::string &message);
 	void sendMessageTo(CConnection &c, const std::string &message);
 	void applyAndAsk(Query * sel, ui8 player, boost::function<void(ui32)> &callback);
@@ -262,7 +262,7 @@ public:
 	void handleAfterAttackCasting (const BattleAttack & bat);
 	void attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition::ArtifactPosition slot);
-	void spawnWanderingMonsters(int creatureID);
+	void spawnWanderingMonsters(CreatureID::CreatureID creatureID);
 	friend class CVCMIServer;
 	friend class CScriptCallback;
 };

@@ -535,9 +535,9 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 			//cre->slots[0] = hlp;
 			cre->notGrowingTeam = cre->neverFlees = 0;
 			cre->character = 2;
-			cre->gainedArtifact = -1;
+			cre->gainedArtifact = ArtifactID::NONE;
 			cre->identifier = -1;
-			cre->addToSlot(0, new CStackInstance(subID, -1)); //add placeholder stack
+			cre->addToSlot(0, new CStackInstance(static_cast<CreatureID::CreatureID>(subID), -1)); //add placeholder stack
 		}
 		break;
 	default:
@@ -1151,7 +1151,7 @@ DLL_LINKAGE void BattleAttack::applyGs( CGameState *gs )
 		bool hasAmmoCart = false;
 		BOOST_FOREACH(const CStack * st, gs->curB->stacks)
 		{
-			if(st->owner == attacker->owner && st->getCreature()->idNumber == 148 && st->alive())
+			if(st->owner == attacker->owner && st->getCreature()->idNumber == CreatureID::AMMO_CART && st->alive())
 			{
 				hasAmmoCart = true;
 				break;

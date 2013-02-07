@@ -2398,7 +2398,7 @@ void ERMInterpreter::heroVisit(const CGHeroInstance *visitor, const CGObjectInst
 	tip[3] = {visitedObj->pos.x, visitedObj->pos.y, visitedObj->pos.z};
 #else
 	tip[1] = list_of(visitedObj->ID);
-	tip[2] = list_of(visitedObj->ID)(visitedObj->subID);
+	tip[2] = list_of((int)visitedObj->ID)(visitedObj->subID);
 	tip[3] = list_of(visitedObj->pos.x)(visitedObj->pos.y)(visitedObj->pos.z);
 #endif
 	executeTriggerType(VERMInterpreter::TriggerType("OB"), start, tip);

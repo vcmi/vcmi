@@ -747,7 +747,7 @@ void CMapLoaderH3M::readDefInfo()
 
 		defInfo->terrainAllowed = reader.readUInt16();
 		defInfo->terrainMenu = reader.readUInt16();
-		defInfo->id = reader.readUInt32();
+		defInfo->id = static_cast<Obj::Obj>(reader.readUInt32());
 		defInfo->subid = reader.readUInt32();
 		defInfo->type = reader.readUInt8();
 		defInfo->printPriority = reader.readUInt8();
@@ -984,22 +984,22 @@ void CMapLoaderH3M::readObjects()
 					{
 						if(artID != 0xff)
 						{
-							cre->gainedArtifact = artID;
+							cre->gainedArtifact = static_cast<ArtifactID::ArtifactID>(artID);
 						}
 						else
 						{
-							cre->gainedArtifact = -1;
+							cre->gainedArtifact = ArtifactID::NONE;
 						}
 					}
 					else
 					{
 						if(artID != 0xffff)
 						{
-							cre->gainedArtifact = artID;
+							cre->gainedArtifact = static_cast<ArtifactID::ArtifactID>(artID);
 						}
 						else
 						{
-							cre->gainedArtifact = -1;
+							cre->gainedArtifact = ArtifactID::NONE;
 						}
 					}
 				}
@@ -1476,16 +1476,16 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 
 	for(int ir = 0; ir < number; ++ir)
 	{
-		int creID;
+		CreatureID::CreatureID creID;
 		int count;
 
 		if (version)
 		{
-			creID = reader.readUInt16();
+			creID = static_cast<CreatureID::CreatureID>(reader.readUInt16());
 		}
 		else
 		{
-			creID = reader.readUInt8();
+			creID = static_cast<CreatureID::CreatureID>(reader.readUInt8());
 		}
 		count = reader.readUInt16();
 
@@ -1498,7 +1498,7 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 		if(creID > maxID - 0xf)
 		{
 			//this will happen when random object has random army
-			creID = maxID + 1 - creID + VLC->creh->creatures.size();
+			creID = static_cast<CreatureID::CreatureID>(maxID + 1 - creID + VLC->creh->creatures.size());
 			hlp->idRand = creID;
 		}
 		else

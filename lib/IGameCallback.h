@@ -258,7 +258,7 @@ public:
 	virtual ~IGameCallback(){};
 
 	//do sth
-	const CGObjectInstance *putNewObject(int ID, int subID, int3 pos);
+	const CGObjectInstance *putNewObject(Obj::Obj ID, int subID, int3 pos);
 	const CGCreature *putNewMonster(int creID, int count, int3 pos);
 
 	friend struct CPack;

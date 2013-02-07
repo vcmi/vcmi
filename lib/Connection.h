@@ -303,13 +303,13 @@ struct SerializationLevel
 	static const int value = SerializationLevel::type::value;
 };
 
-template <typename T>
+template <typename T, typename U>
 struct VectorisedObjectInfo
 {
 	const std::vector<ConstTransitivePtr<T> > *vector;	//pointer to the appropriate vector
-	const si32 T::*idPtr;			//pointer to the field representing the position in the vector
+	const U T::*idPtr;			//pointer to the field representing the position in the vector
 
-	VectorisedObjectInfo(const std::vector< ConstTransitivePtr<T> > *Vector, const si32 T::*IdPtr)
+	VectorisedObjectInfo(const std::vector< ConstTransitivePtr<T> > *Vector, const U T::*IdPtr)
 		:vector(Vector), idPtr(IdPtr)
 	{
 	}
@@ -330,19 +330,19 @@ public:
 
 	virtual void reportState(CLogger &out){};
 
-	template <typename T>
-	void registerVectoredType(const std::vector<T*> *Vector, const si32 T::*IdPtr)
+	template <typename T, typename U>
+	void registerVectoredType(const std::vector<T*> *Vector, const U T::*IdPtr)
 	{
-		vectors[&typeid(T)] = VectorisedObjectInfo<T>(Vector, IdPtr);
+		vectors[&typeid(T)] = VectorisedObjectInfo<T, U>(Vector, IdPtr);
 	}
-	template <typename T>
-	void registerVectoredType(const std::vector<ConstTransitivePtr<T> > *Vector, const si32 T::*IdPtr)
+	template <typename T, typename U>
+	void registerVectoredType(const std::vector<ConstTransitivePtr<T> > *Vector, const U T::*IdPtr)
 	{
-		vectors[&typeid(T)] = VectorisedObjectInfo<T>(Vector, IdPtr);
+		vectors[&typeid(T)] = VectorisedObjectInfo<T, U>(Vector, IdPtr);
 	}
 
-	template <typename T>
-	const VectorisedObjectInfo<T> *getVectorisedTypeInfo()
+	template <typename T, typename U>
+	const VectorisedObjectInfo<T, U> *getVectorisedTypeInfo()
 	{
 		const std::type_info *myType = NULL;
 //
@@ -357,14 +357,14 @@ public:
 		else
 		{
 			assert(!i->second.empty());
-			assert(i->second.type() == typeid(VectorisedObjectInfo<T>));
-			VectorisedObjectInfo<T> *ret = &(boost::any_cast<VectorisedObjectInfo<T>&>(i->second));
+			assert(i->second.type() == typeid(VectorisedObjectInfo<T, U>));
+			VectorisedObjectInfo<T, U> *ret = &(boost::any_cast<VectorisedObjectInfo<T, U>&>(i->second));
 			return ret;
 		}
 	}
 
-	template <typename T>
-	T* getVectorItemFromId(const VectorisedObjectInfo<T> &oInfo, ui32 id) const
+	template <typename T, typename U>
+	T* getVectorItemFromId(const VectorisedObjectInfo<T, U> &oInfo, U id) const
 	{
 	/*	if(id < 0)
 			return NULL;*/
@@ -374,11 +374,11 @@ public:
 		return const_cast<T*>((*oInfo.vector)[id].get());
 	}
 
-	template <typename T>
-	si32 getIdFromVectorItem(const VectorisedObjectInfo<T> &oInfo, const T* obj) const
+	template <typename T, typename U>
+	U getIdFromVectorItem(const VectorisedObjectInfo<T, U> &oInfo, const T* obj) const
 	{
 		if(!obj)
-			return -1;
+			return static_cast<U>(-1);
 
 		return obj->*oInfo.idPtr;
 	}
@@ -419,6 +419,17 @@ struct VectorisedTypeFor
 		mpl::identity<CGObjectInstance>,
 		//else
 		mpl::identity<T>
+		>::type type;
+};
+template <typename U>
+struct VectorizedIDType
+{
+	typedef typename
+		//if
+		mpl::eval_if<boost::is_same<CArtifact,U>,
+		mpl::identity<ArtifactID::ArtifactID>,
+		//else
+		mpl::identity<si32>
 		>::type type;
 };
 
@@ -568,7 +579,8 @@ public:
 		{
 			typedef typename boost::remove_const<typename boost::remove_pointer<T>::type>::type TObjectType;
 			typedef typename VectorisedTypeFor<TObjectType>::type VType;
- 			if(const VectorisedObjectInfo<VType> *info = getVectorisedTypeInfo<VType>())
+			typedef typename VectorizedIDType<TObjectType>::type IDType;
+ 			if(const auto *info = getVectorisedTypeInfo<VType, IDType>())
  			{
 				si32 id = getIdFromVectorItem<VType>(*info, data);
 				*this << id;
@@ -942,13 +954,14 @@ public:
 		{
 			typedef typename boost::remove_const<typename boost::remove_pointer<T>::type>::type TObjectType; //eg: const CGHeroInstance * => CGHeroInstance
 			typedef typename VectorisedTypeFor<TObjectType>::type VType;									 //eg: CGHeroInstance -> CGobjectInstance
-			if(const VectorisedObjectInfo<VType> *info = getVectorisedTypeInfo<VType>())
+			typedef typename VectorizedIDType<TObjectType>::type IDType;
+			if(const auto *info = getVectorisedTypeInfo<VType, IDType>())
 			{
 				si32 id;
 				*this >> id;
 				if(id != -1)
 				{
-					data = static_cast<T>(getVectorItemFromId(*info, id));
+					data = static_cast<T>(getVectorItemFromId<VType, IDType>(*info, static_cast<IDType>(id)));
 					return;
 				}
 			}

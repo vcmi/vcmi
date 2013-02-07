@@ -81,6 +81,7 @@
 		"faction": "necropolis",
 		"abilities": [ [ "FULL_HP_REGENERATION", 0, 1, 0 ] ],			//wight
 		"upgrades": ["wraith"],
+		"hasDoubleWeek": true,
 		"graphics" :
 		{
 			"animation": "CWIGHT.DEF"

@@ -23,7 +23,8 @@ public:
 	ui8 blockMap[6];
 	ui8 coverageMap[6], shadowCoverage[6]; //to determine which tiles are covered by picture of this object
 	ui8 visitDir; //directions from which object can be entered, format same as for moveDir in CGHeroInstance(but 0 - 7)
-	si32 id, subid; //of object described by this defInfo
+	Obj::Obj id;
+	si32 subid; //of object described by this defInfo
 	si32 terrainAllowed, //on which terrain it is possible to place object
 		 terrainMenu; //in which menus in map editor object will be showed
 	si32 width, height; //tiles

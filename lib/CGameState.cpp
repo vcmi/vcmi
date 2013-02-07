@@ -332,7 +332,7 @@ DLL_LINKAGE std::string MetaString::buildList () const
 }
 
 
-void  MetaString::addCreReplacement(TCreature id, TQuantity count) //adds sing or plural name;
+void  MetaString::addCreReplacement(CreatureID::CreatureID id, TQuantity count) //adds sing or plural name;
 {
 	if (!count)
 		addReplacement (CRE_PL_NAMES, id); //no creatures - just empty name (eg. defeat Angels)
@@ -348,7 +348,7 @@ void MetaString::addReplacement(const CStackBasicDescriptor &stack)
 	addCreReplacement(stack.type->idNumber, stack.count);
 }
 
-static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
+static CGObjectInstance * createObject(Obj::Obj id, int subid, int3 pos, int owner)
 {
 	CGObjectInstance * nobj;
 	switch(id)
@@ -516,34 +516,34 @@ int CGameState::pickHero(int owner)
 }
 
 
-std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
+std::pair<Obj::Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 {
 	switch(obj->ID)
 	{
 	case Obj::RANDOM_ART:
-		return std::pair<int,int>(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR | CArtifact::ART_RELIC));
 	case Obj::RANDOM_TREASURE_ART:
-		return std::pair<int,int>(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_TREASURE));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_TREASURE));
 	case Obj::RANDOM_MINOR_ART:
-		return std::pair<int,int>(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_MINOR));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_MINOR));
 	case Obj::RANDOM_MAJOR_ART:
-		return std::pair<int,int>(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_MAJOR));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_MAJOR));
 	case Obj::RANDOM_RELIC_ART:
-		return std::pair<int,int>(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_RELIC));
+		return std::make_pair(Obj::ARTIFACT, VLC->arth->getRandomArt (CArtifact::ART_RELIC));
 	case Obj::RANDOM_HERO:
-		return std::pair<int,int>(Obj::HERO, pickHero(obj->tempOwner));
+		return std::make_pair(Obj::HERO, pickHero(obj->tempOwner));
 	case Obj::RANDOM_MONSTER:
-		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran)));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran)));
 	case Obj::RANDOM_MONSTER_L1:
-		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 1));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 1));
 	case Obj::RANDOM_MONSTER_L2:
-		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 2));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 2));
 	case Obj::RANDOM_MONSTER_L3:
-		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 3));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 3));
 	case Obj::RANDOM_MONSTER_L4:
-		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 4));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 4));
 	case Obj::RANDOM_RESOURCE:
-		return std::pair<int,int>(Obj::RESOURCE,ran()%7); //now it's OH3 style, use %8 for mithril
+		return std::make_pair(Obj::RESOURCE,ran()%7); //now it's OH3 style, use %8 for mithril
 	case Obj::RANDOM_TOWN:
 		{
 			int align = (static_cast<CGTownInstance*>(obj))->alignment,
@@ -565,14 +565,14 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 				std::advance(iter, ran()%VLC->townh->towns.size());
 				f = iter->first;
 			}
-			return std::pair<int,int>(Obj::TOWN,f);
+			return std::make_pair(Obj::TOWN,f);
 		}
 	case Obj::RANDOM_MONSTER_L5:
-		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 5));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 5));
 	case Obj::RANDOM_MONSTER_L6:
-		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 6));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 6));
 	case Obj::RANDOM_MONSTER_L7:
-		return std::pair<int,int>(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 7));
+		return std::make_pair(Obj::MONSTER, VLC->creh->pickRandomMonster(boost::ref(ran), 7));
 	case Obj::RANDOM_DWELLING:
 	case Obj::RANDOM_DWELLING_LVL:
 	case Obj::RANDOM_DWELLING_FACTION:
@@ -630,38 +630,38 @@ std::pair<int,int> CGameState::pickObject (CGObjectInstance *obj)
 			delete dwl->info;
 			dwl->info = nullptr;
 
-			std::pair<int,int> result(-1, -1);
+			std::pair<Obj::Obj,int> result(Obj::NO_OBJ, -1);
 			int cid = VLC->townh->towns[faction].creatures[level][0];
 
 			//golem factory is not in list of cregens but can be placed as random object
 			static const int factoryCreatures[] = {32, 33, 116, 117};
 			std::vector<int> factory(factoryCreatures, factoryCreatures + ARRAY_COUNT(factoryCreatures));
 			if (vstd::contains(factory, cid))
-				result = std::pair<int,int>(20, 1);
+				result = std::make_pair(Obj::CREATURE_GENERATOR4, 1);
 
 			//NOTE: this will pick last dwelling with this creature (Mantis #900)
 			//check for block map equality is better but more complex solution
 			BOOST_FOREACH(auto &iter, VLC->objh->cregens)
 				if (iter.second == cid)
-					result = std::pair<int,int>(17, iter.first);
+					result = std::make_pair(Obj::CREATURE_GENERATOR1, iter.first);
 
-			if (result.first == -1)
+			if (result.first == Obj::NO_OBJ)
 			{
 				tlog0 << "Error: failed to find creature for dwelling of "<< int(faction) << " of level " << int(level) << "\n";
 				auto iter = VLC->objh->cregens.begin();
 				std::advance(iter, ran() % VLC->objh->cregens.size() );
-				result = std::pair<int, int>(17, iter->first);
+				result = std::make_pair(Obj::CREATURE_GENERATOR1, iter->first);
 			}
 
 			return result;
 		}
 	}
-	return std::pair<int,int>(-1,-1);
+	return std::make_pair(Obj::NO_OBJ,-1);
 }
 
 void CGameState::randomizeObject(CGObjectInstance *cur)
 {
-	std::pair<int,int> ran = pickObject(cur);
+	std::pair<Obj::Obj,int> ran = pickObject(cur);
 	if(ran.first<0 || ran.second<0) //this is not a random object, or we couldn't find anything
 	{
 		if(cur->ID==Obj::TOWN) //town - set def
@@ -806,7 +806,7 @@ void CGameState::init(StartInfo * si)
 					{
 						if(hero->slotEmpty(i))
 						{
-							hero->addToSlot(i, curBonus->info2, curBonus->info3);
+							hero->addToSlot(i, static_cast<CreatureID::CreatureID>(curBonus->info2), curBonus->info3);
 							break;
 						}
 					}
@@ -1737,7 +1737,7 @@ void CGameState::initDuel()
 
 		for(int j = 0; j < ARRAY_COUNT(dp.sides[i].stacks); j++)
 		{
-			TCreature cre = dp.sides[i].stacks[j].type;
+			CreatureID::CreatureID cre = dp.sides[i].stacks[j].type;
 			TQuantity count = dp.sides[i].stacks[j].count;
 			if(count || obj->hasStackAtSlot(j))
 				obj->setCreature(j, cre, count);
@@ -1859,7 +1859,7 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 		TBonusListPtr lista = h->getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
 		BOOST_FOREACH(const Bonus *it, *lista)
 		{
-			ui16 nid = it->additionalInfo;
+			auto nid = static_cast<CreatureID::CreatureID>(it->additionalInfo);
 			if (nid != base->idNumber) //in very specific case the upgrade is available by default (?)
 			{
 				ret.newID.push_back(nid);
@@ -1874,7 +1874,7 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 		{
 			if (vstd::contains(dwelling.second, base->idNumber)) //Dwelling with our creature
 			{
-				BOOST_FOREACH(ui32 upgrID, dwelling.second)
+				BOOST_FOREACH(auto upgrID, dwelling.second)
 				{
 					if(vstd::contains(base->upgrades, upgrID)) //possible upgrade
 					{
@@ -1887,12 +1887,12 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 	}
 
 	//hero is visiting Hill Fort
-	if(h && map->getTile(h->visitablePos()).visitableObjects.front()->ID == 35)
+	if(h && map->getTile(h->visitablePos()).visitableObjects.front()->ID == Obj::HILL_FORT)
 	{
 		static const int costModifiers[] = {0, 25, 50, 75, 100}; //we get cheaper upgrades depending on level
 		const int costModifier = costModifiers[std::min<int>(std::max((int)base->level - 1, 0), ARRAY_COUNT(costModifiers) - 1)];
 
-		BOOST_FOREACH(si32 nid, base->upgrades)
+		BOOST_FOREACH(auto nid, base->upgrades)
 		{
 			ret.newID.push_back(nid);
 			ret.cost.push_back((VLC->creh->creatures[nid]->cost - base->cost) * costModifier / 100);
@@ -2941,11 +2941,11 @@ int ArmyDescriptor::getStrength() const
 }
 
 DuelParameters::SideSettings::StackSettings::StackSettings()
-	: type(-1), count(0)
+	: type(CreatureID::NONE), count(0)
 {
 }
 
-DuelParameters::SideSettings::StackSettings::StackSettings(si32 Type, si32 Count)
+DuelParameters::SideSettings::StackSettings::StackSettings(CreatureID::CreatureID Type, si32 Count)
 	: type(Type), count(Count)
 {
 }
@@ -2974,7 +2974,7 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 		int i = 0;
 		BOOST_FOREACH(const JsonNode &stackNode, n["army"].Vector())
 		{
-			ss.stacks[i].type = stackNode.Vector()[0].Float();
+			ss.stacks[i].type = static_cast<CreatureID::CreatureID>((si32)stackNode.Vector()[0].Float());
 			ss.stacks[i].count = stackNode.Vector()[1].Float();
 			i++;
 		}

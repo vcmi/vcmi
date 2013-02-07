@@ -50,8 +50,8 @@ public:
 	//town
 	virtual void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)=0;
 	virtual bool buildBuilding(const CGTownInstance *town, si32 buildingID)=0;
-	virtual void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount, si32 level=-1)=0;
-	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1)=0; //if newID==-1 then best possible upgrade will be made
+	virtual void recruitCreatures(const CGObjectInstance *obj, CreatureID::CreatureID ID, ui32 amount, si32 level=-1)=0;
+	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, CreatureID::CreatureID newID=CreatureID::NONE)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 
 	virtual void trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero = NULL)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
@@ -66,7 +66,7 @@ public:
 	virtual bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition::ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, int stackPos)=0;
 	virtual void endTurn()=0;
-	virtual void buyArtifact(const CGHeroInstance *hero, int aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
+	virtual void buyArtifact(const CGHeroInstance *hero, ArtifactID::ArtifactID aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
 	virtual void setFormation(const CGHeroInstance * hero, bool tight)=0;
 	virtual void setSelection(const CArmedInstance * obj)=0;
 
@@ -128,12 +128,12 @@ public:
 	//bool moveArtifact(const CStackInstance * stack, ui16 src , const CGHeroInstance * hero, ui16 dest); // TODO: unify classes
 	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition::ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo);
 	bool buildBuilding(const CGTownInstance *town, si32 buildingID);
-	void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount, si32 level=-1);
+	void recruitCreatures(const CGObjectInstance *obj, CreatureID::CreatureID ID, ui32 amount, si32 level=-1);
 	bool dismissCreature(const CArmedInstance *obj, int stackPos);
-	bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1);
+	bool upgradeCreature(const CArmedInstance *obj, int stackPos, CreatureID::CreatureID newID=CreatureID::NONE) OVERRIDE;
 	void endTurn();
 	void swapGarrisonHero(const CGTownInstance *town);
-	void buyArtifact(const CGHeroInstance *hero, int aid);
+	void buyArtifact(const CGHeroInstance *hero, ArtifactID::ArtifactID aid) OVERRIDE;
 	void trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero = NULL);
 	void setFormation(const CGHeroInstance * hero, bool tight);
 	void setSelection(const CArmedInstance * obj);
