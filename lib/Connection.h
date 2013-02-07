@@ -428,8 +428,12 @@ struct VectorizedIDType
 		//if
 		mpl::eval_if<boost::is_same<CArtifact,U>,
 		mpl::identity<ArtifactID::ArtifactID>,
+		//else if
+		mpl::eval_if<boost::is_same<CCreature,U>,
+		mpl::identity<CreatureID::CreatureID>,
 		//else
 		mpl::identity<si32>
+		>
 		>::type type;
 };
 
