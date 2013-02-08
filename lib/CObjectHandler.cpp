@@ -1093,7 +1093,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 				hs->addNewBonus(bonus);
 				break;
 			case 11://starting skill with mastery (Adrienne)
-				cb->changeSecSkill(id, static_cast<SecondarySkill::SecondarySkill>(spec.val), spec.additionalinfo); //simply give it and forget
+				cb->changeSecSkill(this, static_cast<SecondarySkill::SecondarySkill>(spec.val), spec.additionalinfo); //simply give it and forget
 				break;
 			case 12://army speed
 				bonus->type = Bonus::STACKS_SPEED;
@@ -3459,7 +3459,7 @@ void CGMine::flagMine(TPlayerColor player) const
 		ms << "(%s)";
 		ms.addReplacement(MetaString::RES_NAMES, producedResource);
 	}
-	cb->setHoverName(id,&ms);
+	cb->setHoverName(this,&ms);
 
 	InfoWindow iw;
 	iw.soundID = soundBase::FLAGMINE;
@@ -3565,7 +3565,7 @@ void CGVisitableOPW::newTurn() const
 		cb->setObjProperty(id, ObjProperty::VISITED, false);
 		MetaString ms; //set text to "not visited"
 		ms << std::pair<ui8,ui32>(3,ID) << " " << std::pair<ui8,ui32>(1,353);
-		cb->setHoverName(id,&ms);
+		cb->setHoverName(this,&ms);
 	}
 }
 bool CGVisitableOPW::wasVisited(TPlayerColor player) const
@@ -3644,7 +3644,7 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 		cb->setObjProperty(id, ObjProperty::VISITED, true);
 		MetaString ms; //set text to "visited"
 		ms.addTxt(MetaString::OBJ_NAMES,ID); ms << " "; ms.addTxt(MetaString::GENERAL_TXT,352);
-		cb->setHoverName(id,&ms);
+		cb->setHoverName(this,&ms);
 	}
 }
 
@@ -4729,7 +4729,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			cb->changePrimSkill(h, static_cast<PrimarySkill::PrimarySkill>(rID), rVal, false);
 			break;
 		case SECONDARY_SKILL:
-			cb->changeSecSkill(h->id, static_cast<SecondarySkill::SecondarySkill>(rID), rVal, false);
+			cb->changeSecSkill(h, static_cast<SecondarySkill::SecondarySkill>(rID), rVal, false);
 			break;
 		case ARTIFACT:
 			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[rID],ArtifactPosition::FIRST_AVAILABLE);
@@ -4817,7 +4817,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		iw.components.push_back(Component(Component::SEC_SKILL, ability, 1, 0));
 		txt_id = 171;
-		cb->changeSecSkill(h->id, static_cast<SecondarySkill::SecondarySkill>(ability), 1, true);
+		cb->changeSecSkill(h, static_cast<SecondarySkill::SecondarySkill>(ability), 1, true);
 	}
 
 	iw.text.addTxt(MetaString::ADVOB_TXT,txt_id);
@@ -5201,7 +5201,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 			if( (curLev  &&  curLev < abilityLevels[i])	|| (h->canLearnSkill() ))
 			{
-				cb->changeSecSkill(h->id,abilities[i],abilityLevels[i],true);
+				cb->changeSecSkill(h,abilities[i],abilityLevels[i],true);
 			}
 		}
 
@@ -5577,7 +5577,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 		iw.components.push_back(Component(Component::PRIM_SKILL,bid,+1,0));
 		break;
 	case SECONDARY_SKILL:
-		cb->changeSecSkill(h->id,static_cast<SecondarySkill::SecondarySkill>(bid),+1);
+		cb->changeSecSkill(h,static_cast<SecondarySkill::SecondarySkill>(bid),+1);
 		iw.components.push_back(Component(Component::SEC_SKILL,bid,ssl+1,0));
 		break;
 	case SPELL:

@@ -195,16 +195,14 @@ void callWith(std::vector<T> args, boost::function<void(T)> fun, ui32 which)
 	fun(args[which]);
 }
 
-void CGameHandler::levelUpHero(int ID, SecondarySkill::SecondarySkill skill)
+void CGameHandler::levelUpHero(const CGHeroInstance * hero, SecondarySkill::SecondarySkill skill)
 {
-	changeSecSkill(ID, skill, 1, 0);
-	levelUpHero(ID);
+	changeSecSkill(hero, skill, 1, 0);
+	levelUpHero(hero);
 }
 
-void CGameHandler::levelUpHero(int ID)
+void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 {
-	CGHeroInstance *hero = static_cast<CGHeroInstance *>(gs->map->objects[ID].get());
-
 	// required exp for at least 1 lvl-up hasn't been reached
 	if (hero->exp < VLC->heroh->reqExp(hero->level+1))
 	{
@@ -226,14 +224,14 @@ void CGameHandler::levelUpHero(int ID)
 	}
 	tlog5 << "The hero gets the primary skill with the no. " << x << " with a probability of " << r << "%." <<  std::endl;
 	SetPrimSkill sps;
-	sps.id = ID;
+	sps.id = hero->id;
 	sps.which = static_cast<PrimarySkill::PrimarySkill>(x);
 	sps.abs = false;
 	sps.val = 1;
 	sendAndApply(&sps);
 
 	HeroLevelUp hlu;
-	hlu.heroid = ID;
+	hlu.heroid = hero->id;
 	hlu.primskill = static_cast<PrimarySkill::PrimarySkill>(x);
 	hlu.level = hero->level+1;
 
@@ -280,11 +278,11 @@ void CGameHandler::levelUpHero(int ID)
 		sendAndApply (&hlu);
 		if (hlu.skills.size())
 		{
-			levelUpHero (ID, vstd::pickRandomElementOf (hlu.skills, rand));
+			levelUpHero (hero, vstd::pickRandomElementOf (hlu.skills, rand));
 		}
 		else //apply and send info
 		{
-			levelUpHero(ID);
+			levelUpHero(hero);
 		}
 	}
 	else
@@ -294,18 +292,18 @@ void CGameHandler::levelUpHero(int ID)
 			boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind 
 					(callWith<SecondarySkill::SecondarySkill>, hlu.skills,
 					boost::function<void(SecondarySkill::SecondarySkill)>(boost::bind
-						(&CGameHandler::levelUpHero, this, ID,_1) ), _1));
+						(&CGameHandler::levelUpHero, this, hero, _1) ), _1));
 			applyAndAsk(&hlu,hero->tempOwner,callback); //call levelUpHero when client responds
 		}
 		else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
 		{
 			sendAndApply(&hlu);
-			levelUpHero(ID, hlu.skills.back());
+			levelUpHero(hero, hlu.skills.back());
 		}
 		else //apply and send info
 		{
 			sendAndApply(&hlu);
-			levelUpHero(ID);
+			levelUpHero(hero);
 		}
 	}
 }
@@ -472,7 +470,7 @@ void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill::Pr
 	//only for exp - hero may level up
 	if (which == PrimarySkill::EXPERIENCE)
 	{
-		levelUpHero(hero->id);
+		levelUpHero(hero);
 		if (hero->commander && hero->commander->alive)
 		{
 			SetCommanderProperty scp;
@@ -486,10 +484,10 @@ void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill::Pr
 	}
 }
 
-void CGameHandler::changeSecSkill( int ID, SecondarySkill::SecondarySkill which, int val, bool abs/*=false*/ )
+void CGameHandler::changeSecSkill( const CGHeroInstance * hero, SecondarySkill::SecondarySkill which, int val, bool abs/*=false*/ )
 {
 	SetSecSkill sss;
-	sss.id = ID;
+	sss.id = hero->id;
 	sss.which = which;
 	sss.val = val;
 	sss.abs = abs;
@@ -497,9 +495,8 @@ void CGameHandler::changeSecSkill( int ID, SecondarySkill::SecondarySkill which,
 
 	if(which == SecondarySkill::WISDOM)
 	{
-		const CGHeroInstance *h = getHero(ID);
-		if(h && h->visitedTown)
-			giveSpells(h->visitedTown, h);
+		if(hero && hero->visitedTown)
+			giveSpells(hero->visitedTown, hero);
 	}
 }
 
@@ -1894,9 +1891,9 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, TPlayerColor owner)
 	}
 }
 
-void CGameHandler::setHoverName(int objid, MetaString* name)
+void CGameHandler::setHoverName(const CGObjectInstance * obj, MetaString* name)
 {
-	SetHoverName shn(objid, *name);
+	SetHoverName shn(obj->id, *name);
 	sendAndApply(&shn);
 }
 
@@ -3068,7 +3065,7 @@ bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, Secon
 	sr.val = getResource(h->tempOwner, Res::GOLD) - 2000;
 	sendAndApply(&sr);
 
-	changeSecSkill(h->id, skill, 1, true);
+	changeSecSkill(h, skill, 1, true);
 	return true;
 }
 
@@ -5345,7 +5342,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		if (staredCreatures)
 		{
 			if (bat.bsa.size() && bat.bsa[0].newAmount > 0) //TODO: death stare was not originally available for multiple-hex attacks, but...
-			handleSpellCasting(79, 0, gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->position,
+			handleSpellCasting(Spells::DEATH_STARE, 0, gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->position,
 				!attacker->attackerOwned, attacker->owner, NULL, NULL, staredCreatures, ECastingMode::AFTER_ATTACK_CASTING, attacker);
 		}
 	}
@@ -5359,7 +5356,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	}
 	if (acidDamage)
 	{
-		handleSpellCasting(81, 0, gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->position,
+		handleSpellCasting(Spells::ACID_BREATH_DAMAGE, 0, gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->position,
 				!attacker->attackerOwned, attacker->owner, NULL, NULL,
 				acidDamage * attacker->count, ECastingMode::AFTER_ATTACK_CASTING, attacker);
 	}
@@ -5482,7 +5479,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 				COMPLAIN_RET("Destination tile doesn't exist!");
 			if(!h->movement)
 				COMPLAIN_RET("Hero needs movement points to cast Dimension Door!");
-			if(h->getBonusesCount(Bonus::SPELL_EFFECT, Spells::DIMENSION_DOOR) >= s->powers[schoolLevel]) //limit casts per turn
+			if(h->getBonusesCount(Bonus::SPELL_EFFECT, DIMENSION_DOOR) >= s->powers[schoolLevel]) //limit casts per turn
 			{
 				InfoWindow iw;
 				iw.player = h->tempOwner;
@@ -5494,7 +5491,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 
 			GiveBonus gb;
 			gb.id = h->id;
-			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::NONE, Bonus::SPELL_EFFECT, 0, Spells::DIMENSION_DOOR);
+			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::NONE, Bonus::SPELL_EFFECT, 0, DIMENSION_DOOR);
 			sendAndApply(&gb);
 
 			if(!dest->isClear(curr)) //wrong dest tile
@@ -5521,7 +5518,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 
 			GiveBonus gb;
 			gb.id = h->id;
-			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::FLYING_MOVEMENT, Bonus::SPELL_EFFECT, 0, Spells::FLY, subtype);
+			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::FLYING_MOVEMENT, Bonus::SPELL_EFFECT, 0, FLY, subtype);
 			sendAndApply(&gb);
 		}
 		break;
@@ -5531,7 +5528,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 
 			GiveBonus gb;
 			gb.id = h->id;
-			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::WATER_WALKING, Bonus::SPELL_EFFECT, 0, Spells::WATER_WALK, subtype);
+			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::WATER_WALKING, Bonus::SPELL_EFFECT, 0, WATER_WALK, subtype);
 			sendAndApply(&gb);
 		}
 		break;

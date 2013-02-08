@@ -166,9 +166,9 @@ public:
 	bool removeObject(const CGObjectInstance * obj) OVERRIDE {return false;};
 	void setBlockVis(int objid, bool bv) OVERRIDE {};
 	void setOwner(const CGObjectInstance * obj, TPlayerColor owner) OVERRIDE {};
-	void setHoverName(int objid, MetaString * name) OVERRIDE {};
+	void setHoverName(const CGObjectInstance * obj, MetaString * name) OVERRIDE {};
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) OVERRIDE {};
-	void changeSecSkill(int ID, SecondarySkill::SecondarySkill which, int val, bool abs=false) OVERRIDE {}; 
+	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill::SecondarySkill which, int val, bool abs=false) OVERRIDE {}; 
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE {};
 	ui32 showBlockingDialog(BlockingDialog *iw) OVERRIDE {return 0;}; //synchronous version of above
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) OVERRIDE {};

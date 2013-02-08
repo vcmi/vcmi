@@ -207,9 +207,9 @@ public:
 	virtual bool removeObject(const CGObjectInstance * obj)=0;
 	virtual void setBlockVis(int objid, bool bv)=0;
 	virtual void setOwner(const CGObjectInstance * objid, TPlayerColor owner)=0;
-	virtual void setHoverName(int objid, MetaString * name)=0;
+	virtual void setHoverName(const CGObjectInstance * obj, MetaString * name)=0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false)=0;
-	virtual void changeSecSkill(int ID, SecondarySkill::SecondarySkill which, int val, bool abs=false)=0; 
+	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill::SecondarySkill which, int val, bool abs=false)=0; 
 	virtual void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback)=0;
 	virtual ui32 showBlockingDialog(BlockingDialog *iw) =0; //synchronous version of above //TODO:
 	virtual void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) =0; //cb will be called when player closes garrison window

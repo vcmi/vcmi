@@ -133,9 +133,9 @@ public:
 	bool removeObject(const CGObjectInstance * obj) OVERRIDE;
 	void setBlockVis(int objid, bool bv) OVERRIDE;
 	void setOwner(const CGObjectInstance * obj, TPlayerColor owner) OVERRIDE;
-	void setHoverName(int objid, MetaString * name) OVERRIDE;
+	void setHoverName(const CGObjectInstance * objid, MetaString * name) OVERRIDE;
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) OVERRIDE;
-	void changeSecSkill(int ID, SecondarySkill::SecondarySkill which, int val, bool abs=false) OVERRIDE; 
+	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill::SecondarySkill which, int val, bool abs=false) OVERRIDE; 
 	//void showInfoDialog(InfoWindow *iw) OVERRIDE;
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE;
 	ui32 showBlockingDialog(BlockingDialog *iw) OVERRIDE; //synchronous version of above
@@ -182,8 +182,8 @@ public:
 	void visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h);
 	bool teleportHero(si32 hid, si32 dstid, ui8 source, TPlayerColor asker = GameConstants::NEUTRAL_PLAYER);
 	void vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h);
-	void levelUpHero(int ID, SecondarySkill::SecondarySkill skill);//handle client respond and send one more request if needed
-	void levelUpHero(int ID);//initial call - check if hero have remaining levelups & handle them
+	void levelUpHero(const CGHeroInstance * hero, SecondarySkill::SecondarySkill skill);//handle client respond and send one more request if needed
+	void levelUpHero(const CGHeroInstance * hero);//initial call - check if hero have remaining levelups & handle them
 	void levelUpCommander (const CCommanderInstance * c, int skill); //secondary skill 1 to 6, special skill : skill - 100
 	void levelUpCommander (const CCommanderInstance * c);
 	void afterBattleCallback(); // called after level-ups are finished
