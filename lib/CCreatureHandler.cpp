@@ -263,8 +263,6 @@ void CCreatureHandler::loadCreatures()
 				ncre.addBonus(0, Bonus::SHOOTER);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "SIEGE_WEAPON"))
 				ncre.addBonus(0, Bonus::SIEGE_WEAPON);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "const_two_attacks"))
-				ncre.addBonus(1, Bonus::ADDITIONAL_ATTACK);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "const_free_attack"))
 				ncre.addBonus(0, Bonus::BLOCKS_RETALIATION);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "IS_UNDEAD"))
@@ -324,7 +322,10 @@ void CCreatureHandler::loadCreatures()
 		}
 		BOOST_FOREACH(const JsonNode &ability, node.second["abilities"].Vector())
 		{
-			AddAbility(c, ability.Vector());
+			if (ability.getType() == JsonNode::DATA_VECTOR)
+				AddAbility(c, ability.Vector());
+			else
+				c->addNewBonus(JsonUtils::parseBonus(ability));
 		}
 
 		loadCreatureJson(c, node.second);

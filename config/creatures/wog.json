@@ -50,7 +50,8 @@
 		"id": 154,
 		"level": 8,
 		"faction": "necropolis",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//blood dragon is a dragon
+		"abilities": [ [ "LIFE_DRAIN", 40, 0, 0 ], //40%
+						[ "DRAGON_NATURE", 0, 0, 0 ] ],			//blood dragon is a dragon
 		"graphics" :
 		{
 			"animation": "ZM154Z.DEF"

@@ -107,6 +107,13 @@
 		"id": 19,
 		"level": 3,
 		"faction": "rampart",
+		"abilities": [
+						{
+							"type": "ADDITIONAL_ATTACK",
+							"val" : 1,
+							"effectRange": "ONLY_DISTANCE_FIGHT"
+						}
+					],	
 		"graphics" :
 		{
 			"animation": "CGRELF.DEF",

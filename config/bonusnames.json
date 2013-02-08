@@ -15,7 +15,7 @@
 			{ "id": "DEFENSIVE_STANCE", "name": "Defense Bonus", "description": "+%d Defense when defending" },
 			{ "id": "ADDITIONAL_ATTACK", "name": "Double Strike", "description": "Attacks twice" },
 			{ "id": "DRAGON_NATURE", "name": "Dragon", "description": "Creature has a Dragon Nature" },
-			{ "id": "LIFE_DRAIN", "name": "Drain life", "description": "Drains life equal to damage dealt" },
+			{ "id": "LIFE_DRAIN", "name": "Drain life (%d%)", "description": "Drains life equal to damage dealt" },
 			{ "id": "FEAR", "name": "Fear", "description": "Causes Fear on an enemy stack" },
 			{ "id": "FEARLESS", "name": "Fearless", "description": "Immune to Fear ability" },
 			{ "id": "FLYING", "name": "Fly", "description": "Can Fly (ignores obstacles)" },

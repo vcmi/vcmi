@@ -152,6 +152,7 @@
 		"id": 7,
 		"level": 4,
 		"faction": "castle",
+		"abilities": [ [ "ADDITIONAL_ATTACK", 1, 0, 0 ] ],
 		"graphics" :
 		{
 			"animation": "CCRUSD.DEF"

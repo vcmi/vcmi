@@ -142,7 +142,7 @@
 		"id": 63,
 		"level": 4,
 		"faction": "necropolis",
-		"abilities": [ [ "LIFE_DRAIN", 0, 0, 0 ],
+		"abilities": [ [ "LIFE_DRAIN", 100, 0, 0 ], //drain 100% of damage dealt
 						 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],		//vampire lords
 		"graphics" :
 		{

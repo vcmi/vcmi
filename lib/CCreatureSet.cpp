@@ -593,8 +593,9 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::ATTACKS_ALL_ADJACENT:
 				case Bonus::ADDITIONAL_ATTACK: //TODO: what with more than one attack? Axe of Ferocity for example
 				case Bonus::FULL_HP_REGENERATION:
+				case Bonus::MANA_DRAIN:
+				case Bonus::LIFE_DRAIN:
 				case Bonus::REBIRTH:
-				case Bonus::LIFE_DRAIN: //TODO: chance, hp percentage?
 				case Bonus::SELF_MORALE:
 				case Bonus::SELF_LUCK:
 				case Bonus::FEAR:
@@ -616,7 +617,6 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::SPELL_RESISTANCE_AURA:
 				case Bonus::SPELL_DAMAGE_REDUCTION:
 				case Bonus::LEVEL_SPELL_IMMUNITY:
-				case Bonus::MANA_DRAIN:
 				case Bonus::HP_REGENERATION:
 				case Bonus::ADDITIONAL_RETALIATION:
 				case Bonus::DEFENSIVE_STANCE:
@@ -667,6 +667,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::ENEMY_DEFENCE_REDUCTION:
 				case Bonus::REBIRTH:
 				case Bonus::DEATH_STARE:
+				case Bonus::LIFE_DRAIN:
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
 					break;
 				case Bonus::HATE:
@@ -905,6 +906,8 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "ManaChannel.bmp"; break;
 		case Bonus::MANA_DRAIN:
 			fileName = "ManaDrain.bmp"; break;
+		case Bonus::LIFE_DRAIN:
+			fileName = "DrainLife.bmp"; break;
 	}
 	if(!fileName.empty())
 		fileName = "zvs/Lib1.res/" + fileName;

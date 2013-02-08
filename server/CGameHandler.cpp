@@ -863,7 +863,8 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 
 		StacksHealedOrResurrected::HealInfo hi;
 		hi.stackID = att->ID;
-		hi.healedHP = std::min<int>(bsa.damageAmount, att->MaxHealth() - att->firstHPleft + att->MaxHealth() * (att->baseAmount - att->count) );
+		hi.healedHP = std::min<int> (bsa.damageAmount * att->valOfBonuses (Bonus::LIFE_DRAIN) / 100,
+			att->MaxHealth() - att->firstHPleft + att->MaxHealth() * (att->baseAmount - att->count) );
 		hi.lowLevelResurrection = false;
 		shi.healedStacks.push_back(hi);
 
@@ -3457,38 +3458,32 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			}
 
 			//attack
-			if(stack->alive()) //move can cause death, eg. by walking into the moat
-			{
-				BattleAttack bat;
-				prepareAttack(bat, stack, stackAtEnd, distance, ba.additionalInfo);
-				handleAttackBeforeCasting(bat); //only before first attack
-				sendAndApply(&bat);
-				handleAfterAttackCasting(bat);
-			}
 
-			//counterattack
-			if(!stack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
-				&& stackAtEnd->ableToRetaliate()
-				&& stack->alive()) //attacker may have died (fire shield)
-			{
-				BattleAttack bat;
-				prepareAttack(bat, stackAtEnd, stack, 0, stack->position);
-				bat.flags |= BattleAttack::COUNTER;
-				sendAndApply(&bat);
-				handleAfterAttackCasting(bat);
-			}
+			int totalAttacks = 1 + stack->getBonuses(Selector::type (Bonus::ADDITIONAL_ATTACK),
+				(Selector::effectRange (Bonus::NO_LIMIT) || Selector::effectRange(Bonus::ONLY_MELEE_FIGHT)))->totalValue(); //all unspicified attacks + melee attacks
 
-			//second attack
-			if(stack //FIXME: clones tend to disapear during actions
-				&& stack->valOfBonuses(Bonus::ADDITIONAL_ATTACK) > 0
-				&& !stack->hasBonusOfType(Bonus::SHOOTER)
-				&& stack->alive()
-				&& stackAtEnd->alive()  )
+			for (int i = 0; i < totalAttacks; ++i)
 			{
-				BattleAttack bat;
-				prepareAttack(bat, stack, stackAtEnd, 0, ba.additionalInfo);
-				sendAndApply(&bat);
-				handleAfterAttackCasting(bat);
+				if( stack &&stack->alive()) //move can cause death, eg. by walking into the moat
+				{
+					BattleAttack bat;
+					prepareAttack(bat, stack, stackAtEnd, distance, ba.additionalInfo);
+					handleAttackBeforeCasting(bat); //only before first attack
+					sendAndApply(&bat);
+					handleAfterAttackCasting(bat);
+				}
+
+				//counterattack
+				if(!stack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
+					&& stackAtEnd->ableToRetaliate()
+					&& stack->alive()) //attacker may have died (fire shield)
+				{
+					BattleAttack bat;
+					prepareAttack(bat, stackAtEnd, stack, 0, stack->position);
+					bat.flags |= BattleAttack::COUNTER;
+					sendAndApply(&bat);
+					handleAfterAttackCasting(bat);
+				}
 			}
 
 			//return
@@ -3529,18 +3524,24 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				prepareAttack(bat2, stack, destStack, 0, ba.destinationTile);
 				sendAndApply(&bat2);
 			}
-			//TODO: allow more than one additional attack
-			if(stack->valOfBonuses(Bonus::ADDITIONAL_ATTACK) > 0 //if unit shots twice let's make another shot
-				&& stack->alive()
-				&& destStack->alive()
-				&& stack->shots
-				)
+			//allow more than one additional attack
+
+			int additionalAttacks = stack->getBonuses(Selector::type (Bonus::ADDITIONAL_ATTACK),
+				(Selector::effectRange (Bonus::NO_LIMIT) || Selector::effectRange(Bonus::ONLY_DISTANCE_FIGHT)))->totalValue();
+			for (int i = 0; i < additionalAttacks; ++i)
 			{
-				BattleAttack bat;
-				bat.flags |= BattleAttack::SHOT;
-				prepareAttack(bat, stack, destStack, 0, ba.destinationTile);
-				sendAndApply(&bat);
-				handleAfterAttackCasting(bat);
+				if(
+					stack->alive()
+					&& destStack->alive()
+					&& stack->shots
+					)
+				{
+					BattleAttack bat;
+					bat.flags |= BattleAttack::SHOT;
+					prepareAttack(bat, stack, destStack, 0, ba.destinationTile);
+					sendAndApply(&bat);
+					handleAfterAttackCasting(bat);
+				}
 			}
 
 			sendAndApply(&end_action);
