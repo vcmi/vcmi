@@ -150,6 +150,7 @@
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 5,
 			"warMachine" : "firstAidTent",
+			"moatDamage" : 70,
 
 			"buildings" :
 			[

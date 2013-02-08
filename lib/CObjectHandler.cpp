@@ -1689,9 +1689,9 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		return;
 	}
 
-	int relations = cb->gameState()->getPlayerRelations( h->tempOwner, tempOwner );
+	PlayerRelations::PlayerRelations relations = cb->gameState()->getPlayerRelations( h->tempOwner, tempOwner );
 
-	if ( relations == 1 )//ally
+	if ( relations == PlayerRelations::ALLIES )
 		return;//do not allow recruiting or capturing
 
 	if( !relations  &&  stacksCount() > 0) //object is guarded, owned by enemy
@@ -1708,7 +1708,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 
 	if(!relations  &&  ID != Obj::WAR_MACHINE_FACTORY)
 	{
-		cb->setOwner(id, h->tempOwner);
+		cb->setOwner(this, h->tempOwner);
 	}
 
 	BlockingDialog bd (true,false);
@@ -2087,9 +2087,9 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		}
 		else
 		{
-			cb->setOwner(id, h->tempOwner);
+			cb->setOwner(this, h->tempOwner);
 			removeCapitols(h->getOwner());
-			cb->heroVisitCastle(id, h->id);
+			cb->heroVisitCastle(this, h);
 		}
 	}
 	else
@@ -2102,13 +2102,13 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			scp.amount = 1;
 			cb->sendAndApply (&scp);
 		}
-		cb->heroVisitCastle(id, h->id);
+		cb->heroVisitCastle(this, h);
 	}
 }
 
 void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 {
-	cb->stopHeroVisitCastle(id,h->id);
+	cb->stopHeroVisitCastle(this, h);
 }
 
 void CGTownInstance::initObj()
@@ -2252,7 +2252,7 @@ void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) 
 	if(result->winner == 0)
 	{
 		removeCapitols (h->getOwner());
-		cb->setOwner (id, h->tempOwner); //give control after checkout is done
+		cb->setOwner (this, h->tempOwner); //give control after checkout is done
 		FoWChange fw;
 		fw.player = h->tempOwner;
 		fw.mode = 1;
@@ -2572,7 +2572,7 @@ void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, TExpType
 	if(result) //player agreed to give res for exp
 	{
 		cb->giveResource(cb->getOwner(heroID), static_cast<Res::ERes>(resType), -resVal); //take resource
-		cb->changePrimSkill(heroID, PrimarySkill::EXPERIENCE, expVal);
+		cb->changePrimSkill(cb->getHero(heroID), PrimarySkill::EXPERIENCE, expVal);
 		cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
 	}
 }
@@ -2654,7 +2654,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 		case Obj::STAR_AXIS:
 		case Obj::GARDEN_OF_REVELATION:
 			{
-				cb->changePrimSkill(heroID, static_cast<PrimarySkill::PrimarySkill>(subid), val);
+				cb->changePrimSkill(cb->getHero(heroID), static_cast<PrimarySkill::PrimarySkill>(subid), val);
 				InfoWindow iw;
 				iw.soundID = sound;
 				iw.components.push_back(Component(c_id, subid, val, 0));
@@ -2673,7 +2673,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				iw.player = cb->getOwner(heroID);
 				iw.text.addTxt(MetaString::ADVOB_TXT,ot);
 				cb->showInfoDialog(&iw);
-				cb->changePrimSkill(heroID, PrimarySkill::EXPERIENCE, val);
+				cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, val);
 				break;
 			}
 		case Obj::TREE_OF_KNOWLEDGE:
@@ -2689,7 +2689,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 					iw.player = cb->getOwner(heroID);
 					iw.text.addTxt(MetaString::ADVOB_TXT,148);
 					cb->showInfoDialog(&iw);
-					cb->changePrimSkill(heroID, PrimarySkill::EXPERIENCE, val);
+					cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, val);
 					break;
 				}
 				else
@@ -2736,10 +2736,10 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				else
 				{
 					cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
-					cb->changePrimSkill(heroID,PrimarySkill::ATTACK,2);
-					cb->changePrimSkill(heroID,PrimarySkill::DEFENSE,2);
-					cb->changePrimSkill(heroID,PrimarySkill::KNOWLEDGE,2);
-					cb->changePrimSkill(heroID,PrimarySkill::SPELL_POWER,2);
+					cb->changePrimSkill(h,PrimarySkill::ATTACK,2);
+					cb->changePrimSkill(h,PrimarySkill::DEFENSE,2);
+					cb->changePrimSkill(h,PrimarySkill::KNOWLEDGE,2);
+					cb->changePrimSkill(h,PrimarySkill::SPELL_POWER,2);
 				}
 				showInfoDialog(h,txt_id,sound);
 				break;
@@ -2826,7 +2826,7 @@ const std::string & CGVisitableOPH::getHoverText() const
 void CGVisitableOPH::arenaSelected( int heroID, int primSkill ) const
 {
 	cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
-	cb->changePrimSkill(heroID, static_cast<PrimarySkill::PrimarySkill>(primSkill-1), 2);
+	cb->changePrimSkill(cb->getHero(heroID), static_cast<PrimarySkill::PrimarySkill>(primSkill-1), 2);
 }
 
 void CGVisitableOPH::setPropertyDer( ui8 what, ui32 val )
@@ -2843,7 +2843,7 @@ void CGVisitableOPH::schoolSelected(int heroID, ui32 which) const
 	int base = (ID == Obj::SCHOOL_OF_MAGIC  ?  2  :  0);
 	cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
 	cb->giveResource(cb->getOwner(heroID),Res::GOLD,-1000); //take 1000 gold
-	cb->changePrimSkill(heroID, static_cast<PrimarySkill::PrimarySkill>(base + which-1), +1); //give appropriate skill
+	cb->changePrimSkill(cb->getHero(heroID), static_cast<PrimarySkill::PrimarySkill>(base + which-1), +1); //give appropriate skill
 }
 
 COPWBonus::COPWBonus (int index, CGTownInstance *TOWN)
@@ -2963,7 +2963,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 		iw.player = cb->getOwner(heroID);
 		iw.text << VLC->generaltexth->allTexts[mid];
 		cb->showInfoDialog(&iw);
-		cb->changePrimSkill (heroID, what, val);
+		cb->changePrimSkill (cb->getHero(heroID), what, val);
 		if (town->visitingHero == h)
 			cb->setObjProperty (town->id, 11, id); //add to visitors
 		else
@@ -3048,7 +3048,7 @@ void CGCreature::endBattle( BattleResult *result ) const
 {
 	if(result->winner==0)
 	{
-		cb->removeObject(id);
+		cb->removeObject(this);
 	}
 	else
 	{
@@ -3239,7 +3239,7 @@ void CGCreature::fleeDecision(const CGHeroInstance *h, ui32 pursue) const
 	}
 	else
 	{
-		cb->removeObject(id);
+		cb->removeObject(this);
 	}
 }
 
@@ -3450,7 +3450,7 @@ void CGMine::endBattle(BattleResult *result, TPlayerColor attackingPlayer) const
 void CGMine::flagMine(TPlayerColor player) const
 {
 	assert(tempOwner != player);
-	cb->setOwner(id,player); //not ours? flag it!
+	cb->setOwner(this, player); //not ours? flag it!
 
 	MetaString ms;
 	ms << std::pair<ui8,ui32>(9,subID) << "\n(" << std::pair<ui8,ui32>(6,23+player) << ")";
@@ -3543,7 +3543,7 @@ void CGResource::collectRes( int player ) const
 	sii.text.addTxt(MetaString::ADVOB_TXT,113);
 	sii.text.addReplacement(MetaString::RES_NAMES, subID);
 	cb->showCompInfo(&sii);
-	cb->removeObject(id);
+	cb->removeObject(this);
 }
 
 void CGResource::fightForRes(ui32 agreed, const CGHeroInstance *h) const
@@ -3877,7 +3877,7 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 void CGArtifact::pick(const CGHeroInstance * h) const
 {
 	cb->giveHeroArtifact(h, storedArtifact, ArtifactPosition::FIRST_AVAILABLE);
-	cb->removeObject(id);
+	cb->removeObject(this);
 }
 
 void CGArtifact::fightForArt( ui32 agreed, const CGHeroInstance *h ) const
@@ -4086,7 +4086,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			}
 		}
 	}
-	cb->removeObject(id);
+	cb->removeObject(this);
 }
 
 void CGPickable::chosen( int which, int heroID ) const
@@ -4098,12 +4098,12 @@ void CGPickable::chosen( int which, int heroID ) const
 		cb->giveResource(cb->getOwner(heroID), Res::GOLD, val1);
 		break;
 	case 2: //player pick exp
-		cb->changePrimSkill(heroID, PrimarySkill::EXPERIENCE, h->calculateXp(val2));
+		cb->changePrimSkill(cb->getHero(heroID), PrimarySkill::EXPERIENCE, h->calculateXp(val2));
 		break;
 	default:
 		throw std::runtime_error("Unhandled treasure choice");
 	}
-	cb->removeObject(id);
+	cb->removeObject(this);
 }
 
 bool CQuest::checkQuest (const CGHeroInstance * h) const
@@ -4704,7 +4704,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 		case EXPERIENCE:
 		{
 			TExpType expVal = h->calculateXp(rVal);
-			cb->changePrimSkill(h->id, PrimarySkill::EXPERIENCE, expVal, false);
+			cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, expVal, false);
 			break;
 		}
 		case MANA_POINTS:
@@ -4726,7 +4726,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			cb->giveResource(h->getOwner(), static_cast<Res::ERes>(rID), rVal);
 			break;
 		case PRIMARY_SKILL:
-			cb->changePrimSkill(h->id, static_cast<PrimarySkill::PrimarySkill>(rID), rVal, false);
+			cb->changePrimSkill(h, static_cast<PrimarySkill::PrimarySkill>(rID), rVal, false);
 			break;
 		case SECONDARY_SKILL:
 			cb->changeSecSkill(h->id, static_cast<SecondarySkill::SecondarySkill>(rID), rVal, false);
@@ -4738,7 +4738,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 		{
 			std::set<ui32> spell;
 			spell.insert (rID);
-			cb->changeSpells(h->id, true, spell);
+			cb->changeSpells(h, true, spell);
 		}
 			break;
 		case CREATURE:
@@ -4790,7 +4790,7 @@ void CGQuestGuard::initObj()
 }
 void CGQuestGuard::completeQuest(const CGHeroInstance *h) const
 {
-	cb->removeObject(id);
+	cb->removeObject(this);
 }
 void CGWitchHut::initObj()
 {
@@ -5135,7 +5135,7 @@ void CGPandoraBox::open( const CGHeroInstance * h, ui32 accept ) const
 				&& gainedExp == 0 && manaDiff == 0 && moraleDiff == 0 && luckDiff == 0) //if it gives nothing without battle
 		{
 			showInfoDialog(h,15,0);
-			cb->removeObject(id);
+			cb->removeObject(this);
 		}
 		else //if it gives something without battle
 		{
@@ -5188,11 +5188,11 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 		//give exp
 		if(expVal)
-			cb->changePrimSkill(h->id, PrimarySkill::EXPERIENCE, expVal, false);
+			cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, expVal, false);
 		//give prim skills
 		for(int i=0; i<primskills.size(); i++)
 			if(primskills[i])
-				cb->changePrimSkill(h->id,static_cast<PrimarySkill::PrimarySkill>(i),primskills[i],false);
+				cb->changePrimSkill(h,static_cast<PrimarySkill::PrimarySkill>(i),primskills[i],false);
 
 		//give sec skills
 		for(int i=0; i<abilities.size(); i++)
@@ -5231,7 +5231,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		}
 		if(spellsToGive.size())
 		{
-			cb->changeSpells(h->id,true,spellsToGive);
+			cb->changeSpells(h,true,spellsToGive);
 			cb->showInfoDialog(&iw);
 		}
 	}
@@ -5349,7 +5349,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		cb->showInfoDialog(&iw);
 	}
 	if (!creatures.Slots().size())
-		cb->removeObject(id); //only when we don't need to display garrison window
+		cb->removeObject(this); //only when we don't need to display garrison window
 }
 
 void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const
@@ -5477,7 +5477,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		std::set<ui32> spells;
 		spells.insert(spell);
-		cb->changeSpells(h->id, true, spells);
+		cb->changeSpells(h, true, spells);
 
 		iw.components.push_back(Component(Component::SPELL,spell,0,0));
 	}
@@ -5538,7 +5538,7 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 	cb->showInfoDialog(&iw);
 
 	if(ID == Obj::OCEAN_BOTTLE)
-		cb->removeObject(id);
+		cb->removeObject(this);
 }
 
 //TODO: remove
@@ -5573,7 +5573,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	switch (type)
 	{
 	case PRIM_SKILL:
-		cb->changePrimSkill(h->id,static_cast<PrimarySkill::PrimarySkill>(bid),+1);
+		cb->changePrimSkill(h,static_cast<PrimarySkill::PrimarySkill>(bid),+1);
 		iw.components.push_back(Component(Component::PRIM_SKILL,bid,+1,0));
 		break;
 	case SECONDARY_SKILL:
@@ -5584,7 +5584,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			std::set<ui32> hlp;
 			hlp.insert(bid);
-			cb->changeSpells(h->id,true,hlp);
+			cb->changeSpells(h,true,hlp);
 			iw.components.push_back(Component(Component::SPELL,bid,0,0));
 		}
 		break;
@@ -5594,7 +5594,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	cb->showInfoDialog(&iw);
-	cb->removeObject(id);
+	cb->removeObject(this);
 }
 
 void CGScholar::initObj()
@@ -5632,7 +5632,7 @@ void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 
 	//New owner.
 	if (!ally)
-		cb->setOwner(id, h->tempOwner);
+		cb->setOwner(this, h->tempOwner);
 
 	cb->showGarrisonDialog(id, h->id, removableUnits, 0);
 }
@@ -6271,7 +6271,7 @@ void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) 
 		{
 			std::set<ui32> spells;
 			spells.insert (spell);
-			cb->changeSpells (h->id, true, spells);
+			cb->changeSpells (h, true, spells);
 				iw.components.push_back(Component (Component::SPELL, spell, 0, 0));
 		}
 		cb->showInfoDialog(&iw);
@@ -6372,7 +6372,7 @@ void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const
 void CGBorderGuard::openGate(const CGHeroInstance *h, ui32 accept) const
 {
 	if (accept)
-		cb->removeObject(id);
+		cb->removeObject(this);
 }
 
 void CGBorderGate::onHeroVisit( const CGHeroInstance * h ) const //TODO: passability
@@ -6480,7 +6480,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 			xp = h->calculateXp(xp);
 			iw.text.addTxt(MetaString::ADVOB_TXT,132);
 			iw.text.addReplacement(xp);
-			cb->changePrimSkill(h->id, PrimarySkill::EXPERIENCE, xp, false);
+			cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, xp, false);
 		}
 		else
 		{
@@ -6622,7 +6622,7 @@ void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
 void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(!cb->gameState()->getPlayerRelations(tempOwner, h->tempOwner))
-		cb->setOwner(id, h->tempOwner);
+		cb->setOwner(this, h->tempOwner);
 
 	auto s = state();
 	if(s != IBoatGenerator::GOOD)
@@ -6763,7 +6763,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 	if(h->tempOwner != tempOwner)
 	{
 		ui8 oldOwner = tempOwner;
-		cb->setOwner(id,h->tempOwner); //not ours? flag it!
+		cb->setOwner(this,h->tempOwner); //not ours? flag it!
 		showInfoDialog(h,69,soundBase::LIGHTHOUSE);
 		giveBonusTo(h->tempOwner);
 

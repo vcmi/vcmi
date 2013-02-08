@@ -295,7 +295,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 			CDefHandler *&projectile = idToProjectile[s->getCreature()->idNumber];
 
 			const CCreature * creature;//creature whose shots should be loaded
-			if (s->getCreature()->idNumber == 149)
+			if (s->getCreature()->idNumber == CreatureID::ARROW_TOWERS)
 				creature = CGI->creh->creatures[siegeH->town->town->clientInfo.siegeShooter];
 			else
 				creature = s->getCreature();
@@ -2179,7 +2179,7 @@ void CBattleInterface::showAliveStack(const CStack *stack, SDL_Surface * to)
 	bool incrementFrame = (animCount%(4/affectingSpeed)==0) && animType!=CCreatureAnim::DEATH &&
 		animType!=CCreatureAnim::MOVE_START && animType!=CCreatureAnim::HOLDING;
 
-	if (creature->idNumber == 149)
+	if (creature->idNumber == CreatureID::ARROW_TOWERS)
 	{
 		// a turret creature has a limited height, so cut it at a certain position; turret creature has no standing anim
 		unitRect.h = siegeH->town->town->clientInfo.siegeShooterCropHeight;

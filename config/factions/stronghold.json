@@ -144,6 +144,7 @@
 			"horde" : [ 0, -1 ],
 			"mageGuild" : 3,
 			"warMachine" : "ammoCart",
+			"moatDamage" : 70,
 
 			"buildings" :
 			[

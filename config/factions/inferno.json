@@ -147,6 +147,7 @@
 			"mageGuild" : 5,
 			"primaryResource" : "mercury",
 			"warMachine" : "ballista",
+			"moatDamage" : 90,
 
 			"buildings" :
 			[

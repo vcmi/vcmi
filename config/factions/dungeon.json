@@ -146,6 +146,7 @@
 			"mageGuild" : 5,
 			"primaryResource" : "sulfur",
 			"warMachine" : "ballista",
+			"moatDamage" : 90,
 
 			"buildings" :
 			[

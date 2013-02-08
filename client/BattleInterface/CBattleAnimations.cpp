@@ -725,7 +725,7 @@ bool CShootingAnimation::init()
 	// If the creature id is 149 then it's a arrow tower which has no additional info so get the
 	// actual arrow tower shooter instead.
 	const CCreature *shooterInfo = shooter->getCreature();
-	if (shooterInfo->idNumber == 149)
+	if (shooterInfo->idNumber == CreatureID::ARROW_TOWERS)
 	{
 		int creID = owner->siegeH->town->town->clientInfo.siegeShooter;
 		shooterInfo = CGI->creh->creatures[creID];

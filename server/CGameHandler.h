@@ -100,7 +100,7 @@ public:
 	std::map<ui32, CFunctionList<void(ui32)> > callbacks; //query id => callback function - for selection and yes/no dialogs
 	std::map<ui32, std::pair<si32,si32> > allowedExchanges;
 
-	bool isBlockedByQueries(const CPack *pack, int packType, ui8 player); 
+	bool isBlockedByQueries(const CPack *pack, int packType, TPlayerColor player); 
 	bool isAllowedExchange(int id1, int id2);
 	bool isAllowedArrangePack(const ArrangeStacks *pack);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
@@ -129,19 +129,19 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//from IGameCallback
 	//do sth
-	void changeSpells(int hid, bool give, const std::set<ui32> &spells) OVERRIDE;
-	bool removeObject(int objid) OVERRIDE;
+	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<ui32> &spells) OVERRIDE;
+	bool removeObject(const CGObjectInstance * obj) OVERRIDE;
 	void setBlockVis(int objid, bool bv) OVERRIDE;
-	void setOwner(int objid, ui8 owner) OVERRIDE;
+	void setOwner(const CGObjectInstance * obj, TPlayerColor owner) OVERRIDE;
 	void setHoverName(int objid, MetaString * name) OVERRIDE;
-	void changePrimSkill(int ID, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) OVERRIDE;
+	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) OVERRIDE;
 	void changeSecSkill(int ID, SecondarySkill::SecondarySkill which, int val, bool abs=false) OVERRIDE; 
 	//void showInfoDialog(InfoWindow *iw) OVERRIDE;
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE;
 	ui32 showBlockingDialog(BlockingDialog *iw) OVERRIDE; //synchronous version of above
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) OVERRIDE;
 	void showThievesGuildWindow(int player, int requestingObjId) OVERRIDE;
-	void giveResource(int player, Res::ERes which, int val) OVERRIDE;
+	void giveResource(TPlayerColor player, Res::ERes which, int val) OVERRIDE;
 
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE;
 	void takeCreatures(int objid, const std::vector<CStackBasicDescriptor> &creatures) OVERRIDE;
@@ -161,18 +161,18 @@ public:
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE;
 
 	void showCompInfo(ShowInInfobox * comp) OVERRIDE;
-	void heroVisitCastle(int obj, int heroID) OVERRIDE;
-	void stopHeroVisitCastle(int obj, int heroID) OVERRIDE;
+	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) OVERRIDE;
+	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) OVERRIDE;
 	//bool removeArtifact(const CArtifact* art, int hid) OVERRIDE;
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, boost::function<void(BattleResult*)> cb = 0, const CGTownInstance *town = NULL) OVERRIDE; //use hero=NULL for no hero
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false) OVERRIDE; //if any of armies is hero, hero will be used
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false) OVERRIDE; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle//void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb) OVERRIDE; //for hero<=>neutral army
 	void setAmount(int objid, ui32 val) OVERRIDE;
-	bool moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255) OVERRIDE;
+	bool moveHero(si32 hid, int3 dst, ui8 instant, TPlayerColor asker = GameConstants::NEUTRAL_PLAYER) OVERRIDE;
 	void giveHeroBonus(GiveBonus * bonus) OVERRIDE;
 	void setMovePoints(SetMovePoints * smp) OVERRIDE;
 	void setManaPoints(int hid, int val) OVERRIDE;
-	void giveHero(int id, int player) OVERRIDE;
+	void giveHero(int id, TPlayerColor player) OVERRIDE;
 	void changeObjPos(int objid, int3 newPos, ui8 flags) OVERRIDE;
 	void heroExchange(si32 hero1, si32 hero2) OVERRIDE;
 	//////////////////////////////////////////////////////////////////////////
@@ -180,7 +180,7 @@ public:
 	void setPortalDwelling(const CGTownInstance * town, bool forced, bool clear);
 	bool tryAttackingGuard(const int3 &guardPos, const CGHeroInstance * h);
 	void visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h);
-	bool teleportHero(si32 hid, si32 dstid, ui8 source, ui8 asker = 255);
+	bool teleportHero(si32 hid, si32 dstid, ui8 source, TPlayerColor asker = GameConstants::NEUTRAL_PLAYER);
 	void vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h);
 	void levelUpHero(int ID, SecondarySkill::SecondarySkill skill);//handle client respond and send one more request if needed
 	void levelUpHero(int ID);//initial call - check if hero have remaining levelups & handle them
@@ -204,11 +204,11 @@ public:
 	void stackTurnTrigger(const CStack * stack);
 	void handleDamageFromObstacle(const CObstacleInstance &obstacle, const CStack * curStack); //checks if obstacle is land mine and handles possible consequences
 	void removeObstacle(const CObstacleInstance &obstacle);
-	bool queryReply( ui32 qid, ui32 answer, ui8 player );
-	bool hireHero( const CGObjectInstance *obj, ui8 hid, ui8 player );
+	bool queryReply( ui32 qid, ui32 answer, TPlayerColor player );
+	bool hireHero( const CGObjectInstance *obj, ui8 hid, TPlayerColor player );
 	bool buildBoat( ui32 objid );
 	bool setFormation( si32 hid, ui8 formation );
-	bool tradeResources(const IMarket *market, ui32 val, ui8 player, ui32 id1, ui32 id2);
+	bool tradeResources(const IMarket *market, ui32 val, TPlayerColor player, ui32 id1, ui32 id2);
 	bool sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, TSlot slot, ui32 count);
 	bool sendResources(ui32 val, TPlayerColor player, Res::ERes r1, TPlayerColor r2);
 	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, Res::ERes resourceID);
@@ -225,7 +225,7 @@ public:
 	bool buildStructure(si32 tid, si32 bid, bool force=false);//force - for events: no cost, no checkings
 	bool razeStructure(si32 tid, si32 bid);
 	bool disbandCreature( si32 id, ui8 pos );
-	bool arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val, ui8 player);
+	bool arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val, TPlayerColor player);
 	void save(const std::string &fname);
 	void close();
 	void handleTimeEvents();
@@ -245,9 +245,9 @@ public:
 	ui32 getQueryResult(TPlayerColor player, int queryID);
 	void sendMessageToAll(const std::string &message);
 	void sendMessageTo(CConnection &c, const std::string &message);
-	void applyAndAsk(Query * sel, ui8 player, boost::function<void(ui32)> &callback);
-	void prepareNewQuery(Query * queryPack, ui8 player, const boost::function<void(ui32)> &callback = 0); //generates unique query id and writes it to the pack; blocks the player till query is answered (then callback is called)
-	void ask(Query * sel, ui8 player, const CFunctionList<void(ui32)> &callback);
+	void applyAndAsk(Query * sel, TPlayerColor player, boost::function<void(ui32)> &callback);
+	void prepareNewQuery(Query * queryPack, TPlayerColor player, const boost::function<void(ui32)> &callback = 0); //generates unique query id and writes it to the pack; blocks the player till query is answered (then callback is called)
+	void ask(Query * sel, TPlayerColor player, const CFunctionList<void(ui32)> &callback);
 	void sendToAllClients(CPackForClient * info);
 	void sendAndApply(CPackForClient * info);
 	void applyAndSend(CPackForClient * info);

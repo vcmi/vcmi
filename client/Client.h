@@ -162,18 +162,18 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	//not working yet, will be implement somewhen later with support for local-sim-based gameplay
-	void changeSpells(int hid, bool give, const std::set<ui32> &spells) OVERRIDE {};
-	bool removeObject(int objid) OVERRIDE {return false;};
+	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<ui32> &spells) OVERRIDE {};
+	bool removeObject(const CGObjectInstance * obj) OVERRIDE {return false;};
 	void setBlockVis(int objid, bool bv) OVERRIDE {};
-	void setOwner(int objid, TPlayerColor owner) OVERRIDE {};
+	void setOwner(const CGObjectInstance * obj, TPlayerColor owner) OVERRIDE {};
 	void setHoverName(int objid, MetaString * name) OVERRIDE {};
-	void changePrimSkill(int ID, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) OVERRIDE {};
+	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) OVERRIDE {};
 	void changeSecSkill(int ID, SecondarySkill::SecondarySkill which, int val, bool abs=false) OVERRIDE {}; 
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE {};
 	ui32 showBlockingDialog(BlockingDialog *iw) OVERRIDE {return 0;}; //synchronous version of above
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) OVERRIDE {};
 	void showThievesGuildWindow(int player, int requestingObjId) OVERRIDE {};
-	void giveResource(int player, Res::ERes which, int val) OVERRIDE {};
+	void giveResource(TPlayerColor player, Res::ERes which, int val) OVERRIDE {};
 
 	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE {};
 	void takeCreatures(int objid, const std::vector<CStackBasicDescriptor> &creatures) OVERRIDE {};
@@ -193,8 +193,8 @@ public:
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE {return false;};
 
 	void showCompInfo(ShowInInfobox * comp) OVERRIDE {};
-	void heroVisitCastle(int obj, int heroID) OVERRIDE {};
-	void stopHeroVisitCastle(int obj, int heroID) OVERRIDE {};
+	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) OVERRIDE {};
+	void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) OVERRIDE {};
 	//void giveHeroArtifact(int artid, int hid, int position){}; 
 	//void giveNewArtifact(int hid, int position){};
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, boost::function<void(BattleResult*)> cb = 0, const CGTownInstance *town = NULL) OVERRIDE {}; //use hero=NULL for no hero
@@ -205,7 +205,7 @@ public:
 	void giveHeroBonus(GiveBonus * bonus) OVERRIDE {};
 	void setMovePoints(SetMovePoints * smp) OVERRIDE {};
 	void setManaPoints(int hid, int val) OVERRIDE {};
-	void giveHero(int id, int player) OVERRIDE {};
+	void giveHero(int id, TPlayerColor player) OVERRIDE {};
 	void changeObjPos(int objid, int3 newPos, ui8 flags) OVERRIDE {};
 	void sendAndApply(CPackForClient * info) OVERRIDE {};
 	void heroExchange(si32 hero1, si32 hero2) OVERRIDE {};

@@ -460,10 +460,10 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	}
 }
 
-void CGameHandler::changePrimSkill(int ID, PrimarySkill::PrimarySkill which, si64 val, bool abs)
+void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs)
 {
 	SetPrimSkill sps;
-	sps.id = ID;
+	sps.id = hero->id;
 	sps.which = which;
 	sps.abs = abs;
 	sps.val = val;
@@ -472,16 +472,15 @@ void CGameHandler::changePrimSkill(int ID, PrimarySkill::PrimarySkill which, si6
 	//only for exp - hero may level up
 	if (which == PrimarySkill::EXPERIENCE)
 	{
-		levelUpHero(ID);
-		CGHeroInstance *h = static_cast<CGHeroInstance *>(gs->map->objects[ID].get());
-		if (h->commander && h->commander->alive)
+		levelUpHero(hero->id);
+		if (hero->commander && hero->commander->alive)
 		{
 			SetCommanderProperty scp;
-			scp.heroid = h->id;
+			scp.heroid = hero->id;
 			scp.which = SetCommanderProperty::EXPERIENCE;
 			scp.amount = val;
 			sendAndApply (&scp);
-			levelUpCommander (h->commander);
+			levelUpCommander (hero->commander);
 			CBonusSystemNode::treeHasChanged();
 		}
 	}
@@ -717,9 +716,9 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 		//give exp
 		if (battleResult.data->exp[0] && hero1)
-			changePrimSkill(hero1->id, PrimarySkill::EXPERIENCE, battleResult.data->exp[0]);
+			changePrimSkill(hero1, PrimarySkill::EXPERIENCE, battleResult.data->exp[0]);
 		else if (battleResult.data->exp[1] && hero2)
-			changePrimSkill(hero2->id, PrimarySkill::EXPERIENCE, battleResult.data->exp[1]);
+			changePrimSkill(hero2, PrimarySkill::EXPERIENCE, battleResult.data->exp[1]);
 		else
 			afterBattleCallback();
 	}
@@ -799,7 +798,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		bat.flags |= BattleAttack::DEATH_BLOW;
 	}
 
-	if(att->getCreature()->idNumber == 146)
+	if(att->getCreature()->idNumber == CreatureID::BALLISTA)
 	{
 		static const int artilleryLvlToChance[] = {0, 50, 75, 100};
 		const CGHeroInstance * owner = gs->curB->getHero(att->owner);
@@ -1177,7 +1176,7 @@ void CGameHandler::newTurn()
 		{
 			if (obj && obj->ID == Obj::PRISON) //give imprisoned hero 0 exp to level him up. easiest to do at this point
 			{
-				changePrimSkill (obj->id, PrimarySkill::EXPERIENCE, 0);
+				changePrimSkill (getHero(obj->id), PrimarySkill::EXPERIENCE, 0);
 			}
 		}
 	}
@@ -1658,16 +1657,16 @@ void CGameHandler::setBlockVis(int objid, bool bv)
 	sendAndApply(&sop);
 }
 
-bool CGameHandler::removeObject( int objid )
+bool CGameHandler::removeObject( const CGObjectInstance * obj )
 {
-	if(!getObj(objid))
+	if(!obj || !getObj(obj->id))
 	{
 		tlog1 << "Something wrong, that object already has been removed or hasn't existed!\n";
 		return false;
 	}
 
 	RemoveObject ro;
-	ro.id = objid;
+	ro.id = obj->id;
 	sendAndApply(&ro);
 
 	winLoseHandle(255); //eg if monster escaped (removing objs after battle is done dircetly by endBattle, not this function)
@@ -1680,11 +1679,11 @@ void CGameHandler::setAmount(int objid, ui32 val)
 	sendAndApply(&sop);
 }
 
-bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*/ )
+bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, TPlayerColor asker /*= 255*/ )
 {
 	const CGHeroInstance *h = getHero(hid);
 
-	if(!h  || (asker != 255 && (instant  ||   h->getOwner() != gs->currentPlayer)) //not turn of that hero or player can't simply teleport hero (at least not with this function)
+	if(!h  || (asker != GameConstants::NEUTRAL_PLAYER && (instant  ||   h->getOwner() != gs->currentPlayer)) //not turn of that hero or player can't simply teleport hero (at least not with this function)
 	  )
 	{
 		tlog1 << "Illegal call to move hero!\n";
@@ -1839,7 +1838,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	}
 }
 
-bool CGameHandler::teleportHero(si32 hid, si32 dstid, ui8 source, ui8 asker/* = 255*/)
+bool CGameHandler::teleportHero(si32 hid, si32 dstid, ui8 source, TPlayerColor asker/* = 255*/)
 {
 	const CGHeroInstance *h = getHero(hid);
 	const CGTownInstance *t = getTown(dstid);
@@ -1861,16 +1860,16 @@ bool CGameHandler::teleportHero(si32 hid, si32 dstid, ui8 source, ui8 asker/* = 
 	return true;
 }
 
-void CGameHandler::setOwner(int objid, ui8 owner)
+void CGameHandler::setOwner(const CGObjectInstance * obj, TPlayerColor owner)
 {
-	ui8 oldOwner = getOwner(objid);
-	SetObjectProperty sop(objid,1,owner);
+	ui8 oldOwner = getOwner(obj->id);
+	SetObjectProperty sop(obj->id,1,owner);
 	sendAndApply(&sop);
 
 	winLoseHandle(1<<owner | 1<<oldOwner);
-	if(owner < GameConstants::PLAYER_LIMIT && getTown(objid)) //town captured
+	if(owner < GameConstants::PLAYER_LIMIT && dynamic_cast<const CGTownInstance *>(obj)) //town captured
 	{
-		const CGTownInstance * town = getTown(objid);
+		const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
 		if (town->hasBuilt(EBuilding::PORTAL_OF_SUMMON, ETownType::DUNGEON))
 			setPortalDwelling(town, true, false);
 
@@ -1883,7 +1882,6 @@ void CGameHandler::setOwner(int objid, ui8 owner)
 		}
 	}
 
-	const CGObjectInstance * obj = getObj(objid);
 	const PlayerState * p = gs->getPlayer(owner);
 
 	if((obj->ID == Obj::CREATURE_GENERATOR1 || obj->ID == Obj::CREATURE_GENERATOR4 ) && p && p->dwellings.size()==1)//first dwelling captured
@@ -1923,7 +1921,7 @@ ui32 CGameHandler::showBlockingDialog( BlockingDialog *iw )
 	return 0;
 }
 
-void CGameHandler::giveResource(int player, Res::ERes which, int val) //TODO: cap according to Bersy's suggestion
+void CGameHandler::giveResource(TPlayerColor player, Res::ERes which, int val) //TODO: cap according to Bersy's suggestion
 {
 	if(!val) return; //don't waste time on empty call
 	SetResource sr;
@@ -1937,7 +1935,7 @@ void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance
 {
 	boost::function<void()> removeOrNot = 0;
 	if(remove)
-		removeOrNot = boost::bind(&CGameHandler::removeObject, this, obj->id);
+		removeOrNot = boost::bind(&CGameHandler::removeObject, this, obj);
 
 	COMPLAIN_RET_IF(!creatures.stacksCount(), "Strange, giveCreatures called without args!");
 	COMPLAIN_RET_IF(obj->stacksCount(), "Cannot give creatures from not-cleared object!");
@@ -1990,19 +1988,18 @@ void CGameHandler::showCompInfo(ShowInInfobox * comp)
 {
 	sendToAllClients(comp);
 }
-void CGameHandler::heroVisitCastle(int obj, int heroID)
+void CGameHandler::heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)
 {
 	HeroVisitCastle vc;
-	vc.hid = heroID;
-	vc.tid = obj;
+	vc.hid = hero->id;
+	vc.tid = obj->id;
 	vc.flags |= 1;
 	sendAndApply(&vc);
-	const CGHeroInstance *h = getHero(heroID);
-	vistiCastleObjects (getTown(obj), h);
-	giveSpells (getTown(obj), getHero(heroID));
+	vistiCastleObjects (obj, hero);
+	giveSpells (obj, hero);
 
 	if(gs->map->victoryCondition.condition == EVictoryConditionType::TRANSPORTITEM)
-		checkLossVictory(h->tempOwner); //transported artifact?
+		checkLossVictory(hero->tempOwner); //transported artifact?
 }
 
 void CGameHandler::vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h)
@@ -2012,11 +2009,11 @@ void CGameHandler::vistiCastleObjects (const CGTownInstance *t, const CGHeroInst
 		(*i)->onHeroVisit (h);
 }
 
-void CGameHandler::stopHeroVisitCastle(int obj, int heroID)
+void CGameHandler::stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)
 {
 	HeroVisitCastle vc;
-	vc.hid = heroID;
-	vc.tid = obj;
+	vc.hid = hero->id;
+	vc.tid = obj->id;
 	sendAndApply(&vc);
 }
 
@@ -2058,10 +2055,10 @@ void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstan
 	startBattleI(army1, army2, army2->visitablePos(), cb, creatureBank);
 }
 
-void CGameHandler::changeSpells( int hid, bool give, const std::set<ui32> &spells )
+void CGameHandler::changeSpells( const CGHeroInstance * hero, bool give, const std::set<ui32> &spells )
 {
 	ChangeSpells cs;
-	cs.hid = hid;
+	cs.hid = hero->id;
 	cs.spells = spells;
 	cs.learn = give;
 	sendAndApply(&cs);
@@ -2093,7 +2090,7 @@ void CGameHandler::setManaPoints( int hid, int val )
 	sendAndApply(&sm);
 }
 
-void CGameHandler::giveHero( int id, int player )
+void CGameHandler::giveHero( int id, TPlayerColor player )
 {
 	GiveHero gh;
 	gh.id = id;
@@ -2215,7 +2212,7 @@ void CGameHandler::heroExchange(si32 hero1, si32 hero2)
 	}
 }
 
-void CGameHandler::prepareNewQuery(Query * queryPack, ui8 player, const boost::function<void(ui32)> &callback)
+void CGameHandler::prepareNewQuery(Query * queryPack, TPlayerColor player, const boost::function<void(ui32)> &callback)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 	tlog4 << "Creating a query for player " << (int)player << " with ID=" << QID << std::endl;
@@ -2225,14 +2222,14 @@ void CGameHandler::prepareNewQuery(Query * queryPack, ui8 player, const boost::f
 	QID++;
 }
 
-void CGameHandler::applyAndAsk( Query * sel, ui8 player, boost::function<void(ui32)> &callback )
+void CGameHandler::applyAndAsk( Query * sel, TPlayerColor player, boost::function<void(ui32)> &callback )
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 	prepareNewQuery(sel, player, callback);
 	sendAndApply(sel);
 }
 
-void CGameHandler::ask( Query * sel, ui8 player, const CFunctionList<void(ui32)> &callback )
+void CGameHandler::ask( Query * sel, TPlayerColor player, const CFunctionList<void(ui32)> &callback )
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 	prepareNewQuery(sel, player, callback);
@@ -2347,7 +2344,7 @@ void CGameHandler::close()
 	//exit(0);
 }
 
-bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val, ui8 player )
+bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val, TPlayerColor player )
 {
 	const CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id1].get()),
 		*s2 = static_cast<CArmedInstance*>(gs->map->objects[id2].get());
@@ -3075,7 +3072,7 @@ bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, Secon
 	return true;
 }
 
-bool CGameHandler::tradeResources(const IMarket *market, ui32 val, ui8 player, ui32 id1, ui32 id2)
+bool CGameHandler::tradeResources(const IMarket *market, ui32 val, TPlayerColor player, ui32 id1, ui32 id2)
 {
 	int r1 = gs->getPlayer(player)->resources[id1],
 		r2 = gs->getPlayer(player)->resources[id2];
@@ -3196,7 +3193,7 @@ bool CGameHandler::setFormation( si32 hid, ui8 formation )
 	return true;
 }
 
-bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
+bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, TPlayerColor player)
 {
 	const PlayerState *p = gs->getPlayer(player);
 	const CGTownInstance *t = gs->getTown(obj->id);
@@ -3270,7 +3267,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, ui8 player)
 	return true;
 }
 
-bool CGameHandler::queryReply(ui32 qid, ui32 answer, ui8 player)
+bool CGameHandler::queryReply(ui32 qid, ui32 answer, TPlayerColor player)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 	states.removeQuery(player, qid);
@@ -3517,7 +3514,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			}
 
 			//ballista & artillery handling
-			if(destStack->alive() && stack->getCreature()->idNumber == 146)
+			if(destStack->alive() && stack->getCreature()->idNumber == CreatureID::BALLISTA)
 			{
 				BattleAttack bat2;
 				bat2.flags |= BattleAttack::SHOT;
@@ -3888,7 +3885,7 @@ void CGameHandler::playerMessage( TPlayerColor player, const std::string &messag
 	else if(message == "vcmiglorfindel") //selected hero gains a new level
 	{
 		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
-		changePrimSkill(hero->id, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level+1) - VLC->heroh->reqExp(hero->level));
+		changePrimSkill(hero, PrimarySkill::EXPERIENCE, VLC->heroh->reqExp(hero->level+1) - VLC->heroh->reqExp(hero->level));
 	}
 	else if(message == "vcmisilmaril") //player wins
 	{
@@ -4542,7 +4539,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 
 		if(st->hasBonusOfType(Bonus::POISON))
 		{
-			const Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, 71) && Selector::type(Bonus::STACK_HEALTH));
+			const Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, Spells::POISON) && Selector::type(Bonus::STACK_HEALTH));
 			if (b) //TODO: what if not?...
 			{
 				bte.val = std::max (b->val - 10, -(st->valOfBonuses(Bonus::POISON)));
@@ -4833,7 +4830,7 @@ bool CGameHandler::complain( const std::string &problem )
 	return true;
 }
 
-ui32 CGameHandler::getQueryResult( ui8 player, int queryID )
+ui32 CGameHandler::getQueryResult( TPlayerColor player, int queryID )
 {
 	//TODO: write
 	return 0;
@@ -5059,12 +5056,12 @@ void CGameHandler::checkLossVictory( TPlayerColor player )
 	{
 		auto hlp = p->heroes;
 		for (auto i = hlp.cbegin(); i != hlp.cend(); i++) //eliminate heroes
-			removeObject((*i)->id);
+			removeObject(*i);
 
 		for (auto i = gs->map->objects.cbegin(); i != gs->map->objects.cend(); i++) //unflag objs
 		{
 			if(*i  &&  (*i)->tempOwner == player)
-				setOwner((**i).id,GameConstants::NEUTRAL_PLAYER);
+				setOwner(*i,GameConstants::NEUTRAL_PLAYER);
 		}
 
 		//eliminating one player may cause victory of another:
@@ -5629,7 +5626,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 	int dump, exp;
 	market->getOffer(crid, 0, dump, exp, EMarketMode::CREATURE_EXP);
 	exp *= count;
-	changePrimSkill(hero->id, PrimarySkill::EXPERIENCE, hero->calculateXp(exp));
+	changePrimSkill(hero, PrimarySkill::EXPERIENCE, hero->calculateXp(exp));
 
 	return true;
 }
@@ -5647,7 +5644,7 @@ bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * h
 	m->getOffer(hero->getArtTypeId(slot), 0, dmp, expToGive, EMarketMode::ARTIFACT_EXP);
 
 	removeArtifact(al);
-	changePrimSkill(hero->id, PrimarySkill::EXPERIENCE, expToGive);
+	changePrimSkill(hero, PrimarySkill::EXPERIENCE, expToGive);
 	return true;
 }
 
@@ -5759,14 +5756,14 @@ void CGameHandler::tryJoiningArmy(const CArmedInstance *src, const CArmedInstanc
 		}
 		boost::function<void()> removeOrNot = 0;
 		if(removeObjWhenFinished)
-			removeOrNot = boost::bind(&IGameCallback::removeObject,this,src->id);
+			removeOrNot = boost::bind(&IGameCallback::removeObject,this,src);
 		showGarrisonDialog(src->id, dst->id, true, removeOrNot); //show garrison window and optionally remove ourselves from map when player ends
 	}
 	else //merge
 	{
 		moveArmy(src, dst, allowMerging);
 		if(removeObjWhenFinished)
-			removeObject(src->id);
+			removeObject(src);
 	}
 }
 
@@ -5906,7 +5903,7 @@ void CGameHandler::runBattle()
 
 			const CGHeroInstance * curOwner = gs->curB->battleGetOwner(next);
 
-			if( (next->position < 0 || next->getCreature()->idNumber == 146)	//arrow turret or ballista
+			if( (next->position < 0 || next->getCreature()->idNumber == CreatureID::BALLISTA)	//arrow turret or ballista
 				&& (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::ARTILLERY) == 0)) //hero has no artillery
 			{
 				BattleAction attack;
@@ -5927,7 +5924,7 @@ void CGameHandler::runBattle()
 				continue;
 			}
 
-			if(next->getCreature()->idNumber == 145 && (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::BALLISTICS) == 0)) //catapult, hero has no ballistics
+			if(next->getCreature()->idNumber == CreatureID::CATAPULT && (!curOwner || curOwner->getSecSkillLevel(SecondarySkill::BALLISTICS) == 0)) //catapult, hero has no ballistics
 			{
 				BattleAction attack;
 				static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};
@@ -5943,7 +5940,7 @@ void CGameHandler::runBattle()
 			}
 
 
-			if(next->getCreature()->idNumber == 147) //first aid tent
+			if(next->getCreature()->idNumber == CreatureID::FIRST_AID_TENT)
 			{
 				std::vector< const CStack * > possibleStacks;
 
@@ -6155,7 +6152,7 @@ void CGameHandler::spawnWanderingMonsters(CreatureID::CreatureID creatureID)
 	}
 }
 
-bool CGameHandler::isBlockedByQueries(const CPack *pack, int packType, ui8 player)
+bool CGameHandler::isBlockedByQueries(const CPack *pack, int packType, TPlayerColor player)
 {
 	//it's always legal to send query reply (we'll check later if it makes sense)
 	if(packType == typeList.getTypeID<QueryReply>())

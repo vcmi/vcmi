@@ -79,7 +79,7 @@ bool EndTurn::applyGh( CGameHandler *gh )
 bool DismissHero::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT_OWNS(hid);
-	return gh->removeObject(hid);
+	return gh->removeObject(gh->getObj(hid));
 }
 
 bool MoveHero::applyGh( CGameHandler *gh )

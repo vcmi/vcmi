@@ -102,6 +102,7 @@ public:
 	ui32 mageLevel; //max available mage guild level
 	ui16 primaryRes;
 	ArtifactID::ArtifactID warMachine;
+	si32 moatDamage;
 
 	// Client-only data. Should be moved away from lib
 	struct ClientInfo
@@ -150,7 +151,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & names & typeID & creatures & dwellings & dwellingNames & buildings & hordeLvl & mageLevel
-			& primaryRes & warMachine & clientInfo;
+			& primaryRes & warMachine & clientInfo & moatDamage;
 	}
 };
 

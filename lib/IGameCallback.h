@@ -203,18 +203,18 @@ public:
 class DLL_LINKAGE IGameEventCallback : public IGameEventRealizer
 {
 public:
-	virtual void changeSpells(int hid, bool give, const std::set<ui32> &spells)=0;
-	virtual bool removeObject(int objid)=0;
+	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<ui32> &spells)=0;
+	virtual bool removeObject(const CGObjectInstance * obj)=0;
 	virtual void setBlockVis(int objid, bool bv)=0;
-	virtual void setOwner(int objid, TPlayerColor owner)=0;
+	virtual void setOwner(const CGObjectInstance * objid, TPlayerColor owner)=0;
 	virtual void setHoverName(int objid, MetaString * name)=0;
-	virtual void changePrimSkill(int ID, PrimarySkill::PrimarySkill which, si64 val, bool abs=false)=0;
+	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(int ID, SecondarySkill::SecondarySkill which, int val, bool abs=false)=0; 
 	virtual void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback)=0;
 	virtual ui32 showBlockingDialog(BlockingDialog *iw) =0; //synchronous version of above //TODO:
 	virtual void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) =0; //cb will be called when player closes garrison window
 	virtual void showThievesGuildWindow(int player, int requestingObjId) =0;
-	virtual void giveResource(int player, Res::ERes which, int val)=0;
+	virtual void giveResource(TPlayerColor player, Res::ERes which, int val)=0;
 
 	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
 	virtual void takeCreatures(int objid, const std::vector<CStackBasicDescriptor> &creatures) =0;
@@ -234,8 +234,8 @@ public:
 	virtual bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) = 0;
 
 	virtual void showCompInfo(ShowInInfobox * comp)=0;
-	virtual void heroVisitCastle(int obj, int heroID)=0;
-	virtual void stopHeroVisitCastle(int obj, int heroID)=0;
+	virtual void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
+	virtual void stopHeroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, boost::function<void(BattleResult*)> cb = 0, const CGTownInstance *town = NULL)=0; //use hero=NULL for no hero
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false)=0; //if any of armies is hero, hero will be used
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false)=0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
@@ -244,7 +244,7 @@ public:
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
 	virtual void setManaPoints(int hid, int val)=0;
-	virtual void giveHero(int id, int player)=0;
+	virtual void giveHero(int id, TPlayerColor player)=0;
 	virtual void changeObjPos(int objid, int3 newPos, ui8 flags)=0;
 	virtual void sendAndApply(CPackForClient * info)=0;
 	virtual void heroExchange(si32 hero1, si32 hero2)=0; //when two heroes meet on adventure map

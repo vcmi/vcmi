@@ -148,6 +148,7 @@
 			"horde" : [ 2, -1 ],
 			"mageGuild" : 4,
 			"warMachine" : "ballista",
+			"moatDamage" : 70,
 
 			"buildings" :
 			[

@@ -421,6 +421,8 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 		town.warMachine = CArtHandler::creatureToMachineID(static_cast<CreatureID::CreatureID>(creature));
 	});
 
+	town.moatDamage = source["moatDamage"].Float();
+
 	town.mageLevel = source["mageGuild"].Float();
 	town.names = source["names"].convertTo<std::vector<std::string> >();
 

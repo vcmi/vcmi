@@ -5,6 +5,7 @@
 #include "NetPacks.h"
 #include "CSpellHandler.h"
 #include "VCMI_Lib.h"
+#include "CTownHandler.h"
 
 /*
  * CBattleCallback.cpp, part of VCMI engine
@@ -22,7 +23,7 @@ namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 {
 	static void retreiveTurretDamageRange(const CStack *turret, double &outMinDmg, double &outMaxDmg)
 	{
-		assert(turret->getCreature()->idNumber == 149); //arrow turret
+		assert(turret->getCreature()->idNumber == CreatureID::ARROW_TOWERS);
 
 		switch(turret->position)
 		{
@@ -58,19 +59,6 @@ namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 		return stackLeft != destLeft;
 	}
 
-	static int getMoatDamage(int townType)
-	{
-		//TODO move to config file
-		static const int dmgs[] = {70, 70, -1,
-			90, 70, 90,
-			70, 90, 70};
-
-		if(townType >= 0 && townType < ARRAY_COUNT(dmgs))
-			return dmgs[townType];
-
-		tlog1 << "No moat info for town " << townType << std::endl;
-		return 0;
-	}
 	static EWallParts::EWallParts hexToWallPart(BattleHex hex)
 	{
 		//potentially attackable parts of wall
@@ -214,7 +202,7 @@ int CBattleInfoEssentials::battleGetMoatDmg() const
 	if(!town)
 		return 0;
 
-	return getMoatDamage(town->subID);
+	return town->town->moatDamage;
 }
 
 const CGTownInstance * CBattleInfoEssentials::battleGetDefendedTown() const
