@@ -251,6 +251,8 @@ void CCallback::setSelection(const CArmedInstance * obj)
 
 void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)
 {
+	assert(townOrTavern);
+	assert(hero);
 	ui8 i=0;
 	for(; i<gs->players[player].availableHeroes.size(); i++)
 	{

@@ -34,7 +34,7 @@
 #include "CObjectHandler.h" //for CArmedInstance
 #include "Mapping/CCampaignHandler.h" //for CCampaignState
 
-const ui32 version = 735;
+const ui32 version = 737;
 const TSlot COMMANDER_SLOT_PLACEHOLDER = -2;
 
 class CConnection;

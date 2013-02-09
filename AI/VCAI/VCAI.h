@@ -359,7 +359,7 @@ public:
 	bool fulfillsGoal (CGoal &goal, CGoal &mainGoal);
 	bool fulfillsGoal (CGoal &goal, const CGoal &mainGoal); //TODO: something smarter
 
-	void recruitHero(const CGTownInstance * t);
+	void recruitHero(const CGTownInstance * t, bool throwing = false);
 	std::vector<const CGObjectInstance *> getPossibleDestinations(HeroPtr h);
 	void buildStructure(const CGTownInstance * t);
 	//void recruitCreatures(const CGTownInstance * t);

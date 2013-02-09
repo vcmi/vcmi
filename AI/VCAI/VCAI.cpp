@@ -1882,9 +1882,8 @@ void VCAI::tryRealize(CGoal g)
 		{
 			if(const CGTownInstance *t = findTownWithTavern())
 			{
-				//TODO co jesli nie ma dostepnego bohatera?
+				recruitHero(t, true);
 				//TODO jezeli miasto jest zablokowane, sprobowac oczyscic wejscie
-				cb->recruitHero(t, cb->getAvailableHeroes(t)[0]);
 			}
 
 			//TODO karkolomna alternatywa - tawerna na mapie przygod lub wiezienie (nie wiem, czy warto?)
@@ -2505,10 +2504,14 @@ void VCAI::checkHeroArmy (HeroPtr h)
 	}
 }
 
-void VCAI::recruitHero(const CGTownInstance * t)
+void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 {
 	BNLOG("Trying to recruit a hero in %s at %s", t->name % t->visitablePos())
-	cb->recruitHero(t, cb->getAvailableHeroes(t).front());
+
+	if(auto availableHero = frontOrNull(cb->getAvailableHeroes(t)))
+		cb->recruitHero(t, availableHero);
+	else if(throwing)
+		throw cannotFulfillGoalException("No available heroes in tavern in " + t->nodeName());
 }
 
 void VCAI::finish()
