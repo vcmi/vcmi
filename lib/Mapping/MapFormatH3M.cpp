@@ -1329,8 +1329,7 @@ void CMapLoaderH3M::readObjects()
 				CGHeroPlaceholder * hp = new CGHeroPlaceholder();
 				nobj = hp;
 
-				int a = reader.readUInt8();//unknown byte, seems to be always 0 (if not - scream!)
-				tlog2 << "Unhandled Hero Placeholder detected: " << a << std::endl;
+				hp->setOwner(reader.readUInt8());
 
 				int htid = reader.readUInt8();; //hero type id
 				nobj->subID = htid;

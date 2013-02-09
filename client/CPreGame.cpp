@@ -3409,7 +3409,7 @@ void CBonusSelection::updateBonusSelection()
 	bonuses->buttons.clear();
 
 		static const char *bonusPics[] = {"SPELLBON.DEF", "TWCRPORT.DEF", "", "ARTIFBON.DEF", "SPELLBON.DEF",
-			"PSKILBON.DEF", "SSKILBON.DEF", "BORES.DEF", "CREST58.DEF", "PORTRAITSLARGE"};
+			"PSKILBON.DEF", "SSKILBON.DEF", "BORES.DEF", "PORTRAITSLARGE", "PORTRAITSLARGE"};
 
 		for(int i = 0; i < bonDescs.size(); i++)
 		{
@@ -3531,11 +3531,14 @@ void CBonusSelection::updateBonusSelection()
 				}
 				break;
 			case CScenarioTravel::STravelBonus::PLAYER_PREV_SCENARIO:
-				picNumber = bonDescs[i].info1;
-				desc = CGI->generaltexth->allTexts[718];
+				{
+					auto superhero = ourCampaign->camp->scenarios[bonDescs[i].info2].strongestHero(bonDescs[i].info1);
+					if (!superhero) tlog5 << "No superhero! How could it be transfered?\n";
+					picNumber = superhero ? superhero->portrait : 0;
+					desc = CGI->generaltexth->allTexts[719];
 
-				boost::algorithm::replace_first(desc, "%s", CGI->generaltexth->capColors[bonDescs[i].info1]); //player color
-				boost::algorithm::replace_first(desc, "%s", ourCampaign->camp->scenarios[bonDescs[i].info2].mapName); //scenario
+					boost::algorithm::replace_first(desc, "%s", ourCampaign->camp->scenarios[bonDescs[i].info2].scenarioName); //scenario
+				}
 
 				break;
 			case CScenarioTravel::STravelBonus::HERO:

@@ -10,6 +10,8 @@
 #include "../CArtHandler.h" //for hero crossover
 #include "../CObjectHandler.h" //for hero crossover
 #include "../CHeroHandler.h"
+#include "CMapService.h"
+#include "CMap.h"
 
 namespace fs = boost::filesystem;
 
@@ -64,6 +66,7 @@ unique_ptr<CCampaign> CCampaignHandler::getCampaign( const std::string & name )
 
 		//set map piece appropriately, convert vector to string
 		ret->mapPieces[scenarioID].assign(reinterpret_cast< const char* >(file[g].data()), file[g].size());
+		ret->scenarios[scenarioID].scenarioName = CMapService::loadMapHeader((const ui8*)ret->mapPieces[scenarioID].c_str(), ret->mapPieces[scenarioID].size())->name;
 		scenarioID++;
 	}
 
@@ -395,6 +398,17 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 			return !(travelOptions.monstersKeptByHero[j.first / 8] & (1 << (j.first%8)) );
 		});
 	}
+}
+
+const CGHeroInstance * CCampaignScenario::strongestHero( TPlayerColor owner ) const
+{
+	using boost::adaptors::filtered;
+	std::function<bool(CGHeroInstance*)> isOwned =  [=](const CGHeroInstance *h){ return h->tempOwner == owner; };
+	auto ownedHeroes = crossoverHeroes | filtered(isOwned);
+
+	auto i = vstd::maxElementByFun(ownedHeroes,
+									[](const CGHeroInstance * h) {return h->getTotalStrength();});
+	return i == ownedHeroes.end() ? nullptr : *i;
 }
 
 bool CScenarioTravel::STravelBonus::isBonusForHero() const

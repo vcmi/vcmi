@@ -79,6 +79,7 @@
 #include <boost/program_options.hpp>
 #include <boost/optional.hpp>
 #include <boost/range/algorithm.hpp>
+#include <boost/range/adaptor/filtered.hpp>
 #include <boost/thread.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
