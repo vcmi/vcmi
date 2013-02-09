@@ -1268,6 +1268,8 @@ public:
 	void enableStackSendingByID();
 	void disableSmartPointerSerialization();
 	void enableSmartPointerSerializatoin();
+
+	void prepareForSendingHeroes(); //disables sending vectorised, enables smart pointer serialization, clears saved/loaded ptr cache
 };
 
 DLL_LINKAGE std::ostream &operator<<(std::ostream &str, const CConnection &cpc);

@@ -273,6 +273,16 @@ void CConnection::enableSmartPointerSerializatoin()
 	COSer<CConnection>::smartPointerSerialization = true;
 }
 
+void CConnection::prepareForSendingHeroes()
+{
+	loadedPointers.clear();
+	savedPointers.clear();
+	CISer<CConnection>::smartVectorMembersSerialization = false;
+	COSer<CConnection>::smartVectorMembersSerialization = false;
+	CISer<CConnection>::smartPointerSerialization = true;
+	COSer<CConnection>::smartPointerSerialization = true;
+}
+
 CSaveFile::CSaveFile( const std::string &fname )
 {
 	registerTypes(*this);

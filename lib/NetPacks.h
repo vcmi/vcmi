@@ -572,6 +572,16 @@ struct AddQuest : public CPackForClient //121
 	}
 };
 
+struct PrepareForAdvancingCampaign : public CPackForClient //122
+{
+	PrepareForAdvancingCampaign() {type = 122;}
+
+	void applyCl(CClient *cl);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+	}
+};
+
 struct RemoveObject : public CPackForClient //500
 {
 	RemoveObject(){type = 500;};

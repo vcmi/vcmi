@@ -5027,6 +5027,7 @@ void CGameHandler::checkLossVictory( TPlayerColor player )
 	InfoWindow iw;
 	getLossVicMessage(player, vic ? vic : loss , vic, iw);
 	sendAndApply(&iw);
+
 	PlayerEndsGame peg;
 	peg.player = player;
 	peg.victory = vic;
@@ -5080,6 +5081,17 @@ void CGameHandler::checkLossVictory( TPlayerColor player )
 				}
 			}
 			gs->scenarioOps->campState->mapConquered(hes);
+
+			//Request clients to change connection mode
+			PrepareForAdvancingCampaign pfac;
+			sendAndApply(&pfac);
+			//Change connection mode
+			if(getPlayer(player)->human && getStartInfo()->campState)
+			{
+				BOOST_FOREACH(auto connection, conns)
+					connection->prepareForSendingHeroes();
+			}
+
 
 			UpdateCampaignState ucs;
 			ucs.camp = gs->scenarioOps->campState;

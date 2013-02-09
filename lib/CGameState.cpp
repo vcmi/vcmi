@@ -1237,6 +1237,40 @@ void CGameState::init(StartInfo * si)
 
 	/*************************HEROES************************************************/
 	tlog4 << "\tSetting up heroes";
+	//Replace placeholders with heroes from previous missions
+	BOOST_FOREACH(auto obj, campHeroReplacements)
+	{
+		CGHeroPlaceholder *placeholder = dynamic_cast<CGHeroPlaceholder*>(&*map->objects[obj.second]);
+
+		CGHeroInstance *heroToPlace = obj.first;
+		heroToPlace->id = obj.second;
+		heroToPlace->tempOwner = placeholder->tempOwner;
+		heroToPlace->pos = placeholder->pos;
+		heroToPlace->type = VLC->heroh->heroes[heroToPlace->type->ID];
+
+		BOOST_FOREACH(auto &&i, heroToPlace->stacks)
+			i.second->type = VLC->creh->creatures[i.second->getCreatureID()];
+
+		auto fixArtifact = [&](CArtifactInstance * art)
+		{
+			art->artType = VLC->arth->artifacts[art->artType->id];
+			gs->map->artInstances.push_back(art);
+			art->id = gs->map->artInstances.size() - 1;
+		};
+
+		BOOST_FOREACH(auto &&i, heroToPlace->artifactsWorn)
+			fixArtifact(i.second.artifact);
+		BOOST_FOREACH(auto &&i, heroToPlace->artifactsInBackpack)
+			fixArtifact(i.artifact);
+
+		map->heroes.push_back(heroToPlace);
+		map->objects[heroToPlace->id] = heroToPlace;
+		map->addBlockVisTiles(heroToPlace);
+
+		//const auto & travelOptions = scenarioOps->campState->getCurrentScenario().travelOptions;
+	}
+
+
 	std::set<int> hids; //hero ids to create pool
 
 	for(ui32 i=0; i<map->allowedHeroes.size(); i++) //add to hids all allowed heroes
@@ -1256,71 +1290,7 @@ void CGameState::init(StartInfo * si)
 		hids.erase(vhi->subID);
 	}
 
-	BOOST_FOREACH(auto obj, campHeroReplacements)
-	{
-		CGHeroInstance * hero = new CGHeroInstance();
-		CGHeroInstance * oldHero = obj.first;
-		hero->initHero(oldHero->subID);
-		hero->id = obj.second;
-		map->objects[hero->id] = hero;
-		map->heroes.push_back(hero);
-		const auto & travelOptions = scenarioOps->campState->getCurrentScenario().travelOptions;
 
-		if (travelOptions.whatHeroKeeps & 1)
-		{
-			//giving exp
-			hero->exp = oldHero->exp;
-		}
-		if (travelOptions.whatHeroKeeps & 2)
-		{
-			//giving prim skills
-			for(int g=0; g<GameConstants::PRIMARY_SKILLS; ++g)
-			{
-				hero->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) &&
-					Selector::subtype(g) && Selector::sourceType(Bonus::HERO_BASE_SKILL) )->val
-					= oldHero->getBonusLocalFirst(Selector::type(Bonus::PRIMARY_SKILL) &&
-						Selector::subtype(g) && Selector::sourceType(Bonus::HERO_BASE_SKILL) )->val;
-			}
-		}
-		if (travelOptions.whatHeroKeeps & 4)
-		{
-			//giving sec skills
-			hero->secSkills = oldHero->secSkills;
-		}
-		if (travelOptions.whatHeroKeeps & 8)
-		{
-			//giving spells
-			hero->spells = oldHero->spells;
-		}
-		if (travelOptions.whatHeroKeeps & 16)
-		{
-			//giving artifacts
-			size_t totalArts = GameConstants::BACKPACK_START + oldHero->artifactsInBackpack.size();
-			for (size_t i=0; i<totalArts; i++ )
-			{
-				const ArtSlotInfo *info = oldHero->getSlot(static_cast<ArtifactPosition::ArtifactPosition>(i));
-				if (!info)
-					continue;
-
-				const CArtifactInstance *art = info->artifact;
-				if (!art)//FIXME: check spellbook and catapult behaviour
-					continue;
-
-				int id  = art->artType->id;
-				assert( 8*18 > id );//number of arts that fits into h3m format
-				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
-				auto slot = static_cast<ArtifactPosition::ArtifactPosition>(i);
-				if (takeable)
-					hero->setNewArtSlot(slot, const_cast<CArtifactInstance*>(oldHero->getSlot(slot)->artifact.get()), false);
-			}
-		}
-
-		//giving creatures
-		if(!oldHero->stacks.empty())
-		{
-			hero->stacks = oldHero->stacks;
-		}
-	}
 
 	BOOST_FOREACH(auto obj, map->objects) //prisons
 	{

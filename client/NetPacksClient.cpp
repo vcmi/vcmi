@@ -317,6 +317,11 @@ void UpdateCampaignState::applyCl( CClient *cl )
 		cl->finishCampaign(camp);
 }
 
+void PrepareForAdvancingCampaign::applyCl(CClient *cl)
+{
+	cl->serv->prepareForSendingHeroes();
+}
+
 void RemoveObject::applyFirstCl( CClient *cl )
 {
 	const CGObjectInstance *o = cl->getObj(id);
