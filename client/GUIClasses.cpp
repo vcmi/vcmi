@@ -1753,7 +1753,7 @@ void CMinorResDataBar::show(SDL_Surface * to)
 void CMinorResDataBar::showAll(SDL_Surface * to)
 {
 	blitAt(bg,pos.x,pos.y,to);
-	for (int i=0;i<7;i++)
+	for (Res::ERes i=Res::WOOD; i<=Res::GOLD; vstd::advance(i, 1))
 	{
 		std::string text = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(i));
 
@@ -2361,7 +2361,7 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 		case PLAYER:
 			ids = new std::vector<int>;
 			for(int i = 0; i < GameConstants::PLAYER_LIMIT; i++)
-				if(i != LOCPLINT->playerID && LOCPLINT->cb->getPlayerStatus(i) == PlayerState::INGAME)
+				if(i != LOCPLINT->playerID && LOCPLINT->cb->getPlayerStatus(i) == EPlayerStatus::INGAME)
 					ids->push_back(i);
 			break;
 
@@ -2426,7 +2426,7 @@ void CTradeWindow::initSubs(bool Left)
 				t->subtitle = boost::lexical_cast<std::string>(hero->getStackCount(t->serial));
 				break;
 			case RESOURCE:
-				t->subtitle = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(t->serial));
+				t->subtitle = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(t->serial)));
 				break;
 			}
 		}
@@ -2756,7 +2756,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		{
 			int newAmount = -1;
 			if(itemsType[1] == RESOURCE)
-				newAmount = LOCPLINT->cb->getResourceAmount(soldItemId);
+				newAmount = LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(soldItemId));
 			else if(itemsType[1] ==  CREATURE)
 				newAmount = hero->getStackCount(hLeft->serial) - (hero->Slots().size() == 1  &&  hero->needsLastStack());
 			else
@@ -2769,7 +2769,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 		}
 		else if(itemsType[1] == RESOURCE) //buying -> check if we can afford transaction
 		{
-			deal->block(LOCPLINT->cb->getResourceAmount(soldItemId) < r1);
+			deal->block(LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(soldItemId)) < r1);
 		}
 		else
 			deal->block(false);
@@ -3672,7 +3672,7 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 	recruit = new CAdventureMapButton("", "", boost::bind(&CTavernWindow::recruitb, this), 272, 355, "TPTAV01.DEF", SDLK_RETURN);
 	thiefGuild = new CAdventureMapButton(CGI->generaltexth->tavernInfo[5],"", boost::bind(&CTavernWindow::thievesguildb, this), 22, 428, "TPTAV02.DEF", SDLK_t);
 
-	if(LOCPLINT->cb->getResourceAmount(6) < 2500) //not enough gold
+	if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < 2500) //not enough gold
 	{
 		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[0]; //Cannot afford a Hero
 		recruit->block(2);
@@ -5204,7 +5204,7 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, int b
 	build = new CAdventureMapButton(CGI->generaltexth->allTexts[598], "", boost::bind(&CShipyardWindow::close, this), 42, 312, "IBUY30", SDLK_RETURN);
 	build->callback += onBuy;
 
-	for(size_t i = 0; i < cost.size(); i++)
+	for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
 	{
 		if(cost[i] > LOCPLINT->cb->getResourceAmount(i))
 		{
@@ -5384,7 +5384,7 @@ void CUniversityWindow::CItem::clickLeft(tribool down, bool previousState)
 	{
 		if ( state() != 2 )
 			return;
-		CUnivConfirmWindow *win = new CUnivConfirmWindow(parent, ID, LOCPLINT->cb->getResourceAmount(6) >= 2000);
+		CUnivConfirmWindow *win = new CUnivConfirmWindow(parent, ID, LOCPLINT->cb->getResourceAmount(Res::GOLD) >= 2000);
 		GH.pushInt(win);
 	}
 }

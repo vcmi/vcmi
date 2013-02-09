@@ -335,7 +335,7 @@ CResDataBar::~CResDataBar()
 void CResDataBar::draw(SDL_Surface * to)
 {
 	blitAt(bg,pos.x,pos.y,to);
-	for (int i=0;i<7;i++)
+	for (auto i=Res::WOOD; i<=Res::GOLD; vstd::advance(i, 1))
 	{
 		std::string text = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(i));
 

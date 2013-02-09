@@ -2067,7 +2067,7 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 
 	else
 	{
-		if(!victory && cb->getPlayerStatus(playerID) == PlayerState::INGAME) //enemy has lost
+		if(!victory && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME) //enemy has lost
 		{
 			std::string txt = CGI->generaltexth->allTexts[5]; //%s has been vanquished!
 			boost::algorithm::replace_first(txt, "%s", CGI->generaltexth->capColors[player]);

@@ -442,7 +442,7 @@ void CGObjectInstance::hideTiles(int ourplayer, int radius) const
 		if ( !vstd::contains(i->second.players, ourplayer ))//another team
 		{
 			for (auto j = i->second.players.begin(); j != i->second.players.end(); j++)
-				if ( cb->getPlayer(*j)->status == PlayerState::INGAME )//seek for living player (if any)
+				if ( cb->getPlayer(*j)->status == EPlayerStatus::INGAME )//seek for living player (if any)
 				{
 					FoWChange fw;
 					fw.mode = 0;
@@ -2694,7 +2694,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				}
 				else
 				{
-					ui32 res;
+					Res::ERes res;
 					si32 resval;
 					if(ttype==1)
 					{
@@ -2748,7 +2748,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 		case Obj::SCHOOL_OF_WAR:
 			{
 				int skill = (ID==Obj::SCHOOL_OF_MAGIC ? 2 : 0);
-				if(cb->getResource(cb->getOwner(heroID),6) < 1000) //not enough resources
+				if(cb->getResource(cb->getOwner(heroID), Res::GOLD) < 1000) //not enough resources
 				{
 					showInfoDialog(heroID,ot+2,sound);
 				}
@@ -3259,7 +3259,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 	}
 	else //accepted
 	{
-		if (cb->getResource(h->tempOwner,6) < cost) //player don't have enough gold!
+		if (cb->getResource(h->tempOwner, Res::GOLD) < cost) //player don't have enough gold!
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
@@ -4154,7 +4154,7 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 			}
 			return true;
 		case MISSION_RESOURCES:
-			for (int i = 0; i < 7; ++i) //including Mithril ?
+			for (Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, +1)) //including Mithril ?
 			{	//Quest has no direct access to callback
 				if (h->cb->getResource (h->tempOwner, i) < m7resources[i])
 					return false;
@@ -6013,7 +6013,7 @@ void CBank::newTurn() const
 			cb->setObjProperty (id, 11, 1); //daycounter++
 	}
 }
-bool CBank::wasVisited (ui8 player) const
+bool CBank::wasVisited (TPlayerColor player) const
 {
 	return !bc;
 }
@@ -6642,7 +6642,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if (!wasVisited (h->getOwner()) ) //if hero has not visited yet this cartographer
 	{
-		if (cb->getResource(h->tempOwner, 6) >= 1000) //if he can afford a map
+		if (cb->getResource(h->tempOwner, Res::GOLD) >= 1000) //if he can afford a map
 		{
 			//ask if he wants to buy one
 			int text=0;

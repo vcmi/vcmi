@@ -80,15 +80,15 @@ public:
 	bool isAllowed(int type, int id); //type: 0 - spell; 1- artifact; 2 - secondary skill
 
 	//player
-	const PlayerState * getPlayer(int color, bool verbose = true) const;
-	int getResource(int Player, int which) const;
+	const PlayerState * getPlayer(TPlayerColor color, bool verbose = true) const;
+	int getResource(TPlayerColor Player, Res::ERes which) const;
 	bool isVisible(int3 pos) const;
 	PlayerRelations::PlayerRelations getPlayerRelations(TPlayerColor color1, TPlayerColor color2) const;
 	void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
-	int getPlayerStatus(int player) const; //-1 if no such player
+	EPlayerStatus::EStatus getPlayerStatus(TPlayerColor player) const; //-1 if no such player
 	int getCurrentPlayer() const; //player that currently makes move // TODO synchronous turns
 	virtual int getLocalPlayer() const; //player that is currently owning given client (if not a client, then returns current player)
-	const PlayerSettings * getPlayerSettings(int color) const;
+	const PlayerSettings * getPlayerSettings(TPlayerColor color) const;
 
 
 	//armed object
@@ -101,7 +101,7 @@ public:
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
 	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
 	int estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
-	const CGHeroInstance* getSelectedHero(int player) const; //NULL if no hero is selected
+	const CGHeroInstance* getSelectedHero(TPlayerColor player) const; //NULL if no hero is selected
 	const CGHeroInstance* getSelectedHero() const; //of current (active) player
 
 	//objects
@@ -127,7 +127,7 @@ public:
 	const CGTownInstance * getTownInfo(int val, bool mode)const; //mode = 0 -> val = player town serial; mode = 1 -> val = object id (serial)
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const; //heroes that can be recruited
 	std::string getTavernGossip(const CGObjectInstance * townOrTavern) const; 
-	int canBuildStructure(const CGTownInstance *t, int ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
+	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, int ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID);
 	virtual bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
 	const CTown *getNativeTown(int color) const;
@@ -136,7 +136,7 @@ public:
 	const TeamState *getTeam(ui8 teamID) const;
 	const TeamState *getPlayerTeam(ui8 color) const;
 	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID) const;
-	int canBuildStructure(const CGTownInstance *t, int ID) const;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
+	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, int ID) const;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 };
 
 
@@ -157,7 +157,7 @@ public:
 	std::vector <const CGObjectInstance * > getMyObjects() const; //returns all objects flagged by belonging player
 	std::vector <QuestInfo> getMyQuests() const;
 
-	int getResourceAmount(int type)const;
+	int getResourceAmount(Res::ERes type) const;
 	TResources getResourceAmount() const;
 	const std::vector< std::vector< std::vector<ui8> > > & getVisibilityMap()const; //returns visibility map 
 	const PlayerSettings * getPlayerSettings(int color) const;

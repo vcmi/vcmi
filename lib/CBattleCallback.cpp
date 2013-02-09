@@ -299,7 +299,7 @@ int CBattleInfoEssentials::battleCastSpells(ui8 side) const
 	return getBattle()->castSpells[side];
 }
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(int player, ECastingMode::ECastingMode mode) const
+ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(TPlayerColor player, ECastingMode::ECastingMode mode) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
 	const ui8 side = playerToSide(player);
@@ -1535,7 +1535,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 	return ESpellCastProblem::OK;
 }
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell( int player, const CSpell * spell, ECastingMode::ECastingMode mode ) const
+ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell( TPlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode ) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
 	const ui8 side = playerToSide(player);
@@ -1735,7 +1735,7 @@ ui32 CBattleInfoCallback::battleGetSpellCost(const CSpell * sp, const CGHeroInst
 	return ret - manaReduction + manaIncrease;
 }
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpellHere( int player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest ) const
+ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpellHere( TPlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest ) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
 	ESpellCastProblem::ESpellCastProblem moreGeneralProblem = battleCanCastThisSpell(player, spell, mode);

@@ -163,9 +163,8 @@ struct DLL_LINKAGE SThievesGuildInfo
 struct DLL_LINKAGE PlayerState : public CBonusSystemNode
 {
 public:
-	enum EStatus {WRONG = -1, INGAME, LOSER, WINNER};
 	TPlayerColor color;
-	ui8 human; //true if human controlled player, false for AI
+	bool human; //true if human controlled player, false for AI
 	ui32 currentSelection; //id of hero/town, 0xffffffff if none
 	ui8 team;
 	TResources resources;
@@ -175,8 +174,8 @@ public:
 	std::vector<ConstTransitivePtr<CGDwelling> > dwellings; //used for town growth
 	std::vector<QuestInfo> quests; //store info about all received quests
 
-	ui8 enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
-	EStatus status;
+	bool enteredWinningCheatCode, enteredLosingCheatCode; //if true, this player has entered cheat codes for loss / victory
+	EPlayerStatus::EStatus status;
 	ui8 daysWithoutCastle;
 
 	PlayerState();

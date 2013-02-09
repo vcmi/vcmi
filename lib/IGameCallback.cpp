@@ -48,7 +48,7 @@ int CGameInfoCallback::getOwner(int heroID) const
 	return gs->map->objects[heroID]->tempOwner;
 }
 
-int CGameInfoCallback::getResource(int Player, int which) const
+int CGameInfoCallback::getResource(TPlayerColor Player, Res::ERes which) const
 {
 	const PlayerState *p = getPlayer(Player);
 	ERROR_RET_VAL_IF(!p, "No player info!", -1);
@@ -56,7 +56,7 @@ int CGameInfoCallback::getResource(int Player, int which) const
 	return p->resources[which];
 }
 
-const CGHeroInstance* CGameInfoCallback::getSelectedHero( int Player ) const
+const CGHeroInstance* CGameInfoCallback::getSelectedHero( TPlayerColor Player ) const
 {
 	const PlayerState *p = getPlayer(Player);
 	ERROR_RET_VAL_IF(!p, "No player info!", NULL);
@@ -68,7 +68,7 @@ const CGHeroInstance* CGameInfoCallback::getSelectedHero() const
 	return getSelectedHero(gs->currentPlayer);
 }
 
-const PlayerSettings * CGameInfoCallback::getPlayerSettings(int color) const
+const PlayerSettings * CGameInfoCallback::getPlayerSettings(TPlayerColor color) const
 {
 	return &gs->scenarioOps->getIthPlayersSettings(color);
 }
@@ -224,7 +224,7 @@ inline TerrainTile * CNonConstInfoCallback::getTile( int3 pos )
 	return &gs->map->getTile(pos);
 }
 
-const PlayerState * CGameInfoCallback::getPlayer(int color, bool verbose) const
+const PlayerState * CGameInfoCallback::getPlayer(TPlayerColor color, bool verbose) const
 {
 	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!hasAccess(color), verbose, "Cannot access player " << color << "info!", NULL);
 	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!vstd::contains(gs->players,color), verbose, "Cannot find player " << color << "info!", NULL);
@@ -524,9 +524,9 @@ const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 	return &gs->map->getTile(tile);
 }
 
-int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
+EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 {
-	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", -1);
+	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", EBuildingState::TOWN_NOT_OWNED);
 
 	CBuilding * pom = t->town->buildings[ID];
 
@@ -561,7 +561,7 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 	if (notAllBuilt)
 		return EBuildingState::PREREQUIRES;
 
-	if(ID == 13) //capitol
+	if(ID == EBuilding::CAPITOL)
 	{
 		const PlayerState *ps = getPlayer(t->tempOwner);
 		if(ps)
@@ -575,7 +575,7 @@ int CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
 			}
 		}
 	}
-	else if(ID == 6) //shipyard
+	else if(ID == EBuilding::SHIPYARD)
 	{
 		const TerrainTile *tile = getTile(t->bestLocation(), false);
 		
@@ -630,10 +630,10 @@ bool CGameInfoCallback::hasAccess(int playerId) const
 	return player < 0 || gs->getPlayerRelations( playerId, player ) != PlayerRelations::ENEMIES;
 }
 
-int CGameInfoCallback::getPlayerStatus(int player) const
+EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(TPlayerColor player) const
 {
 	const PlayerState *ps = gs->getPlayer(player, false);
-	ERROR_RET_VAL_IF(!ps, "No such player!", -1);
+	ERROR_RET_VAL_IF(!ps, "No such player!", EPlayerStatus::WRONG);
 
 	return ps->status;
 }
@@ -836,7 +836,7 @@ const CGTownInstance* CPlayerSpecificInfoCallback::getTownBySerial(int serialId)
 	return p->towns[serialId];
 }
 
-int CPlayerSpecificInfoCallback::getResourceAmount(int type) const
+int CPlayerSpecificInfoCallback::getResourceAmount(Res::ERes type) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	ERROR_RET_VAL_IF(player == -1, "Applicable only for player callbacks", -1);

@@ -1210,7 +1210,7 @@ class DLL_LINKAGE CBank : public CArmedInstance
 	void initialize() const;
 	void reset(ui16 var1);
 	void newTurn() const override;
-	bool wasVisited (ui8 player) const override;
+	bool wasVisited (TPlayerColor player) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	virtual void fightGuards (const CGHeroInstance *h, ui32 accept) const;

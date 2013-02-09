@@ -1279,7 +1279,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, int building, unsigned in
 
 	BOOST_FOREACH(int buildID, toBuild)
 	{
-		int canBuild = cb->canBuildStructure(t, buildID);
+		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if (canBuild == EBuildingState::HAVE_CAPITAL
 		 || canBuild == EBuildingState::FORBIDDEN
 		 || canBuild == EBuildingState::NO_WATER)
@@ -1297,7 +1297,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, int building, unsigned in
 	{
 		const CBuilding *b = t->town->buildings[buildID];
 
-		int canBuild = cb->canBuildStructure(t, buildID);
+		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if(canBuild == EBuildingState::ALLOWED)
 		{
 			if(!containsSavedRes(b->resources))
@@ -1962,14 +1962,14 @@ void VCAI::tryRealize(CGoal g)
 		break;
 
 	case COLLECT_RES: //TODO: use piles and mines?
-		if(cb->getResourceAmount(g.resID) >= g.value)
+		if(cb->getResourceAmount(static_cast<Res::ERes>(g.resID)) >= g.value)
 			throw cannotFulfillGoalException("Goal is already fulfilled!");
 
 		if(const CGObjectInstance *obj = cb->getObj(g.objid, false))
 		{
 			if(const IMarket *m = IMarket::castFrom(obj, false))
 			{
-				for (int i = 0; i < ACTUAL_RESOURCE_COUNT; i++)
+				for (Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
 				{
 					if(i == g.resID) continue;
 					int toGive, toGet;
@@ -1977,7 +1977,7 @@ void VCAI::tryRealize(CGoal g)
 					toGive = toGive * (cb->getResourceAmount(i) / toGive);
 					//TODO trade only as much as needed
 					cb->trade(obj, EMarketMode::RESOURCE_RESOURCE, i, g.resID, toGive);
-					if(cb->getResourceAmount(g.resID) >= g.value)
+					if(cb->getResourceAmount(static_cast<Res::ERes>(g.resID)) >= g.value)
 						return;
 				} 
 
@@ -2814,7 +2814,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			case EVictoryConditionType::CAPTURECITY:
 				return CGoal(GET_OBJ).setobjid(vc.obj->id);
 			case EVictoryConditionType::GATHERRESOURCE:
-                return CGoal(COLLECT_RES).setresID(vc.objectId).setvalue(vc.count);
+                return CGoal(COLLECT_RES).setresID(static_cast<Res::ERes>(vc.objectId)).setvalue(vc.count);
 				//TODO mines? piles? marketplace?
 				//save?
 				break;
@@ -3168,7 +3168,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				const IMarket *m = markets.back();
 				//attempt trade at back (best prices)
 				int howManyCanWeBuy = 0;
-				for(int i = 0; i < ACTUAL_RESOURCE_COUNT; i++)
+				for(Res::ERes i = Res::WOOD; i <= Res::GOLD; vstd::advance(i, 1))
 				{
 					if(i == resID) continue;
 					int toGive = -1, toReceive = -1;
@@ -3177,7 +3177,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 					howManyCanWeBuy += toReceive * (cb->getResourceAmount(i) / toGive);
 				}
 
-				if(howManyCanWeBuy + cb->getResourceAmount(resID) >= value)
+				if(howManyCanWeBuy + cb->getResourceAmount(static_cast<Res::ERes>(resID)) >= value)
 				{
 					auto backObj = backOrNull(cb->getVisitableObjs(m->o->visitablePos())); //it'll be a hero if we have one there; otherwise marketplace
 					assert(backObj);

@@ -248,7 +248,7 @@ DLL_LINKAGE void ChangeObjPos::applyGs( CGameState *gs )
 DLL_LINKAGE void PlayerEndsGame::applyGs( CGameState *gs )
 {
 	PlayerState *p = gs->getPlayer(player);
-	p->status = victory ? PlayerState::WINNER : PlayerState::LOSER;
+	p->status = victory ? EPlayerStatus::WINNER : EPlayerStatus::LOSER;
 }
 
 DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )

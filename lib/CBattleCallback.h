@@ -250,9 +250,9 @@ public:
 	//*** MAGIC 
 	si8 battleMaxSpellLevel() const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	ui32 battleGetSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(int player, ECastingMode::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(int player, const CSpell * spell, ECastingMode::ECastingMode mode) const; //checks if given player can cast given spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(int player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
+	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(TPlayerColor player, ECastingMode::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(TPlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode) const; //checks if given player can cast given spell
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(TPlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
 	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination) const; //determines if creature can cast a spell here
 	std::vector<BattleHex> battleGetPossibleTargets(int player, const CSpell *spell) const;
 	ui32 calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const;

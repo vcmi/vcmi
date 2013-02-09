@@ -3162,7 +3162,7 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 bool CGameHandler::sendResources(ui32 val, TPlayerColor player, Res::ERes r1, TPlayerColor r2)
 {
 	const PlayerState *p2 = gs->getPlayer(r2, false);
-	if(!p2  ||  p2->status != PlayerState::INGAME)
+	if(!p2  ||  p2->status != EPlayerStatus::INGAME)
 	{
 		complain("Dest player must be in game!");
 		return false;

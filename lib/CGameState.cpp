@@ -2352,7 +2352,7 @@ ui8 CGameState::checkForStandardWin() const
 	TPlayerColor supposedWinner = 255, winnerTeam = 255;
 	for(auto i = players.begin(); i != players.end(); i++)
 	{
-		if(i->second.status == PlayerState::INGAME && i->first < GameConstants::PLAYER_LIMIT)
+		if(i->second.status == EPlayerStatus::INGAME && i->first < GameConstants::PLAYER_LIMIT)
 		{
 			if(supposedWinner == 255)
 			{
@@ -2760,7 +2760,7 @@ void CGPath::convert( ui8 mode )
 
 PlayerState::PlayerState()
  : color(-1), currentSelection(0xffffffff), enteredWinningCheatCode(0),
-   enteredLosingCheatCode(0), status(INGAME), daysWithoutCastle(0)
+   enteredLosingCheatCode(0), status(EPlayerStatus::INGAME), daysWithoutCastle(0)
 {
 	setNodeType(PLAYER);
 }
