@@ -27,6 +27,7 @@ do
 		--cd2) cd2_dir=$2           ; shift 2 ;;
 		--gog) gog_file=$2          ; shift 2 ;;
 		--data) data_dir=$2         ; shift 2 ;;
+		--dest) dest_dir=$2         ; shift 2 ;;
 		--wog) wog_archive=$2       ; shift 2 ;;
 		--vcmi) vcmi_archive=$2     ; shift 2 ;;
 		--download) download=true   ; shift 1 ;;
@@ -59,8 +60,10 @@ then
 	echo " --download       " "If specified vcmibuilder will download packages using wget"
 	echo "                  " "Requires wget and Internet connection"
 	echo
+	echo " --dest DIRECTORY " "Path where resulting data will be placed. Default is ~/.vcmi"
+	echo
 	echo " --validate       " "If specified vcmibuilder will run basic validness checks"
-	exit 1
+	exit 0
 fi
 
 # test presence of program $1, $2 will be passed as parameters to test presence
@@ -74,6 +77,8 @@ fail ()
 {
 	$2
 	echo "$1" 1>&2
+	rm -rf "$temp_dir"
+
 	exit 1
 }
 
@@ -114,7 +119,7 @@ if [[ -n "$download" ]]
 then
 	if [[ -n "$wog_archive" ]] && [[ -n "$vcmi_archive" ]]
 	then
-		warning "Warning: Both wog and vcmi options were specified. Download option will not be used"
+		warning "Warning: Both wog and vcmi archives were specified. Download option will not be used"
 		unset download
 	else
 		test_utility "wget" "-V"
@@ -147,27 +152,36 @@ then
 	fi
 fi
 
+if [[ -z "$dest_dir" ]]
+then
+	dest_dir="$HOME/.vcmi"
+fi
+
+temp_dir="$dest_dir"/buildertmp
+
 # start installation
 
-dest_dir="./vcmi"
-mkdir -p $dest_dir
+mkdir -p "$dest_dir"
+mkdir -p "$temp_dir"
 
 if [[ -n "$gog_file" ]]
 then
-	data_dir="./app"
 	# innoextract always reports error (iconv 84 error). Just test file for presence
-	test -f $gog_file || fail "Error: gog.com executable was not found!"
-	innoextract -s -p 1 $gog_file
+	test -f "$gog_file" || fail "Error: gog.com executable was not found!"
+	innoextract -s -p 1 "$gog_file"
+	
+	mv ./app "$temp_dir"
+	data_dir="$temp_dir"/app
 fi
 
 if [[ -n "$cd1_dir" ]]
 then
-	data_dir="./cddir"
+	data_dir="$temp_dir"/cddir
 	mkdir -p "$data_dir" 
-	unshield -d "$data_dir" x $cd1_dir/_setup/data1.cab || fail "Error: failed to extract from Install Shield installer!" "rm -rf ./cddir" 
+	unshield -d "$data_dir" x "$cd1_dir"/_setup/data1.cab || fail "Error: failed to extract from Install Shield installer!" "rm -rf $data_dir" 
 	
 	# a bit tricky - different releases have different root directory. Move extracted files to data_dir
-	if [ -d "$data_dir"/"Heroes3" ] 
+	if [ -d "$data_dir"/Heroes3 ] 
 	then
 	    mv "$data_dir"/Heroes3/* "$data_dir" 
 	elif [ -d "$data_dir""/Program_Files" ] 
@@ -184,30 +198,30 @@ fi
 
 if [[ -n "$cd2_dir" ]]
 then
-	mkdir -p $dest_dir/Data
+	mkdir -p "$dest_dir"/Data
 
-	if [ -d $cd2_dir/heroes3 ]
+	if [ -d "$cd2_dir"/heroes3 ]
 	then
-		cp $cd2_dir/heroes3/Data/Heroes3.vid $dest_dir/Data/VIDEO.VID
-		cp $cd2_dir/heroes3/Data/Heroes3.snd $dest_dir/Data/Heroes3-cd2.snd
+		cp "$cd2_dir"/heroes3/Data/Heroes3.vid "$dest_dir"/Data/VIDEO.VID
+		cp "$cd2_dir"/heroes3/Data/Heroes3.snd "$dest_dir"/Data/Heroes3-cd2.snd
 	else
-		cp $cd2_dir/Heroes3/Data/Heroes3.vid $dest_dir/Data/VIDEO.VID
-		cp $cd2_dir/Heroes3/Data/Heroes3.snd $dest_dir/Data/Heroes3-cd2.snd
+		cp "$cd2_dir"/Heroes3/Data/Heroes3.vid "$dest_dir"/Data/VIDEO.VID
+		cp "$cd2_dir"/Heroes3/Data/Heroes3.snd "$dest_dir"/Data/Heroes3-cd2.snd
 	fi
 fi
 
 if [[ -n "$data_dir" ]]
 then
-	cp -r "$data_dir"/Data $dest_dir 
-	cp -r "$data_dir"/Maps $dest_dir 
+	cp -r "$data_dir"/Data "$dest_dir" 
+	cp -r "$data_dir"/Maps "$dest_dir"
 
 	# this folder is named differently from time to time
 	# vcmi can handle any case but script can't
 	if [ -d "$data_dir"/MP3 ] 
 	then
-		cp -r "$data_dir"/MP3 $dest_dir 
+		cp -r "$data_dir"/MP3 "$dest_dir"
 	else
-		cp -r "$data_dir"/Mp3 $dest_dir 
+		cp -r "$data_dir"/Mp3 "$dest_dir"
 	fi
 fi
 
@@ -215,46 +229,36 @@ if [[ -n "$download" ]]
 then
 	if [[ -z "$wog_archive" ]]
 	then
-		wget "http://download.vcmi.eu/WoG/wog.zip" -O wog.zip || fail "Error: failed to download WoG archive!" "rm -f wog.zip"
-		wog_archive="./wog.zip"
+		wget "http://download.vcmi.eu/WoG/wog.zip" -O "$temp_dir"/wog.zip || fail "Error: failed to download WoG archive!" "rm -f wog.zip"
+		wog_archive="$temp_dir"/wog.zip
 	fi
 	
 	if [[ -z "$vcmi_archive" ]]
 	then
-		wget "http://download.vcmi.eu/core.zip" -O core.zip || fail "Error: failed to download VCMI archive!" "rm -f core.zip"
-		vcmi_archive="./core.zip"
+		wget "http://download.vcmi.eu/core.zip" -O "$temp_dir"/core.zip || fail "Error: failed to download VCMI archive!" "rm -f core.zip"
+		vcmi_archive="$temp_dir"/core.zip
 	fi
 fi
 
 if [[ -n "$wog_archive" ]]
 then
 	echo "decompressing $wog_archive"
-	unzip -qo $wog_archive -d $dest_dir || fail "Error: failed to extract WoG archive!"
+	unzip -qo "$wog_archive" -d "$dest_dir" || fail "Error: failed to extract WoG archive!"
 fi
 
 if [[ -n "$vcmi_archive" ]]
 then
 	echo "decompressing $vcmi_archive"
-	# exlude *json - temporary solution for autotools -> cmake transition period
-	# 0.90 packages made by autotools do not have .json files available in svn
-	# cmake however can install them correctly so they should not be extracted from .zip in case of cmake package
-	unzip -qo $vcmi_archive -d $dest_dir -x "*.json" "*.txt" "*.PAL" || fail "Error: failed to extract VCMI archive!"
+	unzip -qo "$vcmi_archive" -d "$dest_dir" || fail "Error: failed to extract VCMI archive!"
 fi
 
 if [[ -n "$validate" ]]
 then
-	test -f $dest_dir/Data/H3bitmap.lod || fail "Error: Heroes 3 data files are missing!"
-	test -f $dest_dir/Data/H3sprite.lod || fail "Error: Heroes 3 data files are missing!"
-	test -f $dest_dir/Data/VIDEO.VID    || fail "Error: Heroes 3 data files (CD2) are missing!"
-	test -d $dest_dir/Mods/WoG/Data     || fail "Error: WoG data files are missing!"
-	test -d $dest_dir/Mods/vcmi/Data    || fail "Error: VCMI data files are missing!"
+	test -f "$dest_dir"/Data/H3bitmap.lod || fail "Error: Heroes 3 data files are missing!"
+	test -f "$dest_dir"/Data/H3sprite.lod || fail "Error: Heroes 3 data files are missing!"
+	test -f "$dest_dir"/Data/VIDEO.VID    || fail "Error: Heroes 3 data files (CD2) are missing!"
+	test -d "$dest_dir"/Mods/WoG/Data     || fail "Error: WoG data files are missing!"
+	test -d "$dest_dir"/Mods/vcmi/Data    || fail "Error: VCMI data files are missing!"
 fi
 
-#TODO: Cleanup? How?
-
-echo
-echo "vcmibuilder finished succesfully"
-echo "resulting data was placed into $PWD/vcmi"
-echo "any other files in current directory can be removed"
-echo
-
+rm -rf "$temp_dir"

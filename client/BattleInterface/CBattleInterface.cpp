@@ -256,9 +256,9 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	{
 		std::string battleImage;
 		if ( hero2->sex )
-			battleImage = hero1->type->heroClass->imageBattleFemale;
+			battleImage = hero2->type->heroClass->imageBattleFemale;
 		else
-			battleImage = hero1->type->heroClass->imageBattleMale;
+			battleImage = hero2->type->heroClass->imageBattleMale;
 
 		defendingHero = new CBattleHero(battleImage, true, hero2->tempOwner, hero2->tempOwner == curInt->playerID ? hero2 : NULL, this);
 		defendingHero->pos = genRect(defendingHero->dh->ourImages[0].bitmap->h, defendingHero->dh->ourImages[0].bitmap->w, pos.x + 693, pos.y - 19);
