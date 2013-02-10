@@ -271,7 +271,7 @@ CArtHandler::CArtHandler()
 	//VLC->arth = this;
 
 	// War machines are the default big artifacts.
-	for (ArtifactID::ArtifactID i = ArtifactID::CATAPULT; i <= ArtifactID::FIRST_AID_TENT; vstd::advance(i, 1))
+	for (ArtifactID i = ArtifactID::CATAPULT; i <= ArtifactID::FIRST_AID_TENT; i.advance(1))
 		bigArtifacts.insert(i);
 }
 
@@ -302,7 +302,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 
 	std::map<ui32,ui8>::iterator itr;
 
-	for (ArtifactID::ArtifactID i=static_cast<ArtifactID::ArtifactID>(0); i<GameConstants::ARTIFACTS_QUANTITY; vstd::advance(i, 1))
+	for (ArtifactID i=ArtifactID(0); i<GameConstants::ARTIFACTS_QUANTITY; i.advance(1))
 	{
 		CArtifact *art;
 		if (vstd::contains (growingArtifacts, i))
@@ -371,7 +371,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 			BOOST_FOREACH(ui32 constituentID, *artifact->constituents)
 			{
 				if (artifacts[constituentID]->constituentOf == NULL)
-					artifacts[constituentID]->constituentOf = new std::vector<ArtifactID::ArtifactID>();
+					artifacts[constituentID]->constituentOf = new std::vector<ArtifactID>();
 				artifacts[constituentID]->constituentOf->push_back(artifact->id);
 			}
 		}
@@ -385,7 +385,7 @@ void CArtHandler::load(const JsonNode & node)
 		if (!entry.second.isNull()) // may happens if mod removed creature by setting json entry to null
 		{
 			CArtifact * art = loadArtifact(entry.second);
-			art->id = static_cast<ArtifactID::ArtifactID>(artifacts.size());
+			art->id = ArtifactID(artifacts.size());
 
 			artifacts.push_back(art);
 			tlog5 << "Added artifact: " << entry.first << "\n";
@@ -495,13 +495,13 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 	return art;
 }
 
-void CArtifact::addConstituent (ArtifactID::ArtifactID component)
+void CArtifact::addConstituent (ArtifactID component)
 {
 	assert (constituents);
 	constituents->push_back (component);
 }
 
-ArtifactID::ArtifactID CArtHandler::creatureToMachineID(CreatureID::CreatureID id)
+ArtifactID CArtHandler::creatureToMachineID(CreatureID id)
 {
 	int dif = 142;
 	switch (id)
@@ -514,10 +514,10 @@ ArtifactID::ArtifactID CArtHandler::creatureToMachineID(CreatureID::CreatureID i
 		break;
 	}
 	dif = -dif;
-	return static_cast<ArtifactID::ArtifactID>(id+dif);
+	return ArtifactID(id+dif);
 }
 
-CreatureID::CreatureID CArtHandler::machineIDToCreature(ArtifactID::ArtifactID id)
+CreatureID CArtHandler::machineIDToCreature(ArtifactID id)
 {
 	int dif = 142;
 
@@ -530,7 +530,7 @@ CreatureID::CreatureID CArtHandler::machineIDToCreature(ArtifactID::ArtifactID i
 		dif++;
 		break;
 	}
-	return static_cast<CreatureID::CreatureID>(id + dif);
+	return CreatureID(id + dif);
 }
 
 void CArtHandler::sortArts()
@@ -651,17 +651,17 @@ Bonus *createBonus(Bonus::BonusType type, int val, int subtype, shared_ptr<IProp
 	return added;
 }
 
-void CArtHandler::giveArtBonus( ArtifactID::ArtifactID aid, Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, shared_ptr<ILimiter> limiter, int additionalInfo)
+void CArtHandler::giveArtBonus( ArtifactID aid, Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, shared_ptr<ILimiter> limiter, int additionalInfo)
 {
 	giveArtBonus(aid, createBonus(type, val, subtype, valType, limiter, additionalInfo));
 }
 
-void CArtHandler::giveArtBonus(ArtifactID::ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator /*= NULL*/, int additionalInfo)
+void CArtHandler::giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator /*= NULL*/, int additionalInfo)
 {
 	giveArtBonus(aid, createBonus(type, val, subtype, propagator, additionalInfo));
 }
 
-void CArtHandler::giveArtBonus(ArtifactID::ArtifactID aid, Bonus *bonus)
+void CArtHandler::giveArtBonus(ArtifactID aid, Bonus *bonus)
 {
 	bonus->sid = aid;
 	if(bonus->subtype == Bonus::MORALE || bonus->type == Bonus::LUCK)
@@ -750,13 +750,13 @@ void CArtHandler::readComponents (const JsonNode & node, CArtifact * art)
 	value = &node["components"];
 	if (!value->isNull())
 	{
-		art->constituents = new std::vector<ArtifactID::ArtifactID>();
+		art->constituents = new std::vector<ArtifactID>();
 		BOOST_FOREACH (auto component, value->Vector())
 		{
 			VLC->modh->identifiers.requestIdentifier(std::string("artifact.") + component.String(),
 				[art](si32 id)
 				{
-					art->addConstituent(static_cast<ArtifactID::ArtifactID>(id));
+					art->addConstituent(ArtifactID(id));
 				}
 			);
 		}

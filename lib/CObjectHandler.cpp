@@ -138,12 +138,12 @@ bool CPlayersVisited::wasVisited( TPlayerColor player ) const
 
 // Bank helper. Find the creature ID and their number, and store the
 // result in storage (either guards or reward creatures).
-static void readCreatures(const JsonNode &creature, std::vector< std::pair <CreatureID::CreatureID, ui32> > &storage)
+static void readCreatures(const JsonNode &creature, std::vector< std::pair <CreatureID, ui32> > &storage)
 {
-	std::pair<CreatureID::CreatureID, si32> creInfo = std::make_pair(CreatureID::NONE, 0);
+	std::pair<CreatureID, si32> creInfo = std::make_pair(CreatureID::NONE, 0);
 
 	creInfo.second = creature["number"].Float();
-	creInfo.first = static_cast<CreatureID::CreatureID>((si32)creature["id"].Float());
+	creInfo.first = CreatureID((si32)creature["id"].Float());
 	storage.push_back(creInfo);
 }
 
@@ -195,7 +195,7 @@ void CObjectHandler::loadObjects()
 	const JsonNode config(ResourceID("config/dwellings.json"));
 	BOOST_FOREACH(const JsonNode &dwelling, config["dwellings"].Vector())
 	{
-		cregens[dwelling["dwelling"].Float()] = static_cast<CreatureID::CreatureID>((si32)dwelling["creature"].Float());
+		cregens[dwelling["dwelling"].Float()] = CreatureID((si32)dwelling["creature"].Float());
 	}
 	tlog5 << "\t\tDone loading cregens!\n";
 
@@ -405,7 +405,7 @@ void CGObjectInstance::setProperty( ui8 what, ui32 val )
 		blockVisit = val;
 		break;
 	case ObjProperty::ID:
-		ID = static_cast<Obj::Obj>(val);
+		ID = Obj(val);
 		break;
 	case ObjProperty::SUBID:
 		subID = val;
@@ -732,13 +732,13 @@ void CGHeroInstance::initHero()
 	if(!type)
 		type = VLC->heroh->heroes[subID];
 
-	if(!vstd::contains(spells, 0xffffffff)) //hero starts with a spell
+	if(!vstd::contains(spells, SpellID::PRESET)) //hero starts with a spell
 	{
 		BOOST_FOREACH(auto spellID, type->spells)
 			spells.insert(spellID);
 	}
 	else //remove placeholder
-		spells -= 0xffffffff;
+		spells -= SpellID::PRESET;
 
 	if(!getArt(ArtifactPosition::MACH4) && !getArt(ArtifactPosition::SPELLBOOK) && !type->spells.empty()) //no catapult means we haven't read pre-existent set -> use default rules for spellbook
 		putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
@@ -831,7 +831,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 				continue;
 
 			int slot = -1;
-			ArtifactID::ArtifactID aid = ArtifactID::NONE;
+			ArtifactID aid = ArtifactID::NONE;
 			switch (stack.creature)
 			{
 			case CreatureID::CATAPULT:
@@ -1328,7 +1328,7 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 
 
 	vstd::amax(skill, valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
-	vstd::amax(skill, valOfBonuses(Bonus::SPELL, spell->id)); //given by artifact or other effect
+	vstd::amax(skill, valOfBonuses(Bonus::SPELL, spell->id.toEnum())); //given by artifact or other effect
 	if (hasBonusOfType(Bonus::MAXED_SPELL, spell->id))//hero specialty (Daremyth, Melodia)
 		skill = 3;
 	assert(skill >= 0 && skill <= 3);
@@ -1588,7 +1588,7 @@ void CGDwelling::initObj()
 	{
 	case Obj::CREATURE_GENERATOR1:
 		{
-			CreatureID::CreatureID crid = VLC->objh->cregens[subID];
+			CreatureID crid = VLC->objh->cregens[subID];
 			const CCreature *crs = VLC->creh->creatures[crid];
 
 			creatures.resize(1);
@@ -1672,7 +1672,7 @@ void CGDwelling::setProperty(ui8 what, ui32 val)
 		case ObjProperty::AVAILABLE_CREATURE:
 			creatures.resize(1);
 			creatures[0].second.resize(1);
-			creatures[0].second[0] = static_cast<CreatureID::CreatureID>(val);
+			creatures[0].second[0] = CreatureID(val);
 			break;
 	}
 	CGObjectInstance::setProperty(what,val);
@@ -1777,7 +1777,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 	if(!answer)
 		return;
 
-	CreatureID::CreatureID crid = creatures[0].second[0];
+	CreatureID crid = creatures[0].second[0];
 	CCreature *crs = VLC->creh->creatures[crid];
 	TQuantity count = creatures[0].first;
 
@@ -1864,9 +1864,9 @@ int CGTownInstance::getSightRadious() const //returns sight distance
 {
 	if (subID == ETownType::TOWER)
 	{
-		if (hasBuilt(EBuilding::GRAIL)) //skyship
+		if (hasBuilt(BuildingID::GRAIL)) //skyship
 			return -1; //entire map
-		else if (hasBuilt(EBuilding::LOOKOUT_TOWER)) //lookout tower
+		else if (hasBuilt(BuildingID::LOOKOUT_TOWER)) //lookout tower
 			return 20;
 	}
 	return 5;
@@ -1896,38 +1896,38 @@ void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
 }
 CGTownInstance::EFortLevel CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - castle
 {
-	if (hasBuilt(EBuilding::CASTLE))
+	if (hasBuilt(BuildingID::CASTLE))
 		return CASTLE;
-	if (hasBuilt(EBuilding::CITADEL))
+	if (hasBuilt(BuildingID::CITADEL))
 		return CITADEL;
-	if (hasBuilt(EBuilding::FORT))
+	if (hasBuilt(BuildingID::FORT))
 		return FORT;
 	return NONE;
 }
 
 int CGTownInstance::hallLevel() const // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 {
-	if (hasBuilt(EBuilding::CAPITOL))
+	if (hasBuilt(BuildingID::CAPITOL))
 		return 3;
-	if (hasBuilt(EBuilding::CITY_HALL))
+	if (hasBuilt(BuildingID::CITY_HALL))
 		return 2;
-	if (hasBuilt(EBuilding::TOWN_HALL))
+	if (hasBuilt(BuildingID::TOWN_HALL))
 		return 1;
-	if (hasBuilt(EBuilding::VILLAGE_HALL))
+	if (hasBuilt(BuildingID::VILLAGE_HALL))
 		return 0;
 	return -1;
 }
 int CGTownInstance::mageGuildLevel() const
 {
-	if (hasBuilt(EBuilding::MAGES_GUILD_5))
+	if (hasBuilt(BuildingID::MAGES_GUILD_5))
 		return 5;
-	if (hasBuilt(EBuilding::MAGES_GUILD_4))
+	if (hasBuilt(BuildingID::MAGES_GUILD_4))
 		return 4;
-	if (hasBuilt(EBuilding::MAGES_GUILD_3))
+	if (hasBuilt(BuildingID::MAGES_GUILD_3))
 		return 3;
-	if (hasBuilt(EBuilding::MAGES_GUILD_2))
+	if (hasBuilt(BuildingID::MAGES_GUILD_2))
 		return 2;
-	if (hasBuilt(EBuilding::MAGES_GUILD_1))
+	if (hasBuilt(BuildingID::MAGES_GUILD_1))
 		return 1;
 	return 0;
 }
@@ -1938,7 +1938,7 @@ int CGTownInstance::creatureDwellingLevel(int dwelling) const
 		return -1;
 	for (int i=0; ; i++)
 	{
-		if (!hasBuilt(EBuilding::DWELL_FIRST+dwelling+i*GameConstants::CREATURES_PER_TOWN))
+		if (!hasBuilt(BuildingID::DWELL_FIRST+dwelling+i*GameConstants::CREATURES_PER_TOWN))
 			return i-1;
 	}
 }
@@ -1957,7 +1957,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 
 	if (level<0 || level >=GameConstants::CREATURES_PER_TOWN)
 		return ret;
-	if (!hasBuilt(EBuilding::DWELL_FIRST+level))
+	if (!hasBuilt(BuildingID::DWELL_FIRST+level))
 		return ret; //no dwelling
 
 	const CCreature *creature = VLC->creh->creatures[creatures[level].second.back()];
@@ -1966,18 +1966,18 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 
 	ret.entries.push_back(GrowthInfo::Entry(VLC->generaltexth->allTexts[590], base));// \n\nBasic growth %d"
 
-	if (hasBuilt(EBuilding::CASTLE))
-		ret.entries.push_back(GrowthInfo::Entry(subID, EBuilding::CASTLE, castleBonus = base));
-	else if (hasBuilt(EBuilding::CITADEL))
-		ret.entries.push_back(GrowthInfo::Entry(subID, EBuilding::CITADEL, castleBonus = base / 2));
+	if (hasBuilt(BuildingID::CASTLE))
+		ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::CASTLE, castleBonus = base));
+	else if (hasBuilt(BuildingID::CITADEL))
+		ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::CITADEL, castleBonus = base / 2));
 
 	if(town->hordeLvl[0] == level)//horde 1
-		if(hasBuilt(EBuilding::HORDE_1))
-			ret.entries.push_back(GrowthInfo::Entry(subID, EBuilding::HORDE_1, creature->hordeGrowth));
+		if(hasBuilt(BuildingID::HORDE_1))
+			ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::HORDE_1, creature->hordeGrowth));
 
 	if(town->hordeLvl[1] == level)//horde 2
-		if(hasBuilt(EBuilding::HORDE_2))
-			ret.entries.push_back(GrowthInfo::Entry(subID, EBuilding::HORDE_2, creature->hordeGrowth));
+		if(hasBuilt(BuildingID::HORDE_2))
+			ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::HORDE_2, creature->hordeGrowth));
 
 	int dwellingBonus = 0;
 	if(const PlayerState *p = cb->getPlayer(tempOwner, false))
@@ -2000,8 +2000,8 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 	BOOST_FOREACH(const Bonus *b, *bonuses2)
 		ret.entries.push_back(GrowthInfo::Entry(b->Description() + " %+d", b->val * (base + castleBonus) / 100));
 
-	if(hasBuilt(EBuilding::GRAIL)) //grail - +50% to ALL (so far added) growth
-		ret.entries.push_back(GrowthInfo::Entry(subID, EBuilding::GRAIL, ret.totalGrowth() / 2));
+	if(hasBuilt(BuildingID::GRAIL)) //grail - +50% to ALL (so far added) growth
+		ret.entries.push_back(GrowthInfo::Entry(subID, BuildingID::GRAIL, ret.totalGrowth() / 2));
 
 	return ret;
 }
@@ -2009,26 +2009,26 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 int CGTownInstance::dailyIncome() const
 {
 	int ret = 0;
-	if (hasBuilt(EBuilding::GRAIL))
+	if (hasBuilt(BuildingID::GRAIL))
 		ret+=5000;
 
-	if (hasBuilt(EBuilding::CAPITOL))
+	if (hasBuilt(BuildingID::CAPITOL))
 		ret+=4000;
-	else if (hasBuilt(EBuilding::CITY_HALL))
+	else if (hasBuilt(BuildingID::CITY_HALL))
 		ret+=2000;
-	else if (hasBuilt(EBuilding::TOWN_HALL))
+	else if (hasBuilt(BuildingID::TOWN_HALL))
 		ret+=1000;
-	else if (hasBuilt(EBuilding::VILLAGE_HALL))
+	else if (hasBuilt(BuildingID::VILLAGE_HALL))
 		ret+=500;
 	return ret;
 }
 bool CGTownInstance::hasFort() const
 {
-	return hasBuilt(EBuilding::FORT);
+	return hasBuilt(BuildingID::FORT);
 }
 bool CGTownInstance::hasCapitol() const
 {
-	return hasBuilt(EBuilding::CAPITOL);
+	return hasBuilt(BuildingID::CAPITOL);
 }
 CGTownInstance::CGTownInstance()
 	:IShipyard(this), IMarket(this), town(nullptr), builded(0), destroyed(0), identifier(0), alignment(0xff)
@@ -2048,7 +2048,7 @@ int CGTownInstance::spellsAtLevel(int level, bool checkGuild) const
 		return 0;
 	int ret = 6 - level; //how many spells are available at this level
 
-	if (hasBuilt(EBuilding::LIBRARY, ETownType::TOWER))
+	if (hasBuilt(BuildingID::LIBRARY, ETownType::TOWER))
 		ret++;
 
 	return ret;
@@ -2153,7 +2153,7 @@ void CGTownInstance::newTurn() const
 	if (cb->getDate(Date::DAY_OF_WEEK) == 1) //reset on new week
 	{
 		//give resources for Rampart, Mystic Pond
-		if (hasBuilt(EBuilding::MYSTIC_POND, ETownType::RAMPART)
+		if (hasBuilt(BuildingID::MYSTIC_POND, ETownType::RAMPART)
 			&& cb->getDate(Date::DAY) != 1 && (tempOwner < GameConstants::PLAYER_LIMIT))
 		{
 			int resID = rand()%4+2;//bonus to random rare resource
@@ -2167,7 +2167,7 @@ void CGTownInstance::newTurn() const
 		if ( subID == ETownType::DUNGEON )
 			for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
 		{
-			if ((*i)->ID == EBuilding::MANA_VORTEX)
+			if ((*i)->ID == BuildingID::MANA_VORTEX)
 				cb->setObjProperty (id, 12, (*i)->id); //reset visitors for Mana Vortex
 		}
 
@@ -2199,7 +2199,7 @@ void CGTownInstance::newTurn() const
 				if ((stacksCount() < GameConstants::ARMY_SIZE && rand()%100 < 25) || Slots().empty()) //add new stack
 				{
 					int i = rand() % std::min (GameConstants::ARMY_SIZE, cb->getDate(Date::MONTH)<<1);
-					CreatureID::CreatureID c = town->creatures[i][0];
+					CreatureID c = town->creatures[i][0];
 					TSlot n = -1;
 
 					TQuantity count = creatureGrowth(i);
@@ -2294,7 +2294,7 @@ int CGTownInstance::getBoatType() const
 
 int CGTownInstance::getMarketEfficiency() const
 {
-	if (!hasBuilt(EBuilding::MARKETPLACE))
+	if (!hasBuilt(BuildingID::MARKETPLACE))
 		return 0;
 
 	const PlayerState *p = cb->getPlayer(tempOwner);
@@ -2302,7 +2302,7 @@ int CGTownInstance::getMarketEfficiency() const
 
 	int marketCount = 0;
 	BOOST_FOREACH(const CGTownInstance *t, p->towns)
-		if(t->hasBuilt(EBuilding::MARKETPLACE))
+		if(t->hasBuilt(BuildingID::MARKETPLACE))
 			marketCount++;
 
 	return marketCount;
@@ -2314,22 +2314,22 @@ bool CGTownInstance::allowsTrade(EMarketMode::EMarketMode mode) const
 	{
 	case EMarketMode::RESOURCE_RESOURCE:
 	case EMarketMode::RESOURCE_PLAYER:
-		return hasBuilt(EBuilding::MARKETPLACE);
+		return hasBuilt(BuildingID::MARKETPLACE);
 
 	case EMarketMode::ARTIFACT_RESOURCE:
 	case EMarketMode::RESOURCE_ARTIFACT:
-		return hasBuilt(EBuilding::ARTIFACT_MERCHANT, ETownType::TOWER)
-		    || hasBuilt(EBuilding::ARTIFACT_MERCHANT, ETownType::DUNGEON)
-		    || hasBuilt(EBuilding::ARTIFACT_MERCHANT, ETownType::CONFLUX);
+		return hasBuilt(BuildingID::ARTIFACT_MERCHANT, ETownType::TOWER)
+		    || hasBuilt(BuildingID::ARTIFACT_MERCHANT, ETownType::DUNGEON)
+		    || hasBuilt(BuildingID::ARTIFACT_MERCHANT, ETownType::CONFLUX);
 
 	case EMarketMode::CREATURE_RESOURCE:
-		return hasBuilt(EBuilding::FREELANCERS_GUILD, ETownType::STRONGHOLD);
+		return hasBuilt(BuildingID::FREELANCERS_GUILD, ETownType::STRONGHOLD);
 
 	case EMarketMode::CREATURE_UNDEAD:
-		return hasBuilt(EBuilding::SKELETON_TRANSFORMER, ETownType::NECROPOLIS);
+		return hasBuilt(BuildingID::SKELETON_TRANSFORMER, ETownType::NECROPOLIS);
 
 	case EMarketMode::RESOURCE_SKILL:
-		return hasBuilt(EBuilding::MAGIC_UNIVERSITY, ETownType::CONFLUX);
+		return hasBuilt(BuildingID::MAGIC_UNIVERSITY, ETownType::CONFLUX);
 	default:
 		assert(0);
 		return false;
@@ -2378,47 +2378,47 @@ void CGTownInstance::recreateBuildingsBonuses()
 		removeBonus(b);
 
 	//tricky! -> checks tavern only if no bratherhood of sword or not a castle
-	if(subID != ETownType::CASTLE || !addBonusIfBuilt(EBuilding::BROTHERHOOD, Bonus::MORALE, +2))
-		addBonusIfBuilt(EBuilding::TAVERN, Bonus::MORALE, +1);
+	if(subID != ETownType::CASTLE || !addBonusIfBuilt(BuildingID::BROTHERHOOD, Bonus::MORALE, +2))
+		addBonusIfBuilt(BuildingID::TAVERN, Bonus::MORALE, +1);
 
 	if(subID == ETownType::CASTLE) //castle
 	{
-		addBonusIfBuilt(EBuilding::LIGHTHOUSE, Bonus::SEA_MOVEMENT, +500, make_shared<CPropagatorNodeType>(PLAYER));
-		addBonusIfBuilt(EBuilding::GRAIL,      Bonus::MORALE, +2, make_shared<CPropagatorNodeType>(PLAYER)); //colossus
+		addBonusIfBuilt(BuildingID::LIGHTHOUSE, Bonus::SEA_MOVEMENT, +500, make_shared<CPropagatorNodeType>(PLAYER));
+		addBonusIfBuilt(BuildingID::GRAIL,      Bonus::MORALE, +2, make_shared<CPropagatorNodeType>(PLAYER)); //colossus
 	}
 	else if(subID == ETownType::RAMPART) //rampart
 	{
-		addBonusIfBuilt(EBuilding::FOUNTAIN_OF_FORTUNE, Bonus::LUCK, +2); //fountain of fortune
-		addBonusIfBuilt(EBuilding::GRAIL, Bonus::LUCK, +2, make_shared<CPropagatorNodeType>(PLAYER)); //guardian spirit
+		addBonusIfBuilt(BuildingID::FOUNTAIN_OF_FORTUNE, Bonus::LUCK, +2); //fountain of fortune
+		addBonusIfBuilt(BuildingID::GRAIL, Bonus::LUCK, +2, make_shared<CPropagatorNodeType>(PLAYER)); //guardian spirit
 	}
 	else if(subID == ETownType::TOWER) //tower
 	{
-		addBonusIfBuilt(EBuilding::GRAIL, Bonus::PRIMARY_SKILL, +15, PrimarySkill::KNOWLEDGE); //grail
+		addBonusIfBuilt(BuildingID::GRAIL, Bonus::PRIMARY_SKILL, +15, PrimarySkill::KNOWLEDGE); //grail
 	}
 	else if(subID == ETownType::INFERNO) //Inferno
 	{
-		addBonusIfBuilt(EBuilding::STORMCLOUDS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER); //Brimstone Clouds
+		addBonusIfBuilt(BuildingID::STORMCLOUDS, Bonus::PRIMARY_SKILL, +2, PrimarySkill::SPELL_POWER); //Brimstone Clouds
 	}
 	else if(subID == ETownType::NECROPOLIS) //necropolis
 	{
-		addBonusIfBuilt(EBuilding::COVER_OF_DARKNESS,    Bonus::DARKNESS, +20);
-		addBonusIfBuilt(EBuilding::NECROMANCY_AMPLIFIER, Bonus::SECONDARY_SKILL_PREMY, +10, make_shared<CPropagatorNodeType>(PLAYER), SecondarySkill::NECROMANCY); //necromancy amplifier
-		addBonusIfBuilt(EBuilding::GRAIL, Bonus::SECONDARY_SKILL_PREMY, +20, make_shared<CPropagatorNodeType>(PLAYER), SecondarySkill::NECROMANCY); //Soul prison
+		addBonusIfBuilt(BuildingID::COVER_OF_DARKNESS,    Bonus::DARKNESS, +20);
+		addBonusIfBuilt(BuildingID::NECROMANCY_AMPLIFIER, Bonus::SECONDARY_SKILL_PREMY, +10, make_shared<CPropagatorNodeType>(PLAYER), SecondarySkill::NECROMANCY); //necromancy amplifier
+		addBonusIfBuilt(BuildingID::GRAIL, Bonus::SECONDARY_SKILL_PREMY, +20, make_shared<CPropagatorNodeType>(PLAYER), SecondarySkill::NECROMANCY); //Soul prison
 	}
 	else if(subID == ETownType::DUNGEON) //Dungeon
 	{
-		addBonusIfBuilt(EBuilding::GRAIL, Bonus::PRIMARY_SKILL, +12, PrimarySkill::SPELL_POWER); //grail
+		addBonusIfBuilt(BuildingID::GRAIL, Bonus::PRIMARY_SKILL, +12, PrimarySkill::SPELL_POWER); //grail
 	}
 	else if(subID == ETownType::STRONGHOLD) //Stronghold
 	{
-		addBonusIfBuilt(EBuilding::GRAIL, Bonus::PRIMARY_SKILL, +20, PrimarySkill::ATTACK); //grail
+		addBonusIfBuilt(BuildingID::GRAIL, Bonus::PRIMARY_SKILL, +20, PrimarySkill::ATTACK); //grail
 	}
 	else if(subID == ETownType::FORTRESS) //Fortress
 	{
-		addBonusIfBuilt(EBuilding::GLYPHS_OF_FEAR, Bonus::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE); //Glyphs of Fear
-		addBonusIfBuilt(EBuilding::BLOOD_OBELISK,  Bonus::PRIMARY_SKILL, +2, PrimarySkill::ATTACK); //Blood Obelisk
-		addBonusIfBuilt(EBuilding::GRAIL, Bonus::PRIMARY_SKILL, +10, PrimarySkill::ATTACK); //grail
-		addBonusIfBuilt(EBuilding::GRAIL, Bonus::PRIMARY_SKILL, +10, PrimarySkill::DEFENSE); //grail
+		addBonusIfBuilt(BuildingID::GLYPHS_OF_FEAR, Bonus::PRIMARY_SKILL, +2, PrimarySkill::DEFENSE); //Glyphs of Fear
+		addBonusIfBuilt(BuildingID::BLOOD_OBELISK,  Bonus::PRIMARY_SKILL, +2, PrimarySkill::ATTACK); //Blood Obelisk
+		addBonusIfBuilt(BuildingID::GRAIL, Bonus::PRIMARY_SKILL, +10, PrimarySkill::ATTACK); //grail
+		addBonusIfBuilt(BuildingID::GRAIL, Bonus::PRIMARY_SKILL, +10, PrimarySkill::DEFENSE); //grail
 	}
 	else if(subID == ETownType::CONFLUX)
 	{
@@ -2918,7 +2918,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 		int val=0, mid=0;
 		switch (ID)
 		{
-			case EBuilding::SPECIAL_4:
+			case BuildingID::SPECIAL_4:
 				switch(town->subID)
 				{
 					case ETownType::TOWER: //wall
@@ -2947,7 +2947,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 						break;
 				}
 				break;
-			case EBuilding::SPECIAL_1:
+			case BuildingID::SPECIAL_1:
 				switch(town->subID)
 				{
 					case ETownType::FORTRESS: //cage of warlords
@@ -3120,7 +3120,7 @@ void CGCreature::initObj()
 		break;
 	}
 
-	stacks[0]->setType(static_cast<CreatureID::CreatureID>(subID));
+	stacks[0]->setType(CreatureID(subID));
 	TQuantity &amount = stacks[0]->count;
 	CCreature &c = *VLC->creh->creatures[subID];
 	if(!amount)
@@ -4736,15 +4736,15 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			break;
 		case SPELL:
 		{
-			std::set<ui32> spell;
-			spell.insert (rID);
+			std::set<SpellID> spell;
+			spell.insert (SpellID(rID));
 			cb->changeSpells(h, true, spell);
 		}
 			break;
 		case CREATURE:
 			{
 				CCreatureSet creatures;
-				creatures.setCreature(0, static_cast<CreatureID::CreatureID>(rID), rVal);
+				creatures.setCreature(0, CreatureID(rID), rVal);
 				cb->giveCreatures(this, h, creatures, false);
 			}
 			break;
@@ -5209,7 +5209,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 	if(spells.size())
 	{
-		std::set<ui32> spellsToGive;
+		std::set<SpellID> spellsToGive;
 		iw.components.clear();
 		if (spells.size() > 1)
 		{
@@ -5221,7 +5221,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		}
 		iw.text.addReplacement(h->name);
 		std::vector<ConstTransitivePtr<CSpell> > * sp = &VLC->spellh->spells;
-		for(std::vector<si32>::const_iterator i=spells.begin(); i != spells.end(); i++)
+		for(auto i=spells.cbegin(); i != spells.cend(); i++)
 		{
 			if ((*sp)[*i]->level <= h->getSecSkillLevel(SecondarySkill::WISDOM) + 2) //enough wisdom
 			{
@@ -5475,8 +5475,8 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else //give spell
 	{
-		std::set<ui32> spells;
-		spells.insert(spell);
+		std::set<SpellID> spells;
+		spells.insert(SpellID(spell));
 		cb->changeSpells(h, true, spells);
 
 		iw.components.push_back(Component(Component::SPELL,spell,0,0));
@@ -5490,7 +5490,7 @@ void CGShrine::initObj()
 	if(spell == 255) //spell not set
 	{
 		int level = ID-87;
-		std::vector<ui16> possibilities;
+		std::vector<SpellID> possibilities;
 		cb->getAllowedSpells (possibilities, level);
 
 		if(!possibilities.size())
@@ -5582,8 +5582,8 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case SPELL:
 		{
-			std::set<ui32> hlp;
-			hlp.insert(bid);
+			std::set<SpellID> hlp;
+			hlp.insert(SpellID(bid));
 			cb->changeSpells(h,true,hlp);
 			iw.components.push_back(Component(Component::SPELL,bid,0,0));
 		}
@@ -5612,7 +5612,7 @@ void CGScholar::initObj()
 			bonusID = ran() % GameConstants::SKILL_QUANTITY;
 			break;
 		case SPELL:
-			std::vector<ui16> possibilities;
+			std::vector<SpellID> possibilities;
 			for (int i = 1; i < 6; ++i)
 				cb->getAllowedSpells (possibilities, i);
 			bonusID = possibilities[ran() % possibilities.size()];
@@ -5927,7 +5927,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 					case 1:
 						for	(int i = 0; i < 4; ++i)
 							setCreature (i, bc->guards[0].first, bc->guards[0].second  / 5 );
-						setCreature (4, static_cast<CreatureID::CreatureID>(bc->guards[0].first + upgraded), bc->guards[0].second  / 5 );
+						setCreature (4, CreatureID(bc->guards[0].first + upgraded), bc->guards[0].second  / 5 );
 						break;
 					case 4:
 					{
@@ -5942,7 +5942,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 						{
 							setCreature (0, bc->guards[0].first, bc->guards[0].second  / 2 );
 							setCreature (1, bc->guards[1].first, bc->guards[1].second / 2);
-							setCreature (2, static_cast<CreatureID::CreatureID>(bc->guards[2].first + upgraded), bc->guards[2].second);
+							setCreature (2, CreatureID(bc->guards[2].first + upgraded), bc->guards[2].second);
 							setCreature (3, bc->guards[1].first, bc->guards[1].second / 2 );
 							setCreature (4, bc->guards[0].first, bc->guards[0].second - (bc->guards[0].second  / 2) );
 
@@ -6213,7 +6213,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 
 void CGPyramid::initObj()
 {
-	std::vector<ui16> available;
+	std::vector<SpellID> available;
 	cb->getAllowedSpells (available, 5);
 	if (available.size())
 	{
@@ -6269,8 +6269,8 @@ void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) 
 			iw.text.addTxt (MetaString::ADVOB_TXT, 108); //no expert Wisdom
 		else
 		{
-			std::set<ui32> spells;
-			spells.insert (spell);
+			std::set<SpellID> spells;
+			spells.insert (SpellID(spell));
 			cb->changeSpells (h, true, spells);
 				iw.components.push_back(Component (Component::SPELL, spell, 0, 0));
 		}
@@ -7229,7 +7229,7 @@ GrowthInfo::Entry::Entry(const std::string &format, int _count)
 	description = boost::str(boost::format(format) % count);
 }
 
-GrowthInfo::Entry::Entry(int subID, EBuilding::EBuilding building, int _count)
+GrowthInfo::Entry::Entry(int subID, BuildingID building, int _count)
 	: count(_count)
 {
 	description = boost::str(boost::format("%s %+d") % VLC->townh->towns[subID].buildings[building]->Name() % count);

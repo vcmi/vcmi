@@ -193,6 +193,7 @@
     <ClCompile Include="Filesystem\CLodArchiveLoader.cpp" />
     <ClCompile Include="Filesystem\CMemoryStream.cpp" />
     <ClCompile Include="Filesystem\CResourceLoader.cpp" />
+    <ClCompile Include="GameConstants.cpp" />
     <ClCompile Include="Mapping\CCampaignHandler.cpp" />
     <ClCompile Include="Mapping\CMap.cpp" />
     <ClCompile Include="Mapping\CMapInfo.cpp" />

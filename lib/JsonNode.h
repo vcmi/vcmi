@@ -156,16 +156,16 @@ namespace JsonDetail
 	struct JsonConvImpl;
 
 	template <typename T>
-	struct JsonConvImpl<T, 0>
+	struct JsonConvImpl<T, 1>
 	{
 		static T convertImpl(const JsonNode & node)
 		{
-			return (T)(int)node.Float();
+			return T((int)node.Float());
 		}
 	};
 
 	template <typename T>
-	struct JsonConvImpl<T, 1>
+	struct JsonConvImpl<T, 0>
 	{
 		static T convertImpl(const JsonNode & node)
 		{
@@ -179,8 +179,8 @@ namespace JsonDetail
 		static Type convert(const JsonNode & node)
 		{
 			///this should be triggered only for numeric types and enums
-			static_assert(boost::mpl::or_<std::is_arithmetic<Type>, std::is_enum<Type> >::value, "Unsupported type for JsonNode::convertTo()!");
-			return JsonConvImpl<Type, std::is_arithmetic<Type>::value>::convertImpl(node);
+			static_assert(boost::mpl::or_<std::is_arithmetic<Type>, std::is_enum<Type>, boost::is_class<Type> >::value, "Unsupported type for JsonNode::convertTo()!");
+			return JsonConvImpl<Type, boost::mpl::or_<std::is_enum<Type>, boost::is_class<Type> >::value >::convertImpl(node);
 				
 		}
 	};

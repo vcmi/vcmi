@@ -353,7 +353,7 @@ bool CBattleInfoEssentials::battleCanFlee(TPlayerColor player) const
 	if(mySide == BattleSide::DEFENDER  &&  battleGetSiegeLevel())
 	{
 		auto town = battleGetDefendedTown();
-		if(!town->hasBuilt(EBuilding::ESCAPE_TUNNEL, ETownType::STRONGHOLD))
+		if(!town->hasBuilt(BuildingID::ESCAPE_TUNNEL, ETownType::STRONGHOLD))
 			return false;
 	}
 
@@ -814,7 +814,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	double multDefenceReduction = (100 - battleBonusValue (info.attackerBonuses, Selector::type(Bonus::ENEMY_DEFENCE_REDUCTION))) / 100.0;
 	attackDefenceDifference -= info.defenderBonuses->Defense() * multDefenceReduction;
 
-	if(const Bonus *slayerEffect = info.attackerBonuses->getEffect(Spells::SLAYER)) //slayer handling //TODO: apply only ONLY_MELEE_FIGHT / DISTANCE_FIGHT?
+	if(const Bonus *slayerEffect = info.attackerBonuses->getEffect(SpellID::SLAYER)) //slayer handling //TODO: apply only ONLY_MELEE_FIGHT / DISTANCE_FIGHT?
 	{
 		std::vector<int> affectedIds;
 		int spLevel = slayerEffect->val; 
@@ -837,7 +837,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 		{
 			if(defenderType->idNumber == affectedIds[g])
 			{
-				attackDefenceDifference += VLC->spellh->spells[Spells::SLAYER]->powers[spLevel];
+				attackDefenceDifference += VLC->spellh->spells[SpellID::SLAYER]->powers[spLevel];
 				break;
 			}
 		}
@@ -871,7 +871,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 		multBonus *= (std::max(0, 100 - info.defenderBonuses->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::ARMORER))) / 100.0;
 
 	//handling hate effect
-	additiveBonus += info.attackerBonuses->valOfBonuses(Bonus::HATE, defenderType->idNumber) / 100.;
+	additiveBonus += info.attackerBonuses->valOfBonuses(Bonus::HATE, defenderType->idNumber.toEnum()) / 100.;
 
 	//luck bonus
 	if (info.luckyHit)
@@ -913,7 +913,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	auto isAdvancedAirShield = [](const Bonus *bonus)
 	{
 		return bonus->source == Bonus::SPELL_EFFECT
-			&& bonus->sid == Spells::AIR_SHIELD
+			&& bonus->sid == SpellID::AIR_SHIELD
 			&& bonus->val >= SecSkillLevel::ADVANCED;
 	};
 
@@ -1482,7 +1482,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 
 		switch (spell->id) //TODO: more general logic for new spells?
 		{
-		case Spells::CLONE:
+		case SpellID::CLONE:
 			if (caster) //TODO: how about stacks casting Clone?
 			{
 				if (vstd::contains(subject->state, EBattleStackState::CLONED))
@@ -1493,7 +1493,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 			}
 			break;
-		case Spells::DISPEL_HELPFUL_SPELLS:
+		case SpellID::DISPEL_HELPFUL_SPELLS:
 			{
 				TBonusListPtr spellBon = subject->getSpellBonuses();
 				bool hasPositiveSpell = false;
@@ -1593,8 +1593,8 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 		return ESpellCastProblem::SPELL_LEVEL_LIMIT_EXCEEDED;
 
 	//IDs of summon elemental spells (fire, earth, water, air)
-	int spellIDs[] = {	Spells::SUMMON_FIRE_ELEMENTAL, Spells::SUMMON_EARTH_ELEMENTAL,
-						Spells::SUMMON_WATER_ELEMENTAL, Spells::SUMMON_AIR_ELEMENTAL };
+	int spellIDs[] = {	SpellID::SUMMON_FIRE_ELEMENTAL, SpellID::SUMMON_EARTH_ELEMENTAL,
+						SpellID::SUMMON_WATER_ELEMENTAL, SpellID::SUMMON_AIR_ELEMENTAL };
 	//(fire, earth, water, air) elementals
 	int creIDs[] = {114, 113, 115, 112};
 
@@ -1763,7 +1763,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	{
 		if(!deadStack && !aliveStack)
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
-		if(spell->id == Spells::ANIMATE_DEAD  &&  deadStack  &&  !deadStack->hasBonusOfType(Bonus::UNDEAD))
+		if(spell->id == SpellID::ANIMATE_DEAD  &&  deadStack  &&  !deadStack->hasBonusOfType(Bonus::UNDEAD))
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
 		if(deadStack && deadStack->owner != player) //you can resurrect only your own stacks //FIXME: it includes alive stacks as well
 			return ESpellCastProblem::NO_APPROPRIATE_TARGET;
@@ -1792,7 +1792,7 @@ ui32 CBattleInfoCallback::calculateSpellBonus(ui32 baseDamage, const CSpell * sp
 	if(caster)
 	{
 		ret *= (100.0 + caster->valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::SORCERY)) / 100.0;
-		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, sp->id)) / 100.0;
+		ret *= (100.0 + caster->valOfBonuses(Bonus::SPELL_DAMAGE) + caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, sp->id.toEnum())) / 100.0;
 
 		if(sp->air)
 			ret *= (100.0 + caster->valOfBonuses(Bonus::AIR_SPELL_DMG_PREMY)) / 100.0;
@@ -1804,7 +1804,7 @@ ui32 CBattleInfoCallback::calculateSpellBonus(ui32 baseDamage, const CSpell * sp
 			ret *= (100.0 + caster->valOfBonuses(Bonus::EARTH_SPELL_DMG_PREMY)) / 100.0;
 
 		if (affectedCreature && affectedCreature->getCreature()->level) //Hero specials like Solmyr, Deemer
-			ret *= (100. + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id) * caster->level) / affectedCreature->getCreature()->level)) / 100.0;
+			ret *= (100. + ((caster->valOfBonuses(Bonus::SPECIAL_SPELL_LEV, sp->id.toEnum()) * caster->level) / affectedCreature->getCreature()->level)) / 100.0;
 	}
 	return ret;
 }
@@ -1854,7 +1854,7 @@ ui32 CBattleInfoCallback::calculateSpellDmg( const CSpell * sp, const CGHeroInst
 		//dmg increasing
 		if( affectedCreature->hasBonusOfType(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id) )
 		{
-			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id);
+			ret *= 100 + affectedCreature->valOfBonuses(Bonus::MORE_DAMAGE_FROM_SPELL, sp->id.toEnum());
 			ret /= 100;
 		}
 	}
@@ -1868,15 +1868,15 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 
 	const ui8 attackerSide = playerToSide(attackerOwner) == 1;
 	const auto attackedHexes = spell->rangeInHexes(destinationTile, skillLevel, attackerSide);
-	const bool onlyAlive = spell->id != Spells::RESURRECTION && spell->id != Spells::ANIMATE_DEAD; //when casting resurrection or animate dead we should be allow to select dead stack
+	const bool onlyAlive = spell->id != SpellID::RESURRECTION && spell->id != SpellID::ANIMATE_DEAD; //when casting resurrection or animate dead we should be allow to select dead stack
 	//fixme: what about other rising spells (Sacrifice) ?
-	if(spell->id == Spells::DEATH_RIPPLE || spell->id == Spells::DESTROY_UNDEAD || spell->id == Spells::ARMAGEDDON)
+	if(spell->id == SpellID::DEATH_RIPPLE || spell->id == SpellID::DESTROY_UNDEAD || spell->id == SpellID::ARMAGEDDON)
 	{
 		BOOST_FOREACH(const CStack *stack, battleGetAllStacks())
 		{
-			if((spell->id == Spells::DEATH_RIPPLE && !stack->getCreature()->isUndead()) //death ripple
-				|| (spell->id == Spells::DESTROY_UNDEAD && stack->getCreature()->isUndead()) //destroy undead
-				|| (spell->id == Spells::ARMAGEDDON) //Armageddon
+			if((spell->id == SpellID::DEATH_RIPPLE && !stack->getCreature()->isUndead()) //death ripple
+				|| (spell->id == SpellID::DESTROY_UNDEAD && stack->getCreature()->isUndead()) //destroy undead
+				|| (spell->id == SpellID::ARMAGEDDON) //Armageddon
 				)
 			{
 				if(stack->isValidTarget())
@@ -1884,7 +1884,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 			}
 		}
 	}
-	else if (spell->id == Spells::CHAIN_LIGHTNING)
+	else if (spell->id == SpellID::CHAIN_LIGHTNING)
 	{
 		std::set<BattleHex> possibleHexes;
 		BOOST_FOREACH (auto stack, battleGetAllStacks())
@@ -2007,10 +2007,10 @@ std::set<const CStack*> CBattleInfoCallback:: batteAdjacentCreatures(const CStac
 	return stacks;
 }
 
-TSpell CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) const
+SpellID CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) const
 {
-	RETURN_IF_NOT_BATTLE(-1);
-	std::vector<TSpell> possibleSpells;
+	RETURN_IF_NOT_BATTLE(SpellID::NONE);
+	std::vector<SpellID> possibleSpells;
 
 	BOOST_FOREACH(const CSpell *spell, VLC->spellh->spells)
 	{
@@ -2022,8 +2022,8 @@ TSpell CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) con
 
 			switch (spell->id)
 			{
-			case Spells::SHIELD:
-			case Spells::FIRE_SHIELD: // not if all enemy units are shooters
+			case SpellID::SHIELD:
+			case SpellID::FIRE_SHIELD: // not if all enemy units are shooters
 				{
 					auto walker = getStackIf([&](const CStack *stack) //look for enemy, non-shooting stack
 					{
@@ -2034,7 +2034,7 @@ TSpell CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) con
 						continue;
 				}
 				break;
-			case Spells::AIR_SHIELD: //only against active shooters
+			case SpellID::AIR_SHIELD: //only against active shooters
 				{
 
 					auto shooter = getStackIf([&](const CStack *stack) //look for enemy, non-shooting stack
@@ -2045,32 +2045,32 @@ TSpell CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) con
 						continue;
 				}
 				break;
-			case Spells::ANTI_MAGIC:
-			case Spells::MAGIC_MIRROR:
+			case SpellID::ANTI_MAGIC:
+			case SpellID::MAGIC_MIRROR:
 				{
 					if (!battleHasHero(subject->attackerOwned)) //only if there is enemy hero
 						continue;
 				}
 				break;
-			case Spells::CURE: //only damaged units - what about affected by curse?
+			case SpellID::CURE: //only damaged units - what about affected by curse?
 				{
 					if (subject->firstHPleft >= subject->MaxHealth())
 						continue;
 				}
 				break;
-			case Spells::BLOODLUST:
+			case SpellID::BLOODLUST:
 				{
 					if (subject->shots) //if can shoot - only if enemy uits are adjacent
 						continue;
 				}
 				break;
-			case Spells::PRECISION:
+			case SpellID::PRECISION:
 				{
 					if (!(subject->hasBonusOfType(Bonus::SHOOTER) && subject->shots))
 						continue;
 				}
 				break;
-			case Spells::SLAYER://only if monsters are present
+			case SpellID::SLAYER://only if monsters are present
 				{
 					auto kingMonster = getStackIf([&](const CStack *stack) //look for enemy, non-shooting stack
 					{
@@ -2082,7 +2082,7 @@ TSpell CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) con
 						continue;
 				}
 				break;
-			case Spells::CLONE: //not allowed
+			case SpellID::CLONE: //not allowed
 				continue;
 				break;
 			}
@@ -2093,16 +2093,16 @@ TSpell CBattleInfoCallback::getRandomBeneficialSpell(const CStack * subject) con
 	if (possibleSpells.size())
 		return possibleSpells[rand() % possibleSpells.size()];
 	else
-		return -1;
+		return SpellID::NONE;
 }
 
-TSpell CBattleInfoCallback::getRandomCastedSpell(const CStack * caster) const
+SpellID CBattleInfoCallback::getRandomCastedSpell(const CStack * caster) const
 {
-	RETURN_IF_NOT_BATTLE(-1);
+	RETURN_IF_NOT_BATTLE(SpellID::NONE);
 
 	TBonusListPtr bl = caster->getBonuses(Selector::type(Bonus::SPELLCASTER));
 	if (!bl->size())
-		return -1;
+		return SpellID::NONE;
 	int totalWeight = 0;
 	BOOST_FOREACH(Bonus * b, *bl)
 	{
@@ -2114,11 +2114,11 @@ TSpell CBattleInfoCallback::getRandomCastedSpell(const CStack * caster) const
 		randomPos -= std::max(b->additionalInfo, 1);
 		if(randomPos < 0)
 		{
-			return b->subtype;
+			return SpellID(b->subtype);
 		}
 	}
 
-	return -1;
+	return SpellID::NONE;
 }
 
 int CBattleInfoCallback::battleGetSurrenderCost(TPlayerColor Player) const

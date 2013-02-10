@@ -676,10 +676,10 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 
 		iw.text.addReplacement(names.str());
 
-		std::set<ui32>::iterator it = cs.spells.begin();
+		auto it = cs.spells.begin();
 		for(int i = 0; i < cs.spells.size(); i++, it++)
 		{
-			iw.text.addReplacement(MetaString::SPELL_NAME, *it);
+			iw.text.addReplacement(MetaString::SPELL_NAME, it->toEnum());
 			if(i == cs.spells.size() - 2) //we just added pre-last name
 				iw.text.addReplacement(MetaString::GENERAL_TXT, 141); // " and "
 			iw.components.push_back(Component(Component::SPELL, *it, 0, 0));
@@ -1141,7 +1141,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 
 			ui32 dwellpos = rand()%dwellings.size();//take random dwelling
 			ui32 creapos = rand()%dwellings[dwellpos]->creatures.size();//for multi-creature dwellings like Golem Factory
-			CreatureID::CreatureID creature = dwellings[dwellpos]->creatures[creapos].second[0];
+			CreatureID creature = dwellings[dwellpos]->creatures[creapos].second[0];
 
 			if (clear)
 				ssi.creatures[GameConstants::CREATURES_PER_TOWN].first = std::max((ui32)1, (VLC->creh->creatures[creature]->growth)/2);
@@ -1184,7 +1184,7 @@ void CGameHandler::newTurn()
 		bool deityOfFireBuilt = false;
 		BOOST_FOREACH(const CGTownInstance *t, gs->map->towns)
 		{
-			if(t->hasBuilt(EBuilding::GRAIL, ETownType::INFERNO))
+			if(t->hasBuilt(BuildingID::GRAIL, ETownType::INFERNO))
 			{
 				deityOfFireBuilt = true;
 				break;
@@ -1206,7 +1206,7 @@ void CGameHandler::newTurn()
 					n.specialWeek = NewTurn::DOUBLE_GROWTH;
 					if (VLC->modh->settings.ALL_CREATURES_GET_DOUBLE_MONTHS)
 					{
-						std::pair<int,CreatureID::CreatureID> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+						std::pair<int,CreatureID> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
 						n.creatureid = newMonster.second;
 					}
 					else
@@ -1224,7 +1224,7 @@ void CGameHandler::newTurn()
 				if (monthType < 25)
 				{
 					n.specialWeek = NewTurn::BONUS_GROWTH; //+5
-					std::pair<int, CreatureID::CreatureID> newMonster (54, VLC->creh->pickRandomMonster(boost::ref(rand)));
+					std::pair<int, CreatureID> newMonster (54, VLC->creh->pickRandomMonster(boost::ref(rand)));
 					//TODO do not pick neutrals
 					n.creatureid = newMonster.second;
 				}
@@ -1277,7 +1277,7 @@ void CGameHandler::newTurn()
 			hth.id = h->id;
             hth.move = h->maxMovePoints(gs->map->getTile(h->getPosition(false)).terType != ETerrainType::WATER);
 
-			if(h->visitedTown && h->visitedTown->hasBuilt(EBuilding::MAGES_GUILD_1)) //if hero starts turn in town with mage guild
+			if(h->visitedTown && h->visitedTown->hasBuilt(BuildingID::MAGES_GUILD_1)) //if hero starts turn in town with mage guild
 				hth.mana = std::max(h->mana, h->manaLimit()); //restore all mana
 			else
 				hth.mana = std::max((si32)(0), std::max(h->mana, std::min((si32)(h->mana + h->manaRegain()), h->manaLimit())));
@@ -1304,11 +1304,11 @@ void CGameHandler::newTurn()
 		handleTownEvents(t, n, newCreas);
 		if(newWeek) //first day of week
 		{
-			if(t->hasBuilt(EBuilding::PORTAL_OF_SUMMON, ETownType::DUNGEON))
+			if(t->hasBuilt(BuildingID::PORTAL_OF_SUMMON, ETownType::DUNGEON))
 				setPortalDwelling(t, true, (n.specialWeek == NewTurn::PLAGUE ? true : false)); //set creatures for Portal of Summoning
 
 			if(!firstTurn)
-				if (t->hasBuilt(EBuilding::TREASURY, ETownType::RAMPART) && player < GameConstants::PLAYER_LIMIT)
+				if (t->hasBuilt(BuildingID::TREASURY, ETownType::RAMPART) && player < GameConstants::PLAYER_LIMIT)
 						n.res[player][Res::GOLD] += hadGold[player]/10; //give 10% of starting gold
 
 			SetAvailableCreatures sac;
@@ -1353,7 +1353,7 @@ void CGameHandler::newTurn()
 		}
 		if(!firstTurn  &&  player < GameConstants::PLAYER_LIMIT)//not the first day and town not neutral
 		{
-			if(t->hasBuilt(EBuilding::RESOURCE_SILO)) //there is resource silo
+			if(t->hasBuilt(BuildingID::RESOURCE_SILO)) //there is resource silo
 			{
 				if(t->town->primaryRes == 127) //we'll give wood and ore
 				{
@@ -1368,7 +1368,7 @@ void CGameHandler::newTurn()
 
 			n.res[player][Res::GOLD] += t->dailyIncome();
 		}
-		if(t->hasBuilt(EBuilding::GRAIL, ETownType::TOWER))
+		if(t->hasBuilt(BuildingID::GRAIL, ETownType::TOWER))
 		{
 			// Skyship, probably easier to handle same as Veil of darkness
 			//do it every new day after veils apply
@@ -1628,9 +1628,9 @@ void CGameHandler::giveSpells( const CGTownInstance *t, const CGHeroInstance *h 
 	cs.learn = true;
 	for(int i=0; i<std::min(t->mageGuildLevel(),h->getSecSkillLevel(SecondarySkill::WISDOM)+2);i++)
 	{
-		if (t->hasBuilt(EBuilding::GRAIL, ETownType::CONFLUX)) //Aurora Borealis
+		if (t->hasBuilt(BuildingID::GRAIL, ETownType::CONFLUX)) //Aurora Borealis
 		{
-			std::vector<ui16> spells;
+			std::vector<SpellID> spells;
 			getAllowedSpells(spells, i);
 			for (int j = 0; j < spells.size(); ++j)
 				cs.spells.insert(spells[j]);
@@ -1846,9 +1846,9 @@ bool CGameHandler::teleportHero(si32 hid, si32 dstid, ui8 source, TPlayerColor a
 	const CGTownInstance *from = h->visitedTown;
 	if(((h->getOwner() != t->getOwner())
 		&& complain("Cannot teleport hero to another player"))
-	|| ((!from || from->hasBuilt(EBuilding::CASTLE_GATE, ETownType::INFERNO))
+	|| ((!from || from->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
 		&& complain("Hero must be in town with Castle gate for teleporting"))
-	|| (t->hasBuilt(EBuilding::CASTLE_GATE, ETownType::INFERNO)
+	|| (t->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO)
 		&& complain("Cannot teleport hero to town without Castle gate in it")))
 			return false;
 	int3 pos = t->visitablePos();
@@ -1867,7 +1867,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, TPlayerColor owner)
 	if(owner < GameConstants::PLAYER_LIMIT && dynamic_cast<const CGTownInstance *>(obj)) //town captured
 	{
 		const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
-		if (town->hasBuilt(EBuilding::PORTAL_OF_SUMMON, ETownType::DUNGEON))
+		if (town->hasBuilt(BuildingID::PORTAL_OF_SUMMON, ETownType::DUNGEON))
 			setPortalDwelling(town, true, false);
 
 		if (!gs->getPlayer(owner)->towns.size())//player lost last town
@@ -1885,7 +1885,7 @@ void CGameHandler::setOwner(const CGObjectInstance * obj, TPlayerColor owner)
 	{
 		BOOST_FOREACH(const CGTownInstance *t, gs->getPlayer(owner)->towns)
 		{
-			if (t->hasBuilt(EBuilding::PORTAL_OF_SUMMON, ETownType::DUNGEON))
+			if (t->hasBuilt(BuildingID::PORTAL_OF_SUMMON, ETownType::DUNGEON))
 				setPortalDwelling(t);//set initial creatures for all portals of summoning
 		}
 	}
@@ -2052,7 +2052,7 @@ void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstan
 	startBattleI(army1, army2, army2->visitablePos(), cb, creatureBank);
 }
 
-void CGameHandler::changeSpells( const CGHeroInstance * hero, bool give, const std::set<ui32> &spells )
+void CGameHandler::changeSpells( const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells )
 {
 	ChangeSpells cs;
 	cs.hid = hero->id;
@@ -2125,17 +2125,17 @@ void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
 	ChangeSpells cs1;
 	cs1.learn = true;
 	cs1.hid = toHero;//giving spells to first hero
-		for(std::set<ui32>::const_iterator it=h1->spells.begin(); it!=h1->spells.end();it++)
-			if ( h2Lvl >= VLC->spellh->spells[*it]->level && !vstd::contains(h2->spells, *it))//hero can learn it and don't have it yet
-				cs1.spells.insert(*it);//spell to learn
+	BOOST_FOREACH(auto it, h1->spells)
+		if ( h2Lvl >= it.toSpell()->level && !vstd::contains(h2->spells, it))//hero can learn it and don't have it yet
+			cs1.spells.insert(it);//spell to learn
 
 	ChangeSpells cs2;
 	cs2.learn = true;
 	cs2.hid = fromHero;
 
-	for(std::set<ui32>::const_iterator it=h2->spells.begin(); it!=h2->spells.end();it++)
-		if ( h1Lvl >= VLC->spellh->spells[*it]->level && !vstd::contains(h1->spells, *it))
-			cs2.spells.insert(*it);
+	BOOST_FOREACH(auto it, h2->spells)
+		if ( h1Lvl >= it.toSpell()->level && !vstd::contains(h1->spells, it))
+			cs2.spells.insert(it);
 
 	if (cs1.spells.size() || cs2.spells.size())//create a message
 	{
@@ -2150,10 +2150,10 @@ void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
 		{
 			iw.text.addTxt(MetaString::GENERAL_TXT, 140);//learns
 			int size = cs2.spells.size();
-			for(std::set<ui32>::const_iterator it=cs2.spells.begin(); it!=cs2.spells.end();it++)
+			BOOST_FOREACH(auto it, cs2.spells)
 			{
-				iw.components.push_back(Component(Component::SPELL, (*it), 1, 0));
-				iw.text.addTxt(MetaString::SPELL_NAME, (*it));
+				iw.components.push_back(Component(Component::SPELL, it, 1, 0));
+				iw.text.addTxt(MetaString::SPELL_NAME, it.toEnum());
 				switch (size--)
 				{
 					case 2:	iw.text.addTxt(MetaString::GENERAL_TXT, 141);
@@ -2175,10 +2175,10 @@ void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
 		{
 			iw.text.addTxt(MetaString::GENERAL_TXT, 147);//teaches
 			int size = cs1.spells.size();
-			for(std::set<ui32>::const_iterator it=cs1.spells.begin(); it!=cs1.spells.end();it++)
+			BOOST_FOREACH(auto it, cs1.spells)
 			{
-				iw.components.push_back(Component(Component::SPELL, (*it), 1, 0));
-				iw.text.addTxt(MetaString::SPELL_NAME, (*it));
+				iw.components.push_back(Component(Component::SPELL, it, 1, 0));
+				iw.text.addTxt(MetaString::SPELL_NAME, it.toEnum());
 				switch (size--)
 				{
 					case 2:	iw.text.addTxt(MetaString::GENERAL_TXT, 141);
@@ -2496,10 +2496,10 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 	NewStructures ns;
 	ns.tid = tid;
 
-	if(bid >= EBuilding::DWELL_FIRST) //dwelling
+	if(bid >= BuildingID::DWELL_FIRST) //dwelling
 	{
-		int level = (bid - EBuilding::DWELL_FIRST) % GameConstants::CREATURES_PER_TOWN;
-		int upgradeNumber = (bid - EBuilding::DWELL_FIRST) / GameConstants::CREATURES_PER_TOWN;
+		int level = (bid - BuildingID::DWELL_FIRST) % GameConstants::CREATURES_PER_TOWN;
+		int upgradeNumber = (bid - BuildingID::DWELL_FIRST) / GameConstants::CREATURES_PER_TOWN;
 
 		if (upgradeNumber >= t->town->creatures[level].size())
 			COMPLAIN_RET("Cannot build dwelling: no creature found!");
@@ -2509,12 +2509,12 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 		SetAvailableCreatures ssi;
 		ssi.tid = tid;
 		ssi.creatures = t->creatures;
-		if (bid <= EBuilding::DWELL_LAST)
+		if (bid <= BuildingID::DWELL_LAST)
 			ssi.creatures[level].first = crea->growth;
 		ssi.creatures[level].second.push_back(crea->idNumber);
 		sendAndApply(&ssi);
 	}
-	else if ( t->subID == ETownType::DUNGEON && bid == EBuilding::PORTAL_OF_SUMMON )
+	else if ( t->subID == ETownType::DUNGEON && bid == BuildingID::PORTAL_OF_SUMMON )
 	{
 		setPortalDwelling(t);
 	}
@@ -2604,7 +2604,7 @@ void CGameHandler::sendMessageToAll( const std::string &message )
 	sendToAllClients(&sm);
 }
 
-bool CGameHandler::recruitCreatures( si32 objid, CreatureID::CreatureID crid, ui32 cram, si32 fromLvl )
+bool CGameHandler::recruitCreatures( si32 objid, CreatureID crid, ui32 cram, si32 fromLvl )
 {
 	const CGDwelling *dw = static_cast<CGDwelling*>(gs->map->objects[objid].get());
 	const CArmedInstance *dst = NULL;
@@ -2923,13 +2923,13 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ArtifactPosition::ArtifactPos
 	return false;
 }
 
-bool CGameHandler::buyArtifact( ui32 hid, ArtifactID::ArtifactID aid )
+bool CGameHandler::buyArtifact( ui32 hid, ArtifactID aid )
 {
 	CGHeroInstance *hero = gs->getHero(hid);
 	CGTownInstance *town = hero->visitedTown;
 	if(aid==ArtifactID::SPELLBOOK)
 	{
-		if((!town->hasBuilt(EBuilding::MAGES_GUILD_1) && complain("Cannot buy a spellbook, no mage guild in the town!"))
+		if((!town->hasBuilt(BuildingID::MAGES_GUILD_1) && complain("Cannot buy a spellbook, no mage guild in the town!"))
 		    || (getResource(hero->getOwner(), Res::GOLD) < GameConstants::SPELLBOOK_GOLD_COST && complain("Cannot buy a spellbook, not enough gold!") )
 		    || (hero->getArt(ArtifactPosition::SPELLBOOK) && complain("Cannot buy a spellbook, hero already has a one!"))
 		    )
@@ -2950,8 +2950,8 @@ bool CGameHandler::buyArtifact( ui32 hid, ArtifactID::ArtifactID aid )
 		{
 			return false;
 		}
-		if  ((town->hasBuilt(EBuilding::BLACKSMITH) && town->town->warMachine == aid )
-		 || ((town->hasBuilt(EBuilding::BALLISTA_YARD, ETownType::STRONGHOLD)) && aid == ArtifactID::BALLISTA))
+		if  ((town->hasBuilt(BuildingID::BLACKSMITH) && town->town->warMachine == aid )
+		 || ((town->hasBuilt(BuildingID::BALLISTA_YARD, ETownType::STRONGHOLD)) && aid == ArtifactID::BALLISTA))
 		{
 			giveResource(hero->getOwner(),Res::GOLD,-price);
 			giveHeroNewArtifact(hero, VLC->arth->artifacts[aid], static_cast<ArtifactPosition::ArtifactPosition>(9+aid));
@@ -2963,7 +2963,7 @@ bool CGameHandler::buyArtifact( ui32 hid, ArtifactID::ArtifactID aid )
 	return false;
 }
 
-bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::ERes rid, ArtifactID::ArtifactID aid)
+bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::ERes rid, ArtifactID aid)
 {
 	if(!vstd::contains(m->availableItemsIds(EMarketMode::RESOURCE_ARTIFACT), aid))
 		COMPLAIN_RET("That artifact is unavailable!");
@@ -3202,7 +3202,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, TPlayerColor p
 
 	if(t) //tavern in town
 	{
-		if(    (!t->hasBuilt(EBuilding::TAVERN)  && complain("No tavern!"))
+		if(    (!t->hasBuilt(BuildingID::TAVERN)  && complain("No tavern!"))
 			|| (t->visitingHero  && complain("There is visiting hero - no place!")))
 			return false;
 	}
@@ -3698,8 +3698,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			BattleStackAdded bsa;
 			bsa.attacker = summoner->attackerOwned;
 
-			bsa.creID = static_cast<CreatureID::CreatureID>(summoner->getBonusLocalFirst(Selector::type(Bonus::DAEMON_SUMMONING))->subtype); //in case summoner can summon more than one type of monsters... scream!
-			ui64 risedHp = summoner->count * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID);
+			bsa.creID = CreatureID(summoner->getBonusLocalFirst(Selector::type(Bonus::DAEMON_SUMMONING))->subtype); //in case summoner can summon more than one type of monsters... scream!
+			ui64 risedHp = summoner->count * summoner->valOfBonuses(Bonus::DAEMON_SUMMONING, bsa.creID.toEnum());
 			bsa.amount = std::min ((ui32)(risedHp / VLC->creh->creatures[bsa.creID]->MaxHealth()), destStack->baseAmount);
 
 			bsa.pos = gs->curB->getAvaliableHex(bsa.creID, bsa.attacker, destStack->position);
@@ -3783,10 +3783,10 @@ void CGameHandler::playerMessage( TPlayerColor player, const std::string &messag
 
 		//give all spells
 		cs.learn = 1;
-		for(int i=0;i<VLC->spellh->spells.size();i++)
+		BOOST_FOREACH(auto spell, VLC->spellh->spells)
 		{
-			if(!VLC->spellh->spells[i]->creatureAbility)
-				cs.spells.insert(i);
+			if(!spell->creatureAbility)
+				cs.spells.insert(spell->id);
 		}
 
 		//give mana
@@ -3926,22 +3926,22 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 		auto obstacle = make_shared<SpellCreatedObstacle>();
 		switch(spellID) // :/
 		{
-		case Spells::QUICKSAND:
+		case SpellID::QUICKSAND:
 			obstacle->obstacleType = CObstacleInstance::QUICKSAND;
 			obstacle->turnsRemaining = -1;
 			obstacle->visibleForAnotherSide = false;
 			break;
-		case Spells::LAND_MINE:
+		case SpellID::LAND_MINE:
 			obstacle->obstacleType = CObstacleInstance::LAND_MINE;
 			obstacle->turnsRemaining = -1;
 			obstacle->visibleForAnotherSide = false;
 			break;
-		case Spells::FIRE_WALL:
+		case SpellID::FIRE_WALL:
 			obstacle->obstacleType = CObstacleInstance::FIRE_WALL;
 			obstacle->turnsRemaining = 2;
 			obstacle->visibleForAnotherSide = true;
 			break;
-		case Spells::FORCE_FIELD:
+		case SpellID::FORCE_FIELD:
 			obstacle->obstacleType = CObstacleInstance::FORCE_FIELD;
 			obstacle->turnsRemaining = 2;
 			obstacle->visibleForAnotherSide = true;
@@ -4028,10 +4028,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			continue;
 		sc.dmgToDisplay += gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
 	}
-	if (spellID == Spells::DEATH_STARE || spellID == Spells::ACID_BREATH_DAMAGE)
+	if (spellID == SpellID::DEATH_STARE || spellID == SpellID::ACID_BREATH_DAMAGE)
 	{
 		sc.dmgToDisplay = usedSpellPower;
-		if (spellID == Spells::DEATH_STARE)
+		if (spellID == SpellID::DEATH_STARE)
 			vstd::amin(sc.dmgToDisplay, (*attackedCres.begin())->count); //stack is already reduced after attack
 	}
 	StacksInjured si;
@@ -4080,7 +4080,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 				(*it)->prepareAttacked(bsa);
 				si.stacks.push_back(bsa);
 
-				if (spellID == Spells::CHAIN_LIGHTNING)
+				if (spellID == SpellID::CHAIN_LIGHTNING)
 					++chainLightningModifier;
 			}		
 	}
@@ -4097,11 +4097,11 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			pseudoBonus.val = spellLvl;
 			pseudoBonus.turnsRemain = gs->curB->calculateSpellDuration(spell, caster, stackSpellPower ? stackSpellPower : usedSpellPower);
 			CStack::stackEffectToFeature(sse.effect, pseudoBonus);
-			if (spellID == Spells::SHIELD || spellID == Spells::AIR_SHIELD)
+			if (spellID == SpellID::SHIELD || spellID == SpellID::AIR_SHIELD)
 			{
 				sse.effect.back().val = (100 - sse.effect.back().val); //fix to original config: shiled should display damage reduction
 			}
-			if (spellID == Spells::BIND && stack)//bind
+			if (spellID == SpellID::BIND && stack)//bind
 			{
 				sse.effect.back().additionalInfo = stack->ID; //we need to know who casted Bind
 			}
@@ -4166,7 +4166,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 				sendAndApply(&sse);
 					
 	}
-	else if (spell->isRisingSpell() || spell->id == Spells::CURE)
+	else if (spell->isRisingSpell() || spell->id == SpellID::CURE)
 	{
 			int hpGained = 0;
 			if (stack)
@@ -4183,7 +4183,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			for(auto it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
 				if(vstd::contains(sc.resisted, (*it)->ID) //this creature resisted the spell
-					|| (spellID == Spells::ANIMATE_DEAD && !(*it)->hasBonusOfType(Bonus::UNDEAD)) //we try to cast animate dead on living stack, TODO: showuld be not affected earlier
+					|| (spellID == SpellID::ANIMATE_DEAD && !(*it)->hasBonusOfType(Bonus::UNDEAD)) //we try to cast animate dead on living stack, TODO: showuld be not affected earlier
 					)
 					continue;
 				StacksHealedOrResurrected::HealInfo hi;
@@ -4204,7 +4204,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			}
 			if(!shr.healedStacks.empty())
 				sendAndApply(&shr);
-			if (spellID == Spells::SACRIFICE) //remove victim
+			if (spellID == SpellID::SACRIFICE) //remove victim
 			{
 				BattleStacksRemoved bsr;
 				bsr.stackIDs.insert (selectedStack); //somehow it works for teleport?
@@ -4214,8 +4214,8 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	else
 	switch (spellID)
 	{
-	case Spells::QUICKSAND:
-	case Spells::LAND_MINE:
+	case SpellID::QUICKSAND:
+	case SpellID::LAND_MINE:
 		{
 			std::vector<BattleHex> availableTiles;
 			for(int i = 0; i < GameConstants::BFIELD_SIZE; i += 1)
@@ -4235,10 +4235,10 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 		}
 
 		break;
-	case Spells::FORCE_FIELD:
+	case SpellID::FORCE_FIELD:
 		placeObstacle(destination);
 		break;
-	case Spells::FIRE_WALL:
+	case SpellID::FIRE_WALL:
 		{
 			//fire wall is build from multiple obstacles - one fire piece for each affected hex
 			auto affectedHexes = spell->rangeInHexes(destination, spellLvl, casterSide);
@@ -4246,7 +4246,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 				placeObstacle(hex);
 		}
 		break;
-	case Spells::TELEPORT:
+	case SpellID::TELEPORT:
 		{
 			BattleStackMoved bsm;
 			bsm.distance = -1;
@@ -4258,24 +4258,24 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			sendAndApply(&bsm);
 			break;
 		}
-	case Spells::SUMMON_FIRE_ELEMENTAL:
-	case Spells::SUMMON_EARTH_ELEMENTAL:
-	case Spells::SUMMON_WATER_ELEMENTAL:
-	case Spells::SUMMON_AIR_ELEMENTAL:
+	case SpellID::SUMMON_FIRE_ELEMENTAL:
+	case SpellID::SUMMON_EARTH_ELEMENTAL:
+	case SpellID::SUMMON_WATER_ELEMENTAL:
+	case SpellID::SUMMON_AIR_ELEMENTAL:
 		{ //elemental summoning
-			CreatureID::CreatureID creID;
+			CreatureID creID;
 			switch(spellID)
 			{
-				case Spells::SUMMON_FIRE_ELEMENTAL:
+				case SpellID::SUMMON_FIRE_ELEMENTAL:
 					creID = CreatureID::FIRE_ELEMENTAL;
 					break;
-				case Spells::SUMMON_EARTH_ELEMENTAL:
+				case SpellID::SUMMON_EARTH_ELEMENTAL:
 					creID = CreatureID::EARTH_ELEMENTAL;
 					break;
-				case Spells::SUMMON_WATER_ELEMENTAL:
+				case SpellID::SUMMON_WATER_ELEMENTAL:
 					creID = CreatureID::WATER_ELEMENTAL;
 					break;
-				case Spells::SUMMON_AIR_ELEMENTAL:
+				case SpellID::SUMMON_AIR_ELEMENTAL:
 					creID = CreatureID::AIR_ELEMENTAL;
 					break;
 			}
@@ -4297,7 +4297,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 				complain("Summoning elementals didn't summon any!");
 		}
 		break;
-	case Spells::CLONE:
+	case SpellID::CLONE:
 		{
 			const CStack * clonedStack = NULL;
 			if (attackedCres.size())
@@ -4324,7 +4324,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			sendAndApply(&ssp);
 		}
 		break;
-	case Spells::REMOVE_OBSTACLE:
+	case SpellID::REMOVE_OBSTACLE:
 		{
 			ObstaclesRemoved obr;
 			BOOST_FOREACH(auto &obstacle, battleGetAllObstacles())
@@ -4340,7 +4340,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			break;
 		}
 		break;
-	case Spells::DEATH_STARE: //handled in a bit different way
+	case SpellID::DEATH_STARE: //handled in a bit different way
 		{
 			for(auto it = attackedCres.begin(); it != attackedCres.end(); ++it)
 			{
@@ -4361,7 +4361,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			}
 		}
 		break;
-	case Spells::ACID_BREATH_DAMAGE: //new effect, separate from acid breath defense reduction
+	case SpellID::ACID_BREATH_DAMAGE: //new effect, separate from acid breath defense reduction
 		{
 			for(auto it = attackedCres.begin(); it != attackedCres.end(); ++it) //no immunities
 			{
@@ -4440,7 +4440,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			}
 
 			const CSpell *s = VLC->spellh->spells[ba.additionalInfo];
-			if (s->mainEffectAnim > -1 || (s->id >= 66 || s->id <= 69) || s->id == Spells::CLONE) //allow summon elementals
+			if (s->mainEffectAnim > -1 || (s->id >= 66 || s->id <= 69) || s->id == SpellID::CLONE) //allow summon elementals
 				//TODO: special effects, like Clone
 			{
 				ui8 skill = h->getSpellSchoolLevel(s); //skill level
@@ -4536,7 +4536,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 
 		if(st->hasBonusOfType(Bonus::POISON))
 		{
-			const Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, Spells::POISON) && Selector::type(Bonus::STACK_HEALTH));
+			const Bonus * b = st->getBonusLocalFirst(Selector::source(Bonus::SPELL_EFFECT, SpellID::POISON) && Selector::type(Bonus::STACK_HEALTH));
 			if (b) //TODO: what if not?...
 			{
 				bte.val = std::max (b->val - 10, -(st->valOfBonuses(Bonus::POISON)));
@@ -4653,14 +4653,14 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 
 		oneTimeObstacle = true;
 		effect = 82; //makes
-		damage = gs->curB->calculateSpellDmg(VLC->spellh->spells[Spells::LAND_MINE], hero, curStack,
+		damage = gs->curB->calculateSpellDmg(VLC->spellh->spells[SpellID::LAND_MINE], hero, curStack,
 											 spellObstacle->spellLevel, spellObstacle->casterSpellPower);
 		//TODO even if obstacle wasn't created by hero (Tower "moat") it should deal dmg as if casted by hero,
 		//if it is bigger than default dmg. Or is it just irrelevant H3 implementation quirk
 	}
 	else if(obstacle.obstacleType == CObstacleInstance::FIRE_WALL)
 	{
-		damage = gs->curB->calculateSpellDmg(VLC->spellh->spells[Spells::FIRE_WALL], hero, curStack,
+		damage = gs->curB->calculateSpellDmg(VLC->spellh->spells[SpellID::FIRE_WALL], hero, curStack,
 											 spellObstacle->spellLevel, spellObstacle->casterSpellPower);
 	}
 	else
@@ -4947,7 +4947,7 @@ bool CGameHandler::buildBoat( ui32 objid )
 		return false;
 	}
 	else if(obj->o->ID == Obj::TOWN
-	        && !static_cast<const CGTownInstance*>(obj)->hasBuilt(EBuilding::SHIPYARD))
+	        && !static_cast<const CGTownInstance*>(obj)->hasBuilt(BuildingID::SHIPYARD))
 	{
 		complain("Cannot build boat in the town - no shipyard!");
 		return false;
@@ -5354,7 +5354,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		if (staredCreatures)
 		{
 			if (bat.bsa.size() && bat.bsa[0].newAmount > 0) //TODO: death stare was not originally available for multiple-hex attacks, but...
-			handleSpellCasting(Spells::DEATH_STARE, 0, gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->position,
+			handleSpellCasting(SpellID::DEATH_STARE, 0, gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->position,
 				!attacker->attackerOwned, attacker->owner, NULL, NULL, staredCreatures, ECastingMode::AFTER_ATTACK_CASTING, attacker);
 		}
 	}
@@ -5368,15 +5368,15 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 	}
 	if (acidDamage)
 	{
-		handleSpellCasting(Spells::ACID_BREATH_DAMAGE, 0, gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->position,
+		handleSpellCasting(SpellID::ACID_BREATH_DAMAGE, 0, gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->position,
 				!attacker->attackerOwned, attacker->owner, NULL, NULL,
 				acidDamage * attacker->count, ECastingMode::AFTER_ATTACK_CASTING, attacker);
 	}
 }
 
-bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &pos)
+bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int3 &pos)
 {
-	const CSpell *s = VLC->spellh->spells[spellID];
+	const CSpell *s = spellID.toSpell();
 	int cost = h->getSpellCost(s);
 	int schoolLevel = h->getSpellSchoolLevel(s);
 
@@ -5392,10 +5392,9 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 	asc.spellID = spellID;
 	sendAndApply(&asc);
 
-	using namespace Spells;
 	switch(spellID)
 	{
-	case SUMMON_BOAT: //Summon Boat
+	case SpellID::SUMMON_BOAT:
 		{
 			//check if spell works at all
 			if(rand() % 100 >= s->powers[schoolLevel]) //power is % chance of success
@@ -5457,7 +5456,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 			break;
 		}
 
-	case SCUTTLE_BOAT: //Scuttle Boat
+	case SpellID::SCUTTLE_BOAT:
 		{
 			//check if spell works at all
 			if(rand() % 100 >= s->powers[schoolLevel]) //power is % chance of success
@@ -5482,7 +5481,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 			sendAndApply(&ro);
 			break;
 		}
-	case DIMENSION_DOOR: //Dimension Door
+	case SpellID::DIMENSION_DOOR:
 		{
 			const TerrainTile *dest = getTile(pos);
 			const TerrainTile *curr = getTile(h->getSightCenter());
@@ -5491,7 +5490,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 				COMPLAIN_RET("Destination tile doesn't exist!");
 			if(!h->movement)
 				COMPLAIN_RET("Hero needs movement points to cast Dimension Door!");
-			if(h->getBonusesCount(Bonus::SPELL_EFFECT, DIMENSION_DOOR) >= s->powers[schoolLevel]) //limit casts per turn
+			if(h->getBonusesCount(Bonus::SPELL_EFFECT, SpellID::DIMENSION_DOOR) >= s->powers[schoolLevel]) //limit casts per turn
 			{
 				InfoWindow iw;
 				iw.player = h->tempOwner;
@@ -5503,7 +5502,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 
 			GiveBonus gb;
 			gb.id = h->id;
-			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::NONE, Bonus::SPELL_EFFECT, 0, DIMENSION_DOOR);
+			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::NONE, Bonus::SPELL_EFFECT, 0, SpellID::DIMENSION_DOOR);
 			sendAndApply(&gb);
 
 			if(!dest->isClear(curr)) //wrong dest tile
@@ -5524,28 +5523,28 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 			}
 		}
 		break;
-	case FLY: //Fly
+	case SpellID::FLY:
 		{
 			int subtype = schoolLevel >= 2 ? 1 : 2; //adv or expert
 
 			GiveBonus gb;
 			gb.id = h->id;
-			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::FLYING_MOVEMENT, Bonus::SPELL_EFFECT, 0, FLY, subtype);
+			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::FLYING_MOVEMENT, Bonus::SPELL_EFFECT, 0, SpellID::FLY, subtype);
 			sendAndApply(&gb);
 		}
 		break;
-	case WATER_WALK: //Water Walk
+	case SpellID::WATER_WALK:
 		{
 			int subtype = schoolLevel >= 2 ? 1 : 2; //adv or expert
 
 			GiveBonus gb;
 			gb.id = h->id;
-			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::WATER_WALKING, Bonus::SPELL_EFFECT, 0, WATER_WALK, subtype);
+			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::WATER_WALKING, Bonus::SPELL_EFFECT, 0, SpellID::WATER_WALK, subtype);
 			sendAndApply(&gb);
 		}
 		break;
 
-	case TOWN_PORTAL: //Town Portal
+	case SpellID::TOWN_PORTAL:
 		{
 			if (!gs->map->isInTheMap(pos))
 				COMPLAIN_RET("Destination tile not present!")
@@ -5579,10 +5578,10 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, int spellID, const int3 &p
 		}
 		break;
 
-	case VISIONS: //Visions
-	case VIEW_EARTH: //View Earth
-	case DISGUISE: //Disguise
-	case VIEW_AIR: //View Air
+	case SpellID::VISIONS:
+	case SpellID::VIEW_EARTH:
+	case SpellID::DISGUISE:
+	case SpellID::VIEW_AIR:
 	default:
 		COMPLAIN_RET("This spell is not implemented yet!");
 		break;
@@ -6143,7 +6142,7 @@ void CGameHandler::commitPackage( CPackForClient *pack )
 	sendAndApply(pack);
 }
 
-void CGameHandler::spawnWanderingMonsters(CreatureID::CreatureID creatureID)
+void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 {
 	std::vector<int3>::iterator tile;
 	std::vector<int3> tiles;

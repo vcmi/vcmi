@@ -139,7 +139,7 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 {
 	std::vector<BattleHex> ret;
 
-	if(id == Spells::FIRE_WALL  ||  id == Spells::FORCE_FIELD)
+	if(id == SpellID::FIRE_WALL  ||  id == SpellID::FORCE_FIELD)
 	{
 		//Special case - shape of obstacle depends on caster's side
 		//TODO make it possible through spell_info config
@@ -389,7 +389,7 @@ void CSpellHandler::loadSpells()
 		do
 		{
 			CSpell * spell = loadSpell(parser);
-			spell->id = spells.size();
+			spell->id = SpellID(spells.size());
 			spell->combatSpell = combat;
 			spell->creatureAbility = alility;
 			spells.push_back(spell);
@@ -410,10 +410,10 @@ void CSpellHandler::loadSpells()
 	skip(3);
 	read(true,true);//read creature abilities
 
-	boost::replace_first (spells[Spells::DISRUPTING_RAY]->attributes, "2", ""); // disrupting ray will now affect single creature
+	boost::replace_first (spells[SpellID::DISRUPTING_RAY]->attributes, "2", ""); // disrupting ray will now affect single creature
 
 
-	spells.push_back(spells[Spells::ACID_BREATH_DEFENSE]); //clone Acid Breath attributes for Acid Breath damage effect
+	spells.push_back(spells[SpellID::ACID_BREATH_DEFENSE]); //clone Acid Breath attributes for Acid Breath damage effect
 
 	//loading of additional spell traits
 	const JsonNode config(ResourceID("config/spell_info.json"));
@@ -432,7 +432,7 @@ void CSpellHandler::loadSpells()
 		BOOST_FOREACH(const JsonNode &range, spell.second["ranges"].Vector())
 			s->range[idx++] = range.String();
 
-		s->counteredSpells = spell.second["counters"].convertTo<std::vector<TSpell> >();
+		s->counteredSpells = spell.second["counters"].convertTo<std::vector<SpellID> >();
 
 		s->identifier = spell.first;
 		VLC->modh->identifiers.registerObject("spell." + spell.first, spellID);
@@ -524,7 +524,7 @@ void CSpellHandler::loadSpells()
 	//spell fixes
 
 	//forgetfulness needs to get targets automatically on expert level
-	boost::replace_first(spells[Spells::FORGETFULNESS]->attributes, "CREATURE_TARGET", "CREATURE_TARGET_2"); //TODO: use flags instead?
+	boost::replace_first(spells[SpellID::FORGETFULNESS]->attributes, "CREATURE_TARGET", "CREATURE_TARGET_2"); //TODO: use flags instead?
 }
 
 std::vector<bool> CSpellHandler::getDefaultAllowedSpells() const

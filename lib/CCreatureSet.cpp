@@ -39,7 +39,7 @@ const CCreature* CCreatureSet::getCreature(TSlot slot) const
 		return NULL;
 }
 
-bool CCreatureSet::setCreature(TSlot slot, CreatureID::CreatureID type, TQuantity quantity) /*slots 0 to 6 */
+bool CCreatureSet::setCreature(TSlot slot, CreatureID type, TQuantity quantity) /*slots 0 to 6 */
 {
 	if(slot > 6 || slot < 0)
 	{
@@ -60,7 +60,7 @@ bool CCreatureSet::setCreature(TSlot slot, CreatureID::CreatureID type, TQuantit
 	return true;
 }
 
-TSlot CCreatureSet::getSlotFor(CreatureID::CreatureID creature, ui32 slotsAmount/*=7*/) const /*returns -1 if no slot available */
+TSlot CCreatureSet::getSlotFor(CreatureID creature, ui32 slotsAmount/*=7*/) const /*returns -1 if no slot available */
 {
 	return getSlotFor(VLC->creh->creatures[creature], slotsAmount);
 }
@@ -162,7 +162,7 @@ void CCreatureSet::sweep()
 	}
 }
 
-void CCreatureSet::addToSlot(TSlot slot, CreatureID::CreatureID cre, TQuantity count, bool allowMerging/* = true*/)
+void CCreatureSet::addToSlot(TSlot slot, CreatureID cre, TQuantity count, bool allowMerging/* = true*/)
 {
 	const CCreature *c = VLC->creh->creatures[cre];
 
@@ -463,7 +463,7 @@ CStackInstance::CStackInstance()
 	init();
 }
 
-CStackInstance::CStackInstance(CreatureID::CreatureID id, TQuantity Count)
+CStackInstance::CStackInstance(CreatureID id, TQuantity Count)
 	: armyObj(_armyObj)
 {
 	init();
@@ -545,7 +545,7 @@ void CStackInstance::giveStackExp(TExpType exp)
 	vstd::amin(experience += exp, maxExp); //can't get more exp than this limit
 }
 
-void CStackInstance::setType(CreatureID::CreatureID creID)
+void CStackInstance::setType(CreatureID creID)
 {
 	if(creID >= 0 && creID < VLC->creh->creatures.size())
 		setType(VLC->creh->creatures[creID]);
@@ -977,7 +977,7 @@ void CStackInstance::deserializationFix()
 	artDeserializationFix(this);
 }
 
-CreatureID::CreatureID CStackInstance::getCreatureID() const
+CreatureID CStackInstance::getCreatureID() const
 {
 	if(type)
 		return type->idNumber;
@@ -1007,7 +1007,7 @@ CCommanderInstance::CCommanderInstance()
 	name = "Unnamed";
 }
 
-CCommanderInstance::CCommanderInstance (CreatureID::CreatureID id)
+CCommanderInstance::CCommanderInstance (CreatureID id)
 {
 	init();
 	setType(id);
@@ -1073,7 +1073,7 @@ CStackBasicDescriptor::CStackBasicDescriptor()
 	count = -1;
 }
 
-CStackBasicDescriptor::CStackBasicDescriptor(CreatureID::CreatureID id, TQuantity Count)
+CStackBasicDescriptor::CStackBasicDescriptor(CreatureID id, TQuantity Count)
 	: type (VLC->creh->creatures[id]), count(Count)
 {
 }
@@ -1107,7 +1107,7 @@ CSimpleArmy::operator bool() const
 	return army.size();
 }
 
-bool CSimpleArmy::setCreature(TSlot slot, CreatureID::CreatureID cre, TQuantity count)
+bool CSimpleArmy::setCreature(TSlot slot, CreatureID cre, TQuantity count)
 {
 	assert(!vstd::contains(army, slot));
 	army[slot] = CStackBasicDescriptor(cre, count);

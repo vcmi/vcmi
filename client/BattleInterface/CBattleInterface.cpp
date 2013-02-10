@@ -1615,12 +1615,12 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 	switch(sc->id)
 	{
-	case Spells::MAGIC_ARROW:
+	case SpellID::MAGIC_ARROW:
 		{
 			//initialization of anims
 			anims.push_back("C20SPX0.DEF"); anims.push_back("C20SPX1.DEF"); anims.push_back("C20SPX2.DEF"); anims.push_back("C20SPX3.DEF"); anims.push_back("C20SPX4.DEF");
 		}
-	case Spells::ICE_BOLT:
+	case SpellID::ICE_BOLT:
 		{
 			if(anims.size() == 0) //initialization of anims
 			{
@@ -1669,33 +1669,33 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 
 			break; //for 15 and 16 cases
 		}
-	case Spells::LIGHTNING_BOLT:
-	case Spells::TITANS_LIGHTNING_BOLT:
-	case Spells::THUNDERBOLT:
-	case Spells::CHAIN_LIGHTNING: //TODO: zigzag effect
+	case SpellID::LIGHTNING_BOLT:
+	case SpellID::TITANS_LIGHTNING_BOLT:
+	case SpellID::THUNDERBOLT:
+	case SpellID::CHAIN_LIGHTNING: //TODO: zigzag effect
 		for (auto it = sc->affectedCres.begin(); it != sc->affectedCres.end(); ++it) //in case we have multiple targets
 		{
 			displayEffect(1, curInt->cb->battleGetStackByID(*it, false)->position);
 			displayEffect(spell.mainEffectAnim, curInt->cb->battleGetStackByID(*it, false)->position);
 		}
 		break;
-	case Spells::DISPEL:
-	case Spells::CURE:
-	case Spells::RESURRECTION:
-	case Spells::ANIMATE_DEAD:
-	case Spells::DISPEL_HELPFUL_SPELLS:
-	case Spells::SACRIFICE: //TODO: animation upon killed stack
+	case SpellID::DISPEL:
+	case SpellID::CURE:
+	case SpellID::RESURRECTION:
+	case SpellID::ANIMATE_DEAD:
+	case SpellID::DISPEL_HELPFUL_SPELLS:
+	case SpellID::SACRIFICE: //TODO: animation upon killed stack
 		for(std::set<ui32>::const_iterator it = sc->affectedCres.begin(); it != sc->affectedCres.end(); ++it)
 		{
 			displayEffect(spell.mainEffectAnim, curInt->cb->battleGetStackByID(*it, false)->position);
 		}
 		break;
-	case Spells::SUMMON_FIRE_ELEMENTAL:
-	case Spells::SUMMON_EARTH_ELEMENTAL:
-	case Spells::SUMMON_WATER_ELEMENTAL:
-	case Spells::SUMMON_AIR_ELEMENTAL:
-	case Spells::CLONE:
-	case Spells::REMOVE_OBSTACLE:
+	case SpellID::SUMMON_FIRE_ELEMENTAL:
+	case SpellID::SUMMON_EARTH_ELEMENTAL:
+	case SpellID::SUMMON_WATER_ELEMENTAL:
+	case SpellID::SUMMON_AIR_ELEMENTAL:
+	case SpellID::CLONE:
+	case SpellID::REMOVE_OBSTACLE:
 		addNewAnim(new CDummyAnimation(this, 2)); //interface won't return until animation is played. TODO: make it smarter?
 		break;
 	} //switch(sc->id)
@@ -1724,32 +1724,32 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		{
 			switch(sc->id)
 			{
-				case Spells::STONE_GAZE:
+				case SpellID::STONE_GAZE:
 					customSpell = true;
 					plural = true;
 					textID = 558;
 					break;
-				case Spells::POISON:
+				case SpellID::POISON:
 					customSpell = true;
 					plural = true;
 					textID = 561;
 					break;
-				case Spells::BIND:
+				case SpellID::BIND:
 					customSpell = true;
 					text = CGI->generaltexth->allTexts[560];
 					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin(), false)->getCreature()->namePl );
 					break;	//Roots and vines bind the %s to the ground!
-				case Spells::DISEASE:
+				case SpellID::DISEASE:
 					customSpell = true;
 					plural = true;
 					textID = 553;
 					break;
-				case Spells::PARALYZE:
+				case SpellID::PARALYZE:
 					customSpell = true;
 					plural = true;
 					textID = 563;
 					break;
-				case Spells::AGE:
+				case SpellID::AGE:
 				{
 					customSpell = true;
 					if (curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->count > 1)
@@ -1768,7 +1768,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(bl->totalValue()/2));
 				}
 					break;
-				case Spells::THUNDERBOLT:
+				case SpellID::THUNDERBOLT:
 					text = CGI->generaltexth->allTexts[367];
 					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->namePl);
 					console->addText(text);
@@ -1778,12 +1778,12 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 					customSpell = true;
 					text = ""; //yeah, it's a terrible mess
 					break;
-				case Spells::DISPEL_HELPFUL_SPELLS:
+				case SpellID::DISPEL_HELPFUL_SPELLS:
 					text = CGI->generaltexth->allTexts[555];
 					boost::algorithm::replace_first(text, "%s", curInt->cb->battleGetStackByID(*sc->affectedCres.begin())->type->namePl);
 					customSpell = true;
 					break;
-				case Spells::DEATH_STARE:
+				case SpellID::DEATH_STARE:
 					customSpell = true;
 					if (sc->dmgToDisplay)
 					{
@@ -1942,7 +1942,7 @@ void CBattleInterface::castThisSpell(int spellID)
 		spellSelMode = ANY_LOCATION;
 	}
 
-	if(spellID == Spells::FIRE_WALL  ||  spellID == Spells::FORCE_FIELD)
+	if(spellID == SpellID::FIRE_WALL  ||  spellID == SpellID::FORCE_FIELD)
 	{
 		spellSelMode = FREE_LOCATION;
 	}
@@ -2126,7 +2126,7 @@ void CBattleInterface::getPossibleActionsForStack(const CStack * stack)
 					{
 						switch (spellBonus->subtype)
 						{
-							case Spells::REMOVE_OBSTACLE:
+							case SpellID::REMOVE_OBSTACLE:
 								possibleActions.push_back (OBSTACLE);
 								break;
 							default:
@@ -2897,7 +2897,7 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			{
 				ui8 skill = 0;
 				if (creatureCasting)
-					skill = sactive->valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, Spells::TELEPORT));
+					skill = sactive->valOfBonuses(Selector::typeSubtype(Bonus::SPELLCASTER, SpellID::TELEPORT));
 				else
 					skill = getActiveHero()->getSpellSchoolLevel (CGI->spellh->spells[spellToCast->additionalInfo]); 
 				//TODO: explicitely save power, skill
@@ -3060,8 +3060,8 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				consoleMsg = boost::str(boost::format(CGI->generaltexth->allTexts[27]) % sp->name % shere->getName()); //Cast %s on %s
 				switch (sp->id)
 				{
-					case Spells::SACRIFICE:
-					case Spells::TELEPORT:
+					case SpellID::SACRIFICE:
+					case SpellID::TELEPORT:
 						selectedStack = shere; //remember firts target
 						secondaryTarget = true;
 						break;
@@ -3177,13 +3177,13 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 			if (secondaryTarget) //select that target now
 			{
 				possibleActions.clear();
-				switch (sp->id)
+				switch (sp->id.toEnum())
 				{
-					case Spells::TELEPORT: //don't cast spell yet, only select target		
+					case SpellID::TELEPORT: //don't cast spell yet, only select target		
 						possibleActions.push_back (TELEPORT);
 						spellToCast->selectedStack = selectedStack->ID;
 						break;
-					case Spells::SACRIFICE:
+					case SpellID::SACRIFICE:
 						possibleActions.push_back (SACRIFICE);
 						break;
 				}
@@ -3204,9 +3204,9 @@ void CBattleInterface::handleHex(BattleHex myNumber, int eventType)
 				else
 				{
 					assert (sp);
-					switch (sp->id)
+					switch (sp->id.toEnum())
 					{
-						case Spells::SACRIFICE:
+						case SpellID::SACRIFICE:
 							spellToCast->destinationTile = selectedStack->position; //cast on first creature that will be resurrected
 							break;
 						default:

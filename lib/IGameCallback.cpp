@@ -203,7 +203,7 @@ void CPrivilagedInfoCallback::erasePickedArt (si32 id)
 }
 
 
-void CPrivilagedInfoCallback::getAllowedSpells(std::vector<ui16> &out, ui16 level)
+void CPrivilagedInfoCallback::getAllowedSpells(std::vector<SpellID> &out, ui16 level)
 {
 
 	CSpell *spell;
@@ -231,7 +231,7 @@ const PlayerState * CGameInfoCallback::getPlayer(TPlayerColor color, bool verbos
 	return &gs->players[color];
 }
 
-const CTown * CGameInfoCallback::getNativeTown(int color) const
+const CTown * CGameInfoCallback::getNativeTown(TPlayerColor color) const
 {
 	const PlayerSettings *ps = getPlayerSettings(color);
 	ERROR_RET_VAL_IF(!ps, "There is no such player!", NULL);
@@ -561,21 +561,21 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	if (notAllBuilt)
 		return EBuildingState::PREREQUIRES;
 
-	if(ID == EBuilding::CAPITOL)
+	if(ID == BuildingID::CAPITOL)
 	{
 		const PlayerState *ps = getPlayer(t->tempOwner);
 		if(ps)
 		{
 			BOOST_FOREACH(const CGTownInstance *t, ps->towns)
 			{
-				if(t->hasBuilt(EBuilding::CAPITOL))
+				if(t->hasBuilt(BuildingID::CAPITOL))
 				{
 					return EBuildingState::HAVE_CAPITAL; //no more than one capitol
 				}
 			}
 		}
 	}
-	else if(ID == EBuilding::SHIPYARD)
+	else if(ID == BuildingID::SHIPYARD)
 	{
 		const TerrainTile *tile = getTile(t->bestLocation(), false);
 		
@@ -884,9 +884,9 @@ const TeamState * CGameInfoCallback::getTeam( ui8 teamID ) const
 	return ret;
 }
 
-const TeamState * CGameInfoCallback::getPlayerTeam( ui8 teamID ) const
+const TeamState * CGameInfoCallback::getPlayerTeam( TPlayerColor color ) const
 {
-	const PlayerState * ps = getPlayer(teamID);
+	const PlayerState * ps = getPlayer(color);
 	if (ps)
 		return getTeam(ps->team);
 	return NULL;
@@ -933,7 +933,7 @@ void IGameEventRealizer::setObjProperty(int objid, int prop, si64 val)
 	commitPackage(&sob);
 }
 
-const CGObjectInstance * IGameCallback::putNewObject(Obj::Obj ID, int subID, int3 pos)
+const CGObjectInstance * IGameCallback::putNewObject(Obj ID, int subID, int3 pos)
 {
 	NewObject no;
 	no.ID = ID; //creature

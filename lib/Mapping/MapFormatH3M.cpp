@@ -747,7 +747,7 @@ void CMapLoaderH3M::readDefInfo()
 
 		defInfo->terrainAllowed = reader.readUInt16();
 		defInfo->terrainMenu = reader.readUInt16();
-		defInfo->id = static_cast<Obj::Obj>(reader.readUInt32());
+		defInfo->id = Obj(reader.readUInt32());
 		defInfo->subid = reader.readUInt32();
 		defInfo->type = reader.readUInt8();
 		defInfo->printPriority = reader.readUInt8();
@@ -854,18 +854,18 @@ void CMapLoaderH3M::readObjects()
 				{
 					if(map->version == EMapFormat::ROE)
 					{
-						evnt->artifacts.push_back(reader.readUInt8());
+						evnt->artifacts.push_back(ArtifactID(reader.readUInt8()));
 					}
 					else
 					{
-						evnt->artifacts.push_back(reader.readUInt16());
+						evnt->artifacts.push_back(ArtifactID(reader.readUInt16()));
 					}
 				}
 
 				int gspel = reader.readUInt8(); // Number of gained spells
 				for(int oo = 0; oo < gspel; ++oo)
 				{
-					evnt->spells.push_back(reader.readUInt8());
+					evnt->spells.push_back(SpellID(reader.readUInt8()));
 				}
 
 				int gcre = reader.readUInt8(); //number of gained creatures
@@ -984,7 +984,7 @@ void CMapLoaderH3M::readObjects()
 					{
 						if(artID != 0xff)
 						{
-							cre->gainedArtifact = static_cast<ArtifactID::ArtifactID>(artID);
+							cre->gainedArtifact = ArtifactID(artID);
 						}
 						else
 						{
@@ -995,7 +995,7 @@ void CMapLoaderH3M::readObjects()
 					{
 						if(artID != 0xffff)
 						{
-							cre->gainedArtifact = static_cast<ArtifactID::ArtifactID>(artID);
+							cre->gainedArtifact = ArtifactID(artID);
 						}
 						else
 						{
@@ -1200,17 +1200,17 @@ void CMapLoaderH3M::readObjects()
 				{
 					if(map->version > EMapFormat::ROE)
 					{
-						box->artifacts.push_back(reader.readUInt16());
+						box->artifacts.push_back(ArtifactID(reader.readUInt16()));
 					}
 					else
 					{
-						box->artifacts.push_back(reader.readUInt8());
+						box->artifacts.push_back(ArtifactID(reader.readUInt8()));
 					}
 				}
 				int gspel = reader.readUInt8(); //number of gained spells
 				for(int oo = 0; oo < gspel; ++oo)
 				{
-					box->spells.push_back(reader.readUInt8());
+					box->spells.push_back(SpellID(reader.readUInt8()));
 				}
 				int gcre = reader.readUInt8(); //number of gained creatures
 				readCreatureSet(&box->creatures, gcre);
@@ -1475,16 +1475,16 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 
 	for(int ir = 0; ir < number; ++ir)
 	{
-		CreatureID::CreatureID creID;
+		CreatureID creID;
 		int count;
 
 		if (version)
 		{
-			creID = static_cast<CreatureID::CreatureID>(reader.readUInt16());
+			creID = CreatureID(reader.readUInt16());
 		}
 		else
 		{
-			creID = static_cast<CreatureID::CreatureID>(reader.readUInt8());
+			creID = CreatureID(reader.readUInt8());
 		}
 		count = reader.readUInt16();
 
@@ -1497,7 +1497,7 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 		if(creID > maxID - 0xf)
 		{
 			//this will happen when random object has random army
-			creID = static_cast<CreatureID::CreatureID>(maxID + 1 - creID + VLC->creh->creatures.size());
+			creID = CreatureID(maxID + 1 - creID + VLC->creh->creatures.size());
 			hlp->idRand = creID;
 		}
 		else
@@ -1639,7 +1639,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(int idToBeGiven)
 		bool hasCustomSpells = reader.readBool();
 		if(hasCustomSpells)
 		{
-			nhi->spells.insert(0xffffffff); //placeholder "preset spells"
+			nhi->spells.insert(SpellID::PRESET); //placeholder "preset spells"
 
 			readSpells(nhi->spells);
 		}
@@ -1650,10 +1650,10 @@ CGObjectInstance * CMapLoaderH3M::readHero(int idToBeGiven)
 		ui8 buff = reader.readUInt8();
 		if(buff != 254)
 		{
-			nhi->spells.insert(0xffffffff); //placeholder "preset spells"
+			nhi->spells.insert(SpellID::PRESET); //placeholder "preset spells"
 			if(buff < 254) //255 means no spells
 			{
-				nhi->spells.insert(buff);
+				nhi->spells.insert(SpellID(buff));
 			}
 		}
 	}
@@ -1904,7 +1904,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 		bool hasFort = reader.readBool();
 		if(hasFort)
 		{
-			nt->builtBuildings.insert(EBuilding::FORT);
+			nt->builtBuildings.insert(BuildingID::FORT);
 		}
 
 		//means that set of standard building should be included
@@ -2038,20 +2038,20 @@ std::set<si32> CMapLoaderH3M::convertBuildings(const std::set<si32> h3m, int cas
 	if(addAuxiliary)
 	{
 		//village hall is always present
-		ret.insert(EBuilding::VILLAGE_HALL);
+		ret.insert(BuildingID::VILLAGE_HALL);
 	}
 
-	if(ret.find(EBuilding::CITY_HALL) != ret.end())
+	if(ret.find(BuildingID::CITY_HALL) != ret.end())
 	{
-		ret.insert(EBuilding::EXTRA_CITY_HALL);
+		ret.insert(BuildingID::EXTRA_CITY_HALL);
 	}
-	if(ret.find(EBuilding::TOWN_HALL) != ret.end())
+	if(ret.find(BuildingID::TOWN_HALL) != ret.end())
 	{
-		ret.insert(EBuilding::EXTRA_TOWN_HALL);
+		ret.insert(BuildingID::EXTRA_TOWN_HALL);
 	}
-	if(ret.find(EBuilding::CAPITOL) != ret.end())
+	if(ret.find(BuildingID::CAPITOL) != ret.end())
 	{
-		ret.insert(EBuilding::EXTRA_CAPITOL);
+		ret.insert(BuildingID::EXTRA_CAPITOL);
 	}
 
 	return ret;
@@ -2102,7 +2102,7 @@ void CMapLoaderH3M::readMessageAndGuards(std::string& message, CCreatureSet* gua
 }
 
 
-void CMapLoaderH3M::readSpells(std::set<TSpell>& dest)
+void CMapLoaderH3M::readSpells(std::set<SpellID>& dest)
 {
 	readBitmask(dest,9,GameConstants::SPELLS_QUANTITY,false);
 }

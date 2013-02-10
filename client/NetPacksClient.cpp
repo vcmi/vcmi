@@ -406,11 +406,11 @@ void NewStructures::applyCl( CClient *cl )
 	CGTownInstance *town = GS(cl)->getTown(tid);
 	BOOST_FOREACH(si32 id, bid)
 	{
-		if(id== EBuilding::CAPITOL) //fort or capitol
+		if(id== BuildingID::CAPITOL) //fort or capitol
 		{
 			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->capitols[town->subID].get());
 		}
-		if(id == EBuilding::FORT)
+		if(id == BuildingID::FORT)
 		{
 			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->gobjs[Obj::TOWN][town->subID].get());
 		}

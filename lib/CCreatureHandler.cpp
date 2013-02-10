@@ -221,7 +221,7 @@ void CCreatureHandler::loadCreatures()
 			parser.endLine();
 
 		CCreature &ncre = *new CCreature;
-		ncre.idNumber = static_cast<CreatureID::CreatureID>(creatures.size());
+		ncre.idNumber = CreatureID(creatures.size());
 		ncre.cost.resize(GameConstants::RESOURCE_QUANTITY);
 		ncre.level=0;
 		ncre.iconIndex = ncre.idNumber + 2; // +2 for empty\selection images
@@ -544,7 +544,7 @@ void CCreatureHandler::load(const JsonNode & node)
 		{
 			CCreature * creature = loadCreature(entry.second);
 			creature->nameRef = entry.first;
-			creature->idNumber = static_cast<CreatureID::CreatureID>(creatures.size());
+			creature->idNumber = CreatureID(creatures.size());
 
 			creatures.push_back(creature);
 			tlog5 << "Added creature: " << entry.first << "\n";
@@ -678,7 +678,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	{
 		VLC->modh->identifiers.requestIdentifier(std::string("creature.") + value.String(), [=](si32 identifier)
 		{
-			creature->upgrades.insert(static_cast<CreatureID::CreatureID>(identifier));
+			creature->upgrades.insert(CreatureID(identifier));
 		});
 	}
 
@@ -1013,7 +1013,7 @@ CCreatureHandler::~CCreatureHandler()
 {
 }
 
-CreatureID::CreatureID CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, int tier) const
+CreatureID CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, int tier) const
 {
 	int r = 0;
 	if(tier == -1) //pick any allowed creature
@@ -1026,11 +1026,11 @@ CreatureID::CreatureID CCreatureHandler::pickRandomMonster(const boost::function
 	else
 	{
 		assert(vstd::iswithin(tier, 1, 7));
-		std::vector<CreatureID::CreatureID> allowed;
+		std::vector<CreatureID> allowed;
 		BOOST_FOREACH(const CBonusSystemNode *b, creaturesOfLevel[tier].getChildrenNodes())
 		{
 			assert(b->getNodeType() == CBonusSystemNode::CREATURE);
-			CreatureID::CreatureID creid = static_cast<const CCreature*>(b)->idNumber;
+			CreatureID creid = static_cast<const CCreature*>(b)->idNumber;
 			if(!vstd::contains(notUsedMonsters, creid))
 				allowed.push_back(creid);
 		}
@@ -1043,7 +1043,7 @@ CreatureID::CreatureID CCreatureHandler::pickRandomMonster(const boost::function
 
 		return vstd::pickRandomElementOf(allowed, randGen);
 	}
-	return static_cast<CreatureID::CreatureID>(r);
+	return CreatureID(r);
 }
 
 void CCreatureHandler::addBonusForTier(int tier, Bonus *b)

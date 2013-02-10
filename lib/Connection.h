@@ -378,7 +378,7 @@ public:
 	U getIdFromVectorItem(const VectorisedObjectInfo<T, U> &oInfo, const T* obj) const
 	{
 		if(!obj)
-			return static_cast<U>(-1);
+			return U(-1);
 
 		return obj->*oInfo.idPtr;
 	}
@@ -427,10 +427,10 @@ struct VectorizedIDType
 	typedef typename
 		//if
 		mpl::eval_if<boost::is_same<CArtifact,U>,
-		mpl::identity<ArtifactID::ArtifactID>,
+		mpl::identity<ArtifactID>,
 		//else if
 		mpl::eval_if<boost::is_same<CCreature,U>,
-		mpl::identity<CreatureID::CreatureID>,
+		mpl::identity<CreatureID>,
 		//else
 		mpl::identity<si32>
 		>
@@ -965,7 +965,7 @@ public:
 				*this >> id;
 				if(id != -1)
 				{
-					data = static_cast<T>(getVectorItemFromId<VType, IDType>(*info, static_cast<IDType>(id)));
+					data = static_cast<T>(getVectorItemFromId<VType, IDType>(*info, IDType(id)));
 					return;
 				}
 			}

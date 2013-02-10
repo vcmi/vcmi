@@ -129,7 +129,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//from IGameCallback
 	//do sth
-	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<ui32> &spells) OVERRIDE;
+	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) OVERRIDE;
 	bool removeObject(const CGObjectInstance * obj) OVERRIDE;
 	void setBlockVis(int objid, bool bv) OVERRIDE;
 	void setOwner(const CGObjectInstance * obj, TPlayerColor owner) OVERRIDE;
@@ -214,14 +214,14 @@ public:
 	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, Res::ERes resourceID);
 	bool transformInUndead(const IMarket *market, const CGHeroInstance * hero, ui32 slot);
 	bool assembleArtifacts (si32 heroID, ArtifactPosition::ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo);
-	bool buyArtifact( ui32 hid, ArtifactID::ArtifactID aid ); //for blacksmith and mage guild only -> buying for gold in common buildings
-	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, Res::ERes rid, ArtifactID::ArtifactID aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
+	bool buyArtifact( ui32 hid, ArtifactID aid ); //for blacksmith and mage guild only -> buying for gold in common buildings
+	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, Res::ERes rid, ArtifactID aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
 	bool sellArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactInstanceID aid, Res::ERes rid); //for artifact merchant selling
 	//void lootArtifacts (TArtHolder source, TArtHolder dest, std::vector<ui32> &arts); //after battle - move al arts to winer
 	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, SecondarySkill::SecondarySkill skill);
 	bool garrisonSwap(si32 tid);
 	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
-	bool recruitCreatures(si32 objid, CreatureID::CreatureID crid, ui32 cram, si32 level);
+	bool recruitCreatures(si32 objid, CreatureID crid, ui32 cram, si32 level);
 	bool buildStructure(si32 tid, si32 bid, bool force=false);//force - for events: no cost, no checkings
 	bool razeStructure(si32 tid, si32 bid);
 	bool disbandCreature( si32 id, ui8 pos );
@@ -234,7 +234,7 @@ public:
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
 	void engageIntoBattle( TPlayerColor player );
 	bool dig(const CGHeroInstance *h);
-	bool castSpell(const CGHeroInstance *h, int spellID, const int3 &pos);
+	bool castSpell(const CGHeroInstance *h, SpellID spellID, const int3 &pos);
 	void moveArmy(const CArmedInstance *src, const CArmedInstance *dst, bool allowMerging);
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -262,7 +262,7 @@ public:
 	void handleAfterAttackCasting (const BattleAttack & bat);
 	void attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker);
 	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition::ArtifactPosition slot);
-	void spawnWanderingMonsters(CreatureID::CreatureID creatureID);
+	void spawnWanderingMonsters(CreatureID creatureID);
 	friend class CVCMIServer;
 	friend class CScriptCallback;
 };

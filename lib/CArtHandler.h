@@ -57,7 +57,7 @@ public:
 	void setName (std::string desc);
 	void setDescription (std::string desc);
 	void setEventText (std::string desc);
-	void addConstituent (ArtifactID::ArtifactID component);
+	void addConstituent (ArtifactID component);
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const OVERRIDE;
@@ -67,10 +67,10 @@ public:
 
 	ui32 price;
 	bmap<ArtBearer::ArtBearer, std::vector<ArtifactPosition::ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
-	std::vector<ArtifactID::ArtifactID> * constituents; // Artifacts IDs a combined artifact consists of, or NULL.
-	std::vector<ArtifactID::ArtifactID> * constituentOf; // Reverse map of constituents.
+	std::vector<ArtifactID> * constituents; // Artifacts IDs a combined artifact consists of, or NULL.
+	std::vector<ArtifactID> * constituentOf; // Reverse map of constituents.
 	EartClass aClass;
-	ArtifactID::ArtifactID id;
+	ArtifactID id;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -189,15 +189,15 @@ public:
 
 class DLL_LINKAGE CArtHandler //handles artifacts
 {
-	void giveArtBonus(ArtifactID::ArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, Bonus::ValueType valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalinfo = 0);
-	void giveArtBonus(ArtifactID::ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
-	void giveArtBonus(ArtifactID::ArtifactID aid, Bonus *bonus);
+	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, Bonus::ValueType valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalinfo = 0);
+	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
+	void giveArtBonus(ArtifactID aid, Bonus *bonus);
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector< ConstTransitivePtr<CArtifact> > artifacts;
 	std::vector<CArtifact *> allowedArtifacts;
-	std::set<ArtifactID::ArtifactID> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
-	std::set<ArtifactID::ArtifactID> growingArtifacts;
+	std::set<ArtifactID> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
+	std::set<ArtifactID> growingArtifacts;
 
 	void loadArtifacts(bool onlyTxt);
 	/// load all artifacts from json structure
@@ -217,10 +217,10 @@ public:
 	void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
 	void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
 	void erasePickedArt (TArtifactInstanceID id);
-	bool isBigArtifact (ArtifactID::ArtifactID artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
+	bool isBigArtifact (ArtifactID artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
 	void initAllowedArtifactsList(const std::vector<bool> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
-	static ArtifactID::ArtifactID creatureToMachineID(CreatureID::CreatureID id);
-	static CreatureID::CreatureID machineIDToCreature(ArtifactID::ArtifactID id);
+	static ArtifactID creatureToMachineID(CreatureID id);
+	static CreatureID machineIDToCreature(ArtifactID id);
 	void makeItCreatureArt (CArtifact * a, bool onlyCreature = true);
 	void makeItCreatureArt (TArtifactInstanceID aid, bool onlyCreature = true);
 	void makeItCommanderArt (CArtifact * a, bool onlyCommander = true);

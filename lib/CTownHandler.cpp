@@ -339,7 +339,7 @@ void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source)
 	town.clientInfo.siegePrefix = source["imagePrefix"].String();
 	VLC->modh->identifiers.requestIdentifier(std::string("creature.") + source["shooter"].String(), [&town](si32 creature)
 	{
-		town.clientInfo.siegeShooter = static_cast<CreatureID::CreatureID>(creature);
+		town.clientInfo.siegeShooter = CreatureID(creature);
 	});
 
 	town.clientInfo.siegeShooterCropHeight = source["shooterHeight"].Float();
@@ -418,7 +418,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 	VLC->modh->identifiers.requestIdentifier(std::string("creature." + source["warMachine"].String()),
 	[&town](si32 creature)
 	{
-		town.warMachine = CArtHandler::creatureToMachineID(static_cast<CreatureID::CreatureID>(creature));
+		town.warMachine = CArtHandler::creatureToMachineID(CreatureID(creature));
 	});
 
 	town.moatDamage = source["moatDamage"].Float();
@@ -446,7 +446,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 		{
 			VLC->modh->identifiers.requestIdentifier(std::string("creature.") + level[j].String(), [=, &town](si32 creature)
 			{
-				town.creatures[i][j] = static_cast<CreatureID::CreatureID>(creature);
+				town.creatures[i][j] = CreatureID(creature);
 			});
 		}
 	}
@@ -521,7 +521,7 @@ void CTownHandler::load(const JsonNode &source)
 		VLC->modh->identifiers.requestIdentifier ("creature." + node.second["commander"].String(),
 			[=](si32 commanderID)
 			{
-				factions[id].commander = static_cast<CreatureID::CreatureID>(commanderID);
+				factions[id].commander = CreatureID(commanderID);
 			});
 
 		faction.creatureBg120 = node.second["creatureBackground"]["120px"].String();

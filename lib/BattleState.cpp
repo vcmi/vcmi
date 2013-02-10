@@ -36,7 +36,7 @@ const CStack * BattleInfo::getNextStack() const
 		return NULL;
 }
 
-int BattleInfo::getAvaliableHex(CreatureID::CreatureID creID, bool attackerOwned, int initialPos) const
+int BattleInfo::getAvaliableHex(CreatureID creID, bool attackerOwned, int initialPos) const
 {
 	bool twoHex = VLC->creh->creatures[creID]->isDoubleWide();
 	//bool flying = VLC->creh->creatures[creID]->isFlying();
@@ -131,7 +131,7 @@ int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstan
 	}
 	switch(spell->id)
 	{
-	case Spells::FRENZY:
+	case SpellID::FRENZY:
 		return 1;
 	default: //other spells
 		return caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + caster->valOfBonuses(Bonus::SPELL_DURATION);
@@ -166,7 +166,7 @@ ui32 BattleInfo::calculateHealedHP(const CGHeroInstance * caster, const CSpell *
 {
 	bool resurrect = resurrects(spell->id);
 	int healedHealth;
-	if (spell->id == Spells::SACRIFICE && sacrificedStack)
+	if (spell->id == SpellID::SACRIFICE && sacrificedStack)
 		healedHealth = (caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) + sacrificedStack->MaxHealth() + spell->powers[caster->getSpellSchoolLevel(spell)]) * sacrificedStack->count;
 	else
 		healedHealth = caster->getPrimSkillLevel(PrimarySkill::SPELL_POWER) * spell->power + spell->powers[caster->getSpellSchoolLevel(spell)];
@@ -186,7 +186,7 @@ ui32 BattleInfo::calculateHealedHP(const CSpell * spell, int usedSpellPower, int
 	int healedHealth = usedSpellPower * spell->power + spell->powers[spellSchoolLevel];
 	return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + (resurrect ? stack->baseAmount * stack->MaxHealth() : 0));
 }
-bool BattleInfo::resurrects(TSpell spellid) const
+bool BattleInfo::resurrects(SpellID spellid) const
 {
 	return VLC->spellh->spells[spellid]->isRisingSpell();
 }
@@ -512,7 +512,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType::ETerrainType terr
 	if(!creatureBank)
 	{
 		//Checks if hero has artifact and create appropriate stack
-		auto handleWarMachine= [&](int side, ArtifactPosition::ArtifactPosition artslot, CreatureID::CreatureID cretype, BattleHex hex)
+		auto handleWarMachine= [&](int side, ArtifactPosition::ArtifactPosition artslot, CreatureID cretype, BattleHex hex)
 		{
 			if(heroes[side] && heroes[side]->getArt(artslot))
 				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), !side, 255, hex));
@@ -748,7 +748,7 @@ std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const C
 
 	}
 
-	if(sp->id == Spells::HYPNOTIZE) //hypnotize
+	if(sp->id == SpellID::HYPNOTIZE) //hypnotize
 	{
 		for(auto it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
 		{
@@ -908,7 +908,7 @@ ui32 CStack::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
 	speed = ((100 + percentBonus) * speed)/100;
 
 	//bind effect check - doesn't influence stack initiative
-	if (useBind && getEffect (Spells::BIND))
+	if (useBind && getEffect (SpellID::BIND))
 	{
 		return 0;
 	}

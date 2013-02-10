@@ -1467,7 +1467,7 @@ void CRecruitmentWindow::select(CCreatureCard *card)
 
 void CRecruitmentWindow::buy()
 {
-	CreatureID::CreatureID crid =  selected->creature->idNumber;
+	CreatureID crid =  selected->creature->idNumber;
 	TSlot dstslot = dst-> getSlotFor(crid);
 
 	if(dstslot < 0 && !vstd::contains(CGI->arth->bigArtifacts,CGI->arth->creatureToMachineID(crid))) //no available slot
@@ -1510,7 +1510,7 @@ void CRecruitmentWindow::showAll(SDL_Surface * to)
 	drawBorder(to, pos.x + 289, pos.y + 312, 66, 34, int3(173,142,66));
 }
 
-CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(CreatureID::CreatureID,int)> &Recruit, int y_offset):
+CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(CreatureID,int)> &Recruit, int y_offset):
     CWindowObject(PLAYER_COLORED, "TPRCRT"),
 	onRecruit(Recruit),
     level(Level),
@@ -2568,14 +2568,14 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 		switch (mode)
 		{
 		break; case EMarketMode::CREATURE_RESOURCE:
-			title = CGI->townh->towns[ETownType::STRONGHOLD].buildings[EBuilding::FREELANCERS_GUILD]->Name();
+			title = CGI->townh->towns[ETownType::STRONGHOLD].buildings[BuildingID::FREELANCERS_GUILD]->Name();
 
 		break; case EMarketMode::RESOURCE_ARTIFACT:
-			title = CGI->townh->towns[market->o->subID].buildings[EBuilding::ARTIFACT_MERCHANT]->Name();
+			title = CGI->townh->towns[market->o->subID].buildings[BuildingID::ARTIFACT_MERCHANT]->Name();
 			sliderNeeded = false;
 
 		break; case EMarketMode::ARTIFACT_RESOURCE:
-			title = CGI->townh->towns[market->o->subID].buildings[EBuilding::ARTIFACT_MERCHANT]->Name();
+			title = CGI->townh->towns[market->o->subID].buildings[BuildingID::ARTIFACT_MERCHANT]->Name();
 			sliderNeeded = false;
 
 		break; default:
@@ -5467,7 +5467,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	CIntObject * titlePic = nullptr;
 
 	if (market->o->ID == Obj::TOWN)
-		titlePic = new CAnimImage(CGI->townh->towns[ETownType::CONFLUX].clientInfo.buildingsIcons, EBuilding::MAGIC_UNIVERSITY);
+		titlePic = new CAnimImage(CGI->townh->towns[ETownType::CONFLUX].clientInfo.buildingsIcons, BuildingID::MAGIC_UNIVERSITY);
 	else
 		titlePic = new CPicture("UNIVBLDG");
 

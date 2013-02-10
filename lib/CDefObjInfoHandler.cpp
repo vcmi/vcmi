@@ -90,7 +90,7 @@ void CDefObjInfoHandler::load()
 
 		for(int yy=0; yy<2; ++yy) //first - on which types of terrain object can be placed;
 			inp>>dump; //second -in which terrains' menus object in the editor will be available (?)
-		si32 id; inp >> id; nobj->id = static_cast<Obj::Obj>(id);
+		si32 id; inp >> id; nobj->id = Obj(id);
 		inp>>nobj->subid;
 		inp>>nobj->type;
 
@@ -102,22 +102,21 @@ void CDefObjInfoHandler::load()
 		}
 		else
 		{
-			using namespace Obj;
-			static int visitableFromTop[] =
-				{FLOTSAM,
-				SEA_CHEST,
-				SHIPWRECK_SURVIVOR,
-				BUOY,
-				OCEAN_BOTTLE,
-				BOAT,
-				WHIRLPOOL,
-				GARRISON,
-				SCHOLAR,
-				CAMPFIRE,
-				BORDERGUARD,
-				BORDER_GATE,
-				QUEST_GUARD,
-				CORPSE};
+			static const Obj visitableFromTop[] =
+				{Obj::FLOTSAM,
+				Obj::SEA_CHEST,
+				Obj::SHIPWRECK_SURVIVOR,
+				Obj::BUOY,
+				Obj::OCEAN_BOTTLE,
+				Obj::BOAT,
+				Obj::WHIRLPOOL,
+				Obj::GARRISON,
+				Obj::SCHOLAR,
+				Obj::CAMPFIRE,
+				Obj::BORDERGUARD,
+				Obj::BORDER_GATE,
+				Obj::QUEST_GUARD,
+				Obj::CORPSE};
 
 			for(int i=0; i < ARRAY_COUNT(visitableFromTop); i++)
 			{
@@ -134,7 +133,7 @@ void CDefObjInfoHandler::load()
 		nobj->fetchInfoFromMSK();
 
 
-		gobjs[nobj->id][nobj->subid] = nobj;
+		nobj->id.toDefObjInfo()[nobj->subid] = nobj;
 	}
 
 	for (int i = 0; i < 8 ; i++)

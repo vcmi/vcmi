@@ -82,7 +82,7 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 	for(ui32 v=0; v<CGI->spellh->spells.size(); ++v)
 	{
 		if( !CGI->spellh->spells[v]->creatureAbility && myHero->canCastThisSpell(CGI->spellh->spells[v]) )
-			mySpells.insert(v);
+			mySpells.insert(SpellID(v));
 	}
 
 	//initializing sizes of spellbook's parts
@@ -91,9 +91,9 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 	for(int b=0; b<5; ++b)
 		sitesPerTabBattle[b] = 0;
 
-	for(std::set<ui32>::const_iterator g = mySpells.begin(); g!=mySpells.end(); ++g)
+	BOOST_FOREACH(auto g, mySpells)
 	{
-		const CSpell &s = *CGI->spellh->spells[*g];
+		const CSpell &s = *CGI->spellh->spells[g];
 		Uint8 *sitesPerOurTab = s.combatSpell ? sitesPerTabBattle : sitesPerTabAdv;
 
 		++sitesPerOurTab[4];
@@ -386,8 +386,8 @@ public:
 
 void CSpellWindow::computeSpellsPerArea()
 {
-	std::vector<ui32> spellsCurSite;
-	for(std::set<ui32>::const_iterator it = mySpells.begin(); it != mySpells.end(); ++it)
+	std::vector<SpellID> spellsCurSite;
+	for(auto it = mySpells.cbegin(); it != mySpells.cend(); ++it)
 	{
 		if(CGI->spellh->spells[*it]->combatSpell ^ !battleSpellsOnly
 			&& ((CGI->spellh->spells[*it]->air && selectedTab == 0) || 
@@ -405,7 +405,7 @@ void CSpellWindow::computeSpellsPerArea()
 	{
 		if(spellsCurSite.size() > 12)
 		{
-			spellsCurSite = std::vector<ui32>(spellsCurSite.begin() + currentPage*12, spellsCurSite.end());
+			spellsCurSite = std::vector<SpellID>(spellsCurSite.begin() + currentPage*12, spellsCurSite.end());
 			if(spellsCurSite.size() > 12)
 			{
 				spellsCurSite.erase(spellsCurSite.begin()+12, spellsCurSite.end());
@@ -422,7 +422,7 @@ void CSpellWindow::computeSpellsPerArea()
 			}
 			else
 			{
-				spellsCurSite = std::vector<ui32>(spellsCurSite.begin() + (currentPage-1)*12 + 10, spellsCurSite.end());
+				spellsCurSite = std::vector<SpellID>(spellsCurSite.begin() + (currentPage-1)*12 + 10, spellsCurSite.end());
 				if(spellsCurSite.size() > 12)
 				{
 					spellsCurSite.erase(spellsCurSite.begin()+12, spellsCurSite.end());
@@ -441,20 +441,20 @@ void CSpellWindow::computeSpellsPerArea()
 			}
 			else
 			{
-				spellAreas[c]->setSpell(-1);
+				spellAreas[c]->setSpell(SpellID::NONE);
 			}
 		}
 	}
 	else
 	{
-		spellAreas[0]->setSpell(-1);
-		spellAreas[1]->setSpell(-1);
+		spellAreas[0]->setSpell(SpellID::NONE);
+		spellAreas[1]->setSpell(SpellID::NONE);
 		for(size_t c=0; c<10; ++c)
 		{
 			if(c<spellsCurSite.size())
 				spellAreas[c+2]->setSpell(spellsCurSite[c]);
 			else
-				spellAreas[c+2]->setSpell(-1);
+				spellAreas[c+2]->setSpell(SpellID::NONE);
 		}
 	}
 	redraw();
@@ -587,7 +587,7 @@ Uint8 CSpellWindow::pagesWithinCurrentTab()
 void CSpellWindow::teleportTo( int town, const CGHeroInstance * hero )
 {
 	const CGTownInstance * dest = LOCPLINT->cb->getTown(town);
-	LOCPLINT->cb->castSpell(hero, Spells::TOWN_PORTAL, dest->visitablePos());
+	LOCPLINT->cb->castSpell(hero, SpellID::TOWN_PORTAL, dest->visitablePos());
 }
 
 CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
@@ -596,7 +596,8 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 	this->owner = owner;
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 
-	spellCost = mySpell = whichSchool = schoolLevel = -1;
+	spellCost = whichSchool = schoolLevel = -1;
+	mySpell = SpellID::NONE;
 }
 
 void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
@@ -694,14 +695,13 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 		}
 		else if(!sp->combatSpell && !owner->myInt->battleInt) //adventure spell
 		{
-			using namespace Spells;
-			int spell = mySpell;
+			SpellID spell = mySpell;
 			const CGHeroInstance *h = owner->myHero;
 			owner->fexitb();
 
 			switch(spell)
 			{
-			case SUMMON_BOAT:
+			case SpellID::SUMMON_BOAT:
 				{
 					int3 pos = h->bestLocation();
 					if(pos.x < 0)
@@ -711,18 +711,18 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 					}
 				}
 				break;
-			case SCUTTLE_BOAT:
-			case DIMENSION_DOOR:
+			case SpellID::SCUTTLE_BOAT:
+			case SpellID::DIMENSION_DOOR:
 				adventureInt->enterCastingMode(sp);
 				return;
-			case VISIONS:
-			case VIEW_EARTH:
-			case DISGUISE:
-			case VIEW_AIR:
-			case FLY:
-			case WATER_WALK:
+			case SpellID::VISIONS:
+			case SpellID::VIEW_EARTH:
+			case SpellID::DISGUISE:
+			case SpellID::VIEW_AIR:
+			case SpellID::FLY:
+			case SpellID::WATER_WALK:
 				break;
-			case TOWN_PORTAL:
+			case SpellID::TOWN_PORTAL:
 				{
 					std::vector <int> availableTowns;
 					std::vector <const CGTownInstance*> Towns = LOCPLINT->cb->getTownsInfo(true);
@@ -828,7 +828,7 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 	if(mySpell < 0)
 		return;
 
-	const CSpell * spell = CGI->spellh->spells[mySpell];
+	const CSpell * spell = mySpell.toSpell();
 
 	blitAt(owner->spells->ourImages[mySpell].bitmap, pos.x, pos.y, to);
 	blitAt(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->ourImages[schoolLevel].bitmap, pos.x, pos.y, to); //printing border (indicates level of magic school)
@@ -855,7 +855,7 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 	printAtMiddleLoc(ss.str(), 39, 94, FONT_TINY, secondLineColor, to);
 }
 
-void CSpellWindow::SpellArea::setSpell(int spellID)
+void CSpellWindow::SpellArea::setSpell(SpellID spellID)
 {
 	mySpell = spellID;
 	if(mySpell < 0)

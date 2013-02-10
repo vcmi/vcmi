@@ -23,7 +23,7 @@ class DLL_LINKAGE CSpell
 public:
 	enum ETargetType {NO_TARGET, CREATURE, CREATURE_EXPERT_MASSIVE, OBSTACLE};
 	enum ESpellPositiveness {NEGATIVE = -1, NEUTRAL = 0, POSITIVE = 1};
-	TSpell id;
+	SpellID id;
 	std::string identifier;
 	std::string name;
 	std::string abbName; //abbreviated name
@@ -43,7 +43,7 @@ public:
 	bool creatureAbility; //if true, only creatures can use this spell
 	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
 	std::vector<std::string> range; //description of spell's range in SRSL by magic school level
-	std::vector<TSpell> counteredSpells; //spells that are removed when effect of this spell is placed on creature (for bless-curse, haste-slow, and similar pairs)
+	std::vector<SpellID> counteredSpells; //spells that are removed when effect of this spell is placed on creature (for bless-curse, haste-slow, and similar pairs)
 
 	CSpell();
 

@@ -91,7 +91,7 @@ public:
 	CCreatureWindow(const CStackInstance &st, CreWinType Type, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //full garrison window
 	CCreatureWindow(const CCommanderInstance * commander, const CStack * stack = NULL); //commander window
 	CCreatureWindow(std::vector<ui32> &skills, const CCommanderInstance * commander, boost::function<void(ui32)> callback); 
-	CCreatureWindow(CreatureID::CreatureID Cid, CreWinType Type, int creatureCount); //c-tor
+	CCreatureWindow(CreatureID Cid, CreWinType Type, int creatureCount); //c-tor
 
 	void init(const CStackInstance *stack, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner);
 	void showAll(SDL_Surface * to);
@@ -159,5 +159,5 @@ public:
 };
 
 CIntObject *createCreWindow(const CStack *s, bool lclick = false);
-CIntObject *createCreWindow(CreatureID::CreatureID Cid, CCreatureWindow::CreWinType Type, int creatureCount);
+CIntObject *createCreWindow(CreatureID Cid, CCreatureWindow::CreWinType Type, int creatureCount);
 CIntObject *createCreWindow(const CStackInstance *s, CCreatureWindow::CreWinType type, boost::function<void()> Upg = 0, boost::function<void()> Dsm = 0, UpgradeInfo *ui = NULL);

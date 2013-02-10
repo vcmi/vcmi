@@ -90,7 +90,7 @@ public:
 
 	/// level -> list of creatures on this tier
 	// TODO: replace with pointers to CCreature
-	std::vector<std::vector<CreatureID::CreatureID> > creatures;
+	std::vector<std::vector<CreatureID> > creatures;
 
 	bmap<int, ConstTransitivePtr<CBuilding> > buildings;
 
@@ -101,7 +101,7 @@ public:
 	std::map<int,int> hordeLvl; //[0] - first horde building creature level; [1] - second horde building (-1 if not present)
 	ui32 mageLevel; //max available mage guild level
 	ui16 primaryRes;
-	ArtifactID::ArtifactID warMachine;
+	ArtifactID warMachine;
 	si32 moatDamage;
 
 	// Client-only data. Should be moved away from lib
@@ -137,7 +137,7 @@ public:
 
 		std::string siegePrefix;
 		std::vector<Point> siegePositions;
-		CreatureID::CreatureID siegeShooter; // shooter creature ID
+		CreatureID siegeShooter; // shooter creature ID
 		si32 siegeShooterCropHeight; //trim height for shooters in turrets
 
 		template <typename Handler> void serialize(Handler &h, const int version)
@@ -178,7 +178,7 @@ public:
 	ETerrainType::ETerrainType nativeTerrain;
 	EAlignment::EAlignment alignment;
 
-	CreatureID::CreatureID commander;
+	CreatureID commander;
 
 	std::string creatureBg120;
 	std::string creatureBg130;

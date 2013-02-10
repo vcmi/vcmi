@@ -168,7 +168,7 @@ class DLL_LINKAGE CGObjectInstance : public IObjectInterface
 public:
 	mutable std::string hoverName;
 	int3 pos; //h3m pos
-	Obj::Obj ID;
+	Obj ID;
 	si32 subID; //normal subID (this one from OH3 maps ;])
 	si32 id;//number of object in map's vector
 	CGDefInfo * defInfo;
@@ -308,7 +308,7 @@ public:
 
 	//std::vector<const CArtifact*> artifacts; //hero's artifacts from bag
 	//std::map<ui16, const CArtifact*> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
-	std::set<ui32> spells; //known spells (spell IDs)
+	std::set<SpellID> spells; //known spells (spell IDs)
 
 
 	struct DLL_LINKAGE Patrol
@@ -460,7 +460,7 @@ class DLL_LINKAGE CCreGenLeveledCastleInfo : public CCreGenAsCastleInfo, public 
 class DLL_LINKAGE CGDwelling : public CArmedInstance
 {
 public:
-	typedef std::vector<std::pair<ui32, std::vector<CreatureID::CreatureID> > > TCreaturesSet;
+	typedef std::vector<std::pair<ui32, std::vector<CreatureID> > > TCreaturesSet;
 
 	CSpecObjInfo * info; //h3m info about dewlling
 	TCreaturesSet creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
@@ -567,7 +567,7 @@ struct DLL_LINKAGE GrowthInfo
 		int count;
 		std::string description;
 		Entry(const std::string &format, int _count);
-		Entry(int subID, EBuilding::EBuilding building, int _count);
+		Entry(int subID, BuildingID building, int _count);
 	};
 
 	std::vector<Entry> entries;
@@ -590,7 +590,7 @@ public:
 	std::set<si32> forbiddenBuildings, builtBuildings;
 	std::vector<CGTownBuilding*> bonusingBuildings;
 	std::vector<ui32> possibleSpells, obligatorySpells;
-	std::vector<std::vector<ui32> > spells; //spells[level] -> vector of spells, first will be available in guild
+	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
 	std::list<CCastleEvent*> events;
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond);
 
@@ -684,8 +684,8 @@ public:
 	std::vector<si32> primskills;//gained / lost prim skills
 	std::vector<SecondarySkill::SecondarySkill> abilities; //gained abilities
 	std::vector<si32> abilityLevels; //levels of gained abilities
-	std::vector<si32> artifacts; //gained artifacts
-	std::vector<si32> spells; //gained spells
+	std::vector<ArtifactID> artifacts; //gained artifacts
+	std::vector<SpellID> spells; //gained spells
 	CCreatureSet creatures; //gained creatures
 
 	void initObj() override;
@@ -732,7 +732,7 @@ public:
 	si8 character; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
 	std::string message; //message printed for attacking hero
 	TResources resources; // resources given to hero that has won with monsters
-	ArtifactID::ArtifactID gainedArtifact; //ID of artifact gained to hero, -1 if none
+	ArtifactID gainedArtifact; //ID of artifact gained to hero, -1 if none
 	bool neverFlees; //if true, the troops will never flee
 	bool notGrowingTeam; //if true, number of units won't grow
 	ui64 temppower; //used to handle fractional stack growth for tiny stacks
@@ -1373,10 +1373,10 @@ struct BankConfig
 	ui8 level; //1 - 4, how hard the battle will be
 	ui8 chance; //chance for this level being chosen
 	ui8 upgradeChance; //chance for creatures to be in upgraded versions
-	std::vector< std::pair <CreatureID::CreatureID, ui32> > guards; //creature ID, amount
+	std::vector< std::pair <CreatureID, ui32> > guards; //creature ID, amount
 	ui32 combatValue; //how hard are guards of this level
 	std::vector<si32> resources; //resources given in case of victory
-	std::vector< std::pair <CreatureID::CreatureID, ui32> > creatures; //creatures granted in case of victory (creature ID, amount)
+	std::vector< std::pair <CreatureID, ui32> > creatures; //creatures granted in case of victory (creature ID, amount)
 	std::vector<ui16> artifacts; //number of artifacts given in case of victory [0] -> treasure, [1] -> minor [2] -> major [3] -> relic
 	ui32 value; //overall value of given things
 	ui32 rewardDifficulty; //proportion of reward value to difficulty of guards; how profitable is this creature Bank config
@@ -1391,7 +1391,7 @@ struct BankConfig
 class DLL_LINKAGE CObjectHandler
 {
 public:
-	std::map<si32, CreatureID::CreatureID> cregens; //type 17. dwelling subid -> creature ID
+	std::map<si32, CreatureID> cregens; //type 17. dwelling subid -> creature ID
 	std::map <ui32, std::vector < ConstTransitivePtr<BankConfig> > > banksInfo; //[index][preset]
 	std::map <ui32, std::string> creBanksNames; //[crebank index] -> name of this creature bank
 	std::vector<ui32> resVals; //default values of resources in gold

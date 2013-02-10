@@ -45,7 +45,7 @@ private:
 	class SpellArea : public CIntObject
 	{
 	public:
-		int mySpell;
+		SpellID mySpell;
 		int schoolLevel; //range: 0 none, 3 - expert
 		int whichSchool; //0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic,
 		int spellCost;
@@ -53,7 +53,7 @@ private:
 
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
 
-		void setSpell(int spellID);
+		void setSpell(SpellID spellID);
 
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
@@ -79,7 +79,7 @@ private:
 	bool battleSpellsOnly; //if true, only battle spells are displayed; if false, only adventure map spells are displayed
 	Uint8 selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
 	Uint8 currentPage; //changes when corners are clicked
-	std::set<ui32> mySpells; //all spels in this spellbook
+	std::set<SpellID> mySpells; //all spels in this spellbook
 
 	const CGHeroInstance * myHero; //hero whose spells are presented
 

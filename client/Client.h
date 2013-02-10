@@ -162,7 +162,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	//not working yet, will be implement somewhen later with support for local-sim-based gameplay
-	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<ui32> &spells) OVERRIDE {};
+	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) OVERRIDE {};
 	bool removeObject(const CGObjectInstance * obj) OVERRIDE {return false;};
 	void setBlockVis(int objid, bool bv) OVERRIDE {};
 	void setOwner(const CGObjectInstance * obj, TPlayerColor owner) OVERRIDE {};
@@ -201,7 +201,7 @@ public:
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false) OVERRIDE {}; //if any of armies is hero, hero will be used
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false) OVERRIDE {}; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	void setAmount(int objid, ui32 val) OVERRIDE {};
-	bool moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255) OVERRIDE {return false;};
+	bool moveHero(si32 hid, int3 dst, ui8 instant, TPlayerColor asker = GameConstants::NEUTRAL_PLAYER) OVERRIDE {return false;};
 	void giveHeroBonus(GiveBonus * bonus) OVERRIDE {};
 	void setMovePoints(SetMovePoints * smp) OVERRIDE {};
 	void setManaPoints(int hid, int val) OVERRIDE {};

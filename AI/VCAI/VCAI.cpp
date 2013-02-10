@@ -1126,7 +1126,7 @@ void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 			{
 				townVisitsThisWeek[h].push_back(h->visitedTown);
 				if (!h->hasSpellbook() && cb->getResourceAmount(Res::GOLD) >= GameConstants::SPELLBOOK_GOLD_COST + saving[Res::GOLD] &&
-					h->visitedTown->hasBuilt (EBuilding::MAGES_GUILD_1))
+					h->visitedTown->hasBuilt (BuildingID::MAGES_GUILD_1))
 					cb->buyArtifact(h.get(), ArtifactID::SPELLBOOK);
 			}
 			break;
@@ -1243,7 +1243,7 @@ void VCAI::recruitCreatures(const CGDwelling * d)
 			continue;
 
 		int count = d->creatures[i].first;
-		CreatureID::CreatureID creID = d->creatures[i].second.back();
+		CreatureID creID = d->creatures[i].second.back();
 //		const CCreature *c = VLC->creh->creatures[creID];
 // 		if(containsSavedRes(c->cost))
 // 			continue;
@@ -1348,20 +1348,22 @@ bool VCAI::tryBuildNextStructure(const CGTownInstance * t, std::vector<int> buil
 
 void VCAI::buildStructure(const CGTownInstance * t)
 {
-	using namespace EBuilding;
 	//TODO make *real* town development system
 	//TODO: faction-specific development: use special buildings, build dwellings in better order, etc
 	//TODO: build resource silo, defences when needed
 	//Possible - allow "locking" on specific building (build prerequisites and then building itself)
 
 	//Set of buildings for different goals. Does not include any prerequisites.
-	const int essential[] = {TAVERN, TOWN_HALL};
-	const int goldSource[] = {TOWN_HALL, CITY_HALL, CAPITOL};
+	const int essential[] = {BuildingID::TAVERN, BuildingID::TOWN_HALL};
+	const int goldSource[] = {BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL};
 	const int unitsSource[] = { 30, 31, 32, 33, 34, 35, 36};
 	const int unitsUpgrade[] = { 37, 38, 39, 40, 41, 42, 43};
-	const int unitGrowth[] = { FORT, CITADEL, CASTLE, HORDE_1, HORDE_1_UPGR, HORDE_2, HORDE_2_UPGR};
-	const int spells[] = {MAGES_GUILD_1, MAGES_GUILD_2, MAGES_GUILD_3, MAGES_GUILD_4, MAGES_GUILD_5};
-	const int extra[] = {RESOURCE_SILO, SPECIAL_1, SPECIAL_2, SPECIAL_3, SPECIAL_4, SHIPYARD}; // all remaining buildings
+	const int unitGrowth[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
+		BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR};
+	const int spells[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
+		BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
+	const int extra[] = {BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
+		BuildingID::SPECIAL_4, BuildingID::SHIPYARD}; // all remaining buildings
 
 	TResources currentRes = cb->getResourceAmount();
 	TResources income = estimateIncome();
@@ -2014,7 +2016,7 @@ void VCAI::tryRealize(CGoal g)
 const CGTownInstance * VCAI::findTownWithTavern() const
 {
 	BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
-		if(t->hasBuilt(EBuilding::TAVERN) && !t->visitingHero)
+		if(t->hasBuilt(BuildingID::TAVERN) && !t->visitingHero)
 			return t;
 
 	return NULL;
@@ -2445,7 +2447,7 @@ TResources VCAI::estimateIncome() const
 		ret[Res::GOLD] += t->dailyIncome();
 
 		//TODO duplikuje newturn
-		if(t->hasBuilt(EBuilding::RESOURCE_SILO)) //there is resource silo
+		if(t->hasBuilt(BuildingID::RESOURCE_SILO)) //there is resource silo
 		{
 			if(t->town->primaryRes == 127) //we'll give wood and ore
 			{
@@ -2779,10 +2781,10 @@ TSubgoal CGoal::whatToDoToAchieve()
 					if(auto h = ai->getHeroWithGrail())
 					{
 						//hero is in a town that can host Grail
-						if(h->visitedTown && !vstd::contains(h->visitedTown->forbiddenBuildings, EBuilding::GRAIL))
+						if(h->visitedTown && !vstd::contains(h->visitedTown->forbiddenBuildings, BuildingID::GRAIL))
 						{
 							const CGTownInstance *t = h->visitedTown;
-							return CGoal(BUILD_STRUCTURE).setbid(EBuilding::GRAIL).settown(t);
+							return CGoal(BUILD_STRUCTURE).setbid(BuildingID::GRAIL).settown(t);
 						}
 						else
 						{
@@ -2790,7 +2792,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 							towns.erase(boost::remove_if(towns,
 												[](const CGTownInstance *t) -> bool
 												{
-													return vstd::contains(t->forbiddenBuildings, EBuilding::GRAIL);
+													return vstd::contains(t->forbiddenBuildings, BuildingID::GRAIL);
 												}),
 										towns.end());
 							boost::sort(towns, isCloser);
@@ -2951,7 +2953,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			{
 				if (vstd::contains(ai->alreadyVisited, obj))
 					return true;
-				switch (obj->ID)
+				switch (obj->ID.num)
 				{
 					case Obj::REDWOOD_OBSERVATORY:
 					case Obj::PILLAR_OF_FIRE:
@@ -2997,7 +2999,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 				{
 					erase_if (objs, [&](const CGObjectInstance *obj) -> bool
 					{
-						switch (obj->ID)
+						switch (obj->ID.num)
 						{
 							case Obj::CARTOGRAPHER:
 							case Obj::SUBTERRANEAN_GATE:
@@ -3061,7 +3063,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 		{
 			const CGTownInstance *t = ai->findTownWithTavern();
 			if(!t)
-				return CGoal(BUILD_STRUCTURE).setbid(EBuilding::TAVERN);
+				return CGoal(BUILD_STRUCTURE).setbid(BuildingID::TAVERN);
 
 			if(cb->getResourceAmount(Res::GOLD) < HERO_GOLD_COST)
 				return CGoal(COLLECT_RES).setresID(Res::GOLD).setvalue(HERO_GOLD_COST);
@@ -3162,8 +3164,8 @@ TSubgoal CGoal::whatToDoToAchieve()
 			{
 				BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
 				{
-					if(cb->canBuildStructure(t, EBuilding::MARKETPLACE) == EBuildingState::ALLOWED)
-						return CGoal(BUILD_STRUCTURE).settown(t).setbid(EBuilding::MARKETPLACE);
+					if(cb->canBuildStructure(t, BuildingID::MARKETPLACE) == EBuildingState::ALLOWED)
+						return CGoal(BUILD_STRUCTURE).settown(t).setbid(BuildingID::MARKETPLACE);
 				}
 			}
 			else
@@ -3202,7 +3204,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 					auto creatures = t->town->creatures[creature->level];
 					int upgradeNumber = std::find(creatures.begin(), creatures.end(), creature->idNumber) - creatures.begin();
 
-					int bid = EBuilding::DWELL_FIRST + creature->level + upgradeNumber * GameConstants::CREATURES_PER_TOWN;
+					int bid = BuildingID::DWELL_FIRST + creature->level + upgradeNumber * GameConstants::CREATURES_PER_TOWN;
 					if (t->hasBuilt(bid)) //this assumes only creatures with dwellings are assigned to faction
 					{
 						dwellings.push_back(t);
@@ -3758,7 +3760,7 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 					std::vector<const IShipyard *> shipyards;
 					BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
 					{
-						if(t->hasBuilt(EBuilding::SHIPYARD))
+						if(t->hasBuilt(BuildingID::SHIPYARD))
 							shipyards.push_back(t);
 					}
 

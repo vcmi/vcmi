@@ -130,11 +130,11 @@ public:
 	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, int ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID);
 	virtual bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
-	const CTown *getNativeTown(int color) const;
+	const CTown *getNativeTown(TPlayerColor color) const;
 
 	//from gs
 	const TeamState *getTeam(ui8 teamID) const;
-	const TeamState *getPlayerTeam(ui8 color) const;
+	const TeamState *getPlayerTeam(TPlayerColor color) const;
 	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID) const;
 	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, int ID) const;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 };
@@ -160,7 +160,7 @@ public:
 	int getResourceAmount(Res::ERes type) const;
 	TResources getResourceAmount() const;
 	const std::vector< std::vector< std::vector<ui8> > > & getVisibilityMap()const; //returns visibility map 
-	const PlayerSettings * getPlayerSettings(int color) const;
+	const PlayerSettings * getPlayerSettings(TPlayerColor color) const;
 };
 
 class DLL_LINKAGE CPrivilagedInfoCallback : public CGameInfoCallback
@@ -174,7 +174,7 @@ public:
 	ui16 getArtSync (ui32 rand, int flags); //synchronous
 	void pickAllowedArtsSet(std::vector<const CArtifact*> &out); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
 	void erasePickedArt (si32 id);
-	void getAllowedSpells(std::vector<ui16> &out, ui16 level);
+	void getAllowedSpells(std::vector<SpellID> &out, ui16 level);
 };
 
 class DLL_LINKAGE CNonConstInfoCallback : public CPrivilagedInfoCallback
@@ -203,7 +203,7 @@ public:
 class DLL_LINKAGE IGameEventCallback : public IGameEventRealizer
 {
 public:
-	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<ui32> &spells)=0;
+	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
 	virtual bool removeObject(const CGObjectInstance * obj)=0;
 	virtual void setBlockVis(int objid, bool bv)=0;
 	virtual void setOwner(const CGObjectInstance * objid, TPlayerColor owner)=0;
@@ -240,7 +240,7 @@ public:
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false)=0; //if any of armies is hero, hero will be used
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false)=0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	virtual void setAmount(int objid, ui32 val)=0;
-	virtual bool moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255)=0;
+	virtual bool moveHero(si32 hid, int3 dst, ui8 instant, TPlayerColor asker = GameConstants::NEUTRAL_PLAYER)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
 	virtual void setManaPoints(int hid, int val)=0;
@@ -258,7 +258,7 @@ public:
 	virtual ~IGameCallback(){};
 
 	//do sth
-	const CGObjectInstance *putNewObject(Obj::Obj ID, int subID, int3 pos);
+	const CGObjectInstance *putNewObject(Obj ID, int subID, int3 pos);
 	const CGCreature *putNewMonster(int creID, int count, int3 pos);
 
 	friend struct CPack;

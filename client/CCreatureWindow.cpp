@@ -66,7 +66,7 @@ CCreatureWindow::CCreatureWindow (const CStackInstance &stack, CreWinType Type):
 	init(&stack, &stack, dynamic_cast<const CGHeroInstance*>(stack.armyObj));
 }
 
-CCreatureWindow::CCreatureWindow(CreatureID::CreatureID Cid, CreWinType Type, int creatureCount):
+CCreatureWindow::CCreatureWindow(CreatureID Cid, CreWinType Type, int creatureCount):
    CWindowObject(PLAYER_COLORED | (Type == OTHER ? RCLICK_POPUP : 0 ) ),
     type(Type)
 {
@@ -903,7 +903,7 @@ CIntObject * createCreWindow(
 	}
 }
 
-CIntObject * createCreWindow(CreatureID::CreatureID Cid, CCreatureWindow::CreWinType Type, int creatureCount)
+CIntObject * createCreWindow(CreatureID Cid, CCreatureWindow::CreWinType Type, int creatureCount)
 {
 	if(settings["general"]["classicCreatureWindow"].Bool())
 		return new CCreInfoWindow(Cid, Type, creatureCount);

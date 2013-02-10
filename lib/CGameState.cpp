@@ -332,7 +332,7 @@ DLL_LINKAGE std::string MetaString::buildList () const
 }
 
 
-void  MetaString::addCreReplacement(CreatureID::CreatureID id, TQuantity count) //adds sing or plural name;
+void  MetaString::addCreReplacement(CreatureID id, TQuantity count) //adds sing or plural name;
 {
 	if (!count)
 		addReplacement (CRE_PL_NAMES, id); //no creatures - just empty name (eg. defeat Angels)
@@ -348,7 +348,7 @@ void MetaString::addReplacement(const CStackBasicDescriptor &stack)
 	addCreReplacement(stack.type->idNumber, stack.count);
 }
 
-static CGObjectInstance * createObject(Obj::Obj id, int subid, int3 pos, int owner)
+static CGObjectInstance * createObject(Obj id, int subid, int3 pos, int owner)
 {
 	CGObjectInstance * nobj;
 	switch(id)
@@ -367,7 +367,7 @@ static CGObjectInstance * createObject(Obj::Obj id, int subid, int3 pos, int own
 		break;
 	default: //rest of objects
 		nobj = new CGObjectInstance;
-		nobj->defInfo = VLC->dobjinfo->gobjs[id][subid];
+		nobj->defInfo = id.toDefObjInfo()[subid];
 		break;
 	}
 	nobj->ID = id;
@@ -383,7 +383,7 @@ static CGObjectInstance * createObject(Obj::Obj id, int subid, int3 pos, int own
 	//assigning defhandler
 	if(nobj->ID==Obj::HERO || nobj->ID==Obj::TOWN)
 		return nobj;
-	nobj->defInfo = VLC->dobjinfo->gobjs[id][subid];
+	nobj->defInfo = id.toDefObjInfo()[subid];
 	return nobj;
 }
 
@@ -516,7 +516,7 @@ int CGameState::pickHero(int owner)
 }
 
 
-std::pair<Obj::Obj,int> CGameState::pickObject (CGObjectInstance *obj)
+std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 {
 	switch(obj->ID)
 	{
@@ -630,7 +630,7 @@ std::pair<Obj::Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			delete dwl->info;
 			dwl->info = nullptr;
 
-			std::pair<Obj::Obj,int> result(Obj::NO_OBJ, -1);
+			std::pair<Obj,int> result(Obj::NO_OBJ, -1);
 			int cid = VLC->townh->towns[faction].creatures[level][0];
 
 			//golem factory is not in list of cregens but can be placed as random object
@@ -661,8 +661,8 @@ std::pair<Obj::Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 
 void CGameState::randomizeObject(CGObjectInstance *cur)
 {
-	std::pair<Obj::Obj,int> ran = pickObject(cur);
-	if(ran.first<0 || ran.second<0) //this is not a random object, or we couldn't find anything
+	std::pair<Obj,int> ran = pickObject(cur);
+	if(ran.first == Obj::NO_OBJ || ran.second<0) //this is not a random object, or we couldn't find anything
 	{
 		if(cur->ID==Obj::TOWN) //town - set def
 		{
@@ -710,7 +710,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	cur->ID = ran.first;
 	cur->subID = ran.second;
 	map->removeBlockVisTiles(cur); //recalculate blockvis tiles - picked object might have different than random placeholder
-	map->customDefs.push_back(cur->defInfo = VLC->dobjinfo->gobjs[ran.first][ran.second]);
+	map->customDefs.push_back(cur->defInfo = ran.first.toDefObjInfo()[ran.second]);
 	if(!cur->defInfo)
 	{
 		tlog1<<"*BIG* WARNING: Missing def declaration for "<<cur->ID<<" "<<cur->subID<<std::endl;
@@ -798,7 +798,7 @@ void CGameState::init(StartInfo * si)
 			switch (curBonus->type)
 			{
 			case CScenarioTravel::STravelBonus::SPELL:
-				hero->spells.insert(curBonus->info2);
+				hero->spells.insert(SpellID(curBonus->info2));
 				break;
 			case CScenarioTravel::STravelBonus::MONSTER:
 				{
@@ -806,7 +806,7 @@ void CGameState::init(StartInfo * si)
 					{
 						if(hero->slotEmpty(i))
 						{
-							hero->addToSlot(i, static_cast<CreatureID::CreatureID>(curBonus->info2), curBonus->info3);
+							hero->addToSlot(i, CreatureID(curBonus->info2), curBonus->info3);
 							break;
 						}
 					}
@@ -1458,15 +1458,15 @@ void CGameState::init(StartInfo * si)
 		if(vti->builtBuildings.find(-50)!=vti->builtBuildings.end()) //give standard set of buildings
 		{
 			vti->builtBuildings.erase(-50);
-			vti->builtBuildings.insert(EBuilding::VILLAGE_HALL);
-			vti->builtBuildings.insert(EBuilding::TAVERN);
-			vti->builtBuildings.insert(EBuilding::DWELL_FIRST);
+			vti->builtBuildings.insert(BuildingID::VILLAGE_HALL);
+			vti->builtBuildings.insert(BuildingID::TAVERN);
+			vti->builtBuildings.insert(BuildingID::DWELL_FIRST);
 			if(ran()%2)
-				vti->builtBuildings.insert(EBuilding::DWELL_FIRST+1);
+				vti->builtBuildings.insert(BuildingID::DWELL_FIRST+1);
 		}
 
-		if (vstd::contains(vti->builtBuildings, EBuilding::SHIPYARD) && vti->state()==IBoatGenerator::TILE_BLOCKED)
-			vti->builtBuildings.erase(EBuilding::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
+		if (vstd::contains(vti->builtBuildings, BuildingID::SHIPYARD) && vti->state()==IBoatGenerator::TILE_BLOCKED)
+			vti->builtBuildings.erase(BuildingID::SHIPYARD);//if we have harbor without water - erase it (this is H3 behaviour)
 
 		//init hordes
 		for (int i = 0; i<GameConstants::CREATURES_PER_TOWN; i++)
@@ -1475,15 +1475,15 @@ void CGameState::init(StartInfo * si)
 				vti->builtBuildings.erase(-31-i);//remove old ID
 				if (vti->town->hordeLvl[0] == i)//if town first horde is this one
 				{
-					vti->builtBuildings.insert(EBuilding::HORDE_1);//add it
-					if (vstd::contains(vti->builtBuildings,(EBuilding::DWELL_UP_FIRST+i)))//if we have upgraded dwelling as well
-						vti->builtBuildings.insert(EBuilding::HORDE_1_UPGR);//add it as well
+					vti->builtBuildings.insert(BuildingID::HORDE_1);//add it
+					if (vstd::contains(vti->builtBuildings,(BuildingID::DWELL_UP_FIRST+i)))//if we have upgraded dwelling as well
+						vti->builtBuildings.insert(BuildingID::HORDE_1_UPGR);//add it as well
 				}
 				if (vti->town->hordeLvl[1] == i)//if town second horde is this one
 				{
-					vti->builtBuildings.insert(EBuilding::HORDE_2);
-					if (vstd::contains(vti->builtBuildings,(EBuilding::DWELL_UP_FIRST+i)))
-						vti->builtBuildings.insert(EBuilding::HORDE_2_UPGR);
+					vti->builtBuildings.insert(BuildingID::HORDE_2);
+					if (vstd::contains(vti->builtBuildings,(BuildingID::DWELL_UP_FIRST+i)))
+						vti->builtBuildings.insert(BuildingID::HORDE_2_UPGR);
 				}
 			}
 
@@ -1495,9 +1495,9 @@ void CGameState::init(StartInfo * si)
 				{
 					ev->buildings.erase(-31-i);
 					if (vti->town->hordeLvl[0] == i)
-						ev->buildings.insert(EBuilding::HORDE_1);
+						ev->buildings.insert(BuildingID::HORDE_1);
 					if (vti->town->hordeLvl[1] == i)
-						ev->buildings.insert(EBuilding::HORDE_2);
+						ev->buildings.insert(BuildingID::HORDE_2);
 				}
 		}
 		//init spells
@@ -1707,7 +1707,7 @@ void CGameState::initDuel()
 
 		for(int j = 0; j < ARRAY_COUNT(dp.sides[i].stacks); j++)
 		{
-			CreatureID::CreatureID cre = dp.sides[i].stacks[j].type;
+			CreatureID cre = dp.sides[i].stacks[j].type;
 			TQuantity count = dp.sides[i].stacks[j].count;
 			if(count || obj->hasStackAtSlot(j))
 				obj->setCreature(j, cre, count);
@@ -1829,7 +1829,7 @@ UpgradeInfo CGameState::getUpgradeInfo(const CStackInstance &stack)
 		TBonusListPtr lista = h->getBonuses(Selector::typeSubtype(Bonus::SPECIAL_UPGRADE, base->idNumber));
 		BOOST_FOREACH(const Bonus *it, *lista)
 		{
-			auto nid = static_cast<CreatureID::CreatureID>(it->additionalInfo);
+			auto nid = CreatureID(it->additionalInfo);
 			if (nid != base->idNumber) //in very specific case the upgrade is available by default (?)
 			{
 				ret.newID.push_back(nid);
@@ -2252,7 +2252,7 @@ int CGameState::victoryCheck( ui8 player ) const
 			BOOST_FOREACH(const CGTownInstance *t, map->towns)
 				if((t == map->victoryCondition.obj || !map->victoryCondition.obj)
 					&& t->tempOwner == player
-					&& t->hasBuilt(EBuilding::GRAIL))
+					&& t->hasBuilt(BuildingID::GRAIL))
 					return 1;
 			break;
 
@@ -2277,8 +2277,9 @@ int CGameState::victoryCheck( ui8 player ) const
 				{
 					switch(map->objects[i]->ID)
 					{
-					case 17: case 18: case 19: case 20: //dwellings
-					case 216: case 217: case 218:
+					case Obj::CREATURE_GENERATOR1: case Obj::CREATURE_GENERATOR2:
+					case Obj::CREATURE_GENERATOR3: case Obj::CREATURE_GENERATOR4:
+					case Obj::RANDOM_DWELLING: case Obj::RANDOM_DWELLING_LVL: case Obj::RANDOM_DWELLING_FACTION:
 						return 0; //found not flagged dwelling - player not won
 					}
 				}
@@ -2292,7 +2293,7 @@ int CGameState::victoryCheck( ui8 player ) const
 				{
 					switch(map->objects[i]->ID)
 					{
-					case 53: case 220:
+					case Obj::MINE: case Obj::ABANDONED_MINE:
 						return 0; //found not flagged mine - player not won
 					}
 				}
@@ -2870,7 +2871,7 @@ void InfoAboutTown::initFromTown(const CGTownInstance *t, bool detailed)
 		//include details about hero
 		details = new Details;
 		details->goldIncome = t->dailyIncome();
-		details->customRes = t->hasBuilt(EBuilding::RESOURCE_SILO);
+		details->customRes = t->hasBuilt(BuildingID::RESOURCE_SILO);
 		details->hallLevel = t->hallLevel();
 		details->garrisonedHero = t->garrisonHero;
 	}
@@ -2915,7 +2916,7 @@ DuelParameters::SideSettings::StackSettings::StackSettings()
 {
 }
 
-DuelParameters::SideSettings::StackSettings::StackSettings(CreatureID::CreatureID Type, si32 Count)
+DuelParameters::SideSettings::StackSettings::StackSettings(CreatureID Type, si32 Count)
 	: type(Type), count(Count)
 {
 }
@@ -2944,7 +2945,7 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 		int i = 0;
 		BOOST_FOREACH(const JsonNode &stackNode, n["army"].Vector())
 		{
-			ss.stacks[i].type = static_cast<CreatureID::CreatureID>((si32)stackNode.Vector()[0].Float());
+			ss.stacks[i].type = CreatureID((si32)stackNode.Vector()[0].Float());
 			ss.stacks[i].count = stackNode.Vector()[1].Float();
 			i++;
 		}
@@ -2973,12 +2974,12 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 			if(spells.getType() == JsonNode::DATA_STRING  &&  spells.String() == "all")
 			{
 				BOOST_FOREACH(auto spell, VLC->spellh->spells)
-					if(spell->id <= Spells::SUMMON_AIR_ELEMENTAL)
+					if(spell->id <= SpellID::SUMMON_AIR_ELEMENTAL)
 						ss.spells.insert(spell->id);
 			}
 			else
 				BOOST_FOREACH(const JsonNode &spell, n["spells"].Vector())
-					ss.spells.insert(spell.Float());
+					ss.spells.insert(SpellID(spell.Float()));
 		}
 	}
 

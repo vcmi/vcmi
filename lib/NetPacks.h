@@ -151,7 +151,7 @@ public:
 		message.push_back(TREPLACE_PLUSNUMBER);
 		numbers.push_back(txt);
 	}
-	DLL_LINKAGE void addCreReplacement(CreatureID::CreatureID id, TQuantity count); //adds sing or plural name;
+	DLL_LINKAGE void addCreReplacement(CreatureID id, TQuantity count); //adds sing or plural name;
 	DLL_LINKAGE void addReplacement(const CStackBasicDescriptor &stack); //adds sing or plural name;
 	DLL_LINKAGE std::string buildList () const;
 	void clear()
@@ -355,7 +355,7 @@ struct ChangeSpells : public CPackForClient //109
 
 	ui8 learn; //1 - gives spell, 0 - takes
 	ui32 hid;
-	std::set<ui32> spells;
+	std::set<SpellID> spells;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -674,7 +674,7 @@ struct SetAvailableCreatures : public CPackForClient //506
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	si32 tid;
-	std::vector<std::pair<ui32, std::vector<CreatureID::CreatureID> > > creatures;
+	std::vector<std::pair<ui32, std::vector<CreatureID> > > creatures;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -773,7 +773,7 @@ struct NewObject  : public CPackForClient //518
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	Obj::Obj ID;
+	Obj ID;
 	ui32 subID;
 	int3 pos;
 
@@ -1076,7 +1076,7 @@ struct NewTurn : public CPackForClient //101
 	ui32 day;
 	bool resetBuilded;
 	ui8 specialWeek; //weekType
-	CreatureID::CreatureID creatureid; //for creature weeks
+	CreatureID creatureid; //for creature weeks
 
 	NewTurn(){type = 101;};
 
@@ -1523,7 +1523,7 @@ struct BattleSpellCast : public CPackForClient//3009
 	BattleHex tile; //destination tile (may not be set in some global/mass spells
 	std::vector<ui32> resisted; //ids of creatures that resisted this spell
 	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
-	CreatureID::CreatureID attackerType;//id of caster to generate console message; -1 if not set (eg. spell casted by artifact)
+	CreatureID attackerType;//id of caster to generate console message; -1 if not set (eg. spell casted by artifact)
 	bool castedByHero; //if true - spell has been casted by hero, otherwise by a creature
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1629,7 +1629,7 @@ struct BattleStackAdded : public CPackForClient //3017
 	void applyCl(CClient *cl);
 
 	int attacker; // if true, stack belongs to attacker
-	CreatureID::CreatureID creID;
+	CreatureID creID;
 	int amount;
 	int pos;
 	int summoned; //if true, remove it afterwards
@@ -1857,9 +1857,9 @@ struct RazeStructure : public BuildStructure
 struct RecruitCreatures : public CPackForServer
 {
 	RecruitCreatures(){};
-	RecruitCreatures(si32 TID, CreatureID::CreatureID CRID, si32 Amount, si32 Level):tid(TID),crid(CRID),amount(Amount),level(Level){};
+	RecruitCreatures(si32 TID, CreatureID CRID, si32 Amount, si32 Level):tid(TID),crid(CRID),amount(Amount),level(Level){};
 	si32 tid; //town id
-	CreatureID::CreatureID crid;
+	CreatureID crid;
 	ui32 amount;//creature amount
 	si32 level;//dwelling level to buy from, -1 if any
 	bool applyGh(CGameHandler *gh);
@@ -1872,10 +1872,10 @@ struct RecruitCreatures : public CPackForServer
 struct UpgradeCreature : public CPackForServer
 {
 	UpgradeCreature(){};
-	UpgradeCreature(ui8 Pos, si32 ID, CreatureID::CreatureID CRID):pos(Pos),id(ID), cid(CRID){};
+	UpgradeCreature(ui8 Pos, si32 ID, CreatureID CRID):pos(Pos),id(ID), cid(CRID){};
 	ui8 pos; //stack pos
 	si32 id; //object id
-	CreatureID::CreatureID cid; //id of type to which we want make upgrade
+	CreatureID cid; //id of type to which we want make upgrade
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1930,9 +1930,9 @@ struct AssembleArtifacts : public CPackForServer
 struct BuyArtifact : public CPackForServer
 {
 	BuyArtifact(){};
-	BuyArtifact(si32 HID, ArtifactID::ArtifactID AID):hid(HID),aid(AID){};
+	BuyArtifact(si32 HID, ArtifactID AID):hid(HID),aid(AID){};
 	si32 hid;
-	ArtifactID::ArtifactID aid;
+	ArtifactID aid;
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -2055,7 +2055,7 @@ struct CastAdvSpell : public CPackForServer
 {
 	CastAdvSpell(){}
 	si32 hid; //hero id
-	ui32 sid; //spell id
+	SpellID sid; //spell id
 	int3 pos; //selected tile (not always used)
 
 	bool applyGh(CGameHandler *gh);

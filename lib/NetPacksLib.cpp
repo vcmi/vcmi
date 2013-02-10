@@ -132,10 +132,10 @@ DLL_LINKAGE void ChangeSpells::applyGs( CGameState *gs )
 	CGHeroInstance *hero = gs->getHero(hid);
 
 	if(learn)
-		BOOST_FOREACH(ui32 sid, spells)
+		BOOST_FOREACH(auto sid, spells)
 			hero->spells.insert(sid);
 	else
-		BOOST_FOREACH(ui32 sid, spells)
+		BOOST_FOREACH(auto sid, spells)
 			hero->spells.erase(sid);
 }
 
@@ -537,7 +537,7 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 			cre->character = 2;
 			cre->gainedArtifact = ArtifactID::NONE;
 			cre->identifier = -1;
-			cre->addToSlot(0, new CStackInstance(static_cast<CreatureID::CreatureID>(subID), -1)); //add placeholder stack
+			cre->addToSlot(0, new CStackInstance(CreatureID(subID), -1)); //add placeholder stack
 		}
 		break;
 	default:
@@ -1241,8 +1241,8 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 
 	//Handle spells removing effects from stacks
 	const CSpell *spell = VLC->spellh->spells[id];
-	const bool removeAllSpells = id == Spells::DISPEL;
-	const bool removeHelpful = id == Spells::DISPEL_HELPFUL_SPELLS;
+	const bool removeAllSpells = id == SpellID::DISPEL;
+	const bool removeHelpful = id == SpellID::DISPEL_HELPFUL_SPELLS;
 
 	BOOST_FOREACH(auto stackID, affectedCres)
 	{
@@ -1299,7 +1299,7 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 		CStack *s = gs->curB->getStack(id);
 		if(s)
 		{
-			if(spellid == Spells::DISRUPTING_RAY || spellid == Spells::ACID_BREATH_DEFENSE || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid)))//disrupting ray or acid breath or not on the list - just add
+			if(spellid == SpellID::DISRUPTING_RAY || spellid == SpellID::ACID_BREATH_DEFENSE || !s->hasBonus(Selector::source(Bonus::SPELL_EFFECT, spellid)))//disrupting ray or acid breath or not on the list - just add
 			{
 				BOOST_FOREACH(Bonus &fromEffect, effect)
 				{

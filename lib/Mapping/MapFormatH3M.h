@@ -215,7 +215,7 @@ private:
 	*/
 	void readMessageAndGuards(std::string& message, CCreatureSet * guards);
 
-	void readSpells(std::set<TSpell> & dest);
+	void readSpells(std::set<SpellID> & dest);
 
 	void readResourses(TResources& resources);
 

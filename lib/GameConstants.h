@@ -10,6 +10,8 @@
  *
  */
 
+#include "ConstTransitivePtr.h"
+
 namespace GameConstants
 {
 	const std::string VCMI_VERSION = "VCMI 0.91b";
@@ -91,6 +93,58 @@ namespace GameConstants
 
 }
 
+class CArtifact;
+class CGDefInfo;
+class CCreature;
+class CSpell;
+
+#define ID_LIKE_CLASS_COMMON(CLASS_NAME, ENUM_NAME)	\
+CLASS_NAME(const CLASS_NAME & other)				\
+{													\
+	num = other.num;								\
+}													\
+CLASS_NAME & operator=(const CLASS_NAME & other)	\
+{													\
+	num = other.num;								\
+	return *this;									\
+}													\
+explicit CLASS_NAME(si32 id)						\
+	: num(static_cast<ENUM_NAME>(id))				\
+{}													\
+operator ENUM_NAME() const							\
+{													\
+	return num;										\
+}													\
+ENUM_NAME toEnum() const							\
+{													\
+	return num;										\
+}													\
+template <typename Handler> void serialize(Handler &h, const int version)	\
+{													\
+	h & num;										\
+}													\
+CLASS_NAME & advance(int i)							\
+{													\
+	num = (ENUM_NAME)((int)num + i);				\
+	return *this;									\
+}
+
+
+#define ID_LIKE_OPERATORS_INTERNAL_DECLS(A, B)			\
+bool DLL_LINKAGE operator==(const A & a, const B & b);	\
+bool DLL_LINKAGE operator!=(const A & a, const B & b);	\
+bool DLL_LINKAGE operator<(const A & a, const B & b);	\
+bool DLL_LINKAGE operator<=(const A & a, const B & b);	\
+bool DLL_LINKAGE operator>(const A & a, const B & b);	\
+bool DLL_LINKAGE operator>=(const A & a, const B & b);
+
+#define ID_LIKE_OPERATORS_DECLS(CLASS_NAME, ENUM_NAME)			\
+	ID_LIKE_OPERATORS_INTERNAL_DECLS(CLASS_NAME, CLASS_NAME)	\
+	ID_LIKE_OPERATORS_INTERNAL_DECLS(CLASS_NAME, ENUM_NAME)		\
+	ID_LIKE_OPERATORS_INTERNAL_DECLS(ENUM_NAME, CLASS_NAME)
+
+
+
 // Enum declarations
 namespace PrimarySkill
 {
@@ -135,13 +189,15 @@ namespace ETownType
 	};
 }
 
-namespace EBuilding
+class BuildingID
 {
+public:
 	//Quite useful as long as most of building mechanics hardcoded
 	// NOTE: all building with completely configurable mechanics will be removed from list
-	enum EBuilding
+	enum EBuildingID
 	{
-		MAGES_GUILD_1,  MAGES_GUILD_2, MAGES_GUILD_3,     MAGES_GUILD_4,   MAGES_GUILD_5,
+		NONE = -1,
+		MAGES_GUILD_1 = 0,  MAGES_GUILD_2, MAGES_GUILD_3,     MAGES_GUILD_4,   MAGES_GUILD_5,
 		TAVERN,         SHIPYARD,      FORT,              CITADEL,         CASTLE,
 		VILLAGE_HALL,   TOWN_HALL,     CITY_HALL,         CAPITOL,         MARKETPLACE,
 		RESOURCE_SILO,  BLACKSMITH,    SPECIAL_1,         HORDE_1,         HORDE_1_UPGR,
@@ -188,7 +244,16 @@ namespace EBuilding
 		//ARTIFACT_MERCHANT - same ID as in tower
 		MAGIC_UNIVERSITY = SPECIAL_2, // Conflux
 	};
-}
+
+	BuildingID(EBuildingID _num = NONE) : num(_num)
+	{}
+
+	ID_LIKE_CLASS_COMMON(BuildingID, EBuildingID)
+
+	EBuildingID num;
+};
+
+ID_LIKE_OPERATORS_DECLS(BuildingID, BuildingID::EBuildingID)
 
 namespace EBuildingState
 {
@@ -261,9 +326,10 @@ namespace EWallState
 	};
 }
 
-namespace Obj
+class Obj
 {
-	enum Obj
+public:
+	enum EObj
 	{
 		NO_OBJ = -1,
 		ALTAR_OF_SACRIFICE = 2,
@@ -402,7 +468,17 @@ namespace Obj
 		MAGIC_PLAINS2 = 230,
 		ROCKLANDS = 231,
 	};
-}
+	Obj(EObj _num = NO_OBJ) : num(_num)
+	{}
+
+	ID_LIKE_CLASS_COMMON(Obj, EObj)
+
+	bmap<int, ConstTransitivePtr<CGDefInfo> > & toDefObjInfo() const;
+
+	EObj num;
+};
+
+ID_LIKE_OPERATORS_DECLS(Obj, Obj::EObj)
 
 namespace SecSkillLevel
 {
@@ -504,9 +580,10 @@ namespace ArtifactPosition
 	};
 }
 
-namespace ArtifactID
+class ArtifactID
 {
-	enum ArtifactID
+public:
+	enum EArtifactID
 	{
 		NONE = -1,
 		SPELLBOOK = 0,
@@ -531,11 +608,23 @@ namespace ArtifactID
 		HARDENED_SHIELD = 154,
 		SLAVAS_RING_OF_POWER = 155
 	};
-}
 
-namespace CreatureID
+	ArtifactID(EArtifactID _num = NONE) : num(_num)
+	{}
+
+	DLL_LINKAGE CArtifact * toArtifact() const;
+
+	ID_LIKE_CLASS_COMMON(ArtifactID, EArtifactID)
+
+	EArtifactID num;
+};
+
+ID_LIKE_OPERATORS_DECLS(ArtifactID, ArtifactID::EArtifactID)
+
+class CreatureID
 {
-	enum CreatureID
+public:
+	enum ECreatureID
 	{
 		NONE = -1,
 		CAVALIER = 10,
@@ -556,12 +645,26 @@ namespace CreatureID
 		AMMO_CART = 148,
 		ARROW_TOWERS = 149
 	};
-}
 
-namespace Spells
+	CreatureID(ECreatureID _num = NONE) : num(_num)
+	{}
+
+	DLL_LINKAGE CCreature * toCreature() const;
+
+	ID_LIKE_CLASS_COMMON(CreatureID, ECreatureID)
+
+	ECreatureID num;
+};
+
+ID_LIKE_OPERATORS_DECLS(CreatureID, CreatureID::ECreatureID)
+
+class SpellID
 {
-	enum Spells
+public:
+	enum ESpellID
 	{
+		PRESET = -2,
+		NONE = -1,
 		SUMMON_BOAT=0, SCUTTLE_BOAT=1, VISIONS=2, VIEW_EARTH=3, DISGUISE=4, VIEW_AIR=5,
 		FLY=6, WATER_WALK=7, DIMENSION_DOOR=8, TOWN_PORTAL=9,
 
@@ -583,12 +686,22 @@ namespace Spells
 		STONE_GAZE=70, POISON=71, BIND=72, DISEASE=73, PARALYZE=74, AGE=75, DEATH_CLOUD=76, THUNDERBOLT=77,
 		DISPEL_HELPFUL_SPELLS=78, DEATH_STARE=79, ACID_BREATH_DEFENSE=80, ACID_BREATH_DAMAGE=81
 	};
-}
+
+	SpellID(ESpellID _num = NONE) : num(_num)
+	{}
+
+	DLL_LINKAGE CSpell * toSpell() const;
+
+	ID_LIKE_CLASS_COMMON(SpellID, ESpellID)
+
+	ESpellID num;
+};
+
+ID_LIKE_OPERATORS_DECLS(SpellID, SpellID::ESpellID)
 
 // Typedef declarations
 typedef si8 TFaction;
 typedef si64 TExpType;
-typedef ui32 TSpell;
 typedef std::pair<ui32, ui32> TDmgRange;
 typedef ui8 TBonusType;
 typedef si32 TBonusSubtype;
@@ -596,3 +709,8 @@ typedef si32 TSlot;
 typedef si32 TQuantity;
 typedef si32 TArtifactInstanceID;
 typedef ui8 TPlayerColor;
+
+
+#undef ID_LIKE_CLASS_COMMON
+#undef ID_LIKE_OPERATORS_DECLS
+#undef ID_LIKE_OPERATORS_INTERNAL_DECLS

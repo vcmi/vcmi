@@ -215,8 +215,8 @@ public:
 
 struct UpgradeInfo
 {
-	CreatureID::CreatureID oldID; //creature to be upgraded
-	std::vector<CreatureID::CreatureID> newID; //possible upgrades
+	CreatureID oldID; //creature to be upgraded
+	std::vector<CreatureID> newID; //possible upgrades
 	std::vector<TResources> cost; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>; cost is for single unit (not entire stack)
 	UpgradeInfo(){oldID = CreatureID::NONE;};
 };
@@ -273,7 +273,7 @@ struct DLL_EXPORT DuelParameters
 	{
 		struct DLL_EXPORT StackSettings
 		{
-			CreatureID::CreatureID type;
+			CreatureID type;
 			si32 count;
 			template <typename Handler> void serialize(Handler &h, const int version)
 			{
@@ -281,14 +281,14 @@ struct DLL_EXPORT DuelParameters
 			}
 
 			StackSettings();
-			StackSettings(CreatureID::CreatureID Type, si32 Count);
+			StackSettings(CreatureID Type, si32 Count);
 		} stacks[GameConstants::ARMY_SIZE];
 
 		si32 heroId; //-1 if none
 		std::vector<si32> heroPrimSkills; //may be empty
 		std::map<si32, CArtifactInstance*> artifacts;
 		std::vector<std::pair<si32, si8> > heroSecSkills; //may be empty; pairs <id, level>, level [0-3]
-		std::set<si32> spells;
+		std::set<SpellID> spells;
 
 		SideSettings();
 		template <typename Handler> void serialize(Handler &h, const int version)
@@ -392,7 +392,7 @@ public:
 
 	void initDuel();
 	void randomizeObject(CGObjectInstance *cur);
-	std::pair<Obj::Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
+	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
 	int pickHero(int owner);
 	void giveHeroArtifact(CGHeroInstance *h, int aid);
 

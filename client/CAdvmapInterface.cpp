@@ -799,7 +799,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 
 		{
 			//find first town with tavern
-			auto itr = range::find_if(LOCPLINT->towns, boost::bind(&CGTownInstance::hasBuilt, _1, EBuilding::TAVERN));
+			auto itr = range::find_if(LOCPLINT->towns, boost::bind(&CGTownInstance::hasBuilt, _1, BuildingID::TAVERN));
 			if(itr != LOCPLINT->towns.end())
 				LOCPLINT->showThievesGuildWindow(*itr);
 			else
@@ -877,7 +877,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				const CGTownInstance *townWithMarket = NULL;
 				BOOST_FOREACH(const CGTownInstance *t, LOCPLINT->cb->getTownsInfo())
 				{
-					if(t->hasBuilt(EBuilding::MARKETPLACE))
+					if(t->hasBuilt(BuildingID::MARKETPLACE))
 					{
 						townWithMarket = t;
 						break;
@@ -1140,11 +1140,11 @@ void CAdvMapInt::tileLClicked(const int3 &mapPos)
 
 		switch(spellBeingCasted->id)
 		{
-		case Spells::SCUTTLE_BOAT: //Scuttle Boat
+		case SpellID::SCUTTLE_BOAT: //Scuttle Boat
 			if(topBlocking && topBlocking->ID == Obj::BOAT)
 				leaveCastingMode(true, mapPos);
 			break;
-		case Spells::DIMENSION_DOOR:
+		case SpellID::DIMENSION_DOOR:
 			if(!tile || tile->isClear(heroTile))
 				leaveCastingMode(true, mapPos);
 			break;
@@ -1244,13 +1244,13 @@ void CAdvMapInt::tileHovered(const int3 &mapPos)
 	{
 		switch(spellBeingCasted->id)
 		{
-		case Spells::SCUTTLE_BOAT:
+		case SpellID::SCUTTLE_BOAT:
 			if(objAtTile && objAtTile->ID == Obj::BOAT)
 				CCS->curh->changeGraphic(ECursor::ADVENTURE, 42);
 			else
 				CCS->curh->changeGraphic(ECursor::ADVENTURE, 0);
 			return;
-		case Spells::DIMENSION_DOOR:
+		case SpellID::DIMENSION_DOOR:
 			{
 				const TerrainTile *t = LOCPLINT->cb->getTile(mapPos, false);
 				int3 hpos = selection->getSightCenter();
@@ -1436,8 +1436,7 @@ void CAdvMapInt::tileRClicked(const int3 &mapPos)
 
 void CAdvMapInt::enterCastingMode(const CSpell * sp)
 {
-	using namespace Spells;
-	assert(sp->id == SCUTTLE_BOAT  ||  sp->id == DIMENSION_DOOR);
+	assert(sp->id == SpellID::SCUTTLE_BOAT  ||  sp->id == SpellID::DIMENSION_DOOR);
 	spellBeingCasted = sp;
 
 	deactivate();
@@ -1448,7 +1447,7 @@ void CAdvMapInt::enterCastingMode(const CSpell * sp)
 void CAdvMapInt::leaveCastingMode(bool cast /*= false*/, int3 dest /*= int3(-1, -1, -1)*/)
 {
 	assert(spellBeingCasted);
-	int id = spellBeingCasted->id;
+	SpellID id = spellBeingCasted->id;
 	spellBeingCasted = NULL;
 	terrain.deactivate();
 	activate();

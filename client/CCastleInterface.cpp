@@ -107,14 +107,14 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 	{
 		int bid = str->building->bid;
 		const CBuilding *bld = town->town->buildings[bid];
-		if (bid < EBuilding::DWELL_FIRST)
+		if (bid < BuildingID::DWELL_FIRST)
 		{
 			CRClickPopup::createAndPush(CInfoWindow::genText(bld->Name(), bld->Description()),
 			                            new CComponent(CComponent::building, bld->tid, bld->bid));
 		}
 		else
 		{
-			int level = ( bid - EBuilding::DWELL_FIRST ) % GameConstants::CREATURES_PER_TOWN;
+			int level = ( bid - BuildingID::DWELL_FIRST ) % GameConstants::CREATURES_PER_TOWN;
 			GH.pushInt(new CDwellingInfoBox(parent->pos.x+parent->pos.w/2, parent->pos.y+parent->pos.h/2, town, level));
 		}
 	}
@@ -471,13 +471,13 @@ void CCastleBuildings::recreate()
 
 	auto buildingsCopy = town->builtBuildings;// a bit modified copy of built buildings
 
-	if(vstd::contains(town->builtBuildings, EBuilding::SHIPYARD))
+	if(vstd::contains(town->builtBuildings, BuildingID::SHIPYARD))
 	{
 		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(town->bestLocation());
 		//there is visitable obj at shipyard output tile and it's a boat or hero (on boat)
 		if(!vobjs.empty() && (vobjs.front()->ID == Obj::BOAT || vobjs.front()->ID == Obj::HERO))
 		{
-			buildingsCopy.insert(EBuilding::SHIP);
+			buildingsCopy.insert(BuildingID::SHIP);
 		}
 	}
 
@@ -573,52 +573,52 @@ void CCastleBuildings::buildingClicked(int building)
 	tlog5<<"You've clicked on "<<building<<std::endl;
 	const CBuilding *b = town->town->buildings.find(building)->second;
 
-	if(building >= EBuilding::DWELL_FIRST)
+	if(building >= BuildingID::DWELL_FIRST)
 	{
-		enterDwelling((building-EBuilding::DWELL_FIRST)%GameConstants::CREATURES_PER_TOWN);
+		enterDwelling((building-BuildingID::DWELL_FIRST)%GameConstants::CREATURES_PER_TOWN);
 	}
 	else
 	{
 		switch(building)
 		{
-		case EBuilding::MAGES_GUILD_1:
-		case EBuilding::MAGES_GUILD_2:
-		case EBuilding::MAGES_GUILD_3:
-		case EBuilding::MAGES_GUILD_4:
-		case EBuilding::MAGES_GUILD_5:
+		case BuildingID::MAGES_GUILD_1:
+		case BuildingID::MAGES_GUILD_2:
+		case BuildingID::MAGES_GUILD_3:
+		case BuildingID::MAGES_GUILD_4:
+		case BuildingID::MAGES_GUILD_5:
 				enterMagesGuild();
 				break;
 
-		case EBuilding::TAVERN:
+		case BuildingID::TAVERN:
 				LOCPLINT->showTavernWindow(town);
 				break;
 
-		case EBuilding::SHIPYARD:
+		case BuildingID::SHIPYARD:
 				LOCPLINT->showShipyardDialog(town);
 				break;
 
-		case EBuilding::FORT:
-		case EBuilding::CITADEL:
-		case EBuilding::CASTLE:
+		case BuildingID::FORT:
+		case BuildingID::CITADEL:
+		case BuildingID::CASTLE:
 				GH.pushInt(new CFortScreen(town));
 				break;
 
-		case EBuilding::VILLAGE_HALL:
-		case EBuilding::CITY_HALL:
-		case EBuilding::TOWN_HALL:
-		case EBuilding::CAPITOL:
+		case BuildingID::VILLAGE_HALL:
+		case BuildingID::CITY_HALL:
+		case BuildingID::TOWN_HALL:
+		case BuildingID::CAPITOL:
 				enterTownHall();
 				break;
 
-		case EBuilding::MARKETPLACE:
+		case BuildingID::MARKETPLACE:
 				GH.pushInt(new CMarketplaceWindow(town, town->visitingHero));
 				break;
 
-		case EBuilding::BLACKSMITH:
+		case BuildingID::BLACKSMITH:
 				enterBlacksmith(town->town->warMachine);
 				break;
 
-		case EBuilding::SPECIAL_1:
+		case BuildingID::SPECIAL_1:
 				switch(town->subID)
 				{
 				case ETownType::RAMPART://Mystic Pond
@@ -640,11 +640,11 @@ void CCastleBuildings::buildingClicked(int building)
 				}
 				break;
 
-		case EBuilding::SHIP:
+		case BuildingID::SHIP:
 				LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[51]); //Cannot build another boat
 				break;
 
-		case EBuilding::SPECIAL_2:
+		case BuildingID::SPECIAL_2:
 				switch(town->subID)
 				{
 				case ETownType::RAMPART: //Fountain of Fortune
@@ -671,7 +671,7 @@ void CCastleBuildings::buildingClicked(int building)
 				}
 				break;
 
-		case EBuilding::SPECIAL_3:
+		case BuildingID::SPECIAL_3:
 				switch(town->subID)
 				{
 				case ETownType::CASTLE: //Brotherhood of sword
@@ -710,7 +710,7 @@ void CCastleBuildings::buildingClicked(int building)
 	}
 }
 
-void CCastleBuildings::enterBlacksmith(ArtifactID::ArtifactID artifactID)
+void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 {
 	const CGHeroInstance *hero = town->visitingHero;
 	if(!hero)
@@ -744,12 +744,12 @@ void CCastleBuildings::enterCastleGate()
 	{
 		const CGTownInstance *t = Towns[i];
 		if (t->id != this->town->id && t->visitingHero == NULL && //another town, empty and this is
-			t->hasBuilt(EBuilding::CASTLE_GATE, ETownType::INFERNO))
+			t->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
 		{
 			availableTowns.push_back(t->id);//add to the list
 		}
 	}
-	CPicture *titlePic = new CPicture (LOCPLINT->castleInt->bicons->ourImages[EBuilding::CASTLE_GATE].bitmap, 0,0, false);//will be deleted by selection window
+	CPicture *titlePic = new CPicture (LOCPLINT->castleInt->bicons->ourImages[BuildingID::CASTLE_GATE].bitmap, 0,0, false);//will be deleted by selection window
 	GH.pushInt (new CObjectListWindow(availableTowns, titlePic, CGI->generaltexth->jktexts[40],
 	    CGI->generaltexth->jktexts[41], boost::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1)));
 }
@@ -766,8 +766,8 @@ void CCastleBuildings::enterFountain(int building)
 
 	std::string descr = town->town->buildings.find(building)->second->Description();
 
-	if ( building == EBuilding::FOUNTAIN_OF_FORTUNE)
-		descr += "\n\n"+town->town->buildings.find(EBuilding::MYSTIC_POND)->second->Description();
+	if ( building == BuildingID::FOUNTAIN_OF_FORTUNE)
+		descr += "\n\n"+town->town->buildings.find(BuildingID::MYSTIC_POND)->second->Description();
 
 	if (town->bonusValue.first == 0)//fountain was builded this week
 		descr += "\n\n"+ CGI->generaltexth->allTexts[677];
@@ -810,12 +810,12 @@ void CCastleBuildings::enterMagesGuild()
 void CCastleBuildings::enterTownHall()
 {
 	if(town->visitingHero && town->visitingHero->hasArt(2) &&
-		!vstd::contains(town->builtBuildings, EBuilding::GRAIL)) //hero has grail, but town does not have it
+		!vstd::contains(town->builtBuildings, BuildingID::GRAIL)) //hero has grail, but town does not have it
 	{
-		if(!vstd::contains(town->forbiddenBuildings, EBuilding::GRAIL))
+		if(!vstd::contains(town->forbiddenBuildings, BuildingID::GRAIL))
 		{
 			LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[597], //Do you wish this to be the permanent home of the Grail?
-			                            boost::bind(&CCallback::buildBuilding, LOCPLINT->cb, town, EBuilding::GRAIL),
+			                            boost::bind(&CCallback::buildBuilding, LOCPLINT->cb, town, BuildingID::GRAIL),
 			                            boost::bind(&CCastleBuildings::openTownHall, this), true);
 		}
 		else
@@ -1175,7 +1175,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 		heroes->swapArmies();
 		break;
 	case SDLK_t:
-		if(town->hasBuilt(EBuilding::TAVERN))
+		if(town->hasBuilt(BuildingID::TAVERN))
 			LOCPLINT->showTavernWindow(town);
 		break;
 	default:
@@ -1285,7 +1285,7 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 	Rect barRect(5, 556, 740, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 5, 556, false));
 
-	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, Colors::WHITE, town->town->buildings[town->hallLevel()+EBuilding::VILLAGE_HALL]->Name());
+	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, Colors::WHITE, town->town->buildings[town->hallLevel()+BuildingID::VILLAGE_HALL]->Name());
 	exit = new CAdventureMapButton(CGI->generaltexth->hcommands[8], "", 
 	           boost::bind(&CHallInterface::close,this), 748, 556, "TPMAGE1.DEF", SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
@@ -1435,10 +1435,10 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 		int buildingID;
 		if (fortSize == GameConstants::CREATURES_PER_TOWN)
 		{
-			if (vstd::contains(town->builtBuildings, EBuilding::DWELL_UP_FIRST+i))
-				buildingID = EBuilding::DWELL_UP_FIRST+i;
+			if (vstd::contains(town->builtBuildings, BuildingID::DWELL_UP_FIRST+i))
+				buildingID = BuildingID::DWELL_UP_FIRST+i;
 			else
-				buildingID = EBuilding::DWELL_FIRST+i;
+				buildingID = BuildingID::DWELL_FIRST+i;
 		}
 		else
 			buildingID = 22;
@@ -1653,7 +1653,7 @@ void CMageGuildScreen::Scroll::hover(bool on)
 
 }
 
-CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, ArtifactID::ArtifactID aid, int hid):
+CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, ArtifactID aid, int hid):
     CWindowObject(PLAYER_COLORED, "TPSMITH")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;

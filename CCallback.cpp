@@ -69,7 +69,7 @@ int CCallback::selectionMade(int selection, int queryID)
 	return sendRequest(&pack);
 }
 
-void CCallback::recruitCreatures(const CGObjectInstance *obj, CreatureID::CreatureID ID, ui32 amount, si32 level/*=-1*/)
+void CCallback::recruitCreatures(const CGObjectInstance *obj, CreatureID ID, ui32 amount, si32 level/*=-1*/)
 {
 	if(player!=obj->tempOwner  &&  obj->ID != Obj::WAR_MACHINE_FACTORY)
 		return;
@@ -88,7 +88,7 @@ bool CCallback::dismissCreature(const CArmedInstance *obj, int stackPos)
 	return true;
 }
 
-bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, CreatureID::CreatureID newID)
+bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, CreatureID newID)
 {
 	UpgradeCreature pack(stackPos,obj->id,newID);
 	sendRequest(&pack);
@@ -205,7 +205,7 @@ void CCallback::swapGarrisonHero( const CGTownInstance *town )
 	sendRequest(&pack);
 }
 
-void CCallback::buyArtifact(const CGHeroInstance *hero, ArtifactID::ArtifactID aid)
+void CCallback::buyArtifact(const CGHeroInstance *hero, ArtifactID aid)
 {
 	if(hero->tempOwner != player) return;
 
@@ -329,7 +329,7 @@ void CCallback::dig( const CGObjectInstance *hero )
 	sendRequest(&dwh);
 }
 
-void CCallback::castSpell(const CGHeroInstance *hero, int spellID, const int3 &pos)
+void CCallback::castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos)
 {
 	CastAdvSpell cas;
 	cas.hid = hero->id;

@@ -1498,7 +1498,7 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 		&&  obj->pos-obj->getVisitableOffset() == LOCPLINT->castleInt->town->bestLocation())
 	{
 		CCS->soundh->playSound(soundBase::newBuilding);
-		LOCPLINT->castleInt->addBuilding(EBuilding::SHIP);
+		LOCPLINT->castleInt->addBuilding(BuildingID::SHIP);
 	}
 }
 
@@ -2096,7 +2096,7 @@ void CPlayerInterface::showPuzzleMap()
 void CPlayerInterface::advmapSpellCast(const CGHeroInstance * caster, int spellID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	if (spellID == Spells::FLY || spellID == Spells::WATER_WALK)
+	if (spellID == SpellID::FLY || spellID == SpellID::WATER_WALK)
 	{
 		eraseCurrentPathOf(caster, false);
 	}

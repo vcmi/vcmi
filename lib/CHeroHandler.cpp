@@ -255,7 +255,7 @@ CHero * CHeroHandler::loadHero(const JsonNode & node)
 
 		VLC->modh->identifiers.requestIdentifier(std::string("creature.") + source["creature"].String(), [=](si32 creature)
 		{
-			hero->initialArmy[i].creature = static_cast<CreatureID::CreatureID>(creature);
+			hero->initialArmy[i].creature = CreatureID(creature);
 		});
 	}
 
@@ -280,7 +280,7 @@ void CHeroHandler::loadHeroJson(CHero * hero, const JsonNode & node)
 
 	BOOST_FOREACH(const JsonNode & spell, node["spellbook"].Vector())
 	{
-		hero->spells.insert(spell.Float());
+		hero->spells.insert(SpellID(spell.Float()));
 	}
 
 	//deprecated, used only for original spciealties
@@ -404,7 +404,7 @@ void CHeroHandler::loadHeroes()
 			refName[0] = std::tolower(refName[0]); // to camelCase
 			VLC->modh->identifiers.requestIdentifier(std::string("creature.") + refName, [=](si32 creature)
 			{
-				hero->initialArmy[x].creature = static_cast<CreatureID::CreatureID>(creature);
+				hero->initialArmy[x].creature = CreatureID(creature);
 			});
 		}
 		parser.endLine();
