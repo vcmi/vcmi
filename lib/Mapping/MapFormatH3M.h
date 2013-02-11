@@ -203,7 +203,7 @@ private:
 	 * @param addAuxiliary true if the village hall should be added
 	 * @return the converted buildings
 	 */
-	std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID, bool addAuxiliary = true);
+	std::set<BuildingID> convertBuildings(const std::set<BuildingID> h3m, int castleID, bool addAuxiliary = true);
 
 	/**
 	 * Reads events.

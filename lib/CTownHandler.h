@@ -23,18 +23,17 @@ class JsonNode;
 /// contains all mechanics-related data about town structures
 class DLL_LINKAGE CBuilding
 {
-	typedef si32 BuildingType;//TODO: replace int with pointer?
 
 	std::string name;
 	std::string description;
 
 public:
-	TFaction tid;
-	si32 bid; //town ID and structure ID
+	TFaction tid; //town ID
+	BuildingID bid; //structure ID
 	TResources resources;
 
-	std::set<BuildingType> requirements; /// set of required buildings, includes upgradeOf;
-	BuildingType upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty
+	std::set<BuildingID> requirements; /// set of required buildings, includes upgradeOf;
+	BuildingID upgrade; /// indicates that building "upgrade" can be improved by this, -1 = empty
 
 	enum EBuildMode
 	{
@@ -42,17 +41,16 @@ public:
 		BUILD_AUTO,    // 1 - auto - building appears when all requirements are built
 		BUILD_SPECIAL, // 2 - special - building can not be built normally
 		BUILD_GRAIL    // 3 - grail - building reqires grail to be built
-	};
-	ui32 mode;
+	} mode;
 
 	const std::string &Name() const;
 	const std::string &Description() const;
 
 	//return base of upgrade(s) or this
-	BuildingType getBase() const;
+	BuildingID getBase() const;
 
 	// returns how many times build has to be upgraded to become build
-	si32 getDistance(BuildingType build) const;
+	si32 getDistance(BuildingID build) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -92,7 +90,7 @@ public:
 	// TODO: replace with pointers to CCreature
 	std::vector<std::vector<CreatureID> > creatures;
 
-	bmap<int, ConstTransitivePtr<CBuilding> > buildings;
+	bmap<BuildingID, ConstTransitivePtr<CBuilding> > buildings;
 
 	std::vector<std::string> dwellings; //defs for adventure map dwellings for new towns, [0] means tier 1 creatures etc.
 	std::vector<std::string> dwellingNames;
@@ -125,7 +123,7 @@ public:
 		std::string buildingsIcons;
 		std::string hallBackground;
 		/// vector[row][column] = list of buildings in this slot
-		std::vector< std::vector< std::vector<int> > > hallSlots;
+		std::vector< std::vector< std::vector<BuildingID> > > hallSlots;
 
 		/// list of town screen structures.
 		/// NOTE: index in vector is meaningless. Vector used instead of list for a bit faster access

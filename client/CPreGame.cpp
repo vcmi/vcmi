@@ -3443,7 +3443,7 @@ void CBonusSelection::updateBonusSelection()
 					}
 					assert(faction != -1);
 
-					int buildID = CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<si32>());
+					BuildingID buildID = CBuildingHandler::campToERMU(bonDescs[i].info1, faction, std::set<BuildingID>());
 					picName = graphics->ERMUtoPicture[faction][buildID];
 					picNumber = -1;
 

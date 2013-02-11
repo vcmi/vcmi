@@ -173,7 +173,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const ui8 * buff
 			for (int g=0; g<numOfBonuses; ++g)
 			{
 				CScenarioTravel::STravelBonus bonus;
-				bonus.type = buffer[outIt++];
+				bonus.type = static_cast<CScenarioTravel::STravelBonus::EBonusType>(buffer[outIt++]);
 				//hero: FFFD means 'most powerful' and FFFE means 'generated'
 				switch(bonus.type)
 				{

@@ -964,7 +964,7 @@ std::string CComponent::getDescription()
 	case spell:      return CGI->spellh->spells[subtype]->descriptions[val];
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
 	case luck:       return CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
-	case building:   return CGI->townh->towns[subtype].buildings[val]->Description();
+	case building:   return CGI->townh->towns[subtype].buildings[BuildingID(val)]->Description();
 	case hero:       return CGI->heroh->heroes[subtype]->name;
 	case flag:       return "";
 	}
@@ -996,7 +996,7 @@ std::string CComponent::getSubtitleInternal()
 	case spell:      return CGI->spellh->spells[subtype]->name;
 	case morale:     return "";
 	case luck:       return "";
-	case building:   return CGI->townh->towns[subtype].buildings[val]->Name();
+	case building:   return CGI->townh->towns[subtype].buildings[BuildingID(val)]->Name();
 	case hero:       return CGI->heroh->heroes[subtype]->name;
 	case flag:       return CGI->generaltexth->capColors[subtype];
 	}
@@ -4497,9 +4497,9 @@ void LRClickableAreaOpenTown::clickLeft(tribool down, bool previousState)
 		{
 		LOCPLINT->openTownWindow(town);
 		if ( type == 2 )
-			LOCPLINT->castleInt->builds->buildingClicked(10);
+			LOCPLINT->castleInt->builds->buildingClicked(BuildingID::VILLAGE_HALL);
 		else if ( type == 3 && town->fortLevel() )
-			LOCPLINT->castleInt->builds->buildingClicked(7);
+			LOCPLINT->castleInt->builds->buildingClicked(BuildingID::FORT);
 		}
 }
 

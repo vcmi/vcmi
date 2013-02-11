@@ -414,7 +414,7 @@ void TryMoveHero::applyGs( CGameState *gs )
 DLL_LINKAGE void NewStructures::applyGs( CGameState *gs )
 {
 	CGTownInstance *t = gs->getTown(tid);
-	BOOST_FOREACH(si32 id,bid)
+	BOOST_FOREACH(const auto & id, bid)
 	{
 		t->builtBuildings.insert(id);
 	}
@@ -424,7 +424,7 @@ DLL_LINKAGE void NewStructures::applyGs( CGameState *gs )
 DLL_LINKAGE void RazeStructures::applyGs( CGameState *gs )
 {
 	CGTownInstance *t = gs->getTown(tid);
-	BOOST_FOREACH(si32 id,bid)
+	BOOST_FOREACH(const auto & id, bid)
 	{
 		t->builtBuildings.erase(id);
 	}

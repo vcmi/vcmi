@@ -511,7 +511,7 @@ class DLL_LINKAGE CGTownBuilding : public IObjectInterface
 {
 ///basic class for town structures handled as map objects
 public:
-	si32 ID; //from buildig list
+	BuildingID ID; //from buildig list
 	si32 id; //identifies its index on towns vector
 	CGTownInstance *town;
 
@@ -527,8 +527,8 @@ public:
 	void setProperty(ui8 what, ui32 val) override;
 	void onHeroVisit (const CGHeroInstance * h) const override;
 
-	COPWBonus (int index, CGTownInstance *TOWN);
-	COPWBonus (){ID = 0; town = NULL;};
+	COPWBonus (BuildingID index, CGTownInstance *TOWN);
+	COPWBonus (){ID = BuildingID::NONE; town = NULL;};
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGTownBuilding&>(*this);
@@ -545,8 +545,8 @@ public:
 	void setProperty(ui8 what, ui32 val) override;
 	void onHeroVisit (const CGHeroInstance * h) const override;
 
-	CTownBonus (int index, CGTownInstance *TOWN);
-	CTownBonus (){ID = 0; town = NULL;};
+	CTownBonus (BuildingID index, CGTownInstance *TOWN);
+	CTownBonus (){ID = BuildingID::NONE; town = NULL;};
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGTownBuilding&>(*this);
@@ -587,9 +587,9 @@ public:
 	ConstTransitivePtr<CGHeroInstance> garrisonHero, visitingHero;
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
 	si32 alignment;
-	std::set<si32> forbiddenBuildings, builtBuildings;
+	std::set<BuildingID> forbiddenBuildings, builtBuildings;
 	std::vector<CGTownBuilding*> bonusingBuildings;
-	std::vector<ui32> possibleSpells, obligatorySpells;
+	std::vector<SpellID> possibleSpells, obligatorySpells;
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
 	std::list<CCastleEvent*> events;
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond);
@@ -617,8 +617,8 @@ public:
 	std::string nodeName() const override;
 	void deserializationFix();
 	void recreateBuildingsBonuses();
-	bool addBonusIfBuilt(int building, int type, int val, TPropagatorPtr prop, int subtype = -1); //returns true if building is built and bonus has been added
-	bool addBonusIfBuilt(int building, int type, int val, int subtype = -1); //convienence version of above
+	bool addBonusIfBuilt(BuildingID building, int type, int val, TPropagatorPtr prop, int subtype = -1); //returns true if building is built and bonus has been added
+	bool addBonusIfBuilt(BuildingID building, int type, int val, int subtype = -1); //convienence version of above
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);
 	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
@@ -649,8 +649,8 @@ public:
 	bool hasFort() const;
 	bool hasCapitol() const;
 	//checks if building is constructed and town has same subID
-	bool hasBuilt(int buildingID) const;
-	bool hasBuilt(int buildingID, int townID) const;
+	bool hasBuilt(BuildingID buildingID) const;
+	bool hasBuilt(BuildingID buildingID, int townID) const;
 	int dailyIncome() const; //calculates daily income of this town
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 	void removeCapitols (ui8 owner) const;

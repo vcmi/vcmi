@@ -844,7 +844,7 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 	}
 }
 
-void VCAI::buildChanged(const CGTownInstance *town, int buildingID, int what)
+void VCAI::buildChanged(const CGTownInstance *town, BuildingID buildingID, int what)
 {
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
@@ -1256,7 +1256,7 @@ void VCAI::recruitCreatures(const CGDwelling * d)
 	}
 }
 
-bool VCAI::tryBuildStructure(const CGTownInstance * t, int building, unsigned int maxDays)
+bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsigned int maxDays)
 {
 	if (!vstd::contains(t->town->buildings, building))
 		return false; // no such building in town
@@ -1264,7 +1264,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, int building, unsigned in
 	if (t->hasBuilt(building)) //Already built? Shouldn't happen in general
 		return true;
 
-	std::set<int> toBuild = cb->getBuildingRequiments(t, building);
+	std::set<BuildingID> toBuild = cb->getBuildingRequiments(t, building);
 
 	//erase all already built buildings
 	for (auto buildIter = toBuild.begin(); buildIter != toBuild.end();)
@@ -1277,7 +1277,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, int building, unsigned in
 
 	toBuild.insert(building);
 
-	BOOST_FOREACH(int buildID, toBuild)
+	BOOST_FOREACH(BuildingID buildID, toBuild)
 	{
 		EBuildingState::EBuildingState canBuild = cb->canBuildStructure(t, buildID);
 		if (canBuild == EBuildingState::HAVE_CAPITAL
@@ -1293,7 +1293,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, int building, unsigned in
 	TResources income = estimateIncome();
 	//TODO: calculate if we have enough resources to build it in maxDays
 
-	BOOST_FOREACH(int buildID, toBuild)
+	BOOST_FOREACH(const auto & buildID, toBuild)
 	{
 		const CBuilding *b = t->town->buildings[buildID];
 
@@ -1323,9 +1323,9 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, int building, unsigned in
 	return false;
 }
 
-bool VCAI::tryBuildAnyStructure(const CGTownInstance * t, std::vector<int> buildList, unsigned int maxDays)
+bool VCAI::tryBuildAnyStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays)
 {
-	BOOST_FOREACH(int building, buildList)
+	BOOST_FOREACH(const auto & building, buildList)
 	{
 		if(t->hasBuilt(building))
 			continue;
@@ -1335,9 +1335,9 @@ bool VCAI::tryBuildAnyStructure(const CGTownInstance * t, std::vector<int> build
 	return false; //Can't build anything
 }
 
-bool VCAI::tryBuildNextStructure(const CGTownInstance * t, std::vector<int> buildList, unsigned int maxDays)
+bool VCAI::tryBuildNextStructure(const CGTownInstance * t, std::vector<BuildingID> buildList, unsigned int maxDays)
 {
-	BOOST_FOREACH(int building, buildList)
+	BOOST_FOREACH(const auto & building, buildList)
 	{
 		if(t->hasBuilt(building))
 			continue;
@@ -1354,37 +1354,39 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	//Possible - allow "locking" on specific building (build prerequisites and then building itself)
 
 	//Set of buildings for different goals. Does not include any prerequisites.
-	const int essential[] = {BuildingID::TAVERN, BuildingID::TOWN_HALL};
-	const int goldSource[] = {BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL};
-	const int unitsSource[] = { 30, 31, 32, 33, 34, 35, 36};
-	const int unitsUpgrade[] = { 37, 38, 39, 40, 41, 42, 43};
-	const int unitGrowth[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
+	const BuildingID essential[] = {BuildingID::TAVERN, BuildingID::TOWN_HALL};
+	const BuildingID goldSource[] = {BuildingID::TOWN_HALL, BuildingID::CITY_HALL, BuildingID::CAPITOL};
+	const BuildingID unitsSource[] = { BuildingID::DWELL_LVL_1, BuildingID::DWELL_LVL_2, BuildingID::DWELL_LVL_3,
+		BuildingID::DWELL_LVL_4, BuildingID::DWELL_LVL_5, BuildingID::DWELL_LVL_6, BuildingID::DWELL_LVL_7};
+	const BuildingID unitsUpgrade[] = { BuildingID::DWELL_LVL_1_UP, BuildingID::DWELL_LVL_2_UP, BuildingID::DWELL_LVL_3_UP,
+		BuildingID::DWELL_LVL_4_UP, BuildingID::DWELL_LVL_5_UP, BuildingID::DWELL_LVL_6_UP, BuildingID::DWELL_LVL_7_UP};
+	const BuildingID unitGrowth[] = { BuildingID::FORT, BuildingID::CITADEL, BuildingID::CASTLE, BuildingID::HORDE_1,
 		BuildingID::HORDE_1_UPGR, BuildingID::HORDE_2, BuildingID::HORDE_2_UPGR};
-	const int spells[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
+	const BuildingID spells[] = {BuildingID::MAGES_GUILD_1, BuildingID::MAGES_GUILD_2, BuildingID::MAGES_GUILD_3,
 		BuildingID::MAGES_GUILD_4, BuildingID::MAGES_GUILD_5};
-	const int extra[] = {BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
+	const BuildingID extra[] = {BuildingID::RESOURCE_SILO, BuildingID::SPECIAL_1, BuildingID::SPECIAL_2, BuildingID::SPECIAL_3,
 		BuildingID::SPECIAL_4, BuildingID::SHIPYARD}; // all remaining buildings
 
 	TResources currentRes = cb->getResourceAmount();
 	TResources income = estimateIncome();
 
-	if (tryBuildAnyStructure(t, std::vector<int>(essential, essential + ARRAY_COUNT(essential))))
+	if (tryBuildAnyStructure(t, std::vector<BuildingID>(essential, essential + ARRAY_COUNT(essential))))
 		return;
 
 	//we're running out of gold - try to build something gold-producing. Multiplier can be tweaked, 6 is minimum due to buildings costs
 	if (currentRes[Res::GOLD] < income[Res::GOLD] * 6)
-		if (tryBuildNextStructure(t, std::vector<int>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
+		if (tryBuildNextStructure(t, std::vector<BuildingID>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
 			return;
 
 	if (cb->getDate(Date::DAY_OF_WEEK) > 6)// last 2 days of week - try to focus on growth
 	{
-		if (tryBuildNextStructure(t, std::vector<int>(unitGrowth, unitGrowth + ARRAY_COUNT(unitGrowth)), 2))
+		if (tryBuildNextStructure(t, std::vector<BuildingID>(unitGrowth, unitGrowth + ARRAY_COUNT(unitGrowth)), 2))
 			return;
 	}
 
 	// first in-game week or second half of any week: try build dwellings
 	if (cb->getDate(Date::DAY) < 7 || cb->getDate(Date::DAY_OF_WEEK) > 3)
-		if (tryBuildAnyStructure(t, std::vector<int>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK)))
+		if (tryBuildAnyStructure(t, std::vector<BuildingID>(unitsSource, unitsSource + ARRAY_COUNT(unitsSource)), 8 - cb->getDate(Date::DAY_OF_WEEK)))
 			return;
 
 	//try to upgrade dwelling
@@ -1398,11 +1400,11 @@ void VCAI::buildStructure(const CGTownInstance * t)
 	}
 
 	//remaining tasks
-	if (tryBuildNextStructure(t, std::vector<int>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
+	if (tryBuildNextStructure(t, std::vector<BuildingID>(goldSource, goldSource + ARRAY_COUNT(goldSource))))
 		return;
-	if (tryBuildNextStructure(t, std::vector<int>(spells, spells + ARRAY_COUNT(spells))))
+	if (tryBuildNextStructure(t, std::vector<BuildingID>(spells, spells + ARRAY_COUNT(spells))))
 		return;
-	if (tryBuildAnyStructure(t, std::vector<int>(extra, extra + ARRAY_COUNT(extra))))
+	if (tryBuildAnyStructure(t, std::vector<BuildingID>(extra, extra + ARRAY_COUNT(extra))))
 		return;
 }
 
@@ -1928,19 +1930,19 @@ void VCAI::tryRealize(CGoal g)
 			{
 				BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
 				{
-					switch(cb->canBuildStructure(t, g.bid))
+					switch(cb->canBuildStructure(t, BuildingID(g.bid)))
 					{
 					case EBuildingState::ALLOWED:
-						cb->buildBuilding(t, g.bid);
+						cb->buildBuilding(t, BuildingID(g.bid));
 						return;
 					default:
 						break;
 					}
 				}
 			}
-			else if(cb->canBuildStructure(t, g.bid) == EBuildingState::ALLOWED)
+			else if(cb->canBuildStructure(t, BuildingID(g.bid)) == EBuildingState::ALLOWED)
 			{
-				cb->buildBuilding(t, g.bid);
+				cb->buildBuilding(t, BuildingID(g.bid));
 				return;
 			}
 			throw cannotFulfillGoalException("Cannot build a given structure!");
@@ -3204,7 +3206,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 					auto creatures = t->town->creatures[creature->level];
 					int upgradeNumber = std::find(creatures.begin(), creatures.end(), creature->idNumber) - creatures.begin();
 
-					int bid = BuildingID::DWELL_FIRST + creature->level + upgradeNumber * GameConstants::CREATURES_PER_TOWN;
+					BuildingID bid(BuildingID::DWELL_FIRST + creature->level + upgradeNumber * GameConstants::CREATURES_PER_TOWN);
 					if (t->hasBuilt(bid)) //this assumes only creatures with dwellings are assigned to faction
 					{
 						dwellings.push_back(t);

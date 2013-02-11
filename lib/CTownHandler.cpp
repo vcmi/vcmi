@@ -31,7 +31,7 @@ const std::string & CBuilding::Description() const
 	return description;
 }
 
-CBuilding::BuildingType CBuilding::getBase() const
+BuildingID CBuilding::getBase() const
 {
 	const CBuilding * build = this;
 	while (build->upgrade >= 0)
@@ -40,7 +40,7 @@ CBuilding::BuildingType CBuilding::getBase() const
 	return build->bid;
 }
 
-si32 CBuilding::getDistance(CBuilding::BuildingType buildID) const
+si32 CBuilding::getDistance(BuildingID buildID) const
 {
 	const CBuilding * build = VLC->townh->towns[tid].buildings[buildID];
 	int distance = 0;
@@ -237,24 +237,24 @@ void CTownHandler::loadBuilding(CTown &town, const JsonNode & source)
 
 	static const std::string modes [] = {"normal", "auto", "special", "grail"};
 
-	ret->mode = boost::find(modes, source["mode"].String()) - modes;
+	ret->mode = static_cast<CBuilding::EBuildMode>(boost::find(modes, source["mode"].String()) - modes);
 
 	ret->tid = town.typeID;
-	ret->bid = source["id"].Float();
+	ret->bid = BuildingID(source["id"].Float());
 	ret->name = source["name"].String();
 	ret->description = source["description"].String();
 	ret->resources = TResources(source["cost"]);
 
 	BOOST_FOREACH(const JsonNode &building, source["requires"].Vector())
-		ret->requirements.insert(building.Float());
+		ret->requirements.insert(BuildingID(building.Float()));
 
 	if (!source["upgrades"].isNull())
 	{
-		ret->requirements.insert(source["upgrades"].Float());
-		ret->upgrade = source["upgrades"].Float();
+		ret->requirements.insert(BuildingID(source["upgrades"].Float()));
+		ret->upgrade = BuildingID(source["upgrades"].Float());
 	}
 	else
-		ret->upgrade = -1;
+		ret->upgrade = BuildingID::NONE;
 
 	town.buildings[ret->bid] = ret;
 }
@@ -278,12 +278,12 @@ void CTownHandler::loadStructure(CTown &town, const JsonNode & source)
 	}
 	else
 	{
-		ret->building = town.buildings[source["id"].Float()];
+		ret->building = town.buildings[BuildingID(source["id"].Float())];
 
 		if (source["builds"].isNull())
 			ret->buildable = ret->building;
 		else
-			ret->buildable = town.buildings[source["builds"].Float()];
+			ret->buildable = town.buildings[BuildingID(source["builds"].Float())];
 	}
 
 	ret->pos.x = source["x"].Float();
@@ -310,15 +310,15 @@ void CTownHandler::loadTownHall(CTown &town, const JsonNode & source)
 {
 	BOOST_FOREACH(const JsonNode &row, source.Vector())
 	{
-		std::vector< std::vector<int> > hallRow;
+		std::vector< std::vector<BuildingID> > hallRow;
 
 		BOOST_FOREACH(const JsonNode &box, row.Vector())
 		{
-			std::vector<int> hallBox;
+			std::vector<BuildingID> hallBox;
 
 			BOOST_FOREACH(const JsonNode &value, box.Vector())
 			{
-				hallBox.push_back(value.Float());
+				hallBox.push_back(BuildingID(value.Float()));
 			}
 			hallRow.push_back(hallBox);
 		}

@@ -46,6 +46,8 @@ ID_LIKE_OPERATORS(CreatureID, CreatureID::ECreatureID)
 
 ID_LIKE_OPERATORS(SpellID, SpellID::ESpellID)
 
+ID_LIKE_OPERATORS(BuildingID, BuildingID::EBuildingID)
+
 
 bmap<int, ConstTransitivePtr<CGDefInfo> > & Obj::toDefObjInfo() const
 {

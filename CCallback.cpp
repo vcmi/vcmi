@@ -164,7 +164,7 @@ bool CCallback::assembleArtifacts (const CGHeroInstance * hero, ArtifactPosition
 	return true;
 }
 
-bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
+bool CCallback::buildBuilding(const CGTownInstance *town, BuildingID buildingID)
 {
 	if(town->tempOwner!=player)
 		return false;

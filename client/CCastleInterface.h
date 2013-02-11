@@ -115,7 +115,7 @@ class CCastleBuildings : public CIntObject
 {
 	CPicture *background;
 	//List of buildings and structures that can represent them
-	std::map< si32, std::vector<const CStructure*> > groups;
+	std::map< BuildingID, std::vector<const CStructure*> > groups;
 	// actual IntObject's visible on screen
 	std::vector< CBuildingRect * > buildings;
 
@@ -124,9 +124,9 @@ class CCastleBuildings : public CIntObject
 	const CGHeroInstance* getHero();//Select hero for buildings usage
 
 	void enterBlacksmith(ArtifactID artifactID);//support for blacksmith + ballista yard
-	void enterBuilding(int building);//for buildings with simple description + pic left-click messages
+	void enterBuilding(BuildingID building);//for buildings with simple description + pic left-click messages
 	void enterCastleGate();
-	void enterFountain(int building);//Rampart's fountains
+	void enterFountain(BuildingID building);//Rampart's fountains
 	void enterMagesGuild();
 	void enterTownHall();
 
@@ -142,9 +142,9 @@ public:
 
 	void enterDwelling(int level);
 
-	void buildingClicked(int building);
-	void addBuilding(int building);
-	void removeBuilding(int building);//FIXME: not tested!!!
+	void buildingClicked(BuildingID building);
+	void addBuilding(BuildingID building);
+	void removeBuilding(BuildingID building);//FIXME: not tested!!!
 	
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
@@ -224,8 +224,8 @@ public:
 	void townChange();
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void close();
-	void addBuilding(int bid);
-	void removeBuilding(int bid);
+	void addBuilding(BuildingID bid);
+	void removeBuilding(BuildingID bid);
 	void recreateIcons();
 };
 
@@ -312,7 +312,7 @@ class CFortScreen : public CWindowObject
 		CCreaturePic *creatureAnim;
 
 	public:
-		RecruitArea(int posX, int posY, const CGTownInstance *town, int buildingID, int level);
+		RecruitArea(int posX, int posY, const CGTownInstance *town, BuildingID buildingID, int level);
 		
 		void creaturesChanged();
 		void hover(bool on);

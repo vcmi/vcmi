@@ -644,7 +644,7 @@ struct NewStructures : public CPackForClient //504
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	si32 tid;
-	std::set<si32> bid;
+	std::set<BuildingID> bid;
 	si16 builded;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -659,7 +659,7 @@ struct RazeStructures : public CPackForClient //505
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	si32 tid;
-	std::set<si32> bid;
+	std::set<BuildingID> bid;
 	si16 destroyed;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1838,8 +1838,9 @@ struct DisbandCreature : public CPackForServer
 struct BuildStructure : public CPackForServer
 {
 	BuildStructure(){};
-	BuildStructure(si32 TID, si32 BID):bid(BID),tid(TID){};
-	si32 bid, tid; //structure and town ids
+	BuildStructure(si32 TID, BuildingID BID):bid(BID),tid(TID){};
+	si32 tid; //town id
+	BuildingID bid; //structure id
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)

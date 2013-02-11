@@ -1,5 +1,7 @@
 #pragma once
 
+#include "GameConstants.h"
+
 /*
  * CBuildingHandler.h, part of VCMI engine
  *
@@ -13,5 +15,5 @@
 class DLL_LINKAGE CBuildingHandler
 {
 public:
-	static int campToERMU(int camp, int townType, std::set<si32> builtBuildings);
+	static BuildingID campToERMU(int camp, int townType, std::set<BuildingID> builtBuildings);
 };

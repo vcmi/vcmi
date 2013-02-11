@@ -1908,7 +1908,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 		}
 
 		//means that set of standard building should be included
-		nt->builtBuildings.insert(-50);
+		nt->builtBuildings.insert(BuildingID::DEFAULT);
 	}
 
 	if(map->version > EMapFormat::ROE)
@@ -1922,7 +1922,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 				{
 					if(c == (c | static_cast<ui8>(std::pow(2., yy))))
 					{
-						nt->obligatorySpells.push_back(i * 8 + yy);
+						nt->obligatorySpells.push_back(SpellID(i * 8 + yy));
 					}
 				}
 			}
@@ -1938,7 +1938,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 			{
 				if(c != (c | static_cast<ui8>(std::pow(2., yy))))
 				{
-					nt->possibleSpells.push_back(i * 8 + yy);
+					nt->possibleSpells.push_back(SpellID(i * 8 + yy));
 				}
 			}
 		}
@@ -1996,10 +1996,10 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 	return nt;
 }
 
-std::set<si32> CMapLoaderH3M::convertBuildings(const std::set<si32> h3m, int castleID, bool addAuxiliary /*= true*/)
+std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> h3m, int castleID, bool addAuxiliary /*= true*/)
 {
-	std::map<int, int> mapa;
-	std::set<si32> ret;
+	std::map<int, BuildingID> mapa;
+	std::set<BuildingID> ret;
 
 	// Note: this file is parsed many times.
 	const JsonNode config(ResourceID("config/buildings5.json"));
@@ -2010,7 +2010,7 @@ std::set<si32> CMapLoaderH3M::convertBuildings(const std::set<si32> h3m, int cas
 
 		if (town == castleID || town == -1)
 		{
-			mapa[entry["h3"].Float()] = entry["vcmi"].Float();
+			mapa[entry["h3"].Float()] = BuildingID((si32)entry["vcmi"].Float());
 		}
 	}
 
@@ -2026,7 +2026,7 @@ std::set<si32> CMapLoaderH3M::convertBuildings(const std::set<si32> h3m, int cas
 			int level = (mapa[*i]);
 
 			//(-30)..(-36) - horde buildings (for game loading only), don't see other way to handle hordes in random towns
-			ret.insert(level - 30);
+			ret.insert(BuildingID(level - 30));
 		}
 		else
 		{

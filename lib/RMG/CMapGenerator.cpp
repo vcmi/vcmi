@@ -317,7 +317,7 @@ void CMapGenerator::genTowns()
 		town->tempOwner = owner;
 		town->defInfo = VLC->dobjinfo->gobjs[town->ID][town->subID];
 		town->builtBuildings.insert(BuildingID::FORT);
-		town->builtBuildings.insert(-50);
+		town->builtBuildings.insert(BuildingID::DEFAULT);
 		mapMgr->insertObject(town, townPos[side].x, townPos[side].y + (pos / 2) * 5, false);
 
 		// Update player info

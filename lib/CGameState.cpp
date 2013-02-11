@@ -1442,6 +1442,33 @@ void CGameState::init(StartInfo * si)
 	}
 	/****************************TOWNS************************************************/
 	tlog4 << "\tTowns";
+
+	//campaign bonuses for towns
+	if (scenarioOps->mode == StartInfo::CAMPAIGN)
+	{
+		auto chosenBonus = scenarioOps->campState->getBonusForCurrentMap();
+
+		if (chosenBonus.is_initialized() && chosenBonus->type == CScenarioTravel::STravelBonus::BUILDING)
+		{
+			for (int g=0; g<map->towns.size(); ++g)
+			{
+				PlayerState * owner = getPlayer(map->towns[g]->getOwner());
+				if (owner)
+				{
+					PlayerInfo & pi = map->players[owner->color];
+
+					if (owner->human && //human-owned
+						map->towns[g]->pos == pi.posOfMainTown + int3(2, 0, 0))
+					{
+						map->towns[g]->builtBuildings.insert(
+							CBuildingHandler::campToERMU(chosenBonus->info1, map->towns[g]->town->typeID, map->towns[g]->builtBuildings));
+						break;
+					}
+				}
+			}
+		}
+	}
+
 	CGTownInstance::universitySkills.clear();
 	for ( int i=0; i<4; i++)
 		CGTownInstance::universitySkills.push_back(14+i);//skills for university
@@ -1455,14 +1482,14 @@ void CGameState::init(StartInfo * si)
 			vti->name = vti->town->names[ran()%vti->town->names.size()];
 
 		//init buildings
-		if(vti->builtBuildings.find(-50)!=vti->builtBuildings.end()) //give standard set of buildings
+		if(vstd::contains(vti->builtBuildings, BuildingID::DEFAULT)) //give standard set of buildings
 		{
-			vti->builtBuildings.erase(-50);
+			vti->builtBuildings.erase(BuildingID::DEFAULT);
 			vti->builtBuildings.insert(BuildingID::VILLAGE_HALL);
 			vti->builtBuildings.insert(BuildingID::TAVERN);
 			vti->builtBuildings.insert(BuildingID::DWELL_FIRST);
 			if(ran()%2)
-				vti->builtBuildings.insert(BuildingID::DWELL_FIRST+1);
+				vti->builtBuildings.insert(BuildingID::DWELL_LVL_2);
 		}
 
 		if (vstd::contains(vti->builtBuildings, BuildingID::SHIPYARD) && vti->state()==IBoatGenerator::TILE_BLOCKED)
@@ -1472,7 +1499,7 @@ void CGameState::init(StartInfo * si)
 		for (int i = 0; i<GameConstants::CREATURES_PER_TOWN; i++)
 			if (vstd::contains(vti->builtBuildings,(-31-i))) //if we have horde for this level
 			{
-				vti->builtBuildings.erase(-31-i);//remove old ID
+				vti->builtBuildings.erase(BuildingID(-31-i));//remove old ID
 				if (vti->town->hordeLvl[0] == i)//if town first horde is this one
 				{
 					vti->builtBuildings.insert(BuildingID::HORDE_1);//add it
@@ -1493,7 +1520,7 @@ void CGameState::init(StartInfo * si)
 			for (int i = 0; i<GameConstants::CREATURES_PER_TOWN; i++)
 				if (vstd::contains(ev->buildings,(-31-i))) //if we have horde for this level
 				{
-					ev->buildings.erase(-31-i);
+					ev->buildings.erase(BuildingID(-31-i));
 					if (vti->town->hordeLvl[0] == i)
 						ev->buildings.insert(BuildingID::HORDE_1);
 					if (vti->town->hordeLvl[1] == i)
@@ -1542,32 +1569,6 @@ void CGameState::init(StartInfo * si)
 			getPlayer(vti->getOwner())->towns.push_back(vti);
 	}
 
-	//campaign bonuses for towns
-	if (scenarioOps->mode == StartInfo::CAMPAIGN)
-	{
-		auto chosenBonus = scenarioOps->campState->getBonusForCurrentMap();
-
-		if (chosenBonus.is_initialized() && chosenBonus->type == CScenarioTravel::STravelBonus::BUILDING)
-		{
-			for (int g=0; g<map->towns.size(); ++g)
-			{
-				PlayerState * owner = getPlayer(map->towns[g]->getOwner());
-				if (owner)
-				{
-					PlayerInfo & pi = map->players[owner->color];
-
-					if (owner->human && //human-owned
-						map->towns[g]->pos == pi.posOfMainTown + int3(2, 0, 0))
-					{
-						map->towns[g]->builtBuildings.insert(
-							CBuildingHandler::campToERMU(chosenBonus->info1, map->towns[g]->town->typeID, map->towns[g]->builtBuildings));
-						break;
-					}
-				}
-			}
-		}
-
-	}
 	tlog4 << "\tObject initialization";
 	objCaller->preInit();
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)

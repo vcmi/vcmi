@@ -2462,7 +2462,7 @@ bool CGameHandler::disbandCreature( si32 id, ui8 pos )
 	return true;
 }
 
-bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
+bool CGameHandler::buildStructure( si32 tid, BuildingID bid, bool force /*=false*/ )
 {
 	CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid].get());
 	CBuilding * b = t->town->buildings[bid];
@@ -2574,7 +2574,7 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid, bool force /*=false*/ )
 	checkLossVictory(t->tempOwner);
 	return true;
 }
-bool CGameHandler::razeStructure (si32 tid, si32 bid)
+bool CGameHandler::razeStructure (si32 tid, BuildingID bid)
 {
 ///incomplete, simply erases target building
 	CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid].get());
@@ -4783,12 +4783,14 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<
 
 			}
 
-			for(std::set<si32>::iterator i = ev->buildings.begin(); i!=ev->buildings.end();i++)
-				if ( town->hasBuilt(*i))
+			BOOST_FOREACH(auto & i, ev->buildings)
+			{
+				if ( town->hasBuilt(i))
 				{
-					buildStructure(town->id, *i, true);
-					iw.components.push_back(Component(Component::BUILDING, town->subID, *i, 0));
+					buildStructure(town->id, i, true);
+					iw.components.push_back(Component(Component::BUILDING, town->subID, i, 0));
 				}
+			}
 
 			for(si32 i=0;i<ev->creatures.size();i++) //creature growths
 			{

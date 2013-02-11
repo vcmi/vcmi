@@ -72,7 +72,7 @@ public:
 class DLL_LINKAGE IGameEventsReceiver
 {
 public:
-	virtual void buildChanged(const CGTownInstance *town, int buildingID, int what){}; //what: 1 - built, 2 - demolished
+	virtual void buildChanged(const CGTownInstance *town, BuildingID buildingID, int what){}; //what: 1 - built, 2 - demolished
 
 	virtual void battleResultsApplied(){}; //called when all effects of last battle are applied
 

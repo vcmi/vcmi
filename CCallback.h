@@ -49,7 +49,7 @@ public:
 
 	//town
 	virtual void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)=0;
-	virtual bool buildBuilding(const CGTownInstance *town, si32 buildingID)=0;
+	virtual bool buildBuilding(const CGTownInstance *town, BuildingID buildingID)=0;
 	virtual void recruitCreatures(const CGObjectInstance *obj, CreatureID ID, ui32 amount, si32 level=-1)=0;
 	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, CreatureID newID=CreatureID::NONE)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
@@ -127,7 +127,7 @@ public:
 	//bool moveArtifact(const CGHeroInstance * hero, ui16 src, const CStackInstance * stack, ui16 dest); // TODO: unify classes
 	//bool moveArtifact(const CStackInstance * stack, ui16 src , const CGHeroInstance * hero, ui16 dest); // TODO: unify classes
 	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition::ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo);
-	bool buildBuilding(const CGTownInstance *town, si32 buildingID);
+	bool buildBuilding(const CGTownInstance *town, BuildingID buildingID) OVERRIDE;
 	void recruitCreatures(const CGObjectInstance *obj, CreatureID ID, ui32 amount, si32 level=-1);
 	bool dismissCreature(const CArmedInstance *obj, int stackPos);
 	bool upgradeCreature(const CArmedInstance *obj, int stackPos, CreatureID newID=CreatureID::NONE) OVERRIDE;

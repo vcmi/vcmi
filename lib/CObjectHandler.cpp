@@ -1938,7 +1938,7 @@ int CGTownInstance::creatureDwellingLevel(int dwelling) const
 		return -1;
 	for (int i=0; ; i++)
 	{
-		if (!hasBuilt(BuildingID::DWELL_FIRST+dwelling+i*GameConstants::CREATURES_PER_TOWN))
+		if (!hasBuilt(BuildingID(BuildingID::DWELL_FIRST+dwelling+i*GameConstants::CREATURES_PER_TOWN)))
 			return i-1;
 	}
 }
@@ -1957,7 +1957,7 @@ GrowthInfo CGTownInstance::getGrowthInfo(int level) const
 
 	if (level<0 || level >=GameConstants::CREATURES_PER_TOWN)
 		return ret;
-	if (!hasBuilt(BuildingID::DWELL_FIRST+level))
+	if (!hasBuilt(BuildingID(BuildingID::DWELL_FIRST+level)))
 		return ret; //no dwelling
 
 	const CCreature *creature = VLC->creh->creatures[creatures[level].second.back()];
@@ -2132,15 +2132,15 @@ void CGTownInstance::initObj()
 	switch (subID)
 	{ //add new visitable objects
 		case 0:
-			bonusingBuildings.push_back (new COPWBonus(21, this)); //Stables
+			bonusingBuildings.push_back (new COPWBonus(BuildingID::STABLES, this));
 			break;
 		case 5:
-			bonusingBuildings.push_back (new COPWBonus(21, this)); //Vortex
+			bonusingBuildings.push_back (new COPWBonus(BuildingID::MANA_VORTEX, this));
 		case 2: case 3: case 6:
-			bonusingBuildings.push_back (new CTownBonus(23, this));
+			bonusingBuildings.push_back (new CTownBonus(BuildingID::SPECIAL_4, this));
 			break;
 		case 7:
-			bonusingBuildings.push_back (new CTownBonus(17, this));
+			bonusingBuildings.push_back (new CTownBonus(BuildingID::SPECIAL_1, this));
 			break;
 	}
 	//add special bonuses from buildings
@@ -2272,7 +2272,7 @@ void CGTownInstance::removeCapitols (ui8 owner) const
 			{
 				RazeStructures rs;
 				rs.tid = id;
-				rs.bid.insert(13);
+				rs.bid.insert(BuildingID::CAPITOL);
 				rs.destroyed = destroyed;
 				cb->sendAndApply(&rs);
 				return;
@@ -2426,12 +2426,12 @@ void CGTownInstance::recreateBuildingsBonuses()
 	}
 }
 
-bool CGTownInstance::addBonusIfBuilt(int building, int type, int val, int subtype /*= -1*/)
+bool CGTownInstance::addBonusIfBuilt(BuildingID building, int type, int val, int subtype /*= -1*/)
 {
 	return addBonusIfBuilt(building, type, val, TPropagatorPtr(), subtype);
 }
 
-bool CGTownInstance::addBonusIfBuilt(int building, int type, int val, TPropagatorPtr prop, int subtype /*= -1*/)
+bool CGTownInstance::addBonusIfBuilt(BuildingID building, int type, int val, TPropagatorPtr prop, int subtype /*= -1*/)
 {
 	if(hasBuilt(building))
 	{
@@ -2517,14 +2517,14 @@ const CArmedInstance * CGTownInstance::getUpperArmy() const
 	return this;
 }
 
-bool CGTownInstance::hasBuilt(int buildingID, int townID) const
+bool CGTownInstance::hasBuilt(BuildingID buildingID, int townID) const
 {
 	if (townID == town->typeID || townID == ETownType::ANY)
 		return hasBuilt(buildingID);
 	return false;
 }
 
-bool CGTownInstance::hasBuilt(int buildingID) const
+bool CGTownInstance::hasBuilt(BuildingID buildingID) const
 {
 	return vstd::contains(builtBuildings, buildingID);
 }
@@ -2846,7 +2846,7 @@ void CGVisitableOPH::schoolSelected(int heroID, ui32 which) const
 	cb->changePrimSkill(cb->getHero(heroID), static_cast<PrimarySkill::PrimarySkill>(base + which-1), +1); //give appropriate skill
 }
 
-COPWBonus::COPWBonus (int index, CGTownInstance *TOWN)
+COPWBonus::COPWBonus (BuildingID index, CGTownInstance *TOWN)
 {
 	ID = index;
 	town = TOWN;
@@ -2897,7 +2897,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 		}
 	}
 }
-CTownBonus::CTownBonus (int index, CGTownInstance *TOWN)
+CTownBonus::CTownBonus (BuildingID index, CGTownInstance *TOWN)
 {
 	ID = index;
 	town = TOWN;

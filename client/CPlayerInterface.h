@@ -128,7 +128,7 @@ public:
 	int getLastIndex(std::string namePrefix);
 
 	//overridden funcs from CGameInterface
-	void buildChanged(const CGTownInstance *town, int buildingID, int what) OVERRIDE; //what: 1 - built, 2 - demolished
+	void buildChanged(const CGTownInstance *town, BuildingID buildingID, int what) OVERRIDE; //what: 1 - built, 2 - demolished
 	void stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute) OVERRIDE; //if absolute, change is the new count; otherwise count was modified by adding change
 	void stackChangedType(const StackLocation &location, const CCreature &newType) OVERRIDE; //used eg. when upgrading creatures
 	void stacksErased(const StackLocation &location) OVERRIDE; //stack removed from previously filled slot

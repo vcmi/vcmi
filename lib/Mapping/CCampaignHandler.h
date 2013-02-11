@@ -60,7 +60,7 @@ public:
 	{
 		enum EBonusType {SPELL, MONSTER, BUILDING, ARTIFACT, SPELL_SCROLL, PRIMARY_SKILL, SECONDARY_SKILL, RESOURCE,
 			PLAYER_PREV_SCENARIO, HERO};
-		ui8 type; //uses EBonusType
+		EBonusType type; //uses EBonusType
 		si32 info1, info2, info3; //purpose depends on type
 
 		bool isBonusForHero() const;

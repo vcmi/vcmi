@@ -563,12 +563,14 @@ void CPlayerInterface::garrisonChanged( const CGObjectInstance * obj)
 	garrisonsChanged(std::vector<const CGObjectInstance *>(1, obj));
 }
 
-void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, int what) //what: 1 - built, 2 - demolished
+void CPlayerInterface::buildChanged(const CGTownInstance *town, BuildingID buildingID, int what) //what: 1 - built, 2 - demolished
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	switch (buildingID)
 	{
-	case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 15:
+	case BuildingID::FORT: case BuildingID::CITADEL: case BuildingID::CASTLE:
+	case BuildingID::VILLAGE_HALL: case BuildingID::TOWN_HALL: case BuildingID::CITY_HALL: case BuildingID::CAPITOL:
+	case BuildingID::RESOURCE_SILO:
 		updateInfo(town);
 		break;
 	}

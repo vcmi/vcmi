@@ -127,8 +127,8 @@ public:
 	const CGTownInstance * getTownInfo(int val, bool mode)const; //mode = 0 -> val = player town serial; mode = 1 -> val = object id (serial)
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const; //heroes that can be recruited
 	std::string getTavernGossip(const CGObjectInstance * townOrTavern) const; 
-	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, int ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
-	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID);
+	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
+	std::set<BuildingID> getBuildingRequiments(const CGTownInstance *t, BuildingID ID);
 	virtual bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
 	const CTown *getNativeTown(TPlayerColor color) const;
 
@@ -136,7 +136,7 @@ public:
 	const TeamState *getTeam(ui8 teamID) const;
 	const TeamState *getPlayerTeam(TPlayerColor color) const;
 	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID) const;
-	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, int ID) const;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
+	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID) const;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 };
 
 

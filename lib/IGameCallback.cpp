@@ -525,7 +525,7 @@ const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 	return &gs->map->getTile(tile);
 }
 
-EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, int ID )
+EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTownInstance *t, BuildingID ID )
 {
 	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", EBuildingState::TOWN_NOT_OWNED);
 
@@ -538,14 +538,14 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 		return EBuildingState::ALREADY_PRESENT;
 
 	//can we build it?
-	if(t->forbiddenBuildings.find(ID)!=t->forbiddenBuildings.end())
+	if(vstd::contains(t->forbiddenBuildings, ID))
 		return EBuildingState::FORBIDDEN; //forbidden
 
 	//checking for requirements
-	std::set<int> reqs = getBuildingRequiments(t, ID);//getting all requirements
+	std::set<BuildingID> reqs = getBuildingRequiments(t, ID);//getting all requirements
 
 	bool notAllBuilt = false;
-	for( std::set<int>::iterator ri  =  reqs.begin(); ri != reqs.end(); ri++ )
+	for( std::set<BuildingID>::iterator ri  =  reqs.begin(); ri != reqs.end(); ri++ )
 	{
 		if(!t->hasBuilt(*ri)) //lack of requirements - cannot build
 		{
@@ -591,9 +591,9 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	return EBuildingState::ALLOWED;
 }
 
-std::set<int> CGameInfoCallback::getBuildingRequiments( const CGTownInstance *t, int ID )
+std::set<BuildingID> CGameInfoCallback::getBuildingRequiments( const CGTownInstance *t, BuildingID ID )
 {
-	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", std::set<int>());
+	ERROR_RET_VAL_IF(!canGetFullInfo(t), "Town is not owned!", std::set<BuildingID>());
 
 	std::set<int> used;
 	used.insert(ID);

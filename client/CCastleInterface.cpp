@@ -105,7 +105,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 		return;
 	if( !CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
 	{
-		int bid = str->building->bid;
+		BuildingID bid = str->building->bid;
 		const CBuilding *bld = town->town->buildings[bid];
 		if (bid < BuildingID::DWELL_FIRST)
 		{
@@ -516,10 +516,10 @@ CCastleBuildings::~CCastleBuildings()
 {
 }
 
-void CCastleBuildings::addBuilding(int building)
+void CCastleBuildings::addBuilding(BuildingID building)
 {
 	//FIXME: implement faster method without complete recreation of town
-	int base = town->town->buildings[building]->getBase();
+	BuildingID base = town->town->buildings[building]->getBase();
 
 	recreate();
 
@@ -539,7 +539,7 @@ void CCastleBuildings::addBuilding(int building)
 	}
 }
 
-void CCastleBuildings::removeBuilding(int building)
+void CCastleBuildings::removeBuilding(BuildingID building)
 {
 	//FIXME: implement faster method without complete recreation of town
 	recreate();
@@ -568,7 +568,7 @@ const CGHeroInstance* CCastleBuildings::getHero()
 	return NULL;
 }
 
-void CCastleBuildings::buildingClicked(int building)
+void CCastleBuildings::buildingClicked(BuildingID building)
 {
 	tlog5<<"You've clicked on "<<building<<std::endl;
 	const CBuilding *b = town->town->buildings.find(building)->second;
@@ -715,7 +715,7 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 	const CGHeroInstance *hero = town->visitingHero;
 	if(!hero)
 	{
-		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(16)->second->Name()));
+		LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[273]) % town->town->buildings.find(BuildingID::BLACKSMITH)->second->Name()));
 		return;
 	}
 	int price = CGI->arth->artifacts[artifactID]->price;
@@ -723,7 +723,7 @@ void CCastleBuildings::enterBlacksmith(ArtifactID artifactID)
 	GH.pushInt(new CBlacksmithDialog(possible, CArtHandler::machineIDToCreature(artifactID), artifactID, hero->id));
 }
 
-void CCastleBuildings::enterBuilding(int building)
+void CCastleBuildings::enterBuilding(BuildingID building)
 {
 	std::vector<CComponent*> comps(1, new CComponent(CComponent::building, town->subID, building));
 
@@ -760,7 +760,7 @@ void CCastleBuildings::enterDwelling(int level)
 	GH.pushInt(new CRecruitmentWindow(town, level, town, boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2,level), -87));
 }
 
-void CCastleBuildings::enterFountain(int building)
+void CCastleBuildings::enterFountain(BuildingID building)
 {
 	std::vector<CComponent*> comps(1, new CComponent(CComponent::building,town->subID,building));
 
@@ -923,7 +923,7 @@ void CCastleInterface::townChange()
 	GH.pushInt(new CCastleInterface(dest, town));
 }
 
-void CCastleInterface::addBuilding(int bid)
+void CCastleInterface::addBuilding(BuildingID bid)
 {
 	deactivate();
 	builds->addBuilding(bid);
@@ -931,7 +931,7 @@ void CCastleInterface::addBuilding(int bid)
 	activate();
 }
 
-void CCastleInterface::removeBuilding(int bid)
+void CCastleInterface::removeBuilding(BuildingID bid)
 {
 	deactivate();
 	builds->removeBuilding(bid);
@@ -1101,7 +1101,7 @@ CTownInfo::CTownInfo(int posX, int posY, const CGTownInstance* Town, bool townHa
 			return;
 		picture = new CAnimImage("ITMCL.DEF", town->fortLevel()-1);
 	}
-	building = town->town->buildings[buildID];
+	building = town->town->buildings[BuildingID(buildID)];
 	pos = picture->pos;
 }
 
@@ -1285,7 +1285,7 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 	Rect barRect(5, 556, 740, 18);
 	statusBar = new CGStatusBar(new CPicture(*background, barRect, 5, 556, false));
 
-	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, Colors::WHITE, town->town->buildings[town->hallLevel()+BuildingID::VILLAGE_HALL]->Name());
+	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, Colors::WHITE, town->town->buildings[BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL)]->Name());
 	exit = new CAdventureMapButton(CGI->generaltexth->hcommands[8], "", 
 	           boost::bind(&CHallInterface::close,this), 748, 556, "TPMAGE1.DEF", SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
@@ -1299,7 +1299,7 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 			const CBuilding *building = NULL;
 			for(size_t item=0; item<boxList[row][col].size(); item++)//we are looking for the first not build structure
 			{
-				int buildingID = boxList[row][col][item];
+				auto buildingID = boxList[row][col][item];
 				building = town->town->buildings[buildingID];
 
 				if(!vstd::contains(town->builtBuildings,buildingID))
@@ -1335,13 +1335,13 @@ std::string CBuildWindow::getTextForState(int state)
 	case 8:
 		{
 			ret = CGI->generaltexth->allTexts[52];
-			std::set<int> reqs= LOCPLINT->cb->getBuildingRequiments(town, building->bid);
+			std::set<BuildingID> reqs= LOCPLINT->cb->getBuildingRequiments(town, building->bid);
 
-			for(std::set<int>::iterator i=reqs.begin();i!=reqs.end();i++)
+			BOOST_FOREACH(const auto & i, reqs)
 			{
-				if (vstd::contains(town->builtBuildings, *i))
+				if (vstd::contains(town->builtBuildings, i))
 					continue;//skipping constructed buildings
-				ret+= town->town->buildings[*i]->Name() + ", ";
+				ret+= town->town->buildings[i]->Name() + ", ";
 			}
 			ret.erase(ret.size()-2);
 		}
@@ -1413,7 +1413,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	if (fortSize > GameConstants::CREATURES_PER_TOWN && town->creatures.back().second.empty())
 		fortSize--;
 	
-	const CBuilding *fortBuilding = town->town->buildings[town->fortLevel()+6];
+	const CBuilding *fortBuilding = town->town->buildings[BuildingID(town->fortLevel()+6)];
 	title = new CLabel(400, 12, FONT_BIG, CENTER, Colors::WHITE, fortBuilding->Name());
 	
 	std::string text = boost::str(boost::format(CGI->generaltexth->fcommands[6]) % fortBuilding->Name());
@@ -1432,16 +1432,16 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	
 	for (ui32 i=0; i<fortSize; i++)
 	{
-		int buildingID;
+		BuildingID buildingID;
 		if (fortSize == GameConstants::CREATURES_PER_TOWN)
 		{
 			if (vstd::contains(town->builtBuildings, BuildingID::DWELL_UP_FIRST+i))
-				buildingID = BuildingID::DWELL_UP_FIRST+i;
+				buildingID = BuildingID(BuildingID::DWELL_UP_FIRST+i);
 			else
-				buildingID = BuildingID::DWELL_FIRST+i;
+				buildingID = BuildingID(BuildingID::DWELL_FIRST+i);
 		}
 		else
-			buildingID = 22;
+			buildingID = BuildingID::SPECIAL_3;
 		recAreas.push_back(new RecruitArea(positions[i].x, positions[i].y, town, buildingID, i));
 	}
 
@@ -1504,7 +1504,7 @@ void LabeledValue::hover(bool on)
 	}
 }
 
-CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *Town, int buildingID, int Level):
+CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *Town, BuildingID buildingID, int Level):
 	town(Town),
 	level(Level),
 	availableCount(NULL)

@@ -361,7 +361,7 @@ public:
 	CCastleEvent();
 
 	/** build specific buildings */
-	std::set<si32> buildings;
+	std::set<BuildingID> buildings;
 
 	/** additional creatures in i-th level dwelling */
 	std::vector<si32> creatures;

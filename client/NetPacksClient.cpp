@@ -404,9 +404,9 @@ void TryMoveHero::applyCl( CClient *cl )
 void NewStructures::applyCl( CClient *cl )
 {
 	CGTownInstance *town = GS(cl)->getTown(tid);
-	BOOST_FOREACH(si32 id, bid)
+	BOOST_FOREACH(const auto & id, bid)
 	{
-		if(id== BuildingID::CAPITOL) //fort or capitol
+		if(id == BuildingID::CAPITOL) //fort or capitol
 		{
 			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->capitols[town->subID].get());
 		}
@@ -421,9 +421,9 @@ void NewStructures::applyCl( CClient *cl )
 void RazeStructures::applyCl (CClient *cl)
 {
 	CGTownInstance *town = GS(cl)->getTown(tid);
-	BOOST_FOREACH(si32 id, bid)
+	BOOST_FOREACH(const auto & id, bid)
 	{
-		if (id == 13) //fort or capitol
+		if (id == BuildingID::CAPITOL) //fort or capitol
 		{
 			town->defInfo = const_cast<CGDefInfo*>(CGI->dobjinfo->gobjs[Obj::TOWN][town->subID].get());
 		}
