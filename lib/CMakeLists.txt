@@ -44,6 +44,7 @@ set(lib_SRCS
 		CSpellHandler.cpp
 		CThreadHelper.cpp
 		CTownHandler.cpp
+		GameConstants.cpp
 		HeroBonus.cpp
 		IGameCallback.cpp
 		JsonNode.cpp

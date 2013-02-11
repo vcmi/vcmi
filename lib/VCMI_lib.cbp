@@ -132,6 +132,7 @@
 		<Unit filename="Filesystem/CResourceLoader.cpp" />
 		<Unit filename="Filesystem/CResourceLoader.h" />
 		<Unit filename="Filesystem/ISimpleResourceLoader.h" />
+		<Unit filename="GameConstants.cpp" />
 		<Unit filename="GameConstants.h" />
 		<Unit filename="HeroBonus.cpp" />
 		<Unit filename="HeroBonus.h" />
