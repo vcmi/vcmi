@@ -289,7 +289,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	{
 		if(hlu.skills.size() > 1) //apply and ask for secondary skill
 		{
-			boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind 
+			boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind
 					(callWith<SecondarySkill::SecondarySkill>, hlu.skills,
 					boost::function<void(SecondarySkill::SecondarySkill)>(boost::bind
 						(&CGameHandler::levelUpHero, this, hero, _1) ), _1));
@@ -3970,7 +3970,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 	sc.tile = destination;
 	sc.dmgToDisplay = 0;
 	sc.castedByHero = (bool)caster;
-	sc.attackerType = (stack ? stack->type->idNumber : CreatureID::NONE);
+	sc.attackerType = (stack ? stack->type->idNumber : CreatureID(CreatureID::NONE));
 	sc.manaGained = 0;
 	sc.spellCost = 0;
 
@@ -4035,9 +4035,9 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			vstd::amin(sc.dmgToDisplay, (*attackedCres.begin())->count); //stack is already reduced after attack
 	}
 	StacksInjured si;
-	
+
 	//applying effects
-	
+
 	if (spell->isOffensiveSpell())
 	{
 			int spellDamage = 0;
@@ -4082,7 +4082,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 
 				if (spellID == SpellID::CHAIN_LIGHTNING)
 					++chainLightningModifier;
-			}		
+			}
 	}
 	else if (spell->hasEffects())
 	{
@@ -4164,7 +4164,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 
 			if(!sse.stacks.empty())
 				sendAndApply(&sse);
-					
+
 	}
 	else if (spell->isRisingSpell() || spell->id == SpellID::CURE)
 	{
@@ -4195,7 +4195,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 						hi.healedHP = gs->curB->calculateHealedHP(hpGained, spell, *it); //archangel
 					}
 					else
-						hi.healedHP = gs->curB->calculateHealedHP(spell, usedSpellPower, spellLvl, *it); //any typical spell (commander's cure or animate dead) 
+						hi.healedHP = gs->curB->calculateHealedHP(spell, usedSpellPower, spellLvl, *it); //any typical spell (commander's cure or animate dead)
 				}
 				else
 					hi.healedHP = gs->curB->calculateHealedHP(caster, spell, *it, gs->curB->battleGetStackByID(selectedStack)); //Casted by hero
@@ -4209,7 +4209,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 				BattleStacksRemoved bsr;
 				bsr.stackIDs.insert (selectedStack); //somehow it works for teleport?
 				sendAndApply(&bsr);
-			}		
+			}
 	}
 	else
 	switch (spellID)
