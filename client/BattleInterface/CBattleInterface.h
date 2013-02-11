@@ -47,7 +47,7 @@ struct ProjectileInfo;
 class CClickableHex;
 struct BattleHex;
 struct InfoAboutHero;
-class BattleAction;
+struct BattleAction;
 
 /// Class which manages the locked hex fields that are blocked e.g. by obstacles
 class CBattleObstacle

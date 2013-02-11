@@ -1838,7 +1838,7 @@ struct DisbandCreature : public CPackForServer
 struct BuildStructure : public CPackForServer
 {
 	BuildStructure(){};
-	BuildStructure(si32 TID, BuildingID BID):bid(BID),tid(TID){};
+	BuildStructure(si32 TID, BuildingID BID):tid(TID), bid(BID){};
 	si32 tid; //town id
 	BuildingID bid; //structure id
 

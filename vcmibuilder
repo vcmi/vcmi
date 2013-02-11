@@ -168,9 +168,8 @@ if [[ -n "$gog_file" ]]
 then
 	# innoextract always reports error (iconv 84 error). Just test file for presence
 	test -f "$gog_file" || fail "Error: gog.com executable was not found!"
-	innoextract -s -p 1 "$gog_file"
-	
-	mv ./app "$temp_dir"
+	(gog_file=`readlink -f "$gog_file"` && cd "$temp_dir" && innoextract -s -p 1 "$gog_file")
+
 	data_dir="$temp_dir"/app
 fi
 

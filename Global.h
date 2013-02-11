@@ -483,7 +483,7 @@ namespace vstd
 		});
 	}
 
-	static int retreiveRandNum(const boost::function<int()> &randGen)
+	static inline int retreiveRandNum(const boost::function<int()> &randGen)
 	{
 		if (randGen)
 			return randGen();
