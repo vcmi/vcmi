@@ -883,6 +883,8 @@ void CStack::postInit()
 	assert(type);
 	assert(getParentNodes().size());
 
+	//FIXME: the following should take into account ONLY_ENEMY_ARMY bonus range
+
 	firstHPleft = MaxHealth();
 	shots = getCreature()->valOfBonuses(Bonus::SHOTS);
 	counterAttacks = 1 + valOfBonuses(Bonus::ADDITIONAL_RETALIATION);

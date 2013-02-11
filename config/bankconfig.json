@@ -286,7 +286,7 @@
 				{
 					"chance": 30,
 					"guards": [ { "number": 30, "id": 105} ],
-					"upgrade_chance": 30,
+					"upgrade_chance": 0,
 					"combat_value": 154,
 					"reward_creatures": [ { "number": 4, "id": 108 } ],
 					"value": 3200,

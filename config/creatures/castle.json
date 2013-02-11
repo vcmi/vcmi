@@ -69,6 +69,13 @@
 		"id": 3,
 		"level": 2,
 		"faction": "castle",
+		"abilities": [
+						{
+							"type": "ADDITIONAL_ATTACK",
+							"val" : 1,
+							"effectRange": "ONLY_DISTANCE_FIGHT"
+						}
+					],	
 		"graphics" :
 		{
 			"animation": "CHCBOW.DEF",
