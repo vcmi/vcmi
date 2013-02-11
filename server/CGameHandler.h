@@ -193,7 +193,7 @@ public:
 
 	void init(StartInfo *si);
 	void handleConnection(std::set<int> players, CConnection &c);
-	int getPlayerAt(CConnection *c) const;
+	TPlayerColor getPlayerAt(CConnection *c) const;
 
 	void playerMessage( TPlayerColor player, const std::string &message);
 	bool makeBattleAction(BattleAction &ba);

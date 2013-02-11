@@ -114,7 +114,7 @@ void CMessage::dispose()
 	delete cancel;
 }
 
-SDL_Surface * CMessage::drawDialogBox(int w, int h, int playerColor)
+SDL_Surface * CMessage::drawDialogBox(int w, int h, TPlayerColor playerColor)
 {
 	//prepare surface
 	SDL_Surface * ret = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
@@ -219,7 +219,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 	return ret;
 }
 
-void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
+void CMessage::drawIWindow(CInfoWindow * ret, std::string text, TPlayerColor player)
 {
 	bool blitOr = false;
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
@@ -304,7 +304,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player)
 		ret->components[i]->moveBy(Point(ret->pos.x, ret->pos.y));
 }
 
-void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int x, int y)
+void CMessage::drawBorder(TPlayerColor playerColor, SDL_Surface * ret, int w, int h, int x, int y)
 {	
 	std::vector<SDL_Surface *> &box = piecesOfBox[playerColor];
 

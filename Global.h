@@ -519,6 +519,8 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 
 #define THROW_FORMAT(message, formatting_elems)  throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
 
+#define ASSERT_IF_CALLED_WITH_PLAYER if(!player) {tlog1 << __FUNCTION__ << "\n"; assert(0);}
+
 //XXX pls dont - 'debug macros' are usually more trouble than it's worth
 #define HANDLE_EXCEPTION  \
 	catch (const std::exception& e) {	\

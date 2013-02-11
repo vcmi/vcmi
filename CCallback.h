@@ -86,7 +86,7 @@ protected:
 	//virtual bool hasAccess(int playerId) const;
 
 public:
-	CBattleCallback(CGameState *GS, int Player, CClient *C);
+	CBattleCallback(CGameState *GS, boost::optional<TPlayerColor> Player, CClient *C);
 	int battleMakeAction(BattleAction* action) OVERRIDE;//for casting spells by hero - DO NOT use it for moving active stack
 	bool battleMakeTacticAction(BattleAction * action) OVERRIDE; // performs tactic phase actions
 	
@@ -101,7 +101,7 @@ private:
 	void validatePaths(); //recalcualte paths if necessary
 
 public:
-	CCallback(CGameState * GS, int Player, CClient *C);
+	CCallback(CGameState * GS, boost::optional<TPlayerColor> Player, CClient *C);
 
 	//client-specific functionalities (pathfinding)
 	virtual const CGPathNode *getPathInfo(int3 tile); //uses main, client pathfinder info

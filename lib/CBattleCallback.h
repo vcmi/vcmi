@@ -45,13 +45,13 @@ class DLL_LINKAGE CCallbackBase
 
 protected:
 	CGameState *gs;
-	int player; // -1 gives access to all information, otherwise callback provides only information "visible" for player
+	boost::optional<TPlayerColor> player; // not set gives access to all information, otherwise callback provides only information "visible" for player
 
-	CCallbackBase(CGameState *GS, int Player)
+	CCallbackBase(CGameState *GS, boost::optional<TPlayerColor> Player)
 		: battle(nullptr), gs(GS), player(Player)
 	{}
 	CCallbackBase()
-		: battle(nullptr), gs(nullptr), player(-1)
+		: battle(nullptr), gs(nullptr)
 	{}
 	
 	void setBattle(const BattleInfo *B);
@@ -59,7 +59,7 @@ protected:
 
 public:
 	boost::shared_mutex &getGsMutex(); //just return a reference to mutex, does not lock nor anything
-	int getPlayerID() const;
+	boost::optional<TPlayerColor> getPlayerID() const;
 
 	friend class CBattleInfoEssentials;
 };

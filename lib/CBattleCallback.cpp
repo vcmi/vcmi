@@ -41,9 +41,9 @@ namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 		}
 	}
 
-	static int lineToWallHex(int line) //returns hex with wall in given line (y coordinate)
+	static BattleHex lineToWallHex(int line) //returns hex with wall in given line (y coordinate)
 	{
-		static const int lineToHex[] = {12, 29, 45, 62, 78, 95, 112, 130, 147, 165, 182};
+		static const BattleHex lineToHex[] = {12, 29, 45, 62, 78, 95, 112, 130, 147, 165, 182};
 
 		return lineToHex[line];
 	}
@@ -107,7 +107,7 @@ void CCallbackBase::setBattle(const BattleInfo *B)
 	battle = B;
 }
 
-int CCallbackBase::getPlayerID() const
+boost::optional<TPlayerColor> CCallbackBase::getPlayerID() const
 {
 	return player;
 }
@@ -136,7 +136,7 @@ std::vector<shared_ptr<const CObstacleInstance> > CBattleInfoEssentials::battleG
 	}
 	else
 	{
-		if(player >= 0 && *perspective != battleGetMySide())
+		if(!!player && *perspective != battleGetMySide())
 		{
 			tlog1 << "Unauthorized access attempt!\n";
 			assert(0); //I want to notice if that happens
@@ -219,14 +219,14 @@ const CGTownInstance * CBattleInfoEssentials::battleGetDefendedTown() const
 BattlePerspective::BattlePerspective CBattleInfoEssentials::battleGetMySide() const
 {
 	RETURN_IF_NOT_BATTLE(BattlePerspective::INVALID);
-	if(player < 0)
+	if(!player)
 		return BattlePerspective::ALL_KNOWING;
-	if(player == getBattle()->sides[0])
+	if(*player == getBattle()->sides[0])
 		return BattlePerspective::LEFT_SIDE;
-	if(player == getBattle()->sides[1])
+	if(*player == getBattle()->sides[1])
 		return BattlePerspective::RIGHT_SIDE;
 
-	tlog1 << "Cannot find player " << player << " in battle!\n";
+	tlog1 << "Cannot find player " << *player << " in battle!\n";
 	return BattlePerspective::INVALID;
 }
 
@@ -423,7 +423,7 @@ si8 CBattleInfoCallback::battleHasWallPenalty(const IBonusBearer *bonusBearer, B
 		if (shooterPosition > destHex && ((destHex % GameConstants::BFIELD_WIDTH - shooterPosition % GameConstants::BFIELD_WIDTH) < 2)) //shooting up high
 			row -= 2;
 		const int wallPos = lineToWallHex(row);
-		if (battleHexToWallPart(wallPos) != -1) //wall still exists or is indestructible
+		if (battleHexToWallPart(wallPos) < 0) //wall still exists or is indestructible
 			return true;
 	}
 
@@ -2218,31 +2218,36 @@ ReachabilityInfo::Parameters::Parameters(const CStack *Stack)
 ESpellCastProblem::ESpellCastProblem CPlayerBattleCallback::battleCanCastThisSpell(const CSpell * spell) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
-	return CBattleInfoCallback::battleCanCastThisSpell(player, spell, ECastingMode::HERO_CASTING);
+	ASSERT_IF_CALLED_WITH_PLAYER
+	return CBattleInfoCallback::battleCanCastThisSpell(*player, spell, ECastingMode::HERO_CASTING);
 }
 
 ESpellCastProblem::ESpellCastProblem CPlayerBattleCallback::battleCanCastThisSpell(const CSpell * spell, BattleHex destination) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
-	return battleCanCastThisSpellHere(player, spell, ECastingMode::HERO_CASTING, destination);
+	ASSERT_IF_CALLED_WITH_PLAYER
+	return battleCanCastThisSpellHere(*player, spell, ECastingMode::HERO_CASTING, destination);
 }
 
 ESpellCastProblem::ESpellCastProblem CPlayerBattleCallback::battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
-	return battleCanCastThisSpellHere(player, spell, ECastingMode::CREATURE_ACTIVE_CASTING, destination);
+	ASSERT_IF_CALLED_WITH_PLAYER
+	return battleCanCastThisSpellHere(*player, spell, ECastingMode::CREATURE_ACTIVE_CASTING, destination);
 }
 
 bool CPlayerBattleCallback::battleCanFlee() const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	return CBattleInfoEssentials::battleCanFlee(player);
+	ASSERT_IF_CALLED_WITH_PLAYER
+	return CBattleInfoEssentials::battleCanFlee(*player);
 }
 
 TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose /*= MINE_AND_ENEMY*/, bool onlyAlive /*= true*/) const
 {
 	TStacks ret;
 	RETURN_IF_NOT_BATTLE(ret);
+	ASSERT_IF_CALLED_WITH_PLAYER
 	vstd::copy_if(battleGetAllStacks(), std::back_inserter(ret), [=](const CStack *s) -> bool
 	{
 		const bool ownerMatches = (whose == MINE_AND_ENEMY)
@@ -2258,13 +2263,15 @@ TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose /*= MINE_AN
 int CPlayerBattleCallback::battleGetSurrenderCost() const
 {
 	RETURN_IF_NOT_BATTLE(-3)
-	return CBattleInfoCallback::battleGetSurrenderCost(player);
+	ASSERT_IF_CALLED_WITH_PLAYER
+	return CBattleInfoCallback::battleGetSurrenderCost(*player);
 }
 
 bool CPlayerBattleCallback::battleCanCastSpell(ESpellCastProblem::ESpellCastProblem *outProblem /*= nullptr*/) const
 {
 	RETURN_IF_NOT_BATTLE(false);
-	auto problem = CBattleInfoCallback::battleCanCastSpell(player, ECastingMode::HERO_CASTING);
+	ASSERT_IF_CALLED_WITH_PLAYER
+	auto problem = CBattleInfoCallback::battleCanCastSpell(*player, ECastingMode::HERO_CASTING);
 	if(outProblem)
 		*outProblem = problem;
 

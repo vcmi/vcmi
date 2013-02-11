@@ -644,7 +644,7 @@ bool CGarrisonInt::getSplittingMode()
 
 void CGarrisonInt::setArmy(const CArmedInstance *army, bool bottomGarrison)
 {
-	owned[bottomGarrison] =  army ? (army->tempOwner == LOCPLINT->playerID || army->tempOwner == 254) : false; //254 - neutral objects (pandora, banks)
+	owned[bottomGarrison] =  army ? (army->tempOwner == LOCPLINT->playerID || army->tempOwner == GameConstants::UNFLAGGABLE_PLAYER) : false;
 	armedObjs[bottomGarrison] = army;
 }
 
@@ -4063,13 +4063,13 @@ void CArtPlace::createImage()
 	if (ourArt)
 		graphic = ourArt->artType->iconIndex;
 	if (locked)
-		graphic = GameConstants::ID_LOCK;
+		graphic = ArtifactID::ART_LOCK;
 
 	image = new CAnimImage("artifact", graphic);
 	if (!ourArt)
 		image->disable();
 
-	selection = new CAnimImage("artifact", GameConstants::ID_SELECTION);
+	selection = new CAnimImage("artifact", ArtifactID::ART_SELECTION);
 	selection->disable();
 }
 
@@ -4081,7 +4081,7 @@ void CArtPlace::lockSlot(bool on)
 	locked = on;
 
 	if (on)
-		image->setFrame(GameConstants::ID_LOCK);
+		image->setFrame(ArtifactID::ART_LOCK);
 	else
 		image->setFrame(ourArt->artType->iconIndex);
 }
@@ -4388,7 +4388,7 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 	else
 	{
 		image->enable();
-		image->setFrame(locked ? GameConstants::ID_LOCK : art->artType->iconIndex);
+		image->setFrame(locked ? ArtifactID::ART_LOCK : art->artType->iconIndex);
 
 		std::string artDesc = ourArt->artType->Description();
 		if (vstd::contains (artDesc, '{'))

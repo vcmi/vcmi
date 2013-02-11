@@ -419,7 +419,7 @@ public:
 	void deserializationFix();
 
 	bool isVisible(int3 pos, TPlayerColor player);
-	bool isVisible(const CGObjectInstance *obj, int player);
+	bool isVisible(const CGObjectInstance *obj, boost::optional<TPlayerColor> player);
 
 	CGameState(); //c-tor
 	virtual ~CGameState(); //d-tor

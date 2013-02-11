@@ -599,7 +599,7 @@ void CMapLoaderH3M::loadArtifactsOfHero(CGHeroInstance * hero)
 			if(!loadArtifactToSlot(hero, ArtifactPosition::MACH4))
 			{
 				// catapult by default
-				hero->putArtifact(ArtifactPosition::MACH4, createArtifact(GameConstants::ID_CATAPULT));
+				hero->putArtifact(ArtifactPosition::MACH4, createArtifact(ArtifactID::CATAPULT));
 			}
 		}
 

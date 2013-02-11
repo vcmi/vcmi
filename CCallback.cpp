@@ -58,6 +58,7 @@ bool CCallback::moveHero(const CGHeroInstance *h, int3 dst)
 
 int CCallback::selectionMade(int selection, int queryID)
 {
+	ASSERT_IF_CALLED_WITH_PLAYER
 	if(queryID == -1)
 	{
 		tlog1 << "Cannot answer the query -1!\n";
@@ -65,7 +66,7 @@ int CCallback::selectionMade(int selection, int queryID)
 	}
 
 	QueryReply pack(queryID,selection);
-	pack.player = player;
+	pack.player = *player;
 	return sendRequest(&pack);
 }
 
@@ -97,7 +98,7 @@ bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, Creatur
 
 void CCallback::endTurn()
 {
-	tlog5 << "Player " << (unsigned)player << " ended his turn." << std::endl;
+	tlog5 << "Player " << (unsigned)*player << " ended his turn." << std::endl;
 	EndTurn pack;
 	sendRequest(&pack); //report that we ended turn
 }
@@ -186,7 +187,7 @@ int CBattleCallback::battleMakeAction(BattleAction* action)
 
 int CBattleCallback::sendRequest(const CPack *request)
 {
-	int requestID = cl->sendRequest(request, player);
+	int requestID = cl->sendRequest(request, *player);
 	if(waitTillRealize)
 	{
 		tlog5 << boost::format("We'll wait till request %d is answered.\n") % requestID;
@@ -199,7 +200,7 @@ int CBattleCallback::sendRequest(const CPack *request)
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
 {
-	if(town->tempOwner != player) return;
+	if(town->tempOwner != *player) return;
 
 	GarrisonHeroSwap pack(town->id);
 	sendRequest(&pack);
@@ -235,7 +236,7 @@ void CCallback::setFormation(const CGHeroInstance * hero, bool tight)
 void CCallback::setSelection(const CArmedInstance * obj)
 {
 	SetSelection ss;
-	ss.player = player;
+	ss.player = *player;
 	ss.id = obj->id;
 	sendRequest(&(CPackForClient&)ss);
 
@@ -245,7 +246,7 @@ void CCallback::setSelection(const CArmedInstance * obj)
 			cl->calculatePaths(static_cast<const CGHeroInstance *>(obj));
 
 		//nasty workaround. TODO: nice workaround
-		cl->gs->getPlayer(player)->currentSelection = obj->id;
+		cl->gs->getPlayer(*player)->currentSelection = obj->id;
 	}
 }
 
@@ -254,12 +255,12 @@ void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroIn
 	assert(townOrTavern);
 	assert(hero);
 	ui8 i=0;
-	for(; i<gs->players[player].availableHeroes.size(); i++)
+	for(; i<gs->players[*player].availableHeroes.size(); i++)
 	{
-		if(gs->players[player].availableHeroes[i] == hero)
+		if(gs->players[*player].availableHeroes[i] == hero)
 		{
 			HireHero pack(i,townOrTavern->id);
-			pack.player = player;
+			pack.player = *player;
 			sendRequest(&pack);
 			return;
 		}
@@ -274,7 +275,8 @@ void CCallback::save( const std::string &fname )
 
 void CCallback::sendMessage(const std::string &mess)
 {
-	PlayerMessage pm(player, mess);
+	ASSERT_IF_CALLED_WITH_PLAYER
+	PlayerMessage pm(*player, mess);
 	sendRequest(&(CPackForClient&)pm);
 }
 
@@ -285,7 +287,7 @@ void CCallback::buildBoat( const IShipyard *obj )
 	sendRequest(&bb);
 }
 
-CCallback::CCallback( CGameState * GS, int Player, CClient *C ) 
+CCallback::CCallback( CGameState * GS, boost::optional<TPlayerColor> Player, CClient *C ) 
 	:CBattleCallback(GS, Player, C)
 {
 	waitTillRealize = false;
@@ -314,7 +316,7 @@ bool CCallback::getPath2( int3 dest, CGPath &ret )
 
 void CCallback::recalculatePaths()
 {
-	cl->calculatePaths(cl->IGameCallback::getSelectedHero(player));
+	cl->calculatePaths(cl->IGameCallback::getSelectedHero(*player));
 }
 
 void CCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out, int3 src /*= int3(-1,-1,-1)*/, int movement /*= -1*/ )
@@ -340,15 +342,16 @@ void CCallback::castSpell(const CGHeroInstance *hero, SpellID spellID, const int
 
 void CCallback::unregisterMyInterface()
 {
-	assert(player >= 0); //works only for player callback
-	cl->playerint.erase(player);
-	cl->battleints.erase(player);
+	ASSERT_IF_CALLED_WITH_PLAYER
+	cl->playerint.erase(*player);
+	cl->battleints.erase(*player);
 	//TODO? should callback be disabled as well?
 }
 
 void CCallback::validatePaths()
 {
-	const CGHeroInstance *h = cl->IGameCallback::getSelectedHero(player);
+	ASSERT_IF_CALLED_WITH_PLAYER
+	const CGHeroInstance *h = cl->IGameCallback::getSelectedHero(*player);
 	if(h  && ( cl->pathInfo->hero != h							//wrong hero
 		       || cl->pathInfo->hpos != h->getPosition(false)  //wrong hero positoin
 		       || !cl->pathInfo->isValid)) //paths invalidated by game event
@@ -365,7 +368,7 @@ int CCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance 
 		return swapCreatures(s1, s2, p1, p2);
 }
 
-CBattleCallback::CBattleCallback(CGameState *GS, int Player, CClient *C )
+CBattleCallback::CBattleCallback(CGameState *GS, boost::optional<TPlayerColor> Player, CClient *C )
 {
 	gs = GS;
 	player = Player;

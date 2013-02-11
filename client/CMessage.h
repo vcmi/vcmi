@@ -31,12 +31,12 @@ public:
 	static SDL_Surface * blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * txtg, int fontHeight, int & curh, SDL_Surface * ret, int xCenterPos=-1); //xPos==-1 works as if ret->w/2
 
 	/// Draw border on exiting surface
-	static void drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int x=0, int y=0);
+	static void drawBorder(TPlayerColor playerColor, SDL_Surface * ret, int w, int h, int x=0, int y=0);
 
 	/// Draw simple dialog box (borders and background only)
-	static SDL_Surface * drawDialogBox(int w, int h, int playerColor=1);
+	static SDL_Surface * drawDialogBox(int w, int h, TPlayerColor playerColor=1);
 
-	static void drawIWindow(CInfoWindow * ret, std::string text, int player);
+	static void drawIWindow(CInfoWindow * ret, std::string text, TPlayerColor player);
 
 	/// split text in lines
 	static std::vector<std::string> breakText(std::string text, size_t maxLineWidth, EFonts font);

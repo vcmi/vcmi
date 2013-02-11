@@ -2361,8 +2361,8 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 
 	if(what==1) //swap
 	{
-		if ( ((s1->tempOwner != player && s1->tempOwner != 254) && s1->getStackCount(p1)) //why 254??
-		  || ((s2->tempOwner != player && s2->tempOwner != 254) && s2->getStackCount(p2)))
+		if ( ((s1->tempOwner != player && s1->tempOwner != GameConstants::UNFLAGGABLE_PLAYER) && s1->getStackCount(p1)) //why 254??
+		  || ((s2->tempOwner != player && s2->tempOwner != GameConstants::UNFLAGGABLE_PLAYER) && s2->getStackCount(p2)))
 		{
 			complain("Can't take troops from another player!");
 			return false;
@@ -2373,7 +2373,7 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 	else if(what==2)//merge
 	{
 		if (( s1->getCreature(p1) != s2->getCreature(p2) && complain("Cannot merge different creatures stacks!"))
-		|| (((s1->tempOwner != player && s1->tempOwner != 254) && s2->getStackCount(p2)) && complain("Can't take troops from another player!")))
+		|| (((s1->tempOwner != player && s1->tempOwner != GameConstants::UNFLAGGABLE_PLAYER) && s2->getStackCount(p2)) && complain("Can't take troops from another player!")))
 			return false;
 
 		moveStack(sl1, sl2);
@@ -2425,7 +2425,7 @@ bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, 
 	return true;
 }
 
-int CGameHandler::getPlayerAt( CConnection *c ) const
+TPlayerColor CGameHandler::getPlayerAt( CConnection *c ) const
 {
 	std::set<int> all;
 	for(std::map<int,CConnection*>::const_iterator i=connections.begin(); i!=connections.end(); i++)
@@ -2852,7 +2852,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 		&& srcArtifact && !srcArtifact->canBePutAt(dst, true))
 		COMPLAIN_RET("Cannot move artifact!");
 
-	if ((srcArtifact && srcArtifact->artType->id == GameConstants::ID_LOCK) || (destArtifact && destArtifact->artType->id == GameConstants::ID_LOCK))
+	if ((srcArtifact && srcArtifact->artType->id == ArtifactID::ART_LOCK) || (destArtifact && destArtifact->artType->id == ArtifactID::ART_LOCK))
 		COMPLAIN_RET("Cannot move artifact locks.");
 
 	if (dst.slot >= GameConstants::BACKPACK_START && srcArtifact->artType->isBig())
@@ -3548,7 +3548,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			const CGHeroInstance * attackingHero = gs->curB->heroes[ba.side];
 			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(SecondarySkill::BALLISTICS)];
 
-			int attackedPart = gs->curB->battleHexToWallPart(ba.destinationTile);
+			EWallParts::EWallParts attackedPart = gs->curB->battleHexToWallPart(ba.destinationTile);
 			if(attackedPart < 0)
 			{
 				complain("catapult tried to attack non-catapultable hex!");
@@ -3571,20 +3571,20 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				int dmgChance[] = { sbi.noDmg, sbi.oneDmg, sbi.twoDmg }; //dmgChance[i] - chance for doing i dmg when hit is successful
 				switch(attackedPart)
 				{
-				case 0: //keep
+				case EWallParts::KEEP:
 					chanceForHit = sbi.keep;
 					break;
-				case 1: //bottom tower
-				case 6: //upper tower
+				case EWallParts::BOTTOM_TOWER:
+				case EWallParts::UPPER_TOWER:
 					chanceForHit = sbi.tower;
 					break;
-				case 2: //bottom wall
-				case 3: //below gate
-				case 4: //over gate
-				case 5: //upper wall
+				case EWallParts::BOTTOM_WALL:
+				case EWallParts::BELOW_GATE:
+				case EWallParts::OVER_GATE:
+				case EWallParts::UPPER_WAL:
 					chanceForHit = sbi.wall;
 					break;
-				case 7: //gate
+				case EWallParts::GATE:
 					chanceForHit = sbi.gate;
 					break;
 				}
@@ -6188,7 +6188,7 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleI
 	heroWithDeadCommander = -1;
 
 	int color = army->tempOwner;
-	if(color == 254)
+	if(color == GameConstants::UNFLAGGABLE_PLAYER)
 		color = GameConstants::NEUTRAL_PLAYER;
 
 	BOOST_FOREACH(CStack *st, bat->stacks)

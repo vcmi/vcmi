@@ -2109,12 +2109,12 @@ bool CGameState::isVisible(int3 pos, TPlayerColor player)
 	return getPlayerTeam(player)->fogOfWarMap[pos.x][pos.y][pos.z];
 }
 
-bool CGameState::isVisible( const CGObjectInstance *obj, int player )
+bool CGameState::isVisible( const CGObjectInstance *obj, boost::optional<TPlayerColor> player )
 {
-	if(player == -1)
+	if(!player)
 		return true;
 
-	if(player == GameConstants::NEUTRAL_PLAYER) //-> TODO ??? needed?
+	if(*player == GameConstants::NEUTRAL_PLAYER) //-> TODO ??? needed?
 		return false;
 	//object is visible when at least one blocked tile is visible
 	for(int fx=0; fx<8; ++fx)
@@ -2124,7 +2124,7 @@ bool CGameState::isVisible( const CGObjectInstance *obj, int player )
 			int3 pos = obj->pos + int3(fx-7,fy-5,0);
 			if(map->isInTheMap(pos)
 				&& !((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1)
-				&& isVisible(pos, player)  )
+				&& isVisible(pos, *player)  )
 				return true;
 		}
 	}

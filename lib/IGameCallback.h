@@ -64,10 +64,10 @@ class DLL_LINKAGE CGameInfoCallback : public virtual CCallbackBase
 {
 protected:
 	CGameInfoCallback();
-	CGameInfoCallback(CGameState *GS, int Player);
-	bool hasAccess(int playerId) const;
-	bool isVisible(int3 pos, int Player) const;
-	bool isVisible(const CGObjectInstance *obj, int Player) const;
+	CGameInfoCallback(CGameState *GS, boost::optional<TPlayerColor> Player);
+	bool hasAccess(boost::optional<TPlayerColor> playerId) const;
+	bool isVisible(int3 pos, boost::optional<TPlayerColor> Player) const;
+	bool isVisible(const CGObjectInstance *obj, boost::optional<TPlayerColor> Player) const;
 	bool isVisible(const CGObjectInstance *obj) const;
 
 	bool canGetFullInfo(const CGObjectInstance *obj) const; //true we player owns obj or ally owns obj or privileged mode
@@ -97,7 +97,7 @@ public:
 	//hero
 	const CGHeroInstance* getHero(int objid) const;
 	const CGHeroInstance* getHeroWithSubid(int subid) const;
-	int getHeroCount(int player, bool includeGarrisoned) const;
+	int getHeroCount(TPlayerColor player, bool includeGarrisoned) const;
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
 	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
 	int estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
@@ -146,7 +146,7 @@ public:
 	int howManyTowns() const;
 	int howManyHeroes(bool includeGarrisoned = true) const;
 	int3 getGrailPos(double &outKnownRatio);
-	int getMyColor() const;
+	boost::optional<TPlayerColor> getMyColor() const;
 
 	std::vector <const CGTownInstance *> getTownsInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
 	int getHeroSerial(const CGHeroInstance * hero, bool includeGarrisoned=true) const;

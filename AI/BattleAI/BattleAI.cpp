@@ -83,7 +83,7 @@ void CBattleAI::init( CBattleCallback * CB )
 {
 	print("init called, saving ptr to IBattleCallback");
 	cbc = cb = CB;
-	playerID = CB->getPlayerID();; //TODO should be sth in callback
+	playerID = *CB->getPlayerID();; //TODO should be sth in callback
 
 	wasWaitingForRealize = cb->waitTillRealize;
 	wasUnlockingGs = CB->unlockGsWhenWaiting;

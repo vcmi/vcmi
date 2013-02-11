@@ -868,7 +868,7 @@ void VCAI::init(CCallback * CB)
 	cbc = CB;
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
-	playerID = myCb->getMyColor();
+	playerID = *myCb->getMyColor();
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
 

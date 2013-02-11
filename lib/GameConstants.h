@@ -75,6 +75,7 @@ namespace GameConstants
 	const int HEROES_QUANTITY=156;
 	const int SPELLS_QUANTITY=70;
 	const int PRIMARY_SKILLS=4;
+	const int UNFLAGGABLE_PLAYER = 254; //254 - neutral objects (pandora, banks)
 	const int NEUTRAL_PLAYER=255;
 	const int NAMES_PER_TOWN=16;
 	const int CREATURES_PER_TOWN = 7; //without upgrades
@@ -86,7 +87,6 @@ namespace GameConstants
 	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
 
 	const ui16 BACKPACK_START = 19;
-	const int ID_CATAPULT = 3, ID_SELECTION=144, ID_LOCK = 145;
 
 	const int TERRAIN_TYPES=10;
 	const int RESOURCE_QUANTITY=8;
@@ -596,6 +596,7 @@ public:
 		CENTAUR_AXE = 7,
 		BLACKSHARD_OF_THE_DEAD_KNIGHT = 8,
 		CORNUCOPIA = 140,
+		ART_SELECTION = 144,
 		ART_LOCK = 145,
 		AXE_OF_SMASHING = 146,
 		MITHRIL_MAIL = 147,
