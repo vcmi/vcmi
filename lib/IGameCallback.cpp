@@ -711,9 +711,9 @@ std::vector < const CGTownInstance *> CPlayerSpecificInfoCallback::getTownsInfo(
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector < const CGTownInstance *> ret = std::vector < const CGTownInstance *>();
-	BOOST_FOREACH(auto i, gs->players)
+	BOOST_FOREACH(const auto & i, gs->players)
 	{
-		BOOST_FOREACH(auto town, i.second.towns)
+		BOOST_FOREACH(const auto & town, i.second.towns)
 		{
 			if (i.first==player || (isVisible(town, player) && !onlyOur))
 			{
