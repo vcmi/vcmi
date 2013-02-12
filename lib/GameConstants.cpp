@@ -52,6 +52,8 @@ ID_LIKE_OPERATORS(SecondarySkill, SecondarySkill::ESecondarySkill)
 
 ID_LIKE_OPERATORS(Obj, Obj::EObj)
 
+ID_LIKE_OPERATORS(ETerrainType, ETerrainType::EETerrainType)
+
 ID_LIKE_OPERATORS(ArtifactID, ArtifactID::EArtifactID)
 
 ID_LIKE_OPERATORS(ArtifactPosition, ArtifactPosition::EArtifactPosition)
@@ -61,6 +63,8 @@ ID_LIKE_OPERATORS(CreatureID, CreatureID::ECreatureID)
 ID_LIKE_OPERATORS(SpellID, SpellID::ESpellID)
 
 ID_LIKE_OPERATORS(BuildingID, BuildingID::EBuildingID)
+
+ID_LIKE_OPERATORS(BFieldType, BFieldType::EBFieldType)
 
 
 bmap<int, ConstTransitivePtr<CGDefInfo> > & Obj::toDefObjInfo() const

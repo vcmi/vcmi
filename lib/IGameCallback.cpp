@@ -187,21 +187,15 @@ void CPrivilagedInfoCallback::pickAllowedArtsSet(std::vector<const CArtifact*> &
 	out.push_back(VLC->arth->artifacts[getRandomArt(CArtifact::ART_MAJOR)]);
 }
 
-ui16 CPrivilagedInfoCallback::getRandomArt (int flags)
+ArtifactID CPrivilagedInfoCallback::getRandomArt (int flags)
 {
 	return VLC->arth->getRandomArt(flags);
 }
 
-ui16 CPrivilagedInfoCallback::getArtSync (ui32 rand, int flags)
+ArtifactID CPrivilagedInfoCallback::getArtSync (ui32 rand, int flags, bool erasePicked)
 {
-	return VLC->arth->getArtSync (rand, flags);
+	return VLC->arth->getArtSync (rand, flags, erasePicked);
 }
-
-void CPrivilagedInfoCallback::erasePickedArt (si32 id)
-{
-	VLC->arth->erasePickedArt(id);
-}
-
 
 void CPrivilagedInfoCallback::getAllowedSpells(std::vector<SpellID> &out, ui16 level)
 {

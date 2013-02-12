@@ -461,7 +461,7 @@ struct DLL_LINKAGE TerrainTile
 	bool hasFavourableWinds() const;
 
 	/** the type of terrain */
-	ETerrainType::ETerrainType terType;
+	ETerrainType terType;
 
 	/** the visual representation of the terrain */
 	ui8 terView;

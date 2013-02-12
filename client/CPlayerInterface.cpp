@@ -1240,8 +1240,8 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 			boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
 			stillMoveHero.data = CONTINUE_MOVE;
 
-            enum ETerrainType::ETerrainType currentTerrain = ETerrainType::BORDER; // not init yet
-            enum ETerrainType::ETerrainType newTerrain;
+            enum ETerrainType currentTerrain = ETerrainType::BORDER; // not init yet
+            enum ETerrainType newTerrain;
 			int sh = -1;
 
 			const TerrainTile * curTile = cb->getTile(CGHeroInstance::convertPosition(h->pos, false));

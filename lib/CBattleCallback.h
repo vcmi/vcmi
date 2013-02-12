@@ -164,8 +164,8 @@ public:
 
 	BattlePerspective::BattlePerspective battleGetMySide() const;
 
-	ETerrainType::ETerrainType battleTerrainType() const;
-	BFieldType::BFieldType battleGetBattlefieldType() const;
+	ETerrainType battleTerrainType() const;
+	BFieldType battleGetBattlefieldType() const;
 	std::vector<shared_ptr<const CObstacleInstance> > battleGetAllObstacles(boost::optional<BattlePerspective::BattlePerspective> perspective = boost::none) const; //returns all obstacles on the battlefield
 	TStacks battleGetAllStacks() const; //returns all stacks, alive or dead or undead or mechanical :)
 	bool battleHasNativeStack(ui8 side) const;

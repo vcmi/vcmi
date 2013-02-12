@@ -554,12 +554,19 @@ void CArtHandler::sortArts()
  	//	}
  	//}
 }
-void CArtHandler::erasePickedArt( TArtifactInstanceID id )
+
+ArtifactID CArtHandler::getRandomArt(int flags)
 {
-	std::vector<CArtifact*>* ptr;
-	CArtifact *art = artifacts[id];
-	switch (art->aClass)
+	return getArtSync(ran(), flags, true);
+}
+ArtifactID CArtHandler::getArtSync (ui32 rand, int flags, bool erasePicked)
+{
+	auto erasePickedArt = [&]( TArtifactInstanceID id )
 	{
+		std::vector<CArtifact*>* ptr;
+		CArtifact *art = artifacts[id];
+		switch (art->aClass)
+		{
 		case CArtifact::ART_TREASURE:
 			ptr = &treasures;
 			break;
@@ -574,63 +581,58 @@ void CArtHandler::erasePickedArt( TArtifactInstanceID id )
 			break;
 		default: //special artifacts should not be erased
 			return;
-	}
-	ptr->erase (std::find(ptr->begin(), ptr->end(), art)); //remove the artifact from available list
-}
-ui16 CArtHandler::getRandomArt(int flags)
-{
-	std::vector<ConstTransitivePtr<CArtifact> > out;
-	getAllowed(out, flags);
-	ui16 id = out[ran() % out.size()]->id;
-	erasePickedArt (id);
-	return id;
-}
-ui16 CArtHandler::getArtSync (ui32 rand, int flags)
-{
-	std::vector<ConstTransitivePtr<CArtifact> > out;
-	getAllowed(out, flags);
-	CArtifact *art = out[rand % out.size()];
-	return art->id;
-}
-void CArtHandler::getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags)
-{
-	if (flags & CArtifact::ART_TREASURE)
-		getAllowedArts (out, &treasures, CArtifact::ART_TREASURE);
-	if (flags & CArtifact::ART_MINOR)
-		getAllowedArts (out, &minors, CArtifact::ART_MINOR);
-	if (flags & CArtifact::ART_MAJOR)
-		getAllowedArts (out, &majors, CArtifact::ART_MAJOR);
-	if (flags & CArtifact::ART_RELIC)
-		getAllowedArts (out, &relics, CArtifact::ART_RELIC);
-	if (!out.size()) //no artifact of specified rarity, we need to take another one
-	{
-		getAllowedArts (out, &treasures, CArtifact::ART_TREASURE);
-		getAllowedArts (out, &minors, CArtifact::ART_MINOR);
-		getAllowedArts (out, &majors, CArtifact::ART_MAJOR);
-		getAllowedArts (out, &relics, CArtifact::ART_RELIC);
-	}
-	if (!out.size()) //no arts are available at all
-	{
-		out.resize (64);
-		std::fill_n (out.begin(), 64, artifacts[2]); //Give Grail - this can't be banned (hopefully)
-	}
-}
-void CArtHandler::getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag)
-{
-	if (arts->empty()) //restock available arts
-	{
-		for (int i = 0; i < allowedArtifacts.size(); ++i)
-		{
-			if (allowedArtifacts[i]->aClass == flag)
-				arts->push_back(allowedArtifacts[i]);
 		}
-	}
+		ptr->erase (std::find(ptr->begin(), ptr->end(), art)); //remove the artifact from available list
+	};
 
-	for (int i = 0; i < arts->size(); ++i)
+	auto getAllowedArts = [&](std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag)
 	{
-		CArtifact *art = (*arts)[i];
-		out.push_back(art);
-	}
+		if (arts->empty()) //restock available arts
+		{
+			for (int i = 0; i < allowedArtifacts.size(); ++i)
+			{
+				if (allowedArtifacts[i]->aClass == flag)
+					arts->push_back(allowedArtifacts[i]);
+			}
+		}
+
+		for (int i = 0; i < arts->size(); ++i)
+		{
+			CArtifact *art = (*arts)[i];
+			out.push_back(art);
+		}
+	};
+
+	auto getAllowed = [&](std::vector<ConstTransitivePtr<CArtifact> > &out)
+	{
+		if (flags & CArtifact::ART_TREASURE)
+			getAllowedArts (out, &treasures, CArtifact::ART_TREASURE);
+		if (flags & CArtifact::ART_MINOR)
+			getAllowedArts (out, &minors, CArtifact::ART_MINOR);
+		if (flags & CArtifact::ART_MAJOR)
+			getAllowedArts (out, &majors, CArtifact::ART_MAJOR);
+		if (flags & CArtifact::ART_RELIC)
+			getAllowedArts (out, &relics, CArtifact::ART_RELIC);
+		if (!out.size()) //no artifact of specified rarity, we need to take another one
+		{
+			getAllowedArts (out, &treasures, CArtifact::ART_TREASURE);
+			getAllowedArts (out, &minors, CArtifact::ART_MINOR);
+			getAllowedArts (out, &majors, CArtifact::ART_MAJOR);
+			getAllowedArts (out, &relics, CArtifact::ART_RELIC);
+		}
+		if (!out.size()) //no arts are available at all
+		{
+			out.resize (64);
+			std::fill_n (out.begin(), 64, artifacts[2]); //Give Grail - this can't be banned (hopefully)
+		}
+	};
+
+	std::vector<ConstTransitivePtr<CArtifact> > out;
+	getAllowed(out);
+	ArtifactID artID = out[rand % out.size()]->id;
+	if(erasePicked)
+		erasePickedArt (artID);
+	return artID;
 }
 
 Bonus *createBonus(Bonus::BonusType type, int val, int subtype, Bonus::ValueType valType, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalInfo = 0)
@@ -681,7 +683,7 @@ void CArtHandler::makeItCreatureArt (CArtifact * a, bool onlyCreature /*=true*/)
 	a->possibleSlots[ArtBearer::CREATURE].push_back(ArtifactPosition::CREATURE_SLOT);
 }
 
-void CArtHandler::makeItCreatureArt (TArtifactInstanceID aid, bool onlyCreature /*=true*/)
+void CArtHandler::makeItCreatureArt (ArtifactID aid, bool onlyCreature /*=true*/)
 {
 	CArtifact *a = artifacts[aid];
 	makeItCreatureArt (a, onlyCreature);
@@ -698,7 +700,7 @@ void CArtHandler::makeItCommanderArt (CArtifact * a, bool onlyCommander /*= true
 		a->possibleSlots[ArtBearer::COMMANDER].push_back(ArtifactPosition(i));
 }
 
-void CArtHandler::makeItCommanderArt( TArtifactInstanceID aid, bool onlyCommander /*= true*/ )
+void CArtHandler::makeItCommanderArt( ArtifactID aid, bool onlyCommander /*= true*/ )
 {
 	CArtifact *a = artifacts[aid];
 	makeItCommanderArt (a, onlyCommander);
@@ -782,7 +784,7 @@ void CArtHandler::clearHlpLists()
 	relics.clear();
 }
 
-bool CArtHandler::legalArtifact(int id)
+bool CArtHandler::legalArtifact(ArtifactID id)
 {
 	return (artifacts[id]->possibleSlots[ArtBearer::HERO].size() ||
 			(artifacts[id]->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS)) ||
@@ -793,7 +795,7 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 {
 	allowedArtifacts.clear();
 	clearHlpLists();
-	for (int i=0; i<144; ++i) //yes, 144
+	for (ArtifactID i=ArtifactID::SPELLBOOK; i<ArtifactID::ART_SELECTION; i.advance(1))
 	{
 		if (allowed[i] && legalArtifact(i))
 			allowedArtifacts.push_back(artifacts[i]);
@@ -811,7 +813,7 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 			allowedArtifacts.push_back(artifacts[i]);
 		 else //check if active modules allow artifact to be every used
 		 {
-			 if (legalArtifact(i))
+			 if (legalArtifact(ArtifactID(i)))
 				 allowedArtifacts.push_back(artifacts[i]);
 			 //keep im mind that artifact can be worn by more than one type of bearer
 		 }
@@ -912,7 +914,7 @@ bool CArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition 
  	auto possibleSlots = artType->possibleSlots.find(artSet->bearerType());
  	if(possibleSlots == artType->possibleSlots.end())
  	{
-		tlog3 << "Warning: arrtifact " << artType->Name() << " doesn't have defined allowed slots for bearer of type "
+		tlog3 << "Warning: artifact " << artType->Name() << " doesn't have defined allowed slots for bearer of type "
 			<< artSet->bearerType() << std::endl;
 		return false;
 	}
@@ -1014,15 +1016,15 @@ void CArtifactInstance::deserializationFix()
 	setType(artType);
 }
 
-int CArtifactInstance::getGivenSpellID() const
+SpellID CArtifactInstance::getGivenSpellID() const
 {
 	const Bonus * b = getBonusLocalFirst(Selector::type(Bonus::SPELL));
 	if(!b)
 	{
 		tlog3 << "Warning: " << nodeName() << " doesn't bear any spell!\n";
-		return -1;
+		return SpellID::NONE;
 	}
-	return b->subtype;
+	return SpellID(b->subtype);
 }
 
 bool CArtifactInstance::isPart(const CArtifactInstance *supposedPart) const

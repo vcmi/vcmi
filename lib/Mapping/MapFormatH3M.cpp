@@ -711,7 +711,7 @@ void CMapLoaderH3M::readTerrain()
 		{
 			for(int z = 0; z < map->height; z++)
 			{
-				map->terrain[z][c][a].terType = static_cast<ETerrainType::ETerrainType>(reader.readUInt8());
+				map->terrain[z][c][a].terType = ETerrainType(reader.readUInt8());
 				map->terrain[z][c][a].terView = reader.readUInt8();
 				map->terrain[z][c][a].riverType = static_cast<ERiverType::ERiverType>(reader.readUInt8());
 				map->terrain[z][c][a].riverDir = reader.readUInt8();

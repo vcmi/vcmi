@@ -120,7 +120,7 @@ public:
 
 	ArtifactPosition firstAvailableSlot(const CArtifactSet *h) const;
 	ArtifactPosition firstBackpackSlot(const CArtifactSet *h) const;
-	int getGivenSpellID() const; //to be used with scrolls (and similar arts), -1 if none
+	SpellID getGivenSpellID() const; //to be used with scrolls (and similar arts), -1 if none
 
 	virtual bool canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved = false) const;
 	bool canBePutAt(const ArtifactLocation al, bool assumeDestRemoved = false) const;  //forwards to the above one
@@ -193,7 +193,8 @@ class DLL_LINKAGE CArtHandler //handles artifacts
 	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
 	void giveArtBonus(ArtifactID aid, Bonus *bonus);
 public:
-	std::vector<CArtifact*> treasures, minors, majors, relics;
+	std::vector<CArtifact*> treasures, minors, majors, relics; //tmp vectors!!! do not touch if you don't know what you are doing!!!
+
 	std::vector< ConstTransitivePtr<CArtifact> > artifacts;
 	std::vector<CArtifact *> allowedArtifacts;
 	std::set<ArtifactID> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
@@ -211,9 +212,9 @@ public:
 	void addBonuses();
 	void clear();
 	void clearHlpLists();
-	ui16 getRandomArt (int flags);
-	ui16 getArtSync (ui32 rand, int flags);
-	bool legalArtifact(int id);
+	ArtifactID getRandomArt (int flags);
+	ArtifactID getArtSync (ui32 rand, int flags, bool erasePicked = false);
+	bool legalArtifact(ArtifactID id);
 	void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
 	void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
 	void erasePickedArt (TArtifactInstanceID id);
@@ -222,9 +223,9 @@ public:
 	static ArtifactID creatureToMachineID(CreatureID id);
 	static CreatureID machineIDToCreature(ArtifactID id);
 	void makeItCreatureArt (CArtifact * a, bool onlyCreature = true);
-	void makeItCreatureArt (TArtifactInstanceID aid, bool onlyCreature = true);
+	void makeItCreatureArt (ArtifactID aid, bool onlyCreature = true);
 	void makeItCommanderArt (CArtifact * a, bool onlyCommander = true);
-	void makeItCommanderArt (TArtifactInstanceID aid, bool onlyCommander = true);
+	void makeItCommanderArt (ArtifactID aid, bool onlyCommander = true);
 	CArtHandler();
 	~CArtHandler();
 

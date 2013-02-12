@@ -140,7 +140,7 @@ void CMapEditManager::clearTerrain()
 	}
 }
 
-void CMapEditManager::drawTerrain(ETerrainType::ETerrainType terType, int posx, int posy, int width, int height, bool underground)
+void CMapEditManager::drawTerrain(ETerrainType terType, int posx, int posy, int width, int height, bool underground)
 {
 	bool mapLevel = underground ? 1 : 0;
 	for(int i = posx; i < posx + width; ++i)
@@ -224,7 +224,7 @@ void CMapEditManager::updateTerrainViews(int posx, int posy, int width, int heig
 	}
 }
 
-ETerrainGroup::ETerrainGroup CMapEditManager::getTerrainGroup(ETerrainType::ETerrainType terType) const
+ETerrainGroup::ETerrainGroup CMapEditManager::getTerrainGroup(ETerrainType terType) const
 {
 	switch(terType)
 	{
@@ -243,7 +243,7 @@ ETerrainGroup::ETerrainGroup CMapEditManager::getTerrainGroup(ETerrainType::ETer
 
 CMapEditManager::ValidationResult CMapEditManager::validateTerrainView(int posx, int posy, int mapLevel, const TerrainViewPattern & pattern, int recDepth /*= 0*/) const
 {
-	ETerrainType::ETerrainType centerTerType = map->terrain[posx][posy][mapLevel].terType;
+	ETerrainType centerTerType = map->terrain[posx][posy][mapLevel].terType;
 	int totalPoints = 0;
 	std::string transitionReplacement;
 
@@ -259,7 +259,7 @@ CMapEditManager::ValidationResult CMapEditManager::validateTerrainView(int posx,
 		int cx = posx + (i % 3) - 1;
 		int cy = posy + (i / 3) - 1;
 		bool isAlien = false;
-		ETerrainType::ETerrainType terType;
+		ETerrainType terType;
 		if(cx < 0 || cx >= map->width || cy < 0 || cy >= map->height)
 		{
 			terType = centerTerType;
@@ -371,7 +371,7 @@ CMapEditManager::ValidationResult CMapEditManager::validateTerrainView(int posx,
 	return ValidationResult(true, transitionReplacement);
 }
 
-bool CMapEditManager::isSandType(ETerrainType::ETerrainType terType) const
+bool CMapEditManager::isSandType(ETerrainType terType) const
 {
 	switch(terType)
 	{

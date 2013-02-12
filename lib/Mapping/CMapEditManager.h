@@ -192,7 +192,7 @@ public:
 	 * @param height the width of the terrain to draw
 	 * @param underground true if you want to draw at the underground, false if open
 	 */
-	void drawTerrain(ETerrainType::ETerrainType terType, int posx, int posy, int width, int height, bool underground);
+	void drawTerrain(ETerrainType terType, int posx, int posy, int width, int height, bool underground);
 
 	/**
 	 * Inserts an object.
@@ -242,7 +242,7 @@ private:
 	 * @param terType the terrain type
 	 * @return the terrain group
 	 */
-	ETerrainGroup::ETerrainGroup getTerrainGroup(ETerrainType::ETerrainType terType) const;
+	ETerrainGroup::ETerrainGroup getTerrainGroup(ETerrainType terType) const;
 
 	/**
 	 * Validates the terrain view of the given position and with the given pattern.
@@ -262,7 +262,7 @@ private:
 	 * @param terType the terrain type to test
 	 * @return true if the terrain type is a sand type, otherwise false
 	 */
-	bool isSandType(ETerrainType::ETerrainType terType) const;
+	bool isSandType(ETerrainType terType) const;
 
 	/**
 	 * Gets a flipped pattern.

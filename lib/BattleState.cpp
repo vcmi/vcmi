@@ -346,15 +346,15 @@ struct RangeGenerator
 	boost::function<int()> myRand;
 };
 
-BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType::ETerrainType terrain, BFieldType::BFieldType battlefieldType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town )
+BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldType battlefieldType, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town )
 {
 	CMP_stack cmpst;
 	BattleInfo *curB = new BattleInfo;
 	curB->castSpells[0] = curB->castSpells[1] = 0;
 	curB->sides[0] = armies[0]->tempOwner;
 	curB->sides[1] = armies[1]->tempOwner;
-	if(curB->sides[1] == 254)
-		curB->sides[1] = 255;
+	if(curB->sides[1] == GameConstants::UNFLAGGABLE_PLAYER)
+		curB->sides[1] = GameConstants::NEUTRAL_PLAYER;
 
 	std::vector<CStack*> & stacks = (curB->stacks);
 
@@ -804,9 +804,9 @@ shared_ptr<CObstacleInstance> BattleInfo::getObstacleOnTile(BattleHex tile) cons
 	return shared_ptr<CObstacleInstance>();
 }
 
-BattlefieldBI::BattlefieldBI BattleInfo::battlefieldTypeToBI(BFieldType::BFieldType bfieldType)
+BattlefieldBI::BattlefieldBI BattleInfo::battlefieldTypeToBI(BFieldType bfieldType)
 {
-	static const std::map<BFieldType::BFieldType, BattlefieldBI::BattlefieldBI> theMap = boost::assign::map_list_of
+	static const std::map<BFieldType, BattlefieldBI::BattlefieldBI> theMap = boost::assign::map_list_of
 		(BFieldType::CLOVER_FIELD, BattlefieldBI::CLOVER_FIELD)
 		(BFieldType::CURSED_GROUND, BattlefieldBI::CURSED_GROUND)
 		(BFieldType::EVIL_FOG, BattlefieldBI::EVIL_FOG)

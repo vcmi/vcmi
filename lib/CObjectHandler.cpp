@@ -5964,30 +5964,26 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 			break;
 		case 18: //add Artifact
 		{
-			int id = cb->getArtSync(val, CArtifact::ART_TREASURE);
+			int id = cb->getArtSync(val, CArtifact::ART_TREASURE, true);
 			artifacts.push_back (id);
-			cb->erasePickedArt(id);
 			break;
 		}
 		case 19: //add Artifact
 		{
-			int id = cb->getArtSync(val, CArtifact::ART_MINOR);
+			int id = cb->getArtSync(val, CArtifact::ART_MINOR, true);
 			artifacts.push_back (id);
-			cb->erasePickedArt(id);
 			break;
 		}
 		case 20: //add Artifact
 		{
-			int id = cb->getArtSync(val, CArtifact::ART_MAJOR);
+			int id = cb->getArtSync(val, CArtifact::ART_MAJOR, true);
 			artifacts.push_back (id);
-			cb->erasePickedArt(id);
 			break;
 		}
 		case 21: //add Artifact
 		{
-			int id = cb->getArtSync(val, CArtifact::ART_RELIC);
+			int id = cb->getArtSync(val, CArtifact::ART_RELIC, true);
 			artifacts.push_back (id);
-			cb->erasePickedArt(id);
 			break;
 		}
 	}

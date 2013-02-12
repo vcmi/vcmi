@@ -267,8 +267,8 @@ struct DLL_LINKAGE CPathsInfo
 
 struct DLL_EXPORT DuelParameters
 {
-	ETerrainType::ETerrainType terType;
-	BFieldType::BFieldType bfieldType;
+	ETerrainType terType;
+	BFieldType bfieldType;
 	struct DLL_EXPORT SideSettings
 	{
 		struct DLL_EXPORT StackSettings
@@ -397,7 +397,7 @@ public:
 	void giveHeroArtifact(CGHeroInstance *h, int aid);
 
 	void apply(CPack *pack);
-	BFieldType::BFieldType battleGetBattlefieldType(int3 tile) const;
+	BFieldType battleGetBattlefieldType(int3 tile) const;
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
 	PlayerRelations::PlayerRelations getPlayerRelations(TPlayerColor color1, TPlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile

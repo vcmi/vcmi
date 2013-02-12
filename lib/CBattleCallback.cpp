@@ -112,13 +112,13 @@ boost::optional<TPlayerColor> CCallbackBase::getPlayerID() const
 	return player;
 }
 
-ETerrainType::ETerrainType CBattleInfoEssentials::battleTerrainType() const
+ETerrainType CBattleInfoEssentials::battleTerrainType() const
 {
 	RETURN_IF_NOT_BATTLE(ETerrainType::WRONG);
 	return getBattle()->terrainType;
 }
 
-BFieldType::BFieldType CBattleInfoEssentials::battleGetBattlefieldType() const
+BFieldType CBattleInfoEssentials::battleGetBattlefieldType() const
 {
 	RETURN_IF_NOT_BATTLE(BFieldType::NONE);
 	return getBattle()->battlefieldType;

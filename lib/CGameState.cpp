@@ -778,11 +778,11 @@ CGameState::~CGameState()
 BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town)
 {
 	const TerrainTile &t = map->getTile(tile);
-    ETerrainType::ETerrainType terrain = t.terType;
+    ETerrainType terrain = t.terType;
 	if(t.isCoastal() && !t.isWater())
         terrain = ETerrainType::SAND;
 
-	BFieldType::BFieldType terType = battleGetBattlefieldType(tile);
+	BFieldType terType = battleGetBattlefieldType(tile);
 	return BattleInfo::setupBattle(tile, terrain, terType, armies, heroes, creatureBank, town);
 }
 
@@ -1567,7 +1567,7 @@ void CGameState::init(StartInfo * si)
 			vti->possibleSpells -= s->id;
 		}
 		vti->possibleSpells.clear();
-		if(vti->getOwner() != 255)
+		if(vti->getOwner() != GameConstants::NEUTRAL_PLAYER)
 			getPlayer(vti->getOwner())->towns.push_back(vti);
 	}
 
@@ -1743,7 +1743,7 @@ void CGameState::initDuel()
 	return;
 }
 
-BFieldType::BFieldType CGameState::battleGetBattlefieldType(int3 tile) const
+BFieldType CGameState::battleGetBattlefieldType(int3 tile) const
 {
 	if(tile==int3() && curB)
 		tile = curB->tile;
@@ -1793,13 +1793,13 @@ BFieldType::BFieldType CGameState::battleGetBattlefieldType(int3 tile) const
     switch(t.terType)
 	{
     case ETerrainType::DIRT:
-		return static_cast<BFieldType::BFieldType>(rand()%3+3);
+		return BFieldType(rand()%3+3);
     case ETerrainType::SAND:
 		return BFieldType::SAND_MESAS; //TODO: coast support
     case ETerrainType::GRASS:
-		return static_cast<BFieldType::BFieldType>(rand()%2+6);
+		return BFieldType(rand()%2+6);
     case ETerrainType::SNOW:
-		return static_cast<BFieldType::BFieldType>(rand()%2+10);
+		return BFieldType(rand()%2+10);
     case ETerrainType::SWAMP:
 		return BFieldType::SWAMP_TREES;
     case ETerrainType::ROUGH:
@@ -2439,7 +2439,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		std::vector< std::pair< TPlayerColor, si64 > > stats; \
 		for(auto g = players.begin(); g != players.end(); ++g) \
 		{ \
-			if(g->second.color == 255) \
+			if(g->second.color == GameConstants::NEUTRAL_PLAYER) \
 				continue; \
 			std::pair< ui8, si64 > stat; \
 			stat.first = g->second.color; \
@@ -2940,8 +2940,8 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 	DuelParameters ret;
 
 	const JsonNode duelData(ResourceID("DATA/" + fname, EResType::TEXT));
-	ret.terType = static_cast<ETerrainType::ETerrainType>((int)duelData["terType"].Float());
-	ret.bfieldType = static_cast<BFieldType::BFieldType>((int)duelData["bfieldType"].Float());
+	ret.terType = ETerrainType((int)duelData["terType"].Float());
+	ret.bfieldType = BFieldType((int)duelData["bfieldType"].Float());
 	BOOST_FOREACH(const JsonNode &n, duelData["sides"].Vector())
 	{
 		SideSettings &ss = ret.sides[(int)n["side"].Float()];

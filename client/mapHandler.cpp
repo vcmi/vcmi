@@ -34,7 +34,7 @@ extern SDL_Surface * screen;
 
 std::string nameFromType (int typ)
 {
-    switch(static_cast<ETerrainType::ETerrainType>(typ))
+    switch(ETerrainType(typ))
 	{
         case ETerrainType::DIRT:
 			return std::string("DIRTTL.DEF");
