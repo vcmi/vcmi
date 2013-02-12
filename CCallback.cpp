@@ -132,7 +132,7 @@ bool CCallback::dismissHero(const CGHeroInstance *hero)
 }
 
 // int CCallback::getMySerial() const
-// {	
+// {
 // 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 // 	return gs->players[player].serial;
 // }
@@ -287,12 +287,18 @@ void CCallback::buildBoat( const IShipyard *obj )
 	sendRequest(&bb);
 }
 
-CCallback::CCallback( CGameState * GS, boost::optional<TPlayerColor> Player, CClient *C ) 
+CCallback::CCallback( CGameState * GS, boost::optional<TPlayerColor> Player, CClient *C )
 	:CBattleCallback(GS, Player, C)
 {
 	waitTillRealize = false;
 	unlockGsWhenWaiting = false;
 }
+
+CCallback::~CCallback()
+{
+//trivial, but required. Don`t remove.
+}
+
 
 const CGPathNode * CCallback::getPathInfo( int3 tile )
 {
@@ -355,7 +361,7 @@ void CCallback::validatePaths()
 	if(h  && ( cl->pathInfo->hero != h							//wrong hero
 		       || cl->pathInfo->hpos != h->getPosition(false)  //wrong hero positoin
 		       || !cl->pathInfo->isValid)) //paths invalidated by game event
-	{ 
+	{
 		recalculatePaths();
 	}
 }

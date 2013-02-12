@@ -44,7 +44,7 @@ public:
 	//hero
 	virtual bool moveHero(const CGHeroInstance *h, int3 dst) =0; //dst must be free, neighbouring tile (this function can move hero only by one tile)
 	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses given hero; true - successfuly, false - not successfuly
-	virtual void dig(const CGObjectInstance *hero)=0; 
+	virtual void dig(const CGObjectInstance *hero)=0;
 	virtual void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos = int3(-1, -1, -1))=0; //cast adventure map spell
 
 	//town
@@ -89,7 +89,7 @@ public:
 	CBattleCallback(CGameState *GS, boost::optional<TPlayerColor> Player, CClient *C);
 	int battleMakeAction(BattleAction* action) OVERRIDE;//for casting spells by hero - DO NOT use it for moving active stack
 	bool battleMakeTacticAction(BattleAction * action) OVERRIDE; // performs tactic phase actions
-	
+
 	friend class CCallback;
 	friend class CClient;
 };
@@ -102,6 +102,7 @@ private:
 
 public:
 	CCallback(CGameState * GS, boost::optional<TPlayerColor> Player, CClient *C);
+	virtual ~CCallback();
 
 	//client-specific functionalities (pathfinding)
 	virtual const CGPathNode *getPathInfo(int3 tile); //uses main, client pathfinder info
@@ -141,7 +142,7 @@ public:
 	void save(const std::string &fname);
 	void sendMessage(const std::string &mess);
 	void buildBoat(const IShipyard *obj);
-	void dig(const CGObjectInstance *hero); 
+	void dig(const CGObjectInstance *hero);
 	void castSpell(const CGHeroInstance *hero, SpellID spellID, const int3 &pos = int3(-1, -1, -1));
 
 //friends
