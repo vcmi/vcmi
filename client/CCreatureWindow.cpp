@@ -639,7 +639,8 @@ void CCreatureWindow::scrollArt(int dir)
 {
 	//TODO: get next artifact
 	int size = stack->artifactsWorn.size();
-	displayedArtifact  =  size ? static_cast<ArtifactPosition>((displayedArtifact + dir) % size) : ArtifactPosition::CREATURE_SLOT;
+	displayedArtifact  =  size ? static_cast<ArtifactPosition>((displayedArtifact + dir) % size)
+	                           : static_cast<ArtifactPosition>(ArtifactPosition::CREATURE_SLOT);
 	setArt (stack->getArt(displayedArtifact));
 }
 
@@ -666,7 +667,8 @@ void CCreatureWindow::artifactRemoved (const ArtifactLocation &artLoc)
 			LOCPLINT->cb->swapArtifacts (ArtifactLocation(stack, al.first), ArtifactLocation(stack, freeSlot));
 	}
 	int size = stack->artifactsWorn.size();
-	displayedArtifact  =  size ? static_cast<ArtifactPosition>(displayedArtifact % size) : ArtifactPosition::CREATURE_SLOT; //0
+	displayedArtifact  =  size ? static_cast<ArtifactPosition>(displayedArtifact % size)
+	                           : static_cast<ArtifactPosition>(ArtifactPosition::CREATURE_SLOT); //0
 	setArt (stack->getArt(displayedArtifact));
 }
 void CCreatureWindow::artifactMoved (const ArtifactLocation &artLoc, const ArtifactLocation &destLoc)

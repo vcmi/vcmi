@@ -13,7 +13,7 @@ void CEmptyAI::yourTurn()
 	cb->endTurn();
 }
 
-void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill::SecondarySkill> &skills, int queryID)
+void CEmptyAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, int queryID)
 {
 	cb->selectionMade(rand() % skills.size(), queryID);
 }

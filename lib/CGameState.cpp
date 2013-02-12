@@ -683,8 +683,9 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 		CGHeroInstance *h = dynamic_cast<CGHeroInstance *>(cur);
 		if(!h) {tlog2<<"Wrong random hero at "<<cur->pos<<std::endl; return;}
 		cur->ID = ran.first;
-		h->portrait = cur->subID = ran.second;
+		cur->subID = ran.second;
 		h->type = VLC->heroh->heroes[ran.second];
+		h->portrait = h->type->imageIndex;
 		h->randomizeArmy(h->type->heroClass->faction);
 		map->heroes.push_back(h);
 		return; //TODO: maybe we should do something with definfo?
