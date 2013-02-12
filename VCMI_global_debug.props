@@ -4,10 +4,7 @@
   <PropertyGroup Label="UserMacros">
     <VCMI_Out>$(SolutionDir)</VCMI_Out>
   </PropertyGroup>
-  <PropertyGroup>
-    <IncludePath>C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files (x86)\Microsoft SDKs\Windows\v7.1A\Lib;G:\boost\SDL_mixer-1.2.11\lib;G:\boost\zlib125-dll\lib;G:\boost\SDL-1.2.14\lib;G:\boost\SDL_image-1.2.10\lib;G:\boost\SDL_ttf-2.0.10\lib;G:\boost\boost_1_51_0\stage\lib;$(VCInstallDir)lib;$(VCInstallDir)atlmfc\lib;$(WindowsSdkDir)lib;$(FrameworkSDKDir)\lib</LibraryPath>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
