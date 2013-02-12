@@ -168,11 +168,11 @@ public:
 	void setOwner(const CGObjectInstance * obj, TPlayerColor owner) OVERRIDE {};
 	void setHoverName(const CGObjectInstance * obj, MetaString * name) OVERRIDE {};
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) OVERRIDE {};
-	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill::SecondarySkill which, int val, bool abs=false) OVERRIDE {}; 
+	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) OVERRIDE {}; 
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE {};
 	ui32 showBlockingDialog(BlockingDialog *iw) OVERRIDE {return 0;}; //synchronous version of above
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) OVERRIDE {};
-	void showThievesGuildWindow(int player, int requestingObjId) OVERRIDE {};
+	void showThievesGuildWindow(TPlayerColor player, int requestingObjId) OVERRIDE {};
 	void giveResource(TPlayerColor player, Res::ERes which, int val) OVERRIDE {};
 
 	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE {};
@@ -186,8 +186,8 @@ public:
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) OVERRIDE {}
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) OVERRIDE {return false;}
 
-	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition::ArtifactPosition pos) OVERRIDE {};
-	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition::ArtifactPosition pos) OVERRIDE {};
+	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) OVERRIDE {};
+	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) OVERRIDE {};
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) OVERRIDE {}; 
 	void removeArtifact(const ArtifactLocation &al) OVERRIDE {};
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE {return false;};

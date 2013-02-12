@@ -222,7 +222,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 	for(size_t g=0; g< secSkillAreas.size(); ++g)
 	{
 		int skill = curHero->secSkills[g].first,
-			level = curHero->getSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(curHero->secSkills[g].first));
+			level = curHero->getSecSkillLevel(SecondarySkill(curHero->secSkills[g].first));
 		secSkillAreas[g]->type = skill;
 		secSkillAreas[g]->bonusValue = level;
 		secSkillAreas[g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
@@ -298,7 +298,7 @@ void CHeroWindow::commanderWindow()
 	{
 		const CGHeroInstance *srcHero = commonInfo->src.AOH->getHero();
 		//artSelected = true;
-		ArtifactPosition::ArtifactPosition freeSlot = art->firstAvailableSlot (curHero->commander);
+		ArtifactPosition freeSlot = art->firstAvailableSlot (curHero->commander);
 		if (freeSlot < ArtifactPosition::COMMANDER_AFTER_LAST) //we don't want to put it in commander's backpack!
 		{
 			ArtifactLocation src (srcHero, commonInfo->src.slotID);

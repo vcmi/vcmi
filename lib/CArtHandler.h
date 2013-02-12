@@ -66,7 +66,7 @@ public:
 	virtual void levelUpArtifact (CArtifactInstance * art){};
 
 	ui32 price;
-	bmap<ArtBearer::ArtBearer, std::vector<ArtifactPosition::ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
+	bmap<ArtBearer::ArtBearer, std::vector<ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
 	std::vector<ArtifactID> * constituents; // Artifacts IDs a combined artifact consists of, or NULL.
 	std::vector<ArtifactID> * constituentOf; // Reverse map of constituents.
 	EartClass aClass;
@@ -118,11 +118,11 @@ public:
 	void deserializationFix();
 	void setType(CArtifact *Art);
 
-	ArtifactPosition::ArtifactPosition firstAvailableSlot(const CArtifactSet *h) const;
-	ArtifactPosition::ArtifactPosition firstBackpackSlot(const CArtifactSet *h) const;
+	ArtifactPosition firstAvailableSlot(const CArtifactSet *h) const;
+	ArtifactPosition firstBackpackSlot(const CArtifactSet *h) const;
 	int getGivenSpellID() const; //to be used with scrolls (and similar arts), -1 if none
 
-	virtual bool canBePutAt(const CArtifactSet *artSet, ArtifactPosition::ArtifactPosition slot, bool assumeDestRemoved = false) const;
+	virtual bool canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved = false) const;
 	bool canBePutAt(const ArtifactLocation al, bool assumeDestRemoved = false) const;  //forwards to the above one
 	virtual bool canBeDisassembled() const;
 	virtual void putAt(ArtifactLocation al);
@@ -151,26 +151,26 @@ public:
 	struct ConstituentInfo
 	{
 		ConstTransitivePtr<CArtifactInstance> art;
-		ArtifactPosition::ArtifactPosition slot;
+		ArtifactPosition slot;
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & art & slot;
 		}
 
 		bool operator==(const ConstituentInfo &rhs) const;
-		ConstituentInfo(CArtifactInstance *art = NULL, ArtifactPosition::ArtifactPosition slot = ArtifactPosition::PRE_FIRST);
+		ConstituentInfo(CArtifactInstance *art = NULL, ArtifactPosition slot = ArtifactPosition::PRE_FIRST);
 	};
 
 	std::vector<ConstituentInfo> constituentsInfo;
 
-	bool canBePutAt(const CArtifactSet *artSet, ArtifactPosition::ArtifactPosition slot, bool assumeDestRemoved = false) const OVERRIDE;
+	bool canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved = false) const OVERRIDE;
 	bool canBeDisassembled() const OVERRIDE;
 	void putAt(ArtifactLocation al) OVERRIDE;
 	void removeFrom(ArtifactLocation al) OVERRIDE;
 	bool isPart(const CArtifactInstance *supposedPart) const OVERRIDE;
 
 	void createConstituents();
-	void addAsConstituent(CArtifactInstance *art, ArtifactPosition::ArtifactPosition slot);
+	void addAsConstituent(CArtifactInstance *art, ArtifactPosition slot);
 	CArtifactInstance *figureMainConstituent(const ArtifactLocation al); //main constituent is replcaed with us (combined art), not lock
 
 	CCombinedArtifactInstance();
@@ -262,21 +262,21 @@ class DLL_LINKAGE CArtifactSet
 {
 public:
 	std::vector<ArtSlotInfo> artifactsInBackpack; //hero's artifacts from bag
-	bmap<ArtifactPosition::ArtifactPosition, ArtSlotInfo> artifactsWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+	bmap<ArtifactPosition, ArtSlotInfo> artifactsWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 
-	ArtSlotInfo &retreiveNewArtSlot(ArtifactPosition::ArtifactPosition slot);
-	void setNewArtSlot(ArtifactPosition::ArtifactPosition slot, CArtifactInstance *art, bool locked);
-	void eraseArtSlot(ArtifactPosition::ArtifactPosition slot);
+	ArtSlotInfo &retreiveNewArtSlot(ArtifactPosition slot);
+	void setNewArtSlot(ArtifactPosition slot, CArtifactInstance *art, bool locked);
+	void eraseArtSlot(ArtifactPosition slot);
 
-	const ArtSlotInfo *getSlot(ArtifactPosition::ArtifactPosition pos) const;
-	const CArtifactInstance* getArt(ArtifactPosition::ArtifactPosition pos, bool excludeLocked = true) const; //NULL - no artifact
-	CArtifactInstance* getArt(ArtifactPosition::ArtifactPosition pos, bool excludeLocked = true); //NULL - no artifact
-	ArtifactPosition::ArtifactPosition getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
-	ArtifactPosition::ArtifactPosition getArtPos(const CArtifactInstance *art) const;
+	const ArtSlotInfo *getSlot(ArtifactPosition pos) const;
+	const CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true) const; //NULL - no artifact
+	CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true); //NULL - no artifact
+	ArtifactPosition getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
+	ArtifactPosition getArtPos(const CArtifactInstance *art) const;
 	const CArtifactInstance *getArtByInstanceId(TArtifactInstanceID artInstId) const;
 	bool hasArt(ui32 aid, bool onlyWorn = false) const; //checks if hero possess artifact of given id (either in backack or worn)
-	bool isPositionFree(ArtifactPosition::ArtifactPosition pos, bool onlyLockCheck = false) const;
-	si32 getArtTypeId(ArtifactPosition::ArtifactPosition pos) const;
+	bool isPositionFree(ArtifactPosition pos, bool onlyLockCheck = false) const;
+	si32 getArtTypeId(ArtifactPosition pos) const;
 
 	virtual ArtBearer::ArtBearer bearerType() const = 0;
 	virtual ~CArtifactSet();

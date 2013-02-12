@@ -630,12 +630,13 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			delete dwl->info;
 			dwl->info = nullptr;
 
-			std::pair<Obj,int> result(Obj::NO_OBJ, -1);
-			int cid = VLC->townh->towns[faction].creatures[level][0];
+			std::pair<Obj, int> result(Obj::NO_OBJ, -1);
+			CreatureID cid = VLC->townh->towns[faction].creatures[level][0];
 
 			//golem factory is not in list of cregens but can be placed as random object
-			static const int factoryCreatures[] = {32, 33, 116, 117};
-			std::vector<int> factory(factoryCreatures, factoryCreatures + ARRAY_COUNT(factoryCreatures));
+			static const CreatureID factoryCreatures[] = {CreatureID::STONE_GOLEM, CreatureID::IRON_GOLEM,
+				CreatureID::GOLD_GOLEM, CreatureID::DIAMOND_GOLEM};
+			std::vector<CreatureID> factory(factoryCreatures, factoryCreatures + ARRAY_COUNT(factoryCreatures));
 			if (vstd::contains(factory, cid))
 				result = std::make_pair(Obj::CREATURE_GENERATOR4, 1);
 
@@ -837,7 +838,7 @@ void CGameState::init(StartInfo * si)
 				}
 				break;
 			case CScenarioTravel::STravelBonus::SECONDARY_SKILL:
-				hero->setSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(curBonus->info2), curBonus->info3, true);
+				hero->setSecSkillLevel(SecondarySkill(curBonus->info2), curBonus->info3, true);
 				break;
 			}
 		}
@@ -1687,12 +1688,12 @@ void CGameState::initDuel()
 
 			BOOST_FOREACH(auto &parka, ss.artifacts)
 			{
-				h->putArtifact(static_cast<ArtifactPosition::ArtifactPosition>(parka.first), parka.second);
+				h->putArtifact(ArtifactPosition(parka.first), parka.second);
 			}
 
 			typedef const std::pair<si32, si8> &TSecSKill;
 			BOOST_FOREACH(TSecSKill secSkill, ss.heroSecSkills)
-				h->setSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(secSkill.first), secSkill.second, 1);
+				h->setSecSkillLevel(SecondarySkill(secSkill.first), secSkill.second, 1);
 
 			h->initHero(h->subID);
 			obj->initObj();
@@ -2449,7 +2450,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 
 	for(auto g = players.begin(); g != players.end(); ++g)
 	{
-		if(g->second.color != 255)
+		if(g->second.color != GameConstants::NEUTRAL_PLAYER)
 			tgi.playerColors.push_back(g->second.color);
 	}
 
@@ -2462,7 +2463,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		//best hero's portrait
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
-			if(g->second.color == 255)
+			if(g->second.color == GameConstants::NEUTRAL_PLAYER)
 				continue;
 			const CGHeroInstance * best = statsHLP::findBestHero(this, g->second.color);
 			InfoAboutHero iah;
@@ -2507,7 +2508,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	{
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
-			if(g->second.color == 255) //do nothing for neutral player
+			if(g->second.color == GameConstants::NEUTRAL_PLAYER) //do nothing for neutral player
 				continue;
 			if(g->second.human)
 			{
@@ -2525,7 +2526,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 		//best creatures belonging to player (highest AI value)
 		for(auto g = players.cbegin(); g != players.cend(); ++g)
 		{
-			if(g->second.color == 255) //do nothing for neutral player
+			if(g->second.color == GameConstants::NEUTRAL_PLAYER) //do nothing for neutral player
 				continue;
 			int bestCre = -1; //best creature's ID
 			for(int b=0; b<g->second.heroes.size(); ++b)

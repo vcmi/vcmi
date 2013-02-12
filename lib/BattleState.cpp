@@ -512,7 +512,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType::ETerrainType terr
 	if(!creatureBank)
 	{
 		//Checks if hero has artifact and create appropriate stack
-		auto handleWarMachine= [&](int side, ArtifactPosition::ArtifactPosition artslot, CreatureID cretype, BattleHex hex)
+		auto handleWarMachine= [&](int side, ArtifactPosition artslot, CreatureID cretype, BattleHex hex)
 		{
 			if(heroes[side] && heroes[side]->getArt(artslot))
 				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), !side, 255, hex));

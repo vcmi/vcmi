@@ -46,7 +46,7 @@ namespace PrimarySkill
 	const std::string names [GameConstants::PRIMARY_SKILLS] = { "attack", "defence", "spellpower", "knowledge" };
 }
 
-namespace SecondarySkill
+namespace NSecondarySkill
 {
 	const std::string names [GameConstants::SKILL_QUANTITY] =
 	{

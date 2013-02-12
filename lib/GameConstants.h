@@ -152,17 +152,28 @@ namespace PrimarySkill
 				EXPERIENCE = 4}; //for some reason changePrimSkill uses it
 }
 
-namespace SecondarySkill
+class SecondarySkill
 {
-	enum SecondarySkill
+public:
+	enum ESecondarySkill
 	{
+		WRONG = -2,
 		DEFAULT = -1,
 		PATHFINDING = 0, ARCHERY, LOGISTICS, SCOUTING, DIPLOMACY, NAVIGATION, LEADERSHIP, WISDOM, MYSTICISM,
 		LUCK, BALLISTICS, EAGLE_EYE, NECROMANCY, ESTATES, FIRE_MAGIC, AIR_MAGIC, WATER_MAGIC, EARTH_MAGIC,
 		SCHOLAR, TACTICS, ARTILLERY, LEARNING, OFFENCE, ARMORER, INTELLIGENCE, SORCERY, RESISTANCE,
 		FIRST_AID
 	};
-}
+
+	SecondarySkill(ESecondarySkill _num = WRONG) : num(_num)
+	{}
+
+	ID_LIKE_CLASS_COMMON(SecondarySkill, ESecondarySkill)
+
+	ESecondarySkill num;
+};
+
+ID_LIKE_OPERATORS_DECLS(SecondarySkill, SecondarySkill::ESecondarySkill)
 
 namespace EVictoryConditionType
 {
@@ -573,9 +584,10 @@ namespace PlayerRelations
 	enum PlayerRelations {ENEMIES, ALLIES, SAME_PLAYER};
 }
 
-namespace ArtifactPosition
+class ArtifactPosition
 {
-	enum ArtifactPosition
+public:
+	enum EArtifactPosition
 	{
 		FIRST_AVAILABLE = -2,
 		PRE_FIRST = -1, //sometimes used as error, sometimes as first free in backpack
@@ -586,7 +598,16 @@ namespace ArtifactPosition
 		CREATURE_SLOT = 0,
 		COMMANDER1 = 0, COMMANDER2, COMMANDER3, COMMANDER4, COMMANDER5, COMMANDER6, COMMANDER_AFTER_LAST
 	};
-}
+
+	ArtifactPosition(EArtifactPosition _num = PRE_FIRST) : num(_num)
+	{}
+
+	ID_LIKE_CLASS_COMMON(ArtifactPosition, EArtifactPosition)
+
+	EArtifactPosition num;
+};
+
+ID_LIKE_OPERATORS_DECLS(ArtifactPosition, ArtifactPosition::EArtifactPosition)
 
 class ArtifactID
 {
@@ -641,6 +662,10 @@ public:
 		STONE_GOLEM = 32,
 		IRON_GOLEM = 33,
 		IMP = 42,
+		SKELETON = 56,
+		WALKING_DEAD = 58,
+		WIGHTS = 60,
+		LICHES = 64,
 		TROGLODYTES = 70,
 		AIR_ELEMENTAL = 112,
 		EARTH_ELEMENTAL = 113,

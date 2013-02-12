@@ -143,7 +143,7 @@ public:
 	void artifactDisassembled(const ArtifactLocation &al);
 
 	void heroCreated(const CGHeroInstance* hero) OVERRIDE;
-	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill::SecondarySkill> &skills, int queryID) OVERRIDE;
+	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, int queryID) OVERRIDE;
 	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID) OVERRIDE;
 	void heroInGarrisonChange(const CGTownInstance *town) OVERRIDE;
 	void heroMoved(const TryMoveHero & details) OVERRIDE;

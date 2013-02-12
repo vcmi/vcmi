@@ -48,9 +48,13 @@ bool operator>=(const A & a, const B & b)			\
 	ID_LIKE_OPERATORS_INTERNAL(ENUM_NAME, CLASS_NAME, a, b.num)
 
 
+ID_LIKE_OPERATORS(SecondarySkill, SecondarySkill::ESecondarySkill)
+
 ID_LIKE_OPERATORS(Obj, Obj::EObj)
 
 ID_LIKE_OPERATORS(ArtifactID, ArtifactID::EArtifactID)
+
+ID_LIKE_OPERATORS(ArtifactPosition, ArtifactPosition::EArtifactPosition)
 
 ID_LIKE_OPERATORS(CreatureID, CreatureID::ECreatureID)
 

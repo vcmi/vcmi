@@ -192,11 +192,11 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 	case EMarketMode::CREATURE_UNDEAD:
 		return gh->transformInUndead(m, hero, r1);
 	case EMarketMode::RESOURCE_SKILL:
-		return gh->buySecSkill(m, hero, static_cast<SecondarySkill::SecondarySkill>(r2));
+		return gh->buySecSkill(m, hero, SecondarySkill(r2));
 	case EMarketMode::CREATURE_EXP:
 		return gh->sacrificeCreatures(m, hero, r1, val);
 	case EMarketMode::ARTIFACT_EXP:
-		return gh->sacrificeArtifact(m, hero, static_cast<ArtifactPosition::ArtifactPosition>(r1));
+		return gh->sacrificeArtifact(m, hero, ArtifactPosition(r1));
 	default:
 		COMPLAIN_AND_RETURN("Unknown exchange mode!");
 	}

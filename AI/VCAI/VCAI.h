@@ -270,7 +270,7 @@ public:
 	VCAI(void);
 	~VCAI(void);
 
-	CGObjectInstance * visitedObject; //remember currently viisted object
+	CGObjectInstance * visitedObject; //remember currently visted object
 
 	boost::thread *makingTurn;
 
@@ -285,7 +285,7 @@ public:
 	virtual void init(CCallback * CB) OVERRIDE;
 	virtual void yourTurn() OVERRIDE;
 
-	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill::SecondarySkill> &skills, int queryID) OVERRIDE; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
+	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, int queryID) OVERRIDE; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID) OVERRIDE; //TODO
 	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel) OVERRIDE; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID) OVERRIDE; //all stacks operations between these objects become allowed, interface has to call onEnd when done

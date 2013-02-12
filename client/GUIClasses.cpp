@@ -1695,7 +1695,7 @@ void CSplitWindow::sliderMoved(int to)
 	setAmount(rightMin + to, false);
 }
 
-CLevelWindow::CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill::SecondarySkill> &skills, boost::function<void(ui32)> callback):
+CLevelWindow::CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, boost::function<void(ui32)> callback):
     CWindowObject(PLAYER_COLORED, "LVLUPBKG"),
     cb(callback)
 {
@@ -1728,7 +1728,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkil
 			comps.push_back(new CSelectableComponent(
 								CComponent::secskill,
 								skills[i],
-								hero->getSecSkillLevel( static_cast<SecondarySkill::SecondarySkill>(skills[i]) )+1,
+								hero->getSecSkillLevel( SecondarySkill(skills[i]) )+1,
 								CComponent::medium));
 		}
 		box = new CComponentBox(comps, Rect(75, 300, pos.w - 150, 100));
@@ -3385,9 +3385,9 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 	return true;
 }
 
-void CAltarWindow::moveFromSlotToAltar(ArtifactPosition::ArtifactPosition slotID, CTradeableItem* altarSlot, const CArtifactInstance *art)
+void CAltarWindow::moveFromSlotToAltar(ArtifactPosition slotID, CTradeableItem* altarSlot, const CArtifactInstance *art)
 {
-	auto freeBackpackSlot = static_cast<ArtifactPosition::ArtifactPosition>(hero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
+	auto freeBackpackSlot = ArtifactPosition(hero->artifactsInBackpack.size() + GameConstants::BACKPACK_START);
 	if(arts->commonInfo->src.art)
 	{
 		arts->commonInfo->dst.slotID = freeBackpackSlot;
@@ -3771,7 +3771,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 
 		int artifs = h->artifactsWorn.size() + h->artifactsInBackpack.size();
 		for(int i=13; i<=17; i++) //war machines and spellbook don't count
-			if(vstd::contains(h->artifactsWorn,static_cast<ArtifactPosition::ArtifactPosition>(i)))
+			if(vstd::contains(h->artifactsWorn, ArtifactPosition(i)))
 				artifs--;
 		sprintf_s(descr, sizeof(descr),CGI->generaltexth->allTexts[215].c_str(),
 				  h->name.c_str(), h->level, h->type->heroClass->name.c_str(), artifs);
@@ -4186,12 +4186,12 @@ void CArtPlace::clickLeft(tribool down, bool previousState)
 						//should not happen, catapult cannot be selected
 						assert(cur->id != ArtifactID::CATAPULT);
 						break;
-					case 4: case 5: case 6: //war machines cannot go to backpack
+					case ArtifactID::BALLISTA: case ArtifactID::AMMO_CART: case ArtifactID::FIRST_AID_TENT: //war machines cannot go to backpack
 						LOCPLINT->showInfoDialog(boost::str(boost::format(CGI->generaltexth->allTexts[153]) % cur->Name()));
 						break;
 					default:
 						setMeAsDest();
-						vstd::amin(ourOwner->commonInfo->dst.slotID, static_cast<ArtifactPosition::ArtifactPosition>(
+						vstd::amin(ourOwner->commonInfo->dst.slotID, ArtifactPosition(
 							ourOwner->curHero->artifactsInBackpack.size() + GameConstants::BACKPACK_START));
 						if(srcInBackpack && srcInSameHero)
 						{
@@ -4589,7 +4589,7 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 
 	// Fill the slots for worn artifacts and backpack.
 	for (int g = 0; g < artWorn.size() ; g++)
-		setSlotData(artWorn[g], static_cast<ArtifactPosition::ArtifactPosition>(g));
+		setSlotData(artWorn[g], ArtifactPosition(g));
 	scrollBackpack(0);
 }
 
@@ -4623,7 +4623,7 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 
 		if (s < artsInBackpack)
 		{
-			auto slotID = static_cast<ArtifactPosition::ArtifactPosition>(GameConstants::BACKPACK_START + (s + backpackPos)%artsInBackpack);
+			auto slotID = ArtifactPosition(GameConstants::BACKPACK_START + (s + backpackPos)%artsInBackpack);
 			const CArtifactInstance *art = curHero->getArt(slotID);
 			assert(art);
 			if(!vstd::contains(toOmit, art))
@@ -4640,7 +4640,7 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 		}
 	}
 	for( ; s - omitedSoFar < backpack.size(); s++)
-		eraseSlotData(backpack[s-omitedSoFar], static_cast<ArtifactPosition::ArtifactPosition>(GameConstants::BACKPACK_START + s));
+		eraseSlotData(backpack[s-omitedSoFar], ArtifactPosition(GameConstants::BACKPACK_START + s));
 
 	//in artifact merchant selling artifacts we may have highlight on one of backpack artifacts -> market needs update, cause artifact under highlight changed
 	if(highlightModeCallback)
@@ -4707,7 +4707,7 @@ void CArtifactsOfHero::unmarkLocalSlots(bool withRedraw /*= true*/)
 /**
  * Assigns an artifacts to an artifact place depending on it's new slot ID.
  */
-void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, ArtifactPosition::ArtifactPosition slotID)
+void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, ArtifactPosition slotID)
 {
 	if(!artPlace && slotID >= GameConstants::BACKPACK_START) //spurious call from artifactMoved in attempt to update hidden backpack slot
 	{
@@ -4729,7 +4729,7 @@ void CArtifactsOfHero::setSlotData(CArtPlace* artPlace, ArtifactPosition::Artifa
 /**
  * Makes given artifact slot appear as empty with a certain slot ID.
  */
-void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, ArtifactPosition::ArtifactPosition slotID)
+void CArtifactsOfHero::eraseSlotData (CArtPlace* artPlace, ArtifactPosition slotID)
 {
 	artPlace->pickSlot(false);
 	artPlace->slotID = slotID;
@@ -4755,14 +4755,14 @@ CArtifactsOfHero::CArtifactsOfHero(std::vector<CArtPlace *> ArtWorn, std::vector
 	for (size_t g = 0; g < artWorn.size() ; g++)
 	{
 		artWorn[g]->ourOwner = this;
-		eraseSlotData(artWorn[g], static_cast<ArtifactPosition::ArtifactPosition>(g));
+		eraseSlotData(artWorn[g], ArtifactPosition(g));
 	}
 
 	// Init slots for the backpack.
 	for(size_t s=0; s<backpack.size(); ++s)
 	{
 		backpack[s]->ourOwner = this;
-		eraseSlotData(backpack[s], static_cast<ArtifactPosition::ArtifactPosition>(GameConstants::BACKPACK_START + s));
+		eraseSlotData(backpack[s], ArtifactPosition(GameConstants::BACKPACK_START + s));
 	}
 
 	leftArtRoll->callback  += boost::bind(&CArtifactsOfHero::scrollBackpack,this,-1);
@@ -4796,7 +4796,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 	{
 		artWorn[g] = new CArtPlace(slotPos[g]);
 		artWorn[g]->ourOwner = this;
-		eraseSlotData(artWorn[g], static_cast<ArtifactPosition::ArtifactPosition>(g));
+		eraseSlotData(artWorn[g], ArtifactPosition(g));
 	}
 
 	// Create slots for the backpack.
@@ -4805,7 +4805,7 @@ CArtifactsOfHero::CArtifactsOfHero(const Point& position, bool createCommonPart 
 		CArtPlace * add = new CArtPlace(Point(403 + 46 * s, 365));
 
 		add->ourOwner = this;
-		eraseSlotData(add, static_cast<ArtifactPosition::ArtifactPosition>(GameConstants::BACKPACK_START + s));
+		eraseSlotData(add, ArtifactPosition(GameConstants::BACKPACK_START + s));
 
 		backpack.push_back(add);
 	}
@@ -4999,7 +4999,7 @@ void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation &al)
 void CArtifactsOfHero::updateWornSlots(bool redrawParent /*= true*/)
 {
 	for(int i = 0; i < artWorn.size(); i++)
-		updateSlot(static_cast<ArtifactPosition::ArtifactPosition>(i));
+		updateSlot(ArtifactPosition(i));
 
 
 	if(redrawParent)
@@ -5011,7 +5011,7 @@ const CGHeroInstance * CArtifactsOfHero::getHero() const
 	return curHero;
 }
 
-void CArtifactsOfHero::updateSlot(ArtifactPosition::ArtifactPosition slotID)
+void CArtifactsOfHero::updateSlot(ArtifactPosition slotID)
 {
 	setSlotData(getArtPlace(slotID), slotID);
 }
@@ -5408,7 +5408,7 @@ void CUniversityWindow::CItem::hover(bool on)
 
 int CUniversityWindow::CItem::state()
 {
-	if (parent->hero->getSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(ID)))//hero know this skill
+	if (parent->hero->getSecSkillLevel(SecondarySkill(ID)))//hero know this skill
 		return 1;
 	if (!parent->hero->canLearnSkill())//can't learn more skills
 		return 0;

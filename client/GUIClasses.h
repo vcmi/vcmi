@@ -498,7 +498,7 @@ class CLevelWindow : public CWindowObject
 	void selectionChanged(unsigned to);
 public:
 
-	CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill::SecondarySkill> &skills, boost::function<void(ui32)> callback); //c-tor
+	CLevelWindow(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, boost::function<void(ui32)> callback); //c-tor
 	~CLevelWindow(); //d-tor
 
 };
@@ -726,7 +726,7 @@ public:
 
 	void artifactPicked();
 	int firstFreeSlot();
-	void moveFromSlotToAltar(ArtifactPosition::ArtifactPosition slotID, CTradeableItem* altarSlot, const CArtifactInstance *art);
+	void moveFromSlotToAltar(ArtifactPosition slotID, CTradeableItem* altarSlot, const CArtifactInstance *art);
 };
 
 class CSystemOptionsWindow : public CWindowObject
@@ -898,7 +898,7 @@ public:
 	bool picked;
 	bool marked;
 
-	ArtifactPosition::ArtifactPosition slotID; //Arts::EPOS enum + backpack starting from Arts::BACKPACK_START
+	ArtifactPosition slotID; //Arts::EPOS enum + backpack starting from Arts::BACKPACK_START
 
 	void lockSlot(bool on);
 	void pickSlot(bool on);
@@ -933,7 +933,7 @@ public:
 	{
 		struct Artpos
 		{
-			ArtifactPosition::ArtifactPosition slotID;
+			ArtifactPosition slotID;
 			const CArtifactsOfHero *AOH;
 			const CArtifactInstance *art;
 
@@ -972,11 +972,11 @@ public:
 	void markPossibleSlots(const CArtifactInstance* art);
 	void unmarkSlots(bool withRedraw = true); //unmarks slots in all visible AOHs
 	void unmarkLocalSlots(bool withRedraw = true); //unmarks slots in that particular AOH
-	void setSlotData (CArtPlace* artPlace, ArtifactPosition::ArtifactPosition slotID);
+	void setSlotData (CArtPlace* artPlace, ArtifactPosition slotID);
 	void updateWornSlots (bool redrawParent = true);
 
-	void updateSlot(ArtifactPosition::ArtifactPosition i);
-	void eraseSlotData (CArtPlace* artPlace, ArtifactPosition::ArtifactPosition slotID);
+	void updateSlot(ArtifactPosition i);
+	void eraseSlotData (CArtPlace* artPlace, ArtifactPosition slotID);
 
 	CArtifactsOfHero(const Point& position, bool createCommonPart = false);
 	//Alternative constructor, used if custom artifacts positioning required (Kingdom interface)

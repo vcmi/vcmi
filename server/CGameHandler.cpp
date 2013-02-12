@@ -195,7 +195,7 @@ void callWith(std::vector<T> args, boost::function<void(T)> fun, ui32 which)
 	fun(args[which]);
 }
 
-void CGameHandler::levelUpHero(const CGHeroInstance * hero, SecondarySkill::SecondarySkill skill)
+void CGameHandler::levelUpHero(const CGHeroInstance * hero, SecondarySkill skill)
 {
 	changeSecSkill(hero, skill, 1, 0);
 	levelUpHero(hero);
@@ -236,10 +236,10 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	hlu.level = hero->level+1;
 
 	//picking sec. skills for choice
-	std::set<SecondarySkill::SecondarySkill> basicAndAdv, expert, none;
+	std::set<SecondarySkill> basicAndAdv, expert, none;
 	for(int i=0;i<GameConstants::SKILL_QUANTITY;i++)
 		if (isAllowed(2,i))
-			none.insert(static_cast<SecondarySkill::SecondarySkill>(i));
+			none.insert(SecondarySkill(i));
 
 	for(unsigned i=0;i<hero->secSkills.size();i++)
 	{
@@ -253,7 +253,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	//first offered skill
 	if(basicAndAdv.size())
 	{
-		SecondarySkill::SecondarySkill s = hero->type->heroClass->chooseSecSkill(basicAndAdv);//upgrade existing
+		SecondarySkill s = hero->type->heroClass->chooseSecSkill(basicAndAdv);//upgrade existing
 		hlu.skills.push_back(s);
 		basicAndAdv.erase(s);
 	}
@@ -290,8 +290,8 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 		if(hlu.skills.size() > 1) //apply and ask for secondary skill
 		{
 			boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind
-					(callWith<SecondarySkill::SecondarySkill>, hlu.skills,
-					boost::function<void(SecondarySkill::SecondarySkill)>(boost::bind
+					(callWith<SecondarySkill>, hlu.skills,
+					boost::function<void(SecondarySkill)>(boost::bind
 						(&CGameHandler::levelUpHero, this, hero, _1) ), _1));
 			applyAndAsk(&hlu,hero->tempOwner,callback); //call levelUpHero when client responds
 		}
@@ -484,7 +484,7 @@ void CGameHandler::changePrimSkill(const CGHeroInstance * hero, PrimarySkill::Pr
 	}
 }
 
-void CGameHandler::changeSecSkill( const CGHeroInstance * hero, SecondarySkill::SecondarySkill which, int val, bool abs/*=false*/ )
+void CGameHandler::changeSecSkill( const CGHeroInstance * hero, SecondarySkill which, int val, bool abs/*=false*/ )
 {
 	SetSecSkill sss;
 	sss.id = hero->id;
@@ -587,7 +587,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 				//we assume that no big artifacts can be found
 				MoveArtifact ma;
 				ma.src = ArtifactLocation (loserHero,
-					static_cast<ArtifactPosition::ArtifactPosition>(GameConstants::BACKPACK_START)); //backpack automatically shifts arts to beginning
+					ArtifactPosition(GameConstants::BACKPACK_START)); //backpack automatically shifts arts to beginning
 				const CArtifactInstance * art =  ma.src.getArt();
 				arts.push_back (art->artType->id);
 				ma.dst = ArtifactLocation (winnerHero, art->firstAvailableSlot(winnerHero));
@@ -2697,7 +2697,7 @@ bool CGameHandler::recruitCreatures( si32 objid, CreatureID crid, ui32 cram, si3
 	return true;
 }
 
-bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, ui32 upgID )
+bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, CreatureID upgID )
 {
 	CArmedInstance *obj = static_cast<CArmedInstance*>(gs->map->objects[objid].get());
 	assert(obj->hasStackAtSlot(pos));
@@ -2861,7 +2861,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 		COMPLAIN_RET("Cannot move catapult!");
 
 	if(dst.slot >= GameConstants::BACKPACK_START)
-		vstd::amin(dst.slot, static_cast<ArtifactPosition::ArtifactPosition>(GameConstants::BACKPACK_START + dst.getHolderArtSet()->artifactsInBackpack.size()));
+		vstd::amin(dst.slot, ArtifactPosition(GameConstants::BACKPACK_START + dst.getHolderArtSet()->artifactsInBackpack.size()));
 
 	if (src.slot == dst.slot  &&  src.artHolder == dst.artHolder)
 		COMPLAIN_RET("Won't move artifact: Dest same as source!");
@@ -2869,7 +2869,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
 	if(dst.slot < GameConstants::BACKPACK_START  &&  destArtifact) //moving art to another slot
 	{
 		//old artifact must be removed first
-		moveArtifact(dst, ArtifactLocation(dst.artHolder, static_cast<ArtifactPosition::ArtifactPosition>(
+		moveArtifact(dst, ArtifactLocation(dst.artHolder, ArtifactPosition(
 			dst.getHolderArtSet()->artifactsInBackpack.size() + GameConstants::BACKPACK_START)));
 	}
 
@@ -2888,7 +2888,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
  * @param assembleTo If assemble is true, this represents the artifact ID of the combination
  * artifact to assemble to. Otherwise it's not used.
  */
-bool CGameHandler::assembleArtifacts (si32 heroID, ArtifactPosition::ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo)
+bool CGameHandler::assembleArtifacts (si32 heroID, ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo)
 {
 
 	CGHeroInstance *hero = gs->getHero(heroID);
@@ -2945,7 +2945,7 @@ bool CGameHandler::buyArtifact( ui32 hid, ArtifactID aid )
 	{
 		int price = VLC->arth->artifacts[aid]->price;
 
-		if(( hero->getArt(static_cast<ArtifactPosition::ArtifactPosition>(9+aid)) && complain("Hero already has this machine!"))
+		if(( hero->getArt(ArtifactPosition(9+aid)) && complain("Hero already has this machine!"))
 		 || (gs->getPlayer(hero->getOwner())->resources[Res::GOLD] < price && complain("Not enough gold!")))
 		{
 			return false;
@@ -2954,7 +2954,7 @@ bool CGameHandler::buyArtifact( ui32 hid, ArtifactID aid )
 		 || ((town->hasBuilt(BuildingID::BALLISTA_YARD, ETownType::STRONGHOLD)) && aid == ArtifactID::BALLISTA))
 		{
 			giveResource(hero->getOwner(),Res::GOLD,-price);
-			giveHeroNewArtifact(hero, VLC->arth->artifacts[aid], static_cast<ArtifactPosition::ArtifactPosition>(9+aid));
+			giveHeroNewArtifact(hero, VLC->arth->artifacts[aid], ArtifactPosition(9+aid));
 			return true;
 		}
 		else
@@ -3039,12 +3039,12 @@ bool CGameHandler::sellArtifact( const IMarket *m, const CGHeroInstance *h, TArt
 //	}
 //}
 
-bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, SecondarySkill::SecondarySkill skill)
+bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, SecondarySkill skill)
 {
 	if (!h)
 		COMPLAIN_RET("You need hero to buy a skill!");
 
-	if (h->getSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(skill)))
+	if (h->getSecSkillLevel(SecondarySkill(skill)))
 		COMPLAIN_RET("Hero already know this skill");
 
 	if (!h->canLearnSkill())
@@ -3607,18 +3607,19 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 					}
 
 					//removing creatures in turrets / keep if one is destroyed
-					if(attack.second > 0 && (attackedPart == 0 || attackedPart == 1 || attackedPart == 6))
+					if(attack.second > 0 && (attackedPart == EWallParts::KEEP ||
+						attackedPart == EWallParts::BOTTOM_TOWER || attackedPart == EWallParts::UPPER_TOWER))
 					{
 						int posRemove = -1;
 						switch(attackedPart)
 						{
-						case 0: //keep
+						case EWallParts::KEEP:
 							posRemove = -2;
 							break;
-						case 1: //bottom tower
+						case EWallParts::BOTTOM_TOWER:
 							posRemove = -3;
 							break;
-						case 6: //upper tower
+						case EWallParts::UPPER_TOWER:
 							posRemove = -4;
 							break;
 						}
@@ -3668,8 +3669,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			else
 			{
 				StacksHealedOrResurrected shr;
-				shr.lifeDrain = (ui8)false;
-				shr.tentHealing = (ui8)true;
+				shr.lifeDrain = false;
+				shr.tentHealing = true;
 				shr.drainedFrom = ba.stackNumber;
 
 				StacksHealedOrResurrected::HealInfo hi;
@@ -4862,7 +4863,7 @@ void CGameHandler::showGarrisonDialog( int upobj, int hid, bool removableUnits, 
 	}
 }
 
-void CGameHandler::showThievesGuildWindow(int player, int requestingObjId)
+void CGameHandler::showThievesGuildWindow(TPlayerColor player, int requestingObjId)
 {
 	OpenWindow ow;
 	ow.window = OpenWindow::THIEVES_GUILD;
@@ -5641,7 +5642,7 @@ bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstanc
 	return true;
 }
 
-bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition::ArtifactPosition slot)
+bool CGameHandler::sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition slot)
 {
 	ArtifactLocation al(hero, slot);
 	const CArtifactInstance *a = al.getArt();
@@ -6068,13 +6069,13 @@ bool CGameHandler::makeAutomaticAction(const CStack *stack, BattleAction &ba)
 	return ret;
 }
 
-void CGameHandler::giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition::ArtifactPosition pos)
+void CGameHandler::giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos)
 {
 	assert(a->artType);
 	ArtifactLocation al;
 	al.artHolder = const_cast<CGHeroInstance*>(h);
 
-	ArtifactPosition::ArtifactPosition slot = ArtifactPosition::PRE_FIRST;
+	ArtifactPosition slot = ArtifactPosition::PRE_FIRST;
 	if(pos < 0)
 	{
 		if(pos == ArtifactPosition::FIRST_AVAILABLE)
@@ -6105,7 +6106,7 @@ void CGameHandler::putArtifact(const ArtifactLocation &al, const CArtifactInstan
 	sendAndApply(&pa);
 }
 
-void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition::ArtifactPosition pos)
+void CGameHandler::giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos)
 {
 	CArtifactInstance *a = NULL;
 	if(!artType->constituents)

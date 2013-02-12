@@ -317,7 +317,7 @@ struct SetSecSkill : public CPackForClient //106
 
 	ui8 abs; //0 - changes by value; 1 - sets to value
 	si32 id;
-	SecondarySkill::SecondarySkill which;
+	SecondarySkill which;
 	ui16 val;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -923,7 +923,7 @@ struct ArtifactLocation
 
 
 	TArtHolder artHolder;
-	ArtifactPosition::ArtifactPosition slot;
+	ArtifactPosition slot;
 
 	ArtifactLocation()
 	{
@@ -931,12 +931,12 @@ struct ArtifactLocation
 		slot = ArtifactPosition::PRE_FIRST;
 	}
 	template <typename T>
-	ArtifactLocation(const T *ArtHolder, ArtifactPosition::ArtifactPosition Slot)
+	ArtifactLocation(const T *ArtHolder, ArtifactPosition Slot)
 	{
 		artHolder = const_cast<T*>(ArtHolder); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
 		slot = Slot;
 	}
-	ArtifactLocation(TArtHolder ArtHolder, ArtifactPosition::ArtifactPosition Slot)
+	ArtifactLocation(TArtHolder ArtHolder, ArtifactPosition Slot)
 	{
 		artHolder = ArtHolder;
 		slot = Slot;
@@ -1175,7 +1175,7 @@ struct HeroLevelUp : public Query//2000
 	si32 heroid;
 	PrimarySkill::PrimarySkill primskill;
 	ui8 level;
-	std::vector<SecondarySkill::SecondarySkill> skills;
+	std::vector<SecondarySkill> skills;
 
 	HeroLevelUp(){type = 2000;};
 
@@ -1377,8 +1377,8 @@ struct StacksHealedOrResurrected : public CPackForClient //3013
 	};
 
 	std::vector<HealInfo> healedStacks;
-	ui8 lifeDrain; //if true, this heal is an effect of life drain
-	ui8 tentHealing; //if true, than it's healing via First Aid Tent
+	bool lifeDrain; //if true, this heal is an effect of life drain
+	bool tentHealing; //if true, than it's healing via First Aid Tent
 	si32 drainedFrom; //if life drain - then stack life was drain from, if tentHealing - stack that is a healer
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1914,10 +1914,10 @@ struct ExchangeArtifacts : public CPackForServer
 struct AssembleArtifacts : public CPackForServer
 {
 	AssembleArtifacts(){};
-	AssembleArtifacts(si32 _heroID, ArtifactPosition::ArtifactPosition _artifactSlot, bool _assemble, ui32 _assembleTo)
+	AssembleArtifacts(si32 _heroID, ArtifactPosition _artifactSlot, bool _assemble, ui32 _assembleTo)
 		: heroID(_heroID), artifactSlot(_artifactSlot), assemble(_assemble), assembleTo(_assembleTo){};
 	si32 heroID;
-	ArtifactPosition::ArtifactPosition artifactSlot;
+	ArtifactPosition artifactSlot;
 	bool assemble; // True to assemble artifact, false to disassemble.
 	ui32 assembleTo; // Artifact to assemble into.
 

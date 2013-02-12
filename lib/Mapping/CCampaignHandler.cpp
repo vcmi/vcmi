@@ -372,7 +372,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 			size_t totalArts = GameConstants::BACKPACK_START + hero->artifactsInBackpack.size();
 			for (size_t i=0; i<totalArts; i++ )
 			{
-				const ArtSlotInfo *info = hero->getSlot(static_cast<ArtifactPosition::ArtifactPosition>(i));
+				const ArtSlotInfo *info = hero->getSlot(ArtifactPosition(i));
 				if (!info)
 					continue;
 
@@ -385,7 +385,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 				bool takeable = travelOptions.artifsKeptByHero[id / 8] & ( 1 << (id%8) );
 
 				if (!takeable)
-					hero->eraseArtSlot(static_cast<ArtifactPosition::ArtifactPosition>(i));
+					hero->eraseArtSlot(ArtifactPosition(i));
 			}
 		}
 	}

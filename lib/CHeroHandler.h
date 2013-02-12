@@ -64,7 +64,7 @@ public:
 	std::vector<InitialArmyStack> initialArmy;
 
 	CHeroClass * heroClass;
-	std::vector<std::pair<SecondarySkill::SecondarySkill, ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
+	std::vector<std::pair<SecondarySkill, ui8> > secSkillsInit; //initial secondary skills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	std::vector<SSpecialtyInfo> spec;
 	std::vector<SSpecialtyBonus> specialty;
 	std::set<SpellID> spells;
@@ -114,7 +114,7 @@ public:
 	std::string imageMapMale;
 	std::string imageMapFemale;
 
-	SecondarySkill::SecondarySkill chooseSecSkill(const std::set<SecondarySkill::SecondarySkill> & possibles) const; //picks secondary skill out from given possibilities
+	SecondarySkill chooseSecSkill(const std::set<SecondarySkill> & possibles) const; //picks secondary skill out from given possibilities
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

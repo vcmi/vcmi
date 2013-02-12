@@ -297,7 +297,7 @@ public:
 	std::string biography; //if custom
 	si32 portrait; //may be custom
 	si32 mana; // remaining spell points
-	std::vector<std::pair<SecondarySkill::SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
+	std::vector<std::pair<SecondarySkill,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	ui32 movement; //remaining movement points
 	ui8 sex;
 	bool inTownGarrison; // if hero is in town garrison
@@ -377,8 +377,8 @@ public:
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	int getSpellCost(const CSpell *sp) const; //do not use during battles -> bonuses from army would be ignored
 
-	ui8 getSecSkillLevel(SecondarySkill::SecondarySkill skill) const; //0 - no skill
-	void setSecSkillLevel(SecondarySkill::SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
+	ui8 getSecSkillLevel(SecondarySkill skill) const; //0 - no skill
+	void setSecSkillLevel(SecondarySkill which, int val, bool abs);// abs == 0 - changes by value; 1 - sets to value
 	bool canLearnSkill() const; ///true if hero has free secondary skill slot
 
 	int maxMovePoints(bool onLand) const;
@@ -405,7 +405,7 @@ public:
 	void initHero();
 	void initHero(int SUBID);
 
-	void putArtifact(ArtifactPosition::ArtifactPosition pos, CArtifactInstance *art);
+	void putArtifact(ArtifactPosition pos, CArtifactInstance *art);
 	void putInBackpack(CArtifactInstance *art);
 	void initExp();
 	void initArmy(IArmyDescriptor *dst = NULL);
@@ -413,7 +413,7 @@ public:
 	void initHeroDefInfo();
 	void pushPrimSkill(PrimarySkill::PrimarySkill which, int val);
 	void Updatespecialty();
-	void updateSkill(SecondarySkill::SecondarySkill which, int val);
+	void updateSkill(SecondarySkill which, int val);
 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
@@ -682,7 +682,7 @@ public:
 	si32 luckDiff; //luck modifier
 	TResources resources;//gained / lost resources
 	std::vector<si32> primskills;//gained / lost prim skills
-	std::vector<SecondarySkill::SecondarySkill> abilities; //gained abilities
+	std::vector<SecondarySkill> abilities; //gained abilities
 	std::vector<si32> abilityLevels; //levels of gained abilities
 	std::vector<ArtifactID> artifacts; //gained artifacts
 	std::vector<SpellID> spells; //gained spells

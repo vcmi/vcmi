@@ -21,7 +21,7 @@
  *
  */
 
-SecondarySkill::SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill::SecondarySkill> & possibles) const //picks secondary skill out from given possibilities
+SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possibles) const //picks secondary skill out from given possibilities
 {
 	if(possibles.size()==1)
 		return *possibles.begin();
@@ -166,7 +166,7 @@ CHeroClass *CHeroClassHandler::loadClass(const JsonNode & node)
 		heroClass->primarySkillHighLevel.push_back(node["highLevelChance"][pSkill].Float());
 	}
 
-	BOOST_FOREACH(const std::string & secSkill, SecondarySkill::names)
+	BOOST_FOREACH(const std::string & secSkill, NSecondarySkill::names)
 	{
 		heroClass->secSkillProbability.push_back(node["secondarySkills"][secSkill].Float());
 	}
@@ -271,9 +271,9 @@ void CHeroHandler::loadHeroJson(CHero * hero, const JsonNode & node)
 
 	BOOST_FOREACH(const JsonNode &set, node["skills"].Vector())
 	{
-		SecondarySkill::SecondarySkill skillID = static_cast<SecondarySkill::SecondarySkill>(
-			boost::range::find(SecondarySkill::names,  set["skill"].String()) - boost::begin(SecondarySkill::names));
-		int skillLevel = boost::range::find(SecondarySkill::levels, set["level"].String()) - boost::begin(SecondarySkill::levels);
+		SecondarySkill skillID = SecondarySkill(
+			boost::range::find(NSecondarySkill::names,  set["skill"].String()) - boost::begin(NSecondarySkill::names));
+		int skillLevel = boost::range::find(NSecondarySkill::levels, set["level"].String()) - boost::begin(NSecondarySkill::levels);
 
 		hero->secSkillsInit.push_back(std::make_pair(skillID, skillLevel));
 	}
@@ -319,7 +319,7 @@ void CHeroHandler::load()
 {
 	for (int i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
 	{
-		VLC->modh->identifiers.registerObject("skill." + SecondarySkill::names[i], i);
+		VLC->modh->identifiers.registerObject("skill." + NSecondarySkill::names[i], i);
 	}
 	classes.load();
 	loadHeroes();

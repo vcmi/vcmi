@@ -630,7 +630,7 @@ bool CGHeroInstance::canWalkOnSea() const
 	return hasBonusOfType(Bonus::FLYING_MOVEMENT) || hasBonusOfType(Bonus::WATER_WALKING);
 }
 
-ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill::SecondarySkill skill) const
+ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill skill) const
 {
 	for(size_t i=0; i < secSkills.size(); ++i)
 		if(secSkills[i].first == skill)
@@ -638,11 +638,11 @@ ui8 CGHeroInstance::getSecSkillLevel(SecondarySkill::SecondarySkill skill) const
 	return 0;
 }
 
-void CGHeroInstance::setSecSkillLevel(SecondarySkill::SecondarySkill which, int val, bool abs)
+void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 {
 	if(getSecSkillLevel(which) == 0)
 	{
-		secSkills.push_back(std::pair<SecondarySkill::SecondarySkill,ui8>(which, val));
+		secSkills.push_back(std::pair<SecondarySkill,ui8>(which, val));
 		updateSkill(which, val);
 	}
 	else
@@ -755,7 +755,7 @@ void CGHeroInstance::initHero()
 			pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(g), type->heroClass->primarySkillInitial[g]);
 		}
 	}
-	if(secSkills.size() == 1 && secSkills[0] == std::pair<SecondarySkill::SecondarySkill,ui8>(SecondarySkill::DEFAULT, -1)) //set secondary skills to default
+	if(secSkills.size() == 1 && secSkills[0] == std::pair<SecondarySkill,ui8>(SecondarySkill::DEFAULT, -1)) //set secondary skills to default
 		secSkills = type->secSkillsInit;
 	if (!name.length())
 		name = type->name;
@@ -843,7 +843,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 				slot = 9 + aid;
 				break;
 			}
-			auto convSlot = static_cast<ArtifactPosition::ArtifactPosition>(slot);
+			auto convSlot = ArtifactPosition(slot);
 			if(!getArt(convSlot))
 				putArtifact(convSlot, CArtifactInstance::createNewArtifactInstance(aid));
 			else
@@ -1093,7 +1093,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 				hs->addNewBonus(bonus);
 				break;
 			case 11://starting skill with mastery (Adrienne)
-				cb->changeSecSkill(this, static_cast<SecondarySkill::SecondarySkill>(spec.val), spec.additionalinfo); //simply give it and forget
+				cb->changeSecSkill(this, SecondarySkill(spec.val), spec.additionalinfo); //simply give it and forget
 				break;
 			case 12://army speed
 				bonus->type = Bonus::STACKS_SPEED;
@@ -1137,7 +1137,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 
 	//initialize bonuses
 	BOOST_FOREACH(auto skill_info, secSkills)
-		updateSkill(static_cast<SecondarySkill::SecondarySkill>(skill_info.first), skill_info.second);
+		updateSkill(SecondarySkill(skill_info.first), skill_info.second);
 	Updatespecialty();
 
 	mana = manaLimit(); //after all bonuses are taken into account, make sure this line is the last one
@@ -1198,7 +1198,7 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 		}
 	}
 }
-void CGHeroInstance::updateSkill(SecondarySkill::SecondarySkill which, int val)
+void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 {
 	if(which == SecondarySkill::LEADERSHIP || which == SecondarySkill::LUCK)
 	{ //luck-> VLC->generaltexth->arraytxt[73+luckSkill]; VLC->generaltexth->arraytxt[104+moraleSkill]
@@ -1310,7 +1310,7 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell, int *outSelectedSc
 	if(spell-> schoolName)									\
 	{															\
 		int thisSchool = std::max<int>(getSecSkillLevel( \
-			static_cast<SecondarySkill::SecondarySkill>(14 + (schoolMechanicsId))), \
+			SecondarySkill(14 + (schoolMechanicsId))), \
 			valOfBonuses(Bonus::MAGIC_SCHOOL_SKILL, 1 << (schoolMechanicsId))); \
 		if(thisSchool > skill)									\
 		{														\
@@ -1373,7 +1373,7 @@ CStackBasicDescriptor CGHeroInstance::calculateNecromancy (const BattleResult &b
 		ui32 raisedUnits = 0;
 
 		// Figure out what to raise and how many.
-		const ui32 creatureTypes[] = {56, 58, 60, 64}; // IDs for Skeletons, Walking Dead, Wights and Liches respectively.
+		const CreatureID creatureTypes[] = {CreatureID::SKELETON, CreatureID::WALKING_DEAD, CreatureID::WIGHTS, CreatureID::LICHES};
 		const bool improvedNecromancy = hasBonusOfType(Bonus::IMPROVED_NECROMANCY);
 		const CCreature *raisedUnitType = VLC->creh->creatures[creatureTypes[improvedNecromancy ? necromancyLevel : 0]];
 		const ui32 raisedUnitHP = raisedUnitType->valOfBonuses(Bonus::STACK_HEALTH);
@@ -1512,7 +1512,7 @@ std::string CGHeroInstance::nodeName() const
 	return "Hero " + name;
 }
 
-void CGHeroInstance::putArtifact(ArtifactPosition::ArtifactPosition pos, CArtifactInstance *art)
+void CGHeroInstance::putArtifact(ArtifactPosition pos, CArtifactInstance *art)
 {
 	assert(!getArt(pos));
 	art->putAt(ArtifactLocation(this, pos));
@@ -4729,7 +4729,7 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 			cb->changePrimSkill(h, static_cast<PrimarySkill::PrimarySkill>(rID), rVal, false);
 			break;
 		case SECONDARY_SKILL:
-			cb->changeSecSkill(h, static_cast<SecondarySkill::SecondarySkill>(rID), rVal, false);
+			cb->changeSecSkill(h, SecondarySkill(rID), rVal, false);
 			break;
 		case ARTIFACT:
 			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[rID],ArtifactPosition::FIRST_AVAILABLE);
@@ -4805,7 +4805,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	if(!wasVisited(h->tempOwner))
 		cb->setObjProperty(id,10,h->tempOwner);
 	ui32 txt_id;
-	if(h->getSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(ability))) //you alredy know this skill
+	if(h->getSecSkillLevel(SecondarySkill(ability))) //you alredy know this skill
 	{
 		txt_id =172;
 	}
@@ -4817,7 +4817,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		iw.components.push_back(Component(Component::SEC_SKILL, ability, 1, 0));
 		txt_id = 171;
-		cb->changeSecSkill(h, static_cast<SecondarySkill::SecondarySkill>(ability), 1, true);
+		cb->changeSecSkill(h, SecondarySkill(ability), 1, true);
 	}
 
 	iw.text.addTxt(MetaString::ADVOB_TXT,txt_id);
@@ -4833,7 +4833,7 @@ const std::string & CGWitchHut::getHoverText() const
 		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
 		boost::algorithm::replace_first(hoverName,"%s",VLC->generaltexth->skillName[ability]);
 		const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
-		if(h && h->getSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(ability))) //hero knows that ability
+		if(h && h->getSecSkillLevel(SecondarySkill(ability))) //hero knows that ability
 			hoverName += "\n\n" + VLC->generaltexth->allTexts[357]; // (Already learned)
 	}
 	return hoverName;
@@ -5553,7 +5553,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	EBonusType type = bonusType;
 	int bid = bonusID;
 	//check if the bonus if applicable, if not - give primary skill (always possible)
-	int ssl = h->getSecSkillLevel(static_cast<SecondarySkill::SecondarySkill>(bid)); //current sec skill level, used if bonusType == 1
+	int ssl = h->getSecSkillLevel(SecondarySkill(bid)); //current sec skill level, used if bonusType == 1
 	if((type == SECONDARY_SKILL
 			&& ((ssl == 3)  ||  (!ssl  &&  !h->canLearnSkill()))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
 		|| (type == SPELL  &&  (!h->getArt(ArtifactPosition::SPELLBOOK) || vstd::contains(h->spells, (ui32) bid)
@@ -5577,7 +5577,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 		iw.components.push_back(Component(Component::PRIM_SKILL,bid,+1,0));
 		break;
 	case SECONDARY_SKILL:
-		cb->changeSecSkill(h,static_cast<SecondarySkill::SecondarySkill>(bid),+1);
+		cb->changeSecSkill(h,SecondarySkill(bid),+1);
 		iw.components.push_back(Component(Component::SEC_SKILL,bid,ssl+1,0));
 		break;
 	case SPELL:

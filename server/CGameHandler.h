@@ -135,12 +135,12 @@ public:
 	void setOwner(const CGObjectInstance * obj, TPlayerColor owner) OVERRIDE;
 	void setHoverName(const CGObjectInstance * objid, MetaString * name) OVERRIDE;
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) OVERRIDE;
-	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill::SecondarySkill which, int val, bool abs=false) OVERRIDE; 
+	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) OVERRIDE; 
 	//void showInfoDialog(InfoWindow *iw) OVERRIDE;
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE;
 	ui32 showBlockingDialog(BlockingDialog *iw) OVERRIDE; //synchronous version of above
 	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) OVERRIDE;
-	void showThievesGuildWindow(int player, int requestingObjId) OVERRIDE;
+	void showThievesGuildWindow(TPlayerColor player, int requestingObjId) OVERRIDE;
 	void giveResource(TPlayerColor player, Res::ERes which, int val) OVERRIDE;
 
 	void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE;
@@ -154,8 +154,8 @@ public:
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) OVERRIDE;
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) OVERRIDE;
 
-	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition::ArtifactPosition pos) OVERRIDE;
-	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition::ArtifactPosition pos) OVERRIDE;
+	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) OVERRIDE;
+	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) OVERRIDE;
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) OVERRIDE; 
 	void removeArtifact(const ArtifactLocation &al) OVERRIDE;
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE;
@@ -182,7 +182,7 @@ public:
 	void visitObjectOnTile(const TerrainTile &t, const CGHeroInstance * h);
 	bool teleportHero(si32 hid, si32 dstid, ui8 source, TPlayerColor asker = GameConstants::NEUTRAL_PLAYER);
 	void vistiCastleObjects (const CGTownInstance *t, const CGHeroInstance *h);
-	void levelUpHero(const CGHeroInstance * hero, SecondarySkill::SecondarySkill skill);//handle client respond and send one more request if needed
+	void levelUpHero(const CGHeroInstance * hero, SecondarySkill skill);//handle client respond and send one more request if needed
 	void levelUpHero(const CGHeroInstance * hero);//initial call - check if hero have remaining levelups & handle them
 	void levelUpCommander (const CCommanderInstance * c, int skill); //secondary skill 1 to 6, special skill : skill - 100
 	void levelUpCommander (const CCommanderInstance * c);
@@ -213,14 +213,14 @@ public:
 	bool sendResources(ui32 val, TPlayerColor player, Res::ERes r1, TPlayerColor r2);
 	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, Res::ERes resourceID);
 	bool transformInUndead(const IMarket *market, const CGHeroInstance * hero, ui32 slot);
-	bool assembleArtifacts (si32 heroID, ArtifactPosition::ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo);
+	bool assembleArtifacts (si32 heroID, ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo);
 	bool buyArtifact( ui32 hid, ArtifactID aid ); //for blacksmith and mage guild only -> buying for gold in common buildings
 	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, Res::ERes rid, ArtifactID aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
 	bool sellArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactInstanceID aid, Res::ERes rid); //for artifact merchant selling
 	//void lootArtifacts (TArtHolder source, TArtHolder dest, std::vector<ui32> &arts); //after battle - move al arts to winer
-	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, SecondarySkill::SecondarySkill skill);
+	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, SecondarySkill skill);
 	bool garrisonSwap(si32 tid);
-	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
+	bool upgradeCreature( ui32 objid, ui8 pos, CreatureID upgID );
 	bool recruitCreatures(si32 objid, CreatureID crid, ui32 cram, si32 level);
 	bool buildStructure(si32 tid, BuildingID bid, bool force=false);//force - for events: no cost, no checkings
 	bool razeStructure(si32 tid, BuildingID bid);
@@ -261,7 +261,7 @@ public:
 	void handleAttackBeforeCasting (const BattleAttack & bat);
 	void handleAfterAttackCasting (const BattleAttack & bat);
 	void attackCasting(const BattleAttack & bat, Bonus::BonusType attackMode, const CStack * attacker);
-	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition::ArtifactPosition slot);
+	bool sacrificeArtifact(const IMarket * m, const CGHeroInstance * hero, ArtifactPosition slot);
 	void spawnWanderingMonsters(CreatureID creatureID);
 	friend class CVCMIServer;
 	friend class CScriptCallback;

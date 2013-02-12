@@ -542,7 +542,7 @@ void CMapLoaderH3M::readPredefinedHeroes()
 					hero->secSkills.resize(howMany);
 					for(int yy = 0; yy < howMany; ++yy)
 					{
-						hero->secSkills[yy].first = static_cast<SecondarySkill::SecondarySkill>(reader.readUInt8());
+						hero->secSkills[yy].first = SecondarySkill(reader.readUInt8());
 						hero->secSkills[yy].second = reader.readUInt8();
 					}
 				}
@@ -655,7 +655,7 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 			slot = ArtifactPosition::SPELLBOOK;
 		}
 
-		hero->putArtifact(static_cast<ArtifactPosition::ArtifactPosition>(slot), createArtifact(aid));
+		hero->putArtifact(ArtifactPosition(slot), createArtifact(aid));
 	}
 
 	return isArt;
@@ -845,7 +845,7 @@ void CMapLoaderH3M::readObjects()
 				int gabn = reader.readUInt8(); // Number of gained abilities
 				for(int oo = 0; oo < gabn; ++oo)
 				{
-					evnt->abilities.push_back(static_cast<SecondarySkill::SecondarySkill>(reader.readUInt8()));
+					evnt->abilities.push_back(SecondarySkill(reader.readUInt8()));
 					evnt->abilityLevels.push_back(reader.readUInt8());
 				}
 
@@ -1192,7 +1192,7 @@ void CMapLoaderH3M::readObjects()
 				int gabn = reader.readUInt8();//number of gained abilities
 				for(int oo = 0; oo < gabn; ++oo)
 				{
-					box->abilities.push_back(static_cast<SecondarySkill::SecondarySkill>(reader.readUInt8()));
+					box->abilities.push_back(SecondarySkill(reader.readUInt8()));
 					box->abilityLevels.push_back(reader.readUInt8());
 				}
 				int gart = reader.readUInt8(); //number of gained artifacts
@@ -1590,7 +1590,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(int idToBeGiven)
 		nhi->secSkills.resize(howMany);
 		for(int yy = 0; yy < howMany; ++yy)
 		{
-			nhi->secSkills[yy].first = static_cast<SecondarySkill::SecondarySkill>(reader.readUInt8());
+			nhi->secSkills[yy].first = SecondarySkill(reader.readUInt8());
 			nhi->secSkills[yy].second = reader.readUInt8();
 		}
 	}
