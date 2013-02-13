@@ -3448,7 +3448,7 @@ void CBonusSelection::updateBonusSelection()
 					picNumber = -1;
 
 					if (vstd::contains(CGI->townh->towns[faction].buildings, buildID))
-						desc = CGI->townh->towns[faction].buildings.find(buildID)->second->Description();
+						desc = CGI->townh->towns[faction].buildings.find(buildID)->second->Name();
 				}
 				break;
 			case CScenarioTravel::STravelBonus::ARTIFACT:

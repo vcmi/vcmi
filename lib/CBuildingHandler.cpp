@@ -15,12 +15,17 @@
 BuildingID CBuildingHandler::campToERMU( int camp, int townType, std::set<BuildingID> builtBuildings )
 {
 	using namespace boost::assign;
-	static const std::vector<int> campToERMU = list_of(11)(12)(13)(7)(8)(9)(5)(16)(14)(15)(-1)(0)(1)(2)(3)(4)
-		(6)(26)(17)(21)(22)(23)
+	static const std::vector<BuildingID> campToERMU = list_of(BuildingID::TOWN_HALL)(BuildingID::CITY_HALL)
+		(BuildingID::CAPITOL)(BuildingID::FORT)(BuildingID::CITADEL)(BuildingID::CASTLE)(BuildingID::TAVERN)
+		(BuildingID::BLACKSMITH)(BuildingID::MARKETPLACE)(BuildingID::RESOURCE_SILO)(BuildingID::NONE)
+		(BuildingID::MAGES_GUILD_1)(BuildingID::MAGES_GUILD_2)(BuildingID::MAGES_GUILD_3)(BuildingID::MAGES_GUILD_4)
+		(BuildingID::MAGES_GUILD_5)
+		(BuildingID::SHIPYARD)(BuildingID::GRAIL)
+		(BuildingID::SPECIAL_1)(BuildingID::SPECIAL_2)(BuildingID::SPECIAL_3)(BuildingID::SPECIAL_4)
 		; //creature generators with banks - handled separately
 	if (camp < campToERMU.size())
 	{
-		return BuildingID(campToERMU[camp]);
+		return campToERMU[camp];
 	}
 
 	static const std::vector<int> hordeLvlsPerTType[GameConstants::F_NUMBER] = {list_of(2), list_of(1), list_of(1)(4), list_of(0)(2),
@@ -58,9 +63,8 @@ BuildingID CBuildingHandler::campToERMU( int camp, int townType, std::set<Buildi
 					}
 				}
 			}
-			curPos++;
 		}
-
+		curPos++;
 	}
 	assert(0);
 	return BuildingID::NONE; //not found
