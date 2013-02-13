@@ -188,7 +188,7 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 	case EMarketMode::ARTIFACT_RESOURCE:
 		if(!hero)
 			COMPLAIN_AND_RETURN("Only hero can sell artifacts!");
-		return gh->sellArtifact(m, hero, r1, static_cast<Res::ERes>(r2));
+		return gh->sellArtifact(m, hero, ArtifactInstanceID(r1), static_cast<Res::ERes>(r2));
 	case EMarketMode::CREATURE_UNDEAD:
 		return gh->transformInUndead(m, hero, r1);
 	case EMarketMode::RESOURCE_SKILL:

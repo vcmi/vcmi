@@ -29,7 +29,7 @@ typedef const std::string& crstring;
 struct HeroPtr
 {
 	const CGHeroInstance *h;
-	int hid; //hero id (object subID or type ID)
+	ObjectInstanceID hid;
 
 public:
 	std::string name;
@@ -138,7 +138,6 @@ struct CGoal
 		isElementar = false;
 		isAbstract = false;
 		value = 0;
-		objid = -1;
 		aid = -1;
 		resID = -1;
 		tile = int3(-1, -1, -1);
@@ -220,12 +219,12 @@ struct CIssueCommand : CGoal
 // This class stores object id, so we can detect when we lose access to the underlying object.
 struct ObjectIdRef
 {
-	int id;
+	ObjectInstanceID id;
 
 	const CGObjectInstance *operator->() const;
 	operator const CGObjectInstance *() const;
 
-	ObjectIdRef(int _id);
+	ObjectIdRef(ObjectInstanceID _id);
 	ObjectIdRef(const CGObjectInstance *obj);
 
 	bool operator<(const ObjectIdRef &rhs) const;
@@ -315,7 +314,7 @@ public:
 	virtual void availableArtifactsChanged(const CGBlackMarket *bm = NULL) OVERRIDE;
 	virtual void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town) OVERRIDE;
 	virtual void tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos) OVERRIDE;
-	virtual void heroExchangeStarted(si32 hero1, si32 hero2) OVERRIDE;
+	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2) OVERRIDE;
 	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) OVERRIDE;
 	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) OVERRIDE;
 	virtual void heroMovePointsChanged(const CGHeroInstance * hero) OVERRIDE;

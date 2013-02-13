@@ -259,7 +259,7 @@ public:
 	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
 	std::set<const CStack*> getAffectedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, BattleHex destinationTile); //calculates stack affected by given spell
 
-	si32 battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode) const;
+	SpellID battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode) const;
 	SpellID getRandomBeneficialSpell(const CStack * subject) const;
 	SpellID getRandomCastedSpell(const CStack * caster) const; //called at the beginning of turn for Faerie Dragon
 

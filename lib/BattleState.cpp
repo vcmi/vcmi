@@ -1119,7 +1119,7 @@ std::string CStack::nodeName() const
 
 	oss << " from slot " << (int)slot;
 	if(base && base->armyObj)
-		oss << " of armyobj=" << base->armyObj->id;
+		oss << " of armyobj=" << base->armyObj->id.getNum();
 	return oss.str();
 }
 

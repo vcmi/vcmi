@@ -467,7 +467,7 @@ std::set<BattleHex> CBattleInfoCallback::battleGetAttackedHexes(const CStack* at
 	return attackedHexes;
 }
 
-si32 CBattleInfoCallback::battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode) const
+SpellID CBattleInfoCallback::battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode) const
 {
 	switch (mode)
 	{
@@ -479,7 +479,7 @@ si32 CBattleInfoCallback::battleGetRandomStackSpell(const CStack * stack, ERando
 		break;
 	default:
 		tlog1 << "Incorrect mode of battleGetRandomSpell (" << mode <<")\n";
-		return -1;
+		return SpellID::NONE;
 	}
 }
 

@@ -8,6 +8,8 @@
  *
  */
 
+#define INSTANTIATE_BASE_FOR_ID_HERE
+
 #include "StdInc.h"
 
 #include "VCMI_Lib.h"
@@ -86,3 +88,6 @@ CSpell * SpellID::toSpell() const
 {
 	return VLC->spellh->spells[*this];
 }
+
+template std::ostream & operator << <ArtifactInstanceID>(std::ostream & os, BaseForID<ArtifactInstanceID> id);
+template std::ostream & operator << <ObjectInstanceID>(std::ostream & os, BaseForID<ObjectInstanceID> id);

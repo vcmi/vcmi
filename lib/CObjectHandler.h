@@ -170,7 +170,7 @@ public:
 	int3 pos; //h3m pos
 	Obj ID;
 	si32 subID; //normal subID (this one from OH3 maps ;])
-	si32 id;//number of object in map's vector
+	ObjectInstanceID id;//number of object in map's vector
 	CGDefInfo * defInfo;
 	ui8 animPhaseShift;
 
@@ -194,7 +194,7 @@ public:
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
 	bool isVisitable() const; //returns true if object is visitable
 	bool operator<(const CGObjectInstance & cmp) const;  //screen printing priority comparing
-	void hideTiles(int ourplayer, int radius) const;
+	void hideTiles(TPlayerColor ourplayer, int radius) const;
 	CGObjectInstance();
 	virtual ~CGObjectInstance();
 	//CGObjectInstance(const CGObjectInstance & right);
@@ -218,7 +218,7 @@ protected:
 	virtual void setPropertyDer(ui8 what, ui32 val);//synchr
 
 	void getNameVis(std::string &hname) const;
-	void giveDummyBonus(int heroID, ui8 duration = Bonus::ONE_DAY) const;
+	void giveDummyBonus(ObjectInstanceID heroID, ui8 duration = Bonus::ONE_DAY) const;
 };
 class CGHeroPlaceholder : public CGObjectInstance
 {
@@ -484,7 +484,7 @@ private:
 class DLL_LINKAGE CGVisitableOPH : public CGObjectInstance //objects visitable only once per hero
 {
 public:
-	std::set<si32> visitors; //ids of heroes who have visited this obj
+	std::set<ObjectInstanceID> visitors; //ids of heroes who have visited this obj
 	si8 ttype; //tree type - used only by trees of knowledge: 0 - give level for free; 1 - take 2000 gold; 2 - take 10 gems
 
 	const std::string & getHoverText() const override;
@@ -501,11 +501,11 @@ public:
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;//synchr
 private:
-	void onNAHeroVisit(int heroID, bool alreadyVisited) const;
+	void onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited) const;
 	///dialog callbacks
-	void treeSelected(int heroID, int resType, int resVal, TExpType expVal, ui32 result) const;
-	void schoolSelected(int heroID, ui32 which) const;
-	void arenaSelected(int heroID, int primSkill) const;
+	void treeSelected(ObjectInstanceID heroID, int resType, int resVal, TExpType expVal, ui32 result) const;
+	void schoolSelected(ObjectInstanceID heroID, ui32 which) const;
+	void arenaSelected(ObjectInstanceID heroID, int primSkill) const;
 };
 class DLL_LINKAGE CGTownBuilding : public IObjectInterface
 {
@@ -541,7 +541,7 @@ class DLL_LINKAGE CTownBonus : public CGTownBuilding
 ///used for one-time bonusing structures
 ///feel free to merge inheritance tree
 public:
-	std::set<si32> visitors;
+	std::set<ObjectInstanceID> visitors;
 	void setProperty(ui8 what, ui32 val) override;
 	void onHeroVisit (const CGHeroInstance * h) const override;
 
@@ -945,7 +945,7 @@ public:
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
-	void chosen(int which, int heroID) const;
+	void chosen(int which, ObjectInstanceID heroID) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1013,12 +1013,12 @@ protected:
 class DLL_LINKAGE CGTeleport : public CGObjectInstance //teleports and subterranean gates
 {
 public:
-	static std::map<int,std::map<int, std::vector<int> > > objs; //teleports: map[ID][subID] => vector of ids
-	static std::vector<std::pair<int, int> > gates; //subterranean gates: pairs of ids
+	static std::map<int,std::map<int, std::vector<ObjectInstanceID> > > objs; //teleports: map[ID][subID] => vector of ids
+	static std::vector<std::pair<ObjectInstanceID, ObjectInstanceID> > gates; //subterranean gates: pairs of ids
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
 	static void postInit();
-	static int getMatchingGate(int id); //receives id of one subterranean gate and returns id of the paired one, -1 if none
+	static ObjectInstanceID getMatchingGate(ObjectInstanceID id); //receives id of one subterranean gate and returns id of the paired one, -1 if none
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1254,7 +1254,7 @@ public:
 class DLL_LINKAGE CGMagi : public CGObjectInstance
 {
 public:
-	static std::map <si32, std::vector<si32> > eyelist; //[subID][id], supports multiple sets as in H5
+	static std::map <si32, std::vector<ObjectInstanceID> > eyelist; //[subID][id], supports multiple sets as in H5
 
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;

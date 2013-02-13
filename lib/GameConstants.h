@@ -94,9 +94,12 @@ namespace GameConstants
 }
 
 class CArtifact;
+class CArtifactInstance;
 class CGDefInfo;
 class CCreature;
 class CSpell;
+class CGameInfoCallback;
+class CNonConstInfoCallback;
 
 #define ID_LIKE_CLASS_COMMON(CLASS_NAME, ENUM_NAME)	\
 CLASS_NAME(const CLASS_NAME & other)				\
@@ -144,6 +147,86 @@ bool DLL_LINKAGE operator>=(const A & a, const B & b);
 	ID_LIKE_OPERATORS_INTERNAL_DECLS(ENUM_NAME, CLASS_NAME)
 
 
+#define OP_DECL_INT(CLASS_NAME, OP)					\
+bool operator OP (const CLASS_NAME & b) const		\
+{													\
+	return num OP b.num;							\
+}
+
+#define INSTID_LIKE_CLASS_COMMON(CLASS_NAME)		\
+public:												\
+CLASS_NAME() : BaseForID<CLASS_NAME>(-1) {}			\
+CLASS_NAME(const CLASS_NAME & other)				\
+{													\
+	num = other.num;								\
+}													\
+CLASS_NAME & operator=(const CLASS_NAME & other)	\
+{													\
+	num = other.num;								\
+	return *this;									\
+}													\
+explicit CLASS_NAME(si32 id)						\
+	: BaseForID<CLASS_NAME>(id)						\
+{}
+
+template < typename Derived>
+class BaseForID
+{
+protected:
+	si32 num;
+public:
+	si32 getNum() const
+	{
+		return num;
+	}
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & num;
+	}
+
+	explicit BaseForID(si32 _num = -1)
+	{
+		num = _num;
+	}
+
+	OP_DECL_INT(BaseForID<Derived>, ==)
+	OP_DECL_INT(BaseForID<Derived>, !=)
+	OP_DECL_INT(BaseForID<Derived>, <)
+	OP_DECL_INT(BaseForID<Derived>, >)
+	OP_DECL_INT(BaseForID<Derived>, <=)
+	OP_DECL_INT(BaseForID<Derived>, >=)
+};
+
+template<typename Der>
+DLL_LINKAGE std::ostream & operator << (std::ostream & os, BaseForID<Der> id);
+
+template<typename Der>
+std::ostream & operator << (std::ostream & os, BaseForID<Der> id)
+{
+	return os << id;
+}
+
+class ArtifactInstanceID : public BaseForID<ArtifactInstanceID>
+{
+	INSTID_LIKE_CLASS_COMMON(ArtifactInstanceID)
+
+	friend class CGameInfoCallback;
+	friend class CNonConstInfoCallback;
+};
+
+
+class ObjectInstanceID : public BaseForID<ObjectInstanceID>
+{
+	INSTID_LIKE_CLASS_COMMON(ObjectInstanceID)
+
+	friend class CGameInfoCallback;
+	friend class CNonConstInfoCallback;
+};
+
+#ifndef INSTANTIATE_BASE_FOR_ID_HERE
+extern template std::ostream & operator << <ArtifactInstanceID>(std::ostream & os, BaseForID<ArtifactInstanceID> id);
+extern template std::ostream & operator << <ObjectInstanceID>(std::ostream & os, BaseForID<ObjectInstanceID> id);
+#endif
 
 // Enum declarations
 namespace PrimarySkill
@@ -762,10 +845,15 @@ typedef ui8 TBonusType;
 typedef si32 TBonusSubtype;
 typedef si32 TSlot;
 typedef si32 TQuantity;
-typedef si32 TArtifactInstanceID;
 typedef ui8 TPlayerColor;
 
 
 #undef ID_LIKE_CLASS_COMMON
 #undef ID_LIKE_OPERATORS_DECLS
 #undef ID_LIKE_OPERATORS_INTERNAL_DECLS
+#undef INSTID_LIKE_CLASS_COMMON
+#undef OP_DECL_INT
+
+
+
+

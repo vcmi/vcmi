@@ -95,7 +95,7 @@ public:
 	void getUpgradeInfo(const CArmedInstance *obj, int stackPos, UpgradeInfo &out)const;
 
 	//hero
-	const CGHeroInstance* getHero(int objid) const;
+	const CGHeroInstance* getHero(ObjectInstanceID objid) const;
 	const CGHeroInstance* getHeroWithSubid(int subid) const;
 	int getHeroCount(TPlayerColor player, bool includeGarrisoned) const;
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
@@ -103,14 +103,16 @@ public:
 	int estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
 	const CGHeroInstance* getSelectedHero(TPlayerColor player) const; //NULL if no hero is selected
 	const CGHeroInstance* getSelectedHero() const; //of current (active) player
+	const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const;
+	const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const;
 
 	//objects
-	const CGObjectInstance* getObj(int objid, bool verbose = true) const;
+	const CGObjectInstance* getObj(ObjectInstanceID objid, bool verbose = true) const;
 	std::vector <const CGObjectInstance * > getBlockingObjs(int3 pos)const;
 	std::vector <const CGObjectInstance * > getVisitableObjs(int3 pos, bool verbose = true)const;
 	std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	std::vector <std::string > getObjDescriptions(int3 pos)const; //returns descriptions of objects at pos in order from the lowest to the highest
-	int getOwner(int heroID) const;
+	TPlayerColor getOwner(ObjectInstanceID heroID) const;
 	const CGObjectInstance *getObjByQuestIdentifier(int identifier) const; //NULL if object has been removed (eg. killed)
 
 	//map
@@ -122,8 +124,8 @@ public:
 	bool isInTheMap(const int3 &pos) const;
 
 	//town
-	const CGTownInstance* getTown(int objid) const;
-	int howManyTowns(int Player) const;
+	const CGTownInstance* getTown(ObjectInstanceID objid) const;
+	int howManyTowns(TPlayerColor Player) const;
 	const CGTownInstance * getTownInfo(int val, bool mode)const; //mode = 0 -> val = player town serial; mode = 1 -> val = object id (serial)
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const; //heroes that can be recruited
 	std::string getTavernGossip(const CGObjectInstance * townOrTavern) const; 
@@ -135,7 +137,7 @@ public:
 	//from gs
 	const TeamState *getTeam(ui8 teamID) const;
 	const TeamState *getPlayerTeam(TPlayerColor color) const;
-	std::set<int> getBuildingRequiments(const CGTownInstance *t, int ID) const;
+	std::set<BuildingID> getBuildingRequiments(const CGTownInstance *t, BuildingID ID) const;
 	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID) const;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 };
 
@@ -182,9 +184,11 @@ public:
 	PlayerState *getPlayer(TPlayerColor color, bool verbose = true);
 	TeamState *getTeam(ui8 teamID);//get team by team ID
 	TeamState *getPlayerTeam(TPlayerColor color);// get team by player color
-	CGHeroInstance *getHero(int objid);
-	CGTownInstance *getTown(int objid);
+	CGHeroInstance *getHero(ObjectInstanceID objid);
+	CGTownInstance *getTown(ObjectInstanceID objid);
 	TerrainTile * getTile(int3 pos);
+	CArtifactInstance * getArtInstance(ArtifactInstanceID aid);
+	CGObjectInstance * getObjInstance(ObjectInstanceID oid);
 };
 
 class DLL_LINKAGE IGameEventRealizer
@@ -193,10 +197,10 @@ public:
 	virtual void commitPackage(CPackForClient *pack) = 0;
 
 	virtual void showInfoDialog(InfoWindow *iw);
-	virtual void setObjProperty(int objid, int prop, si64 val);
+	virtual void setObjProperty(ObjectInstanceID objid, int prop, si64 val);
 
 
-	virtual void showInfoDialog(const std::string &msg, int player);
+	virtual void showInfoDialog(const std::string &msg, TPlayerColor player);
 };
 
 class DLL_LINKAGE IGameEventCallback : public IGameEventRealizer
@@ -204,19 +208,19 @@ class DLL_LINKAGE IGameEventCallback : public IGameEventRealizer
 public:
 	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
 	virtual bool removeObject(const CGObjectInstance * obj)=0;
-	virtual void setBlockVis(int objid, bool bv)=0;
+	virtual void setBlockVis(ObjectInstanceID objid, bool bv)=0;
 	virtual void setOwner(const CGObjectInstance * objid, TPlayerColor owner)=0;
 	virtual void setHoverName(const CGObjectInstance * obj, MetaString * name)=0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0; 
 	virtual void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback)=0;
 	virtual ui32 showBlockingDialog(BlockingDialog *iw) =0; //synchronous version of above //TODO:
-	virtual void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb) =0; //cb will be called when player closes garrison window
-	virtual void showThievesGuildWindow(TPlayerColor player, int requestingObjId) =0;
+	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const boost::function<void()> &cb) =0; //cb will be called when player closes garrison window
+	virtual void showThievesGuildWindow(TPlayerColor player, ObjectInstanceID requestingObjId) =0;
 	virtual void giveResource(TPlayerColor player, Res::ERes which, int val)=0;
 
 	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
-	virtual void takeCreatures(int objid, const std::vector<CStackBasicDescriptor> &creatures) =0;
+	virtual void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures) =0;
 	virtual bool changeStackCount(const StackLocation &sl, TQuantity count, bool absoluteValue = false) =0;
 	virtual bool changeStackType(const StackLocation &sl, CCreature *c) =0;
 	virtual bool insertNewStack(const StackLocation &sl, const CCreature *c, TQuantity count = -1) =0; //count -1 => moves whole stack
@@ -238,15 +242,15 @@ public:
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank = false, boost::function<void(BattleResult*)> cb = 0, const CGTownInstance *town = NULL)=0; //use hero=NULL for no hero
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false)=0; //if any of armies is hero, hero will be used
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false)=0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
-	virtual void setAmount(int objid, ui32 val)=0;
-	virtual bool moveHero(si32 hid, int3 dst, ui8 instant, TPlayerColor asker = GameConstants::NEUTRAL_PLAYER)=0;
+	virtual void setAmount(ObjectInstanceID objid, ui32 val)=0;
+	virtual bool moveHero(ObjectInstanceID hid, int3 dst, ui8 instant, TPlayerColor asker = GameConstants::NEUTRAL_PLAYER)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
-	virtual void setManaPoints(int hid, int val)=0;
-	virtual void giveHero(int id, TPlayerColor player)=0;
-	virtual void changeObjPos(int objid, int3 newPos, ui8 flags)=0;
+	virtual void setManaPoints(ObjectInstanceID hid, int val)=0;
+	virtual void giveHero(ObjectInstanceID id, TPlayerColor player)=0;
+	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags)=0;
 	virtual void sendAndApply(CPackForClient * info)=0;
-	virtual void heroExchange(si32 hero1, si32 hero2)=0; //when two heroes meet on adventure map
+	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
 	virtual void addQuest(int player, QuestInfo & quest){};
 };
 

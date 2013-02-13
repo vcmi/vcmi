@@ -815,7 +815,7 @@ void CMapLoaderH3M::readObjects()
 		int3 objPos = readInt3();
 
 		int defnum = reader.readUInt32();
-		int idToBeGiven = map->objects.size();
+		ObjectInstanceID idToBeGiven = ObjectInstanceID(map->objects.size());
 
 		CGDefInfo * defInfo = map->customDefs.at(defnum);
 		reader.skip(5);
@@ -1460,7 +1460,7 @@ void CMapLoaderH3M::readObjects()
 			nobj->subID = defInfo->subid;
 		}
 		nobj->defInfo = defInfo;
-		assert(idToBeGiven == map->objects.size());
+		assert(idToBeGiven == ObjectInstanceID(map->objects.size()));
 		map->objects.push_back(nobj);
 		if(nobj->ID == Obj::TOWN)
 		{
@@ -1521,7 +1521,7 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 	out->validTypes(true);
 }
 
-CGObjectInstance * CMapLoaderH3M::readHero(int idToBeGiven)
+CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 {
 	CGHeroInstance * nhi = new CGHeroInstance();
 

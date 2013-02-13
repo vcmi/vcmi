@@ -111,7 +111,7 @@ void SetPrimSkill::applyCl( CClient *cl )
 	const CGHeroInstance *h = cl->getHero(id);
 	if(!h)
 	{
-		tlog1 << "Cannot find hero with ID " << id << std::endl;
+		tlog1 << "Cannot find hero with ID " << id.getNum() << std::endl;
 		return;
 	}
 	INTERFACE_CALL_IF_PRESENT(h->tempOwner,heroPrimarySkillChanged,h,which,val);
@@ -255,7 +255,7 @@ void GiveBonus::applyCl( CClient *cl )
 	{
 	case HERO:
 		{
-			const CGHeroInstance *h = GS(cl)->getHero(id);
+			const CGHeroInstance *h = GS(cl)->getHero(ObjectInstanceID(id));
 			INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroBonusChanged, h, *h->getBonusList().back(),true);
 		}
 		break;
@@ -270,13 +270,13 @@ void GiveBonus::applyCl( CClient *cl )
 
 void ChangeObjPos::applyFirstCl( CClient *cl )
 {
-	CGObjectInstance *obj = GS(cl)->map->objects[objid];
+	CGObjectInstance *obj = GS(cl)->getObjInstance(objid);
 	if(flags & 1)
 		CGI->mh->hideObject(obj);
 }
 void ChangeObjPos::applyCl( CClient *cl )
 {
-	CGObjectInstance *obj = GS(cl)->map->objects[objid];
+	CGObjectInstance *obj = GS(cl)->getObjInstance(objid);
 	if(flags & 1)
 		CGI->mh->printObject(obj);
 
@@ -295,7 +295,7 @@ void RemoveBonus::applyCl( CClient *cl )
 	{
 	case HERO:
 		{
-			const CGHeroInstance *h = GS(cl)->getHero(id);
+			const CGHeroInstance *h = GS(cl)->getHero(ObjectInstanceID(id));
 			INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroBonusChanged, h, bonus,false);
 		}
 		break;
@@ -527,9 +527,9 @@ void InfoWindow::applyCl( CClient *cl )
 void SetObjectProperty::applyCl( CClient *cl )
 {
 	//inform all players that see this object
-	for(std::map<ui8,CGameInterface *>::const_iterator it = cl->playerint.begin(); it != cl->playerint.end(); ++it)
+	for(auto it = cl->playerint.cbegin(); it != cl->playerint.cend(); ++it)
 	{
-		if(GS(cl)->isVisible(GS(cl)->map->objects[id], it->first))
+		if(GS(cl)->isVisible(GS(cl)->getObjInstance(id), it->first))
 			INTERFACE_CALL_IF_PRESENT(it->first, objectPropertyChanged, this);
 	}
 }
@@ -826,46 +826,46 @@ void OpenWindow::applyCl(CClient *cl)
 	{
 	case EXCHANGE_WINDOW:
 		{
-			const CGHeroInstance *h = cl->getHero(id1);
-			const CGObjectInstance *h2 = cl->getHero(id2);
+			const CGHeroInstance *h = cl->getHero(ObjectInstanceID(id1));
+			const CGObjectInstance *h2 = cl->getHero(ObjectInstanceID(id2));
 			assert(h && h2);
-			INTERFACE_CALL_IF_PRESENT(h->tempOwner,heroExchangeStarted, id1, id2);
+			INTERFACE_CALL_IF_PRESENT(h->tempOwner,heroExchangeStarted, ObjectInstanceID(id1), ObjectInstanceID(id2));
 		}
 		break;
 	case RECRUITMENT_FIRST:
 	case RECRUITMENT_ALL:
 		{
-			const CGDwelling *dw = dynamic_cast<const CGDwelling*>(cl->getObj(id1));
-			const CArmedInstance *dst = dynamic_cast<const CArmedInstance*>(cl->getObj(id2));
+			const CGDwelling *dw = dynamic_cast<const CGDwelling*>(cl->getObj(ObjectInstanceID(id1)));
+			const CArmedInstance *dst = dynamic_cast<const CArmedInstance*>(cl->getObj(ObjectInstanceID(id2)));
 			INTERFACE_CALL_IF_PRESENT(dst->tempOwner,showRecruitmentDialog, dw, dst, window == RECRUITMENT_FIRST ? 0 : -1);
 		}
 		break;
 	case SHIPYARD_WINDOW:
 		{
-			const IShipyard *sy = IShipyard::castFrom(cl->getObj(id1));
+			const IShipyard *sy = IShipyard::castFrom(cl->getObj(ObjectInstanceID(id1)));
 			INTERFACE_CALL_IF_PRESENT(sy->o->tempOwner, showShipyardDialog, sy);
 		}
 		break;
 	case THIEVES_GUILD:
 		{
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
-			const CGObjectInstance *obj = cl->getObj(id2);
+			const CGObjectInstance *obj = cl->getObj(ObjectInstanceID(id2));
 			INTERFACE_CALL_IF_PRESENT(id1, showThievesGuildWindow, obj);
 		}
 		break;
 	case UNIVERSITY_WINDOW:
 		{
 			//displays University window (when hero enters University on adventure map)
-			const IMarket *market = IMarket::castFrom(cl->getObj(id1));
-			const CGHeroInstance *hero = cl->getHero(id2);
+			const IMarket *market = IMarket::castFrom(cl->getObj(ObjectInstanceID(id1)));
+			const CGHeroInstance *hero = cl->getHero(ObjectInstanceID(id2));
 			INTERFACE_CALL_IF_PRESENT(hero->tempOwner,showUniversityWindow, market, hero);
 		}
 		break;
 	case MARKET_WINDOW:
 		{
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
-			const CGObjectInstance *obj = cl->getObj(id1);
-			const CGHeroInstance *hero = cl->getHero(id2);
+			const CGObjectInstance *obj = cl->getObj(ObjectInstanceID(id1));
+			const CGHeroInstance *hero = cl->getHero(ObjectInstanceID(id2));
 			const IMarket *market = IMarket::castFrom(obj);
 			INTERFACE_CALL_IF_PRESENT(cl->getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, showMarketWindow, market, hero);
 		}
@@ -873,8 +873,8 @@ void OpenWindow::applyCl(CClient *cl)
 	case HILL_FORT_WINDOW:
 		{
 			//displays Hill fort window
-			const CGObjectInstance *obj = cl->getObj(id1);
-			const CGHeroInstance *hero = cl->getHero(id2);
+			const CGObjectInstance *obj = cl->getObj(ObjectInstanceID(id1));
+			const CGHeroInstance *hero = cl->getHero(ObjectInstanceID(id2));
 			INTERFACE_CALL_IF_PRESENT(cl->getTile(obj->visitablePos())->visitableObjects.back()->tempOwner, showHillFortWindow, obj, hero);
 		}
 		break;
@@ -884,8 +884,8 @@ void OpenWindow::applyCl(CClient *cl)
 		}
 		break;
 	case TAVERN_WINDOW:
-		const CGObjectInstance *obj1 = cl->getObj(id1),
-								*obj2 = cl->getObj(id2);
+		const CGObjectInstance *obj1 = cl->getObj(ObjectInstanceID(id1)),
+								*obj2 = cl->getObj(ObjectInstanceID(id2));
 		INTERFACE_CALL_IF_PRESENT(obj1->tempOwner, showTavernWindow, obj2);
 		break;
 	}
@@ -920,7 +920,7 @@ void SetAvailableArtifacts::applyCl(CClient *cl)
 	}
 	else
 	{
-		const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(cl->getObj(id));
+		const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(cl->getObj(ObjectInstanceID(id)));
 		assert(bm);
 		INTERFACE_CALL_IF_PRESENT(cl->getTile(bm->visitablePos())->visitableObjects.back()->tempOwner, availableArtifactsChanged, bm);
 	}

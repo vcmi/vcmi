@@ -561,7 +561,7 @@ ArtifactID CArtHandler::getRandomArt(int flags)
 }
 ArtifactID CArtHandler::getArtSync (ui32 rand, int flags, bool erasePicked)
 {
-	auto erasePickedArt = [&]( TArtifactInstanceID id )
+	auto erasePickedArt = [&]( ArtifactID id )
 	{
 		std::vector<CArtifact*>* ptr;
 		CArtifact *art = artifacts[id];
@@ -867,7 +867,7 @@ CArtifactInstance * CArtifactInstance::createScroll( const CSpell *s)
 
 void CArtifactInstance::init()
 {
-	id = -1;
+	id = ArtifactInstanceID();
 	setNodeType(ARTIFACT_INSTANCE);
 }
 
@@ -1260,7 +1260,7 @@ ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance *art) const
 	return ArtifactPosition::PRE_FIRST;
 }
 
-const CArtifactInstance * CArtifactSet::getArtByInstanceId( TArtifactInstanceID artInstId ) const
+const CArtifactInstance * CArtifactSet::getArtByInstanceId( ArtifactInstanceID artInstId ) const
 {
 	BOOST_FOREACH(auto i, artifactsWorn)
 		if(i.second.artifact->id == artInstId)

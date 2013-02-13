@@ -171,7 +171,7 @@ private:
 	 * @param idToBeGiven the object id which should be set for the hero
 	 * @return a object instance
 	 */
-	CGObjectInstance * readHero(int idToBeGiven);
+	CGObjectInstance * readHero(ObjectInstanceID idToBeGiven);
 
 	/**
 	 * Reads a seer hut.

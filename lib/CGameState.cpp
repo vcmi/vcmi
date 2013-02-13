@@ -1083,7 +1083,7 @@ void CGameState::init(StartInfo * si)
 					it->second.hero = h;
 
 				CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(Obj::HERO,h,hpos,it->first));
-				nnn->id = map->objects.size();
+				nnn->id = ObjectInstanceID(map->objects.size());
 				nnn->initHero();
 				map->heroes.push_back(nnn);
 				map->objects.push_back(nnn);
@@ -1094,10 +1094,10 @@ void CGameState::init(StartInfo * si)
 
 	/*************************replace hero placeholders*****************************/
 	tlog4 << "\tReplacing hero placeholders";
-	std::vector<std::pair<CGHeroInstance*, int> > campHeroReplacements; //instance, id in vector
+	std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > campHeroReplacements; //instance, id in vector
 	if (scenarioOps->campState)
 	{
-		auto replaceHero = [&](int objId, CGHeroInstance * ghi)
+		auto replaceHero = [&](ObjectInstanceID objId, CGHeroInstance * ghi)
 		{
 			campHeroReplacements.push_back(std::make_pair(ghi, objId));
 // 			ghi->tempOwner = getHumanPlayerInfo()[0]->color;
@@ -1120,6 +1120,7 @@ void CGameState::init(StartInfo * si)
 			//selecting heroes by type
 			for(int g=0; g<map->objects.size(); ++g)
 			{
+				const ObjectInstanceID gid = ObjectInstanceID(g);
 				CGObjectInstance * obj = map->objects[g];
 				if (obj->ID != Obj::HERO_PLACEHOLDER)
 				{
@@ -1135,7 +1136,7 @@ void CGameState::init(StartInfo * si)
 						if (ghi->subID == hp->subID)
 						{
 							found = true;
-							replaceHero(g, ghi);
+							replaceHero(gid, ghi);
 							Xheroes -= ghi;
 							break;
 						}
@@ -1144,7 +1145,7 @@ void CGameState::init(StartInfo * si)
 					{
 						CGHeroInstance * nh = new CGHeroInstance();
 						nh->initHero(hp->subID);
-						replaceHero(g, nh);
+						replaceHero(gid, nh);
 					}
 				}
 			}
@@ -1158,6 +1159,7 @@ void CGameState::init(StartInfo * si)
 
 			for(int g=0; g<map->objects.size(); ++g)
 			{
+				const ObjectInstanceID gid = ObjectInstanceID(g);
 				CGObjectInstance * obj = map->objects[g];
 				if (obj->ID != Obj::HERO_PLACEHOLDER)
 				{
@@ -1168,7 +1170,7 @@ void CGameState::init(StartInfo * si)
 				if (hp->subID == 0xFF) //select by power
 				{
 					if(Xheroes.size() > hp->power - 1)
-						replaceHero(g, Xheroes[hp->power - 1]);
+						replaceHero(gid, Xheroes[hp->power - 1]);
 					else
 					{
 						tlog3 << "Warning, no hero to replace!\n";
@@ -1242,7 +1244,7 @@ void CGameState::init(StartInfo * si)
 	//Replace placeholders with heroes from previous missions
 	BOOST_FOREACH(auto obj, campHeroReplacements)
 	{
-		CGHeroPlaceholder *placeholder = dynamic_cast<CGHeroPlaceholder*>(&*map->objects[obj.second]);
+		CGHeroPlaceholder *placeholder = dynamic_cast<CGHeroPlaceholder*>(getObjInstance(obj.second));
 
 		CGHeroInstance *heroToPlace = obj.first;
 		heroToPlace->id = obj.second;
@@ -1257,7 +1259,7 @@ void CGameState::init(StartInfo * si)
 		{
 			art->artType = VLC->arth->artifacts[art->artType->id];
 			gs->map->artInstances.push_back(art);
-			art->id = gs->map->artInstances.size() - 1;
+			art->id = ArtifactInstanceID(gs->map->artInstances.size() - 1);
 		};
 
 		BOOST_FOREACH(auto &&i, heroToPlace->artifactsWorn)
@@ -1266,7 +1268,7 @@ void CGameState::init(StartInfo * si)
 			fixArtifact(i.artifact);
 
 		map->heroes.push_back(heroToPlace);
-		map->objects[heroToPlace->id] = heroToPlace;
+		map->objects[heroToPlace->id.getNum()] = heroToPlace;
 		map->addBlockVisTiles(heroToPlace);
 
 		//const auto & travelOptions = scenarioOps->campState->getCurrentScenario().travelOptions;
@@ -2270,7 +2272,7 @@ int CGameState::victoryCheck( ui8 player ) const
 			}
 			break;
 		case EVictoryConditionType::BEATMONSTER:
-			if(!map->objects[map->victoryCondition.obj->id]) //target monster not present on map
+			if(!getObj(map->victoryCondition.obj->id)) //target monster not present on map
 				return 1;
 			break;
 		case EVictoryConditionType::TAKEDWELLINGS:

@@ -110,7 +110,7 @@ public:
 	CArtifactInstance();
 
 	ConstTransitivePtr<CArtifact> artType;
-	TArtifactInstanceID id;
+	ArtifactInstanceID id;
 
 	//CArtifactInstance(int aid);
 
@@ -217,7 +217,6 @@ public:
 	bool legalArtifact(ArtifactID id);
 	void getAllowedArts(std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag);
 	void getAllowed(std::vector<ConstTransitivePtr<CArtifact> > &out, int flags);
-	void erasePickedArt (TArtifactInstanceID id);
 	bool isBigArtifact (ArtifactID artID) const {return bigArtifacts.find(artID) != bigArtifacts.end();}
 	void initAllowedArtifactsList(const std::vector<bool> &allowed); //allowed[art_id] -> 0 if not allowed, 1 if allowed
 	static ArtifactID creatureToMachineID(CreatureID id);
@@ -274,7 +273,7 @@ public:
 	CArtifactInstance* getArt(ArtifactPosition pos, bool excludeLocked = true); //NULL - no artifact
 	ArtifactPosition getArtPos(int aid, bool onlyWorn = true) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
 	ArtifactPosition getArtPos(const CArtifactInstance *art) const;
-	const CArtifactInstance *getArtByInstanceId(TArtifactInstanceID artInstId) const;
+	const CArtifactInstance *getArtByInstanceId(ArtifactInstanceID artInstId) const;
 	bool hasArt(ui32 aid, bool onlyWorn = false) const; //checks if hero possess artifact of given id (either in backack or worn)
 	bool isPositionFree(ArtifactPosition pos, bool onlyLockCheck = false) const;
 	si32 getArtTypeId(ArtifactPosition pos) const;

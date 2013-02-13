@@ -586,7 +586,7 @@ Uint8 CSpellWindow::pagesWithinCurrentTab()
 
 void CSpellWindow::teleportTo( int town, const CGHeroInstance * hero )
 {
-	const CGTownInstance * dest = LOCPLINT->cb->getTown(town);
+	const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(town));
 	LOCPLINT->cb->castSpell(hero, SpellID::TOWN_PORTAL, dest->visitablePos());
 }
 
@@ -761,7 +761,7 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 							const CGTownInstance *t = Towns[i];
 							if (t->visitingHero == NULL) //empty town and this is
 							{
-								availableTowns.push_back(t->id);//add to the list
+								availableTowns.push_back(t->id.getNum());//add to the list
 							}
 						}
 						if (availableTowns.empty())

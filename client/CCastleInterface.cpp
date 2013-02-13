@@ -746,7 +746,7 @@ void CCastleBuildings::enterCastleGate()
 		if (t->id != this->town->id && t->visitingHero == NULL && //another town, empty and this is
 			t->hasBuilt(BuildingID::CASTLE_GATE, ETownType::INFERNO))
 		{
-			availableTowns.push_back(t->id);//add to the list
+			availableTowns.push_back(t->id.getNum());//add to the list
 		}
 	}
 	CPicture *titlePic = new CPicture (LOCPLINT->castleInt->bicons->ourImages[BuildingID::CASTLE_GATE].bitmap, 0,0, false);//will be deleted by selection window
@@ -909,7 +909,7 @@ void CCastleInterface::close()
 
 void CCastleInterface::castleTeleport(int where)
 {
-	const CGTownInstance * dest = LOCPLINT->cb->getTown(where);
+	const CGTownInstance * dest = LOCPLINT->cb->getTown(ObjectInstanceID(where));
 	LOCPLINT->cb->teleportHero(town->visitingHero, dest);
 }
 
@@ -1653,7 +1653,7 @@ void CMageGuildScreen::Scroll::hover(bool on)
 
 }
 
-CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, ArtifactID aid, int hid):
+CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, ArtifactID aid, ObjectInstanceID hid):
     CWindowObject(PLAYER_COLORED, "TPSMITH")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;

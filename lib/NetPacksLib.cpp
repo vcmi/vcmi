@@ -201,13 +201,13 @@ DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 	switch(who)
 	{
 	case HERO:
-		cbsn = gs->getHero(id);
+		cbsn = gs->getHero(ObjectInstanceID(id));
 		break;
 	case PLAYER:
 		cbsn = gs->getPlayer(id);
 		break;
 	case TOWN:
-		cbsn = gs->getTown(id);
+		cbsn = gs->getTown(ObjectInstanceID(id));
 		break;
 	}
 
@@ -234,10 +234,10 @@ DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 
 DLL_LINKAGE void ChangeObjPos::applyGs( CGameState *gs )
 {
-	CGObjectInstance *obj = gs->map->objects[objid];
+	CGObjectInstance *obj = gs->getObjInstance(objid);
 	if(!obj)
 	{
-		tlog1 << "Wrong ChangeObjPos: object " << objid << " doesn't exist!\n";
+		tlog1 << "Wrong ChangeObjPos: object " << objid.getNum() << " doesn't exist!\n";
 		return;
 	}
 	gs->map->removeBlockVisTiles(obj);
@@ -255,7 +255,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 {
 	CBonusSystemNode *node;
 	if (who == HERO)
-		node = gs->getHero(whoID);
+		node = gs->getHero(ObjectInstanceID(whoID));
 	else
 		node = gs->getPlayer(whoID);
 
@@ -275,7 +275,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 
 DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 {
-	CGObjectInstance *obj = gs->map->objects[id];
+	CGObjectInstance *obj = gs->getObjInstance(id);
 	//unblock tiles
 	if(obj->defInfo)
 	{
@@ -305,7 +305,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 		if(!vstd::contains(gs->hpool.pavailable, h->subID))
 			gs->hpool.pavailable[h->subID] = 0xff;
 
-		gs->map->objects[id] = NULL;
+		gs->map->objects[id.getNum()] = NULL;
 
 
 		return;
@@ -328,7 +328,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 		//gs->map->quests[quest->qid].dellNull();
 	}
 
-	gs->map->objects[id].dellNull();
+	gs->map->objects[id.getNum()].dellNull();
 }
 
 static int getDir(int3 src, int3 dst)
@@ -434,7 +434,7 @@ DLL_LINKAGE void RazeStructures::applyGs( CGameState *gs )
 
 DLL_LINKAGE void SetAvailableCreatures::applyGs( CGameState *gs )
 {
-	CGDwelling *dw = dynamic_cast<CGDwelling*>(gs->map->objects[tid].get());
+	CGDwelling *dw = dynamic_cast<CGDwelling*>(gs->getObjInstance(tid));
 	assert(dw);
 	dw->creatures = creatures;
 }
@@ -479,13 +479,13 @@ DLL_LINKAGE void HeroRecruited::applyGs( CGameState *gs )
 	h->movement =  h->maxMovePoints(true);
 
 	gs->hpool.heroesPool.erase(hid);
-	if(h->id < 0)
+	if(h->id == ObjectInstanceID())
 	{
-		h->id = gs->map->objects.size();
+		h->id = ObjectInstanceID(gs->map->objects.size());
 		gs->map->objects.push_back(h);
 	}
 	else
-		gs->map->objects[h->id] = h;
+		gs->map->objects[h->id.getNum()] = h;
 
 	h->initHeroDefInfo();
 	gs->map->heroes.push_back(h);
@@ -548,7 +548,7 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 	o->subID = subID;
 	o->pos = pos;
 	o->defInfo = VLC->dobjinfo->gobjs[ID][subID];
-	id = o->id = gs->map->objects.size();
+	id = o->id = ObjectInstanceID(gs->map->objects.size());
 	o->hoverName = VLC->generaltexth->names[ID];
 
 	switch(ID)
@@ -911,7 +911,7 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 
 DLL_LINKAGE void SetObjectProperty::applyGs( CGameState *gs )
 {
-	CGObjectInstance *obj = gs->map->objects[id];
+	CGObjectInstance *obj = gs->getObjInstance(id);
 	if(!obj)
 	{
 		tlog1 << "Wrong object ID - property cannot be set!\n";
@@ -943,7 +943,7 @@ DLL_LINKAGE void SetObjectProperty::applyGs( CGameState *gs )
 
 DLL_LINKAGE void SetHoverName::applyGs( CGameState *gs )
 {
-	name.toString(gs->map->objects[id]->hoverName);
+	name.toString(gs->getObj(id)->hoverName);
 }
 
 DLL_LINKAGE void HeroLevelUp::applyGs( CGameState *gs )
@@ -1017,7 +1017,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 			break;
 		case Bonus::MANA_DRAIN:
 		{
-			CGHeroInstance * h = gs->getHero(additionalInfo);
+			CGHeroInstance * h = gs->getHero(ObjectInstanceID(additionalInfo));
 			st->state.insert (EBattleStackState::DRAINED_MANA);
 			h->mana -= val;
 			vstd::amax(h->mana, 0);

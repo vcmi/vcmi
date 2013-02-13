@@ -414,7 +414,7 @@ TerrainViewPattern CMapEditManager::getFlippedPattern(const TerrainViewPattern &
 void CMapEditManager::insertObject(CGObjectInstance * obj, int posx, int posy, bool underground)
 {
 	obj->pos = int3(posx, posy, underground ? 1 : 0);
-	obj->id = map->objects.size();
+	obj->id = ObjectInstanceID(map->objects.size());
 	map->objects.push_back(obj);
 	if(obj->ID == Obj::TOWN)
 	{

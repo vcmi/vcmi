@@ -39,12 +39,12 @@ using namespace boost::assign;
 #define USE_COVERAGE_MAP 0
 
 
-std::map<int,std::map<int, std::vector<int> > > CGTeleport::objs;
-std::vector<std::pair<int, int> > CGTeleport::gates;
+std::map<int,std::map<int, std::vector<ObjectInstanceID> > > CGTeleport::objs;
+std::vector<std::pair<ObjectInstanceID, ObjectInstanceID> > CGTeleport::gates;
 IGameCallback * IObjectInterface::cb = NULL;
 extern boost::rand48 ran;
-std::map <ui8, std::set <ui8> > CGKeys::playerKeyMap;
-std::map <si32, std::vector<si32> > CGMagi::eyelist;
+std::map <TPlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
+std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
 ui8 CGObelisk::obeliskCount; //how many obelisks are on map
 std::map<ui8, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
 
@@ -52,7 +52,7 @@ std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
 
 ///helpers
-static void openWindow(const OpenWindow::EWindow type, const ui32 id1, const ui32 id2 = 0)
+static void openWindow(const OpenWindow::EWindow type, const int id1, const int id2 = -1)
 {
 	OpenWindow ow;
 	ow.window = type;
@@ -70,7 +70,7 @@ static void showInfoDialog(const TPlayerColor playerID, const ui32 txtID, const 
 	IObjectInterface::cb->sendAndApply(&iw);
 }
 
-static void showInfoDialog(const int heroID, const ui32 txtID, const ui16 soundID)
+static void showInfoDialog(const ObjectInstanceID heroID, const ui32 txtID, const ui16 soundID)
 {
 	const TPlayerColor playerID = IObjectInterface::cb->getOwner(heroID);
 	showInfoDialog(playerID,txtID,soundID);
@@ -263,7 +263,7 @@ CGObjectInstance::CGObjectInstance(): animPhaseShift(rand()%0xff)
 	//std::cout << "Tworze obiekt "<<this<<std::endl;
 	//state = new CLuaObjectScript();
 	ID = Obj::NO_OBJ;
-	subID = id = -1;
+	subID = -1;
 	defInfo = NULL;
 	tempOwner = 254;
 	blockVisit = false;
@@ -299,7 +299,7 @@ bool CGObjectInstance::visitableAt(int x, int y) const //returns true if object 
 {
 	if(defInfo==NULL)
 	{
-		tlog2 << "Warning: VisitableAt for obj "<<id<<": NULL defInfo!\n";
+		tlog2 << "Warning: VisitableAt for obj "<< id.getNum() <<": NULL defInfo!\n";
 		return false;
 	}
 
@@ -435,7 +435,7 @@ void CGObjectInstance::getSightTiles(boost::unordered_set<int3, ShashInt3> &tile
 {
 	cb->getTilesInRange(tiles, getSightCenter(), getSightRadious(), tempOwner, 1);
 }
-void CGObjectInstance::hideTiles(int ourplayer, int radius) const
+void CGObjectInstance::hideTiles(TPlayerColor ourplayer, int radius) const
 {
 	for (auto i = cb->gameState()->teams.begin(); i != cb->gameState()->teams.end(); i++)
 	{
@@ -476,11 +476,11 @@ void CGObjectInstance::getNameVis( std::string &hname ) const
 	}
 }
 
-void CGObjectInstance::giveDummyBonus(int heroID, ui8 duration) const
+void CGObjectInstance::giveDummyBonus(ObjectInstanceID heroID, ui8 duration) const
 {
 	GiveBonus gbonus;
 	gbonus.bonus.type = Bonus::NONE;
-	gbonus.id = heroID;
+	gbonus.id = heroID.getNum();
 	gbonus.bonus.duration = duration;
 	gbonus.bonus.source = Bonus::OBJECT;
 	gbonus.bonus.sid = ID;
@@ -493,7 +493,7 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 	{
 	case Obj::HILL_FORT:
 		{
-			openWindow(OpenWindow::HILL_FORT_WINDOW,id,h->id);
+			openWindow(OpenWindow::HILL_FORT_WINDOW,id.getNum(),h->id.getNum());
 		}
 		break;
 	case Obj::SANCTUARY:
@@ -504,7 +504,7 @@ void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case Obj::TAVERN:
 		{
-			openWindow(OpenWindow::TAVERN_WINDOW,h->id,id);
+			openWindow(OpenWindow::TAVERN_WINDOW,h->id.getNum(),id.getNum());
 		}
 		break;
 	}
@@ -536,7 +536,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 {
 	if(!chi->Slots().size())
 	{
-		tlog1 << "Error! Hero " << chi->id << " ("<<chi->name<<") has no army!\n";
+		tlog1 << "Error! Hero " << chi->id.getNum() << " ("<<chi->name<<") has no army!\n";
 		return 20;
 	}
 	TSlots::const_iterator i = chi->Slots().begin();
@@ -949,7 +949,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 	{
 		Bonus *bonus = new Bonus();
 		bonus->val = spec.val;
-		bonus->sid = id; //from the hero, specialty has no unique id
+		bonus->sid = id.getNum(); //from the hero, specialty has no unique id
 		bonus->duration = Bonus::PERMANENT;
 		bonus->source = Bonus::HERO_SPECIAL;
 		switch (spec.type)
@@ -1274,7 +1274,7 @@ void CGHeroInstance::updateSkill(SecondarySkill which, int val)
 	}
 	else
 	{
-		Bonus *bonus = new Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::SECONDARY_SKILL, skillVal, id, which, skillValType);
+		Bonus *bonus = new Bonus(Bonus::PERMANENT, Bonus::SECONDARY_SKILL_PREMY, Bonus::SECONDARY_SKILL, skillVal, id.getNum(), which, skillValType);
 		bonus->source = Bonus::SECONDARY_SKILL;
 		addNewBonus(bonus);
 	}
@@ -1493,7 +1493,7 @@ int CGHeroInstance::getSpellCost(const CSpell *sp) const
 
 void CGHeroInstance::pushPrimSkill( PrimarySkill::PrimarySkill which, int val )
 {
-	addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id, which));
+	addNewBonus(new Bonus(Bonus::PERMANENT, Bonus::PRIMARY_SKILL, Bonus::HERO_BASE_SKILL, val, id.getNum(), which));
 }
 
 EAlignment::EAlignment CGHeroInstance::getAlignment() const
@@ -1837,8 +1837,8 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 		}
 
 		OpenWindow ow;
-		ow.id1 = id;
-		ow.id2 = h->id;
+		ow.id1 = id.getNum();
+		ow.id2 = h->id.getNum();
 		ow.window = (ID == Obj::CREATURE_GENERATOR1 || ID == Obj::REFUGEE_CAMP)
 			? OpenWindow::RECRUITMENT_FIRST
 			: OpenWindow::RECRUITMENT_ALL;
@@ -1878,13 +1878,13 @@ void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
 	switch (what)
 	{
 		case 11: //add visitor of town building
-			bonusingBuildings[val]->setProperty (ObjProperty::VISITORS, visitingHero->id);
+			bonusingBuildings[val]->setProperty (ObjProperty::VISITORS, visitingHero->id.getNum());
 			break;
 		case 12:
 			bonusingBuildings[val]->setProperty (12, 0);
 			break;
 		case 13: //add garrisoned hero to visitors
-			bonusingBuildings[val]->setProperty (ObjProperty::VISITORS, garrisonHero->id);
+			bonusingBuildings[val]->setProperty (ObjProperty::VISITORS, garrisonHero->id.getNum());
 			break;
 		case 14:
 			bonusValue.first = val;
@@ -2537,7 +2537,7 @@ bool CGVisitableOPH::wasVisited (const CGHeroInstance * h) const
 
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(visitors.find(h->id)==visitors.end())
+	if(!vstd::contains(visitors, h->id))
 	{
 		onNAHeroVisit(h->id, false);
 		switch(ID)
@@ -2549,7 +2549,7 @@ void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 		case Obj::SCHOOL_OF_WAR:
 			break;
 		default:
-			cb->setObjProperty(id, ObjProperty::VISITORS, h->id); //add to the visitors
+			cb->setObjProperty(id, ObjProperty::VISITORS, h->id.getNum()); //add to the visitors
 			break;
 		}
 	}
@@ -2567,16 +2567,16 @@ void CGVisitableOPH::initObj()
 		ttype = -1;
 }
 
-void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, TExpType expVal, ui32 result ) const
+void CGVisitableOPH::treeSelected( ObjectInstanceID heroID, int resType, int resVal, TExpType expVal, ui32 result ) const
 {
 	if(result) //player agreed to give res for exp
 	{
 		cb->giveResource(cb->getOwner(heroID), static_cast<Res::ERes>(resType), -resVal); //take resource
 		cb->changePrimSkill(cb->getHero(heroID), PrimarySkill::EXPERIENCE, expVal);
-		cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
+		cb->setObjProperty(id, ObjProperty::VISITORS, heroID.getNum()); //add to the visitors
 	}
 }
-void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
+void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited) const
 {
 	Component::EComponentType c_id = Component::PRIM_SKILL; //most used here
 	int subid=0, ot=0, sound = 0;
@@ -2682,7 +2682,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				val = VLC->heroh->reqExp(h->level+val) - VLC->heroh->reqExp(h->level);
 				if(!ttype)
 				{
-					cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
+					cb->setObjProperty(id, ObjProperty::VISITORS, heroID.getNum()); //add to the visitors
 					InfoWindow iw;
 					iw.soundID = sound;
 					iw.components.push_back(Component(c_id,subid,1,0));
@@ -2735,7 +2735,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				}
 				else
 				{
-					cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
+					cb->setObjProperty(id, ObjProperty::VISITORS, heroID.getNum()); //add to the visitors
 					cb->changePrimSkill(h,PrimarySkill::ATTACK,2);
 					cb->changePrimSkill(h,PrimarySkill::DEFENSE,2);
 					cb->changePrimSkill(h,PrimarySkill::KNOWLEDGE,2);
@@ -2823,25 +2823,25 @@ const std::string & CGVisitableOPH::getHoverText() const
 	return hoverName;
 }
 
-void CGVisitableOPH::arenaSelected( int heroID, int primSkill ) const
+void CGVisitableOPH::arenaSelected( ObjectInstanceID heroID, int primSkill ) const
 {
-	cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
+	cb->setObjProperty(id, ObjProperty::VISITORS, heroID.getNum()); //add to the visitors
 	cb->changePrimSkill(cb->getHero(heroID), static_cast<PrimarySkill::PrimarySkill>(primSkill-1), 2);
 }
 
 void CGVisitableOPH::setPropertyDer( ui8 what, ui32 val )
 {
 	if(what == ObjProperty::VISITORS)
-		visitors.insert(val);
+		visitors.insert(ObjectInstanceID(val));
 }
 
-void CGVisitableOPH::schoolSelected(int heroID, ui32 which) const
+void CGVisitableOPH::schoolSelected(ObjectInstanceID heroID, ui32 which) const
 {
 	if(!which) //player refused to pay
 		return;
 
 	int base = (ID == Obj::SCHOOL_OF_MAGIC  ?  2  :  0);
-	cb->setObjProperty(id, ObjProperty::VISITORS, heroID); //add to the visitors
+	cb->setObjProperty(id, ObjProperty::VISITORS, heroID.getNum()); //add to the visitors
 	cb->giveResource(cb->getOwner(heroID),Res::GOLD,-1000); //take 1000 gold
 	cb->changePrimSkill(cb->getHero(heroID), static_cast<PrimarySkill::PrimarySkill>(base + which-1), +1); //give appropriate skill
 }
@@ -2866,7 +2866,7 @@ void COPWBonus::setProperty(ui8 what, ui32 val)
 }
 void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 {
-	int heroID = h->id;
+	ObjectInstanceID heroID = h->id;
 	if (town->hasBuilt(ID))
 	{
 		InfoWindow iw;
@@ -2878,7 +2878,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 				{
 					GiveBonus gb;
 					gb.bonus = Bonus(Bonus::ONE_WEEK, Bonus::LAND_MOVEMENT, Bonus::OBJECT, 600, 94, VLC->generaltexth->arraytxt[100]);
-					gb.id = heroID;
+					gb.id = heroID.getNum();
 					cb->giveHeroBonus(&gb);
 					iw.text << VLC->generaltexth->allTexts[580];
 					cb->showInfoDialog(&iw);
@@ -2888,7 +2888,8 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 				if (visitors.empty() && h->mana <= h->manaLimit() * 2)
 				{
 					cb->setManaPoints (heroID, 2 * h->manaLimit());
-					cb->setObjProperty (id, ObjProperty::VISITED, true);
+					//TODO: investigate line below
+					//cb->setObjProperty (town->id, ObjProperty::VISITED, true);
 					iw.text << VLC->generaltexth->allTexts[579];
 					cb->showInfoDialog(&iw);
 					cb->setObjProperty (town->id, 11, id); //add to visitors
@@ -2906,11 +2907,11 @@ CTownBonus::CTownBonus (BuildingID index, CGTownInstance *TOWN)
 void CTownBonus::setProperty (ui8 what, ui32 val)
 {
 	if(what == 4)
-		visitors.insert(val);
+		visitors.insert(ObjectInstanceID(val));
 }
 void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 {
-	int heroID = h->id;
+	ObjectInstanceID heroID = h->id;
 	if (town->hasBuilt(ID) && visitors.find(heroID) == visitors.end())
 	{
 		InfoWindow iw;
@@ -3183,13 +3184,14 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 	else
 		powerFactor = -3;
 
-	std::set<ui32> myKindCres; //what creatures are the same kind as we
-	myKindCres.insert(subID); //we
-	myKindCres.insert(VLC->creh->creatures[subID]->upgrades.begin(),VLC->creh->creatures[subID]->upgrades.end()); //our upgrades
+	std::set<CreatureID> myKindCres; //what creatures are the same kind as we
+	const CCreature * myCreature = VLC->creh->creatures[subID];
+	myKindCres.insert(myCreature->idNumber); //we
+	myKindCres.insert(myCreature->upgrades.begin(), myCreature->upgrades.end()); //our upgrades
 
 	BOOST_FOREACH(ConstTransitivePtr<CCreature> &crea, VLC->creh->creatures)
 	{
-		if(vstd::contains(crea->upgrades, (ui32) id)) //it's our base creatures
+		if(vstd::contains(crea->upgrades, myCreature->idNumber)) //it's our base creatures
 			myKindCres.insert(crea->idNumber);
 	}
 
@@ -3656,7 +3658,7 @@ void CGVisitableOPW::setPropertyDer( ui8 what, ui32 val )
 
 void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 {
-	int destinationid=-1;
+	ObjectInstanceID destinationid;
 	switch(ID)
 	{
 	case Obj::MONOLITH1: //one way - find corresponding exit monolith
@@ -3705,14 +3707,14 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 	case Obj::SUBTERRANEAN_GATE: //find nearest subterranean gate on the other level
 		{
 			destinationid = getMatchingGate(id);
-			if(destinationid < 0) //no exit
+			if(destinationid == ObjectInstanceID()) //no exit
 			{
 				showInfoDialog(h,153,0);//Just inside the entrance you find a large pile of rubble blocking the tunnel. You leave discouraged.
 			}
 			break;
 		}
 	}
-	if(destinationid < 0)
+	if(destinationid == ObjectInstanceID())
 	{
 		tlog2 << "Cannot find exit... (obj at " << pos << ") :( \n";
 		return;
@@ -3779,18 +3781,18 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 
 		if(best.first >= 0) //found pair
 		{
-			gates.push_back(std::pair<int, int>(cur->id, gatesSplit[1][best.first]->id));
+			gates.push_back(std::make_pair(cur->id, gatesSplit[1][best.first]->id));
 			gatesSplit[1][best.first] = NULL;
 		}
 		else
 		{
-			gates.push_back(std::pair<int, int>(cur->id, -1));
+			gates.push_back(std::make_pair(cur->id, ObjectInstanceID()));
 		}
 	}
 	objs.erase(103);
 }
 
-int CGTeleport::getMatchingGate(int id)
+ObjectInstanceID CGTeleport::getMatchingGate(ObjectInstanceID id)
 {
 	for(int i=0; i < gates.size(); i++)
 	{
@@ -3800,7 +3802,7 @@ int CGTeleport::getMatchingGate(int id)
 			return gates[i].first;
 	}
 
-	return -1;
+	return ObjectInstanceID();
 }
 
 void CGArtifact::initObj()
@@ -4089,7 +4091,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 	cb->removeObject(this);
 }
 
-void CGPickable::chosen( int which, int heroID ) const
+void CGPickable::chosen( int which, ObjectInstanceID heroID ) const
 {
 	const CGHeroInstance *h = cb->getHero(heroID);
 	switch(which)
@@ -4715,9 +4717,9 @@ void CGSeerHut::completeQuest (const CGHeroInstance * h) const //reward
 		case MORALE_BONUS: case LUCK_BONUS:
 		{
 			Bonus hb(Bonus::ONE_WEEK, (rewardType == 3 ? Bonus::MORALE : Bonus::LUCK),
-				Bonus::OBJECT, rVal, h->id, "", -1);
+				Bonus::OBJECT, rVal, h->id.getNum(), "", -1);
 			GiveBonus gb;
-			gb.id = h->id;
+			gb.id = h->id.getNum();
 			gb.bonus = hb;
 			cb->giveHeroBonus(&gb);
 		}
@@ -4853,7 +4855,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 	InfoWindow iw;
 	iw.player = h->tempOwner;
 	GiveBonus gbonus;
-	gbonus.id = h->id;
+	gbonus.id = h->id.getNum();
 	gbonus.bonus.duration = Bonus::ONE_BATTLE;
 	gbonus.bonus.source = Bonus::OBJECT;
 	gbonus.bonus.sid = ID;
@@ -5250,8 +5252,8 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		iw.components.push_back(Component(Component::MORALE,0,moraleDiff,0));
 		cb->showInfoDialog(&iw);
 		GiveBonus gb;
-		gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::MORALE,Bonus::OBJECT,moraleDiff,id,"");
-		gb.id = h->id;
+		gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::MORALE,Bonus::OBJECT,moraleDiff,id.getNum(),"");
+		gb.id = h->id.getNum();
 		cb->giveHeroBonus(&gb);
 	}
 
@@ -5261,8 +5263,8 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		iw.components.push_back(Component(Component::LUCK,0,luckDiff,0));
 		cb->showInfoDialog(&iw);
 		GiveBonus gb;
-		gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::LUCK,Bonus::OBJECT,luckDiff,id,"");
-		gb.id = h->id;
+		gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::LUCK,Bonus::OBJECT,luckDiff,id.getNum(),"");
+		gb.id = h->id.getNum();
 		cb->giveHeroBonus(&gb);
 	}
 
@@ -5842,8 +5844,8 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 		{
 			//ruin morale
 			GiveBonus gb;
-			gb.id = h->id;
-			gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::MORALE,Bonus::OBJECT,-3,id,"");
+			gb.id = h->id.getNum();
+			gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::MORALE,Bonus::OBJECT,-3,id.getNum(),"");
 			gb.bdescr.addTxt(MetaString::ARRAY_TXT,104); //Warrior Tomb Visited -3
 			cb->giveHeroBonus(&gb);
 		}
@@ -6053,7 +6055,7 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		if (ID == Obj::CRYPT) //morale penalty for empty Crypt
 		{
 			GiveBonus gbonus;
-			gbonus.id = h->id;
+			gbonus.id = h->id.getNum();
 			gbonus.bonus.duration = Bonus::ONE_BATTLE;
 			gbonus.bonus.source = Bonus::OBJECT;
 			gbonus.bonus.sid = ID;
@@ -6099,7 +6101,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			else
 			{
 				GiveBonus gbonus;
-				gbonus.id = h->id;
+				gbonus.id = h->id.getNum();
 				gbonus.bonus.duration = Bonus::ONE_BATTLE;
 				gbonus.bonus.source = Bonus::OBJECT;
 				gbonus.bonus.sid = ID;
@@ -6118,7 +6120,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			{
 				iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
 				GiveBonus gbonus;
-				gbonus.id = h->id;
+				gbonus.id = h->id.getNum();
 				gbonus.bonus.duration = Bonus::ONE_BATTLE;
 				gbonus.bonus.source = Bonus::OBJECT;
 				gbonus.bonus.sid = ID;
@@ -6244,8 +6246,8 @@ void CGPyramid::onHeroVisit (const CGHeroInstance * h) const
 		iw.text << VLC->generaltexth->advobtxt[107];
 		iw.components.push_back (Component (Component::LUCK, 0 , -2, 0));
 		GiveBonus gb;
-		gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::LUCK,Bonus::OBJECT,-2,id,VLC->generaltexth->arraytxt[70]);
-		gb.id = h->id;
+		gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::LUCK,Bonus::OBJECT,-2,id.getNum(),VLC->generaltexth->arraytxt[70]);
+		gb.id = h->id.getNum();
 		cb->giveHeroBonus(&gb);
 		cb->showInfoDialog(&iw);
 	}
@@ -6411,10 +6413,9 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 		showInfoDialog(h,61,soundBase::LIGHTHOUSE);
 
 		fw.mode = 1;
-		std::vector<si32>::iterator it;
-		for (it = eyelist[subID].begin(); it < eyelist[subID].end(); it++)
+		BOOST_FOREACH(auto it, eyelist[subID])
 		{
-			const CGObjectInstance *eye = cb->getObj(*it);
+			const CGObjectInstance *eye = cb->getObj(it);
 
 			cb->getTilesInRange (fw.tiles, eye->pos, 10, h->tempOwner, 1);
 			cb->sendAndApply(&fw);
@@ -6630,7 +6631,7 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		openWindow(OpenWindow::SHIPYARD_WINDOW,id,h->id);
+		openWindow(OpenWindow::SHIPYARD_WINDOW,id.getNum(),h->id.getNum());
 	}
 }
 
@@ -6768,7 +6769,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 			RemoveBonus rb(RemoveBonus::PLAYER);
 			rb.whoID = oldOwner;
 			rb.source = Bonus::OBJECT;
-			rb.id = id;
+			rb.id = id.getNum();
 			cb->sendAndApply(&rb);
 		}
 	}
@@ -6797,7 +6798,7 @@ void CGLighthouse::giveBonusTo( ui8 player ) const
 	gb.id = player;
 	gb.bonus.duration = Bonus::PERMANENT;
 	gb.bonus.source = Bonus::OBJECT;
-	gb.bonus.sid = id;
+	gb.bonus.sid = id.getNum();
 	cb->sendAndApply(&gb);
 }
 
@@ -7091,7 +7092,7 @@ std::vector<EMarketMode::EMarketMode> IMarket::availableModes() const
 
 void CGMarket::onHeroVisit(const CGHeroInstance * h) const
 {
-	openWindow(OpenWindow::MARKET_WINDOW,id,h->id);
+	openWindow(OpenWindow::MARKET_WINDOW,id.getNum(),h->id.getNum());
 }
 
 int CGMarket::getMarketEfficiency() const
@@ -7177,7 +7178,7 @@ void CGBlackMarket::newTurn() const
 		return;
 
 	SetAvailableArtifacts saa;
-	saa.id = id;
+	saa.id = id.getNum();
 	cb->pickAllowedArtsSet(saa.arts);
 	cb->sendAndApply(&saa);
 }
@@ -7216,7 +7217,7 @@ std::vector<int> CGUniversity::availableItemsIds(EMarketMode::EMarketMode mode) 
 
 void CGUniversity::onHeroVisit(const CGHeroInstance * h) const
 {
-	openWindow(OpenWindow::UNIVERSITY_WINDOW,id,h->id);
+	openWindow(OpenWindow::UNIVERSITY_WINDOW,id.getNum(),h->id.getNum());
 }
 
 GrowthInfo::Entry::Entry(const std::string &format, int _count)

@@ -767,7 +767,7 @@ public:
 	std::vector< ConstTransitivePtr<CQuest> > quests;
 
 	/** associative list to identify which hero/creature id belongs to which object id(index for objects) */
-	bmap<si32, si32> questIdentifierToId;
+	bmap<si32, ObjectInstanceID> questIdentifierToId;
 
 	/**
 	 * Serialize method.

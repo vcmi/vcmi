@@ -283,14 +283,14 @@ void CMap::checkForObjectives()
 
 void CMap::addNewArtifactInstance(CArtifactInstance * art)
 {
-	art->id = artInstances.size();
+	art->id = ArtifactInstanceID(artInstances.size());
 	artInstances.push_back(art);
 }
 
 void CMap::eraseArtifactInstance(CArtifactInstance * art)
 {
-	assert(artInstances[art->id] == art);
-	artInstances[art->id].dellNull();
+	assert(artInstances[art->id.getNum()] == art);
+	artInstances[art->id.getNum()].dellNull();
 }
 
 void CMap::addQuest(CGObjectInstance * quest)

@@ -369,5 +369,5 @@ class CBlacksmithDialog : public CWindowObject
 	CGStatusBar *statusBar;
 
 public:
-	CBlacksmithDialog(bool possible, int creMachineID, ArtifactID aid, int hid);
+	CBlacksmithDialog(bool possible, CreatureID creMachineID, ArtifactID aid, ObjectInstanceID hid);
 };

@@ -41,11 +41,11 @@ CGameState * CPrivilagedInfoCallback::gameState ()
 	return gs;
 }
 
-int CGameInfoCallback::getOwner(int heroID) const
+TPlayerColor CGameInfoCallback::getOwner(ObjectInstanceID heroID) const
 {
 	const CGObjectInstance *obj = getObj(heroID);
 	ERROR_RET_VAL_IF(!obj, "No such object!", -1);
-	return gs->map->objects[heroID]->tempOwner;
+	return obj->tempOwner;
 }
 
 int CGameInfoCallback::getResource(TPlayerColor Player, Res::ERes which) const
@@ -241,34 +241,35 @@ const CGObjectInstance * CGameInfoCallback::getObjByQuestIdentifier(int identifi
 /*                                                                      */
 /************************************************************************/
 
-const CGObjectInstance* CGameInfoCallback::getObj(int objid, bool verbose) const
+const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool verbose) const
 {
-	if(objid < 0  ||  objid >= gs->map->objects.size())
+	si32 oid = objid.num;
+	if(oid < 0  ||  oid >= gs->map->objects.size())
 	{
 		if(verbose)
-			tlog1 << "Cannot get object with id " << objid << std::endl;
+			tlog1 << "Cannot get object with id " << oid << std::endl;
 		return NULL;
 	}
 
-	const CGObjectInstance *ret = gs->map->objects[objid];
+	const CGObjectInstance *ret = gs->map->objects[oid];
 	if(!ret)
 	{
 		if(verbose)
-			tlog1 << "Cannot get object with id " << objid << ". Object was removed.\n";
+			tlog1 << "Cannot get object with id " << oid << ". Object was removed.\n";
 		return NULL;
 	}
 
 	if(!isVisible(ret, player))
 	{
 		if(verbose)
-			tlog1 << "Cannot get object with id " << objid << ". Object is not visible.\n";
+			tlog1 << "Cannot get object with id " << oid << ". Object is not visible.\n";
 		return NULL;
 	}
 
 	return ret;
 }
 
-const CGHeroInstance* CGameInfoCallback::getHero(int objid) const
+const CGHeroInstance* CGameInfoCallback::getHero(ObjectInstanceID objid) const
 {
 	const CGObjectInstance *obj = getObj(objid, false);
 	if(obj)
@@ -276,11 +277,11 @@ const CGHeroInstance* CGameInfoCallback::getHero(int objid) const
 	else
 		return NULL;
 }
-const CGTownInstance* CGameInfoCallback::getTown(int objid) const
+const CGTownInstance* CGameInfoCallback::getTown(ObjectInstanceID objid) const
 {
 	const CGObjectInstance *obj = getObj(objid, false);
 	if(obj)
-		return dynamic_cast<const CGTownInstance*>(gs->map->objects[objid].get());
+		return dynamic_cast<const CGTownInstance*>(obj);
 	else
 		return NULL;
 }
@@ -352,7 +353,7 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 	}
 }
 
-int CGameInfoCallback::howManyTowns(int Player) const
+int CGameInfoCallback::howManyTowns(TPlayerColor Player) const
 {
 	ERROR_RET_VAL_IF(!hasAccess(Player), "Access forbidden!", -1);
 	return gs->players[Player].towns.size();
@@ -846,12 +847,12 @@ TResources CPlayerSpecificInfoCallback::getResourceAmount() const
 	return gs->players[*player].resources;
 }
 
-CGHeroInstance *CNonConstInfoCallback::getHero(int objid)
+CGHeroInstance *CNonConstInfoCallback::getHero(ObjectInstanceID objid)
 {
 	return const_cast<CGHeroInstance*>(CGameInfoCallback::getHero(objid));
 }
 
-CGTownInstance *CNonConstInfoCallback::getTown(int objid)
+CGTownInstance *CNonConstInfoCallback::getTown(ObjectInstanceID objid)
 {
 
 	return const_cast<CGTownInstance*>(CGameInfoCallback::getTown(objid));
@@ -870,6 +871,16 @@ TeamState *CNonConstInfoCallback::getPlayerTeam(TPlayerColor color)
 PlayerState * CNonConstInfoCallback::getPlayer( TPlayerColor color, bool verbose )
 {
 	return const_cast<PlayerState*>(CGameInfoCallback::getPlayer(color, verbose));
+}
+
+CArtifactInstance * CNonConstInfoCallback::getArtInstance( ArtifactInstanceID aid )
+{
+	return gs->map->artInstances[aid.num];
+}
+
+CGObjectInstance * CNonConstInfoCallback::getObjInstance( ObjectInstanceID oid )
+{
+	return gs->map->objects[oid.num];
 }
 
 const TeamState * CGameInfoCallback::getTeam( ui8 teamID ) const
@@ -907,12 +918,22 @@ bool CGameInfoCallback::isInTheMap(const int3 &pos) const
 	return gs->map->isInTheMap(pos);
 }
 
+const CArtifactInstance * CGameInfoCallback::getArtInstance( ArtifactInstanceID aid ) const
+{
+	return gs->map->artInstances[aid.num];
+}
+
+const CGObjectInstance * CGameInfoCallback::getObjInstance( ObjectInstanceID oid ) const
+{
+	return gs->map->objects[oid.num];
+}
+
 void IGameEventRealizer::showInfoDialog( InfoWindow *iw )
 {
 	commitPackage(iw);
 }
 
-void IGameEventRealizer::showInfoDialog(const std::string &msg, int player)
+void IGameEventRealizer::showInfoDialog(const std::string &msg, TPlayerColor player)
 {
 	InfoWindow iw;
 	iw.player = player;
@@ -920,7 +941,7 @@ void IGameEventRealizer::showInfoDialog(const std::string &msg, int player)
 	showInfoDialog(&iw);
 }
 
-void IGameEventRealizer::setObjProperty(int objid, int prop, si64 val)
+void IGameEventRealizer::setObjProperty(ObjectInstanceID objid, int prop, si64 val)
 {
 	SetObjectProperty sob;
 	sob.id = objid;

@@ -1034,7 +1034,7 @@ public:
 
 	void prepareBackground(); //prepares or redraws bg
 
-	CExchangeWindow(si32 hero1, si32 hero2); //c-tor
+	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2); //c-tor
 	~CExchangeWindow(); //d-tor
 };
 

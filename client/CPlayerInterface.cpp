@@ -200,22 +200,22 @@ void CPlayerInterface::yourTurn()
 	acceptTurn();
 }
 
-STRONG_INLINE void subRect(const int & x, const int & y, const int & z, const SDL_Rect & r, const int & hid)
+STRONG_INLINE void subRect(const int & x, const int & y, const int & z, const SDL_Rect & r, const ObjectInstanceID & hid)
 {
 	TerrainTile2 & hlp = CGI->mh->ttiles[x][y][z];
 	for(int h=0; h<hlp.objects.size(); ++h)
-		if(hlp.objects[h].first->id==hid)
+		if(hlp.objects[h].first->id == hid)
 		{
 			hlp.objects[h].second = r;
 			return;
 		}
 }
 
-STRONG_INLINE void delObjRect(const int & x, const int & y, const int & z, const int & hid)
+STRONG_INLINE void delObjRect(const int & x, const int & y, const int & z, const ObjectInstanceID & hid)
 {
 	TerrainTile2 & hlp = CGI->mh->ttiles[x][y][z];
 	for(int h=0; h<hlp.objects.size(); ++h)
-		if(hlp.objects[h].first->id==hid)
+		if(hlp.objects[h].first->id == hid)
 		{
 			hlp.objects.erase(hlp.objects.begin()+h);
 			return;
@@ -1156,7 +1156,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	h & sleepingSize;
 	for (int i = 0; i < sleepingSize; i++)
 	{
-		si32 hid;
+		ObjectInstanceID hid;
 		if (h.saving)
 			hid = sleepingHeroes[i]->id;
 		h &	hid;
@@ -1176,7 +1176,7 @@ template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, c
 	h & heroListSize;
 	for (int i = 0; i < heroListSize; i++)
 	{
-		si32 hid;
+		ObjectInstanceID hid;
 		if (h.saving)
 			hid = wanderingHeroes[i]->id;
 		h & hid;
@@ -1381,7 +1381,7 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 		stillMoveHero.setn(CONTINUE_MOVE);
 }
 
-void CPlayerInterface::heroExchangeStarted(si32 hero1, si32 hero2)
+void CPlayerInterface::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	GH.pushInt(new CExchangeWindow(hero1, hero2));

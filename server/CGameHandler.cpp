@@ -1296,7 +1296,7 @@ void CGameHandler::newTurn()
 		}
 	}
 	//      townID,    creatureID, amount
-	std::map<si32, std::map<si32, si32> > newCreas;//creatures that needs to be added by town events
+	std::map<ObjectInstanceID, std::map<si32, si32> > newCreas;//creatures that needs to be added by town events
 
 	BOOST_FOREACH(CGTownInstance *t, gs->map->towns)
 	{
@@ -1346,7 +1346,7 @@ void CGameHandler::newTurn()
 			}
 			//add creatures from town events
 			if (vstd::contains(newCreas, t->id))
-				for(std::map<si32, si32>::iterator i=newCreas[t->id].begin() ; i!=newCreas[t->id].end(); i++)
+				for(auto i=newCreas[t->id].begin() ; i!=newCreas[t->id].end(); i++)
 					sac.creatures[i->first].first += i->second;
 
 			n.cres.push_back(sac);
@@ -1648,7 +1648,7 @@ void CGameHandler::giveSpells( const CGTownInstance *t, const CGHeroInstance *h 
 		sendAndApply(&cs);
 }
 
-void CGameHandler::setBlockVis(int objid, bool bv)
+void CGameHandler::setBlockVis(ObjectInstanceID objid, bool bv)
 {
 	SetObjectProperty sop(objid,2,bv);
 	sendAndApply(&sop);
@@ -1670,13 +1670,13 @@ bool CGameHandler::removeObject( const CGObjectInstance * obj )
 	return true;
 }
 
-void CGameHandler::setAmount(int objid, ui32 val)
+void CGameHandler::setAmount(ObjectInstanceID objid, ui32 val)
 {
 	SetObjectProperty sop(objid,3,val);
 	sendAndApply(&sop);
 }
 
-bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, TPlayerColor asker /*= 255*/ )
+bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 instant, TPlayerColor asker /*= 255*/ )
 {
 	const CGHeroInstance *h = getHero(hid);
 
@@ -1687,7 +1687,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, TPlayerColor asker
 		return false;
 	}
 
-	tlog5 << "Player " <<int(asker) << " wants to move hero "<< hid << " from "<< h->pos << " to " << dst << std::endl;
+	tlog5 << "Player " <<int(asker) << " wants to move hero "<< hid.getNum() << " from "<< h->pos << " to " << dst << std::endl;
 	int3 hmpos = dst + int3(-1,0,0);
 
 	if(!gs->map->isInTheMap(hmpos))
@@ -1835,7 +1835,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, TPlayerColor asker
 	}
 }
 
-bool CGameHandler::teleportHero(si32 hid, si32 dstid, ui8 source, TPlayerColor asker/* = 255*/)
+bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui8 source, TPlayerColor asker/* = 255*/)
 {
 	const CGHeroInstance *h = getHero(hid);
 	const CGTownInstance *t = getTown(dstid);
@@ -1947,7 +1947,7 @@ void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance
 	tryJoiningArmy(obj, h, remove, true);
 }
 
-void CGameHandler::takeCreatures(int objid, const std::vector<CStackBasicDescriptor> &creatures)
+void CGameHandler::takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures)
 {
 	std::vector<CStackBasicDescriptor> cres = creatures;
 	if (cres.size() <= 0)
@@ -2079,7 +2079,7 @@ void CGameHandler::setMovePoints( SetMovePoints * smp )
 	sendAndApply(smp);
 }
 
-void CGameHandler::setManaPoints( int hid, int val )
+void CGameHandler::setManaPoints( ObjectInstanceID hid, int val )
 {
 	SetMana sm;
 	sm.hid = hid;
@@ -2087,7 +2087,7 @@ void CGameHandler::setManaPoints( int hid, int val )
 	sendAndApply(&sm);
 }
 
-void CGameHandler::giveHero( int id, TPlayerColor player )
+void CGameHandler::giveHero( ObjectInstanceID id, TPlayerColor player )
 {
 	GiveHero gh;
 	gh.id = id;
@@ -2095,7 +2095,7 @@ void CGameHandler::giveHero( int id, TPlayerColor player )
 	sendAndApply(&gh);
 }
 
-void CGameHandler::changeObjPos( int objid, int3 newPos, ui8 flags )
+void CGameHandler::changeObjPos( ObjectInstanceID objid, int3 newPos, ui8 flags )
 {
 	ChangeObjPos cop;
 	cop.objid = objid;
@@ -2104,7 +2104,7 @@ void CGameHandler::changeObjPos( int objid, int3 newPos, ui8 flags )
 	sendAndApply(&cop);
 }
 
-void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
+void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID toHero)
 {
 	const CGHeroInstance * h1 = getHero(fromHero);
 	const CGHeroInstance * h2 = getHero(toHero);
@@ -2193,17 +2193,17 @@ void CGameHandler::useScholarSkill(si32 fromHero, si32 toHero)
 	}
 }
 
-void CGameHandler::heroExchange(si32 hero1, si32 hero2)
+void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 {
-	ui8 player1 = getHero(hero1)->tempOwner;
-	ui8 player2 = getHero(hero2)->tempOwner;
+	TPlayerColor player1 = getHero(hero1)->tempOwner;
+	TPlayerColor player2 = getHero(hero2)->tempOwner;
 
 	if( gameState()->getPlayerRelations( player1, player2))
 	{
 		OpenWindow hex;
 		hex.window = OpenWindow::EXCHANGE_WINDOW;
-		hex.id1 = hero1;
-		hex.id2 = hero2;
+		hex.id1 = hero1.getNum();
+		hex.id2 = hero2.getNum();
 		sendAndApply(&hex);
 		useScholarSkill(hero1,hero2);
 	}
@@ -2341,10 +2341,10 @@ void CGameHandler::close()
 	//exit(0);
 }
 
-bool CGameHandler::arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val, TPlayerColor player )
+bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, ui8 p1, ui8 p2, si32 val, TPlayerColor player )
 {
-	const CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id1].get()),
-		*s2 = static_cast<CArmedInstance*>(gs->map->objects[id2].get());
+	const CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->getObjInstance(id1)),
+		*s2 = static_cast<CArmedInstance*>(gs->getObjInstance(id2));
 	const CCreatureSet &S1 = *s1, &S2 = *s2;
 	StackLocation sl1(s1, p1), sl2(s2, p2);
 	if(!sl1.validSlot()  ||  !sl2.validSlot())
@@ -2449,9 +2449,9 @@ TPlayerColor CGameHandler::getPlayerAt( CConnection *c ) const
 	}
 }
 
-bool CGameHandler::disbandCreature( si32 id, ui8 pos )
+bool CGameHandler::disbandCreature( ObjectInstanceID id, ui8 pos )
 {
-	CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id].get());
+	CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->getObjInstance(id));
 	if(!vstd::contains(s1->stacks,pos))
 	{
 		complain("Illegal call to disbandCreature - no such stack in army!");
@@ -2462,9 +2462,9 @@ bool CGameHandler::disbandCreature( si32 id, ui8 pos )
 	return true;
 }
 
-bool CGameHandler::buildStructure( si32 tid, BuildingID bid, bool force /*=false*/ )
+bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID bid, bool force /*=false*/ )
 {
-	CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid].get());
+	CGTownInstance * t = gs->getTown(tid);
 	CBuilding * b = t->town->buildings[bid];
 
 	if(!force)
@@ -2574,11 +2574,11 @@ bool CGameHandler::buildStructure( si32 tid, BuildingID bid, bool force /*=false
 	checkLossVictory(t->tempOwner);
 	return true;
 }
-bool CGameHandler::razeStructure (si32 tid, BuildingID bid)
+bool CGameHandler::razeStructure (ObjectInstanceID tid, BuildingID bid)
 {
 ///incomplete, simply erases target building
-	CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid].get());
-	if (t->builtBuildings.find(bid) == t->builtBuildings.end())
+	const CGTownInstance * t = getTown(tid);
+	if (!vstd::contains(t->builtBuildings, bid))
 		return false;
 	RazeStructures rs;
 	rs.tid = tid;
@@ -2604,9 +2604,9 @@ void CGameHandler::sendMessageToAll( const std::string &message )
 	sendToAllClients(&sm);
 }
 
-bool CGameHandler::recruitCreatures( si32 objid, CreatureID crid, ui32 cram, si32 fromLvl )
+bool CGameHandler::recruitCreatures( ObjectInstanceID objid, CreatureID crid, ui32 cram, si32 fromLvl )
 {
-	const CGDwelling *dw = static_cast<CGDwelling*>(gs->map->objects[objid].get());
+	const CGDwelling *dw = static_cast<const CGDwelling*>(gs->getObj(objid));
 	const CArmedInstance *dst = NULL;
 	const CCreature *c = VLC->creh->creatures[crid];
 	bool warMachine = c->hasBonusOfType(Bonus::SIEGE_WEAPON);
@@ -2697,9 +2697,9 @@ bool CGameHandler::recruitCreatures( si32 objid, CreatureID crid, ui32 cram, si3
 	return true;
 }
 
-bool CGameHandler::upgradeCreature( ui32 objid, ui8 pos, CreatureID upgID )
+bool CGameHandler::upgradeCreature( ObjectInstanceID objid, ui8 pos, CreatureID upgID )
 {
-	CArmedInstance *obj = static_cast<CArmedInstance*>(gs->map->objects[objid].get());
+	CArmedInstance *obj = static_cast<CArmedInstance*>(gs->getObjInstance(objid));
 	assert(obj->hasStackAtSlot(pos));
 	UpgradeInfo ui = gs->getUpgradeInfo(obj->getStack(pos));
 	int player = obj->tempOwner;
@@ -2773,7 +2773,7 @@ void CGameHandler::moveArmy(const CArmedInstance *src, const CArmedInstance *dst
 	}
 }
 
-bool CGameHandler::garrisonSwap( si32 tid )
+bool CGameHandler::garrisonSwap( ObjectInstanceID tid )
 {
 	CGTownInstance *town = gs->getTown(tid);
 	if(!town->garrisonHero && town->visitingHero) //visiting => garrison, merge armies: town army => hero army
@@ -2789,7 +2789,7 @@ bool CGameHandler::garrisonSwap( si32 tid )
 
 		SetHeroesInTown intown;
 		intown.tid = tid;
-		intown.visiting = -1;
+		intown.visiting = ObjectInstanceID();
 		intown.garrison = town->visitingHero->id;
 		sendAndApply(&intown);
 		return true;
@@ -2805,7 +2805,7 @@ bool CGameHandler::garrisonSwap( si32 tid )
 
 		SetHeroesInTown intown;
 		intown.tid = tid;
-		intown.garrison = -1;
+		intown.garrison = ObjectInstanceID();
 		intown.visiting =  town->garrisonHero->id;
 		sendAndApply(&intown);
 		return true;
@@ -2888,7 +2888,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
  * @param assembleTo If assemble is true, this represents the artifact ID of the combination
  * artifact to assemble to. Otherwise it's not used.
  */
-bool CGameHandler::assembleArtifacts (si32 heroID, ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo)
+bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo)
 {
 
 	CGHeroInstance *hero = gs->getHero(heroID);
@@ -2923,7 +2923,7 @@ bool CGameHandler::assembleArtifacts (si32 heroID, ArtifactPosition artifactSlot
 	return false;
 }
 
-bool CGameHandler::buyArtifact( ui32 hid, ArtifactID aid )
+bool CGameHandler::buyArtifact( ObjectInstanceID hid, ArtifactID aid )
 {
 	CGHeroInstance *hero = gs->getHero(hid);
 	CGTownInstance *town = hero->visitedTown;
@@ -2989,7 +2989,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::E
 	}
 	else if(const CGBlackMarket *bm = dynamic_cast<const CGBlackMarket *>(m->o)) //black market
 	{
-		saa.id = bm->id;
+		saa.id = bm->id.getNum();
 		saa.arts = bm->artifacts;
 	}
 	else
@@ -3015,7 +3015,7 @@ bool CGameHandler::buyArtifact(const IMarket *m, const CGHeroInstance *h, Res::E
 	return true;
 }
 
-bool CGameHandler::sellArtifact( const IMarket *m, const CGHeroInstance *h, TArtifactInstanceID aid, Res::ERes rid )
+bool CGameHandler::sellArtifact( const IMarket *m, const CGHeroInstance *h, ArtifactInstanceID aid, Res::ERes rid )
 {
 	const CArtifactInstance *art = h->getArtByInstanceId(aid);
 	if(!art)
@@ -3184,7 +3184,7 @@ bool CGameHandler::sendResources(ui32 val, TPlayerColor player, Res::ERes r1, TP
 	return true;
 }
 
-bool CGameHandler::setFormation( si32 hid, ui8 formation )
+bool CGameHandler::setFormation( ObjectInstanceID hid, ui8 formation )
 {
 	gs->getHero(hid)-> formation = formation;
 	return true;
@@ -3730,7 +3730,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&start_action);
 
 			const CStack * stack = gs->curB->battleGetStackByID(ba.stackNumber);
-			int spellID = ba.additionalInfo;
+			SpellID spellID = SpellID(ba.additionalInfo);
 			BattleHex destination(ba.destinationTile);
 
 			const Bonus *randSpellcaster = stack->getBonusLocalFirst(Selector::type(Bonus::RANDOM_SPELLCASTER));
@@ -3910,7 +3910,7 @@ void CGameHandler::playerMessage( TPlayerColor player, const std::string &messag
 	}
 }
 
-void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex destination, ui8 casterSide, TPlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
+void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex destination, ui8 casterSide, TPlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
 	int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack, si32 selectedStack)
 {
 	const CSpell *spell = SpellID(spellID).toSpell();
@@ -3925,7 +3925,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 									: 0;
 
 		auto obstacle = make_shared<SpellCreatedObstacle>();
-		switch(spellID) // :/
+		switch(spellID.toEnum()) // :/
 		{
 		case SpellID::QUICKSAND:
 			obstacle->obstacleType = CObstacleInstance::QUICKSAND;
@@ -4044,7 +4044,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			int spellDamage = 0;
 			if (stack && mode != ECastingMode::MAGIC_MIRROR)
 			{
-				int unitSpellPower = stack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spellID);
+				int unitSpellPower = stack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spellID.toEnum());
 				if (unitSpellPower)
 					sc.dmgToDisplay = spellDamage = stack->count * unitSpellPower; //TODO: handle immunities
 				else //Faerie Dragon
@@ -4155,7 +4155,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
  				}
 				if (caster && caster->hasBonusOfType(Bonus::SPECIAL_BLESS_DAMAGE, spellID)) //TODO: better handling of bonus percentages
  	 			{
- 	 				int damagePercent = caster->level * caster->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, spellID) / tier;
+ 	 				int damagePercent = caster->level * caster->valOfBonuses(Bonus::SPECIAL_BLESS_DAMAGE, spellID.toEnum()) / tier;
 					Bonus specialBonus = CStack::featureGenerator(Bonus::CREATURE_DAMAGE, 0, damagePercent, pseudoBonus.turnsRemain);
 					specialBonus.valType = Bonus::PERCENT_TO_ALL;
 					specialBonus.sid = spellID;
@@ -4172,7 +4172,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			int hpGained = 0;
 			if (stack)
 			{
-				int unitSpellPower = stack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spellID);
+				int unitSpellPower = stack->valOfBonuses(Bonus::SPECIFIC_SPELL_POWER, spellID.toEnum());
 				if (unitSpellPower)
 					hpGained = stack->count * unitSpellPower; //Archangel
 				else //Faerie Dragon-like effect - unused fo far
@@ -4288,7 +4288,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			bsa.pos = gs->curB->getAvaliableHex(creID, !(bool)casterSide); //TODO: unify it
 
 			//TODO stack casting -> probably power will be zero; set the proper number of creatures manually
-			int percentBonus = caster ? caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spellID) : 0;
+			int percentBonus = caster ? caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spellID.toEnum()) : 0;
 
 			bsa.amount = usedSpellPower
 				* SpellID(spellID).toSpell()->powers[spellLvl]
@@ -4458,7 +4458,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				StartAction start_action(ba);
 				sendAndApply(&start_action); //start spell casting
 
-				handleSpellCasting (ba.additionalInfo, skill, ba.destinationTile, ba.side, h->tempOwner,
+				handleSpellCasting (SpellID(ba.additionalInfo), skill, ba.destinationTile, ba.side, h->tempOwner,
 									h, secondHero, h->getPrimSkillLevel(PrimarySkill::SPELL_POWER),
 									ECastingMode::HERO_CASTING, NULL, ba.selectedStack);
 
@@ -4560,7 +4560,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 				{
 					bte.effect = Bonus::MANA_DRAIN;
 					bte.val = manaDrained;
-					bte.additionalInfo = enemy->id; //for sanity
+					bte.additionalInfo = enemy->id.getNum(); //for sanity
 					sendAndApply(&bte);
 				}
 			}
@@ -4590,7 +4590,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 		if (bl.size() && st->casts && !gs->curB->enchanterCounter[side])
 		{
 			int index = rand() % bl.size();
-			int spellID = bl[index]->subtype; //spell ID
+			SpellID spellID = SpellID(bl[index]->subtype);
 			if (gs->curB->battleCanCastThisSpell(st->owner, SpellID(spellID).toSpell(), ECastingMode::ENCHANTER_CASTING)) //TODO: select another?
 			{
 				int spellLeveL = bl[index]->val; //spell level
@@ -4751,7 +4751,7 @@ void CGameHandler::handleTimeEvents()
 	}
 }
 
-void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<si32, std::map<si32, si32> > &newCreas)
+void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<ObjectInstanceID, std::map<si32, si32> > &newCreas)
 {
 	//TODO event removing desync!!!
 	town->events.sort(evntCmp);
@@ -4837,7 +4837,7 @@ ui32 CGameHandler::getQueryResult( TPlayerColor player, int queryID )
 	return 0;
 }
 
-void CGameHandler::showGarrisonDialog( int upobj, int hid, bool removableUnits, const boost::function<void()> &cb )
+void CGameHandler::showGarrisonDialog( ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const boost::function<void()> &cb )
 {
 	ui8 player = getOwner(hid);
 	GarrisonDialog gd;
@@ -4859,17 +4859,17 @@ void CGameHandler::showGarrisonDialog( int upobj, int hid, bool removableUnits, 
 			allowedExchanges.erase(gd.queryID);
 		};
 
-		allowedExchanges[gd.queryID] = std::pair<si32,si32>(upobj,hid);
+		allowedExchanges[gd.queryID] = std::make_pair(upobj,hid);
 		sendAndApply(&gd);
 	}
 }
 
-void CGameHandler::showThievesGuildWindow(TPlayerColor player, int requestingObjId)
+void CGameHandler::showThievesGuildWindow(TPlayerColor player, ObjectInstanceID requestingObjId)
 {
 	OpenWindow ow;
 	ow.window = OpenWindow::THIEVES_GUILD;
 	ow.id1 = player;
-	ow.id2 = requestingObjId;
+	ow.id2 = requestingObjId.getNum();
 	sendAndApply(&ow);
 }
 
@@ -4878,9 +4878,9 @@ bool CGameHandler::isAllowedArrangePack(const ArrangeStacks *pack)
 	return isAllowedExchangeForQuery(pack->id1, pack->id2);
 }
 
-bool CGameHandler::isAllowedExchangeForQuery(int id1, int id2) {
+bool CGameHandler::isAllowedExchangeForQuery(ObjectInstanceID id1, ObjectInstanceID id2) {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
-	for(std::map<ui32, std::pair<si32,si32> >::const_iterator i = allowedExchanges.begin(); i!=allowedExchanges.end(); i++)
+	for(auto i = allowedExchanges.cbegin(); i!=allowedExchanges.cend(); i++)
 		if((id1 == i->second.first && id2 == i->second.second) ||
 		   (id2 == i->second.first && id1 == i->second.second))
 			return true;
@@ -4888,7 +4888,7 @@ bool CGameHandler::isAllowedExchangeForQuery(int id1, int id2) {
 	return false;
 }
 
-bool CGameHandler::isAllowedExchange( int id1, int id2 )
+bool CGameHandler::isAllowedExchange( ObjectInstanceID id1, ObjectInstanceID id2 )
 {
 	if(id1 == id2)
 		return true;
@@ -4941,7 +4941,7 @@ void CGameHandler::objectVisited( const CGObjectInstance * obj, const CGHeroInst
 	sendAndApply(&hv);
 }
 
-bool CGameHandler::buildBoat( ui32 objid )
+bool CGameHandler::buildBoat( ObjectInstanceID objid )
 {
 	const IShipyard *obj = IShipyard::castFrom(getObj(objid));
 
@@ -5269,13 +5269,13 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 {
 	if(attacker->hasBonusOfType(attackMode))
 	{
-		std::set<ui32> spellsToCast;
+		std::set<SpellID> spellsToCast;
 		TBonusListPtr spells = attacker->getBonuses(Selector::type(attackMode));
 		BOOST_FOREACH(const Bonus *sf, *spells)
 		{
-			spellsToCast.insert (sf->subtype);
+			spellsToCast.insert (SpellID(sf->subtype));
 		}
-		BOOST_FOREACH(ui32 spellID, spellsToCast)
+		BOOST_FOREACH(SpellID spellID, spellsToCast)
 		{
 			const CStack * oneOfAttacked = NULL;
 			for (int g=0; g<bat.bsa.size(); ++g)
@@ -5505,7 +5505,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int
 			}
 
 			GiveBonus gb;
-			gb.id = h->id;
+			gb.id = h->id.getNum();
 			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::NONE, Bonus::SPELL_EFFECT, 0, SpellID::DIMENSION_DOOR);
 			sendAndApply(&gb);
 
@@ -5532,7 +5532,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int
 			int subtype = schoolLevel >= 2 ? 1 : 2; //adv or expert
 
 			GiveBonus gb;
-			gb.id = h->id;
+			gb.id = h->id.getNum();
 			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::FLYING_MOVEMENT, Bonus::SPELL_EFFECT, 0, SpellID::FLY, subtype);
 			sendAndApply(&gb);
 		}
@@ -5542,7 +5542,7 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int
 			int subtype = schoolLevel >= 2 ? 1 : 2; //adv or expert
 
 			GiveBonus gb;
-			gb.id = h->id;
+			gb.id = h->id.getNum();
 			gb.bonus = Bonus(Bonus::ONE_DAY, Bonus::WATER_WALKING, Bonus::SPELL_EFFECT, 0, SpellID::WATER_WALK, subtype);
 			sendAndApply(&gb);
 		}
@@ -5565,11 +5565,11 @@ bool CGameHandler::castSpell(const CGHeroInstance *h, SpellID spellID, const int
 			if (h->getSpellSchoolLevel(s) < 2)
 			{
 				double dist = town->pos.dist2d(h->pos);
-				int nearest = town->id; //nearest town's ID
+				ObjectInstanceID nearest = town->id; //nearest town's ID
 				BOOST_FOREACH(const CGTownInstance * currTown, gs->getPlayer(h->tempOwner)->towns)
 				{
 					double curDist = currTown->pos.dist2d(h->pos);
-					if (nearest == -1 || curDist < dist)
+					if (nearest == ObjectInstanceID() || curDist < dist)
 					{
 						nearest = town->id;
 						dist = curDist;
@@ -5848,7 +5848,7 @@ void CGameHandler::runBattle()
 			TBonusListPtr bl = gs->curB->heroes[i]->getBonuses(Selector::type(Bonus::OPENING_BATTLE_SPELL));
 			BOOST_FOREACH (Bonus *b, *bl)
 			{
-				handleSpellCasting(b->subtype, 3, -1, 0, gs->curB->heroes[i]->tempOwner, NULL, gs->curB->heroes[1-i], b->val, ECastingMode::HERO_CASTING, NULL);
+				handleSpellCasting(SpellID(b->subtype), 3, -1, 0, gs->curB->heroes[i]->tempOwner, NULL, gs->curB->heroes[1-i], b->val, ECastingMode::HERO_CASTING, NULL);
 			}
 		}
 	}
@@ -6189,7 +6189,7 @@ void CGameHandler::removeObstacle(const CObstacleInstance &obstacle)
 
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)
 {
-	heroWithDeadCommander = -1;
+	heroWithDeadCommander = ObjectInstanceID();
 
 	int color = army->tempOwner;
 	if(color == GameConstants::UNFLAGGABLE_PLAYER)
@@ -6230,7 +6230,7 @@ void CasualtiesAfterBattle::takeFromArmy(CGameHandler *gh)
 		else
 			gh->eraseStack(ncount.first, true);
 	}
-	if (heroWithDeadCommander > -1)
+	if (heroWithDeadCommander != ObjectInstanceID())
 	{
 		SetCommanderProperty scp;
 		scp.heroid = heroWithDeadCommander;

@@ -240,7 +240,7 @@ struct PlayerBlocked : public CPackForClient //96
 
 	enum EReason { UPCOMING_BATTLE };
 
-	ui8 reason;
+	EReason reason;
 	TPlayerColor player;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -255,7 +255,7 @@ struct YourTurn : public CPackForClient //100
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	ui8 player;
+	TPlayerColor player;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -300,7 +300,7 @@ struct SetPrimSkill : public CPackForClient //105
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ui8 abs; //0 - changes by value; 1 - sets to value
-	si32 id;
+	ObjectInstanceID id;
 	PrimarySkill::PrimarySkill which;
 	si64 val;
 
@@ -316,7 +316,7 @@ struct SetSecSkill : public CPackForClient //106
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ui8 abs; //0 - changes by value; 1 - sets to value
-	si32 id;
+	ObjectInstanceID id;
 	SecondarySkill which;
 	ui16 val;
 
@@ -332,7 +332,7 @@ struct HeroVisitCastle : public CPackForClient //108
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ui8 flags; //1 - start
-	ui32 tid, hid;
+	ObjectInstanceID tid, hid;
 
 	bool start() //if hero is entering castle (if false - leaving)
 	{
@@ -354,7 +354,7 @@ struct ChangeSpells : public CPackForClient //109
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ui8 learn; //1 - gives spell, 0 - takes
-	ui32 hid;
+	ObjectInstanceID hid;
 	std::set<SpellID> spells;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -370,7 +370,8 @@ struct SetMana : public CPackForClient //110
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 
-	si32 hid, val;
+	ObjectInstanceID hid;
+	si32 val;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -384,7 +385,8 @@ struct SetMovePoints : public CPackForClient //111
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	ui32 hid, val;
+	ObjectInstanceID hid;
+	si32 val;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -420,7 +422,7 @@ struct SetAvailableHeroes : public CPackForClient //113
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	ui8 player;
+	TPlayerColor player;
 	si32 hid[GameConstants::AVAILABLE_HEROES_PER_PLAYER]; //-1 if no hero
 	CSimpleArmy army[GameConstants::AVAILABLE_HEROES_PER_PLAYER];
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -442,7 +444,7 @@ struct GiveBonus :  public CPackForClient //115
 
 	enum {HERO, PLAYER, TOWN};
 	ui8 who; //who receives bonus, uses enum above
-	ui32 id; //hero. town or player id - whoever receives it
+	si32 id; //hero. town or player id - whoever receives it
 	Bonus bonus;
 	MetaString bdescr;
 
@@ -463,7 +465,7 @@ struct ChangeObjPos : public CPackForClient //116
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	ui32 objid;
+	ObjectInstanceID objid;
 	int3 nPos;
 	ui8 flags; //bit flags: 1 - redraw
 
@@ -483,7 +485,7 @@ struct PlayerEndsGame : public CPackForClient //117
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	ui8 player;
+	TPlayerColor player;
 	ui8 victory;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -544,7 +546,7 @@ struct SetCommanderProperty : public CPackForClient //120
 	void applyCl(CClient *cl){};
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	si32 heroid; //for commander attached to hero
+	ObjectInstanceID heroid; //for commander attached to hero
 	StackLocation sl; //for commander not on the hero?
 
 	ECommanderProperty which;
@@ -585,12 +587,12 @@ struct PrepareForAdvancingCampaign : public CPackForClient //122
 struct RemoveObject : public CPackForClient //500
 {
 	RemoveObject(){type = 500;};
-	RemoveObject(si32 ID){id = ID;type = 500;};
+	RemoveObject(ObjectInstanceID ID){id = ID;type = 500;};
 	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	si32 id;
+	ObjectInstanceID id;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -609,7 +611,8 @@ struct TryMoveHero : public CPackForClient //501
 		FAILED, SUCCESS, TELEPORTATION, RESERVED___, BLOCKING_VISIT, EMBARK, DISEMBARK
 	};
 
-	ui32 id, movePoints;
+	ObjectInstanceID id;
+	ui32 movePoints;
 	EResult result; //uses EResult
 	int3 start, end; //h3m format
 	boost::unordered_set<int3, ShashInt3> fowRevealed; //revealed tiles
@@ -643,7 +646,7 @@ struct NewStructures : public CPackForClient //504
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	si32 tid;
+	ObjectInstanceID tid;
 	std::set<BuildingID> bid;
 	si16 builded;
 
@@ -658,7 +661,7 @@ struct RazeStructures : public CPackForClient //505
 	void applyCl (CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	si32 tid;
+	ObjectInstanceID tid;
 	std::set<BuildingID> bid;
 	si16 destroyed;
 
@@ -673,7 +676,7 @@ struct SetAvailableCreatures : public CPackForClient //506
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	si32 tid;
+	ObjectInstanceID tid;
 	std::vector<std::pair<ui32, std::vector<CreatureID> > > creatures;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -687,7 +690,7 @@ struct SetHeroesInTown : public CPackForClient //508
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	si32 tid, visiting, garrison; //id of town, visiting hero, hero in garrison
+	ObjectInstanceID tid, visiting, garrison; //id of town, visiting hero, hero in garrison
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -721,7 +724,8 @@ struct HeroRecruited : public CPackForClient //515
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	si32 hid, tid; //subID of hero
+	si32 hid;//subID of hero
+	ObjectInstanceID tid;
 	int3 tile;
 	TPlayerColor player;
 
@@ -738,7 +742,7 @@ struct GiveHero : public CPackForClient //516
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	ui32 id; //object id
+	ObjectInstanceID id; //object id
 	TPlayerColor player;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -755,7 +759,7 @@ struct OpenWindow : public CPackForClient //517
 	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW, THIEVES_GUILD,
 	              UNIVERSITY_WINDOW, HILL_FORT_WINDOW, MARKET_WINDOW, PUZZLE_MAP, TAVERN_WINDOW};
 	ui8 window;
-	ui32 id1, id2;
+	si32 id1, id2;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -768,7 +772,6 @@ struct NewObject  : public CPackForClient //518
 	NewObject()
 	{
 		type = 518;
-		id = -1;
 	}
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
@@ -777,7 +780,7 @@ struct NewObject  : public CPackForClient //518
 	ui32 subID;
 	int3 pos;
 
-	int id; //used locally, filled during applyGs
+	ObjectInstanceID id; //used locally, filled during applyGs
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1061,7 +1064,8 @@ struct NewTurn : public CPackForClient //101
 
 	struct Hero
 	{
-		ui32 id, move, mana; //id is a general serial id
+		ObjectInstanceID id;
+		ui32 move, mana; //id is a general serial id
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
 			h & id & move & mana;
@@ -1141,11 +1145,11 @@ struct SetObjectProperty : public CPackForClient//1001
 	DLL_LINKAGE void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
-	ui32 id;
+	ObjectInstanceID id;
 	ui8 what; //1 - owner; 2 - blockvis; 3 - first stack count; 4 - visitors; 5 - visited; 6 - ID (if 34 then also def is replaced)
 	ui32 val;
 	SetObjectProperty(){type = 1001;};
-	SetObjectProperty(ui32 ID, ui8 What, ui32 Val):id(ID),what(What),val(Val){type = 1001;};
+	SetObjectProperty(ObjectInstanceID ID, ui8 What, ui32 Val):id(ID),what(What),val(Val){type = 1001;};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1157,10 +1161,10 @@ struct SetHoverName : public CPackForClient//1002
 {
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	ui32 id;
+	ObjectInstanceID id;
 	MetaString name;
 	SetHoverName(){type = 1002;};
-	SetHoverName(ui32 ID, MetaString& Name):id(ID),name(Name){type = 1002;};
+	SetHoverName(ObjectInstanceID ID, MetaString& Name):id(ID),name(Name){type = 1002;};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1172,7 +1176,7 @@ struct HeroLevelUp : public Query//2000
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	si32 heroid;
+	ObjectInstanceID heroid;
 	PrimarySkill::PrimarySkill primskill;
 	ui8 level;
 	std::vector<SecondarySkill> skills;
@@ -1190,7 +1194,7 @@ struct CommanderLevelUp : public Query
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	si32 heroid; //for commander attached to hero
+	ObjectInstanceID heroid; //for commander attached to hero
 	StackLocation sl; //for commander not on the hero?
 
 	std::vector<ui32> skills; //0-5 - secondary skills, val-100 - special skill
@@ -1268,7 +1272,7 @@ struct GarrisonDialog : public Query//2004
 {
 	GarrisonDialog(){type = 2004;}
 	void applyCl(CClient *cl);
-	si32 objid, hid;
+	ObjectInstanceID objid, hid;
 	bool removableUnits;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1336,7 +1340,7 @@ struct BattleResult : public CPackForClient//3003
 	ui8 winner; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
 	std::map<ui32,si32> casualties[2]; //first => casualties of attackers - map crid => number
 	TExpType exp[2]; //exp for attacker and defender
-	std::set<TArtifactInstanceID> artifacts; //artifacts taken from loser to winner - currently unused
+	std::set<ArtifactInstanceID> artifacts; //artifacts taken from loser to winner - currently unused
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1765,8 +1769,8 @@ struct EndTurn : public CPackForServer
 struct DismissHero : public CPackForServer
 {
 	DismissHero(){};
-	DismissHero(si32 HID) : hid(HID) {};
-	si32 hid;
+	DismissHero(ObjectInstanceID HID) : hid(HID) {};
+	ObjectInstanceID hid;
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1778,9 +1782,9 @@ struct DismissHero : public CPackForServer
 struct MoveHero : public CPackForServer
 {
 	MoveHero(){};
-	MoveHero(const int3 &Dest, si32 HID) : dest(Dest), hid(HID){};
+	MoveHero(const int3 &Dest, ObjectInstanceID HID) : dest(Dest), hid(HID){};
 	int3 dest;
-	si32 hid;
+	ObjectInstanceID hid;
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1792,9 +1796,9 @@ struct MoveHero : public CPackForServer
 struct CastleTeleportHero : public CPackForServer
 {
 	CastleTeleportHero(){};
-	CastleTeleportHero(const si32 HID, si32 Dest, ui8 Source ) : dest(Dest), hid(HID), source(Source){};
-	si32 dest;
-	si32 hid;
+	CastleTeleportHero(const ObjectInstanceID HID, ObjectInstanceID Dest, ui8 Source ) : dest(Dest), hid(HID), source(Source){};
+	ObjectInstanceID dest;
+	ObjectInstanceID hid;
 	si8 source;//who give teleporting, 1=castle gate
 
 	bool applyGh(CGameHandler *gh);
@@ -1807,12 +1811,12 @@ struct CastleTeleportHero : public CPackForServer
 struct ArrangeStacks : public CPackForServer
 {
 	ArrangeStacks(){};
-	ArrangeStacks(ui8 W, ui8 P1, ui8 P2, si32 ID1, si32 ID2, si32 VAL)
+	ArrangeStacks(ui8 W, ui8 P1, ui8 P2, ObjectInstanceID ID1, ObjectInstanceID ID2, si32 VAL)
 		:what(W),p1(P1),p2(P2),id1(ID1),id2(ID2),val(VAL) {};
 
 	ui8 what; //1 - swap; 2 - merge; 3 - split
 	ui8 p1, p2; //positions of first and second stack
-	si32 id1, id2; //ids of objects with garrison
+	ObjectInstanceID id1, id2; //ids of objects with garrison
 	si32 val;
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1824,9 +1828,9 @@ struct ArrangeStacks : public CPackForServer
 struct DisbandCreature : public CPackForServer
 {
 	DisbandCreature(){};
-	DisbandCreature(ui8 Pos, si32 ID):pos(Pos),id(ID){};
+	DisbandCreature(ui8 Pos, ObjectInstanceID ID):pos(Pos),id(ID){};
 	ui8 pos; //stack pos
-	si32 id; //object id
+	ObjectInstanceID id; //object id
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1838,8 +1842,8 @@ struct DisbandCreature : public CPackForServer
 struct BuildStructure : public CPackForServer
 {
 	BuildStructure(){};
-	BuildStructure(si32 TID, BuildingID BID):tid(TID), bid(BID){};
-	si32 tid; //town id
+	BuildStructure(ObjectInstanceID TID, BuildingID BID):tid(TID), bid(BID){};
+	ObjectInstanceID tid; //town id
 	BuildingID bid; //structure id
 
 	bool applyGh(CGameHandler *gh);
@@ -1858,8 +1862,8 @@ struct RazeStructure : public BuildStructure
 struct RecruitCreatures : public CPackForServer
 {
 	RecruitCreatures(){};
-	RecruitCreatures(si32 TID, CreatureID CRID, si32 Amount, si32 Level):tid(TID),crid(CRID),amount(Amount),level(Level){};
-	si32 tid; //town id
+	RecruitCreatures(ObjectInstanceID TID, CreatureID CRID, si32 Amount, si32 Level):tid(TID),crid(CRID),amount(Amount),level(Level){};
+	ObjectInstanceID tid; //town id
 	CreatureID crid;
 	ui32 amount;//creature amount
 	si32 level;//dwelling level to buy from, -1 if any
@@ -1873,9 +1877,9 @@ struct RecruitCreatures : public CPackForServer
 struct UpgradeCreature : public CPackForServer
 {
 	UpgradeCreature(){};
-	UpgradeCreature(ui8 Pos, si32 ID, CreatureID CRID):pos(Pos),id(ID), cid(CRID){};
+	UpgradeCreature(ui8 Pos, ObjectInstanceID ID, CreatureID CRID):pos(Pos),id(ID), cid(CRID){};
 	ui8 pos; //stack pos
-	si32 id; //object id
+	ObjectInstanceID id; //object id
 	CreatureID cid; //id of type to which we want make upgrade
 
 	bool applyGh(CGameHandler *gh);
@@ -1888,8 +1892,8 @@ struct UpgradeCreature : public CPackForServer
 struct GarrisonHeroSwap : public CPackForServer
 {
 	GarrisonHeroSwap(){};
-	GarrisonHeroSwap(si32 TID):tid(TID){};
-	si32 tid;
+	GarrisonHeroSwap(ObjectInstanceID TID):tid(TID){};
+	ObjectInstanceID tid;
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1914,9 +1918,9 @@ struct ExchangeArtifacts : public CPackForServer
 struct AssembleArtifacts : public CPackForServer
 {
 	AssembleArtifacts(){};
-	AssembleArtifacts(si32 _heroID, ArtifactPosition _artifactSlot, bool _assemble, ui32 _assembleTo)
+	AssembleArtifacts(ObjectInstanceID _heroID, ArtifactPosition _artifactSlot, bool _assemble, ui32 _assembleTo)
 		: heroID(_heroID), artifactSlot(_artifactSlot), assemble(_assemble), assembleTo(_assembleTo){};
-	si32 heroID;
+	ObjectInstanceID heroID;
 	ArtifactPosition artifactSlot;
 	bool assemble; // True to assemble artifact, false to disassemble.
 	ui32 assembleTo; // Artifact to assemble into.
@@ -1931,8 +1935,8 @@ struct AssembleArtifacts : public CPackForServer
 struct BuyArtifact : public CPackForServer
 {
 	BuyArtifact(){};
-	BuyArtifact(si32 HID, ArtifactID AID):hid(HID),aid(AID){};
-	si32 hid;
+	BuyArtifact(ObjectInstanceID HID, ArtifactID AID):hid(HID),aid(AID){};
+	ObjectInstanceID hid;
 	ArtifactID aid;
 
 	bool applyGh(CGameHandler *gh);
@@ -1962,8 +1966,8 @@ struct TradeOnMarketplace : public CPackForServer
 struct SetFormation : public CPackForServer
 {
 	SetFormation(){};
-	SetFormation(si32 HID, ui8 Formation):hid(HID),formation(Formation){};
-	si32 hid;
+	SetFormation(ObjectInstanceID HID, ui8 Formation):hid(HID),formation(Formation){};
+	ObjectInstanceID hid;
 	ui8 formation;
 
 	bool applyGh(CGameHandler *gh);
@@ -1976,8 +1980,9 @@ struct SetFormation : public CPackForServer
 struct HireHero : public CPackForServer
 {
 	HireHero(){};
-	HireHero(si32 HID, si32 TID):hid(HID),tid(TID){};
-	si32 hid, tid; //available hero serial and town (tavern) id
+	HireHero(si32 HID, ObjectInstanceID TID):hid(HID),tid(TID){};
+	si32 hid; //available hero serial
+	ObjectInstanceID tid; //town (tavern) id
 	TPlayerColor player;
 
 	bool applyGh(CGameHandler *gh);
@@ -1990,7 +1995,7 @@ struct HireHero : public CPackForServer
 struct BuildBoat : public CPackForServer
 {
 	BuildBoat(){};
-	si32 objid; //where player wants to buy a boat
+	ObjectInstanceID objid; //where player wants to buy a boat
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -2043,7 +2048,7 @@ struct MakeCustomAction : public CPackForServer
 struct DigWithHero : public CPackForServer
 {
 	DigWithHero(){}
-	si32 id; //digging hero id
+	ObjectInstanceID id; //digging hero id
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -2055,7 +2060,7 @@ struct DigWithHero : public CPackForServer
 struct CastAdvSpell : public CPackForServer
 {
 	CastAdvSpell(){}
-	si32 hid; //hero id
+	ObjectInstanceID hid; //hero id
 	SpellID sid; //spell id
 	int3 pos; //selected tile (not always used)
 
@@ -2111,7 +2116,7 @@ struct SetSelection : public CPackForClient, public CPackForServer //514
 	void applyCl(CClient *cl);
 
 	TPlayerColor player;
-	ui32 id;
+	ObjectInstanceID id;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

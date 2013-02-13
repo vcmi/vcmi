@@ -165,7 +165,7 @@ struct DLL_LINKAGE PlayerState : public CBonusSystemNode
 public:
 	TPlayerColor color;
 	bool human; //true if human controlled player, false for AI
-	ui32 currentSelection; //id of hero/town, 0xffffffff if none
+	ObjectInstanceID currentSelection; //id of hero/town, 0xffffffff if none
 	ui8 team;
 	TResources resources;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > heroes;

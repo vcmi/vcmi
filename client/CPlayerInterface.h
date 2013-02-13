@@ -175,7 +175,7 @@ public:
 	void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain) OVERRIDE;//if gain hero received bonus, else he lost it
 	void playerBonusChanged(const Bonus &bonus, bool gain) OVERRIDE;
 	void requestRealized(PackageApplied *pa) OVERRIDE;
-	void heroExchangeStarted(si32 hero1, si32 hero2) OVERRIDE;
+	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2) OVERRIDE;
 	void centerView (int3 pos, int focusTime) OVERRIDE;
 	void objectPropertyChanged(const SetObjectProperty * sop) OVERRIDE;
 	void objectRemoved(const CGObjectInstance *obj) OVERRIDE;

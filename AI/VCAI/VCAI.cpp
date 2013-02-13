@@ -656,7 +656,7 @@ void VCAI::tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos)
 			addVisitableObj(obj);
 }
 
-void VCAI::heroExchangeStarted(si32 hero1, si32 hero2)
+void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2)
 {
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
@@ -1541,7 +1541,7 @@ void VCAI::wander(HeroPtr h)
 		{
 			if(!dest)
 			{
-				BNLOG("Visit attempt made the object (id=%d) gone...", dest.id);
+				BNLOG("Visit attempt made the object (id=%d) gone...", dest.id.getNum());
 			}
 			else
 			{
@@ -1968,7 +1968,7 @@ void VCAI::tryRealize(CGoal g)
 		if(cb->getResourceAmount(static_cast<Res::ERes>(g.resID)) >= g.value)
 			throw cannotFulfillGoalException("Goal is already fulfilled!");
 
-		if(const CGObjectInstance *obj = cb->getObj(g.objid, false))
+		if(const CGObjectInstance *obj = cb->getObj(ObjectInstanceID(g.objid), false))
 		{
 			if(const IMarket *m = IMarket::castFrom(obj, false))
 			{
@@ -2069,7 +2069,7 @@ bool VCAI::fulfillsGoal (CGoal &goal, CGoal &mainGoal)
 {
 	if (mainGoal.goalType == GET_OBJ && goal.goalType == VISIT_TILE) //deduce that GET_OBJ was completed by visiting object's tile
 	{ //TODO: more universal mechanism
-		if (cb->getObj(mainGoal.objid)->visitablePos() == goal.tile)
+		if (cb->getObj(ObjectInstanceID(mainGoal.objid))->visitablePos() == goal.tile)
 			return true;
 	}
 	return false;
@@ -2078,7 +2078,7 @@ bool VCAI::fulfillsGoal (CGoal &goal, const CGoal &mainGoal)
 {
 	if (mainGoal.goalType == GET_OBJ && goal.goalType == VISIT_TILE) //deduce that GET_OBJ was completed by visiting object's tile
 	{ //TODO: more universal mechanism
-		if (cb->getObj(mainGoal.objid)->visitablePos() == goal.tile)
+		if (cb->getObj(ObjectInstanceID(mainGoal.objid))->visitablePos() == goal.tile)
 			return true;
 	}
 	return false;
@@ -2226,7 +2226,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero))
 					{
-						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
+						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id.getNum()).sethero(hero));
 						return;
 					}
 				}
@@ -2243,7 +2243,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero))
 					{
-						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
+						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id.getNum()).sethero(hero));
 						return;
 					}
 				}
@@ -2257,7 +2257,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero)) //veyr bad info - stacks can be split between multiple heroes :(
 					{
-						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
+						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id.getNum()).sethero(hero));
 						return;
 					}
 				}
@@ -2295,7 +2295,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			{
 				auto obj = cb->getObjByQuestIdentifier(q.quest->m13489val);
 				if (obj)
-					striveToGoal (CGoal(GET_OBJ).setobjid(obj->id));
+					striveToGoal (CGoal(GET_OBJ).setobjid(obj->id.getNum()));
 				else
 					striveToGoal (CGoal(VISIT_TILE).settile(q.tile)); //visit seer hut
 				break;
@@ -2307,7 +2307,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				{
 					if (q.quest->checkQuest(hero))
 					{
-						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id).sethero(hero));
+						striveToGoal (CGoal(GET_OBJ).setobjid(q.obj->id.getNum()).sethero(hero));
 						return;
 					}
 				}
@@ -2772,9 +2772,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 			case EVictoryConditionType::ARTIFACT:
                 return CGoal(GET_ART_TYPE).setaid(vc.objectId);
 			case EVictoryConditionType::BEATHERO:
-				return CGoal(GET_OBJ).setobjid(vc.obj->id);
+				return CGoal(GET_OBJ).setobjid(vc.obj->id.getNum());
 			case EVictoryConditionType::BEATMONSTER:
-				return CGoal(GET_OBJ).setobjid(vc.obj->id);
+				return CGoal(GET_OBJ).setobjid(vc.obj->id.getNum());
 			case EVictoryConditionType::BUILDCITY:
 				//TODO build castle/capitol
 				break;
@@ -2812,14 +2812,14 @@ TSubgoal CGoal::whatToDoToAchieve()
 					} //TODO: use FIND_OBJ
 					else if(const CGObjectInstance * obj = ai->getUnvisitedObj(objWithID<Obj::OBELISK>)) //there are unvisited Obelisks
 					{
-						return CGoal(GET_OBJ).setobjid(obj->id);
+						return CGoal(GET_OBJ).setobjid(obj->id.getNum());
 					}
 					else
 						return CGoal(EXPLORE);
 				}
 				break;
 			case EVictoryConditionType::CAPTURECITY:
-				return CGoal(GET_OBJ).setobjid(vc.obj->id);
+				return CGoal(GET_OBJ).setobjid(vc.obj->id.getNum());
 			case EVictoryConditionType::GATHERRESOURCE:
                 return CGoal(COLLECT_RES).setresID(static_cast<Res::ERes>(vc.objectId)).setvalue(vc.count);
 				//TODO mines? piles? marketplace?
@@ -2867,14 +2867,14 @@ TSubgoal CGoal::whatToDoToAchieve()
 				}
 			}
 			if (o && isReachable(o))
-				return CGoal(GET_OBJ).setobjid(o->id);
+				return CGoal(GET_OBJ).setobjid(o->id.getNum());
 			else
 				return CGoal(EXPLORE);
 		}
 		break;
 	case GET_OBJ:
 		{
-			const CGObjectInstance * obj = cb->getObj(objid);
+			const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(objid));
 			if(!obj)
 				return CGoal(EXPLORE);
 			int3 pos = obj->visitablePos();
@@ -2883,7 +2883,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 		break;
 	case VISIT_HERO:
 		{
-			const CGObjectInstance * obj = cb->getObj(objid);
+			const CGObjectInstance * obj = cb->getObj(ObjectInstanceID(objid));
 			if(!obj)
 				return CGoal(EXPLORE);
 			int3 pos = obj->visitablePos();
@@ -3189,8 +3189,8 @@ TSubgoal CGoal::whatToDoToAchieve()
 					auto backObj = backOrNull(cb->getVisitableObjs(m->o->visitablePos())); //it'll be a hero if we have one there; otherwise marketplace
 					assert(backObj);
 					if(backObj->tempOwner != ai->playerID)
-						return CGoal(GET_OBJ).setobjid(m->o->id);
-					return setobjid(m->o->id).setisElementar(true);
+						return CGoal(GET_OBJ).setobjid(m->o->id.getNum());
+					return setobjid(m->o->id.getNum()).setisElementar(true);
 				}
 			}
 		}
@@ -3238,7 +3238,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			if (dwellings.size())
 			{
 				boost::sort(dwellings, isCloser);
-				return CGoal(GET_OBJ).setobjid (dwellings.front()->id); //TODO: consider needed resources
+				return CGoal(GET_OBJ).setobjid (dwellings.front()->id.getNum()); //TODO: consider needed resources
 			}
 			else
 				return CGoal(EXPLORE);
@@ -3315,7 +3315,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 					ai->reserveObject(h, obj); //no one else will capture same object until we fail
 
 					if (obj->ID == Obj::HERO)
-						return CGoal(VISIT_HERO).sethero(h).setobjid(obj->id).setisAbstract(true); //track enemy hero
+						return CGoal(VISIT_HERO).sethero(h).setobjid(obj->id.getNum()).setisAbstract(true); //track enemy hero
 					else
 						return CGoal(VISIT_TILE).sethero(h).settile(obj->visitablePos());
 				}
@@ -3375,9 +3375,9 @@ TSubgoal CGoal::whatToDoToAchieve()
 						secondaryPath = cb->getPathInfo(hero->visitablePos())->turns;
 
 						if (primaryPath < secondaryPath)
-							return CGoal(VISIT_HERO).setisAbstract(true).setobjid(h->id).sethero(hero); //go to the other hero if we are faster
+							return CGoal(VISIT_HERO).setisAbstract(true).setobjid(h->id.getNum()).sethero(hero); //go to the other hero if we are faster
 						else
-							return CGoal(VISIT_HERO).setisAbstract(true).setobjid(hero->id).sethero(h); //let the other hero come to us
+							return CGoal(VISIT_HERO).setisAbstract(true).setobjid(hero->id.getNum()).sethero(h); //let the other hero come to us
 					}
 				}
 
@@ -3426,7 +3426,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 TSubgoal CGoal::goVisitOrLookFor(const CGObjectInstance *obj)
 {
 	if(obj)
-		return CGoal(GET_OBJ).setobjid(obj->id);
+		return CGoal(GET_OBJ).setobjid(obj->id.getNum());
 	else
 		return CGoal(EXPLORE);
 }
@@ -3901,7 +3901,7 @@ ObjectIdRef::operator const CGObjectInstance*() const
 	return cb->getObj(id, false);
 }
 
-ObjectIdRef::ObjectIdRef(int _id) : id(_id)
+ObjectIdRef::ObjectIdRef(ObjectInstanceID _id) : id(_id)
 {
 
 }
@@ -3935,7 +3935,7 @@ HeroPtr::HeroPtr(const CGHeroInstance *H)
 HeroPtr::HeroPtr()
 {
 	h = nullptr;
-	hid = -1;
+	hid = ObjectInstanceID();
 }
 
 HeroPtr::~HeroPtr()

@@ -2710,7 +2710,7 @@ void CMarketplaceWindow::makeDeal()
 			leftIdToSend = hLeft->serial;
 			break;
 		case EMarketMode::ARTIFACT_RESOURCE:
-			leftIdToSend = hLeft->getArtInstance()->id;
+			leftIdToSend = hLeft->getArtInstance()->id.getNum();
 			break;
 		default:
 			leftIdToSend = hLeft->id;
@@ -5071,7 +5071,7 @@ void CExchangeWindow::prepareBackground()
 	new CAnimImage("PortraitsLarge", heroInst[1]->portrait, 0, 485, 13);
 }
 
-CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2):
+CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2):
     CWindowObject(PLAYER_COLORED | BORDERED, "TRADE2")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;

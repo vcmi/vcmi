@@ -259,7 +259,7 @@ void CCallback::recruitHero(const CGObjectInstance *townOrTavern, const CGHeroIn
 	{
 		if(gs->players[*player].availableHeroes[i] == hero)
 		{
-			HireHero pack(i,townOrTavern->id);
+			HireHero pack(i, townOrTavern->id);
 			pack.player = *player;
 			sendRequest(&pack);
 			return;
