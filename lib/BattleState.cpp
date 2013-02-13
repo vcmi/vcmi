@@ -188,7 +188,7 @@ ui32 BattleInfo::calculateHealedHP(const CSpell * spell, int usedSpellPower, int
 }
 bool BattleInfo::resurrects(SpellID spellid) const
 {
-	return VLC->spellh->spells[spellid]->isRisingSpell();
+	return spellid.toSpell()->isRisingSpell();
 }
 
 const CStack * BattleInfo::battleGetStack(BattleHex pos, bool onlyAlive)
@@ -942,7 +942,7 @@ si32 CStack::magicResistance() const
 
 void CStack::stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse)
 {
-	const CSpell * sp = VLC->spellh->spells[sse.sid];
+	const CSpell * sp = SpellID(sse.sid).toSpell();
 
 	std::vector<Bonus> tmp;
 	sp->getEffects(tmp, sse.val);

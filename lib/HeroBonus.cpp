@@ -40,7 +40,7 @@
 
 #define BONUS_ITEM(x) ( #x, Bonus::x )
 
-const std::map<std::string, int> bonusDurationMap = boost::assign::map_list_of 
+const std::map<std::string, int> bonusDurationMap = boost::assign::map_list_of
 	BONUS_ITEM(PERMANENT)
 	BONUS_ITEM(ONE_BATTLE)
 	BONUS_ITEM(ONE_DAY)
@@ -156,9 +156,9 @@ int BonusList::totalValue() const
 	if(hasIndepMin && hasIndepMax)
 		assert(indepMin < indepMax);
 
-	const int notIndepBonuses = boost::count_if(bonuses, [](const Bonus *b) 
-	{ 
-		return b->valType != Bonus::INDEPENDENT_MAX && b->valType != Bonus::INDEPENDENT_MIN; 
+	const int notIndepBonuses = boost::count_if(bonuses, [](const Bonus *b)
+	{
+		return b->valType != Bonus::INDEPENDENT_MAX && b->valType != Bonus::INDEPENDENT_MIN;
 	});
 
 	if (hasIndepMax)
@@ -260,7 +260,7 @@ void BonusList::eliminateDuplicates()
 void BonusList::push_back(Bonus* const &x)
 {
 	bonuses.push_back(x);
-	
+
 	if (belongsToTree)
 		CBonusSystemNode::incrementTreeChangedNum();
 }
@@ -317,7 +317,7 @@ int IBonusBearer::valOfBonuses(Bonus::BonusType type, int subtype /*= -1*/) cons
 {
 	std::stringstream cachingStr;
 	cachingStr << "type_" << type << "s_" << subtype;
-	
+
 	CSelector s = Selector::type(type);
 	if(subtype != -1)
 		s = s && Selector::subtype(subtype);
@@ -393,7 +393,7 @@ int IBonusBearer::MoraleVal() const
 	if(hasBonusOfType(Bonus::NON_LIVING) || hasBonusOfType(Bonus::UNDEAD) ||
 		hasBonusOfType(Bonus::NO_MORALE) || hasBonusOfType(Bonus::SIEGE_WEAPON))
 		return 0;
-	
+
 	int ret = valOfBonuses(Bonus::MORALE);
 
 	if(hasBonusOfType(Bonus::SELF_MORALE)) //eg. minotaur
@@ -406,9 +406,9 @@ int IBonusBearer::LuckVal() const
 {
 	if(hasBonusOfType(Bonus::NO_LUCK))
 		return 0;
-	
+
 	int ret = valOfBonuses(Bonus::LUCK);
-	
+
 	if(hasBonusOfType(Bonus::SELF_LUCK)) //eg. halfling
 		vstd::amax(ret, +1);
 
@@ -461,8 +461,8 @@ ui32 IBonusBearer::getMaxDamage() const
 
 si32 IBonusBearer::manaLimit() const
 {
-	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE) 
-		* (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::INTELLIGENCE)) 
+	return si32(getPrimSkillLevel(PrimarySkill::KNOWLEDGE)
+		* (100.0 + valOfBonuses(Bonus::SECONDARY_SKILL_PREMY, SecondarySkill::INTELLIGENCE))
 		/ 10.0);
 }
 
@@ -580,7 +580,7 @@ void CBonusSystemNode::getParents(TNodes &out)
 	{
 		const CBonusSystemNode *parent = parents[i];
 		out.insert(const_cast<CBonusSystemNode*>(parent));
-	}	
+	}
 }
 
 void CBonusSystemNode::getBonusesRec(BonusList &out, const CSelector &selector, const CSelector &limit) const
@@ -606,13 +606,13 @@ void CBonusSystemNode::getAllBonusesRec(BonusList &out) const
 const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const std::string &cachingStr /*= ""*/) const
 {
 	bool limitOnUs = (!root || root == this); //caching won't work when we want to limit bonuses against an external node
-	if (CBonusSystemNode::cachingEnabled && limitOnUs) 
+	if (CBonusSystemNode::cachingEnabled && limitOnUs)
 	{
 		// Exclusive access for one thread
 		static boost::mutex m;
 		boost::mutex::scoped_lock lock(m);
 
-		// If the bonus system tree changes(state of a single node or the relations to each other) then 
+		// If the bonus system tree changes(state of a single node or the relations to each other) then
 		// cache all bonus objects. Selector objects doesn't matter.
 		if (cachedLast != treeChanged)
 		{
@@ -626,7 +626,7 @@ const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, c
 
 			cachedLast = treeChanged;
 		}
-		
+
 		// If a bonus system request comes with a caching string then look up in the map if there are any
 		// pre-calculated bonus results. Limiters can't be cached so they have to be calculated.
 		if (cachingStr != "")
@@ -642,7 +642,7 @@ const TBonusListPtr CBonusSystemNode::getAllBonuses(const CSelector &selector, c
 		//We still don't have the bonuses (didn't returned them from cache)
 		//Perform bonus selection
 		auto ret = make_shared<BonusList>();
-		cachedBonuses.getBonuses(*ret, selector, limit); 
+		cachedBonuses.getBonuses(*ret, selector, limit);
 
 		// Save the results in the cache
 		if(cachingStr != "")
@@ -672,12 +672,12 @@ const TBonusListPtr CBonusSystemNode::getAllBonusesWithoutCaching(const CSelecto
 	}
 	else if(root)
 	{
-		//We want to limit our query against an external node. We get all its bonuses, 
+		//We want to limit our query against an external node. We get all its bonuses,
 		// add the ones we're considering and see if they're cut out by limiters
 		BonusList rootBonuses, limitedRootBonuses;
 		getAllBonusesRec(rootBonuses);
 
-		BOOST_FOREACH(Bonus *b, beforeLimiting) 
+		BOOST_FOREACH(Bonus *b, beforeLimiting)
 			rootBonuses.push_back(b);
 
 		rootBonuses.eliminateDuplicates();
@@ -709,7 +709,7 @@ CBonusSystemNode::~CBonusSystemNode()
 		while(children.size())
 			children.front()->detachFrom(this);
 	}
-	
+
 	BOOST_FOREACH(Bonus *b, exportedBonuses)
 		delete b;
 }
@@ -855,7 +855,7 @@ bool CBonusSystemNode::isIndependentNode() const
 
 std::string CBonusSystemNode::nodeName() const
 {
-	return description.size() 
+	return description.size()
 		? description
 		: std::string("Bonus system node of type ") + typeid(*this).name();
 }
@@ -1024,7 +1024,7 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 {
 	assert(&allBonuses != &out); //todo should it work in-place?
 
-	BonusList undecided = allBonuses, 
+	BonusList undecided = allBonuses,
 		&accepted = out;
 
 	while(true)
@@ -1038,13 +1038,13 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 			if(decision == ILimiter::DISCARD)
 			{
 				undecided.erase(i);
-				i--; continue; 
+				i--; continue;
 			}
 			else if(decision == ILimiter::ACCEPT)
 			{
 				accepted.push_back(b);
 				undecided.erase(i);
-				i--; continue; 
+				i--; continue;
 			}
 			else
 				assert(decision == ILimiter::NOT_SURE);
@@ -1097,7 +1097,7 @@ int NBonus::getCount(const CBonusSystemNode *obj, Bonus::BonusSource from, int i
 const CSpell * Bonus::sourceSpell() const
 {
 	if(source == SPELL_EFFECT)
-		return VLC->spellh->spells[sid];
+		return SpellID(sid).toSpell();
 	return NULL;
 }
 
@@ -1115,7 +1115,7 @@ std::string Bonus::Description() const
 		str << VLC->arth->artifacts[sid]->Name();
 		break;;
 	case SPELL_EFFECT:
-		str << VLC->spellh->spells[sid]->name;
+		str << SpellID(sid).toSpell()->name;
 		break;
 	case CREATURE_ABILITY:
 		str << VLC->creh->creatures[sid]->namePl;
@@ -1124,11 +1124,11 @@ std::string Bonus::Description() const
 		str << VLC->generaltexth->skillName[sid]/* << " secondary skill"*/;
 		break;
 	}
-	
+
 	return str.str();
 }
 
-Bonus::Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype/*=-1*/) 
+Bonus::Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype/*=-1*/)
 	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), description(Desc)
 {
 	additionalInfo = -1;
@@ -1138,7 +1138,7 @@ Bonus::Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, std::string
 	boost::algorithm::trim(description);
 }
 
-Bonus::Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype/*=-1*/, ValueType ValType /*= ADDITIVE_VALUE*/) 
+Bonus::Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype/*=-1*/, ValueType ValType /*= ADDITIVE_VALUE*/)
 	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), valType(ValType)
 {
 	additionalInfo = -1;
@@ -1228,7 +1228,7 @@ namespace Selector
 	{
 		if(b->source == Bonus::SPELL_EFFECT)
 		{
-			CSpell *sp = VLC->spellh->spells[b->sid];
+			CSpell *sp = SpellID(b->sid).toSpell();
 			return sp->isPositive();
 		}
 		return false; //not a spell effect
@@ -1373,8 +1373,8 @@ HasAnotherBonusLimiter::HasAnotherBonusLimiter( TBonusType bonus, TBonusSubtype 
 
 int HasAnotherBonusLimiter::limit(const BonusLimitationContext &context) const
 {
-	CSelector mySelector = isSubtypeRelevant 
-							? Selector::typeSubtype(type, subtype) 
+	CSelector mySelector = isSubtypeRelevant
+							? Selector::typeSubtype(type, subtype)
 							: Selector::type(type);
 
 	//if we have a bonus of required type accepted, limiter should accept also this bonus
@@ -1421,7 +1421,7 @@ bool CPropagatorNodeType::shouldBeAttached(CBonusSystemNode *dest)
 	return nodeType == dest->getNodeType();
 }
 
-CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter(int TerrainType) 
+CreatureNativeTerrainLimiter::CreatureNativeTerrainLimiter(int TerrainType)
 	: terrainType(TerrainType)
 {
 }
@@ -1465,7 +1465,7 @@ CreatureAlignmentLimiter::CreatureAlignmentLimiter(si8 Alignment)
 int CreatureAlignmentLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CCreature *c = retrieveCreature(&context.node);
-	if(!c) 
+	if(!c)
 		return true;
 	switch(alignment)
 	{
@@ -1503,7 +1503,7 @@ int RankRangeLimiter::limit(const BonusLimitationContext &context) const
 	return true;
 }
 
-int StackOwnerLimiter::limit(const BonusLimitationContext &context) const 
+int StackOwnerLimiter::limit(const BonusLimitationContext &context) const
 {
 	const CStack *s = retreiveStackBattle(&context.node);
 	if(s)
@@ -1524,16 +1524,16 @@ StackOwnerLimiter::StackOwnerLimiter(ui8 Owner)
 	: owner(Owner)
 {
 }
-// int Bonus::limit(const BonusLimitationContext &context) const 
-//  	1162	{ 
-//  	1163	        if (limiter) 
-//  	1164	                return limiter->callNext(context); 
-//  	1165	        else 
-//  	1166	                return ILimiter::ACCEPT; //accept if there's no limiter 
-//  	1167	} 
- 	//1168	 
+// int Bonus::limit(const BonusLimitationContext &context) const
+//  	1162	{
+//  	1163	        if (limiter)
+//  	1164	                return limiter->callNext(context);
+//  	1165	        else
+//  	1166	                return ILimiter::ACCEPT; //accept if there's no limiter
+//  	1167	}
+ 	//1168
 
-int LimiterList::limit( const BonusLimitationContext &context ) const 
+int LimiterList::limit( const BonusLimitationContext &context ) const
 {
 	bool wasntSure = false;
 

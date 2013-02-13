@@ -38,7 +38,7 @@ public:
 	std::vector<si32> powers; //[er skill level: 0 - none, 1 - basic, etc
 	std::map<TFaction, si32> probabilities; //% chance to gain for castles
 	std::vector<si32> AIVals; //AI values: per skill level: 0 - none, 1 - basic, etc
-	std::string attributes; //reference only attributes
+
 	bool combatSpell; //is this spell combat (true) or adventure (false)
 	bool creatureAbility; //if true, only creatures can use this spell
 	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
@@ -60,7 +60,6 @@ public:
 
 	inline bool isRisingSpell() const;
 	inline bool isDamageSpell() const;
-	inline bool isMindSpell() const; //TODO: deprecated - remove, refactor
 	inline bool isOffensiveSpell() const;
 
 	inline bool hasEffects() const;
@@ -68,26 +67,42 @@ public:
 
 	bool isImmuneBy(const IBonusBearer *obj) const;
 
+	/**
+	* Returns resource name of icon for SPELL_IMMUNITY bonus
+	*/
+	inline const std::string& getIconImmune() const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & identifier & id & name & abbName & descriptions & level & earth & water & fire & air & power & costs
 			& powers & probabilities & AIVals & attributes & combatSpell & creatureAbility & positiveness & range & counteredSpells & mainEffectAnim;
-		h & isRising & isDamage & isMind;
+		h & isRising & isDamage & isOffensive;
+		h & targetType;
 		h & effects & immunities & limiters;
+		h & iconImmune;
 	}
 	friend class CSpellHandler;
 
 private:
+
+
 	bool isRising;
 	bool isDamage;
-	bool isMind;
 	bool isOffensive;
 
+	std::string attributes; //reference only attributes
+
+	void setAttributes(const std::string& newValue);
+
+	ETargetType targetType;
+
 	std::vector<Bonus> effects [4];
-	std::vector<Bonus::BonusType> immunities; //any of these hrants immunity
-	std::vector<Bonus::BonusType> limiters; //all of them are required
+	std::vector<Bonus::BonusType> immunities; //any of these grants immunity
+	std::vector<Bonus::BonusType> limiters; //all of them are required to be affected
 
+	///graphics related stuff
 
+	std::string iconImmune;
 };
 
 ///CSpell inlines
@@ -127,11 +142,6 @@ bool CSpell::isDamageSpell() const
 	return isDamage;
 }
 
-bool CSpell::isMindSpell() const
-{
-	return isMind;
-}
-
 bool CSpell::isOffensiveSpell() const
 {
 	return isOffensive;
@@ -142,11 +152,17 @@ bool CSpell::hasEffects() const
 	return !effects[0].empty();
 }
 
+const std::string& CSpell::getIconImmune() const
+{
+	return iconImmune;
+}
+
+
 bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos); //for spells like Dimension Door
 
 class DLL_LINKAGE CSpellHandler
 {
-	CSpell * loadSpell(CLegacyConfigParser & parser);
+	CSpell * loadSpell(CLegacyConfigParser & parser, const SpellID id);
 
 public:
 	CSpellHandler();

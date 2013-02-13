@@ -16,7 +16,7 @@ namespace GameConstants
 {
 	const std::string VCMI_VERSION = "VCMI 0.91b";
 
-	/* 
+	/*
 	 * DATA_DIR contains the game data (Data/, MP3/, ...).
 	 * BIN_DIR is where the vcmiclient/vcmiserver binaries reside
 	 * LIB_DIR is where the AI libraries reside (linux only)
@@ -306,7 +306,7 @@ namespace EMarketMode
 {
 	enum EMarketMode
 	{
-		RESOURCE_RESOURCE, RESOURCE_PLAYER, CREATURE_RESOURCE, RESOURCE_ARTIFACT, 
+		RESOURCE_RESOURCE, RESOURCE_PLAYER, CREATURE_RESOURCE, RESOURCE_ARTIFACT,
 		ARTIFACT_RESOURCE, ARTIFACT_EXP, CREATURE_EXP, CREATURE_UNDEAD, RESOURCE_SKILL,
 		MARTKET_AFTER_LAST_PLACEHOLDER
 	};
@@ -419,7 +419,7 @@ public:
 		RANDOM_MAJOR_ART = 68,
 		RANDOM_RELIC_ART = 69,
 		RANDOM_HERO = 70,
-		RANDOM_MONSTER = 71,		
+		RANDOM_MONSTER = 71,
 		RANDOM_MONSTER_L1 = 72,
 		RANDOM_MONSTER_L2 = 73,
 		RANDOM_MONSTER_L3 = 74,
@@ -461,7 +461,7 @@ public:
 		WATERING_HOLE = 110,
 		WHIRLPOOL = 111,
 		WINDMILL = 112,
-		WITCH_HUT = 113, 
+		WITCH_HUT = 113,
 		HOLE = 124,
 		RANDOM_MONSTER_L5 = 162,
 		RANDOM_MONSTER_L6 = 163,
@@ -574,7 +574,7 @@ ID_LIKE_OPERATORS_DECLS(ETerrainType, ETerrainType::EETerrainType)
 class BFieldType
 {
 public:
-	//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines 
+	//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines
 	//8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields
 	//15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog
 	//21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
@@ -744,6 +744,7 @@ public:
 	SpellID(ESpellID _num = NONE) : num(_num)
 	{}
 
+	//TODO: should this be const?
 	DLL_LINKAGE CSpell * toSpell() const;
 
 	ID_LIKE_CLASS_COMMON(SpellID, ESpellID)

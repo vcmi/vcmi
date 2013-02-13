@@ -5445,7 +5445,7 @@ void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(spell == 255)
+	if(spell == SpellID::NONE)
 	{
 		tlog1 << "Not initialized shrine visited!\n";
 		return;
@@ -5476,7 +5476,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	else //give spell
 	{
 		std::set<SpellID> spells;
-		spells.insert(SpellID(spell));
+		spells.insert(spell);
 		cb->changeSpells(h, true, spells);
 
 		iw.components.push_back(Component(Component::SPELL,spell,0,0));
@@ -5487,7 +5487,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGShrine::initObj()
 {
-	if(spell == 255) //spell not set
+	if(spell == SpellID::NONE) //spell not set
 	{
 		int level = ID-87;
 		std::vector<SpellID> possibilities;
@@ -5509,7 +5509,7 @@ const std::string & CGShrine::getHoverText() const
 	if(wasVisited(cb->getCurrentPlayer())) //TODO: use local player, not current
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[355]; // + (learn %s)
-		boost::algorithm::replace_first(hoverName,"%s",VLC->spellh->spells[spell]->name);
+		boost::algorithm::replace_first(hoverName,"%s", spell.toSpell()->name);
 		const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
 		if(h && vstd::contains(h->spells,spell)) //hero knows that ability
 			hoverName += "\n\n" + VLC->generaltexth->allTexts[354]; // (Already learned)
@@ -5557,7 +5557,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	if((type == SECONDARY_SKILL
 			&& ((ssl == 3)  ||  (!ssl  &&  !h->canLearnSkill()))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
 		|| (type == SPELL  &&  (!h->getArt(ArtifactPosition::SPELLBOOK) || vstd::contains(h->spells, (ui32) bid)
-		|| (VLC->spellh->spells[bid]->level > h->getSecSkillLevel(SecondarySkill::WISDOM) + 2)
+		|| ( SpellID(bid).toSpell()->level > h->getSecSkillLevel(SecondarySkill::WISDOM) + 2)
 		))) //hero doesn't have a spellbook or already knows the spell or doesn't have Wisdom
 	{
 		type = PRIM_SKILL;

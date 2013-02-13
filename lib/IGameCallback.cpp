@@ -37,7 +37,7 @@
 extern boost::rand48 ran;
 
 CGameState * CPrivilagedInfoCallback::gameState ()
-{ 
+{
 	return gs;
 }
 
@@ -92,7 +92,7 @@ void CPrivilagedInfoCallback::getTilesInRange( boost::unordered_set<int3, ShashI
 				double distance = pos.dist2d(int3(xd,yd,pos.z)) - 0.5;
 				if(distance <= radious)
 				{
-					if(player < 0 
+					if(player < 0
 						|| (mode == 1  && team->fogOfWarMap[xd][yd][pos.z]==0)
 						|| (mode == -1 && team->fogOfWarMap[xd][yd][pos.z]==1)
 					)
@@ -199,11 +199,10 @@ ArtifactID CPrivilagedInfoCallback::getArtSync (ui32 rand, int flags, bool erase
 
 void CPrivilagedInfoCallback::getAllowedSpells(std::vector<SpellID> &out, ui16 level)
 {
-
-	CSpell *spell;
 	for (ui32 i = 0; i < gs->map->allowedSpell.size(); i++) //spellh size appears to be greater (?)
 	{
-		spell = VLC->spellh->spells[i];
+
+		const CSpell *spell = SpellID(i).toSpell();
 		if (isAllowed (0, spell->id) && spell->level == level)
 		{
 			out.push_back(spell->id);
@@ -394,7 +393,7 @@ std::vector<const CGObjectInstance*> CGameInfoCallback::getGuardingCreatures (in
 bool CGameInfoCallback::getHeroInfo( const CGObjectInstance *hero, InfoAboutHero &dest ) const
 {
 	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(hero);
-	
+
 	ERROR_RET_VAL_IF(!h, "That's not a hero!", false);
 	ERROR_RET_VAL_IF(!isVisible(h->getPosition(false)), "That hero is not visible!", false);
 
@@ -448,7 +447,7 @@ bool CGameInfoCallback::isVisible(const CGObjectInstance *obj) const
 // 	const CArmedInstance *armi = dynamic_cast<const CArmedInstance*>(obj);
 // 	if(!armi)
 // 		return NULL;
-// 	else 
+// 	else
 // 		return armi;
 // }
 
@@ -509,7 +508,7 @@ std::vector<const CGHeroInstance *> CGameInfoCallback::getAvailableHeroes(const 
 	ret.resize(gs->players[*player].availableHeroes.size());
 	std::copy(gs->players[*player].availableHeroes.begin(),gs->players[*player].availableHeroes.end(),ret.begin());
 	return ret;
-}	
+}
 
 const TerrainTile * CGameInfoCallback::getTile( int3 tile, bool verbose) const
 {
@@ -573,7 +572,7 @@ EBuildingState::EBuildingState CGameInfoCallback::canBuildStructure( const CGTow
 	else if(ID == BuildingID::SHIPYARD)
 	{
 		const TerrainTile *tile = getTile(t->bestLocation(), false);
-		
+
         if(!tile || tile->terType != ETerrainType::WATER)
 			return EBuildingState::NO_WATER; //lack of water
 	}
@@ -653,7 +652,7 @@ int CGameInfoCallback::getHeroCount( TPlayerColor player, bool includeGarrisoned
 	int ret = 0;
 	const PlayerState *p = gs->getPlayer(player);
 	ERROR_RET_VAL_IF(!p, "No such player!", -1);
-	
+
 	if(includeGarrisoned)
 		return p->heroes.size();
 	else

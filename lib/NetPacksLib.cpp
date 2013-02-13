@@ -1199,7 +1199,7 @@ DLL_LINKAGE void StartAction::applyGs( CGameState *gs )
 	}
 	else
 	{
-		gs->curB->usedSpellsHistory[ba.side].push_back(VLC->spellh->spells[ba.additionalInfo]);
+		gs->curB->usedSpellsHistory[ba.side].push_back(SpellID(ba.additionalInfo).toSpell());
 	}
 
 	switch(ba.actionType)
@@ -1240,7 +1240,7 @@ DLL_LINKAGE void BattleSpellCast::applyGs( CGameState *gs )
 	}
 
 	//Handle spells removing effects from stacks
-	const CSpell *spell = VLC->spellh->spells[id];
+	const CSpell *spell = SpellID(id).toSpell();
 	const bool removeAllSpells = id == SpellID::DISPEL;
 	const bool removeHelpful = id == SpellID::DISPEL_HELPFUL_SPELLS;
 

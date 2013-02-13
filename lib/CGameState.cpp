@@ -161,10 +161,10 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 	else if(type == MINE_EVNTS)
 	{
 		dst = VLC->generaltexth->mines[ser].second;
-	} 
+	}
 	else if(type == SPELL_NAME)
 	{
-		dst = VLC->spellh->spells[ser]->name;
+		dst = SpellID(ser).toSpell()->name;
 	}
 	else if(type == CRE_SING_NAMES)
 	{
@@ -819,7 +819,7 @@ void CGameState::init(StartInfo * si)
 				break;
 			case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 				{
-					CArtifactInstance * scroll = CArtifactInstance::createScroll(VLC->spellh->spells[curBonus->info2]);
+					CArtifactInstance * scroll = CArtifactInstance::createScroll(SpellID(curBonus->info2).toSpell());
 					scroll->putAt(ArtifactLocation(hero, scroll->firstAvailableSlot(hero)));
 				}
 				break;
@@ -1531,10 +1531,10 @@ void CGameState::init(StartInfo * si)
 		}
 		//init spells
 		vti->spells.resize(GameConstants::SPELL_LEVELS);
-		CSpell *s;
+
 		for(ui32 z=0; z<vti->obligatorySpells.size();z++)
 		{
-			s = VLC->spellh->spells[vti->obligatorySpells[z]];
+			CSpell *s = vti->obligatorySpells[z].toSpell();
 			vti->spells[s->level-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}
@@ -1544,7 +1544,7 @@ void CGameState::init(StartInfo * si)
 			int sel = -1;
 
 			for(ui32 ps=0;ps<vti->possibleSpells.size();ps++)
-				total += VLC->spellh->spells[vti->possibleSpells[ps]]->probabilities[vti->subID];
+				total += vti->possibleSpells[ps].toSpell()->probabilities[vti->subID];
 
 			if (total == 0) // remaining spells have 0 probability
 				break;
@@ -1552,7 +1552,7 @@ void CGameState::init(StartInfo * si)
 			int r = ran()%total;
 			for(ui32 ps=0; ps<vti->possibleSpells.size();ps++)
 			{
-				r -= VLC->spellh->spells[vti->possibleSpells[ps]]->probabilities[vti->subID];
+				r -= vti->possibleSpells[ps].toSpell()->probabilities[vti->subID];
 				if(r<0)
 				{
 					sel = ps;
@@ -1562,7 +1562,7 @@ void CGameState::init(StartInfo * si)
 			if(sel<0)
 				sel=0;
 
-			CSpell *s = VLC->spellh->spells[vti->possibleSpells[sel]];
+			CSpell *s = vti->possibleSpells[sel].toSpell();
 			vti->spells[s->level-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}

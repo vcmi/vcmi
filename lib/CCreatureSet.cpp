@@ -299,7 +299,7 @@ void CCreatureSet::eraseStack(TSlot slot)
 
 bool CCreatureSet::contains(const CStackInstance *stack) const
 {
-	if(!stack) 
+	if(!stack)
 		return false;
 
 	for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); ++i)
@@ -315,7 +315,7 @@ TSlot CCreatureSet::findStack(const CStackInstance *stack) const
 	if (h && h->commander == stack)
 		return -2;
 
-	if(!stack) 
+	if(!stack)
 		return -1;
 
 	for(TSlots::const_iterator i = stacks.begin(); i != stacks.end(); ++i)
@@ -345,7 +345,7 @@ void CCreatureSet::joinStack(TSlot slot, CStackInstance * stack)
 	assert(c == stack->type);
 	assert(c);
 
-	//TODO move stuff 
+	//TODO move stuff
 	changeStackCount(slot, stack->count);
 	vstd::clear_pointer(stack);
 }
@@ -486,10 +486,10 @@ void CStackInstance::init()
 	type = NULL;
 	idRand = -1;
 	_armyObj = NULL;
-	setNodeType(STACK_INSTANCE);	
+	setNodeType(STACK_INSTANCE);
 }
 
-int CStackInstance::getQuantityID() const 
+int CStackInstance::getQuantityID() const
 {
 	return CCreature::getQuantityID(count);
 }
@@ -703,6 +703,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 {
 	std::string fileName;
+	bool fullPath = false;
 	switch (bonus->type)
 	{
 			//"E_ALIVE.bmp"
@@ -800,28 +801,9 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			//"E_SHOOTN.bmp"
 		case Bonus::SPELL_IMMUNITY:
 		{
-			switch (bonus->subtype)
-			{
-				case 62: //Blind
-					fileName = "E_SPBLIND.bmp"; break;
-				case 35: // Dispell
-					fileName = "E_SPDISP.bmp"; break;
-				case 78: // Dispell beneficial spells
-					fileName = "E_SPDISB.bmp"; break;
-				case 60: //Hypnotize
-					fileName = "E_SPHYPN.bmp"; break;
-				case 18: //Implosion
-					fileName = "E_SPIMP.bmp"; break;
-				case 59: //Berserk
-					fileName = "E_SPBERS.bmp"; break;
-				case 23: //Meteor Shower
-					fileName = "E_SPMET.bmp"; break;
-				case 26: //Armageddon
-					fileName = "E_SPARM.bmp"; break;
-				case 54: //Slow
-					fileName = "E_SPSLOW.bmp"; break;
-				//TODO: some generic spell handling?
-			}
+			fullPath = true;
+			const CSpell * sp = SpellID(bonus->subtype).toSpell();
+			fileName = sp->getIconImmune();
 			break;
 		}
 			//"E_SPAWILL.bmp"
@@ -853,7 +835,7 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 					fileName =  "E_SPCOLD.bmp"; break; //direct damage
 			}
 			break;
-		case Bonus::AIR_IMMUNITY: 
+		case Bonus::AIR_IMMUNITY:
 			switch (bonus->subtype)
 			{
 				case 0:
@@ -864,7 +846,7 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 					fileName = "E_LIGHT.bmp"; break;//direct damage
 			}
 			break;
-		case Bonus::EARTH_IMMUNITY: 
+		case Bonus::EARTH_IMMUNITY:
 			switch (bonus->subtype)
 			{
 				case 0:
@@ -909,7 +891,7 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 		case Bonus::LIFE_DRAIN:
 			fileName = "DrainLife.bmp"; break;
 	}
-	if(!fileName.empty())
+	if(!fileName.empty() && !fullPath)
 		fileName = "zvs/Lib1.res/" + fileName;
 	return fileName;
 }
@@ -981,7 +963,7 @@ CreatureID CStackInstance::getCreatureID() const
 {
 	if(type)
 		return type->idNumber;
-	else 
+	else
 		return CreatureID::NONE;
 }
 

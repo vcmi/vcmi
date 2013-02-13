@@ -129,7 +129,7 @@ std::vector<BattleHex> SpellCreatedObstacle::getAffectedTiles() const
 	case FIRE_WALL:
 		return std::vector<BattleHex>(1, pos);
 	case FORCE_FIELD:
-		return VLC->spellh->spells[SpellID::FORCE_FIELD]->rangeInHexes(pos, spellLevel, casterSide);
+		return SpellID(SpellID::FORCE_FIELD).toSpell()->rangeInHexes(pos, spellLevel, casterSide);
 		//TODO Fire Wall
 	default:
 		assert(0);

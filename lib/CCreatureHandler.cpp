@@ -295,7 +295,7 @@ void CCreatureHandler::loadCreatures()
 				ncre.addBonus(0, Bonus::ATTACKS_ALL_ADJACENT);
 
 			if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_MIND_SPELLS"))
-				ncre.addBonus(0, Bonus::MIND_IMMUNITY); //giants are immune to mind spells
+				ncre.addBonus(0, Bonus::MIND_IMMUNITY);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_FIRE_SPELLS"))
 				ncre.addBonus(0, Bonus::FIRE_IMMUNITY);
 			if(boost::algorithm::find_first(ncre.abilityRefs, "HAS_EXTENDED_ATTACK"))
@@ -925,7 +925,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 	case 'K':
 	case 'k':
 		b.type = Bonus::SPELL_AFTER_ATTACK;
-		b.subtype = stringToNumber(mod); 
+		b.subtype = stringToNumber(mod);
 		break;
 	case 'h':
 		b.type= Bonus::HATE;
@@ -1018,7 +1018,7 @@ CreatureID CCreatureHandler::pickRandomMonster(const boost::function<int()> &ran
 	int r = 0;
 	if(tier == -1) //pick any allowed creature
 	{
-		do 
+		do
 		{
 			r = vstd::pickRandomElementOf(creatures, randGen)->idNumber;
 		} while (vstd::contains(VLC->creh->notUsedMonsters,r));

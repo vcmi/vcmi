@@ -817,7 +817,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	if(const Bonus *slayerEffect = info.attackerBonuses->getEffect(SpellID::SLAYER)) //slayer handling //TODO: apply only ONLY_MELEE_FIGHT / DISTANCE_FIGHT?
 	{
 		std::vector<int> affectedIds;
-		int spLevel = slayerEffect->val; 
+		int spLevel = slayerEffect->val;
 
 		for(int g = 0; g < VLC->creh->creatures.size(); ++g)
 		{
@@ -837,7 +837,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 		{
 			if(defenderType->idNumber == affectedIds[g])
 			{
-				attackDefenceDifference += VLC->spellh->spells[SpellID::SLAYER]->powers[spLevel];
+				attackDefenceDifference += SpellID(SpellID::SLAYER).toSpell()->powers[spLevel];
 				break;
 			}
 		}
@@ -1476,7 +1476,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 	{
 		if (spell->isPositive() && subject->hasBonusOfType(Bonus::RECEPTIVE)) //accept all positive spells
 			return ESpellCastProblem::OK;
-			
+
 		if (spell->isImmuneBy(subject)) //TODO: move all logic to spellhandler
 			return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
 
@@ -1499,7 +1499,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 				bool hasPositiveSpell = false;
 				BOOST_FOREACH(const Bonus * b, *spellBon)
 				{
-					if(VLC->spellh->spells[b->sid]->isPositive())
+					if(SpellID(b->sid).toSpell()->isPositive())
 					{
 						hasPositiveSpell = true;
 						break;

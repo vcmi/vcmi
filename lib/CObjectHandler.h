@@ -957,7 +957,7 @@ public:
 class DLL_LINKAGE CGShrine : public CPlayersVisited
 {
 public:
-	ui8 spell; //number of spell or 255 if random
+	SpellID spell; //id of spell or NONE if random
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
 	const std::string & getHoverText() const override;

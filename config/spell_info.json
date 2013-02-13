@@ -9,10 +9,9 @@
     //	 counters: array of ids of countering spells
 
     // flags: string array of
-    //		damage
+    //		damage - ATM used only in CBattleInfoCallback::calculateSpellDmg
     //		offensive
     //		rising
-    //		mind
     //		summoning //todo:
 
     //effects: array of structure for bonuses for permanent effects
@@ -25,6 +24,9 @@
     //
     // 	immunity: array any of these bonus grants immunity
     //  limit: array required bonus to be affected, all required
+
+    //graphics - OPTIONAL; object;
+    //  iconImmune - OPTIONAL; string; resourse path of icon for SPELL_IMMUNITY bonus (relative to DATA or SPRITES)
 
 	"spells":
 	{
@@ -111,7 +113,9 @@
 			"effect": 0,
 			"anim": -1,
 			"ranges": [ "X", "X", "X", "X" ],
-			"flags" : ["damage"]
+			"flags" : ["damage"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
+
 		},
 		"forceField"     :
 		{
@@ -126,7 +130,8 @@
 			"effect": 0,
 			"anim": -1,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage"]
+			"flags" : ["damage"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"earthquake"     :
 		{
@@ -141,7 +146,8 @@
 			"effect": -1,
 			"anim": 64,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage", "offensive"]
+			"flags" : ["damage", "offensive"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"iceBolt"        :
 		{
@@ -149,7 +155,8 @@
 			"effect": -1,
 			"anim": 46,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage", "offensive"]
+			"flags" : ["damage", "offensive"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"lightningBolt"  :
 		{
@@ -157,7 +164,8 @@
 			"effect": -1,
 			"anim": 38,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage", "offensive"]
+			"flags" : ["damage", "offensive"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"implosion"      :
 		{
@@ -165,7 +173,11 @@
 			"effect": -1,
 			"anim": 10,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage", "offensive"]
+			"graphics":{
+				"iconImmune":"ZVS/LIB1.RES/E_SPIMP"
+			},
+			"flags" : ["damage", "offensive"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"chainLightning" :
 		{
@@ -181,7 +193,8 @@
 			"effect": -1,
 			"anim": 45,
 			"ranges": [ "1", "1", "1", "1" ],
-			"flags" : ["damage", "offensive"]
+			"flags" : ["damage", "offensive"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"fireball"       :
 		{
@@ -189,7 +202,8 @@
 			"effect": -1,
 			"anim": 53,
 			"ranges": [ "0,1", "0,1", "0,1", "0,1" ],
-			"flags" : ["damage", "offensive"]
+			"flags" : ["damage", "offensive"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"inferno"        :
 		{
@@ -197,7 +211,8 @@
 			"effect": -1,
 			"anim": 9,
 			"ranges": [ "0-2", "0-2", "0-2", "0-2" ],
-			"flags" : ["damage", "offensive"]
+			"flags" : ["damage", "offensive"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"meteorShower"   :
 		{
@@ -205,7 +220,11 @@
 			"effect": -1,
 			"anim": 16,
 			"ranges": [ "0,1", "0,1", "0,1", "0,1" ],
-			"flags" : ["damage", "offensive"]
+			"graphics":{
+				"iconImmune":"ZVS/LIB1.RES/E_SPMET"
+			},
+			"flags" : ["damage", "offensive"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"deathRipple"    :
 		{
@@ -214,7 +233,8 @@
 			"anim": 8,
 			"ranges": [ "X", "X", "X", "X" ],
 			"flags" : ["damage", "offensive"],
-			"immunity":  ["SIEGE_WEAPON","UNDEAD"]
+			"immunity":  ["SIEGE_WEAPON","UNDEAD"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"destroyUndead"  :
 		{
@@ -223,7 +243,8 @@
 			"anim": 29,
 			"ranges": [ "X", "X", "X", "X" ],
 			"flags" : ["damage", "offensive"],
-			"limit":["UNDEAD"]
+			"limit":["UNDEAD"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
 
 		},
 		"armageddon"     :
@@ -232,7 +253,11 @@
 			"effect": -1,
 			"anim": 12,
 			"ranges": [ "X", "X", "X", "X" ],
-			"flags" : ["damage", "offensive"]
+			"graphics":{
+				"iconImmune":"ZVS/LIB1.RES/E_SPARM"
+			},
+			"flags" : ["damage", "offensive"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
 		},
 		"shield"         :
 		{
@@ -364,7 +389,10 @@
 			"id": 35,
 			"effect": 0,
 			"anim": 41,
-			"ranges": [ "0", "0", "0", "X" ]
+			"ranges": [ "0", "0", "0", "X" ],
+			"graphics":{
+				"iconImmune":"ZVS/LIB1.RES/E_SPDISP"
+			}
 		},
 		"magicMirror"    :
 		{
@@ -573,7 +601,6 @@
 			"effect": -1,
 			"anim": 30,
 			"ranges": [ "0", "0", "0", "X" ], "counters" : [49],
-			"flags" : ["mind"],
 			"effects":
 			[
 				{
@@ -581,7 +608,8 @@
 					"duration": "N_TURNS",
 					"values":[-1,-1,-2,-2]
 				}
-			]
+			],
+			"immunity":["MIND_IMMUNITY"]
 		},
 		"fortune"        :
 		{
@@ -636,6 +664,9 @@
 			"effect": -1,
 			"anim": 19,
 			"ranges": [ "0", "0", "0", "X" ],
+			"graphics":{
+				"iconImmune":"ZVS/LIB1.RES/E_SPSLOW"
+			},
 			"counters" : [53],
 			"effects":
 			[
@@ -705,7 +736,9 @@
 			"effect": -1,
 			"anim": 35,
 			"ranges": [ "0", "0", "0-1", "0-2" ],
-			"flags" : ["mind"],
+			"graphics":{
+				"iconImmune":"ZVS/LIB1.RES/E_SPBERS"
+			},
 			"effects":
 			[
 				{
@@ -713,7 +746,8 @@
 					"duration": "N_TURNS",
 					"values":[0,1,2,3]
 				}
-			]
+			],
+			"immunity":["MIND_IMMUNITY"]
 		},
 		"hypnotize"      :
 		{
@@ -721,7 +755,9 @@
 			"effect": -1,
 			"anim": 21,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["mind"],
+			"graphics":{
+				"iconImmune":"ZVS/LIB1.RES/E_SPHYPN"
+			},
 			"effects":
 			[
 				{
@@ -729,7 +765,8 @@
 					"duration": "N_TURNS",
 					"values":[0,1,2,3]
 				}
-			]
+			],
+			"immunity":["MIND_IMMUNITY"]
 		},
 		"forgetfulness"  :
 		{
@@ -737,7 +774,6 @@
 			"effect": -1,
 			"anim": 42,
 			"ranges": [ "0", "0", "0", "X" ],
-			"flags" : ["mind"],
 			"effects":
 			[
 				{
@@ -746,7 +782,8 @@
 					"values":[0,1,2,3]
 				}
 			],
-			"limit":["SHOOTER"]
+			"limit":["SHOOTER"],
+			"immunity":["MIND_IMMUNITY"]
 		},
 		"blind"          :
 		{
@@ -754,7 +791,9 @@
 			"effect": -1,
 			"anim": 6,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["mind"],
+			"graphics":{
+				"iconImmune":"ZVS/LIB1.RES/E_SPBLIND"
+			},
 			"effects":
 			[
 				{
@@ -772,7 +811,8 @@
 					"duration":	"UNITL_BEING_ATTACKED",
 					"values":[0,0,0,0]
 				}
-			]
+			],
+			"immunity":["MIND_IMMUNITY"]
 		},
 		"teleport"       :
 		{
@@ -964,7 +1004,10 @@
 			"id": 78,
 			"effect": -1,
 			"anim": 41,
-			"ranges": [ "0", "0", "0", "0" ]
+			"ranges": [ "0", "0", "0", "0" ],
+			"graphics":{
+				"iconImmune":"ZVS/LIB1.RES/E_SPDISB"
+			}
 		},
 		"deathStare"     :
 		{
@@ -996,7 +1039,8 @@
 			"effect": 0,
 			"anim": 81,
 			"ranges": [ "0", "0", "0", "0" ],
-			"flags" : ["damage"]
+			"flags" : ["damage"],
+			"immunities" : ["DIRECT_DAMAGE_IMMUNITY"]
 
 		}
 	}

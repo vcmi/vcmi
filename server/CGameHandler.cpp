@@ -827,7 +827,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 		bat.bsa.front().flags |= BattleStackAttacked::EFFECT;
 		bat.bsa.front().effect = VLC->spellh->spells[bonus->subtype]->mainEffectAnim; //hopefully it does not interfere with any other effect?
 
-		std::set<const CStack*> attackedCreatures = gs->curB->getAffectedCreatures(VLC->spellh->spells[bonus->subtype], bonus->val, att->owner, targetHex);
+		std::set<const CStack*> attackedCreatures = gs->curB->getAffectedCreatures(SpellID(bonus->subtype).toSpell(), bonus->val, att->owner, targetHex);
 		//TODO: get exact attacked hex for defender
 
 		BOOST_FOREACH(const CStack * stack, attackedCreatures)
@@ -3913,7 +3913,7 @@ void CGameHandler::playerMessage( TPlayerColor player, const std::string &messag
 void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex destination, ui8 casterSide, TPlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
 	int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack, si32 selectedStack)
 {
-	const CSpell *spell = VLC->spellh->spells[spellID];
+	const CSpell *spell = SpellID(spellID).toSpell();
 
 
 	//Helper local function that creates obstacle on given position. Obstacle type is inferred from spell type.
@@ -3977,7 +3977,7 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 
 	if (caster) //calculate spell cost
 	{
-		sc.spellCost = gs->curB->battleGetSpellCost(VLC->spellh->spells[spellID], caster);
+		sc.spellCost = gs->curB->battleGetSpellCost(SpellID(spellID).toSpell(), caster);
 
 		if (secHero && mode == ECastingMode::HERO_CASTING) //handle mana channel
 		{
@@ -4290,8 +4290,9 @@ void CGameHandler::handleSpellCasting( int spellID, int spellLvl, BattleHex dest
 			//TODO stack casting -> probably power will be zero; set the proper number of creatures manually
 			int percentBonus = caster ? caster->valOfBonuses(Bonus::SPECIFIC_SPELL_DAMAGE, spellID) : 0;
 
-			bsa.amount = usedSpellPower * VLC->spellh->spells[spellID]->powers[spellLvl] *
-				(100 + percentBonus) / 100.0; //new feature - percentage bonus
+			bsa.amount = usedSpellPower
+				* SpellID(spellID).toSpell()->powers[spellLvl]
+				* (100 + percentBonus) / 100.0; //new feature - percentage bonus
 			if(bsa.amount)
 				sendAndApply(&bsa);
 			else
@@ -4440,7 +4441,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				return false;
 			}
 
-			const CSpell *s = VLC->spellh->spells[ba.additionalInfo];
+			const CSpell *s = SpellID(ba.additionalInfo).toSpell();
 			if (s->mainEffectAnim > -1 || (s->id >= 66 || s->id <= 69) || s->id == SpellID::CLONE) //allow summon elementals
 				//TODO: special effects, like Clone
 			{
@@ -4590,7 +4591,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 		{
 			int index = rand() % bl.size();
 			int spellID = bl[index]->subtype; //spell ID
-			if (gs->curB->battleCanCastThisSpell(st->owner, VLC->spellh->spells[spellID], ECastingMode::ENCHANTER_CASTING)) //TODO: select another?
+			if (gs->curB->battleCanCastThisSpell(st->owner, SpellID(spellID).toSpell(), ECastingMode::ENCHANTER_CASTING)) //TODO: select another?
 			{
 				int spellLeveL = bl[index]->val; //spell level
 				const CGHeroInstance * enemyHero = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
@@ -4654,14 +4655,14 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 
 		oneTimeObstacle = true;
 		effect = 82; //makes
-		damage = gs->curB->calculateSpellDmg(VLC->spellh->spells[SpellID::LAND_MINE], hero, curStack,
+		damage = gs->curB->calculateSpellDmg(SpellID(SpellID::LAND_MINE).toSpell(), hero, curStack,
 											 spellObstacle->spellLevel, spellObstacle->casterSpellPower);
 		//TODO even if obstacle wasn't created by hero (Tower "moat") it should deal dmg as if casted by hero,
 		//if it is bigger than default dmg. Or is it just irrelevant H3 implementation quirk
 	}
 	else if(obstacle.obstacleType == CObstacleInstance::FIRE_WALL)
 	{
-		damage = gs->curB->calculateSpellDmg(VLC->spellh->spells[SpellID::FIRE_WALL], hero, curStack,
+		damage = gs->curB->calculateSpellDmg(SpellID(SpellID::FIRE_WALL).toSpell(), hero, curStack,
 											 spellObstacle->spellLevel, spellObstacle->casterSpellPower);
 	}
 	else
@@ -5302,7 +5303,7 @@ void CGameHandler::attackCasting(const BattleAttack & bat, Bonus::BonusType atta
 			vstd::amin (chance, 100);
 			int destination = oneOfAttacked->position;
 
-			const CSpell * spell = VLC->spellh->spells[spellID];
+			const CSpell * spell = SpellID(spellID).toSpell();
 			if(gs->curB->battleCanCastThisSpellHere(attacker->owner, spell, ECastingMode::AFTER_ATTACK_CASTING, oneOfAttacked->position) != ESpellCastProblem::OK)
 				continue;
 

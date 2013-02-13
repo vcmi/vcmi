@@ -81,7 +81,7 @@ namespace SRSLPraserHelpers
 		return xy.first >=0 && xy.first < 17 && xy.second >= 0 && xy.second < 11;
 	}
 
-	//helper fonction for std::set<ui16> CSpell::rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) const
+	//helper function for std::set<ui16> CSpell::rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) const
 	static std::set<ui16> getInRange(unsigned int center, int low, int high)
 	{
 		std::set<ui16> ret;
@@ -123,14 +123,10 @@ namespace SRSLPraserHelpers
 }
 
 using namespace SRSLPraserHelpers;
-CSpellHandler::CSpellHandler()
-{
-}
 
 CSpell::CSpell()
 {
 	isDamage = false;
-	isMind = false;
 	isRising = false;
 	isOffensive = false;
 }
@@ -235,21 +231,10 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 	return ret;
 }
 
-CSpell::ETargetType CSpell::getTargetType() const //TODO: parse these at game launch
+CSpell::ETargetType CSpell::getTargetType() const
 {
-	if(attributes.find("CREATURE_TARGET_1") != std::string::npos
-		|| attributes.find("CREATURE_TARGET_2") != std::string::npos)
-		return CREATURE_EXPERT_MASSIVE;
-
-	if(attributes.find("CREATURE_TARGET") != std::string::npos)
-		return CREATURE;
-
-	if(attributes.find("OBSTACLE_TARGET") != std::string::npos)
-		return OBSTACLE;
-
-	return NO_TARGET;
+	return targetType;
 }
-
 
 
 void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
@@ -270,6 +255,7 @@ void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
 
 bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 {
+	//todo: use new bonus API
 	BOOST_FOREACH(auto b, limiters)
 	{
 		if (!obj->hasBonusOfType(b))
@@ -282,22 +268,16 @@ bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 			return true;
 	}
 
-	if (isMindSpell() && obj->hasBonusOfType(Bonus::MIND_IMMUNITY))
-		return true;
-
-	if (isDamageSpell() && obj->hasBonusOfType(Bonus::DIRECT_DAMAGE_IMMUNITY))
-		return true;
-
 	auto battleTestElementalImmunity = [&,this](Bonus::BonusType element) -> bool
 	{
-		if (!isPositive()) //negative or indifferent
-		{
-			if ((isDamageSpell() && obj->hasBonusOfType(element, 2)) || obj->hasBonusOfType(element, 1))
-				return true;
-		}
-		else if (isPositive()) //positive
+		if (isPositive())
 		{
 			if (obj->hasBonusOfType(element, 0)) //must be immune to all spells
+				return true;
+		}
+		else //negative or indifferent
+		{
+			if ((isDamageSpell() && obj->hasBonusOfType(element, 2)) || obj->hasBonusOfType(element, 1))
 				return true;
 		}
 		return false;
@@ -325,19 +305,33 @@ bool CSpell::isImmuneBy(const IBonusBearer* obj) const
 			return true;
 	}
 
-	TBonusListPtr immunities = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
+	TBonusListPtr levelImmunities = obj->getBonuses(Selector::type(Bonus::LEVEL_SPELL_IMMUNITY));
 	if(obj->hasBonusOfType(Bonus::NEGATE_ALL_NATURAL_IMMUNITIES))
 	{
-		immunities->remove_if([](const Bonus* b){  return b->source == Bonus::CREATURE_ABILITY;  });
+		levelImmunities->remove_if([](const Bonus* b){  return b->source == Bonus::CREATURE_ABILITY;  });
 	}
 
 	if(obj->hasBonusOfType(Bonus::SPELL_IMMUNITY, id)
-		|| ( immunities->size() > 0  &&  immunities->totalValue() >= level  &&  level))
+		|| ( levelImmunities->size() > 0  &&  levelImmunities->totalValue() >= level  &&  level))
 	{
 		return true;
 	}
 
 	return false;
+}
+
+void CSpell::setAttributes(const std::string& newValue)
+{
+	attributes = newValue;
+	if(attributes.find("CREATURE_TARGET_1") != std::string::npos
+		|| attributes.find("CREATURE_TARGET_2") != std::string::npos)
+		targetType = CREATURE_EXPERT_MASSIVE;
+	else if(attributes.find("CREATURE_TARGET") != std::string::npos)
+		targetType = CREATURE;
+	else if(attributes.find("OBSTACLE_TARGET") != std::string::npos)
+		targetType = OBSTACLE;
+	else
+		targetType = NO_TARGET;
 }
 
 
@@ -350,9 +344,15 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
 		return false;
 }
 
-CSpell * CSpellHandler::loadSpell(CLegacyConfigParser & parser)
+CSpellHandler::CSpellHandler()
+{
+}
+
+CSpell * CSpellHandler::loadSpell(CLegacyConfigParser & parser, const SpellID id)
 {
 	CSpell * spell = new CSpell; //new currently being read spell
+
+	spell->id      = id;
 
 	spell->name    = parser.readString();
 	spell->abbName = parser.readString();
@@ -375,7 +375,24 @@ CSpell * CSpellHandler::loadSpell(CLegacyConfigParser & parser)
 	for (int i = 0; i < 4 ; i++)
 		spell->descriptions.push_back(parser.readString());
 
-	spell->attributes = parser.readString();
+	std::string attributes = parser.readString();
+
+
+	//spell fixes
+	if (id == SpellID::FORGETFULNESS)
+	{
+		//forgetfulness needs to get targets automatically on expert level
+		boost::replace_first(attributes, "CREATURE_TARGET", "CREATURE_TARGET_2");
+	}
+
+	if (id == SpellID::DISRUPTING_RAY)
+	{
+		// disrupting ray will now affect single creature
+		boost::replace_first(attributes,"2", "");
+	}
+
+
+	spell->setAttributes(attributes);
 	spell->mainEffectAnim = -1;
 	return spell;
 }
@@ -388,8 +405,8 @@ void CSpellHandler::loadSpells()
 	{
 		do
 		{
-			CSpell * spell = loadSpell(parser);
-			spell->id = SpellID(spells.size());
+			const SpellID id = SpellID(spells.size());
+			CSpell * spell = loadSpell(parser,id);
 			spell->combatSpell = combat;
 			spell->creatureAbility = alility;
 			spells.push_back(spell);
@@ -409,9 +426,6 @@ void CSpellHandler::loadSpells()
 	read(true,false); //read battle spells
 	skip(3);
 	read(true,true);//read creature abilities
-
-	boost::replace_first (spells[SpellID::DISRUPTING_RAY]->attributes, "2", ""); // disrupting ray will now affect single creature
-
 
 	spells.push_back(spells[SpellID::ACID_BREATH_DEFENSE]); //clone Acid Breath attributes for Acid Breath damage effect
 
@@ -451,10 +465,6 @@ void CSpellHandler::loadSpells()
 				else if (flag == "rising")
 				{
 					s->isRising = true;
-				}
-				else if (flag == "mind")
-				{
-					s->isMind = true;
 				}
 				else if (flag == "offensive")
 				{
@@ -519,12 +529,14 @@ void CSpellHandler::loadSpells()
 		read_node("immunity",s->immunities);
 		read_node("limit",s->limiters);
 
+		const JsonNode & graphicsNode = spell.second["graphics"];
+		if (!graphicsNode.isNull())
+		{
+			const JsonNode& iconImmune = graphicsNode["iconImmune"];
+			if (!iconImmune.isNull())
+				s->iconImmune = iconImmune.String();
+		}
 	}
-
-	//spell fixes
-
-	//forgetfulness needs to get targets automatically on expert level
-	boost::replace_first(spells[SpellID::FORGETFULNESS]->attributes, "CREATURE_TARGET", "CREATURE_TARGET_2"); //TODO: use flags instead?
 }
 
 std::vector<bool> CSpellHandler::getDefaultAllowedSpells() const

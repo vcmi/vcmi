@@ -672,7 +672,7 @@ CArtifactInstance * CMapLoaderH3M::createArtifact(int aid, int spellID /*= -1*/)
 		}
 		else
 		{
-			a = CArtifactInstance::createScroll(VLC->spellh->spells[spellID]);
+			a = CArtifactInstance::createScroll(SpellID(spellID).toSpell());
 		}
 	}
 	else
@@ -1166,7 +1166,17 @@ void CMapLoaderH3M::readObjects()
 			{
 				CGShrine * shr = new CGShrine();
 				nobj = shr;
-				shr->spell = reader.readUInt8();
+				ui8 raw_id = reader.readUInt8();
+
+				if (255 == raw_id)
+				{
+					shr->spell = SpellID(SpellID::NONE);
+				}
+				else
+				{
+					shr->spell = SpellID(raw_id);
+				}
+
 				reader.skip(3);
 				break;
 			}
