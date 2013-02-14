@@ -368,10 +368,11 @@ public:
 	{
 	/*	if(id < 0)
 			return NULL;*/
+		si32 idAsNumber = idToNumber(id);
 
 		assert(oInfo.vector);
-		assert(oInfo.vector->size() > id);
-		return const_cast<T*>((*oInfo.vector)[id].get());
+		assert(oInfo.vector->size() > idAsNumber);
+		return const_cast<T*>((*oInfo.vector)[idAsNumber].get());
 	}
 
 	template <typename T, typename U>
@@ -431,11 +432,29 @@ struct VectorizedIDType
 		//else if
 		mpl::eval_if<boost::is_same<CCreature,U>,
 		mpl::identity<CreatureID>,
+		//else if
+		mpl::eval_if<boost::is_same<CArtifactInstance,U>,
+		mpl::identity<ArtifactInstanceID>,
+		//else if
+		mpl::eval_if<boost::is_base_of<CGObjectInstance,U>,
+		mpl::identity<ObjectInstanceID>,
 		//else
 		mpl::identity<si32>
-		>
-		>::type type;
+		> > > >::type type;
 };
+
+
+template<typename T>
+si32 idToNumber(const T &t, typename boost::enable_if<boost::is_convertible<T,si32> >::type * dummy = 0)
+{
+	return t;
+}
+
+template<typename T>
+si32 idToNumber(const BaseForID<T> &t)
+{
+	return t.getNum();
+}
 
 template <typename Handler>
 struct VariantVisitorSaver : boost::static_visitor<>
@@ -586,9 +605,9 @@ public:
 			typedef typename VectorizedIDType<TObjectType>::type IDType;
  			if(const auto *info = getVectorisedTypeInfo<VType, IDType>())
  			{
-				si32 id = getIdFromVectorItem<VType>(*info, data);
+				IDType id = getIdFromVectorItem<VType>(*info, data);
 				*this << id;
-				if(id != -1) //vector id is enough
+				if(id != IDType(-1)) //vector id is enough
  					return;
  			}
  		}
@@ -961,11 +980,11 @@ public:
 			typedef typename VectorizedIDType<TObjectType>::type IDType;
 			if(const auto *info = getVectorisedTypeInfo<VType, IDType>())
 			{
-				si32 id;
+				IDType id;
 				*this >> id;
-				if(id != -1)
+				if(id != IDType(-1))
 				{
-					data = static_cast<T>(getVectorItemFromId<VType, IDType>(*info, IDType(id)));
+					data = static_cast<T>(getVectorItemFromId<VType, IDType>(*info, id));
 					return;
 				}
 			}

@@ -223,10 +223,10 @@ class ObjectInstanceID : public BaseForID<ObjectInstanceID>
 	friend class CNonConstInfoCallback;
 };
 
-#ifndef INSTANTIATE_BASE_FOR_ID_HERE
-extern template std::ostream & operator << <ArtifactInstanceID>(std::ostream & os, BaseForID<ArtifactInstanceID> id);
-extern template std::ostream & operator << <ObjectInstanceID>(std::ostream & os, BaseForID<ObjectInstanceID> id);
-#endif
+// #ifndef INSTANTIATE_BASE_FOR_ID_HERE
+// extern template std::ostream & operator << <ArtifactInstanceID>(std::ostream & os, BaseForID<ArtifactInstanceID> id);
+// extern template std::ostream & operator << <ObjectInstanceID>(std::ostream & os, BaseForID<ObjectInstanceID> id);
+// #endif
 
 // Enum declarations
 namespace PrimarySkill
