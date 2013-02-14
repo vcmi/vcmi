@@ -1289,6 +1289,7 @@ public:
 	void enableSmartPointerSerializatoin();
 
 	void prepareForSendingHeroes(); //disables sending vectorised, enables smart pointer serialization, clears saved/loaded ptr cache
+	void enterPregameConnectionMode();
 };
 
 DLL_LINKAGE std::ostream &operator<<(std::ostream &str, const CConnection &cpc);

@@ -279,8 +279,16 @@ void CConnection::prepareForSendingHeroes()
 	savedPointers.clear();
 	CISer<CConnection>::smartVectorMembersSerialization = false;
 	COSer<CConnection>::smartVectorMembersSerialization = false;
-	CISer<CConnection>::smartPointerSerialization = true;
-	COSer<CConnection>::smartPointerSerialization = true;
+	enableSmartPointerSerializatoin();
+}
+
+void CConnection::enterPregameConnectionMode()
+{
+	loadedPointers.clear();
+	savedPointers.clear();
+	CISer<CConnection>::smartVectorMembersSerialization = false;
+	COSer<CConnection>::smartVectorMembersSerialization = false;
+	disableSmartPointerSerialization();
 }
 
 CSaveFile::CSaveFile( const std::string &fname )

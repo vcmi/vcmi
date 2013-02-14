@@ -66,6 +66,7 @@ CPregameServer::CPregameServer(CConnection *Host, TAcceptor *Acceptor /*= NULL*/
 
 void CPregameServer::handleConnection(CConnection *cpc)
 {
+	setThreadName("CPregameServer::handleConnection");
 	try
 	{
 		while(!cpc->receivedStop)
@@ -299,6 +300,7 @@ void CPregameServer::initConnection(CConnection *c)
 void CPregameServer::startListeningThread(CConnection * pc)
 {	
 	listeningThreads++;
+	pc->enterPregameConnectionMode();
 	pc->handler = new boost::thread(&CPregameServer::handleConnection, this, pc);
 }
 

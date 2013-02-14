@@ -714,6 +714,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 			serv = CServerHandler::justConnectToServer();
 		}
 
+		serv->enterPregameConnectionMode();
 		*serv << playerNames.begin()->second;
 
 		if(multiPlayer == CMenuScreen::MULTI_NETWORK_GUEST)
@@ -933,6 +934,7 @@ void CSelectionScreen::handleConnection()
 		{
 			CPackForSelectionScreen *pack = NULL;
 			*serv >> pack;
+			tlog5 << "Received a pack of type " << typeid(*pack).name()  << std::endl;
 			assert(pack);
 			if(QuitMenuWithoutStarting *endingPack = dynamic_cast<QuitMenuWithoutStarting *>(pack))
 			{
