@@ -1135,9 +1135,14 @@ struct InfoWindow : public CPackForClient //103  - displays simple info window
 
 namespace ObjProperty
 {
-	//TODO: move non general properties out to the appropriate objs classes
 	enum {OWNER = 1, BLOCKVIS = 2, PRIMARY_STACK_COUNT = 3, VISITORS = 4, VISITED = 5, ID = 6, AVAILABLE_CREATURE = 7, SUBID = 8,
-		MONSTER_COUNT = 10, MONSTER_POWER = 11, MONSTER_EXP = 12, MONSTER_RESTORE_TYPE = 13};
+		MONSTER_COUNT = 10, MONSTER_POWER = 11, MONSTER_EXP = 12, MONSTER_RESTORE_TYPE = 13,
+	
+		//town-specific
+		STRUCTURE_ADD_VISITING_HERO, STRUCTURE_CLEAR_VISITORS, STRUCTURE_ADD_GARRISONED_HERO,  //changing buildings state
+		BONUS_VALUE_FIRST, BONUS_VALUE_SECOND //used in Rampart for special building that generates resources (storing resource type and quantity)
+
+	};
 }
 
 struct SetObjectProperty : public CPackForClient//1001

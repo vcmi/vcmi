@@ -1877,19 +1877,19 @@ void CGTownInstance::setPropertyDer(ui8 what, ui32 val)
 ///this is freakin' overcomplicated solution
 	switch (what)
 	{
-		case 11: //add visitor of town building
+	case ObjProperty::STRUCTURE_ADD_VISITING_HERO:
 			bonusingBuildings[val]->setProperty (ObjProperty::VISITORS, visitingHero->id.getNum());
 			break;
-		case 12:
-			bonusingBuildings[val]->setProperty (12, 0);
+		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
+			bonusingBuildings[val]->setProperty (ObjProperty::STRUCTURE_CLEAR_VISITORS, 0);
 			break;
-		case 13: //add garrisoned hero to visitors
+		case ObjProperty::STRUCTURE_ADD_GARRISONED_HERO: //add garrisoned hero to visitors
 			bonusingBuildings[val]->setProperty (ObjProperty::VISITORS, garrisonHero->id.getNum());
 			break;
-		case 14:
+		case ObjProperty::BONUS_VALUE_FIRST:
 			bonusValue.first = val;
 			break;
-		case 15:
+		case ObjProperty::BONUS_VALUE_SECOND:
 			bonusValue.second = val;
 			break;
 	}
@@ -2160,15 +2160,15 @@ void CGTownInstance::newTurn() const
 			resID = (resID==2)?1:resID;
 			int resVal = rand()%4+1;//with size 1..4
 			cb->giveResource(tempOwner, static_cast<Res::ERes>(resID), resVal);
-			cb->setObjProperty (id, 14, resID);
-			cb->setObjProperty (id, 15, resVal);
+			cb->setObjProperty (id, ObjProperty::BONUS_VALUE_FIRST, resID);
+			cb->setObjProperty (id, ObjProperty::BONUS_VALUE_SECOND, resVal);
 		}
 
 		if ( subID == ETownType::DUNGEON )
 			for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
 		{
 			if ((*i)->ID == BuildingID::MANA_VORTEX)
-				cb->setObjProperty (id, 12, (*i)->id); //reset visitors for Mana Vortex
+				cb->setObjProperty (id, ObjProperty::STRUCTURE_CLEAR_VISITORS, (*i)->id); //reset visitors for Mana Vortex
 		}
 
 		if (tempOwner == GameConstants::NEUTRAL_PLAYER) //garrison growth for neutral towns
@@ -2529,6 +2529,20 @@ bool CGTownInstance::hasBuilt(BuildingID buildingID) const
 	return vstd::contains(builtBuildings, buildingID);
 }
 
+void CGTownInstance::addHeroToStructureVisitors( const CGHeroInstance *h, si32 structureInstanceID ) const
+{
+	if(visitingHero == h)
+		cb->setObjProperty(id, ObjProperty::STRUCTURE_ADD_VISITING_HERO, structureInstanceID); //add to visitors
+	else if(garrisonHero == h)
+		cb->setObjProperty(id, ObjProperty::STRUCTURE_ADD_GARRISONED_HERO, structureInstanceID); //then it must be garrisoned hero
+	else
+	{
+		//should never ever happen
+		tlog1 << "Cannot add hero " << h->name << " to visitors of structure #" << structureInstanceID << std::endl;
+		assert(0);
+	}
+}
+
 
 bool CGVisitableOPH::wasVisited (const CGHeroInstance * h) const
 {
@@ -2859,7 +2873,7 @@ void COPWBonus::setProperty(ui8 what, ui32 val)
 		case ObjProperty::VISITORS:
 			visitors.insert(val);
 			break;
-		case 12:
+		case ObjProperty::STRUCTURE_CLEAR_VISITORS:
 			visitors.clear();
 			break;
 	}
@@ -2892,7 +2906,7 @@ void COPWBonus::onHeroVisit (const CGHeroInstance * h) const
 					//cb->setObjProperty (town->id, ObjProperty::VISITED, true);
 					iw.text << VLC->generaltexth->allTexts[579];
 					cb->showInfoDialog(&iw);
-					cb->setObjProperty (town->id, 11, id); //add to visitors
+					town->addHeroToStructureVisitors(h, id);
 				}
 				break;
 		}
@@ -2906,7 +2920,7 @@ CTownBonus::CTownBonus (BuildingID index, CGTownInstance *TOWN)
 }
 void CTownBonus::setProperty (ui8 what, ui32 val)
 {
-	if(what == 4)
+	if(what == ObjProperty::VISITORS)
 		visitors.insert(ObjectInstanceID(val));
 }
 void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
@@ -2965,10 +2979,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 		iw.text << VLC->generaltexth->allTexts[mid];
 		cb->showInfoDialog(&iw);
 		cb->changePrimSkill (cb->getHero(heroID), what, val);
-		if (town->visitingHero == h)
-			cb->setObjProperty (town->id, 11, id); //add to visitors
-		else
-			cb->setObjProperty (town->id, 13, id); //then it must be garrisoned hero
+		town->addHeroToStructureVisitors(h, id);
 	}
 }
 const std::string & CGCreature::getHoverText() const

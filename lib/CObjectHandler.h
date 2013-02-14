@@ -653,8 +653,10 @@ public:
 	bool hasBuilt(BuildingID buildingID, int townID) const;
 	int dailyIncome() const; //calculates daily income of this town
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
-	void removeCapitols (ui8 owner) const;
 	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
+
+	void removeCapitols (ui8 owner) const;
+	void addHeroToStructureVisitors(const CGHeroInstance *h, si32 structureInstanceID) const; //hero must be visiting or garrisoned in town
 
 	CGTownInstance();
 	virtual ~CGTownInstance();
