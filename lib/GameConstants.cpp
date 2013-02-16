@@ -18,6 +18,8 @@
 #include "CCreatureHandler.h"
 #include "CSpellHandler.h"
 
+const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
+
 #define ID_LIKE_OPERATORS_INTERNAL(A, B, AN, BN)	\
 bool operator==(const A & a, const B & b)			\
 {													\

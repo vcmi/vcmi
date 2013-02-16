@@ -1118,17 +1118,17 @@ Key reverseMapFirst(const Val & val, const std::map<Key, Val> map)
 
 void JsonUtils::unparseBonus( JsonNode &node, const Bonus * bonus )
 {
-	node["type"].String() = reverseMapFirst<std::string, int>(bonus->type, bonusNameMap);
+	node["type"].String() = reverseMapFirst<std::string, Bonus::BonusType>(bonus->type, bonusNameMap);
 	node["subtype"].Float() = bonus->subtype;
 	node["val"].Float() = bonus->val;
-	node["valueType"].String() = reverseMapFirst<std::string, int>(bonus->valType, bonusValueMap);
+	node["valueType"].String() = reverseMapFirst<std::string, Bonus::ValueType>(bonus->valType, bonusValueMap);
 	node["additionalInfo"].Float() = bonus->additionalInfo;
 	node["turns"].Float() = bonus->turnsRemain;
 	node["sourceID"].Float() = bonus->source;
 	node["description"].String() = bonus->description;
-	node["effectRange"].String() = reverseMapFirst<std::string, int>(bonus->effectRange, bonusLimitEffect);
-	node["duration"].String() = reverseMapFirst<std::string, int>(bonus->duration, bonusDurationMap);
-	node["source"].String() = reverseMapFirst<std::string, int>(bonus->source, bonusSourceMap);
+	node["effectRange"].String() = reverseMapFirst<std::string, Bonus::LimitEffect>(bonus->effectRange, bonusLimitEffect);
+	node["duration"].String() = reverseMapFirst<std::string, ui16>(bonus->duration, bonusDurationMap);
+	node["source"].String() = reverseMapFirst<std::string, Bonus::BonusSource>(bonus->source, bonusSourceMap);
 	if(bonus->limiter)
 	{
 		node["limiter"].String() = reverseMapFirst<std::string, TLimiterPtr>(bonus->limiter, bonusLimiterMap);

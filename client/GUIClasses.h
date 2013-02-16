@@ -312,7 +312,7 @@ class CGarrisonInt;
 /// A single garrison slot which holds one creature of a specific amount
 class CGarrisonSlot : public CIntObject
 {
-	int ID; //for identification
+	SlotID ID; //for identification
 	CGarrisonInt *owner;
 	const CStackInstance *myStack; //NULL if slot is empty
 	const CCreature *creature;
@@ -330,7 +330,7 @@ public:
 	void clickRight(tribool down, bool previousState);
 	void clickLeft(tribool down, bool previousState);
 	void update();
-	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg=0, const CStackInstance * Creature=NULL);
+	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, int Upg=0, const CStackInstance * Creature=NULL);
 
 	friend class CGarrisonInt;
 };
@@ -352,8 +352,8 @@ public:
 	Point garOffset; //offset between garrisons (not used if only one hero)
 	std::vector<CAdventureMapButton *> splitButtons; //may be empty if no buttons
 
-	int p2, //TODO: comment me
-	    shiftPos;//1st slot of the second row, set shiftPoint for effect
+	SlotID p2; //TODO: comment me
+	int	shiftPos;//1st slot of the second row, set shiftPoint for effect
 	bool pb,
 	     smallIcons, //true - 32x32 imgs, false - 58x64
 	     removableUnits,//player can remove units from up
@@ -1172,10 +1172,10 @@ public:
 	CHillFortWindow(const CGHeroInstance *visitor, const CGObjectInstance *object); //c-tor
 
 	void showAll (SDL_Surface *to);
-	std::string getDefForSlot(int slot);//return def name for this slot
-	std::string getTextForSlot(int slot);//return hover text for this slot
-	void makeDeal(int slot);//-1 for upgrading all creatures
-	int getState(int slot); //-1 = no creature 0=can't upgrade, 1=upgraded, 2=can upgrade
+	std::string getDefForSlot(SlotID slot);//return def name for this slot
+	std::string getTextForSlot(SlotID slot);//return hover text for this slot
+	void makeDeal(SlotID slot);//-1 for upgrading all creatures
+	int getState(SlotID slot); //-1 = no creature 0=can't upgrade, 1=upgraded, 2=can upgrade
 	void updateGarrisons();//update buttons after garrison changes
 };
 

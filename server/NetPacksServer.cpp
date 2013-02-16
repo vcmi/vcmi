@@ -180,7 +180,7 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 	case EMarketMode::CREATURE_RESOURCE:
 		if(!hero)
 			COMPLAIN_AND_RETURN("Only hero can sell creatures!");
-		return gh->sellCreatures(val, m, hero, r1, static_cast<Res::ERes>(r2));
+		return gh->sellCreatures(val, m, hero, SlotID(r1), static_cast<Res::ERes>(r2));
 	case EMarketMode::RESOURCE_ARTIFACT:
 		if(!hero)
 			COMPLAIN_AND_RETURN("Only hero can buy artifacts!");
@@ -190,11 +190,11 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 			COMPLAIN_AND_RETURN("Only hero can sell artifacts!");
 		return gh->sellArtifact(m, hero, ArtifactInstanceID(r1), static_cast<Res::ERes>(r2));
 	case EMarketMode::CREATURE_UNDEAD:
-		return gh->transformInUndead(m, hero, r1);
+		return gh->transformInUndead(m, hero, SlotID(r1));
 	case EMarketMode::RESOURCE_SKILL:
 		return gh->buySecSkill(m, hero, SecondarySkill(r2));
 	case EMarketMode::CREATURE_EXP:
-		return gh->sacrificeCreatures(m, hero, r1, val);
+		return gh->sacrificeCreatures(m, hero, SlotID(r1), val);
 	case EMarketMode::ARTIFACT_EXP:
 		return gh->sacrificeArtifact(m, hero, ArtifactPosition(r1));
 	default:

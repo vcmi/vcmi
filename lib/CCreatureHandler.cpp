@@ -114,7 +114,7 @@ CCreature::CCreature()
 	doubleWide = false;
 	setNodeType(CBonusSystemNode::CREATURE);
 }
-void CCreature::addBonus(int val, int type, int subtype /*= -1*/)
+void CCreature::addBonus(int val, Bonus::BonusType type, int subtype /*= -1*/)
 {
 	Bonus *added = new Bonus(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
 	addNewBonus(added);
@@ -149,7 +149,7 @@ static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 	Bonus *nsf = new Bonus();
 	std::string type = ability_vec[0].String();
 
-	std::map<std::string, int>::const_iterator it = bonusNameMap.find(type);
+	std::map<std::string, Bonus::BonusType>::const_iterator it = bonusNameMap.find(type);
 
 	if (it == bonusNameMap.end()) {
 		if (type == "DOUBLE_WIDE")
@@ -185,7 +185,7 @@ static void RemoveAbility(CCreature *cre, const JsonNode &ability)
 {
 	std::string type = ability.String();
 
-	std::map<std::string, int>::const_iterator it = bonusNameMap.find(type);
+	std::map<std::string, Bonus::BonusType>::const_iterator it = bonusNameMap.find(type);
 
 	if (it == bonusNameMap.end()) {
 		if (type == "DOUBLE_WIDE")
@@ -348,7 +348,7 @@ void CCreatureHandler::loadCreatures()
 
 	BOOST_FOREACH(const JsonNode &bonus, config2["bonuses"].Vector())
 	{
-		std::map<std::string,int>::const_iterator it_map;
+		std::map<std::string,Bonus::BonusType>::const_iterator it_map;
 		std::string bonusID = bonus["id"].String();
 
 		it_map = bonusNameMap.find(bonusID);
@@ -359,7 +359,7 @@ void CCreatureHandler::loadCreatures()
 	}
 
 	//handle magic resistance secondary skill premy, potentialy may be buggy
-	//std::map<TBonusType, std::pair<std::string, std::string> >::iterator it = stackBonuses.find(Bonus::MAGIC_RESISTANCE);
+	//std::map<Bonus::BonusType, std::pair<std::string, std::string> >::iterator it = stackBonuses.find(Bonus::MAGIC_RESISTANCE);
 	//stackBonuses[Bonus::SECONDARY_SKILL_PREMY] = std::pair<std::string, std::string>(it->second.first, it->second.second);
 
 	if (VLC->modh->modules.STACK_EXP) 	//reading default stack experience bonuses

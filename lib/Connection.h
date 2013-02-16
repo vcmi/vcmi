@@ -35,7 +35,6 @@
 #include "Mapping/CCampaignHandler.h" //for CCampaignState
 
 const ui32 version = 737;
-const TSlot COMMANDER_SLOT_PLACEHOLDER = -2;
 
 class CConnection;
 class CGObjectInstance;
@@ -485,14 +484,14 @@ struct SaveIfStackInstance<Ser, CStackInstance *>
 	static bool invoke(Ser &s, const CStackInstance* const &data)
 	{
 		assert(data->armyObj);
-		TSlot slot = -1;
+		SlotID slot;
 
 		if(data->getNodeType() == CBonusSystemNode::COMMANDER)
-			slot = COMMANDER_SLOT_PLACEHOLDER;
+			slot = SlotID::COMMANDER_SLOT_PLACEHOLDER;
 		else
 			slot = data->armyObj->findStack(data);
 
-		assert(slot != -1);
+		assert(slot != SlotID());
 		s << data->armyObj << slot;
 		return true;
 	}
@@ -512,9 +511,9 @@ struct LoadIfStackInstance<Ser, CStackInstance *>
 	static bool invoke(Ser &s, CStackInstance* &data)
 	{
 		CArmedInstance *armedObj;
-		TSlot slot;
+		SlotID slot;
 		s >> armedObj >> slot;
-		if(slot != COMMANDER_SLOT_PLACEHOLDER)
+		if(slot != SlotID::COMMANDER_SLOT_PLACEHOLDER)
 		{
 			assert(armedObj->hasStackAtSlot(slot));
 			data = armedObj->stacks[slot];
@@ -1172,7 +1171,7 @@ public:
 		if(sendStackInstanceByIds)
 		{
 			CArmedInstance *armed;
-			TSlot slot;
+			SlotID slot;
 			*this >> armed >> slot;
 			assert(armed->hasStackAtSlot(slot));
 			s = armed->stacks[slot];

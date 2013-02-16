@@ -79,7 +79,7 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, CreatureID ID, ui3
 	sendRequest(&pack);
 }
 
-bool CCallback::dismissCreature(const CArmedInstance *obj, int stackPos)
+bool CCallback::dismissCreature(const CArmedInstance *obj, SlotID stackPos)
 {
 	if(((player>=0)  &&  obj->tempOwner != player) || (obj->stacksCount()<2  && obj->needsLastStack()))
 		return false;
@@ -89,7 +89,7 @@ bool CCallback::dismissCreature(const CArmedInstance *obj, int stackPos)
 	return true;
 }
 
-bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, CreatureID newID)
+bool CCallback::upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID)
 {
 	UpgradeCreature pack(stackPos,obj->id,newID);
 	sendRequest(&pack);
@@ -102,20 +102,20 @@ void CCallback::endTurn()
 	EndTurn pack;
 	sendRequest(&pack); //report that we ended turn
 }
-int CCallback::swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)
+int CCallback::swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)
 {
 	ArrangeStacks pack(1,p1,p2,s1->id,s2->id,0);
 	sendRequest(&pack);
 	return 0;
 }
 
-int CCallback::mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)
+int CCallback::mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)
 {
 	ArrangeStacks pack(2,p1,p2,s1->id,s2->id,0);
 	sendRequest(&pack);
 	return 0;
 }
-int CCallback::splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val)
+int CCallback::splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val)
 {
 	ArrangeStacks pack(3,p1,p2,s1->id,s2->id,val);
 	sendRequest(&pack);
@@ -154,7 +154,7 @@ bool CCallback::swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation
  * @param assembleTo If assemble is true, this represents the artifact ID of the combination
  * artifact to assemble to. Otherwise it's not used.
  */
-bool CCallback::assembleArtifacts (const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo)
+bool CCallback::assembleArtifacts (const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)
 {
 	if (player != hero->tempOwner)
 		return false;
@@ -366,7 +366,7 @@ void CCallback::validatePaths()
 	}
 }
 
-int CCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)
+int CCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)
 {
 	if(s1->getCreature(p1) == s2->getCreature(p2))
 		return mergeStacks(s1, s2, p1, p2);

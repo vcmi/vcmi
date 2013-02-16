@@ -209,23 +209,23 @@ public:
 	bool buildBoat( ObjectInstanceID objid );
 	bool setFormation( ObjectInstanceID hid, ui8 formation );
 	bool tradeResources(const IMarket *market, ui32 val, TPlayerColor player, ui32 id1, ui32 id2);
-	bool sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, TSlot slot, ui32 count);
+	bool sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, SlotID slot, ui32 count);
 	bool sendResources(ui32 val, TPlayerColor player, Res::ERes r1, TPlayerColor r2);
-	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, Res::ERes resourceID);
-	bool transformInUndead(const IMarket *market, const CGHeroInstance * hero, ui32 slot);
-	bool assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo);
+	bool sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, SlotID slot, Res::ERes resourceID);
+	bool transformInUndead(const IMarket *market, const CGHeroInstance * hero, SlotID slot);
+	bool assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo);
 	bool buyArtifact( ObjectInstanceID hid, ArtifactID aid ); //for blacksmith and mage guild only -> buying for gold in common buildings
 	bool buyArtifact( const IMarket *m, const CGHeroInstance *h, Res::ERes rid, ArtifactID aid); //for artifact merchant and black market -> buying for any resource in special building / advobject
 	bool sellArtifact( const IMarket *m, const CGHeroInstance *h, ArtifactInstanceID aid, Res::ERes rid); //for artifact merchant selling
 	//void lootArtifacts (TArtHolder source, TArtHolder dest, std::vector<ui32> &arts); //after battle - move al arts to winer
 	bool buySecSkill( const IMarket *m, const CGHeroInstance *h, SecondarySkill skill);
 	bool garrisonSwap(ObjectInstanceID tid);
-	bool upgradeCreature( ObjectInstanceID objid, ui8 pos, CreatureID upgID );
+	bool upgradeCreature( ObjectInstanceID objid, SlotID pos, CreatureID upgID );
 	bool recruitCreatures(ObjectInstanceID objid, CreatureID crid, ui32 cram, si32 level);
 	bool buildStructure(ObjectInstanceID tid, BuildingID bid, bool force=false);//force - for events: no cost, no checkings
 	bool razeStructure(ObjectInstanceID tid, BuildingID bid);
-	bool disbandCreature( ObjectInstanceID id, ui8 pos );
-	bool arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, ui8 p1, ui8 p2, si32 val, TPlayerColor player);
+	bool disbandCreature( ObjectInstanceID id, SlotID pos );
+	bool arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, TPlayerColor player);
 	void save(const std::string &fname);
 	void close();
 	void handleTimeEvents();

@@ -280,7 +280,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	}
 	if (magicResistance)
 	{
-		std::map<TBonusType, std::pair<std::string, std::string> >::const_iterator it = CGI->creh->stackBonuses.find(Bonus::MAGIC_RESISTANCE);
+		std::map<Bonus::BonusType, std::pair<std::string, std::string> >::const_iterator it = CGI->creh->stackBonuses.find(Bonus::MAGIC_RESISTANCE);
 		std::string description;
 		text = it->second.first;
 		description = it->second.second;

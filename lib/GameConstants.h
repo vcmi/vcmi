@@ -223,6 +223,21 @@ class ObjectInstanceID : public BaseForID<ObjectInstanceID>
 	friend class CNonConstInfoCallback;
 };
 
+class SlotID : public BaseForID<SlotID>
+{
+	INSTID_LIKE_CLASS_COMMON(SlotID)
+
+		friend class CGameInfoCallback;
+	friend class CNonConstInfoCallback;
+
+	DLL_LINKAGE static const SlotID COMMANDER_SLOT_PLACEHOLDER;
+
+	bool validSlot() const
+	{
+		return getNum() >= 0  &&  getNum() < GameConstants::ARMY_SIZE;
+	}
+};
+
 // #ifndef INSTANTIATE_BASE_FOR_ID_HERE
 // extern template std::ostream & operator << <ArtifactInstanceID>(std::ostream & os, BaseForID<ArtifactInstanceID> id);
 // extern template std::ostream & operator << <ObjectInstanceID>(std::ostream & os, BaseForID<ObjectInstanceID> id);
@@ -841,11 +856,10 @@ ID_LIKE_OPERATORS_DECLS(SpellID, SpellID::ESpellID)
 typedef si8 TFaction;
 typedef si64 TExpType;
 typedef std::pair<ui32, ui32> TDmgRange;
-typedef ui8 TBonusType;
 typedef si32 TBonusSubtype;
-typedef si32 TSlot;
 typedef si32 TQuantity;
 typedef ui8 TPlayerColor;
+typedef ui8 TTeamID;
 
 
 #undef ID_LIKE_CLASS_COMMON

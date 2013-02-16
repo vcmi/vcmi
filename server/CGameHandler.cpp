@@ -693,7 +693,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	const CStackBasicDescriptor raisedStack = winnerHero ? winnerHero->calculateNecromancy(*battleResult.data) : CStackBasicDescriptor();
 	// Give raised units to winner and show dialog, if any were raised,
 	// units will be given after casualities are taken
-	const TSlot necroSlot = raisedStack.type ? winnerHero->getSlotFor(raisedStack.type) : -1;
+	const SlotID necroSlot = raisedStack.type ? winnerHero->getSlotFor(raisedStack.type) : SlotID();
 
 	if(!duel)
 	{
@@ -720,7 +720,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 			afterBattleCallback();
 	}
 
-	if (necroSlot != -1)
+	if (necroSlot != SlotID())
 	{
 		winnerHero->showNecromancyDialog(raisedStack);
 		addToSlot(StackLocation(winnerHero, necroSlot), raisedStack.type, raisedStack.count);
@@ -751,7 +751,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		if(result == 1) //retreat
 		{
 			sah.army[0].clear();
-			sah.army[0].setCreature(0, loserHero->type->initialArmy[0].creature, 1);
+			sah.army[0].setCreature(SlotID(0), loserHero->type->initialArmy[0].creature, 1);
 		}
 
 		if(const CGHeroInstance *another =  getPlayer(loser)->availableHeroes[1])
@@ -2341,13 +2341,13 @@ void CGameHandler::close()
 	//exit(0);
 }
 
-bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, ui8 p1, ui8 p2, si32 val, TPlayerColor player )
+bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, TPlayerColor player )
 {
 	const CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->getObjInstance(id1)),
 		*s2 = static_cast<CArmedInstance*>(gs->getObjInstance(id2));
 	const CCreatureSet &S1 = *s1, &S2 = *s2;
 	StackLocation sl1(s1, p1), sl2(s2, p2);
-	if(!sl1.validSlot()  ||  !sl2.validSlot())
+	if(!sl1.slot.validSlot()  ||  !sl2.slot.validSlot())
 	{
 		complain("Invalid slot accessed!");
 		return false;
@@ -2449,7 +2449,7 @@ TPlayerColor CGameHandler::getPlayerAt( CConnection *c ) const
 	}
 }
 
-bool CGameHandler::disbandCreature( ObjectInstanceID id, ui8 pos )
+bool CGameHandler::disbandCreature( ObjectInstanceID id, SlotID pos )
 {
 	CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->getObjInstance(id));
 	if(!vstd::contains(s1->stacks,pos))
@@ -2645,12 +2645,12 @@ bool CGameHandler::recruitCreatures( ObjectInstanceID objid, CreatureID crid, ui
 			break;
 		}
 	}
-	int slot = dst->getSlotFor(crid);
+	SlotID slot = dst->getSlotFor(crid);
 
 	if( (!found && complain("Cannot recruit: no such creatures!"))
 		|| (cram  >  VLC->creh->creatures[crid]->maxAmount(gs->getPlayer(dst->tempOwner)->resources) && complain("Cannot recruit: lack of resources!"))
 		|| (cram<=0  &&  complain("Cannot recruit: cram <= 0!"))
-		|| (slot<0  && !warMachine && complain("Cannot recruit: no available slot!")))
+		|| (!slot.validSlot()  && !warMachine && complain("Cannot recruit: no available slot!")))
 	{
 		return false;
 	}
@@ -2697,7 +2697,7 @@ bool CGameHandler::recruitCreatures( ObjectInstanceID objid, CreatureID crid, ui
 	return true;
 }
 
-bool CGameHandler::upgradeCreature( ObjectInstanceID objid, ui8 pos, CreatureID upgID )
+bool CGameHandler::upgradeCreature( ObjectInstanceID objid, SlotID pos, CreatureID upgID )
 {
 	CArmedInstance *obj = static_cast<CArmedInstance*>(gs->getObjInstance(objid));
 	assert(obj->hasStackAtSlot(pos));
@@ -2749,11 +2749,11 @@ void CGameHandler::moveArmy(const CArmedInstance *src, const CArmedInstance *dst
 		TSlots::const_iterator i = src->Slots().begin(); //iterator to stack to move
 		StackLocation sl(src, i->first); //location of stack to move
 
-		TSlot pos = dst->getSlotFor(i->second->type);
-		if(pos < 0)
+		SlotID pos = dst->getSlotFor(i->second->type);
+		if(!pos.validSlot())
 		{
 			//try to merge two other stacks to make place
-			std::pair<TSlot, TSlot> toMerge;
+			std::pair<SlotID, SlotID> toMerge;
 			if(dst->mergableStacks(toMerge, i->first) && allowMerging)
 			{
 				moveStack(StackLocation(dst, toMerge.first), StackLocation(dst, toMerge.second)); //merge toMerge.first into toMerge.second
@@ -2888,7 +2888,7 @@ bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocat
  * @param assembleTo If assemble is true, this represents the artifact ID of the combination
  * artifact to assemble to. Otherwise it's not used.
  */
-bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo)
+bool CGameHandler::assembleArtifacts (ObjectInstanceID heroID, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)
 {
 
 	CGHeroInstance *hero = gs->getHero(heroID);
@@ -3099,7 +3099,7 @@ bool CGameHandler::tradeResources(const IMarket *market, ui32 val, TPlayerColor 
 	return true;
 }
 
-bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, ui32 slot, Res::ERes resourceID)
+bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHeroInstance * hero, SlotID slot, Res::ERes resourceID)
 {
 	if(!vstd::contains(hero->Slots(), slot))
 		COMPLAIN_RET("Hero doesn't have any creature in that slot!");
@@ -3133,7 +3133,7 @@ bool CGameHandler::sellCreatures(ui32 count, const IMarket *market, const CGHero
 	return true;
 }
 
-bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance * hero, ui32 slot)
+bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance * hero, SlotID slot)
 {
 	const CArmedInstance *army = NULL;
 	if (hero)
@@ -3242,7 +3242,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, TPlayerColor p
 	{
 		sah.hid[hid] = newHero->subID;
 		sah.army[hid].clear();
-		sah.army[hid].setCreature(0, newHero->type->initialArmy[0].creature, 1);
+		sah.army[hid].setCreature(SlotID(0), newHero->type->initialArmy[0].creature, 1);
 	}
 	else
 		sah.hid[hid] = -1;
@@ -3820,8 +3820,8 @@ void CGameHandler::playerMessage( TPlayerColor player, const std::string &messag
 		if(!hero) return;
 
 		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
-			if(!hero->hasStackAtSlot(i))
-				insertNewStack(StackLocation(hero, i), archangel, 5);
+			if(!hero->hasStackAtSlot(SlotID(i)))
+				insertNewStack(StackLocation(hero, SlotID(i)), archangel, 5);
 	}
 	else if(message == "vcmiangband") //gives 10 black knight into each slot
 	{
@@ -3830,8 +3830,8 @@ void CGameHandler::playerMessage( TPlayerColor player, const std::string &messag
 		if(!hero) return;
 
 		for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
-			if(!hero->hasStackAtSlot(i))
-				insertNewStack(StackLocation(hero, i), blackKnight, 10);
+			if(!hero->hasStackAtSlot(SlotID(i)))
+				insertNewStack(StackLocation(hero, SlotID(i)), blackKnight, 10);
 	}
 	else if(message == "vcminoldor") //all war machines
 	{
@@ -5622,7 +5622,7 @@ bool CGameHandler::tryAttackingGuard(const int3 &guardPos, const CGHeroInstance 
 	return true;
 }
 
-bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, TSlot slot, ui32 count)
+bool CGameHandler::sacrificeCreatures(const IMarket *market, const CGHeroInstance *hero, SlotID slot, ui32 count)
 {
 	int oldCount = hero->getStackCount(slot);
 
@@ -5677,7 +5677,7 @@ bool CGameHandler::insertNewStack(const StackLocation &sl, const CCreature *c, T
 	if(sl.army->hasStackAtSlot(sl.slot))
 		COMPLAIN_RET("Slot is already taken!");
 
-	if(!sl.validSlot())
+	if(!sl.slot.validSlot())
 		COMPLAIN_RET("Cannot insert stack to that slot!");
 
 	InsertNewStack ins;
@@ -5755,8 +5755,8 @@ void CGameHandler::tryJoiningArmy(const CArmedInstance *src, const CArmedInstanc
 			{
 				for(TSlots::const_iterator i = src->stacks.begin(); i != src->stacks.end(); i++)//while there are unmoved creatures
 				{
-					TSlot pos = dst->getSlotFor(i->second->type);
-					if(pos > -1)
+					SlotID pos = dst->getSlotFor(i->second->type);
+					if(pos.validSlot())
 					{
 						moveStack(StackLocation(src, i->first), StackLocation(dst, pos));
 						cont = true;
@@ -5787,7 +5787,7 @@ bool CGameHandler::moveStack(const StackLocation &src, const StackLocation &dst,
 	if(dst.army->hasStackAtSlot(dst.slot) && dst.army->getCreature(dst.slot) != src.army->getCreature(src.slot))
 		COMPLAIN_RET("Cannot move: stack of different type at destination pos!");
 
-	if(!dst.validSlot())
+	if(!dst.slot.validSlot())
 		COMPLAIN_RET("Cannot move stack to that slot!");
 
 	if(count == -1)

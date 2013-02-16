@@ -51,20 +51,20 @@ public:
 	virtual void recruitHero(const CGObjectInstance *townOrTavern, const CGHeroInstance *hero)=0;
 	virtual bool buildBuilding(const CGTownInstance *town, BuildingID buildingID)=0;
 	virtual void recruitCreatures(const CGObjectInstance *obj, CreatureID ID, ui32 amount, si32 level=-1)=0;
-	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, CreatureID newID=CreatureID::NONE)=0; //if newID==-1 then best possible upgrade will be made
+	virtual bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 
 	virtual void trade(const CGObjectInstance *market, EMarketMode::EMarketMode mode, int id1, int id2, int val1, const CGHeroInstance *hero = NULL)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
 
 	virtual int selectionMade(int selection, int queryID) =0;
-	virtual int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//swaps creatures between two possibly different garrisons // TODO: AI-unsafe code - fix it!
-	virtual int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//joins first stack to the second (creatures must be same type)
-	virtual int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2) =0; //first goes to the second
-	virtual int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
+	virtual int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)=0;//swaps creatures between two possibly different garrisons // TODO: AI-unsafe code - fix it!
+	virtual int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2)=0;//joins first stack to the second (creatures must be same type)
+	virtual int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2) =0; //first goes to the second
+	virtual int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val)=0;//split creatures from the first stack
 	//virtual bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
 	virtual bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2)=0;
-	virtual bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo)=0;
-	virtual bool dismissCreature(const CArmedInstance *obj, int stackPos)=0;
+	virtual bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo)=0;
+	virtual bool dismissCreature(const CArmedInstance *obj, SlotID stackPos)=0;
 	virtual void endTurn()=0;
 	virtual void buyArtifact(const CGHeroInstance *hero, ArtifactID aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
 	virtual void setFormation(const CGHeroInstance * hero, bool tight)=0;
@@ -118,20 +118,20 @@ public:
 	bool moveHero(const CGHeroInstance *h, int3 dst); //dst must be free, neighbouring tile (this function can move hero only by one tile)
 	bool teleportHero(const CGHeroInstance *who, const CGTownInstance *where);
 	int selectionMade(int selection, int queryID);
-	int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2);
-	int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2); //first goes to the second
-	int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2); //first goes to the second
-	int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val);
+	int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2);
+	int mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2); //first goes to the second
+	int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2); //first goes to the second
+	int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, SlotID p1, SlotID p2, int val);
 	bool dismissHero(const CGHeroInstance * hero);
 	//bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2);
 	bool swapArtifacts(const ArtifactLocation &l1, const ArtifactLocation &l2);
 	//bool moveArtifact(const CGHeroInstance * hero, ui16 src, const CStackInstance * stack, ui16 dest); // TODO: unify classes
 	//bool moveArtifact(const CStackInstance * stack, ui16 src , const CGHeroInstance * hero, ui16 dest); // TODO: unify classes
-	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ui32 assembleTo);
+	bool assembleArtifacts(const CGHeroInstance * hero, ArtifactPosition artifactSlot, bool assemble, ArtifactID assembleTo);
 	bool buildBuilding(const CGTownInstance *town, BuildingID buildingID) OVERRIDE;
 	void recruitCreatures(const CGObjectInstance *obj, CreatureID ID, ui32 amount, si32 level=-1);
-	bool dismissCreature(const CArmedInstance *obj, int stackPos);
-	bool upgradeCreature(const CArmedInstance *obj, int stackPos, CreatureID newID=CreatureID::NONE) OVERRIDE;
+	bool dismissCreature(const CArmedInstance *obj, SlotID stackPos);
+	bool upgradeCreature(const CArmedInstance *obj, SlotID stackPos, CreatureID newID=CreatureID::NONE) OVERRIDE;
 	void endTurn();
 	void swapGarrisonHero(const CGTownInstance *town);
 	void buyArtifact(const CGHeroInstance *hero, ArtifactID aid) OVERRIDE;

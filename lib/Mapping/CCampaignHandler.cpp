@@ -393,9 +393,10 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 	//trimming creatures
 	BOOST_FOREACH(CGHeroInstance * cgh, crossoverHeroes)
 	{
-		vstd::erase_if(cgh->stacks, [&](const std::pair<TSlot, CStackInstance *> & j)
+		vstd::erase_if(cgh->stacks, [&](const std::pair<SlotID, CStackInstance *> & j)
 		{
-			return !(travelOptions.monstersKeptByHero[j.first / 8] & (1 << (j.first%8)) );
+			CreatureID::ECreatureID crid = j.second->getCreatureID().toEnum();
+			return !(travelOptions.monstersKeptByHero[crid / 8] & (1 << (crid % 8)) );
 		});
 	}
 }

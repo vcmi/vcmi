@@ -69,7 +69,7 @@ namespace boost
 }
 
 //numbers of creatures are exact numbers if detailed else they are quantity ids (0 - a few, 1 - several and so on; additionally -1 - unknown)
-struct ArmyDescriptor : public std::map<TSlot, CStackBasicDescriptor>
+struct ArmyDescriptor : public std::map<SlotID, CStackBasicDescriptor>
 {
 	bool isDetailed;
 	DLL_LINKAGE ArmyDescriptor(const CArmedInstance *army, bool detailed); //not detailed -> quantity ids as count

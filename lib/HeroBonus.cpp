@@ -27,20 +27,20 @@
 #define FOREACH_RED_PARENT(pname) 	TNodes lparents; getRedParents(lparents); BOOST_FOREACH(CBonusSystemNode *pname, lparents)
 
 #define BONUS_NAME(x) ( #x, Bonus::x )
-	const std::map<std::string, int> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
+	const std::map<std::string, Bonus::BonusType> bonusNameMap = boost::assign::map_list_of BONUS_LIST;
 #undef BONUS_NAME
 
 #define BONUS_VALUE(x) ( #x, Bonus::x )
-	const std::map<std::string, int> bonusValueMap = boost::assign::map_list_of BONUS_VALUE_LIST;
+	const std::map<std::string, Bonus::ValueType> bonusValueMap = boost::assign::map_list_of BONUS_VALUE_LIST;
 #undef BONUS_VALUE
 
 #define BONUS_SOURCE(x) ( #x, Bonus::x )
-	const std::map<std::string, int> bonusSourceMap = boost::assign::map_list_of BONUS_SOURCE_LIST;
+	const std::map<std::string, Bonus::BonusSource> bonusSourceMap = boost::assign::map_list_of BONUS_SOURCE_LIST;
 #undef BONUS_SOURCE
 
 #define BONUS_ITEM(x) ( #x, Bonus::x )
 
-const std::map<std::string, int> bonusDurationMap = boost::assign::map_list_of
+const std::map<std::string, ui16> bonusDurationMap = boost::assign::map_list_of
 	BONUS_ITEM(PERMANENT)
 	BONUS_ITEM(ONE_BATTLE)
 	BONUS_ITEM(ONE_DAY)
@@ -52,7 +52,7 @@ const std::map<std::string, int> bonusDurationMap = boost::assign::map_list_of
 	BONUS_ITEM(STACK_GETS_TURN)
 	BONUS_ITEM(COMMANDER_KILLED);
 
-const std::map<std::string, int> bonusLimitEffect = boost::assign::map_list_of
+const std::map<std::string, Bonus::LimitEffect> bonusLimitEffect = boost::assign::map_list_of
 	BONUS_ITEM(NO_LIMIT)
 	BONUS_ITEM(ONLY_DISTANCE_FIGHT)
 	BONUS_ITEM(ONLY_MELEE_FIGHT)
@@ -1128,7 +1128,7 @@ std::string Bonus::Description() const
 	return str.str();
 }
 
-Bonus::Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype/*=-1*/)
+Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype/*=-1*/)
 	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), description(Desc)
 {
 	additionalInfo = -1;
@@ -1138,7 +1138,7 @@ Bonus::Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, std::string
 	boost::algorithm::trim(description);
 }
 
-Bonus::Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype/*=-1*/, ValueType ValType /*= ADDITIVE_VALUE*/)
+Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype/*=-1*/, ValueType ValType /*= ADDITIVE_VALUE*/)
 	: duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), sid(ID), valType(ValType)
 {
 	additionalInfo = -1;
@@ -1176,7 +1176,7 @@ CSelector DLL_LINKAGE operator||(const CSelector &first, const CSelector &second
 
 namespace Selector
 {
-	DLL_LINKAGE CSelectFieldEqual<TBonusType> type(&Bonus::type, 0);
+	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> type(&Bonus::type, Bonus::NONE);
 	DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype(&Bonus::subtype, 0);
 	DLL_LINKAGE CSelectFieldEqual<si32> info(&Bonus::additionalInfo, 0);
 	DLL_LINKAGE CSelectFieldEqual<ui16> duration(&Bonus::duration, 0);
@@ -1184,14 +1184,14 @@ namespace Selector
 	DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange(&Bonus::effectRange, Bonus::NO_LIMIT);
 	DLL_LINKAGE CWillLastTurns turns;
 
-	CSelector DLL_LINKAGE typeSubtype(TBonusType Type, TBonusSubtype Subtype)
+	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype)
 	{
 		return type(Type) && subtype(Subtype);
 	}
 
-	CSelector DLL_LINKAGE typeSubtypeInfo(TBonusType type, TBonusSubtype subtype, si32 info)
+	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info)
 	{
-		return CSelectFieldEqual<TBonusType>(&Bonus::type, type) && CSelectFieldEqual<TBonusSubtype>(&Bonus::subtype, subtype) && CSelectFieldEqual<si32>(&Bonus::additionalInfo, info);
+		return CSelectFieldEqual<Bonus::BonusType>(&Bonus::type, type) && CSelectFieldEqual<TBonusSubtype>(&Bonus::subtype, subtype) && CSelectFieldEqual<si32>(&Bonus::additionalInfo, info);
 	}
 
 	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID)
@@ -1209,14 +1209,14 @@ namespace Selector
 		return CSelectFieldEqual<Bonus::BonusSource>(&Bonus::source, source);
 	}
 
-	bool DLL_LINKAGE matchesType(const CSelector &sel, TBonusType type)
+	bool DLL_LINKAGE matchesType(const CSelector &sel, Bonus::BonusType type)
 	{
 		Bonus dummy;
 		dummy.type = type;
 		return sel(&dummy);
 	}
 
-	bool DLL_LINKAGE matchesTypeSubtype(const CSelector &sel, TBonusType type, TBonusSubtype subtype)
+	bool DLL_LINKAGE matchesTypeSubtype(const CSelector &sel, Bonus::BonusType type, TBonusSubtype subtype)
 	{
 		Bonus dummy;
 		dummy.type = type;
@@ -1285,7 +1285,7 @@ DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const BonusList &bonusL
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream &out, const Bonus &bonus)
 {
-	for(std::map<std::string, int>::const_iterator i = bonusNameMap.begin(); i != bonusNameMap.end(); i++)
+	for(auto i = bonusNameMap.cbegin(); i != bonusNameMap.cend(); i++)
 		if(i->second == bonus.type)
 			out << "\tType: " << i->first << " \t";
 
@@ -1361,12 +1361,12 @@ void CCreatureTypeLimiter::setCreature (CreatureID id)
 	creature = VLC->creh->creatures[id];
 }
 
-HasAnotherBonusLimiter::HasAnotherBonusLimiter( TBonusType bonus )
+HasAnotherBonusLimiter::HasAnotherBonusLimiter( Bonus::BonusType bonus )
 	: type(bonus), subtype(0), isSubtypeRelevant(false)
 {
 }
 
-HasAnotherBonusLimiter::HasAnotherBonusLimiter( TBonusType bonus, TBonusSubtype _subtype )
+HasAnotherBonusLimiter::HasAnotherBonusLimiter( Bonus::BonusType bonus, TBonusSubtype _subtype )
 	: type(bonus), subtype(_subtype), isSubtypeRelevant(true)
 {
 }

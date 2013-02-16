@@ -41,7 +41,7 @@ public:
 	TFaction faction; //-1 = neutral
 	ui8 level; // 0 - unknown
 	bool doubleWide;
-	ui8 special; // Creature is not available normally (war machines, commanders, etc
+	bool special; // Creature is not available normally (war machines, commanders, etc
 
 	///animation info
 	double timeBetweenFidgets, walkAnimationTime, attackAnimationTime, flightAnimationDistance;
@@ -49,7 +49,7 @@ public:
 	double missleFrameAngles[12];
 	int troopCountLocationOffset, attackClimaxFrame;
 	std::string projectile;
-	ui8 projectileSpin; //if true, appropriate projectile is spinning during flight
+	bool projectileSpin; //if true, appropriate projectile is spinning during flight
 	///end of anim info
 
 	//sound info
@@ -86,7 +86,7 @@ public:
 
 	bool valid() const;
 
-	void addBonus(int val, int type, int subtype = -1);
+	void addBonus(int val, Bonus::BonusType type, int subtype = -1);
 	std::string nodeName() const override;
 	//void getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const;
 
@@ -131,12 +131,12 @@ private:
 
 	void loadCreatureJson(CCreature * creature, const JsonNode & config);
 public:
-	std::set<int> notUsedMonsters;
+	std::set<CreatureID> notUsedMonsters;
 	std::set<CreatureID> doubledCreatures; //they get double week
 	std::vector<ConstTransitivePtr<CCreature> > creatures; //creature ID -> creature info
 
 	//stack exp
-	std::map<TBonusType, std::pair<std::string, std::string> > stackBonuses; // bonus => name, description
+	std::map<Bonus::BonusType, std::pair<std::string, std::string> > stackBonuses; // bonus => name, description
 	std::vector<std::vector<ui32> > expRanks; // stack experience needed for certain rank, index 0 for other tiers (?)
 	std::vector<ui32> maxExpPerBattle; //%, tiers same as above
 	si8 expAfterUpgrade;//multiplier in %

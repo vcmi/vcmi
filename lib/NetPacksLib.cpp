@@ -537,7 +537,7 @@ DLL_LINKAGE void NewObject::applyGs( CGameState *gs )
 			cre->character = 2;
 			cre->gainedArtifact = ArtifactID::NONE;
 			cre->identifier = -1;
-			cre->addToSlot(0, new CStackInstance(CreatureID(subID), -1)); //add placeholder stack
+			cre->addToSlot(SlotID(0), new CStackInstance(CreatureID(subID), -1)); //add placeholder stack
 		}
 		break;
 	default:
@@ -1460,7 +1460,7 @@ DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 	}
 
 	CStackBasicDescriptor csbd(creID, amount);
-	CStack * addedStack = gs->curB->generateNewStack(csbd, attacker, 255, pos); //TODO: netpacks?
+	CStack * addedStack = gs->curB->generateNewStack(csbd, attacker, SlotID(255), pos); //TODO: netpacks?
 	if (summoned)
 		addedStack->state.insert(EBattleStackState::SUMMONED);
 

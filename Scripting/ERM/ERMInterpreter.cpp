@@ -737,7 +737,7 @@ struct HEPerformer : StandardReceiverVisitor<const CGHeroInstance *>
 				{
 					if(erm->getIexp(params[0]).getInt() == 0)
 					{
-						int slot = erm->getIexp(params[1]).getInt();
+						SlotID slot = SlotID(erm->getIexp(params[1]).getInt());
 						const CStackInstance *stack = identifier->getStackPtr(slot);
 						if(params[2].which() == 6) //varp
 						{
@@ -752,7 +752,7 @@ struct HEPerformer : StandardReceiverVisitor<const CGHeroInstance *>
 
 						if(params[3].which() == 6) //varp
 						{
-							erm->getIexp(boost::get<ERM::TVarpExp>(params[3])).setTo(identifier->getStackCount(slot));
+							erm->getIexp(boost::get<ERM::TVarpExp>(params[3])).setTo(identifier->getStackCount(SlotID(slot)));
 						}
 						else
 							throw EScriptExecError("Setting stack count is not implemented!");
@@ -1016,7 +1016,7 @@ void MO_GPerformer::operator()( TIexp const& cmp ) const
 void MO_GPerformer::operator()( TVarpExp const& cmp ) const
 {
 	const CGCreature *cre = erm->getObjFromAs<CGCreature>(owner.identifier);
-	erm->getIexp(cmp).setTo(cre->getStackCount(0));
+	erm->getIexp(cmp).setTo(cre->getStackCount(SlotID(0)));
 }
 
 

@@ -288,7 +288,7 @@ ui64 howManyReinforcementsCanGet(HeroPtr h, const CGTownInstance *t)
 	BOOST_FOREACH(auto const slot, t->Slots())
 	{
 		//can be merged woth another stack?
-		TSlot dst = h->getSlotFor(slot.second->getCreatureID());
+		SlotID dst = h->getSlotFor(slot.second->getCreatureID());
 		if(h->hasStackAtSlot(dst))
 			ret += t->getPower(slot.first);
 		else
@@ -959,13 +959,13 @@ void makePossibleUpgrades(const CArmedInstance *obj)
 
 	for(int i = 0; i < GameConstants::ARMY_SIZE; i++)
 	{
-		if(const CStackInstance *s = obj->getStackPtr(i))
+		if(const CStackInstance *s = obj->getStackPtr(SlotID(i)))
 		{
 			UpgradeInfo ui;
-			cb->getUpgradeInfo(obj, i, ui);
+			cb->getUpgradeInfo(obj, SlotID(i), ui);
 			if(ui.oldID >= 0 && cb->getResourceAmount().canAfford(ui.cost[0] * s->count))
 			{
-				cb->upgradeCreature(obj, i, ui.newID[0]);
+				cb->upgradeCreature(obj, SlotID(i), ui.newID[0]);
 			}
 		}
 	}
@@ -1176,7 +1176,7 @@ bool VCAI::canGetArmy (const CGHeroInstance * army, const CGHeroInstance * sourc
 		BOOST_FOREACH(auto armyPtr, armies)
 			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
 			{
-				if(armyPtr->getCreature(j) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst slot
+				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst slot
 					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1 && armyPtr != army)) //can't take away last creature
 						return true; //at least one exchange will be performed
 			}
@@ -1220,9 +1220,9 @@ void VCAI::pickBestCreatures(const CArmedInstance * army, const CArmedInstance *
 		BOOST_FOREACH(auto armyPtr, armies)
 			for (int j = 0; j < GameConstants::ARMY_SIZE; j++)
 			{
-				if(armyPtr->getCreature(j) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst slot
+				if(armyPtr->getCreature(SlotID(j)) == bestArmy[i]  &&  (i != j || armyPtr != army)) //it's a searched creature not in dst slot
 					if (!(armyPtr->needsLastStack() && armyPtr->Slots().size() == 1 && armyPtr != army))
-						cb->mergeOrSwapStacks(armyPtr, army, j, i);
+						cb->mergeOrSwapStacks(armyPtr, army, SlotID(j), SlotID(i));
 			}
 	}
 
@@ -3630,7 +3630,7 @@ bool shouldVisit(HeroPtr h, const CGObjectInstance * obj)
 			{
 				BOOST_FOREACH(auto c, level.second)
 				{
-					if (h->getSlotFor(c) != -1)
+					if (h->getSlotFor(CreatureID(c)) != SlotID())
 						canRecruitCreatures = true;
 				}
 			}

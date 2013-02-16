@@ -106,8 +106,8 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	//std::set<CStack*> getAttackedCreatures(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID); //calculates range of multi-hex attacks
 	//std::set<BattleHex> getAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID); //calculates range of multi-hex attacks
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster, int usedSpellPower);
-	CStack * generateNewStack(const CStackInstance &base, bool attackerOwned, int slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
-	CStack * generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, int slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
+	CStack * generateNewStack(const CStackInstance &base, bool attackerOwned, SlotID slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
+	CStack * generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, SlotID slot, BattleHex position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	int getIdForNewStack() const; //suggest a currently unused ID that'd suitable for generating a new stack
 	//std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
 	ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack, const CStack * sacrificedStack = NULL) const; //Sacrifice
@@ -144,7 +144,7 @@ public:
 	ui32 baseAmount;
 	ui32 firstHPleft; //HP of first creature in stack
 	TPlayerColor owner; //owner - player colour (255 for neutrals)
-	ui8 slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
+	SlotID slot;  //slot - position in garrison (may be 255 for neutrals/called creatures)
 	bool attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
 	BattleHex position; //position on battlefield; -2 - keep, -3 - lower tower, -4 - upper tower
 	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
@@ -155,8 +155,8 @@ public:
 	//overrides
 	const CCreature* getCreature() const {return type;}
 
-	CStack(const CStackInstance *base, int O, int I, bool AO, int S); //c-tor
-	CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S = 255); //c-tor
+	CStack(const CStackInstance *base, int O, int I, bool AO, SlotID S); //c-tor
+	CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, SlotID S = SlotID(255)); //c-tor
 	CStack(); //c-tor
 	~CStack();
 	std::string nodeName() const OVERRIDE;
@@ -205,7 +205,7 @@ public:
 			& shots & casts & count;
 
 		const CArmedInstance *army = (base ? base->armyObj : NULL);
-		TSlot slot = (base ? base->armyObj->findStack(base) : -1);
+		SlotID slot = (base ? base->armyObj->findStack(base) : SlotID());
 
 		if(h.saving)
 		{
@@ -214,13 +214,13 @@ public:
 		else
 		{
 			h & army & slot;
-			if (slot == -2) //TODO
+			if (slot == SlotID::COMMANDER_SLOT_PLACEHOLDER) //TODO
 			{
 				auto hero = dynamic_cast<const CGHeroInstance *>(army);
 				assert (hero);
 				base = hero->commander;
 			}
-			else if(!army || slot == -1 || !army->hasStackAtSlot(slot))
+			else if(!army || slot == SlotID() || !army->hasStackAtSlot(slot))
 			{
 				base = NULL;
 				tlog3 << type->nameSing << " doesn't have a base stack!\n";

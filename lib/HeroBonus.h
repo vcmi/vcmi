@@ -252,7 +252,7 @@ struct DLL_LINKAGE Bonus
 	ui16 duration; //uses BonusDuration values
 	si16 turnsRemain; //used if duration is N_TURNS or N_DAYS
 
-	TBonusType type; //uses BonusType values - says to what is this bonus - 1 byte
+	BonusType type; //uses BonusType values - says to what is this bonus - 1 byte
 	TBonusSubtype subtype; //-1 if not applicable - 4 bytes
 
 	BonusSource source;//source type" uses BonusSource values - what gave that bonus
@@ -268,8 +268,8 @@ struct DLL_LINKAGE Bonus
 
 	std::string description;
 
-	Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
-	Bonus(ui16 Dur, ui8 Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype=-1, ValueType ValType = ADDITIVE_VALUE);
+	Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1);
+	Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 Subtype=-1, ValueType ValType = ADDITIVE_VALUE);
 	Bonus();
 	~Bonus();
 
@@ -780,12 +780,12 @@ public:
 class DLL_LINKAGE HasAnotherBonusLimiter : public ILimiter //applies only to nodes that have another bonus working
 {
 public:
-	TBonusType type;
+	Bonus::BonusType type;
 	TBonusSubtype subtype;
 	bool isSubtypeRelevant; //check for subtype only if this is true
 
-	HasAnotherBonusLimiter(TBonusType bonus = Bonus::NONE);
-	HasAnotherBonusLimiter(TBonusType bonus, TBonusSubtype _subtype);
+	HasAnotherBonusLimiter(Bonus::BonusType bonus = Bonus::NONE);
+	HasAnotherBonusLimiter(Bonus::BonusType bonus, TBonusSubtype _subtype);
 
 	int limit(const BonusLimitationContext &context) const OVERRIDE;
 
@@ -880,7 +880,7 @@ const CCreature *retrieveCreature(const CBonusSystemNode *node);
 
 namespace Selector
 {
-	extern DLL_LINKAGE CSelectFieldEqual<TBonusType> type;
+	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusType> type;
 	extern DLL_LINKAGE CSelectFieldEqual<TBonusSubtype> subtype;
 	extern DLL_LINKAGE CSelectFieldEqual<si32> info;
 	extern DLL_LINKAGE CSelectFieldEqual<ui16> duration;
@@ -888,18 +888,22 @@ namespace Selector
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
 	extern DLL_LINKAGE CWillLastTurns turns;
 
-	CSelector DLL_LINKAGE typeSubtype(TBonusType Type, TBonusSubtype Subtype);
-	CSelector DLL_LINKAGE typeSubtypeInfo(TBonusType type, TBonusSubtype subtype, si32 info);
+	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype);
+	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info);
 	CSelector DLL_LINKAGE source(Bonus::BonusSource source, ui32 sourceID);
 	CSelector DLL_LINKAGE durationType(ui16 duration);
 	CSelector DLL_LINKAGE sourceTypeSel(Bonus::BonusSource source);
 
-	bool DLL_LINKAGE matchesType(const CSelector &sel, TBonusType type);
-	bool DLL_LINKAGE matchesTypeSubtype(const CSelector &sel, TBonusType type, TBonusSubtype subtype);
+	bool DLL_LINKAGE matchesType(const CSelector &sel, Bonus::BonusType type);
+	bool DLL_LINKAGE matchesTypeSubtype(const CSelector &sel, Bonus::BonusType type, TBonusSubtype subtype);
 	bool DLL_LINKAGE positiveSpellEffects(const Bonus *b);
 }
 
-extern DLL_LINKAGE const std::map<std::string, int> bonusNameMap, bonusValueMap, bonusSourceMap, bonusDurationMap, bonusLimitEffect;
+extern DLL_LINKAGE const std::map<std::string, Bonus::BonusType> bonusNameMap;
+extern DLL_LINKAGE const std::map<std::string, Bonus::ValueType> bonusValueMap;
+extern DLL_LINKAGE const std::map<std::string, Bonus::BonusSource> bonusSourceMap;
+extern DLL_LINKAGE const std::map<std::string, ui16> bonusDurationMap;
+extern DLL_LINKAGE const std::map<std::string, Bonus::LimitEffect> bonusLimitEffect;
 extern DLL_LINKAGE const bmap<std::string, TLimiterPtr> bonusLimiterMap;
 extern DLL_LINKAGE const bmap<std::string, TPropagatorPtr> bonusPropagatorMap;
 

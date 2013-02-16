@@ -92,7 +92,7 @@ public:
 
 
 	//armed object
-	void getUpgradeInfo(const CArmedInstance *obj, int stackPos, UpgradeInfo &out)const;
+	void getUpgradeInfo(const CArmedInstance *obj, SlotID stackPos, UpgradeInfo &out)const;
 
 	//hero
 	const CGHeroInstance* getHero(ObjectInstanceID objid) const;

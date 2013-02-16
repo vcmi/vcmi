@@ -174,21 +174,14 @@ public:
 struct StackLocation
 {
 	ConstTransitivePtr<CArmedInstance> army;
-	TSlot slot;
+	SlotID slot;
 
 	StackLocation()
-	{
-		slot = -1;
-	}
-	StackLocation(const CArmedInstance *Army, TSlot Slot)
+	{}
+	StackLocation(const CArmedInstance *Army, SlotID Slot)
 	{
 		army = const_cast<CArmedInstance*>(Army); //we are allowed here to const cast -> change will go through one of our packages... do not abuse!
 		slot = Slot;
-	}
-
-	bool validSlot() const
-	{
-		return slot >= 0  &&  slot < GameConstants::ARMY_SIZE;
 	}
 
 	DLL_LINKAGE const CStackInstance *getStack();
@@ -1816,11 +1809,11 @@ struct CastleTeleportHero : public CPackForServer
 struct ArrangeStacks : public CPackForServer
 {
 	ArrangeStacks(){};
-	ArrangeStacks(ui8 W, ui8 P1, ui8 P2, ObjectInstanceID ID1, ObjectInstanceID ID2, si32 VAL)
+	ArrangeStacks(ui8 W, SlotID P1, SlotID P2, ObjectInstanceID ID1, ObjectInstanceID ID2, si32 VAL)
 		:what(W),p1(P1),p2(P2),id1(ID1),id2(ID2),val(VAL) {};
 
 	ui8 what; //1 - swap; 2 - merge; 3 - split
-	ui8 p1, p2; //positions of first and second stack
+	SlotID p1, p2; //positions of first and second stack
 	ObjectInstanceID id1, id2; //ids of objects with garrison
 	si32 val;
 	bool applyGh(CGameHandler *gh);
@@ -1833,8 +1826,8 @@ struct ArrangeStacks : public CPackForServer
 struct DisbandCreature : public CPackForServer
 {
 	DisbandCreature(){};
-	DisbandCreature(ui8 Pos, ObjectInstanceID ID):pos(Pos),id(ID){};
-	ui8 pos; //stack pos
+	DisbandCreature(SlotID Pos, ObjectInstanceID ID):pos(Pos),id(ID){};
+	SlotID pos; //stack pos
 	ObjectInstanceID id; //object id
 
 	bool applyGh(CGameHandler *gh);
@@ -1882,8 +1875,8 @@ struct RecruitCreatures : public CPackForServer
 struct UpgradeCreature : public CPackForServer
 {
 	UpgradeCreature(){};
-	UpgradeCreature(ui8 Pos, ObjectInstanceID ID, CreatureID CRID):pos(Pos),id(ID), cid(CRID){};
-	ui8 pos; //stack pos
+	UpgradeCreature(SlotID Pos, ObjectInstanceID ID, CreatureID CRID):pos(Pos),id(ID), cid(CRID){};
+	SlotID pos; //stack pos
 	ObjectInstanceID id; //object id
 	CreatureID cid; //id of type to which we want make upgrade
 
@@ -1923,12 +1916,12 @@ struct ExchangeArtifacts : public CPackForServer
 struct AssembleArtifacts : public CPackForServer
 {
 	AssembleArtifacts(){};
-	AssembleArtifacts(ObjectInstanceID _heroID, ArtifactPosition _artifactSlot, bool _assemble, ui32 _assembleTo)
+	AssembleArtifacts(ObjectInstanceID _heroID, ArtifactPosition _artifactSlot, bool _assemble, ArtifactID _assembleTo)
 		: heroID(_heroID), artifactSlot(_artifactSlot), assemble(_assemble), assembleTo(_assembleTo){};
 	ObjectInstanceID heroID;
 	ArtifactPosition artifactSlot;
 	bool assemble; // True to assemble artifact, false to disassemble.
-	ui32 assembleTo; // Artifact to assemble into.
+	ArtifactID assembleTo; // Artifact to assemble into.
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)

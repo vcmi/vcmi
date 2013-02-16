@@ -960,7 +960,7 @@ void CMapLoaderH3M::readObjects()
 				hlp->count = reader.readUInt16();
 
 				//type will be set during initialization
-				cre->putStack(0, hlp);
+				cre->putStack(SlotID(0), hlp);
 
 				cre->character = reader.readUInt8();
 
@@ -1515,7 +1515,7 @@ void CMapLoaderH3M::readCreatureSet(CCreatureSet * out, int number)
 			hlp->setType(creID);
 		}
 
-		out->putStack(ir, hlp);
+		out->putStack(SlotID(ir), hlp);
 	}
 
 	out->validTypes(true);

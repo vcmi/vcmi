@@ -116,14 +116,14 @@ public:
 
 DLL_LINKAGE std::ostream & operator<<(std::ostream & str, const CStackInstance & sth);
 
-typedef std::map<TSlot, CStackInstance*> TSlots;
-typedef std::map<TSlot, CStackBasicDescriptor> TSimpleSlots;
+typedef std::map<SlotID, CStackInstance*> TSlots;
+typedef std::map<SlotID, CStackBasicDescriptor> TSimpleSlots;
 
 class IArmyDescriptor
 {
 public:
 	virtual void clear() = 0;
-	virtual bool setCreature(TSlot slot, CreatureID cre, TQuantity count) = 0;
+	virtual bool setCreature(SlotID slot, CreatureID cre, TQuantity count) = 0;
 };
 
 //simplified version of CCreatureSet
@@ -132,7 +132,7 @@ class DLL_LINKAGE CSimpleArmy : public IArmyDescriptor
 public:
 	TSimpleSlots army;
 	void clear() OVERRIDE;
-	bool setCreature(TSlot slot, CreatureID cre, TQuantity count) OVERRIDE;
+	bool setCreature(SlotID slot, CreatureID cre, TQuantity count) OVERRIDE;
 	operator bool() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -153,49 +153,49 @@ public:
 	virtual ~CCreatureSet();
 	virtual void armyChanged();
 
-	const CStackInstance &operator[](TSlot slot) const;
+	const CStackInstance &operator[](SlotID slot) const;
 
 	const TSlots &Slots() const {return stacks;}
 
-	void addToSlot(TSlot slot, CreatureID cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
-	void addToSlot(TSlot slot, CStackInstance *stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
+	void addToSlot(SlotID slot, CreatureID cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
+	void addToSlot(SlotID slot, CStackInstance *stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
 	void clear() OVERRIDE;
 	void setFormation(bool tight);
 	CArmedInstance *castToArmyObj();
 
 	//basic operations
-	void putStack(TSlot slot, CStackInstance *stack); //adds new stack to the army, slot must be empty
-	void setStackCount(TSlot slot, TQuantity count); //stack must exist!
-	CStackInstance *detachStack(TSlot slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else or safely deleted)
-	void setStackType(TSlot slot, const CCreature *type);
+	void putStack(SlotID slot, CStackInstance *stack); //adds new stack to the army, slot must be empty
+	void setStackCount(SlotID slot, TQuantity count); //stack must exist!
+	CStackInstance *detachStack(SlotID slot); //removes stack from army but doesn't destroy it (so it can be moved somewhere else or safely deleted)
+	void setStackType(SlotID slot, const CCreature *type);
 	void giveStackExp(TExpType exp);
-	void setStackExp(TSlot slot, TExpType exp);
+	void setStackExp(SlotID slot, TExpType exp);
 
 	//derivative
-	void eraseStack(TSlot slot); //slot must be occupied
-	void joinStack(TSlot slot, CStackInstance * stack); //adds new stack to the existing stack of the same type
-	void changeStackCount(TSlot slot, TQuantity toAdd); //stack must exist!
-	bool setCreature (TSlot slot, CreatureID type, TQuantity quantity) OVERRIDE; //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
+	void eraseStack(SlotID slot); //slot must be occupied
+	void joinStack(SlotID slot, CStackInstance * stack); //adds new stack to the existing stack of the same type
+	void changeStackCount(SlotID slot, TQuantity toAdd); //stack must exist!
+	bool setCreature (SlotID slot, CreatureID type, TQuantity quantity) OVERRIDE; //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
 	void setToArmy(CSimpleArmy &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.
 
-	const CStackInstance& getStack(TSlot slot) const; //stack must exist
-	const CStackInstance* getStackPtr(TSlot slot) const; //if stack doesn't exist, returns NULL
-	const CCreature* getCreature(TSlot slot) const; //workaround of map issue;
-	int getStackCount (TSlot slot) const;
-	TExpType getStackExperience(TSlot slot) const;
-	TSlot findStack(const CStackInstance *stack) const; //-1 if none
-	TSlot getSlotFor(CreatureID creature, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
-	TSlot getSlotFor(const CCreature *c, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
-	TSlot getFreeSlot(ui32 slotsAmount = GameConstants::ARMY_SIZE) const;
-	bool mergableStacks(std::pair<TSlot, TSlot> &out, TSlot preferable = -1) const; //looks for two same stacks, returns slot positions;
+	const CStackInstance& getStack(SlotID slot) const; //stack must exist
+	const CStackInstance* getStackPtr(SlotID slot) const; //if stack doesn't exist, returns NULL
+	const CCreature* getCreature(SlotID slot) const; //workaround of map issue;
+	int getStackCount (SlotID slot) const;
+	TExpType getStackExperience(SlotID slot) const;
+	SlotID findStack(const CStackInstance *stack) const; //-1 if none
+	SlotID getSlotFor(CreatureID creature, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
+	SlotID getSlotFor(const CCreature *c, ui32 slotsAmount = GameConstants::ARMY_SIZE) const; //returns -1 if no slot available
+	SlotID getFreeSlot(ui32 slotsAmount = GameConstants::ARMY_SIZE) const;
+	bool mergableStacks(std::pair<SlotID, SlotID> &out, SlotID preferable = SlotID()) const; //looks for two same stacks, returns slot positions;
 	bool validTypes(bool allowUnrandomized = false) const; //checks if all types of creatures are set properly
-	bool slotEmpty(TSlot slot) const;
+	bool slotEmpty(SlotID slot) const;
 	int stacksCount() const;
 	virtual bool needsLastStack() const; //true if last stack cannot be taken
 	ui64 getArmyStrength() const; //sum of AI values of creatures
-	ui64 getPower (TSlot slot) const; //value of specific stack
-	std::string getRoughAmount (TSlot slot) const; //rough size of specific stack
-	bool hasStackAtSlot(TSlot slot) const;
+	ui64 getPower (SlotID slot) const; //value of specific stack
+	std::string getRoughAmount (SlotID slot) const; //rough size of specific stack
+	bool hasStackAtSlot(SlotID slot) const;
 
 	bool contains(const CStackInstance *stack) const;
 	bool canBeMergedWith(const CCreatureSet &cs, bool allowMergingStacks = true) const;

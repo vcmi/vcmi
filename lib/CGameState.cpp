@@ -806,9 +806,9 @@ void CGameState::init(StartInfo * si)
 				{
 					for(int i=0; i<GameConstants::ARMY_SIZE; i++)
 					{
-						if(hero->slotEmpty(i))
+						if(hero->slotEmpty(SlotID(i)))
 						{
-							hero->addToSlot(i, CreatureID(curBonus->info2), curBonus->info3);
+							hero->addToSlot(SlotID(i), CreatureID(curBonus->info2), curBonus->info3);
 							break;
 						}
 					}
@@ -1714,8 +1714,8 @@ void CGameState::initDuel()
 		{
 			CreatureID cre = dp.sides[i].stacks[j].type;
 			TQuantity count = dp.sides[i].stacks[j].count;
-			if(count || obj->hasStackAtSlot(j))
-				obj->setCreature(j, cre, count);
+			if(count || obj->hasStackAtSlot(SlotID(j)))
+				obj->setCreature(SlotID(j), cre, count);
 		}
 
 		BOOST_FOREACH(const DuelParameters::CusomCreature &cc, dp.creatures)

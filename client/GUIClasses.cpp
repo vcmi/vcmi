@@ -82,13 +82,13 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 
 	BOOST_FOREACH(auto & slot, army.army)
 	{
-		if(slot.first >= GameConstants::ARMY_SIZE)
+		if(slot.first.getNum() >= GameConstants::ARMY_SIZE)
 		{
 			tlog3 << "Warning: " << army.name << " has stack in slot " << slot.first << std::endl;
 			continue;
 		}
 
-		new CAnimImage("CPRSMALL", slot.second.type->iconIndex, 0, slotsPos[slot.first].x, slotsPos[slot.first].y);
+		new CAnimImage("CPRSMALL", slot.second.type->iconIndex, 0, slotsPos[slot.first.getNum()].x, slotsPos[slot.first.getNum()].y);
 
 		std::string subtitle;
 		if(army.army.isDetailed)
@@ -100,7 +100,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 				subtitle = CGI->generaltexth->arraytxt[171 + 3*(slot.second.count)];
 		}
 
-		new CLabel(slotsPos[slot.first].x + 17, slotsPos[slot.first].y + 41, FONT_TINY, CENTER, Colors::WHITE, subtitle);
+		new CLabel(slotsPos[slot.first.getNum()].x + 17, slotsPos[slot.first.getNum()].y + 41, FONT_TINY, CENTER, Colors::WHITE, subtitle);
 	}
 
 }
@@ -472,7 +472,7 @@ void CGarrisonSlot::update()
 	}
 }
 
-CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg, const CStackInstance * Creature):
+CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, SlotID IID, int Upg, const CStackInstance * Creature):
     ID(IID),
     owner(Owner),
     myStack(Creature),
@@ -528,13 +528,13 @@ void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSe
 	{
 		for(TSlots::const_iterator i=set->Slots().begin(); i!=set->Slots().end(); i++)
 		{
-			ret[i->first] = new CGarrisonSlot(this, posX + (i->first*distance), posY, i->first, Upg, i->second);
+			ret[i->first.getNum()] = new CGarrisonSlot(this, posX + (i->first.getNum()*distance), posY, i->first, Upg, i->second);
 		}
 	}
 
 	for(int i=0; i<ret.size(); i++)
 		if(!ret[i])
-			ret[i] = new CGarrisonSlot(this, posX + (i*distance), posY,i,Upg,NULL);
+			ret[i] = new CGarrisonSlot(this, posX + (i*distance), posY, SlotID(i), Upg, NULL);
 
 	if (twoRows)
 		for (int i=4; i<ret.size(); i++)
@@ -1468,9 +1468,9 @@ void CRecruitmentWindow::select(CCreatureCard *card)
 void CRecruitmentWindow::buy()
 {
 	CreatureID crid =  selected->creature->idNumber;
-	TSlot dstslot = dst-> getSlotFor(crid);
+	SlotID dstslot = dst-> getSlotFor(crid);
 
-	if(dstslot < 0 && !vstd::contains(CGI->arth->bigArtifacts,CGI->arth->creatureToMachineID(crid))) //no available slot
+	if(!dstslot.validSlot() && !vstd::contains(CGI->arth->bigArtifacts,CGI->arth->creatureToMachineID(crid))) //no available slot
 	{
 		std::string txt;
 		if(dst->ID == Obj::HERO)
@@ -2346,7 +2346,7 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 			ids = new std::vector<int>;
 			for(int i = 0; i < 7; i++)
 			{
-				if(const CCreature *c = hero->getCreature(i))
+				if(const CCreature *c = hero->getCreature(SlotID(i)))
 					ids->push_back(c->idNumber);
 				else
 					ids->push_back(-1);
@@ -2423,7 +2423,7 @@ void CTradeWindow::initSubs(bool Left)
 			switch(itemsType[1])
 			{
 			case CREATURE:
-				t->subtitle = boost::lexical_cast<std::string>(hero->getStackCount(t->serial));
+				t->subtitle = boost::lexical_cast<std::string>(hero->getStackCount(SlotID(t->serial)));
 				break;
 			case RESOURCE:
 				t->subtitle = boost::lexical_cast<std::string>(LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(t->serial)));
@@ -2494,7 +2494,7 @@ void CTradeWindow::removeItem(CTradeableItem * t)
 void CTradeWindow::getEmptySlots(std::set<CTradeableItem *> &toRemove)
 {
 	BOOST_FOREACH(CTradeableItem *t, items[1])
-		if(!hero->getStackCount(t->serial))
+		if(!hero->getStackCount(SlotID(t->serial)))
 			toRemove.insert(t);
 }
 
@@ -2758,7 +2758,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 			if(itemsType[1] == RESOURCE)
 				newAmount = LOCPLINT->cb->getResourceAmount(static_cast<Res::ERes>(soldItemId));
 			else if(itemsType[1] ==  CREATURE)
-				newAmount = hero->getStackCount(hLeft->serial) - (hero->Slots().size() == 1  &&  hero->needsLastStack());
+				newAmount = hero->getStackCount(SlotID(hLeft->serial)) - (hero->Slots().size() == 1  &&  hero->needsLastStack());
 			else
 				assert(0);
 
@@ -3149,7 +3149,7 @@ void CAltarWindow::SacrificeAll()
 	{
 		bool movedAnything = false;
 		BOOST_FOREACH(CTradeableItem *t, items[1])
-			sacrificedUnits[t->serial] = hero->getStackCount(t->serial);
+			sacrificedUnits[t->serial] = hero->getStackCount(SlotID(t->serial));
 
 		sacrificedUnits[items[1].front()->serial]--;
 
@@ -3188,10 +3188,10 @@ void CAltarWindow::selectionChanged(bool side)
 
 	int stackCount = 0;
 	for (int i = 0; i < GameConstants::ARMY_SIZE; i++)
-		if(hero->getStackCount(i) > sacrificedUnits[i])
+		if(hero->getStackCount(SlotID(i)) > sacrificedUnits[i])
 			stackCount++;
 
-	slider->setAmount(hero->getStackCount(hLeft->serial) - (stackCount == 1));
+	slider->setAmount(hero->getStackCount(SlotID(hLeft->serial)) - (stackCount == 1));
 	slider->block(!slider->amount);
 	slider->value = sacrificedUnits[hLeft->serial];
 	max->block(!slider->amount);
@@ -4265,7 +4265,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 						ourArt->artType->id,
 						0,
 						false,
-						boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, false, 0),
+						boost::bind(&CCallback::assembleArtifacts, LOCPLINT->cb, ourOwner->curHero, slotID, false, ArtifactID()),
 						0);
 					return;
 				}
@@ -5310,7 +5310,7 @@ void CTransformerWindow::CItem::clickLeft(tribool down, bool previousState)
 
 void CTransformerWindow::CItem::update()
 {
-	icon->setFrame(parent->army->getCreature(id)->idNumber + 2);
+	icon->setFrame(parent->army->getCreature(SlotID(id))->idNumber + 2);
 }
 
 CTransformerWindow::CItem::CItem(CTransformerWindow * parent, int size, int id):
@@ -5324,7 +5324,7 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * parent, int size, int id):
 
 	pos.x += 45  + (id%3)*83 + id/6*83;
 	pos.y += 109 + (id/3)*98;
-	icon = new CAnimImage("TWCRPORT", parent->army->getCreature(id)->idNumber + 2);
+	icon = new CAnimImage("TWCRPORT", parent->army->getCreature(SlotID(id))->idNumber + 2);
 	new CLabel(28, 76,FONT_SMALL, CENTER, Colors::WHITE, boost::lexical_cast<std::string>(size));//stack size
 }
 
@@ -5362,9 +5362,9 @@ CTransformerWindow::CTransformerWindow(const CGHeroInstance * _hero, const CGTow
 	else
 		army = town;
 
-	for (int i=0; i<7; i++ )
-		if ( army->getCreature(i) )
-			items.push_back(new CItem(this, army->getStackCount(i), i));
+	for (int i=0; i<GameConstants::ARMY_SIZE; i++ )
+		if ( army->getCreature(SlotID(i)) )
+			items.push_back(new CItem(this, army->getStackCount(SlotID(i)), i));
 
 	all    = new CAdventureMapButton(CGI->generaltexth->zelp[590],boost::bind(&CTransformerWindow::addAll,this),     146,416,"ALTARMY.DEF",SDLK_a);
 	convert= new CAdventureMapButton(CGI->generaltexth->zelp[591],boost::bind(&CTransformerWindow::makeDeal,this),   269,416,"ALTSACR.DEF",SDLK_RETURN);
@@ -5556,15 +5556,15 @@ CHillFortWindow::CHillFortWindow(const CGHeroInstance *visitor, const CGObjectIn
 	files += "APHLF1R.DEF", "APHLF1Y.DEF", "APHLF1G.DEF";
 	for (int i=0; i<slotsCount; i++)
 	{
-		currState[i] = getState(i);
-		upgrade[i] = new CAdventureMapButton(getTextForSlot(i),"",boost::bind(&CHillFortWindow::makeDeal, this, i),
+		currState[i] = getState(SlotID(i));
+		upgrade[i] = new CAdventureMapButton(getTextForSlot(SlotID(i)),"",boost::bind(&CHillFortWindow::makeDeal, this, SlotID(i)),
 		                                    107+i*76, 171, "", SDLK_1+i, &files);
 		upgrade[i]->block(currState[i] == -1);
 	}
 	files.clear();
 	files += "APHLF4R.DEF", "APHLF4Y.DEF", "APHLF4G.DEF";
-	currState[slotsCount] = getState(slotsCount);
-	upgradeAll = new CAdventureMapButton(CGI->generaltexth->allTexts[432],"",boost::bind(&CHillFortWindow::makeDeal, this, slotsCount),
+	currState[slotsCount] = getState(SlotID(slotsCount));
+	upgradeAll = new CAdventureMapButton(CGI->generaltexth->allTexts[432],"",boost::bind(&CHillFortWindow::makeDeal, this, SlotID(slotsCount)),
 	                                    30, 231, "", SDLK_0, &files);
 	quit = new CAdventureMapButton("","",boost::bind(&CHillFortWindow::close, this), 294, 275, "IOKAY.DEF", SDLK_RETURN);
 	bar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
@@ -5581,14 +5581,14 @@ void CHillFortWindow::updateGarrisons()
 	for (int i=0; i<slotsCount; i++)
 	{
 		costs[i].clear();
-		int newState = getState(i);
+		int newState = getState(SlotID(i));
 		if (newState != -1)
 		{
 			UpgradeInfo info;
-			LOCPLINT->cb->getUpgradeInfo(hero, i, info);
+			LOCPLINT->cb->getUpgradeInfo(hero, SlotID(i), info);
 			if (info.newID.size())//we have upgrades here - update costs
 			{
-				costs[i] = info.cost[0] * hero->getStackCount(i);
+				costs[i] = info.cost[0] * hero->getStackCount(SlotID(i));
 				totalSumm += costs[i];
 			}
 		}
@@ -5596,19 +5596,20 @@ void CHillFortWindow::updateGarrisons()
 		currState[i] = newState;
 		upgrade[i]->setIndex(newState);
 		upgrade[i]->block(currState[i] == -1);
-		upgrade[i]->hoverTexts[0] = getTextForSlot(i);
+		upgrade[i]->hoverTexts[0] = getTextForSlot(SlotID(i));
 	}
 
-	int newState = getState(slotsCount);
+	int newState = getState(SlotID(slotsCount));
 	currState[slotsCount] = newState;
 	upgradeAll->setIndex(newState);
 	garr->recreateSlots();
 }
 
-void CHillFortWindow::makeDeal(int slot)
+void CHillFortWindow::makeDeal(SlotID slot)
 {
-	int offset = (slot == slotsCount)?2:0;
-	switch (currState[slot])
+	assert(slot.getNum()>=0);
+	int offset = (slot.getNum() == slotsCount)?2:0;
+	switch (currState[slot.getNum()])
 	{
 		case 0:
 			LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[314 + offset],
@@ -5620,11 +5621,11 @@ void CHillFortWindow::makeDeal(int slot)
 			break;
 		case 2:
 			for (int i=0; i<slotsCount; i++)
-				if ( slot ==i || ( slot == slotsCount && currState[i] == 2 ) )//this is activated slot or "upgrade all"
+				if ( slot.getNum() ==i || ( slot.getNum() == slotsCount && currState[i] == 2 ) )//this is activated slot or "upgrade all"
 				{
 					UpgradeInfo info;
-					LOCPLINT->cb->getUpgradeInfo(hero, i, info);
-					LOCPLINT->cb->upgradeCreature(hero, i, info.newID[0]);
+					LOCPLINT->cb->getUpgradeInfo(hero, SlotID(i), info);
+					LOCPLINT->cb->upgradeCreature(hero, SlotID(i), info.newID[0]);
 				}
 			break;
 
@@ -5669,7 +5670,7 @@ void CHillFortWindow::showAll (SDL_Surface *to)
 	}
 }
 
-std::string CHillFortWindow::getTextForSlot(int slot)
+std::string CHillFortWindow::getTextForSlot(SlotID slot)
 {
 	if ( !hero->getCreature(slot) )//we dont have creature here
 		return "";
@@ -5684,10 +5685,10 @@ std::string CHillFortWindow::getTextForSlot(int slot)
 	return str;
 }
 
-int CHillFortWindow::getState(int slot)
+int CHillFortWindow::getState(SlotID slot)
 {
 	TResources myRes = LOCPLINT->cb->getResourceAmount();
-	if ( slot == slotsCount )//"Upgrade all" slot
+	if ( slot.getNum() == slotsCount )//"Upgrade all" slot
 	{
 		bool allUpgraded = true;//All creatures are upgraded?
 		for (int i=0; i<slotsCount; i++)

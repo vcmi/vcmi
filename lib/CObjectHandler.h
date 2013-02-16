@@ -617,8 +617,8 @@ public:
 	std::string nodeName() const override;
 	void deserializationFix();
 	void recreateBuildingsBonuses();
-	bool addBonusIfBuilt(BuildingID building, int type, int val, TPropagatorPtr prop, int subtype = -1); //returns true if building is built and bonus has been added
-	bool addBonusIfBuilt(BuildingID building, int type, int val, int subtype = -1); //convienence version of above
+	bool addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr prop, int subtype = -1); //returns true if building is built and bonus has been added
+	bool addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, int subtype = -1); //convienence version of above
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);
 	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
@@ -1015,7 +1015,7 @@ protected:
 class DLL_LINKAGE CGTeleport : public CGObjectInstance //teleports and subterranean gates
 {
 public:
-	static std::map<int,std::map<int, std::vector<ObjectInstanceID> > > objs; //teleports: map[ID][subID] => vector of ids
+	static std::map<Obj, std::map<int, std::vector<ObjectInstanceID> > > objs; //teleports: map[ID][subID] => vector of ids
 	static std::vector<std::pair<ObjectInstanceID, ObjectInstanceID> > gates; //subterranean gates: pairs of ids
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
@@ -1291,7 +1291,7 @@ class DLL_LINKAGE CGObelisk : public CPlayersVisited
 {
 public:
 	static ui8 obeliskCount; //how many obelisks are on map
-	static std::map<ui8, ui8> visited; //map: team_id => how many obelisks has been visited
+	static std::map<TTeamID, ui8> visited; //map: team_id => how many obelisks has been visited
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;

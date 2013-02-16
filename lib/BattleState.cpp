@@ -138,7 +138,7 @@ int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstan
 	}
 }
 
-CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerOwned, int slot, BattleHex position) const
+CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerOwned, SlotID slot, BattleHex position) const
 {
 	int stackID = getIdForNewStack();
 	int owner = attackerOwned ? sides[0] : sides[1];
@@ -151,7 +151,7 @@ CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerO
 	return ret;
 }
 
-CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, int slot, BattleHex position) const
+CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, SlotID slot, BattleHex position) const
 {
 	int stackID = getIdForNewStack();
 	int owner = attackerOwned ? sides[0] : sides[1];
@@ -515,7 +515,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 		auto handleWarMachine= [&](int side, ArtifactPosition artslot, CreatureID cretype, BattleHex hex)
 		{
 			if(heroes[side] && heroes[side]->getArt(artslot))
-				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), !side, 255, hex));
+				stacks.push_back(curB->generateNewStack(CStackBasicDescriptor(cretype, 1), !side, SlotID(255), hex));
 		};
 
 		handleWarMachine(0, ArtifactPosition::MACH1, CreatureID::BALLISTA, 52);
@@ -562,7 +562,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	{
 		if (heroes[i] && heroes[i]->commander)
 		{
-			CStack * stack = curB->generateNewStack (*heroes[i]->commander, !i, -2, //TODO: use COMMANDER_SLOT_PLACEHOLDER
+			CStack * stack = curB->generateNewStack (*heroes[i]->commander, !i, SlotID::COMMANDER_SLOT_PLACEHOLDER,
 				creatureBank ? commanderBank[i] : commanderField[i]);
 			stacks.push_back(stack);
 		}
@@ -572,15 +572,15 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	if (curB->siege == CGTownInstance::CITADEL || curB->siege == CGTownInstance::CASTLE)
 	{
 		// keep tower
-		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, 255, -2);
+		CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -2);
 		stacks.push_back(stack);
 
 		if (curB->siege == CGTownInstance::CASTLE)
 		{
 			// lower tower + upper tower
-			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, 255, -4);
+			CStack * stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -4);
 			stacks.push_back(stack);
-			stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, 255, -3);
+			stack = curB->generateNewStack(CStackBasicDescriptor(CreatureID::ARROW_TOWERS, 1), false, SlotID(255), -3);
 			stacks.push_back(stack);
 		}
 
@@ -842,7 +842,7 @@ BattleInfo::BattleInfo()
 	setNodeType(BATTLE);
 }
 
-CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, int S)
+CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, SlotID S)
 	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO),
 	counterAttacks(1)
 {
@@ -856,7 +856,7 @@ CStack::CStack()
 	init();
 	setNodeType(STACK_BATTLE);
 }
-CStack::CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, int S)
+CStack::CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, SlotID S)
 	: base(NULL), ID(I), owner(O), slot(S), attackerOwned(AO), counterAttacks(1)
 {
 	type = stack->type;
@@ -871,8 +871,8 @@ void CStack::init()
 	ID = -1;
 	count = baseAmount = -1;
 	firstHPleft = -1;
-	owner = 255;
-	slot = 255;
+	owner = GameConstants::NEUTRAL_PLAYER;
+	slot = SlotID(255);
 	attackerOwned = false;
 	position = BattleHex();
 	counterAttacks = -1;
@@ -1117,7 +1117,7 @@ std::string CStack::nodeName() const
 	else
 		oss << "[UNDEFINED TYPE]";
 
-	oss << " from slot " << (int)slot;
+	oss << " from slot " << slot;
 	if(base && base->armyObj)
 		oss << " of armyobj=" << base->armyObj->id.getNum();
 	return oss.str();
