@@ -314,6 +314,18 @@ struct VectorisedObjectInfo
 	}
 };
 
+template<typename T>
+si32 idToNumber(const T &t, typename boost::enable_if<boost::is_convertible<T,si32> >::type * dummy = 0)
+{
+	return t;
+}
+
+template<typename T>
+si32 idToNumber(const BaseForID<T> &t)
+{
+	return t.getNum();
+}
+
 /// Class which is responsible for storing and loading data.
 class DLL_LINKAGE CSerializer
 {
@@ -441,19 +453,6 @@ struct VectorizedIDType
 		mpl::identity<si32>
 		> > > >::type type;
 };
-
-
-template<typename T>
-si32 idToNumber(const T &t, typename boost::enable_if<boost::is_convertible<T,si32> >::type * dummy = 0)
-{
-	return t;
-}
-
-template<typename T>
-si32 idToNumber(const BaseForID<T> &t)
-{
-	return t.getNum();
-}
 
 template <typename Handler>
 struct VariantVisitorSaver : boost::static_visitor<>
