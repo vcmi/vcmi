@@ -10,6 +10,7 @@ if (NOT CMAKE_BUILD_TYPE)
 endif()
 
 option(DISABLE_ERM "Disable compilation of ERM scripting module" ON)
+option(ENABLE_EDITOR "Enable compilation of map editor" OFF)
 
 ############################################
 #        Building section                  #
@@ -40,6 +41,11 @@ find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)
 find_package(SDL_ttf REQUIRED)
 find_package(ZLIB REQUIRED)
+
+if (ENABLE_EDITOR)
+	# Widgets finds its own dependencies (QtGui and QtCore).
+	find_package(Qt5Widgets REQUIRED)
+endif()
 
 if(NOT WIN32)
 	set(FFmpeg_FIND_COMPONENTS AVFORMAT SWSCALE)
@@ -100,6 +106,9 @@ add_subdirectory(server)
 add_subdirectory(AI)
 if (NOT DISABLE_ERM)
 	add_subdirectory(Scripting/ERM)
+endif()
+if (ENABLE_EDITOR)
+	add_subdirectory(Editor)
 endif()
 
 #######################################
