@@ -1700,6 +1700,11 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 		break;
 	} //switch(sc->id)
 
+	if (spell.isDamageSpell() && sc->affectedCres.empty()) //for example Inferno that causes no BattleStackAttacked
+	{
+		displayEffect (spell.mainEffectAnim, sc->tile);
+	}
+
 	//support for resistance
 	for(size_t j = 0; j < sc->resisted.size(); ++j)
 	{

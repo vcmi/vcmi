@@ -3994,14 +3994,10 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 	}
 
 	//calculating affected creatures for all spells
-	std::set<const CStack*> attackedCres;
+	std::set<const CStack*> attackedCres; //what is that and what is sc.afectedCres?
 	if (mode != ECastingMode::ENCHANTER_CASTING)
 	{
 		attackedCres = gs->curB->getAffectedCreatures(spell, spellLvl, casterColor, destination);
-		for(std::set<const CStack*>::const_iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
-		{
-			sc.affectedCres.insert((*it)->ID);
-		}
 	}
 	else //enchanter - hit all possible stacks
 	{
@@ -4018,16 +4014,20 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 			}
 		}
 	}
+	BOOST_FOREACH (auto cre, attackedCres)
+	{
+		sc.affectedCres.insert (cre->ID);
+	}
 
 	//checking if creatures resist
 	sc.resisted = gs->curB->calculateResistedStacks(spell, caster, secHero, attackedCres, casterColor, mode, usedSpellPower, spellLvl);
 
 	//calculating dmg to display
-	for(std::set<const CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+	BOOST_FOREACH (auto cre, attackedCres)
 	{
-		if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
+		if(vstd::contains(sc.resisted, cre->ID)) //this creature resisted the spell
 			continue;
-		sc.dmgToDisplay += gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower);
+		sc.dmgToDisplay += gs->curB->calculateSpellDmg(spell, caster, cre, spellLvl, usedSpellPower);
 	}
 	if (spellID == SpellID::DEATH_STARE || spellID == SpellID::ACID_BREATH_DAMAGE)
 	{
@@ -4062,6 +4062,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				BattleStackAttacked bsa;
 				if ((destination > -1 && (*it)->coversPos(destination)) || (spell->range[spellLvl] == "X" || mode == ECastingMode::ENCHANTER_CASTING))
 					//display effect only upon primary target of area spell
+					//FIXME: if no stack is attacked, ther eis no animation and interface freezes
 				{
 					bsa.flags |= BattleStackAttacked::EFFECT;
 					bsa.effect = spell->mainEffectAnim;
