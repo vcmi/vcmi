@@ -71,7 +71,7 @@ void CMapLoaderH3M::init()
 	result.process_bytes(temp_buffer, temp_size);
 	map->checksum = result.checksum();
 
-	delete temp_buffer;
+	delete [] temp_buffer;
 	inputStream->seek(0);
 
 	CStopWatch sw;

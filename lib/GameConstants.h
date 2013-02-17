@@ -203,7 +203,7 @@ DLL_LINKAGE std::ostream & operator << (std::ostream & os, BaseForID<Der> id);
 template<typename Der>
 std::ostream & operator << (std::ostream & os, BaseForID<Der> id)
 {
-	return os << id;
+	return os << id.getNum();
 }
 
 class ArtifactInstanceID : public BaseForID<ArtifactInstanceID>
