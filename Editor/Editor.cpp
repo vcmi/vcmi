@@ -4,6 +4,8 @@
 #include "../lib/VCMIDirs.h"
 #include "../lib/Filesystem/CResourceLoader.h"
 #include "../lib/CGeneralTextHandler.h"
+#include "../lib/Mapping/CMap.h"
+#include "../lib/Mapping/CMapService.h"
 
 Editor::Editor(QWidget *parent)
 	: QMainWindow(parent)
@@ -32,6 +34,38 @@ void Editor::createMenus()
 	std::map<std::string, std::function<void()> > actions; //connect these to actions
 	enum MenuName {FILE=0, EDIT, VIEW, TOOLS, PLAYER, HELP, //main level
 		TERRAIN=0, RIVER, ROADS, ERASE, OBSTACLES, OBJECTS}; //tools submenus
+
+
+	//txts are in wrong order
+	std::swap(txtEditor[793], txtEditor[797]);
+	std::swap(txtEditor[794], txtEditor[797]);
+	std::swap(txtEditor[795], txtEditor[797]);
+	std::swap(txtEditor[796], txtEditor[797]);
+
+	//setting up actions
+
+	actions["file|1"] = [&]()
+	{
+		QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
+			"",
+			tr("Files (*.h3m)"));
+
+		std::ifstream is;
+		is.open (fileName.toStdString().c_str(), std::ios::binary );
+
+		// get length of file
+		is.seekg (0, std::ios::end);
+		int length = is.tellg();
+		is.seekg (0, std::ios::beg);
+
+		char* buffer = new char [length];
+		is.read (buffer, length);
+		is.close();
+
+		map = CMapService::loadMap((ui8*)buffer, length);
+	};
+
+	//setting up menus
 
 	QMenu * menus[6];
 	for(int i=0; i<6; ++i)

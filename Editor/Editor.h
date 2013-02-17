@@ -5,6 +5,7 @@
 #include "ui_editor.h"
 
 class CConsoleHandler;
+class CMap;
 
 class Editor : public QMainWindow
 {
@@ -14,6 +15,9 @@ public:
 	Editor(QWidget *parent = 0);
 	~Editor();
 	void createMenus();
+
+
+	std::unique_ptr<CMap> map;
 private:
 
 	std::vector<std::string> txtEditor, txtEditorCmd;
