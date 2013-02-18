@@ -596,7 +596,7 @@ ArtifactID CArtHandler::getArtSync (ui32 rand, int flags, bool erasePicked)
 			std::fill_n (out.begin(), 64, artifacts[2]); //Give Grail - this can't be banned (hopefully)
 		}
 
-		tlog0 << "Treasure count: " << treasures.size() << std::endl;
+		//tlog0 << "Treasure count: " << treasures.size() << std::endl;
 	};
 
 	std::vector<ConstTransitivePtr<CArtifact> > out;
