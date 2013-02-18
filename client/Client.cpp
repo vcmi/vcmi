@@ -355,12 +355,13 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : GameConstants::PLAYER_LIMIT;
 	for(auto it = gs->scenarioOps->playerInfos.begin(); 
 		it != gs->scenarioOps->playerInfos.end(); ++it)//initializing interfaces for players
-	{ 
+	{
 		TPlayerColor color = it->first;
 		gs->currentPlayer = color;
 		if(!vstd::contains(myPlayers, color))
 			continue;
 
+		tlog5 << "Preparing interface for player " << (int)color << std::endl;
 		if(si->mode != StartInfo::DUEL)
 		{
 			auto cb = make_shared<CCallback>(gs,color,this);
@@ -381,6 +382,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 			}
 			battleints[color] = playerint[color];
 
+			tlog5 << "\tInitializing the interface\n";
 			playerint[color]->init(cb.get());
 			battleCallbacks[color] = callbacks[color] = cb;
 		}
@@ -683,7 +685,6 @@ template void CClient::serialize( COSer<CSaveFile> &h, const int version );
 void CServerHandler::startServer()
 {
 	th.update();
-	
 	serverThread = new boost::thread(&CServerHandler::callServer, this); //runs server executable;
 	if(verbose)
 		tlog0 << "Setting up thread calling server: " << th.getDiff() << std::endl;
@@ -723,7 +724,7 @@ CServerHandler::CServerHandler(bool runServer /*= false*/)
 	serverThread = NULL;
 	shared = NULL;
 	port = boost::lexical_cast<std::string>(settings["server"]["port"].Float());
-	verbose = false;
+	verbose = true;
 
 	boost::interprocess::shared_memory_object::remove("vcmi_memory"); //if the application has previously crashed, the memory may not have been removed. to avoid problems - try to destroy it
 	try

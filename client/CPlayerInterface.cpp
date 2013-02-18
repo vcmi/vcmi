@@ -98,6 +98,7 @@ struct OCM_HLP_CGIN
 
 CPlayerInterface::CPlayerInterface(int Player)
 {
+	tlog5 << "\tHuman player interface for player " << Player << " being constructed\n";
 	observerInDuelMode = false;
 	howManyPeople++;
 	GH.defActionsDef = 0;
@@ -115,6 +116,7 @@ CPlayerInterface::CPlayerInterface(int Player)
 	firstCall = 1; //if loading will be overwritten in serialize
 	autosaveCount = 0;
 }
+
 CPlayerInterface::~CPlayerInterface()
 {
 	howManyPeople--;
