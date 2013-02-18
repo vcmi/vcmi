@@ -4023,12 +4023,6 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 	sc.resisted = gs->curB->calculateResistedStacks(spell, caster, secHero, attackedCres, casterColor, mode, usedSpellPower, spellLvl);
 
 	//calculating dmg to display
-	BOOST_FOREACH (auto cre, attackedCres)
-	{
-		if(vstd::contains(sc.resisted, cre->ID)) //this creature resisted the spell
-			continue;
-		sc.dmgToDisplay += gs->curB->calculateSpellDmg(spell, caster, cre, spellLvl, usedSpellPower);
-	}
 	if (spellID == SpellID::DEATH_STARE || spellID == SpellID::ACID_BREATH_DAMAGE)
 	{
 		sc.dmgToDisplay = usedSpellPower;
@@ -4070,10 +4064,10 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				if (spellDamage)
 					bsa.damageAmount = spellDamage >> chainLightningModifier;
 				else
-				{
 					bsa.damageAmount = gs->curB->calculateSpellDmg(spell, caster, *it, spellLvl, usedSpellPower) >> chainLightningModifier;
-					sc.dmgToDisplay += bsa.damageAmount;
-				}
+
+				sc.dmgToDisplay += bsa.damageAmount;
+
 				bsa.stackAttacked = (*it)->ID;
 				if (mode == ECastingMode::ENCHANTER_CASTING) //multiple damage spells cast
 					bsa.attackerID = stack->ID;
