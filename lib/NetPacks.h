@@ -577,6 +577,44 @@ struct PrepareForAdvancingCampaign : public CPackForClient //122
 	}
 };
 
+struct UpdateArtHandlerLists : public CPackForClient //123
+{
+	UpdateArtHandlerLists(){type = 123;};
+	std::vector<CArtifact*> treasures, minors, majors, relics;
+
+	DLL_LINKAGE void applyGs(CGameState *gs);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & treasures & minors & majors & relics;
+	}
+};
+
+struct UpdateMapEvents : public CPackForClient //124
+{
+	UpdateMapEvents(){type = 124;}
+
+	std::list<CMapEvent> events;
+	DLL_LINKAGE void applyGs(CGameState *gs);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & events;
+	}
+};
+
+struct UpdateCastleEvents : public CPackForClient //125
+{
+	UpdateCastleEvents(){type = 125;}
+
+	ObjectInstanceID town;
+	std::list<CCastleEvent> events;
+
+	DLL_LINKAGE void applyGs(CGameState *gs);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & town & events;
+	}
+};
+
 struct RemoveObject : public CPackForClient //500
 {
 	RemoveObject(){type = 500;};
@@ -1133,8 +1171,11 @@ namespace ObjProperty
 	
 		//town-specific
 		STRUCTURE_ADD_VISITING_HERO, STRUCTURE_CLEAR_VISITORS, STRUCTURE_ADD_GARRISONED_HERO,  //changing buildings state
-		BONUS_VALUE_FIRST, BONUS_VALUE_SECOND //used in Rampart for special building that generates resources (storing resource type and quantity)
+		BONUS_VALUE_FIRST, BONUS_VALUE_SECOND, //used in Rampart for special building that generates resources (storing resource type and quantity)
 
+		//creature-bank specific
+		BANK_DAYCOUNTER, BANK_CLEAR_ARTIFACTS, BANK_ADD_ARTIFACT, BANK_MULTIPLIER, BANK_CONFIG_PRESET, 
+		BANK_CLEAR_CONFIG, BANK_INIT_ARMY, BANK_RESET
 	};
 }
 

@@ -743,7 +743,7 @@ public:
 	std::vector<bool> allowedAbilities;
 
 	/** list of map events */
-	std::list<ConstTransitivePtr<CMapEvent> > events;
+	std::list<CMapEvent> events;
 
 	/** specifies the position of the grail */
 	int3 grailPos;

@@ -1111,9 +1111,9 @@ void CGameHandler::init(StartInfo *si)
 		states.addPlayer(i->first);
 }
 
-static bool evntCmp(const CMapEvent *a, const CMapEvent *b)
+static bool evntCmp(const CMapEvent &a, const CMapEvent &b)
 {
-    return a->earlierThan(*b);
+    return a.earlierThan(b);
 }
 
 void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=false, bool clear = false)
@@ -1501,6 +1501,8 @@ void CGameHandler::newTurn()
 			sendAndApply(&iw);
 		}
 	}
+
+	synchronizeArtifactHandlerLists(); //new day events may have changed them. TODO better of managing that
 }
 void CGameHandler::run(bool resume)
 {
@@ -2306,16 +2308,18 @@ void CGameHandler::save(const std::string & filename )
 
 	try
 	{
-		{
-			tlog0 << "Serializing game info...\n";
-			CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::LIB_SAVEGAME)));
-			char hlp[8] = "VCMISVG";
-			save << hlp << static_cast<CMapHeader&>(*gs->map) << gs->scenarioOps << *VLC << gs;
-		}
+// 		{
+// 			tlog0 << "Serializing game info...\n";
+// 			CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::LIB_SAVEGAME)));
+// // 			char hlp[8] = "VCMISVG";
+// // 			save << hlp;
+// 			saveCommonState(save);
+// 		}
 
 		{
-			tlog0 << "Serializing server info...\n";
 			CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::SERVER_SAVEGAME)));
+			saveCommonState(save);
+			tlog0 << "Saving server state\n";
 			save << *this;
 		}
 		tlog0 << "Game has been successfully saved!\n";
@@ -4688,34 +4692,34 @@ void CGameHandler::handleDamageFromObstacle(const CObstacleInstance &obstacle, c
 void CGameHandler::handleTimeEvents()
 {
 	gs->map->events.sort(evntCmp);
-	while(gs->map->events.size() && gs->map->events.front()->firstOccurence+1 == gs->day)
+	while(gs->map->events.size() && gs->map->events.front().firstOccurence+1 == gs->day)
 	{
-		CMapEvent *ev = gs->map->events.front();
+		CMapEvent ev = gs->map->events.front();
 		for(int player = 0; player < GameConstants::PLAYER_LIMIT; player++)
 		{
 			PlayerState *pinfo = gs->getPlayer(player);
 
 			if( pinfo  //player exists
-				&& (ev->players & 1<<player) //event is enabled to this player
-				&& ((ev->computerAffected && !pinfo->human)
-					|| (ev->humanAffected && pinfo->human)
+				&& (ev.players & 1<<player) //event is enabled to this player
+				&& ((ev.computerAffected && !pinfo->human)
+					|| (ev.humanAffected && pinfo->human)
 				)
 			)
 			{
 				//give resources
 				SetResources sr;
 				sr.player = player;
-				sr.res = pinfo->resources + ev->resources;
+				sr.res = pinfo->resources + ev.resources;
 
 				//prepare dialog
 				InfoWindow iw;
 				iw.player = player;
-				iw.text << ev->message;
+				iw.text << ev.message;
 
-				for (int i=0; i<ev->resources.size(); i++)
+				for (int i=0; i<ev.resources.size(); i++)
 				{
-					if(ev->resources[i]) //if resource is changed, we add it to the dialog
-						iw.components.push_back(Component(Component::RESOURCE,i,ev->resources[i],0));
+					if(ev.resources[i]) //if resource is changed, we add it to the dialog
+						iw.components.push_back(Component(Component::RESOURCE,i,ev.resources[i],0));
 				}
 
 				if (iw.components.size())
@@ -4728,59 +4732,62 @@ void CGameHandler::handleTimeEvents()
 			}
 		} //PLAYERS LOOP
 
-		if(ev->nextOccurence)
+		if(ev.nextOccurence)
 		{
 			gs->map->events.pop_front();
 
-			ev->firstOccurence += ev->nextOccurence;
-			std::list<ConstTransitivePtr<CMapEvent> >::iterator it = gs->map->events.begin();
-            while ( it !=gs->map->events.end() && (*it)->earlierThanOrEqual(*ev))
+			ev.firstOccurence += ev.nextOccurence;
+			auto it = gs->map->events.begin();
+            while ( it !=gs->map->events.end() && it->earlierThanOrEqual(ev))
 				it++;
 			gs->map->events.insert(it, ev);
 		}
 		else
 		{
-			delete ev;
 			gs->map->events.pop_front();
 		}
 	}
+
+	//TODO send only if changed
+	UpdateMapEvents ume;
+	ume.events = gs->map->events;
+	sendAndApply(&ume);
 }
 
 void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<ObjectInstanceID, std::map<si32, si32> > &newCreas)
 {
-	//TODO event removing desync!!!
 	town->events.sort(evntCmp);
-	while(town->events.size() && town->events.front()->firstOccurence == gs->day)
+	while(town->events.size() && town->events.front().firstOccurence == gs->day)
 	{
 		ui8 player = town->tempOwner;
-		CCastleEvent *ev = town->events.front();
+		CCastleEvent ev = town->events.front();
 		PlayerState *pinfo = gs->getPlayer(player);
 
 		if( pinfo  //player exists
-			&& (ev->players & 1<<player) //event is enabled to this player
-			&& ((ev->computerAffected && !pinfo->human)
-				|| (ev->humanAffected && pinfo->human) ) )
+			&& (ev.players & 1<<player) //event is enabled to this player
+			&& ((ev.computerAffected && !pinfo->human)
+				|| (ev.humanAffected && pinfo->human) ) )
 		{
 
 
 			// dialog
 			InfoWindow iw;
 			iw.player = player;
-			iw.text << ev->message;
+			iw.text << ev.message;
 
-			if(ev->resources.nonZero())
+			if(ev.resources.nonZero())
 			{
 				TResources was = n.res[player];
-				n.res[player] += ev->resources;
+				n.res[player] += ev.resources;
 				n.res[player].amax(0);
 
-				for (int i=0; i<ev->resources.size(); i++)
-					if(ev->resources[i] && pinfo->resources[i] != n.res[player][i]) //if resource had changed, we add it to the dialog
+				for (int i=0; i<ev.resources.size(); i++)
+					if(ev.resources[i] && pinfo->resources[i] != n.res[player][i]) //if resource had changed, we add it to the dialog
 						iw.components.push_back(Component(Component::RESOURCE,i,n.res[player][i]-was[i],0));
 
 			}
 
-			BOOST_FOREACH(auto & i, ev->buildings)
+			BOOST_FOREACH(auto & i, ev.buildings)
 			{
 				if ( town->hasBuilt(i))
 				{
@@ -4789,34 +4796,39 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<
 				}
 			}
 
-			for(si32 i=0;i<ev->creatures.size();i++) //creature growths
+			for(si32 i=0;i<ev.creatures.size();i++) //creature growths
 			{
-				if(town->creatureDwellingLevel(i) >= 0 && ev->creatures[i])//there is dwelling
+				if(town->creatureDwellingLevel(i) >= 0 && ev.creatures[i])//there is dwelling
 				{
-					newCreas[town->id][i] += ev->creatures[i];
+					newCreas[town->id][i] += ev.creatures[i];
 					iw.components.push_back(Component(Component::CREATURE,
-							town->creatures[i].second.back(), ev->creatures[i], 0));
+							town->creatures[i].second.back(), ev.creatures[i], 0));
 				}
 			}
 			sendAndApply(&iw); //show dialog
 		}
 
-		if(ev->nextOccurence)
+		if(ev.nextOccurence)
 		{
 			town->events.pop_front();
 
-			ev->firstOccurence += ev->nextOccurence;
-			std::list<CCastleEvent*>::iterator it = town->events.begin();
-            while ( it !=town->events.end() &&  (*it)->earlierThanOrEqual(*ev))
+			ev.firstOccurence += ev.nextOccurence;
+			auto it = town->events.begin();
+            while ( it != town->events.end() &&  it->earlierThanOrEqual(ev))
 				it++;
 			town->events.insert(it, ev);
 		}
 		else
 		{
-			delete ev;
 			town->events.pop_front();
 		}
 	}
+
+	//TODO send only if changed
+	UpdateCastleEvents uce;
+	uce.town = town->id;
+	uce.events = town->events;
+	sendAndApply(&uce);
 }
 
 bool CGameHandler::complain( const std::string &problem )
@@ -6180,6 +6192,16 @@ void CGameHandler::removeObstacle(const CObstacleInstance &obstacle)
 	ObstaclesRemoved obsRem;
 	obsRem.obstacles.insert(obstacle.uniqueID);
 	sendAndApply(&obsRem);
+}
+
+void CGameHandler::synchronizeArtifactHandlerLists()
+{
+	UpdateArtHandlerLists uahl;
+	uahl.treasures = VLC->arth->treasures;
+	uahl.minors = VLC->arth->minors;
+	uahl.majors = VLC->arth->majors;
+	uahl.relics = VLC->arth->relics;
+	sendAndApply(&uahl);
 }
 
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)

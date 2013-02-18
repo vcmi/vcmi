@@ -17,6 +17,9 @@
 #include "CBuildingHandler.h"
 #include "GameConstants.h"
 #include "CModHandler.h"
+#include "CDefObjInfoHandler.h"
+
+#include "Connection.h"
 
 /*
  * IGameCallback.cpp, part of VCMI engine
@@ -209,6 +212,48 @@ void CPrivilagedInfoCallback::getAllowedSpells(std::vector<SpellID> &out, ui16 l
 		}
 	}
 }
+
+
+template<typename Loader>
+void CPrivilagedInfoCallback::loadCommonState(Loader &in)
+{
+	tlog0 << "Loading lib part of game...\n";
+	in.checkMagicBytes(SAVEGAME_MAGIC);
+
+	CMapHeader dum;
+	StartInfo *si;
+
+	tlog0 <<"\tReading header"<<std::endl;
+	in >> dum;
+
+	tlog0 << "\tReading options"<<std::endl;
+	in >> si;
+
+	tlog0 <<"\tReading handlers"<<std::endl;
+	in >> *VLC;
+
+	tlog0 <<"\tReading gamestate"<<std::endl;
+	in >> gs;
+}
+
+template<typename Saver>
+void CPrivilagedInfoCallback::saveCommonState(Saver &out) const
+{
+	tlog0 << "Saving lib part of game...";
+	out.putMagicBytes(SAVEGAME_MAGIC);
+	tlog0 <<"\tSaving header"<<std::endl;
+	out << static_cast<CMapHeader&>(*gs->map);
+	tlog0 << "\tSaving options"<<std::endl;
+	out << gs->scenarioOps;
+	tlog0 << "\tSaving handlers"<<std::endl;
+	out << *VLC;
+	tlog0 << "\tSaving gamestate"<<std::endl;
+	out << gs;
+}
+
+template DLL_LINKAGE void CPrivilagedInfoCallback::loadCommonState<CLoadIntegrityValidator>(CLoadIntegrityValidator&);
+template DLL_LINKAGE void CPrivilagedInfoCallback::loadCommonState<CLoadFile>(CLoadFile&);
+template DLL_LINKAGE void CPrivilagedInfoCallback::saveCommonState<CSaveFile>(CSaveFile&) const;
 
 inline TerrainTile * CNonConstInfoCallback::getTile( int3 pos )
 {

@@ -158,11 +158,6 @@ CMap::~CMap()
 		}
 		delete [] terrain;
 	}
-
-	for(std::list<ConstTransitivePtr<CMapEvent> >::iterator i = events.begin(); i != events.end(); i++)
-	{
-		i->dellNull();
-	}
 }
 
 void CMap::removeBlockVisTiles(CGObjectInstance * obj, bool total)

@@ -56,6 +56,7 @@ void foofoofoo()
 	registerTypes((COSer<CConnection>&)*ccc);
 	registerTypes((CSaveFile&)*ccc);
 	registerTypes((CLoadFile&)*ccc);
+	registerTypes((CLoadIntegrityValidator&)*ccc);
 	registerTypes((CTypeList&)*ccc);
 }
 
@@ -815,7 +816,7 @@ void CGameState::init(StartInfo * si)
 				}
 				break;
 			case CScenarioTravel::STravelBonus::ARTIFACT:
-				gs->giveHeroArtifact(hero, curBonus->info2);
+				gs->giveHeroArtifact(hero, static_cast<ArtifactID>(curBonus->info2));
 				break;
 			case CScenarioTravel::STravelBonus::SPELL_SCROLL:
 				{
@@ -962,8 +963,8 @@ void CGameState::init(StartInfo * si)
 
 	day = 0;
 
-	tlog4 << "Initialization:";
-	tlog4 << "\tPicking grail position";
+	tlog4 << "Initialization:\n";
+	tlog4 << "\tPicking grail position\n";
  	//pick grail location
  	if(map->grailPos.x < 0 || map->grailRadious) //grail not set or set within a radius around some place
  	{
@@ -1003,7 +1004,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 	//picking random factions for players
-	tlog4 << "\tPicking random factions for players";
+	tlog4 << "\tPicking random factions for players\n";
 	for(auto it = scenarioOps->playerInfos.begin();
 		it != scenarioOps->playerInfos.end(); ++it)
 	{
@@ -1018,7 +1019,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 	//randomizing objects
-	tlog4 << "\tRandomizing objects";
+	tlog4 << "\tRandomizing objects\n";
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
 		if(!obj)
@@ -1040,7 +1041,7 @@ void CGameState::init(StartInfo * si)
 	//std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
 	/*********creating players entries in gs****************************************/
-	tlog4 << "\tCreating player entries in gs";
+	tlog4 << "\tCreating player entries in gs\n";
 	for(auto it = scenarioOps->playerInfos.begin();
 		it != scenarioOps->playerInfos.end(); ++it)
 	{
@@ -1054,7 +1055,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 	/*********give starting hero****************************************/
-	tlog4 << "\tGiving starting hero";
+	tlog4 << "\tGiving starting hero\n";
 	{
 		bool campaignGiveHero = false;
 		if(scenarioOps->campState)
@@ -1093,7 +1094,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 	/*************************replace hero placeholders*****************************/
-	tlog4 << "\tReplacing hero placeholders";
+	tlog4 << "\tReplacing hero placeholders\n";
 	std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > campHeroReplacements; //instance, id in vector
 	if (scenarioOps->campState)
 	{
@@ -1186,7 +1187,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 	/******************RESOURCES****************************************************/
-	tlog4 << "\tSetting up resources";
+	tlog4 << "\tSetting up resources\n";
 	const JsonNode config(ResourceID("config/startres.json"));
 	const JsonVector &vector = config["difficulty"].Vector();
 	const JsonNode &level = vector[scenarioOps->difficulty];
@@ -1240,7 +1241,7 @@ void CGameState::init(StartInfo * si)
 
 
 	/*************************HEROES************************************************/
-	tlog4 << "\tSetting up heroes";
+	tlog4 << "\tSetting up heroes\n";
 	//Replace placeholders with heroes from previous missions
 	BOOST_FOREACH(auto obj, campHeroReplacements)
 	{
@@ -1374,7 +1375,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 	/*************************FOG**OF**WAR******************************************/
-	tlog4 << "\tFog of war"; //FIXME: should be initialized after all bonuses are set
+	tlog4 << "\tFog of war\n"; //FIXME: should be initialized after all bonuses are set
 	for(auto k=teams.begin(); k!=teams.end(); ++k)
 	{
 		k->second.fogOfWarMap.resize(map->width);
@@ -1403,7 +1404,7 @@ void CGameState::init(StartInfo * si)
 		}
 	}
 
-	tlog4 << "\tStarting bonuses";
+	tlog4 << "\tStarting bonuses\n";
 	for(auto k=players.begin(); k!=players.end(); ++k)
 	{
 		//starting bonus
@@ -1445,7 +1446,7 @@ void CGameState::init(StartInfo * si)
 		}
 	}
 	/****************************TOWNS************************************************/
-	tlog4 << "\tTowns";
+	tlog4 << "\tTowns\n";
 
 	//campaign bonuses for towns
 	if (scenarioOps->mode == StartInfo::CAMPAIGN)
@@ -1519,16 +1520,16 @@ void CGameState::init(StartInfo * si)
 			}
 
 		//town events
-		BOOST_FOREACH(CCastleEvent *ev, vti->events)
+		BOOST_FOREACH(CCastleEvent &ev, vti->events)
 		{
 			for (int i = 0; i<GameConstants::CREATURES_PER_TOWN; i++)
-				if (vstd::contains(ev->buildings,(-31-i))) //if we have horde for this level
+				if (vstd::contains(ev.buildings,(-31-i))) //if we have horde for this level
 				{
-					ev->buildings.erase(BuildingID(-31-i));
+					ev.buildings.erase(BuildingID(-31-i));
 					if (vti->town->hordeLvl[0] == i)
-						ev->buildings.insert(BuildingID::HORDE_1);
+						ev.buildings.insert(BuildingID::HORDE_1);
 					if (vti->town->hordeLvl[1] == i)
-						ev->buildings.insert(BuildingID::HORDE_2);
+						ev.buildings.insert(BuildingID::HORDE_2);
 				}
 		}
 		//init spells
@@ -1573,7 +1574,7 @@ void CGameState::init(StartInfo * si)
 			getPlayer(vti->getOwner())->towns.push_back(vti);
 	}
 
-	tlog4 << "\tObject initialization";
+	tlog4 << "\tObject initialization\n";
 	objCaller->preInit();
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
@@ -1627,7 +1628,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 
-	tlog4 << "\tChecking objectives";
+	tlog4 << "\tChecking objectives\n";
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
 
 	int seedAfterInit = ran();
@@ -2643,7 +2644,7 @@ void CGameState::attachArmedObjects()
 	}
 }
 
-void CGameState::giveHeroArtifact(CGHeroInstance *h, int aid)
+void CGameState::giveHeroArtifact(CGHeroInstance *h, ArtifactID aid)
 {
 	 CArtifact * const artifact = VLC->arth->artifacts[aid]; //pointer to constant object
 	 CArtifactInstance *ai = CArtifactInstance::createNewArtifactInstance(artifact);

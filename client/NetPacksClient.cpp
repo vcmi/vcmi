@@ -781,12 +781,32 @@ void SaveGame::applyCl(CClient *cl)
 	try
 	{
 		CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::CLIENT_SAVEGAME)));
+		cl->saveCommonState(save);
 		save << *cl;
 	}
 	catch(std::exception &e)
 	{
 		tlog1 << "Failed to save game:" << e.what() << std::endl;
 	}
+
+// 	try
+// 	{
+// 		auto clientPart = CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::CLIENT_SAVEGAME));
+// 		auto libPart = CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::LIB_SAVEGAME));
+// 		CLoadIntegrityValidator checker(clientPart, libPart);
+// 		
+// 		CMapHeader mh;
+// 		StartInfo *si;
+// 		LibClasses *lib;
+// 		CGameState *game;
+// 
+// 		checker.checkMagicBytes(SAVEGAME_MAGIC);
+// 		checker >> mh >> si >> lib >> game;
+// 	}
+// 	catch(...)
+// 	{
+// 		tlog1 << "Desync!!!\n";
+// 	}
 }
 
 void PlayerMessage::applyCl(CClient *cl)

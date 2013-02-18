@@ -448,25 +448,26 @@ void CVCMIServer::loadGame()
 
 	c >> clients >> fname; //how many clients should be connected - TODO: support more than one
 
-	{
-		char sig[8];
-		CMapHeader dum;
-		StartInfo *si;
-
-		CLoadFile lf(CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::LIB_SAVEGAME)));
-		lf >> sig >> dum >> si;
-		tlog0 <<"Reading save signature"<<std::endl;
-
-		lf >> *VLC;
-		tlog0 <<"Reading handlers"<<std::endl;
-
-		lf >> (gh.gs);
-		c.addStdVecItems(gh.gs);
-		tlog0 <<"Reading gamestate"<<std::endl;
-	}
+// 	{
+// 		char sig[8];
+// 		CMapHeader dum;
+// 		StartInfo *si;
+// 
+// 		CLoadFile lf(CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::LIB_SAVEGAME)));
+// 		lf >> sig >> dum >> si;
+// 		tlog0 <<"Reading save signature"<<std::endl;
+// 
+// 		lf >> *VLC;
+// 		tlog0 <<"Reading handlers"<<std::endl;
+// 
+// 		lf >> (gh.gs);
+// 		c.addStdVecItems(gh.gs);
+// 		tlog0 <<"Reading gamestate"<<std::endl;
+// 	}
 
 	{
 		CLoadFile lf(CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME)));
+		gh.loadCommonState(lf);
 		lf >> gh;
 	}
 

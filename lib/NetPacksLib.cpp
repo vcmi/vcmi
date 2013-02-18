@@ -116,6 +116,26 @@ DLL_LINKAGE void AddQuest::applyGs(CGameState *gs)
 		tlog2 << "Warning! Attempt to add duplicated quest\n";
 }
 
+DLL_LINKAGE void UpdateArtHandlerLists::applyGs(CGameState *gs)
+{
+	VLC->arth->minors = minors;
+	VLC->arth->majors = majors;
+	VLC->arth->treasures = treasures;
+	VLC->arth->relics = relics;
+}
+
+DLL_LINKAGE void UpdateMapEvents::applyGs(CGameState *gs)
+{
+	gs->map->events = events;
+}
+
+
+DLL_LINKAGE void UpdateCastleEvents::applyGs(CGameState *gs)
+{
+	auto t = gs->getTown(town);
+	t->events = events;
+}
+
 DLL_LINKAGE void HeroVisitCastle::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(hid);
@@ -794,7 +814,7 @@ DLL_LINKAGE void MoveArtifact::applyGs( CGameState *gs )
 		{
 			CGHeroInstance *h = *hPtr;
 			if(h && !h->hasSpellbook())
-				gs->giveHeroArtifact(h, 0);
+				gs->giveHeroArtifact(h, ArtifactID::SPELLBOOK);
 		}
 	}
 }

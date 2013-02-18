@@ -198,7 +198,7 @@ public:
 };
 
 template<typename Der>
-DLL_LINKAGE std::ostream & operator << (std::ostream & os, BaseForID<Der> id);
+std::ostream & operator << (std::ostream & os, BaseForID<Der> id);
 
 template<typename Der>
 std::ostream & operator << (std::ostream & os, BaseForID<Der> id)

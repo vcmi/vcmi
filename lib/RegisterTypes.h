@@ -138,6 +138,9 @@ void registerTypes2(Serializer &s)
 	s.template registerType<RemoveBonus>();
 	s.template registerType<UpdateCampaignState>();
 	s.template registerType<PrepareForAdvancingCampaign>();
+	s.template registerType<UpdateArtHandlerLists>();
+	s.template registerType<UpdateMapEvents>();
+	s.template registerType<UpdateCastleEvents>();
 	s.template registerType<RemoveObject>();
 	s.template registerType<TryMoveHero>();
 	//s.template registerType<SetGarrisons>();

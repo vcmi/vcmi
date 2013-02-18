@@ -257,7 +257,7 @@ int CGObjectInstance::getOwner() const
 		return tempOwner; //won't have owner
 }
 
-CGObjectInstance::CGObjectInstance(): animPhaseShift(rand()%0xff)
+CGObjectInstance::CGObjectInstance()
 {
 	pos = int3(-1,-1,-1);
 	//std::cout << "Tworze obiekt "<<this<<std::endl;
@@ -3141,6 +3141,12 @@ void CGCreature::initObj()
 			amount = c.ammMax;
 		else
 			amount = c.ammMin + (ran() % (c.ammMax - c.ammMin));
+
+		if(!amount) //armies with 0 creatures are illegal
+		{
+			tlog2 << "Problem: stack " << nodeName() << " cannot have 0 creatures. Check properties of " << c.nodeName() << std::endl;
+			amount = 1;
+		}
 	}
 
 	temppower = stacks[SlotID(0)]->count * 1000;
@@ -3506,13 +3512,13 @@ void CGResource::initObj()
 		switch(subID)
 		{
 		case 6:
-			amount = 500 + (rand()%6)*100;
+			amount = 500 + (ran()%6)*100;
 			break;
 		case 0: case 2:
-			amount = 6 + (rand()%5);
+			amount = 6 + (ran()%5);
 			break;
 		default:
-			amount = 3 + (rand()%3);
+			amount = 3 + (ran()%3);
 			break;
 		}
 	}
@@ -5894,43 +5900,56 @@ void CBank::reset(ui16 var1) //prevents desync
 
 void CBank::initialize() const
 {
-	cb->setObjProperty (id, 14, ran()); //synchronous reset
+	cb->setObjProperty (id, ObjProperty::BANK_RESET, ran()); //synchronous reset
+	
 	for (ui8 i = 0; i <= 3; i++)
 	{
-		for (ui8 n = 0; n < bc->artifacts[i]; n++) //new function using proper randomization algorithm
+		for (ui8 n = 0; n < bc->artifacts[i]; n++) 
 		{
-				cb->setObjProperty (id, 18 + i, ran()); //synchronic artifacts
+			CArtifact::EartClass artClass;
+			switch(i)
+			{
+			case 0: artClass = CArtifact::ART_TREASURE; break;
+			case 1: artClass = CArtifact::ART_MINOR; break;
+			case 2: artClass = CArtifact::ART_MAJOR; break;
+			case 3: artClass = CArtifact::ART_RELIC; break;
+			default: assert(0); continue;
+			}
+
+			int artID = cb->getArtSync(ran(), artClass, true);
+			cb->setObjProperty(id, ObjProperty::BANK_ADD_ARTIFACT, artID); 
 		}
 	}
-	cb->setObjProperty (id, 17, ran()); //get army
+
+	cb->setObjProperty (id, ObjProperty::BANK_INIT_ARMY, ran()); //get army
 }
 void CBank::setPropertyDer (ui8 what, ui32 val)
 /// random values are passed as arguments and processed identically on all clients
 {
 	switch (what)
 	{
-		case 11: //daycounter
+		case ObjProperty::BANK_DAYCOUNTER: //daycounter
 			if (val == 0)
 				daycounter = 1; //yes, 1
 			else
 				daycounter++;
 			break;
-		case 12: //multiplier, in percent
+		case ObjProperty::BANK_MULTIPLIER: //multiplier, in percent
 			multiplier = val / 100.0;
 			break;
 		case 13: //bank preset
 			bc = VLC->objh->banksInfo[index][val];
 			break;
-		case 14:
+		case ObjProperty::BANK_RESET:
 			reset (val%100);
 			break;
-		case 15:
+		case ObjProperty::BANK_CLEAR_CONFIG:
 			bc = NULL;
 			break;
-		case 16: //remove rewards from Derelict Ship
+		case ObjProperty::BANK_CLEAR_ARTIFACTS: //remove rewards from Derelict Ship
 			artifacts.clear();
 			break;
-		case 17: //set ArmedInstance army
+		case ObjProperty::BANK_INIT_ARMY: //set ArmedInstance army
 			{
 				int upgraded = 0;
 				if (val%100 < bc->upgradeChance) //once again anti-desync
@@ -5975,28 +5994,9 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 				}
 			}
 			break;
-		case 18: //add Artifact
+		case ObjProperty::BANK_ADD_ARTIFACT: //add Artifact
 		{
-			int id = cb->getArtSync(val, CArtifact::ART_TREASURE, true);
-			artifacts.push_back (id);
-			break;
-		}
-		case 19: //add Artifact
-		{
-			int id = cb->getArtSync(val, CArtifact::ART_MINOR, true);
-			artifacts.push_back (id);
-			break;
-		}
-		case 20: //add Artifact
-		{
-			int id = cb->getArtSync(val, CArtifact::ART_MAJOR, true);
-			artifacts.push_back (id);
-			break;
-		}
-		case 21: //add Artifact
-		{
-			int id = cb->getArtSync(val, CArtifact::ART_RELIC, true);
-			artifacts.push_back (id);
+			artifacts.push_back (val);
 			break;
 		}
 	}
@@ -6011,15 +6011,15 @@ void CBank::newTurn() const
 		else if (daycounter >= 28 && (subID < 13 || subID > 16)) //no reset for Emissaries
 		{
 			initialize();
-			cb->setObjProperty (id, 11, 0); //daycounter 0
+			cb->setObjProperty (id, ObjProperty::BANK_DAYCOUNTER, 0); //daycounter 0
 			if (ID == Obj::DERELICT_SHIP && cb->getDate() > 1)
 			{
-				cb->setObjProperty (id, 12, 0);//ugly hack to make derelict ships usable only once
-				cb->setObjProperty (id, 16, 0);
+				cb->setObjProperty (id, ObjProperty::BANK_MULTIPLIER, 0);//ugly hack to make derelict ships usable only once
+				cb->setObjProperty (id, ObjProperty::BANK_CLEAR_ARTIFACTS, 0);
 			}
 		}
 		else
-			cb->setObjProperty (id, 11, 1); //daycounter++
+			cb->setObjProperty (id, ObjProperty::BANK_DAYCOUNTER, 1); //daycounter++
 	}
 }
 bool CBank::wasVisited (TPlayerColor player) const
@@ -6215,7 +6215,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			cb->showInfoDialog(&iw);
 			cb->giveCreatures(this, h, ourArmy, false);
 		}
-		cb->setObjProperty (id, 15, 0); //bc = NULL
+		cb->setObjProperty (id, ObjProperty::BANK_CLEAR_CONFIG, 0); //bc = NULL
 	}
 
 }
@@ -6227,13 +6227,13 @@ void CGPyramid::initObj()
 	if (available.size())
 	{
 		bc = VLC->objh->banksInfo[21].front(); //TODO: remove hardcoded value?
-		spell = (available[rand()%available.size()]);
+		spell = (available[ran()%available.size()]);
 	}
 	else
 	{
 		tlog1 <<"No spells available for Pyramid! Object set to empty.\n";
 	}
-	setPropertyDer (17,ran()); //set guards at game start
+	setPropertyDer (ObjProperty::BANK_INIT_ARMY,ran()); //set guards at game start
 }
 const std::string & CGPyramid::getHoverText() const
 {
@@ -6284,7 +6284,7 @@ void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) 
 				iw.components.push_back(Component (Component::SPELL, spell, 0, 0));
 		}
 		cb->showInfoDialog(&iw);
-		cb->setObjProperty (id, 15, 0);
+		cb->setObjProperty (id, ObjProperty::BANK_CLEAR_CONFIG, 0);
 	}
 }
 void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8

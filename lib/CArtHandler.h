@@ -212,6 +212,12 @@ public:
 	void addBonuses();
 	void clear();
 	void clearHlpLists();
+
+	//void restockArtifactList()''
+	void fillList(std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass); //fills given empty list with allowed artifacts of gibven class. No side effects
+
+	boost::optional<std::vector<CArtifact*>&> listFromClass(CArtifact::EartClass artifactClass);
+	void erasePickedArt(ArtifactID id);
 	ArtifactID getRandomArt (int flags);
 	ArtifactID getArtSync (ui32 rand, int flags, bool erasePicked = false);
 	bool legalArtifact(ArtifactID id);

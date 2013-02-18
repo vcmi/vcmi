@@ -905,7 +905,7 @@ void CSelectionScreen::startScenario()
 		overWrite += boost::bind(&CCallback::save, LOCPLINT->cb, saveGameName);
 		overWrite += bind(&CGuiHandler::popIntTotally, &GH, this);
 
-		if(CResourceHandler::get()->existsResource(ResourceID(saveGameName, EResType::LIB_SAVEGAME)))
+		if(CResourceHandler::get()->existsResource(ResourceID(saveGameName, EResType::CLIENT_SAVEGAME)))
 		{
 			std::string hlp = CGI->generaltexth->allTexts[493]; //%s exists. Overwrite?
 			boost::algorithm::replace_first(hlp, "%s", sel->txt->text);
@@ -1124,13 +1124,13 @@ void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
 		try
 		{
 			CLoadFile lf(CResourceHandler::get()->getResourceName(files[i]));
-
-			ui8 sign[8];
-			lf >> sign;
-			if(std::memcmp(sign,"VCMISVG",7))
-			{
-				throw std::runtime_error("not a correct savefile!");
-			}
+			lf.checkMagicBytes(SAVEGAME_MAGIC);
+// 			ui8 sign[8];
+// 			lf >> sign;
+// 			if(std::memcmp(sign,"VCMISVG",7))
+// 			{
+// 				throw std::runtime_error("not a correct savefile!");
+// 			}
 
 			// Create the map info object
 			CMapInfo mapInfo;
@@ -1207,7 +1207,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 
 		case CMenuScreen::loadGame:
 		case CMenuScreen::saveGame:
-			parseGames(getFiles("Saves/", EResType::LIB_SAVEGAME), MultiPlayer);
+			parseGames(getFiles("Saves/", EResType::CLIENT_SAVEGAME), MultiPlayer);
 			if(tabType == CMenuScreen::loadGame)
 			{
 				positions = 18;
@@ -1343,7 +1343,7 @@ void SelectionTab::select( int position )
 	if(txt)
 	{
 		std::string filename = CResourceHandler::get()->getResourceName(
-								   ResourceID(curItems[py]->fileURI, EResType::LIB_SAVEGAME));
+								   ResourceID(curItems[py]->fileURI, EResType::CLIENT_SAVEGAME));
 		txt->setTxt(CFileInfo(filename).getBaseName());
 	}
 
@@ -1476,7 +1476,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 		else
 		{
 			name = CFileInfo(CResourceHandler::get()->getResourceName(
-								 ResourceID(currentItem->fileURI, EResType::LIB_SAVEGAME))).getBaseName();
+								 ResourceID(currentItem->fileURI, EResType::CLIENT_SAVEGAME))).getBaseName();
 		}
 
 		//print name

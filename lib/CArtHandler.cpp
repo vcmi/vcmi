@@ -561,40 +561,10 @@ ArtifactID CArtHandler::getRandomArt(int flags)
 }
 ArtifactID CArtHandler::getArtSync (ui32 rand, int flags, bool erasePicked)
 {
-	auto erasePickedArt = [&]( ArtifactID id )
-	{
-		std::vector<CArtifact*>* ptr;
-		CArtifact *art = artifacts[id];
-		switch (art->aClass)
-		{
-		case CArtifact::ART_TREASURE:
-			ptr = &treasures;
-			break;
-		case CArtifact::ART_MINOR:
-			ptr = &minors;
-			break;
-		case CArtifact::ART_MAJOR:
-			ptr = &majors;
-			break;
-		case CArtifact::ART_RELIC:
-			ptr = &relics;
-			break;
-		default: //special artifacts should not be erased
-			return;
-		}
-		ptr->erase (std::find(ptr->begin(), ptr->end(), art)); //remove the artifact from available list
-	};
-
-	auto getAllowedArts = [&](std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, int flag)
+	auto getAllowedArts = [&](std::vector<ConstTransitivePtr<CArtifact> > &out, std::vector<CArtifact*> *arts, CArtifact::EartClass flag)
 	{
 		if (arts->empty()) //restock available arts
-		{
-			for (int i = 0; i < allowedArtifacts.size(); ++i)
-			{
-				if (allowedArtifacts[i]->aClass == flag)
-					arts->push_back(allowedArtifacts[i]);
-			}
-		}
+			fillList(*arts, flag);
 
 		for (int i = 0; i < arts->size(); ++i)
 		{
@@ -625,6 +595,8 @@ ArtifactID CArtHandler::getArtSync (ui32 rand, int flags, bool erasePicked)
 			out.resize (64);
 			std::fill_n (out.begin(), 64, artifacts[2]); //Give Grail - this can't be banned (hopefully)
 		}
+
+		tlog0 << "Treasure count: " << treasures.size() << std::endl;
 	};
 
 	std::vector<ConstTransitivePtr<CArtifact> > out;
@@ -827,6 +799,55 @@ std::vector<bool> CArtHandler::getDefaultAllowedArtifacts() const
 	allowedArtifacts.resize(141, false);
 	allowedArtifacts.resize(GameConstants::ARTIFACTS_QUANTITY, true);
 	return allowedArtifacts;
+}
+
+void CArtHandler::erasePickedArt(ArtifactID id)
+{
+	CArtifact *art = artifacts[id];
+
+	if(auto artifactList = listFromClass(art->aClass))
+	{
+		if(artifactList->empty())
+			fillList(*artifactList, art->aClass);
+
+		auto itr = vstd::find(*artifactList, art);
+		if(itr != artifactList->end())
+		{
+			artifactList->erase(itr);
+		}
+		else
+			tlog2 << "Problem: cannot erase artifact " << art->Name() << " from list, it was not present\n";
+
+	}
+	else
+		tlog2 << "Problem: cannot find list for artifact " << art->Name() << ", strange class. (special?)\n";
+}
+
+boost::optional<std::vector<CArtifact*>&> CArtHandler::listFromClass( CArtifact::EartClass artifactClass )
+{
+	switch(artifactClass)
+	{
+	case CArtifact::ART_TREASURE:
+		return treasures;
+	case CArtifact::ART_MINOR:
+		return minors;
+	case CArtifact::ART_MAJOR:
+		return majors;
+	case CArtifact::ART_RELIC:
+		return relics;
+	default: //special artifacts should not be erased
+		return 0;
+	}
+}
+
+void CArtHandler::fillList( std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass )
+{
+	assert(listToBeFilled.empty());
+	for (int i = 0; i < allowedArtifacts.size(); ++i)
+	{
+		if (allowedArtifacts[i]->aClass == artifactClass)
+			listToBeFilled.push_back(allowedArtifacts[i]);
+	}
 }
 
 CArtifactInstance::CArtifactInstance()

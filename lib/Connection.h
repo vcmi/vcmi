@@ -34,7 +34,7 @@
 #include "CObjectHandler.h" //for CArmedInstance
 #include "Mapping/CCampaignHandler.h" //for CCampaignState
 
-const ui32 version = 737;
+const ui32 version = 738;
 
 class CConnection;
 class CGObjectInstance;
@@ -46,6 +46,8 @@ class CHero;
 struct CPack;
 extern DLL_LINKAGE LibClasses * VLC;
 namespace mpl = boost::mpl;
+
+const std::string SAVEGAME_MAGIC = "VCMISVG";
 
 namespace boost
 {
@@ -382,7 +384,7 @@ public:
 		si32 idAsNumber = idToNumber(id);
 
 		assert(oInfo.vector);
-		assert(oInfo.vector->size() > idAsNumber);
+		assert(static_cast<si32>(oInfo.vector->size()) > idAsNumber);
 		return const_cast<T*>((*oInfo.vector)[idAsNumber].get());
 	}
 
@@ -1218,6 +1220,8 @@ public:
 	void openNextFile(const std::string &fname); //throws!
 	void clear();
 	void reportState(CLogger &out);
+
+	void putMagicBytes(const std::string &text);
 };
 
 class DLL_LINKAGE CLoadFile
@@ -1239,6 +1243,22 @@ public:
 	void openNextFile(const std::string &fname, int minimalVersion); //throws!
 	void clear();
 	void reportState(CLogger &out);
+
+	void checkMagicBytes(const std::string &text);
+};
+
+class DLL_LINKAGE CLoadIntegrityValidator : public CISer<CLoadIntegrityValidator>
+{
+public:
+	unique_ptr<CLoadFile> primaryFile, controlFile;
+	bool foundDesync;
+	
+	CLoadIntegrityValidator(const std::string &primaryFileName, const std::string &controlFileName, int minimalVersion = version); //throws!
+
+	int read(const void * data, unsigned size); //throws!
+	void checkMagicBytes(const std::string &text);
+
+	unique_ptr<CLoadFile> decay(); //returns primary file. CLoadIntegrityValidator stops being usable anymore
 };
 
 typedef boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > TSocket;

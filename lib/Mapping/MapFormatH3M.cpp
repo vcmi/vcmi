@@ -1959,39 +1959,39 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 
 	for(int gh = 0; gh < numberOfEvent; ++gh)
 	{
-		CCastleEvent * nce = new CCastleEvent();
-		nce->town = nt;
-		nce->name = reader.readString();
-		nce->message = reader.readString();
+		CCastleEvent nce;
+		nce.town = nt;
+		nce.name = reader.readString();
+		nce.message = reader.readString();
 
-		readResourses(nce->resources);
+		readResourses(nce.resources);
 
-		nce->players = reader.readUInt8();
+		nce.players = reader.readUInt8();
 		if(map->version > EMapFormat::AB)
 		{
-			nce->humanAffected = reader.readUInt8();
+			nce.humanAffected = reader.readUInt8();
 		}
 		else
 		{
-			nce->humanAffected = true;
+			nce.humanAffected = true;
 		}
 
-		nce->computerAffected = reader.readUInt8();
-		nce->firstOccurence = reader.readUInt16();
-		nce->nextOccurence =  reader.readUInt8();
+		nce.computerAffected = reader.readUInt8();
+		nce.firstOccurence = reader.readUInt16();
+		nce.nextOccurence =  reader.readUInt8();
 
 		reader.skip(17);
 
 		// New buildings
 
-		readBitmask(nce->buildings,6,48,false);
+		readBitmask(nce.buildings,6,48,false);
 
-		nce->buildings = convertBuildings(nce->buildings, castleID, false);
+		nce.buildings = convertBuildings(nce.buildings, castleID, false);
 
-		nce->creatures.resize(7);
+		nce.creatures.resize(7);
 		for(int vv = 0; vv < 7; ++vv)
 		{
-			nce->creatures[vv] = reader.readUInt16();
+			nce.creatures[vv] = reader.readUInt16();
 		}
 		reader.skip(4);
 		nt->events.push_back(nce);
@@ -2072,23 +2072,23 @@ void CMapLoaderH3M::readEvents()
 	int numberOfEvents = reader.readUInt32();
 	for(int yyoo = 0; yyoo < numberOfEvents; ++yyoo)
 	{
-		CMapEvent * ne = new CMapEvent();
-		ne->name = reader.readString();
-		ne->message = reader.readString();
+		CMapEvent ne;
+		ne.name = reader.readString();
+		ne.message = reader.readString();
 
-		readResourses(ne->resources);
-		ne->players = reader.readUInt8();
+		readResourses(ne.resources);
+		ne.players = reader.readUInt8();
 		if(map->version > EMapFormat::AB)
 		{
-			ne->humanAffected = reader.readUInt8();
+			ne.humanAffected = reader.readUInt8();
 		}
 		else
 		{
-			ne->humanAffected = true;
+			ne.humanAffected = true;
 		}
-		ne->computerAffected = reader.readUInt8();
-		ne->firstOccurence = reader.readUInt16();
-		ne->nextOccurence = reader.readUInt8();
+		ne.computerAffected = reader.readUInt8();
+		ne.firstOccurence = reader.readUInt16();
+		ne.nextOccurence = reader.readUInt8();
 
 		reader.skip(17);
 

@@ -172,7 +172,6 @@ public:
 	si32 subID; //normal subID (this one from OH3 maps ;])
 	ObjectInstanceID id;//number of object in map's vector
 	CGDefInfo * defInfo;
-	ui8 animPhaseShift;
 
 	TPlayerColor tempOwner;
 	bool blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
@@ -211,7 +210,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & hoverName & pos & ID & subID & id & animPhaseShift & tempOwner & blockVisit & defInfo;
+		h & hoverName & pos & ID & subID & id & tempOwner & blockVisit & defInfo;
 		//definfo is handled by map serializer
 	}
 protected:
@@ -591,7 +590,7 @@ public:
 	std::vector<CGTownBuilding*> bonusingBuildings;
 	std::vector<SpellID> possibleSpells, obligatorySpells;
 	std::vector<std::vector<SpellID> > spells; //spells[level] -> vector of spells, first will be available in guild
-	std::list<CCastleEvent*> events;
+	std::list<CCastleEvent> events;
 	std::pair<si32, si32> bonusValue;//var to store town bonuses (rampart = resources from mystic pond);
 
 	//////////////////////////////////////////////////////////////////////////

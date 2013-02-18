@@ -246,7 +246,7 @@ void CCallback::setSelection(const CArmedInstance * obj)
 			cl->calculatePaths(static_cast<const CGHeroInstance *>(obj));
 
 		//nasty workaround. TODO: nice workaround
-		cl->gs->getPlayer(*player)->currentSelection = obj->id;
+		//cl->gs->getPlayer(*player)->currentSelection = obj->id;
 	}
 }
 

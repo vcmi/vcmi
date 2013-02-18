@@ -344,6 +344,11 @@ void CSaveFile::clear()
 	sfile = nullptr;
 }
 
+void CSaveFile::putMagicBytes( const std::string &text )
+{
+	write(text.c_str(), text.length());
+}
+
 CLoadFile::CLoadFile(const std::string &fname, int minimalVersion /*= version*/)
 {
 	registerTypes(*this);
@@ -424,6 +429,14 @@ void CLoadFile::clear()
 	fileVersion = 0;
 }
 
+void CLoadFile::checkMagicBytes( const std::string &text )
+{
+	std::string loaded = text;
+	read(loaded.c_str(), text.length());
+	if(loaded != text)
+		throw std::runtime_error("Magic bytes doesn't match!");
+}
+
 CTypeList::CTypeList()
 {
 	registerTypes(*this);
@@ -476,4 +489,48 @@ void CSerializer::addStdVecItems(CGameState *gs, LibClasses *lib)
 	registerVectoredType(&gs->map->artInstances, &CArtifactInstance::id);
 	registerVectoredType(&gs->map->quests, &CQuest::qid);
 	smartVectorMembersSerialization = true;
+}
+
+CLoadIntegrityValidator::CLoadIntegrityValidator( const std::string &primaryFileName, const std::string &controlFileName, int minimalVersion /*= version*/ )
+	: foundDesync(false)
+{
+	registerTypes(*this);
+	primaryFile = make_unique<CLoadFile>(primaryFileName, minimalVersion);
+	controlFile = make_unique<CLoadFile>(controlFileName, minimalVersion);
+}
+
+int CLoadIntegrityValidator::read( const void * data, unsigned size )
+{
+	assert(primaryFile);
+	assert(controlFile);
+
+	if(!size)
+		return size;
+
+	std::vector<ui8> controlData(size);
+	auto ret = primaryFile->read(data, size);
+	controlFile->read(controlData.data(), size);
+	
+	if(!foundDesync && std::memcmp(data, controlData.data(), size))
+	{
+		tlog1 << "Desync found! Position: " << primaryFile->sfile->tellg() << std::endl;
+		foundDesync = true;
+		//throw std::runtime_error("Savegame dsynchronized!");
+	}
+
+	return ret;
+}
+
+unique_ptr<CLoadFile> CLoadIntegrityValidator::decay()
+{
+	return std::move(primaryFile);
+}
+
+void CLoadIntegrityValidator::checkMagicBytes( const std::string &text )
+{
+	assert(primaryFile);
+	assert(controlFile);
+
+	primaryFile->checkMagicBytes(text);
+	controlFile->checkMagicBytes(text);
 }

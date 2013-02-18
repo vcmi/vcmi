@@ -232,29 +232,27 @@ void CClient::loadGame( const std::string & fname )
 
 	CStopWatch tmh;
 	{
-		char sig[8];
-		CMapHeader dum;
-		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
-		StartInfo *si;
+		auto clientSaveName = CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME));
+		auto controlServerSaveName = CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME));
 
-		CLoadFile lf(CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::LIB_SAVEGAME)));
-		lf >> sig >> dum >> si;
-		tlog0 <<"Reading save signature: "<<tmh.getDiff()<<std::endl;
-		
-		lf >> *VLC;
-		const_cast<CGameInfo*>(CGI)->setFromLib();
-		tlog0 <<"Reading handlers: "<<tmh.getDiff()<<std::endl;
-
-		lf >> gs;
-		tlog0 <<"Reading gamestate: "<<tmh.getDiff()<<std::endl;
-
+		unique_ptr<CLoadFile> loader;
+		{
+			CLoadIntegrityValidator checkingLoader(clientSaveName, controlServerSaveName);
+			loadCommonState(checkingLoader);
+			loader = checkingLoader.decay();
+		}
+		tlog0 << "Loaded common part of save " << tmh.getDiff()<<std::endl;
 		const_cast<CGameInfo*>(CGI)->state = gs;
+		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 		const_cast<CGameInfo*>(CGI)->mh->map = gs->map;
 		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel ? 2 : 1));
 		CGI->mh->init();
-
 		tlog0 <<"Initing maphandler: "<<tmh.getDiff()<<std::endl;
+
+		*loader >> *this;
+		tlog0 << "Loaded client part of save " << tmh.getDiff()<<std::endl;
 	}
+
 	serv = sh.connectToServer();
 	serv->addStdVecItems(gs);
 
@@ -280,10 +278,6 @@ void CClient::loadGame( const std::string & fname )
 	serv->enableStackSendingByID();
 	serv->disableSmartPointerSerialization();
 
-	{
-		CLoadFile lf(CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME)));
-		lf >> *this;
-	}
 }
 
 void CClient::newGame( CConnection *con, StartInfo *si )

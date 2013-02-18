@@ -159,6 +159,7 @@ public:
 	void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) OVERRIDE; 
 	void removeArtifact(const ArtifactLocation &al) OVERRIDE;
 	bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) OVERRIDE;
+	void synchronizeArtifactHandlerLists() OVERRIDE;
 
 	void showCompInfo(ShowInInfobox * comp) OVERRIDE;
 	void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero) OVERRIDE;

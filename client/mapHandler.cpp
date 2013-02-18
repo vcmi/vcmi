@@ -646,7 +646,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				else //blit normal object
 				{
 					const std::vector<Cimage> &ourImages = graphics->getDef(obj)->ourImages;
-					SDL_Surface *bitmap = ourImages[(anim+obj->animPhaseShift)%ourImages.size()].bitmap;
+					SDL_Surface *bitmap = ourImages[(anim+getPhaseShift(obj))%ourImages.size()].bitmap;
 
 					//setting appropriate flag color
 					if(color < 8 || color==255)
@@ -1099,6 +1099,19 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 		out = CGI->generaltexth->names[Obj::FAVORABLE_WINDS];
 	else if(terName)
         out = CGI->generaltexth->terrainNames[t.terType];
+}
+
+ui8 CMapHandler::getPhaseShift(const CGObjectInstance *object) const
+{
+	auto i = animationPhase.find(object);
+	if(i == animationPhase.end())
+	{
+		ui8 ret = rand() % 255;
+		animationPhase[object] = ret;
+		return ret;
+	}
+
+	return i->second;
 }
 
 TerrainTile2::TerrainTile2()

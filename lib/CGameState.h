@@ -394,7 +394,7 @@ public:
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
 	int pickHero(int owner);
-	void giveHeroArtifact(CGHeroInstance *h, int aid);
+	void giveHeroArtifact(CGHeroInstance *h, ArtifactID aid);
 
 	void apply(CPack *pack);
 	BFieldType battleGetBattlefieldType(int3 tile) const;

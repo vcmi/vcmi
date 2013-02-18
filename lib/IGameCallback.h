@@ -58,7 +58,8 @@ class CStackBasicDescriptor;
 struct TeamState;
 struct QuestInfo;
 class CGCreature;
-
+class CSaveFile;
+class CLoadFile;
 
 class DLL_LINKAGE CGameInfoCallback : public virtual CCallbackBase
 {
@@ -176,6 +177,12 @@ public:
 	ArtifactID getArtSync (ui32 rand, int flags, bool erasePicked); //synchronous
 	void pickAllowedArtsSet(std::vector<const CArtifact*> &out); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
 	void getAllowedSpells(std::vector<SpellID> &out, ui16 level);
+
+	template<typename Saver>
+	void saveCommonState(Saver &out) const; //stores GS and VLC
+
+	template<typename Loader>
+	void loadCommonState(Loader &in); //loads GS and VLC
 };
 
 class DLL_LINKAGE CNonConstInfoCallback : public CPrivilagedInfoCallback
@@ -235,6 +242,7 @@ public:
 	virtual void putArtifact(const ArtifactLocation &al, const CArtifactInstance *a) = 0;
 	virtual void removeArtifact(const ArtifactLocation &al) = 0;
 	virtual bool moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2) = 0;
+	virtual void synchronizeArtifactHandlerLists() = 0;
 
 	virtual void showCompInfo(ShowInInfobox * comp)=0;
 	virtual void heroVisitCastle(const CGTownInstance * obj, const CGHeroInstance * hero)=0;
