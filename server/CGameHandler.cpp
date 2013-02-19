@@ -3462,17 +3462,20 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			for (int i = 0; i < totalAttacks; ++i)
 			{
-				if( stack &&stack->alive()) //move can cause death, eg. by walking into the moat
+				if (stack &&
+					stack->alive() && //move can cause death, eg. by walking into the moat
+					stackAtEnd->alive())
 				{
 					BattleAttack bat;
-					prepareAttack(bat, stack, stackAtEnd, distance, ba.additionalInfo);
+					prepareAttack(bat, stack, stackAtEnd, (i ? 0 : distance),  ba.additionalInfo); //no distance travelled on second attack
+					//prepareAttack(bat, stack, stackAtEnd, 0, ba.additionalInfo); 
 					handleAttackBeforeCasting(bat); //only before first attack
 					sendAndApply(&bat);
 					handleAfterAttackCasting(bat);
 				}
 
 				//counterattack
-				if(!stack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
+				if (!stack->hasBonusOfType(Bonus::BLOCKS_RETALIATION)
 					&& stackAtEnd->ableToRetaliate()
 					&& stack->alive()) //attacker may have died (fire shield)
 				{
