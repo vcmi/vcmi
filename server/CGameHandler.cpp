@@ -4496,7 +4496,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 	if (st->alive())
 	{
 		//unbind
-		if (st->getEffect(72))
+		if (st->getEffect (SpellID::BIND))
 		{
 			bool unbind = true;
 			BonusList bl = *(st->getBonuses(Selector::type(Bonus::BIND_EFFECT)));
@@ -4590,7 +4590,7 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 		{
 			int index = rand() % bl.size();
 			SpellID spellID = SpellID(bl[index]->subtype);
-			if (gs->curB->battleCanCastThisSpell(st->owner, SpellID(spellID).toSpell(), ECastingMode::ENCHANTER_CASTING)) //TODO: select another?
+			if (gs->curB->battleCanCastThisSpell(st->owner, SpellID(spellID).toSpell(), ECastingMode::ENCHANTER_CASTING) == ESpellCastProblem::OK) //TODO: select another available?
 			{
 				int spellLeveL = bl[index]->val; //spell level
 				const CGHeroInstance * enemyHero = gs->curB->getHero(gs->curB->theOtherPlayer(st->owner));
