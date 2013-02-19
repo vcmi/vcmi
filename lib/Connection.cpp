@@ -509,15 +509,17 @@ int CLoadIntegrityValidator::read( const void * data, unsigned size )
 
 	std::vector<ui8> controlData(size);
 	auto ret = primaryFile->read(data, size);
-	controlFile->read(controlData.data(), size);
-	
-	if(!foundDesync && std::memcmp(data, controlData.data(), size))
-	{
-		tlog1 << "Desync found! Position: " << primaryFile->sfile->tellg() << std::endl;
-		foundDesync = true;
-		//throw std::runtime_error("Savegame dsynchronized!");
-	}
 
+	if(!foundDesync)
+	{
+		controlFile->read(controlData.data(), size);
+		if(std::memcmp(data, controlData.data(), size))
+		{
+			tlog1 << "Desync found! Position: " << primaryFile->sfile->tellg() << std::endl;
+			foundDesync = true;
+			//throw std::runtime_error("Savegame dsynchronized!");
+		}
+	}
 	return ret;
 }
 
