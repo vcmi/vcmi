@@ -467,3 +467,24 @@ CCampaignState::CCampaignState( unique_ptr<CCampaign> _camp ) : camp(std::move(_
 		mapsRemaining.push_back(i);
 	}
 }
+
+static std::string indexToString(std::string fname, ui8 index)
+{
+	CLegacyConfigParser parser(fname);
+	for(int i=0; i<index-1; ++i)
+		parser.endLine();
+	return parser.readString();
+}
+
+std::string CCampaignHandler::prologVideoName(ui8 index)
+{
+	return indexToString("DATA/CMPMOVIE", index);
+}
+
+std::string CCampaignHandler::prologMusicName(ui8 index)
+{
+	return indexToString("DATA/CMPMUSIC", index);
+}
+
+
+

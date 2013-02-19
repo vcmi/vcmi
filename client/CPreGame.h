@@ -539,6 +539,19 @@ public:
 	CHotSeatPlayers(const std::string &firstPlayer);
 };
 
+
+class CPrologEpilogVideo : public CIntObject
+{
+	CCampaignScenario::SScenarioPrologEpilog spe;
+	SDL_Surface * txt;
+	int curTxtH;
+public:
+	CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog _spe);
+
+	void clickLeft(tribool down, bool previousState);
+	void show(SDL_Surface * to);
+};
+
 /// Campaign screen where you can choose one out of three starting bonuses
 class CBonusSelection : public CIntObject
 {

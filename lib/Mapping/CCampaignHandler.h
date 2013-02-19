@@ -89,13 +89,13 @@ public:
 	std::set<ui8> preconditionRegions; //what we need to conquer to conquer this one (stored as bitfield in h3c)
 	ui8 regionColor;
 	ui8 difficulty;
-	ui8 conquered;
+	bool conquered;
 
 	std::string regionText;
 
 	struct DLL_LINKAGE SScenarioPrologEpilog
 	{
-		ui8 hasPrologEpilog;
+		bool hasPrologEpilog;
 		ui8 prologVideo; // from CmpMovie.txt
 		ui8 prologMusic; // from CmpMusic.txt
 		std::string prologText;
@@ -179,6 +179,8 @@ class DLL_LINKAGE CCampaignHandler
 	/// headerOnly - only header will be decompressed, returned vector wont have any maps
 	static std::vector< std::vector<ui8> > getFile(const std::string & name, bool headerOnly);
 public:
+	static std::string prologVideoName(ui8 index);
+	static std::string prologMusicName(ui8 index);
 
 	static CCampaignHeader getHeader( const std::string & name); //name - name of appropriate file
 

@@ -3589,6 +3589,7 @@ void CBonusSelection::startMap()
 
 	if (scenario.prolog.hasPrologEpilog)
 	{
+		//GH.pushInt(new CPrologEpilogVideo(scenario.prolog));
 		tlog1 << "Video: " << scenario.prolog.prologVideo <<"\n";
 		tlog1 << "Audio: " << scenario.prolog.prologMusic <<"\n";
 		tlog1 << "Text:  " << scenario.prolog.prologText <<"\n";
@@ -4080,4 +4081,29 @@ void CLoadingScreen::showAll(SDL_Surface *to)
 	SDL_FillRect(to, &rect, 0);
 
 	CWindowObject::showAll(to);
+}
+
+CPrologEpilogVideo::CPrologEpilogVideo( CCampaignScenario::SScenarioPrologEpilog _spe )
+	: spe(_spe), curTxtH(300)
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	CCS->videoh->open(CCampaignHandler::prologVideoName(spe.prologVideo));
+
+	auto lines = CMessage::breakText(spe.prologText, 50, EFonts::FONT_BIG);
+
+	txt = CSDL_Ext::newSurface(500, 60 * lines.size());
+	graphics->fonts[FONT_BIG]->renderTextLinesCenter(txt, lines, Colors::METALLIC_GOLD, Point(0,0));
+}
+
+void CPrologEpilogVideo::show( SDL_Surface * to )
+{
+	blitAt(txt, 50, 200-curTxtH, to);
+	CCS->videoh->show(0, 0, to);
+	curTxtH = std::max(curTxtH - 10, to->h - txt->h);
+}
+
+void CPrologEpilogVideo::clickLeft( tribool down, bool previousState )
+{
+	GH.popInt(this);
 }
