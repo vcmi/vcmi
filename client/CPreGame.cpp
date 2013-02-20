@@ -3587,16 +3587,23 @@ void CBonusSelection::startMap()
 
 	tlog1 << "Starting scenario " << int(ourCampaign->currentMap) << "\n";
 
+	auto exitCb = [si]()
+	{
+		CGP->showLoadingScreen(boost::bind(&startGame, si, (CConnection *)nullptr));
+	};
+
 	if (scenario.prolog.hasPrologEpilog)
 	{
-		//GH.pushInt(new CPrologEpilogVideo(scenario.prolog));
+		GH.pushInt(new CPrologEpilogVideo(scenario.prolog, exitCb));
 		tlog1 << "Video: " << scenario.prolog.prologVideo <<"\n";
 		tlog1 << "Audio: " << scenario.prolog.prologMusic <<"\n";
 		tlog1 << "Text:  " << scenario.prolog.prologText <<"\n";
 	}
 	else
+	{
 		tlog1 << "Without prolog\n";
-	CGP->showLoadingScreen(boost::bind(&startGame, si, (CConnection *)nullptr));
+		exitCb();
+	}
 }
 
 void CBonusSelection::selectBonus( int id )
@@ -4083,27 +4090,33 @@ void CLoadingScreen::showAll(SDL_Surface *to)
 	CWindowObject::showAll(to);
 }
 
-CPrologEpilogVideo::CPrologEpilogVideo( CCampaignScenario::SScenarioPrologEpilog _spe )
-	: spe(_spe), curTxtH(300)
+CPrologEpilogVideo::CPrologEpilogVideo( CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback )
+	: spe(_spe), exitCb(callback)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	addUsedEvents(LCLICK);
+	pos = Rect(screen);
 
 	CCS->videoh->open(CCampaignHandler::prologVideoName(spe.prologVideo));
 
-	auto lines = CMessage::breakText(spe.prologText, 50, EFonts::FONT_BIG);
+	auto lines = CMessage::breakText(spe.prologText, 500, EFonts::FONT_BIG);
 
-	txt = CSDL_Ext::newSurface(500, 60 * lines.size());
-	graphics->fonts[FONT_BIG]->renderTextLinesCenter(txt, lines, Colors::METALLIC_GOLD, Point(0,0));
+	txt = CSDL_Ext::newSurface(500, 25 * lines.size());
+	curTxtH = screen->h;
+	graphics->fonts[FONT_BIG]->renderTextLinesCenter(txt, lines, Colors::METALLIC_GOLD, Point(txt->w/2, txt->h/2));
+	SDL_SaveBMP(txt, "txtsrfc.bmp");
 }
 
 void CPrologEpilogVideo::show( SDL_Surface * to )
 {
-	blitAt(txt, 50, 200-curTxtH, to);
+	memset(to->pixels, 0, to->h*to->pitch); //make bg black
+	blitAt(txt, (to->w-txt->w)/2, curTxtH, to);
 	CCS->videoh->show(0, 0, to);
-	curTxtH = std::max(curTxtH - 10, to->h - txt->h);
+	curTxtH = std::max(curTxtH - 1, to->h - txt->h);
 }
 
 void CPrologEpilogVideo::clickLeft( tribool down, bool previousState )
 {
 	GH.popInt(this);
+	exitCb();
 }

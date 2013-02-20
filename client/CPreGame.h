@@ -545,8 +545,9 @@ class CPrologEpilogVideo : public CIntObject
 	CCampaignScenario::SScenarioPrologEpilog spe;
 	SDL_Surface * txt;
 	int curTxtH;
+	std::function<void()> exitCb;
 public:
-	CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog _spe);
+	CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback);
 
 	void clickLeft(tribool down, bool previousState);
 	void show(SDL_Surface * to);
