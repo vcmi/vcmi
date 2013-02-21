@@ -9,6 +9,11 @@ if (NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE Release)
 endif()
 
+# VCMI version
+set(VCMI_VERSION_MAJOR 0)
+set(VCMI_VERSION_MINOR 91)
+set(VCMI_VERSION_PATCH 0)
+
 option(DISABLE_ERM "Disable compilation of ERM scripting module" ON)
 option(ENABLE_EDITOR "Enable compilation of map editor" OFF)
 
@@ -137,25 +142,20 @@ if(WIN32)
 elseif(APPLE)
 else()
 	#install icons and desktop file on Linux
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png" DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
-
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png" DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
-
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png" DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
-
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.64x64.png"   DESTINATION share/icons/hicolor/64x64/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.48x48.png"   DESTINATION share/icons/hicolor/48x48/apps RENAME vcmiclient.png)
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.32x32.png"   DESTINATION share/icons/hicolor/32x32/apps RENAME vcmiclient.png)
 	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.256x256.png" DESTINATION share/icons/hicolor/256x256/apps RENAME vcmiclient.png)
-
-	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop" DESTINATION share/applications)
-
+	install(FILES "${CMAKE_SOURCE_DIR}/client/icons/vcmiclient.desktop"     DESTINATION share/applications)
 endif()
 
 #######################################
 #       Packaging section             #
 #######################################
 
-set(CPACK_PACKAGE_VERSION_MAJOR 0)
-set(CPACK_PACKAGE_VERSION_MINOR 90)
-set(CPACK_PACKAGE_VERSION_PATCH 0)
+set(CPACK_PACKAGE_VERSION_MAJOR ${VCMI_VERSION_MAJOR})
+set(CPACK_PACKAGE_VERSION_MINOR ${VCMI_VERSION_MINOR})
+set(CPACK_PACKAGE_VERSION_PATCH ${VCMI_VERSION_PATCH})
 
 # vcmi does not have "patch version" in version string
 set(CPACK_PACKAGE_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}")

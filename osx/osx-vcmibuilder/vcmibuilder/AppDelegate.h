@@ -35,6 +35,7 @@
 - (void)selectFile:(NSArray*)fileTypes withTextField:(NSTextField*)textField;
 - (void)showProgressText:(NSString*)text;
 - (void)showErrorText:(NSString*)text;
+- (void)showNotification:(NSString*)text;
 - (void)nextAction;
 - (int)runTask:(NSString*)executable withArgs:(NSArray*)args withWorkingDir:(NSString*)workingDir withPipe:(NSPipe*)pipe;
 

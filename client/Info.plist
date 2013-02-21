@@ -5,6 +5,6 @@
     <key>CFBundleIconFile</key>
     <string>vcmi.icns</string>
     <key>CFBundleVersion</key>
-    <string>0.91</string>
+    <string>${VCMI_VERSION_MAJOR}.${VCMI_VERSION_MINOR}</string>
 </dict>
 </plist>

@@ -248,19 +248,7 @@
     [self.progressIndicator stopAnimation:self];
     
     // Notify user that installation completed
-    NSUserNotification* notification = [[NSUserNotification alloc] init];
-    if (notification != nil) {
-        // On OS X 10.8 and newer use notification center
-        [notification setTitle:@"VCMI"];
-        [notification setInformativeText:@"Installation completed"];
-        [notification setDeliveryDate:[NSDate dateWithTimeInterval:0 sinceDate:[NSDate date]]];
-        [notification setSoundName:NSUserNotificationDefaultSoundName];
-        NSUserNotificationCenter *center = [NSUserNotificationCenter defaultUserNotificationCenter];
-        [center scheduleNotification:notification];
-    } else {
-        // On older OS X version force dock icon to jump
-        [NSApp requestUserAttention:NSCriticalRequest];
-    }
+    [self showNotification:@"Installation completed"];
     
     // Hide all progress related controls
     [self.progressIndicator setHidden:YES];
@@ -321,6 +309,23 @@
     }
 }
 
+- (void)showNotification:(NSString*)text
+{
+    // Notification Center is supported only on OS X 10.8 and newer
+    NSUserNotification* notification = [[NSUserNotification alloc] init];
+    if (notification != nil) {
+        notification.title = @"VCMI";
+        notification.informativeText = text;
+        notification.deliveryDate = [NSDate dateWithTimeInterval:0 sinceDate:[NSDate date]];
+        notification.soundName = NSUserNotificationDefaultSoundName;
+        
+        [[NSUserNotificationCenter defaultUserNotificationCenter] scheduleNotification:notification];
+    } else {
+        // On older OS X version force dock icon to jump
+        [NSApp requestUserAttention:NSCriticalRequest];
+    }
+}
+
 - (void)showProgressText:(NSString*)text
 {
     // All GUI updates should be done on main thread
@@ -334,6 +339,8 @@
 {
     // All GUI updates should be done on main thread
     dispatch_async(dispatch_get_main_queue(), ^{
+        [self showNotification:@"Installation failed"];
+        
         // Show error alert
         NSAlert *alert = [[NSAlert alloc] init];
         [alert setMessageText:@"Error"];
