@@ -544,7 +544,7 @@ class CPrologEpilogVideo : public CIntObject
 {
 	CCampaignScenario::SScenarioPrologEpilog spe;
 	SDL_Surface * txt;
-	int curTxtH;
+	int curTxtH, decrementDelayCounter;
 	std::function<void()> exitCb;
 public:
 	CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback);

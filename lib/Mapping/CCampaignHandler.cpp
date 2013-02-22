@@ -470,6 +470,10 @@ CCampaignState::CCampaignState( unique_ptr<CCampaign> _camp ) : camp(std::move(_
 
 std::string CCampaignHandler::prologVideoName(ui8 index)
 {
+	JsonNode config(ResourceID(std::string("CONFIG/campaignMedia"), EResType::TEXT));
+	auto vids = config["videos"].Vector();
+	if(index < vids.size())
+		return vids[index].String();
 	return "";
 }
 

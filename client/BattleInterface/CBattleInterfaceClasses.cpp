@@ -411,9 +411,9 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		int text=-1;
 		switch(br.result)
 		{
-		case 0: text = 304; break;
-		case 1: text = 303; break;
-		case 2: text = 302; break;
+		case BattleResult::NORMAL: text = 304; break;
+		case BattleResult::ESCAPE: text = 303; break;
+		case BattleResult::SURRENDER: text = 302; break;
 		}
 
 		CCS->musich->playMusic("Music/Win Battle", false);
@@ -434,21 +434,21 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 	{
 		switch(br.result)
 		{
-		case 0: //normal victory
+		case BattleResult::NORMAL:
 			{
 				CCS->musich->playMusic("Music/LoseCombat", false);
 				CCS->videoh->open("LBSTART.BIK");
 				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[311]);
 				break;
 			}
-		case 1: //flee
+		case BattleResult::ESCAPE: //flee
 			{
 				CCS->musich->playMusic("Music/Retreat Battle", false);
 				CCS->videoh->open("RTSTART.BIK");
 				new CLabel(235, 235, FONT_SMALL, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[310]);
 				break;
 			}
-		case 2: //surrender
+		case BattleResult::SURRENDER:
 			{
 				CCS->musich->playMusic("Music/Surrender Battle", false);
 				CCS->videoh->open("SURRENDER.BIK");

@@ -4091,7 +4091,7 @@ void CLoadingScreen::showAll(SDL_Surface *to)
 }
 
 CPrologEpilogVideo::CPrologEpilogVideo( CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback )
-	: spe(_spe), exitCb(callback)
+	: spe(_spe), exitCb(callback), decrementDelayCounter(0)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	addUsedEvents(LCLICK);
@@ -4101,18 +4101,30 @@ CPrologEpilogVideo::CPrologEpilogVideo( CCampaignScenario::SScenarioPrologEpilog
 
 	auto lines = CMessage::breakText(spe.prologText, 500, EFonts::FONT_BIG);
 
-	txt = CSDL_Ext::newSurface(500, 25 * lines.size());
+	txt = CSDL_Ext::newSurface(500, 20 * lines.size() + 5);
 	curTxtH = screen->h;
 	graphics->fonts[FONT_BIG]->renderTextLinesCenter(txt, lines, Colors::METALLIC_GOLD, Point(txt->w/2, txt->h/2));
-	SDL_SaveBMP(txt, "txtsrfc.bmp");
+	//SDL_SaveBMP(txt, "txtsrfc.bmp");
 }
 
 void CPrologEpilogVideo::show( SDL_Surface * to )
 {
 	memset(to->pixels, 0, to->h*to->pitch); //make bg black
+	CCS->videoh->update(pos.x, pos.y, to, true, false);
+	SDL_Rect tmp, our;
+	our = Rect(0, to->h-100, to->w, 100);
+	SDL_GetClipRect(to, &tmp);
+	SDL_SetClipRect(to, &our);
 	blitAt(txt, (to->w-txt->w)/2, curTxtH, to);
-	CCS->videoh->show(0, 0, to);
-	curTxtH = std::max(curTxtH - 1, to->h - txt->h);
+	SDL_SetClipRect(to, &tmp);
+
+	//move text every 5 calls/frames; seems to be good enough
+	++decrementDelayCounter;
+	if(decrementDelayCounter == 5)
+	{
+		curTxtH = std::max(curTxtH - 1, to->h - txt->h);
+		decrementDelayCounter = 0;
+	}
 }
 
 void CPrologEpilogVideo::clickLeft( tribool down, bool previousState )
