@@ -91,14 +91,14 @@
 		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//faerie dragon is a dragon
 						[ "CASTS", 5, 0, 0 ],
 						[ "CREATURE_SPELL_POWER", 500, 0, 0], 	//5 spell power per dragon
-						[ "SPELLCASTER", 2, 15, 10 ],			//magic arrow
-						[ "SPELLCASTER", 2, 16, 22 ],			//ice bolt
-						[ "SPELLCASTER", 2, 17, 22 ],			//thunderbolt
-						[ "SPELLCASTER", 2, 19, 5 ],			//chain lightning
-						[ "SPELLCASTER", 2, 20, 10 ],			//frost ring
-						[ "SPELLCASTER", 2, 21, 21 ],			//fireball
-						[ "SPELLCASTER", 2, 22, 5 ],			//inferno
-						[ "SPELLCASTER", 2, 23, 5 ]],			//meteor shower
+						[ "SPELLCASTER", 2, "spell.magicArrow", 10 ],			
+						[ "SPELLCASTER", 2, "spell.iceBolt", 22 ],			
+						[ "SPELLCASTER", 2, "spell.lightningBolt", 22 ],			
+						[ "SPELLCASTER", 2, "spell.chainLightning", 5 ],			
+						[ "SPELLCASTER", 2, "spell.frostRing", 10 ],			
+						[ "SPELLCASTER", 2, "spell.fireball", 21 ],			
+						[ "SPELLCASTER", 2, "spell.inferno", 5 ],			
+						[ "SPELLCASTER", 2, "spell.meteorShower", 5 ]],			
 		"graphics" :
 		{
 			"animation": "CFDRGN.DEF"
@@ -141,13 +141,13 @@
 		"extraNames": [ "enchanters" ],
 		"faction": "neutral",
 		"abilities": [ [ "NO_WALL_PENALTY", 0, 0, 0 ],
-						 [ "ENCHANTER", 3, 28, 3],		//air shield
-						 [ "ENCHANTER", 3, 41, 3],		//bless
-						 [ "ENCHANTER", 3, 45, 3],		//wealness
-						 [ "ENCHANTER", 3, 46, 3],		//stone skin
-						 [ "ENCHANTER", 3, 53, 3],		//slow
-						 [ "ENCHANTER", 3, 54, 3],		//haster
-						 [ "CASTS", 5, 0, 0]],			//Enchanter
+						 [ "ENCHANTER", 3, "spell.airShield", 3],		
+						 [ "ENCHANTER", 3, "spell.bless", 3],		
+						 [ "ENCHANTER", 3, "spell.weakness", 3],		
+						 [ "ENCHANTER", 3, "spell.stoneSkin", 3],		
+						 [ "ENCHANTER", 3, "spell.slow", 3],		
+						 [ "ENCHANTER", 3, "spell.haste", 3],		
+						 [ "CASTS", 5, 0, 0]],			
 		"graphics" :
 		{
 			"animation": "CENCH.DEF",
@@ -174,7 +174,7 @@
 		"extraNames": [ "sharpshooters" ],
 		"faction": "neutral",
 		"abilities": [ [ "NO_WALL_PENALTY", 0, 0, 0 ],
-						 [ "NO_DISTANCE_PENALTY", 0, 0, 0 ] ],			//Sharpshooter
+						 [ "NO_DISTANCE_PENALTY", 0, 0, 0 ] ],
 		"graphics" :
 		{
 			"animation": "CSHARP.DEF",
@@ -316,7 +316,7 @@
 		"id": 144,
 		"level": 5,
 		"faction": "neutral",
-		"abilities": [ [ "FULL_HP_REGENERATION", 0, 0, 0 ] ], 			//troll
+		"abilities": [ [ "FULL_HP_REGENERATION", 0, 0, 0 ] ],
 		"graphics" :
 		{
 			"animation": "CTROLL.DEF"

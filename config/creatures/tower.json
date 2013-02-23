@@ -286,7 +286,7 @@
 		"level": 7,
 		"faction": "tower",
 		"abilities": [ ["MIND_IMMUNITY", 0, 0, 0],			//Titans are immune to mind spells
-						 [ "HATE", 50, 83, 0 ] ],					//titans hate black dragons
+						 [ "HATE", 50, "creature.blackDragon", 0 ] ],					//titans hate black dragons
 		"graphics" :
 		{
 			"animation": "CGTITA.DEF",

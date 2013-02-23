@@ -132,7 +132,7 @@
 			"defend": "RGRFDFND.wav",
 			"killed": "RGRFKILL.wav",
 			"move": "RGRFMOVE.wav",
-						"wince": "RGRFWNCE.wav"
+			"wince": "RGRFWNCE.wav"
 		}
 	},
 	"swordsman" :
@@ -264,8 +264,11 @@
 		"id": 12,
 		"level": 7,
 		"faction": "castle",
-		"abilities": [ [ "HATE", 50, 55, 0 ],					//angels hate archdevils
-						 [			 "HATE", 50, 54, 0 ] ],			   	 	//angels hate devils
+		"abilities": 
+		[ 
+			["HATE", 50, "creature.archDevil", 0],	//angels hate archdevils
+			["HATE", 50, "creature.devil", 0]		//angels hate devil
+		],			   	 	
 		"upgrades": ["archangel"],
 		"graphics" :
 		{
@@ -285,11 +288,14 @@
 		"id": 13,
 		"level": 7,
 		"faction": "castle",
-		"abilities": [ [ "SPECIFIC_SPELL_POWER", 100, 38, 0 ],			// 100 hp per Archangel
-						 [ "SPELLCASTER", 0, 38, 0 ],			//archangels cast resurrection
-						 [ "HATE", 50, 55, 0 ],					//archangels hate arch
-						 [ "HATE", 50, 54, 0 ] ,					//archangels hate devils
-						 [ "CASTS", 1, 0, 0]],
+		"abilities": 
+		[ 
+			["SPECIFIC_SPELL_POWER", 100, "spell.resurrection", 0],	// 100 hp per Archangel
+			["SPELLCASTER", 0, "spell.resurrection", 0 ],			//archangels cast resurrection
+			["HATE", 50, "creature.archDevil", 0],	//archangels hate archdevils
+			["HATE", 50, "creature.devil", 0] ,		//archangels hate devils
+			["CASTS", 1, 0, 0]
+		],
 		"graphics" :
 		{
 			"animation": "CRANGL.DEF"

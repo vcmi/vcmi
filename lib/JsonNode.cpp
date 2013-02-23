@@ -897,7 +897,7 @@ Bonus * JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with
 	}
 	b->type = it->second;
 	b->val = ability_vec[1].Float();
-	b->subtype = ability_vec[2].Float();
+	resolveIdentifier(ability_vec[2],b->subtype);
 	b->additionalInfo = ability_vec[3].Float();
 	b->duration = Bonus::PERMANENT; //TODO: handle flags (as integer)
 	b->turnsRemain = 0;

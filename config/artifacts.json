@@ -1706,7 +1706,7 @@
 		{
 			"id" : 122,
 			"type" : ["HERO"],
-		"bonuses" : [
+			"bonuses" : [
 				{
 					"type" : "CREATURE_GROWTH",
 					"subtype" : 6,
@@ -2058,9 +2058,7 @@
 		{
 			"bonuses" : [
 				{
-					"limiters" : [
-							"SHOOTER_ONLY",
-							],
+					"limiters" : ["SHOOTER_ONLY"],
 					"subtype" : 0,
 					"type" : "NO_DISTANCE_PENALTY",
 					"val" : 0,

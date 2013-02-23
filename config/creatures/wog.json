@@ -284,7 +284,7 @@
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, 37, 0 ] ], //expert cure
+						[ "SPELLCASTER", 3, "spell.cure", 0 ] ], //expert cure
 		"graphics" :
 		{
 			"animation": "ZM174NPC.DEF",
@@ -312,7 +312,7 @@
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, 27, 0 ] ], //expert shield
+						[ "SPELLCASTER", 3, "spell.shield", 0 ] ], //expert shield
 		"graphics" :
 		{
 			"animation": "ZM175NPC.DEF",
@@ -341,7 +341,7 @@
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, 44, 0 ] ], //expert precision
+						[ "SPELLCASTER", 3, "spell.precision", 0 ] ], //expert precision
 		"graphics" :
 		{
 			"animation": "ZM176NPC.DEF",
@@ -371,7 +371,7 @@
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, 29, 0 ] ], //expert fire shield
+						[ "SPELLCASTER", 3, "spell.fireShield", 0 ] ], //expert fire shield
 		"graphics" :
 		{
 			"animation": "ZM177NPC.DEF",
@@ -399,7 +399,7 @@
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, 39, 0 ] ], //expert animate dead
+						[ "SPELLCASTER", 3, "spell.animateDead", 0 ] ], //expert animate dead
 		"graphics" :
 		{
 			"animation": "ZM178NPC.DEF",
@@ -427,7 +427,7 @@
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, 46, 0 ] ], //expert stone skin
+						[ "SPELLCASTER", 3, "spell.stoneSkin", 0 ] ], //expert stone skin
 		"graphics" :
 		{
 			"animation": "ZM179NPC.DEF",
@@ -455,7 +455,7 @@
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, 37, 0 ] ], //expert cure
+						[ "SPELLCASTER", 3, "spell.cure", 0 ] ], //expert cure
 		"graphics" :
 		{
 			"animation": "ZM180NPC.DEF",
@@ -483,7 +483,7 @@
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, 53, 0 ] ], //expert haste
+						[ "SPELLCASTER", 3, "spell.haste", 0 ] ], //expert haste
 		"graphics" :
 		{
 			"animation": "ZM181NPC.DEF",
@@ -512,7 +512,7 @@
 						[ "CASTS", 1, 0, 0 ] ,
 						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
 						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, 58, 0 ] ], //expert counterstrike
+						[ "SPELLCASTER", 3, "spell.counterstrike", 0 ] ], //expert counterstrike
 		"graphics" :
 		{
 			"animation": "ZM182NPC.DEF",

@@ -19,6 +19,14 @@ using namespace boost::assign;
  * Full text of license available in license.txt file, in main folder
  *
  */
+ 
+static inline void registerCreature(const std::string &name, const si32 id)
+{
+	const std::string fullname = "creature." + name;
+	VLC->modh->identifiers.registerObject(fullname,id);
+}
+
+///CCreatureHandler
 
 CCreatureHandler::CCreatureHandler()
 {
@@ -162,7 +170,7 @@ static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 			cre->addBonus(-1, Bonus::LUCK);
 			cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 		} else
-			tlog1 << "Error: invalid ability type " << type << " in creatures.txt" << std::endl;
+			tlog1 << "Error: invalid ability type " << type << " in creatures config" << std::endl;
 
 		return;
 	}
@@ -170,7 +178,7 @@ static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 	nsf->type = it->second;
 
 	nsf->val = ability_vec[1].Float();
-	nsf->subtype = ability_vec[2].Float();
+	JsonUtils::resolveIdentifier(ability_vec[2],nsf->subtype);
 	nsf->additionalInfo = ability_vec[3].Float();
 	nsf->source = Bonus::CREATURE_ABILITY;
 	nsf->sid = cre->idNumber;
@@ -191,7 +199,7 @@ static void RemoveAbility(CCreature *cre, const JsonNode &ability)
 		if (type == "DOUBLE_WIDE")
 			cre->doubleWide = false;
 		else
-			tlog1 << "Error: invalid ability type " << type << " in creatures.json" << std::endl;
+			tlog1 << "Error: invalid ability type " << type << " in creatures config" << std::endl;
 
 		return;
 	}
@@ -255,51 +263,46 @@ void CCreatureHandler::loadCreatures()
 		ncre.abilityRefs = parser.readString();
 
 		{ //adding abilities from ZCRTRAIT.TXT
-			if(boost::algorithm::find_first(ncre.abilityRefs, "DOUBLE_WIDE"))
+			static const std::map<std::string,Bonus::BonusType> abilityMap = 
+			  boost::assign::map_list_of
+			    ("FLYING_ARMY", Bonus::FLYING)
+			    ("SHOOTING_ARMY", Bonus::SHOOTER)
+			    ("SIEGE_WEAPON", Bonus::SIEGE_WEAPON)
+			    ("const_free_attack", Bonus::BLOCKS_RETALIATION)
+			    ("IS_UNDEAD", Bonus::UNDEAD)
+			    ("const_no_melee_penalty",Bonus::NO_MELEE_PENALTY)
+			    ("const_jousting",Bonus::JOUSTING)
+			    ("KING_1",Bonus::KING1)
+			    ("KING_2",Bonus::KING2)
+				("KING_3",Bonus::KING3)
+				("const_no_wall_penalty",Bonus::NO_WALL_PENALTY)
+				("CATAPULT",Bonus::CATAPULT)
+				("MULTI_HEADED",Bonus::ATTACKS_ALL_ADJACENT)
+				("IMMUNE_TO_MIND_SPELLS",Bonus::MIND_IMMUNITY)
+				("IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY)
+				("HAS_EXTENDED_ATTACK",Bonus::TWO_HEX_ATTACK_BREATH);
+				
+			auto hasAbility = [&ncre](const std::string name) -> bool
+			{
+				return boost::algorithm::find_first(ncre.abilityRefs,name);
+			};			
+			BOOST_FOREACH(auto a, abilityMap)
+			{
+				if(hasAbility(a.first))
+					ncre.addBonus(0, a.second);
+			}			
+			if(hasAbility("DOUBLE_WIDE"))
 				ncre.doubleWide = true;
-			if(boost::algorithm::find_first(ncre.abilityRefs, "FLYING_ARMY"))
-				ncre.addBonus(0, Bonus::FLYING);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "SHOOTING_ARMY"))
-				ncre.addBonus(0, Bonus::SHOOTER);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "SIEGE_WEAPON"))
-				ncre.addBonus(0, Bonus::SIEGE_WEAPON);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "const_free_attack"))
-				ncre.addBonus(0, Bonus::BLOCKS_RETALIATION);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "IS_UNDEAD"))
-				ncre.addBonus(0, Bonus::UNDEAD);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "const_no_melee_penalty"))
-				ncre.addBonus(0, Bonus::NO_MELEE_PENALTY);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "const_jousting"))
-				ncre.addBonus(0, Bonus::JOUSTING);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "const_raises_morale"))
+			if(hasAbility("const_raises_morale"))
 			{
 				ncre.addBonus(+1, Bonus::MORALE);;
 				ncre.getBonusList().back()->addPropagator(make_shared<CPropagatorNodeType>(CBonusSystemNode::HERO));
 			}
-			if(boost::algorithm::find_first(ncre.abilityRefs, "const_lowers_morale"))
+			if(hasAbility("const_lowers_morale"))
 			{
 				ncre.addBonus(-1, Bonus::MORALE);;
 				ncre.getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 			}
-			if(boost::algorithm::find_first(ncre.abilityRefs, "KING_1"))
-				ncre.addBonus(0, Bonus::KING1);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "KING_2"))
-				ncre.addBonus(0, Bonus::KING2);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "KING_3"))
-				ncre.addBonus(0, Bonus::KING3);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "const_no_wall_penalty"))
-				ncre.addBonus(0, Bonus::NO_WALL_PENALTY);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "CATAPULT"))
-				ncre.addBonus(0, Bonus::CATAPULT);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "MULTI_HEADED"))
-				ncre.addBonus(0, Bonus::ATTACKS_ALL_ADJACENT);
-
-			if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_MIND_SPELLS"))
-				ncre.addBonus(0, Bonus::MIND_IMMUNITY);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_FIRE_SPELLS"))
-				ncre.addBonus(0, Bonus::FIRE_IMMUNITY);
-			if(boost::algorithm::find_first(ncre.abilityRefs, "HAS_EXTENDED_ATTACK"))
-				ncre.addBonus(0, Bonus::TWO_HEX_ATTACK_BREATH);;
 		}
 		creatures.push_back(&ncre);
 	}
@@ -332,12 +335,12 @@ void CCreatureHandler::loadCreatures()
 
 		// Main reference name, e.g. royalGriffin
 		c->nameRef = node.first;
-		VLC->modh->identifiers.registerObject("creature." + node.first, c->idNumber);
+		registerCreature(node.first, c->idNumber);
 
 		// Alternative names, if any
 		BOOST_FOREACH(const JsonNode &name, node.second["extraNames"].Vector())
 		{
-			VLC->modh->identifiers.registerObject("creature." + name.String(), c->idNumber);
+			registerCreature(name.String(), c->idNumber);
 		}
 	}
 
@@ -548,7 +551,7 @@ void CCreatureHandler::load(const JsonNode & node)
 
 			creatures.push_back(creature);
 			tlog5 << "Added creature: " << entry.first << "\n";
-			VLC->modh->identifiers.registerObject(std::string("creature.") + creature->nameRef, creature->idNumber);
+			registerCreature(creature->nameRef,creature->idNumber);
 		}
 	}
 }
@@ -818,35 +821,35 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		{
 			case 'B': //Blind
 				b.type = Bonus::SPELL_IMMUNITY;
-				b.subtype = 74;
+				b.subtype = SpellID::BLIND;
 				break;
 			case 'H': //Hypnotize
 				b.type = Bonus::SPELL_IMMUNITY;
-				b.subtype = 60;
+				b.subtype = SpellID::HYPNOTIZE;
 				break;
 			case 'I': //Implosion
 				b.type = Bonus::SPELL_IMMUNITY;
-				b.subtype = 18;
+				b.subtype = SpellID::IMPLOSION;
 				break;
 			case 'K': //Berserk
 				b.type = Bonus::SPELL_IMMUNITY;
-				b.subtype = 59;
+				b.subtype = SpellID::BERSERK;
 				break;
 			case 'M': //Meteor Shower
 				b.type = Bonus::SPELL_IMMUNITY;
-				b.subtype = 23;
+				b.subtype = SpellID::METEOR_SHOWER;
 				break;
 			case 'N': //dispell beneficial spells
 				b.type = Bonus::SPELL_IMMUNITY;
-				b.subtype = 78;
+				b.subtype = SpellID::DISPEL_HELPFUL_SPELLS;
 				break;
 			case 'R': //Armageddon
 				b.type = Bonus::SPELL_IMMUNITY;
-				b.subtype = 26;
+				b.subtype = SpellID::ARMAGEDDON;
 				break;
 			case 'S': //Slow
 				b.type = Bonus::SPELL_IMMUNITY;
-				b.subtype = 54;
+				b.subtype = SpellID::SLOW;
 				break;
 			case '6':
 			case '7':

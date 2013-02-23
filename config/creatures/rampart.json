@@ -178,7 +178,7 @@
 		"id": 22,
 		"level": 5,
 		"faction": "rampart",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, 72, 0 ] ],   //dendroids cast bind
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, "spell.bind", 0 ] ],   //dendroids cast bind
 		"upgrades": ["dendroidSoldier"],
 		"graphics" :
 		{
@@ -198,7 +198,7 @@
 		"id": 23,
 		"level": 5,
 		"faction": "rampart",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, 72, 0 ] ],	//dendroid guards cast bind
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, "spell.bind", 0 ] ],	//dendroid guards cast bind
 		"graphics" :
 		{
 			"animation": "CBTREE.DEF"
@@ -218,7 +218,7 @@
 		"level": 6,
 		"faction": "rampart",
 		"abilities": [ [ "SPELL_RESISTANCE_AURA", 0, 55, 0 ],	//unicorn
-						 [ "SPELL_AFTER_ATTACK", 20, 62, 0 ] ],	//unicorns cast blind with 20% probability
+						 [ "SPELL_AFTER_ATTACK", 20, "spell.blind", 0 ] ],	//unicorns cast blind with 20% probability
 		"upgrades": ["warUnicorn"],
 		"graphics" :
 		{
@@ -239,7 +239,7 @@
 		"level": 6,
 		"faction": "rampart",
 		"abilities": [ [ "SPELL_RESISTANCE_AURA", 20, 55, 0 ], 	//war unicorn
-						 [ "SPELL_AFTER_ATTACK", 20, 62, 0 ] ],	//war unicorns cast blind with 20% probability
+						 [ "SPELL_AFTER_ATTACK", 20, "spell.blind", 0 ] ],	//war unicorns cast blind with 20% probability
 		"graphics" :
 		{
 			"animation": "CWUNIC.DEF"

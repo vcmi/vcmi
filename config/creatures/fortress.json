@@ -131,7 +131,7 @@
 		"level": 3,
 		"extraNames": [ "dragonFly" ],
 		"faction": "fortress",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, 78, 0 ] ],  	//serpent fly
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, "spell.dispelHelpful", 0 ] ], 
 		"upgrades": ["fireDragonFly"],
 		"hasDoubleWeek": true,
 		"graphics" :
@@ -152,8 +152,8 @@
 		"id": 105,
 		"level": 3,
 		"faction": "fortress",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, 78, 0 ],	//dragon fly
-					   [ "SPELL_AFTER_ATTACK", 100, 45, 0 ] ],  	//mighty gorgons
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, "spell.dispelHelpful", 0 ],	
+					   [ "SPELL_AFTER_ATTACK", 100, "spell.weakness", 0 ] ],  
 		"graphics" :
 		{
 			"animation": "CDRFIR.DEF"
@@ -173,7 +173,7 @@
 		"id": 106,
 		"level": 4,
 		"faction": "fortress",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 70, 0 ] ],   	//basilisks
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, "spell.stoneGaze", 0 ] ],
 		"upgrades": ["greaterBasilisk"],
 		"graphics" :
 		{
@@ -193,7 +193,7 @@
 		"id": 107,
 		"level": 4,
 		"faction": "fortress",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 70, 0 ] ],   	//greater basilisks
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, "spell.stoneGaze", 0 ] ],
 		"graphics" :
 		{
 			"animation": "CGBASI.DEF"
@@ -231,7 +231,7 @@
 		"id": 109,
 		"level": 6,
 		"faction": "fortress",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 71, 0 ] ],   	//Wyvern Monarch
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 50, "spell.poison", 0 ] ],   	//50% probability (from FizMiG)
 		"graphics" :
 		{
 			"animation": "CWYVMN.DEF"
@@ -250,8 +250,8 @@
 		"id": 110,
 		"level": 7,
 		"faction": "fortress",
-		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ], 	   	//hydras
-					   [ "ATTACKS_ALL_ADJACENT", 0, 0, 0 ] ],   	//hydras
+		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ], 	   	
+					   [ "ATTACKS_ALL_ADJACENT", 0, 0, 0 ] ], 
 		"upgrades": ["chaosHydra"],
 		"graphics" :
 		{
@@ -271,8 +271,8 @@
 		"id": 111,
 		"level": 7,
 		"faction": "fortress",
-		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ], 	   	//chaos hydras
-					   [ "ATTACKS_ALL_ADJACENT", 0, 0, 0 ] ],   	//chaos hydras
+		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ], 	   	
+					   [ "ATTACKS_ALL_ADJACENT", 0, 0, 0 ] ],   
 		"graphics" :
 		{
 			"animation": "CCHYDR.DEF"

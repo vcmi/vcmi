@@ -63,7 +63,7 @@
 		"id": 87,
 		"level": 2,
 		"faction": "stronghold",
-		"abilities": [ [ "ADDITIONAL_ATTACK", 1, 0, 0 ] ],		//wolf raider
+		"abilities": [ [ "ADDITIONAL_ATTACK", 1, 0, 0 ] ],
 		"graphics" :
 		{
 			"animation": "CUWLFR.DEF"
@@ -150,9 +150,9 @@
 		"id": 91,
 		"level": 4,
 		"faction": "stronghold",
-		"abilities": [ [ "SPELLCASTER", 2, 43, 0 ],
+		"abilities": [ [ "SPELLCASTER", 2, "spell.bloodlust", 0 ],
 						 [ "CASTS", 3, 0, 0],
-						 [ "CREATURE_ENCHANT_POWER", 3, 0, 0]],   	   	   	//ogre magi cast bloodlust
+						 [ "CREATURE_ENCHANT_POWER", 3, 0, 0]],   	   	   	
 		"graphics" :
 		{
 			"animation": "COGMAG.DEF"
@@ -191,8 +191,8 @@
 		"id": 93,
 		"level": 5,
 		"faction": "stronghold",
-		"abilities": [ [ "SPECIFIC_SPELL_POWER", 10, 77, 0 ],	//10 damage per unit
-						 [ "SPELL_AFTER_ATTACK", 20, 77, 0 ] ],   	//thunderbirds
+		"abilities": [ [ "SPECIFIC_SPELL_POWER", 10, "spell.thunderbolt", 0 ],	//10 damage per unit
+						 [ "SPELL_AFTER_ATTACK", 20, "spell.thunderbolt", 0 ] ],   	
 		"graphics" :
 		{
 			"animation": "CTBIRD.DEF"
@@ -260,7 +260,7 @@
 		"id": 96,
 		"level": 7,
 		"faction": "stronghold",
-		"abilities": [ [ "ENEMY_DEFENCE_REDUCTION", 40, 0, 0 ] ],		//behemots
+		"abilities": [ [ "ENEMY_DEFENCE_REDUCTION", 40, 0, 0 ] ],		
 		"upgrades": ["ancientBehemoth"],
 		"graphics" :
 		{
@@ -280,7 +280,7 @@
 		"id": 97,
 		"level": 7,
 		"faction": "stronghold",
-		"abilities": [ [ "ENEMY_DEFENCE_REDUCTION", 80, 0, 0 ] ],		//ancient behemots
+		"abilities": [ [ "ENEMY_DEFENCE_REDUCTION", 80, 0, 0 ] ],
 		"graphics" :
 		{
 			"animation": "CABEHE.DEF"

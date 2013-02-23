@@ -4,7 +4,7 @@
 		"id": 70,
 		"level": 1,
 		"faction": "dungeon",
-		"abilities": [ [ "SPELL_IMMUNITY", 0, 62, 0 ] ],	  	   	//troglodytes are immune to blind
+		"abilities": [ [ "SPELL_IMMUNITY", 0, "spell.blind", 0 ] ],	  	   	//troglodytes are immune to blind
 		"upgrades": ["infernalTroglodyte"],
 		"hasDoubleWeek": true,
 		"graphics" :
@@ -25,7 +25,7 @@
 		"id": 71,
 		"level": 1,
 		"faction": "dungeon",
-		"abilities": [ [ "SPELL_IMMUNITY", 0, 62, 0 ] ],		   	//infernal troglodytes are immune to blind
+		"abilities": [ [ "SPELL_IMMUNITY", 0, "spell.blind", 0 ] ],		   	//infernal troglodytes are immune to blind
 		"graphics" :
 		{
 			"animation": "CITROG.DEF"
@@ -138,7 +138,7 @@
 		"id": 76,
 		"level": 4,
 		"faction": "dungeon",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 70, 2000 ] ],  	//medusas			//minotaurs
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, "spell.stoneGaze", 2000 ] ],
 		"upgrades": ["medusaQueen"],
 		"graphics" :
 		{
@@ -164,7 +164,7 @@
 		"id": 77,
 		"level": 4,
 		"faction": "dungeon",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 70, 2000 ] ],  	//medusa queens			//minotaur kings
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, "spell.stoneGaze", 2000 ] ],
 		"graphics" :
 		{
 			"animation": "CMEDUQ.DEF",
@@ -249,7 +249,7 @@
 		"id": 81,
 		"level": 6,
 		"faction": "dungeon",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, 74, 0 ] ],   	//scorpicore
+		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, "spell.paralyze", 0 ] ],
 		"graphics" :
 		{
 			"animation": "CCMCOR.DEF"
@@ -293,8 +293,8 @@
 		"faction": "dungeon",
 		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//black dragon is a dragon
 						 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//Black Dragon has breath attack
-						 [ "HATE", 50, 41, 0 ],	//Hate Titans
-						 [ "HATE", 50, 40, 0 ],	//Hate Giants
+						 [ "HATE", 50, "creature.titan", 0 ],	//Hate Titans
+						 [ "HATE", 50, "creature.giant", 0 ],	//Hate Giants
 						 [ "LEVEL_SPELL_IMMUNITY", 5, 0, 0 ] ],   	//black dragon's spell immunity
 		"graphics" :
 		{
