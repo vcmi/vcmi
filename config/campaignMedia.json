@@ -125,5 +125,113 @@
 		"H3x2_UAl.smk", //UnholyAlliance_l
  		"H3x2_UAm.smk", //UnholyAlliance_end //H3x2_UAm.bik?
 	],
-	"music" : []
+	"music" : [
+		
+	],
+	"voice" : {
+	//Restoration of Erathia
+		"G1A", //Long live the Queen 1 
+		"G1B", //Long live the Queen 2 
+		"G1C", //Long live the Queen 3
+		"E1A.wav", //Dungeons and Devils 1 
+		"E1B.wav", //Dungeons and Devils 2 
+		"E1C.wav", //Dungeons and Devils 3
+		"N1A", //Spoils of War 1 
+		"N1B", //Spoils of War 2 
+		"N1C_D", //Spoils of War 3
+		"G2A", //Liberation 1 
+		"G2B", //Liberation 2 
+		"G2C", //Liberation 3 
+		"G2D", //Liberation 4
+		"E2A.wav", //Long live the King 1 
+		"E2AE.wav", //Long live the King 1end 
+		"E2B.wav", //Long live the King 2 
+		"E2C.wav", //Long live the King 3 
+		"E2D.wav", //Long live the King 4
+		"G3A", //Song for the Father 1 
+		"G3B", //Song for the Father 2 
+		"G3C", //Song for the Father 3
+		"S1A", //Seeds of discontent 1 
+		"S1B", //Seeds of discontent 2 
+		"S1C", //Seeds of discontent 3
+	//Armageddon's Blade
+		"ABvoAB1.wav", //Armageddon's Blade 1 
+		"ABvoAB2.wav", //Armageddon's Blade 2 
+		"ABvoAB3.wav", //Armageddon's blade 3 
+		"ABvoAB4.wav", //Armageddon's blade 4 
+		"ABvoAB5.wav", //Armageddon's blade 5 
+		"ABvoAB6.wav", //Armageddon's blade 6 
+		"ABvoAB7.wav", //Armageddon's blade 7 
+		"ABvoAB8.wav", //Armageddon's blade 8 
+		"ABvoAB9.wav", //Armageddon's blade 8end
+		"ABvoDB1.wav", //Dragon's Blood 1 
+		"ABvoDB2.wav", //Dragon's Blood 2 
+		"ABvoDB3.wav", //Dragon's Blood 3 
+		"ABvoDB4.wav", //Dragon's Blood 4 
+		"ABvoDB5.wav", //Dragon's Blood 4end
+		"ABvoDS1.wav", //Dragon Slayer 1 
+		"ABvoDS2.wav", //Dragon Slayer 2 
+		"ABvoDS3.wav", //Dragon Slayer 3 
+		"ABvoDS4.wav", //Dragon Slayer 4 
+		"ABvoDS5.wav", //Dragon Slayer 4end 
+		"ABvoFL1.wav", //Festival of Life 1 
+		"ABvoFL2.wav", //Festival of Life 2 
+		"ABvoFL3.wav", //Festival of Life 3 
+		"ABvoFL4.wav", //Festival of Life 4 
+		"ABvoFL5.wav", //Festival of Life 4end
+		"ABvoFW1.wav", //Foolhardy Waywardness 1 
+		"ABvoFW2.wav", //Foolhardy Waywardness 2 
+		"ABvoFW3.wav", //Foolhardy Waywardness 3 
+		"ABvoFW4.wav", //Foolhardy Waywardness 4 
+		"ABvoFW5.wav", //Foolhardy Waywardness 4end 
+		"ABvoPF1.wav", //Playing with Fire 1 
+		"ABvoPF2.wav", //Playing with Fire 2 
+		"ABvoPF3.wav", //Playing with Fire 3 
+		"ABvoPF4.wav", //Playing with Fire 3end
+	//Shadow of Death Campaigns 
+		"H3x2BBa", //Birth of a Barbarian 1 
+		"H3x2BBb", //Birth of a Barbarian 2 
+		"H3x2BBc", //Birth of a Barbarian 3 
+		"H3x2BBd", //Birth of a Barbarian 4 
+		"H3x2BBe", //Birth of a Barbarian 5 
+		"H3x2BBf", //Birth of a Barbarian 5end
+		"H3x2ELa", //Elixir of life 1 
+		"H3x2ELb", //Elixir of life 2 
+		"H3x2ELc", //Elixir of life 3 
+		"H3x2ELd", //Elixir of life 4 
+		"H3x2ELe", //Elixir of life 4end 
+		"H3x2HSa", //Hack and Slash 1 
+		"H3x2HSb", //Hack and Slash 2 
+		"H3x2HSc", //Hack and Slash 3 
+		"H3x2HSd", //Hack and Slash 4 
+		"H3x2HSe", //Hack and Slash 4end 
+		"H3x2NBa", //New Beginning 1 
+		"H3x2NBb", //New Beginning 2 
+		"H3x2NBc", //New Beginning 3 
+		"H3x2NBd", //New Beginning 4 
+		"H3x2NBe", //New Beginning 4end 
+		"H3x2RNa", //Rise of the Necromancer 1 
+		"H3x2RNb", //Rise of the Necromancer 2 
+		"H3x2RNc", //Rise of the Necromancer 3 
+		"H3x2RNd", //Rise of the Necromancer 4 
+		"H3x2RNe", //Rise of the Necromancer 4end 
+		"H3x2SPa", //Spectre of Power 1 
+		"H3x2Spb", //Spectre of Power 2 
+		"H3x2Spc", //Spectre of Power 3 
+		"H3x2Spd", //Spectre of Power 4 
+		"H3x2Spe", //Spectre of Power 4end 
+		"H3x2UAa", //Unholy alliance 1 
+		"H3x2UAb", //Unholy alliance 2 
+		"H3x2UAc", //Unholy alliance 3 
+		"H3x2UAd", //Unholy alliance 4 
+		"H3x2UAe", //Unholy alliance 5 
+		"H3x2UAf", //Unholy alliance 6 
+		"H3x2UAg", //Unholy alliance 7 
+		"H3x2UAh", //Unholy alliance 8 
+		"H3x2UAi", //Unholy alliance 9 
+		"H3x2UAj", //Unholy alliance 10 
+		"H3x2UAk", //Unholy alliance 11 
+		"H3x2UAl", //Unholy alliance 12 
+		"H3x2UAm" //Unholy alliance 12end
+	}
 }
