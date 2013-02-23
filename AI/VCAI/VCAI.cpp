@@ -2095,7 +2095,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 	{
 		CGoal goal = ultimateGoal;
 		BNLOG("Striving to goal of type %s", ultimateGoal.name());
-		int maxGoals = 100; //preventing deadlock for mutually dependent goals
+		int maxGoals = 100; //preventing deadlock for mutually dependent goals, FIXME: do not try to realize goal when loop didn't suceed
 		while(!goal.isElementar && !goal.isAbstract && maxGoals)
 		{
 			INDENT;
@@ -2117,6 +2117,12 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 		try
 		{
 			boost::this_thread::interruption_point();
+
+			if (!maxGoals)
+			{
+				std::exception e("Too many subgoals, don't know what to do");
+				throw (e);
+			}
 
 			if (goal.hero) //lock this hero to fulfill ultimate goal
 			{
@@ -2185,6 +2191,11 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			try
 			{
 				boost::this_thread::interruption_point();
+				if (!maxGoals)
+				{
+					std::exception e("Too many subgoals, don't know what to do");
+					throw (e);
+				}
 				tryRealize(goal);
 				boost::this_thread::interruption_point();
 			}
