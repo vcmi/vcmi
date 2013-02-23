@@ -524,10 +524,7 @@ void CClient::finishCampaign( shared_ptr<CCampaignState> camp )
 
 void CClient::proposeNextMission(shared_ptr<CCampaignState> camp)
 {
-	endGame(false);
-	LOCPLINT = nullptr; //TODO free res
 	GH.pushInt(new CBonusSelection(camp));
-	GH.curInt = CGPreGame::create();
 }
 
 void CClient::stopConnection()
@@ -677,6 +674,30 @@ int CClient::sendRequest(const CPack *request, TPlayerColor player)
 		playerint[player]->requestSent(dynamic_cast<const CPackForServer*>(request), requestID);
 
 	return requestID;
+}
+
+void CClient::campaignMapFinished( shared_ptr<CCampaignState> camp )
+{
+	endGame(false);
+	LOCPLINT = nullptr; //TODO free res
+
+	GH.curInt = CGPreGame::create();
+	auto & epilogue = camp->camp->scenarios[camp->mapsConquered.back()].epilog;
+	auto finisher = [&]()
+	{
+		if(camp->mapsRemaining.size())
+			proposeNextMission(camp);
+		else
+			finishCampaign(camp);
+	};
+	if(epilogue.hasPrologEpilog)
+	{
+		GH.pushInt(new CPrologEpilogVideo(epilogue, finisher));
+	}
+	else
+	{
+		finisher();
+	}
 }
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );

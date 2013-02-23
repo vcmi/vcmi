@@ -1,4 +1,5 @@
 #include "StdInc.h"
+#define DO_NOT_DISABLE_REGISTER_TYPES_INSTANTIATION
 #include "RegisterTypes.h"
 
 #include "Mapping/CMapInfo.h"

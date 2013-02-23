@@ -200,6 +200,7 @@
     <ClCompile Include="Mapping\CMapService.cpp" />
     <ClCompile Include="Mapping\CMapEditManager.cpp" />
     <ClCompile Include="Mapping\MapFormatH3M.cpp" />
+    <ClCompile Include="RegisterTypes.cpp" />
     <ClCompile Include="RMG\CMapGenOptions.cpp" />
     <ClCompile Include="RMG\CMapGenerator.cpp" />
     <ClCompile Include="HeroBonus.cpp" />

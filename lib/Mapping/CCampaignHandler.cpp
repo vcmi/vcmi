@@ -464,7 +464,8 @@ CCampaignState::CCampaignState( unique_ptr<CCampaign> _camp ) : camp(std::move(_
 {
 	for(int i = 0; i < camp->scenarios.size(); i++)
 	{
-		mapsRemaining.push_back(i);
+		if(vstd::contains(camp->mapPieces, i)) //not all maps must be present in a campaign
+			mapsRemaining.push_back(i);
 	}
 }
 

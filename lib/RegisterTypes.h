@@ -264,9 +264,12 @@ void registerTypes(Serializer &s)
 	registerTypes4(s);
 }
 
+#ifndef DO_NOT_DISABLE_REGISTER_TYPES_INSTANTIATION
 extern template DLL_LINKAGE void registerTypes<CISer<CConnection>>(CISer<CConnection>& s);
 extern template DLL_LINKAGE void registerTypes<COSer<CConnection>>(COSer<CConnection>& s);
 extern template DLL_LINKAGE void registerTypes<CSaveFile>(CSaveFile & s);
 extern template DLL_LINKAGE void registerTypes<CLoadFile>(CLoadFile & s);
 extern template DLL_LINKAGE void registerTypes<CTypeList>(CTypeList & s);
 extern template DLL_LINKAGE void registerTypes<CLoadIntegrityValidator>(CLoadIntegrityValidator & s);
+#endif
+

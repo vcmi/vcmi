@@ -311,10 +311,7 @@ void RemoveBonus::applyCl( CClient *cl )
 void UpdateCampaignState::applyCl( CClient *cl )
 {
 	cl->stopConnection();
-	if(camp->mapsRemaining.size())
-		cl->proposeNextMission(camp);
-	else
-		cl->finishCampaign(camp);
+	cl->campaignMapFinished(camp);
 }
 
 void PrepareForAdvancingCampaign::applyCl(CClient *cl)

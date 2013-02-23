@@ -4101,9 +4101,9 @@ CPrologEpilogVideo::CPrologEpilogVideo( CCampaignScenario::SScenarioPrologEpilog
 
 	auto lines = CMessage::breakText(spe.prologText, 500, EFonts::FONT_BIG);
 
-	txt = CSDL_Ext::newSurface(500, 20 * lines.size() + 5);
+	txt = CSDL_Ext::newSurface(500, 20 * lines.size() + 10);
 	curTxtH = screen->h;
-	graphics->fonts[FONT_BIG]->renderTextLinesCenter(txt, lines, Colors::METALLIC_GOLD, Point(txt->w/2, txt->h/2));
+	graphics->fonts[FONT_BIG]->renderTextLinesCenter(txt, lines, Colors::METALLIC_GOLD, Point(txt->w/2, txt->h/2 + 5));
 	//SDL_SaveBMP(txt, "txtsrfc.bmp");
 }
 
