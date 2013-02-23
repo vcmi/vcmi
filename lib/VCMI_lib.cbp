@@ -160,6 +160,7 @@
 		<Unit filename="RMG/CMapGenOptions.h" />
 		<Unit filename="RMG/CMapGenerator.cpp" />
 		<Unit filename="RMG/CMapGenerator.h" />
+		<Unit filename="RegisterTypes.cpp" />
 		<Unit filename="RegisterTypes.h" />
 		<Unit filename="ResourceSet.cpp" />
 		<Unit filename="ResourceSet.h" />

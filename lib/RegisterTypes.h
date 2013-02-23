@@ -256,10 +256,17 @@ void registerTypes4(Serializer &s)
 }
 
 template<typename Serializer>
-void DLL_LINKAGE registerTypes(Serializer &s)
+void registerTypes(Serializer &s)
 {
 	registerTypes1(s);
 	registerTypes2(s);
 	registerTypes3(s);
 	registerTypes4(s);
 }
+
+extern template DLL_LINKAGE void registerTypes<CISer<CConnection>>(CISer<CConnection>& s);
+extern template DLL_LINKAGE void registerTypes<COSer<CConnection>>(COSer<CConnection>& s);
+extern template DLL_LINKAGE void registerTypes<CSaveFile>(CSaveFile & s);
+extern template DLL_LINKAGE void registerTypes<CLoadFile>(CLoadFile & s);
+extern template DLL_LINKAGE void registerTypes<CTypeList>(CTypeList & s);
+extern template DLL_LINKAGE void registerTypes<CLoadIntegrityValidator>(CLoadIntegrityValidator & s);
