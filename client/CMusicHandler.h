@@ -56,7 +56,6 @@ public:
 	void init();
 	void release();
 
-	void initCreaturesSounds(const std::vector<ConstTransitivePtr<CCreature> > &creatures);
 	void initSpellsSounds(const std::vector< ConstTransitivePtr<CSpell> > &spells);
 	void setVolume(ui32 percent);
 

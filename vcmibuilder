@@ -178,18 +178,18 @@ then
 	data_dir="$temp_dir"/cddir
 	mkdir -p "$data_dir" 
 	unshield -d "$data_dir" x "$cd1_dir"/_setup/data1.cab || fail "Error: failed to extract from Install Shield installer!" "rm -rf $data_dir" 
-	
+
 	# a bit tricky - different releases have different root directory. Move extracted files to data_dir
 	if [ -d "$data_dir"/Heroes3 ] 
 	then
-	    mv "$data_dir"/Heroes3/* "$data_dir" 
+		mv "$data_dir"/Heroes3/* "$data_dir" 
 	elif [ -d "$data_dir""/Program_Files" ] 
 	then
-	    mv "$data_dir"/Program_Files/* "$data_dir" 
+		mv "$data_dir"/Program_Files/* "$data_dir" 
 	else
 		echo "Error: failed to find extracted game files!"
 		echo "Extracted directories are: "
-	    ls -la "$data_dir" 
+		ls -la "$data_dir" 
 		echo "Please report this on vcmi.eu"
 		exit 1;
 	fi
@@ -231,7 +231,7 @@ then
 		wget "http://download.vcmi.eu/WoG/wog.zip" -O "$temp_dir"/wog.zip || fail "Error: failed to download WoG archive!" "rm -f wog.zip"
 		wog_archive="$temp_dir"/wog.zip
 	fi
-	
+
 	if [[ -z "$vcmi_archive" ]]
 	then
 		wget "http://download.vcmi.eu/core.zip" -O "$temp_dir"/core.zip || fail "Error: failed to download VCMI archive!" "rm -f core.zip"

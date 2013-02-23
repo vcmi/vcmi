@@ -132,7 +132,6 @@ void init()
 
 	loadDLLClasses();
 	const_cast<CGameInfo*>(CGI)->setFromLib();
-	CCS->soundh->initCreaturesSounds(CGI->creh->creatures);
 	CCS->soundh->initSpellsSounds(CGI->spellh->spells);
 	tlog0<<"Initializing VCMI_Lib: "<<tmh.getDiff()<<std::endl;
 

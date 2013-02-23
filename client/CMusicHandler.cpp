@@ -187,31 +187,14 @@ soundBase::soundID CSoundHandler::getSoundID(const std::string &fileName)
 		return it->second;
 }
 
-void CSoundHandler::initCreaturesSounds(const std::vector<ConstTransitivePtr< CCreature> > &creatures)
-{
-
-	//commented to avoid spurious warnings
-	/*
-	// Find creatures without sounds
-	for(ui32 i=0;i<creatures.size();i++)
-	{
-		// Note: this will exclude war machines, but it's better
-		// than nothing.
-		if (vstd::contains(CGI->creh->notUsedMonsters, i))
-			continue;
-
-		CCreature &c = creatures[i];
-		if (c.sounds.killed == soundBase::invalid)
-			tlog1 << "creature " << c.idNumber << " doesn't have sounds" << std::endl;
-	}*/
-}
-
 void CSoundHandler::initSpellsSounds(const std::vector< ConstTransitivePtr<CSpell> > &spells)
 {
 	const JsonNode config(ResourceID("config/sp_sounds.json"));
 
-	if (!config["spell_sounds"].isNull()) {
-		BOOST_FOREACH(const JsonNode &node, config["spell_sounds"].Vector()) {
+	if (!config["spell_sounds"].isNull())
+	{
+		BOOST_FOREACH(const JsonNode &node, config["spell_sounds"].Vector())
+		{
 			int spellid = node["id"].Float();
 			const CSpell *s = CGI->spellh->spells[spellid];
 

@@ -156,9 +156,9 @@ bool operator OP (const CLASS_NAME & b) const		\
 #define INSTID_LIKE_CLASS_COMMON(CLASS_NAME)		\
 public:												\
 CLASS_NAME() : BaseForID<CLASS_NAME>(-1) {}			\
-CLASS_NAME(const CLASS_NAME & other)				\
+CLASS_NAME(const CLASS_NAME & other):				\
+	BaseForID<CLASS_NAME>(other)					\
 {													\
-	num = other.num;								\
 }													\
 CLASS_NAME & operator=(const CLASS_NAME & other)	\
 {													\

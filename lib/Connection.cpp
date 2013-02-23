@@ -1,27 +1,7 @@
 #include "StdInc.h"
 #include "Connection.h"
 
-#ifndef _MSC_VER
 #include "RegisterTypes.h"
-#endif
-
-//for smart objs serialization over net
-#include "Mapping/CMapInfo.h"
-#include "StartInfo.h"
-#include "BattleState.h"
-#include "CGameState.h"
-#include "Mapping/CMap.h"
-#include "CModHandler.h"
-#include "CObjectHandler.h"
-#include "CCreatureHandler.h"
-#include "VCMI_Lib.h"
-#include "CArtHandler.h"
-#include "CHeroHandler.h"
-#include "CSpellHandler.h"
-#include "CTownHandler.h"
-#include "Mapping/CCampaignHandler.h"
-#include "NetPacks.h"
-#include "CDefObjInfoHandler.h"
 
 #include <boost/asio.hpp>
 
@@ -37,7 +17,13 @@
 
 using namespace boost;
 using namespace boost::asio::ip;
-template<typename Serializer> DLL_LINKAGE void registerTypes(Serializer &s); //defined elsewhere and explicitly instantiated for used serializers
+
+extern template void registerTypes<CISer<CConnection> >(CISer<CConnection>& s);
+extern template void registerTypes<COSer<CConnection> >(COSer<CConnection>& s);
+extern template void registerTypes<CSaveFile>(CSaveFile & s);
+extern template void registerTypes<CLoadFile>(CLoadFile & s);
+extern template void registerTypes<CTypeList>(CTypeList & s);
+extern template void registerTypes<CLoadIntegrityValidator>(CLoadIntegrityValidator & s);
 
 CTypeList typeList;
 

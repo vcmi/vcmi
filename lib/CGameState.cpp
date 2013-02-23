@@ -48,18 +48,6 @@ class CGObjectInstance;
  *
  */
 
-void foofoofoo()
-{
-	//never called function to force instantation of templates
-	int *ccc = NULL;
-	registerTypes((CISer<CConnection>&)*ccc);
-	registerTypes((COSer<CConnection>&)*ccc);
-	registerTypes((CSaveFile&)*ccc);
-	registerTypes((CLoadFile&)*ccc);
-	registerTypes((CLoadIntegrityValidator&)*ccc);
-	registerTypes((CTypeList&)*ccc);
-}
-
 template <typename T> class CApplyOnGS;
 
 class CBaseForGSApply

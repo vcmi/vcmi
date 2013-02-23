@@ -12,15 +12,7 @@
 #pragma once
 
 #include <typeinfo> //XXX this is in namespace std if you want w/o use typeinfo.h?
-
-#include <boost/type_traits/is_fundamental.hpp>
-#include <boost/type_traits/is_enum.hpp>
-#include <boost/type_traits/is_pointer.hpp>
-#include <boost/type_traits/is_class.hpp>
-#include <boost/type_traits/is_base_of.hpp>
-#include <boost/type_traits/is_array.hpp>
-#include <boost/type_traits/remove_pointer.hpp>
-#include <boost/type_traits/remove_const.hpp>
+#include <type_traits>
 
 #include <boost/variant.hpp>
 #include <boost/mpl/eval_if.hpp>

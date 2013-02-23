@@ -50,6 +50,7 @@ set(lib_SRCS
 		JsonNode.cpp
 		NetPacksLib.cpp
 		ResourceSet.cpp
+		RegisterTypes.cpp
 		VCMI_Lib.cpp
 )
 

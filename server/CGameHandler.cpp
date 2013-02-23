@@ -1722,6 +1722,8 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 instant, TPlaye
 			&& complain("Cannot disembark hero, tile is blocked!"))
 		|| ( (distance(h->pos, dst) >= 1.5 && !instant)
 			&& complain("Tiles are not neighboring!"))
+		|| ( (h->inTownGarrison)
+			&& complain("Can not move garrisoned hero!"))
 		|| ((h->movement < cost  &&  dst != h->pos  &&  !instant)
 			&& complain("Hero doesn't have any movement points left!"))
 		|| (states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle)

@@ -450,8 +450,22 @@ void SetAvailableCreatures::applyCl( CClient *cl )
 void SetHeroesInTown::applyCl( CClient *cl )
 {
 	CGTownInstance *t = GS(cl)->getTown(tid);
-	if(vstd::contains(cl->playerint,t->tempOwner))
-		cl->playerint[t->tempOwner]->heroInGarrisonChange(t);
+	CGHeroInstance *hGarr  = GS(cl)->getHero(this->garrison);
+	CGHeroInstance *hVisit = GS(cl)->getHero(this->visiting);
+
+	std::set<TPlayerColor> playersToNotify;
+
+	if(vstd::contains(cl->playerint,t->tempOwner)) // our town
+		playersToNotify.insert(t->tempOwner);
+
+	if (hGarr && vstd::contains(cl->playerint,  hGarr->tempOwner))
+		playersToNotify.insert(hGarr->tempOwner);
+
+	if (hVisit && vstd::contains(cl->playerint, hVisit->tempOwner))
+		playersToNotify.insert(hVisit->tempOwner);
+
+	BOOST_FOREACH(auto playerID, playersToNotify)
+		cl->playerint[playerID]->heroInGarrisonChange(t);
 }
 
 // void SetHeroArtifacts::applyCl( CClient *cl )
@@ -776,7 +790,7 @@ void SaveGame::applyCl(CClient *cl)
 	CResourceHandler::get()->createResource(info.getStem() + ".vcgm1");
 
 	//FIXME: Workaround for a file that was created by server and in future should be used only by server
-	CResourceHandler::get()->createResource(info.getStem() + ".vlgm1");
+	CResourceHandler::get()->createResource(info.getStem() + ".vsgm1");
 
 	try
 	{

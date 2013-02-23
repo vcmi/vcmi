@@ -200,10 +200,12 @@ int CBattleCallback::sendRequest(const CPack *request)
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
 {
-	if(town->tempOwner != *player) return;
-
-	GarrisonHeroSwap pack(town->id);
-	sendRequest(&pack);
+	if(town->tempOwner == *player
+	   || (town->garrisonHero && town->garrisonHero->tempOwner == *player ))
+	{
+		GarrisonHeroSwap pack(town->id);
+		sendRequest(&pack);
+	}
 }
 
 void CCallback::buyArtifact(const CGHeroInstance *hero, ArtifactID aid)

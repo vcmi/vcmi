@@ -499,13 +499,15 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	if(town->garrisonHero && vstd::contains(wanderingHeroes,town->garrisonHero)) //wandering hero moved to the garrison
 	{
 		CGI->mh->hideObject(town->garrisonHero);
-		wanderingHeroes -= town->garrisonHero;
+		if (town->garrisonHero->tempOwner == playerID) // our hero
+			wanderingHeroes -= town->garrisonHero;
 	}
 
 	if(town->visitingHero && !vstd::contains(wanderingHeroes,town->visitingHero)) //hero leaves garrison
 	{
 		CGI->mh->printObject(town->visitingHero);
-		wanderingHeroes.push_back(town->visitingHero);
+		if (town->visitingHero == playerID) // our hero
+			wanderingHeroes.push_back(town->visitingHero);
 	}
 	adventureInt->heroList.update();
 	adventureInt->updateNextHero(NULL);

@@ -256,7 +256,7 @@ void registerTypes4(Serializer &s)
 }
 
 template<typename Serializer>
-void registerTypes(Serializer &s)
+void DLL_LINKAGE registerTypes(Serializer &s)
 {
 	registerTypes1(s);
 	registerTypes2(s);
