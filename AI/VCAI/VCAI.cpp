@@ -2120,7 +2120,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 
 			if (!maxGoals)
 			{
-				std::exception e("Too many subgoals, don't know what to do");
+				std::runtime_error e("Too many subgoals, don't know what to do");
 				throw (e);
 			}
 
@@ -2193,7 +2193,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 				boost::this_thread::interruption_point();
 				if (!maxGoals)
 				{
-					std::exception e("Too many subgoals, don't know what to do");
+					std::runtime_error e("Too many subgoals, don't know what to do");
 					throw (e);
 				}
 				tryRealize(goal);
