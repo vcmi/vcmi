@@ -1,5 +1,4 @@
 #include "StdInc.h"
-#include <boost/bimap.hpp>
 #include <SDL_mixer.h>
 
 #include "CMusicHandler.h"
@@ -22,7 +21,17 @@
 
 using namespace boost::assign;
 
-static boost::bimap<soundBase::soundID, std::string> sounds;
+#define VCMI_SOUND_NAME(x)
+#define VCMI_SOUND_FILE(y) #y,
+
+// sounds mapped to soundBase enum
+static std::string sounds[] = {
+    "", // invalid
+    "", // todo
+	VCMI_SOUND_LIST
+};
+#undef VCMI_SOUND_NAME
+#undef VCMI_SOUND_FILE
 
 // Not pretty, but there's only one music handler object in the game.
 static void soundFinishedCallbackC(int channel)
@@ -75,13 +84,6 @@ CSoundHandler::CSoundHandler():
 	listener(settings.listen["general"]["sound"])
 {
 	listener(boost::bind(&CSoundHandler::onVolumeChange, this, _1));
-	// Map sound names
-#define VCMI_SOUND_NAME(x) ( soundBase::x,
-#define VCMI_SOUND_FILE(y) #y )
-	sounds = boost::assign::list_of<boost::bimap<soundBase::soundID, std::string>::relation>
-		VCMI_SOUND_LIST;
-#undef VCMI_SOUND_NAME
-#undef VCMI_SOUND_FILE
 
 	// Vectors for helper(s)
 	pickupSounds += soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
@@ -130,15 +132,14 @@ void CSoundHandler::release()
 Mix_Chunk *CSoundHandler::GetSoundChunk(soundBase::soundID soundID)
 {
 	// Find its name
-	boost::bimap<soundBase::soundID, std::string>::left_iterator it;
-	it = sounds.left.find(soundID);
-	if (it == sounds.left.end())
+	auto fname = sounds[soundID];
+	if (fname.empty())
 		return nullptr;
 
 	// Load and insert
 	try
 	{
-		auto data = CResourceHandler::get()->loadData(ResourceID(std::string("SOUNDS/") + it->second, EResType::SOUND));
+		auto data = CResourceHandler::get()->loadData(ResourceID(std::string("SOUNDS/") + fname, EResType::SOUND));
 
 		SDL_RWops *ops = SDL_RWFromMem(data.first.release(), data.second);
 		Mix_Chunk *chunk;
@@ -175,18 +176,6 @@ Mix_Chunk *CSoundHandler::GetSoundChunk(std::string &sound)
 	}
 }
 
-// Get a soundID given a filename
-soundBase::soundID CSoundHandler::getSoundID(const std::string &fileName)
-{
-	boost::bimap<soundBase::soundID, std::string>::right_iterator it;
-
-	it = sounds.right.find(fileName);
-	if (it == sounds.right.end())
-		return soundBase::invalid;
-	else
-		return it->second;
-}
-
 void CSoundHandler::initSpellsSounds(const std::vector< ConstTransitivePtr<CSpell> > &spells)
 {
 	const JsonNode config(ResourceID("config/sp_sounds.json"));
@@ -201,8 +190,8 @@ void CSoundHandler::initSpellsSounds(const std::vector< ConstTransitivePtr<CSpel
 			if (vstd::contains(spellSounds, s))
 				tlog1 << "Spell << " << spellid << " already has a sound" << std::endl;
 
-			soundBase::soundID sound = getSoundID(node["soundfile"].String());
-			if (sound == soundBase::invalid)
+			std::string sound = node["soundfile"].String();
+			if (sound.empty())
 				tlog0 << "Error: invalid sound for id "<< spellid << "\n";
 			spellSounds[s] = sound;
 		}

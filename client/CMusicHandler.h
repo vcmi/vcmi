@@ -36,7 +36,7 @@ public:
 class CSoundHandler: public CAudioBase
 {
 private:
-	soundBase::soundID getSoundID(const std::string &fileName);
+	//soundBase::soundID getSoundID(const std::string &fileName);
 	//update volume on configuration change
 	SettingsListener listener;
 	void onVolumeChange(const JsonNode &volumeNode);
@@ -68,7 +68,7 @@ public:
 	void setCallback(int channel, boost::function<void()> function);
 	void soundFinishedCallback(int channel);
 
-	std::map<const CSpell*, soundBase::soundID> spellSounds;
+	std::map<const CSpell*, std::string> spellSounds;
 
 	// Sets
 	std::vector<soundBase::soundID> pickupSounds;
