@@ -485,7 +485,7 @@
 			[
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 0, //ATTACK
+					"subtype": "primSkill.attack",
 					"effectRange" : "ONLY_MELEE_FIGHT",
 					"duration": "N_TURNS"
 				}
@@ -501,7 +501,7 @@
 			[
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 0, //ATTACK
+					"subtype": "primSkill.attack",
 					"effectRange" : "ONLY_DISTANCE_FIGHT",
 					"duration": "N_TURNS"
 				}
@@ -518,7 +518,7 @@
 			[
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 0, //ATTACK
+					"subtype": "primSkill.attack",
 					"duration": "N_TURNS",
 					"values":[-3,-3,-6,-6]
 				}
@@ -534,7 +534,7 @@
 			[
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 1, //DEFENSE
+					"subtype": "primSkill.defence",
 					"duration": "N_TURNS"
 				}
 			]
@@ -549,7 +549,7 @@
 			[
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 1, //DEFENSE
+					"subtype": "primSkill.defence",
 					"valueType": "ADDITIVE_VALUE",
 					"duration": "N_TURNS",
 					"values":[-3,-3,-4,-5]
@@ -566,12 +566,12 @@
 			[
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 0, //ATTACK
+					"subtype": "primSkill.attack",
 					"duration": "N_TURNS"
 				},
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 1, //DEFENSE
+					"subtype": "primSkill.defence",
 					"duration": "N_TURNS"
 				},
 				{
@@ -935,13 +935,13 @@
 			[
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 	0,
+					"subtype": 	"primSkill.attack",
 					"duration": "N_TURNS",
 					"values":[-2,-2,-2,-2]
 				},
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 	1,
+					"subtype": 	"primSkill.defence",
 					"duration": "N_TURNS",
 					"values":[-2,-2,-2,-2]
 				}
@@ -1026,7 +1026,7 @@
 			[
 				{
 					"type": 	"PRIMARY_SKILL",
-					"subtype": 	1,
+					"subtype": 	"primSkill.attack",
 					"duration" : 	"PERMANENT",
 					"valueType": 	"ADDITIVE_VALUE",
 					"values":[-3,-3,-3,-3]

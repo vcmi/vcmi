@@ -51,7 +51,12 @@ void CIdentifierStorage::requestIdentifier(std::string name, const boost::functi
 	if (iter != registeredObjects.end())
 		callback(iter->second); //already registered - trigger callback immediately
 	else
+	{
+		if(boost::algorithm::starts_with(name, "primSkill."))
+			tlog2 << "incorrect primSkill name requested\n";
+
 		missingObjects[name].push_back(callback); // queue callback
+	}
 }
 
 void CIdentifierStorage::registerObject(std::string name, si32 identifier)
@@ -92,6 +97,9 @@ CModHandler::CModHandler()
 	{
 		identifiers.registerObject("resource." + GameConstants::RESOURCE_NAMES[i], i);
 	}
+
+	for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
+		identifiers.registerObject("primSkill." + PrimarySkill::names[i], i);
 
 	loadConfigFromFile ("defaultMods");
 }
