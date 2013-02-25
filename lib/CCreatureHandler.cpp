@@ -259,24 +259,24 @@ void CCreatureHandler::loadCreatures()
 		ncre.abilityRefs = parser.readString();
 
 		{ //adding abilities from ZCRTRAIT.TXT
-			static const std::pair < std::string,Bonus::BonusType> abilityMap [] = 
-			    {{"FLYING_ARMY", Bonus::FLYING},
-			    {"SHOOTING_ARMY", Bonus::SHOOTER},
-			    {"SIEGE_WEAPON", Bonus::SIEGE_WEAPON},
-			    {"const_free_attack", Bonus::BLOCKS_RETALIATION},
-			    {"IS_UNDEAD", Bonus::UNDEAD},
-			    {"const_no_melee_penalty",Bonus::NO_MELEE_PENALTY},
-			    {"const_jousting",Bonus::JOUSTING},
-			    {"KING_1",Bonus::KING1},
-			    {"KING_2",Bonus::KING2},
-				{"KING_3",Bonus::KING3},
-				{"const_no_wall_penalty",Bonus::NO_WALL_PENALTY},
-				{"CATAPULT",Bonus::CATAPULT},
-				{"MULTI_HEADED",Bonus::ATTACKS_ALL_ADJACENT},
-				{"IMMUNE_TO_MIND_SPELLS",Bonus::MIND_IMMUNITY},
-				{"IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY},
-				{"IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY},
-				{"HAS_EXTENDED_ATTACK",Bonus::TWO_HEX_ATTACK_BREATH}};
+			static const std::map < std::string,Bonus::BonusType> abilityMap = boost::assign::map_list_of
+			   ("FLYING_ARMY", Bonus::FLYING)
+			    ("SHOOTING_ARMY", Bonus::SHOOTER)
+			    ("SIEGE_WEAPON", Bonus::SIEGE_WEAPON)
+			    ("const_free_attack", Bonus::BLOCKS_RETALIATION)
+			    ("IS_UNDEAD", Bonus::UNDEAD)
+			    ("const_no_melee_penalty",Bonus::NO_MELEE_PENALTY)
+			    ("const_jousting",Bonus::JOUSTING)
+			    ("KING_1",Bonus::KING1)
+			    ("KING_2",Bonus::KING2)
+				("KING_3",Bonus::KING3)
+				("const_no_wall_penalty",Bonus::NO_WALL_PENALTY)
+				("CATAPULT",Bonus::CATAPULT)
+				("MULTI_HEADED",Bonus::ATTACKS_ALL_ADJACENT)
+				("IMMUNE_TO_MIND_SPELLS",Bonus::MIND_IMMUNITY)
+				("IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY)
+				("IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY)
+				("HAS_EXTENDED_ATTACK",Bonus::TWO_HEX_ATTACK_BREATH);
 				
 			auto hasAbility = [&ncre](const std::string name) -> bool
 			{
