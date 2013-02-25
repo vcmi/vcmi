@@ -451,6 +451,7 @@
 			[
 				{
 					"type": 	"ALWAYS_MAXIMUM_DAMAGE",
+					"subtype": -1, //any attack
 					"valType":"INDEPENDENT_MAX",
 					"duration": "N_TURNS"
 				}
@@ -462,7 +463,8 @@
 			"id": 42,
 			"effect": -1,
 			"anim": 40,
-			"ranges": [ "0", "0", "0", "X" ], "counters" : [41],
+			"ranges": [ "0", "0", "0", "X" ], 
+			"counters" : [41],
 			"effects":
 			[
 				{
@@ -480,7 +482,8 @@
 			"id": 43,
 			"effect": 1,
 			"anim": 4,
-			"ranges": [ "0", "0", "0", "X" ], "counters" : [45],
+			"ranges": [ "0", "0", "0", "X" ], 
+			"counters" : [45],
 			"effects":
 			[
 				{
@@ -513,7 +516,8 @@
 			"id": 45,
 			"effect": -1,
 			"anim": 56,
-			"ranges": [ "0", "0", "0", "X" ], "counters" : [43],
+			"ranges": [ "0", "0", "0", "X" ], 
+			"counters" : [43],
 			"effects":
 			[
 				{
@@ -600,7 +604,8 @@
 			"id": 50,
 			"effect": -1,
 			"anim": 30,
-			"ranges": [ "0", "0", "0", "X" ], "counters" : [49],
+			"ranges": [ "0", "0", "0", "X" ], 
+			"counters" : [49],
 			"effects":
 			[
 				{

@@ -885,6 +885,18 @@ JsonValidator::JsonValidator(JsonNode &root, const JsonNode &schema, bool Minimi
 	tlog3<<errors;
 }
 
+///JsonUtils
+
+void JsonUtils::parseTypedBonusShort(const JsonVector& source, Bonus *dest)
+{
+	dest->val = source[1].Float();
+	resolveIdentifier(source[2],dest->subtype);
+	dest->additionalInfo = source[3].Float();
+	dest->duration = Bonus::PERMANENT; //TODO: handle flags (as integer)
+	dest->turnsRemain = 0;	
+}
+
+
 Bonus * JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with AddAbility, create universal parser for all bonus properties
 {
 	Bonus * b = new Bonus();
@@ -892,15 +904,12 @@ Bonus * JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
 	{
-		tlog1 << "Error: invalid ability type " << type << " in creatures.txt" << std::endl;
+		tlog1 << "Error: invalid ability type " << type << std::endl;
 		return b;
 	}
 	b->type = it->second;
-	b->val = ability_vec[1].Float();
-	resolveIdentifier(ability_vec[2],b->subtype);
-	b->additionalInfo = ability_vec[3].Float();
-	b->duration = Bonus::PERMANENT; //TODO: handle flags (as integer)
-	b->turnsRemain = 0;
+	
+	parseTypedBonusShort(ability_vec, b);
 	return b;
 }
 template <typename T>

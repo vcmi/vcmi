@@ -672,7 +672,7 @@ inline Bonus makeFeatureVal(Bonus::BonusType type, ui8 duration, si16 subtype, s
 	return sf;
 }
 
-//generates HeroBonus from given data
+///generates HeroBonus from given data
 inline Bonus * makeFeature(Bonus::BonusType type, ui8 duration, si16 subtype, si32 value, Bonus::BonusSource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
 {
 	return new Bonus(makeFeatureVal(type, duration, subtype, value, source, turnsRemain, additionalInfo));

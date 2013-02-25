@@ -114,21 +114,37 @@ public:
 
 namespace JsonUtils
 {
+	/**
+	 * @brief parse short bonus format, excluding type
+	 * @note sets duration to Permament
+	 */	
+	DLL_LINKAGE void parseTypedBonusShort(const JsonVector &source, Bonus *dest);
+	
+	///
 	DLL_LINKAGE Bonus * parseBonus (const JsonVector &ability_vec);
 	DLL_LINKAGE Bonus * parseBonus (const JsonNode &bonus);
 	DLL_LINKAGE void unparseBonus (JsonNode &node, const Bonus * bonus);
 	DLL_LINKAGE void resolveIdentifier (si32 &var, const JsonNode &node, std::string name);
 	DLL_LINKAGE void resolveIdentifier (const JsonNode &node, si32 &var);
 
-	/// recursivly merges source into dest, replacing identical fields
-	/// struct : recursively calls this function
-	/// arrays : each entry will be merged recursively
-	/// values : value in source will replace value in dest
-	/// null   : if value in source is present but set to null it will delete entry in dest
-
-	/// this function will destroy data in source
+	/**
+	 * @brief recursivly merges source into dest, replacing identical fields
+	 * struct : recursively calls this function
+	 * arrays : each entry will be merged recursively
+	 * values : value in source will replace value in dest
+	 * null   : if value in source is present but set to null it will delete entry in dest
+	 * @note this function will destroy data in source
+	 */
 	DLL_LINKAGE void merge(JsonNode & dest, JsonNode & source);
-	/// this function will preserve data stored in source by creating copy
+	
+	/**
+	 * @brief recursivly merges source into dest, replacing identical fields
+	 * struct : recursively calls this function
+	 * arrays : each entry will be merged recursively
+	 * values : value in source will replace value in dest
+	 * null   : if value in source is present but set to null it will delete entry in dest
+	 * @note this function will preserve data stored in source by creating copy
+	 */ 
 	DLL_LINKAGE void mergeCopy(JsonNode & dest, JsonNode source);
 
 	/**

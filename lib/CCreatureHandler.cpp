@@ -157,7 +157,7 @@ static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 	Bonus *nsf = new Bonus();
 	std::string type = ability_vec[0].String();
 
-	std::map<std::string, Bonus::BonusType>::const_iterator it = bonusNameMap.find(type);
+	auto it = bonusNameMap.find(type);
 
 	if (it == bonusNameMap.end()) {
 		if (type == "DOUBLE_WIDE")
@@ -176,24 +176,20 @@ static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 	}
 
 	nsf->type = it->second;
+	
+	JsonUtils::parseTypedBonusShort(ability_vec,nsf);
 
-	nsf->val = ability_vec[1].Float();
-	JsonUtils::resolveIdentifier(ability_vec[2],nsf->subtype);
-	nsf->additionalInfo = ability_vec[3].Float();
 	nsf->source = Bonus::CREATURE_ABILITY;
 	nsf->sid = cre->idNumber;
-	//nsf->duration = Bonus::ONE_BATTLE; //what the?
-	nsf->duration = Bonus::PERMANENT;
-	nsf->turnsRemain = 0;
-
+	
 	cre->addNewBonus(nsf);
 }
 
 static void RemoveAbility(CCreature *cre, const JsonNode &ability)
 {
-	std::string type = ability.String();
+	const std::string type = ability.String();
 
-	std::map<std::string, Bonus::BonusType>::const_iterator it = bonusNameMap.find(type);
+	auto it = bonusNameMap.find(type);
 
 	if (it == bonusNameMap.end()) {
 		if (type == "DOUBLE_WIDE")
@@ -204,7 +200,7 @@ static void RemoveAbility(CCreature *cre, const JsonNode &ability)
 		return;
 	}
 
-	int typeNo = it->second;
+	const int typeNo = it->second;
 
 	Bonus::BonusType ecf = static_cast<Bonus::BonusType>(typeNo);
 
@@ -214,7 +210,7 @@ static void RemoveAbility(CCreature *cre, const JsonNode &ability)
 
 void CCreatureHandler::loadCreatures()
 {
-	tlog5 << "\t\tReading config/cr_abils.json and ZCRTRAIT.TXT" << std::endl;
+	tlog5 << "\t\tReading ZCRTRAIT.TXT" << std::endl;
 
 	////////////reading ZCRTRAIT.TXT ///////////////////
 	CLegacyConfigParser parser("DATA/ZCRTRAIT.TXT");
@@ -263,24 +259,24 @@ void CCreatureHandler::loadCreatures()
 		ncre.abilityRefs = parser.readString();
 
 		{ //adding abilities from ZCRTRAIT.TXT
-			static const std::map<std::string,Bonus::BonusType> abilityMap = 
-			  boost::assign::map_list_of
-			    ("FLYING_ARMY", Bonus::FLYING)
-			    ("SHOOTING_ARMY", Bonus::SHOOTER)
-			    ("SIEGE_WEAPON", Bonus::SIEGE_WEAPON)
-			    ("const_free_attack", Bonus::BLOCKS_RETALIATION)
-			    ("IS_UNDEAD", Bonus::UNDEAD)
-			    ("const_no_melee_penalty",Bonus::NO_MELEE_PENALTY)
-			    ("const_jousting",Bonus::JOUSTING)
-			    ("KING_1",Bonus::KING1)
-			    ("KING_2",Bonus::KING2)
-				("KING_3",Bonus::KING3)
-				("const_no_wall_penalty",Bonus::NO_WALL_PENALTY)
-				("CATAPULT",Bonus::CATAPULT)
-				("MULTI_HEADED",Bonus::ATTACKS_ALL_ADJACENT)
-				("IMMUNE_TO_MIND_SPELLS",Bonus::MIND_IMMUNITY)
-				("IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY)
-				("HAS_EXTENDED_ATTACK",Bonus::TWO_HEX_ATTACK_BREATH);
+			static const std::pair < std::string,Bonus::BonusType> abilityMap [] = 
+			    {{"FLYING_ARMY", Bonus::FLYING},
+			    {"SHOOTING_ARMY", Bonus::SHOOTER},
+			    {"SIEGE_WEAPON", Bonus::SIEGE_WEAPON},
+			    {"const_free_attack", Bonus::BLOCKS_RETALIATION},
+			    {"IS_UNDEAD", Bonus::UNDEAD},
+			    {"const_no_melee_penalty",Bonus::NO_MELEE_PENALTY},
+			    {"const_jousting",Bonus::JOUSTING},
+			    {"KING_1",Bonus::KING1},
+			    {"KING_2",Bonus::KING2},
+				{"KING_3",Bonus::KING3},
+				{"const_no_wall_penalty",Bonus::NO_WALL_PENALTY},
+				{"CATAPULT",Bonus::CATAPULT},
+				{"MULTI_HEADED",Bonus::ATTACKS_ALL_ADJACENT},
+				{"IMMUNE_TO_MIND_SPELLS",Bonus::MIND_IMMUNITY},
+				{"IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY},
+				{"IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY},
+				{"HAS_EXTENDED_ATTACK",Bonus::TWO_HEX_ATTACK_BREATH}};
 				
 			auto hasAbility = [&ncre](const std::string name) -> bool
 			{
@@ -351,10 +347,9 @@ void CCreatureHandler::loadCreatures()
 
 	BOOST_FOREACH(const JsonNode &bonus, config2["bonuses"].Vector())
 	{
-		std::map<std::string,Bonus::BonusType>::const_iterator it_map;
-		std::string bonusID = bonus["id"].String();
+		const std::string bonusID = bonus["id"].String();
 
-		it_map = bonusNameMap.find(bonusID);
+		auto it_map = bonusNameMap.find(bonusID);
 		if (it_map != bonusNameMap.end())
 			stackBonuses[it_map->second] = std::pair<std::string, std::string>(bonus["name"].String(), bonus["description"].String());
 		else
@@ -907,6 +902,9 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				break;
 			case '0':
 				b.type = Bonus::RECEPTIVE;
+				break;
+			case 'm':
+				b.type = Bonus::MIND_IMMUNITY;
 				break;
 			default:
 				tlog5 << "Not parsed bonus " << buf << mod << "\n";
