@@ -209,7 +209,7 @@ typedef boost::function<bool(const Bonus*)> CSelector;
 /// Struct for handling bonuses of several types. Can be transferred to any hero
 struct DLL_LINKAGE Bonus
 {
-	#define EVERY_TYPE -1;
+	enum { EVERY_TYPE = -1 };
 
 	enum BonusType
 	{

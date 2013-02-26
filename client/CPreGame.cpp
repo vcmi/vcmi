@@ -4091,7 +4091,7 @@ void CLoadingScreen::showAll(SDL_Surface *to)
 }
 
 CPrologEpilogVideo::CPrologEpilogVideo( CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback )
-	: spe(_spe), exitCb(callback), decrementDelayCounter(0)
+	: spe(_spe), decrementDelayCounter(0), exitCb(callback)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	addUsedEvents(LCLICK);
