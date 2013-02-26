@@ -209,6 +209,8 @@ typedef boost::function<bool(const Bonus*)> CSelector;
 /// Struct for handling bonuses of several types. Can be transferred to any hero
 struct DLL_LINKAGE Bonus
 {
+	#define EVERY_TYPE -1;
+
 	enum BonusType
 	{
 #define BONUS_NAME(x) x,
@@ -730,6 +732,46 @@ public:
 	}
 };
 
+template<typename T>
+class CSelectFieldAny //allows to ignore value of certain field, that is to accept any value
+{
+	T Bonus::*ptr;
+public:
+	CSelectFieldAny(T Bonus::*Ptr)
+		: ptr(Ptr)
+	{
+	}
+	bool operator()(const Bonus *bonus) const
+	{
+		return true;
+	}
+	CSelectFieldAny& operator()()
+	{
+		return *this;
+	}
+};
+
+template<typename T> //can be same, needed for subtype field
+class CSelectFieldEqualOrEvery
+{
+	T Bonus::*ptr;
+	T val;
+public:
+	CSelectFieldEqualOrEvery(T Bonus::*Ptr, const T &Val)
+		: ptr(Ptr), val(Val)
+	{
+	}
+	bool operator()(const Bonus *bonus) const
+	{
+		return (bonus->*ptr == val) || (bonus->*ptr == static_cast<T>(Bonus::EVERY_TYPE));
+	}
+	CSelectFieldEqualOrEvery& operator()(const T &setVal)
+	{
+		val = setVal;
+		return *this;
+	}
+};
+
 class DLL_LINKAGE CWillLastTurns
 {
 public:
@@ -887,6 +929,8 @@ namespace Selector
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType;
 	extern DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange;
 	extern DLL_LINKAGE CWillLastTurns turns;
+	extern DLL_LINKAGE CSelectFieldAny<Bonus::LimitEffect> anyRange;
+	extern DLL_LINKAGE CSelectFieldEqualOrEvery<TBonusSubtype> everySubtype;
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype);
 	CSelector DLL_LINKAGE typeSubtypeInfo(Bonus::BonusType type, TBonusSubtype subtype, si32 info);

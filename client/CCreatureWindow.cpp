@@ -248,7 +248,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	}
 
 	BonusList bl, blTemp;
-	blTemp = (*(stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT))));
+	blTemp = (*(stackNode->getBonuses(Selector::durationType(Bonus::PERMANENT) && Selector::anyRange())));
 
 	while (blTemp.size())
 	{

@@ -496,7 +496,7 @@ const TBonusListPtr IBonusBearer::getSpellBonuses() const
 {
 	std::stringstream cachingStr;
 	cachingStr << "source_" << Bonus::SPELL_EFFECT;
-	return getBonuses(Selector::sourceType(Bonus::SPELL_EFFECT), cachingStr.str());
+	return getBonuses(Selector::sourceType(Bonus::SPELL_EFFECT), Selector::anyRange(), cachingStr.str());
 }
 
 const Bonus * IBonusBearer::getEffect(ui16 id, int turn /*= 0*/) const
@@ -1183,6 +1183,8 @@ namespace Selector
 	DLL_LINKAGE CSelectFieldEqual<Bonus::BonusSource> sourceType(&Bonus::source, Bonus::OTHER);
 	DLL_LINKAGE CSelectFieldEqual<Bonus::LimitEffect> effectRange(&Bonus::effectRange, Bonus::NO_LIMIT);
 	DLL_LINKAGE CWillLastTurns turns;
+	DLL_LINKAGE CSelectFieldAny<Bonus::LimitEffect> anyRange (&Bonus::effectRange);
+	DLL_LINKAGE CSelectFieldEqualOrEvery<TBonusSubtype> everySubtype (&Bonus::subtype, 0);
 
 	CSelector DLL_LINKAGE typeSubtype(Bonus::BonusType Type, TBonusSubtype Subtype)
 	{
