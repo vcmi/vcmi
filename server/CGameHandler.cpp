@@ -1209,11 +1209,16 @@ void CGameHandler::newTurn()
 						std::pair<int,CreatureID> newMonster(54, VLC->creh->pickRandomMonster(boost::ref(rand)));
 						n.creatureid = newMonster.second;
 					}
-					else
+					else if(VLC->creh->doubledCreatures.size())
 					{
 						auto it = VLC->creh->doubledCreatures.cbegin();
 						std::advance (it, rand() % VLC->creh->doubledCreatures.size()); //picking random element of set is tiring
 						n.creatureid = *it;
+					}
+					else
+					{
+						complain("Cannot find creature that can be spawned!");
+						n.specialWeek = NewTurn::NORMAL;
 					}
 				}
 				else if (monthType < 50)

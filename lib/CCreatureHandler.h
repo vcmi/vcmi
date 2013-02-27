@@ -176,7 +176,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
-		h & notUsedMonsters & creatures;
+		h & notUsedMonsters & doubledCreatures & creatures;
 		h & stackBonuses & expRanks & maxExpPerBattle & expAfterUpgrade;
 		h & skillLevels & skillRequirements & commanderLevelPremy;
 		h & allCreatures;

@@ -26,7 +26,7 @@
 #include "CObjectHandler.h" //for CArmedInstance
 #include "Mapping/CCampaignHandler.h" //for CCampaignState
 
-const ui32 version = 738;
+const ui32 version = 739;
 
 class CConnection;
 class CGObjectInstance;
