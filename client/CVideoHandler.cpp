@@ -627,7 +627,10 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 	ResourceID resource(std::string("Video/") + fname, EResType::VIDEO);
 
 	if (!CResourceHandler::get()->existsResource(resource))
+	{
+		tlog0 << "Error: video " << resource.getName() << " was not found\n";
 		return false;
+	}
 
 	data = CResourceHandler::get()->load(resource);
 

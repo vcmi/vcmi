@@ -201,10 +201,10 @@ then
 
 	if [ -d "$cd2_dir"/heroes3 ]
 	then
-		cp "$cd2_dir"/heroes3/Data/Heroes3.vid "$dest_dir"/Data/VIDEO.VID
+		cp "$cd2_dir"/heroes3/Data/Heroes3.vid "$dest_dir"/Data/Heroes3.vid
 		cp "$cd2_dir"/heroes3/Data/Heroes3.snd "$dest_dir"/Data/Heroes3-cd2.snd
 	else
-		cp "$cd2_dir"/Heroes3/Data/Heroes3.vid "$dest_dir"/Data/VIDEO.VID
+		cp "$cd2_dir"/Heroes3/Data/Heroes3.vid "$dest_dir"/Data/Heroes3.vid
 		cp "$cd2_dir"/Heroes3/Data/Heroes3.snd "$dest_dir"/Data/Heroes3-cd2.snd
 	fi
 fi

@@ -3734,7 +3734,7 @@ void CTavernWindow::show(SDL_Surface * to)
 			boost::algorithm::replace_first(recruit->hoverTexts[0],"%s",sel->h->type->heroClass->name);
 		}
 
-		printAtMiddleWBLoc(sel->descr, 146, 389, FONT_SMALL, 200, Colors::WHITE, to);
+		printAtMiddleWBLoc(sel->descr, 146, 395, FONT_SMALL, 200, Colors::WHITE, to);
 		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
 	}
 }

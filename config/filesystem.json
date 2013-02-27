@@ -36,6 +36,7 @@
 		"VIDEO/":
 		[
 			{"type" : "vid", "path" : "ALL/Data/H3ab_ahd.vid"},
+			{"type" : "vid", "path" : "ALL/Data/Heroes3.vid"},
 			{"type" : "vid", "path" : "ALL/Data/video.vid"},
 			// Location of video files in linux release
 			{"type" : "dir",  "path" : "ALL/Data/Video"}

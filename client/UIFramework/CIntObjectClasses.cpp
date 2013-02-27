@@ -1217,14 +1217,16 @@ void CTextContainer::blitLine(SDL_Surface *to, Point where, std::string what)
 {
 	const IFont * f = graphics->fonts[font];
 
-	auto renderer = &IFont::renderTextLeft;
-
-	switch (alignment)
+	if (alignment == CENTER)
 	{
-	break; case TOPLEFT:     renderer = &IFont::renderTextLeft;
-	break; case CENTER:      renderer = &IFont::renderTextCenter;
-	break; case BOTTOMRIGHT: renderer = &IFont::renderTextRight;
-	break; default: assert(0);
+		where.x -= f->getStringWidth(what) / 2;
+		where.y -= f->getLineHeight() / 2;
+	}
+
+	if (alignment == BOTTOMRIGHT)
+	{
+		where.x -= f->getStringWidth(what);
+		where.y -= f->getLineHeight();
 	}
 
 	size_t begin = 0;
@@ -1238,12 +1240,14 @@ void CTextContainer::blitLine(SDL_Surface *to, Point where, std::string what)
 		if (begin != end)
 		{
 			std::string toPrint = what.substr(begin, end-1);
+
 			if (currDelimeter % 2) // Enclosed in {} text - set to yellow
-				(graphics->fonts[font]->*renderer)(to, toPrint, Colors::YELLOW, where);
+				f->renderTextLeft(to, toPrint, Colors::YELLOW, where);
 			else // Non-enclosed text
-				(graphics->fonts[font]->*renderer)(to, toPrint, color, where);
+				f->renderTextLeft(to, toPrint, color, where);
 			begin = end;
-			where.x += f->getStringWidth(toPrint.c_str());
+
+			where.x += f->getStringWidth(toPrint);
 		}
 		currDelimeter++;
 	}
