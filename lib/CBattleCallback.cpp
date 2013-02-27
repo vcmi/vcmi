@@ -1396,7 +1396,7 @@ bool CBattleInfoCallback::isToReverseHlp (BattleHex hexFrom, BattleHex hexTo, bo
 
 bool CBattleInfoCallback::isToReverse (BattleHex hexFrom, BattleHex hexTo, bool curDir, bool toDoubleWide, bool toDir) const //TODO: this should apply also to mechanics and cursor interface
 {
-	if (hexTo < 0) //turret
+	if (hexFrom < 0) //turret
 		return false;
 
 	if (toDoubleWide)
