@@ -173,6 +173,9 @@ static void prog_help(const po::options_description &opts)
 // 	printf("  -v, --version     display version information and exit\n");
 }
 
+#ifdef __APPLE__
+void OSX_checkForUpdates();
+#endif
 
 #ifdef _WIN32
 int _tmain(int argc, _TCHAR* argv[])
@@ -188,6 +191,9 @@ int main(int argc, char** argv)
     std::string workDir = executablePath.substr(0, executablePath.rfind('/'));
     chdir(workDir.c_str());
     
+    // Check for updates
+    OSX_checkForUpdates();
+
     // Check that game data is prepared. Otherwise run vcmibuilder helper application
     FILE* check = fopen((GVCMIDirs.UserPath + "/game_data_prepared").c_str(), "r");
     if (check == NULL) {

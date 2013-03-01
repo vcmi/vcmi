@@ -46,8 +46,15 @@ set(client_SRCS
 if(WIN32)
     add_executable(vcmiclient WIN32 ${client_SRCS})
 elseif(APPLE)
-    # When building for OS X we need add SDLMain.m to source files
-    add_executable(vcmiclient MACOSX_BUNDLE ${client_SRCS} SDLMain.m vcmi.icns Info.plist)
+    # OS X specific includes
+    include_directories(${SPARKLE_INCLUDE_DIR})
+
+    # OS X specific source files
+    set(client_SRCS ${client_SRCS} SDLMain.m OSX.mm Info.plist vcmi.icns ../osx/vcmi_dsa_public.pem)
+    add_executable(vcmiclient MACOSX_BUNDLE ${client_SRCS})
+
+    # OS X specific libraries
+    target_link_libraries(vcmiclient ${SPARKLE_FRAMEWORK})
 
     # Because server and AI libs would be copies to bundle they need to be built before client
     add_dependencies(vcmiclient vcmiserver VCAI EmptyAI StupidAI BattleAI)
@@ -55,8 +62,9 @@ elseif(APPLE)
     # Custom Info.plist
     set_target_properties(vcmiclient PROPERTIES MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/Info.plist)
 
-    # Copy icon file
+    # Copy icon file and public key for Sparkle
     set_source_files_properties(vcmi.icns PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
+    set_source_files_properties(../osx/vcmi_dsa_public.pem PROPERTIES MACOSX_PACKAGE_LOCATION Resources)
 
     # Copy server executable, libs and game data to bundle
     set(BUNDLE_PATH ${CMAKE_HOME_DIRECTORY}/bin/$(CONFIGURATION)/vcmiclient.app/Contents)

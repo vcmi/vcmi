@@ -2,9 +2,15 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleIconFile</key>
-    <string>vcmi.icns</string>
-    <key>CFBundleVersion</key>
+	<key>CFBundleIconFile</key>
+	<string>vcmi.icns</string>
+	<key>CFBundleVersion</key>
     <string>${VCMI_VERSION_MAJOR}.${VCMI_VERSION_MINOR}</string>
+	<key>CFBundleIdentifier</key>
+	<string>com.vcmi.vcmiclient</string>
+	<key>SUFeedURL</key>
+	<string>http://vcmi.eu/sparkle_appcast.xml</string>
+	<key>SUPublicDSAKeyFile</key>
+	<string>vcmi_dsa_public.pem</string>
 </dict>
 </plist>

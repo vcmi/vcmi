@@ -38,6 +38,10 @@ if (APPLE)
 	# Build with clang ang libc++
 	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LANGUAGE_STANDARD "c++11")
 	set(CMAKE_XCODE_ATTRIBUTE_CLANG_CXX_LIBRARY "libc++")
+
+	# On OS X we use Sparkle framework for updates
+	find_path(SPARKLE_INCLUDE_DIR Sparkle.h)
+	find_library(SPARKLE_FRAMEWORK NAMES Sparkle)
 endif()
 
 find_package(Boost 1.46.0 COMPONENTS program_options filesystem system thread REQUIRED)

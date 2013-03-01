@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0" xmlns:sparkle="http://vcmi.eu/xml-namespaces/sparkle" xmlns:dc="http://purl.org/dc/elements/1.1/">
+   <channel>
+      <title>VCMI App Changelog</title>
+      <link>http://vcmi.eu/sparkle_appcast.xml</link>
+      <description>Most recent changes with links to updates.</description>
+      <language>en</language>      
+         <item>
+            <title>Version 0.92</title>
+			   <description>Version 0.92 description</description>
+            <pubDate>Wed, 09 Jan 2006 19:20:11 +0000</pubDate>
+            <sparkle:releaseNotesLink>http://vcmi.com/sparkle_release_notes.html</sparkle:releaseNotesLink>
+            <enclosure url="http://download.vcmi.eu/vcmi-0.92.dmg" sparkle:version="0.92" length="34906250" type="application/octet-stream" sparkle:dsaSignature="MC0CFF75UKfXunY2GNSW4hs1O6MaWycLAhUA3YiRM9uUrnoS/PhWHgjRjwWcHo4=" />
+         </item>
+   </channel>
+</rss>
