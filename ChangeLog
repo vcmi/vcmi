@@ -1,5 +1,28 @@
-0.9 -> 0.91 (Feb 01 2013)
+0.91 -> 0.92 (Mar 01 2013)
+GENERAL:
+* hero crossover between missions in campaigns
+* introduction before missions in campaigns
 
+MODS:
+* Added CREATURE_SPELL_POWER for commanders
+* Added spell modifiers to various spells: Hypnotize (Astral), Firewall (Luna), Landmine 
+* Fixed ENEMY_DEFENCE_REDUCTION, GENERAL_ATTACK_REDUCTION
+* Extended usefulness of ONLY_DISTANCE_FIGHT, ONLY_MELEE_FIGHT ranges
+* Double growth creatures are configurable now
+* Drain Life now has % effect depending on bonus value
+* Stack can use more than 2 attacks. Additional attacks can now be seperated as "ONLY_MELEE_FIGHT and "ONLY_DISTANCE_FIGHT".
+* Moat damage configurable
+* More config options for spells:
+ - mind immunity handled by config
+ - direct damage immunity handled by config
+ - immunity icon configurable
+ - removed mind_spell flag 
+* creature config use string ids now. 
+* support for string subtype id in short bonus format
+* primary skill identifiers for bonuses
+
+
+0.9 -> 0.91 (Feb 01 2013)
 GENERAL:
 * VCMI build on OS X is now supported
 * Completely removed autotools
@@ -26,6 +49,7 @@ ADVENTURE AI:
 * AI will try to use Subterranean Gate, Redwood Observatory and Cartographer for exploration
 * Improved exploration algorithm
 * AI will prioritize dwellings and mines when there are no opponents visible
+
 
 0.89 -> 0.9 (Oct 01 2012)
 GENERAL:
