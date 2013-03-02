@@ -361,9 +361,10 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		return;
 
 	addBonuses();
+}
 
-	// Populate reverse mappings of combinational artifacts.
-	//TODO: do that also for new artifacts read from mods
+void CArtHandler::reverseMapArtifactConstituents() // Populate reverse mappings of combinational artifacts.
+{
 	BOOST_FOREACH(CArtifact *artifact, artifacts)
 	{
 		if (artifact->constituents != NULL)
@@ -758,9 +759,12 @@ void CArtHandler::clearHlpLists()
 
 bool CArtHandler::legalArtifact(ArtifactID id)
 {
-	return (artifacts[id]->possibleSlots[ArtBearer::HERO].size() ||
-			(artifacts[id]->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS)) ||
-			(artifacts[id]->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT);
+	auto art = artifacts[id];
+	//assert ( (!art->constituents) || art->constituents->size() ); //artifacts is not combined or has some components
+	return (art->possibleSlots[ArtBearer::HERO].size() ||
+			(art->possibleSlots[ArtBearer::COMMANDER].size() && VLC->modh->modules.COMMANDERS) ||
+			(art->possibleSlots[ArtBearer::CREATURE].size() && VLC->modh->modules.STACK_ARTIFACT)) &&
+			!(art->constituents); //no combo artifacts spawning
 }
 
 void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
@@ -781,14 +785,9 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 	}
 	for (int i = GameConstants::ARTIFACTS_QUANTITY; i < artifacts.size(); ++i) //allow all new artifacts by default
 	{
-		 if (artifacts[i]->possibleSlots[ArtBearer::HERO].size())
+		if (legalArtifact(ArtifactID(i)))
 			allowedArtifacts.push_back(artifacts[i]);
-		 else //check if active modules allow artifact to be every used
-		 {
-			 if (legalArtifact(ArtifactID(i)))
-				 allowedArtifacts.push_back(artifacts[i]);
 			 //keep im mind that artifact can be worn by more than one type of bearer
-		 }
 	}
 }
 

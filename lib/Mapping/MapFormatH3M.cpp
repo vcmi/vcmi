@@ -675,7 +675,7 @@ CArtifactInstance * CMapLoaderH3M::createArtifact(int aid, int spellID /*= -1*/)
 			a = CArtifactInstance::createScroll(SpellID(spellID).toSpell());
 		}
 	}
-	else
+	else //FIXME: create combined artifact instance for random combined artifacts, just in case
 	{
 		a = new CArtifactInstance();
 	}

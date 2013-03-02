@@ -346,6 +346,8 @@ void CModHandler::reload()
 				VLC->dobjinfo->gobjs[Obj::ARTIFACT][art->id] = info;
 			}
 		}
+
+		VLC->arth->reverseMapArtifactConstituents();
 	}
 
 	{

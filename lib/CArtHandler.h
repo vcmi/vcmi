@@ -207,6 +207,7 @@ public:
 	CArtifact * loadArtifact(const JsonNode & node);
 	///read (optional) components of combined artifact
 	void readComponents (const JsonNode & node, CArtifact * art);
+	void reverseMapArtifactConstituents ();
 
 	void sortArts();
 	void addBonuses();
