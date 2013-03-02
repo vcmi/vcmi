@@ -16,46 +16,6 @@ namespace GameConstants
 {
 	const std::string VCMI_VERSION = "VCMI 0.92";
 
-	/*
-	 * DATA_DIR contains the game data (Data/, MP3/, ...).
-	 * BIN_DIR is where the vcmiclient/vcmiserver binaries reside
-	 * LIB_DIR is where the AI libraries reside (linux only)
-	 */
-	#if defined(_WIN32)
-		const std::string DATA_DIR = ".";
-		const std::string BIN_DIR = ".";
-		const std::string LIB_DIR = ".";
-		const std::string SERVER_NAME = "VCMI_server.exe";
-		const std::string LIB_EXT = "dll";
-		const std::string PATH_SEPARATOR = "\\";
-	#elif defined(__APPLE__)
-		const std::string DATA_DIR = "../Data";
-        const std::string BIN_DIR = ".";
-        const std::string LIB_DIR = ".";
-        const std::string SERVER_NAME = "./vcmiserver";
-        const std::string LIB_EXT = "dylib";
-        const std::string PATH_SEPARATOR = "/";
-    #else
-        #ifndef M_DATA_DIR
-		#error M_DATA_DIR undefined.
-		#else
-		const std::string DATA_DIR = M_DATA_DIR;
-		#endif
-		#ifndef M_BIN_DIR
-		#error M_BIN_DIR undefined.
-		#else
-		const std::string BIN_DIR = M_BIN_DIR;
-		#endif
-		#ifndef M_LIB_DIR
-		#error M_LIB_DIR undefined.
-		#else
-		const std::string LIB_DIR = M_LIB_DIR;
-		#endif
-		const std::string SERVER_NAME = "vcmiserver";
-		const std::string LIB_EXT = "so";
-		const std::string PATH_SEPARATOR = "/";
-	#endif
-
 	const int BFIELD_WIDTH = 17;
 	const int BFIELD_HEIGHT = 11;
 	const int BFIELD_SIZE = BFIELD_WIDTH * BFIELD_HEIGHT;
@@ -73,13 +33,13 @@ namespace GameConstants
 	const ui16 BACKPACK_START = 19;
 	const int CREATURES_PER_TOWN = 7; //without upgrades
 	const int SPELL_LEVELS = 5;
+	const int CRE_LEVELS = 10; // number of creature experience levels
 
 	const int SPELLBOOK_GOLD_COST = 500;
 	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
 	const int ARMY_SIZE = 7;
 	const int SKILL_PER_HERO=8;
 
-	const int CRE_LEVELS = 10;
 	const int SKILL_QUANTITY=28;
 	const int PRIMARY_SKILLS=4;
 	const int TERRAIN_TYPES=10;

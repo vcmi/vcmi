@@ -52,6 +52,7 @@ set(lib_SRCS
 		ResourceSet.cpp
 		RegisterTypes.cpp
 		VCMI_Lib.cpp
+		VCMIDirs.cpp
 )
 
 set(lib_HEADERS

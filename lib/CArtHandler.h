@@ -57,7 +57,6 @@ public:
 	const std::string &EventText() const;
 
 	bool isBig () const;
-	void addConstituent (ArtifactID component);
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
 	std::string nodeName() const override;
@@ -67,8 +66,8 @@ public:
 
 	ui32 price;
 	bmap<ArtBearer::ArtBearer, std::vector<ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
-	std::unique_ptr<std::vector<ArtifactID> > constituents; // Artifacts IDs a combined artifact consists of, or NULL.
-	std::vector<ArtifactID> constituentOf; // Reverse map of constituents - combined arts that include this art
+	std::unique_ptr<std::vector<CArtifact *> > constituents; // Artifacts IDs a combined artifact consists of, or NULL.
+	std::vector<CArtifact *> constituentOf; // Reverse map of constituents - combined arts that include this art
 	EartClass aClass;
 	ArtifactID id;
 

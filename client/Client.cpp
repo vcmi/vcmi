@@ -763,8 +763,8 @@ CServerHandler::~CServerHandler()
 void CServerHandler::callServer()
 {
 	setThreadName("CServerHandler::callServer");
-	std::string logName = GVCMIDirs.UserPath + "/server_log.txt";
-	std::string comm = GameConstants::BIN_DIR + GameConstants::PATH_SEPARATOR + GameConstants::SERVER_NAME + " " + port + " > " + logName;
+	std::string logName = VCMIDirs::get().localPath() + "/server_log.txt";
+	std::string comm = VCMIDirs::get().serverPath() + " " + port + " > " + logName;
 	int result = std::system(comm.c_str());
 	if (result == 0)
 		tlog1 << "Server closed correctly\n";

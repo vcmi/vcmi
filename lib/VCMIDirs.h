@@ -12,55 +12,27 @@
  *
  */
 
-#ifndef _WIN32 //we need boost here only on non-win platforms
-	#include <boost/filesystem.hpp> 
-	using namespace boost::filesystem;
-#endif
-
 /// Where to find the various VCMI files. This is mostly useful for linux. 
-class VCMIDirs {
+class DLL_LINKAGE VCMIDirs
+{
 public:
-	std::string UserPath;
+	VCMIDirs();
 
-	VCMIDirs()
-	{
-#ifdef _WIN32
-		UserPath = GameConstants::DATA_DIR;
-#else
-		try {
-#ifdef ANDROID
-			UserPath = DATA_DIR;
-#elif defined(__APPLE__)
-            // This is Cocoa code that should be normally used to get path to Application Support folder but can't use it here for now...
-            // NSArray* urls = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask];
-            // UserPath = path([urls[0] path] + "/vcmi").string();
-            
-            // ...so here goes a bit of hardcode instead
-            std::string home_dir = ".";
-			if (getenv("HOME") != NULL )
-				home_dir = getenv("HOME");
-            
-			UserPath = path(home_dir + "/Library/Application Support/vcmi").string();
-#else
-			// Find vcmi user directory and create it if necessary
-			std::string home_dir = ".";
-			if (getenv("HOME") != NULL )
-				home_dir = getenv("HOME");
+	/// get singleton instance
+	static VCMIDirs & get();
 
-			UserPath = path(home_dir + "/.vcmi").string();
-#endif
-			create_directory(UserPath);
-			create_directory(UserPath + "/config");
-			create_directory(UserPath + "/Games");
+	/// Path to local, user-specific directory (e.g. ~/.vcmi on *nix systems)
+	std::string localPath() const;
 
-			/* Home directory can contain some extra maps. */
-			create_directory(UserPath + "/Maps");
-		}
-		catch(const std::exception & e)
-		{
-		}
-#endif
-	}
+	/// Path where vcmi libraries can be found (in AI and Scripting subdirectories)
+	std::string libraryPath() const;
+
+	/// Path to vcmiserver, including server name (e.g. /usr/bin/vcmiserver)
+	std::string serverPath() const;
+
+	/// Path to global system-wide data directory
+	std::string dataPath() const;
+
+	/// Returns system-specific name for dynamic libraries ("libStupidAI.so" or "StupidAI.dll")
+	std::string libraryName(std::string basename) const;
 };
-
-extern DLL_LINKAGE VCMIDirs GVCMIDirs;

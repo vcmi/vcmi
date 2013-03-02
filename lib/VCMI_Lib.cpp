@@ -29,8 +29,6 @@
 
 LibClasses * VLC = NULL;
 
-DLL_LINKAGE VCMIDirs GVCMIDirs;
-
 DLL_LINKAGE void preinitDLL(CConsoleHandler *Console, std::ostream *Logfile)
 {
 	console = Console;

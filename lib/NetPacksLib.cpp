@@ -829,9 +829,9 @@ DLL_LINKAGE void AssembledArtifact::applyGs( CGameState *gs )
 	CCombinedArtifactInstance *combinedArt = new CCombinedArtifactInstance(builtArt);
 	gs->map->addNewArtifactInstance(combinedArt);
 	//retrieve all constituents
-	BOOST_FOREACH(si32 constituentID, *builtArt->constituents)
+	BOOST_FOREACH(const CArtifact * constituent, *builtArt->constituents)
 	{
-		ArtifactPosition pos = artSet->getArtPos(constituentID);
+		ArtifactPosition pos = artSet->getArtPos(constituent->id);
 		assert(pos >= 0);
 		CArtifactInstance *constituentInstance = artSet->getArt(pos);
 

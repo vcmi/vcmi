@@ -2,7 +2,7 @@
 #include "CGameInterface.h"
 
 #include "BattleState.h"
-#include "GameConstants.h"
+#include "VCMIDirs.h"
 
 #ifdef _WIN32
 	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
@@ -72,26 +72,12 @@ rett * createAny(std::string dllname, std::string methodName)
 	return ret;
 }
 
-//Currently AI libraries use "lib" prefix only on non-win systems.
-//May be applied to Win systems as well to remove this ifdef
-#ifdef _WIN32
-std::string getAIFileName(std::string input)
-{
-	return input + '.' + GameConstants::LIB_EXT;
-}
-#else
-std::string getAIFileName(std::string input)
-{
-	return "lib" + input + '.' + GameConstants::LIB_EXT;
-}
-#endif
-
 template<typename rett>
 rett * createAnyAI(std::string dllname, std::string methodName)
 {
 	tlog1<<"Opening "<<dllname<<"\n";
-	std::string filename = getAIFileName(dllname);
-	rett* ret = createAny<rett>(GameConstants::LIB_DIR + "/AI/" + filename, methodName);
+	std::string filename = VCMIDirs::get().libraryName(dllname);
+	rett* ret = createAny<rett>(VCMIDirs::get().libraryPath() + "/AI/" + filename, methodName);
 	ret->dllName = dllname;
 	return ret;
 }

@@ -1590,7 +1590,7 @@ int CPlayerInterface::getLastIndex( std::string namePrefix)
 	using namespace boost::filesystem;
 	using namespace boost::algorithm;
 
-	path gamesDir = GVCMIDirs.UserPath + "/Games";
+	path gamesDir = VCMIDirs::get().localPath() + "/Games";
 	std::map<std::time_t, int> dates; //save number => datestamp
 
 	directory_iterator enddir;

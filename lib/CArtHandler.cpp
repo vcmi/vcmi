@@ -359,24 +359,18 @@ void CArtHandler::loadArtifactJson(CArtifact * art, const JsonNode & artifact)
 
 	if (!artifact["components"].isNull())
 	{
-		art->constituents.reset(new std::vector<ArtifactID>());
+		art->constituents.reset(new std::vector<CArtifact *>());
 		BOOST_FOREACH (auto component, artifact["components"].Vector())
 		{
-			VLC->modh->identifiers.requestIdentifier("artifact." + component.String(), [art](si32 id)
+			VLC->modh->identifiers.requestIdentifier("artifact." + component.String(), [=](si32 id)
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them
-				art->addConstituent(ArtifactID(id));
-				VLC->arth->artifacts[id]->constituentOf.push_back(art->id);
+				art->constituents->push_back(VLC->arth->artifacts[id]);
+				VLC->arth->artifacts[id]->constituentOf.push_back(art);
 			});
 		}
 	}
-}
-
-void CArtifact::addConstituent (ArtifactID component)
-{
-	assert (constituents); // not a combinational art
-	constituents->push_back (component);
 }
 
 ArtifactID CArtHandler::creatureToMachineID(CreatureID id)
@@ -745,15 +739,14 @@ std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CA
 	if(artType->constituents) //combined artifact already: no combining of combined artifacts... for now.
 		return ret;
 
-	BOOST_FOREACH(ui32 possibleCombinedArt, artType->constituentOf)
+	BOOST_FOREACH(const CArtifact * artifact, artType->constituentOf)
 	{
-		const CArtifact * const artifact = VLC->arth->artifacts[possibleCombinedArt];
 		assert(artifact->constituents);
 		bool possible = true;
 
-		BOOST_FOREACH(ui32 constituentID, *artifact->constituents) //check if all constituents are available
+		BOOST_FOREACH(const CArtifact * constituent, *artifact->constituents) //check if all constituents are available
 		{
-			if(!h->hasArt(constituentID, true)) //constituent must be equipped
+			if(!h->hasArt(constituent->id, true)) //constituent must be equipped
 			{
 				possible = false;
 				break;
@@ -876,15 +869,15 @@ void CCombinedArtifactInstance::createConstituents()
 	assert(artType);
 	assert(artType->constituents);
 
-	BOOST_FOREACH(ui32 a, *artType->constituents)
+	BOOST_FOREACH(const CArtifact * art, *artType->constituents)
 	{
-		addAsConstituent(CArtifactInstance::createNewArtifactInstance(a), ArtifactPosition::PRE_FIRST);
+		addAsConstituent(CArtifactInstance::createNewArtifactInstance(art->id), ArtifactPosition::PRE_FIRST);
 	}
 }
 
 void CCombinedArtifactInstance::addAsConstituent(CArtifactInstance *art, ArtifactPosition slot)
 {
-	assert(vstd::contains(*artType->constituents, art->artType->id));
+	assert(vstd::contains(*artType->constituents, art->artType.get()));
 	assert(art->getParentNodes().size() == 1  &&  art->getParentNodes().front() == art->artType);
 	constituentsInfo.push_back(ConstituentInfo(art, slot));
 	attachTo(art);

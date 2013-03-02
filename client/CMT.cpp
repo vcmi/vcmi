@@ -155,9 +155,9 @@ void init()
 static void prog_version(void)
 {
 	printf("%s\n", GameConstants::VCMI_VERSION.c_str());
-	printf("  data directory:    %s\n", GameConstants::DATA_DIR.c_str());
-	printf("  library directory: %s\n", GameConstants::LIB_DIR.c_str());
-	printf("  binary directory:  %s\n", GameConstants::BIN_DIR.c_str());
+	printf("  data directory:    %s\n", VCMIDirs::get().dataPath().c_str());
+	printf("  library directory: %s\n", VCMIDirs::get().libraryPath().c_str());
+	printf("  path to server:    %s\n", VCMIDirs::get().serverPath().c_str());
 }
 
 static void prog_help(const po::options_description &opts)
@@ -195,7 +195,7 @@ int main(int argc, char** argv)
     OSX_checkForUpdates();
 
     // Check that game data is prepared. Otherwise run vcmibuilder helper application
-    FILE* check = fopen((GVCMIDirs.UserPath + "/game_data_prepared").c_str(), "r");
+    FILE* check = fopen((VCMIDirs::get().localPath() + "/game_data_prepared").c_str(), "r");
     if (check == NULL) {
         system("open ./vcmibuilder.app");
         return 0;
@@ -253,7 +253,7 @@ int main(int argc, char** argv)
 
 	CStopWatch total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
-	logfile = new std::ofstream((GVCMIDirs.UserPath + "/VCMI_Client_log.txt").c_str());
+	logfile = new std::ofstream((VCMIDirs::get().localPath() + "/VCMI_Client_log.txt").c_str());
 	console = new CConsoleHandler;
 	*console->cb = boost::bind(&processCommand, _1);
 	console->start();
@@ -287,8 +287,8 @@ int main(int argc, char** argv)
 	{
 		tlog0 << "Fatal error: failed to load settings!\n";
 		tlog0 << "Possible reasons:\n";
-		tlog0 << "\tCorrupted local configuration file at " << GVCMIDirs.UserPath << "/config/settings.json\n";
-		tlog0 << "\tMissing or corrupted global configuration file at " << GameConstants::DATA_DIR << "/config/defaultSettings.json\n";
+		tlog0 << "\tCorrupted local configuration file at " << VCMIDirs::get().localPath() << "/config/settings.json\n";
+		tlog0 << "\tMissing or corrupted global configuration file at " << VCMIDirs::get().dataPath() << "/config/defaultSettings.json\n";
 		tlog0 << "VCMI will now exit...\n";
 		exit(EXIT_FAILURE);
 	}

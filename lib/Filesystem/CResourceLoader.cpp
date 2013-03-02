@@ -321,16 +321,16 @@ void CResourceHandler::initialize()
 	initialLoader = new CResourceLoader;
 	resourceLoader = new CResourceLoader;
 
-	shared_ptr<ISimpleResourceLoader> rootDir(new CFilesystemLoader(GameConstants::DATA_DIR, 0, true));
+	shared_ptr<ISimpleResourceLoader> rootDir(new CFilesystemLoader(VCMIDirs::get().dataPath(), 0, true));
 	initialLoader->addLoader("GLOBAL/", rootDir, false);
 	initialLoader->addLoader("ALL/", rootDir, false);
 
 	auto userDir = rootDir;
 
 	//add local directory to "ALL" but only if it differs from root dir (true for linux)
-	if (GameConstants::DATA_DIR != GVCMIDirs.UserPath)
+	if (VCMIDirs::get().dataPath() != VCMIDirs::get().localPath())
 	{
-		userDir = shared_ptr<ISimpleResourceLoader>(new CFilesystemLoader(GVCMIDirs.UserPath, 0, true));
+		userDir = shared_ptr<ISimpleResourceLoader>(new CFilesystemLoader(VCMIDirs::get().localPath(), 0, true));
 		initialLoader->addLoader("ALL/", userDir, false);
 	}
 
