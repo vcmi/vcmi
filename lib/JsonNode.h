@@ -89,6 +89,12 @@ public:
 	template<typename Type>
 	Type convertTo() const;
 
+	/// Similar to convertTo but will assign data only if node is not null
+	/// Othervice original data will be preserved
+	/// Returns true if data was assigned
+	template<typename Type>
+	bool loadTo(Type & data) const;
+
 	//operator [], for structs only - get child node by name
 	JsonNode & operator[](std::string child);
 	const JsonNode & operator[](std::string child) const;
@@ -367,4 +373,12 @@ template<typename Type>
 Type JsonNode::convertTo() const
 {
 	return JsonDetail::JsonConverter<Type>::convert(*this);
+}
+
+template<typename Type>
+bool JsonNode::loadTo(Type & data) const
+{
+	if (!isNull())
+		data = convertTo<Type>();
+	return !isNull();
 }

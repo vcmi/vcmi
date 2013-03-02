@@ -137,7 +137,10 @@ bool CDefenceAnimation::init()
 		if(attacker != NULL)
 		{
 			int attackerAnimType = owner->creAnims[attacker->ID]->getType();
-			if( attackerAnimType == 11 && attackerAnimType == 12 && attackerAnimType == 13 && owner->creAnims[attacker->ID]->getFrame() < attacker->getCreature()->attackClimaxFrame )
+			if( ( attackerAnimType == CCreatureAnim::ATTACK_UP ||
+			    attackerAnimType == CCreatureAnim::ATTACK_FRONT ||
+			    attackerAnimType == CCreatureAnim::ATTACK_DOWN ) &&
+			    owner->creAnims[attacker->ID]->getFrame() < attacker->getCreature()->animation.attackClimaxFrame )
 				return false;
 		}
 
@@ -738,7 +741,7 @@ bool CShootingAnimation::init()
 
 	spi.step = 0;
 	spi.frameNum = 0;
-	spi.spin = shooterInfo->projectileSpin;
+	spi.spin = shooterInfo->animation.projectileSpin;
 
 	Point xycoord = CClickableHex::getXYUnitAnim(shooter->position, true, shooter, owner);
 	Point destcoord;
@@ -756,20 +759,20 @@ bool CShootingAnimation::init()
 		if (projectileAngle > straightAngle)
 		{
 			//upper shot
-			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->upperRightMissleOffsetX;
-			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->upperRightMissleOffsetY;
+			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->animation.upperRightMissleOffsetX;
+			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->animation.upperRightMissleOffsetY;
 		}
 		else if (projectileAngle < -straightAngle) 
 		{
 			//lower shot
-			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->lowerRightMissleOffsetX;
-			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->lowerRightMissleOffsetY;
+			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->animation.lowerRightMissleOffsetX;
+			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->animation.lowerRightMissleOffsetY;
 		}
 		else 
 		{
 			//straight shot
-			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->rightMissleOffsetX;
-			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->rightMissleOffsetY;
+			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->animation.rightMissleOffsetX;
+			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->animation.rightMissleOffsetY;
 		}
 
 		double animSpeed = 23.0 * owner->getAnimSpeed(); // flight speed of projectile
@@ -808,8 +811,8 @@ bool CShootingAnimation::init()
 			spi.lastStep = static_cast<int>((spi.catapultInfo->toX - spi.catapultInfo->fromX) / animSpeed);
 			spi.dx = animSpeed;
 			spi.dy = 0;
-			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->rightMissleOffsetX + 17.;
-			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->rightMissleOffsetY + 10.;
+			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->animation.rightMissleOffsetX + 17.;
+			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->animation.rightMissleOffsetY + 10.;
 
 			// Add explosion anim
 			int xEnd = static_cast<int>(spi.x + spi.lastStep * spi.dx);
@@ -830,7 +833,7 @@ bool CShootingAnimation::init()
 	}
 
 	// Set projectile animation start delay which is specified in frames
-	spi.animStartDelay = shooterInfo->attackClimaxFrame;
+	spi.animStartDelay = shooterInfo->animation.attackClimaxFrame;
 	owner->projectiles.push_back(spi);
 
 	//attack animation

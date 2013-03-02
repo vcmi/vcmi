@@ -208,6 +208,50 @@ static void RemoveAbility(CCreature *cre, const JsonNode &ability)
 	cre->removeBonus(b);
 }
 
+void CCreatureHandler::loadBonuses(CCreature & ncre, std::string bonuses)
+{
+	static const std::map<std::string,Bonus::BonusType> abilityMap =
+	  boost::assign::map_list_of
+	    ("FLYING_ARMY", Bonus::FLYING)
+	    ("SHOOTING_ARMY", Bonus::SHOOTER)
+	    ("SIEGE_WEAPON", Bonus::SIEGE_WEAPON)
+	    ("const_free_attack", Bonus::BLOCKS_RETALIATION)
+	    ("IS_UNDEAD", Bonus::UNDEAD)
+	    ("const_no_melee_penalty",Bonus::NO_MELEE_PENALTY)
+	    ("const_jousting",Bonus::JOUSTING)
+	    ("KING_1",Bonus::KING1)
+	    ("KING_2",Bonus::KING2)
+		("KING_3",Bonus::KING3)
+		("const_no_wall_penalty",Bonus::NO_WALL_PENALTY)
+		("CATAPULT",Bonus::CATAPULT)
+		("MULTI_HEADED",Bonus::ATTACKS_ALL_ADJACENT)
+		("IMMUNE_TO_MIND_SPELLS",Bonus::MIND_IMMUNITY)
+		("IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY)
+		("HAS_EXTENDED_ATTACK",Bonus::TWO_HEX_ATTACK_BREATH);
+
+	auto hasAbility = [&](const std::string name) -> bool
+	{
+		return boost::algorithm::find_first(bonuses, name);
+	};
+	BOOST_FOREACH(auto a, abilityMap)
+	{
+		if(hasAbility(a.first))
+			ncre.addBonus(0, a.second);
+	}
+	if(hasAbility("DOUBLE_WIDE"))
+		ncre.doubleWide = true;
+	if(hasAbility("const_raises_morale"))
+	{
+		ncre.addBonus(+1, Bonus::MORALE);;
+		ncre.getBonusList().back()->addPropagator(make_shared<CPropagatorNodeType>(CBonusSystemNode::HERO));
+	}
+	if(hasAbility("const_lowers_morale"))
+	{
+		ncre.addBonus(-1, Bonus::MORALE);;
+		ncre.getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
+	}
+}
+
 void CCreatureHandler::loadCreatures()
 {
 	tlog5 << "\t\tReading ZCRTRAIT.TXT" << std::endl;
@@ -255,8 +299,8 @@ void CCreatureHandler::loadCreatures()
 		ncre.ammMin = parser.readNumber();
 		ncre.ammMax = parser.readNumber();
 
-		ncre.abilityText = parser.readString();
-		ncre.abilityRefs = parser.readString();
+		std::string abilities = parser.readString();
+		loadBonuses(ncre, parser.readString());
 
 		{ //adding abilities from ZCRTRAIT.TXT
 			static const std::map < std::string,Bonus::BonusType> abilityMap = boost::assign::map_list_of
@@ -277,11 +321,11 @@ void CCreatureHandler::loadCreatures()
 				("IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY)
 				("IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY)
 				("HAS_EXTENDED_ATTACK",Bonus::TWO_HEX_ATTACK_BREATH);
-				
-			auto hasAbility = [&ncre](const std::string name) -> bool
+
+			auto hasAbility = [&](const std::string name) -> bool
 			{
-				return boost::algorithm::find_first(ncre.abilityRefs,name);
-			};			
+				return boost::algorithm::find_first(abilities, name);
+			};
 			BOOST_FOREACH(auto a, abilityMap)
 			{
 				if(hasAbility(a.first))
@@ -314,18 +358,6 @@ void CCreatureHandler::loadCreatures()
 	{
 		int creatureID = node.second["id"].Float();
 		CCreature *c = creatures[creatureID];
-
-		BOOST_FOREACH(const JsonNode &ability, node.second["ability_remove"].Vector())
-		{
-			RemoveAbility(c, ability);
-		}
-		BOOST_FOREACH(const JsonNode &ability, node.second["abilities"].Vector())
-		{
-			if (ability.getType() == JsonNode::DATA_VECTOR)
-				AddAbility(c, ability.Vector());
-			else
-				c->addNewBonus(JsonUtils::parseBonus(ability));
-		}
 
 		loadCreatureJson(c, node.second);
 
@@ -508,47 +540,41 @@ void CCreatureHandler::loadAnimationInfo()
 
 void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, CLegacyConfigParser & parser)
 {
-	unit.timeBetweenFidgets = parser.readNumber();
-	unit.walkAnimationTime = parser.readNumber();
-	unit.attackAnimationTime = parser.readNumber();
-	unit.flightAnimationDistance = parser.readNumber();
+	unit.animation.timeBetweenFidgets = parser.readNumber();
+	unit.animation.walkAnimationTime = parser.readNumber();
+	unit.animation.attackAnimationTime = parser.readNumber();
+	unit.animation.flightAnimationDistance = parser.readNumber();
 	///////////////////////
 
-	unit.upperRightMissleOffsetX = parser.readNumber();
-	unit.upperRightMissleOffsetY = parser.readNumber();
-	unit.rightMissleOffsetX = parser.readNumber();
-	unit.rightMissleOffsetY = parser.readNumber();
-	unit.lowerRightMissleOffsetX = parser.readNumber();
-	unit.lowerRightMissleOffsetY = parser.readNumber();
+	unit.animation.upperRightMissleOffsetX = parser.readNumber();
+	unit.animation.upperRightMissleOffsetY = parser.readNumber();
+	unit.animation.rightMissleOffsetX = parser.readNumber();
+	unit.animation.rightMissleOffsetY = parser.readNumber();
+	unit.animation.lowerRightMissleOffsetX = parser.readNumber();
+	unit.animation.lowerRightMissleOffsetY = parser.readNumber();
 
 	///////////////////////
 
 	for(int jjj=0; jjj<12; ++jjj)
 	{
-		unit.missleFrameAngles[jjj] = parser.readNumber();
+		unit.animation.missleFrameAngles[jjj] = parser.readNumber();
 	}
 
-	unit.troopCountLocationOffset= parser.readNumber();
-	unit.attackClimaxFrame = parser.readNumber();
+	unit.animation.troopCountLocationOffset= parser.readNumber();
+	unit.animation.attackClimaxFrame = parser.readNumber();
 
 	parser.endLine();
 }
 
-void CCreatureHandler::load(const JsonNode & node)
+void CCreatureHandler::load(std::string creatureID, const JsonNode & node)
 {
-	BOOST_FOREACH(auto & entry, node.Struct())
-	{
-		if (!entry.second.isNull()) // may happens if mod removed creature by setting json entry to null
-		{
-			CCreature * creature = loadCreature(entry.second);
-			creature->nameRef = entry.first;
-			creature->idNumber = CreatureID(creatures.size());
+	CCreature * creature = loadCreature(node);
+	creature->nameRef = creatureID;
+	creature->idNumber = CreatureID(creatures.size());
 
-			creatures.push_back(creature);
-			tlog5 << "Added creature: " << entry.first << "\n";
-			registerCreature(creature->nameRef,creature->idNumber);
-		}
-	}
+	creatures.push_back(creature);
+	tlog5 << "Added creature: " << creatureID << "\n";
+	registerCreature(creature->nameRef, creature->idNumber);
 }
 
 CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
@@ -586,74 +612,31 @@ CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
 
 	cre->doubleWide = node["doubleWide"].Bool();
 
-	BOOST_FOREACH (const JsonNode &bonus, node["abilities"].Vector())
-	{
-		auto b = JsonUtils::parseBonus(bonus);
-		b->source = Bonus::CREATURE_ABILITY;
-		b->duration = Bonus::PERMANENT;
-		cre->addNewBonus(b);
-	}
-
-	BOOST_FOREACH (const JsonNode &exp, node["stackExperience"].Vector())
-	{
-		auto bonus = JsonUtils::parseBonus (exp["bonus"]);
-		bonus->source = Bonus::STACK_EXPERIENCE;
-		bonus->duration = Bonus::PERMANENT;
-		const JsonVector &values = exp["values"].Vector();
-		int lowerLimit = 1;//, upperLimit = 255;
-		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
-		{
-			BOOST_FOREACH (const JsonNode &val, values)
-			{
-				if (val.Bool() == true)
-				{
-					bonus->limiter = make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
-					cre->addNewBonus (new Bonus(*bonus)); //bonuses must be unique objects
-					break; //TODO: allow bonuses to turn off?
-				}
-				++lowerLimit;
-			}
-		}
-		else
-		{
-			int lastVal = 0;
-			BOOST_FOREACH (const JsonNode &val, values)
-			{
-				if (val.Float() != lastVal)
-				{
-					bonus->val = val.Float() - lastVal;
-					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
-					cre->addNewBonus (new Bonus(*bonus));
-				}
-				lastVal = val.Float();
-				++lowerLimit;
-			}
-		}
-	}
 	//graphics
+	loadStackExperience(cre, node["stackExperience"]);
 
 	const JsonNode & graphics = node["graphics"];
-	cre->timeBetweenFidgets = graphics["timeBetweenFidgets"].Float();
-	cre->troopCountLocationOffset = graphics["troopCountLocationOffset"].Float();
-	cre->attackClimaxFrame = graphics["attackClimaxFrame"].Float();
+	cre->animation.timeBetweenFidgets = graphics["timeBetweenFidgets"].Float();
+	cre->animation.troopCountLocationOffset = graphics["troopCountLocationOffset"].Float();
+	cre->animation.attackClimaxFrame = graphics["attackClimaxFrame"].Float();
 
 	const JsonNode & animationTime = graphics["animationTime"];
-	cre->walkAnimationTime = animationTime["walk"].Float();
-	cre->attackAnimationTime = animationTime["attack"].Float();
-	cre->flightAnimationDistance = animationTime["flight"].Float(); //?
+	cre->animation.walkAnimationTime = animationTime["walk"].Float();
+	cre->animation.attackAnimationTime = animationTime["attack"].Float();
+	cre->animation.flightAnimationDistance = animationTime["flight"].Float(); //?
 
 	const JsonNode & missile = graphics["missile"];
 	const JsonNode & offsets = missile["offset"];
-	cre->upperRightMissleOffsetX = offsets["upperX"].Float();
-	cre->upperRightMissleOffsetY = offsets["upperY"].Float();
-	cre->rightMissleOffsetX = offsets["middleX"].Float();
-	cre->rightMissleOffsetY = offsets["middleY"].Float();
-	cre->lowerRightMissleOffsetX = offsets["lowerX"].Float();
-	cre->lowerRightMissleOffsetY = offsets["lowerY"].Float();
+	cre->animation.upperRightMissleOffsetX = offsets["upperX"].Float();
+	cre->animation.upperRightMissleOffsetY = offsets["upperY"].Float();
+	cre->animation.rightMissleOffsetX = offsets["middleX"].Float();
+	cre->animation.rightMissleOffsetY = offsets["middleY"].Float();
+	cre->animation.lowerRightMissleOffsetX = offsets["lowerX"].Float();
+	cre->animation.lowerRightMissleOffsetY = offsets["lowerY"].Float();
 	int i = 0;
 	BOOST_FOREACH (auto & angle, missile["frameAngles"].Vector())
 	{
-		cre->missleFrameAngles[i++] = angle.Float();
+		cre->animation.missleFrameAngles[i++] = angle.Float();
 	}
 	cre->advMapDef = graphics["map"].String();
 	cre->iconIndex = graphics["iconIndex"].Float();
@@ -666,6 +649,24 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 {
 	creature->level = config["level"].Float();
 	creature->animDefName = config["graphics"]["animation"].String();
+
+	BOOST_FOREACH(const JsonNode &ability, config["ability_remove"].Vector())
+	{
+		RemoveAbility(creature, ability);
+	}
+
+	BOOST_FOREACH(const JsonNode &ability, config["abilities"].Vector())
+	{
+		if (ability.getType() == JsonNode::DATA_VECTOR)
+			AddAbility(creature, ability.Vector()); // used only for H3 creatures
+		else
+		{
+			auto b = JsonUtils::parseBonus(ability);
+			b->source = Bonus::CREATURE_ABILITY;
+			b->duration = Bonus::PERMANENT;
+			creature->addNewBonus(b);
+		}
+	}
 
 	VLC->modh->identifiers.requestIdentifier(std::string("faction.") + config["faction"].String(), [=](si32 faction)
 	{
@@ -683,12 +684,10 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	if(config["hasDoubleWeek"].Bool())
 		doubledCreatures.insert(creature->idNumber);
 
-	creature->projectile = config["graphics"]["missile"]["projectile"].String();
-	creature->projectileSpin = config["graphics"]["missile"]["spinning"].Bool();
+	creature->animation.projectileImageName = config["graphics"]["missile"]["projectile"].String();
+	creature->animation.projectileSpin = config["graphics"]["missile"]["spinning"].Bool();
 
 	creature->special = config["special"].Bool();
-	if ( creature->special )
-		notUsedMonsters.insert(creature->idNumber);
 
 	const JsonNode & sounds = config["sound"];
 
@@ -704,6 +703,46 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 	GET_SOUND_VALUE(startMoving);
 	GET_SOUND_VALUE(endMoving);
 #undef GET_SOUND_VALUE
+}
+
+void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode & input)
+{
+	BOOST_FOREACH (const JsonNode &exp, input.Vector())
+	{
+		auto bonus = JsonUtils::parseBonus (exp["bonus"]);
+		bonus->source = Bonus::STACK_EXPERIENCE;
+		bonus->duration = Bonus::PERMANENT;
+		const JsonVector &values = exp["values"].Vector();
+		int lowerLimit = 1;//, upperLimit = 255;
+		if (values[0].getType() == JsonNode::JsonType::DATA_BOOL)
+		{
+			BOOST_FOREACH (const JsonNode &val, values)
+			{
+				if (val.Bool() == true)
+				{
+					bonus->limiter = make_shared<RankRangeLimiter>(RankRangeLimiter(lowerLimit));
+					creature->addNewBonus (new Bonus(*bonus)); //bonuses must be unique objects
+					break; //TODO: allow bonuses to turn off?
+				}
+				++lowerLimit;
+			}
+		}
+		else
+		{
+			int lastVal = 0;
+			BOOST_FOREACH (const JsonNode &val, values)
+			{
+				if (val.Float() != lastVal)
+				{
+					bonus->val = val.Float() - lastVal;
+					bonus->limiter.reset (new RankRangeLimiter(lowerLimit));
+					creature->addNewBonus (new Bonus(*bonus));
+				}
+				lastVal = val.Float();
+				++lowerLimit;
+			}
+		}
+	}
 }
 
 void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser & parser) //help function for parsing CREXPBON.txt
@@ -1022,7 +1061,7 @@ CreatureID CCreatureHandler::pickRandomMonster(const boost::function<int()> &ran
 		do
 		{
 			r = vstd::pickRandomElementOf(creatures, randGen)->idNumber;
-		} while (vstd::contains(VLC->creh->notUsedMonsters,r));
+		} while (VLC->creh->creatures[r] && VLC->creh->creatures[r]->special); // find first "not special" creature
 	}
 	else
 	{
@@ -1031,9 +1070,9 @@ CreatureID CCreatureHandler::pickRandomMonster(const boost::function<int()> &ran
 		BOOST_FOREACH(const CBonusSystemNode *b, creaturesOfLevel[tier].getChildrenNodes())
 		{
 			assert(b->getNodeType() == CBonusSystemNode::CREATURE);
-			CreatureID creid = static_cast<const CCreature*>(b)->idNumber;
-			if(!vstd::contains(notUsedMonsters, creid))
-				allowed.push_back(creid);
+			const CCreature * crea = dynamic_cast<const CCreature*>(b);
+			if(crea && !crea->special)
+				allowed.push_back(crea->idNumber);
 		}
 
 		if(!allowed.size())

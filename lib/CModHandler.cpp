@@ -281,9 +281,17 @@ std::vector<std::string> CModHandler::getActiveMods()
 }
 
 template<typename Handler>
-void handleData(Handler handler, const JsonNode & config)
+void handleData(Handler handler, const JsonNode & sourceList)
 {
-	handler->load(JsonUtils::assembleFromFiles(config.convertTo<std::vector<std::string> >()));
+	JsonNode config = JsonUtils::assembleFromFiles(sourceList.convertTo<std::vector<std::string> >());
+
+	BOOST_FOREACH(auto & entry, config.Struct())
+	{
+		if (!entry.second.isNull()) // may happens if mod removed object by setting json entry to null
+		{
+			handler->load(entry.first, entry.second);
+		}
+	}
 }
 
 void CModHandler::loadActiveMods()
@@ -346,8 +354,6 @@ void CModHandler::reload()
 				VLC->dobjinfo->gobjs[Obj::ARTIFACT][art->id] = info;
 			}
 		}
-
-		VLC->arth->reverseMapArtifactConstituents();
 	}
 
 	{

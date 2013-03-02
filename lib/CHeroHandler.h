@@ -68,8 +68,9 @@ public:
 	std::vector<SSpecialtyInfo> spec;
 	std::vector<SSpecialtyBonus> specialty;
 	std::set<SpellID> spells;
+	bool haveSpellBook;
+	bool special; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
 	ui8 sex; // default sex: 0=male, 1=female
-	ui8 special; // hero is special and won't be placed in game (unless preset on map), e.g. campaign heroes
 
 	/// Localized texts
 	std::string name; //name of hero
@@ -86,7 +87,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & ID & imageIndex & initialArmy & heroClass & secSkillsInit & spec & specialty & spells & sex;
+		h & ID & imageIndex & initialArmy & heroClass & secSkillsInit & spec & specialty & spells & haveSpellBook & sex & special;
 		h & name & biography & specName & specDescr & specTooltip;
 		h & iconSpecSmall & iconSpecLarge & portraitSmall & portraitLarge;
 	}
@@ -157,7 +158,7 @@ public:
 	void load();
 
 	/// load any number of classes from json
-	void load(const JsonNode & classes);
+	void load(std::string objectID, const JsonNode & classes);
 
 	/// load one class from json
 	CHeroClass * loadClass(const JsonNode & node);
@@ -206,7 +207,7 @@ public:
 	ui64 reqExp(ui32 level) const; //calculates experience required for given level
 
 	/// Load multiple heroes from json
-	void load(const JsonNode & heroes);
+	void load(std::string objectID, const JsonNode & heroes);
 
 	/// Load single hero from json
 	CHero * loadHero(const JsonNode & node);
@@ -215,7 +216,6 @@ public:
 	void load();
 
 	void loadHeroes();
-	void loadHeroTexts();
 	void loadExperience();
 	void loadBallistics();
 	void loadTerrains();

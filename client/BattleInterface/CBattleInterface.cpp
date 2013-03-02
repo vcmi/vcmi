@@ -300,7 +300,7 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 			else
 				creature = s->getCreature();
 
-			projectile = CDefHandler::giveDef(creature->projectile);
+			projectile = CDefHandler::giveDef(creature->animation.projectileImageName);
 
 			if(projectile->ourImages.size() > 2) //add symmetric images
 			{

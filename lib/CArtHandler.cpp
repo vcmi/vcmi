@@ -78,102 +78,12 @@ bool CArtifact::isBig () const
 	return VLC->arth->isBigArtifact(id);
 }
 
-// /**
-//  * Checks whether the artifact fits at a given slot.
-//  * @param artifWorn A hero's set of worn artifacts.
-//  */
-// bool CArtifact::fitsAt (const std::map<ui16, const CArtifact*> &artifWorn, ui16 slotID) const
-// {
-// 	if (!vstd::contains(possibleSlots, slotID))
-// 		return false;
-//
-// 	// Can't put an artifact in a locked slot.
-// 	std::map<ui16, const CArtifact*>::const_iterator it = artifWorn.find(slotID);
-// 	if (it != artifWorn.end() && it->second->id == 145)
-// 		return false;
-//
-// 	// Check if a combination artifact fits.
-// 	// TODO: Might want a more general algorithm?
-// 	//       Assumes that misc & rings fits only in their slots, and others in only one slot and no duplicates.
-// 	if (constituents != NULL)
-// 	{
-// 		std::map<ui16, const CArtifact*> tempArtifWorn = artifWorn;
-// 		const ui16 ringSlots[] = {6, 7};
-// 		const ui16 miscSlots[] = {9, 10, 11, 12, 18};
-// 		int rings = 0;
-// 		int misc = 0;
-//
-// 		VLC->arth->unequipArtifact(tempArtifWorn, slotID);
-//
-// 		BOOST_FOREACH(ui32 constituentID, *constituents)
-// 		{
-// 			const CArtifact& constituent = *VLC->arth->artifacts[constituentID];
-// 			const int slot = constituent.possibleSlots[0];
-//
-// 			if (slot == 6 || slot == 7)
-// 				rings++;
-// 			else if ((slot >= 9 && slot <= 12) || slot == 18)
-// 				misc++;
-// 			else if (tempArtifWorn.find(slot) != tempArtifWorn.end())
-// 				return false;
-// 		}
-//
-// 		// Ensure enough ring slots are free
-// 		for (int i = 0; i < sizeof(ringSlots)/sizeof(*ringSlots); i++)
-// 		{
-// 			if (tempArtifWorn.find(ringSlots[i]) == tempArtifWorn.end() || ringSlots[i] == slotID)
-// 				rings--;
-// 		}
-// 		if (rings > 0)
-// 			return false;
-//
-// 		// Ensure enough misc slots are free.
-// 		for (int i = 0; i < sizeof(miscSlots)/sizeof(*miscSlots); i++)
-// 		{
-// 			if (tempArtifWorn.find(miscSlots[i]) == tempArtifWorn.end() || miscSlots[i] == slotID)
-// 				misc--;
-// 		}
-// 		if (misc > 0)
-// 			return false;
-// 	}
-//
-// 	return true;
-// }
-
-// bool CArtifact::canBeAssembledTo (const std::map<ui16, const CArtifact*> &artifWorn, ui32 artifactID) const
-// {
-// 	if (constituentOf == NULL || !vstd::contains(*constituentOf, artifactID))
-// 		return false;
-//
-// 	const CArtifact &artifact = *VLC->arth->artifacts[artifactID];
-// 	assert(artifact.constituents);
-//
-// 	BOOST_FOREACH(ui32 constituentID, *artifact.constituents)
-// 	{
-// 		bool found = false;
-// 		for (std::map<ui16, const CArtifact*>::const_iterator it = artifWorn.begin(); it != artifWorn.end(); ++it)
-// 		{
-// 			if (it->second->id == constituentID)
-// 			{
-// 				found = true;
-// 				break;
-// 			}
-// 		}
-// 		if (!found)
-// 			return false;
-// 	}
-//
-// 	return true;
-// }
-
 CArtifact::CArtifact()
 {
 	setNodeType(ARTIFACT);
 	possibleSlots[ArtBearer::HERO]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::CREATURE]; //we want to generate map entry even if it will be empty
 	possibleSlots[ArtBearer::COMMANDER];
-	constituents = NULL; //default pointer to zero
-	constituentOf = NULL;
 }
 
 CArtifact::~CArtifact()
@@ -205,21 +115,6 @@ std::string CArtifact::nodeName() const
 {
 	return "Artifact: " + Name();
 }
-// void CArtifact::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
-// {
-// 	//combined artifact carries bonuses from its parts
-// 	if(constituents)
-// 	{
-// 		BOOST_FOREACH(ui32 id, *constituents)
-// 			out.insert(VLC->arth->artifacts[id]);
-// 	}
-// }
-
-// void CScroll::Init()
-// {
-// // 	addNewBonus (Bonus (Bonus::PERMANENT, Bonus::SPELL, Bonus::ARTIFACT, 1, id, spellid, Bonus::INDEPENDENT_MAX));
-// // 	//boost::algorithm::replace_first(description, "[spell name]", VLC->spellh->spells[spellid].name);
-// }
 
 void CArtifact::addNewBonus(Bonus *b)
 {
@@ -227,19 +122,6 @@ void CArtifact::addNewBonus(Bonus *b)
 	b->duration = Bonus::PERMANENT;
 	b->description = name;
 	CBonusSystemNode::addNewBonus(b);
-}
-
-void CArtifact::setName (std::string desc)
-{
-	name = desc;
-}
-void CArtifact::setDescription (std::string desc)
-{
-	description = desc;
-}
-void CArtifact::setEventText (std::string desc)
-{
-	eventText = desc;
 }
 
 void CGrowingArtifact::levelUpArtifact (CArtifactInstance * art)
@@ -277,20 +159,20 @@ CArtHandler::CArtHandler()
 
 CArtHandler::~CArtHandler()
 {
-	for (std::vector< ConstTransitivePtr<CArtifact> >::iterator it = artifacts.begin(); it != artifacts.end(); ++it)
-	{
-		delete (*it)->constituents;
-		delete (*it)->constituentOf;
-	}
 }
 
 void CArtHandler::loadArtifacts(bool onlyTxt)
 {
-	std::vector<ui16> slots;
-	slots += 17, 16, 15, 14, 13, 18, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
+	if (onlyTxt)
+		return; // looks to be broken anyway...
+
+	std::vector<ui16> artSlots;
+	artSlots += 17, 16, 15, 14, 13, 18, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
+
 	growingArtifacts += ArtifactID::AXE_OF_SMASHING, ArtifactID::MITHRIL_MAIL,
 		ArtifactID::SWORD_OF_SHARPNESS, ArtifactID::PENDANT_OF_SORCERY, ArtifactID::BOOTS_OF_HASTE,
 		ArtifactID::BOW_OF_SEEKING, ArtifactID::DRAGON_EYE_RING;
+
 	static std::map<char, CArtifact::EartClass> classes =
 	  map_list_of('S',CArtifact::ART_SPECIAL)('T',CArtifact::ART_TREASURE)('N',CArtifact::ART_MINOR)('J',CArtifact::ART_MAJOR)('R',CArtifact::ART_RELIC);
 
@@ -313,32 +195,32 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		{
 			art = new CArtifact();
 		}
-		CArtifact &nart = *art;
-		nart.id=i;
-		nart.iconIndex=i;
-		nart.setName (parser.readString());
-		nart.setEventText (events.readString());
+		art->id=i;
+		art->iconIndex=i;
+		art->name = parser.readString();
+		art->eventText = events.readString();
 		events.endLine();
 
-		nart.price= parser.readNumber();
+		art->price= parser.readNumber();
 
-		for(int j=0;j<slots.size();j++)
+		for(int j=0; j<artSlots.size(); j++)
 		{
 			if(parser.readString() == "x")
-				nart.possibleSlots[ArtBearer::HERO].push_back(ArtifactPosition(slots[j]));
+				art->possibleSlots[ArtBearer::HERO].push_back(ArtifactPosition(artSlots[j]));
 		}
-		nart.aClass = classes[parser.readString()[0]];
+		art->aClass = classes[parser.readString()[0]];
 
 		//load description and remove quotation marks
-		nart.setDescription (parser.readString());
+		art->description = parser.readString();
 
 		parser.endLine();
 
-		if(onlyTxt)
+		if(onlyTxt) // FIXME: pointer to art will be lost. Bug?
 			continue;
 
-		artifacts.push_back(&nart);
+		artifacts.push_back(art);
 	}
+
 	if (VLC->modh->modules.COMMANDERS)
 	{ //TODO: move all artifacts config to separate json file
 		const JsonNode config(ResourceID("config/commanders.json"));
@@ -356,65 +238,51 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		}
 	}
 
-	sortArts();
 	if(onlyTxt)
 		return;
 
-	addBonuses();
-}
+	JsonNode config(ResourceID("config/artifacts.json"));
 
-void CArtHandler::reverseMapArtifactConstituents() // Populate reverse mappings of combinational artifacts.
-{
-	BOOST_FOREACH(CArtifact *artifact, artifacts)
+	BOOST_FOREACH(auto & node, config["artifacts"].Struct())
 	{
-		if (artifact->constituents != NULL)
-		{
-			BOOST_FOREACH(ui32 constituentID, *artifact->constituents)
-			{
-				if (artifacts[constituentID]->constituentOf == NULL)
-					artifacts[constituentID]->constituentOf = new std::vector<ArtifactID>();
-				artifacts[constituentID]->constituentOf->push_back(artifact->id);
-			}
-		}
+		int numeric = node.second["id"].Float();
+		CArtifact * art = artifacts[numeric];
+
+		loadArtifactJson(art, node.second);
+
+		VLC->modh->identifiers.registerObject ("artifact." + node.first, numeric);
 	}
 }
 
-void CArtHandler::load(const JsonNode & node)
+void CArtHandler::load(std::string objectID, const JsonNode & node)
 {
-	BOOST_FOREACH(auto & entry, node.Struct())
-	{
-		if (!entry.second.isNull()) // may happens if mod removed creature by setting json entry to null
-		{
-			CArtifact * art = loadArtifact(entry.second);
-			art->id = ArtifactID(artifacts.size());
+	CArtifact * art = loadArtifact(node);
+	art->id = ArtifactID(artifacts.size());
 
-			artifacts.push_back(art);
-			tlog5 << "Added artifact: " << entry.first << "\n";
-			VLC->modh->identifiers.registerObject (std::string("artifact.") + entry.first, art->id);
-		}
-	}
+	artifacts.push_back(art);
+	tlog5 << "Added artifact: " << objectID << "\n";
+	VLC->modh->identifiers.registerObject ("artifact." + objectID, art->id);
 }
 
 CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 {
 	CArtifact * art = new CArtifact;
-	const JsonNode *value;
 
 	const JsonNode & text = node["text"];
-	art->setName		(text["name"].String());
-	art->setDescription	(text["description"].String());
-	art->setEventText		(text["event"].String());
+	art->name        = text["name"].String();
+	art->description = text["description"].String();
+	art->eventText   = text["event"].String();
 
 	const JsonNode & graphics = node["graphics"];
 	art->iconIndex = graphics["iconIndex"].Float();
 	art->image = graphics["image"].String();
-	value = &graphics["large"];
-	if (!value->isNull())
-		art->large = value->String();
+
+	if (!graphics["large"].loadTo(art->large))
+		art->large = art->image;
+
 	art->advMapDef = graphics["map"].String();
 
 	art->price = node["value"].Float();
-
 	{
 		auto it = artifactClassMap.find (node["class"].String());
 		if (it != artifactClassMap.end())
@@ -423,44 +291,14 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 		}
 		else
 		{
-			tlog2 << "Warning! Artifact rarity " << value->String() << " not recognized!";
+			tlog2 << "Warning! Artifact rarity " << node["class"].String() << " not recognized!";
 			art->aClass = CArtifact::ART_SPECIAL;
 		}
 	}
 
-	int bearerType = -1;
-	bool heroArt = false;
-
+	if (!node["slot"].isNull()) //we assume non-hero slots are irrelevant?
 	{
-		const JsonNode & bearer = node["type"];
-		BOOST_FOREACH (const JsonNode & b, bearer.Vector())
-		{
-			auto it = artifactBearerMap.find (b.String());
-			if (it != artifactBearerMap.end())
-			{
-				bearerType = it->second;
-				switch (bearerType)
-				{
-					case ArtBearer::HERO: //TODO: allow arts having several possible bearers
-						heroArt = true;
-						break;
-					case ArtBearer::COMMANDER:
-						makeItCommanderArt (art, false); //do not erase already existing slots
-						break;
-					case ArtBearer::CREATURE:
-						makeItCreatureArt (art, false);
-						break;
-				}
-			}
-			else
-				tlog2 << "Warning! Artifact type " << b.String() << " not recognized!";
-		}
-	}
-
-	value = &node["slot"];
-	if (!value->isNull() && heroArt) //we assume non-hero slots are irrelevant?
-	{
-		std::string slotName = value->String();
+		std::string slotName = node["slot"].String();
 		if (slotName == "MISC")
 		{
 			//unfortunatelly slot ids aare not continuous
@@ -480,25 +318,64 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 				art->possibleSlots[ArtBearer::HERO].push_back (slot);
 			}
 			else
-				tlog2 << "Warning! Artifact slot " << value->String() << " not recognized!";
+				tlog2 << "Warning! Artifact slot " << node["slot"].String() << " not recognized!";
 		}
 	}
 
-	readComponents (node, art);
-
-	BOOST_FOREACH (const JsonNode &bonus, node["bonuses"].Vector())
-	{
-		auto b = JsonUtils::parseBonus(bonus);
-		//TODO: bonus->sid = art->id;
-		art->addNewBonus(b);
-	}
+	loadArtifactJson(art, node);
 
 	return art;
 }
 
+void CArtHandler::loadArtifactJson(CArtifact * art, const JsonNode & artifact)
+{
+	BOOST_FOREACH (auto b, artifact["bonuses"].Vector())
+	{
+		auto bonus = JsonUtils::parseBonus (b);
+		bonus->sid = art->id;
+		art->addNewBonus (bonus);
+	}
+	BOOST_FOREACH (const JsonNode & b, artifact["type"].Vector())
+	{
+		auto it = artifactBearerMap.find (b.String());
+		if (it != artifactBearerMap.end())
+		{
+			int bearerType = it->second;
+			switch (bearerType)
+			{
+				case ArtBearer::HERO://TODO: allow arts having several possible bearers
+					break;
+				case ArtBearer::COMMANDER:
+					makeItCommanderArt (art); //original artifacts should have only one bearer type
+					break;
+				case ArtBearer::CREATURE:
+					makeItCreatureArt (art);
+					break;
+			}
+		}
+		else
+			tlog2 << "Warning! Artifact type " << b.String() << " not recognized!";
+	}
+
+	if (!artifact["components"].isNull())
+	{
+		art->constituents.reset(new std::vector<ArtifactID>());
+		BOOST_FOREACH (auto component, artifact["components"].Vector())
+		{
+			VLC->modh->identifiers.requestIdentifier("artifact." + component.String(), [art](si32 id)
+			{
+				// when this code is called both combinational art as well as component are loaded
+				// so it is safe to access any of them
+				art->addConstituent(ArtifactID(id));
+				VLC->arth->artifacts[id]->constituentOf.push_back(art->id);
+			});
+		}
+	}
+}
+
 void CArtifact::addConstituent (ArtifactID component)
 {
-	assert (constituents);
+	assert (constituents); // not a combinational art
 	constituents->push_back (component);
 }
 
@@ -532,28 +409,6 @@ CreatureID CArtHandler::machineIDToCreature(ArtifactID id)
 		break;
 	}
 	return CreatureID(id + dif);
-}
-
-void CArtHandler::sortArts()
-{
- 	//for (int i=0; i<allowedArtifacts.size(); ++i) //do 144, bo nie chcemy bzdurek
- 	//{
- 	//	switch (allowedArtifacts[i]->aClass)
- 	//	{
- 	//	case CArtifact::ART_TREASURE:
- 	//		treasures.push_back(allowedArtifacts[i]);
- 	//		break;
- 	//	case CArtifact::ART_MINOR:
- 	//		minors.push_back(allowedArtifacts[i]);
- 	//		break;
- 	//	case CArtifact::ART_MAJOR:
- 	//		majors.push_back(allowedArtifacts[i]);
- 	//		break;
- 	//	case CArtifact::ART_RELIC:
- 	//		relics.push_back(allowedArtifacts[i]);
- 	//		break;
- 	//	}
- 	//}
 }
 
 ArtifactID CArtHandler::getRandomArt(int flags)
@@ -679,84 +534,6 @@ void CArtHandler::makeItCommanderArt( ArtifactID aid, bool onlyCommander /*= tru
 	makeItCommanderArt (a, onlyCommander);
 }
 
-void CArtHandler::addBonuses()
-{
-	const JsonNode config(ResourceID("config/artifacts.json"));
-	BOOST_FOREACH (auto & artifact, config["artifacts"].Struct()) //pair <string, JsonNode> (id, properties)
-	{
-		auto ga = artifacts[artifact.second["id"].Float()].get();
-
-		BOOST_FOREACH (auto b, artifact.second["bonuses"].Vector())
-		{
-			auto bonus = JsonUtils::parseBonus (b);
-			bonus->sid = ga->id;
-			ga->addNewBonus (bonus);
-		}
-		BOOST_FOREACH (const JsonNode & b, artifact.second["type"].Vector()) //TODO: remove duplicate code
-		{
-			auto it = artifactBearerMap.find (b.String());
-			if (it != artifactBearerMap.end())
-			{
-				int bearerType = it->second;
-				switch (bearerType)
-				{
-					case ArtBearer::HERO:
-						break;
-					case ArtBearer::COMMANDER:
-						makeItCommanderArt (ga); //original artifacts should have only one bearer type
-						break;
-					case ArtBearer::CREATURE:
-						makeItCreatureArt (ga);
-						break;
-				}
-			}
-			else
-				tlog2 << "Warning! Artifact type " << b.String() << " not recognized!";
-		}
-		readComponents (artifact.second, ga);
-
-		VLC->modh->identifiers.registerObject ("artifact." + artifact.first, ga->id);
-	}
-}
-
-void CArtHandler::readComponents (const JsonNode & node, CArtifact * art)
-{
-	const JsonNode *value;
-	value = &node["components"];
-	if (!value->isNull())
-	{
-		art->constituents = new std::vector<ArtifactID>();
-		BOOST_FOREACH (auto component, value->Vector())
-		{
-			VLC->modh->identifiers.requestIdentifier(std::string("artifact.") + component.String(),
-				[art](si32 id)
-				{
-					art->addConstituent(ArtifactID(id));
-				}
-			);
-		}
-	}
-
-}
-
-void CArtHandler::clear()
-{
-	BOOST_FOREACH(CArtifact *art, artifacts)
-		delete art;
-	artifacts.clear();
-
-	clearHlpLists();
-
-}
-
-void CArtHandler::clearHlpLists()
-{
-	treasures.clear();
-	minors.clear();
-	majors.clear();
-	relics.clear();
-}
-
 bool CArtHandler::legalArtifact(ArtifactID id)
 {
 	auto art = artifacts[id];
@@ -770,7 +547,6 @@ bool CArtHandler::legalArtifact(ArtifactID id)
 void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 {
 	allowedArtifacts.clear();
-	clearHlpLists();
 	for (ArtifactID i=ArtifactID::SPELLBOOK; i<ArtifactID::ART_SELECTION; i.advance(1))
 	{
 		if (allowed[i] && legalArtifact(i))
@@ -859,12 +635,6 @@ CArtifactInstance::CArtifactInstance( CArtifact *Art)
 	init();
 	setType(Art);
 }
-
-// CArtifactInstance::CArtifactInstance(int aid)
-// {
-// 	init();
-// 	setType(VLC->arth->artifacts[aid]);
-// }
 
 void CArtifactInstance::setType( CArtifact *Art )
 {
@@ -966,17 +736,16 @@ void CArtifactInstance::removeFrom(ArtifactLocation al)
 
 bool CArtifactInstance::canBeDisassembled() const
 {
-	return artType->constituents && artType->constituentOf->size();
+	return artType->constituents != nullptr;
 }
 
 std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CArtifactSet *h) const
 {
 	std::vector<const CArtifact *> ret;
-	if(!artType->constituentOf //not a part of combined artifact
-		|| artType->constituents) //combined artifact already: no combining of combined artifacts... for now.
+	if(artType->constituents) //combined artifact already: no combining of combined artifacts... for now.
 		return ret;
 
-	BOOST_FOREACH(ui32 possibleCombinedArt, *artType->constituentOf)
+	BOOST_FOREACH(ui32 possibleCombinedArt, artType->constituentOf)
 	{
 		const CArtifact * const artifact = VLC->arth->artifacts[possibleCombinedArt];
 		assert(artifact->constituents);

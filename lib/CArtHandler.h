@@ -15,6 +15,8 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+class CArtHandler;
 class CDefHandler;
 class CArtifact;
 class CGHeroInstance;
@@ -53,22 +55,20 @@ public:
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter
 	const std::string &EventText() const;
+
 	bool isBig () const;
-	void setName (std::string desc);
-	void setDescription (std::string desc);
-	void setEventText (std::string desc);
 	void addConstituent (ArtifactID component);
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
-	std::string nodeName() const OVERRIDE;
-	void addNewBonus(Bonus *b) OVERRIDE;
+	std::string nodeName() const override;
+	void addNewBonus(Bonus *b) override;
 
 	virtual void levelUpArtifact (CArtifactInstance * art){};
 
 	ui32 price;
 	bmap<ArtBearer::ArtBearer, std::vector<ArtifactPosition> > possibleSlots; //Bearer Type => ids of slots where artifact can be placed
-	std::vector<ArtifactID> * constituents; // Artifacts IDs a combined artifact consists of, or NULL.
-	std::vector<ArtifactID> * constituentOf; // Reverse map of constituents.
+	std::unique_ptr<std::vector<ArtifactID> > constituents; // Artifacts IDs a combined artifact consists of, or NULL.
+	std::vector<ArtifactID> constituentOf; // Reverse map of constituents - combined arts that include this art
 	EartClass aClass;
 	ArtifactID id;
 
@@ -82,8 +82,7 @@ public:
 	CArtifact();
 	~CArtifact();
 
-	//override
-	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
+	friend class CArtHandler;
 };
 
 class DLL_LINKAGE CGrowingArtifact : public CArtifact //for example commander artifacts getting bonuses after battle
@@ -201,20 +200,15 @@ public:
 	std::set<ArtifactID> growingArtifacts;
 
 	void loadArtifacts(bool onlyTxt);
-	/// load all artifacts from json structure
-	void load(const JsonNode & node);
+	/// load artifact from json structure
+	void load(std::string objectID, const JsonNode & node);
 	/// load one artifact from json config
 	CArtifact * loadArtifact(const JsonNode & node);
-	///read (optional) components of combined artifact
-	void readComponents (const JsonNode & node, CArtifact * art);
-	void reverseMapArtifactConstituents ();
 
-	void sortArts();
-	void addBonuses();
-	void clear();
-	void clearHlpLists();
+	void loadArtifactJson(CArtifact * art, const JsonNode & node);
 
-	//void restockArtifactList()''
+	void addBonuses(CArtifact *art, const JsonNode &bonusList);
+
 	void fillList(std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass); //fills given empty list with allowed artifacts of gibven class. No side effects
 
 	boost::optional<std::vector<CArtifact*>&> listFromClass(CArtifact::EartClass artifactClass);

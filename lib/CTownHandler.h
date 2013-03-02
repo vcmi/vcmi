@@ -221,7 +221,7 @@ public:
 
 	/// main loading function for mods, accepts merged JSON source and add all entries from it into game
 	/// all entries in JSON should be checked for validness before using this function
-	void load(const JsonNode & source);
+	void load(std::string townID, const JsonNode & source);
 
 	/// "entry point" for loading of OH3 town.
 	/// reads legacy txt's from H3 + vcmi json, merges them

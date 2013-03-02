@@ -2478,7 +2478,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 	}
 	if(level >= 4) //obelisks found
 	{
-		//TODO: obtainPlayersStats - obelisks found
+		FILL_FIELD(obelisks, CGObelisk::visited[gs->getPlayerTeam(g->second.color)->id])
 	}
 	if(level >= 5) //artifacts
 	{

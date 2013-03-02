@@ -60,36 +60,38 @@ namespace GameConstants
 	const int BFIELD_HEIGHT = 11;
 	const int BFIELD_SIZE = BFIELD_WIDTH * BFIELD_HEIGHT;
 
-	const int ARMY_SIZE = 7;
+	const int PUZZLE_MAP_PIECES = 48;
 
-	const int CREATURES_COUNT = 197;
-	const int CRE_LEVELS = 10;
-	const int F_NUMBER = 9; //factions (town types) quantity
 	const int PLAYER_LIMIT = 8; //player limit per map
 	const int MAX_HEROES_PER_PLAYER = 8;
+	const int AVAILABLE_HEROES_PER_PLAYER = 2;
+
+	const int UNFLAGGABLE_PLAYER = 254; //254 - neutral objects (pandora, banks)
+	const int NEUTRAL_PLAYER=255;
 	const int ALL_PLAYERS = 255; //bitfield
-	const int HEROES_PER_TYPE=8; //amount of heroes of each type
-	const int SKILL_QUANTITY=28;
+
+	const ui16 BACKPACK_START = 19;
+	const int CREATURES_PER_TOWN = 7; //without upgrades
+	const int SPELL_LEVELS = 5;
+
+	const int SPELLBOOK_GOLD_COST = 500;
+	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
+	const int ARMY_SIZE = 7;
 	const int SKILL_PER_HERO=8;
+
+	const int CRE_LEVELS = 10;
+	const int SKILL_QUANTITY=28;
+	const int PRIMARY_SKILLS=4;
+	const int TERRAIN_TYPES=10;
+	const int RESOURCE_QUANTITY=8;
+	const int HEROES_PER_TYPE=8; //amount of heroes of each type
+
+	// amounts of OH3 objects. Can be changed by mods, should be used only during H3 loading phase
+	const int F_NUMBER = 9;
 	const int ARTIFACTS_QUANTITY=171;
 	const int HEROES_QUANTITY=156;
 	const int SPELLS_QUANTITY=70;
-	const int PRIMARY_SKILLS=4;
-	const int UNFLAGGABLE_PLAYER = 254; //254 - neutral objects (pandora, banks)
-	const int NEUTRAL_PLAYER=255;
-	const int NAMES_PER_TOWN=16;
-	const int CREATURES_PER_TOWN = 7; //without upgrades
-	const int SPELL_LEVELS = 5;
-	const int AVAILABLE_HEROES_PER_PLAYER = 2;
-	const int SPELLBOOK_GOLD_COST = 500;
-	const int PUZZLE_MAP_PIECES = 48;
-
-	const int BATTLE_PENALTY_DISTANCE = 10; //if the distance is > than this, then shooting stack has distance penalty
-
-	const ui16 BACKPACK_START = 19;
-
-	const int TERRAIN_TYPES=10;
-	const int RESOURCE_QUANTITY=8;
+	const int CREATURES_COUNT = 197;
 
 }
 
@@ -740,9 +742,9 @@ public:
 		BALLISTA = 4,
 		AMMO_CART = 5,
 		FIRST_AID_TENT = 6,
-		CENTAUR_AXE = 7,
-		BLACKSHARD_OF_THE_DEAD_KNIGHT = 8,
-		CORNUCOPIA = 140,
+		//CENTAUR_AXE = 7,
+		//BLACKSHARD_OF_THE_DEAD_KNIGHT = 8,
+		//CORNUCOPIA = 140,
 		ART_SELECTION = 144,
 		ART_LOCK = 145,
 		AXE_OF_SMASHING = 146,
@@ -753,8 +755,8 @@ public:
 		BOOTS_OF_HASTE = 151,
 		BOW_OF_SEEKING = 152,
 		DRAGON_EYE_RING = 153,
-		HARDENED_SHIELD = 154,
-		SLAVAS_RING_OF_POWER = 155
+		//HARDENED_SHIELD = 154,
+		//SLAVAS_RING_OF_POWER = 155
 	};
 
 	ArtifactID(EArtifactID _num = NONE) : num(_num)
@@ -853,7 +855,7 @@ public:
 ID_LIKE_OPERATORS_DECLS(SpellID, SpellID::ESpellID)
 
 // Typedef declarations
-typedef si8 TFaction;
+typedef ui8 TFaction;
 typedef si64 TExpType;
 typedef std::pair<ui32, ui32> TDmgRange;
 typedef si32 TBonusSubtype;

@@ -131,21 +131,15 @@ void CHeroClassHandler::load()
 	}
 }
 
-void CHeroClassHandler::load(const JsonNode & classes)
+void CHeroClassHandler::load(std::string objectID, const JsonNode & input)
 {
-	BOOST_FOREACH(auto & entry, classes.Struct())
-	{
-		if (!entry.second.isNull()) // may happens if mod removed creature by setting json entry to null
-		{
-			CHeroClass * heroClass = loadClass(entry.second);
-			heroClass->identifier = entry.first;
-			heroClass->id = heroClasses.size();
+	CHeroClass * heroClass = loadClass(input);
+	heroClass->identifier = objectID;
+	heroClass->id = heroClasses.size();
 
-			heroClasses.push_back(heroClass);
-			tlog5 << "Added hero class: " << entry.first << "\n";
-			VLC->modh->identifiers.registerObject("heroClass." + heroClass->identifier, heroClass->id);
-		}
-	}
+	heroClasses.push_back(heroClass);
+	tlog5 << "Added hero class: " << objectID << "\n";
+	VLC->modh->identifiers.registerObject("heroClass." + heroClass->identifier, heroClass->id);
 }
 
 CHeroClass *CHeroClassHandler::loadClass(const JsonNode & node)
@@ -209,20 +203,14 @@ CHeroHandler::CHeroHandler()
 {
 }
 
-void CHeroHandler::load(const JsonNode & input)
+void CHeroHandler::load(std::string objectID, const JsonNode & input)
 {
-	BOOST_FOREACH(auto & entry, input.Struct())
-	{
-		if (!entry.second.isNull()) // may happens if mod removed creature by setting json entry to null
-		{
-			CHero * hero = loadHero(entry.second);
-			hero->ID = heroes.size();
+	CHero * hero = loadHero(input);
+	hero->ID = heroes.size();
 
-			heroes.push_back(hero);
-			tlog5 << "Added hero: " << entry.first << "\n";
-			VLC->modh->identifiers.registerObject("hero." + entry.first, hero->ID);
-		}
-	}
+	heroes.push_back(hero);
+	tlog5 << "Added hero: " << objectID << "\n";
+	VLC->modh->identifiers.registerObject("hero." + objectID, hero->ID);
 }
 
 CHero * CHeroHandler::loadHero(const JsonNode & node)
@@ -278,9 +266,23 @@ void CHeroHandler::loadHeroJson(CHero * hero, const JsonNode & node)
 		hero->secSkillsInit.push_back(std::make_pair(skillID, skillLevel));
 	}
 
+	// spellbook is considered present if hero have "spellbook" entry even when this is an empty set (0 spells)
+	hero->haveSpellBook = node["spellbook"].isNull();
+
 	BOOST_FOREACH(const JsonNode & spell, node["spellbook"].Vector())
 	{
-		hero->spells.insert(SpellID(spell.Float()));
+		if (spell.getType() == JsonNode::DATA_FLOAT) // for compatibility
+		{
+			hero->spells.insert(SpellID(spell.Float()));
+		}
+		else
+		{
+			VLC->modh->identifiers.requestIdentifier("spell." + spell.String(),
+			[=](si32 spellID)
+			{
+				hero->spells.insert(SpellID(spellID));
+			});
+		}
 	}
 
 	//deprecated, used only for original spciealties
@@ -317,13 +319,14 @@ void CHeroHandler::loadHeroJson(CHero * hero, const JsonNode & node)
 
 void CHeroHandler::load()
 {
+	VLC->heroh = this;
+
 	for (int i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
 	{
 		VLC->modh->identifiers.registerObject("skill." + NSecondarySkill::names[i], i);
 	}
 	classes.load();
 	loadHeroes();
-	loadHeroTexts();
 	loadObstacles();
 	loadTerrains();
 	loadBallistics();
@@ -382,16 +385,25 @@ void CHeroHandler::loadObstacles()
 
 void CHeroHandler::loadHeroes()
 {
-	VLC->heroh = this;
+	CLegacyConfigParser specParser("DATA/HEROSPEC.TXT");
+	CLegacyConfigParser bioParser("DATA/HEROBIOS.TXT");
 	CLegacyConfigParser parser("DATA/HOTRAITS.TXT");
 
 	parser.endLine(); //ignore header
 	parser.endLine();
 
+	specParser.endLine(); //ignore header
+	specParser.endLine();
+
 	for (int i=0; i<GameConstants::HEROES_QUANTITY; i++)
 	{
 		CHero * hero = new CHero;
 		hero->name = parser.readString();
+
+		hero->specName    = specParser.readString();
+		hero->specTooltip = specParser.readString();
+		hero->specDescr   = specParser.readString();
+		hero->biography   = bioParser.readString();
 
 		hero->initialArmy.resize(3);
 		for(int x=0;x<3;x++)
@@ -408,6 +420,8 @@ void CHeroHandler::loadHeroes()
 			});
 		}
 		parser.endLine();
+		specParser.endLine();
+		bioParser.endLine();
 
 		hero->ID = heroes.size();
 		hero->imageIndex = hero->ID;
@@ -420,27 +434,6 @@ void CHeroHandler::loadHeroes()
 	{
 		loadHeroJson(heroes[hero["id"].Float()], hero);
 	}
-}
-
-void CHeroHandler::loadHeroTexts()
-{
-	CLegacyConfigParser parser("DATA/HEROSPEC.TXT");
-	CLegacyConfigParser bioParser("DATA/HEROBIOS.TXT");
-
-	//skip header
-	parser.endLine();
-	parser.endLine();
-
-	int i=0;
-	do
-	{
-		CHero * hero = heroes[i++];
-		hero->specName    = parser.readString();
-		hero->specTooltip = parser.readString();
-		hero->specDescr   = parser.readString();
-		hero->biography   = bioParser.readString();
-	}
-	while (parser.endLine() && bioParser.endLine() && heroes.size() > i);
 }
 
 void CHeroHandler::loadBallistics()

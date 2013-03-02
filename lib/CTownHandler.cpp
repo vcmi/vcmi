@@ -21,6 +21,8 @@
  *
  */
 
+const int NAMES_PER_TOWN=16; // number of town names per faction in H3 files. Json can define any number
+
 const std::string & CBuilding::Name() const
 {
 	return name;
@@ -218,7 +220,7 @@ void CTownHandler::loadLegacyData(JsonNode & dest)
 			town["name"].String() = typeParser.readString();
 
 
-			for (int i=0; i<GameConstants::NAMES_PER_TOWN; i++)
+			for (int i=0; i<NAMES_PER_TOWN; i++)
 			{
 				JsonNode name;
 				name.String() = nameParser.readString();
@@ -502,50 +504,47 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
-void CTownHandler::load(const JsonNode &source)
+void CTownHandler::load(std::string townID, const JsonNode &source)
 {
-	BOOST_FOREACH(auto & node, source.Struct())
-	{
-		int id;
+	int id;
 
-		if (node.second["index"].isNull())
-			id = factions.rbegin()->first + 1;
-		else
-			id = node.second["index"].Float();
+	if (source["index"].isNull())
+		id = factions.rbegin()->first + 1;
+	else
+		id = source["index"].Float();
 
-		CFaction & faction = factions[id];
+	CFaction & faction = factions[id];
 
-		faction.factionID = id;
-		faction.name = node.second["name"].String();
+	faction.factionID = id;
+	faction.name = source["name"].String();
 
-		VLC->modh->identifiers.requestIdentifier ("creature." + node.second["commander"].String(),
-			[=](si32 commanderID)
-			{
-				factions[id].commander = CreatureID(commanderID);
-			});
-
-		faction.creatureBg120 = node.second["creatureBackground"]["120px"].String();
-		faction.creatureBg130 = node.second["creatureBackground"]["130px"].String();
-
-		faction.nativeTerrain = ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES,
-			node.second["nativeTerrain"].String()));
-		int alignment = vstd::find_pos(EAlignment::names, node.second["alignment"].String());
-		if (alignment == -1)
-			faction.alignment = EAlignment::NEUTRAL;
-		else
-			faction.alignment = static_cast<EAlignment::EAlignment>(alignment);
-
-		if (!node.second["town"].isNull())
+	VLC->modh->identifiers.requestIdentifier ("creature." + source["commander"].String(),
+		[=](si32 commanderID)
 		{
-			towns[id].typeID = id;
-			loadTown(towns[id], node.second["town"]);
-		}
-		if (!node.second["puzzleMap"].isNull())
-			loadPuzzle(faction, node.second["puzzleMap"]);
+			factions[id].commander = CreatureID(commanderID);
+		});
 
-		tlog5 << "Added faction: " << node.first << "\n";
-		VLC->modh->identifiers.registerObject(std::string("faction.") + node.first, faction.factionID);
+	faction.creatureBg120 = source["creatureBackground"]["120px"].String();
+	faction.creatureBg130 = source["creatureBackground"]["130px"].String();
+
+	faction.nativeTerrain = ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES,
+		source["nativeTerrain"].String()));
+	int alignment = vstd::find_pos(EAlignment::names, source["alignment"].String());
+	if (alignment == -1)
+		faction.alignment = EAlignment::NEUTRAL;
+	else
+		faction.alignment = static_cast<EAlignment::EAlignment>(alignment);
+
+	if (!source["town"].isNull())
+	{
+		towns[id].typeID = id;
+		loadTown(towns[id], source["town"]);
 	}
+	if (!source["puzzleMap"].isNull())
+		loadPuzzle(faction, source["puzzleMap"]);
+
+	tlog5 << "Added faction: " << townID << "\n";
+	VLC->modh->identifiers.registerObject(std::string("faction.") + townID, faction.factionID);
 }
 
 void CTownHandler::load()
@@ -587,7 +586,10 @@ void CTownHandler::load()
 			}
 		}
 	}
-	load(buildingsConf);
+	BOOST_FOREACH(auto & entry, buildingsConf.Struct())
+	{
+		load(entry.first, entry.second);
+	}
 }
 
 std::set<TFaction> CTownHandler::getDefaultAllowedFactions() const

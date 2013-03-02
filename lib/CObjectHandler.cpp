@@ -740,7 +740,7 @@ void CGHeroInstance::initHero()
 	else //remove placeholder
 		spells -= SpellID::PRESET;
 
-	if(!getArt(ArtifactPosition::MACH4) && !getArt(ArtifactPosition::SPELLBOOK) && !type->spells.empty()) //no catapult means we haven't read pre-existent set -> use default rules for spellbook
+	if(!getArt(ArtifactPosition::MACH4) && !getArt(ArtifactPosition::SPELLBOOK) && type->haveSpellBook) //no catapult means we haven't read pre-existent set -> use default rules for spellbook
 		putArtifact(ArtifactPosition::SPELLBOOK, CArtifactInstance::createNewArtifactInstance(0));
 
 	if(!getArt(ArtifactPosition::MACH4))
