@@ -120,7 +120,7 @@ void CMapLoaderH3M::init()
 	times.push_back(MapLoadingTime("events", sw.getDiff()));
 
 	// Calculate blocked / visitable positions
-	for(int f = 0; f < map->objects.size(); ++f)
+	for(size_t f = 0; f < map->objects.size(); ++f)
 	{
 		if(!map->objects[f]->defInfo) continue;
 		map->addBlockVisTiles(map->objects[f]);
@@ -177,7 +177,7 @@ void CMapLoaderH3M::readHeader()
 
 void CMapLoaderH3M::readPlayerInfo()
 {
-	for(int i = 0; i < mapHeader->players.size(); ++i)
+	for(size_t i = 0; i < mapHeader->players.size(); ++i)
 	{
 		mapHeader->players[i].canHumanPlay = reader.readBool();
 		mapHeader->players[i].canComputerPlay = reader.readBool();
@@ -1535,7 +1535,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 	PlayerColor owner = PlayerColor(reader.readUInt8());
 	nhi->subID = reader.readUInt8();
 
-	for(int j = 0; j < map->predefinedHeroes.size(); ++j)
+	for(size_t j = 0; j < map->predefinedHeroes.size(); ++j)
 	{
 		if(map->predefinedHeroes[j]->subID == nhi->subID)
 		{
@@ -1549,7 +1549,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 
 	nhi->portrait = nhi->subID;
 
-	for(int j = 0; j < map->disposedHeroes.size(); ++j)
+	for(size_t j = 0; j < map->disposedHeroes.size(); ++j)
 	{
 		if(map->disposedHeroes[j].heroId == nhi->subID)
 		{
@@ -2120,7 +2120,7 @@ void CMapLoaderH3M::readSpells(std::set<SpellID>& dest)
 void CMapLoaderH3M::readResourses(TResources& resources)
 {
 	resources.resize(GameConstants::RESOURCE_QUANTITY); //needed?
-	for(int x = 0; x < 7; ++x)
+	for(size_t x = 0; x < 7; ++x)
 	{
 		resources[x] = reader.readUInt32();
 	}
@@ -2133,7 +2133,7 @@ void CMapLoaderH3M::readBitmask(std::set<Indenifier>& dest, const int byteCount,
 	temp.resize(limit,true);
 	readBitmask(temp, byteCount, limit, negate);
 
-	for(int i = 0; i< std::min(temp.size(), static_cast<size_t>(limit)); i++)
+	for(size_t i = 0; i< std::min(temp.size(), static_cast<size_t>(limit)); i++)
 	{
 		if(temp[i])
 		{

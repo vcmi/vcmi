@@ -60,10 +60,10 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : internalFrame(0), onc
 	i=0x10;
 	for (int it=0;it<256;it++)
 	{
-		palette[it].R = FDef[i++];
-		palette[it].G = FDef[i++];
-		palette[it].B = FDef[i++];
-		palette[it].F = 0;
+	//	palette[it].R = FDef[i++];
+	//	palette[it].G = FDef[i++];
+	//	palette[it].B = FDef[i++];
+	//	palette[it].F = 0;
 	}
 	i=0x310;
 	totalEntries=0;
@@ -237,7 +237,7 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 						if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB && destRect->y <= yB && destRect->y + destRect->h > yB))
 						{
 							const ui8 colorNr = SegmentType == 0xff ? FDef[BaseOffset+k] : SegmentType;
-							putPixel<bpp>(dest, xB, yB, palette[colorNr], colorNr, yellowBorder, blueBorder, aCountMod);
+							//putPixel<bpp>(dest, xB, yB, palette[colorNr], colorNr, yellowBorder, blueBorder, aCountMod);
 						}
 					}
 					ftcp++; //increment pos

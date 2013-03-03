@@ -469,10 +469,10 @@ void CBattleResultWindow::activate()
 	CIntObject::activate();
 }
 
-void CBattleResultWindow::show(SDL_Surface * to)
+void CBattleResultWindow::show()
 {
-	CIntObject::show(to);
-	CCS->videoh->update(pos.x + 107, pos.y + 70, screen, true, false);
+	CIntObject::show();
+	CCS->videoh->update(pos.x + 107, pos.y + 70, true, false);
 }
 
 void CBattleResultWindow::bExitf()
@@ -658,11 +658,11 @@ CStackQueue::~CStackQueue()
 	SDL_FreeSurface(bg);
 }
 
-void CStackQueue::showAll(SDL_Surface * to)
+void CStackQueue::showAll()
 {
-	blitBg(to);
+	//* blitBg(to);
 
-	CIntObject::showAll(to);
+	CIntObject::showAll();
 }
 
 void CStackQueue::blitBg( SDL_Surface * to )
@@ -675,16 +675,16 @@ void CStackQueue::blitBg( SDL_Surface * to )
 	}
 }
 
-void CStackQueue::StackBox::showAll(SDL_Surface * to)
+void CStackQueue::StackBox::showAll()
 {
 	assert(stack);
 	bg->colorize(stack->owner);
-	CIntObject::showAll(to);
+	CIntObject::showAll();
 
-	if(small)
-		printAtMiddleLoc(makeNumberShort(stack->count), pos.w/2, pos.h - 7, FONT_SMALL, Colors::WHITE, to);
-	else
-		printAtMiddleLoc(makeNumberShort(stack->count), pos.w/2, pos.h - 8, FONT_MEDIUM, Colors::WHITE, to);
+//*	if(small)
+//*		printAtMiddleLoc(makeNumberShort(stack->count), pos.w/2, pos.h - 7, FONT_SMALL, Colors::WHITE, to);
+//*	else
+//*		printAtMiddleLoc(makeNumberShort(stack->count), pos.w/2, pos.h - 8, FONT_MEDIUM, Colors::WHITE, to);
 }
 
 void CStackQueue::StackBox::setStack( const CStack *stack )

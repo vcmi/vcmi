@@ -895,24 +895,24 @@ void CBattleInterface::show(SDL_Surface * to)
 
 	if(tacticsMode)
 	{
-		btactNext->showAll(to);
-		btactEnd->showAll(to);
+		btactNext->showAll();
+		btactEnd->showAll();
 	}
 	else
 	{
-		console->showAll(to);
-		bConsoleUp->showAll(to);
-		bConsoleDown->showAll(to);
+		console->showAll();
+		bConsoleUp->showAll();
+		bConsoleDown->showAll();
 	}
 
 	//showing buttons
-	bOptions->showAll(to);
-	bSurrender->showAll(to);
-	bFlee->showAll(to);
-	bAutofight->showAll(to);
-	bSpell->showAll(to);
-	bWait->showAll(to);
-	bDefence->showAll(to);
+	bOptions->showAll();
+	bSurrender->showAll();
+	bFlee->showAll();
+	bAutofight->showAll();
+	bSpell->showAll();
+	bWait->showAll();
+	bDefence->showAll();
 
 	//showing in-game console
 	LOCPLINT->cingconsole->show(to);
@@ -929,7 +929,7 @@ void CBattleInterface::show(SDL_Surface * to)
 
 		//showing queue
 		if(!bresult)
-			queue->showAll(to);
+			queue->showAll();
 		else
 			queue->blitBg(to);
 	}

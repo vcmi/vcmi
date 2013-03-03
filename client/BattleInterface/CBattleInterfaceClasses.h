@@ -95,7 +95,7 @@ public:
 	void bExitf(); //exit button callback
 
 	void activate();
-	void show(SDL_Surface * to = 0);
+	void show();
 };
 
 /// Class which stands for a single hex field on a battlefield
@@ -130,7 +130,7 @@ class CStackQueue : public CIntObject
 		const CStack *stack;
 		bool small;
 
-		void showAll(SDL_Surface * to);
+		void showAll();
 		void setStack(const CStack *nStack);
 		StackBox(bool small);
 	};
@@ -148,6 +148,6 @@ public:
 	CStackQueue(bool Embedded, CBattleInterface * _owner);
 	~CStackQueue();
 	void update();
-	void showAll(SDL_Surface *to);
+	void showAll();
 	void blitBg(SDL_Surface * to);
 };
