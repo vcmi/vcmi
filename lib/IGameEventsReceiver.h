@@ -128,7 +128,7 @@ public:
 	virtual void objectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged
 	virtual void objectRemoved(const CGObjectInstance *obj){}; //eg. collected resource, picked artifact, beaten hero
 	virtual void playerBlocked(int reason){}; //reason: 0 - upcoming battle
-	virtual void gameOver(TPlayerColor player, bool victory){}; //player lost or won the game
-	virtual void playerStartsTurn(TPlayerColor player){};
+	virtual void gameOver(PlayerColor player, bool victory){}; //player lost or won the game
+	virtual void playerStartsTurn(PlayerColor player){};
 	virtual void showComp(const Component &comp, std::string message) {}; //display component in the advmapint infobox
 };

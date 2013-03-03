@@ -57,7 +57,7 @@ class CBattleGameInterface : public IBattleEventsReceiver
 {
 public:
 	bool human;
-	int playerID;
+	PlayerColor playerID;
 	std::string dllName;
 
 	virtual ~CBattleGameInterface() {};

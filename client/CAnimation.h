@@ -68,7 +68,7 @@ public:
 	void increaseRef();
 
 	//Change palette to specific player
-	virtual void playerColored(int player)=0;
+	virtual void playerColored(PlayerColor player)=0;
 	virtual int width() const=0;
 	virtual int height() const=0;
 	IImage();
@@ -98,7 +98,7 @@ public:
 	~SDLImage();
 
 	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL,  ui8 alpha=255) const;
-	void playerColored(int player);
+	void playerColored(PlayerColor player);
 	int width() const;
 	int height() const;
 
@@ -144,7 +144,7 @@ public:
 	~CompImage();
 
 	void draw(SDL_Surface *where, int posX=0, int posY=0, Rect *src=NULL, ui8 alpha=255) const;
-	void playerColored(int player);
+	void playerColored(PlayerColor player);
 	int width() const;
 	int height() const;
 
@@ -228,7 +228,7 @@ private:
 	//displayed frame/group
 	size_t frame;
 	size_t group;
-	int player;
+	PlayerColor player;
 	ui8 flags;
 
 	void init();
@@ -245,7 +245,7 @@ public:
 	void setFrame(size_t Frame, size_t Group=0);
 
 	//makes image player-colored
-	void playerColored(int player);
+	void playerColored(PlayerColor player);
 
 	void showAll(SDL_Surface * to);
 };

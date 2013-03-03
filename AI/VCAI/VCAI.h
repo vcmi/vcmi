@@ -305,7 +305,7 @@ public:
 	virtual void playerBlocked(int reason) OVERRIDE;
 	virtual void showPuzzleMap() OVERRIDE;
 	virtual void showShipyardDialog(const IShipyard *obj) OVERRIDE;
-	virtual void gameOver(ui8 player, bool victory) OVERRIDE;
+	virtual void gameOver(PlayerColor player, bool victory) OVERRIDE;
 	virtual void artifactPut(const ArtifactLocation &al) OVERRIDE;
 	virtual void artifactRemoved(const ArtifactLocation &al) OVERRIDE;
 	virtual void stacksErased(const StackLocation &location) OVERRIDE;

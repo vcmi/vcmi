@@ -126,7 +126,7 @@ struct DLL_LINKAGE PlayerInfo
 	int3 posOfMainTown;
 
 	/** The team id to which the player belongs to. The default value is 255 representing that the player belongs to no team. */
-	ui8 team;
+	TeamID team;
 
 	/** Unused. True if a hero should be generated. */
 	bool generateHero;
@@ -573,7 +573,7 @@ public:
 	/** Specifies the victory condition. The default value is defeat all enemies. */
 	VictoryCondition victoryCondition;
 
-	/** A list containing information about players. The default size of the vector is GameConstants::PLAYER_LIMIT. */
+	/** A list containing information about players. The default size of the vector is PlayerColor::PLAYER_LIMIT. */
 	std::vector<PlayerInfo> players;
 
 	/** The number of teams. */

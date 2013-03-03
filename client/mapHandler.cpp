@@ -524,7 +524,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				if (!graphics->getDef(obj))
 					processDef(obj->defInfo);
 
-				ui8 color = obj->tempOwner;
+				PlayerColor color = obj->tempOwner;
 
 				//checking if object has non-empty graphic on this tile
 				if(obj->ID != Obj::HERO && !obj->coveringAt(top_tile.x + bx - obj->pos.x, top_tile.y + by - obj->pos.y))
@@ -557,7 +557,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 
 					if(themp) //hero
 					{
-						if(themp->tempOwner >= GameConstants::PLAYER_LIMIT) //Neutral hero?
+						if(themp->tempOwner >= PlayerColor::PLAYER_LIMIT) //Neutral hero?
 						{
 							tlog1 << "A neutral hero (" << themp->name << ") at " << themp->pos << ". Should not happen!\n";
 							continue;
@@ -613,7 +613,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 						//printing flag
 						pp.y+=IMGVAL*2-32;
 						sr2.y-=16;
-						CSDL_Ext::blitSurface((graphics->*flg)[color]->ourImages[gg+heroAnim%IMGVAL+35].bitmap, &pp, extSurf, &sr2);
+						CSDL_Ext::blitSurface((graphics->*flg)[color.getNum()]->ourImages[gg+heroAnim%IMGVAL+35].bitmap, &pp, extSurf, &sr2);
 					}
 					else //hero / boat stands still
 					{
@@ -639,7 +639,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 							bufr.h = 64;
 							bufr.w = 96;
 							if(bufr.x-extRect->x>-64)
-								CSDL_Ext::blitSurface((graphics->*flg)[color]->ourImages[getHeroFrameNum(dir, false) *8+(heroAnim/4)%IMGVAL].bitmap, NULL, extSurf, &bufr);
+								CSDL_Ext::blitSurface((graphics->*flg)[color.getNum()]->ourImages[getHeroFrameNum(dir, false) *8+(heroAnim/4)%IMGVAL].bitmap, NULL, extSurf, &bufr);
 						}
 					}
 				}
@@ -649,7 +649,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 					SDL_Surface *bitmap = ourImages[(anim+getPhaseShift(obj))%ourImages.size()].bitmap;
 
 					//setting appropriate flag color
-					if(color < 8 || color==255)
+					if(color < PlayerColor::PLAYER_LIMIT || color==PlayerColor::NEUTRAL)
 						CSDL_Ext::setPlayerColor(bitmap, color);
 
 					if( obj->hasShadowAt(top_tile.x + bx - obj->pos.x, top_tile.y + by - obj->pos.y) )

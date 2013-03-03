@@ -45,9 +45,9 @@ class DLL_LINKAGE CCallbackBase
 
 protected:
 	CGameState *gs;
-	boost::optional<TPlayerColor> player; // not set gives access to all information, otherwise callback provides only information "visible" for player
+	boost::optional<PlayerColor> player; // not set gives access to all information, otherwise callback provides only information "visible" for player
 
-	CCallbackBase(CGameState *GS, boost::optional<TPlayerColor> Player)
+	CCallbackBase(CGameState *GS, boost::optional<PlayerColor> Player)
 		: battle(nullptr), gs(GS), player(Player)
 	{}
 	CCallbackBase()
@@ -59,7 +59,7 @@ protected:
 
 public:
 	boost::shared_mutex &getGsMutex(); //just return a reference to mutex, does not lock nor anything
-	boost::optional<TPlayerColor> getPlayerID() const;
+	boost::optional<PlayerColor> getPlayerID() const;
 
 	friend class CBattleInfoEssentials;
 };
@@ -175,9 +175,9 @@ public:
 	const CStack *battleActiveStack() const;
 	si8 battleTacticDist() const; //returns tactic distance in current tactics phase; 0 if not in tactics phase
 	si8 battleGetTacticsSide() const; //returns which side is in tactics phase, undefined if none (?)
-	bool battleCanFlee(TPlayerColor player) const;
-	bool battleCanSurrender(TPlayerColor player) const;
-	ui8 playerToSide(TPlayerColor player) const;
+	bool battleCanFlee(PlayerColor player) const;
+	bool battleCanSurrender(PlayerColor player) const;
+	ui8 playerToSide(PlayerColor player) const;
 	ui8 battleGetSiegeLevel() const; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 	bool battleHasHero(ui8 side) const;
 	int battleCastSpells(ui8 side) const; //how many spells has given side casted
@@ -227,7 +227,7 @@ public:
 
 	std::vector<BattleHex> battleGetAvailableHexes(const CStack * stack, bool addOccupiable, std::vector<BattleHex> * attackable = NULL) const; //returns hexes reachable by creature with id ID (valid movement destinations), DOES contain stack current position
 
-	int battleGetSurrenderCost(TPlayerColor Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
+	int battleGetSurrenderCost(PlayerColor Player) const; //returns cost of surrendering battle, -1 if surrendering is not possible
 	ReachabilityInfo::TDistances battleGetDistances(const CStack * stack, BattleHex hex = BattleHex::INVALID, BattleHex * predecessors = NULL) const; //returns vector of distances to [dest hex number]
 	std::set<BattleHex> battleGetAttackedHexes(const CStack* attacker, BattleHex destinationTile, BattleHex attackerPos = BattleHex::INVALID) const;
 	bool battleCanShoot(const CStack * stack, BattleHex dest) const; //determines if stack with given ID shoot at the selected destination
@@ -250,14 +250,14 @@ public:
 	//*** MAGIC 
 	si8 battleMaxSpellLevel() const; //calculates minimum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, 0 is returned
 	ui32 battleGetSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(TPlayerColor player, ECastingMode::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(TPlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode) const; //checks if given player can cast given spell
-	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(TPlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
+	ESpellCastProblem::ESpellCastProblem battleCanCastSpell(PlayerColor player, ECastingMode::ECastingMode mode) const; //returns true if there are no general issues preventing from casting a spell
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpell(PlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode) const; //checks if given player can cast given spell
+	ESpellCastProblem::ESpellCastProblem battleCanCastThisSpellHere(PlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest) const; //checks if given player can cast given spell at given tile in given mode
 	ESpellCastProblem::ESpellCastProblem battleCanCreatureCastThisSpell(const CSpell * spell, BattleHex destination) const; //determines if creature can cast a spell here
-	std::vector<BattleHex> battleGetPossibleTargets(int player, const CSpell *spell) const;
+	std::vector<BattleHex> battleGetPossibleTargets(PlayerColor player, const CSpell *spell) const;
 	ui32 calculateSpellBonus(ui32 baseDamage, const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature) const;
 	ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature, int spellSchoolLevel, int usedSpellPower) const; //calculates damage inflicted by spell
-	std::set<const CStack*> getAffectedCreatures(const CSpell * s, int skillLevel, ui8 attackerOwner, BattleHex destinationTile); //calculates stack affected by given spell
+	std::set<const CStack*> getAffectedCreatures(const CSpell * s, int skillLevel, PlayerColor attackerOwner, BattleHex destinationTile); //calculates stack affected by given spell
 
 	SpellID battleGetRandomStackSpell(const CStack * stack, ERandomSpell mode) const;
 	SpellID getRandomBeneficialSpell(const CStack * subject) const;

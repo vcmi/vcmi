@@ -36,14 +36,14 @@
 
 DLL_LINKAGE void SetResource::applyGs( CGameState *gs )
 {
-	assert(player < GameConstants::PLAYER_LIMIT);
+	assert(player < PlayerColor::PLAYER_LIMIT);
 	vstd::amax(val, 0); //new value must be >= 0
 	gs->getPlayer(player)->resources[resid] = val;
 }
 
 DLL_LINKAGE void SetResources::applyGs( CGameState *gs )
 {
-	assert(player < GameConstants::PLAYER_LIMIT);
+	assert(player < PlayerColor::PLAYER_LIMIT);
 	gs->getPlayer(player)->resources = res;
 }
 
@@ -224,7 +224,7 @@ DLL_LINKAGE void GiveBonus::applyGs( CGameState *gs )
 		cbsn = gs->getHero(ObjectInstanceID(id));
 		break;
 	case PLAYER:
-		cbsn = gs->getPlayer(id);
+		cbsn = gs->getPlayer(PlayerColor(id));
 		break;
 	case TOWN:
 		cbsn = gs->getTown(ObjectInstanceID(id));
@@ -277,7 +277,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 	if (who == HERO)
 		node = gs->getHero(ObjectInstanceID(whoID));
 	else
-		node = gs->getPlayer(whoID);
+		node = gs->getPlayer(PlayerColor(whoID));
 
 	BonusList &bonuses = node->getBonusList();
 
@@ -309,7 +309,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 		gs->map->heroes -= h;
 		p->heroes -= h;
 		h->detachFrom(h->whereShouldBeAttached(gs));
-		h->tempOwner = 255; //no one owns beaten hero
+		h->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
 
 		if(h->visitedTown)
 		{
@@ -636,10 +636,10 @@ DLL_LINKAGE const CArmedInstance * ArtifactLocation::relatedObj() const
 	return boost::apply_visitor(ObjectRetriever(), artHolder);
 }
 
-DLL_LINKAGE int ArtifactLocation::owningPlayer() const
+DLL_LINKAGE PlayerColor ArtifactLocation::owningPlayer() const
 {
 	auto obj = relatedObj();
-	return obj ? obj->tempOwner : GameConstants::NEUTRAL_PLAYER;
+	return obj ? obj->tempOwner : PlayerColor::NEUTRAL;
 }
 
 DLL_LINKAGE CArtifactSet *ArtifactLocation::getHolderArtSet()
@@ -901,9 +901,9 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 		hero->mana = h.mana;
 	}
 
-	for(std::map<ui8, TResources>::iterator i = res.begin(); i != res.end(); i++)
+	for(auto i = res.cbegin(); i != res.cend(); i++)
 	{
-		assert(i->first < GameConstants::PLAYER_LIMIT);
+		assert(i->first < PlayerColor::PLAYER_LIMIT);
 		gs->getPlayer(i->first)->resources = i->second;
 	}
 
@@ -944,10 +944,10 @@ DLL_LINKAGE void SetObjectProperty::applyGs( CGameState *gs )
 		if(obj->ID == Obj::TOWN)
 		{
 			CGTownInstance *t = static_cast<CGTownInstance*>(obj);
-			if(t->tempOwner < GameConstants::PLAYER_LIMIT)
+			if(t->tempOwner < PlayerColor::PLAYER_LIMIT)
 				gs->getPlayer(t->tempOwner)->towns -= t;
-			if(val < GameConstants::PLAYER_LIMIT)
-				gs->getPlayer(val)->towns.push_back(t);
+			if(val < PlayerColor::PLAYER_LIMIT_I)
+				gs->getPlayer(PlayerColor(val))->towns.push_back(t);
 		}
 
 		CBonusSystemNode *nodeToMove = cai->whatShouldBeAttached();

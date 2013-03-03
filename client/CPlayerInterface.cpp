@@ -96,7 +96,7 @@ struct OCM_HLP_CGIN
 
 
 
-CPlayerInterface::CPlayerInterface(int Player)
+CPlayerInterface::CPlayerInterface(PlayerColor Player)
 {
 	tlog5 << "\tHuman player interface for player " << Player << " being constructed\n";
 	observerInDuelMode = false;
@@ -189,7 +189,7 @@ void CPlayerInterface::yourTurn()
 			std::string msg = CGI->generaltexth->allTexts[13];
 			boost::replace_first(msg, "%s", cb->getStartInfo()->playerInfos.find(playerID)->second.name);
 			std::vector<CComponent*> cmp;
-			cmp.push_back(new CComponent(CComponent::flag, playerID, 0));
+			cmp.push_back(new CComponent(CComponent::flag, playerID.getNum(), 0));
 			showInfoDialog(msg, cmp);
 		}
 		else
@@ -2045,7 +2045,7 @@ void CPlayerInterface::finishMovement( const TryMoveHero &details, const int3 &h
 	std::stable_sort(CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.end(), ocmptwo_cgin);
 }
 
-void CPlayerInterface::gameOver(ui8 player, bool victory )
+void CPlayerInterface::gameOver(PlayerColor player, bool victory )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
@@ -2076,8 +2076,8 @@ void CPlayerInterface::gameOver(ui8 player, bool victory )
 		if(!victory && cb->getPlayerStatus(playerID) == EPlayerStatus::INGAME) //enemy has lost
 		{
 			std::string txt = CGI->generaltexth->allTexts[5]; //%s has been vanquished!
-			boost::algorithm::replace_first(txt, "%s", CGI->generaltexth->capColors[player]);
-			showInfoDialog(txt,std::vector<CComponent*>(1, new CComponent(CComponent::flag, player, 0)));
+			boost::algorithm::replace_first(txt, "%s", CGI->generaltexth->capColors[player.getNum()]);
+			showInfoDialog(txt,std::vector<CComponent*>(1, new CComponent(CComponent::flag, player.getNum(), 0)));
 		}
 	}
 }
@@ -2432,7 +2432,7 @@ void CPlayerInterface::artifactDisassembled(const ArtifactLocation &al)
 	}
 }
 
-void CPlayerInterface::playerStartsTurn(ui8 player)
+void CPlayerInterface::playerStartsTurn(PlayerColor player)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 

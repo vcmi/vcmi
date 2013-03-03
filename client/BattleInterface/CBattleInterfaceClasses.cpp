@@ -198,7 +198,7 @@ void CBattleHero::switchToNextPhase()
 	currentFrame = firstFrame;
 }
 
-CBattleHero::CBattleHero(const std::string & defName, bool flipG, ui8 player, const CGHeroInstance * hero, const CBattleInterface * owner):
+CBattleHero::CBattleHero(const std::string & defName, bool flipG, PlayerColor player, const CGHeroInstance * hero, const CBattleInterface * owner):
     flip(flipG),
     myHero(hero),
     myOwner(owner),

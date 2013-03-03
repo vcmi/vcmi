@@ -93,7 +93,7 @@ public:
 	~CAdvMapInt();
 
 	int3 position; //top left corner of visible map part
-	int player;
+	PlayerColor player;
 
 	bool duringAITurn;
 
@@ -164,8 +164,8 @@ public:
 	void setHeroSleeping(const CGHeroInstance *hero, bool sleep);
 	int getNextHeroIndex(int startIndex); //for Next Hero button - cycles awake heroes with movement only
 
-	void setPlayer(int Player);
-	void startHotSeatWait(int Player);
+	void setPlayer(PlayerColor Player);
+	void startHotSeatWait(PlayerColor Player);
 	void startTurn();
 	void endingTurn();
 	void aiTurnStarted();

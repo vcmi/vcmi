@@ -1522,7 +1522,7 @@ StackOwnerLimiter::StackOwnerLimiter()
 {
 }
 
-StackOwnerLimiter::StackOwnerLimiter(ui8 Owner)
+StackOwnerLimiter::StackOwnerLimiter(PlayerColor Owner)
 	: owner(Owner)
 {
 }

@@ -162,14 +162,14 @@ void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
 	freeSurf = true;
 }
 
-void CPicture::colorizeAndConvert(int player)
+void CPicture::colorizeAndConvert(PlayerColor player)
 {
 	assert(bg);
 	colorize(player);
 	convertToScreenBPP();
 }
 
-void CPicture::colorize(int player)
+void CPicture::colorize(PlayerColor player)
 {
 	assert(bg);
 	assert(bg->format->BitsPerPixel == 8);
@@ -428,7 +428,7 @@ void CAdventureMapButton::setImage(CAnimation* anim, bool playerColoredButton, i
 	pos.h = image->pos.h;
 }
 
-void CAdventureMapButton::setPlayerColor(int player)
+void CAdventureMapButton::setPlayerColor(PlayerColor player)
 {
 	if (image)
 		image->playerColored(player);
@@ -1866,7 +1866,7 @@ void CWindowObject::showAll(SDL_Surface *to)
 {
 	CIntObject::showAll(to);
 	if ((options & BORDERED) && (pos.h != to->h || pos.w != to->w))
-		CMessage::drawBorder(LOCPLINT ? LOCPLINT->playerID : 1, to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+		CMessage::drawBorder(LOCPLINT ? LOCPLINT->playerID : PlayerColor(1), to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
 void CWindowObject::close()

@@ -22,12 +22,9 @@ namespace GameConstants
 
 	const int PUZZLE_MAP_PIECES = 48;
 
-	const int PLAYER_LIMIT = 8; //player limit per map
 	const int MAX_HEROES_PER_PLAYER = 8;
 	const int AVAILABLE_HEROES_PER_PLAYER = 2;
 
-	const int UNFLAGGABLE_PLAYER = 254; //254 - neutral objects (pandora, banks)
-	const int NEUTRAL_PLAYER=255;
 	const int ALL_PLAYERS = 255; //bitfield
 
 	const ui16 BACKPACK_START = 19;
@@ -115,29 +112,29 @@ bool operator OP (const CLASS_NAME & b) const		\
 	return num OP b.num;							\
 }
 
-#define INSTID_LIKE_CLASS_COMMON(CLASS_NAME)		\
-public:												\
-CLASS_NAME() : BaseForID<CLASS_NAME>(-1) {}			\
-CLASS_NAME(const CLASS_NAME & other):				\
-	BaseForID<CLASS_NAME>(other)					\
-{													\
-}													\
-CLASS_NAME & operator=(const CLASS_NAME & other)	\
-{													\
-	num = other.num;								\
-	return *this;									\
-}													\
-explicit CLASS_NAME(si32 id)						\
-	: BaseForID<CLASS_NAME>(id)						\
+#define INSTID_LIKE_CLASS_COMMON(CLASS_NAME, NUMERIC_NAME)	\
+public:														\
+CLASS_NAME() : BaseForID<CLASS_NAME, NUMERIC_NAME>(-1) {}	\
+CLASS_NAME(const CLASS_NAME & other):						\
+	BaseForID<CLASS_NAME, NUMERIC_NAME>(other)				\
+{															\
+}															\
+CLASS_NAME & operator=(const CLASS_NAME & other)			\
+{															\
+	num = other.num;										\
+	return *this;											\
+}															\
+explicit CLASS_NAME(si32 id)								\
+	: BaseForID<CLASS_NAME, NUMERIC_NAME>(id)				\
 {}
 
-template < typename Derived>
+template < typename Derived, typename NumericType>
 class BaseForID
 {
 protected:
-	si32 num;
+	NumericType num;
 public:
-	si32 getNum() const
+	NumericType getNum() const
 	{
 		return num;
 	}
@@ -146,50 +143,56 @@ public:
 		h & num;
 	}
 
-	explicit BaseForID(si32 _num = -1)
+	explicit BaseForID(NumericType _num = -1)
 	{
 		num = _num;
 	}
 
-	OP_DECL_INT(BaseForID<Derived>, ==)
-	OP_DECL_INT(BaseForID<Derived>, !=)
-	OP_DECL_INT(BaseForID<Derived>, <)
-	OP_DECL_INT(BaseForID<Derived>, >)
-	OP_DECL_INT(BaseForID<Derived>, <=)
-	OP_DECL_INT(BaseForID<Derived>, >=)
+	void advance(int change)
+	{
+		num += change;
+	}
+
+	typedef BaseForID<Derived, NumericType> __SelfType;
+	OP_DECL_INT(__SelfType, ==)
+	OP_DECL_INT(__SelfType, !=)
+	OP_DECL_INT(__SelfType, <)
+	OP_DECL_INT(__SelfType, >)
+	OP_DECL_INT(__SelfType, <=)
+	OP_DECL_INT(__SelfType, >=)
 };
 
-template<typename Der>
-std::ostream & operator << (std::ostream & os, BaseForID<Der> id);
+template<typename Der, typename Num>
+std::ostream & operator << (std::ostream & os, BaseForID<Der, Num> id);
 
-template<typename Der>
-std::ostream & operator << (std::ostream & os, BaseForID<Der> id)
+template<typename Der, typename Num>
+std::ostream & operator << (std::ostream & os, BaseForID<Der, Num> id)
 {
 	return os << id.getNum();
 }
 
-class ArtifactInstanceID : public BaseForID<ArtifactInstanceID>
+class ArtifactInstanceID : public BaseForID<ArtifactInstanceID, si32>
 {
-	INSTID_LIKE_CLASS_COMMON(ArtifactInstanceID)
+	INSTID_LIKE_CLASS_COMMON(ArtifactInstanceID, si32)
 
 	friend class CGameInfoCallback;
 	friend class CNonConstInfoCallback;
 };
 
 
-class ObjectInstanceID : public BaseForID<ObjectInstanceID>
+class ObjectInstanceID : public BaseForID<ObjectInstanceID, si32>
 {
-	INSTID_LIKE_CLASS_COMMON(ObjectInstanceID)
+	INSTID_LIKE_CLASS_COMMON(ObjectInstanceID, si32)
 
 	friend class CGameInfoCallback;
 	friend class CNonConstInfoCallback;
 };
 
-class SlotID : public BaseForID<SlotID>
+class SlotID : public BaseForID<SlotID, si32>
 {
-	INSTID_LIKE_CLASS_COMMON(SlotID)
+	INSTID_LIKE_CLASS_COMMON(SlotID, si32)
 
-		friend class CGameInfoCallback;
+	friend class CGameInfoCallback;
 	friend class CNonConstInfoCallback;
 
 	DLL_LINKAGE static const SlotID COMMANDER_SLOT_PLACEHOLDER;
@@ -198,6 +201,30 @@ class SlotID : public BaseForID<SlotID>
 	{
 		return getNum() >= 0  &&  getNum() < GameConstants::ARMY_SIZE;
 	}
+};
+
+class PlayerColor : public BaseForID<PlayerColor, ui8>
+{
+	INSTID_LIKE_CLASS_COMMON(PlayerColor, ui8)
+
+	DLL_LINKAGE static const PlayerColor CANNOT_DETERMINE; //253
+	DLL_LINKAGE static const PlayerColor UNFLAGGABLE; //254 - neutral objects (pandora, banks)
+	DLL_LINKAGE static const PlayerColor NEUTRAL; //255
+	DLL_LINKAGE static const int PLAYER_LIMIT_I = 8; //player limit per map
+	DLL_LINKAGE static const PlayerColor PLAYER_LIMIT; //player limit per map
+
+	friend class CGameInfoCallback;
+	friend class CNonConstInfoCallback;
+};
+
+class TeamID : public BaseForID<TeamID, ui8>
+{
+	INSTID_LIKE_CLASS_COMMON(TeamID, ui8)
+
+	DLL_LINKAGE static const TeamID NO_TEAM;
+
+	friend class CGameInfoCallback;
+	friend class CNonConstInfoCallback;
 };
 
 // #ifndef INSTANTIATE_BASE_FOR_ID_HERE
@@ -820,8 +847,6 @@ typedef si64 TExpType;
 typedef std::pair<ui32, ui32> TDmgRange;
 typedef si32 TBonusSubtype;
 typedef si32 TQuantity;
-typedef ui8 TPlayerColor;
-typedef ui8 TTeamID;
 
 
 #undef ID_LIKE_CLASS_COMMON

@@ -361,12 +361,12 @@ const SDL_Color & CMinimapInstance::getTileColor(const int3 & pos)
 		if (obj->ID == Obj::HERO)
 			continue;
 
-		int player = obj->getOwner();
-		if(player == GameConstants::NEUTRAL_PLAYER)
+		PlayerColor player = obj->getOwner();
+		if(player == PlayerColor::NEUTRAL)
 			return *graphics->neutralColor;
 		else
-		if (player < GameConstants::PLAYER_LIMIT)
-			return graphics->playerColors[player];
+		if (player < PlayerColor::PLAYER_LIMIT)
+			return graphics->playerColors[player.getNum()];
 	}
 
 	// else - use terrain color (blocked version or normal)
@@ -468,7 +468,7 @@ void CMinimapInstance::showAll(SDL_Surface *to)
 		int3 position = hero->getPosition(false);
 		if (position.z == level)
 		{
-			const SDL_Color & color = graphics->playerColors[hero->getOwner()];
+			const SDL_Color & color = graphics->playerColors[hero->getOwner().getNum()];
 			blitTileWithColor(color, position, to, pos.x, pos.y);
 		}
 	}
@@ -723,13 +723,13 @@ void CInfoBar::CVisibleInfo::loadDay()
 	forceRefresh.push_back(new CLabel(95, 31, FONT_MEDIUM, CENTER, Colors::WHITE, labelText));
 }
 
-void CInfoBar::CVisibleInfo::loadEnemyTurn(int player)
+void CInfoBar::CVisibleInfo::loadEnemyTurn(PlayerColor player)
 {
 	assert(children.empty()); // visible info should be re-created to change type
 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CPicture("ADSTATNX");
-	new CAnimImage("CREST58", player, 0, 20, 51);
+	new CAnimImage("CREST58", player.getNum(), 0, 20, 51);
 	new CShowableAnim(99, 51, "HOURSAND");
 
 	// FIXME: currently there is no way to get progress from VCAI
@@ -753,17 +753,17 @@ void CInfoBar::CVisibleInfo::loadGameStatus()
 	BOOST_FOREACH(auto town, LOCPLINT->towns)
 		halls[town->hallLevel()]++;
 
-	std::vector<int> allies, enemies;
+	std::vector<PlayerColor> allies, enemies;
 
 	//generate list of allies and enemies
-	for(int i = 0; i < GameConstants::PLAYER_LIMIT; i++)
+	for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		if(LOCPLINT->cb->getPlayerStatus(i) == EPlayerStatus::INGAME)
+		if(LOCPLINT->cb->getPlayerStatus(PlayerColor(i)) == EPlayerStatus::INGAME)
 		{
-			if (LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, i) != PlayerRelations::ENEMIES)
-				allies.push_back(i);
+			if (LOCPLINT->cb->getPlayerRelations(LOCPLINT->playerID, PlayerColor(i)) != PlayerRelations::ENEMIES)
+				allies.push_back(PlayerColor(i));
 			else
-				enemies.push_back(i);
+				enemies.push_back(PlayerColor(i));
 		}
 	}
 
@@ -774,16 +774,16 @@ void CInfoBar::CVisibleInfo::loadGameStatus()
 	auto enemyLabel = new CLabel(10, 136, FONT_SMALL, TOPLEFT, Colors::WHITE, CGI->generaltexth->allTexts[391] + ":");
 
 	int posx = allyLabel->pos.w + allyLabel->pos.x - pos.x + 4;
-	BOOST_FOREACH(int & player, allies)
+	BOOST_FOREACH(PlayerColor & player, allies)
 	{
-		auto image = new CAnimImage("ITGFLAGS", player, 0, posx, 102);
+		auto image = new CAnimImage("ITGFLAGS", player.getNum(), 0, posx, 102);
 		posx += image->pos.w;
 	}
 
 	posx = enemyLabel->pos.w + enemyLabel->pos.x - pos.x + 4;
-	BOOST_FOREACH(int & player, enemies)
+	BOOST_FOREACH(PlayerColor & player, enemies)
 	{
-		auto image = new CAnimImage("ITGFLAGS", player, 0, posx, 132);
+		auto image = new CAnimImage("ITGFLAGS", player.getNum(), 0, posx, 132);
 		posx += image->pos.w;
 	}
 
@@ -904,7 +904,7 @@ void CInfoBar::showComponent(const Component & comp, std::string message)
 	redraw();
 }
 
-void CInfoBar::startEnemyTurn(ui8 color)
+void CInfoBar::startEnemyTurn(PlayerColor color)
 {
 	reset(AITURN);
 	visibleInfo->loadEnemyTurn(color);

@@ -51,7 +51,7 @@ void Graphics::loadPaletteAndColors()
 
 	playerColorPalette = new SDL_Color[256];
 	neutralColor = new SDL_Color;
-	playerColors = new SDL_Color[GameConstants::PLAYER_LIMIT];
+	playerColors = new SDL_Color[PlayerColor::PLAYER_LIMIT_I];
 	int startPoint = 24; //beginning byte; used to read
 	for(int i=0; i<256; ++i)
 	{
@@ -278,18 +278,18 @@ void Graphics::loadHeroFlags()
 	tlog0 << "Loading and transforming heroes' flags: "<<th.getDiff()<<std::endl;
 }
 
-void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
+void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 {
 // 	if(player==1) //it is actually blue...
 // 		return;
 	if(sur->format->BitsPerPixel == 8)
 	{
 		SDL_Color *palette = NULL;
-		if(player < GameConstants::PLAYER_LIMIT && player >= 0)
+		if(player < PlayerColor::PLAYER_LIMIT)
 		{
-			palette = playerColorPalette + 32*player;
+			palette = playerColorPalette + 32*player.getNum();
 		}
-		else if(player == 255 || player == -1)
+		else if(player == PlayerColor::NEUTRAL)
 		{
 			palette = neutralColorPalette;
 		}
@@ -321,9 +321,9 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
 						sort1.push_back(cp[1]);
 						sort1.push_back(cp[2]);
 						std::vector< std::pair<long long int, Uint8*> > sort2;
-						sort2.push_back(std::make_pair(graphics->playerColors[player].r, &(cp[0])));
-						sort2.push_back(std::make_pair(graphics->playerColors[player].g, &(cp[1])));
-						sort2.push_back(std::make_pair(graphics->playerColors[player].b, &(cp[2])));
+						sort2.push_back(std::make_pair(graphics->playerColors[player.getNum()].r, &(cp[0])));
+						sort2.push_back(std::make_pair(graphics->playerColors[player.getNum()].g, &(cp[1])));
+						sort2.push_back(std::make_pair(graphics->playerColors[player.getNum()].b, &(cp[2])));
 						std::sort(sort1.begin(), sort1.end());
 						if(sort2[0].first>sort2[1].first)
 							std::swap(sort2[0], sort2[1]);
@@ -349,9 +349,9 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
 						sort1.push_back(cp[1]);
 						sort1.push_back(cp[0]);
 						std::vector< std::pair<long long int, Uint8*> > sort2;
-						sort2.push_back(std::make_pair(graphics->playerColors[player].r, &(cp[2])));
-						sort2.push_back(std::make_pair(graphics->playerColors[player].g, &(cp[1])));
-						sort2.push_back(std::make_pair(graphics->playerColors[player].b, &(cp[0])));
+						sort2.push_back(std::make_pair(graphics->playerColors[player.getNum()].r, &(cp[2])));
+						sort2.push_back(std::make_pair(graphics->playerColors[player.getNum()].g, &(cp[1])));
+						sort2.push_back(std::make_pair(graphics->playerColors[player.getNum()].b, &(cp[0])));
 						std::sort(sort1.begin(), sort1.end());
 						if(sort2[0].first>sort2[1].first)
 							std::swap(sort2[0], sort2[1]);

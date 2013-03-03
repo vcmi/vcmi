@@ -113,12 +113,12 @@ class CClient : public IGameCallback
 {
 public:
 	CCallback *cb;
-	std::map<TPlayerColor,shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
-	std::map<TPlayerColor,shared_ptr<CBattleCallback> > battleCallbacks; //callbacks given to player interfaces
+	std::map<PlayerColor,shared_ptr<CCallback> > callbacks; //callbacks given to player interfaces
+	std::map<PlayerColor,shared_ptr<CBattleCallback> > battleCallbacks; //callbacks given to player interfaces
 	std::vector<IGameEventsReceiver*> privilagedGameEventReceivers; //scripting modules, spectator interfaces
 	std::vector<IBattleEventsReceiver*> privilagedBattleEventReceivers; //scripting modules, spectator interfaces
-	std::map<TPlayerColor,CGameInterface *> playerint;
-	std::map<TPlayerColor,CBattleGameInterface *> battleints;
+	std::map<PlayerColor,CGameInterface *> playerint;
+	std::map<PlayerColor,CBattleGameInterface *> battleints;
 	bool hotSeat;
 	CConnection *serv;
 	BattleAction *curbaction;
@@ -133,7 +133,7 @@ public:
 	std::queue<CPack *> packs;
 	boost::mutex packsM;
 
-	void waitForMoveAndSend(TPlayerColor color);
+	void waitForMoveAndSend(PlayerColor color);
 	//void sendRequest(const CPackForServer *request, bool waitForRealization);
 	CClient(void);
 	CClient(CConnection *con, StartInfo *si);
@@ -159,22 +159,22 @@ public:
 	boost::thread *connectionHandler; //thread running run() method
 
 	//////////////////////////////////////////////////////////////////////////
-	virtual int getLocalPlayer() const OVERRIDE;
+	virtual PlayerColor getLocalPlayer() const OVERRIDE;
 
 	//////////////////////////////////////////////////////////////////////////
 	//not working yet, will be implement somewhen later with support for local-sim-based gameplay
 	void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells) OVERRIDE {};
 	bool removeObject(const CGObjectInstance * obj) OVERRIDE {return false;};
 	void setBlockVis(ObjectInstanceID objid, bool bv) OVERRIDE {};
-	void setOwner(const CGObjectInstance * obj, TPlayerColor owner) OVERRIDE {};
+	void setOwner(const CGObjectInstance * obj, PlayerColor owner) OVERRIDE {};
 	void setHoverName(const CGObjectInstance * obj, MetaString * name) OVERRIDE {};
 	void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false) OVERRIDE {};
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) OVERRIDE {}; 
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback) OVERRIDE {};
 	ui32 showBlockingDialog(BlockingDialog *iw) OVERRIDE {return 0;}; //synchronous version of above
 	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const boost::function<void()> &cb) OVERRIDE {};
-	void showThievesGuildWindow(TPlayerColor player, ObjectInstanceID requestingObjId) OVERRIDE {};
-	void giveResource(TPlayerColor player, Res::ERes which, int val) OVERRIDE {};
+	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) OVERRIDE {};
+	void giveResource(PlayerColor player, Res::ERes which, int val) OVERRIDE {};
 
 	void giveCreatures(const CArmedInstance * objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) OVERRIDE {};
 	void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures) OVERRIDE {};
@@ -203,11 +203,11 @@ public:
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false) OVERRIDE {}; //if any of armies is hero, hero will be used
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false) OVERRIDE {}; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	void setAmount(ObjectInstanceID objid, ui32 val) OVERRIDE {};
-	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 instant, TPlayerColor asker = GameConstants::NEUTRAL_PLAYER) OVERRIDE {return false;};
+	bool moveHero(ObjectInstanceID hid, int3 dst, ui8 instant, PlayerColor asker = PlayerColor::NEUTRAL) OVERRIDE {return false;};
 	void giveHeroBonus(GiveBonus * bonus) OVERRIDE {};
 	void setMovePoints(SetMovePoints * smp) OVERRIDE {};
 	void setManaPoints(ObjectInstanceID hid, int val) OVERRIDE {};
-	void giveHero(ObjectInstanceID id, TPlayerColor player) OVERRIDE {};
+	void giveHero(ObjectInstanceID id, PlayerColor player) OVERRIDE {};
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags) OVERRIDE {};
 	void sendAndApply(CPackForClient * info) OVERRIDE {};
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) OVERRIDE {};
@@ -217,7 +217,7 @@ public:
 	friend class CBattleCallback; //handling players actions
 	friend void processCommand(const std::string &message, CClient *&client); //handling console
 	
-	int sendRequest(const CPack *request, TPlayerColor player); //returns ID given to that request
+	int sendRequest(const CPack *request, PlayerColor player); //returns ID given to that request
 
 	void handlePack( CPack * pack ); //applies the given pack and deletes it
 	void battleStarted(const BattleInfo * info);

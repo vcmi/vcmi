@@ -314,8 +314,8 @@ si32 idToNumber(const T &t, typename boost::enable_if<boost::is_convertible<T,si
 	return t;
 }
 
-template<typename T>
-si32 idToNumber(const BaseForID<T> &t)
+template<typename T, typename NT>
+NT idToNumber(const BaseForID<T, NT> &t)
 {
 	return t.getNum();
 }
@@ -1291,7 +1291,7 @@ public:
 	virtual ~CConnection(void);
 
 	CPack *retreivePack(); //gets from server next pack (allocates it with new)
-	void sendPackToServer(const CPack &pack, TPlayerColor player, ui32 requestID);
+	void sendPackToServer(const CPack &pack, PlayerColor player, ui32 requestID);
 
 	void disableStackSendingByID();
 	void enableStackSendingByID();

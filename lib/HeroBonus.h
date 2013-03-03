@@ -889,9 +889,9 @@ public:
 class DLL_LINKAGE StackOwnerLimiter : public ILimiter //applies only to creatures of given alignment
 {
 public:
-	ui8 owner;
+	PlayerColor owner;
 	StackOwnerLimiter();
-	StackOwnerLimiter(ui8 Owner);
+	StackOwnerLimiter(PlayerColor Owner);
 
 	int limit(const BonusLimitationContext &context) const OVERRIDE;
 

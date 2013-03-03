@@ -46,16 +46,16 @@ public:
 		/**
 		 * Gets the color of the player. The default value is 0.
 		 *
-		 * @return the color of the player ranging from 0 to GameConstants::PLAYER_LIMIT - 1
+		 * @return the color of the player ranging from 0 to PlayerColor::PLAYER_LIMIT - 1
 		 */
-		int getColor() const;
+		PlayerColor getColor() const;
 
 		/**
 		 * Sets the color of the player.
 		 *
-		 * @param value the color of the player ranging from 0 to GameConstants::PLAYER_LIMIT - 1
+		 * @param value the color of the player ranging from 0 to PlayerColor::PLAYER_LIMIT - 1
 		 */
-		void setColor(int value);
+		void setColor(PlayerColor value);
 
 		/**
 		 * Gets the starting town of the player. The default value is RANDOM_TOWN.
@@ -90,7 +90,7 @@ public:
 
 	private:
 		/** The color of the player. */
-		int color;
+		PlayerColor color;
 
 		/** The starting town of the player. */
 		int startingTown;
@@ -106,7 +106,7 @@ public:
 	 * @param players the random gen player settings
 	 * @param randomSeed a random seed is required to get random numbers.
 	 */
-	CMapGenerator(const CMapGenOptions & mapGenOptions, const std::map<TPlayerColor, CPlayerSettings> & players, int randomSeed);
+	CMapGenerator(const CMapGenOptions & mapGenOptions, const std::map<PlayerColor, CPlayerSettings> & players, int randomSeed);
 
 	/**
 	 * Destructor.
@@ -147,7 +147,7 @@ private:
 	/**
 	 * Counts the amount of human players.
 	 *
-	 * @return the amount of human players ranging from 0 to GameConstants::PLAYER_LIMIT
+	 * @return the amount of human players ranging from 0 to PlayerColor::PLAYER_LIMIT
 	 */
 	int countHumanPlayers() const;
 
@@ -171,7 +171,7 @@ private:
 	 *
 	 * @return the next free player color
 	 */
-	TPlayerColor getNextPlayerColor() const;
+	PlayerColor getNextPlayerColor() const;
 
 	/** The map options which describes the size of the map and contain player info. */
 	CMapGenOptions mapGenOptions;
@@ -192,5 +192,5 @@ private:
 	std::unique_ptr<CMapEditManager> mapMgr;
 
 	/** The random gen player settings. */
-	std::map<TPlayerColor, CPlayerSettings> players;
+	std::map<PlayerColor, CPlayerSettings> players;
 };

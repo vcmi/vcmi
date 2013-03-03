@@ -393,7 +393,7 @@ ui64 evaluateDanger(crint3 tile, const CGHeroInstance *visitor)
 
 ui64 evaluateDanger(const CGObjectInstance *obj)
 {
-	if(obj->tempOwner < GameConstants::PLAYER_LIMIT && cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
+	if(obj->tempOwner < PlayerColor::PLAYER_LIMIT && cb->getPlayerRelations(obj->tempOwner, ai->playerID) != PlayerRelations::ENEMIES) //owned or allied objects don't pose any threat
 		return 0;
 
 	switch(obj->ID)
@@ -553,11 +553,11 @@ void VCAI::showShipyardDialog(const IShipyard *obj)
 	LOG_ENTRY;
 }
 
-void VCAI::gameOver(ui8 player, bool victory)
+void VCAI::gameOver(PlayerColor player, bool victory)
 {
 	NET_EVENT_HANDLER;
 	LOG_ENTRY;
-	BNLOG("Player %d: I heard that player %d %s.", playerID % (int)player % (victory ? "won" : "lost"));
+	BNLOG("Player %d: I heard that player %d %s.", playerID % player.getNum() % (victory ? "won" : "lost"));
 	if(player == playerID)
 	{
 		if(victory)
@@ -567,7 +567,7 @@ void VCAI::gameOver(ui8 player, bool victory)
 		}
 		else
 		{
-			tlog0 << "VCAI: Player " << (int)player << " lost. It's me. What a disappointment! :(\n";
+			tlog0 << "VCAI: Player " << player << " lost. It's me. What a disappointment! :(\n";
 		}
 
 // 		//let's make Impossible difficulty finally standing to its name :>
@@ -838,7 +838,7 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 	LOG_ENTRY;
 	if(sop->what == ObjProperty::OWNER)
 	{
-		if(sop->val == playerID)
+		if(sop->val == playerID.getNum())
 			remove_if_present(visitableObjs, myCb->getObj(sop->id));
 		//TODO restore lost obj
 	}
@@ -1593,7 +1593,7 @@ void VCAI::completeGoal (const CGoal goal)
 void VCAI::battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side)
 {
 	NET_EVENT_HANDLER;
-	assert(playerID > GameConstants::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
+	assert(playerID > PlayerColor::PLAYER_LIMIT || status.getBattle() == UPCOMING_BATTLE);
 	status.setBattle(ONGOING_BATTLE);
 	const CGObjectInstance *presumedEnemy = backOrNull(cb->getVisitableObjs(tile)); //may be NULL in some very are cases -> eg. visited monolith and fighting with an enemy at the FoW covered exit
 	battlename = boost::str(boost::format("Starting battle of %s attacking %s at %s") % (hero1 ? hero1->name : "a army") % (presumedEnemy ? presumedEnemy->hoverName : "unknown enemy") % tile);
@@ -2344,7 +2344,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 			}
 			case CQuest::MISSION_PLAYER:
 			{
-				if (playerID != q.quest->m13489val)
+				if (playerID.getNum() != q.quest->m13489val)
 					BNLOG ("Can't be player of color %d\n", q.quest->m13489val);
 				break;
 			}

@@ -424,7 +424,7 @@ void CHeroGSlot::set(const CGHeroInstance *newHero)
 	if (newHero)
 		image = new CAnimImage("PortraitsLarge", newHero->portrait, 0, 0, 0);
 	else if(!upg && owner->showEmpty) //up garrison
-		image = new CAnimImage("CREST58", LOCPLINT->castleInt->town->getOwner(), 0, 0, 0);
+		image = new CAnimImage("CREST58", LOCPLINT->castleInt->town->getOwner().getNum(), 0, 0, 0);
 	else 
 		image = NULL;
 }

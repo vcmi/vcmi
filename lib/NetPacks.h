@@ -65,14 +65,14 @@ struct CPackForClient : public CPack
 
 struct CPackForServer : public CPack
 {
-	TPlayerColor player;
+	PlayerColor player;
 	CConnection *c;
 	CGameState* GS(CGameHandler *gh);
 	CPackForServer()
 	{
 		type = 2;
 		c = NULL;
-		player = 255;
+		player = PlayerColor::NEUTRAL;
 	};
 
 	bool applyGh(CGameHandler *gh);//called after applying to gs
@@ -203,7 +203,7 @@ struct PackageApplied : public CPackForClient //94
 	ui8 result; //0 - something went wrong, request hasn't been realized; 1 - OK
 	ui32 packType; //type id of applied package
 	ui32 requestID; //an ID given by client to the request that was applied
-	TPlayerColor player;
+	PlayerColor player;
 
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -234,7 +234,7 @@ struct PlayerBlocked : public CPackForClient //96
 	enum EReason { UPCOMING_BATTLE };
 
 	EReason reason;
-	TPlayerColor player;
+	PlayerColor player;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -248,7 +248,7 @@ struct YourTurn : public CPackForClient //100
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	TPlayerColor player;
+	PlayerColor player;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -262,7 +262,7 @@ struct SetResource : public CPackForClient //102
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	TPlayerColor player;
+	PlayerColor player;
 	Res::ERes resid;
 	TResourceCap val;
 
@@ -277,7 +277,7 @@ struct SetResource : public CPackForClient //102
  	void applyCl(CClient *cl);
  	DLL_LINKAGE void applyGs(CGameState *gs);
 
- 	TPlayerColor player;
+ 	PlayerColor player;
  	TResources res; //res[resid] => res amount
 
  	template <typename Handler> void serialize(Handler &h, const int version)
@@ -394,7 +394,8 @@ struct FoWChange : public CPackForClient //112
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	boost::unordered_set<int3, struct ShashInt3 > tiles;
-	ui8 player, mode; //mode==0 - hide, mode==1 - reveal
+	PlayerColor player;
+	ui8 mode; //mode==0 - hide, mode==1 - reveal
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & tiles & player & mode;
@@ -415,7 +416,7 @@ struct SetAvailableHeroes : public CPackForClient //113
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	TPlayerColor player;
+	PlayerColor player;
 	si32 hid[GameConstants::AVAILABLE_HEROES_PER_PLAYER]; //-1 if no hero
 	CSimpleArmy army[GameConstants::AVAILABLE_HEROES_PER_PLAYER];
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -478,7 +479,7 @@ struct PlayerEndsGame : public CPackForClient //117
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	TPlayerColor player;
+	PlayerColor player;
 	ui8 victory;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -558,7 +559,7 @@ struct AddQuest : public CPackForClient //121
 	void applyCl(CClient *cl){};
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	TPlayerColor player;
+	PlayerColor player;
 	QuestInfo quest;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -758,7 +759,7 @@ struct HeroRecruited : public CPackForClient //515
 	si32 hid;//subID of hero
 	ObjectInstanceID tid;
 	int3 tile;
-	TPlayerColor player;
+	PlayerColor player;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -774,7 +775,7 @@ struct GiveHero : public CPackForClient //516
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
 	ObjectInstanceID id; //object id
-	TPlayerColor player;
+	PlayerColor player;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -987,7 +988,7 @@ struct ArtifactLocation
 	}
 
 	DLL_LINKAGE const CArmedInstance *relatedObj() const; //hero or the stack owner
-	DLL_LINKAGE int owningPlayer() const;
+	DLL_LINKAGE PlayerColor owningPlayer() const;
 	DLL_LINKAGE CArtifactSet *getHolderArtSet();
 	DLL_LINKAGE CBonusSystemNode *getHolderNode();
 	DLL_LINKAGE const CArtifactSet *getHolderArtSet() const;
@@ -1106,7 +1107,7 @@ struct NewTurn : public CPackForClient //101
 
 	std::set<Hero> heroes; //updates movement and mana points
 	//std::vector<SetResources> res;//resource list
-	std::map<TPlayerColor, TResources> res; //player ID => resource value[res_id]
+	std::map<PlayerColor, TResources> res; //player ID => resource value[res_id]
 	std::vector<SetAvailableCreatures> cres;//creatures to be placed in towns
 	ui32 day;
 	bool resetBuilded;
@@ -1150,7 +1151,7 @@ struct InfoWindow : public CPackForClient //103  - displays simple info window
 
 	MetaString text;
 	std::vector<Component> components;
-	TPlayerColor player;
+	PlayerColor player;
 	ui16 soundID;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1273,7 +1274,7 @@ struct BlockingDialog : public Query//2003
 
 	MetaString text;
 	std::vector<Component> components;
-	TPlayerColor player;
+	PlayerColor player;
 	ui8 flags;
 	ui16 soundID;
 
@@ -1606,7 +1607,7 @@ struct BattleResultsApplied : public CPackForClient //3012
 {
 	BattleResultsApplied(){type = 3012;}
 
-	ui8 player1, player2;
+	PlayerColor player1, player2;
 
 	void applyCl(CClient *cl);
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1742,7 +1743,7 @@ struct BattleObstaclePlaced : public CPackForClient //3020
 struct ShowInInfobox : public CPackForClient //107
 {
 	ShowInInfobox(){type = 107;};
-	ui8 player;
+	PlayerColor player;
 	Component c;
 	MetaString text;
 
@@ -1757,7 +1758,7 @@ struct AdvmapSpellCast : public CPackForClient //108
 {
 	AdvmapSpellCast(){type = 108;}
 	const CGHeroInstance * caster;
-	si32 spellID;
+	SpellID spellID;
 
 	void applyCl(CClient *cl);
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -2022,7 +2023,7 @@ struct HireHero : public CPackForServer
 	HireHero(si32 HID, ObjectInstanceID TID):hid(HID),tid(TID){};
 	si32 hid; //available hero serial
 	ObjectInstanceID tid; //town (tavern) id
-	TPlayerColor player;
+	PlayerColor player;
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -2049,7 +2050,7 @@ struct QueryReply : public CPackForServer
 	QueryReply(){type = 6000;};
 	QueryReply(ui32 QID, ui32 Answer):qid(QID),answer(Answer){type = 6000;};
 	ui32 qid, answer; //hero and artifact id
-	TPlayerColor player;
+	PlayerColor player;
 
 	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -2130,14 +2131,14 @@ struct SaveGame : public CPackForClient, public CPackForServer
 struct PlayerMessage : public CPackForClient, public CPackForServer //513
 {
 	PlayerMessage(){CPackForClient::type = 513;};
-	PlayerMessage(ui8 Player, const std::string &Text)
+	PlayerMessage(PlayerColor Player, const std::string &Text)
 		:player(Player),text(Text)
 	{CPackForClient::type = 513;};
 	void applyCl(CClient *cl);
 	void applyGs(CGameState *gs){};
 	bool applyGh(CGameHandler *gh);
 
-	TPlayerColor player;
+	PlayerColor player;
 	std::string text;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -2154,7 +2155,7 @@ struct SetSelection : public CPackForClient, public CPackForServer //514
 	bool applyGh(CGameHandler *gh);
 	void applyCl(CClient *cl);
 
-	TPlayerColor player;
+	PlayerColor player;
 	ObjectInstanceID id;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -2168,7 +2169,7 @@ struct CenterView : public CPackForClient//515
 	CenterView(){CPackForClient::type = 515;};
 	void applyCl(CClient *cl);
 
-	TPlayerColor player;
+	PlayerColor player;
 	int3 pos;
 	ui32 focusTime; //ms
 
@@ -2301,9 +2302,9 @@ struct RequestOptionsChange : public CPregamePackToHost
 	enum EWhat {TOWN, HERO, BONUS};
 	ui8 what;
 	si8 direction; //-1 or +1
-	TPlayerColor playerID;
+	ui8 playerID;
 
-	RequestOptionsChange(ui8 What, si8 Dir, TPlayerColor Player)
+	RequestOptionsChange(ui8 What, si8 Dir, ui8 Player)
 		:what(What), direction(Dir), playerID(Player)
 	{}
 	RequestOptionsChange(){}
@@ -2318,7 +2319,7 @@ struct RequestOptionsChange : public CPregamePackToHost
 
 struct PlayerLeft : public CPregamePackToPropagate
 {
-	TPlayerColor playerID;
+	ui8 playerID;
 
 	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
 
@@ -2331,7 +2332,7 @@ struct PlayerLeft : public CPregamePackToPropagate
 struct PlayersNames : public CPregamePackToPropagate
 {
 public:
-	std::map<TPlayerColor, std::string> playerNames;
+	std::map<ui8, std::string> playerNames;
 
 	void apply(CSelectionScreen *selScreen); //that functions are implemented in CPreGame.cpp
 

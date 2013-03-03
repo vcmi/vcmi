@@ -73,8 +73,8 @@ namespace
 void CMessage::init()
 {
 	{
-		piecesOfBox.resize(GameConstants::PLAYER_LIMIT);
-		for (int i=0;i<GameConstants::PLAYER_LIMIT;i++)
+		piecesOfBox.resize(PlayerColor::PLAYER_LIMIT_I);
+		for (int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
 		{
 			CDefHandler * bluePieces = CDefHandler::giveDef("DIALGBOX.DEF");
 			if (i==1)
@@ -87,7 +87,7 @@ void CMessage::init()
 			}
 			for (size_t j=0;j<bluePieces->ourImages.size();++j)
 			{
-				graphics->blueToPlayersAdv(bluePieces->ourImages[j].bitmap,i);
+				graphics->blueToPlayersAdv(bluePieces->ourImages[j].bitmap, PlayerColor(i));
 				piecesOfBox[i].push_back(bluePieces->ourImages[j].bitmap);
 				bluePieces->ourImages[j].bitmap->refcount++;
 			}
@@ -102,7 +102,7 @@ void CMessage::init()
 
 void CMessage::dispose()
 {
-	for (int i=0;i<GameConstants::PLAYER_LIMIT;i++)
+	for (int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
 	{
 		for (size_t j=0; j<piecesOfBox[i].size(); ++j)
 		{
@@ -114,7 +114,7 @@ void CMessage::dispose()
 	delete cancel;
 }
 
-SDL_Surface * CMessage::drawDialogBox(int w, int h, TPlayerColor playerColor)
+SDL_Surface * CMessage::drawDialogBox(int w, int h, PlayerColor playerColor)
 {
 	//prepare surface
 	SDL_Surface * ret = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
@@ -219,7 +219,7 @@ std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSi
 	return ret;
 }
 
-void CMessage::drawIWindow(CInfoWindow * ret, std::string text, TPlayerColor player)
+void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor player)
 {
 	bool blitOr = false;
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
@@ -304,9 +304,9 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, TPlayerColor pla
 		ret->components[i]->moveBy(Point(ret->pos.x, ret->pos.y));
 }
 
-void CMessage::drawBorder(TPlayerColor playerColor, SDL_Surface * ret, int w, int h, int x, int y)
+void CMessage::drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int h, int x, int y)
 {	
-	std::vector<SDL_Surface *> &box = piecesOfBox[playerColor];
+	std::vector<SDL_Surface *> &box = piecesOfBox[playerColor.getNum()];
 
 	// Note: this code assumes that the corner dimensions are all the same.
 

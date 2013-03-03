@@ -19,6 +19,11 @@
 #include "CSpellHandler.h"
 
 const SlotID SlotID::COMMANDER_SLOT_PLACEHOLDER = SlotID(-2);
+const PlayerColor PlayerColor::CANNOT_DETERMINE = PlayerColor(253);
+const PlayerColor PlayerColor::UNFLAGGABLE = PlayerColor(254);
+const PlayerColor PlayerColor::NEUTRAL = PlayerColor(255);
+const PlayerColor PlayerColor::PLAYER_LIMIT = PlayerColor(PLAYER_LIMIT_I);
+const TeamID TeamID::NO_TEAM = TeamID(255);
 
 #define ID_LIKE_OPERATORS_INTERNAL(A, B, AN, BN)	\
 bool operator==(const A & a, const B & b)			\

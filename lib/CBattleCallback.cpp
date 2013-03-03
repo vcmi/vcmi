@@ -107,7 +107,7 @@ void CCallbackBase::setBattle(const BattleInfo *B)
 	battle = B;
 }
 
-boost::optional<TPlayerColor> CCallbackBase::getPlayerID() const
+boost::optional<PlayerColor> CCallbackBase::getPlayerID() const
 {
 	return player;
 }
@@ -299,7 +299,7 @@ int CBattleInfoEssentials::battleCastSpells(ui8 side) const
 	return getBattle()->castSpells[side];
 }
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(TPlayerColor player, ECastingMode::ECastingMode mode) const
+ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(PlayerColor player, ECastingMode::ECastingMode mode) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
 	const ui8 side = playerToSide(player);
@@ -335,7 +335,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(TPl
 	return ESpellCastProblem::OK;
 }
 
-bool CBattleInfoEssentials::battleCanFlee(TPlayerColor player) const
+bool CBattleInfoEssentials::battleCanFlee(PlayerColor player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	ui8 mySide = playerToSide(player);
@@ -360,7 +360,7 @@ bool CBattleInfoEssentials::battleCanFlee(TPlayerColor player) const
 	return true;
 }
 
-ui8 CBattleInfoEssentials::playerToSide(TPlayerColor player) const
+ui8 CBattleInfoEssentials::playerToSide(PlayerColor player) const
 {
 	RETURN_IF_NOT_BATTLE(-1);
 	int ret = vstd::find_pos(getBattle()->sides, player);
@@ -376,7 +376,7 @@ ui8 CBattleInfoEssentials::battleGetSiegeLevel() const
 	return getBattle()->siege;
 }
 
-bool CBattleInfoEssentials::battleCanSurrender(TPlayerColor player) const
+bool CBattleInfoEssentials::battleCanSurrender(PlayerColor player) const
 {
 	RETURN_IF_NOT_BATTLE(false);
 	//conditions like for fleeing + enemy must have a hero
@@ -1535,7 +1535,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 	return ESpellCastProblem::OK;
 }
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell( TPlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode ) const
+ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell( PlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode ) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
 	const ui8 side = playerToSide(player);
@@ -1662,7 +1662,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpell
 	return ESpellCastProblem::OK;
 }
 
-std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(int player, const CSpell *spell) const
+std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor player, const CSpell *spell) const
 {
 	std::vector<BattleHex> ret;
 	RETURN_IF_NOT_BATTLE(ret);
@@ -1735,7 +1735,7 @@ ui32 CBattleInfoCallback::battleGetSpellCost(const CSpell * sp, const CGHeroInst
 	return ret - manaReduction + manaIncrease;
 }
 
-ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpellHere( TPlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest ) const
+ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastThisSpellHere( PlayerColor player, const CSpell * spell, ECastingMode::ECastingMode mode, BattleHex dest ) const
 {
 	RETURN_IF_NOT_BATTLE(ESpellCastProblem::INVALID);
 	ESpellCastProblem::ESpellCastProblem moreGeneralProblem = battleCanCastThisSpell(player, spell, mode);
@@ -1862,7 +1862,7 @@ ui32 CBattleInfoCallback::calculateSpellDmg( const CSpell * sp, const CGHeroInst
 	return ret;
 }
 
-std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell * spell, int skillLevel, ui8 attackerOwner, BattleHex destinationTile)
+std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell * spell, int skillLevel, PlayerColor attackerOwner, BattleHex destinationTile)
 {
 	std::set<const CStack*> attackedCres; /*std::set to exclude multiple occurrences of two hex creatures*/
 
@@ -1910,7 +1910,7 @@ std::set<const CStack*> CBattleInfoCallback::getAffectedCreatures(const CSpell *
 			}
 			if (!possibleHexes.size()) //not enough targets
 				break;
-			lightningHex = BattleHex::getClosestTile (attackerOwner, destinationTile, possibleHexes);
+			lightningHex = BattleHex::getClosestTile (stack->attackerOwned, destinationTile, possibleHexes);
 		}
 	}
 	else if (spell->range[skillLevel].size() > 1) //custom many-hex range
@@ -2121,7 +2121,7 @@ SpellID CBattleInfoCallback::getRandomCastedSpell(const CStack * caster) const
 	return SpellID::NONE;
 }
 
-int CBattleInfoCallback::battleGetSurrenderCost(TPlayerColor Player) const
+int CBattleInfoCallback::battleGetSurrenderCost(PlayerColor Player) const
 {
 	RETURN_IF_NOT_BATTLE(-3);
 	if(!battleCanSurrender(Player))

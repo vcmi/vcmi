@@ -10,7 +10,7 @@
 void CMapInfo::countPlayers()
 {
 	actualHumanPlayers = playerAmnt = humanPlayers = 0;
-	for(int i=0;i<GameConstants::PLAYER_LIMIT;i++)
+	for(int i=0; i<PlayerColor::PLAYER_LIMIT_I; i++)
 	{
 		if(mapHeader->players[i].canHumanPlay)
 		{

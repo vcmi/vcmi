@@ -35,10 +35,10 @@ struct PlayerSettings
 	     heroPortrait; //-1 if default, else ID
 
 	std::string heroName;
-	TPlayerColor color; //from 0 - 
+	PlayerColor color; //from 0 - 
 	enum EHandicap {NO_HANDICAP, MILD, SEVERE};
 	EHandicap handicap;//0-no, 1-mild, 2-severe
-	ui8 team;
+	TeamID team;
 
 	std::string name;
 	ui8 playerID; //0 - AI, non-0 serves as player id
@@ -74,7 +74,7 @@ struct StartInfo
 	EMode mode;
 	ui8 difficulty; //0=easy; 4=impossible
 
-	typedef bmap<TPlayerColor, PlayerSettings> TPlayerInfos;
+	typedef bmap<PlayerColor, PlayerSettings> TPlayerInfos;
 	TPlayerInfos playerInfos; //color indexed
 
 	ui32 seedToBeUsed; //0 if not sure (client requests server to decide, will be send in reply pack)
@@ -87,7 +87,7 @@ struct StartInfo
 
 	shared_ptr<CCampaignState> campState;
 
-	PlayerSettings & getIthPlayersSettings(TPlayerColor no)
+	PlayerSettings & getIthPlayersSettings(PlayerColor no)
 	{
 		if(playerInfos.find(no) != playerInfos.end())
 			return playerInfos[no];

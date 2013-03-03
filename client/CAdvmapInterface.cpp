@@ -748,7 +748,7 @@ void CAdvMapInt::show(SDL_Surface * to)
 	{
 		terrain.show(to);
 		for(int i=0;i<4;i++)
-			blitAt(gems[i]->ourImages[LOCPLINT->playerID].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i],to);
+			blitAt(gems[i]->ourImages[LOCPLINT->playerID.getNum()].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i],to);
 		updateScreen=false;
 		LOCPLINT->cingconsole->showAll(to);
 	}
@@ -1066,12 +1066,12 @@ bool CAdvMapInt::isActive()
 	return active & ~CIntObject::KEYBOARD;
 }
 
-void CAdvMapInt::startHotSeatWait(int Player)
+void CAdvMapInt::startHotSeatWait(PlayerColor Player)
 {
 	state = WAITING;
 }
 
-void CAdvMapInt::setPlayer(int Player)
+void CAdvMapInt::setPlayer(PlayerColor Player)
 {
 	player = Player;
 	graphics->blueToPlayersAdv(bg,player);

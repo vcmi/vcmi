@@ -348,8 +348,8 @@ int main(int argc, char** argv)
 		StartInfo *si = new StartInfo();
 		si->mode = StartInfo::DUEL;
 		si->mapname = vm["battle"].as<std::string>();
-		si->playerInfos[0].color = 0;
-		si->playerInfos[1].color = 1;
+		si->playerInfos[PlayerColor(0)].color = PlayerColor(0);
+		si->playerInfos[PlayerColor(1)].color = PlayerColor(1);
 		startGame(si);
 	}
 	mainGUIThread = new boost::thread(&CGuiHandler::run, boost::ref(GH));

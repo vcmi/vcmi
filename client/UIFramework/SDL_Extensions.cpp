@@ -580,15 +580,15 @@ void CSDL_Ext::drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &co
 	}
 }
 
-void CSDL_Ext::setPlayerColor(SDL_Surface * sur, ui8 player)
+void CSDL_Ext::setPlayerColor(SDL_Surface * sur, PlayerColor player)
 {
-	if(player==254)
+	if(player==PlayerColor::UNFLAGGABLE)
 		return;
 	if(sur->format->BitsPerPixel==8)
 	{
-		SDL_Color *color = (player == 255
+		SDL_Color *color = (player == PlayerColor::NEUTRAL
 							? graphics->neutralColor
-							: &graphics->playerColors[player]);
+							: &graphics->playerColors[player.getNum()]);
 		SDL_SetColors(sur, color, 5, 1);
 	}
 	else

@@ -257,28 +257,29 @@ public:
 
 	struct PlayerToRestore
 	{
-		int color, id;
-		void reset() { color = id = -1; }
+		PlayerColor color;
+		int id;
+		void reset() { id = -1; color = PlayerColor::CANNOT_DETERMINE; }
 		PlayerToRestore(){ reset(); }
 	} playerToRestore;
 
 
-	std::map<int, PlayerOptionsEntry *> entries; //indexed by color
+	std::map<PlayerColor, PlayerOptionsEntry *> entries; //indexed by color
 
-	void nextCastle(int player, int dir); //dir == -1 or +1
-	void nextHero(int player, int dir); //dir == -1 or +1
-	void nextBonus(int player, int dir); //dir == -1 or +1
+	void nextCastle(PlayerColor player, int dir); //dir == -1 or +1
+	void nextHero(PlayerColor player, int dir); //dir == -1 or +1
+	void nextBonus(PlayerColor player, int dir); //dir == -1 or +1
 	void setTurnLength(int npos);
-	void flagPressed(int player);
+	void flagPressed(PlayerColor player);
 
 	void recreate();
 	OptionsTab();
 	~OptionsTab();
 	void showAll(SDL_Surface * to);
 
-	int nextAllowedHero(int player, int min, int max, int incl, int dir );
+	int nextAllowedHero(PlayerColor player, int min, int max, int incl, int dir );
 
-	bool canUseThisHero(int player, int ID );
+	bool canUseThisHero(PlayerColor player, int ID );
 };
 
 /**
@@ -425,19 +426,19 @@ public:
 	CMenuScreen::EState screenType; //new/save/load#Game
 	const CMapInfo *current;
 	StartInfo sInfo;
-	std::map<TPlayerColor, std::string> playerNames; // id of player <-> player name; 0 is reserved as ID of AI "players"
+	std::map<ui8, std::string> playerNames; // id of player <-> player name; 0 is reserved as ID of AI "players"
 
-	ISelectionScreenInfo(const std::map<TPlayerColor, std::string> *Names = NULL);
+	ISelectionScreenInfo(const std::map<ui8, std::string> *Names = NULL);
 	virtual ~ISelectionScreenInfo();
 	virtual void update(){};
 	virtual void propagateOptions() {};
 	virtual void postRequest(ui8 what, ui8 dir) {};
 	virtual void postChatMessage(const std::string &txt){};
 
-	void setPlayer(PlayerSettings &pset, TPlayerColor player);
+	void setPlayer(PlayerSettings &pset, ui8 player);
 	void updateStartInfo( std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader );
 
-	int getIdOfFirstUnallocatedPlayer(); //returns 0 if none
+	ui8 getIdOfFirstUnallocatedPlayer(); //returns 0 if none
 	bool isGuest() const;
 	bool isHost() const;
 
@@ -465,7 +466,7 @@ public:
 	bool ongoingClosing;
 	ui8 myNameID; //used when networking - otherwise all player are "mine"
 
-	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER, const std::map<TPlayerColor, std::string> *Names = NULL);
+	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER, const std::map<ui8, std::string> *Names = NULL);
 	~CSelectionScreen();
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);

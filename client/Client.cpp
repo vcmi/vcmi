@@ -112,7 +112,7 @@ CClient::~CClient(void)
 	delete applier;
 }
 
-void CClient::waitForMoveAndSend(TPlayerColor color)
+void CClient::waitForMoveAndSend(PlayerColor color)
 {
 	try
 	{
@@ -175,7 +175,7 @@ void CClient::save(const std::string & fname)
 	}
 
 	SaveGame save_game(fname);
-	sendRequest((CPackForClient*)&save_game, 255);
+	sendRequest((CPackForClient*)&save_game, PlayerColor::NEUTRAL);
 }
 
 void CClient::endGame( bool closeConnection /*= true*/ )
@@ -270,9 +270,9 @@ void CClient::loadGame( const std::string & fname )
 	for(auto it = gs->scenarioOps->playerInfos.begin(); 
 		it != gs->scenarioOps->playerInfos.end(); ++it)
 	{
-		*serv << ui8(it->first); //players
+		*serv << ui8(it->first.getNum()); //players
 	}
-	*serv << ui8(GameConstants::NEUTRAL_PLAYER);
+	*serv << ui8(PlayerColor::NEUTRAL.getNum());
 	tlog0 <<"Sent info to server: "<<tmh.getDiff()<<std::endl;
 
 	serv->enableStackSendingByID();
@@ -326,7 +326,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 	// Now after possible random map gen, we know exact player count.
 	// Inform server about how many players client handles
-	std::set<TPlayerColor> myPlayers;
+	std::set<PlayerColor> myPlayers;
 	for(auto it = gs->scenarioOps->playerInfos.begin(); it != gs->scenarioOps->playerInfos.end(); ++it)
 	{
 		if((networkMode == SINGLE)                                                      //single - one client has all player
@@ -337,7 +337,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		}
 	}
 	if(networkMode != GUEST)
-		myPlayers.insert(GameConstants::NEUTRAL_PLAYER);
+		myPlayers.insert(PlayerColor::NEUTRAL);
 	c << myPlayers;
 
 	// Init map handler
@@ -352,16 +352,16 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	}
 
 	int humanPlayers = 0;
-	int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : GameConstants::PLAYER_LIMIT;
+	int sensibleAILimit = settings["session"]["oneGoodAI"].Bool() ? 1 : PlayerColor::PLAYER_LIMIT_I;
 	for(auto it = gs->scenarioOps->playerInfos.begin(); 
 		it != gs->scenarioOps->playerInfos.end(); ++it)//initializing interfaces for players
 	{
-		TPlayerColor color = it->first;
+		PlayerColor color = it->first;
 		gs->currentPlayer = color;
 		if(!vstd::contains(myPlayers, color))
 			continue;
 
-		tlog5 << "Preparing interface for player " << (int)color << std::endl;
+		tlog5 << "Preparing interface for player " << color << std::endl;
 		if(si->mode != StartInfo::DUEL)
 		{
 			auto cb = make_shared<CCallback>(gs,color,this);
@@ -373,7 +373,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 				else
 					sensibleAILimit--;
 				playerint[color] = static_cast<CGameInterface*>(CDynLibHandler::getNewAI(AItoGive));
-				tlog1 << "Player " << (int)color << " will be lead by " << AItoGive << std::endl;
+				tlog1 << "Player " << color << " will be lead by " << AItoGive << std::endl;
 			}
 			else 
 			{
@@ -390,7 +390,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		{
 			auto cbc = make_shared<CBattleCallback>(gs, color, this);
 			battleCallbacks[color] = cbc;
-			if(!color)
+			if(color == PlayerColor(0))
 				battleints[color] = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
 			else
 				battleints[color] = CDynLibHandler::getNewBattleAI("StupidAI");
@@ -401,13 +401,13 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	if(si->mode == StartInfo::DUEL)
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
-		CPlayerInterface *p = new CPlayerInterface(-1);
+		CPlayerInterface *p = new CPlayerInterface(PlayerColor::NEUTRAL); //TODO: check if neutral really works -- was -1, but CPlayerInterface seems to cooperate with this value not too well
 		p->observerInDuelMode = true;
-		battleints[254] = playerint[254] = p;
+		battleints[PlayerColor::UNFLAGGABLE] = playerint[PlayerColor::UNFLAGGABLE] = p;
 		privilagedBattleEventReceivers.push_back(p);
 		GH.curInt = p;
-		auto cb = make_shared<CCallback>(gs, -1, this);
-		battleCallbacks[-1] = callbacks[-1] = cb;
+		auto cb = make_shared<CCallback>(gs, boost::optional<PlayerColor>(), this);
+		battleCallbacks[PlayerColor::NEUTRAL] = callbacks[PlayerColor::NEUTRAL] = cb;
 		p->init(cb.get());
 		battleStarted(gs->curB);
 	}
@@ -443,7 +443,7 @@ void CClient::serialize( Handler &h, const int version )
 		ui8 players = playerint.size();
 		h & players;
 
-		for(std::map<ui8,CGameInterface *>::iterator i = playerint.begin(); i != playerint.end(); i++)
+		for(auto i = playerint.begin(); i != playerint.end(); i++)
 		{
 			h & i->first & i->second->dllName;
 			i->second->serialize(h,version);
@@ -457,14 +457,14 @@ void CClient::serialize( Handler &h, const int version )
 		for(int i=0; i < players; i++)
 		{
 			std::string dllname;
-			ui8 pid = 0; //fix for uninitialized warning
+			PlayerColor pid = PlayerColor(0); //fix for uninitialized warning
 			h & pid & dllname;
 
 
 			CGameInterface *nInt = NULL;
 			if(dllname.length())
 			{
-				if(pid == GameConstants::NEUTRAL_PLAYER)
+				if(pid == PlayerColor::NEUTRAL)
 				{
 					//CBattleCallback * cbc = new CBattleCallback(gs, pid, this);//FIXME: unused?
 					CBattleGameInterface *cbgi = CDynLibHandler::getNewBattleAI(dllname);
@@ -485,7 +485,7 @@ void CClient::serialize( Handler &h, const int version )
 			nInt->serialize(h, version);
 		}
 
-		if(!vstd::contains(battleints, GameConstants::NEUTRAL_PLAYER))
+		if(!vstd::contains(battleints, PlayerColor::NEUTRAL))
 			loadNeutralBattleAI();
 	}
 }
@@ -536,7 +536,7 @@ void CClient::stopConnection()
 		tlog0 << "Connection has been requested to be closed.\n";
 		boost::unique_lock<boost::mutex>(*serv->wmx);
 		CloseServer close_server;
-		sendRequest(&close_server, 255);
+		sendRequest(&close_server, PlayerColor::NEUTRAL);
 		tlog0 << "Sent closing signal to the server\n";
 	}
 
@@ -564,7 +564,7 @@ void CClient::battleStarted(const BattleInfo * info)
 {
 	BOOST_FOREACH(auto &battleCb, battleCallbacks)
 	{
-		if(vstd::contains(info->sides, battleCb.first)  ||  battleCb.first >= GameConstants::PLAYER_LIMIT)
+		if(vstd::contains(info->sides, battleCb.first)  ||  battleCb.first >= PlayerColor::PLAYER_LIMIT)
 			battleCb.second->setBattle(info);
 	}
 // 	BOOST_FOREACH(ui8 side, info->sides)
@@ -594,8 +594,8 @@ void CClient::battleStarted(const BattleInfo * info)
 		battleints[info->sides[0]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 0);
 	if(vstd::contains(battleints,info->sides[1]))
 		battleints[info->sides[1]]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
-	if(vstd::contains(battleints,254))
-		battleints[254]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
+	if(vstd::contains(battleints,PlayerColor::UNFLAGGABLE))
+		battleints[PlayerColor::UNFLAGGABLE]->battleStart(info->belligerents[0], info->belligerents[1], info->tile, info->heroes[0], info->heroes[1], 1);
 
 	if(info->tacticDistance && vstd::contains(battleints,info->sides[info->tacticsSide]))
 	{
@@ -605,17 +605,17 @@ void CClient::battleStarted(const BattleInfo * info)
 
 void CClient::battleFinished()
 {
-	BOOST_FOREACH(ui8 side, gs->curB->sides)
+	BOOST_FOREACH(PlayerColor side, gs->curB->sides)
 		if(battleCallbacks.count(side))
 			battleCallbacks[side]->setBattle(nullptr);
 }
 
 void CClient::loadNeutralBattleAI()
 {
-	battleints[GameConstants::NEUTRAL_PLAYER] = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
-	auto cbc = make_shared<CBattleCallback>(gs, GameConstants::NEUTRAL_PLAYER, this);
-	battleCallbacks[GameConstants::NEUTRAL_PLAYER] = cbc;
-	battleints[GameConstants::NEUTRAL_PLAYER]->init(cbc.get());
+	battleints[PlayerColor::NEUTRAL] = CDynLibHandler::getNewBattleAI(settings["server"]["neutralAI"].String());
+	auto cbc = make_shared<CBattleCallback>(gs, PlayerColor::NEUTRAL, this);
+	battleCallbacks[PlayerColor::NEUTRAL] = cbc;
+	battleints[PlayerColor::NEUTRAL]->init(cbc.get());
 }
 
 void CClient::commitPackage( CPackForClient *pack )
@@ -623,10 +623,10 @@ void CClient::commitPackage( CPackForClient *pack )
 	CommitPackage cp;
 	cp.freePack = false;
 	cp.packToCommit = pack;
-	sendRequest(&cp, 255);
+	sendRequest(&cp, PlayerColor::NEUTRAL);
 }
 
-int CClient::getLocalPlayer() const
+PlayerColor CClient::getLocalPlayer() const
 {
 	if(LOCPLINT)
 		return LOCPLINT->playerID;
@@ -648,7 +648,7 @@ void CClient::commenceTacticPhaseForInt(CBattleGameInterface *battleInt)
 		battleInt->yourTacticPhase(gs->curB->tacticDistance);
 		if(gs && !!gs->curB && gs->curB->tacticDistance) //while awaiting for end of tactics phase, many things can happen (end of battle... or game)
 		{
-			MakeAction ma(BattleAction::makeEndOFTacticPhase(battleInt->playerID));
+			MakeAction ma(BattleAction::makeEndOFTacticPhase(gs->curB->playerToSide(battleInt->playerID)));
 			sendRequest(&ma, battleInt->playerID);
 		}
 	} HANDLE_EXCEPTION
@@ -660,7 +660,7 @@ void CClient::invalidatePaths(const CGHeroInstance *h /*= NULL*/)
 		pathInfo->isValid = false;
 }
 
-int CClient::sendRequest(const CPack *request, TPlayerColor player)
+int CClient::sendRequest(const CPack *request, PlayerColor player)
 {
 	static ui32 requestCounter = 0;
 

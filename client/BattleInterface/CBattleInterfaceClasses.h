@@ -61,7 +61,7 @@ public:
 	void show(SDL_Surface * to); //prints next frame of animation to to
 	void setPhase(int newPhase); //sets phase of hero animation
 	void clickLeft(tribool down, bool previousState); //call-in
-	CBattleHero(const std::string &defName, bool filpG, ui8 player, const CGHeroInstance *hero, const CBattleInterface *owner); //c-tor
+	CBattleHero(const std::string &defName, bool filpG, PlayerColor player, const CGHeroInstance *hero, const CBattleInterface *owner); //c-tor
 	~CBattleHero(); //d-tor
 };
 

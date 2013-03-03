@@ -63,8 +63,8 @@ public:
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
 	void convertToScreenBPP();
-	void colorizeAndConvert(int player);
-	void colorize(int player);
+	void colorizeAndConvert(PlayerColor player);
+	void colorize(PlayerColor player);
 };
 
 /// area filled with specific texture
@@ -147,7 +147,7 @@ public:
 
 	void setIndex(size_t index, bool playerColoredButton=false);
 	void setImage(CAnimation* anim, bool playerColoredButton=false, int animFlags=0);
-	void setPlayerColor(int player);
+	void setPlayerColor(PlayerColor player);
 	void showAll(SDL_Surface * to);
 };
 

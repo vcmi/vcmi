@@ -100,12 +100,12 @@ public:
 	void showAll(SDL_Surface * to);
 	void sliderMoved(int to);
 
-	CInfoWindow(std::string Text, int player, const TCompsInfo &comps = TCompsInfo(), const TButtonsInfo &Buttons = TButtonsInfo(), bool delComps = true); //c-tor
+	CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo &comps = TCompsInfo(), const TButtonsInfo &Buttons = TButtonsInfo(), bool delComps = true); //c-tor
 	CInfoWindow(); //c-tor
 	~CInfoWindow(); //d-tor
 
-	static void showYesNoDialog( const std::string & text, const std::vector<CComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps = true, int player = 1); //use only before the game starts! (showYesNoDialog in LOCPLINT must be used then)
-	static CInfoWindow *create(const std::string &text, int playerID = 1, const std::vector<CComponent*> *components = NULL, bool DelComps = false);
+	static void showYesNoDialog( const std::string & text, const std::vector<CComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps = true, PlayerColor player = PlayerColor(1)); //use only before the game starts! (showYesNoDialog in LOCPLINT must be used then)
+	static CInfoWindow *create(const std::string &text, PlayerColor playerID = PlayerColor(1), const std::vector<CComponent*> *components = NULL, bool DelComps = false);
 
 	/// create text from title and description: {title}\n\n description
 	static std::string genText(std::string title, std::string description);
@@ -117,7 +117,7 @@ class CSelWindow : public CInfoWindow
 public:
 	void selectionChange(unsigned to);
 	void madeChoice(); //looks for selected component and calls callback
-	CSelWindow(const std::string& text, int player, int charperline ,const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, int askID); //c-tor
+	CSelWindow(const std::string& text, PlayerColor player, int charperline ,const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, int askID); //c-tor
 	CSelWindow(){}; //c-tor
 	//notification - this class inherits important destructor from CInfoWindow
 };

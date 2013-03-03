@@ -401,7 +401,7 @@ void CCampaignScenario::prepareCrossoverHeroes( std::vector<CGHeroInstance *> he
 	}
 }
 
-const CGHeroInstance * CCampaignScenario::strongestHero( TPlayerColor owner ) const
+const CGHeroInstance * CCampaignScenario::strongestHero( PlayerColor owner ) const
 {
 	using boost::adaptors::filtered;
 	std::function<bool(CGHeroInstance*)> isOwned =  [=](const CGHeroInstance *h){ return h->tempOwner == owner; };

@@ -5,6 +5,7 @@
 #include "../../lib/CObjectHandler.h"
 #include "../../lib/CHeroHandler.h"
 #include "../../lib/CCreatureHandler.h"
+#include "../../lib/VCMIDirs.h"
 
 /*
  * ERMInterpreter.cpp, part of VCMI engine
@@ -366,13 +367,13 @@ void ERMInterpreter::scanForScripts()
 {
 	using namespace boost::filesystem;
 	//parser checking
-	if(!exists(GameConstants::DATA_DIR + "/Data/s/"))
+	if(!exists(VCMIDirs::get().dataPath() + "/Data/s/"))
 	{
-		tlog3 << "Warning: Folder " << GameConstants::DATA_DIR << "/Data/s/ doesn't exist!\n";
+		tlog3 << "Warning: Folder " << VCMIDirs::get().dataPath() << "/Data/s/ doesn't exist!\n";
 		return;
 	}
 	directory_iterator enddir;
-	for (directory_iterator dir(GameConstants::DATA_DIR + "/Data/s"); dir!=enddir; dir++)
+	for (directory_iterator dir(VCMIDirs::get().dataPath() + "/Data/s"); dir!=enddir; dir++)
 	{
 		if(is_regular(dir->status()))
 		{

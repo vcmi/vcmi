@@ -261,7 +261,7 @@ class CInfoBar : public CIntObject
 		void loadHero(const CGHeroInstance * hero);
 		void loadTown(const CGTownInstance * town);
 		void loadDay();
-		void loadEnemyTurn(int player);
+		void loadEnemyTurn(PlayerColor player);
 		void loadGameStatus();
 		void loadComponent(const Component &comp, std::string message);
 
@@ -298,7 +298,7 @@ public:
 	void showComponent(const Component & comp, std::string message);
 
 	/// print enemy turn progress
-	void startEnemyTurn(ui8 color);
+	void startEnemyTurn(PlayerColor color);
 	/// updates enemy turn.
 	/// NOTE: currently DISABLED. Check comments in CInfoBar::CVisibleInfo::loadEnemyTurn()
 	void updateEnemyTurn(double progress);

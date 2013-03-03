@@ -66,7 +66,7 @@ void startGame(StartInfo * options, CConnection *serv = NULL);
 CGPreGame * CGP = nullptr;
 ISelectionScreenInfo *SEL;
 
-static int playerColor; //if more than one player - applies to the first
+static PlayerColor playerColor; //if more than one player - applies to the first
 
 /**
  * Stores the current name of the savegame.
@@ -129,7 +129,7 @@ static void swapPlayers(PlayerSettings &a, PlayerSettings &b)
 		playerColor = b.color;
 }
 
-void setPlayer(PlayerSettings &pset, TPlayerColor player, const std::map<TPlayerColor, std::string> &playerNames)
+void setPlayer(PlayerSettings &pset, ui8 player, const std::map<ui8, std::string> &playerNames)
 {
 	if(vstd::contains(playerNames, player))
 		pset.name = playerNames.find(player)->second;
@@ -141,7 +141,7 @@ void setPlayer(PlayerSettings &pset, TPlayerColor player, const std::map<TPlayer
 		playerColor = pset.color;
 }
 
-void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader, const std::map<TPlayerColor, std::string> &playerNames)
+void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader * mapHeader, const std::map<ui8, std::string> &playerNames)
 {
 	sInfo.playerInfos.clear();
 	if(!mapHeader)
@@ -150,7 +150,7 @@ void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader *
 	}
 
 	sInfo.mapname = filename;
-	playerColor = -1;
+	playerColor = PlayerColor::NEUTRAL;
 
 	auto namesIt = playerNames.cbegin();
 
@@ -162,8 +162,8 @@ void updateStartInfo(std::string filename, StartInfo & sInfo, const CMapHeader *
 		if (!(pinfo.canHumanPlay || pinfo.canComputerPlay))
 			continue;
 
-		PlayerSettings &pset = sInfo.playerInfos[i];
-		pset.color = i;
+		PlayerSettings &pset = sInfo.playerInfos[PlayerColor(i)];
+		pset.color = PlayerColor(i);
 		if(pinfo.canHumanPlay && namesIt != playerNames.cend())
 		{
 			setPlayer(pset, namesIt++->first, playerNames);
@@ -270,7 +270,7 @@ void CMenuScreen::showAll(SDL_Surface * to)
 	CIntObject::showAll(to);
 
 	if (pos.h != to->h || pos.w != to->w)
-		CMessage::drawBorder(1, to, pos.w+28, pos.h+30, pos.x-14, pos.y-15);
+		CMessage::drawBorder(PlayerColor(1), to, pos.w+28, pos.h+30, pos.x-14, pos.y-15);
 
 }
 
@@ -354,7 +354,7 @@ static boost::function<void()> genCommand(CMenuScreen* menu, std::vector<std::st
 				}
 				break; case 4://exit
 				{
-					return boost::bind(CInfoWindow::showYesNoDialog, boost::ref(CGI->generaltexth->allTexts[69]), (const std::vector<CComponent*>*)0, do_quit, 0, false, 1);
+					return boost::bind(CInfoWindow::showYesNoDialog, boost::ref(CGI->generaltexth->allTexts[69]), (const std::vector<CComponent*>*)0, do_quit, 0, false, PlayerColor(1));
 				}
 				break; case 5://highscores
 				{
@@ -562,7 +562,7 @@ void CGPreGame::removeFromGui()
 	GH.popInt(GH.topInt()); //remove background
 }
 
-CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<TPlayerColor, std::string> *Names /*= NULL*/)
+CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer /*= CMenuScreen::SINGLE_PLAYER*/, const std::map<ui8, std::string> *Names /*= NULL*/)
 	: ISelectionScreenInfo(Names), serverHandlingThread(NULL), mx(new boost::recursive_mutex),
 	  serv(NULL), ongoingClosing(false), myNameID(255)
 {
@@ -756,7 +756,7 @@ CSelectionScreen::~CSelectionScreen()
 		serverHandlingThread->join();
 		delete serverHandlingThread;
 	}
-	playerColor = -1;
+	playerColor = PlayerColor::CANNOT_DETERMINE;
 	playerNames.clear();
 
 	assert(!serv);
@@ -858,7 +858,7 @@ void CSelectionScreen::startScenario()
 	if(screenType == CMenuScreen::newGame)
 	{
 		//there must be at least one human player before game can be started
-		std::map<TPlayerColor, PlayerSettings>::const_iterator i;
+		std::map<PlayerColor, PlayerSettings>::const_iterator i;
 		for(i = SEL->sInfo.playerInfos.cbegin(); i != SEL->sInfo.playerInfos.cend(); i++)
 			if(i->second.playerID != PlayerSettings::PLAYER_AI)
 				break;
@@ -960,7 +960,7 @@ void CSelectionScreen::handleConnection()
 
 void CSelectionScreen::setSInfo(const StartInfo &si)
 {
-	std::map<TPlayerColor, PlayerSettings>::const_iterator i;
+	std::map<PlayerColor, PlayerSettings>::const_iterator i;
 	for(i = si.playerInfos.cbegin(); i != si.playerInfos.cend(); i++)
 	{
 		if(i->second.playerID == myNameID)
@@ -971,7 +971,7 @@ void CSelectionScreen::setSInfo(const StartInfo &si)
 	}
 
 	if(i == si.playerInfos.cend()) //not found
-		playerColor = -1;
+		playerColor = PlayerColor::CANNOT_DETERMINE;
 
 	sInfo = si;
 	if(current)
@@ -1039,7 +1039,7 @@ void CSelectionScreen::showAll(SDL_Surface *to)
 {
 	CIntObject::showAll(to);
 	if (bordered && (pos.h != to->h || pos.w != to->w))
-		CMessage::drawBorder(1, to, pos.w+28, pos.h+30, pos.x-14, pos.y-15);
+		CMessage::drawBorder(PlayerColor(1), to, pos.w+28, pos.h+30, pos.x-14, pos.y-15);
 }
 
 // A new size filter (Small, Medium, ...) has been selected. Populate
@@ -1853,7 +1853,7 @@ void RandomMapTab::updateMapInfo()
 		{
 			player.canHumanPlay = true;
 		}
-		player.team = i;
+		player.team = TeamID(i);
 		player.hasMainTown = true;
 		player.generateHeroAtMainTown = true;
 		mapInfo.mapHeader->players.push_back(player);
@@ -1995,7 +1995,7 @@ void InfoCard::showAll(SDL_Surface * to)
 		}
 		else //players list
 		{
-			std::map<TPlayerColor, std::string> playerNames = SEL->playerNames;
+			std::map<ui8, std::string> playerNames = SEL->playerNames;
 			int playerSoFar = 0;
 			for (auto i = SEL->sInfo.playerInfos.cbegin(); i != SEL->sInfo.playerInfos.cend(); i++)
 			{
@@ -2079,18 +2079,18 @@ void InfoCard::showAll(SDL_Surface * to)
 			int fx = 34  + graphics->fonts[FONT_SMALL]->getStringWidth(CGI->generaltexth->allTexts[390]);
 			int ex = 200 + graphics->fonts[FONT_SMALL]->getStringWidth(CGI->generaltexth->allTexts[391]);
 
-			int myT;
+			TeamID myT;
 
-			if(playerColor >= 0)
-				myT = SEL->current->mapHeader->players[playerColor].team;
+			if(playerColor < PlayerColor::PLAYER_LIMIT)
+				myT = SEL->current->mapHeader->players[playerColor.getNum()].team;
 			else
-				myT = -1;
+				myT = TeamID::NO_TEAM;
 
 			for (auto i = SEL->sInfo.playerInfos.cbegin(); i != SEL->sInfo.playerInfos.cend(); i++)
 			{
-				int *myx = ((i->first == playerColor  ||  SEL->current->mapHeader->players[i->first].team == myT) ? &fx : &ex);
-				blitAtLoc(sFlags->ourImages[i->first].bitmap, *myx, 399, to);
-				*myx += sFlags->ourImages[i->first].bitmap->w;
+				int *myx = ((i->first == playerColor  ||  SEL->current->mapHeader->players[i->first.getNum()].team == myT) ? &fx : &ex);
+				blitAtLoc(sFlags->ourImages[i->first.getNum()].bitmap, *myx, 399, to);
+				*myx += sFlags->ourImages[i->first.getNum()].bitmap->w;
 			}
 
 			std::string tob;
@@ -2173,9 +2173,9 @@ void InfoCard::showTeamsPopup()
 
 		graphics->fonts[FONT_SMALL]->renderTextCenter(bmp, hlp, Colors::WHITE, Point(128, 65 + 50 * i));
 
-		for(int j = 0; j < GameConstants::PLAYER_LIMIT; j++)
+		for(int j = 0; j < PlayerColor::PLAYER_LIMIT_I; j++)
 			if((SEL->current->mapHeader->players[j].canHumanPlay || SEL->current->mapHeader->players[j].canComputerPlay)
-				&& SEL->current->mapHeader->players[j].team == i)
+				&& SEL->current->mapHeader->players[j].team == TeamID(i))
 				flags.push_back(j);
 
 		int curx = 128 - 9*flags.size();
@@ -2248,7 +2248,7 @@ void OptionsTab::showAll(SDL_Surface * to)
 		printAtMiddleLoc(CGI->generaltexth->turnDurations[turnDuration->value], 319,559, FONT_SMALL, Colors::WHITE, to);//Turn duration value
 }
 
-void OptionsTab::nextCastle( int player, int dir )
+void OptionsTab::nextCastle( PlayerColor player, int dir )
 {
 	if(SEL->isGuest())
 	{
@@ -2258,7 +2258,7 @@ void OptionsTab::nextCastle( int player, int dir )
 
 	PlayerSettings &s = SEL->sInfo.playerInfos[player];
 	si16 &cur = s.castle;
-	auto & allowed = SEL->current->mapHeader->players[s.color].allowedFactions;
+	auto & allowed = SEL->current->mapHeader->players[s.color.getNum()].allowedFactions;
 
 	if (cur == PlayerSettings::NONE) //no change
 		return;
@@ -2285,7 +2285,7 @@ void OptionsTab::nextCastle( int player, int dir )
 		}
 	}
 
-	if(s.hero >= 0 && SEL->current->mapHeader->players[s.color].customHeroID < 0) // remove hero unless it set to fixed one in map editor
+	if(s.hero >= 0 && SEL->current->mapHeader->players[s.color.getNum()].customHeroID < 0) // remove hero unless it set to fixed one in map editor
 		s.hero =  PlayerSettings::RANDOM;
 	if(cur < 0  &&  s.bonus == PlayerSettings::RESOURCE)
 		s.bonus = PlayerSettings::RANDOM;
@@ -2297,7 +2297,7 @@ void OptionsTab::nextCastle( int player, int dir )
 	redraw();
 }
 
-void OptionsTab::nextHero( int player, int dir )
+void OptionsTab::nextHero( PlayerColor player, int dir )
 {
 	if(SEL->isGuest())
 	{
@@ -2334,7 +2334,7 @@ void OptionsTab::nextHero( int player, int dir )
 	SEL->propagateOptions();
 }
 
-int OptionsTab::nextAllowedHero( int player, int min, int max, int incl, int dir )
+int OptionsTab::nextAllowedHero( PlayerColor player, int min, int max, int incl, int dir )
 {
 	if(dir>0)
 	{
@@ -2351,7 +2351,7 @@ int OptionsTab::nextAllowedHero( int player, int min, int max, int incl, int dir
 	return -1;
 }
 
-bool OptionsTab::canUseThisHero( int player, int ID )
+bool OptionsTab::canUseThisHero( PlayerColor player, int ID )
 {
 	return CGI->heroh->heroes.size() > ID
 	        && SEL->sInfo.playerInfos[player].castle == CGI->heroh->heroes[ID]->heroClass->faction
@@ -2359,7 +2359,7 @@ bool OptionsTab::canUseThisHero( int player, int ID )
 	        && SEL->current->mapHeader->allowedHeroes[ID];
 }
 
-void OptionsTab::nextBonus( int player, int dir )
+void OptionsTab::nextBonus( PlayerColor player, int dir )
 {
 	if(SEL->isGuest())
 	{
@@ -2371,7 +2371,7 @@ void OptionsTab::nextBonus( int player, int dir )
 	PlayerSettings::Ebonus &ret = s.bonus = static_cast<PlayerSettings::Ebonus>(static_cast<int>(s.bonus) + dir);
 
 	if (s.hero==PlayerSettings::NONE &&
-		!SEL->current->mapHeader->players[s.color].heroesNames.size() &&
+		!SEL->current->mapHeader->players[s.color.getNum()].heroesNames.size() &&
 		ret==PlayerSettings::ARTIFACT) //no hero - can't be artifact
 	{
 		if (dir<0)
@@ -2398,7 +2398,7 @@ void OptionsTab::nextBonus( int player, int dir )
 
 void OptionsTab::recreate()
 {
-	for(std::map<int, PlayerOptionsEntry*>::iterator it = entries.begin(); it != entries.end(); ++it)
+	for(auto it = entries.begin(); it != entries.end(); ++it)
 	{
 		delete it->second;
 	}
@@ -2409,7 +2409,7 @@ void OptionsTab::recreate()
 	for(auto it = SEL->sInfo.playerInfos.begin(); it != SEL->sInfo.playerInfos.end(); ++it)
 	{
 		entries.insert(std::make_pair(it->first, new PlayerOptionsEntry(this, it->second)));
-		const std::vector<SHeroName> &heroes = SEL->current->mapHeader->players[it->first].heroesNames;
+		const std::vector<SHeroName> &heroes = SEL->current->mapHeader->players[it->first.getNum()].heroesNames;
 		for(size_t hi=0; hi<heroes.size(); hi++)
 			usedHeroes.insert(heroes[hi].heroId);
 	}
@@ -2425,7 +2425,7 @@ void OptionsTab::setTurnLength( int npos )
 	redraw();
 }
 
-void OptionsTab::flagPressed( int color )
+void OptionsTab::flagPressed( PlayerColor color )
 {
 	PlayerSettings &clicked =  SEL->sInfo.playerInfos[color];
 	PlayerSettings *old = NULL;
@@ -2506,13 +2506,13 @@ void OptionsTab::flagPressed( int color )
 }
 
 OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSettings &S)
- : pi(SEL->current->mapHeader->players[S.color]), s(S)
+ : pi(SEL->current->mapHeader->players[S.color.getNum()]), s(S)
 {
 	OBJ_CONSTRUCTION;
 	defActions |= SHARE_POS;
 
 	int serial = 0;
-	for(int g=0; g < s.color; ++g)
+	for(int g=0; g < s.color.getNum(); ++g)
 	{
 		PlayerInfo &itred = SEL->current->mapHeader->players[g];
 		if( itred.canComputerPlay || itred.canHumanPlay)
@@ -2527,7 +2527,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 	static const char *bgs[] = {"ADOPRPNL.bmp", "ADOPBPNL.bmp", "ADOPYPNL.bmp", "ADOPGPNL.bmp",
 		"ADOPOPNL.bmp", "ADOPPPNL.bmp", "ADOPTPNL.bmp", "ADOPSPNL.bmp"};
 
-	bg = new CPicture(BitmapHandler::loadBitmap(bgs[s.color]), 0, 0, true);
+	bg = new CPicture(BitmapHandler::loadBitmap(bgs[s.color.getNum()]), 0, 0, true);
 	if(SEL->screenType == CMenuScreen::newGame)
 	{
 		btns[0] = new CAdventureMapButton(CGI->generaltexth->zelp[132], bind(&OptionsTab::nextCastle, owner, s.color, -1), 107, 5, "ADOPLFA.DEF");
@@ -2544,7 +2544,7 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 	selectButtons();
 
 	assert(SEL->current && SEL->current->mapHeader);
-	const PlayerInfo &p = SEL->current->mapHeader->players[s.color];
+	const PlayerInfo &p = SEL->current->mapHeader->players[s.color.getNum()];
 	assert(p.canComputerPlay || p.canHumanPlay); //someone must be able to control this player
 	if(p.canHumanPlay && p.canComputerPlay)
 		whoCanPlay = HUMAN_OR_CPU;
@@ -2554,10 +2554,10 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 		whoCanPlay = HUMAN;
 
 	if(SEL->screenType != CMenuScreen::scenarioInfo
-		&&  SEL->current->mapHeader->players[s.color].canHumanPlay
+		&&  SEL->current->mapHeader->players[s.color.getNum()].canHumanPlay
 		&&  SEL->multiPlayer != CMenuScreen::MULTI_NETWORK_GUEST)
 	{
-		flag = new CAdventureMapButton(CGI->generaltexth->zelp[180], bind(&OptionsTab::flagPressed, owner, s.color), -43, 2, flags[s.color]);
+		flag = new CAdventureMapButton(CGI->generaltexth->zelp[180], bind(&OptionsTab::flagPressed, owner, s.color), -43, 2, flags[s.color.getNum()]);
 		flag->hoverable = true;
 	}
 	else
@@ -2924,7 +2924,7 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 		// cases when we do not need to display a message
 		if (settings.castle == -2 && CPlayerSettingsHelper::type == TOWN )
 			return;
-		if (settings.hero == -2 && SEL->current->mapHeader->players[settings.color].customHeroID == -1 && CPlayerSettingsHelper::type == HERO)
+		if (settings.hero == -2 && SEL->current->mapHeader->players[settings.color.getNum()].customHeroID == -1 && CPlayerSettingsHelper::type == HERO)
 			return;
 
 		GH.pushInt(new CPregameTooltipBox(*this));
@@ -3103,7 +3103,7 @@ void CHotSeatPlayers::onChange(std::string newText)
 
 void CHotSeatPlayers::enterSelectionScreen()
 {
-	std::map<TPlayerColor, std::string> names;
+	std::map<ui8, std::string> names;
 	for(int i = 0, j = 1; i < ARRAY_COUNT(txt); i++)
 		if(txt[i]->text.length())
 			names[j++] = txt[i]->text;
@@ -3265,7 +3265,7 @@ void CBonusSelection::showAll(SDL_Surface * to)
 
 	show(to);
 	if (pos.h != to->h || pos.w != to->w)
-		CMessage::drawBorder(1, to, pos.w+28, pos.h+30, pos.x-14, pos.y-15);
+		CMessage::drawBorder(PlayerColor(1), to, pos.w+28, pos.h+30, pos.x-14, pos.y-15);
 }
 
 void CBonusSelection::loadPositionsOfGraphics()
@@ -3314,7 +3314,7 @@ void CBonusSelection::selectMap( int whichOne, bool initialSelect )
 		auto buffer = reinterpret_cast<const ui8 *>(headerStr.data());
 		ourHeader = CMapService::loadMapHeader(buffer, headerStr.size()).release();
 
-		std::map<TPlayerColor, std::string> names;
+		std::map<ui8, std::string> names;
 		names[1] = settings["general"]["playerName"].String();
 		updateStartInfo(ourCampaign->camp->header.filename, sInfo, ourHeader, names);
 		sInfo.turnTime = 0;
@@ -3368,13 +3368,13 @@ void CBonusSelection::show(SDL_Surface * to)
 	//flags
 	int fx = 496  + graphics->fonts[FONT_SMALL]->getStringWidth(CGI->generaltexth->allTexts[390]);
 	int ex = 629 + graphics->fonts[FONT_SMALL]->getStringWidth(CGI->generaltexth->allTexts[391]);
-	int myT;
-	myT = ourHeader->players[playerColor].team;
+	TeamID myT;
+	myT = ourHeader->players[playerColor.getNum()].team;
 	for (auto i = sInfo.playerInfos.cbegin(); i != sInfo.playerInfos.cend(); i++)
 	{
-		int *myx = ((i->first == playerColor  ||  ourHeader->players[i->first].team == myT) ? &fx : &ex);
-		blitAtLoc(sFlags->ourImages[i->first].bitmap, pos.x + *myx, pos.y + 405, to);
-		*myx += sFlags->ourImages[i->first].bitmap->w;
+		int *myx = ((i->first == playerColor  ||  ourHeader->players[i->first.getNum()].team == myT) ? &fx : &ex);
+		blitAtLoc(sFlags->ourImages[i->first.getNum()].bitmap, pos.x + *myx, pos.y + 405, to);
+		*myx += sFlags->ourImages[i->first.getNum()].bitmap->w;
 	}
 
 	//difficulty
@@ -3534,7 +3534,7 @@ void CBonusSelection::updateBonusSelection()
 				break;
 			case CScenarioTravel::STravelBonus::PLAYER_PREV_SCENARIO:
 				{
-					auto superhero = ourCampaign->camp->scenarios[bonDescs[i].info2].strongestHero(bonDescs[i].info1);
+					auto superhero = ourCampaign->camp->scenarios[bonDescs[i].info2].strongestHero(PlayerColor(bonDescs[i].info1));
 					if (!superhero) tlog5 << "No superhero! How could it be transfered?\n";
 					picNumber = superhero ? superhero->portrait : 0;
 					desc = CGI->generaltexth->allTexts[719];
@@ -3623,11 +3623,11 @@ void CBonusSelection::selectBonus( int id )
 	const std::vector<CScenarioTravel::STravelBonus> & bonDescs = scenario.travelOptions.bonusesToChoose;
 	if (bonDescs[id].type == CScenarioTravel::STravelBonus::HERO)
 	{
-		std::map<TPlayerColor, std::string> names;
+		std::map<ui8, std::string> names;
 		names[1] = settings["general"]["playerName"].String();
 		for(auto it = sInfo.playerInfos.begin(); it != sInfo.playerInfos.end(); ++it)
 		{
-			if(it->first == bonDescs[id].info1)
+			if(it->first == PlayerColor(bonDescs[id].info1))
 				::setPlayer(it->second, 1, names);
 			else
 				::setPlayer(it->second, 0, names);
@@ -3751,7 +3751,7 @@ CSavingScreen::~CSavingScreen()
 
 }
 
-ISelectionScreenInfo::ISelectionScreenInfo(const std::map<TPlayerColor, std::string> *Names /*= NULL*/)
+ISelectionScreenInfo::ISelectionScreenInfo(const std::map<ui8, std::string> *Names /*= NULL*/)
 {
 	multiPlayer = CMenuScreen::SINGLE_PLAYER;
 	assert(!SEL);
@@ -3775,12 +3775,12 @@ void ISelectionScreenInfo::updateStartInfo(std::string filename, StartInfo & sIn
 	::updateStartInfo(filename, sInfo, mapHeader, playerNames);
 }
 
-void ISelectionScreenInfo::setPlayer(PlayerSettings &pset, TPlayerColor player)
+void ISelectionScreenInfo::setPlayer(PlayerSettings &pset, ui8 player)
 {
 	::setPlayer(pset, player, playerNames);
 }
 
-int ISelectionScreenInfo::getIdOfFirstUnallocatedPlayer()
+ui8 ISelectionScreenInfo::getIdOfFirstUnallocatedPlayer()
 {
 	for(auto i = playerNames.cbegin(); i != playerNames.cend(); i++)
 		if(!sInfo.getPlayersSettings(i->first))  //
@@ -3882,7 +3882,7 @@ void RequestOptionsChange::apply(CSelectionScreen *selScreen)
 	if(!selScreen->isHost())
 		return;
 
-	ui8 color = selScreen->sInfo.getPlayersSettings(playerID)->color;
+	PlayerColor color = selScreen->sInfo.getPlayersSettings(playerID)->color;
 
 	switch(what)
 	{
@@ -4051,7 +4051,7 @@ void CCampaignScreen::showAll(SDL_Surface *to)
 {
 	CIntObject::showAll(to);
 	if (pos.h != to->h || pos.w != to->w)
-		CMessage::drawBorder(1, to, pos.w+28, pos.h+30, pos.x-14, pos.y-15);
+		CMessage::drawBorder(PlayerColor(1), to, pos.w+28, pos.h+30, pos.x-14, pos.y-15);
 }
 
 void CGPreGame::showLoadingScreen(boost::function<void()> loader)

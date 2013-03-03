@@ -112,7 +112,7 @@ public:
 
 	std::vector<CGHeroInstance *> crossoverHeroes;
 
-	const CGHeroInstance * strongestHero(TPlayerColor owner) const;
+	const CGHeroInstance * strongestHero(PlayerColor owner) const;
 
 	void loadPreconditionRegions(ui32 regions);
 	void prepareCrossoverHeroes(std::vector<CGHeroInstance *> heroes);

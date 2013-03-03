@@ -651,7 +651,7 @@ void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 rotat
 	CSDL_Ext::blitSurface(surf, &sourceRect, where, &destRect);
 }
 
-void SDLImage::playerColored(int player)
+void SDLImage::playerColored(PlayerColor player)
 {
 	graphics->blueToPlayersAdv(surf, player);
 }
@@ -852,14 +852,14 @@ void CompImage::BlitBlock(ui8 type, ui8 size, ui8 *&data, ui8 *&dest, ui8 alpha)
 	}
 }
 
-void CompImage::playerColored(int player)
+void CompImage::playerColored(PlayerColor player)
 {
 	SDL_Color *pal = NULL;
-	if(player < GameConstants::PLAYER_LIMIT && player >= 0)
+	if(player < PlayerColor::PLAYER_LIMIT)
 	{
-		pal = graphics->playerColorPalette + 32*player;
+		pal = graphics->playerColorPalette + 32*player.getNum();
 	}
-	else if(player == 255 || player == -1)
+	else if(player == PlayerColor::NEUTRAL)
 	{
 		pal = graphics->neutralColorPalette;
 	}
@@ -1253,7 +1253,7 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		tlog1 << "Error: accessing unavailable frame " << Group << ":" << Frame << " in CAnimation!\n";
 }
 
-void CAnimImage::playerColored(int currPlayer)
+void CAnimImage::playerColored(PlayerColor currPlayer)
 {
 	player = currPlayer;
 	flags |= CShowableAnim::PLAYER_COLORED;

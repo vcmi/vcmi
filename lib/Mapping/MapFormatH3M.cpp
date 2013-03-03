@@ -379,19 +379,19 @@ void CMapLoaderH3M::readTeamInfo()
 	if(mapHeader->howManyTeams > 0)
 	{
 		// Teams
-		for(int i = 0; i < GameConstants::PLAYER_LIMIT; ++i)
+		for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; ++i)
 		{
-			mapHeader->players[i].team = reader.readUInt8();
+			mapHeader->players[i].team = TeamID(reader.readUInt8());
 		}
 	}
 	else
 	{
 		// No alliances
-		for(int i = 0; i < GameConstants::PLAYER_LIMIT; i++)
+		for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
 		{
 			if(mapHeader->players[i].canComputerPlay || mapHeader->players[i].canHumanPlay)
 			{
-				mapHeader->players[i].team = mapHeader->howManyTeams++;
+				mapHeader->players[i].team = TeamID(mapHeader->howManyTeams++);
 			}
 		}
 	}
@@ -1070,7 +1070,7 @@ void CMapLoaderH3M::readObjects()
 			{
 				CGGarrison * gar = new CGGarrison();
 				nobj = gar;
-				nobj->setOwner(reader.readUInt8());
+				nobj->setOwner(PlayerColor(reader.readUInt8()));
 				reader.skip(3);
 				readCreatureSet(gar, 7);
 				if(map->version > EMapFormat::ROE)
@@ -1140,7 +1140,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::ABANDONED_MINE:
 			{
 				nobj = new CGMine();
-				nobj->setOwner(reader.readUInt8());
+				nobj->setOwner(PlayerColor(reader.readUInt8()));
 				reader.skip(3);
 				break;
 			}
@@ -1150,7 +1150,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::CREATURE_GENERATOR4:
 			{
 				nobj = new CGDwelling();
-				nobj->setOwner(reader.readUInt8());
+				nobj->setOwner(PlayerColor(reader.readUInt8()));
 				reader.skip(3);
 				break;
 			}
@@ -1246,7 +1246,7 @@ void CMapLoaderH3M::readObjects()
 					break; case Obj::RANDOM_DWELLING_FACTION: spec = new CCreGenLeveledInfo();
 				}
 
-				spec->player = reader.readUInt32();
+				spec->player = PlayerColor(reader.readUInt32());
 
 				//216 and 217
 				if (auto castleSpec = dynamic_cast<CCreGenAsCastleInfo *>(spec))
@@ -1331,7 +1331,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::SHIPYARD:
 			{
 				nobj = new CGShipyard();
-				nobj->setOwner(reader.readUInt32());
+				nobj->setOwner(PlayerColor(reader.readUInt32()));
 				break;
 			}
 		case Obj::HERO_PLACEHOLDER: //hero placeholder
@@ -1339,7 +1339,7 @@ void CMapLoaderH3M::readObjects()
 				CGHeroPlaceholder * hp = new CGHeroPlaceholder();
 				nobj = hp;
 
-				hp->setOwner(reader.readUInt8());
+				hp->setOwner(PlayerColor(reader.readUInt8()));
 
 				int htid = reader.readUInt8();; //hero type id
 				nobj->subID = htid;
@@ -1424,7 +1424,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::LIGHTHOUSE: //Lighthouse
 			{
 				nobj = new CGLighthouse();
-				nobj->tempOwner = reader.readUInt32();
+				nobj->tempOwner = PlayerColor(reader.readUInt32());
 				break;
 			}
 		case Obj::ALTAR_OF_SACRIFICE:
@@ -1532,7 +1532,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 		map->questIdentifierToId[identifier] = idToBeGiven;
 	}
 
-	ui8 owner = reader.readUInt8();
+	PlayerColor owner = PlayerColor(reader.readUInt8());
 	nhi->subID = reader.readUInt8();
 
 	for(int j = 0; j < map->predefinedHeroes.size(); ++j)
@@ -1884,7 +1884,7 @@ CGTownInstance * CMapLoaderH3M::readTown(int castleID)
 	{
 		nt->identifier = reader.readUInt32();
 	}
-	nt->tempOwner = reader.readUInt8();
+	nt->tempOwner = PlayerColor(reader.readUInt8());
 	bool hasName = reader.readBool();
 	if(hasName)
 	{

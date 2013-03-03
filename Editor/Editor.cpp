@@ -10,7 +10,7 @@
 Editor::Editor(QWidget *parent)
 	: QMainWindow(parent)
 {
-	logfile = new std::ofstream((GVCMIDirs.UserPath + "/VCMI_Editor_log.txt").c_str());
+	logfile = new std::ofstream((VCMIDirs::get().localPath() + "/VCMI_Editor_log.txt").c_str());
 	console = new CConsoleHandler;
 
 	preinitDLL(console,logfile);

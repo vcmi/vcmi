@@ -43,10 +43,10 @@ std::map<Obj, std::map<int, std::vector<ObjectInstanceID> > > CGTeleport::objs;
 std::vector<std::pair<ObjectInstanceID, ObjectInstanceID> > CGTeleport::gates;
 IGameCallback * IObjectInterface::cb = NULL;
 extern boost::rand48 ran;
-std::map <TPlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
+std::map <PlayerColor, std::set <ui8> > CGKeys::playerKeyMap;
 std::map <si32, std::vector<ObjectInstanceID> > CGMagi::eyelist;
 ui8 CGObelisk::obeliskCount; //how many obelisks are on map
-std::map<TTeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
+std::map<TeamID, ui8> CGObelisk::visited; //map: team_id => how many obelisks has been visited
 
 std::vector<const CArtifact *> CGTownInstance::merchantArtifacts;
 std::vector<int> CGTownInstance::universitySkills;
@@ -61,7 +61,7 @@ static void openWindow(const OpenWindow::EWindow type, const int id1, const int 
 	IObjectInterface::cb->sendAndApply(&ow);
 }
 
-static void showInfoDialog(const TPlayerColor playerID, const ui32 txtID, const ui16 soundID)
+static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const ui16 soundID)
 {
 	InfoWindow iw;
 	iw.soundID = soundID;
@@ -72,13 +72,13 @@ static void showInfoDialog(const TPlayerColor playerID, const ui32 txtID, const 
 
 static void showInfoDialog(const ObjectInstanceID heroID, const ui32 txtID, const ui16 soundID)
 {
-	const TPlayerColor playerID = IObjectInterface::cb->getOwner(heroID);
+	const PlayerColor playerID = IObjectInterface::cb->getOwner(heroID);
 	showInfoDialog(playerID,txtID,soundID);
 }
 
 static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID)
 {
-	const TPlayerColor playerID = h->getOwner();
+	const PlayerColor playerID = h->getOwner();
 	showInfoDialog(playerID,txtID,soundID);
 }
 
@@ -110,7 +110,7 @@ void IObjectInterface::initObj()
 void IObjectInterface::setProperty( ui8 what, ui32 val )
 {}
 
-bool IObjectInterface::wasVisited (ui8 player) const
+bool IObjectInterface::wasVisited (PlayerColor player) const
 {
 	return false;
 }
@@ -128,12 +128,22 @@ void IObjectInterface::preInit()
 void CPlayersVisited::setPropertyDer( ui8 what, ui32 val )
 {
 	if(what == 10)
-		players.insert((ui8)val);
+		players.insert(PlayerColor(val));
 }
 
-bool CPlayersVisited::wasVisited( TPlayerColor player ) const
+bool CPlayersVisited::wasVisited( PlayerColor player ) const
 {
 	return vstd::contains(players,player);
+}
+
+bool CPlayersVisited::wasVisited( TeamID team ) const
+{
+	BOOST_FOREACH(auto i, players)
+	{
+		if(cb->getPlayer(i)->team == team)
+			return true;
+	}
+	return false;
 }
 
 // Bank helper. Find the creature ID and their number, and store the
@@ -249,7 +259,7 @@ int CObjectHandler::bankObjToIndex (const CGObjectInstance * obj)
 		return 0;
 	}
 }
-int CGObjectInstance::getOwner() const
+PlayerColor CGObjectInstance::getOwner() const
 {
 	//if (state)
 	//	return state->owner;
@@ -265,7 +275,7 @@ CGObjectInstance::CGObjectInstance()
 	ID = Obj::NO_OBJ;
 	subID = -1;
 	defInfo = NULL;
-	tempOwner = 254;
+	tempOwner = PlayerColor::UNFLAGGABLE;
 	blockVisit = false;
 }
 CGObjectInstance::~CGObjectInstance()
@@ -280,7 +290,7 @@ const std::string & CGObjectInstance::getHoverText() const
 {
 	return hoverName;
 }
-void CGObjectInstance::setOwner(int ow)
+void CGObjectInstance::setOwner(PlayerColor ow)
 {
 	//if (state)
 	//	state->owner = ow;
@@ -399,7 +409,7 @@ void CGObjectInstance::setProperty( ui8 what, ui32 val )
 	switch(what)
 	{
 	case ObjProperty::OWNER:
-		tempOwner = val;
+		tempOwner = PlayerColor(val);
 		break;
 	case ObjProperty::BLOCKVIS:
 		blockVisit = val;
@@ -435,7 +445,7 @@ void CGObjectInstance::getSightTiles(boost::unordered_set<int3, ShashInt3> &tile
 {
 	cb->getTilesInRange(tiles, getSightCenter(), getSightRadious(), tempOwner, 1);
 }
-void CGObjectInstance::hideTiles(TPlayerColor ourplayer, int radius) const
+void CGObjectInstance::hideTiles(PlayerColor ourplayer, int radius) const
 {
 	for (auto i = cb->gameState()->teams.begin(); i != cb->gameState()->teams.end(); i++)
 	{
@@ -1603,7 +1613,7 @@ void CGDwelling::initObj()
 				hoverName = VLC->generaltexth->creGens[subID];
 			if(crs->level > 4)
 				putStack(SlotID(0), new CStackInstance(crs, (crs->growth) * 3));
-			if (getOwner() != GameConstants::NEUTRAL_PLAYER)
+			if (getOwner() != PlayerColor::NEUTRAL)
 				cb->gameState()->players[getOwner()].dwellings.push_back (this);
 		}
 		break;
@@ -1660,13 +1670,13 @@ void CGDwelling::setProperty(ui8 what, ui32 val)
 		case ObjProperty::OWNER: //change owner
 			if (ID == Obj::CREATURE_GENERATOR1) //single generators
 			{
-				if (tempOwner != GameConstants::NEUTRAL_PLAYER)
+				if (tempOwner != PlayerColor::NEUTRAL)
 				{
 					std::vector<ConstTransitivePtr<CGDwelling> >* dwellings = &cb->gameState()->players[tempOwner].dwellings;
 					dwellings->erase (std::find(dwellings->begin(), dwellings->end(), this));
 				}
-				if (val != GameConstants::NEUTRAL_PLAYER) //can new owner be neutral?
-					cb->gameState()->players[val].dwellings.push_back (this);
+				if (PlayerColor(val) != PlayerColor::NEUTRAL) //can new owner be neutral?
+					cb->gameState()->players[PlayerColor(val)].dwellings.push_back (this);
 			}
 			break;
 		case ObjProperty::AVAILABLE_CREATURE:
@@ -2154,7 +2164,7 @@ void CGTownInstance::newTurn() const
 	{
 		//give resources for Rampart, Mystic Pond
 		if (hasBuilt(BuildingID::MYSTIC_POND, ETownType::RAMPART)
-			&& cb->getDate(Date::DAY) != 1 && (tempOwner < GameConstants::PLAYER_LIMIT))
+			&& cb->getDate(Date::DAY) != 1 && (tempOwner < PlayerColor::PLAYER_LIMIT))
 		{
 			int resID = rand()%4+2;//bonus to random rare resource
 			resID = (resID==2)?1:resID;
@@ -2171,7 +2181,7 @@ void CGTownInstance::newTurn() const
 				cb->setObjProperty (id, ObjProperty::STRUCTURE_CLEAR_VISITORS, (*i)->id); //reset visitors for Mana Vortex
 		}
 
-		if (tempOwner == GameConstants::NEUTRAL_PLAYER) //garrison growth for neutral towns
+		if (tempOwner == PlayerColor::NEUTRAL) //garrison growth for neutral towns
 			{
 				std::vector<SlotID> nativeCrits; //slots
 				for (TSlots::const_iterator it = Slots().begin(); it != Slots().end(); it++)
@@ -2231,13 +2241,13 @@ ui8 CGTownInstance::getPassableness() const
 {
 	if (!armedGarrison())//empty castle - anyone can visit
 		return GameConstants::ALL_PLAYERS;
-	if ( tempOwner == GameConstants::NEUTRAL_PLAYER )//neutral guarded - no one can visit
+	if ( tempOwner == PlayerColor::NEUTRAL )//neutral guarded - no one can visit
 		return 0;
 
 	ui8 mask = 0;
 	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
-	BOOST_FOREACH(ui8 it, ts->players)
-		mask |= 1<<it;//allies - add to possible visitors
+	BOOST_FOREACH(PlayerColor it, ts->players)
+		mask |= 1<<it.getNum();//allies - add to possible visitors
 
 	return mask;
 }
@@ -2261,12 +2271,12 @@ void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) 
 	}
 }
 
-void CGTownInstance::removeCapitols (ui8 owner) const
+void CGTownInstance::removeCapitols (PlayerColor owner) const
 {
 	if (hasCapitol()) // search if there's an older capitol
 	{
 		PlayerState* state = cb->gameState()->getPlayer (owner); //get all towns owned by player
-		for (std::vector<ConstTransitivePtr<CGTownInstance> >::const_iterator i = state->towns.begin(); i < state->towns.end(); ++i)
+		for (auto i = state->towns.cbegin(); i < state->towns.cend(); ++i)
 		{
 			if (*i != this && (*i)->hasCapitol())
 			{
@@ -3407,7 +3417,7 @@ void CGMine::newTurn() const
 	if(cb->getDate() == 1)
 		return;
 
-	if (tempOwner == GameConstants::NEUTRAL_PLAYER)
+	if (tempOwner == PlayerColor::NEUTRAL)
 		return;
 
 	cb->giveResource(tempOwner, producedResource, producedQuantity);
@@ -3424,13 +3434,13 @@ void CGMine::initObj()
 
 		//after map reading tempOwner placeholds bitmask for allowed resources
 		std::vector<Res::ERes> possibleResources;
-		for (int i = 0; i < GameConstants::PLAYER_LIMIT; i++)
-			if(tempOwner & 1<<i)
+		for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
+			if(tempOwner.getNum() & 1<<i) //NOTE: reuse of tempOwner
 				possibleResources.push_back(static_cast<Res::ERes>(i));
 
 		assert(possibleResources.size());
 		producedResource = possibleResources[ran()%possibleResources.size()];
-		tempOwner = GameConstants::NEUTRAL_PLAYER;
+		tempOwner = PlayerColor::NEUTRAL;
 		hoverName = VLC->generaltexth->mines[7].first + "\n" + VLC->generaltexth->allTexts[202] + " " + troglodytes->getQuantityTXT(false) + " " + troglodytes->type->namePl;
 	}
 	else
@@ -3439,10 +3449,10 @@ void CGMine::initObj()
 
 		MetaString ms;
 		ms << std::pair<ui8,ui32>(9,producedResource);
-		if(tempOwner >= GameConstants::PLAYER_LIMIT)
-			tempOwner = GameConstants::NEUTRAL_PLAYER;
+		if(tempOwner >= PlayerColor::PLAYER_LIMIT)
+			tempOwner = PlayerColor::NEUTRAL;
 		else
-			ms << " (" << std::pair<ui8,ui32>(6,23+tempOwner) << ")";
+			ms << " (" << std::pair<ui8,ui32>(6,23+tempOwner.getNum()) << ")";
 		ms.toString(hoverName);
 	}
 
@@ -3454,7 +3464,7 @@ void CGMine::fight(ui32 agreed, const CGHeroInstance *h) const
 	cb->startBattleI(h, this, boost::bind(&CGMine::endBattle, this, _1, h->tempOwner));
 }
 
-void CGMine::endBattle(BattleResult *result, TPlayerColor attackingPlayer) const
+void CGMine::endBattle(BattleResult *result, PlayerColor attackingPlayer) const
 {
 	if(result->winner == 0) //attacker won
 	{
@@ -3466,13 +3476,13 @@ void CGMine::endBattle(BattleResult *result, TPlayerColor attackingPlayer) const
 	}
 }
 
-void CGMine::flagMine(TPlayerColor player) const
+void CGMine::flagMine(PlayerColor player) const
 {
 	assert(tempOwner != player);
 	cb->setOwner(this, player); //not ours? flag it!
 
 	MetaString ms;
-	ms << std::pair<ui8,ui32>(9,subID) << "\n(" << std::pair<ui8,ui32>(6,23+player) << ")";
+	ms << std::pair<ui8,ui32>(9,subID) << "\n(" << std::pair<ui8,ui32>(6,23+player.getNum()) << ")";
 	if(subID == 7)
 	{
 		ms << "(%s)";
@@ -3553,7 +3563,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 	}
 }
 
-void CGResource::collectRes( int player ) const
+void CGResource::collectRes( PlayerColor player ) const
 {
 	cb->giveResource(player, static_cast<Res::ERes>(subID), amount);
 	ShowInInfobox sii;
@@ -3587,7 +3597,7 @@ void CGVisitableOPW::newTurn() const
 		cb->setHoverName(this,&ms);
 	}
 }
-bool CGVisitableOPW::wasVisited(TPlayerColor player) const
+bool CGVisitableOPW::wasVisited(PlayerColor player) const
 {
 	return visited; //TODO: other players should see object as unvisited
 }
@@ -4184,7 +4194,7 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 				return true;
 			return false;
 		case MISSION_PLAYER:
-			if (m13489val == h->getOwner())
+			if (m13489val == h->getOwner().getNum())
 				return true;
 			return false;
 		default:
@@ -4822,9 +4832,9 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	iw.soundID = soundBase::gazebo;
 	iw.player = h->getOwner();
 	if(!wasVisited(h->tempOwner))
-		cb->setObjProperty(id,10,h->tempOwner);
+		cb->setObjProperty(id, 10, h->tempOwner.getNum());
 	ui32 txt_id;
-	if(h->getSecSkillLevel(SecondarySkill(ability))) //you alredy know this skill
+	if(h->getSecSkillLevel(SecondarySkill(ability))) //you already know this skill
 	{
 		txt_id =172;
 	}
@@ -5403,7 +5413,7 @@ void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int val, int nega
 
 void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 {
-	if(!(availableFor & (1 << h->tempOwner)))
+	if(!(availableFor & (1 << h->tempOwner.getNum())))
 		return;
 	if(cb->getPlayerSettings(h->tempOwner)->playerID)
 	{
@@ -5471,7 +5481,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	if(!wasVisited(h->tempOwner))
-		cb->setObjProperty(id,10,h->tempOwner);
+		cb->setObjProperty(id, 10, h->tempOwner.getNum());
 
 	InfoWindow iw;
 	iw.soundID = soundBase::temple;
@@ -5666,13 +5676,13 @@ ui8 CGGarrison::getPassableness() const
 {
 	if ( !stacksCount() )//empty - anyone can visit
 		return GameConstants::ALL_PLAYERS;
-	if ( tempOwner == GameConstants::NEUTRAL_PLAYER )//neutral guarded - no one can visit
+	if ( tempOwner == PlayerColor::NEUTRAL )//neutral guarded - no one can visit
 		return 0;
 
 	ui8 mask = 0;
 	TeamState * ts = cb->gameState()->getPlayerTeam(tempOwner);
-	BOOST_FOREACH(ui8 it, ts->players)
-		mask |= 1<<it;//allies - add to possible visitors
+	BOOST_FOREACH(PlayerColor it, ts->players)
+		mask |= 1<<it.getNum(); //allies - add to possible visitors
 
 	return mask;
 }
@@ -5758,7 +5768,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	cb->showInfoDialog(&iw);
-	cb->setObjProperty(id,10,h->getOwner());
+	cb->setObjProperty(id, 10, h->getOwner().getNum());
 }
 
 const std::string & CGOnceVisitable::getHoverText() const
@@ -5867,7 +5877,7 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 			cb->giveHeroBonus(&gb);
 		}
 		cb->showInfoDialog(&iw);
-		cb->setObjProperty(id,10,h->getOwner());
+		cb->setObjProperty(id, 10, h->getOwner().getNum());
 	}
 }
 
@@ -6022,7 +6032,7 @@ void CBank::newTurn() const
 			cb->setObjProperty (id, ObjProperty::BANK_DAYCOUNTER, 1); //daycounter++
 	}
 }
-bool CBank::wasVisited (TPlayerColor player) const
+bool CBank::wasVisited (PlayerColor player) const
 {
 	return !bc;
 }
@@ -6289,11 +6299,11 @@ void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) 
 }
 void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8
 {
-	if (what >= 101 && what <= (100 + GameConstants::PLAYER_LIMIT))
-		playerKeyMap.find(what-101)->second.insert((ui8)val);
+	if (what >= 101 && what <= (100 + PlayerColor::PLAYER_LIMIT_I))
+		playerKeyMap.find(PlayerColor(what-101))->second.insert((ui8)val);
 }
 
-bool CGKeys::wasMyColorVisited (TPlayerColor player) const
+bool CGKeys::wasMyColorVisited (PlayerColor player) const
 {
 	if (vstd::contains(playerKeyMap[player], subID)) //creates set if it's not there
 		return true;
@@ -6316,7 +6326,7 @@ const std::string CGKeys::getName() const
 	return name;
 }
 
-bool CGKeymasterTent::wasVisited (TPlayerColor player) const
+bool CGKeymasterTent::wasVisited (PlayerColor player) const
 {
 	return wasMyColorVisited (player);
 }
@@ -6326,7 +6336,7 @@ void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
 	int txt_id;
 	if (!wasMyColorVisited (h->getOwner()) )
 	{
-		cb->setObjProperty(id, h->tempOwner+101, subID);
+		cb->setObjProperty(id, h->tempOwner.getNum()+101, subID);
 		txt_id=19;
 	}
 	else
@@ -6400,8 +6410,8 @@ void CGBorderGate::onHeroVisit( const CGHeroInstance * h ) const //TODO: passabi
 ui8 CGBorderGate::getPassableness() const
 {
 	ui8 ret = 0;
-	for (int i = 0; i < GameConstants::PLAYER_LIMIT; i++)
-		ret |= wasMyColorVisited(i)<<i;
+	for (int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
+		ret |= wasMyColorVisited(PlayerColor(i))<<i;
 	return ret;
 }
 
@@ -6699,7 +6709,7 @@ void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
 		//water = 0; land = 1; underground = 2;
 		cb->getAllTiles (fw.tiles, h->tempOwner, subID - 1, !subID + 1); //reveal appropriate tiles
 		cb->sendAndApply (&fw);
-		cb->setObjProperty (id, 10, h->tempOwner);
+		cb->setObjProperty (id, 10, h->tempOwner.getNum());
 	}
 }
 
@@ -6714,18 +6724,18 @@ void CGObelisk::onHeroVisit( const CGHeroInstance * h ) const
 	iw.player = h->tempOwner;
 	TeamState *ts = cb->gameState()->getPlayerTeam(h->tempOwner);
 	assert(ts);
-	int team = ts->id;
+	TeamID team = ts->id;
 
 	if(!wasVisited(team))
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT, 96);
 		cb->sendAndApply(&iw);
 
-		cb->setObjProperty(id,20,team); //increment general visited obelisks counter
+		cb->setObjProperty(id, 20, h->tempOwner.getNum()); //increment general visited obelisks counter
 
-		openWindow(OpenWindow::PUZZLE_MAP,h->tempOwner);
+		openWindow(OpenWindow::PUZZLE_MAP, h->tempOwner.getNum());
 
-		cb->setObjProperty(id,10,team); //mark that particular obelisk as visited
+		cb->setObjProperty(id, 10, h->tempOwner.getNum()); //mark that particular obelisk as visited
 	}
 	else
 	{
@@ -6753,12 +6763,12 @@ void CGObelisk::setPropertyDer( ui8 what, ui32 val )
 	switch(what)
 	{
 	case 20:
-		assert(val < GameConstants::PLAYER_LIMIT);
-		visited[val]++;
+		assert(val < PlayerColor::PLAYER_LIMIT_I);
+		visited[TeamID(val)]++;
 
-		if(visited[val] > obeliskCount)
+		if(visited[TeamID(val)] > obeliskCount)
 		{
-			tlog0 << "Error: Visited " << visited[val] << "\t\t" << obeliskCount << std::endl;
+			tlog0 << "Error: Visited " << visited[TeamID(val)] << "\t\t" << obeliskCount << std::endl;
 			assert(0);
 		}
 
@@ -6770,15 +6780,15 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(h->tempOwner != tempOwner)
 	{
-		ui8 oldOwner = tempOwner;
+		PlayerColor oldOwner = tempOwner;
 		cb->setOwner(this,h->tempOwner); //not ours? flag it!
 		showInfoDialog(h,69,soundBase::LIGHTHOUSE);
 		giveBonusTo(h->tempOwner);
 
-		if(oldOwner < GameConstants::PLAYER_LIMIT) //remove bonus from old owner
+		if(oldOwner < PlayerColor::PLAYER_LIMIT) //remove bonus from old owner
 		{
 			RemoveBonus rb(RemoveBonus::PLAYER);
-			rb.whoID = oldOwner;
+			rb.whoID = oldOwner.getNum();
 			rb.source = Bonus::OBJECT;
 			rb.id = id.getNum();
 			cb->sendAndApply(&rb);
@@ -6788,7 +6798,7 @@ void CGLighthouse::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGLighthouse::initObj()
 {
-	if(tempOwner < GameConstants::PLAYER_LIMIT)
+	if(tempOwner < PlayerColor::PLAYER_LIMIT)
 	{
 		giveBonusTo(tempOwner);
 	}
@@ -6801,12 +6811,12 @@ const std::string & CGLighthouse::getHoverText() const
 	return hoverName;
 }
 
-void CGLighthouse::giveBonusTo( ui8 player ) const
+void CGLighthouse::giveBonusTo( PlayerColor player ) const
 {
 	GiveBonus gb(GiveBonus::PLAYER);
 	gb.bonus.type = Bonus::SEA_MOVEMENT;
 	gb.bonus.val = 500;
-	gb.id = player;
+	gb.id = player.getNum();
 	gb.bonus.duration = Bonus::PERMANENT;
 	gb.bonus.source = Bonus::OBJECT;
 	gb.bonus.sid = id.getNum();
@@ -6917,7 +6927,7 @@ void CArmedInstance::armyChanged()
 
 CBonusSystemNode * CArmedInstance::whereShouldBeAttached(CGameState *gs)
 {
-	if(tempOwner < GameConstants::PLAYER_LIMIT)
+	if(tempOwner < PlayerColor::PLAYER_LIMIT)
 		return gs->getPlayer(tempOwner);
 	else
 		return &gs->globalEffects;

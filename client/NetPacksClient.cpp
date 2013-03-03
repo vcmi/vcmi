@@ -76,8 +76,8 @@
 #define CALL_IN_ALL_INTERFACES(function, ...)							\
 	do																	\
 	{																	\
-		std::map<ui8, CGameInterface*> ints = cl->playerint;			\
-		for(std::map<ui8, CGameInterface*>::iterator i = ints.begin(); i != ints.end(); i++)\
+		std::map<PlayerColor, CGameInterface*> ints = cl->playerint;			\
+		for(auto i = ints.begin(); i != ints.end(); i++)\
 			CALL_ONLY_THAT_INTERFACE(i->first, function, __VA_ARGS__);	\
 	} while(0)
 
@@ -261,8 +261,8 @@ void GiveBonus::applyCl( CClient *cl )
 		break;
 	case PLAYER:
 		{
-			const PlayerState *p = GS(cl)->getPlayer(id);
-			INTERFACE_CALL_IF_PRESENT(id, playerBonusChanged, *p->getBonusList().back(), true);
+			const PlayerState *p = GS(cl)->getPlayer(PlayerColor(id));
+			INTERFACE_CALL_IF_PRESENT(PlayerColor(id), playerBonusChanged, *p->getBonusList().back(), true);
 		}
 		break;
 	}
@@ -302,7 +302,7 @@ void RemoveBonus::applyCl( CClient *cl )
 	case PLAYER:
 		{
 			//const PlayerState *p = GS(cl)->getPlayer(id);
-			INTERFACE_CALL_IF_PRESENT(id, playerBonusChanged, bonus, false);
+			INTERFACE_CALL_IF_PRESENT(PlayerColor(id), playerBonusChanged, bonus, false);
 		}
 		break;
 	}
@@ -327,7 +327,7 @@ void RemoveObject::applyFirstCl( CClient *cl )
 
 	int3 pos = o->visitablePos();
 	//notify interfaces about removal
-	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
+	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{
 		if(GS(cl)->isVisible(o, i->first))
 			i->second->objectRemoved(o);
@@ -344,9 +344,9 @@ void TryMoveHero::applyFirstCl( CClient *cl )
 	CGHeroInstance *h = GS(cl)->getHero(id);
 
 	//check if playerint will have the knowledge about movement - if not, directly update maphandler
-	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
+	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{
-		if(i->first >= GameConstants::PLAYER_LIMIT)
+		if(i->first >= PlayerColor::PLAYER_LIMIT)
 			continue;
 		TeamState *t = GS(cl)->getPlayerTeam(i->first);
 		if((t->fogOfWarMap[start.x-1][start.y][start.z] || t->fogOfWarMap[end.x-1][end.y][end.z])
@@ -375,16 +375,16 @@ void TryMoveHero::applyCl( CClient *cl )
 	if(result == EMBARK)
 		CGI->mh->hideObject(h->boat);
 
-	int player = h->tempOwner;
+	PlayerColor player = h->tempOwner;
 
 	BOOST_FOREACH(auto &i, cl->playerint)
 		if(cl->getPlayerRelations(i.first, player) != PlayerRelations::ENEMIES)
 			i.second->tileRevealed(fowRevealed);
 
 	//notify interfaces about move
-	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
+	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{
-		if(i->first >= GameConstants::PLAYER_LIMIT) continue;
+		if(i->first >= PlayerColor::PLAYER_LIMIT) continue;
 		TeamState *t = GS(cl)->getPlayerTeam(i->first);
 		if(t->fogOfWarMap[start.x-1][start.y][start.z] || t->fogOfWarMap[end.x-1][end.y][end.z])
 		{
@@ -435,7 +435,7 @@ void SetAvailableCreatures::applyCl( CClient *cl )
 
 	//inform order about the change
 
-	int p = -1;
+	PlayerColor p;
 	if(dw->ID == Obj::WAR_MACHINE_FACTORY) //War Machines Factory is not flaggable, it's "owned" by visitor
 		p = cl->getTile(dw->visitablePos())->visitableObjects.back()->tempOwner;
 	else
@@ -450,7 +450,7 @@ void SetHeroesInTown::applyCl( CClient *cl )
 	CGHeroInstance *hGarr  = GS(cl)->getHero(this->garrison);
 	CGHeroInstance *hVisit = GS(cl)->getHero(this->visiting);
 
-	std::set<TPlayerColor> playersToNotify;
+	std::set<PlayerColor> playersToNotify;
 
 	if(vstd::contains(cl->playerint,t->tempOwner)) // our town
 		playersToNotify.insert(t->tempOwner);
@@ -561,7 +561,7 @@ void CommanderLevelUp::applyCl( CClient *cl )
 {
 	CCommanderInstance * commander = GS(cl)->getHero(heroid)->commander;
 	assert (commander);
-	ui8 player = commander->armyObj->tempOwner;
+	PlayerColor player = commander->armyObj->tempOwner;
 	if (commander->armyObj && vstd::contains(cl->playerint, player)) //is it possible for Commander to exist beyond armed instance?
 	{
 		cl->playerint[player]->commanderGotLevel(commander, skills, queryID);
@@ -611,7 +611,7 @@ void BattleSetActiveStack::applyCl( CClient *cl )
 		return;
 
 	const CStack * activated = GS(cl)->curB->battleGetStackByID(stack);
-	int playerToCall = -1; //player that will move activated stack
+	PlayerColor playerToCall; //player that will move activated stack
 	if( activated->hasBonusOfType(Bonus::HYPNOTIZED) )
 	{
 		playerToCall = ( GS(cl)->curB->sides[0] == activated->owner ? GS(cl)->curB->sides[1] : GS(cl)->curB->sides[0] );
@@ -698,7 +698,7 @@ void BattleResultsApplied::applyCl( CClient *cl )
 {
 	INTERFACE_CALL_IF_PRESENT(player1, battleResultsApplied);
 	INTERFACE_CALL_IF_PRESENT(player2, battleResultsApplied);
-	INTERFACE_CALL_IF_PRESENT(254, battleResultsApplied);
+	INTERFACE_CALL_IF_PRESENT(PlayerColor::UNFLAGGABLE, battleResultsApplied);
 	if(GS(cl)->initialOpts->mode == StartInfo::DUEL)
 	{
 		cl->terminate = true;
@@ -823,7 +823,7 @@ void SaveGame::applyCl(CClient *cl)
 void PlayerMessage::applyCl(CClient *cl)
 {
 	std::ostringstream str;
-	str << "Player "<<(int)player<<" sends a message: " << text;
+	str << "Player "<< player <<" sends a message: " << text;
 
 	tlog4 << str.str() << std::endl;
 	if(LOCPLINT)
@@ -881,7 +881,7 @@ void OpenWindow::applyCl(CClient *cl)
 		{
 			//displays Thieves' Guild window (when hero enters Den of Thieves)
 			const CGObjectInstance *obj = cl->getObj(ObjectInstanceID(id2));
-			INTERFACE_CALL_IF_PRESENT(id1, showThievesGuildWindow, obj);
+			INTERFACE_CALL_IF_PRESENT(PlayerColor(id1), showThievesGuildWindow, obj);
 		}
 		break;
 	case UNIVERSITY_WINDOW:
@@ -911,7 +911,7 @@ void OpenWindow::applyCl(CClient *cl)
 		break;
 	case PUZZLE_MAP:
 		{
-			INTERFACE_CALL_IF_PRESENT(id1, showPuzzleMap);
+			INTERFACE_CALL_IF_PRESENT(PlayerColor(id1), showPuzzleMap);
 		}
 		break;
 	case TAVERN_WINDOW:
@@ -935,7 +935,7 @@ void NewObject::applyCl(CClient *cl)
 	const CGObjectInstance *obj = cl->getObj(id);
 	CGI->mh->printObject(obj);
 
-	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
+	for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 	{
 		if(GS(cl)->isVisible(obj, i->first))
 			i->second->newObject(obj);
@@ -946,7 +946,7 @@ void SetAvailableArtifacts::applyCl(CClient *cl)
 {
 	if(id < 0) //artifact merchants globally
 	{
-		for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
+		for(auto i=cl->playerint.begin(); i!=cl->playerint.end(); i++)
 			i->second->availableArtifactsChanged(NULL);
 	}
 	else

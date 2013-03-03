@@ -61,14 +61,14 @@ si8 CMapGenOptions::getPlayersCnt() const
 
 void CMapGenOptions::setPlayersCnt(si8 value)
 {
-	if((value >= 1 && value <= GameConstants::PLAYER_LIMIT) || value == RANDOM_SIZE)
+	if((value >= 1 && value <= PlayerColor::PLAYER_LIMIT_I) || value == RANDOM_SIZE)
 	{
 		playersCnt = value;
 	}
 	else
 	{
 		throw std::runtime_error("Players count of RMG options should be between 1 and " +
-			boost::lexical_cast<std::string>(GameConstants::PLAYER_LIMIT) + " or CMapGenOptions::RANDOM_SIZE for random.");
+			boost::lexical_cast<std::string>(PlayerColor::PLAYER_LIMIT) + " or CMapGenOptions::RANDOM_SIZE for random.");
 	}
 }
 
@@ -97,14 +97,14 @@ si8 CMapGenOptions::getCompOnlyPlayersCnt() const
 
 void CMapGenOptions::setCompOnlyPlayersCnt(si8 value)
 {
-	if(value == RANDOM_SIZE || (value >= 0 && value <= GameConstants::PLAYER_LIMIT - playersCnt))
+	if(value == RANDOM_SIZE || (value >= 0 && value <= PlayerColor::PLAYER_LIMIT_I - playersCnt))
 	{
 		compOnlyPlayersCnt = value;
 	}
 	else
 	{
 		throw std::runtime_error(std::string("Computer only players count of RMG options should be ") +
-			"between 0 and <GameConstants::PLAYER_LIMIT - " + boost::lexical_cast<std::string>(playersCnt) +
+			"between 0 and <PlayerColor::PLAYER_LIMIT - " + boost::lexical_cast<std::string>(playersCnt) +
 			"(playersCount)> or CMapGenOptions::RANDOM_SIZE for random.");
 	}
 }

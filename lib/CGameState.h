@@ -80,7 +80,7 @@ struct ArmyDescriptor : public std::map<SlotID, CStackBasicDescriptor>
 
 struct DLL_LINKAGE InfoAboutArmy
 {
-	ui8 owner;
+	PlayerColor owner;
 	std::string name;
 
 	ArmyDescriptor army;
@@ -143,14 +143,14 @@ struct DLL_LINKAGE InfoAboutTown : public InfoAboutArmy
 
 struct DLL_LINKAGE SThievesGuildInfo
 {
-	std::vector<TPlayerColor> playerColors; //colors of players that are in-game
+	std::vector<PlayerColor> playerColors; //colors of players that are in-game
 
-	std::vector< std::vector< TPlayerColor > > numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
+	std::vector< std::vector< PlayerColor > > numOfTowns, numOfHeroes, gold, woodOre, mercSulfCrystGems, obelisks, artifacts, army, income; // [place] -> [colours of players]
 
-	std::map<TPlayerColor, InfoAboutHero> colorToBestHero; //maps player's color to his best heros'
+	std::map<PlayerColor, InfoAboutHero> colorToBestHero; //maps player's color to his best heros'
 
-    std::map<TPlayerColor, EAiTactic::EAiTactic> personality; // color to personality // ai tactic
-	std::map<TPlayerColor, si32> bestCreature; // color to ID // id or -1 if not known
+    std::map<PlayerColor, EAiTactic::EAiTactic> personality; // color to personality // ai tactic
+	std::map<PlayerColor, si32> bestCreature; // color to ID // id or -1 if not known
 
 // 	template <typename Handler> void serialize(Handler &h, const int version)
 // 	{
@@ -163,10 +163,10 @@ struct DLL_LINKAGE SThievesGuildInfo
 struct DLL_LINKAGE PlayerState : public CBonusSystemNode
 {
 public:
-	TPlayerColor color;
+	PlayerColor color;
 	bool human; //true if human controlled player, false for AI
 	ObjectInstanceID currentSelection; //id of hero/town, 0xffffffff if none
-	ui8 team;
+	TeamID team;
 	TResources resources;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > heroes;
 	std::vector<ConstTransitivePtr<CGTownInstance> > towns;
@@ -199,8 +199,8 @@ public:
 struct DLL_LINKAGE TeamState : public CBonusSystemNode
 {
 public:
-	ui8 id; //position in gameState::teams
-	std::set<TPlayerColor> players; // members of this team
+	TeamID id; //position in gameState::teams
+	std::set<PlayerColor> players; // members of this team
 	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
 
 	TeamState();
@@ -364,12 +364,12 @@ class DLL_LINKAGE CGameState : public CNonConstInfoCallback
 {
 public:
 	ConstTransitivePtr<StartInfo> scenarioOps, initialOpts; //second one is a copy of settings received from pregame (not randomized)
-	TPlayerColor currentPlayer; //ID of player currently having turn
+	PlayerColor currentPlayer; //ID of player currently having turn
 	ConstTransitivePtr<BattleInfo> curB; //current battle
 	ui32 day; //total number of days in game
 	ConstTransitivePtr<CMap> map;
-	bmap<TPlayerColor, PlayerState> players;
-	bmap<TPlayerColor, TeamState> teams;
+	bmap<PlayerColor, PlayerState> players;
+	bmap<TeamID, TeamState> teams;
 	CBonusSystemNode globalEffects;
 	bmap<const CGHeroInstance*, const CGObjectInstance*> ongoingVisits;
 
@@ -378,7 +378,7 @@ public:
 		bmap<ui32, ConstTransitivePtr<CGHeroInstance> > heroesPool; //[subID] - heroes available to buy; NULL if not available
 		bmap<ui32,ui8> pavailable; // [subid] -> which players can recruit hero (binary flags)
 
-		CGHeroInstance * pickHeroFor(bool native, TPlayerColor player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass = NULL) const;
+		CGHeroInstance * pickHeroFor(bool native, PlayerColor player, const CTown *town, bmap<ui32, ConstTransitivePtr<CGHeroInstance> > &available, const CHeroClass *bannedClass = NULL) const;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -393,22 +393,22 @@ public:
 	void initDuel();
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
-	int pickHero(int owner);
+	int pickHero(PlayerColor owner);
 	void giveHeroArtifact(CGHeroInstance *h, ArtifactID aid);
 
 	void apply(CPack *pack);
 	BFieldType battleGetBattlefieldType(int3 tile) const;
 	UpgradeInfo getUpgradeInfo(const CStackInstance &stack);
-	PlayerRelations::PlayerRelations getPlayerRelations(TPlayerColor color1, TPlayerColor color2);
+	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2);
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
 	bool checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst) const; //check if src tile is visitable from dst tile
 	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or NULL if path does not exists
 	int3 guardingCreaturePosition (int3 pos) const;
 	std::vector<CGObjectInstance*> guardingCreatures (int3 pos) const;
-	int victoryCheck(TPlayerColor player) const; //checks if given player is winner; -1 if std victory, 1 if special victory, 0 else
-	int lossCheck(TPlayerColor player) const; //checks if given player is loser;  -1 if std loss, 1 if special, 0 else
-	ui8 checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 if no winner
-	bool checkForStandardLoss(TPlayerColor player) const; //checks if given player lost the game
+	int victoryCheck(PlayerColor player) const; //checks if given player is winner; -1 if std victory, 1 if special victory, 0 else
+	int lossCheck(PlayerColor player) const; //checks if given player is loser;  -1 if std loss, 1 if special, 0 else
+	PlayerColor checkForStandardWin() const; //returns color of player that accomplished standard victory conditions or 255 (NEUTRAL) if no winner
+	bool checkForStandardLoss(PlayerColor player) const; //checks if given player lost the game
 	void obtainPlayersStats(SThievesGuildInfo & tgi, int level); //fills tgi with info about other players that is available at given level of thieves' guild
 	bmap<ui32, ConstTransitivePtr<CGHeroInstance> > unusedHeroesFromPool(); //heroes pool without heroes that are available in taverns
 	BattleInfo * setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town);
@@ -418,8 +418,8 @@ public:
 	void buildGlobalTeamPlayerTree();
 	void deserializationFix();
 
-	bool isVisible(int3 pos, TPlayerColor player);
-	bool isVisible(const CGObjectInstance *obj, boost::optional<TPlayerColor> player);
+	bool isVisible(int3 pos, PlayerColor player);
+	bool isVisible(const CGObjectInstance *obj, boost::optional<PlayerColor> player);
 
 	CGameState(); //c-tor
 	virtual ~CGameState(); //d-tor

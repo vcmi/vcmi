@@ -65,10 +65,10 @@ class DLL_LINKAGE CGameInfoCallback : public virtual CCallbackBase
 {
 protected:
 	CGameInfoCallback();
-	CGameInfoCallback(CGameState *GS, boost::optional<TPlayerColor> Player);
-	bool hasAccess(boost::optional<TPlayerColor> playerId) const;
-	bool isVisible(int3 pos, boost::optional<TPlayerColor> Player) const;
-	bool isVisible(const CGObjectInstance *obj, boost::optional<TPlayerColor> Player) const;
+	CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor> Player);
+	bool hasAccess(boost::optional<PlayerColor> playerId) const;
+	bool isVisible(int3 pos, boost::optional<PlayerColor> Player) const;
+	bool isVisible(const CGObjectInstance *obj, boost::optional<PlayerColor> Player) const;
 	bool isVisible(const CGObjectInstance *obj) const;
 
 	bool canGetFullInfo(const CGObjectInstance *obj) const; //true we player owns obj or ally owns obj or privileged mode
@@ -81,15 +81,15 @@ public:
 	bool isAllowed(int type, int id); //type: 0 - spell; 1- artifact; 2 - secondary skill
 
 	//player
-	const PlayerState * getPlayer(TPlayerColor color, bool verbose = true) const;
-	int getResource(TPlayerColor Player, Res::ERes which) const;
+	const PlayerState * getPlayer(PlayerColor color, bool verbose = true) const;
+	int getResource(PlayerColor Player, Res::ERes which) const;
 	bool isVisible(int3 pos) const;
-	PlayerRelations::PlayerRelations getPlayerRelations(TPlayerColor color1, TPlayerColor color2) const;
+	PlayerRelations::PlayerRelations getPlayerRelations(PlayerColor color1, PlayerColor color2) const;
 	void getThievesGuildInfo(SThievesGuildInfo & thi, const CGObjectInstance * obj); //get thieves' guild info obtainable while visiting given object
-	EPlayerStatus::EStatus getPlayerStatus(TPlayerColor player) const; //-1 if no such player
-	int getCurrentPlayer() const; //player that currently makes move // TODO synchronous turns
-	virtual int getLocalPlayer() const; //player that is currently owning given client (if not a client, then returns current player)
-	const PlayerSettings * getPlayerSettings(TPlayerColor color) const;
+	EPlayerStatus::EStatus getPlayerStatus(PlayerColor player) const; //-1 if no such player
+	PlayerColor getCurrentPlayer() const; //player that currently makes move // TODO synchronous turns
+	virtual PlayerColor getLocalPlayer() const; //player that is currently owning given client (if not a client, then returns current player)
+	const PlayerSettings * getPlayerSettings(PlayerColor color) const;
 
 
 	//armed object
@@ -98,11 +98,11 @@ public:
 	//hero
 	const CGHeroInstance* getHero(ObjectInstanceID objid) const;
 	const CGHeroInstance* getHeroWithSubid(int subid) const;
-	int getHeroCount(TPlayerColor player, bool includeGarrisoned) const;
+	int getHeroCount(PlayerColor player, bool includeGarrisoned) const;
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
 	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
 	int estimateSpellDamage(const CSpell * sp, const CGHeroInstance * hero) const; //estimates damage of given spell; returns 0 if spell causes no dmg
-	const CGHeroInstance* getSelectedHero(TPlayerColor player) const; //NULL if no hero is selected
+	const CGHeroInstance* getSelectedHero(PlayerColor player) const; //NULL if no hero is selected
 	const CGHeroInstance* getSelectedHero() const; //of current (active) player
 	const CArtifactInstance * getArtInstance(ArtifactInstanceID aid) const;
 	const CGObjectInstance * getObjInstance(ObjectInstanceID oid) const;
@@ -113,7 +113,7 @@ public:
 	std::vector <const CGObjectInstance * > getVisitableObjs(int3 pos, bool verbose = true)const;
 	std::vector <const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	std::vector <std::string > getObjDescriptions(int3 pos)const; //returns descriptions of objects at pos in order from the lowest to the highest
-	TPlayerColor getOwner(ObjectInstanceID heroID) const;
+	PlayerColor getOwner(ObjectInstanceID heroID) const;
 	const CGObjectInstance *getObjByQuestIdentifier(int identifier) const; //NULL if object has been removed (eg. killed)
 
 	//map
@@ -126,18 +126,18 @@ public:
 
 	//town
 	const CGTownInstance* getTown(ObjectInstanceID objid) const;
-	int howManyTowns(TPlayerColor Player) const;
+	int howManyTowns(PlayerColor Player) const;
 	const CGTownInstance * getTownInfo(int val, bool mode)const; //mode = 0 -> val = player town serial; mode = 1 -> val = object id (serial)
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGObjectInstance * townOrTavern) const; //heroes that can be recruited
 	std::string getTavernGossip(const CGObjectInstance * townOrTavern) const; 
 	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	std::set<BuildingID> getBuildingRequiments(const CGTownInstance *t, BuildingID ID);
 	virtual bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
-	const CTown *getNativeTown(TPlayerColor color) const;
+	const CTown *getNativeTown(PlayerColor color) const;
 
 	//from gs
-	const TeamState *getTeam(ui8 teamID) const;
-	const TeamState *getPlayerTeam(TPlayerColor color) const;
+	const TeamState *getTeam(TeamID teamID) const;
+	const TeamState *getPlayerTeam(PlayerColor color) const;
 	std::set<BuildingID> getBuildingRequiments(const CGTownInstance *t, BuildingID ID) const;
 	EBuildingState::EBuildingState canBuildStructure(const CGTownInstance *t, BuildingID ID) const;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 };
@@ -149,7 +149,7 @@ public:
 	int howManyTowns() const;
 	int howManyHeroes(bool includeGarrisoned = true) const;
 	int3 getGrailPos(double &outKnownRatio);
-	boost::optional<TPlayerColor> getMyColor() const;
+	boost::optional<PlayerColor> getMyColor() const;
 
 	std::vector <const CGTownInstance *> getTownsInfo(bool onlyOur = true) const; //true -> only owned; false -> all visible
 	int getHeroSerial(const CGHeroInstance * hero, bool includeGarrisoned=true) const;
@@ -163,7 +163,7 @@ public:
 	int getResourceAmount(Res::ERes type) const;
 	TResources getResourceAmount() const;
 	const std::vector< std::vector< std::vector<ui8> > > & getVisibilityMap()const; //returns visibility map 
-	const PlayerSettings * getPlayerSettings(TPlayerColor color) const;
+	const PlayerSettings * getPlayerSettings(PlayerColor color) const;
 };
 
 class DLL_LINKAGE CPrivilagedInfoCallback : public CGameInfoCallback
@@ -171,8 +171,8 @@ class DLL_LINKAGE CPrivilagedInfoCallback : public CGameInfoCallback
 public:
 	CGameState * gameState ();
 	void getFreeTiles (std::vector<int3> &tiles) const; //used for random spawns
-	void getTilesInRange(boost::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int player=-1, int mode=0) const;  //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only unrevealed
-	void getAllTiles (boost::unordered_set<int3, ShashInt3> &tiles, int player=-1, int level=-1, int surface=0) const; //returns all tiles on given level (-1 - both levels, otherwise number of level); surface: 0 - land and water, 1 - only land, 2 - only water
+	void getTilesInRange(boost::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int mode=0) const;  //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only unrevealed
+	void getAllTiles (boost::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> player = boost::optional<PlayerColor>(), int level=-1, int surface=0) const; //returns all tiles on given level (-1 - both levels, otherwise number of level); surface: 0 - land and water, 1 - only land, 2 - only water
 	ArtifactID getRandomArt (int flags);
 	ArtifactID getArtSync (ui32 rand, int flags, bool erasePicked); //synchronous
 	void pickAllowedArtsSet(std::vector<const CArtifact*> &out); //gives 3 treasures, 3 minors, 1 major -> used by Black Market and Artifact Merchant
@@ -188,9 +188,9 @@ public:
 class DLL_LINKAGE CNonConstInfoCallback : public CPrivilagedInfoCallback
 {
 public:
-	PlayerState *getPlayer(TPlayerColor color, bool verbose = true);
-	TeamState *getTeam(ui8 teamID);//get team by team ID
-	TeamState *getPlayerTeam(TPlayerColor color);// get team by player color
+	PlayerState *getPlayer(PlayerColor color, bool verbose = true);
+	TeamState *getTeam(TeamID teamID);//get team by team ID
+	TeamState *getPlayerTeam(PlayerColor color);// get team by player color
 	CGHeroInstance *getHero(ObjectInstanceID objid);
 	CGTownInstance *getTown(ObjectInstanceID objid);
 	TerrainTile * getTile(int3 pos);
@@ -207,7 +207,7 @@ public:
 	virtual void setObjProperty(ObjectInstanceID objid, int prop, si64 val);
 
 
-	virtual void showInfoDialog(const std::string &msg, TPlayerColor player);
+	virtual void showInfoDialog(const std::string &msg, PlayerColor player);
 };
 
 class DLL_LINKAGE IGameEventCallback : public IGameEventRealizer
@@ -216,15 +216,15 @@ public:
 	virtual void changeSpells(const CGHeroInstance * hero, bool give, const std::set<SpellID> &spells)=0;
 	virtual bool removeObject(const CGObjectInstance * obj)=0;
 	virtual void setBlockVis(ObjectInstanceID objid, bool bv)=0;
-	virtual void setOwner(const CGObjectInstance * objid, TPlayerColor owner)=0;
+	virtual void setOwner(const CGObjectInstance * objid, PlayerColor owner)=0;
 	virtual void setHoverName(const CGObjectInstance * obj, MetaString * name)=0;
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0; 
 	virtual void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback)=0;
 	virtual ui32 showBlockingDialog(BlockingDialog *iw) =0; //synchronous version of above //TODO:
 	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const boost::function<void()> &cb) =0; //cb will be called when player closes garrison window
-	virtual void showThievesGuildWindow(TPlayerColor player, ObjectInstanceID requestingObjId) =0;
-	virtual void giveResource(TPlayerColor player, Res::ERes which, int val)=0;
+	virtual void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) =0;
+	virtual void giveResource(PlayerColor player, Res::ERes which, int val)=0;
 
 	virtual void giveCreatures(const CArmedInstance *objid, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove) =0;
 	virtual void takeCreatures(ObjectInstanceID objid, const std::vector<CStackBasicDescriptor> &creatures) =0;
@@ -251,11 +251,11 @@ public:
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false)=0; //if any of armies is hero, hero will be used
 	virtual void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb = 0, bool creatureBank = false)=0; //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	virtual void setAmount(ObjectInstanceID objid, ui32 val)=0;
-	virtual bool moveHero(ObjectInstanceID hid, int3 dst, ui8 instant, TPlayerColor asker = GameConstants::NEUTRAL_PLAYER)=0;
+	virtual bool moveHero(ObjectInstanceID hid, int3 dst, ui8 instant, PlayerColor asker = PlayerColor::NEUTRAL)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
 	virtual void setManaPoints(ObjectInstanceID hid, int val)=0;
-	virtual void giveHero(ObjectInstanceID id, TPlayerColor player)=0;
+	virtual void giveHero(ObjectInstanceID id, PlayerColor player)=0;
 	virtual void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags)=0;
 	virtual void sendAndApply(CPackForClient * info)=0;
 	virtual void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)=0; //when two heroes meet on adventure map
@@ -270,7 +270,7 @@ public:
 
 	//do sth
 	const CGObjectInstance *putNewObject(Obj ID, int subID, int3 pos);
-	const CGCreature *putNewMonster(int creID, int count, int3 pos);
+	const CGCreature *putNewMonster(CreatureID creID, int count, int3 pos);
 
 	friend struct CPack;
 	friend struct CPackForClient;

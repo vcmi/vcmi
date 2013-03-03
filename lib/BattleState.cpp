@@ -141,8 +141,8 @@ int BattleInfo::calculateSpellDuration( const CSpell * spell, const CGHeroInstan
 CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerOwned, SlotID slot, BattleHex position) const
 {
 	int stackID = getIdForNewStack();
-	int owner = attackerOwned ? sides[0] : sides[1];
-	assert((owner >= GameConstants::PLAYER_LIMIT)  ||
+	PlayerColor owner = attackerOwned ? sides[0] : sides[1];
+	assert((owner >= PlayerColor::PLAYER_LIMIT)  ||
 		   (base.armyObj && base.armyObj->tempOwner == owner));
 
 	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
@@ -154,7 +154,7 @@ CStack * BattleInfo::generateNewStack(const CStackInstance &base, bool attackerO
 CStack * BattleInfo::generateNewStack(const CStackBasicDescriptor &base, bool attackerOwned, SlotID slot, BattleHex position) const
 {
 	int stackID = getIdForNewStack();
-	int owner = attackerOwned ? sides[0] : sides[1];
+	PlayerColor owner = attackerOwned ? sides[0] : sides[1];
 	CStack * ret = new CStack(&base, owner, stackID, attackerOwned, slot);
 	ret->position = position;
 	ret->state.insert(EBattleStackState::ALIVE);  //alive state indication
@@ -353,8 +353,8 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	curB->castSpells[0] = curB->castSpells[1] = 0;
 	curB->sides[0] = armies[0]->tempOwner;
 	curB->sides[1] = armies[1]->tempOwner;
-	if(curB->sides[1] == GameConstants::UNFLAGGABLE_PLAYER)
-		curB->sides[1] = GameConstants::NEUTRAL_PLAYER;
+	if(curB->sides[1] == PlayerColor::UNFLAGGABLE)
+		curB->sides[1] = PlayerColor::NEUTRAL;
 
 	std::vector<CStack*> & stacks = (curB->stacks);
 
@@ -708,7 +708,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	return curB;
 }
 
-const CGHeroInstance * BattleInfo::getHero( TPlayerColor player ) const
+const CGHeroInstance * BattleInfo::getHero( PlayerColor player ) const
 {
 	assert(sides[0] == player || sides[1] == player);
 	if(heroes[0] && heroes[0]->getOwner() == player)
@@ -717,7 +717,7 @@ const CGHeroInstance * BattleInfo::getHero( TPlayerColor player ) const
 	return heroes[1];
 }
 
-std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<const CStack*> affectedCreatures, int casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const
+std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<const CStack*> affectedCreatures, PlayerColor casterSideOwner, ECastingMode::ECastingMode mode, int usedSpellPower, int spellLevel) const
 {
 	std::vector<ui32> ret;
 	for(auto it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
@@ -766,12 +766,12 @@ std::vector<ui32> BattleInfo::calculateResistedStacks(const CSpell * sp, const C
 	return ret;
 }
 
-TPlayerColor BattleInfo::theOtherPlayer(TPlayerColor player) const
+PlayerColor BattleInfo::theOtherPlayer(PlayerColor player) const
 {
 	return sides[!whatSide(player)];
 }
 
-ui8 BattleInfo::whatSide(TPlayerColor player) const
+ui8 BattleInfo::whatSide(PlayerColor player) const
 {
 	for(int i = 0; i < ARRAY_COUNT(sides); i++)
 		if(sides[i] == player)
@@ -842,7 +842,7 @@ BattleInfo::BattleInfo()
 	setNodeType(BATTLE);
 }
 
-CStack::CStack(const CStackInstance *Base, int O, int I, bool AO, SlotID S)
+CStack::CStack(const CStackInstance *Base, PlayerColor O, int I, bool AO, SlotID S)
 	: base(Base), ID(I), owner(O), slot(S), attackerOwned(AO),
 	counterAttacks(1)
 {
@@ -856,7 +856,7 @@ CStack::CStack()
 	init();
 	setNodeType(STACK_BATTLE);
 }
-CStack::CStack(const CStackBasicDescriptor *stack, int O, int I, bool AO, SlotID S)
+CStack::CStack(const CStackBasicDescriptor *stack, PlayerColor O, int I, bool AO, SlotID S)
 	: base(NULL), ID(I), owner(O), slot(S), attackerOwned(AO), counterAttacks(1)
 {
 	type = stack->type;
@@ -871,7 +871,7 @@ void CStack::init()
 	ID = -1;
 	count = baseAmount = -1;
 	firstHPleft = -1;
-	owner = GameConstants::NEUTRAL_PLAYER;
+	owner = PlayerColor::NEUTRAL;
 	slot = SlotID(255);
 	attackerOwned = false;
 	position = BattleHex();

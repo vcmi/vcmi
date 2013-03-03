@@ -67,7 +67,7 @@ template <typename T> class CApplyOnGH;
 class CBaseForGHApply
 {
 public:
-	virtual bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack, ui8 player) const =0;
+	virtual bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack, PlayerColor player) const =0;
 	virtual ~CBaseForGHApply(){}
 	template<typename U> static CBaseForGHApply *getApplier(const U * t=NULL)
 	{
@@ -78,7 +78,7 @@ public:
 template <typename T> class CApplyOnGH : public CBaseForGHApply
 {
 public:
-	bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack, ui8 player) const
+	bool applyOnGH(CGameHandler *gh, CConnection *c, void *pack, PlayerColor player) const
 	{
 		T *ptr = static_cast<T*>(pack);
 		ptr->c = c;
@@ -105,7 +105,7 @@ static void giveExp(BattleResult &r)
 	}
 }
 
-PlayerStatus PlayerStatuses::operator[](TPlayerColor player)
+PlayerStatus PlayerStatuses::operator[](PlayerColor player)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
@@ -117,13 +117,13 @@ PlayerStatus PlayerStatuses::operator[](TPlayerColor player)
 		throw std::runtime_error("No such player!");
 	}
 }
-void PlayerStatuses::addPlayer(TPlayerColor player)
+void PlayerStatuses::addPlayer(PlayerColor player)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	players[player];
 }
 
-int PlayerStatuses::getQueriesCount(TPlayerColor player)
+int PlayerStatuses::getQueriesCount(PlayerColor player)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
@@ -136,7 +136,7 @@ int PlayerStatuses::getQueriesCount(TPlayerColor player)
 	}
 }
 
-bool PlayerStatuses::checkFlag(TPlayerColor player, bool PlayerStatus::*flag)
+bool PlayerStatuses::checkFlag(PlayerColor player, bool PlayerStatus::*flag)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
@@ -148,7 +148,7 @@ bool PlayerStatuses::checkFlag(TPlayerColor player, bool PlayerStatus::*flag)
 		throw std::runtime_error("No such player!");
 	}
 }
-void PlayerStatuses::setFlag(TPlayerColor player, bool PlayerStatus::*flag, bool val)
+void PlayerStatuses::setFlag(PlayerColor player, bool PlayerStatus::*flag, bool val)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
@@ -161,7 +161,7 @@ void PlayerStatuses::setFlag(TPlayerColor player, bool PlayerStatus::*flag, bool
 	}
 	cv.notify_all();
 }
-void PlayerStatuses::addQuery(TPlayerColor player, ui32 id)
+void PlayerStatuses::addQuery(PlayerColor player, ui32 id)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
@@ -174,7 +174,7 @@ void PlayerStatuses::addQuery(TPlayerColor player, ui32 id)
 	}
 	cv.notify_all();
 }
-void PlayerStatuses::removeQuery(TPlayerColor player, ui32 id)
+void PlayerStatuses::removeQuery(PlayerColor player, ui32 id)
 {
 	boost::unique_lock<boost::mutex> l(mx);
 	if(players.find(player) != players.end())
@@ -273,7 +273,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 		hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(basicAndAdv)); //upgrade existing
 	}
 
-	if (hero->tempOwner == GameConstants::NEUTRAL_PLAYER) //choose skill automatically
+	if (hero->tempOwner == PlayerColor::NEUTRAL) //choose skill automatically
 	{
 		sendAndApply (&hlu);
 		if (hlu.skills.size())
@@ -426,7 +426,7 @@ void CGameHandler::levelUpCommander(const CCommanderInstance * c)
 	}
 	int skillAmount = clu.skills.size();
 
-	if (hero->tempOwner == GameConstants::NEUTRAL_PLAYER) //choose skill automatically
+	if (hero->tempOwner == PlayerColor::NEUTRAL) //choose skill automatically
 	{
 		sendAndApply(&clu);
 		if (clu.skills.size())
@@ -526,9 +526,9 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	if(!duel)
 	{
 		//unblock engaged players
-		if(bEndArmy1->tempOwner<GameConstants::PLAYER_LIMIT)
+		if(bEndArmy1->tempOwner<PlayerColor::PLAYER_LIMIT)
 			states.setFlag(bEndArmy1->tempOwner, &PlayerStatus::engagedIntoBattle, false);
-		if(bEndArmy2 && bEndArmy2->tempOwner<GameConstants::PLAYER_LIMIT)
+		if(bEndArmy2 && bEndArmy2->tempOwner<PlayerColor::PLAYER_LIMIT)
 			states.setFlag(bEndArmy2->tempOwner, &PlayerStatus::engagedIntoBattle, false);
 	}
 
@@ -539,12 +539,12 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	if (hero2)
 		battleResult.data->exp[1] = hero2->calculateXp(battleResult.data->exp[1]);
 
-	ui8 sides[2];
+	PlayerColor sides[2];
 	for(int i=0; i<2; ++i)
 	{
 		sides[i] = gs->curB->sides[i];
 	}
-	ui8 loser = sides[!battleResult.data->winner];
+	PlayerColor loser = sides[!battleResult.data->winner];
 
 	CasualtiesAfterBattle cab1(bEndArmy1, gs->curB), cab2(bEndArmy2, gs->curB); //calculate casualties before deleting battle
 	ChangeSpells cs; //for Eagle Eye
@@ -741,7 +741,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	}
 	visitObjectAfterVictory = false;
 
-	winLoseHandle(1<<sides[0] | 1<<sides[1]); //handle victory/loss of engaged players
+	winLoseHandle(1<<sides[0].getNum() | 1<<sides[1].getNum()); //handle victory/loss of engaged players
 
 	if(result == BattleResult::SURRENDER || result == BattleResult::ESCAPE) //loser has escaped or surrendered
 	{
@@ -885,7 +885,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		bat.bsa.push_back(bsa);
 	}
 }
-void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
+void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &c)
 {
 	setThreadName("CGameHandler::handleConnection");
 	srand(time(NULL));
@@ -895,7 +895,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 		while(1)//server should never shut connection first //was: while(!end2)
 		{
 			CPack *pack = NULL;
-			ui8 player = 255;
+			PlayerColor player = PlayerColor::NEUTRAL;
 			si32 requestID = -999;
 			int packType = 0;
 
@@ -905,7 +905,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 				packType = typeList.getTypeID(pack); //get the id of type
 
 				tlog5 << boost::format("Received client message (request %d by player %d) of type with ID=%d (%s).\n")
-					% requestID % (int)player % packType % typeid(*pack).name();
+					% requestID % player.getNum() % packType % typeid(*pack).name();
 			}
 
 			//prepare struct informing that action was applied
@@ -918,7 +918,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			CBaseForGHApply *apply = applier->apps[packType]; //and appropriae applier object
 			if(isBlockedByQueries(pack, packType, player))
 			{
-				complain(boost::str(boost::format("Player %d has to answer queries  before attempting any further actions (count=%d)!") % (int)player % states.getQueriesCount(player)));
+				complain(boost::str(boost::format("Player %d has to answer queries  before attempting any further actions (count=%d)!") % player.getNum() % states.getQueriesCount(player)));
 				{
 					boost::unique_lock<boost::mutex> lock(*c.wmx);
 					c << &applied;
@@ -1164,7 +1164,7 @@ void CGameHandler::newTurn()
 	bool newWeek = getDate(Date::DAY_OF_WEEK) == 7; //day numbers are confusing, as day was not yet switched
 	bool newMonth = getDate(Date::DAY_OF_MONTH) == 28;
 
-	std::map<ui8, si32> hadGold;//starting gold - for buildings like dwarven treasury
+	std::map<PlayerColor, si32> hadGold;//starting gold - for buildings like dwarven treasury
 	srand(time(NULL));
 
 	if (firstTurn)
@@ -1241,12 +1241,12 @@ void CGameHandler::newTurn()
 
 	for ( auto i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
-		if(i->first == 255)
+		if(i->first == PlayerColor::NEUTRAL)
 			continue;
-		else if(i->first >= GameConstants::PLAYER_LIMIT)
+		else if(i->first >= PlayerColor::PLAYER_LIMIT)
 			assert(0); //illegal player number!
 
-		std::pair<TPlayerColor,si32> playerGold(i->first,i->second.resources[Res::GOLD]);
+		std::pair<PlayerColor, si32> playerGold(i->first, i->second.resources[Res::GOLD]);
 		hadGold.insert(playerGold);
 
 		if(newWeek) //new heroes in tavern
@@ -1305,7 +1305,7 @@ void CGameHandler::newTurn()
 
 	BOOST_FOREACH(CGTownInstance *t, gs->map->towns)
 	{
-		ui8 player = t->tempOwner;
+		PlayerColor player = t->tempOwner;
 		handleTownEvents(t, n, newCreas);
 		if(newWeek) //first day of week
 		{
@@ -1313,7 +1313,7 @@ void CGameHandler::newTurn()
 				setPortalDwelling(t, true, (n.specialWeek == NewTurn::PLAGUE ? true : false)); //set creatures for Portal of Summoning
 
 			if(!firstTurn)
-				if (t->hasBuilt(BuildingID::TREASURY, ETownType::RAMPART) && player < GameConstants::PLAYER_LIMIT)
+				if (t->hasBuilt(BuildingID::TREASURY, ETownType::RAMPART) && player < PlayerColor::PLAYER_LIMIT)
 						n.res[player][Res::GOLD] += hadGold[player]/10; //give 10% of starting gold
 
 			SetAvailableCreatures sac;
@@ -1356,7 +1356,7 @@ void CGameHandler::newTurn()
 
 			n.cres.push_back(sac);
 		}
-		if(!firstTurn  &&  player < GameConstants::PLAYER_LIMIT)//not the first day and town not neutral
+		if(!firstTurn  &&  player < PlayerColor::PLAYER_LIMIT)//not the first day and town not neutral
 		{
 			if(t->hasBuilt(BuildingID::RESOURCE_SILO)) //there is resource silo
 			{
@@ -1377,7 +1377,7 @@ void CGameHandler::newTurn()
 		{
 			// Skyship, probably easier to handle same as Veil of darkness
 			//do it every new day after veils apply
-			if (player != GameConstants::NEUTRAL_PLAYER) //do not reveal fow for neutral player
+			if (player != PlayerColor::NEUTRAL) //do not reveal fow for neutral player
 			{
 				FoWChange fw;
 				fw.mode = 1;
@@ -1480,27 +1480,27 @@ void CGameHandler::newTurn()
 	{
 		for (auto i=gs->players.cbegin() ; i!=gs->players.cend();i++)
 		{
-			if(i->second.status || i->second.towns.size() || i->second.color >= GameConstants::PLAYER_LIMIT)
+			if(i->second.status || i->second.towns.size() || i->second.color >= PlayerColor::PLAYER_LIMIT)
 				continue;
 
 			InfoWindow iw;
 			iw.player = i->first;
-			iw.components.push_back(Component(Component::FLAG,i->first,0,0));
+			iw.components.push_back(Component(Component::FLAG, i->first.getNum(), 0, 0));
 
 			if(!i->second.daysWithoutCastle)
 			{
 				iw.text.addTxt(MetaString::GENERAL_TXT,6); //%s, you have lost your last town.  If you do not conquer another town in the next week, you will be eliminated.
-				iw.text.addReplacement(MetaString::COLOR, i->first);
+				iw.text.addReplacement(MetaString::COLOR, i->first.getNum());
 			}
 			else if(i->second.daysWithoutCastle == 6)
 			{
 				iw.text.addTxt(MetaString::ARRAY_TXT,129); //%s, this is your last day to capture a town or you will be banished from this land.
-				iw.text.addReplacement(MetaString::COLOR, i->first);
+				iw.text.addReplacement(MetaString::COLOR, i->first.getNum());
 			}
 			else
 			{
 				iw.text.addTxt(MetaString::ARRAY_TXT,128); //%s, you only have %d days left to capture a town or you will be banished from this land.
-				iw.text.addReplacement(MetaString::COLOR, i->first);
+				iw.text.addReplacement(MetaString::COLOR, i->first.getNum());
 				iw.text.addReplacement(7 - i->second.daysWithoutCastle);
 			}
 			sendAndApply(&iw);
@@ -1519,13 +1519,13 @@ void CGameHandler::run(bool resume)
 			(*cc) << gs->initialOpts; // gs->scenarioOps
 		}
 
-		std::set<TPlayerColor> players;
+		std::set<PlayerColor> players;
 		(*cc) >> players; //how many players will be handled at that client
 
 		tlog0 << "Connection " << cc->connectionID << " will handle " << players.size() << " player: ";
-		BOOST_FOREACH(TPlayerColor color, players)
+		BOOST_FOREACH(PlayerColor color, players)
 		{
-			tlog0 << static_cast<int>(color) << " ";
+			tlog0 << color << " ";
 			{
 				boost::unique_lock<boost::recursive_mutex> lock(gsm);
 				connections[color] = cc;
@@ -1540,8 +1540,8 @@ void CGameHandler::run(bool resume)
 
 	for(std::set<CConnection*>::iterator i = conns.begin(); i!=conns.end();i++)
 	{
-		std::set<int> pom;
-		for(std::map<int,CConnection*>::iterator j = connections.begin(); j!=connections.end();j++)
+		std::set<PlayerColor> pom;
+		for(auto j = connections.cbegin(); j!=connections.cend();j++)
 			if(j->second == *i)
 				pom.insert(j->first);
 
@@ -1559,7 +1559,7 @@ void CGameHandler::run(bool resume)
 		if(!resume)
 			newTurn();
 
-		std::map<TPlayerColor,PlayerState>::iterator i;
+		std::map<PlayerColor,PlayerState>::iterator i;
 		if(!resume)
 			i = gs->players.begin();
 		else
@@ -1569,7 +1569,7 @@ void CGameHandler::run(bool resume)
 		for(; i != gs->players.end(); i++)
 		{
 			if((i->second.towns.size()==0 && i->second.heroes.size()==0)
-				|| i->first>=GameConstants::PLAYER_LIMIT
+				|| i->first>=PlayerColor::PLAYER_LIMIT
 				|| i->second.status)
 			{
 				continue;
@@ -1683,18 +1683,18 @@ void CGameHandler::setAmount(ObjectInstanceID objid, ui32 val)
 	sendAndApply(&sop);
 }
 
-bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 instant, TPlayerColor asker /*= 255*/ )
+bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 instant, PlayerColor asker /*= 255*/ )
 {
 	const CGHeroInstance *h = getHero(hid);
 
-	if(!h  || (asker != GameConstants::NEUTRAL_PLAYER && (instant  ||   h->getOwner() != gs->currentPlayer)) //not turn of that hero or player can't simply teleport hero (at least not with this function)
+	if(!h  || (asker != PlayerColor::NEUTRAL && (instant  ||   h->getOwner() != gs->currentPlayer)) //not turn of that hero or player can't simply teleport hero (at least not with this function)
 	  )
 	{
 		tlog1 << "Illegal call to move hero!\n";
 		return false;
 	}
 
-	tlog5 << "Player " <<int(asker) << " wants to move hero "<< hid.getNum() << " from "<< h->pos << " to " << dst << std::endl;
+	tlog5 << "Player " << asker << " wants to move hero "<< hid.getNum() << " from "<< h->pos << " to " << dst << std::endl;
 	int3 hmpos = dst + int3(-1,0,0);
 
 	if(!gs->map->isInTheMap(hmpos))
@@ -1763,7 +1763,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 instant, TPlaye
 	{
 		BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
 		{
-			if(obj != h  &&  obj->blockVisit  &&  !(obj->getPassableness() & 1<<h->tempOwner))
+			if(obj != h  &&  obj->blockVisit  &&  !(obj->getPassableness() & 1<<h->tempOwner.getNum()))
 			{
 
 				applyWithResult(TryMoveHero::BLOCKING_VISIT);
@@ -1844,7 +1844,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 instant, TPlaye
 	}
 }
 
-bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui8 source, TPlayerColor asker/* = 255*/)
+bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui8 source, PlayerColor asker/* = 255*/)
 {
 	const CGHeroInstance *h = getHero(hid);
 	const CGTownInstance *t = getTown(dstid);
@@ -1866,14 +1866,14 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	return true;
 }
 
-void CGameHandler::setOwner(const CGObjectInstance * obj, TPlayerColor owner)
+void CGameHandler::setOwner(const CGObjectInstance * obj, PlayerColor owner)
 {
-	ui8 oldOwner = getOwner(obj->id);
-	SetObjectProperty sop(obj->id,1,owner);
+	PlayerColor oldOwner = getOwner(obj->id);
+	SetObjectProperty sop(obj->id, 1, owner.getNum());
 	sendAndApply(&sop);
 
-	winLoseHandle(1<<owner | 1<<oldOwner);
-	if(owner < GameConstants::PLAYER_LIMIT && dynamic_cast<const CGTownInstance *>(obj)) //town captured
+	winLoseHandle(1<<owner.getNum() | 1<<oldOwner.getNum());
+	if(owner < PlayerColor::PLAYER_LIMIT && dynamic_cast<const CGTownInstance *>(obj)) //town captured
 	{
 		const CGTownInstance * town = dynamic_cast<const CGTownInstance *>(obj);
 		if (town->hasBuilt(BuildingID::PORTAL_OF_SUMMON, ETownType::DUNGEON))
@@ -1927,7 +1927,7 @@ ui32 CGameHandler::showBlockingDialog( BlockingDialog *iw )
 	return 0;
 }
 
-void CGameHandler::giveResource(TPlayerColor player, Res::ERes which, int val) //TODO: cap according to Bersy's suggestion
+void CGameHandler::giveResource(PlayerColor player, Res::ERes which, int val) //TODO: cap according to Bersy's suggestion
 {
 	if(!val) return; //don't waste time on empty call
 	SetResource sr;
@@ -2035,7 +2035,7 @@ void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstanc
 	engageIntoBattle(army1->tempOwner);
 	engageIntoBattle(army2->tempOwner);
 	//block engaged players
-	if(army2->tempOwner < GameConstants::PLAYER_LIMIT)
+	if(army2->tempOwner < PlayerColor::PLAYER_LIMIT)
 		states.setFlag(army2->tempOwner,&PlayerStatus::engagedIntoBattle,true);
 
 	static const CArmedInstance *armies[2];
@@ -2096,7 +2096,7 @@ void CGameHandler::setManaPoints( ObjectInstanceID hid, int val )
 	sendAndApply(&sm);
 }
 
-void CGameHandler::giveHero( ObjectInstanceID id, TPlayerColor player )
+void CGameHandler::giveHero( ObjectInstanceID id, PlayerColor player )
 {
 	GiveHero gh;
 	gh.id = id;
@@ -2204,8 +2204,8 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 
 void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 {
-	TPlayerColor player1 = getHero(hero1)->tempOwner;
-	TPlayerColor player2 = getHero(hero2)->tempOwner;
+	PlayerColor player1 = getHero(hero1)->tempOwner;
+	PlayerColor player2 = getHero(hero2)->tempOwner;
 
 	if( gameState()->getPlayerRelations( player1, player2))
 	{
@@ -2218,24 +2218,24 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 	}
 }
 
-void CGameHandler::prepareNewQuery(Query * queryPack, TPlayerColor player, const boost::function<void(ui32)> &callback)
+void CGameHandler::prepareNewQuery(Query * queryPack, PlayerColor player, const boost::function<void(ui32)> &callback)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
-	tlog4 << "Creating a query for player " << (int)player << " with ID=" << QID << std::endl;
+	tlog4 << "Creating a query for player " << player << " with ID=" << QID << std::endl;
 	callbacks[QID] = callback;
 	states.addQuery(player, QID);
 	queryPack->queryID = QID;
 	QID++;
 }
 
-void CGameHandler::applyAndAsk( Query * sel, TPlayerColor player, boost::function<void(ui32)> &callback )
+void CGameHandler::applyAndAsk( Query * sel, PlayerColor player, boost::function<void(ui32)> &callback )
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 	prepareNewQuery(sel, player, callback);
 	sendAndApply(sel);
 }
 
-void CGameHandler::ask( Query * sel, TPlayerColor player, const CFunctionList<void(ui32)> &callback )
+void CGameHandler::ask( Query * sel, PlayerColor player, const CFunctionList<void(ui32)> &callback )
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 	prepareNewQuery(sel, player, callback);
@@ -2352,7 +2352,7 @@ void CGameHandler::close()
 	//exit(0);
 }
 
-bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, TPlayerColor player )
+bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui8 what, SlotID p1, SlotID p2, si32 val, PlayerColor player )
 {
 	const CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->getObjInstance(id1)),
 		*s2 = static_cast<CArmedInstance*>(gs->getObjInstance(id2));
@@ -2372,8 +2372,8 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 
 	if(what==1) //swap
 	{
-		if ( ((s1->tempOwner != player && s1->tempOwner != GameConstants::UNFLAGGABLE_PLAYER) && s1->getStackCount(p1)) //why 254??
-		  || ((s2->tempOwner != player && s2->tempOwner != GameConstants::UNFLAGGABLE_PLAYER) && s2->getStackCount(p2)))
+		if ( ((s1->tempOwner != player && s1->tempOwner != PlayerColor::UNFLAGGABLE) && s1->getStackCount(p1)) //why 254??
+		  || ((s2->tempOwner != player && s2->tempOwner != PlayerColor::UNFLAGGABLE) && s2->getStackCount(p2)))
 		{
 			complain("Can't take troops from another player!");
 			return false;
@@ -2384,7 +2384,7 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 	else if(what==2)//merge
 	{
 		if (( s1->getCreature(p1) != s2->getCreature(p2) && complain("Cannot merge different creatures stacks!"))
-		|| (((s1->tempOwner != player && s1->tempOwner != GameConstants::UNFLAGGABLE_PLAYER) && s2->getStackCount(p2)) && complain("Can't take troops from another player!")))
+		|| (((s1->tempOwner != player && s1->tempOwner != PlayerColor::UNFLAGGABLE) && s2->getStackCount(p2)) && complain("Can't take troops from another player!")))
 			return false;
 
 		moveStack(sl1, sl2);
@@ -2436,26 +2436,26 @@ bool CGameHandler::arrangeStacks( ObjectInstanceID id1, ObjectInstanceID id2, ui
 	return true;
 }
 
-TPlayerColor CGameHandler::getPlayerAt( CConnection *c ) const
+PlayerColor CGameHandler::getPlayerAt( CConnection *c ) const
 {
-	std::set<int> all;
-	for(std::map<int,CConnection*>::const_iterator i=connections.begin(); i!=connections.end(); i++)
+	std::set<PlayerColor> all;
+	for(auto i=connections.cbegin(); i!=connections.cend(); i++)
 		if(i->second == c)
 			all.insert(i->first);
 
 	switch(all.size())
 	{
 	case 0:
-		return 255;
+		return PlayerColor::NEUTRAL;
 	case 1:
 		return *all.begin();
 	default:
 		{
 			//if we have more than one player at this connection, try to pick active one
-			if(vstd::contains(all,int(gs->currentPlayer)))
+			if(vstd::contains(all, gs->currentPlayer))
 				return gs->currentPlayer;
 			else
-				return 253; //cannot say which player is it
+				return PlayerColor::CANNOT_DETERMINE; //cannot say which player is it
 		}
 	}
 }
@@ -2713,7 +2713,7 @@ bool CGameHandler::upgradeCreature( ObjectInstanceID objid, SlotID pos, Creature
 	CArmedInstance *obj = static_cast<CArmedInstance*>(gs->getObjInstance(objid));
 	assert(obj->hasStackAtSlot(pos));
 	UpgradeInfo ui = gs->getUpgradeInfo(obj->getStack(pos));
-	int player = obj->tempOwner;
+	PlayerColor player = obj->tempOwner;
 	const PlayerState *p = getPlayer(player);
 	int crQuantity = obj->stacks[pos]->count;
 	int newIDpos= vstd::find_pos(ui.newID, upgID);//get position of new id in UpgradeInfo
@@ -2842,7 +2842,7 @@ bool CGameHandler::garrisonSwap( ObjectInstanceID tid )
 bool CGameHandler::moveArtifact(const ArtifactLocation &al1, const ArtifactLocation &al2)
 {
 	ArtifactLocation src = al1, dst = al2;
-	const int srcPlayer = src.owningPlayer(), dstPlayer = dst.owningPlayer();
+	const PlayerColor srcPlayer = src.owningPlayer(), dstPlayer = dst.owningPlayer();
 	const CArmedInstance *srcObj = src.relatedObj(), *dstObj = dst.relatedObj();
 
 	// Make sure exchange is even possible between the two heroes.
@@ -3080,7 +3080,7 @@ bool CGameHandler::buySecSkill( const IMarket *m, const CGHeroInstance *h, Secon
 	return true;
 }
 
-bool CGameHandler::tradeResources(const IMarket *market, ui32 val, TPlayerColor player, ui32 id1, ui32 id2)
+bool CGameHandler::tradeResources(const IMarket *market, ui32 val, PlayerColor player, ui32 id1, ui32 id2)
 {
 	int r1 = gs->getPlayer(player)->resources[id1],
 		r2 = gs->getPlayer(player)->resources[id2];
@@ -3170,7 +3170,7 @@ bool CGameHandler::transformInUndead(const IMarket *market, const CGHeroInstance
 	return true;
 }
 
-bool CGameHandler::sendResources(ui32 val, TPlayerColor player, Res::ERes r1, TPlayerColor r2)
+bool CGameHandler::sendResources(ui32 val, PlayerColor player, Res::ERes r1, PlayerColor r2)
 {
 	const PlayerState *p2 = gs->getPlayer(r2, false);
 	if(!p2  ||  p2->status != EPlayerStatus::INGAME)
@@ -3201,13 +3201,14 @@ bool CGameHandler::setFormation( ObjectInstanceID hid, ui8 formation )
 	return true;
 }
 
-bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, TPlayerColor player)
+bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor player)
 {
 	const PlayerState *p = gs->getPlayer(player);
 	const CGTownInstance *t = gs->getTown(obj->id);
+	static const int GOLD_NEEDED = 2500;
 
 	//common preconditions
-	if( (p->resources[Res::GOLD]<2500  && complain("Not enough gold for buying hero!"))
+	if( (p->resources[Res::GOLD]<GOLD_NEEDED  && complain("Not enough gold for buying hero!"))
 		|| (getHeroCount(player, false) >= GameConstants::MAX_HEROES_PER_PLAYER && complain("Cannot hire hero, only 8 wandering heroes are allowed!")))
 		return false;
 
@@ -3264,7 +3265,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, TPlayerColor p
 	SetResource sr;
 	sr.player = player;
 	sr.resid = Res::GOLD;
-	sr.val = p->resources[Res::GOLD] - 2500;
+	sr.val = p->resources[Res::GOLD] - GOLD_NEEDED;
 	sendAndApply(&sr);
 
 	if(t)
@@ -3275,7 +3276,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, TPlayerColor p
 	return true;
 }
 
-bool CGameHandler::queryReply(ui32 qid, ui32 answer, TPlayerColor player)
+bool CGameHandler::queryReply(ui32 qid, ui32 answer, PlayerColor player)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 	states.removeQuery(player, qid);
@@ -3396,7 +3397,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case Battle::SURRENDER:
 		{
-			int player = gs->curB->sides[ba.side];
+			PlayerColor player = gs->curB->sides[ba.side];
 			int cost = gs->curB->battleGetSurrenderCost(player);
 			if(cost < 0)
 				complain("Cannot surrender!");
@@ -3780,10 +3781,10 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	return ok;
 }
 
-void CGameHandler::playerMessage( TPlayerColor player, const std::string &message )
+void CGameHandler::playerMessage( PlayerColor player, const std::string &message )
 {
 	bool cheated=true;
-	PlayerMessage temp_message(player,message);
+	PlayerMessage temp_message(player, message);
 
 	sendAndApply(&temp_message);
 	if(message == "vcmiistari") //give all spells and 999 mana
@@ -3924,7 +3925,7 @@ void CGameHandler::playerMessage( TPlayerColor player, const std::string &messag
 	}
 }
 
-void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex destination, ui8 casterSide, TPlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
+void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex destination, ui8 casterSide, PlayerColor casterColor, const CGHeroInstance * caster, const CGHeroInstance * secHero,
 	int usedSpellPower, ECastingMode::ECastingMode mode, const CStack * stack, si32 selectedStack)
 {
 	const CSpell *spell = SpellID(spellID).toSpell();
@@ -4415,7 +4416,7 @@ void CGameHandler::handleSpellCasting( SpellID spellID, int spellLvl, BattleHex 
 				std::vector<CStack *> & battleStacks = gs->curB->stacks;
 				for (size_t j = 0; j < battleStacks.size(); ++j)
 				{
-					if(battleStacks[j]->owner == casterSide) //get enemy stacks which can be affected by this spell
+					if(battleStacks[j]->owner == gs->curB->sides[casterSide]) //get enemy stacks which can be affected by this spell
 					{
 						if (!gs->curB->battleIsImmune(NULL, spell, ECastingMode::MAGIC_MIRROR, battleStacks[j]->position))
 							mirrorTargets.push_back(battleStacks[j]);
@@ -4705,9 +4706,9 @@ void CGameHandler::handleTimeEvents()
 	while(gs->map->events.size() && gs->map->events.front().firstOccurence+1 == gs->day)
 	{
 		CMapEvent ev = gs->map->events.front();
-		for(int player = 0; player < GameConstants::PLAYER_LIMIT; player++)
+		for(int player = 0; player < PlayerColor::PLAYER_LIMIT_I; player++)
 		{
-			PlayerState *pinfo = gs->getPlayer(player);
+			PlayerState *pinfo = gs->getPlayer(PlayerColor(player));
 
 			if( pinfo  //player exists
 				&& (ev.players & 1<<player) //event is enabled to this player
@@ -4718,12 +4719,12 @@ void CGameHandler::handleTimeEvents()
 			{
 				//give resources
 				SetResources sr;
-				sr.player = player;
+				sr.player = PlayerColor(player);
 				sr.res = pinfo->resources + ev.resources;
 
 				//prepare dialog
 				InfoWindow iw;
-				iw.player = player;
+				iw.player = PlayerColor(player);
 				iw.text << ev.message;
 
 				for (int i=0; i<ev.resources.size(); i++)
@@ -4769,12 +4770,12 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<
 	town->events.sort(evntCmp);
 	while(town->events.size() && town->events.front().firstOccurence == gs->day)
 	{
-		ui8 player = town->tempOwner;
+		PlayerColor player = town->tempOwner;
 		CCastleEvent ev = town->events.front();
 		PlayerState *pinfo = gs->getPlayer(player);
 
 		if( pinfo  //player exists
-			&& (ev.players & 1<<player) //event is enabled to this player
+			&& (ev.players & 1<<player.getNum()) //event is enabled to this player
 			&& ((ev.computerAffected && !pinfo->human)
 				|| (ev.humanAffected && pinfo->human) ) )
 		{
@@ -4848,7 +4849,7 @@ bool CGameHandler::complain( const std::string &problem )
 	return true;
 }
 
-ui32 CGameHandler::getQueryResult( TPlayerColor player, int queryID )
+ui32 CGameHandler::getQueryResult( PlayerColor player, int queryID )
 {
 	//TODO: write
 	return 0;
@@ -4856,7 +4857,7 @@ ui32 CGameHandler::getQueryResult( TPlayerColor player, int queryID )
 
 void CGameHandler::showGarrisonDialog( ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const boost::function<void()> &cb )
 {
-	ui8 player = getOwner(hid);
+	PlayerColor player = getOwner(hid);
 	GarrisonDialog gd;
 	gd.hid = hid;
 	gd.objid = upobj;
@@ -4881,11 +4882,11 @@ void CGameHandler::showGarrisonDialog( ObjectInstanceID upobj, ObjectInstanceID 
 	}
 }
 
-void CGameHandler::showThievesGuildWindow(TPlayerColor player, ObjectInstanceID requestingObjId)
+void CGameHandler::showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId)
 {
 	OpenWindow ow;
 	ow.window = OpenWindow::THIEVES_GUILD;
-	ow.id1 = player;
+	ow.id1 = player.getNum();
 	ow.id2 = requestingObjId.getNum();
 	sendAndApply(&ow);
 }
@@ -4974,7 +4975,7 @@ bool CGameHandler::buildBoat( ObjectInstanceID objid )
 		return false;
 	}
 
-	const TPlayerColor playerID = obj->o->tempOwner;
+	const PlayerColor playerID = obj->o->tempOwner;
 	TResources boatCost;
 	obj->getBoatCost(boatCost);
 	TResources aviable = gs->getPlayer(playerID)->resources;
@@ -5008,7 +5009,7 @@ bool CGameHandler::buildBoat( ObjectInstanceID objid )
 	return true;
 }
 
-void CGameHandler::engageIntoBattle( ui8 player )
+void CGameHandler::engageIntoBattle( PlayerColor player )
 {
 	if(vstd::contains(states.players, player))
 		states.setFlag(player,&PlayerStatus::engagedIntoBattle,true);
@@ -5023,16 +5024,16 @@ void CGameHandler::engageIntoBattle( ui8 player )
 void CGameHandler::winLoseHandle(ui8 players )
 {
 
-	for(size_t i = 0; i < GameConstants::PLAYER_LIMIT; i++)
+	for(size_t i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
 	{
-		if(players & 1<<i  &&  gs->getPlayer(i))
+		if(players & 1<<i  &&  gs->getPlayer(PlayerColor(i)))
 		{
-			checkLossVictory(i);
+			checkLossVictory(PlayerColor(i));
 		}
 	}
 }
 
-void CGameHandler::checkLossVictory( TPlayerColor player )
+void CGameHandler::checkLossVictory( PlayerColor player )
 {
 	const PlayerState *p = gs->getPlayer(player);
 	if(p->status) //player already won / lost
@@ -5060,7 +5061,7 @@ void CGameHandler::checkLossVictory( TPlayerColor player )
 
 		for (auto i = gs->players.cbegin(); i!=gs->players.cend(); i++)
 		{
-			if(i->first < GameConstants::PLAYER_LIMIT && i->first != player)//FIXME: skip already eliminated players?
+			if(i->first < PlayerColor::PLAYER_LIMIT && i->first != player)//FIXME: skip already eliminated players?
 			{
 				iw.player = i->first;
 				sendAndApply(&iw);
@@ -5080,11 +5081,11 @@ void CGameHandler::checkLossVictory( TPlayerColor player )
 		for (auto i = gs->map->objects.cbegin(); i != gs->map->objects.cend(); i++) //unflag objs
 		{
 			if(*i  &&  (*i)->tempOwner == player)
-				setOwner(*i,GameConstants::NEUTRAL_PLAYER);
+				setOwner(*i,PlayerColor::NEUTRAL);
 		}
 
 		//eliminating one player may cause victory of another:
-		winLoseHandle(GameConstants::ALL_PLAYERS & ~(1<<player));
+		winLoseHandle(GameConstants::ALL_PLAYERS & ~(1<<player.getNum()));
 	}
 
 	if(vic && p->human)
@@ -5121,7 +5122,7 @@ void CGameHandler::checkLossVictory( TPlayerColor player )
 	}
 }
 
-void CGameHandler::getLossVicMessage( TPlayerColor player, si8 standard, bool victory, InfoWindow &out ) const
+void CGameHandler::getLossVicMessage( PlayerColor player, si8 standard, bool victory, InfoWindow &out ) const
 {
 //	const PlayerState *p = gs->getPlayer(player);
 // 	if(!p->human)
@@ -5220,8 +5221,8 @@ void CGameHandler::getLossVicMessage( TPlayerColor player, si8 standard, bool vi
 		else if(standard == 2)
 		{
 			out.text.addTxt(MetaString::GENERAL_TXT, 7);//%s, your heroes abandon you, and you are banished from this land.
-			out.text.addReplacement(MetaString::COLOR, player);
-			out.components.push_back(Component(Component::FLAG,player,0,0));
+			out.text.addReplacement(MetaString::COLOR, player.getNum());
+			out.components.push_back(Component(Component::FLAG, player.getNum(), 0, 0));
 		}
 		else //lost all towns and heroes
 		{
@@ -6181,7 +6182,7 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	}
 }
 
-bool CGameHandler::isBlockedByQueries(const CPack *pack, int packType, TPlayerColor player)
+bool CGameHandler::isBlockedByQueries(const CPack *pack, int packType, PlayerColor player)
 {
 	//it's always legal to send query reply (we'll check later if it makes sense)
 	if(packType == typeList.getTypeID<QueryReply>())
@@ -6218,9 +6219,9 @@ CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleI
 {
 	heroWithDeadCommander = ObjectInstanceID();
 
-	int color = army->tempOwner;
-	if(color == GameConstants::UNFLAGGABLE_PLAYER)
-		color = GameConstants::NEUTRAL_PLAYER;
+	PlayerColor color = army->tempOwner;
+	if(color == PlayerColor::UNFLAGGABLE)
+		color = PlayerColor::NEUTRAL;
 
 	BOOST_FOREACH(CStack *st, bat->stacks)
 	{

@@ -114,11 +114,11 @@ public:
 	virtual void initObj(); //synchr
 	virtual void setProperty(ui8 what, ui32 val);//synchr
 //unified interface, AI helpers
-	virtual bool wasVisited (ui8 player) const;
+	virtual bool wasVisited (PlayerColor player) const;
 	virtual bool wasVisited (const CGHeroInstance * h) const;
 
 	static void preInit(); //called before objs receive their initObj
-	static void postInit();//caleed after objs receive their initObj
+	static void postInit();//called after objs receive their initObj
 };
 
 class DLL_LINKAGE IBoatGenerator
@@ -173,15 +173,15 @@ public:
 	ObjectInstanceID id;//number of object in map's vector
 	CGDefInfo * defInfo;
 
-	TPlayerColor tempOwner;
+	PlayerColor tempOwner;
 	bool blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
 
 	virtual ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
 	virtual int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	virtual int getSightRadious() const; //sight distance (should be used if player-owned structure)
 	void getSightTiles(boost::unordered_set<int3, ShashInt3> &tiles) const; //returns reference to the set
-	int getOwner() const;
-	void setOwner(int ow);
+	PlayerColor getOwner() const;
+	void setOwner(PlayerColor ow);
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
 	bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
@@ -193,7 +193,7 @@ public:
 	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
 	bool isVisitable() const; //returns true if object is visitable
 	bool operator<(const CGObjectInstance & cmp) const;  //screen printing priority comparing
-	void hideTiles(TPlayerColor ourplayer, int radius) const;
+	void hideTiles(PlayerColor ourplayer, int radius) const;
 	CGObjectInstance();
 	virtual ~CGObjectInstance();
 	//CGObjectInstance(const CGObjectInstance & right);
@@ -235,9 +235,10 @@ public:
 class DLL_LINKAGE CPlayersVisited: public CGObjectInstance
 {
 public:
-	std::set<TPlayerColor> players; //players that visited this object
+	std::set<PlayerColor> players; //players that visited this object
 
-	bool wasVisited(TPlayerColor player) const;
+	bool wasVisited(PlayerColor player) const;
+	bool wasVisited(TeamID team) const;
 	void setPropertyDer(ui8 what, ui32 val) override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -435,7 +436,7 @@ class DLL_LINKAGE CSpecObjInfo
 {
 public:
 	virtual ~CSpecObjInfo(){};
-	ui8 player; //owner
+	PlayerColor player; //owner
 };
 
 class DLL_LINKAGE CCreGenAsCastleInfo : public virtual CSpecObjInfo
@@ -654,7 +655,7 @@ public:
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 	bool armedGarrison() const; //true if town has creatures in garrison or garrisoned hero
 
-	void removeCapitols (ui8 owner) const;
+	void removeCapitols (PlayerColor owner) const;
 	void addHeroToStructureVisitors(const CGHeroInstance *h, si32 structureInstanceID) const; //hero must be visiting or garrisoned in town
 
 	CGTownInstance();
@@ -928,7 +929,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
 
-	void collectRes(int player) const;
+	void collectRes(PlayerColor player) const;
 	void fightForRes(ui32 agreed, const CGHeroInstance *h) const;
 	void endBattle(BattleResult *result, const CGHeroInstance *h) const;
 
@@ -977,12 +978,12 @@ public:
 	ui32 producedQuantity;
 
 	void offerLeavingGuards(const CGHeroInstance *h) const;
-	void endBattle(BattleResult *result, TPlayerColor attackingPlayer) const;
+	void endBattle(BattleResult *result, PlayerColor attackingPlayer) const;
 	void fight(ui32 agreed, const CGHeroInstance *h) const;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
-	void flagMine(TPlayerColor player) const;
+	void flagMine(PlayerColor player) const;
 	void newTurn() const override;
 	void initObj() override;
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -998,7 +999,7 @@ class DLL_LINKAGE CGVisitableOPW : public CGObjectInstance //objects visitable O
 public:
 	ui8 visited; //true if object has been visited this week
 
-	bool wasVisited(TPlayerColor player) const;
+	bool wasVisited(PlayerColor player) const;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void newTurn() const override;
 
@@ -1094,11 +1095,11 @@ public:
 class DLL_LINKAGE CGKeys : public CGObjectInstance //Base class for Keymaster and guards
 {
 public:
-	static std::map <TPlayerColor, std::set <ui8> > playerKeyMap; //[players][keysowned]
+	static std::map <PlayerColor, std::set <ui8> > playerKeyMap; //[players][keysowned]
 	//SubID 0 - lightblue, 1 - green, 2 - red, 3 - darkblue, 4 - brown, 5 - purple, 6 - white, 7 - black
 
 	const std::string getName() const; //depending on color
-	bool wasMyColorVisited (TPlayerColor player) const;
+	bool wasMyColorVisited (PlayerColor player) const;
 
 	const std::string & getHoverText() const override;
 
@@ -1113,7 +1114,7 @@ protected:
 class DLL_LINKAGE CGKeymasterTent : public CGKeys
 {
 public:
-	bool wasVisited (TPlayerColor player) const;
+	bool wasVisited (PlayerColor player) const;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -1211,7 +1212,7 @@ class DLL_LINKAGE CBank : public CArmedInstance
 	void initialize() const;
 	void reset(ui16 var1);
 	void newTurn() const override;
-	bool wasVisited (TPlayerColor player) const override;
+	bool wasVisited (PlayerColor player) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 
 	virtual void fightGuards (const CGHeroInstance *h, ui32 accept) const;
@@ -1290,7 +1291,7 @@ class DLL_LINKAGE CGObelisk : public CPlayersVisited
 {
 public:
 	static ui8 obeliskCount; //how many obelisks are on map
-	static std::map<TTeamID, ui8> visited; //map: team_id => how many obelisks has been visited
+	static std::map<TeamID, ui8> visited; //map: team_id => how many obelisks has been visited
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
@@ -1315,7 +1316,7 @@ public:
 	{
 		h & static_cast<CGObjectInstance&>(*this);
 	}
-	void giveBonusTo( ui8 player ) const;
+	void giveBonusTo( PlayerColor player ) const;
 };
 
 class DLL_LINKAGE CGMarket : public CGObjectInstance, public IMarket

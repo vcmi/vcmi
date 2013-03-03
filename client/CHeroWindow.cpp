@@ -98,7 +98,7 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 	curHero = hero;
 	listSelection = nullptr;
 
-	new CAnimImage("CREST58", LOCPLINT->playerID, 0, 606, 8);
+	new CAnimImage("CREST58", LOCPLINT->playerID.getNum(), 0, 606, 8);
 
 	//artifs = new CArtifactsOfHero(pos.topLeft(), true);
 	ourBar = new CGStatusBar(7, 559, "ADROLLVR.bmp", 660); // new CStatusBar(pos.x+72, pos.y+567, "ADROLLVR.bmp", 660);

@@ -176,7 +176,7 @@ namespace CSDL_Ext
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color);
 	void drawBorder(SDL_Surface * sur, const SDL_Rect &r, const int3 &color);
 	void drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &color);
-	void setPlayerColor(SDL_Surface * sur, ui8 player); //sets correct color of flags; -1 for neutral
+	void setPlayerColor(SDL_Surface * sur, PlayerColor player); //sets correct color of flags; -1 for neutral
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
 	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=screen); //creates new surface, with flags/format same as in surface given
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface

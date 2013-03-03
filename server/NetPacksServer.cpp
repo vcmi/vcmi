@@ -21,7 +21,7 @@
 		return false;} while(0)
 
 #define WRONG_PLAYER_MSG(expectedplayer) do {std::ostringstream oss;\
-			oss << "You were identified as player " << (int)gh->getPlayerAt(c) << " while expecting " << (int)expectedplayer;\
+			oss << "You were identified as player " << gh->getPlayerAt(c) << " while expecting " << expectedplayer;\
 			tlog1 << oss.str() << std::endl; \
 			if(c) { SystemMessage temp_message(oss.str()); boost::unique_lock<boost::mutex> lock(*c->wmx); *c << &temp_message; } } while(0)
 
@@ -67,7 +67,7 @@ bool CloseServer::applyGh( CGameHandler *gh )
 
 bool EndTurn::applyGh( CGameHandler *gh )
 {
-	int player = GS(gh)->currentPlayer;
+	PlayerColor player = GS(gh)->currentPlayer;
 	ERROR_IF_NOT(player);
 	if(gh->states.checkFlag(player, &PlayerStatus::engagedIntoBattle))
 		COMPLAIN_AND_RETURN("Cannot end turn when in battle!");
@@ -158,12 +158,12 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 	if(!m)
 		COMPLAIN_AND_RETURN("market is not-a-market! :/");
 
-	ui8 player = market->tempOwner;
+	PlayerColor player = market->tempOwner;
 
-	if(player >= GameConstants::PLAYER_LIMIT)
+	if(player >= PlayerColor::PLAYER_LIMIT)
 		player = gh->getTile(market->visitablePos())->visitableObjects.back()->tempOwner;
 
-	if(player >= GameConstants::PLAYER_LIMIT)
+	if(player >= PlayerColor::PLAYER_LIMIT)
 		COMPLAIN_AND_RETURN("No player can use this market!");
 
 	if(hero && (player != hero->tempOwner || hero->visitablePos() != market->visitablePos()))
@@ -176,7 +176,7 @@ bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 	case EMarketMode::RESOURCE_RESOURCE:
 		return gh->tradeResources(m, val, player, r1, r2);
 	case EMarketMode::RESOURCE_PLAYER:
-		return gh->sendResources(val, player, static_cast<Res::ERes>(r1), static_cast<TPlayerColor>(r2));
+		return gh->sendResources(val, player, static_cast<Res::ERes>(r1), PlayerColor(r2));
 	case EMarketMode::CREATURE_RESOURCE:
 		if(!hero)
 			COMPLAIN_AND_RETURN("Only hero can sell creatures!");

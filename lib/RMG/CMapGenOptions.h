@@ -92,14 +92,14 @@ public:
 	 * Gets the count of the players. The default value is RANDOM_SIZE representing a random
 	 * player count.
 	 *
-	 * @return the count of the players ranging from 1 to GameConstants::PLAYER_LIMIT or RANDOM_SIZE for random
+	 * @return the count of the players ranging from 1 to PlayerColor::PLAYER_LIMIT or RANDOM_SIZE for random
 	 */
 	si8 getPlayersCnt() const;
 
 	/**
 	 * Sets the count of the players.
 	 *
-	 * @param value the count of the players ranging from 1 to GameConstants::PLAYER_LIMIT, RANDOM_SIZE for random
+	 * @param value the count of the players ranging from 1 to PlayerColor::PLAYER_LIMIT, RANDOM_SIZE for random
 	 */
 	void setPlayersCnt(si8 value);
 
@@ -121,14 +121,14 @@ public:
 	/**
 	 * Gets the count of the computer only players. The default value is 0.
 	 *
-	 * @return the count of the computer only players ranging from 0 to <GameConstants::PLAYER_LIMIT - players count> or RANDOM_SIZE for random
+	 * @return the count of the computer only players ranging from 0 to <PlayerColor::PLAYER_LIMIT - players count> or RANDOM_SIZE for random
 	 */
 	si8 getCompOnlyPlayersCnt() const;
 
 	/**
 	 * Sets the count of the computer only players.
 	 *
-	 * @param value the count of the computer only players ranging from 0 to <GameConstants::PLAYER_LIMIT - players count>, RANDOM_SIZE for random
+	 * @param value the count of the computer only players ranging from 0 to <PlayerColor::PLAYER_LIMIT - players count>, RANDOM_SIZE for random
 	 */
 	void setCompOnlyPlayersCnt(si8 value);
 

@@ -74,7 +74,7 @@ public:
 	void loadHeroAnims();
 	CDefEssential *  loadHeroAnim(const std::string &name, const std::vector<std::pair<int,int> > &rotations);
 	void loadErmuToPicture();
-	void blueToPlayersAdv(SDL_Surface * sur, int player); //replaces blue interface colour with a color of player
+	void blueToPlayersAdv(SDL_Surface * sur, PlayerColor player); //replaces blue interface colour with a color of player
 	void loadFonts();
 };
 

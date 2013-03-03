@@ -11,7 +11,7 @@
 #include "../CTownHandler.h"
 #include "../StringConstants.h"
 
-CMapGenerator::CMapGenerator(const CMapGenOptions & mapGenOptions, const std::map<TPlayerColor, CPlayerSettings> & players, int randomSeed) :
+CMapGenerator::CMapGenerator(const CMapGenOptions & mapGenOptions, const std::map<PlayerColor, CPlayerSettings> & players, int randomSeed) :
 	mapGenOptions(mapGenOptions), randomSeed(randomSeed), players(players)
 {
 	gen.seed(randomSeed);
@@ -57,10 +57,10 @@ void CMapGenerator::validateOptions() const
 	}
 	if(mapGenOptions.getPlayersCnt() == CMapGenOptions::RANDOM_SIZE)
 	{
-		if(playersCnt != GameConstants::PLAYER_LIMIT)
+		if(playersCnt != PlayerColor::PLAYER_LIMIT_I)
 		{
 			throw std::runtime_error(std::string("If the count of players is random size, ")
-				+ "the count of the items in the players map should equal GameConstants::PLAYER_LIMIT.");
+				+ "the count of the items in the players map should equal PlayerColor::PLAYER_LIMIT.");
 		}
 		if(playersCnt == mapGenOptions.getPlayersCnt())
 		{
@@ -81,10 +81,10 @@ void CMapGenerator::validateOptions() const
 		else
 		{
 			if(playersCnt != mapGenOptions.getPlayersCnt() || (playersCnt == mapGenOptions.getPlayersCnt()
-				&& compOnlyPlayersCnt != GameConstants::PLAYER_LIMIT - playersCnt))
+				&& compOnlyPlayersCnt != PlayerColor::PLAYER_LIMIT_I - playersCnt))
 			{
 				throw std::runtime_error(std::string("If the count of players is fixed and the count of comp only players random, ")
-					+ "the items in the players map should equal GameConstants::PLAYER_LIMIT.");
+					+ "the items in the players map should equal PlayerColor::PLAYER_LIMIT.");
 			}
 		}
 	}
@@ -107,7 +107,7 @@ void CMapGenerator::finalizeMapGenOptions()
 {
 	if(mapGenOptions.getPlayersCnt() == CMapGenOptions::RANDOM_SIZE)
 	{
-		mapGenOptions.setPlayersCnt(gen.getInteger(countHumanPlayers(), GameConstants::PLAYER_LIMIT));
+		mapGenOptions.setPlayersCnt(gen.getInteger(countHumanPlayers(), PlayerColor::PLAYER_LIMIT_I));
 
 		// Remove AI players only from the end of the players map if necessary
 		for(auto itrev = players.end(); itrev != players.begin();)
@@ -217,11 +217,11 @@ std::string CMapGenerator::getMapDescription() const
 		const CPlayerSettings & pSettings = pair.second;
 		if(pSettings.getPlayerType() == CPlayerSettings::HUMAN)
 		{
-			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor()] << " is human";
+			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()] << " is human";
 		}
 		if(pSettings.getStartingTown() != CPlayerSettings::RANDOM_TOWN)
 		{
-			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor()]
+			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()]
 				<< " town choice is " << ETownType::names[pSettings.getStartingTown()];
 		}
 	}
@@ -276,9 +276,9 @@ void CMapGenerator::addPlayerInfo()
 			player.canHumanPlay = true;
 		}
 		auto itTeam = std::next(teamNumbers[j].begin(), gen.getInteger(0, teamNumbers[j].size() - 1));
-		player.team = *itTeam;
+		player.team = TeamID(*itTeam);
 		teamNumbers[j].erase(itTeam);
-		map->players[pSettings.getColor()] = player;
+		map->players[pSettings.getColor().getNum()] = player;
 	}
 
 	map->howManyTeams = (mapGenOptions.getTeamsCnt() == 0 ? mapGenOptions.getPlayersCnt() : mapGenOptions.getTeamsCnt())
@@ -287,7 +287,7 @@ void CMapGenerator::addPlayerInfo()
 
 int CMapGenerator::countHumanPlayers() const
 {
-	return static_cast<int>(boost::count_if(players, [](const std::pair<TPlayerColor, CPlayerSettings> & pair)
+	return static_cast<int>(boost::count_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & pair)
 	{
 		return pair.second.getPlayerType() == CMapGenerator::CPlayerSettings::HUMAN;
 	}));
@@ -308,7 +308,7 @@ void CMapGenerator::genTowns()
 
 	for(auto it = players.begin(); it != players.end(); ++it)
 	{
-		TPlayerColor owner = it->first;
+		PlayerColor owner = it->first;
 		int pos = std::distance(players.begin(), it);
 		int side = pos % 2;
 		CGTownInstance * town = new CGTownInstance();
@@ -321,7 +321,7 @@ void CMapGenerator::genTowns()
 		mapMgr->insertObject(town, townPos[side].x, townPos[side].y + (pos / 2) * 5, false);
 
 		// Update player info
-		PlayerInfo & pInfo = map->players[owner];
+		PlayerInfo & pInfo = map->players[owner.getNum()];
 		pInfo.allowedFactions.clear();
 		pInfo.allowedFactions.insert(townTypes[side]);
 		pInfo.hasMainTown = true;
@@ -342,9 +342,9 @@ void CMapGenerator::addHeaderInfo()
 	addPlayerInfo();
 }
 
-TPlayerColor CMapGenerator::getNextPlayerColor() const
+PlayerColor CMapGenerator::getNextPlayerColor() const
 {
-	for(TPlayerColor i = 0; i < GameConstants::PLAYER_LIMIT; ++i)
+	for(PlayerColor i = PlayerColor(0); i < PlayerColor::PLAYER_LIMIT; i.advance(1))
 	{
 		if(!players.count(i))
 		{
@@ -359,15 +359,15 @@ CMapGenerator::CPlayerSettings::CPlayerSettings() : color(0), startingTown(RANDO
 
 }
 
-int CMapGenerator::CPlayerSettings::getColor() const
+PlayerColor CMapGenerator::CPlayerSettings::getColor() const
 {
 	return color;
 }
 
 
-void CMapGenerator::CPlayerSettings::setColor(int value)
+void CMapGenerator::CPlayerSettings::setColor(PlayerColor value)
 {
-	if(value >= 0 && value < GameConstants::PLAYER_LIMIT)
+	if(value >= PlayerColor(0) && value < PlayerColor::PLAYER_LIMIT)
 	{
 		color = value;
 	}

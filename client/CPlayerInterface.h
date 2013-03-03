@@ -179,8 +179,8 @@ public:
 	void centerView (int3 pos, int focusTime) OVERRIDE;
 	void objectPropertyChanged(const SetObjectProperty * sop) OVERRIDE;
 	void objectRemoved(const CGObjectInstance *obj) OVERRIDE;
-	void gameOver(ui8 player, bool victory) OVERRIDE;
-	void playerStartsTurn(ui8 player) OVERRIDE; //called before yourTurn on active itnerface
+	void gameOver(PlayerColor player, bool victory) OVERRIDE;
+	void playerStartsTurn(PlayerColor player) OVERRIDE; //called before yourTurn on active itnerface
 	void showComp(const Component &comp, std::string message) OVERRIDE; //display component in the advmapint infobox
 	void serialize(COSer<CSaveFile> &h, const int version) OVERRIDE; //saving
 	void serialize(CISer<CLoadFile> &h, const int version) OVERRIDE; //loading
@@ -242,7 +242,7 @@ public:
 	void sendCustomEvent(int code);
 	void proposeLoadingGame();
 
-	CPlayerInterface(int Player);//c-tor
+	CPlayerInterface(PlayerColor Player);//c-tor
 	~CPlayerInterface();//d-tor
 
 	static CondSh<bool> terminate_cond; // confirm termination

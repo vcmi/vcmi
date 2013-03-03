@@ -644,11 +644,11 @@ bool CGarrisonInt::getSplittingMode()
 
 void CGarrisonInt::setArmy(const CArmedInstance *army, bool bottomGarrison)
 {
-	owned[bottomGarrison] =  army ? (army->tempOwner == LOCPLINT->playerID || army->tempOwner == GameConstants::UNFLAGGABLE_PLAYER) : false;
+	owned[bottomGarrison] =  army ? (army->tempOwner == LOCPLINT->playerID || army->tempOwner == PlayerColor::UNFLAGGABLE) : false;
 	armedObjs[bottomGarrison] = army;
 }
 
-CInfoWindow::CInfoWindow(std::string Text, int player, const TCompsInfo &comps, const TButtonsInfo &Buttons, bool delComps)
+CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo &comps, const TButtonsInfo &Buttons, bool delComps)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
@@ -721,7 +721,7 @@ void CInfoWindow::showAll(SDL_Surface * to)
 	CIntObject::showAll(to);
 }
 
-void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<CComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps, int player)
+void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<CComponent*> *components, const CFunctionList<void( ) > &onYes, const CFunctionList<void()> &onNo, bool DelComps, PlayerColor player)
 {
 	assert(!LOCPLINT || LOCPLINT->showingDialog->get());
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
@@ -736,7 +736,7 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<CC
 	GH.pushInt(temp);
 }
 
-CInfoWindow * CInfoWindow::create(const std::string &text, int playerID /*= 1*/, const std::vector<CComponent*> *components /*= NULL*/, bool DelComps)
+CInfoWindow * CInfoWindow::create(const std::string &text, PlayerColor playerID /*= 1*/, const std::vector<CComponent*> *components /*= NULL*/, bool DelComps)
 {
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
@@ -1262,7 +1262,7 @@ void CSelWindow::selectionChange(unsigned to)
 	redraw();
 }
 
-CSelWindow::CSelWindow(const std::string &Text, int player, int charperline, const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, int askID)
+CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperline, const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, int askID)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ID = askID;
@@ -2360,8 +2360,8 @@ std::vector<int> *CTradeWindow::getItemsIds(bool Left)
 		{
 		case PLAYER:
 			ids = new std::vector<int>;
-			for(int i = 0; i < GameConstants::PLAYER_LIMIT; i++)
-				if(i != LOCPLINT->playerID && LOCPLINT->cb->getPlayerStatus(i) == EPlayerStatus::INGAME)
+			for(int i = 0; i < PlayerColor::PLAYER_LIMIT_I; i++)
+				if(PlayerColor(i) != LOCPLINT->playerID && LOCPLINT->cb->getPlayerStatus(PlayerColor(i)) == EPlayerStatus::INGAME)
 					ids->push_back(i);
 			break;
 
@@ -4028,7 +4028,7 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 	}
 	new CLabel(275, 30, FONT_BIG, CENTER, Colors::YELLOW, titleText);
 
-	new CAnimImage("CREST58", garr->armedObjs[0]->getOwner(), 0, 28, 124);
+	new CAnimImage("CREST58", garr->armedObjs[0]->getOwner().getNum(), 0, 28, 124);
 	new CAnimImage("PortraitsLarge", dynamic_cast<const CGHeroInstance*>(garr->armedObjs[1])->portrait, 0, 29, 222);
 }
 
@@ -5737,7 +5737,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 
 	//data for information table:
 	// fields[row][column] = list of id's of players for this box
-	static std::vector< std::vector< TPlayerColor > > SThievesGuildInfo::* fields[] =
+	static std::vector< std::vector< PlayerColor > > SThievesGuildInfo::* fields[] =
 		{ &SThievesGuildInfo::numOfTowns, &SThievesGuildInfo::numOfHeroes,       &SThievesGuildInfo::gold,
 		  &SThievesGuildInfo::woodOre,    &SThievesGuildInfo::mercSulfCrystGems, &SThievesGuildInfo::obelisks,
 		  &SThievesGuildInfo::artifacts,  &SThievesGuildInfo::army,              &SThievesGuildInfo::income };
@@ -5769,7 +5769,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	{
 		for(int b=0; b<(tgi .* fields[g]).size(); ++b) //by places (1st, 2nd, ...)
 		{
-			std::vector<TPlayerColor> &players = (tgi .* fields[g])[b]; //get players with this place in this line
+			std::vector<PlayerColor> &players = (tgi .* fields[g])[b]; //get players with this place in this line
 
 			//position of box
 			int xpos = 259 + 66 * b;
@@ -5788,7 +5788,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 
 				for (size_t i=0; i< rowLength[j]; i++)
 				{
-					new CAnimImage("itgflags", players[i + j*4], 0, rowStartX + i*12, rowStartY);
+					new CAnimImage("itgflags", players[i + j*4].getNum(), 0, rowStartX + i*12, rowStartY);
 				}
 			}
 		}
@@ -5802,7 +5802,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 	{
 		if(iter.second.portrait >= 0)
 		{
-			new CPicture(colorToBox[iter.first], 253 + 66 * counter, 334);
+			new CPicture(colorToBox[iter.first.getNum()], 253 + 66 * counter, 334);
 			new CAnimImage("PortraitsSmall", iter.second.portrait, 0, 260 + 66 * counter, 360);
 			//TODO: r-click info:
 			// - r-click on hero
@@ -6005,7 +6005,7 @@ void CRClickPopup::close()
 
 void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCompsInfo &comps)
 {
-	int player = LOCPLINT ? LOCPLINT->playerID : 1; //if no player, then use blue
+	PlayerColor player = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1); //if no player, then use blue
 
 	CSimpleWindow * temp = new CInfoWindow(txt, player, comps);
 	temp->center(Point(GH.current->motion)); //center on mouse

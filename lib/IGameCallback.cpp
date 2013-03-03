@@ -44,14 +44,14 @@ CGameState * CPrivilagedInfoCallback::gameState ()
 	return gs;
 }
 
-TPlayerColor CGameInfoCallback::getOwner(ObjectInstanceID heroID) const
+PlayerColor CGameInfoCallback::getOwner(ObjectInstanceID heroID) const
 {
 	const CGObjectInstance *obj = getObj(heroID);
-	ERROR_RET_VAL_IF(!obj, "No such object!", -1);
+	ERROR_RET_VAL_IF(!obj, "No such object!", PlayerColor::CANNOT_DETERMINE);
 	return obj->tempOwner;
 }
 
-int CGameInfoCallback::getResource(TPlayerColor Player, Res::ERes which) const
+int CGameInfoCallback::getResource(PlayerColor Player, Res::ERes which) const
 {
 	const PlayerState *p = getPlayer(Player);
 	ERROR_RET_VAL_IF(!p, "No player info!", -1);
@@ -59,7 +59,7 @@ int CGameInfoCallback::getResource(TPlayerColor Player, Res::ERes which) const
 	return p->resources[which];
 }
 
-const CGHeroInstance* CGameInfoCallback::getSelectedHero( TPlayerColor Player ) const
+const CGHeroInstance* CGameInfoCallback::getSelectedHero( PlayerColor Player ) const
 {
 	const PlayerState *p = getPlayer(Player);
 	ERROR_RET_VAL_IF(!p, "No player info!", NULL);
@@ -71,14 +71,14 @@ const CGHeroInstance* CGameInfoCallback::getSelectedHero() const
 	return getSelectedHero(gs->currentPlayer);
 }
 
-const PlayerSettings * CGameInfoCallback::getPlayerSettings(TPlayerColor color) const
+const PlayerSettings * CGameInfoCallback::getPlayerSettings(PlayerColor color) const
 {
 	return &gs->scenarioOps->getIthPlayersSettings(color);
 }
 
-void CPrivilagedInfoCallback::getTilesInRange( boost::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, int player/*=-1*/, int mode/*=0*/ ) const
+void CPrivilagedInfoCallback::getTilesInRange( boost::unordered_set<int3, ShashInt3> &tiles, int3 pos, int radious, boost::optional<PlayerColor> player/*=uninit*/, int mode/*=0*/ ) const
 {
-	if(player >= GameConstants::PLAYER_LIMIT)
+	if(!!player && *player >= PlayerColor::PLAYER_LIMIT)
 	{
 		tlog1 << "Illegal call to getTilesInRange!\n";
 		return;
@@ -87,7 +87,7 @@ void CPrivilagedInfoCallback::getTilesInRange( boost::unordered_set<int3, ShashI
 		getAllTiles (tiles, player, -1, 0);
 	else
 	{
-		const TeamState * team = gs->getPlayerTeam(player);
+		const TeamState * team = !player ? NULL : gs->getPlayerTeam(*player);
 		for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, gs->map->width - 1); xd++)
 		{
 			for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gs->map->height - 1); yd++)
@@ -95,7 +95,7 @@ void CPrivilagedInfoCallback::getTilesInRange( boost::unordered_set<int3, ShashI
 				double distance = pos.dist2d(int3(xd,yd,pos.z)) - 0.5;
 				if(distance <= radious)
 				{
-					if(player < 0
+					if(!player
 						|| (mode == 1  && team->fogOfWarMap[xd][yd][pos.z]==0)
 						|| (mode == -1 && team->fogOfWarMap[xd][yd][pos.z]==1)
 					)
@@ -106,9 +106,9 @@ void CPrivilagedInfoCallback::getTilesInRange( boost::unordered_set<int3, ShashI
 	}
 }
 
-void CPrivilagedInfoCallback::getAllTiles (boost::unordered_set<int3, ShashInt3> &tiles, int Player/*=-1*/, int level, int surface ) const
+void CPrivilagedInfoCallback::getAllTiles (boost::unordered_set<int3, ShashInt3> &tiles, boost::optional<PlayerColor> Player/*=uninit*/, int level, int surface ) const
 {
-	if(Player >= GameConstants::PLAYER_LIMIT)
+	if(!!Player && *Player >= PlayerColor::PLAYER_LIMIT)
 	{
 		tlog1 << "Illegal call to getAllTiles !\n";
 		return;
@@ -262,14 +262,14 @@ inline TerrainTile * CNonConstInfoCallback::getTile( int3 pos )
 	return &gs->map->getTile(pos);
 }
 
-const PlayerState * CGameInfoCallback::getPlayer(TPlayerColor color, bool verbose) const
+const PlayerState * CGameInfoCallback::getPlayer(PlayerColor color, bool verbose) const
 {
 	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!hasAccess(color), verbose, "Cannot access player " << color << "info!", NULL);
 	ERROR_VERBOSE_OR_NOT_RET_VAL_IF(!vstd::contains(gs->players,color), verbose, "Cannot find player " << color << "info!", NULL);
 	return &gs->players[color];
 }
 
-const CTown * CGameInfoCallback::getNativeTown(TPlayerColor color) const
+const CTown * CGameInfoCallback::getNativeTown(PlayerColor color) const
 {
 	const PlayerSettings *ps = getPlayerSettings(color);
 	ERROR_RET_VAL_IF(!ps, "There is no such player!", NULL);
@@ -398,7 +398,7 @@ void CGameInfoCallback::getThievesGuildInfo(SThievesGuildInfo & thi, const CGObj
 	}
 }
 
-int CGameInfoCallback::howManyTowns(TPlayerColor Player) const
+int CGameInfoCallback::howManyTowns(PlayerColor Player) const
 {
 	ERROR_RET_VAL_IF(!hasAccess(Player), "Access forbidden!", -1);
 	return gs->players[Player].towns.size();
@@ -466,7 +466,7 @@ std::vector < std::string > CGameInfoCallback::getObjDescriptions(int3 pos) cons
 	return ret;
 }
 
-bool CGameInfoCallback::isVisible(int3 pos, boost::optional<TPlayerColor> Player) const
+bool CGameInfoCallback::isVisible(int3 pos, boost::optional<PlayerColor> Player) const
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->map->isInTheMap(pos) && (!Player || gs->isVisible(pos, *Player));
@@ -477,7 +477,7 @@ bool CGameInfoCallback::isVisible(int3 pos) const
 	return isVisible(pos, player);
 }
 
-bool CGameInfoCallback::isVisible( const CGObjectInstance *obj, boost::optional<TPlayerColor> Player ) const
+bool CGameInfoCallback::isVisible( const CGObjectInstance *obj, boost::optional<PlayerColor> Player ) const
 {
 	return gs->isVisible(obj, Player);
 }
@@ -529,7 +529,7 @@ std::vector < const CGObjectInstance * > CGameInfoCallback::getFlaggableObjects(
 	const TerrainTile *t = getTile(pos);
 	ERROR_RET_VAL_IF(!t, "Not a valid tile requested!", ret);
 	BOOST_FOREACH(const CGObjectInstance *obj, t->blockingObjects)
-		if(obj->tempOwner != 254)
+		if(obj->tempOwner != PlayerColor::UNFLAGGABLE)
 			ret.push_back(obj);
 // 	const std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & objs = CGI->mh->ttiles[pos.x][pos.y][pos.z].objects;
 // 	for(size_t b=0; b<objs.size(); ++b)
@@ -665,12 +665,12 @@ const CMapHeader * CGameInfoCallback::getMapHeader() const
 	return gs->map;
 }
 
-bool CGameInfoCallback::hasAccess(boost::optional<TPlayerColor> playerId) const
+bool CGameInfoCallback::hasAccess(boost::optional<PlayerColor> playerId) const
 {
 	return !player || gs->getPlayerRelations( *playerId, *player ) != PlayerRelations::ENEMIES;
 }
 
-EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(TPlayerColor player) const
+EPlayerStatus::EStatus CGameInfoCallback::getPlayerStatus(PlayerColor player) const
 {
 	const PlayerState *ps = gs->getPlayer(player, false);
 	ERROR_RET_VAL_IF(!ps, "No such player!", EPlayerStatus::WRONG);
@@ -683,7 +683,7 @@ std::string CGameInfoCallback::getTavernGossip(const CGObjectInstance * townOrTa
 	return "GOSSIP TEST";
 }
 
-PlayerRelations::PlayerRelations CGameInfoCallback::getPlayerRelations( TPlayerColor color1, TPlayerColor color2 ) const
+PlayerRelations::PlayerRelations CGameInfoCallback::getPlayerRelations( PlayerColor color1, PlayerColor color2 ) const
 {
 	return gs->getPlayerRelations(color1, color2);
 }
@@ -693,7 +693,7 @@ bool CGameInfoCallback::canGetFullInfo(const CGObjectInstance *obj) const
 	return !obj || hasAccess(obj->tempOwner);
 }
 
-int CGameInfoCallback::getHeroCount( TPlayerColor player, bool includeGarrisoned ) const
+int CGameInfoCallback::getHeroCount( PlayerColor player, bool includeGarrisoned ) const
 {
 	int ret = 0;
 	const PlayerState *p = gs->getPlayer(player);
@@ -718,7 +718,7 @@ bool CGameInfoCallback::isOwnedOrVisited(const CGObjectInstance *obj) const
 	return visitor->ID == Obj::HERO && canGetFullInfo(visitor); //owned or allied hero is a visitor
 }
 
-int CGameInfoCallback::getCurrentPlayer() const
+PlayerColor CGameInfoCallback::getCurrentPlayer() const
 {
 	return gs->currentPlayer;
 }
@@ -727,7 +727,7 @@ CGameInfoCallback::CGameInfoCallback()
 {
 }
 
-CGameInfoCallback::CGameInfoCallback(CGameState *GS, boost::optional<TPlayerColor> Player)
+CGameInfoCallback::CGameInfoCallback(CGameState *GS, boost::optional<PlayerColor> Player)
 {
 	gs = GS;
 	player = Player;
@@ -777,7 +777,7 @@ std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo
 	return ret;
 }
 
-boost::optional<TPlayerColor> CPlayerSpecificInfoCallback::getMyColor() const
+boost::optional<PlayerColor> CPlayerSpecificInfoCallback::getMyColor() const
 {
 	return player;
 }
@@ -903,17 +903,17 @@ CGTownInstance *CNonConstInfoCallback::getTown(ObjectInstanceID objid)
 	return const_cast<CGTownInstance*>(CGameInfoCallback::getTown(objid));
 }
 
-TeamState *CNonConstInfoCallback::getTeam(ui8 teamID)
+TeamState *CNonConstInfoCallback::getTeam(TeamID teamID)
 {
 	return const_cast<TeamState*>(CGameInfoCallback::getTeam(teamID));
 }
 
-TeamState *CNonConstInfoCallback::getPlayerTeam(TPlayerColor color)
+TeamState *CNonConstInfoCallback::getPlayerTeam(PlayerColor color)
 {
 	return const_cast<TeamState*>(CGameInfoCallback::getPlayerTeam(color));
 }
 
-PlayerState * CNonConstInfoCallback::getPlayer( TPlayerColor color, bool verbose )
+PlayerState * CNonConstInfoCallback::getPlayer( PlayerColor color, bool verbose )
 {
 	return const_cast<PlayerState*>(CGameInfoCallback::getPlayer(color, verbose));
 }
@@ -928,15 +928,15 @@ CGObjectInstance * CNonConstInfoCallback::getObjInstance( ObjectInstanceID oid )
 	return gs->map->objects[oid.num];
 }
 
-const TeamState * CGameInfoCallback::getTeam( ui8 teamID ) const
+const TeamState * CGameInfoCallback::getTeam( TeamID teamID ) const
 {
-	ERROR_RET_VAL_IF(!vstd::contains(gs->teams, teamID), "Cannot find info for team " << int(teamID), NULL);
+	ERROR_RET_VAL_IF(!vstd::contains(gs->teams, teamID), "Cannot find info for team " << teamID, NULL);
 	const TeamState *ret = &gs->teams[teamID];
 	ERROR_RET_VAL_IF(!!player && !vstd::contains(ret->players, *player), "Illegal attempt to access team data!", NULL);
 	return ret;
 }
 
-const TeamState * CGameInfoCallback::getPlayerTeam( TPlayerColor color ) const
+const TeamState * CGameInfoCallback::getPlayerTeam( PlayerColor color ) const
 {
 	const PlayerState * ps = getPlayer(color);
 	if (ps)
@@ -953,7 +953,7 @@ const CGHeroInstance* CGameInfoCallback::getHeroWithSubid( int subid ) const
 	return NULL;
 }
 
-int CGameInfoCallback::getLocalPlayer() const
+PlayerColor CGameInfoCallback::getLocalPlayer() const
 {
 	return getCurrentPlayer();
 }
@@ -978,7 +978,7 @@ void IGameEventRealizer::showInfoDialog( InfoWindow *iw )
 	commitPackage(iw);
 }
 
-void IGameEventRealizer::showInfoDialog(const std::string &msg, TPlayerColor player)
+void IGameEventRealizer::showInfoDialog(const std::string &msg, PlayerColor player)
 {
 	InfoWindow iw;
 	iw.player = player;
@@ -1005,7 +1005,7 @@ const CGObjectInstance * IGameCallback::putNewObject(Obj ID, int subID, int3 pos
 	return getObj(no.id); //id field will be filled during applying on gs
 }
 
-const CGCreature * IGameCallback::putNewMonster(int creID, int count, int3 pos)
+const CGCreature * IGameCallback::putNewMonster(CreatureID creID, int count, int3 pos)
 {
 	const CGObjectInstance *m = putNewObject(Obj::MONSTER, creID, pos);
 	setObjProperty(m->id, ObjProperty::MONSTER_COUNT, count);

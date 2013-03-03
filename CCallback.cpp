@@ -98,7 +98,7 @@ bool CCallback::upgradeCreature(const CArmedInstance *obj, SlotID stackPos, Crea
 
 void CCallback::endTurn()
 {
-	tlog5 << "Player " << (unsigned)*player << " ended his turn." << std::endl;
+	tlog5 << "Player " << *player << " ended his turn." << std::endl;
 	EndTurn pack;
 	sendRequest(&pack); //report that we ended turn
 }
@@ -289,7 +289,7 @@ void CCallback::buildBoat( const IShipyard *obj )
 	sendRequest(&bb);
 }
 
-CCallback::CCallback( CGameState * GS, boost::optional<TPlayerColor> Player, CClient *C )
+CCallback::CCallback( CGameState * GS, boost::optional<PlayerColor> Player, CClient *C )
 	:CBattleCallback(GS, Player, C)
 {
 	waitTillRealize = false;
@@ -376,7 +376,7 @@ int CCallback::mergeOrSwapStacks(const CArmedInstance *s1, const CArmedInstance 
 		return swapCreatures(s1, s2, p1, p2);
 }
 
-CBattleCallback::CBattleCallback(CGameState *GS, boost::optional<TPlayerColor> Player, CClient *C )
+CBattleCallback::CBattleCallback(CGameState *GS, boost::optional<PlayerColor> Player, CClient *C )
 {
 	gs = GS;
 	player = Player;
