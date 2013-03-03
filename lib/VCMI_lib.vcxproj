@@ -218,6 +218,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeaderFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">StdInc.h</PrecompiledHeaderFile>
     </ClCompile>
+    <ClCompile Include="VCMIDirs.cpp" />
     <ClCompile Include="VCMI_Lib.cpp" />
   </ItemGroup>
   <ItemGroup>
