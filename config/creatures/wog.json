@@ -2,11 +2,19 @@
 	"supremeArchangel" :
 	{
 		"id": 150,
-		"level": 0,
+		"level": 8,
 		"faction": "castle",
 		"graphics" :
 		{
 			"animation": "ZM150Z.DEF"
+		},
+		"sound" :
+		{
+			"attack": "AAGLATTK.wav",
+			"defend": "AAGLDFND.wav",
+			"killed": "AAGLKILL.wav",
+			"move": "AAGLMOVE.wav",
+			"wince": "AAGLWNCE.wav"
 		}
 	},
 	"diamondDragon" :
@@ -18,6 +26,14 @@
 		"graphics" :
 		{
 			"animation": "ZM151Z.DEF"
+		},
+		"sound" :
+		{
+			"attack": "GODRATTK.wav",
+			"defend": "GODRDFND.wav",
+			"killed": "GODRKILL.wav",
+			"move": "GODRMOVE.wav",
+			"wince": "GODRWNCE.wav"
 		}
 	},
 	"lordofThunder" :
@@ -33,6 +49,15 @@
 				"projectile": "CPRGTIX.DEF",
 				"spinning": false
 			}
+		},
+		"sound" :
+		{
+			"attack": "GTITATTK.wav",
+			"defend": "GTITDFND.wav",
+			"killed": "GTITKILL.wav",
+			"move": "GTITMOVE.wav",
+			"shoot": "GTITSHOT.wav",
+			"wince": "GTITWNCE.wav"
 		}
 	},
 	"hellBaron" :
@@ -40,9 +65,20 @@
 		"id": 153,
 		"level": 8,
 		"faction": "inferno",
+		"abilities": [ [ "FLYING", 0, 1, 0 ] ], 
 		"graphics" :
 		{
 			"animation": "ZM153Z.DEF"
+		},
+		"sound" :
+		{
+			"attack": "ADVLATTK.wav",
+			"defend": "ADVLDFND.wav",
+			"killed": "ADVLKILL.wav",
+			"move": "ADVLMOVE.wav",
+			"wince": "ADVLWNCE.wav",
+			"startMoving": "ADVLEXT1.wav",
+			"stopMoving": "ADVLEXT2.wav"
 		}
 	},
 	"bloodDragon" :
@@ -55,6 +91,14 @@
 		"graphics" :
 		{
 			"animation": "ZM154Z.DEF"
+		},
+		"sound" :
+		{
+			"attack": "GHDRATTK.wav",
+			"defend": "GHDRDFND.wav",
+			"killed": "GHDRKILL.wav",
+			"move": "GHDRMOVE.wav",
+			"wince": "GHDRWNCE.wav"
 		}
 	},
 	"darknessDragon" :
@@ -66,6 +110,14 @@
 		"graphics" :
 		{
 			"animation": "ZM155Z.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BKDRATTK.wav",
+			"defend": "BKDRDFND.wav",
+			"killed": "BKDRKILL.wav",
+			"move": "BKDRMOVE.wav",
+			"wince": "BKDRWNCE.wav"
 		}
 	},
 	"ghostBehemoth" :
@@ -76,6 +128,14 @@
 		"graphics" :
 		{
 			"animation": "ZM156Z.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BMTHATTK.wav",
+			"defend": "BMTHDFND.wav",
+			"killed": "BMTHKILL.wav",
+			"move": "BMTHMOVE.wav",
+			"wince": "BMTHWNCE.wav"
 		}
 	},
 	"hellHydra" :
@@ -87,6 +147,14 @@
 		"graphics" :
 		{
 			"animation": "ZM157Z.DEF"
+		},
+		"sound" :
+		{
+			"attack": "CHYDATTK.wav",
+			"defend": "CHYDDFND.wav",
+			"killed": "CHYDKILL.wav",
+			"move": "CHYDMOVE.wav",
+			"wince": "CHYDWNCE.wav"
 		}
 	},
 	"sacredPhoenix" :
@@ -97,6 +165,14 @@
 		"graphics" :
 		{
 			"animation": "ZM158Z.DEF"
+		},
+		"sound" :
+		{
+			"attack": "PHOEATTK.wav",
+			"defend": "PHOEDFND.wav",
+			"killed": "PHOEKILL.wav",
+			"move": "PHOEMOVE.wav",
+			"wince": "PHOEWNCE.wav"
 		}
 	},
 	"ghost" :
@@ -107,6 +183,14 @@
 		"graphics" :
 		{
 			"animation": "ZM159G.DEF"
+		},
+		"sound" :
+		{
+			"attack": "WRTHATTK.wav",
+			"defend": "WRTHDFND.wav",
+			"killed": "WRTHKILL.wav",
+			"move": "WRTHMOVE.wav",
+			"wince": "WRTHWNCE.wav"
 		}
 	},
 	"godWar" :
@@ -161,6 +245,14 @@
 		"graphics" :
 		{
 			"animation": "ZM164GD.DEF"
+		},
+		"sound" :
+		{
+			"attack": "SGLMATTK.wav",
+			"defend": "SGLMDFND.wav",
+			"killed": "SGLMKILL.wav",
+			"move": "SGLMMOVE.wav",
+			"wince": "SGLMWNCE.wav"
 		}
 	},
 	"mineralElemental" :
@@ -171,6 +263,14 @@
 		"graphics" :
 		{
 			"animation": "ZM165GD.DEF"
+		},
+		"sound" :
+		{
+			"attack": "SGLMATTK.wav",
+			"defend": "SGLMDFND.wav",
+			"killed": "SGLMKILL.wav",
+			"move": "SGLMMOVE.wav",
+			"wince": "SGLMWNCE.wav"
 		}
 	},
 	"electricityElemental" :
@@ -181,6 +281,14 @@
 		"graphics" :
 		{
 			"animation": "ZM166GD.DEF"
+		},
+		"sound" :
+		{
+			"attack": "SGLMATTK.wav",
+			"defend": "SGLMDFND.wav",
+			"killed": "SGLMKILL.wav",
+			"move": "SGLMMOVE.wav",
+			"wince": "SGLMWNCE.wav"
 		}
 	},
 	"ancientBasilisk" :
@@ -191,6 +299,14 @@
 		"graphics" :
 		{
 			"animation": "ZM167GD.DEF"
+		},
+		"sound" :
+		{
+			"attack": "SGLMATTK.wav",
+			"defend": "SGLMDFND.wav",
+			"killed": "SGLMKILL.wav",
+			"move": "SGLMMOVE.wav",
+			"wince": "SGLMWNCE.wav"
 		}
 	},
 	"gorynych" :
@@ -202,6 +318,14 @@
 		"graphics" :
 		{
 			"animation": "ZM168DG.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BKDRATTK.wav",
+			"defend": "BKDRDFND.wav",
+			"killed": "BKDRKILL.wav",
+			"move": "BKDRMOVE.wav",
+			"wince": "BKDRWNCE.wav"
 		}
 	},
 	"warZealot" :
@@ -217,6 +341,15 @@
 				"projectile": "CPRZEAX.DEF",
 				"spinning": false
 			}
+		},
+		"sound" :
+		{
+			"attack": "ZELTATTK.wav",
+			"defend": "ZELTDFND.wav",
+			"killed": "ZELTKILL.wav",
+			"move": "ZELTMOVE.wav",
+			"shoot": "ZELTSHOT.wav",
+			"wince": "ZELTWNCE.wav"
 		}
 	},
 	"myriad" :
@@ -232,6 +365,15 @@
 				"projectile": "PLCBOWX.DEF",
 				"spinning": false
 			}
+		},
+		"sound" :
+		{
+			"attack": "HCRSATTK.wav",
+			"defend": "HCRSDFND.wav",
+			"killed": "HCRSKILL.wav",
+			"move": "HCRSMOVE.wav",
+			"shoot": "HCRSSHOT.wav",
+			"wince": "HCRSWNCE.wav"
 		}
 	},
 	"medusaMatriarch" :
@@ -247,6 +389,15 @@
 				"projectile": "PLCBOWX.DEF",
 				"spinning": false
 			}
+		},
+		"sound" :
+		{
+			"attack": "HCRSATTK.wav",
+			"defend": "HCRSDFND.wav",
+			"killed": "HCRSKILL.wav",
+			"move": "HCRSMOVE.wav",
+			"shoot": "HCRSSHOT.wav",
+			"wince": "HCRSWNCE.wav"
 		}
 	},
 	"nightmare" :
@@ -257,6 +408,14 @@
 		"graphics" :
 		{
 			"animation": "ZM172N.DEF"
+		},
+		"sound" :
+		{
+			"attack": "BGORATTK.wav",
+			"defend": "BGORDFND.wav",
+			"killed": "BGORKILL.wav",
+			"move": "BGORMOVE.wav",
+			"wince": "BGORWNCE.wav"
 		}
 	},
 	"santaGremlin" :
@@ -273,6 +432,14 @@
 				"spinning": true
 			}
 		},
+		"sound" :
+		{
+			"attack": "AAGLATTK.wav",
+			"defend": "AAGLDFND.wav",
+			"killed": "AAGLKILL.wav",
+			"move": "AAGLMOVE.wav",
+			"wince": "AAGLWNCE.wav"
+		}
 	},
 	"paladin1" :
 	{
@@ -640,8 +807,17 @@
 			"missile" :
 			{
 				"projectile": "PELFX.DEF",
-				"spinning": false
+				"spinning": true
 			}
+		},
+		"sound" :
+		{
+			"attack": "ECNTATTK.wav",
+			"defend": "ECNTDFND.wav",
+			"killed": "ECNTKILL.wav",
+			"move": "ECNTMOVE.wav",
+			"shoot": "ECNTSHOT.wav",
+			"wince": "ECNTWNCE.wav"
 		}
 	},
 	"sorceresses" :
@@ -657,6 +833,15 @@
 				"projectile": "CPRZEAX.DEF",
 				"spinning": false
 			}
+		},
+		"sound" :
+		{
+			"attack": "MONKATTK.wav",
+			"defend": "MONKDFND.wav",
+			"killed": "MONKKILL.wav",
+			"move": "MONKMOVE.wav",
+			"shoot": "MONKSHOT.wav",
+			"wince": "MONKWNCE.wav"
 		}
 	},
 	"werewolf" :
@@ -677,21 +862,46 @@
 		"graphics" :
 		{
 			"animation": "ZM195Z.DEF"
+		},
+		"sound" :
+		{
+			"attack": "MONKATTK.wav",
+			"defend": "MONKDFND.wav",
+			"killed": "MONKKILL.wav",
+			"move": "MONKMOVE.wav",
+			"shoot": "MONKSHOT.wav",
+			"wince": "MONKWNCE.wav"
 		}
 	},
 	"dracolich" :
 	{
 		"id": 196,
-		"level": 0,
+		"level": 10,
 		"faction": "neutral",
+		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],
+					 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],
+					 [ "DRAGON_NATURE", 0, 0, 0 ],
+					 [ "UNDEAD", 0, 0, 0 ],
+					 [ "FLYING", 0, 0, 0 ], 
+					 [ "SPELL_LIKE_ATTACK", 0, "spell.deathCloud", 0 ],
+					 [ "SHOOTER", 0, 0, 0 ] ],
 		"graphics" :
 		{
 			"animation": "ZM196Z.DEF",
 			"missile" :
 			{
-				"projectile": "SMBALX.DEF",
+				"projectile": "ZSHOT195.DEF",
 				"spinning": false
 			}
+		},
+		"sound" :
+		{
+			"attack": "GHDRATTK.wav",
+			"defend": "GHDRDFND.wav",
+			"killed": "GHDRKILL.wav",
+			"move": "GHDRMOVE.wav",
+			"shoot": "GHDRSHOT.wav",
+			"wince": "GHDRWNCE.wav"
 		}
 	}
 }
