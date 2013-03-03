@@ -1,0 +1,248 @@
+{
+	"bron":
+	{
+		"id": 112,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "resistance", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":10, "val": 1, "subtype": 5, "info": 0 }
+		]
+	},
+	"drakon":
+	{
+		"id": 113,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "leadership", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 106 }
+		]
+	},
+	"wystan":
+	{
+		"id": 114,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "archery", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 98 }
+		]
+	},
+	"tazar":
+	{
+		"id": 115,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "advanced" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 100 }
+		]
+	},
+	"alkin":
+	{
+		"id": 116,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "offence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 23, "info": 0 }
+		]
+	},
+	"korbac":
+	{
+		"id": 117,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "pathfinding", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 102 }
+		]
+	},
+	"gerwulf":
+	{
+		"id": 118,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "artillery", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 104 }
+		]
+	},
+	"broghild":
+	{
+		"id": 119,
+		"class" : "beastmaster",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "basic" },
+			{ "skill" : "scouting", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 146 }
+		]
+	},
+	"mirlanda":
+	{
+		"id": 120,
+		"class" : "witch",
+		"spellbook": [ "weakness" ],
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "advanced" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 108 }
+		]
+	},
+	"rosic":
+	{
+		"id": 121,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "magicArrow" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "mysticism", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 8, "info": 1 }
+		]
+	},
+	"voy":
+	{
+		"id": 122,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "slow" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "navigation", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 2, "subtype": 5, "info": 1 }
+		]
+	},
+	"verdish":
+	{
+		"id": 123,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "protectFire" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "firstAid", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 27, "info": 1 }
+		]
+	},
+	"merist":
+	{
+		"id": 124,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "stoneSkin" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "learning", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":8, "val": 0, "subtype": 46, "info": 0 }
+		]
+	},
+	"styg":
+	{
+		"id": 125,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "shield" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "sorcery", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
+		]
+	},
+	"andra":
+	{
+		"id": 126,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "dispel" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "intelligence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 24, "info": 0 }
+		]
+	},
+	"tiva":
+	{
+		"id": 127,
+		"class" : "witch",
+		"female": true,
+		"spellbook": [ "stoneSkin" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "eagleEye", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 11, "info": 1 }
+		]
+	}
+}

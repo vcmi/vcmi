@@ -252,14 +252,15 @@ void JsonWriter::writeContainer(Iterator begin, Iterator end)
 		return;
 
 	prefix += '\t';
-	end--;
+
+	writeEntry(begin++);
+
 	while (begin != end)
 	{
-		writeEntry(begin++);
 		out<<",\n";
+		writeEntry(begin++);
 	}
 
-	writeEntry(begin);
 	out<<"\n";
 	prefix.resize(prefix.size()-1);
 }
@@ -792,52 +793,26 @@ bool JsonValidator::validateItems(JsonNode &node, const JsonNode &schema)
 }
 
 //Checks "propertries" entry from schema (type-specific check for Struct)
-//Function is similar to merging of two sorted lists - check every entry that present in one of the input nodes
 bool JsonValidator::validateProperties(JsonNode &node, const JsonNode &schema)
 {
 	if (schema.isNull())
 		return addMessage("Properties entry is missing for struct in schema");
 
-	JsonMap::iterator nodeIter = node.Struct().begin();
-	JsonMap::const_iterator schemaIter = schema.Struct().begin();
-
-	while (nodeIter != node.Struct().end() && schemaIter != schema.Struct().end())
+	BOOST_FOREACH(auto & schemaEntry, schema.Struct())
 	{
-		if (nodeIter->first < schemaIter->first) //No schema for entry
-		{
-			validateNode(nodeIter->second, nullNode, nodeIter->first);
+		if (!validateNode(node[schemaEntry.first], schemaEntry.second, schemaEntry.first))
+			node.Struct().erase(schemaEntry.first);
+	}
 
-			JsonMap::iterator toRemove = nodeIter++;
-			node.Struct().erase(toRemove);
+	for (auto iter = node.Struct().begin(); iter!= node.Struct().end();)
+	{
+		if (!vstd::contains(schema.Struct(), iter->first))
+		{
+			addMessage("Missing schema for entry " + iter->first + "!");
+			iter = node.Struct().erase(iter);
 		}
 		else
-		if (schemaIter->first < nodeIter->first) //No entry
-		{
-			if (!validateNode(node[schemaIter->first], schemaIter->second, schemaIter->first))
-				node.Struct().erase(schemaIter->first);
-			schemaIter++;
-		}
-		else //both entry and schema are present
-		{
-			JsonMap::iterator current = nodeIter++;
-			if (!validateNode(current->second, schemaIter->second, current->first))
-				node.Struct().erase(current);
-
-			schemaIter++;
-		}
-	}
-	while (nodeIter != node.Struct().end())
-	{
-		validateNode(nodeIter->second, nullNode, nodeIter->first);
-		JsonMap::iterator toRemove = nodeIter++;
-		node.Struct().erase(toRemove);
-	}
-
-	while (schemaIter != schema.Struct().end())
-	{
-		if (!validateNode(node[schemaIter->first], schemaIter->second, schemaIter->first))
-			node.Struct().erase(schemaIter->first);
-		schemaIter++;
+			iter++;
 	}
 	return true;
 }

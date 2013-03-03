@@ -1,0 +1,256 @@
+{
+	"piquedram":
+	{
+		"id": 32,
+		"class" : "alchemist",
+		"female": false,
+		"spellbook": [ "shield" ],
+		"skills":
+		[
+			{ "skill" : "scouting", "level": "basic" },
+			{ "skill" : "mysticism", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 30 }
+		]
+	},
+	"thane":
+	{
+		"id": 33,
+		"class" : "alchemist",
+		"female": false,
+		"spellbook": [ "magicArrow" ],
+		"skills":
+		[
+			{ "skill" : "scholar", "level": "advanced" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 36 }
+		]
+	},
+	"josephine":
+	{
+		"id": 34,
+		"class" : "alchemist",
+		"spellbook": [ "haste" ],
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "mysticism", "level": "basic" },
+			{ "skill" : "sorcery", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 32 }
+		]
+	},
+	"neela":
+	{
+		"id": 35,
+		"class" : "alchemist",
+		"female": true,
+		"spellbook": [ "shield" ],
+		"skills":
+		[
+			{ "skill" : "scholar", "level": "basic" },
+			{ "skill" : "armorer", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 23, "info": 0 }
+		]
+	},
+	"torosar ":
+	{
+		"id": 36,
+		"class" : "alchemist",
+		"female": false,
+		"spellbook": [ "magicArrow" ],
+		"skills":
+		[
+			{ "skill" : "mysticism", "level": "basic" },
+			{ "skill" : "tactics", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 146 }
+		]
+	},
+	"fafner":
+	{
+		"id": 37,
+		"class" : "alchemist",
+		"female": false,
+		"spellbook": [ "haste" ],
+		"skills":
+		[
+			{ "skill" : "scholar", "level": "basic" },
+			{ "skill" : "resistance", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 38 }
+		]
+	},
+	"rissa":
+	{
+		"id": 38,
+		"class" : "alchemist",
+		"female": true,
+		"spellbook": [ "magicArrow" ],
+		"skills":
+		[
+			{ "skill" : "mysticism", "level": "basic" },
+			{ "skill" : "offence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":10, "val": 1, "subtype": 1, "info": 0 }
+		]
+	},
+	"iona":
+	{
+		"id": 39,
+		"class" : "alchemist",
+		"spellbook": [ "magicArrow" ],
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "scholar", "level": "basic" },
+			{ "skill" : "intelligence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 36 }
+		]
+	},
+	"astral":
+	{
+		"id": 40,
+		"class" : "wizard",
+		"female": false,
+		"spellbook": [ "hypnotize" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "advanced" }
+		],
+		"specialties":
+		[
+			{ "type":3, "val": 3, "subtype": 60, "info": 0 }
+		]
+	},
+	"halon":
+	{
+		"id": 41,
+		"class" : "wizard",
+		"female": false,
+		"spellbook": [ "stoneSkin" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "mysticism", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 8, "info": 1 }
+		]
+	},
+	"serena":
+	{
+		"id": 42,
+		"class" : "wizard",
+		"female": true,
+		"spellbook": [ "dispel" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "eagleEye", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 11, "info": 0 }
+		]
+	},
+	"daremyth":
+	{
+		"id": 43,
+		"class" : "wizard",
+		"female": true,
+		"spellbook": [ "fortune" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "intelligence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":7, "val": 0, "subtype": 51, "info": 0 }
+		]
+	},
+	"theodorus":
+	{
+		"id": 44,
+		"class" : "wizard",
+		"spellbook": [ "shield" ],
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "ballistics", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 34 }
+		]
+	},
+	"solmyr":
+	{
+		"id": 45,
+		"class" : "wizard",
+		"female": false,
+		"spellbook": [ "chainLightning" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "sorcery", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":3, "val": 3, "subtype": 19, "info": 0 }
+		]
+	},
+	"cyra":
+	{
+		"id": 46,
+		"class" : "wizard",
+		"female": true,
+		"spellbook": [ "haste" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "diplomacy", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":8, "val": 0, "subtype": 53, "info": 0 }
+		]
+	},
+	"aine":
+	{
+		"id": 47,
+		"class" : "wizard",
+		"female": true,
+		"spellbook": [ "curse" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "scholar", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+		]
+	}
+}

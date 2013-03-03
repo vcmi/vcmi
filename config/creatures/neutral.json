@@ -42,6 +42,7 @@
 	},
 	"azureDragon" :
 	{
+		"special" : true,
 		"id": 132,
 		"level": 10,
 		"faction": "neutral",
@@ -65,8 +66,9 @@
 	},
 	"crystalDragon" :
 	{
+		"special" : true,
 		"id": 133,
-		"level": 10,
+		"level": 9,
 		"faction": "neutral",
 		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//crystal dragon is a dragon
 		"ability_remove": [ "FLYING" ],							//Crystal Dragons do not fly
@@ -85,6 +87,7 @@
 	},
 	"fairieDragon" :
 	{
+		"special" : true,
 		"id": 134,
 		"level": 8,
 		"faction": "neutral",
@@ -115,8 +118,9 @@
 	},
 	"rustDragon" :
 	{
+		"special" : true,
 		"id": 135,
-		"level": 10,
+		"level": 9,
 		"faction": "neutral",
 		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, 80, 0 ],			//always reduce defense
 						 [ "ACID_BREATH", 25, 0, 20 ],			//20% chance to do 25 damage
@@ -136,6 +140,7 @@
 	},
 	"enchanter" :
 	{
+		"special" : true,
 		"id": 136,
 		"level": 6,
 		"extraNames": [ "enchanters" ],
@@ -169,6 +174,7 @@
 	},
 	"sharpshooter" :
 	{
+		"special" : true,
 		"id": 137,
 		"level": 4,
 		"extraNames": [ "sharpshooters" ],

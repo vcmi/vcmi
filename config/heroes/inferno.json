@@ -1,0 +1,247 @@
+{
+	"fiona":
+	{
+		"id": 48,
+		"class" : "demoniac",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "scouting", "level": "advanced" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 46 }
+		]
+	},
+	"rashka":
+	{
+		"id": 49,
+		"class" : "demoniac",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "scholar", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 52 }
+		]
+	},
+	"marius":
+	{
+		"id": 50,
+		"class" : "demoniac",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "armorer", "level": "advanced" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 48 }
+		]
+	},
+	"ignatius":
+	{
+		"id": 51,
+		"class" : "demoniac",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "tactics", "level": "basic" },
+			{ "skill" : "resistance", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 42 }
+		]
+	},
+	"octavia":
+	{
+		"id": 52,
+		"class" : "demoniac",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "scholar", "level": "basic" },
+			{ "skill" : "offence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+		]
+	},
+	"calh":
+	{
+		"id": 53,
+		"class" : "demoniac",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "archery", "level": "basic" },
+			{ "skill" : "scouting", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 42 }
+		]
+	},
+	"pyre":
+	{
+		"id": 54,
+		"class" : "demoniac",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "artillery", "level": "basic" },
+			{ "skill" : "logistics", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 146 }
+		]
+	},
+	"nymus":
+	{
+		"id": 55,
+		"class" : "demoniac",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "offence", "level": "advanced" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 50 }
+		]
+	},
+	"ayden":
+	{
+		"id": 56,
+		"class" : "heretic",
+		"spellbook": [ "viewEarth" ],
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "intelligence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 24, "info": 0 }
+		]
+	},
+	"xyron":
+	{
+		"id": 57,
+		"class" : "heretic",
+		"female": false,
+		"spellbook": [ "inferno" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "scholar", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":3, "val": 3, "subtype": 22, "info": 0 }
+		]
+	},
+	"axsis":
+	{
+		"id": 58,
+		"class" : "heretic",
+		"female": false,
+		"spellbook": [ "protectAir" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "mysticism", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 8, "info": 1 }
+		]
+	},
+	"olema":
+	{
+		"id": 59,
+		"class" : "heretic",
+		"female": true,
+		"spellbook": [ "weakness" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "ballistics", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":8, "val": 0, "subtype": 45, "info": 0 }
+		]
+	},
+	"calid":
+	{
+		"id": 60,
+		"class" : "heretic",
+		"female": false,
+		"spellbook": [ "haste" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "learning", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":10, "val": 1, "subtype": 3, "info": 0 }
+		]
+	},
+	"ash":
+	{
+		"id": 61,
+		"class" : "heretic",
+		"female": true,
+		"spellbook": [ "bloodlust" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "eagleEye", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":8, "val": 0, "subtype": 43, "info": 0 }
+		]
+	},
+	"zydar":
+	{
+		"id": 62,
+		"class" : "heretic",
+		"female": false,
+		"spellbook": [ "stoneSkin" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "sorcery", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
+		]
+	},
+	"xarfax":
+	{
+		"id": 63,
+		"class" : "heretic",
+		"female": false,
+		"spellbook": [ "fireball" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "leadership", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":3, "val": 3, "subtype": 21, "info": 0 }
+		]
+	}
+}

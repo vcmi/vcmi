@@ -259,6 +259,12 @@ namespace vstd
 		return c.find(i)!=c.end();
 	}
 
+	template <typename V, typename Item, typename Item2>
+	bool contains(const boost::unordered_map<Item,V> & c, const Item2 &i)
+	{
+		return c.find(i)!=c.end();
+	}
+
 	//returns position of first element in vector c equal to s, if there is no such element, -1 is returned
 	template <typename Container, typename T2>
 	int find_pos(const Container & c, const T2 &s)

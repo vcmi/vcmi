@@ -709,7 +709,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 {
 	BOOST_FOREACH (const JsonNode &exp, input.Vector())
 	{
-		auto bonus = JsonUtils::parseBonus (exp["bonus"]);
+		auto bonus = JsonUtils::parseBonus (exp["bonus"]); // FIXME: memory leak? Only copies of bonus is added to creature
 		bonus->source = Bonus::STACK_EXPERIENCE;
 		bonus->duration = Bonus::PERMANENT;
 		const JsonVector &values = exp["values"].Vector();

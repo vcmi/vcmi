@@ -177,8 +177,10 @@ class DLL_LINKAGE CHeroHandler
 	/// consists of 201 values. Any higher levels require experience larger that ui64 can hold
 	std::vector<ui64> expPerLevel;
 
-	/// common function for loading heroes from mods and from H3
-	void loadHeroJson(CHero * hero, const JsonNode & node);
+	/// helpers for loading to avoid huge load functions
+	void loadHeroArmy(CHero * hero, const JsonNode & node);
+	void loadHeroSkills(CHero * hero, const JsonNode & node);
+	void loadHeroSpecialty(CHero * hero, const JsonNode & node);
 public:
 	CHeroClassHandler classes;
 

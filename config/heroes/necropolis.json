@@ -1,0 +1,256 @@
+{
+	"straker":
+	{
+		"id": 64,
+		"class" : "deathknight",
+		"female": false,
+		"spellbook": [ "haste" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "resistance", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 58 }
+		]
+	},
+	"vokial":
+	{
+		"id": 65,
+		"class" : "deathknight",
+		"female": false,
+		"spellbook": [ "stoneSkin" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "artillery", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 62 }
+		]
+	},
+	"moandor":
+	{
+		"id": 66,
+		"class" : "deathknight",
+		"female": false,
+		"spellbook": [ "slow" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "learning", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 64 }
+		]
+	},
+	"charna":
+	{
+		"id": 67,
+		"class" : "deathknight",
+		"female": true,
+		"spellbook": [ "magicArrow" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "tactics", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 60 }
+		]
+	},
+	"tamika":
+	{
+		"id": 68,
+		"class" : "deathknight",
+		"female": true,
+		"spellbook": [ "magicArrow" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "offence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 66 }
+		]
+	},
+	"isra":
+	{
+		"id": 69,
+		"class" : "deathknight",
+		"female": true,
+		"spellbook": [ "magicArrow" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "advanced" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 12, "info": 0 }
+		]
+	},
+	"clavius":
+	{
+		"id": 70,
+		"class" : "deathknight",
+		"female": false,
+		"spellbook": [ "magicArrow" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "offence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+		]
+	},
+	"galthran":
+	{
+		"id": 71,
+		"class" : "deathknight",
+		"female": false,
+		"spellbook": [ "shield" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "armorer", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 56 }
+		]
+	},
+	"septienna":
+	{
+		"id": 72,
+		"class" : "necromancer",
+		"female": true,
+		"spellbook": [ "deathRipple" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "scholar", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":3, "val": 3, "subtype": 24, "info": 0 }
+		]
+	},
+	"aislinn":
+	{
+		"id": 73,
+		"class" : "necromancer",
+		"female": true,
+		"spellbook": [ "meteorShower" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "wisdom", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":3, "val": 3, "subtype": 23, "info": 0 }
+		]
+	},
+	"sandro":
+	{
+		"id": 74,
+		"class" : "necromancer",
+		"female": false,
+		"spellbook": [ "slow" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "sorcery", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 25, "info": 0 }
+		]
+	},
+	"nimbus":
+	{
+		"id": 75,
+		"class" : "necromancer",
+		"female": false,
+		"spellbook": [ "shield" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "eagleEye", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 11, "info": 1 }
+		]
+	},
+	"thant":
+	{
+		"id": 76,
+		"class" : "necromancer",
+		"female": false,
+		"spellbook": [ "animateDead" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "mysticism", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":3, "val": 39, "subtype": 0, "info": 3 }
+		]
+	},
+	"xsi":
+	{
+		"id": 77,
+		"class" : "necromancer",
+		"female": true,
+		"spellbook": [ "stoneSkin" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "learning", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":8, "val": 0, "subtype": 46, "info": 0 }
+		]
+	},
+	"vidomina":
+	{
+		"id": 78,
+		"class" : "necromancer",
+		"female": true,
+		"spellbook": [ "curse" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "advanced" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 12, "info": 0 }
+		]
+	},
+	"nagash":
+	{
+		"id": 79,
+		"class" : "necromancer",
+		"female": false,
+		"spellbook": [ "protectAir" ],
+		"skills":
+		[
+			{ "skill" : "necromancy", "level": "basic" },
+			{ "skill" : "intelligence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+		]
+	}
+}
