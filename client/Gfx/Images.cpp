@@ -119,16 +119,25 @@ void CBitmap32::QuadInstance::putToGL() const
 
 /*********** CBitmap32 ***********/
 
-CBitmap32::CBitmap32(ui32 w, ui32 h, const ColorRGB pixBuff[]) : CImage(w, h)
+CBitmap32::CBitmap32(ui32 w, ui32 h, const ColorRGB pixBuff[], bool bgra) : CImage(w, h), formatBGRA(bgra)
 {
-	const ui32 size = w * h;
-	buffer = new ColorRGBA[size];
+	const ui32 pixNum = w * h;
+	buffer = new ColorRGBA[pixNum];
 
-	for (ui32 it=0; it<size; ++it)
+	for (ui32 it=0; it<pixNum; ++it)
 	{
 		memcpy(&buffer[it], &pixBuff[it], 3);
 		buffer[it].comp.A = 255;
 	}
+}
+
+
+CBitmap32::CBitmap32(ui32 w, ui32 h, const ColorRGBA pixBuff[], bool bgra) : CImage(w, h), formatBGRA(bgra)
+{
+	const ui32 pixNum = w * h;
+	buffer = new ColorRGBA[pixNum];
+
+	memcpy(buffer, pixBuff, pixNum * sizeof(ColorRGBA));
 }
 
 
@@ -140,7 +149,7 @@ CBitmap32::~CBitmap32()
 
 void CBitmap32::textureTransfer()
 {
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA8, width, height, 0, GL_BGRA, GL_UNSIGNED_BYTE, buffer);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_RGBA8, width, height, 0, formatBGRA ? GL_BGRA : GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 }
 
 
@@ -176,7 +185,7 @@ void CBitmap32::putAt(Point p, TransformFlags flags)
 void CBitmap32::putAt(Point p, TransformFlags flags, float scale)
 {
 	QuadInstance qi(p);
-	qi.transform(flags, width, height, width*scale, height*scale);
+	qi.transform(flags, width, height, (ui32)(width*scale), (ui32)(height*scale));
 
 	GL2D::useNoShader();
 	bindTexture();
@@ -325,7 +334,7 @@ void CPalettedBitmap::putAt(Point p, TransformFlags flags, float scale)
 	GL2D::assignTexture(GL_TEXTURE1, GL_TEXTURE_1D, palette.getTexHandle());
 	GL2D::assignTexture(GL_TEXTURE0, GL_TEXTURE_RECTANGLE, texHandle);
 	GL2D::usePaletteBitmapShader(p.x, p.y);
-	glRecti(p.x, p.y, p.x + width*scale, p.y + height*scale);
+	glRecti(p.x, p.y, p.x + (ui32)(width*scale), p.y + (ui32)(height*scale));
 }
 
 

@@ -50,7 +50,7 @@ PImage CManager::getImage(const std::string& fname)
 
 		if (img_tmp == nullptr)
 		{
-			tlog1 << "Iage " << fname << " not loaded!\n";
+			tlog1 << "Image " << fname << " not loaded!\n";
 			return nullptr;
 		}
 	}

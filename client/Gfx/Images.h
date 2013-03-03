@@ -78,6 +78,7 @@ class CBitmap32 : public CImage
 {
 	friend class CImage;
 	ColorRGBA* buffer;
+	bool formatBGRA;
 
 	struct CoordBind {
 		Point texture, vertex;
@@ -95,7 +96,8 @@ class CBitmap32 : public CImage
 	};
 
 protected:
-	CBitmap32(ui32 w, ui32 h, const ColorRGB pixBuff[]); // 24bit RGB source
+	CBitmap32(ui32 w, ui32 h, const ColorRGB pixBuff[], bool bgra = true); // 24bit RGB source
+	CBitmap32(ui32 w, ui32 h, const ColorRGBA pixBuff[], bool bgra = true); // 32bit RGBA source
 	virtual void textureTransfer();
 
 public:

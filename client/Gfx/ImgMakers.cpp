@@ -19,6 +19,7 @@ CImage * CImage::makeBySDL(void* data, size_t fileSize, const char* fileExt)
 		        const_cast<char*>(fileExt)); //pass extension without dot (+1 character)
 	if (ret)
 	{
+		CImage * img;
 		if (ret->format->palette)
 		{
 			//set correct value for alpha\unused channel
@@ -26,11 +27,22 @@ CImage * CImage::makeBySDL(void* data, size_t fileSize, const char* fileExt)
 				ret->format->palette->colors[i].unused = 255;
 
 			CPaletteRGBA* pal = new CPaletteRGBA((ColorRGBA*)ret->format->palette->colors);
-			return new CPalettedBitmap(ret->w, ret->h, *pal, (ui8*)ret->pixels);
+			img = new CPalettedBitmap(ret->w, ret->h, *pal, (ui8*)ret->pixels);
+		}
+		else if (ret->format->BytesPerPixel == 3)
+		{
+			img = new CBitmap32(ret->w, ret->h, (ColorRGB*)ret->pixels);
+		}
+		else if (ret->format->BytesPerPixel == 4)
+		{
+			img = new CBitmap32(ret->w, ret->h, (ColorRGBA*)ret->pixels);
 		}
 
-		return new CBitmap32(ret->w, ret->h, (ColorRGB*)ret->pixels);
+		SDL_FreeSurface(ret);
+		return img;
 	}
+
+	return nullptr;
 }
 
 
