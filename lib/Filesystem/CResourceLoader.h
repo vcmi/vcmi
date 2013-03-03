@@ -409,21 +409,31 @@ public:
 	 * @param archive A pointer to the resource archive object.
 	 * @param resourceName Unique resource name in the space of the given resource archive.
 	 */
-	ResourceLocator(ISimpleResourceLoader * loader, const std::string & resourceName);
+	inline ResourceLocator(ISimpleResourceLoader * ldr, const std::string & resName)
+		: loader(ldr), resourceName(resName) {};
 
 	/**
 	 * Gets a pointer to the resource loader object.
 	 *
 	 * @return a pointer to the resource loader object
 	 */
-	ISimpleResourceLoader * getLoader() const;
+	inline ISimpleResourceLoader * getLoader() const { return loader; };
 
 	/**
 	 * Gets the resource name.
 	 *
 	 * @return the resource name.
 	 */
-	std::string getResourceName() const;
+	inline std::string getResourceName() const { return resourceName; };
+
+	/**
+	 * Loads the resource.
+	 *
+	 * @return a pointer to the input stream, not null
+	 *
+	 * @throws std::runtime_error if the resource doesn't exists
+	 */
+	std::unique_ptr<CInputStream> load() const;
 
 private:
 	/**

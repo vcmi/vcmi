@@ -167,41 +167,16 @@ checkErrorAndClean:
 	throw std::runtime_error("BIK failed opening video!");
 }
 
-void CBIKHandler::show( int x, int y, SDL_Surface *dst, bool update )
+void CBIKHandler::show( int x, int y, bool update )
 {
 	const int w = hBink->width,
-		h = hBink->height,
-		Bpp = dst->format->BytesPerPixel;
-
-	int mode = -1;
-
-	//screen color depth might have changed... (eg. because F4)
-	if(bufferSize != w * h * Bpp)
-	{
-		freeBuffer();
-		allocBuffer(Bpp);
-	}
-
-	switch(Bpp)
-	{
-	case 2:
-		mode = 3; //565, mode 2 is 555 probably
-		break;
-	case 3:
-		mode = 0;
-		break;
-	case 4:
-		mode = 1;
-		break;
-	default:
-		return; //not supported screen depth
-	}
+			h = hBink->height;
 
 	binkDoFrame(hBink);
-	binkCopyToBuffer(hBink, buffer, w*Bpp, h, 0, 0, mode);
-	blitBuffer(buffer, x, y, w, h, dst);
-	if(update)
-		SDL_UpdateRect(dst, x, y, w, h);
+	binkCopyToBuffer(hBink, buffer, w*4, h, 0, 0, 1);
+	//blitBuffer(buffer, x, y, w, h, dst);
+	//if(update)
+	//	SDL_UpdateRect(dst, x, y, w, h);
 }
 
 bool CBIKHandler::nextFrame()
@@ -237,17 +212,17 @@ int CBIKHandler::frameCount() const
 	return hBink->frameCount;
 }
 
-void CBIKHandler::redraw( int x, int y, SDL_Surface *dst, bool update )
+void CBIKHandler::redraw( int x, int y, bool update)
 {
 	int w = hBink->width, h = hBink->height;
-	blitBuffer(buffer, x, y, w, h, dst);
-	if(update)
-		SDL_UpdateRect(dst, x, y, w, h);
+	//blitBuffer(buffer, x, y, w, h, dst);
+	//if(update)
+	//	SDL_UpdateRect(dst, x, y, w, h);
 }
 
 void CBIKHandler::allocBuffer(int Bpp)
 {
-	if(!Bpp) Bpp = screen->format->BytesPerPixel;
+//*	if(!Bpp) Bpp = screen->format->BytesPerPixel;
 
 	bufferSize = hBink->width * hBink->height * Bpp;
 	buffer = new char[bufferSize];
@@ -315,7 +290,7 @@ bool CSmackPlayer::open( std::string name )
 	return true;
 }
 
-void CSmackPlayer::show( int x, int y, SDL_Surface *dst, bool update)
+void CSmackPlayer::show( int x, int y, bool update)
 {
 	int w = data->width;
 	int stripe = (-w*2) & (~3);
@@ -323,7 +298,7 @@ void CSmackPlayer::show( int x, int y, SDL_Surface *dst, bool update)
 	//put frame to the buffer
 	ptrSmackToBuffer(data, 0, 0, stripe, w, buf, 0x80000000);
 	ptrSmackDoFrame(data);
-	redraw(x, y, dst, update);
+	redraw(x, y, update);
 }
 
 int CSmackPlayer::curFrame() const
@@ -336,63 +311,31 @@ int CSmackPlayer::frameCount() const
 	return data->frameCount;
 }
 
-void CSmackPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
+void CSmackPlayer::redraw( int x, int y, bool update )
 {
-	int w = std::min<int>(data->width, dst->w - x), h = std::min<int>(data->height, dst->h - y);
-	/* Lock the screen for direct access to the pixels */
-	if ( SDL_MUSTLOCK(dst) )
-	{
-		if ( SDL_LockSurface(dst) < 0 )
-		{
-			fprintf(stderr, "Can't lock screen: %s\n", SDL_GetError());
-			return;
-		}
-	}
+	//int w = std::min<int>(data->width, dst->w - x), h = std::min<int>(data->height, dst->h - y);
+	int w = data->width, h = data->height;
 
 	// draw the frame
 	Uint16* addr = (Uint16*) (buffer+w*(h-1)*2-2);
-	if(dst->format->BytesPerPixel >= 3)
+/*
+	for( int j=0; j<h-1; j++)	// why -1 ?
 	{
-		for( int j=0; j<h-1; j++)	// why -1 ?
+		for ( int i=w-1; i>=0; i--)
 		{
-			for ( int i=w-1; i>=0; i--)
-			{
-				Uint16 pixel = *addr;
+			Uint16 pixel = *addr;
 
-				Uint8 *p = (Uint8 *)dst->pixels + (j+y) * dst->pitch + (i + x) * dst->format->BytesPerPixel;
-				p[2] = ((pixel & 0x7c00) >> 10) * 8;
-				p[1] = ((pixel & 0x3e0) >> 5) * 8;
-				p[0] = ((pixel & 0x1F)) * 8;
+			Uint8 *p = (Uint8 *)dst->pixels + (j+y) * dst->pitch + (i + x) * dst->format->BytesPerPixel;
+			p[2] = ((pixel & 0x7c00) >> 10) * 8;
+			p[1] = ((pixel & 0x3e0) >> 5) * 8;
+			p[0] = ((pixel & 0x1F)) * 8;
 
-				addr--;
-			}
+			addr--;
 		}
 	}
-	else if(dst->format->BytesPerPixel == 2)
-	{
-		for( int j=0; j<h-1; j++)	// why -1 ?
-		{
-			for ( int i=w-1; i>=0; i--)
-			{
-				//convert rgb 555 to 565
-				Uint16 pixel = *addr;
-				Uint16 *p = (Uint16 *)((Uint8 *)dst->pixels + (j+y) * dst->pitch + (i + x) * dst->format->BytesPerPixel);
-				*p =	(pixel & 0x1F)
-					  +	((pixel & 0x3e0) << 1)
-					  +	((pixel & 0x7c00) << 1);
-
-				addr--;
-			}
-		}
-	}
-
-	if ( SDL_MUSTLOCK(dst) )
-	{
-		SDL_UnlockSurface(dst);
-	}
-
-	if(update)
-		SDL_UpdateRect(dst, x, y, w, h);
+*/
+	//if(update)
+	//	SDL_UpdateRect(dst, x, y, w, h);
 }
 
 CVideoPlayer::CVideoPlayer()
@@ -472,10 +415,10 @@ bool CVideoPlayer::nextFrame()
 		return false;
 }
 
-void CVideoPlayer::show(int x, int y, SDL_Surface *dst, bool update)
+void CVideoPlayer::show(int x, int y, bool update)
 {
 	if(current)
-		current->show(x, y, dst, update);
+		current->show(x, y, update);
 }
 
 bool CVideoPlayer::wait()
@@ -502,17 +445,17 @@ int CVideoPlayer::frameCount() const
 		return -1;
 }
 
-bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey)
+bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, bool stopOnKey)
 {
 	if(!open(name))
 		return false;
 
-	bool ret = playVideo(x, y, dst, stopOnKey);
+	bool ret = playVideo(x, y, stopOnKey);
 	close();
 	return ret;
 }
 
-void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, bool update )
+void CVideoPlayer::update( int x, int y, bool forceRedraw, bool update )
 {
 	if(!current)
 		return;
@@ -529,25 +472,23 @@ void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, boo
 		first = false;
 	}
 
-
-
 	if(!w)
 	{
-		show(x,y,dst,update);
+		show(x, y, update);
 	}
 	else if (forceRedraw)
 	{
-		redraw(x, y, dst, update);
+		redraw(x, y, update);
 	}
 }
 
-void CVideoPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
+void CVideoPlayer::redraw( int x, int y, bool update)
 {
 	if(current)
-		current->redraw(x, y, dst, update);
+		current->redraw(x, y, update);
 }
 
-bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
+bool CVideoPlayer::playVideo(int x, int y, bool stopOnKey)
 {
 	if(!current)
 		return false;
@@ -560,7 +501,7 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 
 		if(!wait())
 		{
-			show(x, y, dst);
+			show(x, y);
 			nextFrame();
 			frame++;
 		}

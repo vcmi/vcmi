@@ -193,7 +193,7 @@ CDefEssential * Graphics::loadHeroAnim( const std::string &name, const std::vect
 	}
 	for(size_t ff=0; ff<anim->ourImages.size(); ++ff)
 	{
-		CSDL_Ext::alphaTransform(anim->ourImages[ff].bitmap);
+		if (anim->ourImages[ff].bitmap != nullptr) CSDL_Ext::alphaTransform(anim->ourImages[ff].bitmap);
 	}
 	return anim;
 }
@@ -245,8 +245,9 @@ void Graphics::loadHeroFlags(std::pair<std::vector<CDefEssential *> Graphics::*,
 		}
 		for(size_t ff=0; ff<curImgs.size(); ++ff)
 		{
-			SDL_SetColorKey(curImgs[ff].bitmap, SDL_SRCCOLORKEY,
-				SDL_MapRGB(curImgs[ff].bitmap->format, 0, 255, 255)
+			if (curImgs[ff].bitmap != nullptr)
+				SDL_SetColorKey(curImgs[ff].bitmap, SDL_SRCCOLORKEY,
+					SDL_MapRGB(curImgs[ff].bitmap->format, 0, 255, 255)
 				);
 		}
 	}

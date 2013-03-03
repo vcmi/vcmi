@@ -69,8 +69,8 @@ public:
 	};
 	CMenuScreen(const JsonNode& configNode);
 
-	void showAll(SDL_Surface * to);
-	void show(SDL_Surface * to);
+	void showAll();
+	void show();
 	void activate();
 	void deactivate();
 
@@ -93,8 +93,8 @@ class CreditsScreen : public CIntObject
 public:
 	CreditsScreen();
 
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void show();
+	void showAll();
 
 	void clickLeft(tribool down, bool previousState);
 	void clickRight(tribool down, bool previousState);
@@ -130,7 +130,7 @@ public:
 	CDefHandler *sizes, *sFlags;
 
 	void changeSelection(const CMapInfo *to);
-	void showAll(SDL_Surface * to);
+	void showAll();
 	void clickRight(tribool down, bool previousState);
 	void showTeamsPopup();
 	void toggleChat();
@@ -177,7 +177,7 @@ public:
 	void selectFName(std::string fname);
 	const CMapInfo * getSelectedMapInfo() const;
 
-	void showAll(SDL_Surface * to);
+	void showAll();
 	void clickLeft(tribool down, bool previousState);
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void onDoubleClick();
@@ -247,7 +247,7 @@ public:
 
 		PlayerOptionsEntry(OptionsTab *owner, PlayerSettings &S);
 		void selectButtons(); //hides unavailable buttons
-		void showAll(SDL_Surface * to);
+		void showAll();
 		void update();
 	};
 
@@ -275,7 +275,7 @@ public:
 	void recreate();
 	OptionsTab();
 	~OptionsTab();
-	void showAll(SDL_Surface * to);
+	void showAll();
 
 	int nextAllowedHero(PlayerColor player, int min, int max, int incl, int dir );
 
@@ -298,7 +298,7 @@ public:
      *
      * @param to where the graphics should be inserted
      */
-    void showAll(SDL_Surface * to);
+    void showAll();
 
 	/**
 	 * Updates the map info object and fires the associated callback method.
@@ -483,7 +483,7 @@ public:
 	void postRequest(ui8 what, ui8 dir) override;
 	void postChatMessage(const std::string &txt) override;
 	void propagateNames();
-	void showAll(SDL_Surface *to);
+	void showAll();
 };
 
 /// Save game screen
@@ -551,7 +551,7 @@ public:
 	CPrologEpilogVideo(CCampaignScenario::SScenarioPrologEpilog _spe, std::function<void()> callback);
 
 	void clickLeft(tribool down, bool previousState);
-	void show(SDL_Surface * to);
+	void show();
 };
 
 /// Campaign screen where you can choose one out of three starting bonuses
@@ -594,7 +594,7 @@ class CBonusSelection : public CIntObject
 
 		void clickLeft(tribool down, bool previousState);
 		void clickRight(tribool down, bool previousState);
-		void show(SDL_Surface * to);
+		void show();
 	};
 
 	std::vector<CRegion *> regions;
@@ -626,8 +626,8 @@ public:
 	CBonusSelection(shared_ptr<CCampaignState> _ourCampaign);
 	~CBonusSelection();
 
-	void showAll(SDL_Surface * to);
-	void show(SDL_Surface * to);
+	void showAll();
+	void show();
 
 	void goBack();
 	void startMap();
@@ -659,7 +659,7 @@ private:
 
 	public:
 		CCampaignButton(const JsonNode &config );
-		void show(SDL_Surface * to);
+		void show();
 	};
 
 	CAdventureMapButton *back;
@@ -672,7 +672,7 @@ public:
 	enum CampaignSet {ROE, AB, SOD, WOG};
 
 	CCampaignScreen(const JsonNode &config);
-	void showAll(SDL_Surface *to);
+	void showAll();
 };
 
 /// Handles background screen, loads graphics for victory/loss condition and random town or hero selection
@@ -710,7 +710,7 @@ public:
 	CLoadingScreen(boost::function<void()> loader);
 	~CLoadingScreen();
 
-	void showAll(SDL_Surface *to);
+	void showAll();
 };
 
 extern ISelectionScreenInfo *SEL;

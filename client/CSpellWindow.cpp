@@ -314,43 +314,43 @@ void CSpellWindow::fRcornerb()
 	GH.breakEventHandling();
 }
 
-void CSpellWindow::showAll(SDL_Surface * to)
+void CSpellWindow::showAll()
 {
-	CWindowObject::showAll(to);
-	blitAt(spellTab->ourImages[selectedTab].bitmap, 524 + pos.x, 88 + pos.y, to);
+	CWindowObject::showAll();
+//*	blitAt(spellTab->ourImages[selectedTab].bitmap, 524 + pos.x, 88 + pos.y, to);
 
 	std::ostringstream mana;
 	mana<<myHero->mana;
-	printAtMiddleLoc(mana.str(), 435, 426, FONT_SMALL, Colors::YELLOW, to);
+//*	printAtMiddleLoc(mana.str(), 435, 426, FONT_SMALL, Colors::YELLOW, to);
 	
-	statusBar->showAll(to);
+	statusBar->showAll();
 
 	//printing school images
 	if(selectedTab!=4 && currentPage == 0)
 	{
-		blitAt(schools->ourImages[selectedTab].bitmap, 117 + pos.x, 74 + pos.y, to);
+//*		blitAt(schools->ourImages[selectedTab].bitmap, 117 + pos.x, 74 + pos.y, to);
 	}
 
 	//printing corners
 	if(currentPage!=0)
 	{
-		blitAt(leftCorner, lCorner->pos.x, lCorner->pos.y, to);
+//*		blitAt(leftCorner, lCorner->pos.x, lCorner->pos.y, to);
 	}
 	if((currentPage+1) < (pagesWithinCurrentTab()) )
 	{
-		blitAt(rightCorner, rCorner->pos.x, rCorner->pos.y, to);
+//*		blitAt(rightCorner, rCorner->pos.x, rCorner->pos.y, to);
 	}
 
 	//printing spell info
 	for(int b=0; b<12; ++b)
 	{
-		spellAreas[b]->showAll(to);
+//*		spellAreas[b]->showAll(to);
 	}
 }
 
-void CSpellWindow::show(SDL_Surface * to)
+void CSpellWindow::show()
 {
-	statusBar->show(to);
+	statusBar->show();
 }
 
 class SpellbookSpellSorter
@@ -766,11 +766,11 @@ void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 						}
 						if (availableTowns.empty())
 							LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[124]);
-						else
-							GH.pushInt (new CObjectListWindow(availableTowns,
-								new CPicture(graphics->spellscr->ourImages[spell].bitmap, 0, 0, false),
-								CGI->generaltexth->jktexts[40], CGI->generaltexth->jktexts[41],
-								boost::bind (&CSpellWindow::teleportTo, owner, _1, h)));
+//*						else
+//*							GH.pushInt (new CObjectListWindow(availableTowns,
+//*								new CPicture(graphics->spellscr->ourImages[spell].bitmap, 0, 0, false),
+//*								CGI->generaltexth->jktexts[40], CGI->generaltexth->jktexts[41],
+//*								boost::bind (&CSpellWindow::teleportTo, owner, _1, h)));
 					}
 					return;
 				}
@@ -823,15 +823,15 @@ void CSpellWindow::SpellArea::hover(bool on)
 	}
 }
 
-void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
+void CSpellWindow::SpellArea::showAll()
 {
 	if(mySpell < 0)
 		return;
 
 	const CSpell * spell = mySpell.toSpell();
 
-	blitAt(owner->spells->ourImages[mySpell].bitmap, pos.x, pos.y, to);
-	blitAt(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->ourImages[schoolLevel].bitmap, pos.x, pos.y, to); //printing border (indicates level of magic school)
+//*	blitAt(owner->spells->ourImages[mySpell].bitmap, pos.x, pos.y, to);
+//*	blitAt(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->ourImages[schoolLevel].bitmap, pos.x, pos.y, to); //printing border (indicates level of magic school)
 
 	SDL_Color firstLineColor, secondLineColor;
 	if(spellCost > owner->myHero->mana) //hero cannot cast this spell
@@ -846,13 +846,13 @@ void CSpellWindow::SpellArea::showAll(SDL_Surface * to)
 		secondLineColor = Colors::WHITE;
 	}
 	//printing spell's name
-	printAtMiddleLoc(spell->name, 39, 70, FONT_TINY, firstLineColor, to);
+//*	printAtMiddleLoc(spell->name, 39, 70, FONT_TINY, firstLineColor, to);
 	//printing lvl
-	printAtMiddleLoc(CGI->generaltexth->allTexts[171 + spell->level], 39, 82, FONT_TINY, secondLineColor, to);
+//*	printAtMiddleLoc(CGI->generaltexth->allTexts[171 + spell->level], 39, 82, FONT_TINY, secondLineColor, to);
 	//printing  cost
 	std::ostringstream ss;
 	ss << CGI->generaltexth->allTexts[387] << ": " << spellCost;
-	printAtMiddleLoc(ss.str(), 39, 94, FONT_TINY, secondLineColor, to);
+//*	printAtMiddleLoc(ss.str(), 39, 94, FONT_TINY, secondLineColor, to);
 }
 
 void CSpellWindow::SpellArea::setSpell(SpellID spellID)

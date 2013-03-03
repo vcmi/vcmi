@@ -443,7 +443,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	else //slider automatically places bonus Items
 		recreateSkillList (0);
 
-	showAll(screen2);
+	showAll();
 
 	//AUIDAT.DEF
 }
@@ -505,11 +505,11 @@ void CCreatureWindow::recreateSkillList(int Pos)
 	}
 }
 
-void CCreatureWindow::showAll(SDL_Surface * to)
+void CCreatureWindow::showAll()
 {
-	CIntObject::showAll(to);
+	CIntObject::showAll();
 
-	printAtMiddleLoc((type >= COMMANDER ? c->nameSing : c->namePl), 180, 30, FONT_SMALL, Colors::YELLOW, to); //creature name
+//*	printAtMiddleLoc((type >= COMMANDER ? c->nameSing : c->namePl), 180, 30, FONT_SMALL, Colors::YELLOW, to); //creature name
 
 	printLine(0, CGI->generaltexth->primarySkillNames[0], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::ATTACK), stackNode->Attack());
 	printLine(1, CGI->generaltexth->primarySkillNames[1], c->valOfBonuses(Bonus::PRIMARY_SKILL, PrimarySkill::DEFENSE), stackNode->Defense());
@@ -523,13 +523,13 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 	}
 	if (stackNode->valOfBonuses(Bonus::CASTS))
 	{
-		printAtMiddleLoc(CGI->generaltexth->allTexts[399], 356, 62, FONT_SMALL, Colors::WHITE, to);
+//*		printAtMiddleLoc(CGI->generaltexth->allTexts[399], 356, 62, FONT_SMALL, Colors::WHITE, to);
 		std::string casts;
 		if (type == BATTLE)
 			casts = boost::lexical_cast<std::string>((ui16)dynamic_cast<const CStack*>(stackNode)->casts); //ui8 is converted to char :(
 		else
 			casts = boost::lexical_cast<std::string>(stackNode->valOfBonuses(Bonus::CASTS));
-		printAtMiddleLoc(casts, 356, 82, FONT_SMALL, Colors::WHITE, to);
+//*		printAtMiddleLoc(casts, 356, 82, FONT_SMALL, Colors::WHITE, to);
 	}
 
 	//TODO
@@ -542,29 +542,29 @@ void CCreatureWindow::showAll(SDL_Surface * to)
 	printLine(6, CGI->generaltexth->zelp[441].first, c->valOfBonuses(Bonus::STACKS_SPEED), stackNode->valOfBonuses(Bonus::STACKS_SPEED));
 
 	BOOST_FOREACH(CBonusItem* b, bonusItems)
-		b->showAll (to);
+		b->showAll();
 
 	BOOST_FOREACH(auto s, selectableSkills)
-		s->showAll (to);
+		s->showAll();
 
 	for (int i = 0; i < skillPictures.size(); i++)
 	{
-		skillPictures[i]->bg = BitmapHandler::loadBitmap (skillToFile(i));
-		skillPictures[i]->showAll (to);
+//*		skillPictures[i]->bg = BitmapHandler::loadBitmap (skillToFile(i));
+//*		skillPictures[i]->showAll (to);
 	}
 
 	if (upgradeOptions.size() && (type == COMMANDER_LEVEL_UP && upgradeOptions[selectedOption] >= 100)) //add frame to selected skill
 	{
 		int index = selectedOption - selectableSkills.size(); //this is screwed
-		CSDL_Ext::drawBorder(to, Rect::around(selectableBonuses[index]->pos), int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b)); 
+//*		CSDL_Ext::drawBorder(to, Rect::around(selectableBonuses[index]->pos), int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b)); 
 	}
 }
 
-void CCreatureWindow::show(SDL_Surface * to)
+void CCreatureWindow::show()
 {
-	CIntObject::show(to);
-	if (!count.empty()) //army stack
-		graphics->fonts[FONT_TIMES]->renderTextRight(to, count, Colors::WHITE, Point(pos.x + 114, pos.y + 174));
+	CIntObject::show();
+//*	if (!count.empty()) //army stack
+//*		graphics->fonts[FONT_TIMES]->renderTextRight(to, count, Colors::WHITE, Point(pos.x + 114, pos.y + 174));
 }
 
 
@@ -709,14 +709,14 @@ CBonusItem::CBonusItem(const Rect &Pos, const std::string &Name, const std::stri
 	removeUsedEvents(ALL); //no actions atm
 }
 
-void CBonusItem::showAll (SDL_Surface * to)
+void CBonusItem::showAll()
 {
 	if (visible)
 	{
-		graphics->fonts[FONT_SMALL]->renderTextLeft(to, name, Colors::YELLOW, Point(pos.x + 72, pos.y + 6));
-		graphics->fonts[FONT_SMALL]->renderTextLeft(to, description, Colors::WHITE,  Point(pos.x + 72, pos.y + 30));
-		if (bonusGraphics && bonusGraphics->bg)
-			blitAtLoc(bonusGraphics->bg, 12, 2, to);
+//*		graphics->fonts[FONT_SMALL]->renderTextLeft(to, name, Colors::YELLOW, Point(pos.x + 72, pos.y + 6));
+//*		graphics->fonts[FONT_SMALL]->renderTextLeft(to, description, Colors::WHITE,  Point(pos.x + 72, pos.y + 30));
+//*		if (bonusGraphics && bonusGraphics->bg)
+//*			blitAtLoc(bonusGraphics->bg, 12, 2, to);
 	}
 }
 
@@ -731,10 +731,10 @@ void CSelectableSkill::clickLeft(tribool down, bool previousState)
 		callback();
 }
 
-void CCreInfoWindow::show(SDL_Surface * to)
+void CCreInfoWindow::show()
 {
-	CIntObject::show(to);
-	creatureCount->showAll(to);
+	CIntObject::show();
+	creatureCount->showAll();
 }
 
 CCreInfoWindow::CCreInfoWindow(const CStackInstance &stack, bool LClicked, boost::function<void()> upgradeFunc, boost::function<void()> dismissFunc, UpgradeInfo *upgradeInfo):

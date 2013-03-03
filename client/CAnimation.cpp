@@ -1218,9 +1218,9 @@ CAnimImage::~CAnimImage()
 	delete anim;
 }
 
-void CAnimImage::showAll(SDL_Surface * to)
+void CAnimImage::showAll()
 {
-	IImage *img;
+/*	IImage *img;
 
 	if ( flags & CShowableAnim::BASE && frame != 0)
 		if ((img = anim->getImage(0, group)))
@@ -1228,6 +1228,7 @@ void CAnimImage::showAll(SDL_Surface * to)
 
 	if ((img = anim->getImage(frame, group)))
 		img->draw(to, pos.x, pos.y);
+*/
 }
 
 void CAnimImage::setFrame(size_t Frame, size_t Group)
@@ -1345,11 +1346,11 @@ void CShowableAnim::clipRect(int posX, int posY, int width, int height)
 	pos.h = height;
 }
 
-void CShowableAnim::show(SDL_Surface * to)
+void CShowableAnim::show()
 {
-	if ( flags & BASE && frame != first)
-		blitImage(first, group, to);
-	blitImage(frame, group, to);
+//*	if ( flags & BASE && frame != first)
+//*		blitImage(first, group, to);
+//*	blitImage(frame, group, to);
 
 	if ((flags & PLAY_ONCE) && frame + 1 == last)
 		return;
@@ -1362,11 +1363,11 @@ void CShowableAnim::show(SDL_Surface * to)
 	}
 }
 
-void CShowableAnim::showAll(SDL_Surface * to)
+void CShowableAnim::showAll()
 {
-	if ( flags & BASE && frame != first)
-		blitImage(first, group, to);
-	blitImage(frame, group, to);
+//*	if ( flags & BASE && frame != first)
+//*		blitImage(first, group, to);
+//*	blitImage(frame, group, to);
 }
 
 void CShowableAnim::blitImage(size_t frame, size_t group, SDL_Surface *to)

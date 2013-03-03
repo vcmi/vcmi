@@ -1,9 +1,7 @@
 #pragma once
 
 #include "../lib/vcmi_endian.h"
-
 struct SDL_Surface;
-struct BMPPalette;
 
 /*
  * CDefHandler.h, part of VCMI engine
@@ -76,7 +74,7 @@ public:
 
 class CDefHandler
 {
-private:
+private:	
 	ui32 DEFType;
 	struct SEntry
 	{
@@ -94,7 +92,7 @@ public:
 
 	CDefHandler(); //c-tor
 	~CDefHandler(); //d-tor
-	SDL_Surface * getSprite (int SIndex, const ui8 * FDef, const BMPPalette * palette) const; //saves picture with given number to "testtt.bmp"
+	SDL_Surface * getSprite (int SIndex, const ui8 * FDef) const; //saves picture with given number to "testtt.bmp"
 	static void expand(ui8 N,ui8 & BL, ui8 & BR);
 	void openFromMemory(ui8 * table, const std::string & name);
 	CDefEssential * essentialize();

@@ -252,24 +252,24 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 	} //for (int i=0;i<currentPath->nodes.size()-1;i++)
 }
 
-void CTerrainRect::show(SDL_Surface * to)
+void CTerrainRect::show()
 {
 	if(ADVOPT.smoothMove)
 		CGI->mh->terrainRect
 			(adventureInt->position, adventureInt->anim,
 			 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
-			 to, &pos, moveX, moveY, false, int3());
+			 nullptr, &pos, moveX, moveY, false, int3());
 	else
 		CGI->mh->terrainRect
 			(adventureInt->position, adventureInt->anim,
 			 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
-			 to, &pos, 0, 0, false, int3());
+			 nullptr, &pos, 0, 0, false, int3());
 
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
 	if (currentPath/* && adventureInt->position.z==currentPath->startPos().z*/) //drawing path
 	{
-		showPath(&pos, to);
+		//* showPath(&pos, to);
 	}
 }
 
@@ -350,14 +350,14 @@ void CResDataBar::draw(SDL_Surface * to)
 	graphics->fonts[FONT_SMALL]->renderTextLeft(to, processStr(datetext,temp), Colors::WHITE, Point(txtpos[7].first,txtpos[7].second));
 }
 
-void CResDataBar::show(SDL_Surface * to)
+void CResDataBar::show()
 {
 
 }
 
-void CResDataBar::showAll(SDL_Surface * to)
+void CResDataBar::showAll()
 {
-	draw(to);
+	draw(nullptr);
 }
 
 CAdvMapInt::CAdvMapInt():
@@ -445,13 +445,13 @@ void CAdvMapInt::fswitchLevel()
 	{
 		position.z--;
 		underground.setIndex(0,true);
-		underground.showAll(screenBuf);
+		underground.showAll();
 	}
 	else
 	{
 		underground.setIndex(1,true);
 		position.z++;
-		underground.showAll(screenBuf);
+		underground.showAll();
 	}
 	updateScreen = true;
 	minimap.setLevel(position.z);
@@ -652,36 +652,36 @@ void CAdvMapInt::deactivate()
 		LOCPLINT->cingconsole->deactivate();
 	}
 }
-void CAdvMapInt::showAll(SDL_Surface * to)
+void CAdvMapInt::showAll()
 {
-	blitAt(bg,0,0,to);
+	//* blitAt(bg,0,0,to);
 
 	if(state != INGAME)
 		return;
 
-	kingOverview.showAll(to);
-	underground.showAll(to);
-	questlog.showAll(to);
-	sleepWake.showAll(to);
-	moveHero.showAll(to);
-	spellbook.showAll(to);
-	advOptions.showAll(to);
-	sysOptions.showAll(to);
-	nextHero.showAll(to);
-	endTurn.showAll(to);
+	kingOverview.showAll();
+	underground.showAll();
+	questlog.showAll();
+	sleepWake.showAll();
+	moveHero.showAll();
+	spellbook.showAll();
+	advOptions.showAll();
+	sysOptions.showAll();
+	nextHero.showAll();
+	endTurn.showAll();
 
-	minimap.showAll(to);
-	heroList.showAll(to);
-	townList.showAll(to);
+	minimap.showAll();
+	heroList.showAll();
+	townList.showAll();
 	updateScreen = true;
-	show(to);
+	show();
 
-	resdatabar.draw(to);
+	//* resdatabar.draw(to);
 
-	statusbar.show(to);
+	statusbar.show();
 
-	infoBar.showAll(to);
-	LOCPLINT->cingconsole->showAll(to);
+	infoBar.showAll();
+	LOCPLINT->cingconsole->showAll();
 }
 
 bool CAdvMapInt::isHeroSleeping(const CGHeroInstance *hero)
@@ -701,7 +701,7 @@ void CAdvMapInt::setHeroSleeping(const CGHeroInstance *hero, bool sleep)
 	updateNextHero(NULL);
 }
 
-void CAdvMapInt::show(SDL_Surface * to)
+void CAdvMapInt::show()
 {
 	if(state != INGAME)
 		return;
@@ -746,14 +746,14 @@ void CAdvMapInt::show(SDL_Surface * to)
 	}
 	if(updateScreen)
 	{
-		terrain.show(to);
-		for(int i=0;i<4;i++)
-			blitAt(gems[i]->ourImages[LOCPLINT->playerID.getNum()].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i],to);
+		terrain.show();
+//*		for(int i=0;i<4;i++)
+//*			blitAt(gems[i]->ourImages[LOCPLINT->playerID.getNum()].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i],to);
 		updateScreen=false;
-		LOCPLINT->cingconsole->showAll(to);
+		LOCPLINT->cingconsole->showAll();
 	}
-	infoBar.show(to);
-	statusbar.showAll(to);
+	infoBar.show();
+	statusbar.showAll();
 }
 
 void CAdvMapInt::selectionChanged()
@@ -1490,7 +1490,7 @@ void CAdvMapInt::aiTurnStarted()
 	CCS->musich->playMusicFromSet("enemy-turn", true);
 	adventureInt->minimap.setAIRadar(true);
 	adventureInt->infoBar.startEnemyTurn(LOCPLINT->cb->getCurrentPlayer());
-	adventureInt->infoBar.showAll(screen);//force refresh on inactive object
+	adventureInt->infoBar.showAll(); //force refresh on inactive object
 }
 
 void CAdvMapInt::adjustActiveness(bool aiTurnStart)

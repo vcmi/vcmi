@@ -572,9 +572,9 @@ void CMinimap::mouseMoved(const SDL_MouseMotionEvent & sEvent)
 		moveAdvMapSelection();
 }
 
-void CMinimap::showAll(SDL_Surface * to)
+void CMinimap::showAll()
 {
-	CIntObject::showAll(to);
+	CIntObject::showAll();
 	if (minimap)
 	{
 		int3 mapSizes = LOCPLINT->cb->getMapSize();
@@ -589,10 +589,10 @@ void CMinimap::showAll(SDL_Surface * to)
 			ui16(adventureInt->terrain.tilesh * pos.h / mapSizes.y)
 		};
 
-		SDL_GetClipRect(to, &oldClip);
-		SDL_SetClipRect(to, &pos);
-		CSDL_Ext::drawDashedBorder(to, radar, int3(255,75,125));
-		SDL_SetClipRect(to, &oldClip);
+		//* SDL_GetClipRect(to, &oldClip);
+		//* SDL_SetClipRect(to, &pos);
+		//* CSDL_Ext::drawDashedBorder(to, radar, int3(255,75,125));
+		//* SDL_SetClipRect(to, &oldClip);
 	}
 }
 
@@ -648,11 +648,11 @@ CInfoBar::CVisibleInfo::CVisibleInfo(Point position):
 
 }
 
-void CInfoBar::CVisibleInfo::show(SDL_Surface *to)
+void CInfoBar::CVisibleInfo::show()
 {
-	CIntObject::show(to);
+	CIntObject::show();
 	BOOST_FOREACH(auto object, forceRefresh)
-		object->showAll(to);
+		object->showAll();
 }
 
 void CInfoBar::CVisibleInfo::loadHero(const CGHeroInstance * hero)

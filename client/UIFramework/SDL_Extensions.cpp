@@ -51,9 +51,9 @@ bool isItIn(const SDL_Rect * rect, int x, int y)
 
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst)
 {
-	if(!dst) dst = screen;
-	SDL_Rect pom = genRect(src->h,src->w,x,y);
-	CSDL_Ext::blitSurface(src,NULL,dst,&pom);
+	//if(!dst) dst = screen;
+	//SDL_Rect pom = genRect(src->h,src->w,x,y);
+	//CSDL_Ext::blitSurface(src,NULL,dst,&pom);
 }
 
 void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst)
@@ -81,6 +81,8 @@ void updateRect (SDL_Rect * rect, SDL_Surface * scr)
 SDL_Surface * CSDL_Ext::rotate01(SDL_Surface * toRot)
 {
 	SDL_Surface * ret = SDL_ConvertSurface(toRot, toRot->format, toRot->flags);
+	if (ret == nullptr) return nullptr;
+
 	const int bpl = ret->pitch;
 	const int bpp = ret->format->BytesPerPixel;
 

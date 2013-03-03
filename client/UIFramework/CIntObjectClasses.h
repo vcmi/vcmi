@@ -3,6 +3,7 @@
 #include "CIntObject.h"
 #include "SDL_Extensions.h"
 #include "../FunctionList.h"
+#include "../Gfx/Manager.h"
 
 struct SDL_Surface;
 struct Rect;
@@ -26,7 +27,7 @@ class CSimpleWindow : public CIntObject
 {
 public:
 	SDL_Surface * bitmap; //background
-	virtual void show(SDL_Surface * to);
+	virtual void show();
 	CSimpleWindow():bitmap(NULL){}; //c-tor
 	virtual ~CSimpleWindow(); //d-tor
 };
@@ -35,22 +36,20 @@ public:
 class CPicture : public CIntObject
 {
 	void setSurface(SDL_Surface *to);
+	Gfx::PImage bg;
+
 public: 
-	SDL_Surface * bg;
 	Rect * srcRect; //if NULL then whole surface will be used
 	bool freeSurf; //whether surface will be freed upon CPicture destruction
 	bool needRefresh;//Surface needs to be displayed each frame
 
-	operator SDL_Surface*()
-	{
-		return bg;
-	}
+	inline Gfx::PImage getImage() { return bg; };
 
 	CPicture(const Rect & r, const SDL_Color & color, bool screenFormat = false); //rect filled with given color
 	CPicture(const Rect & r, ui32 color, bool screenFormat = false); //rect filled with given color
-	CPicture(SDL_Surface * BG, int x = 0, int y=0, bool Free = true); //wrap existing SDL_Surface
+	CPicture(Gfx::PImage BG, int x = 0, int y=0, bool Free = true); //wrap existing SDL_Surface
 	CPicture(const std::string &bmpname, int x=0, int y=0);
-	CPicture(SDL_Surface *BG, const Rect &SrcRext, int x = 0, int y = 0, bool free = false); //wrap subrect of given surface
+	CPicture(Gfx::PImage BG, const Rect &SrcRext, int x = 0, int y = 0, bool free = false); //wrap subrect of given surface
 	~CPicture();
 	void init();
 
@@ -60,8 +59,8 @@ public:
 
 	void scaleTo(Point size);
 	void createSimpleRect(const Rect &r, bool screenFormat, ui32 color);
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void show();
+	void showAll();
 	void convertToScreenBPP();
 	void colorizeAndConvert(PlayerColor player);
 	void colorize(PlayerColor player);
@@ -75,7 +74,7 @@ class CFilledTexture : CIntObject
 public:
 	CFilledTexture(std::string imageName, Rect position);
 	~CFilledTexture();
-	void showAll(SDL_Surface *to);
+	void showAll();
 };
 
 namespace config{struct ButtonInfo;}
@@ -111,7 +110,7 @@ public:
 	bool isBlocked();
 	bool isHighlighted();
 
-	CAnimImage * image; //image for this button
+	Gfx::PAnimation image; //image for this button
 	CLabel * text;//text overlay
 
 	CButtonBase(); //c-tor
@@ -146,9 +145,9 @@ public:
 	void init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key );
 
 	void setIndex(size_t index, bool playerColoredButton=false);
-	void setImage(CAnimation* anim, bool playerColoredButton=false, int animFlags=0);
+	void setImage(Gfx::PAnimation anim, bool playerColoredButton=false, int animFlags=0);
 	void setPlayerColor(PlayerColor player);
-	void showAll(SDL_Surface * to);
+	void showAll();
 };
 
 /// A button which can be selected/deselected
@@ -182,8 +181,8 @@ public:
 	~CHighlightableButtonsGroup();
 	void select(int id, bool mode); //mode==0: id is serial; mode==1: id is unique button id
 	void selectionChanged(int to);
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void show();
+	void showAll();
 	void block(ui8 on);
 };
 
@@ -214,7 +213,7 @@ public:
 	void wheelScrolled(bool down, bool in);
 	void clickLeft(tribool down, bool previousState);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void showAll(SDL_Surface * to);
+	void showAll();
 
 	CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int Capacity, int Amount, 
 		int Value=0, bool Horizontal=true, int style = 0); //style 0 - brown, 1 - blue
@@ -340,7 +339,7 @@ public:
 	bool ignoreLeadingWhitespace; 
 
 	virtual void setTxt(const std::string &Txt);
-	void showAll(SDL_Surface * to); //shows statusbar (with current text)
+	void showAll(); //shows statusbar (with current text)
     CLabel(int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
 };
 
@@ -358,7 +357,7 @@ public:
 	void setTxt(const std::string &Txt);
 	void setBounds(int limitW, int limitH);
 	virtual void recalculateLines(const std::string &Txt);
-	void showAll(SDL_Surface * to);
+	void showAll();
 };
 
 //Small helper class to manage group of similar labels 
@@ -385,7 +384,7 @@ public:
 
     //CTextBox( std::string Text, const Point &Pos, int w, int h, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
     CTextBox(std::string Text, const Rect &rect, int SliderStyle, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE);
-	void showAll(SDL_Surface * to); //shows statusbar (with current text)
+	void showAll(); //shows statusbar (with current text)
 	void recalculateLines(const std::string &Txt);
 
 	void sliderMoved(int to);
@@ -403,7 +402,7 @@ public:
 	void print(const std::string & Text); //prints text and refreshes statusbar
 	void clear();//clears statusbar and refreshes
 	std::string getCurrent(); //returns currently displayed text
-	void show(SDL_Surface * to); //shows statusbar (with current text)
+	void show(); //shows statusbar (with current text)
 
     //CGStatusBar(int x, int y, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "");
     CGStatusBar(CPicture *BG, EFonts Font = FONT_SMALL, EAlignment Align = CENTER, const SDL_Color &Color = Colors::WHITE); //given CPicture will be captured by created sbar and it's pos will be used as pos for sbar
@@ -504,7 +503,7 @@ protected:
 	//Used only if RCLICK_POPUP was set
 	void clickRight(tribool down, bool previousState);
 	//To display border
-	void showAll(SDL_Surface *to);
+	void showAll();
 	//change or set background image
 	void setBackground(std::string filename);
 	void updateShadow();

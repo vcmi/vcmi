@@ -1,7 +1,8 @@
 #pragma once
 
+#include "../Gfx/Manager.h"
+
 class CAnimImage;
-struct SDL_Surface;
 
 /*
  * CCursorhandler.h, part of VCMI engine
@@ -27,9 +28,9 @@ namespace ECursor
 /// handles mouse cursor
 class CCursorHandler 
 {
-	SDL_Surface * help;
-	CAnimImage * currentCursor;
-	CAnimImage * dndObject; //if set, overrides currentCursor
+	Gfx::PImage help;
+	Gfx::PAnimation currentCursor;
+	CAnimImage* dndObject; // if set, overrides currentCursor
 	bool showing;
 
 public:
@@ -41,7 +42,7 @@ public:
 	size_t frame;
 
 	/// inits cursorHandler - run only once, it's not memleak-proof (rev 1333)
-	void initCursor();
+	CCursorHandler();
 
 	/// changes cursor graphic for type type (0 - adventure, 1 - combat, 2 - default, 3 - spellbook) and frame index (not used for type 3)
 	void changeGraphic(ECursor::ECursorTypes type, int index);
@@ -59,14 +60,14 @@ public:
 	/// Restore original image below cursor
 	void drawRestored();
 	/// Simple draw cursor
-	void draw(SDL_Surface *to);
+	void draw();
 
 	void shiftPos( int &x, int &y );
 	void hide() { showing=0; };
 	void show() { showing=1; };
 
 	/// change cursor's positions to (x, y)
-	void cursorMove(const int & x, const int & y);
+	void cursorMove(int x, int y);
 	/// Move cursor to screen center
 	void centerCursor();
 

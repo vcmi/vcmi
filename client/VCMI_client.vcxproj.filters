@@ -30,13 +30,37 @@
     <ClCompile Include="NetPacksClient.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="UIFramework\CCursorHandler.cpp" />
-    <ClCompile Include="UIFramework\CGuiHandler.cpp" />
-    <ClCompile Include="UIFramework\CIntObject.cpp" />
-    <ClCompile Include="UIFramework\CIntObjectClasses.cpp" />
     <ClCompile Include="UIFramework\Geometries.cpp" />
     <ClCompile Include="UIFramework\SDL_Extensions.cpp" />
     <ClCompile Include="CQuestLog.cpp" />
     <ClCompile Include="UIFramework\Fonts.cpp" />
+    <ClCompile Include="Gfx\Animations.cpp">
+      <Filter>Gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="Gfx\Images.cpp">
+      <Filter>Gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="Gfx\ImgMakers.cpp">
+      <Filter>Gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="Gfx\CPaletteRGBA.cpp">
+      <Filter>Gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="Gfx\Manager.cpp">
+      <Filter>Gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\CIntObjectClasses.cpp">
+      <Filter>UIFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\CIntObject.cpp">
+      <Filter>UIFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\GL2D.cpp">
+      <Filter>UIFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\CGuiHandler.cpp">
+      <Filter>UIFramework</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Global.h" />
@@ -70,8 +94,6 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="UIFramework\CCursorHandler.h" />
-    <ClInclude Include="UIFramework\CGuiHandler.h" />
-    <ClInclude Include="UIFramework\CIntObject.h" />
     <ClInclude Include="UIFramework\CIntObjectClasses.h" />
     <ClInclude Include="UIFramework\Geometries.h" />
     <ClInclude Include="UIFramework\SDL_Extensions.h" />
@@ -82,6 +104,30 @@
     </ClCompile>
     <ClInclude Include="mapHandler.h" />
     <ClInclude Include="UIFramework\Fonts.h" />
+    <ClInclude Include="Gfx\Animations.h">
+      <Filter>Gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="Gfx\Images.h">
+      <Filter>Gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="Gfx\FilesHeaders.h">
+      <Filter>Gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="Gfx\CPaletteRGBA.h">
+      <Filter>Gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="Gfx\Manager.h">
+      <Filter>Gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\CIntObject.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\GL2D.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\CGuiHandler.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="VCMI_client.rc" />
@@ -92,5 +138,13 @@
   <ItemGroup>
     <None Include="..\ChangeLog" />
     <None Include="vcmi.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Gfx">
+      <UniqueIdentifier>{215917eb-e8a3-400a-8e1a-d027a532bf3d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UIFramework">
+      <UniqueIdentifier>{1ffcd26b-1f6e-4274-8245-3572b26afed5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
 </Project>

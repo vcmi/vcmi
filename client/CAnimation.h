@@ -247,7 +247,7 @@ public:
 	//makes image player-colored
 	void playerColored(PlayerColor player);
 
-	void showAll(SDL_Surface * to);
+	void showAll();
 };
 
 /// Base class for displaying animation, used as superclass for different animations
@@ -308,8 +308,8 @@ public:
 	virtual void reset();
 
 	//show current frame and increase counter
-	void show(SDL_Surface * to);
-	void showAll(SDL_Surface * to);
+	void show();
+	void showAll();
 };
 
 /// Creature-dependend animations like attacking, moving,...

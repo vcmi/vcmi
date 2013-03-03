@@ -24,7 +24,7 @@ class IShowable;
 class CFramerateManager
 {
 private:
-	double rateticks;
+	ui32 rateticks;
 	ui32 lastticks, timeElapsed;
 	int rate;
 

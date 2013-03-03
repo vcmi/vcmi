@@ -1,5 +1,6 @@
 #include "StdInc.h"
 #include "CIntObjectClasses.h"
+#include "GL2D.h"
 
 #include "../CBitmapHandler.h"
 #include "SDL_Pixels.h"
@@ -18,29 +19,31 @@
 #include "../GUIClasses.h"
 #include "CGuiHandler.h"
 #include "../CAdvmapInterface.h"
+#include "../Gfx/Animations.h"
+#include "../Gfx/Images.h"
 
-CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
+CPicture::CPicture(Gfx::PImage BG, int x, int y, bool Free )
 {
 	init();
 	bg = BG;
 	freeSurf = Free;
 	pos.x += x;
 	pos.y += y;
-	pos.w = BG->w;
-	pos.h = BG->h;
+	pos.w = BG->getWidth();
+	pos.h = BG->getHeight();
 }
 
 CPicture::CPicture( const std::string &bmpname, int x, int y )
 {
 	init();
-	bg = BitmapHandler::loadBitmap(bmpname);
+	bg = Gfx::CManager::getImage(bmpname);
 	freeSurf = true;;
 	pos.x += x;
 	pos.y += y;
 	if(bg)
 	{
-		pos.w = bg->w;
-		pos.h = bg->h;
+		pos.w = bg->getWidth();
+		pos.h = bg->getHeight();
 	}
 	else
 	{
@@ -51,7 +54,7 @@ CPicture::CPicture( const std::string &bmpname, int x, int y )
 CPicture::CPicture(const Rect &r, const SDL_Color &color, bool screenFormat /*= false*/)
 {
 	init();
-	createSimpleRect(r, screenFormat, SDL_MapRGB(bg->format, color.r, color.g,color.b));
+	//createSimpleRect(r, screenFormat, SDL_MapRGB(bg->format, color.r, color.g,color.b));
 }
 
 CPicture::CPicture(const Rect &r, ui32 color, bool screenFormat /*= false*/)
@@ -60,7 +63,7 @@ CPicture::CPicture(const Rect &r, ui32 color, bool screenFormat /*= false*/)
 	createSimpleRect(r, screenFormat, color);
 }
 
-CPicture::CPicture(SDL_Surface *BG, const Rect &SrcRect, int x /*= 0*/, int y /*= 0*/, bool free /*= false*/)
+CPicture::CPicture(Gfx::PImage BG, const Rect &SrcRect, int x /*= 0*/, int y /*= 0*/, bool free /*= false*/)
 {
 	needRefresh = false;
 	srcRect = new Rect(SrcRect);
@@ -74,7 +77,7 @@ CPicture::CPicture(SDL_Surface *BG, const Rect &SrcRect, int x /*= 0*/, int y /*
 
 void CPicture::setSurface(SDL_Surface *to)
 {
-	bg = to;
+//*	bg = to;
 	if (srcRect)
 	{
 		pos.w = srcRect->w;
@@ -82,15 +85,13 @@ void CPicture::setSurface(SDL_Surface *to)
 	}
 	else
 	{
-		pos.w = bg->w;
-		pos.h = bg->h;
+		pos.w = bg->getWidth();
+		pos.h = bg->getHeight();
 	}
 }
 
 CPicture::~CPicture()
 {
-	if(freeSurf)
-		SDL_FreeSurface(bg);
 	delete srcRect;
 }
 
@@ -100,14 +101,15 @@ void CPicture::init()
 	srcRect = NULL;
 }
 
-void CPicture::show(SDL_Surface * to)
+void CPicture::show()
 {
-	if (needRefresh)
-		showAll(to);
+	if (bg) bg->putAt(Gfx::Point(pos.x, pos.y));
 }
 
-void CPicture::showAll(SDL_Surface * to)
+void CPicture::showAll()
 {
+	if (bg) bg->putAt(Gfx::Point(pos.x, pos.y));
+/*
 	if(bg)
 	{
 		if(srcRect)
@@ -122,30 +124,32 @@ void CPicture::showAll(SDL_Surface * to)
 		else
 			blitAt(bg, pos, to);
 	}
+*/
 }
 
 void CPicture::convertToScreenBPP()
 {
-	SDL_Surface *hlp = bg;
+/*	SDL_Surface *hlp = bg;
 	bg = SDL_ConvertSurface(hlp,screen->format,0);
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	SDL_FreeSurface(hlp);
+	SDL_FreeSurface(hlp); */
 }
 
 void CPicture::setAlpha(int value)
 {
-	SDL_SetAlpha(bg, SDL_SRCALPHA, value);
+//*	SDL_SetAlpha(bg, SDL_SRCALPHA, value);
 }
 
 void CPicture::scaleTo(Point size)
 {
-	SDL_Surface * scaled = CSDL_Ext::scaleSurface(bg, size.x, size.y);
+/*	SDL_Surface * scaled = CSDL_Ext::scaleSurface(bg, size.x, size.y);
 
 	if(freeSurf)
 		SDL_FreeSurface(bg);
 
 	setSurface(scaled);
 	freeSurf = false;
+*/
 }
 
 void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
@@ -153,12 +157,12 @@ void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
 	pos += r;
 	pos.w = r.w;
 	pos.h = r.h;
-	if(screenFormat)
+/*	if(screenFormat)
 		bg = CSDL_Ext::newSurface(r.w, r.h);
 	else
 		bg = SDL_CreateRGBSurface(SDL_SWSURFACE, r.w, r.h, 8, 0, 0, 0, 0);
 
-	SDL_FillRect(bg, NULL, color);
+	SDL_FillRect(bg, NULL, color); */
 	freeSurf = true;
 }
 
@@ -172,8 +176,8 @@ void CPicture::colorizeAndConvert(PlayerColor player)
 void CPicture::colorize(PlayerColor player)
 {
 	assert(bg);
-	assert(bg->format->BitsPerPixel == 8);
-	graphics->blueToPlayersAdv(bg, player);
+//*	assert(bg->format->BitsPerPixel == 8);
+//*	graphics->blueToPlayersAdv(bg, player);
 }
 
 CFilledTexture::CFilledTexture(std::string imageName, Rect position):
@@ -189,10 +193,10 @@ CFilledTexture::~CFilledTexture()
 	SDL_FreeSurface(texture);
 }
 
-void CFilledTexture::showAll(SDL_Surface *to)
+void CFilledTexture::showAll()
 {
-	CSDL_Ext::CClipRectGuard guard(to, pos);
-	CSDL_Ext::fillTexture(to, texture);
+//*	CSDL_Ext::CClipRectGuard guard(to, pos);
+//*	CSDL_Ext::fillTexture(to, texture);
 }
 
 CButtonBase::CButtonBase()
@@ -223,8 +227,8 @@ void CButtonBase::update()
 	if (newPos < 0)
 		newPos = 0;
 
-	if (state == HIGHLIGHTED && image->size() < 4)
-		newPos = image->size()-1;
+	if (state == HIGHLIGHTED && image->getFramesCount() < 4)
+		newPos = image->getFramesCount()-1;
 
 	if (swappedImages)
 	{
@@ -232,8 +236,8 @@ void CButtonBase::update()
 		else if (newPos == 1) newPos = 0;
 	}
 
-	if (!keepFrame)
-		image->setFrame(newPos);
+//*	if (!keepFrame)
+//*		image->setFrame(newPos);
 
 	if (active)
 		redraw();
@@ -310,6 +314,7 @@ CAdventureMapButton::CAdventureMapButton( const std::pair<std::string, std::stri
 	pom[0] = help.first;
 	init(Callback, pom, help.second, playerColoredButton, defName, add, x, y, key);
 }
+
 void CAdventureMapButton::clickLeft(tribool down, bool previousState)
 {
 	if(isBlocked())
@@ -412,34 +417,36 @@ void CAdventureMapButton::setIndex(size_t index, bool playerColoredButton)
 	if (index == currentImage || index>=imageNames.size())
 		return;
 	currentImage = index;
-	setImage(new CAnimation(imageNames[index]), playerColoredButton);
+	setImage(Gfx::CManager::getAnimation(imageNames[index]));
 }
 
-void CAdventureMapButton::setImage(CAnimation* anim, bool playerColoredButton, int animFlags)
+void CAdventureMapButton::setImage(Gfx::PAnimation anim, bool playerColoredButton, int animFlags)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	delete image;
-	image = new CAnimImage(anim, getState(), 0, 0, 0, animFlags);
-	if (playerColoredButton)
-		image->playerColored(LOCPLINT->playerID);
+	image = anim; //new CAnimImage(anim, getState(), 0, 0, 0, animFlags);
+//*	if (playerColoredButton)
+//*		image->playerColored(LOCPLINT->playerID);
 
-	pos.w = image->pos.w;
-	pos.h = image->pos.h;
+	pos.w = image->getWidth();
+	pos.h = image->getHeight();
+
 }
 
 void CAdventureMapButton::setPlayerColor(PlayerColor player)
 {
-	if (image)
-		image->playerColored(player);
+//	if (image)
+//		image->playerColored(player);
 }
 
-void CAdventureMapButton::showAll(SDL_Surface * to)
+void CAdventureMapButton::showAll()
 {
-	CIntObject::showAll(to);
+	image->getFrame(0)->putAt(Gfx::Point(pos.x, pos.y));
 
-	if (borderEnabled && borderColor.unused == 0)
-		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor.r, borderColor.g, borderColor.b));
+	CIntObject::showAll();
+
+//*	if (borderEnabled && borderColor.unused == 0)
+//*		CSDL_Ext::drawBorder(to, pos.x-1, pos.y-1, pos.w+2, pos.h+2, int3(borderColor.r, borderColor.g, borderColor.b));
 }
 
 void CHighlightableButton::select(bool on)
@@ -571,28 +578,28 @@ void CHighlightableButtonsGroup::selectionChanged(int to)
 		parent->redraw();
 }
 
-void CHighlightableButtonsGroup::show(SDL_Surface * to)
+void CHighlightableButtonsGroup::show()
 {
 	if (musicLike)
 	{
 		for(size_t i=0;i<buttons.size(); ++i)
 			if(buttons[i]->isHighlighted())
-				buttons[i]->show(to);
+				buttons[i]->show();
 	}
 	else
-		CIntObject::show(to);
+		CIntObject::show();
 }
 
-void CHighlightableButtonsGroup::showAll(SDL_Surface * to)
+void CHighlightableButtonsGroup::showAll()
 {
 	if (musicLike)
 	{
 		for(size_t i=0;i<buttons.size(); ++i)
 			if(buttons[i]->isHighlighted())
-				buttons[i]->showAll(to);
+				buttons[i]->showAll();
 	}
 	else
-		CIntObject::showAll(to);
+		CIntObject::showAll();
 }
 
 void CHighlightableButtonsGroup::block( ui8 on )
@@ -770,11 +777,11 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 
 	if(style == 0)
 	{
-		std::string name = horizontal?"IGPCRDIV.DEF":"OVBUTN2.DEF";
+		std::string name = horizontal ? "IGPCRDIV":"OVBUTN2";
 		//NOTE: this images do not have "blocked" frames. They should be implemented somehow (e.g. palette transform or something...)
 
 		//use source def to create custom animations. Format "name.def:123" will load this frame from def file
-		CAnimation *animLeft = new CAnimation();
+/*		CAnimation *animLeft = new CAnimation();
 		animLeft->setCustom(name + ":0", 0);
 		animLeft->setCustom(name + ":1", 1);
 		left->setImage(animLeft);
@@ -787,12 +794,13 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 		CAnimation *animSlider = new CAnimation();
 		animSlider->setCustom(name + ":4", 0);
 		slider->setImage(animSlider);
+*/
 	}
 	else
 	{
-		left->setImage(new CAnimation(horizontal ? "SCNRBLF.DEF" : "SCNRBUP.DEF"));
-		right->setImage(new CAnimation(horizontal ? "SCNRBRT.DEF" : "SCNRBDN.DEF"));
-		slider->setImage(new CAnimation("SCNRBSL.DEF"));
+		left->setImage(Gfx::CManager::getAnimation(horizontal ? "SCNRBLF" : "SCNRBUP"));
+		right->setImage(Gfx::CManager::getAnimation(horizontal ? "SCNRBRT" : "SCNRBDN"));
+		slider->setImage(Gfx::CManager::getAnimation("SCNRBSL"));
 	}
 	slider->actOnDown = true;
 	slider->soundDisabled = true;
@@ -817,10 +825,10 @@ void CSlider::setAmount( int to )
 	vstd::amax(positions, 0);
 }
 
-void CSlider::showAll(SDL_Surface * to)
+void CSlider::showAll()
 {
-	CSDL_Ext::fillRect(to, &pos, 0);
-	CIntObject::showAll(to);
+//*	CSDL_Ext::fillRect(to, &pos, 0);
+	CIntObject::showAll();
 }
 
 void CSlider::wheelScrolled(bool down, bool in)
@@ -1085,11 +1093,12 @@ const std::list<CIntObject *> &CListBox::getItems()
 	return items;
 }
 
-void CSimpleWindow::show(SDL_Surface * to)
+void CSimpleWindow::show()
 {
-	if(bitmap)
-		blitAt(bitmap,pos.x,pos.y,to);
+//*	if(bitmap)
+//*		blitAt(bitmap,pos.x,pos.y,to);
 }
+
 CSimpleWindow::~CSimpleWindow()
 {
 	if (bitmap)
@@ -1150,16 +1159,16 @@ void LRClickableAreaWText::init()
 	addUsedEvents(LCLICK | RCLICK | HOVER);
 }
 
-void CLabel::showAll(SDL_Surface * to)
+void CLabel::showAll()
 {
-	CIntObject::showAll(to);
+	CIntObject::showAll();
 
 	std::string toPrint = visibleText();
 	if(!toPrint.length())
 		return;
 
 	//blitLine(to, pos.topLeft()/2 + pos.bottomRight()/2, toPrint);
-    blitLine(to, pos.topLeft() + textOffset, toPrint);
+//*    blitLine(to, pos.topLeft() + textOffset, toPrint);
 
 }
 
@@ -1260,9 +1269,9 @@ CTextContainer::CTextContainer(EAlignment alignment, EFonts font, SDL_Color colo
 	color(color)
 {}
 
-void CBoundedLabel::showAll(SDL_Surface * to)
+void CBoundedLabel::showAll()
 {
-	CIntObject::showAll(to);
+	CIntObject::showAll();
 
 	const IFont * f = graphics->fonts[font];
 	int lineHeight =  f->getLineHeight();
@@ -1285,7 +1294,7 @@ void CBoundedLabel::showAll(SDL_Surface * to)
 			x += pos.w - f->getStringWidth(line.c_str()) / 2;
 		}
 
-		blitLine(to, Point(x, base_y + i * dy), line);
+//*		blitLine(to, Point(x, base_y + i * dy), line);
 	}
 }
 
@@ -1352,9 +1361,9 @@ void CTextBox::recalculateLines(const std::string &Txt)
 		vstd::amax(maxW, f->getStringWidth(line));
 }
 
-void CTextBox::showAll(SDL_Surface * to)
+void CTextBox::showAll()
 {
-	CIntObject::showAll(to);
+	CIntObject::showAll();
 
 	const IFont * f = graphics->fonts[font];
 	int dy = f->getLineHeight(); //line height
@@ -1374,7 +1383,7 @@ void CTextBox::showAll(SDL_Surface * to)
 		int width = pos.w + (slider ? (slider->pos.w) : 0);
 		int x = pos.x + int(alignment) * width / 2;
 
-		blitLine(to, Point(x, base_y + i * dy), line);
+//*		blitLine(to, Point(x, base_y + i * dy), line);
 	}
 
 }
@@ -1444,9 +1453,9 @@ CGStatusBar::~CGStatusBar()
 	GH.statusbar = oldStatusBar;
 }
 
-void CGStatusBar::show(SDL_Surface * to)
+void CGStatusBar::show()
 {
-    showAll(to);
+    showAll();
 }
 
 void CGStatusBar::init()
@@ -1511,10 +1520,10 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(Pos, 0, true);
 	Rect hlp = Pos;
-	if(srf)
+/*	if(srf)
 		CSDL_Ext::blitSurface(srf, &hlp, *bg, NULL);
 	else
-		SDL_FillRect(*bg, NULL, 0);
+		SDL_FillRect(*bg, NULL, 0); */
 	pos.w = bg->pos.w;
 	pos.h = bg->pos.h;
 	bg->pos = pos;
@@ -1847,26 +1856,26 @@ void CWindowObject::setShadow(bool on)
 			fullsize = Point(pos.w, pos.h);
 
 		//create base 8x8 piece of shadow
-		SDL_Surface * shadowCorner = CSDL_Ext::copySurface(shadowCornerTempl);
-		SDL_Surface * shadowBottom = CSDL_Ext::scaleSurfaceFast(shadowBottomTempl, fullsize.x - size, size);
-		SDL_Surface * shadowRight  = CSDL_Ext::scaleSurfaceFast(shadowRightTempl,  size, fullsize.y - size);
+//*		SDL_Surface * shadowCorner = CSDL_Ext::copySurface(shadowCornerTempl);
+//*		SDL_Surface * shadowBottom = CSDL_Ext::scaleSurfaceFast(shadowBottomTempl, fullsize.x - size, size);
+//*		SDL_Surface * shadowRight  = CSDL_Ext::scaleSurfaceFast(shadowRightTempl,  size, fullsize.y - size);
 
-		blitAlphaCol(shadowBottom, 0);
-		blitAlphaRow(shadowRight, 0);
+//*		blitAlphaCol(shadowBottom, 0);
+//*		blitAlphaRow(shadowRight, 0);
 
 		//generate "shadow" object with these 3 pieces in it
 		shadow = new CIntObject;
-		shadow->addChild(new CPicture(shadowCorner, shadowPos.x, shadowPos.y));
-		shadow->addChild(new CPicture(shadowRight,  shadowPos.x, shadowStart.y));
-		shadow->addChild(new CPicture(shadowBottom, shadowStart.x, shadowPos.y));
+//*		shadow->addChild(new CPicture(shadowCorner, shadowPos.x, shadowPos.y));
+//*		shadow->addChild(new CPicture(shadowRight,  shadowPos.x, shadowStart.y));
+//*		shadow->addChild(new CPicture(shadowBottom, shadowStart.x, shadowPos.y));
 	}
 }
 
-void CWindowObject::showAll(SDL_Surface *to)
+void CWindowObject::showAll()
 {
-	CIntObject::showAll(to);
-	if ((options & BORDERED) && (pos.h != to->h || pos.w != to->w))
-		CMessage::drawBorder(LOCPLINT ? LOCPLINT->playerID : PlayerColor(1), to, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
+	CIntObject::showAll();
+	if ((options & BORDERED) && (pos.w != GL2D::getScreenWidth() || pos.h != GL2D::getScreenHeight()))
+		CMessage::drawBorder(LOCPLINT ? LOCPLINT->playerID : PlayerColor(1), nullptr, pos.w+28, pos.h+29, pos.x-14, pos.y-15);
 }
 
 void CWindowObject::close()

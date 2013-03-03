@@ -83,7 +83,7 @@ public:
 	CHeroWindow(const CGHeroInstance *hero); //c-tor
 
 	void update(const CGHeroInstance * hero, bool redrawNeeded = false); //sets main displayed hero
-	void showAll(SDL_Surface * to);
+	void showAll();
 
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
 	void questlog(); //show quest log in hero window

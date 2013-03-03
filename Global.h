@@ -26,8 +26,9 @@
 
 
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
+#include <cstdint>
 #include <cstdio>
-#include <stdio.h>
+
 #ifdef _WIN32
 #include <tchar.h>
 #else
@@ -68,7 +69,6 @@
 #include <boost/assert.hpp>
 #include <boost/assign.hpp>
 #include <boost/bind.hpp>
-#include <boost/cstdint.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
@@ -91,20 +91,20 @@
 #endif
 
 // Integral data types
-typedef boost::uint64_t ui64; //unsigned int 64 bits (8 bytes)
-typedef boost::uint32_t ui32;  //unsigned int 32 bits (4 bytes)
-typedef boost::uint16_t ui16; //unsigned int 16 bits (2 bytes)
-typedef boost::uint8_t ui8; //unsigned int 8 bits (1 byte)
-typedef boost::int64_t si64; //signed int 64 bits (8 bytes)
-typedef boost::int32_t si32; //signed int 32 bits (4 bytes)
-typedef boost::int16_t si16; //signed int 16 bits (2 bytes)
-typedef boost::int8_t si8; //signed int 8 bits (1 byte)
+typedef uint64_t ui64; //unsigned int 64 bits (8 bytes)
+typedef uint32_t ui32;  //unsigned int 32 bits (4 bytes)
+typedef uint16_t ui16; //unsigned int 16 bits (2 bytes)
+typedef uint8_t ui8; //unsigned int 8 bits (1 byte)
+typedef int64_t si64; //signed int 64 bits (8 bytes)
+typedef int32_t si32; //signed int 32 bits (4 bytes)
+typedef int16_t si16; //signed int 16 bits (2 bytes)
+typedef int8_t si8; //signed int 8 bits (1 byte)
 
 // Fixed width bool data type is important for serialization
 static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 
 #if defined _M_X64 && defined _WIN32 //Win64 -> cannot load 32-bit DLLs for video handling
-	#define DISABLE_VIDEO
+	#define DISABLE_VIDEO 1
 #endif
 
 #ifdef __GNUC__
@@ -149,6 +149,22 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #else
 #define DLL_LINKAGE DLL_IMPORT
 #endif
+
+// Unaligned pointers
+#if defined(__GNUC__) && (defined(__arm__) || defined(__MIPS__) || defined(__sparc__))
+#	define UNALIGNED_PTR(T) struct __attribute__((__packed__)) { \
+		T val; \
+		inline operator T() { return val; }; \
+		inline T operator=(T v) { return val = v; }; \
+	} *
+#elif defined(_MSC_VER) && defined(_M_IA64)
+#	define UNALIGNED_PTR(T) T __unaligned *
+#else
+#	define UNALIGNED_PTR(T) T *
+#endif
+
+typedef UNALIGNED_PTR(uint32_t) ua_ui32_ptr;
+
 
 //defining available c++11 features
 

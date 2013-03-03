@@ -90,7 +90,7 @@ std::unique_ptr<CInputStream> CResourceLoader::load(const ResourceID & resourceI
 	const ResourceLocator & locator = resource->second.back();
 
 	// load the resource and return it
-	return locator.getLoader()->load(locator.getResourceName());
+	return locator.load();
 }
 
 std::pair<std::unique_ptr<ui8[]>, ui64> CResourceLoader::loadData(const ResourceID & resourceIdent) const
@@ -201,20 +201,9 @@ CResourceLoader * CResourceHandler::get()
 //	CResourceLoaderFactory::resourceLoader = resourceLoader;
 //}
 
-ResourceLocator::ResourceLocator(ISimpleResourceLoader * loader, const std::string & resourceName)
-			: loader(loader), resourceName(resourceName)
+std::unique_ptr<CInputStream> ResourceLocator::load() const
 {
-
-}
-
-ISimpleResourceLoader * ResourceLocator::getLoader() const
-{
-	return loader;
-}
-
-std::string ResourceLocator::getResourceName() const
-{
-	return resourceName;
+	return loader->load(resourceName);
 }
 
 EResType::Type EResTypeHelper::getTypeFromExtension(std::string extension)

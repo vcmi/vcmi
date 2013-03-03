@@ -5,6 +5,7 @@
 #include "CDefHandler.h"
 #include "CAnimation.h"
 #include "CGameInfo.h"
+#include "UIFramework/GL2D.h"
 #include "UIFramework/SDL_Extensions.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
@@ -46,7 +47,7 @@ public:
 	CComponent *comp;
 
 	//blit component with image centered at this position
-	void showAll(SDL_Surface * to);
+	void showAll();
 
 	//ComponentResolved(); //c-tor
 	ComponentResolved(CComponent *Comp); //c-tor
@@ -117,18 +118,18 @@ void CMessage::dispose()
 SDL_Surface * CMessage::drawDialogBox(int w, int h, PlayerColor playerColor)
 {
 	//prepare surface
-	SDL_Surface * ret = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
+//*	SDL_Surface * ret = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
 	for (int i=0; i<w; i+=background->w)//background
 	{
 		for (int j=0; j<h; j+=background->h)
 		{
 			Rect srcR(0,0,background->w, background->h);
 			Rect dstR(i,j,w,h);
-			CSDL_Ext::blitSurface(background, &srcR, ret, &dstR);
+//*			CSDL_Ext::blitSurface(background, &srcR, ret, &dstR);
 		}
 	}
-	drawBorder(playerColor, ret, w, h);
-	return ret;
+//*	drawBorder(playerColor, ret, w, h);
+	return nullptr; //* ret;
 }
 
 std::vector<std::string> CMessage::breakText( std::string text, size_t maxLineSize, EFonts font )
@@ -229,8 +230,8 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 
 	for(int i = 0; 
 		i < ARRAY_COUNT(sizes) 
-			&& sizes[i][0] < screen->w - 150  
-			&& sizes[i][1] < screen->h - 150
+			&& sizes[i][0] < GL2D::getScreenWidth() - 150  
+			&& sizes[i][1] < GL2D::getScreenHeight() - 150
 			&& ret->text->slider;
 		i++)
 	{
@@ -263,20 +264,20 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	vstd::amax(winSize.first, comps.w);
 	vstd::amax(winSize.first, bw);
 
-	vstd::amin(winSize.first, screen->w - 150);
+	vstd::amin(winSize.first, GL2D::getScreenWidth() - 150);
 
-	ret->bitmap = drawDialogBox (winSize.first + 2*SIDE_MARGIN, winSize.second + 2*SIDE_MARGIN, player);
-	ret->pos.h=ret->bitmap->h;
-	ret->pos.w=ret->bitmap->w;
-	ret->center();
+//*	ret->bitmap = drawDialogBox (winSize.first + 2*SIDE_MARGIN, winSize.second + 2*SIDE_MARGIN, player);
+//*	ret->pos.h=ret->bitmap->h;
+//*	ret->pos.w=ret->bitmap->w;
+//*	ret->center();
 
 	int curh = SIDE_MARGIN;
 	int xOffset = (ret->pos.w - ret->text->pos.w)/2;
 
 	if(!ret->buttons.size() && !ret->components.size()) //improvement for very small text only popups -> center text vertically
 	{
-		if(ret->bitmap->h > ret->text->pos.h + 2*SIDE_MARGIN)
-			curh = (ret->bitmap->h - ret->text->pos.h)/2;
+//*		if(ret->bitmap->h > ret->text->pos.h + 2*SIDE_MARGIN)
+//*			curh = (ret->bitmap->h - ret->text->pos.h)/2;
 	}
 
 	ret->text->moveBy(Point(xOffset, curh));
@@ -291,8 +292,8 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	if(ret->buttons.size())
 	{
 		// Position the buttons at the bottom of the window
-		bw = (ret->bitmap->w/2) - (bw/2);
-		curh = ret->bitmap->h - SIDE_MARGIN - ret->buttons[0]->pos.h;
+//*		bw = (ret->bitmap->w/2) - (bw/2);
+//*		curh = ret->bitmap->h - SIDE_MARGIN - ret->buttons[0]->pos.h;
 
 		for(size_t i=0; i<ret->buttons.size(); i++)
 		{
@@ -395,10 +396,10 @@ ComponentResolved::~ComponentResolved()
 	}
 }
 
-void ComponentResolved::showAll(SDL_Surface *to)
+void ComponentResolved::showAll()
 {
-	CIntObject::showAll(to);
-	comp->showAll(to);
+	CIntObject::showAll();
+	comp->showAll();
 }
 
 ComponentsToBlit::~ComponentsToBlit()
@@ -481,7 +482,7 @@ void ComponentsToBlit::blitCompsOnSur( bool blitOr, int inter, int &curh, SDL_Su
 			cur->moveTo(Point(curw, curh));
 
 			//blit component
-			cur->showAll(ret);
+			cur->showAll();
 			curw += cur->pos.w;
 
 			//if there is subsequent component blit "or"

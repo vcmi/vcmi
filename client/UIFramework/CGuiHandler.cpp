@@ -1,9 +1,11 @@
 #include "StdInc.h"
 #include "CGuiHandler.h"
+#include "GL2D.h"
 
 #include "SDL_Extensions.h"
 #include "CIntObject.h"
 #include "../CGameInfo.h"
+#include "../CPlayerInterface.h"
 #include "CCursorHandler.h"
 #include "../../lib/CThreadHelper.h"
 #include "../../lib/CConfigHandler.h"
@@ -141,12 +143,21 @@ IShowActivatable * CGuiHandler::topInt()
 		return listInt.front();
 }
 
+
 void CGuiHandler::totalRedraw()
 {
-	for(int i=0;i<objsToBlit.size();i++)
-		objsToBlit[i]->showAll(screen2);
-	blitAt(screen2,0,0,screen);
+	for (size_t i=0; i<objsToBlit.size(); ++i)
+		objsToBlit[i]->showAll();
+
+	if (settings["general"]["showfps"].Bool()) drawFPSCounter();
+
+	// draw the mouse cursor and update the screen
+	CCS->curh->drawWithScreenRestore();
+	CCS->curh->drawRestored();
+
+	SDL_GL_SwapBuffers();
 }
+
 
 void CGuiHandler::updateTime()
 {
@@ -336,9 +347,9 @@ void CGuiHandler::handleMouseMotion(SDL_Event *sEvent)
 void CGuiHandler::simpleRedraw()
 {
 	//update only top interface and draw background
-	if(objsToBlit.size() > 1)
-		blitAt(screen2,0,0,screen); //blit background
-	objsToBlit.back()->show(screen); //blit active interface/window
+//*	if(objsToBlit.size() > 1)
+//*		blitAt(screen2,0,0,screen); //blit background
+	objsToBlit.back()->show(); //blit active interface/window
 }
 
 void CGuiHandler::handleMoveInterested( const SDL_MouseMotionEvent & motion )
@@ -375,14 +386,23 @@ void CGuiHandler::run()
 	inGuiThread.reset(new bool(true));
 	try
 	{
-		if(settings["video"]["fullscreen"].Bool())
+		GL2D::attachToCurrentThread();
+
+		if (settings["video"]["fullscreen"].Bool())
 			CCS->curh->centerCursor();
 
 		mainFPSmng->init(); // resets internal clock, needed for FPS manager
 		while(!terminate)
 		{
-			if(curInt)
-				curInt->update(); // calls a update and drawing process of the loaded game interface object at the moment
+			boost::unique_lock<boost::recursive_mutex> lock(*CPlayerInterface::pim); 
+
+			if (curInt) curInt->update();
+
+			// Handles mouse and key input
+			updateTime();
+			handleEvents();
+
+			totalRedraw(); 
 
 			mainFPSmng->framerateDelay(); // holds a constant FPS
 		}
@@ -500,7 +520,7 @@ void CGuiHandler::pushSDLEvent(int type, int usercode)
 CFramerateManager::CFramerateManager(int rate)
 {
 	this->rate = rate;
-	this->rateticks = (1000.0 / rate);
+	this->rateticks = (ui32)ceil(1000.0 / rate);
 	this->fps = 0;
 }
 
@@ -517,7 +537,7 @@ void CFramerateManager::framerateDelay()
 	// FPS is higher than it should be, then wait some time
 	if (timeElapsed < rateticks)
 	{
-		SDL_Delay(ceil(this->rateticks) - timeElapsed);
+		SDL_Delay(rateticks - timeElapsed);
 	}
 	currentTicks = SDL_GetTicks();
 

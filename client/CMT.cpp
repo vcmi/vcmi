@@ -3,6 +3,7 @@
 #include "StdInc.h"
 #include <boost/filesystem/operations.hpp>
 #include <SDL_mixer.h>
+#include "UIFramework/GL2D.h"
 #include "UIFramework/SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "mapHandler.h"
@@ -40,17 +41,15 @@
 #include "../lib/GameConstants.h"
 #include "UIFramework/CGuiHandler.h"
 
-#ifdef _WIN32
-#include "SDL_syswm.h"
-#endif
 #include "../lib/CDefObjInfoHandler.h"
 #include "../lib/UnlockGuard.h"
 
-#if __MINGW32__
+#if __MINGW32__ || defined(_WIN32)
 #undef main
 #endif
 
 namespace po = boost::program_options;
+namespace fs = boost::filesystem;
 
 /*
  * CMT.cpp, part of VCMI engine
@@ -62,8 +61,7 @@ namespace po = boost::program_options;
  *
  */
 
-std::string NAME_AFFIX = "client";
-std::string NAME = GameConstants::VCMI_VERSION + std::string(" (") + NAME_AFFIX + ')'; //application name
+std::string NAME = GameConstants::VCMI_VERSION + std::string(" (client)"); //application name
 CGuiHandler GH;
 static CClient *client=NULL;
 SDL_Surface *screen = NULL, //main screen surface
@@ -136,8 +134,7 @@ void init()
 	tlog0<<"Initializing VCMI_Lib: "<<tmh.getDiff()<<std::endl;
 
 	pomtime.getDiff();
-	CCS->curh = new CCursorHandler;
-	CCS->curh->initCursor();
+	CCS->curh = new CCursorHandler();
 	CCS->curh->show();
 	tlog0<<"Screen handler: "<<pomtime.getDiff()<<std::endl;
 	pomtime.getDiff();
@@ -177,20 +174,34 @@ static void prog_help(const po::options_description &opts)
 void OSX_checkForUpdates();
 #endif
 
+static void initScreen(int w, int h, bool fullscreen)
+{
+	SDL_EnableUNICODE(1);
+	SDL_WM_SetCaption(NAME.c_str(),""); //set window title
+
+	GL2D::initVideo(w, h, fullscreen);
+
+	SDL_ShowCursor(SDL_DISABLE);
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+}
+
+
 #ifdef _WIN32
 int _tmain(int argc, _TCHAR* argv[])
 #elif defined(__APPLE__)
 int SDL_main(int argc, char *argv[])
 #else
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 #endif
 {
+	tlog0 << "Starting... " << std::endl;
+
+#if defined(__APPLE__) || defined(_WIN32)
+	//Set working directory to parent directory of executable
+	//so we can use executable relative pathes
+	fs::current_path(fs::path(argv[0]).parent_path());
+#endif
 #ifdef __APPLE__
-	// Correct working dir executable folder (not bundle folder) so we can use executable relative pathes
-    std::string executablePath = argv[0];
-    std::string workDir = executablePath.substr(0, executablePath.rfind('/'));
-    chdir(workDir.c_str());
-    
     // Check for updates
     OSX_checkForUpdates();
 
@@ -203,7 +214,6 @@ int main(int argc, char** argv)
     fclose(check);
 #endif
     
-	tlog0 << "Starting... " << std::endl;
 	po::options_description opts("Allowed options");
 	opts.add_options()
 		("help,h", "display help and exit")
@@ -242,8 +252,8 @@ int main(int argc, char** argv)
 	}
 
 	//Set environment vars to make window centered. Sometimes work, sometimes not. :/
-	putenv((char*)"SDL_VIDEO_WINDOW_POS");
-	putenv((char*)"SDL_VIDEO_CENTERED=1");
+	putenv("SDL_VIDEO_CENTERED=center");
+	//putenv("SDL_VIDEO_WINDOW_POS");
 
 	// Have effect on X11 system only (Linux).
 	// For whatever reason in fullscreen mode SDL takes "raw" mouse input from DGA X11 extension
@@ -293,7 +303,7 @@ int main(int argc, char** argv)
 		exit(EXIT_FAILURE);
 	}
 
-	setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
+	initScreen(res["width"].Float(), res["height"].Float(), video["fullscreen"].Bool());
 
 	tlog0 <<"\tInitializing screen: "<<pomtime.getDiff() << std::endl;
 
@@ -315,8 +325,6 @@ int main(int argc, char** argv)
 	if(!vm.count("battle") && !vm.count("nointro"))
 		playIntro();
 
-	SDL_FillRect(screen,NULL,0);
-	CSDL_Ext::update(screen);
 	loading.join();
 	tlog0<<"Initialization of VCMI (together): "<<total.getDiff()<<std::endl;
 
@@ -654,9 +662,9 @@ void processCommand(const std::string &message)
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
-	if(CCS->videoh->openAndPlayVideo("3DOLOGO.SMK", 60, 40, screen, true))
+	if (CCS->videoh->openAndPlayVideo("3DOLOGO.SMK", 60, 40, true))
 	{
-		CCS->videoh->openAndPlayVideo("AZVS.SMK", 60, 80, screen, true);
+		CCS->videoh->openAndPlayVideo("AZVS.SMK", 60, 80, true);
 	}
 }
 
@@ -665,79 +673,6 @@ void dispose()
 	if (console)
 		delete console;
 	delete logfile;
-}
-
-//used only once during initialization
-static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo)
-{
-	// VCMI will only work with 2, 3 or 4 bytes per pixel
-	vstd::amax(bpp, 16);
-	vstd::amin(bpp, 32);
-
-	// Try to use the best screen depth for the display
-	int suggestedBpp = SDL_VideoModeOK(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));
-	if(suggestedBpp == 0)
-	{
-		tlog1 << "Error: SDL says that " << w << "x" << h << " resolution is not available!\n";
-		return;
-	}
-
-	bool bufOnScreen = (screenBuf == screen);
-	
-	if(suggestedBpp != bpp)
-	{
-		tlog2 << "Note: SDL suggests to use " << suggestedBpp << " bpp instead of"  << bpp << " bpp "  << std::endl;
-	}
-
-	//For some reason changing fullscreen via config window checkbox result in SDL_Quit event
-	if (resetVideo)
-	{
-		if(screen) //screen has been already initialized
-			SDL_QuitSubSystem(SDL_INIT_VIDEO);
-		SDL_InitSubSystem(SDL_INIT_VIDEO);
-	}
-	
-	if((screen = SDL_SetVideoMode(w, h, suggestedBpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == NULL)
-	{
-		tlog1 << "Requested screen resolution is not available (" << w << "x" << h << "x" << suggestedBpp << "bpp)\n";
-		throw std::runtime_error("Requested screen resolution is not available\n");
-	}
-
-	tlog0 << "New screen flags: " << screen->flags << std::endl;
-
-	if(screen2)
-		SDL_FreeSurface(screen2);
-	screen2 = CSDL_Ext::copySurface(screen);
-	SDL_EnableUNICODE(1);
-	SDL_WM_SetCaption(NAME.c_str(),""); //set window title
-	SDL_ShowCursor(SDL_DISABLE);
-	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-
-#ifdef _WIN32
-	SDL_SysWMinfo wm;
-	SDL_VERSION(&wm.version);
-	int getwm = SDL_GetWMInfo(&wm);
-	if(getwm == 1)
-	{
-		int sw = GetSystemMetrics(SM_CXSCREEN),
-			sh = GetSystemMetrics(SM_CYSCREEN);
-		RECT curpos;
-		GetWindowRect(wm.window,&curpos);
-		int ourw = curpos.right - curpos.left,
-			ourh = curpos.bottom - curpos.top;
-		SetWindowPos(wm.window, 0, (sw - ourw)/2, (sh - ourh)/2, 0, 0, SWP_NOZORDER|SWP_NOSIZE);
-	}
-	else
-	{
-		tlog3 << "Something went wrong, getwm=" << getwm << std::endl;
-		tlog3 << "SDL says: " << SDL_GetError() << std::endl;
-		tlog3 << "Window won't be centered.\n";
-	}
-#endif
-	//TODO: centering game window on other platforms (or does the environment do their job correctly there?)
-
-	screenBuf = bufOnScreen ? screen : screen2;
-	//setResolution = true;
 }
 
 static void fullScreenChanged()

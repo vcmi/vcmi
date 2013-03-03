@@ -1,4 +1,5 @@
 #include "StdInc.h"
+#include "GL2D.h"
 #include "CIntObject.h"
 #include "CGuiHandler.h"
 #include "SDL_Extensions.h"
@@ -43,21 +44,21 @@ void CIntObject::onTimer(int timePassed)
 	}
 }
 
-void CIntObject::show(SDL_Surface * to)
+void CIntObject::show()
 {
 	if(defActions & UPDATE)
 		for(size_t i = 0; i < children.size(); i++)
 			if(children[i]->recActions & UPDATE)
-				children[i]->show(to);
+				children[i]->show();
 }
 
-void CIntObject::showAll(SDL_Surface * to)
+void CIntObject::showAll()
 {
 	if(defActions & SHOWALL)
 	{
 		for(size_t i = 0; i < children.size(); i++)
 			if(children[i]->recActions & SHOWALL)
-				children[i]->showAll(to);
+				children[i]->showAll();
 
 	}
 }
@@ -208,8 +209,8 @@ void CIntObject::fitToScreen(int borderWidth, bool propagate)
 	Point newPos = pos.topLeft();
 	vstd::amax(newPos.x, borderWidth);
 	vstd::amax(newPos.y, borderWidth);
-	vstd::amin(newPos.x, screen->w - borderWidth - pos.w);
-	vstd::amin(newPos.y, screen->h - borderWidth - pos.h);
+	vstd::amin(newPos.x, GL2D::getScreenWidth() - borderWidth - pos.w);
+	vstd::amin(newPos.y, GL2D::getScreenHeight() - borderWidth - pos.h);
 	if (newPos != pos.topLeft())
 		moveTo(newPos, propagate);
 }
@@ -281,9 +282,7 @@ void CIntObject::redraw()
 		}
 		else
 		{
-			showAll(screenBuf);
-			if(screenBuf != screen)
-				showAll(screen);
+			showAll();
 		}
 	}
 }
@@ -292,7 +291,7 @@ const Rect & CIntObject::center( const Rect &r, bool propagate )
 {
 	pos.w = r.w;
 	pos.h = r.h;
-	return center(Point(screen->w/2, screen->h/2), propagate);
+	return center(Point(GL2D::getScreenWidth()/2, GL2D::getScreenHeight()/2), propagate);
 }
 
 const Rect & CIntObject::center( bool propagate )

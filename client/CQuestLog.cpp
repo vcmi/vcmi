@@ -40,10 +40,10 @@ void CQuestLabel::clickLeft(tribool down, bool previousState)
 		callback();
 }
 
-void CQuestLabel::showAll(SDL_Surface * to)
+void CQuestLabel::showAll()
 {
 	if (active)
-		CBoundedLabel::showAll (to);
+		CBoundedLabel::showAll ();
 }
 
 CQuestIcon::CQuestIcon (const std::string &defname, int index, int x, int y) :
@@ -58,10 +58,10 @@ void CQuestIcon::clickLeft(tribool down, bool previousState)
 		callback();
 }
 
-void CQuestIcon::showAll(SDL_Surface * to)
+void CQuestIcon::showAll()
 {
-	CSDL_Ext::CClipRectGuard guard(to, parent->pos);
-	CAnimImage::showAll(to);
+//*	CSDL_Ext::CClipRectGuard guard(to, parent->pos);
+	CAnimImage::showAll();
 }
 
 CQuestMinimap::CQuestMinimap (const Rect & position) :
@@ -109,11 +109,11 @@ void CQuestMinimap::iconClicked()
 	moveAdvMapSelection();
 }
 
-void CQuestMinimap::showAll(SDL_Surface * to)
+void CQuestMinimap::showAll()
 {
-	CIntObject::showAll(to); // blitting IntObject directly to hide radar
-	BOOST_FOREACH (auto pic, icons)
-		pic->showAll(to);
+//*	CIntObject::showAll(to); // blitting IntObject directly to hide radar
+//*	BOOST_FOREACH (auto pic, icons)
+//*		pic->showAll(to);
 }
 
 CQuestLog::CQuestLog (const std::vector<QuestInfo> & Quests) :
@@ -151,20 +151,20 @@ void CQuestLog::init()
 	recreateQuestList (0);
 }
 
-void CQuestLog::showAll(SDL_Surface * to)
+void CQuestLog::showAll()
 {
-	CIntObject::showAll (to);
+	CIntObject::showAll();
 	BOOST_FOREACH (auto label, labels)
 	{
-		label->show(to); //shows only if active
+		label->show(); //shows only if active
 	}
 	if (labels.size() && labels[questIndex]->active)
 	{
-		CSDL_Ext::drawBorder(to, Rect::around(labels[questIndex]->pos), int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b));
+//*		CSDL_Ext::drawBorder(to, Rect::around(labels[questIndex]->pos), int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b));
 	}
-	description->show(to);
+	description->show();
 	minimap->update();
-	minimap->show(to);
+	minimap->show();
 }
 
 void CQuestLog::recreateQuestList (int newpos)

@@ -318,8 +318,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	{
 		movementPxStep(details, i, hp, ho);
 		adventureInt->updateScreen = true;
-		adventureInt->show(screen);
-		CSDL_Ext::update(screen);
+		adventureInt->show();
 		GH.mainFPSmng->framerateDelay(); //for animation purposes
 	} //for(int i=1; i<32; i+=4)
 	//main moving done
@@ -2185,7 +2184,7 @@ void CPlayerInterface::acceptTurn()
 	adventureInt->infoBar.showDate();
 
 	adventureInt->updateNextHero(NULL);
-	adventureInt->showAll(screen);
+	adventureInt->showAll();
 
 	if(settings["session"]["autoSkip"].Bool() && !LOCPLINT->shiftPressed())
 	{

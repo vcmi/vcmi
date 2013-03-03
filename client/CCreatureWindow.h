@@ -94,8 +94,8 @@ public:
 	CCreatureWindow(CreatureID Cid, CreWinType Type, int creatureCount); //c-tor
 
 	void init(const CStackInstance *stack, const CBonusSystemNode *stackNode, const CGHeroInstance *heroOwner);
-	void showAll(SDL_Surface * to);
-	void show(SDL_Surface * to);
+	void showAll();
+	void show();
 	void printLine(int nr, const std::string &text, int baseVal, int val=-1, bool range=false);
 	void sliderMoved(int newpos);
 	void close();
@@ -117,8 +117,8 @@ public:
 	CBonusItem(const Rect &Pos, const std::string &Name, const std::string &Description, const std::string &graphicsName);
 	~CBonusItem();
 
-	void setBonus (const Bonus &bonus);
-	void showAll (SDL_Surface * to);
+	void setBonus(const Bonus &bonus);
+	void showAll();
 };
 
 class CSelectableSkill : public LRClickableAreaWText
@@ -155,7 +155,7 @@ public:
 	void init(const CCreature * cre, const CBonusSystemNode * stackNode, const CGHeroInstance * heroOwner, int creatureCount, bool LClicked);
 	void printLine(int nr, const std::string & text, int baseVal, int val = -1, bool range = false);
 
-	void show(SDL_Surface * to);
+	void show();
 };
 
 CIntObject *createCreWindow(const CStack *s, bool lclick = false);

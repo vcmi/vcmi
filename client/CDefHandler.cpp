@@ -4,7 +4,6 @@
 
 #include "../lib/Filesystem/CResourceLoader.h"
 #include "../lib/VCMI_Lib.h"
-#include "CBitmapHandler.h"
 
 /*
  * CDefHandler.cpp, part of VCMI engine
@@ -52,7 +51,6 @@ CDefEssential::~CDefEssential()
 
 void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 {
-	BMPPalette palette[256];
 	SDefEntry &de = * reinterpret_cast<SDefEntry *>(table);
 	ui8 *p;
 
@@ -62,13 +60,7 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 	height = read_le_u32(&de.height);
 	ui32 totalBlocks = read_le_u32(&de.totalBlocks);
 
-	for (ui32 it=0;it<256;it++)
-	{
-		palette[it].R = de.palette[it].R;
-		palette[it].G = de.palette[it].G;
-		palette[it].B = de.palette[it].B;
-		palette[it].F = 255;
-	}
+	//CPaletteRGBA palette(de);
 
 	// The SDefEntryBlock starts just after the SDefEntry
 	p = reinterpret_cast<ui8 *>(&de);
@@ -115,7 +107,7 @@ void CDefHandler::openFromMemory(ui8 *table, const std::string & name)
 	for(ui32 i=0; i < SEntries.size(); ++i)
 	{
 		Cimage nimg;
-		nimg.bitmap = getSprite(i, table, palette);
+		nimg.bitmap = getSprite(i, table);
 		nimg.imName = SEntries[i].name;
 		nimg.groupNumber = SEntries[i].group;
 		ourImages.push_back(nimg);
@@ -128,7 +120,7 @@ void CDefHandler::expand(ui8 N,ui8 & BL, ui8 & BR)
 	BR = N & 0x1F;
 }
 
-SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPalette * palette) const
+SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef) const
 {
 	SDL_Surface * ret=NULL;
 
@@ -175,12 +167,12 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, const ui8 * FDef, const BMPPal
 
 	for(int i=0; i<256; ++i)
 	{
-		SDL_Color pr;
-		pr.r = palette[i].R;
-		pr.g = palette[i].G;
-		pr.b = palette[i].B;
-		pr.unused = palette[i].F;
-		(*(ret->format->palette->colors+i))=pr;
+	//	SDL_Color pr;
+	//	pr.r = palette[i].R;
+	//	pr.g = palette[i].G;
+	//	pr.b = palette[i].B;
+	//	pr.unused = palette[i].F;
+	//	(*(ret->format->palette->colors+i))=pr;
 	}
 
 	int ftcp=0;
@@ -371,6 +363,7 @@ CDefHandler * CDefHandler::giveDef(const std::string & defName)
 	delete [] data;
 	return nh;
 }
+
 CDefEssential * CDefHandler::giveDefEss(const std::string & defName)
 {
 	CDefEssential * ret;

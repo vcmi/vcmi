@@ -129,7 +129,7 @@ SDL_Color multiplyColors (const SDL_Color &b, const SDL_Color &a, double f)
 	return ret;
 }
 
-void CBuildingRect::show(SDL_Surface * to)
+void CBuildingRect::show()
 {
 	const ui32 stageDelay = 16;
 
@@ -141,20 +141,20 @@ void CBuildingRect::show(SDL_Surface * to)
 	if (stateCounter < S1_TRANSP)
 	{
 		setAlpha(255*stateCounter/stageDelay);
-		CShowableAnim::show(to);
+		CShowableAnim::show();
 	}
 	else
 	{
 		setAlpha(255);
-		CShowableAnim::show(to);
+		CShowableAnim::show();
 	}
 
 	if (border && stateCounter > S1_TRANSP)
 	{
 		if (stateCounter == BUILDED)
 		{
-			if (parent->selectedBuilding == this)
-				blitAtLoc(border,0,0,to);
+		//*	if (parent->selectedBuilding == this)
+		//*		blitAtLoc(border,0,0,to);
 			return;
 		}
 		// key colors in glowing border
@@ -175,7 +175,7 @@ void CBuildingRect::show(SDL_Surface * to)
 			newColor = oldColor;
 
 		SDL_SetColors(border, &newColor, colorID, 1);
-		blitAtLoc(border,0,0,to);
+	//*	blitAtLoc(border,0,0,to);
 		SDL_SetColors(border, &oldColor, colorID, 1);
 
 	}
@@ -183,14 +183,14 @@ void CBuildingRect::show(SDL_Surface * to)
 		stateCounter++;
 }
 
-void CBuildingRect::showAll(SDL_Surface * to)
+void CBuildingRect::showAll()
 {
 	if (stateCounter == 0)
 		return;
 
-	CShowableAnim::showAll(to);
-	if(!active && parent->selectedBuilding == this && border)
-		blitAtLoc(border,0,0,to);
+	CShowableAnim::showAll();
+//*	if(!active && parent->selectedBuilding == this && border)
+//*		blitAtLoc(border,0,0,to);
 }
 
 std::string getBuildingSubtitle(const CStructure * structure)//hover text for building
@@ -370,7 +370,7 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 		{
 			setHighlight(true);
 			owner->garr->selectSlot(nullptr);
-			showAll(screen2);
+			showAll();
 		}
 		hover(false);hover(true); //refresh statusbar
 	}
@@ -545,18 +545,18 @@ void CCastleBuildings::removeBuilding(BuildingID building)
 	recreate();
 }
 
-void CCastleBuildings::show(SDL_Surface * to)
+void CCastleBuildings::show()
 {
-	CIntObject::show(to);
+	CIntObject::show();
 	BOOST_FOREACH(CBuildingRect * str, buildings)
-		str->show(to);
+		str->show();
 }
 
-void CCastleBuildings::showAll(SDL_Surface * to)
+void CCastleBuildings::showAll()
 {
-	CIntObject::showAll(to);
+	CIntObject::showAll();
 	BOOST_FOREACH(CBuildingRect * str, buildings)
-		str->showAll(to);
+		str->showAll();
 }
 
 const CGHeroInstance* CCastleBuildings::getHero()
@@ -749,9 +749,9 @@ void CCastleBuildings::enterCastleGate()
 			availableTowns.push_back(t->id.getNum());//add to the list
 		}
 	}
-	CPicture *titlePic = new CPicture (LOCPLINT->castleInt->bicons->ourImages[BuildingID::CASTLE_GATE].bitmap, 0,0, false);//will be deleted by selection window
-	GH.pushInt (new CObjectListWindow(availableTowns, titlePic, CGI->generaltexth->jktexts[40],
-	    CGI->generaltexth->jktexts[41], boost::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1)));
+//*	CPicture *titlePic = new CPicture (LOCPLINT->castleInt->bicons->ourImages[BuildingID::CASTLE_GATE].bitmap, 0,0, false);//will be deleted by selection window
+//*	GH.pushInt (new CObjectListWindow(availableTowns, titlePic, CGI->generaltexth->jktexts[40],
+//*	    CGI->generaltexth->jktexts[41], boost::bind (&CCastleInterface::castleTeleport, LOCPLINT->castleInt, _1)));
 }
 
 void CCastleBuildings::enterDwelling(int level)
@@ -858,7 +858,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	center();
 	updateShadow();
 
-	garr = new CGarrisonInt(305, 387, 4, Point(0,96), panel->bg, Point(62,374), town->getUpperArmy(), town->visitingHero);
+	garr = new CGarrisonInt(305, 387, 4, Point(0,96), NULL /*panel->bg*/, Point(62,374), town->getUpperArmy(), town->visitingHero);
 	heroes = new HeroSlots(town, Point(241, 387), Point(241, 483), garr, true);
 	title = new CLabel(85, 387, FONT_MEDIUM, TOPLEFT, Colors::WHITE, town->name);
 	income = new CLabel(195, 443, FONT_SMALL, CENTER);
@@ -873,7 +873,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 	garr->addSplitBtn(split);
 
 	Rect barRect(9, 182, 732, 18);
-	statusbar = new CGStatusBar(new CPicture(*panel, barRect, 9, 555, false));
+	statusbar = new CGStatusBar(new CPicture(panel->getImage(), barRect, 9, 555, false));
 	resdatabar = new CResDataBar("ZRESBAR", 3, 575, 32, 2, 85, 85);
 
 	townlist = new CTownList(3, Point(744, 414), "IAM014", "IAM015");
@@ -1283,7 +1283,7 @@ CHallInterface::CHallInterface(const CGTownInstance *Town):
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
 	Rect barRect(5, 556, 740, 18);
-	statusBar = new CGStatusBar(new CPicture(*background, barRect, 5, 556, false));
+	statusBar = new CGStatusBar(new CPicture(background->getImage(), barRect, 5, 556, false));
 
 	title = new CLabel(399, 12, FONT_MEDIUM, CENTER, Colors::WHITE, town->town->buildings[BuildingID(town->hallLevel()+BuildingID::VILLAGE_HALL)]->Name());
 	exit = new CAdventureMapButton(CGI->generaltexth->hcommands[8], "", 
@@ -1357,7 +1357,7 @@ CBuildWindow::CBuildWindow(const CGTownInstance *Town, const CBuilding * Buildin
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	new CAnimImage(town->town->clientInfo.buildingsIcons, building->bid, 0, 125, 50);
-	new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+	new CGStatusBar(new CPicture(background->getImage(), Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 
 	new CLabel(197, 30, FONT_MEDIUM, CENTER, Colors::WHITE,
 	            boost::str(boost::format(CGI->generaltexth->hcommands[7]) % building->Name()));
@@ -1450,7 +1450,7 @@ CFortScreen::CFortScreen(const CGTownInstance * town):
 	resdatabar->pos.y += pos.y;
 
 	Rect barRect(4, 554, 740, 18);
-	statusBar = new CGStatusBar(new CPicture(*background, barRect, 4, 554, false));
+	statusBar = new CGStatusBar(new CPicture(background->getImage(), barRect, 4, 554, false));
 }
 
 void CFortScreen::creaturesChanged()
@@ -1595,7 +1595,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner):
 	resdatabar->pos.x += pos.x;
 	resdatabar->pos.y += pos.y;
 	Rect barRect(7, 556, 737, 18);
-	statusBar = new CGStatusBar(new CPicture(*background, barRect, 7, 556, false));
+//*	statusBar = new CGStatusBar(new CPicture(*background, barRect, 7, 556, false));
 	
 	exit = new CAdventureMapButton(CGI->generaltexth->allTexts[593],"",boost::bind(&CMageGuildScreen::close,this), 748, 556,"TPMAGE1.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
@@ -1658,7 +1658,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	statusBar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
+//*	statusBar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	
 	animBG = new CPicture("TPSMITBK", 64, 50);
 	animBG->needRefresh = true;

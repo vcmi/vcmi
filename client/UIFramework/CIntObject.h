@@ -41,10 +41,10 @@ class IShowable
 {
 public:
 	virtual void redraw()=0;
-	virtual void show(SDL_Surface * to) = 0;
-	virtual void showAll(SDL_Surface * to)
+	virtual void show() = 0;
+	virtual void showAll()
 	{
-		show(to);
+		show();
 	}
 	virtual ~IShowable(){}; //d-tor
 };
@@ -156,9 +156,9 @@ public:
 	void deactivate();
 
 	//called each frame to update screen
-	void show(SDL_Surface * to);
+	void show();
 	//called on complete redraw only
-	void showAll(SDL_Surface * to);
+	void showAll();
 	//request complete redraw of this object
 	void redraw();
 

@@ -1,8 +1,10 @@
 #include "StdInc.h"
-#include "CCursorHandler.h"
-
 #include <SDL.h>
-#include "SDL_Extensions.h"
+#include "CCursorHandler.h"
+#include "GL2D.h"
+#include "../Gfx/Animations.h"
+#include "../Gfx/Images.h"
+
 #include "../CAnimation.h"
 #include "CGuiHandler.h"
 
@@ -16,24 +18,23 @@
  *
  */
 
-extern SDL_Surface * screen;
-
-void CCursorHandler::initCursor()
+CCursorHandler::CCursorHandler()
 {
 	xpos = ypos = 0;
 	type = ECursor::DEFAULT;
 	dndObject = nullptr;
 	currentCursor = nullptr;
 
-	help = CSDL_Ext::newSurface(40,40);
+//*	help = CSDL_Ext::newSurface(40,40);
 	SDL_ShowCursor(SDL_DISABLE);
 
 	changeGraphic(ECursor::ADVENTURE, 0);
 }
 
+
 void CCursorHandler::changeGraphic(ECursor::ECursorTypes type, int index)
 {
-	std::string cursorDefs[4] = { "CRADVNTR.DEF", "CRCOMBAT.DEF", "CRDEFLT.DEF", "CRSPELL.DEF" };
+	const std::string cursorDefs[4] = { "CRADVNTR", "CRCOMBAT", "CRDEFLT", "CRSPELL" };
 
 	if (type != this->type)
 	{
@@ -42,26 +43,20 @@ void CCursorHandler::changeGraphic(ECursor::ECursorTypes type, int index)
 		this->type = type;
 		this->frame = index;
 
-		delete currentCursor;
-		currentCursor = new CAnimImage(cursorDefs[int(type)], index);
+		currentCursor = Gfx::CManager::getAnimation(cursorDefs[type]);
 	}
-
-	if (frame != index)
-	{
-		frame = index;
-		currentCursor->setFrame(index);
-	}
+	frame = index;
 }
+
 
 void CCursorHandler::dragAndDropCursor(CAnimImage * object)
 {
-	if (dndObject)
-		delete dndObject;
+	if (dndObject) delete dndObject;
 
 	dndObject = object;
 }
 
-void CCursorHandler::cursorMove(const int & x, const int & y)
+void CCursorHandler::cursorMove(int x, int y)
 {
 	xpos = x;
 	ypos = y;
@@ -73,19 +68,14 @@ void CCursorHandler::drawWithScreenRestore()
 	int x = xpos, y = ypos;
 	shiftPos(x, y);
 
-	SDL_Rect temp_rect1 = genRect(40,40,x,y);
-	SDL_Rect temp_rect2 = genRect(40,40,0,0);
-	SDL_BlitSurface(screen, &temp_rect1, help, &temp_rect2);
-
 	if (dndObject)
 	{
 		dndObject->moveTo(Point(x - dndObject->pos.w/2, y - dndObject->pos.h/2));
-		dndObject->showAll(screen);
+		dndObject->showAll();
 	}
 	else
 	{
-		currentCursor->moveTo(Point(x,y));
-		currentCursor->showAll(screen);
+		currentCursor->getFrame(frame)->putAt(Gfx::Point(x, y));
 	}
 }
 
@@ -96,17 +86,13 @@ void CCursorHandler::drawRestored()
 
 	int x = xpos, y = ypos;
 	shiftPos(x, y);
-
-	SDL_Rect temp_rect = genRect(40, 40, x, y);
-	SDL_BlitSurface(help, NULL, screen, &temp_rect);
-	//blitAt(help,x,y);
 }
 
-void CCursorHandler::draw(SDL_Surface *to)
+void CCursorHandler::draw()
 {
-	currentCursor->moveTo(Point(xpos, ypos));
-	currentCursor->showAll(screen);
+	currentCursor->getFrame(frame)->putAt(Gfx::Point(xpos, ypos));
 }
+
 
 void CCursorHandler::shiftPos( int &x, int &y )
 {
@@ -215,20 +201,17 @@ void CCursorHandler::shiftPos( int &x, int &y )
 	}
 }
 
+
 void CCursorHandler::centerCursor()
 {
-	this->xpos = (screen->w / 2.) - (currentCursor->pos.w / 2.);
-	this->ypos = (screen->h / 2.) - (currentCursor->pos.h / 2.);
-	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);
+	this->xpos = (GL2D::getScreenWidth()  - currentCursor->getWidth()) / 2;
+	this->ypos = (GL2D::getScreenHeight() - currentCursor->getHeight()) / 2;
+	SDL_EventState(SDL_MOUSEMOTION, SDL_IGNORE);	
 	SDL_WarpMouse(this->xpos, this->ypos);
 	SDL_EventState(SDL_MOUSEMOTION, SDL_ENABLE);
 }
 
 CCursorHandler::~CCursorHandler()
 {
-	if(help)
-		SDL_FreeSurface(help);
-
-	delete currentCursor;
 	delete dndObject;
 }

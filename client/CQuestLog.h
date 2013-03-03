@@ -41,7 +41,7 @@ public:
 	CQuestLabel (int x=0, int y=0, EFonts Font = FONT_SMALL, EAlignment Align = TOPLEFT, const SDL_Color &Color = Colors::WHITE, const std::string &Text =  "")
 		: CBoundedLabel (x, y, FONT_SMALL, TOPLEFT, Colors::WHITE, Text){};
 	void clickLeft(tribool down, bool previousState);
-	void showAll(SDL_Surface * to);
+	void showAll();
 };
 
 class CQuestIcon : public CAnimImage
@@ -52,7 +52,7 @@ public:
 	CQuestIcon (const std::string &defname, int index, int x=0, int y=0);
 
 	void clickLeft(tribool down, bool previousState);
-	void showAll(SDL_Surface * to);
+	void showAll();
 };
 
 class CQuestMinimap : public CMinimap
@@ -73,7 +73,7 @@ public:
 	void setLevel(int level);
 	void addQuestMarks (const QuestInfo * q);
 
-	void showAll(SDL_Surface * to);
+	void showAll();
 };
 
 class CQuestLog : public CWindowObject
@@ -100,5 +100,5 @@ public:
 	void printDescription (int which){};
 	void sliderMoved (int newpos);
 	void recreateQuestList (int pos);
-	void showAll (SDL_Surface * to);
+	void showAll();
 };
