@@ -49,6 +49,7 @@ protected:
 	virtual void textureTransfer() = 0;
 
 public:
+	static CImage* makeBySDL(void* data, size_t fileSize, const char* fileExt);
 	static CImage* makeFromPCX(const struct SH3PcxFile& pcx, size_t fileSize);
 	static CImage* makeFromDEF(const struct SH3DefFile& def, size_t fileSize);
 	static class CPalettedBitmap* makeFromDEFSprite(

@@ -6,6 +6,7 @@
 #include "Images.h"
 #include "FilesHeaders.h"
 #include "../../lib/Filesystem/CResourceLoader.h"
+#include "../../lib/Filesystem/CFileInfo.h"
 
 
 namespace Gfx
@@ -42,7 +43,17 @@ PImage CManager::getImage(const std::string& fname)
 	assert(readSize == stream->getSize());
 
 	CImage* img_tmp = CImage::makeFromPCX(*(SH3PcxFile*)data.get(), (size_t)readSize);
-	if (img_tmp == nullptr) return nullptr;
+	if (img_tmp == nullptr)
+	{
+		CFileInfo info(CResourceHandler::get()->getResourceName(resImageId));
+		img_tmp = CImage::makeBySDL(data.get(), (size_t)readSize, info.getExtension().c_str()+1);
+
+		if (img_tmp == nullptr)
+		{
+			tlog1 << "Iage " << fname << " not loaded!\n";
+			return nullptr;
+		}
+	}
 
 	return img_ptr = PImage(img_tmp);
 }
@@ -67,7 +78,11 @@ PAnimation CManager::getAnimation(const std::string& fname)
 	assert(readSize == stream->getSize());
 
 	CAnimation* anim_tmp = CAnimation::makeFromDEF(*(SH3DefFile*)data.get(), (size_t)readSize);
-	if (anim_tmp == nullptr) return nullptr;
+	if (anim_tmp == nullptr)
+	{
+		tlog1 << "Animation " << fname << " not loaded!\n";
+		return nullptr;
+	}
 
 	return anim_ptr = PAnimation(anim_tmp);
 }

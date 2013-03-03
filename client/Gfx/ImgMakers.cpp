@@ -1,11 +1,39 @@
 #include "StdInc.h"
 
+#include "SDL_image.h"
 #include "Images.h"
 #include "FilesHeaders.h"
 
 
 namespace Gfx
 {
+
+/*********** Images formats supported by SDL ***********/
+
+CImage * CImage::makeBySDL(void* data, size_t fileSize, const char* fileExt)
+{
+	SDL_Surface* ret = IMG_LoadTyped_RW(
+		        //create SDL_RW with our data (will be deleted by SDL)
+		        SDL_RWFromConstMem(data, fileSize),
+		        1, // mark it for auto-deleting
+		        const_cast<char*>(fileExt)); //pass extension without dot (+1 character)
+	if (ret)
+	{
+		if (ret->format->palette)
+		{
+			//set correct value for alpha\unused channel
+			for (int i=0; i< ret->format->palette->ncolors; i++)
+				ret->format->palette->colors[i].unused = 255;
+
+			CPaletteRGBA* pal = new CPaletteRGBA((ColorRGBA*)ret->format->palette->colors);
+			return new CPalettedBitmap(ret->w, ret->h, *pal, (ui8*)ret->pixels);
+		}
+
+		return new CBitmap32(ret->w, ret->h, (ColorRGB*)ret->pixels);
+	}
+}
+
+
 #define LE(x) SDL_SwapLE32(x)
 
 /*********** H3 PCX image format ***********/
@@ -34,7 +62,7 @@ CImage * CImage::makeFromPCX(const SH3PcxFile& pcx, size_t fileSize)
 }
 
 
-/*********** DEF animation frame ***********/
+/*********** H3 DEF animation frame ***********/
 
 CImage* CImage::makeFromDEF(const struct SH3DefFile& def, size_t fileSize)
 {

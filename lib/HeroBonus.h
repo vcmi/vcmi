@@ -292,39 +292,39 @@ struct DLL_LINKAGE Bonus
 		h & duration & type & subtype & source & val & sid & description & additionalInfo & turnsRemain & valType & effectRange & limiter & propagator;
 	}
 
-	static bool compareByAdditionalInfo(const Bonus *a, const Bonus *b)
+	static inline bool compareByAdditionalInfo(const Bonus *a, const Bonus *b)
 	{
 		return a->additionalInfo < b->additionalInfo;
 	}
-	static bool OneDay(const Bonus *hb)
+	static inline bool OneDay(const Bonus *hb)
 	{
 		return hb->duration & Bonus::ONE_DAY;
 	}
-	static bool OneWeek(const Bonus *hb)
+	static inline bool OneWeek(const Bonus *hb)
 	{
 		return hb->duration & Bonus::ONE_WEEK;
 	}
-	static bool OneBattle(const Bonus *hb)
+	static inline bool OneBattle(const Bonus *hb)
 	{
 		return hb->duration & Bonus::ONE_BATTLE;
 	}
-	static bool UntilGetsTurn(const Bonus *hb)
+	static inline bool UntilGetsTurn(const Bonus *hb)
 	{
 		return hb->duration & Bonus::STACK_GETS_TURN;
 	}
-	static bool UntilAttack(const Bonus *hb)
+	static inline bool UntilAttack(const Bonus *hb)
 	{
 		return hb->duration & Bonus::UNTIL_ATTACK;
 	}
-	static bool UntilBeingAttacked(const Bonus *hb)
+	static inline bool UntilBeingAttacked(const Bonus *hb)
 	{
 		return hb->duration & Bonus::UNITL_BEING_ATTACKED;
 	}
-	static bool UntilCommanderKilled(const Bonus *hb)
+	static inline bool UntilCommanderKilled(const Bonus *hb)
 	{
 		return hb->duration & Bonus::COMMANDER_KILLED;
 	}
-	static bool IsFrom(const Bonus &hb, ui8 source, ui32 id) //if id==0xffffff then id doesn't matter
+	static inline bool IsFrom(const Bonus &hb, ui8 source, ui32 id) //if id==0xffffff then id doesn't matter
 	{
 		return hb.source==source && (id==0xffffff  ||  hb.sid==id);
 	}
