@@ -536,7 +536,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 	case Obj::RANDOM_TOWN:
 		{
 			PlayerColor align = PlayerColor((static_cast<CGTownInstance*>(obj))->alignment);
-			ui32 f;
+			si32 f; // can be negative (for random)
 			if(align >= PlayerColor::PLAYER_LIMIT)//same as owner / random
 			{
 				if(obj->tempOwner >= PlayerColor::PLAYER_LIMIT)

@@ -30,5 +30,19 @@
 		"config/creatures/neutral.json",
 		"config/creatures/special.json",
 		"config/creatures/wog.json"
-	]
+	],
+
+	"heroes" :
+	[
+		"config/heroes/castle.json",
+		"config/heroes/rampart.json",
+		"config/heroes/tower.json",
+		"config/heroes/necropolis.json",
+		"config/heroes/inferno.json",
+		"config/heroes/dungeon.json",
+		"config/heroes/stronghold.json",
+		"config/heroes/fortress.json",
+		"config/heroes/conflux.json",
+		"config/heroes/special.json"
+	],
 }

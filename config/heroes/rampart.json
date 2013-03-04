@@ -1,0 +1,248 @@
+{
+	"mephala":
+	{
+		"id": 16,
+		"class" : "ranger",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "armorer", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 23, "info": 0 }
+		]
+	},
+	"ufretin":
+	{
+		"id": 17,
+		"class" : "ranger",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "luck", "level": "basic" },
+			{ "skill" : "resistance", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 16 }
+		]
+	},
+	"jenova":
+	{
+		"id": 18,
+		"class" : "ranger",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "archery", "level": "advanced" }
+		],
+		"specialties":
+		[
+			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+		]
+	},
+	"ryland":
+	{
+		"id": 19,
+		"class" : "ranger",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "diplomacy", "level": "basic" },
+			{ "skill" : "leadership", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 22 }
+		]
+	},
+	"thorgrim":
+	{
+		"id": 20,
+		"class" : "ranger",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "resistance", "level": "advanced" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 26, "info": 0 }
+		]
+	},
+	"ivor":
+	{
+		"id": 21,
+		"class" : "ranger",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "archery", "level": "basic" },
+			{ "skill" : "offence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 18 }
+		]
+	},
+	"clancy":
+	{
+		"id": 22,
+		"class" : "ranger",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "pathfinding", "level": "basic" },
+			{ "skill" : "resistance", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 24 }
+		]
+	},
+	"kyrre":
+	{
+		"id": 23,
+		"class" : "ranger",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "archery", "level": "basic" },
+			{ "skill" : "logistics", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 2, "info": 0 }
+		]
+	},
+	"coronius":
+	{
+		"id": 24,
+		"class" : "druid",
+		"spellbook": [ "slayer" ],
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "scholar", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":8, "val": 0, "subtype": 55, "info": 1 }
+		]
+	},
+	"uland":
+	{
+		"id": 25,
+		"class" : "druid",
+		"female": false,
+		"spellbook": [ "cure" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "advanced" },
+			{ "skill" : "ballistics", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":3, "val": 3, "subtype": 37, "info": 0 }
+		]
+	},
+	"elleshar":
+	{
+		"id": 26,
+		"class" : "druid",
+		"female": false,
+		"spellbook": [ "curse" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "intelligence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 24, "info": 0 }
+		]
+	},
+	"gem":
+	{
+		"id": 27,
+		"class" : "druid",
+		"female": true,
+		"spellbook": [ "summonBoat" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "firstAid", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 27, "info": 0 }
+		]
+	},
+	"malcom":
+	{
+		"id": 28,
+		"class" : "druid",
+		"female": false,
+		"spellbook": [ "magicArrow" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "eagleEye", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 11, "info": 0 }
+		]
+	},
+	"melodia":
+	{
+		"id": 29,
+		"class" : "druid",
+		"spellbook": [ "fortune" ],
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "luck", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":7, "val": 0, "subtype": 51, "info": 0 }
+		]
+	},
+	"alagar":
+	{
+		"id": 30,
+		"class" : "druid",
+		"female": false,
+		"spellbook": [ "iceBolt" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "sorcery", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":3, "val": 3, "subtype": 16, "info": 0 }
+		]
+	},
+	"aeris":
+	{
+		"id": 31,
+		"class" : "druid",
+		"female": false,
+		"spellbook": [ "protectAir" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "scouting", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 20 }
+		]
+	}
+}

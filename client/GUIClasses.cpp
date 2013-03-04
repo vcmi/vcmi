@@ -532,12 +532,12 @@ void CGarrisonInt::createSet(std::vector<CGarrisonSlot*> &ret, const CCreatureSe
 		}
 	}
 
-	for(int i=0; i<ret.size(); i++)
+	for(size_t i=0; i<ret.size(); ++i)
 		if(!ret[i])
 			ret[i] = new CGarrisonSlot(this, posX + (i*distance), posY, SlotID(i), Upg, NULL);
 
 	if (twoRows)
-		for (int i=4; i<ret.size(); i++)
+		for (size_t i=4; i<ret.size(); ++i)
 		{
 			ret[i]->pos.x -= 126;
 			ret[i]->pos.y += 37;
@@ -654,7 +654,7 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 
 	type |= BLOCK_ADV_HOTKEYS;
 	ID = -1;
-	for(int i=0;i<Buttons.size();i++)
+	for(size_t i=0; i<Buttons.size(); ++i)
 	{
 		CAdventureMapButton *button = new CAdventureMapButton("","",boost::bind(&CInfoWindow::close,this),0,0,Buttons[i].first);
 		button->borderColor = Colors::METALLIC_GOLD;
@@ -676,7 +676,7 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 		buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
 	}
 
-	for(int i=0;i<comps.size();i++)
+	for(size_t i=0; i<comps.size(); ++i)
 	{
 		comps[i]->recActions = 0xff;
 		addChild(comps[i]);
@@ -710,7 +710,7 @@ CInfoWindow::~CInfoWindow()
 {
 	if(!delComps)
 	{
-		for (int i=0;i<components.size();i++)
+		for (size_t i=0; i<components.size(); ++i)
 			removeChild(components[i]);
 	}
 }
@@ -728,9 +728,9 @@ void CInfoWindow::showYesNoDialog(const std::string & text, const std::vector<CC
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
 	CInfoWindow * temp = new CInfoWindow(text, player, components ? *components : std::vector<CComponent*>(), pom, DelComps);
-	for(int i=0;i<onYes.funcs.size();i++)
+	for(size_t i=0; i<onYes.funcs.size(); ++i)
 		temp->buttons[0]->callback += onYes.funcs[i];
-	for(int i=0;i<onNo.funcs.size();i++)
+	for(size_t i=0; i<onNo.funcs.size(); ++i)
 		temp->buttons[1]->callback += onNo.funcs[i];
 
 	GH.pushInt(temp);
@@ -1266,7 +1266,7 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ID = askID;
-	for(int i=0;i<Buttons.size();i++)
+	for(size_t i=0; i<Buttons.size(); ++i)
 	{
 		buttons.push_back(new CAdventureMapButton("","",Buttons[i].second,0,0,Buttons[i].first));
 		if(!i  &&  askID >= 0)
@@ -1282,7 +1282,7 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 	if(buttons.size() > 1  &&  askID >= 0) //cancel button functionality
 		buttons.back()->callback += boost::bind(&CCallback::selectionMade,LOCPLINT->cb,0,askID);
 
-	for(int i=0;i<comps.size();i++)
+	for(size_t i=0; i<comps.size(); ++i)
 	{
 		comps[i]->recActions = 255;
 		addChild(comps[i]);
@@ -1299,7 +1299,7 @@ void CSelWindow::madeChoice()
 	if(ID < 0)
 		return;
 	int ret = -1;
-	for (int i=0;i<components.size();i++)
+	for (size_t i=0; i<components.size(); ++i)
 	{
 		if(dynamic_cast<CSelectableComponent*>(components[i])->selected)
 		{
@@ -1561,7 +1561,7 @@ void CRecruitmentWindow::availableCreaturesChanged()
 		delete card;
 	cards.clear();
 
-	for(int i=0; i<dwelling->creatures.size(); i++)
+	for(size_t i=0; i<dwelling->creatures.size(); ++i)
 	{
 		//find appropriate level
 		if(level >= 0 && i != level)
@@ -2678,9 +2678,9 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 CMarketplaceWindow::~CMarketplaceWindow()
 {
 	hLeft = hRight = NULL;
-	for(int i=0;i<items[1].size();i++)
+	for(size_t i=0; i<items[1].size(); ++i)
 		delete items[1][i];
-	for(int i=0;i<items[0].size();i++)
+	for(size_t i=0; i<items[0].size(); ++i)
 		delete items[0][i];
 
 	items[1].clear();
@@ -3108,7 +3108,7 @@ void CAltarWindow::makeDeal()
 		slider->value = 0;
 
 		std::vector<int> toSacrifice = sacrificedUnits;
-		for (int i = 0; i < toSacrifice.size(); i++)
+		for (size_t i = 0; i < toSacrifice.size(); ++i)
 		{
 			if(toSacrifice[i])
 				LOCPLINT->cb->trade(market->o, mode, i, 0, toSacrifice[i], hero);
@@ -3268,7 +3268,7 @@ void CAltarWindow::calcTotalExp()
 	int val = 0;
 	if(mode == EMarketMode::CREATURE_EXP)
 	{
-		for (int i = 0; i < sacrificedUnits.size(); i++)
+		for (size_t i=0; i<sacrificedUnits.size(); ++i)
 		{
 			val += expPerUnit[i] * sacrificedUnits[i];
 		}
@@ -3321,7 +3321,7 @@ void CAltarWindow::SacrificeBackpack()
 {
 	std::multiset<const CArtifactInstance *> toOmmit = arts->artifactsOnAltar;
 
-	for (int i = 0; i < hero->artifactsInBackpack.size(); i++)
+	for (size_t i = 0; i < hero->artifactsInBackpack.size(); ++i)
 	{
 
 		if(vstd::contains(toOmmit, hero->artifactsInBackpack[i].artifact))
@@ -3815,7 +3815,7 @@ void CInGameConsole::show(SDL_Surface * to)
 		}
 	}
 
-	for(int it=0; it<toDel.size(); ++it)
+	for(size_t it=0; it<toDel.size(); ++it)
 	{
 		texts.erase(toDel[it]);
 	}
@@ -3837,7 +3837,7 @@ void CInGameConsole::print(const std::string &txt)
 	else
 	{
 		assert(lineLen);
-		for(int g=0; g<txt.size() / lineLen + 1; ++g)
+		for(size_t g=0; g<txt.size() / lineLen + 1; ++g)
 		{
 			std::string part = txt.substr(g * lineLen, lineLen);
 			if(part.size() == 0)
@@ -4590,7 +4590,7 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 		backpackPos = 0;
 
 	// Fill the slots for worn artifacts and backpack.
-	for (int g = 0; g < artWorn.size() ; g++)
+	for (size_t g=0; g<artWorn.size(); ++g)
 		setSlotData(artWorn[g], ArtifactPosition(g));
 	scrollBackpack(0);
 }
@@ -4604,7 +4604,7 @@ void CArtifactsOfHero::dispose()
 
 void CArtifactsOfHero::scrollBackpack(int dir)
 {
-	int artsInBackpack = curHero->artifactsInBackpack.size();
+	size_t artsInBackpack = curHero->artifactsInBackpack.size();
 	backpackPos += dir;
 	if(backpackPos < 0)// No guarantee of modulus behavior with negative operands -> we keep it positive
 		backpackPos += artsInBackpack;
@@ -4641,13 +4641,13 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 			}
 		}
 	}
-	for( ; s - omitedSoFar < backpack.size(); s++)
+	for( ; s - omitedSoFar < backpack.size(); ++s)
 		eraseSlotData(backpack[s-omitedSoFar], ArtifactPosition(GameConstants::BACKPACK_START + s));
 
 	//in artifact merchant selling artifacts we may have highlight on one of backpack artifacts -> market needs update, cause artifact under highlight changed
 	if(highlightModeCallback)
 	{
-		for(int i = 0; i < backpack.size(); i++)
+		for(size_t i=0; i<backpack.size(); ++i)
 		{
 			if(backpack[i]->marked)
 			{
@@ -5000,7 +5000,7 @@ void CArtifactsOfHero::artifactDisassembled(const ArtifactLocation &al)
 
 void CArtifactsOfHero::updateWornSlots(bool redrawParent /*= true*/)
 {
-	for(int i = 0; i < artWorn.size(); i++)
+	for(size_t i = 0; i < artWorn.size(); ++i)
 		updateSlot(ArtifactPosition(i));
 
 
@@ -5049,7 +5049,7 @@ void CExchangeWindow::prepareBackground()
 		               boost::lexical_cast<std::string>(heroWArt.getPrimSkillLevel(static_cast<PrimarySkill::PrimarySkill>(m))));
 
 		//printing secondary skills
-		for(int m=0; m<heroInst[b]->secSkills.size(); ++m)
+		for(size_t m=0; m<heroInst[b]->secSkills.size(); ++m)
 		{
 			int id = heroInst[b]->secSkills[m].first;
 			int level = heroInst[b]->secSkills[m].second;
@@ -5332,14 +5332,14 @@ CTransformerWindow::CItem::CItem(CTransformerWindow * parent, int size, int id):
 
 void CTransformerWindow::makeDeal()
 {
-	for (int i=0; i<items.size(); i++)
+	for (size_t i=0; i<items.size(); ++i)
 		if (!items[i]->left)
 			LOCPLINT->cb->trade(town, EMarketMode::CREATURE_UNDEAD, items[i]->id, 0, 0, hero);
 }
 
 void CTransformerWindow::addAll()
 {
-	for (int i=0; i<items.size(); i++)
+	for (size_t i=0; i<items.size(); ++i)
 		if (items[i]->left)
 			items[i]->move();
 	showAll();
@@ -5485,7 +5485,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 
 	assert(list.size() == 4);
 
-	for (int i=0; i<list.size(); i++)//prepare clickable items
+	for (size_t i=0; i<list.size(); ++i)//prepare clickable items
 		items.push_back(new CItem(this, list[i], 54+i*104, 234));
 
 	cancel = new CAdventureMapButton(CGI->generaltexth->zelp[632],
@@ -5760,16 +5760,16 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 		new CLabel(135, y, FONT_MEDIUM, CENTER, Colors::YELLOW, text);
 	}
 
-	for(int g=1; g<tgi.playerColors.size(); ++g)
+	for(size_t g=1; g<tgi.playerColors.size(); ++g)
 		new CAnimImage("PRSTRIPS", g-1, 0, 250 + 66*g, 7);
 
-	for(int g=0; g<tgi.playerColors.size(); ++g)
+	for(size_t g=0; g<tgi.playerColors.size(); ++g)
 		new CLabel(283 + 66*g, 24, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->jktexts[16+g]);
 
 	//printing flags
-	for(int g = 0; g < ARRAY_COUNT(fields); ++g) //by lines
+	for(size_t g=0; g < ARRAY_COUNT(fields); ++g) //by lines
 	{
-		for(int b=0; b<(tgi .* fields[g]).size(); ++b) //by places (1st, 2nd, ...)
+		for(size_t b=0; b<(tgi .* fields[g]).size(); ++b) //by places (1st, 2nd, ...)
 		{
 			std::vector<PlayerColor> &players = (tgi .* fields[g])[b]; //get players with this place in this line
 
@@ -5813,7 +5813,7 @@ CThievesGuildWindow::CThievesGuildWindow(const CGObjectInstance * _owner):
 			{
 				new CTextBox(CGI->generaltexth->allTexts[184], Rect(260 + 66*counter, 396, 52, 64),
 				             0, FONT_TINY, TOPLEFT, Colors::WHITE);
-				for (int i=0; i<iter.second.details->primskills.size(); ++i)
+				for (size_t i=0; i<iter.second.details->primskills.size(); ++i)
 				{
 					new CLabel(310 + 66 * counter, 407 + 11*i, FONT_TINY, BOTTOMRIGHT, Colors::WHITE,
 					           boost::lexical_cast<std::string>(iter.second.details->primskills[i]));
@@ -5889,7 +5889,7 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 		}
 		else
 		{
-			for(int it=0; it < mrl.size(); it++)
+			for(size_t it=0; it < mrl.size(); ++it)
 				text += "\n" + mrl[it].second;
 		}
 	}

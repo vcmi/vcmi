@@ -499,7 +499,7 @@ void CVCMIServer::loadGame()
 	gh.run(true);
 }
 
-#ifndef __GNUC__
+#ifdef _WIN32
 int _tmain(int argc, _TCHAR* argv[])
 #else
 int main(int argc, char** argv)

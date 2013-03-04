@@ -217,6 +217,9 @@ CHero * CHeroHandler::loadHero(const JsonNode & node)
 {
 	CHero * hero = new CHero;
 
+	hero->sex = node["female"].Bool();
+	hero->special = node["special"].Bool();
+
 	hero->name        = node["texts"]["name"].String();
 	hero->biography   = node["texts"]["biography"].String();
 	hero->specName    = node["texts"]["specialty"]["name"].String();
@@ -229,7 +232,23 @@ CHero * CHeroHandler::loadHero(const JsonNode & node)
 	hero->portraitSmall = node["images"]["small"].String();
 	hero->portraitLarge = node["images"]["large"].String();
 
+	loadHeroArmy(hero, node);
+	loadHeroSkills(hero, node);
+	loadHeroSpecialty(hero, node);
+
+	VLC->modh->identifiers.requestIdentifier("heroClass." + node["class"].String(),
+	[=](si32 classID)
+	{
+		hero->heroClass = classes.heroClasses[classID];
+	});
+
+	return hero;
+}
+
+void CHeroHandler::loadHeroArmy(CHero * hero, const JsonNode & node)
+{
 	assert(node["army"].Vector().size() <= 3); // anything bigger is useless - army initialization uses up to 3 slots
+
 	hero->initialArmy.resize(node["army"].Vector().size());
 
 	for (size_t i=0; i< hero->initialArmy.size(); i++)
@@ -241,22 +260,15 @@ CHero * CHeroHandler::loadHero(const JsonNode & node)
 
 		assert(hero->initialArmy[i].minAmount <= hero->initialArmy[i].maxAmount);
 
-		VLC->modh->identifiers.requestIdentifier(std::string("creature.") + source["creature"].String(), [=](si32 creature)
+		VLC->modh->identifiers.requestIdentifier("creature." + source["creature"].String(), [=](si32 creature)
 		{
 			hero->initialArmy[i].creature = CreatureID(creature);
 		});
 	}
-
-	loadHeroJson(hero, node);
-	return hero;
 }
 
-void CHeroHandler::loadHeroJson(CHero * hero, const JsonNode & node)
+void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 {
-	// sex: 0=male, 1=female
-	hero->sex = node["female"].Bool();
-	hero->special = node["special"].Bool();
-
 	BOOST_FOREACH(const JsonNode &set, node["skills"].Vector())
 	{
 		SecondarySkill skillID = SecondarySkill(
@@ -267,7 +279,7 @@ void CHeroHandler::loadHeroJson(CHero * hero, const JsonNode & node)
 	}
 
 	// spellbook is considered present if hero have "spellbook" entry even when this is an empty set (0 spells)
-	hero->haveSpellBook = node["spellbook"].isNull();
+	hero->haveSpellBook = !node["spellbook"].isNull();
 
 	BOOST_FOREACH(const JsonNode & spell, node["spellbook"].Vector())
 	{
@@ -284,7 +296,10 @@ void CHeroHandler::loadHeroJson(CHero * hero, const JsonNode & node)
 			});
 		}
 	}
+}
 
+void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
+{
 	//deprecated, used only for original spciealties
 	BOOST_FOREACH(const JsonNode &specialty, node["specialties"].Vector())
 	{
@@ -309,12 +324,6 @@ void CHeroHandler::loadHeroJson(CHero * hero, const JsonNode & node)
 		}
 		hero->specialty.push_back (hs); //now, how to get CGHeroInstance from it?
 	}
-
-	VLC->modh->identifiers.requestIdentifier("heroClass." + node["class"].String(),
-	[=](si32 classID)
-	{
-		hero->heroClass = classes.heroClasses[classID];
-	});
 }
 
 void CHeroHandler::load()
@@ -383,6 +392,14 @@ void CHeroHandler::loadObstacles()
 	//loadObstacles(config["moats"], true, moats);
 }
 
+/// convert h3-style ID (e.g. Gobin Wolf Rider) to vcmi (e.g. goblinWolfRider)
+static std::string genRefName(std::string input)
+{
+	boost::algorithm::replace_all(input, " ", ""); //remove spaces
+	input[0] = std::tolower(input[0]); // to camelCase
+	return input;
+}
+
 void CHeroHandler::loadHeroes()
 {
 	CLegacyConfigParser specParser("DATA/HEROSPEC.TXT");
@@ -395,44 +412,57 @@ void CHeroHandler::loadHeroes()
 	specParser.endLine(); //ignore header
 	specParser.endLine();
 
+	std::vector<JsonNode> h3Data;
+
 	for (int i=0; i<GameConstants::HEROES_QUANTITY; i++)
 	{
-		CHero * hero = new CHero;
-		hero->name = parser.readString();
+		JsonNode heroData;
 
-		hero->specName    = specParser.readString();
-		hero->specTooltip = specParser.readString();
-		hero->specDescr   = specParser.readString();
-		hero->biography   = bioParser.readString();
+		heroData["texts"]["name"].String() = parser.readString();
+		heroData["texts"]["biography"].String() = bioParser.readString();
+		heroData["texts"]["specialty"]["name"].String() = specParser.readString();
+		heroData["texts"]["specialty"]["tooltip"].String() = specParser.readString();
+		heroData["texts"]["specialty"]["description"].String() = specParser.readString();
 
-		hero->initialArmy.resize(3);
+		heroData["images"]["index"].Float() = i;
+
 		for(int x=0;x<3;x++)
 		{
-			hero->initialArmy[x].minAmount = parser.readNumber();
-			hero->initialArmy[x].maxAmount = parser.readNumber();
+			JsonNode armySlot;
+			armySlot["min"].Float() = parser.readNumber();
+			armySlot["max"].Float() = parser.readNumber();
+			armySlot["creature"].String() = genRefName(parser.readString());
 
-			std::string refName = parser.readString();
-			boost::algorithm::replace_all(refName, " ", ""); //remove spaces
-			refName[0] = std::tolower(refName[0]); // to camelCase
-			VLC->modh->identifiers.requestIdentifier(std::string("creature.") + refName, [=](si32 creature)
-			{
-				hero->initialArmy[x].creature = CreatureID(creature);
-			});
+			heroData["army"].Vector().push_back(armySlot);
 		}
 		parser.endLine();
 		specParser.endLine();
 		bioParser.endLine();
 
-		hero->ID = heroes.size();
-		hero->imageIndex = hero->ID;
-		heroes.push_back(hero);
+		h3Data.push_back(heroData);
 	}
 
 	// Load heroes information
-	const JsonNode config(ResourceID("config/heroes.json"));
-	BOOST_FOREACH(const JsonNode &hero, config["heroes"].Vector())
+	heroes.resize(GameConstants::HEROES_QUANTITY);
+
+	const JsonNode gameConf(ResourceID("config/gameConfig.json"));
+	JsonNode config(JsonUtils::assembleFromFiles(gameConf["heroes"].convertTo<std::vector<std::string> >()));
+
+	BOOST_FOREACH(auto &entry, config.Struct())
 	{
-		loadHeroJson(heroes[hero["id"].Float()], hero);
+		ui32 identifier = entry.second["id"].Float();
+		JsonUtils::merge(h3Data[identifier], entry.second);
+		CHero * hero = loadHero(h3Data[identifier]);
+		hero->ID = identifier;
+		heroes[identifier] = hero;
+
+		VLC->modh->identifiers.registerObject("hero." + entry.first, identifier);
+	}
+
+	for (size_t i=0; i < heroes.size(); i++)
+	{
+		if (heroes[i] == nullptr)
+			tlog0 << "Warning: hero with id " << i << " is missing!\n";
 	}
 }
 

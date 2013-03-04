@@ -226,7 +226,6 @@ void CCreatureHandler::loadBonuses(CCreature & ncre, std::string bonuses)
 		("CATAPULT",Bonus::CATAPULT)
 		("MULTI_HEADED",Bonus::ATTACKS_ALL_ADJACENT)
 		("IMMUNE_TO_MIND_SPELLS",Bonus::MIND_IMMUNITY)
-		("IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY)
 		("HAS_EXTENDED_ATTACK",Bonus::TWO_HEX_ATTACK_BREATH);
 
 	auto hasAbility = [&](const std::string name) -> bool
@@ -709,7 +708,7 @@ void CCreatureHandler::loadStackExperience(CCreature * creature, const JsonNode 
 {
 	BOOST_FOREACH (const JsonNode &exp, input.Vector())
 	{
-		auto bonus = JsonUtils::parseBonus (exp["bonus"]);
+		auto bonus = JsonUtils::parseBonus (exp["bonus"]); // FIXME: memory leak? Only copies of bonus is added to creature
 		bonus->source = Bonus::STACK_EXPERIENCE;
 		bonus->duration = Bonus::PERMANENT;
 		const JsonVector &values = exp["values"].Vector();

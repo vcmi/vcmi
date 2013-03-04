@@ -1,0 +1,250 @@
+{
+	"orrin":
+	{
+		"id": 0,
+		"class" : "knight",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "archery", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 1, "info": 0 }
+		]
+	},
+	"valeska":
+	{
+		"id": 1,
+		"class" : "knight",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "archery", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 2 }
+		]
+	},
+	"edric":
+	{
+		"id": 2,
+		"class" : "knight",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "armorer", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 4 }
+		]
+	},
+	"sylvia":
+	{
+		"id": 3,
+		"class" : "knight",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "navigation", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 2, "subtype": 5, "info": 1 }
+		]
+	},
+	"lordHaart":
+	{
+		"id": 4,
+		"class" : "knight",
+		"female": false,
+		"special" : true, // Lord Haart in his living form. Disabled in H3 expansions
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "estates", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 13, "info": 0 }
+		]
+	},
+	"sorsha":
+	{
+		"id": 5,
+		"class" : "knight",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "offence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 6 }
+		]
+	},
+	"christian":
+	{
+		"id": 6,
+		"class" : "knight",
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "artillery", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 146 }
+		]
+	},
+	"tyris":
+	{
+		"id": 7,
+		"class" : "knight",
+		"female": true,
+		"skills":
+		[
+			{ "skill" : "leadership", "level": "basic" },
+			{ "skill" : "tactics", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 10 }
+		]
+	},
+	"rion":
+	{
+		"id": 8,
+		"class" : "cleric",
+		"female": false,
+		"spellbook": [ "stoneSkin" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "firstAid", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 27, "info": 0 }
+		]
+	},
+	"adela":
+	{
+		"id": 9,
+		"class" : "cleric",
+		"female": true,
+		"spellbook": [ "bless" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "diplomacy", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":6, "val": 3, "subtype": 41, "info": 0 }
+		]
+	},
+	"cuthbert":
+	{
+		"id": 10,
+		"class" : "cleric",
+		"female": false,
+		"spellbook": [ "weakness" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "estates", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":8, "val": 0, "subtype": 45, "info": 0 }
+		]
+	},
+	"adelaide":
+	{
+		"id": 11,
+		"class" : "cleric",
+		"female": true,
+		"spellbook": [ "frostRing" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "advanced" }
+		],
+		"specialties":
+		[
+			{ "type":3, "val": 3, "subtype": 20, "info": 0 }
+		]
+	},
+	"ingham":
+	{
+		"id": 12,
+		"class" : "cleric",
+		"female": false,
+		"spellbook": [ "curse" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "mysticism", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":1, "val": 0, "subtype": 0, "info": 8 }
+		]
+	},
+	"sanya":
+	{
+		"id": 13,
+		"class" : "cleric",
+		"female": true,
+		"spellbook": [ "dispel" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "eagleEye", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":2, "val": 5, "subtype": 11, "info": 0 }
+		]
+	},
+	"loynis":
+	{
+		"id": 14,
+		"class" : "cleric",
+		"spellbook": [ "prayer" ],
+		"female": false,
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "learning", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":8, "val": 0, "subtype": 48, "info": 0 }
+		]
+	},
+	"caitlin":
+	{
+		"id": 15,
+		"class" : "cleric",
+		"female": true,
+		"spellbook": [ "cure" ],
+		"skills":
+		[
+			{ "skill" : "wisdom", "level": "basic" },
+			{ "skill" : "intelligence", "level": "basic" }
+		],
+		"specialties":
+		[
+			{ "type":10, "val": 350, "subtype": 6, "info": 0 }
+		]
+	}
+}
