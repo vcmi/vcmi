@@ -50,7 +50,7 @@ PImage CManager::getImage(const std::string& fname)
 
 		if (img_tmp == nullptr)
 		{
-			tlog1 << "Image " << fname << " not loaded!\n";
+			tlog1 << "Gfx: Image " << fname << " not loaded!\n";
 			return nullptr;
 		}
 	}
@@ -80,7 +80,7 @@ PAnimation CManager::getAnimation(const std::string& fname)
 	CAnimation* anim_tmp = CAnimation::makeFromDEF(*(SH3DefFile*)data.get(), (size_t)readSize);
 	if (anim_tmp == nullptr)
 	{
-		tlog1 << "Animation " << fname << " not loaded!\n";
+		tlog1 << "Gfx: Animation " << fname << " not loaded!\n";
 		return nullptr;
 	}
 

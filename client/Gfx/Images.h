@@ -96,8 +96,8 @@ class CBitmap32 : public CImage
 	};
 
 protected:
-	CBitmap32(ui32 w, ui32 h, const ColorRGB pixBuff[], bool bgra = true); // 24bit RGB source
-	CBitmap32(ui32 w, ui32 h, const ColorRGBA pixBuff[], bool bgra = true); // 32bit RGBA source
+	CBitmap32(ui32 w, ui32 h, const ColorRGB pixBuff[], bool bgra); // 24bit RGB source
+	CBitmap32(ui32 w, ui32 h, const ColorRGBA pixBuff[], bool bgra); // 32bit RGBA source
 	virtual void textureTransfer();
 
 public:
@@ -120,6 +120,8 @@ class CPalettedBitmap : public CImage
 protected:
 	CPaletteRGBA& palette;
 	ui8* buffer;
+	ui32 realWidth;
+	ui32 realHeight;
 
 	CPalettedBitmap(ui32 w, ui32 h, CPaletteRGBA& pal, const ui8 pixBuff[]);
 	CPalettedBitmap(ui32 w, ui32 h, CPaletteRGBA& pal, const ui8 pixBuff[], ui32 format);
@@ -143,16 +145,12 @@ class CPalBitmapWithMargin : public CPalettedBitmap
 	friend class CImage;
 	ui32 leftMargin;
 	ui32 topMargin;
-	ui32 intWidth;
-	ui32 intHeight;
 
 protected:
 	CPalBitmapWithMargin(ui32 fw, ui32 fh, ui32 lm, ui32 tm, ui32 iw, ui32 ih,
 						 CPaletteRGBA& pal, const ui8 pixBuff[]);
 	CPalBitmapWithMargin(ui32 fw, ui32 fh, ui32 lm, ui32 tm, ui32 iw, ui32 ih,
 						 CPaletteRGBA& pal, const ui8 pixBuff[], ui32 format);
-	virtual void textureTransfer();
-
 public:
 	virtual void putAt(Point p);
 	virtual void putAt(Point p, TransformFlags flags);

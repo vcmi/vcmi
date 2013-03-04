@@ -18,10 +18,13 @@ PFNGLACTIVETEXTUREPROC	glActiveTexture;
 // OpenGL 2.0 functions pointers
 PFNGLCREATEPROGRAMPROC	glCreateProgram;
 PFNGLCREATESHADERPROC	glCreateShader;
+PFNGLDELETESHADERPROC	glDeleteShader;
 PFNGLSHADERSOURCEPROC	glShaderSource;
 PFNGLCOMPILESHADERPROC	glCompileShader;
+PFNGLGETSHADERIVPROC	glGetShaderiv;
 PFNGLATTACHSHADERPROC	glAttachShader;
 PFNGLLINKPROGRAMPROC	glLinkProgram;
+PFNGLGETPROGRAMIVPROC	glGetProgramiv;
 PFNGLUSEPROGRAMPROC 	glUseProgram;
 PFNGLGETUNIFORMLOCATIONPROC glGetUniformLocation;
 PFNGLUNIFORM1IPROC		glUniform1i;
@@ -54,7 +57,7 @@ static GLint coord_uniform = -1;
 
 
 // Print out the information log for a shader object 
-void printInfoLog(PFNGLGETPROGRAMINFOLOGPROC logFunc, GLuint object)
+void printInfoLog(PFNGLGETPROGRAMINFOLOGPROC logFunc, GLuint object, GLint status)
 {
 	if (logFunc != nullptr)
 	{
@@ -62,7 +65,7 @@ void printInfoLog(PFNGLGETPROGRAMINFOLOGPROC logFunc, GLuint object)
 		GLchar infoLog[1024];
 		logFunc(object, sizeof(infoLog)-1, &infoLogLength, infoLog);
 
-		if (infoLogLength > 0) tlog1 << infoLog;
+		if (infoLogLength > 0) (status ? tlog0 : tlog1) << infoLog;
 	}
 }
 
@@ -71,21 +74,31 @@ GLuint makeShaderProgram(const char * frg_src)
 {
 	// Creating a fragment shader object
 	GLuint shader_object = glCreateShader(GL_FRAGMENT_SHADER);
+	if (shader_object == 0) return 0;
+
 	glShaderSource(shader_object, 1, &frg_src, nullptr); // assigning the shader source
-	// Compiling the shader
-	glCompileShader(shader_object);
-	printInfoLog(glGetShaderInfoLog, shader_object);
+	glCompileShader(shader_object); // Compiling the shader
 
-	// Creating a program object
-	GLuint program_object  = glCreateProgram();
-	// Attaching the shader into program
-	glAttachShader(program_object, shader_object); 
+	GLint ret;
+	glGetShaderiv(shader_object, GL_COMPILE_STATUS, &ret);
+	printInfoLog(glGetShaderInfoLog, shader_object, ret);
 
-	// Link the shaders into a complete GLSL program.
-	glLinkProgram(program_object);
-	printInfoLog(glGetProgramInfoLog, program_object);
+	if (ret == GL_TRUE)
+	{
+		GLuint program_object  = glCreateProgram(); // Creating a program object
+		glAttachShader(program_object, shader_object); // Attaching the shader into program
 
-	return program_object;
+		// Link the shaders into a complete GLSL program.
+		glLinkProgram(program_object);
+
+		glGetProgramiv(shader_object, GL_LINK_STATUS, &ret);
+		printInfoLog(glGetProgramInfoLog, program_object, ret);
+
+		if (ret == GL_TRUE) return program_object;
+	}
+
+	glDeleteShader(shader_object);
+	return 0;
 }
 
 
@@ -104,17 +117,20 @@ void initVideo(ui32 w, ui32 h, bool fullscreen)
 	SDL_GL_SwapBuffers();
 
 	// Dynamic-linked OpenGL 1.3 and 2.0 functions - required to 2D rendeing
-	if (	(glActiveTexture = (PFNGLACTIVETEXTUREPROC) SDL_GL_GetProcAddress("glActiveTexture")) == nullptr
-		||	(glCreateProgram = (PFNGLCREATEPROGRAMPROC) SDL_GL_GetProcAddress("glCreateProgram")) == nullptr
-		||	(glCreateShader = (PFNGLCREATESHADERPROC) SDL_GL_GetProcAddress("glCreateShader")) == nullptr
-		||	(glShaderSource = (PFNGLSHADERSOURCEPROC) SDL_GL_GetProcAddress("glShaderSource")) == nullptr
-		||	(glCompileShader = (PFNGLCOMPILESHADERPROC) SDL_GL_GetProcAddress("glCompileShader")) == nullptr
-		||	(glAttachShader = (PFNGLATTACHSHADERPROC) SDL_GL_GetProcAddress("glAttachShader")) == nullptr
-		||	(glLinkProgram = (PFNGLLINKPROGRAMPROC) SDL_GL_GetProcAddress("glLinkProgram")) == nullptr
-		||	(glUseProgram = (PFNGLUSEPROGRAMPROC) SDL_GL_GetProcAddress("glUseProgram")) == nullptr
+	if (	(glActiveTexture	= (PFNGLACTIVETEXTUREPROC)	SDL_GL_GetProcAddress("glActiveTexture")) == nullptr
+		||	(glCreateProgram	= (PFNGLCREATEPROGRAMPROC)	SDL_GL_GetProcAddress("glCreateProgram")) == nullptr
+		||	(glCreateShader 	= (PFNGLCREATESHADERPROC)	SDL_GL_GetProcAddress("glCreateShader")) == nullptr
+		||	(glDeleteShader		= (PFNGLDELETESHADERPROC)	SDL_GL_GetProcAddress("glDeleteShader")) == nullptr
+		||	(glShaderSource 	= (PFNGLSHADERSOURCEPROC)	SDL_GL_GetProcAddress("glShaderSource")) == nullptr
+		||	(glCompileShader	= (PFNGLCOMPILESHADERPROC)	SDL_GL_GetProcAddress("glCompileShader")) == nullptr
+		||	(glGetShaderiv		= (PFNGLGETSHADERIVPROC)	SDL_GL_GetProcAddress("glGetShaderiv")) == nullptr
+		||	(glAttachShader 	= (PFNGLATTACHSHADERPROC)	SDL_GL_GetProcAddress("glAttachShader")) == nullptr
+		||	(glLinkProgram		= (PFNGLLINKPROGRAMPROC)	SDL_GL_GetProcAddress("glLinkProgram")) == nullptr
+		||	(glGetProgramiv 	= (PFNGLGETPROGRAMIVPROC)	SDL_GL_GetProcAddress("glGetProgramiv")) == nullptr
+		||	(glUseProgram		= (PFNGLUSEPROGRAMPROC) 	SDL_GL_GetProcAddress("glUseProgram")) == nullptr
 		||	(glGetUniformLocation = (PFNGLGETUNIFORMLOCATIONPROC) SDL_GL_GetProcAddress("glGetUniformLocation")) == nullptr
-		||	(glUniform1i = (PFNGLUNIFORM1IPROC) SDL_GL_GetProcAddress("glUniform1i")) == nullptr
-		||	(glUniform2i = (PFNGLUNIFORM2IPROC) SDL_GL_GetProcAddress("glUniform2i")) == nullptr
+		||	(glUniform1i		= (PFNGLUNIFORM1IPROC)		SDL_GL_GetProcAddress("glUniform1i")) == nullptr
+		||	(glUniform2i		= (PFNGLUNIFORM2IPROC)		SDL_GL_GetProcAddress("glUniform2i")) == nullptr
 		)
 	{
 		tlog1 << "Error: OpenGL2 Extenstions are not available\n";
@@ -133,6 +149,11 @@ void initVideo(ui32 w, ui32 h, bool fullscreen)
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
 	paletteBitmapProgram = makeShaderProgram(frag_palette_bitmap);
+	if (paletteBitmapProgram == 0)
+	{
+		throw std::runtime_error("OpenGL shader for palleted bitmaps is not compiled\n");
+	}
+
 	GLint bitmap_uniform = glGetUniformLocation(paletteBitmapProgram, "bitmap");
 	GLint palette_uniform = glGetUniformLocation(paletteBitmapProgram, "palette");
 	coord_uniform = glGetUniformLocation(paletteBitmapProgram, "coordOffs");

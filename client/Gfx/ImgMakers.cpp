@@ -67,7 +67,7 @@ CImage * CImage::makeFromPCX(const SH3PcxFile& pcx, size_t fileSize)
 	{
 		if (H3PCX_HEADER_SIZE + imgSize > fileSize) return nullptr;
 
-		return new CBitmap32(width, height, (ColorRGB*)pcx.data);
+		return new CBitmap32(width, height, (ColorRGB*)pcx.data, true);
 	}
 
 	return nullptr;

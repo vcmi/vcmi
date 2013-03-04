@@ -232,13 +232,14 @@ void CBitmap32::putWithPlrColor(Point p, ColorRGBA c, float scale)
 
 CPalettedBitmap::CPalettedBitmap(ui32 w, ui32 h, CPaletteRGBA& pal, const ui8 pixBuff[]) :
 	CImage(w, h),
-	palette(pal)
+	palette(pal),
+	realWidth((w + 3) & ~3),
+	realHeight(h)
 {
-	const ui32 rowStride = (w + 3) & ~3;
-	const ui32 size = rowStride * h;
+	const ui32 size = realWidth * h;
 	buffer = new ui8[size];
 
-	if (rowStride == w)
+	if (realWidth == w)
 	{
 		memcpy(buffer, pixBuff, size);
 		return;
@@ -246,19 +247,19 @@ CPalettedBitmap::CPalettedBitmap(ui32 w, ui32 h, CPaletteRGBA& pal, const ui8 pi
 
 	for (ui32 y=0; y<h; ++y)
 	{
-		memset(&buffer[rowStride*(y+1)-4], 0, 4);
-		memcpy(&buffer[rowStride*y], &pixBuff[w*y], w);
+		memcpy(&buffer[realWidth*y], &pixBuff[w*y], w);
 	}
-	width = rowStride;
+	realWidth = w;
 }
 
 
 CPalettedBitmap::CPalettedBitmap(ui32 w, ui32 h, CPaletteRGBA& pal, const ui8 pixBuff[], ui32 format) :
 	CImage(w, h),
-	palette(pal)
+	palette(pal),
+	realWidth((w + 3) & ~3),
+	realHeight(h)
 {
-	const ui32 rowStride = (w + 3) & ~3;
-	buffer = new ui8[rowStride * h];
+	buffer = new ui8[realWidth * h];
 
 	switch (format)
 	{
@@ -269,7 +270,7 @@ CPalettedBitmap::CPalettedBitmap(ui32 w, ui32 h, CPaletteRGBA& pal, const ui8 pi
 			for (ui32 y=0; y<h; ++y)
 			{
 				const ui8*	srcRowPtr = pixBuff + SDL_SwapLE32(rowsOffsets[y]);
-				ui8*		dstRowPtr = buffer + (y * rowStride);
+				ui8*		dstRowPtr = buffer + (y * realWidth);
 
 				ui32 rowLength = 0;
 				do {
@@ -290,6 +291,8 @@ CPalettedBitmap::CPalettedBitmap(ui32 w, ui32 h, CPaletteRGBA& pal, const ui8 pi
 				}
 				while (rowLength < w);
 			}
+
+			realWidth = w;
 			return;
 		}
 	default:
@@ -307,7 +310,7 @@ CPalettedBitmap::~CPalettedBitmap()
 
 void CPalettedBitmap::textureTransfer()
 {
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_R8UI, width, height, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, buffer);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_R8UI, realWidth, realHeight, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, buffer);
 	palette.loadToVideoRAM();
 }
 
@@ -318,7 +321,7 @@ void CPalettedBitmap::putAt(Point p)
 	GL2D::assignTexture(GL_TEXTURE1, GL_TEXTURE_1D, palette.getTexHandle());
 	GL2D::assignTexture(GL_TEXTURE0, GL_TEXTURE_RECTANGLE, texHandle);
 	GL2D::usePaletteBitmapShader(p.x, p.y);
-	glRecti(p.x, p.y, p.x + width, p.y + height);
+	glRecti(p.x, p.y, p.x + realWidth, p.y + realHeight);
 }
 
 
@@ -334,7 +337,7 @@ void CPalettedBitmap::putAt(Point p, TransformFlags flags, float scale)
 	GL2D::assignTexture(GL_TEXTURE1, GL_TEXTURE_1D, palette.getTexHandle());
 	GL2D::assignTexture(GL_TEXTURE0, GL_TEXTURE_RECTANGLE, texHandle);
 	GL2D::usePaletteBitmapShader(p.x, p.y);
-	glRecti(p.x, p.y, p.x + (ui32)(width*scale), p.y + (ui32)(height*scale));
+	glRecti(p.x, p.y, p.x + (ui32)(realWidth*scale), p.y + (ui32)(realHeight*scale));
 }
 
 
@@ -371,26 +374,17 @@ void CPalettedBitmap::putWithPlrColor(Point p, ColorRGBA c, float scale)
 CPalBitmapWithMargin::CPalBitmapWithMargin(ui32 fw, ui32 fh, ui32 lm, ui32 tm, ui32 iw, ui32 ih,
 										   CPaletteRGBA& pal, const ui8 pixBuff[]) :
 	CPalettedBitmap(iw, ih, pal, pixBuff),
-	leftMargin(lm), topMargin(tm),
-	intWidth(iw), intHeight(ih)
+	leftMargin(lm), topMargin(tm)
 {
 	width = fw;
 	height = fh;
 }
 
 
-void CPalBitmapWithMargin::textureTransfer()
-{
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_R8UI, intWidth, intHeight, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, buffer);
-	palette.loadToVideoRAM();
-}
-
-
 CPalBitmapWithMargin::CPalBitmapWithMargin(ui32 fw, ui32 fh, ui32 lm, ui32 tm, ui32 iw, ui32 ih,
 										   CPaletteRGBA& pal, const ui8 pixBuff[], ui32 format) :
 	CPalettedBitmap(iw, ih, pal, pixBuff, format),
-	leftMargin(lm), topMargin(tm),
-	intWidth(iw), intHeight(ih)
+	leftMargin(lm), topMargin(tm)
 {
 	width = fw;
 	height = fh;
@@ -402,8 +396,8 @@ void CPalBitmapWithMargin::putAt(Point p)
 	loadToVideoRAM();
 	GL2D::assignTexture(GL_TEXTURE1, GL_TEXTURE_1D, palette.getTexHandle());
 	GL2D::assignTexture(GL_TEXTURE0, GL_TEXTURE_RECTANGLE, texHandle);
-	GL2D::usePaletteBitmapShader(p.x, p.y);
-	glRecti(p.x, p.y, p.x + intWidth, p.y + intHeight);
+	GL2D::usePaletteBitmapShader(p.x + leftMargin, p.y + topMargin);
+	glRecti(p.x + leftMargin, p.y + topMargin, p.x + realWidth, p.y + realHeight);
 }
 
 
@@ -430,8 +424,8 @@ void CPalBitmapWithMargin::putAt(Point p, TransformFlags flags, const ColorMatri
 	loadToVideoRAM();
 	GL2D::assignTexture(GL_TEXTURE1, GL_TEXTURE_1D, palette.getTexHandle());
 	GL2D::assignTexture(GL_TEXTURE0, GL_TEXTURE_RECTANGLE, texHandle);
-	GL2D::usePaletteBitmapShader(p.x, p.y, cm);
-	glRecti(p.x, p.y, p.x + width, p.y + height);
+	GL2D::usePaletteBitmapShader(p.x + leftMargin, p.y + topMargin);
+	glRecti(p.x + leftMargin, p.y + topMargin, p.x + realWidth, p.y + realHeight);
 }
 
 
