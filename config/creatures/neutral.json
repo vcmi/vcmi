@@ -92,6 +92,7 @@
 		"level": 8,
 		"faction": "neutral",
 		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//faerie dragon is a dragon
+						[ "MAGIC_MIRROR", 30, 0, 0 ]
 						[ "CASTS", 5, 0, 0 ],
 						[ "CREATURE_SPELL_POWER", 500, 0, 0], 	//5 spell power per dragon
 						[ "SPELLCASTER", 2, "spell.magicArrow", 10 ],			

@@ -661,6 +661,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 				case Bonus::REBIRTH:
 				case Bonus::DEATH_STARE:
 				case Bonus::LIFE_DRAIN:
+				case Bonus::FIRE_SHIELD:
 					boost::algorithm::replace_first(text, "%d", boost::lexical_cast<std::string>(valOfBonuses(Selector::typeSubtype(bonus->type, bonus->subtype))));
 					break;
 				case Bonus::HATE:
@@ -883,6 +884,14 @@ std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
 			fileName = "ManaDrain.bmp"; break;
 		case Bonus::LIFE_DRAIN:
 			fileName = "DrainLife.bmp"; break;
+		case Bonus::FIRE_SHIELD:
+			fileName = "FireShield.bmp"; break;
+		case Bonus::MAGIC_MIRROR:
+			fileName = "MagicMirror.bmp"; break;
+		case Bonus::NON_LIVING:
+			fileName = "NonLiving.bmp"; break;
+		case Bonus::SPELL_LIKE_ATTACK:
+			fileName = "SpellLikeAttack.bmp"; break;
 	}
 	if(!fileName.empty() && !fullPath)
 		fileName = "zvs/Lib1.res/" + fileName;
