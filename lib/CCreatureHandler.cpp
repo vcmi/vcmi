@@ -226,7 +226,6 @@ void CCreatureHandler::loadBonuses(CCreature & ncre, std::string bonuses)
 		("CATAPULT",Bonus::CATAPULT)
 		("MULTI_HEADED",Bonus::ATTACKS_ALL_ADJACENT)
 		("IMMUNE_TO_MIND_SPELLS",Bonus::MIND_IMMUNITY)
-		("IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY)
 		("HAS_EXTENDED_ATTACK",Bonus::TWO_HEX_ATTACK_BREATH);
 
 	auto hasAbility = [&](const std::string name) -> bool

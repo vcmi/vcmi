@@ -298,6 +298,7 @@
 		"level": 7,
 		"faction": "conflux",
 		"upgrades": ["phoenix"],
+		"abilities": [ ["FIRE_IMMUNITY", 0, 0, 0] ],
 		"graphics" :
 		{
 			"animation": "CFBIRD.DEF"
@@ -317,7 +318,8 @@
 		"level": 7,
 		"faction": "conflux",
 		"abilities": [ [ "CASTS", 1, 0, 0 ],	//Phoenix rebirths once
-						 [ "REBIRTH", 20, 0, 0 ] ],	//20% of stack is resurrected
+						["FIRE_IMMUNITY", 0, 0, 0],
+						[ "REBIRTH", 20, 0, 0 ] ],	//20% of stack is resurrected
 		"graphics" :
 		{
 			"animation": "CPHX.DEF"
