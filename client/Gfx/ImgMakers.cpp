@@ -31,11 +31,11 @@ CImage * CImage::makeBySDL(void* data, size_t fileSize, const char* fileExt)
 		}
 		else if (ret->format->BytesPerPixel == 3)
 		{
-			img = new CBitmap32(ret->w, ret->h, (ColorRGB*)ret->pixels);
+			img = new CBitmap32(ret->w, ret->h, (ColorRGB*)ret->pixels, ret->format->Rmask == 0x00FF0000);
 		}
 		else if (ret->format->BytesPerPixel == 4)
 		{
-			img = new CBitmap32(ret->w, ret->h, (ColorRGBA*)ret->pixels);
+			img = new CBitmap32(ret->w, ret->h, (ColorRGBA*)ret->pixels, ret->format->Rmask == 0x00FF0000);
 		}
 
 		SDL_FreeSurface(ret);

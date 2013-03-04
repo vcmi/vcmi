@@ -307,7 +307,7 @@ CPalettedBitmap::~CPalettedBitmap()
 
 void CPalettedBitmap::textureTransfer()
 {
-	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_R8UI, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, buffer);
+	glTexImage2D(GL_TEXTURE_RECTANGLE, 0, GL_R8UI, width, height, 0, GL_RED_INTEGER, GL_UNSIGNED_BYTE, buffer);
 	palette.loadToVideoRAM();
 }
 
