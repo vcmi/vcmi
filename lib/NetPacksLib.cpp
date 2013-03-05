@@ -735,6 +735,32 @@ DLL_LINKAGE void RebalanceStacks::applyGs( CGameState *gs )
 		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> merge
 		{
 			assert(c == srcType);
+			auto alHere = ArtifactLocation (src.getStack(), ArtifactPosition::CREATURE_SLOT);
+			auto alDest = ArtifactLocation (dst.getStack(), ArtifactPosition::CREATURE_SLOT);
+			auto artHere = alHere.getArt();
+			auto artDest = alDest.getArt();
+			if (artHere)
+			{
+				if (alDest.getArt())
+				{
+					auto hero = dynamic_cast <CGHeroInstance *>(src.army.get());
+					if (hero)
+					{
+						artDest->move (alDest, ArtifactLocation (hero, alDest.getArt()->firstBackpackSlot (hero)));
+					}
+					//else - artifact cna be lost :/
+					else
+					{
+						tlog2 << "Artifact is present at destination slot!";
+					}
+					artHere->move (alHere, alDest);
+					//TODO: choose from dialog
+				}
+				else //just move to the other slot before stack gets erased
+				{
+					artHere->move (alHere, alDest);
+				}
+			}
 			if (stackExp)
 			{
 				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
