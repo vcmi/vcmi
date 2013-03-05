@@ -392,7 +392,7 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 			}
 		}
 
-		if (CGI->modh->modules.STACK_EXP)
+		if (CGI->modh->modules.STACK_ARTIFACT)
 		{
 			creArt = true;
 		}
