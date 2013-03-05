@@ -1,9 +1,68 @@
-
 <html>
 <body>
+    <h2>0.92</h2>
+    <b>GENERAL</b>
     <ul>
-        <li>0.92 Feature 1</li>
-        <li>0.92 Feature 2</li>
+        <li>hero crossover between missions in campaigns</li>
+        <li>introduction before missions in campaigns</li>
+    </ul>
+    <b>MODS</b>
+    <ul>
+        <li>Added CREATURE_SPELL_POWER for commanders</li>
+        <li>Added spell modifiers to various spells: Hypnotize (Astral), Firewall (Luna), Landmine </li>
+        <li>Fixed ENEMY_DEFENCE_REDUCTION, GENERAL_ATTACK_REDUCTION</li>
+        <li>Extended usefulness of ONLY_DISTANCE_FIGHT, ONLY_MELEE_FIGHT ranges</li>
+        <li>Double growth creatures are configurable now</li>
+        <li>Drain Life now has % effect depending on bonus value</li>
+        <li>Stack can use more than 2 attacks. Additional attacks can now be seperated as "ONLY_MELEE_FIGHT and "ONLY_DISTANCE_FIGHT".</li>
+        <li>Moat damage configurable</li>
+        <li>More config options for spells:
+            <ul>
+                <li>mind immunity handled by config</li>
+                <li>direct damage immunity handled by config</li>
+                <li>immunity icon configurable</li>
+                <li>removed mind_spell flag</li>
+            </ul>
+        </li>
+        <li>creature config use string ids now.</li>
+        <li>support for string subtype id in short bonus format</li>
+        <li>primary skill identifiers for bonuses</li>
+    </ul>
+    <h2>0.91</h2>
+    <b>GENERAL</b>
+    <ul>
+        <li>VCMI build on OS X is now supported</li>
+        <li>Completely removed autotools</li>
+        <li>Added RMG interace and ability to generate simplest working maps</li>
+        <li>Added loading screen</li>
+    </ul>
+    <b>MODS</b>
+    <ul>
+        <li>Simplified mod structure. Mods from 0.9 will not be compatible.</li>
+        <ul>
+            <li>Mods can be turned on and off in config/modSettings.json file</li>
+            <li>Support for new factions, including:</li>
+        </ul>
+        <li>New towns</li>
+        <li>New hero classes</li>
+        <li>New heroes</li>
+        <li>New town-related external dwellings</li>
+        <ul>
+            <li>Support for new artifact, including combined, commander and stack artifacts</li>
+            <li>Extended configuration options</li>
+        </ul>
+        <li>All game objects are referenced by string identifiers</li>
+        <li>Subtype resolution for bonuses</li>
+    </ul>
+    <b>BATTLES</b>
+    <ul>
+        <li>Support for "enchanted" WoG ability</li>
+    </ul>
+    <b>ADVENTURE AI</b>
+    <ul>
+        <li>AI will try to use Subterranean Gate, Redwood Observatory and Cartographer for exploration</li>
+        <li>Improved exploration algorithm</li>
+        <li>AI will prioritize dwellings and mines when there are no opponents visible</li>
     </ul>
 </body>
 </html>
