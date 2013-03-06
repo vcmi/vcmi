@@ -8,9 +8,9 @@
          <item>
             <title>Version 0.92</title>
 			   <description>Version 0.92 description</description>
-            <pubDate>Wed, 01 March 2013 19:20:11 +0000</pubDate>
+            <pubDate>Wed, 09 Jan 2006 19:20:11 +0000</pubDate>
             <sparkle:releaseNotesLink>http://vcmi.com/sparkle_release_notes.html</sparkle:releaseNotesLink>
-            <enclosure url="http://download.vcmi.eu/vcmi-0.92.dmg" sparkle:version="0.92" length="34906250" type="application/octet-stream" sparkle:dsaSignature="MC0CFF75UKfXunY2GNSW4hs1O6MaWycLAhUA3YiRM9uUrnoS/PhWHgjRjwWcHo4=" />
+            <enclosure url="http://download.vcmi.eu/vcmi-0.92.dmg" sparkle:version="0.92" length="34896555" type="application/octet-stream" sparkle:dsaSignature="MCwCFHkdpOJNjqRXoW4UwI3EHlXXjwQpAhR9g7zcnhehcQVLI/mkqZE4nyL4dA==" />
          </item>
    </channel>
 </rss>
