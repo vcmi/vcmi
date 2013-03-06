@@ -2736,20 +2736,6 @@ std::string PlayerState::nodeName() const
 	return "Player " + (color.getNum() < VLC->generaltexth->capColors.size() ? VLC->generaltexth->capColors[color.getNum()] : boost::lexical_cast<std::string>(color));
 }
 
-// void PlayerState::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
-// {
-// 	return; //no loops possible
-// }
-//
-// void PlayerState::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-// {
-// 	for (std::vector<CGHeroInstance *>::const_iterator it = heroes.begin(); it != heroes.end(); it++)
-// 	{
-// 		if (*it != root)
-// 			(*it)->getBonuses(out, selector, this);
-// 	}
-// }
-
 InfoAboutArmy::InfoAboutArmy():
     owner(PlayerColor::NEUTRAL)
 {}

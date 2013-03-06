@@ -13,6 +13,8 @@
 				<Option object_output="../obj/Debug/Lib" />
 				<Option type="3" />
 				<Option compiler="gcc" />
+				<Option host_application="D:/projects/vcmi/engine/VCMI_client.exe" />
+				<Option run_host_application_in_terminal="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
 					<Add option="-O1" />
@@ -73,6 +75,8 @@
 		<Unit filename="CArtHandler.h" />
 		<Unit filename="CBattleCallback.cpp" />
 		<Unit filename="CBattleCallback.h" />
+		<Unit filename="CBonusTypeHandler.cpp" />
+		<Unit filename="CBonusTypeHandler.h" />
 		<Unit filename="CBuildingHandler.cpp" />
 		<Unit filename="CBuildingHandler.h" />
 		<Unit filename="CConfigHandler.cpp" />
@@ -136,6 +140,7 @@
 		<Unit filename="GameConstants.h" />
 		<Unit filename="HeroBonus.cpp" />
 		<Unit filename="HeroBonus.h" />
+		<Unit filename="IBonusTypeHandler.h" />
 		<Unit filename="IGameCallback.cpp" />
 		<Unit filename="IGameCallback.h" />
 		<Unit filename="IGameEventsReceiver.h" />
@@ -171,6 +176,7 @@
 		</Unit>
 		<Unit filename="StringConstants.h" />
 		<Unit filename="UnlockGuard.h" />
+		<Unit filename="VCMIDirs.cpp" />
 		<Unit filename="VCMIDirs.h" />
 		<Unit filename="VCMI_Lib.cpp" />
 		<Unit filename="VCMI_Lib.h" />

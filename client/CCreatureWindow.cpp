@@ -22,13 +22,13 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/NetPacks.h" //ArtifactLocation
 #include "../lib/CModHandler.h"
+#include "../lib/IBonusTypeHandler.h"
 
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
 
 using namespace CSDL_Ext;
 
-class CBonusItem;
 class CCreatureArtifactInstance;
 class CSelectableSkill;
 
@@ -269,24 +269,24 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 		}
 	}
 
-	int magicResistance = 0; //handle it separately :/
+
+	//handle Magic resistance separately :/
+	const IBonusBearer *temp = stack;
+	
 	if (battleStack)
 	{
-		magicResistance = battleStack->magicResistance(); //include Aura of Resistance
+		temp = battleStack;
 	}
-	else
-	{
-		magicResistance = stack->magicResistance(); //include Resiatance hero skill
-	}
+
+	int magicResistance = temp->magicResistance(); 
+	
 	if (magicResistance)
 	{
-		std::map<Bonus::BonusType, std::pair<std::string, std::string> >::const_iterator it = CGI->creh->stackBonuses.find(Bonus::MAGIC_RESISTANCE);
-		std::string description;
-		text = it->second.first;
-		description = it->second.second;
-		boost::algorithm::replace_first(description, "%d", boost::lexical_cast<std::string>(magicResistance));
 		Bonus b;
 		b.type = Bonus::MAGIC_RESISTANCE;
+		
+		text = VLC->getBth()->bonusToString(&b,temp,false);
+		const std::string description = VLC->getBth()->bonusToString(&b,temp,true);
 		bonusItems.push_back (new CBonusItem(genRect(0, 0, 251, 57), text, description, stack->bonusToGraphics(&b)));
 	}
 

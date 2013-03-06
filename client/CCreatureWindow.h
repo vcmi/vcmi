@@ -117,7 +117,6 @@ public:
 	CBonusItem(const Rect &Pos, const std::string &Name, const std::string &Description, const std::string &graphicsName);
 	~CBonusItem();
 
-	void setBonus (const Bonus &bonus);
 	void showAll (SDL_Surface * to);
 };
 

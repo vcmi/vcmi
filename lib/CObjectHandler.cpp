@@ -198,7 +198,7 @@ static void readBankLevel(const JsonNode &level, BankConfig &bc)
 	bc.easiest = level["easiest"].Float();
 }
 
-void CObjectHandler::loadObjects()
+void CObjectHandler::load()
 {
 	tlog5 << "\t\tReading cregens \n";
 

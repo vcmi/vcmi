@@ -45,4 +45,10 @@
 		"config/heroes/conflux.json",
 		"config/heroes/special.json"
 	],
+	
+	"bonuses" :
+	[
+		"config/bonuses.json",
+		"config/bonuses_texts.json"
+	]
 }

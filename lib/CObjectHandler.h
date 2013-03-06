@@ -353,9 +353,6 @@ public:
 		//visitied town pointer will be restored by map serialization method
 	}
 	//////////////////////////////////////////////////////////////////////////
-// 	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
-// 	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	//////////////////////////////////////////////////////////////////////////
 	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const; //sight distance (should be used if player-owned structure)
 	//////////////////////////////////////////////////////////////////////////
@@ -622,8 +619,7 @@ public:
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);
 	const CArmedInstance *getUpperArmy() const; //garrisoned hero if present or the town itself
-// 	void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
-// 	void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
+
 	//////////////////////////////////////////////////////////////////////////
 
 	ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
@@ -1398,7 +1394,7 @@ public:
 	std::map <ui32, std::string> creBanksNames; //[crebank index] -> name of this creature bank
 	std::vector<ui32> resVals; //default values of resources in gold
 
-	void loadObjects();
+	void load();
 	int bankObjToIndex (const CGObjectInstance * obj);
 
 	template <typename Handler> void serialize(Handler &h, const int version)

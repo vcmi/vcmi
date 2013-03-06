@@ -397,7 +397,7 @@ CSpell * CSpellHandler::loadSpell(CLegacyConfigParser & parser, const SpellID id
 	return spell;
 }
 
-void CSpellHandler::loadSpells()
+void CSpellHandler::load()
 {
 	CLegacyConfigParser parser("DATA/SPTRAITS.TXT");
 

@@ -20,14 +20,21 @@ class CDefObjInfoHandler;
 class CTownHandler;
 class CGeneralTextHandler;
 class CModHandler;
+class IBonusTypeHandler;
+class CBonusTypeHandler;
 
 /// Loads and constructs several handlers
 class DLL_LINKAGE LibClasses
 {
+	CBonusTypeHandler * bth;
+	
 	void callWhenDeserializing(); //should be called only by serialize !!!
 	void makeNull(); //sets all handler pointers to null
 public:
 	bool IS_AI_ENABLED; //VLC is the only object visible from both CMT and GeniusAI
+	
+	const IBonusTypeHandler * getBth() const;
+	
 	CArtHandler * arth;
 	CHeroHandler * heroh;
 	CCreatureHandler * creh;
@@ -49,7 +56,8 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroh & arth & creh & townh & objh & dobjinfo & spellh & modh & IS_AI_ENABLED;;
+		h & heroh & arth & creh & townh & objh & dobjinfo & spellh & modh & IS_AI_ENABLED;
+		h & bth;
 		if(!h.saving)
 		{
 			callWhenDeserializing();

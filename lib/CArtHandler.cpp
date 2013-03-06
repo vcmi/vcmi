@@ -161,7 +161,7 @@ CArtHandler::~CArtHandler()
 {
 }
 
-void CArtHandler::loadArtifacts(bool onlyTxt)
+void CArtHandler::load(bool onlyTxt)
 {
 	if (onlyTxt)
 		return; // looks to be broken anyway...

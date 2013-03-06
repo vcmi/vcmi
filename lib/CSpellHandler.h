@@ -168,7 +168,7 @@ public:
 	CSpellHandler();
 	std::vector< ConstTransitivePtr<CSpell> > spells;
 
-	void loadSpells();
+	void load();
 
 	/**
 	 * Gets a list of default allowed spells. OH3 spells are all allowed by default.

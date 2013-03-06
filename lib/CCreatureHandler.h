@@ -106,7 +106,6 @@ public:
 
 	void addBonus(int val, Bonus::BonusType type, int subtype = -1);
 	std::string nodeName() const override;
-	//void getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const;
 
 	template<typename RanGen>
 	int getRandomAmount(RanGen ranGen) const
@@ -148,7 +147,6 @@ public:
 	std::vector<ConstTransitivePtr<CCreature> > creatures; //creature ID -> creature info.
 
 	//stack exp
-	std::map<Bonus::BonusType, std::pair<std::string, std::string> > stackBonuses; // bonus => name, description
 	std::vector<std::vector<ui32> > expRanks; // stack experience needed for certain rank, index 0 for other tiers (?)
 	std::vector<ui32> maxExpPerBattle; //%, tiers same as above
 	si8 expAfterUpgrade;//multiplier in %
@@ -163,7 +161,7 @@ public:
 	/// adding abilities from ZCRTRAIT.TXT
 	void loadBonuses(CCreature & creature, std::string bonuses);
 	/// load all creatures from H3 files
-	void loadCreatures();
+	void load();
 	/// load creature from json structure
 	void load(std::string creatureID, const JsonNode & node);
 	/// load one creature from json config
@@ -191,7 +189,7 @@ public:
 	{
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
 		h & doubledCreatures & creatures;
-		h & stackBonuses & expRanks & maxExpPerBattle & expAfterUpgrade;
+		h & expRanks & maxExpPerBattle & expAfterUpgrade;
 		h & skillLevels & skillRequirements & commanderLevelPremy;
 		h & allCreatures;
 		h & creaturesOfLevel;

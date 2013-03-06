@@ -18,6 +18,7 @@
 #include "GameConstants.h"
 #include "CModHandler.h"
 #include "CDefObjInfoHandler.h"
+#include "CBonusTypeHandler.h"
 
 #include "Connection.h"
 
