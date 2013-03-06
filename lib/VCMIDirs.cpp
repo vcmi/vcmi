@@ -67,7 +67,7 @@ std::string VCMIDirs::localPath() const
 	if (getenv("HOME") != NULL )
 		home_dir = getenv("HOME");
 
-	return path(home_dir + "/Library/Application Support/vcmi").string();
+	return boost::filesystem::path(home_dir + "/Library/Application Support/vcmi").string();
 }
 
 std::string VCMIDirs::libraryPath() const
