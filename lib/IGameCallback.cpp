@@ -18,6 +18,7 @@
 #include "GameConstants.h"
 #include "CModHandler.h"
 #include "CDefObjInfoHandler.h"
+#include "CBonusTypeHandler.h"
 
 #include "Connection.h"
 
@@ -861,7 +862,7 @@ const CGHeroInstance* CPlayerSpecificInfoCallback::getHeroBySerial(int serialId,
 
 	if (!includeGarrisoned)
 	{
-		for(ui32 i = 0; i < p->heroes.size() && i<=serialId; i++)
+		for(size_t i = 0; i < p->heroes.size() && i<=serialId; ++i)
 			if(p->heroes[i]->inTownGarrison)
 				serialId++;
 	}

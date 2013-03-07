@@ -3467,7 +3467,7 @@ void CBonusSelection::updateBonusSelection()
 					desc = CGI->generaltexth->allTexts[715];
 
 					std::string substitute; //text to be printed instead of %s
-					for (int v=0; v<toPrint.size(); ++v)
+					for (size_t v=0; v<toPrint.size(); ++v)
 					{
 						substitute += boost::lexical_cast<std::string>(toPrint[v].second);
 						substitute += " " + CGI->generaltexth->primarySkillNames[toPrint[v].first];

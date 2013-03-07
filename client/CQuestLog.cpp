@@ -136,7 +136,7 @@ void CQuestLog::init()
 	if (quests.size() > QUEST_COUNT)
 		slider = new CSlider(203, 199, 230, boost::bind (&CQuestLog::sliderMoved, this, _1), QUEST_COUNT, quests.size(), false, 0);
 
-	for (int i = 0; i < quests.size(); ++i)
+	for (size_t i = 0; i < quests.size(); ++i)
 	{
 		MetaString text;
 		quests[i].quest->getRolloverText (text, false);
@@ -169,7 +169,7 @@ void CQuestLog::showAll()
 
 void CQuestLog::recreateQuestList (int newpos)
 {
-	for (int i = 0; i < labels.size(); ++i)
+	for (size_t i = 0; i < labels.size(); ++i)
 	{
 		labels[i]->pos = Rect (pos.x + 28, pos.y + 207 + (i-newpos) * 25, 173, 23);
 		if (i >= newpos && i < newpos + QUEST_COUNT)

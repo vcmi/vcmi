@@ -281,7 +281,7 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 
 	BonusList &bonuses = node->getBonusList();
 
-	for (int i = 0; i < bonuses.size(); i++)
+	for (size_t i = 0; i < bonuses.size(); ++i)
 	{
 		Bonus *b = bonuses[i];
 		if(b->source == source && b->sid == id)
@@ -735,6 +735,32 @@ DLL_LINKAGE void RebalanceStacks::applyGs( CGameState *gs )
 		if(const CCreature *c = dst.army->getCreature(dst.slot)) //stack at dest -> merge
 		{
 			assert(c == srcType);
+			auto alHere = ArtifactLocation (src.getStack(), ArtifactPosition::CREATURE_SLOT);
+			auto alDest = ArtifactLocation (dst.getStack(), ArtifactPosition::CREATURE_SLOT);
+			auto artHere = alHere.getArt();
+			auto artDest = alDest.getArt();
+			if (artHere)
+			{
+				if (alDest.getArt())
+				{
+					auto hero = dynamic_cast <CGHeroInstance *>(src.army.get());
+					if (hero)
+					{
+						artDest->move (alDest, ArtifactLocation (hero, alDest.getArt()->firstBackpackSlot (hero)));
+					}
+					//else - artifact cna be lost :/
+					else
+					{
+						tlog2 << "Artifact is present at destination slot!";
+					}
+					artHere->move (alHere, alDest);
+					//TODO: choose from dialog
+				}
+				else //just move to the other slot before stack gets erased
+				{
+					artHere->move (alHere, alDest);
+				}
+			}
 			if (stackExp)
 			{
 				ui64 totalExp = srcCount * src.army->getStackExperience(src.slot) + dst.army->getStackCount(dst.slot) * dst.army->getStackExperience(dst.slot);
@@ -1142,7 +1168,7 @@ DLL_LINKAGE void BattleStackAttacked::applyGs( CGameState *gs )
 		at->state -= EBattleStackState::ALIVE;
 	}
 	//life drain handling
-	for (int g=0; g<healedStacks.size(); ++g)
+	for (size_t g=0; g<healedStacks.size(); ++g)
 	{
 		healedStacks[g].applyGs(gs);
 	}
@@ -1358,7 +1384,7 @@ DLL_LINKAGE void StacksInjured::applyGs( CGameState *gs )
 
 DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 {
-	for(int g=0; g<healedStacks.size(); ++g)
+	for(size_t g=0; g<healedStacks.size(); ++g)
 	{
 		CStack * changedStack = gs->curB->getStack(healedStacks[g].stackID, false);
 
@@ -1426,7 +1452,7 @@ DLL_LINKAGE void ObstaclesRemoved::applyGs( CGameState *gs )
 	{
 		BOOST_FOREACH(const si32 rem_obst,obstacles)
 		{
-			for(int i=0; i<gs->curB->obstacles.size(); ++i)
+			for(size_t i=0; i<gs->curB->obstacles.size(); ++i)
 			{
 				if(gs->curB->obstacles[i]->uniqueID == rem_obst) //remove this obstacle
 				{
@@ -1456,7 +1482,7 @@ DLL_LINKAGE void BattleStacksRemoved::applyGs( CGameState *gs )
 		return;
 	BOOST_FOREACH(ui32 rem_stack, stackIDs)
 	{
-		for(int b=0; b<gs->curB->stacks.size(); ++b) //find it in vector of stacks
+		for(size_t b=0; b<gs->curB->stacks.size(); ++b) //find it in vector of stacks
 		{
 			if(gs->curB->stacks[b]->ID == rem_stack) //if found
 			{

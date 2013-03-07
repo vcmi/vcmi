@@ -1,8 +1,18 @@
+/*
+ * VCMI_Lib.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+ 
 #include "StdInc.h"
 #include "VCMI_Lib.h"
 
-
 #include "CArtHandler.h"
+#include "CBonusTypeHandler.h"
 #include "CCreatureHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CHeroHandler.h"
@@ -17,15 +27,6 @@
 #include "VCMIDirs.h"
 #include "Filesystem/CResourceLoader.h"
 
-/*
- * VCMI_Lib.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
 
 LibClasses * VLC = NULL;
 
@@ -50,6 +51,11 @@ DLL_LINKAGE void loadDLLClasses()
 	HANDLE_EXCEPTION;
 }
 
+const IBonusTypeHandler * LibClasses::getBth() const
+{
+	return bth;
+}
+
 void LibClasses::loadFilesystem()
 {
 	CStopWatch totalTime;
@@ -71,41 +77,40 @@ void LibClasses::loadFilesystem()
 	tlog0<<"Basic initialization: "<<totalTime.getDiff()<<std::endl;
 }
 
+static void logHandlerLoaded(const std::string& name, CStopWatch &timer)
+{
+   tlog0<<"\t" << name << " handler: "<<timer.getDiff()<<std::endl;
+};
+
+template <class Handler> void createHandler(Handler *&handler, const std::string &name, CStopWatch &timer)
+{
+	handler = new Handler();
+	handler->load();
+	logHandlerLoaded(name, timer);
+} 
+
 void LibClasses::init()
 {
 	CStopWatch pomtime;
+	
+	createHandler(bth, "Bonus type", pomtime);
+	
+	createHandler(generaltexth, "General text", pomtime);
 
-	generaltexth = new CGeneralTextHandler;
-	generaltexth->load();
-	tlog0<<"\tGeneral text handler: "<<pomtime.getDiff()<<std::endl;
+	createHandler(heroh, "Hero", pomtime);
 
-	heroh = new CHeroHandler;
-	heroh->load();
-	tlog0 <<"\tHero handler: "<<pomtime.getDiff()<<std::endl;
+	createHandler(arth, "Artifact", pomtime);
 
-	arth = new CArtHandler;
-	arth->loadArtifacts(false);
-	tlog0<<"\tArtifact handler: "<<pomtime.getDiff()<<std::endl;
+	createHandler(creh, "Creature", pomtime);
 
-	creh = new CCreatureHandler();
-	creh->loadCreatures();
-	tlog0<<"\tCreature handler: "<<pomtime.getDiff()<<std::endl;
+	createHandler(townh, "Town", pomtime);
+	
+	createHandler(objh, "Object", pomtime);
+	
+	createHandler(dobjinfo, "Def information", pomtime);
 
-	townh = new CTownHandler;
-	townh->load();
-	tlog0<<"\tTown handler: "<<pomtime.getDiff()<<std::endl;
+	createHandler(spellh, "Spell", pomtime);
 
-	objh = new CObjectHandler;
-	objh->loadObjects();
-	tlog0<<"\tObject handler: "<<pomtime.getDiff()<<std::endl;
-
-	dobjinfo = new CDefObjInfoHandler;
-	dobjinfo->load();
-	tlog0<<"\tDef information handler: "<<pomtime.getDiff()<<std::endl;
-
-	spellh = new CSpellHandler;
-	spellh->loadSpells();
-	tlog0<<"\tSpell handler: "<<pomtime.getDiff()<<std::endl;
 
 	modh->loadActiveMods();
 	modh->reload();
@@ -126,20 +131,22 @@ void LibClasses::clear()
 	delete dobjinfo;
 	delete spellh;
 	delete modh;
+	delete bth;
 	makeNull();
 }
 
 void LibClasses::makeNull()
 {
-	generaltexth = NULL;
-	heroh = NULL;
-	arth = NULL;
-	creh = NULL;
-	townh = NULL;
-	objh = NULL;
-	dobjinfo = NULL;
-	spellh = NULL;
-	modh = NULL;
+	generaltexth = nullptr;
+	heroh = nullptr;
+	arth = nullptr;
+	creh = nullptr;
+	townh = nullptr;
+	objh = nullptr;
+	dobjinfo = nullptr;
+	spellh = nullptr;
+	modh = nullptr;
+	bth = nullptr;
 }
 
 LibClasses::LibClasses()
@@ -152,7 +159,7 @@ void LibClasses::callWhenDeserializing()
 {
 	generaltexth = new CGeneralTextHandler;
 	generaltexth->load();
-	arth->loadArtifacts(true);
+	arth->load(true);
 	//modh->recreateHandlers();
 	//modh->loadConfigFromFile ("defaultMods"); //TODO: remember last saved config
 }

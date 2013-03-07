@@ -1030,7 +1030,7 @@ void CBonusSystemNode::limitBonuses(const BonusList &allBonuses, BonusList &out)
 	while(true)
 	{
 		int undecidedCount = undecided.size();
-		for(int i = 0; i < undecided.size(); i++)
+		for(size_t i = 0; i < undecided.size(); ++i)
 		{
 			Bonus *b = undecided[i];
 			BonusLimitationContext context = {b, *this, out};

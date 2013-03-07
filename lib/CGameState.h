@@ -181,10 +181,6 @@ public:
 	PlayerState();
 	std::string nodeName() const OVERRIDE;
 
-	//override
-	//void getParents(TCNodes &out, const CBonusSystemNode *root = NULL) const;
-	//void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color & human & currentSelection & team & resources & status;

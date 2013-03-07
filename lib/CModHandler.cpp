@@ -13,7 +13,7 @@
 #include "StringConstants.h"
 
 /*
- * CModHandler.h, part of VCMI engine
+ * CModHandler.cpp, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

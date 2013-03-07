@@ -127,10 +127,7 @@ void CCreature::addBonus(int val, Bonus::BonusType type, int subtype /*= -1*/)
 	Bonus *added = new Bonus(Bonus::PERMANENT, type, Bonus::CREATURE_ABILITY, val, idNumber, subtype, Bonus::BASE_NUMBER);
 	addNewBonus(added);
 }
-// void CCreature::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
-// {
-// 	out.insert (VLC->creh->globalEffects);
-// }
+
 bool CCreature::isMyUpgrade(const CCreature *anotherCre) const
 {
 	//TODO upgrade of upgrade?
@@ -251,7 +248,8 @@ void CCreatureHandler::loadBonuses(CCreature & ncre, std::string bonuses)
 	}
 }
 
-void CCreatureHandler::loadCreatures()
+
+void CCreatureHandler::load()
 {
 	tlog5 << "\t\tReading ZCRTRAIT.TXT" << std::endl;
 
@@ -372,24 +370,6 @@ void CCreatureHandler::loadCreatures()
 	}
 
 	loadAnimationInfo();
-
-	//reading creature ability names
-	const JsonNode config2(ResourceID("config/bonusnames.json"));
-
-	BOOST_FOREACH(const JsonNode &bonus, config2["bonuses"].Vector())
-	{
-		const std::string bonusID = bonus["id"].String();
-
-		auto it_map = bonusNameMap.find(bonusID);
-		if (it_map != bonusNameMap.end())
-			stackBonuses[it_map->second] = std::pair<std::string, std::string>(bonus["name"].String(), bonus["description"].String());
-		else
-			tlog2 << "Bonus " << bonusID << " not recognized, ignoring\n";
-	}
-
-	//handle magic resistance secondary skill premy, potentialy may be buggy
-	//std::map<Bonus::BonusType, std::pair<std::string, std::string> >::iterator it = stackBonuses.find(Bonus::MAGIC_RESISTANCE);
-	//stackBonuses[Bonus::SECONDARY_SKILL_PREMY] = std::pair<std::string, std::string>(it->second.first, it->second.second);
 
 	if (VLC->modh->modules.STACK_EXP) 	//reading default stack experience bonuses
 	{

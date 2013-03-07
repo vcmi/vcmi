@@ -371,7 +371,7 @@ void CMapHandler::init()
 	offsetX = (mapW - (2*frameW+1)*32)/2;
 	offsetY = (mapH - (2*frameH+1)*32)/2;
 
-	for(int i=0;i<map->heroes.size();i++)
+	for(size_t i=0; i<map->heroes.size(); ++i)
 	{
 		if( !graphics->getDef(map->heroes[i]) )
 		{
@@ -461,7 +461,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 	// printing terrain
 	srx = srx_init;
 
-	for (int bx = 0; bx < dx; bx++, srx+=32)
+	for (size_t bx = 0; bx < dx; bx++, srx+=32)
 	{
 		// Skip column if not in map
 		if (top_tile.x+bx < 0 || top_tile.x+bx >= sizes.x)
@@ -469,7 +469,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 
 		sry = sry_init;
 
-		for (int by=0; by < dy; by++, sry+=32)
+		for (size_t by=0; by < dy; by++, sry+=32)
 		{
 			int3 pos(top_tile.x+bx, top_tile.y+by, top_tile.z); //blitted tile position
 
@@ -518,7 +518,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 
 			//blit objects
 			const std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > &objects = tile.objects;
-			for(int h=0; h < objects.size(); ++h)
+			for(size_t h=0; h < objects.size(); ++h)
 			{
 				const CGObjectInstance *obj = objects[h].first;
 				if (!graphics->getDef(obj))
@@ -676,11 +676,11 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 	// printing borders
 	srx = srx_init;
 
-	for (int bx = 0; bx < dx; bx++, srx+=32)
+	for (size_t bx = 0; bx < dx; bx++, srx+=32)
 	{
 		sry = sry_init;
 
-		for (int by = 0; by<dy; by++, sry+=32)
+		for (size_t by = 0; by<dy; by++, sry+=32)
 		{
 			int3 pos(top_tile.x+bx, top_tile.y+by, top_tile.z); //blitted tile position
 
@@ -755,11 +755,11 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 	{
 		srx = srx_init;
 
-		for (int bx = 0; bx < dx; bx++, srx+=32)
+		for (size_t bx = 0; bx < dx; bx++, srx+=32)
 		{
 			sry = sry_init;
 
-			for (int by = 0; by<dy; by++, sry+=32)
+			for (size_t by = 0; by<dy; by++, sry+=32)
 			{
 				SDL_Rect sr;
 
@@ -1060,15 +1060,15 @@ CMapHandler::~CMapHandler()
 	delete graphics->FoWfullHide;
 	delete graphics->FoWpartialHide;
 
-	for(int i=0; i < roadDefs.size(); i++)
+	for(size_t i=0; i < roadDefs.size(); i++)
 		delete roadDefs[i];
 
-	for(int i=0; i < staticRiverDefs.size(); i++)
+	for(size_t i=0; i < staticRiverDefs.size(); i++)
 		delete staticRiverDefs[i];
 
-	for(int i=0; i < terrainGraphics.size(); ++i)
+	for(size_t i=0; i < terrainGraphics.size(); ++i)
 	{
-		for(int j=0; j < terrainGraphics[i].size(); ++j)
+		for(size_t j=0; j < terrainGraphics[i].size(); ++j)
 			SDL_FreeSurface(terrainGraphics[i][j]);
 	}
 	terrainGraphics.clear();

@@ -59,8 +59,8 @@ public:
 	bool isBig () const;
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
-	std::string nodeName() const override;
-	void addNewBonus(Bonus *b) override;
+	std::string nodeName() const OVERRIDE;
+	void addNewBonus(Bonus *b) OVERRIDE;
 
 	virtual void levelUpArtifact (CArtifactInstance * art){};
 
@@ -198,7 +198,7 @@ public:
 	std::set<ArtifactID> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
 	std::set<ArtifactID> growingArtifacts;
 
-	void loadArtifacts(bool onlyTxt);
+	void load(bool onlyTxt = false);
 	/// load artifact from json structure
 	void load(std::string objectID, const JsonNode & node);
 	/// load one artifact from json config

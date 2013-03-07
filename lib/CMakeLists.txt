@@ -26,6 +26,7 @@ set(lib_SRCS
 		BattleState.cpp
 		CArtHandler.cpp
 		CBattleCallback.cpp
+		CBonusTypeHandler.cpp
 		CBuildingHandler.cpp
 		CConfigHandler.cpp
 		CConsoleHandler.cpp
@@ -67,6 +68,7 @@ set(lib_HEADERS
 		AI_Base.h
 		CondSh.h
 		ConstTransitivePtr.h
+		CBonusTypeHandler.h
 		CRandomGenerator.h
 		CScriptingModule.h
 		CStopWatch.h

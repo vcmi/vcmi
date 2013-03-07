@@ -198,7 +198,7 @@ static void readBankLevel(const JsonNode &level, BankConfig &bc)
 	bc.easiest = level["easiest"].Float();
 }
 
-void CObjectHandler::loadObjects()
+void CObjectHandler::load()
 {
 	tlog5 << "\t\tReading cregens \n";
 
@@ -3787,13 +3787,13 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 	//sort by position
 	std::sort(gatesSplit[0].begin(), gatesSplit[0].end(), boost::bind(&CGObjectInstance::pos, _1) < boost::bind(&CGObjectInstance::pos, _2));
 
-	for(size_t i = 0; i < gatesSplit[0].size(); i++)
+	for(size_t i = 0; i < gatesSplit[0].size(); ++i)
 	{
 		const CGObjectInstance *cur = gatesSplit[0][i];
 
 		//find nearest underground exit
 		std::pair<int,double> best(-1,150000); //pair<pos_in_vector, distance>
-		for(int j = 0; j < gatesSplit[1].size(); j++)
+		for(size_t j = 0; j < gatesSplit[1].size(); ++j)
 		{
 			const CGObjectInstance *checked = gatesSplit[1][j];
 			if(!checked)
@@ -3821,7 +3821,7 @@ void CGTeleport::postInit() //matches subterranean gates into pairs
 
 ObjectInstanceID CGTeleport::getMatchingGate(ObjectInstanceID id)
 {
-	for(int i=0; i < gates.size(); i++)
+	for(size_t i=0; i < gates.size(); ++i)
 	{
 		if(gates[i].first == id)
 			return gates[i].second;
@@ -4158,7 +4158,7 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 				return true;
 			return false;
 		case MISSION_ART:
-			for (int i = 0; i < m5arts.size(); ++i)
+			for (size_t i = 0; i < m5arts.size(); ++i)
 			{
 				if (h->hasArt(m5arts[i]))
 					continue;
@@ -5188,7 +5188,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 	std::string msg = message; //in case box is removed in the meantime
 
 	bool changesPrimSkill = false;
-	for (int i = 0; i < primskills.size(); i++)
+	for (size_t i = 0; i < primskills.size(); i++)
 	{
 		if(primskills[i])
 		{
@@ -5206,11 +5206,11 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 		if(expVal)
 			iw.components.push_back(Component(Component::EXPERIENCE,0,expVal,0));
-		for(int i=0; i<primskills.size(); i++)
+		for(size_t i=0; i<primskills.size(); ++i)
 			if(primskills[i])
 				iw.components.push_back(Component(Component::PRIM_SKILL,i,primskills[i],0));
 
-		for(int i=0; i<abilities.size(); i++)
+		for(size_t i=0; i<abilities.size(); ++i)
 			iw.components.push_back(Component(Component::SEC_SKILL,abilities[i],abilityLevels[i],0));
 
 		cb->showInfoDialog(&iw);
@@ -5219,12 +5219,12 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		if(expVal)
 			cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, expVal, false);
 		//give prim skills
-		for(int i=0; i<primskills.size(); i++)
+		for(size_t i=0; i<primskills.size(); ++i)
 			if(primskills[i])
 				cb->changePrimSkill(h,static_cast<PrimarySkill::PrimarySkill>(i),primskills[i],false);
 
 		//give sec skills
-		for(int i=0; i<abilities.size(); i++)
+		for(size_t i=0; i<abilities.size(); ++i)
 		{
 			int curLev = h->getSecSkillLevel(abilities[i]);
 
@@ -5297,7 +5297,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 	iw.components.clear();
 	iw.text.clear();
-	for(int i=0; i<resources.size(); i++)
+	for(size_t i=0; i<resources.size(); ++i)
 	{
 		if(resources[i] < 0)
 			iw.components.push_back(Component(Component::RESOURCE,i,resources[i],0));
@@ -5310,7 +5310,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 	iw.components.clear();
 	iw.text.clear();
-	for(int i=0; i<resources.size(); i++)
+	for(size_t i=0; i<resources.size(); ++i)
 	{
 		if(resources[i] > 0)
 			iw.components.push_back(Component(Component::RESOURCE,i,resources[i],0));
@@ -5325,7 +5325,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 // 	getText(iw,afterBattle,183,h);
 	iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure
 	iw.text.addReplacement(h->name);
-	for(int i=0; i<artifacts.size(); i++)
+	for(size_t i=0; i<artifacts.size(); ++i)
 	{
 		iw.components.push_back(Component(Component::ARTIFACT,artifacts[i],0,0));
 		if(iw.components.size() >= 14)
@@ -5341,11 +5341,11 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		cb->showInfoDialog(&iw);
 	}
 
-	for(int i=0; i<resources.size(); i++)
+	for(size_t i=0; i<resources.size(); ++i)
 		if(resources[i])
 			cb->giveResource(h->getOwner(),static_cast<Res::ERes>(i),resources[i]);
 
-	for(int i=0; i<artifacts.size(); i++)
+	for(size_t i=0; i<artifacts.size(); ++i)
 		cb->giveHeroNewArtifact(h, VLC->arth->artifacts[artifacts[i]],ArtifactPosition::FIRST_AVAILABLE);
 
 	iw.components.clear();
@@ -6164,7 +6164,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 		//grant resources
 		if (textID != 42) //empty derelict ship gives no cash
 		{
-			for (int it = 0; it < bc->resources.size(); it++)
+			for (size_t it = 0; it < bc->resources.size(); ++it)
 			{
 				if (bc->resources[it] != 0)
 				{
@@ -6526,7 +6526,7 @@ int3 IBoatGenerator::bestLocation() const
 	std::vector<int3> offsets;
 	getOutOffsets(offsets);
 
-	for (int i = 0; i < offsets.size(); ++i)
+	for (size_t i = 0; i < offsets.size(); ++i)
 	{
 		if (const TerrainTile *tile = IObjectInterface::cb->getTile(o->pos + offsets[i], false)) //tile is in the map
 		{

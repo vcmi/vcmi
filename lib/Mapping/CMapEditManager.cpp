@@ -50,7 +50,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 			{
 				throw std::runtime_error("Size of pattern's data vector has to be 9.");
 			}
-			for(int i = 0; i < data.size(); ++i)
+			for(size_t i = 0; i < data.size(); ++i)
 			{
 				std::string cell = data[i].String();
 				boost::algorithm::erase_all(cell, " ");
@@ -169,7 +169,7 @@ void CMapEditManager::updateTerrainViews(int posx, int posy, int width, int heig
 			// Detect a pattern which fits best
 			int bestPattern = -1, bestFlip = -1;
 			std::string transitionReplacement;
-			for(int k = 0; k < patterns.size(); ++k)
+			for(size_t k = 0; k < patterns.size(); ++k)
 			{
 				const TerrainViewPattern & pattern = patterns[k];
 
@@ -275,7 +275,7 @@ CMapEditManager::ValidationResult CMapEditManager::validateTerrainView(int posx,
 
 		// Validate all rules per cell
 		int topPoints = -1;
-		for(int j = 0; j < pattern.data[i].size(); ++j)
+		for(size_t j = 0; j < pattern.data[i].size(); ++j)
 		{
 			TerrainViewPattern::WeightedRule rule = pattern.data[i][j];
 			if(!rule.isStandardRule())

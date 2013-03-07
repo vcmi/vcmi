@@ -114,7 +114,7 @@ void CGuiHandler::pushInt( IShowActivatable *newInt )
 	totalRedraw();
 }
 
-void CGuiHandler::popInts( int howMany )
+void CGuiHandler::popInts(size_t howMany)
 {
 	if(!howMany) return; //senseless but who knows...
 
@@ -335,7 +335,7 @@ void CGuiHandler::handleMouseMotion(SDL_Event *sEvent)
 			(*i)->hovered = false;
 		}
 	}
-	for(int i=0; i<hlp.size();i++)
+	for(size_t i=0; i<hlp.size();i++)
 	{
 		hlp[i]->hover(true);
 		hlp[i]->hovered = true;

@@ -1342,8 +1342,8 @@ void CTextBox::recalculateLines(const std::string &Txt)
 	vstd::clear_pointer(slider);
 	lines.clear();
 	const IFont * f = graphics->fonts[font];
-	int lineHeight =  f->getLineHeight();
-	int lineCapacity = pos.h / lineHeight;
+	size_t lineHeight =  f->getLineHeight();
+	size_t lineCapacity = pos.h / lineHeight;
 
 	lines = CMessage::breakText(Txt, pos.w, font);
 	if (lines.size() > lineCapacity) //we need to add a slider

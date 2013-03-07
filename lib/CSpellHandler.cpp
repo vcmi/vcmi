@@ -177,7 +177,7 @@ std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl,
 		std::string number1, number2;
 		int beg, end;
 		bool readingFirst = true;
-		for(int it=0; it<rng.size(); ++it)
+		for(size_t it=0; it<rng.size(); ++it)
 		{
 			if( std::isdigit(rng[it]) ) //reading numer
 			{
@@ -397,7 +397,7 @@ CSpell * CSpellHandler::loadSpell(CLegacyConfigParser & parser, const SpellID id
 	return spell;
 }
 
-void CSpellHandler::loadSpells()
+void CSpellHandler::load()
 {
 	CLegacyConfigParser parser("DATA/SPTRAITS.TXT");
 

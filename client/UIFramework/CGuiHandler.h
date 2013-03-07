@@ -84,7 +84,7 @@ public:
 	void popInt(IShowActivatable *top); //removes given interface from the top and activates next
 	void popIntTotally(IShowActivatable *top); //deactivates, deletes, removes given interface from the top and activates next
 	void pushInt(IShowActivatable *newInt); //deactivate old top interface, activates this one and pushes to the top
-	void popInts(int howMany); //pops one or more interfaces - deactivates top, deletes and removes given number of interfaces, activates new front
+	void popInts(size_t howMany); //pops one or more interfaces - deactivates top, deletes and removes given number of interfaces, activates new front
 	IShowActivatable *topInt(); //returns top interface
 
 	void updateTime(); //handles timeInterested

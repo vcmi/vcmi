@@ -161,7 +161,7 @@ CArtHandler::~CArtHandler()
 {
 }
 
-void CArtHandler::loadArtifacts(bool onlyTxt)
+void CArtHandler::load(bool onlyTxt)
 {
 	if (onlyTxt)
 		return; // looks to be broken anyway...
@@ -203,7 +203,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 
 		art->price= parser.readNumber();
 
-		for(int j=0; j<artSlots.size(); j++)
+		for(size_t j=0; j<artSlots.size(); ++j)
 		{
 			if(parser.readString() == "x")
 				art->possibleSlots[ArtBearer::HERO].push_back(ArtifactPosition(artSlots[j]));
@@ -416,7 +416,7 @@ ArtifactID CArtHandler::getArtSync (ui32 rand, int flags, bool erasePicked)
 		if (arts->empty()) //restock available arts
 			fillList(*arts, flag);
 
-		for (int i = 0; i < arts->size(); ++i)
+		for (size_t i = 0; i < arts->size(); ++i)
 		{
 			CArtifact *art = (*arts)[i];
 			out.push_back(art);
@@ -553,7 +553,7 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 			allowedArtifacts.push_back(artifacts[i]);
 		}
 	}
-	for (int i = GameConstants::ARTIFACTS_QUANTITY; i < artifacts.size(); ++i) //allow all new artifacts by default
+	for (size_t i = GameConstants::ARTIFACTS_QUANTITY; i < artifacts.size(); ++i) //allow all new artifacts by default
 	{
 		if (legalArtifact(ArtifactID(i)))
 			allowedArtifacts.push_back(artifacts[i]);
@@ -612,7 +612,7 @@ boost::optional<std::vector<CArtifact*>&> CArtHandler::listFromClass( CArtifact:
 void CArtHandler::fillList( std::vector<CArtifact*> &listToBeFilled, CArtifact::EartClass artifactClass )
 {
 	assert(listToBeFilled.empty());
-	for (int i = 0; i < allowedArtifacts.size(); ++i)
+	for (size_t i = 0; i < allowedArtifacts.size(); ++i)
 	{
 		if (allowedArtifacts[i]->aClass == artifactClass)
 			listToBeFilled.push_back(allowedArtifacts[i]);
@@ -1022,7 +1022,7 @@ ArtifactPosition CArtifactSet::getArtPos(int aid, bool onlyWorn /*= true*/) cons
 	if(onlyWorn)
 		return ArtifactPosition::PRE_FIRST;
 
-	for(int i = 0; i < artifactsInBackpack.size(); i++)
+	for(size_t i = 0; i < artifactsInBackpack.size(); ++i)
 		if(artifactsInBackpack[i].artifact->artType->id == aid)
 			return ArtifactPosition(GameConstants::BACKPACK_START + i);
 
@@ -1035,7 +1035,7 @@ ArtifactPosition CArtifactSet::getArtPos(const CArtifactInstance *art) const
 		if(i.second.artifact == art)
 			return i.first;
 
-	for(int i = 0; i < artifactsInBackpack.size(); i++)
+	for(size_t i = 0; i < artifactsInBackpack.size(); ++i)
 		if(artifactsInBackpack[i].artifact == art)
 			return ArtifactPosition(GameConstants::BACKPACK_START + i);
 

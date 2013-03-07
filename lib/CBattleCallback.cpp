@@ -493,7 +493,7 @@ const CStack* CBattleInfoCallback::battleGetStackByPos(BattleHex pos, bool onlyA
 	return nullptr;
 }
 
-void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, const int howMany, const int turn /*= 0*/, int lastMoved /*= -1*/) const
+void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, const size_t howMany, const int turn /*= 0*/, int lastMoved /*= -1*/) const
 {
 	RETURN_IF_NOT_BATTLE();
 
@@ -606,10 +606,10 @@ void CBattleInfoCallback::battleGetStackQueue(std::vector<const CStack *> &out, 
 		toMove++;
 	}
 
-	for(int i = 0; i < 4; i++)
+	for(size_t i = 0; i < 4; ++i)
 		boost::sort(phase[i], CMP_stack(i, turn > 0 ? turn : 0));
 
-	for(size_t i = 0; i < phase[0].size() && i < howMany; i++)
+	for(size_t i = 0; i < phase[0].size() && i < howMany; ++i)
 		out.push_back(phase[0][i]);
 
 	if(out.size() == howMany)

@@ -55,7 +55,7 @@ int BattleInfo::getAvaliableHex(CreatureID creID, bool attackerOwned, int initia
 	auto accessibility = getAccesibility();
 
 	std::set<BattleHex> occupyable;
-	for(int i = 0; i < accessibility.size(); i++)
+	for(size_t i = 0; i < accessibility.size(); ++i)
 		if(accessibility.accessible(i, twoHex, attackerOwned))
 			occupyable.insert(i);
 

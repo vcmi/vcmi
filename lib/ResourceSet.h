@@ -38,7 +38,7 @@ namespace Res
 		ResourceSet operator OPSIGN(const TResource &rhs) const	\
 		{														\
 			ResourceSet ret = *this;							\
-			for(int i = 0; i < size(); i++)						\
+			for(size_t i = 0; i < size(); i++)						\
 				ret[i] = at(i) OPSIGN rhs;						\
 																\
 			return ret;											\
@@ -50,7 +50,7 @@ namespace Res
 		ResourceSet operator OPSIGN(const ResourceSet &rhs) const	\
 		{															\
 			ResourceSet ret = *this;								\
-			for(int i = 0; i < size(); i++)							\
+			for(size_t i = 0; i < size(); i++)							\
 				ret[i] = at(i) OPSIGN rhs[i];						\
 																	\
 			return ret;												\
@@ -83,7 +83,7 @@ namespace Res
 		int operator/(const ResourceSet &rhs)
 		{
 			int ret = INT_MAX;
-			for(int i = 0; i < size(); i++)
+			for(size_t i = 0; i < size(); i++)
 				if(rhs[i])
 					vstd::amin(ret, at(i) / rhs[i]);
 
@@ -92,7 +92,7 @@ namespace Res
 
 		ResourceSet & operator=(const TResource &rhs)
 		{
-			for(int i = 0; i < size(); i++)
+			for(size_t i = 0; i < size(); i++)
 				at(i) = rhs;
 
 			return *this;

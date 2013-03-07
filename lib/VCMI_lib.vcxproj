@@ -38,7 +38,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v110</PlatformToolset>
+    <PlatformToolset>v110_xp</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -228,6 +228,7 @@
     <ClInclude Include="BattleHex.h" />
     <ClInclude Include="BattleState.h" />
     <ClInclude Include="CArtHandler.h" />
+    <ClInclude Include="CBonusTypeHandler.h" />
     <ClInclude Include="CBuildingHandler.h" />
     <ClInclude Include="CConfigHandler.h" />
     <ClInclude Include="CConsoleHandler.h" />
@@ -261,6 +262,7 @@
     <ClInclude Include="Filesystem\CMemoryStream.h" />
     <ClInclude Include="Filesystem\CResourceLoader.h" />
     <ClInclude Include="Filesystem\ISimpleResourceLoader.h" />
+    <ClInclude Include="IBonusTypeHandler.h" />
     <ClInclude Include="Mapping\CCampaignHandler.h" />
     <ClInclude Include="Mapping\CMap.h" />
     <ClInclude Include="Mapping\CMapInfo.h" />

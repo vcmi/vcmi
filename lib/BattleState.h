@@ -80,8 +80,6 @@ struct DLL_LINKAGE BattleInfo : public CBonusSystemNode, public CBattleInfoCallb
 	~BattleInfo(){};
 
 	//////////////////////////////////////////////////////////////////////////
-	//void getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root = NULL) const;
-	//////////////////////////////////////////////////////////////////////////
 	CStack * getStackT(BattleHex tileID, bool onlyAlive = true);
 	CStack * getStack(int stackID, bool onlyAlive = true);
 

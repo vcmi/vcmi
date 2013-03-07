@@ -5110,10 +5110,10 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2)
 	}
 
 	//heroes related thing
-	for(int b=0; b<ARRAY_COUNT(heroInst); b++)
+	for(size_t b=0; b<ARRAY_COUNT(heroInst); ++b)
 	{
 		//secondary skill's clickable areas
-		for(int g=0; g<heroInst[b]->secSkills.size(); ++g)
+		for(size_t g=0; g<heroInst[b]->secSkills.size(); ++g)
 		{
 			int skill = heroInst[b]->secSkills[g].first,
 				level = heroInst[b]->secSkills[g].second; // <1, 3>
@@ -5242,7 +5242,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 
 	auto & puzzleMap = CGI->townh->factions[faction].puzzleMap;
 
-	for(int g=0; g<puzzleMap.size(); ++g)
+	for(size_t g=0; g<puzzleMap.size(); ++g)
 	{
 		const SPuzzleInfo & info = puzzleMap[g];
 

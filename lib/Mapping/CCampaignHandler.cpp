@@ -303,7 +303,7 @@ bool CCampaign::conquerable( int whichScenario ) const
 		return false;
 	}
 	//check preconditioned regions
-	for (int g=0; g<scenarios.size(); ++g)
+	for (size_t g=0; g<scenarios.size(); ++g)
 	{
 		if( vstd::contains(scenarios[whichScenario].preconditionRegions, g) && !scenarios[g].conquered)
 			return false; //prerequisite does not met
@@ -462,7 +462,7 @@ CCampaignState::CCampaignState()
 
 CCampaignState::CCampaignState( unique_ptr<CCampaign> _camp ) : camp(std::move(_camp))
 {
-	for(int i = 0; i < camp->scenarios.size(); i++)
+	for(size_t i = 0; i < camp->scenarios.size(); i++)
 	{
 		if(vstd::contains(camp->mapPieces, i)) //not all maps must be present in a campaign
 			mapsRemaining.push_back(i);

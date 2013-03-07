@@ -481,7 +481,7 @@ int CGameState::pickHero(PlayerColor owner)
 	size_t lastHero  = std::min(firstHero + GameConstants::HEROES_PER_TYPE*2, VLC->heroh->heroes.size());
 
 	//generate list of heroes
-	for (si32 i=firstHero; i<lastHero; i++)
+	for (size_t i=firstHero; i<lastHero; ++i)
 		factionHeroes.push_back(i);
 	// we need random order to select hero
 	std::random_shuffle(factionHeroes.begin(), factionHeroes.end(), [](size_t range)
@@ -496,7 +496,7 @@ int CGameState::pickHero(PlayerColor owner)
 	}
 
 	tlog3 << "Warning: cannot find free hero - trying to get first available..."<<std::endl;
-	for(int j=0; j<VLC->heroh->heroes.size(); j++)
+	for(size_t j=0; j<VLC->heroh->heroes.size(); ++j)
 		if(!map->getHero(j))
 			return j;
 
@@ -885,7 +885,7 @@ void CGameState::init(StartInfo * si)
 				map = mapGen.generate().release();
 
 				// Update starting options
-				for(int i = 0; i < map->players.size(); ++i)
+				for(size_t i = 0; i < map->players.size(); ++i)
 				{
 					const PlayerInfo & pInfo = map->players[i];
 					if(pInfo.canComputerPlay || pInfo.canHumanPlay)
@@ -1107,7 +1107,7 @@ void CGameState::init(StartInfo * si)
 			}
 
 			//selecting heroes by type
-			for(int g=0; g<map->objects.size(); ++g)
+			for(size_t g=0; g<map->objects.size(); ++g)
 			{
 				const ObjectInstanceID gid = ObjectInstanceID(g);
 				CGObjectInstance * obj = map->objects[g];
@@ -1146,7 +1146,7 @@ void CGameState::init(StartInfo * si)
 				return a->getHeroStrength() > b->getHeroStrength();
 			}); //sort, descending strength
 
-			for(int g=0; g<map->objects.size(); ++g)
+			for(size_t g=0; g<map->objects.size(); ++g)
 			{
 				const ObjectInstanceID gid = ObjectInstanceID(g);
 				CGObjectInstance * obj = map->objects[g];
@@ -1158,7 +1158,7 @@ void CGameState::init(StartInfo * si)
 
 				if (hp->subID == 0xFF) //select by power
 				{
-					if(Xheroes.size() > hp->power - 1)
+					if(Xheroes.size() >= hp->power)
 						replaceHero(gid, Xheroes[hp->power - 1]);
 					else
 					{
@@ -1219,7 +1219,7 @@ void CGameState::init(StartInfo * si)
 					break;
 				}
 				//increasing resource quantity
-				for (int n=0; n<res.size(); ++n)
+				for (size_t n=0; n<res.size(); ++n)
 				{
 					players[ps->color].resources[res[n]] += chosenBonus->info2;
 				}
@@ -1336,7 +1336,7 @@ void CGameState::init(StartInfo * si)
 			if (chosenBonus->info1 == 0xFFFD) //most powerful
 			{
 				int maxB = -1;
-				for (int b=0; b<heroes.size(); ++b)
+				for (size_t b=0; b<heroes.size(); ++b)
 				{
 					if (maxB == -1 || heroes[b]->getTotalStrength() > heroes[maxB]->getTotalStrength())
 					{
@@ -1350,7 +1350,7 @@ void CGameState::init(StartInfo * si)
 			}
 			else //specific hero
 			{
-				for (int b=0; b<heroes.size(); ++b)
+				for (size_t b=0; b<heroes.size(); ++b)
 				{
 					if (heroes[b]->subID == chosenBonus->info1)
 					{
@@ -1443,7 +1443,7 @@ void CGameState::init(StartInfo * si)
 
 		if (chosenBonus.is_initialized() && chosenBonus->type == CScenarioTravel::STravelBonus::BUILDING)
 		{
-			for (int g=0; g<map->towns.size(); ++g)
+			for (size_t g=0; g<map->towns.size(); ++g)
 			{
 				PlayerState * owner = getPlayer(map->towns[g]->getOwner());
 				if (owner)
@@ -1669,7 +1669,7 @@ void CGameState::initDuel()
 			armies[i] = heroes[i] = h;
 			obj = h;
 			h->subID = ss.heroId;
-			for(int i = 0; i < ss.heroPrimSkills.size(); i++)
+			for(size_t i = 0; i < ss.heroPrimSkills.size(); ++i)
 				h->pushPrimSkill(static_cast<PrimarySkill::PrimarySkill>(i), ss.heroPrimSkills[i]);
 
 			if(ss.spells.size())
@@ -2359,7 +2359,7 @@ struct statsHLP
 		ret.push_back( tmp );
 
 		//the rest of elements
-		for(int g=1; g<stats.size(); ++g)
+		for(size_t g=1; g<stats.size(); ++g)
 		{
 			if(stats[g].second == stats[g-1].second)
 			{
@@ -2389,7 +2389,7 @@ struct statsHLP
 			return NULL;
 		//best hero will be that with highest exp
 		int best = 0;
-		for(int b=1; b<h.size(); ++b)
+		for(size_t b=1; b<h.size(); ++b)
 		{
 			if(h[b]->exp > h[best]->exp)
 			{
@@ -2522,7 +2522,7 @@ void CGameState::obtainPlayersStats(SThievesGuildInfo & tgi, int level)
 			if(g->second.color == PlayerColor::NEUTRAL) //do nothing for neutral player
 				continue;
 			int bestCre = -1; //best creature's ID
-			for(int b=0; b<g->second.heroes.size(); ++b)
+			for(size_t b=0; b<g->second.heroes.size(); ++b)
 			{
 				for(TSlots::const_iterator it = g->second.heroes[b]->Slots().begin(); it != g->second.heroes[b]->Slots().end(); ++it)
 				{
@@ -2735,20 +2735,6 @@ std::string PlayerState::nodeName() const
 {
 	return "Player " + (color.getNum() < VLC->generaltexth->capColors.size() ? VLC->generaltexth->capColors[color.getNum()] : boost::lexical_cast<std::string>(color));
 }
-
-// void PlayerState::getParents(TCNodes &out, const CBonusSystemNode *root /*= NULL*/) const
-// {
-// 	return; //no loops possible
-// }
-//
-// void PlayerState::getBonuses(BonusList &out, const CSelector &selector, const CBonusSystemNode *root /*= NULL*/) const
-// {
-// 	for (std::vector<CGHeroInstance *>::const_iterator it = heroes.begin(); it != heroes.end(); it++)
-// 	{
-// 		if (*it != root)
-// 			(*it)->getBonuses(out, selector, this);
-// 	}
-// }
 
 InfoAboutArmy::InfoAboutArmy():
     owner(PlayerColor::NEUTRAL)
@@ -3027,11 +3013,11 @@ TeamState::TeamState()
 void CPathfinder::initializeGraph()
 {
 	CGPathNode ***graph = out.nodes;
-	for(size_t i=0; i < out.sizes.x; ++i)
+	for(si32 i=0; i < out.sizes.x; ++i)
 	{
-		for(size_t j=0; j < out.sizes.y; ++j)
+		for(si32 j=0; j < out.sizes.y; ++j)
 		{
-			for(size_t k=0; k < out.sizes.z; ++k)
+			for(si32 k=0; k < out.sizes.z; ++k)
 			{
 				curPos = int3(i,j,k);
 				const TerrainTile *tinfo = &gs->map->terrain[i][j][k];
