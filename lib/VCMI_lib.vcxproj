@@ -167,6 +167,7 @@
     <ClCompile Include="BattleHex.cpp" />
     <ClCompile Include="BattleState.cpp" />
     <ClCompile Include="CArtHandler.cpp" />
+    <ClCompile Include="CBonusTypeHandler.cpp" />
     <ClCompile Include="CBuildingHandler.cpp" />
     <ClCompile Include="CConfigHandler.cpp" />
     <ClCompile Include="CConsoleHandler.cpp" />
@@ -228,6 +229,7 @@
     <ClInclude Include="BattleHex.h" />
     <ClInclude Include="BattleState.h" />
     <ClInclude Include="CArtHandler.h" />
+    <ClInclude Include="CBonusTypeHandler.h" />
     <ClInclude Include="CBuildingHandler.h" />
     <ClInclude Include="CConfigHandler.h" />
     <ClInclude Include="CConsoleHandler.h" />
@@ -261,6 +263,7 @@
     <ClInclude Include="Filesystem\CMemoryStream.h" />
     <ClInclude Include="Filesystem\CResourceLoader.h" />
     <ClInclude Include="Filesystem\ISimpleResourceLoader.h" />
+    <ClInclude Include="IBonusTypeHandler.h" />
     <ClInclude Include="Mapping\CCampaignHandler.h" />
     <ClInclude Include="Mapping\CMap.h" />
     <ClInclude Include="Mapping\CMapInfo.h" />
