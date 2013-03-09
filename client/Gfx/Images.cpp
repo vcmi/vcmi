@@ -19,6 +19,13 @@ void CImage::loadToVideoRAM()
 	if (texHandle > 0) return;
 	glGenTextures(1, &texHandle);
 	glBindTexture(GL_TEXTURE_RECTANGLE, texHandle);
+
+	GLenum err = glGetError();
+	if (err != GL_NO_ERROR)
+	{
+		tlog1 << "Gfx Error: glBindTexture faild in loadToVideoRAM\n";
+		tlog1 << "GL error code = " << err << std::endl;
+	}
 	textureTransfer();
 }
 

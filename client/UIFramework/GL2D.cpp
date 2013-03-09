@@ -144,9 +144,9 @@ void initVideo(ui32 w, ui32 h, bool fullscreen)
 		||	(glUniform2i		= (PFNGLUNIFORM2IPROC)		SDL_GL_GetProcAddress("glUniform2i")) == nullptr
 		)
 	{
-		tlog1 << "Error: OpenGL2 Extenstions are not available\n";
+		tlog1 << "GL2D Error: OpenGL2 Extenstions are not available\n";
 		tlog1 << "SDL says: " << SDL_GetError() << std::endl;
-		throw std::runtime_error("OpenGL2 Extenstions are not available\n");
+		throw std::runtime_error("initVideo failed - OpenGL2 Extenstions are not available\n");
 	}
 	glGetProgramInfoLog = (PFNGLGETPROGRAMINFOLOGPROC) SDL_GL_GetProcAddress("glGetProgramInfoLog"); // not required
 	glGetShaderInfoLog = (PFNGLGETSHADERINFOLOGPROC) SDL_GL_GetProcAddress("glGetShaderInfoLog"); // not required
@@ -162,7 +162,7 @@ void initVideo(ui32 w, ui32 h, bool fullscreen)
 	paletteBitmapProgram = makeShaderProgram(frag_palette_bitmap);
 	if (paletteBitmapProgram == 0)
 	{
-		throw std::runtime_error("OpenGL shader for palleted bitmaps is not compiled\n");
+		throw std::runtime_error("initVideo failed - GL shader for palleted bitmaps isn't compiled\n");
 	}
 
 	GLint bitmap_uniform = glGetUniformLocation(paletteBitmapProgram, "bitmap");
@@ -175,16 +175,23 @@ void initVideo(ui32 w, ui32 h, bool fullscreen)
 
 	// unhook OpenGL context from display context/window
 #ifdef _WIN32
-	wglMakeCurrent(NULL, NULL);
+	if (!wglMakeCurrent(NULL, NULL))
+	{
+		tlog1 << "GL2D Error: wglMakeCurrent failed while unhooking GL context\n";
+		tlog1 << "WinAPI returns error code = " << GetLastError() << std::endl;
+		throw std::runtime_error("initVideo failed - wglMakeCurrent\n");
+	}
 #elif _GLX
 	glxCtx = glXGetCurrentContext();
 	if (glxCtx == nullptr)
 	{
-		throw std::runtime_error("SDL didn't create GLX context!\n");
+		tlog1 << "GL2D Error: glXGetCurrentContext returns NULL\n";
+		throw std::runtime_error("initVideo failed - SDL didn't create GLX context?!\n");
 	}
 	if (!glXMakeCurrent(wmInfo.info.x11.display, None, nullptr))
 	{
-		throw std::runtime_error("glXMakeCurrent failed (unhook GL context)\n");
+		tlog1 << "GL2D Error: glXMakeCurrent failed while unhooking GL context\n";
+		throw std::runtime_error("initVideo failed - glXMakeCurrent\n");
 	}
 #endif
 
@@ -195,10 +202,16 @@ void attachToCurrentThread()
 {
 #ifdef _WIN32
 	HDC hdc = GetDC(wmInfo.window);
-	wglMakeCurrent(hdc, wmInfo.hglrc);
+	if (!wglMakeCurrent(hdc, wmInfo.hglrc))
+	{
+		tlog1 << "GL2D Error: wglMakeCurrent failed while hooking GL context\n";
+		tlog1 << "WinAPI returns error code = " << GetLastError() << std::endl;
+		throw std::runtime_error("attachToCurrentThread: wglMakeCurrent failed\n");
+	}
 #elif _GLX
 	if (!glXMakeCurrent(wmInfo.info.x11.display, wmInfo.info.x11.window, glxCtx))
 	{
+		tlog1 << "GL2D Error: glXMakeCurrent failed while hooking GL context\n";
 		throw std::runtime_error("attachToCurrentThread: glXMakeCurrent failed\n");
 	}
 #endif
@@ -211,28 +224,28 @@ bool setScreenRes(ui32 w, ui32 h, bool fullscreen)
 	int suggestedBpp = SDL_VideoModeOK(w, h, 32, SDL_OPENGL | SDL_ANYFORMAT | (fullscreen?SDL_FULLSCREEN:0));
 	if(suggestedBpp == 0)
 	{
-		tlog1 << "Error: SDL says that " << w << "x" << h << " resolution is not available!\n";
+		tlog1 << "GL2D Error: SDL says that " << w << "x" << h << " resolution is not available!\n";
 		return false;
 	}
 	
 	if(suggestedBpp != 32)
 	{
-		tlog2 << "Note: SDL suggests to use " << suggestedBpp << " bpp instead of 32 bpp\n";
+		tlog2 << "GL2D Warning: SDL suggests to use " << suggestedBpp << " bpp instead of 32 bpp\n";
 	}
 
 	if(SDL_SetVideoMode(w, h, suggestedBpp, SDL_OPENGL | SDL_ANYFORMAT | (fullscreen?SDL_FULLSCREEN:0)) == NULL)
 	{
-		tlog1 << "Error: Video mode setting failed (" << w << "x" << h << "x" << suggestedBpp << "bpp)\n";
+		tlog1 << "GL2D Error: Video mode setting failed (" << w << "x" << h << "x" << suggestedBpp << "bpp)\n";
 		return false;
 	}
 
 	screenWidth = w; screenHeight = h;
 
 	int getwm = SDL_GetWMInfo(&wmInfo);
-	if(getwm != 1)
+	if (getwm != 1)
 	{
-		tlog2 << "Something went wrong, getwm=" << getwm << std::endl;
-		tlog2 << "SDL says: " << SDL_GetError() << std::endl;
+		tlog1 << "GL2D Error: SDL_GetWMInfo returns " << getwm << std::endl;
+		tlog1 << "SDL says: " << SDL_GetError() << std::endl;
 		return false;
 	}
 
