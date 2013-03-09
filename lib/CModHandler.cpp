@@ -84,9 +84,17 @@ void CIdentifierStorage::finalize() const
 {
 	// print list of missing objects and crash
 	// in future should try to do some cleanup (like returning all id's as 0)
-	BOOST_FOREACH(auto object, missingObjects)
+	if (!missingObjects.empty())
 	{
-		tlog1 << "Error: object " << object.first << " was not found!\n";
+		BOOST_FOREACH(auto object, missingObjects)
+		{
+			tlog1 << "Error: object " << object.first << " was not found!\n";
+		}
+		BOOST_FOREACH(auto object, registeredObjects)
+		{
+			tlog5 << object.first << " -> " << object.second << "\n";
+		}
+		tlog1 << "All known identifiers were dumped into log file\n";
 	}
 	assert(missingObjects.empty());
 }

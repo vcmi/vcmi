@@ -32,33 +32,21 @@ JsonNode::JsonNode(JsonType Type):
 JsonNode::JsonNode(const char *data, size_t datasize):
 	type(DATA_NULL)
 {
-	JsonParser parser(data, datasize, *this);
+	JsonParser parser(data, datasize);
+	*this = parser.parse("<unknown>");
+
 	JsonValidator validator(*this);
 }
 
 JsonNode::JsonNode(ResourceID && fileURI):
 	type(DATA_NULL)
 {
-	std::string filename = CResourceHandler::get()->getResourceName(fileURI);
-	FILE * file = fopen(filename.c_str(), "rb");
-	if (!file)
-	{
-		tlog1 << "Failed to open file " << filename << "\n";
-		perror("Last system error was ");
-		return;
-	}
+	auto file = CResourceHandler::get()->loadData(fileURI);
 
-	fseek(file, 0, SEEK_END);
-	size_t datasize = ftell(file);
-	fseek(file, 0, SEEK_SET);
+	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second);
+	*this = parser.parse(fileURI.getName());
 
-	char *input = new char[datasize];
-	datasize = fread((void*)input, 1, datasize, file);
-	fclose(file);
-
-	JsonParser parser(input, datasize, *this);
 	JsonValidator validator(*this);
-	delete [] input;
 }
 
 JsonNode::JsonNode(const JsonNode &copy):
@@ -345,12 +333,18 @@ std::ostream & operator<<(std::ostream &out, const JsonNode &node)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-JsonParser::JsonParser(const char * inputString, size_t stringSize, JsonNode &root):
+JsonParser::JsonParser(const char * inputString, size_t stringSize):
 	input(inputString, stringSize),
 	lineCount(1),
 	lineStart(0),
 	pos(0)
 {
+}
+
+JsonNode JsonParser::parse(std::string fileName)
+{
+	JsonNode root;
+
 	extractValue(root);
 	extractWhitespace(false);
 
@@ -358,8 +352,12 @@ JsonParser::JsonParser(const char * inputString, size_t stringSize, JsonNode &ro
 	if (pos < input.size())
 		error("Not all file was parsed!", true);
 
-	//TODO: better way to show errors (like printing file name as well)
-	tlog3<<errors;
+	if (!errors.empty())
+	{
+		tlog3<<"File " << fileName << " is not a valid JSON file!\n";
+		tlog3<<errors;
+	}
+	return root;
 }
 
 bool JsonParser::extractSeparator()

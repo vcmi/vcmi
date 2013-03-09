@@ -68,7 +68,7 @@
 	{
 		"special" : true,
 		"id": 133,
-		"level": 9,
+		"level": 10,
 		"faction": "neutral",
 		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//crystal dragon is a dragon
 		"ability_remove": [ "FLYING" ],							//Crystal Dragons do not fly
@@ -92,7 +92,7 @@
 		"level": 8,
 		"faction": "neutral",
 		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//faerie dragon is a dragon
-						[ "MAGIC_MIRROR", 30, 0, 0 ]
+						[ "MAGIC_MIRROR", 30, 0, 0 ],
 						[ "CASTS", 5, 0, 0 ],
 						[ "CREATURE_SPELL_POWER", 500, 0, 0], 	//5 spell power per dragon
 						[ "SPELLCASTER", 2, "spell.magicArrow", 10 ],			
@@ -121,7 +121,7 @@
 	{
 		"special" : true,
 		"id": 135,
-		"level": 9,
+		"level": 10,
 		"faction": "neutral",
 		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, 80, 0 ],			//always reduce defense
 						 [ "ACID_BREATH", 25, 0, 20 ],			//20% chance to do 25 damage
