@@ -52,13 +52,13 @@ class CPalettedAnimation : CAnimation
 	CImage* frames[];
 
 protected:
+	CPalettedAnimation(const SH3DefFile& def, size_t fileSize);
+
+#pragma warning(disable : 4291)
 	inline void* operator new(size_t size, ui32 frCount) {
 		return ::operator new(size + frCount * sizeof(void*));
 	}
-	inline void operator delete(void* ptr, ui32 frCount) {
-		::operator delete(ptr);
-	}
-	CPalettedAnimation(const SH3DefFile& def, size_t fileSize);
+#pragma warning(default : 4291)
 
 public:
 	virtual ~CPalettedAnimation();

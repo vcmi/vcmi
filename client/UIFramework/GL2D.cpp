@@ -1,8 +1,15 @@
 #include "StdInc.h"
 #include <SDL.h>
 #include <SDL_video.h>
-#include "SDL_syswm.h"
+#include <SDL_syswm.h>
 #include <SDL_opengl.h>
+#if __unix__
+#	if !SDL_VIDEO_OPENGL_GLX
+#		error SDL_VIDEO_OPENGL_GLX required 
+#	endif
+#	include <GL/glx.h>
+#	define _GLX 1
+#endif
 #include "GL2D.h"
 
 
@@ -11,6 +18,9 @@ namespace GL2D
 
 // Variables initialized by initVideo, updated by setScreenRes:
 static SDL_SysWMinfo wmInfo;
+#if _GLX
+static GLXContext glxCtx;
+#endif
 ui32 screenWidth = 0, screenHeight = 0; // Screen/Window size
 
 // OpenGL 1.3 functions pointers
@@ -36,6 +46,7 @@ PFNGLGETSHADERINFOLOGPROC glGetShaderInfoLog;
 
 // Shaders' sources
 static const char frag_palette_bitmap[] = (
+"#version 150\n"
 "uniform usampler2DRect bitmap;"
 "uniform sampler1D palette;"
 "uniform ivec2 coordOffs;"
@@ -162,9 +173,21 @@ void initVideo(ui32 w, ui32 h, bool fullscreen)
 	glUniform1i(bitmap_uniform, 0);
 	glUniform1i(palette_uniform, 1);
 
+	// unhook OpenGL context from display context/window
 #ifdef _WIN32
 	wglMakeCurrent(NULL, NULL);
+#elif _GLX
+	glxCtx = glXGetCurrentContext();
+	if (glxCtx == nullptr)
+	{
+		throw std::runtime_error("SDL didn't create GLX context!\n");
+	}
+	if (!glXMakeCurrent(wmInfo.info.x11.display, None, nullptr))
+	{
+		throw std::runtime_error("glXMakeCurrent failed (unhook GL context)\n");
+	}
 #endif
+
 }
 
 
@@ -173,6 +196,11 @@ void attachToCurrentThread()
 #ifdef _WIN32
 	HDC hdc = GetDC(wmInfo.window);
 	wglMakeCurrent(hdc, wmInfo.hglrc);
+#elif _GLX
+	if (!glXMakeCurrent(wmInfo.info.x11.display, info.info.x11.window, glxCtx))
+	{
+		throw std::runtime_error("attachToCurrentThread: glXMakeCurrent failed\n");
+	}
 #endif
 }
 
