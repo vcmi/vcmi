@@ -580,14 +580,14 @@ void CMinimap::showAll()
 		int3 mapSizes = LOCPLINT->cb->getMapSize();
 
 		//draw radar
-		SDL_Rect oldClip;
-		SDL_Rect radar =
+		// SDL_Rect oldClip;
+		/*SDL_Rect radar =
 		{
 			si16(adventureInt->position.x * pos.w / mapSizes.x + pos.x),
 			si16(adventureInt->position.y * pos.h / mapSizes.y + pos.y),
 			ui16(adventureInt->terrain.tilesw * pos.w / mapSizes.x),
 			ui16(adventureInt->terrain.tilesh * pos.h / mapSizes.y)
-		};
+		};*/
 
 		//* SDL_GetClipRect(to, &oldClip);
 		//* SDL_SetClipRect(to, &pos);

@@ -12,8 +12,10 @@ namespace Gfx
 
 #define SELF_ADDR reinterpret_cast<const ui8*>(this)
 
+#ifdef _MSC_VER
 #pragma pack(1)
 #pragma warning(disable : 4200)
+#endif
 
 struct SH3PcxFile
 {
@@ -50,7 +52,7 @@ struct SH3DefBlock {
 	ui32 unknown2;
 	char names[][13];	// [entriesCount][13] - array of frames names
 
-	inline const ua_ui32_ptr offsets() const {
+	inline ua_ui32_ptr offsets() const {
 		return (ua_ui32_ptr)(names + SDL_SwapLE32(entriesCount));
 	}	// array of offsets of frames
 };
@@ -74,8 +76,10 @@ struct SH3DefFile {
 	}
 };
 
+#ifdef _MSC_VER
 #pragma warning(default : 4200)
 #pragma pack()
+#endif
 
 #undef SELF_ADDR
 }

@@ -464,7 +464,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 	for (size_t bx = 0; bx < dx; bx++, srx+=32)
 	{
 		// Skip column if not in map
-		if (top_tile.x+bx < 0 || top_tile.x+bx >= sizes.x)
+		if (top_tile.x+si32(bx) < 0 || top_tile.x+bx >= sizes.x)
 			continue;
 
 		sry = sry_init;

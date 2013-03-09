@@ -828,7 +828,7 @@ void CSpellWindow::SpellArea::showAll()
 	if(mySpell < 0)
 		return;
 
-	const CSpell * spell = mySpell.toSpell();
+//	const CSpell * spell = mySpell.toSpell();
 
 //*	blitAt(owner->spells->ourImages[mySpell].bitmap, pos.x, pos.y, to);
 //*	blitAt(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->ourImages[schoolLevel].bitmap, pos.x, pos.y, to); //printing border (indicates level of magic school)

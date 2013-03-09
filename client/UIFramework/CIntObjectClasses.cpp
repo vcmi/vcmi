@@ -1277,7 +1277,7 @@ void CBoundedLabel::showAll()
 	int lineHeight =  f->getLineHeight();
 	int lineCapacity = pos.h / lineHeight;
 
-	int dy = f->getLineHeight(); //line height
+//	int dy = f->getLineHeight(); //line height
 	int base_y = pos.y;
 	if(alignment == CENTER)
 		base_y += std::max((pos.h - maxH)/2,0);
@@ -1365,8 +1365,8 @@ void CTextBox::showAll()
 {
 	CIntObject::showAll();
 
-	const IFont * f = graphics->fonts[font];
-	int dy = f->getLineHeight(); //line height
+//	const IFont * f = graphics->fonts[font];
+//	int dy = f->getLineHeight(); //line height
 	int base_y = pos.y;
 
 	if (alignment == CENTER)
@@ -1380,8 +1380,8 @@ void CTextBox::showAll()
 		const std::string &line = lines[i + firstLineToPrint];
 		if(!line.size()) continue;
 
-		int width = pos.w + (slider ? (slider->pos.w) : 0);
-		int x = pos.x + int(alignment) * width / 2;
+//		int width = pos.w + (slider ? (slider->pos.w) : 0);
+//		int x = pos.x + int(alignment) * width / 2;
 
 //*		blitLine(to, Point(x, base_y + i * dy), line);
 	}
@@ -1519,7 +1519,7 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(Pos, 0, true);
-	Rect hlp = Pos;
+//	Rect hlp = Pos;
 /*	if(srf)
 		CSDL_Ext::blitSurface(srf, &hlp, *bg, NULL);
 	else

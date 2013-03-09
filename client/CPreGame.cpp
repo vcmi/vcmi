@@ -240,7 +240,7 @@ CMenuScreen::CMenuScreen(const JsonNode& configNode):
 	{
 //*		if (background->bg->format->palette)
 //*			background->convertToScreenBPP();
-		background->scaleTo(Point(screen->w, screen->h));
+//*		background->scaleTo(Point(screen->w, screen->h));
 	}
 
 	pos = background->center();
@@ -2031,7 +2031,7 @@ void InfoCard::showAll()
 
 			//difficulty
 			assert(SEL->current->mapHeader->difficulty <= 4);
-			std::string &diff = CGI->generaltexth->arraytxt[142 + SEL->current->mapHeader->difficulty];
+//			std::string &diff = CGI->generaltexth->arraytxt[142 + SEL->current->mapHeader->difficulty];
 //*			printAtMiddleLoc(diff, 62, 472, FONT_SMALL, Colors::WHITE, to);
 
 			//selecting size icon
@@ -3330,7 +3330,7 @@ void CBonusSelection::show()
 	mapDesc->showAll(); //showAll because CTextBox has no show()
 
 	//map size icon
-	int temp;
+/*	int temp;
 	switch (ourHeader->width)
 	{
 	case 36:
@@ -3348,7 +3348,7 @@ void CBonusSelection::show()
 	default:
 		temp=4;
 		break;
-	}
+	}*/
 //*	blitAtLoc(sizes->ourImages[temp].bitmap, 735, 26, to);
 
 	//flags

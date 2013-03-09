@@ -43,7 +43,10 @@ public:
 };
 
 
-#pragma warning(disable : 4200)
+#ifdef _MSC_VER
+	#pragma warning(disable : 4200)
+	#pragma warning(disable : 4291)
+#endif
 
 class CPalettedAnimation : CAnimation
 {
@@ -54,17 +57,18 @@ class CPalettedAnimation : CAnimation
 protected:
 	CPalettedAnimation(const SH3DefFile& def, size_t fileSize);
 
-#pragma warning(disable : 4291)
 	inline void* operator new(size_t size, ui32 frCount) {
 		return ::operator new(size + frCount * sizeof(void*));
 	}
-#pragma warning(default : 4291)
 
 public:
 	virtual ~CPalettedAnimation();
 	virtual CImage* getFrame(ui32 fnr);
 };
 
-#pragma warning(default : 4200)
+#ifdef _MSC_VER
+	#pragma warning(default : 4200)
+	#pragma warning(default : 4291)
+#endif
 
 }

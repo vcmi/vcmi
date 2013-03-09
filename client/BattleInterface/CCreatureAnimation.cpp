@@ -228,7 +228,7 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 				const int remainder = ftcp % FullWidth;
 				int xB = (attacker ? remainder : FullWidth - remainder - 1) + x;
 
-				const ui8 aCountMod = (animCount & 0x20) ? ((animCount & 0x1e) >> 1) << 4 : (0x0f - ((animCount & 0x1e) >> 1)) << 4;
+				//const ui8 aCountMod = (animCount & 0x20) ? ((animCount & 0x1e) >> 1) << 4 : (0x0f - ((animCount & 0x1e) >> 1)) << 4;
 
 				for (int k = 0; k <= SegmentLength; k++)
 				{
@@ -236,7 +236,7 @@ int CCreatureAnimation::nextFrameT(SDL_Surface * dest, int x, int y, bool attack
 					{
 						if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB && destRect->y <= yB && destRect->y + destRect->h > yB))
 						{
-							const ui8 colorNr = SegmentType == 0xff ? FDef[BaseOffset+k] : SegmentType;
+							//const ui8 colorNr = SegmentType == 0xff ? FDef[BaseOffset+k] : SegmentType;
 							//putPixel<bpp>(dest, xB, yB, palette[colorNr], colorNr, yellowBorder, blueBorder, aCountMod);
 						}
 					}
@@ -299,7 +299,7 @@ inline void CCreatureAnimation::putPixel(
 	SDL_Surface * dest,
 	const int & ftcpX,
 	const int & ftcpY,
-	const BMPPalette & color,
+	const SDL_Color & color,
 	const ui8 & palc,
 	const bool & yellowBorder,
 	const bool & blueBorder,
@@ -311,7 +311,7 @@ inline void CCreatureAnimation::putPixel(
 		Uint8 * p = (Uint8*)dest->pixels + ftcpX*dest->format->BytesPerPixel + ftcpY*dest->pitch;
 		if(palc > 7) //normal color
 		{
-			ColorPutter<bpp, 0>::PutColor(p, color.R, color.G, color.B);
+			ColorPutter<bpp, 0>::PutColor(p, color.r, color.g, color.b);
 		}
 		else if((yellowBorder || blueBorder) && (palc == 6 || palc == 7)) //selection highlight
 		{
@@ -323,9 +323,9 @@ inline void CCreatureAnimation::putPixel(
 		else if (palc == 5) //selection highlight or transparent
 		{
 			if(blueBorder)
-				ColorPutter<bpp, 0>::PutColor(p, color.B, color.G - 0xf0 + animCount, color.R - 0xf0 + animCount); //shouldn't it be reversed? its bgr instead of rgb
+				ColorPutter<bpp, 0>::PutColor(p, color.b, color.g - 0xf0 + animCount, color.r - 0xf0 + animCount); //shouldn't it be reversed? its bgr instead of rgb
 			else if (yellowBorder)
-				ColorPutter<bpp, 0>::PutColor(p, color.R - 0xf0 + animCount, color.G - 0xf0 + animCount, color.B);
+				ColorPutter<bpp, 0>::PutColor(p, color.r - 0xf0 + animCount, color.g - 0xf0 + animCount, color.b);
 		}
 		else //shadow
 		{

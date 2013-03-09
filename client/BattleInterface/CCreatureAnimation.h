@@ -15,7 +15,7 @@
  *
  */
 
-struct BMPPalette;
+struct SDL_Color;
 class CIntObject;
 
 /// Class which manages animations of creatures/units inside battles
@@ -36,7 +36,7 @@ private:
                 SDL_Surface * dest,
                 const int & ftcpX,
                 const int & ftcpY,
-                const BMPPalette & color,
+                const SDL_Color & color,
                 const ui8 & palc,
                 const bool & yellowBorder,
 				const bool & blueBorder,

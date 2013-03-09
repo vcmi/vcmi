@@ -2,7 +2,7 @@ project(vcmiclient)
 cmake_minimum_required(VERSION 2.6)
 
 include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_HOME_DIRECTORY}/lib)
-include_directories(${SDL_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR})
+include_directories(${SDL_INCLUDE_DIR} ${SDLIMAGE_INCLUDE_DIR} ${SDLMIXER_INCLUDE_DIR} ${SDLTTF_INCLUDE_DIR} ${OPENGL_INCLUDE_DIR})
 include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR} ${FFMPEG_INCLUDE_DIRS})
 
 set(client_SRCS
@@ -18,6 +18,18 @@ set(client_SRCS
         UIFramework/Geometries.cpp
         UIFramework/CCursorHandler.cpp
         UIFramework/SDL_Extensions.cpp
+        UIFramework/GL2D.cpp
+        UIFramework/GL2D.h
+        Gfx/Animations.cpp
+        Gfx/Animations.h
+        Gfx/CPaletteRGBA.cpp
+        Gfx/CPaletteRGBA.h
+        Gfx/FilesHeaders.h
+        Gfx/Images.cpp
+        Gfx/Images.h
+        Gfx/ImgMakers.cpp
+        Gfx/Manager.cpp
+        Gfx/Manager.h
         AdventureMapClasses.cpp
         CAdvmapInterface.cpp
         CAnimation.cpp
@@ -94,7 +106,7 @@ else()
     add_executable(vcmiclient ${client_SRCS})
 endif()
 
-target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${RT_LIB} ${DL_LIB})
+target_link_libraries(vcmiclient vcmi ${Boost_LIBRARIES} ${SDL_LIBRARY} ${SDLIMAGE_LIBRARY} ${OPENGL_LIBRARIES} ${SDLMIXER_LIBRARY} ${SDLTTF_LIBRARY} ${ZLIB_LIBRARIES} ${FFMPEG_LIBRARIES} ${RT_LIB} ${DL_LIB})
 
 install(TARGETS vcmiclient DESTINATION ${BIN_DIR})
 

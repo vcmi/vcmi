@@ -5260,8 +5260,8 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 
 void CPuzzleWindow::showAll()
 {
-	int3 moveInt = int3(8, 9, 0);
-	Rect mapRect = genRect(544, 591, pos.x + 8, pos.y + 7);
+//	int3 moveInt = int3(8, 9, 0);
+//	Rect mapRect = genRect(544, 591, pos.x + 8, pos.y + 7);
 /*
 	CGI->mh->terrainRect
 		(grailPos - moveInt, adventureInt->anim,

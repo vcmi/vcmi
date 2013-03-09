@@ -50,6 +50,7 @@ find_package(SDL_image REQUIRED)
 find_package(SDL_mixer REQUIRED)
 find_package(SDL_ttf REQUIRED)
 find_package(ZLIB REQUIRED)
+find_package(OpenGL REQUIRED)
 
 if (ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).

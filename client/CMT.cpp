@@ -77,7 +77,7 @@ static bool gOnlyAI = false;
 
 static bool ermInteractiveMode = false; //structurize when time is right
 void processCommand(const std::string &message);
-static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo=true);
+//static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo=true);
 void dispose();
 void playIntro();
 static void listenForEvents();
@@ -252,7 +252,7 @@ int main(int argc, char* argv[])
 	}
 
 	//Set environment vars to make window centered. Sometimes work, sometimes not. :/
-	putenv("SDL_VIDEO_CENTERED=center");
+	putenv((char*)"SDL_VIDEO_CENTERED=center");
 	//putenv("SDL_VIDEO_WINDOW_POS");
 
 	// Have effect on X11 system only (Linux).
@@ -308,14 +308,16 @@ int main(int argc, char* argv[])
 	tlog0 <<"\tInitializing screen: "<<pomtime.getDiff() << std::endl;
 
 	// Initialize video
-#if DISABLE_VIDEO
-	CCS->videoh = new CEmptyVideoPlayer;
-#else
-	if (!vm.count("disable-video"))
-		CCS->videoh = new CVideoPlayer;
-	else
+
+//TODO: video support for OpenGL
+//#if DISABLE_VIDEO
+//	CCS->videoh = new CEmptyVideoPlayer;
+//#else
+//	if (!vm.count("disable-video"))
+//		CCS->videoh = new CVideoPlayer;
+//	else
 		CCS->videoh = new CEmptyVideoPlayer;
-#endif
+//#endif
 
 	tlog0<<"\tInitializing video: "<<pomtime.getDiff()<<std::endl;
 

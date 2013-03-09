@@ -197,7 +197,7 @@ void attachToCurrentThread()
 	HDC hdc = GetDC(wmInfo.window);
 	wglMakeCurrent(hdc, wmInfo.hglrc);
 #elif _GLX
-	if (!glXMakeCurrent(wmInfo.info.x11.display, info.info.x11.window, glxCtx))
+	if (!glXMakeCurrent(wmInfo.info.x11.display, wmInfo.info.x11.window, glxCtx))
 	{
 		throw std::runtime_error("attachToCurrentThread: glXMakeCurrent failed\n");
 	}
