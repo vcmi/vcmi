@@ -94,7 +94,6 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="UIFramework\CCursorHandler.h" />
-    <ClInclude Include="UIFramework\CIntObjectClasses.h" />
     <ClInclude Include="UIFramework\Geometries.h" />
     <ClInclude Include="UIFramework\SDL_Extensions.h" />
     <ClInclude Include="UIFramework\SDL_Pixels.h" />
@@ -126,6 +125,12 @@
       <Filter>UIFramework</Filter>
     </ClInclude>
     <ClInclude Include="UIFramework\CGuiHandler.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="Gfx\Basic.h">
+      <Filter>Gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\CIntObjectClasses.h">
       <Filter>UIFramework</Filter>
     </ClInclude>
   </ItemGroup>

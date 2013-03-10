@@ -80,9 +80,9 @@ public:
 class CMenuEntry : public CIntObject
 {
 	std::vector<CPicture*> images;
-	std::vector<CAdventureMapButton*> buttons;
+	std::vector<CButton*> buttons;
 
-	CAdventureMapButton* createButton(CMenuScreen* parent, const JsonNode& button);
+	CButton* createButton(CMenuScreen* parent, const JsonNode& button);
 public:
 	CMenuEntry(CMenuScreen* parent, const JsonNode &config);
 };
@@ -453,7 +453,7 @@ public:
 	InfoCard *card;
 	OptionsTab *opt;
     RandomMapTab * randMapTab;
-	CAdventureMapButton *start, *back;
+	CButton *start, *back;
 
 	SelectionTab *sel;
 	CIntObject *curTab;

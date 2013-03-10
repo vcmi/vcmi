@@ -39,6 +39,7 @@
 #include "../lib/CThreadHelper.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameConstants.h"
+#include "Gfx/Basic.h"
 #include "UIFramework/GL2D.h"
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
@@ -368,23 +369,19 @@ static boost::function<void()> genCommand(CMenuScreen* menu, std::vector<std::st
 	return boost::function<void()>();
 }
 
-CAdventureMapButton* CMenuEntry::createButton(CMenuScreen* parent, const JsonNode& button)
+CButton* CMenuEntry::createButton(CMenuScreen* parent, const JsonNode& button)
 {
 	boost::function<void()> command = genCommand(parent, parent->menuNameToEntry, button["command"].String());
 
-	std::pair<std::string, std::string> help;
-	if (!button["help"].isNull() && button["help"].Float() > 0)
-		help = CGI->generaltexth->zelp[button["help"].Float()];
+	Gfx::Point point(button["x"].asInteger(), button["y"].asInteger());
 
-	int posx = button["x"].Float();
-	if (posx < 0)
-		posx = pos.w + posx;
+	if (point.x < 0) point.x += pos.w;
+	if (point.y < 0) point.y += pos.h;
 
-	int posy = button["y"].Float();
-	if (posy < 0)
-		posy = pos.h + posy;
+	const PairOfStrings * help = (button["help"].Float() > 0) ?
+		&( CGI->generaltexth->zelp[button["help"].asInteger()] ) : nullptr;
 
-	return new CAdventureMapButton(help, command, posx, posy, button["name"].String(), button["hotkey"].Float());
+	return new CButton(command, point, button["name"].String(), 0, 4, help, LCLICK|RCLICK|HOVER|KEYBOARD, button["hotkey"].asInteger());
 }
 
 CMenuEntry::CMenuEntry(CMenuScreen* parent, const JsonNode &config)
@@ -399,7 +396,6 @@ CMenuEntry::CMenuEntry(CMenuScreen* parent, const JsonNode &config)
 	BOOST_FOREACH(const JsonNode& node, config["buttons"].Vector())
 	{
 		buttons.push_back(createButton(parent, node));
-		buttons.back()->hoverable = true;
 		buttons.back()->type |= REDRAW_PARENT;
 	}
 }
@@ -610,32 +606,35 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 	sel = new SelectionTab(screenType, bind(&CSelectionScreen::changeSelection, this, _1), multiPlayer); //scenario selection tab
 	sel->recActions = DISPOSE;
 
+	auto & zelp = CGI->generaltexth->zelp;
+
 	switch(screenType)
 	{
 	case CMenuScreen::newGame:
 		{
 			card->difficulty->onChange = bind(&CSelectionScreen::difficultyChange, this, _1);
 			card->difficulty->select(1, 0);
-			CAdventureMapButton * select = new CAdventureMapButton(CGI->generaltexth->zelp[45], 0, 411, 80, "GSPBUTT.DEF", SDLK_s);
-			select->callback = [&]()
+
+			const CFunctionList<void()> selectCmd = [&]()
 			{
 				toggleTab(sel);
 				changeSelection(sel->getSelectedMapInfo());
 			};
+			CButton * select = new CButton(selectCmd, Gfx::Point(411, 80), "GSPBUTT", 0, 4, &(zelp[45]), LCLICK|RCLICK|KEYBOARD, SDLK_s);
 			select->addTextOverlay(CGI->generaltexth->allTexts[500], FONT_SMALL);
 
-			CAdventureMapButton *opts = new CAdventureMapButton(CGI->generaltexth->zelp[46], bind(&CSelectionScreen::toggleTab, this, opt), 411, 510, "GSPBUTT.DEF", SDLK_a);
-			opts->addTextOverlay(CGI->generaltexth->allTexts[501], FONT_SMALL);
-
-			CAdventureMapButton * randomBtn = new CAdventureMapButton(CGI->generaltexth->zelp[47], 0, 411, 105, "GSPBUTT.DEF", SDLK_r);
-			randomBtn->addTextOverlay(CGI->generaltexth->allTexts[740], FONT_SMALL);
-			randomBtn->callback = [&]()
+			const CFunctionList<void()> randomCmd = [&]()
 			{
 				toggleTab(randMapTab);
 				changeSelection(&randMapTab->getMapInfo());
 			};
+			CButton * randomBtn = new CButton(randomCmd, Gfx::Point(411, 105), "GSPBUTT", 0, 4, &(zelp[47]), LCLICK|RCLICK|KEYBOARD, SDLK_r);
+			randomBtn->addTextOverlay(CGI->generaltexth->allTexts[740], FONT_SMALL);
 
-			start  = new CAdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startScenario, this), 411, 535, "SCNRBEG.DEF", SDLK_b);
+			CButton * opts = new CButton(bind(&CSelectionScreen::toggleTab, this, opt), Gfx::Point(411, 510), "GSPBUTT", 0, 4, &(zelp[46]), LCLICK|RCLICK|KEYBOARD, SDLK_a);
+			opts->addTextOverlay(CGI->generaltexth->allTexts[501], FONT_SMALL);
+
+			start = new CButton(bind(&CSelectionScreen::startScenario, this), Gfx::Point(411, 535), "SCNRBEG", 0, 4, &(zelp[103]), LCLICK|RCLICK|KEYBOARD, SDLK_b);
 
 			if(network)
 			{
@@ -656,31 +655,21 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		break;
 	case CMenuScreen::loadGame:
 		sel->recActions = 255;
-		start  = new CAdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startScenario, this), 411, 535, "SCNRLOD.DEF", SDLK_l);
+		start = new CButton(bind(&CSelectionScreen::startScenario, this), Gfx::Point(411, 535), "SCNRLOD", 0, 4, &(zelp[103]), LCLICK|RCLICK|KEYBOARD, SDLK_l);
 		break;
 	case CMenuScreen::saveGame:
 		sel->recActions = 255;
-		start  = new CAdventureMapButton("", CGI->generaltexth->zelp[103].second, bind(&CSelectionScreen::startScenario, this), 411, 535, "SCNRSAV.DEF");
+		start = new CButton(bind(&CSelectionScreen::startScenario, this), Gfx::Point(411, 535), "SCNRSAV", 0, 4, &(zelp[103]), LCLICK|RCLICK|KEYBOARD);
 		break;
 	case CMenuScreen::campaignList:
 		sel->recActions = 255;
-		start  = new CAdventureMapButton(std::pair<std::string, std::string>(), bind(&CSelectionScreen::startCampaign, this), 411, 535, "SCNRLOD.DEF", SDLK_b);
+		start = new CButton(bind(&CSelectionScreen::startCampaign, this), Gfx::Point(411, 535), "SCNRLOD", 0, 4, nullptr, LCLICK|RCLICK|KEYBOARD, SDLK_b);
 		break;
 	}
 
 	start->assignedKeys.insert(SDLK_RETURN);
 
-	std::string backName;
-	if(Type == CMenuScreen::campaignList)
-	{
-		backName = "SCNRBACK.DEF";
-	}
-	else
-	{
-		backName = "SCNRBACK.DEF";
-	}
-
-	back = new CAdventureMapButton("", CGI->generaltexth->zelp[105].second, bind(&CGuiHandler::popIntTotally, &GH, this), 581, 535, backName, SDLK_ESCAPE);
+	back = new CButton( bind(&CGuiHandler::popIntTotally, &GH, this), Gfx::Point(581, 535), "SCNRBACK", 0, 2, &(zelp[105]), LCLICK|RCLICK|KEYBOARD, SDLK_ESCAPE);
 
 	if(network)
 	{
@@ -1084,7 +1073,7 @@ std::vector<ResourceID> SelectionTab::getFiles(std::string dirURI, int resType)
 void SelectionTab::parseMaps(const std::vector<ResourceID> & files)
 {
 	allItems.clear();
-	for(int i = 0; i < files.size(); ++i)
+	for(size_t i = 0; i < files.size(); ++i)
 	{
 		try
 		{
@@ -1245,7 +1234,7 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 
 	slider = new CSlider(372, 86, tabType != CMenuScreen::saveGame ? 480 : 430, bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, 1);
 	slider->addUsedEvents(WHEEL);
-	slider->slider->keepFrame = true;
+//*	slider->slider->keepFrame = true;
 	format =  CDefHandler::giveDef("SCSELC.DEF");
 
 	sortingBy = _format;
@@ -1733,14 +1722,14 @@ void RandomMapTab::deactivateButtonsFrom(CHighlightableButtonsGroup * group, int
 			if(btn->isBlocked())
 			{
 				btn->setOffset(0);
-				btn->setState(CButtonBase::NORMAL);
+				btn->setState(CButton::NORMAL);
 			}
 		}
 		else
 		{
 			// Blocked state looks like frame 'selected'=1
 			btn->setOffset(-1);
-			btn->setState(CButtonBase::BLOCKED);
+			btn->setState(CButton::BLOCKED);
 		}
 	}
 }
@@ -3271,8 +3260,8 @@ void CBonusSelection::loadPositionsOfGraphics()
 			SCampPositions::SRegionDesc rd;
 
 			rd.infix = desc["infix"].String();
-			rd.xpos = desc["x"].Float();
-			rd.ypos = desc["y"].Float();
+			rd.xpos = desc["x"].asInteger();
+			rd.ypos = desc["y"].asInteger();
 			sc.regions.push_back(rd);
 		}
 
@@ -3634,9 +3623,9 @@ void CBonusSelection::changeDiff( bool increase )
 void CBonusSelection::updateStartButtonState( int selected /*= -1*/ )
 {
 	if(selected == -1)
-		startB->setState( ourCampaign->getCurrentScenario().travelOptions.bonusesToChoose.size() ? CButtonBase::BLOCKED : CButtonBase::NORMAL);
-	else if(startB->getState() == CButtonBase::BLOCKED)
-		startB->setState(CButtonBase::NORMAL);
+		startB->block( ourCampaign->getCurrentScenario().travelOptions.bonusesToChoose.size());
+	else if(startB->isBlocked())
+		startB->setState(CButton::NORMAL);
 }
 
 CBonusSelection::CRegion::CRegion( CBonusSelection * _owner, bool _accessible, bool _selectable, int _myNumber )

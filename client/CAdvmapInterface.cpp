@@ -543,7 +543,6 @@ void CAdvMapInt::updateSleepWake(const CGHeroInstance *h)
 	sleepWake.setIndex(state ? 1 : 0, true);
 	sleepWake.assignedKeys.clear();
 	sleepWake.assignedKeys.insert(state ? SDLK_w : SDLK_z);
-	sleepWake.update();
 }
 
 void CAdvMapInt::updateMoveHero(const CGHeroInstance *h, tribool hasPath)

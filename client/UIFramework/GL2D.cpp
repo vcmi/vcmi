@@ -23,6 +23,7 @@ static GLXContext glxCtx;
 #endif
 ui32 screenWidth = 0, screenHeight = 0; // Screen/Window size
 
+
 // OpenGL 1.3 functions pointers
 PFNGLACTIVETEXTUREPROC	glActiveTexture;
 // OpenGL 2.0 functions pointers
@@ -276,7 +277,7 @@ void useNoShader()
 }
 
 
-void useColorizeShader(const float cm[4][4])
+void useColorizeShader(const float cm[3][3])
 {
 	if (currentProgram != colorizeProgram) {
 		glUseProgram(currentProgram = colorizeProgram);
@@ -293,7 +294,7 @@ void usePaletteBitmapShader(si32 x, si32 y)
 }
 
 
-void usePaletteBitmapShader(si32 x, si32 y, const float cm[4][4])
+void usePaletteBitmapShader(si32 x, si32 y, const float cm[3][3])
 {
 	if (currentProgram != paletteBitmapProgram) {
 		glUseProgram(currentProgram = paletteBitmapProgram);

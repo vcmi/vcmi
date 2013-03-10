@@ -959,7 +959,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 		return;
 	}
 	std::vector<CComponent*> intComps;
-	for(int i=0;i<components.size();i++)
+	for(size_t i=0; i<components.size(); ++i)
 		intComps.push_back(new CComponent(*components[i]));
 	showInfoDialog(text,intComps,soundID);
 
@@ -1016,7 +1016,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 	if(!selection && cancel) //simple yes/no dialog
 	{
 		std::vector<CComponent*> intComps;
-		for(int i=0;i<components.size();i++)
+		for(size_t i=0; i<components.size(); ++i)
 			intComps.push_back(new CComponent(components[i])); //will be deleted by close in window
 
 		showYesNoDialog(text, boost::bind(&CCallback::selectionMade,cb,1,askID),boost::bind(&CCallback::selectionMade,cb,0,askID),true, intComps);
@@ -1024,7 +1024,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 	else if(selection)
 	{
 		std::vector<CSelectableComponent*> intComps;
-		for(int i=0;i<components.size();i++)
+		for(size_t i=0; i<components.size(); ++i)
 			intComps.push_back(new CSelectableComponent(components[i])); //will be deleted by CSelWindow::close
 
 		std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
@@ -1438,7 +1438,7 @@ void CPlayerInterface::initializeHeroTownList()
 	wanderingHeroes = newWanderingHeroes;
 	newWanderingHeroes.clear();*/
 
-	for (int i = 0; i < allHeroes.size(); i++)
+	for (size_t i = 0; i < allHeroes.size(); ++i)
 		if (!allHeroes[i]->inTownGarrison)
 			wanderingHeroes += allHeroes[i];
 
@@ -1455,7 +1455,7 @@ void CPlayerInterface::initializeHeroTownList()
 	towns.clear();
 	towns = newTowns;
 	newTowns.clear();*/
-	for(int i = 0; i < allTowns.size(); i++)
+	for(size_t i = 0; i < allTowns.size(); ++i)
 		towns.push_back(allTowns[i]);
 
 	if (adventureInt)

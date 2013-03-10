@@ -124,7 +124,8 @@ namespace Res
 		{
 			struct ResEntry
 			{
-				TResourceCap resType, resVal;
+				TResource resType;
+				TResourceCap resVal;
 			} cur;
 			const ResourceSet &rs;
 			void advance();

@@ -67,7 +67,10 @@ public:
 	void setType(JsonType Type);
 	JsonType getType() const;
 
-	bool isNull() const;
+	bool isNull() const { return type == DATA_NULL; };
+
+	// returns int number if type == DATA_FLOAT
+	int asInteger() const;
 
 	//non-const accessors, node will change type on type mismatch
 	bool & Bool();
@@ -77,8 +80,8 @@ public:
 	JsonMap & Struct();
 
 	//const accessors, will cause assertion failure on type mismatch
-	const bool & Bool() const;
-	const double & Float() const;
+	bool Bool() const;
+	double Float() const;
 	const std::string & String() const;
 	const JsonVector & Vector() const;
 	const JsonMap & Struct() const;
@@ -117,6 +120,7 @@ public:
 		}
 	}
 };
+
 
 namespace JsonUtils
 {
@@ -339,7 +343,10 @@ namespace JsonDetail
 		bool error(const std::string &message, bool warning=false);
 
 	public:
-		JsonParser(const char * inputString, size_t stringSize, JsonNode &root);
+		JsonParser(const char * inputString, size_t stringSize);
+
+		/// do actual parsing. filename is name of file that will printed to console if any errors were found
+		JsonNode parse(std::string fileName);
 	};
 
 	//Internal class for Json validation, used automaticaly in JsonNode constructor. Behaviour:

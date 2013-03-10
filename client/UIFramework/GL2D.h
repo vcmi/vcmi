@@ -11,7 +11,7 @@ namespace GL2D
 
 	void assignTexture(ui32 slot, ui32 type, ui32 handle);
 	void useNoShader();
-	void useColorizeShader(const float cm[4][4]);
+	void useColorizeShader(const float cm[3][3]);
 	void usePaletteBitmapShader(si32 x, si32 y);
-	void usePaletteBitmapShader(si32 x, si32 y, const float cm[4][4]);
+	void usePaletteBitmapShader(si32 x, si32 y, const float cm[3][3]);
 }

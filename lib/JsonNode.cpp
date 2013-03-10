@@ -32,33 +32,21 @@ JsonNode::JsonNode(JsonType Type):
 JsonNode::JsonNode(const char *data, size_t datasize):
 	type(DATA_NULL)
 {
-	JsonParser parser(data, datasize, *this);
+	JsonParser parser(data, datasize);
+	*this = parser.parse("<unknown>");
+
 	JsonValidator validator(*this);
 }
 
 JsonNode::JsonNode(ResourceID && fileURI):
 	type(DATA_NULL)
 {
-	std::string filename = CResourceHandler::get()->getResourceName(fileURI);
-	FILE * file = fopen(filename.c_str(), "rb");
-	if (!file)
-	{
-		tlog1 << "Failed to open file " << filename << "\n";
-		perror("Last system error was ");
-		return;
-	}
+	auto file = CResourceHandler::get()->loadData(fileURI);
 
-	fseek(file, 0, SEEK_END);
-	size_t datasize = ftell(file);
-	fseek(file, 0, SEEK_SET);
+	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second);
+	*this = parser.parse(fileURI.getName());
 
-	char *input = new char[datasize];
-	datasize = fread((void*)input, 1, datasize, file);
-	fclose(file);
-
-	JsonParser parser(input, datasize, *this);
 	JsonValidator validator(*this);
-	delete [] input;
 }
 
 JsonNode::JsonNode(const JsonNode &copy):
@@ -151,9 +139,12 @@ void JsonNode::setType(JsonType Type)
 	}
 }
 
-bool JsonNode::isNull() const
+
+int JsonNode::asInteger() const
 {
-	return type == DATA_NULL;
+	if (type == DATA_NULL) return 0;
+	assert(type == DATA_FLOAT);
+	return (int) data.Float;
 }
 
 bool & JsonNode::Bool()
@@ -186,20 +177,16 @@ JsonMap & JsonNode::Struct()
 	return *data.Struct;
 }
 
-const bool boolDefault = false;
-const bool & JsonNode::Bool() const
+bool JsonNode::Bool() const
 {
-	if (type == DATA_NULL)
-		return boolDefault;
+	if (type == DATA_NULL) return false;
 	assert(type == DATA_BOOL);
 	return data.Bool;
 }
 
-const double floatDefault = 0;
-const double & JsonNode::Float() const
+double JsonNode::Float() const
 {
-	if (type == DATA_NULL)
-		return floatDefault;
+	if (type == DATA_NULL) return 0;
 	assert(type == DATA_FLOAT);
 	return data.Float;
 }
@@ -344,12 +331,18 @@ std::ostream & operator<<(std::ostream &out, const JsonNode &node)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-JsonParser::JsonParser(const char * inputString, size_t stringSize, JsonNode &root):
+JsonParser::JsonParser(const char * inputString, size_t stringSize):
 	input(inputString, stringSize),
 	lineCount(1),
 	lineStart(0),
 	pos(0)
 {
+}
+
+JsonNode JsonParser::parse(std::string fileName)
+{
+	JsonNode root;
+
 	extractValue(root);
 	extractWhitespace(false);
 
@@ -357,8 +350,12 @@ JsonParser::JsonParser(const char * inputString, size_t stringSize, JsonNode &ro
 	if (pos < input.size())
 		error("Not all file was parsed!", true);
 
-	//TODO: better way to show errors (like printing file name as well)
-	tlog3<<errors;
+	if (!errors.empty())
+	{
+		tlog3<<"File " << fileName << " is not a valid JSON file!\n";
+		tlog3<<errors;
+	}
+	return root;
 }
 
 bool JsonParser::extractSeparator()
@@ -889,9 +886,9 @@ JsonValidator::JsonValidator(JsonNode &root, const JsonNode &schema, bool Minimi
 
 void JsonUtils::parseTypedBonusShort(const JsonVector& source, Bonus *dest)
 {
-	dest->val = source[1].Float();
+	dest->val = source[1].asInteger();
 	resolveIdentifier(source[2],dest->subtype);
-	dest->additionalInfo = source[3].Float();
+	dest->additionalInfo = source[3].asInteger();
 	dest->duration = Bonus::PERMANENT; //TODO: handle flags (as integer)
 	dest->turnsRemain = 0;	
 }
@@ -943,10 +940,10 @@ void JsonUtils::resolveIdentifier (si32 &var, const JsonNode &node, std::string 
 		switch (value->getType())
 		{
 			case JsonNode::DATA_FLOAT:
-				var = value->Float();
+				var = value->asInteger();
 				break;
 			case JsonNode::DATA_STRING:
-				VLC->modh->identifiers.requestIdentifier (value->String(), [&](si32 identifier)
+				VLC->modh->identifiers.requestIdentifier(value->String(), [&](si32 identifier)
 				{
 					var = identifier;
 				});
@@ -962,10 +959,10 @@ void JsonUtils::resolveIdentifier (const JsonNode &node, si32 &var)
 	switch (node.getType())
 	{
 		case JsonNode::DATA_FLOAT:
-			var = node.Float();
+			var = node.asInteger();
 			break;
 		case JsonNode::DATA_STRING:
-			VLC->modh->identifiers.requestIdentifier (node.String(), [&](si32 identifier)
+			VLC->modh->identifiers.requestIdentifier(node.String(), [&](si32 identifier)
 			{
 				var = identifier;
 			});
@@ -994,7 +991,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 
 	value = &ability["val"];
 	if (!value->isNull())
-		b->val = value->Float();
+		b->val = value->asInteger();
 
 	value = &ability["valueType"];
 	if (!value->isNull())
@@ -1004,11 +1001,11 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 
 	value = &ability["turns"];
 	if (!value->isNull())
-		b->turnsRemain = value->Float();
+		b->turnsRemain = value->asInteger();
 
 	value = &ability["sourceID"];
 	if (!value->isNull())
-		b->sid = value->Float();
+		b->sid = value->asInteger();
 
 	value = &ability["description"];
 	if (!value->isNull())

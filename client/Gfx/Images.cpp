@@ -2,6 +2,8 @@
 #include <SDL_opengl.h>
 #include <SDL_endian.h>
 #include "Images.h"
+#include "../UIFramework/GL2D.h"
+
 
 namespace Gfx
 {

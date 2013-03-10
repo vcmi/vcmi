@@ -11,7 +11,7 @@ class CImage;
 class CAnimation
 {
 protected:
-	ui32 framesCount;
+	size_t framesCount;
 	ui32 width;
 	ui32 height;
 
@@ -23,7 +23,7 @@ public:
 	virtual ~CAnimation();
 	virtual CImage* getFrame(ui32 fnr) = 0;
 
-	inline ui32 getFramesCount() { return framesCount; };
+	inline size_t getFramesCount() { return framesCount; };
 	inline ui32 getWidth() { return width; };
 	inline ui32 getHeight() { return height; };
 };
@@ -57,7 +57,7 @@ class CPalettedAnimation : CAnimation
 protected:
 	CPalettedAnimation(const SH3DefFile& def, size_t fileSize);
 
-	inline void* operator new(size_t size, ui32 frCount) {
+	inline void* operator new(size_t size, size_t frCount) {
 		return ::operator new(size + frCount * sizeof(void*));
 	}
 

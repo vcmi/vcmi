@@ -257,7 +257,7 @@ namespace CGH
 			std::vector<int> pom;
 			BOOST_FOREACH(const JsonNode &value, level.Vector())
 			{
-				pom.push_back(value.Float());
+				pom.push_back(value.asInteger());
 			}
 
 			dest.push_back(pom);
@@ -500,11 +500,11 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 
 	BOOST_FOREACH (auto position, config["commanderPositions"]["field"].Vector())
 	{
-		commanderField.push_back (position.Float());
+		commanderField.push_back (position.asInteger());
 	}
 	BOOST_FOREACH (auto position, config["commanderPositions"]["creBank"].Vector())
 	{
-		commanderBank.push_back (position.Float());
+		commanderBank.push_back (position.asInteger());
 	}
 
 

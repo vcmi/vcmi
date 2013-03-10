@@ -656,7 +656,7 @@ void CBattleInfoCallback::battleGetStackCountOutsideHexes(bool *ac) const
 	RETURN_IF_NOT_BATTLE();
 	auto accessibility = getAccesibility();
 
-	for(int i = 0; i < accessibility.size(); i++)
+	for(size_t i = 0; i < accessibility.size(); ++i)
 		ac[i] = (accessibility[i] == EAccessibility::ACCESSIBLE);
 }
 
@@ -819,7 +819,7 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 		std::vector<int> affectedIds;
 		int spLevel = slayerEffect->val;
 
-		for(int g = 0; g < VLC->creh->creatures.size(); ++g)
+		for(size_t g = 0; g < VLC->creh->creatures.size(); ++g)
 		{
 			BOOST_FOREACH(const Bonus *b, VLC->creh->creatures[g]->getBonusList())
 			{

@@ -3470,32 +3470,27 @@ CSystemOptionsWindow::CSystemOptionsWindow():
 	//setting up buttons
 	load = new CAdventureMapButton (CGI->generaltexth->zelp[321].first, CGI->generaltexth->zelp[321].second,
 									boost::bind(&CSystemOptionsWindow::bloadf, this), 246,  298, "SOLOAD.DEF", SDLK_l);
-	load->swappedImages = true;
-	load->update();
+	load->swapImages();
 
 	save = new CAdventureMapButton (CGI->generaltexth->zelp[322].first, CGI->generaltexth->zelp[322].second,
 	                                boost::bind(&CSystemOptionsWindow::bsavef, this), 357, 298, "SOSAVE.DEF", SDLK_s);
-	save->swappedImages = true;
-	save->update();
+	save->swapImages();
 
 	restart = new CAdventureMapButton (CGI->generaltexth->zelp[323].first, CGI->generaltexth->zelp[323].second,
 									   boost::bind(&CSystemOptionsWindow::brestartf, this), 246, 357, "SORSTRT", SDLK_r);
-	restart->swappedImages = true;
-	restart->update();
+	restart->swapImages();
 
 	mainMenu = new CAdventureMapButton (CGI->generaltexth->zelp[320].first, CGI->generaltexth->zelp[320].second,
 	                                    boost::bind(&CSystemOptionsWindow::bmainmenuf, this), 357, 357, "SOMAIN.DEF", SDLK_m);
-	mainMenu->swappedImages = true;
-	mainMenu->update();
+	mainMenu->swapImages();
 
 	quitGame = new CAdventureMapButton (CGI->generaltexth->zelp[324].first, CGI->generaltexth->zelp[324].second,
 	                                    boost::bind(&CSystemOptionsWindow::bquitf, this), 246, 415, "soquit.def", SDLK_q);
-	quitGame->swappedImages = true;
-	quitGame->update();
+	quitGame->swapImages();
+
 	backToMap = new CAdventureMapButton (CGI->generaltexth->zelp[325].first, CGI->generaltexth->zelp[325].second,
 	                                     boost::bind(&CSystemOptionsWindow::breturnf, this), 357, 415, "soretrn.def", SDLK_RETURN);
-	backToMap->swappedImages = true;
-	backToMap->update();
+	backToMap->swapImages();
 	backToMap->assignedKeys.insert(SDLK_ESCAPE);
 
 	heroMoveSpeed = new CHighlightableButtonsGroup(0);

@@ -1658,7 +1658,7 @@ void CBattleInterface::spellCast( const BattleSpellCast * sc )
 			//displaying animation
 			CDefEssential * animDef = CDefHandler::giveDefEss(animToDisplay);
 
-			int steps = sqrt(static_cast<double>((destcoord.x - srccoord.x)*(destcoord.x - srccoord.x) + (destcoord.y - srccoord.y) * (destcoord.y - srccoord.y))) / 40;
+			int steps = (int)sqrt(static_cast<double>((destcoord.x - srccoord.x)*(destcoord.x - srccoord.x) + (destcoord.y - srccoord.y) * (destcoord.y - srccoord.y))) / 40;
 			if(steps <= 0)
 				steps = 1;
 

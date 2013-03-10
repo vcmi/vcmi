@@ -263,11 +263,9 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	animSpeeds->onChange = boost::bind(&CBattleInterface::setAnimSpeed, owner, _1);
 
 	setToDefault = new CAdventureMapButton (CGI->generaltexth->zelp[393], boost::bind(&CBattleOptionsWindow::bDefaultf,this), 246, 359, "codefaul.def");
-	setToDefault->swappedImages = true;
-	setToDefault->update();
+	setToDefault->swapImages();
 	exit = new CAdventureMapButton (CGI->generaltexth->zelp[392], boost::bind(&CBattleOptionsWindow::bExitf,this), 357, 359, "soretrn.def",SDLK_RETURN);
-	exit->swappedImages = true;
-	exit->update();
+	exit->swapImages();
 
 	//creating labels
 	labels.push_back(new CLabel(242,  32, FONT_BIG,    CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[392]));//window title
@@ -615,7 +613,7 @@ void CStackQueue::update()
 	owner->curInt->cb->battleGetStackQueue(stacksSorted, stackBoxes.size());
 	if(stacksSorted.size())
 	{
-		for (int i = 0; i < stackBoxes.size() ; i++)
+		for (size_t i = 0; i < stackBoxes.size(); ++i)
 		{
 			stackBoxes[i]->setStack(stacksSorted[i]);
 		}
@@ -646,7 +644,7 @@ CStackQueue::CStackQueue(bool Embedded, CBattleInterface * _owner)
 	}
 
 	stackBoxes.resize(QUEUE_SIZE);
-	for (int i = 0; i < stackBoxes.size(); i++)
+	for (size_t i = 0; i < stackBoxes.size(); ++i)
 	{
 		stackBoxes[i] = new StackBox(embedded);
 		stackBoxes[i]->moveBy(Point(1 + (embedded ? 36 : 80)*i, 0));

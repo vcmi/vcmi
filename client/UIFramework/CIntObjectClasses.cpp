@@ -199,95 +199,138 @@ void CFilledTexture::showAll()
 //*	CSDL_Ext::fillTexture(to, texture);
 }
 
-CButtonBase::CButtonBase()
+CButton::CButton() :
+	state(NORMAL),
+	images(nullptr),
+	state2image(),
+	text(nullptr)
 {
-	swappedImages = keepFrame = false;
-	bitmapOffset = 0;
-	state=NORMAL;
-	image = NULL;
-	text = NULL;
 }
 
-CButtonBase::~CButtonBase()
-{
 
-}
-
-void CButtonBase::update()
+CButton::CButton(const CFunctionList<void()> & flist, Gfx::Point position, const std::string & animName, size_t animOffs/*=0*/, size_t imagesNum/*=4*/,
+				 const PairOfStrings * helpStr, ui16 events/*=LCLICK|RCLICK|HOVER|KEYBOARD*/, int key/*=0*/) :
+	state(NORMAL),
+	images(Gfx::CManager::getAnimation(animName)),
+	callback(flist),
+	text(nullptr)
 {
-	if (text)
+	pos.x = position.x;
+	pos.y = position.y;
+
+	if (helpStr != nullptr)
 	{
-		if (state == PRESSED)
-			text->moveTo(Point(pos.x+pos.w/2+1, pos.y+pos.h/2+1));
-		else
-			text->moveTo(Point(pos.x+pos.w/2, pos.y+pos.h/2));
+		helpBox = helpStr->first;
+		status = helpStr->second;
 	}
 
-	int newPos = (int)state + bitmapOffset;
-	if (newPos < 0)
-		newPos = 0;
-
-	if (state == HIGHLIGHTED && image->getFramesCount() < 4)
-		newPos = image->getFramesCount()-1;
-
-	if (swappedImages)
+	if (images)
 	{
-		if (newPos == 0) newPos = 1;
-		else if (newPos == 1) newPos = 0;
+		pos.w = images->getWidth();
+		pos.h = images->getHeight();
+
+		size_t i=0;
+		for (; i<imagesNum; ++i)
+		{
+			state2image[i] = images->getFrame(i + animOffs);
+			if (state2image[i] == nullptr)
+			{
+				tlog2 << "CButton warning: image " << animName << " : " << animOffs+i << " is missing\n";
+				state2image[i] = state2image[0]; //TODO set dummy image
+			}
+		}
+		for (; i<4; ++i)
+		{
+			state2image[i] = state2image[0];
+		}
+	}
+	else {
+		tlog1 << "CButton error: animation file '" << animName << "' is not loaded\n";
 	}
 
-//*	if (!keepFrame)
-//*		image->setFrame(newPos);
-
-	if (active)
-		redraw();
+	addUsedEvents(events);
+	if (key != SDLK_UNKNOWN) assignedKeys.insert(key);
 }
 
-void CButtonBase::addTextOverlay( const std::string &Text, EFonts font, SDL_Color color)
+
+CButton::~CButton()
+{
+	delete text;
+}
+
+
+void CButton::clickLeft(tribool down, bool previousState)
+{
+	if (isBlocked()) return;
+
+	if (down)
+	{
+		state == PRESSED;
+		CCS->soundh->playSound(soundBase::button);
+
+		if (text) text->moveTo(Point(pos.x+pos.w/2+1, pos.y+pos.h/2+1));
+	}
+	else {
+		state = hovered ? HIGHLIGHTED : NORMAL;
+
+		if (text) text->moveTo(Point(pos.x+pos.w/2, pos.y+pos.h/2));
+	}
+
+	if (previousState && (down==false))
+	{
+		callback();
+	}
+}
+
+
+void CButton::clickRight(tribool down, bool previousState)
+{
+	if (down && helpBox.size()) //there is no point to show window with nothing inside...
+		CRClickPopup::createAndPush(helpBox);
+}
+
+
+void CButton::hover(bool on)
+{
+	if (isBlocked()) return;
+
+	state = on ? HIGHLIGHTED : NORMAL;
+}
+
+
+void CButton::addTextOverlay( const std::string &Text, EFonts font, SDL_Color color)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	delete text;
 	text = new CLabel(pos.w/2, pos.h/2, font, CENTER, color, Text);
-	update();
 }
 
-void CButtonBase::setOffset(int newOffset)
+void CButton::swapImages()
 {
-	if (bitmapOffset == newOffset)
-		return;
-	bitmapOffset = newOffset;
-	update();
+	Gfx::CImage* tmp = state2image[0];
+	state2image[0] = state2image[1];
+	state2image[1] = tmp;
 }
 
-void CButtonBase::setState(ButtonState newState)
+
+void CButton::setState(ButtonState newState)
 {
-	if (state == newState)
-		return;
 	state = newState;
-	update();
 }
 
-CButtonBase::ButtonState CButtonBase::getState()
+
+void CButton::block(bool on)
 {
-	return state;
+	setState(on ? BLOCKED : NORMAL);
 }
 
-bool CButtonBase::isBlocked()
+
+void CButton::showAll()
 {
-	return state == BLOCKED;
+	state2image[state]->putAt(Gfx::Point(pos.x, pos.y));
 }
 
-bool CButtonBase::isHighlighted()
-{
-	return state == HIGHLIGHTED;
-}
-
-void CButtonBase::block(bool on)
-{
-	setState(on?BLOCKED:NORMAL);
-}
-
-CAdventureMapButton::CAdventureMapButton ()
+CAdventureMapButton::CAdventureMapButton()
 {
 	hoverable = actOnDown = borderEnabled = soundDisabled = false;
 	borderColor.unused = 1; // represents a transparent color, used for HighlightableButton
@@ -347,7 +390,7 @@ void CAdventureMapButton::clickRight(tribool down, bool previousState)
 		CRClickPopup::createAndPush(helpBox);
 }
 
-void CAdventureMapButton::hover (bool on)
+void CAdventureMapButton::hover(bool on)
 {
 	if(hoverable)
 	{
@@ -390,7 +433,6 @@ void CAdventureMapButton::hover (bool on)
 
 void CAdventureMapButton::init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key)
 {
-	currentImage = -1;
 	addUsedEvents(LCLICK | RCLICK | HOVER | KEYBOARD);
 	callback = Callback;
 	hoverable = actOnDown = borderEnabled = soundDisabled = false;
@@ -405,7 +447,31 @@ void CAdventureMapButton::init(const CFunctionList<void()> &Callback, const std:
 	pos.y += y;
 
 	if (!defName.empty())
+	{
 		imageNames.push_back(defName);
+
+		images = Gfx::CManager::getAnimation(defName);
+
+		if (images)
+		{
+			pos.w = images->getWidth();
+			pos.h = images->getHeight();
+
+			for (size_t i=0; i<4; ++i)
+			{
+				state2image[i] = images->getFrame(i);
+				if (state2image[i] == nullptr)
+				{
+					//tlog2 << "CAdventureMapButton warning: image " << defName << " : " << i << " is missing\n";
+					state2image[i] = state2image[0];
+				}
+			}
+		}
+		else {
+			tlog1 << "CAdventureMapButton error: animation file '" << defName << "' is not loaded\n";
+		}
+	}
+
 	if (add)
 		for (size_t i=0; i<add->size();i++ )
 			imageNames.push_back(add->at(i));
@@ -414,23 +480,19 @@ void CAdventureMapButton::init(const CFunctionList<void()> &Callback, const std:
 
 void CAdventureMapButton::setIndex(size_t index, bool playerColoredButton)
 {
-	if (index == currentImage || index>=imageNames.size())
-		return;
-	currentImage = index;
-	setImage(Gfx::CManager::getAnimation(imageNames[index]));
+
 }
 
 void CAdventureMapButton::setImage(Gfx::PAnimation anim, bool playerColoredButton, int animFlags)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
-	image = anim; //new CAnimImage(anim, getState(), 0, 0, 0, animFlags);
+//*	image = new CAnimImage(anim, getState(), 0, 0, 0, animFlags);
 //*	if (playerColoredButton)
 //*		image->playerColored(LOCPLINT->playerID);
 
-	pos.w = image->getWidth();
-	pos.h = image->getHeight();
-
+//*	pos.w = image->getWidth();
+//*	pos.h = image->getHeight();
 }
 
 void CAdventureMapButton::setPlayerColor(PlayerColor player)
@@ -441,8 +503,7 @@ void CAdventureMapButton::setPlayerColor(PlayerColor player)
 
 void CAdventureMapButton::showAll()
 {
-	image->getFrame(0)->putAt(Gfx::Point(pos.x, pos.y));
-
+	CButton::showAll();
 	CIntObject::showAll();
 
 //*	if (borderEnabled && borderColor.unused == 0)

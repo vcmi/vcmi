@@ -22,12 +22,12 @@ Res::ResourceSet::ResourceSet(const JsonNode & node)
 {
 	reserve(GameConstants::RESOURCE_QUANTITY);
 	BOOST_FOREACH(std::string name, GameConstants::RESOURCE_NAMES)
-		push_back(node[name].Float());
+		push_back(node[name].asInteger());
 }
 
 bool Res::ResourceSet::nonZero() const
 {
-	for(int i = 0; i < size(); i++)
+	for(size_t i = 0; i < size(); ++i)
 		if(at(i))
 			return true;
 
@@ -36,7 +36,7 @@ bool Res::ResourceSet::nonZero() const
 
 void Res::ResourceSet::amax(const TResourceCap &val)
 {
-	for(int i = 0; i < size(); i++)
+	for(size_t i = 0; i < size(); ++i)
 		::vstd::amax(at(i), val);
 }
 

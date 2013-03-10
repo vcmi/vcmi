@@ -6951,12 +6951,12 @@ bool IMarket::getOffer(int id1, int id2, int &val1, int &val2, EMarketMode::EMar
 
 			if(r>g) //if given resource is more expensive than wanted
 			{
-				val2 = ceil(r / g);
+				val2 = (int) ceil(r / g);
 				val1 = 1;
 			}
 			else //if wanted resource is more expensive
 			{
-				val1 = (g / r) + 0.5;
+				val1 = (int) ((g / r) + 0.5);
 				val2 = 1;
 			}
 		}

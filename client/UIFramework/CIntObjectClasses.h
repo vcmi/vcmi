@@ -3,6 +3,7 @@
 #include "CIntObject.h"
 #include "SDL_Extensions.h"
 #include "../FunctionList.h"
+#include "../Gfx/Basic.h"
 #include "../Gfx/Manager.h"
 
 struct SDL_Surface;
@@ -77,56 +78,71 @@ public:
 	void showAll();
 };
 
-namespace config{struct ButtonInfo;}
+namespace config{ struct ButtonInfo; }
+
+typedef std::pair<std::string,std::string> PairOfStrings;
 
 /// Base class for buttons.
-class CButtonBase : public CKeyShortcut
+class CButton : public CKeyShortcut
 {
 public:
 	enum ButtonState
 	{
-		NORMAL=0,
-		PRESSED=1,
-		BLOCKED=2,
-		HIGHLIGHTED=3
+		NORMAL = 0,
+		PRESSED = 1,
+		BLOCKED = 2,
+		HIGHLIGHTED = 3
 	};
-private:
-	int bitmapOffset; // base offset of visible bitmap from animation
+
+protected:
 	ButtonState state;//current state of button from enum
+	Gfx::PAnimation images; //images for this button
+	Gfx::CImage* state2image[4];
+	std::string helpBox; //for right-click help
+	std::string status;
+	CButton(); //c-tor
 
 public:
-	bool swappedImages,//fix for some buttons: normal and pressed image are swapped
-		keepFrame; // don't change visual representation
+	CFunctionList<void()> callback;
+	CLabel * text; //text overlay
+
+	CButton(	const CFunctionList<void()> & flist,
+				Gfx::Point position,
+				const std::string & animName,
+				size_t animOffs = 0,
+				size_t imagesNum = 4,
+				const PairOfStrings * helpStr = nullptr,
+				ui16 events = LCLICK | RCLICK | HOVER | KEYBOARD,
+				int key = SDLK_UNKNOWN
+			);
+	virtual ~CButton(); //d-tor
+
+	void clickRight(tribool down, bool previousState);
+	void clickLeft(tribool down, bool previousState);
+	void hover(bool on);
 
     void addTextOverlay(const std::string &Text, EFonts font, SDL_Color color = Colors::WHITE);
-	void update();//to refresh button after image or text change
+	void swapImages();
 
-	void setOffset(int newOffset);
 	void setState(ButtonState newState);
-	ButtonState getState();
+	ButtonState getState() const { return state; };
 
 	//just to make code clearer
 	void block(bool on);
-	bool isBlocked();
-	bool isHighlighted();
+	bool isBlocked() const { return state == BLOCKED; };
+	bool isHighlighted() const { return state == HIGHLIGHTED; };
 
-	Gfx::PAnimation image; //image for this button
-	CLabel * text;//text overlay
-
-	CButtonBase(); //c-tor
-	virtual ~CButtonBase(); //d-tor
+	void showAll();
 };
 
 /// Typical Heroes 3 button which can be inactive or active and can 
 /// hold further information if you right-click it
-class CAdventureMapButton : public CButtonBase
+class CAdventureMapButton : public CButton
 {
 	std::vector<std::string> imageNames;//store list of images that can be used by this button
-	size_t currentImage;
+
 public:
 	std::map<int, std::string> hoverTexts; //text for statusbar
-	std::string helpBox; //for right-click help
-	CFunctionList<void()> callback;
 	bool actOnDown,//runs when mouse is pressed down over it, not when up
 		hoverable,//if true, button will be highlighted when hovered
 		borderEnabled,
@@ -138,12 +154,13 @@ public:
 	void hover (bool on);
 
 	CAdventureMapButton(); //c-tor
-	CAdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
-	CAdventureMapButton( const std::pair<std::string, std::string> &help, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
+	CAdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &animName, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
+	CAdventureMapButton( const std::pair<std::string, std::string> &help, const CFunctionList<void()> &Callback, int x, int y, const std::string &animName, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
 	CAdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, config::ButtonInfo *info, int key=0);//c-tor
 
 	void init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key );
 
+	void setOffset(int o) {};
 	void setIndex(size_t index, bool playerColoredButton=false);
 	void setImage(Gfx::PAnimation anim, bool playerColoredButton=false, int animFlags=0);
 	void setPlayerColor(PlayerColor player);

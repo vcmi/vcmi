@@ -245,7 +245,7 @@ void CArtHandler::load(bool onlyTxt)
 
 	BOOST_FOREACH(auto & node, config["artifacts"].Struct())
 	{
-		int numeric = node.second["id"].Float();
+		int numeric = node.second["id"].asInteger();
 		CArtifact * art = artifacts[numeric];
 
 		loadArtifactJson(art, node.second);
@@ -274,7 +274,7 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 	art->eventText   = text["event"].String();
 
 	const JsonNode & graphics = node["graphics"];
-	art->iconIndex = graphics["iconIndex"].Float();
+	art->iconIndex = graphics["iconIndex"].asInteger();
 	art->image = graphics["image"].String();
 
 	if (!graphics["large"].loadTo(art->large))
@@ -282,7 +282,7 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 
 	art->advMapDef = graphics["map"].String();
 
-	art->price = node["value"].Float();
+	art->price = node["value"].asInteger();
 	{
 		auto it = artifactClassMap.find (node["class"].String());
 		if (it != artifactClassMap.end())
