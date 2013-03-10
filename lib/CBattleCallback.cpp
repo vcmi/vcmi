@@ -1483,14 +1483,29 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleIsImmune(const C
 		switch (spell->id) //TODO: more general logic for new spells?
 		{
 		case SpellID::CLONE:
-			if (caster) //TODO: how about stacks casting Clone?
 			{
+				//can't clone already cloned creature
 				if (vstd::contains(subject->state, EBattleStackState::CLONED))
-					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL; //can't clone already cloned creature
-				int maxLevel = (std::max(caster->getSpellSchoolLevel(spell), (ui8)1) + 4);
-				int creLevel = subject->getCreature()->level;
-				if (maxLevel < creLevel) //tier 1-5 for basic, 1-6 for advanced, 1-7 for expert
-					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;
+					return ESpellCastProblem::STACK_IMMUNE_TO_SPELL; 
+				//TODO: how about stacks casting Clone?
+				//currently Clone casted by stack is assumed Expert level
+				ui8 schoolLevel;
+				if (caster)
+				{
+					schoolLevel = caster->getSpellSchoolLevel(spell);
+				}
+				else
+				{
+					schoolLevel = 3;
+				}
+				
+				if (schoolLevel < 3)
+				{
+					int maxLevel = (std::max(schoolLevel, (ui8)1) + 4);
+					int creLevel = subject->getCreature()->level;
+					if (maxLevel < creLevel) //tier 1-5 for basic, 1-6 for advanced, any level for expert
+						return ESpellCastProblem::STACK_IMMUNE_TO_SPELL;	
+				}					
 			}
 			break;
 		case SpellID::DISPEL_HELPFUL_SPELLS:
