@@ -167,6 +167,7 @@
     <ClCompile Include="BattleHex.cpp" />
     <ClCompile Include="BattleState.cpp" />
     <ClCompile Include="CArtHandler.cpp" />
+    <ClCompile Include="CBonusTypeHandler.cpp" />
     <ClCompile Include="CBuildingHandler.cpp" />
     <ClCompile Include="CConfigHandler.cpp" />
     <ClCompile Include="CConsoleHandler.cpp" />

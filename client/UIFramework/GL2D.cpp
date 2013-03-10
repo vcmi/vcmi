@@ -68,6 +68,17 @@ static GLuint paletteBitmapProgram = 0;
 static GLint coord_uniform = -1;
 
 
+// Check for errors
+void checkErrors(const std::string & place)
+{
+	GLenum err;
+	while ((err = glGetError()) != GL_NO_ERROR)
+	{
+		tlog1 << "GL Error in " << place << "; code = " << err << std::endl;
+	}
+}
+
+
 // Print out the information log for a shader object 
 void printInfoLog(PFNGLGETPROGRAMINFOLOGPROC logFunc, GLuint object, GLint status)
 {
@@ -103,13 +114,15 @@ GLuint makeShaderProgram(const char * frg_src)
 		// Link the shaders into a complete GLSL program.
 		glLinkProgram(program_object);
 
-		glGetProgramiv(shader_object, GL_LINK_STATUS, &ret);
+		ret = GL_FALSE;
+		glGetProgramiv(program_object, GL_LINK_STATUS, &ret);
 		printInfoLog(glGetProgramInfoLog, program_object, ret);
 
 		if (ret == GL_TRUE) return program_object;
 	}
 
 	glDeleteShader(shader_object);
+	checkErrors("makeShaderProgram");
 	return 0;
 }
 
@@ -160,6 +173,8 @@ void initVideo(ui32 w, ui32 h, bool fullscreen)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 
+	checkErrors("initVideo - early");
+
 	paletteBitmapProgram = makeShaderProgram(frag_palette_bitmap);
 	if (paletteBitmapProgram == 0)
 	{
@@ -173,6 +188,8 @@ void initVideo(ui32 w, ui32 h, bool fullscreen)
 	glUseProgram(currentProgram = paletteBitmapProgram);
 	glUniform1i(bitmap_uniform, 0);
 	glUniform1i(palette_uniform, 1);
+
+	checkErrors("initVideo - late");
 
 	// unhook OpenGL context from display context/window
 #ifdef _WIN32

@@ -265,7 +265,7 @@ void CButton::clickLeft(tribool down, bool previousState)
 
 	if (down)
 	{
-		state == PRESSED;
+		state = PRESSED;
 		CCS->soundh->playSound(soundBase::button);
 
 		if (text) text->moveTo(Point(pos.x+pos.w/2+1, pos.y+pos.h/2+1));

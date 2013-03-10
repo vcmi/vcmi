@@ -2,6 +2,8 @@
 
 namespace GL2D
 {
+	void checkErrors(const std::string & place);
+
 	void initVideo(ui32 w, ui32 h, bool fullscreen);
 	void attachToCurrentThread();
 	bool setScreenRes(ui32 w, ui32 h, bool fullscreen);
