@@ -24,40 +24,27 @@ using namespace boost::assign;
  */
 
 extern boost::rand48 ran;
-
-const std::map<std::string, CArtifact::EartClass> artifactClassMap = boost::assign::map_list_of
-	("TREASURE", CArtifact::ART_TREASURE)
-	("MINOR", CArtifact::ART_MINOR)
-	("MAJOR", CArtifact::ART_MAJOR)
-	("RELIC", CArtifact::ART_RELIC)
-	("SPECIAL", CArtifact::ART_SPECIAL);
-
-#define ART_BEARER(x) ( #x, ArtBearer::x )
-	const std::map<std::string, int> artifactBearerMap = boost::assign::map_list_of ART_BEARER_LIST;
-#undef ART_BEARER
-
-#define ART_POS(x) ( #x, ArtifactPosition::x )
-
-const std::map<std::string, ArtifactPosition> artifactPositionMap = boost::assign::map_list_of
-	ART_POS(HEAD)
-	ART_POS(SHOULDERS)
-	ART_POS(NECK)
-	ART_POS(RIGHT_HAND)
-	ART_POS(LEFT_HAND)
-	ART_POS(TORSO)
-	ART_POS(RIGHT_RING)
-	ART_POS(LEFT_RING)
-	ART_POS(FEET)
-	ART_POS(MISC1)
-	ART_POS(MISC2)
-	ART_POS(MISC3)
-	ART_POS(MISC4)
-	ART_POS(MISC5)
-	ART_POS(MACH1)
-	ART_POS(MACH2)
-	ART_POS(MACH3)
-	ART_POS(MACH4)
-	ART_POS(SPELLBOOK); //no need to specify commander / stack position?
+// Note: list must match entries in ArtTraits.txt
+#define ART_POS_LIST    \
+	ART_POS(SPELLBOOK)  \
+	ART_POS(MACH4)      \
+	ART_POS(MACH3)      \
+	ART_POS(MACH2)      \
+	ART_POS(MACH1)      \
+	ART_POS(MISC5)      \
+	ART_POS(MISC4)      \
+	ART_POS(MISC3)      \
+	ART_POS(MISC2)      \
+	ART_POS(MISC1)      \
+	ART_POS(FEET)       \
+	ART_POS(LEFT_RING)  \
+	ART_POS(RIGHT_RING) \
+	ART_POS(TORSO)      \
+	ART_POS(LEFT_HAND)  \
+	ART_POS(RIGHT_HAND) \
+	ART_POS(NECK)       \
+	ART_POS(SHOULDERS)  \
+	ART_POS(HEAD);
 
 const std::string & CArtifact::Name() const
 {
@@ -166,15 +153,12 @@ void CArtHandler::load(bool onlyTxt)
 	if (onlyTxt)
 		return; // looks to be broken anyway...
 
-	std::vector<ui16> artSlots;
-	artSlots += 17, 16, 15, 14, 13, 18, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
+	#define ART_POS(x) (  #x)
+	const std::vector<std::string> artSlots = boost::assign::list_of ART_POS_LIST;
+	#undef ART_POS
 
-	growingArtifacts += ArtifactID::AXE_OF_SMASHING, ArtifactID::MITHRIL_MAIL,
-		ArtifactID::SWORD_OF_SHARPNESS, ArtifactID::PENDANT_OF_SORCERY, ArtifactID::BOOTS_OF_HASTE,
-		ArtifactID::BOW_OF_SEEKING, ArtifactID::DRAGON_EYE_RING;
-
-	static std::map<char, CArtifact::EartClass> classes =
-	  map_list_of('S',CArtifact::ART_SPECIAL)('T',CArtifact::ART_TREASURE)('N',CArtifact::ART_MINOR)('J',CArtifact::ART_MAJOR)('R',CArtifact::ART_RELIC);
+	static std::map<char, std::string> classes =
+	  map_list_of('S',"SPECIAL")('T',"TREASURE")('N',"MINOR")('J',"MAJOR")('R',"RELIC");
 
 	CLegacyConfigParser parser("DATA/ARTRAITS.TXT");
 	CLegacyConfigParser events("DATA/ARTEVENT.TXT");
@@ -184,73 +168,53 @@ void CArtHandler::load(bool onlyTxt)
 
 	std::map<ui32,ui8>::iterator itr;
 
-	for (ArtifactID i=ArtifactID(0); i<GameConstants::ARTIFACTS_QUANTITY; i.advance(1))
-	{
-		CArtifact *art;
-		if (vstd::contains (growingArtifacts, i))
-		{
-			art = new CGrowingArtifact();
-		}
-		else
-		{
-			art = new CArtifact();
-		}
-		art->id=i;
-		art->iconIndex=i;
-		art->name = parser.readString();
-		art->eventText = events.readString();
-		events.endLine();
+	std::vector<JsonNode> h3Data;
 
-		art->price= parser.readNumber();
+	for (size_t i = 0; i < GameConstants::ARTIFACTS_QUANTITY; i++)
+	{
+		JsonNode artData;
+
+		artData["graphics"]["iconIndex"].Float() = i;
+		artData["text"]["name"].String() = parser.readString();
+		artData["text"]["event"].String() = events.readString();
+		artData["value"].Float() = parser.readNumber();
 
 		for(int j=0; j<artSlots.size(); j++)
 		{
 			if(parser.readString() == "x")
-				art->possibleSlots[ArtBearer::HERO].push_back(ArtifactPosition(artSlots[j]));
+			{
+				artData["slot"].Vector().push_back(JsonNode());
+				artData["slot"].Vector().back().String() = artSlots.at(j);
+			}
 		}
-		art->aClass = classes[parser.readString()[0]];
-
-		//load description and remove quotation marks
-		art->description = parser.readString();
+		artData["class"].String() = classes[parser.readString()[0]];
+		artData["text"]["description"].String() = parser.readString();
 
 		parser.endLine();
-
-		if(onlyTxt) // FIXME: pointer to art will be lost. Bug?
-			continue;
-
-		artifacts.push_back(art);
+		events.endLine();
+		h3Data.push_back(artData);
 	}
 
-	if (VLC->modh->modules.COMMANDERS)
-	{ //TODO: move all artifacts config to separate json file
-		const JsonNode config(ResourceID("config/commanders.json"));
-		BOOST_FOREACH(const JsonNode &artifact, config["artifacts"].Vector())
-		{
-			auto ga = dynamic_cast <CGrowingArtifact *>(artifacts[artifact["id"].Float()].get());
-			BOOST_FOREACH (auto b, artifact["bonusesPerLevel"].Vector())
-			{
-				ga->bonusesPerLevel.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *JsonUtils::parseBonus (b["bonus"].Vector())));
-			}
-			BOOST_FOREACH (auto b, artifact["thresholdBonuses"].Vector())
-			{
-				ga->thresholdBonuses.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *JsonUtils::parseBonus (b["bonus"].Vector())));
-			}
-		}
-	}
-
-	if(onlyTxt)
-		return;
+	artifacts.resize(GameConstants::ARTIFACTS_QUANTITY);
 
 	JsonNode config(ResourceID("config/artifacts.json"));
 
 	BOOST_FOREACH(auto & node, config["artifacts"].Struct())
 	{
 		int numeric = node.second["id"].Float();
-		CArtifact * art = artifacts[numeric];
+		JsonNode & artData = h3Data[numeric];
+		JsonUtils::merge(artData, node.second);
 
-		loadArtifactJson(art, node.second);
+		artifacts[numeric] = loadArtifact(artData);
+		artifacts[numeric]->id = ArtifactID(numeric);
 
 		VLC->modh->identifiers.registerObject ("artifact." + node.first, numeric);
+	}
+
+	for (size_t i=0; i < artifacts.size(); i++)
+	{
+		if (artifacts[i] == nullptr)
+			tlog0 << "Warning: artifact with id " << i << " is missing!\n";
 	}
 }
 
@@ -266,7 +230,16 @@ void CArtHandler::load(std::string objectID, const JsonNode & node)
 
 CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 {
-	CArtifact * art = new CArtifact;
+	CArtifact * art;
+
+	if (!VLC->modh->modules.COMMANDERS || node["growing"].isNull())
+		art = new CArtifact();
+	else
+	{
+		CGrowingArtifact * growing = new CGrowingArtifact();
+		loadGrowingArt(growing, node);
+		art = growing;
+	}
 
 	const JsonNode & text = node["text"];
 	art->name        = text["name"].String();
@@ -283,59 +256,90 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 	art->advMapDef = graphics["map"].String();
 
 	art->price = node["value"].Float();
-	{
-		auto it = artifactClassMap.find (node["class"].String());
-		if (it != artifactClassMap.end())
-		{
-			art->aClass = it->second;
-		}
-		else
-		{
-			tlog2 << "Warning! Artifact rarity " << node["class"].String() << " not recognized!";
-			art->aClass = CArtifact::ART_SPECIAL;
-		}
-	}
 
-	if (!node["slot"].isNull()) //we assume non-hero slots are irrelevant?
-	{
-		std::string slotName = node["slot"].String();
-		if (slotName == "MISC")
-		{
-			//unfortunatelly slot ids aare not continuous
-			art->possibleSlots[ArtBearer::HERO] += ArtifactPosition::MISC1, ArtifactPosition::MISC2, ArtifactPosition::MISC3, ArtifactPosition::MISC4, ArtifactPosition::MISC5;
-		}
-		else if (slotName == "RING")
-		{
-			art->possibleSlots[ArtBearer::HERO] += ArtifactPosition::LEFT_RING, ArtifactPosition::RIGHT_RING;
-		}
-		else
-		{
+	loadSlots(art, node);
+	loadClass(art, node);
+	loadType(art, node);
+	loadComponents(art, node);
 
-			auto it = artifactPositionMap.find (slotName);
-			if (it != artifactPositionMap.end())
-			{
-				auto slot = it->second;
-				art->possibleSlots[ArtBearer::HERO].push_back (slot);
-			}
-			else
-				tlog2 << "Warning! Artifact slot " << node["slot"].String() << " not recognized!";
-		}
-	}
-
-	loadArtifactJson(art, node);
-
-	return art;
-}
-
-void CArtHandler::loadArtifactJson(CArtifact * art, const JsonNode & artifact)
-{
-	BOOST_FOREACH (auto b, artifact["bonuses"].Vector())
+	BOOST_FOREACH (auto b, node["bonuses"].Vector())
 	{
 		auto bonus = JsonUtils::parseBonus (b);
 		bonus->sid = art->id;
 		art->addNewBonus (bonus);
 	}
-	BOOST_FOREACH (const JsonNode & b, artifact["type"].Vector())
+	return art;
+}
+
+void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
+{
+#define ART_POS(x) ( #x, ArtifactPosition::x )
+	static const std::map<std::string, ArtifactPosition> artifactPositionMap = boost::assign::map_list_of ART_POS_LIST;
+#undef ART_POS
+
+	if (slotID == "MISC")
+	{
+		art->possibleSlots[ArtBearer::HERO] += ArtifactPosition::MISC1, ArtifactPosition::MISC2, ArtifactPosition::MISC3, ArtifactPosition::MISC4, ArtifactPosition::MISC5;
+	}
+	else if (slotID == "RING")
+	{
+		art->possibleSlots[ArtBearer::HERO] += ArtifactPosition::LEFT_RING, ArtifactPosition::RIGHT_RING;
+	}
+	else
+	{
+		auto it = artifactPositionMap.find (slotID);
+		if (it != artifactPositionMap.end())
+		{
+			auto slot = it->second;
+			art->possibleSlots[ArtBearer::HERO].push_back (slot);
+		}
+		else
+			tlog2 << "Warning! Artifact slot " << slotID << " not recognized!";
+	}
+}
+
+void CArtHandler::loadSlots(CArtifact * art, const JsonNode & node)
+{
+	if (!node["slot"].isNull()) //we assume non-hero slots are irrelevant?
+	{
+		if (node["slot"].getType() == JsonNode::DATA_STRING)
+			addSlot(art, node["slot"].String());
+		else
+		{
+			BOOST_FOREACH (const JsonNode & slot, node["slot"].Vector())
+				addSlot(art, slot.String());
+		}
+	}
+}
+
+void CArtHandler::loadClass(CArtifact * art, const JsonNode & node)
+{
+	static const std::map<std::string, CArtifact::EartClass> artifactClassMap = boost::assign::map_list_of
+		("TREASURE", CArtifact::ART_TREASURE)
+		("MINOR", CArtifact::ART_MINOR)
+		("MAJOR", CArtifact::ART_MAJOR)
+		("RELIC", CArtifact::ART_RELIC)
+		("SPECIAL", CArtifact::ART_SPECIAL);
+
+	auto it = artifactClassMap.find (node["class"].String());
+	if (it != artifactClassMap.end())
+	{
+		art->aClass = it->second;
+	}
+	else
+	{
+		tlog2 << "Warning! Artifact rarity " << node["class"].String() << " not recognized!";
+		art->aClass = CArtifact::ART_SPECIAL;
+	}
+}
+
+void CArtHandler::loadType(CArtifact * art, const JsonNode & node)
+{
+#define ART_BEARER(x) ( #x, ArtBearer::x )
+	static const std::map<std::string, int> artifactBearerMap = boost::assign::map_list_of ART_BEARER_LIST;
+#undef ART_BEARER
+
+	BOOST_FOREACH (const JsonNode & b, node["type"].Vector())
 	{
 		auto it = artifactBearerMap.find (b.String());
 		if (it != artifactBearerMap.end())
@@ -356,11 +360,14 @@ void CArtHandler::loadArtifactJson(CArtifact * art, const JsonNode & artifact)
 		else
 			tlog2 << "Warning! Artifact type " << b.String() << " not recognized!";
 	}
+}
 
-	if (!artifact["components"].isNull())
+void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
+{
+	if (!node["components"].isNull())
 	{
 		art->constituents.reset(new std::vector<CArtifact *>());
-		BOOST_FOREACH (auto component, artifact["components"].Vector())
+		BOOST_FOREACH (auto component, node["components"].Vector())
 		{
 			VLC->modh->identifiers.requestIdentifier("artifact." + component.String(), [=](si32 id)
 			{
@@ -370,6 +377,18 @@ void CArtHandler::loadArtifactJson(CArtifact * art, const JsonNode & artifact)
 				VLC->arth->artifacts[id]->constituentOf.push_back(art);
 			});
 		}
+	}
+}
+
+void CArtHandler::loadGrowingArt(CGrowingArtifact * art, const JsonNode & node)
+{
+	BOOST_FOREACH (auto b, node["growing"]["bonusesPerLevel"].Vector())
+	{
+		art->bonusesPerLevel.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *JsonUtils::parseBonus (b["bonus"].Vector())));
+	}
+	BOOST_FOREACH (auto b, node["growing"]["thresholdBonuses"].Vector())
+	{
+		art->thresholdBonuses.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *JsonUtils::parseBonus (b["bonus"].Vector())));
 	}
 }
 

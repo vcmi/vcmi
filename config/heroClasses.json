@@ -1,38 +1,182 @@
 {
-	// battle animations for heroes, ordered by faction
-	"heroBattleAnim" :
-	[
-		{ "male" : "CH00.DEF",  "female" : "CH01.DEF" },
-		{ "male" : "CH02.DEF",  "female" : "CH03.DEF" },
-		{ "male" : "CH05.DEF",  "female" : "CH04.DEF" },
-		{ "male" : "CH06.DEF",  "female" : "CH07.DEF" },
-		{ "male" : "CH08.DEF",  "female" : "CH09.DEF" },
-		{ "male" : "CH010.DEF", "female" : "CH11.DEF" },
-		{ "male" : "CH013.DEF", "female" : "CH012.DEF" },
-		{ "male" : "CH014.DEF", "female" : "CH015.DEF" },
-		{ "male" : "CH16.DEF",  "female" : "CH17.DEF" }
-	],
-
-	// map animations for heroes, ordered by hero class
-	"heroMapAnim" :
-	[
-		"AH00_.def",
-		"AH01_.def",
-		"AH02_.def",
-		"AH03_.def",
-		"AH04_.def",
-		"AH05_.def",
-		"AH06_.def",
-		"AH07_.def",
-		"AH08_.def",
-		"AH09_.def",
-		"AH10_.def",
-		"AH11_.def",
-		"AH12_.def",
-		"AH13_.def",
-		"AH14_.def",
-		"AH15_.def",
-		"AH16_.def",
-		"AH17_.def"
-	]
+	"knight":
+	{
+		"id": 0,
+		"faction" : "castle",
+		"animation":
+		{
+			"battle" : { "male" : "CH00.DEF",  "female" : "CH01.DEF" },
+			"map":     { "male" : "AH00_.def", "female" : "AH00_.def" }
+		}
+	},
+	"cleric" :
+	{
+		"id": 1,
+		"faction" : "castle",
+		"animation":
+		{
+			"battle" : { "male" : "CH00.DEF",  "female" : "CH01.DEF" },
+			"map":     { "male" : "AH01_.def", "female" : "AH01_.def" }
+		}
+	},
+	"ranger" :
+	{
+		"id": 2,
+		"faction" : "rampart",
+		"animation":
+		{
+			"battle" : { "male" : "CH02.DEF",  "female" : "CH03.DEF" },
+			"map":     { "male" : "AH02_.def", "female" : "AH02_.def" }
+		}
+	},
+	"druid" :
+	{
+		"id": 3,
+		"faction" : "rampart",
+		"animation":
+		{
+			"battle" : { "male" : "CH02.DEF",  "female" : "CH03.DEF" },
+			"map":     { "male" : "AH03_.def", "female" : "AH03_.def" }
+		}
+	},
+	"alchemist" :
+	{
+		"id": 4,
+		"faction" : "tower",
+		"animation":
+		{
+			"battle" : { "male" : "CH05.DEF",  "female" : "CH04.DEF" },
+			"map":     { "male" : "AH04_.def", "female" : "AH04_.def" }
+		}
+	},
+	"wizard" :
+	{
+		"id": 5,
+		"faction" : "tower",
+		"animation":
+		{
+			"battle" : { "male" : "CH05.DEF",  "female" : "CH04.DEF" },
+			"map":     { "male" : "AH05_.def", "female" : "AH05_.def" }
+		}
+	},
+	"demoniac" :
+	{
+		"id": 6,
+		"faction" : "inferno",
+		"animation":
+		{
+			"battle" : { "male" : "CH06.DEF",  "female" : "CH07.DEF" },
+			"map":     { "male" : "AH06_.def", "female" : "AH06_.def" }
+		}
+	},
+	"heretic" :
+	{
+		"id": 7,
+		"faction" : "inferno",
+		"animation":
+		{
+			"battle" : { "male" : "CH06.DEF",  "female" : "CH07.DEF" },
+			"map":     { "male" : "AH07_.def", "female" : "AH07_.def" }
+		}
+	},
+	"deathknight" :
+	{
+		"id": 8,
+		"faction" : "necropolis",
+		"animation":
+		{
+			"battle" : { "male" : "CH08.DEF",  "female" : "CH09.DEF" },
+			"map":     { "male" : "AH08_.def", "female" : "AH08_.def" }
+		}
+	},
+	"necromancer" :
+	{
+		"id": 9,
+		"faction" : "necropolis",
+		"animation":
+		{
+			"battle" : { "male" : "CH08.DEF",  "female" : "CH09.DEF" },
+			"map":     { "male" : "AH09_.def", "female" : "AH09_.def" }
+		}
+	},
+	"warlock" :
+	{
+		"id": 10,
+		"faction" : "dungeon",
+		"animation":
+		{
+			"battle" : { "male" : "CH010.DEF", "female" : "CH11.DEF" },
+			"map":     { "male" : "AH10_.def", "female" : "AH10_.def" }
+		}
+	},
+	"overlord" :
+	{
+		"id": 11,
+		"faction" : "dungeon",
+		"animation":
+		{
+			"battle" : { "male" : "CH010.DEF", "female" : "CH11.DEF" },
+			"map":     { "male" : "AH11_.def", "female" : "AH11_.def" }
+		}
+	},
+	"barbarian" :
+	{
+		"id": 12,
+		"faction" : "stronghold",
+		"animation":
+		{
+			"battle" : { "male" : "CH013.DEF", "female" : "CH012.DEF" },
+			"map":     { "male" : "AH12_.def", "female" : "AH12_.def" }
+		}
+	},
+	"battlemage" :
+	{
+		"id": 13,
+		"faction" : "stronghold",
+		"animation":
+		{
+			"battle" : { "male" : "CH013.DEF", "female" : "CH012.DEF" },
+			"map":     { "male" : "AH13_.def", "female" : "AH13_.def" }
+		}
+	},
+	"beastmaster" :
+	{
+		"id": 14,
+		"faction" : "fortress",
+		"animation":
+		{
+			"battle" : { "male" : "CH014.DEF", "female" : "CH015.DEF" },
+			"map":     { "male" : "AH14_.def", "female" : "AH14_.def" }
+		}
+	},
+	"witch" :
+	{
+		"id": 15,
+		"faction" : "fortress",
+		"animation":
+		{
+			"battle" : { "male" : "CH014.DEF", "female" : "CH015.DEF" },
+			"map":     { "male" : "AH15_.def", "female" : "AH15_.def" }
+		}
+	},
+	"planeswalker" :
+	{
+		"id": 16,
+		"faction" : "conflux",
+		"animation":
+		{
+			"battle" : { "male" : "CH16.DEF",  "female" : "CH17.DEF" },
+			"map":     { "male" : "AH16_.def", "female" : "AH16_.def" }
+		}
+	},
+	"elementalist" :
+	{
+		"id": 17,
+		"faction" : "conflux",
+		"animation":
+		{
+			"battle" : { "male" : "CH16.DEF",  "female" : "CH17.DEF" },
+			"map":     { "male" : "AH17_.def", "female" : "AH17_.def" }
+		}
+	}
 }

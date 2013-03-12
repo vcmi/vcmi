@@ -262,6 +262,26 @@ int main(int argc, char** argv)
 
 	preinitDLL(::console, logfile);
 
+	// Some basic data validation to produce better error messages in cases of incorrect install
+	auto testFile = [](std::string filename, std::string message) -> bool
+	{
+		if (CResourceHandler::get()->existsResource(ResourceID(filename)))
+			return true;
+
+		tlog1 << "Error: " << message << " was not found!\n";
+		return false;
+	};
+
+	if (!testFile("DATA/HELP.TXT", "Heroes III data") &&
+	    !testFile("DATA/ZELP.TXT", "In the Wake of Gods data") &&
+	    !testFile("MODS/VCMI/MOD.JSON", "VCMI mod") &&
+	    !testFile("DATA/StackQueueBgBig.PCX", "VCMI data"))
+		exit(1); // These are unrecoverable errors
+
+	// these two are optional + some installs have them on CD and not in data directory
+	testFile("VIDEO/GOOD1A.SMK", "campaign movies");
+	testFile("SOUNDS/G1A.WAV", "campaign music"); //technically not a music but voiced intro sounds
+
 	settings.init();
 	conf.init();
 	tlog0 <<"Loading settings: "<<pomtime.getDiff() << std::endl;

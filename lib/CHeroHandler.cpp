@@ -85,49 +85,54 @@ void CHeroClassHandler::load()
 	parser.endLine(); // header
 	parser.endLine();
 
+	std::vector<JsonNode> h3Data;
+
 	do
 	{
-		CHeroClass * hc = new CHeroClass;
+		JsonNode entry;
 
-		hc->name             = parser.readString();
-		hc->aggression       = parser.readNumber();
-		hc->id = heroClasses.size();
+		entry["name"].String() = parser.readString();
 
-		hc->primarySkillInitial   = parser.readNumArray<int>(GameConstants::PRIMARY_SKILLS);
-		hc->primarySkillLowLevel  = parser.readNumArray<int>(GameConstants::PRIMARY_SKILLS);
-		hc->primarySkillHighLevel = parser.readNumArray<int>(GameConstants::PRIMARY_SKILLS);
+		parser.readNumber(); // unused aggression
 
-		hc->secSkillProbability   = parser.readNumArray<int>(GameConstants::SKILL_QUANTITY);
+		for (size_t i=0; i < GameConstants::PRIMARY_SKILLS; i++)
+			entry["primarySkills"][PrimarySkill::names[i]].Float() = parser.readNumber();
 
-		for(int dd=0; dd<GameConstants::F_NUMBER; ++dd)
-		{
-			hc->selectionProbability[dd] = parser.readNumber();
-		}
+		for (size_t i=0; i < GameConstants::PRIMARY_SKILLS; i++)
+			entry["lowLevelChance"][PrimarySkill::names[i]].Float() = parser.readNumber();
 
-		VLC->modh->identifiers.requestIdentifier("faction." + ETownType::names[heroClasses.size()/2],
-		[=](si32 faction)
-		{
-			hc->faction = faction;
-		});
+		for (size_t i=0; i < GameConstants::PRIMARY_SKILLS; i++)
+			entry["highLevelChance"][PrimarySkill::names[i]].Float() = parser.readNumber();
 
-		heroClasses.push_back(hc);
-		VLC->modh->identifiers.registerObject("heroClass." + GameConstants::HERO_CLASSES_NAMES[hc->id], hc->id);
+		for (size_t i=0; i < GameConstants::SKILL_QUANTITY; i++)
+			entry["secondarySkills"][NSecondarySkill::names[i]].Float() = parser.readNumber();
+
+		for(size_t i = 0; i < GameConstants::F_NUMBER; i++)
+			entry["tavern"][ETownType::names[i]].Float() = parser.readNumber();
+
+		h3Data.push_back(entry);
 	}
 	while (parser.endLine() && !parser.isNextEntryEmpty());
 
-	const JsonNode & heroGraphics = JsonNode(ResourceID("config/heroClasses.json"));
+	JsonNode classConf = JsonNode(ResourceID("config/heroClasses.json"));
+	heroClasses.resize(GameConstants::F_NUMBER * 2);
 
-	for (size_t i=0; i<heroClasses.size(); i++)
+	BOOST_FOREACH(auto & node, classConf.Struct())
 	{
-		const JsonNode & battle = heroGraphics["heroBattleAnim"].Vector()[i/2];
+		int numeric = node.second["id"].Float();
+		JsonNode & classData = h3Data[numeric];
+		JsonUtils::merge(classData, node.second);
 
-		heroClasses[i]->imageBattleFemale = battle["female"].String();
-		heroClasses[i]->imageBattleMale = battle["male"].String();
+		heroClasses[numeric] = loadClass(classData);
+		heroClasses[numeric]->id = numeric;
 
-		const JsonNode & map = heroGraphics["heroMapAnim"].Vector()[i];
+		VLC->modh->identifiers.registerObject ("heroClass." + node.first, numeric);
+	}
 
-		heroClasses[i]->imageMapMale = map.String();
-		heroClasses[i]->imageMapFemale = map.String();
+	for (size_t i=0; i < heroClasses.size(); i++)
+	{
+		if (heroClasses[i] == nullptr)
+			tlog0 << "Warning: class with id " << i << " is missing!\n";
 	}
 }
 
