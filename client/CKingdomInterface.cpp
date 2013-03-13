@@ -535,7 +535,7 @@ CIntObject* CKingdomInterface::createOwnedObject(size_t index)
 	{
 		OwnedObjectInfo &obj = objects[index];
 		std::string value = boost::lexical_cast<std::string>(obj.count);
-		return new InfoBox(Point(), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL,
+		return new InfoBox(Point(0, 0), InfoBox::POS_CORNER, InfoBox::SIZE_SMALL,
 			   new InfoBoxCustom(value,"", "FLAGPORT", obj.imageID, obj.hoverText));
 	}
 	return NULL;
@@ -907,7 +907,7 @@ CHeroItem::CHeroItem(const CGHeroInstance* Hero, CArtifactsOfHero::SCommonPart *
 	artButtons->onChange += boost::bind(&CHeroItem::onArtChange, this, _1);
 	artButtons->select(0,0);
 
-	garr = new CGarrisonInt(6, 78, 4, Point(), NULL, Point(), hero, NULL, true, true);
+	garr = new CGarrisonInt(6, 78, 4, Point(0, 0), NULL, Point(0, 0), hero, NULL, true, true);
 
 	portrait = new CAnimImage("PortraitsLarge", hero->portrait, 0, 5, 6);
 	heroArea = new CHeroArea(5, 6, hero);

@@ -177,6 +177,7 @@ void CFilledTexture::showAll()
 //*	CSDL_Ext::fillTexture(to, texture);
 }
 
+
 CButton::CButton() :
 	state(NORMAL),
 	images(nullptr),
@@ -185,7 +186,6 @@ CButton::CButton() :
 {
 }
 
-
 CButton::CButton(const CFunctionList<void()> & flist, Point position, const std::string & animName, size_t animOffs/*=0*/, size_t imagesNum/*=4*/,
 				 const PairOfStrings * helpStr, int key/*=0*/) :
 	state(NORMAL),
@@ -193,9 +193,7 @@ CButton::CButton(const CFunctionList<void()> & flist, Point position, const std:
 	callback(flist),
 	text(nullptr)
 {
-	pos.x = position.x;
-	pos.y = position.y;
-
+	pos += position;
 	ui16 events = LCLICK;
 
 	if (helpStr != nullptr)
@@ -1226,8 +1224,8 @@ void CLabel::showAll()
 
 }
 
-CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= Colors::WHITE*/, const std::string &Text /*= ""*/)
-:CTextContainer(Align, Font, Color), text(Text)
+CLabel::CLabel(int x, int y, EFonts Font /*= FONT_SMALL*/, EAlignment Align, const SDL_Color &Color /*= Colors::WHITE*/, const std::string &Text /*= ""*/) :
+	CTextContainer(Align, Font, Color), text(Text), textOffset(0, 0)
 {
 	autoRedraw = true;
 	pos.x += x;
@@ -1741,7 +1739,7 @@ void CFocusable::moveFocus()
 }
 
 CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt):
-    CIntObject(getUsedEvents(options_), Point()),
+    CIntObject(getUsedEvents(options_), Point(0, 0)),
     shadow(nullptr),
     options(options_),
     background(createBg(imageName, options & PLAYER_COLORED))
@@ -1761,7 +1759,7 @@ CWindowObject::CWindowObject(int options_, std::string imageName, Point centerAt
 }
 
 CWindowObject::CWindowObject(int options_, std::string imageName):
-    CIntObject(getUsedEvents(options_), Point()),
+    CIntObject(getUsedEvents(options_), Point(0, 0)),
     shadow(nullptr),
     options(options_),
     background(createBg(imageName, options & PLAYER_COLORED))

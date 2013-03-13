@@ -191,7 +191,7 @@ void CHeroWindow::update(const CGHeroInstance * hero, bool redrawNeeded /*= fals
 		OBJ_CONSTRUCTION_CAPTURING_ALL;
 		if(!garr)
 		{
-			garr = new CGarrisonInt(15, 485, 8, Point(), NULL /*background->bg*/, Point(15,485), curHero);
+			garr = new CGarrisonInt(15, 485, 8, Point(0, 0), NULL /*background->bg*/, Point(15,485), curHero);
 			split = new CAdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32],
 					boost::bind(&CGarrisonInt::splitClick,garr), 539, 519, "hsbtns9.def", false, NULL, false); //deleted by garrison destructor
 			boost::algorithm::replace_first(split->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);

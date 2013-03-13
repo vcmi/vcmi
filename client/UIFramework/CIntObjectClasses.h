@@ -263,7 +263,7 @@ public:
 	//CreateFunc, DestroyFunc - see CObjectList
 	//Pos - position of object, all tabs will be moved to this position
 	//ActiveID - ID of initially active tab
-	CTabbedInt(CreateFunc create, DestroyFunc destroy = DestroyFunc(), Point position=Point(), size_t ActiveID=0);
+	CTabbedInt(CreateFunc create, DestroyFunc destroy = DestroyFunc(), Point position=Point(0, 0), size_t ActiveID=0);
 
 	void setActive(size_t which);
 	//recreate active tab

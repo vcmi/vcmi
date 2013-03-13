@@ -8,7 +8,7 @@ struct Point
 	si32 x;
 	si32 y;
 
-	Point() {};
+	Point() : x(0), y(0) {};
 	Point(si32 _x, si32 _y) : x(_x), y(_y) {};
 
 	bool operator==(const Point &p) const
@@ -69,9 +69,11 @@ struct Rect : Point
 	//bottom right corner of this rect
 	Point bottomRight() const { return Point(x+w, y+h); }
 
+	//add x,y and copy w,h from p
 	void addOffs_copySize(const Rect &p);
 
-	Rect Rect::operator&(const Rect &p) const; //rect intersection
+	//rect intersection
+	Rect Rect::operator&(const Rect &p) const;
 };
 
 /* Color transform matrix for: grayscale, clone, bloodlust, etc */

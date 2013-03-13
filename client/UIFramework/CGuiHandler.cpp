@@ -235,7 +235,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 				for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)
 				{
 					if(!vstd::contains(doubleClickInterested,*i)) continue;
-					if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
+					if (isItIn(&(*i)->pos, sEvent->motion.x, sEvent->motion.y))
 					{
 						(*i)->onDoubleClick();
 					}

@@ -517,7 +517,7 @@ std::map<int, std::pair<SDL_Color, SDL_Color> > CMinimap::loadColors(std::string
 }
 
 CMinimap::CMinimap(const Rect &position):
-    CIntObject(LCLICK | RCLICK | HOVER | MOVE, position.topLeft()),
+    CIntObject(LCLICK | RCLICK | HOVER | MOVE, position),
     aiShield(nullptr),
     minimap(nullptr),
     level(0),

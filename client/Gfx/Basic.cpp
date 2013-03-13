@@ -31,9 +31,12 @@ Rect Rect::operator&(const Rect &p) const //rect intersection
 		Rect ret;
 		ret.x = std::max(this->x, p.x);
 		ret.y = std::max(this->y, p.y);
-		Point bR; //bottomRight point of returned rect
-		bR.x = std::min(this->w+this->x, p.w+p.x);
-		bR.y = std::min(this->h+this->y, p.h+p.y);
+
+		//bottomRight point of returned rect
+		Point bR(
+				std::min(rightX(),  p.rightX()),
+				std::min(bottomY(), p.bottomY())
+			);
 		ret.w = bR.x - ret.x;
 		ret.h = bR.y - ret.y;
 		return ret;

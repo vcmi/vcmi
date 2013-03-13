@@ -744,15 +744,13 @@ bool CShootingAnimation::init()
 	spi.spin = shooterInfo->animation.projectileSpin;
 
 	Point xycoord = CClickableHex::getXYUnitAnim(shooter->position, true, shooter, owner);
-	Point destcoord;
-
 
 	// The "master" point where all projectile positions relate to.
 	static const Point projectileOrigin(181, 252);
 
 	if (attackedStack)
 	{
-		destcoord = CClickableHex::getXYUnitAnim(dest, false, attackedStack, owner); 
+		Point destcoord = CClickableHex::getXYUnitAnim(dest, false, attackedStack, owner); 
 		destcoord.x += 250; destcoord.y += 210; //TODO: find a better place to shoot
 
 		// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
