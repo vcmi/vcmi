@@ -34,7 +34,7 @@ public:
 	void clickRight(tribool down, bool previousState);
 	void hover(bool on);
 
-	SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL, const std::string & textR,
+	SpellbookInteractiveArea(const Rect & myRect, boost::function<void()> funcL, const std::string & textR,
 		boost::function<void()> funcHon, boost::function<void()> funcHoff, CPlayerInterface * _myInt);//c-tor
 };
 
@@ -51,7 +51,7 @@ private:
 		int spellCost;
 		CSpellWindow * owner;
 
-		SpellArea(SDL_Rect pos, CSpellWindow * owner);
+		SpellArea(const Rect &pos, CSpellWindow * owner);
 
 		void setSpell(SpellID spellID);
 
@@ -92,7 +92,7 @@ private:
 
 public:
 
-	CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true); //c-tor
+	CSpellWindow(const Rect & myRect, const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells = true); //c-tor
 	~CSpellWindow(); //d-tor
 
 	void fexitb();

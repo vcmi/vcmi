@@ -229,7 +229,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		if(sEvent->button.button == SDL_BUTTON_LEFT)
 		{
 
-			if(lastClick == sEvent->motion  &&  (SDL_GetTicks() - lastClickTime) < 300)
+			if(lastClick.x == sEvent->motion.x  &&  lastClick.y == sEvent->motion.y  &&  (SDL_GetTicks() - lastClickTime) < 300)
 			{
 				std::list<CIntObject*> hlp = doubleClickInterested;
 				for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end() && current; i++)
@@ -243,7 +243,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 
 			}
 
-			lastClick = sEvent->motion;
+			lastClick = Point(sEvent->motion.x, sEvent->motion.y);
 			lastClickTime = SDL_GetTicks();
 
 			std::list<CIntObject*> hlp = lclickable;
@@ -541,7 +541,7 @@ void CFramerateManager::framerateDelay()
 	}
 	currentTicks = SDL_GetTicks();
 
-	fps = ceil(1000.0 / timeElapsed);
+	fps = (int)ceil(1000.0 / timeElapsed);
 
 	//recalculate timeElapsed for external calls via getElapsed()
 	timeElapsed = currentTicks - lastticks;

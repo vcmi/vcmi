@@ -19,26 +19,26 @@
  */
 
 
-void IFont::renderTextLeft(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
+void IFont::renderTextLeft(SDL_Surface * surface, const std::string & data, const SDL_Color & color, Gfx::Point pos) const
 {
 	renderText(surface, data, color, pos);
 }
 
-void IFont::renderTextRight(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
+void IFont::renderTextRight(SDL_Surface * surface, const std::string & data, const SDL_Color & color, Gfx::Point pos) const
 {
-	Point size(getStringWidth(data), getLineHeight());
-	renderText(surface, data, color, pos - size);
+	Gfx::Point size(getStringWidth(data), getLineHeight());
+	renderText(surface, data, color, pos -= size);
 }
 
-void IFont::renderTextCenter(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
+void IFont::renderTextCenter(SDL_Surface * surface, const std::string & data, const SDL_Color & color, Gfx::Point pos) const
 {
-	Point size(getStringWidth(data), getLineHeight());
-	renderText(surface, data, color, pos - size / 2);
+	Gfx::Point size(getStringWidth(data), getLineHeight());
+//*	renderText(surface, data, color, pos - size / 2);
 }
 
-void IFont::renderTextLinesLeft(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, const Point & pos) const
+void IFont::renderTextLinesLeft(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, Gfx::Point pos) const
 {
-	Point currPos = pos;
+	Gfx::Point currPos = pos;
 
 	BOOST_FOREACH(const std::string & line, data)
 	{
@@ -47,9 +47,9 @@ void IFont::renderTextLinesLeft(SDL_Surface * surface, const std::vector<std::st
 	}
 }
 
-void IFont::renderTextLinesRight(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, const Point & pos) const
+void IFont::renderTextLinesRight(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, Gfx::Point pos) const
 {
-	Point currPos = pos;
+	Gfx::Point currPos = pos;
 	currPos.y -= data.size() * getLineHeight();
 
 	BOOST_FOREACH(const std::string & line, data)
@@ -59,9 +59,9 @@ void IFont::renderTextLinesRight(SDL_Surface * surface, const std::vector<std::s
 	}
 }
 
-void IFont::renderTextLinesCenter(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, const Point & pos) const
+void IFont::renderTextLinesCenter(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, Gfx::Point pos) const
 {
-	Point currPos = pos;
+	Gfx::Point currPos = pos;
 	currPos.y -= data.size() * getLineHeight()/2;
 
 	BOOST_FOREACH(const std::string & line, data)
@@ -124,8 +124,8 @@ size_t CBitmapFont::getStringWidth(const std::string & data) const
 
 void CBitmapFont::renderCharacter(SDL_Surface * surface, const Char & character, const SDL_Color & color, int &posX, int &posY) const
 {
-	Rect clipRect;
-	SDL_GetClipRect(surface, &clipRect);
+	Gfx::Rect clipRect;
+//*	SDL_GetClipRect(surface, &clipRect);
 
 	posX += character.leftOffset;
 
@@ -172,7 +172,7 @@ void CBitmapFont::renderCharacter(SDL_Surface * surface, const Char & character,
 	posX += character.rightOffset;
 }
 
-void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
+void CBitmapFont::renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, Gfx::Point pos) const
 {
 	if (data.empty())
 		return;
@@ -254,12 +254,12 @@ size_t CTrueTypeFont::getStringWidth(const std::string & data) const
 	return width;
 }
 
-void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const
+void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, Gfx::Point pos) const
 {
 	if (color.r != 0 && color.g != 0 && color.b != 0) // not black - add shadow
 	{
 		SDL_Color black = { 0, 0, 0, SDL_ALPHA_OPAQUE};
-		renderText(surface, data, black, Point(pos.x + 1, pos.y + 1));
+		renderText(surface, data, black, Gfx::Point(pos.x + 1, pos.y + 1));
 	}
 
 	if (!data.empty())
@@ -272,8 +272,8 @@ void CTrueTypeFont::renderText(SDL_Surface * surface, const std::string & data, 
 
 		assert(rendered);
 
-		Rect rect(pos.x, pos.y, rendered->w, rendered->h);
-		SDL_BlitSurface(rendered, NULL, surface, &rect);
-		SDL_FreeSurface(rendered);
+		Gfx::Rect rect(pos.x, pos.y, rendered->w, rendered->h);
+//*		SDL_BlitSurface(rendered, NULL, surface, &rect);
+//*		SDL_FreeSurface(rendered);
 	}
 }

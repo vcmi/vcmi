@@ -88,7 +88,7 @@ int CPlayerInterface::howManyPeople = 0;
 
 struct OCM_HLP_CGIN
 {
-	bool inline operator ()(const std::pair<const CGObjectInstance*,SDL_Rect>  & a, const std::pair<const CGObjectInstance*,SDL_Rect> & b) const
+	bool inline operator ()(const std::pair<const CGObjectInstance*,Rect>  & a, const std::pair<const CGObjectInstance*,Rect> & b) const
 	{
 		return (*a.first)<(*b.first);
 	}
@@ -202,10 +202,10 @@ void CPlayerInterface::yourTurn()
 	acceptTurn();
 }
 
-STRONG_INLINE void subRect(const int & x, const int & y, const int & z, const SDL_Rect & r, const ObjectInstanceID & hid)
+STRONG_INLINE void subRect(const int & x, const int & y, const int & z, const Rect & r, const ObjectInstanceID & hid)
 {
 	TerrainTile2 & hlp = CGI->mh->ttiles[x][y][z];
-	for(int h=0; h<hlp.objects.size(); ++h)
+	for(size_t h=0; h<hlp.objects.size(); ++h)
 		if(hlp.objects[h].first->id == hid)
 		{
 			hlp.objects[h].second = r;
@@ -239,7 +239,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		//TODO very evil workaround -> retreive pointer to hero so we could animate it
 		// TODO -> we should not need full CGHeroInstance structure to display animation or it should not be handled by playerint (but by the client itself)
 		const TerrainTile2 &tile = CGI->mh->ttiles[hp.x-1][hp.y][hp.z];
-		for(int i = 0; i < tile.objects.size(); i++)
+		for(size_t i = 0; i < tile.objects.size(); ++i)
 			if(tile.objects[i].first->id == details.id)
 				ho = dynamic_cast<const CGHeroInstance *>(tile.objects[i].first);
 
@@ -617,7 +617,7 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 		return;
 	}
 
-	for(int b=0; b<healedStacks.size(); ++b)
+	for(size_t b=0; b<healedStacks.size(); ++b)
 	{
 		const CStack * healed = cb->battleGetStackByID(healedStacks[b].first);
 		if(battleInt->creAnims[healed->ID]->getType() == CCreatureAnim::DEATH)

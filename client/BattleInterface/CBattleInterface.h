@@ -207,7 +207,7 @@ public:
 	ui32 animIDhelper; //for giving IDs for animations
 	static CondSh<bool> animsAreDisplayed; //for waiting with the end of battle for end of anims
 
-	CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen); //c-tor
+	CBattleInterface(const CCreatureSet * army1, const CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const Rect & myRect, CPlayerInterface * att, CPlayerInterface * defen); //c-tor
 	~CBattleInterface(); //d-tor
 
 	//std::vector<TimeInterested*> timeinterested; //animation handling
@@ -245,8 +245,8 @@ public:
 	//napisz tu klase odpowiadajaca za wyswietlanie bitwy i obsluge uzytkownika, polecenia ma przekazywac callbackiem
 	void activate();
 	void deactivate();
-	void showAll(SDL_Surface * to);
-	void show(SDL_Surface * to);
+	void showAll();
+	void show();
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void mouseMoved(const SDL_MouseMotionEvent &sEvent);
 	void clickRight(tribool down, bool previousState);

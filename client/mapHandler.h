@@ -3,6 +3,7 @@
 
 #include "../lib/int3.h"
 #include "SDL.h"
+#include "Gfx/Basic.h"
 
 /*
  * mapHandler.h, part of VCMI engine
@@ -22,14 +23,13 @@ class CGObjectInstance;
 class CDefHandler;
 struct TerrainTile;
 struct SDL_Surface;
-//struct SDL_Rect;
 class CDefEssential;
 
 struct TerrainTile2
 {
 	SDL_Surface * terbitmap; //bitmap of terrain
 
-	std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > objects; //pointers to objects being on this tile with rects to be easier to blit this tile on screen
+	std::vector < std::pair<const CGObjectInstance*,Gfx::Rect> > objects; //pointers to objects being on this tile with rects to be easier to blit this tile on screen
 	TerrainTile2();
 };
 
@@ -124,7 +124,7 @@ public:
 	void roadsRiverTerrainInit();
 	void prepareFOWDefs();
 
-	void terrainRect(int3 top_tile, ui8 anim, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap, bool otherHeroAnim, ui8 heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect, int moveX, int moveY, bool puzzleMode, int3 grailPosRel) const;
+	void terrainRect(int3 top_tile, ui8 anim, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap, bool otherHeroAnim, ui8 heroAnim, SDL_Surface * extSurf, const Gfx::Rect * extRect, int moveX, int moveY, bool puzzleMode, int3 grailPosRel) const;
 	void updateWater();
 	ui8 getHeroFrameNum(ui8 dir, bool isMoving) const; //terrainRect helper function
 	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper

@@ -63,6 +63,7 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data)
 		name = new CLabel(pos.w+6, 6, font, TOPLEFT, Colors::WHITE, data->getNameText());
 		value = new CLabel(pos.w+6, pos.h-16, font, TOPLEFT, Colors::WHITE, data->getValueText());
 	}
+/*
 	pos = image->pos;
 	if (name)
 		pos = pos | name->pos;
@@ -72,6 +73,7 @@ InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data)
 	hover = new CHoverableArea;
 	hover->hoverText = data->getHoverText();
 	hover->pos = pos;
+*/
 }
 
 InfoBox::~InfoBox()

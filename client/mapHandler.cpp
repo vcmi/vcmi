@@ -78,7 +78,7 @@ std::string nameFromType (int typ)
 
 struct OCM_HLP
 {
-	bool operator ()(const std::pair<const CGObjectInstance*, SDL_Rect> & a, const std::pair<const CGObjectInstance*, SDL_Rect> & b)
+	bool operator ()(const std::pair<const CGObjectInstance*, Gfx::Rect> & a, const std::pair<const CGObjectInstance*, Gfx::Rect> & b)
 	{
 		return (*a.first)<(*b.first);
 	}
@@ -293,12 +293,12 @@ void CMapHandler::initObjectRects()
 		{
 			for(int fy=0; fy<bitmap->h>>5; ++fy) //bitmap->h/32
 			{
-				SDL_Rect cr;
+				Gfx::Rect cr;
 				cr.w = 32;
 				cr.h = 32;
 				cr.x = fx<<5; //fx*32
 				cr.y = fy<<5; //fy*32
-				std::pair<const CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj,cr);
+				std::pair<const CGObjectInstance*,Gfx::Rect> toAdd = std::make_pair(obj,cr);
 				
 				if(    (obj->pos.x + fx - bitmap->w/32+1)  >=  0 
 					&& (obj->pos.x + fx - bitmap->w/32+1)  <  ttiles.size() - frameW 
@@ -395,7 +395,7 @@ void CMapHandler::init()
 // top_tile top left tile to draw. Not necessarily visible.
 // extRect, extRect = map window on screen
 // moveX, moveY: when a hero is in movement indicates how to shift the map. Range is -31 to + 31.
-void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap, bool otherHeroAnim, ui8 heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect, int moveX, int moveY, bool puzzleMode, int3 grailPosRel ) const
+void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::vector< std::vector<ui8> > > * visibilityMap, bool otherHeroAnim, ui8 heroAnim, SDL_Surface * extSurf, const Gfx::Rect * extRect, int moveX, int moveY, bool puzzleMode, int3 grailPosRel ) const
 {
 	// Width and height of the portion of the map to process. Units in tiles.
 	ui32 dx = tilesW;
@@ -450,9 +450,9 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 	if(!otherHeroAnim)
 		heroAnim = anim; //the same, as it should be
 
-	SDL_Rect prevClip;
-	SDL_GetClipRect(extSurf, &prevClip);
-	SDL_SetClipRect(extSurf, extRect); //preventing blitting outside of that rect
+//*	SDL_Rect prevClip;
+//*	SDL_GetClipRect(extSurf, &prevClip);
+//*	SDL_SetClipRect(extSurf, extRect); //preventing blitting outside of that rect
 
 	const BlitterWithRotationVal blitterWithRotation = CSDL_Ext::getBlitterWithRotation(extSurf);
 	const BlitterWithRotationVal blitterWithRotationAndAlpha = CSDL_Ext::getBlitterWithRotationAndAlpha(extSurf);
@@ -480,7 +480,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 			const TerrainTile2 & tile = ttiles[pos.x][pos.y][pos.z];
 			const TerrainTile &tinfo = map->terrain[pos.x][pos.y][pos.z];
 
-			SDL_Rect sr;
+			Gfx::Rect sr;
 			sr.x=srx;
 			sr.y=sry;
 			sr.h=sr.w=32;
@@ -488,36 +488,36 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 			//blit terrain with river/road
 			if(tile.terbitmap)
 			{ //if custom terrain graphic - use it
-				SDL_Rect temp_rect = genRect(sr.h, sr.w, 0, 0);
-				CSDL_Ext::blitSurface(tile.terbitmap, &temp_rect, extSurf, &sr);
+//*				SDL_Rect temp_rect = genRect(sr.h, sr.w, 0, 0);
+//*				CSDL_Ext::blitSurface(tile.terbitmap, &temp_rect, extSurf, &sr);
 			}
 			else //use default terrain graphic
 			{
-                blitterWithRotation(terrainGraphics[tinfo.terType][tinfo.terView],rtile, extSurf, sr, tinfo.extTileFlags%4);
+//*               blitterWithRotation(terrainGraphics[tinfo.terType][tinfo.terView],rtile, extSurf, sr, tinfo.extTileFlags%4);
 			}
             if(tinfo.riverType) //print river if present
 			{
-                blitterWithRotationAndAlpha(staticRiverDefs[tinfo.riverType-1]->ourImages[tinfo.riverDir].bitmap,rtile, extSurf, sr, (tinfo.extTileFlags>>2)%4);
+//*               blitterWithRotationAndAlpha(staticRiverDefs[tinfo.riverType-1]->ourImages[tinfo.riverDir].bitmap,rtile, extSurf, sr, (tinfo.extTileFlags>>2)%4);
 			}
 
 			//Roads are shifted by 16 pixels to bottom. We have to draw both parts separately
             if (pos.y > 0 && map->terrain[pos.x][pos.y-1][pos.z].roadType != ERoadType::NO_ROAD)
 			{ //part from top tile
 				const TerrainTile &topTile = map->terrain[pos.x][pos.y-1][pos.z];
-				Rect source(0, 16, 32, 16);
-				Rect dest(sr.x, sr.y, sr.w, sr.h/2);
-                blitterWithRotationAndAlpha(roadDefs[topTile.roadType - 1]->ourImages[topTile.roadDir].bitmap, source, extSurf, dest, (topTile.extTileFlags>>4)%4);
+				Gfx::Rect source(0, 16, 32, 16);
+				Gfx::Rect dest(sr.x, sr.y, sr.w, sr.h/2);
+//*             blitterWithRotationAndAlpha(roadDefs[topTile.roadType - 1]->ourImages[topTile.roadDir].bitmap, source, extSurf, dest, (topTile.extTileFlags>>4)%4);
 			}
 
             if(tinfo.roadType != ERoadType::NO_ROAD) //print road from this tile
 			{
-				Rect source(0, 0, 32, 32);
-				Rect dest(sr.x, sr.y+16, sr.w, sr.h/2);
-                blitterWithRotationAndAlpha(roadDefs[tinfo.roadType-1]->ourImages[tinfo.roadDir].bitmap, source, extSurf, dest, (tinfo.extTileFlags>>4)%4);
+				Gfx::Rect source(0, 0, 32, 32);
+				Gfx::Rect dest(sr.x, sr.y+16, sr.w, sr.h/2);
+//*             blitterWithRotationAndAlpha(roadDefs[tinfo.roadType-1]->ourImages[tinfo.roadDir].bitmap, source, extSurf, dest, (tinfo.extTileFlags>>4)%4);
 			}
 
 			//blit objects
-			const std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > &objects = tile.objects;
+			const std::vector < std::pair<const CGObjectInstance*,Gfx::Rect> > &objects = tile.objects;
 			for(size_t h=0; h < objects.size(); ++h)
 			{
 				const CGObjectInstance *obj = objects[h].first;
@@ -536,9 +536,9 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				if(puzzleMode && (obj->isVisitable() || std::find(notBlittedInPuzzleMode, notBlittedInPuzzleMode+1, obj->ID) != notBlittedInPuzzleMode+1)) //?
 					continue;
 
- 				SDL_Rect sr2(sr); 
+ 				Gfx::Rect sr2(sr); 
 
-				SDL_Rect pp = objects[h].second;
+				Gfx::Rect pp = objects[h].second;
 				pp.h = sr.h;
 				pp.w = sr.w;
 
@@ -608,12 +608,12 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 								break;
 							}
 						}
-						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr2);
+//*						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr2);
 
 						//printing flag
 						pp.y+=IMGVAL*2-32;
 						sr2.y-=16;
-						CSDL_Ext::blitSurface((graphics->*flg)[color.getNum()]->ourImages[gg+heroAnim%IMGVAL+35].bitmap, &pp, extSurf, &sr2);
+//*						CSDL_Ext::blitSurface((graphics->*flg)[color.getNum()]->ourImages[gg+heroAnim%IMGVAL+35].bitmap, &pp, extSurf, &sr2);
 					}
 					else //hero / boat stands still
 					{
@@ -626,20 +626,20 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 								break;
 							}
 						}
-						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr2);
+//*						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr2);
 
 						//printing flag
 						if(flg  
 							&&  obj->pos.x == top_tile.x + bx  
 							&&  obj->pos.y == top_tile.y + by)
 						{
-							SDL_Rect bufr = sr2;
+							Gfx::Rect bufr(sr2);
 							bufr.x-=2*32;
 							bufr.y-=1*32;
 							bufr.h = 64;
 							bufr.w = 96;
-							if(bufr.x-extRect->x>-64)
-								CSDL_Ext::blitSurface((graphics->*flg)[color.getNum()]->ourImages[getHeroFrameNum(dir, false) *8+(heroAnim/4)%IMGVAL].bitmap, NULL, extSurf, &bufr);
+//*							if(bufr.x-extRect->x>-64)
+//*								CSDL_Ext::blitSurface((graphics->*flg)[color.getNum()]->ourImages[getHeroFrameNum(dir, false) *8+(heroAnim/4)%IMGVAL].bitmap, NULL, extSurf, &bufr);
 						}
 					}
 				}
@@ -651,11 +651,12 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 					//setting appropriate flag color
 					if(color < PlayerColor::PLAYER_LIMIT || color==PlayerColor::NEUTRAL)
 						CSDL_Ext::setPlayerColor(bitmap, color);
-
+/*
 					if( obj->hasShadowAt(top_tile.x + bx - obj->pos.x, top_tile.y + by - obj->pos.y) )
 						CSDL_Ext::blit8bppAlphaTo24bpp(bitmap,&pp,extSurf,&sr2);
 					else
 						CSDL_Ext::blitSurface(bitmap,&pp,extSurf,&sr2);
+*/
 				}
 			}
 			//objects blitted
@@ -665,7 +666,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 			{
 				if(bx == grailPosRel.x && by == grailPosRel.y)
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(graphics->heroMoveArrows->ourImages[0].bitmap, NULL, extSurf, &sr);
+//*					CSDL_Ext::blit8bppAlphaTo24bpp(graphics->heroMoveArrows->ourImages[0].bitmap, NULL, extSurf, &sr);
 				}
 			}
 		}
@@ -692,10 +693,10 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 			if (pos.x < 0 || pos.x >= sizes.x ||
 				pos.y < 0 || pos.y >= sizes.y)
 			{
-				SDL_Rect temp_rect = genRect(sr.h, sr.w, 0, 0);
+				Gfx::Rect temp_rect = genRect(sr.h, sr.w, 0, 0);
 
-				CSDL_Ext::blitSurface(ttiles[pos.x][pos.y][top_tile.z].terbitmap,
-								&temp_rect,extSurf,&sr);
+//*				CSDL_Ext::blitSurface(ttiles[pos.x][pos.y][top_tile.z].terbitmap,
+//*								&temp_rect,extSurf,&sr);
 			}
 			else 
 			{
@@ -790,11 +791,11 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 	//applying sepia / gray effect
 	if(puzzleMode)
 	{
-		CSDL_Ext::applyEffect(extSurf, extRect, static_cast<int>(!ADVOPT.puzzleSepia));
+//*		CSDL_Ext::applyEffect(extSurf, extRect, static_cast<int>(!ADVOPT.puzzleSepia));
 	}
 	//sepia / gray effect applied
 
-	SDL_SetClipRect(extSurf, &prevClip); //restoring clip_rect
+//*	SDL_SetClipRect(extSurf, &prevClip); //restoring clip_rect
 }
 
 std::pair<SDL_Surface *, bool> CMapHandler::getVisBitmap( const int3 & pos, const std::vector< std::vector< std::vector<ui8> > > & visibilityMap ) const
@@ -869,17 +870,17 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 	{
 		for(int fy=0; fy<tilesH; ++fy)
 		{
-			SDL_Rect cr;
+			Gfx::Rect cr;
 			cr.w = 32;
 			cr.h = 32;
 			cr.x = fx*32;
 			cr.y = fy*32;
-			std::pair<const CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj, cr);
+			std::pair<const CGObjectInstance*,Gfx::Rect> toAdd = std::make_pair(obj, cr);
 			if((obj->pos.x + fx - tilesW+1)>=0 && (obj->pos.x + fx - tilesW+1)<ttiles.size()-frameW && (obj->pos.y + fy - tilesH+1)>=0 && (obj->pos.y + fy - tilesH+1)<ttiles[0].size()-frameH)
 			{
 				TerrainTile2 & curt = ttiles[obj->pos.x + fx - tilesW+1][obj->pos.y + fy - tilesH+1][obj->pos.z];
 
-				std::vector< std::pair<const CGObjectInstance*,SDL_Rect> >::iterator i = curt.objects.begin();
+				std::vector< std::pair<const CGObjectInstance*,Gfx::Rect> >::iterator i = curt.objects.begin();
 				for(; i != curt.objects.end(); i++)
 				{
 					OCM_HLP cmp;
@@ -911,7 +912,7 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj)
 		{
 			if((obj->pos.x + fx - bitmap->w/32+1)>=0 && (obj->pos.x + fx - bitmap->w/32+1)<ttiles.size()-frameW && (obj->pos.y + fy - bitmap->h/32+1)>=0 && (obj->pos.y + fy - bitmap->h/32+1)<ttiles[0].size()-frameH)
 			{
-				std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & ctile = ttiles[obj->pos.x + fx - bitmap->w/32+1][obj->pos.y + fy - bitmap->h/32+1][obj->pos.z].objects;
+				std::vector < std::pair<const CGObjectInstance*,Gfx::Rect> > & ctile = ttiles[obj->pos.x + fx - bitmap->w/32+1][obj->pos.y + fy - bitmap->h/32+1][obj->pos.z].objects;
 				for(size_t dd=0; dd < ctile.size(); ++dd)
 				{
 					if(ctile[dd].first->id==obj->id)
@@ -1086,7 +1087,7 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 	out.clear();
 	TerrainTile2 & tt = ttiles[pos.x][pos.y][pos.z];
 	const TerrainTile &t = map->terrain[pos.x][pos.y][pos.z];
-	for(std::vector < std::pair<const CGObjectInstance*,SDL_Rect> >::const_iterator i = tt.objects.begin(); i != tt.objects.end(); i++)
+	for(std::vector < std::pair<const CGObjectInstance*,Gfx::Rect> >::const_iterator i = tt.objects.begin(); i != tt.objects.end(); i++)
 	{
 		if(i->first->ID == Obj::HOLE) //Hole
 		{

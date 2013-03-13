@@ -648,7 +648,7 @@ void SDLImage::draw(SDL_Surface *where, int posX, int posY, Rect *src, ui8 rotat
 	Rect destRect(posX, posY, surf->w, surf->h);
 	destRect += sourceRect.topLeft();
 	sourceRect -= margins;
-	CSDL_Ext::blitSurface(surf, &sourceRect, where, &destRect);
+//*	CSDL_Ext::blitSurface(surf, &sourceRect, where, &destRect);
 }
 
 void SDLImage::playerColored(PlayerColor player)
@@ -998,7 +998,7 @@ void CAnimation::init(CDefFile * file)
 
 		BOOST_FOREACH(const JsonNode &group, config["sequences"].Vector())
 		{
-			size_t groupID = group["group"].Float();//TODO: string-to-value conversion("moving" -> MOVING)
+			size_t groupID = group["group"].asInteger();//TODO: string-to-value conversion("moving" -> MOVING)
 			source[groupID].clear();
 
 			BOOST_FOREACH(const JsonNode &frame, group["frames"].Vector())
@@ -1011,8 +1011,8 @@ void CAnimation::init(CDefFile * file)
 
 		BOOST_FOREACH(const JsonNode &node, config["images"].Vector())
 		{
-			size_t group = node["group"].Float();
-			size_t frame = node["frame"].Float();
+			size_t group = node["group"].asInteger();
+			size_t frame = node["frame"].asInteger();
 
 			if (source[group].size() <= frame)
 				source[group].resize(frame+1);

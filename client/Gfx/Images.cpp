@@ -201,8 +201,8 @@ void CBitmap32::putAt(Point p, TransformFlags flags, float scale)
 void CBitmap32::putAt(Point p, TransformFlags flags, Rect clipRect)
 {
 	QuadInstance qi(p);
-	qi.setOffset(flags, clipRect.lt.x, clipRect.lt.y);
-	qi.transform(flags, clipRect.rb.x - p.x, clipRect.rb.y - p.y, clipRect.width(), clipRect.height());
+	qi.setOffset(flags, clipRect.x, clipRect.y);
+//	qi.transform(flags, clipRect.rb.x - p.x, clipRect.rb.y - p.y, clipRect.width(), clipRect.height());
 
 	GL2D::useNoShader();
 	bindTexture();

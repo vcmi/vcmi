@@ -4,7 +4,6 @@
 #include <SDL_ttf.h>
 #include "../../lib/int3.h"
 #include "../Graphics.h"
-#include "Geometries.h"
 
 /*
  * SDL_Extensions.h, part of VCMI engine
@@ -29,13 +28,11 @@
 #define SDL_GetKeyState SDL_GetKeyboardState
 #endif
 
-struct Rect;
-
 extern SDL_Surface * screen, *screen2, *screenBuf;
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=screen);
 void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst=screen);
 void updateRect (SDL_Rect * rect, SDL_Surface * scr = screen);
-bool isItIn(const SDL_Rect * rect, int x, int y);
+bool isItIn(const Gfx::Rect * rect, int x, int y);
 
 /**
  * The colors class defines color constants of type SDL_Color.
@@ -85,9 +82,9 @@ std::string makeNumberShort(IntType number) //the output is a string containing 
 typedef void (*TColorPutter)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B);
 typedef void (*TColorPutterAlpha)(Uint8 *&ptr, const Uint8 & R, const Uint8 & G, const Uint8 & B, const Uint8 & A);
 
-inline SDL_Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy)
+inline Gfx::Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy)
 {
-	SDL_Rect ret;
+	Gfx::Rect ret;
 	ret.h=hh;
 	ret.w=ww;
 	ret.x=xx;
@@ -116,16 +113,16 @@ namespace CSDL_Ext
 		SDL_Surface * surf;
 		SDL_Rect oldRect;
 	public:
-		CClipRectGuard(SDL_Surface * surface, const SDL_Rect & rect):
+		CClipRectGuard(SDL_Surface * surface, const Gfx::Rect & rect):
 			surf(surface)
 		{
-			SDL_GetClipRect(surf, &oldRect);
-			SDL_SetClipRect(surf, &rect);
+//*			SDL_GetClipRect(surf, &oldRect);
+//*			SDL_SetClipRect(surf, &rect);
 		}
 
 		~CClipRectGuard()
 		{
-			SDL_SetClipRect(surf, &oldRect);
+//*			SDL_SetClipRect(surf, &oldRect);
 		}
 	};
 
@@ -175,7 +172,7 @@ namespace CSDL_Ext
 	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, const int3 &color);
 	void drawBorder(SDL_Surface * sur, const SDL_Rect &r, const int3 &color);
-	void drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &color);
+	void drawDashedBorder(SDL_Surface * sur, const Gfx::Rect &r, const int3 &color);
 	void setPlayerColor(SDL_Surface * sur, PlayerColor player); //sets correct color of flags; -1 for neutral
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
 	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=screen); //creates new surface, with flags/format same as in surface given

@@ -25,8 +25,7 @@
 CPicture::CPicture(Gfx::PImage BG, int x, int y, bool Free )
 {
 	init();
-	bg = BG;
-	freeSurf = Free;
+	image = BG;
 	pos.x += x;
 	pos.y += y;
 	pos.w = BG->getWidth();
@@ -36,14 +35,13 @@ CPicture::CPicture(Gfx::PImage BG, int x, int y, bool Free )
 CPicture::CPicture( const std::string &bmpname, int x, int y )
 {
 	init();
-	bg = Gfx::CManager::getImage(bmpname);
-	freeSurf = true;;
+	image = Gfx::CManager::getImage(bmpname);
 	pos.x += x;
 	pos.y += y;
-	if(bg)
+	if(image)
 	{
-		pos.w = bg->getWidth();
-		pos.h = bg->getHeight();
+		pos.w = image->getWidth();
+		pos.h = image->getHeight();
 	}
 	else
 	{
@@ -65,30 +63,14 @@ CPicture::CPicture(const Rect &r, ui32 color, bool screenFormat /*= false*/)
 
 CPicture::CPicture(Gfx::PImage BG, const Rect &SrcRect, int x /*= 0*/, int y /*= 0*/, bool free /*= false*/)
 {
-	needRefresh = false;
 	srcRect = new Rect(SrcRect);
 	pos.x += x;
 	pos.y += y;
 	pos.w = srcRect->w;
 	pos.h = srcRect->h;
-	bg = BG;
-	freeSurf = free;
+	image = BG;
 }
 
-void CPicture::setSurface(SDL_Surface *to)
-{
-//*	bg = to;
-	if (srcRect)
-	{
-		pos.w = srcRect->w;
-		pos.h = srcRect->h;
-	}
-	else
-	{
-		pos.w = bg->getWidth();
-		pos.h = bg->getHeight();
-	}
-}
 
 CPicture::~CPicture()
 {
@@ -97,18 +79,17 @@ CPicture::~CPicture()
 
 void CPicture::init()
 {
-	needRefresh = false;
 	srcRect = NULL;
 }
 
 void CPicture::show()
 {
-	if (bg) bg->putAt(Gfx::Point(pos.x, pos.y));
+	if (image) image->putAt(pos);
 }
 
 void CPicture::showAll()
 {
-	if (bg) bg->putAt(Gfx::Point(pos.x, pos.y));
+	if (image) image->putAt(pos);
 /*
 	if(bg)
 	{
@@ -163,19 +144,16 @@ void CPicture::createSimpleRect(const Rect &r, bool screenFormat, ui32 color)
 		bg = SDL_CreateRGBSurface(SDL_SWSURFACE, r.w, r.h, 8, 0, 0, 0, 0);
 
 	SDL_FillRect(bg, NULL, color); */
-	freeSurf = true;
 }
 
 void CPicture::colorizeAndConvert(PlayerColor player)
 {
-	assert(bg);
 	colorize(player);
 	convertToScreenBPP();
 }
 
 void CPicture::colorize(PlayerColor player)
 {
-	assert(bg);
 //*	assert(bg->format->BitsPerPixel == 8);
 //*	graphics->blueToPlayersAdv(bg, player);
 }
@@ -208,8 +186,8 @@ CButton::CButton() :
 }
 
 
-CButton::CButton(const CFunctionList<void()> & flist, Gfx::Point position, const std::string & animName, size_t animOffs/*=0*/, size_t imagesNum/*=4*/,
-				 const PairOfStrings * helpStr, ui16 events/*=LCLICK|RCLICK|HOVER|KEYBOARD*/, int key/*=0*/) :
+CButton::CButton(const CFunctionList<void()> & flist, Point position, const std::string & animName, size_t animOffs/*=0*/, size_t imagesNum/*=4*/,
+				 const PairOfStrings * helpStr, int key/*=0*/) :
 	state(NORMAL),
 	images(Gfx::CManager::getAnimation(animName)),
 	callback(flist),
@@ -218,10 +196,20 @@ CButton::CButton(const CFunctionList<void()> & flist, Gfx::Point position, const
 	pos.x = position.x;
 	pos.y = position.y;
 
+	ui16 events = LCLICK;
+
 	if (helpStr != nullptr)
 	{
-		helpBox = helpStr->first;
-		status = helpStr->second;
+		if (helpStr->first.size() > 0)
+		{
+			helpBox = helpStr->first;
+			events |= RCLICK;
+		}
+		if (helpStr->second.size() > 0)
+		{
+			status = helpStr->second;
+			events |= HOVER;
+		}
 	}
 
 	if (images)
@@ -229,27 +217,32 @@ CButton::CButton(const CFunctionList<void()> & flist, Gfx::Point position, const
 		pos.w = images->getWidth();
 		pos.h = images->getHeight();
 
-		size_t i=0;
+		size_t i = 0;
 		for (; i<imagesNum; ++i)
 		{
-			state2image[i] = images->getFrame(i + animOffs);
-			if (state2image[i] == nullptr)
+			if ((state2image[i] = images->getFrame(i + animOffs)) == nullptr)
 			{
 				tlog2 << "CButton warning: image " << animName << " : " << animOffs+i << " is missing\n";
-				state2image[i] = state2image[0]; //TODO set dummy image
+				state2image[i] = state2image[NORMAL]; //TODO set dummy image
 			}
 		}
-		for (; i<4; ++i)
+		for (; i<4; ++i) state2image[i] = state2image[NORMAL];
+
+		if (state2image[HIGHLIGHTED] != state2image[NORMAL])
 		{
-			state2image[i] = state2image[0];
+			events |= HOVER;
 		}
 	}
 	else {
 		tlog1 << "CButton error: animation file '" << animName << "' is not loaded\n";
 	}
 
+	if (key != SDLK_UNKNOWN)
+	{
+		assignedKeys.insert(key);
+		events |= KEYBOARD;
+	}
 	addUsedEvents(events);
-	if (key != SDLK_UNKNOWN) assignedKeys.insert(key);
 }
 
 
@@ -327,7 +320,7 @@ void CButton::block(bool on)
 
 void CButton::showAll()
 {
-	state2image[state]->putAt(Gfx::Point(pos.x, pos.y));
+	state2image[state]->putAt(pos);
 }
 
 CAdventureMapButton::CAdventureMapButton()
@@ -682,7 +675,7 @@ void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	double v = 0;
 	if(horizontal)
 	{
-		if(	std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2  )
+		if(	std::abs(sEvent.y - pos.centerY()) > pos.h/2+40  ||  std::abs(sEvent.x - pos.centerX()) > pos.w/2  )
 			return;
 		v = sEvent.x - pos.x - 24;
 		v *= positions;
@@ -690,7 +683,7 @@ void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	}
 	else
 	{
-		if(std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2+40  ||  std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2  )
+		if(std::abs(sEvent.x - pos.centerX()) > pos.w/2+40  ||  std::abs(sEvent.y - pos.centerY()) > pos.h/2  )
 			return;
 		v = sEvent.y - pos.y - 24;
 		v *= positions;
@@ -735,7 +728,7 @@ void CSlider::moveTo(int to)
 		{
 			double part = static_cast<double>(to) / positions;
 			part*=(pos.w-48);
-			int newPos = part + pos.x + 16 - slider->pos.x;
+			int newPos = (int)part + pos.x + 16 - slider->pos.x;
 			slider->moveBy(Point(newPos, 0));
 		}
 		else
@@ -747,7 +740,7 @@ void CSlider::moveTo(int to)
 		{
 			double part = static_cast<double>(to) / positions;
 			part*=(pos.h-48);
-			int newPos = part + pos.y + 16 - slider->pos.y;
+			int newPos = (int)part + pos.y + 16 - slider->pos.y;
 			slider->moveBy(Point(0, newPos));
 		}
 		else
@@ -1206,7 +1199,7 @@ LRClickableAreaWText::LRClickableAreaWText()
 LRClickableAreaWText::LRClickableAreaWText(const Rect &Pos, const std::string &HoverText /*= ""*/, const std::string &ClickText /*= ""*/)
 {
 	init();
-	pos = Pos + pos;
+	pos.addOffs_copySize(Pos);
 	hoverText = HoverText;
 	text = ClickText;
 }
@@ -1340,8 +1333,10 @@ void CBoundedLabel::showAll()
 
 //	int dy = f->getLineHeight(); //line height
 	int base_y = pos.y;
-	if(alignment == CENTER)
-		base_y += std::max((pos.h - maxH)/2,0);
+	if (alignment == CENTER && (int)(pos.h - maxH) > 0)
+	{
+		base_y += (pos.h - maxH) / 2;
+	}
 
 	for (int i = 0; i < lineCapacity; i++)
 	{
@@ -1430,13 +1425,15 @@ void CTextBox::showAll()
 //	int dy = f->getLineHeight(); //line height
 	int base_y = pos.y;
 
-	if (alignment == CENTER)
-		base_y += std::max((pos.h - maxH)/2,0);
+	if (alignment == CENTER && (int)(pos.h - maxH) > 0)
+	{
+		base_y += (pos.h - maxH) / 2;
+	}
 
-	int howManyLinesToPrint = slider ? slider->capacity : lines.size();
+	size_t howManyLinesToPrint = slider ? slider->capacity : lines.size();
 	int firstLineToPrint = slider ? slider->value : 0;
 
-	for (int i = 0; i < howManyLinesToPrint; i++)
+	for (size_t i = 0; i < howManyLinesToPrint; ++i)
 	{
 		const std::string &line = lines[i + firstLineToPrint];
 		if(!line.size()) continue;
@@ -1580,7 +1577,7 @@ CTextInput::CTextInput(const Rect &Pos, SDL_Surface *srf)
 	captureAllKeys = true;
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(Pos, 0, true);
-//	Rect hlp = Pos;
+//*	Rect hlp = Pos;
 /*	if(srf)
 		CSDL_Ext::blitSurface(srf, &hlp, *bg, NULL);
 	else

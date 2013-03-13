@@ -1,7 +1,8 @@
 #pragma once
 
+#include <SDL_events.h>
 #include "../../lib/CStopWatch.h"
-#include "Geometries.h"
+#include "../Gfx/Basic.h"
 
 class CFramerateManager;
 class CGStatusBar;
@@ -70,7 +71,7 @@ public:
 	SDL_Event * current; //current event - can be set to NULL to stop handling event
 	IUpdateable *curInt;
 
-	Point lastClick;
+	Gfx::Point lastClick;
 	unsigned lastClickTime;
 	bool terminate;
 

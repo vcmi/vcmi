@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "Geometries.h"
 
+#if 0
 extern SDL_Surface * screen;
 
 Rect Rect::createCentered( int w, int h )
@@ -17,3 +18,5 @@ Rect Rect::centerIn(const Rect &r)
 {
 	return Rect(r.x + (r.w - w) / 2, r.y + (r.h - h) / 2, w, h);
 }
+
+#endif

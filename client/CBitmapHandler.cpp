@@ -56,7 +56,7 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 8, 0, 0, 0, 0);
 
 		it = 0xC;
-		for (int i=0; i<height; i++)
+		for (size_t i=0; i<height; ++i)
 		{
 			memcpy((char*)ret->pixels + ret->pitch * i, pcx + it, width);
 			it+= width;
@@ -88,7 +88,7 @@ SDL_Surface * BitmapHandler::loadH3PCX(ui8 * pcx, size_t size)
 		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width, height, 24, rmask, gmask, bmask, 0);
 
 		//it == 0xC;
-		for (int i=0; i<height; i++)
+		for (size_t i=0; i<height; ++i)
 		{
 			memcpy((char*)ret->pixels + ret->pitch * i, pcx + it, width*3);
 			it+= width*3;

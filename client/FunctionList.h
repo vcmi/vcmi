@@ -66,7 +66,7 @@ public:
 	void operator()(const Arg & a) const
 	{
 		std::vector<boost::function<Signature> > funcs2 = funcs; //backup
-		for(int i=0;i<funcs2.size(); i++) 
+		for(size_t i=0; i<funcs2.size(); ++i) 
 		{
 			if (funcs2[i])
 				funcs2[i](a);
@@ -77,7 +77,7 @@ public:
 	void operator()(Arg1 & a, Arg2 & b) const
 	{
 		std::vector<boost::function<Signature> > funcs2 = funcs; //backup
-		for(int i=0;i<funcs2.size(); i++)
+		for(size_t i=0; i<funcs2.size(); ++i)
 		{
 			if (funcs2[i])
 				funcs2[i](a, b);

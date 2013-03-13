@@ -44,7 +44,7 @@ SDL_Surface * CSDL_Ext::createSurfaceWithBpp(int width, int height)
 	return SDL_CreateRGBSurface( SDL_SWSURFACE, width, height, bpp * 8, rMask, gMask, bMask, aMask);
 }
 
-bool isItIn(const SDL_Rect * rect, int x, int y)
+bool isItIn(const Gfx::Rect * rect, int x, int y)
 {
 	return (x>rect->x && x<rect->x+rect->w) && (y>rect->y && y<rect->y+rect->h);
 }
@@ -557,7 +557,7 @@ void CSDL_Ext::drawBorder( SDL_Surface * sur, const SDL_Rect &r, const int3 &col
 	drawBorder(sur, r.x, r.y, r.w, r.h, color);
 }
 
-void CSDL_Ext::drawDashedBorder(SDL_Surface * sur, const Rect &r, const int3 &color)
+void CSDL_Ext::drawDashedBorder(SDL_Surface * sur, const Gfx::Rect &r, const int3 &color)
 {
 	const int y1 = r.y, y2 = r.y + r.h-1;
 	for (int i=0; i<r.w; i++)
@@ -946,7 +946,7 @@ void CSDL_Ext::blitSurface( SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface *
 		}
 		else
 		{
-			betterDst = Rect(0, 0, dst->w, dst->h);
+//*			betterDst = SDL_Rect(0, 0, dst->w, dst->h);
 		}
 
 		SDL_BlitSurface(src, srcRect, dst, &betterDst);
@@ -962,7 +962,7 @@ void CSDL_Ext::fillRect( SDL_Surface *dst, SDL_Rect *dstrect, Uint32 color )
 	}
 	else
 	{
-		newRect = Rect(0, 0, dst->w, dst->h);
+//*		newRect = SDL_Rect(0, 0, dst->w, dst->h);
 	}
 	SDL_FillRect(dst, &newRect, color);
 }
@@ -981,8 +981,8 @@ void CSDL_Ext::fillTexture(SDL_Surface *dst, SDL_Surface * src)
 		{
 			int xLeft = std::min<int>(srcRect.w, dstRect.x + dstRect.w - x);
 			int yLeft = std::min<int>(srcRect.h, dstRect.y + dstRect.h - y);
-			Rect currentDest(x, y, xLeft, yLeft);
-			SDL_BlitSurface(src, &srcRect, dst, &currentDest);
+//*			Rect currentDest(x, y, xLeft, yLeft);
+//*			SDL_BlitSurface(src, &srcRect, dst, &currentDest);
 		}
 	}
 }

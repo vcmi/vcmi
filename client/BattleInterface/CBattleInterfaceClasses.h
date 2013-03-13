@@ -76,7 +76,7 @@ private:
 
 	std::vector<CLabel*> labels;
 public:
-	CBattleOptionsWindow(const SDL_Rect &position, CBattleInterface *owner); //c-tor
+	CBattleOptionsWindow(const Rect &position, CBattleInterface *owner); //c-tor
 
 	void bDefaultf(); //default button callback
 	void bExitf(); //exit button callback
@@ -89,7 +89,7 @@ private:
 	CAdventureMapButton *exit;
 	CBattleInterface *owner;
 public:
-	CBattleResultWindow(const BattleResult & br, const SDL_Rect & pos, CBattleInterface * _owner); //c-tor
+	CBattleResultWindow(const BattleResult & br, const Rect & pos, CBattleInterface * _owner); //c-tor
 	~CBattleResultWindow(); //d-tor
 
 	void bExitf(); //exit button callback

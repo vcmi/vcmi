@@ -813,7 +813,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 	if(!dst)
 		dst = this;
 
-	int howManyStacks = 0; //how many stacks will hero receives <1 - 3>
+	size_t howManyStacks = 0; //how many stacks will hero receives <1 - 3>
 	int pom = ran()%100;
 	int warMachinesGiven = 0;
 
@@ -826,7 +826,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 
 	vstd::amin(howManyStacks, type->initialArmy.size());
 
-	for(int stackNo=0; stackNo < howManyStacks; stackNo++)
+	for(size_t stackNo=0; stackNo < howManyStacks; stackNo++)
 	{
 		auto & stack = type->initialArmy[stackNo];
 

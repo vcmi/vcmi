@@ -183,6 +183,7 @@
     <ClCompile Include="CSpellWindow.cpp" />
     <ClCompile Include="CVideoHandler.cpp" />
     <ClCompile Include="Gfx\Animations.cpp" />
+    <ClCompile Include="Gfx\Basic.cpp" />
     <ClCompile Include="Gfx\CPaletteRGBA.cpp" />
     <ClCompile Include="Gfx\Images.cpp" />
     <ClCompile Include="Gfx\ImgMakers.cpp" />

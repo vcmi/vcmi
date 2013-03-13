@@ -77,7 +77,6 @@ static bool gOnlyAI = false;
 
 static bool ermInteractiveMode = false; //structurize when time is right
 void processCommand(const std::string &message);
-//static void setScreenRes(int w, int h, int bpp, bool fullscreen, bool resetVideo=true);
 void dispose();
 void playIntro();
 static void listenForEvents();
@@ -252,7 +251,7 @@ int main(int argc, char* argv[])
 	}
 
 	//Set environment vars to make window centered. Sometimes work, sometimes not. :/
-	putenv((char*)"SDL_VIDEO_CENTERED=center");
+	putenv("SDL_VIDEO_CENTERED=center");
 	//putenv("SDL_VIDEO_WINDOW_POS");
 
 	// Have effect on X11 system only (Linux).
@@ -271,6 +270,26 @@ int main(int argc, char* argv[])
 	tlog0 <<"Creating console and logfile: "<<pomtime.getDiff() << std::endl;
 
 	preinitDLL(::console, logfile);
+
+	// Some basic data validation to produce better error messages in cases of incorrect install
+	auto testFile = [](std::string filename, std::string message) -> bool
+	{
+		if (CResourceHandler::get()->existsResource(ResourceID(filename)))
+			return true;
+
+		tlog1 << "Error: " << message << " was not found!\n";
+		return false;
+	};
+
+	if (!testFile("DATA/HELP.TXT", "Heroes III data") &&
+	    !testFile("DATA/ZELP.TXT", "In the Wake of Gods data") &&
+	    !testFile("MODS/VCMI/MOD.JSON", "VCMI mod") &&
+	    !testFile("DATA/StackQueueBgBig.PCX", "VCMI data"))
+		exit(1); // These are unrecoverable errors
+
+	// these two are optional + some installs have them on CD and not in data directory
+	testFile("VIDEO/GOOD1A.SMK", "campaign movies");
+	testFile("SOUNDS/G1A.WAV", "campaign music"); //technically not a music but voiced intro sounds
 
 	settings.init();
 	conf.init();
@@ -308,16 +327,14 @@ int main(int argc, char* argv[])
 	tlog0 <<"\tInitializing screen: "<<pomtime.getDiff() << std::endl;
 
 	// Initialize video
-
-//TODO: video support for OpenGL
-//#if DISABLE_VIDEO
-//	CCS->videoh = new CEmptyVideoPlayer;
-//#else
-//	if (!vm.count("disable-video"))
-//		CCS->videoh = new CVideoPlayer;
-//	else
+#if DISABLE_VIDEO
+	CCS->videoh = new CEmptyVideoPlayer;
+#else
+	if (!vm.count("disable-video"))
+		CCS->videoh = new CVideoPlayer;
+	else
 		CCS->videoh = new CEmptyVideoPlayer;
-//#endif
+#endif
 
 	tlog0<<"\tInitializing video: "<<pomtime.getDiff()<<std::endl;
 

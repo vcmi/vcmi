@@ -98,7 +98,7 @@ class DLL_LINKAGE CHeroClass
 public:
 	std::string identifier;
 	std::string name; // translatable
-	double aggression;
+	//double aggression; // not used in vcmi.
 	TFaction faction;
 	ui8 id;
 
@@ -119,7 +119,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & identifier & name & faction & aggression;
+		h & identifier & name & faction;// & aggression;
 		h & primarySkillInitial   & primarySkillLowLevel;
 		h & primarySkillHighLevel & secSkillProbability;
 		h & selectionProbability;

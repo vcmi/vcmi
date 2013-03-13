@@ -300,11 +300,11 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 	if (type >= COMMANDER)
 	{
 		setBackground("CommWin" + boost::lexical_cast<std::string>(bonusRows) + ".pcx");
-		for (int i = 0; i < skillPictures.size(); ++i)
+		for (size_t i = 0; i < skillPictures.size(); ++i)
 		{
 			skillPictures[i]->moveTo (Point (pos.x + 37 + i * 84, pos.y + 224));
 		}
-		for (int i = 0; i < selectableSkills.size(); ++i)
+		for (size_t i = 0; i < selectableSkills.size(); ++i)
 		{
 			if (upgradeOptions[i] < skillPictures.size()) // it's secondary skill
 			{
@@ -547,15 +547,15 @@ void CCreatureWindow::showAll()
 	BOOST_FOREACH(auto s, selectableSkills)
 		s->showAll();
 
-	for (int i = 0; i < skillPictures.size(); i++)
+	for (size_t i = 0; i < skillPictures.size(); ++i)
 	{
 //*		skillPictures[i]->bg = BitmapHandler::loadBitmap (skillToFile(i));
-//*		skillPictures[i]->showAll (to);
+//*		skillPictures[i]->showAll();
 	}
 
 	if (upgradeOptions.size() && (type == COMMANDER_LEVEL_UP && upgradeOptions[selectedOption] >= 100)) //add frame to selected skill
 	{
-//		int index = selectedOption - selectableSkills.size(); //this is screwed
+//*		int index = selectedOption - selectableSkills.size(); //this is screwed
 //*		CSDL_Ext::drawBorder(to, Rect::around(selectableBonuses[index]->pos), int3(Colors::METALLIC_GOLD.r, Colors::METALLIC_GOLD.g, Colors::METALLIC_GOLD.b)); 
 	}
 }
@@ -684,8 +684,7 @@ void CCreatureWindow::selectSkill (ui32 which)
 
 CCreatureWindow::~CCreatureWindow()
 {
- 	for (int i=0; i<upgResCost.size(); ++i)
- 		delete upgResCost[i];
+ 	for (size_t i=0; i<upgResCost.size(); ++i) delete upgResCost[i];
 	bonusItems.clear();
 }
 

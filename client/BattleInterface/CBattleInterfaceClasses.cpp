@@ -114,7 +114,7 @@ CBattleConsole::CBattleConsole() : lastShown(-1), alterTxt(""), whoSetAlter(0)
 void CBattleHero::show(SDL_Surface * to)
 {
 	//animation of flag
-	SDL_Rect temp_rect;
+	Rect temp_rect;
 	if(flip)
 	{
 		temp_rect = genRect(
@@ -132,6 +132,7 @@ void CBattleHero::show(SDL_Surface * to)
 			pos.x + 72,
 			pos.y + 39);
 	}
+/*
 	CSDL_Ext::blit8bppAlphaTo24bpp(
 		flag->ourImages[flagAnim].bitmap,
 		NULL,
@@ -141,6 +142,7 @@ void CBattleHero::show(SDL_Surface * to)
 	//animation of hero
 	SDL_Rect rect = pos;
 	CSDL_Ext::blit8bppAlphaTo24bpp(dh->ourImages[currentFrame].bitmap, NULL, to, &rect);
+*/
 
 	if ( ++animCount == 4 )
 	{
@@ -241,7 +243,7 @@ CBattleHero::~CBattleHero()
 	delete flag;
 }
 
-CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner)
+CBattleOptionsWindow::CBattleOptionsWindow(const Rect & position, CBattleInterface *owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	pos = position;
@@ -302,7 +304,7 @@ void CBattleOptionsWindow::bExitf()
 	GH.popIntTotally(this);
 }
 
-CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect & pos, CBattleInterface * _owner)
+CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const Rect & pos, CBattleInterface * _owner)
 : owner(_owner)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -490,19 +492,14 @@ void CBattleResultWindow::bExitf()
 Point CClickableHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const CStack * stack, const CBattleInterface * cbi)
 {
 	Point ret(-500, -500); //returned value
-	if(stack && stack->position < 0) //creatures in turrets
+	if (stack && stack->position < 0) //creatures in turrets
 	{
-		switch(stack->position)
+		auto sp = stack->position;
+		if (sp >= -4 && sp <= -2)
 		{
-		case -2: //keep
-			ret = cbi->siegeH->town->town->clientInfo.siegePositions[18];
-			break;
-		case -3: //lower turret
-			ret = cbi->siegeH->town->town->clientInfo.siegePositions[19];
-			break;
-		case -4: //upper turret
-			ret = cbi->siegeH->town->town->clientInfo.siegePositions[20];
-			break;	
+			// sp: -2 = keep, -3 = lower turret, -4 = upper turret
+			auto & siegePositions = cbi->siegeH->town->town->clientInfo.siegePositions;
+			ret = Point(siegePositions[16-sp].x, siegePositions[16-sp].y);
 		}
 	}
 	else
@@ -531,7 +528,7 @@ Point CClickableHex::getXYUnitAnim(const int & hexNum, const bool & attacker, co
 		}
 	}
 	//returning
-	return ret +CPlayerInterface::battleInt->pos;
+	return ret += CPlayerInterface::battleInt->pos;
 }
 
 void CClickableHex::hover(bool on)
@@ -667,9 +664,9 @@ void CStackQueue::blitBg( SDL_Surface * to )
 {
 	if(bg)
 	{
-		SDL_SetClipRect(to, &pos);
-		CSDL_Ext::fillTexture(to, bg);
-		SDL_SetClipRect(to, nullptr);
+//*		SDL_SetClipRect(to, &pos);
+//*		CSDL_Ext::fillTexture(to, bg);
+//*		SDL_SetClipRect(to, nullptr);
 	}
 }
 

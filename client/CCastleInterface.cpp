@@ -1661,7 +1661,6 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, CreatureID creMachineID, Art
 //*	statusBar = new CGStatusBar(new CPicture(*background, Rect(8, pos.h - 26, pos.w - 16, 19), 8, pos.h - 26));
 	
 	animBG = new CPicture("TPSMITBK", 64, 50);
-	animBG->needRefresh = true;
 
 	const CCreature *creature = CGI->creh->creatures[creMachineID];
 	anim = new CCreatureAnim(64, 50, creature->animDefName, Rect());

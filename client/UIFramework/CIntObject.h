@@ -1,7 +1,8 @@
 #pragma once
 
 #include <SDL_events.h>
-#include "Geometries.h"
+#include "../../lib/int3.h"
+#include "../Gfx/Basic.h"
 #include "../Graphics.h"
 
 struct SDL_Surface;
@@ -19,6 +20,8 @@ class CGuiHandler;
  */
 
 using boost::logic::tribool;
+using Gfx::Point;
+using Gfx::Rect;
 
 // Defines a activate/deactive method
 class IActivatable
@@ -64,7 +67,6 @@ public:
 // Base UI element
 class CIntObject : public IShowActivatable //interface object
 {
-
 	ui16 used;//change via addUsed() or delUsed
 
 	//time handling
@@ -100,11 +102,12 @@ public:
 
 	/// read-only parent access. May not be a "clean" solution but allows some compatibility
 	CIntObject * const & parent;
+	const ui16 & active;
 
 	/// position of object on the screen. Please do not modify this anywhere but in constructor - use moveBy\moveTo instead
-	/*const*/ Rect pos;
+	Rect pos;
 
-	CIntObject(int used=0, Point offset=Point());
+	CIntObject(int used_ = 0, Point offset = Point(0, 0));
 	virtual ~CIntObject(); //d-tor
 
 	//l-clicks handling
@@ -139,7 +142,6 @@ public:
 	virtual void onDoubleClick(){}
 
 	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, ALL=0xffff};
-	const ui16 & active;
 	void addUsedEvents(ui16 newActions);
 	void removeUsedEvents(ui16 newActions);
 
@@ -164,14 +166,14 @@ public:
 
 	enum EAlignment {TOPLEFT, CENTER, BOTTOMRIGHT};
 
-	bool isItInLoc(const SDL_Rect &rect, int x, int y);
-	bool isItInLoc(const SDL_Rect &rect, const Point &p);
+	bool isItInLoc(const Rect &rect, int x, int y);
+	bool isItInLoc(const Rect &rect, Point p);
 	const Rect & center(const Rect &r, bool propagate = true); //sets pos so that r will be in the center of screen, assigns sizes of r to pos, returns new position
-	const Rect & center(const Point &p, bool propagate = true);  //moves object so that point p will be in its center
+	const Rect & center(Point p, bool propagate = true);  //moves object so that point p will be in its center
 	const Rect & center(bool propagate = true); //centers when pos.w and pos.h are set, returns new position
 	void fitToScreen(int borderWidth, bool propagate = true); //moves window to fit into screen
-	void moveBy(const Point &p, bool propagate = true);
-	void moveTo(const Point &p, bool propagate = true);//move this to new position, coordinates are absolute (0,0 is topleft screen corner)
+	void moveBy(Point p, bool propagate = true);
+	void moveTo(Point p, bool propagate = true);//move this to new position, coordinates are absolute (0,0 is topleft screen corner)
 
 	void addChild(CIntObject *child, bool adjustPosition = false);
 	void removeChild(CIntObject *child, bool adjustPosition = false);
@@ -187,7 +189,7 @@ public:
 	void printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printToLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color color, SDL_Surface * dst);
-	void printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color color, SDL_Surface * dst);
+	void printAtMiddleLoc(const std::string & text, Point p, EFonts font, SDL_Color color, SDL_Surface * dst);
 	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charsPerLine, SDL_Color color, SDL_Surface * dst);
 
 	//image blitting. If possible use CPicture or CAnimImage instead

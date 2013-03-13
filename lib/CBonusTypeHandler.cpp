@@ -299,12 +299,12 @@ void CBonusTypeHandler::load(const JsonNode& config)
 		if(it == bonusNameMap.end())
 		{
 			//TODO: new bonus
-			CBonusType bt;
-			loadItem(node.second, bt);
-			
-			auto new_id = bonusTypes.size();
-			
-			bonusTypes.push_back(bt);
+//			CBonusType bt;
+//			loadItem(node.second, bt);
+//			
+//			auto new_id = bonusTypes.size();
+//			
+//			bonusTypes.push_back(bt);
 			
 			tlog2 << "Adding new bonuses not implemented (" << node.first << ")" << std::endl;
 		}

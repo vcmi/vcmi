@@ -26,11 +26,6 @@ namespace GameConstants
 	    "wood", "mercury", "ore", "sulfur", "crystal", "gems", "gold", "mithril"
 	};
 
-	const std::string HERO_CLASSES_NAMES [F_NUMBER * 2] = {
-	    "knight",    "cleric",     "ranger",      "druid",       "alchemist",    "wizard",
-	    "demoniac",  "heretic",    "deathknight", "necromancer", "warlock",      "overlord",
-	    "barbarian", "battlemage", "beastmaster", "witch",       "planeswalker", "elementalist"
-	};
 	const std::string PLAYER_COLOR_NAMES [PlayerColor::PLAYER_LIMIT_I] = {
 		"red", "blue", "tan", "green", "orange", "purple", "teal", "pink"
 	};

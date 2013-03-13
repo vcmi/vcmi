@@ -2927,12 +2927,12 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 		BOOST_FOREACH(const JsonNode &stackNode, n["army"].Vector())
 		{
 			ss.stacks[i].type = CreatureID((si32)stackNode.Vector()[0].Float());
-			ss.stacks[i].count = stackNode.Vector()[1].Float();
+			ss.stacks[i].count = stackNode.Vector()[1].asInteger();
 			i++;
 		}
 
 		if(n["heroid"].getType() == JsonNode::DATA_FLOAT)
-			ss.heroId = n["heroid"].Float();
+			ss.heroId = n["heroid"].asInteger();
 		else
 			ss.heroId = -1;
 
@@ -2942,8 +2942,8 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 		BOOST_FOREACH(const JsonNode &skillNode, n["heroSecSkills"].Vector())
 		{
 			std::pair<si32, si8> secSkill;
-			secSkill.first = skillNode.Vector()[0].Float();
-			secSkill.second = skillNode.Vector()[1].Float();
+			secSkill.first = skillNode.Vector()[0].asInteger();
+			secSkill.second = skillNode.Vector()[1].asInteger();
 			ss.heroSecSkills.push_back(secSkill);
 		}
 
@@ -2969,14 +2969,14 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 		auto oi = make_shared<CObstacleInstance>();
 		if(n.getType() == JsonNode::DATA_VECTOR)
 		{
-			oi->ID = n.Vector()[0].Float();
-			oi->pos = n.Vector()[1].Float();
+			oi->ID = n.Vector()[0].asInteger();
+			oi->pos = n.Vector()[1].asInteger();
 		}
 		else
 		{
 			assert(n.getType() == JsonNode::DATA_FLOAT);
 			oi->ID = 21;
-			oi->pos = n.Float();
+			oi->pos = n.asInteger();
 		}
 		oi->uniqueID = ret.obstacles.size();
 		ret.obstacles.push_back(oi);
@@ -2985,13 +2985,13 @@ DuelParameters DuelParameters::fromJSON(const std::string &fname)
 	BOOST_FOREACH(const JsonNode &n, duelData["creatures"].Vector())
 	{
 		CusomCreature cc;
-		cc.id = n["id"].Float();
+		cc.id = n["id"].asInteger();
 
 #define retreive(name)								\
 	if(n[ #name ].getType() == JsonNode::DATA_FLOAT)\
-	cc.name = n[ #name ].Float();			\
+		cc.name = n[ #name ].asInteger();			\
 	else											\
-	cc.name = -1;
+		cc.name = -1;
 
 		retreive(attack);
 		retreive(defense);
@@ -3013,11 +3013,11 @@ TeamState::TeamState()
 void CPathfinder::initializeGraph()
 {
 	CGPathNode ***graph = out.nodes;
-	for(si32 i=0; i < out.sizes.x; ++i)
+	for(size_t i=0; i < out.sizes.x; ++i)
 	{
-		for(si32 j=0; j < out.sizes.y; ++j)
+		for(size_t j=0; j < out.sizes.y; ++j)
 		{
-			for(si32 k=0; k < out.sizes.z; ++k)
+			for(size_t k=0; k < out.sizes.z; ++k)
 			{
 				curPos = int3(i,j,k);
 				const TerrainTile *tinfo = &gs->map->terrain[i][j][k];

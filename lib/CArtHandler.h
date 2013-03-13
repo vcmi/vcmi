@@ -59,8 +59,8 @@ public:
 	bool isBig () const;
 
 	int getArtClassSerial() const; //0 - treasure, 1 - minor, 2 - major, 3 - relic, 4 - spell scroll, 5 - other
-	std::string nodeName() const OVERRIDE;
-	void addNewBonus(Bonus *b) OVERRIDE;
+	std::string nodeName() const override;
+	void addNewBonus(Bonus *b) override;
 
 	virtual void levelUpArtifact (CArtifactInstance * art){};
 
@@ -112,7 +112,7 @@ public:
 
 	//CArtifactInstance(int aid);
 
-	std::string nodeName() const OVERRIDE;
+	std::string nodeName() const override;
 	void deserializationFix();
 	void setType(CArtifact *Art);
 
@@ -161,11 +161,11 @@ public:
 
 	std::vector<ConstituentInfo> constituentsInfo;
 
-	bool canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved = false) const OVERRIDE;
-	bool canBeDisassembled() const OVERRIDE;
-	void putAt(ArtifactLocation al) OVERRIDE;
-	void removeFrom(ArtifactLocation al) OVERRIDE;
-	bool isPart(const CArtifactInstance *supposedPart) const OVERRIDE;
+	bool canBePutAt(const CArtifactSet *artSet, ArtifactPosition slot, bool assumeDestRemoved = false) const override;
+	bool canBeDisassembled() const override;
+	void putAt(ArtifactLocation al) override;
+	void removeFrom(ArtifactLocation al) override;
+	bool isPart(const CArtifactInstance *supposedPart) const override;
 
 	void createConstituents();
 	void addAsConstituent(CArtifactInstance *art, ArtifactPosition slot);
@@ -187,6 +187,13 @@ public:
 
 class DLL_LINKAGE CArtHandler //handles artifacts
 {
+	void addSlot(CArtifact * art, const std::string & slotID);
+	void loadSlots(CArtifact * art, const JsonNode & node);
+	void loadClass(CArtifact * art, const JsonNode & node);
+	void loadType(CArtifact * art, const JsonNode & node);
+	void loadComponents(CArtifact * art, const JsonNode & node);
+	void loadGrowingArt(CGrowingArtifact * art, const JsonNode & node);
+
 	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype = -1, Bonus::ValueType valType = Bonus::BASE_NUMBER, shared_ptr<ILimiter> limiter = shared_ptr<ILimiter>(), int additionalinfo = 0);
 	void giveArtBonus(ArtifactID aid, Bonus::BonusType type, int val, int subtype, shared_ptr<IPropagator> propagator, int additionalinfo = 0);
 	void giveArtBonus(ArtifactID aid, Bonus *bonus);
@@ -203,8 +210,6 @@ public:
 	void load(std::string objectID, const JsonNode & node);
 	/// load one artifact from json config
 	CArtifact * loadArtifact(const JsonNode & node);
-
-	void loadArtifactJson(CArtifact * art, const JsonNode & node);
 
 	void addBonuses(CArtifact *art, const JsonNode &bonusList);
 

@@ -199,25 +199,25 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 				if (hvx<0 && hvy<0)
 				{
 					Rect dstRect = genRect(32, 32, x + moveX, y + moveY);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &dstRect);
+//*					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &dstRect);
 				}
 				else if(hvx<0)
 				{
 					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
 					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x + moveX, y + moveY);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
+//*					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else if (hvy<0)
 				{
 					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
 					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
+//*					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else
 				{
 					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
 					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
+//*					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 			}
 			else //standard version
@@ -225,25 +225,25 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 				if (hvx<0 && hvy<0)
 				{
 					Rect dstRect = genRect(32, 32, x, y);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &dstRect);
+//*					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, to, &dstRect);
 				}
 				else if(hvx<0)
 				{
 					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0);
 					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x, y);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
+//*					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else if (hvy<0)
 				{
 					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
 					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x, y);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
+//*					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 				else
 				{
 					Rect srcRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, 0, 0);
 					Rect dstRect = genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x, y);
-					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
+//*					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, &srcRect, to, &dstRect);
 				}
 			}
 			SDL_SetClipRect(to, &prevClip);
@@ -255,15 +255,15 @@ void CTerrainRect::showPath(const SDL_Rect * extRect, SDL_Surface * to)
 void CTerrainRect::show()
 {
 	if(ADVOPT.smoothMove)
-		CGI->mh->terrainRect
-			(adventureInt->position, adventureInt->anim,
-			 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
-			 nullptr, &pos, moveX, moveY, false, int3());
+		CGI->mh->terrainRect(
+			adventureInt->position, adventureInt->anim,
+			&LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
+			nullptr, &pos, moveX, moveY, false, int3());
 	else
-		CGI->mh->terrainRect
-			(adventureInt->position, adventureInt->anim,
-			 &LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
-			 nullptr, &pos, 0, 0, false, int3());
+		CGI->mh->terrainRect(
+			adventureInt->position, adventureInt->anim,
+			&LOCPLINT->cb->getVisibilityMap(), true, adventureInt->heroAnim,
+			nullptr, &pos, 0, 0, false, int3());
 
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
@@ -414,12 +414,11 @@ infoBar(Rect(ADVOPT.infoboxX, ADVOPT.infoboxY, 192, 192) )
 	heroAnim=0;
 	heroAnimValHitCount=0; // hero animation frame
 
-	for (int g=0; g<ADVOPT.gemG.size(); ++g)
+	for (size_t g=0; g<ADVOPT.gemG.size(); ++g)
 	{
 		gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[g]));
 	}
-
-
+	
 	setPlayer(LOCPLINT->playerID);
 	underground.block(!CGI->mh->map->twoLevel);
 	addUsedEvents(MOVE);
@@ -429,8 +428,7 @@ CAdvMapInt::~CAdvMapInt()
 {
 	SDL_FreeSurface(bg);
 
-	for(int i=0; i<gems.size(); i++)
-		delete gems[i];
+	for(size_t i=0; i<gems.size(); ++i) delete gems[i];
 }
 
 void CAdvMapInt::fshowOverview()
@@ -524,7 +522,7 @@ void CAdvMapInt::fendTurn()
 
 	if ( settings["adventure"]["heroReminder"].Bool())
 	{
-		for (int i = 0; i < LOCPLINT->wanderingHeroes.size(); i++)
+		for (size_t i = 0; i < LOCPLINT->wanderingHeroes.size(); ++i)
 			if (!isHeroSleeping(LOCPLINT->wanderingHeroes[i]) && (LOCPLINT->wanderingHeroes[i]->movement > 0))
 			{
 				LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[55], boost::bind(&CAdvMapInt::endingTurn, this), 0, false);
@@ -1430,7 +1428,8 @@ void CAdvMapInt::tileRClicked(const int3 &mapPos)
 		return;
 	}
 
-	CRClickPopup::createAndPush(obj, GH.current->motion, CENTER);
+	auto &motion = GH.current->motion;
+	CRClickPopup::createAndPush(obj, Point(motion.x, motion.y), CENTER);
 }
 
 void CAdvMapInt::enterCastingMode(const CSpell * sp)

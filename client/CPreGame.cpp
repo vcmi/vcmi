@@ -381,7 +381,7 @@ CButton* CMenuEntry::createButton(CMenuScreen* parent, const JsonNode& button)
 	const PairOfStrings * help = (button["help"].Float() > 0) ?
 		&( CGI->generaltexth->zelp[button["help"].asInteger()] ) : nullptr;
 
-	return new CButton(command, point, button["name"].String(), 0, 4, help, LCLICK|RCLICK|HOVER|KEYBOARD, button["hotkey"].asInteger());
+	return new CButton(command, point, button["name"].String(), 0, 4, help, button["hotkey"].asInteger());
 }
 
 CMenuEntry::CMenuEntry(CMenuScreen* parent, const JsonNode &config)
@@ -430,12 +430,12 @@ void CreditsScreen::show()
 		count = 0;
 	}
 	Rect creditsArea = credits->pos & pos;
-	SDL_SetClipRect(screenBuf, &creditsArea);
-	SDL_SetClipRect(screen, &creditsArea);
+//*	SDL_SetClipRect(screenBuf, &creditsArea);
+//*	SDL_SetClipRect(screen, &creditsArea);
 	redraw();
 	CIntObject::showAll();
-	SDL_SetClipRect(screen, NULL);
-	SDL_SetClipRect(screenBuf, NULL);
+//*	SDL_SetClipRect(screen, NULL);
+//*	SDL_SetClipRect(screenBuf, NULL);
 
 	//end of credits, close this screen
 	if (credits->pos.y + credits->pos.h < 0)
@@ -620,7 +620,7 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 				toggleTab(sel);
 				changeSelection(sel->getSelectedMapInfo());
 			};
-			CButton * select = new CButton(selectCmd, Gfx::Point(411, 80), "GSPBUTT", 0, 4, &(zelp[45]), LCLICK|RCLICK|KEYBOARD, SDLK_s);
+			CButton * select = new CButton(selectCmd, Gfx::Point(411, 80), "GSPBUTT", 0, 4, &(zelp[45]), SDLK_s);
 			select->addTextOverlay(CGI->generaltexth->allTexts[500], FONT_SMALL);
 
 			const CFunctionList<void()> randomCmd = [&]()
@@ -628,13 +628,13 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 				toggleTab(randMapTab);
 				changeSelection(&randMapTab->getMapInfo());
 			};
-			CButton * randomBtn = new CButton(randomCmd, Gfx::Point(411, 105), "GSPBUTT", 0, 4, &(zelp[47]), LCLICK|RCLICK|KEYBOARD, SDLK_r);
+			CButton * randomBtn = new CButton(randomCmd, Gfx::Point(411, 105), "GSPBUTT", 0, 4, &(zelp[47]), SDLK_r);
 			randomBtn->addTextOverlay(CGI->generaltexth->allTexts[740], FONT_SMALL);
 
-			CButton * opts = new CButton(bind(&CSelectionScreen::toggleTab, this, opt), Gfx::Point(411, 510), "GSPBUTT", 0, 4, &(zelp[46]), LCLICK|RCLICK|KEYBOARD, SDLK_a);
+			CButton * opts = new CButton(bind(&CSelectionScreen::toggleTab, this, opt), Gfx::Point(411, 510), "GSPBUTT", 0, 4, &(zelp[46]), SDLK_a);
 			opts->addTextOverlay(CGI->generaltexth->allTexts[501], FONT_SMALL);
 
-			start = new CButton(bind(&CSelectionScreen::startScenario, this), Gfx::Point(411, 535), "SCNRBEG", 0, 4, &(zelp[103]), LCLICK|RCLICK|KEYBOARD, SDLK_b);
+			start = new CButton(bind(&CSelectionScreen::startScenario, this), Gfx::Point(411, 535), "SCNRBEG", 0, 4, &(zelp[103]), SDLK_b);
 
 			if(network)
 			{
@@ -655,21 +655,21 @@ CSelectionScreen::CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMulti
 		break;
 	case CMenuScreen::loadGame:
 		sel->recActions = 255;
-		start = new CButton(bind(&CSelectionScreen::startScenario, this), Gfx::Point(411, 535), "SCNRLOD", 0, 4, &(zelp[103]), LCLICK|RCLICK|KEYBOARD, SDLK_l);
+		start = new CButton(bind(&CSelectionScreen::startScenario, this), Gfx::Point(411, 535), "SCNRLOD", 0, 4, &(zelp[103]), SDLK_l);
 		break;
 	case CMenuScreen::saveGame:
 		sel->recActions = 255;
-		start = new CButton(bind(&CSelectionScreen::startScenario, this), Gfx::Point(411, 535), "SCNRSAV", 0, 4, &(zelp[103]), LCLICK|RCLICK|KEYBOARD);
+		start = new CButton(bind(&CSelectionScreen::startScenario, this), Gfx::Point(411, 535), "SCNRSAV", 0, 4, &(zelp[103]));
 		break;
 	case CMenuScreen::campaignList:
 		sel->recActions = 255;
-		start = new CButton(bind(&CSelectionScreen::startCampaign, this), Gfx::Point(411, 535), "SCNRLOD", 0, 4, nullptr, LCLICK|RCLICK|KEYBOARD, SDLK_b);
+		start = new CButton(bind(&CSelectionScreen::startCampaign, this), Gfx::Point(411, 535), "SCNRLOD", 0, 4, nullptr, SDLK_b);
 		break;
 	}
 
 	start->assignedKeys.insert(SDLK_RETURN);
 
-	back = new CButton( bind(&CGuiHandler::popIntTotally, &GH, this), Gfx::Point(581, 535), "SCNRBACK", 0, 2, &(zelp[105]), LCLICK|RCLICK|KEYBOARD, SDLK_ESCAPE);
+	back = new CButton( bind(&CGuiHandler::popIntTotally, &GH, this), Gfx::Point(581, 535), "SCNRBACK", 0, 2, &(zelp[105]), SDLK_ESCAPE);
 
 	if(network)
 	{
@@ -1234,7 +1234,6 @@ SelectionTab::SelectionTab(CMenuScreen::EState Type, const boost::function<void(
 
 	slider = new CSlider(372, 86, tabType != CMenuScreen::saveGame ? 480 : 430, bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, 1);
 	slider->addUsedEvents(WHEEL);
-//*	slider->slider->keepFrame = true;
 	format =  CDefHandler::giveDef("SCSELC.DEF");
 
 	sortingBy = _format;
@@ -1536,7 +1535,7 @@ int SelectionTab::getLine()
 {
 	int line = -1;
 	Point clickPos(GH.current->button.x, GH.current->button.y);
-	clickPos = clickPos - pos.topLeft();
+	clickPos -= pos;
 
 	if (clickPos.y > 115  &&  clickPos.y < 564  &&  clickPos.x > 22  &&  clickPos.x < 371)
 	{
@@ -1895,12 +1894,7 @@ InfoCard::InfoCard( bool Network )
 	Rect descriptionRect(26, 149, 320, 115);
 	mapDescription = new CTextBox("", descriptionRect, 1);
 
-	if(SEL->screenType == CMenuScreen::campaignList)
-	{
-		CSelectionScreen *ss = static_cast<CSelectionScreen*>(parent);
-		mapDescription->addChild(new CPicture(ss->bg->getImage(), descriptionRect + Point(-393, 0)), true); //move subpicture bg to our description control (by default it's our (Infocard) child)
-	}
-	else
+	if(SEL->screenType != CMenuScreen::campaignList)
 	{
 		bg = new CPicture("GSELPOP1.bmp", 0, 0);
 		parent->addChild(bg);
@@ -1913,7 +1907,7 @@ InfoCard::InfoCard( bool Network )
 		sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
 		difficulty = new CHighlightableButtonsGroup(0);
 		{
-			static const char *difButns[] = {"GSPBUT3.DEF", "GSPBUT4.DEF", "GSPBUT5.DEF", "GSPBUT6.DEF", "GSPBUT7.DEF"};
+			static const char *difButns[] = {"GSPBUT3", "GSPBUT4", "GSPBUT5", "GSPBUT6", "GSPBUT7"};
 
 			for(int i = 0; i < 5; i++)
 			{
@@ -1924,14 +1918,14 @@ InfoCard::InfoCard( bool Network )
 		if(SEL->screenType != CMenuScreen::newGame)
 			difficulty->block(true);
 
-		//description needs bg
-		mapDescription->addChild(new CPicture(bg->getImage(), descriptionRect), true); //move subpicture bg to our description control (by default it's our (Infocard) child)
-
-		if(network)
+		if (network)
 		{
 			playerListBg = new CPicture("CHATPLUG.bmp", 16, 276);
+
+			Rect tmp_rect = chat->chatHistory->pos;
+			tmp_rect -= pos;
 			chat = new CChatBox(descriptionRect);
-			chat->chatHistory->addChild(new CPicture(bg->getImage(), chat->chatHistory->pos - pos), true); //move subpicture bg to our description control (by default it's our (Infocard) child)
+			chat->chatHistory->addChild(new CPicture(bg->getImage(), tmp_rect), true); //move subpicture bg to our description control (by default it's our (Infocard) child)
 
 			chatOn = true;
 			mapDescription->disable();
@@ -2020,7 +2014,7 @@ void InfoCard::showAll()
 
 			//difficulty
 			assert(SEL->current->mapHeader->difficulty <= 4);
-//			std::string &diff = CGI->generaltexth->arraytxt[142 + SEL->current->mapHeader->difficulty];
+			std::string &diff = CGI->generaltexth->arraytxt[142 + SEL->current->mapHeader->difficulty];
 //*			printAtMiddleLoc(diff, 62, 472, FONT_SMALL, Colors::WHITE, to);
 
 			//selecting size icon
@@ -4068,7 +4062,7 @@ CPrologEpilogVideo::CPrologEpilogVideo( CCampaignScenario::SScenarioPrologEpilog
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	addUsedEvents(LCLICK);
-	pos = Rect(screen);
+	pos = Rect(0, 0, GL2D::getScreenWidth(), GL2D::getScreenHeight());
 
 	CCS->videoh->open(CCampaignHandler::prologVideoName(spe.prologVideo));
 

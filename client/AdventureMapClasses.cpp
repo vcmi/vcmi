@@ -154,10 +154,11 @@ void CList::selectIndex(int which)
 void CList::selectNext()
 {
 	int index = getSelectedIndex();
+
 	if (index < 0)
 		selectIndex(0);
-	else if (index + 1 < list->size())
-		selectIndex(index+1);
+	else if ((size_t)++index < list->size())
+		selectIndex(index);
 }
 
 void CList::selectPrev()
@@ -177,7 +178,7 @@ CHeroList::CEmptyHeroItem::CEmptyHeroItem()
 	auto mana = new CAnimImage("IMANA", 0, 0, move->pos.w + img->pos.w + 2, 1 );
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;
-	pos.h = std::max(std::max<ui16>(move->pos.h + 1, mana->pos.h + 1), img->pos.h);
+	pos.h = std::max(std::max<ui32>(move->pos.h + 1, mana->pos.h + 1), img->pos.h);
 }
 
 CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero):
@@ -190,7 +191,7 @@ CHeroList::CHeroItem::CHeroItem(CHeroList *parent, const CGHeroInstance * Hero):
 	mana     = new CAnimImage("IMANA", 0, 0, movement->pos.w + portrait->pos.w + 2, 1 );
 
 	pos.w = mana->pos.w + mana->pos.x - pos.x;
-	pos.h = std::max(std::max<ui16>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
+	pos.h = std::max(std::max<ui32>(movement->pos.h + 1, mana->pos.h + 1), portrait->pos.h);
 
 	update();
 }
@@ -220,7 +221,8 @@ void CHeroList::CHeroItem::open()
 
 void CHeroList::CHeroItem::showTooltip()
 {
-	CRClickPopup::createAndPush(hero, GH.current->motion);
+	auto &motion = GH.current->motion;
+	CRClickPopup::createAndPush(hero, Point(motion.x, motion.y));
 }
 
 std::string CHeroList::CHeroItem::getHoverText()
@@ -312,7 +314,8 @@ void CTownList::CTownItem::open()
 
 void CTownList::CTownItem::showTooltip()
 {
-	CRClickPopup::createAndPush(town, GH.current->motion);
+	auto &motion = GH.current->motion;
+	CRClickPopup::createAndPush(town, Point(motion.x, motion.y));
 }
 
 std::string CTownList::CTownItem::getHoverText()

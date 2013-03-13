@@ -226,7 +226,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, PlayerColor play
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
 		blitOr = true;
 
-	const int sizes[][2] = {{400, 125}, {500, 150}, {600, 200}, {480, 400}};
+	const ui32 sizes[][2] = {{400, 125}, {500, 150}, {600, 200}, {480, 400}};
 
 	for(int i = 0; 
 		i < ARRAY_COUNT(sizes) 
@@ -323,11 +323,11 @@ void CMessage::drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int
 		// Top border
 		Rect srcR(0, 0, cur_w, box[6]->h);
 		Rect dstR(start_x, y, 0, 0);
-		CSDL_Ext::blitSurface(box[6], &srcR, ret, &dstR);
+//*		CSDL_Ext::blitSurface(box[6], &srcR, ret, &dstR);
 		
 		// Bottom border
 		dstR.y = bottom_y;
-		CSDL_Ext::blitSurface(box[7], &srcR, ret, &dstR);
+//*		CSDL_Ext::blitSurface(box[7], &srcR, ret, &dstR);
 
 		start_x += cur_w;
 	}
@@ -344,27 +344,27 @@ void CMessage::drawBorder(PlayerColor playerColor, SDL_Surface * ret, int w, int
 		// Left border
 		Rect srcR(0, 0, box[4]->w, cur_h);
 		Rect dstR(x, start_y, 0, 0);
-		CSDL_Ext::blitSurface(box[4], &srcR, ret, &dstR);
+//*		CSDL_Ext::blitSurface(box[4], &srcR, ret, &dstR);
 
 		// Right border
 		dstR.x = right_x;
-		CSDL_Ext::blitSurface(box[5], &srcR, ret, &dstR);
+//*		CSDL_Ext::blitSurface(box[5], &srcR, ret, &dstR);
 
 		start_y += cur_h;
 	}
 
 	//corners
 	Rect dstR(x, y, box[0]->w, box[0]->h);
-	CSDL_Ext::blitSurface(box[0], NULL, ret, &dstR);
+//*	CSDL_Ext::blitSurface(box[0], NULL, ret, &dstR);
 
 	dstR=Rect(x+w-box[1]->w, y,   box[1]->w, box[1]->h);
-	CSDL_Ext::blitSurface(box[1], NULL, ret, &dstR);
+//*	CSDL_Ext::blitSurface(box[1], NULL, ret, &dstR);
 
 	dstR=Rect(x, y+h-box[2]->h+1, box[2]->w, box[2]->h);
-	CSDL_Ext::blitSurface(box[2], NULL, ret, &dstR);
+//*	CSDL_Ext::blitSurface(box[2], NULL, ret, &dstR);
 
 	dstR=Rect(x+w-box[3]->w, y+h-box[3]->h+1, box[3]->w, box[3]->h);
-	CSDL_Ext::blitSurface(box[3], NULL, ret, &dstR);
+//*	CSDL_Ext::blitSurface(box[3], NULL, ret, &dstR);
 }
 
 ComponentResolved::ComponentResolved( CComponent *Comp ):

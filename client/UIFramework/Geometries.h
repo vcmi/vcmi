@@ -1,5 +1,7 @@
 #pragma once
 
+#if 0
+
 #include <SDL_video.h>
 #include <SDL_events.h>
 #include "../../lib/int3.h"
@@ -266,3 +268,5 @@ struct Rect : public SDL_Rect
 		return ret;
 	}
 };
+
+#endif

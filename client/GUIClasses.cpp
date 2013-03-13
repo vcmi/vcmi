@@ -1195,7 +1195,9 @@ void CComponentBox::placeComponents(bool selectable)
 			{
 				if (selectable)
 				{
-					Point orPos = Point(currentX - freeSpace, currentY) + getOrTextPos(prevComp, *iter);
+					Point orPos = getOrTextPos(prevComp, *iter);
+					orPos.x += currentX - freeSpace;
+					orPos.y += currentY;
 
 					new CLabel(orPos.x, orPos.y, FONT_MEDIUM, CENTER, Colors::WHITE, CGI->generaltexth->allTexts[4]);
 				}
@@ -1217,7 +1219,7 @@ CComponentBox::CComponentBox(CComponent * _components, Rect position):
     selected(nullptr)
 {
 	type |= REDRAW_PARENT;
-	pos = position + pos;
+	pos.addOffs_copySize(position);
 	placeComponents(false);
 }
 
@@ -1226,7 +1228,7 @@ CComponentBox::CComponentBox(std::vector<CComponent *> _components, Rect positio
     selected(nullptr)
 {
 	type |= REDRAW_PARENT;
-	pos = position + pos;
+	pos.addOffs_copySize(position);
 	placeComponents(false);
 }
 
@@ -1236,7 +1238,7 @@ CComponentBox::CComponentBox(std::vector<CSelectableComponent *> _components, Re
     onSelect(_onSelect)
 {
 	type |= REDRAW_PARENT;
-	pos = position + pos;
+	pos.addOffs_copySize(position);
 	placeComponents(true);
 
 	assert(!components.empty());
@@ -1323,7 +1325,6 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool An
 		bg = new CPicture(CGI->townh->factions[faction].creatureBg130);
 	else
 		bg = new CPicture(CGI->townh->factions[faction].creatureBg120);
-	bg->needRefresh = true;
 	anim = new CCreatureAnim(0, 0, cre->animDefName, Rect());
 	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
 	anim->startPreview(cre->hasBonusOfType(Bonus::SIEGE_WEAPON));
@@ -1376,7 +1377,7 @@ void CRecruitmentWindow::CCreatureCard::showAll()
 CRecruitmentWindow::CCostBox::CCostBox(Rect position, std::string title)
 {
 	type |= REDRAW_PARENT;
-	pos = position + pos;
+	pos.addOffs_copySize(position);
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	new CLabel(pos.w/2, 10, FONT_SMALL, CENTER, Colors::WHITE, title);
 }
@@ -2062,7 +2063,7 @@ void CTradeWindow::CTradeableItem::showAll()
 
 	if (image)
 	{
-		image->moveTo(pos.topLeft() + posToBitmap);
+		image->moveTo(posToBitmap += pos);
 		CIntObject::showAll();
 	}
 
@@ -2325,7 +2326,8 @@ void CTradeWindow::initItems(bool Left)
 			continue;
 
 		CTradeableItem *hlp = new CTradeableItem(pos[j].topLeft(), itemsType[Left], id, Left, j);
-		hlp->pos = pos[j] + this->pos.topLeft();
+		hlp->pos = pos[j];
+		hlp->pos += this->pos;
 		items[Left].push_back(hlp);
 	}
 
@@ -3209,7 +3211,8 @@ void CAltarWindow::mimicCres()
 	BOOST_FOREACH(CTradeableItem *t, items[1])
 	{
 		CTradeableItem *hlp = new CTradeableItem(positions[t->serial].topLeft(), CREATURE_PLACEHOLDER, t->id, false, t->serial);
-		hlp->pos = positions[t->serial] + this->pos.topLeft();
+		hlp->pos = positions[t->serial];
+		hlp->pos += this->pos;
 		items[0].push_back(hlp);
 	}
 }
@@ -3712,7 +3715,7 @@ CTavernWindow::~CTavernWindow()
 	CCS->videoh->close();
 }
 
-void CTavernWindow::show(SDL_Surface * to)
+void CTavernWindow::show()
 {
 //*	CWindowObject::show(to);
 
@@ -3731,7 +3734,7 @@ void CTavernWindow::show(SDL_Surface * to)
 			boost::algorithm::replace_first(recruit->hoverTexts[0],"%s",sel->h->type->heroClass->name);
 		}
 
-		printAtMiddleWBLoc(sel->descr, 146, 395, FONT_SMALL, 200, Colors::WHITE, to);
+//*		printAtMiddleWBLoc(sel->descr, 146, 395, FONT_SMALL, 200, Colors::WHITE, to);
 //*		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
 	}
 }
@@ -3787,7 +3790,7 @@ void CTavernWindow::HeroPortrait::hover( bool on )
 		GH.statusbar->clear();
 }
 
-void CInGameConsole::show(SDL_Surface * to)
+void CInGameConsole::show()
 {
 	int number = 0;
 
@@ -3801,8 +3804,8 @@ void CInGameConsole::show(SDL_Surface * to)
 		{
 			leftBottomCorner = LOCPLINT->battleInt->pos.bottomLeft();
 		}
-		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, it->first, Colors::GREEN,
-		    Point(leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number*20));
+//*		graphics->fonts[FONT_MEDIUM]->renderTextLeft(to, it->first, Colors::GREEN,
+//*		    Point(leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number*20));
 
 		if(SDL_GetTicks() - it->second > defaultTimeout)
 		{
@@ -4339,14 +4342,14 @@ void CArtPlace::showAll()
 	if(marked && active)
 	{
 		// Draw vertical bars.
-		for (int i = 0; i < pos.h; ++i)
+		for (size_t i = 0; i < pos.h; ++i)
 		{
 //*			CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x,             pos.y + i, 240, 220, 120);
 //*			CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x + pos.w - 1, pos.y + i, 240, 220, 120);
 		}
 
 		// Draw horizontal bars.
-		for (int i = 0; i < pos.w; ++i)
+		for (size_t i = 0; i < pos.w; ++i)
 		{
 //*			CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x + i, pos.y,             240, 220, 120);
 //*			CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x + i, pos.y + pos.h - 1, 240, 220, 120);
@@ -5247,7 +5250,6 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 		if(info.whenUncovered < GameConstants::PUZZLE_MAP_PIECES * discoveredRatio)
 		{
 			piecesToRemove.push_back(piece);
-			piece->needRefresh = true;
 			piece->recActions = piece->recActions & ~SHOWALL;
 		}
 	}
@@ -5906,7 +5908,7 @@ MoraleLuckBox::MoraleLuckBox(bool Morale, const Rect &r, bool Small):
 	small(Small)
 {
 	bonusValue = 0;
-	pos = r + pos;
+	pos.addOffs_copySize(r);
 }
 
 CArtifactHolder::CArtifactHolder()
@@ -6005,7 +6007,8 @@ void CRClickPopup::createAndPush(const std::string &txt, const CInfoWindow::TCom
 	PlayerColor player = LOCPLINT ? LOCPLINT->playerID : PlayerColor(1); //if no player, then use blue
 
 	CSimpleWindow * temp = new CInfoWindow(txt, player, comps);
-	temp->center(Point(GH.current->motion)); //center on mouse
+	auto &motion = GH.current->motion;
+	temp->center(Point(motion.x, motion.y)); //center on mouse
 	temp->fitToScreen(10);
 	CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
 	GH.pushInt(rcpi);
@@ -6078,7 +6081,7 @@ CIntObject * CRClickPopup::createInfoWin(Point position, const CGObjectInstance 
 	}
 }
 
-void CRClickPopup::createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment /*= BOTTOMRIGHT*/)
+void CRClickPopup::createAndPush(const CGObjectInstance *obj, Point p, EAlignment alignment /*= BOTTOMRIGHT*/)
 {
 	CIntObject *iWin = createInfoWin(p, obj); //try get custom infowindow for this obj
 	if(iWin)

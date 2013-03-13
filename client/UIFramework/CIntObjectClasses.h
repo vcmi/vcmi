@@ -7,7 +7,6 @@
 #include "../Gfx/Manager.h"
 
 struct SDL_Surface;
-struct Rect;
 class CAnimImage;
 class CLabel;
 class CAnimation;
@@ -36,15 +35,12 @@ public:
 // Image class
 class CPicture : public CIntObject
 {
-	void setSurface(SDL_Surface *to);
-	Gfx::PImage bg;
+	Gfx::PImage image;
 
 public: 
 	Rect * srcRect; //if NULL then whole surface will be used
-	bool freeSurf; //whether surface will be freed upon CPicture destruction
-	bool needRefresh;//Surface needs to be displayed each frame
 
-	inline Gfx::PImage getImage() { return bg; };
+	inline Gfx::PImage getImage() { return image; };
 
 	CPicture(const Rect & r, const SDL_Color & color, bool screenFormat = false); //rect filled with given color
 	CPicture(const Rect & r, ui32 color, bool screenFormat = false); //rect filled with given color
@@ -107,12 +103,11 @@ public:
 	CLabel * text; //text overlay
 
 	CButton(	const CFunctionList<void()> & flist,
-				Gfx::Point position,
+				Point position,
 				const std::string & animName,
 				size_t animOffs = 0,
 				size_t imagesNum = 4,
 				const PairOfStrings * helpStr = nullptr,
-				ui16 events = LCLICK | RCLICK | HOVER | KEYBOARD,
 				int key = SDLK_UNKNOWN
 			);
 	virtual ~CButton(); //d-tor
@@ -364,8 +359,8 @@ class CBoundedLabel : public CLabel
 {
 public:
 
-	int maxW; //longest line of text in px
-	int maxH; //total height needed to print all lines
+	ui32 maxW; //longest line of text in px
+	ui32 maxH; //total height needed to print all lines
 
 	std::vector<std::string> lines;
 

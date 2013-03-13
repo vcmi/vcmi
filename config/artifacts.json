@@ -2356,7 +2356,17 @@
 				}
 			],
 			"id" : 146,
-			"type" : ["COMMANDER"]
+			"type" : ["COMMANDER"],
+			"growing":
+			{
+				"bonusesPerLevel":
+				[
+					{
+						"level": 6,
+						"bonus": ["PRIMARY_SKILL", 1, "primSkill.attack", 0]
+					}
+				]
+			}
 		},
 		"mithrilMail":
 		{
@@ -2368,7 +2378,17 @@
 				}
 			],
 			"id" : 147,
-			"type" : ["COMMANDER"]
+			"type" : ["COMMANDER"],
+			"growing":
+			{
+				"bonusesPerLevel":
+				[
+					{
+						"level": 1,
+						"bonus": ["STACK_HEALTH", 1, 0, 0]
+					}
+				]
+			}
 		},
 		"swordOfSharpness":
 		{
@@ -2381,7 +2401,17 @@
 				}
 			],
 			"id" : 148,
-			"type" : ["COMMANDER"]
+			"type" : ["COMMANDER"],
+			"growing":
+			{
+				"bonusesPerLevel":
+				[
+					{
+						"level": 1,
+						"bonus": ["CREATURE_DAMAGE", 1, 0, 0]
+					}
+				]
+			}
 		},
 		"helmOfImmortality": //TODO: implement
 		{
@@ -2398,7 +2428,17 @@
 				}
 			],
 			"id" : 150,
-			"type" : ["COMMANDER"]
+			"type" : ["COMMANDER"],
+			"growing":
+			{
+				"bonusesPerLevel":
+				[
+					{
+						"level": 10,
+						"bonus": ["CREATURE_ENCHANT_POWER", 1, 0, 0]
+					}
+				]
+			}
 		},
 		"bootsOfHaste":
 		{
@@ -2410,17 +2450,46 @@
 				}
 			],
 			"id" : 151,
-			"type" : ["COMMANDER"]
+			"type" : ["COMMANDER"],
+			"growing":
+			{
+				"bonusesPerLevel":
+				[
+					{
+						"level": 10,
+						"bonus": ["STACKS_SPEED", 1, 0, 0]
+					}
+				]
+			}
 		},
 		"bowOfSeeking":
 		{
 			"id" : 152,
-			"type" : ["COMMANDER"]
+			"type" : ["COMMANDER"],
+			"growing":
+			{
+				"id": 152, //bow of seeking
+				"thresholdBonuses":
+				[
+					{
+						"level": 5,
+						"bonus": ["SHOOTER", 0, 0, 0]
+					},
+					{
+						"level": 25,
+						"bonus": ["NO_WALL_PENALTY", 0, 0, 0]
+					},
+					{
+						"level": 50,
+						"bonus": ["NO_DISTANCE_PENALTY", 0, 0, 0]
+					}
+				]
+			}
 		},
 		"dragonEyeRing": //TODO: implement
 		{
 			"id" : 153,
-			"type" : ["COMMANDER"]
+			"type" : ["COMMANDER"],
 		},
 		"hardenedShield":
 		{
@@ -2433,7 +2502,18 @@
 				}
 			],
 			"id" : 154,
-			"type" : ["COMMANDER"]
+			"type" : ["COMMANDER"],
+			"growing":
+			{
+				"id": 153, //hardened shield
+				"bonusesPerLevel":
+				[
+					{
+						"level": 6,
+						"bonus": ["PRIMARY_SKILL", 1, "primSkill.defence", 0]
+					}
+				]
+			}
 		},
 		"slavasRingOfPower": //TODO: implement if possible
 		{

@@ -5,22 +5,18 @@
 #include "SDL_Extensions.h"
 #include "../CMessage.h"
 
-CIntObject::CIntObject(int used_, Point pos_):
+CIntObject::CIntObject(int used_, Point offset) :
+	used(used_),
 	parent_m(nullptr),
 	active_m(0),
 	parent(parent_m),
-	active(active_m)
+	active(active_m),
+	pos(offset)
 {
 	pressedL = pressedR = hovered = captureAllKeys = strongInterest = false;
 	toNextTick = timerDelay = 0;
-	used = used_;
 
 	recActions = defActions = GH.defActionsDef;
-
-	pos.x = pos_.x;
-	pos.y = pos_.y;
-	pos.w = 0;
-	pos.h = 0;
 
 	if(GH.captureChildren)
 		GH.createdObj.front()->addChild(this, true);
@@ -80,7 +76,7 @@ void CIntObject::activate()
 	activate(used);
 
 	if(defActions & ACTIVATE)
-		for(size_t i = 0; i < children.size(); i++)
+		for(size_t i = 0; i < children.size(); ++i)
 			if(children[i]->recActions & ACTIVATE)
 				children[i]->activate();
 }
@@ -139,9 +135,9 @@ void CIntObject::printAtMiddleLoc( const std::string & text, int x, int y, EFont
 	printAtMiddleLoc(text, Point(x,y), font, kolor, dst);
 }
 
-void CIntObject::printAtMiddleLoc(const std::string & text, const Point &p, EFonts font, SDL_Color kolor, SDL_Surface * dst)
+void CIntObject::printAtMiddleLoc(const std::string & text, Point p, EFonts font, SDL_Color kolor, SDL_Surface * dst)
 {
-	graphics->fonts[font]->renderTextCenter(dst, text, kolor, pos.topLeft() + p);
+	graphics->fonts[font]->renderTextCenter(dst, text, kolor, p += pos);
 }
 
 void CIntObject::blitAtLoc( SDL_Surface * src, int x, int y, SDL_Surface * dst )
@@ -194,12 +190,12 @@ void CIntObject::enable()
 	recActions = 255;
 }
 
-bool CIntObject::isItInLoc( const SDL_Rect &rect, int x, int y )
+bool CIntObject::isItInLoc(const Rect &rect, int x, int y)
 {
 	return isItIn(&rect, x - pos.x, y - pos.y);
 }
 
-bool CIntObject::isItInLoc( const SDL_Rect &rect, const Point &p )
+bool CIntObject::isItInLoc(const Rect &rect, Point p)
 {
 	return isItIn(&rect, p.x - pos.x, p.y - pos.y);
 }
@@ -215,16 +211,16 @@ void CIntObject::fitToScreen(int borderWidth, bool propagate)
 		moveTo(newPos, propagate);
 }
 
-void CIntObject::moveBy( const Point &p, bool propagate /*= true*/ )
+void CIntObject::moveBy(Point p, bool propagate /*= true*/ )
 {
 	pos.x += p.x;
 	pos.y += p.y;
 	if(propagate)
-		for(size_t i = 0; i < children.size(); i++)
+		for(size_t i = 0; i < children.size(); ++i)
 			children[i]->moveBy(p, propagate);
 }
 
-void CIntObject::moveTo( const Point &p, bool propagate /*= true*/ )
+void CIntObject::moveTo(Point p, bool propagate /*= true*/ )
 {
 	moveBy(Point(p.x - pos.x, p.y - pos.y), propagate);
 }
@@ -267,7 +263,7 @@ void CIntObject::removeChild(CIntObject *child, bool adjustPosition /*= false*/)
 
 void CIntObject::drawBorderLoc(SDL_Surface * sur, const Rect &r, const int3 &color)
 {
-	CSDL_Ext::drawBorder(sur, r + pos, color);
+//*	CSDL_Ext::drawBorder(sur, r + pos, color);
 }
 
 void CIntObject::redraw()
@@ -299,7 +295,7 @@ const Rect & CIntObject::center( bool propagate )
 	return center(pos, propagate);
 }
 
-const Rect & CIntObject::center(const Point &p, bool propagate /*= true*/)
+const Rect & CIntObject::center(Point p, bool propagate /*= true*/)
 {
 	moveBy(Point(p.x - pos.w/2 - pos.x, 
 		p.y - pos.h/2 - pos.y), 

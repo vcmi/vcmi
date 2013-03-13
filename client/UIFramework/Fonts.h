@@ -10,9 +10,10 @@
  *
  */
 
+#include "../Gfx/Basic.h"
+
 class JsonNode;
 
-struct Point;
 struct SDL_Surface;
 struct SDL_Color;
 
@@ -22,7 +23,7 @@ class IFont
 {
 protected:
 	/// Internal function to render font, see renderTextLeft
-	virtual void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const = 0;
+	virtual void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, Gfx::Point pos) const = 0;
 
 public:
 	virtual ~IFont()
@@ -42,18 +43,18 @@ public:
 	 * @param pos - position of rendered font
 	 */
 	/// pos = topleft corner of the text
-	void renderTextLeft(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const;
+	void renderTextLeft(SDL_Surface * surface, const std::string & data, const SDL_Color & color, Gfx::Point pos) const;
 	/// pos = center of the text
-	void renderTextRight(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const;
+	void renderTextRight(SDL_Surface * surface, const std::string & data, const SDL_Color & color, Gfx::Point pos) const;
 	/// pos = bottomright corner of the text
-	void renderTextCenter(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const;
+	void renderTextCenter(SDL_Surface * surface, const std::string & data, const SDL_Color & color, Gfx::Point pos) const;
 
 	/// pos = topleft corner of the text
-	void renderTextLinesLeft(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, const Point & pos) const;
+	void renderTextLinesLeft(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, Gfx::Point pos) const;
 	/// pos = center of the text
-	void renderTextLinesRight(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, const Point & pos) const;
+	void renderTextLinesRight(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, Gfx::Point pos) const;
 	/// pos = bottomright corner of the text
-	void renderTextLinesCenter(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, const Point & pos) const;
+	void renderTextLinesCenter(SDL_Surface * surface, const std::vector<std::string> & data, const SDL_Color & color, Gfx::Point pos) const;
 };
 
 class CBitmapFont : public IFont
@@ -77,7 +78,7 @@ class CBitmapFont : public IFont
 
 	void renderCharacter(SDL_Surface * surface, const Char & character, const SDL_Color & color, int &posX, int &posY) const;
 
-	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const;
+	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, Gfx::Point pos) const;
 public:
 	CBitmapFont(const std::string & filename);
 
@@ -97,7 +98,7 @@ class CTrueTypeFont : public IFont
 	TTF_Font * loadFont(const JsonNode & config);
 	int getFontStyle(const JsonNode & config);
 
-	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, const Point & pos) const;
+	void renderText(SDL_Surface * surface, const std::string & data, const SDL_Color & color, Gfx::Point pos) const;
 public:
 	CTrueTypeFont(const JsonNode & fontConfig);
 

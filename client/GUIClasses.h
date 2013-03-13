@@ -135,7 +135,7 @@ public:
 	static CIntObject* createInfoWin(Point position, const CGObjectInstance * specific);
 	static void createAndPush(const std::string &txt, const CInfoWindow::TCompsInfo &comps = CInfoWindow::TCompsInfo());
 	static void createAndPush(const std::string &txt, CComponent * component);
-	static void createAndPush(const CGObjectInstance *obj, const Point &p, EAlignment alignment = BOTTOMRIGHT);
+	static void createAndPush(const CGObjectInstance *obj, Point p, EAlignment alignment = BOTTOMRIGHT);
 };
 
 /// popup displayed on R-click
@@ -811,7 +811,7 @@ public:
 
 	void recruitb();
 	void thievesguildb();
-	void show(SDL_Surface * to);
+	void show();
 };
 
 class CInGameConsole : public CIntObject
@@ -825,7 +825,7 @@ private:
 	int maxDisplayedTexts; //hiw many texts can be displayed simultaneously
 public:
 	std::string enteredText;
-	void show(SDL_Surface * to);
+	void show();
 	void print(const std::string &txt);
 	void keyPressed (const SDL_KeyboardEvent & key); //call-in
 

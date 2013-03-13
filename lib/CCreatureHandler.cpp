@@ -353,7 +353,7 @@ void CCreatureHandler::load()
 
 	BOOST_FOREACH(auto & node, config.Struct())
 	{
-		int creatureID = node.second["id"].Float();
+		int creatureID = node.second["id"].asInteger();
 		CCreature *c = creatures[creatureID];
 
 		loadCreatureJson(c, node.second);

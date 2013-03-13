@@ -33,7 +33,6 @@
     <ClCompile Include="UIFramework\Geometries.cpp" />
     <ClCompile Include="UIFramework\SDL_Extensions.cpp" />
     <ClCompile Include="CQuestLog.cpp" />
-    <ClCompile Include="UIFramework\Fonts.cpp" />
     <ClCompile Include="Gfx\Animations.cpp">
       <Filter>Gfx</Filter>
     </ClCompile>
@@ -60,6 +59,12 @@
     </ClCompile>
     <ClCompile Include="UIFramework\CGuiHandler.cpp">
       <Filter>UIFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="UIFramework\Fonts.cpp">
+      <Filter>UIFramework</Filter>
+    </ClCompile>
+    <ClCompile Include="Gfx\Basic.cpp">
+      <Filter>Gfx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -102,7 +107,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClInclude Include="mapHandler.h" />
-    <ClInclude Include="UIFramework\Fonts.h" />
     <ClInclude Include="Gfx\Animations.h">
       <Filter>Gfx</Filter>
     </ClInclude>
@@ -131,6 +135,9 @@
       <Filter>Gfx</Filter>
     </ClInclude>
     <ClInclude Include="UIFramework\CIntObjectClasses.h">
+      <Filter>UIFramework</Filter>
+    </ClInclude>
+    <ClInclude Include="UIFramework\Fonts.h">
       <Filter>UIFramework</Filter>
     </ClInclude>
   </ItemGroup>

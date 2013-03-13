@@ -32,7 +32,7 @@
 
 extern SDL_Surface * screen;
 
-SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL,
+SpellbookInteractiveArea::SpellbookInteractiveArea(const Rect & myRect, boost::function<void()> funcL,
 	const std::string & textR, boost::function<void()> funcHon, boost::function<void()> funcHoff, CPlayerInterface * _myInt)
 {
 	addUsedEvents(LCLICK | RCLICK | HOVER);
@@ -70,7 +70,7 @@ void SpellbookInteractiveArea::hover(bool on)
 	}
 }
 
-CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
+CSpellWindow::CSpellWindow(const Rect &, const CGHeroInstance * _myHero, CPlayerInterface * _myInt, bool openOnBattleSpells):
     CWindowObject(PLAYER_COLORED, "SpelBack"),
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
@@ -159,7 +159,7 @@ CSpellWindow::CSpellWindow(const SDL_Rect &, const CGHeroInstance * _myHero, CPl
 
 
 	statusBar = new CGStatusBar(7 + pos.x, 569 + pos.y, "Spelroll.bmp");
-	SDL_Rect temp_rect = genRect(45, 35, 479 + pos.x, 405 + pos.y);
+	Rect temp_rect = genRect(45, 35, 479 + pos.x, 405 + pos.y);
 	exitBtn = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fexitb, this), CGI->generaltexth->zelp[460].second, boost::bind(&CGStatusBar::print, statusBar, (CGI->generaltexth->zelp[460].first)), boost::bind(&CGStatusBar::clear, statusBar), myInt);
 	temp_rect = genRect(45, 35, 221 + pos.x, 405 + pos.y);
 	battleSpells = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fbattleSpellsb, this), CGI->generaltexth->zelp[453].second, boost::bind(&CGStatusBar::print, statusBar, (CGI->generaltexth->zelp[453].first)), boost::bind(&CGStatusBar::clear, statusBar), myInt);
@@ -590,7 +590,7 @@ void CSpellWindow::teleportTo( int town, const CGHeroInstance * hero )
 	LOCPLINT->cb->castSpell(hero, SpellID::TOWN_PORTAL, dest->visitablePos());
 }
 
-CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
+CSpellWindow::SpellArea::SpellArea(const Rect &pos, CSpellWindow * owner)
 {
 	this->pos = pos;
 	this->owner = owner;
@@ -828,7 +828,7 @@ void CSpellWindow::SpellArea::showAll()
 	if(mySpell < 0)
 		return;
 
-//	const CSpell * spell = mySpell.toSpell();
+	const CSpell * spell = mySpell.toSpell();
 
 //*	blitAt(owner->spells->ourImages[mySpell].bitmap, pos.x, pos.y, to);
 //*	blitAt(owner->schoolBorders[owner->selectedTab >= 4 ? whichSchool : owner->selectedTab]->ourImages[schoolLevel].bitmap, pos.x, pos.y, to); //printing border (indicates level of magic school)
