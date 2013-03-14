@@ -56,12 +56,10 @@ MacroString::MacroString(const std::string &format)
 			}
 		}		
 	}
-	while (!start_pos == std::string::npos);
+	while (start_pos != std::string::npos);
 	
 	//no more macros
 	items.push_back(Item(Item::STRING,format.substr(end_pos)));
-
-	
 }
 
 std::string MacroString::build(const GetValue& getValue) const

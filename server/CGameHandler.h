@@ -230,7 +230,7 @@ public:
 	void save(const std::string &fname);
 	void close();
 	void handleTimeEvents();
-	void handleTownEvents(CGTownInstance *town, NewTurn &n, std::map<ObjectInstanceID, std::map<si32, si32> > &newCreas);
+	void handleTownEvents(CGTownInstance *town, NewTurn &n);
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
 	void engageIntoBattle( PlayerColor player );

@@ -933,8 +933,8 @@ DLL_LINKAGE void NewTurn::applyGs( CGameState *gs )
 		gs->getPlayer(i->first)->resources = i->second;
 	}
 
-	BOOST_FOREACH(SetAvailableCreatures h, cres) //set available creatures in towns
-		h.applyGs(gs);
+	BOOST_FOREACH(auto creatureSet, cres) //set available creatures in towns
+		creatureSet.second.applyGs(gs);
 
 	gs->globalEffects.popBonuses(Bonus::OneDay); //works for children -> all game objs
 	if(gs->getDate(Date::DAY_OF_WEEK) == 1) //new week

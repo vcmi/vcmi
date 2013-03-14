@@ -201,6 +201,7 @@ void CSoundHandler::initSpellsSounds(const std::vector< ConstTransitivePtr<CSpel
 // Plays a sound, and return its channel so we can fade it out later
 int CSoundHandler::playSound(soundBase::soundID soundID, int repeats)
 {
+	assert(soundID < soundBase::sound_after_last);
 	if (!initialized)
 		return -1;
 

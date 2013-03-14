@@ -3657,9 +3657,11 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 
 	h1 = new HeroPortrait(selected,0,72,299,h[0]);
 	h2 = new HeroPortrait(selected,1,162,299,h[1]);
-	if(h[0])
-		selected = 0;
-	else
+
+	selected = 0;
+	if (!h[0])
+		selected = 1;
+	if (!h[0] && !h[1])
 		selected = -1;
 	oldSelected = -1;
 
@@ -3675,23 +3677,23 @@ CTavernWindow::CTavernWindow(const CGObjectInstance *TavernObj):
 	if(LOCPLINT->cb->getResourceAmount(Res::GOLD) < 2500) //not enough gold
 	{
 		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[0]; //Cannot afford a Hero
-		recruit->block(2);
+		recruit->block(true);
 	}
 	else if(LOCPLINT->cb->howManyHeroes(false) >= 8)
 	{
 		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[1]; //Cannot recruit. You already have %d Heroes.
 		boost::algorithm::replace_first(recruit->hoverTexts[0],"%d",boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes()));
-		recruit->block(2);
+		recruit->block(true);
 	}
 	else if(LOCPLINT->castleInt && LOCPLINT->castleInt->town->visitingHero)
 	{
 		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[2]; //Cannot recruit. You already have a Hero in this town.
-		recruit->block(2);
+		recruit->block(true);
 	}
 	else
 	{
-		if(!h[0])
-			recruit->block(1);
+		if(selected == -1)
+			recruit->block(true);
 	}
 
 	CCS->videoh->open("TAVERN.BIK");
@@ -5394,7 +5396,7 @@ void CUniversityWindow::CItem::clickRight(tribool down, bool previousState)
 	if(down)
 	{
 		CRClickPopup::createAndPush(CGI->generaltexth->skillInfoTexts[ID][0],
-		        new CComponent(CComponent::secskill, ID, 0));
+		        new CComponent(CComponent::secskill, ID, 1));
 	}
 }
 

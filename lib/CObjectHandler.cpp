@@ -2293,13 +2293,12 @@ void CGTownInstance::removeCapitols (PlayerColor owner) const
 
 int CGTownInstance::getBoatType() const
 {
-	const CCreature *c = VLC->creh->creatures[town->creatures.front().front()];
-	if (c->isGood())
-		return 1;
-	else if (c->isEvil())
-		return 0;
-	else //neutral
-		return 2;
+	switch (VLC->townh->factions[town->typeID].alignment)
+	{
+	case EAlignment::EVIL : return 0;
+	case EAlignment::GOOD : return 1;
+	case EAlignment::NEUTRAL : return 2;
+	}
 }
 
 int CGTownInstance::getMarketEfficiency() const
@@ -4877,7 +4876,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 {
 	bool visited = h->hasBonusFrom(Bonus::OBJECT,ID);
 	int messageID=0;
-	int bonusMove = 0, sound = -1;
+	int bonusMove = 0;
 	ui32 descr_id = 0;
 	InfoWindow iw;
 	iw.player = h->tempOwner;
@@ -4894,14 +4893,14 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 	{
 	case Obj::BUOY:
 		messageID = 21;
-		sound = soundBase::MORALE;
+		iw.soundID = soundBase::MORALE;
 		gbonus.bonus.type = Bonus::MORALE;
 		gbonus.bonus.val = +1;
 		descr_id = 94;
 		break;
 	case Obj::SWAN_POND:
 		messageID = 29;
-		sound = soundBase::LUCK;
+		iw.soundID = soundBase::LUCK;
 		gbonus.bonus.type = Bonus::LUCK;
 		gbonus.bonus.val = 2;
 		descr_id = 67;
@@ -4909,14 +4908,14 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case Obj::FAERIE_RING:
 		messageID = 49;
-		sound = soundBase::LUCK;
+		iw.soundID = soundBase::LUCK;
 		gbonus.bonus.type = Bonus::LUCK;
 		gbonus.bonus.val = 1;
 		descr_id = 71;
 		break;
 	case Obj::FOUNTAIN_OF_FORTUNE:
 		messageID = 55;
-		sound = soundBase::LUCK;
+		iw.soundID = soundBase::LUCK;
 		gbonus.bonus.type = Bonus::LUCK;
 		gbonus.bonus.val = rand()%5 - 1;
 		descr_id = 69;
@@ -4924,7 +4923,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case Obj::IDOL_OF_FORTUNE:
 		messageID = 62;
-		sound = soundBase::experience;
+		iw.soundID = soundBase::experience;
 
 		gbonus.bonus.val = 1;
 		descr_id = 68;
@@ -4942,13 +4941,13 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case Obj::MERMAID:
 		messageID = 83;
-		sound = soundBase::LUCK;
+		iw.soundID = soundBase::LUCK;
 		gbonus.bonus.type = Bonus::LUCK;
 		gbonus.bonus.val = 1;
 		descr_id = 72;
 		break;
 	case Obj::RALLY_FLAG:
-		sound = soundBase::MORALE;
+		iw.soundID = soundBase::MORALE;
 		messageID = 111;
 		gbonus.bonus.type = Bonus::MORALE;
 		gbonus.bonus.val = 1;
@@ -4961,6 +4960,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		bonusMove = 400;
 		break;
 	case Obj::OASIS:
+		iw.soundID = soundBase::MORALE;
 		messageID = 95;
 		gbonus.bonus.type = Bonus::MORALE;
 		gbonus.bonus.val = 1;
@@ -4983,7 +4983,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		}
 		break;
 	case Obj::WATERING_HOLE:
-		sound = soundBase::MORALE;
+		iw.soundID = soundBase::MORALE;
 		messageID = 166;
 		gbonus.bonus.type = Bonus::MORALE;
 		gbonus.bonus.val = 1;
@@ -4991,7 +4991,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		bonusMove = 400;
 		break;
 	case Obj::FOUNTAIN_OF_YOUTH:
-		sound = soundBase::MORALE;
+		iw.soundID = soundBase::MORALE;
 		messageID = 57;
 		gbonus.bonus.type = Bonus::MORALE;
 		gbonus.bonus.val = 1;
@@ -4999,7 +4999,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		bonusMove = 400;
 		break;
 	case Obj::STABLES:
-		sound = soundBase::STORE;
+		iw.soundID = soundBase::STORE;
 		bool someUpgradeDone = false;
 
 		for (TSlots::const_iterator i = h->Slots().begin(); i != h->Slots().end(); ++i)
@@ -5056,7 +5056,6 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 			cb->setMovePoints(&smp);
 		}
 	}
-	iw.soundID = sound;
 	iw.text.addTxt(MetaString::ADVOB_TXT,messageID);
 	cb->showInfoDialog(&iw);
 }
@@ -5689,7 +5688,7 @@ ui8 CGGarrison::getPassableness() const
 
 void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 {
-	int sound;
+	int sound = soundBase::sound_todo;
 	int txtid;
 
 	switch(ID)

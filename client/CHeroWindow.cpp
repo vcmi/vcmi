@@ -152,6 +152,10 @@ CHeroWindow::CHeroWindow(const CGHeroInstance *hero):
 		secSkillImages.push_back(new CAnimImage("SECSKILL", 0, 0, r.x, r.y));
 	}
 
+	//dismiss / quest log
+	new CTextBox(CGI->generaltexth->jktexts[8], Rect(370, 430, 65, 35), 0, FONT_SMALL, TOPLEFT, Colors::WHITE);
+	new CTextBox(CGI->generaltexth->jktexts[9], Rect(510, 430, 65, 35), 0, FONT_SMALL, TOPLEFT, Colors::WHITE);
+
 	//////////////////////////////////////////////////////////////////////////???????????????
 
 	//primary skills & exp and mana
@@ -337,10 +341,6 @@ void CHeroWindow::showAll(SDL_Surface * to)
 	printAtMiddleLoc(CGI->generaltexth->jktexts[2], 123, 99, FONT_SMALL, Colors::YELLOW, to);
 	printAtMiddleLoc(CGI->generaltexth->jktexts[3], 193, 99, FONT_SMALL, Colors::YELLOW, to);
 	printAtMiddleLoc(CGI->generaltexth->jktexts[4], 262, 99, FONT_SMALL, Colors::YELLOW, to);
-	 
-	//dismiss / quest log
-	printAtMiddleWBLoc(CGI->generaltexth->jktexts[8], 388, 455, FONT_SMALL, 50, Colors::WHITE, to);
-	printAtMiddleWBLoc(CGI->generaltexth->jktexts[9], 534, 455, FONT_SMALL, 50, Colors::WHITE, to);
 
 	//printing primary skills' amounts
 	for(int m=0; m<4; ++m)

@@ -977,7 +977,7 @@ void VCAI::makeTurn()
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 	setThreadName("VCAI::makeTurn");
 
-	BNLOG("Player %d starting turn", playerID);
+	BNLOG("Player %d starting turn", static_cast<int>(playerID.getNum()));
 	INDENT;
 
 	switch(cb->getDate(Date::DAY_OF_WEEK))
@@ -2051,7 +2051,7 @@ HeroPtr VCAI::primaryHero() const
 
 void VCAI::endTurn()
 {
-	tlog4 << "Player " << playerID << " ends turn\n";
+	tlog4 << "Player " << static_cast<int>(playerID.getNum()) << " ends turn\n";
 	if(!status.haveTurn())
 	{
 		tlog1 << "Not having turn at the end of turn???\n";
@@ -2062,7 +2062,7 @@ void VCAI::endTurn()
 		cb->endTurn();
 	} while(status.haveTurn()); //for some reasons, our request may fail -> stop requesting end of turn only after we've received a confirmation that it's over
 
-	tlog4 << "Player " << playerID << " ended turn\n";
+	tlog4 << "Player " << static_cast<int>(playerID.getNum()) << " ended turn\n";
 }
 
 bool VCAI::fulfillsGoal (CGoal &goal, CGoal &mainGoal)

@@ -373,7 +373,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 				else
 					sensibleAILimit--;
 				playerint[color] = static_cast<CGameInterface*>(CDynLibHandler::getNewAI(AItoGive));
-				tlog1 << "Player " << color << " will be lead by " << AItoGive << std::endl;
+				tlog1 << "Player " << static_cast<int>(color.getNum()) << " will be lead by " << AItoGive << std::endl;
 			}
 			else 
 			{

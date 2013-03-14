@@ -1029,6 +1029,7 @@ public:
 		invalid=0,
 		sound_todo=1,			// temp entry until code is fixed
 		VCMI_SOUND_LIST
+		sound_after_last
 	};
 #undef VCMI_SOUND_NAME
 #undef VCMI_SOUND_FILE

@@ -1300,13 +1300,10 @@ void CGameHandler::newTurn()
 			}
 		}
 	}
-	//      townID,    creatureID, amount
-	std::map<ObjectInstanceID, std::map<si32, si32> > newCreas;//creatures that needs to be added by town events
-
 	BOOST_FOREACH(CGTownInstance *t, gs->map->towns)
 	{
 		PlayerColor player = t->tempOwner;
-		handleTownEvents(t, n, newCreas);
+		handleTownEvents(t, n);
 		if(newWeek) //first day of week
 		{
 			if(t->hasBuilt(BuildingID::PORTAL_OF_SUMMON, ETownType::DUNGEON))
@@ -1316,9 +1313,13 @@ void CGameHandler::newTurn()
 				if (t->hasBuilt(BuildingID::TREASURY, ETownType::RAMPART) && player < PlayerColor::PLAYER_LIMIT)
 						n.res[player][Res::GOLD] += hadGold[player]/10; //give 10% of starting gold
 
-			SetAvailableCreatures sac;
-			sac.tid = t->id;
-			sac.creatures = t->creatures;
+			if (!vstd::contains(n.cres, t->id))
+			{
+				n.cres[t->id].tid = t->id;
+				n.cres[t->id].creatures = t->creatures;
+			}
+			auto & sac = n.cres[t->id];
+
 			for (int k=0; k < GameConstants::CREATURES_PER_TOWN; k++) //creature growths
 			{
 				if(t->creatureDwellingLevel(k) >= 0)//there is dwelling (k-level)
@@ -1349,12 +1350,6 @@ void CGameHandler::newTurn()
 					}
 				}
 			}
-			//add creatures from town events
-			if (vstd::contains(newCreas, t->id))
-				for(auto i=newCreas[t->id].begin() ; i!=newCreas[t->id].end(); i++)
-					sac.creatures[i->first].first += i->second;
-
-			n.cres.push_back(sac);
 		}
 		if(!firstTurn  &&  player < PlayerColor::PLAYER_LIMIT)//not the first day and town not neutral
 		{
@@ -4765,7 +4760,7 @@ void CGameHandler::handleTimeEvents()
 	sendAndApply(&ume);
 }
 
-void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<ObjectInstanceID, std::map<si32, si32> > &newCreas)
+void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 {
 	town->events.sort(evntCmp);
 	while(town->events.size() && town->events.front().firstOccurence == gs->day)
@@ -4807,11 +4802,18 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n, std::map<
 				}
 			}
 
+			if (!ev.creatures.empty() && !vstd::contains(n.cres, town->id))
+			{
+				n.cres[town->id].tid = town->id;
+				n.cres[town->id].creatures = town->creatures;
+			}
+			auto & sac = n.cres[town->id];
+
 			for(si32 i=0;i<ev.creatures.size();i++) //creature growths
 			{
 				if(town->creatureDwellingLevel(i) >= 0 && ev.creatures[i])//there is dwelling
 				{
-					newCreas[town->id][i] += ev.creatures[i];
+					sac.creatures[i].first += ev.creatures[i];
 					iw.components.push_back(Component(Component::CREATURE,
 							town->creatures[i].second.back(), ev.creatures[i], 0));
 				}

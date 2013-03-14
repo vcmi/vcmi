@@ -133,9 +133,9 @@ void JsonNode::setType(JsonType Type)
 		break; case DATA_NULL:
 		break; case DATA_BOOL:   data.Bool = false;
 		break; case DATA_FLOAT:  data.Float = 0;
-		break; case DATA_STRING: data.String = new std::string;
-		break; case DATA_VECTOR: data.Vector = new JsonVector;
-		break; case DATA_STRUCT: data.Struct = new JsonMap;
+		break; case DATA_STRING: data.String = new std::string();
+		break; case DATA_VECTOR: data.Vector = new JsonVector();
+		break; case DATA_STRUCT: data.Struct = new JsonMap();
 	}
 }
 

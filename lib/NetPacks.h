@@ -1108,7 +1108,7 @@ struct NewTurn : public CPackForClient //101
 	std::set<Hero> heroes; //updates movement and mana points
 	//std::vector<SetResources> res;//resource list
 	std::map<PlayerColor, TResources> res; //player ID => resource value[res_id]
-	std::vector<SetAvailableCreatures> cres;//creatures to be placed in towns
+	std::map<ObjectInstanceID, SetAvailableCreatures> cres;//creatures to be placed in towns
 	ui32 day;
 	bool resetBuilded;
 	ui8 specialWeek; //weekType
