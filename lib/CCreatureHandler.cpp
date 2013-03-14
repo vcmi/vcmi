@@ -295,52 +295,10 @@ void CCreatureHandler::load()
 		parser.readNumber();
 		ncre.ammMin = parser.readNumber();
 		ncre.ammMax = parser.readNumber();
+		
+		ncre.abilityText = parser.readString();
+		loadBonuses(ncre, parser.readString()); //Attributes
 
-		std::string abilities = parser.readString();
-		loadBonuses(ncre, parser.readString());
-
-		{ //adding abilities from ZCRTRAIT.TXT
-			static const std::map < std::string,Bonus::BonusType> abilityMap = boost::assign::map_list_of
-			   ("FLYING_ARMY", Bonus::FLYING)
-			    ("SHOOTING_ARMY", Bonus::SHOOTER)
-			    ("SIEGE_WEAPON", Bonus::SIEGE_WEAPON)
-			    ("const_free_attack", Bonus::BLOCKS_RETALIATION)
-			    ("IS_UNDEAD", Bonus::UNDEAD)
-			    ("const_no_melee_penalty",Bonus::NO_MELEE_PENALTY)
-			    ("const_jousting",Bonus::JOUSTING)
-			    ("KING_1",Bonus::KING1)
-			    ("KING_2",Bonus::KING2)
-				("KING_3",Bonus::KING3)
-				("const_no_wall_penalty",Bonus::NO_WALL_PENALTY)
-				("CATAPULT",Bonus::CATAPULT)
-				("MULTI_HEADED",Bonus::ATTACKS_ALL_ADJACENT)
-				("IMMUNE_TO_MIND_SPELLS",Bonus::MIND_IMMUNITY)
-				("IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY)
-				("IMMUNE_TO_FIRE_SPELLS",Bonus::FIRE_IMMUNITY)
-				("HAS_EXTENDED_ATTACK",Bonus::TWO_HEX_ATTACK_BREATH);
-
-			auto hasAbility = [&](const std::string name) -> bool
-			{
-				return boost::algorithm::find_first(abilities, name);
-			};
-			BOOST_FOREACH(auto a, abilityMap)
-			{
-				if(hasAbility(a.first))
-					ncre.addBonus(0, a.second);
-			}			
-			if(hasAbility("DOUBLE_WIDE"))
-				ncre.doubleWide = true;
-			if(hasAbility("const_raises_morale"))
-			{
-				ncre.addBonus(+1, Bonus::MORALE);;
-				ncre.getBonusList().back()->addPropagator(make_shared<CPropagatorNodeType>(CBonusSystemNode::HERO));
-			}
-			if(hasAbility("const_lowers_morale"))
-			{
-				ncre.addBonus(-1, Bonus::MORALE);;
-				ncre.getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
-			}
-		}
 		creatures.push_back(&ncre);
 	}
 	while (parser.endLine());
