@@ -532,9 +532,7 @@ void CSpellHandler::load()
 		const JsonNode & graphicsNode = spell.second["graphics"];
 		if (!graphicsNode.isNull())
 		{
-			const JsonNode& iconImmune = graphicsNode["iconImmune"];
-			if (!iconImmune.isNull())
-				s->iconImmune = iconImmune.String();
+			s->iconImmune = graphicsNode["iconImmune"].String();
 		}
 	}
 }

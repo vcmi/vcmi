@@ -965,9 +965,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 
 	resolveIdentifier (b->subtype, ability, "subtype");
 
-	value = &ability["val"];
-	if (!value->isNull())
-		b->val = value->Float();
+	b->val = ability["val"].Float();
 
 	value = &ability["valueType"];
 	if (!value->isNull())
@@ -975,17 +973,11 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 
 	resolveIdentifier (b->additionalInfo, ability, "addInfo");
 
-	value = &ability["turns"];
-	if (!value->isNull())
-		b->turnsRemain = value->Float();
+	b->turnsRemain = ability["turns"].Float();
 
-	value = &ability["sourceID"];
-	if (!value->isNull())
-		b->sid = value->Float();
+	b->sid = ability["sourceID"].Float();
 
-	value = &ability["description"];
-	if (!value->isNull())
-		b->description = value->String();
+	b->description = ability["description"].String();
 
 	value = &ability["effectRange"];
 	if (!value->isNull())

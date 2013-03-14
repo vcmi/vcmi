@@ -23,17 +23,13 @@
 
 static inline void jsonSetString(const JsonNode& source, const std::string& name, std::string& dest)
 {
-	const JsonNode& val = source[name];
-	if(!val.isNull())
-	{
-		dest = val.String();
-	}
+	dest = source[name].String();//null->empty string
 }
 
 static inline void jsonSetBool(const JsonNode& source, const std::string& name, bool& dest)
 {
 	const JsonNode& val = source[name];
-	if(!val.isNull())
+	if(!val.isNull()) //do not rely on default value
 	{
 		dest = val.Bool();
 	}

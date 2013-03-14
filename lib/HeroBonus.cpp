@@ -1146,13 +1146,18 @@ Bonus::Bonus(ui16 Dur, BonusType Type, BonusSource Src, si32 Val, ui32 ID, si32 
 	effectRange = NO_LIMIT;
 }
 
-Bonus::Bonus()
+Bonus::Bonus()   
 {
+	duration = PERMANENT;
+	turnsRemain = 0;
+	type = NONE;
 	subtype = -1;
 	additionalInfo = -1;
-	turnsRemain = 0;
+	
 	valType = ADDITIVE_VALUE;
 	effectRange = NO_LIMIT;
+	val = 0;
+	source = OTHER;	
 }
 
 Bonus::~Bonus()
