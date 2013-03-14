@@ -19,22 +19,6 @@
 #include "CCreatureHandler.h"
 #include "CSpellHandler.h"
 
-///Helpers
-
-static inline void jsonSetString(const JsonNode& source, const std::string& name, std::string& dest)
-{
-	dest = source[name].String();//null->empty string
-}
-
-static inline void jsonSetBool(const JsonNode& source, const std::string& name, bool& dest)
-{
-	const JsonNode& val = source[name];
-	if(!val.isNull()) //do not rely on default value
-	{
-		dest = val.Bool();
-	}
-}
-
 ///MacroString
 
 MacroString::MacroString(const std::string &format)
@@ -46,8 +30,6 @@ MacroString::MacroString(const std::string &format)
 	
 	size_t end_pos = 0;	
 	size_t start_pos = std::string::npos;
-	
-	tlog5 << "Parsing format " << format << std::endl;
 	
 	do
 	{
@@ -316,17 +298,15 @@ void CBonusTypeHandler::load(const JsonNode& config)
 
 void CBonusTypeHandler::loadItem(const JsonNode& source, CBonusType& dest)
 {
-	dest.hidden = false;
-	jsonSetString(source,"name", dest.nameTemplate);
-	jsonSetString(source,"description", dest.descriptionTemplate);
-	
-	jsonSetBool(source,"hidden", dest.hidden);
+	dest.nameTemplate = source["name"].String();
+	dest.descriptionTemplate = source["description"].String();
+	dest.hidden = source["hidden"].Bool(); //Null -> false
 	
 	const JsonNode& graphics = source["graphics"];
 	
 	if(!graphics.isNull())
 	{
-		jsonSetString(graphics,"icon", dest.icon);
+		dest.icon = graphics["icon"].String();
 	}	
 	dest.buildMacros();
 }
