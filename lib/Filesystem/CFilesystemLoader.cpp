@@ -46,6 +46,7 @@ bool CFilesystemLoader::createEntry(std::string filename)
 		return false;
 
 	fileList[res] = filename;
+	std::ofstream newfile (baseDirectory + "/" + filename);
 	return true;
 }
 
