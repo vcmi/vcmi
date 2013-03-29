@@ -6426,25 +6426,31 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 {
 	if (ID == Obj::HUT_OF_MAGI)
 	{
-		CenterView cv;
-		FoWChange fw;
-		cv.player = fw.player = h->tempOwner;
+		showInfoDialog(h, 61, soundBase::LIGHTHOUSE);
 
-		showInfoDialog(h,61,soundBase::LIGHTHOUSE);
-
-		fw.mode = 1;
-		BOOST_FOREACH(auto it, eyelist[subID])
+		if (!eyelist[subID].empty())
 		{
-			const CGObjectInstance *eye = cb->getObj(it);
-
-			cb->getTilesInRange (fw.tiles, eye->pos, 10, h->tempOwner, 1);
-			cb->sendAndApply(&fw);
-			cv.pos = eye->pos;
+			CenterView cv;
+			cv.player = h->tempOwner;
 			cv.focusTime = 2000;
+
+			FoWChange fw;
+			fw.player = h->tempOwner;
+			fw.mode = 1;
+
+			BOOST_FOREACH(auto it, eyelist[subID])
+			{
+				const CGObjectInstance *eye = cb->getObj(it);
+
+				cb->getTilesInRange (fw.tiles, eye->pos, 10, h->tempOwner, 1);
+				cb->sendAndApply(&fw);
+				cv.pos = eye->pos;
+
+				cb->sendAndApply(&cv);
+			}
+			cv.pos = h->getPosition(false);
 			cb->sendAndApply(&cv);
 		}
-		cv.pos = h->getPosition(false);
-		cb->sendAndApply(&cv);
 	}
 	else if (ID == Obj::EYE_OF_MAGI)
 	{

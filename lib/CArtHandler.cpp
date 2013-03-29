@@ -560,6 +560,11 @@ bool CArtHandler::legalArtifact(ArtifactID id)
 void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 {
 	allowedArtifacts.clear();
+	treasures.clear();
+	minors.clear();
+	majors.clear();
+	relics.clear();
+
 	for (ArtifactID i=ArtifactID::SPELLBOOK; i<ArtifactID::ART_SELECTION; i.advance(1))
 	{
 		if (allowed[i] && legalArtifact(i))
