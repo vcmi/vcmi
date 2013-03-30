@@ -3842,9 +3842,11 @@ void CGArtifact::initObj()
 	}
 	if(ID == Obj::SPELL_SCROLL)
 		subID = 1;
-
+	
 	assert(storedArtifact->artType);
 	assert(storedArtifact->getParentNodes().size());
+
+	//assert(storedArtifact->artType->id == subID); //this does not stop desync
 }
 
 void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const

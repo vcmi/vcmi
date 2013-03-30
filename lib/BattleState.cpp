@@ -918,6 +918,14 @@ ui32 CStack::Speed( int turn /*= 0*/ , bool useBind /* = false*/) const
 	return speed;
 }
 
+ui32 CStack::level() const
+{
+	if (base)
+		return base->getLevel(); //creatture or commander
+	else
+		return std::max(1, (int)getCreature()->level); //war machine, clone etc
+}
+
 si32 CStack::magicResistance() const
 {
 	si32 magicResistance;

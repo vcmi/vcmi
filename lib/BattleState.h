@@ -169,6 +169,7 @@ public:
 	bool canMove(int turn = 0) const; //if stack can move
 	bool canBeHealed() const; //for first aid tent - only harmed stacks that are not war machines
 	ui32 Speed(int turn = 0, bool useBind = false) const; //get speed of creature with all modificators
+	ui32 level() const;
 	si32 magicResistance() const; //include aura of resistance
 	static void stackEffectToFeature(std::vector<Bonus> & sf, const Bonus & sse);
 	std::vector<si32> activeSpells() const; //returns vector of active spell IDs sorted by time of cast

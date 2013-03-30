@@ -513,6 +513,11 @@ int CStackInstance::getExpRank() const
 	}
 }
 
+int CStackInstance::getLevel() const
+{
+	return std::max (1, (int)type->level);
+}
+
 si32 CStackInstance::magicResistance() const
 {
 	si32 val = valOfBonuses(Selector::type(Bonus::MAGIC_RESISTANCE));
@@ -715,6 +720,11 @@ void CCommanderInstance::giveStackExp (TExpType exp)
 int CCommanderInstance::getExpRank() const
 {
 	return VLC->heroh->level (experience);
+}
+
+int CCommanderInstance::getLevel() const
+{
+	return std::max (1, getExpRank());
 }
 
 void CCommanderInstance::levelUp ()

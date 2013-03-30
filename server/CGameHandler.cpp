@@ -5357,7 +5357,7 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		return;
 	}
 
-	if (attacker->hasBonusOfType(Bonus::DEATH_STARE)) // spell id 79
+	if (attacker->hasBonusOfType(Bonus::DEATH_STARE) && bat.bsa.size())
 	{
 		// mechanics of Death Stare as in H3:
 		// each gorgon have 10% chance to kill (counted separately in H3) -> binomial distribution
@@ -5374,10 +5374,10 @@ void CGameHandler::handleAfterAttackCasting( const BattleAttack & bat )
 		int maxToKill = (attacker->count * chanceToKill + 99) / 100;
 		vstd::amin(staredCreatures, maxToKill);
 
-		staredCreatures += attacker->type->level * attacker->valOfBonuses(Bonus::DEATH_STARE, 1);
+		staredCreatures += (attacker->level() * attacker->valOfBonuses(Bonus::DEATH_STARE, 1)) / gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->level();
 		if (staredCreatures)
 		{
-			if (bat.bsa.size() && bat.bsa[0].newAmount > 0) //TODO: death stare was not originally available for multiple-hex attacks, but...
+			if (bat.bsa[0].newAmount > 0) //TODO: death stare was not originally available for multiple-hex attacks, but...
 			handleSpellCasting(SpellID::DEATH_STARE, 0, gs->curB->battleGetStackByID(bat.bsa[0].stackAttacked)->position,
 				!attacker->attackerOwned, attacker->owner, NULL, NULL, staredCreatures, ECastingMode::AFTER_ATTACK_CASTING, attacker);
 		}

@@ -676,6 +676,7 @@ CArtifactInstance * CArtifactInstance::createScroll( const CSpell *s)
 void CArtifactInstance::init()
 {
 	id = ArtifactInstanceID();
+	id = static_cast<ArtifactInstanceID>(ArtifactID::NONE); //to be randomized
 	setNodeType(ARTIFACT_INSTANCE);
 }
 

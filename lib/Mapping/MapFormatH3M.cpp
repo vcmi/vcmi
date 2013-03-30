@@ -677,7 +677,7 @@ CArtifactInstance * CMapLoaderH3M::createArtifact(int aid, int spellID /*= -1*/)
 	}
 	else //FIXME: create combined artifact instance for random combined artifacts, just in case
 	{
-		a = new CArtifactInstance();
+		a = new CArtifactInstance(); //random, empty
 	}
 
 	map->addNewArtifactInstance(a);
@@ -1092,7 +1092,7 @@ void CMapLoaderH3M::readObjects()
 		case Obj::RANDOM_RELIC_ART:
 		case Obj::SPELL_SCROLL:
 			{
-				int artID = -1;
+				int artID = ArtifactID::NONE; //random, set later
 				int spellID = -1;
 				CGArtifact * art = new CGArtifact();
 				nobj = art;

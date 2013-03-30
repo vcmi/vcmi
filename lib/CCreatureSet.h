@@ -63,6 +63,7 @@ public:
 	int getQuantityID() const;
 	std::string getQuantityTXT(bool capitalized = true) const;
 	virtual int getExpRank() const;
+	virtual int getLevel() const; //different for regular stack and commander
 	si32 magicResistance() const;
 	CreatureID getCreatureID() const; //-1 if not available
 	std::string getName() const; //plural or singular
@@ -104,6 +105,7 @@ public:
 
 	ui64 getPower() const {return 0;};
 	int getExpRank() const;
+	int getLevel() const OVERRIDE; 
 	ArtBearer::ArtBearer bearerType() const OVERRIDE; //from CArtifactSet
 
 	template <typename Handler> void serialize(Handler &h, const int version)
