@@ -1080,14 +1080,19 @@ std::string JsonValidator::fail(const std::string &message)
 {
 	std::string errors;
 	errors += "At ";
-	BOOST_FOREACH(const JsonNode &path, currentPath)
+	if (!currentPath.empty())
 	{
-		errors += "/";
-		if (path.getType() == JsonNode::DATA_STRING)
-			errors += path.String();
-		else
-			errors += boost::lexical_cast<std::string>(static_cast<unsigned>(path.Float()));
+		BOOST_FOREACH(const JsonNode &path, currentPath)
+		{
+			errors += "/";
+			if (path.getType() == JsonNode::DATA_STRING)
+				errors += path.String();
+			else
+				errors += boost::lexical_cast<std::string>(static_cast<unsigned>(path.Float()));
+		}
 	}
+	else
+		errors += "<root>";
 	errors += "\n\t Error: " + message + "\n";
 	return errors;
 }

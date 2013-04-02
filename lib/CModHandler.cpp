@@ -229,7 +229,17 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input
 
 void CModHandler::initialize(std::vector<std::string> availableMods)
 {
-	JsonNode modConfig(ResourceID("config/modSettings.json"));
+	std::string confName = "config/modSettings.json";
+	JsonNode modConfig;
+
+	// Porbably new install. Create initial configuration
+	if (!CResourceHandler::get()->existsResource(ResourceID(confName)))
+		CResourceHandler::get()->createResource(confName);
+	else
+		modConfig = JsonNode(ResourceID(confName));
+
+	CResourceHandler::get()->createResource("config/modSettings.json");
+
 	const JsonNode & modList = modConfig["activeMods"];
 	JsonNode resultingList;
 
