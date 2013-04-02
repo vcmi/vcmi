@@ -1,0 +1,349 @@
+{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI town building format",
+	"description" : "Format used to define town buildings in VCMI",
+	"id": "#",
+	"properties":{
+		"gate": {
+			"type":"object",
+			"id": "gate",
+			"properties":{
+				"arch": {
+					"type":"object",
+					"id": "arch",
+					"properties":{
+						"x": {
+							"type":"number",
+							"id": "x"
+						},
+						"y": {
+							"type":"number",
+							"id": "y"
+						}
+					}
+				},
+				"gate": {
+					"type":"object",
+					"id": "gate",
+					"properties":{
+						"x": {
+							"type":"number",
+							"id": "x"
+						},
+						"y": {
+							"type":"number",
+							"id": "y"
+						}
+					}
+				}
+			}
+		},
+		"imagePrefix": {
+			"type":"string",
+			"id": "imagePrefix"
+		},
+		"moat": {
+			"type":"object",
+			"id": "moat",
+			"properties":{
+				"bank": {
+					"type":"object",
+					"id": "bank",
+					"properties":{
+						"x": {
+							"type":"number",
+							"id": "x"
+						},
+						"y": {
+							"type":"number",
+							"id": "y"
+						}
+					}
+				},
+				"moat": {
+					"type":"object",
+					"id": "moat",
+					"properties":{
+						"x": {
+							"type":"number",
+							"id": "x"
+						},
+						"y": {
+							"type":"number",
+							"id": "y"
+						}
+					}
+				}
+			}
+		},
+		"shooterHeight": {
+			"type":"number",
+			"id": "shooterHeight"
+		},
+		"shooter": {
+			"type":"string",
+			"id": "shooter"
+		},
+		"static": {
+			"type":"object",
+			"id": "static",
+			"properties":{
+				"background": {
+					"type":"object",
+					"id": "background",
+					"properties":{
+						"x": {
+							"type":"number",
+							"id": "x"
+						},
+						"y": {
+							"type":"number",
+							"id": "y"
+						}
+					}
+				},
+				"bottom": {
+					"type":"object",
+					"id": "bottom",
+					"properties":{
+						"x": {
+							"type":"number",
+							"id": "x"
+						},
+						"y": {
+							"type":"number",
+							"id": "y"
+						}
+					}
+				},
+				"top": {
+					"type":"object",
+					"id": "top",
+					"properties":{
+						"x": {
+							"type":"number",
+							"id": "x"
+						},
+						"y": {
+							"type":"number",
+							"id": "y"
+						}
+					}
+				}
+			}
+		},
+		"towers": {
+			"type":"object",
+			"id": "towers",
+			"properties":{
+				"bottom": {
+					"type":"object",
+					"id": "bottom",
+					"properties":{
+						"battlement": {
+							"type":"object",
+							"id": "battlement",
+							"properties":{
+								"x": {
+									"type":"number",
+									"id": "x"
+								},
+								"y": {
+									"type":"number",
+									"id": "y"
+								}
+							}
+						},
+						"creature": {
+							"type":"object",
+							"id": "creature",
+							"properties":{
+								"x": {
+									"type":"number",
+									"id": "x"
+								},
+								"y": {
+									"type":"number",
+									"id": "y"
+								}
+							}
+						},
+						"tower": {
+							"type":"object",
+							"id": "tower",
+							"properties":{
+								"x": {
+									"type":"number",
+									"id": "x"
+								},
+								"y": {
+									"type":"number",
+									"id": "y"
+								}
+							}
+						}
+					}
+				},
+				"keep": {
+					"type":"object",
+					"id": "keep",
+					"properties":{
+						"battlement": {
+							"type":"object",
+							"id": "battlement",
+							"properties":{
+								"x": {
+									"type":"number",
+									"id": "x"
+								},
+								"y": {
+									"type":"number",
+									"id": "y"
+								}
+							}
+						},
+						"creature": {
+							"type":"object",
+							"id": "creature",
+							"properties":{
+								"x": {
+									"type":"number",
+									"id": "x"
+								},
+								"y": {
+									"type":"number",
+									"id": "y"
+								}
+							}
+						},
+						"tower": {
+							"type":"object",
+							"id": "tower",
+							"properties":{
+								"x": {
+									"type":"number",
+									"id": "x"
+								},
+								"y": {
+									"type":"number",
+									"id": "y"
+								}
+							}
+						}
+					}
+				},
+				"top": {
+					"type":"object",
+					"id": "top",
+					"properties":{
+						"battlement": {
+							"type":"object",
+							"id": "battlement",
+							"properties":{
+								"x": {
+									"type":"number",
+									"id": "x"
+								},
+								"y": {
+									"type":"number",
+									"id": "y"
+								}
+							}
+						},
+						"creature": {
+							"type":"object",
+							"id": "creature",
+							"properties":{
+								"x": {
+									"type":"number",
+									"id": "x"
+								},
+								"y": {
+									"type":"number",
+									"id": "y"
+								}
+							}
+						},
+						"tower": {
+							"type":"object",
+							"id": "tower",
+							"properties":{
+								"x": {
+									"type":"number",
+									"id": "x"
+								},
+								"y": {
+									"type":"number",
+									"id": "y"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"walls": {
+			"type":"object",
+			"id": "walls",
+			"properties":{
+				"bottomMid": {
+					"type":"object",
+					"id": "bottomMid",
+					"properties":{
+						"x": {
+							"type":"number",
+							"id": "x"
+						},
+						"y": {
+							"type":"number",
+							"id": "y"
+						}
+					}
+				},
+				"bottom": {
+					"type":"object",
+					"id": "bottom",
+					"properties":{
+						"x": {
+							"type":"number",
+							"id": "x"
+						},
+						"y": {
+							"type":"number",
+							"id": "y"
+						}
+					}
+				},
+				"upperMid": {
+					"type":"object",
+					"id": "upperMid",
+					"properties":{
+						"x": {
+							"type":"number",
+							"id": "x"
+						},
+						"y": {
+							"type":"number",
+							"id": "y"
+						}
+					}
+				},
+				"upper": {
+					"type":"object",
+					"id": "upper",
+					"properties":{
+						"x": {
+							"type":"number",
+							"id": "x"
+						},
+						"y": {
+							"type":"number",
+							"id": "y"
+						}
+					}
+				}
+			}
+		}
+	}
+}

@@ -308,7 +308,7 @@ int main(int argc, char** argv)
 		tlog0 << "Fatal error: failed to load settings!\n";
 		tlog0 << "Possible reasons:\n";
 		tlog0 << "\tCorrupted local configuration file at " << VCMIDirs::get().localPath() << "/config/settings.json\n";
-		tlog0 << "\tMissing or corrupted global configuration file at " << VCMIDirs::get().dataPath() << "/config/defaultSettings.json\n";
+		tlog0 << "\tMissing or corrupted global configuration file at " << VCMIDirs::get().dataPath() << "/config/schemas/settings.json\n";
 		tlog0 << "VCMI will now exit...\n";
 		exit(EXIT_FAILURE);
 	}

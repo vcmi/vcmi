@@ -75,7 +75,7 @@ class DLL_LINKAGE CModHandler
 
 	bool hasCircularDependency(TModID mod, std::set <TModID> currentList = std::set <TModID>()) const;
 
-	//returns false if mod list is incorrec and prints error to console. Possible errors are:
+	//returns false if mod list is incorrect and prints error to console. Possible errors are:
 	// - missing dependency mod
 	// - conflicting mod in load order
 	// - circular dependencies
@@ -84,7 +84,12 @@ class DLL_LINKAGE CModHandler
 	// returns load order in which all dependencies are resolved, e.g. loaded after required mods
 	// function assumes that input list is valid (checkDependencies returned true)
 	std::vector <TModID> resolveDependencies(std::vector<TModID> input) const;
+
+	// helper for loadActiveMods. Loads content from list of files
+	template<typename Handler>
+	void handleData(Handler handler, const JsonNode & source, std::string listName, std::string schemaName);
 public:
+
 	CIdentifierStorage identifiers;
 
 	/// receives list of available mods and trying to load mod.json from all of them

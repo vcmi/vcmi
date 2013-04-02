@@ -1,0 +1,250 @@
+{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI faction format",
+	"description": "Json format for defining new faction (aka towns) in VCMI",
+	"required" : [ "name", "alignment", "creatureBackground" ],
+	"dependencies" : {
+		"town" : [ "puzzleMap", "commander" ]
+	},
+	"properties":{
+		"name" : {
+			"type" : "string",
+			"description" : "Translatable name of town"
+		},
+		"alignment": {
+			"type":"string",
+			"enum" : [ "good", "neutral", "evil" ],
+			"description": "Town alignment, good, neutral or evil"
+		},
+		"commander": {
+			"type":"string",
+			"description": "Identifier of creature that is used as commander by heroes"
+		},
+		"creatureBackground": {
+			"type":"object",
+			"required" : [ "120px", "130px" ],
+			"description": "Backgrounds for creature info card",
+			"properties":{
+				"120px": {
+					"type":"string",
+					"description": "Version that is 120 pixels in height"
+				},
+				"130px": {
+					"type":"string",
+					"description": "Version that is 130 pixels in height"
+				}
+			}
+		},
+		"nativeTerrain": {
+			"type":"string",
+			"description": "Native terrain for creatures. Creatures fighting on native terrain receive several bonuses",
+		},
+		"puzzleMap": {
+			"type":"object",
+			"required" : [ "prefix", "pieces" ],
+			"description": "Puzzle map from obelisks for this town. Must contain 48 pieces",
+			"properties":{
+				"pieces": {
+					"type":"array",
+					"description": "Lits of pieces definitions",
+					"minItems" : 48,
+					"maxItems" : 48,
+					"items": {
+						"type":"object",
+						"properties":{
+							"index": { "type":"number", "description" : "Order in which images will be opened" },
+							"x":     { "type":"number", "description" : "X coordinate on screen" },
+							"y":     { "type":"number", "description" : "X coordinate on screen" }
+						}
+					}
+				},
+				"prefix": {
+					"type":"string",
+					"description": "Prefix for image names, e.g. \"PUZCAS\" for name \"PUZCAS12.png\""
+				}
+			}
+		},
+		"town": {
+			"type":"object",
+			"required" : [
+				"adventureMap", "buildingsIcons", "buildings", "creatures", "guildWindow", "names",
+				"hallBackground", "hallSlots", "horde", "icons", "mageGuild", "moatDamage",
+				"musicTheme", "siege", "structures", "townBackground", "warMachine", "primaryResource"
+			],
+			"description": "town",
+			"properties":{
+				"adventureMap": {
+					"type":"object",
+					"description": "Paths to images of object on adventure map",
+					"required" : [ "capitol", "castle", "village" ],
+					"properties":{
+						"capitol": {
+							"type":"string",
+							"description": "Town with capitol"
+						},
+						"castle": {
+							"type":"string",
+							"description": "Town with built fort"
+						},
+						"village": {
+							"type":"string",
+							"description": "Village without built fort"
+						},
+						"dwellings" : {
+							"type" : "array",
+							"description" : "Dwellings on adventure map",
+							"items" : {
+								"type" : "object",
+								"properties" : {
+									"name":     { "type":"string" },
+									"graphics": { "type":"string" }
+								}
+							}
+						}
+					}
+				},
+				"guildSpells" : {
+					"type" : "object",
+					"description" : "Spells available in mage guild. Value indicates chance for this spell to appear",
+					"additionalProperties" : {
+						"type" : "number"
+					}
+				},
+				"tavern" : {
+					"type" : "object",
+					"description" : "Hero classes available in tavern. Value indicates chance for hero of this class to appear",
+					"additionalProperties" : {
+						"type" : "number"
+					}
+				},
+				"names" : {
+					"type" : "array",
+					"description" : "Names for towns on adventure map",
+					"minItems" : 1,
+					"items" : { "type" : "string" }
+				},
+				"buildingsIcons": {
+					"type" : "string",
+					"description": "Path to .def file with building icons"
+				},
+				"buildings": {
+					"type" : "array",
+					"items" : {
+						"$ref" : "vcmi:townBuilding"
+					}
+				},
+				"creatures": {
+					"type":"array",
+					"minItems" : 7,
+					"maxItems" : 7,
+					"description" : "List of creatures available for recruitment on each level",
+					"items": {
+						"type":"array",
+						"items" : { "type" : "string" }
+					}
+				},
+				"guildWindow": {
+					"type":"string",
+					"description": "Image with small view on town from mage guild"
+				},
+				"hallBackground": {
+					"type":"string",
+					"description": "background image for town hall"
+				},
+				"hallSlots": {
+					"type":"array",
+					"description": "Description of town hall",
+					"minItems" : 5,
+					"maxItems" : 5,
+					"items": {
+						"type":"array",
+						"minItems" : 1,
+						"maxItems" : 4,
+						"items" : {
+							"type" : "array",
+							"description" : "List of buildings available in one slot",
+							"items" : { "type" : "number" }
+						}
+					}
+				},
+				"horde": {
+					"type":"array",
+					"maxItems" : 2,
+					"description": "Levels of creatures that have hordes in town",
+					"items": { "type":"number" }
+				},
+				"icons": {
+					"type":"object",
+					"description": "Town icons",
+					"required" : [ "fort", "village" ],
+					"properties":{
+						"fort": {
+							"type":"object",
+							"required" : [ "normal", "built" ],
+							"description": "Icons for town with built fort",
+							"properties":{
+								"built": {
+									"type":"number",
+									"description": "Icon used after player build something in town"
+								},
+								"normal": {
+									"type":"number",
+									"description": "Icon used normally"
+								}
+							}
+						},
+						"village": {
+							"type":"object",
+							"required" : [ "normal", "built" ],
+							"description": "Icons for town without fort",
+							"properties":{
+								"built": {
+									"type":"number",
+									"description": "Icon used after player build something in town"
+								},
+								"normal": {
+									"type":"number",
+									"description": "Icon used normally"
+								}
+							}
+						}
+					}
+				},
+				"mageGuild": {
+					"type":"number",
+					"description": "Maximal level of mage guild"
+				},
+				"moatDamage": {
+					"type":"number",
+					"description": "Damage dealt to creature that entered town moat during siege"
+				},
+				"musicTheme": {
+					"type":"string",
+					"description": "Path to town music theme"
+				},
+				"siege": {
+					"$ref" : "vcmi:townSiege"
+				},
+				"structures": {
+					"type" : "array",
+					"items" : {
+						"$ref" : "vcmi:townStructure"
+					}
+				},
+				"townBackground": {
+					"type":"string",
+					"description": "Background for town screen"
+				},
+				"primaryResource": {
+					"type":"string",
+					"description": "Primary resource for this town. Produced by Silo and offered as starting bonus"
+				},
+				"warMachine": {
+					"type":"string",
+					"description": "Identifier of war machine produced by blacksmith in town"
+				}
+			}
+		}
+	}
+}

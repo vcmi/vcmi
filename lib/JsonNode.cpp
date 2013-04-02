@@ -11,6 +11,8 @@
 #include "StdInc.h"
 #include "JsonNode.h"
 
+#include "ScopeGuard.h"
+
 #include "HeroBonus.h"
 #include "Filesystem/CResourceLoader.h"
 #include "VCMI_Lib.h" //for identifier resolution
@@ -34,8 +36,6 @@ JsonNode::JsonNode(const char *data, size_t datasize):
 {
 	JsonParser parser(data, datasize);
 	*this = parser.parse("<unknown>");
-
-	JsonValidator validator(*this);
 }
 
 JsonNode::JsonNode(ResourceID && fileURI):
@@ -45,8 +45,6 @@ JsonNode::JsonNode(ResourceID && fileURI):
 
 	JsonParser parser(reinterpret_cast<char*>(file.first.get()), file.second);
 	*this = parser.parse(fileURI.getName());
-
-	JsonValidator validator(*this);
 }
 
 JsonNode::JsonNode(const JsonNode &copy):
@@ -144,6 +142,11 @@ bool JsonNode::isNull() const
 	return type == DATA_NULL;
 }
 
+void JsonNode::clear()
+{
+	setType(DATA_NULL);
+}
+
 bool & JsonNode::Bool()
 {
 	setType(DATA_BOOL);
@@ -231,6 +234,46 @@ const JsonNode & JsonNode::operator[](std::string child) const
 		return it->second;
 	return nullNode;
 }
+
+// to avoid duplicating const and non-const code
+template<typename Node>
+Node & resolvePointer(Node & in, const std::string & pointer)
+{
+	if (pointer.empty())
+		return in;
+	assert(pointer[0] == '/');
+
+	size_t splitPos = pointer.find('/', 1);
+
+	std::string entry   =   pointer.substr(1, splitPos -1);
+	std::string remainer =  splitPos == std::string::npos ? "" : pointer.substr(splitPos);
+
+	if (in.getType() == JsonNode::DATA_VECTOR)
+	{
+		if (entry.find_first_not_of("0123456789") != std::string::npos) // non-numbers in string
+			throw std::runtime_error("Invalid Json pointer");
+
+		if (entry.size() > 1 && entry[0] == '0') // leading zeros are not allowed
+			throw std::runtime_error("Invalid Json pointer");
+
+		size_t index = boost::lexical_cast<size_t>(entry);
+
+		if (in.Vector().size() > index)
+			return in.Vector()[index].resolvePointer(remainer);
+	}
+	return in[entry].resolvePointer(remainer);
+}
+
+const JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer) const
+{
+	return ::resolvePointer(*this, jsonPointer);
+}
+
+JsonNode & JsonNode::resolvePointer(const std::string &jsonPointer)
+{
+	return ::resolvePointer(*this, jsonPointer);
+}
+
 ////////////////////////////////////////////////////////////////////////////////
 
 template<typename Iterator>
@@ -516,7 +559,7 @@ bool JsonParser::extractNull(JsonNode &node)
 	if (!extractLiteral("null"))
 		return false;
 
-	node.setType(JsonNode::DATA_NULL);
+	node.clear();
 	return true;
 }
 
@@ -696,166 +739,370 @@ bool JsonParser::error(const std::string &message, bool warning)
 
 static const std::map<std::string, JsonNode::JsonType> stringToType =
 	boost::assign::map_list_of
-		("null",   JsonNode::DATA_NULL)   ("bool",   JsonNode::DATA_BOOL)
-		("number", JsonNode::DATA_FLOAT)  ("string", JsonNode::DATA_STRING)
-		("array",  JsonNode::DATA_VECTOR) ("object", JsonNode::DATA_STRUCT);
+		("null",   JsonNode::DATA_NULL)   ("boolean", JsonNode::DATA_BOOL)
+		("number", JsonNode::DATA_FLOAT)  ("string",  JsonNode::DATA_STRING)
+		("array",  JsonNode::DATA_VECTOR) ("object",  JsonNode::DATA_STRUCT);
 
-//Check current schema entry for validness and converts "type" string to JsonType
-bool JsonValidator::validateSchema(JsonNode::JsonType &type, const JsonNode &schema)
+std::string JsonValidator::validateEnum(const JsonNode &node, const JsonVector &enumeration)
 {
-	if (schema.isNull())
-		return addMessage("Missing schema for current entry!");
-
-	const JsonNode &nodeType = schema["type"];
-	if (nodeType.isNull())
-		return addMessage("Entry type is not defined in schema!");
-
-	if (nodeType.getType() != JsonNode::DATA_STRING)
-		return addMessage("Entry type must be string!");
-
-	std::map<std::string, JsonNode::JsonType>::const_iterator iter = stringToType.find(nodeType.String());
-
-	if (iter == stringToType.end())
-		return addMessage("Unknown entry type found!");
-
-	type = iter->second;
-	return true;
+	BOOST_FOREACH(auto & enumEntry, enumeration)
+	{
+		if (node == enumEntry)
+			return "";
+	}
+	return fail("Key must have one of predefined values");
 }
 
-//Replaces node with default value if needed and calls type-specific validators
-bool JsonValidator::validateType(JsonNode &node, const JsonNode &schema, JsonNode::JsonType type)
+std::string JsonValidator::validatesSchemaList(const JsonNode &node, const JsonNode &schemas, std::string errorMsg, std::function<bool(size_t)> isValid)
 {
-	if (node.isNull())
+	std::string errors;
+	if (!schemas.isNull())
 	{
-		const JsonNode & defaultValue = schema["default"];
-		if (defaultValue.isNull())
-			return addMessage("Null entry without default entry!");
-		else
-			node = defaultValue;
+		size_t result = 0;
+
+		BOOST_FOREACH(auto & schema, schemas.Vector())
+		{
+			std::string error = validateNode(node, schema);
+			if (error.empty())
+				result++;
+			else
+				errors += fail(error);
+		}
+		if (isValid(result))
+		{
+			return "";
+		}
+		return fail(errorMsg) + errors;
 	}
-	if (minimize && node == schema["default"])
+	return "";
+}
+
+std::string JsonValidator::validateNodeType(const JsonNode &node, const JsonNode &schema)
+{
+	std::string errors;
+
+	// data must be valid against all schemas in the list
+	errors += validatesSchemaList(node, schema["allOf"], "Failed to pass all schemas", [&](size_t count)
 	{
-		node.setType(JsonNode::DATA_NULL);
-		return false;
-	}
+		return count == schema["allOf"].Vector().size();
+	});
 
-	if (type != node.getType())
+	// data must be valid against any non-zero number of schemas in the list
+	errors += validatesSchemaList(node, schema["anyOf"], "Failed to pass any schema", [&](size_t count)
 	{
-		node.setType(JsonNode::DATA_NULL);
-		return addMessage("Type mismatch!");
+		return count > 0;
+	});
+
+	// data must be valid against one and only one schema
+	errors += validatesSchemaList(node, schema["oneOf"], "Failed to pass only one and only one schema", [&](size_t count)
+	{
+		return count == 1;
+	});
+
+	// data must NOT be valid against schema
+	if (!schema["not"].isNull())
+	{
+		if (validateNode(node, schema["not"]).empty())
+			errors += fail("Successful validation against negative check");
 	}
-
-	if (type == JsonNode::DATA_VECTOR)
-		return validateItems(node, schema["items"]);
-
-	if (type == JsonNode::DATA_STRUCT)
-		return validateProperties(node, schema["properties"]);
-
-	return true;
+	// basic schema check
+	if (!schema["type"].isNull())
+	{
+		JsonNode::JsonType type = stringToType.find(schema["type"].String())->second;
+		if(type != node.getType())
+			errors += fail("Type mismatch!");
+	}
+	return errors;
 }
 
 // Basic checks common for any nodes
-bool JsonValidator::validateNode(JsonNode &node, const JsonNode &schema, const std::string &name)
+std::string JsonValidator::validateNode(const JsonNode &node, const JsonNode &schema)
 {
-	currentPath.push_back(name);
+	std::string errors;
 
-	JsonNode::JsonType type = JsonNode::DATA_NULL;
-	if (!validateSchema(type, schema)
-	 || !validateType(node, schema, type))
+	assert(!schema.isNull()); // can this error be triggered?
+
+	if (!schema["$ref"].isNull())
 	{
-		node.setType(JsonNode::DATA_NULL);
+		std::string URI = schema["$ref"].String();
+		//node must be validated using schema pointed by this reference and not by data here
+		//Local reference. Turn it into more easy to handle remote ref
+		if (boost::algorithm::starts_with(URI, "#"))
+			URI = usedSchemas.back() + URI;
+
+		return validateRoot(node, URI);
+	}
+
+	errors += validateNodeType(node, schema);
+
+	// enumeration - data must be equeal to one of items in list
+	if (!schema["enum"].isNull())
+		errors += validateEnum(node, schema["enum"].Vector());
+
+	// try to run any type-specific checks
+	if (node.getType() == JsonNode::DATA_VECTOR) errors += validateVector(node, schema);
+	if (node.getType() == JsonNode::DATA_STRUCT) errors += validateStruct(node, schema);
+	if (node.getType() == JsonNode::DATA_STRING) errors += validateString(node, schema);
+	if (node.getType() == JsonNode::DATA_FLOAT)  errors += validateNumber(node, schema);
+
+	return errors;
+}
+
+std::string JsonValidator::validateVectorItem(const JsonVector items, const JsonNode & schema, const JsonNode & additional, size_t index)
+{
+	currentPath.push_back(JsonNode());
+	currentPath.back().Float() = index;
+	auto onExit = vstd::makeScopeGuard([&]
+	{
 		currentPath.pop_back();
-		return false;
-	}
-	currentPath.pop_back();
-	return true;
-}
-
-//Checks "items" entry from schema (type-specific check for Vector)
-bool JsonValidator::validateItems(JsonNode &node, const JsonNode &schema)
-{
-	JsonNode::JsonType type = JsonNode::DATA_NULL;
-	if (!validateSchema(type, schema))
-		return false;
-
-	bool result = true;
-	BOOST_FOREACH(JsonNode &entry, node.Vector())
-	{
-		if (!validateType(entry, schema, type))
-		{
-			result = false;
-			entry.setType(JsonNode::DATA_NULL);
-		}
-	}
-	return result;
-}
-
-//Checks "propertries" entry from schema (type-specific check for Struct)
-bool JsonValidator::validateProperties(JsonNode &node, const JsonNode &schema)
-{
-	if (schema.isNull())
-		return addMessage("Properties entry is missing for struct in schema");
-
-	BOOST_FOREACH(auto & schemaEntry, schema.Struct())
-	{
-		if (!validateNode(node[schemaEntry.first], schemaEntry.second, schemaEntry.first))
-			node.Struct().erase(schemaEntry.first);
-	}
-
-	for (auto iter = node.Struct().begin(); iter!= node.Struct().end();)
-	{
-		if (!vstd::contains(schema.Struct(), iter->first))
-		{
-			addMessage("Missing schema for entry " + iter->first + "!");
-			iter = node.Struct().erase(iter);
-		}
-		else
-			iter++;
-	}
-	return true;
-}
-
-bool JsonValidator::addMessage(const std::string &message)
-{
-	std::ostringstream stream;
-
-	stream << "At ";
-	BOOST_FOREACH(const std::string &path, currentPath)
-		stream << path<<"/";
-	stream << "\t Error: " << message <<"\n";
-	errors += stream.str();
-	return false;
-}
-
-JsonValidator::JsonValidator(JsonNode &root, bool Minimize):
-	minimize(Minimize)
-{
-	if (root.getType() != JsonNode::DATA_STRUCT)
-		return;
-
-	JsonNode schema;
-	schema.swap(root["schema"]);
-	root.Struct().erase("schema");
+	});
 
 	if (!schema.isNull())
 	{
-		validateProperties(root, schema);
+		// case 1: schema is vector. Validate items agaist corresponding items in vector
+		if (schema.getType() == JsonNode::DATA_VECTOR)
+		{
+			if (schema.Vector().size() > index)
+				return validateNode(items[index], schema.Vector()[index]);
+		}
+		else // case 2: schema has to be struct. Apply it to all items, completely ignore additionalItems
+		{
+			return validateNode(items[index], schema);
+		}
 	}
-	//This message is quite annoying now - most files do not have schemas. May be re-enabled later
-	//else
-	//	addMessage("Schema not found!", true);
 
-	//TODO: better way to show errors (like printing file name as well)
-	tlog3<<errors;
+	// othervice check against schema in additional items field
+	if (additional.getType() == JsonNode::DATA_STRUCT)
+		return validateNode(items[index], additional);
+
+	// or, additionalItems field can be bool which indicates if such items are allowed
+	// default = false, so case if additionalItems is not present will be handled as well
+	if (!additional.Bool())
+		return fail("Unknown entry found");
+
+	return "";
 }
 
-JsonValidator::JsonValidator(JsonNode &root, const JsonNode &schema, bool Minimize):
-	minimize(Minimize)
+//Checks "items" entry from schema (type-specific check for Vector)
+std::string JsonValidator::validateVector(const JsonNode &node, const JsonNode &schema)
 {
-	validateProperties(root, schema);
-	if (schema.isNull())
-		addMessage("Schema not found!");
-	tlog3<<errors;
+	std::string errors;
+	auto & vector = node.Vector();
+
+	for (size_t i=0; i<vector.size(); i++)
+		errors += validateVectorItem(vector, schema["items"], schema["additionalItems"], i);
+
+	if (vstd::contains(schema.Struct(), "maxItems") && vector.size() > schema["maxItems"].Float())
+		errors += fail("Too many items in the list!");
+
+	if (vstd::contains(schema.Struct(), "minItems") && vector.size() < schema["minItems"].Float())
+		errors += fail("Too few items in the list");
+
+	if (schema["uniqueItems"].Bool())
+	{
+		for (auto itA = vector.begin(); itA != vector.end(); itA++)
+		{
+			auto itB = itA;
+			while (++itB != vector.end())
+			{
+				if (*itA == *itB)
+					errors += fail("List must consist from unique items");
+			}
+		}
+	}
+	return errors;
+}
+
+std::string JsonValidator::validateStructItem(const JsonNode &node, const JsonNode & schema, const JsonNode & additional, std::string nodeName)
+{
+	currentPath.push_back(JsonNode());
+	currentPath.back().String() = nodeName;
+	auto onExit = vstd::makeScopeGuard([&]
+	{
+		currentPath.pop_back();
+	});
+
+	// there is schema specifically for this item
+	if (!schema[nodeName].isNull())
+		return validateNode(node, schema[nodeName]);
+
+	// try generic additionalItems schema
+	if (additional.getType() == JsonNode::DATA_STRUCT)
+		return validateNode(node, additional);
+
+	if (!additional.Bool())
+		return fail("Unknown entry found: " + nodeName);
+
+	return "";
+}
+
+//Checks "properties" entry from schema (type-specific check for Struct)
+std::string JsonValidator::validateStruct(const JsonNode &node, const JsonNode &schema)
+{
+	std::string errors;
+	auto & map = node.Struct();
+
+	BOOST_FOREACH(auto & entry, map)
+		errors += validateStructItem(entry.second, schema["properties"], schema["additionalProperties"], entry.first);
+
+	BOOST_FOREACH(auto & required, schema["required"].Vector())
+	{
+		if (!vstd::contains(map, required.String()))
+			errors += fail("Required entry " + required.String() + " is missing");
+	}
+
+	//Copy-paste from vector code. yay!
+	if (vstd::contains(schema.Struct(), "maxProperties") && map.size() > schema["maxProperties"].Float())
+		errors += fail("Too many items in the list!");
+
+	if (vstd::contains(schema.Struct(), "minItems") && map.size() < schema["minItems"].Float())
+		errors += fail("Too few items in the list");
+
+	if (schema["uniqueItems"].Bool())
+	{
+		for (auto itA = map.begin(); itA != map.end(); itA++)
+		{
+			auto itB = itA;
+			while (++itB != map.end())
+			{
+				if (itA->second == itB->second)
+					errors += fail("List must consist from unique items");
+			}
+		}
+	}
+
+	// dependencies. Format is object/struct where key is the name of key in data
+	// and value is either:
+	// a) array of fields that must be present
+	// b) struct with schema against which data should be valid
+	// These checks are triggered only if key is present
+	BOOST_FOREACH(auto & deps, schema["dependencies"].Struct())
+	{
+		if (vstd::contains(map, deps.first))
+		{
+			if (deps.second.getType() == JsonNode::DATA_VECTOR)
+			{
+				JsonVector depList = deps.second.Vector();
+				BOOST_FOREACH(auto & depEntry, depList)
+				{
+					if (!vstd::contains(map, depEntry.String()))
+						errors += fail("Property " + depEntry.String() + " required for " + deps.first + " is missing");
+				}
+			}
+			else
+			{
+				if (!validateNode(node, deps.second).empty())
+					errors += fail("Requirements for " + deps.first + " are not fulfilled");
+			}
+		}
+	}
+
+	// TODO: missing fields from draft v4
+	// patternProperties
+	return errors;
+}
+
+std::string JsonValidator::validateString(const JsonNode &node, const JsonNode &schema)
+{
+	std::string errors;
+	auto & string = node.String();
+
+	if (vstd::contains(schema.Struct(), "maxLength") && string.size() > schema["maxLength"].Float())
+		errors += fail("String too long");
+
+	if (vstd::contains(schema.Struct(), "minLength") && string.size() < schema["minLength"].Float())
+		errors += fail("String too short");
+
+	// TODO: missing fields from draft v4
+	// pattern
+	return errors;
+}
+
+std::string JsonValidator::validateNumber(const JsonNode &node, const JsonNode &schema)
+{
+	std::string errors;
+	auto & value = node.Float();
+	if (vstd::contains(schema.Struct(), "maximum"))
+	{
+		if (schema["exclusiveMaximum"].Bool())
+		{
+			if (value >= schema["maximum"].Float())
+				errors += fail("Value is too large");
+		}
+		else
+		{
+			if (value >  schema["maximum"].Float())
+				errors += fail("Value is too large");
+		}
+	}
+
+	if (vstd::contains(schema.Struct(), "minimum"))
+	{
+		if (schema["exclusiveMinimum"].Bool())
+		{
+			if (value <= schema["minimum"].Float())
+				errors += fail("Value is too small");
+		}
+		else
+		{
+			if (value <  schema["minimum"].Float())
+				errors += fail("Value is too small");
+		}
+	}
+
+	if (vstd::contains(schema.Struct(), "multipleOf"))
+	{
+		double result = value / schema["multipleOf"].Float();
+		if (floor(result) != result)
+			errors += ("Value is not divisible");
+	}
+	return errors;
+}
+
+//basic schema validation (like checking $schema entry).
+std::string JsonValidator::validateRoot(const JsonNode &node, std::string schemaName)
+{
+	const JsonNode & schema = JsonUtils::getSchema(schemaName);
+
+	usedSchemas.push_back(schemaName.substr(0, schemaName.find('#')));
+	auto onExit = vstd::makeScopeGuard([&]
+	{
+		usedSchemas.pop_back();
+	});
+
+	if (!schema.isNull())
+		return validateNode(node, schema);
+	else
+		return fail("Schema not found!");
+}
+
+std::string JsonValidator::fail(const std::string &message)
+{
+	std::string errors;
+	errors += "At ";
+	BOOST_FOREACH(const JsonNode &path, currentPath)
+	{
+		errors += "/";
+		if (path.getType() == JsonNode::DATA_STRING)
+			errors += path.String();
+		else
+			errors += boost::lexical_cast<std::string>(static_cast<unsigned>(path.Float()));
+	}
+	errors += "\n\t Error: " + message + "\n";
+	return errors;
+}
+
+bool JsonValidator::validate(const JsonNode &root, std::string schemaName, std::string name)
+{
+	std::string errors = validateRoot(root, schemaName);
+
+	if (!errors.empty())
+	{
+		tlog3 << "Data in " << name << " is invalid!\n";
+		tlog3 << errors;
+	}
+
+	return errors.empty();
 }
 
 ///JsonUtils
@@ -1113,14 +1360,95 @@ void JsonUtils::unparseBonus( JsonNode &node, const Bonus * bonus )
 	}
 }
 
-void JsonUtils::minimize(JsonNode & node, const JsonNode& schema)
+void minimizeNode(JsonNode & node, const JsonNode & schema)
 {
-	JsonValidator validator(node, schema, true);
+	assert(schema["type"].String() == "object");
+
+	BOOST_FOREACH(auto & entry, schema["required"].Vector())
+	{
+		std::string name = entry.String();
+
+		if (node[name].getType() == JsonNode::DATA_STRUCT)
+			minimizeNode(node[name], schema["properties"][name]);
+
+		if (vstd::contains(node.Struct(), name) &&
+		    node[name] == schema["properties"][name]["default"])
+		{
+			node.Struct().erase(name);
+		}
+	}
 }
 
-void JsonUtils::validate(JsonNode & node, const JsonNode& schema)
+void JsonUtils::minimize(JsonNode & node, std::string schemaName)
 {
-	JsonValidator validator(node, schema, false);
+	minimizeNode(node, getSchema(schemaName));
+}
+
+void maximizeNode(JsonNode & node, const JsonNode & schema)
+{
+	assert(schema["type"].String() == "object");
+
+	BOOST_FOREACH(auto & entry, schema["required"].Vector())
+	{
+		std::string name = entry.String();
+
+		if (node[name].isNull() &&
+		    !schema["properties"][name]["default"].isNull())
+		{
+			node[name] = schema["properties"][name]["default"];
+		}
+		if (node[name].getType() == JsonNode::DATA_STRUCT)
+			maximizeNode(node[name], schema["properties"][name]);
+	}
+}
+
+void JsonUtils::maximize(JsonNode & node, std::string schemaName)
+{
+	maximizeNode(node, getSchema(schemaName));
+}
+
+bool JsonUtils::validate(const JsonNode &node, std::string schemaName, std::string dataName)
+{
+	JsonValidator validator;
+	return validator.validate(node, schemaName, dataName);
+}
+
+const JsonNode & getSchemaByName(std::string name)
+{
+	// cached schemas to avoid loading json data multiple times
+	static std::map<std::string, JsonNode> loadedSchemas;
+
+	if (vstd::contains(loadedSchemas, name))
+		return loadedSchemas[name];
+
+	std::string filename = "config/schemas/" + name + ".json";
+
+	if (CResourceHandler::get()->existsResource(ResourceID(filename)))
+	{
+		loadedSchemas[name] = JsonNode(ResourceID(filename));
+		return loadedSchemas[name];
+	}
+
+	tlog0 << "Error: missing schema with name " << name << "!\n";
+	assert(0);
+	return nullNode;
+}
+
+const JsonNode & JsonUtils::getSchema(std::string URI)
+{
+	std::vector<std::string> segments;
+
+	boost::split(segments, URI, boost::is_any_of(":#"));
+
+	segments.resize(3);//in case if last section (after #) was not present
+
+	if (segments[0] != "vcmi")
+	{
+		tlog0 << "Error: unsupported URI protocol for schema: " << segments[0] << "\n";
+		return nullNode;
+	}
+
+	return getSchemaByName(segments[1]).resolvePointer(segments[2]);
 }
 
 void JsonUtils::merge(JsonNode & dest, JsonNode & source)
@@ -1133,7 +1461,7 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source)
 
 	switch (source.getType())
 	{
-		break; case JsonNode::DATA_NULL:   dest.setType(JsonNode::DATA_NULL);
+		break; case JsonNode::DATA_NULL:   dest.clear();
 		break; case JsonNode::DATA_BOOL:   std::swap(dest.Bool(), source.Bool());
 		break; case JsonNode::DATA_FLOAT:  std::swap(dest.Float(), source.Float());
 		break; case JsonNode::DATA_STRING: std::swap(dest.String(), source.String());

@@ -250,7 +250,9 @@ CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
 	art->iconIndex = graphics["iconIndex"].Float();
 	art->image = graphics["image"].String();
 
-	if (!graphics["large"].loadTo(art->large))
+	if (!graphics["large"].isNull())
+		art->large = graphics["large"].String();
+	else
 		art->large = art->image;
 
 	art->advMapDef = graphics["map"].String();

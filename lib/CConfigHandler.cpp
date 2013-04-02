@@ -59,8 +59,9 @@ void SettingsStorage::init()
 {
 	CResourceHandler::get()->createResource("config/settings.json");
 	JsonNode(ResourceID("config/settings.json")).swap(config);
-	JsonNode schema(ResourceID("config/defaultSettings.json"));
-	JsonUtils::validate(config, schema);
+
+	JsonUtils::maximize(config, "vcmi:settings");
+	JsonUtils::validate(config, "vcmi:settings", "settings");
 }
 
 void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath)
@@ -69,10 +70,10 @@ void SettingsStorage::invalidateNode(const std::vector<std::string> &changedPath
 		listener->nodeInvalidated(changedPath);
 
 	JsonNode savedConf = config;
-	JsonNode schema(ResourceID("config/defaultSettings.json"));
+	JsonNode schema(ResourceID("config/schemas/settings.json"));
 
 	savedConf.Struct().erase("session");
-	JsonUtils::minimize(savedConf, schema);
+	JsonUtils::minimize(savedConf, "vcmi:settings");
 
 	std::ofstream file(CResourceHandler::get()->getResourceName(ResourceID("config/settings.json")), std::ofstream::trunc);
 	file << savedConf;

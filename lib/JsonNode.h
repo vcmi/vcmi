@@ -63,37 +63,37 @@ public:
 	bool operator == (const JsonNode &other) const;
 	bool operator != (const JsonNode &other) const;
 
-	//Convert node to another type. Converting to NULL will clear all data
+	/// Convert node to another type. Converting to NULL will clear all data
 	void setType(JsonType Type);
 	JsonType getType() const;
 
 	bool isNull() const;
+	/// removes all data from node and sets type to null
+	void clear();
 
-	//non-const accessors, node will change type on type mismatch
+	/// non-const accessors, node will change type on type mismatch
 	bool & Bool();
 	double & Float();
 	std::string & String();
 	JsonVector & Vector();
 	JsonMap & Struct();
 
-	//const accessors, will cause assertion failure on type mismatch
+	/// const accessors, will cause assertion failure on type mismatch
 	const bool & Bool() const;
 	const double & Float() const;
 	const std::string & String() const;
 	const JsonVector & Vector() const;
 	const JsonMap & Struct() const;
 
+	/// returns resolved "json pointer" (string in format "/path/to/node")
+	const JsonNode & resolvePointer(const std::string & jsonPointer) const;
+	JsonNode & resolvePointer(const std::string & jsonPointer);
+
 	/// convert json tree into specified type. Json tree must have same type as Type
 	/// Valid types: bool, string, any numeric, map and vector
 	/// example: convertTo< std::map< std::vector<int> > >();
 	template<typename Type>
 	Type convertTo() const;
-
-	/// Similar to convertTo but will assign data only if node is not null
-	/// Othervice original data will be preserved
-	/// Returns true if data was assigned
-	template<typename Type>
-	bool loadTo(Type & data) const;
 
 	//operator [], for structs only - get child node by name
 	JsonNode & operator[](std::string child);
@@ -159,11 +159,28 @@ namespace JsonUtils
 	 */
 	DLL_LINKAGE JsonNode assembleFromFiles(std::vector<std::string> files);
 
-	/// removes all nodes that are identical to default entry in schema
-	DLL_LINKAGE void minimize(JsonNode & node, const JsonNode& schema);
+	/**
+	 * @brief removes all nodes that are identical to default entry in schema
+	 * @param node - JsonNode to minimize
+	 * @param schemaName - name of schema to use
+	 * @note for minimizing data must be valid against given schema
+	 */
+	DLL_LINKAGE void minimize(JsonNode & node, std::string schemaName);
+	/// opposed to minimize, adds all missing, required entries that have default value
+	DLL_LINKAGE void maximize(JsonNode & node, std::string schemaName);
 
-	/// check schema
-	DLL_LINKAGE void validate(JsonNode & node, const JsonNode& schema);
+	/**
+	* @brief validate node against specified schema
+	* @param node - JsonNode to check
+	* @param schemaName - name of schema to use
+	* @param dataName - some way to identify data (printed in console in case of errors)
+	* @returns true if data in node fully compilant with schema
+	*/
+	DLL_LINKAGE bool validate(const JsonNode & node, std::string schemaName, std::string dataName);
+
+	/// get schema by json URI: vcmi:<name of file in schemas directory>#<entry in file, optional>
+	/// example: schema "vcmi:settings" is used to check user settings
+	DLL_LINKAGE const JsonNode & getSchema(std::string URI);
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -345,29 +362,42 @@ namespace JsonDetail
 		JsonNode parse(std::string fileName);
 	};
 
-	//Internal class for Json validation, used automaticaly in JsonNode constructor. Behaviour:
-	// - "schema" entry from root node is used for validation and will be removed
-	// - any missing entries will be replaced with default value from schema (if present)
-	// - if entry uses different type than defined in schema it will be removed
-	// - entries nod described in schema will be kept unchanged
+	//Internal class for Json validation. Mostly compilant with json-schema v4 draft
 	class JsonValidator
 	{
-		std::string errors;     // Contains description of all encountered errors
-		std::list<std::string> currentPath; // path from root node to current one
-		bool minimize;
+		// path from root node to current one.
+		// JsonNode is used as variant - either string (name of node) or as float (index in list)
+		std::vector<JsonNode> currentPath;
+		// Stack of used schemas. Last schema is the one used currently.
+		// May contain multiple items in case if remote references were found
+		std::vector<std::string> usedSchemas;
 
-		bool validateType(JsonNode &node, const JsonNode &schema, JsonNode::JsonType type);
-		bool validateSchema(JsonNode::JsonType &type, const JsonNode &schema);
-		bool validateNode(JsonNode &node, const JsonNode &schema, const std::string &name);
-		bool validateItems(JsonNode &node, const JsonNode &schema);
-		bool validateProperties(JsonNode &node, const JsonNode &schema);
+		/// helpers for other validation methods
+		std::string validateVectorItem(const JsonVector items, const JsonNode & schema, const JsonNode & additional, size_t index);
+		std::string validateStructItem(const JsonNode &node, const JsonNode &schema, const JsonNode & additional, std::string nodeName);
 
-		bool addMessage(const std::string &message);
+		std::string validateEnum(const JsonNode &node, const JsonVector &enumeration);
+		std::string validateNodeType(const JsonNode &node, const JsonNode &schema);
+		std::string validatesSchemaList(const JsonNode &node, const JsonNode &schemas, std::string errorMsg, std::function<bool(size_t)> isValid);
+
+		/// contains all type-independent checks
+		std::string validateNode(const JsonNode &node, const JsonNode &schema);
+
+		/// type-specific checks
+		std::string validateVector(const JsonNode &node, const JsonNode &schema);
+		std::string validateStruct(const JsonNode &node, const JsonNode &schema);
+		std::string validateString(const JsonNode &node, const JsonNode &schema);
+		std::string validateNumber(const JsonNode &node, const JsonNode &schema);
+
+		/// validation of root node of both schema and input data
+		std::string validateRoot(const JsonNode &node, std::string schemaName);
+
+		/// add error message to list and return false
+		std::string fail(const std::string &message);
 	public:
-		// validate node with "schema" entry
-		JsonValidator(JsonNode &root, bool minimize=false);
-		// validate with external schema
-		JsonValidator(JsonNode &root, const JsonNode &schema, bool minimize=false);
+
+		/// returns true if parsed data is fully compilant with schema
+		bool validate(const JsonNode &root, std::string schemaName, std::string name);
 	};
 
 } // namespace JsonDetail
@@ -376,12 +406,4 @@ template<typename Type>
 Type JsonNode::convertTo() const
 {
 	return JsonDetail::JsonConverter<Type>::convert(*this);
-}
-
-template<typename Type>
-bool JsonNode::loadTo(Type & data) const
-{
-	if (!isNull())
-		data = convertTo<Type>();
-	return !isNull();
 }

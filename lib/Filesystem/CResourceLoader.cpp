@@ -420,7 +420,8 @@ std::vector<std::string> CResourceHandler::getAvailableMods()
 
 		name.erase(0, name.find_last_of('/') + 1);        //Remove path prefix
 
-		foundMods.push_back(name);
+		if (!name.empty()) // this is also triggered for "ALL/MODS/" entry
+			foundMods.push_back(name);
 		++iterator;
 	}
 	return foundMods;

@@ -25,7 +25,7 @@
 void CIdentifierStorage::checkIdentifier(std::string & ID)
 {
 	if (boost::algorithm::ends_with(ID, "."))
-		tlog0 << "BIG WARNING: identifier " << ID << " seems to be broken!\n";
+		tlog3 << "BIG WARNING: identifier " << ID << " seems to be broken!\n";
 	else
 	{
 		size_t pos = 0;
@@ -33,7 +33,7 @@ void CIdentifierStorage::checkIdentifier(std::string & ID)
 		{
 			if (std::tolower(ID[pos]) != ID[pos] ) //Not in camelCase
 			{
-				tlog0 << "Warning: identifier " << ID << " is not in camelCase!\n";
+				tlog3 << "Warning: identifier " << ID << " is not in camelCase!\n";
 				ID[pos] = std::tolower(ID[pos]);// Try to fix the ID
 			}
 			pos = ID.find('.', pos);
@@ -53,7 +53,7 @@ void CIdentifierStorage::requestIdentifier(std::string name, const boost::functi
 	else
 	{
 		if(boost::algorithm::starts_with(name, "primSkill."))
-			tlog2 << "incorrect primSkill name requested\n";
+			tlog3 << "incorrect primSkill name requested\n";
 
 		missingObjects[name].push_back(callback); // queue callback
 	}
@@ -168,7 +168,7 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 		{
 			if (!vstd::contains(input, dep))
 			{
-				tlog0 << "Error: Mod " << mod.name << " requires missing " << dep << "!\n";
+				tlog1 << "Error: Mod " << mod.name << " requires missing " << dep << "!\n";
 				return false;
 			}
 		}
@@ -177,7 +177,7 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 		{
 			if (vstd::contains(input, conflicting))
 			{
-				tlog0 << "Error: Mod " << mod.name << " conflicts with " << allMods.at(conflicting).name << "!\n";
+				tlog1 << "Error: Mod " << mod.name << " conflicts with " << allMods.at(conflicting).name << "!\n";
 				return false;
 			}
 		}
@@ -269,7 +269,7 @@ void CModHandler::initialize(std::vector<std::string> availableMods)
 
 	if (!checkDependencies(detectedMods))
 	{
-		tlog0 << "Critical error: failed to load mods! Exiting...\n";
+		tlog1 << "Critical error: failed to load mods! Exiting...\n";
 		exit(1);
 	}
 
@@ -282,21 +282,21 @@ void CModHandler::initialize(std::vector<std::string> availableMods)
 	file << modConfig;
 }
 
-
 std::vector<std::string> CModHandler::getActiveMods()
 {
 	return activeMods;
 }
 
 template<typename Handler>
-void handleData(Handler handler, const JsonNode & sourceList)
+void CModHandler::handleData(Handler handler, const JsonNode & source, std::string listName, std::string schemaName)
 {
-	JsonNode config = JsonUtils::assembleFromFiles(sourceList.convertTo<std::vector<std::string> >());
+	JsonNode config = JsonUtils::assembleFromFiles(source[listName].convertTo<std::vector<std::string> >());
 
 	BOOST_FOREACH(auto & entry, config.Struct())
 	{
 		if (!entry.second.isNull()) // may happens if mod removed object by setting json entry to null
 		{
+			JsonUtils::validate(entry.second, schemaName, entry.first);
 			handler->load(entry.first, entry.second);
 		}
 	}
@@ -306,20 +306,21 @@ void CModHandler::loadActiveMods()
 {
 	BOOST_FOREACH(const TModID & modName, activeMods)
 	{
-		tlog1 << "\t\tLoading mod ";
+		tlog0 << "\t\tLoading mod ";
 		tlog2 << allMods[modName].name << "\n";
 
 		std::string modFileName = "mods/" + modName + "/mod.json";
 
 		const JsonNode config = JsonNode(ResourceID(modFileName));
+		JsonUtils::validate(config, "vcmi:mod", modName);
 
-		handleData(VLC->townh, config["factions"]);
-		handleData(VLC->creh, config["creatures"]);
-		handleData(VLC->arth, config["artifacts"]);
+		handleData(VLC->townh, config, "factions", "vcmi:faction");
+		handleData(VLC->creh, config, "creatures", "vcmi:creature");
+		handleData(VLC->arth, config, "artifacts", "vcmi:artifact");
 		//todo: spells
 
-		handleData(&VLC->heroh->classes, config["heroClasses"]);
-		handleData(VLC->heroh, config["heroes"]);
+		handleData(&VLC->heroh->classes, config,"heroClasses", "vcmi:heroClass");
+		handleData(VLC->heroh, config, "heroes", "vcmi:hero");
 	}
 
 	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded

@@ -1,0 +1,78 @@
+{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI mod file format",
+	"description" : "Format used to define main mod file (mod.json) in VCMI",
+	"required" : [ "name", "description" ],
+	"properties":{
+
+		"name": {
+			"type":"string",
+			"description": "Short name of your mod. No more than 2-3 words"
+		},
+		"description": {
+			"type":"string",
+			"description": "More lengthy description of mod. No hard limit"
+		},
+
+		"depends": {
+			"type":"array",
+			"description": "List of mods that are required to run this one",
+			"items": { "type":"string" }
+		},
+		"conflicts": {
+			"type":"array",
+			"description": "List of mods that can't be enabled in the same time as this one",
+			"items": { "type":"string" }
+		},
+
+		"artifacts": {
+			"type":"array",
+			"description": "List of configuration files for artifacts",
+			"items": { "type":"string" }
+		},
+		"creatures": {
+			"type":"array",
+			"description": "List of configuration files for creatures",
+			"items": { "type":"string" }
+		},
+		"factions": {
+			"type":"array",
+			"description": "List of configuration files for towns/factions",
+			"items": { "type":"string" }
+		},
+		"heroClasses": {
+			"type":"array",
+			"description": "List of configuration files for hero classes",
+			"items": { "type":"string" }
+		},
+		"heroes": {
+			"type":"array",
+			"description": "List of configuration files for heroes",
+			"items": { "type":"string" }
+		},
+
+		"filesystem": {
+			"type":"object",
+			"description": "Optional, description on how files are organized in your mod. In most cases you do not need to use this field",
+			"additionalProperties":{
+				"type":"array",
+				"description" : "list of data sources attached to this mount point",
+				"items": {
+					"type":"object",
+					"properties":{
+						"path": {
+							"type":"string",
+							"description": "Path to data source"
+						},
+						"type": {
+							"type" : "string",
+							"enum" : [ "dir", "lod", "snd", "vid" ],
+							"description" : "Type of data source"
+						}
+					}
+				}
+			}
+		}
+	}
+}

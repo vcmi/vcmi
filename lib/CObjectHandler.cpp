@@ -2299,6 +2299,8 @@ int CGTownInstance::getBoatType() const
 	case EAlignment::GOOD : return 1;
 	case EAlignment::NEUTRAL : return 2;
 	}
+	assert(0);
+	return -1;
 }
 
 int CGTownInstance::getMarketEfficiency() const

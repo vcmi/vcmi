@@ -1,0 +1,244 @@
+{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI creature format",
+	"description": "Json format for defining new creatures in VCMI",
+	"required" : [
+		"name", "faction", "cost", "level", "fightValue", "aiValue",
+		"attack", "defense", "hitPoints", "speed", "damage", "advMapAmount",
+		"graphics", "sound"
+	],
+	"properties":{
+		"name": {
+			"type":"object",
+			"description": "Translatable names for this creature",
+			"required" : [ "singular", "plural" ],
+			"properties":{
+				"singular": {
+					"type":"string",
+					"description": "Singular version"
+				},
+				"plural": {
+					"type":"string",
+					"description": "Plural version"
+				}
+			}
+		},
+		"faction": {
+			"type":"string",
+			"description": "Faction this creature belongs to. Examples: castle, rampart"
+		},
+		"cost": {
+			"type":"object",
+			"description": "Cost to recruit this creature",
+			"properties":{
+				"wood":    { "type":"number"},
+				"mercury": { "type":"number"},
+				"ore":     { "type":"number"},
+				"sulfur":  { "type":"number"},
+				"crystal": { "type":"number"},
+				"gems":    { "type":"number"},
+				"gold":    { "type":"number"}
+			}
+		},
+		"special": {
+			"type":"boolean",
+			"description": "Marks this object as special and not available by default"
+		},
+		"level": { "type":"number"},
+		"fightValue": {
+			"type":"number",
+			"description": " \"value\" of creature, used to determine for example army strength"
+		},
+		"aiValue": {
+			"type":"number",
+			"description": "Describes how valuable this creature is to AI. Usually similar to fightValue"
+		},
+		"growth": {
+			"type":"number",
+			"description": "Basic growth of this creature in town or in external dwellings"
+		},
+		"horde": {
+			"type":"number",
+			"description": "Bonus growth of this creature from built horde"
+		},
+		"attack":    { "type":"number" },
+		"defense":   { "type":"number" },
+		"hitPoints": { "type":"number" },
+		"speed":     { "type":"number" },
+		"shots":     { "type":"number" },
+
+		"damage": {
+			"type":"object",
+			"properties":{
+				"max": { "type":"number" },
+				"min": { "type":"number" }
+			}
+		},
+		"spellPoints": {
+			"type":"number",
+			"description": "Spell points this creature has (usually equal to number of casts)"
+		},
+		"advMapAmount": {
+			"type":"object",
+			"description" : "Initial size of random stacks on adventure map",
+			"properties":{
+				"min": { "type":"number" },
+				"max": { "type":"number" }
+			}
+		},
+		"upgrades": {
+			"type":"array",
+			"description": "List of creatures to which this one can be upgraded",
+			"items": { "type":"string" }
+		},
+		"doubleWide": {
+			"type":"boolean",
+			"description": "If set, creature will be two tiles wide on battlefield"
+		},
+		"hasDoubleWeek": {
+			"type":"boolean",
+			"description": "creature may receive \"week of\" events"
+		},
+		"abilities": {
+			"type":"array",
+			"description": "Creature abilities described using Bonus system",
+			"items": { "$ref" : "vcmi:bonus" }
+		},
+		"stackExperience": {
+			"type":"array",
+			"description": "Stack experience, using bonus system",
+			"items":{
+				"type":"object",
+				"required" : [ "bonus", "values" ],
+				"description": "0",
+				"properties":{
+					"bonus": {"$ref" : "vcmi:bonus" },
+					"values": {
+						"type":"array",
+						"minItems" : 10,
+						"maxItems" : 10,
+						"description": "Strength of the bonus",
+						"additionalItems" : true,
+						"anyof" : [
+							{ "items": { "type" : "number"  } },
+							{ "items": { "type" : "boolean" } }
+						]
+					}
+				}
+			}
+		},
+		"graphics": {
+			"type":"object",
+			"description": "Describes how this creature looks like during battles",
+			"required" : [
+				"animationTime", "iconLarge", "iconSmall", "iconIndex",
+				"map", "animation", "attackClimaxFrame", "timeBetweenFidgets"
+			],
+			"properties":{
+				"animationTime": {
+					"type":"object",
+					"required" : [ "attack", "flight", "walk" ],
+					"description": "Length of several animations",
+					"properties":{
+						"attack": {
+							"type":"number",
+							"description": "attack"
+						},
+						"flight": {
+							"type":"number",
+							"description": "flight"
+						},
+						"walk": {
+							"type":"number",
+							"description": "walk"
+						}
+					}
+				},
+				"iconLarge": {
+					"type":"string",
+					"description": "Large icon for this creature, used for example in town screen"
+				},
+				"iconSmall": {
+					"type":"string",
+					"description": "Small icon for this creature, used for example in exchange screen"
+				},
+				"iconIndex": {
+					"type":"number",
+					"description": "Index of icon of this creature in .def file"
+				},
+
+				"map": {
+					"type":"string",
+					"description": ".def file with animation of this creature on adventure map"
+				},
+				"animation": {
+					"type":"string",
+					"description": ".def file with animation of this creature in battles"
+				},
+				"attackClimaxFrame": {
+					"type":"number",
+					"description": "Frame from attack animation during which creature deals damage"
+				},
+				"missile": {
+					"type":"object",
+					"required" : [ "projectile", "frameAngles", "offset" ],
+					"description": "Missile description for archers",
+					"properties":{
+						"projectile": {
+							"type":"string",
+							"description": "Path to projectile animation"
+						},
+						"frameAngles": {
+							"type":"array",
+							"description": "Angles of missile images, should go from 90 to -90",
+							"minItems" : 1,
+							"items": { "type":"number" }
+						},
+						"offset": {
+							"type":"object",
+							"required" : [ "lowerX", "lowerY", "middleX", "middleY", "upperX", "upperY" ],
+							"description": "Position where projectile image appears during shooting in specific direction",
+							"properties":{
+								"lowerX":  { "type":"number" },
+								"lowerY":  { "type":"number" },
+								"middleX": { "type":"number" },
+								"middleY": { "type":"number" },
+								"upperX":  { "type":"number" },
+								"upperY":  { "type":"number" }
+							}
+						},
+						"spinning": {
+							"type":"boolean",
+							"description": "Flying projectile spins. Has some requirements to .def file"
+						}
+					}
+				},
+				"timeBetweenFidgets": {
+					"type":"number",
+					"description": "How often creature will play idling animation"
+				},
+				"troopCountLocationOffset": {
+					"type":"number",
+					"description": "Position of troop count label?"
+				}
+			}
+		},
+		"sound": {
+			"type":"object",
+			"description": "Various sound files associated with this creature",
+			"properties":{
+				"attack":    { "type":"string" },
+				"defend":    { "type":"string" },
+				"killed":    { "type":"string" },
+				"moveEnd":   { "type":"string" },
+				"moveStart": { "type":"string" },
+				"move":      { "type":"string" },
+				"shoot":     { "type":"string" },
+				"wince":     { "type":"string" },
+				"ext1":      { "type":"string" },
+				"ext2":      { "type":"string" }
+			}
+		}
+	}
+}

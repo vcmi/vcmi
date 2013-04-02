@@ -92,7 +92,7 @@ template <class Handler> void createHandler(Handler *&handler, const std::string
 void LibClasses::init()
 {
 	CStopWatch pomtime;
-	
+
 	createHandler(bth, "Bonus type", pomtime);
 	
 	createHandler(generaltexth, "General text", pomtime);
@@ -110,7 +110,6 @@ void LibClasses::init()
 	createHandler(dobjinfo, "Def information", pomtime);
 
 	createHandler(spellh, "Spell", pomtime);
-
 
 	modh->loadActiveMods();
 	modh->reload();

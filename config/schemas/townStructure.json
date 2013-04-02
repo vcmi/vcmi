@@ -1,0 +1,45 @@
+{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI town structures format",
+	"description" : "Format used to define structures visible on town screen in VCMI",
+	"required": [ "animation", "x", "y"],
+	"properties":{
+		"animation": {
+			"type":"string",
+			"description" : "Main animation file for this building"
+		},
+		"area": {
+			"type":"string",
+			"description" : "Area that indicate when building is selected. Must be 8-bit image"
+		},
+		"border": {
+			"type":"string",
+			"description" : "Golden border around building, displayed when building is selected"
+		},
+		"builds": {
+			"type":"number",
+			"description" : ""
+		},
+		"hidden": {
+			"type":"boolean",
+			"description" : "If upgrade, this building will replace parent animation but will not alter its behaviour"
+		},
+		"id": {
+			"type":"number",
+			"description" : "Numeric identifier of building"
+		},
+		"x": {
+			"type":"number",
+			"description" : "Position on screen"
+		},
+		"y": {
+			"type":"number",
+			"description" : "Position on screen"
+		},
+		"z": {
+			"type":"number",
+			"description" : "Position on screen. Buildings with higher value will be drawn on top of other buildings"
+		}
+	}
+}

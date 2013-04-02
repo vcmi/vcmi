@@ -1,0 +1,92 @@
+{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI hero class format",
+	"description" : "Format used to define classes of heroes in VCMI",
+	"required" : [
+		"animation", "faction", "highLevelChance", "lowLevelChance",
+		"name", "primarySkills", "secondarySkills", "tavern"
+	],
+	"properties":{
+		"animation": {
+			"type":"object",
+			"description": "Files related to hero animation",
+			"required": [ "battle", "map" ],
+			"properties":{
+				"battle": {
+					"type":"object",
+					"description": "Hero animations for battle",
+					"required": [ "female", "male" ],
+					"properties":{
+						"female": {
+							"type":"string",
+							"description": "Female version"
+						},
+						"male": {
+							"type":"string",
+							"description": "Male version"
+						}
+					}
+				},
+				"map": {
+					"type":"object",
+					"description": "Hero animations for adventure map",
+					"required": [ "female", "male" ],
+					"properties":{
+						"female": {
+							"type":"string",
+							"description": "Female version. Warning: not implemented!"
+						},
+						"male": {
+							"type":"string",
+							"description": "Male version"
+						}
+					}
+				}
+			}
+		},
+		"faction": {
+			"type":"string",
+			"description": "Faction this hero class belongs to"
+		},
+		"highLevelChance": {
+			"type":"object",
+			"description": "Chance to get specific primary skill on level-up, applicable for levels starting from 10",
+			"additionalProperties":{
+				"type":"number"
+			}
+		},
+		"lowLevelChance": {
+			"type":"object",
+			"description": "Chance to get specific primary skill on level-up, applicable for levels less than 10",
+			"additionalProperties":{
+				"type":"number"
+			}
+		},
+		"name": {
+			"type":"string",
+			"description": "Translatable name of hero class"
+		},
+		"primarySkills": {
+			"type":"object",
+			"description": "Initial primary skills of heroes",
+			"additionalProperties":{
+				"type":"number"
+			}
+		},
+		"secondarySkills": {
+			"type":"object",
+			"description": "Chance to get specific secondary skill on level-up. All missing skills are considered to be banned",
+			"additionalProperties":{
+				"type":"number"
+			}
+		},
+		"tavern": {
+			"type":"object",
+			"description": "Chance for this hero to appear in tavern of this factions. Reversed version of field \"tavern\" from town format",
+			"additionalProperties":{
+				"type":"number"
+			}
+		}
+	}
+}

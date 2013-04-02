@@ -1,0 +1,151 @@
+{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI hero format",
+	"description" : "Format used to define new heroes in VCMI",
+	"required": [ "army", "class", "images", "skills", "texts" ],
+	"properties":{
+		"army": {
+			"type":"array",
+			"description": "Initial hero army when recruited in tavern",
+			"minItems" : 1,
+			"maxItems" : 3,
+			"items": {
+				"type":"object",
+				"required" : [ "creature", "min", "max" ],
+				"properties":{
+					"creature": {
+						"type":"string",
+						"description": "creature",
+					},
+					"max": {
+						"type":"number",
+						"description": "max",
+					},
+					"min": {
+						"type":"number",
+						"description": "min",
+					}
+				}
+			}
+		},
+		"special": {
+				"type":"boolean",
+				"description": "Marks this object as special and not available by default"
+			},
+		"class": {
+			"type":"string",
+			"description": "Hero class, e.g. knight or battleMage"
+		},
+		"female": {
+			"type":"boolean",
+			"description": "This hero is female by default"
+		},
+		"images": {
+			"type":"object",
+			"description": "images",
+			"required": [ "index", "large", "small", "specialtyLarge", "specialtySmall" ],
+			"properties":{
+				"index": {
+					"type":"number",
+					"description": "Index of image in portraitsLarge/portraitsSmall files"
+				},
+				"large": {
+					"type":"string",
+					"description": "Large version of portrait for use in hero screen"
+				},
+				"small": {
+					"type":"string",
+					"description": "Small version of portrait for use on adventure map"
+				},
+				"specialtyLarge": {
+					"type":"string",
+					"description": "Large image of hero specilty, used in hero screen"
+				},
+				"specialtySmall": {
+					"type":"string",
+					"description": "Small image of hero specialty for use in exchange screen"
+				}
+			}
+		},
+		"skills": {
+			"type":"array",
+			"description": "List of skills initially known by hero",
+			"maxItems" : 8,
+			"items": {
+				"type":"object",
+				"required" : [ "level", "skill" ],
+				"properties":{
+					"level": {
+						"type":"string",
+						"description": "level",
+						"enum" : [ "basic", "advanced", "expert" ]
+					},
+					"skill": {
+						"type":"string",
+						"description": "skill"
+					}
+				}
+			}
+		},
+		"specialty": {
+			"type":"array",
+			"description": "Description of hero specialty using bonus system",	
+			"items": {
+				"type":"object",
+				"required" : [ "bonuses" ],
+				"properties":{
+					"growsWithLevel" : {
+						"type" : "boolean",
+						"description" : "Specialty growth with level, so far only SECONDARY_SKILL_PREMY and PRIMATY SKILL with creature limiter can grow"
+					},
+					"bonuses": {
+						"type":"array",
+						"description": "List of bonuses",
+						"items": { "$ref" : "vcmi:bonus" }
+					}
+				}
+			}
+		},
+		"spellbook": {
+			"type":"array",
+			"description": "List of starting spells, if available. This entry (even empty) will also grant spellbook",
+			"items": { "type":"string" }
+		},
+		"texts": {
+			"type":"object",
+			"description": "All translatable texts related to hero",
+			"required" : [ "biography", "name", "specialty" ],
+			"properties":{
+				"biography": {
+					"type":"string",
+					"description": "Hero biography"
+				},
+				"name": {
+					"type":"string",
+					"description": "Hero name"
+				},
+				"specialty": {
+					"type":"object",
+					"description": "Hero specialty information",
+					"required" : [ "description", "name", "tooltip" ],
+					"properties":{
+						"description": {
+							"type":"string",
+							"description": "Description visible when hovering over specialty icon"
+						},
+						"name": {
+							"type":"string",
+							"description": "Name of the specialty"
+						},
+						"tooltip": {
+							"type":"string",
+							"description": "Tooltip visible on clicking icon."
+						}
+					}
+				}
+			}
+		}
+	}
+}
+

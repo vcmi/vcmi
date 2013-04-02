@@ -1,0 +1,92 @@
+{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI bonus system format",
+	"description" : "Subsection of several formats, used to add generic bonuses to objects",
+	"required": ["type"],
+	"properties":{
+		"addInfo": {
+			"anyOf" : [
+				{ "type" : "string" },
+				{ "type" : "number" }
+			],
+			"description": "addInfo",
+		},
+		"description": {
+			"type":"string",
+			"description": "description",
+		},
+		"duration": {
+			"type":"string",
+			"description": "duration",
+		},
+		"effectRange": {
+			"type":"string",
+			"description": "effectRange",
+		},
+		"limiters": {
+			"type":"array",
+			"description": "limiters",
+			"items": {
+				"type":"object",
+				"properties" : {
+					"parameters": {
+						"type":"array",
+						"description" : "parameters",
+						"additionalItems": true
+					},
+					"type": {
+						"type":"string",
+						"description": "type",
+					}
+				}
+			}
+		},
+		"propagator": {
+			"description": "propagator",
+			"anyOf" : [
+				{
+					"type" : "string"
+				},
+				{
+					"type":"array",
+					"items": {
+							"type":"string",
+							"description": "0",
+					}
+				}
+			],
+		},
+		"sourceID": {
+			"type":"number",
+			"description": "sourceID",
+		},
+		"sourceType": {
+			"type":"string",
+			"description": "sourceType",
+		},
+		"subtype": {
+			"anyOf" : [
+				{ "type" : "string" },
+				{ "type" : "number" }
+			],
+			"description": "subtype",
+		},
+		"turns": {
+			"type":"number",
+			"description": "turns",
+		},
+		"type": {
+			"type":"string",
+			"description": "type",
+		},
+		"val": {
+			"type":"number",
+			"description": "val",
+		},
+		"valueType": {
+			"type":"string",
+			"description": "valueType",
+		}
+	}
+}

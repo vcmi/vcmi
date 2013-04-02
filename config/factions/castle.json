@@ -112,8 +112,7 @@
 				{ "id" : 40, "animation" : "TBCSUP_3.def", "x" : 176, "y" : 85,  "border" : "TOCSSWD2.bmp", "area" : "TZCSSWD2.bmp" },
 				{ "id" : 41, "animation" : "TBCSUP_4.def", "x" : 563, "y" : 173, "z" : 1,  "border" : "TOCSMON2.bmp", "area" : "TZCSMON2.bmp" },
 				{ "id" : 42, "animation" : "TBCSUP_5.def", "x" : 160, "y" : 190, "z" : -1, "border" : "TOCSCAV2.bmp", "area" : "TZCSCAV2.bmp" },
-				{ "id" : 43, "animation" : "TBCSUP_6.def", "x" : 303, "y" : 0,   "z" : -1, "border" : "TOCSANG2.bmp", "area" : "TZCSANG2.bmp" },
-
+				{ "id" : 43, "animation" : "TBCSUP_6.def", "x" : 303, "y" : 0,   "z" : -1, "border" : "TOCSANG2.bmp", "area" : "TZCSANG2.bmp" }
 			],
 			"icons" :
 			{

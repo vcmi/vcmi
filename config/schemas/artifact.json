@@ -1,0 +1,82 @@
+{
+	"type":"object",
+	"$schema": "http://json-schema.org/draft-04/schema",
+	"title" : "VCMI artifact format",
+	"description" : "Format used to define new artifacts in VCMI",
+	"required" : [ "class", "graphics", "text", "type", "value" ],
+	"properties":{
+		"bonuses": {
+			"type":"array",
+			"description": "Bonuses provided by this artifact using bonus system",
+			"items": { "$ref" : "vcmi:bonus" }
+		},
+		"class": {
+			"type":"string",
+			"enum" : [ "SPECIAL", "TREASURE", "MINOR", "MAJOR", "RELIC" ],
+			"description": "Artifact class, treasure, minor, major or relic"
+		},
+		"components": {
+			"type":"array",
+			"description": "Optional, list of components for combinational artifacts",
+			"items": { "type":"string" }
+		},
+		"graphics": {
+			"type":"object",
+			"description": "Graphical files associated with the artifact",
+			"required" : [ "iconIndex", "image", "map" ],
+			"properties":{
+				"iconIndex": {
+					"type":"number",
+					"description": "index of icon of this artifact in .def file"
+				},
+				"image": {
+					"type":"string",
+					"description": "Base image for this artifact, used for example in hero screen"
+				},
+				"large": {
+					"type":"string",
+					"description": "Large image, used for drag-and-drop and popup messages"
+				},
+				"map": {
+					"type":"string",
+					"description": ".def file for adventure map"
+				}
+			}
+		},
+		"slot": {
+			"type":"string",
+			"description": "Slot to which this artifact can be put, if applicable"
+		},
+		"text": {
+			"type":"object",
+			"description": "Texts associated with artifact",
+			"required" : [ "description", "event", "name" ],
+			"properties":{
+				"description": {
+					"type":"string",
+					"description": "Long description of this artifact"
+				},
+				"event": {
+					"type":"string",
+					"description": "Text that visible on picking this artifact on map"
+				},
+				"name": {
+					"type":"string",
+					"description": "Name of the artifact"
+				}
+			}
+		},
+		"type": {
+			"type":"array",
+			"description": "Type of this artifact - creature, hero or commander",
+			"items": {
+				"type":"string",
+				"enum" : [ "HERO", "CREATURE", "COMMANDER" ]
+			}
+		},
+		"value": {
+			"type":"number",
+			"description": "Cost of this artifact, in gold"
+		}
+	}
+}
