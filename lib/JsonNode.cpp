@@ -1367,19 +1367,31 @@ void JsonUtils::unparseBonus( JsonNode &node, const Bonus * bonus )
 
 void minimizeNode(JsonNode & node, const JsonNode & schema)
 {
-	assert(schema["type"].String() == "object");
-
-	BOOST_FOREACH(auto & entry, schema["required"].Vector())
+	if (schema["type"].String() == "object")
 	{
-		std::string name = entry.String();
+		std::set<std::string> foundEntries;
 
-		if (node[name].getType() == JsonNode::DATA_STRUCT)
+		BOOST_FOREACH(auto & entry, schema["required"].Vector())
+		{
+			std::string name = entry.String();
+			foundEntries.insert(name);
+
 			minimizeNode(node[name], schema["properties"][name]);
 
-		if (vstd::contains(node.Struct(), name) &&
-		    node[name] == schema["properties"][name]["default"])
+			if (vstd::contains(node.Struct(), name) &&
+				node[name] == schema["properties"][name]["default"])
+			{
+				node.Struct().erase(name);
+			}
+		}
+
+		// erase all unhandled entries
+		for (auto it = node.Struct().begin(); it != node.Struct().end();)
 		{
-			node.Struct().erase(name);
+			if (!vstd::contains(foundEntries, it->first))
+				it = node.Struct().erase(it);
+			else
+				it++;
 		}
 	}
 }
@@ -1389,21 +1401,36 @@ void JsonUtils::minimize(JsonNode & node, std::string schemaName)
 	minimizeNode(node, getSchema(schemaName));
 }
 
+// FIXME: except for several lines function is identical to minimizeNode. Some way to reduce duplication?
 void maximizeNode(JsonNode & node, const JsonNode & schema)
 {
-	assert(schema["type"].String() == "object");
-
-	BOOST_FOREACH(auto & entry, schema["required"].Vector())
+	// "required" entry can only be found in object/struct
+	if (schema["type"].String() == "object")
 	{
-		std::string name = entry.String();
+		std::set<std::string> foundEntries;
 
-		if (node[name].isNull() &&
-		    !schema["properties"][name]["default"].isNull())
+		// check all required entries that have default version
+		BOOST_FOREACH(auto & entry, schema["required"].Vector())
 		{
-			node[name] = schema["properties"][name]["default"];
-		}
-		if (node[name].getType() == JsonNode::DATA_STRUCT)
+			std::string name = entry.String();
+			foundEntries.insert(name);
+
+			if (node[name].isNull() &&
+				!schema["properties"][name]["default"].isNull())
+			{
+				node[name] = schema["properties"][name]["default"];
+			}
 			maximizeNode(node[name], schema["properties"][name]);
+		}
+
+		// erase all unhandled entries
+		for (auto it = node.Struct().begin(); it != node.Struct().end();)
+		{
+			if (!vstd::contains(foundEntries, it->first))
+				it = node.Struct().erase(it);
+			else
+				it++;
+		}
 	}
 }
 
@@ -1434,7 +1461,7 @@ const JsonNode & getSchemaByName(std::string name)
 		return loadedSchemas[name];
 	}
 
-	tlog0 << "Error: missing schema with name " << name << "!\n";
+	tlog1 << "Error: missing schema with name " << name << "!\n";
 	assert(0);
 	return nullNode;
 }
@@ -1449,7 +1476,7 @@ const JsonNode & JsonUtils::getSchema(std::string URI)
 
 	if (segments[0] != "vcmi")
 	{
-		tlog0 << "Error: unsupported URI protocol for schema: " << segments[0] << "\n";
+		tlog1 << "Error: unsupported URI protocol for schema: " << segments[0] << "\n";
 		return nullNode;
 	}
 

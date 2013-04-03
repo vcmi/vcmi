@@ -1,347 +1,130 @@
 {
 	"type":"object",
 	"$schema": "http://json-schema.org/draft-04/schema",
-	"title" : "VCMI town building format",
-	"description" : "Format used to define town buildings in VCMI",
-	"id": "#",
+	"title" : "VCMI siege screen format",
+	"description" : "Format used to define town siege screen in VCMI",
+	"required" : [
+		"gate", "imagePrefix", "moat", "shooterHeight", "shooter",
+		"static", "towers", "walls"
+	 ],
+	
+	"definitions" :
+	{
+		"point" : {
+			"type" : "object",
+			"required" : [ "x", "y" ],
+			"properties":{
+				"x": { "type":"number" },
+				"y": { "type":"number" }
+			}
+		},
+		"tower" : {
+			"type" : "object",
+			"required" : [ "battlement", "creature", "tower" ],
+			"properties":{
+				"battlement": {
+					"description" : "Location of battlement, part of tower that covers shooter",
+					"$ref" : "#/definitions/point"
+				},
+				"creature": {
+					"description" : "Location of shooter in tower",
+					"$ref" : "#/definitions/point"
+				},
+				"tower": {
+					"description" : "Location of main segment of tower",
+					"$ref" : "#/definitions/point"
+				}
+			}
+		}
+	},
+
 	"properties":{
 		"gate": {
 			"type":"object",
-			"id": "gate",
+			"description" : "Town gates",
 			"properties":{
 				"arch": {
-					"type":"object",
-					"id": "arch",
-					"properties":{
-						"x": {
-							"type":"number",
-							"id": "x"
-						},
-						"y": {
-							"type":"number",
-							"id": "y"
-						}
-					}
+					"description" : "Static, top part of gates",
+					"$ref" : "#/definitions/point"
 				},
 				"gate": {
-					"type":"object",
-					"id": "gate",
-					"properties":{
-						"x": {
-							"type":"number",
-							"id": "x"
-						},
-						"y": {
-							"type":"number",
-							"id": "y"
-						}
-					}
+					"description" : "Main section of gates",
+					"$ref" : "#/definitions/point"
 				}
 			}
 		},
 		"imagePrefix": {
 			"type":"string",
-			"id": "imagePrefix"
+			"description" : "Prefix to all images related to siege screen"
 		},
 		"moat": {
 			"type":"object",
-			"id": "moat",
+			"description" : "Castle moat description",
 			"properties":{
 				"bank": {
-					"type":"object",
-					"id": "bank",
-					"properties":{
-						"x": {
-							"type":"number",
-							"id": "x"
-						},
-						"y": {
-							"type":"number",
-							"id": "y"
-						}
-					}
+					"description" : "Small section with bank of the moat",
+					"$ref" : "#/definitions/point"
 				},
 				"moat": {
-					"type":"object",
-					"id": "moat",
-					"properties":{
-						"x": {
-							"type":"number",
-							"id": "x"
-						},
-						"y": {
-							"type":"number",
-							"id": "y"
-						}
-					}
+					"description" : "Main section of the moat",
+					"$ref" : "#/definitions/point"
 				}
 			}
 		},
 		"shooterHeight": {
 			"type":"number",
-			"id": "shooterHeight"
+			"description" : "Height at which shooter image will be cropped"
 		},
 		"shooter": {
 			"type":"string",
-			"id": "shooter"
+			"description" : "Identifier of creature that will be used as tower shooter"
 		},
 		"static": {
 			"type":"object",
-			"id": "static",
+			"description" : "Static sections of walls",
 			"properties":{
 				"background": {
-					"type":"object",
-					"id": "background",
-					"properties":{
-						"x": {
-							"type":"number",
-							"id": "x"
-						},
-						"y": {
-							"type":"number",
-							"id": "y"
-						}
-					}
+					"description" : "Very top section of the wall located above hero",
+					"$ref" : "#/definitions/point"
 				},
 				"bottom": {
-					"type":"object",
-					"id": "bottom",
-					"properties":{
-						"x": {
-							"type":"number",
-							"id": "x"
-						},
-						"y": {
-							"type":"number",
-							"id": "y"
-						}
-					}
+					"description" : "Bottom section located between destructible sections",
+					"$ref" : "#/definitions/point"
 				},
 				"top": {
-					"type":"object",
-					"id": "top",
-					"properties":{
-						"x": {
-							"type":"number",
-							"id": "x"
-						},
-						"y": {
-							"type":"number",
-							"id": "y"
-						}
-					}
+					"description" : "Top section located between destructible sections",
+					"$ref" : "#/definitions/point"
 				}
 			}
 		},
 		"towers": {
 			"type":"object",
-			"id": "towers",
+			"description" : "Decription of towers",
 			"properties":{
-				"bottom": {
-					"type":"object",
-					"id": "bottom",
-					"properties":{
-						"battlement": {
-							"type":"object",
-							"id": "battlement",
-							"properties":{
-								"x": {
-									"type":"number",
-									"id": "x"
-								},
-								"y": {
-									"type":"number",
-									"id": "y"
-								}
-							}
-						},
-						"creature": {
-							"type":"object",
-							"id": "creature",
-							"properties":{
-								"x": {
-									"type":"number",
-									"id": "x"
-								},
-								"y": {
-									"type":"number",
-									"id": "y"
-								}
-							}
-						},
-						"tower": {
-							"type":"object",
-							"id": "tower",
-							"properties":{
-								"x": {
-									"type":"number",
-									"id": "x"
-								},
-								"y": {
-									"type":"number",
-									"id": "y"
-								}
-							}
-						}
-					}
-				},
-				"keep": {
-					"type":"object",
-					"id": "keep",
-					"properties":{
-						"battlement": {
-							"type":"object",
-							"id": "battlement",
-							"properties":{
-								"x": {
-									"type":"number",
-									"id": "x"
-								},
-								"y": {
-									"type":"number",
-									"id": "y"
-								}
-							}
-						},
-						"creature": {
-							"type":"object",
-							"id": "creature",
-							"properties":{
-								"x": {
-									"type":"number",
-									"id": "x"
-								},
-								"y": {
-									"type":"number",
-									"id": "y"
-								}
-							}
-						},
-						"tower": {
-							"type":"object",
-							"id": "tower",
-							"properties":{
-								"x": {
-									"type":"number",
-									"id": "x"
-								},
-								"y": {
-									"type":"number",
-									"id": "y"
-								}
-							}
-						}
-					}
-				},
-				"top": {
-					"type":"object",
-					"id": "top",
-					"properties":{
-						"battlement": {
-							"type":"object",
-							"id": "battlement",
-							"properties":{
-								"x": {
-									"type":"number",
-									"id": "x"
-								},
-								"y": {
-									"type":"number",
-									"id": "y"
-								}
-							}
-						},
-						"creature": {
-							"type":"object",
-							"id": "creature",
-							"properties":{
-								"x": {
-									"type":"number",
-									"id": "x"
-								},
-								"y": {
-									"type":"number",
-									"id": "y"
-								}
-							}
-						},
-						"tower": {
-							"type":"object",
-							"id": "tower",
-							"properties":{
-								"x": {
-									"type":"number",
-									"id": "x"
-								},
-								"y": {
-									"type":"number",
-									"id": "y"
-								}
-							}
-						}
-					}
-				}
+				"bottom": { "$ref" : "#/definitions/tower", "description" : "Bottom tower" },
+				"keep":   { "$ref" : "#/definitions/tower", "description" : "Central keep" },
+				"top":    { "$ref" : "#/definitions/tower", "description" : "Top tower" }
 			}
 		},
 		"walls": {
 			"type":"object",
-			"id": "walls",
+			"description" : "Destructible sections of the walls",
 			"properties":{
 				"bottomMid": {
-					"type":"object",
-					"id": "bottomMid",
-					"properties":{
-						"x": {
-							"type":"number",
-							"id": "x"
-						},
-						"y": {
-							"type":"number",
-							"id": "y"
-						}
-					}
+					"description" : "Second from bottom section located near gates",
+					"$ref" : "#/definitions/point"
 				},
 				"bottom": {
-					"type":"object",
-					"id": "bottom",
-					"properties":{
-						"x": {
-							"type":"number",
-							"id": "x"
-						},
-						"y": {
-							"type":"number",
-							"id": "y"
-						}
-					}
+					"description" : "Bottommost section located near bottom tower",
+					"$ref" : "#/definitions/point"
 				},
 				"upperMid": {
-					"type":"object",
-					"id": "upperMid",
-					"properties":{
-						"x": {
-							"type":"number",
-							"id": "x"
-						},
-						"y": {
-							"type":"number",
-							"id": "y"
-						}
-					}
+					"description" : "Second from top section located near gates",
+					"$ref" : "#/definitions/point"
 				},
 				"upper": {
-					"type":"object",
-					"id": "upper",
-					"properties":{
-						"x": {
-							"type":"number",
-							"id": "x"
-						},
-						"y": {
-							"type":"number",
-							"id": "y"
-						}
-					}
+					"description" : "Topmost section located near top tower",
+					"$ref" : "#/definitions/point"
 				}
 			}
 		}
