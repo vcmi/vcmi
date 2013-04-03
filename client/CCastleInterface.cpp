@@ -223,7 +223,7 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	if(area && isItIn(&pos,sEvent.x, sEvent.y))
 	{
-		if(CSDL_Ext::SDL_GetPixel(area,sEvent.x-pos.x,sEvent.y-pos.y) == 0) //hovered pixel is inside this building
+		if(CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y)) //hovered pixel is inside this building
 		{
 			if(parent->selectedBuilding == this)
 			{
