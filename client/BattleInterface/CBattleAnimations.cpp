@@ -751,7 +751,7 @@ bool CShootingAnimation::init()
 	// to properly translate coordinates when shooter is rotated
 	int multiplier = spi.reverse ? -1 : 1;
 
-	double projectileAngle = atan2(fabs(destPos.y - fromPos.y), fabs(destPos.x - fromPos.x));
+	double projectileAngle = atan2(fabs((double)destPos.y - fromPos.y), fabs((double)destPos.x - fromPos.x));
 	if(shooter->position < dest)
 		projectileAngle = -projectileAngle;
 
