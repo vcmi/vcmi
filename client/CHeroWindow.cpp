@@ -25,6 +25,7 @@
 
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
+#include "CMT.h"
 
 #undef min
 
@@ -38,7 +39,6 @@
  *
  */
 
-extern SDL_Surface * screen;
 using namespace boost::assign;
 
 const TBonusListPtr CHeroWithMaybePickedArtifact::getAllBonuses(const CSelector &selector, const CSelector &limit, const CBonusSystemNode *root /*= NULL*/, const std::string &cachingStr /*= ""*/) const

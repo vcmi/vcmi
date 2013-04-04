@@ -1,7 +1,6 @@
 #include "StdInc.h"
 #include "Geometries.h"
-
-extern SDL_Surface * screen;
+#include "../CMT.h"
 
 Rect Rect::createCentered( int w, int h )
 {

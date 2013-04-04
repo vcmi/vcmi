@@ -23,8 +23,6 @@
  *
  */
 
-//extern SDL_Surface * screen;
-
 const int COMPONENT_TO_SUBTITLE = 17;
 const int BETWEEN_COMPS_ROWS = 10;
 const int BEFORE_COMPONENTS = 30;

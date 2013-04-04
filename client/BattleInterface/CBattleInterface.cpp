@@ -31,6 +31,7 @@
 
 #include "../UIFramework/CCursorHandler.h"
 #include "../UIFramework/CGuiHandler.h"
+#include "../CMT.h"
 
 #ifndef __GNUC__
 const double M_PI = 3.14159265358979323846;
@@ -53,8 +54,6 @@ const time_t CBattleInterface::HOVER_ANIM_DELTA = 1;
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-extern SDL_Surface * screen;
 
 CondSh<bool> CBattleInterface::animsAreDisplayed;
 

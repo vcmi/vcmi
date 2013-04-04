@@ -15,6 +15,7 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/GameConstants.h"
 #include "../lib/CStopWatch.h"
+#include "CMT.h"
 
 /*
  * mapHandler.cpp, part of VCMI engine
@@ -29,7 +30,6 @@
 const bool MARK_BLOCKED_POSITIONS = false;
 const bool MARK_VISITABLE_POSITIONS = false;
 
-extern SDL_Surface * screen;
 #define ADVOPT (conf.go()->ac)
 
 std::string nameFromType (int typ)

@@ -16,6 +16,7 @@
 #include "CPlayerInterface.h" //LOCPLINT
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
+#include "CMT.h"
 
 /*
  * CKingdomInterface.cpp, part of VCMI engine
@@ -26,8 +27,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-extern SDL_Surface *screenBuf;
 
 InfoBox::InfoBox(Point position, InfoPos Pos, InfoSize Size, IInfoBoxData *Data):
 	size(Size),

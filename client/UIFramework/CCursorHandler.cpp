@@ -5,6 +5,7 @@
 #include "SDL_Extensions.h"
 #include "../CAnimation.h"
 #include "CGuiHandler.h"
+#include "../CMT.h"
 
 /*
  * CCursorHandler.cpp, part of VCMI engine
@@ -15,8 +16,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-extern SDL_Surface * screen;
 
 void CCursorHandler::initCursor()
 {

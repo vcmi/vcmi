@@ -19,6 +19,7 @@
 #include "../lib/BattleState.h"
 #include "../lib/GameConstants.h"
 #include "UIFramework/CGuiHandler.h"
+#include "CMT.h"
 
 /*
  * CSpellWindow.cpp, part of VCMI engine
@@ -29,8 +30,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-extern SDL_Surface * screen;
 
 SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL,
 	const std::string & textR, boost::function<void()> funcHon, boost::function<void()> funcHoff, CPlayerInterface * _myInt)
