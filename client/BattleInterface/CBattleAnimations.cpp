@@ -717,12 +717,9 @@ bool CShootingAnimation::init()
 
 	// Create the projectile animation
 
-	double projectileAngle; //in radians; if positive, projectiles goes up
 	double straightAngle = 0.2; //maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
+	double projectileAngle = 0;
 	int fromHex = shooter->position;
-	projectileAngle = atan2(static_cast<double>(abs(dest - fromHex) / GameConstants::BFIELD_WIDTH), static_cast<double>(abs(dest - fromHex) % GameConstants::BFIELD_WIDTH));
-	if(fromHex < dest)
-		projectileAngle = -projectileAngle;
 
 	// Get further info about the shooter e.g. relative pos of projectile to unit.
 	// If the creature id is 149 then it's a arrow tower which has no additional info so get the
@@ -737,42 +734,51 @@ bool CShootingAnimation::init()
 	ProjectileInfo spi;
 	spi.creID = shooter->getCreature()->idNumber;
 	spi.stackID = shooter->ID;
-	spi.reverse = !shooter->attackerOwned;
+	// reverse if creature is facing right OR this is non-existing stack that is not tower (war machines)
+	spi.reverse = attackingStack ? !owner->creDir[attackingStack->ID] : shooter->getCreature()->idNumber != CreatureID::ARROW_TOWERS ;
 
 	spi.step = 0;
 	spi.frameNum = 0;
-	spi.spin = shooterInfo->animation.projectileSpin;
+	//spi.spin = shooterInfo->animation.projectileSpin;
 
-	Point xycoord = CClickableHex::getXYUnitAnim(shooter->position, true, shooter, owner);
+	Point xycoord;
 	Point destcoord;
 
-
-	// The "master" point where all projectile positions relate to.
-	static const Point projectileOrigin(181, 252);
+	// NOTE: two lines below return different positions (very notable with 2-hex creatures). Obtaining via creanims seems to be more precise
+	xycoord = owner->creAnims[spi.stackID]->pos.topLeft();
+	//xycoord = CClickableHex::getXYUnitAnim(shooter->position, true, shooter, owner);
 
 	if (attackedStack)
 	{
 		destcoord = CClickableHex::getXYUnitAnim(dest, false, attackedStack, owner); 
-		destcoord.x += 250; destcoord.y += 210; //TODO: find a better place to shoot
+		destcoord.x += 225; destcoord.y += 225; //TODO: find a better place to shoot
+
+		double projectileAngle = atan2(fabs(static_cast<double>(destcoord.x - xycoord.x)),
+		                               fabs(static_cast<double>(destcoord.y - xycoord.y)));
+		if(fromHex < dest)
+			projectileAngle = -projectileAngle;
+
+		// to properly translate coordinates when shooter is rotated
+		int multiplier = spi.reverse ? -1 : 1;
 
 		// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
 		if (projectileAngle > straightAngle)
 		{
 			//upper shot
-			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->animation.upperRightMissleOffsetX;
-			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->animation.upperRightMissleOffsetY;
+			spi.x = xycoord.x + 222 + ( -25 + shooterInfo->animation.upperRightMissleOffsetX ) * multiplier;
+			spi.y = xycoord.y + 265 + shooterInfo->animation.upperRightMissleOffsetY;
 		}
 		else if (projectileAngle < -straightAngle) 
 		{
 			//lower shot
-			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->animation.lowerRightMissleOffsetX;
-			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->animation.lowerRightMissleOffsetY;
+			spi.x = xycoord.x + 222 + ( -25 + shooterInfo->animation.lowerRightMissleOffsetX ) * multiplier;
+			spi.y = xycoord.y + 265 + shooterInfo->animation.lowerRightMissleOffsetY;
 		}
 		else 
 		{
 			//straight shot
-			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->animation.rightMissleOffsetX;
-			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->animation.rightMissleOffsetY;
+			spi.x = xycoord.x + 222 + ( -25 + shooterInfo->animation.rightMissleOffsetX ) * multiplier;
+			spi.y = xycoord.y + 265 + shooterInfo->animation.rightMissleOffsetY;
 		}
 
 		double animSpeed = 23.0 * owner->getAnimSpeed(); // flight speed of projectile
@@ -811,8 +817,8 @@ bool CShootingAnimation::init()
 			spi.lastStep = static_cast<int>((spi.catapultInfo->toX - spi.catapultInfo->fromX) / animSpeed);
 			spi.dx = animSpeed;
 			spi.dy = 0;
-			spi.x = xycoord.x + projectileOrigin.x + shooterInfo->animation.rightMissleOffsetX + 17.;
-			spi.y = xycoord.y + projectileOrigin.y + shooterInfo->animation.rightMissleOffsetY + 10.;
+			spi.x = xycoord.x + 225 + shooterInfo->animation.rightMissleOffsetX;
+			spi.y = xycoord.y + 250 + shooterInfo->animation.rightMissleOffsetY;
 
 			// Add explosion anim
 			int xEnd = static_cast<int>(spi.x + spi.lastStep * spi.dx);
@@ -821,16 +827,30 @@ bool CShootingAnimation::init()
 		}
 	}
 
-	// Set starting frame
-	if(spi.spin)
+	auto & angles = shooterInfo->animation.missleFrameAngles;
+	double pi = boost::math::constants::pi<double>();
+
+	// only frames below maxFrame are usable: anything  higher is either no present or we don't know when it should be used
+	size_t maxFrame = std::min<size_t>(angles.size(), owner->idToProjectile[spi.creID]->ourImages.size());
+
+	assert(maxFrame > 0);
+
+	// values in angles array indicate position from which this frame was rendered, in degrees.
+	// find frame that has closest angle to one that we need for this shot
+	size_t bestID = 0;
+	double bestDiff = fabs( angles[0] / 180 * pi - projectileAngle );
+
+	for (size_t i=1; i<maxFrame; i++)
 	{
-		spi.frameNum = 0;
+		double currentDiff = fabs( angles[i] / 180 * pi - projectileAngle );
+		if (currentDiff < bestDiff)
+		{
+			bestID = i;
+			bestDiff = currentDiff;
+		}
 	}
-	else
-	{
-		double pi = boost::math::constants::pi<double>();
-		spi.frameNum = static_cast<int>(((pi / 2.0 - projectileAngle) / (2.0 * pi) + 1/(static_cast<double>(2*(owner->idToProjectile[spi.creID]->ourImages.size()-1)))) * (owner->idToProjectile[spi.creID]->ourImages.size()-1));
-	}
+
+	spi.frameNum = bestID;
 
 	// Set projectile animation start delay which is specified in frames
 	spi.animStartDelay = shooterInfo->animation.attackClimaxFrame;

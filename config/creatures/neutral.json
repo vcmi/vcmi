@@ -159,7 +159,7 @@
 			"animation": "CENCH.DEF",
 			"missile" :
 			{
-				"projectile": "SMBALX.DEF",
+				"projectile": "CPRZEAX.DEF",
 				"spinning": false
 			}
 		},

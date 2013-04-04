@@ -302,17 +302,6 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 
 			projectile = CDefHandler::giveDef(creature->animation.projectileImageName);
 
-			if(projectile->ourImages.size() > 2) //add symmetric images
-			{
-				for(int k = projectile->ourImages.size()-2; k > 1; --k)
-				{
-					Cimage ci;
-					ci.bitmap = CSDL_Ext::rotate01(projectile->ourImages[k].bitmap);
-					ci.groupNumber = 0;
-					ci.imName = std::string();
-					projectile->ourImages.push_back(ci);
-				}
-			}
 			for(size_t s = 0; s < projectile->ourImages.size(); ++s) //alpha transforming
 			{
 				CSDL_Ext::alphaTransform(projectile->ourImages[s].bitmap);
@@ -2456,8 +2445,8 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 		SDL_Rect dst;
 		dst.h = idToProjectile[it->creID]->ourImages[it->frameNum].bitmap->h;
 		dst.w = idToProjectile[it->creID]->ourImages[it->frameNum].bitmap->w;
-		dst.x = it->x;
-		dst.y = it->y;
+		dst.x = it->x - dst.w / 2;
+		dst.y = it->y - dst.h / 2;
 
 		// The equation below calculates the center pos of the canon, but we need the top left pos
 		// of it for drawing
@@ -2491,18 +2480,15 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 				// Parabolic shot of the trajectory, as follows: f(x) = ax^2 + bx + c
 				it->x += it->dx;
 				it->y = it->catapultInfo->calculateY(it->x - this->pos.x) + this->pos.y;
+
+				++(it->frameNum);
+				it->frameNum %= idToProjectile[it->creID]->ourImages.size();
 			}
 			else
 			{
 				// Normal projectile, just add the calculated "deltas" to the x and y positions.
 				it->x += it->dx;
 				it->y += it->dy;
-			}
-
-			if(it->spin)
-			{
-				++(it->frameNum);
-				it->frameNum %= idToProjectile[it->creID]->ourImages.size();
 			}
 		}
 	}

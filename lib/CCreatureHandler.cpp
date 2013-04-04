@@ -493,9 +493,7 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, CLegacyConfigParser & 
 	///////////////////////
 
 	for(int jjj=0; jjj<12; ++jjj)
-	{
-		unit.animation.missleFrameAngles[jjj] = parser.readNumber();
-	}
+		unit.animation.missleFrameAngles.push_back(parser.readNumber());
 
 	unit.animation.troopCountLocationOffset= parser.readNumber();
 	unit.animation.attackClimaxFrame = parser.readNumber();
@@ -570,11 +568,9 @@ CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
 	cre->animation.rightMissleOffsetY = offsets["middleY"].Float();
 	cre->animation.lowerRightMissleOffsetX = offsets["lowerX"].Float();
 	cre->animation.lowerRightMissleOffsetY = offsets["lowerY"].Float();
-	int i = 0;
-	BOOST_FOREACH (auto & angle, missile["frameAngles"].Vector())
-	{
-		cre->animation.missleFrameAngles[i++] = angle.Float();
-	}
+
+	cre->animation.missleFrameAngles = missile["frameAngles"].convertTo<std::vector<double>>();
+
 	cre->advMapDef = graphics["map"].String();
 	cre->iconIndex = graphics["iconIndex"].Float();
 
@@ -622,7 +618,7 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 		doubledCreatures.insert(creature->idNumber);
 
 	creature->animation.projectileImageName = config["graphics"]["missile"]["projectile"].String();
-	creature->animation.projectileSpin = config["graphics"]["missile"]["spinning"].Bool();
+	//creature->animation.projectileSpin = config["graphics"]["missile"]["spinning"].Bool();
 
 	creature->special = config["special"].Bool();
 

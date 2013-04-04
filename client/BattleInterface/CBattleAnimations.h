@@ -183,7 +183,7 @@ struct ProjectileInfo
 	int creID; //ID of creature that shot this projectile
 	int stackID; //ID of stack
 	int frameNum; //frame to display form projectile animation
-	bool spin; //if true, frameNum will be increased
+	//bool spin; //if true, frameNum will be increased
 	int animStartDelay; //how many times projectile must be attempted to be shown till it's really show (decremented after hit)
 	bool reverse; //if true, projectile will be flipped by vertical asix
 	CatapultProjectileInfo * catapultInfo; // holds info about the parabolic trajectory of the cannon

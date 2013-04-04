@@ -54,11 +54,11 @@ public:
 		int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX,
 		    upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
 
-		double missleFrameAngles[12];
+		std::vector<double> missleFrameAngles;
 		int troopCountLocationOffset, attackClimaxFrame;
 
 		std::string projectileImageName;
-		bool projectileSpin; //if true, appropriate projectile is spinning during flight
+		//bool projectileSpin; //if true, appropriate projectile is spinning during flight
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
@@ -66,7 +66,7 @@ public:
 			h & upperRightMissleOffsetX & rightMissleOffsetX & lowerRightMissleOffsetX;
 			h & upperRightMissleOffsetY & rightMissleOffsetY & lowerRightMissleOffsetY;
 			h & missleFrameAngles & troopCountLocationOffset & attackClimaxFrame;
-			h & projectileImageName & projectileSpin;
+			h & projectileImageName;
 		}
 	} animation;
 

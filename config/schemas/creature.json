@@ -193,7 +193,11 @@
 							"type":"array",
 							"description": "Angles of missile images, should go from 90 to -90",
 							"minItems" : 1,
-							"items": { "type":"number" }
+							"items": {
+								"minimum" : -90,
+								"maximum" :  90,
+								"type":"number"
+							}
 						},
 						"offset": {
 							"type":"object",
@@ -207,10 +211,6 @@
 								"upperX":  { "type":"number" },
 								"upperY":  { "type":"number" }
 							}
-						},
-						"spinning": {
-							"type":"boolean",
-							"description": "Flying projectile spins. Has some requirements to .def file"
 						}
 					}
 				},
