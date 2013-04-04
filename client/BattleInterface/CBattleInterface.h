@@ -80,12 +80,9 @@ struct BattleEffect
 /// Small struct which is needed for drawing the parabolic trajectory of the catapult cannon
 struct CatapultProjectileInfo
 {
-	const double facA, facB, facC;
-	const int fromX, toX;
+	CatapultProjectileInfo(Point from, Point dest);
 
-	CatapultProjectileInfo() : facA(0), facB(0), facC(0), fromX(0), toX(0) { };
-	CatapultProjectileInfo(double factorA, double factorB, double factorC, int fromXX, int toXX) : facA(factorA), facB(factorB), facC(factorC),
-		fromX(fromXX), toX(toXX) { };
+	double facA, facB, facC;
 
 	double calculateY(double x);
 };

@@ -2447,14 +2447,6 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 		dst.x = it->x - dst.w / 2;
 		dst.y = it->y - dst.h / 2;
 
-		// The equation below calculates the center pos of the canon, but we need the top left pos
-		// of it for drawing
-		if (it->catapultInfo)
-		{
-			dst.x -= 17.;
-			dst.y -= 10.;
-		}
-
 		if(it->reverse)
 		{
 			SDL_Surface * rev = CSDL_Ext::rotate01(idToProjectile[it->creID]->ourImages[it->frameNum].bitmap);
@@ -2478,7 +2470,7 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 			{
 				// Parabolic shot of the trajectory, as follows: f(x) = ax^2 + bx + c
 				it->x += it->dx;
-				it->y = it->catapultInfo->calculateY(it->x - this->pos.x) + this->pos.y;
+				it->y = it->catapultInfo->calculateY(it->x);
 
 				++(it->frameNum);
 				it->frameNum %= idToProjectile[it->creID]->ourImages.size();
@@ -3642,7 +3634,31 @@ void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 	}
 }
 
+CatapultProjectileInfo::CatapultProjectileInfo(Point from, Point dest)
+{
+	facA = 0.005; // seems to be constant
+
+	// system of 2 linear equations, solutions of which are missing coefficients
+	// for quadratic equation a*x*x + b*x + c
+	double eq[2][3] = {
+		{ static_cast<double>(from.x), 1.0, from.y - facA*from.x*from.x },
+		{ static_cast<double>(dest.x), 1.0, dest.y - facA*dest.x*dest.x }
+	};
+
+	// solve system via determinants
+	double det  = eq[0][0] * eq[1][1] - eq[1][0] * eq[0][1];
+	double detB = eq[0][2] * eq[1][1] - eq[1][2] * eq[0][1];
+	double detC = eq[0][0] * eq[1][2] - eq[1][0] * eq[0][2];
+
+	facB = detB / det;
+	facC = detC / det;
+
+	// make sure that parabola is correct e.g. passes through from and dest
+	assert(fabs(calculateY(from.x) - from.y) < 1.0);
+	assert(fabs(calculateY(dest.x) - dest.y) < 1.0);
+}
+
 double CatapultProjectileInfo::calculateY(double x)
 {
-	return (facA * pow(10., -3.)) * pow(x, 2.0) + facB * x + facC;
+	return facA * pow(x, 2.0) + facB * x + facC;
 }

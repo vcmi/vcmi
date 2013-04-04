@@ -186,7 +186,7 @@ struct ProjectileInfo
 	//bool spin; //if true, frameNum will be increased
 	int animStartDelay; //how many times projectile must be attempted to be shown till it's really show (decremented after hit)
 	bool reverse; //if true, projectile will be flipped by vertical asix
-	CatapultProjectileInfo * catapultInfo; // holds info about the parabolic trajectory of the cannon
+	std::shared_ptr<CatapultProjectileInfo> catapultInfo; // holds info about the parabolic trajectory of the cannon
 };
 
 /// Shooting attack

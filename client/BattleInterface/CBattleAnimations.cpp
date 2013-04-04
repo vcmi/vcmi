@@ -717,9 +717,8 @@ bool CShootingAnimation::init()
 
 	// Create the projectile animation
 
-	double straightAngle = 0.2; //maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
-	double projectileAngle = 0;
-	int fromHex = shooter->position;
+	//maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
+	static const double straightAngle = 0.2;
 
 	// Get further info about the shooter e.g. relative pos of projectile to unit.
 	// If the creature id is 149 then it's a arrow tower which has no additional info so get the
@@ -739,92 +738,76 @@ bool CShootingAnimation::init()
 
 	spi.step = 0;
 	spi.frameNum = 0;
-	//spi.spin = shooterInfo->animation.projectileSpin;
 
-	Point xycoord;
-	Point destcoord;
+	Point fromPos;
+	Point destPos;
 
 	// NOTE: two lines below return different positions (very notable with 2-hex creatures). Obtaining via creanims seems to be more precise
-	xycoord = owner->creAnims[spi.stackID]->pos.topLeft();
+	fromPos = owner->creAnims[spi.stackID]->pos.topLeft();
 	//xycoord = CClickableHex::getXYUnitAnim(shooter->position, true, shooter, owner);
+
+	destPos = CClickableHex::getXYUnitAnim(dest, false, attackedStack, owner);
+
+	// to properly translate coordinates when shooter is rotated
+	int multiplier = spi.reverse ? -1 : 1;
+
+	double projectileAngle = atan2(fabs(destPos.y - fromPos.y), fabs(destPos.x - fromPos.x));
+	if(shooter->position < dest)
+		projectileAngle = -projectileAngle;
+
+	// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
+	if (projectileAngle > straightAngle)
+	{
+		//upper shot
+		spi.x = fromPos.x + 222 + ( -25 + shooterInfo->animation.upperRightMissleOffsetX ) * multiplier;
+		spi.y = fromPos.y + 265 + shooterInfo->animation.upperRightMissleOffsetY;
+	}
+	else if (projectileAngle < -straightAngle)
+	{
+		//lower shot
+		spi.x = fromPos.x + 222 + ( -25 + shooterInfo->animation.lowerRightMissleOffsetX ) * multiplier;
+		spi.y = fromPos.y + 265 + shooterInfo->animation.lowerRightMissleOffsetY;
+	}
+	else
+	{
+		//straight shot
+		spi.x = fromPos.x + 222 + ( -25 + shooterInfo->animation.rightMissleOffsetX ) * multiplier;
+		spi.y = fromPos.y + 265 + shooterInfo->animation.rightMissleOffsetY;
+	}
+
+	destPos += Point(225, 225);
+
+	// recalculate angle taking in account offsets
+	//projectileAngle = atan2(fabs(destPos.y - spi.y), fabs(destPos.x - spi.x));
+	//if(shooter->position < dest)
+	//	projectileAngle = -projectileAngle;
 
 	if (attackedStack)
 	{
-		destcoord = CClickableHex::getXYUnitAnim(dest, false, attackedStack, owner); 
-		destcoord.x += 225; destcoord.y += 225; //TODO: find a better place to shoot
-
-		double projectileAngle = atan2(fabs(static_cast<double>(destcoord.x - xycoord.x)),
-		                               fabs(static_cast<double>(destcoord.y - xycoord.y)));
-		if(fromHex < dest)
-			projectileAngle = -projectileAngle;
-
-		// to properly translate coordinates when shooter is rotated
-		int multiplier = spi.reverse ? -1 : 1;
-
-		// Calculate projectile start position. Offsets are read out of the CRANIM.TXT.
-		if (projectileAngle > straightAngle)
-		{
-			//upper shot
-			spi.x = xycoord.x + 222 + ( -25 + shooterInfo->animation.upperRightMissleOffsetX ) * multiplier;
-			spi.y = xycoord.y + 265 + shooterInfo->animation.upperRightMissleOffsetY;
-		}
-		else if (projectileAngle < -straightAngle) 
-		{
-			//lower shot
-			spi.x = xycoord.x + 222 + ( -25 + shooterInfo->animation.lowerRightMissleOffsetX ) * multiplier;
-			spi.y = xycoord.y + 265 + shooterInfo->animation.lowerRightMissleOffsetY;
-		}
-		else 
-		{
-			//straight shot
-			spi.x = xycoord.x + 222 + ( -25 + shooterInfo->animation.rightMissleOffsetX ) * multiplier;
-			spi.y = xycoord.y + 265 + shooterInfo->animation.rightMissleOffsetY;
-		}
-
 		double animSpeed = 23.0 * owner->getAnimSpeed(); // flight speed of projectile
-		spi.lastStep = static_cast<int>(sqrt(static_cast<double>((destcoord.x - spi.x) * (destcoord.x - spi.x) + (destcoord.y - spi.y) * (destcoord.y - spi.y))) / animSpeed);
+		spi.lastStep = static_cast<int>(sqrt(static_cast<double>((destPos.x - spi.x) * (destPos.x - spi.x) + (destPos.y - spi.y) * (destPos.y - spi.y))) / animSpeed);
 		if(spi.lastStep == 0)
 			spi.lastStep = 1;
-		spi.dx = (destcoord.x - spi.x) / spi.lastStep;
-		spi.dy = (destcoord.y - spi.y) / spi.lastStep;
-		spi.catapultInfo = 0;
+		spi.dx = (destPos.x - spi.x) / spi.lastStep;
+		spi.dy = (destPos.y - spi.y) / spi.lastStep;
 	}
 	else 
 	{
 		// Catapult attack
-		// These are the values for equations of this kind: f(x) = ax^2 + bx + c
-		static const std::vector<CatapultProjectileInfo*> trajectoryCurves = boost::assign::list_of<CatapultProjectileInfo*>(new CatapultProjectileInfo(4.309, -3.198, 569.2, -296, 182))
-			(new CatapultProjectileInfo(4.710, -3.11, 558.68, -258, 175))(new CatapultProjectileInfo(5.056, -3.003, 546.9, -236, 174))
-			(new CatapultProjectileInfo(4.760, -2.74, 526.47, -216, 215))(new CatapultProjectileInfo(4.288, -2.496, 508.98, -223, 274))
-			(new CatapultProjectileInfo(3.683, -3.018, 558.39, -324, 176))(new CatapultProjectileInfo(2.884, -2.607, 528.95, -366, 312))
-			(new CatapultProjectileInfo(3.783, -2.364, 501.35, -227, 318));
+		spi.catapultInfo.reset(new CatapultProjectileInfo(Point(spi.x, spi.y), destPos));
 
-		static std::map<int, int> hexToCurve = boost::assign::map_list_of<int, int>(29, 0)(62, 1)(95, 2)(130, 3)(182, 4)(12, 5)(50, 6)(183, 7);
+		double animSpeed = 3.318 * owner->getAnimSpeed();
+		spi.lastStep = abs((destPos.x - spi.x) / animSpeed);
+		spi.dx = animSpeed;
+		spi.dy = 0;
 
-		std::map<int, int>::iterator it = hexToCurve.find(dest.hex);
+		SDL_Surface * img = owner->idToProjectile[spi.creID]->ourImages[0].bitmap;
 
-		if (it == hexToCurve.end())
-		{
-			tlog1 << "For the hex position " << dest.hex << " is no curve defined.";
-			endAnim();
-			return false;
-		}
-		else
-		{
-			int curveID = it->second;
-			spi.catapultInfo = trajectoryCurves[curveID];
-			double animSpeed = 3.318 * owner->getAnimSpeed();
-			spi.lastStep = static_cast<int>((spi.catapultInfo->toX - spi.catapultInfo->fromX) / animSpeed);
-			spi.dx = animSpeed;
-			spi.dy = 0;
-			spi.x = xycoord.x + 225 + shooterInfo->animation.rightMissleOffsetX;
-			spi.y = xycoord.y + 250 + shooterInfo->animation.rightMissleOffsetY;
+		// Add explosion anim
+		Point animPos(destPos.x - 126 + img->w / 2,
+		              destPos.y - 105 + img->h / 2);
 
-			// Add explosion anim
-			int xEnd = static_cast<int>(spi.x + spi.lastStep * spi.dx);
-			int yEnd = static_cast<int>(spi.catapultInfo->calculateY(xEnd));
-			owner->addNewAnim( new CSpellEffectAnimation(owner, catapultDamage ? "SGEXPL.DEF" : "CSGRCK.DEF", xEnd - 126, yEnd - 105));
-		}
+		owner->addNewAnim( new CSpellEffectAnimation(owner, catapultDamage ? "SGEXPL.DEF" : "CSGRCK.DEF", animPos.x, animPos.y));
 	}
 
 	auto & angles = shooterInfo->animation.missleFrameAngles;
