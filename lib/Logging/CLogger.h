@@ -12,7 +12,7 @@
 #pragma once
 
 class CGLogger;
-class LogRecord;
+struct LogRecord;
 class ILogTarget;
 
 namespace ELogLevel

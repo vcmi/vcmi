@@ -16,7 +16,7 @@
 #include "CLogFormatter.h"
 #include "CConsoleHandler.h"
 
-class LogRecord;
+struct LogRecord;
 
 /**
  * The color mapping maps a logger name and a level to a specific color.

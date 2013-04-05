@@ -11,7 +11,7 @@
 
 #pragma once
 
-class LogRecord;
+struct LogRecord;
 
 /**
  * The log formatter formats log records.

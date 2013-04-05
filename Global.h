@@ -40,12 +40,12 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #endif
 
 //nullptr -  only msvc and gcc-4.6 or later, othervice define it  as NULL
-#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 460))
+#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 460)) && !(defined(__clang__))
 #define nullptr NULL
 #endif
 
 //override keyword - only msvc and gcc-4.7 or later.
-#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 470))
+#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 470)) && !(defined(__clang__))
 #define override
 #endif
 

@@ -11,7 +11,7 @@
 
 #pragma once
 
-class LogRecord;
+struct LogRecord;
 
 /**
  * The interface log target is used by all log target implementations. It holds
