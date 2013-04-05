@@ -1,14 +1,3 @@
-#pragma once
-
-// Standard include file
-// Contents:
-// Includes C/C++ libraries, STL libraries, IOStream and String libraries
-// Includes the most important boost headers
-// Defines the import + export, override and exception handling macros
-// Defines the vstd library
-// Includes the logger
-
-// This file shouldn't be changed, except if there is a important header file missing which is shared among several projects.
 
 /*
  * Global.h, part of VCMI engine
@@ -20,11 +9,59 @@
  *
  */
 
+#pragma once
+
+/* ---------------------------------------------------------------------------- */
+/* Compiler detection */
+/* ---------------------------------------------------------------------------- */
+// Fixed width bool data type is important for serialization
+static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
+
+#if defined _M_X64 && defined _WIN32 //Win64 -> cannot load 32-bit DLLs for video handling
+    #define DISABLE_VIDEO
+#endif
+
+#ifdef __GNUC__
+#define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__)
+#endif
+
+#if defined(__GNUC__) && (GCC_VERSION == 470 || GCC_VERSION == 471)
+#error This GCC version has buggy std::array::at version and should not be used. Please update to 4.7.2 or use 4.6.x.
+#endif
+
+/* ---------------------------------------------------------------------------- */
+/* Guarantee compiler features */
+/* ---------------------------------------------------------------------------- */
+//defining available c++11 features
+
+//initialization lists - only gcc-4.4 or later
+#if defined(__clang__) || (defined(__GNUC__) && (GCC_VERSION >= 440))
+#define CPP11_USE_INITIALIZERS_LIST
+#endif
+
+//nullptr -  only msvc and gcc-4.6 or later, othervice define it  as NULL
+#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 460))
+#define nullptr NULL
+#endif
+
+//override keyword - only msvc and gcc-4.7 or later.
+#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 470))
+#define override
+#endif
+
+//workaround to support existing code
+#define OVERRIDE override
+
+/* ---------------------------------------------------------------------------- */
+/* Suppress some compiler warnings */
+/* ---------------------------------------------------------------------------- */
 #ifdef _MSC_VER
 #pragma warning (disable : 4800 ) /* disable conversion to bool warning -- I think it's intended in all places */
-#endif //_MSC_VER
+#endif
 
-
+/* ---------------------------------------------------------------------------- */
+/* Commonly used C++, Boost headers */
+/* ---------------------------------------------------------------------------- */
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 #include <cstdio>
 #include <stdio.h>
@@ -50,7 +87,6 @@
 #include <set>
 #include <sstream>
 #include <string>
-//#include <unordered_map>
 #include <utility>
 #include <vector>
 
@@ -70,6 +106,7 @@
 #include <boost/bind.hpp>
 #include <boost/cstdint.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/date_time/posix_time/posix_time_io.hpp>
 #include <boost/filesystem.hpp>
 #include <boost/foreach.hpp>
 #include <boost/format.hpp>
@@ -90,6 +127,17 @@
 #include <android/log.h>
 #endif
 
+/* ---------------------------------------------------------------------------- */
+/* Usings */
+/* ---------------------------------------------------------------------------- */
+using std::shared_ptr;
+using std::unique_ptr;
+using std::make_shared;
+namespace range = boost::range;
+
+/* ---------------------------------------------------------------------------- */
+/* Typedefs */
+/* ---------------------------------------------------------------------------- */
 // Integral data types
 typedef boost::uint64_t ui64; //unsigned int 64 bits (8 bytes)
 typedef boost::uint32_t ui32;  //unsigned int 32 bits (4 bytes)
@@ -100,21 +148,14 @@ typedef boost::int32_t si32; //signed int 32 bits (4 bytes)
 typedef boost::int16_t si16; //signed int 16 bits (2 bytes)
 typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 
-// Fixed width bool data type is important for serialization
-static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
+// Lock typedefs
+typedef boost::unique_lock<boost::shared_mutex> TWriteLock;
+typedef boost::shared_lock<boost::shared_mutex> TReadLock;
+typedef boost::lock_guard<boost::mutex> TLockGuard;
 
-#if defined _M_X64 && defined _WIN32 //Win64 -> cannot load 32-bit DLLs for video handling
-	#define DISABLE_VIDEO
-#endif
-
-#ifdef __GNUC__
-#define GCC_VERSION (__GNUC__ * 100 + __GNUC_MINOR__ * 10 + __GNUC_PATCHLEVEL__)
-#endif
-
-#if defined(__GNUC__) && (GCC_VERSION == 470 || GCC_VERSION == 471)
-#error This GCC version has buggy std::array::at version and should not be used. Please update to 4.7.2 or use 4.6.x.
-#endif
-
+/* ---------------------------------------------------------------------------- */
+/* Macros */
+/* ---------------------------------------------------------------------------- */
 // Import + Export macro declarations
 #ifdef _WIN32
 #ifdef __GNUC__
@@ -150,26 +191,46 @@ static_assert(sizeof(bool) == 1, "Bool needs to be 1 byte in size.");
 #define DLL_LINKAGE DLL_IMPORT
 #endif
 
-//defining available c++11 features
+#define THROW_FORMAT(message, formatting_elems)  throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
 
-//initialization lists - only gcc-4.4 or later
-#if defined(__clang__) || (defined(__GNUC__) && (GCC_VERSION >= 440))
-#define CPP11_USE_INITIALIZERS_LIST
-#endif
+#define ASSERT_IF_CALLED_WITH_PLAYER if(!player) {tlog1 << __FUNCTION__ << "\n"; assert(0);}
 
-//nullptr -  only msvc and gcc-4.6 or later, othervice define it  as NULL
-#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 460))
-#define nullptr NULL
-#endif
+//XXX pls dont - 'debug macros' are usually more trouble than it's worth
+#define HANDLE_EXCEPTION  \
+    catch (const std::exception& e) {	\
+    tlog1 << e.what() << std::endl;		\
+    throw;								\
+}									\
+    catch (const std::exception * e)	\
+{									\
+    tlog1 << e->what()<< std::endl;	\
+    throw;							\
+}									\
+    catch (const std::string& e) {		\
+    tlog1 << e << std::endl;		\
+    throw;							\
+}
 
-//override keyword - only msvc and gcc-4.7 or later.
-#if !defined(_MSC_VER) && !(defined(__GNUC__) && (GCC_VERSION >= 470))
-#define override
-#endif
+#define HANDLE_EXCEPTIONC(COMMAND)  \
+    catch (const std::exception& e) {	\
+    COMMAND;						\
+    tlog1 << e.what() << std::endl;	\
+    throw;							\
+}									\
+    catch (const std::string &e)	\
+{									\
+    COMMAND;						\
+    tlog1 << e << std::endl;	\
+    throw;							\
+}
 
-//workaround to support existing code
-#define OVERRIDE override
+// can be used for counting arrays
+template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
+#define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
 
+/* ---------------------------------------------------------------------------- */
+/* VCMI standard library */
+/* ---------------------------------------------------------------------------- */
 //a normal std::map with a const operator[] for sanity
 template<typename KeyT, typename ValT>
 class bmap : public std::map<KeyT, ValT>
@@ -508,53 +569,10 @@ namespace vstd
 		obj = (T)(((int)obj) + change);
 	}
 }
-
-using std::shared_ptr;
-using std::unique_ptr;
-using std::make_shared;
+using vstd::operator-=;
 using vstd::make_unique;
 
-using vstd::operator-=;
-
-namespace range = boost::range;
-
-// can be used for counting arrays
-template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
-#define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
-
-
-#define THROW_FORMAT(message, formatting_elems)  throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
-
-#define ASSERT_IF_CALLED_WITH_PLAYER if(!player) {tlog1 << __FUNCTION__ << "\n"; assert(0);}
-
-//XXX pls dont - 'debug macros' are usually more trouble than it's worth
-#define HANDLE_EXCEPTION  \
-	catch (const std::exception& e) {	\
-	tlog1 << e.what() << std::endl;		\
-	throw;								\
-}									\
-	catch (const std::exception * e)	\
-{									\
-	tlog1 << e->what()<< std::endl;	\
-	throw;							\
-}									\
-	catch (const std::string& e) {		\
-	tlog1 << e << std::endl;		\
-	throw;							\
-}
-
-#define HANDLE_EXCEPTIONC(COMMAND)  \
-	catch (const std::exception& e) {	\
-	COMMAND;						\
-	tlog1 << e.what() << std::endl;	\
-	throw;							\
-}									\
-	catch (const std::string &e)	\
-{									\
-	COMMAND;						\
-	tlog1 << e << std::endl;	\
-	throw;							\
-}
-
-
+/* ---------------------------------------------------------------------------- */
+/* VCMI headers */
+/* ---------------------------------------------------------------------------- */
 #include "lib/CLogger.h"

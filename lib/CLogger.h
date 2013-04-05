@@ -41,7 +41,7 @@ public:
 		if(lvl < CLogger::CONSOLE_LOGGING_LEVEL)
 		{
 			if(console)
-				console->print(data, lvl);
+                console->print(data, static_cast<EConsoleTextColor::EConsoleTextColor>(lvl));
 			else
 				std::cout << data << std::flush;
 		}

@@ -13,6 +13,12 @@ set(lib_SRCS
 		Filesystem/CResourceLoader.cpp
 		Filesystem/CFileInputStream.cpp
 		Filesystem/CCompressedStream.cpp
+		Logging/CBasicLogConfigurator.cpp
+		Logging/CLogConsoleTarget.cpp
+		Logging/CLogFileTarget.cpp
+		Logging/CLogFormatter.cpp
+		Logging/CLogger.cpp
+		Logging/CLogManager.cpp
 		Mapping/CCampaignHandler.cpp
 		Mapping/CMap.cpp
 		Mapping/CMapEditManager.cpp
@@ -59,6 +65,14 @@ set(lib_SRCS
 set(lib_HEADERS
 		Filesystem/CInputStream.h
 		Filesystem/ISimpleResourceLoader.h
+		Logging/CBasicLogConfigurator.h
+		Logging/CLogConsoleTarget.h
+		Logging/CLogFileTarget.h
+		Logging/CLogFormatter.h
+		Logging/CLogger.h
+		Logging/CLogManager.h
+		Logging/ILogTarget.h
+		Logging/LogRecord.h
 		Mapping/CCampaignHandler.h
 		Mapping/CMap.h
 		Mapping/CMapEditManager.h

@@ -141,43 +141,43 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 #endif
 
 
-void CConsoleHandler::setColor(int level)
+void CConsoleHandler::setColor(EConsoleTextColor::EConsoleTextColor color)
 {
-	TColor color;
-	switch(level)
+    TColor colorCode;
+    switch(color)
 	{
-	case -1:
-		color = defColor;
+    case EConsoleTextColor::DEFAULT:
+        colorCode = defColor;
 		break;
-	case 0:
-		color = CONSOLE_GREEN;
+    case EConsoleTextColor::GREEN:
+        colorCode = CONSOLE_GREEN;
 		break;
-	case 1:
-		color = CONSOLE_RED;
+    case EConsoleTextColor::RED:
+        colorCode = CONSOLE_RED;
 		break;
-	case 2:
-		color = CONSOLE_MAGENTA;
+    case EConsoleTextColor::MAGENTA:
+        colorCode = CONSOLE_MAGENTA;
 		break;
-	case 3:
-		color = CONSOLE_YELLOW;
+    case EConsoleTextColor::YELLOW:
+        colorCode = CONSOLE_YELLOW;
 		break;
-	case 4:
-		color = CONSOLE_WHITE;
+    case EConsoleTextColor::WHITE:
+        colorCode = CONSOLE_WHITE;
 		break;
-	case 5:
-		color = CONSOLE_GRAY;
+    case EConsoleTextColor::GRAY:
+        colorCode = CONSOLE_GRAY;
 		break;
-	case -2:
-		color = CONSOLE_TEAL;
+    case EConsoleTextColor::TEAL:
+        colorCode = CONSOLE_TEAL;
 		break;
 	default:
-		color = defColor;
+        colorCode = defColor;
 		break;
 	}
 #ifdef _WIN32
-	SetConsoleTextAttribute(handleOut,color);
+    SetConsoleTextAttribute(handleOut, colorCode);
 #else
-	std::cout << color;
+    std::cout << colorCode;
 #endif
 }
 
@@ -210,7 +210,7 @@ int CConsoleHandler::run()
 	}
 	return -1;
 }
-CConsoleHandler::CConsoleHandler()
+CConsoleHandler::CConsoleHandler() : thread(nullptr)
 {
 #ifdef _WIN32
 	handleIn = GetStdHandle(STD_INPUT_HANDLE);
@@ -224,8 +224,7 @@ CConsoleHandler::CConsoleHandler()
 #else
 	defColor = "\x1b[0m";
 #endif
-	cb = new boost::function<void(const std::string &)>;
-	thread = NULL;
+    cb = new boost::function<void(const std::string &)>;
 }
 CConsoleHandler::~CConsoleHandler()
 {

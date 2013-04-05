@@ -3,7 +3,7 @@
 {
 	"type" : "object",
 	"$schema": "http://json-schema.org/draft-04/schema",
-	"required" : [ "general", "video", "adventure", "battle", "server" ],
+	"required" : [ "general", "video", "adventure", "battle", "server", "logging" ],
 	"properties":
 	{
 		"general" : {
@@ -131,6 +131,72 @@
 				"neutralAI" : {
 					"type" : "string",
 					"default" : "StupidAI"
+				}
+			}
+		},
+		"logging" : {
+			"type" : "object",
+			"default" : {},
+			"properties" : {
+				"console" : {
+					"type" : "object",
+					"properties" : {
+						"format" : {
+							"type" : "string",
+							"default" : "%l %n [%t] - %m"
+						},
+						"threshold" : {
+							"type" : "string",
+							"default" : "info",
+							"enum" : [ "trace", "debug", "info", "warn", "error" ]
+						},
+						"coloredOutputEnabled" : {
+							"type" : "boolean",
+							"default" : true
+						},
+						"colorMapping" : {
+							"type" : "array",
+							"default" : [
+								{ "domain" : "global", "level" : "trace", "color" : "gray"},
+								{ "domain" : "global", "level" : "debug", "color" : "white"},
+								{ "domain" : "global", "level" : "info", "color" : "green"},
+								{ "domain" : "global", "level" : "warn", "color" : "yellow"},
+								{ "domain" : "global", "level" : "error", "color" : "red"}
+							],
+							"items" : {
+								"type" : "object",
+								"required" : [ "domain", "level", "color" ],
+								"properties" : {
+									"domain" : { "type" : "string" },
+									"level" : { "type" : "string", "enum" : [ "trace", "debug", "info", "warn", "error" ] },
+									"color" : { "type" : "string", "enum" : [ "default", "green", "red", "magenta", "yellow", "white", "gray", "teal" ] }
+								}
+							}
+						}
+					}
+				},
+				"file" : {
+					"type" : "object",
+					"properties" : {
+						"format" : {
+							"type" : "string",
+							"default" : "%d %l %n [%t] - %m"
+						}
+					}
+				},
+				"loggers" : {
+					"type" : "object",
+					"additionalProperties" : {
+						"type":"object",
+						"required" : [ "level" ],
+						"properties" : {
+							"level" : {
+								"type" : "string",
+								"enum" : [ "trace", "debug", "info", "warn", "error" ]
+							}
+						}
+
+					}
 				}
 			}
 		}
