@@ -17,9 +17,6 @@ class ILogTarget;
 
 namespace ELogLevel
 {
-    /**
-     * The log level enum holds various log level definitions.
-     */
     enum ELogLevel
     {
         NOT_SET = 0,
@@ -40,9 +37,15 @@ public:
     /**
      * Constructor.
      *
-     * @param domain The domain name. Sub-domains can be specified by separating domains by a dot, e.g. "ai.battle". The global domain is named "global".
+     * @param name The domain name. Sub-domains can be specified by separating domains by a dot, e.g. "ai.battle". The global domain is named "global".
      */
     CLoggerDomain(const std::string & name);
+
+    // Accessors
+
+    std::string getName() const;
+
+    // Methods
 
     /**
      * Gets the parent logger domain.
@@ -58,18 +61,12 @@ public:
      */
     bool isGlobalDomain() const;
 
-    /**
-     * Gets the name of the domain.
-     *
-     * @return the name of the domain
-     */
-    std::string getName() const;
+    // Constants
 
     /** Constant to the global domain name. */
     static const std::string DOMAIN_GLOBAL;
 
 private:
-    /** The domain name. */
     std::string name;
 };
 
@@ -81,9 +78,22 @@ class CGLogger;
 class DLL_LINKAGE CLoggerStream
 {
 public:
+    /**
+     * Constructs a new logger stream.
+     *
+     * @param logger The logger which should be used to log the generated message to.
+     * @param level The log level of the generated message.
+     */
     CLoggerStream(const CGLogger & logger, ELogLevel::ELogLevel level);
     ~CLoggerStream();
 
+    // Methods
+
+    /**
+     * Writes data to the logger stream.
+     *
+     * @param data Any data can be written to the stream.
+     */
     template<typename T>
     CLoggerStream & operator<<(const T & data)
     {
@@ -93,6 +103,8 @@ public:
     }
 
 private:
+    // Data members
+
     const CGLogger & logger;
     ELogLevel::ELogLevel level;
     std::stringstream * sbuffer;
@@ -105,6 +117,17 @@ private:
 class DLL_LINKAGE CGLogger : public boost::noncopyable
 {
 public:
+    ~CGLogger();
+
+    // Accessors
+
+    inline ELogLevel::ELogLevel getLevel() const;
+    void setLevel(ELogLevel::ELogLevel level);
+
+    const CLoggerDomain & getDomain() const;
+
+    // Methods
+
     /**
      * Gets a logger by domain.
      *
@@ -127,6 +150,11 @@ public:
      */
     void trace(const std::string & message) const;
 
+    /**
+     * Returns a logger stream with the trace level.
+     *
+     * @return the logger stream
+     */
     CLoggerStream traceStream() const;
 
     /**
@@ -136,6 +164,11 @@ public:
      */
     void debug(const std::string & message) const;
 
+    /**
+     * Returns a logger stream with the debug level.
+     *
+     * @return the logger stream
+     */
     CLoggerStream debugStream() const;
 
     /**
@@ -145,6 +178,11 @@ public:
      */
     void info(const std::string & message) const;
 
+    /**
+     * Returns a logger stream with the info level.
+     *
+     * @return the logger stream
+     */
     CLoggerStream infoStream() const;
 
     /**
@@ -154,6 +192,11 @@ public:
      */
     void warn(const std::string & message) const;
 
+    /**
+     * Returns a logger stream with the warn level.
+     *
+     * @return the logger stream
+     */
     CLoggerStream warnStream() const;
 
     /**
@@ -163,6 +206,11 @@ public:
      */
     void error(const std::string & message) const;
 
+    /**
+     * Returns a logger stream with the error level.
+     *
+     * @return the logger stream
+     */
     CLoggerStream errorStream() const;
 
     /**
@@ -174,27 +222,6 @@ public:
     inline void log(ELogLevel::ELogLevel level, const std::string & message) const;
 
     /**
-     * Gets the log level applied for this logger. The default level for the root logger is INFO.
-     *
-     * @return the log level
-     */
-    inline ELogLevel::ELogLevel getLevel() const;
-
-    /**
-     * Sets the log level.
-     *
-     * @param level The log level.
-     */
-    void setLevel(ELogLevel::ELogLevel level);
-
-    /**
-     * Gets the logger domain.
-     *
-     * @return the domain of the logger
-     */
-    const CLoggerDomain & getDomain() const;
-
-    /**
      * Adds a target to this logger and indirectly to all loggers which derive from this logger.
      * The logger holds strong-ownership of the target object.
      *
@@ -202,64 +229,21 @@ public:
      */
     void addTarget(ILogTarget * target);
 
-    /**
-     * Destructor.
-     */
-    ~CGLogger();
-
 private:
-    /**
-     * Constructor.
-     *
-     * @param domain The domain of the logger.
-     */
+    // Methods
+
     explicit CGLogger(const CLoggerDomain & domain);
-
-    /**
-     * Gets the parent logger.
-     *
-     * @return the parent logger or nullptr if this is the root logger
-     */
     CGLogger * getParent() const;
-
-    /**
-     * Gets the effective log level.
-     *
-     * @return the effective log level with respect to parent log levels
-     */
     inline ELogLevel::ELogLevel getEffectiveLevel() const;
-
-    /**
-     * Calls all targets in the hierarchy to write the message.
-     *
-     * @param record The log record to write.
-     */
     inline void callTargets(const LogRecord & record) const;
-
-    /**
-     * Gets all log targets attached to this logger.
-     *
-     * @return all log targets as a list
-     */
     inline std::list<ILogTarget *> getTargets() const;
 
-    /** The domain of the logger. */
+    // Data members
+
     CLoggerDomain domain;
-
-    /** A reference to the parent logger. */
     CGLogger * parent;
-
-    /** The log level of the logger. */
     ELogLevel::ELogLevel level;
-
-    /** A list of log targets. */
     std::list<ILogTarget *> targets;
-
-    /** The shared mutex for providing synchronous thread-safe access to the logger. */
     mutable boost::shared_mutex mx;
-
-    /** The unique mutex for providing thread-safe get logger access. */
     static boost::mutex smx;
 };
-
-//extern CLogger * logGlobal;

@@ -26,41 +26,27 @@ public:
      * @param filePath The file path of the log file.
      */
     explicit CLogFileTarget(const std::string & filePath);
-
-    /**
-     * Destructor.
-     */
     ~CLogFileTarget();
 
+    // Accessors
+
+    const CLogFormatter & getFormatter() const;
+    void setFormatter(const CLogFormatter & formatter);
+
+    // Methods
+
     /**
-     * Writes a log record.
+     * Writes a log record to the log file.
      *
      * @param record The log record to write.
      */
     void write(const LogRecord & record);
 
-    /**
-     * Gets the log formatter.
-     *
-     * @return The log formatter.
-     */
-    const CLogFormatter & getFormatter() const;
-
-    /**
-     * Sets the log formatter.
-     *
-     * @param formatter The log formatter.
-     */
-    void setFormatter(const CLogFormatter & formatter);
-
 private:
-    /** The output file stream. */
+    // Data members
+
     std::ofstream file;
-
-    /** The log formatter to log messages. */
     CLogFormatter formatter;
-
-    /** The shared mutex for providing synchronous thread-safe access to the log file target. */
     mutable boost::mutex mx;
 };
 

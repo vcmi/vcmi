@@ -20,12 +20,12 @@ struct LogRecord;
 class DLL_LINKAGE ILogTarget : public boost::noncopyable
 {
 public:
+    virtual ~ILogTarget() { };
+
     /**
      * Writes a log record.
      *
      * @param record The log record to write.
      */
     virtual void write(const LogRecord & record) = 0;
-
-    virtual ~ILogTarget() { };
 };

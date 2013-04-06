@@ -18,9 +18,6 @@
  */
 struct DLL_LINKAGE LogRecord
 {
-    /**
-     * Constructor.
-     */
     LogRecord(const CLoggerDomain & domain, ELogLevel::ELogLevel level, const std::string & message)
         : domain(domain), level(level), message(message), timeStamp(boost::posix_time::second_clock::local_time()), threadId(boost::this_thread::get_id())
     {

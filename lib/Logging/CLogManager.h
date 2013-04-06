@@ -20,6 +20,10 @@ class CLoggerDomain;
 class DLL_LINKAGE CLogManager : public boost::noncopyable
 {
 public:
+    ~CLogManager();
+
+    // Methods
+
     /**
      * Gets an instance of the log manager.
      *
@@ -42,26 +46,15 @@ public:
      */
     CGLogger * getLogger(const CLoggerDomain & domain);
 
-    /**
-     * Destructor.
-     */
-    ~CLogManager();
-
 private:
-    /**
-     * Constructor.
-     */
+    // Methods
+
     CLogManager();
 
-    /** The instance of the log manager. */
+    // Data members
+
     static CLogManager * instance;
-
-    /** The loggers map where the key is the logger name and the value the corresponding logger. */
     std::map<std::string, CGLogger *> loggers;
-
-    /** The shared mutex for providing synchronous thread-safe access to the log manager. */
     mutable boost::shared_mutex mx;
-
-    /** The unique mutex for providing thread-safe singleton access. */
     static boost::mutex smx;
 };

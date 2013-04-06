@@ -29,6 +29,8 @@ public:
      */
     CColorMapping();
 
+    // Methods
+
     /**
      * Sets a console text color for a logger name and a level.
      *
@@ -48,7 +50,8 @@ public:
     EConsoleTextColor::EConsoleTextColor getColorFor(const CLoggerDomain & domain, ELogLevel::ELogLevel level) const;
 
 private:
-    /** The color mapping, 1. Key: Logger domain, 2. Key: Level, Value: Color. */
+    // Data members
+
     std::map<std::string, std::map<ELogLevel::ELogLevel, EConsoleTextColor::EConsoleTextColor> > map;
 };
 
@@ -65,83 +68,36 @@ public:
      */
     explicit CLogConsoleTarget(CConsoleHandler * console);
 
+    // Accessors
+
+    bool isColoredOutputEnabled() const;
+    void setColoredOutputEnabled(bool coloredOutputEnabled);
+
+    ELogLevel::ELogLevel getThreshold() const;
+    void setThreshold(ELogLevel::ELogLevel threshold);
+
+    const CLogFormatter & getFormatter() const;
+    void setFormatter(const CLogFormatter & formatter);
+
+    const CColorMapping & getColorMapping() const;
+    void setColorMapping(const CColorMapping & colorMapping);
+
+    // Methods
+
     /**
-     * Writes a log record.
+     * Writes a log record to the console.
      *
      * @param record The log record to write.
      */
     void write(const LogRecord & record);
 
-    /**
-     * True if colored output is enabled.
-     *
-     * @return true if colored output is enabled, false if not
-     */
-    bool isColoredOutputEnabled() const;
-
-    /**
-     * Sets the colored output flag.
-     *
-     * @param coloredOutput True if the log target should write colored messages to the console, false if not.
-     */
-    void setColoredOutputEnabled(bool coloredOutputEnabled);
-
-    /**
-     * Gets the threshold log level.
-     *
-     * @return the threshold log level
-     */
-    ELogLevel::ELogLevel getThreshold() const;
-
-    /**
-     * Sets the threshold log level.
-     *
-     * @param threshold The threshold log level.
-     */
-    void setThreshold(ELogLevel::ELogLevel threshold);
-
-    /**
-     * Gets the log formatter.
-     *
-     * @return The log formatter.
-     */
-    const CLogFormatter & getFormatter() const;
-
-    /**
-     * Sets the log formatter.
-     *
-     * @param formatter The log formatter.
-     */
-    void setFormatter(const CLogFormatter & formatter);
-
-    /**
-     * Gets the color mapping.
-     */
-    const CColorMapping & getColorMapping() const;
-
-    /**
-     * Sets the color mapping.
-     *
-     * @param colorMapping The color mapping.
-     */
-    void setColorMapping(const CColorMapping & colorMapping);
-
 private:
-    /** The console handler which is used to output messages to the console. */
+    // Data members
+
     CConsoleHandler * console;
-
-    /** The threshold log level. */
     ELogLevel::ELogLevel threshold;
-
-    /** Flag whether colored console output is enabled. */
     bool coloredOutputEnabled;
-
-    /** The log formatter to log messages. */
     CLogFormatter formatter;
-
-    /** The color mapping which maps a logger and a log level to a color. */
     CColorMapping colorMapping;
-
-    /** The shared mutex for providing synchronous thread-safe access to the log console target. */
     mutable boost::mutex mx;
 };

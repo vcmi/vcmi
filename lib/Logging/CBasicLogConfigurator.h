@@ -16,9 +16,8 @@
 class CConsoleHandler;
 
 /**
- * The basic log configurator reads log properties from the settings.json and
- * sets up the logging system. The file path of the log file can be specified
- * via the constructor.
+ * The basic log configurator reads log properties from settings.json and
+ * sets up the logging system.
  */
 class DLL_LINKAGE CBasicLogConfigurator
 {
@@ -26,30 +25,16 @@ public:
     /**
      * Constructor.
      *
-     * @param fileName The file path of the log file.
+     * @param filePath The file path of the log file.
+     * @param console The console handler to log messages to the console. The handler should be initialized.
      *
      * @throws std::runtime_error if the configuration has errors
      */
     CBasicLogConfigurator(const std::string & filePath, CConsoleHandler * console);
 
 private:
-    /**
-     * Gets the log level enum from a string.
-     *
-     * @param level The log level string to parse.
-     * @return the corresponding log level enum value
-     *
-     * @throws std::runtime_error if the log level is unknown
-     */
-    ELogLevel::ELogLevel getLogLevel(const std::string & level) const;
+    // Methods
 
-    /**
-     * Gets the console text color enum from a string.
-     *
-     * @param colorName The color string to parse.
-     * @return the corresponding console text color enum value
-     *
-     * @throws std::runtime_error if the log level is unknown
-     */
+    ELogLevel::ELogLevel getLogLevel(const std::string & level) const;
     EConsoleTextColor::EConsoleTextColor getConsoleColor(const std::string & colorName) const;
 };

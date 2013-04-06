@@ -26,9 +26,6 @@ struct LogRecord;
 class DLL_LINKAGE CLogFormatter
 {
 public:
-    /**
-     * Default constructor.
-     */
     CLogFormatter();
 
     /**
@@ -38,6 +35,13 @@ public:
      */
     CLogFormatter(const std::string & pattern);
 
+    // Accessors
+
+    void setPattern(const std::string & pattern);
+    const std::string & getPattern() const;
+
+    // Methods
+
     /**
      * Formats a log record.
      *
@@ -46,21 +50,9 @@ public:
      */
     std::string format(const LogRecord & record) const;
 
-    /**
-     * Sets the pattern.
-     *
-     * @param pattern The pattern string which describes how to format the log record.
-     */
-    void setPattern(const std::string & pattern);
-
-    /**
-     * Gets the pattern.
-     *
-     * @return the pattern string which describes how to format the log record
-     */
-    const std::string & getPattern() const;
 
 private:
-    /** The pattern string which describes how to format the log record. */
+    // Data members
+
     std::string pattern;
 };
