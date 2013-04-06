@@ -84,9 +84,19 @@ void CGLogger::trace(const std::string & message) const
     log(ELogLevel::TRACE, message);
 }
 
+CLoggerStream CGLogger::traceStream() const
+{
+    return CLoggerStream(*this, ELogLevel::TRACE);
+}
+
 void CGLogger::debug(const std::string & message) const
 {
     log(ELogLevel::DEBUG, message);
+}
+
+CLoggerStream CGLogger::debugStream() const
+{
+    return CLoggerStream(*this, ELogLevel::DEBUG);
 }
 
 void CGLogger::info(const std::string & message) const
@@ -94,14 +104,29 @@ void CGLogger::info(const std::string & message) const
     log(ELogLevel::INFO, message);
 }
 
+CLoggerStream CGLogger::infoStream() const
+{
+    return CLoggerStream(*this, ELogLevel::INFO);
+}
+
 void CGLogger::warn(const std::string & message) const
 {
     log(ELogLevel::WARN, message);
 }
 
+CLoggerStream CGLogger::warnStream() const
+{
+    return CLoggerStream(*this, ELogLevel::WARN);
+}
+
 void CGLogger::error(const std::string & message) const
 {
     log(ELogLevel::ERROR, message);
+}
+
+CLoggerStream CGLogger::errorStream() const
+{
+    return CLoggerStream(*this, ELogLevel::ERROR);
 }
 
 void CGLogger::log(ELogLevel::ELogLevel level, const std::string & message) const
@@ -161,5 +186,20 @@ void CGLogger::callTargets(const LogRecord & record) const
         {
             target->write(record);
         }
+    }
+}
+
+CLoggerStream::CLoggerStream(const CGLogger & logger, ELogLevel::ELogLevel level) : logger(logger), level(level), sbuffer(nullptr)
+{
+
+}
+
+CLoggerStream::~CLoggerStream()
+{
+    if(sbuffer)
+    {
+        logger.log(level, sbuffer->str());
+        delete sbuffer;
+        sbuffer = nullptr;
     }
 }

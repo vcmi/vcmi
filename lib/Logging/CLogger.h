@@ -73,6 +73,31 @@ private:
     std::string name;
 };
 
+class CGLogger;
+
+/**
+ * The logger stream provides a stream-like way of logging messages.
+ */
+class DLL_LINKAGE CLoggerStream
+{
+public:
+    CLoggerStream(const CGLogger & logger, ELogLevel::ELogLevel level);
+    ~CLoggerStream();
+
+    template<typename T>
+    CLoggerStream & operator<<(const T & data)
+    {
+        if(!sbuffer) sbuffer = new std::stringstream();
+        (*sbuffer) << data;
+        return *this;
+    }
+
+private:
+    const CGLogger & logger;
+    ELogLevel::ELogLevel level;
+    std::stringstream * sbuffer;
+};
+
 /**
  * The logger is used to log messages to certain targets of a specific domain/name. Temporary name is
  * CGLogger, should be renamed to CLogger after refactoring.
@@ -102,12 +127,16 @@ public:
      */
     void trace(const std::string & message) const;
 
+    CLoggerStream traceStream() const;
+
     /**
      * Logs a message with the debug level.
      *
      * @param message The message to log.
      */
     void debug(const std::string & message) const;
+
+    CLoggerStream debugStream() const;
 
     /**
      * Logs a message with the info level.
@@ -116,6 +145,8 @@ public:
      */
     void info(const std::string & message) const;
 
+    CLoggerStream infoStream() const;
+
     /**
      * Logs a message with the warn level.
      *
@@ -123,12 +154,24 @@ public:
      */
     void warn(const std::string & message) const;
 
+    CLoggerStream warnStream() const;
+
     /**
      * Logs a message with the error level.
      *
      * @param message The message to log.
      */
     void error(const std::string & message) const;
+
+    CLoggerStream errorStream() const;
+
+    /**
+     * Logs a message of the given log level.
+     *
+     * @param level The log level of the message to log.
+     * @param message The message to log.
+     */
+    inline void log(ELogLevel::ELogLevel level, const std::string & message) const;
 
     /**
      * Gets the log level applied for this logger. The default level for the root logger is INFO.
@@ -178,14 +221,6 @@ private:
      * @return the parent logger or nullptr if this is the root logger
      */
     CGLogger * getParent() const;
-
-    /**
-     * Logs a message of the given log level.
-     *
-     * @param level The log level of the message to log.
-     * @param message The message to log.
-     */
-    inline void log(ELogLevel::ELogLevel level, const std::string & message) const;
 
     /**
      * Gets the effective log level.

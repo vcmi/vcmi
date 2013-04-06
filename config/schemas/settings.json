@@ -4,6 +4,12 @@
 	"type" : "object",
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"required" : [ "general", "video", "adventure", "battle", "server", "logging" ],
+	"definitions" : {
+		"logLevelEnum" : { 
+			"type" : "string", 
+			"enum" : [ "trace", "debug", "info", "warn", "error" ]
+		}
+	}, 
 	"properties":
 	{
 		"general" : {
@@ -146,9 +152,8 @@
 							"default" : "%l %n [%t] - %m"
 						},
 						"threshold" : {
-							"type" : "string",
+							"$ref" : "#/definitions/logLevelEnum",
 							"default" : "info",
-							"enum" : [ "trace", "debug", "info", "warn", "error" ]
 						},
 						"coloredOutputEnabled" : {
 							"type" : "boolean",
@@ -168,7 +173,7 @@
 								"required" : [ "domain", "level", "color" ],
 								"properties" : {
 									"domain" : { "type" : "string" },
-									"level" : { "type" : "string", "enum" : [ "trace", "debug", "info", "warn", "error" ] },
+									"level" : { "$ref" : "#/definitions/logLevelEnum" },
 									"color" : { "type" : "string", "enum" : [ "default", "green", "red", "magenta", "yellow", "white", "gray", "teal" ] }
 								}
 							}
@@ -191,8 +196,7 @@
 						"required" : [ "level" ],
 						"properties" : {
 							"level" : {
-								"type" : "string",
-								"enum" : [ "trace", "debug", "info", "warn", "error" ]
+								"$ref" : "#/definitions/logLevelEnum"
 							}
 						}
 
