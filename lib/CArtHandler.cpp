@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CArtHandler.h"
 
-#include "Filesystem/CResourceLoader.h"
+#include "filesystem/CResourceLoader.h"
 #include "CGeneralTextHandler.h"
 #include <boost/random/linear_congruential.hpp>
 #include "VCMI_Lib.h"

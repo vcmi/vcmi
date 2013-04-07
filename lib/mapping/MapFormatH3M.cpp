@@ -15,8 +15,8 @@
 
 #include "../CStopWatch.h"
 
-#include "../Filesystem/CResourceLoader.h"
-#include "../Filesystem/CInputStream.h"
+#include "../filesystem/CResourceLoader.h"
+#include "../filesystem/CInputStream.h"
 #include "CMap.h"
 
 #include "../CSpellHandler.h"

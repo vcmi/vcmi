@@ -2,7 +2,7 @@
 #include "CGameState.h"
 
 #include <boost/random/linear_congruential.hpp>
-#include "Mapping/CCampaignHandler.h"
+#include "mapping/CCampaignHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CArtHandler.h"
 #include "CBuildingHandler.h"
@@ -15,18 +15,18 @@
 #include "CModHandler.h"
 #include "VCMI_Lib.h"
 #include "Connection.h"
-#include "Mapping/CMap.h"
-#include "Mapping/CMapService.h"
+#include "mapping/CMap.h"
+#include "mapping/CMapService.h"
 #include "StartInfo.h"
 #include "NetPacks.h"
 #include "RegisterTypes.h"
-#include "Mapping/CMapInfo.h"
+#include "mapping/CMapInfo.h"
 #include "BattleState.h"
 #include "JsonNode.h"
-#include "Filesystem/CResourceLoader.h"
+#include "filesystem/CResourceLoader.h"
 #include "GameConstants.h"
-#include "RMG/CMapGenOptions.h"
-#include "RMG/CMapGenerator.h"
+#include "rmg/CMapGenOptions.h"
+#include "rmg/CMapGenerator.h"
 
 DLL_LINKAGE boost::rand48 ran;
 class CGObjectInstance;

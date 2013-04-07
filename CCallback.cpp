@@ -7,7 +7,7 @@
 #include "lib/BattleState.h"
 #include "client/CPlayerInterface.h"
 #include "client/Client.h"
-#include "lib/Mapping/CMap.h"
+#include "lib/mapping/CMap.h"
 #include "lib/CBuildingHandler.h"
 #include "lib/CDefObjInfoHandler.h"
 #include "lib/CGeneralTextHandler.h"

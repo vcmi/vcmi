@@ -14,7 +14,7 @@
 #include "ScopeGuard.h"
 
 #include "HeroBonus.h"
-#include "Filesystem/CResourceLoader.h"
+#include "filesystem/CResourceLoader.h"
 #include "VCMI_Lib.h" //for identifier resolution
 #include "CModHandler.h"
 

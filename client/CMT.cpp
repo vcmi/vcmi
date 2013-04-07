@@ -7,7 +7,7 @@
 #include "CGameInfo.h"
 #include "mapHandler.h"
 
-#include "../lib/Filesystem/CResourceLoader.h"
+#include "../lib/filesystem/CResourceLoader.h"
 #include "CPreGame.h"
 #include "CCastleInterface.h"
 #include "../lib/CConsoleHandler.h"

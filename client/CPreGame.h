@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../lib/Filesystem/CResourceLoader.h"
+#include "../lib/filesystem/CResourceLoader.h"
 #include <SDL.h>
 #include "../lib/StartInfo.h"
 #include "GUIClasses.h"
 #include "FunctionList.h"
-#include "../lib/Mapping/CMapInfo.h"
-#include "../lib/RMG/CMapGenOptions.h"
+#include "../lib/mapping/CMapInfo.h"
+#include "../lib/rmg/CMapGenOptions.h"
 
 /*
  * CPreGame.h, part of VCMI engine

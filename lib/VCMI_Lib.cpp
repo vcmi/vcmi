@@ -25,7 +25,7 @@
 #include "IGameEventsReceiver.h"
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
-#include "Filesystem/CResourceLoader.h"
+#include "filesystem/CResourceLoader.h"
 
 
 LibClasses * VLC = NULL;

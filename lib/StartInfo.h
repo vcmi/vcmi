@@ -12,7 +12,7 @@
  *
  */
 
-#include "RMG/CMapGenOptions.h"
+#include "rmg/CMapGenOptions.h"
 
 class CCampaignState;
 

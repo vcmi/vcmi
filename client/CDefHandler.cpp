@@ -2,7 +2,7 @@
 #include "SDL.h"
 #include "CDefHandler.h"
 
-#include "../lib/Filesystem/CResourceLoader.h"
+#include "../lib/filesystem/CResourceLoader.h"
 #include "../lib/VCMI_Lib.h"
 #include "CBitmapHandler.h"
 

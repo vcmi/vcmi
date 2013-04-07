@@ -6,7 +6,7 @@
 #include "SDL_Pixels.h"
 #include "../../lib/JsonNode.h"
 #include "../../lib/vcmi_endian.h"
-#include "../../lib/Filesystem/CResourceLoader.h"
+#include "../../lib/filesystem/CResourceLoader.h"
 
 /*
  * Fonts.cpp, part of VCMI engine

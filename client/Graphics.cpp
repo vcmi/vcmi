@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "Graphics.h"
 
-#include "../lib/Filesystem/CResourceLoader.h"
+#include "../lib/filesystem/CResourceLoader.h"
 #include "CDefHandler.h"
 #include "UIFramework/SDL_Extensions.h"
 #include <SDL_ttf.h>

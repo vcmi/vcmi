@@ -24,7 +24,7 @@
 #include "../CCreatureWindow.h"
 #include "../CVideoHandler.h"
 #include "../../lib/CTownHandler.h"
-#include "../../lib/Mapping/CMap.h"
+#include "../../lib/mapping/CMap.h"
 
 #include "CBattleAnimations.h"
 #include "CBattleInterfaceClasses.h"

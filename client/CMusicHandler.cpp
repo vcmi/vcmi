@@ -7,7 +7,7 @@
 #include "../client/CGameInfo.h"
 #include "../lib/JsonNode.h"
 #include "../lib/GameConstants.h"
-#include "../lib/Filesystem/CResourceLoader.h"
+#include "../lib/filesystem/CResourceLoader.h"
 
 /*
  * CMusicHandler.cpp, part of VCMI engine

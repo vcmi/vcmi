@@ -2,7 +2,7 @@
 #include "CCreatureHandler.h"
 
 #include "CGeneralTextHandler.h"
-#include "Filesystem/CResourceLoader.h"
+#include "filesystem/CResourceLoader.h"
 #include "VCMI_Lib.h"
 #include "CGameState.h"
 #include "CTownHandler.h"

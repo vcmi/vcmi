@@ -1,10 +1,10 @@
 #include "StdInc.h"
 #include "CMapService.h"
 
-#include "../Filesystem/CResourceLoader.h"
-#include "../Filesystem/CBinaryReader.h"
-#include "../Filesystem/CCompressedStream.h"
-#include "../Filesystem/CMemoryStream.h"
+#include "../filesystem/CResourceLoader.h"
+#include "../filesystem/CBinaryReader.h"
+#include "../filesystem/CCompressedStream.h"
+#include "../filesystem/CMemoryStream.h"
 #include "CMap.h"
 
 #include "MapFormatH3M.h"

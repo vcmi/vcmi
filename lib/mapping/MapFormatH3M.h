@@ -17,7 +17,7 @@
 
 #include "../int3.h"
 
-#include "../Filesystem/CBinaryReader.h"
+#include "../filesystem/CBinaryReader.h"
 
 class CGHeroInstance;
 class CArtifactInstance;

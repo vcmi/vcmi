@@ -3,8 +3,8 @@
 
 #include "../CCallback.h"
 #include "../lib/JsonNode.h"
-#include "../lib/Filesystem/CResourceLoader.h"
-#include "../lib/Mapping/CMap.h"
+#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/mapping/CMap.h"
 #include "../lib/CModHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/CGameState.h"

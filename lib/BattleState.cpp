@@ -11,7 +11,7 @@
 #include "CTownHandler.h"
 #include "NetPacks.h"
 #include "JsonNode.h"
-#include "Filesystem/CResourceLoader.h"
+#include "filesystem/CResourceLoader.h"
 
 
 /*

@@ -1,8 +1,8 @@
 #include "StdInc.h"
 #include "CCampaignHandler.h"
 
-#include "../Filesystem/CResourceLoader.h"
-#include "../Filesystem/CCompressedStream.h"
+#include "../filesystem/CResourceLoader.h"
+#include "../filesystem/CCompressedStream.h"
 #include "../VCMI_Lib.h"
 #include "../vcmi_endian.h"
 #include "../CGeneralTextHandler.h"

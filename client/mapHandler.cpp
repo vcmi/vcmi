@@ -9,7 +9,7 @@
 #include "../lib/CTownHandler.h"
 #include "Graphics.h"
 #include "../lib/CObjectHandler.h"
-#include "../lib/Mapping/CMap.h"
+#include "../lib/mapping/CMap.h"
 #include "CDefHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/CGeneralTextHandler.h"

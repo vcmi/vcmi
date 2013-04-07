@@ -24,7 +24,7 @@
 #include "ConstTransitivePtr.h"
 #include "CCreatureSet.h" //for CStackInstance
 #include "CObjectHandler.h" //for CArmedInstance
-#include "Mapping/CCampaignHandler.h" //for CCampaignState
+#include "mapping/CCampaignHandler.h" //for CCampaignState
 
 const ui32 version = 739;
 

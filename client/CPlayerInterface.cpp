@@ -30,7 +30,7 @@
 #include "CMusicHandler.h"
 #include "../lib/CondSh.h"
 #include "../lib/NetPacks.h"
-#include "../lib/Mapping/CMap.h"
+#include "../lib/mapping/CMap.h"
 #include "../lib/VCMIDirs.h"
 #include "mapHandler.h"
 #include "../lib/CStopWatch.h"

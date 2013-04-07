@@ -4,8 +4,8 @@
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
 
-#include "../lib/Filesystem/CResourceLoader.h"
-#include "../lib/Mapping/CCampaignHandler.h"
+#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/mapping/CCampaignHandler.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/Connection.h"
 #include "../lib/CModHandler.h"
@@ -20,12 +20,12 @@
 #include "zlib.h"
 #include "CVCMIServer.h"
 #include "../lib/StartInfo.h"
-#include "../lib/Mapping/CMap.h"
+#include "../lib/mapping/CMap.h"
 #include "../lib/Interprocess.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
 #include "CGameHandler.h"
-#include "../lib/Mapping/CMapInfo.h"
+#include "../lib/mapping/CMapInfo.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/GameConstants.h"
 

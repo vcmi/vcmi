@@ -5,7 +5,7 @@
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/SDL_Extensions.h"
 #include "CPlayerInterface.h"
-#include "../lib/Filesystem/CResourceLoader.h"
+#include "../lib/filesystem/CResourceLoader.h"
 
 extern CGuiHandler GH; //global gui handler
 

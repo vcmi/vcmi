@@ -4,7 +4,7 @@
 #include "CGameHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/IGameCallback.h"
-#include "../lib/Mapping/CMap.h"
+#include "../lib/mapping/CMap.h"
 #include "../lib/CGameState.h"
 #include "../lib/BattleState.h"
 #include "../lib/BattleAction.h"

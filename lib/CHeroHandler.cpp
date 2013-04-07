@@ -2,7 +2,7 @@
 #include "CHeroHandler.h"
 
 #include "CGeneralTextHandler.h"
-#include "Filesystem/CResourceLoader.h"
+#include "filesystem/CResourceLoader.h"
 #include "VCMI_Lib.h"
 #include "JsonNode.h"
 #include "StringConstants.h"

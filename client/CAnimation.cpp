@@ -1,8 +1,8 @@
 #include "StdInc.h"
 #include <SDL_image.h>
 
-#include "../lib/Filesystem/CResourceLoader.h"
-#include "../lib/Filesystem/ISimpleResourceLoader.h"
+#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/ISimpleResourceLoader.h"
 #include "../lib/JsonNode.h"
 
 #include "CBitmapHandler.h"

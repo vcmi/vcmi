@@ -1,10 +1,10 @@
 #include "StdInc.h"
 #include "CMapGenerator.h"
 
-#include "../Mapping/CMap.h"
+#include "../mapping/CMap.h"
 #include "../VCMI_Lib.h"
 #include "../CGeneralTextHandler.h"
-#include "../Mapping/CMapEditManager.h"
+#include "../mapping/CMapEditManager.h"
 #include "../CObjectHandler.h"
 #include "../CDefObjInfoHandler.h"
 #include "../GameConstants.h"

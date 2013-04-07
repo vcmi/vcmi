@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Filesystem/CResourceLoader.h"
+#include "filesystem/CResourceLoader.h"
 
 #include "VCMI_Lib.h"
 

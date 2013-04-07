@@ -2,7 +2,7 @@
 #include "CMapEditManager.h"
 
 #include "../JsonNode.h"
-#include "../Filesystem/CResourceLoader.h"
+#include "../filesystem/CResourceLoader.h"
 #include "../CDefObjInfoHandler.h"
 
 const std::string TerrainViewPattern::FLIP_MODE_SAME_IMAGE = "sameImage";

@@ -2,11 +2,11 @@
 #define DO_NOT_DISABLE_REGISTER_TYPES_INSTANTIATION
 #include "RegisterTypes.h"
 
-#include "Mapping/CMapInfo.h"
+#include "mapping/CMapInfo.h"
 #include "StartInfo.h"
 #include "BattleState.h"
 #include "CGameState.h"
-#include "Mapping/CMap.h"
+#include "mapping/CMap.h"
 #include "CModHandler.h"
 #include "CObjectHandler.h"
 #include "CCreatureHandler.h"
@@ -15,7 +15,7 @@
 #include "CHeroHandler.h"
 #include "CSpellHandler.h"
 #include "CTownHandler.h"
-#include "Mapping/CCampaignHandler.h"
+#include "mapping/CCampaignHandler.h"
 #include "NetPacks.h"
 #include "CDefObjInfoHandler.h"
 

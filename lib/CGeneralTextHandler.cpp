@@ -1,8 +1,8 @@
 #include "StdInc.h"
 #include "CGeneralTextHandler.h"
 
-#include "Filesystem/CResourceLoader.h"
-#include "Filesystem/CInputStream.h"
+#include "filesystem/CResourceLoader.h"
+#include "filesystem/CInputStream.h"
 #include "GameConstants.h"
 
 // #include <locale> //needed?

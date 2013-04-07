@@ -2,8 +2,8 @@
 #include "CModHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "JsonNode.h"
-#include "Filesystem/CResourceLoader.h"
-#include "Filesystem/ISimpleResourceLoader.h"
+#include "filesystem/CResourceLoader.h"
+#include "filesystem/ISimpleResourceLoader.h"
 
 #include "CCreatureHandler.h"
 #include "CArtHandler.h"

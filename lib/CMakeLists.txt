@@ -5,24 +5,24 @@ include_directories(${CMAKE_HOME_DIRECTORY} ${CMAKE_CURRENT_SOURCE_DIRECTORY} ${
 include_directories(${Boost_INCLUDE_DIRS} ${SDL_INCLUDE_DIR} ${ZLIB_INCLUDE_DIR})
 
 set(lib_SRCS
-		Filesystem/CBinaryReader.cpp
-		Filesystem/CFilesystemLoader.cpp
-		Filesystem/CMemoryStream.cpp
-		Filesystem/CFileInfo.cpp
-		Filesystem/CLodArchiveLoader.cpp
-		Filesystem/CResourceLoader.cpp
-		Filesystem/CFileInputStream.cpp
-		Filesystem/CCompressedStream.cpp
+		filesystem/CBinaryReader.cpp
+		filesystem/CFilesystemLoader.cpp
+		filesystem/CMemoryStream.cpp
+		filesystem/CFileInfo.cpp
+		filesystem/CLodArchiveLoader.cpp
+		filesystem/CResourceLoader.cpp
+		filesystem/CFileInputStream.cpp
+		filesystem/CCompressedStream.cpp
 		logging/CBasicLogConfigurator.cpp
 		logging/CLogger.cpp
-		Mapping/CCampaignHandler.cpp
-		Mapping/CMap.cpp
-		Mapping/CMapEditManager.cpp
-		Mapping/CMapInfo.cpp
-		Mapping/CMapService.cpp
-		Mapping/MapFormatH3M.cpp
-		RMG/CMapGenOptions.cpp
-		RMG/CMapGenerator.cpp
+		mapping/CCampaignHandler.cpp
+		mapping/CMap.cpp
+		mapping/CMapEditManager.cpp
+		mapping/CMapInfo.cpp
+		mapping/CMapService.cpp
+		mapping/MapFormatH3M.cpp
+		rmg/CMapGenOptions.cpp
+		rmg/CMapGenerator.cpp
 		BattleAction.cpp
 		BattleHex.cpp
 		BattleState.cpp
@@ -59,16 +59,16 @@ set(lib_SRCS
 )
 
 set(lib_HEADERS
-		Filesystem/CInputStream.h
-		Filesystem/ISimpleResourceLoader.h
+		filesystem/CInputStream.h
+		filesystem/ISimpleResourceLoader.h
 		logging/CBasicLogConfigurator.h
 		logging/CLogger.h
-		Mapping/CCampaignHandler.h
-		Mapping/CMap.h
-		Mapping/CMapEditManager.h
-		Mapping/CMapInfo.h
-		Mapping/CMapService.h
-		Mapping/MapFormatH3M.h
+		mapping/CCampaignHandler.h
+		mapping/CMap.h
+		mapping/CMapEditManager.h
+		mapping/CMapInfo.h
+		mapping/CMapService.h
+		mapping/MapFormatH3M.h
 		AI_Base.h
 		CondSh.h
 		ConstTransitivePtr.h

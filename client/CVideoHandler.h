@@ -217,7 +217,7 @@ public:
 
 #ifndef DISABLE_VIDEO
 
-#include "../lib/Filesystem/CInputStream.h"
+#include "../lib/filesystem/CInputStream.h"
 
 #include <SDL.h>
 #include <SDL_video.h>

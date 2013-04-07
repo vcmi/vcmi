@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CDefObjInfoHandler.h"
 
-#include "Filesystem/CResourceLoader.h"
+#include "filesystem/CResourceLoader.h"
 #include "../client/CGameInfo.h"
 #include "../lib/VCMI_Lib.h"
 #include "GameConstants.h"

@@ -14,7 +14,7 @@
 #include "../../lib/CObjectHandler.h"
 #include "../../lib/Connection.h"
 #include "../../lib/CGameState.h"
-#include "../../lib/Mapping/CMap.h"
+#include "../../lib/mapping/CMap.h"
 #include "../../lib/NetPacks.h"
 #include "../../lib/CondSh.h"
 #include "../../lib/CStopWatch.h"

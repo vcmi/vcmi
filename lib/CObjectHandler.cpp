@@ -26,11 +26,11 @@
 #include "CGameState.h"
 #include "NetPacks.h"
 #include "StartInfo.h"
-#include "Mapping/CMap.h"
+#include "mapping/CMap.h"
 #include <SDL_stdinc.h>
 #include "CBuildingHandler.h"
 #include "JsonNode.h"
-#include "Filesystem/CResourceLoader.h"
+#include "filesystem/CResourceLoader.h"
 
 using namespace boost::assign;
 

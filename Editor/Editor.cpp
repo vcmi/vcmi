@@ -2,10 +2,10 @@
 #include "Editor.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/Filesystem/CResourceLoader.h"
+#include "../lib/filesystem/CResourceLoader.h"
 #include "../lib/CGeneralTextHandler.h"
-#include "../lib/Mapping/CMap.h"
-#include "../lib/Mapping/CMapService.h"
+#include "../lib/mapping/CMap.h"
+#include "../lib/mapping/CMapService.h"
 
 Editor::Editor(QWidget *parent)
 	: QMainWindow(parent)

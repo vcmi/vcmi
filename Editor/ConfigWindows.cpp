@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "ConfigWindows.h"
 #include "Editor.h"
-#include "../lib/Mapping/CMap.h"
+#include "../lib/mapping/CMap.h"
 
 #include <QTabWidget>
 

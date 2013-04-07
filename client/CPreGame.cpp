@@ -1,9 +1,9 @@
 #include "StdInc.h"
 #include "CPreGame.h"
 
-#include "../lib/Filesystem/CResourceLoader.h"
-#include "../lib/Filesystem/CFileInfo.h"
-#include "../lib/Filesystem/CCompressedStream.h"
+#include "../lib/filesystem/CResourceLoader.h"
+#include "../lib/filesystem/CFileInfo.h"
+#include "../lib/filesystem/CCompressedStream.h"
 
 #include "../lib/CStopWatch.h"
 #include "UIFramework/SDL_Extensions.h"
@@ -16,7 +16,7 @@
 #include "../lib/CTownHandler.h"
 #include "../lib/CHeroHandler.h"
 #include "../lib/CObjectHandler.h"
-#include "../lib/Mapping/CCampaignHandler.h"
+#include "../lib/mapping/CCampaignHandler.h"
 #include "../lib/CCreatureHandler.h"
 #include "../lib/JsonNode.h"
 #include "CMusicHandler.h"
@@ -24,7 +24,7 @@
 #include "Graphics.h"
 #include "../lib/Connection.h"
 #include "../lib/VCMIDirs.h"
-#include "../lib/Mapping/CMap.h"
+#include "../lib/mapping/CMap.h"
 #include "GUIClasses.h"
 #include "CPlayerInterface.h"
 #include "../CCallback.h"
@@ -41,7 +41,7 @@
 #include "../lib/GameConstants.h"
 #include "UIFramework/CGuiHandler.h"
 #include "UIFramework/CIntObjectClasses.h"
-#include "../lib/Mapping/CMapService.h"
+#include "../lib/mapping/CMapService.h"
 
 /*
  * CPreGame.cpp, part of VCMI engine
