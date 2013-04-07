@@ -2,8 +2,6 @@
 #include "CBasicLogConfigurator.h"
 
 #include "../CConfigHandler.h"
-#include "CLogConsoleTarget.h"
-#include "CLogFileTarget.h"
 
 CBasicLogConfigurator::CBasicLogConfigurator(const std::string & filePath, CConsoleHandler * console)
 {

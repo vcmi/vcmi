@@ -70,8 +70,6 @@ private:
     std::string name;
 };
 
-class CGLogger;
-
 /**
  * The logger stream provides a stream-like way of logging messages.
  */
@@ -246,4 +244,260 @@ private:
     std::list<ILogTarget *> targets;
     mutable boost::shared_mutex mx;
     static boost::mutex smx;
+};
+
+/* ---------------------------------------------------------------------------- */
+/* Implementation/Detail classes, Private API */
+/* ---------------------------------------------------------------------------- */
+
+/**
+ * The log manager is a global storage of all logger objects.
+ */
+class DLL_LINKAGE CLogManager : public boost::noncopyable
+{
+public:
+    ~CLogManager();
+
+    // Methods
+
+    /**
+     * Gets an instance of the log manager.
+     *
+     * @return an instance of the log manager
+     */
+    static CLogManager * get();
+
+    /**
+     * Adds a logger. The log manager holds strong ownership of the logger object.
+     *
+     * @param logger The logger to add.
+     */
+    void addLogger(CGLogger * logger);
+
+    /**
+     * Gets a logger by domain.
+     *
+     * @param domain The domain of the logger.
+     * @return a logger by domain or nullptr if the logger was not found
+     */
+    CGLogger * getLogger(const CLoggerDomain & domain);
+
+private:
+    // Methods
+
+    CLogManager();
+
+    // Data members
+
+    static CLogManager * instance;
+    std::map<std::string, CGLogger *> loggers;
+    mutable boost::shared_mutex mx;
+    static boost::mutex smx;
+};
+
+/**
+ * The log records holds the log message and additional logging information.
+ */
+struct DLL_LINKAGE LogRecord
+{
+    LogRecord(const CLoggerDomain & domain, ELogLevel::ELogLevel level, const std::string & message)
+        : domain(domain), level(level), message(message), timeStamp(boost::posix_time::second_clock::local_time()), threadId(boost::this_thread::get_id())
+    {
+
+    }
+
+    /** The logger domain. */
+    CLoggerDomain domain;
+
+    /** The log level. */
+    ELogLevel::ELogLevel level;
+
+    /** The message. */
+    std::string message;
+
+    /** The time when the message was created. */
+    boost::posix_time::ptime timeStamp;
+
+    /** The thread id. */
+    boost::thread::id threadId;
+};
+
+/**
+ * The log formatter formats log records.
+ *
+ * There are several pattern characters which can be used to format a log record:
+ * %d = Date/Time
+ * %l = Log level
+ * %n = Logger name
+ * %t = Thread ID
+ * %m = Message
+ */
+class DLL_LINKAGE CLogFormatter
+{
+public:
+    CLogFormatter();
+
+    /**
+     * Constructor.
+     *
+     * @param pattern The pattern to format the log record with.
+     */
+    CLogFormatter(const std::string & pattern);
+
+    // Accessors
+
+    void setPattern(const std::string & pattern);
+    const std::string & getPattern() const;
+
+    // Methods
+
+    /**
+     * Formats a log record.
+     *
+     * @param record The log record to format.
+     * @return the formatted log record as a string
+     */
+    std::string format(const LogRecord & record) const;
+
+private:
+    // Data members
+
+    std::string pattern;
+};
+
+/**
+ * The interface log target is used by all log target implementations. It holds
+ * the abstract method write which sub-classes should implement.
+ */
+class DLL_LINKAGE ILogTarget : public boost::noncopyable
+{
+public:
+    virtual ~ILogTarget() { };
+
+    /**
+     * Writes a log record.
+     *
+     * @param record The log record to write.
+     */
+    virtual void write(const LogRecord & record) = 0;
+};
+
+/**
+ * The color mapping maps a logger name and a level to a specific color.
+ */
+class DLL_LINKAGE CColorMapping
+{
+public:
+    /**
+     * Constructor. There are default color mappings for the root logger, which child loggers inherit if not overriden.
+     */
+    CColorMapping();
+
+    // Methods
+
+    /**
+     * Sets a console text color for a logger name and a level.
+     *
+     * @param domain The domain of the logger.
+     * @param level The logger level.
+     * @param color The console text color to use as the mapping.
+     */
+    void setColorFor(const CLoggerDomain & domain, ELogLevel::ELogLevel level, EConsoleTextColor::EConsoleTextColor color);
+
+    /**
+     * Gets a console text color for a logger name and a level.
+     *
+     * @param domain The domain of the logger.
+     * @param level The logger level.
+     * @return the console text color which has been applied for the mapping
+     */
+    EConsoleTextColor::EConsoleTextColor getColorFor(const CLoggerDomain & domain, ELogLevel::ELogLevel level) const;
+
+private:
+    // Data members
+
+    std::map<std::string, std::map<ELogLevel::ELogLevel, EConsoleTextColor::EConsoleTextColor> > map;
+};
+
+/**
+ * The console target is a logging target which writes message to the console.
+ */
+class DLL_LINKAGE CLogConsoleTarget : public ILogTarget
+{
+public:
+    /**
+     * Constructor.
+     *
+     * @param console Optional. The console handler which is used to output messages to the console.
+     */
+    explicit CLogConsoleTarget(CConsoleHandler * console);
+
+    // Accessors
+
+    bool isColoredOutputEnabled() const;
+    void setColoredOutputEnabled(bool coloredOutputEnabled);
+
+    ELogLevel::ELogLevel getThreshold() const;
+    void setThreshold(ELogLevel::ELogLevel threshold);
+
+    const CLogFormatter & getFormatter() const;
+    void setFormatter(const CLogFormatter & formatter);
+
+    const CColorMapping & getColorMapping() const;
+    void setColorMapping(const CColorMapping & colorMapping);
+
+    // Methods
+
+    /**
+     * Writes a log record to the console.
+     *
+     * @param record The log record to write.
+     */
+    void write(const LogRecord & record);
+
+private:
+    // Data members
+
+    CConsoleHandler * console;
+    ELogLevel::ELogLevel threshold;
+    bool coloredOutputEnabled;
+    CLogFormatter formatter;
+    CColorMapping colorMapping;
+    mutable boost::mutex mx;
+};
+
+/**
+ * The log file target is a logging target which writes messages to a log file.
+ */
+class DLL_LINKAGE CLogFileTarget : public ILogTarget
+{
+public:
+    /**
+     * Constructor.
+     *
+     * @param filePath The file path of the log file.
+     */
+    explicit CLogFileTarget(const std::string & filePath);
+    ~CLogFileTarget();
+
+    // Accessors
+
+    const CLogFormatter & getFormatter() const;
+    void setFormatter(const CLogFormatter & formatter);
+
+    // Methods
+
+    /**
+     * Writes a log record to the log file.
+     *
+     * @param record The log record to write.
+     */
+    void write(const LogRecord & record);
+
+private:
+    // Data members
+
+    std::ofstream file;
+    CLogFormatter formatter;
+    mutable boost::mutex mx;
 };
