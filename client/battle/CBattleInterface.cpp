@@ -2,7 +2,7 @@
 #include "CBattleInterface.h"
 
 #include "../CGameInfo.h"
-#include "../UIFramework/SDL_Extensions.h"
+#include "../gui/SDL_Extensions.h"
 #include "../CAdvmapInterface.h"
 #include "../CAnimation.h"
 #include "../../lib/CObjectHandler.h"
@@ -29,8 +29,8 @@
 #include "CBattleAnimations.h"
 #include "CBattleInterfaceClasses.h"
 
-#include "../UIFramework/CCursorHandler.h"
-#include "../UIFramework/CGuiHandler.h"
+#include "../gui/CCursorHandler.h"
+#include "../gui/CGuiHandler.h"
 #include "../CMT.h"
 
 #ifndef __GNUC__

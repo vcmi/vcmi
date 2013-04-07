@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../lib/vcmi_endian.h"
-#include "UIFramework/CIntObject.h"
+#include "gui/CIntObject.h"
 
 /*
  * CAnimation.h, part of VCMI engine

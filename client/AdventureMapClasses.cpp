@@ -20,8 +20,8 @@
 #include "CMusicHandler.h"
 #include "Graphics.h"
 #include "GUIClasses.h"
-#include "UIFramework/CGuiHandler.h"
-#include "UIFramework/SDL_Pixels.h"
+#include "gui/CGuiHandler.h"
+#include "gui/SDL_Pixels.h"
 
 /*
  * CAdventureMapClasses.h, part of VCMI engine

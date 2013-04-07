@@ -1,6 +1,6 @@
 #pragma once
 
-#include "UIFramework/CIntObject.h"
+#include "gui/CIntObject.h"
 #include "../lib/HeroBonus.h"
 #include "GUIClasses.h"
 

@@ -6,7 +6,7 @@
 #include "SDL_image.h"
 #include "CBitmapHandler.h"
 #include "CDefHandler.h"
-#include "UIFramework/SDL_Extensions.h"
+#include "gui/SDL_Extensions.h"
 #include "../lib/vcmi_endian.h"
 
 /*

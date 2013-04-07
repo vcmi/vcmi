@@ -3,7 +3,7 @@
 
 #include "../lib/filesystem/CResourceLoader.h"
 #include "CDefHandler.h"
-#include "UIFramework/SDL_Extensions.h"
+#include "gui/SDL_Extensions.h"
 #include <SDL_ttf.h>
 #include "../lib/CThreadHelper.h"
 #include "CGameInfo.h"

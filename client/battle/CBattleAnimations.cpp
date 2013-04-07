@@ -10,9 +10,9 @@
 #include "../../lib/BattleState.h"
 #include "../CPlayerInterface.h"
 #include "../../CCallback.h"
-#include "../UIFramework/SDL_Extensions.h"
+#include "../gui/SDL_Extensions.h"
 #include "../Graphics.h"
-#include "../UIFramework/CCursorHandler.h"
+#include "../gui/CCursorHandler.h"
 #include "../../lib/CTownHandler.h"
 
 

@@ -20,10 +20,10 @@
 #include "CMusicHandler.h"
 #include "CPlayerInterface.h"
 #include "Graphics.h"
-#include "UIFramework/SDL_Extensions.h"
+#include "gui/SDL_Extensions.h"
 #include "../lib/GameConstants.h"
-#include "UIFramework/CGuiHandler.h"
-#include "UIFramework/CIntObjectClasses.h"
+#include "gui/CGuiHandler.h"
+#include "gui/CIntObjectClasses.h"
 
 using namespace boost::assign;
 

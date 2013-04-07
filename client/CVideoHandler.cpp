@@ -2,8 +2,8 @@
 #include <SDL.h>
 #include "CVideoHandler.h"
 
-#include "UIFramework/CGuiHandler.h"
-#include "UIFramework/SDL_Extensions.h"
+#include "gui/CGuiHandler.h"
+#include "gui/SDL_Extensions.h"
 #include "CPlayerInterface.h"
 #include "../lib/filesystem/CResourceLoader.h"
 

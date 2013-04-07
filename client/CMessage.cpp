@@ -5,13 +5,13 @@
 #include "CDefHandler.h"
 #include "CAnimation.h"
 #include "CGameInfo.h"
-#include "UIFramework/SDL_Extensions.h"
+#include "gui/SDL_Extensions.h"
 #include "../lib/CGeneralTextHandler.h"
 #include "Graphics.h"
 #include "GUIClasses.h"
 #include "../lib/CConfigHandler.h"
 #include "CBitmapHandler.h"
-#include "UIFramework/CIntObjectClasses.h"
+#include "gui/CIntObjectClasses.h"
 
 /*
  * CMessage.cpp, part of VCMI engine

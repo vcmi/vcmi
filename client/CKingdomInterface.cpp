@@ -14,8 +14,8 @@
 #include "../lib/CConfigHandler.h"
 #include "CGameInfo.h"
 #include "CPlayerInterface.h" //LOCPLINT
-#include "UIFramework/CGuiHandler.h"
-#include "UIFramework/CIntObjectClasses.h"
+#include "gui/CGuiHandler.h"
+#include "gui/CIntObjectClasses.h"
 #include "CMT.h"
 
 /*

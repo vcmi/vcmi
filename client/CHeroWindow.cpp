@@ -9,7 +9,7 @@
 #include "CKingdomInterface.h"
 #include "CCreatureWindow.h"
 #include "SDL.h"
-#include "UIFramework/SDL_Extensions.h"
+#include "gui/SDL_Extensions.h"
 #include "CBitmapHandler.h"
 #include "Graphics.h"
 #include "CSpellWindow.h"
@@ -23,8 +23,8 @@
 #include "../lib/CObjectHandler.h"
 #include "../lib/NetPacks.h"
 
-#include "UIFramework/CGuiHandler.h"
-#include "UIFramework/CIntObjectClasses.h"
+#include "gui/CGuiHandler.h"
+#include "gui/CIntObjectClasses.h"
 #include "CMT.h"
 
 #undef min

@@ -7,17 +7,17 @@ include_directories(${Boost_INCLUDE_DIRS} ${ZLIB_INCLUDE_DIR} ${FFMPEG_INCLUDE_D
 
 set(client_SRCS
         ../CCallback.cpp
-        BattleInterface/CBattleAnimations.cpp
-        BattleInterface/CBattleInterface.cpp
-        BattleInterface/CBattleInterfaceClasses.cpp
-        BattleInterface/CCreatureAnimation.cpp
-        UIFramework/CGuiHandler.cpp
-        UIFramework/CIntObject.cpp
-        UIFramework/CIntObjectClasses.cpp
-        UIFramework/Fonts.cpp
-        UIFramework/Geometries.cpp
-        UIFramework/CCursorHandler.cpp
-        UIFramework/SDL_Extensions.cpp
+        battle/CBattleAnimations.cpp
+        battle/CBattleInterface.cpp
+        battle/CBattleInterfaceClasses.cpp
+        battle/CCreatureAnimation.cpp
+        gui/CGuiHandler.cpp
+        gui/CIntObject.cpp
+        gui/CIntObjectClasses.cpp
+        gui/Fonts.cpp
+        gui/Geometries.cpp
+        gui/CCursorHandler.cpp
+        gui/SDL_Extensions.cpp
         AdventureMapClasses.cpp
         CAdvmapInterface.cpp
         CAnimation.cpp

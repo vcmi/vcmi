@@ -1,7 +1,7 @@
 #pragma once
 
-#include "UIFramework/CIntObject.h"
-#include "UIFramework/CIntObjectClasses.h"
+#include "gui/CIntObject.h"
+#include "gui/CIntObjectClasses.h"
 
 /*
  * CSpellWindow.h, part of VCMI engine

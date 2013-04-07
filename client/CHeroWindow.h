@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../lib/HeroBonus.h"
-#include "UIFramework/CIntObjectClasses.h"
+#include "gui/CIntObjectClasses.h"
 #include "GUIClasses.h"
 
 //#include "CPlayerInterface.h"

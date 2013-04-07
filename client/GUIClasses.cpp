@@ -1,19 +1,19 @@
 #include "StdInc.h"
 #include "GUIClasses.h"
-#include "UIFramework/SDL_Extensions.h"
+#include "gui/SDL_Extensions.h"
 
 #include "CAdvmapInterface.h"
-#include "BattleInterface/CBattleInterface.h"
-#include "BattleInterface/CBattleInterfaceClasses.h"
+#include "battle/CBattleInterface.h"
+#include "battle/CBattleInterfaceClasses.h"
 #include "../CCallback.h"
 #include "CCastleInterface.h"
 #include "CCreatureWindow.h"
-#include "UIFramework/CCursorHandler.h"
+#include "gui/CCursorHandler.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CMessage.h"
 #include "../lib/CConfigHandler.h"
-#include "BattleInterface/CCreatureAnimation.h"
+#include "battle/CCreatureAnimation.h"
 #include "CPlayerInterface.h"
 #include "Graphics.h"
 #include "CAnimation.h"
@@ -41,7 +41,7 @@
 #include "../lib/BattleState.h"
 #include "../lib/CGameState.h"
 #include "../lib/GameConstants.h"
-#include "UIFramework/CGuiHandler.h"
+#include "gui/CGuiHandler.h"
 
 /*
  * GUIClasses.cpp, part of VCMI engine

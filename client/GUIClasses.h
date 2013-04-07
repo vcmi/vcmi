@@ -5,8 +5,8 @@
 #include "../lib/ResourceSet.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameConstants.h"
-#include "UIFramework/CIntObject.h"
-#include "UIFramework/CIntObjectClasses.h"
+#include "gui/CIntObject.h"
+#include "gui/CIntObjectClasses.h"
 #include "../lib/GameConstants.h"
 
 #ifdef max

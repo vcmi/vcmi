@@ -8,7 +8,7 @@
 #include "../CCallback.h"
 
 #include <SDL.h>
-#include "UIFramework/SDL_Extensions.h"
+#include "gui/SDL_Extensions.h"
 #include "CBitmapHandler.h"
 #include "CDefHandler.h"
 #include "Graphics.h"
@@ -24,8 +24,8 @@
 #include "../lib/CModHandler.h"
 #include "../lib/IBonusTypeHandler.h"
 
-#include "UIFramework/CGuiHandler.h"
-#include "UIFramework/CIntObjectClasses.h"
+#include "gui/CGuiHandler.h"
+#include "gui/CIntObjectClasses.h"
 
 using namespace CSDL_Ext;
 

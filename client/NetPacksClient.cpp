@@ -20,13 +20,13 @@
 #include "mapHandler.h"
 #include "GUIClasses.h"
 #include "../lib/CConfigHandler.h"
-#include "UIFramework/SDL_Extensions.h"
-#include "BattleInterface/CBattleInterface.h"
+#include "gui/SDL_Extensions.h"
+#include "battle/CBattleInterface.h"
 #include "../lib/mapping/CCampaignHandler.h"
 #include "../lib/CGameState.h"
 #include "../lib/BattleState.h"
 #include "../lib/GameConstants.h"
-#include "UIFramework/CGuiHandler.h"
+#include "gui/CGuiHandler.h"
 
 //macros to avoid code duplication - calls given method with given arguments if interface for specific player is present
 //awaiting variadic templates...

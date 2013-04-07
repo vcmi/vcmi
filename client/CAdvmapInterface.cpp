@@ -3,13 +3,13 @@
 
 #include "../CCallback.h"
 #include "CCastleInterface.h"
-#include "UIFramework/CCursorHandler.h"
+#include "gui/CCursorHandler.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CKingdomInterface.h"
 #include "CMessage.h"
 #include "CPlayerInterface.h"
-#include "UIFramework/SDL_Extensions.h"
+#include "gui/SDL_Extensions.h"
 #include "CBitmapHandler.h"
 #include "../lib/CConfigHandler.h"
 #include "CSpellWindow.h"
@@ -28,8 +28,8 @@
 #include "CSoundBase.h"
 #include "../lib/CGameState.h"
 #include "CMusicHandler.h"
-#include "UIFramework/CGuiHandler.h"
-#include "UIFramework/CIntObjectClasses.h"
+#include "gui/CGuiHandler.h"
+#include "gui/CIntObjectClasses.h"
 #include "../lib/UnlockGuard.h"
 
 #ifdef _MSC_VER

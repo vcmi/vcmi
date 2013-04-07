@@ -8,9 +8,9 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "CVideoHandler.h"
 #include "CAdvmapInterface.h"
-#include "BattleInterface/CBattleInterface.h"
+#include "battle/CBattleInterface.h"
 #include "CGameInfo.h"
-#include "UIFramework/SDL_Extensions.h"
+#include "gui/SDL_Extensions.h"
 #include "CMessage.h"
 #include "CPlayerInterface.h"
 #include "../CCallback.h"
@@ -18,7 +18,7 @@
 #include "../lib/CHeroHandler.h"
 #include "../lib/BattleState.h"
 #include "../lib/GameConstants.h"
-#include "UIFramework/CGuiHandler.h"
+#include "gui/CGuiHandler.h"
 #include "CMT.h"
 
 /*

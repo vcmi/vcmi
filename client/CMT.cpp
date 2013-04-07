@@ -3,7 +3,7 @@
 #include "StdInc.h"
 #include <boost/filesystem/operations.hpp>
 #include <SDL_mixer.h>
-#include "UIFramework/SDL_Extensions.h"
+#include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "mapHandler.h"
 
@@ -11,7 +11,7 @@
 #include "CPreGame.h"
 #include "CCastleInterface.h"
 #include "../lib/CConsoleHandler.h"
-#include "UIFramework/CCursorHandler.h"
+#include "gui/CCursorHandler.h"
 #include "../lib/CGameState.h"
 #include "../CCallback.h"
 #include "CPlayerInterface.h"
@@ -38,7 +38,7 @@
 #include "../lib/CArtHandler.h"
 #include "../lib/CScriptingModule.h"
 #include "../lib/GameConstants.h"
-#include "UIFramework/CGuiHandler.h"
+#include "gui/CGuiHandler.h"
 
 #ifdef _WIN32
 #include "SDL_syswm.h"

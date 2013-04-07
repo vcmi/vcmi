@@ -8,8 +8,8 @@
 #include "CBitmapHandler.h"
 #include "Graphics.h"
 #include "CAnimation.h"
-#include "UIFramework/SDL_Extensions.h"
-#include "UIFramework/SDL_Pixels.h"
+#include "gui/SDL_Extensions.h"
+#include "gui/SDL_Pixels.h"
 
 /*
  * CAnimation.cpp, part of VCMI engine

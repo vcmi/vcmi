@@ -29,11 +29,11 @@
 #include "../lib/CConfigHandler.h"
 #include "Client.h"
 #include "CPreGame.h"
-#include "BattleInterface/CBattleInterface.h"
+#include "battle/CBattleInterface.h"
 #include "../lib/CThreadHelper.h"
 #include "../lib/CScriptingModule.h"
 #include "../lib/RegisterTypes.h"
-#include "UIFramework/CGuiHandler.h"
+#include "gui/CGuiHandler.h"
 
 extern std::string NAME;
 namespace intpr = boost::interprocess;

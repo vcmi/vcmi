@@ -3,7 +3,7 @@
 #include <typeinfo>
 
 #include "SDL.h"
-#include "UIFramework/CIntObjectClasses.h"
+#include "gui/CIntObjectClasses.h"
 #include "GUIClasses.h"
 #include "AdventureMapClasses.h"
 

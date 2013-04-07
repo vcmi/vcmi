@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../UIFramework/CIntObject.h"
+#include "../gui/CIntObject.h"
 
 struct SDL_Surface;
 class CDefHandler;

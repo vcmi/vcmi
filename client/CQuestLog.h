@@ -1,4 +1,4 @@
-#include "UIFramework/CIntObject.h"
+#include "gui/CIntObject.h"
 #include "AdventureMapClasses.h"
 #include "CAdvmapInterface.h"
 #include "GUIClasses.h"

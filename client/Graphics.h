@@ -1,9 +1,9 @@
 #pragma once
 
 
-#include "UIFramework/Fonts.h"
+#include "gui/Fonts.h"
 #include "../lib/GameConstants.h"
-#include "UIFramework/Geometries.h"
+#include "gui/Geometries.h"
 
 /*
  * Graphics.h, part of VCMI engine

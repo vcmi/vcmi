@@ -4,7 +4,7 @@
 #include "../lib/CondSh.h"
 #include "FunctionList.h"
 #include "../lib/CGameInterface.h"
-#include "UIFramework/CIntObject.h"
+#include "gui/CIntObject.h"
 #include "../lib/CGameState.h"
 
 #ifdef __GNUC__

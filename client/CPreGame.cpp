@@ -6,9 +6,9 @@
 #include "../lib/filesystem/CCompressedStream.h"
 
 #include "../lib/CStopWatch.h"
-#include "UIFramework/SDL_Extensions.h"
+#include "gui/SDL_Extensions.h"
 #include "CGameInfo.h"
-#include "UIFramework/CCursorHandler.h"
+#include "gui/CCursorHandler.h"
 #include "CAnimation.h"
 #include "CDefHandler.h"
 #include "../lib/CDefObjInfoHandler.h"
@@ -39,8 +39,8 @@
 #include "../lib/CThreadHelper.h"
 #include "../lib/CConfigHandler.h"
 #include "../lib/GameConstants.h"
-#include "UIFramework/CGuiHandler.h"
-#include "UIFramework/CIntObjectClasses.h"
+#include "gui/CGuiHandler.h"
+#include "gui/CIntObjectClasses.h"
 #include "../lib/mapping/CMapService.h"
 
 /*
