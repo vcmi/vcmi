@@ -84,7 +84,7 @@ void CArmyTooltip::init(const InfoAboutArmy &army)
 	{
 		if(slot.first.getNum() >= GameConstants::ARMY_SIZE)
 		{
-			tlog3 << "Warning: " << army.name << " has stack in slot " << slot.first << std::endl;
+            logGlobal->warnStream() << "Warning: " << army.name << " has stack in slot " << slot.first;
 			continue;
 		}
 
@@ -236,8 +236,8 @@ void CGarrisonSlot::hover (bool on)
 				}
 				else
 				{
-					tlog2 << "Warning - shouldn't be - highlighted void slot "<<owner->getSelection()<<std::endl;
-					tlog2 << "Highlighted set to NULL"<<std::endl;
+                    logGlobal->warnStream() << "Warning - shouldn't be - highlighted void slot "<<owner->getSelection();
+                    logGlobal->warnStream() << "Highlighted set to NULL";
 					owner->selectSlot(nullptr);
 				}
 			}
@@ -3359,7 +3359,7 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 	int artID = art->artType->id;
 	if(artID != 1 && artID < 7) //special art
 	{
-		tlog2 << "Cannot put special artifact on altar!\n";
+        logGlobal->warnStream() << "Cannot put special artifact on altar!";
 		return false;
 	}
 
@@ -3368,7 +3368,7 @@ bool CAltarWindow::putOnAltar(CTradeableItem* altarSlot, const CArtifactInstance
 		int slotIndex = firstFreeSlot();
 		if(slotIndex < 0)
 		{
-			tlog2 << "No free slots on altar!\n";
+            logGlobal->warnStream() << "No free slots on altar!";
 			return false;
 		}
 		altarSlot = items[0][slotIndex];
@@ -4254,7 +4254,7 @@ void CArtPlace::clickRight(tribool down, bool previousState)
 
 					if(assemblyPossibilities.size() > 2)
 					{
-						tlog3 << "More than one possibility of assembling... taking only first\n";
+                        logGlobal->warnStream() << "More than one possibility of assembling... taking only first";
 						break;
 					}
 					return;
@@ -4941,7 +4941,6 @@ void CArtifactsOfHero::artifactMoved(const ArtifactLocation &src, const Artifact
 		//when moving one artifact onto another it leads to two art movements: dst->backapck; src->dst
 		// however after first movement we pick the art from backpack and the second movement coming when
 		// we have a different artifact may look surprising... but it's valid.
-		//tlog1 << "Unexpected artifact movement...\n";
 	}
 
 	updateParentWindow();

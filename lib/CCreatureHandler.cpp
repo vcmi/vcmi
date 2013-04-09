@@ -167,7 +167,7 @@ static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 			cre->addBonus(-1, Bonus::LUCK);
 			cre->getBonusList().back()->effectRange = Bonus::ONLY_ENEMY_ARMY;
 		} else
-			tlog1 << "Error: invalid ability type " << type << " in creatures config" << std::endl;
+            logGlobal->errorStream() << "Error: invalid ability type " << type << " in creatures config";
 
 		return;
 	}
@@ -192,7 +192,7 @@ static void RemoveAbility(CCreature *cre, const JsonNode &ability)
 		if (type == "DOUBLE_WIDE")
 			cre->doubleWide = false;
 		else
-			tlog1 << "Error: invalid ability type " << type << " in creatures config" << std::endl;
+            logGlobal->errorStream() << "Error: invalid ability type " << type << " in creatures config";
 
 		return;
 	}
@@ -251,7 +251,7 @@ void CCreatureHandler::loadBonuses(CCreature & ncre, std::string bonuses)
 
 void CCreatureHandler::load()
 {
-	tlog5 << "\t\tReading ZCRTRAIT.TXT" << std::endl;
+    logGlobal->traceStream() << "\t\tReading ZCRTRAIT.TXT";
 
 	////////////reading ZCRTRAIT.TXT ///////////////////
 	CLegacyConfigParser parser("DATA/ZCRTRAIT.TXT");
@@ -304,7 +304,7 @@ void CCreatureHandler::load()
 	while (parser.endLine());
 
 	// loading creatures properties
-	tlog5 << "\t\tReading creatures json configs" << std::endl;
+    logGlobal->traceStream() << "\t\tReading creatures json configs";
 
 	const JsonNode gameConf(ResourceID("config/gameConfig.json"));
 	const JsonNode config(JsonUtils::assembleFromFiles(gameConf["creatures"].convertTo<std::vector<std::string> >()));
@@ -430,7 +430,7 @@ void CCreatureHandler::load()
 
 	}//end of Stack Experience
 
-	tlog5 << "\t\tReading config/commanders.json" << std::endl;
+    logGlobal->traceStream() << "\t\tReading config/commanders.json";
 	const JsonNode config3(ResourceID("config/commanders.json"));
 
 	BOOST_FOREACH (auto bonus, config3["bonusPerLevel"].Vector())
@@ -508,7 +508,7 @@ void CCreatureHandler::load(std::string creatureID, const JsonNode & node)
 	creature->idNumber = CreatureID(creatures.size());
 
 	creatures.push_back(creature);
-	tlog5 << "Added creature: " << creatureID << "\n";
+    logGlobal->traceStream() << "Added creature: " << creatureID;
 	registerCreature(creature->nameRef, creature->idNumber);
 }
 
@@ -778,7 +778,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 			case 'U':
 				b.type = Bonus::UNDEAD; break;
 			default:
-				tlog5 << "Not parsed bonus " << buf << mod << "\n";
+                logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
 				return;
 				break;
 		}
@@ -880,7 +880,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 				b.type = Bonus::MIND_IMMUNITY;
 				break;
 			default:
-				tlog5 << "Not parsed bonus " << buf << mod << "\n";
+                logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
 				return;
 		}
 		break;
@@ -921,7 +921,7 @@ void CCreatureHandler::loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigPars
 		b.valType = Bonus::INDEPENDENT_MAX;
 		break;
 	default:
-		tlog5 << "Not parsed bonus " << buf << mod << "\n";
+        logGlobal->traceStream() << "Not parsed bonus " << buf << mod;
 		return;
 		break;
 	}
@@ -1011,7 +1011,7 @@ CreatureID CCreatureHandler::pickRandomMonster(const boost::function<int()> &ran
 
 		if(!allowed.size())
 		{
-			tlog2 << "Cannot pick a random creature of tier " << tier << "!\n";
+            logGlobal->warnStream() << "Cannot pick a random creature of tier " << tier << "!";
 			return CreatureID::NONE;
 		}
 

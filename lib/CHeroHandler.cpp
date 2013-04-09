@@ -62,7 +62,7 @@ std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
 			toBlock += BattleHex::LEFT;
 
 		if(!toBlock.isValid())
-			tlog1 << "Misplaced obstacle!\n";
+            logGlobal->errorStream() << "Misplaced obstacle!";
 		else
 			ret.push_back(toBlock);
 	}
@@ -132,7 +132,7 @@ void CHeroClassHandler::load()
 	for (size_t i=0; i < heroClasses.size(); i++)
 	{
 		if (heroClasses[i] == nullptr)
-			tlog0 << "Warning: class with id " << i << " is missing!\n";
+            logGlobal->warnStream() << "Warning: class with id " << i << " is missing!";
 	}
 }
 
@@ -143,7 +143,7 @@ void CHeroClassHandler::load(std::string objectID, const JsonNode & input)
 	heroClass->id = heroClasses.size();
 
 	heroClasses.push_back(heroClass);
-	tlog5 << "Added hero class: " << objectID << "\n";
+    logGlobal->traceStream() << "Added hero class: " << objectID;
 	VLC->modh->identifiers.registerObject("heroClass." + heroClass->identifier, heroClass->id);
 }
 
@@ -214,7 +214,7 @@ void CHeroHandler::load(std::string objectID, const JsonNode & input)
 	hero->ID = heroes.size();
 
 	heroes.push_back(hero);
-	tlog5 << "Added hero: " << objectID << "\n";
+    logGlobal->traceStream() << "Added hero: " << objectID;
 	VLC->modh->identifiers.registerObject("hero." + objectID, hero->ID);
 }
 
@@ -467,7 +467,7 @@ void CHeroHandler::loadHeroes()
 	for (size_t i=0; i < heroes.size(); i++)
 	{
 		if (heroes[i] == nullptr)
-			tlog0 << "Warning: hero with id " << i << " is missing!\n";
+            logGlobal->warnStream() << "Warning: hero with id " << i << " is missing!";
 	}
 }
 
@@ -514,7 +514,7 @@ ui64 CHeroHandler::reqExp (ui32 level) const
 	}
 	else
 	{
-		tlog3 << "A hero has reached unsupported amount of experience\n";
+        logGlobal->warnStream() << "A hero has reached unsupported amount of experience";
 		return expPerLevel[expPerLevel.size()-1];
 	}
 }

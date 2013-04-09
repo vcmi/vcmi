@@ -25,7 +25,7 @@
 void CIdentifierStorage::checkIdentifier(std::string & ID)
 {
 	if (boost::algorithm::ends_with(ID, "."))
-		tlog3 << "BIG WARNING: identifier " << ID << " seems to be broken!\n";
+        logGlobal->warnStream() << "BIG WARNING: identifier " << ID << " seems to be broken!";
 	else
 	{
 		size_t pos = 0;
@@ -33,7 +33,7 @@ void CIdentifierStorage::checkIdentifier(std::string & ID)
 		{
 			if (std::tolower(ID[pos]) != ID[pos] ) //Not in camelCase
 			{
-				tlog3 << "Warning: identifier " << ID << " is not in camelCase!\n";
+                logGlobal->warnStream() << "Warning: identifier " << ID << " is not in camelCase!";
 				ID[pos] = std::tolower(ID[pos]);// Try to fix the ID
 			}
 			pos = ID.find('.', pos);
@@ -53,7 +53,7 @@ void CIdentifierStorage::requestIdentifier(std::string name, const boost::functi
 	else
 	{
 		if(boost::algorithm::starts_with(name, "primSkill."))
-			tlog3 << "incorrect primSkill name requested\n";
+            logGlobal->warnStream() << "incorrect primSkill name requested";
 
 		missingObjects[name].push_back(callback); // queue callback
 	}
@@ -88,13 +88,13 @@ void CIdentifierStorage::finalize() const
 	{
 		BOOST_FOREACH(auto object, missingObjects)
 		{
-			tlog1 << "Error: object " << object.first << " was not found!\n";
+            logGlobal->errorStream() << "Error: object " << object.first << " was not found!";
 		}
 		BOOST_FOREACH(auto object, registeredObjects)
 		{
-			tlog5 << object.first << " -> " << object.second << "\n";
+            logGlobal->traceStream() << object.first << " -> " << object.second;
 		}
-		tlog1 << "All known identifiers were dumped into log file\n";
+        logGlobal->errorStream() << "All known identifiers were dumped into log file";
 	}
 	assert(missingObjects.empty());
 }
@@ -139,8 +139,8 @@ bool CModHandler::hasCircularDependency(TModID modID, std::set <TModID> currentL
 	// Mod already present? We found a loop
 	if (vstd::contains(currentList, modID))
 	{
-		tlog0 << "Error: Circular dependency detected! Printing dependency list:\n";
-		tlog0 << "\t" << mod.name << " -> \n";
+        logGlobal->errorStream() << "Error: Circular dependency detected! Printing dependency list:";
+        logGlobal->errorStream() << "\t" << mod.name << " -> ";
 		return true;
 	}
 
@@ -151,7 +151,7 @@ bool CModHandler::hasCircularDependency(TModID modID, std::set <TModID> currentL
 	{
 		if (hasCircularDependency(dependency, currentList))
 		{
-			tlog0 << "\t" << mod.name << " ->\n"; // conflict detected, print dependency list
+            logGlobal->errorStream() << "\t" << mod.name << " ->\n"; // conflict detected, print dependency list
 			return true;
 		}
 	}
@@ -168,7 +168,7 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 		{
 			if (!vstd::contains(input, dep))
 			{
-				tlog1 << "Error: Mod " << mod.name << " requires missing " << dep << "!\n";
+                logGlobal->errorStream() << "Error: Mod " << mod.name << " requires missing " << dep << "!";
 				return false;
 			}
 		}
@@ -177,7 +177,7 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 		{
 			if (vstd::contains(input, conflicting))
 			{
-				tlog1 << "Error: Mod " << mod.name << " conflicts with " << allMods.at(conflicting).name << "!\n";
+                logGlobal->errorStream() << "Error: Mod " << mod.name << " conflicts with " << allMods.at(conflicting).name << "!";
 				return false;
 			}
 		}
@@ -274,12 +274,12 @@ void CModHandler::initialize(std::vector<std::string> availableMods)
 			detectedMods.push_back(name);
 		}
 		else
-			tlog3 << "\t\t Directory " << name << " does not contains VCMI mod\n";
+            logGlobal->warnStream() << "\t\t Directory " << name << " does not contains VCMI mod";
 	}
 
 	if (!checkDependencies(detectedMods))
 	{
-		tlog1 << "Critical error: failed to load mods! Exiting...\n";
+        logGlobal->errorStream() << "Critical error: failed to load mods! Exiting...";
 		exit(1);
 	}
 
@@ -316,8 +316,7 @@ void CModHandler::loadActiveMods()
 {
 	BOOST_FOREACH(const TModID & modName, activeMods)
 	{
-		tlog0 << "\t\tLoading mod ";
-		tlog2 << allMods[modName].name << "\n";
+        logGlobal->infoStream() << "\t\tLoading mod " << allMods[modName].name;
 
 		std::string modFileName = "mods/" + modName + "/mod.json";
 

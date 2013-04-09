@@ -257,7 +257,7 @@ static void processDef (const CGDefInfo* def)
 		}
 		else
 		{
-			tlog2 << "No def name for " << def->id << "  " << def->subid << std::endl;
+            logGlobal->warnStream() << "No def name for " << def->id << "  " << def->subid;
 			return;
 		}
 		ourDef = graphics->getDef(def);
@@ -380,14 +380,14 @@ void CMapHandler::init()
 	}
 
     std::for_each(map->customDefs.begin(),map->customDefs.end(),processDef); //load h3m defs
-	tlog0<<"\tUnpacking and handling defs: "<<th.getDiff()<<std::endl;
+    logGlobal->infoStream()<<"\tUnpacking and handling defs: "<<th.getDiff();
 
 	prepareFOWDefs();
 	roadsRiverTerrainInit();	//road's and river's DefHandlers; and simple values initialization
 	borderAndTerrainBitmapInit();
-	tlog0<<"\tPreparing FoW, roads, rivers,borders: "<<th.getDiff()<<std::endl;
+    logGlobal->infoStream()<<"\tPreparing FoW, roads, rivers,borders: "<<th.getDiff();
 	initObjectRects();
-	tlog0<<"\tMaking object rects: "<<th.getDiff()<<std::endl;
+    logGlobal->infoStream()<<"\tMaking object rects: "<<th.getDiff();
 
 }
 
@@ -559,7 +559,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 					{
 						if(themp->tempOwner >= PlayerColor::PLAYER_LIMIT) //Neutral hero?
 						{
-							tlog1 << "A neutral hero (" << themp->name << ") at " << themp->pos << ". Should not happen!\n";
+                            logGlobal->errorStream() << "A neutral hero (" << themp->name << ") at " << themp->pos << ". Should not happen!";
 							continue;
 						}
 
@@ -581,7 +581,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 							case 0: flg = &Graphics::flags1; break;
 							case 1: flg = &Graphics::flags2; break;
 							case 2: flg = &Graphics::flags3; break;
-							default: tlog1 << "Not supported boat subtype: " << themp->boat->subID << std::endl;
+                            default: logGlobal->errorStream() << "Not supported boat subtype: " << themp->boat->subID;
 							}
 						}
 						else

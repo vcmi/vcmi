@@ -777,7 +777,7 @@ ui8 BattleInfo::whatSide(PlayerColor player) const
 		if(sides[i] == player)
 			return i;
 
-	tlog1 << "BattleInfo::whatSide: Player " << player << " is not in battle!\n";
+    logGlobal->warnStream() << "BattleInfo::whatSide: Player " << player << " is not in battle!";
 	return -1;
 }
 

@@ -44,12 +44,12 @@ bool CCreatureSet::setCreature(SlotID slot, CreatureID type, TQuantity quantity)
 {
 	if(!slot.validSlot())
 	{
-		tlog1 << "Cannot set slot " << slot << std::endl;
+        logGlobal->errorStream() << "Cannot set slot " << slot;
 		return false;
 	}
 	if(!quantity)
 	{
-		tlog2 << "Using set creature to delete stack?\n";
+        logGlobal->warnStream() << "Using set creature to delete stack?";
 		eraseStack(slot);
 		return true;
 	}
@@ -170,7 +170,7 @@ void CCreatureSet::addToSlot(SlotID slot, CreatureID cre, TQuantity count, bool 
 	}
 	else
 	{
-		tlog1 << "Failed adding to slot!\n";
+        logGlobal->errorStream() << "Failed adding to slot!";
 	}
 }
 
@@ -188,7 +188,7 @@ void CCreatureSet::addToSlot(SlotID slot, CStackInstance *stack, bool allowMergi
 	}
 	else
 	{
-		tlog1 << "Cannot add to slot " << slot << " stack " << *stack << std::endl;
+        logGlobal->errorStream() << "Cannot add to slot " << slot << " stack " << *stack;
 	}
 }
 

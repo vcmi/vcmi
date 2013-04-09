@@ -229,7 +229,7 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const ui8 * buff
 						break;
 					}
 				default:
-					tlog1<<"Corrupted h3c file"<<std::endl;
+                    logGlobal->warnStream() << "Corrupted h3c file";
 					break;
 				}
 				ret.bonusesToChoose.push_back(bonus);
@@ -266,8 +266,8 @@ CScenarioTravel CCampaignHandler::readScenarioTravelFromMemory( const ui8 * buff
 		}
 	default:
 		{
-			tlog1<<"Corrupted h3c file"<<std::endl;
-			break;
+            logGlobal->warnStream() << "Corrupted h3c file";
+            break;
 		}
 	}
 

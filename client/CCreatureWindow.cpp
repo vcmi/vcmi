@@ -652,7 +652,7 @@ void CCreatureWindow::passArtifactToHero()
 		LOCPLINT->cb->swapArtifacts (ArtifactLocation (stack, displayedArtifact), ArtifactLocation(h, creatureArtifact->firstBackpackSlot(h)));
 	}
 	else
-		tlog2 << "Pass artifact to hero should be disabled, no hero or no artifact!\n";
+        logGlobal->warnStream() << "Pass artifact to hero should be disabled, no hero or no artifact!";
 
 	//redraw is handled via CArtifactHolder interface
 }

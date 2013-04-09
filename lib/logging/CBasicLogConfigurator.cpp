@@ -3,33 +3,41 @@
 
 #include "../CConfigHandler.h"
 
-CBasicLogConfigurator::CBasicLogConfigurator(const std::string & filePath, CConsoleHandler * console)
+CBasicLogConfigurator::CBasicLogConfigurator(const std::string & filePath, CConsoleHandler * console) : filePath(filePath), console(console)
 {
-    const JsonNode & logging = settings["logging"];
+
+}
+
+void CBasicLogConfigurator::configureDefault(bool appendToLogFile /*= true*/)
+{
+    CGLogger::getGlobalLogger()->addTarget(make_unique<CLogConsoleTarget>(console));
+    CGLogger::getGlobalLogger()->addTarget(make_unique<CLogFileTarget>(filePath, appendToLogFile));
+}
+
+void CBasicLogConfigurator::configure(bool appendToLogFile /*= true*/)
+{
+    const JsonNode & loggingNode = settings["logging"];
+    if(loggingNode.isNull()) throw std::runtime_error("Settings haven't been loaded.");
 
     // Configure loggers
-    const JsonNode & loggers = logging["loggers"];
+    const JsonNode & loggers = loggingNode["loggers"];
     if(!loggers.isNull())
     {
-        BOOST_FOREACH(auto & loggerPair, loggers.Struct())
+        BOOST_FOREACH(auto & loggerNode, loggers.Vector())
         {
             // Get logger
-            std::string name = loggerPair.first;
-            CGLogger * logger = CGLogger::getLogger(name);
+            std::string name = loggerNode["domain"].String();
+            CGLogger * logger = CGLogger::getLogger(CLoggerDomain(name));
 
             // Set log level
-            const JsonNode & loggerNode = loggerPair.second;
-            const JsonNode & levelNode = loggerNode["level"];
-            if(!levelNode.isNull())
-            {
-                logger->setLevel(getLogLevel(levelNode.String()));
-            }
+            logger->setLevel(getLogLevel(loggerNode["level"].String()));
         }
     }
+    CGLogger::getGlobalLogger()->clearTargets();
 
     // Add console target
-    CLogConsoleTarget * consoleTarget = new CLogConsoleTarget(console);
-    const JsonNode & consoleNode = logging["console"];
+    auto consoleTarget = make_unique<CLogConsoleTarget>(console);
+    const JsonNode & consoleNode = loggingNode["console"];
     if(!consoleNode.isNull())
     {
         const JsonNode & consoleFormatNode = consoleNode["format"];
@@ -48,25 +56,22 @@ CBasicLogConfigurator::CBasicLogConfigurator(const std::string & filePath, CCons
                 std::string domain = mappingNode["domain"].String();
                 std::string level = mappingNode["level"].String();
                 std::string color = mappingNode["color"].String();
-                colorMapping.setColorFor(domain, getLogLevel(level), getConsoleColor(color));
+                colorMapping.setColorFor(CLoggerDomain(domain), getLogLevel(level), getConsoleColor(color));
             }
         }
         consoleTarget->setColorMapping(colorMapping);
     }
-    CGLogger::getGlobalLogger()->addTarget(consoleTarget);
+    CGLogger::getGlobalLogger()->addTarget(std::move(consoleTarget));
 
     // Add file target
-    CLogFileTarget * fileTarget = new CLogFileTarget(filePath);
-    const JsonNode & fileNode = logging["file"];
+    auto fileTarget = make_unique<CLogFileTarget>(filePath, appendToLogFile);
+    const JsonNode & fileNode = loggingNode["file"];
     if(!fileNode.isNull())
     {
         const JsonNode & fileFormatNode = fileNode["format"];
         if(!fileFormatNode.isNull()) fileTarget->setFormatter(CLogFormatter(fileFormatNode.String()));
     }
-
-    // Add targets to the root logger by default
-    CGLogger::getGlobalLogger()->addTarget(consoleTarget);
-    CGLogger::getGlobalLogger()->addTarget(fileTarget);
+    CGLogger::getGlobalLogger()->addTarget(std::move(fileTarget));
 }
 
 ELogLevel::ELogLevel CBasicLogConfigurator::getLogLevel(const std::string & level) const

@@ -13,6 +13,8 @@
 *
 */
 
+boost::mutex CConsoleHandler::smx;
+
 #ifndef _WIN32
 	typedef std::string TColor;
 	#define CONSOLE_GREEN "\x1b[1;32m"
@@ -51,16 +53,16 @@ void printWinError()
 	int error = GetLastError();
 	if(!error)
 	{
-		tlog0 << "No Win error information set.\n";
+        logGlobal->errorStream() << "No Win error information set.";
 		return;
 	}
-	tlog1 << "Error " << error << " encountered:\n";
+    logGlobal->errorStream() << "Error " << error << " encountered:";
 
 	//Get error description
 	char* pTemp = NULL;
 	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
 		NULL, error,  MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPSTR)&pTemp, 1, NULL);
-	tlog1 << pTemp << std::endl;
+    logGlobal->errorStream() << pTemp;
 	LocalFree( pTemp );
 }
 
@@ -101,19 +103,19 @@ const char* exceptionName(DWORD exc)
 
 LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 {
-	tlog1 << "Disaster happened.\n";
+    logGlobal->errorStream() << "Disaster happened.";
 
 	PEXCEPTION_RECORD einfo = exception->ExceptionRecord;
-	tlog1 << "Reason: 0x" << std::hex << einfo->ExceptionCode << " - " << exceptionName(einfo->ExceptionCode);
-	tlog1 << " at " << std::setfill('0') << std::setw(4) << exception->ContextRecord->SegCs << ":" << (void*)einfo->ExceptionAddress << std::endl;;
+    logGlobal->errorStream() << "Reason: 0x" << std::hex << einfo->ExceptionCode << " - " << exceptionName(einfo->ExceptionCode)
+        << " at " << std::setfill('0') << std::setw(4) << exception->ContextRecord->SegCs << ":" << (void*)einfo->ExceptionAddress;
 
 	if (einfo->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
 	{
-		tlog1 << "Attempt to " << (einfo->ExceptionInformation[0] == 1 ? "write to " : "read from ")
-			<< "0x" <<  std::setw(8) << (void*)einfo->ExceptionInformation[1] << std::endl;;
+        logGlobal->errorStream() << "Attempt to " << (einfo->ExceptionInformation[0] == 1 ? "write to " : "read from ")
+            << "0x" <<  std::setw(8) << (void*)einfo->ExceptionInformation[1];
 	}
 	const DWORD threadId = ::GetCurrentThreadId();
-	tlog1 << "Thread ID: " << threadId << " [" << std::dec << std::setw(0) << threadId << "]\n";
+    logGlobal->errorStream() << "Thread ID: " << threadId << " [" << std::dec << std::setw(0) << threadId << "]";
 
 #ifndef __MINGW32__
 	//exception info to be placed in the dump
@@ -132,7 +134,7 @@ LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
 
 	strcat(mname, "_crashinfo.dmp");
 	HANDLE dfile = CreateFileA(mname, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
-	tlog1 << "Crash info will be put in " << mname << std::endl;
+    logGlobal->errorStream() << "Crash info will be put in " << mname;
 	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, MiniDumpWithDataSegs, &meinfo, 0, 0);
 #endif
 	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
@@ -228,10 +230,10 @@ CConsoleHandler::CConsoleHandler() : thread(nullptr)
 }
 CConsoleHandler::~CConsoleHandler()
 {
-	tlog3 << "Killing console... ";
+    logGlobal->infoStream() << "Killing console...";
 	end();
 	delete cb;
-	tlog3 << "done!\n";
+    logGlobal->infoStream() << "Killing console... done!";
 }
 void CConsoleHandler::end()
 {

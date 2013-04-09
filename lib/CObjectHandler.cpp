@@ -200,24 +200,24 @@ static void readBankLevel(const JsonNode &level, BankConfig &bc)
 
 void CObjectHandler::load()
 {
-	tlog5 << "\t\tReading cregens \n";
+    logGlobal->traceStream() << "\t\tReading cregens ";
 
 	const JsonNode config(ResourceID("config/dwellings.json"));
 	BOOST_FOREACH(const JsonNode &dwelling, config["dwellings"].Vector())
 	{
 		cregens[dwelling["dwelling"].Float()] = CreatureID((si32)dwelling["creature"].Float());
 	}
-	tlog5 << "\t\tDone loading cregens!\n";
+    logGlobal->traceStream() << "\t\tDone loading cregens!";
 
-	tlog5 << "\t\tReading resources prices \n";
+    logGlobal->traceStream() << "\t\tReading resources prices ";
 	const JsonNode config2(ResourceID("config/resources.json"));
 	BOOST_FOREACH(const JsonNode &price, config2["resources_prices"].Vector())
 	{
 		resVals.push_back(price.Float());
 	}
-	tlog5 << "\t\tDone loading resource prices!\n";
+    logGlobal->traceStream() << "\t\tDone loading resource prices!";
 
-	tlog5 << "\t\tReading banks configs \n";
+    logGlobal->traceStream() << "\t\tReading banks configs";
 	const JsonNode config3(ResourceID("config/bankconfig.json"));
 	int bank_num = 0;
 	BOOST_FOREACH(const JsonNode &bank, config3["banks"].Vector())
@@ -237,7 +237,7 @@ void CObjectHandler::load()
 
 		bank_num ++;
 	}
-	tlog5 << "\t\tDone loading banks configs \n";
+    logGlobal->traceStream() << "\t\tDone loading banks configs";
 }
 
 int CObjectHandler::bankObjToIndex (const CGObjectInstance * obj)
@@ -255,7 +255,7 @@ int CObjectHandler::bankObjToIndex (const CGObjectInstance * obj)
 	case Obj::SHIPWRECK:
 		return 7;
 	default:
-		tlog2 << "Unrecognized Bank indetifier!\n";
+        logGlobal->warnStream() << "Unrecognized Bank indetifier!";
 		return 0;
 	}
 }
@@ -309,7 +309,7 @@ bool CGObjectInstance::visitableAt(int x, int y) const //returns true if object 
 {
 	if(defInfo==NULL)
 	{
-		tlog2 << "Warning: VisitableAt for obj "<< id.getNum() <<": NULL defInfo!\n";
+        logGlobal->warnStream() << "Warning: VisitableAt for obj "<< id.getNum() <<": NULL defInfo!";
 		return false;
 	}
 
@@ -471,7 +471,7 @@ int3 CGObjectInstance::getVisitableOffset() const
 			if((defInfo->visitMap[5-y] >> x) & 1)
 				return int3(x,y,0);
 
-	tlog2 << "Warning: getVisitableOffset called on non-visitable obj!\n";
+    logGlobal->warnStream() << "Warning: getVisitableOffset called on non-visitable obj!";
 	return int3(-1,-1,-1);
 }
 
@@ -546,7 +546,7 @@ static int lowestSpeed(const CGHeroInstance * chi)
 {
 	if(!chi->Slots().size())
 	{
-		tlog1 << "Error! Hero " << chi->id.getNum() << " ("<<chi->name<<") has no army!\n";
+        logGlobal->errorStream() << "Error! Hero " << chi->id.getNum() << " ("<<chi->name<<") has no army!";
 		return 20;
 	}
 	TSlots::const_iterator i = chi->Slots().begin();
@@ -580,7 +580,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 			ret = 50;
 			break;
 		default:
-			tlog1 << "Unknown road type: " << road << "... Something wrong!\n";
+            logGlobal->errorStream() << "Unknown road type: " << road << "... Something wrong!";
 			break;
 		}
 	}
@@ -668,7 +668,7 @@ void CGHeroInstance::setSecSkillLevel(SecondarySkill which, int val, bool abs)
 
 				if(secSkills[i].second > 3) //workaround to avoid crashes when same sec skill is given more than once
 				{
-					tlog1 << "Warning: Skill " << which << " increased over limit! Decreasing to Expert.\n";
+                    logGlobal->warnStream() << "Warning: Skill " << which << " increased over limit! Decreasing to Expert.";
 					secSkills[i].second = 3;
 				}
 				updateSkill(which, secSkills[i].second); //when we know final value
@@ -857,7 +857,7 @@ void CGHeroInstance::initArmy(IArmyDescriptor *dst /*= NULL*/)
 			if(!getArt(convSlot))
 				putArtifact(convSlot, CArtifactInstance::createNewArtifactInstance(aid));
 			else
-				tlog3 << "Hero " << name << " already has artifact at " << slot << ", omitting giving " << aid << std::endl;
+                logGlobal->warnStream() << "Hero " << name << " already has artifact at " << slot << ", omitting giving " << aid;
 		}
 		else
 			dst->setCreature(SlotID(stackNo-warMachinesGiven), stack.creature, count);
@@ -977,7 +977,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 							creLevel = 5; //treat ballista as 5-level
 						else
 						{
-							tlog2 << "Warning: unknown level of " << specCreature.namePl << std::endl;
+                            logGlobal->warnStream() << "Warning: unknown level of " << specCreature.namePl;
 							continue;
 						}
 					}
@@ -1125,7 +1125,7 @@ void CGHeroInstance::initObj() //TODO: use bonus system
 				hs->addNewBonus(bonus);
 				break;
 			default:
-				tlog2 << "Unexpected hero specialty " << type <<'\n';
+                logGlobal->warnStream() << "Unexpected hero specialty " << type;
 		}
 	}
 	specialty.push_back(hs); //will it work?
@@ -1183,7 +1183,7 @@ void CGHeroInstance::Updatespecialty() //TODO: calculate special value of bonuse
 						}
 						else //no creature found, can't calculate value
 						{
-							tlog2 << "Primary skill specialty growth supported only with creature type limiters\n";
+                            logGlobal->warnStream() << "Primary skill specialty growth supported only with creature type limiters";
 							break;
 						}
 
@@ -2549,7 +2549,7 @@ void CGTownInstance::addHeroToStructureVisitors( const CGHeroInstance *h, si32 s
 	else
 	{
 		//should never ever happen
-		tlog1 << "Cannot add hero " << h->name << " to visitors of structure #" << structureInstanceID << std::endl;
+        logGlobal->errorStream() << "Cannot add hero " << h->name << " to visitors of structure #" << structureInstanceID;
 		assert(0);
 	}
 }
@@ -3155,7 +3155,7 @@ void CGCreature::initObj()
 
 		if(!amount) //armies with 0 creatures are illegal
 		{
-			tlog2 << "Problem: stack " << nodeName() << " cannot have 0 creatures. Check properties of " << c.nodeName() << std::endl;
+            logGlobal->warnStream() << "Problem: stack " << nodeName() << " cannot have 0 creatures. Check properties of " << c.nodeName();
 			amount = 1;
 		}
 	}
@@ -3355,7 +3355,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 				cb->moveStack(StackLocation(this, sourceSlot), StackLocation(this, destSlot), stackSize);
 			else
 			{
-				tlog2 <<"Warning! Not enough empty slots to split stack!";
+                logGlobal->warnStream() <<"Warning! Not enough empty slots to split stack!";
 				break;
 			}
 		}
@@ -3693,7 +3693,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 		if(vstd::contains(objs,Obj::MONOLITH2) && vstd::contains(objs[Obj::MONOLITH2],subID) && objs[Obj::MONOLITH2][subID].size())
 			destinationid = objs[Obj::MONOLITH2][subID][rand()%objs[Obj::MONOLITH2][subID].size()];
 		else
-			tlog2 << "Cannot find corresponding exit monolith for "<< id << std::endl;
+            logGlobal->warnStream() << "Cannot find corresponding exit monolith for "<< id;
 		break;
 	case Obj::MONOLITH3://two way monolith - pick any other one
 	case Obj::WHIRLPOOL: //Whirlpool
@@ -3730,7 +3730,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 			}
 		}
 		else
-			tlog2 << "Cannot find corresponding exit monolith for "<< id << std::endl;
+            logGlobal->warnStream() << "Cannot find corresponding exit monolith for "<< id;
 		break;
 	case Obj::SUBTERRANEAN_GATE: //find nearest subterranean gate on the other level
 		{
@@ -3744,7 +3744,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	if(destinationid == ObjectInstanceID())
 	{
-		tlog2 << "Cannot find exit... (obj at " << pos << ") :( \n";
+        logGlobal->warnStream() << "Cannot find exit... (obj at " << pos << ") :( ";
 		return;
 	}
 	if (ID == Obj::WHIRLPOOL)
@@ -4087,7 +4087,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			if (subID) //not OH3 treasure chest
 			{
-				tlog2 << "Not supported WoG treasure chest!\n";
+                logGlobal->warnStream() << "Not supported WoG treasure chest!";
 				return;
 			}
 
@@ -4531,7 +4531,7 @@ const std::string & CGSeerHut::getHoverText() const
 		hoverName = VLC->generaltexth->names[ID];
 		break;
 	default:
-		tlog5 << "unrecognized quest object\n";
+        logGlobal->debugStream() << "unrecognized quest object";
 	}
 	if (quest->progress & quest->missionType) //rollover when the quest is active
 	{
@@ -5479,7 +5479,7 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(spell == SpellID::NONE)
 	{
-		tlog1 << "Not initialized shrine visited!\n";
+        logGlobal->errorStream() << "Not initialized shrine visited!";
 		return;
 	}
 
@@ -5527,7 +5527,7 @@ void CGShrine::initObj()
 
 		if(!possibilities.size())
 		{
-			tlog1 << "Error: cannot init shrine, no allowed spells!\n";
+            logGlobal->errorStream() << "Error: cannot init shrine, no allowed spells!";
 			return;
 		}
 
@@ -5621,7 +5621,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 		}
 		break;
 	default:
-		tlog1 << "Error: wrong bonustype (" << (int)type << ") for Scholar!\n";
+        logGlobal->errorStream() << "Error: wrong bonustype (" << (int)type << ") for Scholar!";
 		return;
 	}
 
@@ -5721,7 +5721,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 		}
 		break;
 	default:
-		tlog1 << "Error: Unknown object (" << ID <<") treated as CGOnceVisitable!\n";
+        logGlobal->errorStream() << "Error: Unknown object (" << ID <<") treated as CGOnceVisitable!";
 		return;
 	}
 
@@ -6002,7 +6002,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 					}
 						break;
 					default:
-						tlog2 << "Error: Unexpected army data: " << bc->guards.size() <<" items found";
+                        logGlobal->warnStream() << "Error: Unexpected army data: " << bc->guards.size() <<" items found";
 						return;
 				}
 			}
@@ -6244,7 +6244,7 @@ void CGPyramid::initObj()
 	}
 	else
 	{
-		tlog1 <<"No spells available for Pyramid! Object set to empty.\n";
+        logGlobal->errorStream() <<"No spells available for Pyramid! Object set to empty.";
 	}
 	setPropertyDer (ObjProperty::BANK_INIT_ARMY,ran()); //set guards at game start
 }
@@ -6589,7 +6589,7 @@ void IBoatGenerator::getProblemText(MetaString &out, const CGHeroInstance *visit
 			out.addTxt(MetaString::ADVOB_TXT, 189);
 		break;
 	case NO_WATER:
-		tlog1 << "Shipyard without water!!! " << o->pos << "\t" << o->id << std::endl;
+        logGlobal->errorStream() << "Shipyard without water!!! " << o->pos << "\t" << o->id;
 		return;
 	}
 }
@@ -6621,7 +6621,6 @@ IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
 	}
 	else
 	{
-		//tlog1 << "Cannot cast to IShipyard object with ID " << obj->ID << std::endl;
 		return NULL;
 	}
 }
@@ -6685,7 +6684,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 					text = 27;
 					break;
 				default:
-					tlog2 << "Unrecognized subtype of cartographer" << std::endl;
+                    logGlobal->warnStream() << "Unrecognized subtype of cartographer";
 			}
 			assert(text);
 			BlockingDialog bd (true, false);
@@ -6777,7 +6776,7 @@ void CGObelisk::setPropertyDer( ui8 what, ui32 val )
 
 		if(visited[TeamID(val)] > obeliskCount)
 		{
-			tlog0 << "Error: Visited " << visited[TeamID(val)] << "\t\t" << obeliskCount << std::endl;
+            logGlobal->errorStream() << "Error: Visited " << visited[TeamID(val)] << "\t\t" << obeliskCount;
 			assert(0);
 		}
 
@@ -7099,7 +7098,7 @@ const IMarket * IMarket::castFrom(const CGObjectInstance *obj, bool verbose /*= 
 		return static_cast<const CGUniversity*>(obj);
 	default:
 		if(verbose)
-			tlog1 << "Cannot cast to IMarket object with ID " << obj->ID << std::endl;
+            logGlobal->errorStream() << "Cannot cast to IMarket object with ID " << obj->ID;
 		return NULL;
 	}
 }
@@ -7221,7 +7220,7 @@ void CGUniversity::initObj()
 			toChoose.push_back(i);
 	if (toChoose.size() < 4)
 	{
-		tlog0<<"Warning: less then 4 available skills was found by University initializer!\n";
+        logGlobal->warnStream()<<"Warning: less then 4 available skills was found by University initializer!";
 		return;
 	}
 

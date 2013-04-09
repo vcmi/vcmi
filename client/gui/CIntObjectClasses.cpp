@@ -1626,7 +1626,7 @@ void CTextInput::numberFilter(std::string & text, const std::string & oldText, i
 	catch(boost::bad_lexical_cast &)
 	{
 		//Should never happen. Unless I missed some cases
-		tlog0 << "Warning: failed to convert "<< text << " to number!\n";
+        logGlobal->warnStream() << "Warning: failed to convert "<< text << " to number!";
 		text = oldText;
 	}
 }

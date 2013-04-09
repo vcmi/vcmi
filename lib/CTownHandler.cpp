@@ -543,7 +543,7 @@ void CTownHandler::load(std::string townID, const JsonNode &source)
 	if (!source["puzzleMap"].isNull())
 		loadPuzzle(faction, source["puzzleMap"]);
 
-	tlog5 << "Added faction: " << townID << "\n";
+    logGlobal->traceStream() << "Added faction: " << townID;
 	VLC->modh->identifiers.registerObject(std::string("faction.") + townID, faction.factionID);
 }
 

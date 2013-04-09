@@ -214,7 +214,7 @@ void CArtHandler::load(bool onlyTxt)
 	for (size_t i=0; i < artifacts.size(); i++)
 	{
 		if (artifacts[i] == nullptr)
-			tlog0 << "Warning: artifact with id " << i << " is missing!\n";
+            logGlobal->warnStream() << "Warning: artifact with id " << i << " is missing!";
 	}
 }
 
@@ -224,7 +224,7 @@ void CArtHandler::load(std::string objectID, const JsonNode & node)
 	art->id = ArtifactID(artifacts.size());
 
 	artifacts.push_back(art);
-	tlog5 << "Added artifact: " << objectID << "\n";
+    logGlobal->traceStream() << "Added artifact: " << objectID;
 	VLC->modh->identifiers.registerObject ("artifact." + objectID, art->id);
 }
 
@@ -296,7 +296,7 @@ void CArtHandler::addSlot(CArtifact * art, const std::string & slotID)
 			art->possibleSlots[ArtBearer::HERO].push_back (slot);
 		}
 		else
-			tlog2 << "Warning! Artifact slot " << slotID << " not recognized!";
+            logGlobal->warnStream() << "Warning! Artifact slot " << slotID << " not recognized!";
 	}
 }
 
@@ -330,7 +330,7 @@ void CArtHandler::loadClass(CArtifact * art, const JsonNode & node)
 	}
 	else
 	{
-		tlog2 << "Warning! Artifact rarity " << node["class"].String() << " not recognized!";
+        logGlobal->warnStream() << "Warning! Artifact rarity " << node["class"].String() << " not recognized!";
 		art->aClass = CArtifact::ART_SPECIAL;
 	}
 }
@@ -360,7 +360,7 @@ void CArtHandler::loadType(CArtifact * art, const JsonNode & node)
 			}
 		}
 		else
-			tlog2 << "Warning! Artifact type " << b.String() << " not recognized!";
+            logGlobal->warnStream() << "Warning! Artifact type " << b.String() << " not recognized!";
 	}
 }
 
@@ -466,8 +466,6 @@ ArtifactID CArtHandler::getArtSync (ui32 rand, int flags, bool erasePicked)
 			out.resize (64);
 			std::fill_n (out.begin(), 64, artifacts[2]); //Give Grail - this can't be banned (hopefully)
 		}
-
-		//tlog0 << "Treasure count: " << treasures.size() << std::endl;
 	};
 
 	std::vector<ConstTransitivePtr<CArtifact> > out;
@@ -611,11 +609,11 @@ void CArtHandler::erasePickedArt(ArtifactID id)
 			artifactList->erase(itr);
 		}
 		else
-			tlog2 << "Problem: cannot erase artifact " << art->Name() << " from list, it was not present\n";
+            logGlobal->warnStream() << "Problem: cannot erase artifact " << art->Name() << " from list, it was not present";
 
 	}
 	else
-		tlog2 << "Problem: cannot find list for artifact " << art->Name() << ", strange class. (special?)\n";
+        logGlobal->warnStream() << "Problem: cannot find list for artifact " << art->Name() << ", strange class. (special?)";
 }
 
 boost::optional<std::vector<CArtifact*>&> CArtHandler::listFromClass( CArtifact::EartClass artifactClass )
@@ -725,8 +723,8 @@ bool CArtifactInstance::canBePutAt(const CArtifactSet *artSet, ArtifactPosition 
  	auto possibleSlots = artType->possibleSlots.find(artSet->bearerType());
  	if(possibleSlots == artType->possibleSlots.end())
  	{
-		tlog3 << "Warning: artifact " << artType->Name() << " doesn't have defined allowed slots for bearer of type "
-			<< artSet->bearerType() << std::endl;
+        logGlobal->warnStream() << "Warning: artifact " << artType->Name() << " doesn't have defined allowed slots for bearer of type "
+            << artSet->bearerType();
 		return false;
 	}
 
@@ -830,7 +828,7 @@ SpellID CArtifactInstance::getGivenSpellID() const
 	const Bonus * b = getBonusLocalFirst(Selector::type(Bonus::SPELL));
 	if(!b)
 	{
-		tlog3 << "Warning: " << nodeName() << " doesn't bear any spell!\n";
+        logGlobal->warnStream() << "Warning: " << nodeName() << " doesn't bear any spell!";
 		return SpellID::NONE;
 	}
 	return SpellID(b->subtype);
@@ -1116,7 +1114,7 @@ si32 CArtifactSet::getArtTypeId(ArtifactPosition pos) const
 	const CArtifactInstance * const a = getArt(pos);
 	if(!a)
 	{
-		tlog2 << (dynamic_cast<const CGHeroInstance*>(this))->name << " has no artifact at " << pos << " (getArtTypeId)\n";
+        logGlobal->warnStream() << (dynamic_cast<const CGHeroInstance*>(this))->name << " has no artifact at " << pos << " (getArtTypeId)";
 		return -1;
 	}
 	return a->artType->id;

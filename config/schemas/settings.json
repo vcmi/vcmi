@@ -143,9 +143,12 @@
 		"logging" : {
 			"type" : "object",
 			"default" : {},
+			"required" : [ "console", "file", "loggers" ],
 			"properties" : {
 				"console" : {
 					"type" : "object",
+					"default" : {},
+					"required" : [ "format", "threshold", "coloredOutputEnabled", "colorMapping" ],
 					"properties" : {
 						"format" : {
 							"type" : "string",
@@ -170,6 +173,7 @@
 							],
 							"items" : {
 								"type" : "object",
+								"default" : {},
 								"required" : [ "domain", "level", "color" ],
 								"properties" : {
 									"domain" : { "type" : "string" },
@@ -182,6 +186,8 @@
 				},
 				"file" : {
 					"type" : "object",
+					"default" : {},
+					"required" : [ "format" ],
 					"properties" : {
 						"format" : {
 							"type" : "string",
@@ -190,14 +196,14 @@
 					}
 				},
 				"loggers" : {
-					"type" : "object",
-					"additionalProperties" : {
-						"type":"object",
-						"required" : [ "level" ],
+					"type" : "array",
+					"default" : [ { "domain" : "global", "level" : "info" } ],
+					"items" : {
+						"type" : "object",
+						"required" : [ "level", "domain" ],
 						"properties" : {
-							"level" : {
-								"$ref" : "#/definitions/logLevelEnum"
-							}
+							"domain" : { "type" : "string" },
+							"level" : { "$ref" : "#/definitions/logLevelEnum" }
 						}
 
 					}

@@ -1125,7 +1125,7 @@ void CBattleInterface::setBattleCursor(const int myNumber)
 	// Generally should NEVER happen, but to avoid the possibility of having endless loop below... [#1016]
 	if(!vstd::contains_if(sectorCursor, [](int sc) { return sc != -1; }))
 	{
-		tlog1 << "Error: for hex " << myNumber << " cannot find a hex to attack from!\n";
+        logGlobal->errorStream() << "Error: for hex " << myNumber << " cannot find a hex to attack from!";
 		attackingHex = -1;
 		return;
 	}
@@ -1473,7 +1473,7 @@ void CBattleInterface::giveCommand(Battle::ActionType action, BattleHex tile, ui
 	}
 
 	if(stack && stack != activeStack)
-		tlog3 << "Warning: giving an order to a non-active stack?\n";
+        logGlobal->warnStream() << "Warning: giving an order to a non-active stack?";
 
 	BattleAction * ba = new BattleAction(); //is deleted in CPlayerInterface::activeStack()
 	ba->side = defendingHeroInstance ? (curInt->playerID == defendingHeroInstance->tempOwner) : false;
@@ -1497,7 +1497,7 @@ void CBattleInterface::giveCommand(Battle::ActionType action, BattleHex tile, ui
 
 	if(!tacticsMode)
 	{
-		tlog5 << "Setting command for " << (stack ? stack->nodeName() : "hero") << std::endl;
+        logGlobal->traceStream() << "Setting command for " << (stack ? stack->nodeName() : "hero");
 		myTurn = false;
 		activeStack = NULL;
 		givenCommand->setn(ba);
@@ -2627,7 +2627,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 	}
 	if(!stack)
 	{
-		tlog1<<"Something wrong with stackNumber in actionStarted. Stack number: "<<action->stackNumber<<std::endl;
+        logGlobal->errorStream()<<"Something wrong with stackNumber in actionStarted. Stack number: "<<action->stackNumber;
 		return;
 	}
 
@@ -3477,13 +3477,13 @@ void CBattleInterface::obstaclePlaced(const CObstacleInstance & oi)
 		sound = soundBase::fireWall;
 		break;
 	default:
-		tlog1 << "I don't know how to animate appearing obstacle of type " << (int)oi.obstacleType << std::endl;
+        logGlobal->errorStream() << "I don't know how to animate appearing obstacle of type " << (int)oi.obstacleType;
 		return;
 	}
 
 	if(graphics->battleACToDef[effectID].empty())
 	{
-		tlog1 << "Cannot find def for effect type " << effectID << std::endl;
+        logGlobal->errorStream() << "Cannot find def for effect type " << effectID;
 		return;
 	}
 

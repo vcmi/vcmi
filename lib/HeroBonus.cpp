@@ -69,7 +69,7 @@ const bmap<std::string, TPropagatorPtr> bonusPropagatorMap = boost::assign::map_
 	("PLAYER_PROPAGATOR", make_shared<CPropagatorNodeType>(CBonusSystemNode::PLAYER));
 
 
-#define BONUS_LOG_LINE(x) tlog5 << x << std::endl
+#define BONUS_LOG_LINE(x) logBonus->traceStream() << x
 
 int CBonusSystemNode::treeChanged = 1;
 const bool CBonusSystemNode::cachingEnabled = true;
@@ -705,7 +705,7 @@ CBonusSystemNode::~CBonusSystemNode()
 
 	if(children.size())
 	{
-		tlog2 << "Warning: an orphaned child!\n";
+        logBonus->warnStream() << "Warning: an orphaned child!";
 		while(children.size())
 			children.front()->detachFrom(this);
 	}
@@ -818,7 +818,7 @@ void CBonusSystemNode::unpropagateBonus(Bonus * b)
 		bonuses -= b;
 		while(vstd::contains(bonuses, b))
 		{
-			tlog1 << "Bonus was duplicated (" << b->Description() << ") at " << nodeName() << std::endl;
+            logBonus->errorStream() << "Bonus was duplicated (" << b->Description() << ") at " << nodeName();
 			bonuses -= b;
 		}
 		BONUS_LOG_LINE("#$#" << b->Description() << " #is no longer propagated to# " << nodeName());
@@ -1399,7 +1399,6 @@ IPropagator::~IPropagator()
 
 // CBonusSystemNode * IPropagator::getDestNode(CBonusSystemNode *source, CBonusSystemNode *redParent, CBonusSystemNode *redChild)
 // {
-// 	tlog1 << "IPropagator::getDestNode called!\n";
 // 	return source;
 // }
 
@@ -1483,8 +1482,8 @@ int CreatureAlignmentLimiter::limit(const BonusLimitationContext &context) const
 	case EAlignment::EVIL:
 		return !c->isEvil();
 	default:
-		tlog1 << "Warning: illegal alignment in limiter!\n";
-		return true;
+        logBonus->warnStream() << "Warning: illegal alignment in limiter!";
+        return true;
 	}
 }
 

@@ -46,7 +46,7 @@ struct CPack
 	ui16 getType() const{return type;}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		tlog1 << "CPack serialized... this should not happen!\n";
+        logNetwork->errorStream() << "CPack serialized... this should not happen!";
 	}
 	void applyGs(CGameState *gs)
 	{};

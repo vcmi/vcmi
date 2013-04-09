@@ -32,12 +32,12 @@ void checkForError(bool throwing = true)
 	if(!error)
 		return;
 
-	tlog1 << "Error " << error << " encountered!\n";
+    logGlobal->errorStream() << "Error " << error << " encountered!";
 	std::string msg;
 	char* pTemp = NULL;
 	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
 		NULL, error,  MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPSTR)&pTemp, 1, NULL );
-	tlog1 << "Error: " << pTemp << std::endl;
+    logGlobal->errorStream() << "Error: " << pTemp;
 	msg = pTemp;
 	LocalFree( pTemp );
 	pTemp = NULL;
@@ -63,7 +63,7 @@ void DLLHandler::Instantiate(const char *filename)
 	dll = LoadLibraryA(filename);
 	if(!dll)
 	{
-		tlog1 << "Failed loading " << filename << std::endl;
+        logGlobal->errorStream() << "Failed loading " << filename;
 		checkForError(true);
 	}
 }
@@ -74,13 +74,13 @@ void *DLLHandler::FindAddress(const char *symbol)
 
 	if(!dll)
 	{
-		tlog1 << "Cannot look for " << symbol << " because DLL hasn't been appropriately loaded!\n";
+        logGlobal->errorStream() << "Cannot look for " << symbol << " because DLL hasn't been appropriately loaded!";
 		return NULL;
 	}
 	ret = (void*) GetProcAddress(dll,symbol);
 	if(!ret)
 	{
-		tlog1 << "Failed to find " << symbol << " in " << name << std::endl;
+        logGlobal->errorStream() << "Failed to find " << symbol << " in " << name;
 		checkForError();
 	}
 	return ret;
@@ -92,7 +92,7 @@ DLLHandler::~DLLHandler()
 	{
 		if(!FreeLibrary(dll))
 		{
-			tlog1 << "Failed to free " << name << std::endl;
+            logGlobal->errorStream() << "Failed to free " << name;
 			checkForError();
 		}
 	}
@@ -139,7 +139,7 @@ bool CBIKHandler::open(std::string name)
 
 	if(hBinkFile == INVALID_HANDLE_VALUE)
 	{
-		tlog1 << "BIK handler: failed to open " << name << std::endl;
+        logGlobal->errorStream() << "BIK handler: failed to open " << name;
 		goto checkErrorAndClean;
 	}
 	//GCC wants scope of waveout to dont cross labels/swith/goto
@@ -153,7 +153,7 @@ bool CBIKHandler::open(std::string name)
 	hBink = binkOpen(hBinkFile, 0x8a800000);
 	if(!hBink)
 	{
-		tlog1 << "bink failed to open " << name << std::endl;
+        logGlobal->errorStream() << "bink failed to open " << name;
 		goto checkErrorAndClean;
 	}
 
@@ -303,7 +303,7 @@ bool CSmackPlayer::open( std::string name )
 	data = ptrSmackOpen( (void*)name.c_str(), flags[1], -1);
 	if (!data)
 	{
-		tlog1 << "Smack cannot open " << name << std::endl;
+        logGlobal->errorStream() << "Smack cannot open " << name;
 		checkForError();
 		throw std::runtime_error("SMACK failed opening video");
 	}
@@ -437,7 +437,7 @@ bool CVideoPlayer::open(std::string name)
 	catch(std::exception &e)
 	{
 		current = nullptr;
-		tlog3 << "Failed to open video file " << name << ": " << e.what() << std::endl;
+        logGlobal->warnStream() << "Failed to open video file " << name << ": " << e.what();
 	}
 
 	return false;
@@ -447,7 +447,7 @@ void CVideoPlayer::close()
 {
 	if(!current)
 	{
-		tlog2 << "Closing no opened player...?" << std::endl;
+        logGlobal->warnStream() << "Closing no opened player...?";
 		return;
 	}
 
@@ -455,7 +455,7 @@ void CVideoPlayer::close()
 	current = NULL;
 	if(!DeleteFileA(fname.c_str()))
 	{
-		tlog1 << "Cannot remove temporarily extracted video file: " << fname;
+        logGlobal->errorStream() << "Cannot remove temporarily extracted video file: " << fname;
 		checkForError(false);
 	}
 	fname.clear();
@@ -628,7 +628,7 @@ bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 
 	if (!CResourceHandler::get()->existsResource(resource))
 	{
-		tlog0 << "Error: video " << resource.getName() << " was not found\n";
+        logGlobal->errorStream() << "Error: video " << resource.getName() << " was not found";
 		return false;
 	}
 

@@ -175,7 +175,7 @@ void CResourceLoader::addLoader(std::string mountPoint, shared_ptr<ISimpleResour
 		ResourceLocator locator(loader.get(), entry.second);
 
 		if (ident.getType() == EResType::OTHER)
-			tlog5 << "Warning: unknown file type: " << entry.second << "\n";
+            logGlobal->warnStream() << "Warning: unknown file type: " << entry.second;
 
 		resources[ident].push_back(locator);
 	}
@@ -385,7 +385,7 @@ void CResourceHandler::loadFileSystem(const std::string & prefix, const JsonNode
 		BOOST_FOREACH(auto & entry, mountPoint.second.Vector())
 		{
 			CStopWatch timer;
-			tlog5 << "\t\tLoading resource at " << prefix + entry["path"].String() << "\n";
+            logGlobal->debugStream() << "\t\tLoading resource at " << prefix + entry["path"].String();
 
 			if (entry["type"].String() == "dir")
 				loadDirectory(prefix, mountPoint.first, entry);
@@ -396,7 +396,7 @@ void CResourceHandler::loadFileSystem(const std::string & prefix, const JsonNode
 			if (entry["type"].String() == "vid")
 				loadArchive(prefix, mountPoint.first, entry, EResType::ARCHIVE_VID);
 
-			tlog5 << "Resource loaded in " << timer.getDiff() << " ms.\n";
+            logGlobal->debugStream() << "Resource loaded in " << timer.getDiff() << " ms.";
 		}
 	}
 }

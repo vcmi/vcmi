@@ -56,7 +56,7 @@ void CConnection::init()
 	//we got connection
 	(*this) << std::string("Aiya!\n") << name << myEndianess; //identify ourselves
 	(*this) >> pom >> pom >> contactEndianess;
-	tlog0 << "Established connection with "<<pom<<std::endl;
+    logNetwork->infoStream() << "Established connection with "<<pom;
 	wmx = new boost::mutex;
 	rmx = new boost::mutex;
 
@@ -76,27 +76,27 @@ CConnection::CConnection(std::string host, std::string port, std::string Name)
     tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host,port),error);
 	if(error)
 	{
-		tlog1 << "Problem with resolving: " << std::endl << error <<std::endl;
+        logNetwork->errorStream() << "Problem with resolving: \n" << error;
 		goto connerror1;
 	}
 	pom = endpoint_iterator;
 	if(pom != end)
-		tlog0<<"Found endpoints:" << std::endl;
+        logNetwork->infoStream()<<"Found endpoints:";
 	else
 	{
-		tlog1 << "Critical problem: No endpoints found!" << std::endl;
+        logNetwork->errorStream() << "Critical problem: No endpoints found!";
 		goto connerror1;
 	}
 	i=0;
 	while(pom != end)
 	{
-		tlog0 << "\t" << i << ": " << (boost::asio::ip::tcp::endpoint&)*pom << std::endl;
+        logNetwork->infoStream() << "\t" << i << ": " << (boost::asio::ip::tcp::endpoint&)*pom;
 		pom++;
 	}
 	i=0;
 	while(endpoint_iterator != end)
 	{
-		tlog0 << "Trying connection to " << (boost::asio::ip::tcp::endpoint&)*endpoint_iterator << "  (" << i++ << ")" << std::endl;
+        logNetwork->infoStream() << "Trying connection to " << (boost::asio::ip::tcp::endpoint&)*endpoint_iterator << "  (" << i++ << ")";
 		socket->connect(*endpoint_iterator, error);
 		if(!error)
 		{
@@ -105,18 +105,18 @@ CConnection::CConnection(std::string host, std::string port, std::string Name)
 		}
 		else
 		{
-			tlog1 << "Problem with connecting: " << std::endl <<  error << std::endl;
+            logNetwork->errorStream() << "Problem with connecting: " <<  error;
 		}
 		endpoint_iterator++;
 	}
 
 	//we shouldn't be here - error handling
 connerror1:
-	tlog1 << "Something went wrong... checking for error info" << std::endl;
+    logNetwork->errorStream() << "Something went wrong... checking for error info";
 	if(error)
-		tlog1 << error <<std::endl;
+        logNetwork->errorStream() << error;
 	else
-		tlog1 << "No error info. " << std::endl;
+        logNetwork->errorStream() << "No error info. ";
 	delete io_service;
 	//delete socket;	
 	throw std::runtime_error("Can't establish connection :(");
@@ -134,7 +134,7 @@ CConnection::CConnection(TAcceptor * acceptor, boost::asio::io_service *Io_servi
 	acceptor->accept(*socket,error);
 	if (error)
 	{ 
-		tlog1 << "Error on accepting: " << std::endl << error << std::endl;
+        logNetwork->errorStream() << "Error on accepting: " << error;
 		delete socket;	
 		throw std::runtime_error("Can't establish connection :("); 
 	}
@@ -208,13 +208,13 @@ bool CConnection::isOpen() const
 	return socket && connected;
 }
 
-void CConnection::reportState(CLogger &out)
+void CConnection::reportState(CGLogger * out)
 {
-	out << "CConnection\n";
+    out->debugStream() << "CConnection";
 	if(socket && socket->is_open())
 	{
-		out << "\tWe have an open and valid socket\n";
-		out << "\t" << socket->available() <<" bytes awaiting\n";
+        out->debugStream() << "\tWe have an open and valid socket";
+        out->debugStream() << "\t" << socket->available() <<" bytes awaiting";
 	}
 }
 
@@ -222,16 +222,16 @@ CPack * CConnection::retreivePack()
 {
 	CPack *ret = NULL;
 	boost::unique_lock<boost::mutex> lock(*rmx);
-	tlog5 << "Listening... ";
+    logNetwork->traceStream() << "Listening... ";
 	*this >> ret;
-	tlog5 << "\treceived server message of type " << typeid(*ret).name() << std::endl;
+    logNetwork->traceStream() << "\treceived server message of type " << typeid(*ret).name();
 	return ret;
 }
 
 void CConnection::sendPackToServer(const CPack &pack, PlayerColor player, ui32 requestID)
 {
 	boost::unique_lock<boost::mutex> lock(*wmx);
-	tlog5 << "Sending to server a pack of type " << typeid(pack).name() << std::endl;
+    logNetwork->traceStream() << "Sending to server a pack of type " << typeid(pack).name();
 	*this << player << requestID << &pack; //packs has to be sent as polymorphic pointers!
 }
 
@@ -309,18 +309,18 @@ void CSaveFile::openNextFile(const std::string &fname)
 	}
 	catch(...)
 	{
-		tlog1 << "Failed to save to " << fname << std::endl;
+        logGlobal->errorStream() << "Failed to save to " << fname;
 		clear();
 		throw;
 	}
 }
 
-void CSaveFile::reportState(CLogger &out)
+void CSaveFile::reportState(CGLogger * out)
 {
-	out << "CSaveFile" << std::endl;
+    out->debugStream() << "CSaveFile";
 	if(sfile.get() && *sfile)
 	{
-		out << "\tOpened " << fName << "\n\tPosition: " << sfile->tellp() << std::endl;
+        out->debugStream() << "\tOpened " << fName << "\n\tPosition: " << sfile->tellp();
 	}
 }
 
@@ -377,15 +377,15 @@ void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
 
 		if(fileVersion > version)
 		{
-			tlog3 << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % fileVersion % version % fname;
+            logGlobal->warnStream() << boost::format("Warning format version mismatch: found %d when current is %d! (file %s)\n") % fileVersion % version % fname;
 
 			auto versionptr = (char*)&fileVersion;
 			std::reverse(versionptr, versionptr + 4);
-			tlog3 << "Version number reversed is " << fileVersion << ", checking...\n";
+            logGlobal->warnStream() << "Version number reversed is " << fileVersion << ", checking...";
 
 			if(fileVersion == version)
 			{
-				tlog3 << fname << " seems to have different endianess! Entering reversing mode.\n";
+                logGlobal->warnStream() << fname << " seems to have different endianess! Entering reversing mode.";
 				reverseEndianess = true;
 			}
 			else
@@ -399,12 +399,12 @@ void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
 	}
 }
 
-void CLoadFile::reportState(CLogger &out)
+void CLoadFile::reportState(CGLogger * out)
 {
-	out << "CLoadFile" << std::endl;
+    out->debugStream() << "CLoadFile";
 	if(!!sfile && *sfile)
 	{
-		out << "\tOpened " << fName << "\n\tPosition: " << sfile->tellg() << std::endl;
+        out->debugStream() << "\tOpened " << fName << "\n\tPosition: " << sfile->tellg();
 	}
 }
 
@@ -501,7 +501,7 @@ int CLoadIntegrityValidator::read( const void * data, unsigned size )
 		controlFile->read(controlData.data(), size);
 		if(std::memcmp(data, controlData.data(), size))
 		{
-			tlog1 << "Desync found! Position: " << primaryFile->sfile->tellg() << std::endl;
+            logGlobal->errorStream() << "Desync found! Position: " << primaryFile->sfile->tellg();
 			foundDesync = true;
 			//throw std::runtime_error("Savegame dsynchronized!");
 		}

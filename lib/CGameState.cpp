@@ -203,13 +203,13 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 			vec = &VLC->generaltexth->capColors;
 			break;
 		default:
-			tlog1 << "Failed string substitution because type is " << type << std::endl;
+            logGlobal->errorStream() << "Failed string substitution because type is " << type;
 			dst = "#@#";
 			return;
 		}
 		if(vec->size() <= ser)
 		{
-			tlog1 << "Failed string substitution with type " << type << " because index " << ser << " is out of bounds!\n";
+            logGlobal->errorStream() << "Failed string substitution with type " << type << " because index " << ser << " is out of bounds!";
 			dst = "#!#";
 		}
 		else
@@ -256,7 +256,7 @@ DLL_LINKAGE void MetaString::toString(std::string &dst) const
 			boost::replace_first(dst, "%+d", '+' + boost::lexical_cast<std::string>(numbers[nums++]));
 			break;
 		default:
-			tlog1 << "MetaString processing error!\n";
+            logGlobal->errorStream() << "MetaString processing error!";
 			break;
 		}
 	}
@@ -313,7 +313,7 @@ DLL_LINKAGE std::string MetaString::buildList () const
 				lista.replace (lista.find("%d"), 2, boost::lexical_cast<std::string>(numbers[nums++]));
 				break;
 			default:
-				tlog1 << "MetaString processing error!\n";
+                logGlobal->errorStream() << "MetaString processing error!";
 		}
 
 	}
@@ -362,7 +362,7 @@ static CGObjectInstance * createObject(Obj id, int subid, int3 pos, PlayerColor 
 	nobj->ID = id;
 	nobj->subID = subid;
 	if(!nobj->defInfo)
-		tlog3 <<"No def declaration for " <<id <<" "<<subid<<std::endl;
+        logGlobal->warnStream() <<"No def declaration for " <<id <<" "<<subid;
 	nobj->pos = pos;
 	//nobj->state = NULL;//new CLuaObjectScript();
 	nobj->tempOwner = owner;
@@ -382,7 +382,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 
 	if(player>=PlayerColor::PLAYER_LIMIT)
 	{
-		tlog1 << "Cannot pick hero for " << town->typeID << ". Wrong owner!\n";
+        logGlobal->errorStream() << "Cannot pick hero for " << town->typeID << ". Wrong owner!";
 		return NULL;
 	}
 
@@ -400,7 +400,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		}
 		if(!pool.size())
 		{
-			tlog1 << "Cannot pick native hero for " << player << ". Picking any...\n";
+            logGlobal->errorStream() << "Cannot pick native hero for " << player << ". Picking any...";
 			return pickHeroFor(false, player, town, available);
 		}
 		else
@@ -423,7 +423,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		}
 		if(!pool.size() || sum == 0)
 		{
-			tlog1 << "There are no heroes available for player " << player<<"!\n";
+            logGlobal->errorStream() << "There are no heroes available for player " << player<<"!";
 			return nullptr;
 		}
 
@@ -495,7 +495,7 @@ int CGameState::pickHero(PlayerColor owner)
 			return factionHeroes[i];
 	}
 
-	tlog3 << "Warning: cannot find free hero - trying to get first available..."<<std::endl;
+    logGlobal->warnStream() << "Warning: cannot find free hero - trying to get first available...";
 	for(int j=0; j<VLC->heroh->heroes.size(); j++)
 		if(!map->getHero(j))
 			return j;
@@ -637,7 +637,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 
 			if (result.first == Obj::NO_OBJ)
 			{
-				tlog0 << "Error: failed to find creature for dwelling of "<< int(faction) << " of level " << int(level) << "\n";
+                logGlobal->errorStream() << "Error: failed to find creature for dwelling of "<< int(faction) << " of level " << int(level);
 				auto iter = VLC->objh->cregens.begin();
 				std::advance(iter, ran() % VLC->objh->cregens.size() );
 				result = std::make_pair(Obj::CREATURE_GENERATOR1, iter->first);
@@ -670,7 +670,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	else if(ran.first==Obj::HERO)//special code for hero
 	{
 		CGHeroInstance *h = dynamic_cast<CGHeroInstance *>(cur);
-		if(!h) {tlog2<<"Wrong random hero at "<<cur->pos<<std::endl; return;}
+        if(!h) {logGlobal->warnStream()<<"Wrong random hero at "<<cur->pos; return;}
 		cur->ID = ran.first;
 		cur->subID = ran.second;
 		h->type = VLC->heroh->heroes[ran.second];
@@ -682,7 +682,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	else if(ran.first==Obj::TOWN)//special code for town
 	{
 		CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
-		if(!t) {tlog2<<"Wrong random town at "<<cur->pos<<std::endl; return;}
+        if(!t) {logGlobal->warnStream()<<"Wrong random town at "<<cur->pos; return;}
 		cur->ID = ran.first;
 		cur->subID = ran.second;
 		//FIXME: copy-pasted from above
@@ -704,7 +704,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	map->customDefs.push_back(cur->defInfo = ran.first.toDefObjInfo()[ran.second]);
 	if(!cur->defInfo)
 	{
-		tlog1<<"*BIG* WARNING: Missing def declaration for "<<cur->ID<<" "<<cur->subID<<std::endl;
+        logGlobal->errorStream()<<"*BIG* WARNING: Missing def declaration for "<<cur->ID<<" "<<cur->subID;
 		return;
 	}
 
@@ -847,7 +847,7 @@ void CGameState::init(StartInfo * si)
 		return ret;
 	};
 
-	tlog0 << "\tUsing random seed: "<< si->seedToBeUsed << std::endl;
+    logGlobal->infoStream() << "\tUsing random seed: "<< si->seedToBeUsed;
 	ran.seed((boost::int32_t)si->seedToBeUsed);
 	scenarioOps = new StartInfo(*si);
 	initialOpts = new StartInfo(*si);
@@ -859,7 +859,7 @@ void CGameState::init(StartInfo * si)
 		{
 			if(scenarioOps->createRandomMap)
 			{
-				tlog0 << "Create random map." << std::endl;
+                logGlobal->infoStream() << "Create random map.";
 
 				// Create player settings for RMG
 				std::map<PlayerColor, CMapGenerator::CPlayerSettings> players;
@@ -909,14 +909,14 @@ void CGameState::init(StartInfo * si)
 			}
 			else
 			{
-				tlog0 << "Open map file: " << scenarioOps->mapname << std::endl;
+                logGlobal->infoStream() << "Open map file: " << scenarioOps->mapname;
 				map = CMapService::loadMap(scenarioOps->mapname).release();
 			}
 		}
 		break;
 	case StartInfo::CAMPAIGN:
 		{
-			tlog0 << "Open campaign map file: " << scenarioOps->campState->currentMap << std::endl;
+            logGlobal->infoStream() << "Open campaign map file: " << scenarioOps->campState->currentMap;
 			auto campaign = scenarioOps->campState;
 			assert(vstd::contains(campaign->camp->mapPieces, scenarioOps->campState->currentMap));
 
@@ -929,20 +929,19 @@ void CGameState::init(StartInfo * si)
 		initDuel();
 		return;
 	default:
-		tlog1 << "Wrong mode: " << (int)scenarioOps->mode << std::endl;
+        logGlobal->errorStream() << "Wrong mode: " << (int)scenarioOps->mode;
 		return;
 	}
 	VLC->arth->initAllowedArtifactsList(map->allowedArtifact);
-	tlog0 << "Map loaded!" << std::endl;
+    logGlobal->infoStream() << "Map loaded!";
 
-	//tlog0 <<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
-	tlog0 << "\tOur checksum for the map: "<< map->checksum << std::endl;
+    logGlobal->infoStream() << "\tOur checksum for the map: "<< map->checksum;
 	if(scenarioOps->mapfileChecksum)
 	{
-		tlog0 << "\tServer checksum for " << scenarioOps->mapname <<": "<< scenarioOps->mapfileChecksum << std::endl;
+        logGlobal->infoStream() << "\tServer checksum for " << scenarioOps->mapname <<": "<< scenarioOps->mapfileChecksum;
 		if(map->checksum != scenarioOps->mapfileChecksum)
 		{
-			tlog1 << "Wrong map checksum!!!" << std::endl;
+            logGlobal->errorStream() << "Wrong map checksum!!!";
 			throw std::runtime_error("Wrong checksum");
 		}
 	}
@@ -951,8 +950,8 @@ void CGameState::init(StartInfo * si)
 
 	day = 0;
 
-	tlog4 << "Initialization:\n";
-	tlog4 << "\tPicking grail position\n";
+    logGlobal->debugStream() << "Initialization:";
+    logGlobal->debugStream() << "\tPicking grail position";
  	//pick grail location
  	if(map->grailPos.x < 0 || map->grailRadious) //grail not set or set within a radius around some place
  	{
@@ -988,11 +987,11 @@ void CGameState::init(StartInfo * si)
 		if(allowedPos.size())
 			map->grailPos = allowedPos[ran() % allowedPos.size()];
 		else
-			tlog2 << "Warning: Grail cannot be placed, no appropriate tile found!\n";
+            logGlobal->warnStream() << "Warning: Grail cannot be placed, no appropriate tile found!";
 	}
 
 	//picking random factions for players
-	tlog4 << "\tPicking random factions for players\n";
+    logGlobal->debugStream() << "\tPicking random factions for players";
 	for(auto it = scenarioOps->playerInfos.begin();
 		it != scenarioOps->playerInfos.end(); ++it)
 	{
@@ -1007,7 +1006,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 	//randomizing objects
-	tlog4 << "\tRandomizing objects\n";
+    logGlobal->debugStream() << "\tRandomizing objects";
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
 		if(!obj)
@@ -1029,7 +1028,7 @@ void CGameState::init(StartInfo * si)
 	//std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
 	/*********creating players entries in gs****************************************/
-	tlog4 << "\tCreating player entries in gs\n";
+    logGlobal->debugStream() << "\tCreating player entries in gs";
 	for(auto it = scenarioOps->playerInfos.begin();
 		it != scenarioOps->playerInfos.end(); ++it)
 	{
@@ -1043,7 +1042,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 	/*********give starting hero****************************************/
-	tlog4 << "\tGiving starting hero\n";
+    logGlobal->debugStream() << "\tGiving starting hero";
 	{
 		bool campaignGiveHero = false;
 		if(scenarioOps->campState)
@@ -1082,7 +1081,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 	/*************************replace hero placeholders*****************************/
-	tlog4 << "\tReplacing hero placeholders\n";
+    logGlobal->debugStream() << "\tReplacing hero placeholders";
 	std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > campHeroReplacements; //instance, id in vector
 	if (scenarioOps->campState)
 	{
@@ -1162,7 +1161,7 @@ void CGameState::init(StartInfo * si)
 						replaceHero(gid, Xheroes[hp->power - 1]);
 					else
 					{
-						tlog3 << "Warning, no hero to replace!\n";
+                        logGlobal->warnStream() << "Warning, no hero to replace!";
 						map->removeBlockVisTiles(hp, true);
 						delete hp;
 						map->objects[g] = NULL;
@@ -1175,7 +1174,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 	/******************RESOURCES****************************************************/
-	tlog4 << "\tSetting up resources\n";
+    logGlobal->debugStream() << "\tSetting up resources";
 	const JsonNode config(ResourceID("config/startres.json"));
 	const JsonVector &vector = config["difficulty"].Vector();
 	const JsonNode &level = vector[scenarioOps->difficulty];
@@ -1229,7 +1228,7 @@ void CGameState::init(StartInfo * si)
 
 
 	/*************************HEROES************************************************/
-	tlog4 << "\tSetting up heroes\n";
+    logGlobal->debugStream() << "\tSetting up heroes";
 	//Replace placeholders with heroes from previous missions
 	BOOST_FOREACH(auto obj, campHeroReplacements)
 	{
@@ -1274,7 +1273,7 @@ void CGameState::init(StartInfo * si)
 	{
 		if (map->heroes[i]->getOwner() == PlayerColor::UNFLAGGABLE)
 		{
-			tlog2 << "Warning - hero with uninitialized owner!\n";
+            logGlobal->warnStream() << "Warning - hero with uninitialized owner!";
 			continue;
 		}
 		CGHeroInstance * vhi = map->heroes[i];
@@ -1344,7 +1343,7 @@ void CGameState::init(StartInfo * si)
 					}
 				}
 				if(maxB < 0)
-					tlog2 << "Warning - cannot give bonus to hero cause there are no heroes!\n";
+                    logGlobal->warnStream() << "Warning - cannot give bonus to hero cause there are no heroes!";
 				else
 					giveCampaignBonusToHero(heroes[maxB]);
 			}
@@ -1363,7 +1362,7 @@ void CGameState::init(StartInfo * si)
 	}
 
 	/*************************FOG**OF**WAR******************************************/
-	tlog4 << "\tFog of war\n"; //FIXME: should be initialized after all bonuses are set
+    logGlobal->debugStream() << "\tFog of war"; //FIXME: should be initialized after all bonuses are set
 	for(auto k=teams.begin(); k!=teams.end(); ++k)
 	{
 		k->second.fogOfWarMap.resize(map->width);
@@ -1392,7 +1391,7 @@ void CGameState::init(StartInfo * si)
 		}
 	}
 
-	tlog4 << "\tStarting bonuses\n";
+    logGlobal->debugStream() << "\tStarting bonuses";
 	for(auto k=players.begin(); k!=players.end(); ++k)
 	{
 		//starting bonus
@@ -1421,7 +1420,7 @@ void CGameState::init(StartInfo * si)
 			{
  				if(!k->second.heroes.size())
 				{
-					tlog5 << "Cannot give starting artifact - no heroes!" << std::endl;
+                    logGlobal->debugStream() << "Cannot give starting artifact - no heroes!";
 					break;
 				}
  				CArtifact *toGive;
@@ -1434,7 +1433,7 @@ void CGameState::init(StartInfo * si)
 		}
 	}
 	/****************************TOWNS************************************************/
-	tlog4 << "\tTowns\n";
+    logGlobal->debugStream() << "\tTowns";
 
 	//campaign bonuses for towns
 	if (scenarioOps->mode == StartInfo::CAMPAIGN)
@@ -1562,7 +1561,7 @@ void CGameState::init(StartInfo * si)
 			getPlayer(vti->getOwner())->towns.push_back(vti);
 	}
 
-	tlog4 << "\tObject initialization\n";
+    logGlobal->debugStream() << "\tObject initialization";
 	objCaller->preInit();
 	BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 	{
@@ -1616,11 +1615,11 @@ void CGameState::init(StartInfo * si)
 	}
 
 
-	tlog4 << "\tChecking objectives\n";
+    logGlobal->debugStream() << "\tChecking objectives";
 	map->checkForObjectives(); //needs to be run when all objects are properly placed
 
 	int seedAfterInit = ran();
-	tlog0 << "Seed after init is " << seedAfterInit << " (before was " << scenarioOps->seedToBeUsed << ")" << std::endl;
+    logGlobal->infoStream() << "Seed after init is " << seedAfterInit << " (before was " << scenarioOps->seedToBeUsed << ")";
 	if(scenarioOps->seedPostInit > 0)
 	{
 		//RNG must be in the same state on all machines when initialization is done (otherwise we have desync)
@@ -1639,9 +1638,9 @@ void CGameState::initDuel()
 	{
 		if(boost::algorithm::ends_with(scenarioOps->mapname, ".json"))
 		{
-			tlog0 << "Loading duel settings from JSON file: " << scenarioOps->mapname << std::endl;
+            logGlobal->infoStream() << "Loading duel settings from JSON file: " << scenarioOps->mapname;
 			dp = DuelParameters::fromJSON(scenarioOps->mapname);
-			tlog0 << "JSON file has been successfully read!\n";
+            logGlobal->infoStream() << "JSON file has been successfully read!";
 		}
 		else
 		{
@@ -1651,7 +1650,7 @@ void CGameState::initDuel()
 	}
 	catch(...)
 	{
-		tlog1 << "Cannot load duel settings from " << scenarioOps->mapname << std::endl;
+        logGlobal->errorStream() << "Cannot load duel settings from " << scenarioOps->mapname;
 		throw;
 	}
 
@@ -3049,7 +3048,7 @@ void CPathfinder::calculatePaths(int3 src /*= int3(-1,-1,-1)*/, int movement /*=
 
 	if(!gs->map->isInTheMap(src)/* || !gs->map->isInTheMap(dest)*/) //check input
 	{
-		tlog1 << "CGameState::calculatePaths: Hero outside the gs->map? How dare you...\n";
+        logGlobal->errorStream() << "CGameState::calculatePaths: Hero outside the gs->map? How dare you...";
 		return;
 	}
 

@@ -333,7 +333,7 @@ public:
 	CSerializer();
 	~CSerializer();
 
-	virtual void reportState(CLogger &out){};
+    virtual void reportState(CGLogger * out){};
 
 	template <typename T, typename U>
 	void registerVectoredType(const std::vector<T*> *Vector, const U T::*IdPtr)
@@ -1039,8 +1039,8 @@ public:
 	*this >> length;				\
 	if(length > 500000)				\
 	{								\
-		tlog2 << "Warning: very big length: " << length << "\n" ;\
-		reportState(tlog2);			\
+        logGlobal->warnStream() << "Warning: very big length: " << length;\
+        reportState(logGlobal);			\
 	};
 
 
@@ -1211,7 +1211,7 @@ public:
 
 	void openNextFile(const std::string &fname); //throws!
 	void clear();
-	void reportState(CLogger &out);
+    void reportState(CGLogger * out);
 
 	void putMagicBytes(const std::string &text);
 };
@@ -1234,7 +1234,7 @@ public:
 
 	void openNextFile(const std::string &fname, int minimalVersion); //throws!
 	void clear();
-	void reportState(CLogger &out);
+    void reportState(CGLogger * out);
 
 	void checkMagicBytes(const std::string &text);
 };
@@ -1263,7 +1263,7 @@ class DLL_LINKAGE CConnection
 	CConnection(void);
 
 	void init();
-	void reportState(CLogger &out);
+    void reportState(CGLogger * out);
 public:
 	boost::mutex *rmx, *wmx; // read/write mutexes
 	TSocket * socket;

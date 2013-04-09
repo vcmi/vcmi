@@ -389,7 +389,7 @@ void CGuiHandler::run()
 	}
 	catch(const std::exception & e)
 	{
-		tlog1 << "Error: " << e.what() << std::endl;
+        logGlobal->errorStream() << "Error: " << e.what();
 		exit(EXIT_FAILURE);
 	}
 }
@@ -465,7 +465,6 @@ SDLKey CGuiHandler::numToDigit( SDLKey key )
 	case SDLK_KP_ENTER:
 		return SDLK_RETURN;
 	default:
-		//tlog3 << "Illegal numkey conversion!" << std::endl;
 		return SDLK_UNKNOWN;
 	}
 #undef REMOVE_KP

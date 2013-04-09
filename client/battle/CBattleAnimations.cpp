@@ -312,7 +312,7 @@ bool CMeleeAttackAnimation::init()
 		group = mutPosToGroup[mutPos];
 		break;
 	default:
-		tlog1<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<attackingStackPosBeforeReturn<<" mutual pos: "<<mutPos<<std::endl;
+        logGlobal->errorStream()<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<attackingStackPosBeforeReturn<<" mutual pos: "<<mutPos;
 		group = CCreatureAnim::ATTACK_FRONT;
 		break;
 	}

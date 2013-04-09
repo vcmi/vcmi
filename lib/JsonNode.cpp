@@ -397,8 +397,8 @@ JsonNode JsonParser::parse(std::string fileName)
 
 	if (!errors.empty())
 	{
-		tlog3<<"File " << fileName << " is not a valid JSON file!\n";
-		tlog3<<errors;
+        logGlobal->warnStream()<<"File " << fileName << " is not a valid JSON file!";
+        logGlobal->warnStream()<<errors;
 	}
 	return root;
 }
@@ -1103,8 +1103,8 @@ bool JsonValidator::validate(const JsonNode &root, std::string schemaName, std::
 
 	if (!errors.empty())
 	{
-		tlog3 << "Data in " << name << " is invalid!\n";
-		tlog3 << errors;
+        logGlobal->warnStream() << "Data in " << name << " is invalid!";
+        logGlobal->warnStream() << errors;
 	}
 
 	return errors.empty();
@@ -1129,7 +1129,7 @@ Bonus * JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
 	{
-		tlog1 << "Error: invalid ability type " << type << std::endl;
+        logGlobal->errorStream() << "Error: invalid ability type " << type;
 		return b;
 	}
 	b->type = it->second;
@@ -1147,7 +1147,7 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 		auto it = map.find(type);
 		if (it == map.end())
 		{
-			tlog1 << "Error: invalid " << err << type << std::endl;
+            logGlobal->errorStream() << "Error: invalid " << err << type;
 			return defaultValue;
 		}
 		else
@@ -1177,7 +1177,7 @@ void JsonUtils::resolveIdentifier (si32 &var, const JsonNode &node, std::string 
 				});
 				break;
 			default:
-				tlog2 << "Error! Wrong indentifier used for value of " << name;
+                logGlobal->errorStream() << "Error! Wrong indentifier used for value of " << name;
 		}
 	}
 }
@@ -1196,7 +1196,7 @@ void JsonUtils::resolveIdentifier (const JsonNode &node, si32 &var)
 			});
 			break;
 		default:
-			tlog2 << "Error! Wrong indentifier used for identifier!";
+            logGlobal->errorStream() << "Error! Wrong indentifier used for identifier!";
 	}
 }
 
@@ -1210,7 +1210,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 	auto it = bonusNameMap.find(type);
 	if (it == bonusNameMap.end())
 	{
-		tlog1 << "Error: invalid ability type " << type << std::endl;
+        logGlobal->errorStream() << "Error: invalid ability type " << type;
 		return b;
 	}
 	b->type = it->second;
@@ -1254,7 +1254,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 			}
 			break;
 		default:
-			tlog2 << "Error! Wrong bonus duration format.";
+            logGlobal->errorStream() << "Error! Wrong bonus duration format.";
 		}
 	}
 
@@ -1301,7 +1301,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 							auto it = bonusNameMap.find (anotherBonusType);
 							if (it == bonusNameMap.end())
 							{
-								tlog1 << "Error: invalid ability type " << anotherBonusType << std::endl;
+                                logGlobal->errorStream() << "Error: invalid ability type " << anotherBonusType;
 								continue;
 							}
 							l2->type = it->second;
@@ -1461,7 +1461,7 @@ const JsonNode & getSchemaByName(std::string name)
 		return loadedSchemas[name];
 	}
 
-	tlog1 << "Error: missing schema with name " << name << "!\n";
+    logGlobal->errorStream() << "Error: missing schema with name " << name << "!";
 	assert(0);
 	return nullNode;
 }
@@ -1476,7 +1476,7 @@ const JsonNode & JsonUtils::getSchema(std::string URI)
 
 	if (segments[0] != "vcmi")
 	{
-		tlog1 << "Error: unsupported URI protocol for schema: " << segments[0] << "\n";
+        logGlobal->errorStream() << "Error: unsupported URI protocol for schema: " << segments[0];
 		return nullNode;
 	}
 

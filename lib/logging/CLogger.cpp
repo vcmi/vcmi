@@ -33,12 +33,34 @@ std::string CLoggerDomain::getName() const
     return name;
 }
 
-boost::mutex CGLogger::smx;
+CLoggerStream::CLoggerStream(const CGLogger & logger, ELogLevel::ELogLevel level) : logger(logger), level(level), sbuffer(nullptr)
+{
+
+}
+
+CLoggerStream::~CLoggerStream()
+{
+    if(sbuffer)
+    {
+        logger.log(level, sbuffer->str());
+        delete sbuffer;
+        sbuffer = nullptr;
+    }
+}
+
+boost::recursive_mutex CGLogger::smx;
+
+CGLogger * logGlobal = CGLogger::getGlobalLogger();
+
+CGLogger * logBonus = CGLogger::getLogger(CLoggerDomain("bonus"));
+
+CGLogger * logNetwork = CGLogger::getLogger(CLoggerDomain("network"));
 
 CGLogger * CGLogger::getLogger(const CLoggerDomain & domain)
 {
-    TLockGuard _(smx);
-    CGLogger * logger = CLogManager::get()->getLogger(domain);
+    boost::lock_guard<boost::recursive_mutex> _(smx);
+
+    CGLogger * logger = CLogManager::get().getLogger(domain);
     if(logger)
     {
         return logger;
@@ -50,29 +72,27 @@ CGLogger * CGLogger::getLogger(const CLoggerDomain & domain)
         {
             logger->setLevel(ELogLevel::INFO);
         }
-        CLogManager::get()->addLogger(logger);
+        CLogManager::get().addLogger(logger);
         return logger;
     }
 }
 
 CGLogger * CGLogger::getGlobalLogger()
 {
-    return getLogger(CLoggerDomain::DOMAIN_GLOBAL);
+    return getLogger(CLoggerDomain(CLoggerDomain::DOMAIN_GLOBAL));
 }
 
-CGLogger::CGLogger(const CLoggerDomain & domain) : domain(domain), level(ELogLevel::INFO)
+CGLogger::CGLogger(const CLoggerDomain & domain) : domain(domain)
 {
-    if(!domain.isGlobalDomain())
+    if(domain.isGlobalDomain())
     {
-        parent = getLogger(domain.getParent());
+        level = ELogLevel::INFO;
+        parent = nullptr;
     }
-}
-
-CGLogger::~CGLogger()
-{
-    BOOST_FOREACH(ILogTarget * target, targets)
+    else
     {
-        delete target;
+        level = ELogLevel::NOT_SET;
+        parent = getLogger(domain.getParent());
     }
 }
 
@@ -136,13 +156,13 @@ void CGLogger::log(ELogLevel::ELogLevel level, const std::string & message) cons
 
 ELogLevel::ELogLevel CGLogger::getLevel() const
 {
-    TReadLock _(mx);
+    TLockGuard _(mx);
     return level;
 }
 
 void CGLogger::setLevel(ELogLevel::ELogLevel level)
 {
-    TWriteLock _(mx);
+    TLockGuard _(mx);
     if(domain.isGlobalDomain() && level == ELogLevel::NOT_SET) return;
     this->level = level;
 }
@@ -152,16 +172,10 @@ const CLoggerDomain & CGLogger::getDomain() const
     return domain;
 }
 
-void CGLogger::addTarget(ILogTarget * target)
+void CGLogger::addTarget(unique_ptr<ILogTarget> && target)
 {
-    TWriteLock _(mx);
-    targets.push_back(target);
-}
-
-std::list<ILogTarget *> CGLogger::getTargets() const
-{
-    TReadLock _(mx);
-    return targets;
+    TLockGuard _(mx);
+    targets.push_back(std::move(target));
 }
 
 ELogLevel::ELogLevel CGLogger::getEffectiveLevel() const
@@ -177,41 +191,28 @@ ELogLevel::ELogLevel CGLogger::getEffectiveLevel() const
 
 void CGLogger::callTargets(const LogRecord & record) const
 {
+    TLockGuard _(mx);
     for(const CGLogger * logger = this; logger != nullptr; logger = logger->parent)
     {
-        BOOST_FOREACH(ILogTarget * target, logger->getTargets())
+        BOOST_FOREACH(auto & target, logger->targets)
         {
             target->write(record);
         }
     }
 }
 
-CLoggerStream::CLoggerStream(const CGLogger & logger, ELogLevel::ELogLevel level) : logger(logger), level(level), sbuffer(nullptr)
+void CGLogger::clearTargets()
 {
-
+    TLockGuard _(mx);
+    targets.clear();
 }
 
-CLoggerStream::~CLoggerStream()
+boost::recursive_mutex CLogManager::smx;
+
+CLogManager & CLogManager::get()
 {
-    if(sbuffer)
-    {
-        logger.log(level, sbuffer->str());
-        delete sbuffer;
-        sbuffer = nullptr;
-    }
-}
-
-CLogManager * CLogManager::instance = nullptr;
-
-boost::mutex CLogManager::smx;
-
-CLogManager * CLogManager::get()
-{
-    TLockGuard _(smx);
-    if(!instance)
-    {
-        instance = new CLogManager();
-    }
+    TLockGuardRec _(smx);
+    static CLogManager instance;
     return instance;
 }
 
@@ -230,13 +231,13 @@ CLogManager::~CLogManager()
 
 void CLogManager::addLogger(CGLogger * logger)
 {
-    TWriteLock _(mx);
+    TLockGuard _(mx);
     loggers[logger->getDomain().getName()] = logger;
 }
 
 CGLogger * CLogManager::getLogger(const CLoggerDomain & domain)
 {
-    TReadLock _(mx);
+    TLockGuard _(mx);
     auto it = loggers.find(domain.getName());
     if(it != loggers.end())
     {
@@ -312,7 +313,7 @@ const std::string & CLogFormatter::getPattern() const
 CColorMapping::CColorMapping()
 {
     // Set default mappings
-    auto & levelMap = map[""];
+    auto & levelMap = map[CLoggerDomain::DOMAIN_GLOBAL];
     levelMap[ELogLevel::TRACE] = EConsoleTextColor::GRAY;
     levelMap[ELogLevel::DEBUG] = EConsoleTextColor::WHITE;
     levelMap[ELogLevel::INFO] = EConsoleTextColor::GREEN;
@@ -357,7 +358,7 @@ EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDom
 
 CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) : console(console), threshold(ELogLevel::INFO), coloredOutputEnabled(true)
 {
-
+    formatter.setPattern("%l %n [%t] - %m");
 }
 
 void CLogConsoleTarget::write(const LogRecord & record)
@@ -370,11 +371,11 @@ void CLogConsoleTarget::write(const LogRecord & record)
     {
         if(coloredOutputEnabled)
         {
-            console->print(message, colorMapping.getColorFor(record.domain, record.level));
+            console->print(message, true, colorMapping.getColorFor(record.domain, record.level));
         }
         else
         {
-            console->print(message, EConsoleTextColor::DEFAULT, printToStdErr);
+            console->print(message, true, EConsoleTextColor::DEFAULT, printToStdErr);
         }
     }
     else
@@ -382,11 +383,11 @@ void CLogConsoleTarget::write(const LogRecord & record)
         TLockGuard _(mx);
         if(printToStdErr)
         {
-            std::cerr << message << std::flush;
+            std::cerr << message << std::endl;
         }
         else
         {
-            std::cout << message << std::flush;
+            std::cout << message << std::endl;
         }
     }
 }
@@ -431,9 +432,10 @@ void CLogConsoleTarget::setColorMapping(const CColorMapping & colorMapping)
     this->colorMapping = colorMapping;
 }
 
-CLogFileTarget::CLogFileTarget(const std::string & filePath) : file(filePath)
+CLogFileTarget::CLogFileTarget(const std::string & filePath, bool append /*= true*/)
+    : file(filePath, append ? std::ios_base::app : std::ios_base::out)
 {
-
+    formatter.setPattern("%d %l %n [%t] - %m");
 }
 
 CLogFileTarget::~CLogFileTarget()

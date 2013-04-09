@@ -132,7 +132,7 @@ void CMapLoaderH3M::init()
 	{
 		BOOST_FOREACH(MapLoadingTime & mlt, times)
 		{
-			tlog0 << "\tReading " << mlt.name << " took " << mlt.time << " ms." << std::endl;
+            logGlobal->debugStream() << "\tReading " << mlt.name << " took " << mlt.time << " ms.";
 		}
 	}
 }
@@ -644,14 +644,14 @@ bool CMapLoaderH3M::loadArtifactToSlot(CGHeroInstance * hero, int slot)
 	{
 		if(vstd::contains(VLC->arth->bigArtifacts, aid) && slot >= GameConstants::BACKPACK_START)
 		{
-			tlog3 << "Warning: A big artifact (war machine) in hero's backpack, ignoring..." << std::endl;
+            logGlobal->warnStream() << "Warning: A big artifact (war machine) in hero's backpack, ignoring...";
 			return false;
 		}
 		if(aid == 0 && slot == ArtifactPosition::MISC5)
 		{
 			//TODO: check how H3 handles it -> art 0 in slot 18 in AB map
-			tlog3 << "Spellbook to MISC5 slot? Putting it spellbook place. AB format peculiarity ? (format "
-				  << static_cast<int>(map->version) << ")" << std::endl;
+            logGlobal->warnStream() << "Spellbook to MISC5 slot? Putting it spellbook place. AB format peculiarity ? (format "
+                  << static_cast<int>(map->version) << ")";
 			slot = ArtifactPosition::SPELLBOOK;
 		}
 
@@ -773,8 +773,8 @@ void CMapLoaderH3M::readDefInfo()
 				{
 					VLC->dobjinfo->gobjs.erase(defInfo->id);
 				}
-				tlog2 << "\t\tWarning: no defobjinfo entry for object ID="
-					  << defInfo->id << " subID=" << defInfo->subid << std::endl;
+                logGlobal->warnStream() << "\t\tWarning: no defobjinfo entry for object ID="
+                      << defInfo->id << " subID=" << defInfo->subid;
 			}
 			else
 			{
@@ -1539,7 +1539,7 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 	{
 		if(map->predefinedHeroes[j]->subID == nhi->subID)
 		{
-			tlog0 << "Hero " << nhi->subID << " will be taken from the predefined heroes list." << std::endl;
+            logGlobal->debugStream() << "Hero " << nhi->subID << " will be taken from the predefined heroes list.";
 			delete nhi;
 			nhi = map->predefinedHeroes[j];
 			break;
@@ -2040,8 +2040,8 @@ std::set<BuildingID> CMapLoaderH3M::convertBuildings(const std::set<BuildingID> 
 		}
 		else
 		{
-			tlog3 << "Conversion warning: unknown building " << *i << " in castle "
-				  << castleID << std::endl;
+            logGlobal->warnStream() << "Conversion warning: unknown building " << *i << " in castle "
+                  << castleID;
 		}
 	}
 

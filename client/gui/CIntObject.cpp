@@ -70,7 +70,7 @@ void CIntObject::activate()
 			return;
 		else
 		{
-			tlog1 << "Warning: IntObject re-activated with mismatching used and active\n";
+            logGlobal->warnStream() << "Warning: IntObject re-activated with mismatching used and active";
 			deactivate(); //FIXME: better to avoid such possibility at all
 		}
 	}
@@ -232,12 +232,10 @@ void CIntObject::addChild(CIntObject *child, bool adjustPosition /*= false*/)
 {
 	if (vstd::contains(children, child))
 	{
-//		tlog4<< "Warning: object already assigned to this parent!\n";
 		return;
 	}
 	if (child->parent_m)
 	{
-//		tlog4<< "Warning: object already has parent!\n";
 		child->parent_m->removeChild(child, adjustPosition);
 	}
 	children.push_back(child);

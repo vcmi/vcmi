@@ -149,9 +149,8 @@ typedef boost::int16_t si16; //signed int 16 bits (2 bytes)
 typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 
 // Lock typedefs
-typedef boost::unique_lock<boost::shared_mutex> TWriteLock;
-typedef boost::shared_lock<boost::shared_mutex> TReadLock;
 typedef boost::lock_guard<boost::mutex> TLockGuard;
+typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 
 /* ---------------------------------------------------------------------------- */
 /* Macros */
@@ -576,3 +575,4 @@ using vstd::make_unique;
 /* VCMI headers */
 /* ---------------------------------------------------------------------------- */
 #include "lib/CLogger.h"
+#include "lib/logging/CLogger.h"

@@ -314,7 +314,7 @@ void CDefFile::loadFrame(size_t frame, size_t group, ImageLoader &loader) const
 			break;
 		}
 	default:
-		tlog0<<"Error: unsupported format of def file: "<<sprite.format<<"\n";
+        logGlobal->errorStream()<<"Error: unsupported format of def file: "<<sprite.format;
 		break;
 	}
 };
@@ -609,7 +609,7 @@ SDLImage::SDLImage(std::string filename, bool compressed):
 
 	if (surf == NULL)
 	{
-		tlog1 << "Error: failed to load image "<<filename<<"\n";
+        logGlobal->errorStream() << "Error: failed to load image "<<filename;
 	}
 	else
 	{
@@ -1035,8 +1035,8 @@ CDefFile * CAnimation::getFile() const
 
 void CAnimation::printError(size_t frame, size_t group, std::string type) const
 {
-	tlog0 << type <<" error: Request for frame not present in CAnimation!\n"
-	      <<"\tFile name: "<<name<<" Group: "<<group<<" Frame: "<<frame<<"\n";
+    logGlobal->errorStream() << type <<" error: Request for frame not present in CAnimation! "
+          <<"\tFile name: "<<name<<" Group: "<<group<<" Frame: "<<frame;
 }
 
 CAnimation::CAnimation(std::string Name, bool Compressed):
@@ -1065,7 +1065,7 @@ CAnimation::~CAnimation()
 {
 	if (!images.empty())
 	{
-		tlog2<<"Warning: not all frames were unloaded from "<<name<<"\n";
+        logGlobal->warnStream()<<"Warning: not all frames were unloaded from "<<name;
 		for (group_map::iterator group = images.begin(); group != images.end(); ++group )
 			for (image_map::iterator image = group->second.begin(); image != group->second.end(); ++image )
 				delete image->second;
@@ -1156,14 +1156,13 @@ std::set<CAnimation*> CAnimation::loadedAnims;
 
 void CAnimation::getAnimInfo()
 {
-	tlog1<<"Animation stats: Loaded "<<loadedAnims.size()<<" total\n";
+    logGlobal->errorStream()<<"Animation stats: Loaded "<<loadedAnims.size()<<" total";
 	for (std::set<CAnimation*>::iterator it = loadedAnims.begin(); it != loadedAnims.end(); it++)
 	{
 		CAnimation * anim = *it;
-		tlog1<<"Name: "<<anim->name<<" Groups: "<<anim->images.size();
+        logGlobal->errorStream()<<"Name: "<<anim->name<<" Groups: "<<anim->images.size();
 		if (!anim->images.empty())
-			tlog1<<", "<<anim->images.begin()->second.size()<<" image loaded in group "<< anim->images.begin()->first;
-		tlog1<<"\n";
+            logGlobal->errorStream()<<", "<<anim->images.begin()->second.size()<<" image loaded in group "<< anim->images.begin()->first;
 	}
 }
 
@@ -1250,7 +1249,7 @@ void CAnimImage::setFrame(size_t Frame, size_t Group)
 		}
 	}
 	else
-		tlog1 << "Error: accessing unavailable frame " << Group << ":" << Frame << " in CAnimation!\n";
+        logGlobal->errorStream() << "Error: accessing unavailable frame " << Group << ":" << Frame << " in CAnimation!";
 }
 
 void CAnimImage::playerColored(PlayerColor currPlayer)

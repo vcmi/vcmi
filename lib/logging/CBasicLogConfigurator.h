@@ -14,27 +14,28 @@
 #include "CLogger.h"
 
 class CConsoleHandler;
+class JsonNode;
 
-/**
- * The basic log configurator reads log properties from settings.json and
- * sets up the logging system.
- */
+/// The class CBasicLogConfigurator reads log properties from settings.json and
+/// sets up the logging system.
 class DLL_LINKAGE CBasicLogConfigurator
 {
 public:
-    /**
-     * Constructor.
-     *
-     * @param filePath The file path of the log file.
-     * @param console The console handler to log messages to the console. The handler should be initialized.
-     *
-     * @throws std::runtime_error if the configuration has errors
-     */
     CBasicLogConfigurator(const std::string & filePath, CConsoleHandler * console);
 
-private:
-    // Methods
+    /// Configures the logging system by parsing the logging settings. It adds the console target and the file target to the global logger.
+    /// If the append parameter is true, the log file will be appended to. Otherwise the log file will be truncated.
+    /// Throws std::runtime_error if the configuration has errors.
+    void configure(bool appendToLogFile = true);
 
+    /// Configures a default logging system by adding the console target and the file target to the global logger.
+    /// If the append parameter is true, the log file will be appended to. Otherwise the log file will be truncated.
+    void configureDefault(bool appendToLogFile = true);
+
+private:
     ELogLevel::ELogLevel getLogLevel(const std::string & level) const;
     EConsoleTextColor::EConsoleTextColor getConsoleColor(const std::string & colorName) const;
+
+    std::string filePath;
+    CConsoleHandler * console;
 };

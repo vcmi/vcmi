@@ -59,16 +59,10 @@ set(lib_SRCS
 )
 
 set(lib_HEADERS
+		../Global.h
+		../tchar_amigaos4.h
 		filesystem/CInputStream.h
 		filesystem/ISimpleResourceLoader.h
-		logging/CBasicLogConfigurator.h
-		logging/CLogger.h
-		mapping/CCampaignHandler.h
-		mapping/CMap.h
-		mapping/CMapEditManager.h
-		mapping/CMapInfo.h
-		mapping/CMapService.h
-		mapping/MapFormatH3M.h
 		AI_Base.h
 		CondSh.h
 		ConstTransitivePtr.h

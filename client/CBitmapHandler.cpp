@@ -102,7 +102,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 {
 	if(!fname.size())
 	{
-		tlog2 << "Call to loadBitmap with void fname!\n";
+        logGlobal->warnStream() << "Call to loadBitmap with void fname!";
 		return NULL;
 	}
 	if (!CResourceHandler::get()->existsResource(ResourceID(path + fname, EResType::IMAGE)))
@@ -128,7 +128,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 			}
 		}
 		else
-			tlog1<<"Failed to open "<<fname<<" as H3 PCX!\n";
+            logGlobal->errorStream()<<"Failed to open "<<fname<<" as H3 PCX!";
 	}
 	else
 	{ //loading via SDL_Image
@@ -150,7 +150,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 		}
 		else
 		{
-			tlog1<<"Failed to open "<<fname<<" via SDL_Image\n";
+            logGlobal->errorStream()<<"Failed to open "<<fname<<" via SDL_Image";
 		}
 	}
 	SDL_SetColorKey(ret, SDL_SRCCOLORKEY, SDL_MapRGB(ret->format, 0, 255, 255));
@@ -163,7 +163,7 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 
 	if (!(bitmap = loadBitmapFromDir("DATA/", fname, setKey)) &&
 		!(bitmap = loadBitmapFromDir("SPRITES/", fname, setKey)))
-		tlog1<<"Error: Failed to find file "<<fname<<"\n";
+        logGlobal->errorStream()<<"Error: Failed to find file "<<fname;
 
 	return bitmap;
 }

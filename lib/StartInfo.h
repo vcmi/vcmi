@@ -91,7 +91,7 @@ struct StartInfo
 	{
 		if(playerInfos.find(no) != playerInfos.end())
 			return playerInfos[no];
-		tlog1 << "Cannot find info about player " << no <<". Throwing...\n";
+        logGlobal->errorStream() << "Cannot find info about player " << no <<". Throwing...";
 		throw std::runtime_error("Cannot find info about player");
 	}
 

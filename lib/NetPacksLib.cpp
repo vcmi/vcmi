@@ -113,7 +113,7 @@ DLL_LINKAGE void AddQuest::applyGs(CGameState *gs)
 	if (!vstd::contains(*vec, quest))
 		vec->push_back (quest);
 	else
-		tlog2 << "Warning! Attempt to add duplicated quest\n";
+        logNetwork->warnStream() << "Warning! Attempt to add duplicated quest";
 }
 
 DLL_LINKAGE void UpdateArtHandlerLists::applyGs(CGameState *gs)
@@ -257,7 +257,7 @@ DLL_LINKAGE void ChangeObjPos::applyGs( CGameState *gs )
 	CGObjectInstance *obj = gs->getObjInstance(objid);
 	if(!obj)
 	{
-		tlog1 << "Wrong ChangeObjPos: object " << objid.getNum() << " doesn't exist!\n";
+        logNetwork->errorStream() << "Wrong ChangeObjPos: object " << objid.getNum() << " doesn't exist!";
 		return;
 	}
 	gs->map->removeBlockVisTiles(obj);
@@ -604,7 +604,7 @@ DLL_LINKAGE const CStackInstance * StackLocation::getStack()
 {
 	if(!army->hasStackAtSlot(slot))
 	{
-		tlog2 << "Warning: " << army->nodeName() << " dont have a stack at slot " << slot << std::endl;
+        logNetwork->warnStream() << "Warning: " << army->nodeName() << " dont have a stack at slot " << slot;
 		return NULL;
 	}
 	return &army->getStack(slot);
@@ -661,7 +661,7 @@ DLL_LINKAGE const CArtifactInstance *ArtifactLocation::getArt() const
 			return s->artifact;
 		else
 		{
-			tlog3 << "ArtifactLocation::getArt: That location is locked!\n";
+            logNetwork->warnStream() << "ArtifactLocation::getArt: That location is locked!";
 			return NULL;
 		}
 	}
@@ -751,7 +751,7 @@ DLL_LINKAGE void RebalanceStacks::applyGs( CGameState *gs )
 					//else - artifact cna be lost :/
 					else
 					{
-						tlog2 << "Artifact is present at destination slot!";
+                        logNetwork->warnStream() << "Artifact is present at destination slot!";
 					}
 					artHere->move (alHere, alDest);
 					//TODO: choose from dialog
@@ -908,7 +908,7 @@ DLL_LINKAGE void SetAvailableArtifacts::applyGs( CGameState *gs )
 		}
 		else
 		{
-			tlog1 << "Wrong black market id!" << std::endl;
+            logNetwork->errorStream() << "Wrong black market id!";
 		}
 	}
 	else
@@ -960,7 +960,7 @@ DLL_LINKAGE void SetObjectProperty::applyGs( CGameState *gs )
 	CGObjectInstance *obj = gs->getObjInstance(id);
 	if(!obj)
 	{
-		tlog1 << "Wrong object ID - property cannot be set!\n";
+        logNetwork->errorStream() << "Wrong object ID - property cannot be set!";
 		return;
 	}
 
@@ -1082,7 +1082,7 @@ DLL_LINKAGE void BattleTriggerEffect::applyGs( CGameState *gs )
 			st->state.insert(EBattleStackState::FEAR);
 			break;
 		default:
-			tlog2 << "Unrecognized trigger effect type "<< type <<"\n";
+            logNetwork->warnStream() << "Unrecognized trigger effect type "<< type;
 	}
 }
 
@@ -1358,7 +1358,7 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 			}
 		}
 		else
-			tlog1 << "Cannot find stack " << id << std::endl;
+            logNetwork->errorStream() << "Cannot find stack " << id;
 	}
 	typedef std::pair<ui32, Bonus> p;
 	BOOST_FOREACH(p para, uniqueBonuses)
@@ -1372,7 +1372,7 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 				actualizeEffect(s, effect);
 		}
 		else
-			tlog1 << "Cannot find stack " << para.first << std::endl;
+            logNetwork->errorStream() << "Cannot find stack " << para.first;
 	}
 }
 
@@ -1393,7 +1393,7 @@ DLL_LINKAGE void StacksHealedOrResurrected::applyGs( CGameState *gs )
 
 		if(!changedStack->alive() && !accessibility.accessible(changedStack->position, changedStack))
 		{
-			tlog1 << "Cannot resurrect " << changedStack->nodeName() << " because hex " << changedStack->position << " is occupied!\n";
+            logNetwork->errorStream() << "Cannot resurrect " << changedStack->nodeName() << " because hex " << changedStack->position << " is occupied!";
 			return; //position is already occupied
 		}
 
@@ -1501,7 +1501,7 @@ DLL_LINKAGE void BattleStackAdded::applyGs(CGameState *gs)
 {
 	if (!BattleHex(pos).isValid())
 	{
-		tlog2 << "No place found for new stack!\n";
+        logNetwork->warnStream() << "No place found for new stack!";
 		return;
 	}
 

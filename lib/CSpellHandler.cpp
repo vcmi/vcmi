@@ -241,7 +241,7 @@ void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
 {
 	if (level < 0 || level>3)
 	{
-		tlog1 << __FUNCTION__ << " invalid school level " << level;
+        logGlobal->errorStream() << __FUNCTION__ << " invalid school level " << level;
 		return;
 	}
 	lst.reserve(lst.size() + effects[level].size());
@@ -506,7 +506,7 @@ void CSpellHandler::load()
 			auto it = bonusNameMap.find(name);
 			if (it == bonusNameMap.end())
 			{
-				tlog1 << "Error: invalid bonus name" << name << std::endl;
+                logGlobal->errorStream() << "Error: invalid bonus name" << name;
 			}
 			else
 			{

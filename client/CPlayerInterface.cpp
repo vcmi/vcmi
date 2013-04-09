@@ -98,7 +98,7 @@ struct OCM_HLP_CGIN
 
 CPlayerInterface::CPlayerInterface(PlayerColor Player)
 {
-	tlog5 << "\tHuman player interface for player " << Player << " being constructed\n";
+    logGlobal->traceStream() << "\tHuman player interface for player " << Player << " being constructed";
 	observerInDuelMode = false;
 	howManyPeople++;
 	GH.defActionsDef = 0;
@@ -759,7 +759,7 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when it's turn of that stack
 {
 	THREAD_CREATED_BY_CLIENT;
-	tlog5 << "Awaiting command for " << stack->nodeName() << std::endl;
+    logGlobal->traceStream() << "Awaiting command for " << stack->nodeName();
 	CBattleInterface *b = battleInt;
 
 	assert(!b->givenCommand->get()); //command buffer must be clean (we don't want to use old command)
@@ -783,7 +783,7 @@ BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when i
 	b->givenCommand->data = NULL;
 
 	//return command
-	tlog5 << "Giving command for " << stack->nodeName() << std::endl;
+    logGlobal->traceStream() << "Giving command for " << stack->nodeName();
 	return ret;
 }
 
@@ -1207,7 +1207,7 @@ void CPlayerInterface::serialize( CISer<CLoadFile> &h, const int version )
 
 bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 {
-	tlog5 << __FUNCTION__ << std::endl;
+    logGlobal->traceStream() << __FUNCTION__;
 	if(!LOCPLINT->makingTurn)
 		return false;
 	if (!h)
@@ -1232,11 +1232,11 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 	{
 		//evil...
 
-		tlog5 << "before [un]locks in " << __FUNCTION__ << std::endl;
+        logGlobal->traceStream() << "before [un]locks in " << __FUNCTION__;
 		auto unlockEvents = vstd::makeUnlockGuard(eventsM);
 		auto unlockGs = vstd::makeUnlockSharedGuard(cb->getGsMutex()); //GS mutex is above PIM because CClient::run thread first locks PIM and then GS -> so this way we avoid deadlocks
 		auto unlockPim = vstd::makeUnlockGuard(*pim);
-		tlog5 << "after [un]locks in " << __FUNCTION__ << std::endl;
+        logGlobal->traceStream() << "after [un]locks in " << __FUNCTION__;
 		//TODO the above combination works... but it should all be atomic (unlock all three or none)
 
 		{
@@ -1285,13 +1285,13 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 				int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
 				bool guarded = CGI->mh->map->isInTheMap(cb->guardingCreaturePosition(endpos - int3(1, 0, 0)));
 
-				tlog5 << "Requesting hero movement to " << endpos << std::endl;
+                logGlobal->traceStream() << "Requesting hero movement to " << endpos;
 				cb->moveHero(h,endpos);
 
 				while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
 					stillMoveHero.cond.wait(un);
 
-				tlog5 << "Resuming " << __FUNCTION__ << std::endl;
+                logGlobal->traceStream() << "Resuming " << __FUNCTION__;
 				if (guarded || showingDialog->get() == true) // Abort movement if a guard was fought or there is a dialog to display (Mantis #1136)
 					break;
 			}
@@ -1475,7 +1475,7 @@ void CPlayerInterface::waitWhileDialog(bool unlockPim /*= true*/)
 {
 	if(GH.amIGuiThread())
 	{
-		tlog3 << "Cannot wait for dialogs in gui thread (deadlock risk)!\n";
+        logGlobal->warnStream() << "Cannot wait for dialogs in gui thread (deadlock risk)!";
 		return;
 	}
 
@@ -2142,7 +2142,7 @@ CGPath * CPlayerInterface::getAndVerifyPath(const CGHeroInstance * h)
 		CGPath &path = paths[h];
 		if(!path.nodes.size())
 		{
-			tlog3 << "Warning: empty path found...\n";
+            logGlobal->warnStream() << "Warning: empty path found...";
 			paths.erase(h);
 		}
 		else

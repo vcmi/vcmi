@@ -363,7 +363,7 @@ static boost::function<void()> genCommand(CMenuScreen* menu, std::vector<std::st
 			}
 		}
 	}
-	tlog0<<"Failed to parse command: "<<string<<"\n";
+    logGlobal->errorStream()<<"Failed to parse command: "<<string;
 	return boost::function<void()>();
 }
 
@@ -544,7 +544,7 @@ void CGPreGame::openCampaignScreen(std::string name)
 			return;
 		}
 	}
-	tlog1<<"Unknown campaign set: "<<name<<"\n";
+    logGlobal->errorStream()<<"Unknown campaign set: "<<name;
 }
 
 CGPreGame *CGPreGame::create()
@@ -934,7 +934,7 @@ void CSelectionScreen::handleConnection()
 		{
 			CPackForSelectionScreen *pack = NULL;
 			*serv >> pack;
-			tlog5 << "Received a pack of type " << typeid(*pack).name()  << std::endl;
+            logNetwork->traceStream() << "Received a pack of type " << typeid(*pack).name();
 			assert(pack);
 			if(QuitMenuWithoutStarting *endingPack = dynamic_cast<QuitMenuWithoutStarting *>(pack))
 			{
@@ -1112,7 +1112,7 @@ void SelectionTab::parseMaps(const std::vector<ResourceID> & files)
 		}
 		catch(std::exception & e)
 		{
-			tlog2 << "Map " << files[i].getName() << " is invalid. Message: " << e.what() << std::endl;
+            logGlobal->errorStream() << "Map " << files[i].getName() << " is invalid. Message: " << e.what();
 		}
 	}
 }
@@ -1152,7 +1152,7 @@ void SelectionTab::parseGames(const std::vector<ResourceID> &files, bool multi)
 		}
 		catch(const std::exception & e)
 		{
-			tlog3 << "Error: Failed to process " << files[i].getName() <<": " << e.what() << std::endl;
+            logGlobal->errorStream() << "Error: Failed to process " << files[i].getName() <<": " << e.what();
 		}
 	}
 }
@@ -1435,7 +1435,7 @@ void SelectionTab::printMaps(SDL_Surface *to)
 				break;
 			default:
 				// Unknown version. Be safe and ignore that map
-				tlog2 << "Warning: " << currentItem->fileURI << " has wrong version!\n";
+                logGlobal->warnStream() << "Warning: " << currentItem->fileURI << " has wrong version!";
 				continue;
 			}
 			blitAtLoc(format->ourImages[temp].bitmap, 88, 117 + line * 25, to);
@@ -3535,7 +3535,7 @@ void CBonusSelection::updateBonusSelection()
 			case CScenarioTravel::STravelBonus::PLAYER_PREV_SCENARIO:
 				{
 					auto superhero = ourCampaign->camp->scenarios[bonDescs[i].info2].strongestHero(PlayerColor(bonDescs[i].info1));
-					if (!superhero) tlog5 << "No superhero! How could it be transfered?\n";
+                    if (!superhero) logGlobal->warnStream() << "No superhero! How could it be transfered?";
 					picNumber = superhero ? superhero->portrait : 0;
 					desc = CGI->generaltexth->allTexts[719];
 
@@ -3579,13 +3579,9 @@ void CBonusSelection::startMap()
 {
 	StartInfo *si = new StartInfo(sInfo);
 
-	/*if (ourCampaign->mapsConquered.size())
-	{
-		GH.popInts(1);
-	}*/
 	const CCampaignScenario & scenario = ourCampaign->camp->scenarios[ourCampaign->currentMap];
 
-	tlog1 << "Starting scenario " << int(ourCampaign->currentMap) << "\n";
+    logGlobal->infoStream() << "Starting scenario " << int(ourCampaign->currentMap);
 
 	auto exitCb = [si]()
 	{
@@ -3595,13 +3591,13 @@ void CBonusSelection::startMap()
 	if (scenario.prolog.hasPrologEpilog)
 	{
 		GH.pushInt(new CPrologEpilogVideo(scenario.prolog, exitCb));
-		tlog1 << "Video: " << scenario.prolog.prologVideo <<"\n";
-		tlog1 << "Audio: " << scenario.prolog.prologMusic <<"\n";
-		tlog1 << "Text:  " << scenario.prolog.prologText <<"\n";
+        logGlobal->infoStream() << "Video: " << scenario.prolog.prologVideo;
+        logGlobal->infoStream() << "Audio: " << scenario.prolog.prologMusic;
+        logGlobal->infoStream() << "Text:  " << scenario.prolog.prologText;
 	}
 	else
 	{
-		tlog1 << "Without prolog\n";
+        logGlobal->infoStream() << "Without prolog";
 		exitCb();
 	}
 }

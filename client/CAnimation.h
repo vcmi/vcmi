@@ -193,7 +193,7 @@ public:
 	CAnimation();
 	~CAnimation();
 
-	//static method for debugging - print info about loaded animations in tlog1
+    //static method for debugging - print info about loaded animations
 	static void getAnimInfo();
 	static std::set<CAnimation*> loadedAnims;
 

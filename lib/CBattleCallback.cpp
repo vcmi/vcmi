@@ -17,7 +17,7 @@
  *
  */
 
-#define RETURN_IF_NOT_BATTLE(X) if(!duringBattle()) {tlog1 << __FUNCTION__ << " called when no battle!\n"; return X; }
+#define RETURN_IF_NOT_BATTLE(X) if(!duringBattle()) {logGlobal->errorStream() << __FUNCTION__ << " called when no battle!"; return X; }
 
 namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 {
@@ -36,7 +36,7 @@ namespace SiegeStuffThatShouldBeMovedToHandlers //  <=== TODO
 			outMaxDmg = 7.5;
 			break;
 		default:
-			tlog1 << "Unknown turret type!" << std::endl;
+            logGlobal->warnStream() << "Unknown turret type!";
 			outMaxDmg = outMinDmg = 1;
 		}
 	}
@@ -138,7 +138,7 @@ std::vector<shared_ptr<const CObstacleInstance> > CBattleInfoEssentials::battleG
 	{
 		if(!!player && *perspective != battleGetMySide())
 		{
-			tlog1 << "Unauthorized access attempt!\n";
+            logGlobal->errorStream() << "Unauthorized access attempt!";
 			assert(0); //I want to notice if that happens
 			//perspective = battleGetMySide();
 		}
@@ -226,8 +226,8 @@ BattlePerspective::BattlePerspective CBattleInfoEssentials::battleGetMySide() co
 	if(*player == getBattle()->sides[1])
 		return BattlePerspective::RIGHT_SIDE;
 
-	tlog1 << "Cannot find player " << *player << " in battle!\n";
-	return BattlePerspective::INVALID;
+    logGlobal->errorStream() << "Cannot find player " << *player << " in battle!";
+    return BattlePerspective::INVALID;
 }
 
 const CStack * CBattleInfoEssentials::battleActiveStack() const
@@ -271,13 +271,13 @@ const CGHeroInstance * CBattleInfoEssentials::battleGetFightingHero(ui8 side) co
 	RETURN_IF_NOT_BATTLE(nullptr);
 	if(side > 1)
 	{
-		tlog1 << "FIXME: " <<  __FUNCTION__ << " wrong argument!" << std::endl;
+        logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " wrong argument!";
 		return nullptr;
 	}
 
 	if(!battleDoWeKnowAbout(side))
 	{
-		tlog1 << "FIXME: " <<  __FUNCTION__ << " access check " << std::endl;
+        logGlobal->errorStream() << "FIXME: " <<  __FUNCTION__ << " access check ";
 		return nullptr;
 	}
 
@@ -288,7 +288,7 @@ InfoAboutHero CBattleInfoEssentials::battleGetHeroInfo( ui8 side ) const
 {
 	auto hero = getBattle()->heroes[side];
 	if(!hero)
-		tlog3 << __FUNCTION__ << ": side " << (int)side << " does not have hero!\n";
+        logGlobal->warnStream() << __FUNCTION__ << ": side " << (int)side << " does not have hero!";
 
 	return InfoAboutHero(hero, battleDoWeKnowAbout(side));
 }
@@ -305,7 +305,7 @@ ESpellCastProblem::ESpellCastProblem CBattleInfoCallback::battleCanCastSpell(Pla
 	const ui8 side = playerToSide(player);
 	if(!battleDoWeKnowAbout(side))
 	{
-		tlog3 << "You can't check if enemy can cast given spell!\n";
+        logGlobal->warnStream() << "You can't check if enemy can cast given spell!";
 		return ESpellCastProblem::INVALID;
 	}
 
@@ -365,7 +365,7 @@ ui8 CBattleInfoEssentials::playerToSide(PlayerColor player) const
 	RETURN_IF_NOT_BATTLE(-1);
 	int ret = vstd::find_pos(getBattle()->sides, player);
 	if(ret < 0)
-		tlog3 << "Cannot find side for player " << player << std::endl;
+        logGlobal->warnStream() << "Cannot find side for player " << player;
 
 	return ret;
 }
@@ -478,7 +478,7 @@ SpellID CBattleInfoCallback::battleGetRandomStackSpell(const CStack * stack, ERa
 		return getRandomCastedSpell(stack); //caster
 		break;
 	default:
-		tlog1 << "Incorrect mode of battleGetRandomSpell (" << mode <<")\n";
+        logGlobal->errorStream() << "Incorrect mode of battleGetRandomSpell (" << mode <<")";
 		return SpellID::NONE;
 	}
 }
@@ -1242,7 +1242,6 @@ ReachabilityInfo CBattleInfoCallback::getReachability(const CStack *stack) const
 	{
 		//Stack is held by enemy, we can't use his perspective to check for reachability.
 		// Happens ie. when hovering enemy stack for its range. The arg could be set properly, but it's easier to fix it here.
-		//tlog3 << "Falling back to our perspective for reachability lookup for " << stack->nodeName() << std::endl;
 		params.perspective = battleGetMySide();
 	}
 
@@ -1390,7 +1389,7 @@ bool CBattleInfoCallback::isToReverseHlp (BattleHex hexFrom, BattleHex hexTo, bo
 	{
 		return fromDiv % 2 == 1;
 	}
-	tlog1 << "Catastrope in CBattleInfoCallback::isToReverse!" << std::endl;
+    logGlobal->errorStream() << "Catastrope in CBattleInfoCallback::isToReverse!";
 	return false; //should never happen
 }
 
@@ -1716,7 +1715,7 @@ std::vector<BattleHex> CBattleInfoCallback::battleGetPossibleTargets(PlayerColor
 		}
 		break;
 	default:
-		tlog1 << "FIXME " << __FUNCTION__ << " doesn't work with target type " << spell->getTargetType() << std::endl;
+        logGlobal->errorStream() << "FIXME " << __FUNCTION__ << " doesn't work with target type " << spell->getTargetType();
 	}
 
 	return ret;

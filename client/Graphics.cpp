@@ -275,7 +275,7 @@ void Graphics::loadHeroFlags()
 		grupa.create_thread(boost::bind(&Graphics::loadHeroFlags,this,boost::ref(pr[g]),true));
 	}
 	grupa.join_all();
-	tlog0 << "Loading and transforming heroes' flags: "<<th.getDiff()<<std::endl;
+    logGlobal->infoStream() << "Loading and transforming heroes' flags: "<<th.getDiff();
 }
 
 void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
@@ -295,7 +295,7 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, PlayerColor player)
 		}
 		else
 		{
-			tlog1 << "Wrong player id in blueToPlayersAdv (" << player << ")!\n";
+            logGlobal->errorStream() << "Wrong player id in blueToPlayersAdv (" << player << ")!";
 			return;
 		}
 

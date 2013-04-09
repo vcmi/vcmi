@@ -213,7 +213,7 @@ std::string getBuildingSubtitle(const CStructure * structure)//hover text for bu
 		}
 		else
 		{
-			tlog2 << "Problem: dwelling with id " << bid << " offers no creatures!\n";
+            logGlobal->warnStream() << "Problem: dwelling with id " << bid << " offers no creatures!";
 			return "#ERROR#";
 		}
 	}
@@ -570,7 +570,7 @@ const CGHeroInstance* CCastleBuildings::getHero()
 
 void CCastleBuildings::buildingClicked(BuildingID building)
 {
-	tlog5<<"You've clicked on "<<building<<std::endl;
+    logGlobal->traceStream()<<"You've clicked on "<<building;
 	const CBuilding *b = town->town->buildings.find(building)->second;
 
 	if(building >= BuildingID::DWELL_FIRST)
@@ -1143,7 +1143,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 			BOOST_FOREACH(const CStructure * str, town->town->clientInfo.structures)
 			{
 				if (str->building)
-					tlog1 << int(str->building->bid) << " -> " << int(str->pos.z) << "\n";
+                    logGlobal->errorStream() << int(str->building->bid) << " -> " << int(str->pos.z);
 			}
 		}
 		break;
@@ -1159,7 +1159,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 			BOOST_FOREACH(const CStructure * str, town->town->clientInfo.structures)
 			{
 				if (str->building)
-					tlog1 << int(str->building->bid) << " -> " << int(str->pos.z) << "\n";
+                    logGlobal->errorStream() << int(str->building->bid) << " -> " << int(str->pos.z);
 			}
 
 		}

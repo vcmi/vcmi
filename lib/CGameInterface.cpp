@@ -44,16 +44,16 @@ rett * createAny(std::string dllname, std::string methodName)
 		getAI = (rett*(*)())dlsym(dll,methodName.c_str());
 	}
 	else
-		tlog0 << "Error: " << dlerror() <<"\n";
+        logGlobal->errorStream() << "Error: " << dlerror();
 #endif
 	if (!dll)
 	{
-		tlog1 << "Cannot open dynamic library ("<<dllname<<"). Throwing..."<<std::endl;
+        logGlobal->errorStream() << "Cannot open dynamic library ("<<dllname<<"). Throwing...";
 		throw std::runtime_error("Cannot open dynamic library");
 	}
 	else if(!getName || !getAI)
 	{
-		tlog1 << dllname << " does not export method " << methodName << std::endl;
+        logGlobal->errorStream() << dllname << " does not export method " << methodName;
 #ifdef _WIN32
 		FreeLibrary(dll);
 #else
@@ -63,11 +63,11 @@ rett * createAny(std::string dllname, std::string methodName)
 	}
 
 	getName(temp);
-	tlog0 << "Loaded " << temp << std::endl;
+    logGlobal->infoStream() << "Loaded " << temp;
 	ret = getAI();
 
 	if(!ret)
-		tlog1 << "Cannot get AI!\n";
+        logGlobal->errorStream() << "Cannot get AI!";
 
 	return ret;
 }
@@ -75,7 +75,7 @@ rett * createAny(std::string dllname, std::string methodName)
 template<typename rett>
 rett * createAnyAI(std::string dllname, std::string methodName)
 {
-	tlog1<<"Opening "<<dllname<<"\n";
+    logGlobal->infoStream() << "Opening " << dllname;
 	std::string filename = VCMIDirs::get().libraryName(dllname);
 	rett* ret = createAny<rett>(VCMIDirs::get().libraryPath() + "/AI/" + filename, methodName);
 	ret->dllName = dllname;

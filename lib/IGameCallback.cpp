@@ -34,9 +34,9 @@
 
 //TODO make clean
 #define ERROR_SILENT_RET_VAL_IF(cond, txt, retVal) do {if(cond){return retVal;}} while(0)
-#define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)tlog1 << BOOST_CURRENT_FUNCTION << ": " << txt << std::endl; return retVal;}} while(0)
-#define ERROR_RET_IF(cond, txt) do {if(cond){tlog1 << BOOST_CURRENT_FUNCTION << ": " << txt << std::endl; return;}} while(0)
-#define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){tlog1 << BOOST_CURRENT_FUNCTION << ": " << txt << std::endl; return retVal;}} while(0)
+#define ERROR_VERBOSE_OR_NOT_RET_VAL_IF(cond, verbose, txt, retVal) do {if(cond){if(verbose)logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)
+#define ERROR_RET_IF(cond, txt) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return;}} while(0)
+#define ERROR_RET_VAL_IF(cond, txt, retVal) do {if(cond){logGlobal->errorStream() << BOOST_CURRENT_FUNCTION << ": " << txt; return retVal;}} while(0)
 
 extern boost::rand48 ran;
 
@@ -81,7 +81,7 @@ void CPrivilagedInfoCallback::getTilesInRange( boost::unordered_set<int3, ShashI
 {
 	if(!!player && *player >= PlayerColor::PLAYER_LIMIT)
 	{
-		tlog1 << "Illegal call to getTilesInRange!\n";
+        logGlobal->errorStream() << "Illegal call to getTilesInRange!";
 		return;
 	}
 	if (radious == -1) //reveal entire map
@@ -111,7 +111,7 @@ void CPrivilagedInfoCallback::getAllTiles (boost::unordered_set<int3, ShashInt3>
 {
 	if(!!Player && *Player >= PlayerColor::PLAYER_LIMIT)
 	{
-		tlog1 << "Illegal call to getAllTiles !\n";
+        logGlobal->errorStream() << "Illegal call to getAllTiles !";
 		return;
 	}
 	bool water = surface == 0 || surface == 2,
@@ -218,37 +218,37 @@ void CPrivilagedInfoCallback::getAllowedSpells(std::vector<SpellID> &out, ui16 l
 template<typename Loader>
 void CPrivilagedInfoCallback::loadCommonState(Loader &in)
 {
-	tlog0 << "Loading lib part of game...\n";
+    logGlobal->infoStream() << "Loading lib part of game...";
 	in.checkMagicBytes(SAVEGAME_MAGIC);
 
 	CMapHeader dum;
 	StartInfo *si;
 
-	tlog0 <<"\tReading header"<<std::endl;
+    logGlobal->infoStream() <<"\tReading header";
 	in >> dum;
 
-	tlog0 << "\tReading options"<<std::endl;
+    logGlobal->infoStream() << "\tReading options";
 	in >> si;
 
-	tlog0 <<"\tReading handlers"<<std::endl;
+    logGlobal->infoStream() <<"\tReading handlers";
 	in >> *VLC;
 
-	tlog0 <<"\tReading gamestate"<<std::endl;
+    logGlobal->infoStream() <<"\tReading gamestate";
 	in >> gs;
 }
 
 template<typename Saver>
 void CPrivilagedInfoCallback::saveCommonState(Saver &out) const
 {
-	tlog0 << "Saving lib part of game...";
+    logGlobal->infoStream() << "Saving lib part of game...";
 	out.putMagicBytes(SAVEGAME_MAGIC);
-	tlog0 <<"\tSaving header"<<std::endl;
+    logGlobal->infoStream() <<"\tSaving header";
 	out << static_cast<CMapHeader&>(*gs->map);
-	tlog0 << "\tSaving options"<<std::endl;
+    logGlobal->infoStream() << "\tSaving options";
 	out << gs->scenarioOps;
-	tlog0 << "\tSaving handlers"<<std::endl;
+    logGlobal->infoStream() << "\tSaving handlers";
 	out << *VLC;
-	tlog0 << "\tSaving gamestate"<<std::endl;
+    logGlobal->infoStream() << "\tSaving gamestate";
 	out << gs;
 }
 
@@ -293,7 +293,7 @@ const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool v
 	if(oid < 0  ||  oid >= gs->map->objects.size())
 	{
 		if(verbose)
-			tlog1 << "Cannot get object with id " << oid << std::endl;
+            logGlobal->errorStream() << "Cannot get object with id " << oid;
 		return NULL;
 	}
 
@@ -301,14 +301,14 @@ const CGObjectInstance* CGameInfoCallback::getObj(ObjectInstanceID objid, bool v
 	if(!ret)
 	{
 		if(verbose)
-			tlog1 << "Cannot get object with id " << oid << ". Object was removed.\n";
+            logGlobal->errorStream() << "Cannot get object with id " << oid << ". Object was removed.";
 		return NULL;
 	}
 
 	if(!isVisible(ret, player))
 	{
 		if(verbose)
-			tlog1 << "Cannot get object with id " << oid << ". Object is not visible.\n";
+            logGlobal->errorStream() << "Cannot get object with id " << oid << ". Object is not visible.";
 		return NULL;
 	}
 

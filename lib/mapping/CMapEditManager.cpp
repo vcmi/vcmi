@@ -178,8 +178,8 @@ void CMapEditManager::updateTerrainViews(int posx, int posy, int width, int heig
 					ValidationResult valRslt = validateTerrainView(i, j, mapLevel, flip > 0 ? getFlippedPattern(pattern, flip) : pattern);
 					if(valRslt.result)
 					{
-						tlog5 << "Pattern detected at pos " << i << "x" << j << "x" << mapLevel << ": P-Nr. " << k
-							  << ", Flip " << flip << ", Repl. " << valRslt.transitionReplacement << std::endl;
+                        logGlobal->debugStream() << "Pattern detected at pos " << i << "x" << j << "x" << mapLevel << ": P-Nr. " << k
+                              << ", Flip " << flip << ", Repl. " << valRslt.transitionReplacement;
 
 						bestPattern = k;
 						bestFlip = flip;
@@ -191,7 +191,7 @@ void CMapEditManager::updateTerrainViews(int posx, int posy, int width, int heig
 			if(bestPattern == -1)
 			{
 				// This shouldn't be the case
-				tlog2 << "No pattern detected at pos " << i << "x" << j << "x" << mapLevel << std::endl;
+                logGlobal->warnStream() << "No pattern detected at pos " << i << "x" << j << "x" << mapLevel;
 				continue;
 			}
 

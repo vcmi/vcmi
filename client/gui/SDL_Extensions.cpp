@@ -513,7 +513,7 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * src
 	case 3: return blit8bppAlphaTo24bppT<3>(src, srcRect, dst, dstRect);
 	case 4: return blit8bppAlphaTo24bppT<4>(src, srcRect, dst, dstRect);
 	default:
-		tlog1 << (int)dst->format->BitsPerPixel << " bpp is not supported!!!\n";
+        logGlobal->errorStream() << (int)dst->format->BitsPerPixel << " bpp is not supported!!!";
 		return -1;
 	}
 }
@@ -592,7 +592,7 @@ void CSDL_Ext::setPlayerColor(SDL_Surface * sur, PlayerColor player)
 		SDL_SetColors(sur, color, 5, 1);
 	}
 	else
-		tlog3 << "Warning, setPlayerColor called on not 8bpp surface!\n";
+        logGlobal->warnStream() << "Warning, setPlayerColor called on not 8bpp surface!";
 }
 
 TColorPutter CSDL_Ext::getPutterFor(SDL_Surface * const &dest, int incrementing)
@@ -613,7 +613,7 @@ case BytesPerPixel:									\
 		CASE_BPP(3)
 		CASE_BPP(4)
 	default:
-		tlog1 << (int)dest->format->BitsPerPixel << "bpp is not supported!\n";
+        logGlobal->errorStream() << (int)dest->format->BitsPerPixel << "bpp is not supported!";
 		return NULL;
 	}
 
@@ -627,7 +627,7 @@ TColorPutterAlpha CSDL_Ext::getPutterAlphaFor(SDL_Surface * const &dest, int inc
 		CASE_BPP(3)
 		CASE_BPP(4)
 	default:
-		tlog1 << (int)dest->format->BitsPerPixel << "bpp is not supported!\n";
+        logGlobal->errorStream() << (int)dest->format->BitsPerPixel << "bpp is not supported!";
 		return NULL;
 	}
 #undef CASE_BPP
@@ -711,7 +711,7 @@ BlitterWithRotationVal CSDL_Ext::getBlitterWithRotation(SDL_Surface *dest)
 	case 3: return blitWithRotateClipVal<3>;
 	case 4: return blitWithRotateClipVal<4>;
 	default:
-		tlog1 << (int)dest->format->BitsPerPixel << " bpp is not supported!!!\n";
+        logGlobal->errorStream() << (int)dest->format->BitsPerPixel << " bpp is not supported!!!";
 		break;
 	}
 
@@ -727,7 +727,7 @@ BlitterWithRotationVal CSDL_Ext::getBlitterWithRotationAndAlpha(SDL_Surface *des
 	case 3: return blitWithRotateClipValWithAlpha<3>;
 	case 4: return blitWithRotateClipValWithAlpha<4>;
 	default:
-		tlog1 << (int)dest->format->BitsPerPixel << " bpp is not supported!!!\n";
+        logGlobal->errorStream() << (int)dest->format->BitsPerPixel << " bpp is not supported!!!";
 		break;
 	}
 

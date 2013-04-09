@@ -62,24 +62,24 @@ void LibClasses::loadFilesystem()
 	CStopWatch loadTime;
 
 	CResourceHandler::initialize();
-	tlog0<<"\t Initialization: "<<loadTime.getDiff()<<std::endl;
+    logGlobal->infoStream()<<"\t Initialization: "<<loadTime.getDiff();
 
 	CResourceHandler::loadFileSystem("", "ALL/config/filesystem.json");
-	tlog0<<"\t Data loading: "<<loadTime.getDiff()<<std::endl;
+    logGlobal->infoStream()<<"\t Data loading: "<<loadTime.getDiff();
 
 	modh = new CModHandler;
-	tlog0<<"\tMod handler: "<<loadTime.getDiff()<<std::endl;
+    logGlobal->infoStream()<<"\tMod handler: "<<loadTime.getDiff();
 
 	modh->initialize(CResourceHandler::getAvailableMods());
 	CResourceHandler::setActiveMods(modh->getActiveMods());
-	tlog0<<"\t Mod filesystems: "<<loadTime.getDiff()<<std::endl;
+    logGlobal->infoStream()<<"\t Mod filesystems: "<<loadTime.getDiff();
 
-	tlog0<<"Basic initialization: "<<totalTime.getDiff()<<std::endl;
+    logGlobal->infoStream()<<"Basic initialization: "<<totalTime.getDiff();
 }
 
 static void logHandlerLoaded(const std::string& name, CStopWatch &timer)
 {
-   tlog0<<"\t" << name << " handler: "<<timer.getDiff()<<std::endl;
+   logGlobal->infoStream()<<"\t" << name << " handler: "<<timer.getDiff();
 };
 
 template <class Handler> void createHandler(Handler *&handler, const std::string &name, CStopWatch &timer)
