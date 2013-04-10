@@ -104,7 +104,7 @@ void FuzzyHelper::initBank()
 	}
 	catch (fl::FuzzyException fe)
 	{
-		tlog1 << "initBank " << fe.name() << ": " << fe.message() << '\n';
+        logAi->errorStream() << "initBank " << fe.name() << ": " << fe.message();
 	}
 }
 
@@ -180,11 +180,11 @@ void FuzzyHelper::initTacticalAdvantage()
 	}
 	catch(fl::ParsingException pe)
 	{
-		tlog1 << "initTacticalAdvantage " << pe.name() << ": " << pe.message() << '\n';
+        logAi->errorStream() << "initTacticalAdvantage " << pe.name() << ": " << pe.message();
 	}
 	catch (fl::FuzzyException fe)
 	{
-		tlog1 << "initTacticalAdvantage " << fe.name() << ": " << fe.message() << '\n';
+        logAi->errorStream() << "initTacticalAdvantage " << fe.name() << ": " << fe.message();
 	}
 }
 
@@ -215,19 +215,19 @@ ui64 FuzzyHelper::estimateBankDanger (int ID)
 				}
 				catch (fl::FuzzyException fe)
 				{
-					tlog1 << fe.name() << ": " << fe.message() << '\n';
+                    logAi->errorStream() << fe.name() << ": " << fe.message();
 				}
 				break;
 			case 1: //rare case - Pyramid
 				val = evaluateBankConfig (VLC->objh->banksInfo[ID][0]);
 				break;
 			default:
-				tlog3 << ("Uhnandled bank config!\n");
+                logAi->warnStream() << ("Uhnandled bank config!");
 		}
 	}
 	catch (fl::FuzzyException fe)
 	{
-		tlog1 << "estimateBankDanger " << fe.name() << ": " << fe.message() << '\n';
+        logAi->errorStream() << "estimateBankDanger " << fe.name() << ": " << fe.message();
 	}
 	return val;
 
@@ -270,7 +270,7 @@ float FuzzyHelper::getTacticalAdvantage (const CArmedInstance *we, const CArmedI
 	}
 	catch (fl::FuzzyException fe)
 	{
-		tlog1 << "getTacticalAdvantage " << fe.name() << ": " << fe.message() << '\n';
+        logAi->errorStream() << "getTacticalAdvantage " << fe.name() << ": " << fe.message();
 	}
 	return output;
 }

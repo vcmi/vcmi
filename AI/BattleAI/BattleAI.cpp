@@ -10,8 +10,6 @@
 using boost::optional;
 CBattleCallback * cbc;
 
-//#define LOGL(text) tlog6 << (text) << std::endl
-//#define LOGFL(text, formattingEl) tlog6 << boost::str(boost::format(text) % formattingEl) << std::endl
 #define LOGL(text) print(text)
 #define LOGFL(text, formattingEl) print(boost::str(boost::format(text) % formattingEl))
 
@@ -392,7 +390,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 	}
 	catch(std::exception &e)
 	{
-		tlog1 << "Exception occurred in " << __FUNCTION__ << " " << e.what() << std::endl;
+        logAi->errorStream() << "Exception occurred in " << __FUNCTION__ << " " << e.what();
 	}
 
 	return BattleAction::makeDefend(stack);
@@ -471,7 +469,7 @@ void CBattleAI::battleStacksRemoved(const BattleStacksRemoved & bsr)
 
 void CBattleAI::print(const std::string &text) const
 {
-	tlog6 << "CBattleAI [" << this <<"]: " << text << std::endl;
+    logAi->traceStream() << "CBattleAI [" << this <<"]: " << text;
 }
 
 BattleAction CBattleAI::goTowards(const CStack * stack, BattleHex destination)
@@ -486,7 +484,7 @@ BattleAction CBattleAI::goTowards(const CStack * stack, BattleHex destination)
 	auto destNeighbours = destination.neighbouringTiles();
 	if(vstd::contains_if(destNeighbours, [&](BattleHex n) { return stack->coversPos(destination); }))
 	{
-		tlog3 << "Warning: already standing on neighbouring tile!" << std::endl;
+        logAi->warnStream() << "Warning: already standing on neighbouring tile!";
 		//We shouldn't even be here...
 		return BattleAction::makeDefend(stack);
 	}

@@ -9,7 +9,11 @@ set(VCAI_SRCS
         Fuzzy.cpp
 )
 
-add_library(VCAI SHARED ${VCAI_SRCS})
+set(VCAI_HEADERS
+		StdInc.h
+)
+
+add_library(VCAI SHARED ${VCAI_SRCS} ${VCAI_HEADERS})
 target_link_libraries(VCAI FuzzyLite_lib vcmi)
 
 if (NOT APPLE) # Already inside vcmiclient bundle

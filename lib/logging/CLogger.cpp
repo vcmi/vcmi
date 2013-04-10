@@ -56,6 +56,8 @@ CGLogger * logBonus = CGLogger::getLogger(CLoggerDomain("bonus"));
 
 CGLogger * logNetwork = CGLogger::getLogger(CLoggerDomain("network"));
 
+CGLogger * logAi = CGLogger::getLogger(CLoggerDomain("ai"));
+
 CGLogger * CGLogger::getLogger(const CLoggerDomain & domain)
 {
     boost::lock_guard<boost::recursive_mutex> _(smx);
@@ -207,6 +209,16 @@ void CGLogger::clearTargets()
     targets.clear();
 }
 
+bool CGLogger::isDebugEnabled() const
+{
+    return getEffectiveLevel() <= ELogLevel::DEBUG;
+}
+
+bool CGLogger::isTraceEnabled() const
+{
+    return getEffectiveLevel() <= ELogLevel::TRACE;
+}
+
 boost::recursive_mutex CLogManager::smx;
 
 CLogManager & CLogManager::get()
@@ -265,7 +277,7 @@ std::string CLogFormatter::format(const LogRecord & record) const
 
     // Format date
     std::stringstream dateStream;
-    boost::posix_time::time_facet * facet = new boost::posix_time::time_facet("%d-%b-%Y %H:%M:%S");
+    boost::posix_time::time_facet * facet = new boost::posix_time::time_facet("%H:%M:%S");
     dateStream.imbue(std::locale(dateStream.getloc(), facet));
     dateStream << record.timeStamp;
     boost::algorithm::replace_all(message, "%d", dateStream.str());

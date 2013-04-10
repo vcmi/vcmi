@@ -6,7 +6,6 @@
 #include "../../lib/CHeroHandler.h"
 
 #define I_AM_ELEMENTAR return CGoal(*this).setisElementar(true)
-CLogger &aiLogger = tlog6;
 
 extern FuzzyHelper *fh;
 
@@ -136,31 +135,6 @@ bool compareArmyStrength(const CArmedInstance *a1, const CArmedInstance *a2)
 static const int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 	int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
 
-struct AILogger
-{
-	AILogger()
-	{
-		lvl = 0;
-	}
-
-	int lvl;
-
-	struct Tab
-	{
-		Tab();
-		~Tab();
-	};
-} logger;
-
-AILogger::Tab::Tab()
-{
-	logger.lvl++;
-}
-AILogger::Tab::~Tab()
-{
-	logger.lvl--;
-}
-
 struct TimeCheck
 {
 	CStopWatch time;
@@ -171,7 +145,7 @@ struct TimeCheck
 
 	~TimeCheck()
 	{
-		BNLOG("Time of %s was %d ms.", txt % time.getDiff());
+        logAi->debugStream() << boost::format("Time of %s was %d ms.") % txt % time.getDiff();
 	}
 };
 
@@ -454,7 +428,7 @@ bool compareDanger(const CGObjectInstance *lhs, const CGObjectInstance *rhs)
 
 VCAI::VCAI(void)
 {
-	LOG_ENTRY;
+    TRACE_BEGIN(logAi);
 	myCb = NULL;
 	makingTurn = NULL;
 }
@@ -462,19 +436,19 @@ VCAI::VCAI(void)
 
 VCAI::~VCAI(void)
 {
-	LOG_ENTRY;
+    TRACE_BEGIN(logAi);
 }
 
 void VCAI::availableCreaturesChanged(const CGDwelling *town)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::heroMoved(const TryMoveHero & details)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
 		const int3 from = CGHeroInstance::convertPosition(details.start, false),
@@ -486,7 +460,7 @@ void VCAI::heroMoved(const TryMoveHero & details)
 		{
 			knownSubterraneanGates[o1] = o2;
 			knownSubterraneanGates[o2] = o1;
-			BNLOG("Found a pair of subterranean gates between %s and %s!", from % to);
+            logAi->debugStream() << boost::format("Found a pair of subterranean gates between %s and %s!") % from % to;
 		}
 	}
 }
@@ -494,80 +468,80 @@ void VCAI::heroMoved(const TryMoveHero & details)
 void VCAI::stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute)
 {
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
+    TRACE_BEGIN_PARAMS(logAi, "isAbsolute '%i'", isAbsolute);
 }
 
 void VCAI::heroInGarrisonChange(const CGTownInstance *town)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::centerView(int3 pos, int focusTime)
 {
+    TRACE_BEGIN_PARAMS(logAi, "focusTime '%i'", focusTime);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::artifactAssembled(const ArtifactLocation &al)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::showTavernWindow(const CGObjectInstance *townOrTavern)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::showThievesGuildWindow (const CGObjectInstance * obj)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::playerBlocked(int reason)
 {
+    TRACE_BEGIN_PARAMS(logAi, "reason '%i'", reason);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	if (reason == PlayerBlocked::UPCOMING_BATTLE)
 		status.setBattle(UPCOMING_BATTLE);
 }
 
 void VCAI::showPuzzleMap()
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::showShipyardDialog(const IShipyard *obj)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::gameOver(PlayerColor player, bool victory)
 {
+    TRACE_BEGIN_PARAMS(logAi, "victory '%i'", victory);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
-	BNLOG("Player %d: I heard that player %d %s.", playerID % player.getNum() % (victory ? "won" : "lost"));
+    logAi->debugStream() << boost::format("Player %d: I heard that player %d %s.") % playerID % player.getNum() % (victory ? "won" : "lost");
 	if(player == playerID)
 	{
 		if(victory)
 		{
-			tlog0 << "VCAI: I won! Incredible!\n";
-			tlog0 << "Turn nr " << myCb->getDate() << std::endl;
+            logAi->debugStream() << "VCAI: I won! Incredible!";
+            logAi->debugStream() << "Turn nr " << myCb->getDate();
 		}
 		else
 		{
-			tlog0 << "VCAI: Player " << player << " lost. It's me. What a disappointment! :(\n";
+            logAi->debugStream() << "VCAI: Player " << player << " lost. It's me. What a disappointment! :(";
 		}
 
 // 		//let's make Impossible difficulty finally standing to its name :>
@@ -586,33 +560,33 @@ void VCAI::gameOver(PlayerColor player, bool victory)
 
 void VCAI::artifactPut(const ArtifactLocation &al)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::artifactRemoved(const ArtifactLocation &al)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::stacksErased(const StackLocation &location)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::artifactDisassembled(const ArtifactLocation &al)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 
 void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start)
 {
+    TRACE_BEGIN_PARAMS(logAi, "start '%i'", start);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	if (start)
 	{
 		visitedObject = const_cast<CGObjectInstance *>(visitedObj); // remember the object and wait for return
@@ -625,22 +599,22 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 
 void VCAI::availableArtifactsChanged(const CGBlackMarket *bm /*= NULL*/)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	//buildArmyIn(town);
 	//moveCreaturesToHero(town);
 }
 
 void VCAI::tileHidden(const boost::unordered_set<int3, ShashInt3> &pos)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 // 	BOOST_FOREACH(int3 tile, pos)
 // 		BOOST_FOREACH(const CGObjectInstance *obj, cb->getVisitableObjs(tile))
 // 			remove_if_present(visitableObjs, obj);
@@ -649,8 +623,8 @@ void VCAI::tileHidden(const boost::unordered_set<int3, ShashInt3> &pos)
 
 void VCAI::tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	BOOST_FOREACH(int3 tile, pos)
 		BOOST_FOREACH(const CGObjectInstance *obj, myCb->getVisitableObjs(tile))
 			addVisitableObj(obj);
@@ -658,8 +632,8 @@ void VCAI::tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos)
 
 void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 
 	auto firstHero = cb->getHero(hero1);
 	auto secondHero = cb->getHero(hero2);
@@ -679,46 +653,46 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2)
 
 void VCAI::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
 {
+    TRACE_BEGIN_PARAMS(logAi, "which '%i', val '%i'", which % val);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level)
 {
+    TRACE_BEGIN_PARAMS(logAi, "level '%i'", level);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::heroMovePointsChanged(const CGHeroInstance * hero)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::stackChangedType(const StackLocation &location, const CCreature &newType)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::newObject(const CGObjectInstance * obj)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	if(obj->isVisitable())
 		addVisitableObj(obj);
 }
 
 void VCAI::objectRemoved(const CGObjectInstance *obj)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 
 	if(remove_if_present(visitableObjs, obj))
 		assert(obj->isVisitable());
@@ -738,8 +712,8 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 
 void VCAI::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 
 	requestActionASAP([=]()
 	{
@@ -749,38 +723,38 @@ void VCAI::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstan
 
 void VCAI::playerBonusChanged(const Bonus &bonus, bool gain)
 {
+    TRACE_BEGIN_PARAMS(logAi, "gain '%i'", gain);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::newStackInserted(const StackLocation &location, const CStackInstance &stack)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::heroCreated(const CGHeroInstance*)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::advmapSpellCast(const CGHeroInstance * caster, int spellID)
 {
+    TRACE_BEGIN_PARAMS(logAi, "spellID '%i", spellID);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID)
 {
+    TRACE_BEGIN_PARAMS(logAi, "soundID '%i'", soundID);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::requestRealized(PackageApplied *pa)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	if(status.haveTurn())
 	{
 		if(pa->packType == typeList.getTypeID<EndTurn>())
@@ -796,46 +770,46 @@ void VCAI::requestRealized(PackageApplied *pa)
 
 void VCAI::receivedResource(int type, int val)
 {
+    TRACE_BEGIN_PARAMS(logAi, "type '%i', val '%i'", type % val);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::stacksSwapped(const StackLocation &loc1, const StackLocation &loc2)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::heroManaPointsChanged(const CGHeroInstance * hero)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
+    TRACE_BEGIN_PARAMS(logAi, "which '%', val '%'", which % val);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::battleResultsApplied()
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	assert(status.getBattle() == ENDING_BATTLE);
 	status.setBattle(NO_BATTLE);
 }
 
 void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	if(sop->what == ObjProperty::OWNER)
 	{
 		if(sop->val == playerID.getNum())
@@ -846,28 +820,28 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 
 void VCAI::buildChanged(const CGTownInstance *town, BuildingID buildingID, int what)
 {
+    TRACE_BEGIN_PARAMS(logAi, "what '%i'", what);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain)
 {
+    TRACE_BEGIN_PARAMS(logAi, "gain '%i'", gain);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::init(CCallback * CB)
 {
+    TRACE_BEGIN(logAi);
 	myCb = CB;
 	cbc = CB;
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	playerID = *myCb->getMyColor();
 	myCb->waitTillRealize = true;
 	myCb->unlockGsWhenWaiting = true;
@@ -880,32 +854,32 @@ void VCAI::init(CCallback * CB)
 
 void VCAI::yourTurn()
 {
+    TRACE_BEGIN(logAi);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	status.startedTurn();
 	makingTurn = new boost::thread(&VCAI::makeTurn, this);
 }
 
 void VCAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, int queryID)
 {
+    TRACE_BEGIN_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->name % hero->level));
 	requestActionASAP([=]{ answerQuery(queryID, 0); });
 }
 
 void VCAI::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID)
 {
+    TRACE_BEGIN_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	status.addQuery(queryID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->armyObj->nodeName() % (int)commander->level));
 	requestActionASAP([=]{ answerQuery(queryID, 0); });
 }
 
 void VCAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel)
 {
+    TRACE_BEGIN_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i'", text % askID % soundID % selection % cancel);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 	int sel = 0;
 	status.addQuery(askID, boost::str(boost::format("Blocking dialog query with %d components - %s")
 									  % components.size() % text));
@@ -924,8 +898,8 @@ void VCAI::showBlockingDialog(const std::string &text, const std::vector<Compone
 
 void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID)
 {
+    TRACE_BEGIN_PARAMS(logAi, "removableUnits '%i', queryID '%i'", removableUnits % queryID);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 
 	std::string s1 = up ? up->nodeName() : "NONE";
 	std::string s2 = down ? down->nodeName() : "NONE";
@@ -942,14 +916,14 @@ void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *do
 
 void VCAI::serialize(COSer<CSaveFile> &h, const int version)
 {
+    TRACE_BEGIN_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void VCAI::serialize(CISer<CLoadFile> &h, const int version)
 {
+    TRACE_BEGIN_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
-	LOG_ENTRY;
 }
 
 void makePossibleUpgrades(const CArmedInstance *obj)
@@ -977,8 +951,7 @@ void VCAI::makeTurn()
 	boost::shared_lock<boost::shared_mutex> gsLock(cb->getGsMutex());
 	setThreadName("VCAI::makeTurn");
 
-	BNLOG("Player %d starting turn", static_cast<int>(playerID.getNum()));
-	INDENT;
+    logAi->debugStream() << boost::format("Player %d starting turn") % static_cast<int>(playerID.getNum());
 
 	switch(cb->getDate(Date::DAY_OF_WEEK))
 	{
@@ -1094,12 +1067,12 @@ void VCAI::makeTurnInternal()
 	}
 	catch(boost::thread_interrupted &e)
 	{
-		tlog0 << "Making turn thread has been interrupted. We'll end without calling endTurn.\n";
+        logAi->debugStream() << "Making turn thread has been interrupted. We'll end without calling endTurn.";
 		return;
 	}
 	catch(std::exception &e)
 	{
-		tlog0 << "Making turn thread has caught an exception: " << e.what() << "\n";
+        logAi->debugStream() << "Making turn thread has caught an exception: " << e.what();
 	}
 
 	endTurn();
@@ -1108,7 +1081,7 @@ void VCAI::makeTurnInternal()
 bool VCAI::goVisitObj(const CGObjectInstance * obj, HeroPtr h)
 {
 	int3 dst = obj->visitablePos();
-	BNLOG("%s will try to visit %s at (%s)", h->name % obj->getHoverText() % strFromInt3(dst));
+    logAi->debugStream() << boost::format("%s will try to visit %s at (%s)") % h->name % obj->getHoverText() % strFromInt3(dst);
 	return moveHeroToTile(dst, h);
 }
 
@@ -1302,7 +1275,7 @@ bool VCAI::tryBuildStructure(const CGTownInstance * t, BuildingID building, unsi
 		{
 			if(!containsSavedRes(b->resources))
 			{
-				BNLOG("Player %d will build %s in town of %s at %s", playerID % b->Name() % t->name % t->pos);
+                logAi->debugStream() << boost::format("Player %d will build %s in town of %s at %s") % playerID % b->Name() % t->name % t->pos;
 				cb->buildBuilding(t, buildID);
 				return true;
 			}
@@ -1416,7 +1389,7 @@ bool isSafeToVisit(HeroPtr h, crint3 tile)
 	{
 		if(heroStrength / SAFE_ATTACK_CONSTANT > dangerStrength)
 		{
-			BNLOG("It's, safe for %s to visit tile %s", h->name % tile);
+            logAi->debugStream() << boost::format("It's, safe for %s to visit tile %s") % h->name % tile;
 			return true;
 		}
 		else
@@ -1505,7 +1478,7 @@ void VCAI::wander(HeroPtr h)
 				boost::sort(townsNotReachable, compareReinforcements);
 	            //TODO pick the truly best
 	            const CGTownInstance *t = townsNotReachable.back();
-	            BNLOG("%s can't reach any town, we'll try to make our way to %s at %s", h->name % t->name % t->visitablePos());
+                logAi->debugStream() << boost::format("%s can't reach any town, we'll try to make our way to %s at %s") % h->name % t->name % t->visitablePos();
 				int3 pos1 = h->pos;
 				striveToGoal(CGoal(CLEAR_WAY_TO).settile(t->visitablePos()).sethero(h));
 				if (pos1 == h->pos && h == primaryHero()) //hero can't move
@@ -1532,7 +1505,7 @@ void VCAI::wander(HeroPtr h)
 	        }
             else
             {
-				PNLOG("Nowhere more to go...\n");
+                logAi->debugStream() << "Nowhere more to go...";
 				break;
 			}
 		}
@@ -1541,11 +1514,11 @@ void VCAI::wander(HeroPtr h)
 		{
 			if(!dest)
 			{
-				BNLOG("Visit attempt made the object (id=%d) gone...", dest.id.getNum());
+                logAi->debugStream() << boost::format("Visit attempt made the object (id=%d) gone...") % dest.id.getNum();
 			}
 			else
 			{
-				BNLOG("Hero %s apparently used all MPs (%d left)\n", h->name % h->movement);
+                logAi->debugStream() << boost::format("Hero %s apparently used all MPs (%d left)") % h->name % h->movement;
 				reserveObject(h, dest); //reserve that object - we predict it will be reached soon
 
 				//removed - do not forget abstract goal so easily
@@ -1606,7 +1579,7 @@ void VCAI::battleEnd(const BattleResult *br)
 	assert(status.getBattle() == ONGOING_BATTLE);
 	status.setBattle(ENDING_BATTLE);
 	bool won = br->winner == myCb->battleGetMySide();
-	BNLOG("Player %d: I %s the %s!", playerID % (won  ? "won" : "lost") % battlename);
+    logAi->debugStream() << boost::format("Player %d: I %s the %s!") % playerID % (won  ? "won" : "lost") % battlename;
 	battlename.clear();
 	CAdventureAI::battleEnd(br);
 }
@@ -1641,7 +1614,7 @@ void VCAI::validateVisitableObjs()
 	BOOST_FOREACH(const CGObjectInstance *obj, visitableObjs)
 		if(!vstd::contains(hlp, obj))
 		{
-			tlog1 << helperObjInfo[obj].name << " at " << helperObjInfo[obj].pos << " shouldn't be on list!\n";
+            logAi->errorStream() << helperObjInfo[obj].name << " at " << helperObjInfo[obj].pos << " shouldn't be on list!";
 			remove_if_present(visitableObjs, obj);
 			goto start;
 		}
@@ -1753,7 +1726,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		cb->getPath2(dst, path);
 		if(path.nodes.empty())
 		{
-			tlog1 << "Hero " << h->name << " cannot reach " << dst << std::endl;
+            logAi->errorStream() << "Hero " << h->name << " cannot reach " << dst;
 			//setGoal(h, INVALID);
 			completeGoal (CGoal(VISIT_TILE).sethero(h));
 			cb->recalculatePaths();
@@ -1780,7 +1753,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 // 				if(afterEndPos.z != endpos.z)
 //
 // 			}
-			//tlog0 << "Moving " << h->name << " from " << h->getPosition() << " to " << endpos << std::endl;
+            //logAi->debugStream() << "Moving " << h->name << " from " << h->getPosition() << " to " << endpos;
 			cb->moveHero(*h, CGHeroInstance::convertPosition(endpos, true));
 			waitTillFree(); //movement may cause battle or blocking dialog
 			boost::this_thread::interruption_point();
@@ -1810,7 +1783,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			throw cannotFulfillGoalException("Invalid path found!");
 		}
 	}
-	BNLOG("Hero %s moved from %s to %s", h->name % startHpos % h->visitablePos());
+    logAi->debugStream() << boost::format("Hero %s moved from %s to %s") % h->name % startHpos % h->visitablePos();
 	return ret;
 }
 
@@ -1874,7 +1847,7 @@ void getVisibleNeighbours(const std::vector<int3> &tiles, std::vector<int3> &out
 
 void VCAI::tryRealize(CGoal g)
 {
-	BNLOG("Attempting realizing goal with code %s", g.name());
+    logAi->debugStream() << boost::format("Attempting realizing goal with code %s") % g.name();
 	switch(g.goalType)
 	{
 	case EXPLORE:
@@ -2051,10 +2024,10 @@ HeroPtr VCAI::primaryHero() const
 
 void VCAI::endTurn()
 {
-	tlog4 << "Player " << static_cast<int>(playerID.getNum()) << " ends turn\n";
+    logAi->debugStream() << "Player " << static_cast<int>(playerID.getNum()) << " ends turn";
 	if(!status.haveTurn())
 	{
-		tlog1 << "Not having turn at the end of turn???\n";
+        logAi->errorStream() << "Not having turn at the end of turn???";
 	}
 
 	do
@@ -2062,7 +2035,7 @@ void VCAI::endTurn()
 		cb->endTurn();
 	} while(status.haveTurn()); //for some reasons, our request may fail -> stop requesting end of turn only after we've received a confirmation that it's over
 
-	tlog4 << "Player " << static_cast<int>(playerID.getNum()) << " ended turn\n";
+    logAi->debugStream() << "Player " << static_cast<int>(playerID.getNum()) << " ended turn";
 }
 
 bool VCAI::fulfillsGoal (CGoal &goal, CGoal &mainGoal)
@@ -2094,12 +2067,11 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 	while(1)
 	{
 		CGoal goal = ultimateGoal;
-		BNLOG("Striving to goal of type %s", ultimateGoal.name());
+        logAi->debugStream() << boost::format("Striving to goal of type %s") % ultimateGoal.name();
 		int maxGoals = 100; //preventing deadlock for mutually dependent goals, FIXME: do not try to realize goal when loop didn't suceed
 		while(!goal.isElementar && !goal.isAbstract && maxGoals)
 		{
-			INDENT;
-			BNLOG("Considering goal %s", goal.name());
+            logAi->debugStream() << boost::format("Considering goal %s") % goal.name();
 			try
 			{
 				boost::this_thread::interruption_point();
@@ -2108,7 +2080,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			}
 			catch(std::exception &e)
 			{
-				BNLOG("Goal %s decomposition failed: %s", goal.name() % e.what());
+                logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal.name() % e.what();
 				//setGoal (goal.hero, INVALID); //test: if we don't know how to realize goal, we should abandon it for now
 				return;
 			}
@@ -2139,7 +2111,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			if (goal.isAbstract)
 			{
 				abstractGoal = goal; //allow only one abstract goal per call
-				BNLOG("Choosing abstract goal %s", goal.name());
+                logAi->debugStream() << boost::format("Choosing abstract goal %s") % goal.name();
 				break;
 			}
 			else
@@ -2149,7 +2121,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 		}
 		catch(boost::thread_interrupted &e)
 		{
-			BNLOG("Player %d: Making turn thread received an interruption!", playerID);
+            logAi->debugStream() << boost::format("Player %d: Making turn thread received an interruption!") % playerID;
 			throw; //rethrow, we want to truly end this thread
 		}
 		catch(goalFulfilledException &e)
@@ -2160,8 +2132,8 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 		}
 		catch(std::exception &e)
 		{
-			BNLOG("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.", goal.name() % ultimateGoal.name());
-			BNLOG("The error message was: %s", e.what());
+            logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal.name() % ultimateGoal.name();
+            logAi->debugStream() << boost::format("The error message was: %s") % e.what();
 			break;
 		}
 	}
@@ -2183,7 +2155,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 				}
 				catch(std::exception &e)
 				{
-					BNLOG("Goal %s decomposition failed: %s", goal.name() % e.what());
+                    logAi->debugStream() << boost::format("Goal %s decomposition failed: %s") % goal.name() % e.what();
 					//setGoal (goal.hero, INVALID);
 					return;
 				}
@@ -2201,7 +2173,7 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			}
 			catch(boost::thread_interrupted &e)
 			{
-				BNLOG("Player %d: Making turn thread received an interruption!", playerID);
+                logAi->debugStream() << boost::format("Player %d: Making turn thread received an interruption!") % playerID;
 				throw; //rethrow, we want to truly end this thread
 			}
 			catch(goalFulfilledException &e)
@@ -2212,8 +2184,8 @@ void VCAI::striveToGoal(const CGoal &ultimateGoal)
 			}
 			catch(std::exception &e)
 			{
-				BNLOG("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.", goal.name() % ultimateGoal.name());
-				BNLOG("The error message was: %s", e.what());
+                logAi->debugStream() << boost::format("Failed to realize subgoal of type %s (greater goal type was %s), I will stop.") % goal.name() % ultimateGoal.name();
+                logAi->debugStream() << boost::format("The error message was: %s") % e.what();
 				break;
 			}
 		}
@@ -2226,7 +2198,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 	{
 		MetaString ms;
 		q.quest->getRolloverText(ms, false);
-		BNLOG ("Trying to realize quest: %s", ms.toString());
+        logAi->debugStream() << boost::format("Trying to realize quest: %s") % ms.toString();
 		auto heroes = cb->getHeroesInfo();
 
 		switch (q.quest->missionType)
@@ -2324,7 +2296,7 @@ void VCAI::striveToQuest (const QuestInfo &q)
 				}
 				for (int i = 0; i < q.quest->m2stats.size(); ++i)
 				{
-					BNLOG ("Don't know how to increase primary stat %d\n", i);
+                    logAi->debugStream() << boost::format("Don't know how to increase primary stat %d") % i;
 				}
 				break;
 			}
@@ -2339,13 +2311,13 @@ void VCAI::striveToQuest (const QuestInfo &q)
 						return;
 					}
 				}
-				BNLOG ("Don't know how to reach hero level %d\n", q.quest->m13489val);
+                logAi->debugStream() << boost::format("Don't know how to reach hero level %d") % q.quest->m13489val;
 				break;
 			}
 			case CQuest::MISSION_PLAYER:
 			{
 				if (playerID.getNum() != q.quest->m13489val)
-					BNLOG ("Can't be player of color %d\n", q.quest->m13489val);
+                    logAi->debugStream() << boost::format("Can't be player of color %d") % q.quest->m13489val;
 				break;
 			}
 			case CQuest::MISSION_KEYMASTER:
@@ -2361,7 +2333,7 @@ void VCAI::performTypicalActions()
 {
 	BOOST_FOREACH(const CGTownInstance *t, cb->getTownsInfo())
 	{
-		BNLOG("Looking into %s", t->name);
+        logAi->debugStream() << boost::format("Looking into %s") % t->name;
 		buildStructure(t);
 		buildArmyIn(t);
 
@@ -2375,8 +2347,7 @@ void VCAI::performTypicalActions()
 
 	BOOST_FOREACH(auto h, getUnblockedHeroes())
 	{
-		BNLOG("Looking into %s, MP=%d", h->name.c_str() % h->movement);
-		INDENT;
+        logAi->debugStream() << boost::format("Looking into %s, MP=%d") % h->name.c_str() % h->movement;
 		makePossibleUpgrades(*h);
 		cb->setSelection(*h);
 		try
@@ -2385,7 +2356,7 @@ void VCAI::performTypicalActions()
 		}
 		catch(std::exception &e)
 		{
-			BNLOG("Cannot use this hero anymore, received exception: %s", e.what());
+            logAi->debugStream() << boost::format("Cannot use this hero anymore, received exception: %s") % e.what();
 			continue;
 		}
 	}
@@ -2427,7 +2398,7 @@ int3 VCAI::explorationBestNeighbour(int3 hpos, int radius, HeroPtr h)
 int3 VCAI::explorationNewPoint(int radius, HeroPtr h, std::vector<std::vector<int3> > &tiles)
 {
 	TimeCheck tc("looking for new exploration point");
-	PNLOG("Looking for an another place for exploration...");
+    logAi->debugStream() << "Looking for an another place for exploration...";
 	tiles.resize(radius);
 
 	foreach_tile_pos([&](const int3 &pos)
@@ -2521,7 +2492,7 @@ void VCAI::checkHeroArmy (HeroPtr h)
 
 void VCAI::recruitHero(const CGTownInstance * t, bool throwing)
 {
-	BNLOG("Trying to recruit a hero in %s at %s", t->name % t->visitablePos())
+    logAi->debugStream() << boost::format("Trying to recruit a hero in %s at %s") % t->name % t->visitablePos();
 
 	if(auto availableHero = frontOrNull(cb->getAvailableHeroes(t)))
 		cb->recruitHero(t, availableHero);
@@ -2554,7 +2525,7 @@ void VCAI::requestActionASAP(boost::function<void()> whatToDo)
 
 void VCAI::lostHero(HeroPtr h)
 {
-	BNLOG("I lost my hero %s. It's best to forget and move on.\n", h.name);
+    logAi->debugStream() << boost::format("I lost my hero %s. It's best to forget and move on.") % h.name;
 
 	remove_if_present(lockedHeroes, h);
 	BOOST_FOREACH(auto obj, reservedHeroesMap[h])
@@ -2566,14 +2537,14 @@ void VCAI::lostHero(HeroPtr h)
 
 void VCAI::answerQuery(int queryID, int selection)
 {
-	BNLOG("I'll answer the query %d giving the choice %d", queryID % selection);
+    logAi->debugStream() << boost::format("I'll answer the query %d giving the choice %d") % queryID % selection;
 	if(queryID != -1)
 	{
 		cb->selectionMade(selection, queryID);
 	}
 	else
 	{
-		BNLOG("Since the query ID is %d, the answer won't be sent. This is not a real query!", queryID);
+        logAi->debugStream() << boost::format("Since the query ID is %d, the answer won't be sent. This is not a real query!") % queryID;
 		//do nothing
 	}
 }
@@ -2624,7 +2595,7 @@ void AIStatus::addQuery(int ID, std::string description)
 	boost::unique_lock<boost::mutex> lock(mx);
 	if(ID == -1)
 	{
-		BNLOG("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s", ID % description);
+        logAi->debugStream() << boost::format("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s") % ID % description;
 		return;
 	}
 
@@ -2633,7 +2604,7 @@ void AIStatus::addQuery(int ID, std::string description)
 
 	remainingQueries[ID] = description;
 	cv.notify_all();
-	BNLOG("Adding query %d - %s. Total queries count: %d", ID % description % remainingQueries.size());
+    logAi->debugStream() << boost::format("Adding query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
 }
 
 void AIStatus::removeQuery(int ID)
@@ -2644,7 +2615,7 @@ void AIStatus::removeQuery(int ID)
 	std::string description = remainingQueries[ID];
 	remainingQueries.erase(ID);
 	cv.notify_all();
-	BNLOG("Removing query %d - %s. Total queries count: %d", ID % description % remainingQueries.size());
+    logAi->debugStream() << boost::format("Removing query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
 }
 
 int AIStatus::getQueriesCount()
@@ -2685,7 +2656,7 @@ void AIStatus::attemptedAnsweringQuery(int queryID, int answerRequestID)
 	boost::unique_lock<boost::mutex> lock(mx);
 	assert(vstd::contains(remainingQueries, queryID));
 	std::string description = remainingQueries[queryID];
-	BNLOG("Attempted answering query %d - %s. Request id=%d. Waiting for results...", queryID % description % answerRequestID);
+    logAi->debugStream() << boost::format("Attempted answering query %d - %s. Request id=%d. Waiting for results...") % queryID % description % answerRequestID;
 	requestToQueryID[answerRequestID] = queryID;
 }
 
@@ -2702,7 +2673,7 @@ void AIStatus::receivedAnswerConfirmation(int answerRequestID, int result)
 	}
 	else
 	{
-		tlog1 << "Something went really wrong, failed to answer query " << query << ": " << remainingQueries[query];
+        logAi->errorStream() << "Something went really wrong, failed to answer query " << query << ": " << remainingQueries[query];
 		//TODO safely retry
 	}
 }
@@ -2763,8 +2734,7 @@ int3 whereToExplore(HeroPtr h)
 
 TSubgoal CGoal::whatToDoToAchieve()
 {
-	BNLOG("Decomposing goal of type %s", name());
-	INDENT;
+    logAi->debugStream() << boost::format("Decomposing goal of type %s") % name();
 	switch(goalType)
 	{
 	case WIN:
@@ -2915,7 +2885,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			assert(tile.x >= 0); //set tile
 			if(!cb->isVisible(tile))
 			{
-				tlog1 << "Clear way should be used with visible tiles!\n";
+                logAi->errorStream() << "Clear way should be used with visible tiles!";
 				return CGoal(EXPLORE);
 			}
 
@@ -2941,7 +2911,7 @@ TSubgoal CGoal::whatToDoToAchieve()
 			//FIXME: this code shouldn't be necessary
 			if(tileToHit == tile)
 			{
-				tlog1 << boost::format("Very strange, tile to hit is %s and tile is also %s, while hero %s is at %s\n")
+                logAi->errorStream() << boost::format("Very strange, tile to hit is %s and tile is also %s, while hero %s is at %s\n")
 					% tileToHit % tile % h->name % h->visitablePos();
 				throw cannotFulfillGoalException("Retrieving first tile to hit failed (probably)!");
 			}
@@ -3739,7 +3709,7 @@ int3 SectorMap::firstTileToGet(HeroPtr h, crint3 dst)
 			write("test.txt");
 			ai->completeGoal (CGoal(EXPLORE).sethero(h)); //if we can't find the way, seemingly all tiles were explored
 			//TODO: more organized way?
-			throw cannotFulfillGoalException(str(format("Cannot find connection between sectors %d and %d") % src->id % dst->id));
+            throw cannotFulfillGoalException(boost::str(boost::format("Cannot find connection between sectors %d and %d") % src->id % dst->id));
 		}
 
 		std::vector<const Sector*> toTraverse;

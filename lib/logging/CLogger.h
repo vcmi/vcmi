@@ -101,6 +101,11 @@ public:
     void addTarget(unique_ptr<ILogTarget> && target);
     void clearTargets();
 
+    /// Returns true if a debug/trace log message will be logged, false if not.
+    /// Useful if performance is important and concatenating the log message is a expensive task.
+    bool isDebugEnabled() const;
+    bool isTraceEnabled() const;
+
 private:
     explicit CGLogger(const CLoggerDomain & domain);
     CGLogger * getParent() const;
@@ -118,6 +123,14 @@ private:
 extern DLL_LINKAGE CGLogger * logGlobal;
 extern DLL_LINKAGE CGLogger * logBonus;
 extern DLL_LINKAGE CGLogger * logNetwork;
+extern DLL_LINKAGE CGLogger * logAi;
+
+/// Macros for tracing the control flow of the application conveniently. If the TRACE_BEGIN macro is used it should be the first statement in the function, whereas
+/// the TRACE_END should be last one before a return statement. Logging traces via this macro have almost no impact when the trace is disabled.
+#define TRACE_BEGIN(logger) logger->traceStream() << boost::format("Entering %s.") % BOOST_CURRENT_FUNCTION;
+#define TRACE_BEGIN_PARAMS(logger, formatStr, params) if(logger->isTraceEnabled()) logger->traceStream() << boost::format("Entering %s: " + std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params;
+#define TRACE_END(logger) logger->traceStream() << boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION;
+#define TRACE_END_PARAMS(logger, formatStr, params) if(logger->isTraceEnabled()) logger->traceStream() << boost::format("Leaving %s: " + std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params;
 
 /* ---------------------------------------------------------------------------- */
 /* Implementation/Detail classes, Private API */
