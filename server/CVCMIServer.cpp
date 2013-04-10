@@ -28,6 +28,8 @@
 #include "../lib/mapping/CMapInfo.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/GameConstants.h"
+#include "../lib/logging/CBasicLogConfigurator.h"
+#include "../lib/CConfigHandler.h"
 
 #include "../lib/UnlockGuard.h"
 
@@ -74,7 +76,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 			CPackForSelectionScreen *cpfs = NULL;
 			*cpc >> cpfs;
 
-			tlog0 << "Got package to announce " << typeid(*cpfs).name() << " from " << *cpc << std::endl; 
+            logNetwork->infoStream() << "Got package to announce " << typeid(*cpfs).name() << " from " << *cpc;
 
 			boost::unique_lock<boost::recursive_mutex> queueLock(mx);
 			bool quitting = dynamic_cast<QuitMenuWithoutStarting*>(cpfs), 
@@ -102,7 +104,7 @@ void CPregameServer::handleConnection(CConnection *cpc)
 	catch (const std::exception& e)
 	{
 		boost::unique_lock<boost::recursive_mutex> queueLock(mx);
-		tlog0 << *cpc << " dies... \nWhat happened: " << e.what() << std::endl;
+        logNetwork->errorStream() << *cpc << " dies... \nWhat happened: " << e.what();
 	}
 
 	boost::unique_lock<boost::recursive_mutex> queueLock(mx);
@@ -118,13 +120,13 @@ void CPregameServer::handleConnection(CConnection *cpc)
 
 		if(!connections.size())
 		{
-			tlog0 << "Last connection lost, server will close itself...\n";
+            logNetwork->errorStream() << "Last connection lost, server will close itself...";
 			boost::this_thread::sleep(boost::posix_time::seconds(2)); //we should never be hasty when networking
 			state = ENDING_WITHOUT_START;
 		}
 	}
 
-	tlog0 << "Thread listening for " << *cpc << " ended\n";
+    logNetwork->infoStream() << "Thread listening for " << *cpc << " ended";
 	listeningThreads--;
 	vstd::clear_pointer(cpc->handler);
 }
@@ -152,7 +154,7 @@ void CPregameServer::run()
 
 			if(state != RUNNING)
 			{
-				tlog0 << "Stopping listening for connections...\n";
+                logNetwork->infoStream() << "Stopping listening for connections...";
 				acceptor->close();
 			}
 
@@ -166,13 +168,13 @@ void CPregameServer::run()
 		boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 	}
 
-	tlog0 << "Thread handling connections ended\n";
+    logNetwork->infoStream() << "Thread handling connections ended";
 
 	if(state == ENDING_AND_STARTING_GAME)
 	{
-		tlog0 << "Waiting for listening thread to finish...\n";
+        logNetwork->infoStream() << "Waiting for listening thread to finish...";
 		while(listeningThreads) boost::this_thread::sleep(boost::posix_time::milliseconds(50));
-		tlog0 << "Preparing new game\n";
+        logNetwork->infoStream() << "Preparing new game";
 	}
 }
 
@@ -193,11 +195,11 @@ void CPregameServer::connectionAccepted(const boost::system::error_code& ec)
 {
 	if(ec)
 	{
-		tlog0 << "Something wrong during accepting: " << ec.message() << std::endl;
+        logNetwork->infoStream() << "Something wrong during accepting: " << ec.message();
 		return;
 	}
 
-	tlog0 << "We got a new connection! :)\n";
+    logNetwork->infoStream() << "We got a new connection! :)";
 	CConnection *pc = new CConnection(upcomingConnection, NAME);
 	initConnection(pc);
 	upcomingConnection = NULL;
@@ -226,7 +228,7 @@ void CPregameServer::start_async_accept()
 
 void CPregameServer::announceTxt(const std::string &txt, const std::string &playerName /*= "system"*/)
 {
-	tlog0 << playerName << " says: " << txt << std::endl;
+    logNetwork->infoStream() << playerName << " says: " << txt;
 	ChatMessage cm;
 	cm.playerName = playerName;
 	cm.message = txt;
@@ -245,7 +247,7 @@ void CPregameServer::sendPack(CConnection * pc, const CPackForSelectionScreen & 
 {
 	if(!pc->sendStop)
 	{
-		tlog0 << "\tSending pack of type " << typeid(pack).name() << " to " << *pc << std::endl;
+        logNetwork->infoStream() << "\tSending pack of type " << typeid(pack).name() << " to " << *pc;
 		*pc << &pack;
 	}
 
@@ -294,7 +296,7 @@ void CPregameServer::initConnection(CConnection *c)
 {
 	*c >> c->name;
 	connections.insert(c);
-	tlog0 << "Pregame connection with player " << c->name << " established!" << std::endl;
+    logNetwork->infoStream() << "Pregame connection with player " << c->name << " established!";
 }
 
 void CPregameServer::startListeningThread(CConnection * pc)
@@ -307,7 +309,7 @@ void CPregameServer::startListeningThread(CConnection * pc)
 CVCMIServer::CVCMIServer()
 : io(new boost::asio::io_service()), acceptor(new TAcceptor(*io, tcp::endpoint(tcp::v4(), port))), firstConnection(NULL)
 {
-	tlog4 << "CVCMIServer created!" <<std::endl;
+    logNetwork->debugStream() << "CVCMIServer created!";
 }
 CVCMIServer::~CVCMIServer()
 {
@@ -396,7 +398,7 @@ void CVCMIServer::start()
 	}
 
 	boost::system::error_code error;
-	tlog0<<"Listening for connections at port " << acceptor->local_endpoint().port() << std::endl;
+    logNetwork->infoStream()<<"Listening for connections at port " << acceptor->local_endpoint().port();
 	tcp::socket * s = new tcp::socket(acceptor->get_io_service());
 	boost::thread acc(boost::bind(vaccept,acceptor,s,&error));
 	sr->setToTrueAndNotify();
@@ -405,12 +407,12 @@ void CVCMIServer::start()
 	acc.join();
 	if (error)
 	{
-		tlog2<<"Got connection but there is an error " << std::endl << error;
+        logNetwork->warnStream()<<"Got connection but there is an error " << error;
 		return;
 	}
-	tlog0<<"We've accepted someone... " << std::endl;
+    logNetwork->infoStream()<<"We've accepted someone... ";
 	firstConnection = new CConnection(s,NAME);
-	tlog0<<"Got connection!" << std::endl;
+    logNetwork->infoStream()<<"Got connection!";
 	while(!end2)
 	{
 		ui8 mode;
@@ -455,14 +457,14 @@ void CVCMIServer::loadGame()
 // 
 // 		CLoadFile lf(CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::LIB_SAVEGAME)));
 // 		lf >> sig >> dum >> si;
-// 		tlog0 <<"Reading save signature"<<std::endl;
+// 		logNetwork->infoStream() <<"Reading save signature";
 // 
 // 		lf >> *VLC;
-// 		tlog0 <<"Reading handlers"<<std::endl;
+// 		logNetwork->infoStream() <<"Reading handlers";
 // 
 // 		lf >> (gh.gs);
 // 		c.addStdVecItems(gh.gs);
-// 		tlog0 <<"Reading gamestate"<<std::endl;
+// 		logNetwork->infoStream() <<"Reading gamestate";
 // 	}
 
 	{
@@ -486,7 +488,7 @@ void CVCMIServer::loadGame()
 			acceptor->accept(*s,error);
 			if(error) //retry
 			{
-				tlog3<<"Cannot establish connection - retrying..." << std::endl;
+                logNetwork->warnStream()<<"Cannot establish connection - retrying...";
 				i--;
 				continue;
 			}
@@ -507,6 +509,8 @@ int main(int argc, char** argv)
 {
 	logfile = new std::ofstream((VCMIDirs::get().localPath() + "/VCMI_Server_log.txt").c_str());
 	console = new CConsoleHandler;
+    CBasicLogConfigurator logConfig(VCMIDirs::get().localPath() + "/VCMI_Server_log2.txt", console);
+    logConfig.configureDefault();
 	//boost::thread t(boost::bind(&CConsoleHandler::run,::console));
 	if(argc > 1)
 	{
@@ -517,7 +521,10 @@ int main(int argc, char** argv)
 #endif
 	}
 	preinitDLL(console,logfile);
-	tlog0 << "Port " << port << " will be used." << std::endl;
+    settings.init();
+    logConfig.configure();
+
+    logNetwork->infoStream() << "Port " << port << " will be used.";
 	loadDLLClasses();
 	srand ( (ui32)time(NULL) );
 	try
@@ -535,13 +542,13 @@ int main(int argc, char** argv)
 		}
 		catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 		{
-			tlog1 << e.what() << std::endl;
+            logNetwork->errorStream() << e.what();
 			end2 = true;
 		}HANDLE_EXCEPTION
 	}
 	catch(boost::system::system_error &e)
 	{
-		tlog1 << e.what() << std::endl;
+        logNetwork->errorStream() << e.what();
 		//catch any startup errors (e.g. can't access port) errors
 		//and return non-zero status so client can detect error
 		throw;

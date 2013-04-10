@@ -260,7 +260,7 @@ int main(int argc, char** argv)
 	atexit(dispose);
 
     CBasicLogConfigurator logConfig(VCMIDirs::get().localPath() + "/VCMI_Client_log2.txt", console);
-    logConfig.configureDefault(false);
+    logConfig.configureDefault();
     logGlobal->infoStream() <<"Creating console and logfile: "<<pomtime.getDiff();
 
     // Init filesystem and settings
@@ -268,15 +268,7 @@ int main(int argc, char** argv)
     settings.init();
 
     // Initialize logging based on settings
-    try
-    {
-        logConfig.configure();
-        logGlobal->infoStream() << "Initialized logging system successfully.";
-    }
-    catch(const std::exception & e)
-    {
-        std::cout << "Could not initialize the logging system due to configuration error/s. " << e.what() << std::endl;
-    }
+    logConfig.configure();
 
 	// Some basic data validation to produce better error messages in cases of incorrect install
 	auto testFile = [](std::string filename, std::string message) -> bool

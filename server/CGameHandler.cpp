@@ -211,7 +211,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 	}
 
 	//give prim skill
-	tlog5 << hero->name <<" got level "<<hero->level<<std::endl;
+    logGlobal->traceStream() << hero->name <<" got level "<<hero->level;
 	int r = rand()%100, pom=0, x=0;
 
 	auto & skillChances = (hero->level>9) ? hero->type->heroClass->primarySkillLowLevel : hero->type->heroClass->primarySkillHighLevel;
@@ -222,7 +222,7 @@ void CGameHandler::levelUpHero(const CGHeroInstance * hero)
 		if(r<pom)
 			break;
 	}
-	tlog5 << "The hero gets the primary skill with the no. " << x << " with a probability of " << r << "%." <<  std::endl;
+    logGlobal->traceStream() << "The hero gets the primary skill with the no. " << x << " with a probability of " << r << "%.";
 	SetPrimSkill sps;
 	sps.id = hero->id;
 	sps.which = static_cast<PrimarySkill::PrimarySkill>(x);
@@ -904,7 +904,7 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 				c >> player >> requestID >> pack; //get the package
 				packType = typeList.getTypeID(pack); //get the id of type
 
-				tlog5 << boost::format("Received client message (request %d by player %d) of type with ID=%d (%s).\n")
+                logGlobal->traceStream() << boost::format("Received client message (request %d by player %d) of type with ID=%d (%s).\n")
 					% requestID % player.getNum() % packType % typeid(*pack).name();
 			}
 
@@ -927,7 +927,7 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 			else if(apply)
 			{
 				bool result = apply->applyOnGH(this,&c,pack, player);
-				tlog5 << "Message successfully applied (result=" << result << ")!\n";
+                logGlobal->traceStream() << "Message successfully applied (result=" << result << ")!";
 
 				//send confirmation that we've applied the package
 				applied.result = result;
@@ -938,7 +938,7 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 			}
 			else
 			{
-				tlog1 << "Message cannot be applied, cannot find applier (unregistered type)!\n";
+                logGlobal->errorStream() << "Message cannot be applied, cannot find applier (unregistered type)!";
 			}
 
 			vstd::clear_pointer(pack);
@@ -947,12 +947,12 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 	catch(boost::system::system_error &e) //for boost errors just log, not crash - probably client shut down connection
 	{
 		assert(!c.connected); //make sure that connection has been marked as broken
-		tlog1 << e.what() << std::endl;
+        logGlobal->errorStream() << e.what();
 		end2 = true;
 	}
 	HANDLE_EXCEPTION(end2 = true);
 
-	tlog1 << "Ended handling connection\n";
+    logGlobal->errorStream() << "Ended handling connection";
 }
 
 int CGameHandler::moveStack(int stack, BattleHex dest)
@@ -1103,9 +1103,9 @@ void CGameHandler::init(StartInfo *si)
 		si->seedToBeUsed = std::time(NULL);
 
 	gs = new CGameState();
-	tlog0 << "Gamestate created!" << std::endl;
+    logGlobal->infoStream() << "Gamestate created!";
 	gs->init(si);
-	tlog0 << "Gamestate initialized!" << std::endl;
+    logGlobal->infoStream() << "Gamestate initialized!";
 
 	for(auto i = gs->players.begin(); i != gs->players.end(); i++)
 		states.addPlayer(i->first);
@@ -1121,7 +1121,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 	const PlayerState *p = gs->getPlayer(town->tempOwner);
 	if(!p)
 	{
-		tlog3 << "There is no player owner of town " << town->name << " at " << town->pos << std::endl;
+        logGlobal->warnStream() << "There is no player owner of town " << town->name << " at " << town->pos;
 		return;
 	}
 
@@ -1154,7 +1154,7 @@ void CGameHandler::setPortalDwelling(const CGTownInstance * town, bool forced=fa
 
 void CGameHandler::newTurn()
 {
-	tlog5 << "Turn " << gs->day+1 << std::endl;
+    logGlobal->traceStream() << "Turn " << gs->day+1;
 	NewTurn n;
 	n.specialWeek = NewTurn::NO_ACTION;
 	n.creatureid = CreatureID::NONE;
@@ -1459,7 +1459,7 @@ void CGameHandler::newTurn()
 		}
 	}
 
-	tlog5 << "Info about turn " << n.day << "has been sent!" << std::endl;
+    logGlobal->traceStream() << "Info about turn " << n.day << "has been sent!";
 	handleTimeEvents();
 	//call objects
 	for(size_t i = 0; i<gs->map->objects.size(); i++)
@@ -1517,16 +1517,17 @@ void CGameHandler::run(bool resume)
 		std::set<PlayerColor> players;
 		(*cc) >> players; //how many players will be handled at that client
 
-		tlog0 << "Connection " << cc->connectionID << " will handle " << players.size() << " player: ";
+        std::stringstream sbuffer;
+        sbuffer << "Connection " << cc->connectionID << " will handle " << players.size() << " player: ";
 		BOOST_FOREACH(PlayerColor color, players)
 		{
-			tlog0 << color << " ";
+            sbuffer << color << " ";
 			{
 				boost::unique_lock<boost::recursive_mutex> lock(gsm);
 				connections[color] = cc;
 			}
 		}
-		tlog0 << std::endl;
+        logGlobal->infoStream() << sbuffer.str();
 
 		cc->addStdVecItems(gs);
 		cc->enableStackSendingByID();
@@ -1660,7 +1661,7 @@ bool CGameHandler::removeObject( const CGObjectInstance * obj )
 {
 	if(!obj || !getObj(obj->id))
 	{
-		tlog1 << "Something wrong, that object already has been removed or hasn't existed!\n";
+        logGlobal->errorStream() << "Something wrong, that object already has been removed or hasn't existed!";
 		return false;
 	}
 
@@ -1685,16 +1686,16 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 instant, Player
 	if(!h  || (asker != PlayerColor::NEUTRAL && (instant  ||   h->getOwner() != gs->currentPlayer)) //not turn of that hero or player can't simply teleport hero (at least not with this function)
 	  )
 	{
-		tlog1 << "Illegal call to move hero!\n";
+        logGlobal->errorStream() << "Illegal call to move hero!";
 		return false;
 	}
 
-	tlog5 << "Player " << asker << " wants to move hero "<< hid.getNum() << " from "<< h->pos << " to " << dst << std::endl;
+    logGlobal->traceStream() << "Player " << asker << " wants to move hero "<< hid.getNum() << " from "<< h->pos << " to " << dst;
 	int3 hmpos = dst + int3(-1,0,0);
 
 	if(!gs->map->isInTheMap(hmpos))
 	{
-		tlog1 << "Destination tile is outside the map!\n";
+        logGlobal->errorStream() << "Destination tile is outside the map!";
 		return false;
 	}
 
@@ -1766,7 +1767,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 instant, Player
 				//can't move to that tile but we visit object
 				objectVisited(t.visitableObjects.back(), h);
 
-				tlog5 << "Blocking visit at " << hmpos << std::endl;
+                logGlobal->traceStream() << "Blocking visit at " << hmpos;
 				return true;
 			}
 		}
@@ -1810,12 +1811,12 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 instant, Player
 		tmh.attackedFrom = guardPos;
 		applyWithResult(TryMoveHero::SUCCESS);
 
-		tlog5 << "Moved to " <<tmh.end<<std::endl;
+        logGlobal->traceStream() << "Moved to " <<tmh.end;
 
 		if (!tryAttackingGuard(guardPos, h)) // If a creature guards the tile, block visit.
 			visitObjectOnTile(t, h);
 
-		tlog5 << "Movement end!\n";
+        logGlobal->traceStream() << "Movement end!";
 		return true;
 	}
 	else //instant move - teleportation
@@ -1845,7 +1846,7 @@ bool CGameHandler::teleportHero(ObjectInstanceID hid, ObjectInstanceID dstid, ui
 	const CGTownInstance *t = getTown(dstid);
 
 	if ( !h || !t || h->getOwner() != gs->currentPlayer )
-		tlog1<<"Invalid call to teleportHero!";
+        logGlobal->errorStream()<<"Invalid call to teleportHero!";
 
 	const CGTownInstance *from = h->visitedTown;
 	if(((h->getOwner() != t->getOwner())
@@ -2216,7 +2217,7 @@ void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 void CGameHandler::prepareNewQuery(Query * queryPack, PlayerColor player, const boost::function<void(ui32)> &callback)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
-	tlog4 << "Creating a query for player " << player << " with ID=" << QID << std::endl;
+    logGlobal->debugStream() << "Creating a query for player " << player << " with ID=" << QID;
 	callbacks[QID] = callback;
 	states.addQuery(player, QID);
 	queryPack->queryID = QID;
@@ -2239,7 +2240,7 @@ void CGameHandler::ask( Query * sel, PlayerColor player, const CFunctionList<voi
 
 void CGameHandler::sendToAllClients( CPackForClient * info )
 {
-	tlog5 << "Sending to all clients a package of type " << typeid(*info).name() << std::endl;
+    logGlobal->traceStream() << "Sending to all clients a package of type " << typeid(*info).name();
 	for(std::set<CConnection*>::iterator i=conns.begin(); i!=conns.end();i++)
 	{
 		boost::unique_lock<boost::mutex> lock(*(*i)->wmx);
@@ -2297,13 +2298,13 @@ void CGameHandler::sendAndApply( NewStructures * info )
 
 void CGameHandler::save(const std::string & filename )
 {
-	tlog1 << "Saving to " << filename << "\n";
+    logGlobal->errorStream() << "Saving to " << filename;
 	CFileInfo info(filename);
 	CResourceHandler::get()->createResource(info.getStem() + ".vlgm1");
 	CResourceHandler::get()->createResource(info.getStem() + ".vsgm1");
 
 	{
-		tlog0 << "Ordering clients to serialize...\n";
+        logGlobal->infoStream() << "Ordering clients to serialize...";
 		SaveGame sg(info.getStem() + ".vcgm1");
 		sendToAllClients(&sg);
 	}
@@ -2311,7 +2312,7 @@ void CGameHandler::save(const std::string & filename )
 	try
 	{
 // 		{
-// 			tlog0 << "Serializing game info...\n";
+// 			logGlobal->infoStream() << "Serializing game info...";
 // 			CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::LIB_SAVEGAME)));
 // // 			char hlp[8] = "VCMISVG";
 // // 			save << hlp;
@@ -2321,20 +2322,20 @@ void CGameHandler::save(const std::string & filename )
 		{
 			CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::SERVER_SAVEGAME)));
 			saveCommonState(save);
-			tlog0 << "Saving server state\n";
+            logGlobal->infoStream() << "Saving server state";
 			save << *this;
 		}
-		tlog0 << "Game has been successfully saved!\n";
+        logGlobal->infoStream() << "Game has been successfully saved!";
 	}
 	catch(std::exception &e)
 	{
-		tlog1 << "Failed to save game: " << e.what() << std::endl;
+        logGlobal->errorStream() << "Failed to save game: " << e.what();
 	}
 }
 
 void CGameHandler::close()
 {
-	tlog0 << "We have been requested to close.\n";
+    logGlobal->infoStream() << "We have been requested to close.";
 
 	if(gs->initialOpts->mode == StartInfo::DUEL)
 	{
@@ -3294,7 +3295,7 @@ static EndAction end_action;
 
 bool CGameHandler::makeBattleAction( BattleAction &ba )
 {
-	tlog1 << "\tMaking action of type " << ba.actionType << std::endl;
+    logGlobal->errorStream() << "\tMaking action of type " << ba.actionType;
 	bool ok = true;
 
 
@@ -3421,7 +3422,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			BattleHex startingPos = stack->position;
 			int distance = moveStack(ba.stackNumber, ba.destinationTile);
 
-			tlog5 << stack->nodeName() << " will attack " << stackAtEnd->nodeName() << std::endl;
+            logGlobal->traceStream() << stack->nodeName() << " will attack " << stackAtEnd->nodeName();
 
 			if(stack->position != ba.destinationTile //we wasn't able to reach destination tile
 				&& !(stack->doubleWide()
@@ -3430,7 +3431,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				)
 			{
 				std::string problem = "We cannot move this stack to its destination " + stack->getCreature()->namePl;
-				tlog3 << problem << std::endl;
+                logGlobal->warnStream() << problem;
 				complain(problem);
 				ok = false;
 				sendAndApply(&end_action);
@@ -4437,12 +4438,12 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			const CGHeroInstance *secondHero = gs->curB->heroes[!ba.side];
 			if(!h)
 			{
-				tlog2 << "Wrong caster!\n";
+                logGlobal->warnStream() << "Wrong caster!";
 				return false;
 			}
 			if(ba.additionalInfo >= VLC->spellh->spells.size())
 			{
-				tlog2 << "Wrong spell id (" << ba.additionalInfo << ")!\n";
+                logGlobal->warnStream() << "Wrong spell id (" << ba.additionalInfo << ")!";
 				return false;
 			}
 
@@ -4455,8 +4456,8 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				ESpellCastProblem::ESpellCastProblem escp = gs->curB->battleCanCastThisSpell(h->tempOwner, s, ECastingMode::HERO_CASTING);
 				if(escp != ESpellCastProblem::OK)
 				{
-					tlog2 << "Spell cannot be cast!\n";
-					tlog2 << "Problem : " << escp << std::endl;
+                    logGlobal->warnStream() << "Spell cannot be cast!";
+                    logGlobal->warnStream() << "Problem : " << escp;
 					return false;
 				}
 
@@ -4484,7 +4485,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			}
 			else
 			{
-				tlog2 << "Spell " << s->name << " is not yet supported!\n";
+                logGlobal->warnStream() << "Spell " << s->name << " is not yet supported!";
 				return false;
 			}
 		}
@@ -4847,7 +4848,7 @@ void CGameHandler::handleTownEvents(CGTownInstance * town, NewTurn &n)
 bool CGameHandler::complain( const std::string &problem )
 {
 	sendMessageToAll("Server encountered a problem: " + problem);
-	tlog1 << problem << std::endl;
+    logGlobal->errorStream() << problem;
 	return true;
 }
 
@@ -6018,7 +6019,7 @@ void CGameHandler::runBattle()
 					}
 					else
 					{
-						tlog5 << "Activating " << next->nodeName() << std::endl;
+                        logGlobal->traceStream() << "Activating " << next->nodeName();
 						BattleSetActiveStack sas;
 						sas.stack = next->ID;
 						sendAndApply(&sas);
@@ -6173,12 +6174,12 @@ void CGameHandler::spawnWanderingMonsters(CreatureID creatureID)
 	getFreeTiles(tiles);
 	ui32 amount = tiles.size() / 200; //Chance is 0.5% for each tile
 	std::random_shuffle(tiles.begin(), tiles.end());
-	tlog5 << "Spawning wandering monsters. Found " << tiles.size() << " free tiles. Creature type: " << creatureID << std::endl;
+    logGlobal->traceStream() << "Spawning wandering monsters. Found " << tiles.size() << " free tiles. Creature type: " << creatureID;
 	const CCreature *cre = VLC->creh->creatures[creatureID];
 	for (int i = 0; i < amount; ++i)
 	{
 		tile = tiles.begin();
-		tlog5 << "\tSpawning monster at " << *tile << std::endl;
+        logGlobal->traceStream() << "\tSpawning monster at " << *tile;
 		putNewMonster(creatureID, cre->getRandomAmount(std::rand), *tile);
 		tiles.erase(tile); //not use it again
 	}

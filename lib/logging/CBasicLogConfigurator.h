@@ -17,20 +17,19 @@ class CConsoleHandler;
 class JsonNode;
 
 /// The class CBasicLogConfigurator reads log properties from settings.json and
-/// sets up the logging system.
+/// sets up the logging system. Make sure that you use the same configurator object to
+/// initialize the whole logging system. If you don't do so, the log file will be overwritten/truncated.
 class DLL_LINKAGE CBasicLogConfigurator
 {
 public:
     CBasicLogConfigurator(const std::string & filePath, CConsoleHandler * console);
 
     /// Configures the logging system by parsing the logging settings. It adds the console target and the file target to the global logger.
-    /// If the append parameter is true, the log file will be appended to. Otherwise the log file will be truncated.
-    /// Throws std::runtime_error if the configuration has errors.
-    void configure(bool appendToLogFile = true);
+    /// Doesn't throw, but logs on success or fault.
+    void configure();
 
     /// Configures a default logging system by adding the console target and the file target to the global logger.
-    /// If the append parameter is true, the log file will be appended to. Otherwise the log file will be truncated.
-    void configureDefault(bool appendToLogFile = true);
+    void configureDefault();
 
 private:
     ELogLevel::ELogLevel getLogLevel(const std::string & level) const;
@@ -38,4 +37,5 @@ private:
 
     std::string filePath;
     CConsoleHandler * console;
+    bool appendToLogFile;
 };
