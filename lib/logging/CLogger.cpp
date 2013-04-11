@@ -266,9 +266,9 @@ CLogFormatter::CLogFormatter() : pattern("%m")
 
 }
 
-CLogFormatter::CLogFormatter(const std::string & pattern) : pattern(pattern)
+CLogFormatter::CLogFormatter(const std::string & pattern)
 {
-
+	setPattern(pattern);
 }
 
 std::string CLogFormatter::format(const LogRecord & record) const
@@ -370,7 +370,10 @@ EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDom
 
 CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) : console(console), threshold(ELogLevel::INFO), coloredOutputEnabled(true)
 {
-    formatter.setPattern("%l %n [%t] - %m");
+    // more verbose version:
+	//formatter.setPattern("%l %n [%t] - %m");
+
+	formatter.setPattern("%m");
 }
 
 void CLogConsoleTarget::write(const LogRecord & record)

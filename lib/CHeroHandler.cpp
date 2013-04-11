@@ -123,6 +123,7 @@ void CHeroClassHandler::load()
 		JsonNode & classData = h3Data[numeric];
 		JsonUtils::merge(classData, node.second);
 
+		//JsonUtils::validate(classData, "vcmi:heroClass", node.first);
 		heroClasses[numeric] = loadClass(classData);
 		heroClasses[numeric]->id = numeric;
 
@@ -457,6 +458,8 @@ void CHeroHandler::loadHeroes()
 	{
 		ui32 identifier = entry.second["id"].Float();
 		JsonUtils::merge(h3Data[identifier], entry.second);
+
+		//JsonUtils::validate(h3Data[identifier], "vcmi:hero", entry.first);
 		CHero * hero = loadHero(h3Data[identifier]);
 		hero->ID = identifier;
 		heroes[identifier] = hero;

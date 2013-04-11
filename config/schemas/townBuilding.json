@@ -1,5 +1,6 @@
 {
 	"type":"object",
+	"additionalProperties" : false,
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI town building format",
 	"description" : "Format used to define town buildings in VCMI",
@@ -35,6 +36,7 @@
 		},
 		"cost": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description": "Cost to build this building",
 			"properties":{
 				"wood":    { "type":"number"},

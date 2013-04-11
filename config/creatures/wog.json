@@ -22,7 +22,13 @@
 		"id": 151,
 		"level": 8,
 		"faction": "rampart",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//diamond dragon is a dragon
+		"abilities":
+		{
+			"dragon" : 
+			{
+				"type" : "DRAGON_NATURE"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM151Z.DEF"
@@ -46,8 +52,7 @@
 			"animation": "ZM152Z.DEF",
 			"missile" :
 			{
-				"projectile": "CPRGTIX.DEF",
-				"spinning": false
+				"projectile": "CPRGTIX.DEF"
 			}
 		},
 		"sound" :
@@ -65,9 +70,17 @@
 		"id": 153,
 		"level": 8,
 		"faction": "inferno",
-		"abilities": [ [ "FLYING", 0, 1, 0 ] ], 
+		"abilities":
+		{
+			"teleport" :
+			{
+				"type" : "FLYING",
+				"subtype" : 1
+			}
+		},
 		"graphics" :
 		{
+			"missile" : null,
 			"animation": "ZM153Z.DEF"
 		},
 		"sound" :
@@ -78,7 +91,7 @@
 			"move": "ADVLMOVE.wav",
 			"wince": "ADVLWNCE.wav",
 			"startMoving": "ADVLEXT1.wav",
-			"stopMoving": "ADVLEXT2.wav"
+			"endMoving": "ADVLEXT2.wav"
 		}
 	},
 	"bloodDragon" :
@@ -86,8 +99,18 @@
 		"id": 154,
 		"level": 8,
 		"faction": "necropolis",
-		"abilities": [ [ "LIFE_DRAIN", 40, 0, 0 ], //40%
-						[ "DRAGON_NATURE", 0, 0, 0 ] ],			//blood dragon is a dragon
+		"abilities":
+		{
+			"drainsLife" : 
+			{
+				"type" : "LIFE_DRAIN",
+				"val" : 40
+			},
+			"dragon" :
+			{
+				"type" : "DRAGON_NATURE"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM154Z.DEF"
@@ -106,7 +129,13 @@
 		"id": 155,
 		"level": 8,
 		"faction": "dungeon",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//darkness dragon is a dragon
+		"abilities":
+		{
+			"dragon" :
+			{
+				"type" : "DRAGON_NATURE"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM155Z.DEF"
@@ -143,7 +172,10 @@
 		"id": 157,
 		"level": 8,
 		"faction": "fortress",
-		"ability_remove": [ "SHOOTER" ],	//Hell Hydra certainly does not shoot
+		"abilities" : 
+		{
+			"SHOOTER" : null
+		},
 		"graphics" :
 		{
 			"animation": "ZM157Z.DEF"
@@ -195,7 +227,7 @@
 	},
 	"godWar" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"id": 160,
 		"level": 0,
 		"faction": "neutral",
@@ -206,7 +238,7 @@
 	},
 	"godPeace" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"id": 161,
 		"level": 0,
 		"faction": "neutral",
@@ -217,7 +249,7 @@
 	},
 	"godMana" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"id": 162,
 		"level": 0,
 		"faction": "neutral",
@@ -228,7 +260,7 @@
 	},
 	"godLore" :
 	{
-		"special" : true,
+		"disabled" : true,
 		"id": 163,
 		"level": 0,
 		"faction": "neutral",
@@ -314,7 +346,13 @@
 		"id": 168,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": [ [ "FLYING", 0, 0, 0 ] ],      //Gorynyches fly
+		"abilities":
+		{
+			"canFly" :
+			{
+				"type" : "FLYING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM168DG.DEF"
@@ -338,8 +376,7 @@
 			"animation": "ZM169ZL.DEF",
 			"missile" :
 			{
-				"projectile": "CPRZEAX.DEF",
-				"spinning": false
+				"projectile": "CPRZEAX.DEF"
 			}
 		},
 		"sound" :
@@ -362,8 +399,7 @@
 			"animation": "ZM170SW.DEF",
 			"missile" :
 			{
-				"projectile": "PLCBOWX.DEF",
-				"spinning": false
+				"projectile": "PLCBOWX.DEF"
 			}
 		},
 		"sound" :
@@ -386,8 +422,7 @@
 			"animation": "ZM171SR.DEF",
 			"missile" :
 			{
-				"projectile": "PLCBOWX.DEF",
-				"spinning": false
+				"projectile": "PLCBOWX.DEF"
 			}
 		},
 		"sound" :
@@ -425,12 +460,11 @@
 		"faction": "neutral",
 		"graphics" :
 		{
-			"animation": "ZM173M.DEF",
-			"missile" :
-			{
-				"projectile": "CPRGRE.DEF",
-				"spinning": true
-			}
+			"animation": "ZM173M.DEF"
+			//"missile" :
+			//{
+			//	"projectile": "CPRGRE.DEF"
+			//}
 		},
 		"sound" :
 		{
@@ -460,7 +494,7 @@
 				"projectile": "PLCBOWX.DEF"
 			}
 		},
-		"sounds" :
+		"sound" :
 		{
 			"attack": "CRUSATTK.wav",
 			"defend": "CRUSDFND.wav",
@@ -475,11 +509,35 @@
 		"id": 175,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
-						[ "CASTS", 1, 0, 0 ] ,
-						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
-						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, "spell.shield", 0 ] ], //expert shield
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 5
+			},
+			"castsAmount" :
+			{
+				"type" : "CASTS",
+				"val" : 1
+			},
+			"enchant" :
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 1
+			},
+			"spellpower" :
+			{
+				"type" : "CREATURE_SPELL_POWER",
+				"val" : 100
+			},
+			"canCast" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.shield",
+				"val" : 3
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM175NPC.DEF",
@@ -488,7 +546,7 @@
 				"projectile": "CPRZEAX.DEF"
 			}
 		},
-		"sounds" :
+		"sound" :
 		{
 			"attack": "MONKATTK.wav",
 			"defend": "MONKDFND.wav",
@@ -504,11 +562,35 @@
 		"id": 176,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
-						[ "CASTS", 1, 0, 0 ] ,
-						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
-						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, "spell.precision", 0 ] ], //expert precision
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 5
+			},
+			"castsAmount" :
+			{
+				"type" : "CASTS",
+				"val" : 1
+			},
+			"enchant" :
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 1
+			},
+			"spellpower" :
+			{
+				"type" : "CREATURE_SPELL_POWER",
+				"val" : 100
+			},
+			"canCast" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.precision",
+				"val" : 3
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM176NPC.DEF",
@@ -517,15 +599,14 @@
 				"projectile": "PLCBOWX.DEF"
 			}
 		},
-		"sounds" :
+		"sound" :
 		{
 			"attack": "LICHATTK.wav",
 			"defend": "LICHDFND.wav",
 			"killed": "LICHKILL.wav",
 			"move": "LICHMOVE.wav",
 			"shoot": "LICHSHOT.wav",
-			"wince": "LICHWNCE.wav",
-			"ext1": "LICHATK2.wav"
+			"wince": "LICHWNCE.wav"
 		}
 	},
 	"succubus1" :
@@ -534,11 +615,35 @@
 		"id": 177,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
-						[ "CASTS", 1, 0, 0 ] ,
-						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
-						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, "spell.fireShield", 0 ] ], //expert fire shield
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 5
+			},
+			"castsAmount" :
+			{
+				"type" : "CASTS",
+				"val" : 1
+			},
+			"enchant" :
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 1
+			},
+			"spellpower" :
+			{
+				"type" : "CREATURE_SPELL_POWER",
+				"val" : 100
+			},
+			"canCast" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.fireShield",
+				"val" : 3
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM177NPC.DEF",
@@ -547,7 +652,7 @@
 				"projectile": "PLCBOWX.DEF"
 			}
 		},
-		"sounds" :
+		"sound" :
 		{
 			"attack": "SGRGATTK.wav",
 			"defend": "SGRGDFND.wav",
@@ -562,11 +667,35 @@
 		"id": 178,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
-						[ "CASTS", 1, 0, 0 ] ,
-						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
-						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, "spell.animateDead", 0 ] ], //expert animate dead
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 5
+			},
+			"castsAmount" :
+			{
+				"type" : "CASTS",
+				"val" : 1
+			},
+			"enchant" :
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 1
+			},
+			"spellpower" :
+			{
+				"type" : "CREATURE_SPELL_POWER",
+				"val" : 100
+			},
+			"canCast" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.animateDead",
+				"val" : 3
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM178NPC.DEF",
@@ -575,7 +704,7 @@
 				"projectile": "PLCBOWX.DEF"
 			}
 		},
-		"sounds" :
+		"sound" :
 		{
 			"attack": "GNOLATTK.wav",
 			"defend": "GNOLDFND.wav",
@@ -590,11 +719,35 @@
 		"id": 179,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
-						[ "CASTS", 1, 0, 0 ] ,
-						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
-						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, "spell.stoneSkin", 0 ] ], //expert stone skin
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 5
+			},
+			"castsAmount" :
+			{
+				"type" : "CASTS",
+				"val" : 1
+			},
+			"enchant" :
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 1
+			},
+			"spellpower" :
+			{
+				"type" : "CREATURE_SPELL_POWER",
+				"val" : 100
+			},
+			"canCast" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.stoneSkin",
+				"val" : 3
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM179NPC.DEF",
@@ -603,7 +756,7 @@
 				"projectile": "PLCBOWX.DEF"
 			}
 		},
-		"sounds" :
+		"sound" :
 		{
 			"attack": "PFOEATTK.wav",
 			"defend": "PFOEDFND.wav",
@@ -618,11 +771,35 @@
 		"id": 180,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
-						[ "CASTS", 1, 0, 0 ] ,
-						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
-						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, "spell.cure", 0 ] ], //expert cure
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 5
+			},
+			"castsAmount" :
+			{
+				"type" : "CASTS",
+				"val" : 1
+			},
+			"enchant" :
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 1
+			},
+			"spellpower" :
+			{
+				"type" : "CREATURE_SPELL_POWER",
+				"val" : 100
+			},
+			"canCast" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.cure",
+				"val" : 3
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM180NPC.DEF",
@@ -631,7 +808,7 @@
 				"projectile": "PLCBOWX.DEF"
 			}
 		},
-		"sounds" :
+		"sound" :
 		{
 			"attack": "TRLLATTK.wav",
 			"defend": "TRLLDFND.wav",
@@ -646,11 +823,35 @@
 		"id": 181,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
-						[ "CASTS", 1, 0, 0 ] ,
-						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
-						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, "spell.haste", 0 ] ], //expert haste
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 5
+			},
+			"castsAmount" :
+			{
+				"type" : "CASTS",
+				"val" : 1
+			},
+			"enchant" :
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 1
+			},
+			"spellpower" :
+			{
+				"type" : "CREATURE_SPELL_POWER",
+				"val" : 100
+			},
+			"canCast" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.haste",
+				"val" : 3
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM181NPC.DEF",
@@ -659,7 +860,7 @@
 				"projectile": "PLCBOWX.DEF"
 			}
 		},
-		"sounds" :
+		"sound" :
 		{
 			"attack": "AMAGATTK.wav",
 			"defend": "AMAGDFND.wav",
@@ -675,11 +876,35 @@
 		"id": 182,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
-						[ "CASTS", 1, 0, 0 ] ,
-						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
-						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, "spell.counterstrike", 0 ] ], //expert counterstrike
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 5
+			},
+			"castsAmount" :
+			{
+				"type" : "CASTS",
+				"val" : 1
+			},
+			"enchant" :
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 1
+			},
+			"spellpower" :
+			{
+				"type" : "CREATURE_SPELL_POWER",
+				"val" : 100
+			},
+			"canCast" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.counterstrike",
+				"val" : 3
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM182NPC.DEF",
@@ -688,7 +913,7 @@
 				"projectile": "PLCBOWX.DEF"
 			}
 		},
-		"sounds" :
+		"sound" :
 		{
 			"attack": "GENIATTK.wav",
 			"defend": "GENIDFND.wav",
@@ -705,95 +930,139 @@
 		"faction": "neutral",
 		"graphics" :
 		{
-			"animation": "ZM174NPC.DEF"
+			"animation": "ZM174NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
 		}
 	},
 	"hierophant2" :
 	{
 		"special" : true,
+		"disabled" : true,
 		"id": 184,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
 		{
-			"animation": "ZM175NPC.DEF"
+			"animation": "ZM175NPC.DEF",
+			"missile" :
+			{
+				"projectile": "CPRZEAX.DEF"
+			}
 		}
 	},
 	"templeGuardian2" :
 	{
 		"special" : true,
+		"disabled" : true,
 		"id": 185,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
 		{
-			"animation": "ZM176NPC.DEF"
+			"animation": "ZM176NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
 		}
 	},
 	"succubus2" :
 	{
 		"special" : true,
+		"disabled" : true,
 		"id": 186,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
 		{
-			"animation": "ZM177NPC.DEF"
+			"animation": "ZM177NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
 		}
 	},
 	"soulEater2" :
 	{
 		"special" : true,
+		"disabled" : true,
 		"id": 187,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
 		{
-			"animation": "ZM178NPC.DEF"
+			"animation": "ZM178NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
 		}
 	},
 	"brute2" :
 	{
 		"special" : true,
+		"disabled" : true,
 		"id": 188,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
 		{
-			"animation": "ZM179NPC.DEF"
+			"animation": "ZM179NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
 		}
 	},
 	"ogreLeader2" :
 	{
 		"special" : true,
+		"disabled" : true,
 		"id": 189,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
 		{
-			"animation": "ZM180NPC.DEF"
+			"animation": "ZM180NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
 		}
 	},
 	"shaman2" :
 	{
 		"special" : true,
+		"disabled" : true,
 		"id": 190,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
 		{
-			"animation": "ZM181NPC.DEF"
+			"animation": "ZM181NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
 		}
 	},
 	"astralSpirit2" :
 	{
 		"special" : true,
+		"disabled" : true,
 		"id": 191,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
 		{
-			"animation": "ZM182NPC.DEF"
+			"animation": "ZM182NPC.DEF",
+			"missile" :
+			{
+				"projectile": "PLCBOWX.DEF"
+			}
 		}
 	},
 	"sylvanCentaur" :
@@ -806,8 +1075,7 @@
 			"animation": "ZM192Z.DEF",
 			"missile" :
 			{
-				"projectile": "PELFX.DEF",
-				"spinning": true
+				"projectile": "PELFX.DEF"
 			}
 		},
 		"sound" :
@@ -830,8 +1098,7 @@
 			"animation": "ZM193Z.DEF",
 			"missile" :
 			{
-				"projectile": "CPRZEAX.DEF",
-				"spinning": false
+				"projectile": "CPRZEAX.DEF"
 			}
 		},
 		"sound" :
@@ -878,20 +1145,40 @@
 		"id": 196,
 		"level": 10,
 		"faction": "neutral",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],
-					 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],
-					 [ "DRAGON_NATURE", 0, 0, 0 ],
-					 [ "UNDEAD", 0, 0, 0 ],
-					 [ "FLYING", 0, 0, 0 ], 
-					 [ "SPELL_LIKE_ATTACK", 0, "spell.deathCloud", 0 ],
-					 [ "SHOOTER", 0, 0, 0 ] ],
+		"abilities":
+		{
+			"dragon" : 
+			{
+				"type" : "DRAGON_NATURE",
+			},
+			"dragonBreath" :
+			{
+				"type" : "TWO_HEX_ATTACK_BREATH"
+			},
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			},
+			"canFly" : 
+			{
+				"type" : "FLYING"
+			},
+			"deathCloud" :
+			{
+				"type" : "SPELL_LIKE_ATTACK",
+				"subtype" : "spell.deathCloud"
+			},
+			"canShoot" :
+			{
+				"type" : "SHOOTER"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM196Z.DEF",
 			"missile" :
 			{
-				"projectile": "ZSHOT195.DEF",
-				"spinning": false
+				"projectile": "ZSHOT195.DEF"
 			}
 		},
 		"sound" :

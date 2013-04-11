@@ -4,7 +4,14 @@
 		"id": 70,
 		"level": 1,
 		"faction": "dungeon",
-		"abilities": [ [ "SPELL_IMMUNITY", 0, "spell.blind", 0 ] ],	  	   	//troglodytes are immune to blind
+		"abilities":
+		{
+			"blindImmunity" : 
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.blind"
+			}
+		},
 		"upgrades": ["infernalTroglodyte"],
 		"hasDoubleWeek": true,
 		"graphics" :
@@ -25,7 +32,14 @@
 		"id": 71,
 		"level": 1,
 		"faction": "dungeon",
-		"abilities": [ [ "SPELL_IMMUNITY", 0, "spell.blind", 0 ] ],		   	//infernal troglodytes are immune to blind
+		"abilities":
+		{
+			"blindImmunity" : 
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.blind"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CITROG.DEF"
@@ -44,7 +58,13 @@
 		"id": 72,
 		"level": 2,
 		"faction": "dungeon",
-		"abilities": [ [ "RETURN_AFTER_STRIKE", 0, 0, 0 ] ],	   	//Harpies return after attack
+		"abilities":
+		{
+			"strikeAndReturn" : 
+			{
+				"type" : "RETURN_AFTER_STRIKE"
+			}
+		},
 		"upgrades": ["harpyHag"],
 		"hasDoubleWeek": true,
 		"graphics" :
@@ -66,8 +86,17 @@
 		"id": 73,
 		"level": 2,
 		"faction": "dungeon",
-		"abilities": [ [ "RETURN_AFTER_STRIKE", 0, 0, 0 ],	   	//Harpy Hags return after attack
-						 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],	   	//Harpy Hags
+		"abilities":
+		{
+			"strikeAndReturn" : 
+			{
+				"type" : "RETURN_AFTER_STRIKE"
+			},
+			"noRetaliation" : 
+			{
+				"type" : "BLOCKS_RETALIATION"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CHARPH.DEF"
@@ -93,8 +122,7 @@
 			"animation": "CBEHOL.DEF",
 			"missile" :
 			{
-				"projectile": "SMBALX.DEF",
-				"spinning": false
+				"projectile": "SMBALX.DEF"
 			}
 		},
 		"sound" :
@@ -104,8 +132,7 @@
 			"killed": "BHDRKILL.wav",
 			"move": "BHDRMOVE.wav",
 			"shoot": "BHDRSHOT.wav",
-			"wince": "BHDRWNCE.wav",
-			"ext1": "BHDRDETH.wav"
+			"wince": "BHDRWNCE.wav"
 		}
 	},
 	"evilEye" :
@@ -118,8 +145,7 @@
 			"animation": "CEVEYE.DEF",
 			"missile" :
 			{
-				"projectile": "SMBALX.DEF",
-				"spinning": false
+				"projectile": "SMBALX.DEF"
 			}
 		},
 		"sound" :
@@ -129,8 +155,7 @@
 			"killed": "EVLIKILL.wav",
 			"move": "EVLIMOVE.wav",
 			"shoot": "EVLISHOT.wav",
-			"wince": "EVLIWNCE.wav",
-			"ext1": "EVLIDETH.wav"
+			"wince": "EVLIWNCE.wav"
 		}
 	},
 	"medusa" :
@@ -138,15 +163,23 @@
 		"id": 76,
 		"level": 4,
 		"faction": "dungeon",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, "spell.stoneGaze", 2000 ] ],
+		"abilities":
+		{
+			"petrification" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.stoneGaze",
+				"val" : 20,
+				"addInfo" : 2000 // FIXME: replace with range field?
+			}
+		},
 		"upgrades": ["medusaQueen"],
 		"graphics" :
 		{
 			"animation": "CMEDUS.DEF",
 			"missile" :
 			{
-				"projectile": "PMEDUSX.DEF",
-				"spinning": false
+				"projectile": "PMEDUSX.DEF"
 			}
 		},
 		"sound" :
@@ -164,14 +197,22 @@
 		"id": 77,
 		"level": 4,
 		"faction": "dungeon",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, "spell.stoneGaze", 2000 ] ],
+		"abilities":
+		{
+			"petrification" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.stoneGaze",
+				"val" : 20,
+				"addInfo" : 2000 // FIXME: replace with range?
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CMEDUQ.DEF",
 			"missile" :
 			{
-				"projectile": "PMEDUSX.DEF",
-				"spinning": false
+				"projectile": "PMEDUSX.DEF"
 			}
 		},
 		"sound" :
@@ -189,7 +230,13 @@
 		"id": 78,
 		"level": 5,
 		"faction": "dungeon",
-		"abilities": [ [ "SELF_MORALE", 0, 0, 0 ] ],
+		"abilities": 
+		{
+			"fearless" :
+			{
+				"type" : "SELF_MORALE"
+			}
+		 },
 		"upgrades": ["minotaurKing"],
 		"graphics" :
 		{
@@ -209,7 +256,13 @@
 		"id": 79,
 		"level": 5,
 		"faction": "dungeon",
-		"abilities": [ [ "SELF_MORALE", 0, 0, 0 ] ],
+		"abilities":
+		{
+			"fearless" :
+			{
+				"type" : "SELF_MORALE"
+			}
+		 },
 		"graphics" :
 		{
 			"animation": "CMINOK.DEF"
@@ -249,7 +302,15 @@
 		"id": 81,
 		"level": 6,
 		"faction": "dungeon",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, "spell.paralyze", 0 ] ],
+		"abilities":
+		{
+			"paralize" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.paralyze",
+				"val" : 20
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CCMCOR.DEF"
@@ -269,9 +330,22 @@
 		"id": 82,
 		"level": 7,
 		"faction": "dungeon",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//red dragon is a dragon
-						 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//Red Dragon has breath attack
-						 [ "LEVEL_SPELL_IMMUNITY", 3, 0, 0 ] ],   	//red dragon's spell immunity
+		"abilities":
+		{
+			"dragon" : 
+			{
+				"type" : "DRAGON_NATURE"
+			},
+			"fireBreath" :
+			{
+				"type" : "TWO_HEX_ATTACK_BREATH"
+			},
+			"spellImmunity" :
+			{
+				"type" : "LEVEL_SPELL_IMMUNITY",
+				"val" : 3
+			}
+		},
 		"upgrades": ["blackDragon"],
 		"graphics" :
 		{
@@ -291,11 +365,34 @@
 		"id": 83,
 		"level": 7,
 		"faction": "dungeon",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//black dragon is a dragon
-						 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//Black Dragon has breath attack
-						 [ "HATE", 50, "creature.titan", 0 ],	//Hate Titans
-						 [ "HATE", 50, "creature.giant", 0 ],	//Hate Giants
-						 [ "LEVEL_SPELL_IMMUNITY", 5, 0, 0 ] ],   	//black dragon's spell immunity
+		"abilities":
+		{
+			"dragon" : 
+			{
+				"type" : "DRAGON_NATURE"
+			},
+			"fireBreath" :
+			{
+				"type" : "TWO_HEX_ATTACK_BREATH"
+			},
+			"spellImmunity" :
+			{
+				"type" : "LEVEL_SPELL_IMMUNITY",
+				"val" : 5
+			},
+			"hateGiants" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.giant",
+				"val" : 50
+			},
+			"hateTitans" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.titan",
+				"val" : 50
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CBDRGN.DEF"

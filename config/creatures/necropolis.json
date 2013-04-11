@@ -79,7 +79,14 @@
 		"id": 60,
 		"level": 3,
 		"faction": "necropolis",
-		"abilities": [ [ "FULL_HP_REGENERATION", 0, 1, 0 ] ],
+		"abilities":
+		{
+			"regenerate" : 
+			{
+				"type" : "FULL_HP_REGENERATION",
+				"subtype" : 1
+			}
+		},
 		"upgrades": ["wraith"],
 		"hasDoubleWeek": true,
 		"graphics" :
@@ -100,8 +107,19 @@
 		"id": 61,
 		"level": 3,
 		"faction": "necropolis",
-		"abilities": [ [ "FULL_HP_REGENERATION", 0, 1, 0 ],
-						 [ "MANA_DRAIN", 2, 0, 0 ] ],
+		"abilities":
+		{
+			"regenerate" : 
+			{
+				"type" : "FULL_HP_REGENERATION",
+				"subtype" : 1
+			},
+			"drainsMana" :
+			{
+				"type" : "MANA_DRAIN",
+				"val" : 2
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CWRAIT.DEF"
@@ -120,7 +138,14 @@
 		"id": 62,
 		"level": 4,
 		"faction": "necropolis",
-		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],
+		"abilities":
+		{
+			"noRetalitation" : 
+			{
+				"type" : "BLOCKS_RETALIATION",
+				"subtype" : 1
+			}
+		},
 		"upgrades": ["vampireLord"],
 		"graphics" :
 		{
@@ -134,7 +159,7 @@
 			"move": "VAMPMOVE.wav",
 			"wince": "VAMPWNCE.wav",
 			"startMoving": "VAMPEXT1.wav",
-			"stopMoving": "VAMPEXT2.wav"
+			"endMoving": "VAMPEXT2.wav"
 		}
 	},
 	"vampireLord" :
@@ -142,8 +167,19 @@
 		"id": 63,
 		"level": 4,
 		"faction": "necropolis",
-		"abilities": [ [ "LIFE_DRAIN", 100, 0, 0 ], //drain 100% of damage dealt
-						 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],
+		"abilities":
+		{
+			"noRetalitation" : 
+			{
+				"type" : "BLOCKS_RETALIATION",
+				"subtype" : 1
+			},
+			"drainsLife" :
+			{
+				"type" : "LIFE_DRAIN",
+				"val" : 100
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CNOSFE.DEF"
@@ -156,8 +192,8 @@
 			"move": "NOSFMOVE.wav",
 			"shoot": "NOSFSHOT.wav",
 			"wince": "NOSFWNCE.wav",
-			"ext1": "NOSFEXT1.wav",
-			"ext2": "NOSFEXT2.wav"
+			"startMoving": "NOSFEXT1.wav",
+			"endMoving": "NOSFEXT2.wav"
 		}
 	},
 	"lich" :
@@ -165,15 +201,21 @@
 		"id": 64,
 		"level": 5,
 		"faction": "necropolis",
-		"abilities": [ [ "SPELL_LIKE_ATTACK", 0, "spell.deathCloud", 0 ] ],
+		"abilities":
+		{
+			"deathCloud" :
+			{
+				"type" : "SPELL_LIKE_ATTACK",
+				"subtype" : "spell.deathCloud"
+			}
+		},
 		"upgrades": ["powerLich"],
 		"graphics" :
 		{
 			"animation": "CLICH.DEF",
 			"missile" :
 			{
-				"projectile": "PLICH.DEF",
-				"spinning": false
+				"projectile": "PLICH.DEF"
 			}
 		},
 		"sound" :
@@ -183,8 +225,7 @@
 			"killed": "LICHKILL.wav",
 			"move": "LICHMOVE.wav",
 			"shoot": "LICHSHOT.wav",
-			"wince": "LICHWNCE.wav",
-			"ext1": "LICHATK2.wav"
+			"wince": "LICHWNCE.wav"
 		}
 	},
 	"powerLich" :
@@ -192,14 +233,20 @@
 		"id": 65,
 		"level": 5,
 		"faction": "necropolis",
-		"abilities": [ [ "SPELL_LIKE_ATTACK", 0, "spell.deathCloud", 0 ] ], 		//power liches
+		"abilities":
+		{
+			"deathCloud" :
+			{
+				"type" : "SPELL_LIKE_ATTACK",
+				"subtype" : "spell.deathCloud"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CPLICH.DEF",
 			"missile" :
 			{
-				"projectile": "PLICH.DEF",
-				"spinning": false
+				"projectile": "PLICH.DEF"
 			}
 		},
 		"sound" :
@@ -217,7 +264,15 @@
 		"id": 66,
 		"level": 6,
 		"faction": "necropolis",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, "spell.curse", 0 ] ], 	
+		"abilities":
+		{
+			"curses" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.curse",
+				"val" : 20
+			}
+		},
 		"upgrades": ["dreadKnight"],
 		"graphics" :
 		{
@@ -237,8 +292,20 @@
 		"id": 67,
 		"level": 6,
 		"faction": "necropolis",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, "spell.curse", 0 ], 	
-						 [ "DOUBLE_DAMAGE_CHANCE", 20, 0, 0 ] ],
+		"abilities":
+		{
+			"curses" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.curse",
+				"val" : 20
+			},
+			"deathStrike" :
+			{
+				"type" : "DOUBLE_DAMAGE_CHANCE",
+				"val" : 20
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CBLORD.DEF"
@@ -257,7 +324,13 @@
 		"id": 68,
 		"level": 7,
 		"faction": "necropolis",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//bone dragon is a dragon
+		"abilities" :
+		{
+			"dragon" :
+			{
+				"type" : "DRAGON_NATURE"
+			}
+		},
 		"upgrades": ["ghostDragon"],
 		"graphics" :
 		{
@@ -277,8 +350,19 @@
 		"id": 69,
 		"level": 7,
 		"faction": "necropolis",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//ghost dragon is a dragon
-						 [ "SPELL_AFTER_ATTACK", 20, "spell.age", 0 ] ],  	
+		"abilities":
+		{
+			"dragon" :
+			{
+				"type" : "DRAGON_NATURE"
+			},
+			"age" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.age",
+				"val" : 20
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CHDRGN.DEF"

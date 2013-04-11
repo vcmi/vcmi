@@ -3,14 +3,25 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI creature format",
 	"description": "Json format for defining new creatures in VCMI",
-	"required" : [
-		"name", "faction", "cost", "level", "fightValue", "aiValue",
-		"attack", "defense", "hitPoints", "speed", "damage", "advMapAmount",
-		"graphics", "sound"
+	"required" : [ "faction" ],
+	"anyOf" : [
+		{
+			"disabled" : { "enum" : [ true ] }
+		},
+		{
+			"required" : [
+				"name", "cost", "level", "fightValue", "aiValue",
+				"attack", "defense", "hitPoints", "speed", "damage", "advMapAmount",
+				"graphics", "sound"
+			]
+		}
 	],
+	
+	"additionalProperties" : false,
 	"properties":{
 		"name": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description": "Translatable names for this creature",
 			"required" : [ "singular", "plural" ],
 			"properties":{
@@ -24,12 +35,26 @@
 				}
 			}
 		},
+		"abilityText" : {
+			"type" : "string",
+			"description" : "Text version of creature abilities. Used only with original creature window"
+		},
+		"id" : {
+			"type" : "number",
+			"description" : "Private field to break things, do not use."
+		},
+		"extraNames" : {
+			"type" : "array",
+			"items" : { "type" : "string" },
+			"description" : "Private field to break things, do not use."
+		},
 		"faction": {
 			"type":"string",
 			"description": "Faction this creature belongs to. Examples: castle, rampart"
 		},
 		"cost": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description": "Cost to recruit this creature",
 			"properties":{
 				"wood":    { "type":"number"},
@@ -44,6 +69,10 @@
 		"special": {
 			"type":"boolean",
 			"description": "Marks this object as special and not available by default"
+		},
+		"disabled": {
+			"type":"boolean",
+			"description": "Object is competely disabled and may not be even loaded in-game"
 		},
 		"level": { "type":"number"},
 		"fightValue": {
@@ -70,6 +99,7 @@
 
 		"damage": {
 			"type":"object",
+			"additionalProperties" : false,
 			"properties":{
 				"max": { "type":"number" },
 				"min": { "type":"number" }
@@ -81,6 +111,7 @@
 		},
 		"advMapAmount": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description" : "Initial size of random stacks on adventure map",
 			"properties":{
 				"min": { "type":"number" },
@@ -101,15 +132,18 @@
 			"description": "creature may receive \"week of\" events"
 		},
 		"abilities": {
-			"type":"array",
 			"description": "Creature abilities described using Bonus system",
-			"items": { "$ref" : "vcmi:bonus" }
+			"type":"object",
+			"additionalProperties": {
+				"$ref" : "vcmi:bonus"
+			}
 		},
 		"stackExperience": {
 			"type":"array",
 			"description": "Stack experience, using bonus system",
 			"items":{
 				"type":"object",
+				"additionalProperties" : false,
 				"required" : [ "bonus", "values" ],
 				"description": "0",
 				"properties":{
@@ -119,7 +153,6 @@
 						"minItems" : 10,
 						"maxItems" : 10,
 						"description": "Strength of the bonus",
-						"additionalItems" : true,
 						"anyof" : [
 							{ "items": { "type" : "number"  } },
 							{ "items": { "type" : "boolean" } }
@@ -130,14 +163,16 @@
 		},
 		"graphics": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description": "Describes how this creature looks like during battles",
 			"required" : [
-				"animationTime", "iconLarge", "iconSmall", "iconIndex",
-				"map", "animation", "attackClimaxFrame", "timeBetweenFidgets"
+				"animationTime", "iconIndex",
+				"map", "animation", "timeBetweenFidgets"
 			],
 			"properties":{
 				"animationTime": {
 					"type":"object",
+					"additionalProperties" : false,
 					"required" : [ "attack", "flight", "walk" ],
 					"description": "Length of several animations",
 					"properties":{
@@ -176,13 +211,10 @@
 					"type":"string",
 					"description": ".def file with animation of this creature in battles"
 				},
-				"attackClimaxFrame": {
-					"type":"number",
-					"description": "Frame from attack animation during which creature deals damage"
-				},
 				"missile": {
 					"type":"object",
-					"required" : [ "projectile", "frameAngles", "offset" ],
+					"additionalProperties" : false,
+					"required" : [ "projectile", "frameAngles", "offset", "attackClimaxFrame" ],
 					"description": "Missile description for archers",
 					"properties":{
 						"projectile": {
@@ -201,6 +233,7 @@
 						},
 						"offset": {
 							"type":"object",
+							"additionalProperties" : false,
 							"required" : [ "lowerX", "lowerY", "middleX", "middleY", "upperX", "upperY" ],
 							"description": "Position where projectile image appears during shooting in specific direction",
 							"properties":{
@@ -211,6 +244,10 @@
 								"upperX":  { "type":"number" },
 								"upperY":  { "type":"number" }
 							}
+						},
+						"attackClimaxFrame": {
+							"type":"number",
+							"description": "Frame from attack animation during which creature deals damage"
 						}
 					}
 				},
@@ -226,18 +263,17 @@
 		},
 		"sound": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description": "Various sound files associated with this creature",
 			"properties":{
-				"attack":    { "type":"string" },
-				"defend":    { "type":"string" },
-				"killed":    { "type":"string" },
-				"moveEnd":   { "type":"string" },
-				"moveStart": { "type":"string" },
-				"move":      { "type":"string" },
-				"shoot":     { "type":"string" },
-				"wince":     { "type":"string" },
-				"ext1":      { "type":"string" },
-				"ext2":      { "type":"string" }
+				"attack":      { "type":"string" },
+				"defend":      { "type":"string" },
+				"killed":      { "type":"string" },
+				"startMoving": { "type":"string" },
+				"endMoving":   { "type":"string" },
+				"move":        { "type":"string" },
+				"shoot":       { "type":"string" },
+				"wince":       { "type":"string" }
 			}
 		}
 	}

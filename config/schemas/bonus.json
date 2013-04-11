@@ -4,6 +4,8 @@
 	"title" : "VCMI bonus system format",
 	"description" : "Subsection of several formats, used to add generic bonuses to objects",
 	"required": ["type"],
+
+	"additionalProperties" : false,
 	"properties":{
 		"addInfo": {
 			"anyOf" : [
@@ -28,18 +30,26 @@
 			"type":"array",
 			"description": "limiters",
 			"items": {
-				"type":"object",
-				"properties" : {
-					"parameters": {
-						"type":"array",
-						"description" : "parameters",
-						"additionalItems": true
+				"oneOf" : [
+					{
+						"type":"object",
+						"additionalProperties" : false,
+						"properties" : {
+							"parameters": {
+								"type":"array",
+								"description" : "parameters",
+								"additionalItems": true
+							},
+							"type": {
+								"type":"string",
+								"description": "type",
+							}
+						}
 					},
-					"type": {
-						"type":"string",
-						"description": "type",
+					{
+						"type" : "string"
 					}
-				}
+				]
 			}
 		},
 		"propagator": {

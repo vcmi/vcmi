@@ -139,8 +139,7 @@ bool CDefenceAnimation::init()
 			int attackerAnimType = owner->creAnims[attacker->ID]->getType();
 			if( ( attackerAnimType == CCreatureAnim::ATTACK_UP ||
 			    attackerAnimType == CCreatureAnim::ATTACK_FRONT ||
-			    attackerAnimType == CCreatureAnim::ATTACK_DOWN ) &&
-			    owner->creAnims[attacker->ID]->getFrame() < attacker->getCreature()->animation.attackClimaxFrame )
+			    attackerAnimType == CCreatureAnim::ATTACK_DOWN ) )
 				return false;
 		}
 

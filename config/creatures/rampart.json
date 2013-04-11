@@ -8,6 +8,7 @@
 		"hasDoubleWeek": true,
 		"graphics" :
 		{
+			"missile" : null,
 			"animation": "CCENTR.DEF"
 		},
 		"sound" :
@@ -27,6 +28,7 @@
 		"faction": "rampart",
 		"graphics" :
 		{
+			"missile" : null,
 			"animation": "CECENT.DEF"
 		},
 		"sound" :
@@ -43,7 +45,14 @@
 		"id": 16,
 		"level": 2,
 		"faction": "rampart",
-		"abilities": [ [ "MAGIC_RESISTANCE", 20, 0, 0 ] ], 		//dwarf's magic resistance 20%
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 20
+			}
+		},
 		"upgrades": ["battleDwarf"],
 		"graphics" :
 		{
@@ -63,7 +72,14 @@
 		"id": 17,
 		"level": 2,
 		"faction": "rampart",
-		"abilities": [ [ "MAGIC_RESISTANCE", 40, 0, 0 ] ], 	 	//battle dwarf's magic resistance 40%
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 40
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CBDWAR.DEF"
@@ -88,8 +104,7 @@
 			"animation": "CELF.DEF",
 			"missile" :
 			{
-				"projectile": "PELFX.DEF",
-				"spinning": false
+				"projectile": "PELFX.DEF"
 			}
 		},
 		"sound" :
@@ -107,20 +122,21 @@
 		"id": 19,
 		"level": 3,
 		"faction": "rampart",
-		"abilities": [
-						{
-							"type": "ADDITIONAL_ATTACK",
-							"val" : 1,
-							"effectRange": "ONLY_DISTANCE_FIGHT"
-						}
-					],	
+		"abilities": 
+		{
+			"doubleShot" :
+			{
+				"type": "ADDITIONAL_ATTACK",
+				"val" : 1,
+				"effectRange": "ONLY_DISTANCE_FIGHT"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CGRELF.DEF",
 			"missile" :
 			{
-				"projectile": "PELFX.DEF",
-				"spinning": false
+				"projectile": "PELFX.DEF"
 			}
 		},
 		"sound" :
@@ -138,7 +154,14 @@
 		"id": 20,
 		"level": 4,
 		"faction": "rampart",
-		"abilities": [ [ "CHANGES_SPELL_COST_FOR_ENEMY", 2, 0, 0 ] ],	//pegasus makes spell cost higher for enemy mage
+		"abilities":
+		{
+			"increaseManaCost" :
+			{
+				"type" : "CHANGES_SPELL_COST_FOR_ENEMY",
+				"val" : 2
+			}
+		},
 		"upgrades": ["silverPegasus"],
 		"hasDoubleWeek": true,
 		"graphics" :
@@ -159,7 +182,14 @@
 		"id": 21,
 		"level": 4,
 		"faction": "rampart",
-		"abilities": [ [ "CHANGES_SPELL_COST_FOR_ENEMY", 2, 0, 0 ] ], 	//silver pegasus makes spell cost higher for enemy mage
+		"abilities":
+		{
+			"increaseManaCost" :
+			{
+				"type" : "CHANGES_SPELL_COST_FOR_ENEMY",
+				"val" : 2
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CAPEGS.DEF"
@@ -178,7 +208,15 @@
 		"id": 22,
 		"level": 5,
 		"faction": "rampart",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, "spell.bind", 0 ] ],   //dendroids cast bind
+		"abilities":
+		{
+			"binds" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.bind",
+				"val" : 100
+			}
+		},
 		"upgrades": ["dendroidSoldier"],
 		"graphics" :
 		{
@@ -198,7 +236,15 @@
 		"id": 23,
 		"level": 5,
 		"faction": "rampart",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, "spell.bind", 0 ] ],	//dendroid guards cast bind
+		"abilities":
+		{
+			"binds" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.bind",
+				"val" : 100
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CBTREE.DEF"
@@ -217,8 +263,20 @@
 		"id": 24,
 		"level": 6,
 		"faction": "rampart",
-		"abilities": [ [ "SPELL_RESISTANCE_AURA", 0, 55, 0 ],	//unicorn
-						 [ "SPELL_AFTER_ATTACK", 20, "spell.blind", 0 ] ],	//unicorns cast blind with 20% probability
+		"abilities":
+		{
+			"spellResistAura" :
+			{
+				"type" : "SPELL_RESISTANCE_AURA",
+				"val" : 20
+			},
+			"blinds" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.blind",
+				"val" : 20
+			}
+		},
 		"upgrades": ["warUnicorn"],
 		"graphics" :
 		{
@@ -238,8 +296,20 @@
 		"id": 25,
 		"level": 6,
 		"faction": "rampart",
-		"abilities": [ [ "SPELL_RESISTANCE_AURA", 20, 55, 0 ], 	//war unicorn
-						 [ "SPELL_AFTER_ATTACK", 20, "spell.blind", 0 ] ],	//war unicorns cast blind with 20% probability
+		"abilities":
+		{
+			"spellResistAura" :
+			{
+				"type" : "SPELL_RESISTANCE_AURA",
+				"val" : 20
+			},
+			"blinds" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.blind",
+				"val" : 20
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CWUNIC.DEF"
@@ -259,9 +329,22 @@
 		"id": 26,
 		"level": 7,
 		"faction": "rampart",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//green dragon is a dragon
-						 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//green dragon's breath
-						 [ "LEVEL_SPELL_IMMUNITY", 3, 0, 0 ] ], 	//green dragon's spell immunity
+		"abilities":
+		{
+			"dragon" :
+			{
+				"type" : "DRAGON_NATURE"
+			},
+			"fireBreath" :
+			{
+				"type" : "TWO_HEX_ATTACK_BREATH"
+			},
+			"spellImmunity" :
+			{
+				"type" : "LEVEL_SPELL_IMMUNITY",
+				"val" : 3
+			}
+		},
 		"upgrades": ["goldDragon"],
 		"graphics" :
 		{
@@ -281,9 +364,22 @@
 		"id": 27,
 		"level": 7,
 		"faction": "rampart",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//gold dragon is a dragon
-					   [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  	//gold dragon's breath
-					   [ "LEVEL_SPELL_IMMUNITY", 4, 0, 0 ] ], 	//gold dragon's spell immunity
+		"abilities":
+		{
+			"dragon" :
+			{
+				"type" : "DRAGON_NATURE"
+			},
+			"fireBreath" :
+			{
+				"type" : "TWO_HEX_ATTACK_BREATH"
+			},
+			"spellImmunity" :
+			{
+				"type" : "LEVEL_SPELL_IMMUNITY",
+				"val" : 4
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CDDRAG.DEF"

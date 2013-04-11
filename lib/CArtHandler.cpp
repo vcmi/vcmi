@@ -205,6 +205,7 @@ void CArtHandler::load(bool onlyTxt)
 		JsonNode & artData = h3Data[numeric];
 		JsonUtils::merge(artData, node.second);
 
+		//JsonUtils::validate(artData, "vcmi:artifact", node.first);
 		artifacts[numeric] = loadArtifact(artData);
 		artifacts[numeric]->id = ArtifactID(numeric);
 
@@ -386,11 +387,11 @@ void CArtHandler::loadGrowingArt(CGrowingArtifact * art, const JsonNode & node)
 {
 	BOOST_FOREACH (auto b, node["growing"]["bonusesPerLevel"].Vector())
 	{
-		art->bonusesPerLevel.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *JsonUtils::parseBonus (b["bonus"].Vector())));
+		art->bonusesPerLevel.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *JsonUtils::parseBonus (b["bonus"])));
 	}
 	BOOST_FOREACH (auto b, node["growing"]["thresholdBonuses"].Vector())
 	{
-		art->thresholdBonuses.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *JsonUtils::parseBonus (b["bonus"].Vector())));
+		art->thresholdBonuses.push_back (std::pair <ui16, Bonus> (b["level"].Float(), *JsonUtils::parseBonus (b["bonus"])));
 	}
 }
 

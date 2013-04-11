@@ -7,10 +7,16 @@
 	"dependencies" : {
 		"town" : [ "puzzleMap", "commander" ]
 	},
+	
+	"additionalProperties" : false,
 	"properties":{
 		"name" : {
 			"type" : "string",
 			"description" : "Translatable name of town"
+		},
+		"index" : {
+			"type" : "number",
+			"description" : "Private field to break things, do not use."
 		},
 		"alignment": {
 			"type":"string",
@@ -23,6 +29,7 @@
 		},
 		"creatureBackground": {
 			"type":"object",
+			"additionalProperties" : false,
 			"required" : [ "120px", "130px" ],
 			"description": "Backgrounds for creature info card",
 			"properties":{
@@ -42,6 +49,7 @@
 		},
 		"puzzleMap": {
 			"type":"object",
+			"additionalProperties" : false,
 			"required" : [ "prefix", "pieces" ],
 			"description": "Puzzle map from obelisks for this town. Must contain 48 pieces",
 			"properties":{
@@ -52,6 +60,7 @@
 					"maxItems" : 48,
 					"items": {
 						"type":"object",
+						"additionalProperties" : false,
 						"properties":{
 							"index": { "type":"number", "description" : "Order in which images will be opened" },
 							"x":     { "type":"number", "description" : "X coordinate on screen" },
@@ -67,15 +76,17 @@
 		},
 		"town": {
 			"type":"object",
+			"additionalProperties" : false,
 			"required" : [
 				"adventureMap", "buildingsIcons", "buildings", "creatures", "guildWindow", "names",
 				"hallBackground", "hallSlots", "horde", "icons", "mageGuild", "moatDamage",
-				"musicTheme", "siege", "structures", "townBackground", "warMachine", "primaryResource"
+				"musicTheme", "siege", "structures", "townBackground", "warMachine"
 			],
 			"description": "town",
 			"properties":{
 				"adventureMap": {
 					"type":"object",
+					"additionalProperties" : false,
 					"description": "Paths to images of object on adventure map",
 					"required" : [ "capitol", "castle", "village" ],
 					"properties":{
@@ -96,6 +107,7 @@
 							"description" : "Dwellings on adventure map",
 							"items" : {
 								"type" : "object",
+								"additionalProperties" : false,
 								"properties" : {
 									"name":     { "type":"string" },
 									"graphics": { "type":"string" }
@@ -176,11 +188,13 @@
 				},
 				"icons": {
 					"type":"object",
+					"additionalProperties" : false,
 					"description": "Town icons",
 					"required" : [ "fort", "village" ],
 					"properties":{
 						"fort": {
 							"type":"object",
+							"additionalProperties" : false,
 							"required" : [ "normal", "built" ],
 							"description": "Icons for town with built fort",
 							"properties":{
@@ -196,6 +210,7 @@
 						},
 						"village": {
 							"type":"object",
+							"additionalProperties" : false,
 							"required" : [ "normal", "built" ],
 							"description": "Icons for town without fort",
 							"properties":{

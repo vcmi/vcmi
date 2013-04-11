@@ -1,5 +1,6 @@
 {
 	"type":"object",
+	"additionalProperties" : false,
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI siege screen format",
 	"description" : "Format used to define town siege screen in VCMI",
@@ -12,6 +13,7 @@
 	{
 		"point" : {
 			"type" : "object",
+			"additionalProperties" : false,
 			"required" : [ "x", "y" ],
 			"properties":{
 				"x": { "type":"number" },
@@ -20,6 +22,7 @@
 		},
 		"tower" : {
 			"type" : "object",
+			"additionalProperties" : false,
 			"required" : [ "battlement", "creature", "tower" ],
 			"properties":{
 				"battlement": {
@@ -41,6 +44,7 @@
 	"properties":{
 		"gate": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description" : "Town gates",
 			"properties":{
 				"arch": {
@@ -59,6 +63,7 @@
 		},
 		"moat": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description" : "Castle moat description",
 			"properties":{
 				"bank": {
@@ -81,6 +86,7 @@
 		},
 		"static": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description" : "Static sections of walls",
 			"properties":{
 				"background": {
@@ -99,6 +105,7 @@
 		},
 		"towers": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description" : "Decription of towers",
 			"properties":{
 				"bottom": { "$ref" : "#/definitions/tower", "description" : "Bottom tower" },
@@ -108,6 +115,7 @@
 		},
 		"walls": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description" : "Destructible sections of the walls",
 			"properties":{
 				"bottomMid": {

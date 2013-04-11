@@ -4,6 +4,7 @@
 	"title" : "VCMI town structures format",
 	"description" : "Format used to define structures visible on town screen in VCMI",
 	"required": [ "animation", "x", "y"],
+	"additionalProperties" : false,
 	"properties":{
 		"animation": {
 			"type":"string",

@@ -23,7 +23,14 @@
 		"id": 43,
 		"level": 1,
 		"faction": "inferno",
-		"abilities": [ [ "MANA_CHANNELING", 20, 0, 0 ] ], 		//familiars
+		"abilities":
+		{
+			"manaChannel" :
+			{
+				"type" : "MANA_CHANNELING",
+				"val" : 20
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CFAMIL.DEF"
@@ -49,8 +56,7 @@
 			"animation": "CGOG.DEF",
 			"missile" :
 			{
-				"projectile": "CPRGOGX.DEF",
-				"spinning": false
+				"projectile": "CPRGOGX.DEF"
 			}
 		},
 		"sound" :
@@ -60,8 +66,7 @@
 			"killed": "GOGGKILL.wav",
 			"move": "GOGGMOVE.wav",
 			"shoot": "GOGGSHOT.wav",
-			"wince": "GOGGWNCE.wav",
-			"ext1": "GOGFLAME.wav"
+			"wince": "GOGGWNCE.wav"
 		}
 	},
 	"magog" :
@@ -69,14 +74,20 @@
 		"id": 45,
 		"level": 2,
 		"faction": "inferno",
-		"abilities": [ [ "SPELL_LIKE_ATTACK", 0, 21, 0 ] ], 		//magogs fire with fireballs
+		"abilities":
+		{
+			"fireball" :
+			{
+				"type" : "SPELL_LIKE_ATTACK",
+				"subtype" : "spell.fireball"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CMAGOG.DEF",
 			"missile" :
 			{
-				"projectile": "CPRGOGX.DEF",
-				"spinning": false
+				"projectile": "CPRGOGX.DEF"
 			}
 		},
 		"sound" :
@@ -86,8 +97,7 @@
 			"killed": "MGOGKILL.wav",
 			"move": "MGOGMOVE.wav",
 			"shoot": "MGOGSHOT.wav",
-			"wince": "MGOGWNCE.wav",
-			"ext1": "GOGFLAME.wav"
+			"wince": "MGOGWNCE.wav"
 		}
 	},
 	"hellHound" :
@@ -96,7 +106,10 @@
 		"level": 3,
 		"faction": "inferno",
 		"upgrades": ["cerberus"],
-		"ability_remove": [ "FLYING" ], //hell hound doesn't fly
+		"abilities":
+		{
+			 "FLYING_ARMY" : null //hell hound doesn't fly
+		},
 		"graphics" :
 		{
 			"animation": "CHHOUN.DEF"
@@ -115,9 +128,18 @@
 		"id": 47,
 		"level": 3,
 		"faction": "inferno",
-		"abilities": [ [ "THREE_HEADED_ATTACK", 0, 0, 0 ],
-						 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],
-		"ability_remove": [ "FLYING" ],  //cerberus doesn't fly
+		"abilities":
+		{
+			"threeHeads" : 
+			{
+				"type" : "THREE_HEADED_ATTACK"
+			},
+			"noRetaliation" :
+			{
+				"type" : "BLOCKS_RETALIATION"
+			},
+			"FLYING_ARMY" : null //cerberus doesn't fly
+		},
 		"graphics" :
 		{
 			"animation": "CCERBU.DEF"
@@ -192,8 +214,20 @@
 		"id": 51,
 		"level": 5,
 		"faction": "inferno",
-		"abilities": [ [ "DAEMON_SUMMONING", 50, 48, 0 ],
-						[ "CASTS", 1, 0, 0] ],		//pit lord
+		"abilities":
+		{
+			"demonSummon" :
+			{
+				"type" : "DAEMON_SUMMONING",
+				"subtype" : "creature.demon",
+				"val" : 50
+			},
+			"castsAmount" :
+			{
+				"type" : "CASTS",
+				"val" : 1
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CPFOE.DEF"
@@ -211,11 +245,30 @@
 	{
 		"id": 52,
 		"level": 6,
-		"faction": "inferno",
-		"abilities": [ [ "HATE", 50, 37, 0 ],
-						 [ "HATE", 50, 36, 0 ],
-						 [ "FLYING", 0, 0, 0 ],  					//efreeti hate master genies
-						 [ "FIRE_IMMUNITY", 0, 0, 0 ] ], 			//efreeti hate genies
+		"faction": "inferno", 
+		"abilities":
+		{
+			"hateGenies" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.genie",
+				"val" : 50
+			},
+			"hateMasterGenies" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.masterGenie",
+				"val" : 50
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
+			"immuneToFire" :
+			{
+				"type" : "FIRE_IMMUNITY"
+			}
+		},
 		"upgrades": ["efreetSultan"],
 		"graphics" :
 		{
@@ -235,11 +288,34 @@
 		"id": 53,
 		"level": 6,
 		"faction": "inferno",
-		"abilities": [ [ "HATE", 50, 37, 0 ],
-						 [ "HATE", 50, 36, 0 ],
-						 [ "FLYING", 0, 0, 0 ],		  	 		//efreet sultans hate master genies
-						 [ "FIRE_SHIELD", 0, 36, 0 ],				//efreet sultans hate genies
-						 [ "FIRE_IMMUNITY", 0, 0, 0 ] ],			//efreet sultan		//Efreet Sultan
+		"abilities":
+		{
+			"hateGenies" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.genie",
+				"val" : 50
+			},
+			"hateMasterGenies" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.masterGenie",
+				"val" : 50
+			},
+			"canFly" :
+			{
+				"type" : "FLYING"
+			},
+			"immuneToFire" :
+			{
+				"type" : "FIRE_IMMUNITY"
+			},
+			"fireShield" :
+			{
+				"type" : "FIRE_SHIELD",
+				"subtype" : 36 //FIXME: what is this magic number for?
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CEFRES.DEF"
@@ -259,12 +335,36 @@
 		"id": 54,
 		"level": 7,
 		"faction": "inferno",
-		"ability_remove": [ "FLYING" ],  //use teleport instead
-		"abilities": [ [ "HATE", 50, 13, 0 ],
-						[ "FLYING", 0, 1, 0], //teleport
-						 [ "HATE", 50, 12, 0 ],
-						 [ "ENEMY_LUCK_DECREASING", 1, 0, 0 ],	//devils				//devils hate archangles
-						 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ], 	 	//devils			//devils hate angels
+		"abilities":
+		{
+			"hateAngels" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.angel",
+				"val" : 50
+			},
+			"hateArchAngels" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.angel",
+				"val" : 50
+			},
+			"FLYING_ARMY" :
+			{
+				// type loaded from crtraits
+				"subtype" : 1 // teleports
+			},
+			"descreaseLuck" :
+			{
+				"type" : "LUCK",
+				"effectRange" : "ONLY_ENEMY_ARMY",
+				"val" : -1
+			},
+			"blockRetaliation" :
+			{
+				"type" : "BLOCKS_RETALIATION"
+			}
+		},
 		"upgrades": ["archDevil"],
 		"graphics" :
 		{
@@ -277,8 +377,8 @@
 			"killed": "DEVLKILL.wav",
 			"move": "DEVLMOVE.wav",
 			"wince": "DEVLWNCE.wav",
-			"ext1": "DEVLEXT1.wav",
-			"ext2": "DEVLEXT2.wav"
+			"startMoving": "DEVLEXT1.wav",
+			"endMoving": "DEVLEXT2.wav"
 		}
 	},
 	"archDevil" :
@@ -286,14 +386,39 @@
 		"id": 55,
 		"level": 7,
 		"faction": "inferno",
-		"ability_remove": [ "FLYING" ],  //use teleport instead
-		"abilities": [ [ "HATE", 50, 13, 0 ],
-						 [ "HATE", 50, 12, 0 ],
-						 [ "FLYING", 0, 1, 0],
-						 [ "ENEMY_LUCK_DECREASING", 1, 0, 0 ], 	//archdevils				//archdevils hate archangles
-						 [ "BLOCKS_RETALIATION", 0, 0, 0 ] ], 	 	//archdevils			//archdevils hate angels
+		"abilities" :
+		{
+			"hateAngels" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.angel",
+				"val" : 50
+			},
+			"hateArchAngels" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.angel",
+				"val" : 50
+			},
+			"FLYING_ARMY" :
+			{
+				// type loaded from crtraits
+				"subtype" : 1 // teleports
+			},
+			"descreaseLuck" :
+			{
+				"type" : "LUCK",
+				"effectRange" : "ONLY_ENEMY_ARMY",
+				"val" : -1
+			},
+			"blockRetaliation" :
+			{
+				"type" : "BLOCKS_RETALIATION"
+			}
+		},
 		"graphics" :
 		{
+			"missile" : null,
 			"animation": "CADEVL.DEF"
 		},
 		"sound" :
@@ -304,7 +429,7 @@
 			"move": "ADVLMOVE.wav",
 			"wince": "ADVLWNCE.wav",
 			"startMoving": "ADVLEXT1.wav",
-			"stopMoving": "ADVLEXT2.wav"
+			"endMoving": "ADVLEXT2.wav"
 		}
 	}
 }

@@ -1,6 +1,7 @@
 {
 	"neutral" :
 	{
+		"name" : "Neutral",
 		"index" : 9,
 		"alignment" : "neutral",
 		"creatureBackground" :

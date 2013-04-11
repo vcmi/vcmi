@@ -7,14 +7,18 @@
 		"animation", "faction", "highLevelChance", "lowLevelChance",
 		"name", "primarySkills", "secondarySkills", "tavern"
 	],
+
+	"additionalProperties" : false,
 	"properties":{
 		"animation": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description": "Files related to hero animation",
 			"required": [ "battle", "map" ],
 			"properties":{
 				"battle": {
 					"type":"object",
+					"additionalProperties" : false,
 					"description": "Hero animations for battle",
 					"required": [ "female", "male" ],
 					"properties":{
@@ -30,6 +34,7 @@
 				},
 				"map": {
 					"type":"object",
+					"additionalProperties" : false,
 					"description": "Hero animations for adventure map",
 					"required": [ "female", "male" ],
 					"properties":{
@@ -44,6 +49,10 @@
 					}
 				}
 			}
+		},
+		"id" : {
+			"type" : "number",
+			"description" : "Private field to break things, do not use."
 		},
 		"faction": {
 			"type":"string",

@@ -5,14 +5,34 @@
 		"level": 2,
 		"extraNames": [ "airElementals" ],
 		"faction": "conflux",
-		"abilities": 
-		[ 
-			["MIND_IMMUNITY", 0, 0, 0],                       //air elementals are immune to mind spells 
-			["SPELL_IMMUNITY", 0, "spell.meteorShower", 0], //air elementals are immune to meteor shower
-			["NON_LIVING", 0, 0, 0 ],                        //air elementals are non-living
-			["MORE_DAMAGE_FROM_SPELL", 100, "spell.chainLightning", 0],//air elementals are vulnerable to chain lightning
-			["MORE_DAMAGE_FROM_SPELL", 100, "spell.lightningBolt", 0]  //air elementals are vulnerable to lightning bolt
-		],	  			
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
+			"meteorShowerImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.meteorShower"
+			},
+			"lightingVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.lightningBolt",
+				"val" : 100
+			},
+			"chainLightingVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.chainLightning",
+				"val" : 100
+			}
+		},
 		"upgrades": ["stormElemental"],
 		"graphics" :
 		{
@@ -32,14 +52,33 @@
 		"id": 113,
 		"level": 5,
 		"faction": "conflux",
-		"abilities": 
-		[ 
-			["MIND_IMMUNITY", 0, 0, 0], //earth elementals are immune to mind spells 
-			["SPELL_IMMUNITY", 0, "spell.chainLightning", 0],//earth elementals are immune to chain lightning
-			["SPELL_IMMUNITY", 0, "spell.lightningBolt", 0], //earth elementals are immune to lightning bolt
-			["NON_LIVING", 0, 0, 0],
-			[ "MORE_DAMAGE_FROM_SPELL", 100, "spell.meteorShower", 0 ]   //earth elementals are vulnerable to meteor shower
-		],		
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
+			"meteorShowerVulnerability" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.meteorShower",
+				"val" : 100
+			},
+			"lightingImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.lightningBolt"
+			},
+			"chainLightingImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.chainLightning"
+			}
+		},
 		"upgrades": ["magmaElemental"],
 		"graphics" :
 		{
@@ -59,13 +98,33 @@
 		"id": 114,
 		"level": 4,
 		"faction": "conflux",
-		"abilities": 
-		[ 
-			["MIND_IMMUNITY", 0, 0, 0],//fire elementals are immune to mind spells 
-			["NON_LIVING", 0, 0, 0 ],				//fire elementals are non-living
-			[ "MORE_DAMAGE_FROM_SPELL", 100, "spell.frostRing", 0 ],		//fire elementals are vulnerable to frost ring
-			[ "MORE_DAMAGE_FROM_SPELL", 100, "spell.iceBolt", 0 ],		//fire elementals are vulnerable to ice bolt
-			[ "FIRE_IMMUNITY", 0, 0, 0 ] ],			//fire elementals are immune to fire spells
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
+			"immuneToFire" : 
+			{
+				"type" : "FIRE_IMMUNITY"
+			},
+			"frostRingVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.frostRing",
+				"val" : 100
+			},
+			"iceBoltVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.iceBolt",
+				"val" : 100
+			}
+		},
 		"upgrades": ["energyElemental"],
 		"graphics" :
 		{
@@ -86,17 +145,52 @@
 		"level": 3,
 		"extraNames": [ "waterElementals" ],
 		"faction": "conflux",
-		"abilities": [ 
-			["MIND_IMMUNITY", 0, 0, 0],//water elementals are immune to mind spells
-			["SPELL_IMMUNITY", 0, "spell.frostRing", 0 ],//water elementals are immune to frost ring
-			["SPELL_IMMUNITY", 0, "spell.iceBolt", 0 ],//water elementals are immune to ice bolt
-			["NON_LIVING", 0, 0, 0 ],				//water elementals are non-living
-			["MORE_DAMAGE_FROM_SPELL", 100, "spell.fireShield", 0 ],		//water elementals are vulnerable to fire shield
-			["MORE_DAMAGE_FROM_SPELL", 100, "spell.inferno", 0 ],		//water elementals are vulnerable to inferno
-			["MORE_DAMAGE_FROM_SPELL", 100, "spell.fireball", 0 ],		//water elementals are vulnerable to fireball
-			["MORE_DAMAGE_FROM_SPELL", 100, "spell.fireWall", 0 ],		//water elementals are vulnerable to fire wall
-			["DOUBLE_WIDE", 0, 0, 0 ] 
-		],
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
+			"fireShieldVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.fireShield",
+				"val" : 100
+			},
+			"infernoVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.inferno",
+				"val" : 100
+			},
+			"fireballVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.fireball",
+				"val" : 100
+			},
+			"fireWallVulnerablity" :
+			{
+				"type" : "MORE_DAMAGE_FROM_SPELL",
+				"subtype" : "spell.fireWall",
+				"val" : 100
+			},
+			"iceBoltImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.iceBolt"
+			},
+			"frostRingImmunity" :
+			{
+				"type" : "SPELL_IMMUNITY",
+				"subtype" : "spell.frostRing"
+			}
+		},
+		"doubleWide" : true,
 		"upgrades": ["iceElemental"],
 		"graphics" :
 		{
@@ -154,8 +248,14 @@
 		"id": 120,
 		"level": 6,
 		"faction": "conflux",
-		"abilities": [ [ "NON_LIVING", 0, 0, 0 ] ],				//magic elementals shouldn't get morale
-		"ability_remove": [ "DOUBLE_WIDE" ],
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			}
+		},
+		"doubleWide" : false,
 		"upgrades": ["magicElemental"],
 		"graphics" :
 		{
@@ -175,9 +275,19 @@
 		"id": 121,
 		"level": 6,
 		"faction": "conflux",
-		"abilities": [ [ "NON_LIVING", 0, 0, 0 ],				//ice elementals shouldn't get morale
-						 [ "LEVEL_SPELL_IMMUNITY", 5, 0, 0 ] ],	//magic elementals are immune to all spells
-		"ability_remove": [ "DOUBLE_WIDE" ],
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"magicImmunity" :
+			{
+				"type" : "LEVEL_SPELL_IMMUNITY",
+				"val" : 5
+			}
+		},
+		"doubleWide" : false,
 		"graphics" :
 		{
 			"animation": "CMAGEL.DEF"
@@ -196,18 +306,36 @@
 		"id": 123,
 		"level": 3,
 		"faction": "conflux",
-		"abilities": [ [ "NON_LIVING", 0, 0, 0 ],
-						 [ "DOUBLE_WIDE", 0, 0, 0 ],					//ice elemental should be treated as double-wide
-						 [ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],
-						 [ "CASTS", 3, 0, 0 ],
-						 [ "SPELLCASTER", 2, "spell.protectWater", 0 ]],
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"spellPower" : 
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 6
+			},
+			"spellPoints" : 
+			{
+				"type" : "CASTS",
+				"val" : 3
+			},
+			"spellcaster":
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.protectWater",
+				"val" : 2
+			}
+		},
+		"doubleWide" : true,
 		"graphics" :
 		{
 			"animation": "CICEE.DEF",
 			"missile" :
 			{
-				"projectile": "PICEE.DEF",
-				"spinning": false
+				"projectile": "PICEE.DEF"
 			}
 		},
 		"sound" :
@@ -225,10 +353,29 @@
 		"id": 125,
 		"level": 5,
 		"faction": "conflux",
-		"abilities": [ [ "NON_LIVING", 0, 0, 0 ],						//magma elementals shouldn't get morale
-						[ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],
-						[ "CASTS", 3, 0, 0 ],
-						[ "SPELLCASTER", 2, "spell.protectEarth", 0 ]],
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"spellPower" : 
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 6
+			},
+			"spellPoints" : 
+			{
+				"type" : "CASTS",
+				"val" : 3
+			},
+			"spellcaster":
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.protectEarth",
+				"val" : 2
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CSTONE.DEF"
@@ -247,17 +394,35 @@
 		"id": 127,
 		"level": 2,
 		"faction": "conflux",
-		"abilities": [ [ "NON_LIVING", 0, 0, 0 ],						//storm elementals shouldn't get morale
-						[ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],
-						[ "CASTS", 3, 0, 0 ],
-						[ "SPELLCASTER", 2, "spell.protectAir", 0 ]],
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"spellPower" : 
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 6
+			},
+			"spellPoints" : 
+			{
+				"type" : "CASTS",
+				"val" : 3
+			},
+			"spellcaster":
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.protectAir",
+				"val" : 2
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CSTORM.DEF",
 			"missile" :
 			{
-				"projectile": "CPRGTIX.DEF",
-				"spinning": false
+				"projectile": "CPRGTIX.DEF"
 			}
 		},
 		"sound" :
@@ -275,10 +440,29 @@
 		"id": 129,
 		"level": 4,
 		"faction": "conflux",
-		"abilities": [ [ "NON_LIVING", 0, 0, 0 ] ,					//energy elementals shouldn't get morale
-						[ "CREATURE_ENCHANT_POWER", 6, 0, 0 ],
-						[ "CASTS", 3, 0, 0 ],
-						[ "SPELLCASTER", 2, "spell.protectFire", 0 ]],
+		"abilities":
+		{
+			"nonLiving" : 
+			{
+				"type" : "NON_LIVING"
+			},
+			"spellPower" : 
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 6
+			},
+			"spellPoints" : 
+			{
+				"type" : "CASTS",
+				"val" : 3
+			},
+			"spellcaster":
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.protectFire",
+				"val" : 2
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CNRG.DEF"
@@ -298,7 +482,13 @@
 		"level": 7,
 		"faction": "conflux",
 		"upgrades": ["phoenix"],
-		"abilities": [ ["FIRE_IMMUNITY", 0, 0, 0] ],
+		"abilities":
+		{
+			"immuneToFire" :
+			{
+				"type" : "FIRE_IMMUNITY"
+			},
+		},
 		"graphics" :
 		{
 			"animation": "CFBIRD.DEF"
@@ -317,9 +507,23 @@
 		"id": 131,
 		"level": 7,
 		"faction": "conflux",
-		"abilities": [ [ "CASTS", 1, 0, 0 ],	//Phoenix rebirths once
-						["FIRE_IMMUNITY", 0, 0, 0],
-						[ "REBIRTH", 20, 0, 0 ] ],	//20% of stack is resurrected
+		"abilities":
+		{
+			"rebirthOnce" :
+			{
+				"type" : "CASTS",
+				"val" : 1
+			},
+			"immuneToFire" :
+			{
+				"type" : "FIRE_IMMUNITY"
+			},
+			"rebirth" : 
+			{
+				"type" : "REBIRTH",
+				"val" : 20
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CPHX.DEF"

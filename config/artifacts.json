@@ -2194,7 +2194,7 @@
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 2,
+					"addInfo" : 2,
 					"subtype" : "spell.lightningBolt",
 					"type" : "ENCHANTER",
 					"val" : 0,
@@ -2256,28 +2256,28 @@
 					"valueType" : "PERCENT_TO_BASE"
 				},
 				{
-					"additionalInfo" : 1,
+					"addInfo" : 1,
 					"subtype" : "spell.age",
 					"type" : "SPELL_BEFORE_ATTACK",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 1,
+					"addInfo" : 1,
 					"subtype" : "spell.berserk",
 					"type" : "SPELL_AFTER_ATTACK",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 1,
+					"addInfo" : 1,
 					"subtype" : "spell.poison",
 					"type" : "SPELL_AFTER_ATTACK",
 					"val" : 50,
 					"valueType" : "BASE_NUMBER"
 				},
 				{
-					"additionalInfo" : 1,
+					"addInfo" : 1,
 					"subtype" : "spell.disruptingRay",
 					"type" : "SPELL_AFTER_ATTACK",
 					"val" : 50,
@@ -2363,7 +2363,12 @@
 				[
 					{
 						"level": 6,
-						"bonus": ["PRIMARY_SKILL", 1, "primSkill.attack", 0]
+						"bonus": 
+						{
+							"type" : "PRIMARY_SKILL",
+							"subtype" : "primSkill.attack",
+							"val" : 1
+						}
 					}
 				]
 			}
@@ -2385,7 +2390,11 @@
 				[
 					{
 						"level": 1,
-						"bonus": ["STACK_HEALTH", 1, 0, 0]
+						"bonus": 
+						{
+							"type" : "STACK_HEALTH",
+							"val" : 1
+						}
 					}
 				]
 			}
@@ -2408,7 +2417,11 @@
 				[
 					{
 						"level": 1,
-						"bonus": ["CREATURE_DAMAGE", 1, 0, 0]
+						"bonus": 
+						{
+							"type" : "CREATURE_DAMAGE",
+							"val" : 1
+						}
 					}
 				]
 			}
@@ -2435,7 +2448,11 @@
 				[
 					{
 						"level": 10,
-						"bonus": ["CREATURE_ENCHANT_POWER", 1, 0, 0]
+						"bonus": 
+						{
+							"type" : "CREATURE_ENCHANT_POWER",
+							"val" : 1
+						}
 					}
 				]
 			}
@@ -2457,7 +2474,11 @@
 				[
 					{
 						"level": 10,
-						"bonus": ["STACKS_SPEED", 1, 0, 0]
+						"bonus": 
+						{
+							"type" : "STACKS_SPEED",
+							"val" : 1
+						}
 					}
 				]
 			}
@@ -2468,20 +2489,28 @@
 			"type" : ["COMMANDER"],
 			"growing":
 			{
-				"id": 152, //bow of seeking
 				"thresholdBonuses":
 				[
 					{
 						"level": 5,
-						"bonus": ["SHOOTER", 0, 0, 0]
+						"bonus":
+						{
+							"type" : "SHOOTER"
+						}
 					},
 					{
 						"level": 25,
-						"bonus": ["NO_WALL_PENALTY", 0, 0, 0]
+						"bonus": 
+						{
+							"type" : "NO_WALL_PENALTY"
+						}
 					},
 					{
 						"level": 50,
-						"bonus": ["NO_DISTANCE_PENALTY", 0, 0, 0]
+						"bonus": 
+						{
+							"type" : "NO_DISTANCE_PENALTY"
+						}
 					}
 				]
 			}
@@ -2505,12 +2534,16 @@
 			"type" : ["COMMANDER"],
 			"growing":
 			{
-				"id": 153, //hardened shield
 				"bonusesPerLevel":
 				[
 					{
 						"level": 6,
-						"bonus": ["PRIMARY_SKILL", 1, "primSkill.defence", 0]
+						"bonus": 
+						{
+							"type" : "PRIMARY_SKILL",
+							"subtype" : "primSkill.defence",
+							"val" : 1
+						}
 					}
 				]
 			}

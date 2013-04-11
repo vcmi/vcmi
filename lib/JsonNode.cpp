@@ -755,18 +755,23 @@ std::string JsonValidator::validateEnum(const JsonNode &node, const JsonVector &
 
 std::string JsonValidator::validatesSchemaList(const JsonNode &node, const JsonNode &schemas, std::string errorMsg, std::function<bool(size_t)> isValid)
 {
-	std::string errors;
 	if (!schemas.isNull())
 	{
+		std::string errors = "<tested schemas>\n";
 		size_t result = 0;
 
 		BOOST_FOREACH(auto & schema, schemas.Vector())
 		{
 			std::string error = validateNode(node, schema);
 			if (error.empty())
+			{
 				result++;
+			}
 			else
-				errors += fail(error);
+			{
+				errors += error;
+				errors += "<end of schema>\n";
+			}
 		}
 		if (isValid(result))
 		{
@@ -794,7 +799,7 @@ std::string JsonValidator::validateNodeType(const JsonNode &node, const JsonNode
 	});
 
 	// data must be valid against one and only one schema
-	errors += validatesSchemaList(node, schema["oneOf"], "Failed to pass only one and only one schema", [&](size_t count)
+	errors += validatesSchemaList(node, schema["oneOf"], "Failed to pass one and only one schema", [&](size_t count)
 	{
 		return count == 1;
 	});
@@ -804,13 +809,6 @@ std::string JsonValidator::validateNodeType(const JsonNode &node, const JsonNode
 	{
 		if (validateNode(node, schema["not"]).empty())
 			errors += fail("Successful validation against negative check");
-	}
-	// basic schema check
-	if (!schema["type"].isNull())
-	{
-		JsonNode::JsonType type = stringToType.find(schema["type"].String())->second;
-		if(type != node.getType())
-			errors += fail("Type mismatch!");
 	}
 	return errors;
 }
@@ -822,6 +820,9 @@ std::string JsonValidator::validateNode(const JsonNode &node, const JsonNode &sc
 
 	assert(!schema.isNull()); // can this error be triggered?
 
+	if (node.isNull())
+		return ""; // node not present. consider to be "valid"
+
 	if (!schema["$ref"].isNull())
 	{
 		std::string URI = schema["$ref"].String();
@@ -831,6 +832,14 @@ std::string JsonValidator::validateNode(const JsonNode &node, const JsonNode &sc
 			URI = usedSchemas.back() + URI;
 
 		return validateRoot(node, URI);
+	}
+
+	// basic schema check
+	if (!schema["type"].isNull())
+	{
+		JsonNode::JsonType type = stringToType.find(schema["type"].String())->second;
+		if(type != node.getType())
+			return errors + fail("Type mismatch!"); // different type. Any other checks are useless
 	}
 
 	errors += validateNodeType(node, schema);
@@ -876,10 +885,10 @@ std::string JsonValidator::validateVectorItem(const JsonVector items, const Json
 		return validateNode(items[index], additional);
 
 	// or, additionalItems field can be bool which indicates if such items are allowed
-	// default = false, so case if additionalItems is not present will be handled as well
-	if (!additional.Bool())
+	if (!additional.isNull() && additional.Bool() == false) // present and set to false - error
 		return fail("Unknown entry found");
 
+	// by default - additional items are allowed
 	return "";
 }
 
@@ -930,9 +939,11 @@ std::string JsonValidator::validateStructItem(const JsonNode &node, const JsonNo
 	if (additional.getType() == JsonNode::DATA_STRUCT)
 		return validateNode(node, additional);
 
-	if (!additional.Bool())
+	// or, additionalItems field can be bool which indicates if such items are allowed
+	if (!additional.isNull() && additional.Bool() == false) // present and set to false - error
 		return fail("Unknown entry found: " + nodeName);
 
+	// by default - additional items are allowed
 	return "";
 }
 
@@ -947,7 +958,7 @@ std::string JsonValidator::validateStruct(const JsonNode &node, const JsonNode &
 
 	BOOST_FOREACH(auto & required, schema["required"].Vector())
 	{
-		if (!vstd::contains(map, required.String()))
+		if (node[required.String()].isNull())
 			errors += fail("Required entry " + required.String() + " is missing");
 	}
 

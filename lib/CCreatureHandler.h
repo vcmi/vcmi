@@ -79,14 +79,12 @@ public:
 		std::string move;
 		std::string shoot; // range attack
 		std::string wince; // attacked but did not die
-		std::string ext1;  // creature specific extension
-		std::string ext2;  // creature specific extension
-		std::string startMoving; // usually same as ext1
-		std::string endMoving;	// usually same as ext2
+		std::string startMoving;
+		std::string endMoving;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & attack & defend & killed & move & shoot & wince & ext1 & ext2 & startMoving & endMoving;
+			h & attack & defend & killed & move & shoot & wince & startMoving & endMoving;
 		}
 	} sounds;
 
@@ -140,6 +138,7 @@ private:
 	CBonusSystemNode allCreatures;
 	CBonusSystemNode creaturesOfLevel[GameConstants::CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
 
+	void loadJsonAnimation(CCreature * creature, const JsonNode & graphics);
 	void loadStackExperience(CCreature * creature, const JsonNode &input);
 	void loadCreatureJson(CCreature * creature, const JsonNode & config);
 public:
@@ -159,9 +158,10 @@ public:
 	/// loading functions
 
 	/// adding abilities from ZCRTRAIT.TXT
-	void loadBonuses(CCreature & creature, std::string bonuses);
+	void loadBonuses(JsonNode & creature, std::string bonuses);
 	/// load all creatures from H3 files
 	void load();
+	void loadCommanders();
 	/// load creature from json structure
 	void load(std::string creatureID, const JsonNode & node);
 	/// load one creature from json config
@@ -169,9 +169,11 @@ public:
 	/// generates tier-specific bonus tree entries
 	void buildBonusTreeForTiers();
 	/// read cranim.txt file from H3
-	void loadAnimationInfo();
+	void loadAnimationInfo(std::vector<JsonNode> & h3Data);
 	/// read one line from cranim.txt
-	void loadUnitAnimInfo(CCreature & unit, CLegacyConfigParser &parser);
+	void loadUnitAnimInfo(JsonNode & unit, CLegacyConfigParser &parser);
+	/// load all creatures from H3 files
+	void loadCrExpBon();
 	/// parse crexpbon.txt file from H3
 	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser &parser);
 	/// help function for parsing CREXPBON.txt

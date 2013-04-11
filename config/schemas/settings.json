@@ -9,12 +9,14 @@
 			"type" : "string", 
 			"enum" : [ "trace", "debug", "info", "warn", "error" ]
 		}
-	}, 
+	},
+	"additionalProperties" : false,
 	"properties":
 	{
 		"general" : {
 			"type" : "object",
 			"default": {},
+			"additionalProperties" : false,
 			"required" : [ "classicCreatureWindow", "playerName", "showfps", "music", "sound" ],
 			"properties" : {
 				"classicCreatureWindow" : {
@@ -41,11 +43,13 @@
 		},
 		"video" : {
 			"type" : "object",
+			"additionalProperties" : false,
 			"default": {},
 			"required" : [ "screenRes", "bitsPerPixel", "fullscreen" ],
 			"properties" : {
 				"screenRes" : {
 					"type" : "object",
+					"additionalProperties" : false,
 					"required" : [ "width", "height" ],
 					"properties" : {
 						"width"  : { "type" : "number" },
@@ -65,6 +69,7 @@
 		},
 		"adventure" : {
 			"type" : "object",
+			"additionalProperties" : false,
 			"default": {},
 			"required" : [ "heroSpeed", "enemySpeed", "scrollSpeed", "heroReminder" ],
 			"properties" : {
@@ -88,6 +93,7 @@
 		},
 		"battle" : {
 			"type" : "object",
+			"additionalProperties" : false,
 			"default": {},
 			"required" : [ "animationSpeed", "mouseShadow", "cellBorders", "stackRange", "showQueue" ],
 			"properties" : {
@@ -115,6 +121,7 @@
 		},
 		"server" : {
 			"type" : "object",
+			"additionalProperties" : false,
 			"default": {},
 			"required" : [ "server", "port", "localInformation", "playerAI", "neutralAI" ],
 			"properties" : {
@@ -142,6 +149,7 @@
 		},
 		"logging" : {
 			"type" : "object",
+			"additionalProperties" : false,
 			"default" : {},
 			"required" : [ "console", "file", "loggers" ],
 			"properties" : {
@@ -152,7 +160,7 @@
 					"properties" : {
 						"format" : {
 							"type" : "string",
-							"default" : "%l %n [%t] - %m"
+							"default" : "%m"
 						},
 						"threshold" : {
 							"$ref" : "#/definitions/logLevelEnum",
@@ -173,6 +181,7 @@
 							],
 							"items" : {
 								"type" : "object",
+								"additionalProperties" : false,
 								"default" : {},
 								"required" : [ "domain", "level", "color" ],
 								"properties" : {
@@ -186,6 +195,7 @@
 				},
 				"file" : {
 					"type" : "object",
+					"additionalProperties" : false,
 					"default" : {},
 					"required" : [ "format" ],
 					"properties" : {
@@ -200,6 +210,7 @@
 					"default" : [ { "domain" : "global", "level" : "info" } ],
 					"items" : {
 						"type" : "object",
+						"additionalProperties" : false,
 						"required" : [ "level", "domain" ],
 						"properties" : {
 							"domain" : { "type" : "string" },

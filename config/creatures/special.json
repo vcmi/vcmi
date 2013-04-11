@@ -4,25 +4,29 @@
 	"unused122" :
 	{
 		"faction": "neutral",
-		"special" : true,
+		"disabled" : true,
+		"graphics" : null,
 		"id" : 122
 	},
 	"unused124" :
 	{
 		"faction": "neutral",
-		"special" : true,
+		"disabled" : true,
+		"graphics" : null,
 		"id" : 124
 	},
 	"unused126" :
 	{
 		"faction": "neutral",
-		"special" : true,
+		"disabled" : true,
+		"graphics" : null,
 		"id" : 126
 	},
 	"unused128" :
 	{
 		"faction": "neutral",
-		"special" : true,
+		"disabled" : true,
+		"graphics" : null,
 		"id" : 128
 	},
 
@@ -37,8 +41,7 @@
 			"animation": "SMCATA.DEF",
 			"missile" :
 			{
-				"projectile": "SMCATX.DEF",
-				"spinning": true
+				"projectile": "SMCATX.DEF"
 			}
 		},
 		"sound" :
@@ -59,8 +62,7 @@
 			"animation": "SMBAL.DEF",
 			"missile" :
 			{
-				"projectile": "SMBALX.DEF",
-				"spinning": false
+				"projectile": "SMBALX.DEF"
 			}
 		},
 		"sound" :
@@ -76,7 +78,7 @@
 		"id": 147,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": [ [ "HEALER", 0, 0, 0 ] ],
+		"abilities": { "heals" : { "type" : "HEALER" } },
 		"graphics" :
 		{
 			"animation": "SMTENT.DEF"
@@ -93,7 +95,7 @@
 		"id": 148,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": [ [ "NOT_ACTIVE", 0, 0, 0 ] ],
+		"abilities": { "inactive" : { "type" : "NOT_ACTIVE" } },
 		"graphics" :
 		{
 			"animation": "SMCART.DEF"
@@ -110,13 +112,11 @@
 		"id": 149,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": [ [ "SHOOTER", 0, 0, 0 ] ],
+		"abilities": { "shooter" : { "type" : "SHOOTER" } },
 		"graphics" :
 		{
-			"missile" :
-			{
-				"projectile": "SMBALX.DEF", //workaround for crash
-			}
-		}
+			"animation" : "This should never be used"
+		},
+		"sound": {}
 	}
 }

@@ -4,6 +4,24 @@
 	"title" : "VCMI artifact format",
 	"description" : "Format used to define new artifacts in VCMI",
 	"required" : [ "class", "graphics", "text", "type", "value" ],
+	
+	"definitions" : {
+		"growingBonusList" : {
+			"type" : "array",
+			"items" : {
+				"type" : "object",
+				"additionalProperties" : false,
+				"properties" : {
+					"level" : {
+						"type" : "number"
+					},
+					"bonus" : { "$ref" : "vcmi:bonus" }
+				}
+			}
+		}
+	},
+
+	"additionalProperties" : false,
 	"properties":{
 		"bonuses": {
 			"type":"array",
@@ -15,6 +33,10 @@
 			"enum" : [ "SPECIAL", "TREASURE", "MINOR", "MAJOR", "RELIC" ],
 			"description": "Artifact class, treasure, minor, major or relic"
 		},
+		"id" : {
+			"type" : "number",
+			"description" : "Private field to break things, do not use."
+		},
 		"components": {
 			"type":"array",
 			"description": "Optional, list of components for combinational artifacts",
@@ -22,8 +44,10 @@
 		},
 		"graphics": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description": "Graphical files associated with the artifact",
-			"required" : [ "iconIndex", "image", "map" ],
+			//"required" : [ "iconIndex", "image", "map" ],
+			"required" : [ "iconIndex" ],
 			"properties":{
 				"iconIndex": {
 					"type":"number",
@@ -43,12 +67,30 @@
 				}
 			}
 		},
+		"growing" : {
+			"type" : "object",
+			"additionalProperties" : false,
+			"properties" : {
+				"bonusesPerLevel" : { "$ref" : "#/definitions/growingBonusList"},
+				"thresholdBonuses" : { "$ref" : "#/definitions/growingBonusList"}
+			}
+		},
 		"slot": {
-			"type":"string",
-			"description": "Slot to which this artifact can be put, if applicable"
+			"description": "Slot to which this artifact can be put, if applicable",
+			"oneOf" : [
+				{
+					"type":"string"
+				},
+				{
+					"type" : "array",
+					"minItems" : 1,
+					"additionalItems" : { "type" : "string" }
+				}
+			]
 		},
 		"text": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description": "Texts associated with artifact",
 			"required" : [ "description", "event", "name" ],
 			"properties":{

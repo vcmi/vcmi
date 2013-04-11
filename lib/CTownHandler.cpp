@@ -70,6 +70,8 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 	BOOST_FOREACH(const std::string & resID, GameConstants::RESOURCE_NAMES)
 		cost[resID].Float() = parser.readNumber();
 
+	cost.Struct().erase("mithril"); // erase mithril to avoid confusing validator
+
 	parser.endLine();
 	return ret;
 }
@@ -588,6 +590,7 @@ void CTownHandler::load()
 	}
 	BOOST_FOREACH(auto & entry, buildingsConf.Struct())
 	{
+		//JsonUtils::validate(entry.second, "vcmi:faction", entry.first);
 		load(entry.first, entry.second);
 	}
 }

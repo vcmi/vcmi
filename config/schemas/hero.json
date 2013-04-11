@@ -4,6 +4,8 @@
 	"title" : "VCMI hero format",
 	"description" : "Format used to define new heroes in VCMI",
 	"required": [ "army", "class", "images", "skills", "texts" ],
+
+	"additionalProperties" : false,
 	"properties":{
 		"army": {
 			"type":"array",
@@ -12,6 +14,7 @@
 			"maxItems" : 3,
 			"items": {
 				"type":"object",
+				"additionalProperties" : false,
 				"required" : [ "creature", "min", "max" ],
 				"properties":{
 					"creature": {
@@ -29,10 +32,14 @@
 				}
 			}
 		},
+		"id" : {
+			"type" : "number",
+			"description" : "Private field to break things, do not use."
+		},
 		"special": {
 				"type":"boolean",
 				"description": "Marks this object as special and not available by default"
-			},
+		},
 		"class": {
 			"type":"string",
 			"description": "Hero class, e.g. knight or battleMage"
@@ -43,8 +50,9 @@
 		},
 		"images": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description": "images",
-			"required": [ "index", "large", "small", "specialtyLarge", "specialtySmall" ],
+			"required": [ "index" ],
 			"properties":{
 				"index": {
 					"type":"number",
@@ -74,6 +82,7 @@
 			"maxItems" : 8,
 			"items": {
 				"type":"object",
+				"additionalProperties" : false,
 				"required" : [ "level", "skill" ],
 				"properties":{
 					"level": {
@@ -88,11 +97,18 @@
 				}
 			}
 		},
+		"specialties" : 
+		{
+			"type" : "array",
+			"description" : "Specialty format used for OH3 heroes. Use \"specialty\" instead",
+			"additionalItems" : true
+		},
 		"specialty": {
 			"type":"array",
 			"description": "Description of hero specialty using bonus system",	
 			"items": {
 				"type":"object",
+				"additionalProperties" : false,
 				"required" : [ "bonuses" ],
 				"properties":{
 					"growsWithLevel" : {
@@ -114,6 +130,7 @@
 		},
 		"texts": {
 			"type":"object",
+			"additionalProperties" : false,
 			"description": "All translatable texts related to hero",
 			"required" : [ "biography", "name", "specialty" ],
 			"properties":{
@@ -127,6 +144,7 @@
 				},
 				"specialty": {
 					"type":"object",
+					"additionalProperties" : false,
 					"description": "Hero specialty information",
 					"required" : [ "description", "name", "tooltip" ],
 					"properties":{

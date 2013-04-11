@@ -4,8 +4,9 @@
 	"title" : "VCMI mod file format",
 	"description" : "Format used to define main mod file (mod.json) in VCMI",
 	"required" : [ "name", "description" ],
-	"properties":{
 
+	"additionalProperties" : false,
+	"properties":{
 		"name": {
 			"type":"string",
 			"description": "Short name of your mod. No more than 2-3 words"
@@ -60,6 +61,7 @@
 				"description" : "list of data sources attached to this mount point",
 				"items": {
 					"type":"object",
+					"additionalProperties" : false,
 					"properties":{
 						"path": {
 							"type":"string",

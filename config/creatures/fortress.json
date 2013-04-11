@@ -49,8 +49,7 @@
 			"animation": "CPLIZA.DEF",
 			"missile" :
 			{
-				"projectile": "PPLIZAX.DEF",
-				"spinning": false
+				"projectile": "PPLIZAX.DEF"
 			}
 		},
 		"sound" :
@@ -73,8 +72,7 @@
 			"animation": "CALIZA.DEF",
 			"missile" :
 			{
-				"projectile": "PPLIZAX.DEF",
-				"spinning": false
+				"projectile": "PPLIZAX.DEF"
 			}
 		},
 		"sound" :
@@ -111,7 +109,14 @@
 		"id": 103,
 		"level": 5,
 		"faction": "fortress",
-		"abilities": [ [ "DEATH_STARE", 10, 0, 0 ] ],   	//mighty gorgons
+		"abilities":
+		{
+			"deathStare" : 
+			{
+				"type" : "DEATH_STARE",
+				"val" : 10
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CBGOG.DEF"
@@ -131,7 +136,15 @@
 		"level": 3,
 		"extraNames": [ "dragonFly" ],
 		"faction": "fortress",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, "spell.dispelHelpful", 0 ] ], 
+		"abilities":
+		{
+			"dispellHelpful" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.dispelHelpful",
+				"val" : 100
+			}
+		},
 		"upgrades": ["fireDragonFly"],
 		"hasDoubleWeek": true,
 		"graphics" :
@@ -152,8 +165,21 @@
 		"id": 105,
 		"level": 3,
 		"faction": "fortress",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, "spell.dispelHelpful", 0 ],	
-					   [ "SPELL_AFTER_ATTACK", 100, "spell.weakness", 0 ] ],  
+		"abilities":
+		{
+			"dispellHelpful" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.dispelHelpful",
+				"val" : 100
+			},
+			"castWeakness" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.weakness",
+				"val" : 100
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CDRFIR.DEF"
@@ -173,7 +199,15 @@
 		"id": 106,
 		"level": 4,
 		"faction": "fortress",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, "spell.stoneGaze", 0 ] ],
+		"abilities":
+		{
+			"petrify" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.stoneGaze",
+				"val" : 20
+			}
+		},
 		"upgrades": ["greaterBasilisk"],
 		"graphics" :
 		{
@@ -193,7 +227,15 @@
 		"id": 107,
 		"level": 4,
 		"faction": "fortress",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 20, "spell.stoneGaze", 0 ] ],
+		"abilities":
+		{
+			"petrify" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.stoneGaze",
+				"val" : 20
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CGBASI.DEF"
@@ -231,7 +273,15 @@
 		"id": 109,
 		"level": 6,
 		"faction": "fortress",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 50, "spell.poison", 0 ] ],   	//50% probability (from FizMiG)
+		"abilities":
+		{
+			"petrify" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.stoneGaze",
+				"val" : 50
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CWYVMN.DEF"
@@ -250,8 +300,17 @@
 		"id": 110,
 		"level": 7,
 		"faction": "fortress",
-		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ], 	   	
-					   [ "ATTACKS_ALL_ADJACENT", 0, 0, 0 ] ], 
+		"abilities":
+		{
+			"noRetaliate" :
+			{
+				"type" : "BLOCKS_RETALIATION"
+			},
+			"attackAll" :
+			{
+				"type" : "ATTACKS_ALL_ADJACENT"
+			}
+		},
 		"upgrades": ["chaosHydra"],
 		"graphics" :
 		{
@@ -271,8 +330,17 @@
 		"id": 111,
 		"level": 7,
 		"faction": "fortress",
-		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ], 	   	
-					   [ "ATTACKS_ALL_ADJACENT", 0, 0, 0 ] ],   
+		"abilities":
+		{
+			"noRetaliate" :
+			{
+				"type" : "BLOCKS_RETALIATION"
+			},
+			"attackAll" :
+			{
+				"type" : "ATTACKS_ALL_ADJACENT"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CCHYDR.DEF"

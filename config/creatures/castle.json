@@ -5,7 +5,13 @@
 		"level": 1,
 		"faction": "castle",
 		"upgrades": ["halberdier"],
-		"abilities": [ [ "CHARGE_IMMUNITY", 0, 0, 0 ] ], 		//pikeman immunity to Champion charge bonus
+		"abilities":
+		{
+			"cavalryChargeImmunity" :
+			{
+				"type" : "CHARGE_IMMUNITY"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CPKMAN.DEF"
@@ -24,7 +30,13 @@
 		"id": 1,
 		"level": 1,
 		"faction": "castle",
-		"abilities": [ [ "CHARGE_IMMUNITY", 0, 0, 0 ] ], 		//halberdier immunity to Champion charge bonus
+		"abilities":
+		{
+			"cavalryChargeImmunity" :
+			{
+				"type" : "CHARGE_IMMUNITY"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CHALBD.DEF"
@@ -50,8 +62,7 @@
 			"animation": "CLCBOW.DEF",
 			"missile" :
 			{
-				"projectile": "PLCBOWX.DEF",
-				"spinning": false
+				"projectile": "PLCBOWX.DEF"
 			}
 		},
 		"sound" :
@@ -69,20 +80,20 @@
 		"id": 3,
 		"level": 2,
 		"faction": "castle",
-		"abilities": [
-						{
-							"type": "ADDITIONAL_ATTACK",
-							"val" : 1,
-							"effectRange": "ONLY_DISTANCE_FIGHT"
-						}
-					],	
+		"abilities": {
+			"extraAttack" :
+			{
+				"type": "ADDITIONAL_ATTACK",
+				"val" : 1,
+				"effectRange": "ONLY_DISTANCE_FIGHT"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CHCBOW.DEF",
 			"missile" :
 			{
-				"projectile": "PLCBOWX.DEF",
-				"spinning": false
+				"projectile": "PLCBOWX.DEF"
 			}
 		},
 		"sound" :
@@ -100,7 +111,14 @@
 		"id": 4,
 		"level": 3,
 		"faction": "castle",
-		"abilities": [ [ "ADDITIONAL_RETALIATION", 1, 0, 0 ] ], 	//griffins retaliate twice
+		"abilities":
+		{
+			"extraRetaliation" :
+			{
+				"type" : "ADDITIONAL_RETALIATION",
+				"val" : 1
+			}
+		},
 		"upgrades": ["royalGriffin"],
 		"hasDoubleWeek": true,
 		"graphics" :
@@ -121,7 +139,13 @@
 		"id": 5,
 		"level": 3,
 		"faction": "castle",
-		"abilities": [ [ "UNLIMITED_RETALIATIONS", 0, 0, 0 ] ],	//royal griffins retaliate always
+		"abilities":
+		{
+			"unlimitedRetaliation" :
+			{
+				"type" : "UNLIMITED_RETALIATIONS"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CRGRIF.DEF"
@@ -159,7 +183,14 @@
 		"id": 7,
 		"level": 4,
 		"faction": "castle",
-		"abilities": [ [ "ADDITIONAL_ATTACK", 1, 0, 0 ] ],
+		"abilities":
+		{
+			"extraAttack" :
+			{
+				"type" : "ADDITIONAL_ATTACK",
+				"val" : 1
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CCRUSD.DEF"
@@ -184,8 +215,7 @@
 			"animation": "CMONKK.DEF",
 			"missile" :
 			{
-				"projectile": "CPRZEAX.DEF",
-				"spinning": false
+				"projectile": "CPRZEAX.DEF"
 			}
 		},
 		"sound" :
@@ -208,8 +238,7 @@
 			"animation": "CZEALT.DEF",
 			"missile" :
 			{
-				"projectile": "CPRZEAX.DEF",
-				"spinning": false
+				"projectile": "CPRZEAX.DEF"
 			}
 		},
 		"sound" :
@@ -264,11 +293,21 @@
 		"id": 12,
 		"level": 7,
 		"faction": "castle",
-		"abilities": 
-		[ 
-			["HATE", 50, "creature.archDevil", 0],	//angels hate archdevils
-			["HATE", 50, "creature.devil", 0]		//angels hate devil
-		],			   	 	
+		"abilities":
+		{
+			"hateDevils" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.devil",
+				"val" : 50
+			},
+			"hateArchDevils" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.archDevil",
+				"val" : 50
+			}
+		},
 		"upgrades": ["archangel"],
 		"graphics" :
 		{
@@ -288,14 +327,37 @@
 		"id": 13,
 		"level": 7,
 		"faction": "castle",
-		"abilities": 
-		[ 
-			["SPECIFIC_SPELL_POWER", 100, "spell.resurrection", 0],	// 100 hp per Archangel
-			["SPELLCASTER", 0, "spell.resurrection", 0 ],			//archangels cast resurrection
-			["HATE", 50, "creature.archDevil", 0],	//archangels hate archdevils
-			["HATE", 50, "creature.devil", 0] ,		//archangels hate devils
-			["CASTS", 1, 0, 0]
-		],
+		"abilities":
+		{
+			"resurrection100hp" : 
+			{
+				"type" : "SPECIFIC_SPELL_POWER",
+				"subtype" : "spell.resurrection",
+				"val" : 100
+			},
+			"resurrects" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.resurrection"
+			},
+			"spellpoints" :
+			{
+				"type" : "CASTS",
+				"val" : 1
+			},
+			"hateDevils" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.devil",
+				"val" : 50
+			},
+			"hateArchDevils" :
+			{
+				"type" : "HATE",
+				"subtype" : "creature.archDevil",
+				"val" : 50
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CRANGL.DEF"

@@ -31,8 +31,7 @@
 			"animation": "CGREMM.DEF",
 			"missile" :
 			{
-				"projectile": "CPRGRE.DEF",
-				"spinning": false
+				"projectile": "CPRGRE.DEF"
 			}
 		},
 		"sound" :
@@ -50,7 +49,13 @@
 		"id": 30,
 		"level": 2,
 		"faction": "tower",
-		"abilities": [ [ "NON_LIVING", 0, 0, 0 ] ],  	  		//stone gargoyles are non-living
+		"abilities":
+		{
+			"nonliving" :
+			{
+				"type" : "NON_LIVING"
+			}
+		},
 		"upgrades": ["obsidianGargoyle"],
 		"graphics" :
 		{
@@ -70,7 +75,13 @@
 		"id": 31,
 		"level": 2,
 		"faction": "tower",
-		"abilities": [ [ "NON_LIVING", 0, 0, 0 ] ],  			//obsidian gargoyles are non-living
+		"abilities":
+		{
+			"nonliving" :
+			{
+				"type" : "NON_LIVING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "COGARG.DEF"
@@ -89,8 +100,19 @@
 		"id": 32,
 		"level": 3,
 		"faction": "tower",
-		"abilities": [ [ "SPELL_DAMAGE_REDUCTION", 50, -1, 0 ],		//stone golems reduce dmg from spells
-					   [ "NON_LIVING", 0, 0, 0 ] ],  			//stone golems are non-living
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "SPELL_DAMAGE_REDUCTION",
+				"subtype" : -1,
+				"val" : 50
+			},
+			"nonliving" :
+			{
+				"type" : "NON_LIVING"
+			}
+		},
 		"upgrades": ["stoneGolem"],
 		"graphics" :
 		{
@@ -110,8 +132,19 @@
 		"id": 33,
 		"level": 3,
 		"faction": "tower",
-		"abilities": [ [ "SPELL_DAMAGE_REDUCTION", 75, -1, 0 ],	   	//iron golems reduce dmg from spells
-					   [ "NON_LIVING", 0, 0, 0 ] ],  			//iron golems are non-living
+		"abilities" :
+		{
+			"magicResistance" :
+			{
+				"type" : "SPELL_DAMAGE_REDUCTION",
+				"subtype" : -1,
+				"val" : 75
+			},
+			"nonliving" :
+			{
+				"type" : "NON_LIVING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CIGOLE.DEF"
@@ -130,15 +163,21 @@
 		"id": 34,
 		"level": 4,
 		"faction": "tower",
-		"abilities": [ [ "CHANGES_SPELL_COST_FOR_ALLY", 2, 0, 0 ] ],   	//mages reduce spell cost
+		"abilities": 
+		{
+			"reduceSpellCost" : 
+			{
+				"type" : "CHANGES_SPELL_COST_FOR_ALLY",
+				"val" :  2
+			}
+		},
 		"upgrades": ["archMage"],
 		"graphics" :
 		{
 			"animation": "CMAGE.DEF",
 			"missile" :
 			{
-				"projectile": "PMAGEX.DEF",
-				"spinning": false
+				"projectile": "PMAGEX.DEF"
 			}
 		},
 		"sound" :
@@ -156,14 +195,20 @@
 		"id": 35,
 		"level": 4,
 		"faction": "tower",
-		"abilities": [ [ "CHANGES_SPELL_COST_FOR_ALLY", 2, 0, 0 ]],		//archmages reduce spell cost
+		"abilities": 
+		{
+			"reduceSpellCost" : 
+			{
+				"type" : "CHANGES_SPELL_COST_FOR_ALLY",
+				"val" :  2
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CAMAGE.DEF",
 			"missile" :
 			{
-				"projectile": "PMAGEX.DEF",
-				"spinning": false
+				"projectile": "PMAGEX.DEF"
 			}
 		},
 		"sound" :
@@ -181,8 +226,21 @@
 		"id": 36,
 		"level": 5,
 		"faction": "tower",
-		"abilities": [ [ "HATE", 50, 53, 0 ],				  	//master genies hate efreets
-					   [ "HATE", 50, 52, 0 ] ],				  	//genies hate efreet sultans
+		"abilities":
+		{
+			"hateAngels" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.efreet",
+				"val" : 50
+			},
+			"hateArchAngels" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.efreetSultan",
+				"val" : 50
+			}
+		},
 		"upgrades": ["masterGenie"],
 		"graphics" :
 		{
@@ -202,11 +260,36 @@
 		"id": 37,
 		"level": 5,
 		"faction": "tower",
-		"abilities": [ [ "CREATURE_ENCHANT_POWER", 5, 0, 0 ],		//spells last 5 turns
-						 [ "RANDOM_SPELLCASTER", 2, 0, 0 ],  		//master genies cast spells on advanced level
-						 [ "CASTS", 3, 0, 0],
-						 [ "HATE", 50, 53, 0 ],
-						 [ "HATE", 50, 52, 0 ] ],				  	//master genies hate efreet sultans
+		"abilities":
+		{
+			"hateAngels" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.efreet",
+				"val" : 50
+			},
+			"hateArchAngels" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.efreetSultan",
+				"val" : 50
+			},
+			"spellsLength" : 
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 5
+			},
+			"randomSpellcaster" :
+			{
+				"type" : "RANDOM_SPELLCASTER",
+				"val" : 2
+			},
+			"casts" :
+			{
+				"type" : "CASTS",
+				"val" : 3
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CSULTA.DEF"
@@ -226,7 +309,13 @@
 		"id": 38,
 		"level": 6,
 		"faction": "tower",
-		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],		//nagas block retaliation
+		"abilities" :
+		{
+			"noRetaliation" : 
+			{
+				"type" : "BLOCKS_RETALIATION"
+			}
+		},
 		"upgrades": ["nagaQueen"],
 		"graphics" :
 		{
@@ -246,7 +335,13 @@
 		"id": 39,
 		"level": 6,
 		"faction": "tower",
-		"abilities": [ [ "BLOCKS_RETALIATION", 0, 0, 0 ] ],  	//naga queens block retaliation
+		"abilities" :
+		{
+			"noRetaliation" : 
+			{
+				"type" : "BLOCKS_RETALIATION"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CNAGAG.DEF"
@@ -265,7 +360,13 @@
 		"id": 40,
 		"level": 7,
 		"faction": "tower",
-		"abilities": [ ["MIND_IMMUNITY", 0, 0, 0] ],			//giants are immune to mind spells
+		"abilities" :
+		{
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			}
+		},
 		"upgrades": ["titan"],
 		"graphics" :
 		{
@@ -285,15 +386,25 @@
 		"id": 41,
 		"level": 7,
 		"faction": "tower",
-		"abilities": [ ["MIND_IMMUNITY", 0, 0, 0],			//Titans are immune to mind spells
-						 [ "HATE", 50, "creature.blackDragon", 0 ] ],					//titans hate black dragons
+		"abilities" :
+		{
+			"immuneToMind" : 
+			{
+				"type" : "MIND_IMMUNITY"
+			},
+			"hateArchAngels" : 
+			{
+				"type" : "HATE",
+				"subtype" : "creature.blackDragon",
+				"val" : 50
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CGTITA.DEF",
 			"missile" :
 			{
-				"projectile": "CPRGTIX.DEF",
-				"spinning": false
+				"projectile": "CPRGTIX.DEF"
 			}
 		},
 		"sound" :

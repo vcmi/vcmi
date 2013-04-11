@@ -63,7 +63,14 @@
 		"id": 87,
 		"level": 2,
 		"faction": "stronghold",
-		"abilities": [ [ "ADDITIONAL_ATTACK", 1, 0, 0 ] ],
+		"abilities":
+		{
+			"extraAttack" :
+			{
+				"type" : "ADDITIONAL_ATTACK",
+				"val" : 1
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CUWLFR.DEF"
@@ -88,8 +95,7 @@
 			"animation": "CORC.DEF",
 			"missile" :
 			{
-				"projectile": "PORCHX.DEF",
-				"spinning": true
+				"projectile": "PORCHX.DEF"
 			}
 		},
 		"sound" :
@@ -112,8 +118,7 @@
 			"animation": "CORCCH.DEF",
 			"missile" :
 			{
-				"projectile": "PORCHX.DEF",
-				"spinning": true
+				"projectile": "PORCHX.DEF"
 			}
 		},
 		"sound" :
@@ -150,9 +155,25 @@
 		"id": 91,
 		"level": 4,
 		"faction": "stronghold",
-		"abilities": [ [ "SPELLCASTER", 2, "spell.bloodlust", 0 ],
-						 [ "CASTS", 3, 0, 0],
-						 [ "CREATURE_ENCHANT_POWER", 3, 0, 0]],   	   	   	
+		"abilities":
+		{
+			"castsBloodlust" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.bloodlust",
+				"val" : 2
+			},
+			"castsCount" :
+			{
+				"type" : "CASTS",
+				"val" : 3
+			},
+			"castLength" :
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 3
+			}
+		},
 		"graphics" :
 		{
 			"animation": "COGMAG.DEF"
@@ -191,8 +212,21 @@
 		"id": 93,
 		"level": 5,
 		"faction": "stronghold",
-		"abilities": [ [ "SPECIFIC_SPELL_POWER", 10, "spell.thunderbolt", 0 ],	//10 damage per unit
-						 [ "SPELL_AFTER_ATTACK", 20, "spell.thunderbolt", 0 ] ],   	
+		"abilities":
+		{
+			"thunderStrength" :
+			{
+				"type" : "SPECIFIC_SPELL_POWER",
+				"subtype" : "spell.thunderbolt",
+				"val" : 10
+			},
+			"thunderOnAttack" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.thunderbolt",
+				"val" : 20
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CTBIRD.DEF"
@@ -217,8 +251,7 @@
 			"animation": "CCYCLR.DEF",
 			"missile" :
 			{
-				"projectile": "PCYCLBX.DEF",
-				"spinning": true
+				"projectile": "PCYCLBX.DEF"
 			}
 		},
 		"sound" :
@@ -241,8 +274,7 @@
 			"animation": "CCYCLLOR.DEF",
 			"missile" :
 			{
-				"projectile": "PCYCLBX.DEF",
-				"spinning": true
+				"projectile": "PCYCLBX.DEF"
 			}
 		},
 		"sound" :
@@ -260,7 +292,14 @@
 		"id": 96,
 		"level": 7,
 		"faction": "stronghold",
-		"abilities": [ [ "ENEMY_DEFENCE_REDUCTION", 40, 0, 0 ] ],		
+		"abilities":
+		{
+			"reduceDefence" :
+			{
+				"type" : "ENEMY_DEFENCE_REDUCTION",
+				"val" : 40
+			}
+		},
 		"upgrades": ["ancientBehemoth"],
 		"graphics" :
 		{
@@ -280,7 +319,14 @@
 		"id": 97,
 		"level": 7,
 		"faction": "stronghold",
-		"abilities": [ [ "ENEMY_DEFENCE_REDUCTION", 80, 0, 0 ] ],
+		"abilities":
+		{
+			"reduceDefence" :
+			{
+				"type" : "ENEMY_DEFENCE_REDUCTION",
+				"val" : 80
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CABEHE.DEF"

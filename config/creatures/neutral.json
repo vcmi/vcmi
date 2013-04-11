@@ -5,8 +5,19 @@
 		"id": 116,
 		"level": 4,
 		"faction": "neutral",
-		"abilities": [ [ "SPELL_DAMAGE_REDUCTION", 85, -1, 0 ],		//gold golems reduce dmg from spells
-						 [ "NON_LIVING", 0, 0, 0 ] ],		 	   	//diamond golems are non-living
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "SPELL_DAMAGE_REDUCTION",
+				"subtype" : -1,
+				"val" : 85
+			},
+			"nonliving" :
+			{
+				"type" : "NON_LIVING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CGGOLE.DEF"
@@ -25,8 +36,19 @@
 		"id": 117,
 		"level": 5,
 		"faction": "neutral",
-		"abilities": [ [ "SPELL_DAMAGE_REDUCTION", 95, -1, 0 ],		//diamond golems reduce dmg from spells
-						 [ "NON_LIVING", 0, 0, 0 ] ],
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "SPELL_DAMAGE_REDUCTION",
+				"subtype" : -1,
+				"val" : 95
+			},
+			"nonliving" :
+			{
+				"type" : "NON_LIVING"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CDGOLE.DEF"
@@ -46,11 +68,30 @@
 		"id": 132,
 		"level": 10,
 		"faction": "neutral",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],
-						 [ "TWO_HEX_ATTACK_BREATH", 0, 0, 0 ],  //azure dragon's breath
-						 [ "FEARLESS", 0, 0, 0 ],  //azure dragon is immune to fear
-						  [ "LEVEL_SPELL_IMMUNITY", 3, 0, 0 ],	//immunity spell levels 1-3
-						[ "FEAR", 0, 0, 0]],			//azure dragon is a dragon
+		"abilities":
+		{
+			"dragon" : 
+			{
+				"type" : "DRAGON_NATURE"
+			},
+			"fireBreath" :
+			{
+				"type" : "TWO_HEX_ATTACK_BREATH"
+			},
+			"spellImmunity" :
+			{
+				"type" : "LEVEL_SPELL_IMMUNITY",
+				"val" : 3
+			},
+			"fearless" :
+			{
+				"type" : "FEARLESS"
+			},
+			"fear" :
+			{
+				"type" : "FEAR"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CADRGN.DEF"
@@ -70,8 +111,14 @@
 		"id": 133,
 		"level": 10,
 		"faction": "neutral",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ] ],			//crystal dragon is a dragon
-		"ability_remove": [ "FLYING" ],							//Crystal Dragons do not fly
+		"abilities":
+		{
+			"dragon" :
+			{
+				"type" : "DRAGON_NATURE"
+			},
+			"FLYING" : null
+		},
 		"graphics" :
 		{
 			"animation": "CCDRGN.DEF"
@@ -91,18 +138,84 @@
 		"id": 134,
 		"level": 8,
 		"faction": "neutral",
-		"abilities": [ [ "DRAGON_NATURE", 0, 0, 0 ],			//faerie dragon is a dragon
-						[ "MAGIC_MIRROR", 30, 0, 0 ],
-						[ "CASTS", 5, 0, 0 ],
-						[ "CREATURE_SPELL_POWER", 500, 0, 0], 	//5 spell power per dragon
-						[ "SPELLCASTER", 2, "spell.magicArrow", 10 ],			
-						[ "SPELLCASTER", 2, "spell.iceBolt", 22 ],			
-						[ "SPELLCASTER", 2, "spell.lightningBolt", 22 ],			
-						[ "SPELLCASTER", 2, "spell.chainLightning", 5 ],			
-						[ "SPELLCASTER", 2, "spell.frostRing", 10 ],			
-						[ "SPELLCASTER", 2, "spell.fireball", 21 ],			
-						[ "SPELLCASTER", 2, "spell.inferno", 5 ],			
-						[ "SPELLCASTER", 2, "spell.meteorShower", 5 ]],			
+		"abilities":
+		{
+			"dragon" :
+			{
+				"type" : "DRAGON_NATURE",
+			},
+			"mirror" :
+			{
+				"type" : "MAGIC_MIRROR",
+				"val" : 30
+			},
+			"casts" :
+			{
+				"type" : "CASTS",
+				"val" : 5
+			},
+			"spellpower" :
+			{
+				"type" : "CREATURE_SPELL_POWER",
+				"val" : 500
+			},
+			"castsMagicArrow" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.magicArrow",
+				"addInfo" : 22,
+				"val" : 2
+			},
+			"castsIceBolt" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.iceBolt",
+				"addInfo" : 22,
+				"val" : 2
+			},
+			"castsLightningBolt" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.lightningBolt",
+				"addInfo" : 22,
+				"val" : 2
+			},
+			"castsChainLightning" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.chainLightning",
+				"addInfo" : 5,
+				"val" : 2
+			},
+			"castsFrostRing" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.frostRing",
+				"addInfo" : 10,
+				"val" : 2
+			},
+			"castsFireball" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.fireball",
+				"addInfo" : 21,
+				"val" : 2
+			},
+			"castsInferno" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.inferno",
+				"addInfo" : 5,
+				"val" : 2
+			},
+			"castsMeteorShower" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.meteorShower",
+				"addInfo" : 5,
+				"val" : 2
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CFDRGN.DEF"
@@ -123,9 +236,25 @@
 		"id": 135,
 		"level": 10,
 		"faction": "neutral",
-		"abilities": [ [ "SPELL_AFTER_ATTACK", 100, 80, 0 ],			//always reduce defense
-						 [ "ACID_BREATH", 25, 0, 20 ],			//20% chance to do 25 damage
-						 [ "DRAGON_NATURE", 0, 0, 0 ] ],			//rust dragon is a dragon
+		"abilities":
+		{
+			"dragon" : 
+			{
+				"type" : "DRAGON_NATURE"
+			},
+			"acidBreath" :
+			{
+				"type" : "ACID_BREATH",
+				"val" : 25,
+				"addInfo" : 20
+			},
+			"reduceDefence" :
+			{
+				"type" : "SPELL_AFTER_ATTACK",
+				"subtype" : "spell.acidBreath",
+				"val" : 100
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CRSDGN.DEF"
@@ -146,21 +275,67 @@
 		"level": 6,
 		"extraNames": [ "enchanters" ],
 		"faction": "neutral",
-		"abilities": [ [ "NO_WALL_PENALTY", 0, 0, 0 ],
-						 [ "ENCHANTER", 3, "spell.airShield", 3],		
-						 [ "ENCHANTER", 3, "spell.bless", 3],		
-						 [ "ENCHANTER", 3, "spell.weakness", 3],		
-						 [ "ENCHANTER", 3, "spell.stoneSkin", 3],		
-						 [ "ENCHANTER", 3, "spell.slow", 3],		
-						 [ "ENCHANTER", 3, "spell.haste", 3],		
-						 [ "CASTS", 5, 0, 0]],			
+		"abilities":
+		{
+			"noPenalty" : 
+			{
+				"type" : "NO_WALL_PENALTY"
+			},
+			"casts" :
+			{
+				"type" : "CASTS",
+				"val" : 5
+			},
+			"castsAirShield" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "spell.airShield",
+				"val" : 3,
+				"addInfo" : 3
+			},
+			"castsBless" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "spell.bless",
+				"val" : 3,
+				"addInfo" : 3
+			},
+			"castsWeakness" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "spell.weakness",
+				"val" : 3,
+				"addInfo" : 3
+			},
+			"castsStoneSkin" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "spell.stoneSkin",
+				"val" : 3,
+				"addInfo" : 3
+			},
+			"castsSlow" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "spell.slow",
+				"val" : 3,
+				"addInfo" : 3
+			},
+			"castsHaste" :
+			{
+				"type" : "ENCHANTER",
+				"subtype" : "spell.haste",
+				"val" : 3,
+				"addInfo" : 3
+			}
+			
+		},
 		"graphics" :
 		{
-			"animation": "CENCH.DEF",
+			"animation": "CGTITA.DEF",
 			"missile" :
 			{
-				"projectile": "CPRZEAX.DEF",
-				"spinning": false
+				"projectile": "CPRZEAX.DEF"
 			}
 		},
 		"sound" :
@@ -180,15 +355,23 @@
 		"level": 4,
 		"extraNames": [ "sharpshooters" ],
 		"faction": "neutral",
-		"abilities": [ [ "NO_WALL_PENALTY", 0, 0, 0 ],
-						 [ "NO_DISTANCE_PENALTY", 0, 0, 0 ] ],
+		"abilities":
+		{
+			"noPenalty" : 
+			{
+				"type" : "NO_WALL_PENALTY"
+			},
+			"noDistancePenalty" :
+			{
+				"type" : "NO_DISTANCE_PENALTY"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CSHARP.DEF",
 			"missile" :
 			{
-				"projectile": "PELFX.DEF",
-				"spinning": false
+				"projectile": "PELFX.DEF"
 			}
 		},
 		"sound" :
@@ -211,8 +394,7 @@
 			"animation": "CHALF.DEF",
 			"missile" :
 			{
-				"projectile": "PHALF.DEF",
-				"spinning": true
+				"projectile": "PHALF.DEF"
 			}
 		},
 		"sound" :
@@ -248,7 +430,7 @@
 		"id": 140,
 		"level": 2,
 		"faction": "neutral",
-		"abilities": [ [ "DOUBLE_WIDE", 0, 0, 0 ] ], 			//boar should be treated as double-wide
+		"doubleWide" : true,
 		"graphics" :
 		{
 			"animation": "CBOAR.DEF"
@@ -267,7 +449,13 @@
 		"id": 141,
 		"level": 3,
 		"faction": "neutral",
-		"abilities": [ [ "UNDEAD", 0, 0, 0 ] ],
+		"abilities":
+		{
+			"undead" :
+			{
+				"type" : "UNDEAD"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CMUMMY.DEF"
@@ -286,7 +474,7 @@
 		"id": 142,
 		"level": 3,
 		"faction": "neutral",
-		"abilities": [ [ "DOUBLE_WIDE", 0, 0, 0 ] ], 			//nomads should be treated as double-wide
+		"doubleWide" : true,
 		"graphics" :
 		{
 			"animation": "CNOMAD.DEF"
@@ -323,7 +511,13 @@
 		"id": 144,
 		"level": 5,
 		"faction": "neutral",
-		"abilities": [ [ "FULL_HP_REGENERATION", 0, 0, 0 ] ],
+		"abilities":
+		{
+			"regenerates" :
+			{
+				"type" : "FULL_HP_REGENERATION"
+			}
+		},
 		"graphics" :
 		{
 			"animation": "CTROLL.DEF"
