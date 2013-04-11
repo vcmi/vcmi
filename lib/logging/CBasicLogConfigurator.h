@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "CLogger.h"
+#include "../CLogger.h"
 
 class CConsoleHandler;
 class JsonNode;
