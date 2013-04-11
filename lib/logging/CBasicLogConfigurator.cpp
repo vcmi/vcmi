@@ -10,8 +10,8 @@ CBasicLogConfigurator::CBasicLogConfigurator(const std::string & filePath, CCons
 
 void CBasicLogConfigurator::configureDefault()
 {
-    CGLogger::getGlobalLogger()->addTarget(make_unique<CLogConsoleTarget>(console));
-    CGLogger::getGlobalLogger()->addTarget(make_unique<CLogFileTarget>(filePath, appendToLogFile));
+    CLogger::getGlobalLogger()->addTarget(make_unique<CLogConsoleTarget>(console));
+    CLogger::getGlobalLogger()->addTarget(make_unique<CLogFileTarget>(filePath, appendToLogFile));
     appendToLogFile = true;
 }
 
@@ -30,13 +30,13 @@ void CBasicLogConfigurator::configure()
             {
                 // Get logger
                 std::string name = loggerNode["domain"].String();
-                CGLogger * logger = CGLogger::getLogger(CLoggerDomain(name));
+                CLogger * logger = CLogger::getLogger(CLoggerDomain(name));
 
                 // Set log level
                 logger->setLevel(getLogLevel(loggerNode["level"].String()));
             }
         }
-        CGLogger::getGlobalLogger()->clearTargets();
+        CLogger::getGlobalLogger()->clearTargets();
 
         // Add console target
         auto consoleTarget = make_unique<CLogConsoleTarget>(console);
@@ -64,7 +64,7 @@ void CBasicLogConfigurator::configure()
             }
             consoleTarget->setColorMapping(colorMapping);
         }
-        CGLogger::getGlobalLogger()->addTarget(std::move(consoleTarget));
+        CLogger::getGlobalLogger()->addTarget(std::move(consoleTarget));
 
         // Add file target
         auto fileTarget = make_unique<CLogFileTarget>(filePath, appendToLogFile);
@@ -74,7 +74,7 @@ void CBasicLogConfigurator::configure()
             const JsonNode & fileFormatNode = fileNode["format"];
             if(!fileFormatNode.isNull()) fileTarget->setFormatter(CLogFormatter(fileFormatNode.String()));
         }
-        CGLogger::getGlobalLogger()->addTarget(std::move(fileTarget));
+        CLogger::getGlobalLogger()->addTarget(std::move(fileTarget));
         appendToLogFile = true;
     }
     catch(const std::exception & e)

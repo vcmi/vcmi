@@ -1025,7 +1025,6 @@ void CGameState::init(StartInfo * si)
                         map->getTile(pos).extTileFlags |= 128;
 				}
 	}
-	//std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
 	/*********creating players entries in gs****************************************/
     logGlobal->debugStream() << "\tCreating player entries in gs";

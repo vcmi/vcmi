@@ -208,7 +208,7 @@ bool CConnection::isOpen() const
 	return socket && connected;
 }
 
-void CConnection::reportState(CGLogger * out)
+void CConnection::reportState(CLogger * out)
 {
     out->debugStream() << "CConnection";
 	if(socket && socket->is_open())
@@ -315,7 +315,7 @@ void CSaveFile::openNextFile(const std::string &fname)
 	}
 }
 
-void CSaveFile::reportState(CGLogger * out)
+void CSaveFile::reportState(CLogger * out)
 {
     out->debugStream() << "CSaveFile";
 	if(sfile.get() && *sfile)
@@ -399,7 +399,7 @@ void CLoadFile::openNextFile(const std::string &fname, int minimalVersion)
 	}
 }
 
-void CLoadFile::reportState(CGLogger * out)
+void CLoadFile::reportState(CLogger * out)
 {
     out->debugStream() << "CLoadFile";
 	if(!!sfile && *sfile)

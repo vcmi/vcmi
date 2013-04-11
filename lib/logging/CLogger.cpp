@@ -1,5 +1,5 @@
 #include "StdInc.h"
-#include "CNewLogger.h"
+#include "CLogger.h"
 
 const std::string CLoggerDomain::DOMAIN_GLOBAL = "global";
 
@@ -33,7 +33,7 @@ std::string CLoggerDomain::getName() const
     return name;
 }
 
-CLoggerStream::CLoggerStream(const CGLogger & logger, ELogLevel::ELogLevel level) : logger(logger), level(level), sbuffer(nullptr)
+CLoggerStream::CLoggerStream(const CLogger & logger, ELogLevel::ELogLevel level) : logger(logger), level(level), sbuffer(nullptr)
 {
 
 }
@@ -48,28 +48,28 @@ CLoggerStream::~CLoggerStream()
     }
 }
 
-boost::recursive_mutex CGLogger::smx;
+boost::recursive_mutex CLogger::smx;
 
-CGLogger * logGlobal = CGLogger::getGlobalLogger();
+DLL_LINKAGE CLogger * logGlobal = CLogger::getGlobalLogger();
 
-CGLogger * logBonus = CGLogger::getLogger(CLoggerDomain("bonus"));
+DLL_LINKAGE CLogger * logBonus = CLogger::getLogger(CLoggerDomain("bonus"));
 
-CGLogger * logNetwork = CGLogger::getLogger(CLoggerDomain("network"));
+DLL_LINKAGE CLogger * logNetwork = CLogger::getLogger(CLoggerDomain("network"));
 
-CGLogger * logAi = CGLogger::getLogger(CLoggerDomain("ai"));
+DLL_LINKAGE CLogger * logAi = CLogger::getLogger(CLoggerDomain("ai"));
 
-CGLogger * CGLogger::getLogger(const CLoggerDomain & domain)
+CLogger * CLogger::getLogger(const CLoggerDomain & domain)
 {
     boost::lock_guard<boost::recursive_mutex> _(smx);
 
-    CGLogger * logger = CLogManager::get().getLogger(domain);
+	CLogger * logger = CLogManager::get().getLogger(domain);
     if(logger)
     {
         return logger;
     }
     else
     {
-        logger = new CGLogger(domain);
+		logger = new CLogger(domain);
         if(domain.isGlobalDomain())
         {
             logger->setLevel(ELogLevel::INFO);
@@ -79,12 +79,12 @@ CGLogger * CGLogger::getLogger(const CLoggerDomain & domain)
     }
 }
 
-CGLogger * CGLogger::getGlobalLogger()
+CLogger * CLogger::getGlobalLogger()
 {
     return getLogger(CLoggerDomain(CLoggerDomain::DOMAIN_GLOBAL));
 }
 
-CGLogger::CGLogger(const CLoggerDomain & domain) : domain(domain)
+CLogger::CLogger(const CLoggerDomain & domain) : domain(domain)
 {
     if(domain.isGlobalDomain())
     {
@@ -98,57 +98,57 @@ CGLogger::CGLogger(const CLoggerDomain & domain) : domain(domain)
     }
 }
 
-void CGLogger::trace(const std::string & message) const
+void CLogger::trace(const std::string & message) const
 {
     log(ELogLevel::TRACE, message);
 }
 
-CLoggerStream CGLogger::traceStream() const
+CLoggerStream CLogger::traceStream() const
 {
     return CLoggerStream(*this, ELogLevel::TRACE);
 }
 
-void CGLogger::debug(const std::string & message) const
+void CLogger::debug(const std::string & message) const
 {
     log(ELogLevel::DEBUG, message);
 }
 
-CLoggerStream CGLogger::debugStream() const
+CLoggerStream CLogger::debugStream() const
 {
     return CLoggerStream(*this, ELogLevel::DEBUG);
 }
 
-void CGLogger::info(const std::string & message) const
+void CLogger::info(const std::string & message) const
 {
     log(ELogLevel::INFO, message);
 }
 
-CLoggerStream CGLogger::infoStream() const
+CLoggerStream CLogger::infoStream() const
 {
     return CLoggerStream(*this, ELogLevel::INFO);
 }
 
-void CGLogger::warn(const std::string & message) const
+void CLogger::warn(const std::string & message) const
 {
     log(ELogLevel::WARN, message);
 }
 
-CLoggerStream CGLogger::warnStream() const
+CLoggerStream CLogger::warnStream() const
 {
     return CLoggerStream(*this, ELogLevel::WARN);
 }
 
-void CGLogger::error(const std::string & message) const
+void CLogger::error(const std::string & message) const
 {
     log(ELogLevel::ERROR, message);
 }
 
-CLoggerStream CGLogger::errorStream() const
+CLoggerStream CLogger::errorStream() const
 {
     return CLoggerStream(*this, ELogLevel::ERROR);
 }
 
-void CGLogger::log(ELogLevel::ELogLevel level, const std::string & message) const
+void CLogger::log(ELogLevel::ELogLevel level, const std::string & message) const
 {
     if(getEffectiveLevel() <= level)
     {
@@ -156,33 +156,33 @@ void CGLogger::log(ELogLevel::ELogLevel level, const std::string & message) cons
     }
 }
 
-ELogLevel::ELogLevel CGLogger::getLevel() const
+ELogLevel::ELogLevel CLogger::getLevel() const
 {
     TLockGuard _(mx);
     return level;
 }
 
-void CGLogger::setLevel(ELogLevel::ELogLevel level)
+void CLogger::setLevel(ELogLevel::ELogLevel level)
 {
     TLockGuard _(mx);
     if(domain.isGlobalDomain() && level == ELogLevel::NOT_SET) return;
     this->level = level;
 }
 
-const CLoggerDomain & CGLogger::getDomain() const
+const CLoggerDomain & CLogger::getDomain() const
 {
     return domain;
 }
 
-void CGLogger::addTarget(unique_ptr<ILogTarget> && target)
+void CLogger::addTarget(unique_ptr<ILogTarget> && target)
 {
     TLockGuard _(mx);
     targets.push_back(std::move(target));
 }
 
-ELogLevel::ELogLevel CGLogger::getEffectiveLevel() const
+ELogLevel::ELogLevel CLogger::getEffectiveLevel() const
 {
-    for(const CGLogger * logger = this; logger != nullptr; logger = logger->parent)
+	for(const CLogger * logger = this; logger != nullptr; logger = logger->parent)
     {
         if(logger->getLevel() != ELogLevel::NOT_SET) return logger->getLevel();
     }
@@ -191,10 +191,10 @@ ELogLevel::ELogLevel CGLogger::getEffectiveLevel() const
     return ELogLevel::INFO;
 }
 
-void CGLogger::callTargets(const LogRecord & record) const
+void CLogger::callTargets(const LogRecord & record) const
 {
     TLockGuard _(mx);
-    for(const CGLogger * logger = this; logger != nullptr; logger = logger->parent)
+	for(const CLogger * logger = this; logger != nullptr; logger = logger->parent)
     {
         BOOST_FOREACH(auto & target, logger->targets)
         {
@@ -203,18 +203,18 @@ void CGLogger::callTargets(const LogRecord & record) const
     }
 }
 
-void CGLogger::clearTargets()
+void CLogger::clearTargets()
 {
     TLockGuard _(mx);
     targets.clear();
 }
 
-bool CGLogger::isDebugEnabled() const
+bool CLogger::isDebugEnabled() const
 {
     return getEffectiveLevel() <= ELogLevel::DEBUG;
 }
 
-bool CGLogger::isTraceEnabled() const
+bool CLogger::isTraceEnabled() const
 {
     return getEffectiveLevel() <= ELogLevel::TRACE;
 }
@@ -241,13 +241,13 @@ CLogManager::~CLogManager()
     }
 }
 
-void CLogManager::addLogger(CGLogger * logger)
+void CLogManager::addLogger(CLogger * logger)
 {
     TLockGuard _(mx);
     loggers[logger->getDomain().getName()] = logger;
 }
 
-CGLogger * CLogManager::getLogger(const CLoggerDomain & domain)
+CLogger * CLogManager::getLogger(const CLoggerDomain & domain)
 {
     TLockGuard _(mx);
     auto it = loggers.find(domain.getName());

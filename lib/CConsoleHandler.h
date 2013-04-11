@@ -91,3 +91,5 @@ private:
 
     boost::thread * thread;
 };
+
+extern DLL_LINKAGE CConsoleHandler * console;

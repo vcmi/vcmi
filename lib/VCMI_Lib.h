@@ -67,6 +67,6 @@ public:
 
 extern DLL_LINKAGE LibClasses * VLC;
 
-DLL_LINKAGE void preinitDLL(CConsoleHandler *Console, std::ostream *Logfile);
+DLL_LINKAGE void preinitDLL(CConsoleHandler *Console);
 DLL_LINKAGE void loadDLLClasses();
 

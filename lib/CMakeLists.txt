@@ -14,7 +14,7 @@ set(lib_SRCS
 		filesystem/CFileInputStream.cpp
 		filesystem/CCompressedStream.cpp
 		logging/CBasicLogConfigurator.cpp
-		logging/CNewLogger.cpp
+		logging/CLogger.cpp
 		mapping/CCampaignHandler.cpp
 		mapping/CMap.cpp
 		mapping/CMapEditManager.cpp
@@ -39,7 +39,6 @@ set(lib_SRCS
 		CGameState.cpp
 		CGeneralTextHandler.cpp
 		CHeroHandler.cpp
-		CLogger.cpp
 		CModHandler.cpp
 		CObjectHandler.cpp
 		CObstacleInstance.cpp

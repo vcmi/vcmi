@@ -22,7 +22,6 @@ private:
 
 	std::vector<std::string> txtEditor, txtEditorCmd;
 
-	std::ofstream * logfile;
 	CConsoleHandler * console;
 
 	Ui::EditorClass ui;

@@ -253,18 +253,17 @@ int main(int argc, char** argv)
     // Init old logging system and new (temporary) logging system
 	CStopWatch total, pomtime;
 	std::cout.flags(std::ios::unitbuf);
-    logfile = new std::ofstream((VCMIDirs::get().localPath() + "/VCMI_Client_log.txt").c_str());
 	console = new CConsoleHandler;
 	*console->cb = boost::bind(&processCommand, _1);
 	console->start();
 	atexit(dispose);
 
-    CBasicLogConfigurator logConfig(VCMIDirs::get().localPath() + "/VCMI_Client_log2.txt", console);
+	CBasicLogConfigurator logConfig(VCMIDirs::get().localPath() + "/VCMI_Client_log.txt", console);
     logConfig.configureDefault();
-    logGlobal->infoStream() <<"Creating console and logfile: "<<pomtime.getDiff();
+	logGlobal->infoStream() <<"Creating console "<<pomtime.getDiff();
 
     // Init filesystem and settings
-	preinitDLL(::console, logfile);
+	preinitDLL(::console);
     settings.init();
 
     // Initialize logging based on settings
@@ -655,7 +654,6 @@ void dispose()
 {
 	if (console)
 		delete console;
-	delete logfile;
 }
 
 //used only once during initialization

@@ -97,8 +97,6 @@
 		<Unit filename="CGeneralTextHandler.h" />
 		<Unit filename="CHeroHandler.cpp" />
 		<Unit filename="CHeroHandler.h" />
-		<Unit filename="CLogger.cpp" />
-		<Unit filename="CLogger.h" />
 		<Unit filename="CModHandler.cpp" />
 		<Unit filename="CModHandler.h" />
 		<Unit filename="CObjectHandler.cpp" />

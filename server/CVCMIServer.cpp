@@ -507,9 +507,8 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char** argv)
 #endif
 {
-	logfile = new std::ofstream((VCMIDirs::get().localPath() + "/VCMI_Server_log.txt").c_str());
 	console = new CConsoleHandler;
-    CBasicLogConfigurator logConfig(VCMIDirs::get().localPath() + "/VCMI_Server_log2.txt", console);
+	CBasicLogConfigurator logConfig(VCMIDirs::get().localPath() + "/VCMI_Server_log.txt", console);
     logConfig.configureDefault();
 	//boost::thread t(boost::bind(&CConsoleHandler::run,::console));
 	if(argc > 1)
@@ -520,7 +519,7 @@ int main(int argc, char** argv)
 		port = _ttoi(argv[1]);
 #endif
 	}
-	preinitDLL(console,logfile);
+	preinitDLL(console);
     settings.init();
     logConfig.configure();
 

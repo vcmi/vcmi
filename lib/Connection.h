@@ -333,7 +333,7 @@ public:
 	CSerializer();
 	~CSerializer();
 
-    virtual void reportState(CGLogger * out){};
+    virtual void reportState(CLogger * out){};
 
 	template <typename T, typename U>
 	void registerVectoredType(const std::vector<T*> *Vector, const U T::*IdPtr)
@@ -1211,7 +1211,7 @@ public:
 
 	void openNextFile(const std::string &fname); //throws!
 	void clear();
-    void reportState(CGLogger * out);
+    void reportState(CLogger * out);
 
 	void putMagicBytes(const std::string &text);
 };
@@ -1234,7 +1234,7 @@ public:
 
 	void openNextFile(const std::string &fname, int minimalVersion); //throws!
 	void clear();
-    void reportState(CGLogger * out);
+    void reportState(CLogger * out);
 
 	void checkMagicBytes(const std::string &text);
 };
@@ -1263,7 +1263,7 @@ class DLL_LINKAGE CConnection
 	CConnection(void);
 
 	void init();
-    void reportState(CGLogger * out);
+    void reportState(CLogger * out);
 public:
 	boost::mutex *rmx, *wmx; // read/write mutexes
 	TSocket * socket;

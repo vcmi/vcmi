@@ -6,7 +6,7 @@ void CEmptyAI::init(CCallback * CB)
 	cb = CB;
 	human=false;
 	playerID = *cb->getMyColor();
-	std::cout << "EmptyAI initialized." << std::endl;
+	logAi->infoStream() << "EmptyAI initialized.";
 }
 void CEmptyAI::yourTurn()
 {

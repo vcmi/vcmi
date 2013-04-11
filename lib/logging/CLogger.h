@@ -11,7 +11,9 @@
 
 #pragma once
 
-class CGLogger;
+#include "../CConsoleHandler.h"
+
+class CLogger;
 struct LogRecord;
 class ILogTarget;
 
@@ -50,7 +52,7 @@ private:
 class DLL_LINKAGE CLoggerStream
 {
 public:
-    CLoggerStream(const CGLogger & logger, ELogLevel::ELogLevel level);
+    CLoggerStream(const CLogger & logger, ELogLevel::ELogLevel level);
     ~CLoggerStream();
 
     template<typename T>
@@ -62,14 +64,13 @@ public:
     }
 
 private:
-    const CGLogger & logger;
+    const CLogger & logger;
     ELogLevel::ELogLevel level;
     std::stringstream * sbuffer;
 };
 
-/// The class CGLogger is used to log messages to certain targets of a specific domain/name.
-/// Temporary name is CGLogger, should be renamed to CLogger after refactoring.
-class DLL_LINKAGE CGLogger
+/// The class CLogger is used to log messages to certain targets of a specific domain/name.
+class DLL_LINKAGE CLogger
 {
 public:
     inline ELogLevel::ELogLevel getLevel() const;
@@ -77,8 +78,8 @@ public:
     const CLoggerDomain & getDomain() const;
 
     /// Logger access methods
-    static CGLogger * getLogger(const CLoggerDomain & domain);
-    static CGLogger * getGlobalLogger();
+    static CLogger * getLogger(const CLoggerDomain & domain);
+    static CLogger * getGlobalLogger();
 
     /// Log methods for various log levels
     void trace(const std::string & message) const;
@@ -107,23 +108,23 @@ public:
     bool isTraceEnabled() const;
 
 private:
-    explicit CGLogger(const CLoggerDomain & domain);
-    CGLogger * getParent() const;
+    explicit CLogger(const CLoggerDomain & domain);
+    CLogger * getParent() const;
     inline ELogLevel::ELogLevel getEffectiveLevel() const; /// Returns the log level applied on this logger whether directly or indirectly.
     inline void callTargets(const LogRecord & record) const;
 
     CLoggerDomain domain;
-    CGLogger * parent;
+    CLogger * parent;
     ELogLevel::ELogLevel level;
     std::list<unique_ptr<ILogTarget> > targets;
     mutable boost::mutex mx;
     static boost::recursive_mutex smx;
 };
 
-extern DLL_LINKAGE CGLogger * logGlobal;
-extern DLL_LINKAGE CGLogger * logBonus;
-extern DLL_LINKAGE CGLogger * logNetwork;
-extern DLL_LINKAGE CGLogger * logAi;
+extern DLL_LINKAGE CLogger * logGlobal;
+extern DLL_LINKAGE CLogger * logBonus;
+extern DLL_LINKAGE CLogger * logNetwork;
+extern DLL_LINKAGE CLogger * logAi;
 
 /// Macros for tracing the control flow of the application conveniently. If the TRACE_BEGIN macro is used it should be the first statement in the function, whereas
 /// the TRACE_END should be last one before a return statement. Logging traces via this macro have almost no impact when the trace is disabled.
@@ -142,14 +143,14 @@ class DLL_LINKAGE CLogManager : public boost::noncopyable
 public:
     static CLogManager & get();
 
-    void addLogger(CGLogger * logger);
-    CGLogger * getLogger(const CLoggerDomain & domain); /// Returns a logger or nullptr if no one is registered for the given domain.
+    void addLogger(CLogger * logger);
+    CLogger * getLogger(const CLoggerDomain & domain); /// Returns a logger or nullptr if no one is registered for the given domain.
 
 private:
     CLogManager();
     ~CLogManager();
 
-    std::map<std::string, CGLogger *> loggers;
+    std::map<std::string, CLogger *> loggers;
     mutable boost::mutex mx;
     static boost::recursive_mutex smx;
 };

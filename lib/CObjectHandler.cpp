@@ -270,7 +270,6 @@ PlayerColor CGObjectInstance::getOwner() const
 CGObjectInstance::CGObjectInstance()
 {
 	pos = int3(-1,-1,-1);
-	//std::cout << "Tworze obiekt "<<this<<std::endl;
 	//state = new CLuaObjectScript();
 	ID = Obj::NO_OBJ;
 	subID = -1;
@@ -280,7 +279,6 @@ CGObjectInstance::CGObjectInstance()
 }
 CGObjectInstance::~CGObjectInstance()
 {
-	//std::cout << "Usuwam obiekt "<<this<<std::endl;
 	//if (state)
 	//	delete state;
 	//state=NULL;

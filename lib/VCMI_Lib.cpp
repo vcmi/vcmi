@@ -26,14 +26,13 @@
 #include "CStopWatch.h"
 #include "VCMIDirs.h"
 #include "filesystem/CResourceLoader.h"
-
+#include "CConsoleHandler.h"
 
 LibClasses * VLC = NULL;
 
-DLL_LINKAGE void preinitDLL(CConsoleHandler *Console, std::ostream *Logfile)
+DLL_LINKAGE void preinitDLL(CConsoleHandler *Console)
 {
 	console = Console;
-	logfile = Logfile;
 	VLC = new LibClasses;
 	try
 	{

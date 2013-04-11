@@ -193,34 +193,34 @@ typedef boost::lock_guard<boost::recursive_mutex> TLockGuardRec;
 
 #define THROW_FORMAT(message, formatting_elems)  throw std::runtime_error(boost::str(boost::format(message) % formatting_elems))
 
-#define ASSERT_IF_CALLED_WITH_PLAYER if(!player) {tlog1 << __FUNCTION__ << "\n"; assert(0);}
+#define ASSERT_IF_CALLED_WITH_PLAYER if(!player) {logGlobal->errorStream() << BOOST_CURRENT_FUNCTION; assert(0);}
 
 //XXX pls dont - 'debug macros' are usually more trouble than it's worth
 #define HANDLE_EXCEPTION  \
     catch (const std::exception& e) {	\
-    tlog1 << e.what() << std::endl;		\
+	logGlobal->errorStream() << e.what();		\
     throw;								\
 }									\
     catch (const std::exception * e)	\
 {									\
-    tlog1 << e->what()<< std::endl;	\
+	logGlobal->errorStream() << e->what();	\
     throw;							\
 }									\
     catch (const std::string& e) {		\
-    tlog1 << e << std::endl;		\
+	logGlobal->errorStream() << e;		\
     throw;							\
 }
 
 #define HANDLE_EXCEPTIONC(COMMAND)  \
     catch (const std::exception& e) {	\
     COMMAND;						\
-    tlog1 << e.what() << std::endl;	\
+	logGlobal->errorStream() << e.what();	\
     throw;							\
 }									\
     catch (const std::string &e)	\
 {									\
     COMMAND;						\
-    tlog1 << e << std::endl;	\
+	logGlobal->errorStream() << e;	\
     throw;							\
 }
 
@@ -575,5 +575,4 @@ using vstd::make_unique;
 /* ---------------------------------------------------------------------------- */
 /* VCMI headers */
 /* ---------------------------------------------------------------------------- */
-#include "lib/CLogger.h"
-#include "lib/logging/CNewLogger.h"
+#include "lib/logging/CLogger.h"

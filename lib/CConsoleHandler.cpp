@@ -15,6 +15,8 @@
 
 boost::mutex CConsoleHandler::smx;
 
+DLL_LINKAGE CConsoleHandler * console = nullptr;
+
 #ifndef _WIN32
 	typedef std::string TColor;
 	#define CONSOLE_GREEN "\x1b[1;32m"

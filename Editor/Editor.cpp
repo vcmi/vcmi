@@ -6,14 +6,17 @@
 #include "../lib/CGeneralTextHandler.h"
 #include "../lib/mapping/CMap.h"
 #include "../lib/mapping/CMapService.h"
+#include "../lib/logging/CBasicLogConfigurator.h"
 
 Editor::Editor(QWidget *parent)
 	: QMainWindow(parent)
 {
-	logfile = new std::ofstream((VCMIDirs::get().localPath() + "/VCMI_Editor_log.txt").c_str());
+	// Setup default logging(enough for now)
 	console = new CConsoleHandler;
+	CBasicLogConfigurator logConfig(VCMIDirs::get().localPath() + "/VCMI_Editor_log.txt", console);
+	logConfig.configureDefault();
 
-	preinitDLL(console,logfile);
+	preinitDLL(console);
 	loadDLLClasses();
 
 	VLC->generaltexth->readToVector("DATA/EDITOR", txtEditor);
