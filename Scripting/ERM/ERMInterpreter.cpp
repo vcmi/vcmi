@@ -17,8 +17,6 @@
  *
  */
 
-#define DBG_PRINT(X) tlog0 << X << std::endl;
-
 namespace spirit = boost::spirit;
 using namespace VERMInterpreter;
 using namespace boost::assign;
@@ -37,15 +35,15 @@ namespace ERMPrinter
 	{
 		void operator()(TVarExpNotMacro const& val) const
 		{
-			tlog2 << val.varsym;
+			logGlobal->debugStream() << val.varsym;
 			if(val.val.is_initialized())
 			{
-				tlog2 << val.val.get();
+				logGlobal->debugStream() << val.val.get();
 			}
 		}
 		void operator()(TMacroUsage const& val) const
 		{
-			tlog2 << "$" << val.macro << "&";
+			logGlobal->debugStream() << "$" << val.macro << "&";
 		}
 	};
 
@@ -58,7 +56,7 @@ namespace ERMPrinter
 	{
 		void operator()(int const & constant) const
 		{
-			tlog2 << constant;
+			logGlobal->warnStream() << constant;
 		}
 		void operator()(TVarExp const & var) const
 		{
@@ -81,7 +79,7 @@ namespace ERMPrinter
 		void operator()(TArithmeticOp const& arop) const
 		{
 			iexpPrinter(arop.lhs);
-			tlog2 << " " << arop.opcode << " ";
+			logGlobal->debugStream() << " " << arop.opcode << " ";
 			iexpPrinter(arop.rhs);
 		}
 	};
@@ -90,10 +88,10 @@ namespace ERMPrinter
 	{
 		if(id.is_initialized())
 		{
-			tlog2 << "identifier: ";
+			logGlobal->debugStream() << "identifier: ";
 			BOOST_FOREACH(TIdentifierInternal x, id.get())
 			{
-				tlog2 << "#";
+				logGlobal->debugStream() << "#";
 				boost::apply_visitor(IdentifierPrinterVisitor(), x);
 			}
 		}
@@ -104,12 +102,12 @@ namespace ERMPrinter
 		void operator()(TComparison const& cmp) const
 		{
 			iexpPrinter(cmp.lhs);
-			tlog2 << " " << cmp.compSign << " ";
+			logGlobal->debugStream() << " " << cmp.compSign << " ";
 			iexpPrinter(cmp.rhs);
 		}
 		void operator()(int const& flag) const
 		{
-			tlog2 << "condflag " << flag;
+			logGlobal->debugStream() << "condflag " << flag;
 		}
 	};
 
@@ -118,20 +116,20 @@ namespace ERMPrinter
 		if(cond.is_initialized())
 		{
 			Tcondition condp = cond.get();
-			tlog2 << " condition: ";
+			logGlobal->debugStream() << " condition: ";
 			boost::apply_visitor(ConditionCondPrinterVisitor(), condp.cond);
-			tlog2 << " cond type: " << condp.ctype;
+			logGlobal->debugStream() << " cond type: " << condp.ctype;
 
 			//recursive call
 			if(condp.rhs.is_initialized())
 			{
-				tlog2 << "rhs: ";
+				logGlobal->debugStream() << "rhs: ";
 				boost::optional<Tcondition> rhsc = condp.rhs.get().get();
 				conditionPrinter(rhsc);
 			}
 			else
 			{
-				tlog2 << "no rhs; ";
+				logGlobal->debugStream() << "no rhs; ";
 			}
 		}
 	}
@@ -142,17 +140,17 @@ namespace ERMPrinter
 		{
 			if(cmp.questionMark.is_initialized())
 			{
-				tlog2 << cmp.questionMark.get();
+				logGlobal->debugStream() << cmp.questionMark.get();
 			}
 			if(cmp.val.is_initialized())
 			{
-				tlog2 << "val:" << cmp.val.get();
+				logGlobal->debugStream() << "val:" << cmp.val.get();
 			}
-			tlog2 << "varsym: |" << cmp.varsym << "|";
+			logGlobal->debugStream() << "varsym: |" << cmp.varsym << "|";
 		}
 		void operator()(TMacroUsage const& cmp) const
 		{
-			tlog2 << "???$$" << cmp.macro << "$$";
+			logGlobal->debugStream() << "???$$" << cmp.macro << "$$";
 		}
 	};
 
@@ -160,32 +158,32 @@ namespace ERMPrinter
 	{
 		void operator()(TVarConcatString const& cmp) const
 		{
-			tlog2 << "+concat\"";
+			logGlobal->debugStream() << "+concat\"";
 			varPrinter(cmp.var);
-			tlog2 << " with " << cmp.string.str;
+			logGlobal->debugStream() << " with " << cmp.string.str;
 		}
 		void operator()(TStringConstant const& cmp) const
 		{
-			tlog2 << " \"" << cmp.str << "\" ";
+			logGlobal->debugStream() << " \"" << cmp.str << "\" ";
 		}
 		void operator()(TCurriedString const& cmp) const
 		{
-			tlog2 << "cs: ";
+			logGlobal->debugStream() << "cs: ";
 			iexpPrinter(cmp.iexp);
-			tlog2 << " '" << cmp.string.str << "' ";
+			logGlobal->debugStream() << " '" << cmp.string.str << "' ";
 		}
 		void operator()(TSemiCompare const& cmp) const
 		{
-			tlog2 << cmp.compSign << "; rhs: ";
+			logGlobal->debugStream() << cmp.compSign << "; rhs: ";
 			iexpPrinter(cmp.rhs);
 		}
 		void operator()(TMacroUsage const& cmp) const
 		{
-			tlog2 << "$$" << cmp.macro << "$$";
+			logGlobal->debugStream() << "$$" << cmp.macro << "$$";
 		}
 		void operator()(TMacroDef const& cmp) const
 		{
-			tlog2 << "@@" << cmp.macro << "@@";
+			logGlobal->debugStream() << "@@" << cmp.macro << "@@";
 		}
 		void operator()(TIexp const& cmp) const
 		{
@@ -193,12 +191,12 @@ namespace ERMPrinter
 		}
 		void operator()(TVarpExp const& cmp) const
 		{
-			tlog2 << "varp";
+			logGlobal->debugStream() << "varp";
 			boost::apply_visitor(BodyVarpPrinterVisitor(), cmp.var);
 		}
 		void operator()(spirit::unused_type const& cmp) const
 		{
-			tlog2 << "nothing";
+			logGlobal->debugStream() << "nothing";
 		}
 	};
 
@@ -206,17 +204,17 @@ namespace ERMPrinter
 	{
 		void operator()(TVRLogic const& cmp) const
 		{
-			tlog2 << cmp.opcode << " ";
+			logGlobal->debugStream() << cmp.opcode << " ";
 			iexpPrinter(cmp.var);
 		}
 		void operator()(TVRArithmetic const& cmp) const
 		{
-			tlog2 << cmp.opcode << " ";
+			logGlobal->debugStream() << cmp.opcode << " ";
 			iexpPrinter(cmp.rhs);
 		}
 		void operator()(TNormalBodyOption const& cmp) const
 		{
-			tlog2 << cmp.optionCode << "~";
+			logGlobal->debugStream() << cmp.optionCode << "~";
 			BOOST_FOREACH(TBodyOptionItem optList, cmp.params)
 			{
 				boost::apply_visitor(BodyOptionItemPrinterVisitor(), optList);
@@ -226,12 +224,12 @@ namespace ERMPrinter
 
 	void bodyPrinter(const Tbody & body)
 	{
-		tlog2 << " body items: ";
+		logGlobal->debugStream() << " body items: ";
 		BOOST_FOREACH(TBodyOption bi, body)
 		{
-			tlog2 << " (";
+			logGlobal->debugStream() << " (";
 			apply_visitor(BodyOptionVisitor(), bi);
-			tlog2 << ") ";
+			logGlobal->debugStream() << ") ";
 		}
 	}
 
@@ -239,13 +237,13 @@ namespace ERMPrinter
 	{
 		void operator()(Ttrigger const& trig) const
 		{
-			tlog2 << "trigger: " << trig.name << " ";
+			logGlobal->debugStream() << "trigger: " << trig.name << " ";
 			identifierPrinter(trig.identifier);
 			conditionPrinter(trig.condition);
 		}
 		void operator()(Tinstruction const& trig) const
 		{
-			tlog2 << "instruction: " << trig.name << " ";
+			logGlobal->debugStream() << "instruction: " << trig.name << " ";
 			identifierPrinter(trig.identifier);
 			conditionPrinter(trig.condition);
 			bodyPrinter(trig.body);
@@ -253,7 +251,7 @@ namespace ERMPrinter
 		}
 		void operator()(Treceiver const& trig) const
 		{
-			tlog2 << "receiver: " << trig.name << " ";
+			logGlobal->debugStream() << "receiver: " << trig.name << " ";
 
 			identifierPrinter(trig.identifier);
 			conditionPrinter(trig.condition);
@@ -262,7 +260,7 @@ namespace ERMPrinter
 		}
 		void operator()(TPostTrigger const& trig) const
 		{
-			tlog2 << "post trigger: " << trig.name << " ";
+			logGlobal->debugStream() << "post trigger: " << trig.name << " ";
 			identifierPrinter(trig.identifier);
 			conditionPrinter(trig.condition);
 		}
@@ -274,7 +272,7 @@ namespace ERMPrinter
 		{
 			CommandPrinterVisitor un;
 			boost::apply_visitor(un, cmd.cmd);
-			std::cout << "Line comment: " << cmd.comment << std::endl;
+			logGlobal->debugStream() << "Line comment: " << cmd.comment;
 		}
 		void operator()(std::string const& comment) const
 		{
@@ -286,7 +284,7 @@ namespace ERMPrinter
 
 	void printERM(const TERMline & ast)
 	{
-		tlog2 << "";
+		logGlobal->debugStream() << "";
 
 		boost::apply_visitor(LinePrinterVisitor(), ast);
 	}
@@ -303,21 +301,21 @@ namespace ERMPrinter
 		{
 			BOOST_FOREACH(TVModifier mod, cmd.symModifier)
 			{
-				tlog2 << mod << " ";
+				logGlobal->debugStream() << mod << " ";
 			}
-			tlog2 << cmd.sym;
+			logGlobal->debugStream() << cmd.sym;
 		}
 		void operator()(char const& cmd) const
 		{
-			tlog2 << "'" << cmd << "'";
+			logGlobal->debugStream() << "'" << cmd << "'";
 		}
 		void operator()(int const& cmd) const
 		{
-			tlog2 << cmd;
+			logGlobal->debugStream() << cmd;
 		}
 		void operator()(double const& cmd) const
 		{
-			tlog2 << cmd;
+			logGlobal->debugStream() << cmd;
 		}
 		void operator()(TERMline const& cmd) const
 		{
@@ -325,7 +323,7 @@ namespace ERMPrinter
 		}
 		void operator()(TStringConstant const& cmd) const
 		{
-			tlog2 << "^" << cmd.str << "^";
+			logGlobal->debugStream() << "^" << cmd.str << "^";
 		}
 	};
 
@@ -333,15 +331,15 @@ namespace ERMPrinter
 	{
 		BOOST_FOREACH(TVModifier mod, exp.modifier)
 		{
-			tlog2 << mod << " ";
+			logGlobal->debugStream() << mod << " ";
 		}
-		tlog2 << "[ ";
+		logGlobal->debugStream() << "[ ";
 		BOOST_FOREACH(TVOption opt, exp.children)
 		{
 			boost::apply_visitor(VOptionPrinterVisitor(), opt);
-			tlog2 << " ";
+			logGlobal->debugStream() << " ";
 		}
-		tlog2 << "]";
+		logGlobal->debugStream() << "]";
 	}
 
 	struct TLPrinterVisitor : boost::static_visitor<>
@@ -359,7 +357,6 @@ namespace ERMPrinter
 	void printAST(const TLine & ast)
 	{
 		boost::apply_visitor(TLPrinterVisitor(), ast);
-		tlog2 << std::endl;
 	}
 }
 
@@ -369,7 +366,7 @@ void ERMInterpreter::scanForScripts()
 	//parser checking
 	if(!exists(VCMIDirs::get().dataPath() + "/Data/s/"))
 	{
-		tlog3 << "Warning: Folder " << VCMIDirs::get().dataPath() << "/Data/s/ doesn't exist!\n";
+		logGlobal->warnStream() << "Warning: Folder " << VCMIDirs::get().dataPath() << "/Data/s/ doesn't exist!";
 		return;
 	}
 	directory_iterator enddir;
@@ -405,10 +402,10 @@ void ERMInterpreter::printScripts( EPrintMode mode /*= EPrintMode::ALL*/ )
 	{
 		if(it == scripts.begin() || it->first.file != prevIt->first.file)
 		{
-			tlog2 << "----------------- script " << it->first.file->filename << " ------------------\n";
+			logGlobal->debugStream() << "----------------- script " << it->first.file->filename << " ------------------";
 		}
 
-		tlog0 << it->first.realLineNum << '\t';
+		logGlobal->debugStream() << it->first.realLineNum;
 		ERMPrinter::printAST(it->second);
 		prevIt = it;
 	}
@@ -1420,7 +1417,7 @@ struct ERMExpDispatch : boost::static_visitor<>
 		}
 		else
 		{
-			tlog3 << trig.name << " receiver is not supported yet, doing nothing...\n";
+			logGlobal->warnStream() << trig.name << " receiver is not supported yet, doing nothing...";
 			//not supported or invalid trigger
 		}
 	}
@@ -1435,7 +1432,7 @@ struct CommandExec : boost::static_visitor<>
 	void operator()(Tcommand const& cmd) const
 	{
 		boost::apply_visitor(ERMExpDispatch(), cmd.cmd);
-		std::cout << "Line comment: " << cmd.comment << std::endl;
+		logGlobal->debugStream() << "Line comment: " << cmd.comment;
 	}
 	void operator()(std::string const& comment) const
 	{
@@ -1464,7 +1461,7 @@ struct LineExec : boost::static_visitor<>
 
 void ERMInterpreter::executeLine( const LinePointer & lp )
 {
-	tlog0 << "Executing line nr " << getRealLine(lp) << " (internal " << lp.lineNum << ") from " << lp.file->filename << std::endl;
+	logGlobal->debugStream() << "Executing line nr " << getRealLine(lp) << " (internal " << lp.lineNum << ") from " << lp.file->filename;
 	executeLine(scripts[lp]);
 }
 
@@ -2254,7 +2251,7 @@ void VERMInterpreter::FunctionLocalVars::reset()
 
 void IexpValStr::setTo( const IexpValStr & second )
 {
-	DBG_PRINT("setting " << getName() << " to " << second.getName());
+	logGlobal->traceStream() << "setting " << getName() << " to " << second.getName();
 	switch(type)
 	{
 	case IexpValStr::FLOATVAR:
@@ -2276,7 +2273,7 @@ void IexpValStr::setTo( const IexpValStr & second )
 
 void IexpValStr::setTo( int val )
 {
-	DBG_PRINT("setting " << getName() << " to " << val);
+	logGlobal->traceStream() << "setting " << getName() << " to " << val;
 	switch(type)
 	{
 	case INTVAR:
@@ -2290,7 +2287,7 @@ void IexpValStr::setTo( int val )
 
 void IexpValStr::setTo( double val )
 {
-	DBG_PRINT("setting " << getName() << " to " << val);
+	logGlobal->traceStream() << "setting " << getName() << " to " << val;
 	switch(type)
 	{
 	case FLOATVAR:
@@ -2304,7 +2301,7 @@ void IexpValStr::setTo( double val )
 
 void IexpValStr::setTo( const std::string & val )
 {
-	DBG_PRINT("setting " << getName() << " to " << val);
+	logGlobal->traceStream() << "setting " << getName() << " to " << val;
 	switch(type)
 	{
 	case STRINGVAR:
@@ -2425,27 +2422,27 @@ struct VOptionPrinter : boost::static_visitor<>
 {
 	void operator()(VNIL const& opt) const
 	{
-		tlog1 << "VNIL";
+		logGlobal->errorStream() << "VNIL";
 	}
 	void operator()(VNode const& opt) const
 	{
-		tlog1 << "--vnode (will be supported in future versions)--";
+		logGlobal->errorStream() << "--vnode (will be supported in future versions)--";
 	}
 	void operator()(VSymbol const& opt) const
 	{
-		tlog1 << opt.text;
+		logGlobal->errorStream() << opt.text;
 	}
 	void operator()(TLiteral const& opt) const
 	{
-		tlog1 << opt;
+		logGlobal->errorStream() << opt;
 	}
 	void operator()(ERM::Tcommand const& opt) const
 	{
-		tlog1 << "--erm command (will be supported in future versions)--";
+		logGlobal->errorStream() << "--erm command (will be supported in future versions)--";
 	}
 	void operator()(VFunc const& opt) const
 	{
-		tlog1 << "function";
+		logGlobal->errorStream() << "function";
 	}
 };
 
@@ -2665,7 +2662,7 @@ struct VNodeEvaluator : boost::static_visitor<VOption>
 			VOptionList ls = f.macro ? exp.children.cdr().getAsList() : erm->evalEach(exp.children.cdr());
 			return f(VermTreeIterator(ls));
 		}
-		tlog1 << "Cannot evaluate: \n";
+		logGlobal->errorStream() << "Cannot evaluate:";
 		printVOption(exp);
 		throw EVermScriptExecError("Cannot evaluate given expression");
 	}
@@ -2726,7 +2723,7 @@ VOption ERMInterpreter::eval( VOption line, Environment * env /*= NULL*/ )
 // 		return;
 //
 // 	VOption & car = line.children.car().getAsItem();
-	tlog1 << "\tevaluating ";
+	logGlobal->errorStream() << "\tevaluating ";
 	printVOption(line);
 	return boost::apply_visitor(VEvaluator(env ? *env : *topDyn), line);
 
@@ -2744,10 +2741,10 @@ VOptionList ERMInterpreter::evalEach( VermTreeIterator list, Environment * env /
 
 void ERMInterpreter::executeUserCommand(const std::string &cmd)
 {
-	tlog0 << "ERM here: received command: " << cmd << std::endl;
+	logGlobal->traceStream() << "ERM here: received command: " << cmd;
 	if(cmd.size() < 3)
 	{
-		tlog1 << "That can't be a valid command...\n";
+		logGlobal->errorStream() << "That can't be a valid command...";
 		return;
 	}
 	try
@@ -2760,7 +2757,7 @@ void ERMInterpreter::executeUserCommand(const std::string &cmd)
 	}
 	catch(std::exception &e)
 	{
-		tlog1 << "Failed executing user command! Exception info:\n\t" << e.what() << std::endl;
+		logGlobal->errorStream() << "Failed executing user command! Exception info: " << e.what();
 	}
 }
 
@@ -3208,12 +3205,12 @@ namespace VERMInterpreter
 	{
 		void operator()(const std::string & par) const
 		{
-			tlog4 << "^" << par << "^";
+			logGlobal->debugStream() << "^" << par << "^";
 		}
 		template<typename T>
 		void operator()(const T & par) const
 		{
-			tlog4 << par;
+			logGlobal->debugStream() << par;
 		}
 	};
 
@@ -3221,21 +3218,21 @@ namespace VERMInterpreter
 	{
 		void operator()(VNIL const& opt) const
 		{
-			tlog4 << "[]";
+			logGlobal->debugStream() << "[]";
 		}
 		void operator()(VNode const& opt) const
 		{
-			tlog4 << "[";
+			logGlobal->debugStream() << "[";
 			for(int g=0; g<opt.children.size(); ++g)
 			{
 				boost::apply_visitor(_VOPTPrinter(), opt.children[g]);
-				tlog4 << " ";
+				logGlobal->debugStream() << " ";
 			}
-			tlog4 << "]";
+			logGlobal->debugStream() << "]";
 		}
 		void operator()(VSymbol const& opt) const
 		{
-			tlog4 << opt.text;
+			logGlobal->debugStream() << opt.text;
 		}
 		void operator()(TLiteral const& opt) const
 		{
@@ -3243,17 +3240,16 @@ namespace VERMInterpreter
 		}
 		void operator()(ERM::Tcommand const& opt) const
 		{
-			tlog4 << "--erm--";
+			logGlobal->debugStream() << "--erm--";
 		}
 		void operator()(VFunc const& opt) const
 		{
-			tlog4 << "function";
+			logGlobal->debugStream() << "function";
 		}
 	};
 
 	void printVOption(const VOption & opt)
 	{
 		boost::apply_visitor(_VOPTPrinter(), opt);
-		tlog4 << "\n";
 	}
 }

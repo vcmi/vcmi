@@ -26,7 +26,7 @@ CERMPreprocessor::CERMPreprocessor(const std::string &Fname) : fname(Fname), fil
 {
 	if(!file.is_open())
 	{
-		tlog1 << "File " << Fname << " not found or unable to open\n";
+		logGlobal->errorStream() << "File " << Fname << " not found or unable to open";
 		return;
 	}
 
@@ -40,7 +40,7 @@ CERMPreprocessor::CERMPreprocessor(const std::string &Fname) : fname(Fname), fil
 		version = VERM;
 	else
 	{
-		tlog1 << "File " << fname << " has wrong header\n";
+		logGlobal->errorStream() << "File " << fname << " has wrong header";
 		return;
 	}
 }
@@ -139,7 +139,7 @@ std::string CERMPreprocessor::retreiveCommandLine()
 	}
 
 	if(openedBraces || openedString)
-		tlog1 << "Ill-formed file: " << fname << std::endl;
+		logGlobal->errorStream() << "Ill-formed file: " << fname;
 	return "";
 }
 
@@ -175,7 +175,7 @@ std::vector<LineInfo> ERMParser::parseFile()
 	}
 	catch (ParseErrorException & e)
 	{
-		tlog1 << "stopped parsing file" << std::endl;
+		logGlobal->errorStream() << "stopped parsing file";
 	}
 	return ret;
 }
@@ -418,7 +418,6 @@ namespace ERM
 				<< phoenix::val(" here: \"")
 				<< phoenix::construct<std::string>(qi::_3, qi::_2)   // iterators to error-pos, end
 				<< phoenix::val("\"")
-				<< std::endl
 				);
 
 		}
@@ -471,7 +470,7 @@ ERM::TLine ERMParser::parseLine( const std::string & line, int realLineNo )
 	}
 	catch(...)
 	{
-		tlog1 << "\tParse error occurred in file " << srcFile << " (line " << realLineNo << ") :\n" << line << std::endl;
+		logGlobal->errorStream() << "Parse error occurred in file " << srcFile << " (line " << realLineNo << ") :" << line;
 		throw;
 	}
 }
@@ -487,7 +486,7 @@ ERM::TLine ERMParser::parseLine(const std::string & line)
 	bool r = qi::phrase_parse(beg, end, ERMgrammar, ascii::space, AST);
 	if(!r || beg != end)
 	{
-		tlog1 << "Parse error: cannot parse: " << std::string(beg, end) << std::endl;
+		logGlobal->errorStream() << "Parse error: cannot parse: " << std::string(beg, end);
 		throw ParseErrorException();
 	}
 	return AST;

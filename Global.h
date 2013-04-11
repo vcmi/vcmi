@@ -576,4 +576,4 @@ using vstd::make_unique;
 /* VCMI headers */
 /* ---------------------------------------------------------------------------- */
 #include "lib/CLogger.h"
-#include "lib/logging/CLogger.h"
+#include "lib/logging/CNewLogger.h"
