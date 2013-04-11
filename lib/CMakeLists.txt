@@ -14,7 +14,7 @@ set(lib_SRCS
 		filesystem/CFileInputStream.cpp
 		filesystem/CCompressedStream.cpp
 		logging/CBasicLogConfigurator.cpp
-		logging/CLogger.cpp
+		logging/CNewLogger.cpp
 		mapping/CCampaignHandler.cpp
 		mapping/CMap.cpp
 		mapping/CMapEditManager.cpp

@@ -1,5 +1,5 @@
 #include "StdInc.h"
-#include "CLogger.h"
+#include "CNewLogger.h"
 
 const std::string CLoggerDomain::DOMAIN_GLOBAL = "global";
 

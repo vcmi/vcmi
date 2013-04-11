@@ -204,7 +204,7 @@
     <ClCompile Include="RegisterTypes.cpp" />
     <ClCompile Include="rmg\CMapGenOptions.cpp" />
     <ClCompile Include="rmg\CMapGenerator.cpp" />
-    <ClCompile Include="logging\CLogger.cpp" />
+    <ClCompile Include="logging\CNewLogger.cpp" />
     <ClCompile Include="logging\CBasicLogConfigurator.cpp" />
     <ClCompile Include="HeroBonus.cpp" />
     <ClCompile Include="CBattleCallback.cpp" />
@@ -274,8 +274,8 @@
     <ClInclude Include="mapping\MapFormatH3M.h" />
     <ClInclude Include="rmg\CMapGenOptions.h" />
     <ClInclude Include="rmg\CMapGenerator.h" />
-    <ClCompile Include="logging\CLogger.h" />
-    <ClCompile Include="logging\CBasicLogConfigurator.h" />
+    <ClInclude Include="logging\CNewLogger.h" />
+    <ClInclude Include="logging\CBasicLogConfigurator.h" />
     <ClInclude Include="GameConstants.h" />
     <ClInclude Include="HeroBonus.h" />
     <ClInclude Include="CBattleCallback.h" />
