@@ -835,9 +835,10 @@ std::string JsonValidator::validateNode(const JsonNode &node, const JsonNode &sc
 	}
 
 	// basic schema check
-	if (!schema["type"].isNull())
+	auto & typeNode = schema["type"];
+	if ( !typeNode.isNull())
 	{
-		JsonNode::JsonType type = stringToType.find(schema["type"].String())->second;
+		JsonNode::JsonType type = stringToType.find(typeNode.String())->second;
 		if(type != node.getType())
 			return errors + fail("Type mismatch!"); // different type. Any other checks are useless
 	}
@@ -898,8 +899,13 @@ std::string JsonValidator::validateVector(const JsonNode &node, const JsonNode &
 	std::string errors;
 	auto & vector = node.Vector();
 
-	for (size_t i=0; i<vector.size(); i++)
-		errors += validateVectorItem(vector, schema["items"], schema["additionalItems"], i);
+	{
+		auto & items = schema["items"];
+		auto & additional = schema["additionalItems"];
+
+		for (size_t i=0; i<vector.size(); i++)
+			errors += validateVectorItem(vector, items, additional, i);
+	}
 
 	if (vstd::contains(schema.Struct(), "maxItems") && vector.size() > schema["maxItems"].Float())
 		errors += fail("Too many items in the list!");
@@ -953,8 +959,13 @@ std::string JsonValidator::validateStruct(const JsonNode &node, const JsonNode &
 	std::string errors;
 	auto & map = node.Struct();
 
-	BOOST_FOREACH(auto & entry, map)
-		errors += validateStructItem(entry.second, schema["properties"], schema["additionalProperties"], entry.first);
+	{
+		auto & properties = schema["properties"];
+		auto & additional = schema["additionalProperties"];
+
+		BOOST_FOREACH(auto & entry, map)
+			errors += validateStructItem(entry.second, properties, additional, entry.first);
+	}
 
 	BOOST_FOREACH(auto & required, schema["required"].Vector())
 	{
@@ -1481,17 +1492,24 @@ const JsonNode & JsonUtils::getSchema(std::string URI)
 {
 	std::vector<std::string> segments;
 
-	boost::split(segments, URI, boost::is_any_of(":#"));
+	size_t posColon = URI.find(':');
+	size_t posHash  = URI.find('#');
+	assert(posColon != std::string::npos);
 
-	segments.resize(3);//in case if last section (after #) was not present
+	std::string protocolName = URI.substr(0, posColon);
+	std::string filename =     URI.substr(posColon + 1, posHash - posColon - 1);
 
-	if (segments[0] != "vcmi")
+	if (protocolName != "vcmi")
 	{
         logGlobal->errorStream() << "Error: unsupported URI protocol for schema: " << segments[0];
 		return nullNode;
 	}
 
-	return getSchemaByName(segments[1]).resolvePointer(segments[2]);
+	// check if json pointer if present (section after hash in string)
+	if (posHash == std::string::npos || posHash == URI.size() - 1)
+		return getSchemaByName(filename);
+	else
+		return getSchemaByName(filename).resolvePointer(URI.substr(posHash + 1));
 }
 
 void JsonUtils::merge(JsonNode & dest, JsonNode & source)
