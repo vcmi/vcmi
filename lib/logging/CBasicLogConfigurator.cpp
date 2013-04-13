@@ -3,7 +3,8 @@
 
 #include "../CConfigHandler.h"
 
-CBasicLogConfigurator::CBasicLogConfigurator(const std::string & filePath, CConsoleHandler * console) : filePath(filePath), console(console), appendToLogFile(false)
+CBasicLogConfigurator::CBasicLogConfigurator(const std::string & filePath, CConsoleHandler * console) : filePath(filePath),
+    console(console), appendToLogFile(false)
 {
 
 }
@@ -79,7 +80,8 @@ void CBasicLogConfigurator::configure()
     }
     catch(const std::exception & e)
     {
-        logGlobal->errorStream() << "Could not initialize the logging system due to configuration error/s. The logging system can be in a corrupted state. " << e.what();
+        logGlobal->errorStream() << "Could not initialize the logging system due to configuration error/s."
+            << "The logging system can be in a corrupted state. " << e.what();
     }
 
     logGlobal->infoStream() << "Initialized logging system based on settings successfully.";

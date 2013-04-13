@@ -74,16 +74,16 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <OutDir>$(VCMI_Out)\Scripting\</OutDir>
+	<OutDir>$(VCMI_Out)\scripting\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <OutDir>$(VCMI_Out)\Scripting\</OutDir>
+	<OutDir>$(VCMI_Out)\scripting\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|Win32'">
-    <OutDir>$(VCMI_Out)\Scripting\</OutDir>
+	<OutDir>$(VCMI_Out)\scripting\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='RD|x64'">
-    <OutDir>$(VCMI_Out)\Scripting\</OutDir>
+	<OutDir>$(VCMI_Out)\scripting\</OutDir>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

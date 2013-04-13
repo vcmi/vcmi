@@ -126,12 +126,15 @@ extern DLL_LINKAGE CLogger * logBonus;
 extern DLL_LINKAGE CLogger * logNetwork;
 extern DLL_LINKAGE CLogger * logAi;
 
-/// Macros for tracing the control flow of the application conveniently. If the TRACE_BEGIN macro is used it should be the first statement in the function, whereas
-/// the TRACE_END should be last one before a return statement. Logging traces via this macro have almost no impact when the trace is disabled.
+/// Macros for tracing the control flow of the application conveniently. If the TRACE_BEGIN macro is used it should be
+/// the first statement in the function, whereas the TRACE_END should be last one before a return statement.
+/// Logging traces via this macro have almost no impact when the trace is disabled.
 #define TRACE_BEGIN(logger) logger->traceStream() << boost::format("Entering %s.") % BOOST_CURRENT_FUNCTION;
-#define TRACE_BEGIN_PARAMS(logger, formatStr, params) if(logger->isTraceEnabled()) logger->traceStream() << boost::format("Entering %s: " + std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params;
+#define TRACE_BEGIN_PARAMS(logger, formatStr, params) if(logger->isTraceEnabled()) logger->traceStream() << \
+    boost::format("Entering %s: " + std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params;
 #define TRACE_END(logger) logger->traceStream() << boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION;
-#define TRACE_END_PARAMS(logger, formatStr, params) if(logger->isTraceEnabled()) logger->traceStream() << boost::format("Leaving %s: " + std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params;
+#define TRACE_END_PARAMS(logger, formatStr, params) if(logger->isTraceEnabled()) logger->traceStream() << \
+    boost::format("Leaving %s: " + std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params;
 
 /* ---------------------------------------------------------------------------- */
 /* Implementation/Detail classes, Private API */
@@ -159,7 +162,8 @@ private:
 struct DLL_LINKAGE LogRecord
 {
     LogRecord(const CLoggerDomain & domain, ELogLevel::ELogLevel level, const std::string & message)
-        : domain(domain), level(level), message(message), timeStamp(boost::posix_time::second_clock::local_time()), threadId(boost::this_thread::get_id())
+        : domain(domain), level(level), message(message), timeStamp(boost::posix_time::second_clock::local_time()),
+          threadId(boost::this_thread::get_id())
     {
 
     }
@@ -249,8 +253,8 @@ private:
 class DLL_LINKAGE CLogFileTarget : public ILogTarget
 {
 public:
-    /// Constructs a CLogFileTarget and opens the file designated by filePath. If the append parameter is true, the file will be appended to. Otherwise the file designated by filePath
-    /// will be truncated before being opened.
+    /// Constructs a CLogFileTarget and opens the file designated by filePath. If the append parameter is true, the file
+    /// will be appended to. Otherwise the file designated by filePath will be truncated before being opened.
     explicit CLogFileTarget(const std::string & filePath, bool append = true);
     ~CLogFileTarget();
 

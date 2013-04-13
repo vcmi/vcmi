@@ -370,9 +370,6 @@ EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDom
 
 CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) : console(console), threshold(ELogLevel::INFO), coloredOutputEnabled(true)
 {
-    // more verbose version:
-	//formatter.setPattern("%l %n [%t] - %m");
-
 	formatter.setPattern("%m");
 }
 

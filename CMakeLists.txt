@@ -105,7 +105,7 @@ else()
 endif()
 
 set (AI_LIB_DIR "${LIB_DIR}/AI")
-set (SCRIPTING_LIB_DIR "${LIB_DIR}/Scripting")
+set (SCRIPTING_LIB_DIR "${LIB_DIR}/scripting")
 
 #define required constants
 add_definitions(-DM_DATA_DIR="${CMAKE_INSTALL_PREFIX}/${DATA_DIR}")
@@ -120,10 +120,10 @@ add_subdirectory(client)
 add_subdirectory(server)
 add_subdirectory(AI)
 if (NOT DISABLE_ERM)
-	add_subdirectory(Scripting/ERM)
+	add_subdirectory(scripting/erm)
 endif()
 if (ENABLE_EDITOR)
-	add_subdirectory(Editor)
+	add_subdirectory(editor)
 endif()
 
 #######################################

@@ -1,6 +1,7 @@
 #ifndef EDITOR_H
 #define EDITOR_H
 
+#include <memory>
 #include <QtWidgets/QMainWindow>
 #include "ui_editor.h"
 
@@ -16,8 +17,7 @@ public:
 	~Editor();
 	void createMenus();
 
-
-	std::unique_ptr<CMap> map;
+    std::unique_ptr<CMap> map;
 private:
 
 	std::vector<std::string> txtEditor, txtEditorCmd;
