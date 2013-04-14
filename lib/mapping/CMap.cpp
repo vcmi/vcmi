@@ -47,7 +47,7 @@ si8 PlayerInfo::defaultHero() const
 
 bool PlayerInfo::canAnyonePlay() const
 {
-    return canHumanPlay || canComputerPlay;
+	return canHumanPlay || canComputerPlay;
 }
 
 LossCondition::LossCondition() : typeOfLossCon(ELossConditionType::LOSSSTANDARD),
@@ -104,7 +104,7 @@ bool TerrainTile::entrableTerrain(const TerrainTile * from /*= NULL*/) const
 bool TerrainTile::entrableTerrain(bool allowLand, bool allowSea) const
 {
 	return terType != ETerrainType::ROCK
-		&& ((allowSea && terType == ETerrainType::WATER)  ||  (allowLand && terType != ETerrainType::WATER));
+			&& ((allowSea && terType == ETerrainType::WATER)  ||  (allowLand && terType != ETerrainType::WATER));
 }
 
 bool TerrainTile::isClear(const TerrainTile *from /*= NULL*/) const

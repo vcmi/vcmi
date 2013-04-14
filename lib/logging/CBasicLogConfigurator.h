@@ -22,20 +22,20 @@ class JsonNode;
 class DLL_LINKAGE CBasicLogConfigurator
 {
 public:
-    CBasicLogConfigurator(const std::string & filePath, CConsoleHandler * console);
+	CBasicLogConfigurator(const std::string & filePath, CConsoleHandler * console);
 
-    /// Configures the logging system by parsing the logging settings. It adds the console target and the file target to the global logger.
-    /// Doesn't throw, but logs on success or fault.
-    void configure();
+	/// Configures the logging system by parsing the logging settings. It adds the console target and the file target to the global logger.
+	/// Doesn't throw, but logs on success or fault.
+	void configure();
 
-    /// Configures a default logging system by adding the console target and the file target to the global logger.
-    void configureDefault();
+	/// Configures a default logging system by adding the console target and the file target to the global logger.
+	void configureDefault();
 
 private:
-    ELogLevel::ELogLevel getLogLevel(const std::string & level) const;
-    EConsoleTextColor::EConsoleTextColor getConsoleColor(const std::string & colorName) const;
+	ELogLevel::ELogLevel getLogLevel(const std::string & level) const;
+	EConsoleTextColor::EConsoleTextColor getConsoleColor(const std::string & colorName) const;
 
-    std::string filePath;
-    CConsoleHandler * console;
-    bool appendToLogFile;
+	std::string filePath;
+	CConsoleHandler * console;
+	bool appendToLogFile;
 };

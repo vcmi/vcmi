@@ -12,9 +12,9 @@
 #include "../StringConstants.h"
 
 CMapGenerator::CMapGenerator(const CMapGenOptions & mapGenOptions, int randomSeed) :
-    mapGenOptions(mapGenOptions), randomSeed(randomSeed)
+	mapGenOptions(mapGenOptions), randomSeed(randomSeed)
 {
-    gen.seed(randomSeed);
+	gen.seed(randomSeed);
 }
 
 CMapGenerator::~CMapGenerator()
@@ -24,7 +24,7 @@ CMapGenerator::~CMapGenerator()
 
 std::unique_ptr<CMap> CMapGenerator::generate()
 {
-    mapGenOptions.finalize(gen);
+	mapGenOptions.finalize(gen);
 
 	//TODO select a template based on the map gen options or adapt it if necessary
 
@@ -52,17 +52,17 @@ std::string CMapGenerator::getMapDescription() const
 	ss << static_cast<int>(mapGenOptions.getCompOnlyPlayersCnt()) << ", water " << waterContentStr[mapGenOptions.getWaterContent()];
 	ss << ", monster " << monsterStrengthStr[mapGenOptions.getMonsterStrength()] << ", second expansion map";
 
-    BOOST_FOREACH(const auto & pair, mapGenOptions.getPlayersSettings())
+	BOOST_FOREACH(const auto & pair, mapGenOptions.getPlayersSettings())
 	{
-        const auto & pSettings = pair.second;
-        if(pSettings.getPlayerType() == EPlayerType::HUMAN)
+		const auto & pSettings = pair.second;
+		if(pSettings.getPlayerType() == EPlayerType::HUMAN)
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()] << " is human";
 		}
-        if(pSettings.getStartingTown() != CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
+		if(pSettings.getStartingTown() != CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()]
-				<< " town choice is " << ETownType::names[pSettings.getStartingTown()];
+			   << " town choice is " << ETownType::names[pSettings.getStartingTown()];
 		}
 	}
 
@@ -105,12 +105,12 @@ void CMapGenerator::addPlayerInfo()
 	}
 
 	// Team numbers are assigned randomly to every player
-    BOOST_FOREACH(const auto & pair, mapGenOptions.getPlayersSettings())
+	BOOST_FOREACH(const auto & pair, mapGenOptions.getPlayersSettings())
 	{
-        const auto & pSettings = pair.second;
+		const auto & pSettings = pair.second;
 		PlayerInfo player;
 		player.canComputerPlay = true;
-        int j = pSettings.getPlayerType() == EPlayerType::COMP_ONLY ? 1 : 0;
+		int j = pSettings.getPlayerType() == EPlayerType::COMP_ONLY ? 1 : 0;
 		if(j == 0)
 		{
 			player.canHumanPlay = true;
@@ -136,15 +136,15 @@ void CMapGenerator::genTowns()
 {
 	//FIXME mock gen
 	const int3 townPos[2] = { int3(17, 13, 0), int3(25,13, 0) };
-    const int townTypes[2] = { ETownType::CASTLE, ETownType::DUNGEON };
+	const int townTypes[2] = { ETownType::CASTLE, ETownType::DUNGEON };
 
-    for(size_t i = 0; i < map->players.size(); ++i)
+	for(size_t i = 0; i < map->players.size(); ++i)
 	{
-        auto & playerInfo = map->players[i];
-        if(!playerInfo.canAnyonePlay()) break;
+		auto & playerInfo = map->players[i];
+		if(!playerInfo.canAnyonePlay()) break;
 
-        PlayerColor owner(i);
-        int side = i % 2;
+		PlayerColor owner(i);
+		int side = i % 2;
 		CGTownInstance * town = new CGTownInstance();
 		town->ID = Obj::TOWN;
 		town->subID = townTypes[side];
@@ -152,14 +152,14 @@ void CMapGenerator::genTowns()
 		town->defInfo = VLC->dobjinfo->gobjs[town->ID][town->subID];
 		town->builtBuildings.insert(BuildingID::FORT);
 		town->builtBuildings.insert(BuildingID::DEFAULT);
-        mapMgr->insertObject(town, townPos[side].x, townPos[side].y + (i / 2) * 5, false);
+		mapMgr->insertObject(town, townPos[side].x, townPos[side].y + (i / 2) * 5, false);
 
 		// Update player info
-        playerInfo.allowedFactions.clear();
-        playerInfo.allowedFactions.insert(townTypes[side]);
-        playerInfo.hasMainTown = true;
-        playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
-        playerInfo.generateHeroAtMainTown = true;
+		playerInfo.allowedFactions.clear();
+		playerInfo.allowedFactions.insert(townTypes[side]);
+		playerInfo.hasMainTown = true;
+		playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
+		playerInfo.generateHeroAtMainTown = true;
 	}
 }
 

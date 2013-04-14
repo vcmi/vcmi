@@ -57,14 +57,14 @@ struct DLL_LINKAGE SHeroName
 
 namespace EAiTactic
 {
-	enum EAiTactic
-	{
-		NONE = -1,
-		RANDOM,
-		WARRIOR,
-		BUILDER,
-		EXPLORER
-	};
+enum EAiTactic
+{
+	NONE = -1,
+	RANDOM,
+	WARRIOR,
+	BUILDER,
+	EXPLORER
+};
 }
 
 /**
@@ -92,7 +92,7 @@ struct DLL_LINKAGE PlayerInfo
 	 */
 	si8 defaultHero() const;
 
-    bool canAnyonePlay() const;
+	bool canAnyonePlay() const;
 
 	/** True if the player can be played by a human. */
 	bool canHumanPlay;
@@ -156,8 +156,8 @@ struct DLL_LINKAGE PlayerInfo
 	void serialize(Handler & h, const int version)
 	{
 		h & p7 & hasHero & customHeroID & canHumanPlay & canComputerPlay & aiTactic & allowedFactions & isFactionRandom &
-			mainHeroPortrait & mainHeroName & heroesNames & hasMainTown & generateHeroAtMainTown &
-			posOfMainTown & team & generateHero;
+				mainHeroPortrait & mainHeroName & heroesNames & hasMainTown & generateHeroAtMainTown &
+				posOfMainTown & team & generateHero;
 	}
 };
 
@@ -347,7 +347,7 @@ public:
 	void serialize(Handler & h, const int version)
 	{
 		h & name & message & resources
-			& players & humanAffected & computerAffected & firstOccurence & nextOccurence;
+				& players & humanAffected & computerAffected & firstOccurence & nextOccurence;
 	}
 };
 
@@ -384,18 +384,18 @@ public:
 
 namespace ERiverType
 {
-	enum ERiverType
-	{
-		NO_RIVER, CLEAR_RIVER, ICY_RIVER, MUDDY_RIVER, LAVA_RIVER
-	};
+enum ERiverType
+{
+	NO_RIVER, CLEAR_RIVER, ICY_RIVER, MUDDY_RIVER, LAVA_RIVER
+};
 }
 
 namespace ERoadType
 {
-	enum ERoadType
-	{
-		NO_ROAD, DIRT_ROAD, GRAVEL_ROAD, COBBLESTONE_ROAD
-	};
+enum ERoadType
+{
+	NO_ROAD, DIRT_ROAD, GRAVEL_ROAD, COBBLESTONE_ROAD
+};
 }
 
 /**
@@ -516,10 +516,10 @@ struct DLL_LINKAGE TerrainTile
 
 namespace EMapFormat
 {
-	enum EMapFormat
-	{
-		INVALID, WOG=0x33, AB=0x15, ROE=0x0e, SOD=0x1c
-	};
+enum EMapFormat
+{
+	INVALID, WOG=0x33, AB=0x15, ROE=0x0e, SOD=0x1c
+};
 }
 
 /**
@@ -840,12 +840,12 @@ public:
 
 				switch (objects[i]->ID)
 				{
-					case Obj::HERO:
-						heroes.push_back (static_cast<CGHeroInstance*>(+objects[i]));
-						break;
-					case Obj::TOWN:
-						towns.push_back (static_cast<CGTownInstance*>(+objects[i]));
-						break;
+				case Obj::HERO:
+					heroes.push_back (static_cast<CGHeroInstance*>(+objects[i]));
+					break;
+				case Obj::TOWN:
+					towns.push_back (static_cast<CGTownInstance*>(+objects[i]));
+					break;
 				}
 
 				// recreate blockvis map
