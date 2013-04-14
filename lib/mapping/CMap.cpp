@@ -45,6 +45,11 @@ si8 PlayerInfo::defaultHero() const
 	return -2;
 }
 
+bool PlayerInfo::canAnyonePlay() const
+{
+    return canHumanPlay || canComputerPlay;
+}
+
 LossCondition::LossCondition() : typeOfLossCon(ELossConditionType::LOSSSTANDARD),
 	pos(int3(-1, -1, -1)), timeLimit(-1), obj(nullptr)
 {

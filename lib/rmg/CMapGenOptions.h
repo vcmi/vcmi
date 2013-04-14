@@ -11,6 +11,10 @@
 
 #pragma once
 
+#include "../GameConstants.h"
+
+class CRandomGenerator;
+
 namespace EWaterContent
 {
 	enum EWaterContent
@@ -33,189 +37,127 @@ namespace EMonsterStrength
 	};
 }
 
-/**
- * The map gen options class holds values about general map
- * generation settings e.g. the size of the map, the count of players,...
- */
+namespace EPlayerType
+{
+    enum EPlayerType
+    {
+        HUMAN,
+        AI,
+        COMP_ONLY
+    };
+}
+
+/// The map gen options class holds values about general map generation settings
+/// e.g. the size of the map, the count of players,...
 class DLL_LINKAGE CMapGenOptions
 {
 public:
-	/**
-	 * C-tor.
-	 */
+    /// The player settings class maps the player color, starting town and human player flag.
+    class CPlayerSettings
+    {
+    public:
+        CPlayerSettings();
+
+        /// The color of the player ranging from 0 to PlayerColor::PLAYER_LIMIT - 1.
+        /// The default value is 0.
+        PlayerColor getColor() const;
+        void setColor(PlayerColor value);
+
+        /// The starting town of the player ranging from 0 to town max count or RANDOM_TOWN.
+        /// The default value is RANDOM_TOWN.
+        si32 getStartingTown() const;
+        void setStartingTown(si32 value);
+
+        /// The default value is EPlayerType::AI.
+        EPlayerType::EPlayerType getPlayerType() const;
+        void setPlayerType(EPlayerType::EPlayerType value);
+
+        /// Constant for a random town selection.
+        static const si32 RANDOM_TOWN = -1;
+
+    private:
+        PlayerColor color;
+        si32 startingTown;
+        EPlayerType::EPlayerType playerType;
+
+    public:
+        template <typename Handler>
+        void serialize(Handler & h, const int version)
+        {
+            h & color & startingTown & playerType;
+        }
+    };
+
 	CMapGenOptions();
 
-	/**
-	 * Gets the width of the map. The default value is 72.
-	 *
-	 * @return width of the map in tiles
-	 */
 	si32 getWidth() const;
-
-	/**
-	 * Sets the width of the map.
-	 *
-	 * @param value the width of the map in tiles, any values higher than 0 are allowed
-	 */
 	void setWidth(si32 value);
 
-	/**
-	 * Gets the height of the map. The default value is 72.
-	 *
-	 * @return height of the map in tiles
-	 */
 	si32 getHeight() const;
-
-	/**
-	 * Sets the height of the map.
-	 *
-	 * @param value the height of the map in tiles, any values higher than 0 are allowed
-	 */
 	void setHeight(si32 value);
 
-	/**
-	 * Gets the flag whether the map should be generated with two levels. The
-	 * default value is true.
-	 *
-	 * @return true for two level map
-	 */
 	bool getHasTwoLevels() const;
-
-	/**
-	 * Sets the flag whether the map should be generated with two levels.
-	 *
-	 * @param value true for two level map
-	 */
 	void setHasTwoLevels(bool value);
 
-	/**
-	 * Gets the count of the players. The default value is RANDOM_SIZE representing a random
-	 * player count.
-	 *
-	 * @return the count of the players ranging from 1 to PlayerColor::PLAYER_LIMIT or RANDOM_SIZE for random
-	 */
+    /// The count of the players ranging from 1 to PlayerColor::PLAYER_LIMIT or RANDOM_SIZE for random. If you call
+    /// this method, all player settings are reset to default settings.
 	si8 getPlayersCnt() const;
-
-	/**
-	 * Sets the count of the players.
-	 *
-	 * @param value the count of the players ranging from 1 to PlayerColor::PLAYER_LIMIT, RANDOM_SIZE for random
-	 */
 	void setPlayersCnt(si8 value);
 
-	/**
-	 * Gets the count of the teams. The default value is RANDOM_SIZE representing a random
-	 * team count.
-	 *
-	 * @return the count of the teams ranging from 0 to <players count - 1> or RANDOM_SIZE for random
-	 */
+    /// The count of the teams ranging from 0 to <players count - 1> or RANDOM_SIZE for random.
 	si8 getTeamsCnt() const;
-
-	/**
-	 * Sets the count of the teams
-	 *
-	 * @param value the count of the teams ranging from 0 to <players count - 1>, RANDOM_SIZE for random
-	 */
 	void setTeamsCnt(si8 value);
 
-	/**
-	 * Gets the count of the computer only players. The default value is 0.
-	 *
-	 * @return the count of the computer only players ranging from 0 to <PlayerColor::PLAYER_LIMIT - players count> or RANDOM_SIZE for random
-	 */
+    /// The count of the computer only players ranging from 0 to <PlayerColor::PLAYER_LIMIT - players count> or RANDOM_SIZE for random.
+    /// If you call this method, all player settings are reset to default settings.
 	si8 getCompOnlyPlayersCnt() const;
-
-	/**
-	 * Sets the count of the computer only players.
-	 *
-	 * @param value the count of the computer only players ranging from 0 to <PlayerColor::PLAYER_LIMIT - players count>, RANDOM_SIZE for random
-	 */
 	void setCompOnlyPlayersCnt(si8 value);
 
-	/**
-	 * Gets the count of the computer only teams. The default value is RANDOM_SIZE representing
-	 * a random computer only team count.
-	 *
-	 * @return the count of the computer only teams ranging from 0 to <comp only players - 1> or RANDOM_SIZE for random
-	 */
+    /// The count of the computer only teams ranging from 0 to <comp only players - 1> or RANDOM_SIZE for random.
 	si8 getCompOnlyTeamsCnt() const;
-
-	/**
-	 * Sets the count of the computer only teams.
-	 *
-	 * @param value the count of the computer only teams ranging from 0 to <comp only players - 1>, RANDOM_SIZE for random
-	 */
 	void setCompOnlyTeamsCnt(si8 value);
 
-	/**
-	 * Gets the water content. The default value is random.
-	 *
-	 * @return the water content
-	 */
 	EWaterContent::EWaterContent getWaterContent() const;
-
-	/**
-	 * Sets the water content.
-	 *
-	 * @param value the water content
-	 */
 	void setWaterContent(EWaterContent::EWaterContent value);
 
-	/**
-	 * Gets the strength of the monsters. The default value is random.
-	 *
-	 * @return the strenght of the monsters
-	 */
 	EMonsterStrength::EMonsterStrength getMonsterStrength() const;
-
-	/**
-	 * Sets the strength of the monsters.
-	 *
-	 * @param value the strenght of the monsters
-	 */
 	void setMonsterStrength(EMonsterStrength::EMonsterStrength value);
 
-	/** The constant for specifying a random number of sth. */
+    /// The first player colors belong to standard players and the last player colors belong to comp only players.
+    /// All standard players are by default of type EPlayerType::AI.
+    const std::map<PlayerColor, CPlayerSettings> & getPlayersSettings() const;
+    void setStartingTownForPlayer(PlayerColor color, si32 town);
+    /// Sets a player type for a standard player. A standard player is the opposite of a computer only player. The
+    /// values which can be chosen for the player type are EPlayerType::AI or EPlayerType::HUMAN. Calling this method
+    /// has no effect for the map itself, but it adds some informational text for the map description.
+    void setPlayerTypeForStandardPlayer(PlayerColor color, EPlayerType::EPlayerType playerType);
+
+    /// Finalizes the options. All random sizes for various properties will be overwritten by numbers from
+    /// a random number generator by keeping the options in a valid state.
+    void finalize();
+    void finalize(CRandomGenerator & gen);
+
 	static const si8 RANDOM_SIZE = -1;
 
 private:
-	/** The width of the map in tiles. */
-	si32 width;
+    void resetPlayersMap();
+    int countHumanPlayers() const;
+    PlayerColor getNextPlayerColor() const;
 
-	/** The height of the map in tiles. */
-	si32 height;
-
-	/** True if the map has two levels that means an underground. */
+    si32 width, height;
 	bool hasTwoLevels;
-
-	/** The count of the players(human + computer). */
-	si8 playersCnt;
-
-	/** The count of the teams. */
-	si8 teamsCnt;
-
-	/** The count of computer only players. */
-	si8 compOnlyPlayersCnt;
-
-	/** The count of computer only teams. */
-	si8 compOnlyTeamsCnt;
-
-	/** The amount of water content. */
+    si8 playersCnt, teamsCnt, compOnlyPlayersCnt, compOnlyTeamsCnt;
 	EWaterContent::EWaterContent waterContent;
-
-	/** The strength of the monsters. */
 	EMonsterStrength::EMonsterStrength monsterStrength;
+    std::map<PlayerColor, CPlayerSettings> players;
 
 public:
-	/**
-	 * Serialize method.
-	 */
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
 		//FIXME: Enum is not a fixed with data type. Add enum class to both enums
 		// later. For now it is ok.
 		h & width & height & hasTwoLevels & playersCnt & teamsCnt & compOnlyPlayersCnt;
-		h & compOnlyTeamsCnt & waterContent & monsterStrength;
+        h & compOnlyTeamsCnt & waterContent & monsterStrength & players;
 	}
 };

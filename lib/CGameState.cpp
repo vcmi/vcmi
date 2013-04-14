@@ -862,43 +862,35 @@ void CGameState::init(StartInfo * si)
                 logGlobal->infoStream() << "Create random map.";
 
 				// Create player settings for RMG
-				std::map<PlayerColor, CMapGenerator::CPlayerSettings> players;
-				BOOST_FOREACH(auto pInfo, scenarioOps->playerInfos)
+                BOOST_FOREACH(const auto & pair, scenarioOps->playerInfos)
 				{
-					const PlayerSettings & startSettings = pInfo.second;
-					CMapGenerator::CPlayerSettings player;
-					player.setColor(startSettings.color);
-					player.setStartingTown(startSettings.castle);
-					if(startSettings.playerID > 0)
+                    const auto & playerSettings = pair.second;
+                    scenarioOps->mapGenOptions->setStartingTownForPlayer(playerSettings.color, playerSettings.castle);
+                    if(playerSettings.playerID > 0)
 					{
-						player.setPlayerType(CMapGenerator::CPlayerSettings::HUMAN);
+                        scenarioOps->mapGenOptions->setPlayerTypeForStandardPlayer(playerSettings.color, EPlayerType::HUMAN);
 					}
-					else if(startSettings.compOnly)
-					{
-						player.setPlayerType(CMapGenerator::CPlayerSettings::COMP_ONLY);
-					}
-					players[player.getColor()] = player;
 				}
 
 				// Gen map
-				CMapGenerator mapGen(*scenarioOps->mapGenOptions, players, scenarioOps->seedToBeUsed);
+                CMapGenerator mapGen(*(scenarioOps->mapGenOptions), scenarioOps->seedToBeUsed);
 				map = mapGen.generate().release();
 
 				// Update starting options
 				for(int i = 0; i < map->players.size(); ++i)
 				{
-					const PlayerInfo & pInfo = map->players[i];
-					if(pInfo.canComputerPlay || pInfo.canHumanPlay)
+                    const auto & playerInfo = map->players[i];
+                    if(playerInfo.canAnyonePlay())
 					{
-						PlayerSettings & pSettings = scenarioOps->playerInfos[PlayerColor(i)];
-						pSettings.compOnly = !pInfo.canHumanPlay;
-						pSettings.team = pInfo.team;
-						pSettings.castle = pInfo.defaultCastle();
-						if(pSettings.playerID == PlayerSettings::PLAYER_AI && pSettings.name.empty())
+                        PlayerSettings & playerSettings = scenarioOps->playerInfos[PlayerColor(i)];
+                        playerSettings.compOnly = !playerInfo.canHumanPlay;
+                        playerSettings.team = playerInfo.team;
+                        playerSettings.castle = playerInfo.defaultCastle();
+                        if(playerSettings.playerID == PlayerSettings::PLAYER_AI && playerSettings.name.empty())
 						{
-							pSettings.name = VLC->generaltexth->allTexts[468];
+                            playerSettings.name = VLC->generaltexth->allTexts[468];
 						}
-						pSettings.color = PlayerColor(i);
+                        playerSettings.color = PlayerColor(i);
 					}
 					else
 					{

@@ -501,24 +501,16 @@ void CVCMIServer::loadGame()
 	gh.run(true);
 }
 
-#ifndef __GNUC__
-int _tmain(int argc, _TCHAR* argv[])
-#else
 int main(int argc, char** argv)
-#endif
 {
 	console = new CConsoleHandler;
 	CBasicLogConfigurator logConfig(VCMIDirs::get().localPath() + "/VCMI_Server_log.txt", console);
     logConfig.configureDefault();
-	//boost::thread t(boost::bind(&CConsoleHandler::run,::console));
 	if(argc > 1)
 	{
-#ifdef _MSC_VER
-		port = _tstoi(argv[1]);
-#else
-		port = _ttoi(argv[1]);
-#endif
-	}
+        port = std::stoi(argv[1]);
+    }
+
 	preinitDLL(console);
     settings.init();
     logConfig.configure();

@@ -59,7 +59,6 @@ set(lib_SRCS
 
 set(lib_HEADERS
 		../Global.h
-		../tchar_amigaos4.h
 		filesystem/CInputStream.h
 		filesystem/ISimpleResourceLoader.h
 		AI_Base.h

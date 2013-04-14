@@ -11,11 +11,10 @@
 #include "../CTownHandler.h"
 #include "../StringConstants.h"
 
-CMapGenerator::CMapGenerator(const CMapGenOptions & mapGenOptions, const std::map<PlayerColor, CPlayerSettings> & players, int randomSeed) :
-	mapGenOptions(mapGenOptions), randomSeed(randomSeed), players(players)
+CMapGenerator::CMapGenerator(const CMapGenOptions & mapGenOptions, int randomSeed) :
+    mapGenOptions(mapGenOptions), randomSeed(randomSeed)
 {
-	gen.seed(randomSeed);
-	validateOptions();
+    gen.seed(randomSeed);
 }
 
 CMapGenerator::~CMapGenerator()
@@ -25,7 +24,7 @@ CMapGenerator::~CMapGenerator()
 
 std::unique_ptr<CMap> CMapGenerator::generate()
 {
-	finalizeMapGenOptions();
+    mapGenOptions.finalize(gen);
 
 	//TODO select a template based on the map gen options or adapt it if necessary
 
@@ -38,165 +37,6 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	genTowns();
 
 	return std::move(map);
-}
-
-void CMapGenerator::validateOptions() const
-{
-	int playersCnt = 0;
-	int compOnlyPlayersCnt = 0;
-	BOOST_FOREACH(const auto & pair, players)
-	{
-		if(pair.second.getPlayerType() == CPlayerSettings::COMP_ONLY)
-		{
-			++compOnlyPlayersCnt;
-		}
-		else
-		{
-			++playersCnt;
-		}
-	}
-	if(mapGenOptions.getPlayersCnt() == CMapGenOptions::RANDOM_SIZE)
-	{
-		if(playersCnt != PlayerColor::PLAYER_LIMIT_I)
-		{
-			throw std::runtime_error(std::string("If the count of players is random size, ")
-				+ "the count of the items in the players map should equal PlayerColor::PLAYER_LIMIT.");
-		}
-		if(playersCnt == mapGenOptions.getPlayersCnt())
-		{
-			throw std::runtime_error(std::string("If the count of players is random size, ")
-				+ "all items in the players map should be either of player type AI or HUMAN.");
-		}
-	}
-	else
-	{
-		if(mapGenOptions.getCompOnlyPlayersCnt() != CMapGenOptions::RANDOM_SIZE)
-		{
-			if(playersCnt != mapGenOptions.getPlayersCnt() || compOnlyPlayersCnt != mapGenOptions.getCompOnlyPlayersCnt())
-			{
-				throw std::runtime_error(std::string("The count of players and computer only players in the players map ")
-					+ "doesn't conform with the specified map gen options.");
-			}
-		}
-		else
-		{
-			if(playersCnt != mapGenOptions.getPlayersCnt() || (playersCnt == mapGenOptions.getPlayersCnt()
-				&& compOnlyPlayersCnt != PlayerColor::PLAYER_LIMIT_I - playersCnt))
-			{
-				throw std::runtime_error(std::string("If the count of players is fixed and the count of comp only players random, ")
-					+ "the items in the players map should equal PlayerColor::PLAYER_LIMIT.");
-			}
-		}
-	}
-
-	if(countHumanPlayers() < 1)
-	{
-		throw std::runtime_error("1 human player is required at least");
-	}
-
-	BOOST_FOREACH(const auto & pair, players)
-	{
-		if(pair.first != pair.second.getColor())
-		{
-			throw std::runtime_error("The color of an item in player settings and the key of it has to be the same.");
-		}
-	}
-}
-
-void CMapGenerator::finalizeMapGenOptions()
-{
-	if(mapGenOptions.getPlayersCnt() == CMapGenOptions::RANDOM_SIZE)
-	{
-		mapGenOptions.setPlayersCnt(gen.getInteger(countHumanPlayers(), PlayerColor::PLAYER_LIMIT_I));
-
-		// Remove AI players only from the end of the players map if necessary
-		for(auto itrev = players.end(); itrev != players.begin();)
-		{
-			auto it = itrev;
-			--it;
-			if(players.size() == mapGenOptions.getPlayersCnt())
-			{
-				break;
-			}
-			const CPlayerSettings & pSettings = it->second;
-			if(pSettings.getPlayerType() == CPlayerSettings::AI)
-			{
-				players.erase(it);
-			}
-			else
-			{
-				--itrev;
-			}
-		}
-	}
-	if(mapGenOptions.getTeamsCnt() == CMapGenOptions::RANDOM_SIZE)
-	{
-		mapGenOptions.setTeamsCnt(gen.getInteger(0, mapGenOptions.getPlayersCnt() - 1));
-	}
-	if(mapGenOptions.getCompOnlyPlayersCnt() == CMapGenOptions::RANDOM_SIZE)
-	{
-		mapGenOptions.setCompOnlyPlayersCnt(gen.getInteger(0, 8 - mapGenOptions.getPlayersCnt()));
-		int totalPlayersCnt = mapGenOptions.getPlayersCnt() + mapGenOptions.getCompOnlyPlayersCnt();
-
-		// Remove comp only players only from the end of the players map if necessary
-		for(auto itrev = players.end(); itrev != players.begin();)
-		{
-			auto it = itrev;
-			--it;
-			if(players.size() <= totalPlayersCnt)
-			{
-				break;
-			}
-			const CPlayerSettings & pSettings = it->second;
-			if(pSettings.getPlayerType() == CPlayerSettings::COMP_ONLY)
-			{
-				players.erase(it);
-			}
-			else
-			{
-				--itrev;
-			}
-		}
-
-		// Add some comp only players if necessary
-		int compOnlyPlayersToAdd = totalPlayersCnt - players.size();
-		for(int i = 0; i < compOnlyPlayersToAdd; ++i)
-		{
-			CPlayerSettings pSettings;
-			pSettings.setPlayerType(CPlayerSettings::COMP_ONLY);
-			pSettings.setColor(getNextPlayerColor());
-			players[pSettings.getColor()] = pSettings;
-		}
-	}
-	if(mapGenOptions.getCompOnlyTeamsCnt() == CMapGenOptions::RANDOM_SIZE)
-	{
-		mapGenOptions.setCompOnlyTeamsCnt(gen.getInteger(0, std::max(mapGenOptions.getCompOnlyPlayersCnt() - 1, 0)));
-	}
-
-	// There should be at least 2 players (1-player-maps aren't allowed)
-	if(mapGenOptions.getPlayersCnt() + mapGenOptions.getCompOnlyPlayersCnt() < 2)
-	{
-		CPlayerSettings pSettings;
-		pSettings.setPlayerType(CPlayerSettings::AI);
-		pSettings.setColor(getNextPlayerColor());
-		players[pSettings.getColor()] = pSettings;
-		mapGenOptions.setPlayersCnt(2);
-	}
-
-	// 1 team isn't allowed
-	if(mapGenOptions.getTeamsCnt() == 1 && mapGenOptions.getCompOnlyPlayersCnt() == 0)
-	{
-		mapGenOptions.setTeamsCnt(0);
-	}
-
-	if(mapGenOptions.getWaterContent() == EWaterContent::RANDOM)
-	{
-		mapGenOptions.setWaterContent(static_cast<EWaterContent::EWaterContent>(gen.getInteger(0, 2)));
-	}
-	if(mapGenOptions.getMonsterStrength() == EMonsterStrength::RANDOM)
-	{
-		mapGenOptions.setMonsterStrength(static_cast<EMonsterStrength::EMonsterStrength>(gen.getInteger(0, 2)));
-	}
 }
 
 std::string CMapGenerator::getMapDescription() const
@@ -212,14 +52,14 @@ std::string CMapGenerator::getMapDescription() const
 	ss << static_cast<int>(mapGenOptions.getCompOnlyPlayersCnt()) << ", water " << waterContentStr[mapGenOptions.getWaterContent()];
 	ss << ", monster " << monsterStrengthStr[mapGenOptions.getMonsterStrength()] << ", second expansion map";
 
-	BOOST_FOREACH(const auto & pair, players)
+    BOOST_FOREACH(const auto & pair, mapGenOptions.getPlayersSettings())
 	{
-		const CPlayerSettings & pSettings = pair.second;
-		if(pSettings.getPlayerType() == CPlayerSettings::HUMAN)
+        const auto & pSettings = pair.second;
+        if(pSettings.getPlayerType() == EPlayerType::HUMAN)
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()] << " is human";
 		}
-		if(pSettings.getStartingTown() != CPlayerSettings::RANDOM_TOWN)
+        if(pSettings.getStartingTown() != CMapGenOptions::CPlayerSettings::RANDOM_TOWN)
 		{
 			ss << ", " << GameConstants::PLAYER_COLOR_NAMES[pSettings.getColor().getNum()]
 				<< " town choice is " << ETownType::names[pSettings.getStartingTown()];
@@ -265,12 +105,12 @@ void CMapGenerator::addPlayerInfo()
 	}
 
 	// Team numbers are assigned randomly to every player
-	BOOST_FOREACH(const auto & pair, players)
+    BOOST_FOREACH(const auto & pair, mapGenOptions.getPlayersSettings())
 	{
-		const CPlayerSettings & pSettings = pair.second;
+        const auto & pSettings = pair.second;
 		PlayerInfo player;
 		player.canComputerPlay = true;
-		int j = pSettings.getPlayerType() == CPlayerSettings::COMP_ONLY ? 1 : 0;
+        int j = pSettings.getPlayerType() == EPlayerType::COMP_ONLY ? 1 : 0;
 		if(j == 0)
 		{
 			player.canHumanPlay = true;
@@ -285,14 +125,6 @@ void CMapGenerator::addPlayerInfo()
 			+ (mapGenOptions.getCompOnlyTeamsCnt() == 0 ? mapGenOptions.getCompOnlyPlayersCnt() : mapGenOptions.getCompOnlyTeamsCnt());
 }
 
-int CMapGenerator::countHumanPlayers() const
-{
-	return static_cast<int>(boost::count_if(players, [](const std::pair<PlayerColor, CPlayerSettings> & pair)
-	{
-		return pair.second.getPlayerType() == CMapGenerator::CPlayerSettings::HUMAN;
-	}));
-}
-
 void CMapGenerator::genTerrain()
 {
 	map->initTerrain(); //FIXME nicer solution
@@ -304,13 +136,15 @@ void CMapGenerator::genTowns()
 {
 	//FIXME mock gen
 	const int3 townPos[2] = { int3(17, 13, 0), int3(25,13, 0) };
-	const TFaction townTypes[2] = { ETownType::CASTLE, ETownType::DUNGEON };
+    const int townTypes[2] = { ETownType::CASTLE, ETownType::DUNGEON };
 
-	for(auto it = players.begin(); it != players.end(); ++it)
+    for(size_t i = 0; i < map->players.size(); ++i)
 	{
-		PlayerColor owner = it->first;
-		int pos = std::distance(players.begin(), it);
-		int side = pos % 2;
+        auto & playerInfo = map->players[i];
+        if(!playerInfo.canAnyonePlay()) break;
+
+        PlayerColor owner(i);
+        int side = i % 2;
 		CGTownInstance * town = new CGTownInstance();
 		town->ID = Obj::TOWN;
 		town->subID = townTypes[side];
@@ -318,15 +152,14 @@ void CMapGenerator::genTowns()
 		town->defInfo = VLC->dobjinfo->gobjs[town->ID][town->subID];
 		town->builtBuildings.insert(BuildingID::FORT);
 		town->builtBuildings.insert(BuildingID::DEFAULT);
-		mapMgr->insertObject(town, townPos[side].x, townPos[side].y + (pos / 2) * 5, false);
+        mapMgr->insertObject(town, townPos[side].x, townPos[side].y + (i / 2) * 5, false);
 
 		// Update player info
-		PlayerInfo & pInfo = map->players[owner.getNum()];
-		pInfo.allowedFactions.clear();
-		pInfo.allowedFactions.insert(townTypes[side]);
-		pInfo.hasMainTown = true;
-		pInfo.posOfMainTown = town->pos - int3(2, 0, 0);
-		pInfo.generateHeroAtMainTown = true;
+        playerInfo.allowedFactions.clear();
+        playerInfo.allowedFactions.insert(townTypes[side]);
+        playerInfo.hasMainTown = true;
+        playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
+        playerInfo.generateHeroAtMainTown = true;
 	}
 }
 
@@ -340,66 +173,4 @@ void CMapGenerator::addHeaderInfo()
 	map->description = getMapDescription();
 	map->difficulty = 1;
 	addPlayerInfo();
-}
-
-PlayerColor CMapGenerator::getNextPlayerColor() const
-{
-	for(PlayerColor i = PlayerColor(0); i < PlayerColor::PLAYER_LIMIT; i.advance(1))
-	{
-		if(!players.count(i))
-		{
-			return i;
-		}
-	}
-	throw std::runtime_error("Shouldn't happen. No free player color exists.");
-}
-
-CMapGenerator::CPlayerSettings::CPlayerSettings() : color(0), startingTown(RANDOM_TOWN), playerType(AI)
-{
-
-}
-
-PlayerColor CMapGenerator::CPlayerSettings::getColor() const
-{
-	return color;
-}
-
-
-void CMapGenerator::CPlayerSettings::setColor(PlayerColor value)
-{
-	if(value >= PlayerColor(0) && value < PlayerColor::PLAYER_LIMIT)
-	{
-		color = value;
-	}
-	else
-	{
-		throw std::runtime_error("The color of the player is not in a valid range.");
-	}
-}
-
-int CMapGenerator::CPlayerSettings::getStartingTown() const
-{
-	return startingTown;
-}
-
-void CMapGenerator::CPlayerSettings::setStartingTown(int value)
-{
-	if(value >= -1 && value < static_cast<int>(VLC->townh->towns.size()))
-	{
-		startingTown = value;
-	}
-	else
-	{
-		throw std::runtime_error("The starting town of the player is not in a valid range.");
-	}
-}
-
-CMapGenerator::CPlayerSettings::EPlayerType CMapGenerator::CPlayerSettings::getPlayerType() const
-{
-	return playerType;
-}
-
-void CMapGenerator::CPlayerSettings::setPlayerType(EPlayerType value)
-{
-	playerType = value;
 }

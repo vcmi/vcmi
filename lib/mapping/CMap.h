@@ -92,6 +92,8 @@ struct DLL_LINKAGE PlayerInfo
 	 */
 	si8 defaultHero() const;
 
+    bool canAnyonePlay() const;
+
 	/** True if the player can be played by a human. */
 	bool canHumanPlay;
 

@@ -176,9 +176,7 @@ static void prog_help(const po::options_description &opts)
 void OSX_checkForUpdates();
 #endif
 
-#ifdef _WIN32
-int _tmain(int argc, _TCHAR* argv[])
-#elif defined(__APPLE__)
+#if defined(__APPLE__)
 int SDL_main(int argc, char *argv[])
 #else
 int main(int argc, char** argv)
