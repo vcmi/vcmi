@@ -12,8 +12,7 @@
  *
  */
 
-#include "rmg/CMapGenOptions.h"
-
+class CMapGenOptions;
 class CCampaignState;
 
 /// Struct which describes the name, the color, the starting bonus of a player

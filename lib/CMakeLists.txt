@@ -21,7 +21,6 @@ set(lib_SRCS
 		mapping/CMapInfo.cpp
 		mapping/CMapService.cpp
 		mapping/MapFormatH3M.cpp
-		rmg/CMapGenOptions.cpp
 		rmg/CMapGenerator.cpp
 		BattleAction.cpp
 		BattleHex.cpp

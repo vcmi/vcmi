@@ -6,7 +6,7 @@
 #include "GUIClasses.h"
 #include "FunctionList.h"
 #include "../lib/mapping/CMapInfo.h"
-#include "../lib/rmg/CMapGenOptions.h"
+#include "../lib/rmg/CMapGenerator.h"
 
 /*
  * CPreGame.h, part of VCMI engine

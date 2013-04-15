@@ -25,6 +25,7 @@
 #include "CCreatureSet.h" //for CStackInstance
 #include "CObjectHandler.h" //for CArmedInstance
 #include "mapping/CCampaignHandler.h" //for CCampaignState
+#include "rmg/CMapGenerator.h" // for CMapGenOptions
 
 const ui32 version = 739;
 

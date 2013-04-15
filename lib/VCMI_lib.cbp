@@ -159,8 +159,6 @@
 		<Unit filename="mapping/MapFormatH3M.h" />
 		<Unit filename="NetPacks.h" />
 		<Unit filename="NetPacksLib.cpp" />
-		<Unit filename="rmg/CMapGenOptions.cpp" />
-		<Unit filename="rmg/CMapGenOptions.h" />
 		<Unit filename="rmg/CMapGenerator.cpp" />
 		<Unit filename="rmg/CMapGenerator.h" />
 		<Unit filename="logging/CLogger.cpp" />

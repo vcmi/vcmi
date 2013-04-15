@@ -25,7 +25,6 @@
 #include "JsonNode.h"
 #include "filesystem/CResourceLoader.h"
 #include "GameConstants.h"
-#include "rmg/CMapGenOptions.h"
 #include "rmg/CMapGenerator.h"
 
 DLL_LINKAGE boost::rand48 ran;

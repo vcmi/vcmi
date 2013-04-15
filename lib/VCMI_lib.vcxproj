@@ -201,7 +201,6 @@
     <ClCompile Include="mapping\CMapEditManager.cpp" />
     <ClCompile Include="mapping\MapFormatH3M.cpp" />
     <ClCompile Include="RegisterTypes.cpp" />
-    <ClCompile Include="rmg\CMapGenOptions.cpp" />
     <ClCompile Include="rmg\CMapGenerator.cpp" />
     <ClCompile Include="logging\CLogger.cpp" />
     <ClCompile Include="logging\CBasicLogConfigurator.cpp" />
@@ -270,7 +269,6 @@
     <ClInclude Include="mapping\CMapService.h" />
     <ClInclude Include="mapping\CMapEditManager.h" />
     <ClInclude Include="mapping\MapFormatH3M.h" />
-    <ClInclude Include="rmg\CMapGenOptions.h" />
     <ClInclude Include="rmg\CMapGenerator.h" />
     <ClInclude Include="logging\CLogger.h" />
     <ClInclude Include="logging\CBasicLogConfigurator.h" />

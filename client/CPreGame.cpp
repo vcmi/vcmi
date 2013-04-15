@@ -1856,6 +1856,7 @@ void RandomMapTab::updateMapInfo()
 		player.team = TeamID(i);
 		player.hasMainTown = true;
 		player.generateHeroAtMainTown = true;
+		player.isFactionRandom = true;
 		mapInfo.mapHeader->players.push_back(player);
 	}
 
