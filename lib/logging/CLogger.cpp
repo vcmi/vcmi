@@ -219,6 +219,17 @@ bool CLogger::isTraceEnabled() const
 	return getEffectiveLevel() <= ELogLevel::TRACE;
 }
 
+CTraceLogger::CTraceLogger(const CLogger * logger, const std::string & beginMessage, const std::string & endMessage)
+	: logger(logger), endMessage(endMessage)
+{
+	logger->traceStream() << beginMessage;
+}
+
+CTraceLogger::~CTraceLogger()
+{
+	logger->traceStream() << endMessage;
+}
+
 boost::recursive_mutex CLogManager::smx;
 
 CLogManager & CLogManager::get()

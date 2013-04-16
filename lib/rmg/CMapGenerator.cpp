@@ -377,8 +377,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	map = make_unique<CMap>();
 	addHeaderInfo();
 
-	terViewPatternConfig = make_unique<CTerrainViewPatternConfig>();
-	mapMgr = make_unique<CMapEditManager>(terViewPatternConfig.get(), map.get(), randomSeed);
+	mapMgr = make_unique<CMapEditManager>(map.get(), randomSeed);
 	genTerrain();
 	genTowns();
 

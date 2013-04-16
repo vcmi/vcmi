@@ -428,28 +428,25 @@ bool compareDanger(const CGObjectInstance *lhs, const CGObjectInstance *rhs)
 
 VCAI::VCAI(void)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	myCb = NULL;
 	makingTurn = NULL;
-    TRACE_END(logAi);
 }
-
 
 VCAI::~VCAI(void)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 }
 
 void VCAI::availableCreaturesChanged(const CGDwelling *town)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::heroMoved(const TryMoveHero & details)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
@@ -465,84 +462,73 @@ void VCAI::heroMoved(const TryMoveHero & details)
             logAi->debugStream() << boost::format("Found a pair of subterranean gates between %s and %s!") % from % to;
 		}
 	}
-    TRACE_END(logAi);
 }
 
 void VCAI::stackChagedCount(const StackLocation &location, const TQuantity &change, bool isAbsolute)
 {
-    TRACE_BEGIN_PARAMS(logAi, "isAbsolute '%i'", isAbsolute);
+	LOG_TRACE_PARAMS(logAi, "isAbsolute '%i'", isAbsolute);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::heroInGarrisonChange(const CGTownInstance *town)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::centerView(int3 pos, int focusTime)
 {
-    TRACE_BEGIN_PARAMS(logAi, "focusTime '%i'", focusTime);
+	LOG_TRACE_PARAMS(logAi, "focusTime '%i'", focusTime);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::artifactMoved(const ArtifactLocation &src, const ArtifactLocation &dst)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::artifactAssembled(const ArtifactLocation &al)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::showTavernWindow(const CGObjectInstance *townOrTavern)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::showThievesGuildWindow (const CGObjectInstance * obj)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::playerBlocked(int reason)
 {
-    TRACE_BEGIN_PARAMS(logAi, "reason '%i'", reason);
+	LOG_TRACE_PARAMS(logAi, "reason '%i'", reason);
 	NET_EVENT_HANDLER;
 	if (reason == PlayerBlocked::UPCOMING_BATTLE)
 		status.setBattle(UPCOMING_BATTLE);
-    TRACE_END(logAi);
 }
 
 void VCAI::showPuzzleMap()
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::showShipyardDialog(const IShipyard *obj)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::gameOver(PlayerColor player, bool victory)
 {
-    TRACE_BEGIN_PARAMS(logAi, "victory '%i'", victory);
+	LOG_TRACE_PARAMS(logAi, "victory '%i'", victory);
 	NET_EVENT_HANDLER;
     logAi->debugStream() << boost::format("Player %d: I heard that player %d %s.") % playerID % player.getNum() % (victory ? "won" : "lost");
 	if(player == playerID)
@@ -569,41 +555,36 @@ void VCAI::gameOver(PlayerColor player, bool victory)
 
 		finish();
 	}
-    TRACE_END(logAi);
 }
 
 void VCAI::artifactPut(const ArtifactLocation &al)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::artifactRemoved(const ArtifactLocation &al)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::stacksErased(const StackLocation &location)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::artifactDisassembled(const ArtifactLocation &al)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 
 void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visitedObj, bool start)
 {
-    TRACE_BEGIN_PARAMS(logAi, "start '%i'", start);
+	LOG_TRACE_PARAMS(logAi, "start '%i'", start);
 	NET_EVENT_HANDLER;
 	if (start)
 	{
@@ -613,49 +594,44 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 		remove_if_present(reservedHeroesMap[visitor], visitedObj);
 		completeGoal (CGoal(GET_OBJ).sethero(visitor)); //we don't need to visit in anymore
 	}
-    TRACE_END(logAi);
 }
 
 void VCAI::availableArtifactsChanged(const CGBlackMarket *bm /*= NULL*/)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	//buildArmyIn(town);
 	//moveCreaturesToHero(town);
-    TRACE_END(logAi);
 }
 
 void VCAI::tileHidden(const boost::unordered_set<int3, ShashInt3> &pos)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 // 	BOOST_FOREACH(int3 tile, pos)
 // 		BOOST_FOREACH(const CGObjectInstance *obj, cb->getVisitableObjs(tile))
 // 			remove_if_present(visitableObjs, obj);
 	visitableObjs.erase(boost::remove_if(visitableObjs, [&](const CGObjectInstance *obj){return !myCb->getObj(obj->id);}), visitableObjs.end());
-    TRACE_END(logAi);
 }
 
 void VCAI::tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	BOOST_FOREACH(int3 tile, pos)
 		BOOST_FOREACH(const CGObjectInstance *obj, myCb->getVisitableObjs(tile))
 			addVisitableObj(obj);
-    TRACE_END(logAi);
 }
 
 void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
 	auto firstHero = cb->getHero(hero1);
@@ -672,56 +648,49 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2)
 		completeGoal(CGoal(VISIT_HERO).sethero(secondHero));
 		//TODO: exchange artifacts
 	});
-    TRACE_END(logAi);
 }
 
 void VCAI::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
 {
-    TRACE_BEGIN_PARAMS(logAi, "which '%i', val '%i'", which % val);
+	LOG_TRACE_PARAMS(logAi, "which '%i', val '%i'", which % val);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level)
 {
-    TRACE_BEGIN_PARAMS(logAi, "level '%i'", level);
+	LOG_TRACE_PARAMS(logAi, "level '%i'", level);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::heroMovePointsChanged(const CGHeroInstance * hero)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::stackChangedType(const StackLocation &location, const CCreature &newType)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::stacksRebalanced(const StackLocation &src, const StackLocation &dst, TQuantity count)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::newObject(const CGObjectInstance * obj)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	if(obj->isVisitable())
 		addVisitableObj(obj);
-    TRACE_END(logAi);
 }
 
 void VCAI::objectRemoved(const CGObjectInstance *obj)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
 	if(remove_if_present(visitableObjs, obj))
@@ -738,59 +707,52 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 	{
 		lostHero(cb->getHero(obj->id)); //we can promote, since objectRemoved is killed just before actual deletion
 	}
-    TRACE_END(logAi);
 }
 
 void VCAI::showHillFortWindow(const CGObjectInstance *object, const CGHeroInstance *visitor)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
 	requestActionASAP([=]()
 	{
 		makePossibleUpgrades(visitor);
 	});
-    TRACE_END(logAi);
 }
 
 void VCAI::playerBonusChanged(const Bonus &bonus, bool gain)
 {
-    TRACE_BEGIN_PARAMS(logAi, "gain '%i'", gain);
+	LOG_TRACE_PARAMS(logAi, "gain '%i'", gain);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::newStackInserted(const StackLocation &location, const CStackInstance &stack)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::heroCreated(const CGHeroInstance*)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::advmapSpellCast(const CGHeroInstance * caster, int spellID)
 {
-    TRACE_BEGIN_PARAMS(logAi, "spellID '%i", spellID);
+	LOG_TRACE_PARAMS(logAi, "spellID '%i", spellID);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID)
 {
-    TRACE_BEGIN_PARAMS(logAi, "soundID '%i'", soundID);
+	LOG_TRACE_PARAMS(logAi, "soundID '%i'", soundID);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::requestRealized(PackageApplied *pa)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	if(status.haveTurn())
 	{
@@ -803,56 +765,49 @@ void VCAI::requestRealized(PackageApplied *pa)
 	{
 		status.receivedAnswerConfirmation(pa->requestID, pa->result);
 	}
-    TRACE_END(logAi);
 }
 
 void VCAI::receivedResource(int type, int val)
 {
-    TRACE_BEGIN_PARAMS(logAi, "type '%i', val '%i'", type % val);
+	LOG_TRACE_PARAMS(logAi, "type '%i', val '%i'", type % val);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::stacksSwapped(const StackLocation &loc1, const StackLocation &loc2)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::heroManaPointsChanged(const CGHeroInstance * hero)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
-    TRACE_BEGIN_PARAMS(logAi, "which '%', val '%'", which % val);
+	LOG_TRACE_PARAMS(logAi, "which '%', val '%'", which % val);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::battleResultsApplied()
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	assert(status.getBattle() == ENDING_BATTLE);
 	status.setBattle(NO_BATTLE);
-    TRACE_END(logAi);
 }
 
 void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	if(sop->what == ObjProperty::OWNER)
 	{
@@ -860,33 +815,29 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 			remove_if_present(visitableObjs, myCb->getObj(sop->id));
 		//TODO restore lost obj
 	}
-    TRACE_END(logAi);
 }
 
 void VCAI::buildChanged(const CGTownInstance *town, BuildingID buildingID, int what)
 {
-    TRACE_BEGIN_PARAMS(logAi, "what '%i'", what);
+	LOG_TRACE_PARAMS(logAi, "what '%i'", what);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain)
 {
-    TRACE_BEGIN_PARAMS(logAi, "gain '%i'", gain);
+	LOG_TRACE_PARAMS(logAi, "gain '%i'", gain);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::showMarketWindow(const IMarket *market, const CGHeroInstance *visitor)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::init(CCallback * CB)
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	myCb = CB;
 	cbc = CB;
 	NET_EVENT_HANDLER;
@@ -898,39 +849,35 @@ void VCAI::init(CCallback * CB)
 		fh = new FuzzyHelper();
 
 	retreiveVisitableObjs(visitableObjs);
-    TRACE_END(logAi);
 }
 
 void VCAI::yourTurn()
 {
-    TRACE_BEGIN(logAi);
+	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	status.startedTurn();
 	makingTurn = new boost::thread(&VCAI::makeTurn, this);
-    TRACE_END(logAi);
 }
 
 void VCAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, int queryID)
 {
-    TRACE_BEGIN_PARAMS(logAi, "queryID '%i'", queryID);
+	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
 	status.addQuery(queryID, boost::str(boost::format("Hero %s got level %d") % hero->name % hero->level));
 	requestActionASAP([=]{ answerQuery(queryID, 0); });
-    TRACE_END(logAi);
 }
 
 void VCAI::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID)
 {
-    TRACE_BEGIN_PARAMS(logAi, "queryID '%i'", queryID);
+	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
 	status.addQuery(queryID, boost::str(boost::format("Commander %s of %s got level %d") % commander->name % commander->armyObj->nodeName() % (int)commander->level));
 	requestActionASAP([=]{ answerQuery(queryID, 0); });
-    TRACE_END(logAi);
 }
 
 void VCAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel)
 {
-    TRACE_BEGIN_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i'", text % askID % soundID % selection % cancel);
+	LOG_TRACE_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i'", text % askID % soundID % selection % cancel);
 	NET_EVENT_HANDLER;
 	int sel = 0;
 	status.addQuery(askID, boost::str(boost::format("Blocking dialog query with %d components - %s")
@@ -946,12 +893,11 @@ void VCAI::showBlockingDialog(const std::string &text, const std::vector<Compone
 	{
 		answerQuery(askID, sel);
 	});
-    TRACE_END(logAi);
 }
 
 void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID)
 {
-    TRACE_BEGIN_PARAMS(logAi, "removableUnits '%i', queryID '%i'", removableUnits % queryID);
+	LOG_TRACE_PARAMS(logAi, "removableUnits '%i', queryID '%i'", removableUnits % queryID);
 	NET_EVENT_HANDLER;
 
 	std::string s1 = up ? up->nodeName() : "NONE";
@@ -965,21 +911,18 @@ void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *do
 		pickBestCreatures (down, up);
 		answerQuery(queryID, 0);
 	});
-    TRACE_END(logAi);
 }
 
 void VCAI::serialize(COSer<CSaveFile> &h, const int version)
 {
-    TRACE_BEGIN_PARAMS(logAi, "version '%i'", version);
+	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void VCAI::serialize(CISer<CLoadFile> &h, const int version)
 {
-    TRACE_BEGIN_PARAMS(logAi, "version '%i'", version);
+	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
-    TRACE_END(logAi);
 }
 
 void makePossibleUpgrades(const CArmedInstance *obj)

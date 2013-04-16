@@ -5,119 +5,8 @@
 #include "../filesystem/CResourceLoader.h"
 #include "../CDefObjInfoHandler.h"
 
-const std::string TerrainViewPattern::FLIP_MODE_SAME_IMAGE = "sameImage";
-const std::string TerrainViewPattern::FLIP_MODE_DIFF_IMAGES = "diffImages";
-
-const std::string TerrainViewPattern::RULE_DIRT = "D";
-const std::string TerrainViewPattern::RULE_SAND = "S";
-const std::string TerrainViewPattern::RULE_TRANSITION = "T";
-const std::string TerrainViewPattern::RULE_NATIVE = "N";
-const std::string TerrainViewPattern::RULE_ANY = "?";
-
-TerrainViewPattern::TerrainViewPattern() : minPoints(0), flipMode(FLIP_MODE_SAME_IMAGE),
-	terGroup(ETerrainGroup::NORMAL)
-{
-
-}
-
-TerrainViewPattern::WeightedRule::WeightedRule() : points(0)
-{
-
-}
-
-bool TerrainViewPattern::WeightedRule::isStandardRule() const
-{
-	return TerrainViewPattern::RULE_ANY == name || TerrainViewPattern::RULE_DIRT == name
-		|| TerrainViewPattern::RULE_NATIVE == name || TerrainViewPattern::RULE_SAND == name
-		|| TerrainViewPattern::RULE_TRANSITION == name;
-}
-
-CTerrainViewPatternConfig::CTerrainViewPatternConfig()
-{
-	const JsonNode config(ResourceID("config/terrainViewPatterns.json"));
-	const std::map<std::string, ETerrainGroup::ETerrainGroup> terGroups
-			= boost::assign::map_list_of("normal", ETerrainGroup::NORMAL)("dirt", ETerrainGroup::DIRT)
-			("sand", ETerrainGroup::SAND)("water", ETerrainGroup::WATER)("rock", ETerrainGroup::ROCK);
-	BOOST_FOREACH(auto terMapping, terGroups)
-	{
-		BOOST_FOREACH(const JsonNode & ptrnNode, config[terMapping.first].Vector())
-		{
-			TerrainViewPattern pattern;
-
-			// Read pattern data
-			const JsonVector & data = ptrnNode["data"].Vector();
-			if(data.size() != 9)
-			{
-				throw std::runtime_error("Size of pattern's data vector has to be 9.");
-			}
-			for(int i = 0; i < data.size(); ++i)
-			{
-				std::string cell = data[i].String();
-				boost::algorithm::erase_all(cell, " ");
-				std::vector<std::string> rules;
-				boost::split(rules, cell, boost::is_any_of(","));
-				BOOST_FOREACH(std::string ruleStr, rules)
-				{
-					std::vector<std::string> ruleParts;
-					boost::split(ruleParts, ruleStr, boost::is_any_of("-"));
-					TerrainViewPattern::WeightedRule rule;
-					rule.name = ruleParts[0];
-					if(ruleParts.size() > 1)
-					{
-						rule.points = boost::lexical_cast<int>(ruleParts[1]);
-					}
-					pattern.data[i].push_back(rule);
-				}
-			}
-
-			// Read mapping
-			std::string mappingStr = ptrnNode["mapping"].String();
-			boost::algorithm::erase_all(mappingStr, " ");
-			std::vector<std::string> mappings;
-			boost::split(mappings, mappingStr, boost::is_any_of(","));
-			BOOST_FOREACH(std::string mapping, mappings)
-			{
-				std::vector<std::string> range;
-				boost::split(range, mapping, boost::is_any_of("-"));
-				pattern.mapping.push_back(std::make_pair(boost::lexical_cast<int>(range[0]),
-					boost::lexical_cast<int>(range.size() > 1 ? range[1] : range[0])));
-			}
-
-			// Read optional attributes
-			pattern.id = ptrnNode["id"].String();
-			pattern.minPoints = static_cast<int>(ptrnNode["minPoints"].Float());
-			pattern.flipMode = ptrnNode["flipMode"].String();
-			if(pattern.flipMode.empty())
-			{
-				pattern.flipMode = TerrainViewPattern::FLIP_MODE_SAME_IMAGE;
-			}
-
-			pattern.terGroup = terMapping.second;
-			patterns[terMapping.second].push_back(pattern);
-		}
-	}
-}
-
-const std::vector<TerrainViewPattern> & CTerrainViewPatternConfig::getPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const
-{
-	return patterns.find(terGroup)->second;
-}
-
-const TerrainViewPattern & CTerrainViewPatternConfig::getPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const
-{
-	const std::vector<TerrainViewPattern> & groupPatterns = getPatternsForGroup(terGroup);
-	BOOST_FOREACH(const TerrainViewPattern & pattern, groupPatterns)
-	{
-		if(id == pattern.id)
-		{
-			return pattern;
-		}
-	}
-	throw std::runtime_error("Pattern with ID not found: " + id);
-}
-
-CMapEditManager::CMapEditManager(const CTerrainViewPatternConfig * terViewPatternConfig, CMap * map, int randomSeed /*= std::time(nullptr)*/)
-	: map(map), terViewPatternConfig(terViewPatternConfig)
+CMapEditManager::CMapEditManager(CMap * map, int randomSeed /*= std::time(nullptr)*/)
+	: map(map)
 {
 	gen.seed(randomSeed);
 }
@@ -164,7 +53,7 @@ void CMapEditManager::updateTerrainViews(int posx, int posy, int width, int heig
 		for(int j = posy; j < posy + height; ++j)
 		{
 			const std::vector<TerrainViewPattern> & patterns =
-					terViewPatternConfig->getPatternsForGroup(getTerrainGroup(map->terrain[i][j][mapLevel].terType));
+					CTerrainViewPatternConfig::get().getPatternsForGroup(getTerrainGroup(map->terrain[i][j][mapLevel].terType));
 
 			// Detect a pattern which fits best
 			int bestPattern = -1, bestFlip = -1;
@@ -282,7 +171,7 @@ CMapEditManager::ValidationResult CMapEditManager::validateTerrainView(int posx,
 			{
 				if(recDepth == 0)
 				{
-					const TerrainViewPattern & patternForRule = terViewPatternConfig->getPatternById(pattern.terGroup, rule.name);
+					const TerrainViewPattern & patternForRule = CTerrainViewPatternConfig::get().getPatternById(pattern.terGroup, rule.name);
 					ValidationResult rslt = validateTerrainView(cx, cy, mapLevel, patternForRule, 1);
 					if(!rslt.result)
 					{
@@ -431,4 +320,129 @@ CMapEditManager::ValidationResult::ValidationResult(bool result, const std::stri
 	: result(result), transitionReplacement(transitionReplacement)
 {
 
+}
+
+const std::string TerrainViewPattern::FLIP_MODE_SAME_IMAGE = "sameImage";
+const std::string TerrainViewPattern::FLIP_MODE_DIFF_IMAGES = "diffImages";
+
+const std::string TerrainViewPattern::RULE_DIRT = "D";
+const std::string TerrainViewPattern::RULE_SAND = "S";
+const std::string TerrainViewPattern::RULE_TRANSITION = "T";
+const std::string TerrainViewPattern::RULE_NATIVE = "N";
+const std::string TerrainViewPattern::RULE_ANY = "?";
+
+TerrainViewPattern::TerrainViewPattern() : minPoints(0), flipMode(FLIP_MODE_SAME_IMAGE),
+	terGroup(ETerrainGroup::NORMAL)
+{
+
+}
+
+TerrainViewPattern::WeightedRule::WeightedRule() : points(0)
+{
+
+}
+
+bool TerrainViewPattern::WeightedRule::isStandardRule() const
+{
+	return TerrainViewPattern::RULE_ANY == name || TerrainViewPattern::RULE_DIRT == name
+		|| TerrainViewPattern::RULE_NATIVE == name || TerrainViewPattern::RULE_SAND == name
+		|| TerrainViewPattern::RULE_TRANSITION == name;
+}
+
+boost::mutex CTerrainViewPatternConfig::smx;
+
+CTerrainViewPatternConfig & CTerrainViewPatternConfig::get()
+{
+	TLockGuard _(smx);
+	static CTerrainViewPatternConfig instance;
+	return instance;
+}
+
+CTerrainViewPatternConfig::CTerrainViewPatternConfig()
+{
+	const JsonNode config(ResourceID("config/terrainViewPatterns.json"));
+	const std::map<std::string, ETerrainGroup::ETerrainGroup> terGroups
+			= boost::assign::map_list_of("normal", ETerrainGroup::NORMAL)("dirt", ETerrainGroup::DIRT)
+			("sand", ETerrainGroup::SAND)("water", ETerrainGroup::WATER)("rock", ETerrainGroup::ROCK);
+	BOOST_FOREACH(auto terMapping, terGroups)
+	{
+		BOOST_FOREACH(const JsonNode & ptrnNode, config[terMapping.first].Vector())
+		{
+			TerrainViewPattern pattern;
+
+			// Read pattern data
+			const JsonVector & data = ptrnNode["data"].Vector();
+			if(data.size() != 9)
+			{
+				throw std::runtime_error("Size of pattern's data vector has to be 9.");
+			}
+			for(int i = 0; i < data.size(); ++i)
+			{
+				std::string cell = data[i].String();
+				boost::algorithm::erase_all(cell, " ");
+				std::vector<std::string> rules;
+				boost::split(rules, cell, boost::is_any_of(","));
+				BOOST_FOREACH(std::string ruleStr, rules)
+				{
+					std::vector<std::string> ruleParts;
+					boost::split(ruleParts, ruleStr, boost::is_any_of("-"));
+					TerrainViewPattern::WeightedRule rule;
+					rule.name = ruleParts[0];
+					if(ruleParts.size() > 1)
+					{
+						rule.points = boost::lexical_cast<int>(ruleParts[1]);
+					}
+					pattern.data[i].push_back(rule);
+				}
+			}
+
+			// Read mapping
+			std::string mappingStr = ptrnNode["mapping"].String();
+			boost::algorithm::erase_all(mappingStr, " ");
+			std::vector<std::string> mappings;
+			boost::split(mappings, mappingStr, boost::is_any_of(","));
+			BOOST_FOREACH(std::string mapping, mappings)
+			{
+				std::vector<std::string> range;
+				boost::split(range, mapping, boost::is_any_of("-"));
+				pattern.mapping.push_back(std::make_pair(boost::lexical_cast<int>(range[0]),
+					boost::lexical_cast<int>(range.size() > 1 ? range[1] : range[0])));
+			}
+
+			// Read optional attributes
+			pattern.id = ptrnNode["id"].String();
+			pattern.minPoints = static_cast<int>(ptrnNode["minPoints"].Float());
+			pattern.flipMode = ptrnNode["flipMode"].String();
+			if(pattern.flipMode.empty())
+			{
+				pattern.flipMode = TerrainViewPattern::FLIP_MODE_SAME_IMAGE;
+			}
+
+			pattern.terGroup = terMapping.second;
+			patterns[terMapping.second].push_back(pattern);
+		}
+	}
+}
+
+CTerrainViewPatternConfig::~CTerrainViewPatternConfig()
+{
+
+}
+
+const std::vector<TerrainViewPattern> & CTerrainViewPatternConfig::getPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const
+{
+	return patterns.find(terGroup)->second;
+}
+
+const TerrainViewPattern & CTerrainViewPatternConfig::getPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const
+{
+	const std::vector<TerrainViewPattern> & groupPatterns = getPatternsForGroup(terGroup);
+	BOOST_FOREACH(const TerrainViewPattern & pattern, groupPatterns)
+	{
+		if(id == pattern.id)
+		{
+			return pattern;
+		}
+	}
+	throw std::runtime_error("Pattern with ID not found: " + id);
 }

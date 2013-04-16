@@ -126,15 +126,25 @@ extern DLL_LINKAGE CLogger * logBonus;
 extern DLL_LINKAGE CLogger * logNetwork;
 extern DLL_LINKAGE CLogger * logAi;
 
-/// Macros for tracing the control flow of the application conveniently. If the TRACE_BEGIN macro is used it should be
-/// the first statement in the function, whereas the TRACE_END should be last one before a return statement.
-/// Logging traces via this macro have almost no impact when the trace is disabled.
-#define TRACE_BEGIN(logger) logger->traceStream() << boost::format("Entering %s.") % BOOST_CURRENT_FUNCTION;
-#define TRACE_BEGIN_PARAMS(logger, formatStr, params) if(logger->isTraceEnabled()) logger->traceStream() << \
-	boost::format("Entering %s: " + std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params;
-#define TRACE_END(logger) logger->traceStream() << boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION;
-#define TRACE_END_PARAMS(logger, formatStr, params) if(logger->isTraceEnabled()) logger->traceStream() << \
-	boost::format("Leaving %s: " + std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params;
+/// RAII class for tracing the program execution.
+/// It prints "Leaving function XYZ" automatically when the object gets destructed.
+class DLL_LINKAGE CTraceLogger
+{
+public:
+	CTraceLogger(const CLogger * logger, const std::string & beginMessage, const std::string & endMessage);
+	~CTraceLogger();
+
+private:
+	const CLogger * logger;
+	std::string endMessage;
+};
+
+/// Macros for tracing the control flow of the application conveniently. If the LOG_TRACE macro is used it should be
+/// the first statement in the function. Logging traces via this macro have almost no impact when the trace is disabled.
+#define LOG_TRACE(logger) if(logger->isTraceEnabled()) CTraceLogger ctl00(logger, boost::str(boost::format("Entering %s.") % BOOST_CURRENT_FUNCTION), \
+	boost::str(boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION))
+#define LOG_TRACE_PARAMS(logger, formatStr, params) if(logger->isTraceEnabled()) CTraceLogger ctl00(logger, boost::str(boost::format("Entering %s: " + \
+	std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params), boost::str(boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION))
 
 /* ---------------------------------------------------------------------------- */
 /* Implementation/Detail classes, Private API */
