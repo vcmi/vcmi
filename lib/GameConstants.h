@@ -169,7 +169,8 @@ template<typename Der, typename Num>
 std::ostream & operator << (std::ostream & os, BaseForID<Der, Num> id)
 {
 	//We use common type with short to force char and unsigned char to be promoted and formatted as numbers.
-	return os << boost::common_type<short, Num>::type(id.getNum());
+	typedef typename std::common_type<short, Num>::type Number;
+	return os << static_cast<Number>(id.getNum());
 }
 
 class ArtifactInstanceID : public BaseForID<ArtifactInstanceID, si32>
