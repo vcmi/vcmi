@@ -28,6 +28,7 @@ class CGTownInstance;
 class IModableArt;
 class IQuestObject;
 class CInputStream;
+class CMapEditManager;
 
 /// The hero name struct consists of the hero id and the hero name.
 struct DLL_LINKAGE SHeroName
@@ -326,6 +327,7 @@ public:
 	~CMap();
 	void initTerrain();
 
+	CMapEditManager * getEditManager();
 	TerrainTile & getTile(const int3 & tile);
 	const TerrainTile & getTile(const int3 & tile) const;
 	bool isInTheMap(const int3 & pos) const;
@@ -347,7 +349,6 @@ public:
 
 	ui32 checksum;
 	/// a 3-dimensional array of terrain tiles, access is as follows: x, y, level. where level=1 is underground
-	TerrainTile*** terrain;
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
 	std::vector<ConstTransitivePtr<CGHeroInstance> > predefinedHeroes;
@@ -367,6 +368,14 @@ public:
 	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
 	bmap<si32, ObjectInstanceID> questIdentifierToId;
 
+	unique_ptr<CMapEditManager> editManager;
+
+private:
+	void getTileRangeCheck(const int3 & tile) const;
+
+	TerrainTile*** terrain;
+
+public:
 	template <typename Handler>
 	void serialize(Handler &h, const int formatVersion)
 	{

@@ -711,15 +711,16 @@ void CMapLoaderH3M::readTerrain()
 		{
 			for(int z = 0; z < map->height; z++)
 			{
-				map->terrain[z][c][a].terType = ETerrainType(reader.readUInt8());
-				map->terrain[z][c][a].terView = reader.readUInt8();
-				map->terrain[z][c][a].riverType = static_cast<ERiverType::ERiverType>(reader.readUInt8());
-				map->terrain[z][c][a].riverDir = reader.readUInt8();
-				map->terrain[z][c][a].roadType = static_cast<ERoadType::ERoadType>(reader.readUInt8());
-				map->terrain[z][c][a].roadDir = reader.readUInt8();
-				map->terrain[z][c][a].extTileFlags = reader.readUInt8();
-				map->terrain[z][c][a].blocked = (map->terrain[z][c][a].terType == ETerrainType::ROCK ? 1 : 0); //underground tiles are always blocked
-				map->terrain[z][c][a].visitable = 0;
+				auto & tile = map->getTile(int3(z, c, a));
+				tile.terType = ETerrainType(reader.readUInt8());
+				tile.terView = reader.readUInt8();
+				tile.riverType = static_cast<ERiverType::ERiverType>(reader.readUInt8());
+				tile.riverDir = reader.readUInt8();
+				tile.roadType = static_cast<ERoadType::ERoadType>(reader.readUInt8());
+				tile.roadDir = reader.readUInt8();
+				tile.extTileFlags = reader.readUInt8();
+				tile.blocked = (tile.terType == ETerrainType::ROCK ? 1 : 0); //underground tiles are always blocked
+				tile.visitable = 0;
 			}
 		}
 	}

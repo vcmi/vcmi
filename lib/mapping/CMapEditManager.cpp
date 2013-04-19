@@ -5,321 +5,141 @@
 #include "../filesystem/CResourceLoader.h"
 #include "../CDefObjInfoHandler.h"
 
-CMapEditManager::CMapEditManager(CMap * map, int randomSeed /*= std::time(nullptr)*/)
-	: map(map)
+CMapOperation::CMapOperation(CMap * map) : map(map)
 {
-	gen.seed(randomSeed);
+
 }
 
-void CMapEditManager::clearTerrain()
+std::string CMapOperation::getLabel() const
+{
+	return "";
+}
+
+CMapUndoManager::CMapUndoManager() : undoRedoLimit(10)
+{
+
+}
+
+void CMapUndoManager::undo()
+{
+	doOperation(undoStack, redoStack, true);
+}
+
+void CMapUndoManager::redo()
+{
+	doOperation(redoStack, undoStack, false);
+}
+
+void CMapUndoManager::clearAll()
+{
+	undoStack.clear();
+	redoStack.clear();
+}
+
+int CMapUndoManager::getUndoRedoLimit() const
+{
+	return undoRedoLimit;
+}
+
+void CMapUndoManager::setUndoRedoLimit(int value)
+{
+	if(value < 0) throw std::runtime_error("Cannot set a negative value for the undo redo limit.");
+	undoStack.resize(std::min(undoStack.size(), static_cast<TStack::size_type>(value)));
+	redoStack.resize(std::min(redoStack.size(), static_cast<TStack::size_type>(value)));
+}
+
+const CMapOperation * CMapUndoManager::peekRedo() const
+{
+	return peek(redoStack);
+}
+
+const CMapOperation * CMapUndoManager::peekUndo() const
+{
+	return peek(undoStack);
+}
+
+void CMapUndoManager::addOperation(unique_ptr<CMapOperation> && operation)
+{
+	undoStack.push_front(std::move(operation));
+	if(undoStack.size() > undoRedoLimit) undoStack.pop_back();
+	redoStack.clear();
+}
+
+void CMapUndoManager::doOperation(TStack & fromStack, TStack & toStack, bool doUndo)
+{
+	if(fromStack.empty()) return;
+	auto & operation = fromStack.front();
+	if(doUndo)
+	{
+		operation->undo();
+	}
+	else
+	{
+		operation->redo();
+	}
+	toStack.push_front(std::move(operation));
+	fromStack.pop_front();
+}
+
+const CMapOperation * CMapUndoManager::peek(const TStack & stack) const
+{
+	if(stack.empty()) return nullptr;
+	return stack.front().get();
+}
+
+CMapEditManager::CMapEditManager(CMap * map)
+	: map(map)
+{
+
+}
+
+void CMapEditManager::clearTerrain(CRandomGenerator * gen)
 {
 	for(int i = 0; i < map->width; ++i)
 	{
 		for(int j = 0; j < map->height; ++j)
 		{
-			map->terrain[i][j][0].terType = ETerrainType::WATER;
-			map->terrain[i][j][0].terView = gen.getInteger(20, 32);
+			map->getTile(int3(i, j, 0)).terType = ETerrainType::WATER;
+			map->getTile(int3(i, j, 0)).terView = gen->getInteger(20, 32);
 
 			if(map->twoLevel)
 			{
-				map->terrain[i][j][1].terType = ETerrainType::ROCK;
-				map->terrain[i][j][1].terView = 0;
+				map->getTile(int3(i, j, 1)).terType = ETerrainType::ROCK;
+				map->getTile(int3(i, j, 1)).terView = 0;
 			}
 		}
 	}
 }
 
-void CMapEditManager::drawTerrain(ETerrainType terType, int posx, int posy, int width, int height, bool underground)
+void CMapEditManager::drawTerrain(const MapRect & rect, ETerrainType terType, CRandomGenerator * gen)
 {
-	bool mapLevel = underground ? 1 : 0;
-	for(int i = posx; i < posx + width; ++i)
-	{
-		for(int j = posy; j < posy + height; ++j)
-		{
-			map->terrain[i][j][mapLevel].terType = terType;
-		}
-	}
-
-	//TODO there are situations where more tiles are affected implicitely
-	//TODO add coastal bit to extTileFlags appropriately
-
-	updateTerrainViews(posx - 1, posy - 1, width + 2, height + 2, mapLevel);
+	execute(make_unique<DrawTerrainOperation>(map, rect, terType, gen));
 }
 
-void CMapEditManager::updateTerrainViews(int posx, int posy, int width, int height, int mapLevel)
+void CMapEditManager::insertObject(const int3 & pos, CGObjectInstance * obj)
 {
-	for(int i = posx; i < posx + width; ++i)
-	{
-		for(int j = posy; j < posy + height; ++j)
-		{
-			const std::vector<TerrainViewPattern> & patterns =
-					CTerrainViewPatternConfig::get().getPatternsForGroup(getTerrainGroup(map->terrain[i][j][mapLevel].terType));
-
-			// Detect a pattern which fits best
-			int bestPattern = -1, bestFlip = -1;
-			std::string transitionReplacement;
-			for(int k = 0; k < patterns.size(); ++k)
-			{
-				const TerrainViewPattern & pattern = patterns[k];
-
-				for(int flip = 0; flip < 4; ++flip)
-				{
-					ValidationResult valRslt = validateTerrainView(i, j, mapLevel, flip > 0 ? getFlippedPattern(pattern, flip) : pattern);
-					if(valRslt.result)
-					{
-                        logGlobal->debugStream() << "Pattern detected at pos " << i << "x" << j << "x" << mapLevel << ": P-Nr. " << k
-                              << ", Flip " << flip << ", Repl. " << valRslt.transitionReplacement;
-
-						bestPattern = k;
-						bestFlip = flip;
-						transitionReplacement = valRslt.transitionReplacement;
-						break;
-					}
-				}
-			}
-			if(bestPattern == -1)
-			{
-				// This shouldn't be the case
-                logGlobal->warnStream() << "No pattern detected at pos " << i << "x" << j << "x" << mapLevel;
-				continue;
-			}
-
-			// Get mapping
-			const TerrainViewPattern & pattern = patterns[bestPattern];
-			std::pair<int, int> mapping;
-			if(transitionReplacement.empty())
-			{
-				mapping = pattern.mapping[0];
-			}
-			else
-			{
-				mapping = transitionReplacement == TerrainViewPattern::RULE_DIRT ? pattern.mapping[0] : pattern.mapping[1];
-			}
-
-			// Set terrain view
-			if(pattern.flipMode == TerrainViewPattern::FLIP_MODE_SAME_IMAGE)
-			{
-				map->terrain[i][j][mapLevel].terView = gen.getInteger(mapping.first, mapping.second);
-				map->terrain[i][j][mapLevel].extTileFlags = bestFlip;
-			}
-			else
-			{
-				int range = (mapping.second - mapping.first) / 4;
-				map->terrain[i][j][mapLevel].terView = gen.getInteger(mapping.first + bestFlip * range,
-					mapping.first + (bestFlip + 1) * range - 1);
-				map->terrain[i][j][mapLevel].extTileFlags =	0;
-			}
-		}
-	}
+	execute(make_unique<InsertObjectOperation>(map, pos, obj));
 }
 
-ETerrainGroup::ETerrainGroup CMapEditManager::getTerrainGroup(ETerrainType terType) const
+void CMapEditManager::execute(unique_ptr<CMapOperation> && operation)
 {
-	switch(terType)
-	{
-	case ETerrainType::DIRT:
-		return ETerrainGroup::DIRT;
-	case ETerrainType::SAND:
-		return ETerrainGroup::SAND;
-	case ETerrainType::WATER:
-		return ETerrainGroup::WATER;
-	case ETerrainType::ROCK:
-		return ETerrainGroup::ROCK;
-	default:
-		return ETerrainGroup::NORMAL;
-	}
+	operation->execute();
+	undoManager.addOperation(std::move(operation));
 }
 
-CMapEditManager::ValidationResult CMapEditManager::validateTerrainView(int posx, int posy, int mapLevel, const TerrainViewPattern & pattern, int recDepth /*= 0*/) const
+void CMapEditManager::undo()
 {
-	ETerrainType centerTerType = map->terrain[posx][posy][mapLevel].terType;
-	int totalPoints = 0;
-	std::string transitionReplacement;
-
-	for(int i = 0; i < 9; ++i)
-	{
-		// The center, middle cell can be skipped
-		if(i == 4)
-		{
-			continue;
-		}
-
-		// Get terrain group of the current cell
-		int cx = posx + (i % 3) - 1;
-		int cy = posy + (i / 3) - 1;
-		bool isAlien = false;
-		ETerrainType terType;
-		if(cx < 0 || cx >= map->width || cy < 0 || cy >= map->height)
-		{
-			terType = centerTerType;
-		}
-		else
-		{
-			terType = map->terrain[cx][cy][mapLevel].terType;
-			if(terType != centerTerType)
-			{
-				isAlien = true;
-			}
-		}
-
-		// Validate all rules per cell
-		int topPoints = -1;
-		for(int j = 0; j < pattern.data[i].size(); ++j)
-		{
-			TerrainViewPattern::WeightedRule rule = pattern.data[i][j];
-			if(!rule.isStandardRule())
-			{
-				if(recDepth == 0)
-				{
-					const TerrainViewPattern & patternForRule = CTerrainViewPatternConfig::get().getPatternById(pattern.terGroup, rule.name);
-					ValidationResult rslt = validateTerrainView(cx, cy, mapLevel, patternForRule, 1);
-					if(!rslt.result)
-					{
-						return ValidationResult(false);
-					}
-					else
-					{
-						topPoints = std::max(topPoints, rule.points);
-						continue;
-					}
-				}
-				else
-				{
-					rule.name = TerrainViewPattern::RULE_NATIVE;
-				}
-			}
-
-			bool nativeTestOk = (rule.name == TerrainViewPattern::RULE_NATIVE || rule.name == TerrainViewPattern::RULE_ANY) && !isAlien;
-			auto applyValidationRslt = [&](bool rslt)
-			{
-				if(rslt)
-				{
-					topPoints = std::max(topPoints, rule.points);
-				}
-			};
-
-			// Validate cell with the ruleset of the pattern
-			if(pattern.terGroup == ETerrainGroup::NORMAL)
-			{
-				bool dirtTestOk = (rule.name == TerrainViewPattern::RULE_DIRT
-						|| rule.name == TerrainViewPattern::RULE_TRANSITION || rule.name == TerrainViewPattern::RULE_ANY)
-						&& isAlien && !isSandType(terType);
-				bool sandTestOk = (rule.name == TerrainViewPattern::RULE_SAND || rule.name == TerrainViewPattern::RULE_TRANSITION
-						|| rule.name == TerrainViewPattern::RULE_ANY)
-						&& isSandType(terType);
-
-				if(transitionReplacement.empty() && (rule.name == TerrainViewPattern::RULE_TRANSITION
-					|| rule.name == TerrainViewPattern::RULE_ANY) && (dirtTestOk || sandTestOk))
-				{
-					transitionReplacement = dirtTestOk ? TerrainViewPattern::RULE_DIRT : TerrainViewPattern::RULE_SAND;
-				}
-				applyValidationRslt((dirtTestOk && transitionReplacement != TerrainViewPattern::RULE_SAND)
-						|| (sandTestOk && transitionReplacement != TerrainViewPattern::RULE_DIRT)
-						|| nativeTestOk);
-			}
-			else if(pattern.terGroup == ETerrainGroup::DIRT)
-			{
-				bool sandTestOk = rule.name == TerrainViewPattern::RULE_SAND && isSandType(terType);
-				bool dirtTestOk = rule.name == TerrainViewPattern::RULE_DIRT && !isSandType(terType) && !nativeTestOk;
-				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || dirtTestOk || nativeTestOk);
-			}
-			else if(pattern.terGroup == ETerrainGroup::SAND)
-			{
-				bool sandTestOk = rule.name == TerrainViewPattern::RULE_SAND && isAlien;
-				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || nativeTestOk);
-			}
-			else if(pattern.terGroup == ETerrainGroup::WATER)
-			{
-				bool sandTestOk = rule.name == TerrainViewPattern::RULE_SAND && terType != ETerrainType::DIRT
-						&& terType != ETerrainType::WATER;
-				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || nativeTestOk);
-			}
-			else if(pattern.terGroup == ETerrainGroup::ROCK)
-			{
-				bool sandTestOk = rule.name == TerrainViewPattern::RULE_SAND && terType != ETerrainType::DIRT
-						&& terType != ETerrainType::ROCK;
-				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || nativeTestOk);
-			}
-		}
-
-		if(topPoints == -1)
-		{
-			return ValidationResult(false);
-		}
-		else
-		{
-			totalPoints += topPoints;
-		}
-	}
-
-	if(pattern.minPoints > totalPoints)
-	{
-		return ValidationResult(false);
-	}
-
-	return ValidationResult(true, transitionReplacement);
+	undoManager.undo();
 }
 
-bool CMapEditManager::isSandType(ETerrainType terType) const
+void CMapEditManager::redo()
 {
-	switch(terType)
-	{
-	case ETerrainType::WATER:
-	case ETerrainType::SAND:
-	case ETerrainType::ROCK:
-		return true;
-	default:
-		return false;
-	}
+	undoManager.redo();
 }
 
-TerrainViewPattern CMapEditManager::getFlippedPattern(const TerrainViewPattern & pattern, int flip) const
+CMapUndoManager & CMapEditManager::getUndoManager()
 {
-	if(flip == 0)
-	{
-		return pattern;
-	}
-
-	TerrainViewPattern ret = pattern;
-	if(flip == FLIP_PATTERN_HORIZONTAL || flip == FLIP_PATTERN_BOTH)
-	{
-		for(int i = 0; i < 3; ++i)
-		{
-			int y = i * 3;
-			std::swap(ret.data[y], ret.data[y + 2]);
-		}
-	}
-	if(flip == FLIP_PATTERN_VERTICAL || flip == FLIP_PATTERN_BOTH)
-	{
-		for(int i = 0; i < 3; ++i)
-		{
-			std::swap(ret.data[i], ret.data[6 + i]);
-		}
-	}
-
-	return ret;
-}
-
-void CMapEditManager::insertObject(CGObjectInstance * obj, int posx, int posy, bool underground)
-{
-	obj->pos = int3(posx, posy, underground ? 1 : 0);
-	obj->id = ObjectInstanceID(map->objects.size());
-	map->objects.push_back(obj);
-	if(obj->ID == Obj::TOWN)
-	{
-		map->towns.push_back(static_cast<CGTownInstance *>(obj));
-	}
-	if(obj->ID == Obj::HERO)
-	{
-		map->heroes.push_back(static_cast<CGHeroInstance*>(obj));
-	}
-	map->addBlockVisTiles(obj);
-}
-
-CMapEditManager::ValidationResult::ValidationResult(bool result, const std::string & transitionReplacement /*= ""*/)
-	: result(result), transitionReplacement(transitionReplacement)
-{
-
+	return undoManager;
 }
 
 const std::string TerrainViewPattern::FLIP_MODE_SAME_IMAGE = "sameImage";
@@ -445,4 +265,339 @@ const TerrainViewPattern & CTerrainViewPatternConfig::getPatternById(ETerrainGro
 		}
 	}
 	throw std::runtime_error("Pattern with ID not found: " + id);
+}
+
+DrawTerrainOperation::DrawTerrainOperation(CMap * map, const MapRect & rect, ETerrainType terType, CRandomGenerator * gen)
+	: CMapOperation(map), rect(rect), terType(terType), gen(gen)
+{
+
+}
+
+void DrawTerrainOperation::execute()
+{
+	for(int i = rect.pos.x; i < rect.pos.x + rect.width; ++i)
+	{
+		for(int j = rect.pos.y; j < rect.pos.y + rect.height; ++j)
+		{
+			map->getTile(int3(i, j, rect.pos.z)).terType = terType;
+		}
+	}
+
+	//TODO there are situations where more tiles are affected implicitely
+	//TODO add coastal bit to extTileFlags appropriately
+
+	updateTerrainViews(MapRect(int3(rect.pos.x - 1, rect.pos.y - 1, rect.pos.z), rect.width + 2, rect.height + 2));
+}
+
+void DrawTerrainOperation::undo()
+{
+	//TODO
+}
+
+void DrawTerrainOperation::redo()
+{
+	//TODO
+}
+
+std::string DrawTerrainOperation::getLabel() const
+{
+	return "Draw Terrain";
+}
+
+void DrawTerrainOperation::updateTerrainViews(const MapRect & rect)
+{
+	for(int i = rect.pos.x; i < rect.pos.x + rect.width; ++i)
+	{
+		for(int j = rect.pos.y; j < rect.pos.y + rect.height; ++j)
+		{
+			const auto & patterns =
+					CTerrainViewPatternConfig::get().getPatternsForGroup(getTerrainGroup(map->getTile(int3(i, j, rect.pos.z)).terType));
+
+			// Detect a pattern which fits best
+			int bestPattern = -1, bestFlip = -1;
+			std::string transitionReplacement;
+			for(int k = 0; k < patterns.size(); ++k)
+			{
+				const auto & pattern = patterns[k];
+
+				for(int flip = 0; flip < 4; ++flip)
+				{
+					auto valRslt = validateTerrainView(int3(i, j, rect.pos.z), flip > 0 ? getFlippedPattern(pattern, flip) : pattern);
+					if(valRslt.result)
+					{
+						logGlobal->debugStream() << "Pattern detected at pos " << i << "x" << j << "x" << rect.pos.z << ": P-Nr. " << k
+							  << ", Flip " << flip << ", Repl. " << valRslt.transitionReplacement;
+
+						bestPattern = k;
+						bestFlip = flip;
+						transitionReplacement = valRslt.transitionReplacement;
+						break;
+					}
+				}
+			}
+			if(bestPattern == -1)
+			{
+				// This shouldn't be the case
+				logGlobal->warnStream() << "No pattern detected at pos " << i << "x" << j << "x" << rect.pos.z;
+				continue;
+			}
+
+			// Get mapping
+			const TerrainViewPattern & pattern = patterns[bestPattern];
+			std::pair<int, int> mapping;
+			if(transitionReplacement.empty())
+			{
+				mapping = pattern.mapping[0];
+			}
+			else
+			{
+				mapping = transitionReplacement == TerrainViewPattern::RULE_DIRT ? pattern.mapping[0] : pattern.mapping[1];
+			}
+
+			// Set terrain view
+			auto & tile = map->getTile(int3(i, j, rect.pos.z));
+			if(pattern.flipMode == TerrainViewPattern::FLIP_MODE_SAME_IMAGE)
+			{
+				tile.terView = gen->getInteger(mapping.first, mapping.second);
+				tile.extTileFlags = bestFlip;
+			}
+			else
+			{
+				int range = (mapping.second - mapping.first) / 4;
+				tile.terView = gen->getInteger(mapping.first + bestFlip * range,
+					mapping.first + (bestFlip + 1) * range - 1);
+				tile.extTileFlags =	0;
+			}
+		}
+	}
+}
+
+ETerrainGroup::ETerrainGroup DrawTerrainOperation::getTerrainGroup(ETerrainType terType) const
+{
+	switch(terType)
+	{
+	case ETerrainType::DIRT:
+		return ETerrainGroup::DIRT;
+	case ETerrainType::SAND:
+		return ETerrainGroup::SAND;
+	case ETerrainType::WATER:
+		return ETerrainGroup::WATER;
+	case ETerrainType::ROCK:
+		return ETerrainGroup::ROCK;
+	default:
+		return ETerrainGroup::NORMAL;
+	}
+}
+
+DrawTerrainOperation::ValidationResult DrawTerrainOperation::validateTerrainView(const int3 & pos, const TerrainViewPattern & pattern, int recDepth /*= 0*/) const
+{
+	ETerrainType centerTerType = map->getTile(pos).terType;
+	int totalPoints = 0;
+	std::string transitionReplacement;
+
+	for(int i = 0; i < 9; ++i)
+	{
+		// The center, middle cell can be skipped
+		if(i == 4)
+		{
+			continue;
+		}
+
+		// Get terrain group of the current cell
+		int cx = pos.x + (i % 3) - 1;
+		int cy = pos.y + (i / 3) - 1;
+		bool isAlien = false;
+		ETerrainType terType;
+		if(cx < 0 || cx >= map->width || cy < 0 || cy >= map->height)
+		{
+			terType = centerTerType;
+		}
+		else
+		{
+			terType = map->getTile(int3(cx, cy, pos.z)).terType;
+			if(terType != centerTerType)
+			{
+				isAlien = true;
+			}
+		}
+
+		// Validate all rules per cell
+		int topPoints = -1;
+		for(int j = 0; j < pattern.data[i].size(); ++j)
+		{
+			TerrainViewPattern::WeightedRule rule = pattern.data[i][j];
+			if(!rule.isStandardRule())
+			{
+				if(recDepth == 0)
+				{
+					const auto & patternForRule = CTerrainViewPatternConfig::get().getPatternById(pattern.terGroup, rule.name);
+					auto rslt = validateTerrainView(int3(cx, cy, pos.z), patternForRule, 1);
+					if(!rslt.result)
+					{
+						return ValidationResult(false);
+					}
+					else
+					{
+						topPoints = std::max(topPoints, rule.points);
+						continue;
+					}
+				}
+				else
+				{
+					rule.name = TerrainViewPattern::RULE_NATIVE;
+				}
+			}
+
+			bool nativeTestOk = (rule.name == TerrainViewPattern::RULE_NATIVE || rule.name == TerrainViewPattern::RULE_ANY) && !isAlien;
+			auto applyValidationRslt = [&](bool rslt)
+			{
+				if(rslt)
+				{
+					topPoints = std::max(topPoints, rule.points);
+				}
+			};
+
+			// Validate cell with the ruleset of the pattern
+			if(pattern.terGroup == ETerrainGroup::NORMAL)
+			{
+				bool dirtTestOk = (rule.name == TerrainViewPattern::RULE_DIRT
+						|| rule.name == TerrainViewPattern::RULE_TRANSITION || rule.name == TerrainViewPattern::RULE_ANY)
+						&& isAlien && !isSandType(terType);
+				bool sandTestOk = (rule.name == TerrainViewPattern::RULE_SAND || rule.name == TerrainViewPattern::RULE_TRANSITION
+						|| rule.name == TerrainViewPattern::RULE_ANY)
+						&& isSandType(terType);
+
+				if(transitionReplacement.empty() && (rule.name == TerrainViewPattern::RULE_TRANSITION
+					|| rule.name == TerrainViewPattern::RULE_ANY) && (dirtTestOk || sandTestOk))
+				{
+					transitionReplacement = dirtTestOk ? TerrainViewPattern::RULE_DIRT : TerrainViewPattern::RULE_SAND;
+				}
+				applyValidationRslt((dirtTestOk && transitionReplacement != TerrainViewPattern::RULE_SAND)
+						|| (sandTestOk && transitionReplacement != TerrainViewPattern::RULE_DIRT)
+						|| nativeTestOk);
+			}
+			else if(pattern.terGroup == ETerrainGroup::DIRT)
+			{
+				bool sandTestOk = rule.name == TerrainViewPattern::RULE_SAND && isSandType(terType);
+				bool dirtTestOk = rule.name == TerrainViewPattern::RULE_DIRT && !isSandType(terType) && !nativeTestOk;
+				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || dirtTestOk || nativeTestOk);
+			}
+			else if(pattern.terGroup == ETerrainGroup::SAND)
+			{
+				bool sandTestOk = rule.name == TerrainViewPattern::RULE_SAND && isAlien;
+				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || nativeTestOk);
+			}
+			else if(pattern.terGroup == ETerrainGroup::WATER)
+			{
+				bool sandTestOk = rule.name == TerrainViewPattern::RULE_SAND && terType != ETerrainType::DIRT
+						&& terType != ETerrainType::WATER;
+				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || nativeTestOk);
+			}
+			else if(pattern.terGroup == ETerrainGroup::ROCK)
+			{
+				bool sandTestOk = rule.name == TerrainViewPattern::RULE_SAND && terType != ETerrainType::DIRT
+						&& terType != ETerrainType::ROCK;
+				applyValidationRslt(rule.name == TerrainViewPattern::RULE_ANY || sandTestOk || nativeTestOk);
+			}
+		}
+
+		if(topPoints == -1)
+		{
+			return ValidationResult(false);
+		}
+		else
+		{
+			totalPoints += topPoints;
+		}
+	}
+
+	if(pattern.minPoints > totalPoints)
+	{
+		return ValidationResult(false);
+	}
+
+	return ValidationResult(true, transitionReplacement);
+}
+
+bool DrawTerrainOperation::isSandType(ETerrainType terType) const
+{
+	switch(terType)
+	{
+	case ETerrainType::WATER:
+	case ETerrainType::SAND:
+	case ETerrainType::ROCK:
+		return true;
+	default:
+		return false;
+	}
+}
+
+TerrainViewPattern DrawTerrainOperation::getFlippedPattern(const TerrainViewPattern & pattern, int flip) const
+{
+	if(flip == 0)
+	{
+		return pattern;
+	}
+
+	TerrainViewPattern ret = pattern;
+	if(flip == FLIP_PATTERN_HORIZONTAL || flip == FLIP_PATTERN_BOTH)
+	{
+		for(int i = 0; i < 3; ++i)
+		{
+			int y = i * 3;
+			std::swap(ret.data[y], ret.data[y + 2]);
+		}
+	}
+	if(flip == FLIP_PATTERN_VERTICAL || flip == FLIP_PATTERN_BOTH)
+	{
+		for(int i = 0; i < 3; ++i)
+		{
+			std::swap(ret.data[i], ret.data[6 + i]);
+		}
+	}
+
+	return ret;
+}
+
+DrawTerrainOperation::ValidationResult::ValidationResult(bool result, const std::string & transitionReplacement /*= ""*/)
+	: result(result), transitionReplacement(transitionReplacement)
+{
+
+}
+
+InsertObjectOperation::InsertObjectOperation(CMap * map, const int3 & pos, CGObjectInstance * obj)
+	: CMapOperation(map), pos(pos), obj(obj)
+{
+
+}
+
+void InsertObjectOperation::execute()
+{
+	obj->pos = pos;
+	obj->id = ObjectInstanceID(map->objects.size());
+	map->objects.push_back(obj);
+	if(obj->ID == Obj::TOWN)
+	{
+		map->towns.push_back(static_cast<CGTownInstance *>(obj));
+	}
+	if(obj->ID == Obj::HERO)
+	{
+		map->heroes.push_back(static_cast<CGHeroInstance*>(obj));
+	}
+	map->addBlockVisTiles(obj);
+}
+
+void InsertObjectOperation::undo()
+{
+	//TODO
+}
+
+void InsertObjectOperation::redo()
+{
+	execute();
+}
+
+std::string InsertObjectOperation::getLabel() const
+{
+	return "Insert Object";
 }

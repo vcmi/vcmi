@@ -478,7 +478,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				continue;
 
 			const TerrainTile2 & tile = ttiles[pos.x][pos.y][pos.z];
-			const TerrainTile &tinfo = map->terrain[pos.x][pos.y][pos.z];
+			const TerrainTile &tinfo = map->getTile(int3(pos.x, pos.y, pos.z));
 
 			SDL_Rect sr;
 			sr.x=srx;
@@ -501,9 +501,9 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 			}
 
 			//Roads are shifted by 16 pixels to bottom. We have to draw both parts separately
-            if (pos.y > 0 && map->terrain[pos.x][pos.y-1][pos.z].roadType != ERoadType::NO_ROAD)
+			if (pos.y > 0 && map->getTile(int3(pos.x, pos.y-1, pos.z)).roadType != ERoadType::NO_ROAD)
 			{ //part from top tile
-				const TerrainTile &topTile = map->terrain[pos.x][pos.y-1][pos.z];
+				const TerrainTile &topTile = map->getTile(int3(pos.x, pos.y-1, pos.z));
 				Rect source(0, 16, 32, 16);
 				Rect dest(sr.x, sr.y, sr.w, sr.h/2);
                 blitterWithRotationAndAlpha(roadDefs[topTile.roadType - 1]->ourImages[topTile.roadDir].bitmap, source, extSurf, dest, (topTile.extTileFlags>>4)%4);
@@ -720,7 +720,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 
 				// TODO: these should be activable by the console
 #ifdef MARK_BLOCKED_POSITIONS
-				if(map->terrain[pos.x][pos.y][top_tile.z].blocked) //temporary hiding blocked positions
+				if(map->getTile(int3(pos.x, pos.y, top_tile.z)).blocked) //temporary hiding blocked positions
 				{
 					SDL_Rect sr;
 
@@ -733,7 +733,7 @@ void CMapHandler::terrainRect( int3 top_tile, ui8 anim, const std::vector< std::
 				}
 #endif
 #ifdef MARK_VISITABLE_POSITIONS
-				if(map->terrain[pos.x][pos.y][top_tile.z].visitable) //temporary hiding visitable positions
+				if(map->getTile(int3(pos.x, pos.y, top_tile.z)).visitable) //temporary hiding visitable positions
 				{
 					SDL_Rect sr;
 
@@ -1085,7 +1085,7 @@ void CMapHandler::getTerrainDescr( const int3 &pos, std::string & out, bool terN
 {
 	out.clear();
 	TerrainTile2 & tt = ttiles[pos.x][pos.y][pos.z];
-	const TerrainTile &t = map->terrain[pos.x][pos.y][pos.z];
+	const TerrainTile &t = map->getTile(pos);
 	for(std::vector < std::pair<const CGObjectInstance*,SDL_Rect> >::const_iterator i = tt.objects.begin(); i != tt.objects.end(); i++)
 	{
 		if(i->first->ID == Obj::HOLE) //Hole

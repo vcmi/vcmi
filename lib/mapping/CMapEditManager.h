@@ -30,43 +30,83 @@ namespace ETerrainGroup
 	};
 }
 
-/// The map edit manager provides functionality for drawing terrain and placing
-/// objects on the map.
-class CMapEditManager
+/// Represents a map rectangle.
+struct DLL_LINKAGE MapRect
+{
+	MapRect(int3 pos, si32 width, si32 height) : pos(pos), width(width), height(height) { };
+	int3 pos;
+	si32 width, height;
+};
+
+/// The abstract base class CMapOperation defines an operation that can be executed, undone and redone.
+class CMapOperation
 {
 public:
-	CMapEditManager(CMap * map, int randomSeed = std::time(nullptr));
+	CMapOperation(CMap * map);
+	virtual ~CMapOperation() { };
 
-	/// Clears the terrain. The free level is filled with water and the underground level with rock.
-	void clearTerrain();
+	virtual void execute() = 0;
+	virtual void undo() = 0;
+	virtual void redo() = 0;
+	virtual std::string getLabel() const; /// Returns a display-able name of the operation.
 
-	void drawTerrain(ETerrainType terType, int posx, int posy, int width, int height, bool underground);
-	void insertObject(CGObjectInstance * obj, int posx, int posy, bool underground);
+protected:
+	CMap * map;
+};
+
+/// The CMapUndoManager provides the functionality to save operations and undo/redo them.
+class CMapUndoManager
+{
+public:
+	CMapUndoManager();
+
+	void undo();
+	void redo();
+	void clearAll();
+
+	/// The undo redo limit is a number which says how many undo/redo items can be saved. The default
+	/// value is 10. If the value is 0, no undo/redo history will be maintained.
+	int getUndoRedoLimit() const;
+	void setUndoRedoLimit(int value);
+
+	const CMapOperation * peekRedo() const;
+	const CMapOperation * peekUndo() const;
+
+	void addOperation(unique_ptr<CMapOperation> && operation); /// Client code does not need to call this method.
 
 private:
-	struct ValidationResult
-	{
-		ValidationResult(bool result, const std::string & transitionReplacement = "");
+	typedef std::list<unique_ptr<CMapOperation> > TStack;
 
-		bool result;
-		/// The replacement of a T rule, either D or S.
-		std::string transitionReplacement;
-	};
+	inline void doOperation(TStack & fromStack, TStack & toStack, bool doUndo);
+	inline const CMapOperation * peek(const TStack & stack) const;
 
-	void updateTerrainViews(int posx, int posy, int width, int height, int mapLevel);
-	ETerrainGroup::ETerrainGroup getTerrainGroup(ETerrainType terType) const;
-	/// Validates the terrain view of the given position and with the given pattern.
-	ValidationResult validateTerrainView(int posx, int posy, int mapLevel, const TerrainViewPattern & pattern, int recDepth = 0) const;
-	/// Tests whether the given terrain type is a sand type. Sand types are: Water, Sand and Rock
-	bool isSandType(ETerrainType terType) const;
-	TerrainViewPattern getFlippedPattern(const TerrainViewPattern & pattern, int flip) const;
+	TStack undoStack;
+	TStack redoStack;
+	int undoRedoLimit;
+};
 
-	static const int FLIP_PATTERN_HORIZONTAL = 1;
-	static const int FLIP_PATTERN_VERTICAL = 2;
-	static const int FLIP_PATTERN_BOTH = 3;
+/// The map edit manager provides functionality for drawing terrain and placing
+/// objects on the map.
+class DLL_LINKAGE CMapEditManager
+{
+public:
+	CMapEditManager(CMap * map);
+
+	/// Clears the terrain. The free level is filled with water and the underground level with rock.
+	void clearTerrain(CRandomGenerator * gen);
+
+	void drawTerrain(const MapRect & rect, ETerrainType terType, CRandomGenerator * gen);
+	void insertObject(const int3 & pos, CGObjectInstance * obj);
+
+	CMapUndoManager & getUndoManager();
+	void undo();
+	void redo();
+
+private:
+	void execute(unique_ptr<CMapOperation> && operation);
 
 	CMap * map;
-	CRandomGenerator gen;
+	CMapUndoManager undoManager;
 };
 
 /* ---------------------------------------------------------------------------- */
@@ -146,7 +186,7 @@ struct TerrainViewPattern
 };
 
 /// The terrain view pattern config loads pattern data from the filesystem.
-class CTerrainViewPatternConfig
+class CTerrainViewPatternConfig : public boost::noncopyable
 {
 public:
 	static CTerrainViewPatternConfig & get();
@@ -160,4 +200,58 @@ private:
 
 	std::map<ETerrainGroup::ETerrainGroup, std::vector<TerrainViewPattern> > patterns;
 	static boost::mutex smx;
+};
+
+/// The DrawTerrainOperation class draws a terrain area on the map.
+class DrawTerrainOperation : public CMapOperation
+{
+public:
+	DrawTerrainOperation(CMap * map, const MapRect & rect, ETerrainType terType, CRandomGenerator * gen);
+
+	void execute();
+	void undo();
+	void redo();
+	std::string getLabel() const;
+
+private:
+	struct ValidationResult
+	{
+		ValidationResult(bool result, const std::string & transitionReplacement = "");
+
+		bool result;
+		/// The replacement of a T rule, either D or S.
+		std::string transitionReplacement;
+	};
+
+	void updateTerrainViews(const MapRect & rect);
+	ETerrainGroup::ETerrainGroup getTerrainGroup(ETerrainType terType) const;
+	/// Validates the terrain view of the given position and with the given pattern.
+	ValidationResult validateTerrainView(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
+	/// Tests whether the given terrain type is a sand type. Sand types are: Water, Sand and Rock
+	bool isSandType(ETerrainType terType) const;
+	TerrainViewPattern getFlippedPattern(const TerrainViewPattern & pattern, int flip) const;
+
+	static const int FLIP_PATTERN_HORIZONTAL = 1;
+	static const int FLIP_PATTERN_VERTICAL = 2;
+	static const int FLIP_PATTERN_BOTH = 3;
+
+	MapRect rect;
+	ETerrainType terType;
+	CRandomGenerator * gen;
+};
+
+/// The InsertObjectOperation class inserts an object to the map.
+class InsertObjectOperation : public CMapOperation
+{
+public:
+	InsertObjectOperation(CMap * map, const int3 & pos, CGObjectInstance * obj);
+
+	void execute();
+	void undo();
+	void redo();
+	std::string getLabel() const;
+
+private:
+	int3 pos;
+	CGObjectInstance * obj;
 };

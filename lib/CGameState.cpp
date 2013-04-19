@@ -959,7 +959,7 @@ void CGameState::init(StartInfo * si)
 			{
 				for (int k = 0; k < (map->twoLevel ? 2 : 1); k++)
 				{
-					const TerrainTile &t = map->terrain[i][j][k];
+					const TerrainTile &t = map->getTile(int3(i, j, k));
 					if(!t.blocked
 						&& !t.visitable
                         && t.terType != ETerrainType::WATER
@@ -1914,8 +1914,8 @@ int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const 
 	if(src == dest) //same tile
 		return 0;
 
-	TerrainTile &s = map->terrain[src.x][src.y][src.z],
-		&d = map->terrain[dest.x][dest.y][dest.z];
+	TerrainTile &s = map->getTile(src),
+		&d = map->getTile(dest);
 
 	//get basic cost
 	int ret = h->getTileCost(d,s);
@@ -1993,7 +1993,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 	if (!map->isInTheMap(pos))
 		return guards;
 
-	const TerrainTile &posTile = map->terrain[pos.x][pos.y][pos.z];
+	const TerrainTile &posTile = map->getTile(pos);
 	if (posTile.visitable)
 	{
 		BOOST_FOREACH (CGObjectInstance* obj, posTile.visitableObjects)
@@ -2012,7 +2012,7 @@ std::vector<CGObjectInstance*> CGameState::guardingCreatures (int3 pos) const
 		{
 			if (map->isInTheMap(pos))
 			{
-				TerrainTile &tile = map->terrain[pos.x][pos.y][pos.z];
+				const auto & tile = map->getTile(pos);
                 if (tile.visitable && (tile.isWater() == posTile.isWater()))
 				{
 					BOOST_FOREACH (CGObjectInstance* obj, tile.visitableObjects)
@@ -2040,7 +2040,7 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 	// Give monster at position priority.
 	if (!map->isInTheMap(pos))
 		return int3(-1, -1, -1);
-	const TerrainTile &posTile = map->terrain[pos.x][pos.y][pos.z];
+	const TerrainTile &posTile = map->getTile(pos);
 	if (posTile.visitable)
 	{
 		BOOST_FOREACH (CGObjectInstance* obj, posTile.visitableObjects)
@@ -2063,7 +2063,7 @@ int3 CGameState::guardingCreaturePosition (int3 pos) const
 		{
 			if (map->isInTheMap(pos))
 			{
-				TerrainTile &tile = map->terrain[pos.x][pos.y][pos.z];
+				const auto & tile = map->getTile(pos);
                 if (tile.visitable && (tile.isWater() == posTile.isWater()))
 				{
 					BOOST_FOREACH (CGObjectInstance* obj, tile.visitableObjects)
@@ -3009,7 +3009,7 @@ void CPathfinder::initializeGraph()
 			for(size_t k=0; k < out.sizes.z; ++k)
 			{
 				curPos = int3(i,j,k);
-				const TerrainTile *tinfo = &gs->map->terrain[i][j][k];
+				const TerrainTile *tinfo = &gs->map->getTile(int3(i, j, k));
 				CGPathNode &node = graph[i][j][k];
 				node.accessible = evaluateAccessibility(tinfo);
 				node.turns = 0xff;

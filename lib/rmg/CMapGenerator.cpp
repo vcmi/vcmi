@@ -179,14 +179,14 @@ const std::map<PlayerColor, CMapGenOptions::CPlayerSettings> & CMapGenOptions::g
 void CMapGenOptions::setStartingTownForPlayer(PlayerColor color, si32 town)
 {
 	auto it = players.find(color);
-	if(it == players.end()) throw std::runtime_error(boost::str(boost::format("Cannot set starting town for the player with the color '%s'.") % std::to_string(color.getNum())));
+	if(it == players.end()) throw std::runtime_error(boost::str(boost::format("Cannot set starting town for the player with the color '%s'.") % color));
 	it->second.setStartingTown(town);
 }
 
 void CMapGenOptions::setPlayerTypeForStandardPlayer(PlayerColor color, EPlayerType::EPlayerType playerType)
 {
 	auto it = players.find(color);
-	if(it == players.end()) throw std::runtime_error(boost::str(boost::format("Cannot set player type for the player with the color '%s'.") % std::to_string(color.getNum())));
+	if(it == players.end()) throw std::runtime_error(boost::str(boost::format("Cannot set player type for the player with the color '%s'.") % color));
 	if(playerType == EPlayerType::COMP_ONLY) throw std::runtime_error("Cannot set player type computer only to a standard player.");
 	it->second.setPlayerType(playerType);
 }
@@ -375,9 +375,9 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 	//TODO select a template based on the map gen options or adapt it if necessary
 
 	map = make_unique<CMap>();
+	editManager = map->getEditManager();
 	addHeaderInfo();
 
-	mapMgr = make_unique<CMapEditManager>(map.get(), randomSeed);
 	genTerrain();
 	genTowns();
 
@@ -473,8 +473,8 @@ void CMapGenerator::addPlayerInfo()
 void CMapGenerator::genTerrain()
 {
 	map->initTerrain(); //FIXME nicer solution
-	mapMgr->clearTerrain();
-	mapMgr->drawTerrain(ETerrainType::GRASS, 10, 10, 20, 30, false);
+	editManager->clearTerrain(&gen);
+	editManager->drawTerrain(MapRect(int3(10, 10, 0), 20, 30), ETerrainType::GRASS, &gen);
 }
 
 void CMapGenerator::genTowns()
@@ -497,7 +497,7 @@ void CMapGenerator::genTowns()
 		town->defInfo = VLC->dobjinfo->gobjs[town->ID][town->subID];
 		town->builtBuildings.insert(BuildingID::FORT);
 		town->builtBuildings.insert(BuildingID::DEFAULT);
-		mapMgr->insertObject(town, townPos[side].x, townPos[side].y + (i / 2) * 5, false);
+		editManager->insertObject(int3(townPos[side].x, townPos[side].y + (i / 2) * 5, 0), town);
 
 		// Update player info
 		playerInfo.allowedFactions.clear();

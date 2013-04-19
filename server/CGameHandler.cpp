@@ -1699,7 +1699,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 instant, Player
 		return false;
 	}
 
-	TerrainTile t = gs->map->terrain[hmpos.x][hmpos.y][hmpos.z];
+	TerrainTile t = gs->map->getTile(hmpos);
 	int cost = gs->getMovementCost(h, h->getPosition(false), CGHeroInstance::convertPosition(dst,false),h->movement);
 	int3 guardPos = gs->guardingCreaturePosition(hmpos);
 
@@ -1740,7 +1740,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 instant, Player
 	// should be called if hero changes tile but before applying TryMoveHero package
 	auto leaveTile = [&]()
 	{
-		BOOST_FOREACH(CGObjectInstance *obj, gs->map->terrain[h->pos.x-1][h->pos.y][h->pos.z].visitableObjects)
+		BOOST_FOREACH(CGObjectInstance *obj, gs->map->getTile(int3(h->pos.x-1, h->pos.y, h->pos.z)).visitableObjects)
 		{
 			obj->onHeroLeave(h);
 		}
@@ -5637,7 +5637,7 @@ bool CGameHandler::tryAttackingGuard(const int3 &guardPos, const CGHeroInstance 
 	if(!gs->map->isInTheMap(guardPos))
 		return false;
 
-	const TerrainTile &guardTile = gs->map->terrain[guardPos.x][guardPos.y][guardPos.z];
+	const TerrainTile &guardTile = gs->map->getTile(guardPos);
 	objectVisited(guardTile.visitableObjects.back(), h);
 	visitObjectAfterVictory = true;
 	return true;

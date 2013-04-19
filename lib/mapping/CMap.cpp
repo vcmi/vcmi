@@ -7,6 +7,7 @@
 #include "../CHeroHandler.h"
 #include "../CDefObjInfoHandler.h"
 #include "../CSpellHandler.h"
+#include "CMapEditManager.h"
 
 SHeroName::SHeroName() : heroId(-1)
 {
@@ -144,7 +145,7 @@ CMapHeader::~CMapHeader()
 
 }
 
-CMap::CMap() : checksum(0), terrain(nullptr), grailRadious(0)
+CMap::CMap() : checksum(0), grailRadious(0), terrain(nullptr)
 {
 	allowedAbilities = VLC->heroh->getDefaultAllowedAbilities();
 	allowedArtifact = VLC->arth->getDefaultAllowedArtifacts();
@@ -227,7 +228,7 @@ CGHeroInstance * CMap::getHero(int heroID)
 	return nullptr;
 }
 
-bool CMap::isInTheMap(const int3 &pos) const
+bool CMap::isInTheMap(const int3 & pos) const
 {
 	if(pos.x < 0 || pos.y < 0 || pos.z < 0 || pos.x >= width || pos.y >= height
 			|| pos.z > (twoLevel ? 1 : 0))
@@ -240,13 +241,23 @@ bool CMap::isInTheMap(const int3 &pos) const
 	}
 }
 
-TerrainTile & CMap::getTile( const int3 & tile )
+void CMap::getTileRangeCheck(const int3 & tile) const
 {
+	if(!isInTheMap(tile))
+	{
+		throw std::runtime_error(boost::str(boost::format("Cannot get map tile for position x '%d', y '%d', z '%d'.") % tile.x % tile.y % tile.z));
+	}
+}
+
+TerrainTile & CMap::getTile(const int3 & tile)
+{
+	getTileRangeCheck(tile);
 	return terrain[tile.x][tile.y][tile.z];
 }
 
-const TerrainTile & CMap::getTile( const int3 & tile ) const
+const TerrainTile & CMap::getTile(const int3 & tile) const
 {
+	getTileRangeCheck(tile);
 	return terrain[tile.x][tile.y][tile.z];
 }
 
@@ -311,4 +322,10 @@ void CMap::initTerrain()
 			terrain[i][j] = new TerrainTile[twoLevel ? 2 : 1];
 		}
 	}
+}
+
+CMapEditManager * CMap::getEditManager()
+{
+	if(!editManager) editManager = make_unique<CMapEditManager>(this);
+	return editManager.get();
 }

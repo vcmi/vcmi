@@ -34,101 +34,49 @@ typedef boost::uniform_real<double> TRealDist;
 typedef boost::variate_generator<TGenerator &, TIntDist> TRandI;
 typedef boost::variate_generator<TGenerator &, TRealDist> TRand;
 
-/**
- * The random generator randomly generates integers and real numbers("doubles") between
- * a given range. This is a header only class and mainly a wrapper for
- * convenient usage of the boost random API.
- */
+/// The random generator randomly generates integers and real numbers("doubles") between
+/// a given range. This is a header only class and mainly a wrapper for
+/// convenient usage of the boost random API.
 class CRandomGenerator
 {
 public:
-	/**
-	 * Constructor. Seeds the generator with the current time by default.
-	 */
+	/// Seeds the generator with the current time by default.
 	CRandomGenerator() 
 	{
-		gen.seed(std::time(nullptr)); 
+		gen.seed(std::time(nullptr));
 	}
 
-	/**
-	 * Seeds the generator with the given value.
-	 *
-	 * @param value the random seed
-	 */
 	void seed(int value)
 	{
 		gen.seed(value);
 	}
 
-	/**
-	 * Gets a generator which generates integers in the given range.
-	 *
-	 * Example how to use:
-	 * @code
-	 * TRandI rand = getRangeI(0, 10);
-	 * int a = rand(); // with the operator() the next value can be obtained
-	 * int b = rand(); // you can generate more values
-	 * @endcode
-	 *
-	 * @param lower the lower boundary
-	 * @param upper the upper boundary
-	 * @return the generator which can be used to generate integer numbers
-	 */
+	/// Generate several integer numbers within the same range.
+	/// e.g.: auto a = gen.getRangeI(0,10); a(); a(); a();
 	TRandI getRangeI(int lower, int upper)
 	{
 		TIntDist range(lower, upper);
 		return TRandI(gen, range);
 	}
 	
-	/**
-	 * Gets a integer in the given range. In comparison to getRangeI it's
-	 * a convenient method if you want to generate only one value in a given
-	 * range.
-	 *
-	 * @param lower the lower boundary
-	 * @param upper the upper boundary
-	 * @return the generated integer
-	 */
 	int getInteger(int lower, int upper)
 	{
 		return getRangeI(lower, upper)();
 	}
 	
-	/**
-	 * Gets a generator which generates doubles in the given range.
-	 *
-	 * Example how to use:
-	 * @code
-	 * TRand rand = getRange(23.56, 32.10);
-	 * double a = rand(); // with the operator() the next value can be obtained
-	 * double b = rand(); // you can generate more values
-	 * @endcode
-	 *
-	 * @param lower the lower boundary
-	 * @param upper the upper boundary
-	 * @return the generated double
-	 */
+	/// Generate several double/real numbers within the same range.
+	/// e.g.: auto a = gen.getRangeI(0,10); a(); a(); a();
 	TRand getRange(double lower, double upper)
 	{
 		TRealDist range(lower, upper);
 		return TRand(gen, range);
 	}
 	
-	/**
-	 * Gets a double in the given range. In comparison to getRange it's
-	 * a convenient method if you want to generate only one value in a given
-	 * range.
-	 *
-	 * @param lower the lower boundary
-	 * @param upper the upper boundary
-	 * @return the generated double
-	 */
 	double getDouble(double lower, double upper)
 	{
 		return getRange(lower, upper)();
 	}
 
 private:
-	/** The actual boost random generator. */
 	TGenerator gen;
 };

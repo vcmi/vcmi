@@ -186,5 +186,5 @@ private:
 	std::unique_ptr<CMap> map;
 	CRandomGenerator gen;
 	int randomSeed;
-	std::unique_ptr<CMapEditManager> mapMgr;
+	CMapEditManager * editManager;
 };
