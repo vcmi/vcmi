@@ -49,6 +49,7 @@ CLoggerStream::~CLoggerStream()
 }
 
 boost::recursive_mutex CLogger::smx;
+boost::recursive_mutex CLogManager::smx;
 
 DLL_LINKAGE CLogger * logGlobal = CLogger::getGlobalLogger();
 
@@ -229,8 +230,6 @@ CTraceLogger::~CTraceLogger()
 {
 	logger->traceStream() << endMessage;
 }
-
-boost::recursive_mutex CLogManager::smx;
 
 CLogManager & CLogManager::get()
 {
