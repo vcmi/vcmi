@@ -84,6 +84,11 @@ class CGameHandler : public IGameCallback, CBattleInfoCallback
 private:
 	void makeStackDoNothing(const CStack * next);
 public:
+	//use enums as parameters, because doMove(sth, true, false, true) is not readable
+	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
+	enum EVisitDest {VISIT_DEST, DONT_VISIT_DEST};
+	enum ELEaveTile {LEAVING_TILE, REMAINING_ON_TILE};
+
 	CVCMIServer *s;
 	std::map<PlayerColor, CConnection*> connections; //player color -> connection to client with interface of that player
 	PlayerStatuses states; //player color -> player state

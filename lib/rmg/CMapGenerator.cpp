@@ -76,7 +76,7 @@ void CMapGenOptions::setPlayersCnt(si8 value)
 	else
 	{
 		throw std::runtime_error("Players count of RMG options should be between 1 and " +
-								 std::to_string(PlayerColor::PLAYER_LIMIT_I) + " or CMapGenOptions::RANDOM_SIZE for random.");
+								 boost::lexical_cast<std::string>(PlayerColor::PLAYER_LIMIT_I) + " or CMapGenOptions::RANDOM_SIZE for random.");
 	}
 }
 
@@ -94,7 +94,7 @@ void CMapGenOptions::setTeamsCnt(si8 value)
 	else
 	{
 		throw std::runtime_error("Teams count of RMG options should be between 0 and <" +
-								 std::to_string(playersCnt) + "(players count) - 1> or CMapGenOptions::RANDOM_SIZE for random.");
+								 boost::lexical_cast<std::string>(playersCnt) + "(players count) - 1> or CMapGenOptions::RANDOM_SIZE for random.");
 	}
 }
 
@@ -113,7 +113,7 @@ void CMapGenOptions::setCompOnlyPlayersCnt(si8 value)
 	else
 	{
 		throw std::runtime_error(std::string("Computer only players count of RMG options should be ") +
-								 "between 0 and <PlayerColor::PLAYER_LIMIT - " + std::to_string(playersCnt) +
+								 "between 0 and <PlayerColor::PLAYER_LIMIT - " + boost::lexical_cast<std::string>(playersCnt) +
 								 "(playersCount)> or CMapGenOptions::RANDOM_SIZE for random.");
 	}
 }
@@ -132,7 +132,7 @@ void CMapGenOptions::setCompOnlyTeamsCnt(si8 value)
 	else
 	{
 		throw std::runtime_error(std::string("Computer only teams count of RMG options should be ") +
-								 "between 0 and <" + std::to_string(compOnlyPlayersCnt) +
+								 "between 0 and <" + boost::lexical_cast<std::string>(compOnlyPlayersCnt) +
 								 "(compOnlyPlayersCnt) - 1> or CMapGenOptions::RANDOM_SIZE for random.");
 	}
 }

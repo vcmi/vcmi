@@ -1666,11 +1666,6 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, Pl
 		this->getTilesInRange(tmh.fowRevealed, h->getSightCenter()+(tmh.end-tmh.start), h->getSightRadious(), h->tempOwner, 1);
 	};
 
-	//use enums as parameters, because doMove(sth, true, false, true) is not readable
-	enum EVisitDest {VISIT_DEST, DONT_VISIT_DEST};
-	enum ELEaveTile {LEAVING_TILE, REMAINING_ON_TILE};
-	enum EGuardLook {CHECK_FOR_GUARDS, IGNORE_GUARDS};
-
 	auto doMove = [&](TryMoveHero::EResult result, EGuardLook lookForGuards, 
 								EVisitDest visitDest, ELEaveTile leavingTile) -> bool
 	{
@@ -1711,7 +1706,8 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, Pl
 		{
 			if(obj != h  &&  obj->blockVisit  &&  !obj->passableFor(h->tempOwner))
 			{
-				return doMove(TryMoveHero::BLOCKING_VISIT, IGNORE_GUARDS, VISIT_DEST, REMAINING_ON_TILE);
+				return doMove(TryMoveHero::BLOCKING_VISIT, this->IGNORE_GUARDS, VISIT_DEST, REMAINING_ON_TILE);
+				//this-> is needed for MVS2010 to recognize scope (?)
 			}
 		}
 		return false;
