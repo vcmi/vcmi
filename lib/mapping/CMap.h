@@ -268,13 +268,9 @@ struct DLL_LINKAGE TerrainTile
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		h & terType & terView & riverType & riverDir & roadType &roadDir & extTileFlags & blocked;
-
-		if(!h.saving)
-		{
-			visitable = false;
-			//these flags (and obj vectors) will be restored in map serialization
-		}
+		h & terType & terView & riverType & riverDir & roadType &roadDir & extTileFlags;
+		h & visitable & blocked;
+		h & visitableObjects & blockingObjects;
 	}
 };
 
@@ -424,6 +420,7 @@ public:
 		}
 
 		h & customDefs & objects;
+		h & heroes & towns & artInstances;
 
 		// static members
 		h & CGTeleport::objs;
@@ -433,69 +430,5 @@ public:
 		h & CGObelisk::obeliskCount & CGObelisk::visited;
 		h & CGTownInstance::merchantArtifacts;
 		h & CGTownInstance::universitySkills;
-
-		if(!h.saving)
-		{
-			for(ui32 i = 0; i < objects.size(); ++i)
-			{
-				if(!objects[i]) continue;
-
-				switch (objects[i]->ID)
-				{
-				case Obj::HERO:
-					heroes.push_back (static_cast<CGHeroInstance*>(+objects[i]));
-					break;
-				case Obj::TOWN:
-					towns.push_back (static_cast<CGTownInstance*>(+objects[i]));
-					break;
-				}
-
-				// recreate blockvis map
-				addBlockVisTiles(objects[i]);
-			}
-
-			// if hero is visiting/garrisoned in town set appropriate pointers
-			for(ui32 i = 0; i < heroes.size(); ++i)
-			{
-				int3 vistile = heroes[i]->pos;
-				vistile.x++;
-				for(ui32 j = 0; j < towns.size(); ++j)
-				{
-					// hero stands on the town entrance
-					if(vistile == towns[j]->pos)
-					{
-						if(heroes[i]->inTownGarrison)
-						{
-							towns[j]->garrisonHero = heroes[i];
-							removeBlockVisTiles(heroes[i]);
-						}
-						else
-						{
-							towns[j]->visitingHero = heroes[i];
-						}
-
-						heroes[i]->visitedTown = towns[j];
-						break;
-					}
-				}
-
-				vistile.x -= 2; //manifest pos
-				const TerrainTile & t = getTile(vistile);
-				if(t.terType != ETerrainType::WATER) continue;
-
-				//hero stands on the water - he must be in the boat
-				for(ui32 j = 0; j < t.visitableObjects.size(); ++j)
-				{
-					if(t.visitableObjects[j]->ID == Obj::BOAT)
-					{
-						CGBoat * b = static_cast<CGBoat *>(t.visitableObjects[j]);
-						heroes[i]->boat = b;
-						b->hero = heroes[i];
-						removeBlockVisTiles(b);
-						break;
-					}
-				}
-			}
-		}
 	}
 };

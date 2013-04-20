@@ -2174,7 +2174,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			cb->heroVisitCastle(this, h);
 		}
 	}
-	else
+	else if(h->visitablePos() == visitablePos())
 	{
 		if (h->commander && !h->commander->alive) //rise commander. TODO: interactive script
 		{
@@ -2185,6 +2185,10 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			cb->sendAndApply (&scp);
 		}
 		cb->heroVisitCastle(this, h);
+	}
+	else
+	{
+		logGlobal->errorStream() << h->name << " visits allied town of " << name << " from different pos?";
 	}
 }
 
@@ -2433,10 +2437,13 @@ std::string CGTownInstance::nodeName() const
 void CGTownInstance::deserializationFix()
 {
 	attachTo(&townAndVis);
-	if(visitingHero)
-		visitingHero->attachTo(&townAndVis);
-	if(garrisonHero)
-		garrisonHero->attachTo(this);
+
+	//Hero is already handled by CGameState::attachArmedObjects
+
+// 	if(visitingHero)
+// 		visitingHero->attachTo(&townAndVis);
+// 	if(garrisonHero)
+// 		garrisonHero->attachTo(this);
 }
 
 void CGTownInstance::recreateBuildingsBonuses()

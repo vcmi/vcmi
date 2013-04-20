@@ -783,9 +783,6 @@ void SaveGame::applyCl(CClient *cl)
 	CFileInfo info(fname);
 	CResourceHandler::get()->createResource(info.getStem() + ".vcgm1");
 
-	//FIXME: Workaround for a file that was created by server and in future should be used only by server
-	CResourceHandler::get()->createResource(info.getStem() + ".vsgm1");
-
 	try
 	{
 		CSaveFile save(CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::CLIENT_SAVEGAME)));

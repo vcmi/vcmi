@@ -2186,7 +2186,7 @@ void CGameHandler::save(const std::string & filename )
 {
     logGlobal->errorStream() << "Saving to " << filename;
 	CFileInfo info(filename);
-	CResourceHandler::get()->createResource(info.getStem() + ".vlgm1");
+	//CResourceHandler::get()->createResource(info.getStem() + ".vlgm1");
 	CResourceHandler::get()->createResource(info.getStem() + ".vsgm1");
 
 	{

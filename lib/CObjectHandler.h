@@ -354,8 +354,8 @@ public:
 		h & static_cast<CArmedInstance&>(*this);
 		h & static_cast<CArtifactSet&>(*this);
 		h & exp & level & name & biography & portrait & mana & secSkills & movement
-			& sex & inTownGarrison & /*artifacts & artifWorn & */spells & patrol & moveDir;
-
+			& sex & inTownGarrison & spells & patrol & moveDir;
+		h & visitedTown & boat;
 		h & type & specialty & commander;
 		BONUS_TREE_DESERIALIZATION_FIX
 		//visitied town pointer will be restored by map serialization method
@@ -388,11 +388,6 @@ public:
 
 	int maxMovePoints(bool onLand) const;
 	int movementPointsAfterEmbark(int MPsBefore, int basicCost, bool disembark = false) const;
-
-// 	const CArtifact* getArtAtPos(ui16 pos) const; //NULL - no artifact
-// 	const CArtifact * getArt(int pos) const;
-// 	si32 getArtPos(int aid) const; //looks for equipped artifact with given ID and returns its slot ID or -1 if none(if more than one such artifact lower ID is returned)
-// 	bool hasArt(ui32 aid) const; //checks if hero possess artifact of given id (either in backack or worn)
 
 	//int getSpellSecLevel(int spell) const; //returns level of secondary ability (fire, water, earth, air magic) known to this hero and applicable to given spell; -1 if error
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
@@ -610,7 +605,9 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGDwelling&>(*this);
-		h & name & builded & destroyed & identifier & alignment & forbiddenBuildings & builtBuildings & bonusValue
+		h & name & builded & destroyed & identifier;
+		h & garrisonHero & visitingHero;
+		h & alignment & forbiddenBuildings & builtBuildings & bonusValue
 			& possibleSpells & obligatorySpells & spells & /*strInfo & */events & bonusingBuildings;
 
 		for (std::vector<CGTownBuilding*>::iterator i = bonusingBuildings.begin(); i!=bonusingBuildings.end(); i++)
@@ -618,7 +615,6 @@ public:
 
 		h & town & townAndVis;
 		BONUS_TREE_DESERIALIZATION_FIX
-		//garrison/visiting hero pointers will be restored in the map serialization
 	}
 	//////////////////////////////////////////////////////////////////////////
 
@@ -1185,7 +1181,7 @@ public:
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this) & direction;
+		h & static_cast<CGObjectInstance&>(*this) & direction & hero;
 	}
 };
 

@@ -34,6 +34,7 @@
 #include "../lib/NetPacks.h"
 #include "CMessage.h"
 #include "../lib/CModHandler.h"
+#include "../lib/CTownHandler.h"
 #include "../lib/CObjectHandler.h"
 #include "../lib/CArtHandler.h"
 #include "../lib/CScriptingModule.h"
@@ -201,7 +202,6 @@ int main(int argc, char** argv)
     }
     fclose(check);
 #endif
-    
     std::cout << "Starting... " << std::endl;
 	po::options_description opts("Allowed options");
 	opts.add_options()
