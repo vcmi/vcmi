@@ -55,7 +55,7 @@ protected:
 };
 
 /// The CMapUndoManager provides the functionality to save operations and undo/redo them.
-class CMapUndoManager
+class CMapUndoManager : boost::noncopyable
 {
 public:
 	CMapUndoManager();
@@ -87,7 +87,7 @@ private:
 
 /// The map edit manager provides functionality for drawing terrain and placing
 /// objects on the map.
-class DLL_LINKAGE CMapEditManager
+class DLL_LINKAGE CMapEditManager : boost::noncopyable
 {
 public:
 	CMapEditManager(CMap * map);

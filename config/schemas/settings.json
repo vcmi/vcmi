@@ -207,7 +207,7 @@
 				},
 				"loggers" : {
 					"type" : "array",
-					"default" : [ { "domain" : "global", "level" : "info" } ],
+					"default" : [ { "domain" : "global", "level" : "trace" } ],
 					"items" : {
 						"type" : "object",
 						"additionalProperties" : false,

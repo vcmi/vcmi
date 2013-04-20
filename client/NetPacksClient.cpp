@@ -545,11 +545,10 @@ void SetObjectProperty::applyCl( CClient *cl )
 
 void HeroLevelUp::applyCl( CClient *cl )
 {
-	const CGHeroInstance *h = cl->getHero(heroid);
 	//INTERFACE_CALL_IF_PRESENT(h->tempOwner, heroGotLevel, h, primskill, skills, id);
-	if(vstd::contains(cl->playerint,h->tempOwner))
+	if(vstd::contains(cl->playerint,hero->tempOwner))
 	{
-		cl->playerint[h->tempOwner]->heroGotLevel(h, primskill, skills, queryID);
+		cl->playerint[hero->tempOwner]->heroGotLevel(hero, primskill, skills, queryID);
 	}
 	//else
 	//	cb->selectionMade(0, queryID);
@@ -557,9 +556,9 @@ void HeroLevelUp::applyCl( CClient *cl )
 
 void CommanderLevelUp::applyCl( CClient *cl )
 {
-	CCommanderInstance * commander = GS(cl)->getHero(heroid)->commander;
+	const CCommanderInstance * commander = hero->commander;
 	assert (commander);
-	PlayerColor player = commander->armyObj->tempOwner;
+	PlayerColor player = hero->tempOwner;
 	if (commander->armyObj && vstd::contains(cl->playerint, player)) //is it possible for Commander to exist beyond armed instance?
 	{
 		cl->playerint[player]->commanderGotLevel(commander, skills, queryID);

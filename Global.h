@@ -568,6 +568,24 @@ namespace vstd
 	{
 		obj = (T)(((int)obj) + change);
 	}
+
+	template <typename Container>
+	typename Container::value_type backOrNull(const Container &c) //returns last element of container or NULL if it is empty (to be used with containers of pointers)
+	{
+		if(c.size())
+			return c.back();
+		else
+			return NULL;
+	}
+
+	template <typename Container>
+	typename Container::value_type frontOrNull(const Container &c) //returns first element of container or NULL if it is empty (to be used with containers of pointers)
+	{
+		if(c.size())
+			return c.front();
+		else
+			return NULL;
+	}
 }
 using vstd::operator-=;
 using vstd::make_unique;

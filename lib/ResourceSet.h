@@ -98,6 +98,14 @@ namespace Res
 			return *this;
 		}
 
+		ResourceSet operator-() const
+		{
+			ResourceSet ret;
+			for(int i = 0; i < size(); i++)
+				ret[i] = -at(i);
+			return ret;
+		}
+
 	// WARNING: comparison operators are used for "can afford" relation: a <= b means that foreach i a[i] <= b[i]
 	// that doesn't work the other way: a > b doesn't mean that a cannot be afforded with b, it's still b can afford a
 // 		bool operator<(const ResourceSet &rhs)
@@ -124,7 +132,8 @@ namespace Res
 		{
 			struct ResEntry
 			{
-				TResourceCap resType, resVal;
+				Res::ERes resType;
+				TResourceCap resVal;
 			} cur;
 			const ResourceSet &rs;
 			void advance();

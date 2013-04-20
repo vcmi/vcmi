@@ -6,6 +6,7 @@ include_directories(${Boost_INCLUDE_DIRS})
 
 set(server_SRCS
         CGameHandler.cpp
+        CQuery.cpp
         CVCMIServer.cpp
         NetPacksServer.cpp
 )

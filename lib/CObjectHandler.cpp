@@ -125,6 +125,21 @@ void IObjectInterface::postInit()
 void IObjectInterface::preInit()
 {}
 
+void IObjectInterface::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
+{
+
+}
+
+void IObjectInterface::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
+{
+
+}
+
+void IObjectInterface::garrisonDialogClosed(const CGHeroInstance *hero) const
+{
+
+}
+
 void CPlayersVisited::setPropertyDer( ui8 what, ui32 val )
 {
 	if(what == 10)
@@ -538,6 +553,11 @@ bool CGObjectInstance::isVisitable() const
 		}
 	}
 	return false;
+}
+
+bool CGObjectInstance::passableFor(PlayerColor color) const
+{
+	return getPassableness() & 1<<color.getNum();
 }
 
 static int lowestSpeed(const CGHeroInstance * chi)
@@ -1590,6 +1610,55 @@ ArtBearer::ArtBearer CGHeroInstance::bearerType() const
 	return ArtBearer::HERO;
 }
 
+std::vector<SecondarySkill> CGHeroInstance::levelUpProposedSkills() const
+{
+	std::vector<SecondarySkill> skills;
+	//picking sec. skills for choice
+	std::set<SecondarySkill> basicAndAdv, expert, none;
+	for(int i=0;i<GameConstants::SKILL_QUANTITY;i++)
+		if (cb->isAllowed(2,i))
+			none.insert(SecondarySkill(i));
+
+	for(unsigned i=0; i<secSkills.size(); i++)
+	{
+		if(secSkills[i].second < 3)
+			basicAndAdv.insert(secSkills[i].first);
+		else
+			expert.insert(secSkills[i].first);
+		none.erase(secSkills[i].first);
+	}
+
+	//first offered skill
+	if(basicAndAdv.size())
+	{
+		SecondarySkill s = type->heroClass->chooseSecSkill(basicAndAdv);//upgrade existing
+		skills.push_back(s);
+		basicAndAdv.erase(s);
+	}
+	else if(none.size() && canLearnSkill())
+	{
+		skills.push_back(type->heroClass->chooseSecSkill(none)); //give new skill
+		none.erase(skills.back());
+	}
+
+	//second offered skill
+	if(none.size() && canLearnSkill()) //hero have free skill slot
+	{
+		skills.push_back(type->heroClass->chooseSecSkill(none)); //new skill
+	}
+	else if(basicAndAdv.size())
+	{
+		skills.push_back(type->heroClass->chooseSecSkill(basicAndAdv)); //upgrade existing
+	}
+
+	return skills;
+}
+
+bool CGHeroInstance::gainsLevel() const
+{
+	return exp >= VLC->heroh->reqExp(level+1);
+}
+
 void CGDwelling::initObj()
 {
 	switch(ID)
@@ -1710,7 +1779,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		bd.text.addReplacement(ID == Obj::CREATURE_GENERATOR1 ? MetaString::CREGENS : MetaString::CREGENS4, subID);
 		bd.text.addReplacement(MetaString::ARRAY_TXT, 176 + Slots().begin()->second->getQuantityID()*3);
 		bd.text.addReplacement(*Slots().begin()->second);
-		cb->showBlockingDialog(&bd, boost::bind(&CGDwelling::wantsFight, this, h, _1));
+		cb->showBlockingDialog(&bd);
 		return;
 	}
 
@@ -1740,7 +1809,7 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	else
 		throw std::runtime_error("Illegal dwelling!");
 
-	cb->showBlockingDialog(&bd, boost::bind(&CGDwelling::heroAcceptsCreatures, this, h, _1));
+	cb->showBlockingDialog(&bd);
 }
 
 void CGDwelling::newTurn() const
@@ -1780,11 +1849,8 @@ void CGDwelling::newTurn() const
 		cb->sendAndApply(&sac);
 }
 
-void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) const
+void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h) const
 {
-	if(!answer)
-		return;
-
 	CreatureID crid = creatures[0].second[0];
 	CCreature *crs = VLC->creh->creatures[crid];
 	TQuantity count = creatures[0].first;
@@ -1854,17 +1920,25 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 	}
 }
 
-void CGDwelling::wantsFight( const CGHeroInstance *h, ui32 answer ) const
+void CGDwelling::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const
 {
-	if(answer)
-		cb->startBattleI(h, this, boost::bind(&CGDwelling::fightOver, this, h, _1));
+	if (result.winner == 0)
+	{
+		onHeroVisit(hero);
+	}
 }
 
-void CGDwelling::fightOver(const CGHeroInstance *h, BattleResult *result) const
+void CGDwelling::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const
 {
-	if (result->winner == 0)
+	auto relations = cb->getPlayerRelations(getOwner(), hero->getOwner());
+	if(stacksCount() > 0  && relations == PlayerRelations::ENEMIES) //guards present
 	{
-		onHeroVisit(h);
+		if(answer)
+			cb->startBattleI(hero, this);
+	}
+	else if(relations == PlayerRelations::SAME_PLAYER && answer)
+	{
+		heroAcceptsCreatures(hero);
 	}
 }
 
@@ -2091,7 +2165,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			//TODO
 			//"borrowing" army from garrison to visiting hero
 
-			cb->startBattleI(h, defendingArmy, getSightCenter(), h, defendingHero, false, boost::bind(&CGTownInstance::fightOver, this, h, _1), (outsideTown ? NULL : this));
+			cb->startBattlePrimary(h, defendingArmy, getSightCenter(), h, defendingHero, false, (outsideTown ? NULL : this));
 		}
 		else
 		{
@@ -2253,20 +2327,6 @@ ui8 CGTownInstance::getPassableness() const
 void CGTownInstance::getOutOffsets( std::vector<int3> &offsets ) const
 {
 	offsets += int3(-1,2,0), int3(-3,2,0);
-}
-
-void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) const
-{
-	if(result->winner == 0)
-	{
-		removeCapitols (h->getOwner());
-		cb->setOwner (this, h->tempOwner); //give control after checkout is done
-		FoWChange fw;
-		fw.player = h->tempOwner;
-		fw.mode = 1;
-		getSightTiles (fw.tiles); //update visibility for castle structures
-		cb->sendAndApply (&fw);
-	}
 }
 
 void CGTownInstance::removeCapitols (PlayerColor owner) const
@@ -2552,6 +2612,20 @@ void CGTownInstance::addHeroToStructureVisitors( const CGHeroInstance *h, si32 s
 	}
 }
 
+void CGTownInstance::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+{
+	if(result.winner == 0)
+	{
+		removeCapitols(hero->getOwner());
+		cb->setOwner (this, hero->tempOwner); //give control after checkout is done
+		FoWChange fw;
+		fw.player = hero->tempOwner;
+		fw.mode = 1;
+		getSightTiles (fw.tiles); //update visibility for castle structures
+		cb->sendAndApply (&fw);
+	}
+}
+
 
 bool CGVisitableOPH::wasVisited (const CGHeroInstance * h) const
 {
@@ -2585,17 +2659,29 @@ void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 void CGVisitableOPH::initObj()
 {
 	if(ID==Obj::TREE_OF_KNOWLEDGE)
-		ttype = ran()%3;
-	else
-		ttype = -1;
+	{
+		switch (ran() % 3)
+		{
+		case 1:
+			treePrice[Res::GOLD] = 2000;
+			break;
+		case 2:
+			treePrice[Res::GEMS] = 10;
+			break;
+		default:
+			break;
+		}
+	}
 }
 
-void CGVisitableOPH::treeSelected( ObjectInstanceID heroID, int resType, int resVal, TExpType expVal, ui32 result ) const
+void CGVisitableOPH::treeSelected( ObjectInstanceID heroID, ui32 result) const
 {
 	if(result) //player agreed to give res for exp
 	{
-		cb->giveResource(cb->getOwner(heroID), static_cast<Res::ERes>(resType), -resVal); //take resource
-		cb->changePrimSkill(cb->getHero(heroID), PrimarySkill::EXPERIENCE, expVal);
+		auto h = cb->getHero(heroID);
+		si64 expToGive = VLC->heroh->reqExp(h->level+1) - VLC->heroh->reqExp(h->level);;
+		cb->giveResources(cb->getOwner(heroID), -treePrice);
+		cb->changePrimSkill(cb->getHero(heroID), PrimarySkill::EXPERIENCE, expToGive);
 		cb->setObjProperty(id, ObjProperty::VISITORS, heroID.getNum()); //add to the visitors
 	}
 }
@@ -2669,7 +2755,7 @@ void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited)
 				sd.components.push_back(Component(c_id, PrimarySkill::ATTACK, 2, 0));
 				sd.components.push_back(Component(c_id, PrimarySkill::DEFENSE, 2, 0));
 				sd.player = cb->getOwner(heroID);
-				cb->showBlockingDialog(&sd,boost::bind(&CGVisitableOPH::arenaSelected,this,heroID,_1));
+				cb->showBlockingDialog(&sd);
 				return;
 			}
 		case Obj::MERCENARY_CAMP:
@@ -2703,7 +2789,7 @@ void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited)
 			{
 				const CGHeroInstance *h = cb->getHero(heroID);
 				val = VLC->heroh->reqExp(h->level+val) - VLC->heroh->reqExp(h->level);
-				if(!ttype)
+				if(!treePrice.nonZero())
 				{
 					cb->setObjProperty(id, ObjProperty::VISITORS, heroID.getNum()); //add to the visitors
 					InfoWindow iw;
@@ -2717,22 +2803,12 @@ void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited)
 				}
 				else
 				{
-					Res::ERes res;
-					si32 resval;
-					if(ttype==1)
-					{
-						res = Res::GOLD;
-						resval = 2000;
+					if(treePrice[Res::GOLD] > 0)
 						ot = 149;
-					}
 					else
-					{
-						res = Res::GEMS;
-						resval = 10;
 						ot = 151;
-					}
 
-					if(cb->getResource(h->tempOwner,res) < resval) //not enough resources
+					if(!cb->getPlayer(h->tempOwner)->resources.canAfford(treePrice)) //not enough resources
 					{
 						ot++;
 						showInfoDialog(h,ot,sound);
@@ -2743,8 +2819,8 @@ void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited)
 					sd.soundID = sound;
 					sd.player = cb->getOwner(heroID);
 					sd.text.addTxt(MetaString::ADVOB_TXT,ot);
-					sd.components.push_back (Component (Component::RESOURCE, res, resval, 0));
-					cb->showBlockingDialog(&sd,boost::bind(&CGVisitableOPH::treeSelected,this,heroID,res,resval,val,_1));
+					sd.addResourceComponents(treePrice);
+					cb->showBlockingDialog(&sd);
 				}
 				break;
 			}
@@ -2783,7 +2859,7 @@ void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited)
 					sd.text.addTxt(MetaString::ADVOB_TXT,ot);
 					sd.components.push_back(Component(c_id, skill, +1, 0));
 					sd.components.push_back(Component(c_id, skill+1, +1, 0));
-					cb->showBlockingDialog(&sd,boost::bind(&CGVisitableOPH::schoolSelected,this,heroID,_1));
+					cb->showBlockingDialog(&sd);
 				}
 			}
 			break;
@@ -2867,6 +2943,28 @@ void CGVisitableOPH::schoolSelected(ObjectInstanceID heroID, ui32 which) const
 	cb->setObjProperty(id, ObjProperty::VISITORS, heroID.getNum()); //add to the visitors
 	cb->giveResource(cb->getOwner(heroID),Res::GOLD,-1000); //take 1000 gold
 	cb->changePrimSkill(cb->getHero(heroID), static_cast<PrimarySkill::PrimarySkill>(base + which-1), +1); //give appropriate skill
+}
+
+void CGVisitableOPH::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+{
+	switch (ID)
+	{
+	case Obj::ARENA:
+		arenaSelected(hero->id, answer);
+		break;
+
+	case Obj::TREE_OF_KNOWLEDGE:
+		treeSelected(hero->id, answer);
+		break;
+
+	case Obj::SCHOOL_OF_MAGIC:
+	case Obj::SCHOOL_OF_WAR:
+		schoolSelected(id, answer);
+
+	default:
+		assert(0);
+		break;
+	}
 }
 
 COPWBonus::COPWBonus (BuildingID index, CGTownInstance *TOWN)
@@ -2957,7 +3055,7 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 						mid = 582;
 						iw.components.push_back (Component(Component::PRIM_SKILL, 2, 1, 0));
 						break;
-					case ETownType::STRONGHOLD://hall of valhalla
+					case ETownType::STRONGHOLD://hall of Valhalla
 						what = PrimarySkill::ATTACK;
 						val = 1;
 						mid = 584;
@@ -2993,6 +3091,13 @@ void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
 }
 const std::string & CGCreature::getHoverText() const
 {
+	if(stacks.empty())
+	{
+		//should not happen... 
+		logGlobal->errorStream() << "Invalid stack at tile " << pos << ": subID=" << subID << "; id=" << id;
+		return "!!!INVALID_STACK!!!";
+	}
+
 	MetaString ms;
 	int pom = stacks.begin()->second->getQuantityID();
 	pom = 172 + 3*pom;
@@ -3029,21 +3134,21 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 	int action = takenAction(h);
 	switch( action ) //decide what we do...
 	{
-	case -2: //fight
+	case FIGHT:
 		fight(h);
 		break;
-	case -1: //flee
+	case FLEE: //flee
 		{
 			flee(h);
 			break;
 		}
-	case 0: //join for free
+	case JOIN_FOR_FREE: //join for free
 		{
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
 			ynd.text.addTxt(MetaString::ADVOB_TXT, 86);
 			ynd.text.addReplacement(MetaString::CRE_PL_NAMES, subID);
-			cb->showBlockingDialog(&ynd,boost::bind(&CGCreature::joinDecision,this,h,0,_1));
+			cb->showBlockingDialog(&ynd);
 			break;
 		}
 	default: //join for gold
@@ -3058,65 +3163,11 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 			boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(action));
 			boost::algorithm::replace_first(tmp,"%s",VLC->creh->creatures[subID]->namePl);
 			ynd.text << tmp;
-			cb->showBlockingDialog(&ynd,boost::bind(&CGCreature::joinDecision,this,h,action,_1));
+			cb->showBlockingDialog(&ynd);
 			break;
 		}
 	}
 
-}
-
-void CGCreature::endBattle( BattleResult *result ) const
-{
-	if(result->winner==0)
-	{
-		cb->removeObject(this);
-	}
-	else
-	{
-		//int killedAmount=0;
-		//for(std::set<std::pair<ui32,si32> >::iterator i=result->casualties[1].begin(); i!=result->casualties[1].end(); i++)
-		//	if(i->first == subID)
-		//		killedAmount += i->second;
-		//cb->setAmount(id, slots.find(0)->second.second - killedAmount);
-
-		/*
-		MetaString ms;
-		int pom = slots.find(0)->second.getQuantityID();
-		pom = 174 + 3*pom + 1;
-		ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
-		cb->setHoverName(id,&ms);
-		cb->setObjProperty(id, 11, slots.begin()->second.count * 1000);
-		*/
-
-		//merge stacks into one
-		TSlots::const_iterator i;
-		CCreature * cre = VLC->creh->creatures[restore.basicType];
-		for (i = stacks.begin(); i != stacks.end(); i++)
-		{
-			if (cre->isMyUpgrade(i->second->type))
-			{
-				cb->changeStackType (StackLocation(this, i->first), cre); //un-upgrade creatures
-			}
-		}
-
-		//first stack has to be at slot 0 -> if original one got killed, move there first remaining stack
-		if(!hasStackAtSlot(SlotID(0)))
-			cb->moveStack(StackLocation(this, stacks.begin()->first), StackLocation(this, SlotID(0)), stacks.begin()->second->count);
-
-		while (stacks.size() > 1) //hopefully that's enough
-		{
-			// TODO it's either overcomplicated (if we assume there'll be only one stack) or buggy (if we allow multiple stacks... but that'll also cause troubles elsewhere)
-			i = stacks.end();
-			i--;
-			SlotID slot = getSlotFor(i->second->type);
-			if (slot == i->first) //no reason to move stack to its own slot
-				break;
-			else
-				cb->moveStack (StackLocation(this, i->first), StackLocation(this, slot), i->second->count);
-		}
-
-		cb->setObjProperty(id, ObjProperty::MONSTER_POWER, stacks.begin()->second->count * 1000); //remember casualties
-	}
 }
 
 void CGCreature::initObj()
@@ -3159,7 +3210,9 @@ void CGCreature::initObj()
 	}
 
 	temppower = stacks[SlotID(0)]->count * 1000;
+	refusedJoining = false;
 }
+
 void CGCreature::newTurn() const
 {//Works only for stacks of single type of size up to 2 millions
 	if (stacks.begin()->second->count < VLC->modh->settings.CREEP_SIZE && cb->getDate(Date::DAY_OF_WEEK) == 1 && cb->getDate(Date::DAY) > 1)
@@ -3186,6 +3239,9 @@ void CGCreature::setPropertyDer(ui8 what, ui32 val)
 			break;
 		case ObjProperty::MONSTER_RESTORE_TYPE:
 			restore.basicType = val;
+			break;
+		case ObjProperty::MONSTER_REFUSED_JOIN:
+			refusedJoining = val;
 			break;
 	}
 }
@@ -3261,6 +3317,9 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 void CGCreature::fleeDecision(const CGHeroInstance *h, ui32 pursue) const
 {
+	if(refusedJoining)
+		cb->setObjProperty(id, ObjProperty::MONSTER_REFUSED_JOIN, false);
+
 	if(pursue)
 	{
 		fight(h);
@@ -3277,6 +3336,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 	{
 		if(takenAction(h,false) == -1) //they flee
 		{
+			cb->setObjProperty(id, ObjProperty::MONSTER_REFUSED_JOIN, true);
 			flee(h);
 		}
 		else //they fight
@@ -3373,7 +3433,7 @@ void CGCreature::fight( const CGHeroInstance *h ) const
 		}
 	}
 
-	cb->startBattleI(h, this, boost::bind(&CGCreature::endBattle,this,_1));
+	cb->startBattleI(h, this);
 
 }
 
@@ -3383,7 +3443,73 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 	ynd.player = h->tempOwner;
 	ynd.text.addTxt(MetaString::ADVOB_TXT,91);
 	ynd.text.addReplacement(MetaString::CRE_PL_NAMES, subID);
-	cb->showBlockingDialog(&ynd,boost::bind(&CGCreature::fleeDecision,this,h,_1));
+	cb->showBlockingDialog(&ynd);
+}
+
+void CGCreature::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+{
+	
+	if(result.winner==0)
+	{
+		cb->removeObject(this);
+	}
+	else
+	{
+		//int killedAmount=0;
+		//for(std::set<std::pair<ui32,si32> >::iterator i=result->casualties[1].begin(); i!=result->casualties[1].end(); i++)
+		//	if(i->first == subID)
+		//		killedAmount += i->second;
+		//cb->setAmount(id, slots.find(0)->second.second - killedAmount);
+
+		/*
+		MetaString ms;
+		int pom = slots.find(0)->second.getQuantityID();
+		pom = 174 + 3*pom + 1;
+		ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
+		cb->setHoverName(id,&ms);
+		cb->setObjProperty(id, 11, slots.begin()->second.count * 1000);
+		*/
+
+		//merge stacks into one
+		TSlots::const_iterator i;
+		CCreature * cre = VLC->creh->creatures[restore.basicType];
+		for (i = stacks.begin(); i != stacks.end(); i++)
+		{
+			if (cre->isMyUpgrade(i->second->type))
+			{
+				cb->changeStackType (StackLocation(this, i->first), cre); //un-upgrade creatures
+			}
+		}
+
+		//first stack has to be at slot 0 -> if original one got killed, move there first remaining stack
+		if(!hasStackAtSlot(SlotID(0)))
+			cb->moveStack(StackLocation(this, stacks.begin()->first), StackLocation(this, SlotID(0)), stacks.begin()->second->count);
+
+		while (stacks.size() > 1) //hopefully that's enough
+		{
+			// TODO it's either overcomplicated (if we assume there'll be only one stack) or buggy (if we allow multiple stacks... but that'll also cause troubles elsewhere)
+			i = stacks.end();
+			i--;
+			SlotID slot = getSlotFor(i->second->type);
+			if (slot == i->first) //no reason to move stack to its own slot
+				break;
+			else
+				cb->moveStack (StackLocation(this, i->first), StackLocation(this, slot), i->second->count);
+		}
+
+		cb->setObjProperty(id, ObjProperty::MONSTER_POWER, stacks.begin()->second->count * 1000); //remember casualties
+	}
+}
+
+void CGCreature::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+{
+	auto action = takenAction(hero);
+	if(!refusedJoining && action >= JOIN_FOR_FREE) //higher means price
+		joinDecision(hero, action, answer);
+	else if(action != FIGHT)
+		fleeDecision(hero, answer);
+	else
+		assert(0);
 }
 
 void CGMine::onHeroVisit( const CGHeroInstance * h ) const
@@ -3403,7 +3529,7 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 		BlockingDialog ynd(true,false);
 		ynd.player = h->tempOwner;
 		ynd.text.addTxt(MetaString::ADVOB_TXT, subID == 7 ? 84 : 187);
-		cb->showBlockingDialog(&ynd,boost::bind(&CGMine::fight, this, _1, h));
+		cb->showBlockingDialog(&ynd);
 		return;
 	}
 
@@ -3458,23 +3584,6 @@ void CGMine::initObj()
 	producedQuantity = defaultResProduction();
 }
 
-void CGMine::fight(ui32 agreed, const CGHeroInstance *h) const
-{
-	cb->startBattleI(h, this, boost::bind(&CGMine::endBattle, this, _1, h->tempOwner));
-}
-
-void CGMine::endBattle(BattleResult *result, PlayerColor attackingPlayer) const
-{
-	if(result->winner == 0) //attacker won
-	{
-		if(subID == 7)
-		{
-			showInfoDialog(attackingPlayer,85,0);
-		}
-		flagMine(attackingPlayer);
-	}
-}
-
 void CGMine::flagMine(PlayerColor player) const
 {
 	assert(tempOwner != player);
@@ -3511,6 +3620,24 @@ ui32 CGMine::defaultResProduction()
 	}
 }
 
+void CGMine::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+{
+	if(result.winner == 0) //attacker won
+	{
+		if(subID == 7)
+		{
+			showInfoDialog(hero->tempOwner, 85, 0);
+		}
+		flagMine(hero->tempOwner);
+	}
+}
+
+void CGMine::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+{
+	if(answer)
+		cb->startBattleI(hero, this);
+}
+
 void CGResource::initObj()
 {
 	blockVisit = true;
@@ -3542,11 +3669,11 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->getOwner();
 			ynd.text << message;
-			cb->showBlockingDialog(&ynd,boost::bind(&CGResource::fightForRes,this,_1,h));
+			cb->showBlockingDialog(&ynd);
 		}
 		else
 		{
-			fightForRes(1,h);
+			blockingDialogAnswered(h, true); //behave as if player accepted battle
 		}
 	}
 	else
@@ -3574,16 +3701,16 @@ void CGResource::collectRes( PlayerColor player ) const
 	cb->removeObject(this);
 }
 
-void CGResource::fightForRes(ui32 agreed, const CGHeroInstance *h) const
+void CGResource::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
 {
-	if(agreed)
-		cb->startBattleI(h, this, boost::bind(&CGResource::endBattle,this,_1,h));
+	if(result.winner == 0) //attacker won
+		collectRes(hero->getOwner());
 }
 
-void CGResource::endBattle( BattleResult *result, const CGHeroInstance *h ) const
+void CGResource::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
 {
-	if(result->winner == 0) //attacker won
-		collectRes(h->getOwner());
+	if(answer)
+		cb->startBattleI(hero, this);
 }
 
 void CGVisitableOPW::newTurn() const
@@ -3895,11 +4022,11 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 			BlockingDialog ynd(true,false);
 			ynd.player = h->getOwner();
 			ynd.text << message;
-			cb->showBlockingDialog(&ynd,boost::bind(&CGArtifact::fightForArt,this,_1,h));
+			cb->showBlockingDialog(&ynd);
 		}
 		else
 		{
-			fightForArt(0,h);
+			blockingDialogAnswered(h, true);
 		}
 	}
 }
@@ -3910,17 +4037,18 @@ void CGArtifact::pick(const CGHeroInstance * h) const
 	cb->removeObject(this);
 }
 
-void CGArtifact::fightForArt( ui32 agreed, const CGHeroInstance *h ) const
+void CGArtifact::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
 {
-	if(agreed)
-		cb->startBattleI(h, this, boost::bind(&CGArtifact::endBattle,this,_1,h));
+	if(result.winner == 0) //attacker won
+		pick(hero);
 }
 
-void CGArtifact::endBattle( BattleResult *result, const CGHeroInstance *h ) const
+void CGArtifact::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
 {
-	if(result->winner == 0) //attacker won
-		pick(h);
+	if(answer)
+		cb->startBattleI(hero, this);
 }
+
 void CGPickable::initObj()
 {
 	blockVisit = true;
@@ -4110,8 +4238,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 				TExpType expVal = h->calculateXp(val2);
 				sd.components.push_back(Component(Component::EXPERIENCE,0,expVal, 0));
 				sd.soundID = soundBase::chest;
-				boost::function<void(ui32)> fun = boost::bind(&CGPickable::chosen,this,_1,h->id);
-				cb->showBlockingDialog(&sd,fun);
+				cb->showBlockingDialog(&sd);
 				return;
 			}
 		}
@@ -4119,16 +4246,15 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 	cb->removeObject(this);
 }
 
-void CGPickable::chosen( int which, ObjectInstanceID heroID ) const
+void CGPickable::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
 {
-	const CGHeroInstance *h = cb->getHero(heroID);
-	switch(which)
+	switch(answer)
 	{
 	case 1: //player pick gold
-		cb->giveResource(cb->getOwner(heroID), Res::GOLD, val1);
+		cb->giveResource(hero->tempOwner, Res::GOLD, val1);
 		break;
 	case 2: //player pick exp
-		cb->changePrimSkill(cb->getHero(heroID), PrimarySkill::EXPERIENCE, h->calculateXp(val2));
+		cb->changePrimSkill(hero, PrimarySkill::EXPERIENCE, hero->calculateXp(val2));
 		break;
 	default:
 		throw std::runtime_error("Unhandled treasure choice");
@@ -4655,7 +4781,7 @@ void CGSeerHut::onHeroVisit( const CGHeroInstance * h ) const
 
 			getCompletionText (bd.text, bd.components, isCustom, h);
 
-			cb->showBlockingDialog (&bd, boost::bind (&CGSeerHut::finishQuest, this, h, _1));
+			cb->showBlockingDialog (&bd);
 			return;
 		}
 	}
@@ -4799,6 +4925,11 @@ const CGCreature * CGSeerHut::getCreatureToKill(bool allowNull) const
 		return NULL;
 	assert(o && o->ID == Obj::MONSTER);
 	return static_cast<const CGCreature*>(o);
+}
+
+void CGSeerHut::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+{
+	finishQuest(hero, answer);
 }
 
 void CGQuestGuard::initObj()
@@ -5146,40 +5277,7 @@ void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
 		bd.player = h->getOwner();
 		bd.soundID = soundBase::QUEST;
 		bd.text.addTxt (MetaString::ADVOB_TXT, 14);
-		cb->showBlockingDialog (&bd, boost::bind (&CGPandoraBox::open, this, h, _1));
-}
-
-void CGPandoraBox::open( const CGHeroInstance * h, ui32 accept ) const
-{
-	if (accept)
-	{
-		if (stacksCount() > 0) //if pandora's box is protected by army
-		{
-			showInfoDialog(h,16,0);
-			cb->startBattleI(h, this, boost::bind(&CGPandoraBox::endBattle, this, h, _1)); //grants things after battle
-		}
-		else if (message.size() == 0 && resources.size() == 0
-				&& primskills.size() == 0 && abilities.size() == 0
-				&& abilityLevels.size() == 0 &&  artifacts.size() == 0
-				&& spells.size() == 0 && creatures.Slots().size() > 0
-				&& gainedExp == 0 && manaDiff == 0 && moraleDiff == 0 && luckDiff == 0) //if it gives nothing without battle
-		{
-			showInfoDialog(h,15,0);
-			cb->removeObject(this);
-		}
-		else //if it gives something without battle
-		{
-			giveContents (h, false);
-		}
-	}
-}
-
-void CGPandoraBox::endBattle( const CGHeroInstance *h, BattleResult *result ) const
-{
-	if(result->winner)
-		return;
-
-	giveContents(h,true);
+		cb->showBlockingDialog (&bd);
 }
 
 void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) const
@@ -5412,6 +5510,39 @@ void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int val, int nega
 	}
 }
 
+void CGPandoraBox::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+{
+	if(result.winner)
+		return;
+
+	giveContents(hero, true);
+}
+
+void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+{
+	if (answer)
+	{
+		if (stacksCount() > 0) //if pandora's box is protected by army
+		{
+			showInfoDialog(hero,16,0);
+			cb->startBattleI(hero, this); //grants things after battle
+		}
+		else if (message.size() == 0 && resources.size() == 0
+			&& primskills.size() == 0 && abilities.size() == 0
+			&& abilityLevels.size() == 0 &&  artifacts.size() == 0
+			&& spells.size() == 0 && creatures.Slots().size() > 0
+			&& gainedExp == 0 && manaDiff == 0 && moraleDiff == 0 && luckDiff == 0) //if it gives nothing without battle
+		{
+			showInfoDialog(hero,15,0);
+			cb->removeObject(this);
+		}
+		else //if it gives something without battle
+		{
+			giveContents(hero, false);
+		}
+	}
+}
+
 void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(!(availableFor & (1 << h->tempOwner.getNum())))
@@ -5436,7 +5567,7 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 		else
 			iw.text.addTxt(MetaString::ADVOB_TXT, 16);
 		cb->showInfoDialog(&iw);
-		cb->startBattleI(h, this, boost::bind(&CGEvent::endBattle,this,h,_1));
+		cb->startBattleI(h, this);
 	}
 	else
 	{
@@ -5619,7 +5750,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 		}
 		break;
 	default:
-        logGlobal->errorStream() << "Error: wrong bonustype (" << (int)type << ") for Scholar!";
+		logGlobal->errorStream() << "Error: wrong bonus type (" << (int)type << ") for Scholar!\n";
 		return;
 	}
 
@@ -5656,7 +5787,7 @@ void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 	int ally = cb->gameState()->getPlayerRelations(h->tempOwner, tempOwner);
 	if (!ally && stacksCount() > 0) {
 		//TODO: Find a way to apply magic garrison effects in battle.
-		cb->startBattleI(h, this, boost::bind(&CGGarrison::fightOver, this, h, _1));
+		cb->startBattleI(h, this);
 		return;
 	}
 
@@ -5665,12 +5796,6 @@ void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 		cb->setOwner(this, h->tempOwner);
 
 	cb->showGarrisonDialog(id, h->id, removableUnits, 0);
-}
-
-void CGGarrison::fightOver (const CGHeroInstance *h, BattleResult *result) const
-{
-	if (result->winner == 0)
-		onHeroVisit(h);
 }
 
 ui8 CGGarrison::getPassableness() const
@@ -5686,6 +5811,12 @@ ui8 CGGarrison::getPassableness() const
 		mask |= 1<<it.getNum(); //allies - add to possible visitors
 
 	return mask;
+}
+
+void CGGarrison::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
+{
+	if (result.winner == 0)
+		onHeroVisit(hero);
 }
 
 void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
@@ -5714,7 +5845,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 			bd.soundID = soundBase::GRAVEYARD;
 			bd.player = h->getOwner();
 			bd.text.addTxt(MetaString::ADVOB_TXT,161);
-			cb->showBlockingDialog(&bd,boost::bind(&CGOnceVisitable::searchTomb,this,h,_1));
+			cb->showBlockingDialog(&bd);
 			return;
 		}
 		break;
@@ -5847,12 +5978,13 @@ void CGOnceVisitable::initObj()
 	}
 }
 
-void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
+void CGOnceVisitable::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
 {
-	if(accept)
+	//must have been Tomb
+	if(answer)
 	{
 		InfoWindow iw;
-		iw.player = h->getOwner();
+		iw.player = hero->getOwner();
 		iw.components.push_back(Component(Component::MORALE,0,-3,0));
 
 		if(players.size()) //we've been already visited, player found nothing
@@ -5865,20 +5997,20 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 			iw.components.push_back(Component(Component::ARTIFACT,bonusType,0,0));
 			iw.text.addReplacement(MetaString::ART_NAMES, bonusType);
 
-			cb->giveHeroNewArtifact(h, VLC->arth->artifacts[bonusType],ArtifactPosition::FIRST_AVAILABLE);
+			cb->giveHeroNewArtifact(hero, VLC->arth->artifacts[bonusType],ArtifactPosition::FIRST_AVAILABLE);
 		}
 
-		if(!h->hasBonusFrom(Bonus::OBJECT,ID)) //we don't have modifier from this object yet
+		if(!hero->hasBonusFrom(Bonus::OBJECT,ID)) //we don't have modifier from this object yet
 		{
 			//ruin morale
 			GiveBonus gb;
-			gb.id = h->id.getNum();
+			gb.id = hero->id.getNum();
 			gb.bonus = Bonus(Bonus::ONE_BATTLE,Bonus::MORALE,Bonus::OBJECT,-3,id.getNum(),"");
 			gb.bdescr.addTxt(MetaString::ARRAY_TXT,104); //Warrior Tomb Visited -3
 			cb->giveHeroBonus(&gb);
 		}
 		cb->showInfoDialog(&iw);
-		cb->setObjProperty(id, 10, h->getOwner().getNum());
+		cb->setObjProperty(id, 10, hero->getOwner().getNum());
 	}
 }
 
@@ -6067,7 +6199,7 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		bd.text.addTxt(MetaString::ADVOB_TXT,banktext);
 		if (ID == Obj::CREATURE_BANK)
 			bd.text.addReplacement(VLC->objh->creBanksNames[index]);
-		cb->showBlockingDialog (&bd, boost::bind (&CBank::fightGuards, this, h, _1));
+		cb->showBlockingDialog (&bd);
 	}
 	else
 	{
@@ -6096,20 +6228,14 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		cb->showInfoDialog(&iw);
 	}
 }
-void CBank::fightGuards (const CGHeroInstance * h, ui32 accept) const
+
+void CBank::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
 {
-	if (accept)
-	{
-		cb->startBattleI (h, this, boost::bind (&CBank::endBattle, this, h, _1), true);
-	}
-}
-void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) const
-{
-	if (result->winner == 0)
+	if (result.winner == 0)
 	{
 		int textID = -1;
 		InfoWindow iw;
-		iw.player = h->getOwner();
+		iw.player = hero->getOwner();
 		MetaString loot;
 
 		switch (ID)
@@ -6123,7 +6249,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			else
 			{
 				GiveBonus gbonus;
-				gbonus.id = h->id.getNum();
+				gbonus.id = hero->id.getNum();
 				gbonus.bonus.duration = Bonus::ONE_BATTLE;
 				gbonus.bonus.source = Bonus::OBJECT;
 				gbonus.bonus.sid = ID;
@@ -6142,7 +6268,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			{
 				iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
 				GiveBonus gbonus;
-				gbonus.id = h->id.getNum();
+				gbonus.id = hero->id.getNum();
 				gbonus.bonus.duration = Bonus::ONE_BATTLE;
 				gbonus.bonus.source = Bonus::OBJECT;
 				gbonus.bonus.sid = ID;
@@ -6173,7 +6299,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 					loot << "%d %s";
 					loot.addReplacement(iw.components.back().val);
 					loot.addReplacement(MetaString::RES_NAMES, iw.components.back().subtype);
-					cb->giveResource (h->getOwner(), static_cast<Res::ERes>(it), bc->resources[it]);
+					cb->giveResource (hero->getOwner(), static_cast<Res::ERes>(it), bc->resources[it]);
 				}
 			}
 		}
@@ -6183,7 +6309,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			iw.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
 			loot << "%s";
 			loot.addReplacement(MetaString::ART_NAMES, *it);
-			cb->giveHeroNewArtifact (h, VLC->arth->artifacts[*it], ArtifactPosition::FIRST_AVAILABLE);
+			cb->giveHeroNewArtifact (hero, VLC->arth->artifacts[*it], ArtifactPosition::FIRST_AVAILABLE);
 		}
 		//display loot
 		if (!iw.components.empty())
@@ -6191,7 +6317,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			iw.text.addTxt (MetaString::ADVOB_TXT, textID);
 			if (textID == 34)
 			{
-				iw.text.addReplacement(MetaString::CRE_PL_NAMES, result->casualties[1].begin()->first);
+				iw.text.addReplacement(MetaString::CRE_PL_NAMES, result.casualties[1].begin()->first);
 				iw.text.addReplacement(loot.buildList());
 			}
 			cb->showInfoDialog(&iw);
@@ -6222,13 +6348,20 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 				iw.text.addTxt (MetaString::ADVOB_TXT, 186);
 
 			iw.text.addReplacement(loot.buildList());
-			iw.text.addReplacement(h->name);
+			iw.text.addReplacement(hero->name);
 			cb->showInfoDialog(&iw);
-			cb->giveCreatures(this, h, ourArmy, false);
+			cb->giveCreatures(this, hero, ourArmy, false);
 		}
 		cb->setObjProperty (id, ObjProperty::BANK_CLEAR_CONFIG, 0); //bc = NULL
 	}
+}
 
+void CBank::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+{
+	if (answer)
+	{
+		cb->startBattleI(hero, this, true);
+	}
 }
 
 void CGPyramid::initObj()
@@ -6259,7 +6392,7 @@ void CGPyramid::onHeroVisit (const CGHeroInstance * h) const
 		bd.player = h->getOwner();
 		bd.soundID = soundBase::MYSTERY;
 		bd.text << VLC->generaltexth->advobtxt[105];
-		cb->showBlockingDialog (&bd, boost::bind (&CBank::fightGuards, this, h, _1));
+		cb->showBlockingDialog(&bd);
 	}
 	else
 	{
@@ -6275,29 +6408,30 @@ void CGPyramid::onHeroVisit (const CGHeroInstance * h) const
 	}
 }
 
-void CGPyramid::endBattle (const CGHeroInstance *h, const BattleResult *result) const
+void CGPyramid::battleFinished(const CGHeroInstance *hero, const BattleResult &result) const 
 {
-	if (result->winner == 0)
+	if (result.winner == 0)
 	{
 		InfoWindow iw;
-		iw.player = h->getOwner();
+		iw.player = hero->getOwner();
 		iw.text.addTxt (MetaString::ADVOB_TXT, 106);
 		iw.text.addTxt (MetaString::SPELL_NAME, spell);
-		if (!h->getArt(ArtifactPosition::SPELLBOOK))
+		if (!hero->getArt(ArtifactPosition::SPELLBOOK))
 			iw.text.addTxt (MetaString::ADVOB_TXT, 109); //no spellbook
-		else if (h->getSecSkillLevel(SecondarySkill::WISDOM) < 3)
+		else if (hero->getSecSkillLevel(SecondarySkill::WISDOM) < 3)
 			iw.text.addTxt (MetaString::ADVOB_TXT, 108); //no expert Wisdom
 		else
 		{
 			std::set<SpellID> spells;
 			spells.insert (SpellID(spell));
-			cb->changeSpells (h, true, spells);
-				iw.components.push_back(Component (Component::SPELL, spell, 0, 0));
+			cb->changeSpells (hero, true, spells);
+			iw.components.push_back(Component (Component::SPELL, spell, 0, 0));
 		}
 		cb->showInfoDialog(&iw);
 		cb->setObjProperty (id, ObjProperty::BANK_CLEAR_CONFIG, 0);
 	}
 }
+
 void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8
 {
 	if (what >= 101 && what <= (100 + PlayerColor::PLAYER_LIMIT_I))
@@ -6375,7 +6509,7 @@ void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const
 		bd.player = h->getOwner();
 		bd.soundID = soundBase::QUEST;
 		bd.text.addTxt (MetaString::ADVOB_TXT, 17);
-		cb->showBlockingDialog (&bd, boost::bind (&CGBorderGuard::openGate, this, h, _1));
+		cb->showBlockingDialog (&bd);
 	}
 	else
 	{
@@ -6389,9 +6523,9 @@ void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const
 	}
 }
 
-void CGBorderGuard::openGate(const CGHeroInstance *h, ui32 accept) const
+void CGBorderGuard::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
 {
-	if (accept)
+	if (answer)
 		cb->removeObject(this);
 }
 
@@ -6689,7 +6823,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 			bd.player = h->getOwner();
 			bd.soundID = soundBase::LIGHTHOUSE;
 			bd.text.addTxt (MetaString::ADVOB_TXT, text);
-			cb->showBlockingDialog (&bd, boost::bind (&CCartographer::buyMap, this, h, _1));
+			cb->showBlockingDialog (&bd);
 		}
 		else //if he cannot afford
 		{
@@ -6702,20 +6836,20 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 	}
 }
 
-void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
+void CCartographer::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
 {
-	if (accept) //if hero wants to buy map
+	if (answer) //if hero wants to buy map
 	{
-		cb->giveResource (h->tempOwner, Res::GOLD, -1000);
+		cb->giveResource (hero->tempOwner, Res::GOLD, -1000);
 		FoWChange fw;
 		fw.mode = 1;
-		fw.player = h->tempOwner;
+		fw.player = hero->tempOwner;
 
 		//subIDs of different types of cartographers:
 		//water = 0; land = 1; underground = 2;
-		cb->getAllTiles (fw.tiles, h->tempOwner, subID - 1, !subID + 1); //reveal appropriate tiles
+		cb->getAllTiles (fw.tiles, hero->tempOwner, subID - 1, !subID + 1); //reveal appropriate tiles
 		cb->sendAndApply (&fw);
-		cb->setObjProperty (id, 10, h->tempOwner.getNum());
+		cb->setObjProperty (id, 10, hero->tempOwner.getNum());
 	}
 }
 

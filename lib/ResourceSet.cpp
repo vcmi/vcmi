@@ -92,7 +92,7 @@ void Res::ResourceSet::nziterator::advance()
 {
 	do
 	{
-		cur.resType++;
+		vstd::advance(cur.resType, +1);
 	} while(cur.resType < GameConstants::RESOURCE_QUANTITY && !(cur.resVal=rs[cur.resType]));
 
 	if(cur.resType >= GameConstants::RESOURCE_QUANTITY)
@@ -102,8 +102,8 @@ void Res::ResourceSet::nziterator::advance()
 Res::ResourceSet::nziterator::nziterator(const ResourceSet &RS)
 	: rs(RS)
 {
-	cur.resType = 0;
-	cur.resVal = rs[0];
+	cur.resType = WOOD;
+	cur.resVal = rs[WOOD];
 
 	if(!valid())
 		advance();

@@ -113,6 +113,13 @@ public:
 	virtual void newTurn() const;
 	virtual void initObj(); //synchr
 	virtual void setProperty(ui8 what, ui32 val);//synchr
+	
+	//Called when queries created DURING HERO VISIT are resolved
+	//First parameter is always hero that visited object and triggered the query
+	virtual void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const;
+	virtual void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const;
+	virtual void garrisonDialogClosed(const CGHeroInstance *hero) const;
+
 //unified interface, AI helpers
 	virtual bool wasVisited (PlayerColor player) const;
 	virtual bool wasVisited (const CGHeroInstance * h) const;
@@ -179,6 +186,7 @@ public:
 	virtual ui8 getPassableness() const; //bitmap - if the bit is set the corresponding player can pass through the visitable tiles of object, even if it's blockvis; if not set - default properties from definfo are used
 	virtual int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	virtual int getSightRadious() const; //sight distance (should be used if player-owned structure)
+	bool passableFor(PlayerColor color) const;
 	void getSightTiles(boost::unordered_set<int3, ShashInt3> &tiles) const; //returns reference to the set
 	PlayerColor getOwner() const;
 	void setOwner(PlayerColor ow);
@@ -396,6 +404,8 @@ public:
 	CStackBasicDescriptor calculateNecromancy (const BattleResult &battleResult) const;
 	void showNecromancyDialog(const CStackBasicDescriptor &raisedStack) const;
 	ECanDig diggingStatus() const; //0 - can dig; 1 - lack of movement; 2 -
+	std::vector<SecondarySkill> levelUpProposedSkills() const;
+	bool gainsLevel() const; //true if hero has lower level than should upon his experience
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -471,10 +481,11 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void newTurn() const override;
 	void setProperty(ui8 what, ui32 val) override;
+	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const OVERRIDE;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
+
 private:
-	void heroAcceptsCreatures(const CGHeroInstance *h, ui32 answer) const;
-	void fightOver(const CGHeroInstance *h, BattleResult *result) const;
-	void wantsFight(const CGHeroInstance *h, ui32 answer) const;
+	void heroAcceptsCreatures(const CGHeroInstance *h) const;
 };
 
 
@@ -482,25 +493,26 @@ class DLL_LINKAGE CGVisitableOPH : public CGObjectInstance //objects visitable o
 {
 public:
 	std::set<ObjectInstanceID> visitors; //ids of heroes who have visited this obj
-	si8 ttype; //tree type - used only by trees of knowledge: 0 - give level for free; 1 - take 2000 gold; 2 - take 10 gems
+	TResources treePrice; //used only by trees of knowledge: empty, 2000 gold, 10 gems
 
 	const std::string & getHoverText() const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
 	bool wasVisited (const CGHeroInstance * h) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
 
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & visitors & ttype;
+		h & visitors & treePrice;
 	}
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;//synchr
 private:
 	void onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited) const;
 	///dialog callbacks
-	void treeSelected(ObjectInstanceID heroID, int resType, int resVal, TExpType expVal, ui32 result) const;
+	void treeSelected(ObjectInstanceID heroID, ui32 result) const;
 	void schoolSelected(ObjectInstanceID heroID, ui32 which) const;
 	void arenaSelected(ObjectInstanceID heroID, int primSkill) const;
 };
@@ -662,11 +674,9 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void onHeroLeave(const CGHeroInstance * h) const override;
 	void initObj() override;
+	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const OVERRIDE;
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
-private:
-	///dialog callbacks
-	void fightOver(const CGHeroInstance *h, BattleResult *result) const;
 };
 class DLL_LINKAGE CGPandoraBox : public CArmedInstance
 {
@@ -688,6 +698,8 @@ public:
 
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
+	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const OVERRIDE;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -696,10 +708,8 @@ public:
 			& abilities & abilityLevels & artifacts & spells & creatures;
 	}
 protected:
-	void endBattle(const CGHeroInstance *h, BattleResult *result) const;
 	void giveContents(const CGHeroInstance *h, bool afterBattle) const;
 private:
-	void open (const CGHeroInstance * h, ui32 accept) const;
 	void getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const;
 	void getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const;
 };
@@ -725,6 +735,10 @@ private:
 
 class DLL_LINKAGE CGCreature : public CArmedInstance //creatures on map
 {
+	enum Action {
+		FIGHT = -2, FLEE = -1, JOIN_FOR_FREE = 0 //values > 0 mean gold price
+	};
+
 public:
 	ui32 identifier; //unique code for this monster (used in missions)
 	si8 character; //character of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to -4 (compliant) ... 10 value (savage)
@@ -735,11 +749,14 @@ public:
 	bool notGrowingTeam; //if true, number of units won't grow
 	ui64 temppower; //used to handle fractional stack growth for tiny stacks
 
+	bool refusedJoining;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	const std::string & getHoverText() const override;
 	void initObj() override;
 	void newTurn() const override;
+	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const OVERRIDE;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
 
 
 	struct DLL_LINKAGE RestoredCreature // info about merging stacks after battle back into one
@@ -754,7 +771,8 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & identifier & character & message & resources & gainedArtifact & neverFlees & notGrowingTeam & temppower & restore;
+		h & identifier & character & message & resources & gainedArtifact & neverFlees & notGrowingTeam & temppower;
+		h & refusedJoining & restore;
 	}
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;
@@ -762,7 +780,6 @@ private:
 
 	void fight(const CGHeroInstance *h) const;
 	void flee( const CGHeroInstance * h ) const;
-	void endBattle(BattleResult *result) const;
 	void fleeDecision(const CGHeroInstance *h, ui32 pursue) const;
 	void joinDecision(const CGHeroInstance *h, int cost, ui32 accept) const;
 
@@ -815,6 +832,7 @@ public:
 	const std::string & getHoverText() const override;
 	void newTurn() const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
 
 	int checkDirection() const; //calculates the region of map where monster is placed
 	void setObjToKill(); //remember creatures / heroes to kill after they are initialized
@@ -888,7 +906,7 @@ public:
 
 	ui8 getPassableness() const;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void fightOver (const CGHeroInstance *h, BattleResult *result) const;
+	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -904,8 +922,9 @@ public:
 	std::string message;
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void fightForArt(ui32 agreed, const CGHeroInstance *h) const;
-	void endBattle(BattleResult *result, const CGHeroInstance *h) const;
+	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const OVERRIDE;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
+
 	void pick( const CGHeroInstance * h ) const;
 	void initObj() override;
 
@@ -924,10 +943,10 @@ public:
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
+	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const OVERRIDE;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
 
 	void collectRes(PlayerColor player) const;
-	void fightForRes(ui32 agreed, const CGHeroInstance *h) const;
-	void endBattle(BattleResult *result, const CGHeroInstance *h) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -943,7 +962,7 @@ public:
 
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void initObj() override;
-	void chosen(int which, ObjectInstanceID heroID) const;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -972,12 +991,10 @@ class DLL_LINKAGE CGMine : public CArmedInstance
 public:
 	Res::ERes producedResource;
 	ui32 producedQuantity;
-
-	void offerLeavingGuards(const CGHeroInstance *h) const;
-	void endBattle(BattleResult *result, PlayerColor attackingPlayer) const;
-	void fight(ui32 agreed, const CGHeroInstance *h) const;
-
+	
 	void onHeroVisit(const CGHeroInstance * h) const override;
+	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const OVERRIDE;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
 
 	void flagMine(PlayerColor player) const;
 	void newTurn() const override;
@@ -1125,12 +1142,11 @@ public:
 	CGBorderGuard() : IQuestObject(){};
 	void initObj() override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
 
 	void getVisitText (MetaString &text, std::vector<Component> &components, bool isCustom, bool FirstVisit, const CGHeroInstance * h = NULL) const;
 	void getRolloverText (MetaString &text, bool onHover) const;
 	bool checkQuest (const CGHeroInstance * h) const;
-
-	void openGate(const CGHeroInstance *h, ui32 accept) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1184,8 +1200,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	const std::string & getHoverText() const override;
 	void initObj() override;
-
-	void searchTomb(const CGHeroInstance *h, ui32 accept) const;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1210,9 +1225,8 @@ class DLL_LINKAGE CBank : public CArmedInstance
 	void newTurn() const override;
 	bool wasVisited (PlayerColor player) const override;
 	void onHeroVisit(const CGHeroInstance * h) const override;
-
-	virtual void fightGuards (const CGHeroInstance *h, ui32 accept) const;
-	virtual void endBattle (const CGHeroInstance *h, const BattleResult *result) const;
+	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const OVERRIDE;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1231,8 +1245,7 @@ public:
 	const std::string & getHoverText() const override;
 	void newTurn() const override {}; //empty, no reset
 	void onHeroVisit(const CGHeroInstance * h) const override;
-
-	void endBattle (const CGHeroInstance *h, const BattleResult *result) const override;
+	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -1270,7 +1283,7 @@ class DLL_LINKAGE CCartographer : public CPlayersVisited
 ///behaviour varies depending on surface and  floor
 public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
-	void buyMap (const CGHeroInstance *h, ui32 accept) const;
+	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

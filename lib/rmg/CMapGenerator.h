@@ -56,7 +56,7 @@ class DLL_LINKAGE CMapGenOptions
 {
 public:
 	/// The player settings class maps the player color, starting town and human player flag.
-	class CPlayerSettings
+	class DLL_LINKAGE CPlayerSettings
 	{
 	public:
 		CPlayerSettings();

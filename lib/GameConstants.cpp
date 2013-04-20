@@ -98,3 +98,8 @@ CSpell * SpellID::toSpell() const
 
 //template std::ostream & operator << <ArtifactInstanceID>(std::ostream & os, BaseForID<ArtifactInstanceID> id);
 //template std::ostream & operator << <ObjectInstanceID>(std::ostream & os, BaseForID<ObjectInstanceID> id);
+
+bool PlayerColor::isValidPlayer() const
+{
+	return num < PLAYER_LIMIT_I;
+}

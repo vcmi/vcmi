@@ -3196,7 +3196,7 @@ CGPathNode::EAccessibility CPathfinder::evaluateAccessibility(const TerrainTile 
 		{
 			BOOST_FOREACH(const CGObjectInstance *obj, tinfo->visitableObjects)
 			{
-				if(obj->getPassableness() & 1<<hero->tempOwner.getNum()) //special object instance specific passableness flag - overwrites other accessibility flags
+				if(obj->passableFor(hero->tempOwner)) //special object instance specific passableness flag - overwrites other accessibility flags
 				{
 					ret = CGPathNode::ACCESSIBLE;
 				}

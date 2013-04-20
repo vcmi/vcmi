@@ -741,6 +741,11 @@ ArtBearer::ArtBearer CCommanderInstance::bearerType() const
 	return ArtBearer::COMMANDER;
 }
 
+bool CCommanderInstance::gainsLevel() const
+{
+	return experience >= VLC->heroh->reqExp(level+1);
+}
+
 CStackBasicDescriptor::CStackBasicDescriptor()
 {
 	type = NULL;

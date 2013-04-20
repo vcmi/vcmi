@@ -43,24 +43,6 @@ struct SetGlobalState
 	}
 };
 
-template <typename Container>
-typename Container::value_type backOrNull(const Container &c) //returns last element of container or NULL if it is empty (to be used with containers of pointers)
-{
-	if(c.size())
-		return c.back();
-	else
-		return NULL;
-}
-
-template <typename Container>
-typename Container::value_type frontOrNull(const Container &c) //returns first element of container or NULL if it is empty (to be used with containers of pointers)
-{
-	if(c.size())
-		return c.front();
-	else
-		return NULL;
-}
-
 
 #define SET_GLOBAL_STATE(ai) SetGlobalState _hlpSetState(ai);
 
@@ -793,7 +775,7 @@ void VCAI::heroManaPointsChanged(const CGHeroInstance * hero)
 
 void VCAI::heroSecondarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
-	LOG_TRACE_PARAMS(logAi, "which '%', val '%'", which % val);
+	LOG_TRACE_PARAMS(logAi, "which '%d', val '%d'", which % val);
 	NET_EVENT_HANDLER;
 }
 
@@ -2579,6 +2561,7 @@ AIStatus::~AIStatus()
 void AIStatus::setBattle(BattleState BS)
 {
 	boost::unique_lock<boost::mutex> lock(mx);
+	LOG_TRACE_PARAMS(logAi, "battle state=%d", (int)BS);
 	battle = BS;
 	cv.notify_all();
 }

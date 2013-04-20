@@ -230,10 +230,10 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	if(LOCPLINT != this)
 		return;
 
-	const CGHeroInstance * ho = cb->getHero(details.id); //object representing this hero
+	const CGHeroInstance * hero = cb->getHero(details.id); //object representing this hero
 	int3 hp = details.start;
 
-	if(!ho)
+	if(!hero)
 	{
 		//AI hero left the visible area (we can't obtain info)
 		//TODO very evil workaround -> retreive pointer to hero so we could animate it
@@ -241,25 +241,25 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		const TerrainTile2 &tile = CGI->mh->ttiles[hp.x-1][hp.y][hp.z];
 		for(int i = 0; i < tile.objects.size(); i++)
 			if(tile.objects[i].first->id == details.id)
-				ho = dynamic_cast<const CGHeroInstance *>(tile.objects[i].first);
+				hero = dynamic_cast<const CGHeroInstance *>(tile.objects[i].first);
 
-		if(!ho) //still nothing...
+		if(!hero) //still nothing...
 			return;
 	}
 
-	adventureInt->centerOn(ho); //actualizing screen pos
+	adventureInt->centerOn(hero); //actualizing screen pos
 	adventureInt->minimap.redraw();
 	adventureInt->heroList.redraw();
 
 	bool directlyAttackingCreature =
-		CGI->mh->map->isInTheMap(details.attackedFrom)
+		details.attackedFrom
 		&& adventureInt->terrain.currentPath					//in case if movement has been canceled in the meantime and path was already erased
 		&& adventureInt->terrain.currentPath->nodes.size() == 3;//FIXME should be 2 but works nevertheless...
 
-	if(makingTurn  &&  ho->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
+	if(makingTurn  &&  hero->tempOwner == playerID) //we are moving our hero - we may need to update assigned path
 	{
 		//We may need to change music - select new track, music handler will change it if needed
-		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(ho->visitablePos())->terType, true);
+		CCS->musich->playMusicFromSet("terrain", LOCPLINT->cb->getTile(hero->visitablePos())->terType, true);
 
 		if(details.result == TryMoveHero::TELEPORTATION)
 		{
@@ -272,42 +272,42 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 					&& (nodesIt-1)->coord == CGHeroInstance::convertPosition(details.end, false))
 				{
 					//path was between entrance and exit of teleport -> OK, erase node as usual
-					removeLastNodeFromPath(ho);
+					removeLastNodeFromPath(hero);
 				}
 				else
 				{
 					//teleport was not along current path, it'll now be invalid (hero is somewhere else)
-					eraseCurrentPathOf(ho);
+					eraseCurrentPathOf(hero);
 
 				}
 			}
-			adventureInt->heroList.update(ho);
+			adventureInt->heroList.update(hero);
 			return;	//teleport - no fancy moving animation
 					//TODO: smooth disappear / appear effect
 		}
 
-		if (ho->pos != details.end //hero didn't change tile but visit succeeded
+		if (hero->pos != details.end //hero didn't change tile but visit succeeded
 			|| directlyAttackingCreature) // or creature was attacked from endangering tile.
 		{
-			eraseCurrentPathOf(ho, false);
+			eraseCurrentPathOf(hero, false);
 		}
-		else if(adventureInt->terrain.currentPath  &&  ho->pos == details.end) //&& hero is moving
+		else if(adventureInt->terrain.currentPath  &&  hero->pos == details.end) //&& hero is moving
 		{
 			if(details.start != details.end) //so we don't touch path when revisiting with spacebar
-				removeLastNodeFromPath(ho);
+				removeLastNodeFromPath(hero);
 		}
 	}
 
 	if (details.result != TryMoveHero::SUCCESS) //hero failed to move
 	{
-		ho->isStanding = true;
+		hero->isStanding = true;
 		stillMoveHero.setn(STOP_MOVE);
 		GH.totalRedraw();
-		adventureInt->heroList.update(ho);
+		adventureInt->heroList.update(hero);
 		return;
 	}
 
-	initMovement(details, ho, hp);
+	initMovement(details, hero, hp);
 
 	//first initializing done
 	GH.mainFPSmng->framerateDelay(); // after first move
@@ -316,7 +316,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	//main moving
 	for(int i=1; i<32; i+=2*speed)
 	{
-		movementPxStep(details, i, hp, ho);
+		movementPxStep(details, i, hp, hero);
 		adventureInt->updateScreen = true;
 		adventureInt->show(screen);
 		CSDL_Ext::update(screen);
@@ -325,12 +325,12 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	//main moving done
 
 	//finishing move
-	finishMovement(details, hp, ho);
-	ho->isStanding = true;
+	finishMovement(details, hp, hero);
+	hero->isStanding = true;
 
 	//move finished
 	adventureInt->minimap.redraw();
-	adventureInt->heroList.update(ho);
+	adventureInt->heroList.update(hero);
 
 	//check if user cancelled movement
 	{
@@ -358,14 +358,14 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	// Hero attacked creature directly, set direction to face it.
 	if (directlyAttackingCreature) {
 		// Get direction to attacker.
-		int3 posOffset = details.attackedFrom - details.end + int3(2, 1, 0);
+		int3 posOffset = *details.attackedFrom - details.end + int3(2, 1, 0);
 		static const ui8 dirLookup[3][3] = {
 			{ 1, 2, 3 },
 			{ 8, 0, 4 },
 			{ 7, 6, 5 }
 		};
 		// FIXME: Avoid const_cast, make moveDir mutable in some other way?
-		const_cast<CGHeroInstance *>(ho)->moveDir = dirLookup[posOffset.y][posOffset.x];
+		const_cast<CGHeroInstance *>(hero)->moveDir = dirLookup[posOffset.y][posOffset.x];
 	}
 }
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)

@@ -633,7 +633,7 @@ struct RemoveObject : public CPackForClient //500
 };
 struct TryMoveHero : public CPackForClient //501
 {
-	TryMoveHero(){type = 501;humanKnows=false; attackedFrom = int3(-1, -1, -1);};
+	TryMoveHero(){type = 501;humanKnows=false;};
 	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
 	void applyGs(CGameState *gs);
@@ -648,7 +648,7 @@ struct TryMoveHero : public CPackForClient //501
 	EResult result; //uses EResult
 	int3 start, end; //h3m format
 	boost::unordered_set<int3, ShashInt3> fowRevealed; //revealed tiles
-	int3 attackedFrom; // Set when stepping into endangered tile.
+	boost::optional<int3> attackedFrom; // Set when stepping into endangered tile.
 
 	bool humanKnows; //used locally during applying to client
 
@@ -1168,7 +1168,7 @@ struct InfoWindow : public CPackForClient //103  - displays simple info window
 namespace ObjProperty
 {
 	enum {OWNER = 1, BLOCKVIS = 2, PRIMARY_STACK_COUNT = 3, VISITORS = 4, VISITED = 5, ID = 6, AVAILABLE_CREATURE = 7, SUBID = 8,
-		MONSTER_COUNT = 10, MONSTER_POWER = 11, MONSTER_EXP = 12, MONSTER_RESTORE_TYPE = 13,
+		MONSTER_COUNT = 10, MONSTER_POWER = 11, MONSTER_EXP = 12, MONSTER_RESTORE_TYPE = 13, MONSTER_REFUSED_JOIN,
 	
 		//town-specific
 		STRUCTURE_ADD_VISITING_HERO, STRUCTURE_CLEAR_VISITORS, STRUCTURE_ADD_GARRISONED_HERO,  //changing buildings state
@@ -1216,7 +1216,7 @@ struct HeroLevelUp : public Query//2000
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	ObjectInstanceID heroid;
+	const CGHeroInstance *hero;
 	PrimarySkill::PrimarySkill primskill;
 	ui8 level;
 	std::vector<SecondarySkill> skills;
@@ -1225,7 +1225,7 @@ struct HeroLevelUp : public Query//2000
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & queryID & heroid & primskill & level & skills;
+		h & queryID & hero & primskill & level & skills;
 	}
 };
 
@@ -1234,8 +1234,7 @@ struct CommanderLevelUp : public Query
 	void applyCl(CClient *cl);
 	DLL_LINKAGE void applyGs(CGameState *gs);
 
-	ObjectInstanceID heroid; //for commander attached to hero
-	StackLocation sl; //for commander not on the hero?
+	const CGHeroInstance *hero;
 
 	std::vector<ui32> skills; //0-5 - secondary skills, val-100 - special skill
 
@@ -1243,7 +1242,7 @@ struct CommanderLevelUp : public Query
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & queryID & heroid & sl & skills;
+		h & queryID & hero & skills;
 	}
 };
 
@@ -1301,6 +1300,12 @@ struct BlockingDialog : public Query//2003
 		flags = 0;
 		soundID = 0;
 	};
+
+	void addResourceComponents(TResources resources)
+	{
+		for(TResources::nziterator i(resources); i.valid(); i++)
+			components.push_back(Component(Component::RESOURCE, i->resType, i->resVal, 0));
+	}
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

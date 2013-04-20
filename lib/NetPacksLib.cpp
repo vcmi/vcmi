@@ -994,7 +994,7 @@ DLL_LINKAGE void SetHoverName::applyGs( CGameState *gs )
 
 DLL_LINKAGE void HeroLevelUp::applyGs( CGameState *gs )
 {
-	CGHeroInstance* h = gs->getHero(heroid);
+	CGHeroInstance* h = gs->getHero(hero->id);
 	h->level = level;
 	//specialty
 	h->Updatespecialty();
@@ -1002,7 +1002,7 @@ DLL_LINKAGE void HeroLevelUp::applyGs( CGameState *gs )
 
 DLL_LINKAGE void CommanderLevelUp::applyGs (CGameState *gs)
 {
-	CCommanderInstance * commander = gs->getHero(heroid)->commander;
+	CCommanderInstance * commander = gs->getHero(hero->id)->commander;
 	assert (commander);
 	commander->levelUp();
 }

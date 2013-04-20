@@ -215,6 +215,8 @@ class PlayerColor : public BaseForID<PlayerColor, ui8>
 	DLL_LINKAGE static const int PLAYER_LIMIT_I = 8; //player limit per map
 	DLL_LINKAGE static const PlayerColor PLAYER_LIMIT; //player limit per map
 
+	DLL_LINKAGE bool isValidPlayer() const; //valid means < PLAYER_LIMIT (especially non-neutral)
+
 	friend class CGameInfoCallback;
 	friend class CNonConstInfoCallback;
 };

@@ -128,7 +128,7 @@ extern DLL_LINKAGE CLogger * logAi;
 
 /// RAII class for tracing the program execution.
 /// It prints "Leaving function XYZ" automatically when the object gets destructed.
-class DLL_LINKAGE CTraceLogger
+class DLL_LINKAGE CTraceLogger : boost::noncopyable
 {
 public:
 	CTraceLogger(const CLogger * logger, const std::string & beginMessage, const std::string & endMessage);
@@ -141,10 +141,20 @@ private:
 
 /// Macros for tracing the control flow of the application conveniently. If the LOG_TRACE macro is used it should be
 /// the first statement in the function. Logging traces via this macro have almost no impact when the trace is disabled.
-#define LOG_TRACE(logger) if(logger->isTraceEnabled()) CTraceLogger ctl00(logger, boost::str(boost::format("Entering %s.") % BOOST_CURRENT_FUNCTION), \
-	boost::str(boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION))
-#define LOG_TRACE_PARAMS(logger, formatStr, params) if(logger->isTraceEnabled()) CTraceLogger ctl00(logger, boost::str(boost::format("Entering %s: " + \
-	std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params), boost::str(boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION))
+/// 
+#define RAII_TRACE(logger, onEntry, onLeave)			\
+	unique_ptr<CTraceLogger> ctl00;						\
+	if(logger->isTraceEnabled())						\
+		ctl00 = make_unique<CTraceLogger>(logger, onEntry, onLeave);
+
+#define LOG_TRACE(logger) RAII_TRACE(logger,								\
+		boost::str(boost::format("Entering %s.") % BOOST_CURRENT_FUNCTION),	\
+		boost::str(boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION))
+
+
+#define LOG_TRACE_PARAMS(logger, formatStr, params) RAII_TRACE(logger,		\
+		boost::str(boost::format("Entering %s: " + std::string(formatStr) + ".") % BOOST_CURRENT_FUNCTION % params), \
+		boost::str(boost::format("Leaving %s.") % BOOST_CURRENT_FUNCTION))
 
 /* ---------------------------------------------------------------------------- */
 /* Implementation/Detail classes, Private API */

@@ -145,6 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CGameHandler.cpp" />
+    <ClCompile Include="CQuery.cpp" />
     <ClCompile Include="CVCMIServer.cpp" />
     <ClCompile Include="NetPacksServer.cpp" />
     <ClCompile Include="StdInc.cpp">
@@ -158,6 +159,7 @@
   <ItemGroup>
     <ClInclude Include="..\Global.h" />
     <ClInclude Include="CGameHandler.h" />
+    <ClInclude Include="CQuery.h" />
     <ClInclude Include="CVCMIServer.h" />
     <ClInclude Include="StdInc.h" />
   </ItemGroup>

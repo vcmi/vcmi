@@ -69,8 +69,8 @@ bool EndTurn::applyGh( CGameHandler *gh )
 {
 	PlayerColor player = GS(gh)->currentPlayer;
 	ERROR_IF_NOT(player);
-	if(gh->states.checkFlag(player, &PlayerStatus::engagedIntoBattle))
-		COMPLAIN_AND_RETURN("Cannot end turn when in battle!");
+	if(gh->queries.topQuery(player))
+		COMPLAIN_AND_RETURN("Cannot end turn before resolving queries!");
 
 	gh->states.setFlag(GS(gh)->currentPlayer,&PlayerStatus::makingTurn,false);
 	return true;

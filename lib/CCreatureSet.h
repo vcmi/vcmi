@@ -103,6 +103,7 @@ public:
 	void giveStackExp (TExpType exp);
 	void levelUp ();
 
+	bool gainsLevel() const; //true if commander has lower level than should upon his experience
 	ui64 getPower() const {return 0;};
 	int getExpRank() const;
 	int getLevel() const OVERRIDE; 
