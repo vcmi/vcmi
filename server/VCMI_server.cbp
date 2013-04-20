@@ -61,6 +61,8 @@
 		</Linker>
 		<Unit filename="CGameHandler.cpp" />
 		<Unit filename="CGameHandler.h" />
+		<Unit filename="CQuery.cpp" />
+		<Unit filename="CQuery.h" />
 		<Unit filename="CVCMIServer.cpp" />
 		<Unit filename="CVCMIServer.h" />
 		<Unit filename="NetPacksServer.cpp" />
