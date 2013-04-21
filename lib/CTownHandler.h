@@ -94,7 +94,7 @@ struct DLL_LINKAGE SPuzzleInfo
 	}
 };
 
-class CFaction
+class DLL_LINKAGE CFaction
 {
 public:
 	CFaction();

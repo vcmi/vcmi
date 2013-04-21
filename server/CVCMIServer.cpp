@@ -316,7 +316,7 @@ CVCMIServer::~CVCMIServer()
 {
 	//delete io;
 	//delete acceptor;
-	/delete firstConnection;
+	//delete firstConnection;
 }
 
 CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
