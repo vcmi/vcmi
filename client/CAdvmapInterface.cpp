@@ -549,7 +549,7 @@ void CAdvMapInt::updateSleepWake(const CGHeroInstance *h)
 void CAdvMapInt::updateMoveHero(const CGHeroInstance *h, tribool hasPath)
 {
 	//default value is for everywhere but CPlayerInterface::moveHero, because paths are not updated from there immediately
-	if (hasPath == tribool::indeterminate_value)
+	if (hasPath == boost::indeterminate)
 		 hasPath = LOCPLINT->paths[h].nodes.size() ? true : false;
 	if (!h)
 	{
