@@ -181,7 +181,7 @@ public:
 	const IShipyard * ourInaccessibleShipyard(const CGObjectInstance *obj) const; //checks if obj is our ashipyard and cursor is 0,0 -> returns shipyard or NULL else
 	//button updates
 	void updateSleepWake(const CGHeroInstance *h); 
-	void updateMoveHero(const CGHeroInstance *h, tribool hasPath = tribool::indeterminate_value);
+	void updateMoveHero(const CGHeroInstance *h, tribool hasPath = boost::logic::indeterminate);
 	void updateNextHero(const CGHeroInstance *h);
 };
 
