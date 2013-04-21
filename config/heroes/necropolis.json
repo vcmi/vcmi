@@ -1,7 +1,7 @@
 {
 	"straker":
 	{
-		"id": 64,
+		"index": 64,
 		"class" : "deathknight",
 		"female": false,
 		"spellbook": [ "haste" ],
@@ -17,7 +17,7 @@
 	},
 	"vokial":
 	{
-		"id": 65,
+		"index": 65,
 		"class" : "deathknight",
 		"female": false,
 		"spellbook": [ "stoneSkin" ],
@@ -33,7 +33,7 @@
 	},
 	"moandor":
 	{
-		"id": 66,
+		"index": 66,
 		"class" : "deathknight",
 		"female": false,
 		"spellbook": [ "slow" ],
@@ -49,7 +49,7 @@
 	},
 	"charna":
 	{
-		"id": 67,
+		"index": 67,
 		"class" : "deathknight",
 		"female": true,
 		"spellbook": [ "magicArrow" ],
@@ -65,7 +65,7 @@
 	},
 	"tamika":
 	{
-		"id": 68,
+		"index": 68,
 		"class" : "deathknight",
 		"female": true,
 		"spellbook": [ "magicArrow" ],
@@ -81,7 +81,7 @@
 	},
 	"isra":
 	{
-		"id": 69,
+		"index": 69,
 		"class" : "deathknight",
 		"female": true,
 		"spellbook": [ "magicArrow" ],
@@ -96,7 +96,7 @@
 	},
 	"clavius":
 	{
-		"id": 70,
+		"index": 70,
 		"class" : "deathknight",
 		"female": false,
 		"spellbook": [ "magicArrow" ],
@@ -112,7 +112,7 @@
 	},
 	"galthran":
 	{
-		"id": 71,
+		"index": 71,
 		"class" : "deathknight",
 		"female": false,
 		"spellbook": [ "shield" ],
@@ -128,7 +128,7 @@
 	},
 	"septienna":
 	{
-		"id": 72,
+		"index": 72,
 		"class" : "necromancer",
 		"female": true,
 		"spellbook": [ "deathRipple" ],
@@ -144,7 +144,7 @@
 	},
 	"aislinn":
 	{
-		"id": 73,
+		"index": 73,
 		"class" : "necromancer",
 		"female": true,
 		"spellbook": [ "meteorShower" ],
@@ -160,7 +160,7 @@
 	},
 	"sandro":
 	{
-		"id": 74,
+		"index": 74,
 		"class" : "necromancer",
 		"female": false,
 		"spellbook": [ "slow" ],
@@ -176,7 +176,7 @@
 	},
 	"nimbus":
 	{
-		"id": 75,
+		"index": 75,
 		"class" : "necromancer",
 		"female": false,
 		"spellbook": [ "shield" ],
@@ -192,7 +192,7 @@
 	},
 	"thant":
 	{
-		"id": 76,
+		"index": 76,
 		"class" : "necromancer",
 		"female": false,
 		"spellbook": [ "animateDead" ],
@@ -208,7 +208,7 @@
 	},
 	"xsi":
 	{
-		"id": 77,
+		"index": 77,
 		"class" : "necromancer",
 		"female": true,
 		"spellbook": [ "stoneSkin" ],
@@ -224,7 +224,7 @@
 	},
 	"vidomina":
 	{
-		"id": 78,
+		"index": 78,
 		"class" : "necromancer",
 		"female": true,
 		"spellbook": [ "curse" ],
@@ -239,7 +239,7 @@
 	},
 	"nagash":
 	{
-		"id": 79,
+		"index": 79,
 		"class" : "necromancer",
 		"female": false,
 		"spellbook": [ "protectAir" ],

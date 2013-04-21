@@ -1271,7 +1271,7 @@ void CGameHandler::newTurn()
 		{
 			if(t->hasBuilt(BuildingID::RESOURCE_SILO)) //there is resource silo
 			{
-				if(t->town->primaryRes == 127) //we'll give wood and ore
+				if(t->town->primaryRes == Res::WOOD_AND_ORE) //we'll give wood and ore
 				{
 					n.res[player][Res::WOOD] ++;
 					n.res[player][Res::ORE] ++;
@@ -4739,11 +4739,12 @@ bool CGameHandler::complain( const std::string &problem )
 
 void CGameHandler::showGarrisonDialog( ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const boost::function<void()> &cb )
 {
-	PlayerColor player = getOwner(hid);
+	//PlayerColor player = getOwner(hid);
 	auto upperArmy = dynamic_cast<const CArmedInstance*>(getObj(upobj));
 	auto lowerArmy = dynamic_cast<const CArmedInstance*>(getObj(hid));
 	
-	assert(upperArmy, lowerArmy);
+	assert(lowerArmy);
+	assert(upperArmy);
 
 	auto garrisonQuery = make_shared<CGarrisonDialogQuery>(upperArmy, lowerArmy);
 	queries.addQuery(garrisonQuery);
@@ -4786,6 +4787,16 @@ bool CGameHandler::isAllowedExchange( ObjectInstanceID id1, ObjectInstanceID id2
 		{
 			const CGTownInstance *t = static_cast<const CGTownInstance*>(o2);
 			if(t->visitingHero == o1  ||  t->garrisonHero == o1)
+				return true;
+		}
+
+		if (o1->ID == Obj::HERO && o2->ID == Obj::HERO)
+		{
+			const CGHeroInstance *h1 = static_cast<const CGHeroInstance*>(o1);
+			const CGHeroInstance *h2 = static_cast<const CGHeroInstance*>(o2);
+
+			// two heroes in same town (garrisoned and visiting)
+			if (h1->visitedTown != nullptr && h2->visitedTown != nullptr && h1->visitedTown == h2->visitedTown)
 				return true;
 		}
 

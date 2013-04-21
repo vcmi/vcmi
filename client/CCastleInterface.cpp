@@ -110,7 +110,7 @@ void CBuildingRect::clickRight(tribool down, bool previousState)
 		if (bid < BuildingID::DWELL_FIRST)
 		{
 			CRClickPopup::createAndPush(CInfoWindow::genText(bld->Name(), bld->Description()),
-			                            new CComponent(CComponent::building, bld->tid, bld->bid));
+			                            new CComponent(CComponent::building, bld->town->faction->index, bld->bid));
 		}
 		else
 		{
@@ -1120,7 +1120,7 @@ void CTownInfo::clickRight(tribool down, bool previousState)
 {
 	if(down && building)
 		CRClickPopup::createAndPush(CInfoWindow::genText(building->Name(), building->Description()),
-		                            new CComponent(CComponent::building, building->tid, building->bid));
+		                            new CComponent(CComponent::building, building->town->faction->index, building->bid));
 
 }
 

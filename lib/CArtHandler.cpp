@@ -148,10 +148,11 @@ CArtHandler::~CArtHandler()
 {
 }
 
-void CArtHandler::load(bool onlyTxt)
+std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)
 {
-	if (onlyTxt)
-		return; // looks to be broken anyway...
+	artifacts.resize(dataSize);
+	std::vector<JsonNode> h3Data;
+	h3Data.reserve(dataSize);
 
 	#define ART_POS(x) (  #x)
 	const std::vector<std::string> artSlots = boost::assign::list_of ART_POS_LIST;
@@ -166,11 +167,7 @@ void CArtHandler::load(bool onlyTxt)
 	parser.endLine(); // header
 	parser.endLine();
 
-	std::map<ui32,ui8>::iterator itr;
-
-	std::vector<JsonNode> h3Data;
-
-	for (size_t i = 0; i < GameConstants::ARTIFACTS_QUANTITY; i++)
+	for (size_t i = 0; i < dataSize; i++)
 	{
 		JsonNode artData;
 
@@ -194,42 +191,31 @@ void CArtHandler::load(bool onlyTxt)
 		events.endLine();
 		h3Data.push_back(artData);
 	}
-
-	artifacts.resize(GameConstants::ARTIFACTS_QUANTITY);
-
-	JsonNode config(ResourceID("config/artifacts.json"));
-
-	BOOST_FOREACH(auto & node, config["artifacts"].Struct())
-	{
-		int numeric = node.second["id"].Float();
-		JsonNode & artData = h3Data[numeric];
-		JsonUtils::merge(artData, node.second);
-
-		//JsonUtils::validate(artData, "vcmi:artifact", node.first);
-		artifacts[numeric] = loadArtifact(artData);
-		artifacts[numeric]->id = ArtifactID(numeric);
-
-		VLC->modh->identifiers.registerObject ("artifact." + node.first, numeric);
-	}
-
-	for (size_t i=0; i < artifacts.size(); i++)
-	{
-		if (artifacts[i] == nullptr)
-            logGlobal->warnStream() << "Warning: artifact with id " << i << " is missing!";
-	}
+	return h3Data;
 }
 
-void CArtHandler::load(std::string objectID, const JsonNode & node)
+void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	CArtifact * art = loadArtifact(node);
-	art->id = ArtifactID(artifacts.size());
+	auto object = loadFromJson(data);
+	object->id = ArtifactID(artifacts.size());
 
-	artifacts.push_back(art);
-    logGlobal->traceStream() << "Added artifact: " << objectID;
-	VLC->modh->identifiers.registerObject ("artifact." + objectID, art->id);
+	artifacts.push_back(object);
+
+	VLC->modh->identifiers.registerObject(scope, "artifact", name, object->id);
 }
 
-CArtifact * CArtHandler::loadArtifact(const JsonNode & node)
+void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+{
+	auto object = loadFromJson(data);
+	object->id = ArtifactID(index);
+
+	assert(artifacts[index] == nullptr); // ensure that this id was not loaded before
+	artifacts[index] = object;
+
+	VLC->modh->identifiers.registerObject(scope, "artifact", name, object->id);
+}
+
+CArtifact * CArtHandler::loadFromJson(const JsonNode & node)
 {
 	CArtifact * art;
 
@@ -586,7 +572,7 @@ void CArtHandler::initAllowedArtifactsList(const std::vector<bool> &allowed)
 	}
 }
 
-std::vector<bool> CArtHandler::getDefaultAllowedArtifacts() const
+std::vector<bool> CArtHandler::getDefaultAllowed() const
 {
 	std::vector<bool> allowedArtifacts;
 	allowedArtifacts.resize(127, true);

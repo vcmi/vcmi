@@ -46,8 +46,10 @@ void CGDefInfo::fetchInfoFromMSK()
 	}
 }
 
-void CDefObjInfoHandler::load()
+CDefObjInfoHandler::CDefObjInfoHandler()
 {
+	VLC->dobjinfo = this;
+
 	auto textFile = CResourceHandler::get()->loadData(ResourceID("DATA/ZOBJCTS.TXT"));
 
 	std::istringstream inp(std::string((char*)textFile.first.get(), textFile.second));
@@ -132,8 +134,17 @@ void CDefObjInfoHandler::load()
 		//coverageMap calculating
 		nobj->fetchInfoFromMSK();
 
+		auto dest = nobj->id.toDefObjInfo();
+		if (dest.find(nobj->subid) != dest.end() && dest[nobj->subid] != nullptr)
+		{
+			// there is just too many of these. Note that this data is almost unused
+			// exceptions are: town(village-capitol) and creation of new objects (holes, creatures, heroes, etc)
+			//logGlobal->warnStream() << "Warning: overwriting def info for " << dest[nobj->subid]->name << " with " << nobj->name;
+			dest[nobj->subid].dellNull(); // do not leak
+		}
 
 		nobj->id.toDefObjInfo()[nobj->subid] = nobj;
+
 	}
 
 	for (int i = 0; i < 8 ; i++)

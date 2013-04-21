@@ -177,7 +177,7 @@ void CTownTooltip::init(const InfoAboutTown &town)
 
 		if(town.details->customRes)//silo is built
 		{
-			if (town.tType->primaryRes == 127 )// wood & ore
+			if (town.tType->primaryRes == Res::WOOD_AND_ORE )// wood & ore
 			{
 				new CAnimImage("SMALRES", Res::WOOD, 0, 7, 75);
 				new CAnimImage("SMALRES", Res::ORE , 0, 7, 88);
@@ -921,7 +921,7 @@ const std::vector<std::string> CComponent::getFileName()
 	case spell:      return gen(spellsArr);
 	case morale:     return gen(moraleArr);
 	case luck:       return gen(luckArr);
-	case building:   return std::vector<std::string>(4, CGI->townh->towns[subtype].clientInfo.buildingsIcons);
+	case building:   return std::vector<std::string>(4, CGI->townh->factions[subtype]->town->clientInfo.buildingsIcons);
 	case hero:       return gen(heroArr);
 	case flag:       return gen(flagArr);
 	}
@@ -964,7 +964,7 @@ std::string CComponent::getDescription()
 	case spell:      return CGI->spellh->spells[subtype]->descriptions[val];
 	case morale:     return CGI->generaltexth->heroscrn[ 4 - (val>0) + (val<0)];
 	case luck:       return CGI->generaltexth->heroscrn[ 7 - (val>0) + (val<0)];
-	case building:   return CGI->townh->towns[subtype].buildings[BuildingID(val)]->Description();
+	case building:   return CGI->townh->factions[subtype]->town->buildings[BuildingID(val)]->Description();
 	case hero:       return CGI->heroh->heroes[subtype]->name;
 	case flag:       return "";
 	}
@@ -996,7 +996,7 @@ std::string CComponent::getSubtitleInternal()
 	case spell:      return CGI->spellh->spells[subtype]->name;
 	case morale:     return "";
 	case luck:       return "";
-	case building:   return CGI->townh->towns[subtype].buildings[BuildingID(val)]->Name();
+	case building:   return CGI->townh->factions[subtype]->town->buildings[BuildingID(val)]->Name();
 	case hero:       return CGI->heroh->heroes[subtype]->name;
 	case flag:       return CGI->generaltexth->capColors[subtype];
 	}
@@ -1317,12 +1317,12 @@ CCreaturePic::CCreaturePic(int x, int y, const CCreature *cre, bool Big, bool An
 
 	TFaction faction = cre->faction;
 
-	assert(vstd::contains(CGI->townh->factions, cre->faction));
+	assert(CGI->townh->factions.size() > faction);
 
 	if(Big)
-		bg = new CPicture(CGI->townh->factions[faction].creatureBg130);
+		bg = new CPicture(CGI->townh->factions[faction]->creatureBg130);
 	else
-		bg = new CPicture(CGI->townh->factions[faction].creatureBg120);
+		bg = new CPicture(CGI->townh->factions[faction]->creatureBg120);
 	bg->needRefresh = true;
 	anim = new CCreatureAnim(0, 0, cre->animDefName, Rect());
 	anim->clipRect(cre->isDoubleWide()?170:150, 155, bg->pos.w, bg->pos.h);
@@ -2568,14 +2568,14 @@ CMarketplaceWindow::CMarketplaceWindow(const IMarket *Market, const CGHeroInstan
 		switch (mode)
 		{
 		break; case EMarketMode::CREATURE_RESOURCE:
-			title = CGI->townh->towns[ETownType::STRONGHOLD].buildings[BuildingID::FREELANCERS_GUILD]->Name();
+			title = CGI->townh->factions[ETownType::STRONGHOLD]->town->buildings[BuildingID::FREELANCERS_GUILD]->Name();
 
 		break; case EMarketMode::RESOURCE_ARTIFACT:
-			title = CGI->townh->towns[market->o->subID].buildings[BuildingID::ARTIFACT_MERCHANT]->Name();
+			title = CGI->townh->factions[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->Name();
 			sliderNeeded = false;
 
 		break; case EMarketMode::ARTIFACT_RESOURCE:
-			title = CGI->townh->towns[market->o->subID].buildings[BuildingID::ARTIFACT_MERCHANT]->Name();
+			title = CGI->townh->factions[market->o->subID]->town->buildings[BuildingID::ARTIFACT_MERCHANT]->Name();
 			sliderNeeded = false;
 
 		break; default:
@@ -5239,7 +5239,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 
 	int faction = LOCPLINT->cb->getStartInfo()->playerInfos.find(LOCPLINT->playerID)->second.castle;
 
-	auto & puzzleMap = CGI->townh->factions[faction].puzzleMap;
+	auto & puzzleMap = CGI->townh->factions[faction]->puzzleMap;
 
 	for(int g=0; g<puzzleMap.size(); ++g)
 	{
@@ -5468,7 +5468,7 @@ CUniversityWindow::CUniversityWindow(const CGHeroInstance * _hero, const IMarket
 	CIntObject * titlePic = nullptr;
 
 	if (market->o->ID == Obj::TOWN)
-		titlePic = new CAnimImage(CGI->townh->towns[ETownType::CONFLUX].clientInfo.buildingsIcons, BuildingID::MAGIC_UNIVERSITY);
+		titlePic = new CAnimImage(CGI->townh->factions[ETownType::CONFLUX]->town->clientInfo.buildingsIcons, BuildingID::MAGIC_UNIVERSITY);
 	else
 		titlePic = new CPicture("UNIVBLDG");
 

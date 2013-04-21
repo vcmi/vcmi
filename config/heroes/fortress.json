@@ -1,7 +1,7 @@
 {
 	"bron":
 	{
-		"id": 112,
+		"index": 112,
 		"class" : "beastmaster",
 		"female": false,
 		"skills":
@@ -16,7 +16,7 @@
 	},
 	"drakon":
 	{
-		"id": 113,
+		"index": 113,
 		"class" : "beastmaster",
 		"female": false,
 		"skills":
@@ -31,7 +31,7 @@
 	},
 	"wystan":
 	{
-		"id": 114,
+		"index": 114,
 		"class" : "beastmaster",
 		"female": false,
 		"skills":
@@ -46,7 +46,7 @@
 	},
 	"tazar":
 	{
-		"id": 115,
+		"index": 115,
 		"class" : "beastmaster",
 		"female": false,
 		"skills":
@@ -60,7 +60,7 @@
 	},
 	"alkin":
 	{
-		"id": 116,
+		"index": 116,
 		"class" : "beastmaster",
 		"female": false,
 		"skills":
@@ -75,7 +75,7 @@
 	},
 	"korbac":
 	{
-		"id": 117,
+		"index": 117,
 		"class" : "beastmaster",
 		"female": false,
 		"skills":
@@ -90,7 +90,7 @@
 	},
 	"gerwulf":
 	{
-		"id": 118,
+		"index": 118,
 		"class" : "beastmaster",
 		"female": false,
 		"skills":
@@ -105,7 +105,7 @@
 	},
 	"broghild":
 	{
-		"id": 119,
+		"index": 119,
 		"class" : "beastmaster",
 		"female": false,
 		"skills":
@@ -120,7 +120,7 @@
 	},
 	"mirlanda":
 	{
-		"id": 120,
+		"index": 120,
 		"class" : "witch",
 		"spellbook": [ "weakness" ],
 		"female": true,
@@ -135,7 +135,7 @@
 	},
 	"rosic":
 	{
-		"id": 121,
+		"index": 121,
 		"class" : "witch",
 		"female": true,
 		"spellbook": [ "magicArrow" ],
@@ -151,7 +151,7 @@
 	},
 	"voy":
 	{
-		"id": 122,
+		"index": 122,
 		"class" : "witch",
 		"female": true,
 		"spellbook": [ "slow" ],
@@ -167,7 +167,7 @@
 	},
 	"verdish":
 	{
-		"id": 123,
+		"index": 123,
 		"class" : "witch",
 		"female": true,
 		"spellbook": [ "protectFire" ],
@@ -183,7 +183,7 @@
 	},
 	"merist":
 	{
-		"id": 124,
+		"index": 124,
 		"class" : "witch",
 		"female": true,
 		"spellbook": [ "stoneSkin" ],
@@ -199,7 +199,7 @@
 	},
 	"styg":
 	{
-		"id": 125,
+		"index": 125,
 		"class" : "witch",
 		"female": true,
 		"spellbook": [ "shield" ],
@@ -215,7 +215,7 @@
 	},
 	"andra":
 	{
-		"id": 126,
+		"index": 126,
 		"class" : "witch",
 		"female": true,
 		"spellbook": [ "dispel" ],
@@ -231,7 +231,7 @@
 	},
 	"tiva":
 	{
-		"id": 127,
+		"index": 127,
 		"class" : "witch",
 		"female": true,
 		"spellbook": [ "stoneSkin" ],

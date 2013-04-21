@@ -575,7 +575,7 @@ namespace vstd
 		if(c.size())
 			return c.back();
 		else
-			return NULL;
+			return nullptr;
 	}
 
 	template <typename Container>
@@ -584,7 +584,7 @@ namespace vstd
 		if(c.size())
 			return c.front();
 		else
-			return NULL;
+			return nullptr;
 	}
 }
 using vstd::operator-=;

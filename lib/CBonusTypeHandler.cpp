@@ -119,6 +119,8 @@ CBonusTypeHandler::CBonusTypeHandler()
 	
 	BONUS_LIST;
 	#undef BONUS_NAME
+
+	load();
 }
 
 CBonusTypeHandler::~CBonusTypeHandler()
@@ -262,7 +264,6 @@ void CBonusTypeHandler::load()
 {
 	const JsonNode gameConf(ResourceID("config/gameConfig.json"));
 	const JsonNode config(JsonUtils::assembleFromFiles(gameConf["bonuses"].convertTo<std::vector<std::string> >()));
-	
 	load(config);
 }
 

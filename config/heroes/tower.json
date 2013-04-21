@@ -1,7 +1,7 @@
 {
 	"piquedram":
 	{
-		"id": 32,
+		"index": 32,
 		"class" : "alchemist",
 		"female": false,
 		"spellbook": [ "shield" ],
@@ -17,7 +17,7 @@
 	},
 	"thane":
 	{
-		"id": 33,
+		"index": 33,
 		"class" : "alchemist",
 		"female": false,
 		"spellbook": [ "magicArrow" ],
@@ -32,7 +32,7 @@
 	},
 	"josephine":
 	{
-		"id": 34,
+		"index": 34,
 		"class" : "alchemist",
 		"spellbook": [ "haste" ],
 		"female": true,
@@ -48,7 +48,7 @@
 	},
 	"neela":
 	{
-		"id": 35,
+		"index": 35,
 		"class" : "alchemist",
 		"female": true,
 		"spellbook": [ "shield" ],
@@ -64,7 +64,7 @@
 	},
 	"torosar ":
 	{
-		"id": 36,
+		"index": 36,
 		"class" : "alchemist",
 		"female": false,
 		"spellbook": [ "magicArrow" ],
@@ -80,7 +80,7 @@
 	},
 	"fafner":
 	{
-		"id": 37,
+		"index": 37,
 		"class" : "alchemist",
 		"female": false,
 		"spellbook": [ "haste" ],
@@ -96,7 +96,7 @@
 	},
 	"rissa":
 	{
-		"id": 38,
+		"index": 38,
 		"class" : "alchemist",
 		"female": true,
 		"spellbook": [ "magicArrow" ],
@@ -112,7 +112,7 @@
 	},
 	"iona":
 	{
-		"id": 39,
+		"index": 39,
 		"class" : "alchemist",
 		"spellbook": [ "magicArrow" ],
 		"female": true,
@@ -128,7 +128,7 @@
 	},
 	"astral":
 	{
-		"id": 40,
+		"index": 40,
 		"class" : "wizard",
 		"female": false,
 		"spellbook": [ "hypnotize" ],
@@ -143,7 +143,7 @@
 	},
 	"halon":
 	{
-		"id": 41,
+		"index": 41,
 		"class" : "wizard",
 		"female": false,
 		"spellbook": [ "stoneSkin" ],
@@ -159,7 +159,7 @@
 	},
 	"serena":
 	{
-		"id": 42,
+		"index": 42,
 		"class" : "wizard",
 		"female": true,
 		"spellbook": [ "dispel" ],
@@ -175,7 +175,7 @@
 	},
 	"daremyth":
 	{
-		"id": 43,
+		"index": 43,
 		"class" : "wizard",
 		"female": true,
 		"spellbook": [ "fortune" ],
@@ -191,7 +191,7 @@
 	},
 	"theodorus":
 	{
-		"id": 44,
+		"index": 44,
 		"class" : "wizard",
 		"spellbook": [ "shield" ],
 		"female": false,
@@ -207,7 +207,7 @@
 	},
 	"solmyr":
 	{
-		"id": 45,
+		"index": 45,
 		"class" : "wizard",
 		"female": false,
 		"spellbook": [ "chainLightning" ],
@@ -223,7 +223,7 @@
 	},
 	"cyra":
 	{
-		"id": 46,
+		"index": 46,
 		"class" : "wizard",
 		"female": true,
 		"spellbook": [ "haste" ],
@@ -239,7 +239,7 @@
 	},
 	"aine":
 	{
-		"id": 47,
+		"index": 47,
 		"class" : "wizard",
 		"female": true,
 		"spellbook": [ "curse" ],

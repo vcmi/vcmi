@@ -18,7 +18,10 @@ PlayerInfo::PlayerInfo(): canHumanPlay(false), canComputerPlay(false),
 	aiTactic(EAiTactic::RANDOM), isFactionRandom(false), mainHeroPortrait(-1), hasMainTown(false),
 	generateHeroAtMainTown(false), team(255), generateHero(false), p7(0), hasHero(false), customHeroID(-1), powerPlaceholders(-1)
 {
-	allowedFactions = VLC->townh->getDefaultAllowedFactions();
+	auto allowed = VLC->townh->getDefaultAllowed();
+	for (size_t i=0; i<allowed.size(); i++)
+		if (allowed[i])
+			allowedFactions.insert(i);
 }
 
 si8 PlayerInfo::defaultCastle() const
@@ -136,7 +139,7 @@ bool TerrainTile::isWater() const
 CMapHeader::CMapHeader() : version(EMapFormat::SOD), height(72), width(72),
 	twoLevel(true), difficulty(1), levelLimit(0), howManyTeams(0), areAnyPlayers(false)
 {
-	allowedHeroes = VLC->heroh->getDefaultAllowedHeroes();
+	allowedHeroes = VLC->heroh->getDefaultAllowed();
 	players.resize(PlayerColor::PLAYER_LIMIT_I);
 }
 
@@ -148,8 +151,8 @@ CMapHeader::~CMapHeader()
 CMap::CMap() : checksum(0), grailRadious(0), terrain(nullptr)
 {
 	allowedAbilities = VLC->heroh->getDefaultAllowedAbilities();
-	allowedArtifact = VLC->arth->getDefaultAllowedArtifacts();
-	allowedSpell = VLC->spellh->getDefaultAllowedSpells();
+	allowedArtifact = VLC->arth->getDefaultAllowed();
+	allowedSpell = VLC->spellh->getDefaultAllowed();
 }
 
 CMap::~CMap()

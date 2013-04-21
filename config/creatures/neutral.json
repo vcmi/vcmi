@@ -2,7 +2,7 @@
 {
 	"goldGolem" :
 	{
-		"id": 116,
+		"index": 116,
 		"level": 4,
 		"faction": "neutral",
 		"abilities":
@@ -33,7 +33,7 @@
 	},
 	"diamondGolem" :
 	{
-		"id": 117,
+		"index": 117,
 		"level": 5,
 		"faction": "neutral",
 		"abilities":
@@ -65,7 +65,7 @@
 	"azureDragon" :
 	{
 		"special" : true,
-		"id": 132,
+		"index": 132,
 		"level": 10,
 		"faction": "neutral",
 		"abilities":
@@ -108,7 +108,7 @@
 	"crystalDragon" :
 	{
 		"special" : true,
-		"id": 133,
+		"index": 133,
 		"level": 10,
 		"faction": "neutral",
 		"abilities":
@@ -135,7 +135,7 @@
 	"fairieDragon" :
 	{
 		"special" : true,
-		"id": 134,
+		"index": 134,
 		"level": 8,
 		"faction": "neutral",
 		"abilities":
@@ -233,7 +233,7 @@
 	"rustDragon" :
 	{
 		"special" : true,
-		"id": 135,
+		"index": 135,
 		"level": 10,
 		"faction": "neutral",
 		"abilities":
@@ -271,7 +271,7 @@
 	"enchanter" :
 	{
 		"special" : true,
-		"id": 136,
+		"index": 136,
 		"level": 6,
 		"extraNames": [ "enchanters" ],
 		"faction": "neutral",
@@ -351,7 +351,7 @@
 	"sharpshooter" :
 	{
 		"special" : true,
-		"id": 137,
+		"index": 137,
 		"level": 4,
 		"extraNames": [ "sharpshooters" ],
 		"faction": "neutral",
@@ -386,7 +386,7 @@
 	},
 	"halfling" :
 	{
-		"id": 138,
+		"index": 138,
 		"level": 1,
 		"faction": "neutral",
 		"graphics" :
@@ -409,7 +409,7 @@
 	},
 	"peasant" :
 	{
-		"id": 139,
+		"index": 139,
 		"level": 1,
 		"faction": "neutral",
 		"graphics" :
@@ -427,7 +427,7 @@
 	},
 	"boar" :
 	{
-		"id": 140,
+		"index": 140,
 		"level": 2,
 		"faction": "neutral",
 		"doubleWide" : true,
@@ -446,7 +446,7 @@
 	},
 	"mummy" :
 	{
-		"id": 141,
+		"index": 141,
 		"level": 3,
 		"faction": "neutral",
 		"abilities":
@@ -471,7 +471,7 @@
 	},
 	"nomad" :
 	{
-		"id": 142,
+		"index": 142,
 		"level": 3,
 		"faction": "neutral",
 		"doubleWide" : true,
@@ -490,7 +490,7 @@
 	},
 	"rogue" :
 	{
-		"id": 143,
+		"index": 143,
 		"level": 2,
 		"faction": "neutral",
 		"graphics" :
@@ -508,7 +508,7 @@
 	},
 	"troll" :
 	{
-		"id": 144,
+		"index": 144,
 		"level": 5,
 		"faction": "neutral",
 		"abilities":

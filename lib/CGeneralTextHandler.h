@@ -105,6 +105,5 @@ public:
 	std::vector < std::vector <std::string> > campaignRegionNames;
 
 	void readToVector(std::string sourceName, std::vector<std::string> & dest);
-	void load();
 	CGeneralTextHandler();
 };

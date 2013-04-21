@@ -59,6 +59,22 @@ namespace NSecondarySkill
 	};
 }
 
+namespace EBuildingType
+{
+	const std::string names [44] =
+	{
+		"mageGuild1",       "mageGuild2",       "mageGuild3",       "mageGuild4",       "mageGuild5",
+		"tavern",           "shipyard",         "fort",             "citadel",          "castle",
+		"villageHall",      "townHall",         "cityHall",         "capitol",          "marketplace",
+		"resourceSilo",     "blacksmith",       "special1",         "horde1",           "horde1Upgr",
+		"ship",             "special2",         "special3",         "special4",         "horde2",
+		"horde2Upgr",       "grail",            "extraTownHall",    "extraCityHall",    "extraCapitol",
+		"dwellingLvl1",     "dwellingLvl2",     "dwellingLvl3",     "dwellingLvl4",     "dwellingLvl5",
+		"dwellingLvl6",     "dwellingLvl7",     "dwellingUpLvl1",   "dwellingUpLvl2",   "dwellingUpLvl3",
+		"dwellingUpLvl4",   "dwellingUpLvl5",   "dwellingUpLvl6",   "dwellingUpLvl7"
+	};
+}
+
 namespace ETownType
 {
 	const std::string names [GameConstants::F_NUMBER] =

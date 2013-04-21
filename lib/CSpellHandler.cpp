@@ -246,10 +246,10 @@ void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
 	}
 	lst.reserve(lst.size() + effects[level].size());
 
-	BOOST_FOREACH (Bonus b, effects[level])
+	BOOST_FOREACH (Bonus *b, effects[level])
 	{
 		//TODO: value, add value
-		lst.push_back(b);
+		lst.push_back(Bonus(*b));
 	}
 }
 
@@ -344,10 +344,6 @@ bool DLL_LINKAGE isInScreenRange(const int3 &center, const int3 &pos)
 		return false;
 }
 
-CSpellHandler::CSpellHandler()
-{
-}
-
 CSpell * CSpellHandler::loadSpell(CLegacyConfigParser & parser, const SpellID id)
 {
 	CSpell * spell = new CSpell; //new currently being read spell
@@ -397,7 +393,7 @@ CSpell * CSpellHandler::loadSpell(CLegacyConfigParser & parser, const SpellID id
 	return spell;
 }
 
-void CSpellHandler::load()
+CSpellHandler::CSpellHandler()
 {
 	CLegacyConfigParser parser("DATA/SPTRAITS.TXT");
 
@@ -449,7 +445,7 @@ void CSpellHandler::load()
 		s->counteredSpells = spell.second["counters"].convertTo<std::vector<SpellID> >();
 
 		s->identifier = spell.first;
-		VLC->modh->identifiers.registerObject("spell." + spell.first, spellID);
+		VLC->modh->identifiers.registerObject("core", "spell", spell.first, spellID);
 
 		const JsonNode & flags_node = spell.second["flags"];
 		if (!flags_node.isNull())
@@ -495,7 +491,7 @@ void CSpellHandler::load()
 				if (!a.empty())
 					b->additionalInfo = a[i];
 
-				s->effects[i].push_back(*b);
+				s->effects[i].push_back(b);
 			}
 
 		}
@@ -537,7 +533,7 @@ void CSpellHandler::load()
 	}
 }
 
-std::vector<bool> CSpellHandler::getDefaultAllowedSpells() const
+std::vector<bool> CSpellHandler::getDefaultAllowed() const
 {
 	std::vector<bool> allowedSpells;
 	allowedSpells.resize(GameConstants::SPELLS_QUANTITY, true);

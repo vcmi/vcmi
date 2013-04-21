@@ -96,7 +96,7 @@ private:
 
 	ETargetType targetType;
 
-	std::vector<Bonus> effects [4];
+	std::vector<Bonus *> effects [4];
 	std::vector<Bonus::BonusType> immunities; //any of these grants immunity
 	std::vector<Bonus::BonusType> limiters; //all of them are required to be affected
 
@@ -168,14 +168,12 @@ public:
 	CSpellHandler();
 	std::vector< ConstTransitivePtr<CSpell> > spells;
 
-	void load();
-
 	/**
 	 * Gets a list of default allowed spells. OH3 spells are all allowed by default.
 	 *
 	 * @return a list of allowed spells, the index is the spell id and the value either 0 for not allowed or 1 for allowed
 	 */
-	std::vector<bool> getDefaultAllowedSpells() const;
+	std::vector<bool> getDefaultAllowed() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -1,7 +1,7 @@
 {
 	"knight":
 	{
-		"id": 0,
+		"index": 0,
 		"faction" : "castle",
 		"animation":
 		{
@@ -11,7 +11,7 @@
 	},
 	"cleric" :
 	{
-		"id": 1,
+		"index": 1,
 		"faction" : "castle",
 		"animation":
 		{
@@ -21,7 +21,7 @@
 	},
 	"ranger" :
 	{
-		"id": 2,
+		"index": 2,
 		"faction" : "rampart",
 		"animation":
 		{
@@ -31,7 +31,7 @@
 	},
 	"druid" :
 	{
-		"id": 3,
+		"index": 3,
 		"faction" : "rampart",
 		"animation":
 		{
@@ -41,7 +41,7 @@
 	},
 	"alchemist" :
 	{
-		"id": 4,
+		"index": 4,
 		"faction" : "tower",
 		"animation":
 		{
@@ -51,7 +51,7 @@
 	},
 	"wizard" :
 	{
-		"id": 5,
+		"index": 5,
 		"faction" : "tower",
 		"animation":
 		{
@@ -61,7 +61,7 @@
 	},
 	"demoniac" :
 	{
-		"id": 6,
+		"index": 6,
 		"faction" : "inferno",
 		"animation":
 		{
@@ -71,7 +71,7 @@
 	},
 	"heretic" :
 	{
-		"id": 7,
+		"index": 7,
 		"faction" : "inferno",
 		"animation":
 		{
@@ -81,7 +81,7 @@
 	},
 	"deathknight" :
 	{
-		"id": 8,
+		"index": 8,
 		"faction" : "necropolis",
 		"animation":
 		{
@@ -91,7 +91,7 @@
 	},
 	"necromancer" :
 	{
-		"id": 9,
+		"index": 9,
 		"faction" : "necropolis",
 		"animation":
 		{
@@ -101,7 +101,7 @@
 	},
 	"warlock" :
 	{
-		"id": 10,
+		"index": 10,
 		"faction" : "dungeon",
 		"animation":
 		{
@@ -111,7 +111,7 @@
 	},
 	"overlord" :
 	{
-		"id": 11,
+		"index": 11,
 		"faction" : "dungeon",
 		"animation":
 		{
@@ -121,7 +121,7 @@
 	},
 	"barbarian" :
 	{
-		"id": 12,
+		"index": 12,
 		"faction" : "stronghold",
 		"animation":
 		{
@@ -131,7 +131,7 @@
 	},
 	"battlemage" :
 	{
-		"id": 13,
+		"index": 13,
 		"faction" : "stronghold",
 		"animation":
 		{
@@ -141,7 +141,7 @@
 	},
 	"beastmaster" :
 	{
-		"id": 14,
+		"index": 14,
 		"faction" : "fortress",
 		"animation":
 		{
@@ -151,7 +151,7 @@
 	},
 	"witch" :
 	{
-		"id": 15,
+		"index": 15,
 		"faction" : "fortress",
 		"animation":
 		{
@@ -161,7 +161,7 @@
 	},
 	"planeswalker" :
 	{
-		"id": 16,
+		"index": 16,
 		"faction" : "conflux",
 		"animation":
 		{
@@ -171,7 +171,7 @@
 	},
 	"elementalist" :
 	{
-		"id": 17,
+		"index": 17,
 		"faction" : "conflux",
 		"animation":
 		{

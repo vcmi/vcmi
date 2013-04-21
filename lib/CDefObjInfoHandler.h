@@ -54,7 +54,7 @@ public:
 	bmap<TFaction, ConstTransitivePtr<CGDefInfo> > capitols;
 	bmap<TFaction, ConstTransitivePtr<CGDefInfo> > villages;
 
-	void load();
+	CDefObjInfoHandler();
 	~CDefObjInfoHandler();
 
 	template <typename Handler> void serialize(Handler &h, const int version)

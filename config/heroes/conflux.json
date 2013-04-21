@@ -1,7 +1,7 @@
 {
 	"pasis":
 	{
-		"id": 128,
+		"index": 128,
 		"class" : "planeswalker",
 		"female": true,
 		"skills":
@@ -17,7 +17,7 @@
 	},
 	"thunar":
 	{
-		"id": 129,
+		"index": 129,
 		"class" : "planeswalker",
 		"female": true,
 		"skills":
@@ -34,7 +34,7 @@
 	},
 	"ignissa":
 	{
-		"id": 130,
+		"index": 130,
 		"class" : "planeswalker",
 		"female": true,
 		"skills":
@@ -51,7 +51,7 @@
 	},
 	"lacus":
 	{
-		"id": 131,
+		"index": 131,
 		"class" : "planeswalker",
 		"female": true,
 		"skills":
@@ -65,7 +65,7 @@
 	},
 	"monere":
 	{
-		"id": 132,
+		"index": 132,
 		"class" : "planeswalker",
 		"female": false,
 		"skills":
@@ -81,7 +81,7 @@
 	},
 	"erdamon":
 	{
-		"id": 133,
+		"index": 133,
 		"class" : "planeswalker",
 		"female": false,
 		"skills":
@@ -98,7 +98,7 @@
 	},
 	"fiur":
 	{
-		"id": 134,
+		"index": 134,
 		"class" : "planeswalker",
 		"female": false,
 		"skills":
@@ -114,7 +114,7 @@
 	},
 	"kalt":
 	{
-		"id": 135,
+		"index": 135,
 		"class" : "planeswalker",
 		"female": false,
 		"skills":
@@ -129,7 +129,7 @@
 	},
 	"luna":
 	{
-		"id": 136,
+		"index": 136,
 		"class" : "elementalist",
 		"spellbook": [ "fireWall" ],
 		"female": true,
@@ -145,7 +145,7 @@
 	},
 	"brissa":
 	{
-		"id": 137,
+		"index": 137,
 		"class" : "elementalist",
 		"female": true,
 		"spellbook": [ "haste" ],
@@ -161,7 +161,7 @@
 	},
 	"ciele":
 	{
-		"id": 138,
+		"index": 138,
 		"class" : "elementalist",
 		"female": true,
 		"spellbook": [ "magicArrow" ],
@@ -177,7 +177,7 @@
 	},
 	"labetha":
 	{
-		"id": 139,
+		"index": 139,
 		"class" : "elementalist",
 		"female": true,
 		"spellbook": [ "stoneSkin" ],
@@ -193,7 +193,7 @@
 	},
 	"inteus":
 	{
-		"id": 140,
+		"index": 140,
 		"class" : "elementalist",
 		"female": false,
 		"spellbook": [ "bloodlust" ],
@@ -209,7 +209,7 @@
 	},
 	"aenain":
 	{
-		"id": 141,
+		"index": 141,
 		"class" : "elementalist",
 		"female": false,
 		"spellbook": [ "disruptingRay" ],
@@ -225,7 +225,7 @@
 	},
 	"gelare":
 	{
-		"id": 142,
+		"index": 142,
 		"class" : "elementalist",
 		"female": false,
 		"spellbook": [ "dispel" ],
@@ -241,7 +241,7 @@
 	},
 	"grindan":
 	{
-		"id": 143,
+		"index": 143,
 		"class" : "elementalist",
 		"female": false,
 		"spellbook": [ "slow" ],

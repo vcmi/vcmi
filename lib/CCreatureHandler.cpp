@@ -78,7 +78,7 @@ bool CCreature::isUndead() const
  */
 bool CCreature::isGood () const
 {
-	return VLC->townh->factions[faction].alignment == EAlignment::GOOD;
+	return VLC->townh->factions[faction]->alignment == EAlignment::GOOD;
 }
 
 /**
@@ -87,7 +87,7 @@ bool CCreature::isGood () const
  */
 bool CCreature::isEvil () const
 {
-	return VLC->townh->factions[faction].alignment == EAlignment::EVIL;
+	return VLC->townh->factions[faction]->alignment == EAlignment::EVIL;
 }
 
 si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatures can be bought
@@ -129,7 +129,7 @@ std::string CCreature::nodeName() const
 
 bool CCreature::isItNativeTerrain(int terrain) const
 {
-	return VLC->townh->factions[faction].nativeTerrain == terrain;
+	return VLC->townh->factions[faction]->nativeTerrain == terrain;
 }
 
 static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
@@ -263,16 +263,18 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 	}
 }
 
-void CCreatureHandler::load()
+std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 {
+	creatures.resize(dataSize);
 	std::vector<JsonNode> h3Data;
+	h3Data.reserve(dataSize);
 
 	CLegacyConfigParser parser("DATA/ZCRTRAIT.TXT");
 
 	parser.endLine(); // header
 	parser.endLine();
 
-	do
+	for (size_t i=0; i<dataSize; i++)
 	{
 		//loop till non-empty line
 		while (parser.isNextEntryEmpty())
@@ -314,40 +316,51 @@ void CCreatureHandler::load()
 
 		h3Data.push_back(data);
 	}
-	while (parser.endLine());
 
 	loadAnimationInfo(h3Data);
 
-	const JsonNode gameConf(ResourceID("config/gameConfig.json"));
-	JsonNode config(JsonUtils::assembleFromFiles(gameConf["creatures"].convertTo<std::vector<std::string> >()));
+	return h3Data;
+}
 
-	creatures.resize(GameConstants::CREATURES_COUNT);
+void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+{
+	auto object = loadFromJson(data);
+	object->idNumber = CreatureID(creatures.size());
 
-	BOOST_FOREACH(auto & node, config.Struct())
+	creatures.push_back(object);
+
+	VLC->modh->identifiers.registerObject(scope, "creature", name, object->idNumber);
+
+	BOOST_FOREACH(auto node, data["extraNames"].Vector())
 	{
-		int numeric = node.second["id"].Float();
-
-		JsonUtils::merge(h3Data[numeric], node.second);
-
-		//JsonUtils::validate(h3Data[numeric], "vcmi:creature", node.first);
-
-		creatures[numeric] = loadCreature(h3Data[numeric]);
-		creatures[numeric]->idNumber = CreatureID(numeric);
-
-		VLC->modh->identifiers.registerObject ("creature." + node.first, numeric);
-
-		// Alternative names, if any
-		BOOST_FOREACH(const JsonNode &name, h3Data[numeric]["extraNames"].Vector())
-			VLC->modh->identifiers.registerObject ("creature." + name.String(), numeric);
+		VLC->modh->identifiers.registerObject(scope, "creature", node.String(), object->idNumber);
 	}
+}
 
-	for (size_t i=0; i < creatures.size(); i++)
+void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+{
+	auto object = loadFromJson(data);
+	object->idNumber = CreatureID(index);
+
+	assert(creatures[index] == nullptr); // ensure that this id was not loaded before
+	creatures[index] = object;
+
+	VLC->modh->identifiers.registerObject(scope, "creature", name, object->idNumber);
+	BOOST_FOREACH(auto node, data["extraNames"].Vector())
 	{
-		if (creatures[i] == nullptr)
-			logGlobal->warnStream() << "Warning: creature with id " << i << " is missing!";
+		VLC->modh->identifiers.registerObject(scope, "creature", node.String(), object->idNumber);
 	}
+}
 
-	loadCrExpBon();
+std::vector<bool> CCreatureHandler::getDefaultAllowed() const
+{
+	std::vector<bool> ret;
+
+	BOOST_FOREACH(const CCreature * crea, creatures)
+	{
+		ret.push_back(crea ? !crea->special : false);
+	}
+	return ret;
 }
 
 void CCreatureHandler::loadCrExpBon()
@@ -508,19 +521,7 @@ void CCreatureHandler::loadUnitAnimInfo(JsonNode & graphics, CLegacyConfigParser
 		graphics.Struct().erase("missile");
 }
 
-void CCreatureHandler::load(std::string creatureID, const JsonNode & node)
-{
-	CCreature * creature = loadCreature(node);
-	creature->nameRef = creatureID;
-	creature->idNumber = CreatureID(creatures.size());
-
-	creatures.push_back(creature);
-    logGlobal->traceStream() << "Added creature: " << creatureID;
-
-	VLC->modh->identifiers.registerObject ("creature." + creature->nameRef, creature->idNumber);
-}
-
-CCreature * CCreatureHandler::loadCreature(const JsonNode & node)
+CCreature * CCreatureHandler::loadFromJson(const JsonNode & node)
 {
 	CCreature * cre = new CCreature();
 

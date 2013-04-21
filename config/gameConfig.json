@@ -45,7 +45,17 @@
 		"config/heroes/conflux.json",
 		"config/heroes/special.json"
 	],
+
+	"artifacts" :
+	[
+		"config/artifacts.json"
+	],
 	
+	"heroClasses" :
+	[
+		"config/heroClasses.json"
+	],
+
 	"bonuses" :
 	[
 		"config/bonuses.json",

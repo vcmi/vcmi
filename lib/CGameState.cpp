@@ -381,7 +381,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 
 	if(player>=PlayerColor::PLAYER_LIMIT)
 	{
-        logGlobal->errorStream() << "Cannot pick hero for " << town->typeID << ". Wrong owner!";
+        logGlobal->errorStream() << "Cannot pick hero for " << town->faction->index << ". Wrong owner!";
 		return NULL;
 	}
 
@@ -392,7 +392,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		for(auto i=available.begin(); i!=available.end(); i++)
 		{
 			if(pavailable.find(i->first)->second & 1<<player.getNum()
-				&& i->second->type->heroClass->faction == town->typeID)
+				&& i->second->type->heroClass->faction == town->faction->index)
 			{
 				pool.push_back(i->second); //get all available heroes
 			}
@@ -413,11 +413,11 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 
 		for(auto i=available.begin(); i!=available.end(); i++)
 		{
-			if ((!bannedClass && (pavailable.find(i->first)->second & (1<<player.getNum()))) ||
-				i->second->type->heroClass != bannedClass)
+			if (pavailable.find(i->first)->second & (1<<player.getNum()) &&    // hero is available
+			    ( !bannedClass || i->second->type->heroClass != bannedClass) ) // and his class is not same as other hero
 			{
 				pool.push_back(i->second);
-				sum += i->second->type->heroClass->selectionProbability[town->typeID]; //total weight
+				sum += i->second->type->heroClass->selectionProbability[town->faction->index]; //total weight
 			}
 		}
 		if(!pool.size() || sum == 0)
@@ -429,7 +429,7 @@ CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, PlayerColor pl
 		r = rand()%sum;
 		for (ui32 i=0; i<pool.size(); i++)
 		{
-			r -= pool[i]->type->heroClass->selectionProbability[town->typeID];
+			r -= pool[i]->type->heroClass->selectionProbability[town->faction->index];
 			if(r < 0)
 			{
 				ret = pool[i];
@@ -549,9 +549,11 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			}
 			if(f<0)
 			{
-				auto iter = VLC->townh->towns.begin();
-				std::advance(iter, ran()%VLC->townh->towns.size());
-				f = iter->first;
+				do
+				{
+					f = ran()%VLC->townh->factions.size();
+				}
+				while (VLC->townh->factions[f]->town == nullptr); // find playable faction
 			}
 			return std::make_pair(Obj::TOWN,f);
 		}
@@ -619,7 +621,7 @@ std::pair<Obj,int> CGameState::pickObject (CGObjectInstance *obj)
 			dwl->info = nullptr;
 
 			std::pair<Obj, int> result(Obj::NO_OBJ, -1);
-			CreatureID cid = VLC->townh->towns[faction].creatures[level][0];
+			CreatureID cid = VLC->townh->factions[faction]->town->creatures[level][0];
 
 			//golem factory is not in list of cregens but can be placed as random object
 			static const CreatureID factoryCreatures[] = {CreatureID::STONE_GOLEM, CreatureID::IRON_GOLEM,
@@ -656,7 +658,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 		if(cur->ID==Obj::TOWN) //town - set def
 		{
 			CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
-			t->town = &VLC->townh->towns[t->subID];
+			t->town = VLC->townh->factions[t->subID]->town;
 			if(t->hasCapitol())
 				t->defInfo = VLC->dobjinfo->capitols[t->subID];
 			else if(t->hasFort())
@@ -685,7 +687,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 		cur->ID = ran.first;
 		cur->subID = ran.second;
 		//FIXME: copy-pasted from above
-		t->town = &VLC->townh->towns[t->subID];
+		t->town = VLC->townh->factions[t->subID]->town;
 		if(t->hasCapitol())
 			t->defInfo = VLC->dobjinfo->capitols[t->subID];
 		else if(t->hasFort())
@@ -1394,8 +1396,8 @@ void CGameState::init(StartInfo * si)
 			break;
 		case PlayerSettings::RESOURCE:
 			{
-				int res = VLC->townh->towns[scenarioOps->playerInfos[k->first].castle].primaryRes;
-				if(res == 127)
+				int res = VLC->townh->factions[scenarioOps->playerInfos[k->first].castle]->town->primaryRes;
+				if(res == Res::WOOD_AND_ORE)
 				{
 					k->second.resources[Res::WOOD] += 5 + ran()%6;
 					k->second.resources[Res::ORE] += 5 + ran()%6;
@@ -1443,7 +1445,7 @@ void CGameState::init(StartInfo * si)
 						map->towns[g]->pos == pi.posOfMainTown + int3(2, 0, 0))
 					{
 						map->towns[g]->builtBuildings.insert(
-							CBuildingHandler::campToERMU(chosenBonus->info1, map->towns[g]->town->typeID, map->towns[g]->builtBuildings));
+							CBuildingHandler::campToERMU(chosenBonus->info1, map->towns[g]->subID, map->towns[g]->builtBuildings));
 						break;
 					}
 				}
@@ -1459,7 +1461,7 @@ void CGameState::init(StartInfo * si)
 	{
 		CGTownInstance * vti =(map->towns[i]);
 		if(!vti->town)
-			vti->town = &VLC->townh->towns[vti->subID];
+			vti->town = VLC->townh->factions[vti->subID]->town;
 		if (vti->name.length()==0) // if town hasn't name we draw it
 			vti->name = vti->town->names[ran()%vti->town->names.size()];
 

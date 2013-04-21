@@ -1158,7 +1158,7 @@ Bonus::Bonus()
 	valType = ADDITIVE_VALUE;
 	effectRange = NO_LIMIT;
 	val = 0;
-	source = OTHER;	
+	source = OTHER;
 }
 
 Bonus::~Bonus()

@@ -149,7 +149,7 @@ void CGeneralTextHandler::readToVector(std::string sourceName, std::vector<std::
 	while (parser.endLine());
 }
 
-void CGeneralTextHandler::load()
+CGeneralTextHandler::CGeneralTextHandler()
 {
 	readToVector("DATA/VCDESC.TXT",   victoryConditions);
 	readToVector("DATA/LCDESC.TXT",   lossCondtions);
@@ -326,9 +326,4 @@ void CGeneralTextHandler::load()
 		getline(ifs, buffer);
 		threat.push_back(buffer);
 	}
-}
-
-CGeneralTextHandler::CGeneralTextHandler()
-{
-
 }

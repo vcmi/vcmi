@@ -213,7 +213,7 @@ static void readBankLevel(const JsonNode &level, BankConfig &bc)
 	bc.easiest = level["easiest"].Float();
 }
 
-void CObjectHandler::load()
+CObjectHandler::CObjectHandler()
 {
     logGlobal->traceStream() << "\t\tReading cregens ";
 
@@ -614,7 +614,7 @@ ui32 CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &fro
 		bool nativeArmy = true;
 		BOOST_FOREACH(auto stack, stacks)
 		{
-			int nativeTerrain = VLC->townh->factions[stack.second->type->faction].nativeTerrain;
+			int nativeTerrain = VLC->townh->factions[stack.second->type->faction]->nativeTerrain;
 
             if (nativeTerrain != -1 && nativeTerrain != from.terType)
 			{
@@ -813,7 +813,7 @@ void CGHeroInstance::initHero()
 
 	if (VLC->modh->modules.COMMANDERS && !commander)
 	{
-		commander = new CCommanderInstance (VLC->townh->factions[type->heroClass->faction].commander);
+		commander = new CCommanderInstance (VLC->townh->factions[type->heroClass->faction]->commander);
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
 		commander->giveStackExp (exp); //after our exp is set
 	}
@@ -1672,9 +1672,9 @@ void CGDwelling::initObj()
 			creatures[0].second.push_back(crid);
 			if (subID >= VLC->generaltexth->creGens.size()) //very messy workaround
 			{
-				TFaction faction = VLC->creh->creatures[subID]->faction;
-				assert (VLC->townh->towns[faction].dwellingNames.size());
-				hoverName = VLC->townh->towns[faction].dwellingNames[VLC->creh->creatures[subID]->level - 1];
+				auto & dwellingNames = VLC->townh->factions[crs->faction]->town->dwellingNames;
+				assert (!dwellingNames.empty());
+				hoverName = dwellingNames[VLC->creh->creatures[subID]->level - 1];
 			}
 			else
 				hoverName = VLC->generaltexth->creGens[subID];
@@ -2201,7 +2201,7 @@ void CGTownInstance::initObj()
 ///initialize town structures
 {
 	blockVisit = true;
-	hoverName = name + ", " + VLC->townh->factions[town->typeID].name;
+	hoverName = name + ", " + town->faction->name;
 
 	if (subID == ETownType::DUNGEON)
 		creatures.resize(GameConstants::CREATURES_PER_TOWN+1);//extra dwelling for Dungeon
@@ -2355,7 +2355,7 @@ void CGTownInstance::removeCapitols (PlayerColor owner) const
 
 int CGTownInstance::getBoatType() const
 {
-	switch (VLC->townh->factions[town->typeID].alignment)
+	switch (town->faction->alignment)
 	{
 	case EAlignment::EVIL : return 0;
 	case EAlignment::GOOD : return 1;
@@ -2431,7 +2431,7 @@ std::vector<int> CGTownInstance::availableItemsIds(EMarketMode::EMarketMode mode
 
 std::string CGTownInstance::nodeName() const
 {
-	return "Town (" + (town ? VLC->townh->factions[town->typeID].name : "unknown") + ") of " +  name;
+	return "Town (" + (town ? town->faction->name : "unknown") + ") of " +  name;
 }
 
 void CGTownInstance::deserializationFix()
@@ -2448,6 +2448,8 @@ void CGTownInstance::deserializationFix()
 
 void CGTownInstance::recreateBuildingsBonuses()
 {
+	static TPropagatorPtr playerProp(new CPropagatorNodeType(PLAYER));
+
 	BonusList bl;
 	getExportedBonusList().getBonuses(bl, Selector::sourceType(Bonus::TOWN_STRUCTURE));
 	BOOST_FOREACH(Bonus *b, bl)
@@ -2459,13 +2461,13 @@ void CGTownInstance::recreateBuildingsBonuses()
 
 	if(subID == ETownType::CASTLE) //castle
 	{
-		addBonusIfBuilt(BuildingID::LIGHTHOUSE, Bonus::SEA_MOVEMENT, +500, make_shared<CPropagatorNodeType>(PLAYER));
-		addBonusIfBuilt(BuildingID::GRAIL,      Bonus::MORALE, +2, make_shared<CPropagatorNodeType>(PLAYER)); //colossus
+		addBonusIfBuilt(BuildingID::LIGHTHOUSE, Bonus::SEA_MOVEMENT, +500, playerProp);
+		addBonusIfBuilt(BuildingID::GRAIL,      Bonus::MORALE, +2, playerProp); //colossus
 	}
 	else if(subID == ETownType::RAMPART) //rampart
 	{
 		addBonusIfBuilt(BuildingID::FOUNTAIN_OF_FORTUNE, Bonus::LUCK, +2); //fountain of fortune
-		addBonusIfBuilt(BuildingID::GRAIL, Bonus::LUCK, +2, make_shared<CPropagatorNodeType>(PLAYER)); //guardian spirit
+		addBonusIfBuilt(BuildingID::GRAIL, Bonus::LUCK, +2, playerProp); //guardian spirit
 	}
 	else if(subID == ETownType::TOWER) //tower
 	{
@@ -2478,8 +2480,8 @@ void CGTownInstance::recreateBuildingsBonuses()
 	else if(subID == ETownType::NECROPOLIS) //necropolis
 	{
 		addBonusIfBuilt(BuildingID::COVER_OF_DARKNESS,    Bonus::DARKNESS, +20);
-		addBonusIfBuilt(BuildingID::NECROMANCY_AMPLIFIER, Bonus::SECONDARY_SKILL_PREMY, +10, make_shared<CPropagatorNodeType>(PLAYER), SecondarySkill::NECROMANCY); //necromancy amplifier
-		addBonusIfBuilt(BuildingID::GRAIL, Bonus::SECONDARY_SKILL_PREMY, +20, make_shared<CPropagatorNodeType>(PLAYER), SecondarySkill::NECROMANCY); //Soul prison
+		addBonusIfBuilt(BuildingID::NECROMANCY_AMPLIFIER, Bonus::SECONDARY_SKILL_PREMY, +10, playerProp, SecondarySkill::NECROMANCY); //necromancy amplifier
+		addBonusIfBuilt(BuildingID::GRAIL, Bonus::SECONDARY_SKILL_PREMY, +20, playerProp, SecondarySkill::NECROMANCY); //Soul prison
 	}
 	else if(subID == ETownType::DUNGEON) //Dungeon
 	{
@@ -2504,10 +2506,11 @@ void CGTownInstance::recreateBuildingsBonuses()
 
 bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, int subtype /*= -1*/)
 {
-	return addBonusIfBuilt(building, type, val, TPropagatorPtr(), subtype);
+	static auto emptyPropagator = TPropagatorPtr();
+	return addBonusIfBuilt(building, type, val, emptyPropagator, subtype);
 }
 
-bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr prop, int subtype /*= -1*/)
+bool CGTownInstance::addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr & prop, int subtype /*= -1*/)
 {
 	if(hasBuilt(building))
 	{
@@ -2595,7 +2598,7 @@ const CArmedInstance * CGTownInstance::getUpperArmy() const
 
 bool CGTownInstance::hasBuilt(BuildingID buildingID, int townID) const
 {
-	if (townID == town->typeID || townID == ETownType::ANY)
+	if (townID == town->faction->index || townID == ETownType::ANY)
 		return hasBuilt(buildingID);
 	return false;
 }
@@ -3100,9 +3103,11 @@ const std::string & CGCreature::getHoverText() const
 {
 	if(stacks.empty())
 	{
+		static const std::string errorValue("!!!INVALID_STACK!!!");
+
 		//should not happen... 
 		logGlobal->errorStream() << "Invalid stack at tile " << pos << ": subID=" << subID << "; id=" << id;
-		return "!!!INVALID_STACK!!!";
+		return errorValue; // references to temporary are illegal - use pre-constructed string
 	}
 
 	MetaString ms;
@@ -6980,7 +6985,7 @@ void CArmedInstance::randomizeArmy(int type)
 		{
 			int level = (randID-VLC->creh->creatures.size()) / 2 -1;
 			bool upgrade = !(randID % 2);
-			j->second->setType(VLC->townh->towns[type].creatures[level][upgrade]);
+			j->second->setType(VLC->townh->factions[type]->town->creatures[level][upgrade]);
 			randID = -1;
 		}
 
@@ -7035,7 +7040,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 
 		BOOST_FOREACH(TFaction f, factions)
 		{
-			if (VLC->townh->factions[f].alignment != EAlignment::EVIL)
+			if (VLC->townh->factions[f]->alignment != EAlignment::EVIL)
 				mixableFactions++;
 		}
 		if (mixableFactions > 0)
@@ -7397,7 +7402,7 @@ GrowthInfo::Entry::Entry(const std::string &format, int _count)
 GrowthInfo::Entry::Entry(int subID, BuildingID building, int _count)
 	: count(_count)
 {
-	description = boost::str(boost::format("%s %+d") % VLC->townh->towns[subID].buildings[building]->Name() % count);
+	description = boost::str(boost::format("%s %+d") % VLC->townh->factions[subID]->town->buildings[building]->Name() % count);
 }
 
 CTownAndVisitingHero::CTownAndVisitingHero()

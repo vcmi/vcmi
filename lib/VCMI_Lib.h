@@ -27,14 +27,14 @@ class CBonusTypeHandler;
 class DLL_LINKAGE LibClasses
 {
 	CBonusTypeHandler * bth;
-	
+
 	void callWhenDeserializing(); //should be called only by serialize !!!
 	void makeNull(); //sets all handler pointers to null
 public:
 	bool IS_AI_ENABLED; //VLC is the only object visible from both CMT and GeniusAI
 	
 	const IBonusTypeHandler * getBth() const;
-	
+
 	CArtHandler * arth;
 	CHeroHandler * heroh;
 	CCreatureHandler * creh;

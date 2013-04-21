@@ -1,7 +1,7 @@
 {
 	"gnoll" :
 	{
-		"id": 98,
+		"index": 98,
 		"level": 1,
 		"faction": "fortress",
 		"upgrades": ["gnollMarauder"],
@@ -20,7 +20,7 @@
 	},
 	"gnollMarauder" :
 	{
-		"id": 99,
+		"index": 99,
 		"level": 1,
 		"faction": "fortress",
 		"graphics" :
@@ -38,7 +38,7 @@
 	},
 	"lizardman" :
 	{
-		"id": 100,
+		"index": 100,
 		"level": 2,
 		"extraNames": [ "primitiveLizardman", ],
 		"faction": "fortress",
@@ -64,7 +64,7 @@
 	},
 	"lizardWarrior" :
 	{
-		"id": 101,
+		"index": 101,
 		"level": 2,
 		"faction": "fortress",
 		"graphics" :
@@ -87,7 +87,7 @@
 	},
 	"gorgon" :
 	{
-		"id": 102,
+		"index": 102,
 		"level": 5,
 		"faction": "fortress",
 		"upgrades": ["mightyGorgon"],
@@ -106,7 +106,7 @@
 	},
 	"mightyGorgon" :
 	{
-		"id": 103,
+		"index": 103,
 		"level": 5,
 		"faction": "fortress",
 		"abilities":
@@ -132,7 +132,7 @@
 	},
 	"serpentFly" :
 	{
-		"id": 104,
+		"index": 104,
 		"level": 3,
 		"extraNames": [ "dragonFly" ],
 		"faction": "fortress",
@@ -162,7 +162,7 @@
 	},
 	"fireDragonFly" : // dragonFly is correct in-game, incorrect in HOTRAITS
 	{
-		"id": 105,
+		"index": 105,
 		"level": 3,
 		"faction": "fortress",
 		"abilities":
@@ -196,7 +196,7 @@
 	},
 	"basilisk" :
 	{
-		"id": 106,
+		"index": 106,
 		"level": 4,
 		"faction": "fortress",
 		"abilities":
@@ -224,7 +224,7 @@
 	},
 	"greaterBasilisk" :
 	{
-		"id": 107,
+		"index": 107,
 		"level": 4,
 		"faction": "fortress",
 		"abilities":
@@ -251,7 +251,7 @@
 	},
 	"wyvern" :
 	{
-		"id": 108,
+		"index": 108,
 		"level": 6,
 		"faction": "fortress",
 		"upgrades": ["wyvernMonarch"],
@@ -270,7 +270,7 @@
 	},
 	"wyvernMonarch" :
 	{
-		"id": 109,
+		"index": 109,
 		"level": 6,
 		"faction": "fortress",
 		"abilities":
@@ -297,7 +297,7 @@
 	},
 	"hydra" :
 	{
-		"id": 110,
+		"index": 110,
 		"level": 7,
 		"faction": "fortress",
 		"abilities":
@@ -327,7 +327,7 @@
 	},
 	"chaosHydra" :
 	{
-		"id": 111,
+		"index": 111,
 		"level": 7,
 		"faction": "fortress",
 		"abilities":

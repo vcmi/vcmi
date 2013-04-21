@@ -3,6 +3,7 @@
 #include "../lib/ConstTransitivePtr.h"
 #include "GameConstants.h"
 #include "HeroBonus.h"
+#include "IHandlerBase.h"
 
 /*
  * CHeroHandler.h, part of VCMI engine
@@ -149,19 +150,18 @@ struct DLL_LINKAGE CObstacleInfo
 	}
 };
 
-class DLL_LINKAGE CHeroClassHandler
+class DLL_LINKAGE CHeroClassHandler : public IHandlerBase
 {
+	CHeroClass *loadFromJson(const JsonNode & node);
 public:
 	std::vector< ConstTransitivePtr<CHeroClass> > heroClasses;
 
-	/// load from H3 config
-	void load();
+	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 
-	/// load any number of classes from json
-	void load(std::string objectID, const JsonNode & classes);
+	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
-	/// load one class from json
-	CHeroClass * loadClass(const JsonNode & node);
+	std::vector<bool> getDefaultAllowed() const;
 
 	~CHeroClassHandler();
 
@@ -171,7 +171,7 @@ public:
 	}
 };
 
-class DLL_LINKAGE CHeroHandler
+class DLL_LINKAGE CHeroHandler : public IHandlerBase
 {
 	/// expPerLEvel[i] is amount of exp needed to reach level i;
 	/// consists of 201 values. Any higher levels require experience larger that ui64 can hold
@@ -181,6 +181,15 @@ class DLL_LINKAGE CHeroHandler
 	void loadHeroArmy(CHero * hero, const JsonNode & node);
 	void loadHeroSkills(CHero * hero, const JsonNode & node);
 	void loadHeroSpecialty(CHero * hero, const JsonNode & node);
+
+	void loadExperience();
+	void loadBallistics();
+	void loadTerrains();
+	void loadObstacles();
+
+	/// Load single hero from json
+	CHero * loadFromJson(const JsonNode & node);
+
 public:
 	CHeroClassHandler classes;
 
@@ -208,34 +217,15 @@ public:
 	ui32 level(ui64 experience) const; //calculates level corresponding to given experience amount
 	ui64 reqExp(ui32 level) const; //calculates experience required for given level
 
-	/// Load multiple heroes from json
-	void load(std::string objectID, const JsonNode & heroes);
+	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 
-	/// Load single hero from json
-	CHero * loadHero(const JsonNode & node);
-
-	/// Load everything (calls functions below + classes.load())
-	void load();
-
-	void loadHeroes();
-	void loadExperience();
-	void loadBallistics();
-	void loadTerrains();
-	void loadObstacles();
+	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
 	CHeroHandler(); //c-tor
 	~CHeroHandler(); //d-tor
 
-	/**
-	 * Gets a list of default allowed heroes.
-	 *
-	 * TODO Proposal for hero modding: Replace hero id with a unique machine readable hero name and
-	 * create a JSON config file or merge it with a existing config file which describes which heroes can be used for
-	 * random map generation / map editor(default map settings). (Gelu, ... should be excluded)
-	 *
-	 * @return a list of allowed heroes, the index is the hero id and the value either 0 for not allowed or 1 for allowed
-	 */
-	std::vector<bool> getDefaultAllowedHeroes() const;
+	std::vector<bool> getDefaultAllowed() const;
 
 	/**
 	 * Gets a list of default allowed abilities. OH3 abilities/skills are all allowed by default.

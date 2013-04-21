@@ -160,7 +160,7 @@ void CMapGenOptions::setMonsterStrength(EMonsterStrength::EMonsterStrength value
 void CMapGenOptions::resetPlayersMap()
 {
 	players.clear();
-	int realPlayersCnt = playersCnt == RANDOM_SIZE ? PlayerColor::PLAYER_LIMIT_I : playersCnt;
+	int realPlayersCnt = playersCnt == RANDOM_SIZE ? static_cast<int>(PlayerColor::PLAYER_LIMIT_I) : playersCnt;
 	int realCompOnlyPlayersCnt = compOnlyPlayersCnt == RANDOM_SIZE ? (PlayerColor::PLAYER_LIMIT_I - realPlayersCnt) : compOnlyPlayersCnt;
 	for(int color = 0; color < (realPlayersCnt + realCompOnlyPlayersCnt); ++color)
 	{
@@ -337,7 +337,7 @@ si32 CMapGenOptions::CPlayerSettings::getStartingTown() const
 
 void CMapGenOptions::CPlayerSettings::setStartingTown(si32 value)
 {
-	if(value >= -1 && value < static_cast<int>(VLC->townh->towns.size()))
+	if(value >= -1 && value < static_cast<int>(VLC->townh->factions.size()))
 	{
 		startingTown = value;
 	}

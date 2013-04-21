@@ -1125,8 +1125,8 @@ bool JsonValidator::validate(const JsonNode &root, std::string schemaName, std::
 
 	if (!errors.empty())
 	{
-        logGlobal->warnStream() << "Data in " << name << " is invalid!";
-        logGlobal->warnStream() << errors;
+		logGlobal->warnStream() << "Data in " << name << " is invalid!";
+		logGlobal->warnStream() << errors;
 	}
 
 	return errors.empty();
@@ -1162,7 +1162,7 @@ Bonus * JsonUtils::parseBonus (const JsonVector &ability_vec) //TODO: merge with
 template <typename T>
 const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val, std::string err)
 {
-	static T defaultValue;
+	static T defaultValue = T();
 	if (!val->isNull())
 	{
 		std::string type = val->String();
@@ -1179,7 +1179,7 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 	}
 	else
 		return defaultValue;
-};
+}
 
 void JsonUtils::resolveIdentifier (si32 &var, const JsonNode &node, std::string name)
 {

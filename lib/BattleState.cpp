@@ -372,7 +372,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 	{
 		curB->town = town;
 		curB->siege = town->fortLevel();
-		curB->terrainType = VLC->townh->factions[town->town->typeID].nativeTerrain;
+		curB->terrainType = VLC->townh->factions[town->subID]->nativeTerrain;
 	}
 	else
 	{

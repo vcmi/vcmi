@@ -11,6 +11,7 @@
 #pragma once 
 
 #include "IBonusTypeHandler.h"
+#include "IHandlerBase.h"
 #include "HeroBonus.h"
 
 

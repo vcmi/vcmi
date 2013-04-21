@@ -1,7 +1,7 @@
 {
 	"troglodyte" :
 	{
-		"id": 70,
+		"index": 70,
 		"level": 1,
 		"faction": "dungeon",
 		"abilities":
@@ -29,7 +29,7 @@
 	},
 	"infernalTroglodyte" :
 	{
-		"id": 71,
+		"index": 71,
 		"level": 1,
 		"faction": "dungeon",
 		"abilities":
@@ -55,7 +55,7 @@
 	},
 	"harpy" :
 	{
-		"id": 72,
+		"index": 72,
 		"level": 2,
 		"faction": "dungeon",
 		"abilities":
@@ -83,7 +83,7 @@
 	},
 	"harpyHag" :
 	{
-		"id": 73,
+		"index": 73,
 		"level": 2,
 		"faction": "dungeon",
 		"abilities":
@@ -113,7 +113,7 @@
 	},
 	"beholder" :
 	{
-		"id": 74,
+		"index": 74,
 		"level": 3,
 		"faction": "dungeon",
 		"upgrades": ["evilEye"],
@@ -137,7 +137,7 @@
 	},
 	"evilEye" :
 	{
-		"id": 75,
+		"index": 75,
 		"level": 3,
 		"faction": "dungeon",
 		"graphics" :
@@ -160,7 +160,7 @@
 	},
 	"medusa" :
 	{
-		"id": 76,
+		"index": 76,
 		"level": 4,
 		"faction": "dungeon",
 		"abilities":
@@ -194,7 +194,7 @@
 	},
 	"medusaQueen" :
 	{
-		"id": 77,
+		"index": 77,
 		"level": 4,
 		"faction": "dungeon",
 		"abilities":
@@ -227,7 +227,7 @@
 	},
 	"minotaur" :
 	{
-		"id": 78,
+		"index": 78,
 		"level": 5,
 		"faction": "dungeon",
 		"abilities": 
@@ -253,7 +253,7 @@
 	},
 	"minotaurKing" :
 	{
-		"id": 79,
+		"index": 79,
 		"level": 5,
 		"faction": "dungeon",
 		"abilities":
@@ -279,7 +279,7 @@
 	},
 	"manticore" :
 	{
-		"id": 80,
+		"index": 80,
 		"level": 6,
 		"faction": "dungeon",
 		"upgrades": ["scorpicore"],
@@ -299,7 +299,7 @@
 	},
 	"scorpicore" :
 	{
-		"id": 81,
+		"index": 81,
 		"level": 6,
 		"faction": "dungeon",
 		"abilities":
@@ -327,7 +327,7 @@
 	},
 	"redDragon" :
 	{
-		"id": 82,
+		"index": 82,
 		"level": 7,
 		"faction": "dungeon",
 		"abilities":
@@ -362,7 +362,7 @@
 	},
 	"blackDragon" :
 	{
-		"id": 83,
+		"index": 83,
 		"level": 7,
 		"faction": "dungeon",
 		"abilities":

@@ -1,7 +1,7 @@
 {
 	"fiona":
 	{
-		"id": 48,
+		"index": 48,
 		"class" : "demoniac",
 		"female": true,
 		"skills":
@@ -15,7 +15,7 @@
 	},
 	"rashka":
 	{
-		"id": 49,
+		"index": 49,
 		"class" : "demoniac",
 		"female": false,
 		"skills":
@@ -30,7 +30,7 @@
 	},
 	"marius":
 	{
-		"id": 50,
+		"index": 50,
 		"class" : "demoniac",
 		"female": true,
 		"skills":
@@ -44,7 +44,7 @@
 	},
 	"ignatius":
 	{
-		"id": 51,
+		"index": 51,
 		"class" : "demoniac",
 		"female": false,
 		"skills":
@@ -59,7 +59,7 @@
 	},
 	"octavia":
 	{
-		"id": 52,
+		"index": 52,
 		"class" : "demoniac",
 		"female": true,
 		"skills":
@@ -74,7 +74,7 @@
 	},
 	"calh":
 	{
-		"id": 53,
+		"index": 53,
 		"class" : "demoniac",
 		"female": false,
 		"skills":
@@ -89,7 +89,7 @@
 	},
 	"pyre":
 	{
-		"id": 54,
+		"index": 54,
 		"class" : "demoniac",
 		"female": true,
 		"skills":
@@ -104,7 +104,7 @@
 	},
 	"nymus":
 	{
-		"id": 55,
+		"index": 55,
 		"class" : "demoniac",
 		"female": true,
 		"skills":
@@ -118,7 +118,7 @@
 	},
 	"ayden":
 	{
-		"id": 56,
+		"index": 56,
 		"class" : "heretic",
 		"spellbook": [ "viewEarth" ],
 		"female": false,
@@ -134,7 +134,7 @@
 	},
 	"xyron":
 	{
-		"id": 57,
+		"index": 57,
 		"class" : "heretic",
 		"female": false,
 		"spellbook": [ "inferno" ],
@@ -150,7 +150,7 @@
 	},
 	"axsis":
 	{
-		"id": 58,
+		"index": 58,
 		"class" : "heretic",
 		"female": false,
 		"spellbook": [ "protectAir" ],
@@ -166,7 +166,7 @@
 	},
 	"olema":
 	{
-		"id": 59,
+		"index": 59,
 		"class" : "heretic",
 		"female": true,
 		"spellbook": [ "weakness" ],
@@ -182,7 +182,7 @@
 	},
 	"calid":
 	{
-		"id": 60,
+		"index": 60,
 		"class" : "heretic",
 		"female": false,
 		"spellbook": [ "haste" ],
@@ -198,7 +198,7 @@
 	},
 	"ash":
 	{
-		"id": 61,
+		"index": 61,
 		"class" : "heretic",
 		"female": true,
 		"spellbook": [ "bloodlust" ],
@@ -214,7 +214,7 @@
 	},
 	"zydar":
 	{
-		"id": 62,
+		"index": 62,
 		"class" : "heretic",
 		"female": false,
 		"spellbook": [ "stoneSkin" ],
@@ -230,7 +230,7 @@
 	},
 	"xarfax":
 	{
-		"id": 63,
+		"index": 63,
 		"class" : "heretic",
 		"female": false,
 		"spellbook": [ "fireball" ],

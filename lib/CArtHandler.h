@@ -5,6 +5,7 @@
 #include "../lib/ConstTransitivePtr.h"
 #include "JsonNode.h"
 #include "GameConstants.h"
+#include "IHandlerBase.h"
 
 /*
  * CArtHandler.h, part of VCMI engine
@@ -185,8 +186,10 @@ public:
 	}
 };
 
-class DLL_LINKAGE CArtHandler //handles artifacts
+class DLL_LINKAGE CArtHandler : public IHandlerBase //handles artifacts
 {
+	CArtifact * loadFromJson(const JsonNode & node);
+
 	void addSlot(CArtifact * art, const std::string & slotID);
 	void loadSlots(CArtifact * art, const JsonNode & node);
 	void loadClass(CArtifact * art, const JsonNode & node);
@@ -204,12 +207,6 @@ public:
 	std::vector<CArtifact *> allowedArtifacts;
 	std::set<ArtifactID> bigArtifacts; // Artifacts that cannot be moved to backpack, e.g. war machines.
 	std::set<ArtifactID> growingArtifacts;
-
-	void load(bool onlyTxt = false);
-	/// load artifact from json structure
-	void load(std::string objectID, const JsonNode & node);
-	/// load one artifact from json config
-	CArtifact * loadArtifact(const JsonNode & node);
 
 	void addBonuses(CArtifact *art, const JsonNode &bonusList);
 
@@ -230,15 +227,16 @@ public:
 	void makeItCreatureArt (ArtifactID aid, bool onlyCreature = true);
 	void makeItCommanderArt (CArtifact * a, bool onlyCommander = true);
 	void makeItCommanderArt (ArtifactID aid, bool onlyCommander = true);
+
 	CArtHandler();
 	~CArtHandler();
 
-	/**
-	 * Gets a list of default allowed artifacts.
-	 *
-	 * @return a list of allowed artifacts, the index is the artifact id
-	 */
-	std::vector<bool> getDefaultAllowedArtifacts() const;
+	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+
+	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+
+	std::vector<bool> getDefaultAllowed() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

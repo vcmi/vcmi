@@ -11,6 +11,8 @@
 #include "CHeroHandler.h"
 #include "CObjectHandler.h"
 #include "StringConstants.h"
+#include "CStopWatch.h"
+#include "IHandlerBase.h"
 
 /*
  * CModHandler.cpp, part of VCMI engine
@@ -46,7 +48,8 @@ void CIdentifierStorage::requestIdentifier(std::string name, const boost::functi
 {
 	checkIdentifier(name);
 
-	auto iter = registeredObjects.find(name);
+	// old version with immediate callback posibility. Can't be used for some cases
+/*	auto iter = registeredObjects.find(name);
 
 	if (iter != registeredObjects.end())
 		callback(iter->second); //already registered - trigger callback immediately
@@ -56,19 +59,24 @@ void CIdentifierStorage::requestIdentifier(std::string name, const boost::functi
             logGlobal->warnStream() << "incorrect primSkill name requested";
 
 		missingObjects[name].push_back(callback); // queue callback
-	}
+	}*/
+
+	missingObjects[name].push_back(callback); // queue callback
 }
 
-void CIdentifierStorage::registerObject(std::string name, si32 identifier)
+void CIdentifierStorage::registerObject(std::string scope, std::string type, std::string name, si32 identifier)
 {
-	checkIdentifier(name);
+	//TODO: use scope
+	std::string fullID = type + '.' + name;
+	checkIdentifier(fullID);
 
 	// do not allow to register same object twice
-	assert(registeredObjects.find(name) == registeredObjects.end());
+	assert(registeredObjects.find(fullID) == registeredObjects.end());
 
-	registeredObjects[name] = identifier;
+	registeredObjects[fullID] = identifier;
 
-	auto iter = missingObjects.find(name);
+	// old version with immediate callback posibility. Can't be used for some cases
+	/*auto iter = missingObjects.find(fullID);
 	if (iter != missingObjects.end())
 	{
 		//call all awaiting callbacks
@@ -77,11 +85,26 @@ void CIdentifierStorage::registerObject(std::string name, si32 identifier)
 			function(identifier);
 		}
 		missingObjects.erase(iter);
-	}
+	}*/
 }
 
-void CIdentifierStorage::finalize() const
+void CIdentifierStorage::finalize()
 {
+	for (auto it = missingObjects.begin(); it!= missingObjects.end();)
+	{
+		auto object = registeredObjects.find(it->first);
+		if (object != registeredObjects.end())
+		{
+			BOOST_FOREACH(auto function, it->second)
+			{
+				function(object->second);
+			}
+			it = missingObjects.erase(it);
+		}
+		else
+			it++;
+	}
+
 	// print list of missing objects and crash
 	// in future should try to do some cleanup (like returning all id's as 0)
 	if (!missingObjects.empty())
@@ -99,15 +122,115 @@ void CIdentifierStorage::finalize() const
 	assert(missingObjects.empty());
 }
 
+CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, size_t size, std::string objectName):
+    handler(handler),
+    objectName(objectName),
+    originalData(handler->loadLegacyData(size))
+{
+}
+
+void CContentHandler::ContentTypeHandler::preloadModData(std::string modName, std::vector<std::string> fileList)
+{
+	JsonNode data = JsonUtils::assembleFromFiles(fileList);
+
+	ModInfo & modInfo = modData[modName];
+
+	BOOST_FOREACH(auto entry, data.Struct())
+	{
+		size_t colon = entry.first.find(':');
+
+		if (colon == std::string::npos)
+		{
+			// normal object, local to this mod
+			modInfo.modData[entry.first].swap(entry.second);
+		}
+		else
+		{
+			std::string remoteName = entry.first.substr(0, colon);
+			std::string objectName = entry.first.substr(colon + 1);
+
+			// patching this mod? Send warning and continue - this situation can be handled normally
+			if (remoteName == modName)
+				logGlobal->warnStream() << "Redundant namespace definition for " << objectName;
+
+			JsonNode & remoteConf = modData[remoteName].patches[objectName];
+
+			JsonUtils::merge(remoteConf, entry.second);
+		}
+	}
+}
+
+void CContentHandler::ContentTypeHandler::loadMod(std::string modName)
+{
+	ModInfo & modInfo = modData[modName];
+
+	// apply patches
+	if (!modInfo.patches.isNull())
+		JsonUtils::merge(modInfo.modData, modInfo.patches);
+
+	BOOST_FOREACH(auto entry, modInfo.modData.Struct())
+	{
+		const std::string & name = entry.first;
+		JsonNode & data = entry.second;
+
+		if (vstd::contains(data.Struct(), "index") && !data["index"].isNull())
+		{
+			// try to add H3 object data
+			size_t index = data["index"].Float();
+
+			if (originalData.size() > index)
+			{
+				JsonUtils::merge(originalData[index], data);
+				JsonUtils::validate(originalData[index], "vcmi:" + objectName, name);
+				handler->loadObject(modName, name, originalData[index], index);
+
+				originalData[index].clear(); // do not use same data twice (same ID)
+
+				continue;
+			}
+		}
+		// normal new object
+		JsonUtils::validate(data, "vcmi:" + objectName, name);
+		handler->loadObject(modName, name, data);
+	}
+}
+
+CContentHandler::CContentHandler()
+{
+	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, GameConstants::F_NUMBER * 2, "heroClass")));
+	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth, GameConstants::ARTIFACTS_QUANTITY, "artifact")));
+	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh, GameConstants::CREATURES_COUNT, "creature")));
+	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh, GameConstants::F_NUMBER, "faction")));
+	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh, GameConstants::HEROES_QUANTITY, "hero")));
+
+	//TODO: spells, bonuses, something else?
+}
+
+void CContentHandler::preloadModData(std::string modName, JsonNode modConfig)
+{
+	BOOST_FOREACH(auto & handler, handlers)
+	{
+		handler.second.preloadModData(modName, modConfig[handler.first].convertTo<std::vector<std::string> >());
+	}
+}
+
+void CContentHandler::loadMod(std::string modName)
+{
+	BOOST_FOREACH(auto & handler, handlers)
+	{
+		handler.second.loadMod(modName);
+	}
+}
+
 CModHandler::CModHandler()
 {
 	for (int i = 0; i < GameConstants::RESOURCE_QUANTITY; ++i)
 	{
-		identifiers.registerObject("resource." + GameConstants::RESOURCE_NAMES[i], i);
+		identifiers.registerObject("core", "resource", GameConstants::RESOURCE_NAMES[i], i);
 	}
 
 	for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
-		identifiers.registerObject("primSkill." + PrimarySkill::names[i], i);
+		identifiers.registerObject("core", "primSkill", PrimarySkill::names[i], i);
 
 	loadConfigFromFile ("defaultMods");
 }
@@ -190,8 +313,12 @@ bool CModHandler::checkDependencies(const std::vector <TModID> & input) const
 
 std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input) const
 {
-	// Algorithm may not be the fastest one but VCMI does not needs any speed here
-	// Unless user have dozens of mods with complex dependencies this cide should be fine
+	// Topological sort algorithm
+	// May not be the fastest one but VCMI does not needs any speed here
+	// Unless user have dozens of mods with complex dependencies this code should be fine
+
+	// first - sort input to have input strictly based on name (and not on hashmap or anything else)
+	boost::range::sort(input);
 
 	std::vector <TModID> output;
 	output.reserve(input.size());
@@ -211,17 +338,20 @@ std::vector <TModID> CModHandler::resolveDependencies(std::vector <TModID> input
 
 	while (!input.empty())
 	{
+		std::set <TModID> toResolve; // list of mods resolved on this iteration
+
 		for (auto it = input.begin(); it != input.end();)
 		{
 			if (isResolved(allMods.at(*it)))
 			{
-				resolvedMods.insert(*it);
+				toResolve.insert(*it);
 				output.push_back(*it);
 				it = input.erase(it);
 				continue;
 			}
 			it++;
 		}
+		resolvedMods.insert(toResolve.begin(), toResolve.end());
 	}
 
 	return output;
@@ -237,8 +367,6 @@ void CModHandler::initialize(std::vector<std::string> availableMods)
 		CResourceHandler::get()->createResource(confName);
 	else
 		modConfig = JsonNode(ResourceID(confName));
-
-	CResourceHandler::get()->createResource("config/modSettings.json");
 
 	const JsonNode & modList = modConfig["activeMods"];
 	JsonNode resultingList;
@@ -312,28 +440,48 @@ void CModHandler::handleData(Handler handler, const JsonNode & source, std::stri
 	}
 }
 
-void CModHandler::loadActiveMods()
+void CModHandler::loadGameContent()
 {
+	CStopWatch timer, totalTime;
+
+	CContentHandler content;
+	logGlobal->infoStream() << "\tInitializing content hander: " << timer.getDiff() << " ms";
+
+	// first - load virtual "core" mod tht contains all data
+	// TODO? move all data into real mods? RoE, AB, SoD, WoG
+	content.preloadModData("core", JsonNode(ResourceID("config/gameConfig.json")));
+	logGlobal->infoStream() << "\tParsing original game data: " << timer.getDiff() << " ms";
+
 	BOOST_FOREACH(const TModID & modName, activeMods)
 	{
-        logGlobal->infoStream() << "\t\tLoading mod " << allMods[modName].name;
+		logGlobal->infoStream() << "\t\t" << allMods[modName].name;
 
 		std::string modFileName = "mods/" + modName + "/mod.json";
 
 		const JsonNode config = JsonNode(ResourceID(modFileName));
 		JsonUtils::validate(config, "vcmi:mod", modName);
 
-		handleData(VLC->townh, config, "factions", "vcmi:faction");
-		handleData(VLC->creh, config, "creatures", "vcmi:creature");
-		handleData(VLC->arth, config, "artifacts", "vcmi:artifact");
-		//todo: spells
-
-		handleData(&VLC->heroh->classes, config,"heroClasses", "vcmi:heroClass");
-		handleData(VLC->heroh, config, "heroes", "vcmi:hero");
+		content.preloadModData(modName, config);
 	}
+	logGlobal->infoStream() << "\tParsing mod data: " << timer.getDiff() << " ms";
 
+	content.loadMod("core");
+	logGlobal->infoStream() << "\tLoading original game data: " << timer.getDiff() << " ms";
+
+	BOOST_FOREACH(const TModID & modName, activeMods)
+	{
+		content.loadMod(modName);
+		logGlobal->infoStream() << "\t\t" << allMods[modName].name;
+	}
+	logGlobal->infoStream() << "\tLoading mod data: " << timer.getDiff() << "ms";
+
+	logGlobal->infoStream() << "\tDone loading data";
+
+	VLC->creh->loadCrExpBon();
 	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded
 	identifiers.finalize();
+
+	logGlobal->infoStream() << "\tAll game content loaded in " << totalTime.getDiff() << " ms";
 }
 
 void CModHandler::reload()
@@ -380,37 +528,42 @@ void CModHandler::reload()
 		const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::TOWN].begin()->second;
 		auto & townInfos = VLC->dobjinfo->gobjs[Obj::TOWN];
 
-		BOOST_FOREACH(auto & town, VLC->townh->towns)
+		BOOST_FOREACH(auto & faction, VLC->townh->factions)
 		{
-			auto & cientInfo = town.second.clientInfo;
-
-			if (!vstd::contains(VLC->dobjinfo->gobjs[Obj::TOWN], town.first)) // no obj info for this type
+			TFaction index = faction->index;
+			CTown * town = faction->town;
+			if (town)
 			{
-				CGDefInfo * info = new CGDefInfo(*baseInfo);
-				info->subid = town.first;
+				auto & cientInfo = town->clientInfo;
 
-				townInfos[town.first] = info;
-			}
-			townInfos[town.first]->name = cientInfo.advMapCastle;
-
-			VLC->dobjinfo->villages[town.first] = new CGDefInfo(*townInfos[town.first]);
-			VLC->dobjinfo->villages[town.first]->name = cientInfo.advMapVillage;
-
-			VLC->dobjinfo->capitols[town.first] = new CGDefInfo(*townInfos[town.first]);
-			VLC->dobjinfo->capitols[town.first]->name = cientInfo.advMapCapitol;
-
-			for (int i = 0; i < town.second.dwellings.size(); ++i)
-			{
-				const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::CREATURE_GENERATOR1][i]; //get same blockmap as first dwelling of tier i
-
-				BOOST_FOREACH (auto cre, town.second.creatures[i]) //both unupgraded and upgraded get same dwelling
+				if (!vstd::contains(VLC->dobjinfo->gobjs[Obj::TOWN], index)) // no obj info for this type
 				{
 					CGDefInfo * info = new CGDefInfo(*baseInfo);
-					info->subid = cre;
-					info->name = town.second.dwellings[i];
-					VLC->dobjinfo->gobjs[Obj::CREATURE_GENERATOR1][cre] = info;
+					info->subid = index;
 
-					VLC->objh->cregens[cre] = cre; //map of dwelling -> creature id
+					townInfos[index] = info;
+				}
+				townInfos[index]->name = cientInfo.advMapCastle;
+
+				VLC->dobjinfo->villages[index] = new CGDefInfo(*townInfos[index]);
+				VLC->dobjinfo->villages[index]->name = cientInfo.advMapVillage;
+
+				VLC->dobjinfo->capitols[index] = new CGDefInfo(*townInfos[index]);
+				VLC->dobjinfo->capitols[index]->name = cientInfo.advMapCapitol;
+
+				for (int i = 0; i < town->dwellings.size(); ++i)
+				{
+					const CGDefInfo * baseInfo = VLC->dobjinfo->gobjs[Obj::CREATURE_GENERATOR1][i]; //get same blockmap as first dwelling of tier i
+
+					BOOST_FOREACH (auto cre, town->creatures[i]) //both unupgraded and upgraded get same dwelling
+					{
+						CGDefInfo * info = new CGDefInfo(*baseInfo);
+						info->subid = cre;
+						info->name = town->dwellings[i];
+						VLC->dobjinfo->gobjs[Obj::CREATURE_GENERATOR1][cre] = info;
+
+						VLC->objh->cregens[cre] = cre; //map of dwelling -> creature id
+					}
 				}
 			}
 		}

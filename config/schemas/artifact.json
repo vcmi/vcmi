@@ -33,7 +33,7 @@
 			"enum" : [ "SPECIAL", "TREASURE", "MINOR", "MAJOR", "RELIC" ],
 			"description": "Artifact class, treasure, minor, major or relic"
 		},
-		"id" : {
+		"index" : {
 			"type" : "number",
 			"description" : "Private field to break things, do not use."
 		},

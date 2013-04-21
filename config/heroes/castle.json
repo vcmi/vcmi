@@ -1,7 +1,7 @@
 {
 	"orrin":
 	{
-		"id": 0,
+		"index": 0,
 		"class" : "knight",
 		"female": false,
 		"skills":
@@ -16,7 +16,7 @@
 	},
 	"valeska":
 	{
-		"id": 1,
+		"index": 1,
 		"class" : "knight",
 		"female": true,
 		"skills":
@@ -31,7 +31,7 @@
 	},
 	"edric":
 	{
-		"id": 2,
+		"index": 2,
 		"class" : "knight",
 		"female": false,
 		"skills":
@@ -46,7 +46,7 @@
 	},
 	"sylvia":
 	{
-		"id": 3,
+		"index": 3,
 		"class" : "knight",
 		"female": true,
 		"skills":
@@ -61,7 +61,7 @@
 	},
 	"lordHaart":
 	{
-		"id": 4,
+		"index": 4,
 		"class" : "knight",
 		"female": false,
 		"special" : true, // Lord Haart in his living form. Disabled in H3 expansions
@@ -77,7 +77,7 @@
 	},
 	"sorsha":
 	{
-		"id": 5,
+		"index": 5,
 		"class" : "knight",
 		"female": true,
 		"skills":
@@ -92,7 +92,7 @@
 	},
 	"christian":
 	{
-		"id": 6,
+		"index": 6,
 		"class" : "knight",
 		"female": false,
 		"skills":
@@ -107,7 +107,7 @@
 	},
 	"tyris":
 	{
-		"id": 7,
+		"index": 7,
 		"class" : "knight",
 		"female": true,
 		"skills":
@@ -122,7 +122,7 @@
 	},
 	"rion":
 	{
-		"id": 8,
+		"index": 8,
 		"class" : "cleric",
 		"female": false,
 		"spellbook": [ "stoneSkin" ],
@@ -138,7 +138,7 @@
 	},
 	"adela":
 	{
-		"id": 9,
+		"index": 9,
 		"class" : "cleric",
 		"female": true,
 		"spellbook": [ "bless" ],
@@ -154,7 +154,7 @@
 	},
 	"cuthbert":
 	{
-		"id": 10,
+		"index": 10,
 		"class" : "cleric",
 		"female": false,
 		"spellbook": [ "weakness" ],
@@ -170,7 +170,7 @@
 	},
 	"adelaide":
 	{
-		"id": 11,
+		"index": 11,
 		"class" : "cleric",
 		"female": true,
 		"spellbook": [ "frostRing" ],
@@ -185,7 +185,7 @@
 	},
 	"ingham":
 	{
-		"id": 12,
+		"index": 12,
 		"class" : "cleric",
 		"female": false,
 		"spellbook": [ "curse" ],
@@ -201,7 +201,7 @@
 	},
 	"sanya":
 	{
-		"id": 13,
+		"index": 13,
 		"class" : "cleric",
 		"female": true,
 		"spellbook": [ "dispel" ],
@@ -217,7 +217,7 @@
 	},
 	"loynis":
 	{
-		"id": 14,
+		"index": 14,
 		"class" : "cleric",
 		"spellbook": [ "prayer" ],
 		"female": false,
@@ -233,7 +233,7 @@
 	},
 	"caitlin":
 	{
-		"id": 15,
+		"index": 15,
 		"class" : "cleric",
 		"female": true,
 		"spellbook": [ "cure" ],

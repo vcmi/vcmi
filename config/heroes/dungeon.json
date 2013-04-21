@@ -1,7 +1,7 @@
 {
 	"lorelei":
 	{
-		"id": 80,
+		"index": 80,
 		"class" : "warlock",
 		"female": true,
 		"skills":
@@ -16,7 +16,7 @@
 	},
 	"arlach":
 	{
-		"id": 81,
+		"index": 81,
 		"class" : "warlock",
 		"female": false,
 		"skills":
@@ -31,7 +31,7 @@
 	},
 	"dace":
 	{
-		"id": 82,
+		"index": 82,
 		"class" : "warlock",
 		"female": false,
 		"skills":
@@ -46,7 +46,7 @@
 	},
 	"ajit":
 	{
-		"id": 83,
+		"index": 83,
 		"class" : "warlock",
 		"female": false,
 		"skills":
@@ -61,7 +61,7 @@
 	},
 	"damacon":
 	{
-		"id": 84,
+		"index": 84,
 		"class" : "warlock",
 		"female": false,
 		"skills":
@@ -75,7 +75,7 @@
 	},
 	"gunnar":
 	{
-		"id": 85,
+		"index": 85,
 		"class" : "warlock",
 		"female": false,
 		"skills":
@@ -90,7 +90,7 @@
 	},
 	"synca":
 	{
-		"id": 86,
+		"index": 86,
 		"class" : "warlock",
 		"female": true,
 		"skills":
@@ -105,7 +105,7 @@
 	},
 	"shakti":
 	{
-		"id": 87,
+		"index": 87,
 		"class" : "warlock",
 		"female": false,
 		"skills":
@@ -120,7 +120,7 @@
 	},
 	"alamar":
 	{
-		"id": 88,
+		"index": 88,
 		"class" : "overlord",
 		"spellbook": [ "resurrection" ],
 		"female": false,
@@ -136,7 +136,7 @@
 	},
 	"jaegar":
 	{
-		"id": 89,
+		"index": 89,
 		"class" : "overlord",
 		"female": false,
 		"spellbook": [ "shield" ],
@@ -152,7 +152,7 @@
 	},
 	"malekith":
 	{
-		"id": 90,
+		"index": 90,
 		"class" : "overlord",
 		"female": false,
 		"spellbook": [ "bloodlust" ],
@@ -168,7 +168,7 @@
 	},
 	"jeddite":
 	{
-		"id": 91,
+		"index": 91,
 		"class" : "overlord",
 		"female": true,
 		"spellbook": [ "resurrection" ],
@@ -183,7 +183,7 @@
 	},
 	"geon":
 	{
-		"id": 92,
+		"index": 92,
 		"class" : "overlord",
 		"female": false,
 		"spellbook": [ "slow" ],
@@ -199,7 +199,7 @@
 	},
 	"deemer":
 	{
-		"id": 93,
+		"index": 93,
 		"class" : "overlord",
 		"female": false,
 		"spellbook": [ "meteorShower" ],
@@ -215,7 +215,7 @@
 	},
 	"sephinroth":
 	{
-		"id": 94,
+		"index": 94,
 		"class" : "overlord",
 		"female": true,
 		"spellbook": [ "protectAir" ],
@@ -231,7 +231,7 @@
 	},
 	"darkstorn":
 	{
-		"id": 95,
+		"index": 95,
 		"class" : "overlord",
 		"female": false,
 		"spellbook": [ "stoneSkin" ],

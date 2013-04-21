@@ -141,8 +141,8 @@
 					"description": "Path to .def file with building icons"
 				},
 				"buildings": {
-					"type" : "array",
-					"items" : {
+					"type" : "object",
+					"additionalProperties" : {
 						"$ref" : "vcmi:townBuilding"
 					}
 				},
@@ -242,8 +242,8 @@
 					"$ref" : "vcmi:townSiege"
 				},
 				"structures": {
-					"type" : "array",
-					"items" : {
+					"type" : "object",
+					"additionalProperties" : {
 						"$ref" : "vcmi:townStructure"
 					}
 				},

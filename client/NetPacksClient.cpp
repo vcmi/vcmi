@@ -762,7 +762,7 @@ void SystemMessage::applyCl( CClient *cl )
 	std::ostringstream str;
 	str << "System message: " << text;
 
-    logNetwork->debugStream() << str.str();
+    logNetwork->errorStream() << str.str(); // usually used to receive error messages from server
 	if(LOCPLINT)
 		LOCPLINT->cingconsole->print(str.str());
 }

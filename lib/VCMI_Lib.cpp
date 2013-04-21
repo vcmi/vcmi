@@ -78,19 +78,18 @@ void LibClasses::loadFilesystem()
 
 static void logHandlerLoaded(const std::string& name, CStopWatch &timer)
 {
-   logGlobal->infoStream()<<"\t" << name << " handler: "<<timer.getDiff();
+   logGlobal->infoStream()<<"\t\t" << name << " handler: "<<timer.getDiff();
 };
 
 template <class Handler> void createHandler(Handler *&handler, const std::string &name, CStopWatch &timer)
 {
 	handler = new Handler();
-	handler->load();
 	logHandlerLoaded(name, timer);
 } 
 
 void LibClasses::init()
 {
-	CStopWatch pomtime;
+	CStopWatch pomtime, totalTime;
 
 	createHandler(bth, "Bonus type", pomtime);
 	
@@ -110,7 +109,9 @@ void LibClasses::init()
 
 	createHandler(spellh, "Spell", pomtime);
 
-	modh->loadActiveMods();
+	logGlobal->infoStream()<<"\tInitializing handers: "<< totalTime.getDiff();
+
+	modh->loadGameContent();
 	modh->reload();
 	//FIXME: make sure that everything is ok after game restart
 	//TODO: This should be done every time mod config changes
@@ -155,9 +156,10 @@ LibClasses::LibClasses()
 
 void LibClasses::callWhenDeserializing()
 {
-	generaltexth = new CGeneralTextHandler;
-	generaltexth->load();
-	arth->load(true);
+	// FIXME: check if any of these are needed
+	//generaltexth = new CGeneralTextHandler;
+	//generaltexth->load();
+	//arth->load(true);
 	//modh->recreateHandlers();
 	//modh->loadConfigFromFile ("defaultMods"); //TODO: remember last saved config
 }

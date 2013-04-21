@@ -1,7 +1,7 @@
 {
 	"pikeman" :
 	{
-		"id": 0,
+		"index": 0,
 		"level": 1,
 		"faction": "castle",
 		"upgrades": ["halberdier"],
@@ -27,7 +27,7 @@
 	},
 	"halberdier" :
 	{
-		"id": 1,
+		"index": 1,
 		"level": 1,
 		"faction": "castle",
 		"abilities":
@@ -52,7 +52,7 @@
 	},
 	"archer" :
 	{
-		"id": 2,
+		"index": 2,
 		"level": 2,
 		"extraNames": [ "lightCrossbowman" ],
 		"faction": "castle",
@@ -77,7 +77,7 @@
 	},
 	"marksman" :
 	{
-		"id": 3,
+		"index": 3,
 		"level": 2,
 		"faction": "castle",
 		"abilities": {
@@ -108,7 +108,7 @@
 	},
 	"griffin" :
 	{
-		"id": 4,
+		"index": 4,
 		"level": 3,
 		"faction": "castle",
 		"abilities":
@@ -136,7 +136,7 @@
 	},
 	"royalGriffin" :
 	{
-		"id": 5,
+		"index": 5,
 		"level": 3,
 		"faction": "castle",
 		"abilities":
@@ -161,7 +161,7 @@
 	},
 	"swordsman" :
 	{
-		"id": 6,
+		"index": 6,
 		"level": 4,
 		"faction": "castle",
 		"upgrades": ["crusader"],
@@ -180,7 +180,7 @@
 	},
 	"crusader" :
 	{
-		"id": 7,
+		"index": 7,
 		"level": 4,
 		"faction": "castle",
 		"abilities":
@@ -206,7 +206,7 @@
 	},
 	"monk" :
 	{
-		"id": 8,
+		"index": 8,
 		"level": 5,
 		"faction": "castle",
 		"upgrades": ["zealot"],
@@ -230,7 +230,7 @@
 	},
 	"zealot" :
 	{
-		"id": 9,
+		"index": 9,
 		"level": 5,
 		"faction": "castle",
 		"graphics" :
@@ -253,7 +253,7 @@
 	},
 	"cavalier" :
 	{
-		"id": 10,
+		"index": 10,
 		"level": 6,
 		"faction": "castle",
 		"upgrades": ["champion"],
@@ -272,7 +272,7 @@
 	},
 	"champion" :
 	{
-		"id": 11,
+		"index": 11,
 		"level": 6,
 		"faction": "castle",
 		"graphics" :
@@ -290,7 +290,7 @@
 	},
 	"angel" :
 	{
-		"id": 12,
+		"index": 12,
 		"level": 7,
 		"faction": "castle",
 		"abilities":
@@ -324,7 +324,7 @@
 	},
 	"archangel" :
 	{
-		"id": 13,
+		"index": 13,
 		"level": 7,
 		"faction": "castle",
 		"abilities":

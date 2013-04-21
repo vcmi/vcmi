@@ -1856,7 +1856,6 @@ void RandomMapTab::updateMapInfo()
 		player.team = TeamID(i);
 		player.hasMainTown = true;
 		player.generateHeroAtMainTown = true;
-		player.isFactionRandom = true;
 		mapInfo.mapHeader->players.push_back(player);
 	}
 
@@ -2644,7 +2643,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex()
 		{
 		case PlayerSettings::NONE:   return TOWN_NONE;
 		case PlayerSettings::RANDOM: return TOWN_RANDOM;
-		default: return CGI->townh->towns[settings.castle].clientInfo.icons[true][false] + 2;
+		default: return CGI->townh->factions[settings.castle]->town->clientInfo.icons[true][false] + 2;
 		}
 
 	case HERO:
@@ -2669,9 +2668,9 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex()
 			case PlayerSettings::GOLD:     return GOLD;
 			case PlayerSettings::RESOURCE:
 				{
-					switch(CGI->townh->towns[settings.castle].primaryRes)
+					switch(CGI->townh->factions[settings.castle]->town->primaryRes)
 					{
-					case 127          : return WOOD_ORE;
+					case Res::WOOD_AND_ORE : return WOOD_ORE;
 					case Res::WOOD    : return WOOD;
 					case Res::MERCURY : return MERCURY;
 					case Res::ORE     : return ORE;
@@ -2729,7 +2728,7 @@ std::string OptionsTab::CPlayerSettingsHelper::getName()
 			{
 			case PlayerSettings::NONE   : return CGI->generaltexth->allTexts[523];
 			case PlayerSettings::RANDOM : return CGI->generaltexth->allTexts[522];
-			default : return CGI->townh->factions[settings.castle].name;
+			default : return CGI->townh->factions[settings.castle]->name;
 			}
 		}
 	case HERO:
@@ -2777,13 +2776,13 @@ std::string OptionsTab::CPlayerSettingsHelper::getSubtitle()
 			case PlayerSettings::GOLD:     return CGI->generaltexth->allTexts[87]; //500-1000
 			case PlayerSettings::RESOURCE:
 				{
-					switch(CGI->townh->towns[settings.castle].primaryRes)
+					switch(CGI->townh->factions[settings.castle]->town->primaryRes)
 					{
 					case Res::MERCURY: return CGI->generaltexth->allTexts[694];
 					case Res::SULFUR:  return CGI->generaltexth->allTexts[695];
 					case Res::CRYSTAL: return CGI->generaltexth->allTexts[692];
 					case Res::GEMS:    return CGI->generaltexth->allTexts[693];
-					case 127:          return CGI->generaltexth->allTexts[89]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
+					case Res::WOOD_AND_ORE: return CGI->generaltexth->allTexts[89]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
 					}
 				}
 			}
@@ -2807,13 +2806,13 @@ std::string OptionsTab::CPlayerSettingsHelper::getDescription()
 			case PlayerSettings::GOLD:     return CGI->generaltexth->allTexts[92]; //At the start of the game, 500-1000 gold is added to your Kingdom's resource pool
 			case PlayerSettings::RESOURCE:
 				{
-					switch(CGI->townh->towns[settings.castle].primaryRes)
+					switch(CGI->townh->factions[settings.castle]->town->primaryRes)
 					{
 					case Res::MERCURY: return CGI->generaltexth->allTexts[690];
 					case Res::SULFUR:  return CGI->generaltexth->allTexts[691];
 					case Res::CRYSTAL: return CGI->generaltexth->allTexts[688];
 					case Res::GEMS:    return CGI->generaltexth->allTexts[689];
-					case 127:          return CGI->generaltexth->allTexts[93]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
+					case Res::WOOD_AND_ORE: return CGI->generaltexth->allTexts[93]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
 					}
 				}
 			}
@@ -2872,10 +2871,10 @@ void OptionsTab::CPregameTooltipBox::genTownWindow()
 	new CLabel(pos.w / 2 + 8, 122, FONT_MEDIUM, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[79]);
 
 	std::vector<CComponent *> components;
-	const CTown & town = CGI->townh->towns[settings.castle];
+	const CTown * town = CGI->townh->factions[settings.castle]->town;
 
-	for (size_t i=0; i< town.creatures.size(); i++)
-		components.push_back(new CComponent(CComponent::creature, town.creatures[i].front(), 0, CComponent::tiny));
+	for (size_t i=0; i< town->creatures.size(); i++)
+		components.push_back(new CComponent(CComponent::creature, town->creatures[i].front(), 0, CComponent::tiny));
 
 	new CComponentBox(components, Rect(10, 140, pos.w - 20, 140));
 }
@@ -3450,8 +3449,8 @@ void CBonusSelection::updateBonusSelection()
 					picName = graphics->ERMUtoPicture[faction][buildID];
 					picNumber = -1;
 
-					if (vstd::contains(CGI->townh->towns[faction].buildings, buildID))
-						desc = CGI->townh->towns[faction].buildings.find(buildID)->second->Name();
+					if (vstd::contains(CGI->townh->factions[faction]->town->buildings, buildID))
+						desc = CGI->townh->factions[faction]->town->buildings.find(buildID)->second->Name();
 				}
 				break;
 			case CScenarioTravel::STravelBonus::ARTIFACT:

@@ -16,7 +16,7 @@
 
 class CGObjectInstance;
 class CTerrainViewPatternConfig;
-class TerrainViewPattern;
+struct TerrainViewPattern;
 
 namespace ETerrainGroup
 {

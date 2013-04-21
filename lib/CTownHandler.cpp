@@ -37,18 +37,18 @@ BuildingID CBuilding::getBase() const
 {
 	const CBuilding * build = this;
 	while (build->upgrade >= 0)
-		build = VLC->townh->towns[build->tid].buildings[build->upgrade];
+		build = build->town->buildings[build->upgrade];
 
 	return build->bid;
 }
 
 si32 CBuilding::getDistance(BuildingID buildID) const
 {
-	const CBuilding * build = VLC->townh->towns[tid].buildings[buildID];
+	const CBuilding * build = town->buildings[buildID];
 	int distance = 0;
 	while (build->upgrade >= 0 && build != this)
 	{
-		build = VLC->townh->towns[build->tid].buildings[build->upgrade];
+		build = build->town->buildings[build->upgrade];
 		distance++;
 	}
 	if (build == this)
@@ -76,28 +76,31 @@ JsonNode readBuilding(CLegacyConfigParser & parser)
 	return ret;
 }
 
-void CTownHandler::loadLegacyData(JsonNode & dest)
+std::vector<JsonNode> CTownHandler::loadLegacyData(size_t dataSize)
 {
+	std::vector<JsonNode> dest(dataSize);
+	factions.resize(dataSize);
+
+	auto getBuild = [&](size_t town, size_t building) -> JsonNode &
+	{
+		return dest[town]["town"]["buildings"][EBuildingType::names[building]];
+	};
+
 	CLegacyConfigParser parser("DATA/BUILDING.TXT");
-	dest.Vector().resize(GameConstants::F_NUMBER);
 
 	parser.endLine(); // header
 	parser.endLine();
 
 	//Unique buildings
-	for (size_t town=0; town<GameConstants::F_NUMBER; town++)
+	for (size_t town=0; town<dataSize; town++)
 	{
-		JsonVector & buildList = dest.Vector()[town]["buildings"].Vector();
-
-		buildList.resize( 30 ); //prepare vector for first set of buildings
-
 		parser.endLine(); //header
 		parser.endLine();
 
 		int buildID = 17;
 		do
 		{
-			buildList[buildID] = readBuilding(parser);
+			getBuild(town, buildID) = readBuilding(parser);
 			buildID++;
 		}
 		while (!parser.isNextEntryEmpty());
@@ -113,8 +116,8 @@ void CTownHandler::loadLegacyData(JsonNode & dest)
 	{
 		JsonNode building = readBuilding(parser);
 
-		for (size_t town=0; town<GameConstants::F_NUMBER; town++)
-			dest.Vector()[town]["buildings"].Vector()[buildID] = building;
+		for (size_t town=0; town<dataSize; town++)
+			getBuild(town, buildID) = building;
 
 		buildID++;
 	}
@@ -124,16 +127,15 @@ void CTownHandler::loadLegacyData(JsonNode & dest)
 	parser.endLine();
 
 	//Dwellings
-	for (size_t town=0; town<GameConstants::F_NUMBER; town++)
+	for (size_t town=0; town<dataSize; town++)
 	{
 		parser.endLine(); //header
 		parser.endLine();
 
-		do
+		for (size_t i=0; i<14; i++)
 		{
-			dest.Vector()[town]["buildings"].Vector().push_back(readBuilding(parser));
+			getBuild(town, 30+i) = readBuilding(parser);
 		}
-		while (!parser.isNextEntryEmpty());
 	}
 	{
 		CLegacyConfigParser parser("DATA/BLDGNEUT.TXT");
@@ -144,11 +146,10 @@ void CTownHandler::loadLegacyData(JsonNode & dest)
 			std::string descr = parser.readString();
 			parser.endLine();
 
-			for(int j=0; j<GameConstants::F_NUMBER; j++)
+			for(int j=0; j<dataSize; j++)
 			{
-				JsonVector & buildings = dest.Vector()[j]["buildings"].Vector();
-				buildings[building]["name"].String() = name;
-				buildings[building]["description"].String() = descr;
+				getBuild(j, building)["name"].String() = name;
+				getBuild(j, building)["description"].String() = descr;
 			}
 		}
 		parser.endLine(); // silo
@@ -160,53 +161,49 @@ void CTownHandler::loadLegacyData(JsonNode & dest)
 		std::string descr = parser.readString();
 		parser.endLine();
 
-		for(int town=0; town<GameConstants::F_NUMBER; town++)
+		for(int town=0; town<dataSize; town++)
 		{
-			JsonVector & buildings = dest.Vector()[town]["buildings"].Vector();
-			buildings[20]["name"].String() = name;
-			buildings[20]["description"].String() = descr;
+			getBuild(town, 20)["name"].String() = name;
+			getBuild(town, 20)["description"].String() = descr;
 		}
 
 		//blacksmith
-		for(int town=0; town<GameConstants::F_NUMBER; town++)
+		for(int town=0; town<dataSize; town++)
 		{
-			JsonVector & buildings = dest.Vector()[town]["buildings"].Vector();
-			buildings[16]["name"].String() =  parser.readString();
-			buildings[16]["description"].String() = parser.readString();
+			getBuild(town, 16)["name"].String() =  parser.readString();
+			getBuild(town, 16)["description"].String() = parser.readString();
 			parser.endLine();
 		}
 	}
 	{
 		CLegacyConfigParser parser("DATA/BLDGSPEC.TXT");
 
-		for(int town=0; town<GameConstants::F_NUMBER; town++)
+		for(int town=0; town<dataSize; town++)
 		{
-			JsonVector & buildings = dest.Vector()[town]["buildings"].Vector();
 			for(int build=0; build<9; build++)
 			{
-				buildings[17+build]["name"].String() =  parser.readString();
-				buildings[17+build]["description"].String() = parser.readString();
+				getBuild(town, 17 + build)["name"].String() =  parser.readString();
+				getBuild(town, 17 + build)["description"].String() = parser.readString();
 				parser.endLine();
 			}
-			buildings[26]["name"].String() =  parser.readString(); // Grail
-			buildings[26]["description"].String() = parser.readString();
+			getBuild(town, 26)["name"].String() =  parser.readString(); // Grail
+			getBuild(town, 26)["description"].String() = parser.readString();
 			parser.endLine();
 
-			buildings[15]["name"].String() =  parser.readString(); // Resource silo
-			buildings[15]["description"].String() = parser.readString();
+			getBuild(town, 15)["name"].String() =  parser.readString(); // Resource silo
+			getBuild(town, 15)["description"].String() = parser.readString();
 			parser.endLine();
 		}
 	}
 	{
 		CLegacyConfigParser parser("DATA/DWELLING.TXT");
 
-		for(int town=0; town<GameConstants::F_NUMBER; town++)
+		for(int town=0; town<dataSize; town++)
 		{
-			JsonVector & buildings = dest.Vector()[town]["buildings"].Vector();
 			for(int build=0; build<14; build++)
 			{
-				buildings[30+build]["name"].String() =  parser.readString();
-				buildings[30+build]["description"].String() = parser.readString();
+				getBuild(town, 30 + build)["name"].String() =  parser.readString();
+				getBuild(town, 30 + build)["description"].String() = parser.readString();
 				parser.endLine();
 			}
 		}
@@ -217,22 +214,20 @@ void CTownHandler::loadLegacyData(JsonNode & dest)
 		size_t townID=0;
 		do
 		{
-			JsonNode & town = dest.Vector()[townID];
-
-			town["name"].String() = typeParser.readString();
-
+			dest[townID]["name"].String() = typeParser.readString();
 
 			for (int i=0; i<NAMES_PER_TOWN; i++)
 			{
 				JsonNode name;
 				name.String() = nameParser.readString();
-				town["names"].Vector().push_back(name);
+				dest[townID]["town"]["names"].Vector().push_back(name);
 				nameParser.endLine();
 			}
 			townID++;
 		}
 		while (typeParser.endLine());
 	}
+	return dest;
 }
 
 void CTownHandler::loadBuilding(CTown &town, const JsonNode & source)
@@ -243,7 +238,7 @@ void CTownHandler::loadBuilding(CTown &town, const JsonNode & source)
 
 	ret->mode = static_cast<CBuilding::EBuildMode>(boost::find(modes, source["mode"].String()) - modes);
 
-	ret->tid = town.typeID;
+	ret->town = &town;
 	ret->bid = BuildingID(source["id"].Float());
 	ret->name = source["name"].String();
 	ret->description = source["description"].String();
@@ -265,9 +260,21 @@ void CTownHandler::loadBuilding(CTown &town, const JsonNode & source)
 
 void CTownHandler::loadBuildings(CTown &town, const JsonNode & source)
 {
-	BOOST_FOREACH(const JsonNode &node, source.Vector())
+	if (source.getType() == JsonNode::DATA_VECTOR)
 	{
-		loadBuilding(town, node);
+		BOOST_FOREACH(auto &node, source.Vector())
+		{
+			if (!node.isNull())
+				loadBuilding(town, node);
+		}
+	}
+	else
+	{
+		BOOST_FOREACH(auto &node, source.Struct())
+		{
+			if (!node.second.isNull())
+				loadBuilding(town, node.second);
+		}
 	}
 }
 
@@ -304,9 +311,21 @@ void CTownHandler::loadStructure(CTown &town, const JsonNode & source)
 
 void CTownHandler::loadStructures(CTown &town, const JsonNode & source)
 {
-	BOOST_FOREACH(const JsonNode &node, source.Vector())
+	if (source.getType() == JsonNode::DATA_VECTOR)
 	{
-		loadStructure(town, node);
+		BOOST_FOREACH(auto &node, source.Vector())
+		{
+			if (!node.isNull())
+				loadStructure(town, node);
+		}
+	}
+	else
+	{
+		BOOST_FOREACH(auto &node, source.Struct())
+		{
+			if (!node.second.isNull())
+				loadStructure(town, node.second);
+		}
 	}
 }
 
@@ -415,7 +434,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 {
 	auto resIter = boost::find(GameConstants::RESOURCE_NAMES, source["primaryResource"].String());
 	if (resIter == boost::end(GameConstants::RESOURCE_NAMES))
-		town.primaryRes = 127; //Wood + Ore
+		town.primaryRes = Res::WOOD_AND_ORE; //Wood + Ore
 	else
 		town.primaryRes = resIter - boost::begin(GameConstants::RESOURCE_NAMES);
 
@@ -462,7 +481,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 
 		VLC->modh->identifiers.requestIdentifier("heroClass." + node.first, [=, &town](si32 classID)
 		{
-			VLC->heroh->classes.heroClasses[classID]->selectionProbability[town.typeID] = chance;
+			VLC->heroh->classes.heroClasses[classID]->selectionProbability[town.faction->index] = chance;
 		});
 	}
 
@@ -472,7 +491,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 
 		VLC->modh->identifiers.requestIdentifier("spell." + node.first, [=, &town](si32 spellID)
 		{
-			SpellID(spellID).toSpell()->probabilities[town.typeID] = chance;
+			SpellID(spellID).toSpell()->probabilities[town.faction->index] = chance;
 		});
 	}
 
@@ -506,101 +525,68 @@ void CTownHandler::loadPuzzle(CFaction &faction, const JsonNode &source)
 	assert(faction.puzzleMap.size() == GameConstants::PUZZLE_MAP_PIECES);
 }
 
-void CTownHandler::load(std::string townID, const JsonNode &source)
+CFaction * CTownHandler::loadFromJson(const JsonNode &source)
 {
-	int id;
+	CFaction * faction = new CFaction();
 
-	if (source["index"].isNull())
-		id = factions.rbegin()->first + 1;
-	else
-		id = source["index"].Float();
-
-	CFaction & faction = factions[id];
-
-	faction.factionID = id;
-	faction.name = source["name"].String();
+	faction->name = source["name"].String();
 
 	VLC->modh->identifiers.requestIdentifier ("creature." + source["commander"].String(),
 		[=](si32 commanderID)
 		{
-			factions[id].commander = CreatureID(commanderID);
+			faction->commander = CreatureID(commanderID);
 		});
 
-	faction.creatureBg120 = source["creatureBackground"]["120px"].String();
-	faction.creatureBg130 = source["creatureBackground"]["130px"].String();
+	faction->creatureBg120 = source["creatureBackground"]["120px"].String();
+	faction->creatureBg130 = source["creatureBackground"]["130px"].String();
 
-	faction.nativeTerrain = ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES,
+	faction->nativeTerrain = ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES,
 		source["nativeTerrain"].String()));
 	int alignment = vstd::find_pos(EAlignment::names, source["alignment"].String());
 	if (alignment == -1)
-		faction.alignment = EAlignment::NEUTRAL;
+		faction->alignment = EAlignment::NEUTRAL;
 	else
-		faction.alignment = static_cast<EAlignment::EAlignment>(alignment);
+		faction->alignment = static_cast<EAlignment::EAlignment>(alignment);
 
 	if (!source["town"].isNull())
 	{
-		towns[id].typeID = id;
-		loadTown(towns[id], source["town"]);
+		faction->town = new CTown;
+		faction->town->faction = faction;
+		loadTown(*faction->town, source["town"]);
 	}
 	if (!source["puzzleMap"].isNull())
-		loadPuzzle(faction, source["puzzleMap"]);
+		loadPuzzle(*faction, source["puzzleMap"]);
 
-    logGlobal->traceStream() << "Added faction: " << townID;
-	VLC->modh->identifiers.registerObject(std::string("faction.") + townID, faction.factionID);
+	return faction;
 }
 
-void CTownHandler::load()
+void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	JsonNode gameConf(ResourceID("config/gameConfig.json"));
-	JsonNode buildingsConf = JsonUtils::assembleFromFiles(gameConf["factions"].convertTo<std::vector<std::string> >());
+	auto object = loadFromJson(data);
+	object->index = factions.size();
 
-	JsonNode legacyConfig;
-	loadLegacyData(legacyConfig);
+	factions.push_back(object);
 
-	// semi-manually merge legacy config with towns json
-
-	for (size_t i=0; i< legacyConfig.Vector().size(); i++)
-	{
-		JsonNode & legacyFaction = legacyConfig.Vector()[i];
-		JsonNode & outputFaction = buildingsConf[ETownType::names[i]];
-
-		if (outputFaction["name"].isNull())
-			outputFaction["name"] = legacyFaction["name"];
-
-		if (!outputFaction["town"].isNull())
-		{
-			if (outputFaction["town"]["names"].isNull())
-				outputFaction["town"]["names"] = legacyFaction["names"];
-
-			JsonNode & outputBuildings = outputFaction["town"]["buildings"];
-			JsonVector & legacyBuildings = legacyFaction["buildings"].Vector();
-			BOOST_FOREACH(JsonNode & building, outputBuildings.Vector())
-			{
-				if (vstd::contains(building.Struct(), "id") &&
-				    legacyBuildings.size() > building["id"].Float() )
-				{
-					//find same buildings in legacy and json configs
-					JsonNode & legacyBuilding = legacyBuildings[building["id"].Float()];
-
-					if (!legacyBuilding.isNull()) //merge if h3 config was found for this building
-						JsonUtils::merge(building, legacyBuilding);
-				}
-			}
-		}
-	}
-	BOOST_FOREACH(auto & entry, buildingsConf.Struct())
-	{
-		//JsonUtils::validate(entry.second, "vcmi:faction", entry.first);
-		load(entry.first, entry.second);
-	}
+	VLC->modh->identifiers.registerObject(scope, "faction", name, object->index);
 }
 
-std::set<TFaction> CTownHandler::getDefaultAllowedFactions() const
+void CTownHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
-	std::set<TFaction> allowedFactions;
-	BOOST_FOREACH(auto town, towns)
+	auto object = loadFromJson(data);
+	object->index = index;
+
+	assert(factions[index] == nullptr); // ensure that this id was not loaded before
+	factions[index] = object;
+
+	VLC->modh->identifiers.registerObject(scope, "faction", name, object->index);
+}
+
+std::vector<bool> CTownHandler::getDefaultAllowed() const
+{
+	std::vector<bool> allowedFactions;
+	BOOST_FOREACH(auto town, factions)
 	{
-		allowedFactions.insert(town.first);
+		allowedFactions.push_back(town->town != nullptr);
 	}
 	return allowedFactions;
 }

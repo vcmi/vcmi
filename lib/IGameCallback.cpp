@@ -256,7 +256,7 @@ template DLL_LINKAGE void CPrivilagedInfoCallback::loadCommonState<CLoadIntegrit
 template DLL_LINKAGE void CPrivilagedInfoCallback::loadCommonState<CLoadFile>(CLoadFile&);
 template DLL_LINKAGE void CPrivilagedInfoCallback::saveCommonState<CSaveFile>(CSaveFile&) const;
 
-inline TerrainTile * CNonConstInfoCallback::getTile( int3 pos )
+TerrainTile * CNonConstInfoCallback::getTile( int3 pos )
 {
 	if(!gs->map->isInTheMap(pos))
 		return NULL;
@@ -274,7 +274,7 @@ const CTown * CGameInfoCallback::getNativeTown(PlayerColor color) const
 {
 	const PlayerSettings *ps = getPlayerSettings(color);
 	ERROR_RET_VAL_IF(!ps, "There is no such player!", NULL);
-	return &VLC->townh->towns[ps->castle];
+	return VLC->townh->factions[ps->castle]->town;
 }
 
 const CGObjectInstance * CGameInfoCallback::getObjByQuestIdentifier(int identifier) const
@@ -900,7 +900,6 @@ CGHeroInstance *CNonConstInfoCallback::getHero(ObjectInstanceID objid)
 
 CGTownInstance *CNonConstInfoCallback::getTown(ObjectInstanceID objid)
 {
-
 	return const_cast<CGTownInstance*>(CGameInfoCallback::getTown(objid));
 }
 

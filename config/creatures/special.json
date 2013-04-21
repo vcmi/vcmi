@@ -6,34 +6,34 @@
 		"faction": "neutral",
 		"disabled" : true,
 		"graphics" : null,
-		"id" : 122
+		"index" : 122
 	},
 	"unused124" :
 	{
 		"faction": "neutral",
 		"disabled" : true,
 		"graphics" : null,
-		"id" : 124
+		"index" : 124
 	},
 	"unused126" :
 	{
 		"faction": "neutral",
 		"disabled" : true,
 		"graphics" : null,
-		"id" : 126
+		"index" : 126
 	},
 	"unused128" :
 	{
 		"faction": "neutral",
 		"disabled" : true,
 		"graphics" : null,
-		"id" : 128
+		"index" : 128
 	},
 
 	"catapult" :
 	{
 		"special" : true,
-		"id": 145,
+		"index": 145,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -54,7 +54,7 @@
 	"ballista" :
 	{
 		"special" : true,
-		"id": 146,
+		"index": 146,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -75,7 +75,7 @@
 	"firstAidTent" :
 	{
 		"special" : true,
-		"id": 147,
+		"index": 147,
 		"level": 0,
 		"faction": "neutral",
 		"abilities": { "heals" : { "type" : "HEALER" } },
@@ -92,7 +92,7 @@
 	"ammoCart" :
 	{
 		"special" : true,
-		"id": 148,
+		"index": 148,
 		"level": 0,
 		"faction": "neutral",
 		"abilities": { "inactive" : { "type" : "NOT_ACTIVE" } },
@@ -109,7 +109,7 @@
 	"arrowTower" :
 	{
 		"special" : true,
-		"id": 149,
+		"index": 149,
 		"level": 0,
 		"faction": "neutral",
 		"abilities": { "shooter" : { "type" : "SHOOTER" } },

@@ -797,9 +797,6 @@ static void listenForEvents()
 				delete CGI->dobjinfo.get();
 				const_cast<CGameInfo*>(CGI)->dobjinfo = new CDefObjInfoHandler; 
 
-				VLC->dobjinfo = const_cast<CGameInfo*>(CGI)->dobjinfo; // update dobjinfo pointer in VLC (used by modHandler::reload())
-
-				const_cast<CGameInfo*>(CGI)->dobjinfo->load();
 				const_cast<CGameInfo*>(CGI)->modh->reload(); //add info about new creatures to dobjinfo
 			};
 

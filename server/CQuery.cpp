@@ -1,7 +1,7 @@
 #include "StdInc.h"
 #include "CQuery.h"
 #include "CGameHandler.h"
-#include "..\lib\BattleState.h"
+#include "../lib/BattleState.h"
 
 boost::mutex Queries::mx;
 

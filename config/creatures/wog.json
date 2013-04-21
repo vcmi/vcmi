@@ -1,7 +1,7 @@
 {
 	"supremeArchangel" :
 	{
-		"id": 150,
+		"index": 150,
 		"level": 8,
 		"faction": "castle",
 		"graphics" :
@@ -19,7 +19,7 @@
 	},
 	"diamondDragon" :
 	{
-		"id": 151,
+		"index": 151,
 		"level": 8,
 		"faction": "rampart",
 		"abilities":
@@ -44,7 +44,7 @@
 	},
 	"lordofThunder" :
 	{
-		"id": 152,
+		"index": 152,
 		"level": 8,
 		"faction": "tower",
 		"graphics" :
@@ -67,7 +67,7 @@
 	},
 	"hellBaron" :
 	{
-		"id": 153,
+		"index": 153,
 		"level": 8,
 		"faction": "inferno",
 		"abilities":
@@ -96,7 +96,7 @@
 	},
 	"bloodDragon" :
 	{
-		"id": 154,
+		"index": 154,
 		"level": 8,
 		"faction": "necropolis",
 		"abilities":
@@ -126,7 +126,7 @@
 	},
 	"darknessDragon" :
 	{
-		"id": 155,
+		"index": 155,
 		"level": 8,
 		"faction": "dungeon",
 		"abilities":
@@ -151,7 +151,7 @@
 	},
 	"ghostBehemoth" :
 	{
-		"id": 156,
+		"index": 156,
 		"level": 8,
 		"faction": "stronghold",
 		"graphics" :
@@ -169,7 +169,7 @@
 	},
 	"hellHydra" :
 	{
-		"id": 157,
+		"index": 157,
 		"level": 8,
 		"faction": "fortress",
 		"abilities" : 
@@ -191,7 +191,7 @@
 	},
 	"sacredPhoenix" :
 	{
-		"id": 158,
+		"index": 158,
 		"level": 8,
 		"faction": "conflux",
 		"graphics" :
@@ -209,7 +209,7 @@
 	},
 	"ghost" :
 	{
-		"id": 159,
+		"index": 159,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -228,7 +228,7 @@
 	"godWar" :
 	{
 		"disabled" : true,
-		"id": 160,
+		"index": 160,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -239,7 +239,7 @@
 	"godPeace" :
 	{
 		"disabled" : true,
-		"id": 161,
+		"index": 161,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -250,7 +250,7 @@
 	"godMana" :
 	{
 		"disabled" : true,
-		"id": 162,
+		"index": 162,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -261,7 +261,7 @@
 	"godLore" :
 	{
 		"disabled" : true,
-		"id": 163,
+		"index": 163,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -271,7 +271,7 @@
 	},
 	"minotaurKing2" :// WTF is this? Same ID as Minotaur King from Dungeon
 	{
-		"id": 164,
+		"index": 164,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -289,7 +289,7 @@
 	},
 	"mineralElemental" :
 	{
-		"id": 165,
+		"index": 165,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -307,7 +307,7 @@
 	},
 	"electricityElemental" :
 	{
-		"id": 166,
+		"index": 166,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -325,7 +325,7 @@
 	},
 	"ancientBasilisk" :
 	{
-		"id": 167,
+		"index": 167,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -343,7 +343,7 @@
 	},
 	"gorynych" :
 	{
-		"id": 168,
+		"index": 168,
 		"level": 0,
 		"faction": "neutral",
 		"abilities":
@@ -368,7 +368,7 @@
 	},
 	"warZealot" :
 	{
-		"id": 169,
+		"index": 169,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -391,7 +391,7 @@
 	},
 	"myriad" :
 	{
-		"id": 170,
+		"index": 170,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -414,7 +414,7 @@
 	},
 	"medusaMatriarch" :
 	{
-		"id": 171,
+		"index": 171,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -437,7 +437,7 @@
 	},
 	"nightmare" :
 	{
-		"id": 172,
+		"index": 172,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -455,7 +455,7 @@
 	},
 	"santaGremlin" :
 	{
-		"id": 173,
+		"index": 173,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -478,14 +478,38 @@
 	"paladin1" :
 	{
 		"special" : true,
-		"id": 174,
+		"index": 174,
 		"level": 0,
 		"faction": "neutral",
-		"abilities": [ [ "MAGIC_RESISTANCE", 5, 0, 0 ],
-						[ "CASTS", 1, 0, 0 ] ,
-						[ "CREATURE_ENCHANT_POWER", 1, 0, 0 ] ,
-						[ "CREATURE_SPELL_POWER", 100, 0, 0 ] ,
-						[ "SPELLCASTER", 3, "spell.cure", 0 ] ], //expert cure
+		"abilities":
+		{
+			"magicResistance" :
+			{
+				"type" : "MAGIC_RESISTANCE",
+				"val" : 5
+			},
+			"castsAmount" :
+			{
+				"type" : "CASTS",
+				"val" : 1
+			},
+			"enchant" :
+			{
+				"type" : "CREATURE_ENCHANT_POWER",
+				"val" : 1
+			},
+			"spellpower" :
+			{
+				"type" : "CREATURE_SPELL_POWER",
+				"val" : 100
+			},
+			"canCast" :
+			{
+				"type" : "SPELLCASTER",
+				"subtype" : "spell.cure",
+				"val" : 3
+			}
+		},
 		"graphics" :
 		{
 			"animation": "ZM174NPC.DEF",
@@ -506,7 +530,7 @@
 	"hierophant1" :
 	{
 		"special" : true,
-		"id": 175,
+		"index": 175,
 		"level": 0,
 		"faction": "neutral",
 		"abilities":
@@ -559,7 +583,7 @@
 	"templeGuardian1" :
 	{
 		"special" : true,
-		"id": 176,
+		"index": 176,
 		"level": 0,
 		"faction": "neutral",
 		"abilities":
@@ -612,7 +636,7 @@
 	"succubus1" :
 	{
 		"special" : true,
-		"id": 177,
+		"index": 177,
 		"level": 0,
 		"faction": "neutral",
 		"abilities":
@@ -664,7 +688,7 @@
 	"soulEater1" :
 	{
 		"special" : true,
-		"id": 178,
+		"index": 178,
 		"level": 0,
 		"faction": "neutral",
 		"abilities":
@@ -716,7 +740,7 @@
 	"brute1" :
 	{
 		"special" : true,
-		"id": 179,
+		"index": 179,
 		"level": 0,
 		"faction": "neutral",
 		"abilities":
@@ -768,7 +792,7 @@
 	"ogreLeader1" :
 	{
 		"special" : true,
-		"id": 180,
+		"index": 180,
 		"level": 0,
 		"faction": "neutral",
 		"abilities":
@@ -820,7 +844,7 @@
 	"shaman1" :
 	{
 		"special" : true,
-		"id": 181,
+		"index": 181,
 		"level": 0,
 		"faction": "neutral",
 		"abilities":
@@ -873,7 +897,7 @@
 	"astralSpirit1" :
 	{
 		"special" : true,
-		"id": 182,
+		"index": 182,
 		"level": 0,
 		"faction": "neutral",
 		"abilities":
@@ -925,7 +949,7 @@
 	"paladin2" :
 	{
 		"special" : true,
-		"id": 183,
+		"index": 183,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -941,7 +965,7 @@
 	{
 		"special" : true,
 		"disabled" : true,
-		"id": 184,
+		"index": 184,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -957,7 +981,7 @@
 	{
 		"special" : true,
 		"disabled" : true,
-		"id": 185,
+		"index": 185,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -973,7 +997,7 @@
 	{
 		"special" : true,
 		"disabled" : true,
-		"id": 186,
+		"index": 186,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -989,7 +1013,7 @@
 	{
 		"special" : true,
 		"disabled" : true,
-		"id": 187,
+		"index": 187,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -1005,7 +1029,7 @@
 	{
 		"special" : true,
 		"disabled" : true,
-		"id": 188,
+		"index": 188,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -1021,7 +1045,7 @@
 	{
 		"special" : true,
 		"disabled" : true,
-		"id": 189,
+		"index": 189,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -1037,7 +1061,7 @@
 	{
 		"special" : true,
 		"disabled" : true,
-		"id": 190,
+		"index": 190,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -1053,7 +1077,7 @@
 	{
 		"special" : true,
 		"disabled" : true,
-		"id": 191,
+		"index": 191,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -1067,7 +1091,7 @@
 	},
 	"sylvanCentaur" :
 	{
-		"id": 192,
+		"index": 192,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -1090,7 +1114,7 @@
 	},
 	"sorceresses" :
 	{
-		"id": 193,
+		"index": 193,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -1113,7 +1137,7 @@
 	},
 	"werewolf" :
 	{
-		"id": 194,
+		"index": 194,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -1123,7 +1147,7 @@
 	},
 	"hellSteed" :
 	{
-		"id": 195,
+		"index": 195,
 		"level": 0,
 		"faction": "neutral",
 		"graphics" :
@@ -1142,7 +1166,7 @@
 	},
 	"dracolich" :
 	{
-		"id": 196,
+		"index": 196,
 		"level": 10,
 		"faction": "neutral",
 		"abilities":

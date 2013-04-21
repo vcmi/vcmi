@@ -3570,7 +3570,7 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInf
 		return prefix + "BACK.BMP";
 	case 1: //background wall
 		{
-			switch(town->town->typeID)
+			switch(town->town->faction->index)
 			{
 			case 5: case 4: case 1: case 6:
 				return prefix + "TPW1.BMP";

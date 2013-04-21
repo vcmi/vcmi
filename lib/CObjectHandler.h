@@ -622,7 +622,7 @@ public:
 	std::string nodeName() const override;
 	void deserializationFix();
 	void recreateBuildingsBonuses();
-	bool addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr prop, int subtype = -1); //returns true if building is built and bonus has been added
+	bool addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr &prop, int subtype = -1); //returns true if building is built and bonus has been added
 	bool addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, int subtype = -1); //convienence version of above
 	void setVisitingHero(CGHeroInstance *h);
 	void setGarrisonedHero(CGHeroInstance *h);
@@ -1403,7 +1403,8 @@ public:
 	std::map <ui32, std::string> creBanksNames; //[crebank index] -> name of this creature bank
 	std::vector<ui32> resVals; //default values of resources in gold
 
-	void load();
+	CObjectHandler();
+
 	int bankObjToIndex (const CGObjectInstance * obj);
 
 	template <typename Handler> void serialize(Handler &h, const int version)

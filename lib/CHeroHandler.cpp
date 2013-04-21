@@ -42,7 +42,7 @@ SecondarySkill CHeroClass::chooseSecSkill(const std::set<SecondarySkill> & possi
 
 EAlignment::EAlignment CHeroClass::getAlignment() const
 {
-	return EAlignment::EAlignment(VLC->townh->factions[faction].alignment);
+	return EAlignment::EAlignment(VLC->townh->factions[faction]->alignment);
 }
 
 std::vector<BattleHex> CObstacleInfo::getBlocked(BattleHex hex) const
@@ -78,79 +78,9 @@ bool CObstacleInfo::isAppropriate(ETerrainType terrainType, int specialBattlefie
 	return vstd::contains(allowedTerrains, terrainType);
 }
 
-void CHeroClassHandler::load()
+CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 {
-	CLegacyConfigParser parser("DATA/HCTRAITS.TXT");
-
-	parser.endLine(); // header
-	parser.endLine();
-
-	std::vector<JsonNode> h3Data;
-
-	do
-	{
-		JsonNode entry;
-
-		entry["name"].String() = parser.readString();
-
-		parser.readNumber(); // unused aggression
-
-		for (size_t i=0; i < GameConstants::PRIMARY_SKILLS; i++)
-			entry["primarySkills"][PrimarySkill::names[i]].Float() = parser.readNumber();
-
-		for (size_t i=0; i < GameConstants::PRIMARY_SKILLS; i++)
-			entry["lowLevelChance"][PrimarySkill::names[i]].Float() = parser.readNumber();
-
-		for (size_t i=0; i < GameConstants::PRIMARY_SKILLS; i++)
-			entry["highLevelChance"][PrimarySkill::names[i]].Float() = parser.readNumber();
-
-		for (size_t i=0; i < GameConstants::SKILL_QUANTITY; i++)
-			entry["secondarySkills"][NSecondarySkill::names[i]].Float() = parser.readNumber();
-
-		for(size_t i = 0; i < GameConstants::F_NUMBER; i++)
-			entry["tavern"][ETownType::names[i]].Float() = parser.readNumber();
-
-		h3Data.push_back(entry);
-	}
-	while (parser.endLine() && !parser.isNextEntryEmpty());
-
-	JsonNode classConf = JsonNode(ResourceID("config/heroClasses.json"));
-	heroClasses.resize(GameConstants::F_NUMBER * 2);
-
-	BOOST_FOREACH(auto & node, classConf.Struct())
-	{
-		int numeric = node.second["id"].Float();
-		JsonNode & classData = h3Data[numeric];
-		JsonUtils::merge(classData, node.second);
-
-		//JsonUtils::validate(classData, "vcmi:heroClass", node.first);
-		heroClasses[numeric] = loadClass(classData);
-		heroClasses[numeric]->id = numeric;
-
-		VLC->modh->identifiers.registerObject ("heroClass." + node.first, numeric);
-	}
-
-	for (size_t i=0; i < heroClasses.size(); i++)
-	{
-		if (heroClasses[i] == nullptr)
-            logGlobal->warnStream() << "Warning: class with id " << i << " is missing!";
-	}
-}
-
-void CHeroClassHandler::load(std::string objectID, const JsonNode & input)
-{
-	CHeroClass * heroClass = loadClass(input);
-	heroClass->identifier = objectID;
-	heroClass->id = heroClasses.size();
-
-	heroClasses.push_back(heroClass);
-    logGlobal->traceStream() << "Added hero class: " << objectID;
-	VLC->modh->identifiers.registerObject("heroClass." + heroClass->identifier, heroClass->id);
-}
-
-CHeroClass *CHeroClassHandler::loadClass(const JsonNode & node)
-{
-	CHeroClass * heroClass = new CHeroClass;
+	CHeroClass * heroClass = new CHeroClass();
 
 	heroClass->imageBattleFemale = node["animation"]["battle"]["female"].String();
 	heroClass->imageBattleMale   = node["animation"]["battle"]["male"].String();
@@ -191,6 +121,72 @@ CHeroClass *CHeroClassHandler::loadClass(const JsonNode & node)
 	return heroClass;
 }
 
+std::vector<JsonNode> CHeroClassHandler::loadLegacyData(size_t dataSize)
+{
+	heroClasses.resize(GameConstants::F_NUMBER * 2);
+	std::vector<JsonNode> h3Data;
+	h3Data.reserve(dataSize);
+
+	CLegacyConfigParser parser("DATA/HCTRAITS.TXT");
+
+	parser.endLine(); // header
+	parser.endLine();
+
+	for (size_t i=0; i<dataSize; i++)
+	{
+		JsonNode entry;
+
+		entry["name"].String() = parser.readString();
+
+		parser.readNumber(); // unused aggression
+
+		for (size_t i=0; i < GameConstants::PRIMARY_SKILLS; i++)
+			entry["primarySkills"][PrimarySkill::names[i]].Float() = parser.readNumber();
+
+		for (size_t i=0; i < GameConstants::PRIMARY_SKILLS; i++)
+			entry["lowLevelChance"][PrimarySkill::names[i]].Float() = parser.readNumber();
+
+		for (size_t i=0; i < GameConstants::PRIMARY_SKILLS; i++)
+			entry["highLevelChance"][PrimarySkill::names[i]].Float() = parser.readNumber();
+
+		for (size_t i=0; i < GameConstants::SKILL_QUANTITY; i++)
+			entry["secondarySkills"][NSecondarySkill::names[i]].Float() = parser.readNumber();
+
+		for(size_t i = 0; i < GameConstants::F_NUMBER; i++)
+			entry["tavern"][ETownType::names[i]].Float() = parser.readNumber();
+
+		parser.endLine();
+		h3Data.push_back(entry);
+	}
+	return h3Data;
+}
+
+void CHeroClassHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
+{
+	auto object = loadFromJson(data);
+	object->id = heroClasses.size();
+
+	heroClasses.push_back(object);
+
+	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->id);
+}
+
+void CHeroClassHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+{
+	auto object = loadFromJson(data);
+	object->id = index;
+
+	assert(heroClasses[index] == nullptr); // ensure that this id was not loaded before
+	heroClasses[index] = object;
+
+	VLC->modh->identifiers.registerObject(scope, "heroClass", name, object->id);
+}
+
+std::vector<bool> CHeroClassHandler::getDefaultAllowed() const
+{
+	return std::vector<bool>(heroClasses.size(), true);
+}
+
 CHeroClassHandler::~CHeroClassHandler()
 {
 	BOOST_FOREACH(auto heroClass, heroClasses)
@@ -207,19 +203,19 @@ CHeroHandler::~CHeroHandler()
 
 CHeroHandler::CHeroHandler()
 {
+	VLC->heroh = this;
+
+	for (int i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
+	{
+		VLC->modh->identifiers.registerObject("core", "skill", NSecondarySkill::names[i], i);
+	}
+	loadObstacles();
+	loadTerrains();
+	loadBallistics();
+	loadExperience();
 }
 
-void CHeroHandler::load(std::string objectID, const JsonNode & input)
-{
-	CHero * hero = loadHero(input);
-	hero->ID = heroes.size();
-
-	heroes.push_back(hero);
-    logGlobal->traceStream() << "Added hero: " << objectID;
-	VLC->modh->identifiers.registerObject("hero." + objectID, hero->ID);
-}
-
-CHero * CHeroHandler::loadHero(const JsonNode & node)
+CHero * CHeroHandler::loadFromJson(const JsonNode & node)
 {
 	CHero * hero = new CHero;
 
@@ -332,22 +328,6 @@ void CHeroHandler::loadHeroSpecialty(CHero * hero, const JsonNode & node)
 	}
 }
 
-void CHeroHandler::load()
-{
-	VLC->heroh = this;
-
-	for (int i = 0; i < GameConstants::SKILL_QUANTITY; ++i)
-	{
-		VLC->modh->identifiers.registerObject("skill." + NSecondarySkill::names[i], i);
-	}
-	classes.load();
-	loadHeroes();
-	loadObstacles();
-	loadTerrains();
-	loadBallistics();
-	loadExperience();
-}
-
 void CHeroHandler::loadExperience()
 {
 	expPerLevel.push_back(0);
@@ -406,8 +386,39 @@ static std::string genRefName(std::string input)
 	return input;
 }
 
-void CHeroHandler::loadHeroes()
+void CHeroHandler::loadBallistics()
 {
+	CLegacyConfigParser ballParser("DATA/BALLIST.TXT");
+
+	ballParser.endLine(); //header
+	ballParser.endLine();
+
+	do
+	{
+		ballParser.readString();
+		ballParser.readString();
+
+		CHeroHandler::SBallisticsLevelInfo bli;
+		bli.keep   = ballParser.readNumber();
+		bli.tower  = ballParser.readNumber();
+		bli.gate   = ballParser.readNumber();
+		bli.wall   = ballParser.readNumber();
+		bli.shots  = ballParser.readNumber();
+		bli.noDmg  = ballParser.readNumber();
+		bli.oneDmg = ballParser.readNumber();
+		bli.twoDmg = ballParser.readNumber();
+		bli.sum    = ballParser.readNumber();
+		ballistics.push_back(bli);
+	}
+	while (ballParser.endLine());
+}
+
+std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)
+{
+	heroes.resize(dataSize);
+	std::vector<JsonNode> h3Data;
+	h3Data.reserve(dataSize);
+
 	CLegacyConfigParser specParser("DATA/HEROSPEC.TXT");
 	CLegacyConfigParser bioParser("DATA/HEROBIOS.TXT");
 	CLegacyConfigParser parser("DATA/HOTRAITS.TXT");
@@ -417,8 +428,6 @@ void CHeroHandler::loadHeroes()
 
 	specParser.endLine(); //ignore header
 	specParser.endLine();
-
-	std::vector<JsonNode> h3Data;
 
 	for (int i=0; i<GameConstants::HEROES_QUANTITY; i++)
 	{
@@ -447,58 +456,28 @@ void CHeroHandler::loadHeroes()
 
 		h3Data.push_back(heroData);
 	}
-
-	// Load heroes information
-	heroes.resize(GameConstants::HEROES_QUANTITY);
-
-	const JsonNode gameConf(ResourceID("config/gameConfig.json"));
-	JsonNode config(JsonUtils::assembleFromFiles(gameConf["heroes"].convertTo<std::vector<std::string> >()));
-
-	BOOST_FOREACH(auto &entry, config.Struct())
-	{
-		ui32 identifier = entry.second["id"].Float();
-		JsonUtils::merge(h3Data[identifier], entry.second);
-
-		//JsonUtils::validate(h3Data[identifier], "vcmi:hero", entry.first);
-		CHero * hero = loadHero(h3Data[identifier]);
-		hero->ID = identifier;
-		heroes[identifier] = hero;
-
-		VLC->modh->identifiers.registerObject("hero." + entry.first, identifier);
-	}
-
-	for (size_t i=0; i < heroes.size(); i++)
-	{
-		if (heroes[i] == nullptr)
-            logGlobal->warnStream() << "Warning: hero with id " << i << " is missing!";
-	}
+	return h3Data;
 }
 
-void CHeroHandler::loadBallistics()
+void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
-	CLegacyConfigParser ballParser("DATA/BALLIST.TXT");
+	auto object = loadFromJson(data);
+	object->ID = heroes.size();
 
-	ballParser.endLine(); //header
-	ballParser.endLine();
+	heroes.push_back(object);
 
-	do
-	{
-		ballParser.readString();
-		ballParser.readString();
+	VLC->modh->identifiers.registerObject(scope, "hero", name, object->ID);
+}
 
-		CHeroHandler::SBallisticsLevelInfo bli;
-		bli.keep   = ballParser.readNumber();
-		bli.tower  = ballParser.readNumber();
-		bli.gate   = ballParser.readNumber();
-		bli.wall   = ballParser.readNumber();
-		bli.shots  = ballParser.readNumber();
-		bli.noDmg  = ballParser.readNumber();
-		bli.oneDmg = ballParser.readNumber();
-		bli.twoDmg = ballParser.readNumber();
-		bli.sum    = ballParser.readNumber();
-		ballistics.push_back(bli);
-	}
-	while (ballParser.endLine());
+void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
+{
+	auto object = loadFromJson(data);
+	object->ID = index;
+
+	assert(heroes[index] == nullptr); // ensure that this id was not loaded before
+	heroes[index] = object;
+
+	VLC->modh->identifiers.registerObject(scope, "hero", name, object->ID);
 }
 
 ui32 CHeroHandler::level (ui64 experience) const
@@ -531,7 +510,7 @@ void CHeroHandler::loadTerrains()
 		terrCosts.push_back(config[name]["moveCost"].Float());
 }
 
-std::vector<bool> CHeroHandler::getDefaultAllowedHeroes() const
+std::vector<bool> CHeroHandler::getDefaultAllowed() const
 {
 	// Look Data/HOTRAITS.txt for reference
 	std::vector<bool> allowedHeroes;

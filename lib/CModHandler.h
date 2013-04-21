@@ -3,6 +3,7 @@
 #include "filesystem/CResourceLoader.h"
 
 #include "VCMI_Lib.h"
+#include "JsonNode.h"
 
 /*
  * CModHandler.h, part of VCMI engine
@@ -18,6 +19,7 @@ class CModHandler;
 class CModIndentifier;
 class CModInfo;
 class JsonNode;
+class IHandlerBase;
 
 /// class that stores all object identifiers strings and maps them to numeric ID's
 /// if possible, objects ID's should be in format <type>.<name>, camelCase e.g. "creature.grandElf"
@@ -26,17 +28,60 @@ class CIdentifierStorage
 	std::map<std::string, si32 > registeredObjects;
 	std::map<std::string, std::vector<boost::function<void(si32)> > > missingObjects;
 
-	//Check if identifier can be valid (camelCase, point as separator)
+	/// Check if identifier can be valid (camelCase, point as separator)
 	void checkIdentifier(std::string & ID);
 public:
 	/// request identifier for specific object name. If ID is not yet resolved callback will be queued
 	/// and will be called later
 	void requestIdentifier(std::string name, const boost::function<void(si32)> & callback);
 	/// registers new object, calls all associated callbacks
-	void registerObject(std::string name, si32 identifier);
+	void registerObject(std::string scope, std::string type, std::string name, si32 identifier);
 
 	/// called at the very end of loading to check for any missing ID's
-	void finalize() const;
+	void finalize();
+};
+
+/// class used to load all game data into handlers. Used only during loading
+class CContentHandler
+{
+	/// internal type to handle loading of one data type (e.g. artifacts, creatures)
+	class ContentTypeHandler
+	{
+		struct ModInfo
+		{
+			/// mod data from this mod and for this mod
+			JsonNode modData;
+			/// mod data for this mod from other mods (patches)
+			JsonNode patches;
+		};
+
+		/// handler to which all data will be loaded
+		IHandlerBase * handler;
+
+		std::string objectName;
+
+		/// contains all loaded H3 data
+		std::vector<JsonNode> originalData;
+		std::map<std::string, ModInfo> modData;
+
+	public:
+		ContentTypeHandler(IHandlerBase * handler, size_t size, std::string objectName);
+
+		/// local version of methods in ContentHandler
+		void preloadModData(std::string modName, std::vector<std::string> fileList);
+		void loadMod(std::string modName);
+	};
+
+	std::map<std::string, ContentTypeHandler> handlers;
+public:
+	/// fully initialize object. Will cause reading of H3 config files
+	CContentHandler();
+
+	/// preloads all data from fileList as data from modName
+	void preloadModData(std::string modName, JsonNode modConfig);
+
+	/// actually loads data in mod
+	void loadMod(std::string modName);
 };
 
 typedef std::string TModID;
@@ -99,7 +144,7 @@ public:
 	std::vector<std::string> getActiveMods();
 
 	/// load content from all available mods
-	void loadActiveMods();
+	void loadGameContent();
 
 	/// actions that should be triggered on map restart
 	/// TODO: merge into appropriate handlers?

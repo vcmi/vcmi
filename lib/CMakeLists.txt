@@ -70,6 +70,7 @@ set(lib_HEADERS
 		GameConstants.h
 		StringConstants.h
 		IGameEventsReceiver.h
+		IHandlerBase.h
 		int3.h
 		Interprocess.h
 		NetPacks.h

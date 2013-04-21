@@ -1,7 +1,7 @@
 #pragma once
-#include "..\lib\GameConstants.h"
-#include "..\lib\int3.h"
-#include "..\lib\NetPacks.h"
+#include "../lib/GameConstants.h"
+#include "../lib/int3.h"
+#include "../lib/NetPacks.h"
 
 class CGObjectInstance;
 class CGHeroInstance;

@@ -4,6 +4,7 @@
 #include "ResourceSet.h"
 #include "int3.h"
 #include "GameConstants.h"
+#include "IHandlerBase.h"
 
 /*
  * CTownHandler.h, part of VCMI engine
@@ -17,6 +18,7 @@
 
 class CLegacyConfigParser;
 class JsonNode;
+class CTown;
 
 /// a typical building encountered in every castle ;]
 /// this is structure available to both client and server
@@ -28,7 +30,7 @@ class DLL_LINKAGE CBuilding
 	std::string description;
 
 public:
-	TFaction tid; //town ID
+	CTown * town; // town this building belongs to
 	BuildingID bid; //structure ID
 	TResources resources;
 
@@ -54,7 +56,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tid & bid & resources & name & description & requirements & upgrade & mode;
+		h & town & bid & resources & name & description & requirements & upgrade & mode;
 	}
 
 	friend class CTownHandler;
@@ -79,10 +81,48 @@ struct DLL_LINKAGE CStructure
 	}
 };
 
+struct DLL_LINKAGE SPuzzleInfo
+{
+	ui16 number; //type of puzzle
+	si16 x, y; //position
+	ui16 whenUncovered; //determines the sequnce of discovering (the lesser it is the sooner puzzle will be discovered)
+	std::string filename; //file with graphic of this puzzle
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & number & x & y & whenUncovered & filename;
+	}
+};
+
+class CFaction
+{
+public:
+	std::string name; //town name, by default - from TownName.txt
+
+	TFaction index;
+
+	ETerrainType nativeTerrain;
+	EAlignment::EAlignment alignment;
+
+	CreatureID commander;
+
+	CTown * town; //NOTE: can be null
+
+	std::string creatureBg120;
+	std::string creatureBg130;
+
+	std::vector<SPuzzleInfo> puzzleMap;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & name & index & nativeTerrain & creatureBg120 & creatureBg130 & puzzleMap;
+	}
+};
+
 class DLL_LINKAGE CTown
 {
 public:
-	TFaction typeID;//same as CFaction::factionID
+	CFaction * faction;
 
 	std::vector<std::string> names; //names of the town instances
 
@@ -148,48 +188,12 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & names & typeID & creatures & dwellings & dwellingNames & buildings & hordeLvl & mageLevel
+		h & names & faction & creatures & dwellings & dwellingNames & buildings & hordeLvl & mageLevel
 			& primaryRes & warMachine & clientInfo & moatDamage;
 	}
 };
 
-struct DLL_LINKAGE SPuzzleInfo
-{
-	ui16 number; //type of puzzle
-	si16 x, y; //position
-	ui16 whenUncovered; //determines the sequnce of discovering (the lesser it is the sooner puzzle will be discovered)
-	std::string filename; //file with graphic of this puzzle
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & number & x & y & whenUncovered & filename;
-	}
-};
-
-class CFaction
-{
-public:
-	std::string name; //town name, by default - from TownName.txt
-
-	TFaction factionID;
-
-	ETerrainType nativeTerrain;
-	EAlignment::EAlignment alignment;
-
-	CreatureID commander;
-
-	std::string creatureBg120;
-	std::string creatureBg130;
-
-	std::vector<SPuzzleInfo> puzzleMap;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & name & factionID & nativeTerrain & creatureBg120 & creatureBg130 & puzzleMap;
-	}
-};
-
-class DLL_LINKAGE CTownHandler
+class DLL_LINKAGE CTownHandler : public IHandlerBase
 {
 	/// loads CBuilding's into town
 	void loadBuilding(CTown &town, const JsonNode & source);
@@ -209,38 +213,22 @@ class DLL_LINKAGE CTownHandler
 
 	void loadPuzzle(CFaction & faction, const JsonNode & source);
 
-	/// load all available data from h3 txt(s) into json structure using format similar to vcmi configs
-	/// returns 2d array [townID] [buildID] of buildings
-	void loadLegacyData(JsonNode & dest);
+	CFaction * loadFromJson(const JsonNode & data);
 
 public:
-	std::map<TFaction, CTown> towns;
-	std::map<TFaction, CFaction> factions;
+	std::vector<ConstTransitivePtr<CFaction> > factions;
 
 	CTownHandler(); //c-tor, set pointer in VLC to this
 
-	/// main loading function for mods, accepts merged JSON source and add all entries from it into game
-	/// all entries in JSON should be checked for validness before using this function
-	void load(std::string townID, const JsonNode & source);
+	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 
-	/// "entry point" for loading of OH3 town.
-	/// reads legacy txt's from H3 + vcmi json, merges them
-	/// and loads resulting structure to game using loadTowns method
-	void load();
+	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
 
-	/**
-	 * Gets a list of default allowed factions. OH3 factions are in the range of 0 to 8.
-	 *
-	 * TODO Proposal for town modding: Replace faction id with a unique machine readable town name
-	 * and create a JSON config file or merge it with other configs which describes which
-	 * towns can be used for random map generation / map editor(default map settings).
-	 *
-	 * @return a list of allowed factions, the index which is unique is the faction id
-	 */
-	std::set<TFaction> getDefaultAllowedFactions() const;
+	std::vector<bool> getDefaultAllowed() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & towns & factions;
+		h & factions;
 	}
 };

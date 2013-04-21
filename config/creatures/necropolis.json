@@ -1,7 +1,7 @@
 {
 	"skeleton" :
 	{
-		"id": 56,
+		"index": 56,
 		"level": 1,
 		"faction": "necropolis",
 		"upgrades": ["skeletonWarrior"],
@@ -20,7 +20,7 @@
 	},
 	"skeletonWarrior" :
 	{
-		"id": 57,
+		"index": 57,
 		"level": 1,
 		"faction": "necropolis",
 		"graphics" :
@@ -38,7 +38,7 @@
 	},
 	"walkingDead" :
 	{
-		"id": 58,
+		"index": 58,
 		"level": 2,
 		"extraNames": [ "zombie" ], //FIXME: zombie is a name of upgrade but not in HOTRAITS
 		"faction" : "necropolis",
@@ -58,7 +58,7 @@
 	},
 	"zombieLord" : //FIXME: zombie is a correct in-name but not in HOTRAITS.TXT
 	{
-		"id": 59,
+		"index": 59,
 		"level": 2,
 		"faction": "necropolis",
 		"graphics" :
@@ -76,7 +76,7 @@
 	},
 	"wight" :
 	{
-		"id": 60,
+		"index": 60,
 		"level": 3,
 		"faction": "necropolis",
 		"abilities":
@@ -104,7 +104,7 @@
 	},
 	"wraith" :
 	{
-		"id": 61,
+		"index": 61,
 		"level": 3,
 		"faction": "necropolis",
 		"abilities":
@@ -135,7 +135,7 @@
 	},
 	"vampire" :
 	{
-		"id": 62,
+		"index": 62,
 		"level": 4,
 		"faction": "necropolis",
 		"abilities":
@@ -164,7 +164,7 @@
 	},
 	"vampireLord" :
 	{
-		"id": 63,
+		"index": 63,
 		"level": 4,
 		"faction": "necropolis",
 		"abilities":
@@ -198,7 +198,7 @@
 	},
 	"lich" :
 	{
-		"id": 64,
+		"index": 64,
 		"level": 5,
 		"faction": "necropolis",
 		"abilities":
@@ -230,7 +230,7 @@
 	},
 	"powerLich" :
 	{
-		"id": 65,
+		"index": 65,
 		"level": 5,
 		"faction": "necropolis",
 		"abilities":
@@ -261,7 +261,7 @@
 	},
 	"blackKnight" :
 	{
-		"id": 66,
+		"index": 66,
 		"level": 6,
 		"faction": "necropolis",
 		"abilities":
@@ -289,7 +289,7 @@
 	},
 	"dreadKnight" :
 	{
-		"id": 67,
+		"index": 67,
 		"level": 6,
 		"faction": "necropolis",
 		"abilities":
@@ -321,7 +321,7 @@
 	},
 	"boneDragon" :
 	{
-		"id": 68,
+		"index": 68,
 		"level": 7,
 		"faction": "necropolis",
 		"abilities" :
@@ -347,7 +347,7 @@
 	},
 	"ghostDragon" :
 	{
-		"id": 69,
+		"index": 69,
 		"level": 7,
 		"faction": "necropolis",
 		"abilities":

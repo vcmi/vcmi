@@ -6,6 +6,7 @@
 #include "ResourceSet.h"
 #include "GameConstants.h"
 #include "JsonNode.h"
+#include "IHandlerBase.h"
 
 /*
  * CCreatureHandler.h, part of VCMI engine
@@ -132,15 +133,37 @@ public:
 	CCreature();
 };
 
-class DLL_LINKAGE CCreatureHandler
+class DLL_LINKAGE CCreatureHandler : public IHandlerBase
 {
 private:
 	CBonusSystemNode allCreatures;
 	CBonusSystemNode creaturesOfLevel[GameConstants::CREATURES_PER_TOWN + 1];//index 0 is used for creatures of unknown tier or outside <1-7> range
 
+	/// load one creature from json config
+	CCreature * loadFromJson(const JsonNode & node);
+
 	void loadJsonAnimation(CCreature * creature, const JsonNode & graphics);
 	void loadStackExperience(CCreature * creature, const JsonNode &input);
 	void loadCreatureJson(CCreature * creature, const JsonNode & config);
+
+	/// loading functions
+
+	/// adding abilities from ZCRTRAIT.TXT
+	void loadBonuses(JsonNode & creature, std::string bonuses);
+	/// load all creatures from H3 files
+	void load();
+	void loadCommanders();
+	/// load creature from json structure
+	void load(std::string creatureID, const JsonNode & node);
+	/// read cranim.txt file from H3
+	void loadAnimationInfo(std::vector<JsonNode> & h3Data);
+	/// read one line from cranim.txt
+	void loadUnitAnimInfo(JsonNode & unit, CLegacyConfigParser &parser);
+	/// parse crexpbon.txt file from H3
+	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser &parser);
+	/// help function for parsing CREXPBON.txt
+	int stringToNumber(std::string & s);
+
 public:
 	std::set<CreatureID> doubledCreatures; //they get double week
 	std::vector<ConstTransitivePtr<CCreature> > creatures; //creature ID -> creature info.
@@ -155,37 +178,25 @@ public:
 	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
 	std::vector <std::pair <Bonus, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
 
-	/// loading functions
-
-	/// adding abilities from ZCRTRAIT.TXT
-	void loadBonuses(JsonNode & creature, std::string bonuses);
-	/// load all creatures from H3 files
-	void load();
-	void loadCommanders();
-	/// load creature from json structure
-	void load(std::string creatureID, const JsonNode & node);
-	/// load one creature from json config
-	CCreature * loadCreature(const JsonNode & node);
-	/// generates tier-specific bonus tree entries
-	void buildBonusTreeForTiers();
-	/// read cranim.txt file from H3
-	void loadAnimationInfo(std::vector<JsonNode> & h3Data);
-	/// read one line from cranim.txt
-	void loadUnitAnimInfo(JsonNode & unit, CLegacyConfigParser &parser);
-	/// load all creatures from H3 files
-	void loadCrExpBon();
-	/// parse crexpbon.txt file from H3
-	void loadStackExp(Bonus & b, BonusList & bl, CLegacyConfigParser &parser);
-	/// help function for parsing CREXPBON.txt
-	int stringToNumber(std::string & s);
-
-	CCreatureHandler();
-	~CCreatureHandler();
-
 	void deserializationFix();
 	CreatureID pickRandomMonster(const boost::function<int()> &randGen = 0, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any
 	void addBonusForTier(int tier, Bonus *b); //tier must be <1-7>
 	void addBonusForAllCreatures(Bonus *b);
+
+	CCreatureHandler();
+	~CCreatureHandler();
+
+	/// load all creatures from H3 files
+	void loadCrExpBon();
+	/// generates tier-specific bonus tree entries
+	void buildBonusTreeForTiers();
+
+	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
+
+	void loadObject(std::string scope, std::string name, const JsonNode & data) override;
+	void loadObject(std::string scope, std::string name, const JsonNode & data, size_t index) override;
+
+	std::vector<bool> getDefaultAllowed() const override;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

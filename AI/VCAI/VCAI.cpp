@@ -1490,7 +1490,7 @@ void VCAI::wander(HeroPtr h)
 			}
 		}
 		const ObjectIdRef&dest = dests.front();
-		logAi->debugStream() << "Of all %d destinations, object oid=%d seems nice", dests.size() % dest.id.getNum();
+		logAi->debugStream() << boost::format("Of all %d destinations, object oid=%d seems nice") % dests.size() % dest.id.getNum();
 		if(!goVisitObj(dest, h))
 		{
 			if(!dest)
@@ -1597,6 +1597,7 @@ void VCAI::validateVisitableObjs()
             logAi->errorStream() << helperObjInfo[obj].name << " at " << helperObjInfo[obj].pos << " shouldn't be on list!";
 			return true;
 		}
+		return false;
 	});
 }
 
@@ -2414,7 +2415,7 @@ TResources VCAI::estimateIncome() const
 		//TODO duplikuje newturn
 		if(t->hasBuilt(BuildingID::RESOURCE_SILO)) //there is resource silo
 		{
-			if(t->town->primaryRes == 127) //we'll give wood and ore
+			if(t->town->primaryRes == Res::WOOD_AND_ORE) //we'll give wood and ore
 			{
 				ret[Res::WOOD] ++;
 				ret[Res::ORE] ++;

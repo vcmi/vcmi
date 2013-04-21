@@ -22,7 +22,9 @@ namespace Res
 
 	enum ERes
 	{
-		WOOD = 0, MERCURY, ORE, SULFUR, CRYSTAL, GEMS, GOLD, MITHRIL
+		WOOD = 0, MERCURY, ORE, SULFUR, CRYSTAL, GEMS, GOLD, MITHRIL,
+
+		WOOD_AND_ORE = 127 // special case for town bonus resource
 	};
 
 	//class to be representing a vector of resource

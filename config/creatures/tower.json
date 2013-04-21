@@ -1,7 +1,7 @@
 {
 	"gremlin" :
 	{
-		"id": 28,
+		"index": 28,
 		"level": 1,
 		"extraNames": [ "apprenticeGremlin" ],
 		"faction": "tower",
@@ -23,7 +23,7 @@
 	},
 	"masterGremlin" :
 	{
-		"id": 29,
+		"index": 29,
 		"level": 1,
 		"faction": "tower",
 		"graphics" :
@@ -46,7 +46,7 @@
 	},
 	"stoneGargoyle" :
 	{
-		"id": 30,
+		"index": 30,
 		"level": 2,
 		"faction": "tower",
 		"abilities":
@@ -72,7 +72,7 @@
 	},
 	"obsidianGargoyle" :
 	{
-		"id": 31,
+		"index": 31,
 		"level": 2,
 		"faction": "tower",
 		"abilities":
@@ -97,7 +97,7 @@
 	},
 	"ironGolem" : //FIXME correct ID is stoneGolem, unchangeable due to HOTRAITS.TXT
 	{
-		"id": 32,
+		"index": 32,
 		"level": 3,
 		"faction": "tower",
 		"abilities":
@@ -129,7 +129,7 @@
 	},
 	"stoneGolem" : //FIXME correct ID is ironGolem, unchangeable due to HOTRAITS.TXT
 	{
-		"id": 33,
+		"index": 33,
 		"level": 3,
 		"faction": "tower",
 		"abilities" :
@@ -160,7 +160,7 @@
 	},
 	"mage" :
 	{
-		"id": 34,
+		"index": 34,
 		"level": 4,
 		"faction": "tower",
 		"abilities": 
@@ -192,7 +192,7 @@
 	},
 	"archMage" :
 	{
-		"id": 35,
+		"index": 35,
 		"level": 4,
 		"faction": "tower",
 		"abilities": 
@@ -223,7 +223,7 @@
 	},
 	"genie" :
 	{
-		"id": 36,
+		"index": 36,
 		"level": 5,
 		"faction": "tower",
 		"abilities":
@@ -257,7 +257,7 @@
 	},
 	"masterGenie" :
 	{
-		"id": 37,
+		"index": 37,
 		"level": 5,
 		"faction": "tower",
 		"abilities":
@@ -306,7 +306,7 @@
 	},
 	"naga" :
 	{
-		"id": 38,
+		"index": 38,
 		"level": 6,
 		"faction": "tower",
 		"abilities" :
@@ -332,7 +332,7 @@
 	},
 	"nagaQueen" :
 	{
-		"id": 39,
+		"index": 39,
 		"level": 6,
 		"faction": "tower",
 		"abilities" :
@@ -357,7 +357,7 @@
 	},
 	"giant" :
 	{
-		"id": 40,
+		"index": 40,
 		"level": 7,
 		"faction": "tower",
 		"abilities" :
@@ -383,7 +383,7 @@
 	},
 	"titan" :
 	{
-		"id": 41,
+		"index": 41,
 		"level": 7,
 		"faction": "tower",
 		"abilities" :

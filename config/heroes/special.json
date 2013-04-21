@@ -2,7 +2,7 @@
 // "special" heroes for campaigns
 	"sirMullich":
 	{
-		"id": 144,
+		"index": 144,
 		"class" : "knight",
 		"female": false,
 		"special" : true,
@@ -17,7 +17,7 @@
 	},
 	"adrienne":
 	{
-		"id": 145,
+		"index": 145,
 		"class" : "witch",
 		"female": true,
 		"special" : true,
@@ -33,7 +33,7 @@
 	},
 	"catherine":
 	{
-		"id": 146,
+		"index": 146,
 		"class" : "knight",
 		"female": true,
 		"special" : true,
@@ -49,7 +49,7 @@
 	},
 	"dracon":
 	{
-		"id": 147,
+		"index": 147,
 		"class" : "wizard",
 		"female": false,
 		"special" : true,
@@ -66,7 +66,7 @@
 	},
 	"gelu":
 	{
-		"id": 148,
+		"index": 148,
 		"class" : "ranger",
 		"female": false,
 		"special" : true,
@@ -83,7 +83,7 @@
 	},
 	"kilgor":
 	{
-		"id": 149,
+		"index": 149,
 		"class" : "barbarian",
 		"female": false,
 		"special" : true,
@@ -100,7 +100,7 @@
 	},
 	"undeadHaart": // undead version of Lord Haart
 	{
-		"id": 150,
+		"index": 150,
 		"class" : "deathknight",
 		"female": false,
 		"special" : true,
@@ -118,7 +118,7 @@
 	},
 	"mutare":
 	{
-		"id": 151,
+		"index": 151,
 		"class" : "warlock",
 		"female": true,
 		"special" : true,
@@ -136,7 +136,7 @@
 	},
 	"roland":
 	{
-		"id": 152,
+		"index": 152,
 		"class" : "knight",
 		"female": false,
 		"special" : true,
@@ -152,7 +152,7 @@
 	},
 	"mutareDrake":
 	{
-		"id": 153,
+		"index": 153,
 		"class" : "warlock",
 		"female": true,
 		"special" : true,
@@ -182,7 +182,7 @@
 	},
 	"boragus":
 	{
-		"id": 154,
+		"index": 154,
 		"class" : "barbarian",
 		"female": false,
 		"special" : true,
@@ -210,7 +210,7 @@
 	},
 	"xeron":
 	{
-		"id": 155,
+		"index": 155,
 		"class" : "demoniac",
 		"female": false,
 		"special" : true,

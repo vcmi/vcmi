@@ -1,7 +1,7 @@
 {
 	"yog":
 	{
-		"id": 96,
+		"index": 96,
 		"class" : "barbarian",
 		"female": false,
 		"skills":
@@ -16,7 +16,7 @@
 	},
 	"gurnisson":
 	{
-		"id": 97,
+		"index": 97,
 		"class" : "barbarian",
 		"female": false,
 		"skills":
@@ -31,7 +31,7 @@
 	},
 	"jabarkas":
 	{
-		"id": 98,
+		"index": 98,
 		"class" : "barbarian",
 		"female": false,
 		"skills":
@@ -46,7 +46,7 @@
 	},
 	"shiva":
 	{
-		"id": 99,
+		"index": 99,
 		"class" : "barbarian",
 		"female": true,
 		"skills":
@@ -61,7 +61,7 @@
 	},
 	"gretchin":
 	{
-		"id": 100,
+		"index": 100,
 		"class" : "barbarian",
 		"female": true,
 		"skills":
@@ -72,7 +72,7 @@
 	},
 	"krellion":
 	{
-		"id": 101,
+		"index": 101,
 		"class" : "barbarian",
 		"female": false,
 		"skills":
@@ -87,7 +87,7 @@
 	},
 	"cragHack":
 	{
-		"id": 102,
+		"index": 102,
 		"class" : "barbarian",
 		"female": false,
 		"skills":
@@ -101,7 +101,7 @@
 	},
 	"tyraxor":
 	{
-		"id": 103,
+		"index": 103,
 		"class" : "barbarian",
 		"female": false,
 		"skills":
@@ -116,7 +116,7 @@
 	},
 	"gird":
 	{
-		"id": 104,
+		"index": 104,
 		"class" : "battlemage",
 		"spellbook": [ "bloodlust" ],
 		"female": true,
@@ -132,7 +132,7 @@
 	},
 	"vey":
 	{
-		"id": 105,
+		"index": 105,
 		"class" : "battlemage",
 		"female": false,
 		"spellbook": [ "magicArrow" ],
@@ -148,7 +148,7 @@
 	},
 	"dessa":
 	{
-		"id": 106,
+		"index": 106,
 		"class" : "battlemage",
 		"female": true,
 		"spellbook": [ "stoneSkin" ],
@@ -164,7 +164,7 @@
 	},
 	"terek":
 	{
-		"id": 107,
+		"index": 107,
 		"class" : "battlemage",
 		"female": false,
 		"spellbook": [ "haste" ],
@@ -180,7 +180,7 @@
 	},
 	"zubin":
 	{
-		"id": 108,
+		"index": 108,
 		"class" : "battlemage",
 		"female": false,
 		"spellbook": [ "precision" ],
@@ -196,7 +196,7 @@
 	},
 	"gundula":
 	{
-		"id": 109,
+		"index": 109,
 		"class" : "battlemage",
 		"spellbook": [ "slow" ],
 		"female": true,
@@ -212,7 +212,7 @@
 	},
 	"oris":
 	{
-		"id": 110,
+		"index": 110,
 		"class" : "battlemage",
 		"female": true,
 		"spellbook": [ "protectAir" ],
@@ -228,7 +228,7 @@
 	},
 	"saurug":
 	{
-		"id": 111,
+		"index": 111,
 		"class" : "battlemage",
 		"female": false,
 		"spellbook": [ "bloodlust" ],

@@ -1,7 +1,7 @@
 {
 	"goblin" :
 	{
-		"id": 84,
+		"index": 84,
 		"level": 1,
 		"extraNames": [ "goblins" ],
 		"faction": "stronghold",
@@ -21,7 +21,7 @@
 	},
 	"hobgoblin" :
 	{
-		"id": 85,
+		"index": 85,
 		"level": 1,
 		"faction": "stronghold",
 		"hasDoubleWeek": true,
@@ -40,7 +40,7 @@
 	},
 	"goblinWolfRider" :
 	{
-		"id": 86,
+		"index": 86,
 		"level": 2,
 		"faction": "stronghold",
 		"upgrades": ["hobgoblinWolfRider"],
@@ -60,7 +60,7 @@
 	},
 	"hobgoblinWolfRider" :
 	{
-		"id": 87,
+		"index": 87,
 		"level": 2,
 		"faction": "stronghold",
 		"abilities":
@@ -86,7 +86,7 @@
 	},
 	"orc" :
 	{
-		"id": 88,
+		"index": 88,
 		"level": 3,
 		"faction": "stronghold",
 		"upgrades": ["orcChieftain"],
@@ -110,7 +110,7 @@
 	},
 	"orcChieftain" :
 	{
-		"id": 89,
+		"index": 89,
 		"level": 3,
 		"faction": "stronghold",
 		"graphics" :
@@ -133,7 +133,7 @@
 	},
 	"ogre" :
 	{
-		"id": 90,
+		"index": 90,
 		"level": 4,
 		"faction": "stronghold",
 		"upgrades": ["ogreMage"],
@@ -152,7 +152,7 @@
 	},
 	"ogreMage" :
 	{
-		"id": 91,
+		"index": 91,
 		"level": 4,
 		"faction": "stronghold",
 		"abilities":
@@ -190,7 +190,7 @@
 	},
 	"roc" :
 	{
-		"id": 92,
+		"index": 92,
 		"level": 5,
 		"faction": "stronghold",
 		"upgrades": ["thunderbird"],
@@ -209,7 +209,7 @@
 	},
 	"thunderbird" :
 	{
-		"id": 93,
+		"index": 93,
 		"level": 5,
 		"faction": "stronghold",
 		"abilities":
@@ -242,7 +242,7 @@
 	},
 	"cyclop" :
 	{
-		"id": 94,
+		"index": 94,
 		"level": 6,
 		"faction": "stronghold",
 		"upgrades": ["cyclopKing"],
@@ -266,7 +266,7 @@
 	},
 	"cyclopKing" :
 	{
-		"id": 95,
+		"index": 95,
 		"level": 6,
 		"faction": "stronghold",
 		"graphics" :
@@ -289,7 +289,7 @@
 	},
 	"behemoth" :
 	{
-		"id": 96,
+		"index": 96,
 		"level": 7,
 		"faction": "stronghold",
 		"abilities":
@@ -316,7 +316,7 @@
 	},
 	"ancientBehemoth" :
 	{
-		"id": 97,
+		"index": 97,
 		"level": 7,
 		"faction": "stronghold",
 		"abilities":
