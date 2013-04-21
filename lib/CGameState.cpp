@@ -763,6 +763,9 @@ CGameState::~CGameState()
 	//delete initialOpts;
 	delete applierGs;
 	delete objCaller;
+
+	BOOST_FOREACH(auto ptr, hpool.heroesPool) // clean hero pool
+		ptr.second.dellNull();
 }
 
 BattleInfo * CGameState::setupBattle(int3 tile, const CArmedInstance *armies[2], const CGHeroInstance * heroes[2], bool creatureBank, const CGTownInstance *town)

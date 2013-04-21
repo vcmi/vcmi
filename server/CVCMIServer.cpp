@@ -30,6 +30,7 @@
 #include "../lib/GameConstants.h"
 #include "../lib/logging/CBasicLogConfigurator.h"
 #include "../lib/CConfigHandler.h"
+#include "../lib/ScopeGuard.h"
 
 #include "../lib/UnlockGuard.h"
 
@@ -315,6 +316,7 @@ CVCMIServer::~CVCMIServer()
 {
 	//delete io;
 	//delete acceptor;
+	/delete firstConnection;
 }
 
 CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
@@ -351,8 +353,13 @@ void CVCMIServer::newGame()
 	assert(clients == 1); //multi goes now by newPregame, TODO: custom lobbies
 
 	CGameHandler *gh = initGhFromHostingConnection(c);
+
+	auto onExit = vstd::makeScopeGuard([&]()
+	{
+		vstd::clear_pointer(gh);
+	});
+
 	gh->run(false);
-	vstd::clear_pointer(gh);
 }
 
 void CVCMIServer::newPregame()
@@ -544,6 +551,8 @@ int main(int argc, char** argv)
 		//and return non-zero status so client can detect error
 		throw;
 	}
+	//delete VLC; //can't be re-enabled due to access to already freed memory in bonus system
+	CResourceHandler::clear();
 
   return 0;
 }

@@ -376,6 +376,13 @@ public:
 	static void initialize();
 
 	/**
+	 * Semi-debug method to track all possible cases of memory leaks
+	 * Used before exiting application
+	 *
+	 */
+	static void clear();
+
+	/**
 	 * Will load all filesystem data from Json data at this path (config/filesystem.json)
 	 * @param prefix - prefix for all paths in filesystem config
 	 */

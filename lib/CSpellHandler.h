@@ -46,6 +46,7 @@ public:
 	std::vector<SpellID> counteredSpells; //spells that are removed when effect of this spell is placed on creature (for bless-curse, haste-slow, and similar pairs)
 
 	CSpell();
+	~CSpell();
 
 	std::vector<BattleHex> rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes = NULL ) const; //convert range to specific hexes; last optional out parameter is set to true, if spell would cover unavailable hexes (that are not included in ret)
 	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none)
@@ -96,7 +97,7 @@ private:
 
 	ETargetType targetType;
 
-	std::vector<Bonus *> effects [4];
+	std::vector<std::vector<Bonus *> > effects; // [level 0-3][list of effects]
 	std::vector<Bonus::BonusType> immunities; //any of these grants immunity
 	std::vector<Bonus::BonusType> limiters; //all of them are required to be affected
 
@@ -166,6 +167,7 @@ class DLL_LINKAGE CSpellHandler
 
 public:
 	CSpellHandler();
+	~CSpellHandler();
 	std::vector< ConstTransitivePtr<CSpell> > spells;
 
 	/**

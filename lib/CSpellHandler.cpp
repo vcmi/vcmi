@@ -131,6 +131,15 @@ CSpell::CSpell()
 	isOffensive = false;
 }
 
+CSpell::~CSpell()
+{
+	for (size_t i=0; i<effects.size(); i++)
+	{
+		for (size_t j=0; j<effects[i].size(); j++)
+			delete effects[i][j];
+	}
+}
+
 std::vector<BattleHex> CSpell::rangeInHexes(BattleHex centralHex, ui8 schoolLvl, ui8 side, bool *outDroppedHexes) const
 {
 	std::vector<BattleHex> ret;
@@ -479,7 +488,7 @@ CSpellHandler::CSpellHandler()
 			auto v = v_node.convertTo<std::vector<int> >();
 			auto a = a_node.convertTo<std::vector<int> >();
 
-			for (int i=0; i<4 ; i++)
+			for (int i=0; i<s->effects.size() ; i++)
 			{
 				Bonus * b = JsonUtils::parseBonus(bonus_node);
 				b->sid = s->id; //for all
@@ -493,9 +502,7 @@ CSpellHandler::CSpellHandler()
 
 				s->effects[i].push_back(b);
 			}
-
 		}
-
 
 		auto find_in_map = [](std::string name, std::vector<Bonus::BonusType> &vec)
 		{
@@ -530,6 +537,14 @@ CSpellHandler::CSpellHandler()
 		{
 			s->iconImmune = graphicsNode["iconImmune"].String();
 		}
+	}
+}
+
+CSpellHandler::~CSpellHandler()
+{
+	BOOST_FOREACH(auto & spell, spells)
+	{
+		spell.dellNull();
 	}
 }
 

@@ -73,16 +73,22 @@ CTown::CTown()
 
 CTown::~CTown()
 {
-	BOOST_FOREACH(auto build, buildings)
+	BOOST_FOREACH(auto & build, buildings)
 		build.second.dellNull();
 
-	BOOST_FOREACH(CStructure * str, clientInfo.structures)
-		delete str;
+	BOOST_FOREACH(auto & str, clientInfo.structures)
+		str.dellNull();
 }
 
 CTownHandler::CTownHandler()
 {
 	VLC->townh = this;
+}
+
+CTownHandler::~CTownHandler()
+{
+	BOOST_FOREACH(auto faction, factions)
+		faction.dellNull();
 }
 
 JsonNode readBuilding(CLegacyConfigParser & parser)

@@ -225,6 +225,7 @@ public:
 	std::vector<ConstTransitivePtr<CFaction> > factions;
 
 	CTownHandler(); //c-tor, set pointer in VLC to this
+	~CTownHandler();
 
 	std::vector<JsonNode> loadLegacyData(size_t dataSize) override;
 

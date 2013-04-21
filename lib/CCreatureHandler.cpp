@@ -1002,6 +1002,8 @@ int CCreatureHandler::stringToNumber(std::string & s)
 
 CCreatureHandler::~CCreatureHandler()
 {
+	BOOST_FOREACH(auto & creature, creatures)
+		creature.dellNull();
 }
 
 CreatureID CCreatureHandler::pickRandomMonster(const boost::function<int()> &randGen, int tier) const

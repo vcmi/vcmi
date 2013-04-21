@@ -255,6 +255,17 @@ CObjectHandler::CObjectHandler()
     logGlobal->traceStream() << "\t\tDone loading banks configs";
 }
 
+CObjectHandler::~CObjectHandler()
+{
+	BOOST_FOREACH(auto & mapEntry, banksInfo)
+	{
+		BOOST_FOREACH(auto & vecEntry, mapEntry.second)
+		{
+			vecEntry.dellNull();
+		}
+	}
+}
+
 int CObjectHandler::bankObjToIndex (const CGObjectInstance * obj)
 {
 	switch (obj->ID) //find appriopriate key
@@ -817,6 +828,8 @@ void CGHeroInstance::initHero()
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
 		commander->giveStackExp (exp); //after our exp is set
 	}
+	else
+		commander = nullptr;
 
 	hoverName = VLC->generaltexth->allTexts[15];
 	boost::algorithm::replace_first(hoverName,"%s",name);
@@ -904,12 +917,14 @@ void CGHeroInstance::initHeroDefInfo()
 }
 CGHeroInstance::~CGHeroInstance()
 {
+	commander.dellNull();
 }
 
 bool CGHeroInstance::needsLastStack() const
 {
 	return true;
 }
+
 void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 {
 	if(h == this) return; //exclude potential self-visiting

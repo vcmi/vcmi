@@ -193,6 +193,12 @@ CResourceLoader * CResourceHandler::get()
 	}
 }
 
+void CResourceHandler::clear()
+{
+	delete resourceLoader;
+	delete initialLoader;
+}
+
 //void CResourceLoaderFactory::setInstance(CResourceLoader * resourceLoader)
 //{
 //	CResourceLoaderFactory::resourceLoader = resourceLoader;

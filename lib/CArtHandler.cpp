@@ -146,6 +146,8 @@ CArtHandler::CArtHandler()
 
 CArtHandler::~CArtHandler()
 {
+	BOOST_FOREACH(CArtifact * art, artifacts)
+		delete art;
 }
 
 std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)

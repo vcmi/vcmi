@@ -161,7 +161,7 @@ public:
 
 	void addToSlot(SlotID slot, CreatureID cre, TQuantity count, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
 	void addToSlot(SlotID slot, CStackInstance *stack, bool allowMerging = true); //Adds stack to slot. Slot must be empty or with same type creature
-	void clear() OVERRIDE;
+	void clear() override;
 	void setFormation(bool tight);
 	CArmedInstance *castToArmyObj();
 
@@ -177,7 +177,7 @@ public:
 	void eraseStack(SlotID slot); //slot must be occupied
 	void joinStack(SlotID slot, CStackInstance * stack); //adds new stack to the existing stack of the same type
 	void changeStackCount(SlotID slot, TQuantity toAdd); //stack must exist!
-	bool setCreature (SlotID slot, CreatureID type, TQuantity quantity) OVERRIDE; //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
+	bool setCreature (SlotID slot, CreatureID type, TQuantity quantity) override; //replaces creature in stack; slots 0 to 6, if quantity=0 erases stack
 	void setToArmy(CSimpleArmy &src); //erases all our army and moves stacks from src to us; src MUST NOT be an armed object! WARNING: use it wisely. Or better do not use at all.
 
 	const CStackInstance& getStack(SlotID slot) const; //stack must exist
