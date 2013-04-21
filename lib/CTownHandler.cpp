@@ -56,6 +56,30 @@ si32 CBuilding::getDistance(BuildingID buildID) const
 	return -1;
 }
 
+CFaction::CFaction()
+{
+
+}
+
+CFaction::~CFaction()
+{
+	delete town;
+}
+
+CTown::CTown()
+{
+
+}
+
+CTown::~CTown()
+{
+	BOOST_FOREACH(auto build, buildings)
+		build.second.dellNull();
+
+	BOOST_FOREACH(CStructure * str, clientInfo.structures)
+		delete str;
+}
+
 CTownHandler::CTownHandler()
 {
 	VLC->townh = this;
@@ -554,6 +578,9 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source)
 		faction->town->faction = faction;
 		loadTown(*faction->town, source["town"]);
 	}
+	else
+		faction->town = nullptr;
+
 	if (!source["puzzleMap"].isNull())
 		loadPuzzle(*faction, source["puzzleMap"]);
 

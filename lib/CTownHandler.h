@@ -97,6 +97,9 @@ struct DLL_LINKAGE SPuzzleInfo
 class CFaction
 {
 public:
+	CFaction();
+	~CFaction();
+
 	std::string name; //town name, by default - from TownName.txt
 
 	TFaction index;
@@ -122,6 +125,9 @@ public:
 class DLL_LINKAGE CTown
 {
 public:
+	CTown();
+	~CTown();
+
 	CFaction * faction;
 
 	std::vector<std::string> names; //names of the town instances
