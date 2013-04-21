@@ -250,7 +250,7 @@ public:
 	friend class FuzzyHelper;
 
 	std::map<const CGObjectInstance *, const CGObjectInstance *> knownSubterraneanGates;
-	std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
+	//std::vector<const CGObjectInstance *> visitedThisWeek; //only OPWs
 	std::map<HeroPtr, std::vector<const CGTownInstance *> > townVisitsThisWeek;
 
 	std::map<HeroPtr, CGoal> lockedHeroes; //TODO: allow non-elementar objectives
@@ -378,6 +378,8 @@ public:
 	void markObjectVisited (const CGObjectInstance *obj);
 	void reserveObject (HeroPtr h, const CGObjectInstance *obj);
 	//void removeVisitableObj(const CGObjectInstance *obj);
+	void validateObject(const CGObjectInstance *obj); //checks if object is still visible and if not, removes references to it
+	void validateObject(ObjectIdRef obj); //checks if object is still visible and if not, removes references to it
 	void validateVisitableObjs();
 	void retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned = false) const;
 	std::vector<const CGObjectInstance *> getFlaggedObjects() const;

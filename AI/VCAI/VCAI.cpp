@@ -200,7 +200,7 @@ struct ObjInfo
 std::map<const CGObjectInstance *, ObjInfo> helperObjInfo;
 
 template <typename Container, typename Item>
-bool remove_if_present(Container &c, const Item &item)
+bool erase_if_present(Container &c, const Item &item)
 {
 	auto i = std::find(c.begin(), c.end(), item);
 	if (i != c.end())
@@ -214,7 +214,7 @@ bool remove_if_present(Container &c, const Item &item)
 
 
 template <typename V, typename Item, typename Item2>
-bool remove_if_present(std::map<Item,V> & c, const Item2 &item)
+bool erase_if_present(std::map<Item,V> & c, const Item2 &item)
 {
 	auto i = c.find(item);
 	if (i != c.end())
@@ -430,6 +430,9 @@ void VCAI::heroMoved(const TryMoveHero & details)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
+
+	validateObject(details.id); //enemy hero may have left visible area
+
 	if(details.result == TryMoveHero::TELEPORTATION)
 	{
 		const int3 from = CGHeroInstance::convertPosition(details.start, false),
@@ -572,8 +575,8 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 	{
 		visitedObject = const_cast<CGObjectInstance *>(visitedObj); // remember the object and wait for return
 		markObjectVisited (visitedObj);
-		remove_if_present(reservedObjs, visitedObj); //unreserve objects
-		remove_if_present(reservedHeroesMap[visitor], visitedObj);
+		erase_if_present(reservedObjs, visitedObj); //unreserve objects
+		erase_if_present(reservedHeroesMap[visitor], visitedObj);
 		completeGoal (CGoal(GET_OBJ).sethero(visitor)); //we don't need to visit in anymore
 	}
 }
@@ -596,10 +599,8 @@ void VCAI::tileHidden(const boost::unordered_set<int3, ShashInt3> &pos)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
-// 	BOOST_FOREACH(int3 tile, pos)
-// 		BOOST_FOREACH(const CGObjectInstance *obj, cb->getVisitableObjs(tile))
-// 			remove_if_present(visitableObjs, obj);
-	visitableObjs.erase(boost::remove_if(visitableObjs, [&](const CGObjectInstance *obj){return !myCb->getObj(obj->id);}), visitableObjs.end());
+
+	validateVisitableObjs();
 }
 
 void VCAI::tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos)
@@ -675,11 +676,9 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
-	if(remove_if_present(visitableObjs, obj))
-		assert(obj->isVisitable());
-
+	erase_if_present(visitableObjs, obj);
 	BOOST_FOREACH(auto &p, reservedHeroesMap)
-		remove_if_present(p.second, obj);
+		erase_if_present(p.second, obj);
 
 	//TODO
 	//there are other places where CGObjectinstance ptrs are stored...
@@ -687,7 +686,7 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 
 	if(obj->ID == Obj::HERO  &&  obj->tempOwner == playerID)
 	{
-		lostHero(cb->getHero(obj->id)); //we can promote, since objectRemoved is killed just before actual deletion
+		lostHero(cb->getHero(obj->id)); //we can promote, since objectRemoved is called just before actual deletion
 	}
 }
 
@@ -794,7 +793,7 @@ void VCAI::objectPropertyChanged(const SetObjectProperty * sop)
 	if(sop->what == ObjProperty::OWNER)
 	{
 		if(sop->val == playerID.getNum())
-			remove_if_present(visitableObjs, myCb->getObj(sop->id));
+			erase_if_present(visitableObjs, myCb->getObj(sop->id));
 		//TODO restore lost obj
 	}
 }
@@ -1491,6 +1490,7 @@ void VCAI::wander(HeroPtr h)
 			}
 		}
 		const ObjectIdRef&dest = dests.front();
+		logAi->debugStream() << "Of all %d destinations, object oid=%d seems nice", dests.size() % dest.id.getNum();
 		if(!goVisitObj(dest, h))
 		{
 			if(!dest)
@@ -1520,7 +1520,7 @@ void VCAI::wander(HeroPtr h)
 void VCAI::setGoal(HeroPtr h, const CGoal goal)
 { //TODO: check for presence?
 	if (goal.goalType == EGoals::INVALID)
-		remove_if_present(lockedHeroes, h);
+		erase_if_present(lockedHeroes, h);
 	else
 		lockedHeroes[h] = CGoal(goal).setisElementar(false); //always evaluate goals before realizing
 }
@@ -1528,7 +1528,7 @@ void VCAI::setGoal(HeroPtr h, const CGoal goal)
 void VCAI::setGoal(HeroPtr h, EGoals goalType)
 {
 	if (goalType == EGoals::INVALID)
-		remove_if_present(lockedHeroes, h);
+		erase_if_present(lockedHeroes, h);
 	else
 		lockedHeroes[h] = CGoal(goalType).setisElementar(false); //always evaluate goals before realizing;
 }
@@ -1590,15 +1590,14 @@ void VCAI::validateVisitableObjs()
 {
 	std::vector<const CGObjectInstance *> hlp;
 	retreiveVisitableObjs(hlp, true);
-
-	start:
-	BOOST_FOREACH(const CGObjectInstance *obj, visitableObjs)
+	erase_if(visitableObjs, [&](const CGObjectInstance *obj) -> bool
+	{
 		if(!vstd::contains(hlp, obj))
 		{
             logAi->errorStream() << helperObjInfo[obj].name << " at " << helperObjInfo[obj].pos << " shouldn't be on list!";
-			remove_if_present(visitableObjs, obj);
-			goto start;
+			return true;
 		}
+	});
 }
 
 void VCAI::retreiveVisitableObjs(std::vector<const CGObjectInstance *> &out, bool includeOwned /*= false*/) const
@@ -1691,6 +1690,7 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /
 
 bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 {
+	logAi->debugStream() << boost::format("Moving hero %s to tile %s") % h->name % dst;
 	visitedObject = NULL;
 	int3 startHpos = h->visitablePos();
 	bool ret = false;
@@ -1764,7 +1764,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 			throw cannotFulfillGoalException("Invalid path found!");
 		}
 	}
-    logAi->debugStream() << boost::format("Hero %s moved from %s to %s") % h->name % startHpos % h->visitablePos();
+    logAi->debugStream() << boost::format("Hero %s moved from %s to %s. Returning %d.") % h->name % startHpos % h->visitablePos() % ret;
 	return ret;
 }
 
@@ -1987,7 +1987,7 @@ std::vector<HeroPtr> VCAI::getUnblockedHeroes() const
 	{
 		//if (!h.second.invalid()) //we can use heroes without valid goal
 		if (h.second.goalType == DIG_AT_TILE || !h.first->movement) //experiment: use all heroes that have movement left, TODO: unlock heroes that couldn't realize their goals 
-			remove_if_present(ret, h.first);
+			erase_if_present(ret, h.first);
 	}
 	return ret;
 }
@@ -2508,12 +2508,12 @@ void VCAI::lostHero(HeroPtr h)
 {
     logAi->debugStream() << boost::format("I lost my hero %s. It's best to forget and move on.") % h.name;
 
-	remove_if_present(lockedHeroes, h);
+	erase_if_present(lockedHeroes, h);
 	BOOST_FOREACH(auto obj, reservedHeroesMap[h])
 	{
-		remove_if_present(reservedObjs, obj); //unreserve all objects for that hero
+		erase_if_present(reservedObjs, obj); //unreserve all objects for that hero
 	}
-	remove_if_present(reservedHeroesMap, h);
+	erase_if_present(reservedHeroesMap, h);
 }
 
 void VCAI::answerQuery(int queryID, int selection)
@@ -2545,6 +2545,23 @@ std::string VCAI::getBattleAIName() const
 		return settings["server"]["neutralAI"].String();
 	else
 		return "StupidAI";
+}
+
+void VCAI::validateObject(const CGObjectInstance *obj)
+{
+	validateObject(obj->id);
+}
+
+void VCAI::validateObject(ObjectIdRef obj)
+{
+	auto matchesId = [&] (const CGObjectInstance *hlpObj) -> bool { return hlpObj->id == obj.id; };
+	if(!obj)
+	{
+		erase_if(visitableObjs, matchesId);
+
+		BOOST_FOREACH(auto &p, reservedHeroesMap)
+			erase_if(p.second, matchesId);
+	}
 }
 
 AIStatus::AIStatus()

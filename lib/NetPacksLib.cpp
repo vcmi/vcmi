@@ -295,6 +295,8 @@ DLL_LINKAGE void RemoveBonus::applyGs( CGameState *gs )
 
 DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 {
+	logGlobal->debugStream() << "removing object oid=" << id;
+
 	CGObjectInstance *obj = gs->getObjInstance(id);
 	//unblock tiles
 	if(obj->defInfo)
