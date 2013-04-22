@@ -2661,7 +2661,7 @@ void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(!vstd::contains(visitors, h->id))
 	{
-		onNAHeroVisit(h->id, false);
+		onNAHeroVisit (h, false);
 		switch(ID)
 		{
 		case Obj::TREE_OF_KNOWLEDGE:
@@ -2677,7 +2677,7 @@ void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		onNAHeroVisit(h->id, true);
+		onNAHeroVisit(h, true);
 	}
 }
 
@@ -2699,18 +2699,17 @@ void CGVisitableOPH::initObj()
 	}
 }
 
-void CGVisitableOPH::treeSelected( ObjectInstanceID heroID, ui32 result) const
+void CGVisitableOPH::treeSelected (const CGHeroInstance * h, ui32 result) const
 {
 	if(result) //player agreed to give res for exp
 	{
-		auto h = cb->getHero(heroID);
 		si64 expToGive = VLC->heroh->reqExp(h->level+1) - VLC->heroh->reqExp(h->level);;
-		cb->giveResources(cb->getOwner(heroID), -treePrice);
-		cb->changePrimSkill(cb->getHero(heroID), PrimarySkill::EXPERIENCE, expToGive);
-		cb->setObjProperty(id, ObjProperty::VISITORS, heroID.getNum()); //add to the visitors
+		cb->giveResources (h->getOwner(), -treePrice);
+		cb->changePrimSkill (h, PrimarySkill::EXPERIENCE, expToGive);
+		cb->setObjProperty (id, ObjProperty::VISITORS, h->id.getNum()); //add to the visitors
 	}
 }
-void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited) const
+void CGVisitableOPH::onNAHeroVisit (const CGHeroInstance * h, bool alreadyVisited) const
 {
 	Component::EComponentType c_id = Component::PRIM_SKILL; //most used here
 	int subid=0, ot=0, sound = 0;
@@ -2779,7 +2778,7 @@ void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited)
 				sd.text.addTxt(MetaString::ADVOB_TXT,ot);
 				sd.components.push_back(Component(c_id, PrimarySkill::ATTACK, 2, 0));
 				sd.components.push_back(Component(c_id, PrimarySkill::DEFENSE, 2, 0));
-				sd.player = cb->getOwner(heroID);
+				sd.player = h->getOwner();
 				cb->showBlockingDialog(&sd);
 				return;
 			}
@@ -2788,23 +2787,22 @@ void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited)
 		case Obj::STAR_AXIS:
 		case Obj::GARDEN_OF_REVELATION:
 			{
-				cb->changePrimSkill(cb->getHero(heroID), static_cast<PrimarySkill::PrimarySkill>(subid), val);
+				cb->changePrimSkill (h, static_cast<PrimarySkill::PrimarySkill>(subid), val);
 				InfoWindow iw;
 				iw.soundID = sound;
 				iw.components.push_back(Component(c_id, subid, val, 0));
 				iw.text.addTxt(MetaString::ADVOB_TXT,ot);
-				iw.player = cb->getOwner(heroID);
+				iw.player = h->getOwner();
 				cb->showInfoDialog(&iw);
 				break;
 			}
 		case Obj::LEARNING_STONE: //give exp
 			{
-				const CGHeroInstance *h = cb->getHero(heroID);
 				val = h->calculateXp(val);
 				InfoWindow iw;
 				iw.soundID = sound;
-				iw.components.push_back(Component(c_id,subid,val,0));
-				iw.player = cb->getOwner(heroID);
+				iw.components.push_back (Component(c_id,subid,val,0));
+				iw.player = h->getOwner();
 				iw.text.addTxt(MetaString::ADVOB_TXT,ot);
 				cb->showInfoDialog(&iw);
 				cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, val);
@@ -2812,18 +2810,17 @@ void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited)
 			}
 		case Obj::TREE_OF_KNOWLEDGE:
 			{
-				const CGHeroInstance *h = cb->getHero(heroID);
-				val = VLC->heroh->reqExp(h->level+val) - VLC->heroh->reqExp(h->level);
+				val = VLC->heroh->reqExp (h->level + val) - VLC->heroh->reqExp(h->level);
 				if(!treePrice.nonZero())
 				{
-					cb->setObjProperty(id, ObjProperty::VISITORS, heroID.getNum()); //add to the visitors
+					cb->setObjProperty (id, ObjProperty::VISITORS, h->id.getNum()); //add to the visitors
 					InfoWindow iw;
 					iw.soundID = sound;
-					iw.components.push_back(Component(c_id,subid,1,0));
-					iw.player = cb->getOwner(heroID);
-					iw.text.addTxt(MetaString::ADVOB_TXT,148);
-					cb->showInfoDialog(&iw);
-					cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, val);
+					iw.components.push_back (Component(c_id,subid,1,0));
+					iw.player = h->getOwner();
+					iw.text.addTxt (MetaString::ADVOB_TXT,148);
+					cb->showInfoDialog (&iw);
+					cb->changePrimSkill (h, PrimarySkill::EXPERIENCE, val);
 					break;
 				}
 				else
@@ -2842,16 +2839,15 @@ void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited)
 
 					BlockingDialog sd (true, false);
 					sd.soundID = sound;
-					sd.player = cb->getOwner(heroID);
-					sd.text.addTxt(MetaString::ADVOB_TXT,ot);
-					sd.addResourceComponents(treePrice);
-					cb->showBlockingDialog(&sd);
+					sd.player = h->getOwner();
+					sd.text.addTxt (MetaString::ADVOB_TXT,ot);
+					sd.addResourceComponents (treePrice);
+					cb->showBlockingDialog (&sd);
 				}
 				break;
 			}
 		case Obj::LIBRARY_OF_ENLIGHTENMENT:
 			{
-				const CGHeroInstance *h = cb->getHero(heroID);
 				int txt_id = 66;
 				if(h->level  <  10 - 2*h->getSecSkillLevel(SecondarySkill::DIPLOMACY)) //not enough level
 				{
@@ -2859,11 +2855,11 @@ void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited)
 				}
 				else
 				{
-					cb->setObjProperty(id, ObjProperty::VISITORS, heroID.getNum()); //add to the visitors
-					cb->changePrimSkill(h,PrimarySkill::ATTACK,2);
-					cb->changePrimSkill(h,PrimarySkill::DEFENSE,2);
-					cb->changePrimSkill(h,PrimarySkill::KNOWLEDGE,2);
-					cb->changePrimSkill(h,PrimarySkill::SPELL_POWER,2);
+					cb->setObjProperty(id, ObjProperty::VISITORS, h->id.getNum()); //add to the visitors
+					cb->changePrimSkill (h, PrimarySkill::ATTACK, 2);
+					cb->changePrimSkill (h, PrimarySkill::DEFENSE, 2);
+					cb->changePrimSkill (h, PrimarySkill::KNOWLEDGE, 2);
+					cb->changePrimSkill (h, PrimarySkill::SPELL_POWER, 2);
 				}
 				showInfoDialog(h,txt_id,sound);
 				break;
@@ -2872,15 +2868,15 @@ void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited)
 		case Obj::SCHOOL_OF_WAR:
 			{
 				int skill = (ID==Obj::SCHOOL_OF_MAGIC ? 2 : 0);
-				if(cb->getResource(cb->getOwner(heroID), Res::GOLD) < 1000) //not enough resources
+				if (cb->getResource (h->getOwner(), Res::GOLD) < 1000) //not enough resources
 				{
-					showInfoDialog(heroID,ot+2,sound);
+					showInfoDialog (h->getOwner(), ot+2, sound);
 				}
 				else
 				{
 					BlockingDialog sd(true,true);
 					sd.soundID = sound;
-					sd.player = cb->getOwner(heroID);
+					sd.player = h->getOwner();
 					sd.text.addTxt(MetaString::ADVOB_TXT,ot);
 					sd.components.push_back(Component(c_id, skill, +1, 0));
 					sd.components.push_back(Component(c_id, skill+1, +1, 0));
@@ -2893,7 +2889,7 @@ void CGVisitableOPH::onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited)
 	else
 	{
 		ot++;
-		showInfoDialog(heroID,ot,sound);
+		showInfoDialog (h->getOwner(),ot,sound);
 	}
 }
 
@@ -2937,20 +2933,20 @@ const std::string & CGVisitableOPH::getHoverText() const
 	hoverName = VLC->generaltexth->names[ID];
 	if(pom >= 0)
 		hoverName += ("\n" + VLC->generaltexth->xtrainfo[pom]);
-	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
+	const CGHeroInstance *h = cb->getSelectedHero (cb->getCurrentPlayer());
 	if(h)
 	{
 		hoverName += "\n\n";
-		bool visited = vstd::contains(visitors,h->id);
-		hoverName += visitedTxt(visited);
+		bool visited = vstd::contains (visitors, h->id);
+		hoverName += visitedTxt (visited);
 	}
 	return hoverName;
 }
 
-void CGVisitableOPH::arenaSelected( ObjectInstanceID heroID, int primSkill ) const
+void CGVisitableOPH::arenaSelected(const CGHeroInstance * h, int primSkill ) const
 {
-	cb->setObjProperty(id, ObjProperty::VISITORS, heroID.getNum()); //add to the visitors
-	cb->changePrimSkill(cb->getHero(heroID), static_cast<PrimarySkill::PrimarySkill>(primSkill-1), 2);
+	cb->setObjProperty(id, ObjProperty::VISITORS, h->id.getNum()); //add to the visitors
+	cb->changePrimSkill(h, static_cast<PrimarySkill::PrimarySkill>(primSkill-1), 2);
 }
 
 void CGVisitableOPH::setPropertyDer( ui8 what, ui32 val )
@@ -2959,32 +2955,33 @@ void CGVisitableOPH::setPropertyDer( ui8 what, ui32 val )
 		visitors.insert(ObjectInstanceID(val));
 }
 
-void CGVisitableOPH::schoolSelected(ObjectInstanceID heroID, ui32 which) const
+void CGVisitableOPH::schoolSelected(const CGHeroInstance * h, ui32 which) const
 {
 	if(!which) //player refused to pay
 		return;
 
 	int base = (ID == Obj::SCHOOL_OF_MAGIC  ?  2  :  0);
-	cb->setObjProperty(id, ObjProperty::VISITORS, heroID.getNum()); //add to the visitors
-	cb->giveResource(cb->getOwner(heroID),Res::GOLD,-1000); //take 1000 gold
-	cb->changePrimSkill(cb->getHero(heroID), static_cast<PrimarySkill::PrimarySkill>(base + which-1), +1); //give appropriate skill
+	cb->setObjProperty (id, ObjProperty::VISITORS, h->id.getNum()); //add to the visitors
+	cb->giveResource (h->getOwner(),Res::GOLD,-1000); //take 1000 gold
+	cb->changePrimSkill (h, static_cast<PrimarySkill::PrimarySkill>(base + which-1), +1); //give appropriate skill
 }
 
-void CGVisitableOPH::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
+void CGVisitableOPH::blockingDialogAnswered(const CGHeroInstance *h, ui32 answer) const 
 {
 	switch (ID)
 	{
 	case Obj::ARENA:
-		arenaSelected(hero->id, answer);
+		arenaSelected(h, answer);
 		break;
 
 	case Obj::TREE_OF_KNOWLEDGE:
-		treeSelected(hero->id, answer);
+		treeSelected(h, answer);
 		break;
 
 	case Obj::SCHOOL_OF_MAGIC:
 	case Obj::SCHOOL_OF_WAR:
-		schoolSelected(id, answer);
+		schoolSelected(h, answer);
+		break;
 
 	default:
 		assert(0);

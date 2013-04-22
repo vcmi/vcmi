@@ -505,11 +505,11 @@ public:
 protected:
 	void setPropertyDer(ui8 what, ui32 val) override;//synchr
 private:
-	void onNAHeroVisit(ObjectInstanceID heroID, bool alreadyVisited) const;
+	void onNAHeroVisit(const CGHeroInstance * h, bool alreadyVisited) const;
 	///dialog callbacks
-	void treeSelected(ObjectInstanceID heroID, ui32 result) const;
-	void schoolSelected(ObjectInstanceID heroID, ui32 which) const;
-	void arenaSelected(ObjectInstanceID heroID, int primSkill) const;
+	void treeSelected(const CGHeroInstance * h, ui32 result) const;
+	void schoolSelected(const CGHeroInstance * h, ui32 which) const;
+	void arenaSelected(const CGHeroInstance * h, int primSkill) const;
 };
 class DLL_LINKAGE CGTownBuilding : public IObjectInterface
 {

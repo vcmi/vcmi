@@ -19,6 +19,7 @@
 class CLegacyConfigParser;
 class JsonNode;
 class CTown;
+class CFaction;
 
 /// a typical building encountered in every castle ;]
 /// this is structure available to both client and server
