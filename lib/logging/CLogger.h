@@ -258,7 +258,7 @@ public:
 	const CColorMapping & getColorMapping() const;
 	void setColorMapping(const CColorMapping & colorMapping);
 
-	void write(const LogRecord & record);
+	void write(const LogRecord & record) override;
 
 private:
 	CConsoleHandler * console;
@@ -281,7 +281,7 @@ public:
 	const CLogFormatter & getFormatter() const;
 	void setFormatter(const CLogFormatter & formatter);
 
-	void write(const LogRecord & record);
+	void write(const LogRecord & record) override;
 
 private:
 	std::ofstream file;

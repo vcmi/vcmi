@@ -357,7 +357,7 @@ void CMapGenOptions::CPlayerSettings::setPlayerType(EPlayerType::EPlayerType val
 	playerType = value;
 }
 
-CMapGenerator::CMapGenerator(const CMapGenOptions & mapGenOptions, int randomSeed) :
+CMapGenerator::CMapGenerator(const CMapGenOptions & mapGenOptions, int randomSeed /*= std::time(nullptr)*/) :
 	mapGenOptions(mapGenOptions), randomSeed(randomSeed)
 {
 	gen.seed(randomSeed);
@@ -376,6 +376,7 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 
 	map = make_unique<CMap>();
 	editManager = map->getEditManager();
+	editManager->getUndoManager().setUndoRedoLimit(0);
 	addHeaderInfo();
 
 	genTerrain();
@@ -472,7 +473,7 @@ void CMapGenerator::addPlayerInfo()
 
 void CMapGenerator::genTerrain()
 {
-	map->initTerrain(); //FIXME nicer solution
+	map->initTerrain();
 	editManager->clearTerrain(&gen);
 	editManager->drawTerrain(MapRect(int3(10, 10, 0), 20, 30), ETerrainType::GRASS, &gen);
 }

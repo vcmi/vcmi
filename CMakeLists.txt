@@ -16,6 +16,7 @@ set(VCMI_VERSION_PATCH 0)
 
 option(DISABLE_ERM "Disable compilation of ERM scripting module" ON)
 option(ENABLE_EDITOR "Enable compilation of map editor" OFF)
+option(ENABLE_TEST "Enable compilation of unit tests" OFF)
 
 ############################################
 #        Building section                  #
@@ -54,6 +55,10 @@ find_package(ZLIB REQUIRED)
 if (ENABLE_EDITOR)
 	# Widgets finds its own dependencies (QtGui and QtCore).
 	find_package(Qt5Widgets REQUIRED)
+endif()
+
+if(ENABLE_TEST)
+	find_package(Boost 1.46.0 COMPONENTS unit_test_framework REQUIRED)
 endif()
 
 if(NOT WIN32)
@@ -124,6 +129,9 @@ if (NOT DISABLE_ERM)
 endif()
 if (ENABLE_EDITOR)
 	add_subdirectory(editor)
+endif()
+if(ENABLE_TEST)
+	add_subdirectory(test)
 endif()
 
 #######################################

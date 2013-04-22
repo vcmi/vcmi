@@ -169,7 +169,7 @@ public:
 class DLL_LINKAGE CMapGenerator
 {
 public:
-	CMapGenerator(const CMapGenOptions & mapGenOptions, int randomSeed);
+	explicit CMapGenerator(const CMapGenOptions & mapGenOptions, int randomSeed = std::time(nullptr));
 	~CMapGenerator(); // required due to unique_ptr
 
 	std::unique_ptr<CMap> generate();

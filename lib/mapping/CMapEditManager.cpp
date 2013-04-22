@@ -5,6 +5,77 @@
 #include "../filesystem/CResourceLoader.h"
 #include "../CDefObjInfoHandler.h"
 
+MapRect::MapRect() : x(0), y(0), z(0), width(0), height(0)
+{
+
+}
+
+MapRect::MapRect(int3 pos, si32 width, si32 height) : x(pos.x), y(pos.y), z(pos.z), width(width), height(height)
+{
+
+}
+
+MapRect MapRect::operator&(const MapRect & rect) const
+{
+	bool intersect = right() > rect.left() && rect.right() > left() &&
+			bottom() > rect.top() && rect.bottom() > top() &&
+			z == rect.z;
+	if(intersect)
+	{
+		MapRect ret;
+		ret.x = std::max(left(), rect.left());
+		ret.y = std::max(top(), rect.top());
+		ret.z = rect.z;
+		ret.width = std::min(right(), rect.right()) - ret.x;
+		ret.height = std::min(bottom(), rect.bottom()) - ret.y;
+		return ret;
+	}
+	else
+	{
+		return MapRect();
+	}
+}
+
+si32 MapRect::left() const
+{
+	return x;
+}
+
+si32 MapRect::right() const
+{
+	return x + width;
+}
+
+si32 MapRect::top() const
+{
+	return y;
+}
+
+si32 MapRect::bottom() const
+{
+	return y + height;
+}
+
+int3 MapRect::topLeft() const
+{
+	return int3(x, y, z);
+}
+
+int3 MapRect::topRight() const
+{
+	return int3(right(), y, z);
+}
+
+int3 MapRect::bottomLeft() const
+{
+	return int3(x, bottom(), z);
+}
+
+int3 MapRect::bottomRight() const
+{
+	return int3(right(), bottom(), z);
+}
+
 CMapOperation::CMapOperation(CMap * map) : map(map)
 {
 
@@ -181,12 +252,11 @@ CTerrainViewPatternConfig & CTerrainViewPatternConfig::get()
 CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 {
 	const JsonNode config(ResourceID("config/terrainViewPatterns.json"));
-	const std::map<std::string, ETerrainGroup::ETerrainGroup> terGroups
-			= boost::assign::map_list_of("normal", ETerrainGroup::NORMAL)("dirt", ETerrainGroup::DIRT)
-			("sand", ETerrainGroup::SAND)("water", ETerrainGroup::WATER)("rock", ETerrainGroup::ROCK);
-	BOOST_FOREACH(auto terMapping, terGroups)
+	const auto & groupMap = config.Struct();
+	BOOST_FOREACH(const auto & groupPair, groupMap)
 	{
-		BOOST_FOREACH(const JsonNode & ptrnNode, config[terMapping.first].Vector())
+		auto terGroup = getTerrainGroup(groupPair.first);
+		BOOST_FOREACH(const JsonNode & ptrnNode, groupPair.second.Vector())
 		{
 			TerrainViewPattern pattern;
 
@@ -238,8 +308,8 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 				pattern.flipMode = TerrainViewPattern::FLIP_MODE_SAME_IMAGE;
 			}
 
-			pattern.terGroup = terMapping.second;
-			patterns[terMapping.second].push_back(pattern);
+			pattern.terGroup = terGroup;
+			patterns[terGroup].push_back(pattern);
 		}
 	}
 }
@@ -248,6 +318,17 @@ CTerrainViewPatternConfig::~CTerrainViewPatternConfig()
 {
 
 }
+
+ETerrainGroup::ETerrainGroup CTerrainViewPatternConfig::getTerrainGroup(const std::string & terGroup) const
+{
+	static const std::map<std::string, ETerrainGroup::ETerrainGroup> terGroups
+			= boost::assign::map_list_of("normal", ETerrainGroup::NORMAL)("dirt", ETerrainGroup::DIRT)
+			("sand", ETerrainGroup::SAND)("water", ETerrainGroup::WATER)("rock", ETerrainGroup::ROCK);
+	auto it = terGroups.find(terGroup);
+	if(it == terGroups.end()) throw std::runtime_error(boost::str(boost::format("Terrain group '%s' does not exist.") % terGroup));
+	return it->second;
+}
+
 
 const std::vector<TerrainViewPattern> & CTerrainViewPatternConfig::getPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const
 {
@@ -275,18 +356,19 @@ DrawTerrainOperation::DrawTerrainOperation(CMap * map, const MapRect & rect, ETe
 
 void DrawTerrainOperation::execute()
 {
-	for(int i = rect.pos.x; i < rect.pos.x + rect.width; ++i)
+	for(int i = rect.x; i < rect.x + rect.width; ++i)
 	{
-		for(int j = rect.pos.y; j < rect.pos.y + rect.height; ++j)
+		for(int j = rect.y; j < rect.y + rect.height; ++j)
 		{
-			map->getTile(int3(i, j, rect.pos.z)).terType = terType;
+			map->getTile(int3(i, j, rect.z)).terType = terType;
 		}
 	}
 
 	//TODO there are situations where more tiles are affected implicitely
 	//TODO add coastal bit to extTileFlags appropriately
 
-	updateTerrainViews(MapRect(int3(rect.pos.x - 1, rect.pos.y - 1, rect.pos.z), rect.width + 2, rect.height + 2));
+	MapRect viewRect(int3(rect.x - 1, rect.y - 1, rect.z), rect.width + 2, rect.height + 2); // Has to overlap 1 tile around
+	updateTerrainViews(viewRect & MapRect(int3(0, 0, viewRect.z), map->width, map->height)); // Rect should not overlap map dimensions
 }
 
 void DrawTerrainOperation::undo()
@@ -306,12 +388,12 @@ std::string DrawTerrainOperation::getLabel() const
 
 void DrawTerrainOperation::updateTerrainViews(const MapRect & rect)
 {
-	for(int i = rect.pos.x; i < rect.pos.x + rect.width; ++i)
+	for(int i = rect.x; i < rect.x + rect.width; ++i)
 	{
-		for(int j = rect.pos.y; j < rect.pos.y + rect.height; ++j)
+		for(int j = rect.y; j < rect.y + rect.height; ++j)
 		{
 			const auto & patterns =
-					CTerrainViewPatternConfig::get().getPatternsForGroup(getTerrainGroup(map->getTile(int3(i, j, rect.pos.z)).terType));
+					CTerrainViewPatternConfig::get().getPatternsForGroup(getTerrainGroup(map->getTile(int3(i, j, rect.z)).terType));
 
 			// Detect a pattern which fits best
 			int bestPattern = -1, bestFlip = -1;
@@ -322,10 +404,10 @@ void DrawTerrainOperation::updateTerrainViews(const MapRect & rect)
 
 				for(int flip = 0; flip < 4; ++flip)
 				{
-					auto valRslt = validateTerrainView(int3(i, j, rect.pos.z), flip > 0 ? getFlippedPattern(pattern, flip) : pattern);
+					auto valRslt = validateTerrainView(int3(i, j, rect.z), flip > 0 ? getFlippedPattern(pattern, flip) : pattern);
 					if(valRslt.result)
 					{
-						logGlobal->debugStream() << "Pattern detected at pos " << i << "x" << j << "x" << rect.pos.z << ": P-Nr. " << k
+						logGlobal->debugStream() << "Pattern detected at pos " << i << "x" << j << "x" << rect.z << ": P-Nr. " << k
 							  << ", Flip " << flip << ", Repl. " << valRslt.transitionReplacement;
 
 						bestPattern = k;
@@ -338,7 +420,7 @@ void DrawTerrainOperation::updateTerrainViews(const MapRect & rect)
 			if(bestPattern == -1)
 			{
 				// This shouldn't be the case
-				logGlobal->warnStream() << "No pattern detected at pos " << i << "x" << j << "x" << rect.pos.z;
+				logGlobal->warnStream() << "No pattern detected at pos " << i << "x" << j << "x" << rect.z;
 				continue;
 			}
 
@@ -355,7 +437,7 @@ void DrawTerrainOperation::updateTerrainViews(const MapRect & rect)
 			}
 
 			// Set terrain view
-			auto & tile = map->getTile(int3(i, j, rect.pos.z));
+			auto & tile = map->getTile(int3(i, j, rect.z));
 			if(pattern.flipMode == TerrainViewPattern::FLIP_MODE_SAME_IMAGE)
 			{
 				tile.terView = gen->getInteger(mapping.first, mapping.second);
@@ -363,9 +445,9 @@ void DrawTerrainOperation::updateTerrainViews(const MapRect & rect)
 			}
 			else
 			{
-				int range = (mapping.second - mapping.first) / 4;
-				tile.terView = gen->getInteger(mapping.first + bestFlip * range,
-					mapping.first + (bestFlip + 1) * range - 1);
+				const int framesPerRot = 2;
+				int firstFrame = mapping.first + bestFlip * framesPerRot;
+				tile.terView = gen->getInteger(firstFrame, firstFrame + framesPerRot - 1);
 				tile.extTileFlags =	0;
 			}
 		}

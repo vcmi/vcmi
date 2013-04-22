@@ -1,0 +1,161 @@
+{
+	"mappings" : [
+		// Normal type
+		{
+			"pos" : [ [ 14,13,0 ], [ 4,34,0 ] ],
+			"pattern" : "normal.s1"
+		},
+		{
+			"pos" : [ [ 14,15,0 ], [ 29,19,0 ] ],
+			"pattern" : "normal.s2"
+		},
+		{
+			"pos" : [ [ 16,13,0 ], [ 23,30,0 ] ],
+			"pattern" : "normal.s3"
+		},
+		{
+			"pos" : [ [ 16,14,0 ], [ 29,20,0 ] ],
+			"pattern" : "normal.s4"
+		},
+		{
+			"pos" : [ [ 5,14,0 ], [ 31,13,0 ] ],
+			"pattern" : "normal.s5"
+		},
+		{
+			"pos" : [ [ 9,17,0 ], [ 3,17,0 ] ],
+			"pattern" : "normal.s6"
+		},
+		{
+			"pos" : [ [ 21,20,1 ], [ 28,27,1 ] ],
+			"pattern" : "normal.m1"
+		},
+		{
+			"pos" : [ [ 22,22,1 ] ],
+			"pattern" : "normal.m2"
+		},
+		{
+			"pos" : [ [ 12,31,0 ] ],
+			"pattern" : "normal.m3"
+		},
+		{
+			"pos" : [ [ 5,34,0 ] ],
+			"pattern" : "normal.m4"
+		},
+		{
+			"pos" : [ [ 12,34,0 ] ],
+			"pattern" : "normal.m5"
+		},
+		{
+			"pos" : [ [ 8,25,0 ] ],
+			"pattern" : "normal.m6"
+		},
+		{
+			"pos" : [ [ 5,32,0 ] ],
+			"pattern" : "normal.m7"
+		},
+		{
+			"pos" : [ [ 28,23,1 ] ],
+			"pattern" : "normal.m8"
+		},
+		{
+			"pos" : [ [ 7,23,0 ] ],
+			"pattern" : "normal.n1"
+		},
+		// Dirt type
+		{
+			"pos" : [ [ 22,26,0 ], [ 27,35,0 ] ],
+			"pattern" : "dirt.s1"
+		},
+		{
+			"pos" : [ [ 15,33,0 ], [ 19,34,0 ] ],
+			"pattern" : "dirt.s2"
+		},
+		{
+			"pos" : [ [ 24,32,0 ], [ 25,26,0 ] ],
+			"pattern" : "dirt.s3"
+		},
+		{
+			"pos" : [ [ 19,32,0 ] ],
+			"pattern" : "dirt.s4"
+		},
+		{
+			"pos" : [ [ 26,28,1 ] ],
+			"pattern" : "dirt.s5"
+		},
+		{
+			"pos" : [ [ 25,28,1 ] ],
+			"pattern" : "dirt.s6"
+		},
+		{
+			"pos" : [ [ 9,25,1 ] ],
+			"pattern" : "dirt.m1"
+		},
+		{
+			"pos" : [ [ 20,27,1 ] ],
+			"pattern" : "dirt.n1"
+		},
+		// Sand type
+		{
+			"pos" : [ [ 22,27,1 ] ],
+			"pattern" : "sand.n1"
+		},
+		// Water type
+		{
+			"pos" : [ [ 16,17,0 ] ],
+			"pattern" : "water.s1"
+		},
+		{
+			"pos" : [ [ 20,15,0 ] ],
+			"pattern" : "water.s2"
+		},
+		{
+			"pos" : [ [ 23,18,0 ] ],
+			"pattern" : "water.s3"
+		},
+		{
+			"pos" : [ [ 20,11,0 ] ],
+			"pattern" : "water.s4"
+		},
+		{
+			"pos" : [ [ 8,14,0 ] ],
+			"pattern" : "water.s5"
+		},
+		{
+			"pos" : [ [ 8,13,0 ] ],
+			"pattern" : "water.s6"
+		},
+		{
+			"pos" : [ [ 9,13,0 ] ],
+			"pattern" : "water.n1"
+		},
+		// Rock type
+		{
+			"pos" : [ [ 13,12,1 ] ],
+			"pattern" : "rock.n1"
+		},
+		{
+			"pos" : [ [ 11,21,1 ] ],
+			"pattern" : "rock.s1"
+		},
+		{
+			"pos" : [ [ 8,21,1 ] ],
+			"pattern" : "rock.s2"
+		},
+		{
+			"pos" : [ [ 10,12,1 ] ],
+			"pattern" : "rock.s3"
+		},
+		{
+			"pos" : [ [ 13,21,1 ] ],
+			"pattern" : "rock.s4"
+		},
+		{
+			"pos" : [ [ 10,22,1 ] ],
+			"pattern" : "rock.s5"
+		},
+		{
+			"pos" : [ [ 8,23,1 ] ],
+			"pattern" : "rock.s6"
+		},
+	]
+}

@@ -18,28 +18,30 @@ class CGObjectInstance;
 class CTerrainViewPatternConfig;
 struct TerrainViewPattern;
 
-namespace ETerrainGroup
-{
-	enum ETerrainGroup
-	{
-		NORMAL,
-		DIRT,
-		SAND,
-		WATER,
-		ROCK
-	};
-}
-
 /// Represents a map rectangle.
 struct DLL_LINKAGE MapRect
 {
-	MapRect(int3 pos, si32 width, si32 height) : pos(pos), width(width), height(height) { };
-	int3 pos;
+	MapRect();
+	MapRect(int3 pos, si32 width, si32 height);
+	si32 x, y, z;
 	si32 width, height;
+
+	si32 left() const;
+	si32 right() const;
+	si32 top() const;
+	si32 bottom() const;
+
+	int3 topLeft() const; /// Top left corner of this rect.
+	int3 topRight() const; /// Top right corner of this rect.
+	int3 bottomLeft() const; /// Bottom left corner of this rect.
+	int3 bottomRight() const; /// Bottom right corner of this rect.
+
+	/// Returns a MapRect of the intersection of this rectangle and the given one.
+	MapRect operator&(const MapRect & rect) const;
 };
 
 /// The abstract base class CMapOperation defines an operation that can be executed, undone and redone.
-class CMapOperation
+class DLL_LINKAGE CMapOperation : public boost::noncopyable
 {
 public:
 	CMapOperation(CMap * map);
@@ -55,7 +57,7 @@ protected:
 };
 
 /// The CMapUndoManager provides the functionality to save operations and undo/redo them.
-class CMapUndoManager : boost::noncopyable
+class DLL_LINKAGE CMapUndoManager : boost::noncopyable
 {
 public:
 	CMapUndoManager();
@@ -77,8 +79,8 @@ public:
 private:
 	typedef std::list<unique_ptr<CMapOperation> > TStack;
 
-	inline void doOperation(TStack & fromStack, TStack & toStack, bool doUndo);
-	inline const CMapOperation * peek(const TStack & stack) const;
+	void doOperation(TStack & fromStack, TStack & toStack, bool doUndo);
+	const CMapOperation * peek(const TStack & stack) const;
 
 	TStack undoStack;
 	TStack redoStack;
@@ -113,9 +115,21 @@ private:
 /* Implementation/Detail classes, Private API */
 /* ---------------------------------------------------------------------------- */
 
+namespace ETerrainGroup
+{
+	enum ETerrainGroup
+	{
+		NORMAL,
+		DIRT,
+		SAND,
+		WATER,
+		ROCK
+	};
+}
+
 /// The terrain view pattern describes a specific composition of terrain tiles
 /// in a 3x3 matrix and notes which terrain view frame numbers can be used.
-struct TerrainViewPattern
+struct DLL_LINKAGE TerrainViewPattern
 {
 	struct WeightedRule
 	{
@@ -186,13 +200,14 @@ struct TerrainViewPattern
 };
 
 /// The terrain view pattern config loads pattern data from the filesystem.
-class CTerrainViewPatternConfig : public boost::noncopyable
+class DLL_LINKAGE CTerrainViewPatternConfig : public boost::noncopyable
 {
 public:
 	static CTerrainViewPatternConfig & get();
 
 	const std::vector<TerrainViewPattern> & getPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
 	const TerrainViewPattern & getPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
+	ETerrainGroup::ETerrainGroup getTerrainGroup(const std::string & terGroup) const;
 
 private:
 	CTerrainViewPatternConfig();
@@ -208,10 +223,10 @@ class DrawTerrainOperation : public CMapOperation
 public:
 	DrawTerrainOperation(CMap * map, const MapRect & rect, ETerrainType terType, CRandomGenerator * gen);
 
-	void execute();
-	void undo();
-	void redo();
-	std::string getLabel() const;
+	void execute() override;
+	void undo() override;
+	void redo() override;
+	std::string getLabel() const override;
 
 private:
 	struct ValidationResult
@@ -246,10 +261,10 @@ class InsertObjectOperation : public CMapOperation
 public:
 	InsertObjectOperation(CMap * map, const int3 & pos, CGObjectInstance * obj);
 
-	void execute();
-	void undo();
-	void redo();
-	std::string getLabel() const;
+	void execute() override;
+	void undo() override;
+	void redo() override;
+	std::string getLabel() const override;
 
 private:
 	int3 pos;

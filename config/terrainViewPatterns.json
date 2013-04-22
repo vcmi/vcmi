@@ -45,6 +45,7 @@
 	[
 		// Standard transitions
 		{
+			"id" : "s1",
 			"data" :
 			[
 				"?", "?", "T",
@@ -54,6 +55,7 @@
 			"mapping" : "0-3, 20-23"
 		},
 		{
+			"id" : "s2",
 			"data" :
 			[
 				"?", "N", "N",
@@ -63,6 +65,7 @@
 			"mapping" : "4-7, 24-27"
 		},
 		{
+			"id" : "s3",
 			"data" :
 			[
 				"?", "T", "?",
@@ -72,6 +75,7 @@
 			"mapping" : "8-11, 28-31"
 		},
 		{
+			"id" : "s4",
 			"data" :
 			[
 				"N", "N", "N",
@@ -81,28 +85,30 @@
 			"mapping" : "12-15, 32-35"
 		},
 		{
+			"id" : "s5",
 			"data" :
 			[
-				"T", "T", "a-1,?",
+				"T", "T", "s5-1,?",
 				"T", "N", "N",
-				"a-1,?", "N", "N"
+				"s5-1,?", "N", "N"
 			],
 			"mapping" : "16-17, 36-37",
-			"id" : "a",
 			"minPoints" : 1
 		},
 		{
+			"id" : "s6",
 			"data" :
 			[
 				"N", "N", "N",
-				"N", "N", "a-1,N",
-				"N", "a-1,N", "T"
+				"N", "N", "s5-1,N",
+				"N", "s5-1,N", "T"
 			],
 			"mapping" : "18-19, 38-39",
 			"minPoints" : 1
 		},
 		// Mixed transitions
 		{
+			"id" : "m1",
 			"data" :
 			[
 				"T", "N", "N",
@@ -112,6 +118,7 @@
 			"mapping" : "40, 42"
 		},
 		{
+			"id" : "m2",
 			"data" :
 			[
 				"D", "N", "N",
@@ -121,6 +128,7 @@
 			"mapping" : "41"
 		},
 		{
+			"id" : "m3",
 			"data" :
 			[
 				"N", "N", "D,N",
@@ -130,6 +138,7 @@
 			"mapping" : "43"
 		},
 		{
+			"id" : "m4",
 			"data" :
 			[
 				"N", "N", "S",
@@ -139,6 +148,7 @@
 			"mapping" : "44"
 		},
 		{
+			"id" : "m5",
 			"data" :
 			[
 				"N", "N", "D,N",
@@ -148,6 +158,7 @@
 			"mapping" : "45"
 		},
 		{
+			"id" : "m6",
 			"data" :
 			[
 				"N", "N", "N",
@@ -157,6 +168,7 @@
 			"mapping" : "46"
 		},
 		{
+			"id" : "m7",
 			"data" :
 			[
 				"N", "N", "D,S,N",
@@ -166,6 +178,7 @@
 			"mapping" : "47"
 		},
 		{
+			"id" : "m8",
 			"data" :
 			[
 				"N", "N", "D",
@@ -176,6 +189,7 @@
 		},
 		// No transition
 		{
+			"id" : "n1",
 			"data" :
 			[
 				"N", "N", "N",
@@ -189,6 +203,7 @@
 	[
 		// Standard transitions
 		{
+			"id" : "s1",
 			"data" :
 			[
 				"?", "S", "S",
@@ -198,6 +213,7 @@
 			"mapping" : "0-3"
 		},
 		{
+			"id" : "s2",
 			"data" :
 			[
 				"?", "D", "D",
@@ -207,6 +223,7 @@
 			"mapping" : "4-7"
 		},
 		{
+			"id" : "s3",
 			"data" :
 			[
 				"?", "S", "?",
@@ -216,6 +233,7 @@
 			"mapping" : "8-11"
 		},
 		{
+			"id" : "s4",
 			"data" :
 			[
 				"D", "D", "D",
@@ -225,29 +243,30 @@
 			"mapping" : "12-15"
 		},
 		{
+			"id" : "s5",
 			"data" :
 			[
 				"S", "S", "D",
-				"S", "N", "b-1,D",
-				"D", "b-1,D", "D"
+				"S", "N", "s6-1,D",
+				"D", "s6-1,D", "D"
 			],
 			"mapping" : "16-17",
-			"id" : "a",
 			"minPoints" : 1
 		},
 		{
+			"id" : "s6",
 			"data" :
 			[
 				"D", "D", "D",
-				"D", "N", "a-1,D",
-				"D", "a-1,D", "S"
+				"D", "N", "s5-1,D",
+				"D", "s5-1,D", "S"
 			],
 			"mapping" : "18-19",
-			"id" : "b",
 			"minPoints" : 1
 		},
 		// Mixed transition
 		{
+			"id" : "m1",
 			"data" :
 			[
 				"S", "D", "D",
@@ -258,6 +277,7 @@
 		},
 		// No transition
 		{
+			"id" : "n1",
 			"data" :
 			[
 				"D", "D", "D",
@@ -270,6 +290,7 @@
 	"sand" :
 	[
 		{
+			"id" : "n1",
 			"data" :
 			[
 				"?", "?", "?",
@@ -283,6 +304,7 @@
 	[
 		// Standard transitions
 		{
+			"id" : "s1",
 			"data" :
 			[
 				"S", "S", "S",
@@ -292,6 +314,7 @@
 			"mapping" : "0-3"
 		},
 		{
+			"id" : "s2",
 			"data" :
 			[
 				"?", "N", "N",
@@ -301,6 +324,7 @@
 			"mapping" : "4-7"
 		},
 		{
+			"id" : "s3",
 			"data" :
 			[
 				"?", "S", "?",
@@ -310,6 +334,7 @@
 			"mapping" : "8-11"
 		},
 		{
+			"id" : "s4",
 			"data" :
 			[
 				"N", "N", "N",
@@ -319,6 +344,7 @@
 			"mapping" : "12-15"
 		},
 		{
+			"id" : "s5",
 			"data" :
 			[
 				"S", "S", "N",
@@ -326,20 +352,21 @@
 				"N", "N", "N"
 			],
 			"mapping" : "16-17",
-			"id" : "a"
 		},
 		{
+			"id" : "s6",
 			"data" :
 			[
 				"N", "N", "N",
-				"N", "N", "a-1,N",
-				"N", "a-1,N", "S"
+				"N", "N", "s5-1,N",
+				"N", "s5-1,N", "S"
 			],
 			"mapping" : "18-19",
 			"minPoints" : 1
 		},
 		// No transition
 		{
+			"id" : "n1",
 			"data" :
 			[
 				"N", "N", "N",
@@ -353,6 +380,7 @@
 	[
 		// No transition
 		{
+			"id" : "n1",
 			"data" :
 			[
 				"N", "N", "N",
@@ -363,6 +391,7 @@
 		},
 		// Standard transitions
 		{
+			"id" : "s1",
 			"data" :
 			[
 				"?", "S", "?",
@@ -373,6 +402,7 @@
 			"flipMode" : "diffImages"
 		},
 		{
+			"id" : "s2",
 			"data" :
 			[
 				"?", "N", "N",
@@ -383,6 +413,7 @@
 			"flipMode" : "diffImages"
 		},
 		{
+			"id" : "s3",
 			"data" :
 			[
 				"?", "S", "?",
@@ -393,6 +424,7 @@
 			"flipMode" : "diffImages"
 		},
 		{
+			"id" : "s4",
 			"data" :
 			[
 				"N", "N", "N",
@@ -403,6 +435,7 @@
 			"flipMode" : "diffImages"
 		},
 		{
+			"id" : "s5",
 			"data" :
 			[
 				"S", "S", "N",
@@ -410,15 +443,15 @@
 				"N", "N", "N"
 			],
 			"mapping" : "32-39",
-			"flipMode" : "diffImages",
-			"id" : "a"
+			"flipMode" : "diffImages"
 		},
 		{
+			"id" : "s6",
 			"data" :
 			[
 				"N", "N", "N",
-				"N", "N", "a-1,N",
-				"N", "a-1,N", "S"
+				"N", "N", "s5-1,N",
+				"N", "s5-1,N", "S"
 			],
 			"mapping" : "40-47",
 			"flipMode" : "diffImages",
