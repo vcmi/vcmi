@@ -217,11 +217,11 @@ private:
 	static boost::mutex smx;
 };
 
-/// The DrawTerrainOperation class draws a terrain area on the map.
-class DrawTerrainOperation : public CMapOperation
+/// The CDrawTerrainOperation class draws a terrain area on the map.
+class CDrawTerrainOperation : public CMapOperation
 {
 public:
-	DrawTerrainOperation(CMap * map, const MapRect & rect, ETerrainType terType, CRandomGenerator * gen);
+	CDrawTerrainOperation(CMap * map, const MapRect & rect, ETerrainType terType, CRandomGenerator * gen);
 
 	void execute() override;
 	void undo() override;
@@ -255,11 +255,11 @@ private:
 	CRandomGenerator * gen;
 };
 
-/// The InsertObjectOperation class inserts an object to the map.
-class InsertObjectOperation : public CMapOperation
+/// The CInsertObjectOperation class inserts an object to the map.
+class CInsertObjectOperation : public CMapOperation
 {
 public:
-	InsertObjectOperation(CMap * map, const int3 & pos, CGObjectInstance * obj);
+	CInsertObjectOperation(CMap * map, const int3 & pos, CGObjectInstance * obj);
 
 	void execute() override;
 	void undo() override;

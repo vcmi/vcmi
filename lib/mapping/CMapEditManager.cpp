@@ -184,12 +184,12 @@ void CMapEditManager::clearTerrain(CRandomGenerator * gen)
 
 void CMapEditManager::drawTerrain(const MapRect & rect, ETerrainType terType, CRandomGenerator * gen)
 {
-	execute(make_unique<DrawTerrainOperation>(map, rect, terType, gen));
+	execute(make_unique<CDrawTerrainOperation>(map, rect, terType, gen));
 }
 
 void CMapEditManager::insertObject(const int3 & pos, CGObjectInstance * obj)
 {
-	execute(make_unique<InsertObjectOperation>(map, pos, obj));
+	execute(make_unique<CInsertObjectOperation>(map, pos, obj));
 }
 
 void CMapEditManager::execute(unique_ptr<CMapOperation> && operation)
@@ -348,13 +348,13 @@ const TerrainViewPattern & CTerrainViewPatternConfig::getPatternById(ETerrainGro
 	throw std::runtime_error("Pattern with ID not found: " + id);
 }
 
-DrawTerrainOperation::DrawTerrainOperation(CMap * map, const MapRect & rect, ETerrainType terType, CRandomGenerator * gen)
+CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, const MapRect & rect, ETerrainType terType, CRandomGenerator * gen)
 	: CMapOperation(map), rect(rect), terType(terType), gen(gen)
 {
 
 }
 
-void DrawTerrainOperation::execute()
+void CDrawTerrainOperation::execute()
 {
 	for(int i = rect.x; i < rect.x + rect.width; ++i)
 	{
@@ -371,22 +371,22 @@ void DrawTerrainOperation::execute()
 	updateTerrainViews(viewRect & MapRect(int3(0, 0, viewRect.z), map->width, map->height)); // Rect should not overlap map dimensions
 }
 
-void DrawTerrainOperation::undo()
+void CDrawTerrainOperation::undo()
 {
 	//TODO
 }
 
-void DrawTerrainOperation::redo()
+void CDrawTerrainOperation::redo()
 {
 	//TODO
 }
 
-std::string DrawTerrainOperation::getLabel() const
+std::string CDrawTerrainOperation::getLabel() const
 {
 	return "Draw Terrain";
 }
 
-void DrawTerrainOperation::updateTerrainViews(const MapRect & rect)
+void CDrawTerrainOperation::updateTerrainViews(const MapRect & rect)
 {
 	for(int i = rect.x; i < rect.x + rect.width; ++i)
 	{
@@ -454,7 +454,7 @@ void DrawTerrainOperation::updateTerrainViews(const MapRect & rect)
 	}
 }
 
-ETerrainGroup::ETerrainGroup DrawTerrainOperation::getTerrainGroup(ETerrainType terType) const
+ETerrainGroup::ETerrainGroup CDrawTerrainOperation::getTerrainGroup(ETerrainType terType) const
 {
 	switch(terType)
 	{
@@ -471,7 +471,7 @@ ETerrainGroup::ETerrainGroup DrawTerrainOperation::getTerrainGroup(ETerrainType 
 	}
 }
 
-DrawTerrainOperation::ValidationResult DrawTerrainOperation::validateTerrainView(const int3 & pos, const TerrainViewPattern & pattern, int recDepth /*= 0*/) const
+CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainView(const int3 & pos, const TerrainViewPattern & pattern, int recDepth /*= 0*/) const
 {
 	ETerrainType centerTerType = map->getTile(pos).terType;
 	int totalPoints = 0;
@@ -601,7 +601,7 @@ DrawTerrainOperation::ValidationResult DrawTerrainOperation::validateTerrainView
 	return ValidationResult(true, transitionReplacement);
 }
 
-bool DrawTerrainOperation::isSandType(ETerrainType terType) const
+bool CDrawTerrainOperation::isSandType(ETerrainType terType) const
 {
 	switch(terType)
 	{
@@ -614,7 +614,7 @@ bool DrawTerrainOperation::isSandType(ETerrainType terType) const
 	}
 }
 
-TerrainViewPattern DrawTerrainOperation::getFlippedPattern(const TerrainViewPattern & pattern, int flip) const
+TerrainViewPattern CDrawTerrainOperation::getFlippedPattern(const TerrainViewPattern & pattern, int flip) const
 {
 	if(flip == 0)
 	{
@@ -641,19 +641,19 @@ TerrainViewPattern DrawTerrainOperation::getFlippedPattern(const TerrainViewPatt
 	return ret;
 }
 
-DrawTerrainOperation::ValidationResult::ValidationResult(bool result, const std::string & transitionReplacement /*= ""*/)
+CDrawTerrainOperation::ValidationResult::ValidationResult(bool result, const std::string & transitionReplacement /*= ""*/)
 	: result(result), transitionReplacement(transitionReplacement)
 {
 
 }
 
-InsertObjectOperation::InsertObjectOperation(CMap * map, const int3 & pos, CGObjectInstance * obj)
+CInsertObjectOperation::CInsertObjectOperation(CMap * map, const int3 & pos, CGObjectInstance * obj)
 	: CMapOperation(map), pos(pos), obj(obj)
 {
 
 }
 
-void InsertObjectOperation::execute()
+void CInsertObjectOperation::execute()
 {
 	obj->pos = pos;
 	obj->id = ObjectInstanceID(map->objects.size());
@@ -669,17 +669,17 @@ void InsertObjectOperation::execute()
 	map->addBlockVisTiles(obj);
 }
 
-void InsertObjectOperation::undo()
+void CInsertObjectOperation::undo()
 {
 	//TODO
 }
 
-void InsertObjectOperation::redo()
+void CInsertObjectOperation::redo()
 {
 	execute();
 }
 
-std::string InsertObjectOperation::getLabel() const
+std::string CInsertObjectOperation::getLabel() const
 {
 	return "Insert Object";
 }

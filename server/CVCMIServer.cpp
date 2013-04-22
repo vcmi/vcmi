@@ -515,7 +515,7 @@ int main(int argc, char** argv)
     logConfig.configureDefault();
 	if(argc > 1)
 	{
-        port = std::stoi(argv[1]);
+		port = boost::lexical_cast<int>(argv[1]);
     }
 
 	preinitDLL(console);
