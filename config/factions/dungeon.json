@@ -113,11 +113,7 @@
 				"dwellingUpLvl6": { "id" : 42, "animation" : "TBDNUP_5.def", "x" : 270, "y" : 253, "z" : -1, "border" : "TODMAN2.bmp",  "area" : "TZDMAN2.bmp" },
 				"dwellingUpLvl7": { "id" : 43, "animation" : "TBDNUP_6.def", "x" : 550, "y" : 0,   "z" : -1, "border" : "TODDRA2A.bmp", "area" : "TZDDRA2A.bmp" }
 			},
-			"icons" :
-			{
-				"village" : {"normal" : 28, "built" : 29 },
-				"fort"    : {"normal" : 10, "built" : 11 }
-			},
+
 			"musicTheme" : "music/Dungeon",
 
 			"townBackground": "TBDNBACK.bmp",

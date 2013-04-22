@@ -35,6 +35,8 @@ enum EFonts
 /// Handles fonts, hero images, town images, various graphics
 class Graphics
 {
+	void addImageListEntry(size_t index, std::string listName, std::string imageName);
+
 public:
 	//Fonts
 	static const int FONTS_NUMBER = 9;
@@ -53,6 +55,8 @@ public:
 	std::vector<CDefEssential *> boatAnims; // [boat type: 0 - 3]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
 	CDefHandler * FoWfullHide; //for Fog of War
 	CDefHandler * FoWpartialHide; //for For of War
+
+	std::map<std::string, JsonNode> imageLists;
 
 	std::map<std::string, CDefEssential *> advmapobjGraphics;
 	CDefEssential * getDef(const CGObjectInstance * obj);
@@ -75,7 +79,9 @@ public:
 	CDefEssential *  loadHeroAnim(const std::string &name, const std::vector<std::pair<int,int> > &rotations);
 	void loadErmuToPicture();
 	void blueToPlayersAdv(SDL_Surface * sur, PlayerColor player); //replaces blue interface colour with a color of player
+
 	void loadFonts();
+	void initializeImageLists();
 };
 
 extern Graphics * graphics;

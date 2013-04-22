@@ -428,32 +428,33 @@ void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source)
 	pos[1]  = JsonToPoint(source["static"]["background"]);
 }
 
+static void readIcon(JsonNode source, std::string & small, std::string & large)
+{
+	if (source.getType() == JsonNode::DATA_STRUCT) // don't crash on old format
+	{
+		small = source["small"].String();
+		large = source["large"].String();
+	}
+}
+
 void CTownHandler::loadClientData(CTown &town, const JsonNode & source)
 {
-	town.clientInfo.icons[0][0] = source["icons"]["village"]["normal"].Float();
-	town.clientInfo.icons[0][1] = source["icons"]["village"]["built"].Float();
-	town.clientInfo.icons[1][0] = source["icons"]["fort"]["normal"].Float();
-	town.clientInfo.icons[1][1] = source["icons"]["fort"]["built"].Float();
+	CTown::ClientInfo & info = town.clientInfo;
 
-	town.clientInfo.hallBackground = source["hallBackground"].String();
-	town.clientInfo.musicTheme = source["musicTheme"].String();
-	town.clientInfo.townBackground = source["townBackground"].String();
-	town.clientInfo.guildWindow = source["guildWindow"].String();
-	town.clientInfo.buildingsIcons = source["buildingsIcons"].String();
+	readIcon(source["icons"]["village"]["normal"], info.iconSmall[0][0], info.iconLarge[0][0]);
+	readIcon(source["icons"]["village"]["built"], info.iconSmall[0][1], info.iconLarge[0][1]);
+	readIcon(source["icons"]["fort"]["normal"], info.iconSmall[1][0], info.iconLarge[1][0]);
+	readIcon(source["icons"]["fort"]["built"], info.iconSmall[1][1], info.iconLarge[1][1]);
 
-	town.clientInfo.advMapVillage = source["adventureMap"]["village"].String();
-	town.clientInfo.advMapCastle  = source["adventureMap"]["castle"].String();
-	town.clientInfo.advMapCapitol = source["adventureMap"]["capitol"].String();
+	info.hallBackground = source["hallBackground"].String();
+	info.musicTheme = source["musicTheme"].String();
+	info.townBackground = source["townBackground"].String();
+	info.guildWindow = source["guildWindow"].String();
+	info.buildingsIcons = source["buildingsIcons"].String();
 
-	const JsonNode *value = &source["adventureMap"]["dwellings"];
-	if (!value->isNull())
-	{
-		BOOST_FOREACH (const JsonNode &d, value->Vector())
-		{
-			town.dwellings.push_back (d["graphics"].String());
-			town.dwellingNames.push_back (d["name"].String());
-		}
-	}
+	info.advMapVillage = source["adventureMap"]["village"].String();
+	info.advMapCastle  = source["adventureMap"]["castle"].String();
+	info.advMapCapitol = source["adventureMap"]["capitol"].String();
 
 	loadTownHall(town,   source["hallSlots"]);
 	loadStructures(town, source["structures"]);
@@ -523,6 +524,12 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 		{
 			SpellID(spellID).toSpell()->probabilities[town.faction->index] = chance;
 		});
+	}
+
+	BOOST_FOREACH (const JsonNode &d, source["adventureMap"]["dwellings"].Vector())
+	{
+		town.dwellings.push_back (d["graphics"].String());
+		town.dwellingNames.push_back (d["name"].String());
 	}
 
 	loadBuildings(town, source["buildings"]);
@@ -597,6 +604,14 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 {
 	auto object = loadFromJson(data);
 	object->index = factions.size();
+	if (object->town)
+	{
+		auto & info = object->town->clientInfo;
+		info.icons[0][0] = 8 + object->index * 4 + 0;
+		info.icons[0][1] = 8 + object->index * 4 + 1;
+		info.icons[1][0] = 8 + object->index * 4 + 2;
+		info.icons[1][1] = 8 + object->index * 4 + 3;
+	}
 
 	factions.push_back(object);
 
@@ -607,6 +622,14 @@ void CTownHandler::loadObject(std::string scope, std::string name, const JsonNod
 {
 	auto object = loadFromJson(data);
 	object->index = index;
+	if (object->town)
+	{
+		auto & info = object->town->clientInfo;
+		info.icons[0][0] = (GameConstants::F_NUMBER + object->index) * 2 + 0;
+		info.icons[0][1] = (GameConstants::F_NUMBER + object->index) * 2 + 1;
+		info.icons[1][0] = object->index * 2 + 0;
+		info.icons[1][1] = object->index * 2 + 1;
+	}
 
 	assert(factions[index] == nullptr); // ensure that this id was not loaded before
 	factions[index] = object;

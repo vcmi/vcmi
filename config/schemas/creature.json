@@ -166,8 +166,7 @@
 			"additionalProperties" : false,
 			"description": "Describes how this creature looks like during battles",
 			"required" : [
-				"animationTime", "iconIndex",
-				"map", "animation", "timeBetweenFidgets"
+				"animationTime", "animation", "timeBetweenFidgets"
 			],
 			"properties":{
 				"animationTime": {
@@ -197,10 +196,6 @@
 				"iconSmall": {
 					"type":"string",
 					"description": "Small icon for this creature, used for example in exchange screen"
-				},
-				"iconIndex": {
-					"type":"number",
-					"description": "Index of icon of this creature in .def file"
 				},
 
 				"map": {

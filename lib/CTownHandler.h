@@ -163,6 +163,8 @@ public:
 
 		//icons [fort is present?][build limit reached?] -> index of icon in def files
 		int icons[2][2];
+		std::string iconSmall[2][2]; /// icon names used during loading
+		std::string iconLarge[2][2];
 
 		std::string musicTheme;
 		std::string townBackground;
@@ -187,8 +189,8 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & icons & musicTheme & townBackground & guildWindow & buildingsIcons & hallBackground & hallSlots & structures;
-			h & advMapVillage & advMapCastle & advMapCapitol;
+			h & icons & iconSmall & iconLarge & musicTheme & townBackground & guildWindow & buildingsIcons & hallBackground;
+			h & advMapVillage & advMapCastle & advMapCapitol & hallSlots & structures;
 			h & siegePrefix & siegePositions & siegeShooter & siegeShooterCropHeight;
 		}
 	} clientInfo;

@@ -3,7 +3,16 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI hero format",
 	"description" : "Format used to define new heroes in VCMI",
-	"required": [ "army", "class", "images", "skills", "texts" ],
+	"required": [ "army", "class", "skills", "texts" ],
+	
+	"oneOf" : [
+		{
+			"required" : [ "images" ]
+		},
+		{
+			"required" : [ "index" ]
+		}
+	],
 
 	"additionalProperties" : false,
 	"properties":{
@@ -46,18 +55,14 @@
 		},
 		"female": {
 			"type":"boolean",
-			"description": "This hero is female by default"
+			"description": "This hero is female (changeable via editor)"
 		},
 		"images": {
 			"type":"object",
 			"additionalProperties" : false,
 			"description": "images",
-			"required": [ "index" ],
+			"required": [ "large", "small", "specialtyLarge", "specialtySmall" ],
 			"properties":{
-				"index": {
-					"type":"number",
-					"description": "Index of image in portraitsLarge/portraitsSmall files"
-				},
 				"large": {
 					"type":"string",
 					"description": "Large version of portrait for use in hero screen"

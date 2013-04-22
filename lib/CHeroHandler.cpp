@@ -228,7 +228,6 @@ CHero * CHeroHandler::loadFromJson(const JsonNode & node)
 	hero->specTooltip = node["texts"]["specialty"]["tooltip"].String();
 	hero->specDescr   = node["texts"]["specialty"]["description"].String();
 
-	hero->imageIndex = node["images"]["index"].Float();
 	hero->iconSpecSmall = node["images"]["specialtySmall"].String();
 	hero->iconSpecLarge = node["images"]["specialtyLarge"].String();
 	hero->portraitSmall = node["images"]["small"].String();
@@ -439,8 +438,6 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)
 		heroData["texts"]["specialty"]["tooltip"].String() = specParser.readString();
 		heroData["texts"]["specialty"]["description"].String() = specParser.readString();
 
-		heroData["images"]["index"].Float() = i;
-
 		for(int x=0;x<3;x++)
 		{
 			JsonNode armySlot;
@@ -463,6 +460,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 {
 	auto object = loadFromJson(data);
 	object->ID = heroes.size();
+	object->imageIndex = heroes.size() + 8; // 2 special frames + some extra portraits
 
 	heroes.push_back(object);
 
@@ -473,6 +471,7 @@ void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNod
 {
 	auto object = loadFromJson(data);
 	object->ID = index;
+	object->imageIndex = index;
 
 	assert(heroes[index] == nullptr); // ensure that this id was not loaded before
 	heroes[index] = object;

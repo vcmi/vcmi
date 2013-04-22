@@ -1,4 +1,32 @@
 {
+	"definitions" : {
+		"townIcon" : 
+		{
+			"type" : "object",
+			"additionalProperties" : false,
+			"required" : [ "small", "large" ],
+			"properties" : {
+				"small" : { "type" : "string" },
+				"large" : { "type" : "string" }
+			}
+		},
+		"townIconPair" : {
+			"type":"object",
+			"additionalProperties" : false,
+			"required" : [ "normal", "built" ],
+			"properties": {
+				"built": {
+					"$ref" : "#/definitions/townIcon",
+					"description": "Icon used after player build something in town"
+				},
+				"normal": {
+					"$ref" : "#/definitions/townIcon",
+					"description": "Icon used normally"
+				}
+			}
+		}
+	},
+
 	"type":"object",
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI faction format",
@@ -79,7 +107,7 @@
 			"additionalProperties" : false,
 			"required" : [
 				"adventureMap", "buildingsIcons", "buildings", "creatures", "guildWindow", "names",
-				"hallBackground", "hallSlots", "horde", "icons", "mageGuild", "moatDamage",
+				"hallBackground", "hallSlots", "horde", "mageGuild", "moatDamage",
 				"musicTheme", "siege", "structures", "townBackground", "warMachine"
 			],
 			"description": "town",
@@ -193,36 +221,12 @@
 					"required" : [ "fort", "village" ],
 					"properties":{
 						"fort": {
-							"type":"object",
-							"additionalProperties" : false,
-							"required" : [ "normal", "built" ],
-							"description": "Icons for town with built fort",
-							"properties":{
-								"built": {
-									"type":"number",
-									"description": "Icon used after player build something in town"
-								},
-								"normal": {
-									"type":"number",
-									"description": "Icon used normally"
-								}
-							}
+							"$ref" : "#/definitions/townIconPair",
+							"description": "Icons for town with built fort"
 						},
 						"village": {
-							"type":"object",
-							"additionalProperties" : false,
-							"required" : [ "normal", "built" ],
-							"description": "Icons for town without fort",
-							"properties":{
-								"built": {
-									"type":"number",
-									"description": "Icon used after player build something in town"
-								},
-								"normal": {
-									"type":"number",
-									"description": "Icon used normally"
-								}
-							}
+							"$ref" : "#/definitions/townIconPair",
+							"description": "Icons for town without fort"
 						}
 					}
 				},

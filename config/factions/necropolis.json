@@ -118,11 +118,7 @@
 				"dwellingUpLvl6": { "id" : 42, "animation" : "TBNCUP_5.def", "x" : 0,   "y" : 30,  "border" : "TONBKN2.bmp",  "area" : "TZNBKN2.bmp" },
 				"dwellingUpLvl7": { "id" : 43, "animation" : "TBNCUP_6.def", "x" : 662, "y" : 23,  "border" : "TONBON2.bmp",  "area" : "TZNBON2.bmp" }
 			},
-			"icons" :
-			{
-				"village" : {"normal" : 26, "built" : 27 },
-				"fort"    : {"normal" : 8,  "built" : 9 }
-			},
+
 			"musicTheme" : "music/NecroTown",
 
 			"townBackground": "TBNCBACK.bmp",

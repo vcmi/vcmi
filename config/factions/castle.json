@@ -114,11 +114,6 @@
 				"dwellingUpLvl6": { "id" : 42, "animation" : "TBCSUP_5.def", "x" : 160, "y" : 190, "z" : -1, "border" : "TOCSCAV2.bmp", "area" : "TZCSCAV2.bmp" },
 				"dwellingUpLvl7": { "id" : 43, "animation" : "TBCSUP_6.def", "x" : 303, "y" : 0,   "z" : -1, "border" : "TOCSANG2.bmp", "area" : "TZCSANG2.bmp" }
 			},
-			"icons" :
-			{
-				"village" : {"normal" : 18, "built" : 19 },
-				"fort"    : {"normal" : 0,  "built" : 1 }
-			},
 
 			"musicTheme" : "music/CstleTown",
 

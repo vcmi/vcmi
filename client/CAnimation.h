@@ -175,6 +175,7 @@ private:
 	bool unloadFrame(size_t frame, size_t group);
 
 	//initialize animation from file
+	void initFromJson(const JsonNode & input);
 	void init(CDefFile * file);
 
 	//try to open def file

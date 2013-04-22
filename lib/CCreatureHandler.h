@@ -49,6 +49,10 @@ public:
 	std::string advMapDef; //for new creatures only, image for adventure map
 	si32 iconIndex; // index of icon in files like twcrport
 
+	/// names of files with appropriate icons. Used only during loading
+	std::string smallIconName;
+	std::string largeIconName;
+
 	struct CreatureAnimation
 	{
 		double timeBetweenFidgets, walkAnimationTime, attackAnimationTime, flightAnimationDistance;
@@ -123,7 +127,7 @@ public:
 			& fightValue & AIValue & growth & hordeGrowth
 			& ammMin & ammMax & level
 			& abilityText & animDefName & advMapDef;
-		h & iconIndex;
+		h & iconIndex & smallIconName & largeIconName;
 
 		h & idNumber & faction & sounds & animation;
 

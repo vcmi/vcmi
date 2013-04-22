@@ -114,11 +114,7 @@
 				"dwellingUpLvl6": { "id" : 42, "animation" : "TBINUP_5.def", "x" : 220, "y" : 282, "z" : 5,  "border" : "TOIEFR2.bmp",  "area" : "TZIEFR2.bmp" },
 				"dwellingUpLvl7": { "id" : 43, "animation" : "TBINUP_6.def", "x" : 420, "y" : 105, "z" : -1, "border" : "TOIDVL2.bmp",  "area" : "TZIDVL2.bmp" }
 			},
-			"icons" :
-			{
-				"village" : {"normal" : 24, "built" : 25 },
-				"fort"    : {"normal" : 6,  "built" : 7 }
-			},
+
 			"musicTheme" : "music/InfernoTown",
 
 			"townBackground": "TBINBACK.bmp",

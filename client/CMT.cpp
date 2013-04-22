@@ -139,11 +139,13 @@ void init()
 
 	pomtime.getDiff();
 	CCS->curh = new CCursorHandler;
+	graphics = new Graphics(); // should be before curh->init()
+
 	CCS->curh->initCursor();
 	CCS->curh->show();
     logGlobal->infoStream()<<"Screen handler: "<<pomtime.getDiff();
 	pomtime.getDiff();
-	graphics = new Graphics();
+
 	graphics->loadHeroAnims();
     logGlobal->infoStream()<<"\tMain graphics: "<<tmh.getDiff();
     logGlobal->infoStream()<<"Initializing game graphics: "<<tmh.getDiff();

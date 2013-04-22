@@ -113,11 +113,6 @@
 				"dwellingUpLvl6": { "id" : 42, "animation" : "TBTWUP_5.def", "x" : 681, "y" : 157, "z" : 2,  "border" : "TOTNAG2.bmp",  "area" : "TZTNAG2.bmp" },
 				"dwellingUpLvl7": { "id" : 43, "animation" : "TBTWUP_6.def", "x" : 75,  "y" : 91,  "z" : -1, "border" : "TOTTIT2.bmp",  "area" : "TZTTIT2.bmp" }
 			},
-			"icons" :
-			{
-				"village" : {"normal" : 22, "built" : 23 },
-				"fort"    : {"normal" : 4,  "built" : 5 }
-			},
 
 			"musicTheme" : "music/TowerTown",
 

@@ -2633,7 +2633,7 @@ size_t OptionsTab::CPlayerSettingsHelper::getImageIndex()
 		WOOD = 0,       ORE     = 0,    MITHRIL = 10, // resources unavailable in bonuses file
 
 		TOWN_RANDOM = 38,  TOWN_NONE = 39, // Special frames in ITPA
-		HERO_RANDOM = 200, HERO_NONE = 201 // Special frames in PortraitsSmall
+		HERO_RANDOM = 163, HERO_NONE = 164 // Special frames in PortraitsSmall
 	};
 
 	switch(type)

@@ -112,11 +112,7 @@
 				"dwellingUpLvl6": { "id" : 42, "animation" : "TBSTUP_5.def", "x" : 616, "y" : 93,  "z" : -2, "border" : "TOSCYC2A.bmp", "area" : "TZSCYC2A.bmp" },
 				"dwellingUpLvl7": { "id" : 43, "animation" : "TBSTUP_6.def", "x" : 604, "y" : 0,   "border" : "TOSBEH2A.bmp", "area" : "TZSBEH2A.bmp" }
 			},
-			"icons" :
-			{
-				"village" : {"normal" : 30, "built" : 31 },
-				"fort"    : {"normal" : 12, "built" : 13 }
-			},
+
 			"musicTheme" : "music/Stronghold",
 
 			"townBackground": "TBSTBACK.bmp",

@@ -51,7 +51,7 @@ public:
 	std::string image;
 	std::string large; // big image for cutom artifacts, used in drag & drop
 	std::string advMapDef; //used for adventure map object
-	si32 iconIndex; //TODO: handle automatically
+	si32 iconIndex;
 
 	const std::string &Name() const; //getter
 	const std::string &Description() const; //getter

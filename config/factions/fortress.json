@@ -114,11 +114,7 @@
 				"dwellingUpLvl6": { "id" : 42, "animation" : "TBFRUP_5.def", "x" : 0,   "y" : 4,   "border" : "TOFWYV2.bmp",  "area" : "TZFWYV2.bmp" },
 				"dwellingUpLvl7": { "id" : 43, "animation" : "TBFRUP_6.def", "x" : 587, "y" : 263, "z" : 5,  "border" : "TOFHYD2A.bmp", "area" : "TZFHYD2A.bmp" }
 			},
-			"icons" :
-			{
-				"village" : {"normal" : 32, "built" : 33 },
-				"fort"    : {"normal" : 14, "built" : 15 }
-			},
+
 			"musicTheme" : "music/FortressTown",
 
 			"townBackground": "TBFRBACK.bmp",

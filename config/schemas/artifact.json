@@ -3,7 +3,7 @@
 	"$schema": "http://json-schema.org/draft-04/schema",
 	"title" : "VCMI artifact format",
 	"description" : "Format used to define new artifacts in VCMI",
-	"required" : [ "class", "graphics", "text", "type", "value" ],
+	"required" : [ "class", "text", "type", "value" ],
 	
 	"definitions" : {
 		"growingBonusList" : {
@@ -46,13 +46,8 @@
 			"type":"object",
 			"additionalProperties" : false,
 			"description": "Graphical files associated with the artifact",
-			//"required" : [ "iconIndex", "image", "map" ],
-			"required" : [ "iconIndex" ],
+			"required" : [ "image", "map" ],
 			"properties":{
-				"iconIndex": {
-					"type":"number",
-					"description": "index of icon of this artifact in .def file"
-				},
 				"image": {
 					"type":"string",
 					"description": "Base image for this artifact, used for example in hero screen"

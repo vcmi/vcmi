@@ -118,11 +118,6 @@
 				"dwellingUpLvl6": { "id" : 42, "animation" : "TBRMUP_5.def", "x" : 362, "y" : 90,  "z" : -2, "border" : "TORUNI2.bmp",  "area" : "TZRUNI2.bmp" },
 				"dwellingUpLvl7": { "id" : 43, "animation" : "TBRMUP_6.def", "x" : 502, "y" : 5,   "z" : -5, "border" : "TORDR2AA.bmp", "area" : "TZRDR2AA.bmp" }
 			},
-			"icons" :
-			{
-				"village" : {"normal" : 20, "built" : 21 },
-				"fort"    : {"normal" : 2,  "built" : 3 }
-			},
 
 			"musicTheme" : "music/Rampart",
 

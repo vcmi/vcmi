@@ -70,11 +70,11 @@ static void showInfoDialog(const PlayerColor playerID, const ui32 txtID, const u
 	IObjectInterface::cb->sendAndApply(&iw);
 }
 
-static void showInfoDialog(const ObjectInstanceID heroID, const ui32 txtID, const ui16 soundID)
+/*static void showInfoDialog(const ObjectInstanceID heroID, const ui32 txtID, const ui16 soundID)
 {
 	const PlayerColor playerID = IObjectInterface::cb->getOwner(heroID);
 	showInfoDialog(playerID,txtID,soundID);
-}
+}*/
 
 static void showInfoDialog(const CGHeroInstance* h, const ui32 txtID, const ui16 soundID)
 {

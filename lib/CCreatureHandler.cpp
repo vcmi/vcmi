@@ -282,8 +282,6 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 
 		JsonNode data;
 
-		data["graphics"]["iconIndex"].Float() = h3Data.size() + 2; // +2 for empty\selection images
-
 		data["name"]["singular"].String() =  parser.readString();
 		data["name"]["plural"].String() =  parser.readString();
 
@@ -326,6 +324,7 @@ void CCreatureHandler::loadObject(std::string scope, std::string name, const Jso
 {
 	auto object = loadFromJson(data);
 	object->idNumber = CreatureID(creatures.size());
+	object->iconIndex = object->idNumber + 2;
 
 	creatures.push_back(object);
 
@@ -341,6 +340,7 @@ void CCreatureHandler::loadObject(std::string scope, std::string name, const Jso
 {
 	auto object = loadFromJson(data);
 	object->idNumber = CreatureID(index);
+	object->iconIndex = object->idNumber + 2;
 
 	assert(creatures[index] == nullptr); // ensure that this id was not loaded before
 	creatures[index] = object;
@@ -584,7 +584,8 @@ void CCreatureHandler::loadJsonAnimation(CCreature * cre, const JsonNode & graph
 	cre->animation.missleFrameAngles = missile["frameAngles"].convertTo<std::vector<double> >();
 
 	cre->advMapDef = graphics["map"].String();
-	cre->iconIndex = graphics["iconIndex"].Float();
+	cre->smallIconName = graphics["iconSmall"].String();
+	cre->largeIconName = graphics["iconLarge"].String();
 }
 
 void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & config)

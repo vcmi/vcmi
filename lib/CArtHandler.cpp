@@ -173,7 +173,6 @@ std::vector<JsonNode> CArtHandler::loadLegacyData(size_t dataSize)
 	{
 		JsonNode artData;
 
-		artData["graphics"]["iconIndex"].Float() = i;
 		artData["text"]["name"].String() = parser.readString();
 		artData["text"]["event"].String() = events.readString();
 		artData["value"].Float() = parser.readNumber();
@@ -200,6 +199,10 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 {
 	auto object = loadFromJson(data);
 	object->id = ArtifactID(artifacts.size());
+	if (object->id < ArtifactID::ART_SELECTION)
+		object->iconIndex = object->id;
+	else
+		object->iconIndex = object->id + 2;
 
 	artifacts.push_back(object);
 
@@ -210,6 +213,10 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 {
 	auto object = loadFromJson(data);
 	object->id = ArtifactID(index);
+	if (object->id < ArtifactID::ART_SELECTION)
+		object->iconIndex = object->id;
+	else
+		object->iconIndex = object->id + 2;
 
 	assert(artifacts[index] == nullptr); // ensure that this id was not loaded before
 	artifacts[index] = object;
@@ -236,7 +243,6 @@ CArtifact * CArtHandler::loadFromJson(const JsonNode & node)
 	art->eventText   = text["event"].String();
 
 	const JsonNode & graphics = node["graphics"];
-	art->iconIndex = graphics["iconIndex"].Float();
 	art->image = graphics["image"].String();
 
 	if (!graphics["large"].isNull())

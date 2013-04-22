@@ -118,11 +118,7 @@
 				"dwellingUpLvl6": { "id" : 42, "animation" : "TBELUP_5.def", "x" : 394, "y" : 283, "z" : 2,  "border" : "TOELUP_5.bmp", "area" : "TZELUP_5.bmp" },
 				"dwellingUpLvl7": { "id" : 43, "animation" : "TBELUP_6.def", "x" : 43,  "y" : 0,   "z" : -2, "border" : "TOELUP_6.bmp", "area" : "TZELUP_6.bmp" }
 			},
-			"icons" :
-			{
-				"village" : {"normal" : 34, "built" : 35 },
-				"fort"    : {"normal" : 16, "built" : 17 }
-			},
+
 			"musicTheme" : "music/ElemTown",
 
 			"townBackground": "TBELBACK.bmp",

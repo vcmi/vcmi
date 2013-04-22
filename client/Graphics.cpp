@@ -126,6 +126,7 @@ Graphics::Graphics()
 	tasks += boost::bind(&Graphics::loadHeroFlags,this);
 	tasks += boost::bind(&Graphics::initializeBattleGraphics,this);
 	tasks += boost::bind(&Graphics::loadErmuToPicture,this);
+	tasks += boost::bind(&Graphics::initializeImageLists,this);
 	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");
 	tasks += GET_DEF_ESS(spellscr,"SPELLSCR.DEF");
 	tasks += GET_DEF_ESS(heroMoveArrows,"ADAG.DEF");
@@ -416,4 +417,59 @@ void Graphics::loadErmuToPicture()
 		etp_idx ++;
 	}
 	assert (etp_idx == 44);
+}
+
+void Graphics::addImageListEntry(size_t index, std::string listName, std::string imageName)
+{
+	if (!imageName.empty())
+	{
+		if (!CResourceHandler::get()->existsResource(ResourceID("SPRITES/" + imageName, EResType::IMAGE)))
+			logGlobal->errorStream() << "Required image " << "SPRITES/" << imageName << " is missing!";
+
+		JsonNode entry;
+		entry["frame"].Float() = index;
+		entry["file"].String() = imageName;
+
+		imageLists["SPRITES/" + listName]["images"].Vector().push_back(entry);
+	}
+}
+
+void Graphics::initializeImageLists()
+{
+	BOOST_FOREACH(const CCreature * creature, CGI->creh->creatures)
+	{
+		addImageListEntry(creature->iconIndex, "CPRSMALL", creature->smallIconName);
+		addImageListEntry(creature->iconIndex, "TWCRPORT", creature->largeIconName);
+	}
+
+	BOOST_FOREACH(const CHero * hero, CGI->heroh->heroes)
+	{
+		addImageListEntry(hero->imageIndex, "UN32", hero->iconSpecSmall);
+		addImageListEntry(hero->imageIndex, "UN44", hero->iconSpecLarge);
+		addImageListEntry(hero->imageIndex, "PORTRAITSLARGE", hero->portraitLarge);
+		addImageListEntry(hero->imageIndex, "PORTRAITSSMALL", hero->portraitSmall);
+	}
+
+	BOOST_FOREACH(const CArtifact * art, CGI->arth->artifacts)
+	{
+		addImageListEntry(art->iconIndex, "ARTIFACT", art->image);
+		addImageListEntry(art->iconIndex, "ARTIFACTLARGE", art->large);
+	}
+
+	BOOST_FOREACH(const CFaction * faction, CGI->townh->factions)
+	{
+		if (faction->town)
+		{
+			auto & info = faction->town->clientInfo;
+			addImageListEntry(info.icons[0][0], "ITPT", info.iconLarge[0][0]);
+			addImageListEntry(info.icons[0][1], "ITPT", info.iconLarge[0][1]);
+			addImageListEntry(info.icons[1][0], "ITPT", info.iconLarge[1][0]);
+			addImageListEntry(info.icons[1][1], "ITPT", info.iconLarge[1][1]);
+
+			addImageListEntry(info.icons[0][0] + 2, "ITPA", info.iconSmall[0][0]);
+			addImageListEntry(info.icons[0][1] + 2, "ITPA", info.iconSmall[0][1]);
+			addImageListEntry(info.icons[1][0] + 2, "ITPA", info.iconSmall[1][0]);
+			addImageListEntry(info.icons[1][1] + 2, "ITPA", info.iconSmall[1][1]);
+		}
+	}
 }

@@ -329,7 +329,7 @@ const std::map<size_t, size_t > CDefFile::getEntries() const
 {
 	std::map<size_t, size_t > ret;
 
-	for (std::map<size_t, std::vector <size_t> >::const_iterator mapIt = offset.begin(); mapIt!=offset.end(); ++mapIt)
+	for (auto mapIt = offset.begin(); mapIt!=offset.end(); ++mapIt)
 		ret[mapIt->first] =  mapIt->second.size();
 	return ret;
 }
@@ -935,10 +935,21 @@ bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
 	//try to get image from def
 	if (source[group][frame].getType() == JsonNode::DATA_NULL)
 	{
-		if (compressed)
-			images[group][frame] = new CompImage(file, frame, group);
-		else
-			images[group][frame] = new SDLImage(file, frame, group);
+		auto frameList = file->getEntries();
+
+		if (vstd::contains(frameList, group) && frameList.at(group) > frame) // frame is present
+		{
+			if (compressed)
+				images[group][frame] = new CompImage(file, frame, group);
+			else
+				images[group][frame] = new SDLImage(file, frame, group);
+		}
+		else // missing image
+		{
+			printError(frame, group, "LoadFrame");
+			images[group][frame] = new SDLImage("DEFAULT", compressed);
+		}
+
 	}
 	else //load from separate file
 	{
@@ -972,6 +983,38 @@ bool CAnimation::unloadFrame(size_t frame, size_t group)
 	return false;
 }
 
+void CAnimation::initFromJson(const JsonNode & config)
+{
+	std::string basepath;
+	basepath = config["basepath"].String();
+
+	BOOST_FOREACH(const JsonNode &group, config["sequences"].Vector())
+	{
+		size_t groupID = group["group"].Float();//TODO: string-to-value conversion("moving" -> MOVING)
+		source[groupID].clear();
+
+		BOOST_FOREACH(const JsonNode &frame, group["frames"].Vector())
+		{
+			source[groupID].push_back(JsonNode());
+			std::string filename =  frame.String();
+			source[groupID].back()["file"].String() = basepath + filename;
+		}
+	}
+
+	BOOST_FOREACH(const JsonNode &node, config["images"].Vector())
+	{
+		size_t group = node["group"].Float();
+		size_t frame = node["frame"].Float();
+
+		if (source[group].size() <= frame)
+			source[group].resize(frame+1);
+
+		source[group][frame] = node;
+		std::string filename =  node["file"].String();
+		source[group][frame]["file"].String() = basepath + filename;
+	}
+}
+
 void CAnimation::init(CDefFile * file)
 {
 	if (file)
@@ -982,8 +1025,12 @@ void CAnimation::init(CDefFile * file)
 			source[mapIt->first].resize(mapIt->second);
 	}
 
-	auto & configList = CResourceHandler::get()->getResourcesWithName(
-	                      ResourceID(std::string("SPRITES/") + name, EResType::TEXT));
+	ResourceID resID(std::string("SPRITES/") + name, EResType::TEXT);
+
+	if (vstd::contains(graphics->imageLists, resID.getName()))
+		initFromJson(graphics->imageLists[resID.getName()]);
+
+	auto & configList = CResourceHandler::get()->getResourcesWithName(resID);
 
 	BOOST_FOREACH(auto & entry, configList)
 	{
@@ -993,34 +1040,7 @@ void CAnimation::init(CDefFile * file)
 
 		const JsonNode config((char*)textData.get(), stream->getSize());
 
-		std::string basepath;
-		basepath = config["basepath"].String();
-
-		BOOST_FOREACH(const JsonNode &group, config["sequences"].Vector())
-		{
-			size_t groupID = group["group"].Float();//TODO: string-to-value conversion("moving" -> MOVING)
-			source[groupID].clear();
-
-			BOOST_FOREACH(const JsonNode &frame, group["frames"].Vector())
-			{
-				source[groupID].push_back(JsonNode());
-				std::string filename =  frame.String();
-				source[groupID].back()["file"].String() = basepath + filename;
-			}
-		}
-
-		BOOST_FOREACH(const JsonNode &node, config["images"].Vector())
-		{
-			size_t group = node["group"].Float();
-			size_t frame = node["frame"].Float();
-
-			if (source[group].size() <= frame)
-				source[group].resize(frame+1);
-
-			source[group][frame] = node;
-			std::string filename =  node["file"].String();
-			source[group][frame]["file"].String() = basepath + filename;
-		}
+		initFromJson(config);
 	}
 }
 
