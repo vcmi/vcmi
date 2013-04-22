@@ -24,14 +24,8 @@ si32 CMapGenOptions::getWidth() const
 
 void CMapGenOptions::setWidth(si32 value)
 {
-	if(value > 0)
-	{
-		width = value;
-	}
-	else
-	{
-		throw std::runtime_error("A map width lower than 1 is not allowed.");
-	}
+	assert(value >= 1);
+	width = value;
 }
 
 si32 CMapGenOptions::getHeight() const
@@ -41,14 +35,8 @@ si32 CMapGenOptions::getHeight() const
 
 void CMapGenOptions::setHeight(si32 value)
 {
-	if(value > 0)
-	{
-		height = value;
-	}
-	else
-	{
-		throw std::runtime_error("A map height lower than 1 is not allowed.");
-	}
+	assert(value >= 1);
+	height = value;
 }
 
 bool CMapGenOptions::getHasTwoLevels() const
@@ -68,16 +56,9 @@ si8 CMapGenOptions::getPlayersCnt() const
 
 void CMapGenOptions::setPlayersCnt(si8 value)
 {
-	if((value >= 1 && value <= PlayerColor::PLAYER_LIMIT_I) || value == RANDOM_SIZE)
-	{
-		playersCnt = value;
-		resetPlayersMap();
-	}
-	else
-	{
-		throw std::runtime_error("Players count of RMG options should be between 1 and " +
-								 boost::lexical_cast<std::string>(PlayerColor::PLAYER_LIMIT_I) + " or CMapGenOptions::RANDOM_SIZE for random.");
-	}
+	assert((value >= 1 && value <= PlayerColor::PLAYER_LIMIT_I) || value == RANDOM_SIZE);
+	playersCnt = value;
+	resetPlayersMap();
 }
 
 si8 CMapGenOptions::getTeamsCnt() const
@@ -87,15 +68,8 @@ si8 CMapGenOptions::getTeamsCnt() const
 
 void CMapGenOptions::setTeamsCnt(si8 value)
 {
-	if(playersCnt == RANDOM_SIZE || (value >= 0 && value < playersCnt) || value == RANDOM_SIZE)
-	{
-		teamsCnt = value;
-	}
-	else
-	{
-		throw std::runtime_error("Teams count of RMG options should be between 0 and <" +
-								 boost::lexical_cast<std::string>(playersCnt) + "(players count) - 1> or CMapGenOptions::RANDOM_SIZE for random.");
-	}
+	assert(playersCnt == RANDOM_SIZE || (value >= 0 && value < playersCnt) || value == RANDOM_SIZE);
+	teamsCnt = value;
 }
 
 si8 CMapGenOptions::getCompOnlyPlayersCnt() const
@@ -105,17 +79,9 @@ si8 CMapGenOptions::getCompOnlyPlayersCnt() const
 
 void CMapGenOptions::setCompOnlyPlayersCnt(si8 value)
 {
-	if(value == RANDOM_SIZE || (value >= 0 && value <= PlayerColor::PLAYER_LIMIT_I - playersCnt))
-	{
-		compOnlyPlayersCnt = value;
-		resetPlayersMap();
-	}
-	else
-	{
-		throw std::runtime_error(std::string("Computer only players count of RMG options should be ") +
-								 "between 0 and <PlayerColor::PLAYER_LIMIT - " + boost::lexical_cast<std::string>(playersCnt) +
-								 "(playersCount)> or CMapGenOptions::RANDOM_SIZE for random.");
-	}
+	assert(value == RANDOM_SIZE || (value >= 0 && value <= PlayerColor::PLAYER_LIMIT_I - playersCnt));
+	compOnlyPlayersCnt = value;
+	resetPlayersMap();
 }
 
 si8 CMapGenOptions::getCompOnlyTeamsCnt() const
@@ -125,16 +91,8 @@ si8 CMapGenOptions::getCompOnlyTeamsCnt() const
 
 void CMapGenOptions::setCompOnlyTeamsCnt(si8 value)
 {
-	if(value == RANDOM_SIZE || compOnlyPlayersCnt == RANDOM_SIZE || (value >= 0 && value <= std::max(compOnlyPlayersCnt - 1, 0)))
-	{
-		compOnlyTeamsCnt = value;
-	}
-	else
-	{
-		throw std::runtime_error(std::string("Computer only teams count of RMG options should be ") +
-								 "between 0 and <" + boost::lexical_cast<std::string>(compOnlyPlayersCnt) +
-								 "(compOnlyPlayersCnt) - 1> or CMapGenOptions::RANDOM_SIZE for random.");
-	}
+	assert(value == RANDOM_SIZE || compOnlyPlayersCnt == RANDOM_SIZE || (value >= 0 && value <= std::max(compOnlyPlayersCnt - 1, 0)));
+	compOnlyTeamsCnt = value;
 }
 
 EWaterContent::EWaterContent CMapGenOptions::getWaterContent() const
@@ -179,15 +137,15 @@ const std::map<PlayerColor, CMapGenOptions::CPlayerSettings> & CMapGenOptions::g
 void CMapGenOptions::setStartingTownForPlayer(PlayerColor color, si32 town)
 {
 	auto it = players.find(color);
-	if(it == players.end()) throw std::runtime_error(boost::str(boost::format("Cannot set starting town for the player with the color '%s'.") % color));
+	if(it == players.end()) assert(0);
 	it->second.setStartingTown(town);
 }
 
 void CMapGenOptions::setPlayerTypeForStandardPlayer(PlayerColor color, EPlayerType::EPlayerType playerType)
 {
+	assert(playerType != EPlayerType::COMP_ONLY);
 	auto it = players.find(color);
-	if(it == players.end()) throw std::runtime_error(boost::str(boost::format("Cannot set player type for the player with the color '%s'.") % color));
-	if(playerType == EPlayerType::COMP_ONLY) throw std::runtime_error("Cannot set player type computer only to a standard player.");
+	if(it == players.end()) assert(0);
 	it->second.setPlayerType(playerType);
 }
 
@@ -305,7 +263,8 @@ PlayerColor CMapGenOptions::getNextPlayerColor() const
 			return i;
 		}
 	}
-	throw std::runtime_error("Shouldn't happen. No free player color exists.");
+	assert(0);
+	return PlayerColor(0);
 }
 
 CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(RANDOM_TOWN), playerType(EPlayerType::AI)
@@ -320,14 +279,8 @@ PlayerColor CMapGenOptions::CPlayerSettings::getColor() const
 
 void CMapGenOptions::CPlayerSettings::setColor(PlayerColor value)
 {
-	if(value >= PlayerColor(0) && value < PlayerColor::PLAYER_LIMIT)
-	{
-		color = value;
-	}
-	else
-	{
-		throw std::runtime_error("The color of the player is not in a valid range.");
-	}
+	assert(value >= PlayerColor(0) && value < PlayerColor::PLAYER_LIMIT);
+	color = value;
 }
 
 si32 CMapGenOptions::CPlayerSettings::getStartingTown() const
@@ -337,14 +290,8 @@ si32 CMapGenOptions::CPlayerSettings::getStartingTown() const
 
 void CMapGenOptions::CPlayerSettings::setStartingTown(si32 value)
 {
-	if(value >= -1 && value < static_cast<int>(VLC->townh->factions.size()))
-	{
-		startingTown = value;
-	}
-	else
-	{
-		throw std::runtime_error("The starting town of the player is not in a valid range.");
-	}
+	assert(value >= -1 && value < static_cast<int>(VLC->townh->factions.size()));
+	startingTown = value;
 }
 
 EPlayerType::EPlayerType CMapGenOptions::CPlayerSettings::getPlayerType() const

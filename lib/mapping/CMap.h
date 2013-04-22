@@ -367,8 +367,6 @@ public:
 	unique_ptr<CMapEditManager> editManager;
 
 private:
-	void getTileRangeCheck(const int3 & tile) const;
-
 	TerrainTile*** terrain;
 
 public:

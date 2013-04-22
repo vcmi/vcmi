@@ -345,7 +345,7 @@ CColorMapping::CColorMapping()
 
 void CColorMapping::setColorFor(const CLoggerDomain & domain, ELogLevel::ELogLevel level, EConsoleTextColor::EConsoleTextColor color)
 {
-	if(level == ELogLevel::NOT_SET) throw std::runtime_error("Log level NOT_SET not allowed for configuring the color mapping.");
+	assert(level != ELogLevel::NOT_SET);
 	map[domain.getName()][level] = color;
 }
 
@@ -375,7 +375,7 @@ EConsoleTextColor::EConsoleTextColor CColorMapping::getColorFor(const CLoggerDom
 			break;
 		}
 	}
-	throw std::runtime_error("No color mapping found. Should not happen.");
+	assert(0);
 }
 
 CLogConsoleTarget::CLogConsoleTarget(CConsoleHandler * console) : console(console), threshold(ELogLevel::INFO), coloredOutputEnabled(true)

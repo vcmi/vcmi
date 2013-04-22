@@ -114,7 +114,7 @@ int CMapUndoManager::getUndoRedoLimit() const
 
 void CMapUndoManager::setUndoRedoLimit(int value)
 {
-	if(value < 0) throw std::runtime_error("Cannot set a negative value for the undo redo limit.");
+	assert(value >= 0);
 	undoStack.resize(std::min(undoStack.size(), static_cast<TStack::size_type>(value)));
 	redoStack.resize(std::min(redoStack.size(), static_cast<TStack::size_type>(value)));
 }

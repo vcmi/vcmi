@@ -244,23 +244,15 @@ bool CMap::isInTheMap(const int3 & pos) const
 	}
 }
 
-void CMap::getTileRangeCheck(const int3 & tile) const
-{
-	if(!isInTheMap(tile))
-	{
-		throw std::runtime_error(boost::str(boost::format("Cannot get map tile for position x '%d', y '%d', z '%d'.") % tile.x % tile.y % tile.z));
-	}
-}
-
 TerrainTile & CMap::getTile(const int3 & tile)
 {
-	getTileRangeCheck(tile);
+	assert(isInTheMap(tile));
 	return terrain[tile.x][tile.y][tile.z];
 }
 
 const TerrainTile & CMap::getTile(const int3 & tile) const
 {
-	getTileRangeCheck(tile);
+	assert(isInTheMap(tile));
 	return terrain[tile.x][tile.y][tile.z];
 }
 
