@@ -595,7 +595,8 @@
 			[
 				{
 					"type": 	"MORALE",
-					"duration": "N_TURNS"
+					"duration": "N_TURNS",
+					"values":[1, 1, 2, 2]
 				}
 			]
 		},
