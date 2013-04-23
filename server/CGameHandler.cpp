@@ -4517,7 +4517,8 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 			pseudoBonus.val = ((val > 3) ?  (val - 3) : val);
 			pseudoBonus.turnsRemain = 50;
 			st->stackEffectToFeature (sse.effect, pseudoBonus);
-			sendAndApply (&sse);
+			if (sse.effect.size())
+				sendAndApply (&sse);
 		}
 	}
 }

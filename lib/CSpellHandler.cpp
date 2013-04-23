@@ -253,6 +253,11 @@ void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
         logGlobal->errorStream() << __FUNCTION__ << " invalid school level " << level;
 		return;
 	}
+	if (effects.empty())
+	{
+        logGlobal->errorStream() << __FUNCTION__ << " This spell has no bonus effects! " << name;
+		return;
+	}
 	lst.reserve(lst.size() + effects[level].size());
 
 	BOOST_FOREACH (Bonus *b, effects[level])

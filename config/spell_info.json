@@ -453,7 +453,8 @@
 					"type": 	"ALWAYS_MAXIMUM_DAMAGE",
 					"subtype": -1, //any attack
 					"valType":"INDEPENDENT_MAX",
-					"duration": "N_TURNS"
+					"duration": "N_TURNS",
+					"values":[0, 0, 1, 1]
 				}
 			],
 			"immunity":["UNDEAD"]
@@ -472,6 +473,7 @@
 					"subtype": -1, //any attack
 					"valType":	"INDEPENDENT_MAX",
 					"duration": "N_TURNS",
+					"values":[0, 0, 1, 1],
 					"ainfos":[0,0,20,20]
 				}
 			],
@@ -490,7 +492,8 @@
 					"type": 	"PRIMARY_SKILL",
 					"subtype": "primSkill.attack",
 					"effectRange" : "ONLY_MELEE_FIGHT",
-					"duration": "N_TURNS"
+					"duration": "N_TURNS",
+					"values":[3, 3, 6, 6]
 				}
 			]
 		},
@@ -506,7 +509,8 @@
 					"type": 	"PRIMARY_SKILL",
 					"subtype": "primSkill.attack",
 					"effectRange" : "ONLY_DISTANCE_FIGHT",
-					"duration": "N_TURNS"
+					"duration": "N_TURNS",
+					"values":[3, 3, 6, 6]
 				}
 			],
 			"limit":["SHOOTER"]
@@ -539,7 +543,8 @@
 				{
 					"type": 	"PRIMARY_SKILL",
 					"subtype": "primSkill.defence",
-					"duration": "N_TURNS"
+					"duration": "N_TURNS",
+					"values":[3, 3, 6, 6]
 				}
 			]
 		},
@@ -571,16 +576,19 @@
 				{
 					"type": 	"PRIMARY_SKILL",
 					"subtype": "primSkill.attack",
-					"duration": "N_TURNS"
+					"duration": "N_TURNS",
+					"values":[2, 2, 4, 4]
 				},
 				{
 					"type": 	"PRIMARY_SKILL",
 					"subtype": "primSkill.defence",
-					"duration": "N_TURNS"
+					"duration": "N_TURNS",
+					"values":[2, 2, 4, 4]
 				},
 				{
 					"type": 	"STACKS_SPEED",
-					"duration": "N_TURNS"
+					"duration": "N_TURNS",
+					"values":[2, 2, 4, 4]
 				}
 			]
 		},
@@ -628,7 +636,8 @@
 			[
 				{
 					"type": 	"LUCK",
-					"duration": "N_TURNS"
+					"duration": "N_TURNS",
+					"values":[1, 1, 2, 2]
 				}
 			]
 		},
@@ -659,7 +668,8 @@
 			[
 				{
 					"type": 	"STACKS_SPEED",
-					"duration": "N_TURNS"
+					"duration": "N_TURNS",
+					"values":[3, 3, 5, 5]
 				}
 			],
 			"immunity":["SIEGE_WEAPON"]
@@ -710,7 +720,8 @@
 			[
 				{
 					"type": 	"IN_FRENZY",
-					"duration": "N_TURNS"
+					"duration": "N_TURNS",
+					"values":[100, 100, 150, 200]
 				}
 			]
 		},
@@ -732,7 +743,8 @@
 			[
 				{
 					"type": 	"ADDITIONAL_RETALIATION",
-					"duration": "N_TURNS"
+					"duration": "N_TURNS",
+					"values":[1, 1, 2, 2]
 				}
 			]
 		},

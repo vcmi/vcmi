@@ -150,7 +150,7 @@ bool CSpell::isOffensiveSpell() const
 
 bool CSpell::hasEffects() const
 {
-	return !effects[0].empty();
+	return effects.size();
 }
 
 const std::string& CSpell::getIconImmune() const
