@@ -272,11 +272,21 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 {
 	BOOST_FOREACH(const JsonNode &set, node["skills"].Vector())
 	{
-		SecondarySkill skillID = SecondarySkill(
-			boost::range::find(NSecondarySkill::names,  set["skill"].String()) - boost::begin(NSecondarySkill::names));
 		int skillLevel = boost::range::find(NSecondarySkill::levels, set["level"].String()) - boost::begin(NSecondarySkill::levels);
+		if (skillLevel < SecSkillLevel::LEVELS_SIZE)
+		{
+			size_t currentIndex = hero->secSkillsInit.size();
+			hero->secSkillsInit.push_back(std::make_pair(-1, skillLevel));
 
-		hero->secSkillsInit.push_back(std::make_pair(skillID, skillLevel));
+			VLC->modh->identifiers.requestIdentifier("skill." + set["skill"].String(), [=](si32 id)
+			{
+				hero->secSkillsInit[currentIndex].first = SecondarySkill(id);
+			});
+		}
+		else
+		{
+			logGlobal->errorStream() << "Unknown skill level: " <<set["level"].String();
+		}
 	}
 
 	// spellbook is considered present if hero have "spellbook" entry even when this is an empty set (0 spells)

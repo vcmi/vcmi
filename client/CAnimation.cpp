@@ -935,21 +935,23 @@ bool CAnimation::loadFrame(CDefFile * file, size_t frame, size_t group)
 	//try to get image from def
 	if (source[group][frame].getType() == JsonNode::DATA_NULL)
 	{
-		auto frameList = file->getEntries();
-
-		if (vstd::contains(frameList, group) && frameList.at(group) > frame) // frame is present
+		if (file)
 		{
-			if (compressed)
-				images[group][frame] = new CompImage(file, frame, group);
-			else
-				images[group][frame] = new SDLImage(file, frame, group);
-		}
-		else // missing image
-		{
-			printError(frame, group, "LoadFrame");
-			images[group][frame] = new SDLImage("DEFAULT", compressed);
-		}
+			auto frameList = file->getEntries();
 
+			if (vstd::contains(frameList, group) && frameList.at(group) > frame) // frame is present
+			{
+				if (compressed)
+					images[group][frame] = new CompImage(file, frame, group);
+				else
+					images[group][frame] = new SDLImage(file, frame, group);
+				return true;
+			}
+		}
+		// still here? image is missing
+
+		printError(frame, group, "LoadFrame");
+		images[group][frame] = new SDLImage("DEFAULT", compressed);
 	}
 	else //load from separate file
 	{
