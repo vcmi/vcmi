@@ -342,6 +342,11 @@ void CCreatureHandler::loadObject(std::string scope, std::string name, const Jso
 	object->idNumber = CreatureID(index);
 	object->iconIndex = object->idNumber + 2;
 
+	if(data["hasDoubleWeek"].Bool()) //
+	{
+		doubledCreatures.insert (object->idNumber); //we need to have id (or identifier) before it is inserted
+	}
+
 	assert(creatures[index] == nullptr); // ensure that this id was not loaded before
 	creatures[index] = object;
 
@@ -634,9 +639,6 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 			creature->upgrades.insert(CreatureID(identifier));
 		});
 	}
-
-	if(config["hasDoubleWeek"].Bool())
-		doubledCreatures.insert(creature->idNumber);
 
 	creature->animation.projectileImageName = config["graphics"]["missile"]["projectile"].String();
 
@@ -1037,6 +1039,7 @@ CreatureID CCreatureHandler::pickRandomMonster(const boost::function<int()> &ran
 
 		return vstd::pickRandomElementOf(allowed, randGen);
 	}
+	assert (r >= 0); //should always be, but it crashed
 	return CreatureID(r);
 }
 

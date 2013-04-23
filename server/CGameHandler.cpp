@@ -1127,9 +1127,8 @@ void CGameHandler::newTurn()
 					}
 					else if(VLC->creh->doubledCreatures.size())
 					{
-						auto it = VLC->creh->doubledCreatures.cbegin();
-						std::advance (it, rand() % VLC->creh->doubledCreatures.size()); //picking random element of set is tiring
-						n.creatureid = *it;
+						const std::vector<CreatureID> doubledCreatures (VLC->creh->doubledCreatures.begin(), VLC->creh->doubledCreatures.end());
+						n.creatureid = vstd::pickRandomElementOf (doubledCreatures, boost::ref(rand));
 					}
 					else
 					{
