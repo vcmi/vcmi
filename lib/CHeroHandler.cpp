@@ -276,7 +276,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 		if (skillLevel < SecSkillLevel::LEVELS_SIZE)
 		{
 			size_t currentIndex = hero->secSkillsInit.size();
-			hero->secSkillsInit.push_back(std::make_pair(-1, skillLevel));
+			hero->secSkillsInit.push_back(std::make_pair(SecondarySkill(-1), skillLevel));
 
 			VLC->modh->identifiers.requestIdentifier("skill." + set["skill"].String(), [=](si32 id)
 			{
