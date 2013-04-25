@@ -165,6 +165,9 @@ namespace JsonUtils
 	 */
 	DLL_LINKAGE JsonNode assembleFromFiles(std::vector<std::string> files);
 
+	/// This version loads all files with same name (overriden by mods)
+	DLL_LINKAGE JsonNode assembleFromFiles(std::string filename);
+
 	/**
 	 * @brief removes all nodes that are identical to default entry in schema
 	 * @param node - JsonNode to minimize

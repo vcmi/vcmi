@@ -123,7 +123,7 @@ CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 
 std::vector<JsonNode> CHeroClassHandler::loadLegacyData(size_t dataSize)
 {
-	heroClasses.resize(GameConstants::F_NUMBER * 2);
+	heroClasses.resize(dataSize);
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 

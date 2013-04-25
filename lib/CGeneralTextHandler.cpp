@@ -4,6 +4,8 @@
 #include "filesystem/CResourceLoader.h"
 #include "filesystem/CInputStream.h"
 #include "GameConstants.h"
+#include "CModHandler.h"
+#include "VCMI_Lib.h"
 
 // #include <locale> //needed?
 
@@ -307,6 +309,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 			while (parser.endLine() && !text.empty());
 		}
 	}
+	if (VLC->modh->modules.STACK_EXP)
 	{
 		CLegacyConfigParser parser("DATA/ZCREXP.TXT");
 		parser.endLine();//header

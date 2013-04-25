@@ -40,6 +40,11 @@
 	"name" : "In The Wake of Gods",
 	"description" : "Unnofficial addon for Heroes of Might and Magic III",
 
+	"artifacts" : 
+	[
+		"config/wog/artifacts.json"
+	],
+
 	"creatures" : 
 	[
 		"config/wog/creatures.json"

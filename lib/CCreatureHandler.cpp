@@ -482,7 +482,7 @@ void CCreatureHandler::loadAnimationInfo(std::vector<JsonNode> &h3Data)
 	parser.endLine(); // header
 	parser.endLine();
 
-	for(int dd=0; dd<GameConstants::CREATURES_COUNT; ++dd)
+	for(int dd=0; dd<VLC->modh->settings.data["textData"]["creature"].Float(); ++dd)
 	{
 		while (parser.isNextEntryEmpty() && parser.endLine()) // skip empty lines
 			;

@@ -88,7 +88,7 @@ class CContentHandler
 		std::map<std::string, ModInfo> modData;
 
 	public:
-		ContentTypeHandler(IHandlerBase * handler, size_t size, std::string objectName);
+		ContentTypeHandler(IHandlerBase * handler, std::string objectName);
 
 		/// local version of methods in ContentHandler
 		void preloadModData(std::string modName, std::vector<std::string> fileList);
@@ -177,6 +177,8 @@ public:
 
 	struct DLL_LINKAGE hardcodedFeatures
 	{
+		JsonNode data;
+
 		int CREEP_SIZE; // neutral stacks won't grow beyond this number
 		int WEEKLY_GROWTH; //percent
 		int NEUTRAL_STACK_EXP; 
@@ -186,7 +188,7 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & CREEP_SIZE & WEEKLY_GROWTH & NEUTRAL_STACK_EXP;
+			h & data & CREEP_SIZE & WEEKLY_GROWTH & NEUTRAL_STACK_EXP;
 			h & DWELLINGS_ACCUMULATE_CREATURES & ALL_CREATURES_GET_DOUBLE_MONTHS;
 		}
 	} settings;

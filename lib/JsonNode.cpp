@@ -15,6 +15,7 @@
 
 #include "HeroBonus.h"
 #include "filesystem/CResourceLoader.h"
+#include "filesystem/ISimpleResourceLoader.h"
 #include "VCMI_Lib.h" //for identifier resolution
 #include "CModHandler.h"
 
@@ -387,6 +388,8 @@ void JsonWriter::writeNode(const JsonNode &node)
 			writeContainer(node.Struct().begin(), node.Struct().end());
 			out << prefix << "}";
 	}
+	if (!node.meta.empty()) // write metainf as comment
+		out << " //" << node.meta;
 }
 
 JsonWriter::JsonWriter(std::ostream &output, const JsonNode &node):
@@ -1599,6 +1602,27 @@ JsonNode JsonUtils::assembleFromFiles(std::vector<std::string> files)
 	BOOST_FOREACH(std::string file, files)
 	{
 		JsonNode section(ResourceID(file, EResType::TEXT));
+		merge(result, section);
+	}
+	return result;
+}
+
+JsonNode JsonUtils::assembleFromFiles(std::string filename)
+{
+	JsonNode result;
+
+	auto & configList = CResourceHandler::get()->getResourcesWithName(ResourceID(filename, EResType::TEXT));
+
+	BOOST_FOREACH(auto & entry, configList)
+	{
+		// FIXME: some way to make this code more readable
+		auto stream = entry.getLoader()->load(entry.getResourceName());
+		std::unique_ptr<ui8[]> textData(new ui8[stream->getSize()]);
+		stream->read(textData.get(), stream->getSize());
+
+		JsonNode section((char*)textData.get(), stream->getSize());
+		//for debug
+		//section.setMeta(entry.getLoader()->getOrigin());
 		merge(result, section);
 	}
 	return result;

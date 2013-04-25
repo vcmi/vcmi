@@ -182,10 +182,10 @@ void CIdentifierStorage::finalize()
 	assert(errorsFound == false);
 }
 
-CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, size_t size, std::string objectName):
+CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, std::string objectName):
     handler(handler),
     objectName(objectName),
-    originalData(handler->loadLegacyData(size))
+    originalData(handler->loadLegacyData(VLC->modh->settings.data["textData"][objectName].Float()))
 {
 	BOOST_FOREACH(auto & node, originalData)
 	{
@@ -262,11 +262,11 @@ void CContentHandler::ContentTypeHandler::loadMod(std::string modName)
 
 CContentHandler::CContentHandler()
 {
-	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, GameConstants::F_NUMBER * 2, "heroClass")));
-	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth, GameConstants::ARTIFACTS_QUANTITY, "artifact")));
-	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh, GameConstants::CREATURES_COUNT, "creature")));
-	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh, GameConstants::F_NUMBER, "faction")));
-	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh, GameConstants::HEROES_QUANTITY, "hero")));
+	handlers.insert(std::make_pair("heroClasses", ContentTypeHandler(&VLC->heroh->classes, "heroClass")));
+	handlers.insert(std::make_pair("artifacts", ContentTypeHandler(VLC->arth, "artifact")));
+	handlers.insert(std::make_pair("creatures", ContentTypeHandler(VLC->creh, "creature")));
+	handlers.insert(std::make_pair("factions", ContentTypeHandler(VLC->townh, "faction")));
+	handlers.insert(std::make_pair("heroes", ContentTypeHandler(VLC->heroh, "hero")));
 
 	//TODO: spells, bonuses, something else?
 }
@@ -297,13 +297,12 @@ CModHandler::CModHandler()
 	for(int i=0; i<GameConstants::PRIMARY_SKILLS; ++i)
 		identifiers.registerObject("core", "primSkill", PrimarySkill::names[i], i);
 
-	loadConfigFromFile ("defaultMods");
 }
 
 void CModHandler::loadConfigFromFile (std::string name)
 {
-	const JsonNode config(ResourceID("config/" + name + ".json"));
-	const JsonNode & hardcodedFeatures = config["hardcodedFeatures"];
+	settings.data = JsonUtils::assembleFromFiles("config/" + name);
+	const JsonNode & hardcodedFeatures = settings.data["hardcodedFeatures"];
 
 	settings.CREEP_SIZE = hardcodedFeatures["CREEP_SIZE"].Float();
 	settings.WEEKLY_GROWTH = hardcodedFeatures["WEEKLY_GROWTH_PERCENT"].Float();
@@ -312,11 +311,14 @@ void CModHandler::loadConfigFromFile (std::string name)
 	settings.DWELLINGS_ACCUMULATE_CREATURES = hardcodedFeatures["DWELLINGS_ACCUMULATE_CREATURES"].Bool();
 	settings.ALL_CREATURES_GET_DOUBLE_MONTHS = hardcodedFeatures["ALL_CREATURES_GET_DOUBLE_MONTHS"].Bool();
 
-	const JsonNode & gameModules = config["modules"];
+	const JsonNode & gameModules = settings.data["modules"];
 	modules.STACK_EXP = gameModules["STACK_EXPERIENCE"].Bool();
 	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();
 	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
+
+	logGlobal->errorStream() << "Selected configuration: ";
+	logGlobal->errorStream() << settings.data;
 }
 
 // currentList is passed by value to get current list of depending mods
@@ -514,6 +516,8 @@ void CModHandler::handleData(Handler handler, const JsonNode & source, std::stri
 
 void CModHandler::loadGameContent()
 {
+	loadConfigFromFile("defaultMods.json");
+
 	CStopWatch timer, totalTime;
 
 	CContentHandler content;
