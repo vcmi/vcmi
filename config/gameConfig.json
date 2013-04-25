@@ -28,8 +28,7 @@
 		"config/creatures/conflux.json",
 
 		"config/creatures/neutral.json",
-		"config/creatures/special.json",
-		"config/creatures/wog.json"
+		"config/creatures/special.json"
 	],
 
 	"heroes" :

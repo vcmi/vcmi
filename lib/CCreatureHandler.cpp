@@ -179,7 +179,10 @@ CCreatureHandler::CCreatureHandler()
 
 void CCreatureHandler::loadCommanders()
 {
-	const JsonNode config(ResourceID("config/commanders.json"));
+	JsonNode data(ResourceID("config/commanders.json"));
+	data.setMeta("core"); // assume that commanders are in core mod (for proper bonuses resolution)
+
+	const JsonNode & config = data; // switch to const data accessors
 
 	BOOST_FOREACH (auto bonus, config["bonusPerLevel"].Vector())
 	{
@@ -627,14 +630,14 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 		}
 	}
 
-	VLC->modh->identifiers.requestIdentifier(std::string("faction.") + config["faction"].String(), [=](si32 faction)
+	VLC->modh->identifiers.requestIdentifier("faction", config["faction"], [=](si32 faction)
 	{
 		creature->faction = faction;
 	});
 
 	BOOST_FOREACH(const JsonNode &value, config["upgrades"].Vector())
 	{
-		VLC->modh->identifiers.requestIdentifier(std::string("creature.") + value.String(), [=](si32 identifier)
+		VLC->modh->identifiers.requestIdentifier("creature", value, [=](si32 identifier)
 		{
 			creature->upgrades.insert(CreatureID(identifier));
 		});

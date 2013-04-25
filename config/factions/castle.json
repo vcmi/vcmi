@@ -4,7 +4,7 @@
 		"index" : 0,
 		"nativeTerrain": "grass",
 		"alignment" : "good",
-		"commander" : "paladin1",
+		"commander" : "zealot",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASCAS",

@@ -4,7 +4,7 @@
 		"index" : 1,
 		"nativeTerrain": "grass",
 		"alignment" : "good",
-		"commander" : "hierophant1",
+		"commander" : "grandElf",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASRAM",

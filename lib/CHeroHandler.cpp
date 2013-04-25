@@ -105,14 +105,14 @@ CHeroClass *CHeroClassHandler::loadFromJson(const JsonNode & node)
 	{
 		int value = tavern.second.Float();
 
-		VLC->modh->identifiers.requestIdentifier("faction." + tavern.first,
+		VLC->modh->identifiers.requestIdentifier(tavern.second.meta, "faction", tavern.first,
 		[=](si32 factionID)
 		{
 			heroClass->selectionProbability[factionID] = value;
 		});
 	}
 
-	VLC->modh->identifiers.requestIdentifier("faction." + node["faction"].String(),
+	VLC->modh->identifiers.requestIdentifier("faction", node["faction"],
 	[=](si32 factionID)
 	{
 		heroClass->faction = factionID;
@@ -237,7 +237,7 @@ CHero * CHeroHandler::loadFromJson(const JsonNode & node)
 	loadHeroSkills(hero, node);
 	loadHeroSpecialty(hero, node);
 
-	VLC->modh->identifiers.requestIdentifier("heroClass." + node["class"].String(),
+	VLC->modh->identifiers.requestIdentifier("heroClass", node["class"],
 	[=](si32 classID)
 	{
 		hero->heroClass = classes.heroClasses[classID];
@@ -261,7 +261,7 @@ void CHeroHandler::loadHeroArmy(CHero * hero, const JsonNode & node)
 
 		assert(hero->initialArmy[i].minAmount <= hero->initialArmy[i].maxAmount);
 
-		VLC->modh->identifiers.requestIdentifier("creature." + source["creature"].String(), [=](si32 creature)
+		VLC->modh->identifiers.requestIdentifier("creature", source["creature"], [=](si32 creature)
 		{
 			hero->initialArmy[i].creature = CreatureID(creature);
 		});
@@ -278,7 +278,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 			size_t currentIndex = hero->secSkillsInit.size();
 			hero->secSkillsInit.push_back(std::make_pair(SecondarySkill(-1), skillLevel));
 
-			VLC->modh->identifiers.requestIdentifier("skill." + set["skill"].String(), [=](si32 id)
+			VLC->modh->identifiers.requestIdentifier("skill", set["skill"], [=](si32 id)
 			{
 				hero->secSkillsInit[currentIndex].first = SecondarySkill(id);
 			});
@@ -300,7 +300,7 @@ void CHeroHandler::loadHeroSkills(CHero * hero, const JsonNode & node)
 		}
 		else
 		{
-			VLC->modh->identifiers.requestIdentifier("spell." + spell.String(),
+			VLC->modh->identifiers.requestIdentifier("spell", spell,
 			[=](si32 spellID)
 			{
 				hero->spells.insert(SpellID(spellID));

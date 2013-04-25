@@ -44,82 +44,142 @@ void CIdentifierStorage::checkIdentifier(std::string & ID)
 	}
 }
 
-void CIdentifierStorage::requestIdentifier(std::string name, const boost::function<void(si32)> & callback)
+CIdentifierStorage::ObjectCallback::ObjectCallback(std::string localScope, std::string remoteScope, std::string type,
+                                                   std::string name, const boost::function<void(si32)> & callback):
+    localScope(localScope),
+    remoteScope(remoteScope),
+    type(type),
+    name(name),
+    callback(callback)
+{}
+
+static std::pair<std::string, std::string> splitString(std::string input, char separator)
 {
-	checkIdentifier(name);
+	std::pair<std::string, std::string> ret;
+	size_t splitPos = input.find(separator);
 
-	// old version with immediate callback posibility. Can't be used for some cases
-/*	auto iter = registeredObjects.find(name);
-
-	if (iter != registeredObjects.end())
-		callback(iter->second); //already registered - trigger callback immediately
+	if (splitPos == std::string::npos)
+	{
+		ret.first.clear();
+		ret.second = input;
+	}
 	else
 	{
-		if(boost::algorithm::starts_with(name, "primSkill."))
-            logGlobal->warnStream() << "incorrect primSkill name requested";
+		ret.first  = input.substr(0, splitPos);
+		ret.second = input.substr(splitPos + 1);
+	}
+	return ret;
+}
 
-		missingObjects[name].push_back(callback); // queue callback
-	}*/
+void CIdentifierStorage::requestIdentifier(ObjectCallback callback)
+{
+	checkIdentifier(callback.type);
+	checkIdentifier(callback.name);
 
-	missingObjects[name].push_back(callback); // queue callback
+	assert(!callback.localScope.empty());
+
+	scheduledRequests.push_back(callback);
+}
+
+void CIdentifierStorage::requestIdentifier(std::string scope, std::string type, std::string name, const boost::function<void(si32)> & callback)
+{
+	auto pair = splitString(name, ':'); // remoteScope:name
+
+	requestIdentifier(ObjectCallback(scope, pair.first, type, pair.second, callback));
+}
+
+void CIdentifierStorage::requestIdentifier(std::string type, const JsonNode & name, const boost::function<void(si32)> & callback)
+{
+	auto pair = splitString(name.String(), ':'); // remoteScope:name
+
+	requestIdentifier(ObjectCallback(name.meta, pair.first, type, pair.second, callback));
+}
+
+void CIdentifierStorage::requestIdentifier(const JsonNode & name, const boost::function<void(si32)> & callback)
+{
+	auto pair  = splitString(name.String(), ':'); // remoteScope:<type.name>
+	auto pair2 = splitString(pair.second,   '.'); // type.name
+
+	requestIdentifier(ObjectCallback(name.meta, pair.first, pair2.first, pair2.second, callback));
 }
 
 void CIdentifierStorage::registerObject(std::string scope, std::string type, std::string name, si32 identifier)
 {
-	//TODO: use scope
+	ObjectData data;
+	data.scope = scope;
+	data.id = identifier;
+
 	std::string fullID = type + '.' + name;
 	checkIdentifier(fullID);
 
-	// do not allow to register same object twice
-	assert(registeredObjects.find(fullID) == registeredObjects.end());
+	registeredObjects.insert(std::make_pair(fullID, data));
+}
 
-	registeredObjects[fullID] = identifier;
+bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
+{
+	std::set<std::string> allowedScopes;
 
-	// old version with immediate callback posibility. Can't be used for some cases
-	/*auto iter = missingObjects.find(fullID);
-	if (iter != missingObjects.end())
+	if (request.remoteScope.empty())
 	{
-		//call all awaiting callbacks
-		BOOST_FOREACH(auto function, iter->second)
+		// normally ID's from all required mods, own mod and virtual "core" mod are allowed
+		if (request.localScope != "core")
+			allowedScopes = VLC->modh->getModData(request.localScope).dependencies;
+
+		allowedScopes.insert(request.localScope);
+		allowedScopes.insert("core");
+	}
+	else
+	{
+		// //...unless destination mod was specified explicitly
+		allowedScopes.insert(request.remoteScope);
+	}
+
+	std::string fullID = request.type + '.' + request.name;
+
+	auto entries = registeredObjects.equal_range(fullID);
+	if (entries.first != entries.second)
+	{
+		for (auto it = entries.first; it != entries.second; it++)
 		{
-			function(identifier);
+			if (vstd::contains(allowedScopes, it->second.scope))
+			{
+				request.callback(it->second.id);
+				return true;
+			}
 		}
-		missingObjects.erase(iter);
-	}*/
+
+		// error found. Try to generate some debug info
+		logGlobal->errorStream() << "Unknown identifier " << request.type << "." << request.name << " from mod " << request.localScope;
+		for (auto it = entries.first; it != entries.second; it++)
+		{
+			logGlobal->errorStream() << "\tID is available in mod " << it->second.scope;
+		}
+
+		// temporary code to smooth 0.92->0.93 transition
+		request.callback(entries.first->second.id);
+		return true;
+	}
+	return false;
 }
 
 void CIdentifierStorage::finalize()
 {
-	for (auto it = missingObjects.begin(); it!= missingObjects.end();)
+	bool errorsFound = false;
+
+	BOOST_FOREACH(const ObjectCallback & request, scheduledRequests)
 	{
-		auto object = registeredObjects.find(it->first);
-		if (object != registeredObjects.end())
-		{
-			BOOST_FOREACH(auto function, it->second)
-			{
-				function(object->second);
-			}
-			it = missingObjects.erase(it);
-		}
-		else
-			it++;
+		errorsFound |= !resolveIdentifier(request);
 	}
 
-	// print list of missing objects and crash
-	// in future should try to do some cleanup (like returning all id's as 0)
-	if (!missingObjects.empty())
+	if (errorsFound)
 	{
-		BOOST_FOREACH(auto object, missingObjects)
-		{
-            logGlobal->errorStream() << "Error: object " << object.first << " was not found!";
-		}
 		BOOST_FOREACH(auto object, registeredObjects)
 		{
-            logGlobal->traceStream() << object.first << " -> " << object.second;
+			logGlobal->traceStream() << object.first << " -> " << object.second.id;
 		}
-        logGlobal->errorStream() << "All known identifiers were dumped into log file";
+		logGlobal->errorStream() << "All known identifiers were dumped into log file";
 	}
-	assert(missingObjects.empty());
+	assert(errorsFound == false);
 }
 
 CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, size_t size, std::string objectName):
@@ -127,11 +187,16 @@ CContentHandler::ContentTypeHandler::ContentTypeHandler(IHandlerBase * handler, 
     objectName(objectName),
     originalData(handler->loadLegacyData(size))
 {
+	BOOST_FOREACH(auto & node, originalData)
+	{
+		node.setMeta("core");
+	}
 }
 
 void CContentHandler::ContentTypeHandler::preloadModData(std::string modName, std::vector<std::string> fileList)
 {
 	JsonNode data = JsonUtils::assembleFromFiles(fileList);
+	data.setMeta(modName);
 
 	ModInfo & modInfo = modData[modName];
 
@@ -425,6 +490,13 @@ std::vector<std::string> CModHandler::getActiveMods()
 	return activeMods;
 }
 
+CModInfo & CModHandler::getModData(TModID modId)
+{
+	CModInfo & mod = allMods.at(modId);
+	assert(vstd::contains(activeMods, modId)); // not really necessary but won't hurt
+	return mod;
+}
+
 template<typename Handler>
 void CModHandler::handleData(Handler handler, const JsonNode & source, std::string listName, std::string schemaName)
 {
@@ -447,7 +519,7 @@ void CModHandler::loadGameContent()
 	CContentHandler content;
 	logGlobal->infoStream() << "\tInitializing content hander: " << timer.getDiff() << " ms";
 
-	// first - load virtual "core" mod tht contains all data
+	// first - load virtual "core" mod that contains all data
 	// TODO? move all data into real mods? RoE, AB, SoD, WoG
 	content.preloadModData("core", JsonNode(ResourceID("config/gameConfig.json")));
 	logGlobal->infoStream() << "\tParsing original game data: " << timer.getDiff() << " ms";
@@ -475,12 +547,11 @@ void CModHandler::loadGameContent()
 	}
 	logGlobal->infoStream() << "\tLoading mod data: " << timer.getDiff() << "ms";
 
-	logGlobal->infoStream() << "\tDone loading data";
-
 	VLC->creh->loadCrExpBon();
 	VLC->creh->buildBonusTreeForTiers(); //do that after all new creatures are loaded
 	identifiers.finalize();
 
+	logGlobal->infoStream() << "\tResolving identifiers: " << timer.getDiff() << " ms";
 	logGlobal->infoStream() << "\tAll game content loaded in " << totalTime.getDiff() << " ms";
 }
 

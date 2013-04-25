@@ -1,6 +1,10 @@
 {
 	"filesystem":
 	{
+		"CONFIG/" :
+		[
+			{ "type" : "dir", "path" : "/Config"}
+		],
 		"DATA/" :
 		[
 			{"type" : "lod", "path" : "/Data/hmm35wog.pac"},
@@ -34,5 +38,15 @@
 	},
 
 	"name" : "In The Wake of Gods",
-	"description" : "Unnofficial addon for Heroes of Might and Magic III"
+	"description" : "Unnofficial addon for Heroes of Might and Magic III",
+
+	"creatures" : 
+	[
+		"config/wog/creatures.json"
+	],
+
+	"factions" : 
+	[
+		"config/wog/factions.json"
+	]
 }

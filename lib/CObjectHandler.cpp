@@ -828,8 +828,6 @@ void CGHeroInstance::initHero()
 		commander->setArmyObj (castToArmyObj()); //TODO: separate function for setting commanders
 		commander->giveStackExp (exp); //after our exp is set
 	}
-	else
-		commander = nullptr;
 
 	hoverName = VLC->generaltexth->allTexts[15];
 	boost::algorithm::replace_first(hoverName,"%s",name);

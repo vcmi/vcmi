@@ -4,7 +4,7 @@
 		"index" : 5,
 		"nativeTerrain": "subterra",
 		"alignment" : "evil",
-		"commander" : "brute1",
+		"commander" : "medusaQueen",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASDUN",

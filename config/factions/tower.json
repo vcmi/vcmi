@@ -4,7 +4,7 @@
 		"index" : 2,
 		"nativeTerrain" : "snow",
 		"alignment" : "good",
-		"commander" : "templeGuardian1",
+		"commander" : "archMage",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASTOW",

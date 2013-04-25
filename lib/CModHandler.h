@@ -25,15 +25,38 @@ class IHandlerBase;
 /// if possible, objects ID's should be in format <type>.<name>, camelCase e.g. "creature.grandElf"
 class CIdentifierStorage
 {
-	std::map<std::string, si32 > registeredObjects;
-	std::map<std::string, std::vector<boost::function<void(si32)> > > missingObjects;
+	struct ObjectCallback // entry created on ID request
+	{
+		std::string localScope;  /// scope from which this ID was requested
+		std::string remoteScope; /// scope in which this object must be found
+		std::string type;        /// type, e.g. creature, faction, hero, etc
+		std::string name;        /// string ID
+		boost::function<void(si32)> callback;
+
+		ObjectCallback(std::string localScope, std::string remoteScope, std::string type, std::string name, const boost::function<void(si32)> & callback);
+	};
+
+	struct ObjectData // entry created on ID registration
+	{
+		si32 id;
+		std::string scope; /// scope in which this ID located
+	};
+
+	std::multimap<std::string, ObjectData > registeredObjects;
+	std::vector<ObjectCallback> scheduledRequests;
 
 	/// Check if identifier can be valid (camelCase, point as separator)
 	void checkIdentifier(std::string & ID);
+
+	void requestIdentifier(ObjectCallback callback);
+	bool resolveIdentifier(const ObjectCallback & callback);
 public:
 	/// request identifier for specific object name. If ID is not yet resolved callback will be queued
 	/// and will be called later
-	void requestIdentifier(std::string name, const boost::function<void(si32)> & callback);
+	void requestIdentifier(std::string scope, std::string type, std::string name, const boost::function<void(si32)> & callback);
+	void requestIdentifier(std::string type, const JsonNode & name, const boost::function<void(si32)> & callback);
+	void requestIdentifier(const JsonNode & name, const boost::function<void(si32)> & callback);
+
 	/// registers new object, calls all associated callbacks
 	void registerObject(std::string scope, std::string type, std::string name, si32 identifier);
 
@@ -142,6 +165,8 @@ public:
 
 	/// returns list of mods that should be active with order in which they shoud be loaded
 	std::vector<std::string> getActiveMods();
+
+	CModInfo & getModData(TModID modId);
 
 	/// load content from all available mods
 	void loadGameContent();

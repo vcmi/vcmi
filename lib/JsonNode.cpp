@@ -50,6 +50,7 @@ JsonNode::JsonNode(ResourceID && fileURI):
 JsonNode::JsonNode(const JsonNode &copy):
 	type(DATA_NULL)
 {
+	meta = copy.meta;
 	setType(copy.getType());
 	switch(type)
 	{
@@ -70,6 +71,7 @@ JsonNode::~JsonNode()
 void JsonNode::swap(JsonNode &b)
 {
 	using std::swap;
+	swap(meta, b.meta);
 	swap(data, b.data);
 	swap(type, b.type);
 }
@@ -105,6 +107,31 @@ bool JsonNode::operator != (const JsonNode &other) const
 JsonNode::JsonType JsonNode::getType() const
 {
 	return type;
+}
+
+void JsonNode::setMeta(std::string metadata, bool recursive)
+{
+	meta = metadata;
+	if (recursive)
+	{
+		switch (type)
+		{
+			break; case DATA_VECTOR:
+			{
+				BOOST_FOREACH(auto & node, Vector())
+				{
+					node.setMeta(metadata);
+				}
+			}
+			break; case DATA_STRUCT:
+			{
+				BOOST_FOREACH(auto & node, Struct())
+				{
+					node.second.setMeta(metadata);
+				}
+			}
+		}
+	}
 }
 
 void JsonNode::setType(JsonType Type)
@@ -1183,17 +1210,16 @@ const T & parseByMap(const std::map<std::string, T> & map, const JsonNode * val,
 
 void JsonUtils::resolveIdentifier (si32 &var, const JsonNode &node, std::string name)
 {
-	const JsonNode *value;
-	value = &node[name];
-	if (!value->isNull())
+	const JsonNode &value = node[name];
+	if (!value.isNull())
 	{
-		switch (value->getType())
+		switch (value.getType())
 		{
 			case JsonNode::DATA_FLOAT:
-				var = value->Float();
+				var = value.Float();
 				break;
 			case JsonNode::DATA_STRING:
-				VLC->modh->identifiers.requestIdentifier (value->String(), [&](si32 identifier)
+				VLC->modh->identifiers.requestIdentifier(value, [&](si32 identifier)
 				{
 					var = identifier;
 				});
@@ -1212,7 +1238,7 @@ void JsonUtils::resolveIdentifier (const JsonNode &node, si32 &var)
 			var = node.Float();
 			break;
 		case JsonNode::DATA_STRING:
-			VLC->modh->identifiers.requestIdentifier (node.String(), [&](si32 identifier)
+			VLC->modh->identifiers.requestIdentifier (node, [&](si32 identifier)
 			{
 				var = identifier;
 			});
@@ -1301,7 +1327,7 @@ Bonus * JsonUtils::parseBonus (const JsonNode &ability)
 						{
 							shared_ptr<CCreatureTypeLimiter> l2 = make_shared<CCreatureTypeLimiter>(); //TODO: How the hell resolve pointer to creature?
 							const JsonVector vec = limiter["parameters"].Vector();
-							VLC->modh->identifiers.requestIdentifier(std::string("creature.") + vec[0].String(), [=](si32 creature)
+							VLC->modh->identifiers.requestIdentifier("creature", vec[0], [=](si32 creature)
 							{
 								l2->setCreature (CreatureID(creature));
 							});
@@ -1522,11 +1548,19 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source)
 
 	switch (source.getType())
 	{
-		break; case JsonNode::DATA_NULL:   dest.clear();
-		break; case JsonNode::DATA_BOOL:   std::swap(dest.Bool(), source.Bool());
-		break; case JsonNode::DATA_FLOAT:  std::swap(dest.Float(), source.Float());
-		break; case JsonNode::DATA_STRING: std::swap(dest.String(), source.String());
-		break; case JsonNode::DATA_VECTOR:
+		case JsonNode::DATA_NULL:
+		{
+			dest.clear();
+			break;
+		}
+		case JsonNode::DATA_BOOL:
+		case JsonNode::DATA_FLOAT:
+		case JsonNode::DATA_STRING:
+		{
+			std::swap(dest, source);
+			break;
+		}
+		case JsonNode::DATA_VECTOR:
 		{
 			size_t total = std::min(source.Vector().size(), dest.Vector().size());
 
@@ -1541,8 +1575,9 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source)
 				std::move(source.Vector().begin(), source.Vector().end(),
 				          std::back_inserter(dest.Vector()));
 			}
+			break;
 		}
-		break; case JsonNode::DATA_STRUCT:
+		case JsonNode::DATA_STRUCT:
 		{
 			//recursively merge all entries from struct
 			BOOST_FOREACH(auto & node, source.Struct())

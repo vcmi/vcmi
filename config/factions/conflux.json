@@ -4,7 +4,7 @@
 		"index" : 8,
 		"nativeTerrain": "grass",
 		"alignment" : "neutral",
-		"commander" : "astralSpirit1",
+		"commander" : "iceElemental",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASELE",

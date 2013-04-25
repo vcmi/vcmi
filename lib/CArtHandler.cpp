@@ -366,7 +366,7 @@ void CArtHandler::loadComponents(CArtifact * art, const JsonNode & node)
 		art->constituents.reset(new std::vector<CArtifact *>());
 		BOOST_FOREACH (auto component, node["components"].Vector())
 		{
-			VLC->modh->identifiers.requestIdentifier("artifact." + component.String(), [=](si32 id)
+			VLC->modh->identifiers.requestIdentifier("artifact", component, [=](si32 id)
 			{
 				// when this code is called both combinational art as well as component are loaded
 				// so it is safe to access any of them

@@ -1,0 +1,38 @@
+{
+	"core:castle" :
+	{
+		"commander" : "paladin1"
+	},
+	"core:conflux" :
+	{
+		"commander" : "astralSpirit1"
+	},
+	"core:dungeon" :
+	{
+		"commander" : "brute1"
+	},
+	"core:fortress" :
+	{
+		"commander" : "shaman1"
+	},
+	"core:inferno" :
+	{
+		"commander" : "succubus1"
+	},
+	"core:necropolis" :
+	{
+		"commander" : "soulEater1"
+	},
+	"core:rampart" :
+	{
+		"commander" : "hierophant1"
+	},
+	"core:stronghold" :
+	{
+		"commander" : "ogreLeader1"
+	},
+	"core:tower" :
+	{
+		"commander" : "templeGuardian1"
+	}
+}

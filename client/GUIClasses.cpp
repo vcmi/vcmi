@@ -4417,6 +4417,12 @@ void CArtPlace::setArtifact(const CArtifactInstance *art)
 				bonusValue = 0;
 			}
 		}
+		else
+		{
+			baseType = CComponent::artifact;
+			type = art->artType->iconIndex;
+			bonusValue = 0;
+		}
 
 		if (locked) // Locks should appear as empty.
 			hoverText = CGI->generaltexth->allTexts[507];

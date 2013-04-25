@@ -390,7 +390,7 @@ CTown::ClientInfo::Point JsonToPoint(const JsonNode & node)
 void CTownHandler::loadSiegeScreen(CTown &town, const JsonNode & source)
 {
 	town.clientInfo.siegePrefix = source["imagePrefix"].String();
-	VLC->modh->identifiers.requestIdentifier(std::string("creature.") + source["shooter"].String(), [&town](si32 creature)
+	VLC->modh->identifiers.requestIdentifier("creature", source["shooter"], [&town](si32 creature)
 	{
 		town.clientInfo.siegeShooter = CreatureID(creature);
 	});
@@ -469,7 +469,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 	else
 		town.primaryRes = resIter - boost::begin(GameConstants::RESOURCE_NAMES);
 
-	VLC->modh->identifiers.requestIdentifier(std::string("creature." + source["warMachine"].String()),
+	VLC->modh->identifiers.requestIdentifier("creature", source["warMachine"],
 	[&town](si32 creature)
 	{
 		town.warMachine = CArtHandler::creatureToMachineID(CreatureID(creature));
@@ -498,7 +498,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 
 		for (size_t j=0; j<level.size(); j++)
 		{
-			VLC->modh->identifiers.requestIdentifier(std::string("creature.") + level[j].String(), [=, &town](si32 creature)
+			VLC->modh->identifiers.requestIdentifier("creature", level[j], [=, &town](si32 creature)
 			{
 				town.creatures[i][j] = CreatureID(creature);
 			});
@@ -510,7 +510,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 	{
 		int chance = node.second.Float();
 
-		VLC->modh->identifiers.requestIdentifier("heroClass." + node.first, [=, &town](si32 classID)
+		VLC->modh->identifiers.requestIdentifier(node.second.meta, "heroClass",node.first, [=, &town](si32 classID)
 		{
 			VLC->heroh->classes.heroClasses[classID]->selectionProbability[town.faction->index] = chance;
 		});
@@ -520,7 +520,7 @@ void CTownHandler::loadTown(CTown &town, const JsonNode & source)
 	{
 		int chance = node.second.Float();
 
-		VLC->modh->identifiers.requestIdentifier("spell." + node.first, [=, &town](si32 spellID)
+		VLC->modh->identifiers.requestIdentifier(node.second.meta, "spell", node.first, [=, &town](si32 spellID)
 		{
 			SpellID(spellID).toSpell()->probabilities[town.faction->index] = chance;
 		});
@@ -568,7 +568,7 @@ CFaction * CTownHandler::loadFromJson(const JsonNode &source)
 
 	faction->name = source["name"].String();
 
-	VLC->modh->identifiers.requestIdentifier ("creature." + source["commander"].String(),
+	VLC->modh->identifiers.requestIdentifier ("creature", source["commander"],
 		[=](si32 commanderID)
 		{
 			faction->commander = CreatureID(commanderID);

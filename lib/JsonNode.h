@@ -46,6 +46,9 @@ private:
 	JsonData data;
 
 public:
+	/// free to use metadata field
+	std::string meta;
+
 	//Create empty node
 	JsonNode(JsonType Type = DATA_NULL);
 	//Create tree from Json-formatted input
@@ -62,6 +65,8 @@ public:
 
 	bool operator == (const JsonNode &other) const;
 	bool operator != (const JsonNode &other) const;
+
+	void setMeta(std::string metadata, bool recursive = true);
 
 	/// Convert node to another type. Converting to NULL will clear all data
 	void setType(JsonType Type);
@@ -101,6 +106,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & meta;
 		// simple saving - save json in its string interpretation
 		if (h.saving)
 		{

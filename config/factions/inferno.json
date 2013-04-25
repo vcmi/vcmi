@@ -4,7 +4,7 @@
 		"index" : 3,
 		"nativeTerrain": "lava",
 		"alignment" : "evil",
-		"commander" : "succubus1",
+		"commander" : "magog",
 		"creatureBackground" :
 		{
 			"120px" : "TPCASINF",
