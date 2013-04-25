@@ -190,8 +190,8 @@ struct DLL_LINKAGE TerrainViewPattern
 	/// std::pair   -> 1st value: lower range, 2nd value: upper range
 	std::vector<std::pair<int, int> > mapping;
 
-	/// The minimum points to reach to to validate the pattern successfully.
-	int minPoints;
+	/// The minimum and maximum points to reach to validate the pattern successfully.
+	int minPoints, maxPoints;
 
 	/// Describes if flipping is required and which mapping should be used.
 	std::string flipMode;
@@ -236,12 +236,15 @@ private:
 		bool result;
 		/// The replacement of a T rule, either D or S.
 		std::string transitionReplacement;
+		int flip;
 	};
 
 	void updateTerrainViews(const MapRect & rect);
 	ETerrainGroup::ETerrainGroup getTerrainGroup(ETerrainType terType) const;
-	/// Validates the terrain view of the given position and with the given pattern.
+	/// Validates the terrain view of the given position and with the given pattern. The first method wraps the
+	/// second method to validate the terrain view with the given pattern in all four flip directions(horizontal, vertical).
 	ValidationResult validateTerrainView(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
+	ValidationResult validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth = 0) const;
 	/// Tests whether the given terrain type is a sand type. Sand types are: Water, Sand and Rock
 	bool isSandType(ETerrainType terType) const;
 	TerrainViewPattern getFlippedPattern(const TerrainViewPattern & pattern, int flip) const;

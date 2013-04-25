@@ -301,7 +301,10 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 
 			// Read optional attributes
 			pattern.id = ptrnNode["id"].String();
+			assert(!pattern.id.empty());
 			pattern.minPoints = static_cast<int>(ptrnNode["minPoints"].Float());
+			pattern.maxPoints = static_cast<int>(ptrnNode["maxPoints"].Float());
+			if(pattern.maxPoints == 0) pattern.maxPoints = std::numeric_limits<int>::max();
 			pattern.flipMode = ptrnNode["flipMode"].String();
 			if(pattern.flipMode.empty())
 			{
@@ -388,65 +391,59 @@ std::string CDrawTerrainOperation::getLabel() const
 
 void CDrawTerrainOperation::updateTerrainViews(const MapRect & rect)
 {
-	for(int i = rect.x; i < rect.x + rect.width; ++i)
+	for(int x = rect.x; x < rect.x + rect.width; ++x)
 	{
-		for(int j = rect.y; j < rect.y + rect.height; ++j)
+		for(int y = rect.y; y < rect.y + rect.height; ++y)
 		{
 			const auto & patterns =
-					CTerrainViewPatternConfig::get().getPatternsForGroup(getTerrainGroup(map->getTile(int3(i, j, rect.z)).terType));
+					CTerrainViewPatternConfig::get().getPatternsForGroup(getTerrainGroup(map->getTile(int3(x, y, rect.z)).terType));
 
 			// Detect a pattern which fits best
-			int bestPattern = -1, bestFlip = -1;
-			std::string transitionReplacement;
+			int bestPattern = -1;
+			ValidationResult valRslt(false);
 			for(int k = 0; k < patterns.size(); ++k)
 			{
 				const auto & pattern = patterns[k];
-
-				for(int flip = 0; flip < 4; ++flip)
+				valRslt = validateTerrainView(int3(x, y, rect.z), pattern);
+				if(valRslt.result)
 				{
-					auto valRslt = validateTerrainView(int3(i, j, rect.z), flip > 0 ? getFlippedPattern(pattern, flip) : pattern);
-					if(valRslt.result)
-					{
-						logGlobal->debugStream() << "Pattern detected at pos " << i << "x" << j << "x" << rect.z << ": P-Nr. " << k
-							  << ", Flip " << flip << ", Repl. " << valRslt.transitionReplacement;
-
-						bestPattern = k;
-						bestFlip = flip;
-						transitionReplacement = valRslt.transitionReplacement;
-						break;
-					}
+					logGlobal->debugStream() << "Pattern detected at pos " << x << "x" << y << "x" << rect.z << ": P-Nr. " << pattern.id
+						  << ", Flip " << valRslt.flip << ", Repl. " << valRslt.transitionReplacement;
+					bestPattern = k;
+					break;
 				}
 			}
+			//assert(bestPattern != -1);
 			if(bestPattern == -1)
 			{
 				// This shouldn't be the case
-				logGlobal->warnStream() << "No pattern detected at pos " << i << "x" << j << "x" << rect.z;
+				logGlobal->warnStream() << "No pattern detected at pos " << x << "x" << y << "x" << rect.z;
 				continue;
 			}
 
 			// Get mapping
 			const TerrainViewPattern & pattern = patterns[bestPattern];
 			std::pair<int, int> mapping;
-			if(transitionReplacement.empty())
+			if(valRslt.transitionReplacement.empty())
 			{
 				mapping = pattern.mapping[0];
 			}
 			else
 			{
-				mapping = transitionReplacement == TerrainViewPattern::RULE_DIRT ? pattern.mapping[0] : pattern.mapping[1];
+				mapping = valRslt.transitionReplacement == TerrainViewPattern::RULE_DIRT ? pattern.mapping[0] : pattern.mapping[1];
 			}
 
 			// Set terrain view
-			auto & tile = map->getTile(int3(i, j, rect.z));
+			auto & tile = map->getTile(int3(x, y, rect.z));
 			if(pattern.flipMode == TerrainViewPattern::FLIP_MODE_SAME_IMAGE)
 			{
 				tile.terView = gen->getInteger(mapping.first, mapping.second);
-				tile.extTileFlags = bestFlip;
+				tile.extTileFlags = valRslt.flip;
 			}
 			else
 			{
 				const int framesPerRot = 2;
-				int firstFrame = mapping.first + bestFlip * framesPerRot;
+				int firstFrame = mapping.first + valRslt.flip * framesPerRot;
 				tile.terView = gen->getInteger(firstFrame, firstFrame + framesPerRot - 1);
 				tile.extTileFlags =	0;
 			}
@@ -473,6 +470,20 @@ ETerrainGroup::ETerrainGroup CDrawTerrainOperation::getTerrainGroup(ETerrainType
 
 CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainView(const int3 & pos, const TerrainViewPattern & pattern, int recDepth /*= 0*/) const
 {
+	for(int flip = 0; flip < 4; ++flip)
+	{
+		auto valRslt = validateTerrainViewInner(pos, flip > 0 ? getFlippedPattern(pattern, flip) : pattern, recDepth);
+		if(valRslt.result)
+		{
+			valRslt.flip = flip;
+			return valRslt;
+		}
+	}
+	return ValidationResult(false);
+}
+
+CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainViewInner(const int3 & pos, const TerrainViewPattern & pattern, int recDepth /*= 0*/) const
+{
 	ETerrainType centerTerType = map->getTile(pos).terType;
 	int totalPoints = 0;
 	std::string transitionReplacement;
@@ -488,15 +499,16 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 		// Get terrain group of the current cell
 		int cx = pos.x + (i % 3) - 1;
 		int cy = pos.y + (i / 3) - 1;
+		int3 currentPos(cx, cy, pos.z);
 		bool isAlien = false;
 		ETerrainType terType;
-		if(cx < 0 || cx >= map->width || cy < 0 || cy >= map->height)
+		if(!map->isInTheMap(currentPos))
 		{
 			terType = centerTerType;
 		}
 		else
 		{
-			terType = map->getTile(int3(cx, cy, pos.z)).terType;
+			terType = map->getTile(currentPos).terType;
 			if(terType != centerTerType)
 			{
 				isAlien = true;
@@ -512,17 +524,13 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 			{
 				if(recDepth == 0)
 				{
-					const auto & patternForRule = CTerrainViewPatternConfig::get().getPatternById(pattern.terGroup, rule.name);
-					auto rslt = validateTerrainView(int3(cx, cy, pos.z), patternForRule, 1);
-					if(!rslt.result)
+					if(map->isInTheMap(currentPos) && terType == centerTerType)
 					{
-						return ValidationResult(false);
+						const auto & patternForRule = CTerrainViewPatternConfig::get().getPatternById(pattern.terGroup, rule.name);
+						auto rslt = validateTerrainView(currentPos, patternForRule, 1);
+						if(rslt.result) topPoints = std::max(topPoints, rule.points);
 					}
-					else
-					{
-						topPoints = std::max(topPoints, rule.points);
-						continue;
-					}
+					continue;
 				}
 				else
 				{
@@ -549,14 +557,20 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 						|| rule.name == TerrainViewPattern::RULE_ANY)
 						&& isSandType(terType);
 
-				if(transitionReplacement.empty() && (rule.name == TerrainViewPattern::RULE_TRANSITION
-					|| rule.name == TerrainViewPattern::RULE_ANY) && (dirtTestOk || sandTestOk))
+				if(transitionReplacement.empty() && rule.name == TerrainViewPattern::RULE_TRANSITION
+						&& (dirtTestOk || sandTestOk))
 				{
 					transitionReplacement = dirtTestOk ? TerrainViewPattern::RULE_DIRT : TerrainViewPattern::RULE_SAND;
 				}
-				applyValidationRslt((dirtTestOk && transitionReplacement != TerrainViewPattern::RULE_SAND)
-						|| (sandTestOk && transitionReplacement != TerrainViewPattern::RULE_DIRT)
-						|| nativeTestOk);
+				if(rule.name == TerrainViewPattern::RULE_TRANSITION)
+				{
+					applyValidationRslt((dirtTestOk && transitionReplacement != TerrainViewPattern::RULE_SAND) ||
+							(sandTestOk && transitionReplacement != TerrainViewPattern::RULE_DIRT));
+				}
+				else
+				{
+					applyValidationRslt(dirtTestOk || sandTestOk || nativeTestOk);
+				}
 			}
 			else if(pattern.terGroup == ETerrainGroup::DIRT)
 			{
@@ -593,12 +607,14 @@ CDrawTerrainOperation::ValidationResult CDrawTerrainOperation::validateTerrainVi
 		}
 	}
 
-	if(pattern.minPoints > totalPoints)
+	if(totalPoints >= pattern.minPoints && totalPoints <= pattern.maxPoints)
+	{
+		return ValidationResult(true, transitionReplacement);
+	}
+	else
 	{
 		return ValidationResult(false);
 	}
-
-	return ValidationResult(true, transitionReplacement);
 }
 
 bool CDrawTerrainOperation::isSandType(ETerrainType terType) const

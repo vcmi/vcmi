@@ -14,14 +14,15 @@ add_executable(vcmitest ${test_SRCS})
 target_link_libraries(vcmitest vcmi ${Boost_LIBRARIES})
 add_test(vcmitest vcmitest)
 
-# Files to copy to the build directory after compilation
+# Files to copy to the build directory
+add_custom_target(vcmitestFiles ALL)
 set(vcmitest_FILES
 		TerrainViewTest.h3m
 		terrainViewMappings.json
 )
 
 foreach(file ${vcmitest_FILES})
-	add_custom_command(TARGET vcmitest POST_BUILD
-	COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${file}" $<TARGET_FILE_DIR:vcmitest>
+		add_custom_command(TARGET vcmitestFiles POST_BUILD
+				COMMAND ${CMAKE_COMMAND} -E copy_if_different "${CMAKE_CURRENT_SOURCE_DIR}/${file}" ${CMAKE_CURRENT_BINARY_DIR}
 	)
 endforeach()
