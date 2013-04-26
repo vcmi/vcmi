@@ -1,6 +1,15 @@
 // default configuration for mod system loaded at launch
 
 {
+	"textData" :
+	{
+		"heroClass"  : 18,
+		"artifact"   : 171,
+		"creature"   : 197,
+		"faction"    : 9,
+		"hero"       : 156
+	},
+
 	"hardcodedFeatures" :
 	{
 		"CREEP_SIZE": 4000,

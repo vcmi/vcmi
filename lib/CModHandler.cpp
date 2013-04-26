@@ -316,9 +316,6 @@ void CModHandler::loadConfigFromFile (std::string name)
 	modules.STACK_ARTIFACT = gameModules["STACK_ARTIFACTS"].Bool();
 	modules.COMMANDERS = gameModules["COMMANDERS"].Bool();
 	modules.MITHRIL = gameModules["MITHRIL"].Bool();
-
-	logGlobal->errorStream() << "Selected configuration: ";
-	logGlobal->errorStream() << settings.data;
 }
 
 // currentList is passed by value to get current list of depending mods
