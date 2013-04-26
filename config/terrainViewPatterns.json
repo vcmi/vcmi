@@ -1,467 +1,213 @@
 // Defines terrain view patterns.
 
-// The following properties are mandatory:
-// data:		the 3x3 pattern
-// mapping:		maps the pattern to a range of terrain view images/frames of the .DEF, e.g. 10-15
-//				for patterns which represent two transitions a comma can be used to distinct between dirt and sand
-//				e.g. 10-15, 25-35 whereas the first value is always dirt and the second sand
-
-// The following properties are optional:
-// flipMode:	should the same be flipped or different images be used(see rock) or is flip not supported at all; allowed values: sameImage | diffImages; default is: sameImage
-// id:			the identifier for the pattern if it's referenced by other patterns
-// minPoints:	the minimum points to reach to validate the pattern successfully
-
 // The following table shows the rules for the 3x3 pattern of all terrain types: 
 // I) normal(e.g. grass, lava, ...):
 // N:		Native type
 // D:		Dirt border
 // S:		Sand border
 // T:		Sand OR dirt border(all Ts in the pattern are replaced by dirt OR sand)
-// ?:		T or N
+// ?:		D,S or N
 // II) dirt:
 // N:		Native type
-// D:		Dirt border
 // S:		Sand border
 // ?:		Any border
 // III) sand:
-// N:		Native type
-// S:		Sand border
-// IV) water:
-// N:		Native type
-// S:		Sand border
-// ?:		Any border
-// V) rock:
+// No rules
+// IV) water, rock:
 // N:		Native type
 // S:		Sand border
 // ?:		Any border
 
-// Some additional info:
-// Rules can be combined with comma. e.g. T, N which would be the same meaning of ?. It's most useful in combination with pattern chaining.
-// Chaining of patterns is supported. To reference a another pattern you simply add the <Ref Id> to the relevant field of the pattern.
-// Rules can be given points: <[Rule OR Ref Id]-Points> With the property minPoints simple conditions can be built.
-
-{
-	"normal" :
-	[
-		// Standard transitions
-		{
-			"id" : "s1",
-			"data" :
-			[
-				"T,N-1", "T,N-2", "T,N-3",
-				"T,N-2", "N", "N",
-				"T", "N", "N"
-			],
-			"maxPoints" : 3,
-			"mapping" : "0-3, 20-23"
-		},
-		{
-			"id" : "s2",
-			"data" :
-			[
-				"D-1,S-2,N", "N", "N",
-				"T,D-2", "N", "N",
-				"D-1,S-2,N", "N", "N"
-			],
-			"maxPoints" : 4,
-			"mapping" : "4-7, 24-27"
-		},
-		{
-			"id" : "s3",
-			"data" :
-			[
-				"D-1,S-2,N", "T,D-2", "D-1,S-2,N",
-				"N", "N", "N",
-				"N", "N", "N"
-			],
-			"maxPoints" : 4,
-			"mapping" : "8-11, 28-31"
-		},
-		{
-			"id" : "s4",
-			"data" :
-			[
-				"N", "N", "N",
-				"N", "N", "s3-1",
-				"N", "s2-1", "T"
-			],
-			"mapping" : "12-15, 32-35",
-			"minPoints" : 2
-		},
-		{
-			"id" : "s5",
-			"data" :
-			[
-				"T", "T", "?",
-				"T", "N", "s6-1,m1-1,m2-1,N",
-				"?", "s6-1,m1-1,m2-1,N", "N"
-			],
-			"mapping" : "16-17, 36-37",
-			"minPoints" : 1
-		},
-		{
-			"id" : "s6",
-			"data" :
-			[
-				"N", "N", "N",
-				"N", "N", "s5-1,N",
-				"N", "s5-1,N", "T"
-			],
-			"mapping" : "18-19, 38-39",
-			"minPoints" : 1
-		},
-		// Mixed transitions
-		{
-			"id" : "m1",
-			"data" :
-			[
-				"T", "N", "N",
-				"N", "N", "N",
-				"N", "N", "T"
-			],
-			"mapping" : "40, 42"
-		},
-		{
-			"id" : "m2",
-			"data" :
-			[
-				"D", "N", "N",
-				"N", "N", "N",
-				"N", "N", "S"
-			],
-			"mapping" : "41"
-		},
-		{
-			"id" : "m3",
-			"data" :
-			[
-				"N", "N", "D,N",
-				"N", "N", "D",
-				"S", "D,N", "D,N"
-			],
-			"mapping" : "43"
-		},
-		{
-			"id" : "m4",
-			"data" :
-			[
-				"N", "N", "S",
-				"N", "N", "D",
-				"D,N", "D", "D,N"
-			],
-			"mapping" : "44"
-		},
-		{
-			"id" : "m5",
-			"data" :
-			[
-				"N", "N", "D",
-				"N", "N", "D",
-				"N", "N", "S"
-			],
-			"mapping" : "45"
-		},
-		{
-			"id" : "m6",
-			"data" :
-			[
-				"N", "N", "N",
-				"N", "N", "N",
-				"D,N", "D", "S"
-			],
-			"mapping" : "46"
-		},
-		{
-			"id" : "m7",
-			"data" :
-			[
-				"N", "N", "?",
-				"N", "N", "S",
-				"D-1,N", "D-1,N", "?"
-			],
-			"minPoints" : 1,
-			"mapping" : "47"
-		},
-		{
-			"id" : "m8",
-			"data" :
-			[
-				"N", "N", "D",
-				"N", "N", "D",
-				"?", "S", "?"
-			],
-			"mapping" : "48"
-		},
-		// No transition
-		{
-			"id" : "n1",
-			"data" :
-			[
-				"N", "N", "N",
-				"N", "N", "N",
-				"N", "N", "N"
-			],
-			"mapping" : "49-72"
-		}
-	],
-	"dirt" :
-	[
-		// Standard transitions
-		{
-			"id" : "s1",
-			"data" :
-			[
-				"?", "S", "S",
-				"S", "N", "N",
-				"S", "N", "N"
-			],
-			"mapping" : "0-3"
-		},
-		{
-			"id" : "s2",
-			"data" :
-			[
-				"?", "D", "D",
-				"S", "N", "N",
-				"?", "D", "D"
-			],
-			"mapping" : "4-7"
-		},
-		{
-			"id" : "s3",
-			"data" :
-			[
-				"?", "S", "?",
-				"D", "N", "D",
-				"D", "N", "D"
-			],
-			"mapping" : "8-11"
-		},
-		{
-			"id" : "s4",
-			"data" :
-			[
-				"D", "D", "D",
-				"D", "N", "?",
-				"D", "?", "S"
-			],
-			"mapping" : "12-15"
-		},
-		{
-			"id" : "s5",
-			"data" :
-			[
-				"S", "S", "D",
-				"S", "N", "s6-1,D",
-				"D", "s6-1,D", "D"
-			],
-			"mapping" : "16-17",
-			"minPoints" : 1
-		},
-		{
-			"id" : "s6",
-			"data" :
-			[
-				"D", "D", "D",
-				"D", "N", "s5-1,D",
-				"D", "s5-1,D", "S"
-			],
-			"mapping" : "18-19",
-			"minPoints" : 1
-		},
-		// Mixed transition
-		{
-			"id" : "m1",
-			"data" :
-			[
-				"S", "D", "D",
-				"D", "N", "D",
-				"D", "D", "S"
-			],
-			"mapping" : "20"
-		},
-		// No transition
-		{
-			"id" : "n1",
-			"data" :
-			[
-				"D", "D", "D",
-				"D", "N", "D",
-				"D", "D", "D"
-			],
-			"mapping" : "21-44"
-		}
-	],
-	"sand" :
-	[
-		{
-			"id" : "n1",
-			"data" :
-			[
-				"?", "?", "?",
-				"?", "N", "?",
-				"?", "?", "?"
-			],
-			"mapping" : "0-23"
-		}
-	],
-	"water" :
-	[
-		// Standard transitions
-		{
-			"id" : "s1",
-			"data" :
-			[
-				"S", "S", "S",
-				"S", "N", "N",
-				"S", "N", "N"
-			],
-			"mapping" : "0-3"
-		},
-		{
-			"id" : "s2",
-			"data" :
-			[
-				"?", "N", "N",
-				"S", "N", "N",
-				"?", "N", "N"
-			],
-			"mapping" : "4-7"
-		},
-		{
-			"id" : "s3",
-			"data" :
-			[
-				"?", "S", "?",
-				"N", "N", "N",
-				"N", "N", "N"
-			],
-			"mapping" : "8-11"
-		},
-		{
-			"id" : "s4",
-			"data" :
-			[
-				"N", "N", "N",
-				"N", "N", "N",
-				"N", "N", "S"
-			],
-			"mapping" : "12-15"
-		},
-		{
-			"id" : "s5",
-			"data" :
-			[
-				"S", "S", "N,S-1",
-				"S", "N", "N",
-				"N,S-1", "N", "N"
-			],
-			"mapping" : "16-17",
-			"maxPoints" : 1
-		},
-		{
-			"id" : "s6",
-			"data" :
-			[
-				"N", "N", "N",
-				"N", "N", "s5-1,N",
-				"N", "s5-1,N", "S"
-			],
-			"mapping" : "18-19",
-			"minPoints" : 1
-		},
-		// No transition
-		{
-			"id" : "n1",
-			"data" :
-			[
-				"N", "N", "N",
-				"N", "N", "N",
-				"N", "N", "N"
-			],
-			"mapping" : "20-32"
-		}
-	],
-	"rock" :
-	[
-		// No transition
-		{
-			"id" : "n1",
-			"data" :
-			[
-				"N", "N", "N",
-				"N", "N", "N",
-				"N", "N", "N"
-			],
-			"mapping" : "0-7"
-		},
-		// Standard transitions
-		{
-			"id" : "s1",
-			"data" :
-			[
-				"?", "S", "?",
-				"S", "N", "N",
-				"?", "N", "N"
-			],
-			"mapping" : "8-15",
-			"flipMode" : "diffImages"
-		},
-		{
-			"id" : "s2",
-			"data" :
-			[
-				"?", "N", "N",
-				"S", "N", "N",
-				"?", "N", "N"
-			],
-			"mapping" : "16-19",
-			"flipMode" : "diffImages"
-		},
-		{
-			"id" : "s3",
-			"data" :
-			[
-				"?", "S", "?",
-				"N", "N", "N",
-				"N", "N", "N"
-			],
-			"mapping" : "20-23",
-			"flipMode" : "diffImages"
-		},
-		{
-			"id" : "s4",
-			"data" :
-			[
-				"N", "N", "N",
-				"N", "N", "N",
-				"N", "N", "S"
-			],
-			"mapping" : "24-31",
-			"flipMode" : "diffImages"
-		},
-		{
-			"id" : "s5",
-			"data" :
-			[
-				"S", "S", "N",
-				"S", "N", "N",
-				"N", "N", "N"
-			],
-			"mapping" : "32-39",
-			"flipMode" : "diffImages"
-		},
-		{
-			"id" : "s6",
-			"data" :
-			[
-				"N", "N", "N",
-				"N", "N", "s5-1,N",
-				"N", "s5-1,N", "S"
-			],
-			"mapping" : "40-47",
-			"flipMode" : "diffImages",
-			"minPoints" : 1
-		}
-	]
-}
+// The order of the patterns is important, do not change!
+[
+	// Extended mixed transitions
+	{
+		"id" : "x1",
+		"data" :
+		[
+			"T", "N", "N",
+			"N", "N", "T",
+			"N", "T", "T"
+		],
+		"mapping" : { "normal" : "73,74", "dirt" : "45" }
+	},
+	{
+		"id" : "x2",
+		"data" :
+		[
+			"D", "D", "N",
+			"D", "N", "N",
+			"N", "N", "S"
+		],
+		"mapping" : { "normal" : "75" }
+	},
+	{
+		"id" : "x3",
+		"data" :
+		[
+			"S", "S", "N",
+			"S", "N", "N",
+			"N", "N", "D"
+		],
+		"mapping" : { "normal" : "76" }
+	},
+	// No transition
+	{
+		"id" : "n1",
+		"data" :
+		[
+			"N", "N", "N",
+			"N", "N", "N",
+			"N", "N", "N"
+		],
+		"mapping" : { "normal" : "49-72", "dirt" : "21-44", "sand" : "0-23", "water" : "20-32", "rock": "0-7" }
+	},
+	// Mixed transitions
+	{
+		"id" : "m1",
+		"data" :
+		[
+			"T", "N", "N",
+			"N", "N", "N",
+			"N", "N", "T"
+		],
+		"mapping" : { "normal" : "40, 42", "dirt" : "20" }
+	},
+	{
+		"id" : "m2",
+		"data" :
+		[
+			"D", "N", "N",
+			"N", "N", "N",
+			"N", "N", "S"
+		],
+		"mapping" : { "normal" : "41" }
+	},
+	{
+		"id" : "m3",
+		"data" :
+		[
+			"N", "N", "D,N",
+			"N", "N", "D",
+			"S", "D,N", "D,N"
+		],
+		"mapping" : { "normal" : "43" }
+	},
+	{
+		"id" : "m4",
+		"data" :
+		[
+			"N", "N", "S",
+			"N", "N", "D",
+			"D,N", "D", "D,N"
+		],
+		"mapping" : { "normal" : "44" }
+	},
+	{
+		"id" : "m5",
+		"data" :
+		[
+			"N", "N", "D",
+			"N", "N", "D",
+			"N", "N", "S"
+		],
+		"mapping" : { "normal" : "45" }
+	},
+	{
+		"id" : "m6",
+		"data" :
+		[
+			"N", "N", "N",
+			"N", "N", "N",
+			"D,N", "D", "S"
+		],
+		"mapping" : { "normal" : "46" }
+	},
+	{
+		"id" : "m7",
+		"data" :
+		[
+			"N", "N", "?",
+			"N", "N", "S",
+			"D-1,N", "D-1,N", "?"
+		],
+		"minPoints" : 1,
+		"mapping" : { "normal" : "47" }
+	},
+	{
+		"id" : "m8",
+		"data" :
+		[
+			"N", "N", "D-1,N",
+			"N", "N", "D-1,N",
+			"?", "S", "?"
+		],
+		"minPoints" : 1,
+		"mapping" : { "normal" : "48" }
+	},
+	// Standard transitions
+	{
+		"id" : "s1",
+		"data" :
+		[
+			"T,N-1", "T,N-2", "T,N-3",
+			"T,N-2", "N", "N",
+			"T", "N", "N"
+		],
+		"maxPoints" : 3,
+		"mapping" : { "normal" : "0-3, 20-23", "dirt" : "0-3", "water" : "0-3", "rock": "4D:8-15" }
+	},
+	{
+		"id" : "s2",
+		"data" :
+		[
+			"?", "N", "N",
+			"T", "N", "N",
+			"?", "N", "N"
+		],
+		"mapping" : { "normal" : "4-7, 24-27", "dirt" : "4-7", "water" : "4-7", "rock": "2D:16-19" }
+	},
+	{
+		"id" : "s3",
+		"data" :
+		[
+			"?", "T", "?",
+			"N", "N", "N",
+			"N", "N", "N"
+		],
+		"mapping" : { "normal" : "8-11, 28-31", "dirt" : "8-11", "water" : "8-11", "rock": "2D:20-23" }
+	},
+	{
+		"id" : "s4",
+		"data" :
+		[
+			"N", "N", "N",
+			"N", "N", "s3-1,m7-1,m8-1",
+			"N", "s2-1,m7-1,m8-1", "T"
+		],
+		"minPoints" : 2,
+		"mapping" : { "normal" : "12-15, 32-35", "dirt" : "12-15", "water" : "12-15", "rock": "4D:24-31" }
+	},
+	{
+		"id" : "s5",
+		"data" :
+		[
+			"T", "T", "?",
+			"T", "N", "s6-1,m1-1,m2-1,N",
+			"?", "s6-1,m1-1,m2-1,N", "N"
+		],
+		"minPoints" : 1,
+		"mapping" : { "normal" : "16-17, 36-37", "dirt" : "16-17", "water" : "16-17", "rock": "4D:32-39" }
+	},
+	{
+		"id" : "s6",
+		"data" :
+		[
+			"N", "N", "N",
+			"N", "N", "s5-1,N",
+			"N", "s5-1,N", "T"
+		],
+		"minPoints" : 1,
+		"mapping" : { "normal" : "18-19, 38-39", "dirt" : "18-19", "water" : "18-19", "rock": "4D:40-47" }
+	}
+]

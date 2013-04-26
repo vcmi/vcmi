@@ -50,7 +50,7 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain)
 
 			// Get mapping range
 			const auto & pattern = CTerrainViewPatternConfig::get().getPatternById(terGroup, id);
-			const auto & mapping = pattern.mapping;
+			const auto & mapping = (*pattern).mapping;
 
 			const auto & positionsNode = node["pos"].Vector();
 			BOOST_FOREACH(const auto & posNode, positionsNode)

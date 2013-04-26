@@ -134,35 +134,25 @@ struct DLL_LINKAGE TerrainViewPattern
 	struct WeightedRule
 	{
 		WeightedRule();
-
 		/// Gets true if this rule is a standard rule which means that it has a value of one of the RULE_* constants.
 		bool isStandardRule() const;
 
 		/// The name of the rule. Can be any value of the RULE_* constants or a ID of a another pattern.
 		std::string name;
-
 		/// Optional. A rule can have points. Patterns may have a minimum count of points to reach to be successful.
 		int points;
 	};
 
-	/// Constant for the flip mode same image. Pattern will be flipped and the same image will be used(which is given in the mapping).
-	static const std::string FLIP_MODE_SAME_IMAGE;
-
 	/// Constant for the flip mode different images. Pattern will be flipped and different images will be used(mapping area is divided into 4 parts)
 	static const std::string FLIP_MODE_DIFF_IMAGES;
-
 	/// Constant for the rule dirt, meaning a dirty border is required.
 	static const std::string RULE_DIRT;
-
 	/// Constant for the rule sand, meaning a sandy border is required.
 	static const std::string RULE_SAND;
-
 	/// Constant for the rule transition, meaning a dirty OR sandy border is required.
 	static const std::string RULE_TRANSITION;
-
 	/// Constant for the rule native, meaning a native type is required.
 	static const std::string RULE_NATIVE;
-
 	/// Constant for the rule any, meaning a native type, dirty OR sandy border is required.
 	static const std::string RULE_ANY;
 
@@ -189,12 +179,15 @@ struct DLL_LINKAGE TerrainViewPattern
 	/// std::vector -> size=1: typical, size=2: if this pattern should map to two different types of borders
 	/// std::pair   -> 1st value: lower range, 2nd value: upper range
 	std::vector<std::pair<int, int> > mapping;
+	/// If diffImages is true, different images/frames are used to place a rotated terrain view. If it's false
+	/// the same frame will be used and rotated.
+	bool diffImages;
+	/// The rotationTypesCount is only used if diffImages is true and holds the number how many rotation types(horizontal, etc...)
+	/// are supported.
+	int rotationTypesCount;
 
 	/// The minimum and maximum points to reach to validate the pattern successfully.
 	int minPoints, maxPoints;
-
-	/// Describes if flipping is required and which mapping should be used.
-	std::string flipMode;
 
 	ETerrainGroup::ETerrainGroup terGroup;
 };
@@ -206,7 +199,7 @@ public:
 	static CTerrainViewPatternConfig & get();
 
 	const std::vector<TerrainViewPattern> & getPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
-	const TerrainViewPattern & getPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
+	boost::optional<const TerrainViewPattern &> getPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
 	ETerrainGroup::ETerrainGroup getTerrainGroup(const std::string & terGroup) const;
 
 private:
