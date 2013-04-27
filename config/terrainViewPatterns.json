@@ -51,6 +51,26 @@
 		],
 		"mapping" : { "normal" : "76" }
 	},
+	{
+		"id" : "x4",
+		"data" :
+		[
+			"N", "N", "S",
+			"N", "N", "D",
+			"S", "D", "D"
+		],
+		"mapping" : { "normal" : "77" }
+	},
+	{
+		"id" : "x5",
+		"data" :
+		[
+			"N", "N", "D",
+			"N", "N", "D",
+			"D", "D", "S"
+		],
+		"mapping" : { "normal" : "78" }
+	},
 	// No transition
 	{
 		"id" : "n1",
