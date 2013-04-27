@@ -2459,6 +2459,21 @@ void CGTownInstance::deserializationFix()
 // 		garrisonHero->attachTo(this);
 }
 
+void CGTownInstance::updateMoraleBonusFromArmy()
+{
+	Bonus *b = getBonusList().getFirst(Selector::sourceType(Bonus::ARMY) && Selector::type(Bonus::MORALE));
+	if(!b)
+	{
+		b = new Bonus(Bonus::PERMANENT, Bonus::MORALE, Bonus::ARMY, 0, -1);
+		addNewBonus(b);
+	}
+
+	if (garrisonHero)
+		b->val = 0;
+	else
+		CArmedInstance::updateMoraleBonusFromArmy();
+}
+
 void CGTownInstance::recreateBuildingsBonuses()
 {
 	static TPropagatorPtr playerProp(new CPropagatorNodeType(PLAYER));
@@ -2590,6 +2605,7 @@ void CGTownInstance::setGarrisonedHero(CGHeroInstance *h)
 		garrisonHero->attachTo(p);
 		garrisonHero = NULL;
 	}
+	updateMoraleBonusFromArmy(); //avoid giving morale bonus for same army twice
 }
 
 bool CGTownInstance::armedGarrison() const
@@ -7041,7 +7057,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		hasUndead |= inst->hasBonusOfType(Bonus::UNDEAD);
 	}
 
-	size_t factionsInArmy = factions.size();
+	size_t factionsInArmy = factions.size(); //town garrison seems to take both sets into account
 
 	// Take Angelic Alliance troop-mixing freedom of non-evil units into account.
 	if (hasBonusOfType(Bonus::NONEVIL_ALIGNMENT_MIX))
@@ -7062,7 +7078,7 @@ void CArmedInstance::updateMoraleBonusFromArmy()
 		b->val = +1;
 		b->description = VLC->generaltexth->arraytxt[115]; //All troops of one alignment +1
 	}
-	else
+	else if (factions.size()) // no bonus from empty garrison
 	{
 	 	b->val = 2 - factionsInArmy;
 		b->description = boost::str(boost::format(VLC->generaltexth->arraytxt[114]) % factionsInArmy % b->val); //Troops of %d alignments %d

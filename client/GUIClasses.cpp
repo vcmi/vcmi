@@ -5895,7 +5895,10 @@ void MoraleLuckBox::set(const IBonusBearer *node)
 		else
 		{
 			for(int it=0; it < mrl.size(); it++)
-				text += "\n" + mrl[it].second;
+			{
+				if (mrl[it].first) //no bonuses with value 0
+					text += "\n" + mrl[it].second;
+			}
 		}
 	}
 

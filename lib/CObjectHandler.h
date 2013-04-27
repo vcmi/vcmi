@@ -262,7 +262,7 @@ public:
 	BattleInfo *battle; //set to the current battle, if engaged
 
 	void randomizeArmy(int type);
-	void updateMoraleBonusFromArmy();
+	virtual void updateMoraleBonusFromArmy();
 
 	void armyChanged() override;
 
@@ -620,6 +620,7 @@ public:
 
 	CBonusSystemNode *whatShouldBeAttached() override;
 	std::string nodeName() const override;
+	void updateMoraleBonusFromArmy() override;
 	void deserializationFix();
 	void recreateBuildingsBonuses();
 	bool addBonusIfBuilt(BuildingID building, Bonus::BonusType type, int val, TPropagatorPtr &prop, int subtype = -1); //returns true if building is built and bonus has been added
