@@ -290,7 +290,7 @@ public:
 	AccessibilityInfo getAccesibility() const;
 	AccessibilityInfo getAccesibility(const CStack *stack) const; //Hexes ocupied by stack will be marked as accessible.
 	AccessibilityInfo getAccesibility(const std::vector<BattleHex> &accessibleHexes) const; //given hexes will be marked as accessible
-	std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const;
+	std::pair<const CStack *, BattleHex> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned, bool ignoreItself = false) const;
 protected:
 	ReachabilityInfo getFlyingReachability(const ReachabilityInfo::Parameters params) const;
 	ReachabilityInfo makeBFS(const AccessibilityInfo &accessibility, const ReachabilityInfo::Parameters params) const;

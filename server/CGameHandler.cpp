@@ -5780,8 +5780,8 @@ void CGameHandler::runBattle()
 			}
 
 			if(next->hasBonusOfType(Bonus::ATTACKS_NEAREST_CREATURE)) //while in berserk
-			{
-				std::pair<const CStack *, int> attackInfo = curB.getNearestStack(next, boost::logic::indeterminate);
+			{ //fixme: stack should not attack itself
+				std::pair<const CStack *, int> attackInfo = curB.getNearestStack(next, boost::logic::indeterminate, true);
 				if(attackInfo.first != NULL)
 				{
 					BattleAction attack;

@@ -1175,7 +1175,7 @@ std::set<BattleHex> CBattleInfoCallback::getStoppers(BattlePerspective::BattlePe
 	return ret;
 }
 
-std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const
+std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned, bool ignoreItself) const
 {
 	auto reachability = getReachability(closest);
 
@@ -1190,6 +1190,8 @@ std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const 
 	for(int g=0; g<GameConstants::BFIELD_SIZE; ++g)
 	{
 		const CStack * atG = battleGetStackByPos(g);
+		if (ignoreItself && atG == closest) //don't attack itself in berserk
+			continue;
 		if(!atG || atG->ID == closest->ID) //if there is not stack or we are the closest one
 			continue;
 

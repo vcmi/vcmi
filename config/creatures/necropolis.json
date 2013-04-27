@@ -329,6 +329,12 @@
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
+			},
+			"descreaseMorale" :
+			{
+				"type" : "MORALE",
+				"effectRange" : "ONLY_ENEMY_ARMY",
+				"val" : -1
 			}
 		},
 		"upgrades": ["ghostDragon"],
@@ -354,7 +360,13 @@
 		{
 			"dragon" :
 			{
-				"type" : "DRAGON_NATURE"
+				"type" : "DRAGON_NATURE",
+			},
+			"descreaseMorale" :
+			{
+				"type" : "MORALE",
+				"effectRange" : "ONLY_ENEMY_ARMY",
+				"val" : -1
 			},
 			"age" :
 			{

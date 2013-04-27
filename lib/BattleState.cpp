@@ -684,7 +684,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 		curB->tacticDistance = 0;
 
 
-	// workaround  bonuses affecting only enemy
+	// workaround  bonuses affecting only enemy - DOES NOT WORK
 	for(int i = 0; i < 2; i++)
 	{
 		TNodes nodes;
@@ -882,8 +882,6 @@ void CStack::postInit()
 {
 	assert(type);
 	assert(getParentNodes().size());
-
-	//FIXME: the following should take into account ONLY_ENEMY_ARMY bonus range
 
 	firstHPleft = MaxHealth();
 	shots = getCreature()->valOfBonuses(Bonus::SHOTS);

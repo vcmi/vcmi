@@ -347,7 +347,8 @@
 			{
 				"type" : "HATE",
 				"subtype" : "creature.angel",
-				"val" : 50
+				"val" : 50,
+				"description" : "Devil -1"
 			},
 			"FLYING_ARMY" :
 			{
