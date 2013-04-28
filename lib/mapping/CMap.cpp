@@ -148,7 +148,7 @@ CMapHeader::~CMapHeader()
 
 }
 
-CMap::CMap() : checksum(0), grailRadious(0), terrain(nullptr)
+CMap::CMap() : checksum(0), grailPos(-1, -1, -1), grailRadious(0), terrain(nullptr)
 {
 	allowedAbilities = VLC->heroh->getDefaultAllowedAbilities();
 	allowedArtifact = VLC->arth->getDefaultAllowed();

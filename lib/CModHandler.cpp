@@ -511,10 +511,13 @@ void CModHandler::handleData(Handler handler, const JsonNode & source, std::stri
 	}
 }
 
-void CModHandler::loadGameContent()
+void CModHandler::beforeLoad()
 {
 	loadConfigFromFile("defaultMods.json");
+}
 
+void CModHandler::loadGameContent()
+{
 	CStopWatch timer, totalTime;
 
 	CContentHandler content;

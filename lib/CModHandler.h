@@ -169,6 +169,7 @@ public:
 	CModInfo & getModData(TModID modId);
 
 	/// load content from all available mods
+	void beforeLoad();
 	void loadGameContent();
 
 	/// actions that should be triggered on map restart

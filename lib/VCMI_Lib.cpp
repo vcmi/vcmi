@@ -91,6 +91,8 @@ void LibClasses::init()
 {
 	CStopWatch pomtime, totalTime;
 
+	modh->beforeLoad();
+
 	createHandler(bth, "Bonus type", pomtime);
 	
 	createHandler(generaltexth, "General text", pomtime);

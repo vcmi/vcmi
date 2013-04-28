@@ -5254,7 +5254,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 		auto piece = new CPicture(info.filename, info.x, info.y);
 
 		//piece that will slowly disappear
-		if(info.whenUncovered < GameConstants::PUZZLE_MAP_PIECES * discoveredRatio)
+		if(info.whenUncovered <= GameConstants::PUZZLE_MAP_PIECES * discoveredRatio)
 		{
 			piecesToRemove.push_back(piece);
 			piece->needRefresh = true;

@@ -954,13 +954,13 @@ void CGameState::init(StartInfo * si)
 		if(!map->grailRadious) //radius not given -> anywhere on map
 			map->grailRadious = map->width * 2;
 
-
  		std::vector<int3> allowedPos;
+		static const int BORDER_WIDTH = 9; // grail must be at least 9 tiles away from border
 
 		// add all not blocked tiles in range
-		for (int i = 0; i < map->width ; i++)
+		for (int i = BORDER_WIDTH; i < map->width - BORDER_WIDTH ; i++)
 		{
-			for (int j = 0; j < map->height ; j++)
+			for (int j = BORDER_WIDTH; j < map->height - BORDER_WIDTH; j++)
 			{
 				for (int k = 0; k < (map->twoLevel ? 2 : 1); k++)
 				{
