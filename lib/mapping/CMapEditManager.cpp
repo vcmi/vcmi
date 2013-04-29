@@ -76,6 +76,44 @@ int3 MapRect::bottomRight() const
 	return int3(right(), bottom(), z);
 }
 
+CTerrainSelection::CTerrainSelection(CMap * map) : CMapSelection(map)
+{
+
+}
+
+void CTerrainSelection::selectRange(const MapRect & rect)
+{
+	rect.forEach([this](const int3 pos)
+	{
+		this->select(pos);
+	});
+}
+
+void CTerrainSelection::deselectRange(const MapRect & rect)
+{
+	rect.forEach([this](const int3 pos)
+	{
+		this->deselect(pos);
+	});
+}
+
+void CTerrainSelection::selectAll()
+{
+	selectRange(MapRect(int3(0, 0, 0), getMap()->width, getMap()->height));
+	selectRange(MapRect(int3(0, 0, 1), getMap()->width, getMap()->height));
+}
+
+void CTerrainSelection::clearSelection()
+{
+	deselectRange(MapRect(int3(0, 0, 0), getMap()->width, getMap()->height));
+	deselectRange(MapRect(int3(0, 0, 1), getMap()->width, getMap()->height));
+}
+
+CObjectSelection::CObjectSelection(CMap * map) : CMapSelection(map)
+{
+
+}
+
 CMapOperation::CMapOperation(CMap * map) : map(map)
 {
 
@@ -159,37 +197,30 @@ const CMapOperation * CMapUndoManager::peek(const TStack & stack) const
 }
 
 CMapEditManager::CMapEditManager(CMap * map)
-	: map(map)
+	: map(map), terrainSel(map), objectSel(map)
 {
 
 }
 
-void CMapEditManager::clearTerrain(CRandomGenerator * gen)
+CMap * CMapEditManager::getMap()
 {
-	for(int i = 0; i < map->width; ++i)
-	{
-		for(int j = 0; j < map->height; ++j)
-		{
-			map->getTile(int3(i, j, 0)).terType = ETerrainType::WATER;
-			map->getTile(int3(i, j, 0)).terView = gen->getInteger(20, 32);
-
-			if(map->twoLevel)
-			{
-				map->getTile(int3(i, j, 1)).terType = ETerrainType::ROCK;
-				map->getTile(int3(i, j, 1)).terView = 0;
-			}
-		}
-	}
+	return map;
 }
 
-void CMapEditManager::drawTerrain(const MapRect & rect, ETerrainType terType, CRandomGenerator * gen)
+void CMapEditManager::clearTerrain(CRandomGenerator * gen/* = nullptr*/)
 {
-	execute(make_unique<CDrawTerrainOperation>(map, rect, terType, gen));
+	execute(make_unique<CClearTerrainOperation>(map, gen ? gen : &(this->gen)));
 }
 
-void CMapEditManager::insertObject(const int3 & pos, CGObjectInstance * obj)
+void CMapEditManager::drawTerrain(ETerrainType terType, CRandomGenerator * gen/* = nullptr*/)
 {
-	execute(make_unique<CInsertObjectOperation>(map, pos, obj));
+	execute(make_unique<CDrawTerrainOperation>(map, terrainSel, terType, gen ? gen : &(this->gen)));
+	terrainSel.clearSelection();
+}
+
+void CMapEditManager::insertObject(CGObjectInstance * obj, const int3 & pos)
+{
+	execute(make_unique<CInsertObjectOperation>(map, obj, pos));
 }
 
 void CMapEditManager::execute(unique_ptr<CMapOperation> && operation)
@@ -198,19 +229,53 @@ void CMapEditManager::execute(unique_ptr<CMapOperation> && operation)
 	undoManager.addOperation(std::move(operation));
 }
 
-void CMapEditManager::undo()
+CTerrainSelection & CMapEditManager::getTerrainSelection()
 {
-	undoManager.undo();
+	return terrainSel;
 }
 
-void CMapEditManager::redo()
+CObjectSelection & CMapEditManager::getObjectSelection()
 {
-	undoManager.redo();
+	return objectSel;
 }
 
 CMapUndoManager & CMapEditManager::getUndoManager()
 {
 	return undoManager;
+}
+
+CComposedOperation::CComposedOperation(CMap * map) : CMapOperation(map)
+{
+
+}
+
+void CComposedOperation::execute()
+{
+	BOOST_FOREACH(auto & operation, operations)
+	{
+		operation->execute();
+	}
+}
+
+void CComposedOperation::undo()
+{
+	BOOST_FOREACH(auto & operation, operations)
+	{
+		operation->undo();
+	}
+}
+
+void CComposedOperation::redo()
+{
+	BOOST_FOREACH(auto & operation, operations)
+	{
+		operation->redo();
+	}
+}
+
+void CComposedOperation::addOperation(unique_ptr<CMapOperation> && operation)
+{
+	operations.push_back(std::move(operation));
 }
 
 const std::string TerrainViewPattern::FLIP_MODE_DIFF_IMAGES = "D";
@@ -351,27 +416,24 @@ boost::optional<const TerrainViewPattern &> CTerrainViewPatternConfig::getPatter
 	return boost::optional<const TerrainViewPattern &>();
 }
 
-CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, const MapRect & rect, ETerrainType terType, CRandomGenerator * gen)
-	: CMapOperation(map), rect(rect), terType(terType), gen(gen)
+CDrawTerrainOperation::CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, ETerrainType terType, CRandomGenerator * gen)
+	: CMapOperation(map), terrainSel(terrainSel), terType(terType), gen(gen)
 {
 
 }
 
 void CDrawTerrainOperation::execute()
 {
-	for(int i = rect.x; i < rect.x + rect.width; ++i)
+	BOOST_FOREACH(const auto & pos, terrainSel.getSelectedItems())
 	{
-		for(int j = rect.y; j < rect.y + rect.height; ++j)
-		{
-			map->getTile(int3(i, j, rect.z)).terType = terType;
-		}
+		auto & tile = map->getTile(pos);
+		tile.terType = terType;
+		invalidateTerrainViews(pos);
 	}
 
-	//TODO there are situations where more tiles are affected implicitely
+	updateTerrainTypes();
+	updateTerrainViews();
 	//TODO add coastal bit to extTileFlags appropriately
-
-	MapRect viewRect(int3(rect.x - 1, rect.y - 1, rect.z), rect.width + 2, rect.height + 2); // Has to overlap 1 tile around
-	updateTerrainViews(viewRect & MapRect(int3(0, 0, viewRect.z), map->width, map->height)); // Rect should not overlap map dimensions
 }
 
 void CDrawTerrainOperation::undo()
@@ -389,65 +451,145 @@ std::string CDrawTerrainOperation::getLabel() const
 	return "Draw Terrain";
 }
 
-void CDrawTerrainOperation::updateTerrainViews(const MapRect & rect)
+void CDrawTerrainOperation::updateTerrainTypes()
 {
-	for(int x = rect.x; x < rect.x + rect.width; ++x)
+	auto positions = terrainSel.getSelectedItems();
+	while(!positions.empty())
 	{
-		for(int y = rect.y; y < rect.y + rect.height; ++y)
+		const auto & centerPos = *(positions.begin());
+		auto centerTile = map->getTile(centerPos);
+		auto tiles = getInvalidTiles(centerPos);
+		auto updateTerrainType = [&](const int3 & pos)
 		{
-			const auto & patterns =
-					CTerrainViewPatternConfig::get().getPatternsForGroup(getTerrainGroup(map->getTile(int3(x, y, rect.z)).terType));
+			map->getTile(pos).terType = centerTile.terType;
+			invalidateTerrainViews(pos);
+			logGlobal->debugStream() << boost::format("Update terrain tile at '%s' to type '%i'.") % pos % centerTile.terType;
+		};
 
-			// Detect a pattern which fits best
-			int bestPattern = -1;
-			ValidationResult valRslt(false);
-			for(int k = 0; k < patterns.size(); ++k)
+		// Fill foreign invalid tiles
+		BOOST_FOREACH(const auto & tile, tiles.foreignTiles)
+		{
+			updateTerrainType(tile);
+		}
+
+		if(tiles.nativeTiles.find(centerPos) != tiles.nativeTiles.end())
+		{
+			// Blow up
+			auto rect = extendTileAroundSafely(centerPos);
+			std::set<int3> suitableTiles;
+			int invalidForeignTilesCnt, invalidNativeTilesCnt;
+			invalidForeignTilesCnt = invalidNativeTilesCnt = std::numeric_limits<int>::max();
+			rect.forEach([&](const int3 & posToTest)
 			{
-				const auto & pattern = patterns[k];
-				valRslt = validateTerrainView(int3(x, y, rect.z), pattern);
-				if(valRslt.result)
+				auto & terrainTile = map->getTile(posToTest);
+				if(centerTile.terType != terrainTile.terType)
 				{
-					logGlobal->debugStream() << "Pattern detected at pos " << x << "x" << y << "x" << rect.z << ": P-Nr. " << pattern.id
-						  << ", Flip " << valRslt.flip << ", Repl. " << valRslt.transitionReplacement;
-					bestPattern = k;
-					break;
+					auto formerTerType = terrainTile.terType;
+					terrainTile.terType = centerTile.terType;
+					auto testTile = getInvalidTiles(posToTest);
+					auto addToSuitableTiles = [&](const int3 & pos)
+					{
+						suitableTiles.insert(pos);
+						logGlobal->debugStream() << boost::format("Found suitable tile '%s' for main tile '%s'.") % pos % centerPos;
+					};
+
+					if(testTile.nativeTiles.size() < invalidNativeTilesCnt ||
+							(testTile.nativeTiles.size() == invalidNativeTilesCnt && testTile.foreignTiles.size() < invalidForeignTilesCnt))
+					{
+						suitableTiles.clear();
+						addToSuitableTiles(posToTest);
+					}
+					else if(testTile.nativeTiles.size() == invalidNativeTilesCnt &&
+							testTile.foreignTiles.size() == invalidForeignTilesCnt)
+					{
+						addToSuitableTiles(posToTest);
+					}
+					terrainTile.terType = formerTerType;
+				}
+			});
+
+			if(suitableTiles.size() == 1)
+			{
+				updateTerrainType(*suitableTiles.begin());
+			}
+			else
+			{
+				const int3 directions[] = { int3(0, -1, 0), int3(-1, 0, 0), int3(0, 1, 0), int3(1, 0, 0),
+											int3(-1, -1, 0), int3(-1, 1, 0), int3(1, 1, 0), int3(1, -1, 0)};
+				for(int i = 0; i < ARRAY_COUNT(directions); ++i)
+				{
+					auto it = suitableTiles.find(centerPos + directions[i]);
+					if(it != suitableTiles.end())
+					{
+						updateTerrainType(*it);
+						break;
+					}
 				}
 			}
-			assert(bestPattern != -1);
-			if(bestPattern == -1)
-			{
-				// This shouldn't be the case
-				logGlobal->warnStream() << "No pattern detected at pos " << x << "x" << y << "x" << rect.z;
-				continue;
-			}
+		}
+		else
+		{
+			positions.erase(centerPos);
+		}
+	}
+}
 
-			// Get mapping
-			const TerrainViewPattern & pattern = patterns[bestPattern];
-			std::pair<int, int> mapping;
-			if(valRslt.transitionReplacement.empty())
-			{
-				mapping = pattern.mapping[0];
-			}
-			else
-			{
-				mapping = valRslt.transitionReplacement == TerrainViewPattern::RULE_DIRT ? pattern.mapping[0] : pattern.mapping[1];
-			}
+void CDrawTerrainOperation::updateTerrainViews()
+{
+	BOOST_FOREACH(const auto & pos, invalidatedTerViews)
+	{
+		const auto & patterns =
+				CTerrainViewPatternConfig::get().getPatternsForGroup(getTerrainGroup(map->getTile(pos).terType));
 
-			// Set terrain view
-			auto & tile = map->getTile(int3(x, y, rect.z));
-			if(!pattern.diffImages)
+		// Detect a pattern which fits best
+		int bestPattern = -1;
+		ValidationResult valRslt(false);
+		for(int k = 0; k < patterns.size(); ++k)
+		{
+			const auto & pattern = patterns[k];
+			valRslt = validateTerrainView(pos, pattern);
+			if(valRslt.result)
 			{
-				tile.terView = gen->getInteger(mapping.first, mapping.second);
-				tile.extTileFlags = valRslt.flip;
+				/*logGlobal->debugStream() << boost::format("Pattern detected at pos '%s': Pattern '%s', Flip '%i', Repl. '%s'.") %
+											pos % pattern.id % valRslt.flip % valRslt.transitionReplacement;*/
+				bestPattern = k;
+				break;
 			}
-			else
-			{
-				const int framesPerRot = (mapping.second - mapping.first + 1) / pattern.rotationTypesCount;
-				int flip = (pattern.rotationTypesCount == 2 && valRslt.flip == 2) ? 1 : valRslt.flip;
-				int firstFrame = mapping.first + flip * framesPerRot;
-				tile.terView = gen->getInteger(firstFrame, firstFrame + framesPerRot - 1);
-				tile.extTileFlags =	0;
-			}
+		}
+		assert(bestPattern != -1);
+		if(bestPattern == -1)
+		{
+			// This shouldn't be the case
+			logGlobal->warnStream() << boost::format("No pattern detected at pos '%s'.") % pos;
+			continue;
+		}
+
+		// Get mapping
+		const TerrainViewPattern & pattern = patterns[bestPattern];
+		std::pair<int, int> mapping;
+		if(valRslt.transitionReplacement.empty())
+		{
+			mapping = pattern.mapping[0];
+		}
+		else
+		{
+			mapping = valRslt.transitionReplacement == TerrainViewPattern::RULE_DIRT ? pattern.mapping[0] : pattern.mapping[1];
+		}
+
+		// Set terrain view
+		auto & tile = map->getTile(pos);
+		if(!pattern.diffImages)
+		{
+			tile.terView = gen->getInteger(mapping.first, mapping.second);
+			tile.extTileFlags = valRslt.flip;
+		}
+		else
+		{
+			const int framesPerRot = (mapping.second - mapping.first + 1) / pattern.rotationTypesCount;
+			int flip = (pattern.rotationTypesCount == 2 && valRslt.flip == 2) ? 1 : valRslt.flip;
+			int firstFrame = mapping.first + flip * framesPerRot;
+			tile.terView = gen->getInteger(firstFrame, firstFrame + framesPerRot - 1);
+			tile.extTileFlags =	0;
 		}
 	}
 }
@@ -651,13 +793,80 @@ TerrainViewPattern CDrawTerrainOperation::getFlippedPattern(const TerrainViewPat
 	return ret;
 }
 
+void CDrawTerrainOperation::invalidateTerrainViews(const int3 & centerPos)
+{
+	auto rect = extendTileAroundSafely(centerPos);
+	rect.forEach([&](const int3 & pos)
+	{
+		invalidatedTerViews.insert(pos);
+	});
+}
+
+CDrawTerrainOperation::InvalidTiles CDrawTerrainOperation::getInvalidTiles(const int3 & centerPos) const
+{
+	InvalidTiles tiles;
+	auto centerTerType = map->getTile(centerPos).terType;
+	auto rect = extendTileAround(centerPos);
+	rect.forEach([&](const int3 & pos)
+	{
+		if(map->isInTheMap(pos))
+		{
+			auto terType = map->getTile(pos).terType;
+			// Pattern 2x2
+			const int3 translations[4] = { int3(-1, -1, 0), int3(0, -1, 0), int3(-1, 0, 0), int3(0, 0, 0) };
+			bool valid = true;
+			for(int i = 0; i < ARRAY_COUNT(translations); ++i)
+			{
+				valid = true;
+				MapRect square(int3(pos.x + translations[i].x, pos.y + translations[i].y, pos.z), 2, 2);
+				square.forEach([&](const int3 & pos)
+				{
+					if(map->isInTheMap(pos) && map->getTile(pos).terType != terType) valid = false;
+				});
+				if(valid) break;
+			}
+			if(!valid)
+			{
+				if(terType == centerTerType) tiles.nativeTiles.insert(pos);
+				else tiles.foreignTiles.insert(pos);
+			}
+		}
+	});
+	return tiles;
+}
+
+MapRect CDrawTerrainOperation::extendTileAround(const int3 & centerPos) const
+{
+	return MapRect(int3(centerPos.x - 1, centerPos.y - 1, centerPos.z), 3, 3);
+}
+
+MapRect CDrawTerrainOperation::extendTileAroundSafely(const int3 & centerPos) const
+{
+	return extendTileAround(centerPos) & MapRect(int3(0, 0, centerPos.z), map->width, map->height);
+}
+
 CDrawTerrainOperation::ValidationResult::ValidationResult(bool result, const std::string & transitionReplacement /*= ""*/)
 	: result(result), transitionReplacement(transitionReplacement)
 {
 
 }
 
-CInsertObjectOperation::CInsertObjectOperation(CMap * map, const int3 & pos, CGObjectInstance * obj)
+CClearTerrainOperation::CClearTerrainOperation(CMap * map, CRandomGenerator * gen) : CComposedOperation(map)
+{
+	CTerrainSelection terrainSel(map);
+	terrainSel.selectRange(MapRect(int3(0, 0, 0), map->width, map->height));
+	addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType::WATER, gen));
+	terrainSel.clearSelection();
+	terrainSel.selectRange(MapRect(int3(0, 0, 1), map->width, map->height));
+	addOperation(make_unique<CDrawTerrainOperation>(map, terrainSel, ETerrainType::ROCK, gen));
+}
+
+std::string CClearTerrainOperation::getLabel() const
+{
+	return "Clear Terrain";
+}
+
+CInsertObjectOperation::CInsertObjectOperation(CMap * map, CGObjectInstance * obj, const int3 & pos)
 	: CMapOperation(map), pos(pos), obj(obj)
 {
 

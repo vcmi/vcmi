@@ -422,7 +422,8 @@ void CMapGenerator::genTerrain()
 {
 	map->initTerrain();
 	editManager->clearTerrain(&gen);
-	editManager->drawTerrain(MapRect(int3(10, 10, 0), 20, 30), ETerrainType::GRASS, &gen);
+	editManager->getTerrainSelection().selectRange(MapRect(int3(10, 10, 0), 20, 30));
+	editManager->drawTerrain(ETerrainType::GRASS, &gen);
 }
 
 void CMapGenerator::genTowns()
@@ -445,7 +446,7 @@ void CMapGenerator::genTowns()
 		town->defInfo = VLC->dobjinfo->gobjs[town->ID][town->subID];
 		town->builtBuildings.insert(BuildingID::FORT);
 		town->builtBuildings.insert(BuildingID::DEFAULT);
-		editManager->insertObject(int3(townPos[side].x, townPos[side].y + (i / 2) * 5, 0), town);
+		editManager->insertObject(town, int3(townPos[side].x, townPos[side].y + (i / 2) * 5, 0));
 
 		// Update player info
 		playerInfo.allowedFactions.clear();

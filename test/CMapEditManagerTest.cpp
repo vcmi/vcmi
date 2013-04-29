@@ -60,7 +60,8 @@ BOOST_AUTO_TEST_CASE(CMapEditManager_DrawTerrain)
 				int3 pos(posVector[0].Float(), posVector[1].Float(), posVector[2].Float());
 				logGlobal->infoStream() << boost::format("Test pattern '%s' on position x '%d', y '%d', z '%d'.") % patternStr % pos.x % pos.y % pos.z;
 				const auto & originalTile = originalMap->getTile(pos);
-				editManager->drawTerrain(MapRect(pos, 1, 1), originalTile.terType, &gen);
+				editManager->getTerrainSelection().selectRange(MapRect(pos, 1, 1));
+				editManager->drawTerrain(originalTile.terType, &gen);
 				const auto & tile = map->getTile(pos);
 				bool isInRange = false;
 				BOOST_FOREACH(const auto & range, mapping)

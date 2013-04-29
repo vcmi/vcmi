@@ -38,19 +38,79 @@ struct DLL_LINKAGE MapRect
 
 	/// Returns a MapRect of the intersection of this rectangle and the given one.
 	MapRect operator&(const MapRect & rect) const;
+
+	template<typename Func>
+	void forEach(Func f) const
+	{
+		for(int i = x; i < right(); ++i)
+		{
+			for(int j = y; j < bottom(); ++j)
+			{
+				f(int3(i, j, z));
+			}
+		}
+	}
+};
+
+/// Generic selection class to select any type
+template<typename T>
+class DLL_LINKAGE CMapSelection
+{
+public:
+	explicit CMapSelection(CMap * map) : map(map) { }
+	virtual ~CMapSelection() { };
+	void select(const T & item)
+	{
+		selectedItems.insert(item);
+	}
+	void deselect(const T & item)
+	{
+		selectedItems.erase(item);
+	}
+	std::set<T> getSelectedItems()
+	{
+		return selectedItems;
+	}
+	CMap * getMap() { return map; }
+	virtual void selectRange(const MapRect & rect) { }
+	virtual void deselectRange(const MapRect & rect) { }
+	virtual void selectAll() { }
+	virtual void clearSelection() { }
+
+private:
+	std::set<T> selectedItems;
+	CMap * map;
+};
+
+/// Selection class to select terrain.
+class DLL_LINKAGE CTerrainSelection : public CMapSelection<int3>
+{
+public:
+	explicit CTerrainSelection(CMap * map);
+	void selectRange(const MapRect & rect) override;
+	void deselectRange(const MapRect & rect) override;
+	void selectAll() override;
+	void clearSelection() override;
+};
+
+/// Selection class to select objects.
+class DLL_LINKAGE CObjectSelection: public CMapSelection<CGObjectInstance *>
+{
+public:
+	explicit CObjectSelection(CMap * map);
 };
 
 /// The abstract base class CMapOperation defines an operation that can be executed, undone and redone.
 class DLL_LINKAGE CMapOperation : public boost::noncopyable
 {
 public:
-	CMapOperation(CMap * map);
+	explicit CMapOperation(CMap * map);
 	virtual ~CMapOperation() { };
 
 	virtual void execute() = 0;
 	virtual void undo() = 0;
 	virtual void redo() = 0;
-	virtual std::string getLabel() const; /// Returns a display-able name of the operation.
+	virtual std::string getLabel() const = 0; /// Returns a display-able name of the operation.
 
 protected:
 	CMap * map;
@@ -93,27 +153,49 @@ class DLL_LINKAGE CMapEditManager : boost::noncopyable
 {
 public:
 	CMapEditManager(CMap * map);
+	CMap * getMap();
 
 	/// Clears the terrain. The free level is filled with water and the underground level with rock.
-	void clearTerrain(CRandomGenerator * gen);
+	void clearTerrain(CRandomGenerator * gen = nullptr);
 
-	void drawTerrain(const MapRect & rect, ETerrainType terType, CRandomGenerator * gen);
-	void insertObject(const int3 & pos, CGObjectInstance * obj);
+	/// Draws terrain at the current terrain selection. The selection will be cleared automatically.
+	void drawTerrain(ETerrainType terType, CRandomGenerator * gen = nullptr);
+	void insertObject(CGObjectInstance * obj, const int3 & pos);
+
+	CTerrainSelection & getTerrainSelection();
+	CObjectSelection & getObjectSelection();
 
 	CMapUndoManager & getUndoManager();
-	void undo();
-	void redo();
 
 private:
 	void execute(unique_ptr<CMapOperation> && operation);
 
 	CMap * map;
 	CMapUndoManager undoManager;
+	CRandomGenerator gen;
+	CTerrainSelection terrainSel;
+	CObjectSelection objectSel;
 };
 
 /* ---------------------------------------------------------------------------- */
 /* Implementation/Detail classes, Private API */
 /* ---------------------------------------------------------------------------- */
+
+/// The CComposedOperation is an operation which consists of several operations.
+class CComposedOperation : public CMapOperation
+{
+public:
+	CComposedOperation(CMap * map);
+
+	void execute() override;
+	void undo() override;
+	void redo() override;
+
+	void addOperation(unique_ptr<CMapOperation> && operation);
+
+private:
+	std::list<unique_ptr<CMapOperation> > operations;
+};
 
 namespace ETerrainGroup
 {
@@ -214,7 +296,7 @@ private:
 class CDrawTerrainOperation : public CMapOperation
 {
 public:
-	CDrawTerrainOperation(CMap * map, const MapRect & rect, ETerrainType terType, CRandomGenerator * gen);
+	CDrawTerrainOperation(CMap * map, const CTerrainSelection & terrainSel, ETerrainType terType, CRandomGenerator * gen);
 
 	void execute() override;
 	void undo() override;
@@ -232,7 +314,18 @@ private:
 		int flip;
 	};
 
-	void updateTerrainViews(const MapRect & rect);
+	struct InvalidTiles
+	{
+		std::set<int3> foreignTiles, nativeTiles;
+	};
+
+	void updateTerrainTypes();
+	void invalidateTerrainViews(const int3 & centerPos);
+	InvalidTiles getInvalidTiles(const int3 & centerPos) const;
+	MapRect extendTileAround(const int3 & centerPos) const;
+	MapRect extendTileAroundSafely(const int3 & centerPos) const; /// doesn't exceed map size
+
+	void updateTerrainViews();
 	ETerrainGroup::ETerrainGroup getTerrainGroup(ETerrainType terType) const;
 	/// Validates the terrain view of the given position and with the given pattern. The first method wraps the
 	/// second method to validate the terrain view with the given pattern in all four flip directions(horizontal, vertical).
@@ -246,16 +339,29 @@ private:
 	static const int FLIP_PATTERN_VERTICAL = 2;
 	static const int FLIP_PATTERN_BOTH = 3;
 
-	MapRect rect;
+	CTerrainSelection terrainSel;
 	ETerrainType terType;
 	CRandomGenerator * gen;
+	std::set<int3> invalidatedTerViews;
+};
+
+/// The CClearTerrainOperation clears+initializes the terrain.
+class CClearTerrainOperation : public CComposedOperation
+{
+public:
+	CClearTerrainOperation(CMap * map, CRandomGenerator * gen);
+
+	std::string getLabel() const override;
+
+private:
+
 };
 
 /// The CInsertObjectOperation class inserts an object to the map.
 class CInsertObjectOperation : public CMapOperation
 {
 public:
-	CInsertObjectOperation(CMap * map, const int3 & pos, CGObjectInstance * obj);
+	CInsertObjectOperation(CMap * map, CGObjectInstance * obj, const int3 & pos);
 
 	void execute() override;
 	void undo() override;

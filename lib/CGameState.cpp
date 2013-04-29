@@ -26,6 +26,7 @@
 #include "filesystem/CResourceLoader.h"
 #include "GameConstants.h"
 #include "rmg/CMapGenerator.h"
+#include "CStopWatch.h"
 
 DLL_LINKAGE boost::rand48 ran;
 class CGObjectInstance;
@@ -864,6 +865,7 @@ void CGameState::init(StartInfo * si)
 			if(scenarioOps->createRandomMap)
 			{
                 logGlobal->infoStream() << "Create random map.";
+				CStopWatch sw;
 
 				// Create player settings for RMG
                 BOOST_FOREACH(const auto & pair, scenarioOps->playerInfos)
@@ -902,6 +904,7 @@ void CGameState::init(StartInfo * si)
 					}
 				}
 
+				logGlobal->infoStream() << boost::format("Generated random map in %i ms.") % sw.getDiff();
 			}
 			else
 			{
