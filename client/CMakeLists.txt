@@ -85,10 +85,10 @@ elseif(APPLE)
         # Copy vcmi data
         mkdir -p ${BUNDLE_PATH}/Data &&
         mkdir -p ${BUNDLE_PATH}/Data/Mods &&
-        mkdir -p ${BUNDLE_PATH}/Data/Mods/WoG &&
         cp -r ${CMAKE_HOME_DIRECTORY}/config ${BUNDLE_PATH}/Data/config &&
         cp -r ${CMAKE_HOME_DIRECTORY}/Mods/vcmi ${BUNDLE_PATH}/Data/Mods/vcmi &&
-        cp ${CMAKE_HOME_DIRECTORY}/Mods/WoG/mod.json ${BUNDLE_PATH}/Data/Mods/WoG/mod.json)
+        cp -r ${CMAKE_HOME_DIRECTORY}/Mods/WoG ${BUNDLE_PATH}/Data/Mods/WoG)
+        
     add_custom_command(TARGET vcmiclient POST_BUILD COMMAND ${MakeVCMIBundle})
 else()
     add_executable(vcmiclient ${client_SRCS})
