@@ -1,4 +1,4 @@
-// Defines terrain view patterns.
+// Defines terrain view/types patterns.
 
 // The following table shows the rules for the 3x3 pattern of all terrain types: 
 // I) normal(e.g. grass, lava, ...):
@@ -8,7 +8,7 @@
 // T:		Sand OR dirt border(all Ts in the pattern are replaced by dirt OR sand)
 // ?:		D,S or N
 // II) dirt:
-// N:		Native type
+// N:		Native type or normal type(grass, lava, ...)
 // S:		Sand border
 // ?:		Any border
 // III) sand:
@@ -18,216 +18,271 @@
 // S:		Sand border
 // ?:		Any border
 
+// Additional rule for validiting terrain type:
+// N!:		Native type always(unlike N for dirt)
+
 // The order of the patterns is important, do not change!
-[
-	// Extended mixed transitions
-	{
-		"id" : "x1",
-		"data" :
-		[
-			"T", "N", "N",
-			"N", "N", "T",
-			"N", "T", "T"
-		],
-		"mapping" : { "normal" : "73,74", "dirt" : "45" }
-	},
-	{
-		"id" : "x2",
-		"data" :
-		[
-			"D", "D", "N",
-			"D", "N", "N",
-			"N", "N", "S"
-		],
-		"mapping" : { "normal" : "75" }
-	},
-	{
-		"id" : "x3",
-		"data" :
-		[
-			"S", "S", "N",
-			"S", "N", "N",
-			"N", "N", "D"
-		],
-		"mapping" : { "normal" : "76" }
-	},
-	{
-		"id" : "x4",
-		"data" :
-		[
-			"N", "N", "S",
-			"N", "N", "D",
-			"S", "D", "D"
-		],
-		"mapping" : { "normal" : "77" }
-	},
-	{
-		"id" : "x5",
-		"data" :
-		[
-			"N", "N", "D",
-			"N", "N", "D",
-			"D", "D", "S"
-		],
-		"mapping" : { "normal" : "78" }
-	},
-	// No transition
-	{
-		"id" : "n1",
-		"data" :
-		[
-			"N", "N", "N",
-			"N", "N", "N",
-			"N", "N", "N"
-		],
-		"mapping" : { "normal" : "49-72", "dirt" : "21-44", "sand" : "0-23", "water" : "20-32", "rock": "0-7" }
-	},
-	// Mixed transitions
-	{
-		"id" : "m1",
-		"data" :
-		[
-			"T", "N", "N",
-			"N", "N", "N",
-			"N", "N", "T"
-		],
-		"mapping" : { "normal" : "40, 42", "dirt" : "20" }
-	},
-	{
-		"id" : "m2",
-		"data" :
-		[
-			"D", "N", "N",
-			"N", "N", "N",
-			"N", "N", "S"
-		],
-		"mapping" : { "normal" : "41" }
-	},
-	{
-		"id" : "m3",
-		"data" :
-		[
-			"N", "N", "D,N",
-			"N", "N", "D",
-			"S", "D,N", "D,N"
-		],
-		"mapping" : { "normal" : "43" }
-	},
-	{
-		"id" : "m4",
-		"data" :
-		[
-			"N", "N", "S",
-			"N", "N", "D",
-			"D,N", "D", "D,N"
-		],
-		"mapping" : { "normal" : "44" }
-	},
-	{
-		"id" : "m5",
-		"data" :
-		[
-			"N", "N", "D",
-			"N", "N", "D",
-			"N", "N", "S"
-		],
-		"mapping" : { "normal" : "45" }
-	},
-	{
-		"id" : "m6",
-		"data" :
-		[
-			"N", "N", "N",
-			"N", "N", "N",
-			"D,N", "D", "S"
-		],
-		"mapping" : { "normal" : "46" }
-	},
-	{
-		"id" : "m7",
-		"data" :
-		[
-			"N", "N", "?",
-			"N", "N", "S",
-			"D-1,N", "D-1,N", "?"
-		],
-		"minPoints" : 1,
-		"mapping" : { "normal" : "47" }
-	},
-	{
-		"id" : "m8",
-		"data" :
-		[
-			"N", "N", "D-1,N",
-			"N", "N", "D-1,N",
-			"?", "S", "?"
-		],
-		"minPoints" : 1,
-		"mapping" : { "normal" : "48" }
-	},
-	// Standard transitions
-	{
-		"id" : "s1",
-		"data" :
-		[
-			"T,N-1", "T,N-2", "T,N-3",
-			"T,N-2", "N", "N",
-			"T", "N", "N"
-		],
-		"maxPoints" : 3,
-		"mapping" : { "normal" : "0-3, 20-23", "dirt" : "0-3", "water" : "0-3", "rock": "4D:8-15" }
-	},
-	{
-		"id" : "s2",
-		"data" :
-		[
-			"?", "N", "N",
-			"T", "N", "N",
-			"?", "N", "N"
-		],
-		"mapping" : { "normal" : "4-7, 24-27", "dirt" : "4-7", "water" : "4-7", "rock": "2D:16-19" }
-	},
-	{
-		"id" : "s3",
-		"data" :
-		[
-			"?", "T", "?",
-			"N", "N", "N",
-			"N", "N", "N"
-		],
-		"mapping" : { "normal" : "8-11, 28-31", "dirt" : "8-11", "water" : "8-11", "rock": "2D:20-23" }
-	},
-	{
-		"id" : "s4",
-		"data" :
-		[
-			"N", "N", "N",
-			"N", "N", "s3-1,m7-1,m8-1",
-			"N", "s2-1,m7-1,m8-1", "T"
-		],
-		"minPoints" : 2,
-		"mapping" : { "normal" : "12-15, 32-35", "dirt" : "12-15", "water" : "12-15", "rock": "4D:24-31" }
-	},
-	{
-		"id" : "s5",
-		"data" :
-		[
-			"T", "T", "?",
-			"T", "N", "s6-1,m1-1,m2-1,N",
-			"?", "s6-1,m1-1,m2-1,N", "N"
-		],
-		"minPoints" : 1,
-		"mapping" : { "normal" : "16-17, 36-37", "dirt" : "16-17", "water" : "16-17", "rock": "4D:32-39" }
-	},
-	{
-		"id" : "s6",
-		"data" :
-		[
-			"N", "N", "N",
-			"N", "N", "s5-1,N",
-			"N", "s5-1,N", "T"
-		],
-		"minPoints" : 1,
-		"mapping" : { "normal" : "18-19, 38-39", "dirt" : "18-19", "water" : "18-19", "rock": "4D:40-47" }
-	}
-]
+{
+	"terrainView" :
+	[
+		// Extended mixed transitions
+		{
+			"id" : "x1",
+			"data" :
+			[
+				"T", "N", "N",
+				"N", "N", "T",
+				"N", "T", "T"
+			],
+			"mapping" : { "normal" : "73,74", "dirt" : "45" }
+		},
+		{
+			"id" : "x2",
+			"data" :
+			[
+				"D", "D", "N",
+				"D", "N", "N",
+				"N", "N", "S"
+			],
+			"mapping" : { "normal" : "75" }
+		},
+		{
+			"id" : "x3",
+			"data" :
+			[
+				"S", "S", "N",
+				"S", "N", "N",
+				"N", "N", "D"
+			],
+			"mapping" : { "normal" : "76" }
+		},
+		{
+			"id" : "x4",
+			"data" :
+			[
+				"N", "N", "S",
+				"N", "N", "D",
+				"S", "D", "D"
+			],
+			"mapping" : { "normal" : "77" }
+		},
+		{
+			"id" : "x5",
+			"data" :
+			[
+				"N", "N", "D",
+				"N", "N", "D",
+				"D", "D", "S"
+			],
+			"mapping" : { "normal" : "78" }
+		},
+		// No transition
+		{
+			"id" : "n1",
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "N",
+				"N", "N", "N"
+			],
+			"mapping" : { "normal" : "49-72", "dirt" : "21-44", "sand" : "0-23", "water" : "20-32", "rock": "0-7" }
+		},
+		// Mixed transitions
+		{
+			"id" : "m1",
+			"data" :
+			[
+				"T", "N", "N",
+				"N", "N", "N",
+				"N", "N", "T"
+			],
+			"mapping" : { "normal" : "40, 42", "dirt" : "20" }
+		},
+		{
+			"id" : "m2",
+			"data" :
+			[
+				"D", "N", "N",
+				"N", "N", "N",
+				"N", "N", "S"
+			],
+			"mapping" : { "normal" : "41" }
+		},
+		{
+			"id" : "m3",
+			"data" :
+			[
+				"N", "N", "D,N",
+				"N", "N", "D",
+				"S", "D,N", "D,N"
+			],
+			"mapping" : { "normal" : "43" }
+		},
+		{
+			"id" : "m4",
+			"data" :
+			[
+				"N", "N", "S",
+				"N", "N", "D",
+				"D,N", "D", "D,N"
+			],
+			"mapping" : { "normal" : "44" }
+		},
+		{
+			"id" : "m5",
+			"data" :
+			[
+				"N", "N", "D",
+				"N", "N", "D",
+				"N", "N", "S"
+			],
+			"mapping" : { "normal" : "45" }
+		},
+		{
+			"id" : "m6",
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "N",
+				"D,N", "D", "S"
+			],
+			"mapping" : { "normal" : "46" }
+		},
+		{
+			"id" : "m7",
+			"data" :
+			[
+				"N", "N", "?",
+				"N", "N", "S",
+				"D-1,N", "D-1,N", "?"
+			],
+			"minPoints" : 1,
+			"mapping" : { "normal" : "47" }
+		},
+		{
+			"id" : "m8",
+			"data" :
+			[
+				"N", "N", "D-1,N",
+				"N", "N", "D-1,N",
+				"?", "S", "?"
+			],
+			"minPoints" : 1,
+			"mapping" : { "normal" : "48" }
+		},
+		// Standard transitions
+		{
+			"id" : "s2",
+			"data" :
+			[
+				"?", "N", "N",
+				"T", "N", "N",
+				"?", "N", "N"
+			],
+			"mapping" : { "normal" : "4-7, 24-27", "dirt" : "4-7", "water" : "4-7", "rock": "2D:16-19" }
+		},
+		{
+			"id" : "s3",
+			"data" :
+			[
+				"?", "T", "?",
+				"N", "N", "N",
+				"N", "N", "N"
+			],
+			"mapping" : { "normal" : "8-11, 28-31", "dirt" : "8-11", "water" : "8-11", "rock": "2D:20-23" }
+		},
+		{
+			"id" : "s4",
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "s3-1,m7-1,m8-1",
+				"N", "s2-1,m7-1,m8-1", "T"
+			],
+			"minPoints" : 2,
+			"mapping" : { "normal" : "12-15, 32-35", "dirt" : "12-15", "water" : "12-15", "rock": "4D:24-31" }
+		},
+		{
+			"id" : "s5",
+			"data" :
+			[
+				"T", "T", "?",
+				"T", "N", "s6-1,m1-1,m2-1,N",
+				"?,x1-1,s1-1", "s6-1,m1-1,m2-1,N", "N"
+			],
+			"minPoints" : 1,
+			"mapping" : { "normal" : "16-17, 36-37", "dirt" : "16-17", "water" : "16-17", "rock": "4D:32-39" }
+		},
+		{
+			"id" : "s6",
+			"data" :
+			[
+				"N", "N", "N",
+				"N", "N", "s5-1,N",
+				"N", "s5-1,N", "T"
+			],
+			"minPoints" : 1,
+			"mapping" : { "normal" : "18-19, 38-39", "dirt" : "18-19", "water" : "18-19", "rock": "4D:40-47" }
+		},
+		{
+			"id" : "s1",
+			"data" :
+			[
+				"?", "?", "?",
+				"?", "N", "N",
+				"T", "N", "N"
+			],
+			"mapping" : { "normal" : "0-3, 20-23", "dirt" : "0-3", "water" : "0-3", "rock": "4D:8-15" }
+		}
+	],
+	"terrainType" :
+	[
+		{
+			"id" : "n1",
+			"data" :
+			[
+				"N!", "N!", "?",
+				"N!", "N!", "?",
+				"?", "?", "?"
+			]
+		},
+		{
+			"id" : "n2",
+			"data" :
+			[
+				"N!", "N!", "D,S",
+				"D,S", "N!", "N!",
+				"D,S", "D,S", "N!"
+			]
+		},
+		{
+			"id" : "n3",
+			"data" :
+			[
+				"D,S", "D,S", "N!",
+				"D,S", "N!", "N!",
+				"N!", "N!", "D,S"
+			]
+		},
+		{
+			"id" : "s1",
+			"data" :
+			[
+				"T", "N", "N",
+				"N", "N", "N",
+				"N", "T-1,N", "T-1,N"
+			],
+			"minPoints" : 1
+		},
+		{
+			"id" : "s2",
+			"data" :
+			[
+				"N", "N", "T",
+				"T-1,N", "N", "N",
+				"T-1,N", "N", "N"
+			],
+			"minPoints" : 1
+		},
+	]
+}

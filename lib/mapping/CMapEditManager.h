@@ -42,9 +42,9 @@ struct DLL_LINKAGE MapRect
 	template<typename Func>
 	void forEach(Func f) const
 	{
-		for(int i = x; i < right(); ++i)
+		for(int j = y; j < bottom(); ++j)
 		{
-			for(int j = y; j < bottom(); ++j)
+			for(int i = x; i < right(); ++i)
 			{
 				f(int3(i, j, z));
 			}
@@ -225,6 +225,7 @@ struct DLL_LINKAGE TerrainViewPattern
 		int points;
 	};
 
+	static const int PATTERN_DATA_SIZE = 9;
 	/// Constant for the flip mode different images. Pattern will be flipped and different images will be used(mapping area is divided into 4 parts)
 	static const std::string FLIP_MODE_DIFF_IMAGES;
 	/// Constant for the rule dirt, meaning a dirty border is required.
@@ -233,8 +234,10 @@ struct DLL_LINKAGE TerrainViewPattern
 	static const std::string RULE_SAND;
 	/// Constant for the rule transition, meaning a dirty OR sandy border is required.
 	static const std::string RULE_TRANSITION;
-	/// Constant for the rule native, meaning a native type is required.
+	/// Constant for the rule native, meaning a native border is required.
 	static const std::string RULE_NATIVE;
+	/// Constant for the rule native strong, meaning a native type is required.
+	static const std::string RULE_NATIVE_STRONG;
 	/// Constant for the rule any, meaning a native type, dirty OR sandy border is required.
 	static const std::string RULE_ANY;
 
@@ -250,7 +253,7 @@ struct DLL_LINKAGE TerrainViewPattern
 	/// can be used. Their meaning differs also from type to type.
 	///
 	/// std::vector -> several rules can be used in one cell
-	std::array<std::vector<WeightedRule>, 9> data;
+	std::array<std::vector<WeightedRule>, PATTERN_DATA_SIZE> data;
 
 	/// The identifier of the pattern, if it's referenced from a another pattern.
 	std::string id;
@@ -270,8 +273,6 @@ struct DLL_LINKAGE TerrainViewPattern
 
 	/// The minimum and maximum points to reach to validate the pattern successfully.
 	int minPoints, maxPoints;
-
-	ETerrainGroup::ETerrainGroup terGroup;
 };
 
 /// The terrain view pattern config loads pattern data from the filesystem.
@@ -280,15 +281,17 @@ class DLL_LINKAGE CTerrainViewPatternConfig : public boost::noncopyable
 public:
 	static CTerrainViewPatternConfig & get();
 
-	const std::vector<TerrainViewPattern> & getPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
-	boost::optional<const TerrainViewPattern &> getPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
+	const std::vector<TerrainViewPattern> & getTerrainViewPatternsForGroup(ETerrainGroup::ETerrainGroup terGroup) const;
+	boost::optional<const TerrainViewPattern &> getTerrainViewPatternById(ETerrainGroup::ETerrainGroup terGroup, const std::string & id) const;
+	const TerrainViewPattern & getTerrainTypePatternById(const std::string & id) const;
 	ETerrainGroup::ETerrainGroup getTerrainGroup(const std::string & terGroup) const;
 
 private:
 	CTerrainViewPatternConfig();
 	~CTerrainViewPatternConfig();
 
-	std::map<ETerrainGroup::ETerrainGroup, std::vector<TerrainViewPattern> > patterns;
+	std::map<ETerrainGroup::ETerrainGroup, std::vector<TerrainViewPattern> > terrainViewPatterns;
+	std::map<std::string, TerrainViewPattern> terrainTypePatterns;
 	static boost::mutex smx;
 };
 
