@@ -278,7 +278,12 @@ namespace EMapFormat
 {
 enum EMapFormat
 {
-	INVALID, WOG=0x33, AB=0x15, ROE=0x0e, SOD=0x1c
+	INVALID = 0,
+	//    HEX     DEC
+	ROE = 0x0e, // 14
+	AB  = 0x15, // 21
+	SOD = 0x1c, // 28
+	WOG = 0x33  // 51
 };
 }
 

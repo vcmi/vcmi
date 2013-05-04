@@ -1108,7 +1108,10 @@ void SelectionTab::parseMaps(const std::vector<ResourceID> & files)
 		{
 			CMapInfo mapInfo;
 			mapInfo.mapInit(files[i].getName());
-			allItems.push_back(mapInfo);
+
+			// ignore unsupported map versions (e.g. WoG maps without WoG
+			if (mapInfo.mapHeader->version <= CGI->modh->settings.data["textData"]["mapVersion"].Float())
+				allItems.push_back(mapInfo);
 		}
 		catch(std::exception & e)
 		{
