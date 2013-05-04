@@ -282,7 +282,6 @@ int main(int argc, char** argv)
 	};
 
 	if (!testFile("DATA/HELP.TXT", "Heroes III data") &&
-	    !testFile("DATA/ZELP.TXT", "In the Wake of Gods data") &&
 	    !testFile("MODS/VCMI/MOD.JSON", "VCMI mod") &&
 	    !testFile("DATA/StackQueueBgBig.PCX", "VCMI data"))
 		exit(1); // These are unrecoverable errors

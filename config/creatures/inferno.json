@@ -398,7 +398,7 @@
 			"hateArchAngels" : 
 			{
 				"type" : "HATE",
-				"subtype" : "creature.angel",
+				"subtype" : "creature.archangel",
 				"val" : 50
 			},
 			"FLYING_ARMY" :

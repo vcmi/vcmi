@@ -140,12 +140,13 @@ endif()
 
 # For apple this files will be already inside vcmiclient bundle
 if (NOT APPLE)
-	# copy whole directory but .svn control files and user-specific settings.json
+	# copy whole directory but .svn control files
 	install(DIRECTORY config DESTINATION ${DATA_DIR} PATTERN ".svn" EXCLUDE)
 	# copy vcmi mod along with all its content
 	install(DIRECTORY Mods/vcmi DESTINATION ${DATA_DIR}/Mods PATTERN ".svn" EXCLUDE)
-	# copy only mod.json for WoG
+	# copy only files added by vcmi for WoG
 	install(FILES Mods/WoG/mod.json DESTINATION ${DATA_DIR}/Mods/WoG)
+	install(DIRECTORY Mods/WoG/config DESTINATION ${DATA_DIR}/Mods/WoG PATTERN ".svn" EXCLUDE)
 
 	install(FILES vcmibuilder DESTINATION ${BIN_DIR} PERMISSIONS
 		OWNER_WRITE OWNER_READ OWNER_EXECUTE

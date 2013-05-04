@@ -16,10 +16,5 @@
 	},
 
 	"name" : "VCMI essential files",
-	"description" : "Essential files required for VCMI to run correctly",
-	
-	"depends" :
-	[
-		"wog"
-	]
+	"description" : "Essential files required for VCMI to run correctly"
 }

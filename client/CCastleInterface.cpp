@@ -874,7 +874,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, const CGTownInst
 
 	Rect barRect(9, 182, 732, 18);
 	statusbar = new CGStatusBar(new CPicture(*panel, barRect, 9, 555, false));
-	resdatabar = new CResDataBar("ZRESBAR", 3, 575, 32, 2, 85, 85);
+	resdatabar = new CResDataBar("ARESBAR", 3, 575, 32, 2, 85, 85);
 
 	townlist = new CTownList(3, Point(744, 414), "IAM014", "IAM015");
 	if (from)
@@ -1518,7 +1518,7 @@ CFortScreen::RecruitArea::RecruitArea(int posX, int posY, const CGTownInstance *
 	if (!town->creatures[level].second.empty())
 		addUsedEvents(LCLICK | RCLICK | HOVER);//Activate only if dwelling is present
 	
-	icons = new CPicture("ZPCAINFO", 261, 3);
+	icons = new CPicture("TPCAINFO", 261, 3);
 	buildingPic = new CAnimImage(town->town->clientInfo.buildingsIcons, buildingID, 0, 4, 21);
 
 	const CCreature* creature = NULL;

@@ -130,32 +130,9 @@ public:
 		return *this;
 	}
 
-	/**
-	 * Gets the name of the identifier.
-	 *
-	 * @return the name of the identifier
-	 */
 	std::string getName() const;
-
-	/**
-	 * Gets the type of the identifier.
-	 *
-	 * @return the type of the identifier
-	 */
 	EResType::Type getType() const;
-
-	/**
-	 * Sets the name of the identifier.
-	 *
-	 * @param name the name of the identifier. No extension, will be converted to uppercase.
-	 */
 	void setName(std::string name);
-
-	/**
-	 * Sets the type of the identifier.
-	 *
-	 * @param type the type of the identifier.
-	 */
 	void setType(EResType::Type type);
 
 protected:
@@ -390,6 +367,7 @@ public:
 	static void loadFileSystem(const std::string &prefix, const JsonNode & fsConfig);
 	static void loadDirectory(const std::string &prefix, const std::string & mountPoint, const JsonNode & config);
 	static void loadArchive(const std::string &prefix, const std::string & mountPoint, const JsonNode & config, EResType::Type archiveType);
+	static void loadJsonMap(const std::string &prefix, const std::string & mountPoint, const JsonNode & config);
 
 	/**
 	 * Checks all subfolders of MODS directory for presence of mods

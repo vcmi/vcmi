@@ -163,7 +163,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 	readToVector("DATA/RESTYPES.TXT", restypes);
 	readToVector("DATA/TERRNAME.TXT", terrainNames);
 	readToVector("DATA/RANDSIGN.TXT", randsign);
-	readToVector("DATA/ZCRGN1.TXT",   creGens);
+	readToVector("DATA/CRGEN1.TXT",   creGens);
 	readToVector("DATA/CRGEN4.TXT",   creGens4);
 	readToVector("DATA/OVERVIEW.TXT", overview);
 	readToVector("DATA/ARRAYTXT.TXT", arraytxt);
@@ -186,7 +186,7 @@ CGeneralTextHandler::CGeneralTextHandler()
 		while (parser.endLine());
 	}
 	{
-		CLegacyConfigParser parser("DATA/ZELP.TXT");
+		CLegacyConfigParser parser("DATA/HELP.TXT");
 		do
 		{
 			std::string first = parser.readString();

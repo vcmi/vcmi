@@ -879,8 +879,17 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 		boost::algorithm::replace_first(hlp,"%s", (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str());
 		battleInt->console->addText(hlp);
 		battleInt->displayEffect(18, stack->position);
+		CCS->soundh->playSound(soundBase::GOODLUCK);
 	}
-	//TODO: bad luck?
+	if(ba->unlucky()) //unlucky hit
+	{
+		const CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
+		std::string hlp = CGI->generaltexth->allTexts[44];
+		boost::algorithm::replace_first(hlp,"%s", (stack->count != 1) ? stack->getCreature()->namePl.c_str() : stack->getCreature()->nameSing.c_str());
+		battleInt->console->addText(hlp);
+		battleInt->displayEffect(48, stack->position);
+		CCS->soundh->playSound(soundBase::BADLUCK);
+	}
 	if (ba->deathBlow())
 	{
 		const CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
@@ -892,6 +901,7 @@ void CPlayerInterface::battleAttack(const BattleAttack *ba)
 			const CStack * attacked = cb->battleGetStackByID(i->stackAttacked);
 			battleInt->displayEffect(73, attacked->position);
 		}
+		CCS->soundh->playSound(soundBase::deathBlow);
 
 	}
 

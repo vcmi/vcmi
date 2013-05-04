@@ -33,36 +33,13 @@ public:
 	 */
 	explicit CFilesystemLoader(const std::string & baseDirectory, size_t depth = 16, bool initial = false);
 
-	/**
-	 * Loads a resource with the given resource name.
-	 *
-	 * @param resourceName The unqiue resource name in space of the filesystem.
-	 * @return a input stream object, not null
-	 */
-	std::unique_ptr<CInputStream> load(const std::string & resourceName) const;
-
-	/**
-	 * Checks if the file entry exists.
-	 *
-	 * @return true if the entry exists, false if not.
-	 */
-	bool existsEntry(const std::string & resourceName) const;
-
-	/**
-	 * Gets all entries in the filesystem.
-	 *
-	 * @return a list of all entries in the filesystem.
-	 */
-	boost::unordered_map<ResourceID, std::string> getEntries() const;
-
-	/**
-	 * Gets the origin of the archive loader.
-	 *
-	 * @return the file path to directory with archive (e.g. path/to/h3/mp3)
-	 */
-	std::string getOrigin() const;
-
-	bool createEntry(std::string filename);
+	/// Interface implementation
+	/// @see ISimpleResourceLoader
+	std::unique_ptr<CInputStream> load(const std::string & resourceName) const override;
+	bool existsEntry(const std::string & resourceName) const override;
+	boost::unordered_map<ResourceID, std::string> getEntries() const override;
+	std::string getOrigin() const override;
+	bool createEntry(std::string filename) override;
 
 private:
 	/** The base directory which is scanned and indexed. */

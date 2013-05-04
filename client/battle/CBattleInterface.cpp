@@ -1986,6 +1986,7 @@ void CBattleInterface::battleTriggerEffect(const BattleTriggerEffect & bte)
 			std::string hlp = CGI->generaltexth->allTexts[33];
 			boost::algorithm::replace_first(hlp,"%s",(stack->getName()));
 			displayEffect(20,stack->position);
+			CCS->soundh->playSound(soundBase::GOODMRLE);
 			console->addText(hlp);
 			break;
 		}
@@ -2640,6 +2641,7 @@ void CBattleInterface::startAction(const BattleAction* action)
 	case Battle::BAD_MORALE:
 		txtid = -34; //negative -> no separate singular/plural form
 		displayEffect(30,stack->position);
+		CCS->soundh->playSound(soundBase::BADMRLE);
 		break;
 	}
 

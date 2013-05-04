@@ -697,17 +697,23 @@ void CGameHandler::prepareAttack(BattleAttack &bat, const CStack *att, const CSt
 	int attackerLuck = att->LuckVal();
 	const CGHeroInstance * h0 = gs->curB->heroes[0],
 		* h1 = gs->curB->heroes[1];
-	bool noLuck = false;
-	if((h0 && NBonus::hasOfType(h0, Bonus::BLOCK_LUCK)) ||
-	   (h1 && NBonus::hasOfType(h1, Bonus::BLOCK_LUCK)))
+
+	if(!(h0 && NBonus::hasOfType(h0, Bonus::BLOCK_LUCK)) &&
+	   !(h1 && NBonus::hasOfType(h1, Bonus::BLOCK_LUCK)))
 	{
-		noLuck = true;
+		if(attackerLuck > 0  && rand()%24 < attackerLuck)
+		{
+			bat.flags |= BattleAttack::LUCKY;
+		}
+		if (VLC->modh->settings.data["hardcodedFeatures"]["NEGATIVE_LUCK"].Bool()) // negative luck enabled
+		{
+			if (attackerLuck < 0 && rand()%24 < abs(attackerLuck))
+			{
+				bat.flags |= BattleAttack::UNLUCKY;
+			}
+		}
 	}
 
-	if(!noLuck && attackerLuck > 0  &&  rand()%24 < attackerLuck) //TODO?: negative luck option?
-	{
-		bat.flags |= BattleAttack::LUCKY;
-	}
 	if (rand()%100 < att->valOfBonuses(Bonus::DOUBLE_DAMAGE_CHANCE))
 	{
 		bat.flags |= BattleAttack::DEATH_BLOW;
@@ -764,7 +770,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		bsa.flags |= BattleStackAttacked::SECONDARY; //all other targets do not suffer from spells & spell-like abilities
 	bsa.attackerID = att->ID;
 	bsa.stackAttacked = def->ID;
-	bsa.damageAmount = gs->curB->calculateDmg(att, def, gs->curB->battleGetOwner(att), gs->curB->battleGetOwner(def), bat.shot(), distance, bat.lucky(), bat.deathBlow(), bat.ballistaDoubleDmg());
+	bsa.damageAmount = gs->curB->calculateDmg(att, def, gs->curB->battleGetOwner(att), gs->curB->battleGetOwner(def), bat.shot(), distance, bat.lucky(), bat.unlucky(), bat.deathBlow(), bat.ballistaDoubleDmg());
 	def->prepareAttacked(bsa); //calculate casualties
 
 	//life drain handling

@@ -13,6 +13,7 @@ set(lib_SRCS
 		filesystem/CResourceLoader.cpp
 		filesystem/CFileInputStream.cpp
 		filesystem/CCompressedStream.cpp
+		filesystem/CMappedFileLoader.cpp
 		logging/CBasicLogConfigurator.cpp
 		logging/CLogger.cpp
 		mapping/CCampaignHandler.cpp

@@ -492,7 +492,7 @@ void CMovementAnimation::endAnim()
 {
 	const CStack * movedStack = stack;
 
-	myAnim()->pos = CClickableHex::getXYUnitAnim(nextHex, movedStack->attackerOwned, movedStack, owner);
+	myAnim()->pos = CClickableHex::getXYUnitAnim(nextHex, owner->creDir[stack->ID], movedStack, owner);
 	CBattleAnimation::endAnim();
 
 	if(movedStack)
@@ -604,6 +604,8 @@ CReverseAnimation::CReverseAnimation(CBattleInterface * _owner, const CStack * s
 
 bool CReverseAnimation::init()
 {
+	logGlobal->errorStream() << "Pos at " << myAnim()->pos.x << "x" << myAnim()->pos.y;
+
 	if(myAnim() == NULL || myAnim()->getType() == CCreatureAnim::DEATH)
 	{
 		endAnim();
@@ -614,8 +616,10 @@ bool CReverseAnimation::init()
 	if(!priority && !isEarliest(false))
 		return false;
 
-	if(myAnim()->framesInGroup(CCreatureAnim::TURN_R))
-		myAnim()->setType(CCreatureAnim::TURN_R);
+	//myAnim()->pos = CClickableHex::getXYUnitAnim(hex, owner->creDir[stack->ID], stack, owner);
+
+	if(myAnim()->framesInGroup(CCreatureAnim::TURN_L))
+		myAnim()->setType(CCreatureAnim::TURN_L);
 	else
 		setupSecondPart();
 
@@ -647,6 +651,8 @@ void CReverseAnimation::nextFrame()
 
 void CReverseAnimation::endAnim()
 {
+	logGlobal->errorStream() << "Pos on end " << myAnim()->pos.x << "x" << myAnim()->pos.y;
+
 	CBattleAnimation::endAnim();
 	if( stack->alive() )//don't do that if stack is dead
 		myAnim()->setType(CCreatureAnim::HOLDING);
@@ -656,6 +662,7 @@ void CReverseAnimation::endAnim()
 
 void CReverseAnimation::setupSecondPart()
 {
+	logGlobal->errorStream() << "Pos before 2nd " << myAnim()->pos.x << "x" << myAnim()->pos.y;
 	if(!stack)
 	{
 		endAnim();
@@ -664,9 +671,7 @@ void CReverseAnimation::setupSecondPart()
 
 	owner->creDir[stack->ID] = !owner->creDir[stack->ID];
 
-	Point coords = CClickableHex::getXYUnitAnim(hex, owner->creDir[stack->ID], stack, owner);
-	myAnim()->pos.x = coords.x;
-	//creAnims[stackID]->pos.y = coords.second;
+	myAnim()->pos = CClickableHex::getXYUnitAnim(hex, owner->creDir[stack->ID], stack, owner);
 
 	if(stack->doubleWide())
 	{
@@ -682,10 +687,12 @@ void CReverseAnimation::setupSecondPart()
 		}
 	}
 
+	logGlobal->errorStream() << "Pos after 2nd " << myAnim()->pos.x << "x" << myAnim()->pos.y;
+
 	secondPartSetup = true;
 
-	if(myAnim()->framesInGroup(CCreatureAnim::TURN_L))
-		myAnim()->setType(CCreatureAnim::TURN_L);
+	if(myAnim()->framesInGroup(CCreatureAnim::TURN_R))
+		myAnim()->setType(CCreatureAnim::TURN_R);
 	else
 		endAnim();
 }

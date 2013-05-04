@@ -69,7 +69,7 @@
 						},
 						"type": {
 							"type" : "string",
-							"enum" : [ "dir", "lod", "snd", "vid" ],
+							"enum" : [ "dir", "lod", "snd", "vid", "map" ],
 							"description" : "Type of data source"
 						}
 					}

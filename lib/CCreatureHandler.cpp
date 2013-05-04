@@ -272,7 +272,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 	std::vector<JsonNode> h3Data;
 	h3Data.reserve(dataSize);
 
-	CLegacyConfigParser parser("DATA/ZCRTRAIT.TXT");
+	CLegacyConfigParser parser("DATA/CRTRAITS.TXT");
 
 	parser.endLine(); // header
 	parser.endLine();
@@ -619,7 +619,10 @@ void CCreatureHandler::loadCreatureJson(CCreature * creature, const JsonNode & c
 		BOOST_FOREACH(const JsonNode &ability, config["abilities"].Vector())
 		{
 			if (ability.getType() == JsonNode::DATA_VECTOR)
+			{
+				assert(0); // should be unused now
 				AddAbility(creature, ability.Vector()); // used only for H3 creatures
+			}
 			else
 			{
 				auto b = JsonUtils::parseBonus(ability);

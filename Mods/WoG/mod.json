@@ -1,6 +1,10 @@
 {
 	"filesystem":
 	{
+		"" :
+		[
+			{ "type" : "map", "path" : "/Config/wogFileOverrides.json"}
+		],
 		"CONFIG/" :
 		[
 			{ "type" : "dir", "path" : "/Config"}

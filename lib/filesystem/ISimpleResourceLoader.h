@@ -55,6 +55,14 @@ public:
 	virtual std::string getOrigin() const =0;
 
 	/**
+	 * Gets full name of resource, e.g. name of file in filesystem.
+	 */
+	virtual std::string getFullName(const std::string & resourceName) const
+	{
+		return getOrigin() + '/' + resourceName;
+	}
+
+	/**
 	 * Creates new resource with specified filename.
 	 *
 	 * @returns true if new file was created, false on error or if file already exists

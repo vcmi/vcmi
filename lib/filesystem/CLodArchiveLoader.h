@@ -57,46 +57,16 @@ public:
 	 */
 	explicit CLodArchiveLoader(const std::string & archive);
 
-	/**
-	 * Loads a resource with the given resource name.
-	 *
-	 * @param resourceName The unqiue resource name in space of the archive.
-	 * @return a input stream object, not null.
-	 *
-	 * @throws std::runtime_error if the archive entry wasn't found
-	 */
-	std::unique_ptr<CInputStream> load(const std::string & resourceName) const;
-
-	/**
-	 * Gets all entries in the archive.
-	 *
-	 * @return a list of all entries in the archive.
-	 */
-	boost::unordered_map<ResourceID, std::string> getEntries() const;
-
-	/**
-	 * Gets the archive entry for the requested resource
-	 *
-	 * @param resourceName The unqiue resource name in space of the archive.
-	 * @return the archive entry for the requested resource or a null ptr if the archive wasn't found
-	 */
-	const ArchiveEntry * getArchiveEntry(const std::string & resourceName) const;
-
-	/**
-	 * Checks if the archive entry exists.
-	 *
-	 * @return true if the entry exists, false if not.
-	 */
-	bool existsEntry(const std::string & resourceName) const;
-
-	/**
-	 * Gets the origin of the archive loader.
-	 *
-	 * @return the file path to the archive which is scanned and indexed.
-	 */
-	std::string getOrigin() const;
+	/// Interface implementation
+	/// @see ISimpleResourceLoader
+	std::unique_ptr<CInputStream> load(const std::string & resourceName) const override;
+	boost::unordered_map<ResourceID, std::string> getEntries() const override;
+	bool existsEntry(const std::string & resourceName) const override;
+	std::string getOrigin() const override;
 
 private:
+	const ArchiveEntry * getArchiveEntry(const std::string & resourceName) const;
+
 	/**
 	 * Initializes a LOD archive.
 	 *

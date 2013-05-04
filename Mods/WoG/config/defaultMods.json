@@ -1,0 +1,20 @@
+// default configuration for mod system loaded at launch
+
+{
+	"textData" :
+	{
+		"heroClass"  : 18,
+		"artifact"   : 171,
+		"creature"   : 197,
+		"faction"    : 9,
+		"hero"       : 156
+	},
+
+	"modules":
+	{
+		"STACK_EXPERIENCE": true,
+		"STACK_ARTIFACTS": true,
+		"COMMANDERS": true,
+		"MITHRIL": false //so far unused
+	}
+}

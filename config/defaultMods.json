@@ -4,8 +4,8 @@
 	"textData" :
 	{
 		"heroClass"  : 18,
-		"artifact"   : 171,
-		"creature"   : 197,
+		"artifact"   : 144,
+		"creature"   : 150,
 		"faction"    : 9,
 		"hero"       : 156
 	},
@@ -17,13 +17,14 @@
 		"NEUTRAL_STACK_EXP_DAILY" : 500,
 		"MAX_BUILDING_PER_TURN" : 1,
 		"DWELLINGS_ACCUMULATE_CREATURES" : true,
-		"ALL_CREATURES_GET_DOUBLE_MONTHS" : false
+		"ALL_CREATURES_GET_DOUBLE_MONTHS" : false,
+		"NEGATIVE_LUCK" : false
 	},
 	"modules":
 	{
-		"STACK_EXPERIENCE": true,
-		"STACK_ARTIFACTS": true,
-		"COMMANDERS": true,
+		"STACK_EXPERIENCE": false,
+		"STACK_ARTIFACTS": false,
+		"COMMANDERS": false,
 		"MITHRIL": false //so far unused
 	}
 }

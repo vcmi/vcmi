@@ -556,8 +556,8 @@ void CGarrisonInt::createSlots()
 
 void CGarrisonInt::recreateSlots()
 {
-	setSplittingMode(false);
 	selectSlot(nullptr);
+	setSplittingMode(false);
 
 	for(size_t i = 0; i<splitButtons.size(); i++)
 		splitButtons[i]->block(true);
@@ -629,10 +629,10 @@ void CGarrisonInt::setSplittingMode(bool on)
 	if (inSplittingMode || on)
 	{
 		BOOST_FOREACH(CGarrisonSlot * slot, slotsUp)
-			slot->setHighlight(slot->creature == nullptr || slot->creature == getSelection()->creature);
+			slot->setHighlight( ( on && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
 
 		BOOST_FOREACH(CGarrisonSlot * slot, slotsDown)
-			slot->setHighlight(slot->creature == nullptr || slot->creature == getSelection()->creature);
+			slot->setHighlight( ( on && (slot->creature == nullptr || slot->creature == getSelection()->creature)));
 		inSplittingMode = on;
 	}
 }
@@ -1773,7 +1773,7 @@ void CMinorResDataBar::showAll(SDL_Surface * to)
 
 CMinorResDataBar::CMinorResDataBar()
 {
-	bg = BitmapHandler::loadBitmap("Z2ESBAR.bmp");
+	bg = BitmapHandler::loadBitmap("KRESBAR.bmp");
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos.x = 7;
@@ -5241,7 +5241,7 @@ CPuzzleWindow::CPuzzleWindow(const int3 &GrailPos, double discoveredRatio):
 
 	new CPicture("PUZZLOGO", 607, 3);
 	new CLabel(700, 95, FONT_BIG, CENTER, Colors::YELLOW, CGI->generaltexth->allTexts[463]);
-	new CResDataBar("ZRESBAR.bmp", 3, 575, 32, 2, 85, 85);
+	new CResDataBar("ARESBAR.bmp", 3, 575, 32, 2, 85, 85);
 
 	int faction = LOCPLINT->cb->getStartInfo()->playerInfos.find(LOCPLINT->playerID)->second.castle;
 

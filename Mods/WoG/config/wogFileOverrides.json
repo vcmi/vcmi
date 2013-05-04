@@ -1,0 +1,45 @@
+{
+	// Text configs
+	"data/crgen1.txt"   : "data/zcrgn1.txt",
+	"data/crtraits.txt" : "data/zcrtrait.txt",
+	"data/help.txt"     : "data/zelp.txt",
+	"data/objects.txt"  : "data/zobjcts.txt",
+
+	// main menu images
+	"data/gamselb0.bmp" : "data/ZPIC1000.bmp", // map selection screen
+	"data/gamselb1.bmp" : "data/ZPIC1001.bmp", // map selection screen
+	"data/loadbar.bmp"  : "data/ZPIC106.bmp",  // loading screen
+	"data/gamselbk.bmp" : "data/ZPIC1005.bmp", // background
+	"data/newgame.bmp"  : "data/ZNEWGAM.bmp",  // "new  game" text
+	"data/loadgame.bmp" : "data/ZLOADGAM.bmp", // "load game" text
+
+	// main menu buttons
+	"sprites/mmenung.def" : "sprites/zmenung.def",
+	"sprites/mmenulg.def" : "sprites/zmenulg.def",
+	"sprites/mmenuhs.def" : "sprites/zmenuhs.def",
+	"sprites/mmenucr.def" : "sprites/zmenucr.def",
+	"sprites/mmenuqt.def" : "sprites/zmenuqt.def",
+
+	// game type select (single/multi/campaign)
+	"sprites/gtsingl.def" : "sprites/ztsingl.def",
+	"sprites/gtmulti.def" : "sprites/ztmulti.def",
+	"sprites/gtcampn.def" : "sprites/ztcampn.def",
+	"sprites/gttutor.def" : "sprites/zttutor.def",
+	"sprites/gtback.def"  : "sprites/ztback.def",
+
+	// campaigns
+	"sprites/csssod.def" : "sprites/zsssod.def",
+	"sprites/cssroe.def" : "sprites/zssroe.def",
+	"sprites/cssarm.def" : "sprites/zssarm.def",
+	"sprites/csscus.def" : "sprites/zsscus.def",
+
+	// resource bars
+	"data/tresbar.bmp" : "data/zresbar.bmp",
+	"data/kresbar.bmp" : "data/z2esbar.bmp",
+	"data/aresbar.bmp" : "data/zresbar.bmp",
+
+	// misc
+	"data/tpcainfo.bmp" : "data/zpcainfo.bmp", // stats images for town fort
+	"music/mainmenu.mp3" : "music/mainmenuwog.mp3",
+	"video/credits.bik" : "video/acredit.bik"
+}

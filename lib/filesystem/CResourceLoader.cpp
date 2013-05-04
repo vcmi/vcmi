@@ -3,6 +3,7 @@
 #include "CFileInfo.h"
 #include "CLodArchiveLoader.h"
 #include "CFilesystemLoader.h"
+#include "CMappedFileLoader.h"
 
 //For filesystem initialization
 #include "../JsonNode.h"
@@ -127,7 +128,7 @@ std::string CResourceLoader::getResourceName(const ResourceID & resourceIdent) c
 {
 	auto locator = getResource(resourceIdent);
 	if (locator.getLoader())
-		return locator.getLoader()->getOrigin() + '/' + locator.getResourceName();
+		return locator.getLoader()->getFullName(locator.getResourceName());
 	return "";
 }
 
@@ -372,6 +373,22 @@ void CResourceHandler::loadArchive(const std::string &prefix, const std::string 
 		    shared_ptr<ISimpleResourceLoader>(new CLodArchiveLoader(filename)), false);
 }
 
+void CResourceHandler::loadJsonMap(const std::string &prefix, const std::string &mountPoint, const JsonNode & config)
+{
+	std::string URI = prefix + config["path"].String();
+	std::string filename = initialLoader->getResourceName(ResourceID(URI, EResType::TEXT));
+	if (!filename.empty())
+	{
+		auto configData = initialLoader->loadData(ResourceID(URI, EResType::TEXT));
+
+		const JsonNode config((char*)configData.first.get(), configData.second);
+
+		resourceLoader->addLoader(mountPoint,
+		    shared_ptr<ISimpleResourceLoader>(new CMappedFileLoader(config)), false);
+	}
+}
+
+
 void CResourceHandler::loadFileSystem(const std::string & prefix, const std::string &fsConfigURI)
 {
 	auto fsConfigData = initialLoader->loadData(ResourceID(fsConfigURI, EResType::TEXT));
@@ -390,6 +407,8 @@ void CResourceHandler::loadFileSystem(const std::string & prefix, const JsonNode
 			CStopWatch timer;
             logGlobal->debugStream() << "\t\tLoading resource at " << prefix + entry["path"].String();
 
+			if (entry["type"].String() == "map")
+				loadJsonMap(prefix, mountPoint.first, entry);
 			if (entry["type"].String() == "dir")
 				loadDirectory(prefix, mountPoint.first, entry);
 			if (entry["type"].String() == "lod")
@@ -423,8 +442,19 @@ std::vector<std::string> CResourceHandler::getAvailableMods()
 
 		name.erase(0, name.find_last_of('/') + 1);        //Remove path prefix
 
+		if (name == "WOG") // check if wog is actually present. Hack-ish but better than crash
+		{
+			if (!initialLoader->existsResource(ResourceID("ALL/DATA/ZVS", EResType::DIRECTORY)) &&
+			    !initialLoader->existsResource(ResourceID("ALL/MODS/WOG/DATA/ZVS", EResType::DIRECTORY)))
+			{
+				++iterator;
+				continue;
+			}
+		}
+
 		if (!name.empty()) // this is also triggered for "ALL/MODS/" entry
 			foundMods.push_back(name);
+
 		++iterator;
 	}
 	return foundMods;

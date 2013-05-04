@@ -89,9 +89,9 @@ std::pair< std::vector<BattleHex>, int > BattleInfo::getPath(BattleHex start, Ba
 }
 
 ui32 BattleInfo::calculateDmg( const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero,
-	bool shooting, ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg )
+	bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg )
 {
-	TDmgRange range = calculateDmgRange(attacker, defender, shooting, charge, lucky, deathBlow, ballistaDoubleDmg);
+	TDmgRange range = calculateDmgRange(attacker, defender, shooting, charge, lucky, unlucky, deathBlow, ballistaDoubleDmg);
 
 	if(range.first != range.second)
 	{
@@ -636,7 +636,7 @@ BattleInfo * BattleInfo::setupBattle( int3 tile, ETerrainType terrain, BFieldTyp
 		}
 	case BFieldType::CLOVER_FIELD:
 		{ //+2 luck bonus for neutral creatures
-			curB->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, +2, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureFactionLimiter>(-1)));
+			curB->addNewBonus(makeFeature(Bonus::LUCK, Bonus::ONE_BATTLE, 0, +2, Bonus::TERRAIN_OVERLAY)->addLimiter(make_shared<CreatureAlignmentLimiter>(EAlignment::NEUTRAL)));
 			break;
 		}
 	case BFieldType::EVIL_FOG:

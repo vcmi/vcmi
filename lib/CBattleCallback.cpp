@@ -768,9 +768,9 @@ bool CBattleInfoCallback::battleCanShoot(const CStack * stack, BattleHex dest) c
 }
 
 TDmgRange CBattleInfoCallback::calculateDmgRange(const CStack* attacker, const CStack* defender, bool shooting,
-												 ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg) const
+												 ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg) const
 {
-	return calculateDmgRange(attacker, defender, attacker->count, shooting, charge, lucky, deathBlow, ballistaDoubleDmg);
+	return calculateDmgRange(attacker, defender, attacker->count, shooting, charge, lucky, unlucky, deathBlow, ballistaDoubleDmg);
 }
 
 TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) const
@@ -878,6 +878,11 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 	{
 		additiveBonus += 1.0;
 	}
+	//unlucky hit, used only if negative luck is enabled
+	if (info.unluckyHit)
+	{
+		additiveBonus -= 0.5; // FIXME: how bad (and luck in general) should work with following bonuses?
+	}
 
 	//ballista double dmg
 	if(info.ballistaDoubleDamage)
@@ -965,12 +970,13 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 }
 
 TDmgRange CBattleInfoCallback::calculateDmgRange( const CStack* attacker, const CStack* defender, TQuantity attackerCount,
-	bool shooting, ui8 charge, bool lucky, bool deathBlow, bool ballistaDoubleDmg ) const
+	bool shooting, ui8 charge, bool lucky, bool unlucky, bool deathBlow, bool ballistaDoubleDmg ) const
 {
 	BattleAttackInfo bai(attacker, defender, shooting);
 	bai.attackerCount = attackerCount;
 	bai.chargedFields = charge;
 	bai.luckyHit = lucky;
+	bai.unluckyHit = unlucky;
 	bai.deathBlow = deathBlow;
 	bai.ballistaDoubleDamage = ballistaDoubleDmg;
 	return calculateDmgRange(bai);

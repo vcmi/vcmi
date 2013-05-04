@@ -1,15 +1,15 @@
 {
 	//images used in game selection screen
-	"game-select" : ["ZPIC1000", "ZPIC1001"],
+	"game-select" : ["gamselb0", "gamselb1"],
 
-	"loading" : ["ZPIC106", "LoadBar"],
+	"loading" : ["loadbar"],
 
 	//Main menu window, consists of several sub-menus aka items
 	"window":
 	{
-		"background" : "ZPIC1005",
+		"background" : "gamselbk",
 		//"scalable" : true, //background will be scaled to screen size
-		"video" :    {"x": 8, "y": 105, "name":"ACREDIT.SMK" },//Floating WoG logo
+		"video" :    {"x": 8, "y": 105, "name":"CREDITS.SMK" },//Floating WoG logo
 		//"images" : [],//Optioal, contains any additional images in the same format as video
 		"items" : 
 		[
@@ -17,46 +17,46 @@
 				"name" : "main",
 				"buttons":
 				[
-					{"x": 540, "y": 10,  "name":"ZMENUNG", "hotkey" : 110, "help": 3, "command": "to new"},
-					{"x": 532, "y": 132, "name":"ZMENULG", "hotkey" : 108, "help": 4, "command": "to load"},
-					{"x": 524, "y": 251, "name":"ZMENUHS", "hotkey" : 104, "help": 5, "command": "highscores"},
-					{"x": 557, "y": 359, "name":"ZMENUCR", "hotkey" : 99,  "help": 6, "command": "to credits"},
-					{"x": 586, "y": 468, "name":"ZMENUQT", "hotkey" : 27,  "help": 7, "command": "exit"}
+					{"x": 540, "y": 10,  "name":"MMENUNG", "hotkey" : 110, "help": 3, "command": "to new"},
+					{"x": 532, "y": 132, "name":"MMENULG", "hotkey" : 108, "help": 4, "command": "to load"},
+					{"x": 524, "y": 251, "name":"MMENUHS", "hotkey" : 104, "help": 5, "command": "highscores"},
+					{"x": 557, "y": 359, "name":"MMENUCR", "hotkey" : 99,  "help": 6, "command": "to credits"},
+					{"x": 586, "y": 468, "name":"MMENUQT", "hotkey" : 27,  "help": 7, "command": "exit"}
 				]
 			},
 			{
 				"name" : "new",
 				"buttons":
 				[
-					{"x": 545, "y": 4,   "name":"ZTSINGL", "hotkey" : 115, "help": 10, "command": "start single"},
-					{"x": 568, "y": 120, "name":"ZTMULTI", "hotkey" : 109, "help": 12, "command": "start multi"},
-					{"x": 541, "y": 233, "name":"ZTCAMPN", "hotkey" : 99,  "help": 11, "command": "to campaign"},
-					{"x": 545, "y": 358, "name":"ZTTUTOR", "hotkey" : 116, "help": 13, "command": "start tutorial"},
-					{"x": 582, "y": 464, "name":"ZTBACK",  "hotkey" : 27,  "help": 14, "command": "to main"}
+					{"x": 545, "y": 4,   "name":"GTSINGL", "hotkey" : 115, "help": 10, "command": "start single"},
+					{"x": 568, "y": 120, "name":"GTMULTI", "hotkey" : 109, "help": 12, "command": "start multi"},
+					{"x": 541, "y": 233, "name":"GTCAMPN", "hotkey" : 99,  "help": 11, "command": "to campaign"},
+					{"x": 545, "y": 358, "name":"GTTUTOR", "hotkey" : 116, "help": 13, "command": "start tutorial"},
+					{"x": 582, "y": 464, "name":"GTBACK",  "hotkey" : 27,  "help": 14, "command": "to main"}
 				],
-				"images": [ {"x": 114, "y": 312, "name":"ZNEWGAM"} ]
+				"images": [ {"x": 114, "y": 312, "name":"NEWGAME"} ]
 			},
 			{
 				"name" : "load",
 				"buttons":
 				[
-					{"x": 545, "y": 8,   "name":"ZTSINGL", "hotkey" : 115, "help": 10, "command": "load single"},
-					{"x": 568, "y": 120, "name":"ZTMULTI", "hotkey" : 109, "help": 12, "command": "load multi"},
-					{"x": 541, "y": 233, "name":"ZTCAMPN", "hotkey" : 99,  "help": 11, "command": "load campaign"},
-					{"x": 545, "y": 358, "name":"ZTTUTOR", "hotkey" : 116, "help": 13, "command": "load tutorial"},
-					{"x": 582, "y": 464, "name":"ZTBACK",  "hotkey" : 27,  "help": 14, "command": "to main"}
+					{"x": 545, "y": 8,   "name":"GTSINGL", "hotkey" : 115, "help": 10, "command": "load single"},
+					{"x": 568, "y": 120, "name":"GTMULTI", "hotkey" : 109, "help": 12, "command": "load multi"},
+					{"x": 541, "y": 233, "name":"GTCAMPN", "hotkey" : 99,  "help": 11, "command": "load campaign"},
+					{"x": 545, "y": 358, "name":"GTTUTOR", "hotkey" : 116, "help": 13, "command": "load tutorial"},
+					{"x": 582, "y": 464, "name":"GTBACK",  "hotkey" : 27,  "help": 14, "command": "to main"}
 				],
-				"images": [ {"x": 114, "y": 312, "name":"ZLOADGAM"} ]
+				"images": [ {"x": 114, "y": 312, "name":"LOADGAME"} ]
 			},
 			{
 				"name" : "campaign",
 				"buttons":
 				[
-					{"x": 535, "y": 4,   "name":"ZSSSOD", "hotkey" : 119, "command": "campaigns sod"},
-					{"x": 494, "y": 117, "name":"ZSSROE", "hotkey" : 114, "command": "campaigns roe"},
-					{"x": 486, "y": 241, "name":"ZSSARM", "hotkey" : 97,  "command": "campaigns ab"},
-					{"x": 550, "y": 358, "name":"ZSSCUS", "hotkey" : 99,  "command": "start campaign"},
-					{"x": 582, "y": 464, "name":"ZTBACK", "hotkey" : 27,  "command": "to new"}
+					{"x": 535, "y": 4,   "name":"CSSSOD", "hotkey" : 119, "command": "campaigns sod"},
+					{"x": 494, "y": 117, "name":"CSSROE", "hotkey" : 114, "command": "campaigns roe"},
+					{"x": 486, "y": 241, "name":"CSSARM", "hotkey" : 97,  "command": "campaigns ab"},
+					{"x": 550, "y": 358, "name":"CSSCUS", "hotkey" : 99,  "command": "start campaign"},
+					{"x": 582, "y": 464, "name":"GTBACK", "hotkey" : 27,  "command": "to new"}
 				],
 			}
 		]
@@ -116,7 +116,7 @@
 
 		},
 		{
-			"name":"wog",
+			"name":"wog", /// wog campaigns, currently has no assigned button in campaign screen and thus unused
 			"images" : [ {"x": 0, "y": 0, "name":"CAMPZALL"} ],
 			"exitbutton" : {"x": 658, "y": 482, "name":"CMPSCAN", "hotkey" : 27},
 			"items":
