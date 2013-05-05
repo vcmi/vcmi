@@ -191,6 +191,7 @@
     <ClCompile Include="filesystem\CFileInputStream.cpp" />
     <ClCompile Include="filesystem\CFilesystemLoader.cpp" />
     <ClCompile Include="filesystem\CLodArchiveLoader.cpp" />
+    <ClCompile Include="filesystem\CMappedFileLoader.cpp" />
     <ClCompile Include="filesystem\CMemoryStream.cpp" />
     <ClCompile Include="filesystem\CResourceLoader.cpp" />
     <ClCompile Include="GameConstants.cpp" />
@@ -259,6 +260,7 @@
     <ClInclude Include="filesystem\CFilesystemLoader.h" />
     <ClInclude Include="filesystem\CInputStream.h" />
     <ClInclude Include="filesystem\CLodArchiveLoader.h" />
+    <ClInclude Include="filesystem\CMappedFileLoader.h" />
     <ClInclude Include="filesystem\CMemoryStream.h" />
     <ClInclude Include="filesystem\CResourceLoader.h" />
     <ClInclude Include="filesystem\ISimpleResourceLoader.h" />
