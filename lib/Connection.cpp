@@ -511,6 +511,7 @@ int CLoadIntegrityValidator::read( const void * data, unsigned size )
 
 unique_ptr<CLoadFile> CLoadIntegrityValidator::decay()
 {
+	primaryFile->loadedPointers = this->loadedPointers;
 	return std::move(primaryFile);
 }
 

@@ -2,6 +2,7 @@
 
 #include "../../lib/AI_Base.h"
 #include "../../CCallback.h"
+#include "../../lib/CDefObjInfoHandler.h"
 #include "../../lib/CObjectHandler.h"
 
 #include "../../lib/CThreadHelper.h"
@@ -50,6 +51,12 @@ public:
 
 	const CGHeroInstance *get(bool doWeExpectNull = false) const;
 	bool validAndSet() const;
+
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & this->h & hid & name;
+	}
 };
 
 enum BattleState
@@ -85,6 +92,12 @@ public:
 	bool haveTurn();
 	void attemptedAnsweringQuery(int queryID, int answerRequestID);
 	void receivedAnswerConfirmation(int answerRequestID, int result);
+
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & battle & remainingQueries & requestToQueryID & havingTurn;
+	}
 };
 
 enum EGoals
@@ -168,6 +181,13 @@ struct CGoal
 		}
 		return false;
 	}
+
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & goalType & isElementar & isAbstract & priority;
+		h & value & resID & objid & aid & tile & hero & town & bid;
+	}
 };
 
 enum {NOT_VISIBLE = 0, NOT_CHECKED = 1, NOT_AVAILABLE};
@@ -228,6 +248,12 @@ struct ObjectIdRef
 	ObjectIdRef(const CGObjectInstance *obj);
 
 	bool operator<(const ObjectIdRef &rhs) const;
+
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id;
+	}
 };
 
 class ObjsVector : public std::vector<ObjectIdRef>
@@ -266,12 +292,11 @@ public:
 	std::string battlename;
 
 	CCallback *myCb;
+
+	unique_ptr<boost::thread> makingTurn;
+
 	VCAI(void);
 	~VCAI(void);
-
-	CGObjectInstance * visitedObject; //remember currently visted object
-
-	boost::thread *makingTurn;
 
 	void tryRealize(CGoal g);
 
@@ -288,8 +313,8 @@ public:
 	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID) OVERRIDE; //TODO
 	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel) OVERRIDE; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID) OVERRIDE; //all stacks operations between these objects become allowed, interface has to call onEnd when done
-	virtual void serialize(COSer<CSaveFile> &h, const int version) OVERRIDE; //saving
-	virtual void serialize(CISer<CLoadFile> &h, const int version) OVERRIDE; //loading
+	virtual void saveGame(COSer<CSaveFile> &h, const int version) OVERRIDE; //saving
+	virtual void loadGame(CISer<CLoadFile> &h, const int version) OVERRIDE; //loading
 	virtual void finish() OVERRIDE;
 
 	virtual void availableCreaturesChanged(const CGDwelling *town) OVERRIDE;
@@ -403,6 +428,17 @@ public:
 	void answerQuery(int queryID, int selection);
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
 	void requestActionASAP(boost::function<void()> whatToDo); 
+
+
+	template <typename Handler> void serializeInternal(Handler &h, const int version)
+	{
+		h & knownSubterraneanGates & townVisitsThisWeek & lockedHeroes & reservedHeroesMap;
+		h & visitableObjs & alreadyVisited & reservedObjs;
+		h & saving & status & battlename;
+
+
+		//myCB is restored after load by init call
+	}
 };
 
 class cannotFulfillGoalException : public std::exception

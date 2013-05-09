@@ -182,12 +182,12 @@ public:
 	void gameOver(PlayerColor player, bool victory) OVERRIDE;
 	void playerStartsTurn(PlayerColor player) OVERRIDE; //called before yourTurn on active itnerface
 	void showComp(const Component &comp, std::string message) OVERRIDE; //display component in the advmapint infobox
-	void serialize(COSer<CSaveFile> &h, const int version) OVERRIDE; //saving
-	void serialize(CISer<CLoadFile> &h, const int version) OVERRIDE; //loading
+	void saveGame(COSer<CSaveFile> &h, const int version) OVERRIDE; //saving
+	void loadGame(CISer<CLoadFile> &h, const int version) OVERRIDE; //loading
 
 	//for battles
-	void actionFinished(const BattleAction* action) OVERRIDE;//occurs AFTER action taken by active stack or by the hero
-	void actionStarted(const BattleAction* action) OVERRIDE;//occurs BEFORE action taken by active stack or by the hero
+	void actionFinished(const BattleAction& action) OVERRIDE;//occurs AFTER action taken by active stack or by the hero
+	void actionStarted(const BattleAction& action) OVERRIDE;//occurs BEFORE action taken by active stack or by the hero
 	BattleAction activeStack(const CStack * stack) OVERRIDE; //called when it's turn of that stack
 	void battleAttack(const BattleAttack *ba) OVERRIDE; //stack performs attack
 	void battleEnd(const BattleResult *br) OVERRIDE; //end of battle

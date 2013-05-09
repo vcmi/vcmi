@@ -53,7 +53,7 @@ template <typename Serializer> class COSer;
 struct ArtifactLocation;
 class CScriptingModule;
 
-class CBattleGameInterface : public IBattleEventsReceiver
+class DLL_LINKAGE CBattleGameInterface : public IBattleEventsReceiver
 {
 public:
 	bool human;
@@ -66,6 +66,10 @@ public:
 	//battle call-ins
 	virtual BattleAction activeStack(const CStack * stack)=0; //called when it's turn of that stack
 	virtual void yourTacticPhase(int distance){}; //called when interface has opportunity to use Tactics skill -> use cb->battleMakeTacticAction from this function
+
+	virtual void saveGame(COSer<CSaveFile> &h, const int version);
+	virtual void loadGame(CISer<CLoadFile> &h, const int version);
+
 };
 
 /// Central class for managing human player / AI interface logic
@@ -86,8 +90,6 @@ public:
 
 	// all stacks operations between these objects become allowed, interface has to call onEnd when done
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID) = 0;
-	virtual void serialize(COSer<CSaveFile> &h, const int version){}; //saving
-	virtual void serialize(CISer<CLoadFile> &h, const int version){}; //loading
 	virtual void finish(){}; //if for some reason we want to end
 };
 
@@ -124,9 +126,9 @@ public:
 	virtual void battleCatapultAttacked(const CatapultAttack & ca);
 	virtual void battleStart(const CCreatureSet *army1, const CCreatureSet *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool side);
 	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa);
-	virtual void actionStarted(const BattleAction *action);
+	virtual void actionStarted(const BattleAction &action);
 	virtual void battleNewRoundFirst(int round);
-	virtual void actionFinished(const BattleAction *action);
+	virtual void actionFinished(const BattleAction &action);
 	virtual void battleStacksEffectsSet(const SetStackEffect & sse);
 	//virtual void battleTriggerEffect(const BattleTriggerEffect & bte);
 	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr);
@@ -137,4 +139,7 @@ public:
 	virtual void battleSpellCast(const BattleSpellCast *sc);
 	virtual void battleEnd(const BattleResult *br);
 	virtual void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks, bool lifeDrain, bool tentHeal, si32 lifeDrainFrom);
+
+	virtual void saveGame(COSer<CSaveFile> &h, const int version); //saving
+	virtual void loadGame(CISer<CLoadFile> &h, const int version); //loading
 };

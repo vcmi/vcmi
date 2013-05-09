@@ -89,12 +89,12 @@ void CBattleAI::init( CBattleCallback * CB )
 	CB->unlockGsWhenWaiting = false;
 }
 
-void CBattleAI::actionFinished( const BattleAction *action )
+void CBattleAI::actionFinished(const BattleAction &action)
 {
 	print("actionFinished called");
 }
 
-void CBattleAI::actionStarted( const BattleAction *action )
+void CBattleAI::actionStarted(const BattleAction &action)
 {
 	print("actionStarted called");
 }

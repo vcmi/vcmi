@@ -78,20 +78,20 @@ public:
 	}
 };
 
-static CApplier<CBaseForCLApply> *applier = NULL;
+static CApplier<CBaseForCLApply> *applier = nullptr;
 
 void CClient::init()
 {
 	hotSeat = false;
-	connectionHandler = NULL;
-	pathInfo = NULL;
+	connectionHandler = nullptr;
+	pathInfo = nullptr;
 	applier = new CApplier<CBaseForCLApply>;
 	registerTypes2(*applier);
 	IObjectInterface::cb = this;
-	serv = NULL;
-	gs = NULL;
-	cb = NULL;
-	erm = NULL;
+	serv = nullptr;
+	gs = nullptr;
+	cb = nullptr;
+	erm = nullptr;
 	terminate = false;
 }
 
@@ -108,7 +108,6 @@ CClient::CClient(CConnection *con, StartInfo *si)
 
 CClient::~CClient(void)
 {
-	delete pathInfo;
 	delete applier;
 }
 
@@ -202,11 +201,9 @@ void CClient::endGame( bool closeConnection /*= true*/ )
 		GH.statusbar = NULL;
         logNetwork->infoStream() << "Removed GUI.";
 
+		vstd::clear_pointer(const_cast<CGameInfo*>(CGI)->mh);
+		vstd::clear_pointer(gs);
 
-		delete CGI->mh;
-		const_cast<CGameInfo*>(CGI)->mh = NULL;
-
-		const_cast<CGameInfo*>(CGI)->state.dellNull();
         logNetwork->infoStream() << "Deleted mapHandler and gameState.";
 		LOCPLINT = NULL;
 	}
@@ -242,10 +239,9 @@ void CClient::loadGame( const std::string & fname )
 			loader = checkingLoader.decay();
 		}
         logNetwork->infoStream() << "Loaded common part of save " << tmh.getDiff();
-		const_cast<CGameInfo*>(CGI)->state = gs;
 		const_cast<CGameInfo*>(CGI)->mh = new CMapHandler();
 		const_cast<CGameInfo*>(CGI)->mh->map = gs->map;
-		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel ? 2 : 1));
+		pathInfo = make_unique<CPathsInfo>(getMapSize());
 		CGI->mh->init();
         logNetwork->infoStream() <<"Initing maphandler: "<<tmh.getDiff();
 
@@ -295,11 +291,11 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		networkMode = (con->connectionID == 1) ? HOST : GUEST;
 	}
 
-	CStopWatch tmh;
-	const_cast<CGameInfo*>(CGI)->state = new CGameState();
-    logNetwork->infoStream() <<"\tGamestate: "<<tmh.getDiff();
-	CConnection &c(*serv);
+	CConnection &c = *serv;
 	////////////////////////////////////////////////////
+
+	logNetwork->infoStream() <<"\tWill send info to server...";
+	CStopWatch tmh;
 
 	if(networkMode == SINGLE)
 	{
@@ -319,7 +315,9 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	c.disableSmartPointerSerialization();
 
 	// Initialize game state
-	gs = const_cast<CGameInfo*>(CGI)->state;
+	gs = new CGameState();
+	logNetwork->infoStream() <<"\tCreating gamestate: "<<tmh.getDiff();
+
 	gs->scenarioOps = si;
 	gs->init(si);
     logNetwork->infoStream() <<"Initializing GameState (together): "<<tmh.getDiff();
@@ -347,7 +345,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		CGI->mh->map = gs->map;
         logNetwork->infoStream() <<"Creating mapHandler: "<<tmh.getDiff();
 		CGI->mh->init();
-		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel ? 2 : 1));
+		pathInfo = make_unique<CPathsInfo>(getMapSize());
         logNetwork->infoStream() <<"Initializing mapHandler (together): "<<tmh.getDiff();
 	}
 
@@ -416,7 +414,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 		loadNeutralBattleAI();
 	}
 
-	serv->addStdVecItems(const_cast<CGameInfo*>(CGI)->state);
+	serv->addStdVecItems(gs);
 	hotSeat = (humanPlayers > 1);
 
 // 	std::vector<FileInfo> scriptModules;
@@ -445,8 +443,11 @@ void CClient::serialize( Handler &h, const int version )
 
 		for(auto i = playerint.begin(); i != playerint.end(); i++)
 		{
-			h & i->first & i->second->dllName;
-			i->second->serialize(h,version);
+			LOG_TRACE_PARAMS(logGlobal, "Saving player %s interface", i->first);
+			assert(i->first == i->second->playerID);
+			h & i->first & i->second->dllName & i->second->human;
+			i->second->saveGame(dynamic_cast<COSer<CSaveFile>&>(h), version); 
+			//evil cast that i still like better than sfinae-magic. If I had a "static if"...
 		}
 	}
 	else
@@ -457,11 +458,13 @@ void CClient::serialize( Handler &h, const int version )
 		for(int i=0; i < players; i++)
 		{
 			std::string dllname;
-			PlayerColor pid = PlayerColor(0); //fix for uninitialized warning
-			h & pid & dllname;
+			PlayerColor pid; 
+			bool isHuman = false;
 
+			h & pid & dllname & isHuman;
+			LOG_TRACE_PARAMS(logGlobal, "Loading player %s interface", pid);
 
-			CGameInterface *nInt = NULL;
+			CGameInterface *nInt = nullptr;
 			if(dllname.length())
 			{
 				if(pid == PlayerColor::NEUTRAL)
@@ -474,15 +477,25 @@ void CClient::serialize( Handler &h, const int version )
 					continue;
 				}
 				else
+				{
+					assert(!isHuman);
 					nInt = CDynLibHandler::getNewAI(dllname);
+				}
 			}
 			else
+			{
+				assert(isHuman);
 				nInt = new CPlayerInterface(pid);
+			}
+
+			nInt->dllName = dllname;
+			nInt->human = isHuman;
+			nInt->playerID = pid;
 
 			battleCallbacks[pid] = callbacks[pid] = make_shared<CCallback>(gs,pid,this);
 			battleints[pid] = playerint[pid] = nInt;
 			nInt->init(callbacks[pid].get());
-			nInt->serialize(h, version);
+			nInt->loadGame(dynamic_cast<CISer<CLoadFile>&>(h), version); //another evil cast, check above
 		}
 
 		if(!vstd::contains(battleints, PlayerColor::NEUTRAL))

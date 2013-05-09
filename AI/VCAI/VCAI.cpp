@@ -573,7 +573,6 @@ void VCAI::heroVisit(const CGHeroInstance *visitor, const CGObjectInstance *visi
 	NET_EVENT_HANDLER;
 	if (start)
 	{
-		visitedObject = const_cast<CGObjectInstance *>(visitedObj); // remember the object and wait for return
 		markObjectVisited (visitedObj);
 		erase_if_present(reservedObjs, visitedObj); //unreserve objects
 		erase_if_present(reservedHeroesMap[visitor], visitedObj);
@@ -677,6 +676,10 @@ void VCAI::objectRemoved(const CGObjectInstance *obj)
 	NET_EVENT_HANDLER;
 
 	erase_if_present(visitableObjs, obj);
+	erase_if_present(alreadyVisited, obj);
+	erase_if_present(reservedObjs, obj);
+
+
 	BOOST_FOREACH(auto &p, reservedHeroesMap)
 		erase_if_present(p.second, obj);
 
@@ -837,7 +840,7 @@ void VCAI::yourTurn()
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 	status.startedTurn();
-	makingTurn = new boost::thread(&VCAI::makeTurn, this);
+	makingTurn = make_unique<boost::thread>(&VCAI::makeTurn, this);
 }
 
 void VCAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, int queryID)
@@ -894,16 +897,20 @@ void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *do
 	});
 }
 
-void VCAI::serialize(COSer<CSaveFile> &h, const int version)
+void VCAI::saveGame(COSer<CSaveFile> &h, const int version)
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
+	CAdventureAI::saveGame(h, version);
+	serializeInternal(h, version);
 }
 
-void VCAI::serialize(CISer<CLoadFile> &h, const int version)
+void VCAI::loadGame(CISer<CLoadFile> &h, const int version)
 {
 	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
 	NET_EVENT_HANDLER;
+	CAdventureAI::loadGame(h, version);
+	serializeInternal(h, version);
 }
 
 void makePossibleUpgrades(const CArmedInstance *obj)
@@ -982,7 +989,7 @@ void VCAI::makeTurn()
 		cb->recalculatePaths();
 
 	makeTurnInternal();
-	vstd::clear_pointer(makingTurn);
+	makingTurn.reset();
 
 	return;
 }
@@ -1067,6 +1074,7 @@ bool VCAI::goVisitObj(const CGObjectInstance * obj, HeroPtr h)
 
 void VCAI::performObjectInteraction(const CGObjectInstance * obj, HeroPtr h)
 {
+	LOG_TRACE_PARAMS(logAi, "Hero %s and object %s at %s", h->name % obj->getHoverText() % obj->pos);
 	switch (obj->ID)
 	{
 		case Obj::CREATURE_GENERATOR1:
@@ -1692,7 +1700,6 @@ bool VCAI::isAccessibleForHero(const int3 & pos, HeroPtr h, bool includeAllies /
 bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 {
 	logAi->debugStream() << boost::format("Moving hero %s to tile %s") % h->name % dst;
-	visitedObject = NULL;
 	int3 startHpos = h->visitablePos();
 	bool ret = false;
 	if(startHpos == dst)
@@ -1750,7 +1757,7 @@ bool VCAI::moveHeroToTile(int3 dst, HeroPtr h)
 		}
 		ret = !i;
 	}
-	if (visitedObject) //we step into something interesting
+	if (auto visitedObject = frontOrNull(cb->getVisitableObjs(h->visitablePos()))) //we stand on something interesting
 	{
 		performObjectInteraction (visitedObject, h);
 		//BNLOG("Hero %s moved from %s to %s at %s", h->name % startHpos % visitedObject->hoverName % h->visitablePos());

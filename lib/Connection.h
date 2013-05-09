@@ -1160,19 +1160,19 @@ public:
 			data = boost::optional<T>();
 		}
 	}
-	void loadSerializable(CStackInstance *&s)
-	{
-		if(sendStackInstanceByIds)
-		{
-			CArmedInstance *armed;
-			SlotID slot;
-			*this >> armed >> slot;
-			assert(armed->hasStackAtSlot(slot));
-			s = armed->stacks[slot];
-		}
-		else
-			loadSerializableBySerializeCall(s);
-	}
+// 	void loadSerializable(CStackInstance *&s)
+// 	{
+// 		if(sendStackInstanceByIds)
+// 		{
+// 			CArmedInstance *armed;
+// 			SlotID slot;
+// 			*this >> armed >> slot;
+// 			assert(armed->hasStackAtSlot(slot));
+// 			s = armed->stacks[slot];
+// 		}
+// 		else
+// 			loadSerializableBySerializeCall(s);
+// 	}
 
 	template <typename E>
 	void loadEnum(E &data)

@@ -1,5 +1,5 @@
 #include "StdInc.h"
-
+#include "../lib/CDefObjInfoHandler.h"
 #include "CAdvmapInterface.h"
 #include "battle/CBattleInterface.h"
 #include "battle/CBattleInterfaceClasses.h"
@@ -731,7 +731,7 @@ void CPlayerInterface::battleNewRound(int round) //called at the beginning of ea
 	battleInt->newRound(round);
 }
 
-void CPlayerInterface::actionStarted(const BattleAction* action)
+void CPlayerInterface::actionStarted(const BattleAction &action)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
@@ -739,11 +739,11 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 		return;
 	}
 
-	curAction = new BattleAction(*action);
-	battleInt->startAction(action);
+	curAction = new BattleAction(action);
+	battleInt->startAction(curAction);
 }
 
-void CPlayerInterface::actionFinished(const BattleAction* action)
+void CPlayerInterface::actionFinished(const BattleAction &action)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	if(LOCPLINT != this)
@@ -751,9 +751,9 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 		return;
 	}
 
+	battleInt->endAction(curAction);
 	delete curAction;
 	curAction = NULL;
-	battleInt->endAction(action);
 }
 
 BattleAction CPlayerInterface::activeStack(const CStack * stack) //called when it's turn of that stack
@@ -1160,55 +1160,44 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const Bonus
 
 template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, const int version )
 {
-	h & playerID;
-	h & spellbookSettings;
 
-	//sleeping heroes
-	ui8 sleepingSize = 0; //fix for uninitialized warning
-	if (h.saving)
-		sleepingSize = sleepingHeroes.size();
-	h & sleepingSize;
-	for (int i = 0; i < sleepingSize; i++)
+	h & observerInDuelMode;
+
+	h & wanderingHeroes & towns & sleepingHeroes;
+
+	std::map<const CGHeroInstance *, int3> pathsMap; //hero -> dest
+	if(h.saving)
 	{
-		ObjectInstanceID hid;
-		if (h.saving)
-			hid = sleepingHeroes[i]->id;
-		h &	hid;
-		if (!h.saving)
-		{
-			const CGHeroInstance *hero = cb->getHero(hid);
-			sleepingHeroes += hero;
-		}
+		BOOST_FOREACH(auto &p, paths)
+			pathsMap[p.first] = p.second.endPos();
+		h & pathsMap;
 	}
-
-	//hero list order
-	ui8 heroListSize = 0; //fix for uninitialized warning
-	if (h.saving)
-		heroListSize = wanderingHeroes.size();
 	else
-		wanderingHeroes.clear();
-	h & heroListSize;
-	for (int i = 0; i < heroListSize; i++)
 	{
-		ObjectInstanceID hid;
-		if (h.saving)
-			hid = wanderingHeroes[i]->id;
-		h & hid;
-		if (!h.saving)
+		h & pathsMap;
+
+		CPathsInfo pathsInfo(cb->getMapSize());
+		BOOST_FOREACH(auto &p, pathsMap)
 		{
-			const CGHeroInstance *hero = cb->getHero(hid);
-			wanderingHeroes += hero;
+			cb->calculatePaths(p.first, pathsInfo);
+			CGPath path;
+			pathsInfo.getPath(p.second, path);
+			paths[p.first] = path;
+			logGlobal->traceStream() << boost::format("Restored path for hero %s leading to %s with %d nodes")
+				% p.first->nodeName() % p.second % path.nodes.size();
 		}
 	}
+
+	h & spellbookSettings;
 }
 
-void CPlayerInterface::serialize( COSer<CSaveFile> &h, const int version )
+void CPlayerInterface::saveGame( COSer<CSaveFile> &h, const int version )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	serializeTempl(h,version);
 }
 
-void CPlayerInterface::serialize( CISer<CLoadFile> &h, const int version )
+void CPlayerInterface::loadGame( CISer<CLoadFile> &h, const int version )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	serializeTempl(h,version);

@@ -671,8 +671,8 @@ void BattleAttack::applyCl( CClient *cl )
 
 void StartAction::applyFirstCl( CClient *cl )
 {
-	cl->curbaction = new BattleAction(ba);
-	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(actionStarted, &ba);
+	cl->curbaction = ba;
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(actionStarted, ba);
 }
 
 void BattleSpellCast::applyCl( CClient *cl )
@@ -744,10 +744,8 @@ CGameState* CPackForClient::GS( CClient *cl )
 
 void EndAction::applyCl( CClient *cl )
 {
-	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(actionFinished, cl->curbaction);
-
-	delete cl->curbaction;
-	cl->curbaction = NULL;
+	BATTLE_INTERFACE_CALL_IF_PRESENT_FOR_BOTH_SIDES(actionFinished, *cl->curbaction);
+	cl->curbaction.reset();
 }
 
 void PackageApplied::applyCl( CClient *cl )
@@ -793,24 +791,6 @@ void SaveGame::applyCl(CClient *cl)
 	{
         logNetwork->errorStream() << "Failed to save game:" << e.what();
 	}
-
-// 	try
-// 	{
-// 		auto clientPart = CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::CLIENT_SAVEGAME));
-// 		auto libPart = CResourceHandler::get()->getResourceName(ResourceID(info.getStem(), EResType::LIB_SAVEGAME));
-// 		CLoadIntegrityValidator checker(clientPart, libPart);
-// 		
-// 		CMapHeader mh;
-// 		StartInfo *si;
-// 		LibClasses *lib;
-// 		CGameState *game;
-// 
-// 		checker.checkMagicBytes(SAVEGAME_MAGIC);
-// 		checker >> mh >> si >> lib >> game;
-// 	}
-// 	catch(...)
-// 	{
-// 	}
 }
 
 void PlayerMessage::applyCl(CClient *cl)

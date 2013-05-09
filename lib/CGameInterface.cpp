@@ -10,6 +10,7 @@
 #else
 	#include <dlfcn.h>
 #endif
+#include "Connection.h"
 
 /*
  * CGameInterface.cpp, part of VCMI engine
@@ -133,7 +134,7 @@ void CAdventureAI::battleStacksAttacked(const std::vector<BattleStackAttacked> &
 	battleAI->battleStacksAttacked(bsa);
 }
 
-void CAdventureAI::actionStarted(const BattleAction *action)
+void CAdventureAI::actionStarted(const BattleAction &action)
 {
 	battleAI->actionStarted(action);
 }
@@ -143,7 +144,7 @@ void CAdventureAI::battleNewRoundFirst(int round)
 	battleAI->battleNewRoundFirst(round);
 }
 
-void CAdventureAI::actionFinished(const BattleAction *action)
+void CAdventureAI::actionFinished(const BattleAction &action)
 {
 	battleAI->actionFinished(action);
 }
@@ -202,4 +203,42 @@ BattleAction CAdventureAI::activeStack(const CStack * stack)
 void CAdventureAI::yourTacticPhase(int distance)
 {
 	battleAI->yourTacticPhase(distance);
+}
+
+void CAdventureAI::saveGame(COSer<CSaveFile> &h, const int version) /*saving */
+{
+	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
+	CGlobalAI::saveGame(h, version);
+	bool hasBattleAI = battleAI;
+	h << hasBattleAI;
+	if(hasBattleAI)
+	{
+		h << std::string(battleAI->dllName);
+		battleAI->saveGame(h, version);
+	}
+}
+
+void CAdventureAI::loadGame(CISer<CLoadFile> &h, const int version) /*loading */
+{
+	LOG_TRACE_PARAMS(logAi, "version '%i'", version);
+	CGlobalAI::loadGame(h, version);
+	bool hasBattleAI = false;
+	h >> hasBattleAI;
+	if(hasBattleAI)
+	{
+		std::string dllName;
+		h >> dllName;
+		battleAI = CDynLibHandler::getNewBattleAI(dllName);
+		assert(cbc); //it should have been set by the one who new'ed us
+		battleAI->init(cbc);
+		//battleAI->loadGame(h, version);
+	}
+}
+
+void CBattleGameInterface::saveGame(COSer<CSaveFile> &h, const int version)
+{
+}
+
+void CBattleGameInterface::loadGame(CISer<CLoadFile> &h, const int version)
+{
 }

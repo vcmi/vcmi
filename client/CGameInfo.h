@@ -50,7 +50,6 @@ extern CClientState * CCS;
 /// for allowing different functions for accessing game informations
 class CGameInfo
 {
-	ConstTransitivePtr<CGameState> state; //don't touch it in client's code
 public:
 	ConstTransitivePtr<CModHandler> modh; //public?
 	ConstTransitivePtr<CArtHandler> arth;

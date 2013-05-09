@@ -25,12 +25,12 @@ void CStupidAI::init( CBattleCallback * CB )
 	cbc = cb = CB;
 }
 
-void CStupidAI::actionFinished( const BattleAction *action )
+void CStupidAI::actionFinished(const BattleAction &action)
 {
 	print("actionFinished called");
 }
 
-void CStupidAI::actionStarted( const BattleAction *action )
+void CStupidAI::actionStarted(const BattleAction &action)
 {
 	print("actionStarted called");
 }
@@ -310,5 +310,17 @@ BattleAction CStupidAI::goTowards(const CStack * stack, BattleHex destination)
 			currentDest = reachability.predecessors[currentDest];
 		}
 	}
+}
+
+void CStupidAI::saveGame(COSer<CSaveFile> &h, const int version)
+{
+	//TODO to be implemented with saving/loading during the battles
+	assert(0);
+}
+
+void CStupidAI::loadGame(CISer<CLoadFile> &h, const int version)
+{
+	//TODO to be implemented with saving/loading during the battles
+	assert(0);
 }
 

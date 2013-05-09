@@ -121,17 +121,15 @@ public:
 	std::map<PlayerColor,CBattleGameInterface *> battleints;
 	bool hotSeat;
 	CConnection *serv;
-	BattleAction *curbaction;
 
-	CPathsInfo *pathInfo;
+	boost::optional<BattleAction> curbaction;
+
+	unique_ptr<CPathsInfo> pathInfo;
 	boost::mutex pathMx; //protects the variable above
 
 	CScriptingModule *erm;
 
 	ThreadSafeVector<int> waitingRequest;
-
-	std::queue<CPack *> packs;
-	boost::mutex packsM;
 
 	void waitForMoveAndSend(PlayerColor color);
 	//void sendRequest(const CPackForServer *request, bool waitForRealization);

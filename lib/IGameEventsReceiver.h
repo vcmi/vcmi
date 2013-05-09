@@ -49,8 +49,8 @@ struct CPackForServer;
 class DLL_LINKAGE IBattleEventsReceiver
 {
 public:
-	virtual void actionFinished(const BattleAction *action){};//occurs AFTER every action taken by any stack or by the hero
-	virtual void actionStarted(const BattleAction *action){};//occurs BEFORE every action taken by any stack or by the hero
+	virtual void actionFinished(const BattleAction &action){};//occurs AFTER every action taken by any stack or by the hero
+	virtual void actionStarted(const BattleAction &action){};//occurs BEFORE every action taken by any stack or by the hero
 	virtual void battleAttack(const BattleAttack *ba){}; //called when stack is performing attack
 	virtual void battleStacksAttacked(const std::vector<BattleStackAttacked> & bsa){}; //called when stack receives damage (after battleAttack())
 	virtual void battleEnd(const BattleResult *br){};
