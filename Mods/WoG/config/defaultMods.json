@@ -6,7 +6,7 @@
 		"creature"   : 197,
 		"faction"    : 9,
 		"hero"       : 156,
-		"mapVersion" : 33 // WoG
+		"mapVersion" : 51 // WoG
 	},
 
 	"modules":
