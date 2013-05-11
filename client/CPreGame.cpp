@@ -1613,7 +1613,8 @@ RandomMapTab::RandomMapTab()
 	mapSizeBtnGroup->select(1, false);
 	mapSizeBtnGroup->onChange = [&](int btnId)
 	{
-		const std::vector<int> mapSizeVal = boost::assign::list_of(36)(72)(108)(144); // Map sizes in this order: S, M, L, XL
+		const std::vector<int> mapSizeVal = boost::assign::list_of(CMapHeader::MAP_SIZE_SMALL)(CMapHeader::MAP_SIZE_MIDDLE)
+				(CMapHeader::MAP_SIZE_LARGE)(CMapHeader::MAP_SIZE_XLARGE);
 		mapGenOptions.setWidth(mapSizeVal[btnId]);
 		mapGenOptions.setHeight(mapSizeVal[btnId]);
 		updateMapInfo();

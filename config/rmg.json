@@ -1,0 +1,66 @@
+// Defines random map templates.
+{
+	"Small Ring" : 
+	{
+		"minSize" : "s", "maxSize" : "s+u",
+		"minHumanCnt" : 1, "maxHumanCnt" : 8, "minTotalCnt" : 2, "maxTotalCnt" : 8,
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "humanStart", "baseSize" : 11, "owner" : 1,
+				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
+			},
+			"2" :
+			{
+				"type" : "humanStart", "baseSize" : 11, "owner" : 2,
+				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
+			},
+			"3" :
+			{
+				"type" : "humanStart", "baseSize" : 11, "owner" : 3,
+				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
+			},
+			"4" :
+			{
+				"type" : "humanStart", "baseSize" : 11, "owner" : 4,
+				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
+			},
+			"5" :
+			{
+				"type" : "humanStart", "baseSize" : 11, "owner" : 5,
+				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
+			},
+			"6" :
+			{
+				"type" : "humanStart", "baseSize" : 11, "owner" : 6,
+				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
+			},
+			"7" :
+			{
+				"type" : "humanStart", "baseSize" : 11, "owner" : 7,
+				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
+			},
+			"8" :
+			{
+				"type" : "humanStart", "baseSize" : 11, "owner" : 8,
+				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "2", "guardStrength" : 4500 },
+			{ "a" : "2", "b" : "3", "guardStrength" : 4500 },
+			{ "a" : "3", "b" : "4", "guardStrength" : 4500 },
+			{ "a" : "4", "b" : "5", "guardStrength" : 4500 },
+			{ "a" : "5", "b" : "6", "guardStrength" : 4500 },
+			{ "a" : "6", "b" : "7", "guardStrength" : 4500 },
+			{ "a" : "7", "b" : "8", "guardStrength" : 4500 },
+			{ "a" : "8", "b" : "1", "guardStrength" : 4500 },
+			{ "a" : "4", "b" : "1", "guardStrength" : 4500 },
+			{ "a" : "5", "b" : "1", "guardStrength" : 4500 },
+			{ "a" : "6", "b" : "1", "guardStrength" : 4500 },
+			{ "a" : "7", "b" : "1", "guardStrength" : 4500 }
+		]
+	}
+}

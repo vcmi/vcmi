@@ -136,6 +136,11 @@ bool TerrainTile::isWater() const
 	return terType == ETerrainType::WATER;
 }
 
+const int CMapHeader::MAP_SIZE_SMALL = 36;
+const int CMapHeader::MAP_SIZE_MIDDLE = 72;
+const int CMapHeader::MAP_SIZE_LARGE = 108;
+const int CMapHeader::MAP_SIZE_XLARGE = 144;
+
 CMapHeader::CMapHeader() : version(EMapFormat::SOD), height(72), width(72),
 	twoLevel(true), difficulty(1), levelLimit(0), howManyTeams(0), areAnyPlayers(false)
 {

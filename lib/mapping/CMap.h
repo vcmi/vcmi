@@ -291,6 +291,11 @@ enum EMapFormat
 class DLL_LINKAGE CMapHeader
 {
 public:
+	static const int MAP_SIZE_SMALL;
+	static const int MAP_SIZE_MIDDLE;
+	static const int MAP_SIZE_LARGE;
+	static const int MAP_SIZE_XLARGE;
+
 	CMapHeader();
 	virtual ~CMapHeader();
 

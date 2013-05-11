@@ -17,6 +17,7 @@
 class CMap;
 class CTerrainViewPatternConfig;
 class CMapEditManager;
+class JsonNode;
 
 namespace EWaterContent
 {
@@ -187,4 +188,191 @@ private:
 	CRandomGenerator gen;
 	int randomSeed;
 	CMapEditManager * editManager;
+};
+
+/* ---------------------------------------------------------------------------- */
+/* Implementation/Detail classes, Private API */
+/* ---------------------------------------------------------------------------- */
+
+namespace ETemplateZoneType
+{
+enum ETemplateZoneType
+{
+	HUMAN_START,
+	COMPUTER_START,
+	TREASURE,
+	JUNCTION
+};
+}
+
+/// The CTemplateZoneTowns holds info about towns in a template zone.
+class DLL_LINKAGE CTemplateZoneTowns
+{
+public:
+	CTemplateZoneTowns();
+
+	int getMinTowns() const; /// Default: 0
+	void setMinTowns(int value);
+	int getMinCastles() const; /// Default: 0
+	void setMinCastles(int value);
+	int getTownDensity() const; /// Default: 0
+	void setTownDensity(int value);
+	int getCastleDensity() const; /// Default: 0
+	void setCastleDensity(int value);
+
+private:
+	int minTowns, minCastles, townDensity, castleDensity;
+};
+
+typedef int TTemplateZoneId;
+
+/// The CTemplateZone describes a zone in a template.
+class DLL_LINKAGE CTemplateZone
+{
+public:
+	CTemplateZone();
+
+	TTemplateZoneId getId() const; /// Default: 0 = not set;
+	void setId(TTemplateZoneId value);
+	ETemplateZoneType::ETemplateZoneType getType() const; /// Default: ETemplateZoneType::HUMAN_START
+	void setType(ETemplateZoneType::ETemplateZoneType value);
+	int getBaseSize() const; /// Default: 0 = not set;
+	void setBaseSize(int value);
+	int getOwner() const; /// Default: 0 = not set;
+	void setOwner(int value);
+	const CTemplateZoneTowns & getPlayerTowns() const;
+	void setPlayerTowns(const CTemplateZoneTowns & value);
+	const CTemplateZoneTowns & getNeutralTowns() const;
+	void setNeutralTowns(const CTemplateZoneTowns & value);
+	bool getNeutralTownsAreSameType() const; /// Default: false
+	void setNeutralTownsAreSameType(bool value);
+	const std::set<TFaction> & getAllowedTownTypes() const;
+	void setAllowedTownTypes(const std::set<TFaction> & value);
+	bool getMatchTerrainToTown() const; /// Default: false
+	void setMatchTerrainToTown(bool value);
+	const std::set<ETerrainType> & getTerrainTypes() const;
+	void setTerrainTypes(const std::set<ETerrainType> & value);
+
+private:
+	TTemplateZoneId id;
+	ETemplateZoneType::ETemplateZoneType type;
+	int baseSize;
+	int owner;
+	CTemplateZoneTowns playerTowns, neutralTowns;
+	bool neutralTownsAreSameType;
+	std::set<TFaction> allowedTownTypes;
+	bool matchTerrainToTown;
+	std::set<ETerrainType> terrainTypes;
+};
+
+/// The CTemplateZoneConnection describes the connection between two zones.
+class DLL_LINKAGE CTemplateZoneConnection
+{
+public:
+	CTemplateZoneConnection();
+
+	TTemplateZoneId getZoneA() const; /// Default: 0 = not set;
+	void setZoneA(TTemplateZoneId value);
+	TTemplateZoneId getZoneB() const; /// Default: 0 = not set;
+	void setZoneB(TTemplateZoneId value);
+	int getGuardStrength() const; /// Default: 0
+	void setGuardStrength(int value);
+
+private:
+	TTemplateZoneId zoneA, zoneB;
+	int guardStrength;
+};
+
+/// The CRandomMapTemplateSize describes the dimensions of the template.
+class CRandomMapTemplateSize
+{
+public:
+	CRandomMapTemplateSize();
+	CRandomMapTemplateSize(int width, int height, bool under);
+
+	int getWidth() const; /// Default: CMapHeader::MAP_SIZE_MIDDLE
+	void setWidth(int value);
+	int getHeight() const; /// Default: CMapHeader::MAP_SIZE_MIDDLE
+	void setHeight(int value);
+	bool getUnder() const; /// Default: true
+	void setUnder(bool value);
+
+private:
+	int width, height;
+	bool under;
+};
+
+/// The CRandomMapTemplate describes a random map template.
+class DLL_LINKAGE CRandomMapTemplate
+{
+public:
+	CRandomMapTemplate();
+
+	const std::string & getName() const;
+	void setName(const std::string & value);
+	const CRandomMapTemplateSize & getMinSize() const; /// Default: CMapHeader::MAP_SIZE_SMALL x CMapHeader::MAP_SIZE_SMALL x wo under
+	void setMinSize(const CRandomMapTemplateSize & value);
+	const CRandomMapTemplateSize & getMaxSize() const; /// Default: CMapHeader::MAP_SIZE_XLARGE x CMapHeader::MAP_SIZE_XLARGE x under
+	void setMaxSize(const CRandomMapTemplateSize & value);
+	int getMinHumanCnt() const; /// Default: 1
+	void setMinHumanCnt(int value);
+	int getMaxHumanCnt() const; /// Default: PlayerColor::PLAYER_LIMIT_I
+	void setMaxHumanCnt(int value);
+	int getMinTotalCnt() const; /// Default: 2
+	void setMinTotalCnt(int value);
+	int getMaxTotalCnt() const; /// Default: PlayerColor::PLAYER_LIMIT_I
+	void setMaxTotalCnt(int value);
+	const std::map<TTemplateZoneId, CTemplateZone> & getZones() const;
+	void setZones(const std::map<TTemplateZoneId, CTemplateZone> & value);
+	const std::list<CTemplateZoneConnection> & getConnections() const;
+	void setConnections(const std::list<CTemplateZoneConnection> & value);
+
+private:
+	std::string name;
+	CRandomMapTemplateSize minSize, maxSize;
+	int minHumanCnt, maxHumanCnt, minTotalCnt, maxTotalCnt;
+	std::map<TTemplateZoneId, CTemplateZone> zones;
+	std::list<CTemplateZoneConnection> connections;
+};
+
+/// The CRmTemplateLoader is a abstract base class for loading templates.
+class DLL_LINKAGE CRmTemplateLoader
+{
+public:
+	virtual ~CRmTemplateLoader() { };
+	virtual void loadTemplates() = 0;
+	const std::map<std::string, CRandomMapTemplate> & getTemplates() const;
+
+protected:
+	std::map<std::string, CRandomMapTemplate> templates;
+};
+
+/// The CJsonRmTemplateLoader loads templates from a JSON file.
+class DLL_LINKAGE CJsonRmTemplateLoader : public CRmTemplateLoader
+{
+public:
+	void loadTemplates() override;
+
+private:
+	CRandomMapTemplateSize parseMapTemplateSize(const std::string & text) const;
+	CTemplateZoneTowns parseTemplateZoneTowns(const JsonNode & node) const;
+	ETemplateZoneType::ETemplateZoneType getZoneType(const std::string & type) const;
+	std::set<TFaction> getFactions(const std::vector<JsonNode> factionStrings) const;
+	std::set<ETerrainType> parseTerrainTypes(const std::vector<JsonNode> terTypeStrings) const;
+};
+
+/// The CRandomMapTemplateStorage is a singleton object where templates are stored and which can be accessed from anywhere.
+class DLL_LINKAGE CRandomMapTemplateStorage
+{
+public:
+	static CRandomMapTemplateStorage & get();
+
+	const std::map<std::string, CRandomMapTemplate> & getTemplates() const;
+
+private:
+	CRandomMapTemplateStorage();
+	~CRandomMapTemplateStorage();
+
+	static boost::mutex smx;
+	std::map<std::string, CRandomMapTemplate> templates; /// Key: Template name
 };
