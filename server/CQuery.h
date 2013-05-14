@@ -63,6 +63,7 @@ public:
 	const CGObjectInstance *visitedObject;
 	const CGHeroInstance *visitingHero;
 	int3 tile; //may be different than hero pos -> eg. visit via teleport
+	bool removeObjectAfterVisit;
 
 	CObjectVisitQuery(const CGObjectInstance *Obj, const CGHeroInstance *Hero, int3 Tile);
 

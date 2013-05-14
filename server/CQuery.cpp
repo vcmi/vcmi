@@ -87,7 +87,7 @@ void CQuery::onExposure(CGameHandler *gh, QueryPtr topQuery)
 }
 
 CObjectVisitQuery::CObjectVisitQuery(const CGObjectInstance *Obj, const CGHeroInstance *Hero, int3 Tile)
-	: visitedObject(Obj), visitingHero(Hero), tile(Tile)
+	: visitedObject(Obj), visitingHero(Hero), tile(Tile), removeObjectAfterVisit(false)
 {
 	addPlayer(Hero->tempOwner);
 }
@@ -102,6 +102,11 @@ bool CObjectVisitQuery::blocksPack(const CPack *pack) const
 void CObjectVisitQuery::onRemoval(CGameHandler *gh, PlayerColor color)
 {
 	gh->objectVisitEnded(*this);
+
+	//TODO or should it be destructor?
+	//Can object visit affect 2 players and what would be desired behavior?
+	if(removeObjectAfterVisit)
+		gh->removeObject(visitedObject);
 }
 
 void CObjectVisitQuery::onExposure(CGameHandler *gh, QueryPtr topQuery)

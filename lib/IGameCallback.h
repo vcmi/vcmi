@@ -221,7 +221,7 @@ public:
 	virtual void changePrimSkill(const CGHeroInstance * hero, PrimarySkill::PrimarySkill which, si64 val, bool abs=false)=0;
 	virtual void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false)=0; 
 	virtual void showBlockingDialog(BlockingDialog *iw) =0;
-	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const boost::function<void()> &cb) =0; //cb will be called when player closes garrison window
+	virtual void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) =0; //cb will be called when player closes garrison window
 	virtual void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) =0;
 	virtual void giveResource(PlayerColor player, Res::ERes which, int val)=0;
 	virtual void giveResources(PlayerColor player, TResources resources)=0;
@@ -236,6 +236,8 @@ public:
 	virtual bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) =0; //makes new stack or increases count of already existing
 	virtual void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) =0; //merges army from src do dst or opens a garrison window
 	virtual bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count) = 0;
+
+	virtual void removeAfterVisit(const CGObjectInstance *object) = 0; //object will be destroyed when interaction is over. Do not call when interaction is not ongoing!
 
 	virtual void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) = 0;
 	virtual void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) = 0; //pos==-1 - first free slot in backpack=0; pos==-2 - default if available or backpack

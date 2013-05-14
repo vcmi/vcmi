@@ -1853,10 +1853,6 @@ void CGameHandler::giveResources(PlayerColor player, TResources resources)
 
 void CGameHandler::giveCreatures(const CArmedInstance *obj, const CGHeroInstance * h, const CCreatureSet &creatures, bool remove)
 {
-	boost::function<void()> removeOrNot = 0;
-	if(remove)
-		removeOrNot = boost::bind(&CGameHandler::removeObject, this, obj);
-
 	COMPLAIN_RET_IF(!creatures.stacksCount(), "Strange, giveCreatures called without args!");
 	COMPLAIN_RET_IF(obj->stacksCount(), "Cannot give creatures from not-cleared object!");
 	COMPLAIN_RET_IF(creatures.stacksCount() > GameConstants::ARMY_SIZE, "Too many stacks to give!");
@@ -4743,7 +4739,7 @@ bool CGameHandler::complain( const std::string &problem )
 	return true;
 }
 
-void CGameHandler::showGarrisonDialog( ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const boost::function<void()> &cb )
+void CGameHandler::showGarrisonDialog( ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits)
 {
 	//PlayerColor player = getOwner(hid);
 	auto upperArmy = dynamic_cast<const CArmedInstance*>(getObj(upobj));
@@ -5639,6 +5635,9 @@ bool CGameHandler::addToSlot(const StackLocation &sl, const CCreature *c, TQuant
 
 void CGameHandler::tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging)
 {
+	if(removeObjWhenFinished)
+		removeAfterVisit(src);
+
 	if(!src->canBeMergedWith(*dst, allowMerging))
 	{
 		if (allowMerging) //do that, add all matching creatures.
@@ -5659,16 +5658,11 @@ void CGameHandler::tryJoiningArmy(const CArmedInstance *src, const CArmedInstanc
 				}
 			}
 		}
-		boost::function<void()> removeOrNot = 0;
-		if(removeObjWhenFinished)
-			removeOrNot = boost::bind(&IGameCallback::removeObject,this,src);
-		showGarrisonDialog(src->id, dst->id, true, removeOrNot); //show garrison window and optionally remove ourselves from map when player ends
+		showGarrisonDialog(src->id, dst->id, true); //show garrison window and optionally remove ourselves from map when player ends
 	}
 	else //merge
 	{
 		moveArmy(src, dst, allowMerging);
-		if(removeObjWhenFinished)
-			removeObject(src);
 	}
 }
 
@@ -6092,6 +6086,25 @@ bool CGameHandler::isBlockedByQueries(const CPack *pack, PlayerColor player)
 	}
 
 	return false;
+}
+
+void CGameHandler::removeAfterVisit(const CGObjectInstance *object)
+{
+	//If the object is being visited, there must be a matching query
+	BOOST_FOREACH(const auto &query, queries.allQueries())
+	{
+		if(auto someVistQuery = std::dynamic_pointer_cast<CObjectVisitQuery>(query))
+		{
+			if(someVistQuery->visitedObject == object)
+			{
+				someVistQuery->removeObjectAfterVisit = true;
+				return;
+			}
+		}
+	};
+
+	//If we haven't returned so far, there is no query and no visit, call was wrong
+	assert("This function needs to be called during the object visit!");
 }
 
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)

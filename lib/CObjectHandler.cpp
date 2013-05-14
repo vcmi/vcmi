@@ -3556,7 +3556,7 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 
 	if(relations == 2) //we're visiting our mine
 	{
-		cb->showGarrisonDialog(id,h->id,true,0);
+		cb->showGarrisonDialog(id,h->id,true);
 		return;
 	}
 	else if (relations == 1)//ally
@@ -5833,7 +5833,7 @@ void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 	if (!ally)
 		cb->setOwner(this, h->tempOwner);
 
-	cb->showGarrisonDialog(id, h->id, removableUnits, 0);
+	cb->showGarrisonDialog(id, h->id, removableUnits);
 }
 
 ui8 CGGarrison::getPassableness() const

@@ -170,7 +170,7 @@ public:
 	void changeSecSkill(const CGHeroInstance * hero, SecondarySkill which, int val, bool abs=false) OVERRIDE {}; 
 
 	void showBlockingDialog(BlockingDialog *iw) OVERRIDE {}; 
-	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits, const boost::function<void()> &cb) OVERRIDE {};
+	void showGarrisonDialog(ObjectInstanceID upobj, ObjectInstanceID hid, bool removableUnits) OVERRIDE {};
 	void showThievesGuildWindow(PlayerColor player, ObjectInstanceID requestingObjId) OVERRIDE {};
 	void giveResource(PlayerColor player, Res::ERes which, int val) OVERRIDE {};
 	virtual void giveResources(PlayerColor player, TResources resources) OVERRIDE {};
@@ -185,6 +185,8 @@ public:
 	bool addToSlot(const StackLocation &sl, const CCreature *c, TQuantity count) OVERRIDE {return false;}
 	void tryJoiningArmy(const CArmedInstance *src, const CArmedInstance *dst, bool removeObjWhenFinished, bool allowMerging) OVERRIDE {}
 	bool moveStack(const StackLocation &src, const StackLocation &dst, TQuantity count = -1) OVERRIDE {return false;}
+	
+	void removeAfterVisit(const CGObjectInstance *object) OVERRIDE {};
 
 	void giveHeroNewArtifact(const CGHeroInstance *h, const CArtifact *artType, ArtifactPosition pos) OVERRIDE {};
 	void giveHeroArtifact(const CGHeroInstance *h, const CArtifactInstance *a, ArtifactPosition pos) OVERRIDE {};
