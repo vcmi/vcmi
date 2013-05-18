@@ -767,7 +767,7 @@ std::vector < const CGHeroInstance *> CPlayerSpecificInfoCallback::getHeroesInfo
 {
 	//boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector < const CGHeroInstance *> ret;
-	BOOST_FOREACH(auto hero, gs->map->heroes)
+	BOOST_FOREACH(auto hero, gs->map->heroesOnMap)
 	{
 		if( !player || (hero->tempOwner == *player) ||
 			(isVisible(hero->getPosition(false), player) && !onlyOur)	)
@@ -946,7 +946,7 @@ const TeamState * CGameInfoCallback::getPlayerTeam( PlayerColor color ) const
 
 const CGHeroInstance* CGameInfoCallback::getHeroWithSubid( int subid ) const
 {
-	BOOST_FOREACH(const CGHeroInstance *h, gs->map->heroes)
+	BOOST_FOREACH(const CGHeroInstance *h, gs->map->heroesOnMap)
 		if(h->subID == subid)
 			return h;
 

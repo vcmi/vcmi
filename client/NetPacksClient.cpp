@@ -239,6 +239,7 @@ void DisassembledArtifact::applyCl( CClient *cl )
 
 void HeroVisit::applyCl( CClient *cl )
 {
+	assert(hero);
 	INTERFACE_CALL_IF_PRESENT(hero->tempOwner, heroVisit, hero, obj, starting);
 }
 
@@ -487,7 +488,7 @@ void SetHeroesInTown::applyCl( CClient *cl )
 
 void HeroRecruited::applyCl( CClient *cl )
 {
-	CGHeroInstance *h = GS(cl)->map->heroes.back();
+	CGHeroInstance *h = GS(cl)->map->heroesOnMap.back();
 	if(h->subID != hid)
 	{
         logNetwork->errorStream() << "Something wrong with hero recruited!";

@@ -678,7 +678,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 		h->type = VLC->heroh->heroes[ran.second];
 		h->portrait = h->type->imageIndex;
 		h->randomizeArmy(h->type->heroClass->faction);
-		map->heroes.push_back(h);
+		map->heroesOnMap.push_back(h);
 		return; //TODO: maybe we should do something with definfo?
 	}
 	else if(ran.first==Obj::TOWN)//special code for town
@@ -1071,7 +1071,7 @@ void CGameState::init(StartInfo * si)
 				CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(Obj::HERO,h,hpos,it->first));
 				nnn->id = ObjectInstanceID(map->objects.size());
 				nnn->initHero();
-				map->heroes.push_back(nnn);
+				map->heroesOnMap.push_back(nnn);
 				map->objects.push_back(nnn);
 				map->addBlockVisTiles(nnn);
 			}
@@ -1130,7 +1130,7 @@ void CGameState::init(StartInfo * si)
 					if (!found)
 					{
 						CGHeroInstance * nh = new CGHeroInstance();
-						nh->initHero(hp->subID);
+						nh->initHero(HeroTypeID(hp->subID));
 						replaceHero(gid, nh);
 					}
 				}
@@ -1236,7 +1236,7 @@ void CGameState::init(StartInfo * si)
 		heroToPlace->id = obj.second;
 		heroToPlace->tempOwner = placeholder->tempOwner;
 		heroToPlace->pos = placeholder->pos;
-		heroToPlace->type = VLC->heroh->heroes[heroToPlace->type->ID];
+		heroToPlace->type = VLC->heroh->heroes[heroToPlace->type->ID.getNum()]; //TODO is this reasonable? either old type can be still used or it can be deleted?
 
 		BOOST_FOREACH(auto &&i, heroToPlace->stacks)
 			i.second->type = VLC->creh->creatures[i.second->getCreatureID()];
@@ -1253,57 +1253,65 @@ void CGameState::init(StartInfo * si)
 		BOOST_FOREACH(auto &&i, heroToPlace->artifactsInBackpack)
 			fixArtifact(i.artifact);
 
-		map->heroes.push_back(heroToPlace);
+		map->heroesOnMap.push_back(heroToPlace);
 		map->objects[heroToPlace->id.getNum()] = heroToPlace;
 		map->addBlockVisTiles(heroToPlace);
 
 		//const auto & travelOptions = scenarioOps->campState->getCurrentScenario().travelOptions;
 	}
 
-
-	std::set<int> hids; //hero ids to create pool
+	
+	std::set<HeroTypeID> heroesToCreate; //ids of heroes to be created and put into the pool
 
 	for(ui32 i=0; i<map->allowedHeroes.size(); i++) //add to hids all allowed heroes
 		if(map->allowedHeroes[i])
-			hids.insert(i);
+			heroesToCreate.insert(HeroTypeID(i));
 
-	for (ui32 i=0; i<map->heroes.size();i++) //heroes instances initialization
+	BOOST_FOREACH(auto hero, map->heroesOnMap)  //heroes instances initialization
 	{
-		if (map->heroes[i]->getOwner() == PlayerColor::UNFLAGGABLE)
+		if (hero->getOwner() == PlayerColor::UNFLAGGABLE)
 		{
             logGlobal->warnStream() << "Warning - hero with uninitialized owner!";
 			continue;
 		}
-		CGHeroInstance * vhi = map->heroes[i];
-		vhi->initHero();
-		players.find(vhi->getOwner())->second.heroes.push_back(vhi);
-		hids.erase(vhi->subID);
+
+		hero->initHero();
+		getPlayer(hero->getOwner())->heroes.push_back(hero);
+		heroesToCreate.erase(hero->type->ID);
+		map->allHeroes[hero->type->ID.getNum()] = hero;
 	}
-
-
 
 	BOOST_FOREACH(auto obj, map->objects) //prisons
 	{
 		if(obj && obj->ID == Obj::PRISON)
-			hids.erase(obj->subID);
+		{
+			heroesToCreate.erase(HeroTypeID(obj->subID));
+
+			map->allHeroes[obj->subID] = dynamic_cast<CGHeroInstance*>(obj.get());
+		}
 	}
 
 	BOOST_FOREACH(auto ph, map->predefinedHeroes)
 	{
-		if(!vstd::contains(hids, ph->subID))
+		if(!vstd::contains(heroesToCreate, HeroTypeID(ph->subID)))
 			continue;
 		ph->initHero();
 		hpool.heroesPool[ph->subID] = ph;
 		hpool.pavailable[ph->subID] = 0xff;
-		hids.erase(ph->subID);
+		heroesToCreate.erase(ph->type->ID);
+
+		map->allHeroes[ph->subID] = ph;
 	}
 
-	BOOST_FOREACH(int hid, hids) //all not used allowed heroes go with default state into the pool
+	BOOST_FOREACH(HeroTypeID htype, heroesToCreate) //all not used allowed heroes go with default state into the pool
 	{
 		CGHeroInstance * vhi = new CGHeroInstance();
-		vhi->initHero(hid);
-		hpool.heroesPool[hid] = vhi;
-		hpool.pavailable[hid] = 0xff;
+		vhi->initHero(htype);
+
+		int typeID = htype.getNum();
+		map->allHeroes[typeID] = vhi;
+		hpool.heroesPool[typeID] = vhi;
+		hpool.pavailable[typeID] = 0xff;
 	}
 
 	for(ui32 i=0; i<map->disposedHeroes.size(); i++)
@@ -1684,7 +1692,7 @@ void CGameState::initDuel()
 			BOOST_FOREACH(TSecSKill secSkill, ss.heroSecSkills)
 				h->setSecSkillLevel(SecondarySkill(secSkill.first), secSkill.second, 1);
 
-			h->initHero(h->subID);
+			h->initHero(HeroTypeID(h->subID));
 			obj->initObj();
 		}
 		else

@@ -366,11 +366,17 @@ public:
 	int3 grailPos;
 	int grailRadious;
 
+
+	//Central lists of items in game. Position of item in the vectors below is their (instance) id.
 	std::vector< ConstTransitivePtr<CGObjectInstance> > objects;
-	std::vector< ConstTransitivePtr<CGHeroInstance> > heroes;
 	std::vector< ConstTransitivePtr<CGTownInstance> > towns;
 	std::vector< ConstTransitivePtr<CArtifactInstance> > artInstances;
 	std::vector< ConstTransitivePtr<CQuest> > quests;
+	std::vector< ConstTransitivePtr<CGHeroInstance> > allHeroes; //indexed by [hero_type_id]; on map, disposed, prisons, etc.
+
+	//Helper lists
+	std::vector< ConstTransitivePtr<CGHeroInstance> > heroesOnMap;
+
 	/// associative list to identify which hero/creature id belongs to which object id(index for objects)
 	bmap<si32, ObjectInstanceID> questIdentifierToId;
 
@@ -428,7 +434,7 @@ public:
 		}
 
 		h & customDefs & objects;
-		h & heroes & towns & artInstances;
+		h & heroesOnMap & towns & artInstances;
 
 		// static members
 		h & CGTeleport::objs;

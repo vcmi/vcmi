@@ -308,7 +308,7 @@ DLL_LINKAGE void RemoveObject::applyGs( CGameState *gs )
 	{
 		CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
 		PlayerState *p = gs->getPlayer(h->tempOwner);
-		gs->map->heroes -= h;
+		gs->map->heroesOnMap -= h;
 		p->heroes -= h;
 		h->detachFrom(h->whereShouldBeAttached(gs));
 		h->tempOwner = PlayerColor::NEUTRAL; //no one owns beaten hero
@@ -510,7 +510,7 @@ DLL_LINKAGE void HeroRecruited::applyGs( CGameState *gs )
 		gs->map->objects[h->id.getNum()] = h;
 
 	h->initHeroDefInfo();
-	gs->map->heroes.push_back(h);
+	gs->map->heroesOnMap.push_back(h);
 	p->heroes.push_back(h);
 	h->attachTo(p);
 	h->initObj();
@@ -534,7 +534,7 @@ DLL_LINKAGE void GiveHero::applyGs( CGameState *gs )
 	h->setOwner(player);
 	h->movement =  h->maxMovePoints(true);
 	h->initHeroDefInfo();
-	gs->map->heroes.push_back(h);
+	gs->map->heroesOnMap.push_back(h);
 	gs->getPlayer(h->getOwner())->heroes.push_back(h);
 	gs->map->addBlockVisTiles(h);
 	h->inTownGarrison = false;
@@ -894,10 +894,6 @@ DLL_LINKAGE void DisassembledArtifact::applyGs( CGameState *gs )
 
 DLL_LINKAGE void HeroVisit::applyGs( CGameState *gs )
 {
-	if(starting)
-		gs->ongoingVisits[hero] = obj;
-	else
-		gs->ongoingVisits.erase(hero);
 }
 
 DLL_LINKAGE void SetAvailableArtifacts::applyGs( CGameState *gs )

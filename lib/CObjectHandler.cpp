@@ -757,9 +757,9 @@ CGHeroInstance::CGHeroInstance()
 	secSkills.push_back(std::make_pair(SecondarySkill::DEFAULT, -1));
 }
 
-void CGHeroInstance::initHero(int SUBID)
+void CGHeroInstance::initHero(HeroTypeID SUBID)
 {
-	subID = SUBID;
+	subID = SUBID.getNum();
 	initHero();
 }
 
@@ -4355,7 +4355,7 @@ bool CQuest::checkQuest (const CGHeroInstance * h) const
 			}
 			return true;
 		case MISSION_HERO:
-			if (m13489val == h->type->ID)
+			if (m13489val == h->type->ID.getNum())
 				return true;
 			return false;
 		case MISSION_PLAYER:

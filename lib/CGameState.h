@@ -367,7 +367,6 @@ public:
 	bmap<PlayerColor, PlayerState> players;
 	bmap<TeamID, TeamState> teams;
 	CBonusSystemNode globalEffects;
-	bmap<const CGHeroInstance*, const CGObjectInstance*> ongoingVisits;
 
 	struct DLL_LINKAGE HeroesPool
 	{

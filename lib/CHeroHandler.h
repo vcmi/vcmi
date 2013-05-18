@@ -59,7 +59,7 @@ public:
 		}
 	};
 
-	si32 ID;
+	HeroTypeID ID;
 	si32 imageIndex;
 
 	std::vector<InitialArmyStack> initialArmy;

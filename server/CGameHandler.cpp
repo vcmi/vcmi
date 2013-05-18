@@ -4840,6 +4840,7 @@ void CGameHandler::objectVisitEnded(const CObjectVisitQuery &query)
 	HeroVisit hv;
 	hv.obj = nullptr; //not necessary, moreover may have been deleted in the meantime
 	hv.hero = query.visitingHero;
+	assert(hv.hero);
 	hv.starting = false;
 	sendAndApply(&hv);
 }
@@ -4977,7 +4978,7 @@ void CGameHandler::checkLossVictory( PlayerColor player )
 		if(gs->scenarioOps->campState)
 		{
 			std::vector<CGHeroInstance *> hes;
-			BOOST_FOREACH(CGHeroInstance * ghi, gs->map->heroes)
+			BOOST_FOREACH(CGHeroInstance * ghi, gs->map->heroesOnMap)
 			{
 				if (ghi->tempOwner == player)
 				{

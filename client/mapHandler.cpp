@@ -371,11 +371,11 @@ void CMapHandler::init()
 	offsetX = (mapW - (2*frameW+1)*32)/2;
 	offsetY = (mapH - (2*frameH+1)*32)/2;
 
-	for(int i=0;i<map->heroes.size();i++)
+	for(int i=0;i<map->heroesOnMap.size();i++)
 	{
-		if( !graphics->getDef(map->heroes[i]) )
+		if( !graphics->getDef(map->heroesOnMap[i]) )
 		{
-			initHeroDef(map->heroes[i]);
+			initHeroDef(map->heroesOnMap[i]);
 		}
 	}
 

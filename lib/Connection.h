@@ -297,14 +297,15 @@ struct SerializationLevel
 	static const int value = SerializationLevel::type::value;
 };
 
-template <typename T, typename U>
+template <typename ObjType, typename IdType>
 struct VectorisedObjectInfo
 {
-	const std::vector<ConstTransitivePtr<T> > *vector;	//pointer to the appropriate vector
-	const U T::*idPtr;			//pointer to the field representing the position in the vector
+	const std::vector<ConstTransitivePtr<ObjType> > *vector;	//pointer to the appropriate vector
+	std::function<IdType(const ObjType &)> idRetriever;
+	//const IdType ObjType::*idPtr;			//pointer to the field representing the position in the vector
 
-	VectorisedObjectInfo(const std::vector< ConstTransitivePtr<T> > *Vector, const U T::*IdPtr)
-		:vector(Vector), idPtr(IdPtr)
+	VectorisedObjectInfo(const std::vector< ConstTransitivePtr<ObjType> > *Vector, std::function<IdType(const ObjType &)> IdGetter)
+		:vector(Vector), idRetriever(IdGetter)
 	{
 	}
 };
@@ -337,14 +338,14 @@ public:
     virtual void reportState(CLogger * out){};
 
 	template <typename T, typename U>
-	void registerVectoredType(const std::vector<T*> *Vector, const U T::*IdPtr)
+	void registerVectoredType(const std::vector<T*> *Vector, const std::function<U(const T&)> &idRetriever)
 	{
-		vectors[&typeid(T)] = VectorisedObjectInfo<T, U>(Vector, IdPtr);
+		vectors[&typeid(T)] = VectorisedObjectInfo<T, U>(Vector, idRetriever);
 	}
 	template <typename T, typename U>
-	void registerVectoredType(const std::vector<ConstTransitivePtr<T> > *Vector, const U T::*IdPtr)
+	void registerVectoredType(const std::vector<ConstTransitivePtr<T> > *Vector, const std::function<U(const T&)> &idRetriever)
 	{
-		vectors[&typeid(T)] = VectorisedObjectInfo<T, U>(Vector, IdPtr);
+		vectors[&typeid(T)] = VectorisedObjectInfo<T, U>(Vector, idRetriever);
 	}
 
 	template <typename T, typename U>
@@ -387,7 +388,7 @@ public:
 		if(!obj)
 			return U(-1);
 
-		return obj->*oInfo.idPtr;
+		return oInfo.idRetriever(*obj);
 	}
 
 	void addStdVecItems(CGameState *gs, LibClasses *lib = VLC);
@@ -422,11 +423,14 @@ struct VectorisedTypeFor
 {
 	typedef typename
 		//if
+		mpl::eval_if<boost::is_same<CGHeroInstance,T>,
+		mpl::identity<CGHeroInstance>,
+		//else if
 		mpl::eval_if<boost::is_base_of<CGObjectInstance,T>,
 		mpl::identity<CGObjectInstance>,
 		//else
 		mpl::identity<T>
-		>::type type;
+		> >::type type;
 };
 template <typename U>
 struct VectorizedIDType
@@ -439,14 +443,20 @@ struct VectorizedIDType
 		mpl::eval_if<boost::is_same<CCreature,U>,
 		mpl::identity<CreatureID>,
 		//else if
+		mpl::eval_if<boost::is_same<CHero,U>,
+		mpl::identity<HeroTypeID>,
+		//else if
 		mpl::eval_if<boost::is_same<CArtifactInstance,U>,
 		mpl::identity<ArtifactInstanceID>,
+		//else if
+		mpl::eval_if<boost::is_same<CGHeroInstance,U>,
+		mpl::identity<HeroTypeID>,
 		//else if
 		mpl::eval_if<boost::is_base_of<CGObjectInstance,U>,
 		mpl::identity<ObjectInstanceID>,
 		//else
 		mpl::identity<si32>
-		> > > >::type type;
+		> > > > > >::type type;
 };
 
 template <typename Handler>

@@ -924,7 +924,7 @@ void CInsertObjectOperation::execute()
 	}
 	if(obj->ID == Obj::HERO)
 	{
-		map->heroes.push_back(static_cast<CGHeroInstance*>(obj));
+		map->heroesOnMap.push_back(static_cast<CGHeroInstance*>(obj));
 	}
 	map->addBlockVisTiles(obj);
 }

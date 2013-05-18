@@ -469,24 +469,24 @@ std::vector<JsonNode> CHeroHandler::loadLegacyData(size_t dataSize)
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	auto object = loadFromJson(data);
-	object->ID = heroes.size();
+	object->ID = HeroTypeID(heroes.size());
 	object->imageIndex = heroes.size() + 8; // 2 special frames + some extra portraits
 
 	heroes.push_back(object);
 
-	VLC->modh->identifiers.registerObject(scope, "hero", name, object->ID);
+	VLC->modh->identifiers.registerObject(scope, "hero", name, object->ID.getNum());
 }
 
 void CHeroHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(data);
-	object->ID = index;
+	object->ID = HeroTypeID(index);
 	object->imageIndex = index;
 
 	assert(heroes[index] == nullptr); // ensure that this id was not loaded before
 	heroes[index] = object;
 
-	VLC->modh->identifiers.registerObject(scope, "hero", name, object->ID);
+	VLC->modh->identifiers.registerObject(scope, "hero", name, object->ID.getNum());
 }
 
 ui32 CHeroHandler::level (ui64 experience) const

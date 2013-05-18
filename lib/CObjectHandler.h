@@ -405,7 +405,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	void initHero();
-	void initHero(int SUBID);
+	void initHero(HeroTypeID SUBID);
 
 	void putArtifact(ArtifactPosition pos, CArtifactInstance *art);
 	void putInBackpack(CArtifactInstance *art);

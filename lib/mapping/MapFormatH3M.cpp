@@ -92,6 +92,8 @@ void CMapLoaderH3M::init()
 	readHeader();
 	times.push_back(MapLoadingTime("header", sw.getDiff()));
 
+	map->allHeroes.resize(map->allowedHeroes.size());
+
 	readDisposedHeroes();
 	times.push_back(MapLoadingTime("disposed heroes", sw.getDiff()));
 
@@ -1469,11 +1471,11 @@ void CMapLoaderH3M::readObjects()
 		}
 		if(nobj->ID == Obj::HERO)
 		{
-			map->heroes.push_back(static_cast<CGHeroInstance*>(nobj));
+			map->heroesOnMap.push_back(static_cast<CGHeroInstance*>(nobj));
 		}
 	}
 
-	std::sort(map->heroes.begin(), map->heroes.end(), [](const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)
+	std::sort(map->heroesOnMap.begin(), map->heroesOnMap.end(), [](const ConstTransitivePtr<CGHeroInstance> & a, const ConstTransitivePtr<CGHeroInstance> & b)
 	{
 		return a->subID < b->subID;
 	});
