@@ -107,6 +107,7 @@ public:
 
 	bool valid() const;
 
+	void setId(CreatureID ID); //assigns idNumber and updates bonuses to reference it
 	void addBonus(int val, Bonus::BonusType type, int subtype = -1);
 	std::string nodeName() const override;
 

@@ -1347,6 +1347,7 @@ DLL_LINKAGE void SetStackEffect::applyGs( CGameState *gs )
 			{
 				BOOST_FOREACH(Bonus &fromEffect, effect)
 				{
+					logBonus->traceStream() << s->nodeName() << " receives a new bonus: " << fromEffect.Description();
 					s->addNewBonus( new Bonus(fromEffect));
 				}
 			}

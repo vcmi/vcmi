@@ -132,6 +132,16 @@ bool CCreature::isItNativeTerrain(int terrain) const
 	return VLC->townh->factions[faction]->nativeTerrain == terrain;
 }
 
+void CCreature::setId(CreatureID ID)
+{
+	idNumber = ID;
+	BOOST_FOREACH(auto bonus, getExportedBonusList())
+	{
+		if(bonus->source == Bonus::CREATURE_ABILITY)
+			bonus->sid = ID;
+	}
+}
+
 static void AddAbility(CCreature *cre, const JsonVector &ability_vec)
 {
 	Bonus *nsf = new Bonus();
@@ -260,7 +270,7 @@ void CCreatureHandler::loadBonuses(JsonNode & creature, std::string bonuses)
 	if(hasAbility("const_lowers_morale"))
 	{
 		JsonNode node = makeBonusNode("MORALE");
-		node["val"].Float() = 1;
+		node["val"].Float() = -1;
 		node["effectRange"].String() = "ONLY_ENEMY_ARMY";
 		creature["abilities"]["const_lowers_morale"] = node;
 	}
@@ -326,7 +336,7 @@ std::vector<JsonNode> CCreatureHandler::loadLegacyData(size_t dataSize)
 void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data)
 {
 	auto object = loadFromJson(data);
-	object->idNumber = CreatureID(creatures.size());
+	object->setId(CreatureID(creatures.size()));
 	object->iconIndex = object->idNumber + 2;
 
 	creatures.push_back(object);
@@ -342,7 +352,7 @@ void CCreatureHandler::loadObject(std::string scope, std::string name, const Jso
 void CCreatureHandler::loadObject(std::string scope, std::string name, const JsonNode & data, size_t index)
 {
 	auto object = loadFromJson(data);
-	object->idNumber = CreatureID(index);
+	object->setId(CreatureID(index));
 	object->iconIndex = object->idNumber + 2;
 
 	if(data["hasDoubleWeek"].Bool()) //

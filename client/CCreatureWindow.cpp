@@ -336,9 +336,9 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 
 	//Stats
 	morale = new MoraleLuckBox(true, genRect(42, 42, 335, 100));
-	morale->set(stack);
+	morale->set(stackNode);
 	luck = new MoraleLuckBox(false, genRect(42, 42, 387, 100));
-	luck->set(stack);
+	luck->set(stackNode);
 
 	new CAnimImage("PSKIL42", 4, 0, 387, 51); //exp icon - Print it always?
 	if (type) //not in fort window
