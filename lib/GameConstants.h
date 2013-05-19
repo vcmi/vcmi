@@ -14,7 +14,7 @@
 
 namespace GameConstants
 {
-	const std::string VCMI_VERSION = "VCMI 0.92";
+	const std::string VCMI_VERSION = "VCMI 0.92b";
 
 	const int BFIELD_WIDTH = 17;
 	const int BFIELD_HEIGHT = 11;
@@ -30,6 +30,7 @@ namespace GameConstants
 	const ui16 BACKPACK_START = 19;
 	const int CREATURES_PER_TOWN = 7; //without upgrades
 	const int SPELL_LEVELS = 5;
+	const int SPELL_SCHOOL_LEVELS = 4;
 	const int CRE_LEVELS = 10; // number of creature experience levels
 
 	const int SPELLBOOK_GOLD_COST = 500;

@@ -97,22 +97,30 @@ void startGame(StartInfo * options, CConnection *serv = NULL);
 
 void startGameFromFile(const std::string &fname)
 {
-	if(fname.size() && boost::filesystem::exists(fname))
+	StartInfo si;
+	try //attempt retrieving start info from given file
 	{
-		StartInfo si;
+		if(!fname.size() || !boost::filesystem::exists(fname))
+			throw std::runtime_error("Startfile \"" + fname + "\" does not exist!");
+
 		CLoadFile out(fname);
 		if(!out.sfile || !*out.sfile)
 		{
-            logGlobal->errorStream() << "Failed to open startfile, falling back to the main menu!";
-			GH.curInt = CGPreGame::create();
-			return;
+			throw std::runtime_error("Cannot read from startfile \"" + fname + "\"!");
 		}
 		out >> si;
-		while(GH.topInt())
-			GH.popIntTotally(GH.topInt());
-
-		startGame(&si);
 	}
+	catch(std::exception &e)
+	{
+		logGlobal->errorStream() << "Failed to start from the file: " + fname << ". Error: " << e.what() 
+			<< " Falling back to main menu.";
+		GH.curInt = CGPreGame::create();
+		return;
+	}
+
+	while(GH.topInt())
+		GH.popIntTotally(GH.topInt());
+	startGame(&si);
 }
 
 void init()

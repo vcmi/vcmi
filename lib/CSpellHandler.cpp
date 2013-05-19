@@ -248,14 +248,19 @@ CSpell::ETargetType CSpell::getTargetType() const
 
 void CSpell::getEffects(std::vector<Bonus>& lst, const int level) const
 {
-	if (level < 0 || level>3)
+	if (level < 0 || level >= GameConstants::SPELL_SCHOOL_LEVELS)
 	{
         logGlobal->errorStream() << __FUNCTION__ << " invalid school level " << level;
 		return;
 	}
 	if (effects.empty())
 	{
-        logGlobal->errorStream() << __FUNCTION__ << " This spell has no bonus effects! " << name;
+        logGlobal->errorStream() << __FUNCTION__ << " This spell ("  + name + ") has no bonus effects! " << name;
+		return;
+	}
+	if (effects.size() <= level)
+	{
+		logGlobal->errorStream() << __FUNCTION__ << " This spell ("  + name + ") is missing entry for level " << level;
 		return;
 	}
 	lst.reserve(lst.size() + effects[level].size());
@@ -440,7 +445,8 @@ CSpellHandler::CSpellHandler()
 	spells.push_back(spells[SpellID::ACID_BREATH_DEFENSE]); //clone Acid Breath attributes for Acid Breath damage effect
 
 	//loading of additional spell traits
-	const JsonNode config(ResourceID("config/spell_info.json"));
+	JsonNode config(ResourceID("config/spell_info.json"));
+	config.setMeta("core");
 
 	BOOST_FOREACH(auto &spell, config["spells"].Struct())
 	{
@@ -493,7 +499,14 @@ CSpellHandler::CSpellHandler()
 			auto v = v_node.convertTo<std::vector<int> >();
 			auto a = a_node.convertTo<std::vector<int> >();
 
-			for (int i=0; i<s->effects.size() ; i++)
+			if(v.size() && v.size() != GameConstants::SPELL_SCHOOL_LEVELS)
+				logGlobal->errorStream() << s->name << " should either have no values or exactly " << GameConstants::SPELL_SCHOOL_LEVELS;
+			if(a.size() && a.size() != GameConstants::SPELL_SCHOOL_LEVELS)
+				logGlobal->errorStream() << s->name << " should either have no ainfos or exactly " << GameConstants::SPELL_SCHOOL_LEVELS;
+			
+			s->effects.resize(GameConstants::SPELL_SCHOOL_LEVELS);
+
+			for (int i = 0; i < GameConstants::SPELL_SCHOOL_LEVELS; i++)
 			{
 				Bonus * b = JsonUtils::parseBonus(bonus_node);
 				b->sid = s->id; //for all

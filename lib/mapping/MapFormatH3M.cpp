@@ -1538,6 +1538,8 @@ CGObjectInstance * CMapLoaderH3M::readHero(ObjectInstanceID idToBeGiven)
 	PlayerColor owner = PlayerColor(reader.readUInt8());
 	nhi->subID = reader.readUInt8();
 
+	//If hero of this type has been predefined, use that as a base.
+	//Instance data will overwrite the predefined values where appropriate.
 	for(int j = 0; j < map->predefinedHeroes.size(); ++j)
 	{
 		if(map->predefinedHeroes[j]->subID == nhi->subID)

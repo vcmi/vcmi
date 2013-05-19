@@ -2493,10 +2493,7 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 void CBattleInterface::endAction(const BattleAction* action)
 {
 	const CStack * stack = curInt->cb->battleGetStackByID(action->stackNumber);
-	//if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //activating interface when move is finished
-// 	{
-// 		activate();
-// 	}
+
 	if(action->actionType == Battle::HERO_SPELL)
 	{
 		if(action->side)
@@ -2536,6 +2533,12 @@ void CBattleInterface::endAction(const BattleAction* action)
 
 	if( action->actionType == Battle::HERO_SPELL) //we have activated next stack after sending request that has been just realized -> blockmap due to movement has changed
 		redrawBackgroundWithHexes(activeStack);
+
+	if(activeStack && !animsAreDisplayed.get() && pendingAnims.empty() && !active)
+	{
+		logGlobal->warnStream() << "Something wrong... interface was deactivated but there is no animation. Reactivating...";
+		activate();
+	}
 }
 
 void CBattleInterface::hideQueue()
