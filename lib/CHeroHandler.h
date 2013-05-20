@@ -120,7 +120,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & identifier & name & faction;// & aggression;
+		h & identifier & name & faction & id;// & aggression;
 		h & primarySkillInitial   & primarySkillLowLevel;
 		h & primarySkillHighLevel & secSkillProbability;
 		h & selectionProbability;

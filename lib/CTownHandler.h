@@ -119,7 +119,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & index & nativeTerrain & creatureBg120 & creatureBg130 & puzzleMap;
+		h & name & index & nativeTerrain & alignment & commander & town & creatureBg120 & creatureBg130 & puzzleMap;
 	}
 };
 
@@ -142,7 +142,7 @@ public:
 	std::vector<std::string> dwellings; //defs for adventure map dwellings for new towns, [0] means tier 1 creatures etc.
 	std::vector<std::string> dwellingNames;
 
-	// should be removed at least from configs in favour of auto-detection
+	// should be removed at least from configs in favor of auto-detection
 	std::map<int,int> hordeLvl; //[0] - first horde building creature level; [1] - second horde building (-1 if not present)
 	ui32 mageLevel; //max available mage guild level
 	ui16 primaryRes;

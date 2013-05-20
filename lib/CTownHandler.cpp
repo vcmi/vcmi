@@ -58,7 +58,7 @@ si32 CBuilding::getDistance(BuildingID buildID) const
 
 CFaction::CFaction()
 {
-
+	town = nullptr;
 }
 
 CFaction::~CFaction()
