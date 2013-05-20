@@ -391,7 +391,7 @@ public:
 	{
 		h & static_cast<CMapHeader&>(*this);
 		h & rumors & allowedSpell & allowedAbilities & allowedArtifact & events & grailPos;
-		h & artInstances & quests;
+		h & artInstances & quests & allHeroes;
 		h & questIdentifierToId;
 
 		//TODO: viccondetails
