@@ -604,8 +604,6 @@ CReverseAnimation::CReverseAnimation(CBattleInterface * _owner, const CStack * s
 
 bool CReverseAnimation::init()
 {
-	logGlobal->errorStream() << "Pos at " << myAnim()->pos.x << "x" << myAnim()->pos.y;
-
 	if(myAnim() == NULL || myAnim()->getType() == CCreatureAnim::DEATH)
 	{
 		endAnim();
@@ -651,8 +649,6 @@ void CReverseAnimation::nextFrame()
 
 void CReverseAnimation::endAnim()
 {
-	logGlobal->errorStream() << "Pos on end " << myAnim()->pos.x << "x" << myAnim()->pos.y;
-
 	CBattleAnimation::endAnim();
 	if( stack->alive() )//don't do that if stack is dead
 		myAnim()->setType(CCreatureAnim::HOLDING);
@@ -662,7 +658,6 @@ void CReverseAnimation::endAnim()
 
 void CReverseAnimation::setupSecondPart()
 {
-	logGlobal->errorStream() << "Pos before 2nd " << myAnim()->pos.x << "x" << myAnim()->pos.y;
 	if(!stack)
 	{
 		endAnim();
@@ -686,8 +681,6 @@ void CReverseAnimation::setupSecondPart()
 				myAnim()->pos.x += 44;
 		}
 	}
-
-	logGlobal->errorStream() << "Pos after 2nd " << myAnim()->pos.x << "x" << myAnim()->pos.y;
 
 	secondPartSetup = true;
 

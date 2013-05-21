@@ -411,8 +411,8 @@ bool compareDanger(const CGObjectInstance *lhs, const CGObjectInstance *rhs)
 VCAI::VCAI(void)
 {
 	LOG_TRACE(logAi);
-	myCb = NULL;
-	makingTurn = NULL;
+	myCb = nullptr;
+	makingTurn = nullptr;
 }
 
 VCAI::~VCAI(void)

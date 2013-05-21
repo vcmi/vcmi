@@ -16,7 +16,7 @@
 				"Minimap": { "width": 144, "height": 144, "x": 630, "y": 26 },
 				"Overview": { "pics": 4, "size": 4, "graphic": "OvCast.pcx" },
 				"Statusbar": { "x": 7, "y": 556, "graphic": "AdRollvr.bmp" },
-				"ResDataBar": { "x": 3, "y": 575, "graphic": "ZRESBAR.bmp", "offsetX": 32, "offsetY": 2, "resSpace": 85, "resDateSpace": 85 },
+				"ResDataBar": { "x": 3, "y": 575, "graphic": "ARESBAR.bmp", "offsetX": 32, "offsetY": 2, "resSpace": 85, "resDateSpace": 85 },
 				"ButtonKingdomOv": { "x": 679, "y": 196, "graphic": "IAM002.DEF", "playerColoured": 1 },
 				"ButtonUnderground": { "x": 711, "y": 196, "graphic": "IAM010.DEF", "playerColoured": 1, "additionalDefs": [ "IAM003.DEF" ] },
 				"ButtonQuestLog": { "x": 679, "y": 228, "graphic": "IAM004.DEF", "playerColoured": 1 },

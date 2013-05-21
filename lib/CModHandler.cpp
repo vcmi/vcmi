@@ -130,8 +130,11 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
 	}
 	else
 	{
-		// //...unless destination mod was specified explicitly
-		allowedScopes.insert(request.remoteScope);
+		//...unless destination mod was specified explicitly
+		auto myDeps = VLC->modh->getModData(request.localScope).dependencies;
+		if (request.remoteScope == "core" ||   // allow only available to all core mod
+		    myDeps.count(request.remoteScope)) // or dependencies
+			allowedScopes.insert(request.remoteScope);
 	}
 
 	std::string fullID = request.type + '.' + request.name;
@@ -159,6 +162,7 @@ bool CIdentifierStorage::resolveIdentifier(const ObjectCallback & request)
 		request.callback(entries.first->second.id);
 		return true;
 	}
+	logGlobal->errorStream() << "Unknown identifier " << request.type << "." << request.name << " from mod " << request.localScope;
 	return false;
 }
 
