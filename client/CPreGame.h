@@ -29,7 +29,7 @@ class CCampaignState;
 class CConnection;
 class JsonNode;
 class CMapGenOptions;
-class RandomMapTab;
+class CRandomMapTab;
 struct CPackForSelectionScreen;
 struct PlayerInfo;
 
@@ -282,139 +282,32 @@ public:
 	bool canUseThisHero(PlayerColor player, int ID );
 };
 
-/**
- * The random map tab shows options for generating a random map.
- */
-class RandomMapTab : public CIntObject
+/// The random map tab shows options for generating a random map.
+class CRandomMapTab : public CIntObject
 {
 public:
-    /**
-     * C-tor.
-     */
-    RandomMapTab();
+	CRandomMapTab();
 
-    /**
-     * Shows the interface and the visual representation of this tab.
-     *
-     * @param to where the graphics should be inserted
-     */
     void showAll(SDL_Surface * to);
-
-	/**
-	 * Updates the map info object and fires the associated callback method.
-	 */
 	void updateMapInfo();
-
-	/**
-	 * Gets the map info changed callback method list object. This event
-	 * occurs when the updateMapInfo method has been called or the options
-	 * of this tab have been changed.
-	 *
-	 * @return the map info changed callback method list object
-	 */
 	CFunctionList<void (const CMapInfo *)> & getMapInfoChanged();
-
-	/**
-	 * Gets the created map info object.
-	 *
-	 * @return the created map info object
-	 */
-	const CMapInfo & getMapInfo() const;
-
-	/**
-	 * Gets the map generation options.
-	 *
-	 * @return the map generation options
-	 */
+	const CMapInfo * getMapInfo() const;
 	const CMapGenOptions & getMapGenOptions() const;
 
 private:
-    /**
-     * Adds buttons specified by the defs list to the given buttons group.
-     *
-     * @param group the button group where the buttons should be added to
-     * @param defs the names of the button defs
-     * @param startIndex start index of the defs vector
-     * @param endIndex end index of the defs vector
-     * @param btnWidth width of one button(fixed width)
-     * @param helpStartIndex the index of the first help msg entry
-     */
     void addButtonsToGroup(CHighlightableButtonsGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex) const;
-
-    /**
-     * Adds buttons specified by the defs list and the random button to the given buttons group. Auto-selects the
-     * random button.
-     *
-     * @param group the button group where the buttons should be added to
-     * @param defs the names of the button defs
-     * @param startIndex start index of the defs vector
-     * @param endIndex end index of the defs vector
-     * @param btnWidth width of one button(fixed width)
-     * @param helpStartIndex the index of the first help msg entry
-     * @param helpRandIndex the index of the random help msg entry
-     */
     void addButtonsWithRandToGroup(CHighlightableButtonsGroup * group, const std::vector<std::string> & defs, int startIndex, int endIndex, int btnWidth, int helpStartIndex, int helpRandIndex) const;
-
-    /**
-     * Deactives buttons of a highlightable button group beginning from startId. Buttons with a id
-     * lower than startId will be activated/reseted.
-     *
-     * @param group the associated highlightable button group
-     * @param startId the id of the first button to deactivate
-     */
     void deactivateButtonsFrom(CHighlightableButtonsGroup * group, int startId);
-
-    /**
-     * Validates players count and updates teams count, comp only players/teams count if necessary.
-     *
-     * @param playersCnt the players count to validate
-     */
     void validatePlayersCnt(int playersCnt);
-
-    /**
-     * Validates computer only players count and updates comp only teams count if necessary.
-     *
-     * @param compOnlyPlayersCnt the computer only players count to validate
-     */
     void validateCompOnlyPlayersCnt(int compOnlyPlayersCnt);
 
-    /** the background image of the rmg options tab */
     CPicture * bg;
-
-    /** the map size buttons group */
-    CHighlightableButtonsGroup * mapSizeBtnGroup;
-
-    /** the two levels highlightable button */
-    CHighlightableButton * twoLevelsBtn;
-
-    /** the players count group */
-    CHighlightableButtonsGroup * playersCntGroup;
-
-    /** the teams count group */
-    CHighlightableButtonsGroup * teamsCntGroup;
-
-    /** the computer only players count group */
-    CHighlightableButtonsGroup * compOnlyPlayersCntGroup;
-
-    /** the computer only teams count group */
-    CHighlightableButtonsGroup * compOnlyTeamsCntGroup;
-
-    /** the water content group */
-    CHighlightableButtonsGroup * waterContentGroup;
-
-    /** the monster strength group */
-    CHighlightableButtonsGroup * monsterStrengthGroup;
-
-	/** show previously created random maps button */
+	CHighlightableButton * twoLevelsBtn;
+	CHighlightableButtonsGroup * mapSizeBtnGroup, * playersCntGroup, * teamsCntGroup, * compOnlyPlayersCntGroup,
+		* compOnlyTeamsCntGroup, * waterContentGroup, * monsterStrengthGroup;
     CAdventureMapButton * showRandMaps;
-
-    /** the map options selected by the user */
 	CMapGenOptions mapGenOptions;
-
-	/** map info object describing a randomly created map */
-	CMapInfo mapInfo;
-
-	/** callback method which gets called when the random options have been changed */
+	unique_ptr<CMapInfo> mapInfo;
 	CFunctionList<void(const CMapInfo *)> mapInfoChanged;
 };
 
@@ -452,7 +345,7 @@ public:
 	CPicture *bg; //general bg image
 	InfoCard *card;
 	OptionsTab *opt;
-    RandomMapTab * randMapTab;
+	CRandomMapTab * randMapTab;
 	CAdventureMapButton *start, *back;
 
 	SelectionTab *sel;

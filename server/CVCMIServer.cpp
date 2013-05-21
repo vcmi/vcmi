@@ -325,7 +325,7 @@ CGameHandler * CVCMIServer::initGhFromHostingConnection(CConnection &c)
 	StartInfo si;
 	c >> si; //get start options
 
-	if(!si.createRandomMap)
+	if(!si.createRandomMap())
 	{
 		bool mapFound = CResourceHandler::get()->existsResource(ResourceID(si.mapname, EResType::MAP));
 

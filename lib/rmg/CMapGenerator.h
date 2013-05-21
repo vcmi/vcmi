@@ -19,6 +19,166 @@ class CTerrainViewPatternConfig;
 class CMapEditManager;
 class JsonNode;
 
+typedef std::vector<JsonNode> JsonVector;
+
+namespace ETemplateZoneType
+{
+enum ETemplateZoneType
+{
+	PLAYER_START,
+	CPU_START,
+	TREASURE,
+	JUNCTION
+};
+}
+
+typedef int TRmgTemplateZoneId;
+
+/// The CRmgTemplateZone describes a zone in a template.
+class DLL_LINKAGE CRmgTemplateZone
+{
+public:
+	class DLL_LINKAGE CTownInfo
+	{
+	public:
+		CTownInfo();
+
+		int getTownCount() const; /// Default: 0
+		void setTownCount(int value);
+		int getCastleCount() const; /// Default: 0
+		void setCastleCount(int value);
+		int getTownDensity() const; /// Default: 0
+		void setTownDensity(int value);
+		int getCastleDensity() const; /// Default: 0
+		void setCastleDensity(int value);
+
+	private:
+		int townCount, castleCount, townDensity, castleDensity;
+	};
+
+	CRmgTemplateZone();
+
+	TRmgTemplateZoneId getId() const; /// Default: 0
+	void setId(TRmgTemplateZoneId value);
+	ETemplateZoneType::ETemplateZoneType getType() const; /// Default: ETemplateZoneType::PLAYER_START
+	void setType(ETemplateZoneType::ETemplateZoneType value);
+	int getSize() const; /// Default: 1
+	void setSize(int value);
+	boost::optional<int> getOwner() const;
+	void setOwner(boost::optional<int> value);
+	const CTownInfo & getPlayerTowns() const;
+	void setPlayerTowns(const CTownInfo & value);
+	const CTownInfo & getNeutralTowns() const;
+	void setNeutralTowns(const CTownInfo & value);
+	bool getTownsAreSameType() const; /// Default: false
+	void setTownsAreSameType(bool value);
+	const std::set<TFaction> & getTownTypes() const; /// Default: all
+	void setTownTypes(const std::set<TFaction> & value);
+	std::set<TFaction> getDefaultTownTypes() const;
+	bool getMatchTerrainToTown() const; /// Default: true
+	void setMatchTerrainToTown(bool value);
+	const std::set<ETerrainType> & getTerrainTypes() const; /// Default: all
+	void setTerrainTypes(const std::set<ETerrainType> & value);
+	std::set<ETerrainType> getDefaultTerrainTypes() const;
+	boost::optional<TRmgTemplateZoneId> getTerrainTypeLikeZone() const;
+	void setTerrainTypeLikeZone(boost::optional<TRmgTemplateZoneId> value);
+	boost::optional<TRmgTemplateZoneId> getTownTypeLikeZone() const;
+	void setTownTypeLikeZone(boost::optional<TRmgTemplateZoneId> value);
+
+private:
+	TRmgTemplateZoneId id;
+	ETemplateZoneType::ETemplateZoneType type;
+	int size;
+	boost::optional<int> owner;
+	CTownInfo playerTowns, neutralTowns;
+	bool townsAreSameType;
+	std::set<TFaction> townTypes;
+	bool matchTerrainToTown;
+	std::set<ETerrainType> terrainTypes;
+	boost::optional<TRmgTemplateZoneId> terrainTypeLikeZone, townTypeLikeZone;
+};
+
+/// The CRmgTemplateZoneConnection describes the connection between two zones.
+class DLL_LINKAGE CRmgTemplateZoneConnection
+{
+public:
+	CRmgTemplateZoneConnection();
+
+	TRmgTemplateZoneId getZoneA() const; /// Default: 0
+	void setZoneA(TRmgTemplateZoneId value);
+	TRmgTemplateZoneId getZoneB() const; /// Default: 0
+	void setZoneB(TRmgTemplateZoneId value);
+	int getGuardStrength() const; /// Default: 0
+	void setGuardStrength(int value);
+
+private:
+	TRmgTemplateZoneId zoneA, zoneB;
+	int guardStrength;
+};
+
+/// The CRmgTemplate describes a random map template.
+class DLL_LINKAGE CRmgTemplate
+{
+public:
+	class CSize
+	{
+	public:
+		CSize();
+		CSize(int width, int height, bool under);
+
+		int getWidth() const; /// Default: CMapHeader::MAP_SIZE_MIDDLE
+		void setWidth(int value);
+		int getHeight() const; /// Default: CMapHeader::MAP_SIZE_MIDDLE
+		void setHeight(int value);
+		bool getUnder() const; /// Default: true
+		void setUnder(bool value);
+		bool operator<=(const CSize & value) const;
+		bool operator>=(const CSize & value) const;
+
+	private:
+		int width, height;
+		bool under;
+	};
+
+	class CPlayerCountRange
+	{
+	public:
+		void addRange(int lower, int upper);
+		void addNumber(int value);
+		bool isInRange(int count) const;
+		std::set<int> getNumbers() const;
+
+	private:
+		std::list<std::pair<int, int> > range;
+	};
+
+	CRmgTemplate();
+
+	const std::string & getName() const;
+	void setName(const std::string & value);
+	const CSize & getMinSize() const;
+	void setMinSize(const CSize & value);
+	const CSize & getMaxSize() const;
+	void setMaxSize(const CSize & value);
+	const CPlayerCountRange & getPlayers() const;
+	void setPlayers(const CPlayerCountRange & value);
+	const CPlayerCountRange & getCpuPlayers() const;
+	void setCpuPlayers(const CPlayerCountRange & value);
+	const std::map<TRmgTemplateZoneId, CRmgTemplateZone> & getZones() const;
+	void setZones(const std::map<TRmgTemplateZoneId, CRmgTemplateZone> & value);
+	const std::list<CRmgTemplateZoneConnection> & getConnections() const;
+	void setConnections(const std::list<CRmgTemplateZoneConnection> & value);
+
+	void validate() const; /// Tests template on validity and throws exception on failure
+
+private:
+	std::string name;
+	CSize minSize, maxSize;
+	CPlayerCountRange players, cpuPlayers;
+	std::map<TRmgTemplateZoneId, CRmgTemplateZone> zones;
+	std::list<CRmgTemplateZoneConnection> connections;
+};
+
 namespace EWaterContent
 {
 enum EWaterContent
@@ -105,21 +265,21 @@ public:
 
 	/// The count of the players ranging from 1 to PlayerColor::PLAYER_LIMIT or RANDOM_SIZE for random. If you call
 	/// this method, all player settings are reset to default settings.
-	si8 getPlayersCnt() const;
-	void setPlayersCnt(si8 value);
+	si8 getPlayerCount() const;
+	void setPlayerCount(si8 value);
 
 	/// The count of the teams ranging from 0 to <players count - 1> or RANDOM_SIZE for random.
-	si8 getTeamsCnt() const;
-	void setTeamsCnt(si8 value);
+	si8 getTeamCount() const;
+	void setTeamCount(si8 value);
 
 	/// The count of the computer only players ranging from 0 to <PlayerColor::PLAYER_LIMIT - players count> or RANDOM_SIZE for random.
 	/// If you call this method, all player settings are reset to default settings.
-	si8 getCompOnlyPlayersCnt() const;
-	void setCompOnlyPlayersCnt(si8 value);
+	si8 getCompOnlyPlayerCount() const;
+	void setCompOnlyPlayerCount(si8 value);
 
 	/// The count of the computer only teams ranging from 0 to <comp only players - 1> or RANDOM_SIZE for random.
-	si8 getCompOnlyTeamsCnt() const;
-	void setCompOnlyTeamsCnt(si8 value);
+	si8 getCompOnlyTeamCount() const;
+	void setCompOnlyTeamCount(si8 value);
 
 	EWaterContent::EWaterContent getWaterContent() const;
 	void setWaterContent(EWaterContent::EWaterContent value);
@@ -132,14 +292,24 @@ public:
 	const std::map<PlayerColor, CPlayerSettings> & getPlayersSettings() const;
 	void setStartingTownForPlayer(PlayerColor color, si32 town);
 	/// Sets a player type for a standard player. A standard player is the opposite of a computer only player. The
-	/// values which can be chosen for the player type are EPlayerType::AI or EPlayerType::HUMAN. Calling this method
-	/// has no effect for the map itself, but it adds some informational text for the map description.
+	/// values which can be chosen for the player type are EPlayerType::AI or EPlayerType::HUMAN.
 	void setPlayerTypeForStandardPlayer(PlayerColor color, EPlayerType::EPlayerType playerType);
 
+	/// The random map template to generate the map with or empty/not set if the template should be chosen randomly.
+	/// Default: Not set/random.
+	const CRmgTemplate * getMapTemplate() const;
+	void setMapTemplate(const CRmgTemplate * value);
+
+	const std::map<std::string, CRmgTemplate> & getAvailableTemplates() const;
+
 	/// Finalizes the options. All random sizes for various properties will be overwritten by numbers from
-	/// a random number generator by keeping the options in a valid state.
+	/// a random number generator by keeping the options in a valid state. Check options should return true, otherwise
+	/// this function fails.
 	void finalize();
 	void finalize(CRandomGenerator & gen);
+
+	/// Returns false if there is no template available which fits to the currently selected options.
+	bool checkOptions() const;
 
 	static const si8 RANDOM_SIZE = -1;
 
@@ -147,22 +317,25 @@ private:
 	void resetPlayersMap();
 	int countHumanPlayers() const;
 	PlayerColor getNextPlayerColor() const;
+	void updateCompOnlyPlayers();
+	void updatePlayers();
+	const CRmgTemplate * getPossibleTemplate(CRandomGenerator & gen) const;
 
 	si32 width, height;
 	bool hasTwoLevels;
-	si8 playersCnt, teamsCnt, compOnlyPlayersCnt, compOnlyTeamsCnt;
+	si8 playerCount, teamCount, compOnlyPlayerCount, compOnlyTeamCount;
 	EWaterContent::EWaterContent waterContent;
 	EMonsterStrength::EMonsterStrength monsterStrength;
 	std::map<PlayerColor, CPlayerSettings> players;
+	const CRmgTemplate * mapTemplate;
 
 public:
 	template <typename Handler>
 	void serialize(Handler & h, const int version)
 	{
-		//FIXME: Enum is not a fixed with data type. Add enum class to both enums
-		// later. For now it is ok.
-		h & width & height & hasTwoLevels & playersCnt & teamsCnt & compOnlyPlayersCnt;
-		h & compOnlyTeamsCnt & waterContent & monsterStrength & players;
+		h & width & height & hasTwoLevels & playerCount & teamCount & compOnlyPlayerCount;
+		h & compOnlyTeamCount & waterContent & monsterStrength & players;
+        //TODO add name of template to class, enables selection of a template by a user
 	}
 };
 
@@ -194,185 +367,45 @@ private:
 /* Implementation/Detail classes, Private API */
 /* ---------------------------------------------------------------------------- */
 
-namespace ETemplateZoneType
-{
-enum ETemplateZoneType
-{
-	HUMAN_START,
-	COMPUTER_START,
-	TREASURE,
-	JUNCTION
-};
-}
-
-/// The CTemplateZoneTowns holds info about towns in a template zone.
-class DLL_LINKAGE CTemplateZoneTowns
+/// The CRmgTemplateLoader is a abstract base class for loading templates.
+class DLL_LINKAGE CRmgTemplateLoader
 {
 public:
-	CTemplateZoneTowns();
-
-	int getMinTowns() const; /// Default: 0
-	void setMinTowns(int value);
-	int getMinCastles() const; /// Default: 0
-	void setMinCastles(int value);
-	int getTownDensity() const; /// Default: 0
-	void setTownDensity(int value);
-	int getCastleDensity() const; /// Default: 0
-	void setCastleDensity(int value);
-
-private:
-	int minTowns, minCastles, townDensity, castleDensity;
-};
-
-typedef int TTemplateZoneId;
-
-/// The CTemplateZone describes a zone in a template.
-class DLL_LINKAGE CTemplateZone
-{
-public:
-	CTemplateZone();
-
-	TTemplateZoneId getId() const; /// Default: 0 = not set;
-	void setId(TTemplateZoneId value);
-	ETemplateZoneType::ETemplateZoneType getType() const; /// Default: ETemplateZoneType::HUMAN_START
-	void setType(ETemplateZoneType::ETemplateZoneType value);
-	int getBaseSize() const; /// Default: 0 = not set;
-	void setBaseSize(int value);
-	int getOwner() const; /// Default: 0 = not set;
-	void setOwner(int value);
-	const CTemplateZoneTowns & getPlayerTowns() const;
-	void setPlayerTowns(const CTemplateZoneTowns & value);
-	const CTemplateZoneTowns & getNeutralTowns() const;
-	void setNeutralTowns(const CTemplateZoneTowns & value);
-	bool getNeutralTownsAreSameType() const; /// Default: false
-	void setNeutralTownsAreSameType(bool value);
-	const std::set<TFaction> & getAllowedTownTypes() const;
-	void setAllowedTownTypes(const std::set<TFaction> & value);
-	bool getMatchTerrainToTown() const; /// Default: false
-	void setMatchTerrainToTown(bool value);
-	const std::set<ETerrainType> & getTerrainTypes() const;
-	void setTerrainTypes(const std::set<ETerrainType> & value);
-
-private:
-	TTemplateZoneId id;
-	ETemplateZoneType::ETemplateZoneType type;
-	int baseSize;
-	int owner;
-	CTemplateZoneTowns playerTowns, neutralTowns;
-	bool neutralTownsAreSameType;
-	std::set<TFaction> allowedTownTypes;
-	bool matchTerrainToTown;
-	std::set<ETerrainType> terrainTypes;
-};
-
-/// The CTemplateZoneConnection describes the connection between two zones.
-class DLL_LINKAGE CTemplateZoneConnection
-{
-public:
-	CTemplateZoneConnection();
-
-	TTemplateZoneId getZoneA() const; /// Default: 0 = not set;
-	void setZoneA(TTemplateZoneId value);
-	TTemplateZoneId getZoneB() const; /// Default: 0 = not set;
-	void setZoneB(TTemplateZoneId value);
-	int getGuardStrength() const; /// Default: 0
-	void setGuardStrength(int value);
-
-private:
-	TTemplateZoneId zoneA, zoneB;
-	int guardStrength;
-};
-
-/// The CRandomMapTemplateSize describes the dimensions of the template.
-class CRandomMapTemplateSize
-{
-public:
-	CRandomMapTemplateSize();
-	CRandomMapTemplateSize(int width, int height, bool under);
-
-	int getWidth() const; /// Default: CMapHeader::MAP_SIZE_MIDDLE
-	void setWidth(int value);
-	int getHeight() const; /// Default: CMapHeader::MAP_SIZE_MIDDLE
-	void setHeight(int value);
-	bool getUnder() const; /// Default: true
-	void setUnder(bool value);
-
-private:
-	int width, height;
-	bool under;
-};
-
-/// The CRandomMapTemplate describes a random map template.
-class DLL_LINKAGE CRandomMapTemplate
-{
-public:
-	CRandomMapTemplate();
-
-	const std::string & getName() const;
-	void setName(const std::string & value);
-	const CRandomMapTemplateSize & getMinSize() const; /// Default: CMapHeader::MAP_SIZE_SMALL x CMapHeader::MAP_SIZE_SMALL x wo under
-	void setMinSize(const CRandomMapTemplateSize & value);
-	const CRandomMapTemplateSize & getMaxSize() const; /// Default: CMapHeader::MAP_SIZE_XLARGE x CMapHeader::MAP_SIZE_XLARGE x under
-	void setMaxSize(const CRandomMapTemplateSize & value);
-	int getMinHumanCnt() const; /// Default: 1
-	void setMinHumanCnt(int value);
-	int getMaxHumanCnt() const; /// Default: PlayerColor::PLAYER_LIMIT_I
-	void setMaxHumanCnt(int value);
-	int getMinTotalCnt() const; /// Default: 2
-	void setMinTotalCnt(int value);
-	int getMaxTotalCnt() const; /// Default: PlayerColor::PLAYER_LIMIT_I
-	void setMaxTotalCnt(int value);
-	const std::map<TTemplateZoneId, CTemplateZone> & getZones() const;
-	void setZones(const std::map<TTemplateZoneId, CTemplateZone> & value);
-	const std::list<CTemplateZoneConnection> & getConnections() const;
-	void setConnections(const std::list<CTemplateZoneConnection> & value);
-
-private:
-	std::string name;
-	CRandomMapTemplateSize minSize, maxSize;
-	int minHumanCnt, maxHumanCnt, minTotalCnt, maxTotalCnt;
-	std::map<TTemplateZoneId, CTemplateZone> zones;
-	std::list<CTemplateZoneConnection> connections;
-};
-
-/// The CRmTemplateLoader is a abstract base class for loading templates.
-class DLL_LINKAGE CRmTemplateLoader
-{
-public:
-	virtual ~CRmTemplateLoader() { };
+	virtual ~CRmgTemplateLoader() { };
 	virtual void loadTemplates() = 0;
-	const std::map<std::string, CRandomMapTemplate> & getTemplates() const;
+	const std::map<std::string, CRmgTemplate> & getTemplates() const;
 
 protected:
-	std::map<std::string, CRandomMapTemplate> templates;
+	std::map<std::string, CRmgTemplate> templates;
 };
 
-/// The CJsonRmTemplateLoader loads templates from a JSON file.
-class DLL_LINKAGE CJsonRmTemplateLoader : public CRmTemplateLoader
+/// The CJsonRmgTemplateLoader loads templates from a JSON file.
+class DLL_LINKAGE CJsonRmgTemplateLoader : public CRmgTemplateLoader
 {
 public:
 	void loadTemplates() override;
 
 private:
-	CRandomMapTemplateSize parseMapTemplateSize(const std::string & text) const;
-	CTemplateZoneTowns parseTemplateZoneTowns(const JsonNode & node) const;
-	ETemplateZoneType::ETemplateZoneType getZoneType(const std::string & type) const;
-	std::set<TFaction> getFactions(const std::vector<JsonNode> factionStrings) const;
-	std::set<ETerrainType> parseTerrainTypes(const std::vector<JsonNode> terTypeStrings) const;
+	CRmgTemplate::CSize parseMapTemplateSize(const std::string & text) const;
+	CRmgTemplateZone::CTownInfo parseTemplateZoneTowns(const JsonNode & node) const;
+	ETemplateZoneType::ETemplateZoneType parseZoneType(const std::string & type) const;
+	std::set<TFaction> parseTownTypes(const JsonVector & townTypesVector, const std::set<TFaction> & defaultTownTypes) const;
+	std::set<ETerrainType> parseTerrainTypes(const JsonVector & terTypeStrings, const std::set<ETerrainType> & defaultTerrainTypes) const;
+	CRmgTemplate::CPlayerCountRange parsePlayers(const std::string & players) const;
 };
 
-/// The CRandomMapTemplateStorage is a singleton object where templates are stored and which can be accessed from anywhere.
-class DLL_LINKAGE CRandomMapTemplateStorage
+/// The CRmgTemplateStorage is a singleton object where templates are stored and which can be accessed from anywhere.
+class DLL_LINKAGE CRmgTemplateStorage
 {
 public:
-	static CRandomMapTemplateStorage & get();
+	static CRmgTemplateStorage & get();
 
-	const std::map<std::string, CRandomMapTemplate> & getTemplates() const;
+	const std::map<std::string, CRmgTemplate> & getTemplates() const;
 
 private:
-	CRandomMapTemplateStorage();
-	~CRandomMapTemplateStorage();
+	CRmgTemplateStorage();
+	~CRmgTemplateStorage();
 
 	static boost::mutex smx;
-	std::map<std::string, CRandomMapTemplate> templates; /// Key: Template name
+	std::map<std::string, CRmgTemplate> templates; /// Key: Template name
 };

@@ -11,9 +11,9 @@
 #include "../StringConstants.h"
 #include "../filesystem/CResourceLoader.h"
 
-CMapGenOptions::CMapGenOptions() : width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), hasTwoLevels(true),
-	playersCnt(RANDOM_SIZE), teamsCnt(RANDOM_SIZE), compOnlyPlayersCnt(0), compOnlyTeamsCnt(RANDOM_SIZE),
-	waterContent(EWaterContent::RANDOM), monsterStrength(EMonsterStrength::RANDOM)
+CMapGenOptions::CMapGenOptions() : width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), hasTwoLevels(false),
+	playerCount(RANDOM_SIZE), teamCount(RANDOM_SIZE), compOnlyPlayerCount(0), compOnlyTeamCount(RANDOM_SIZE),
+	waterContent(EWaterContent::RANDOM), monsterStrength(EMonsterStrength::RANDOM), mapTemplate(nullptr)
 {
 	resetPlayersMap();
 }
@@ -50,50 +50,50 @@ void CMapGenOptions::setHasTwoLevels(bool value)
 	hasTwoLevels = value;
 }
 
-si8 CMapGenOptions::getPlayersCnt() const
+si8 CMapGenOptions::getPlayerCount() const
 {
-	return playersCnt;
+	return playerCount;
 }
 
-void CMapGenOptions::setPlayersCnt(si8 value)
+void CMapGenOptions::setPlayerCount(si8 value)
 {
 	assert((value >= 1 && value <= PlayerColor::PLAYER_LIMIT_I) || value == RANDOM_SIZE);
-	playersCnt = value;
+	playerCount = value;
 	resetPlayersMap();
 }
 
-si8 CMapGenOptions::getTeamsCnt() const
+si8 CMapGenOptions::getTeamCount() const
 {
-	return teamsCnt;
+	return teamCount;
 }
 
-void CMapGenOptions::setTeamsCnt(si8 value)
+void CMapGenOptions::setTeamCount(si8 value)
 {
-	assert(playersCnt == RANDOM_SIZE || (value >= 0 && value < playersCnt) || value == RANDOM_SIZE);
-	teamsCnt = value;
+	assert(playerCount == RANDOM_SIZE || (value >= 0 && value < playerCount) || value == RANDOM_SIZE);
+	teamCount = value;
 }
 
-si8 CMapGenOptions::getCompOnlyPlayersCnt() const
+si8 CMapGenOptions::getCompOnlyPlayerCount() const
 {
-	return compOnlyPlayersCnt;
+	return compOnlyPlayerCount;
 }
 
-void CMapGenOptions::setCompOnlyPlayersCnt(si8 value)
+void CMapGenOptions::setCompOnlyPlayerCount(si8 value)
 {
-	assert(value == RANDOM_SIZE || (value >= 0 && value <= PlayerColor::PLAYER_LIMIT_I - playersCnt));
-	compOnlyPlayersCnt = value;
+	assert(value == RANDOM_SIZE || (value >= 0 && value <= PlayerColor::PLAYER_LIMIT_I - playerCount));
+	compOnlyPlayerCount = value;
 	resetPlayersMap();
 }
 
-si8 CMapGenOptions::getCompOnlyTeamsCnt() const
+si8 CMapGenOptions::getCompOnlyTeamCount() const
 {
-	return compOnlyTeamsCnt;
+	return compOnlyTeamCount;
 }
 
-void CMapGenOptions::setCompOnlyTeamsCnt(si8 value)
+void CMapGenOptions::setCompOnlyTeamCount(si8 value)
 {
-	assert(value == RANDOM_SIZE || compOnlyPlayersCnt == RANDOM_SIZE || (value >= 0 && value <= std::max(compOnlyPlayersCnt - 1, 0)));
-	compOnlyTeamsCnt = value;
+	assert(value == RANDOM_SIZE || compOnlyPlayerCount == RANDOM_SIZE || (value >= 0 && value <= std::max(compOnlyPlayerCount - 1, 0)));
+	compOnlyTeamCount = value;
 }
 
 EWaterContent::EWaterContent CMapGenOptions::getWaterContent() const
@@ -119,8 +119,8 @@ void CMapGenOptions::setMonsterStrength(EMonsterStrength::EMonsterStrength value
 void CMapGenOptions::resetPlayersMap()
 {
 	players.clear();
-	int realPlayersCnt = playersCnt == RANDOM_SIZE ? static_cast<int>(PlayerColor::PLAYER_LIMIT_I) : playersCnt;
-	int realCompOnlyPlayersCnt = compOnlyPlayersCnt == RANDOM_SIZE ? (PlayerColor::PLAYER_LIMIT_I - realPlayersCnt) : compOnlyPlayersCnt;
+	int realPlayersCnt = playerCount == RANDOM_SIZE ? static_cast<int>(PlayerColor::PLAYER_LIMIT_I) : playerCount;
+	int realCompOnlyPlayersCnt = compOnlyPlayerCount == RANDOM_SIZE ? (PlayerColor::PLAYER_LIMIT_I - realPlayersCnt) : compOnlyPlayerCount;
 	for(int color = 0; color < (realPlayersCnt + realCompOnlyPlayersCnt); ++color)
 	{
 		CPlayerSettings player;
@@ -150,6 +150,23 @@ void CMapGenOptions::setPlayerTypeForStandardPlayer(PlayerColor color, EPlayerTy
 	it->second.setPlayerType(playerType);
 }
 
+const CRmgTemplate * CMapGenOptions::getMapTemplate() const
+{
+	return mapTemplate;
+}
+
+void CMapGenOptions::setMapTemplate(const CRmgTemplate * value)
+{
+    mapTemplate = value;
+	//TODO validate & adapt options according to template
+	assert(0);
+}
+
+const std::map<std::string, CRmgTemplate> & CMapGenOptions::getAvailableTemplates() const
+{
+	return CRmgTemplateStorage::get().getTemplates();
+}
+
 void CMapGenOptions::finalize()
 {
 	CRandomGenerator gen;
@@ -158,83 +175,39 @@ void CMapGenOptions::finalize()
 
 void CMapGenOptions::finalize(CRandomGenerator & gen)
 {
-	if(playersCnt == RANDOM_SIZE)
+	if(!mapTemplate)
 	{
-		// 1 human is required at least
-		auto humanPlayers = countHumanPlayers();
-		if(humanPlayers == 0) humanPlayers = 1;
-		playersCnt = gen.getInteger(humanPlayers, PlayerColor::PLAYER_LIMIT_I);
-
-		// Remove AI players only from the end of the players map if necessary
-		for(auto itrev = players.end(); itrev != players.begin();)
-		{
-			auto it = itrev;
-			--it;
-			if(players.size() == playersCnt) break;
-			if(it->second.getPlayerType() == EPlayerType::AI)
-			{
-				players.erase(it);
-			}
-			else
-			{
-				--itrev;
-			}
-		}
-	}
-	if(teamsCnt == RANDOM_SIZE)
-	{
-		teamsCnt = gen.getInteger(0, playersCnt - 1);
-	}
-	if(compOnlyPlayersCnt == RANDOM_SIZE)
-	{
-		compOnlyPlayersCnt = gen.getInteger(0, 8 - playersCnt);
-		auto totalPlayersCnt = playersCnt + compOnlyPlayersCnt;
-
-		// Remove comp only players only from the end of the players map if necessary
-		for(auto itrev = players.end(); itrev != players.begin();)
-		{
-			auto it = itrev;
-			--it;
-			if(players.size() <= totalPlayersCnt) break;
-			if(it->second.getPlayerType() == EPlayerType::COMP_ONLY)
-			{
-				players.erase(it);
-			}
-			else
-			{
-				--itrev;
-			}
-		}
-
-		// Add some comp only players if necessary
-		auto compOnlyPlayersToAdd = totalPlayersCnt - players.size();
-		for(int i = 0; i < compOnlyPlayersToAdd; ++i)
-		{
-			CPlayerSettings pSettings;
-			pSettings.setPlayerType(EPlayerType::COMP_ONLY);
-			pSettings.setColor(getNextPlayerColor());
-			players[pSettings.getColor()] = pSettings;
-		}
-	}
-	if(compOnlyTeamsCnt == RANDOM_SIZE)
-	{
-		compOnlyTeamsCnt = gen.getInteger(0, std::max(compOnlyPlayersCnt - 1, 0));
+		mapTemplate = getPossibleTemplate(gen);
+		assert(mapTemplate);
 	}
 
-	// There should be at least 2 players (1-player-maps aren't allowed)
-	if(playersCnt + compOnlyPlayersCnt < 2)
+	if(playerCount == RANDOM_SIZE)
 	{
-		CPlayerSettings pSettings;
-		pSettings.setPlayerType(EPlayerType::AI);
-		pSettings.setColor(getNextPlayerColor());
-		players[pSettings.getColor()] = pSettings;
-		playersCnt = 2;
+		auto possiblePlayers = mapTemplate->getPlayers().getNumbers();
+		possiblePlayers.erase(possiblePlayers.begin(), possiblePlayers.lower_bound(countHumanPlayers()));
+		assert(!possiblePlayers.empty());
+		playerCount = *std::next(possiblePlayers.begin(), gen.getInteger(0, possiblePlayers.size() - 1));
+		updatePlayers();
+	}
+	if(teamCount == RANDOM_SIZE)
+	{
+		teamCount = gen.getInteger(0, playerCount - 1);
+	}
+	if(compOnlyPlayerCount == RANDOM_SIZE)
+	{
+		auto possiblePlayers = mapTemplate->getCpuPlayers().getNumbers();
+		compOnlyPlayerCount = *std::next(possiblePlayers.begin(), gen.getInteger(0, possiblePlayers.size() - 1));
+		updateCompOnlyPlayers();
+	}
+	if(compOnlyTeamCount == RANDOM_SIZE)
+	{
+		compOnlyTeamCount = gen.getInteger(0, std::max(compOnlyPlayerCount - 1, 0));
 	}
 
 	// 1 team isn't allowed
-	if(teamsCnt == 1 && compOnlyPlayersCnt == 0)
+	if(teamCount == 1 && compOnlyPlayerCount == 0)
 	{
-		teamsCnt = 0;
+		teamCount = 0;
 	}
 
 	if(waterContent == EWaterContent::RANDOM)
@@ -244,6 +217,56 @@ void CMapGenOptions::finalize(CRandomGenerator & gen)
 	if(monsterStrength == EMonsterStrength::RANDOM)
 	{
 		monsterStrength = static_cast<EMonsterStrength::EMonsterStrength>(gen.getInteger(0, 2));
+	}
+}
+
+void CMapGenOptions::updatePlayers()
+{
+	// Remove AI players only from the end of the players map if necessary
+	for(auto itrev = players.end(); itrev != players.begin();)
+	{
+		auto it = itrev;
+		--it;
+		if(players.size() == playerCount) break;
+		if(it->second.getPlayerType() == EPlayerType::AI)
+		{
+			players.erase(it);
+		}
+		else
+		{
+			--itrev;
+		}
+	}
+}
+
+void CMapGenOptions::updateCompOnlyPlayers()
+{
+	auto totalPlayersCnt = playerCount + compOnlyPlayerCount;
+
+	// Remove comp only players only from the end of the players map if necessary
+	for(auto itrev = players.end(); itrev != players.begin();)
+	{
+		auto it = itrev;
+		--it;
+		if(players.size() <= totalPlayersCnt) break;
+		if(it->second.getPlayerType() == EPlayerType::COMP_ONLY)
+		{
+			players.erase(it);
+		}
+		else
+		{
+			--itrev;
+		}
+	}
+
+	// Add some comp only players if necessary
+	auto compOnlyPlayersToAdd = totalPlayersCnt - players.size();
+	for(int i = 0; i < compOnlyPlayersToAdd; ++i)
+	{
+		CPlayerSettings pSettings;
+		pSettings.setPlayerType(EPlayerType::COMP_ONLY);
+		pSettings.setColor(getNextPlayerColor());
+		players[pSettings.getColor()] = pSettings;
 	}
 }
 
@@ -266,6 +289,74 @@ PlayerColor CMapGenOptions::getNextPlayerColor() const
 	}
 	assert(0);
 	return PlayerColor(0);
+}
+
+bool CMapGenOptions::checkOptions() const
+{
+	assert(countHumanPlayers() > 0);
+	if(mapTemplate)
+	{
+		return true;
+	}
+	else
+	{
+		CRandomGenerator gen;
+		return getPossibleTemplate(gen) != nullptr;
+	}
+}
+
+const CRmgTemplate * CMapGenOptions::getPossibleTemplate(CRandomGenerator & gen) const
+{
+	// Find potential templates
+	const auto & tpls = getAvailableTemplates();
+	std::list<const CRmgTemplate *> potentialTpls;
+	BOOST_FOREACH(const auto & tplPair, tpls)
+	{
+		const auto & tpl = tplPair.second;
+		CRmgTemplate::CSize tplSize(width, height, hasTwoLevels);
+		if(tplSize >= tpl.getMinSize() && tplSize <= tpl.getMaxSize())
+		{
+			bool isPlayerCountValid = false;
+			if(playerCount != RANDOM_SIZE)
+			{
+				if(tpl.getPlayers().isInRange(playerCount)) isPlayerCountValid = true;
+			}
+			else
+			{
+				// Human players shouldn't be banned when playing with random player count
+				auto playerNumbers = tpl.getPlayers().getNumbers();
+				if(playerNumbers.lower_bound(countHumanPlayers()) != playerNumbers.end())
+				{
+					isPlayerCountValid = true;
+				}
+			}
+
+			if(isPlayerCountValid)
+			{
+				bool isCpuPlayerCountValid = false;
+				if(compOnlyPlayerCount != RANDOM_SIZE)
+				{
+					if(tpl.getCpuPlayers().isInRange(compOnlyPlayerCount)) isCpuPlayerCountValid = true;
+				}
+				else
+				{
+					isCpuPlayerCountValid = true;
+				}
+
+				if(isCpuPlayerCountValid) potentialTpls.push_back(&tpl);
+			}
+		}
+	}
+
+	// Select tpl
+	if(potentialTpls.empty())
+	{
+		return nullptr;
+	}
+	else
+	{
+		return *std::next(potentialTpls.begin(), gen.getInteger(0, potentialTpls.size() - 1));
+	}
 }
 
 CMapGenOptions::CPlayerSettings::CPlayerSettings() : color(0), startingTown(RANDOM_TOWN), playerType(EPlayerType::AI)
@@ -291,7 +382,12 @@ si32 CMapGenOptions::CPlayerSettings::getStartingTown() const
 
 void CMapGenOptions::CPlayerSettings::setStartingTown(si32 value)
 {
-	assert(value >= -1 && value < static_cast<int>(VLC->townh->factions.size()));
+	assert(value >= -1);
+	if(value >= 0)
+	{
+		assert(value < static_cast<int>(VLC->townh->factions.size()));
+		assert(VLC->townh->factions[value]->town != nullptr);
+	}
 	startingTown = value;
 }
 
@@ -320,9 +416,6 @@ std::unique_ptr<CMap> CMapGenerator::generate()
 {
 	mapGenOptions.finalize(gen);
 
-	//TODO select a template based on the map gen options or adapt it if necessary
-	CRandomMapTemplateStorage::get();
-
 	map = make_unique<CMap>();
 	editManager = map->getEditManager();
 	editManager->getUndoManager().setUndoRedoLimit(0);
@@ -339,13 +432,12 @@ std::string CMapGenerator::getMapDescription() const
 	const std::string waterContentStr[3] = { "none", "normal", "islands" };
 	const std::string monsterStrengthStr[3] = { "weak", "normal", "strong" };
 
-	std::stringstream ss;
-	ss << "Map created by the Random Map Generator.\nTemplate was <MOCK>, ";
-	ss << "Random seed was " << randomSeed << ", size " << map->width << "x";
-	ss << map->height << ", levels " << (map->twoLevel ? "2" : "1") << ", ";
-	ss << "humans " << static_cast<int>(mapGenOptions.getPlayersCnt()) << ", computers ";
-	ss << static_cast<int>(mapGenOptions.getCompOnlyPlayersCnt()) << ", water " << waterContentStr[mapGenOptions.getWaterContent()];
-	ss << ", monster " << monsterStrengthStr[mapGenOptions.getMonsterStrength()] << ", second expansion map";
+    std::stringstream ss;
+    ss << boost::str(boost::format(std::string("Map created by the Random Map Generator.\nTemplate was %s, Random seed was %d, size %dx%d") +
+        ", levels %s, humans %d, computers %d, water %s, monster %s, second expansion map") % mapGenOptions.getMapTemplate()->getName() %
+		randomSeed % map->width % map->height % (map->twoLevel ? "2" : "1") % static_cast<int>(mapGenOptions.getPlayerCount()) %
+		static_cast<int>(mapGenOptions.getCompOnlyPlayerCount()) % waterContentStr[mapGenOptions.getWaterContent()] %
+        monsterStrengthStr[mapGenOptions.getMonsterStrength()]);
 
 	BOOST_FOREACH(const auto & pair, mapGenOptions.getPlayersSettings())
 	{
@@ -371,32 +463,32 @@ void CMapGenerator::addPlayerInfo()
 	int teamOffset = 0;
 	for(int i = 0; i < 2; ++i)
 	{
-		int playersCnt = i == 0 ? mapGenOptions.getPlayersCnt() : mapGenOptions.getCompOnlyPlayersCnt();
-		int teamsCnt = i == 0 ? mapGenOptions.getTeamsCnt() : mapGenOptions.getCompOnlyTeamsCnt();
+		int playerCount = i == 0 ? mapGenOptions.getPlayerCount() : mapGenOptions.getCompOnlyPlayerCount();
+		int teamCount = i == 0 ? mapGenOptions.getTeamCount() : mapGenOptions.getCompOnlyTeamCount();
 
-		if(playersCnt == 0)
+		if(playerCount == 0)
 		{
 			continue;
 		}
-		int playersPerTeam = playersCnt /
-				(teamsCnt == 0 ? playersCnt : teamsCnt);
-		int teamsCntNorm = teamsCnt;
-		if(teamsCntNorm == 0)
+		int playersPerTeam = playerCount /
+				(teamCount == 0 ? playerCount : teamCount);
+		int teamCountNorm = teamCount;
+		if(teamCountNorm == 0)
 		{
-			teamsCntNorm = playersCnt;
+			teamCountNorm = playerCount;
 		}
-		for(int j = 0; j < teamsCntNorm; ++j)
+		for(int j = 0; j < teamCountNorm; ++j)
 		{
 			for(int k = 0; k < playersPerTeam; ++k)
 			{
 				teamNumbers[i].push_back(j + teamOffset);
 			}
 		}
-		for(int j = 0; j < playersCnt - teamsCntNorm * playersPerTeam; ++j)
+		for(int j = 0; j < playerCount - teamCountNorm * playersPerTeam; ++j)
 		{
 			teamNumbers[i].push_back(j + teamOffset);
 		}
-		teamOffset += teamsCntNorm;
+		teamOffset += teamCountNorm;
 	}
 
 	// Team numbers are assigned randomly to every player
@@ -416,23 +508,22 @@ void CMapGenerator::addPlayerInfo()
 		map->players[pSettings.getColor().getNum()] = player;
 	}
 
-	map->howManyTeams = (mapGenOptions.getTeamsCnt() == 0 ? mapGenOptions.getPlayersCnt() : mapGenOptions.getTeamsCnt())
-			+ (mapGenOptions.getCompOnlyTeamsCnt() == 0 ? mapGenOptions.getCompOnlyPlayersCnt() : mapGenOptions.getCompOnlyTeamsCnt());
+	map->howManyTeams = (mapGenOptions.getTeamCount() == 0 ? mapGenOptions.getPlayerCount() : mapGenOptions.getTeamCount())
+			+ (mapGenOptions.getCompOnlyTeamCount() == 0 ? mapGenOptions.getCompOnlyPlayerCount() : mapGenOptions.getCompOnlyTeamCount());
 }
 
 void CMapGenerator::genTerrain()
 {
 	map->initTerrain();
 	editManager->clearTerrain(&gen);
-	editManager->getTerrainSelection().selectRange(MapRect(int3(10, 10, 0), 20, 30));
+    editManager->getTerrainSelection().selectRange(MapRect(int3(4, 4, 0), 24, 30));
 	editManager->drawTerrain(ETerrainType::GRASS, &gen);
 }
 
 void CMapGenerator::genTowns()
 {
 	//FIXME mock gen
-	const int3 townPos[2] = { int3(17, 13, 0), int3(25,13, 0) };
-	const int townTypes[2] = { ETownType::CASTLE, ETownType::DUNGEON };
+	const int3 townPos[2] = { int3(11, 7, 0), int3(19,7, 0) };
 
 	for(size_t i = 0; i < map->players.size(); ++i)
 	{
@@ -443,7 +534,9 @@ void CMapGenerator::genTowns()
 		int side = i % 2;
 		CGTownInstance * town = new CGTownInstance();
 		town->ID = Obj::TOWN;
-		town->subID = townTypes[side];
+		int townId = mapGenOptions.getPlayersSettings().find(PlayerColor(i))->second.getStartingTown();
+		if(townId == CMapGenOptions::CPlayerSettings::RANDOM_TOWN) townId = gen.getInteger(0, 8); // Default towns
+		town->subID = townId;
 		town->tempOwner = owner;
 		town->defInfo = VLC->dobjinfo->gobjs[town->ID][town->subID];
 		town->builtBuildings.insert(BuildingID::FORT);
@@ -452,7 +545,7 @@ void CMapGenerator::genTowns()
 
 		// Update player info
 		playerInfo.allowedFactions.clear();
-		playerInfo.allowedFactions.insert(townTypes[side]);
+		playerInfo.allowedFactions.insert(townId);
 		playerInfo.hasMainTown = true;
 		playerInfo.posOfMainTown = town->pos - int3(2, 0, 0);
 		playerInfo.generateHeroAtMainTown = true;
@@ -471,403 +564,495 @@ void CMapGenerator::addHeaderInfo()
 	addPlayerInfo();
 }
 
-CTemplateZoneTowns::CTemplateZoneTowns() : minTowns(0), minCastles(0), townDensity(0), castleDensity(0)
+CRmgTemplateZone::CTownInfo::CTownInfo() : townCount(0), castleCount(0), townDensity(0), castleDensity(0)
 {
 
 }
 
-int CTemplateZoneTowns::getMinTowns() const
+int CRmgTemplateZone::CTownInfo::getTownCount() const
 {
-	return minTowns;
+	return townCount;
 }
 
-void CTemplateZoneTowns::setMinTowns(int value)
+void CRmgTemplateZone::CTownInfo::setTownCount(int value)
 {
-	assert(value >= 0);
-	minTowns = value;
+	if(value < 0) throw std::runtime_error("Negative value for town count not allowed.");
+	townCount = value;
 }
 
-int CTemplateZoneTowns::getMinCastles() const
+int CRmgTemplateZone::CTownInfo::getCastleCount() const
 {
-	return minCastles;
+	return castleCount;
 }
 
-void CTemplateZoneTowns::setMinCastles(int value)
+void CRmgTemplateZone::CTownInfo::setCastleCount(int value)
 {
-	assert(value >= 0);
-	minCastles = value;
+	if(value < 0) throw std::runtime_error("Negative value for castle count not allowed.");
+	castleCount = value;
 }
 
-int CTemplateZoneTowns::getTownDensity() const
+int CRmgTemplateZone::CTownInfo::getTownDensity() const
 {
 	return townDensity;
 }
 
-void CTemplateZoneTowns::setTownDensity(int value)
+void CRmgTemplateZone::CTownInfo::setTownDensity(int value)
 {
-	assert(value >= 0);
+	if(value < 0) throw std::runtime_error("Negative value for town density not allowed.");
 	townDensity = value;
 }
 
-int CTemplateZoneTowns::getCastleDensity() const
+int CRmgTemplateZone::CTownInfo::getCastleDensity() const
 {
 	return castleDensity;
 }
 
-void CTemplateZoneTowns::setCastleDensity(int value)
+void CRmgTemplateZone::CTownInfo::setCastleDensity(int value)
 {
-	assert(value >= 0);
+	if(value < 0) throw std::runtime_error("Negative value for castle density not allowed.");
 	castleDensity = value;
 }
 
-CTemplateZone::CTemplateZone() : id(0), type(ETemplateZoneType::HUMAN_START), baseSize(0), owner(0),
-	neutralTownsAreSameType(false), matchTerrainToTown(true)
+CRmgTemplateZone::CRmgTemplateZone() : id(0), type(ETemplateZoneType::PLAYER_START), size(1),
+	townsAreSameType(false), matchTerrainToTown(true)
 {
-
+	townTypes = getDefaultTownTypes();
+	terrainTypes = getDefaultTerrainTypes();
 }
 
-TTemplateZoneId CTemplateZone::getId() const
+TRmgTemplateZoneId CRmgTemplateZone::getId() const
 {
 	return id;
 }
 
-void CTemplateZone::setId(TTemplateZoneId value)
+void CRmgTemplateZone::setId(TRmgTemplateZoneId value)
 {
+	if(value <= 0) throw std::runtime_error("Zone id should be greater than 0.");
 	id = value;
 }
 
-ETemplateZoneType::ETemplateZoneType CTemplateZone::getType() const
+ETemplateZoneType::ETemplateZoneType CRmgTemplateZone::getType() const
 {
 	return type;
 }
-void CTemplateZone::setType(ETemplateZoneType::ETemplateZoneType value)
+void CRmgTemplateZone::setType(ETemplateZoneType::ETemplateZoneType value)
 {
 	type = value;
 }
 
-int CTemplateZone::getBaseSize() const
+int CRmgTemplateZone::getSize() const
 {
-	return baseSize;
+	return size;
 }
 
-void CTemplateZone::setBaseSize(int value)
+void CRmgTemplateZone::setSize(int value)
 {
-	assert(value >= 0);
-	baseSize = value;
+	if(value <= 0) throw std::runtime_error("Zone size needs to be greater than 0.");
+	size = value;
 }
 
-int CTemplateZone::getOwner() const
+boost::optional<int> CRmgTemplateZone::getOwner() const
 {
 	return owner;
 }
 
-void CTemplateZone::setOwner(int value)
+void CRmgTemplateZone::setOwner(boost::optional<int> value)
 {
+	if(!(*value >= 0 && *value <= PlayerColor::PLAYER_LIMIT_I)) throw std::runtime_error("Owner has to be in range 0 to max player count.");
 	owner = value;
 }
 
-const CTemplateZoneTowns & CTemplateZone::getPlayerTowns() const
+const CRmgTemplateZone::CTownInfo & CRmgTemplateZone::getPlayerTowns() const
 {
 	return playerTowns;
 }
 
-void CTemplateZone::setPlayerTowns(const CTemplateZoneTowns & value)
+void CRmgTemplateZone::setPlayerTowns(const CTownInfo & value)
 {
 	playerTowns = value;
 }
 
-const CTemplateZoneTowns & CTemplateZone::getNeutralTowns() const
+const CRmgTemplateZone::CTownInfo & CRmgTemplateZone::getNeutralTowns() const
 {
 	return neutralTowns;
 }
 
-void CTemplateZone::setNeutralTowns(const CTemplateZoneTowns & value)
+void CRmgTemplateZone::setNeutralTowns(const CTownInfo & value)
 {
 	neutralTowns = value;
 }
 
-bool CTemplateZone::getNeutralTownsAreSameType() const
+bool CRmgTemplateZone::getTownsAreSameType() const
 {
-	return neutralTownsAreSameType;
+	return townsAreSameType;
 }
 
-void CTemplateZone::setNeutralTownsAreSameType(bool value)
+void CRmgTemplateZone::setTownsAreSameType(bool value)
 {
-	neutralTownsAreSameType = value;
+	townsAreSameType = value;
 }
 
-const std::set<TFaction> & CTemplateZone::getAllowedTownTypes() const
+const std::set<TFaction> & CRmgTemplateZone::getTownTypes() const
 {
-	return allowedTownTypes;
+	return townTypes;
 }
 
-void CTemplateZone::setAllowedTownTypes(const std::set<TFaction> & value)
+void CRmgTemplateZone::setTownTypes(const std::set<TFaction> & value)
 {
-	allowedTownTypes = value;
+	townTypes = value;
 }
 
-bool CTemplateZone::getMatchTerrainToTown() const
+std::set<TFaction> CRmgTemplateZone::getDefaultTownTypes() const
+{
+	std::set<TFaction> defaultTowns;
+	auto towns = VLC->townh->getDefaultAllowed();
+	for(int i = 0; i < towns.size(); ++i)
+	{
+		if(towns[i]) defaultTowns.insert(i);
+	}
+	return defaultTowns;
+}
+
+bool CRmgTemplateZone::getMatchTerrainToTown() const
 {
 	return matchTerrainToTown;
 }
 
-void CTemplateZone::setMatchTerrainToTown(bool value)
+void CRmgTemplateZone::setMatchTerrainToTown(bool value)
 {
 	matchTerrainToTown = value;
 }
 
-const std::set<ETerrainType> & CTemplateZone::getTerrainTypes() const
+const std::set<ETerrainType> & CRmgTemplateZone::getTerrainTypes() const
 {
 	return terrainTypes;
 }
 
-void CTemplateZone::setTerrainTypes(const std::set<ETerrainType> & value)
+void CRmgTemplateZone::setTerrainTypes(const std::set<ETerrainType> & value)
 {
 	assert(value.find(ETerrainType::WRONG) == value.end() && value.find(ETerrainType::BORDER) == value.end() &&
-		   value.find(ETerrainType::WATER) == value.end());
+		   value.find(ETerrainType::WATER) == value.end() && value.find(ETerrainType::ROCK) == value.end());
 	terrainTypes = value;
 }
 
-CTemplateZoneConnection::CTemplateZoneConnection() : zoneA(0), zoneB(0), guardStrength(0)
+std::set<ETerrainType> CRmgTemplateZone::getDefaultTerrainTypes() const
+{
+	std::set<ETerrainType> terTypes;
+	static const ETerrainType::EETerrainType allowedTerTypes[] = { ETerrainType::DIRT, ETerrainType::SAND, ETerrainType::GRASS, ETerrainType::SNOW,
+												   ETerrainType::SWAMP, ETerrainType::ROUGH, ETerrainType::SUBTERRANEAN, ETerrainType::LAVA };
+	for(int i = 0; i < ARRAY_COUNT(allowedTerTypes); ++i) terTypes.insert(allowedTerTypes[i]);
+	return terTypes;
+}
+
+boost::optional<TRmgTemplateZoneId> CRmgTemplateZone::getTerrainTypeLikeZone() const
+{
+	return terrainTypeLikeZone;
+}
+
+void CRmgTemplateZone::setTerrainTypeLikeZone(boost::optional<TRmgTemplateZoneId> value)
+{
+	terrainTypeLikeZone = value;
+}
+
+boost::optional<TRmgTemplateZoneId> CRmgTemplateZone::getTownTypeLikeZone() const
+{
+	return townTypeLikeZone;
+}
+
+void CRmgTemplateZone::setTownTypeLikeZone(boost::optional<TRmgTemplateZoneId> value)
+{
+	townTypeLikeZone = value;
+}
+
+CRmgTemplateZoneConnection::CRmgTemplateZoneConnection() : zoneA(0), zoneB(0), guardStrength(0)
 {
 
 }
 
-TTemplateZoneId CTemplateZoneConnection::getZoneA() const
+TRmgTemplateZoneId CRmgTemplateZoneConnection::getZoneA() const
 {
 	return zoneA;
 }
 
-void CTemplateZoneConnection::setZoneA(TTemplateZoneId value)
+void CRmgTemplateZoneConnection::setZoneA(TRmgTemplateZoneId value)
 {
 	zoneA = value;
 }
 
-TTemplateZoneId CTemplateZoneConnection::getZoneB() const
+TRmgTemplateZoneId CRmgTemplateZoneConnection::getZoneB() const
 {
 	return zoneB;
 }
 
-void CTemplateZoneConnection::setZoneB(TTemplateZoneId value)
+void CRmgTemplateZoneConnection::setZoneB(TRmgTemplateZoneId value)
 {
 	zoneB = value;
 }
 
-int CTemplateZoneConnection::getGuardStrength() const
+int CRmgTemplateZoneConnection::getGuardStrength() const
 {
 	return guardStrength;
 }
 
-void CTemplateZoneConnection::setGuardStrength(int value)
+void CRmgTemplateZoneConnection::setGuardStrength(int value)
 {
-	assert(value >= 0);
+	if(value < 0) throw std::runtime_error("Negative value for guard strenth not allowed.");
 	guardStrength = value;
 }
 
-CRandomMapTemplateSize::CRandomMapTemplateSize() : width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), under(true)
+CRmgTemplate::CSize::CSize() : width(CMapHeader::MAP_SIZE_MIDDLE), height(CMapHeader::MAP_SIZE_MIDDLE), under(true)
 {
 
 }
 
-CRandomMapTemplateSize::CRandomMapTemplateSize(int width, int height, bool under) : width(width), height(height), under(under)
+CRmgTemplate::CSize::CSize(int width, int height, bool under) : under(under)
 {
-
+	setWidth(width);
+	setHeight(height);
 }
 
-int CRandomMapTemplateSize::getWidth() const
+int CRmgTemplate::CSize::getWidth() const
 {
 	return width;
 }
 
-void CRandomMapTemplateSize::setWidth(int value)
+void CRmgTemplate::CSize::setWidth(int value)
 {
-	assert(value >= 1);
+	if(value <= 0) throw std::runtime_error("Width > 0 failed.");
 	width = value;
 }
 
-int CRandomMapTemplateSize::getHeight() const
+int CRmgTemplate::CSize::getHeight() const
 {
 	return height;
 }
 
-void CRandomMapTemplateSize::setHeight(int value)
+void CRmgTemplate::CSize::setHeight(int value)
 {
-	assert(value >= 1);
+	if(value <= 0) throw std::runtime_error("Height > 0 failed.");
 	height = value;
 }
 
-bool CRandomMapTemplateSize::getUnder() const
+bool CRmgTemplate::CSize::getUnder() const
 {
 	return under;
 }
 
-void CRandomMapTemplateSize::setUnder(bool value)
+void CRmgTemplate::CSize::setUnder(bool value)
 {
 	under = value;
 }
 
-CRandomMapTemplate::CRandomMapTemplate() : minHumanCnt(1), maxHumanCnt(PlayerColor::PLAYER_LIMIT_I), minTotalCnt(2),
-	maxTotalCnt(PlayerColor::PLAYER_LIMIT_I)
+bool CRmgTemplate::CSize::operator<=(const CSize & value) const
 {
-	minSize = CRandomMapTemplateSize(CMapHeader::MAP_SIZE_SMALL, CMapHeader::MAP_SIZE_SMALL, false);
-	maxSize = CRandomMapTemplateSize(CMapHeader::MAP_SIZE_XLARGE, CMapHeader::MAP_SIZE_XLARGE, true);
+	if(width < value.width && height < value.height)
+	{
+		return true;
+	}
+	else if(width == value.width && height == value.height)
+	{
+		return under ? value.under : true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
-const std::string & CRandomMapTemplate::getName() const
+bool CRmgTemplate::CSize::operator>=(const CSize & value) const
+{
+	if(width > value.width && height > value.height)
+	{
+		return true;
+	}
+	else if(width == value.width && height == value.height)
+	{
+		return under ? true : !value.under;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+CRmgTemplate::CRmgTemplate()
+{
+
+}
+
+const std::string & CRmgTemplate::getName() const
 {
 	return name;
 }
 
-void CRandomMapTemplate::setName(const std::string & value)
+void CRmgTemplate::setName(const std::string & value)
 {
 	name = value;
 }
 
-const CRandomMapTemplateSize & CRandomMapTemplate::getMinSize() const
+const CRmgTemplate::CSize & CRmgTemplate::getMinSize() const
 {
 	return minSize;
 }
 
-void CRandomMapTemplate::setMinSize(const CRandomMapTemplateSize & value)
+void CRmgTemplate::setMinSize(const CSize & value)
 {
 	minSize = value;
 }
 
-const CRandomMapTemplateSize & CRandomMapTemplate::getMaxSize() const
+const CRmgTemplate::CSize & CRmgTemplate::getMaxSize() const
 {
 	return maxSize;
 }
 
-void CRandomMapTemplate::setMaxSize(const CRandomMapTemplateSize & value)
+void CRmgTemplate::setMaxSize(const CSize & value)
 {
 	maxSize = value;
 }
 
-int CRandomMapTemplate::getMinHumanCnt() const
+const CRmgTemplate::CPlayerCountRange & CRmgTemplate::getPlayers() const
 {
-	return minHumanCnt;
+	return players;
 }
 
-void CRandomMapTemplate::setMinHumanCnt(int value)
+void CRmgTemplate::setPlayers(const CPlayerCountRange & value)
 {
-	assert(value >= 1 && value <= PlayerColor::PLAYER_LIMIT_I);
-	minHumanCnt = value;
+	players = value;
 }
 
-int CRandomMapTemplate::getMaxHumanCnt() const
+const CRmgTemplate::CPlayerCountRange & CRmgTemplate::getCpuPlayers() const
 {
-	return maxHumanCnt;
+	return cpuPlayers;
 }
 
-void CRandomMapTemplate::setMaxHumanCnt(int value)
+void CRmgTemplate::setCpuPlayers(const CPlayerCountRange & value)
 {
-	assert(value >= 1 && value <= PlayerColor::PLAYER_LIMIT_I);
-	maxHumanCnt = value;
+	cpuPlayers = value;
 }
 
-int CRandomMapTemplate::getMinTotalCnt() const
-{
-	return minTotalCnt;
-}
-
-void CRandomMapTemplate::setMinTotalCnt(int value)
-{
-	assert(value >= 2 && value <= PlayerColor::PLAYER_LIMIT_I);
-	minTotalCnt = value;
-}
-
-int CRandomMapTemplate::getMaxTotalCnt() const
-{
-	return maxTotalCnt;
-}
-
-void CRandomMapTemplate::setMaxTotalCnt(int value)
-{
-	assert(value >= 2 && value <= PlayerColor::PLAYER_LIMIT_I);
-	maxTotalCnt = value;
-}
-
-const std::map<TTemplateZoneId, CTemplateZone> & CRandomMapTemplate::getZones() const
+const std::map<TRmgTemplateZoneId, CRmgTemplateZone> & CRmgTemplate::getZones() const
 {
 	return zones;
 }
 
-void CRandomMapTemplate::setZones(const std::map<TTemplateZoneId, CTemplateZone> & value)
+void CRmgTemplate::setZones(const std::map<TRmgTemplateZoneId, CRmgTemplateZone> & value)
 {
 	zones = value;
 }
 
-const std::list<CTemplateZoneConnection> & CRandomMapTemplate::getConnections() const
+const std::list<CRmgTemplateZoneConnection> & CRmgTemplate::getConnections() const
 {
 	return connections;
 }
 
-void CRandomMapTemplate::setConnections(const std::list<CTemplateZoneConnection> & value)
+void CRmgTemplate::setConnections(const std::list<CRmgTemplateZoneConnection> & value)
 {
 	connections = value;
 }
 
-const std::map<std::string, CRandomMapTemplate> & CRmTemplateLoader::getTemplates() const
+void CRmgTemplate::validate() const
+{
+	//TODO add some validation checks, throw on failure
+}
+
+void CRmgTemplate::CPlayerCountRange::addRange(int lower, int upper)
+{
+	range.push_back(std::make_pair(lower, upper));
+}
+
+void CRmgTemplate::CPlayerCountRange::addNumber(int value)
+{
+	range.push_back(std::make_pair(value, value));
+}
+
+bool CRmgTemplate::CPlayerCountRange::isInRange(int count) const
+{
+	BOOST_FOREACH(const auto & pair, range)
+	{
+		if(count >= pair.first && count <= pair.second) return true;
+	}
+	return false;
+}
+
+std::set<int> CRmgTemplate::CPlayerCountRange::getNumbers() const
+{
+	std::set<int> numbers;
+	BOOST_FOREACH(const auto & pair, range)
+	{
+		for(int i = pair.first; i <= pair.second; ++i) numbers.insert(i);
+	}
+	return numbers;
+}
+
+const std::map<std::string, CRmgTemplate> & CRmgTemplateLoader::getTemplates() const
 {
 	return templates;
 }
 
-void CJsonRmTemplateLoader::loadTemplates()
+void CJsonRmgTemplateLoader::loadTemplates()
 {
 	const JsonNode rootNode(ResourceID("config/rmg.json"));
 	BOOST_FOREACH(const auto & templatePair, rootNode.Struct())
 	{
-		CRandomMapTemplate tpl;
-		tpl.setName(templatePair.first);
-		const auto & templateNode = templatePair.second;
-
-		// Parse main template data
-		tpl.setMinSize(parseMapTemplateSize(templateNode["minSize"].String()));
-		tpl.setMaxSize(parseMapTemplateSize(templateNode["maxSize"].String()));
-		tpl.setMinHumanCnt(templateNode["minHumanCnt"].Float());
-		tpl.setMaxHumanCnt(templateNode["maxHumanCnt"].Float());
-		tpl.setMinTotalCnt(templateNode["minTotalCnt"].Float());
-		tpl.setMaxTotalCnt(templateNode["maxTotalCnt"].Float());
-
-		// Parse zones
-		std::map<TTemplateZoneId, CTemplateZone> zones;
-		BOOST_FOREACH(const auto & zonePair, templateNode["zones"].Struct())
+		CRmgTemplate tpl;
+		try
 		{
-			CTemplateZone zone;
-			auto zoneId = boost::lexical_cast<TTemplateZoneId>(zonePair.first);
-			zone.setId(zoneId);
-			const auto & zoneNode = zonePair.second;
-			zone.setType(getZoneType(zoneNode["type"].String()));
-			zone.setBaseSize(zoneNode["baseSize"].Float());
-			zone.setOwner(zoneNode["owner"].Float());
-			zone.setPlayerTowns(parseTemplateZoneTowns(zoneNode["playerTowns"]));
-			zone.setNeutralTowns(parseTemplateZoneTowns(zoneNode["neutralTowns"]));
-			zone.setAllowedTownTypes(getFactions(zoneNode["allowedTownTypes"].Vector()));
-			zone.setMatchTerrainToTown(zoneNode["matchTerrainToTown"].Bool());
-			zone.setTerrainTypes(parseTerrainTypes(zoneNode["terrainTypes"].Vector()));
-			zone.setNeutralTownsAreSameType((zoneNode["neutralTownsAreSameType"].Bool()));
-			zones[zone.getId()] = zone;
-		}
-		tpl.setZones(zones);
+			tpl.setName(templatePair.first);
+			const auto & templateNode = templatePair.second;
 
-		// Parse connections
-		std::list<CTemplateZoneConnection> connections;
-		BOOST_FOREACH(const auto & connPair, templateNode["connections"].Vector())
-		{
-			CTemplateZoneConnection conn;
-			conn.setZoneA(boost::lexical_cast<TTemplateZoneId>(connPair["a"].String()));
-			conn.setZoneB(boost::lexical_cast<TTemplateZoneId>(connPair["b"].String()));
-			conn.setGuardStrength(connPair["guardStrength"].Float());
-			connections.push_back(conn);
+			// Parse main template data
+			tpl.setMinSize(parseMapTemplateSize(templateNode["minSize"].String()));
+			tpl.setMaxSize(parseMapTemplateSize(templateNode["maxSize"].String()));
+			tpl.setPlayers(parsePlayers(templateNode["players"].String()));
+			tpl.setCpuPlayers(parsePlayers(templateNode["cpu"].String()));
+
+			// Parse zones
+			std::map<TRmgTemplateZoneId, CRmgTemplateZone> zones;
+			BOOST_FOREACH(const auto & zonePair, templateNode["zones"].Struct())
+			{
+				CRmgTemplateZone zone;
+				auto zoneId = boost::lexical_cast<TRmgTemplateZoneId>(zonePair.first);
+				zone.setId(zoneId);
+				const auto & zoneNode = zonePair.second;
+				zone.setType(parseZoneType(zoneNode["type"].String()));
+				zone.setSize(zoneNode["size"].Float());
+				if(!zoneNode["owner"].isNull()) zone.setOwner(zoneNode["owner"].Float());
+				zone.setPlayerTowns(parseTemplateZoneTowns(zoneNode["playerTowns"]));
+				zone.setNeutralTowns(parseTemplateZoneTowns(zoneNode["neutralTowns"]));
+				zone.setTownTypes(parseTownTypes(zoneNode["townTypes"].Vector(), zone.getDefaultTownTypes()));
+				zone.setMatchTerrainToTown(zoneNode["matchTerrainToTown"].Bool());
+				zone.setTerrainTypes(parseTerrainTypes(zoneNode["terrainTypes"].Vector(), zone.getDefaultTerrainTypes()));
+				zone.setTownsAreSameType((zoneNode["townsAreSameType"].Bool()));
+				if(!zoneNode["terrainTypeLikeZone"].isNull()) zone.setTerrainTypeLikeZone(boost::lexical_cast<int>(zoneNode["terrainTypeLikeZone"].String()));
+				if(!zoneNode["townTypeLikeZone"].isNull()) zone.setTownTypeLikeZone(boost::lexical_cast<int>(zoneNode["townTypeLikeZone"].String()));
+				zones[zone.getId()] = zone;
+			}
+			tpl.setZones(zones);
+
+			// Parse connections
+			std::list<CRmgTemplateZoneConnection> connections;
+			BOOST_FOREACH(const auto & connPair, templateNode["connections"].Vector())
+			{
+				CRmgTemplateZoneConnection conn;
+				conn.setZoneA(boost::lexical_cast<TRmgTemplateZoneId>(connPair["a"].String()));
+				conn.setZoneB(boost::lexical_cast<TRmgTemplateZoneId>(connPair["b"].String()));
+				conn.setGuardStrength(connPair["guard"].Float());
+				connections.push_back(conn);
+			}
+			tpl.setConnections(connections);
+			tpl.validate();
+			templates[tpl.getName()] = tpl;
 		}
-		tpl.setConnections(connections);
-		templates[tpl.getName()] = tpl;
+		catch(const std::exception & e)
+		{
+			logGlobal->errorStream() << boost::format("Template %s has errors. Message: %s.") % tpl.getName() % std::string(e.what());
+		}
 	}
 }
 
-CRandomMapTemplateSize CJsonRmTemplateLoader::parseMapTemplateSize(const std::string & text) const
+CRmgTemplate::CSize CJsonRmgTemplateLoader::parseMapTemplateSize(const std::string & text) const
 {
-	CRandomMapTemplateSize size;
+	CRmgTemplate::CSize size;
 	if(text.empty()) return size;
 
 	std::vector<std::string> parts;
@@ -895,92 +1080,120 @@ CRandomMapTemplateSize CJsonRmTemplateLoader::parseMapTemplateSize(const std::st
 	return size;
 }
 
-ETemplateZoneType::ETemplateZoneType CJsonRmTemplateLoader::getZoneType(const std::string & type) const
+ETemplateZoneType::ETemplateZoneType CJsonRmgTemplateLoader::parseZoneType(const std::string & type) const
 {
 	static const std::map<std::string, ETemplateZoneType::ETemplateZoneType> zoneTypeMapping = boost::assign::map_list_of
-			("humanStart", ETemplateZoneType::HUMAN_START)("computerStart", ETemplateZoneType::COMPUTER_START)
+			("playerStart", ETemplateZoneType::PLAYER_START)("cpuStart", ETemplateZoneType::CPU_START)
 			("treasure", ETemplateZoneType::TREASURE)("junction", ETemplateZoneType::JUNCTION);
 	auto it = zoneTypeMapping.find(type);
-	assert(it != zoneTypeMapping.end());
+	if(it == zoneTypeMapping.end()) throw std::runtime_error("Zone type unknown.");
 	return it->second;
 }
 
-CTemplateZoneTowns CJsonRmTemplateLoader::parseTemplateZoneTowns(const JsonNode & node) const
+CRmgTemplateZone::CTownInfo CJsonRmgTemplateLoader::parseTemplateZoneTowns(const JsonNode & node) const
 {
-	CTemplateZoneTowns towns;
-	towns.setMinTowns(node["minTowns"].Float());
-	towns.setMinCastles(node["minCastles"].Float());
+	CRmgTemplateZone::CTownInfo towns;
+	towns.setTownCount(node["towns"].Float());
+	towns.setCastleCount(node["castles"].Float());
 	towns.setTownDensity(node["townDensity"].Float());
 	towns.setCastleDensity(node["castleDensity"].Float());
 	return towns;
 }
 
-std::set<TFaction> CJsonRmTemplateLoader::getFactions(const std::vector<JsonNode> factionStrings) const
+std::set<TFaction> CJsonRmgTemplateLoader::parseTownTypes(const JsonVector & townTypesVector, const std::set<TFaction> & defaultTownTypes) const
 {
-	std::set<TFaction> factions;
-	BOOST_FOREACH(const auto & factionNode, factionStrings)
+	std::set<TFaction> townTypes;
+	BOOST_FOREACH(const auto & townTypeNode, townTypesVector)
 	{
-		auto factionStr = factionNode.String();
-		if(factionStr == "all")
-		{
-			factions.clear();
-			BOOST_FOREACH(auto factionPtr, VLC->townh->factions)
-			{
-				factions.insert(factionPtr->index);
-			}
-			return factions;
-		}
+		auto townTypeStr = townTypeNode.String();
+		if(townTypeStr == "all") return defaultTownTypes;
+
+		bool foundFaction = false;
 		BOOST_FOREACH(auto factionPtr, VLC->townh->factions)
 		{
-			if(factionStr == factionPtr->name)
+			if(factionPtr->town != nullptr && townTypeStr == factionPtr->name)
 			{
-				factions.insert(factionPtr->index);
-				break;
+				townTypes.insert(factionPtr->index);
+				foundFaction = true;
 			}
 		}
+		if(!foundFaction) throw std::runtime_error("Given faction is invalid.");
 	}
-	return factions;
+	return townTypes;
 }
 
-std::set<ETerrainType> CJsonRmTemplateLoader::parseTerrainTypes(const std::vector<JsonNode> terTypeStrings) const
+std::set<ETerrainType> CJsonRmgTemplateLoader::parseTerrainTypes(const JsonVector & terTypeStrings, const std::set<ETerrainType> & defaultTerrainTypes) const
 {
 	std::set<ETerrainType> terTypes;
 	BOOST_FOREACH(const auto & node, terTypeStrings)
 	{
 		const auto & terTypeStr = node.String();
-		if(terTypeStr == "all")
+		if(terTypeStr == "all") return defaultTerrainTypes;
+		auto pos = vstd::find_pos(GameConstants::TERRAIN_NAMES, terTypeStr);
+		if (pos != -1)
 		{
-			for(int i = 0; i < GameConstants::TERRAIN_TYPES; ++i) terTypes.insert(ETerrainType(i));
-			break;
+			terTypes.insert(ETerrainType(pos));
 		}
-		terTypes.insert(ETerrainType(vstd::find_pos(GameConstants::TERRAIN_NAMES, terTypeStr)));
+		else
+		{
+			throw std::runtime_error("Terrain type is invalid.");
+		}
 	}
 	return terTypes;
 }
 
-boost::mutex CRandomMapTemplateStorage::smx;
+CRmgTemplate::CPlayerCountRange CJsonRmgTemplateLoader::parsePlayers(const std::string & players) const
+{
+	CRmgTemplate::CPlayerCountRange playerRange;
+	if(players.empty())
+	{
+		playerRange.addNumber(0);
+		return playerRange;
+	}
+	std::vector<std::string> commaParts;
+	boost::split(commaParts, players, boost::is_any_of(","));
+	BOOST_FOREACH(const auto & commaPart, commaParts)
+	{
+		std::vector<std::string> rangeParts;
+		boost::split(rangeParts, commaPart, boost::is_any_of("-"));
+		if(rangeParts.size() == 2)
+		{
+			auto lower = boost::lexical_cast<int>(rangeParts[0]);
+			auto upper = boost::lexical_cast<int>(rangeParts[1]);
+			playerRange.addRange(lower, upper);
+		}
+		else if(rangeParts.size() == 1)
+		{
+			auto val = boost::lexical_cast<int>(rangeParts.front());
+			playerRange.addNumber(val);
+		}
+	}
+	return playerRange;
+}
 
-CRandomMapTemplateStorage & CRandomMapTemplateStorage::get()
+boost::mutex CRmgTemplateStorage::smx;
+
+CRmgTemplateStorage & CRmgTemplateStorage::get()
 {
 	TLockGuard _(smx);
-	static CRandomMapTemplateStorage storage;
+	static CRmgTemplateStorage storage;
 	return storage;
 }
 
-const std::map<std::string, CRandomMapTemplate> & CRandomMapTemplateStorage::getTemplates() const
+const std::map<std::string, CRmgTemplate> & CRmgTemplateStorage::getTemplates() const
 {
 	return templates;
 }
 
-CRandomMapTemplateStorage::CRandomMapTemplateStorage()
+CRmgTemplateStorage::CRmgTemplateStorage()
 {
-	auto jsonLoader = make_unique<CJsonRmTemplateLoader>();
+	auto jsonLoader = make_unique<CJsonRmgTemplateLoader>();
 	jsonLoader->loadTemplates();
 	const auto & tpls = jsonLoader->getTemplates();
 	templates.insert(tpls.begin(), tpls.end());
 }
 
-CRandomMapTemplateStorage::~CRandomMapTemplateStorage()
+CRmgTemplateStorage::~CRmgTemplateStorage()
 {
 
 }

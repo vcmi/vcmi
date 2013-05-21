@@ -1,66 +1,167 @@
 // Defines random map templates.
 {
-	"Small Ring" : 
+	"Analogy" : 
 	{
-		"minSize" : "s", "maxSize" : "s+u",
-		"minHumanCnt" : 1, "maxHumanCnt" : 8, "minTotalCnt" : 2, "maxTotalCnt" : 8,
+		"minSize" : "m", "maxSize" : "m",
+		"players" : "4",
 		"zones" :
 		{
 			"1" :
 			{
-				"type" : "humanStart", "baseSize" : 11, "owner" : 1,
-				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
+				"type" : "playerStart", "size" : 1, "owner" : 1,
+				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true
 			},
 			"2" :
 			{
-				"type" : "humanStart", "baseSize" : 11, "owner" : 2,
-				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
+				"type" : "playerStart", "size" : 1, "owner" : 2,
+				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true
 			},
 			"3" :
 			{
-				"type" : "humanStart", "baseSize" : 11, "owner" : 3,
-				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
+				"type" : "playerStart", "size" : 1, "owner" : 3,
+				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true
 			},
 			"4" :
 			{
-				"type" : "humanStart", "baseSize" : 11, "owner" : 4,
-				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
+				"type" : "playerStart", "size" : 1, "owner" : 4,
+				"playerTowns" : { "castles" : 1 }, "neutralTowns" : { "towns" : 1 }, "townsAreSameType" : true
 			},
 			"5" :
 			{
-				"type" : "humanStart", "baseSize" : 11, "owner" : 5,
-				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
-			},
-			"6" :
-			{
-				"type" : "humanStart", "baseSize" : 11, "owner" : 6,
-				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
-			},
-			"7" :
-			{
-				"type" : "humanStart", "baseSize" : 11, "owner" : 7,
-				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
-			},
-			"8" :
-			{
-				"type" : "humanStart", "baseSize" : 11, "owner" : 8,
-				"playerTowns" : { "minCastles" : 1 }, "allowedTownTypes" : [ "all" ], "matchTerrainToTown" : true
+				"type" : "treasure", "size" : 2, "terrainTypes" : [ "sand" ], "neutralTowns" : { "castles" : 1 }
 			}
 		},
 		"connections" :
 		[
-			{ "a" : "1", "b" : "2", "guardStrength" : 4500 },
-			{ "a" : "2", "b" : "3", "guardStrength" : 4500 },
-			{ "a" : "3", "b" : "4", "guardStrength" : 4500 },
-			{ "a" : "4", "b" : "5", "guardStrength" : 4500 },
-			{ "a" : "5", "b" : "6", "guardStrength" : 4500 },
-			{ "a" : "6", "b" : "7", "guardStrength" : 4500 },
-			{ "a" : "7", "b" : "8", "guardStrength" : 4500 },
-			{ "a" : "8", "b" : "1", "guardStrength" : 4500 },
-			{ "a" : "4", "b" : "1", "guardStrength" : 4500 },
-			{ "a" : "5", "b" : "1", "guardStrength" : 4500 },
-			{ "a" : "6", "b" : "1", "guardStrength" : 4500 },
-			{ "a" : "7", "b" : "1", "guardStrength" : 4500 }
+			{ "a" : "1", "b" : "5", "guard" : 1000 },
+			{ "a" : "2", "b" : "5", "guard" : 1000 },
+			{ "a" : "3", "b" : "5", "guard" : 1000 },
+			{ "a" : "4", "b" : "5", "guard" : 1000 }
+		]
+	},
+	"Upgrade" :
+	{
+		"minSize" : "m", "maxSize" : "m",
+		"players" : "2",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart", "size" : 1, "owner" : 1,
+				"playerTowns" : { "castles" : 1 }
+			},
+			"2" :
+			{
+				"type" : "playerStart", "size" : 1, "owner" : 2,
+				"playerTowns" : { "castles" : 1 }
+			},
+			"3" :
+			{
+				"type" : "treasure", "size" : 2, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : "1"
+			},
+			"4" :
+			{
+				"type" : "treasure", "size" : 2, "neutralTowns" : { "towns" : 1 }, "townTypeLikeZone" : "2"
+			},
+			"5" :
+			{
+				"type" : "treasure", "size" : 3, "neutralTowns" : { "castles" : 1 }, "terrainTypes" : [ "sand" ]
+			}
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "3", "guard" : 1000 },
+			{ "a" : "1", "b" : "5", "guard" : 4000 },
+			{ "a" : "2", "b" : "4", "guard" : 1000 },
+			{ "a" : "2", "b" : "5", "guard" : 4000 },
+			{ "a" : "3", "b" : "5", "guard" : 2000 },
+			{ "a" : "4", "b" : "5", "guard" : 2000 }
+		]
+	},
+	"Golden Ring" :
+	{
+		"minSize" : "m", "maxSize" : "m",
+		"players" : "3",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart", "size" : 3, "owner" : 1,
+				"playerTowns" : { "castles" : 1 }
+			},
+			"2" :
+			{
+				"type" : "playerStart", "size" : 3, "owner" : 2,
+				"playerTowns" : { "castles" : 1 }
+			},
+			"3" :
+			{
+				"type" : "playerStart", "size" : 3, "owner" : 3,
+				"playerTowns" : { "castles" : 1 }
+			},
+			"4" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "1" },
+			"5" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "1" },
+			"6" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "2" },
+			"7" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "2" },
+			"8" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "3" },
+			"9" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "3" },
+			"10" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 } },
+			"11" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 } },
+			"12" : { "type" : "treasure", "size" : 1, "neutralTowns" : { "towns" : 1 } }
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "4", "guard" : 1000 },
+			{ "a" : "1", "b" : "5", "guard" : 1000 },
+			{ "a" : "2", "b" : "6", "guard" : 1000 },
+			{ "a" : "2", "b" : "7", "guard" : 1000 },
+			{ "a" : "3", "b" : "8", "guard" : 1000 },
+			{ "a" : "3", "b" : "9", "guard" : 1000 },
+			{ "a" : "4", "b" : "10", "guard" : 1000 },
+			{ "a" : "5", "b" : "12", "guard" : 1000 },
+			{ "a" : "6", "b" : "10", "guard" : 1000 },
+			{ "a" : "7", "b" : "11", "guard" : 1000 },
+			{ "a" : "8", "b" : "12", "guard" : 1000 },
+			{ "a" : "9", "b" : "11", "guard" : 1000 }
+		]
+	},
+	"Unfair Game" :
+	{
+		"minSize" : "m", "maxSize" : "m",
+		"players" : "2", "cpu" : "2",
+		"zones" :
+		{
+			"1" :
+			{
+				"type" : "playerStart", "size" : 2, "owner" : 1,
+				"playerTowns" : { "castles" : 1 }
+			},
+			"2" :
+			{
+				"type" : "playerStart", "size" : 2, "owner" : 2,
+				"playerTowns" : { "castles" : 1 }
+			},
+			"3" :
+			{
+				"type" : "cpuStart", "size" : 3, "owner" : 3,
+				"playerTowns" : { "castles" : 1 }
+			},
+			"4" :
+			{
+				"type" : "cpuStart", "size" : 3, "owner" : 4,
+				"playerTowns" : { "castles" : 1 }
+			},
+			"5" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "3" },
+			"6" : { "type" : "treasure", "size" : 1, "terrainTypeLikeZone" : "4" }
+		},
+		"connections" :
+		[
+			{ "a" : "1", "b" : "3", "guard" : 2000 },
+			{ "a" : "1", "b" : "4", "guard" : 2000 },
+			{ "a" : "2", "b" : "3", "guard" : 2000 },
+			{ "a" : "2", "b" : "4", "guard" : 2000 },
+			{ "a" : "3", "b" : "5", "guard" : 1000 },
+			{ "a" : "4", "b" : "6", "guard" : 1000 }
 		]
 	}
 }

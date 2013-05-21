@@ -862,21 +862,10 @@ void CGameState::init(StartInfo * si)
 	{
 	case StartInfo::NEW_GAME:
 		{
-			if(scenarioOps->createRandomMap)
+			if(scenarioOps->createRandomMap())
 			{
                 logGlobal->infoStream() << "Create random map.";
 				CStopWatch sw;
-
-				// Create player settings for RMG
-                BOOST_FOREACH(const auto & pair, scenarioOps->playerInfos)
-				{
-                    const auto & playerSettings = pair.second;
-                    scenarioOps->mapGenOptions->setStartingTownForPlayer(playerSettings.color, playerSettings.castle);
-                    if(playerSettings.playerID > 0)
-					{
-                        scenarioOps->mapGenOptions->setPlayerTypeForStandardPlayer(playerSettings.color, EPlayerType::HUMAN);
-					}
-				}
 
 				// Gen map
                 CMapGenerator mapGen(*(scenarioOps->mapGenOptions), scenarioOps->seedToBeUsed);

@@ -1081,6 +1081,7 @@ public:
 	void loadSerializable(std::set<T> &data)
 	{
 		READ_CHECK_U32(length);
+        data.clear();
 		T ins;
 		for(ui32 i=0;i<length;i++)
 		{
@@ -1092,6 +1093,7 @@ public:
 	void loadSerializable(boost::unordered_set<T, U> &data)
 	{
 		READ_CHECK_U32(length);
+        data.clear();
 		T ins;
 		for(ui32 i=0;i<length;i++)
 		{
@@ -1103,6 +1105,7 @@ public:
 	void loadSerializable(std::list<T> &data)
 	{
 		READ_CHECK_U32(length);
+        data.clear();
 		T ins;
 		for(ui32 i=0;i<length;i++)
 		{
@@ -1120,6 +1123,7 @@ public:
 	void loadSerializable(std::map<T1,T2> &data)
 	{
 		READ_CHECK_U32(length);
+        data.clear();
 		T1 t;
 		for(ui32 i=0;i<length;i++)
 		{

@@ -81,8 +81,8 @@ struct StartInfo
 	ui32 mapfileChecksum; //0 if not relevant
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname; // empty for random map, otherwise name of the map or savegame
-	bool createRandomMap; // true if a random map should be created
-	shared_ptr<CMapGenOptions> mapGenOptions; // needs to be not nullptr if createRandomMap=true
+	bool createRandomMap() const { return mapGenOptions.get() != nullptr; }
+	shared_ptr<CMapGenOptions> mapGenOptions;
 
 	shared_ptr<CCampaignState> campState;
 
@@ -113,13 +113,12 @@ struct StartInfo
 		h & mapfileChecksum;
 		h & turnTime;
 		h & mapname;
-		h & createRandomMap;
 		h & mapGenOptions;
 		h & campState;
 	}
 
 	StartInfo() : mode(INVALID), difficulty(0), seedToBeUsed(0), seedPostInit(0),
-		mapfileChecksum(0), turnTime(0), createRandomMap(false)
+		mapfileChecksum(0), turnTime(0)
 	{
 
 	}
