@@ -2356,18 +2356,27 @@ bool CGameHandler::disbandCreature( ObjectInstanceID id, SlotID pos )
 	return true;
 }
 
-bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID bid, bool force /*=false*/ )
+bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID, bool force /*=false*/ )
 {
-	CGTownInstance * t = gs->getTown(tid);
-	CBuilding * b = t->town->buildings[bid];
+	const CGTownInstance * t = getTown(tid);
+	if(!t)
+		COMPLAIN_RETF("No such town (ID=%s)!", tid);
+	if(!t->town->buildings.count(requestedID))
+		COMPLAIN_RETF("Town of faction %s does not have info about building ID=%s!", t->town->faction->name % tid);
 
+	const CBuilding * requestedBuilding = t->town->buildings[requestedID];
+
+	//Vector with future list of built building and buildings in auto-mode that are not yet built.
+	std::vector<const CBuilding*> buildingsThatWillBe, remainingAutoBuildings;
+
+	//Check validity of request
 	if(!force)
 	{
-		switch (b->mode)
+		switch (requestedBuilding->mode)
 		{
 		case CBuilding::BUILD_NORMAL :
 		case CBuilding::BUILD_AUTO   :
-			if (gs->canBuildStructure(t,bid) != EBuildingState::ALLOWED)
+			if (gs->canBuildStructure(t, requestedID) != EBuildingState::ALLOWED)
 				COMPLAIN_RET("Cannot build that building!");
 			break;
 
@@ -2376,68 +2385,105 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID bid, bool fo
 			break;
 
 		case CBuilding::BUILD_GRAIL  :
-			if(b->mode == CBuilding::BUILD_GRAIL) //needs grail
+			if(requestedBuilding->mode == CBuilding::BUILD_GRAIL) //needs grail
 			{
-				if(!t->visitingHero || !t->visitingHero->hasArt(2))
+				if(!t->visitingHero || !t->visitingHero->hasArt(ArtifactID::GRAIL))
 					COMPLAIN_RET("Cannot build this without grail!")
 				else
-					removeArtifact(ArtifactLocation(t->visitingHero, t->visitingHero->getArtPos(2, false)));
+					removeArtifact(ArtifactLocation(t->visitingHero, t->visitingHero->getArtPos(ArtifactID::GRAIL, false)));
 			}
 			break;
 		}
 	}
 
-	NewStructures ns;
-	ns.tid = tid;
-
-	if(bid >= BuildingID::DWELL_FIRST) //dwelling
+	//Performs stuff that has to be done after new building is built
+	auto processBuiltStructure = [t, this](const BuildingID buildingID)
 	{
-		int level = (bid - BuildingID::DWELL_FIRST) % GameConstants::CREATURES_PER_TOWN;
-		int upgradeNumber = (bid - BuildingID::DWELL_FIRST) / GameConstants::CREATURES_PER_TOWN;
+		if(buildingID >= BuildingID::DWELL_FIRST) //dwelling
+		{
+			int level = (buildingID - BuildingID::DWELL_FIRST) % GameConstants::CREATURES_PER_TOWN;
+			int upgradeNumber = (buildingID - BuildingID::DWELL_FIRST) / GameConstants::CREATURES_PER_TOWN;
 
-		if (upgradeNumber >= t->town->creatures[level].size())
-			COMPLAIN_RET("Cannot build dwelling: no creature found!");
+			if (upgradeNumber >= t->town->creatures[level].size())
+			{
+				complain(boost::str(boost::format("Error ecountered when building dwelling (bid=%s):"
+													"no creature found (upgrade number %d, level %d!")
+												% buildingID % upgradeNumber % level));
+				return;
+			}
 
-		CCreature * crea = VLC->creh->creatures[t->town->creatures[level][upgradeNumber]];
+			CCreature * crea = VLC->creh->creatures[t->town->creatures[level][upgradeNumber]];
 
-		SetAvailableCreatures ssi;
-		ssi.tid = tid;
-		ssi.creatures = t->creatures;
-		if (bid <= BuildingID::DWELL_LAST)
-			ssi.creatures[level].first = crea->growth;
-		ssi.creatures[level].second.push_back(crea->idNumber);
-		sendAndApply(&ssi);
-	}
-	else if ( t->subID == ETownType::DUNGEON && bid == BuildingID::PORTAL_OF_SUMMON )
+			SetAvailableCreatures ssi;
+			ssi.tid = t->id;
+			ssi.creatures = t->creatures;
+			if (buildingID <= BuildingID::DWELL_LAST)
+				ssi.creatures[level].first = crea->growth;
+			ssi.creatures[level].second.push_back(crea->idNumber);
+			sendAndApply(&ssi);
+		}
+		else if ( t->subID == ETownType::DUNGEON && buildingID == BuildingID::PORTAL_OF_SUMMON )
+		{
+			setPortalDwelling(t);
+		}
+
+		if(buildingID <= BuildingID::MAGES_GUILD_5) //it's mage guild
+		{
+			if(t->visitingHero)
+				giveSpells(t,t->visitingHero);
+			if(t->garrisonHero)
+				giveSpells(t,t->garrisonHero);
+		}
+	};
+
+	//Checks if all requirements will be met with expected building list "buildingsThatWillBe"
+	auto allRequirementsFullfilled = [&buildingsThatWillBe, t](const CBuilding *b)
 	{
-		setPortalDwelling(t);
-	}
+		BOOST_FOREACH(auto requirementID, b->requirements)
+			if(!vstd::contains(buildingsThatWillBe, t->town->buildings[requirementID]))
+				return false;
 
-	ns.bid.insert(bid);
-	ns.builded = force?t->builded:(t->builded+1);
+		return true;
+	};
 
+
+
+	//Init the vectors
 	BOOST_FOREACH(auto & build, t->town->buildings)
 	{
-		if (build.second->mode == CBuilding::BUILD_AUTO
-		    && !vstd::contains(t->builtBuildings, build.second->bid))
+		if(t->hasBuilt(build.first))
+			buildingsThatWillBe.push_back(build.second);
+		else if(build.second->mode == CBuilding::BUILD_AUTO) //not built auto building
+			remainingAutoBuildings.push_back(build.second);
+	}
+
+	//Prepare structure (list of building ids will be filled later)
+	NewStructures ns;
+	ns.tid = tid;
+	ns.builded = force ? t->builded : (t->builded+1);
+
+	std::queue<const CBuilding*> buildingsToAdd;
+	buildingsToAdd.push(requestedBuilding);
+
+	while(buildingsToAdd.size())
+	{
+		auto b = buildingsToAdd.front();
+		buildingsToAdd.pop();
+
+		ns.bid.insert(b->bid);
+		buildingsThatWillBe.push_back(b);
+		remainingAutoBuildings -= b;
+
+		BOOST_FOREACH(auto autoBuilding, remainingAutoBuildings)
 		{
-			bool canBuild = true;
-			BOOST_FOREACH(int requires, build.second->requirements)
-			{
-				if (!vstd::contains(t->builtBuildings, requires)
-				 && !vstd::contains(ns.bid, requires))
-				{
-					canBuild = false;
-					break;
-				}
-			}
-			if (canBuild)
-				ns.bid.insert(build.second->bid);
+			if(allRequirementsFullfilled(autoBuilding))
+				buildingsToAdd.push(autoBuilding);
 		}
 	}
 
+	//We know what has been built, appluy changes
 	sendAndApply(&ns);
-
+	
 	//reveal ground for lookout tower
 	FoWChange fw;
 	fw.player = t->tempOwner;
@@ -2445,21 +2491,20 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID bid, bool fo
 	t->getSightTiles(fw.tiles);
 	sendAndApply(&fw);
 
+	//Other post-built events
+	BOOST_FOREACH(auto builtID, ns.bid)
+		processBuiltStructure(builtID);
+
+	//Take cost
 	if (!force)
 	{
 		SetResources sr;
 		sr.player = t->tempOwner;
-		sr.res = gs->getPlayer(t->tempOwner)->resources - b->resources;
+		sr.res = gs->getPlayer(t->tempOwner)->resources - requestedBuilding->resources;
 		sendAndApply(&sr);
 	}
 
-	if(bid<5) //it's mage guild
-	{
-		if(t->visitingHero)
-			giveSpells(t,t->visitingHero);
-		if(t->garrisonHero)
-			giveSpells(t,t->garrisonHero);
-	}
+
 	if(t->visitingHero)
 		vistiCastleObjects (t, t->visitingHero);
 	if(t->garrisonHero)
