@@ -804,7 +804,7 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 		bsa.flags |= BattleStackAttacked::EFFECT;
 		bsa.effect = 11;
 
-		bsa.damageAmount = (bsa.damageAmount * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100;
+		bsa.damageAmount = (bsa.damageAmount * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100; //TODO: scale with attack/defense
 		att->prepareAttacked(bsa);
 		bat.bsa.push_back(bsa);
 	}

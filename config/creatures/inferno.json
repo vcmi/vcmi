@@ -266,7 +266,8 @@
 			},
 			"immuneToFire" :
 			{
-				"type" : "FIRE_IMMUNITY"
+				"type" : "FIRE_IMMUNITY",
+				"subtype" : 0
 			}
 		},
 		"upgrades": ["efreetSultan"],
@@ -308,12 +309,13 @@
 			},
 			"immuneToFire" :
 			{
-				"type" : "FIRE_IMMUNITY"
+				"type" : "FIRE_IMMUNITY",
+				"subtype" : 0
 			},
 			"fireShield" :
 			{
 				"type" : "FIRE_SHIELD",
-				"subtype" : 36 //FIXME: what is this magic number for?
+				"val" : 30
 			}
 		},
 		"graphics" :
@@ -398,7 +400,7 @@
 			"hateArchAngels" : 
 			{
 				"type" : "HATE",
-				"subtype" : "creature.archangel",
+				"subtype" : "creature.angel",
 				"val" : 50
 			},
 			"FLYING_ARMY" :
