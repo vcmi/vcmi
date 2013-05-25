@@ -3839,7 +3839,7 @@ void CGameHandler::playerMessage( PlayerColor player, const std::string &message
 	{
 		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
 		if(!hero) return;
-		for (int g=7; g<=140; ++g)
+		for (int g = 7; g < VLC->arth->artifacts.size(); ++g) //including artifacts from mods
 			giveHeroNewArtifact(hero, VLC->arth->artifacts[g], ArtifactPosition::PRE_FIRST);
 	}
 	else
@@ -5827,7 +5827,7 @@ void CGameHandler::runBattle()
 
 			if(next->hasBonusOfType(Bonus::ATTACKS_NEAREST_CREATURE)) //while in berserk
 			{ //fixme: stack should not attack itself
-				std::pair<const CStack *, int> attackInfo = curB.getNearestStack(next, boost::logic::indeterminate, true);
+				std::pair<const CStack *, int> attackInfo = curB.getNearestStack(next, boost::logic::indeterminate);
 				if(attackInfo.first != NULL)
 				{
 					BattleAction attack;

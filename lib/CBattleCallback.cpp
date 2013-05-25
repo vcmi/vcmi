@@ -1181,7 +1181,7 @@ std::set<BattleHex> CBattleInfoCallback::getStoppers(BattlePerspective::BattlePe
 	return ret;
 }
 
-std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned, bool ignoreItself) const
+std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const
 {
 	auto reachability = getReachability(closest);
 
@@ -1196,29 +1196,28 @@ std::pair<const CStack *, BattleHex> CBattleInfoCallback::getNearestStack(const 
 	for(int g=0; g<GameConstants::BFIELD_SIZE; ++g)
 	{
 		const CStack * atG = battleGetStackByPos(g);
-		if (ignoreItself && atG == closest) //don't attack itself in berserk
-			continue;
-		if(!atG || atG->ID == closest->ID) //if there is not stack or we are the closest one
+		if(!atG || atG->ID == closest->ID) //if there is no stack or we are the closest one
 			continue;
 
 		if(boost::logic::indeterminate(attackerOwned) || atG->attackerOwned == attackerOwned)
 		{
-			if(reachability.isReachable(g))
-				continue;
-
-			DistStack hlp = {reachability.distances[reachability.predecessors[g]], atG};
-			stackPairs.push_back(hlp);
+			if (reachability.isReachable(g))
+			//FIXME: hexes occupied by enemy stack are not accessible. Need to use BattleInfo::getPath or similiar
+			{
+				DistStack hlp = {reachability.distances[reachability.predecessors[g]], atG};
+				stackPairs.push_back(hlp);
+			}
 		}
 	}
 
-	if(stackPairs.size() > 0)
+	if (stackPairs.size())
 	{
 		auto comparator = [](DistStack lhs, DistStack rhs) { return lhs.distanceToPred < rhs.distanceToPred; };
 		auto minimal = boost::min_element(stackPairs, comparator);
 		return std::make_pair(minimal->stack, reachability.predecessors[minimal->stack->position]);
 	}
-
-	return std::make_pair<const CStack * , BattleHex>(NULL, BattleHex::INVALID);
+	else
+		return std::make_pair<const CStack * , BattleHex>(NULL, BattleHex::INVALID);
 }
 
 si8 CBattleInfoCallback::battleGetTacticDist() const

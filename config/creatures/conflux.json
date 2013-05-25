@@ -486,7 +486,8 @@
 		{
 			"immuneToFire" :
 			{
-				"type" : "FIRE_IMMUNITY"
+				"type" : "FIRE_IMMUNITY",
+				"subtype" : 0 //this IS important
 			},
 		},
 		"graphics" :
@@ -516,7 +517,8 @@
 			},
 			"immuneToFire" :
 			{
-				"type" : "FIRE_IMMUNITY"
+				"type" : "FIRE_IMMUNITY",
+				"subtype" : 0 //this IS important
 			},
 			"rebirth" : 
 			{
