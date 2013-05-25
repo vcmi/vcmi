@@ -329,12 +329,6 @@
 			"dragon" :
 			{
 				"type" : "DRAGON_NATURE"
-			},
-			"descreaseMorale" :
-			{
-				"type" : "MORALE",
-				"effectRange" : "ONLY_ENEMY_ARMY",
-				"val" : -1
 			}
 		},
 		"upgrades": ["ghostDragon"],
@@ -362,13 +356,6 @@
 			{
 				"type" : "DRAGON_NATURE",
 			},
-//		morale decrease is already set in ZCRTRAIT TXT 
-//			"descreaseMorale" :
-//			{
-//				"type" : "MORALE",
-//				"effectRange" : "ONLY_ENEMY_ARMY",
-//				"val" : -1
-//			},
 			"age" :
 			{
 				"type" : "SPELL_AFTER_ATTACK",

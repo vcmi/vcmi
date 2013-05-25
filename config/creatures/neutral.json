@@ -332,7 +332,7 @@
 		},
 		"graphics" :
 		{
-			"animation": "CGTITA.DEF",
+			"animation": "Cench.DEF",
 			"missile" :
 			{
 				"projectile": "CPRZEAX.DEF"
