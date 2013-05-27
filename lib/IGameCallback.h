@@ -274,6 +274,9 @@ public:
 	const CGObjectInstance *putNewObject(Obj ID, int subID, int3 pos);
 	const CGCreature *putNewMonster(CreatureID creID, int count, int3 pos);
 
+	//get info
+	virtual bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero);
+
 	friend struct CPack;
 	friend struct CPackForClient;
 	friend struct CPackForServer;

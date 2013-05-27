@@ -135,6 +135,7 @@ public:
 	CHeroLevelUpDialogQuery(const HeroLevelUp &Hlu);
 
 	virtual void onRemoval(CGameHandler *gh, PlayerColor color) OVERRIDE;
+	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const OVERRIDE;
 
 	HeroLevelUp hlu;
 };
@@ -146,6 +147,7 @@ public:
 	CCommanderLevelUpDialogQuery(const CommanderLevelUp &Clu);
 
 	virtual void onRemoval(CGameHandler *gh, PlayerColor color) OVERRIDE;
+	virtual void notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const OVERRIDE;
 
 	CommanderLevelUp clu;
 };

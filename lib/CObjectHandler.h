@@ -119,6 +119,7 @@ public:
 	virtual void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const;
 	virtual void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const;
 	virtual void garrisonDialogClosed(const CGHeroInstance *hero) const;
+	virtual void heroLevelUpDone(const CGHeroInstance *hero) const;
 
 //unified interface, AI helpers
 	virtual bool wasVisited (PlayerColor player) const;
@@ -679,6 +680,7 @@ class DLL_LINKAGE CGPandoraBox : public CArmedInstance
 {
 public:
 	std::string message;
+	bool hasGuardians; //helper - after battle even though we have no stacks, allows us to know that there was battle
 
 	//gained things:
 	ui32 gainedExp;
@@ -697,15 +699,17 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const override;
 	void battleFinished(const CGHeroInstance *hero, const BattleResult &result) const OVERRIDE;
 	void blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const OVERRIDE;
+	void heroLevelUpDone(const CGHeroInstance *hero) const OVERRIDE;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
-		h & message & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
+		h & message & hasGuardians & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
 			& abilities & abilityLevels & artifacts & spells & creatures;
 	}
 protected:
-	void giveContents(const CGHeroInstance *h, bool afterBattle) const;
+	void giveContentsUpToExp(const CGHeroInstance *h) const;
+	void giveContentsAfterExp(const CGHeroInstance *h) const;
 private:
 	void getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const;
 	void getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const;

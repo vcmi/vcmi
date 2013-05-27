@@ -6154,6 +6154,15 @@ void CGameHandler::removeAfterVisit(const CGObjectInstance *object)
 	assert("This function needs to be called during the object visit!");
 }
 
+bool CGameHandler::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)
+{
+	if(auto topQuery = queries.topQuery(hero->getOwner()))
+		if(auto visit = std::dynamic_pointer_cast<const CObjectVisitQuery>(topQuery))
+			return !(visit->visitedObject == obj && visit->visitingHero == hero);
+
+	return true;
+}
+
 CasualtiesAfterBattle::CasualtiesAfterBattle(const CArmedInstance *army, BattleInfo *bat)
 {
 	heroWithDeadCommander = ObjectInstanceID();

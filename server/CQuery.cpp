@@ -295,6 +295,11 @@ void CHeroLevelUpDialogQuery::onRemoval(CGameHandler *gh, PlayerColor color)
 	gh->levelUpHero(hlu.hero, hlu.skills[*answer]);
 }
 
+void CHeroLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const 
+{
+	objectVisit.visitedObject->heroLevelUpDone(objectVisit.visitingHero);
+}
+
 CCommanderLevelUpDialogQuery::CCommanderLevelUpDialogQuery(const CommanderLevelUp &Clu)
 {
 	clu = Clu;
@@ -306,6 +311,11 @@ void CCommanderLevelUpDialogQuery::onRemoval(CGameHandler *gh, PlayerColor color
 	assert(answer);
 	logGlobal->traceStream() << "Completing commander level-up query. Commander of hero " << clu.hero->getHoverText() << " gains skill " << answer;
 	gh->levelUpCommander(clu.hero->commander, clu.skills[*answer]);
+}
+
+void CCommanderLevelUpDialogQuery::notifyObjectAboutRemoval(const CObjectVisitQuery &objectVisit) const 
+{
+	objectVisit.visitedObject->heroLevelUpDone(objectVisit.visitingHero);
 }
 
 bool CDialogQuery::endsByPlayerAnswer() const 

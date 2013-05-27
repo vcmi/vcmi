@@ -1012,3 +1012,10 @@ const CGCreature * IGameCallback::putNewMonster(CreatureID creID, int count, int
 	setObjProperty(m->id, ObjProperty::MONSTER_POWER, (si64)1000*count);
 	return dynamic_cast<const CGCreature*>(m);
 }
+
+bool IGameCallback::isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero)
+{
+	//only server knows
+	assert(0);
+	return false;
+}

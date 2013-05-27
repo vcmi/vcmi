@@ -178,6 +178,10 @@ public:
 	void giveHero(ObjectInstanceID id, PlayerColor player) OVERRIDE;
 	void changeObjPos(ObjectInstanceID objid, int3 newPos, ui8 flags) OVERRIDE;
 	void heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2) OVERRIDE;
+
+
+	bool isVisitCoveredByAnotherQuery(const CGObjectInstance *obj, const CGHeroInstance *hero) OVERRIDE;
+
 	//////////////////////////////////////////////////////////////////////////
 	void useScholarSkill(ObjectInstanceID hero1, ObjectInstanceID hero2);
 	void setPortalDwelling(const CGTownInstance * town, bool forced, bool clear);

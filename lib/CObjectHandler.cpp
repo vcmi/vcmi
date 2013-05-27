@@ -140,6 +140,11 @@ void IObjectInterface::garrisonDialogClosed(const CGHeroInstance *hero) const
 
 }
 
+void IObjectInterface::heroLevelUpDone(const CGHeroInstance *hero) const
+{
+
+}
+
 void CPlayersVisited::setPropertyDer( ui8 what, ui32 val )
 {
 	if(what == 10)
@@ -5307,6 +5312,7 @@ const std::string & CGMagicWell::getHoverText() const
 void CGPandoraBox::initObj()
 {
 	blockVisit = (ID==Obj::PANDORAS_BOX); //block only if it's really pandora's box (events also derive from that class)
+	hasGuardians = stacks.size();
 }
 
 void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
@@ -5318,11 +5324,12 @@ void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
 		cb->showBlockingDialog (&bd);
 }
 
-void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) const
+void CGPandoraBox::giveContentsUpToExp(const CGHeroInstance *h) const
 {
+	cb->removeAfterVisit(this);
+
 	InfoWindow iw;
 	iw.player = h->getOwner();
-	std::string msg = message; //in case box is removed in the meantime
 
 	bool changesPrimSkill = false;
 	for (int i = 0; i < primskills.size(); i++)
@@ -5352,14 +5359,6 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 		cb->showInfoDialog(&iw);
 
-		//give exp
-		if(expVal)
-			cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, expVal, false);
-		//give prim skills
-		for(int i=0; i<primskills.size(); i++)
-			if(primskills[i])
-				cb->changePrimSkill(h,static_cast<PrimarySkill::PrimarySkill>(i),primskills[i],false);
-
 		//give sec skills
 		for(int i=0; i<abilities.size(); i++)
 		{
@@ -5371,7 +5370,30 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 			}
 		}
 
+		//give prim skills
+		for(int i=0; i<primskills.size(); i++)
+			if(primskills[i])
+				cb->changePrimSkill(h,static_cast<PrimarySkill::PrimarySkill>(i),primskills[i],false);
+
+		assert(!cb->isVisitCoveredByAnotherQuery(this, h));
+
+		//give exp
+		if(expVal)
+			cb->changePrimSkill(h, PrimarySkill::EXPERIENCE, expVal, false);
 	}
+
+	if(!cb->isVisitCoveredByAnotherQuery(this, h))
+		giveContentsAfterExp(h);
+	//Otherwise continuation occurs via post-level-up callback.
+}
+
+void CGPandoraBox::giveContentsAfterExp(const CGHeroInstance *h) const
+{
+	bool hadGuardians = hasGuardians; //copy, because flag will be emptied after issuing first post-battle message
+
+	std::string msg = message; //in case box is removed in the meantime
+	InfoWindow iw;
+	iw.player = h->getOwner();
 
 	if(spells.size())
 	{
@@ -5404,7 +5426,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 	if(manaDiff)
 	{
-		getText(iw,afterBattle,manaDiff,176,177,h);
+		getText(iw,hadGuardians,manaDiff,176,177,h);
 		iw.components.push_back(Component(Component::PRIM_SKILL,5,manaDiff,0));
 		cb->showInfoDialog(&iw);
 		cb->setManaPoints(h->id, h->mana + manaDiff);
@@ -5412,7 +5434,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 	if(moraleDiff)
 	{
-		getText(iw,afterBattle,moraleDiff,178,179,h);
+		getText(iw,hadGuardians,moraleDiff,178,179,h);
 		iw.components.push_back(Component(Component::MORALE,0,moraleDiff,0));
 		cb->showInfoDialog(&iw);
 		GiveBonus gb;
@@ -5423,7 +5445,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 	if(luckDiff)
 	{
-		getText(iw,afterBattle,luckDiff,180,181,h);
+		getText(iw,hadGuardians,luckDiff,180,181,h);
 		iw.components.push_back(Component(Component::LUCK,0,luckDiff,0));
 		cb->showInfoDialog(&iw);
 		GiveBonus gb;
@@ -5441,7 +5463,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 	}
 	if(iw.components.size())
 	{
-		getText(iw,afterBattle,182,h);
+		getText(iw,hadGuardians,182,h);
 		cb->showInfoDialog(&iw);
 	}
 
@@ -5454,12 +5476,12 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 	}
 	if(iw.components.size())
 	{
-		getText(iw,afterBattle,183,h);
+		getText(iw,hadGuardians,183,h);
 		cb->showInfoDialog(&iw);
 	}
 
- 	iw.components.clear();
-// 	getText(iw,afterBattle,183,h);
+	iw.components.clear();
+	// 	getText(iw,afterBattle,183,h);
 	iw.text.addTxt(MetaString::ADVOB_TXT, 183); //% has found treasure
 	iw.text.addReplacement(h->name);
 	for(int i=0; i<artifacts.size(); i++)
@@ -5509,13 +5531,11 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		cb->showInfoDialog(&iw);
 		cb->giveCreatures(this, h, creatures, true);
 	}
-	if(!afterBattle && msg.size())
+	if(!hasGuardians && msg.size())
 	{
 		iw.text << msg;
 		cb->showInfoDialog(&iw);
 	}
-	if (!creatures.Slots().size())
-		cb->removeObject(this); //only when we don't need to display garrison window
 }
 
 void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const
@@ -5553,7 +5573,7 @@ void CGPandoraBox::battleFinished(const CGHeroInstance *hero, const BattleResult
 	if(result.winner)
 		return;
 
-	giveContents(hero, true);
+	giveContentsUpToExp(hero);
 }
 
 void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answer) const 
@@ -5576,9 +5596,14 @@ void CGPandoraBox::blockingDialogAnswered(const CGHeroInstance *hero, ui32 answe
 		}
 		else //if it gives something without battle
 		{
-			giveContents(hero, false);
+			giveContentsUpToExp(hero);
 		}
 	}
+}
+
+void CGPandoraBox::heroLevelUpDone(const CGHeroInstance *hero) const 
+{
+	giveContentsAfterExp(hero);
 }
 
 void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
@@ -5609,7 +5634,7 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 	}
 	else
 	{
-		giveContents(h,false);
+		giveContentsUpToExp(h);
 	}
 }
 
