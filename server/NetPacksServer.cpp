@@ -232,7 +232,7 @@ bool QueryReply::applyGh( CGameHandler *gh )
 		COMPLAIN_AND_RETURN("No such player!");
 	if(playerToConnection->second != c)
 		COMPLAIN_AND_RETURN("Message came from wrong connection!");
-	if(qid == -1)
+	if(qid == QueryID(-1))
 		COMPLAIN_AND_RETURN("Cannot answer the query with id -1!");
 
 	assert(vstd::contains(gh->states.players, player));

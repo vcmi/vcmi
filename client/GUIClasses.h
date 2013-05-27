@@ -87,7 +87,7 @@ class CInfoWindow : public CSimpleWindow
 public:
 	typedef std::vector<std::pair<std::string,CFunctionList<void()> > > TButtonsInfo;
 	typedef std::vector<CComponent*> TCompsInfo;
-	int ID; //for identification
+	QueryID ID; //for identification
 	CTextBox *text;
 	std::vector<CAdventureMapButton *> buttons;
 	std::vector<CComponent*> components;
@@ -117,7 +117,7 @@ class CSelWindow : public CInfoWindow
 public:
 	void selectionChange(unsigned to);
 	void madeChoice(); //looks for selected component and calls callback
-	CSelWindow(const std::string& text, PlayerColor player, int charperline ,const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, int askID); //c-tor
+	CSelWindow(const std::string& text, PlayerColor player, int charperline ,const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, QueryID askID); //c-tor
 	CSelWindow(){}; //c-tor
 	//notification - this class inherits important destructor from CInfoWindow
 };
@@ -1034,7 +1034,7 @@ public:
 
 	void prepareBackground(); //prepares or redraws bg
 
-	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2); //c-tor
+	CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID); //c-tor
 	~CExchangeWindow(); //d-tor
 };
 

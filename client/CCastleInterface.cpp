@@ -1203,7 +1203,7 @@ void HeroSlots::splitClicked()
 {
 	if(!!town->visitingHero && town->garrisonHero && (visitingHero->selection || garrisonedHero->selection))
 	{
-		LOCPLINT->heroExchangeStarted(town->visitingHero->id, town->garrisonHero->id);
+		LOCPLINT->heroExchangeStarted(town->visitingHero->id, town->garrisonHero->id, QueryID(-1));
 	}
 }
 

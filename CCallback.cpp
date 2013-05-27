@@ -56,10 +56,10 @@ bool CCallback::moveHero(const CGHeroInstance *h, int3 dst)
 	return true;
 }
 
-int CCallback::selectionMade(int selection, int queryID)
+int CCallback::selectionMade(int selection, QueryID queryID)
 {
 	ASSERT_IF_CALLED_WITH_PLAYER
-	if(queryID == -1)
+	if(queryID == QueryID(-1))
 	{
         logGlobal->errorStream() << "Cannot answer the query -1!";
 		return false;

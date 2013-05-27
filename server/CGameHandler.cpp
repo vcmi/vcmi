@@ -2119,17 +2119,18 @@ void CGameHandler::useScholarSkill(ObjectInstanceID fromHero, ObjectInstanceID t
 
 void CGameHandler::heroExchange(ObjectInstanceID hero1, ObjectInstanceID hero2)
 {
-	PlayerColor player1 = getHero(hero1)->tempOwner;
-	PlayerColor player2 = getHero(hero2)->tempOwner;
+	auto h1 = getHero(hero1), h2 = getHero(hero2);
 
-	if( gameState()->getPlayerRelations( player1, player2))
+	if( gameState()->getPlayerRelations(h1->getOwner(), h2->getOwner()))
 	{
-		OpenWindow hex;
-		hex.window = OpenWindow::EXCHANGE_WINDOW;
-		hex.id1 = hero1.getNum();
-		hex.id2 = hero2.getNum();
+		auto exchange = make_shared<CGarrisonDialogQuery>(h1, h2);
+		ExchangeDialog hex;
+		hex.queryID = exchange->queryID;
+		hex.heroes[0] = getHero(hero1);
+		hex.heroes[1] = getHero(hero2);
 		sendAndApply(&hex);
 		useScholarSkill(hero1,hero2);
+		queries.addQuery(exchange);
 	}
 }
 
@@ -3204,7 +3205,7 @@ bool CGameHandler::hireHero(const CGObjectInstance *obj, ui8 hid, PlayerColor pl
 	return true;
 }
 
-bool CGameHandler::queryReply(ui32 qid, ui32 answer, PlayerColor player)
+bool CGameHandler::queryReply(QueryID qid, ui32 answer, PlayerColor player)
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 

@@ -611,13 +611,15 @@ void VCAI::tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos)
 			addVisitableObj(obj);
 }
 
-void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2)
+void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
 {
 	LOG_TRACE(logAi);
 	NET_EVENT_HANDLER;
 
 	auto firstHero = cb->getHero(hero1);
 	auto secondHero = cb->getHero(hero2);
+
+	status.addQuery(query, boost::str(boost::format("Exchange between heroes %s and %s") % firstHero->name % secondHero->name));
 
 	requestActionASAP([=]()
 	{
@@ -629,6 +631,8 @@ void VCAI::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2)
 		completeGoal(CGoal(VISIT_HERO).sethero(firstHero)); //TODO: what if we were visited by other hero in the meantime?
 		completeGoal(CGoal(VISIT_HERO).sethero(secondHero));
 		//TODO: exchange artifacts
+
+		answerQuery(query, 0);
 	});
 }
 
@@ -843,7 +847,7 @@ void VCAI::yourTurn()
 	makingTurn = make_unique<boost::thread>(&VCAI::makeTurn, this);
 }
 
-void VCAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, int queryID)
+void VCAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
@@ -851,7 +855,7 @@ void VCAI::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill p
 	requestActionASAP([=]{ answerQuery(queryID, 0); });
 }
 
-void VCAI::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID)
+void VCAI::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "queryID '%i'", queryID);
 	NET_EVENT_HANDLER;
@@ -859,7 +863,7 @@ void VCAI::commanderGotLevel (const CCommanderInstance * commander, std::vector<
 	requestActionASAP([=]{ answerQuery(queryID, 0); });
 }
 
-void VCAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel)
+void VCAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel)
 {
 	LOG_TRACE_PARAMS(logAi, "text '%s', askID '%i', soundID '%i', selection '%i', cancel '%i'", text % askID % soundID % selection % cancel);
 	NET_EVENT_HANDLER;
@@ -879,7 +883,7 @@ void VCAI::showBlockingDialog(const std::string &text, const std::vector<Compone
 	});
 }
 
-void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID)
+void VCAI::showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
 {
 	LOG_TRACE_PARAMS(logAi, "removableUnits '%i', queryID '%i'", removableUnits % queryID);
 	NET_EVENT_HANDLER;
@@ -2524,10 +2528,10 @@ void VCAI::lostHero(HeroPtr h)
 	erase_if_present(reservedHeroesMap, h);
 }
 
-void VCAI::answerQuery(int queryID, int selection)
+void VCAI::answerQuery(QueryID queryID, int selection)
 {
     logAi->debugStream() << boost::format("I'll answer the query %d giving the choice %d") % queryID % selection;
-	if(queryID != -1)
+	if(queryID != QueryID(-1))
 	{
 		cb->selectionMade(selection, queryID);
 	}
@@ -2597,24 +2601,24 @@ BattleState AIStatus::getBattle()
 	return battle;
 }
 
-void AIStatus::addQuery(int ID, std::string description)
+void AIStatus::addQuery(QueryID ID, std::string description)
 {
 	boost::unique_lock<boost::mutex> lock(mx);
-	if(ID == -1)
+	if(ID == QueryID(-1))
 	{
         logAi->debugStream() << boost::format("The \"query\" has an id %d, it'll be ignored as non-query. Description: %s") % ID % description;
 		return;
 	}
 
 	assert(!vstd::contains(remainingQueries, ID));
-	assert(ID >= 0);
+	assert(ID.getNum() >= 0);
 
 	remainingQueries[ID] = description;
 	cv.notify_all();
     logAi->debugStream() << boost::format("Adding query %d - %s. Total queries count: %d") % ID % description % remainingQueries.size();
 }
 
-void AIStatus::removeQuery(int ID)
+void AIStatus::removeQuery(QueryID ID)
 {
 	boost::unique_lock<boost::mutex> lock(mx);
 	assert(vstd::contains(remainingQueries, ID));
@@ -2658,7 +2662,7 @@ bool AIStatus::haveTurn()
 	return havingTurn;
 }
 
-void AIStatus::attemptedAnsweringQuery(int queryID, int answerRequestID)
+void AIStatus::attemptedAnsweringQuery(QueryID queryID, int answerRequestID)
 {
 	boost::unique_lock<boost::mutex> lock(mx);
 	assert(vstd::contains(remainingQueries, queryID));
@@ -2670,7 +2674,7 @@ void AIStatus::attemptedAnsweringQuery(int queryID, int answerRequestID)
 void AIStatus::receivedAnswerConfirmation(int answerRequestID, int result)
 {
 	assert(vstd::contains(requestToQueryID, answerRequestID));
-	int query = requestToQueryID[answerRequestID];
+	QueryID query = requestToQueryID[answerRequestID];
 	assert(vstd::contains(remainingQueries, query));
 	requestToQueryID.erase(answerRequestID);
 

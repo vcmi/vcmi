@@ -160,6 +160,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<SetCommanderProperty>();
 	s.template registerType<BlockingDialog>();
 	s.template registerType<GarrisonDialog>();
+	s.template registerType<ExchangeDialog>();
 	s.template registerType<BattleStart>();
 	s.template registerType<BattleNextRound>();
 	s.template registerType<BattleSetActiveStack>();

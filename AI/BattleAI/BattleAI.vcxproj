@@ -89,6 +89,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
+      <AdditionalOptions>/Zm159 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -100,6 +101,7 @@
       <Optimization>Disabled</Optimization>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
+      <AdditionalOptions>/Zm159 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -109,6 +111,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
+      <AdditionalOptions>/Zm159 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>
@@ -118,6 +121,7 @@
     <ClCompile>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
+      <AdditionalOptions>/Zm159 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>VCMI_lib.lib;%(AdditionalDependencies)</AdditionalDependencies>

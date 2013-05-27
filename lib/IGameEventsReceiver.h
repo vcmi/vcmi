@@ -124,11 +124,13 @@ public:
 	virtual void playerBonusChanged(const Bonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
 	virtual void requestSent(const CPackForServer *pack, int requestID){};
 	virtual void requestRealized(PackageApplied *pa){};
-	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2){};
 	virtual void objectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged
 	virtual void objectRemoved(const CGObjectInstance *obj){}; //eg. collected resource, picked artifact, beaten hero
 	virtual void playerBlocked(int reason){}; //reason: 0 - upcoming battle
 	virtual void gameOver(PlayerColor player, bool victory){}; //player lost or won the game
 	virtual void playerStartsTurn(PlayerColor player){};
 	virtual void showComp(const Component &comp, std::string message) {}; //display component in the advmapint infobox
+
+	//TODO shouldnt be moved down the tree?
+	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID){};
 };

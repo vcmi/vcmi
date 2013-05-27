@@ -653,7 +653,7 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 
 	type |= BLOCK_ADV_HOTKEYS;
-	ID = -1;
+	ID = QueryID(-1);
 	for(int i=0;i<Buttons.size();i++)
 	{
 		CAdventureMapButton *button = new CAdventureMapButton("","",boost::bind(&CInfoWindow::close,this),0,0,Buttons[i].first);
@@ -689,7 +689,7 @@ CInfoWindow::CInfoWindow(std::string Text, PlayerColor player, const TCompsInfo 
 
 CInfoWindow::CInfoWindow()
 {
-	ID = -1;
+	ID = QueryID(-1);
 	setDelComps(false);
 	text = NULL;
 }
@@ -1262,14 +1262,14 @@ void CSelWindow::selectionChange(unsigned to)
 	redraw();
 }
 
-CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperline, const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, int askID)
+CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperline, const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, QueryID askID)
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	ID = askID;
 	for(int i=0;i<Buttons.size();i++)
 	{
 		buttons.push_back(new CAdventureMapButton("","",Buttons[i].second,0,0,Buttons[i].first));
-		if(!i  &&  askID >= 0)
+		if(!i  &&  askID.getNum() >= 0)
 			buttons.back()->callback += boost::bind(&CSelWindow::madeChoice,this);
 		buttons[i]->callback += boost::bind(&CInfoWindow::close,this); //each button will close the window apart from call-defined actions
 	}
@@ -1279,7 +1279,7 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
 	buttons.back()->assignedKeys.insert(SDLK_ESCAPE); //last button - reacts on escape
 
-	if(buttons.size() > 1  &&  askID >= 0) //cancel button functionality
+	if(buttons.size() > 1  &&  askID.getNum() >= 0) //cancel button functionality
 		buttons.back()->callback += boost::bind(&CCallback::selectionMade,LOCPLINT->cb,0,askID);
 
 	for(int i=0;i<comps.size();i++)
@@ -1296,7 +1296,7 @@ CSelWindow::CSelWindow(const std::string &Text, PlayerColor player, int charperl
 
 void CSelWindow::madeChoice()
 {
-	if(ID < 0)
+	if(ID.getNum() < 0)
 		return;
 	int ret = -1;
 	for (int i=0;i<components.size();i++)
@@ -5078,7 +5078,7 @@ void CExchangeWindow::prepareBackground()
 	new CAnimImage("PortraitsLarge", heroInst[1]->portrait, 0, 485, 13);
 }
 
-CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2):
+CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID queryID):
     CWindowObject(PLAYER_COLORED | BORDERED, "TRADE2")
 {
 	OBJ_CONSTRUCTION_CAPTURING_ALL;
@@ -5165,6 +5165,9 @@ CExchangeWindow::CExchangeWindow(ObjectInstanceID hero1, ObjectInstanceID hero2)
 
 	//buttons
 	quit = new CAdventureMapButton(CGI->generaltexth->zelp[600], boost::bind(&CExchangeWindow::close, this), 732, 567, "IOKAY.DEF", SDLK_RETURN);
+	if(queryID.getNum() > 0)
+		quit->callback += [=]{ LOCPLINT->cb->selectionMade(0, queryID); };
+
 	questlogButton[0] = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], "", boost::bind(&CExchangeWindow::questlog,this, 0), 10,  44, "hsbtns4.def");
 	questlogButton[1] = new CAdventureMapButton(CGI->generaltexth->heroscrn[0], "", boost::bind(&CExchangeWindow::questlog,this, 1), 740, 44, "hsbtns4.def");
 

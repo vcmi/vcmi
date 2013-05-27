@@ -471,7 +471,7 @@ void CPlayerInterface::receivedResource(int type, int val)
 	GH.totalRedraw();
 }
 
-void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill>& skills, int queryID)
+void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill>& skills, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
@@ -481,7 +481,7 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, PrimarySkill::Pr
 										[=](ui32 selection){ cb->selectionMade(selection, queryID); });
 	GH.pushInt(lw);
 }
-void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID)
+void CPlayerInterface::commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
@@ -1016,7 +1016,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, CFunctionList<vo
 	CInfoWindow::showYesNoDialog(text, &components, onYes, onNo, DelComps, playerID);
 }
 
-void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel )
+void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, QueryID askID, int soundID, bool selection, bool cancel )
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	waitWhileDialog();
@@ -1324,7 +1324,7 @@ bool CPlayerInterface::altPressed() const
 	return SDL_GetKeyState(NULL)[SDLK_LALT]  ||  SDL_GetKeyState(NULL)[SDLK_RALT];
 }
 
-void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID)
+void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
 	auto onEnd = [=]{ cb->selectionMade(0, queryID); };
@@ -1384,10 +1384,10 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 		stillMoveHero.setn(CONTINUE_MOVE);
 }
 
-void CPlayerInterface::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2)
+void CPlayerInterface::heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query)
 {
 	EVENT_HANDLER_CALLED_BY_CLIENT;
-	GH.pushInt(new CExchangeWindow(hero1, hero2));
+	GH.pushInt(new CExchangeWindow(hero1, hero2, query));
 }
 
 void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)

@@ -81,11 +81,10 @@ struct CPackForServer : public CPack
 
 struct Query : public CPackForClient
 {
-	ui32 queryID; // equals to -1 if it is not an actual query (and should not be answered)
+	QueryID queryID; // equals to -1 if it is not an actual query (and should not be answered)
 
 	Query()
 	{
-		queryID = -1;
 	}
 };
 
@@ -1326,6 +1325,19 @@ struct GarrisonDialog : public Query//2004
 	}
 };
 
+struct ExchangeDialog : public Query//2005
+{
+	ExchangeDialog(){type = 2005;}
+	void applyCl(CClient *cl);
+
+	std::array<const CGHeroInstance*, 2> heroes;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & queryID & heroes;
+	}
+};
+
 struct BattleInfo;
 struct BattleStart : public CPackForClient//3000
 {
@@ -2053,8 +2065,9 @@ struct BuildBoat : public CPackForServer
 struct QueryReply : public CPackForServer
 {
 	QueryReply(){type = 6000;};
-	QueryReply(ui32 QID, ui32 Answer):qid(QID),answer(Answer){type = 6000;};
-	ui32 qid, answer; //hero and artifact id
+	QueryReply(QueryID QID, ui32 Answer):qid(QID),answer(Answer){type = 6000;};
+	QueryID qid;
+	ui32 answer; //hero and artifact id
 	PlayerColor player;
 
 	bool applyGh(CGameHandler *gh);

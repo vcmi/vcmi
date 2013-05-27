@@ -723,6 +723,12 @@ public:
 		for(ui32 i=0;i<length;i++)
 			*this << data[i];
 	}
+	template <typename T, size_t N>
+	void saveSerializable(const std::array<T, N> &data)
+	{
+		for(ui32 i=0; i < N; i++)
+			*this << data[i];
+	}
 	template <typename T>
 	void saveSerializable(const std::set<T> &data)
 	{
@@ -1075,6 +1081,12 @@ public:
 		READ_CHECK_U32(length);
 		data.resize(length);
 		for(ui32 i=0;i<length;i++)
+			*this >> data[i];
+	}
+	template <typename T, size_t N>
+	void loadSerializable(std::array<T, N> &data)
+	{
+		for(ui32 i = 0; i < N; i++)
 			*this >> data[i];
 	}
 	template <typename T>

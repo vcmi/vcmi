@@ -207,7 +207,7 @@ public:
 	void stackTurnTrigger(const CStack * stack);
 	void handleDamageFromObstacle(const CObstacleInstance &obstacle, const CStack * curStack); //checks if obstacle is land mine and handles possible consequences
 	void removeObstacle(const CObstacleInstance &obstacle);
-	bool queryReply( ui32 qid, ui32 answer, PlayerColor player );
+	bool queryReply( QueryID qid, ui32 answer, PlayerColor player );
 	bool hireHero( const CGObjectInstance *obj, ui8 hid, PlayerColor player );
 	bool buildBoat( ObjectInstanceID objid );
 	bool setFormation( ObjectInstanceID hid, ui8 formation );

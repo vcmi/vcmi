@@ -143,8 +143,8 @@ public:
 	void artifactDisassembled(const ArtifactLocation &al);
 
 	void heroCreated(const CGHeroInstance* hero) OVERRIDE;
-	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, int queryID) OVERRIDE;
-	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID) OVERRIDE;
+	void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID) OVERRIDE;
+	void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) OVERRIDE;
 	void heroInGarrisonChange(const CGTownInstance *town) OVERRIDE;
 	void heroMoved(const TryMoveHero & details) OVERRIDE;
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) OVERRIDE;
@@ -156,8 +156,8 @@ public:
 	void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID) OVERRIDE;
 	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) OVERRIDE;
 	void showShipyardDialog(const IShipyard *obj) OVERRIDE; //obj may be town or shipyard;
-	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel) OVERRIDE; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
-	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID) OVERRIDE;
+	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, int soundID, bool selection, bool cancel) OVERRIDE; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
+	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) OVERRIDE;
 	void showPuzzleMap() OVERRIDE;
 	void showMarketWindow(const IMarket *market, const CGHeroInstance *visitor) OVERRIDE;
 	void showUniversityWindow(const IMarket *market, const CGHeroInstance *visitor) OVERRIDE;
@@ -175,7 +175,7 @@ public:
 	void heroBonusChanged(const CGHeroInstance *hero, const Bonus &bonus, bool gain) OVERRIDE;//if gain hero received bonus, else he lost it
 	void playerBonusChanged(const Bonus &bonus, bool gain) OVERRIDE;
 	void requestRealized(PackageApplied *pa) OVERRIDE;
-	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2) OVERRIDE;
+	void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) OVERRIDE;
 	void centerView (int3 pos, int focusTime) OVERRIDE;
 	void objectPropertyChanged(const SetObjectProperty * sop) OVERRIDE;
 	void objectRemoved(const CGObjectInstance *obj) OVERRIDE;

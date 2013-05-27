@@ -183,6 +183,17 @@ class ArtifactInstanceID : public BaseForID<ArtifactInstanceID, si32>
 };
 
 
+class QueryID : public BaseForID<QueryID, si32>
+{
+	INSTID_LIKE_CLASS_COMMON(QueryID, si32)
+
+	QueryID & operator++()
+	{
+		++num;
+		return *this;
+	}
+};
+
 class ObjectInstanceID : public BaseForID<ObjectInstanceID, si32>
 {
 	INSTID_LIKE_CLASS_COMMON(ObjectInstanceID, si32)

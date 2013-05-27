@@ -73,8 +73,8 @@ class AIStatus
 	boost::condition_variable cv;
 
 	BattleState battle;
-	std::map<int, std::string> remainingQueries;
-	std::map<int, int> requestToQueryID; //IDs of answer-requests sent to server => query ids (so we can match answer confirmation from server to the query)
+	std::map<QueryID, std::string> remainingQueries;
+	std::map<int, QueryID> requestToQueryID; //IDs of answer-requests sent to server => query ids (so we can match answer confirmation from server to the query)
 
 	bool havingTurn;
 
@@ -83,14 +83,14 @@ public:
 	~AIStatus();
 	void setBattle(BattleState BS);
 	BattleState getBattle();
-	void addQuery(int ID, std::string description);
-	void removeQuery(int ID);
+	void addQuery(QueryID ID, std::string description);
+	void removeQuery(QueryID ID);
 	int getQueriesCount();
 	void startedTurn();
 	void madeTurn();
 	void waitTillFree();
 	bool haveTurn();
-	void attemptedAnsweringQuery(int queryID, int answerRequestID);
+	void attemptedAnsweringQuery(QueryID queryID, int answerRequestID);
 	void receivedAnswerConfirmation(int answerRequestID, int result);
 
 
@@ -309,10 +309,10 @@ public:
 	virtual void init(CCallback * CB) OVERRIDE;
 	virtual void yourTurn() OVERRIDE;
 
-	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, int queryID) OVERRIDE; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
-	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, int queryID) OVERRIDE; //TODO
-	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel) OVERRIDE; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
-	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, int queryID) OVERRIDE; //all stacks operations between these objects become allowed, interface has to call onEnd when done
+	virtual void heroGotLevel(const CGHeroInstance *hero, PrimarySkill::PrimarySkill pskill, std::vector<SecondarySkill> &skills, QueryID queryID) OVERRIDE; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
+	virtual void commanderGotLevel (const CCommanderInstance * commander, std::vector<ui32> skills, QueryID queryID) OVERRIDE; //TODO
+	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, QueryID askID, const int soundID, bool selection, bool cancel) OVERRIDE; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
+	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, QueryID queryID) OVERRIDE; //all stacks operations between these objects become allowed, interface has to call onEnd when done
 	virtual void saveGame(COSer<CSaveFile> &h, const int version) OVERRIDE; //saving
 	virtual void loadGame(CISer<CLoadFile> &h, const int version) OVERRIDE; //loading
 	virtual void finish() OVERRIDE;
@@ -339,7 +339,7 @@ public:
 	virtual void availableArtifactsChanged(const CGBlackMarket *bm = NULL) OVERRIDE;
 	virtual void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town) OVERRIDE;
 	virtual void tileRevealed(const boost::unordered_set<int3, ShashInt3> &pos) OVERRIDE;
-	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2) OVERRIDE;
+	virtual void heroExchangeStarted(ObjectInstanceID hero1, ObjectInstanceID hero2, QueryID query) OVERRIDE;
 	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) OVERRIDE;
 	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level) OVERRIDE;
 	virtual void heroMovePointsChanged(const CGHeroInstance * hero) OVERRIDE;
@@ -425,7 +425,7 @@ public:
 	void checkHeroArmy (HeroPtr h);
 
 	void requestSent(const CPackForServer *pack, int requestID) OVERRIDE;
-	void answerQuery(int queryID, int selection);
+	void answerQuery(QueryID queryID, int selection);
 	//special function that can be called ONLY from game events handling thread and will send request ASAP
 	void requestActionASAP(boost::function<void()> whatToDo); 
 

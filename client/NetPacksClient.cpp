@@ -588,6 +588,12 @@ void GarrisonDialog::applyCl(CClient *cl)
 	cl->playerint[h->getOwner()]->showGarrisonDialog(obj,h,removableUnits,queryID);
 }
 
+void ExchangeDialog::applyCl(CClient *cl)
+{
+	assert(heroes[0] && heroes[1]);
+	INTERFACE_CALL_IF_PRESENT(heroes[0]->tempOwner, heroExchangeStarted, heroes[0]->id, heroes[1]->id, queryID);
+}
+
 void BattleStart::applyCl( CClient *cl )
 {
 	cl->battleStarted(info);
@@ -829,14 +835,6 @@ void OpenWindow::applyCl(CClient *cl)
 {
 	switch(window)
 	{
-	case EXCHANGE_WINDOW:
-		{
-			const CGHeroInstance *h = cl->getHero(ObjectInstanceID(id1));
-			const CGObjectInstance *h2 = cl->getHero(ObjectInstanceID(id2));
-			assert(h && h2);
-			INTERFACE_CALL_IF_PRESENT(h->tempOwner,heroExchangeStarted, ObjectInstanceID(id1), ObjectInstanceID(id2));
-		}
-		break;
 	case RECRUITMENT_FIRST:
 	case RECRUITMENT_ALL:
 		{

@@ -12,7 +12,6 @@ class CObjectVisitQuery;
 struct TryMoveHero;
 class CQuery;
 
-typedef si32 TQueryID;
 typedef shared_ptr<CQuery> QueryPtr;
 
 // This class represents any kind of prolonged interaction that may need to do something special after it is over.
@@ -29,7 +28,7 @@ protected:
 	void addPlayer(PlayerColor color);
 public:
 	std::vector<PlayerColor> players; //players that are affected (often "blocked") by query
-	TQueryID queryID;
+	QueryID queryID;
 
 	CQuery(void);
 
@@ -109,7 +108,7 @@ public:
 	virtual bool blocksPack(const CPack *pack) const OVERRIDE;
 };
 
-class CGarrisonDialogQuery : public CDialogQuery
+class CGarrisonDialogQuery : public CDialogQuery //used also for hero exchange dialogs
 {
 public:
 	std::array<const CArmedInstance *,2> exchangingArmies;
