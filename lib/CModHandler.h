@@ -189,7 +189,7 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & data & CREEP_SIZE & WEEKLY_GROWTH & NEUTRAL_STACK_EXP;
+			h & data & CREEP_SIZE & WEEKLY_GROWTH & NEUTRAL_STACK_EXP & MAX_BUILDING_PER_TURN;
 			h & DWELLINGS_ACCUMULATE_CREATURES & ALL_CREATURES_GET_DOUBLE_MONTHS;
 		}
 	} settings;

@@ -37,9 +37,9 @@ CQuery::CQuery(void)
 {
 	boost::unique_lock<boost::mutex> l(Queries::mx);
 
-	static QueryID QID = QueryID(1);
+	static QueryID QID = QueryID(0);
 
-	queryID = QID++;
+	queryID = ++QID;
 	logGlobal->traceStream() << "Created a new query with id " << queryID;
 }
 
