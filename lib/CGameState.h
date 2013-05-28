@@ -385,6 +385,10 @@ public:
 
 	void init(StartInfo * si);
 
+	bool isUsedHero(HeroTypeID hid) const; //looks in heroes and prisons
+	void placeCampaignHeroes(const std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > &campHeroReplacements);
+	std::vector<std::pair<CGHeroInstance*, ObjectInstanceID> > campaignHeroesToReplace(); //returns heroes and placeholders in where heroes will be put; may remove some placeholders
+	std::set<HeroTypeID> getUnusedAllowedHeroes(bool alsoIncludeNotAllowed = false) const;
 	void initDuel();
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<Obj,int> pickObject(CGObjectInstance *obj); //chooses type of object to be randomized, returns <type, subtype>
