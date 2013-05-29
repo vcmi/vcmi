@@ -480,10 +480,11 @@ int CGameState::pickHero(PlayerColor owner)
 	}
 
 	// we need random order to select hero
-	boost::random_shuffle(factionHeroes, [](size_t range)
+	auto randGen = [](size_t range)
 	{
 		return ran() % range;
-	});
+	};
+	boost::random_shuffle(factionHeroes, randGen); // generator must be reference
 
 	if(factionHeroes.size())
 		return factionHeroes.front().getNum();
