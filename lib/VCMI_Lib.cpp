@@ -111,7 +111,7 @@ void LibClasses::init()
 
 	createHandler(spellh, "Spell", pomtime);
 
-	logGlobal->infoStream()<<"\tInitializing handers: "<< totalTime.getDiff();
+	logGlobal->infoStream()<<"\tInitializing handlers: "<< totalTime.getDiff();
 
 	modh->loadGameContent();
 	modh->reload();

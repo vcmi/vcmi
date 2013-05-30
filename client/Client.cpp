@@ -228,9 +228,15 @@ void CClient::loadGame( const std::string & fname )
 	sh.startServer();
 
 	CStopWatch tmh;
+	try
 	{
 		auto clientSaveName = CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME));
 		auto controlServerSaveName = CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME));
+
+		if(clientSaveName.empty())
+			throw std::runtime_error("Cannot open client part of " + fname);
+		if(controlServerSaveName.empty())
+			throw std::runtime_error("Cannot open server part of " + fname);
 
 		unique_ptr<CLoadFile> loader;
 		{
@@ -247,6 +253,11 @@ void CClient::loadGame( const std::string & fname )
 
 		*loader >> *this;
         logNetwork->infoStream() << "Loaded client part of save " << tmh.getDiff();
+	}
+	catch(std::exception &e)
+	{
+		logGlobal->errorStream() << "Cannot load game " << fname << ". Error: " << e.what();
+		throw; //obviously we cannot continue here
 	}
 
 	serv = sh.connectToServer();

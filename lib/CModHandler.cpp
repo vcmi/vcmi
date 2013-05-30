@@ -525,7 +525,7 @@ void CModHandler::loadGameContent()
 	CStopWatch timer, totalTime;
 
 	CContentHandler content;
-	logGlobal->infoStream() << "\tInitializing content hander: " << timer.getDiff() << " ms";
+	logGlobal->infoStream() << "\tInitializing content handler: " << timer.getDiff() << " ms";
 
 	// first - load virtual "core" mod that contains all data
 	// TODO? move all data into real mods? RoE, AB, SoD, WoG
