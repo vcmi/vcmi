@@ -853,6 +853,8 @@ public:
 	bool reverseEndianess; //if source has different endianess than us, we reverse bytes
 
 	std::map<ui32, void*> loadedPointers;
+	std::map<const void*, boost::any> loadedSharedPointers;
+
 	bool smartPointerSerialization;
 
 	CISer()
@@ -1066,7 +1068,35 @@ public:
 	{
 		T *internalPtr;
 		*this >> internalPtr;
-		data.reset(internalPtr);
+		
+		if(internalPtr)
+		{
+			auto itr = loadedSharedPointers.find(internalPtr);
+			if(itr != loadedSharedPointers.end())
+			{
+				// This pointers is already loaded. The "data" needs to be pointed to it, 
+				// so their shared state is actually shared.
+				try
+				{
+					data = boost::any_cast<std::shared_ptr<T>>(itr->second);
+				}
+				catch(std::exception &e)
+				{
+					logGlobal->errorStream() << e.what(); 
+					logGlobal->errorStream() << boost::format("Failed to cast stored shared ptr. Real type: %s. Needed type %s. FIXME FIXME FIXME") 
+						% itr->second.type().name() % typeid(std::shared_ptr<T>).name();
+					//TODO scenario with inheritance -> we can have stored ptr to base and load ptr to derived (or vice versa)
+					assert(0);
+				}
+			}
+			else
+			{
+				data = std::shared_ptr<T>(internalPtr);
+				loadedSharedPointers[internalPtr] = data;
+			}
+		}
+		else
+			data.reset();
 	}
 	template <typename T>
 	void loadSerializable(unique_ptr<T> &data)
