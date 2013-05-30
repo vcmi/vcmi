@@ -798,15 +798,15 @@ void CGameHandler::applyBattleEffects(BattleAttack &bat, const CStack *att, cons
 	//fire shield handling
 	if (!bat.shot() && def->hasBonusOfType(Bonus::FIRE_SHIELD) && !att->hasBonusOfType (Bonus::FIRE_IMMUNITY) && !bsa.killed() )
 	{
-		BattleStackAttacked bsa;
-		bsa.stackAttacked = att->ID; //invert
-		bsa.attackerID = def->ID;
-		bsa.flags |= BattleStackAttacked::EFFECT;
-		bsa.effect = 11;
+		BattleStackAttacked bsa2;
+		bsa2.stackAttacked = att->ID; //invert
+		bsa2.attackerID = def->ID;
+		bsa2.flags |= BattleStackAttacked::EFFECT; //FIXME: play anmation upon efreet and not attacker
+		bsa2.effect = 11;
 
-		bsa.damageAmount = (bsa.damageAmount * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100; //TODO: scale with attack/defense
-		att->prepareAttacked(bsa);
-		bat.bsa.push_back(bsa);
+		bsa2.damageAmount = (bsa.damageAmount * def->valOfBonuses(Bonus::FIRE_SHIELD)) / 100; //TODO: scale with attack/defense
+		att->prepareAttacked(bsa2);
+		bat.bsa.push_back(bsa2);
 	}
 }
 void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &c)
@@ -4503,12 +4503,12 @@ void CGameHandler::stackTurnTrigger(const CStack * st)
 				}
 			}
 		}
-		if (!st->hasBonusOfType(Bonus::FEARLESS))
+		if (st->isLiving() && !st->hasBonusOfType(Bonus::FEARLESS))
 		{
 			bool fearsomeCreature = false;
 			BOOST_FOREACH(CStack * stack, gs->curB->stacks)
 			{
-				if (stack->owner != st->owner && stack->hasBonusOfType(Bonus::FEAR))
+				if (stack->owner != st->owner && stack->alive() && stack->hasBonusOfType(Bonus::FEAR))
 				{
 					fearsomeCreature = true;
 					break;
