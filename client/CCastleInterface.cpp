@@ -37,6 +37,14 @@ using namespace boost::assign;
  *
  */
 
+const CBuilding * CBuildingRect::getBuilding()
+{
+	if (str->hiddenUpgrade) // hidden upgrades, e.g. hordes - return base (dwelling for hordes)
+		return town->town->buildings[str->building->getBase()];
+
+	return str->building;
+}
+
 CBuildingRect::CBuildingRect(CCastleBuildings * Par, const CGTownInstance *Town, const CStructure *Str)
 	:CShowableAnim(0, 0, Str->defName, CShowableAnim::BASE | CShowableAnim::USE_RLE),
 	parent(Par),
@@ -94,18 +102,18 @@ void CBuildingRect::hover(bool on)
 
 void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
-	if( previousState && !down && area && (parent->selectedBuilding==this) && str->building )
+	if( previousState && !down && area && (parent->selectedBuilding==this) && getBuilding() )
 		if (!CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
-			parent->buildingClicked(str->building->bid);
+			parent->buildingClicked(getBuilding()->bid);
 }
 
 void CBuildingRect::clickRight(tribool down, bool previousState)
 {
-	if((!area) || (!((bool)down)) || (this!=parent->selectedBuilding) || str->building == nullptr)
+	if((!area) || (!((bool)down)) || (this!=parent->selectedBuilding) || getBuilding() == nullptr)
 		return;
 	if( !CSDL_Ext::isTransparent(area, GH.current->motion.x-pos.x, GH.current->motion.y-pos.y) ) //inside building image
 	{
-		BuildingID bid = str->building->bid;
+		BuildingID bid = getBuilding()->bid;
 		const CBuilding *bld = town->town->buildings[bid];
 		if (bid < BuildingID::DWELL_FIRST)
 		{
@@ -193,19 +201,18 @@ void CBuildingRect::showAll(SDL_Surface * to)
 		blitAtLoc(border,0,0,to);
 }
 
-std::string getBuildingSubtitle(const CStructure * structure)//hover text for building
+std::string CBuildingRect::getSubtitle()//hover text for building
 {
-	const CGTownInstance * t = LOCPLINT->castleInt->town;
-	if (!structure->building)
+	if (!getBuilding())
 		return "";
 
-	int bid = structure->building->bid;
+	int bid = getBuilding()->bid;
 
 	if (bid<30)//non-dwellings - only buiding name
-		return t->town->buildings[structure->building->bid]->Name();
+		return town->town->buildings[getBuilding()->bid]->Name();
 	else//dwellings - recruit %creature%
 	{
-		auto & availableCreatures = t->creatures[(bid-30)%GameConstants::CREATURES_PER_TOWN].second;
+		auto & availableCreatures = town->creatures[(bid-30)%GameConstants::CREATURES_PER_TOWN].second;
 		if(availableCreatures.size())
 		{
 			int creaID = availableCreatures.back();//taking last of available creatures
@@ -237,7 +244,7 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 			  || (*parent->selectedBuilding)<(*this)) //or we are on top
 			{
 				parent->selectedBuilding = this;
-				GH.statusbar->print(getBuildingSubtitle(str));
+				GH.statusbar->print(getSubtitle());
 			}
 		}
 	}

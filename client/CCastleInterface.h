@@ -36,7 +36,11 @@ class CCreature;
 /// Building "button"
 class CBuildingRect : public CShowableAnim
 {
+	std::string getSubtitle();
 public:
+	/// returns building associated with this structure
+	const CBuilding * getBuilding();
+
 	CCastleBuildings * parent;
 	const CGTownInstance * town;
 	const CStructure* str;

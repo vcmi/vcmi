@@ -2482,9 +2482,6 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 		}
 	}
 
-	//We know what has been built, appluy changes
-	sendAndApply(&ns);
-	
 	//reveal ground for lookout tower
 	FoWChange fw;
 	fw.player = t->tempOwner;
@@ -2505,6 +2502,8 @@ bool CGameHandler::buildStructure( ObjectInstanceID tid, BuildingID requestedID,
 		sendAndApply(&sr);
 	}
 
+	//We know what has been built, appluy changes. Do this as final step to properly update town window
+	sendAndApply(&ns);
 
 	if(t->visitingHero)
 		vistiCastleObjects (t, t->visitingHero);

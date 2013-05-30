@@ -1570,12 +1570,12 @@ void JsonUtils::merge(JsonNode & dest, JsonNode & source)
 			for (size_t i=0; i< total; i++)
 				merge(dest.Vector()[i], source.Vector()[i]);
 
-			if (source.Vector().size() < dest.Vector().size())
+			if (dest.Vector().size() < source.Vector().size())
 			{
-				//reserve place and *move* data from source to dest
+				//reserve place and *move* remaining data from source to dest
 				source.Vector().reserve(source.Vector().size() + dest.Vector().size());
 
-				std::move(source.Vector().begin(), source.Vector().end(),
+				std::move(source.Vector().begin() + total, source.Vector().end(),
 				          std::back_inserter(dest.Vector()));
 			}
 			break;
