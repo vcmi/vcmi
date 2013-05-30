@@ -39,14 +39,15 @@ std::string CFilesystemLoader::getOrigin() const
 	return baseDirectory;
 }
 
-bool CFilesystemLoader::createEntry(std::string filename)
+bool CFilesystemLoader::createEntry(std::string filename, bool update)
 {
 	ResourceID res(filename);
 	if (fileList.find(res) != fileList.end())
 		return false;
 
 	fileList[res] = filename;
-	std::ofstream newfile (baseDirectory + "/" + filename);
+	if (!update)
+		std::ofstream newfile (baseDirectory + "/" + filename);
 	return true;
 }
 

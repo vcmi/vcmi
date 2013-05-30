@@ -230,8 +230,18 @@ void CClient::loadGame( const std::string & fname )
 	CStopWatch tmh;
 	try
 	{
-		auto clientSaveName = CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME));
-		auto controlServerSaveName = CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME));
+		std::string clientSaveName = CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::CLIENT_SAVEGAME));
+		std::string controlServerSaveName;
+
+		if (CResourceHandler::get()->existsResource(ResourceID(fname, EResType::SERVER_SAVEGAME)))
+		{
+			controlServerSaveName = CResourceHandler::get()->getResourceName(ResourceID(fname, EResType::SERVER_SAVEGAME));
+		}
+		else// create entry for server savegame. Triggered if save was made after launch and not yet present in res handler
+		{
+			controlServerSaveName = clientSaveName.substr(0, clientSaveName.find_last_of(".")) + ".vsgm1";
+			CResourceHandler::get()->createResource(controlServerSaveName, true);
+		}
 
 		if(clientSaveName.empty())
 			throw std::runtime_error("Cannot open client part of " + fname);

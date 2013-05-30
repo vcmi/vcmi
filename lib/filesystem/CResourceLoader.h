@@ -294,9 +294,10 @@ public:
 	 * File case will be same as in URI
 	 *
 	 * @param URI file to create
+	 * @param update if true - this file is already present but not yet known by res handler
 	 * @return true on success, false if resource exists or on error
 	 */
-	bool createResource(std::string URI);
+	bool createResource(std::string URI, bool update = false);
 
 	/**
 	 * Adds a simple resource loader to the loaders list and its entries to the resources list.

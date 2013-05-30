@@ -39,7 +39,7 @@ public:
 	bool existsEntry(const std::string & resourceName) const override;
 	boost::unordered_map<ResourceID, std::string> getEntries() const override;
 	std::string getOrigin() const override;
-	bool createEntry(std::string filename) override;
+	bool createEntry(std::string filename, bool update) override;
 
 private:
 	/** The base directory which is scanned and indexed. */

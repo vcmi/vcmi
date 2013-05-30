@@ -137,7 +137,7 @@ bool CResourceLoader::existsResource(const ResourceID & resourceIdent) const
 	return resources.find(resourceIdent) != resources.end();
 }
 
-bool CResourceLoader::createResource(std::string URI)
+bool CResourceLoader::createResource(std::string URI, bool update)
 {
 	std::string filename = URI;
 	boost::to_upper(URI);
@@ -148,9 +148,16 @@ bool CResourceLoader::createResource(std::string URI)
 			// remove loader prefix from filename
 			filename = filename.substr(entry.prefix.size());
 			if (!entry.loader->createEntry(filename))
-				return false; //or continue loop?
+				continue;
 
 			resources[ResourceID(URI)].push_back(ResourceLocator(entry.loader.get(), filename));
+
+			// Check if resource was created successfully. Possible reasons for this to fail
+			// a) loader failed to create resource (e.g. read-only FS)
+			// b) in update mode, call with filename that does not exists
+			assert(load(ResourceID(URI)));
+
+			return true;
 		}
 	}
 	return false;

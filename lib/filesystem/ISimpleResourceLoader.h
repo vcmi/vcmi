@@ -67,7 +67,7 @@ public:
 	 *
 	 * @returns true if new file was created, false on error or if file already exists
 	 */
-	virtual bool createEntry(std::string filename)
+	virtual bool createEntry(std::string filename, bool update = false)
 	{
 		return false;
 	}
