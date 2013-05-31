@@ -258,13 +258,26 @@ CGarrisonDialogQuery::CGarrisonDialogQuery(const CArmedInstance *up, const CArme
 
 bool CGarrisonDialogQuery::blocksPack(const CPack *pack) const 
 {
+	std::set<ObjectInstanceID> ourIds, idsAttempted;
+	ourIds.insert(this->exchangingArmies[0]->id);
+	ourIds.insert(this->exchangingArmies[1]->id);
+
+
 	if(auto stacks = dynamic_cast<const ArrangeStacks*>(pack))
 	{
-		std::set<ObjectInstanceID> ourIds;
-		ourIds.insert(this->exchangingArmies[0]->id);
-		ourIds.insert(this->exchangingArmies[1]->id);
-
 		return !vstd::contains(ourIds, stacks->id1) || !vstd::contains(ourIds, stacks->id2);
+	}
+	else if(auto arts = dynamic_cast<const ExchangeArtifacts*>(pack))
+	{
+		if(auto id1 = boost::apply_visitor(GetEngagedHeroIds(), arts->src.artHolder))
+			if(!vstd::contains(ourIds, *id1))
+				return true;
+
+		if(auto id2 = boost::apply_visitor(GetEngagedHeroIds(), arts->dst.artHolder))
+			if(!vstd::contains(ourIds, *id2))
+				return true;
+
+		return false;
 	}
 
 	return CDialogQuery::blocksPack(pack);

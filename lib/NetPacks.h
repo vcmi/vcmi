@@ -942,6 +942,21 @@ struct RebalanceStacks : CGarrisonOperationPack  //526
 
 typedef boost::variant<ConstTransitivePtr<CGHeroInstance>, ConstTransitivePtr<CStackInstance> > TArtHolder;
 
+
+struct GetEngagedHeroIds : boost::static_visitor<boost::optional<ObjectInstanceID>>
+{
+	boost::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CGHeroInstance> &h) const
+	{
+		return h->id;
+	}
+	boost::optional<ObjectInstanceID> operator()(const ConstTransitivePtr<CStackInstance> &s) const
+	{
+		if(s->armyObj && s->armyObj->ID == Obj::HERO)
+			return s->armyObj->id;
+		return boost::optional<ObjectInstanceID>();
+	}
+};
+
 //struct GetArtifactSet : boost::static_visitor<>
 //{
 //  void operator()(const ConstTransitivePtr<CGHeroInstance> &h) const {}
