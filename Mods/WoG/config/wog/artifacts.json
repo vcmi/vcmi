@@ -1,10 +1,10 @@
 {
-	"art144":
+	"art144": // placeholder for selection image
 	{
 		"index" : 144,
 		"type" : ["HERO"]
 	},
-	"art145":
+	"art145": // placeholder for lock image
 	{
 		"index" : 145,
 		"type" : ["HERO"]

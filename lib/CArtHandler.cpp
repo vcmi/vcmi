@@ -199,10 +199,10 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 {
 	auto object = loadFromJson(data);
 	object->id = ArtifactID(artifacts.size());
-	if (object->id < ArtifactID::ART_SELECTION)
+	//if (object->id < ArtifactID::ART_SELECTION)
 		object->iconIndex = object->id;
-	else
-		object->iconIndex = object->id + 2;
+	//else
+	//	object->iconIndex = object->id + 2;
 
 	artifacts.push_back(object);
 
@@ -213,10 +213,10 @@ void CArtHandler::loadObject(std::string scope, std::string name, const JsonNode
 {
 	auto object = loadFromJson(data);
 	object->id = ArtifactID(index);
-	if (object->id < ArtifactID::ART_SELECTION)
+	//if (object->id < ArtifactID::ART_SELECTION)
 		object->iconIndex = object->id;
-	else
-		object->iconIndex = object->id + 2;
+	//else
+	//	object->iconIndex = object->id + 2;
 
 	assert(artifacts[index] == nullptr); // ensure that this id was not loaded before
 	artifacts[index] = object;
