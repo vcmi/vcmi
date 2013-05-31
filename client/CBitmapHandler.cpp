@@ -153,7 +153,19 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
             logGlobal->errorStream()<<"Failed to open "<<fname<<" via SDL_Image";
 		}
 	}
-	SDL_SetColorKey(ret, SDL_SRCCOLORKEY, SDL_MapRGB(ret->format, 0, 255, 255));
+
+	// When modifyin anything here please check two use cases:
+	// 1) Vampire mansion in Necropolis (not 1st color is transparent)
+	// 2) Battle background when fighting on grass/dirt, topmost sky part (NO transparent color)
+	if (ret->format->palette)
+	{
+		auto colorID = SDL_MapRGB(ret->format, 0, 255, 255);
+		auto & color = ret->format->palette->colors[colorID];
+
+		// set color key only if exactly such color was found
+		if (color.r == 0 && color.g == 255 && color.b == 255)
+			SDL_SetColorKey(ret, SDL_SRCCOLORKEY, colorID);
+	}
 	return ret;
 }
 
