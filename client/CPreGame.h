@@ -359,7 +359,7 @@ public:
 	bool ongoingClosing;
 	ui8 myNameID; //used when networking - otherwise all player are "mine"
 
-	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER, const std::map<ui8, std::string> *Names = NULL);
+	CSelectionScreen(CMenuScreen::EState Type, CMenuScreen::EMultiMode MultiPlayer = CMenuScreen::SINGLE_PLAYER, const std::map<ui8, std::string> * Names = NULL, const std::string & Address = "", const std::string & Port = "");
 	~CSelectionScreen();
 	void toggleTab(CIntObject *tab);
 	void changeSelection(const CMapInfo *to);
@@ -604,6 +604,22 @@ public:
 	~CLoadingScreen();
 
 	void showAll(SDL_Surface *to);
+};
+
+/// Simple window to enter the server's address.
+class CSimpleJoinScreen : public CIntObject
+{
+	CPicture * bg;
+	CTextBox * title;
+	CAdventureMapButton * ok, * cancel;
+	CGStatusBar * bar;
+	CTextInput * address;
+	CTextInput * port;
+
+	void enterSelectionScreen();
+	void onChange(const std::string & newText);
+public:
+	CSimpleJoinScreen();
 };
 
 extern ISelectionScreenInfo *SEL;
