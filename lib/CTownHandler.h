@@ -78,7 +78,7 @@ struct DLL_LINKAGE CStructure
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & pos & defName & borderName & areaName & building & buildable;
+		h & pos & defName & borderName & areaName & building & buildable & hiddenUpgrade;
 	}
 };
 

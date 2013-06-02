@@ -39,6 +39,9 @@ using namespace boost::assign;
 
 const CBuilding * CBuildingRect::getBuilding()
 {
+	if (!str->building)
+		return nullptr;
+
 	if (str->hiddenUpgrade) // hidden upgrades, e.g. hordes - return base (dwelling for hordes)
 		return town->town->buildings[str->building->getBase()];
 
