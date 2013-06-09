@@ -20,7 +20,7 @@ To compile, at least the following packages (and their development counterparts)
 	* SDL_ttf and SDL_ttf-devel
 	* zlib and zlib-devel
 	* the ffmpeg libraries (libavformat and libswscale). Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names.
-	* boost c++ libraries v1.44+ (www.boost.org):
+	* boost c++ libraries v1.46+ (www.boost.org):
 		- program-options
 		- filesystem
 		- system
@@ -41,7 +41,7 @@ trunk/build -> contains build output, makefiles, object files,...
 
 You can get latest sources with subversion:
   cd trunk
-  svn co https://vcmi.svn.sourceforge.net/svnroot/vcmi/trunk src
+  svn co http://svn.code.sf.net/p/vcmi/code/trunk/
 
 III. Compilation
 

@@ -151,6 +151,7 @@ SDL_Surface * BitmapHandler::loadBitmapFromDir(std::string path, std::string fna
 		else
 		{
             logGlobal->errorStream()<<"Failed to open "<<fname<<" via SDL_Image";
+			logGlobal->errorStream()<<"Reason: " << IMG_GetError();
 		}
 	}
 

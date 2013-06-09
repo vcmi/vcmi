@@ -116,7 +116,7 @@ float CLegacyConfigParser::readNumber()
 	if (input.find(',') != std::string::npos) // code to handle conversion with comma as decimal separator
 		stream.imbue(std::locale(std::locale(), new LocaleWithComma));
 
-	int result;
+	float result;
 	if ( !(stream >> result) )
 		return 0;
 	return result;
