@@ -507,16 +507,21 @@ void processCommand(const std::string &message)
 	else if(message=="get txt")
 	{
         std::cout<<"Command accepted.\t";
-		boost::filesystem::create_directory("Extracted_txts");
+
+		std::string outPath = VCMIDirs::get().localPath() + "/extracted/";
+
 		auto iterator = CResourceHandler::get()->getIterator([](const ResourceID & ident)
 		{
 			return ident.getType() == EResType::TEXT && boost::algorithm::starts_with(ident.getName(), "DATA/");
 		});
 
-		std::string basePath = CResourceHandler::get()->getResourceName(ResourceID("DATA")) + "/Extracted_txts/";
 		while (iterator.hasNext())
 		{
-			std::ofstream file(basePath + iterator->getName() + ".TXT");
+			std::string outName = outPath + iterator->getName();
+
+			boost::filesystem::create_directories(outName.substr(0, outName.find_last_of("/")));
+
+			std::ofstream file(outName + ".TXT");
 			auto text = CResourceHandler::get()->loadData(*iterator);
 
 			file.write((char*)text.first.get(), text.second);
@@ -524,7 +529,7 @@ void processCommand(const std::string &message)
 		}
 
         std::cout << "\rExtracting done :)\n";
-        std::cout << " Extracted files can be found in " << basePath << " directory\n";
+        std::cout << " Extracted files can be found in " << outPath << " directory\n";
 	}
 	else if(cn=="crash")
 	{
@@ -621,6 +626,49 @@ void processCommand(const std::string &message)
 		readed >> mxname;
 		if(mxname == "pim" && LOCPLINT)
 			LOCPLINT->pim->unlock();
+	}
+	else if(cn == "def2bmp")
+	{
+		std::string URI;
+		readed >> URI;
+		if (CResourceHandler::get()->existsResource(ResourceID("SPRITES/" + URI)))
+		{
+			CDefEssential * cde = CDefHandler::giveDefEss(URI);
+
+			std::string outName = CResourceHandler::get()->getResource(ResourceID("SPRITES/" + URI)).getResourceName();
+			std::string outPath = VCMIDirs::get().localPath() + "/extracted/";
+
+
+			boost::filesystem::create_directories(outPath + outName);
+
+			for (size_t i=0; i<cde->ourImages.size(); i++)
+			{
+				std::string filename = outPath + outName + '/' + boost::lexical_cast<std::string>(i);
+				SDL_SaveBMP(cde->ourImages[i].bitmap, filename.c_str());
+			}
+		}
+		else
+			logGlobal->errorStream() << "File not found!";
+	}
+	else if(cn == "extract")
+	{
+		std::string URI;
+		readed >> URI;
+
+		if (CResourceHandler::get()->existsResource(ResourceID(URI)))
+		{
+			std::string outName = CResourceHandler::get()->getResource(ResourceID(URI)).getResourceName();
+			std::string outPath = VCMIDirs::get().localPath() + "/extracted/";
+			std::string fullPath = outPath + outName;
+
+			auto data = CResourceHandler::get()->loadData(ResourceID(URI));
+
+			boost::filesystem::create_directories(fullPath.substr(0, fullPath.find_last_of("/")));
+			std::ofstream outFile(outPath + outName);
+			outFile.write((char*)data.first.get(), data.second);
+		}
+		else
+			logGlobal->errorStream() << "File not found!";
 	}
 	else if(cn == "setBattleAI")
 	{
