@@ -2019,7 +2019,7 @@ void CBattleInterface::activateStack()
 
 	queue->update();
 	redrawBackgroundWithHexes(activeStack);
-	bWait->block(s->waited()); //block waiting button if stack has been already waiting
+	bWait->block(s->waited() || tacticsMode); //block waiting button if stack has been already waiting
 
 	//block cast spell button if hero doesn't have a spellbook
 	ESpellCastProblem::ESpellCastProblem spellcastingProblem;
