@@ -565,7 +565,7 @@ void CStackInstance::setType(const CCreature *c)
 	if(type)
 		attachTo(const_cast<CCreature*>(type));
 }
-std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
+std::string CStackInstance::bonusToString(const Bonus *bonus, bool description) const
 {
 	if(Bonus::MAGIC_RESISTANCE == bonus->type)
 	{
@@ -578,7 +578,7 @@ std::string CStackInstance::bonusToString(Bonus *bonus, bool description) const
 	
 }
 
-std::string CStackInstance::bonusToGraphics(Bonus *bonus) const
+std::string CStackInstance::bonusToGraphics(const Bonus *bonus) const
 {
 	return VLC->getBth()->bonusToGraphics(bonus);
 }

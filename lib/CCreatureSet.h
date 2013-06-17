@@ -56,8 +56,8 @@ public:
 	}
 
 	//overrides CBonusSystemNode
-	std::string bonusToString(Bonus *bonus, bool description) const override; // how would bonus description look for this particular type of node
-	std::string bonusToGraphics(Bonus *bonus) const; //file name of graphics from StackSkills , in future possibly others
+	std::string bonusToString(const Bonus *bonus, bool description) const override; // how would bonus description look for this particular type of node
+	std::string bonusToGraphics(const Bonus *bonus) const; //file name of graphics from StackSkills , in future possibly others
 
 	virtual ui64 getPower() const;
 	int getQuantityID() const;

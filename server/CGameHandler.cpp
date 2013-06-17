@@ -293,7 +293,7 @@ void CGameHandler::levelUpCommander (const CCommanderInstance * c, int skill)
 	else if (skill >= 100)
 	{
 		scp.which = SetCommanderProperty::SPECIAL_SKILL;
-		scp.accumulatedBonus = VLC->creh->skillRequirements[skill-100].first;
+		scp.accumulatedBonus = *VLC->creh->skillRequirements[skill-100].first;
 		scp.additionalInfo = skill; //unnormalized
 		sendAndApply (&scp);
 	}
@@ -435,17 +435,22 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 		return nullptr;
 	};
 
-	const auto battleQuery = findBattleQuery();
+	auto battleQuery = findBattleQuery();
 	if(!battleQuery)
+	{
 		logGlobal->errorStream() << "Cannot find battle query!";
+		if(gs->initialOpts->mode == StartInfo::DUEL)
+		{
+			battleQuery = make_shared<CBattleQuery>(gs->curB);
+		}
+	}
 	if(battleQuery != queries.topQuery(gs->curB->sides[0]))
 		complain("Player " + boost::lexical_cast<std::string>(gs->curB->sides[0]) + " although in battle has no battle query at the top!");
-
+		
 	battleQuery->result = *battleResult.data;
 
 	//Check how many battle queries were created (number of players blocked by battle)
-	const int queriedPlayers = boost::count(queries.allQueries(), battleQuery); 
-
+	const int queriedPlayers = battleQuery ? boost::count(queries.allQueries(), battleQuery) : 0; 
 	finishingBattle = make_unique<FinishingBattleHelper>(battleQuery, gs->initialOpts->mode == StartInfo::DUEL, queriedPlayers);
 
 
@@ -592,7 +597,13 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 	}
 
 	if(finishingBattle->duel)
+	{
+		BattleResultsApplied resultsApplied;
+		resultsApplied.player1 = finishingBattle->victor;
+		resultsApplied.player2 = finishingBattle->loser;
+		sendAndApply(&resultsApplied);
 		return;
+	}
 	
 	cab1.takeFromArmy(this); cab2.takeFromArmy(this); //take casualties after battle is deleted
 
@@ -826,6 +837,12 @@ void CGameHandler::handleConnection(std::set<PlayerColor> players, CConnection &
 			{
 				boost::unique_lock<boost::mutex> lock(*c.rmx);
 				c >> player >> requestID >> pack; //get the package
+
+				if(!pack)
+				{
+					logGlobal ->errorStream() << boost::format("Received a null package marked as request %d from player %d") % requestID % player;
+				}
+
 				packType = typeList.getTypeID(pack); //get the id of type
 
                 logGlobal->traceStream() << boost::format("Received client message (request %d by player %d) of type with ID=%d (%s).\n")
@@ -1427,6 +1444,8 @@ void CGameHandler::newTurn()
 }
 void CGameHandler::run(bool resume)
 {
+	LOG_TRACE_PARAMS(logGlobal, "resume=%d", resume);
+
 	using namespace boost::posix_time;
 	BOOST_FOREACH(CConnection *cc, conns)
 	{
@@ -1468,6 +1487,12 @@ void CGameHandler::run(bool resume)
 	if(gs->scenarioOps->mode == StartInfo::DUEL)
 	{
 		runBattle();
+		end2 = true;
+
+
+		while(conns.size() && (*conns.begin())->isOpen())
+			boost::this_thread::sleep(boost::posix_time::milliseconds(5)); //give time client to close socket
+
 		return;
 	}
 

@@ -34,6 +34,7 @@
 #include "../lib/CScriptingModule.h"
 #include "../lib/RegisterTypes.h"
 #include "gui/CGuiHandler.h"
+#include "CMT.h"
 
 extern std::string NAME;
 namespace intpr = boost::interprocess;
@@ -419,15 +420,18 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 
 	if(si->mode == StartInfo::DUEL)
 	{
-		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
-		CPlayerInterface *p = new CPlayerInterface(PlayerColor::NEUTRAL); //TODO: check if neutral really works -- was -1, but CPlayerInterface seems to cooperate with this value not too well
-		p->observerInDuelMode = true;
-		battleints[PlayerColor::UNFLAGGABLE] = playerint[PlayerColor::UNFLAGGABLE] = p;
-		privilagedBattleEventReceivers.push_back(p);
-		GH.curInt = p;
-		auto cb = make_shared<CCallback>(gs, boost::optional<PlayerColor>(), this);
-		battleCallbacks[PlayerColor::NEUTRAL] = callbacks[PlayerColor::NEUTRAL] = cb;
-		p->init(cb.get());
+		if(!gNoGUI)
+		{
+			boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
+			CPlayerInterface *p = new CPlayerInterface(PlayerColor::NEUTRAL);
+			p->observerInDuelMode = true;
+			battleints[PlayerColor::UNFLAGGABLE] = playerint[PlayerColor::UNFLAGGABLE] = p;
+			privilagedBattleEventReceivers.push_back(p);
+			GH.curInt = p;
+			auto cb = make_shared<CCallback>(gs, boost::optional<PlayerColor>(), this);
+			battleCallbacks[PlayerColor::NEUTRAL] = callbacks[PlayerColor::NEUTRAL] = cb;
+			p->init(cb.get());
+		}
 		battleStarted(gs->curB);
 	}
 	else
@@ -616,7 +620,7 @@ void CClient::battleStarted(const BattleInfo * info)
 	else
 		def = NULL;
 
-	if(att || def || gs->scenarioOps->mode == StartInfo::DUEL)
+	if(!gNoGUI && (att || def || gs->scenarioOps->mode == StartInfo::DUEL))
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*LOCPLINT->pim);
 		new CBattleInterface(info->belligerents[0], info->belligerents[1], info->heroes[0], info->heroes[1],

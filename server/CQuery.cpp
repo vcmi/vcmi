@@ -179,6 +179,10 @@ QueryPtr Queries::topQuery(PlayerColor player)
 
 void Queries::popIfTop(QueryPtr query)
 {
+	LOG_TRACE_PARAMS(logGlobal, "query='%d'", query);
+	if(!query)
+		logGlobal->errorStream() << "The query is nullptr! Ignoring.";
+
 	popIfTop(*query);
 }
 

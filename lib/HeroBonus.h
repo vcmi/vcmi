@@ -619,7 +619,7 @@ public:
 	//bool isLimitedOnUs(Bonus *b) const; //if bonus should be removed from list acquired from this node
 
 	void popBonuses(const CSelector &s);
-	virtual std::string bonusToString(Bonus *bonus, bool description) const {return "";}; //description or bonus name
+	virtual std::string bonusToString(const Bonus *bonus, bool description) const {return "";}; //description or bonus name
 	virtual std::string nodeName() const;
 
 	void deserializationFix();

@@ -42,6 +42,8 @@ public:
 	BattleAction goTowards(const CStack * stack, BattleHex hex );
 	BattleAction useCatapult(const CStack * stack);
 
+	boost::optional<BattleAction> considerFleeingOrSurrendering();
+
 	void attemptCastingSpell();
 	std::vector<BattleHex> getTargetsToConsider(const CSpell *spell) const;
 };

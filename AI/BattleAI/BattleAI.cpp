@@ -354,15 +354,16 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		if(cb->battleCanCastSpell())
 			attemptCastingSpell();
 
+		if(auto action = considerFleeingOrSurrendering())
+			return *action;
+
 		if(cb->battleGetStacks(CBattleInfoEssentials::ONLY_ENEMY).empty())
 		{
 			//We apparently won battle by casting spell, return defend... (accessing cb may cause trouble)
 			return BattleAction::makeDefend(stack);
 		}
 
-		ThreatMap threatsToUs(stack);
 		PotentialTargets targets(stack);
-
 		if(targets.possibleAttacks.size())
 		{
 			auto hlp = targets.bestAction();
@@ -375,6 +376,7 @@ BattleAction CBattleAI::activeStack( const CStack * stack )
 		{
 			if(stack->waited())
 			{
+				ThreatMap threatsToUs(stack);
 				auto dists = cbc->battleGetDistances(stack);
 				const EnemyInfo &ei= *range::min_element(targets.unreachableEnemies, boost::bind(isCloser, _1, _2, boost::ref(dists)));
 				if(distToNearestNeighbour(ei.s->position, dists) < GameConstants::BFIELD_SIZE)
@@ -748,4 +750,17 @@ std::vector<BattleHex> CBattleAI::getTargetsToConsider( const CSpell *spell ) co
 		//TODO when massive effect -> doesnt matter where cast
 		return cbc->battleGetPossibleTargets(playerID, spell);
 	}
+}
+
+boost::optional<BattleAction> CBattleAI::considerFleeingOrSurrendering()
+{
+	if(cb->battleCanSurrender(playerID))
+	{
+
+	}
+	if(cb->battleCanFlee())
+	{
+
+	}
+	return boost::none;
 }

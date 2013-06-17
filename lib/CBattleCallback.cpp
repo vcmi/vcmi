@@ -942,6 +942,11 @@ TDmgRange CBattleInfoCallback::calculateDmgRange(const BattleAttackInfo &info) c
 		multBonus *= 0.5;
 	}
 
+
+	// TODO attack on petrified unit 50%
+	// psychic elementals versus mind immune units 50%
+	// blinded unit retaliates
+
 	minDmg *= additiveBonus * multBonus;
 	maxDmg *= additiveBonus * multBonus;
 
@@ -2268,7 +2273,10 @@ TStacks CPlayerBattleCallback::battleGetStacks(EStackOwnership whose /*= MINE_AN
 {
 	TStacks ret;
 	RETURN_IF_NOT_BATTLE(ret);
-	ASSERT_IF_CALLED_WITH_PLAYER
+	if(whose != MINE_AND_ENEMY)
+	{
+		ASSERT_IF_CALLED_WITH_PLAYER
+	}
 	vstd::copy_if(battleGetAllStacks(), std::back_inserter(ret), [=](const CStack *s) -> bool
 	{
 		const bool ownerMatches = (whose == MINE_AND_ENEMY)

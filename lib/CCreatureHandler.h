@@ -181,7 +181,7 @@ public:
 	//Commanders
 	BonusList commanderLevelPremy; //bonus values added with each level-up
 	std::vector< std::vector <ui8> > skillLevels; //how much of a bonus will be given to commander with every level. SPELL_POWER also gives CASTS and RESISTANCE
-	std::vector <std::pair <Bonus, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
+	std::vector <std::pair <Bonus*, std::pair <ui8, ui8> > > skillRequirements; // first - Bonus, second - which two skills are needed to use it
 
 	void deserializationFix();
 	CreatureID pickRandomMonster(const boost::function<int()> &randGen = 0, int tier = -1) const; //tier <1 - CREATURES_PER_TOWN> or -1 for any

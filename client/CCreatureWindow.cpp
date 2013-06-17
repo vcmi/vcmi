@@ -239,8 +239,8 @@ void CCreatureWindow::init(const CStackInstance *Stack, const CBonusSystemNode *
 				else
 				{
 					selectableSkill->pos = Rect (95, 256, 55, 55); //TODO: scroll
-					Bonus b = CGI->creh->skillRequirements[option-100].first; 
-					bonusItems.push_back (new CBonusItem (genRect(0, 0, 251, 57), stack->bonusToString(&b, false), stack->bonusToString(&b, true), stack->bonusToGraphics(&b)));
+					const Bonus *b = CGI->creh->skillRequirements[option-100].first; 
+					bonusItems.push_back (new CBonusItem (genRect(0, 0, 251, 57), stack->bonusToString(b, false), stack->bonusToString(b, true), stack->bonusToGraphics(b)));
 					selectableBonuses.push_back (selectableSkill); //insert these before other bonuses
 				}
 			}

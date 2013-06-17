@@ -265,7 +265,7 @@ public:
 		FinishingBattleHelper();
 		FinishingBattleHelper(shared_ptr<const CBattleQuery> Query, bool Duel, int RemainingBattleQueriesCount);
 
-		shared_ptr<const CBattleQuery> query;
+		//shared_ptr<const CBattleQuery> query;
 		const CGHeroInstance *winnerHero, *loserHero;
 		PlayerColor victor, loser;
 		bool duel;
@@ -274,7 +274,7 @@ public:
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & query & winnerHero & loserHero & victor & loser & duel & remainingBattleQueriesCount;
+			h & /*query & */winnerHero & loserHero & victor & loser & duel & remainingBattleQueriesCount;
 		}
 	};
 

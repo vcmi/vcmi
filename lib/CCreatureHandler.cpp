@@ -212,8 +212,8 @@ void CCreatureHandler::loadCommanders()
 
 	BOOST_FOREACH (auto ability, config["abilityRequirements"].Vector())
 	{
-		std::pair <Bonus, std::pair <ui8, ui8> > a;
-		a.first = *JsonUtils::parseBonus (ability["ability"].Vector());
+		std::pair <Bonus*, std::pair <ui8, ui8> > a;
+		a.first = JsonUtils::parseBonus (ability["ability"].Vector());
 		a.second.first = ability["skills"].Vector()[0].Float();
 		a.second.second = ability["skills"].Vector()[1].Float();
 		skillRequirements.push_back (a);

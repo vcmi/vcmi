@@ -27,6 +27,7 @@
 #include "../lib/BattleState.h"
 #include "../lib/GameConstants.h"
 #include "gui/CGuiHandler.h"
+#include "CMT.h"
 
 //macros to avoid code duplication - calls given method with given arguments if interface for specific player is present
 //awaiting variadic templates...
@@ -705,9 +706,7 @@ void BattleResultsApplied::applyCl( CClient *cl )
 	INTERFACE_CALL_IF_PRESENT(PlayerColor::UNFLAGGABLE, battleResultsApplied);
 	if(GS(cl)->initialOpts->mode == StartInfo::DUEL)
 	{
-		cl->terminate = true;
-		CloseServer cs;
-		*cl->serv << &cs;
+		handleQuit();
 	}
 }
 

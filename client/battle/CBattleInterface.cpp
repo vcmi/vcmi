@@ -204,8 +204,8 @@ CBattleInterface::CBattleInterface(const CCreatureSet * army1, const CCreatureSe
 	bOptions = new CAdventureMapButton (CGI->generaltexth->zelp[381].first, CGI->generaltexth->zelp[381].second, boost::bind(&CBattleInterface::bOptionsf,this), 3, 561, "icm003.def", SDLK_o);
 	bSurrender = new CAdventureMapButton (CGI->generaltexth->zelp[379].first, CGI->generaltexth->zelp[379].second, boost::bind(&CBattleInterface::bSurrenderf,this), 54, 561, "icm001.def", SDLK_s);
 	bFlee = new CAdventureMapButton (CGI->generaltexth->zelp[380].first, CGI->generaltexth->zelp[380].second, boost::bind(&CBattleInterface::bFleef,this), 105, 561, "icm002.def", SDLK_r);
-	bFlee->block(!curInt->cb->battleCanFlee());
-	bSurrender->block(curInt->cb->battleGetSurrenderCost() < 0);
+	bFlee->block(!curInt->cb->getMyColor() || !curInt->cb->battleCanFlee());
+	bSurrender->block(!curInt->cb->getMyColor() || curInt->cb->battleGetSurrenderCost() < 0);
 	bAutofight  = new CAdventureMapButton (CGI->generaltexth->zelp[382].first, CGI->generaltexth->zelp[382].second, boost::bind(&CBattleInterface::bAutofightf,this), 157, 561, "icm004.def", SDLK_a);
 	bSpell = new CAdventureMapButton (CGI->generaltexth->zelp[385].first, CGI->generaltexth->zelp[385].second, boost::bind(&CBattleInterface::bSpellf,this), 645, 561, "icm005.def", SDLK_c);
 	bSpell->block(true);

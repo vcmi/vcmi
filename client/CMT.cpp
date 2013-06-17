@@ -47,6 +47,7 @@
 #endif
 #include "../lib/CDefObjInfoHandler.h"
 #include "../lib/UnlockGuard.h"
+#include "CMT.h"
 
 #if __MINGW32__
 #undef main
@@ -76,6 +77,7 @@ static boost::thread *mainGUIThread;
 std::queue<SDL_Event> events;
 boost::mutex eventsM;
 
+bool gNoGUI = false;
 static bool gOnlyAI = false;
 //static bool setResolution = false; //set by event handling thread after resolution is adjusted
 
@@ -146,20 +148,23 @@ void init()
     logGlobal->infoStream()<<"Initializing VCMI_Lib: "<<tmh.getDiff();
 
 	pomtime.getDiff();
-	CCS->curh = new CCursorHandler;
-	graphics = new Graphics(); // should be before curh->init()
+	if(!gNoGUI)
+	{
+		CCS->curh = new CCursorHandler;
+		graphics = new Graphics(); // should be before curh->init()
 
-	CCS->curh->initCursor();
-	CCS->curh->show();
-    logGlobal->infoStream()<<"Screen handler: "<<pomtime.getDiff();
-	pomtime.getDiff();
+		CCS->curh->initCursor();
+		CCS->curh->show();
+		logGlobal->infoStream()<<"Screen handler: "<<pomtime.getDiff();
+		pomtime.getDiff();
 
-	graphics->loadHeroAnims();
-    logGlobal->infoStream()<<"\tMain graphics: "<<tmh.getDiff();
-    logGlobal->infoStream()<<"Initializing game graphics: "<<tmh.getDiff();
+		graphics->loadHeroAnims();
+		logGlobal->infoStream()<<"\tMain graphics: "<<tmh.getDiff();
+		logGlobal->infoStream()<<"Initializing game graphics: "<<tmh.getDiff();
 
-	CMessage::init();
-    logGlobal->infoStream()<<"Message handler: "<<tmh.getDiff();
+		CMessage::init();
+		logGlobal->infoStream()<<"Message handler: "<<tmh.getDiff();
+	}
 }
 
 static void prog_version(void)
@@ -219,7 +224,8 @@ int main(int argc, char** argv)
 		("version,v", "display version information and exit")
 		("battle,b", po::value<std::string>(), "runs game in duel mode (battle-only")
 		("start", po::value<std::string>(), "starts game from saved StartInfo file")
-		("onlyAI", "runs without GUI, all players will be default AI")
+		("onlyAI", "runs without human player, all players will be default AI")
+		("noGUI", "runs without GUI, implies --onlyAI")
 		("oneGoodAI", "puts one default AI and the rest will be EmptyAI")
 		("autoSkip", "automatically skip turns in GUI")
 		("disable-video", "disable video player")
@@ -248,6 +254,11 @@ int main(int argc, char** argv)
 	{
 		prog_version();
 		return 0;
+	}
+	if(vm.count("noGUI"))
+	{
+		gNoGUI = true;
+		vm["onlyAI"];
 	}
 
 	//Set environment vars to make window centered. Sometimes work, sometimes not. :/
@@ -303,16 +314,7 @@ int main(int argc, char** argv)
     logGlobal->infoStream() << NAME;
 
 	srand ( time(NULL) );
-
-	CCS = new CClientState;
-	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler etc.)
-
-	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO))
-	{
-        logGlobal->errorStream()<<"Something was wrong: "<< SDL_GetError();
-		exit(-1);
-	}
-	atexit(SDL_Quit);
+	
 
 	const JsonNode& video = settings["video"];
 	const JsonNode& res = video["screenRes"];
@@ -328,15 +330,26 @@ int main(int argc, char** argv)
 		exit(EXIT_FAILURE);
 	}
 
-	setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
+	if(!gNoGUI)
+	{
+		if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO))
+		{
+			logGlobal->errorStream()<<"Something was wrong: "<< SDL_GetError();
+			exit(-1);
+		}
+		atexit(SDL_Quit);
+		setScreenRes(res["width"].Float(), res["height"].Float(), video["bitsPerPixel"].Float(), video["fullscreen"].Bool());
+		logGlobal->infoStream() <<"\tInitializing screen: "<<pomtime.getDiff();
+	}
 
-    logGlobal->infoStream() <<"\tInitializing screen: "<<pomtime.getDiff();
 
+	CCS = new CClientState;
+	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler etc.)
 	// Initialize video
 #if DISABLE_VIDEO
 	CCS->videoh = new CEmptyVideoPlayer;
 #else
-	if (!vm.count("disable-video"))
+	if (!gNoGUI && !vm.count("disable-video"))
 		CCS->videoh = new CVideoPlayer;
 	else
 		CCS->videoh = new CEmptyVideoPlayer;
@@ -344,13 +357,18 @@ int main(int argc, char** argv)
 
     logGlobal->infoStream()<<"\tInitializing video: "<<pomtime.getDiff();
 
+
+
 	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
 	boost::thread loading(init);
 
-	if(!vm.count("battle") && !vm.count("nointro"))
-		playIntro();
+	if(!gNoGUI )
+	{
+		if(!vm.count("battle") && !vm.count("nointro"))
+			playIntro();
+		SDL_FillRect(screen,NULL,0);
+	}
 
-	SDL_FillRect(screen,NULL,0);
 	CSDL_Ext::update(screen);
 	loading.join();
     logGlobal->infoStream()<<"Initialization of VCMI (together): "<<total.getDiff();
@@ -387,8 +405,17 @@ int main(int argc, char** argv)
 		si->playerInfos[PlayerColor(1)].color = PlayerColor(1);
 		startGame(si);
 	}
-	mainGUIThread = new boost::thread(&CGuiHandler::run, boost::ref(GH));
-	listenForEvents();
+
+	if(!gNoGUI)
+	{
+		mainGUIThread = new boost::thread(&CGuiHandler::run, boost::ref(GH));
+		listenForEvents();
+	}
+	else
+	{
+		while(true)
+			boost::this_thread::sleep(boost::posix_time::milliseconds(1000));
+	}
 
 	return 0;
 }
@@ -822,20 +849,7 @@ static void listenForEvents()
 		if (ret == 0 || (ev.type==SDL_QUIT) ||
 			(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
 		{
-			if (client)
-				client->endGame();
-			if (mainGUIThread) 
-			{
-				GH.terminate = true;
-				mainGUIThread->join();
-				delete mainGUIThread;
-				mainGUIThread = NULL;
-			}
-			delete console;
-			console = NULL;
-			SDL_Delay(750);
-			SDL_Quit();
-            std::cout << "Ending...";
+			handleQuit();
 			break;
 		}
 		else if(LOCPLINT && ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
@@ -928,4 +942,25 @@ void startGame(StartInfo * options, CConnection *serv/* = NULL*/)
 	}
 
 		client->connectionHandler = new boost::thread(&CClient::run, client);
+}
+
+void handleQuit()
+{
+	if (client)
+		client->endGame();
+	if (mainGUIThread) 
+	{
+		GH.terminate = true;
+		mainGUIThread->join();
+		delete mainGUIThread;
+		mainGUIThread = NULL;
+	}
+	delete console;
+	console = NULL;
+	boost::this_thread::sleep(boost::posix_time::milliseconds(750));
+	if(!gNoGUI)
+		SDL_Quit();
+
+	std::cout << "Ending...";
+	exit(0);
 }

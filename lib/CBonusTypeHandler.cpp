@@ -128,7 +128,7 @@ CBonusTypeHandler::~CBonusTypeHandler()
 	//dtor
 }
 
-std::string CBonusTypeHandler::bonusToString(Bonus *bonus, const IBonusBearer *bearer, bool description) const
+std::string CBonusTypeHandler::bonusToString(const Bonus *bonus, const IBonusBearer *bearer, bool description) const
 {
 	auto getValue = [=](const std::string &name) -> std::string
 	{
@@ -171,7 +171,7 @@ std::string CBonusTypeHandler::bonusToString(Bonus *bonus, const IBonusBearer *b
 	return text;	
 }
 
-std::string CBonusTypeHandler::bonusToGraphics(Bonus* bonus) const
+std::string CBonusTypeHandler::bonusToGraphics(const Bonus* bonus) const
 {
 	std::string fileName;
 	bool fullPath = false;
