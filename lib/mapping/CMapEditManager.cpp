@@ -327,9 +327,9 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 			// Read pattern data
 			const JsonVector & data = ptrnNode["data"].Vector();
 			assert(data.size() == 9);
-			for(int i = 0; i < data.size(); ++i)
+			for(int j = 0; j < data.size(); ++j)
 			{
-				std::string cell = data[i].String();
+				std::string cell = data[j].String();
 				boost::algorithm::erase_all(cell, " ");
 				std::vector<std::string> rules;
 				boost::split(rules, cell, boost::is_any_of(","));
@@ -344,7 +344,7 @@ CTerrainViewPatternConfig::CTerrainViewPatternConfig()
 					{
 						rule.points = boost::lexical_cast<int>(ruleParts[1]);
 					}
-					pattern.data[i].push_back(rule);
+					pattern.data[j].push_back(rule);
 				}
 			}
 

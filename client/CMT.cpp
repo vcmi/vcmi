@@ -670,7 +670,7 @@ void processCommand(const std::string &message)
 
 			for (size_t i=0; i<cde->ourImages.size(); i++)
 			{
-				std::string filename = outPath + outName + '/' + boost::lexical_cast<std::string>(i);
+				std::string filename = outPath + outName + '/' + boost::lexical_cast<std::string>(i) + ".bmp";
 				SDL_SaveBMP(cde->ourImages[i].bitmap, filename.c_str());
 			}
 		}

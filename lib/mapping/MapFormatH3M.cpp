@@ -685,7 +685,7 @@ CArtifactInstance * CMapLoaderH3M::createArtifact(int aid, int spellID /*= -1*/)
 	map->addNewArtifactInstance(a);
 
 	//TODO make it nicer
-	if(a->artType && a->artType->constituents != nullptr)
+	if(a->artType && (!!a->artType->constituents))
 	{
 		CCombinedArtifactInstance * comb = dynamic_cast<CCombinedArtifactInstance *>(a);
 		BOOST_FOREACH(CCombinedArtifactInstance::ConstituentInfo & ci, comb->constituentsInfo)

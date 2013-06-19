@@ -432,7 +432,7 @@ void CGameHandler::endBattle(int3 tile, const CGHeroInstance *hero1, const CGHer
 				if(bq->bi == gs->curB)
 					return bq;
 		}
-		return nullptr;
+		return shared_ptr<CBattleQuery>();
 	};
 
 	auto battleQuery = findBattleQuery();
@@ -1710,7 +1710,7 @@ bool CGameHandler::moveHero( ObjectInstanceID hid, int3 dst, ui8 teleporting, Pl
 		tmh.result = result;
 		sendAndApply(&tmh);
 
-		if(lookForGuards == CHECK_FOR_GUARDS && isInTheMap(guardPos))
+		if(lookForGuards == CHECK_FOR_GUARDS && this->isInTheMap(guardPos))
 		{
 			tmh.attackedFrom = guardPos;
 

@@ -575,7 +575,7 @@ namespace vstd
 		if(c.size())
 			return c.back();
 		else
-			return nullptr;
+			return typename Container::value_type();
 	}
 
 	template <typename Container>

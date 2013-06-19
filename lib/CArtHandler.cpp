@@ -750,7 +750,7 @@ void CArtifactInstance::removeFrom(ArtifactLocation al)
 
 bool CArtifactInstance::canBeDisassembled() const
 {
-	return artType->constituents != nullptr;
+	return bool(artType->constituents);
 }
 
 std::vector<const CArtifact *> CArtifactInstance::assemblyPossibilities(const CArtifactSet *h) const
